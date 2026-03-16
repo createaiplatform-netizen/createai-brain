@@ -1,0 +1,11 @@
+packages:
+  "framer-motion": "For smooth message entrance animations and typing indicator"
+  "lucide-react": "For UI icons like Send, Chevron, etc."
+  "clsx": "For conditional class names"
+  "tailwind-merge": "For conditional class names merging"
+
+images: []
+
+notes:
+  - "Using /api/openai/conversations endpoints for chat history and SSE streaming"
+  - "Theme configured to a clean, light iOS-inspired aesthetic with a vibrant blue primary color"
