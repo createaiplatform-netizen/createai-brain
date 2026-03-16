@@ -1,0 +1,88 @@
+You are the Replit AI Agent for this project. Keep everything SAFE, LEGAL, FAMILY-FRIENDLY, and PROFESSIONAL. Do not delete working code unless corrupted. Analyze, repair, unify, complete, and future‑proof the entire system. Choose what is best without asking unless absolutely required.
+
+1. ROUTING
+- "/" → OS (Desktop)
+- "/project/:id" → standalone ProjectPage
+- "/standalone/:id" → standalone page
+- "/standalone/creation/:id" → standalone creation page
+Standalone pages must NOT render inside OS. OS must NOT wrap standalone pages. Fix all routing, imports, and layout connections.
+
+2. OS CORE
+Create/repair:
+OSContext, Desktop, Sidebar, AppWindow, Dashboard, osLayout.
+Modern, stable, clean UI. No double scrollbars or layout glitches.
+
+3. APPS
+Rebuild/repair:
+ChatApp, ProjectsApp, ToolsApp, CreatorApp, PeopleApp, DocumentsApp, MarketingApp, AdminApp, FamilyApp, IntegrationApp, MonetizationApp.
+Each exports a simple working component.
+
+4. STANDALONE PAGES
+Create/repair:
+ProjectPage, StandalonePage, CreationPage.
+Full‑screen, independent, polished, presentation‑ready.
+
+5. PRESENTATION LAYER
+Create shared PresentationLayout:
+- Hero
+- Overview
+- Features
+- Interactive/demo area
+- Optional guided tour button
+- Responsive, clean, smooth transitions
+No OS chrome or nested windows.
+
+6. AI TOUR MODE
+Optional floating assistant panel with step‑by‑step highlights and minimal UI.
+
+7. SMART PROJECT INTELLIGENCE ENGINE
+Detect project type and load ONLY what is needed:
+- Brochure → brochure layout + templates
+- Website → website layout + hero/features/CTA
+- Landing page → focused hero + CTA + benefits
+- Training → modules + lessons + progress
+- Marketing → campaign brief + messaging + assets
+- Product launch → roadmap + features + FAQ
+- Game concept (SAFE) → design doc templates (story, mechanics, levels, characters)
+- Comic (SAFE) → outline, panels, characters, dialogue placeholders
+- Movie plan (SAFE) → logline, synopsis, acts, scenes, characters, storyboard frames, script outline
+- App/SaaS → product spec templates
+- Custom → adapt based on keywords
+No unsafe, harmful, or expert‑replacing content.
+
+8. INTERNAL PROJECT AI HELPER
+Each project gets its own helper that:
+- Knows project type + metadata
+- Selects correct templates/tools
+- Suggests safe, structured content blocks
+- Generates outlines, sections, storyboards, flows, etc.
+- Stays modular and extendable
+
+9. CREATION ENGINE
+Universal creator that:
+- Creates new projects of any supported type
+- Uses project intelligence to choose structure
+- Seeds content using templates
+- Produces safe, professional defaults
+
+10. UNIVERSAL CONTENT ENGINE
+Create SAFE template library for:
+Brochures, websites, landing pages, product demos, training modules, marketing copy, campaign briefs, product specs, scripts, storyboards, presentations, workflows, user journeys, feature lists, FAQs, testimonials, roadmaps, game design docs, comic outlines, movie planning templates.
+Store as structured data for reuse.
+
+11. WIDGET LIBRARY
+Create reusable SAFE UI components:
+Section containers, hero blocks, feature grids, timelines, cards, steppers, tabs, placeholders for images/video thumbnails, storyboard/comic panels.
+
+12. IMPORTS & CLEANUP
+Fix imports/exports, alias paths, corrupted fragments, naming inconsistencies. Ensure everything builds cleanly.
+
+13. SAFETY
+All sensitive domains (healthcare/legal/financial/etc.) must be DEMO/MOCK ONLY. No real diagnoses, prescriptions, legal decisions, or unsafe instructions. Everything must remain family‑friendly and appropriate.
+
+14. FINAL POLISH
+Zero build errors, zero runtime errors, minimal warnings, no broken links, no layout issues. Everything must feel premium, intentional, and presentation‑ready.
+
+OUTPUT
+Show updated:
+App.tsx, ProjectPage, StandalonePage, CreationPage, OS files, App components, Presentation components, Project Intelligence Engine, Creation Engine, Project AI Helper, Template library, Summary of changes.

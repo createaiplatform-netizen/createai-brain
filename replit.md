@@ -138,6 +138,29 @@ Full-stack AI OS platform — "CreateAI Brain" by Sara Stadler. React + Vite + W
 - `DesignSection`: `DESIGN_THEMES` (4 themes per type), `FONT_PAIRS` (3 options), `LAYOUT_OPTIONS` (Minimal/Rich/Focused); clicking a theme calls `onThemeChange`
 - Section editing flow: user selects section → types instruction → clicks "Update This Section" → SSE generates new content → `handleSectionUpdate()` replaces section in `editedSections` → all renderers immediately see updated content
 
+**Project Intelligence Layer (new):**
+- `src/engine/TemplateLibrary.ts` — Universal content template library. 11 `ProjectType` values: `brochure | website | landing-page | training | marketing | product-launch | game | comic | movie | app-saas | custom`. Each type exports a `ProjectTemplate` with: `navItems[]`, `sections[]` (with `TemplateSectionBlock[]`), `tourSteps[]`, `suggestedModules[]`, `layoutMode`, `color`, `gradient`, `safetyNote?`.
+- `src/engine/ProjectIntelligence.ts` — Smart type detector (`detectProjectType(desc)`), domain safety map (Healthcare/Legal/Finance get `demoOnly+warningNote+requiresExpertReview`), `mapCreationTypeToProjectType()` bridges CreationStore ↔ TemplateLibrary, `createProjectHelper(type, domain)` returns per-project `ProjectAIHelper` with `suggest(sectionId)`, `generateOutline()`, `safetyReminder()`.
+
+**Presentation Layer (new):**
+- `src/components/presentation/PresentationLayout.tsx` — Shared full-page layout (NO OS chrome). Props: title, icon, gradient, sections[], activeSection, stats[], tourSteps[], onBack, topAction. Contains sticky nav bar, HeroBlock, StatsBar, section nav tabs, main content area, footer. Auto-includes AITourMode.
+- `src/components/presentation/AITourMode.tsx` — Floating 🧭 Guided Tour button (bottom-right). Opens a step-through panel with progress bar, dots, prev/next navigation, dismissible. Props: `steps[]`, `productName`, `accentColor`.
+- `src/components/widgets/WidgetLibrary.tsx` — Reusable safe UI building blocks: `HeroBlock`, `StatsBar`, `FeatureGrid`, `SectionContainer`, `Timeline`, `Stepper` (interactive step-through), `TabPanel`, `CardWidget`, `TestimonialBlock`, `RoadmapWidget`, `FAQWidget` (accordion), `StoryboardPanel` (comic/movie panels), `ImagePlaceholder`, `SafetyNotice`.
+
+**Routing:**
+- `/` → `OSLayout` (OS with sidebar, Dashboard, AppWindow)
+- `/project/:projectId` → `ProjectPage` (standalone, uses PresentationLayout — NO OS chrome)
+- `/standalone/:projectId` → `StandalonePage` → `HealthcareProduct` or `GenericProduct` (uses StandaloneLayout — opens in new tab from OS)
+- `/standalone/creation/:creationId` → `CreationPage` → `CreationViewer` (uses StandaloneLayout)
+
+**ProjectPage projects (6):**
+- `healthcare-legal-safe` — green gradient, 5 tour steps, safety note, roadmap, FAQ, testimonials
+- `healthcare-mach1` — purple gradient, FUTURE mode, vision platform
+- `monetary-legal-safe` — blue gradient, finance demo, safety note
+- `monetary-mach1` — orange gradient, FUTURE financial architecture
+- `marketing-hub` — red/pink gradient, campaigns+email+ads+social
+- `operations-builder` — indigo gradient, TEST mode, 34 mock workflows
+
 **SSE streaming:** `fetch` + `ReadableStream` only. Model: `gpt-5.2`, max_completion_tokens: 8192. API key via `AI_INTEGRATIONS_OPENAI_BASE_URL` + `AI_INTEGRATIONS_OPENAI_API_KEY`.
 
 **Colors:** Primary `#007AFF`, never change. All content is mock/simulation only.

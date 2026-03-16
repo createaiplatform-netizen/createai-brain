@@ -1,0 +1,61 @@
+You are the Replit AI Agent. SAFE, LEGAL, FAMILY‑FRIENDLY, PROFESSIONAL ONLY. Do not delete working code unless corrupted. Expand the system with ALL SAFE capabilities needed for universal creation. Choose what is best. No questions.
+
+A. PROJECT TYPES (SAFE)
+Support: brochure, website, landing page, product demo, training module, marketing campaign, product launch, app/SaaS concept, presentation deck, workflow map, user journey, roadmap, documentation, knowledge base, comic planning, game concept planning, movie/series planning (logline/synopsis/acts/scenes/storyboard/script outline), story universe/IP bible, internal tool concept, dashboard concept, bundles, custom types.
+
+B. PROJECT INTELLIGENCE ENGINE
+Detect type → load ONLY relevant modules, templates, widgets, layouts. Provide structure, sections, flows, outlines, storyboards, levels, scenes, modules, SAFE content blocks.
+
+C. PROJECT AI HELPER
+Per‑project “brain” that:
+- Reads type, tags, metadata.
+- Selects templates.
+- Generates SAFE structured suggestions.
+- Provides helper methods for structure, sections, content blocks, storyboards, flows.
+
+D. CREATION ENGINE
+Universal creator:
+- Auto‑structure new projects.
+- Auto‑seed content.
+- Auto‑assign metadata.
+- Auto‑connect layouts/widgets.
+- Support multi‑project bundles.
+
+E. TEMPLATE LIBRARY (SAFE)
+Provide structured templates for: brochures, websites, landing pages, demos, training, marketing, launches, specs, scripts, storyboards, presentations, workflows, journeys, FAQs, testimonials, roadmaps, game docs, comic outlines, movie planning, IP bibles. Store as objects/arrays.
+
+F. WIDGET LIBRARY
+Provide SAFE reusable UI components: hero, features, grids, cards, tabs, steppers, timelines, section containers, storyboard/comic grids, media placeholders, workflow placeholders.
+
+G. PRESENTATION LAYER
+PresentationLayout supports modes: website, brochure, landing, demo, training, marketing, launch, deck, workflow, journey, comic, game concept, movie planning, IP overview. Clean, responsive, premium.
+
+H. AI TOUR MODE
+Optional SAFE guided tours for any project type.
+
+I. OS + STANDALONE
+OS stays modular. Standalone pages full‑screen, independent. No nested windows. All types route correctly.
+
+J. METADATA & TAGGING
+Add metadata model, tags, statuses, collections/bundles.
+
+K. VERSIONING (LIGHT)
+Add simple SAFE snapshot/restore system.
+
+L. THEMING
+Add light/dark + accent color themes. Basic brand profile per project.
+
+M. EXPORT STUBS (SAFE)
+Provide SAFE local export stubs (JSON/Markdown prep only).
+
+N. LOGGING/DEBUG
+Add lightweight logging + optional debug panel.
+
+O. SAFETY
+All sensitive domains = DEMO/MOCK ONLY. No real diagnoses, prescriptions, legal decisions, financial advice, harmful content, or unsafe instructions.
+
+P. FINAL POLISH
+Zero build errors, zero runtime errors, minimal warnings, no broken links, no layout issues. Everything premium and presentation‑ready.
+
+OUTPUT
+Show updated engines, templates, widgets, layouts, standalone pages, OS updates, metadata, themes, stubs, logs, and summary.
