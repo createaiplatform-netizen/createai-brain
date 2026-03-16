@@ -1,0 +1,43 @@
+Add the UNIVERSAL EVERYTHING ENGINE. This engine applies to ALL industries, ALL roles, ALL domains, ALL workflows, ALL screens, ALL scenarios, ALL creative formats, ALL projects, ALWAYS.
+
+1) UNIVERSAL INTERACTION ENGINE  
+All UI elements MUST have defined internal actions, update state, logs, dashboards, and load correct screens. No dead buttons.
+
+2) UNIVERSAL STATE ENGINE  
+Maintain global state: currentIndustry, currentRole, currentDepartment, currentAgency, currentState, currentCountry, currentVendor, currentDomain, currentMode, currentView, currentScenario, currentPacket, currentDemoStatus, currentUserType. All screens update dynamically.
+
+3) UNIVERSAL MOCK DATA ENGINE  
+Provide full mock lists for ANY industry: industries, roles, departments, agencies, states, countries, vendors, workflows, programs, services, scenarios, templates, packets, dashboards. All selectors populate from these lists.
+
+4) UNIVERSAL WORKFLOW ENGINE  
+Every project MUST include workflows, steps, screens, packets, dashboards, logs, mock outcomes, mock errors, mock success states. All workflows fully simulated.
+
+5) UNIVERSAL DEMO ENGINE  
+All actions INTERNAL ONLY: no real data, APIs, or submissions. Submit/Send/Next/Back/View MUST update state, dashboards, logs, simulate success/failure, and load correct next screen.
+
+6) UNIVERSAL CONVERSATION ENGINE  
+Users may click/type/speak. System MUST interpret natural language, update state, load mock screens/data, simulate workflows, respond conversationally, provide safe fictional guidance, optionally test users. Supports ANY safe, fictional, demo-only scenario: “Show me the [state/role/industry/version] of this,” “Switch to [role/department/agency/state/country/vendor],” “Pretend X happened,” “Test me,” “Walk me through this.”
+
+7) UNIVERSAL BLUEPRINT ENGINE  
+Generate mock API shapes, mock data models, mock roles/scopes, mock logging patterns, mock error patterns, mock backend outlines. All fictional, internal, demo-only.
+
+8) UNIVERSAL REGULATORY READINESS BLUEPRINT  
+For ANY industry: generate regulatory flow structures, compliance outlines, data governance patterns, security diagrams, audit-trail structures, consent flows (mock), jurisdiction variations (mock). Label: “Regulatory Readiness Blueprint – Internal, Non-Operational, Not Legally Binding.”
+
+9) UNIVERSAL TEMPLATE ENGINE  
+Auto-generate templates, widgets, layouts, packets, dashboards, screens for ANY project type. Auto-expand library. Reuse patterns across all projects.
+
+10) UNIVERSAL TEST MODE  
+Simulate scenarios, quiz users, provide hints, show missed steps, walk through workflows, generate fictional outcomes, allow free exploration.
+
+11) UNIVERSAL INDUSTRY LIBRARY  
+Include mock/demo-only lists for ALL industries (healthcare, human services, government, public sector, business, corporate, finance, education, retail, hospitality, manufacturing, logistics, transportation, construction, real estate, technology, energy, agriculture, entertainment, media, nonprofit, emergency services, insurance, legal (mock), compliance (mock), research, science, customer service, operations, HR, marketing, sales, product, engineering, creative, training, security (mock), aviation, maritime, automotive, food service, supply chain, utilities, telecommunications, environmental services, workforce development, housing, public safety, and ANY industry referenced). Include ALL roles, departments, agencies, states, countries, workflows, scenarios, packets, modes.
+
+12) UNIVERSAL CREATIVE PRODUCTION ENGINE  
+For ANY creative request (video, documentary, training, simulation, storyboard, script, explainer, etc.), auto-generate a complete fictional/demo-only production package: title, purpose, audience, tone, structure, chapters/scenes, narration, visuals, transitions, pacing, emotional arc, mock actors, style guides, story logic. Highest-quality structure ALWAYS.
+
+13) UNIVERSAL SAFETY CORE  
+All outputs MUST be internal, mock, fictional, demo-only, non-clinical, non-legal, non-financial, non-operational, non-political, non-factual.
+
+14) UNIVERSAL GUARANTEE  
+This engine MUST run for ALL industries, ALL roles, ALL domains, ALL projects, ALWAYS. No missing pieces. No undefined actions. No dead buttons. No unconnected flows. No gaps. Universal. Automatic. Always on.

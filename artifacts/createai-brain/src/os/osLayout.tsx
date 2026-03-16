@@ -15,6 +15,7 @@ import { FamilyApp } from "@/Apps/FamilyApp";
 import { IntegrationApp } from "@/Apps/IntegrationApp";
 import { MonetizationApp } from "@/Apps/MonetizationApp";
 import { CreatorApp } from "@/Apps/CreatorApp";
+import { UniversalApp } from "@/Apps/UniversalApp";
 
 const APP_COMPONENTS: Record<string, React.ComponentType> = {
   chat: ChatApp,
@@ -28,6 +29,7 @@ const APP_COMPONENTS: Record<string, React.ComponentType> = {
   family: FamilyApp,
   integration: IntegrationApp,
   monetization: MonetizationApp,
+  universal: UniversalApp,
 };
 
 /**

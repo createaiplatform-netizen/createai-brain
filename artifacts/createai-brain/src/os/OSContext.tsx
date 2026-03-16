@@ -4,7 +4,7 @@ import React, { createContext, useContext, useState, useCallback } from "react";
 export type AppId =
   | "chat" | "projects" | "tools" | "creator" | "people"
   | "documents" | "marketing" | "admin" | "family"
-  | "integration" | "monetization";
+  | "integration" | "monetization" | "universal";
 
 export interface AppDef {
   id: AppId;
@@ -28,6 +28,7 @@ export const DEFAULT_APPS: AppDef[] = [
   { id: "family",       label: "Family",      icon: "🏡", color: "#30B0C7", description: "Family-friendly simplified view",         category: "system" },
   { id: "integration",  label: "Integration", icon: "🔌", color: "#BF5AF2", description: "Connect & map existing tools",            category: "system" },
   { id: "monetization", label: "Monetize",    icon: "💰", color: "#FFD60A", description: "Storefront, plans & earnings",            category: "business" },
+  { id: "universal",    label: "Universal",   icon: "🌐", color: "#007AFF", description: "Universal interaction hub — all flows wired", category: "system" },
 ];
 
 export const ALL_APPS = DEFAULT_APPS;
