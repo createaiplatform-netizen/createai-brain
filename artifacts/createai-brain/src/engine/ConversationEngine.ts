@@ -20,7 +20,7 @@ export type IntentType =
   | "switch-industry" | "switch-country" | "switch-domain" | "switch-mode"
   | "start-workflow" | "generate-creative"
   | "generate-game" | "generate-story" | "generate-character" | "generate-world"
-  | "create-project" | "generate-strategy"
+  | "create-project" | "generate-strategy" | "generate-invite"
   | "navigate" | "open-packet" | "walk-through" | "simulate"
   | "show-form" | "show-data" | "test-me" | "status-check"
   | "explain" | "help" | "test-answer" | "next-step" | "back-step"
@@ -195,6 +195,15 @@ const PATTERNS: { intent: IntentType; patterns: RegExp[] }[] = [
       /\b(connection layer|completeness pass|link my|connect my|project builder)\b/i,
       /\b(link).*(story|character|world|mechanic|workflow)\b/i,
       /\b(assemble|combine|unify).*(element|asset|module|engine)\b/i,
+    ],
+  },
+  {
+    intent: "generate-invite",
+    patterns: [
+      /\b(create|generate|send|draft|write|make|compose|build).*(invite|invitation|invites|invitations)\b/i,
+      /\b(invite|invitations?)\b.*(send|create|generate|draft|compose|write|make)\b/i,
+      /\b(send.*to|notify|message).*(contacts?|team|recipients?|everyone|all)\b.*\b(invite|invitation|message)\b/i,
+      /\b(instant invite|invite generator|bulk invite)\b/i,
     ],
   },
   {
@@ -873,6 +882,10 @@ const RESPONSES: Record<IntentType, (entity: string | null, entityLabel: string 
   ] : [
     "What type of world? Options: Fantasy, Sci-Fi, Contemporary, Historical, Post-Apocalyptic, Alternate History, Mythological, Horror, Utopia, Dystopia. Navigate to the Story / World screen, World tab, to generate a complete fictional world.",
     "Try 'create a dystopian world' or 'build a fantasy realm.' The World Engine generates regions, factions, culture, technology, ecology, and history — all entirely fictional.",
+  ],
+  "generate-invite": () => [
+    "Opening the Instant Invite Generator. Select your recipients, review or edit the auto-generated message, then click Send. All contacts are fictional — no real messages are delivered. Demo-only.",
+    "Instant Invite Generator activated! Choose from pre-stored mock contacts, customize the invite message if needed, and hit Submit to simulate a send. Fully fictional — no real email, SMS, or notifications are triggered.",
   ],
   "create-project": (entity, label) => entity ? [
     `Creating a connected project for "${label ?? "your project"}". Navigate to the Connection Layer screen. Select a format (Movie, TV Series, Video Game, Comic, Novel, etc.), set a title and logline, then add elements — Story, Character, World, Mechanics, or Workflow. The Completeness Pass will auto-score the project and flag missing sections. All fictional, internal, demo-only.`,

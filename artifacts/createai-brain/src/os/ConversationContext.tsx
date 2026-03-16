@@ -13,6 +13,7 @@ import {
 } from "@/engine/ConversationEngine";
 import { useInteraction } from "./InteractionContext";
 import { UniversalView, DemoStatus } from "@/engine/InteractionEngine";
+import { triggerInviteOpen } from "@/engine/InviteGeneratorBridge";
 
 interface ConversationCtx {
   history:     ConversationMessage[];
@@ -72,6 +73,11 @@ export function ConversationProvider({ children }: { children: React.ReactNode }
     // Reset
     if (resetState) {
       interaction.reset();
+    }
+
+    // Open Invite Generator popup if intent matches
+    if (intent.intent === "generate-invite") {
+      setTimeout(triggerInviteOpen, 300);
     }
 
     // Log action

@@ -27,6 +27,8 @@ import {
 } from "@/engine/UniversalStoryEngine";
 import { ConnectionEngine, ProjectFormat, ProjectElement } from "@/engine/UniversalConnectionEngine";
 import { StrategyEngine, StrategyFocus, TimeHorizon } from "@/engine/UniversalStrategyEngine";
+import { InviteGeneratorEngine, MOCK_CONTACTS } from "@/engine/InviteGeneratorEngine";
+import { registerInviteOpen, triggerInviteOpen } from "@/engine/InviteGeneratorBridge";
 
 // ─── Nav definition ───────────────────────────────────────────────────────
 const NAV_ITEMS: { id: UniversalView; label: string; icon: string }[] = [
@@ -3399,6 +3401,227 @@ function ArchitectureScreen() {
   );
 }
 
+// ─── Instant Invite Generator ─────────────────────────────────────────────
+// Additive module: floating popup for mock invite generation & send simulation.
+// All contacts are fictional. No real messages are sent. Demo-only.
+function InviteGenerator() {
+  const { dispatch } = useInteraction();
+  const [open, setOpen]           = useState(false);
+  const [selected, setSelected]   = useState<Set<string>>(new Set(["c1", "c2", "c3"]));
+  const [message, setMessage]     = useState("");
+  const [sent, setSent]           = useState(false);
+  const [sentCount, setSentCount] = useState(0);
+  const [pos, setPos]             = useState<{ x: number; y: number } | null>(null);
+  const dragging                  = useRef(false);
+  const dragOffset                = useRef({ x: 0, y: 0 });
+  const panelRef                  = useRef<HTMLDivElement>(null);
+
+  // Register open callback so conversation + IAI can trigger this popup
+  useEffect(() => {
+    registerInviteOpen(() => setOpen(true));
+  }, []);
+
+  // Default position: top-left area, clear of the Brain button
+  useEffect(() => {
+    setPos({ x: 16, y: 80 });
+  }, []);
+
+  // Re-generate message whenever selection changes
+  useEffect(() => {
+    const contacts = MOCK_CONTACTS.filter(c => selected.has(c.id));
+    if (contacts.length > 0) {
+      setMessage(InviteGeneratorEngine.generateBulkMessage(contacts));
+    } else {
+      setMessage("");
+    }
+    setSent(false);
+  }, [selected]);
+
+  // Drag logic
+  useEffect(() => {
+    function onMove(e: MouseEvent | TouchEvent) {
+      if (!dragging.current) return;
+      const cx = "touches" in e ? e.touches[0].clientX : e.clientX;
+      const cy = "touches" in e ? e.touches[0].clientY : e.clientY;
+      const w  = panelRef.current?.offsetWidth  ?? 380;
+      const h  = panelRef.current?.offsetHeight ?? 520;
+      setPos({
+        x: Math.min(Math.max(0, cx - dragOffset.current.x), window.innerWidth  - w),
+        y: Math.min(Math.max(0, cy - dragOffset.current.y), window.innerHeight - h),
+      });
+    }
+    function onUp() { dragging.current = false; }
+    window.addEventListener("mousemove", onMove);
+    window.addEventListener("touchmove",  onMove, { passive: true });
+    window.addEventListener("mouseup",   onUp);
+    window.addEventListener("touchend",  onUp);
+    return () => {
+      window.removeEventListener("mousemove", onMove);
+      window.removeEventListener("touchmove",  onMove);
+      window.removeEventListener("mouseup",   onUp);
+      window.removeEventListener("touchend",  onUp);
+    };
+  }, []);
+
+  function startDrag(e: React.MouseEvent | React.TouchEvent) {
+    const cx = "touches" in e ? e.touches[0].clientX : e.clientX;
+    const cy = "touches" in e ? e.touches[0].clientY : e.clientY;
+    const rect = panelRef.current?.getBoundingClientRect();
+    dragOffset.current = { x: cx - (rect?.left ?? 0), y: cy - (rect?.top ?? 0) };
+    dragging.current = true;
+  }
+
+  function toggleContact(id: string) {
+    setSelected(prev => {
+      const next = new Set(prev);
+      if (next.has(id)) next.delete(id); else next.add(id);
+      return next;
+    });
+  }
+
+  function handleSend() {
+    const contacts = MOCK_CONTACTS.filter(c => selected.has(c.id));
+    if (contacts.length === 0) return;
+    InviteGeneratorEngine.send(contacts, message);
+    dispatch("INVITE_SENT", `${contacts.length} mock invite(s) generated`);
+    setSentCount(contacts.length);
+    setSent(true);
+  }
+
+  function handleClose() {
+    setOpen(false);
+    setSent(false);
+  }
+
+  if (!pos || !open) return null;
+
+  const selectedContacts = MOCK_CONTACTS.filter(c => selected.has(c.id));
+  const channelIcons: Record<string, string> = { Email: "📧", SMS: "📱", Platform: "🔔" };
+
+  return (
+    <div
+      ref={panelRef}
+      className="fixed z-50 w-[370px] bg-white rounded-2xl shadow-2xl border border-border overflow-hidden flex flex-col"
+      style={{ left: pos.x, top: pos.y, maxHeight: "85vh", boxShadow: "0 8px 40px rgba(0,0,0,0.18)" }}
+    >
+      {/* Header — drag handle */}
+      <div
+        className="bg-gradient-to-r from-blue-500 to-blue-600 px-4 py-3 flex items-center gap-2 cursor-grab active:cursor-grabbing select-none flex-shrink-0"
+        onMouseDown={startDrag}
+        onTouchStart={startDrag}
+      >
+        <span className="text-lg">📨</span>
+        <div className="flex-1">
+          <p className="text-[13px] font-bold text-white leading-tight">Instant Invite Generator</p>
+          <p className="text-[9px] text-blue-200">Demo-only · No real messages sent · All contacts fictional</p>
+        </div>
+        <button onClick={handleClose} className="text-white/70 hover:text-white text-[18px] px-1 leading-none">×</button>
+      </div>
+
+      {sent ? (
+        /* ── Sent confirmation ── */
+        <div className="flex-1 flex flex-col items-center justify-center gap-3 p-6 text-center">
+          <span className="text-5xl">✅</span>
+          <p className="text-[15px] font-bold text-foreground">Invite Sent (Demo)</p>
+          <p className="text-[12px] text-muted-foreground">
+            {sentCount} fictional invite{sentCount !== 1 ? "s" : ""} logged. No real message was delivered.
+          </p>
+          <div className="flex gap-2 mt-2">
+            <button
+              onClick={() => { setSent(false); setSelected(new Set(["c1", "c2", "c3"])); }}
+              className="px-4 py-2 text-[12px] bg-blue-50 text-blue-600 border border-blue-200 rounded-xl hover:bg-blue-100 transition-colors"
+            >New Invite</button>
+            <button
+              onClick={handleClose}
+              className="px-4 py-2 text-[12px] bg-muted text-muted-foreground rounded-xl hover:bg-muted/80 transition-colors"
+            >Close</button>
+          </div>
+          <p className="text-[8px] text-muted-foreground mt-1 italic">DEMO ONLY · Non-operational · All data fictional</p>
+        </div>
+      ) : (
+        <>
+          {/* ── Recipients ── */}
+          <div className="flex-shrink-0 border-b border-border">
+            <div className="px-4 py-2 flex items-center justify-between">
+              <p className="text-[11px] font-semibold text-foreground">Recipients ({selected.size} selected)</p>
+              <div className="flex gap-2">
+                <button onClick={() => setSelected(new Set(MOCK_CONTACTS.map(c => c.id)))}
+                  className="text-[9px] text-blue-500 hover:underline">All</button>
+                <button onClick={() => setSelected(new Set())}
+                  className="text-[9px] text-muted-foreground hover:underline">None</button>
+              </div>
+            </div>
+            <div className="px-3 pb-2 grid grid-cols-2 gap-1 max-h-40 overflow-y-auto">
+              {MOCK_CONTACTS.map(c => (
+                <button
+                  key={c.id}
+                  onClick={() => toggleContact(c.id)}
+                  className={`flex items-center gap-1.5 px-2 py-1.5 rounded-xl text-left text-[10px] border transition-all
+                    ${selected.has(c.id)
+                      ? "bg-blue-50 border-blue-300 text-blue-700"
+                      : "bg-muted/40 border-transparent text-muted-foreground hover:border-border"}`}
+                >
+                  <span className={`w-3.5 h-3.5 rounded-sm border flex items-center justify-center flex-shrink-0 text-[8px]
+                    ${selected.has(c.id) ? "bg-blue-500 border-blue-500 text-white" : "border-border bg-white"}`}>
+                    {selected.has(c.id) ? "✓" : ""}
+                  </span>
+                  <span className="flex-shrink-0">{channelIcons[c.channel]}</span>
+                  <span className="truncate font-medium">{c.name.split(" ")[0]}</span>
+                  <span className="truncate text-[8px] opacity-60">{c.role.split(" ")[0]}</span>
+                </button>
+              ))}
+            </div>
+          </div>
+
+          {/* ── Message preview ── */}
+          <div className="flex-1 flex flex-col min-h-0 p-3 gap-2">
+            <div className="flex items-center justify-between">
+              <p className="text-[11px] font-semibold text-foreground">Message</p>
+              <span className="text-[9px] text-muted-foreground italic">Editable</span>
+            </div>
+            <textarea
+              value={message}
+              onChange={e => setMessage(e.target.value)}
+              className="flex-1 min-h-[120px] bg-muted/40 rounded-xl px-3 py-2 text-[11px] text-foreground leading-relaxed resize-none focus:outline-none focus:ring-1 focus:ring-blue-300 border border-border/50"
+              placeholder="Select recipients to generate a message…"
+            />
+            {selectedContacts.length > 0 && (
+              <div className="flex flex-wrap gap-1">
+                {selectedContacts.slice(0, 5).map(c => (
+                  <span key={c.id} className="text-[9px] bg-blue-50 text-blue-600 border border-blue-200 px-1.5 py-0.5 rounded-full">
+                    {channelIcons[c.channel]} {c.name.split(" ")[0]}
+                  </span>
+                ))}
+                {selectedContacts.length > 5 && (
+                  <span className="text-[9px] text-muted-foreground px-1">+{selectedContacts.length - 5} more</span>
+                )}
+              </div>
+            )}
+          </div>
+
+          {/* ── Footer ── */}
+          <div className="flex-shrink-0 border-t border-border px-3 py-2.5 flex items-center gap-2">
+            <div className="flex-1">
+              <p className="text-[8px] text-muted-foreground">DEMO ONLY · No real messages sent</p>
+            </div>
+            <button
+              onClick={handleClose}
+              className="px-3 py-1.5 text-[11px] bg-muted text-muted-foreground rounded-xl hover:bg-muted/80 transition-colors"
+            >Cancel</button>
+            <button
+              onClick={handleSend}
+              disabled={selected.size === 0 || !message.trim()}
+              className="px-4 py-1.5 text-[12px] font-semibold bg-blue-500 text-white rounded-xl hover:bg-blue-600 disabled:opacity-40 transition-colors"
+            >
+              Send {selected.size > 0 ? `(${selected.size})` : ""}
+            </button>
+          </div>
+        </>
+      )}
+    </div>
+  );
+}
+
 // ─── Instant Action Interface ─────────────────────────────────────────────
 // New interactive extension from the UCP-X manifest.
 // One-click popup that triggers any engine from anywhere in the hub.
@@ -3501,6 +3724,11 @@ function InstantActionInterface() {
       label: "Architecture",  icon: "🗺️",
       desc: "View system architecture map",
       action: () => { setView("architecture"); dispatch("IAI_LAUNCH", "architecture"); },
+    },
+    {
+      label: "Invite",        icon: "📨",
+      desc: "Open Instant Invite Generator",
+      action: () => { triggerInviteOpen(); dispatch("IAI_LAUNCH", "invite"); },
     },
   ];
 
@@ -3662,6 +3890,8 @@ export function UniversalApp() {
 
       {/* InstantActionInterface — UCP-X interactive extension */}
       <InstantActionInterface />
+      {/* Instant Invite Generator — additive module */}
+      <InviteGenerator />
     </div>
   );
 }
