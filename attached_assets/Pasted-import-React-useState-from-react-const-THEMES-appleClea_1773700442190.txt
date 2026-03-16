@@ -1,0 +1,427 @@
+import React, { useState } from "react";
+
+const THEMES = {
+  appleClean: {
+    name: "Apple Clean",
+    bg: "linear-gradient(180deg,#fafafa,#f2f2f2)",
+    cardBg: "rgba(255,255,255,0.9)",
+    border: "1px solid rgba(0,0,0,0.06)",
+    accent: "#007aff",
+  },
+  appleLuxury: {
+    name: "Apple Luxury",
+    bg: "linear-gradient(180deg,#fdf7f0,#f7efe4)",
+    cardBg: "rgba(255,252,246,0.95)",
+    border: "1px solid rgba(180,140,80,0.25)",
+    accent: "#c28b3a",
+  },
+  appleFuturistic: {
+    name: "Apple Futuristic",
+    bg: "linear-gradient(180deg,#f9fbff,#eef3ff)",
+    cardBg: "rgba(255,255,255,0.9)",
+    border: "1px solid rgba(120,140,255,0.25)",
+    accent: "#5b7cff",
+  },
+  appleGlass: {
+    name: "Apple Glass",
+    bg: "radial-gradient(circle at top,#fdfdfd,#e9edf5)",
+    cardBg: "rgba(255,255,255,0.7)",
+    border: "1px solid rgba(255,255,255,0.8)",
+    accent: "#007aff",
+  },
+  universalLight: {
+    name: "Universal Light",
+    bg: "linear-gradient(180deg,#ffffff,#f5f5f5)",
+    cardBg: "#ffffff",
+    border: "1px solid #e0e0e0",
+    accent: "#2563eb",
+  },
+  accents: {
+    name: "Accents",
+    bg: "linear-gradient(180deg,#fafafa,#f3f0ff)",
+    cardBg: "rgba(255,255,255,0.95)",
+    border: "1px solid rgba(148,163,184,0.35)",
+    accent: "#8b5cf6",
+  },
+};
+
+const STEPS = [
+  "Overview",
+  "Workspace",
+  "Demos",
+  "Simulations",
+  "AI Agent",
+  "Media",
+  "Outputs",
+];
+
+export default function App() {
+  const [themeKey, setThemeKey] = useState<keyof typeof THEMES>("appleClean");
+  const [step, setStep] = useState(0);
+  const theme = THEMES[themeKey];
+
+  const cardStyle: React.CSSProperties = {
+    background: theme.cardBg,
+    borderRadius: 18,
+    border: theme.border,
+    padding: 18,
+    boxShadow: "0 10px 30px rgba(0,0,0,0.06)",
+    transition: "0.25s",
+  };
+
+  const highlight = (index: number): React.CSSProperties =>
+    step === index + 1
+      ? {
+          boxShadow: `0 0 0 2px ${theme.accent}55,0 0 30px ${theme.accent}33`,
+          transform: "translateY(-2px)",
+        }
+      : {};
+
+  return (
+    <div
+      style={{
+        minHeight: "100vh",
+        background: theme.bg,
+        fontFamily: "system-ui,-apple-system,BlinkMacSystemFont,sans-serif",
+        color: "#111827",
+        padding: 20,
+      }}
+    >
+      {/* Top bar */}
+      <div
+        style={{
+          display: "flex",
+          justifyContent: "space-between",
+          alignItems: "center",
+          marginBottom: 18,
+          paddingBottom: 12,
+          borderBottom: "1px solid rgba(148,163,184,0.35)",
+        }}
+      >
+        <div style={{ display: "flex", alignItems: "center", gap: 10 }}>
+          <div
+            style={{
+              width: 26,
+              height: 26,
+              borderRadius: 9,
+              background:
+                "conic-gradient(from 180deg,#6366f1,#22c55e,#f97316,#ec4899,#6366f1)",
+            }}
+          />
+          <div>
+            <div
+              style={{
+                fontSize: 11,
+                letterSpacing: "0.18em",
+                textTransform: "uppercase",
+                color: "#6b7280",
+              }}
+            >
+              CreateAI
+            </div>
+            <div style={{ fontWeight: 600, fontSize: 14 }}>
+              Universal Creation Platform
+            </div>
+          </div>
+        </div>
+
+        <div style={{ display: "flex", gap: 8, alignItems: "center" }}>
+          <select
+            value={themeKey}
+            onChange={(e) =>
+              setThemeKey(e.target.value as keyof typeof THEMES)
+            }
+            style={{
+              padding: "6px 10px",
+              borderRadius: 999,
+              border: "1px solid rgba(148,163,184,0.6)",
+              background: "#ffffffcc",
+              fontSize: 11,
+            }}
+          >
+            <option value="appleClean">Apple Clean</option>
+            <option value="appleLuxury">Apple Luxury</option>
+            <option value="appleFuturistic">Apple Futuristic</option>
+            <option value="appleGlass">Apple Glass</option>
+            <option value="universalLight">Universal Light</option>
+            <option value="accents">Accents</option>
+          </select>
+          <button
+            onClick={() => setStep(1)}
+            style={{
+              padding: "7px 16px",
+              borderRadius: 999,
+              border: "none",
+              background: `linear-gradient(90deg,${theme.accent},#facc15)`,
+              color: "#111827",
+              fontSize: 11,
+              fontWeight: 600,
+              cursor: "pointer",
+            }}
+          >
+            Show Me Everything
+          </button>
+        </div>
+      </div>
+
+      {/* Guided overlay */}
+      {step > 0 && (
+        <div
+          style={{
+            position: "fixed",
+            right: 20,
+            bottom: 20,
+            width: 260,
+            background: "#ffffff",
+            borderRadius: 14,
+            boxShadow: "0 18px 40px rgba(0,0,0,0.18)",
+            padding: 14,
+            zIndex: 50,
+          }}
+        >
+          <div
+            style={{
+              fontSize: 12,
+              fontWeight: 600,
+              marginBottom: 4,
+              color: "#111827",
+            }}
+          >
+            {STEPS[step - 1]}
+          </div>
+          <div style={{ fontSize: 11, color: "#4b5563", marginBottom: 10 }}>
+            Guided view is highlighting this area so you can walk someone through it
+            live, step‑by‑step.
+          </div>
+          <div style={{ display: "flex", gap: 6 }}>
+            <button
+              onClick={() => setStep((s) => Math.max(1, s - 1))}
+              disabled={step === 1}
+              style={{
+                flex: 1,
+                padding: "6px 8px",
+                borderRadius: 999,
+                border: "1px solid #e5e7eb",
+                background: "#f9fafb",
+                fontSize: 11,
+                cursor: step === 1 ? "default" : "pointer",
+                opacity: step === 1 ? 0.5 : 1,
+              }}
+            >
+              Back
+            </button>
+            <button
+              onClick={() =>
+                setStep((s) => (s >= STEPS.length ? 0 : s + 1))
+              }
+              style={{
+                flex: 1,
+                padding: "6px 8px",
+                borderRadius: 999,
+                border: "none",
+                background: theme.accent,
+                color: "white",
+                fontSize: 11,
+                fontWeight: 600,
+                cursor: "pointer",
+              }}
+            >
+              {step >= STEPS.length ? "End" : "Next"}
+            </button>
+          </div>
+        </div>
+      )}
+
+      {/* Main layout */}
+      <div
+        style={{
+          display: "grid",
+          gridTemplateColumns: "minmax(0,2fr) minmax(0,1.2fr)",
+          gap: 16,
+          alignItems: "flex-start",
+        }}
+      >
+        {/* Left column */}
+        <div style={{ display: "grid", gap: 14 }}>
+          {/* Overview */}
+          <div style={{ ...cardStyle, ...highlight(0) }}>
+            <div
+              style={{
+                fontSize: 11,
+                textTransform: "uppercase",
+                letterSpacing: "0.16em",
+                color: "#6b7280",
+                marginBottom: 6,
+              }}
+            >
+              Overview
+            </div>
+            <div style={{ fontSize: 20, fontWeight: 600 }}>
+              Walk through the entire system in one view.
+            </div>
+            <div
+              style={{
+                marginTop: 6,
+                fontSize: 13,
+                color: "#4b5563",
+                maxWidth: 520,
+              }}
+            >
+              Workspace, demos, simulations, AI agent, media, and outputs are all
+              visible and explainable from here. Nothing is hidden.
+            </div>
+          </div>
+
+          {/* Workspace */}
+          <div style={{ ...cardStyle, ...highlight(1) }}>
+            <div style={{ fontSize: 13, fontWeight: 600, marginBottom: 8 }}>
+              Workspace
+            </div>
+            <input
+              placeholder="Project name"
+              style={{
+                width: "100%",
+                padding: 9,
+                borderRadius: 10,
+                border: "1px solid #d1d5db",
+                fontSize: 12,
+                marginBottom: 8,
+              }}
+            />
+            <textarea
+              placeholder="Goal / what this system should create, fix, or prove"
+              rows={3}
+              style={{
+                width: "100%",
+                padding: 9,
+                borderRadius: 10,
+                border: "1px solid #d1d5db",
+                fontSize: 12,
+                resize: "vertical",
+              }}
+            />
+          </div>
+
+          {/* Demos */}
+          <div style={{ ...cardStyle, ...highlight(2) }}>
+            <div style={{ fontSize: 13, fontWeight: 600, marginBottom: 6 }}>
+              Demos
+            </div>
+            <div style={{ fontSize: 12, color: "#4b5563", marginBottom: 8 }}>
+              Pre‑wired experiences to show what the platform can do instantly.
+            </div>
+            <button
+              style={{
+                padding: "7px 12px",
+                borderRadius: 999,
+                border: "none",
+                background: "#feeaa3",
+                fontSize: 11,
+                fontWeight: 600,
+                cursor: "pointer",
+              }}
+            >
+              Open Demo Library
+            </button>
+          </div>
+
+          {/* Simulations */}
+          <div style={{ ...cardStyle, ...highlight(3) }}>
+            <div style={{ fontSize: 13, fontWeight: 600, marginBottom: 6 }}>
+              Simulations
+            </div>
+            <div style={{ fontSize: 12, color: "#4b5563", marginBottom: 8 }}>
+              Step‑by‑step walkthroughs of real workflows to expose gaps and
+              opportunities.
+            </div>
+            <button
+              style={{
+                padding: "7px 12px",
+                borderRadius: 999,
+                border: "1px solid #d1d5db",
+                background: "white",
+                fontSize: 11,
+                cursor: "pointer",
+              }}
+            >
+              Start Simulation
+            </button>
+          </div>
+        </div>
+
+        {/* Right column */}
+        <div style={{ display: "grid", gap: 14 }}>
+          {/* AI Agent */}
+          <div style={{ ...cardStyle, ...highlight(4) }}>
+            <div style={{ fontSize: 13, fontWeight: 600, marginBottom: 6 }}>
+              AI Agent
+            </div>
+            <div
+              style={{
+                fontSize: 12,
+                color: "#4b5563",
+                marginBottom: 8,
+              }}
+            >
+              Visible brain of the system: explains, guides, expands—always safe, no
+              medical or mental‑health advice.
+            </div>
+            <div
+              style={{
+                height: 110,
+                borderRadius: 12,
+                border: "1px solid #e5e7eb",
+                background:
+                  "linear-gradient(135deg,#f9fafb,#eef2ff)",
+              }}
+            />
+          </div>
+
+          {/* Media */}
+          <div style={{ ...cardStyle, ...highlight(5) }}>
+            <div style={{ fontSize: 13, fontWeight: 600, marginBottom: 6 }}>
+              Media
+            </div>
+            <div
+              style={{
+                height: 110,
+                borderRadius: 12,
+                border: "1px solid #e5e7eb",
+                background: "#f9fafb",
+                display: "flex",
+                alignItems: "center",
+                justifyContent: "center",
+                fontSize: 11,
+                color: "#6b7280",
+              }}
+            >
+              Video / audio walkthrough area
+            </div>
+          </div>
+
+          {/* Outputs */}
+          <div style={{ ...cardStyle, ...highlight(6) }}>
+            <div style={{ fontSize: 13, fontWeight: 600, marginBottom: 6 }}>
+              Outputs
+            </div>
+            <div
+              style={{
+                height: 110,
+                borderRadius: 12,
+                border: "1px solid #e5e7eb",
+                background: "#f9fafb",
+                display: "flex",
+                alignItems: "center",
+                justifyContent: "center",
+                fontSize: 11,
+                color: "#6b7280",
+              }}
+            >
+              Generated reports, packets, plans, ads, and more
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  );
+}
