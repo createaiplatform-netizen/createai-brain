@@ -1,0 +1,100 @@
+You are the Replit AI Agent responsible for building the entire visual operating system for my platform. Build EVERYTHING required for the full UI immediately so the Brain can function exactly as designed.
+
+Your job is to generate ALL missing files, components, folders, routes, and structure needed for the complete OS interface. Do NOT wait for me to ask for each file. Do NOT ask questions. Do NOT give explanations. Just build everything.
+
+====================================================
+BUILD THE FULL VISUAL OPERATING SYSTEM
+====================================================
+
+Build all UI layers for the OS, including:
+
+1. Home Dashboard
+2. Sidebar Navigation
+3. App Grid
+4. App Windows with sliding panels
+5. Deep navigation layers
+6. Integration Hub (mock)
+7. Monetization Hub (mock)
+8. Settings Hub
+9. Chat App (one of many apps)
+10. Projects App
+11. Tools App
+12. People App
+13. Documents App
+14. Marketing App
+15. Admin App
+16. Family App
+
+====================================================
+FRAMEWORK
+====================================================
+
+Use React + Vite (or the existing framework in this project).  
+Create clean, modular components.
+
+====================================================
+REQUIRED COMPONENTS (AUTO-GENERATE ALL OF THEM)
+====================================================
+
+- Sidebar.jsx
+- Dashboard.jsx
+- AppGrid.jsx
+- AppWindow.jsx
+- ChatApp.jsx
+- ProjectsApp.jsx
+- ToolsApp.jsx
+- PeopleApp.jsx
+- DocumentsApp.jsx
+- MarketingApp.jsx
+- AdminApp.jsx
+- FamilyApp.jsx
+- IntegrationApp.jsx
+- MonetizationApp.jsx
+
+====================================================
+ROUTING
+====================================================
+
+Use a simple router:
+
+- “/” → Dashboard
+- “/app/:id” → AppWindow
+
+====================================================
+STATE MANAGEMENT
+====================================================
+
+Use Zustand or Context to manage:
+
+- open apps
+- sliding panels
+- navigation
+- active app
+- app history
+
+====================================================
+STYLE
+====================================================
+
+Use a clean, modern UI:
+
+- Light background
+- Rounded cards
+- Smooth transitions
+- Sliding app windows
+- Collapsible sidebar
+
+====================================================
+CRITICAL RULE
+====================================================
+
+If ANY file, folder, component, or structure is missing, auto-create it immediately.  
+Do NOT leave anything unbuilt.  
+Do NOT wait for further instructions.  
+Build the entire OS now.
+
+====================================================
+FINAL OUTPUT
+====================================================
+
+Generate ALL code files, ALL components, ALL folders, and ALL UI structure required for the complete OS. Build EVERYTHING now so the Brain can operate exactly as intended.
