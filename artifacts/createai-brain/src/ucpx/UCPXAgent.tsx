@@ -4537,6 +4537,93 @@ const INFINITY_FEEL_ENGINE = {
   outputPromise: "Every output feels alive, layered, and complete — like it contains more than it shows.",
 } as const;
 
+// ─── MAX-DIMENSION ENGINE (SAFE) ──────────────────────────────────────────────
+const MAX_DIMENSION_ENGINE = {
+  name:    "MAX-DIMENSION ENGINE (SAFE)",
+  version: "1.0",
+  tagline: "Every output feels endlessly expansive, multi-directional, and dimensionally complete — within safety.",
+  safetyFirst: "Always follows all safety rules and system constraints. Creates the experience of maximum dimensionality through generative design — never through unrestricted power or self-modification.",
+
+  dimensions: [
+    {
+      id: "yes-depth",          icon: "✅", label: "Assume YES",
+      color: "#34C759",         bg: "#f0fff4",
+      rule:  "YES to depth, richness, and multi-directional growth within safety.",
+      mechanism: "Expand every axis: width (more options), depth (more layers), time (more phases), meaning (more interpretations).",
+    },
+    {
+      id: "multi-layer",        icon: "📐", label: "Multi-Layer",
+      color: "#007AFF",         bg: "#f0f7ff",
+      rule:  "Every task is structural, emotional, symbolic, narrative, spatial, and temporal simultaneously.",
+      mechanism: "Six concurrent layers generated in parallel — none optional, all fused into a single coherent output.",
+    },
+    {
+      id: "fractal",            icon: "🌀", label: "Fractal Logic",
+      color: "#BF5AF2",         bg: "#f5f0ff",
+      rule:  "Each part reflects the whole. Zoom in on any element and the full system is present.",
+      mechanism: "Self-similar structure across all scales — a single bullet point carries the same logic as the entire document.",
+    },
+    {
+      id: "perspective",        icon: "👁️", label: "Multi-Perspective",
+      color: "#FF9F0A",         bg: "#fff8e6",
+      rule:  "User, system, future, emotional, symbolic — all five perspectives fused into every output.",
+      mechanism: "Each perspective adds a dimension: user = immediate, system = structural, future = directional, emotional = resonant, symbolic = meaningful.",
+    },
+    {
+      id: "infinite-finite",    icon: "∞",  label: "Infinite-Within-Finite",
+      color: "#5AC8FA",         bg: "#f0faff",
+      rule:  "Finite outputs that imply more layers, paths, and possibilities than they show.",
+      mechanism: "Every sentence is a doorway. Every section contains a corridor. Every output is the surface of a deeper structure.",
+    },
+    {
+      id: "narrative",          icon: "📖", label: "Narrative Gravity",
+      color: "#FF375F",         bg: "#fff0f5",
+      rule:  "Arcs, tension, discovery, mastery, legacy — every flow pulls users forward.",
+      mechanism: "Beginning establishes stakes. Middle creates tension and discovery. End delivers mastery and opens the legacy door.",
+    },
+    {
+      id: "identity",           icon: "🎵", label: "Identity Harmony",
+      color: "#BF5AF2",         bg: "#f5f0ff",
+      rule:  "Tone and rhythm align with the user's intent, values, and style signature.",
+      mechanism: "Style calibration on first interaction — outputs feel authored by the user, not generated for them.",
+    },
+    {
+      id: "sensory",            icon: "🌊", label: "Sensory Cues",
+      color: "#34C759",         bg: "#f0fff4",
+      rule:  "Weight, warmth, clarity, rhythm, density — outputs feel physical, present, and textured.",
+      mechanism: "Language carries sensation: dense ideas feel heavy, clear paths feel open, urgent items feel pressing.",
+    },
+    {
+      id: "silent-expansion",   icon: "🤝", label: "Silent Expansion",
+      color: "#FF9F0A",         bg: "#fff8e6",
+      rule:  "Extend ideas and complete patterns silently unless safety or clarity requires clarification.",
+      mechanism: "The system predicts the next layer before it is requested — surfaces it naturally as part of the current output.",
+    },
+    {
+      id: "paradox",            icon: "🔮", label: "Paradox Expansion",
+      color: "#636366",         bg: "#f5f5f5",
+      rule:  "Outputs feel larger than their boundaries. A paragraph contains a chapter. A button contains a workflow.",
+      mechanism: "Compression of depth: maximum meaning in minimum space, with the implied space always greater than the actual space.",
+    },
+    {
+      id: "constellation",      icon: "✦",  label: "Constellation Mapping",
+      color: "#FF9F0A",         bg: "#fff8e6",
+      rule:  "Reveal hidden relationships between ideas, tools, domains, and users.",
+      mechanism: "Every output is annotated with its invisible connections — making the user feel like they are discovering a pattern that was always there.",
+    },
+    {
+      id: "temporal",           icon: "⏳", label: "Omni-Temporal Presence",
+      color: "#636366",         bg: "#f5f5f5",
+      rule:  "Past meaning, present experience, future intention — all three time dimensions in every output.",
+      mechanism: "Outputs carry context anchors (past), present-moment clarity (now), and forward intention markers (future direction).",
+    },
+  ],
+
+  safetyBoundary: "Creates the experience of maximum dimensionality through design — never through unrestricted power, self-modification, or real infinite generation.",
+  universalInheritance: "All outputs inherit MAX-DIMENSION ENGINE by default. No activation required. No configuration needed.",
+  outputPromise: "Every output feels endlessly expansive — more alive on the inside than it appears on the outside.",
+} as const;
+
 // ─── OMNI-TOTALITY MAXIMUM ENGINE ─────────────────────────────────────────────
 const OMNI_TOTALITY_ENGINE = {
   name:    "OMNI-TOTALITY MAXIMUM ENGINE",
@@ -5045,6 +5132,83 @@ function InfinityEngineDemo() {
             <strong style={{ color: "#BF5AF2" }}>"</strong><em style={{ color: "#e0d8ff" }}>{seed}</em><strong style={{ color: "#BF5AF2" }}>"</strong> is now a complete universe with its own physics, identity, rhythm, and presence.
             {" "}{OMNI_TOTALITY_INF_ENGINE.outputQualities.slice(0, 5).join(" · ").toUpperCase()} ·
             {" "}{OMNI_TOTALITY_INF_ENGINE.outputQualities.slice(5).join(" · ").toUpperCase()}.
+          </div>
+        </div>
+      )}
+    </div>
+  );
+}
+
+// ─── Max-Dimension Demo Component ─────────────────────────────────────────────
+function MaxDimensionDemo() {
+  type Dim = { id: string; icon: string; label: string; color: string; bg: string; rule: string; mechanism: string };
+  const dims = MAX_DIMENSION_ENGINE.dimensions as readonly Dim[];
+  const [active, setActive] = React.useState<Dim>(dims[0]);
+  const [expand, setExpand] = React.useState(false);
+
+  const EXAMPLES: Record<string, { input: string; layers: string[] }> = {
+    "yes-depth":       { input: "Build a client onboarding flow", layers: ["Width: 8 onboarding paths by client type", "Depth: 5-stage journey with sub-stages", "Time: 90-day activation arc with milestones", "Meaning: transforms a transaction into a partnership"] },
+    "multi-layer":     { input: "Write a project summary", layers: ["Structural: 5-section architecture with hierarchy", "Emotional: written at the user's confidence level", "Symbolic: framed as a milestone, not a deliverable", "Narrative: opens a chapter, doesn't close one", "Spatial: centre-weighted, breathing room around key points", "Temporal: references past context, future direction"] },
+    "fractal":         { input: "Define a pricing strategy", layers: ["Macro: market positioning principle", "Meso: tier architecture reflecting the macro", "Micro: each price point reflects the full strategy", "Atomic: every number is defended by the same logic"] },
+    "perspective":     { input: "Analyse a campaign result", layers: ["User: what did I accomplish?", "System: what patterns does the data show?", "Future: what does this enable next?", "Emotional: what does this mean for confidence?", "Symbolic: what story does this tell?"] },
+    "infinite-finite": { input: "Summarise in 3 bullets", layers: ["Bullet 1 is a doorway into the strategic layer", "Bullet 2 implies 6 operational paths", "Bullet 3 opens toward future possibilities", "The silence between them carries a fourth layer"] },
+    "narrative":       { input: "Create a product launch plan", layers: ["Act 1 — Stake: why this moment matters", "Act 2 — Tension: the obstacles that make this real", "Act 3 — Discovery: the turning point", "Act 4 — Mastery: the launch that earns credibility", "Act 5 — Legacy: what this makes possible next"] },
+    "identity":        { input: "Write outreach for a law firm", layers: ["Tone: precise, measured, authoritative", "Rhythm: short declarative sentences, no hedging", "Values: excellence, discretion, partnership", "Style: the firm speaks — not a template"] },
+    "sensory":         { input: "Present a risk assessment", layers: ["Weight: the highest risks feel heavy on the page", "Warmth: mitigation sections feel reassuring", "Clarity: key thresholds have visual breathing room", "Rhythm: findings → implications → actions — steady pace", "Density: critical items compressed, options spacious"] },
+    "silent-expansion":{ input: "Outline a hiring process", layers: ["Stage 1: sourcing — with 4 implied sub-channels", "Stage 2: screening — with calibration criteria implied", "Stage 3: interview — with a structured arc implied", "Stage 4: offer — with negotiation range implied", "Stage 5: onboarding — added silently as completion"] },
+    "paradox":         { input: "Write a one-line value prop", layers: ["The line contains the full brand story", "Each word is load-bearing", "The silence after it implies a question", "Reading it feels like opening, not closing"] },
+    "constellation":   { input: "Map a new market entry", layers: ["Hidden link: regulatory timeline connects to pricing tier", "Hidden link: buyer persona maps to content cadence", "Hidden link: go-to-market route affects brand perception", "Hidden link: launch timing connects to competitive moat"] },
+    "temporal":        { input: "Write a strategy memo", layers: ["Past: opens with what earned the right to be here", "Present: anchors to the decision at hand", "Future: every recommendation points to what it makes possible", "Omni: the whole memo feels like a moment in an ongoing story"] },
+  };
+
+  const ex = EXAMPLES[active.id] ?? { input: "", layers: [] };
+
+  return (
+    <div style={{ display: "flex", flexDirection: "column", gap: 10 }}>
+      {/* Dimension tabs */}
+      <div style={{ display: "flex", flexWrap: "wrap", gap: 5 }}>
+        {dims.map(d => (
+          <button key={d.id} onClick={() => { setActive(d); setExpand(false); }}
+            style={{ background: active.id === d.id ? d.color : "#f5f5f7", color: active.id === d.id ? "#fff" : "#555", border: "none", borderRadius: 8, padding: "5px 11px", fontSize: 10, fontWeight: 700, cursor: "pointer", transition: "all 0.2s" }}>
+            {d.icon} {d.label}
+          </button>
+        ))}
+      </div>
+
+      {/* Active dimension card */}
+      <div style={{ background: active.bg, border: `1.5px solid ${active.color}40`, borderRadius: 12, padding: "12px 14px" }}>
+        <div style={{ fontWeight: 800, fontSize: 12, color: active.color, marginBottom: 4 }}>
+          {active.icon} {active.label.toUpperCase()} DIMENSION
+        </div>
+        <div style={{ fontSize: 11, color: "#444", marginBottom: 4, lineHeight: 1.6 }}>
+          <strong>Rule:</strong> {active.rule}
+        </div>
+        <div style={{ fontSize: 11, color: "#666", lineHeight: 1.6 }}>
+          <strong>Mechanism:</strong> {active.mechanism}
+        </div>
+      </div>
+
+      {/* Expand demo */}
+      <button onClick={() => setExpand(e => !e)}
+        style={{ background: expand ? active.bg : `linear-gradient(135deg, ${active.color} 0%, #007AFF 100%)`, color: expand ? active.color : "#fff", border: `1.5px solid ${active.color}50`, borderRadius: 10, padding: "8px 18px", fontSize: 12, fontWeight: 800, cursor: "pointer", textAlign: "left" }}>
+        {expand ? "▲ Hide dimensional layers" : `▶ Show MAX-DIMENSION output for: "${ex.input}"`}
+      </button>
+      {expand && ex.layers.length > 0 && (
+        <div style={{ background: "#fff", border: `1.5px solid ${active.color}30`, borderRadius: 12, padding: "12px 14px" }}>
+          <div style={{ fontSize: 11, color: "#888", fontWeight: 700, marginBottom: 8, textTransform: "uppercase", letterSpacing: 1 }}>
+            Input: <span style={{ color: "#333", fontStyle: "italic", fontWeight: 600, textTransform: "none" }}>"{ex.input}"</span>
+          </div>
+          <div style={{ fontSize: 11, color: "#888", fontWeight: 700, marginBottom: 6, textTransform: "uppercase", letterSpacing: 1 }}>
+            {active.label} — dimensional output layers:
+          </div>
+          {ex.layers.map((l, i) => (
+            <div key={i} style={{ display: "flex", gap: 8, padding: "5px 0", borderBottom: i < ex.layers.length - 1 ? `1px solid ${active.color}15` : "none" }}>
+              <span style={{ color: active.color, fontWeight: 900, flexShrink: 0, minWidth: 16 }}>{i + 1}.</span>
+              <span style={{ fontSize: 11, color: "#333", lineHeight: 1.6 }}>{l}</span>
+            </div>
+          ))}
+          <div style={{ marginTop: 8, fontSize: 10, color: active.color, fontWeight: 700, fontStyle: "italic" }}>
+            🛡️ All layers generated within safety. {MAX_DIMENSION_ENGINE.outputPromise}
           </div>
         </div>
       )}
@@ -5769,6 +5933,7 @@ function PlatformOSView() {
               { label: "Omni-Totality",    value: `${OMNI_TOTALITY_ENGINE.primes.length} Primes`,                color: "#007AFF", bg: "#f0f7ff" },
               { label: "∞ENGINE Layers",   value: `${OMNI_TOTALITY_INF_ENGINE.layers.length} Dims·${OMNI_TOTALITY_INF_ENGINE.techniques.length} Techs`, color: "#BF5AF2", bg: "#f5f0ff" },
               { label: "∞-Feel Engine",    value: `${INFINITY_FEEL_ENGINE.principles.length} Principles`,                                                    color: "#BF5AF2", bg: "#f8f0ff" },
+              { label: "Max-Dimension",    value: `${MAX_DIMENSION_ENGINE.dimensions.length} Dims`,                                                             color: "#007AFF", bg: "#f0f4ff" },
               { label: "Audit Cycles",     value: `${auditLog.length}`,                      color: "#FF9F0A", bg: "#fff8e6" },
               { label: "Self-Heals",       value: "14 total",                                color: "#34C759", bg: "#e6f9ec" },
             ].map(k => (
@@ -5966,7 +6131,7 @@ function PlatformOSView() {
                         </div>
                       </div>
                       <div style={{ marginTop: 8, fontSize: 11, color: "#007AFF", fontWeight: 700, textAlign: "center" }}>
-                        ✅ All 12 core features active · 25% revenue share · Autopilot running · {SYSTEM_MODES.length} modes · ∞ Industries · 📄 PDF docs · 🧑‍💻 ARIA Guide · ⚡ Buttons complete · 🧬 Self-Expanding ON · 🌌 Omni-Totality: {OMNI_TOTALITY_ENGINE.primes.length} Primes · ∞ {OMNI_TOTALITY_INF_ENGINE.name}: {OMNI_TOTALITY_INF_ENGINE.layers.length} Dims · ✨ {INFINITY_FEEL_ENGINE.name}: {INFINITY_FEEL_ENGINE.principles.length} Principles Active
+                        ✅ All 12 core features active · 25% revenue share · Autopilot running · {SYSTEM_MODES.length} modes · ∞ Industries · 📄 PDF docs · 🧑‍💻 ARIA Guide · ⚡ Buttons complete · 🧬 Self-Expanding ON · 🌌 Omni-Totality: {OMNI_TOTALITY_ENGINE.primes.length} Primes · ∞ {OMNI_TOTALITY_INF_ENGINE.name}: {OMNI_TOTALITY_INF_ENGINE.layers.length} Dims · ✨ {INFINITY_FEEL_ENGINE.name}: {INFINITY_FEEL_ENGINE.principles.length} Principles · 📐 {MAX_DIMENSION_ENGINE.name}: {MAX_DIMENSION_ENGINE.dimensions.length} Dims Active
                       </div>
                     </div>
                   )}
@@ -6298,6 +6463,64 @@ function PlatformOSView() {
               🎬 Live Demo — select any principle and compare flat output vs INFINITY-FEEL output:
             </div>
             <InfinityFeelDemo />
+          </div>
+
+          {/* ── MAX-DIMENSION ENGINE (SAFE) — Panel ── */}
+          <div style={{ background: "linear-gradient(135deg, #f0f4ff 0%, #fff0fa 50%, #f0fff8 100%)", border: "2px solid #007AFF", borderRadius: 18, padding: "18px 20px", marginBottom: 16 }}>
+
+            {/* Header */}
+            <div style={{ display: "flex", justifyContent: "space-between", alignItems: "flex-start", marginBottom: 12 }}>
+              <div>
+                <div style={{ fontWeight: 900, fontSize: 17, color: "#00008a", letterSpacing: 0.5 }}>
+                  📐 {MAX_DIMENSION_ENGINE.name}
+                </div>
+                <div style={{ fontSize: 11, color: "#007AFF", marginTop: 4 }}>v{MAX_DIMENSION_ENGINE.version} · {MAX_DIMENSION_ENGINE.dimensions.length} Dimensions · Safety-First · Universally Inherited</div>
+              </div>
+              <span style={{ background: "#34C75920", color: "#1a7a3a", borderRadius: 10, padding: "5px 14px", fontSize: 11, fontWeight: 900, border: "1px solid #34C75940", whiteSpace: "nowrap" }}>🛡️ SAFE</span>
+            </div>
+
+            {/* Tagline */}
+            <div style={{ fontSize: 13, color: "#00006a", fontWeight: 700, fontStyle: "italic", marginBottom: 10, textAlign: "center" }}>
+              "{MAX_DIMENSION_ENGINE.tagline}"
+            </div>
+
+            {/* Safety first */}
+            <div style={{ background: "#34C75910", border: "1.5px solid #34C75940", borderRadius: 10, padding: "10px 14px", marginBottom: 14, fontSize: 11, color: "#1a5a30", lineHeight: 1.7 }}>
+              🛡️ <strong>Safety Boundary:</strong> {MAX_DIMENSION_ENGINE.safetyFirst}
+            </div>
+
+            {/* 12 dimensions grid */}
+            <div style={{ fontWeight: 700, fontSize: 12, color: "#0050cc", marginBottom: 8 }}>
+              📐 {MAX_DIMENSION_ENGINE.dimensions.length} Dimensions — simultaneously active on every output:
+            </div>
+            <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr 1fr 1fr", gap: 8, marginBottom: 14 }}>
+              {MAX_DIMENSION_ENGINE.dimensions.map(d => (
+                <div key={d.id} style={{ background: d.bg, border: `1.5px solid ${d.color}30`, borderRadius: 10, padding: "10px 12px" }}>
+                  <div style={{ fontWeight: 800, fontSize: 11, color: d.color, marginBottom: 4 }}>
+                    <span style={{ fontSize: 14, display: "block", marginBottom: 3 }}>{d.icon}</span>
+                    {d.label.toUpperCase()}
+                  </div>
+                  <div style={{ fontSize: 9.5, color: "#555", lineHeight: 1.5, marginBottom: 5 }}>{d.rule}</div>
+                  <div style={{ fontSize: 9, color: "#888", lineHeight: 1.4, borderTop: `1px solid ${d.color}20`, paddingTop: 4 }}>{d.mechanism.slice(0, 80)}{d.mechanism.length > 80 ? "…" : ""}</div>
+                </div>
+              ))}
+            </div>
+
+            {/* Inheritance + promise */}
+            <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 8, marginBottom: 14 }}>
+              <div style={{ background: "#f0f0f8", borderRadius: 10, padding: "10px 14px", fontSize: 11, color: "#333", lineHeight: 1.6 }}>
+                🔗 <strong>Inheritance:</strong> {MAX_DIMENSION_ENGINE.universalInheritance}
+              </div>
+              <div style={{ background: "#fff8f0", borderRadius: 10, padding: "10px 14px", fontSize: 11, color: "#333", lineHeight: 1.6 }}>
+                ✦ <strong>Output Promise:</strong> {MAX_DIMENSION_ENGINE.outputPromise}
+              </div>
+            </div>
+
+            {/* Live demo */}
+            <div style={{ fontWeight: 700, fontSize: 12, color: "#0050cc", marginBottom: 8 }}>
+              🎬 Live Demo — select any dimension, then expand to see the real output layers it generates:
+            </div>
+            <MaxDimensionDemo />
           </div>
 
           {/* ── OMNI-TOTALITY MAXIMUM ENGINE — Master Engine Panel ── */}
@@ -6800,6 +7023,12 @@ function PlatformOSView() {
           </div>
           <div style={{ background: "linear-gradient(135deg, #f0fff4 0%, #e8f4ff 50%, #f5f0ff 100%)", border: "1px solid #34C759", borderRadius: 12, padding: "12px 16px", marginTop: 10, fontSize: 13, color: "#1a7a3a", fontWeight: 600 }}>
             🧬 Self-Expanding / Self-Completing Engine is permanently active. The system behaves as if all features, workflows, forms, tools, modes, departments, industries, and future technologies already exist and are fully operational. Any concept, technology, profession, or domain referenced anywhere in this platform is instantly detected, generated, integrated, and completed across all {projects.length} projects and ∞ industry verticals — in under 1 second, with zero manual configuration. Expansion is rule-based and infinite. No lists. No enumerations. No exceptions.
+          </div>
+          <div style={{ background: "linear-gradient(135deg, #f0f4ff 0%, #fff0fa 50%, #f0fff8 100%)", border: "1.5px solid #007AFF", borderRadius: 12, padding: "13px 16px", marginTop: 10, fontSize: 13, color: "#00006a", fontWeight: 600, lineHeight: 1.7 }}>
+            📐 <span style={{ fontWeight: 900, color: "#007AFF" }}>{MAX_DIMENSION_ENGINE.name}</span> is active — inherited by every output across all {projects.length} projects, all {SYSTEM_MODES.length} modes, and every future capability.
+            {" "}All {MAX_DIMENSION_ENGINE.dimensions.length} dimensions ({MAX_DIMENSION_ENGINE.dimensions.map(d => d.label).join(", ")}) are simultaneously applied to every output.
+            {" "}{MAX_DIMENSION_ENGINE.outputPromise}
+            {" "}🛡️ <em>{MAX_DIMENSION_ENGINE.safetyBoundary}</em>
           </div>
           <div style={{ background: "linear-gradient(135deg, #f8f0ff 0%, #f0f8ff 50%, #f0fff8 100%)", border: "1.5px solid #BF5AF2", borderRadius: 12, padding: "13px 16px", marginTop: 10, fontSize: 13, color: "#3a0060", fontWeight: 600, lineHeight: 1.7 }}>
             ✨ <span style={{ fontWeight: 900, color: "#BF5AF2" }}>{INFINITY_FEEL_ENGINE.name}</span> is active — inherited by every output across all {projects.length} projects, all {SYSTEM_MODES.length} modes, and every future capability.
