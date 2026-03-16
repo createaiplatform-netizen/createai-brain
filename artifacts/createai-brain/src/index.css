@@ -153,3 +153,47 @@
     @apply bg-muted-foreground/50;
   }
 }
+
+/* ── AI Avatar Guide Animations ───────────────────────────────────────────── */
+@keyframes avatarBreath {
+  0%, 100% { transform: scale(1); }
+  50%       { transform: scale(1.025); }
+}
+@keyframes avatarNod {
+  0%   { transform: translateY(0) rotate(0deg); }
+  20%  { transform: translateY(-5px) rotate(-3deg); }
+  50%  { transform: translateY(3px) rotate(2deg); }
+  80%  { transform: translateY(-3px) rotate(-1deg); }
+  100% { transform: translateY(0) rotate(0deg); }
+}
+@keyframes avatarWave {
+  0%, 100% { transform: rotate(0deg); }
+  15%      { transform: rotate(-40deg); }
+  40%      { transform: rotate(-70deg); }
+  65%      { transform: rotate(-35deg); }
+  85%      { transform: rotate(-60deg); }
+}
+@keyframes avatarPoint {
+  0%, 100% { transform: rotate(-20deg) translateX(0px); }
+  50%      { transform: rotate(-35deg) translateX(4px); }
+}
+@keyframes speechBubblePop {
+  0%   { opacity: 0; transform: scale(0.88) translateY(6px); }
+  70%  { transform: scale(1.02) translateY(-1px); }
+  100% { opacity: 1; transform: scale(1) translateY(0); }
+}
+@keyframes avatarGlow {
+  0%, 100% { box-shadow: 0 0 0 0 rgba(0,122,255,0.35), 0 6px 20px rgba(0,122,255,0.25); }
+  50%       { box-shadow: 0 0 0 8px rgba(0,122,255,0.0), 0 6px 20px rgba(0,122,255,0.4); }
+}
+@keyframes stepDotPulse {
+  0%, 100% { transform: scale(1); }
+  50%      { transform: scale(1.4); }
+}
+.avatar-head-breath  { animation: avatarBreath 3.5s ease-in-out infinite; }
+.avatar-head-talking { animation: avatarNod 0.55s ease-in-out 4; }
+.avatar-head-glow    { animation: avatarGlow 2.5s ease-in-out infinite; }
+.avatar-arm-wave     { animation: avatarWave 0.9s ease-in-out infinite; transform-origin: top center; }
+.avatar-arm-point    { animation: avatarPoint 1.2s ease-in-out infinite; transform-origin: top center; }
+.speech-bubble-pop   { animation: speechBubblePop 0.35s cubic-bezier(0.34,1.56,0.64,1) both; }
+.step-dot-active     { animation: stepDotPulse 1.5s ease-in-out infinite; }

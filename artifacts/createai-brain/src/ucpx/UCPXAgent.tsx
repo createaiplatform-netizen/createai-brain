@@ -4244,6 +4244,75 @@ const DOCUMENT_OUTPUT_DIRECTIVE = {
   },
 };
 
+type AvatarGesture = "wave" | "point" | "nod" | "idle";
+
+interface AvatarTourStep {
+  id: number; title: string; speech: string; highlight: string;
+  gesture: AvatarGesture; modes: string[];
+}
+
+const AVATAR_TOUR_STEPS: AvatarTourStep[] = [
+  { id: 1, title: "Welcome to CreateAI Brain!",
+    speech: "Hi! I'm ARIA Guide — your AI tour assistant. I'll take you step-by-step through every feature of this platform. No skipped steps, no static slides, no plain text. I'm here in full presence. Let's begin!",
+    highlight: "Home Screen", gesture: "wave", modes: ["LIVE", "DEMO", "WALKTHROUGH"] },
+  { id: 2, title: "Your 12 Integrated Apps",
+    speech: "Over here are your 12 fully integrated apps — AI Chat, Projects, Tools, Create, People, Documents, Marketing, Admin, Family, Integration, Monetize, and Universal. Every single one is live, wired, and producing real structured output.",
+    highlight: "App Grid", gesture: "point", modes: ["LIVE", "APP", "DEMO"] },
+  { id: 3, title: "UCP-X Engine — 21 Sections",
+    speech: "This is the UCP-X intelligence layer — 21 engine sections all running simultaneously. It powers your workflows, revenue systems, staffing AI, healthcare AI, Platform OS autopilot, and the InfiniteExpansionEngine.",
+    highlight: "UCP-X Engine", gesture: "nod", modes: ["LIVE", "DEMO", "WEBSITE"] },
+  { id: 4, title: "Platform OS — 15 Live Deployments",
+    speech: "Platform OS manages all 15 of your live industry deployments, handles automated revenue sharing at 25%, runs AI personas in real time, and keeps everything self-healing with continuous audit cycles.",
+    highlight: "Platform OS ⚡", gesture: "point", modes: ["LIVE", "DEMO", "TEST"] },
+  { id: 5, title: "Multi-Mode System — 15 Modes",
+    speech: "Every project you build inherits all 15 operational modes automatically — LIVE, DEMO, TEST, APP, WEBSITE, WALKTHROUGH, and nine more. All modes are always active. No configuration required.",
+    highlight: "📡 Modes Tab", gesture: "nod", modes: ["LIVE", "DEMO", "APP", "WEBSITE", "TEST", "WALKTHROUGH"] },
+  { id: 6, title: "Universal Industries — ∞ Supported",
+    speech: "Every industry and profession is supported — Healthcare, Legal, Finance, Construction, Wildlife Regulation, and thousands more. The Universal Industry Directive ensures no domain is ever unsupported or missing.",
+    highlight: "Industry Directive", gesture: "wave", modes: ["LIVE", "DEMO", "WALKTHROUGH"] },
+  { id: 7, title: "PDF-Style Document Engine",
+    speech: "All documents, forms, assessments, care plans, checklists, and policies are rendered as polished, print-ready PDF-style outputs. No plain text. No placeholders. Every field populated. Every section complete.",
+    highlight: "Document Directive", gesture: "point", modes: ["LIVE", "DEMO", "APP", "TEST"] },
+  { id: 8, title: "Tour Complete — You're Ready!",
+    speech: "That's the full CreateAI Brain platform! You've seen all 12 apps, 21 engine sections, 15 deployments, 15 modes, universal industry support, and the PDF document engine. I'm ARIA Guide — your AI assistant, not a human — and I'm here whenever you need me.",
+    highlight: "Full Platform", gesture: "wave", modes: ["LIVE", "DEMO", "WALKTHROUGH"] },
+];
+
+const AI_AVATAR_DIRECTIVE = {
+  name: "Human-Like AI Avatar Guide Directive",
+  version: "1.0",
+  status: "active" as const,
+  avatarName: "ARIA Guide",
+  avatarType: "Stylized AI Guide — NOT a human. Does not claim to be one.",
+  rule: "Every guided tour MUST be led by a visually present, animated, conversational AI avatar. No guided tour may default to plain text or static overlays. The avatar is the DEFAULT guided tour experience.",
+  capabilities: [
+    { icon: "👁", text: "Appears visually on screen with an expressive animated character" },
+    { icon: "🤝", text: "Uses natural gestures and body language (wave, point, nod)" },
+    { icon: "💬", text: "Narrates in a conversational, friendly, human-like tone" },
+    { icon: "🗺", text: "Guides the user step-by-step through every feature" },
+    { icon: "🎯", text: "Highlights and references specific UI elements as it explains them" },
+    { icon: "⚡", text: "Advances through steps with animated transitions — no dead states" },
+    { icon: "✅", text: "Is the DEFAULT guided tour experience — no plain text fallbacks ever" },
+  ],
+  availableIn: [
+    { mode: "LIVE MODE",        icon: "⚡" },
+    { mode: "DEMO MODE",        icon: "🎬" },
+    { mode: "TEST MODE",        icon: "🧪" },
+    { mode: "APP MODE",         icon: "📱" },
+    { mode: "WEBSITE MODE",     icon: "🌐" },
+    { mode: "WALKTHROUGH MODE", icon: "🚶" },
+  ],
+  never: [
+    "Default to plain text for a guided tour",
+    "Use static overlay tooltips without the avatar present",
+    "Claim to be a real human",
+    "Skip steps or show incomplete walkthroughs",
+    "Use the avatar as a decorative element without narration",
+    "Leave the user with no guide during any tour in the 6 supported modes",
+  ],
+  safetyNote: "ARIA Guide is a stylized AI character created for the user experience. It is NOT a real human and does NOT claim to be one in any context.",
+};
+
 const REVENUE_SHARES: RevenueShareRecord[] = [
   { id: "rs1", user: "Sara Stadler",      role: "Platform Owner",     project: "All Projects",               totalRevenue: "$3.38M", share: 25, earned: "$845K",  nextPayout: "Apr 1"  },
   { id: "rs2", user: "Dr. Karen Walsh",   role: "Healthcare Client",  project: "Global Healthcare Platform", totalRevenue: "$3.1M",  share: 25, earned: "$775K",  nextPayout: "Apr 1"  },
@@ -4453,6 +4522,165 @@ const DEMO_PREVIEWS: Record<string, DemoPreview> = {
   },
 };
 
+// ─── AI Avatar Guide Component ────────────────────────────────────────────────
+
+function AvatarGuideDemo() {
+  const [step, setStep]       = useState(0);
+  const [talking, setTalking] = useState(true);
+
+  const cur    = AVATAR_TOUR_STEPS[step];
+  const isLast = step === AVATAR_TOUR_STEPS.length - 1;
+
+  useEffect(() => {
+    setTalking(true);
+    const t = setTimeout(() => setTalking(false), 2200);
+    return () => clearTimeout(t);
+  }, [step]);
+
+  const headClass = talking ? "avatar-head-talking avatar-head-glow" : "avatar-head-breath avatar-head-glow";
+  const armClass  = cur.gesture === "wave" ? "avatar-arm-wave" : cur.gesture === "point" ? "avatar-arm-point" : "";
+  const gestureEmoji = cur.gesture === "wave" ? "👋" : cur.gesture === "point" ? "☝️" : cur.gesture === "nod" ? "🤝" : "💡";
+
+  return (
+    <div style={{ background: "linear-gradient(135deg, #f0f7ff 0%, #f5f0ff 100%)", borderRadius: 16, padding: 16, display: "flex", gap: 16, alignItems: "flex-start", border: "1.5px solid #c8e0ff" }}>
+
+      {/* ── Avatar Character ── */}
+      <div style={{ flexShrink: 0, display: "flex", flexDirection: "column", alignItems: "center", width: 96 }}>
+
+        {/* Head */}
+        <div className={headClass} style={{
+          width: 68, height: 68, borderRadius: "50%",
+          background: "linear-gradient(145deg, #1a8cff 0%, #0040cc 100%)",
+          display: "flex", flexDirection: "column", alignItems: "center", justifyContent: "center",
+          position: "relative", cursor: "default",
+        }}>
+          {/* Eyebrows */}
+          <div style={{ display: "flex", gap: 10, marginBottom: 2 }}>
+            <div style={{ width: 10, height: 2.5, background: "rgba(255,255,255,0.85)", borderRadius: 2,
+              transform: talking ? "rotate(-8deg) translateY(-1px)" : "rotate(0deg)", transition: "transform 0.2s" }} />
+            <div style={{ width: 10, height: 2.5, background: "rgba(255,255,255,0.85)", borderRadius: 2,
+              transform: talking ? "rotate(8deg) translateY(-1px)" : "rotate(0deg)", transition: "transform 0.2s" }} />
+          </div>
+          {/* Eyes */}
+          <div style={{ display: "flex", gap: 10, marginBottom: 5 }}>
+            {[0, 1].map(i => (
+              <div key={i} style={{ width: 10, height: 10, borderRadius: "50%", background: "#fff", position: "relative", overflow: "hidden" }}>
+                <div style={{ width: 5, height: 5, borderRadius: "50%", background: "#001a4d", position: "absolute", top: 2.5, left: 2.5, transition: "transform 0.3s",
+                  transform: talking ? (i === 0 ? "translate(-1px,-1px)" : "translate(1px,-1px)") : "translate(0,0)" }} />
+              </div>
+            ))}
+          </div>
+          {/* Mouth */}
+          <div style={{
+            width: talking ? 20 : 24, height: talking ? 11 : 7,
+            borderRadius: talking ? "50% 50% 50% 50% / 40% 40% 60% 60%" : "0 0 50% 50%",
+            background: "#fff", transition: "all 0.18s ease",
+          }} />
+          {/* AI Guide badge */}
+          <div style={{ position: "absolute", bottom: -8, background: "#FFD60A", color: "#1a1a1a",
+            borderRadius: 8, padding: "1px 6px", fontSize: 8, fontWeight: 900, letterSpacing: 0.3,
+            whiteSpace: "nowrap", boxShadow: "0 1px 4px rgba(0,0,0,0.2)" }}>
+            AI GUIDE
+          </div>
+        </div>
+
+        {/* Body */}
+        <div style={{ width: 52, height: 46, background: "linear-gradient(180deg, #0055cc 0%, #002b80 100%)",
+          borderRadius: "12px 12px 8px 8px", marginTop: 12, display: "flex", alignItems: "center",
+          justifyContent: "center", position: "relative" }}>
+          {/* Chest badge */}
+          <div style={{ width: 20, height: 20, borderRadius: "50%", background: "rgba(255,255,255,0.15)",
+            display: "flex", alignItems: "center", justifyContent: "center", fontSize: 11 }}>⚡</div>
+          {/* Left arm — idle */}
+          <div style={{ position: "absolute", left: -14, top: 4, width: 13, height: 34,
+            background: "#0044aa", borderRadius: "8px 4px 8px 8px" }} />
+          {/* Right arm — gesture */}
+          <div className={armClass} style={{ position: "absolute", right: -14, top: 2, width: 13, height: 34,
+            background: "#0044aa", borderRadius: "4px 8px 8px 8px", display: "flex", alignItems: "flex-end",
+            justifyContent: "center", paddingBottom: 2, fontSize: 13, lineHeight: 1 }}>
+            <span style={{ transform: "translateX(10px) translateY(2px)" }}>{gestureEmoji}</span>
+          </div>
+        </div>
+
+        <div style={{ fontSize: 11, color: "#007AFF", fontWeight: 800, marginTop: 10, textAlign: "center" }}>ARIA Guide</div>
+        <div style={{ fontSize: 9, color: "#888", textAlign: "center", marginTop: 1 }}>AI · Not a human</div>
+
+        {/* Mode pills */}
+        <div style={{ display: "flex", flexWrap: "wrap", gap: 3, justifyContent: "center", marginTop: 6 }}>
+          {cur.modes.map(m => (
+            <span key={m} style={{ background: "#e6f9ec", color: "#1a7a3a", borderRadius: 4,
+              padding: "1px 5px", fontSize: 8, fontWeight: 800 }}>{m}</span>
+          ))}
+        </div>
+      </div>
+
+      {/* ── Speech + Navigation ── */}
+      <div style={{ flex: 1, minWidth: 0 }}>
+
+        {/* Speech bubble — key forces re-animation on step change */}
+        <div key={step} className="speech-bubble-pop" style={{
+          background: "#fff", border: "2px solid #007AFF",
+          borderRadius: "16px 16px 16px 4px", padding: "12px 14px", marginBottom: 12,
+          boxShadow: "0 4px 14px rgba(0,122,255,0.15)",
+        }}>
+          <div style={{ fontSize: 10, color: "#007AFF", fontWeight: 800, marginBottom: 5 }}>
+            Step {step + 1} of {AVATAR_TOUR_STEPS.length} · {cur.title}
+          </div>
+          <div style={{ fontSize: 12, color: "#222", lineHeight: 1.65 }}>{cur.speech}</div>
+          <div style={{ marginTop: 8, display: "flex", gap: 6, alignItems: "center" }}>
+            <span style={{ fontSize: 10, color: "#888" }}>🎯 Highlighting:</span>
+            <span style={{ fontSize: 10, fontWeight: 700, color: "#007AFF",
+              background: "#f0f7ff", borderRadius: 5, padding: "1px 7px" }}>{cur.highlight}</span>
+          </div>
+        </div>
+
+        {/* Step dots */}
+        <div style={{ display: "flex", gap: 5, marginBottom: 10, alignItems: "center" }}>
+          {AVATAR_TOUR_STEPS.map((_, i) => (
+            <div key={i} onClick={() => setStep(i)}
+              className={i === step ? "step-dot-active" : ""}
+              style={{ width: i === step ? 10 : 7, height: i === step ? 10 : 7,
+                borderRadius: "50%", background: i === step ? "#007AFF" : "#d0d0e0",
+                cursor: "pointer", transition: "all 0.2s", flexShrink: 0 }} />
+          ))}
+          <span style={{ marginLeft: 4, fontSize: 10, color: "#888" }}>
+            {step + 1} / {AVATAR_TOUR_STEPS.length}
+          </span>
+        </div>
+
+        {/* Controls */}
+        <div style={{ display: "flex", gap: 6, flexWrap: "wrap" }}>
+          {step > 0 && (
+            <button onClick={() => setStep(s => s - 1)}
+              style={{ background: "#f0f0f5", color: "#333", border: "none", borderRadius: 8,
+                padding: "6px 12px", cursor: "pointer", fontSize: 11, fontWeight: 700 }}>
+              ← Prev
+            </button>
+          )}
+          {!isLast ? (
+            <button onClick={() => setStep(s => s + 1)}
+              style={{ background: "#007AFF", color: "#fff", border: "none", borderRadius: 8,
+                padding: "6px 16px", cursor: "pointer", fontSize: 11, fontWeight: 700,
+                boxShadow: "0 2px 8px rgba(0,122,255,0.3)" }}>
+              Next →
+            </button>
+          ) : (
+            <button onClick={() => setStep(0)}
+              style={{ background: "#34C759", color: "#fff", border: "none", borderRadius: 8,
+                padding: "6px 16px", cursor: "pointer", fontSize: 11, fontWeight: 700 }}>
+              ↩ Restart Tour
+            </button>
+          )}
+          <span style={{ marginLeft: "auto", fontSize: 10, color: "#007AFF", fontWeight: 700,
+            alignSelf: "center", background: "#f0f7ff", borderRadius: 6, padding: "2px 8px" }}>
+            🚶 Avatar Tour Active
+          </span>
+        </div>
+      </div>
+    </div>
+  );
+}
+
 // ─── Platform OS View ─────────────────────────────────────────────────────────
 
 function PlatformOSView() {
@@ -4625,6 +4853,7 @@ function PlatformOSView() {
               { label: "Mode Instances",   value: `${SYSTEM_MODES.length * projects.length}`,color: "#8a00d4", bg: "#f5f0ff" },
               { label: "Industries",       value: "∞ Universal",                             color: "#007AFF", bg: "#f0f7ff" },
               { label: "Doc Format",       value: "PDF-Style",                               color: "#b85c00", bg: "#fff8f0" },
+              { label: "Avatar Guide",     value: "ARIA Active",                             color: "#6600cc", bg: "#f5f0ff" },
               { label: "Audit Cycles",     value: `${auditLog.length}`,                      color: "#FF9F0A", bg: "#fff8e6" },
               { label: "Self-Heals",       value: "14 total",                                color: "#34C759", bg: "#e6f9ec" },
             ].map(k => (
@@ -4822,7 +5051,7 @@ function PlatformOSView() {
                         </div>
                       </div>
                       <div style={{ marginTop: 8, fontSize: 11, color: "#007AFF", fontWeight: 700, textAlign: "center" }}>
-                        ✅ All 12 core features active · 25% revenue share registered · AI Persona online · Autopilot running · {SYSTEM_MODES.length} modes inherited · ∞ Industries supported · 📄 PDF-style docs enforced
+                        ✅ All 12 core features active · 25% revenue share registered · AI Persona online · Autopilot running · {SYSTEM_MODES.length} modes inherited · ∞ Industries supported · 📄 PDF-style docs · 🧑‍💻 ARIA Guide active
                       </div>
                     </div>
                   )}
@@ -5168,6 +5397,67 @@ function PlatformOSView() {
             </div>
           </div>
 
+          {/* ── AI Avatar Guide Directive Panel ── */}
+          <div style={{ background: "linear-gradient(135deg, #f5f0ff 0%, #f0f7ff 100%)", border: "2px solid #d5b8ff", borderRadius: 14, padding: "14px 16px", marginBottom: 16 }}>
+            <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: 10 }}>
+              <div>
+                <div style={{ fontWeight: 800, fontSize: 14, color: "#6600cc" }}>🧑‍💻 {AI_AVATAR_DIRECTIVE.name}</div>
+                <div style={{ fontSize: 11, color: "#555", marginTop: 2 }}>
+                  v{AI_AVATAR_DIRECTIVE.version} · Avatar: <span style={{ color: "#6600cc", fontWeight: 700 }}>{AI_AVATAR_DIRECTIVE.avatarName}</span> · Status: <span style={{ color: "#1a7a3a", fontWeight: 700 }}>ACTIVE</span>
+                </div>
+              </div>
+              <span style={{ background: "#e6f9ec", color: "#1a7a3a", borderRadius: 8, padding: "4px 12px", fontSize: 11, fontWeight: 800, whiteSpace: "nowrap" }}>✅ ACTIVE</span>
+            </div>
+
+            <div style={{ fontSize: 12, color: "#333", background: "#fff", borderRadius: 8, padding: "8px 12px", marginBottom: 10, lineHeight: 1.6 }}>
+              <strong>Core Rule:</strong> {AI_AVATAR_DIRECTIVE.rule}
+            </div>
+
+            <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 10, marginBottom: 12 }}>
+              {/* Capabilities */}
+              <div style={{ background: "#fff", borderRadius: 8, padding: "10px 12px" }}>
+                <div style={{ fontWeight: 700, fontSize: 12, color: "#6600cc", marginBottom: 6 }}>✨ Avatar Capabilities:</div>
+                {AI_AVATAR_DIRECTIVE.capabilities.map(c => (
+                  <div key={c.text} style={{ fontSize: 11, color: "#333", marginBottom: 4, display: "flex", gap: 5 }}>
+                    <span style={{ flexShrink: 0 }}>{c.icon}</span><span>{c.text}</span>
+                  </div>
+                ))}
+                <div style={{ marginTop: 8, fontWeight: 700, fontSize: 11, color: "#6600cc" }}>🎭 {AI_AVATAR_DIRECTIVE.avatarType}</div>
+              </div>
+              {/* Available In + Never */}
+              <div style={{ display: "flex", flexDirection: "column", gap: 8 }}>
+                <div style={{ background: "#fff", borderRadius: 8, padding: "10px 12px" }}>
+                  <div style={{ fontWeight: 700, fontSize: 12, color: "#1a7a3a", marginBottom: 6 }}>🗺 Available In These Modes:</div>
+                  <div style={{ display: "flex", flexWrap: "wrap", gap: 4 }}>
+                    {AI_AVATAR_DIRECTIVE.availableIn.map(m => (
+                      <span key={m.mode} style={{ background: "#f0f7ff", color: "#007AFF", border: "1px solid #c8e0ff",
+                        borderRadius: 6, padding: "2px 8px", fontSize: 11, fontWeight: 700 }}>
+                        {m.icon} {m.mode}
+                      </span>
+                    ))}
+                  </div>
+                </div>
+                <div style={{ background: "#fff0f5", borderRadius: 8, padding: "10px 12px" }}>
+                  <div style={{ fontWeight: 700, fontSize: 12, color: "#c0006e", marginBottom: 6 }}>🚫 System NEVER:</div>
+                  {AI_AVATAR_DIRECTIVE.never.map(n => (
+                    <div key={n} style={{ fontSize: 11, color: "#c0006e", marginBottom: 3 }}>✕ {n}</div>
+                  ))}
+                </div>
+              </div>
+            </div>
+
+            {/* Safety note */}
+            <div style={{ background: "#fff8e6", borderRadius: 8, padding: "8px 12px", fontSize: 11, color: "#c67000", marginBottom: 12, lineHeight: 1.6 }}>
+              ⚠️ <strong>Safety Note:</strong> {AI_AVATAR_DIRECTIVE.safetyNote}
+            </div>
+
+            {/* Live avatar demo */}
+            <div style={{ fontWeight: 700, fontSize: 12, color: "#6600cc", marginBottom: 8 }}>
+              🎬 Live Avatar Demo — Interact with the tour below:
+            </div>
+            <AvatarGuideDemo />
+          </div>
+
           {MODE_CATEGORIES.map(cat => {
             const modesInCat = SYSTEM_MODES.filter(m => m.category === cat.id);
             return (
@@ -5238,6 +5528,9 @@ function PlatformOSView() {
           </div>
           <div style={{ background: "linear-gradient(135deg, #fff8f0 0%, #fffdf5 100%)", border: "1px solid #ffe0b2", borderRadius: 12, padding: "12px 16px", marginTop: 10, fontSize: 13, color: "#b85c00", fontWeight: 600 }}>
             📄 Document & Form Output Directive is active. All {DOCUMENT_OUTPUT_DIRECTIVE.documentTypes.length} document types are enforced as polished, PDF-style outputs across all {projects.length} projects and all {SYSTEM_MODES.length} modes. No plain text. No placeholders. No incomplete sections. No exceptions.
+          </div>
+          <div style={{ background: "linear-gradient(135deg, #f5f0ff 0%, #f0f7ff 100%)", border: "1px solid #d5b8ff", borderRadius: 12, padding: "12px 16px", marginTop: 10, fontSize: 13, color: "#6600cc", fontWeight: 600 }}>
+            🧑‍💻 AI Avatar Guide Directive is active. ARIA Guide is the default tour experience across all {AI_AVATAR_DIRECTIVE.availableIn.length} supported modes ({AI_AVATAR_DIRECTIVE.availableIn.map(m => m.mode).join(", ")}). No guided tour may default to plain text or static overlays. ARIA Guide is a stylized AI character — not a human. No exceptions.
           </div>
         </div>
       )}
