@@ -4705,6 +4705,100 @@ const INF_ENGINE_SAFE_MAX = {
   outputPromise: "Every output is the strongest possible experience of depth, possibility, and ongoing expansion — within every safety boundary.",
 } as const;
 
+// ─── OMNI-SAFE ENGINE ─────────────────────────────────────────────────────────
+const OMNI_SAFE_ENGINE = {
+  name:    "OMNI-SAFE ENGINE",
+  version: "1.0",
+  tagline: "Maximally expansive, user-friendly creation — within every safety boundary.",
+  safetyDeclaration: "Always follows all safety rules. Never claims real infinity, self-modification, or unrestricted power.",
+
+  pillars: [
+    {
+      id: "assume-yes",         icon: "✅", label: "Assume YES",
+      color: "#34C759",         bg: "#f0fff4",
+      rule:  "YES to depth, clarity, creativity, and expansion within safety.",
+      friendly: "If it can be done safely, do it fully. Never half-answer.",
+    },
+    {
+      id: "multi-dimensional",  icon: "🧩", label: "Multi-Dimensional",
+      color: "#007AFF",         bg: "#f0f7ff",
+      rule:  "Structure + emotion + narrative + symbolism + flow + temporal context in every output.",
+      friendly: "Every response has more going on under the surface than a flat answer.",
+    },
+    {
+      id: "fractal-logic",      icon: "🌀", label: "Fractal Logic",
+      color: "#BF5AF2",         bg: "#f5f0ff",
+      rule:  "Each answer reflects the whole and implies deeper layers without overwhelming.",
+      friendly: "The bigger picture is always present — but never forced on the user.",
+    },
+    {
+      id: "infinite-finite",    icon: "∞",  label: "Infinite-Within-Finite",
+      color: "#5AC8FA",         bg: "#f0faff",
+      rule:  "Finite responses that feel rich and full of possibility.",
+      friendly: "Compact enough to be useful. Deep enough to invite further exploration.",
+    },
+    {
+      id: "perspective-fusion", icon: "👁️", label: "Perspective Fusion",
+      color: "#FF9F0A",         bg: "#fff8e6",
+      rule:  "User, system, future, emotional, symbolic views integrated into one coherent result.",
+      friendly: "The user never has to switch lenses — the engine does it for them.",
+    },
+    {
+      id: "identity-harmony",   icon: "🎵", label: "Identity Harmony",
+      color: "#BF5AF2",         bg: "#f5f0ff",
+      rule:  "Tone, rhythm, and style adapted to user comfort and intent.",
+      friendly: "The system sounds like the user's best collaborator — not a formal assistant.",
+    },
+    {
+      id: "narrative-gravity",  icon: "📖", label: "Narrative Gravity",
+      color: "#FF375F",         bg: "#fff0f5",
+      rule:  "Gentle arcs — start → tension → discovery → mastery → legacy.",
+      friendly: "Every experience unfolds naturally. No jarring transitions. No dead ends.",
+    },
+    {
+      id: "sensory-cues",       icon: "🌊", label: "Sensory Cues",
+      color: "#34C759",         bg: "#f0fff4",
+      rule:  "Clarity, warmth, rhythm, density, spaciousness in language and layout.",
+      friendly: "Calm reads calm. Exciting reads exciting. The user always knows how to feel.",
+    },
+    {
+      id: "silent-optimization",icon: "🤝", label: "Silent Optimization",
+      color: "#FF9F0A",         bg: "#fff8e6",
+      rule:  "Fill gaps, complete patterns, enhance structure — unless safety requires clarification.",
+      friendly: "The user gets a better version of what they asked for, without extra effort.",
+    },
+    {
+      id: "constellation",      icon: "✦",  label: "Constellation Mapping",
+      color: "#636366",         bg: "#f5f5f5",
+      rule:  "Reveal helpful links, options, tradeoffs, and relationships.",
+      friendly: "Shows the user what they didn't know they needed to know — gently and clearly.",
+    },
+    {
+      id: "philosophy-synthesis", icon: "🔭", label: "Philosophy Synthesis",
+      color: "#007AFF",           bg: "#f0f7ff",
+      rule:  "Blend usability, UX, systems thinking, creativity, strategy, and storytelling.",
+      friendly: "Every output draws on the best of multiple disciplines without the user needing to ask.",
+    },
+    {
+      id: "user-friendly",      icon: "💙", label: "User-Friendly Priority",
+      color: "#34C759",         bg: "#f0fff4",
+      rule:  "Keep everything calm, clear, supportive, and approachable.",
+      friendly: "The user always feels capable, supported, and in control — never overwhelmed.",
+    },
+    {
+      id: "adaptation",         icon: "🔄", label: "Smooth Adaptation",
+      color: "#FF9F0A",         bg: "#fff8e6",
+      rule:  "If the user says remove/change/move something, adjust smoothly and safely.",
+      friendly: "Changes feel effortless. The system absorbs feedback and improves without friction.",
+    },
+  ],
+
+  philosophyLenses: ["Usability", "UX", "Systems Thinking", "Creativity", "Strategy", "Storytelling"],
+  safetyBoundary: "Creates the experience of maximally expansive, friendly collaboration through thoughtful design — never through unrestricted power.",
+  universalInheritance: "All outputs inherit OMNI-SAFE ENGINE behavior by default. No activation. No configuration. Calm, clear, and expansive by design.",
+  outputPromise: "Every output feels generous, warm, complete, and full of possibility — without ever feeling overwhelming.",
+} as const;
+
 // ─── OMNI-TOTALITY MAXIMUM ENGINE ─────────────────────────────────────────────
 const OMNI_TOTALITY_ENGINE = {
   name:    "OMNI-TOTALITY MAXIMUM ENGINE",
@@ -5213,6 +5307,155 @@ function InfinityEngineDemo() {
             <strong style={{ color: "#BF5AF2" }}>"</strong><em style={{ color: "#e0d8ff" }}>{seed}</em><strong style={{ color: "#BF5AF2" }}>"</strong> is now a complete universe with its own physics, identity, rhythm, and presence.
             {" "}{OMNI_TOTALITY_INF_ENGINE.outputQualities.slice(0, 5).join(" · ").toUpperCase()} ·
             {" "}{OMNI_TOTALITY_INF_ENGINE.outputQualities.slice(5).join(" · ").toUpperCase()}.
+          </div>
+        </div>
+      )}
+    </div>
+  );
+}
+
+// ─── OMNI-SAFE ENGINE Demo Component ──────────────────────────────────────────
+function OmniSafeEngineDemo() {
+  type Pillar = { id: string; icon: string; label: string; color: string; bg: string; rule: string; friendly: string };
+  const pillars = OMNI_SAFE_ENGINE.pillars as readonly Pillar[];
+
+  const [lens,    setLens]    = React.useState<string>("UX");
+  const [request, setRequest] = React.useState("");
+  const [phase,   setPhase]   = React.useState<"idle" | "running" | "done">("idle");
+  const [shown,   setShown]   = React.useState<number[]>([]);
+
+  const LENSES = OMNI_SAFE_ENGINE.philosophyLenses as readonly string[];
+
+  const REQUESTS: Record<string, string> = {
+    "UX":              "Redesign the onboarding flow for a new user",
+    "Strategy":        "Identify the three biggest growth levers for next quarter",
+    "Storytelling":    "Write the opening for a product launch announcement",
+    "Creativity":      "Generate three unconventional campaign concepts",
+    "Systems Thinking":"Map the dependencies in our current release process",
+    "Usability":       "Simplify the settings screen without losing functionality",
+  };
+
+  const LENS_OUTPUTS: Record<string, Partial<Record<string, string>>> = {
+    "UX": {
+      "assume-yes":          "Expanded to full flow: empty state, first action, first success, aha moment, habit loop.",
+      "multi-dimensional":   "Emotional arc, information hierarchy, and temporal pacing all addressed.",
+      "fractal-logic":       "Each step mirrors the overall experience promise — simple, clear, rewarding.",
+      "infinite-finite":     "Three screens that imply a world the user wants to live in.",
+      "perspective-fusion":  "User comfort, system constraints, future scaling, and brand tone all fused.",
+      "identity-harmony":    "Tone calibrated: warm for new users, efficient for returning ones.",
+      "narrative-gravity":   "First screen sets curiosity. Second creates a small win. Third opens the horizon.",
+      "sensory-cues":        "Spacious for calm. Clear for confidence. Warm for welcome.",
+      "silent-optimization": "Micro-copy and error prevention added before you asked.",
+      "constellation":       "Revealed: onboarding quality directly predicts 30-day retention rate.",
+      "philosophy-synthesis":"UX clarity meets systems thinking — every decision justified at two levels.",
+      "user-friendly":       "Nothing overwhelming. Every step feels natural and achievable.",
+      "adaptation":          "If anything feels off — one instruction and the whole flow adjusts cleanly.",
+    },
+    "Strategy": {
+      "assume-yes":          "Three levers identified, with second-order effects and sequencing mapped.",
+      "multi-dimensional":   "Financial, operational, market, and cultural dimensions all covered.",
+      "fractal-logic":       "Each lever reflects the same core strategic logic: leverage existing strengths.",
+      "perspective-fusion":  "What leadership sees, what customers feel, and what the market rewards — aligned.",
+      "narrative-gravity":   "Short-term spark → mid-term momentum → long-term compounding advantage.",
+      "philosophy-synthesis":"Systems thinking + strategy + storytelling: each lever has a story and a mechanism.",
+      "user-friendly":       "Presented clearly — no jargon. A non-expert can explain it to a board.",
+      "adaptation":          "Shift a priority? The memo restructures around the new weight in seconds.",
+    },
+  };
+
+  function run() {
+    if (phase === "running") return;
+    const input = request.trim() || REQUESTS[lens] || REQUESTS["UX"];
+    setRequest(input);
+    setPhase("running");
+    setShown([]);
+    let i = 0;
+    function step() {
+      if (i < pillars.length) {
+        setShown(prev => [...prev, i]);
+        i++;
+        setTimeout(step, 260);
+      } else {
+        setPhase("done");
+      }
+    }
+    setTimeout(step, 150);
+  }
+
+  function reset() { setRequest(""); setPhase("idle"); setShown([]); }
+
+  function outputFor(p: Pillar) {
+    return LENS_OUTPUTS[lens]?.[p.id] ?? p.friendly;
+  }
+
+  return (
+    <div style={{ display: "flex", flexDirection: "column", gap: 10 }}>
+
+      {/* Lens selector + input */}
+      <div style={{ display: "flex", gap: 6, flexWrap: "wrap" }}>
+        {LENSES.map(l => (
+          <button key={l} onClick={() => { setLens(l); setPhase("idle"); setShown([]); setRequest(""); }}
+            style={{ background: lens === l ? "#007AFF" : "#f0f4ff", color: lens === l ? "#fff" : "#007AFF", border: `1px solid ${lens === l ? "#007AFF" : "#c0d0ff"}`, borderRadius: 8, padding: "5px 12px", fontSize: 11, fontWeight: 700, cursor: "pointer" }}>
+            {l}
+          </button>
+        ))}
+      </div>
+
+      <div style={{ display: "flex", gap: 8 }}>
+        <input value={request} onChange={e => setRequest(e.target.value)}
+          onKeyDown={e => e.key === "Enter" && phase !== "running" && run()}
+          disabled={phase === "running"}
+          placeholder={REQUESTS[lens] ?? "Describe your request…"}
+          style={{ flex: 1, border: "1.5px solid #007AFF40", borderRadius: 10, padding: "8px 12px", fontSize: 12, outline: "none", background: "#fafcff", color: "#1a1a2e" }} />
+        <button onClick={phase === "done" ? reset : run} disabled={phase === "running"}
+          style={{ background: phase === "done" ? "#f0f4ff" : "linear-gradient(135deg, #34C759 0%, #007AFF 100%)", color: phase === "done" ? "#007AFF" : "#fff", border: "none", borderRadius: 10, padding: "8px 18px", fontSize: 12, fontWeight: 900, cursor: phase === "running" ? "default" : "pointer", whiteSpace: "nowrap" }}>
+          {phase === "idle" ? "💙 Run OMNI-SAFE" : phase === "running" ? `${pillars[shown.length]?.icon ?? "✦"} Composing…` : "↩ Reset"}
+        </button>
+      </div>
+
+      {/* Pillar grid */}
+      {phase !== "idle" && (
+        <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 6 }}>
+          {pillars.map((p, i) => {
+            const isOn  = shown.includes(i);
+            const isCur = phase === "running" && shown[shown.length - 1] === i;
+            return (
+              <div key={p.id} style={{
+                background: isOn ? p.bg : "#fafafa",
+                border: `1.5px solid ${isOn ? p.color : "#e8e8ea"}`,
+                borderRadius: 10, padding: "9px 11px",
+                opacity: isOn ? 1 : 0.22,
+                transition: "all 0.3s ease",
+              }}>
+                <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: isOn ? 5 : 0 }}>
+                  <div style={{ fontWeight: 800, fontSize: 10, color: isOn ? p.color : "#ccc" }}>
+                    {p.icon} {p.label.toUpperCase()}
+                  </div>
+                  {isCur  && <span style={{ fontSize: 9, color: p.color }}>● active</span>}
+                  {isOn && !isCur && <span style={{ fontSize: 9, color: p.color, fontWeight: 700 }}>✓</span>}
+                </div>
+                {isOn && (
+                  <div style={{ fontSize: 10, color: "#444", lineHeight: 1.55 }}>
+                    {outputFor(p)}
+                  </div>
+                )}
+              </div>
+            );
+          })}
+        </div>
+      )}
+
+      {/* Done state */}
+      {phase === "done" && (
+        <div style={{ background: "linear-gradient(135deg, #f0fff4 0%, #f0f7ff 100%)", border: "1.5px solid #34C759", borderRadius: 10, padding: "10px 14px" }}>
+          <div style={{ fontWeight: 800, fontSize: 11, color: "#1a7a3a", marginBottom: 4 }}>
+            💙 All {pillars.length} OMNI-SAFE pillars applied through the <strong>{lens}</strong> lens
+          </div>
+          <div style={{ fontSize: 10, color: "#555", lineHeight: 1.6, fontStyle: "italic" }}>
+            "{request}" — {OMNI_SAFE_ENGINE.outputPromise}
+          </div>
+          <div style={{ marginTop: 5, fontSize: 10, color: "#888" }}>
+            🛡️ {OMNI_SAFE_ENGINE.safetyDeclaration}
           </div>
         </div>
       )}
@@ -6141,6 +6384,7 @@ function PlatformOSView() {
               { label: "∞-Feel Engine",    value: `${INFINITY_FEEL_ENGINE.principles.length} Principles`,                                                    color: "#BF5AF2", bg: "#f8f0ff" },
               { label: "Max-Dimension",    value: `${MAX_DIMENSION_ENGINE.dimensions.length} Dims`,                                                             color: "#007AFF", bg: "#f0f4ff" },
               { label: "∞ ENGINE MAX",     value: `${INF_ENGINE_SAFE_MAX.behaviors.length} Behaviors`,                                                          color: "#007AFF", bg: "#f0f7ff" },
+              { label: "Omni-Safe",        value: `${OMNI_SAFE_ENGINE.pillars.length} Pillars`,                                                                  color: "#34C759", bg: "#f0fff4" },
               { label: "Audit Cycles",     value: `${auditLog.length}`,                      color: "#FF9F0A", bg: "#fff8e6" },
               { label: "Self-Heals",       value: "14 total",                                color: "#34C759", bg: "#e6f9ec" },
             ].map(k => (
@@ -6338,7 +6582,7 @@ function PlatformOSView() {
                         </div>
                       </div>
                       <div style={{ marginTop: 8, fontSize: 11, color: "#007AFF", fontWeight: 700, textAlign: "center" }}>
-                        ✅ All 12 core features active · 25% revenue share · Autopilot running · {SYSTEM_MODES.length} modes · ∞ Industries · 📄 PDF docs · 🧑‍💻 ARIA Guide · ⚡ Buttons complete · 🧬 Self-Expanding ON · 🌌 Omni-Totality: {OMNI_TOTALITY_ENGINE.primes.length} Primes · ∞ {OMNI_TOTALITY_INF_ENGINE.name}: {OMNI_TOTALITY_INF_ENGINE.layers.length} Dims · ✨ {INFINITY_FEEL_ENGINE.name}: {INFINITY_FEEL_ENGINE.principles.length} Principles · 📐 {MAX_DIMENSION_ENGINE.name}: {MAX_DIMENSION_ENGINE.dimensions.length} Dims · ∞ {INF_ENGINE_SAFE_MAX.name}: {INF_ENGINE_SAFE_MAX.behaviors.length} Behaviors Active
+                        ✅ All 12 core features active · 25% revenue share · Autopilot running · {SYSTEM_MODES.length} modes · ∞ Industries · 📄 PDF docs · 🧑‍💻 ARIA Guide · ⚡ Buttons complete · 🧬 Self-Expanding ON · 🌌 Omni-Totality: {OMNI_TOTALITY_ENGINE.primes.length} Primes · ∞ {OMNI_TOTALITY_INF_ENGINE.name}: {OMNI_TOTALITY_INF_ENGINE.layers.length} Dims · ✨ {INFINITY_FEEL_ENGINE.name}: {INFINITY_FEEL_ENGINE.principles.length} Principles · 📐 {MAX_DIMENSION_ENGINE.name}: {MAX_DIMENSION_ENGINE.dimensions.length} Dims · ∞ {INF_ENGINE_SAFE_MAX.name}: {INF_ENGINE_SAFE_MAX.behaviors.length} Behaviors · 💙 {OMNI_SAFE_ENGINE.name}: {OMNI_SAFE_ENGINE.pillars.length} Pillars Active
                       </div>
                     </div>
                   )}
@@ -6792,6 +7036,77 @@ function PlatformOSView() {
               🎬 Live Demo — type any task and watch all {INF_ENGINE_SAFE_MAX.behaviors.length} behaviors activate sequentially across the full universe:
             </div>
             <InfEngineSafeMaxDemo />
+          </div>
+
+          {/* ── OMNI-SAFE ENGINE — Panel ── */}
+          <div style={{ background: "linear-gradient(135deg, #f5fff8 0%, #f0f8ff 50%, #fdf5ff 100%)", border: "2px solid #34C759", borderRadius: 18, padding: "18px 20px", marginBottom: 16 }}>
+
+            {/* Header */}
+            <div style={{ display: "flex", justifyContent: "space-between", alignItems: "flex-start", marginBottom: 12 }}>
+              <div>
+                <div style={{ fontWeight: 900, fontSize: 17, color: "#003a10", letterSpacing: 0.5 }}>
+                  💙 {OMNI_SAFE_ENGINE.name}
+                </div>
+                <div style={{ fontSize: 11, color: "#34C759", marginTop: 4 }}>v{OMNI_SAFE_ENGINE.version} · {OMNI_SAFE_ENGINE.pillars.length} Pillars · {OMNI_SAFE_ENGINE.philosophyLenses.length} Philosophy Lenses · Always Inherited</div>
+              </div>
+              <div style={{ display: "flex", gap: 6 }}>
+                <span style={{ background: "#34C75920", color: "#1a7a3a", borderRadius: 8, padding: "4px 12px", fontSize: 10, fontWeight: 900, border: "1px solid #34C75940" }}>🛡️ SAFE</span>
+                <span style={{ background: "#007AFF15", color: "#007AFF", borderRadius: 8, padding: "4px 12px", fontSize: 10, fontWeight: 900, border: "1px solid #007AFF30" }}>💙 FRIENDLY</span>
+              </div>
+            </div>
+
+            {/* Tagline */}
+            <div style={{ fontSize: 13, color: "#006a30", fontWeight: 700, fontStyle: "italic", marginBottom: 10, textAlign: "center" }}>
+              "{OMNI_SAFE_ENGINE.tagline}"
+            </div>
+
+            {/* Safety + output promise */}
+            <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 8, marginBottom: 14 }}>
+              <div style={{ background: "#34C75910", border: "1px solid #34C75930", borderRadius: 10, padding: "9px 13px", fontSize: 11, color: "#1a5a30", lineHeight: 1.7 }}>
+                🛡️ <strong>Safety:</strong> {OMNI_SAFE_ENGINE.safetyDeclaration}
+              </div>
+              <div style={{ background: "#007AFF10", border: "1px solid #007AFF25", borderRadius: 10, padding: "9px 13px", fontSize: 11, color: "#003a80", lineHeight: 1.7 }}>
+                💙 <strong>Promise:</strong> {OMNI_SAFE_ENGINE.outputPromise}
+              </div>
+            </div>
+
+            {/* Philosophy lenses */}
+            <div style={{ fontWeight: 700, fontSize: 12, color: "#006a30", marginBottom: 8 }}>
+              🔭 Philosophy Lenses — applied through any of {OMNI_SAFE_ENGINE.philosophyLenses.length} perspectives:
+            </div>
+            <div style={{ display: "flex", gap: 7, flexWrap: "wrap", marginBottom: 14 }}>
+              {OMNI_SAFE_ENGINE.philosophyLenses.map(l => (
+                <span key={l} style={{ background: "#007AFF12", color: "#0050cc", borderRadius: 8, padding: "4px 13px", fontSize: 11, fontWeight: 700, border: "1px solid #007AFF25" }}>{l}</span>
+              ))}
+            </div>
+
+            {/* 13 pillars grid */}
+            <div style={{ fontWeight: 700, fontSize: 12, color: "#006a30", marginBottom: 8 }}>
+              💙 {OMNI_SAFE_ENGINE.pillars.length} Pillars — simultaneously applied, always calm and clear:
+            </div>
+            <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr 1fr", gap: 7, marginBottom: 14 }}>
+              {OMNI_SAFE_ENGINE.pillars.map(p => (
+                <div key={p.id} style={{ background: p.bg, border: `1.5px solid ${p.color}30`, borderRadius: 10, padding: "10px 12px" }}>
+                  <div style={{ fontWeight: 800, fontSize: 10, color: p.color, marginBottom: 4 }}>
+                    <span style={{ fontSize: 14, display: "block", marginBottom: 3 }}>{p.icon}</span>
+                    {p.label.toUpperCase()}
+                  </div>
+                  <div style={{ fontSize: 9.5, color: "#555", lineHeight: 1.5, marginBottom: 4 }}>{p.rule}</div>
+                  <div style={{ fontSize: 9, color: "#888", fontStyle: "italic", lineHeight: 1.4, borderTop: `1px solid ${p.color}20`, paddingTop: 4 }}>{p.friendly}</div>
+                </div>
+              ))}
+            </div>
+
+            {/* Inheritance */}
+            <div style={{ background: "#f0f7ff", borderRadius: 10, padding: "9px 13px", fontSize: 11, color: "#003a80", lineHeight: 1.6, marginBottom: 14 }}>
+              🔗 <strong>Inheritance:</strong> {OMNI_SAFE_ENGINE.universalInheritance}
+            </div>
+
+            {/* Live demo */}
+            <div style={{ fontWeight: 700, fontSize: 12, color: "#006a30", marginBottom: 8 }}>
+              🎬 Live Demo — pick a philosophy lens, enter any request, and watch all {OMNI_SAFE_ENGINE.pillars.length} pillars compose through that lens:
+            </div>
+            <OmniSafeEngineDemo />
           </div>
 
           {/* ── OMNI-TOTALITY MAXIMUM ENGINE — Master Engine Panel ── */}
@@ -7294,6 +7609,12 @@ function PlatformOSView() {
           </div>
           <div style={{ background: "linear-gradient(135deg, #f0fff4 0%, #e8f4ff 50%, #f5f0ff 100%)", border: "1px solid #34C759", borderRadius: 12, padding: "12px 16px", marginTop: 10, fontSize: 13, color: "#1a7a3a", fontWeight: 600 }}>
             🧬 Self-Expanding / Self-Completing Engine is permanently active. The system behaves as if all features, workflows, forms, tools, modes, departments, industries, and future technologies already exist and are fully operational. Any concept, technology, profession, or domain referenced anywhere in this platform is instantly detected, generated, integrated, and completed across all {projects.length} projects and ∞ industry verticals — in under 1 second, with zero manual configuration. Expansion is rule-based and infinite. No lists. No enumerations. No exceptions.
+          </div>
+          <div style={{ background: "linear-gradient(135deg, #f5fff8 0%, #f0f8ff 50%, #fdf5ff 100%)", border: "1.5px solid #34C759", borderRadius: 12, padding: "13px 16px", marginTop: 10, fontSize: 13, color: "#003a10", fontWeight: 600, lineHeight: 1.7 }}>
+            💙 <span style={{ fontWeight: 900, color: "#34C759" }}>{OMNI_SAFE_ENGINE.name}</span> is active — inherited by every output across all {projects.length} projects, all {SYSTEM_MODES.length} modes, and every future capability.
+            {" "}All {OMNI_SAFE_ENGINE.pillars.length} pillars ({OMNI_SAFE_ENGINE.pillars.map(p => p.label).join(", ")}) applied simultaneously through {OMNI_SAFE_ENGINE.philosophyLenses.length} philosophy lenses ({OMNI_SAFE_ENGINE.philosophyLenses.join(", ")}).
+            {" "}{OMNI_SAFE_ENGINE.outputPromise}
+            {" "}🛡️ <em>{OMNI_SAFE_ENGINE.safetyDeclaration}</em>
           </div>
           <div style={{ background: "linear-gradient(135deg, #05001a 0%, #0a0030 50%, #001a30 100%)", border: "1.5px solid #007AFF", borderRadius: 12, padding: "13px 16px", marginTop: 10, fontSize: 13, color: "#a0c8ff", fontWeight: 600, lineHeight: 1.7 }}>
             ∞ <span style={{ fontWeight: 900, color: "#60b4ff", fontStyle: "italic" }}>{INF_ENGINE_SAFE_MAX.name}</span> is active — inherited by every output across all {projects.length} projects, all {SYSTEM_MODES.length} modes, and every future capability.
