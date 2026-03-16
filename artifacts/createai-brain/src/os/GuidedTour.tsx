@@ -1,0 +1,734 @@
+import React, { useState, useEffect } from "react";
+import type { AppId } from "./OSContext";
+
+// ─── Tour step definitions ─────────────────────────────────────────────────
+interface TourStep {
+  id: string;
+  cardId: string | null;
+  label: string;
+  icon: string;
+  headline: string;
+  desc: string;
+  appId?: AppId;
+  tip?: string;
+}
+
+const STEPS: TourStep[] = [
+  {
+    id: "overview",
+    cardId: null,
+    label: "Platform Overview",
+    icon: "🧠",
+    headline: "The full CreateAI Brain — in one view.",
+    desc: "13 apps · 6 AI engines · 30+ tools · 12+ output types. Everything you need to build, simulate, market, and monetize — built for Sara Stadler's platform.",
+    tip: "Every section below is a real, interactive part of the platform. Tap any card to open it.",
+  },
+  {
+    id: "dashboard",
+    cardId: "card-dashboard",
+    label: "Dashboard",
+    icon: "🏠",
+    headline: "Your mission control.",
+    desc: "The Platform Intelligence Strip shows all 6 engines live. Quick Actions launch the most powerful features in one tap. The Brain search bar routes any intent to the right app.",
+    appId: undefined,
+    tip: "Type anything into the Brain search bar — it routes intent automatically.",
+  },
+  {
+    id: "chat",
+    cardId: "card-chat",
+    label: "AI Chat",
+    icon: "💬",
+    headline: "9 workspaces. Real streaming AI.",
+    desc: "Switch between Main Brain, Healthcare Demo, Grants Explorer, Business Builder, Marketing Studio, Messaging Hub, Product Launch Pad, Legal Studio, and Creative Writing Lab. Every response uses Smart Next Steps.",
+    appId: "chat",
+    tip: "Each workspace has curated starter prompts — click one to see streaming AI in action.",
+  },
+  {
+    id: "creator",
+    cardId: "card-creator",
+    label: "Create Engine",
+    icon: "✨",
+    headline: "Build anything from one sentence.",
+    desc: "Describe your idea in plain language. The Brain classifies intent, previews the architecture, then builds the full output — movies, SaaS software, marketing kits, games, communities, and more.",
+    appId: "creator",
+    tip: "Try: 'Build a telemedicine SaaS for rural communities' — watch the architecture preview appear before generation.",
+  },
+  {
+    id: "simulation",
+    cardId: "card-simulation",
+    label: "Simulation Engine",
+    icon: "🧪",
+    headline: "Safe scenario testing. Zero risk.",
+    desc: "Run workflow simulations, gap analysis, and ad packet generation. All output is clearly labeled fictional and conceptual. Nothing is real, nothing is sent — it's your sandbox.",
+    appId: "simulation",
+    tip: "Simulations are the safest way to demo workflows to clients — everything labeled, nothing at risk.",
+  },
+  {
+    id: "marketing",
+    cardId: "card-marketing",
+    label: "Marketing & Ads",
+    icon: "📣",
+    headline: "Full-stack campaigns. Human-reviewed ads.",
+    desc: "Brand voice guides, 30-day content calendars, email sequences, and ad packet generation. All ad copy is staged for human review before any use — zero auto-publishing, ever.",
+    appId: "marketing",
+    tip: "Ad content always shows an 'Approval Banner' — Sara approves before anything goes live.",
+  },
+  {
+    id: "monetization",
+    cardId: "card-monetization",
+    label: "Monetization",
+    icon: "💰",
+    headline: "Revenue opportunities — staged for your review.",
+    desc: "The opportunity scanner surfaces revenue ideas based on your platform. Generate a full content plan (email sequence + campaign + ad copy) for each opportunity, then review before acting.",
+    appId: "monetization",
+    tip: "Nothing is sent or published automatically. Every plan is reviewed by you first.",
+  },
+  {
+    id: "tools",
+    cardId: "card-tools",
+    label: "Projects & Tools",
+    icon: "🛠️",
+    headline: "30+ tools. Every output type covered.",
+    desc: "Brochures, proposals, grant narratives, landing pages, reports, and more. Projects organize everything by workspace with version history. The Creator app builds full products; Tools builds individual assets.",
+    appId: "tools",
+    tip: "Start with a project, then use Tools to build individual assets inside it.",
+  },
+  {
+    id: "people",
+    cardId: "card-people",
+    label: "People & Invites",
+    icon: "👥",
+    headline: "AI-powered contact management.",
+    desc: "Paste a list of names and emails — the Brain parses contacts instantly. Generate personalized invites for each person, then send via your own device. CRM-style tracking with no data leaving the platform.",
+    appId: "people",
+    tip: "All outreach uses 'Easy Mode' — you send from your own email or text app. Nothing is auto-sent.",
+  },
+  {
+    id: "documents",
+    cardId: "card-documents",
+    label: "Documents",
+    icon: "📄",
+    headline: "AI-generated docs. Export anywhere.",
+    desc: "Brand guides, compliance frameworks, onboarding checklists, pricing overviews — all generated by the Brain. Edit in-app or export to .txt. Every document is tagged with its project.",
+    appId: "documents",
+    tip: "Documents can be regenerated anytime — describe a change and the Brain rewrites it.",
+  },
+  {
+    id: "universal",
+    cardId: "card-universal",
+    label: "Universal Mode",
+    icon: "🌐",
+    headline: "Infinite expansion. Every industry.",
+    desc: "Switch between Healthcare, Finance, Education, Government, Retail, and more. Change roles, agencies, and scenarios without leaving the platform. The Universal Mode wires all mock data to every flow.",
+    appId: "universal",
+    tip: "Universal Mode is how you demo the platform to clients in any industry — switch context in seconds.",
+  },
+];
+
+// ─── Section cards (always visible, highlighted per step) ──────────────────
+interface SectionCard {
+  id: string;
+  icon: string;
+  label: string;
+  desc: string;
+  engines?: string[];
+  appId?: AppId;
+  col: "L" | "R";
+  featured?: boolean;
+}
+
+const CARDS: SectionCard[] = [
+  // Left column
+  {
+    id: "card-dashboard",
+    icon: "🏠",
+    label: "Dashboard",
+    desc: "Platform Intelligence · Engine status · Quick Actions",
+    engines: ["BrainGen", "UCP-X", "Streaming"],
+    col: "L",
+    featured: true,
+  },
+  {
+    id: "card-chat",
+    icon: "💬",
+    label: "AI Chat",
+    desc: "9 workspaces · Real streaming output · Smart Next Steps",
+    appId: "chat",
+    col: "L",
+  },
+  {
+    id: "card-creator",
+    icon: "✨",
+    label: "Create Engine",
+    desc: "Build anything · 8 output types · Architecture preview",
+    appId: "creator",
+    col: "L",
+  },
+  {
+    id: "card-simulation",
+    icon: "🧪",
+    label: "Simulation",
+    desc: "Safe scenario testing · Gap analysis · Ad packets",
+    appId: "simulation",
+    col: "L",
+  },
+  {
+    id: "card-marketing",
+    icon: "📣",
+    label: "Marketing & Ads",
+    desc: "Campaigns · Brand voice · Human-reviewed ad copy",
+    appId: "marketing",
+    col: "L",
+  },
+  // Right column
+  {
+    id: "card-monetization",
+    icon: "💰",
+    label: "Monetization",
+    desc: "Revenue staging · Content plans · Pricing tiers",
+    appId: "monetization",
+    col: "R",
+  },
+  {
+    id: "card-tools",
+    icon: "🛠️",
+    label: "Projects & Tools",
+    desc: "30+ tools · Brochures · Reports · Full project org",
+    appId: "tools",
+    col: "R",
+  },
+  {
+    id: "card-people",
+    icon: "👥",
+    label: "People & Invites",
+    desc: "Contact parsing · Invite gen · Easy-mode outreach",
+    appId: "people",
+    col: "R",
+  },
+  {
+    id: "card-documents",
+    icon: "📄",
+    label: "Documents",
+    desc: "AI-generated docs · Brand guides · Export to .txt",
+    appId: "documents",
+    col: "R",
+  },
+  {
+    id: "card-universal",
+    icon: "🌐",
+    label: "Universal Mode",
+    desc: "All industries · All roles · Infinite expansion",
+    appId: "universal",
+    col: "R",
+  },
+];
+
+// ─── Helpers ───────────────────────────────────────────────────────────────
+const PLATFORM_STATS = [
+  { label: "Apps",         value: "13",  icon: "🗂️" },
+  { label: "AI Engines",   value: "6",   icon: "🧠" },
+  { label: "Tools",        value: "30+", icon: "🛠️" },
+  { label: "Output Types", value: "12+", icon: "📄" },
+  { label: "Workspaces",   value: "9",   icon: "💬" },
+  { label: "Demo Mode",    value: "Safe",icon: "🔒" },
+];
+
+// ─── Section Card Component ────────────────────────────────────────────────
+function TourCard({
+  card,
+  active,
+  onOpen,
+}: {
+  card: SectionCard;
+  active: boolean;
+  onOpen: () => void;
+}) {
+  return (
+    <div
+      className="rounded-2xl p-4 flex flex-col gap-3 transition-all duration-300 cursor-default"
+      style={{
+        background: active
+          ? "rgba(99,102,241,0.12)"
+          : "rgba(14,18,42,0.65)",
+        border: active
+          ? "1px solid rgba(99,102,241,0.45)"
+          : "1px solid rgba(255,255,255,0.07)",
+        boxShadow: active
+          ? "0 0 0 1px rgba(99,102,241,0.25), 0 0 32px rgba(99,102,241,0.20), 0 8px 24px rgba(0,0,0,0.30)"
+          : "0 2px 12px rgba(0,0,0,0.20)",
+        transform: active ? "translateY(-2px)" : "none",
+      }}
+    >
+      <div className="flex items-center gap-3">
+        <div
+          className="w-10 h-10 rounded-xl flex items-center justify-center text-xl flex-shrink-0 transition-all duration-300"
+          style={{
+            background: active
+              ? "rgba(99,102,241,0.25)"
+              : "rgba(99,102,241,0.08)",
+            border: active
+              ? "1px solid rgba(99,102,241,0.40)"
+              : "1px solid rgba(99,102,241,0.12)",
+          }}
+        >
+          {card.icon}
+        </div>
+        <div className="flex-1 min-w-0">
+          <p
+            className="font-semibold text-[13px] leading-tight"
+            style={{ color: active ? "#a5b4fc" : "rgba(255,255,255,0.90)" }}
+          >
+            {card.label}
+          </p>
+          <p className="text-[11px] mt-0.5 leading-snug" style={{ color: "rgba(255,255,255,0.38)" }}>
+            {card.desc}
+          </p>
+        </div>
+        {active && (
+          <div
+            className="w-2 h-2 rounded-full flex-shrink-0 animate-pulse"
+            style={{ background: "#818cf8" }}
+          />
+        )}
+      </div>
+
+      {card.engines && (
+        <div className="flex flex-wrap gap-1">
+          {card.engines.map(e => (
+            <span
+              key={e}
+              className="text-[9px] font-semibold px-2 py-0.5 rounded-full"
+              style={{
+                background: "rgba(34,197,94,0.10)",
+                color: "#4ade80",
+                border: "1px solid rgba(34,197,94,0.20)",
+              }}
+            >
+              ● {e}
+            </span>
+          ))}
+        </div>
+      )}
+
+      {card.appId && (
+        <button
+          onClick={onOpen}
+          className="self-start text-[11px] font-semibold px-3 py-1.5 rounded-lg transition-all duration-150"
+          style={{
+            background: active ? "rgba(99,102,241,0.25)" : "rgba(255,255,255,0.06)",
+            color: active ? "#c7d2fe" : "rgba(255,255,255,0.50)",
+            border: active ? "1px solid rgba(99,102,241,0.35)" : "1px solid rgba(255,255,255,0.08)",
+          }}
+          onMouseEnter={e => {
+            (e.currentTarget as HTMLElement).style.background = "rgba(99,102,241,0.22)";
+            (e.currentTarget as HTMLElement).style.color = "#c7d2fe";
+          }}
+          onMouseLeave={e => {
+            (e.currentTarget as HTMLElement).style.background = active ? "rgba(99,102,241,0.25)" : "rgba(255,255,255,0.06)";
+            (e.currentTarget as HTMLElement).style.color = active ? "#c7d2fe" : "rgba(255,255,255,0.50)";
+          }}
+        >
+          Open {card.label} →
+        </button>
+      )}
+    </div>
+  );
+}
+
+// ─── Main Tour Component ───────────────────────────────────────────────────
+interface GuidedTourProps {
+  open: boolean;
+  onClose: () => void;
+  onOpenApp: (id: AppId) => void;
+}
+
+export function GuidedTour({ open, onClose, onOpenApp }: GuidedTourProps) {
+  const [step, setStep] = useState(0);
+  const [mounted, setMounted] = useState(false);
+  const [exiting, setExiting] = useState(false);
+
+  useEffect(() => {
+    if (open) {
+      setStep(0);
+      setExiting(false);
+      requestAnimationFrame(() => setMounted(true));
+    } else {
+      setMounted(false);
+    }
+  }, [open]);
+
+  const handleClose = () => {
+    setExiting(true);
+    setTimeout(() => {
+      setExiting(false);
+      onClose();
+    }, 250);
+  };
+
+  const currentStep = STEPS[step];
+  const isLast = step === STEPS.length - 1;
+  const leftCards  = CARDS.filter(c => c.col === "L");
+  const rightCards = CARDS.filter(c => c.col === "R");
+
+  if (!open) return null;
+
+  return (
+    <div
+      className="fixed inset-0 z-[60] flex flex-col overflow-hidden"
+      style={{
+        background: "rgba(4,5,14,0.92)",
+        backdropFilter: "blur(24px)",
+        opacity: mounted && !exiting ? 1 : 0,
+        transition: "opacity 0.25s ease",
+      }}
+    >
+      {/* ── Top bar ── */}
+      <div
+        className="h-14 flex items-center px-6 gap-4 flex-shrink-0"
+        style={{
+          background: "rgba(14,18,42,0.80)",
+          borderBottom: "1px solid rgba(255,255,255,0.07)",
+        }}
+      >
+        {/* Logo + title */}
+        <div className="flex items-center gap-3">
+          <div
+            className="w-7 h-7 rounded-[9px] flex-shrink-0"
+            style={{
+              background: "conic-gradient(from 180deg,#6366f1,#22c55e,#f97316,#ec4899,#6366f1)",
+            }}
+          />
+          <div>
+            <div
+              className="text-[9px] font-bold uppercase tracking-widest"
+              style={{ color: "rgba(255,255,255,0.30)" }}
+            >
+              CreateAI Brain
+            </div>
+            <div
+              className="font-semibold text-[13px] leading-tight"
+              style={{ color: "rgba(255,255,255,0.90)", letterSpacing: "-0.02em" }}
+            >
+              Show Me Everything
+            </div>
+          </div>
+        </div>
+
+        <div className="flex-1" />
+
+        {/* Step counter */}
+        <div className="flex items-center gap-2">
+          <span className="text-[11px] font-medium" style={{ color: "rgba(255,255,255,0.30)" }}>
+            {step + 1} of {STEPS.length}
+          </span>
+          <div
+            className="h-1 rounded-full overflow-hidden"
+            style={{ width: 80, background: "rgba(255,255,255,0.08)" }}
+          >
+            <div
+              className="h-full rounded-full transition-all duration-400"
+              style={{
+                width: `${((step + 1) / STEPS.length) * 100}%`,
+                background: "linear-gradient(90deg,#6366f1,#818cf8)",
+              }}
+            />
+          </div>
+        </div>
+
+        {/* Close button */}
+        <button
+          onClick={handleClose}
+          className="w-8 h-8 rounded-xl flex items-center justify-center transition-all duration-150"
+          style={{ color: "rgba(255,255,255,0.40)", background: "rgba(255,255,255,0.05)" }}
+          onMouseEnter={e => ((e.currentTarget as HTMLElement).style.background = "rgba(255,255,255,0.10)")}
+          onMouseLeave={e => ((e.currentTarget as HTMLElement).style.background = "rgba(255,255,255,0.05)")}
+          aria-label="Close tour"
+        >
+          ✕
+        </button>
+      </div>
+
+      {/* ── Platform stats bar (always visible) ── */}
+      <div
+        className="flex-shrink-0 px-6 py-2.5 flex items-center gap-4 flex-wrap"
+        style={{ borderBottom: "1px solid rgba(255,255,255,0.05)" }}
+      >
+        {PLATFORM_STATS.map(s => (
+          <div key={s.label} className="flex items-center gap-1.5">
+            <span className="text-[13px]">{s.icon}</span>
+            <span className="font-bold text-[12px]" style={{ color: "rgba(255,255,255,0.80)" }}>
+              {s.value}
+            </span>
+            <span className="text-[11px]" style={{ color: "rgba(255,255,255,0.28)" }}>
+              {s.label}
+            </span>
+          </div>
+        ))}
+        <div className="flex-1" />
+        <div className="flex items-center gap-1.5">
+          {["BrainGen","UCP-X","Simulate","Ad-Gen","Monetize","Streaming"].map(e => (
+            <span
+              key={e}
+              className="text-[9px] font-semibold px-2 py-0.5 rounded-full"
+              style={{
+                background: "rgba(34,197,94,0.10)",
+                color: "#4ade80",
+                border: "1px solid rgba(34,197,94,0.18)",
+              }}
+            >
+              ● {e}
+            </span>
+          ))}
+        </div>
+      </div>
+
+      {/* ── Main scrollable body ── */}
+      <div className="flex-1 overflow-y-auto px-6 py-5">
+        <div
+          className="grid gap-4"
+          style={{
+            gridTemplateColumns: "minmax(0,1.15fr) minmax(0,1fr)",
+            maxWidth: 1100,
+            margin: "0 auto",
+          }}
+        >
+          {/* Left column */}
+          <div className="flex flex-col gap-4">
+            {/* Overview hero card */}
+            <div
+              className="rounded-2xl p-5 transition-all duration-300"
+              style={{
+                background: step === 0
+                  ? "rgba(99,102,241,0.12)"
+                  : "rgba(14,18,42,0.65)",
+                border: step === 0
+                  ? "1px solid rgba(99,102,241,0.40)"
+                  : "1px solid rgba(255,255,255,0.07)",
+                boxShadow: step === 0
+                  ? "0 0 0 1px rgba(99,102,241,0.20), 0 0 32px rgba(99,102,241,0.18)"
+                  : "0 2px 12px rgba(0,0,0,0.20)",
+                transform: step === 0 ? "translateY(-2px)" : "none",
+              }}
+            >
+              <div
+                className="text-[10px] font-bold uppercase tracking-widest mb-2"
+                style={{ color: "rgba(255,255,255,0.30)" }}
+              >
+                Overview
+              </div>
+              <p
+                className="font-bold text-[18px] leading-snug mb-2"
+                style={{ color: "rgba(255,255,255,0.90)", letterSpacing: "-0.025em" }}
+              >
+                Walk through the entire platform in one view.
+              </p>
+              <p className="text-[12px] leading-relaxed" style={{ color: "rgba(255,255,255,0.42)" }}>
+                Every section below is live and interactive. Nothing is hidden. Use the guide panel to walk through step-by-step, or click any card to explore freely.
+              </p>
+              {step === 0 && (
+                <button
+                  onClick={() => setStep(1)}
+                  className="mt-4 text-[12px] font-bold px-5 py-2.5 rounded-full transition-all duration-150"
+                  style={{
+                    background: "linear-gradient(90deg,#6366f1,#818cf8)",
+                    color: "white",
+                    boxShadow: "0 4px 16px rgba(99,102,241,0.35)",
+                  }}
+                >
+                  Start the Tour →
+                </button>
+              )}
+            </div>
+
+            {leftCards.map(card => (
+              <TourCard
+                key={card.id}
+                card={card}
+                active={currentStep.cardId === card.id}
+                onOpen={() => card.appId && onOpenApp(card.appId)}
+              />
+            ))}
+          </div>
+
+          {/* Right column */}
+          <div className="flex flex-col gap-4">
+            {/* Safety & Demo Mode notice card */}
+            <div
+              className="rounded-2xl p-4"
+              style={{
+                background: "rgba(14,18,42,0.65)",
+                border: "1px solid rgba(255,255,255,0.07)",
+              }}
+            >
+              <div
+                className="text-[10px] font-bold uppercase tracking-widest mb-2"
+                style={{ color: "rgba(255,255,255,0.30)" }}
+              >
+                Safety Rules — Always Active
+              </div>
+              <div className="space-y-2">
+                {[
+                  { icon: "🔒", text: "Demo Mode — nothing is real, nothing is sent" },
+                  { icon: "✋", text: "Ad content always staged for human approval" },
+                  { icon: "🏷️", text: "All simulations labeled fictional / conceptual" },
+                  { icon: "🚫", text: "Zero medical or mental-health advice" },
+                  { icon: "📧", text: "All outreach sent via your own device" },
+                ].map(item => (
+                  <div key={item.text} className="flex items-start gap-2.5">
+                    <span className="text-[13px] flex-shrink-0 mt-0.5">{item.icon}</span>
+                    <p className="text-[11px] leading-snug" style={{ color: "rgba(255,255,255,0.42)" }}>
+                      {item.text}
+                    </p>
+                  </div>
+                ))}
+              </div>
+            </div>
+
+            {rightCards.map(card => (
+              <TourCard
+                key={card.id}
+                card={card}
+                active={currentStep.cardId === card.id}
+                onOpen={() => card.appId && onOpenApp(card.appId)}
+              />
+            ))}
+          </div>
+        </div>
+
+        {/* Bottom padding for floating panel */}
+        <div className="h-32" />
+      </div>
+
+      {/* ── Floating step guide panel (bottom-right, like the original) ── */}
+      <div
+        className="fixed right-6 bottom-6 rounded-2xl shadow-2xl overflow-hidden"
+        style={{
+          width: 300,
+          background: "rgba(10,12,30,0.97)",
+          border: "1px solid rgba(99,102,241,0.22)",
+          backdropFilter: "blur(40px)",
+          boxShadow: "0 24px 64px rgba(0,0,0,0.50), 0 0 0 1px rgba(99,102,241,0.12)",
+        }}
+      >
+        {/* Step header */}
+        <div
+          className="px-4 pt-4 pb-3"
+          style={{ borderBottom: "1px solid rgba(255,255,255,0.06)" }}
+        >
+          <div className="flex items-center gap-2 mb-1.5">
+            <span className="text-[18px]">{currentStep.icon}</span>
+            <span
+              className="font-bold text-[13px] leading-tight"
+              style={{ color: "rgba(255,255,255,0.90)", letterSpacing: "-0.015em" }}
+            >
+              {currentStep.label}
+            </span>
+            <span
+              className="ml-auto text-[10px] font-semibold px-2 py-0.5 rounded-full"
+              style={{
+                background: "rgba(99,102,241,0.15)",
+                color: "#a5b4fc",
+                border: "1px solid rgba(99,102,241,0.25)",
+              }}
+            >
+              {step + 1}/{STEPS.length}
+            </span>
+          </div>
+          <p
+            className="font-semibold text-[12px] leading-snug mb-1"
+            style={{ color: "rgba(255,255,255,0.70)" }}
+          >
+            {currentStep.headline}
+          </p>
+          <p className="text-[11px] leading-relaxed" style={{ color: "rgba(255,255,255,0.38)" }}>
+            {currentStep.desc}
+          </p>
+        </div>
+
+        {/* Tip */}
+        {currentStep.tip && (
+          <div
+            className="px-4 py-2.5"
+            style={{ borderBottom: "1px solid rgba(255,255,255,0.06)" }}
+          >
+            <div className="flex items-start gap-2">
+              <span className="text-[11px]" style={{ color: "#818cf8" }}>💡</span>
+              <p className="text-[10px] leading-relaxed italic" style={{ color: "rgba(255,255,255,0.32)" }}>
+                {currentStep.tip}
+              </p>
+            </div>
+          </div>
+        )}
+
+        {/* Progress dots */}
+        <div className="px-4 py-2.5 flex items-center gap-1.5">
+          {STEPS.map((_, i) => (
+            <button
+              key={i}
+              onClick={() => setStep(i)}
+              className="rounded-full transition-all duration-200"
+              style={{
+                width: i === step ? 16 : 5,
+                height: 5,
+                background: i === step
+                  ? "#6366f1"
+                  : i < step
+                  ? "rgba(99,102,241,0.40)"
+                  : "rgba(255,255,255,0.12)",
+              }}
+              aria-label={`Go to step ${i + 1}`}
+            />
+          ))}
+        </div>
+
+        {/* Nav buttons */}
+        <div className="px-4 pb-4 flex gap-2">
+          <button
+            onClick={() => setStep(s => Math.max(0, s - 1))}
+            disabled={step === 0}
+            className="flex-1 py-2 rounded-xl text-[12px] font-semibold transition-all duration-150"
+            style={{
+              background: "rgba(255,255,255,0.06)",
+              color: step === 0 ? "rgba(255,255,255,0.20)" : "rgba(255,255,255,0.60)",
+              border: "1px solid rgba(255,255,255,0.08)",
+              cursor: step === 0 ? "default" : "pointer",
+            }}
+          >
+            ‹ Back
+          </button>
+
+          {currentStep.appId && (
+            <button
+              onClick={() => onOpenApp(currentStep.appId!)}
+              className="flex-shrink-0 py-2 px-3 rounded-xl text-[11px] font-semibold transition-all duration-150"
+              style={{
+                background: "rgba(99,102,241,0.12)",
+                color: "#a5b4fc",
+                border: "1px solid rgba(99,102,241,0.25)",
+              }}
+              onMouseEnter={e => ((e.currentTarget as HTMLElement).style.background = "rgba(99,102,241,0.22)")}
+              onMouseLeave={e => ((e.currentTarget as HTMLElement).style.background = "rgba(99,102,241,0.12)")}
+            >
+              Open ↗
+            </button>
+          )}
+
+          <button
+            onClick={() => isLast ? handleClose() : setStep(s => s + 1)}
+            className="flex-1 py-2 rounded-xl text-[12px] font-bold transition-all duration-150"
+            style={{
+              background: isLast
+                ? "rgba(34,197,94,0.18)"
+                : "linear-gradient(90deg,#6366f1,#818cf8)",
+              color: isLast ? "#4ade80" : "white",
+              border: isLast ? "1px solid rgba(34,197,94,0.30)" : "none",
+              boxShadow: isLast ? "none" : "0 4px 12px rgba(99,102,241,0.30)",
+            }}
+          >
+            {isLast ? "✓ Done" : "Next ›"}
+          </button>
+        </div>
+      </div>
+    </div>
+  );
+}

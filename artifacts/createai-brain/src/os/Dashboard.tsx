@@ -45,9 +45,10 @@ function getGreeting(): string {
 interface DashboardProps {
   onHamburger?: () => void;
   isNarrow?: boolean;
+  onShowTour?: () => void;
 }
 
-export function Dashboard({ onHamburger, isNarrow }: DashboardProps) {
+export function Dashboard({ onHamburger, isNarrow, onShowTour }: DashboardProps) {
   const { openApp, appRegistry, routeIntent, platformMode, setPlatformMode, activeApp } = useOS();
   const [intentInput, setIntentInput]       = useState("");
   const [intentResult, setIntentResult]     = useState<{ app: AppId; label: string } | null>(null);
@@ -145,6 +146,22 @@ export function Dashboard({ onHamburger, isNarrow }: DashboardProps) {
               Mode changes persist across sessions
             </p>
           </div>
+        )}
+
+        {onShowTour && (
+          <button
+            onClick={onShowTour}
+            className="flex-shrink-0 text-[11px] font-semibold px-3 py-2 rounded-full flex items-center gap-1.5 transition-all duration-150"
+            style={{
+              background: "rgba(99,102,241,0.12)",
+              color: "#a5b4fc",
+              border: "1px solid rgba(99,102,241,0.25)",
+            }}
+            onMouseEnter={e => ((e.currentTarget as HTMLElement).style.background = "rgba(99,102,241,0.22)")}
+            onMouseLeave={e => ((e.currentTarget as HTMLElement).style.background = "rgba(99,102,241,0.12)")}
+          >
+            ✦ Show Me Everything
+          </button>
         )}
 
         <button

@@ -19,6 +19,7 @@ import { UniversalApp } from "@/Apps/UniversalApp";
 import { SimulationApp } from "@/Apps/SimulationApp";
 import { ConversationOverlay } from "./ConversationOverlay";
 import { UCPXAgent } from "@/ucpx/UCPXAgent";
+import { GuidedTour } from "./GuidedTour";
 
 const APP_COMPONENTS: Record<string, React.ComponentType> = {
   chat: ChatApp,
@@ -44,8 +45,9 @@ const APP_COMPONENTS: Record<string, React.ComponentType> = {
  *  WIDE     (≥ 1024px)          → full sidebar (220px), no hamburger
  */
 export function OSLayout() {
-  const { activeApp } = useOS();
+  const { activeApp, openApp } = useOS();
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
+  const [tourOpen, setTourOpen] = useState(false);
 
   // Breakpoints
   const isMediumPlus = useMediaQuery("(min-width: 768px)");   // tablet+
@@ -66,6 +68,13 @@ export function OSLayout() {
 
   return (
     <div className="flex h-[100dvh] w-full overflow-hidden" style={{ background: "radial-gradient(ellipse 130% 70% at 50% -5%, rgba(99,102,241,0.13) 0%, transparent 55%), hsl(231, 47%, 6%)" }}>
+      {/* ── Guided Tour Overlay — triggered from Dashboard ── */}
+      <GuidedTour
+        open={tourOpen}
+        onClose={() => setTourOpen(false)}
+        onOpenApp={(id) => { openApp(id); setTourOpen(false); }}
+      />
+
       {/* ── Global Conversation Overlay — available on every screen ── */}
       <ConversationOverlay />
 
@@ -104,6 +113,7 @@ export function OSLayout() {
           <Dashboard
             onHamburger={showHamburger ? () => setMobileMenuOpen(true) : undefined}
             isNarrow={isNarrow}
+            onShowTour={() => setTourOpen(true)}
           />
         )}
       </div>
