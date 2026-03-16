@@ -20,6 +20,11 @@ import {
 } from "@/engine/UniversalMockDataEngine";
 import { WorkflowEngine, Workflow, MockOutcome } from "@/engine/UniversalWorkflowEngine";
 import { CreativeEngine, CreativeType } from "@/engine/UniversalCreativeEngine";
+import { GameEngine, GameType } from "@/engine/UniversalGameEngine";
+import {
+  StoryEngine, CharacterEngine, WorldEngine,
+  StoryFormat, StoryGenre, CharacterArchetype, WorldType,
+} from "@/engine/UniversalStoryEngine";
 
 // ─── Nav definition ───────────────────────────────────────────────────────
 const NAV_ITEMS: { id: UniversalView; label: string; icon: string }[] = [
@@ -29,6 +34,8 @@ const NAV_ITEMS: { id: UniversalView; label: string; icon: string }[] = [
   { id: "industries",  label: "Industries",       icon: "🏭" },
   { id: "workflows",   label: "Workflows",        icon: "⚙️" },
   { id: "creative",    label: "Creative",         icon: "🎬" },
+  { id: "games",       label: "Games",            icon: "🎮" },
+  { id: "story",       label: "Story / World",    icon: "📖" },
   { id: "roles",       label: "Roles",            icon: "🎭" },
   { id: "agencies",    label: "Agencies",         icon: "🏛️" },
   { id: "states",      label: "States",           icon: "🗺️" },
@@ -1671,6 +1678,717 @@ function CreativeScreen() {
   );
 }
 
+// ─── Games Screen ─────────────────────────────────────────────────────────
+const GAME_TYPES: { value: GameType; label: string; icon: string }[] = [
+  { value: "rpg",         label: "RPG",            icon: "⚔️" },
+  { value: "platformer",  label: "Platformer",     icon: "🏃" },
+  { value: "strategy",    label: "Strategy",       icon: "♟️" },
+  { value: "puzzle",      label: "Puzzle",         icon: "🧩" },
+  { value: "simulation",  label: "Simulation",     icon: "🏙️" },
+  { value: "adventure",   label: "Adventure",      icon: "🗺️" },
+  { value: "action",      label: "Action",         icon: "💥" },
+  { value: "horror",      label: "Horror",         icon: "👻" },
+  { value: "sports",      label: "Sports",         icon: "🏆" },
+  { value: "educational", label: "Educational",    icon: "📚" },
+  { value: "sandbox",     label: "Sandbox",        icon: "🏗️" },
+  { value: "survival",    label: "Survival",       icon: "🔥" },
+];
+
+function GamesScreen() {
+  const { dispatch } = useInteraction();
+  const [form, setForm] = useState({ type: "rpg" as GameType, title: "", worldName: "", audience: "General (13+)" });
+  const [projects, setProjects] = useState(() => GameEngine.getAll());
+  const [activeId, setActiveId] = useState<string | null>(null);
+  const [activeTab, setActiveTab] = useState<"design"|"mechanics"|"levels"|"npcs"|"hud"|"loop">("design");
+
+  const generate = () => {
+    const p = GameEngine.generate({
+      type: form.type,
+      title: form.title || undefined,
+      worldName: form.worldName || undefined,
+      targetAudience: form.audience,
+    });
+    setProjects(GameEngine.getAll());
+    setActiveId(p.id);
+    setActiveTab("design");
+    dispatch("GENERATE_GAME", `${form.type}:${p.title.slice(0, 40)}`);
+  };
+
+  const active = projects.find(p => p.id === activeId);
+  const TABS = [
+    { id: "design",    label: "Overview" },
+    { id: "mechanics", label: "Mechanics" },
+    { id: "levels",    label: "Levels" },
+    { id: "npcs",      label: "NPCs" },
+    { id: "hud",       label: "HUD / UI" },
+    { id: "loop",      label: "Game Loop" },
+  ] as const;
+
+  return (
+    <div className="space-y-4 pb-8">
+      <SectionHeader
+        title="🎮 Universal Game Engine"
+        subtitle="Fictional game design documents for any genre. Non-operational · Demo-only · Internal."
+      />
+
+      {/* Generator form */}
+      <div className="bg-white border border-border rounded-xl p-4 space-y-3">
+        <p className="text-[12px] font-bold text-foreground">Generate Game Design Document</p>
+        <div>
+          <p className="text-[11px] font-semibold text-muted-foreground mb-1.5">GAME TYPE</p>
+          <div className="grid grid-cols-3 sm:grid-cols-4 gap-2">
+            {GAME_TYPES.map(gt => (
+              <button
+                key={gt.value}
+                onClick={() => setForm(f => ({ ...f, type: gt.value }))}
+                className={`flex flex-col items-center p-2 rounded-lg border text-center transition-all ${
+                  form.type === gt.value
+                    ? "border-blue-500 bg-blue-50 text-blue-700"
+                    : "border-border bg-white text-muted-foreground hover:border-blue-200"
+                }`}
+              >
+                <span className="text-lg">{gt.icon}</span>
+                <span className="text-[10px] font-semibold mt-0.5 leading-tight">{gt.label}</span>
+              </button>
+            ))}
+          </div>
+        </div>
+        <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
+          <div>
+            <label className="text-[11px] font-semibold text-muted-foreground block mb-1">GAME TITLE (optional)</label>
+            <input value={form.title} onChange={e => setForm(f => ({ ...f, title: e.target.value }))} placeholder="Auto-generated if blank" className="w-full text-[12px] border border-border rounded-lg px-2.5 py-2 bg-white text-foreground placeholder:text-muted-foreground/60" />
+          </div>
+          <div>
+            <label className="text-[11px] font-semibold text-muted-foreground block mb-1">WORLD NAME</label>
+            <input value={form.worldName} onChange={e => setForm(f => ({ ...f, worldName: e.target.value }))} placeholder="e.g. The Iron Marches" className="w-full text-[12px] border border-border rounded-lg px-2.5 py-2 bg-white text-foreground placeholder:text-muted-foreground/60" />
+          </div>
+          <div>
+            <label className="text-[11px] font-semibold text-muted-foreground block mb-1">TARGET AUDIENCE</label>
+            <select value={form.audience} onChange={e => setForm(f => ({ ...f, audience: e.target.value }))} className="w-full text-[12px] border border-border rounded-lg px-2.5 py-2 bg-white text-foreground">
+              {["Everyone (E)", "General (13+)", "Teen (T)", "Mature (M, 17+)", "Adult (AO)"].map(a => <option key={a}>{a}</option>)}
+            </select>
+          </div>
+        </div>
+        <button onClick={generate} className="w-full py-2.5 bg-blue-500 text-white rounded-xl text-[13px] font-bold hover:bg-blue-600 transition-colors">
+          🎮 Generate {GAME_TYPES.find(g => g.value === form.type)?.label} GDD
+        </button>
+        <p className="text-[10px] text-muted-foreground text-center">Fictional Game Design Document — not a real game proposal</p>
+      </div>
+
+      {/* Project switcher */}
+      {projects.length > 1 && (
+        <div className="flex flex-wrap gap-2">
+          {projects.map(p => (
+            <button key={p.id} onClick={() => { setActiveId(p.id); setActiveTab("design"); }}
+              className={`px-3 py-1.5 rounded-full text-[11px] font-semibold border transition-all ${activeId === p.id ? "bg-blue-500 text-white border-blue-500" : "border-border text-muted-foreground hover:border-blue-300"}`}>
+              {GAME_TYPES.find(g => g.value === p.type)?.icon} {p.title.slice(0, 22)}
+            </button>
+          ))}
+        </div>
+      )}
+
+      {/* Active GDD */}
+      {active && (
+        <div className="bg-white border border-border rounded-xl overflow-hidden">
+          {/* Header */}
+          <div className="p-4 border-b border-border bg-gradient-to-r from-blue-50 to-white">
+            <h3 className="text-[16px] font-bold text-foreground">{active.title}</h3>
+            <p className="text-[11px] text-muted-foreground">{active.genre} · {active.platform.join(", ")} · {active.perspective} · {active.ratingTarget}</p>
+          </div>
+
+          {/* Tab bar */}
+          <div className="flex overflow-x-auto border-b border-border bg-white">
+            {TABS.map(t => (
+              <button key={t.id} onClick={() => setActiveTab(t.id)}
+                className={`px-3 py-2 text-[11px] font-semibold whitespace-nowrap border-b-2 transition-colors ${activeTab === t.id ? "border-blue-500 text-blue-600" : "border-transparent text-muted-foreground hover:text-foreground"}`}>
+                {t.label}
+              </button>
+            ))}
+          </div>
+
+          <div className="p-4 space-y-4">
+            {activeTab === "design" && (
+              <div className="space-y-3">
+                <div><p className="text-[11px] font-semibold text-muted-foreground mb-1">LOGLINE</p><p className="text-[12px] text-foreground italic">"{active.logline}"</p></div>
+                <div><p className="text-[11px] font-semibold text-muted-foreground mb-1">SYNOPSIS</p><p className="text-[12px] text-foreground">{active.synopsis}</p></div>
+                <div><p className="text-[11px] font-semibold text-muted-foreground mb-1">STORY ARC</p><pre className="text-[11px] text-foreground whitespace-pre-wrap font-sans">{active.storyArc}</pre></div>
+                <div>
+                  <p className="text-[11px] font-semibold text-muted-foreground mb-1">WORLD: {active.worldName}</p>
+                  <p className="text-[12px] text-foreground">{active.worldDesc}</p>
+                </div>
+                <div>
+                  <p className="text-[11px] font-semibold text-muted-foreground mb-1.5">ASSET LIST (MOCK)</p>
+                  <div className="space-y-1">
+                    {active.assetList.map(a => <div key={a} className="text-[11px] text-muted-foreground pl-2 border-l-2 border-blue-100">{a}</div>)}
+                  </div>
+                </div>
+                <div className="bg-muted/20 rounded-lg p-3"><p className="text-[11px] font-semibold text-muted-foreground mb-1">TECHNICAL NOTES</p><p className="text-[11px] text-foreground">{active.technicalNotes}</p></div>
+              </div>
+            )}
+
+            {activeTab === "mechanics" && (
+              <div className="space-y-3">
+                <div>
+                  <p className="text-[11px] font-semibold text-muted-foreground mb-1">PROGRESSION SYSTEM</p>
+                  <div className="bg-blue-50 border border-blue-100 rounded-lg p-3 text-[12px] space-y-1">
+                    <p><span className="font-semibold">Type:</span> {active.progression.type}</p>
+                    <p><span className="font-semibold">Levels:</span> {active.progression.levels > 0 ? active.progression.levels : "No cap"}</p>
+                    <p><span className="font-semibold">XP Curve:</span> {active.progression.xpCurve}</p>
+                    <p><span className="font-semibold">Prestige:</span> {active.progression.prestige ? "Yes" : "No"} · <span className="font-semibold">Seasons:</span> {active.progression.seasons ? "Yes" : "No"}</p>
+                    <p className="text-muted-foreground">{active.progression.description}</p>
+                  </div>
+                </div>
+                {active.mechanics.map(m => (
+                  <div key={m.id} className="border border-border rounded-xl p-3 space-y-1.5">
+                    <div className="flex items-center justify-between">
+                      <p className="text-[13px] font-bold text-foreground">{m.name}</p>
+                      <span className="text-[10px] font-semibold px-2 py-0.5 bg-muted rounded-full text-muted-foreground">{m.category} · {m.difficulty}</span>
+                    </div>
+                    <p className="text-[11px] text-muted-foreground">{m.description}</p>
+                    <p className="text-[11px]"><span className="font-semibold text-foreground">Player:</span> {m.playerAction}</p>
+                    <p className="text-[11px]"><span className="font-semibold text-foreground">System:</span> {m.systemResponse}</p>
+                    <div className="flex gap-3 text-[11px]">
+                      <span className="text-green-600">✓ {m.reward}</span>
+                      <span className="text-red-500">✗ {m.penalty}</span>
+                    </div>
+                  </div>
+                ))}
+                <div>
+                  <p className="text-[11px] font-semibold text-muted-foreground mb-1.5">SKILL TREE: {active.skillTree.name}</p>
+                  <p className="text-[11px] text-muted-foreground mb-2">{active.skillTree.description}</p>
+                  <div className="space-y-1.5">
+                    {active.skillTree.nodes.map(n => (
+                      <div key={n.id} className="flex items-center gap-3 px-3 py-2 bg-muted/30 rounded-lg text-[11px]">
+                        <span className="font-semibold text-blue-600">T{n.tier}</span>
+                        <span className="font-semibold text-foreground">{n.name}</span>
+                        <span className="text-muted-foreground">· Cost: {n.cost} SP</span>
+                        <span className="text-foreground flex-1 text-right">{n.effect}</span>
+                        {n.prerequisite && <span className="text-amber-500 text-[9px]">Req: {n.prerequisite}</span>}
+                      </div>
+                    ))}
+                  </div>
+                </div>
+              </div>
+            )}
+
+            {activeTab === "levels" && (
+              <div className="space-y-3">
+                {active.levels.map(lv => (
+                  <div key={lv.index} className="border border-border rounded-xl p-3 space-y-2">
+                    <div className="flex items-center justify-between">
+                      <p className="text-[13px] font-bold text-foreground">{lv.name}</p>
+                      <div className="flex items-center gap-1">
+                        {Array.from({ length: 5 }, (_, i) => <span key={i} className={`text-[12px] ${i < lv.difficultyRating ? "text-amber-400" : "text-muted-foreground/30"}`}>★</span>)}
+                        <span className="text-[10px] text-muted-foreground ml-1">{lv.estimatedTime}</span>
+                      </div>
+                    </div>
+                    <p className="text-[11px] text-muted-foreground">{lv.environment}</p>
+                    <p className="text-[11px]"><span className="font-semibold text-foreground">Objective:</span> {lv.objective}</p>
+                    <div className="grid grid-cols-2 gap-2 text-[11px]">
+                      <div><span className="font-semibold text-red-500">Enemies:</span> {lv.enemies.join(", ")}</div>
+                      <div><span className="font-semibold text-amber-500">Obstacles:</span> {lv.obstacles.join(", ")}</div>
+                      <div><span className="font-semibold text-blue-500">Collectibles:</span> {lv.collectibles}</div>
+                      <div><span className="font-semibold text-green-600">Reward:</span> {lv.reward}</div>
+                    </div>
+                    {lv.boss && <p className="text-[11px] font-semibold text-red-600">BOSS: {lv.boss}</p>}
+                  </div>
+                ))}
+              </div>
+            )}
+
+            {activeTab === "npcs" && (
+              <div className="space-y-3">
+                {active.npcs.map(npc => (
+                  <div key={npc.id} className="border border-border rounded-xl p-3 space-y-2">
+                    <div className="flex items-center gap-2">
+                      <div>
+                        <p className="text-[13px] font-bold text-foreground">{npc.name}</p>
+                        <p className="text-[11px] text-muted-foreground">{npc.role} · {npc.faction}</p>
+                      </div>
+                    </div>
+                    <p className="text-[11px]"><span className="font-semibold text-foreground">Behavior:</span> {npc.behavior}</p>
+                    <div className="flex flex-wrap gap-1">
+                      {npc.abilities.map(a => <span key={a} className="px-2 py-0.5 bg-blue-50 text-blue-700 rounded-full text-[10px] font-semibold">{a}</span>)}
+                    </div>
+                    <div className="space-y-0.5">
+                      {npc.dialogue.map((d, i) => <p key={i} className="text-[11px] text-muted-foreground italic">{d}</p>)}
+                    </div>
+                    <div className="flex flex-wrap gap-1">
+                      {npc.loot.map(l => <span key={l} className="px-2 py-0.5 bg-amber-50 text-amber-700 rounded-full text-[10px]">{l}</span>)}
+                    </div>
+                  </div>
+                ))}
+              </div>
+            )}
+
+            {activeTab === "hud" && (
+              <div className="space-y-3">
+                <div>
+                  <p className="text-[11px] font-semibold text-muted-foreground mb-2">HUD ELEMENTS</p>
+                  <div className="flex flex-wrap gap-2">
+                    {active.hud.elements.map(e => <span key={e} className="px-2 py-1 bg-muted rounded-lg text-[11px] text-foreground">{e}</span>)}
+                  </div>
+                </div>
+                <div className="grid grid-cols-2 gap-3 text-[12px]">
+                  <div><span className="text-[11px] font-semibold text-muted-foreground block mb-0.5">HEALTH DISPLAY</span>{active.hud.healthDisplay}</div>
+                  <div><span className="text-[11px] font-semibold text-muted-foreground block mb-0.5">MINIMAP</span>{active.hud.minimap ? "Yes" : "None"}</div>
+                  <div><span className="text-[11px] font-semibold text-muted-foreground block mb-0.5">QUEST TRACKER</span>{active.hud.questTracker ? "Yes" : "None"}</div>
+                  <div><span className="text-[11px] font-semibold text-muted-foreground block mb-0.5">NOTIFICATIONS</span>{active.hud.notifications}</div>
+                </div>
+                <div>
+                  <p className="text-[11px] font-semibold text-muted-foreground mb-1.5">RESOURCE BARS</p>
+                  <div className="flex flex-wrap gap-2">
+                    {active.hud.resourceBars.map(r => <span key={r} className="px-2 py-1 bg-blue-50 text-blue-700 rounded-lg text-[11px]">{r}</span>)}
+                  </div>
+                </div>
+              </div>
+            )}
+
+            {activeTab === "loop" && (
+              <div className="space-y-3">
+                {active.gameLoop.map((loop, i) => (
+                  <div key={i} className="border border-border rounded-xl p-3 space-y-2">
+                    <div className="flex items-center gap-2">
+                      <span className="w-6 h-6 flex items-center justify-center bg-blue-100 text-blue-700 rounded-full text-[10px] font-bold">{i + 1}</span>
+                      <div>
+                        <p className="text-[13px] font-bold text-foreground">{loop.phase}</p>
+                        <p className="text-[10px] text-muted-foreground">{loop.duration}</p>
+                      </div>
+                    </div>
+                    <div className="flex flex-wrap gap-1">
+                      {loop.actions.map(a => <span key={a} className="px-2 py-0.5 bg-muted rounded-full text-[10px] text-foreground">{a}</span>)}
+                    </div>
+                    <p className="text-[11px] text-green-700">→ {loop.outcome}</p>
+                  </div>
+                ))}
+              </div>
+            )}
+          </div>
+
+          <div className="px-4 pb-4">
+            <div className="bg-amber-50 border border-amber-200 rounded-xl p-3">
+              <p className="text-[11px] text-amber-800 font-semibold">⚠️ {active.safetyNote}</p>
+            </div>
+          </div>
+        </div>
+      )}
+    </div>
+  );
+}
+
+// ─── Story / World Screen ─────────────────────────────────────────────────
+const STORY_FORMATS: { value: StoryFormat; label: string; icon: string }[] = [
+  { value: "movie",       label: "Movie",          icon: "🎬" },
+  { value: "tv-series",   label: "TV Series",      icon: "📺" },
+  { value: "mini-series", label: "Mini-Series",    icon: "🎞️" },
+  { value: "documentary", label: "Documentary",    icon: "🎥" },
+  { value: "comic",       label: "Comic",          icon: "💬" },
+  { value: "graphic-novel", label: "Graphic Novel", icon: "📕" },
+  { value: "novel",       label: "Novel",          icon: "📗" },
+  { value: "short-story", label: "Short Story",    icon: "📄" },
+  { value: "interactive", label: "Interactive",    icon: "🕹️" },
+  { value: "audio-drama", label: "Audio Drama",    icon: "🎙️" },
+  { value: "stage-play",  label: "Stage Play",     icon: "🎭" },
+  { value: "web-series",  label: "Web Series",     icon: "💻" },
+];
+const STORY_GENRES: { value: StoryGenre; label: string }[] = [
+  { value: "drama", label: "Drama" }, { value: "thriller", label: "Thriller" },
+  { value: "sci-fi", label: "Sci-Fi" }, { value: "fantasy", label: "Fantasy" },
+  { value: "horror", label: "Horror" }, { value: "romance", label: "Romance" },
+  { value: "comedy", label: "Comedy" }, { value: "mystery", label: "Mystery" },
+  { value: "action", label: "Action" }, { value: "historical", label: "Historical" },
+  { value: "biographical", label: "Biographical" }, { value: "experimental", label: "Experimental" },
+];
+const ARCHETYPES_UI: { value: CharacterArchetype; label: string }[] = [
+  { value: "hero", label: "Hero" }, { value: "mentor", label: "Mentor" },
+  { value: "villain", label: "Villain" }, { value: "anti-hero", label: "Anti-Hero" },
+  { value: "trickster", label: "Trickster" }, { value: "shadow", label: "Shadow" },
+  { value: "guardian", label: "Guardian" }, { value: "ally", label: "Ally" },
+  { value: "shapeshifter", label: "Shapeshifter" }, { value: "everyman", label: "Everyman" },
+  { value: "innocent", label: "Innocent" }, { value: "herald", label: "Herald" },
+];
+const WORLD_TYPES_UI: { value: WorldType; label: string; icon: string }[] = [
+  { value: "fantasy",          label: "Fantasy",          icon: "🧙" },
+  { value: "sci-fi",           label: "Sci-Fi",           icon: "🚀" },
+  { value: "contemporary",     label: "Contemporary",     icon: "🏙️" },
+  { value: "historical",       label: "Historical",       icon: "🏛️" },
+  { value: "post-apocalyptic", label: "Post-Apocalyptic", icon: "☢️" },
+  { value: "alternate-history", label: "Alt-History",    icon: "⚙️" },
+  { value: "mythological",     label: "Mythological",     icon: "⚡" },
+  { value: "horror",           label: "Horror",           icon: "👁️" },
+  { value: "utopia",           label: "Utopia",           icon: "🌅" },
+  { value: "dystopia",         label: "Dystopia",         icon: "🌆" },
+];
+
+function StoryScreen() {
+  const { dispatch } = useInteraction();
+  const [mode, setMode] = useState<"story"|"character"|"world">("story");
+  const [storyForm, setStoryForm] = useState({ format: "movie" as StoryFormat, genre: "drama" as StoryGenre, title: "", tone: "Dramatic" });
+  const [charForm, setCharForm] = useState({ archetype: "hero" as CharacterArchetype, name: "", context: "" });
+  const [worldForm, setWorldForm] = useState({ type: "fantasy" as WorldType, name: "" });
+
+  const [stories, setStories] = useState(() => StoryEngine.getAll());
+  const [characters, setCharacters] = useState(() => CharacterEngine.getAll());
+  const [worlds, setWorlds] = useState(() => WorldEngine.getAll());
+  const [activeStory, setActiveStory] = useState<string | null>(null);
+  const [activeChar, setActiveChar] = useState<string | null>(null);
+  const [activeWorld, setActiveWorld] = useState<string | null>(null);
+
+  const genStory = () => {
+    const s = StoryEngine.generate({ format: storyForm.format, genre: storyForm.genre, title: storyForm.title || undefined, tone: storyForm.tone });
+    setStories(StoryEngine.getAll()); setActiveStory(s.id);
+    dispatch("GENERATE_STORY", `${storyForm.format}:${s.title.slice(0, 40)}`);
+  };
+  const genChar = () => {
+    const c = CharacterEngine.generate({ archetype: charForm.archetype, name: charForm.name || undefined, context: charForm.context || undefined });
+    setCharacters(CharacterEngine.getAll()); setActiveChar(c.id);
+    dispatch("GENERATE_CHARACTER", `${charForm.archetype}:${c.name}`);
+  };
+  const genWorld = () => {
+    const w = WorldEngine.generate({ type: worldForm.type, name: worldForm.name || undefined });
+    setWorlds(WorldEngine.getAll()); setActiveWorld(w.id);
+    dispatch("GENERATE_WORLD", `${worldForm.type}:${w.name}`);
+  };
+
+  const story = stories.find(s => s.id === activeStory);
+  const character = characters.find(c => c.id === activeChar);
+  const world = worlds.find(w => w.id === activeWorld);
+
+  return (
+    <div className="space-y-4 pb-8">
+      <SectionHeader
+        title="📖 Story + Character + World Engine"
+        subtitle="Generate fictional story structures, character profiles, and world-building documents. Demo-only · Internal."
+      />
+
+      {/* Mode switcher */}
+      <div className="flex gap-2">
+        {([
+          { id: "story", label: "📖 Story", count: stories.length },
+          { id: "character", label: "🧑 Character", count: characters.length },
+          { id: "world", label: "🌍 World", count: worlds.length },
+        ] as const).map(m => (
+          <button key={m.id} onClick={() => setMode(m.id)}
+            className={`px-4 py-2 rounded-full text-[12px] font-semibold border transition-all ${mode === m.id ? "bg-blue-500 text-white border-blue-500" : "border-border text-muted-foreground hover:border-blue-300"}`}>
+            {m.label}{m.count > 0 ? ` (${m.count})` : ""}
+          </button>
+        ))}
+      </div>
+
+      {/* Story mode */}
+      {mode === "story" && (
+        <div className="space-y-4">
+          <div className="bg-white border border-border rounded-xl p-4 space-y-3">
+            <p className="text-[12px] font-bold">Generate Story Project</p>
+            <div>
+              <p className="text-[11px] font-semibold text-muted-foreground mb-1.5">FORMAT</p>
+              <div className="grid grid-cols-3 sm:grid-cols-4 gap-2">
+                {STORY_FORMATS.map(f => (
+                  <button key={f.value} onClick={() => setStoryForm(sf => ({ ...sf, format: f.value }))}
+                    className={`flex flex-col items-center p-2 rounded-lg border text-center transition-all ${storyForm.format === f.value ? "border-blue-500 bg-blue-50 text-blue-700" : "border-border bg-white text-muted-foreground hover:border-blue-200"}`}>
+                    <span className="text-lg">{f.icon}</span>
+                    <span className="text-[10px] font-semibold mt-0.5 leading-tight">{f.label}</span>
+                  </button>
+                ))}
+              </div>
+            </div>
+            <div className="grid grid-cols-2 sm:grid-cols-4 gap-2">
+              {STORY_GENRES.map(g => (
+                <button key={g.value} onClick={() => setStoryForm(sf => ({ ...sf, genre: g.value }))}
+                  className={`px-2 py-1.5 rounded-lg border text-[11px] font-semibold transition-all ${storyForm.genre === g.value ? "border-blue-500 bg-blue-50 text-blue-700" : "border-border text-muted-foreground hover:border-blue-200"}`}>
+                  {g.label}
+                </button>
+              ))}
+            </div>
+            <div className="grid grid-cols-2 gap-3">
+              <div>
+                <label className="text-[11px] font-semibold text-muted-foreground block mb-1">TITLE (optional)</label>
+                <input value={storyForm.title} onChange={e => setStoryForm(f => ({ ...f, title: e.target.value }))} placeholder="Auto-generated if blank" className="w-full text-[12px] border border-border rounded-lg px-2.5 py-2 bg-white text-foreground placeholder:text-muted-foreground/60" />
+              </div>
+              <div>
+                <label className="text-[11px] font-semibold text-muted-foreground block mb-1">TONE</label>
+                <select value={storyForm.tone} onChange={e => setStoryForm(f => ({ ...f, tone: e.target.value }))} className="w-full text-[12px] border border-border rounded-lg px-2.5 py-2 bg-white text-foreground">
+                  {["Dramatic", "Cinematic", "Comedic", "Bleak", "Hopeful", "Satirical", "Lyrical", "Tense", "Intimate", "Epic"].map(t => <option key={t}>{t}</option>)}
+                </select>
+              </div>
+            </div>
+            <button onClick={genStory} className="w-full py-2.5 bg-blue-500 text-white rounded-xl text-[13px] font-bold hover:bg-blue-600 transition-colors">
+              📖 Generate Story Project
+            </button>
+          </div>
+
+          {/* Switcher */}
+          {stories.length > 1 && (
+            <div className="flex flex-wrap gap-2">
+              {stories.map(s => (
+                <button key={s.id} onClick={() => setActiveStory(s.id)}
+                  className={`px-3 py-1.5 rounded-full text-[11px] font-semibold border ${activeStory === s.id ? "bg-blue-500 text-white border-blue-500" : "border-border text-muted-foreground hover:border-blue-300"}`}>
+                  {STORY_FORMATS.find(f => f.value === s.format)?.icon} {s.title.slice(0, 24)}
+                </button>
+              ))}
+            </div>
+          )}
+
+          {story && (
+            <div className="bg-white border border-border rounded-xl p-4 space-y-4">
+              <div>
+                <h3 className="text-[16px] font-bold text-foreground">{story.title}</h3>
+                <p className="text-[11px] text-muted-foreground">{story.format} · {story.genre} · {story.runtime} · {story.tone}</p>
+              </div>
+              <div><p className="text-[11px] font-semibold text-muted-foreground mb-1">LOGLINE</p><p className="text-[12px] text-foreground italic">"{story.logline}"</p></div>
+              <div><p className="text-[11px] font-semibold text-muted-foreground mb-1">SYNOPSIS</p><p className="text-[12px] text-foreground">{story.synopsis}</p></div>
+              <div>
+                <p className="text-[11px] font-semibold text-muted-foreground mb-2">THEMES</p>
+                <div className="space-y-2">
+                  {story.themes.map(t => (
+                    <div key={t.name} className="bg-muted/20 rounded-lg p-3 text-[11px]">
+                      <p className="font-bold text-foreground">{t.name}</p>
+                      <p className="text-muted-foreground italic mt-0.5">"{t.expression}"</p>
+                      <p className="text-muted-foreground mt-0.5">Symbol: {t.symbol} · Motif: {t.motif}</p>
+                    </div>
+                  ))}
+                </div>
+              </div>
+              <div>
+                <p className="text-[11px] font-semibold text-muted-foreground mb-2">STRUCTURE / ACTS</p>
+                <div className="space-y-2">
+                  {story.acts.map(a => (
+                    <div key={a.actNumber} className="border border-border rounded-xl p-3 space-y-2">
+                      <p className="text-[13px] font-bold text-foreground">Act {a.actNumber}: {a.name}</p>
+                      <p className="text-[11px] text-muted-foreground">{a.summary}</p>
+                      <div className="flex flex-wrap gap-1">{a.keyEvents.map(e => <span key={e} className="text-[10px] bg-muted px-2 py-0.5 rounded-full text-foreground">{e}</span>)}</div>
+                      <p className="text-[11px] text-blue-600"><span className="font-semibold">Turning Point:</span> {a.turning}</p>
+                      <p className="text-[11px] text-muted-foreground"><span className="font-semibold">Emotion:</span> {a.emotion} · <span className="font-semibold">Scope:</span> {a.pageRange}</p>
+                    </div>
+                  ))}
+                </div>
+              </div>
+              <div><p className="text-[11px] font-semibold text-muted-foreground mb-1">CENTRAL CONFLICT</p><p className="text-[12px] text-foreground">{story.conflict}</p></div>
+              <div><p className="text-[11px] font-semibold text-muted-foreground mb-1">RESOLUTION</p><p className="text-[12px] text-foreground">{story.resolution}</p></div>
+              <div className="grid grid-cols-2 gap-3 text-[11px]">
+                <div className="bg-muted/20 rounded-lg p-2"><p className="font-semibold text-muted-foreground text-[9px]">NARRATIVE STYLE</p><p className="text-foreground mt-0.5">{story.narrativeStyle}</p></div>
+                <div className="bg-muted/20 rounded-lg p-2"><p className="font-semibold text-muted-foreground text-[9px]">POV</p><p className="text-foreground mt-0.5">{story.pov}</p></div>
+              </div>
+              <div className="bg-amber-50 border border-amber-200 rounded-xl p-3">
+                <p className="text-[11px] text-amber-800 font-semibold">⚠️ {story.disclaimer}</p>
+              </div>
+            </div>
+          )}
+        </div>
+      )}
+
+      {/* Character mode */}
+      {mode === "character" && (
+        <div className="space-y-4">
+          <div className="bg-white border border-border rounded-xl p-4 space-y-3">
+            <p className="text-[12px] font-bold">Generate Character Profile</p>
+            <div>
+              <p className="text-[11px] font-semibold text-muted-foreground mb-1.5">ARCHETYPE</p>
+              <div className="grid grid-cols-3 sm:grid-cols-4 gap-2">
+                {ARCHETYPES_UI.map(a => (
+                  <button key={a.value} onClick={() => setCharForm(f => ({ ...f, archetype: a.value }))}
+                    className={`px-2 py-1.5 rounded-lg border text-[11px] font-semibold transition-all ${charForm.archetype === a.value ? "border-blue-500 bg-blue-50 text-blue-700" : "border-border text-muted-foreground hover:border-blue-200"}`}>
+                    {a.label}
+                  </button>
+                ))}
+              </div>
+            </div>
+            <div className="grid grid-cols-2 gap-3">
+              <div>
+                <label className="text-[11px] font-semibold text-muted-foreground block mb-1">NAME (optional)</label>
+                <input value={charForm.name} onChange={e => setCharForm(f => ({ ...f, name: e.target.value }))} placeholder="Auto-generated if blank" className="w-full text-[12px] border border-border rounded-lg px-2.5 py-2 bg-white text-foreground placeholder:text-muted-foreground/60" />
+              </div>
+              <div>
+                <label className="text-[11px] font-semibold text-muted-foreground block mb-1">STORY CONTEXT</label>
+                <input value={charForm.context} onChange={e => setCharForm(f => ({ ...f, context: e.target.value }))} placeholder="e.g. a post-apocalyptic world" className="w-full text-[12px] border border-border rounded-lg px-2.5 py-2 bg-white text-foreground placeholder:text-muted-foreground/60" />
+              </div>
+            </div>
+            <button onClick={genChar} className="w-full py-2.5 bg-blue-500 text-white rounded-xl text-[13px] font-bold hover:bg-blue-600 transition-colors">
+              🧑 Generate Character Profile
+            </button>
+          </div>
+
+          {characters.length > 1 && (
+            <div className="flex flex-wrap gap-2">
+              {characters.map(c => (
+                <button key={c.id} onClick={() => setActiveChar(c.id)}
+                  className={`px-3 py-1.5 rounded-full text-[11px] font-semibold border ${activeChar === c.id ? "bg-blue-500 text-white border-blue-500" : "border-border text-muted-foreground hover:border-blue-300"}`}>
+                  {c.name}
+                </button>
+              ))}
+            </div>
+          )}
+
+          {character && (
+            <div className="bg-white border border-border rounded-xl p-4 space-y-4">
+              <div>
+                <h3 className="text-[16px] font-bold text-foreground">{character.name}</h3>
+                <p className="text-[11px] text-muted-foreground">{character.role} · {character.archetype} · Age: {character.age}</p>
+              </div>
+              <div className="grid grid-cols-3 gap-2">
+                {character.personality.map(p => <span key={p} className="px-2 py-1 bg-blue-50 text-blue-700 rounded-lg text-[11px] font-semibold text-center">{p}</span>)}
+              </div>
+              {[
+                { label: "MOTIVATION", value: character.motivation },
+                { label: "FEAR", value: character.fear },
+                { label: "SECRET", value: character.secret },
+                { label: "APPEARANCE", value: character.appearance },
+                { label: "VOICE STYLE", value: character.voiceStyle },
+                { label: "CATCHPHRASE", value: character.catchphrase, italic: true },
+              ].map(({ label, value, italic }) => (
+                <div key={label}>
+                  <p className="text-[11px] font-semibold text-muted-foreground mb-0.5">{label}</p>
+                  <p className={`text-[12px] text-foreground ${italic ? "italic" : ""}`}>{value}</p>
+                </div>
+              ))}
+              <div>
+                <p className="text-[11px] font-semibold text-muted-foreground mb-2">CHARACTER ARC</p>
+                <div className="space-y-1.5 text-[11px]">
+                  <div className="bg-red-50 border border-red-100 rounded-lg p-2"><span className="font-semibold">Start:</span> {character.arc.startState}</div>
+                  <div className="bg-blue-50 border border-blue-100 rounded-lg p-2"><span className="font-semibold">Journey:</span> {character.arc.journey}</div>
+                  <div className="bg-green-50 border border-green-100 rounded-lg p-2"><span className="font-semibold">End:</span> {character.arc.endState}</div>
+                  <p className="text-muted-foreground italic">{character.arc.growthTheme}</p>
+                </div>
+              </div>
+              <div>
+                <p className="text-[11px] font-semibold text-muted-foreground mb-2">ABILITIES</p>
+                {character.abilities.map(a => (
+                  <div key={a.name} className="border border-border rounded-lg p-2 text-[11px] mb-1.5">
+                    <div className="flex items-center gap-2">
+                      <span className="font-semibold text-foreground">{a.name}</span>
+                      <span className="text-muted-foreground">· {a.type}</span>
+                      <span className="ml-auto text-amber-500">{Array.from({ length: a.strength }, () => "★").join("").slice(0, a.strength > 5 ? 5 : a.strength)}</span>
+                    </div>
+                    <p className="text-muted-foreground">{a.description}</p>
+                    <p className="text-red-500 text-[10px] mt-0.5">Limitation: {a.limitation}</p>
+                  </div>
+                ))}
+              </div>
+              <div>
+                <p className="text-[11px] font-semibold text-muted-foreground mb-2">RELATIONSHIPS</p>
+                <div className="space-y-1.5">
+                  {character.relationships.map(r => (
+                    <div key={r.characterName} className="flex items-start gap-2 text-[11px] border border-border rounded-lg p-2">
+                      <span className={`px-2 py-0.5 rounded-full font-semibold text-[9px] ${r.type === "ally" ? "bg-green-100 text-green-700" : r.type === "rival" ? "bg-red-100 text-red-600" : "bg-blue-100 text-blue-700"}`}>{r.type}</span>
+                      <span className="font-semibold text-foreground">{r.characterName}</span>
+                      <span className="text-muted-foreground flex-1">{r.dynamic}</span>
+                    </div>
+                  ))}
+                </div>
+              </div>
+              <div className="bg-amber-50 border border-amber-200 rounded-xl p-3">
+                <p className="text-[11px] text-amber-800">{character.disclaimer}</p>
+              </div>
+            </div>
+          )}
+        </div>
+      )}
+
+      {/* World mode */}
+      {mode === "world" && (
+        <div className="space-y-4">
+          <div className="bg-white border border-border rounded-xl p-4 space-y-3">
+            <p className="text-[12px] font-bold">Generate World</p>
+            <div>
+              <p className="text-[11px] font-semibold text-muted-foreground mb-1.5">WORLD TYPE</p>
+              <div className="grid grid-cols-2 sm:grid-cols-5 gap-2">
+                {WORLD_TYPES_UI.map(wt => (
+                  <button key={wt.value} onClick={() => setWorldForm(f => ({ ...f, type: wt.value }))}
+                    className={`flex flex-col items-center p-2 rounded-lg border text-center transition-all ${worldForm.type === wt.value ? "border-blue-500 bg-blue-50 text-blue-700" : "border-border bg-white text-muted-foreground hover:border-blue-200"}`}>
+                    <span className="text-lg">{wt.icon}</span>
+                    <span className="text-[10px] font-semibold mt-0.5 leading-tight">{wt.label}</span>
+                  </button>
+                ))}
+              </div>
+            </div>
+            <div>
+              <label className="text-[11px] font-semibold text-muted-foreground block mb-1">WORLD NAME (optional)</label>
+              <input value={worldForm.name} onChange={e => setWorldForm(f => ({ ...f, name: e.target.value }))} placeholder="Auto-generated if blank" className="w-full text-[12px] border border-border rounded-lg px-2.5 py-2 bg-white text-foreground placeholder:text-muted-foreground/60" />
+            </div>
+            <button onClick={genWorld} className="w-full py-2.5 bg-blue-500 text-white rounded-xl text-[13px] font-bold hover:bg-blue-600 transition-colors">
+              🌍 Generate World
+            </button>
+          </div>
+
+          {worlds.length > 1 && (
+            <div className="flex flex-wrap gap-2">
+              {worlds.map(w => (
+                <button key={w.id} onClick={() => setActiveWorld(w.id)}
+                  className={`px-3 py-1.5 rounded-full text-[11px] font-semibold border ${activeWorld === w.id ? "bg-blue-500 text-white border-blue-500" : "border-border text-muted-foreground hover:border-blue-300"}`}>
+                  {WORLD_TYPES_UI.find(t => t.value === w.type)?.icon} {w.name.slice(0, 24)}
+                </button>
+              ))}
+            </div>
+          )}
+
+          {world && (
+            <div className="bg-white border border-border rounded-xl p-4 space-y-4">
+              <div>
+                <h3 className="text-[16px] font-bold text-foreground">{world.name}</h3>
+                <p className="text-[11px] text-blue-600 italic mt-0.5">"{world.tagline}"</p>
+                <p className="text-[11px] text-muted-foreground mt-1">{world.type}</p>
+              </div>
+              <p className="text-[12px] text-foreground">{world.description}</p>
+              <div>
+                <p className="text-[11px] font-semibold text-muted-foreground mb-2">HISTORY</p>
+                <div className="space-y-1">{world.history.map((h, i) => <div key={i} className="text-[11px] text-foreground pl-2 border-l-2 border-blue-100">{h}</div>)}</div>
+              </div>
+              <div>
+                <p className="text-[11px] font-semibold text-muted-foreground mb-2">REGIONS</p>
+                <div className="space-y-2">
+                  {world.regions.map(r => (
+                    <div key={r.name} className="border border-border rounded-xl p-3 space-y-1 text-[11px]">
+                      <p className="font-bold text-foreground">{r.name}</p>
+                      <p><span className="font-semibold">Terrain:</span> {r.terrain} · <span className="font-semibold">Climate:</span> {r.climate}</p>
+                      <p><span className="font-semibold">Inhabitants:</span> {r.inhabitants}</p>
+                      <p><span className="font-semibold">Key Location:</span> {r.keyLocation}</p>
+                      <p className="text-red-500"><span className="font-semibold text-foreground">Hazards:</span> {r.hazards}</p>
+                    </div>
+                  ))}
+                </div>
+              </div>
+              <div>
+                <p className="text-[11px] font-semibold text-muted-foreground mb-2">FACTIONS</p>
+                <div className="space-y-2">
+                  {world.factions.map(f => (
+                    <div key={f.name} className="border border-border rounded-xl p-3 space-y-1 text-[11px]">
+                      <div className="flex items-center gap-2"><p className="font-bold text-foreground">{f.name}</p><span className="text-[10px] text-muted-foreground">{f.symbol}</span></div>
+                      <p><span className="font-semibold">Ideology:</span> {f.ideology}</p>
+                      <p><span className="font-semibold">Leader:</span> {f.leader}</p>
+                      <p><span className="font-semibold">Goal:</span> {f.goal}</p>
+                      <p className="text-amber-600"><span className="font-semibold text-foreground">Conflict:</span> {f.conflict}</p>
+                    </div>
+                  ))}
+                </div>
+              </div>
+              {([
+                { label: "CULTURE",    value: world.culture },
+                { label: "TECHNOLOGY", value: world.technology },
+                { label: "ECONOMY",    value: world.economy },
+                { label: "POLITICS",   value: world.politics },
+                { label: "ECOLOGY",    value: world.ecology },
+                { label: "CALENDAR",   value: world.calendar },
+              ] as const).map(({ label, value }) => (
+                <div key={label}><p className="text-[11px] font-semibold text-muted-foreground mb-0.5">{label}</p><p className="text-[12px] text-foreground">{value}</p></div>
+              ))}
+              {world.magic && (
+                <div><p className="text-[11px] font-semibold text-muted-foreground mb-0.5">MAGIC SYSTEM</p><p className="text-[12px] text-foreground">{world.magic}</p></div>
+              )}
+              <div>
+                <p className="text-[11px] font-semibold text-muted-foreground mb-1">LANGUAGES</p>
+                <div className="flex flex-wrap gap-2">{world.languages.map(l => <span key={l} className="px-2 py-0.5 bg-muted rounded-full text-[11px]">{l}</span>)}</div>
+              </div>
+              <div className="bg-amber-50 border border-amber-200 rounded-xl p-3">
+                <p className="text-[11px] text-amber-800">{world.disclaimer}</p>
+              </div>
+            </div>
+          )}
+        </div>
+      )}
+    </div>
+  );
+}
+
 // ─── Main Universal App ───────────────────────────────────────────────────
 export function UniversalApp() {
   const { state, setView } = useInteraction();
@@ -1683,6 +2401,8 @@ export function UniversalApp() {
     industries:  <IndustriesScreen />,
     workflows:   <WorkflowsScreen />,
     creative:    <CreativeScreen />,
+    games:       <GamesScreen />,
+    story:       <StoryScreen />,
     roles:       <RolesScreen />,
     agencies:    <AgenciesScreen />,
     states:      <StatesScreen />,

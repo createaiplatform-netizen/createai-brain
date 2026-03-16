@@ -208,7 +208,7 @@ Full-stack AI OS platform — "CreateAI Brain" by Sara Stadler. React + Vite + W
 - `src/os/InteractionContext.tsx` — React context wrapping entire OS
   - `InteractionProvider` wraps `OSProvider` in `App.tsx` — available across all 12 apps
   - `useInteraction()` hook exposes full state + all setters
-- `src/Apps/UniversalApp.tsx` — 10-screen universal dashboard
+- `src/Apps/UniversalApp.tsx` — 16-screen universal dashboard (incl. Industries, Workflows, Creative, Games, Story/World)
   - Own mini-sidebar nav: Home, Dashboard, Roles, Agencies, States, Vendors, Programs, Packets, Submissions, Settings
   - Home: session summary, quick role pills, quick action buttons, recent log
   - Dashboard: 8 stat cards, full state table, action log with 200-entry history

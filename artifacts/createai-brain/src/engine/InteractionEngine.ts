@@ -221,7 +221,7 @@ export type DemoStatus = typeof MOCK_DEMO_STATUSES[number];
 export type UniversalView =
   | "home" | "dashboard" | "roles" | "agencies" | "states"
   | "vendors" | "programs" | "packets" | "submissions" | "settings" | "talk"
-  | "industries" | "workflows" | "creative";
+  | "industries" | "workflows" | "creative" | "games" | "story";
 
 export interface ActionLogEntry {
   id: string;

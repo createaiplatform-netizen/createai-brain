@@ -19,6 +19,7 @@ export type IntentType =
   | "switch-department" | "switch-user-type" | "switch-demo-status"
   | "switch-industry" | "switch-country" | "switch-domain" | "switch-mode"
   | "start-workflow" | "generate-creative"
+  | "generate-game" | "generate-story" | "generate-character" | "generate-world"
   | "navigate" | "open-packet" | "walk-through" | "simulate"
   | "show-form" | "show-data" | "test-me" | "status-check"
   | "explain" | "help" | "test-answer" | "next-step" | "back-step"
@@ -160,9 +161,45 @@ const PATTERNS: { intent: IntentType; patterns: RegExp[] }[] = [
     ],
   },
   {
+    intent: "generate-game",
+    patterns: [
+      /\b(generate|create|build|make|design|draft).*(game|gdd|game design|rpg|platformer|strategy game|puzzle game|simulation game|survival game|sandbox game|horror game|sports game|educational game|action game|adventure game)\b/i,
+      /\b(game|gdd)\b.*(generate|create|build|design|make|outline|plan)\b/i,
+      /\b(rpg|platformer|strategy|puzzle|survival|sandbox|horror|sports|educational|action|adventure)\b.*(game|design doc|gdd)\b/i,
+      /\b(game mechanics|game loop|npc|skill tree|hud design|level design|boss fight)\b/i,
+    ],
+  },
+  {
+    intent: "generate-story",
+    patterns: [
+      /\b(generate|create|write|draft|outline|develop).*(story|narrative|screenplay|script|novel|comic|graphic novel|mini-series|tv series|audio drama|stage play|web series|film|movie)\b/i,
+      /\b(story|narrative|screenplay|film|tv|comic|graphic novel)\b.*(generate|create|outline|develop|plan|structure)\b/i,
+      /\b(three act|story arc|plot structure|act breakdown|story structure|narrative arc)\b/i,
+      /\b(story engine|story generator|generate a story)\b/i,
+    ],
+  },
+  {
+    intent: "generate-character",
+    patterns: [
+      /\b(generate|create|build|make|design|invent).*(character|protagonist|antagonist|villain|hero|anti-hero|npc)\b/i,
+      /\b(character profile|character arc|character sheet|character bio|character backstory)\b/i,
+      /\b(character engine|create a character|design a character)\b/i,
+      /\b(archetype|hero's journey|character motivation|character flaw|character relationship)\b/i,
+    ],
+  },
+  {
+    intent: "generate-world",
+    patterns: [
+      /\b(generate|create|build|design|world-build|construct).*(world|realm|universe|setting|lore|fictional world)\b/i,
+      /\b(world building|world engine|world generator|create a world|design a world)\b/i,
+      /\b(regions|factions|cultures|history|ecology|geography|magic system|technology level)\b.*(world|setting|realm|fictional)\b/i,
+      /\b(fantasy world|sci-fi world|dystopia|utopia|post-apocalyptic world|alternate history world)\b/i,
+    ],
+  },
+  {
     intent: "navigate",
     patterns: [
-      /\b(go to|open|show|take me to|navigate to|load|display|view)\b.*(home|dashboard|roles?|agencies|states?|vendors?|programs?|packets?|submissions?|settings?|talk|conversation|universal|hub|industries|workflows?|creative)\b/i,
+      /\b(go to|open|show|take me to|navigate to|load|display|view)\b.*(home|dashboard|roles?|agencies|states?|vendors?|programs?|packets?|submissions?|settings?|talk|conversation|universal|hub|industries|workflows?|creative|games?|story|world|character)\b/i,
       /\b(home|dashboard|roles?|agencies|states?|vendors?|programs?|packets?|submissions?|settings?|industries|workflows?|creative)\s*(screen|page|view|tab|section)\b/i,
     ],
   },
@@ -416,6 +453,94 @@ function extractEntity(text: string, intent: IntentType): { entity: string | nul
     }
   }
 
+  if (intent === "generate-game") {
+    const GAME_TYPES: { keywords: string[]; type: string; label: string }[] = [
+      { keywords: ["rpg", "role-playing", "role playing"], type: "rpg", label: "RPG" },
+      { keywords: ["platformer", "platform game", "side-scroller"], type: "platformer", label: "Platformer" },
+      { keywords: ["strategy", "rts", "turn-based strategy", "4x"], type: "strategy", label: "Strategy" },
+      { keywords: ["puzzle", "logic puzzle", "match-3"], type: "puzzle", label: "Puzzle" },
+      { keywords: ["simulation", "city builder", "life sim"], type: "simulation", label: "Simulation" },
+      { keywords: ["adventure", "point and click", "narrative"], type: "adventure", label: "Adventure" },
+      { keywords: ["action", "beat em up", "hack and slash", "brawler"], type: "action", label: "Action" },
+      { keywords: ["horror", "survival horror", "psychological horror"], type: "horror", label: "Horror" },
+      { keywords: ["sports", "football", "basketball", "racing"], type: "sports", label: "Sports" },
+      { keywords: ["educational", "learning", "stem game"], type: "educational", label: "Educational" },
+      { keywords: ["sandbox", "open world", "minecraft", "creative mode"], type: "sandbox", label: "Sandbox" },
+      { keywords: ["survival", "survival crafting", "wilderness"], type: "survival", label: "Survival" },
+    ];
+    for (const gt of GAME_TYPES) {
+      if (gt.keywords.some(k => lower.includes(k))) {
+        return { entity: gt.type, entityLabel: gt.label, stateUpdate: null };
+      }
+    }
+    return { entity: "rpg", entityLabel: "RPG (default)", stateUpdate: null };
+  }
+
+  if (intent === "generate-story") {
+    const STORY_FORMATS: { keywords: string[]; type: string; label: string }[] = [
+      { keywords: ["movie", "film", "feature film", "screenplay"], type: "movie", label: "Movie" },
+      { keywords: ["tv series", "television", "season", "episode"], type: "tv-series", label: "TV Series" },
+      { keywords: ["mini-series", "limited series"], type: "mini-series", label: "Mini-Series" },
+      { keywords: ["documentary"], type: "documentary", label: "Documentary" },
+      { keywords: ["comic", "comic book"], type: "comic", label: "Comic" },
+      { keywords: ["graphic novel"], type: "graphic-novel", label: "Graphic Novel" },
+      { keywords: ["novel", "book", "fiction book"], type: "novel", label: "Novel" },
+      { keywords: ["short story"], type: "short-story", label: "Short Story" },
+      { keywords: ["interactive", "interactive story", "visual novel"], type: "interactive", label: "Interactive Story" },
+      { keywords: ["audio drama", "audio play", "radio play"], type: "audio-drama", label: "Audio Drama" },
+      { keywords: ["stage play", "theatre", "theatrical"], type: "stage-play", label: "Stage Play" },
+      { keywords: ["web series", "youtube series"], type: "web-series", label: "Web Series" },
+    ];
+    for (const sf of STORY_FORMATS) {
+      if (sf.keywords.some(k => lower.includes(k))) {
+        return { entity: sf.type, entityLabel: sf.label, stateUpdate: null };
+      }
+    }
+    return { entity: "movie", entityLabel: "Movie (default)", stateUpdate: null };
+  }
+
+  if (intent === "generate-character") {
+    const ARCHETYPES: { keywords: string[]; type: string; label: string }[] = [
+      { keywords: ["hero", "protagonist", "main character"], type: "hero", label: "Hero" },
+      { keywords: ["villain", "antagonist", "bad guy"], type: "villain", label: "Villain" },
+      { keywords: ["anti-hero", "antihero", "morally grey"], type: "anti-hero", label: "Anti-Hero" },
+      { keywords: ["mentor", "guide", "teacher"], type: "mentor", label: "Mentor" },
+      { keywords: ["trickster", "trickster figure"], type: "trickster", label: "Trickster" },
+      { keywords: ["shadow"], type: "shadow", label: "Shadow" },
+      { keywords: ["guardian", "gatekeeper"], type: "guardian", label: "Guardian" },
+      { keywords: ["ally", "sidekick", "companion"], type: "ally", label: "Ally" },
+      { keywords: ["innocent", "naive character"], type: "innocent", label: "Innocent" },
+      { keywords: ["everyman", "ordinary person"], type: "everyman", label: "Everyman" },
+    ];
+    for (const a of ARCHETYPES) {
+      if (a.keywords.some(k => lower.includes(k))) {
+        return { entity: a.type, entityLabel: a.label, stateUpdate: null };
+      }
+    }
+    return { entity: "hero", entityLabel: "Hero (default)", stateUpdate: null };
+  }
+
+  if (intent === "generate-world") {
+    const WORLD_TYPES: { keywords: string[]; type: string; label: string }[] = [
+      { keywords: ["fantasy", "magic", "elves", "dwarves", "wizard"], type: "fantasy", label: "Fantasy World" },
+      { keywords: ["sci-fi", "science fiction", "space", "aliens", "futuristic"], type: "sci-fi", label: "Sci-Fi World" },
+      { keywords: ["contemporary", "modern", "realistic", "present day"], type: "contemporary", label: "Contemporary World" },
+      { keywords: ["historical", "medieval", "ancient", "past"], type: "historical", label: "Historical World" },
+      { keywords: ["post-apocalyptic", "post apocalypse", "after the end"], type: "post-apocalyptic", label: "Post-Apocalyptic World" },
+      { keywords: ["alternate history", "alternative history", "steampunk"], type: "alternate-history", label: "Alternate History World" },
+      { keywords: ["mythological", "mythology", "gods", "pantheon"], type: "mythological", label: "Mythological World" },
+      { keywords: ["horror", "dark", "eldritch", "cosmic horror"], type: "horror", label: "Horror World" },
+      { keywords: ["utopia", "perfect society", "ideal world"], type: "utopia", label: "Utopia" },
+      { keywords: ["dystopia", "dystopian", "oppressive", "surveillance state"], type: "dystopia", label: "Dystopia" },
+    ];
+    for (const wt of WORLD_TYPES) {
+      if (wt.keywords.some(k => lower.includes(k))) {
+        return { entity: wt.type, entityLabel: wt.label, stateUpdate: null };
+      }
+    }
+    return { entity: "fantasy", entityLabel: "Fantasy (default)", stateUpdate: null };
+  }
+
   return { entity: null, entityLabel: null, stateUpdate: null };
 }
 
@@ -437,12 +562,16 @@ function extractScreen(text: string, intent: IntentType): UniversalView | null {
     if (lower.includes("industr") || lower.includes("sector")) return "industries";
     if (lower.includes("workflow") || lower.includes("process")) return "workflows";
     if (lower.includes("creative") || lower.includes("production") || lower.includes("media")) return "creative";
+    if (lower.includes("game") || lower.includes("gdd")) return "games";
+    if (lower.includes("story") || lower.includes("narrative") || lower.includes("character") || lower.includes("world build")) return "story";
   }
 
   if (intent === "switch-industry") return "industries";
   if (intent === "switch-country" || intent === "switch-domain" || intent === "switch-mode") return "industries";
   if (intent === "start-workflow") return "workflows";
   if (intent === "generate-creative") return "creative";
+  if (intent === "generate-game") return "games";
+  if (intent === "generate-story" || intent === "generate-character" || intent === "generate-world") return "story";
   if (intent === "switch-role") return "roles";
   if (intent === "switch-agency") return "agencies";
   if (intent === "switch-state") return "states";
@@ -645,6 +774,34 @@ const RESPONSES: Record<IntentType, (entity: string | null, entityLabel: string 
   ] : [
     "What would you like to create? Options: Video, Documentary, Training Module, Simulation, Storyboard, Script, Explainer, Podcast, Online Course, Presentation, Webinar, Commercial. Navigate to the Creative screen and choose a type to generate a full fictional production package.",
     "Try 'generate a training video' or 'create a documentary script.' The Creative Production screen will generate a complete fictional package — chapters, narration, style guide, and mock cast.",
+  ],
+  "generate-game": (entity, label) => entity ? [
+    `Generating a ${label ?? "game"} Game Design Document. Navigate to the Games screen and select your type to generate a full fictional GDD: overview, mechanics, levels, NPCs, HUD, game loop, skill tree, and progression system. All fictional — demo-only.`,
+    `Heading to the Game Engine for a ${label ?? "game"} GDD. You can set the title, world name, and target audience. The engine produces a complete fictional design document including story arc, NPC profiles, and asset lists. Internal use only.`,
+  ] : [
+    "What type of game? Options: RPG, Platformer, Strategy, Puzzle, Simulation, Adventure, Action, Horror, Sports, Educational, Sandbox, Survival. Navigate to the Games screen to generate a full fictional Game Design Document.",
+    "Try 'generate an RPG game' or 'create a survival game design document.' The Game Engine produces a complete fictional GDD including levels, NPCs, mechanics, and HUD spec.",
+  ],
+  "generate-story": (entity, label) => entity ? [
+    `Generating a ${label ?? "story"} project. Navigate to the Story / World screen (Story tab) to create a full fictional narrative structure: logline, synopsis, three-act breakdown, themes, conflict, and resolution. All fictional — demo-only.`,
+    `Opening Story Engine for a ${label ?? "movie"} project. Choose your genre and tone, then generate a complete fictional story with themes, story structure, narrative style, and POV. Internal — non-factual.`,
+  ] : [
+    "What format? Options: Movie, TV Series, Mini-Series, Documentary, Comic, Graphic Novel, Novel, Short Story, Interactive Story, Audio Drama, Stage Play, Web Series. Navigate to the Story / World screen and generate a full fictional narrative structure.",
+    "Try 'write a sci-fi movie' or 'outline a fantasy TV series.' The Story Engine produces loglines, act breakdowns, themes, conflict, and resolution — all entirely fictional.",
+  ],
+  "generate-character": (entity, label) => entity ? [
+    `Generating a ${label ?? "character"} profile. Navigate to the Story / World screen (Character tab) to create a full fictional character: personality, motivation, fear, secret, abilities, arc, relationships, appearance, and voice style. All fictional.`,
+    `Creating a ${label ?? "hero"} character profile. Head to Story / World → Character tab. You can set a name and story context. The Character Engine produces a complete profile including arc stages and relationships. Demo-only.`,
+  ] : [
+    "What archetype? Options: Hero, Mentor, Villain, Anti-Hero, Trickster, Shadow, Guardian, Ally, Innocent, Everyman. Navigate to the Story / World screen, Character tab, to generate a full fictional character profile.",
+    "Try 'create a villain character' or 'generate an anti-hero profile.' The Character Engine produces motivation, arc, abilities, relationships, and backstory — all entirely fictional.",
+  ],
+  "generate-world": (entity, label) => entity ? [
+    `Generating a ${label ?? "world"}. Navigate to the Story / World screen (World tab) to create a full fictional world: regions, factions, history, culture, technology, ecology, and (if applicable) magic system. All fictional — demo-only.`,
+    `World Engine activated for ${label ?? "a new world"}. Head to Story / World → World tab. Set a world name and generate regions, factions, history, economy, politics, and calendar. All fabricated for demo purposes.`,
+  ] : [
+    "What type of world? Options: Fantasy, Sci-Fi, Contemporary, Historical, Post-Apocalyptic, Alternate History, Mythological, Horror, Utopia, Dystopia. Navigate to the Story / World screen, World tab, to generate a complete fictional world.",
+    "Try 'create a dystopian world' or 'build a fantasy realm.' The World Engine generates regions, factions, culture, technology, ecology, and history — all entirely fictional.",
   ],
   "open-packet": (entity, label) => label ? [
     `Opening the ${label} packet. You'll see the mock endpoint, version, status, and available flow actions.`,
