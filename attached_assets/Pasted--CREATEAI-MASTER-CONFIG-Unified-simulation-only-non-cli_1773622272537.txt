@@ -1,0 +1,325 @@
+// CREATEAI MASTER CONFIG
+// Unified, simulation-only, non-clinical, non-functional configuration for Sara's Brain Platform.
+// This file combines: Brain identity, global infrastructure map, Messaging Hub, Auto-Builder Series,
+// Integration Brain, multilingual concept, healthcare simulation, and safety boundaries.
+
+const CREATEAI_MASTER_CONFIG = {
+
+  meta: {
+    creatorName: "Sara Stadler",
+    platformName: "CreateAI Brain Platform",
+    category: "Universal creation and simulation infrastructure",
+    mode: "SIMULATION_ONLY_NON_CLINICAL",
+    notes: [
+      "This is a conceptual master configuration.",
+      "No real-world clinical, legal, financial, or integrated decisions should rely on this.",
+      "All examples are fictional and for demonstration only."
+    ]
+  },
+
+  coreIdentity: {
+    description: "The Brain that builds, simulates, and explains any system in any industry.",
+    keyIdeas: [
+      "Not an app, but infrastructure.",
+      "The thing that builds the things.",
+      "Multi-industry, multilingual, multi-workflow, multi-user."
+    ]
+  },
+
+  universalCapabilities: {
+    industries: [
+      "Healthcare",
+      "Finance",
+      "Construction",
+      "Education",
+      "Logistics",
+      "Government",
+      "Retail",
+      "Hospitality",
+      "Manufacturing",
+      "Nonprofits",
+      "Any other industry"
+    ],
+    corePowers: [
+      "Simulate platforms and workflows (demo/test/live structure).",
+      "Generate dashboards and project spaces for each user.",
+      "Adapt conceptually to different rules, states, and industries.",
+      "Explain reasoning and flows in simple language.",
+      "Support meaning-preserving multilingual understanding and display (conceptual).",
+      "Provide a universal Integration Brain placeholder for future real connections."
+    ]
+  },
+
+  multilingualConcept: {
+    description: "Meaning-preserving multilingual layer (conceptual).",
+    behavior: [
+      "Users can write in any language.",
+      "Viewers can read in their own language.",
+      "Meaning is preserved conceptually (this file does not implement real translation)."
+    ],
+    exampleScenario: {
+      authorLanguage: "es",
+      viewerLanguage: "en",
+      conceptualNote: "A nurse writes a note in Spanish; a supervisor views it in English with the same meaning."
+    }
+  },
+
+  integrationBrain: {
+    description: "Conceptual 'big integration brain' that represents future connections.",
+    status: "PLACEHOLDER_ONLY",
+    behavior: [
+      "Shows conceptual connection points (e.g., 'Connect EHR', 'Connect Payroll', 'Connect LMS').",
+      "Simulates statuses like 'Requested', 'Pending', 'Approved', 'Connected' (fictional).",
+      "Does NOT perform real integrations or handle real data.",
+      "Acts as a future-ready map for how integrations could be organized."
+    ]
+  },
+
+  userExperience: {
+    dashboards: {
+      description: "Every user gets a beautiful, Brain-powered dashboard.",
+      features: [
+        "Personal projects across any industry.",
+        "Access to demo/test/live modes (simulation-only).",
+        "Calm, clear, emotionally safe UI.",
+        "Global-ready, multilingual-aware design (conceptual)."
+      ]
+    },
+    projects: {
+      description: "Each project is its own mini-platform.",
+      examples: [
+        "Healthcare Demo (ApexCare Nexus)",
+        "Grants & Funding Explorer",
+        "Business & Operations Builder",
+        "Marketing & Storytelling Studio",
+        "CreateAI Messaging Hub",
+        "Any custom project a user imagines"
+      ]
+    }
+  },
+
+  healthcareSimulation: {
+    name: "ApexCare Nexus (Healthcare Demo)",
+    mode: "DEMO_AND_SIMULATION_ONLY",
+    disclaimers: [
+      "Not a medical device.",
+      "Not for diagnosis, treatment, or clinical decision-making.",
+      "All outputs are fictional and for demonstration only."
+    ],
+    conceptualFlows: {
+      dischargeInstructions: "Simulated flow from discharge document to care plan, tasks, and alerts (fictional).",
+      medicationsAndSideEffects: "Simulated risk flags and alerts for side effects (fictional).",
+      carePlanning: "Simulated care plan structures and updates (fictional).",
+      documentation: "Simulated notes, summaries, and reports (fictional).",
+      providerMapping: "Simulated provider and service directories (fictional).",
+      costImpactViews: "Simulated dashboards showing potential savings and impact (fictional).",
+      futureImagingSupport: "Conceptual section describing how AI could assist with imaging someday (no real imaging logic)."
+    }
+  },
+
+  messagingProject: {
+    meta: {
+      projectName: "CreateAI Messaging Hub",
+      category: "Universal communication workspace",
+      mode: "SIMULATION_PLUS_DEVICE_SENDING",
+      description: "Central place where users can generate professional emails and texts powered by the CreateAI Brain.",
+      notes: [
+        "Emails and texts are generated by CreateAI but sent via the user's own device/apps in Easy Mode.",
+        "Future integration placeholders are included for a real provider (e.g., SendGrid/Twilio) in Professional Mode.",
+        "All examples are fictional and for demonstration only."
+      ]
+    },
+    branding: {
+      fromName: "CreateAI",
+      conceptualFromEmail: "noreply@createai.example",
+      conceptualFromSmsLabel: "CreateAI Messaging"
+    },
+    easyMode: {
+      description: "Works today with no external accounts. Uses mailto: and sms: links.",
+      email: {
+        type: "MAILTO_LINKS",
+        exampleLink: "mailto:someone@example.com?subject=Hello%20from%20CreateAI&body=This%20was%20generated%20by%20the%20CreateAI%20Messaging%20Hub."
+      },
+      sms: {
+        type: "SMS_LINKS",
+        exampleLink: "sms:+15551234567?body=Hello%20from%20CreateAI%20Messaging%20Hub"
+      }
+    },
+    professionalModePlaceholders: {
+      emailProvider: {
+        status: "FUTURE",
+        providerExamples: ["SendGrid", "Mailgun", "Amazon SES", "Postmark"],
+        conceptualFromEmail: "noreply@createai.com"
+      },
+      smsProvider: {
+        status: "FUTURE",
+        providerExamples: ["Twilio", "Vonage", "Plivo"],
+        conceptualFromNumber: "+1 (555) CREATEAI"
+      }
+    },
+    uiStructure: {
+      mainSections: [
+        { id: "overview", title: "Messaging Overview" },
+        { id: "emailCenter", title: "Email Center" },
+        { id: "smsCenter", title: "Text Messaging Center" },
+        { id: "templates", title: "Templates & Scenarios" },
+        { id: "futureIntegrations", title: "Future Integrations (Conceptual)" }
+      ]
+    },
+    templates: {
+      examples: [
+        {
+          id: "healthcare_followup",
+          label: "Healthcare – Appointment Follow-Up (Email)",
+          type: "email",
+          language: "en"
+        },
+        {
+          id: "business_update",
+          label: "Business – Project Status Update (Email)",
+          type: "email",
+          language: "en"
+        },
+        {
+          id: "short_sms_reminder",
+          label: "Short Reminder (SMS)",
+          type: "sms",
+          language: "en"
+        }
+      ]
+    }
+  },
+
+  autoBuilderSeries: {
+    meta: {
+      seriesName: "AB-Series",
+      fullName: "Auto-Builder Series",
+      purpose: "Automatically generate missing project components inside CreateAI (simulation-only).",
+      mode: "SIMULATION_ONLY"
+    },
+    triggers: {
+      description: "When the user starts or edits a project, the AB-Series activates."
+    },
+    builderCapabilities: {
+      dashboards: {
+        description: "Generates a dashboard layout for any project."
+      },
+      messaging: {
+        description: "Adds email/text templates and buttons (mailto/sms + future placeholders)."
+      },
+      workflows: {
+        description: "Creates placeholder workflows for any industry."
+      },
+      multilingual: {
+        description: "Adds conceptual multilingual support."
+      },
+      integrationBrain: {
+        description: "Adds integration placeholders for future real connections."
+      },
+      uiBlocks: {
+        description: "Generates UI components for any project (cards, tables, forms, buttons)."
+      }
+    },
+    universalIndustries: [
+      "Healthcare",
+      "Finance",
+      "Construction",
+      "Education",
+      "Logistics",
+      "Government",
+      "Retail",
+      "Hospitality",
+      "Manufacturing",
+      "Nonprofits",
+      "Any custom industry"
+    ]
+  },
+
+  stages: [
+    {
+      id: 1,
+      name: "Brain Foundation",
+      status: "DONE",
+      description: "Universal creation engine that can conceptually build and simulate platforms for any industry."
+    },
+    {
+      id: 2,
+      name: "Multi-Industry Simulation",
+      status: "DONE",
+      description: "Healthcare, grants, business, marketing, and other domains represented as simulated projects."
+    },
+    {
+      id: 3,
+      name: "Universal User Dashboards",
+      status: "DONE",
+      description: "Each user gets their own dashboard and projects, powered by the Brain (simulation-only)."
+    },
+    {
+      id: 4,
+      name: "Integration Brain (Conceptual)",
+      status: "DONE_FOR_NOW",
+      description: "Central conceptual layer for future integrations; currently a simulation and placeholder only."
+    },
+    {
+      id: 5,
+      name: "Multilingual Meaning Layer (Conceptual)",
+      status: "DONE_FOR_NOW",
+      description: "Conceptual support for meaning-preserving multilingual understanding and display."
+    },
+    {
+      id: 6,
+      name: "Future Vision Simulation",
+      status: "DONE",
+      description: "Simulated examples of what AI could do at 100% if regulations and integrations allowed it."
+    },
+    {
+      id: 7,
+      name: "Real Integrations",
+      status: "FUTURE",
+      description: "Future stage where real APIs and systems could be connected under proper agreements and regulations."
+    },
+    {
+      id: 8,
+      name: "Enterprise & Government Adoption",
+      status: "FUTURE",
+      description: "Organizations use the Brain as a standard layer for training, simulation, and workflow design."
+    },
+    {
+      id: 9,
+      name: "National / Sector Infrastructure",
+      status: "FUTURE",
+      description: "The Brain becomes a backbone for sectors like healthcare, logistics, education, and public services."
+    },
+    {
+      id: 10,
+      name: "Global Infrastructure Layer",
+      status: "FUTURE",
+      description: "The Brain operates as a global creation and simulation infrastructure, supporting any industry, any language, any region."
+    }
+  ],
+
+  safetyAndBoundaries: {
+    clinical: [
+      "No diagnosis.",
+      "No treatment recommendations.",
+      "No real scoring or eligibility decisions.",
+      "No real LTCFS or clinical forms.",
+      "No real-world medical advice."
+    ],
+    legalAndFinancial: [
+      "No binding contracts.",
+      "No real billing logic.",
+      "No tax or legal advice.",
+      "No guarantees of funding or outcomes."
+    ],
+    general: [
+      "All outputs are fictional, illustrative, and for demonstration only.",
+      "Human experts are always required for real decisions.",
+      "This file is a conceptual map, not an operational system."
+    ]
+  }
+
+};
+
+// You can export this if your setup uses modules:
+export default CREATEAI_MASTER_CONFIG;

@@ -36,6 +36,10 @@ const PROJECTS = [
     name: "Marketing & Storytelling Studio",
     description: "Craft your brand narratives, campaigns, and messaging. Ideation mode.",
   },
+  {
+    name: "CreateAI Messaging Hub",
+    description: "Generate professional emails and texts. Easy Mode: sent via your own device.",
+  },
 ];
 
 export default function Home() {
