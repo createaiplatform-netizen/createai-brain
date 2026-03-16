@@ -91,6 +91,27 @@ Generated Zod schemas from the OpenAPI spec (e.g. `HealthCheckResponse`). Used b
 
 Generated React Query hooks and fetch client from the OpenAPI spec (e.g. `useHealthCheck`, `healthCheck`).
 
+### `artifacts/createai-brain` (`@workspace/createai-brain`)
+
+Full-stack AI OS platform — "CreateAI Brain" by Sara Stadler. React + Vite + Wouter + TailwindCSS.
+
+**Key architecture:**
+- `src/os/OSContext.tsx` — Preference Brain state, Global Brain `routeIntent()`, Infinite Expansion `appRegistry`
+- `src/os/OSLayout.tsx` — Responsive 3-tier iOS-inspired layout (mobile/tablet/desktop)
+- `src/os/Dashboard.tsx` — Global Brain search bar + intent routing
+- `src/apps/` — 11 apps: Chat, Projects, Tools, Creator, People, Documents, Marketing, Admin, Family, Integration, Monetization
+- `src/standalone/` — Standalone Project Engine (new tab full products)
+  - `StandaloneLayout.tsx` — shared shell for all standalone products
+  - `HealthcareProduct.tsx` — full Healthcare standalone (8 sections + AI chat)
+  - `GenericProduct.tsx` — infinite expansion engine (Finance, Marketing, Operations, etc.)
+- `src/pages/StandalonePage.tsx` — Wouter route handler for `/standalone/:projectId`
+
+**Standalone URLs:** `/standalone/healthcare-legal-safe`, `/standalone/healthcare-mach1`, `/standalone/monetary-legal-safe`, `/standalone/monetary-mach1`, `/standalone/marketing-hub`, `/standalone/operations-builder`
+
+**SSE streaming:** `fetch` + `ReadableStream` only. Model: `gpt-5.2`, max_completion_tokens: 8192. API key via `AI_INTEGRATIONS_OPENAI_BASE_URL` + `AI_INTEGRATIONS_OPENAI_API_KEY`.
+
+**Colors:** Primary `#007AFF`, never change. All content is mock/simulation only.
+
 ### `scripts` (`@workspace/scripts`)
 
 Utility scripts package. Each script is a `.ts` file in `src/` with a corresponding npm script in `package.json`. Run scripts via `pnpm --filter @workspace/scripts run <script>`. Scripts can import any workspace package (e.g., `@workspace/db`) by adding it as a dependency in `scripts/package.json`.

@@ -4,13 +4,18 @@ import React, { useState } from "react";
 type Mode = "Demo" | "Test" | "Live";
 
 const PROJECTS = [
-  { name: "Healthcare System – Legal Safe", mode: "DEMO", pages: 6, icon: "🏥", color: "#34C759", hasDemo: true },
-  { name: "Healthcare System – Mach 1",    mode: "FUTURE", pages: 5, icon: "🔬", color: "#BF5AF2", hasDemo: false },
-  { name: "Monetary System – Legal Safe",  mode: "DEMO", pages: 7, icon: "💳", color: "#007AFF", hasDemo: false },
-  { name: "Monetary System – Mach 1",      mode: "FUTURE", pages: 5, icon: "🚀", color: "#FF9500", hasDemo: false },
-  { name: "Marketing Hub",                 mode: "DEMO", pages: 6, icon: "📣", color: "#FF2D55", hasDemo: false },
-  { name: "Operations Builder",            mode: "TEST", pages: 9, icon: "🏗️", color: "#5856D6", hasDemo: false },
+  { name: "Healthcare System – Legal Safe", mode: "DEMO",   pages: 6, icon: "🏥", color: "#34C759", hasDemo: true,  slug: "healthcare-legal-safe" },
+  { name: "Healthcare System – Mach 1",    mode: "FUTURE", pages: 5, icon: "🔬", color: "#BF5AF2", hasDemo: false, slug: "healthcare-mach1" },
+  { name: "Monetary System – Legal Safe",  mode: "DEMO",   pages: 7, icon: "💳", color: "#007AFF", hasDemo: false, slug: "monetary-legal-safe" },
+  { name: "Monetary System – Mach 1",      mode: "FUTURE", pages: 5, icon: "🚀", color: "#FF9500", hasDemo: false, slug: "monetary-mach1" },
+  { name: "Marketing Hub",                 mode: "DEMO",   pages: 6, icon: "📣", color: "#FF2D55", hasDemo: false, slug: "marketing-hub" },
+  { name: "Operations Builder",            mode: "TEST",   pages: 9, icon: "🏗️", color: "#5856D6", hasDemo: false, slug: "operations-builder" },
 ];
+
+function openStandalone(slug: string) {
+  const base = import.meta.env.BASE_URL?.replace(/\/$/, "") ?? "";
+  window.open(`${base}/standalone/${slug}`, "_blank", "noopener");
+}
 
 const ALL_SUB_PAGES = [
   { id: "overview",   label: "Overview",    icon: "📋" },
@@ -478,20 +483,38 @@ export function ProjectsApp() {
       </div>
       <div className="space-y-3">
         {PROJECTS.map(proj => (
-          <button key={proj.name} onClick={() => setSelected(proj.name)}
-            className="w-full flex items-center gap-4 p-4 bg-background rounded-2xl border border-border/50 hover:border-primary/20 hover:shadow-sm transition-all text-left">
-            <div className="w-12 h-12 rounded-2xl flex items-center justify-center text-2xl flex-shrink-0" style={{ backgroundColor: proj.color + "22" }}>
-              {proj.icon}
+          <div key={proj.name} className="bg-background rounded-2xl border border-border/50 hover:border-primary/20 hover:shadow-sm transition-all overflow-hidden">
+            {/* Main row — click to open in OS */}
+            <button onClick={() => setSelected(proj.name)}
+              className="w-full flex items-center gap-4 p-4 text-left">
+              <div className="w-12 h-12 rounded-2xl flex items-center justify-center text-2xl flex-shrink-0" style={{ backgroundColor: proj.color + "22" }}>
+                {proj.icon}
+              </div>
+              <div className="flex-1 min-w-0">
+                <p className="font-semibold text-[14px] text-foreground truncate">{proj.name}</p>
+                <p className="text-[12px] text-muted-foreground mt-0.5">{proj.pages} pages · Tap to preview in OS</p>
+              </div>
+              <span className={`text-[11px] font-semibold px-2 py-0.5 rounded-full flex-shrink-0 ${proj.mode === "FUTURE" ? "bg-purple-100 text-purple-700" : proj.mode === "TEST" ? "bg-orange-100 text-orange-700" : "bg-green-100 text-green-700"}`}>
+                {proj.mode}
+              </span>
+            </button>
+            {/* Standalone launch strip */}
+            <div className="border-t border-border/30 px-4 py-2.5 flex items-center justify-between bg-muted/20">
+              <p className="text-[11px] text-muted-foreground">Full standalone product with AI, workflows, dashboards & docs</p>
+              <button
+                onClick={() => openStandalone(proj.slug)}
+                className="flex items-center gap-1.5 text-[11px] font-bold text-white px-3 py-1.5 rounded-lg hover:opacity-90 transition-opacity flex-shrink-0"
+                style={{ backgroundColor: proj.color }}>
+                <span>↗</span><span>Open App</span>
+              </button>
             </div>
-            <div className="flex-1 min-w-0">
-              <p className="font-semibold text-[14px] text-foreground truncate">{proj.name}</p>
-              <p className="text-[12px] text-muted-foreground mt-0.5">{proj.pages} pages</p>
-            </div>
-            <span className={`text-[11px] font-semibold px-2 py-0.5 rounded-full flex-shrink-0 ${proj.mode === "FUTURE" ? "bg-purple-100 text-purple-700" : proj.mode === "TEST" ? "bg-orange-100 text-orange-700" : "bg-green-100 text-green-700"}`}>
-              {proj.mode}
-            </span>
-          </button>
+          </div>
         ))}
+      </div>
+
+      <div className="bg-blue-50 border border-blue-200 rounded-2xl p-4">
+        <p className="text-[12px] text-blue-700 font-semibold">Standalone Project Engine</p>
+        <p className="text-[11px] text-blue-600 mt-1">Every project opens as a full standalone software product in a new tab — with its own URL, navigation, AI assistant, workflows, dashboards, marketing pages, and downloadable documents. All simulated.</p>
       </div>
     </div>
   );
