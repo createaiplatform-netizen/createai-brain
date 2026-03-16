@@ -38,8 +38,9 @@ const NAV_ITEMS: { id: UniversalView; label: string; icon: string }[] = [
   { id: "creative",    label: "Creative",         icon: "🎬" },
   { id: "games",       label: "Games",            icon: "🎮" },
   { id: "story",       label: "Story / World",    icon: "📖" },
-  { id: "connection",  label: "Connection",       icon: "🔗" },
+  { id: "connection",   label: "Connection",      icon: "🔗" },
   { id: "strategy",    label: "Strategy",         icon: "📈" },
+  { id: "architecture",label: "Architecture",     icon: "🗺️" },
   { id: "roles",       label: "Roles",            icon: "🎭" },
   { id: "agencies",    label: "Agencies",         icon: "🏛️" },
   { id: "states",      label: "States",           icon: "🗺️" },
@@ -3005,6 +3006,326 @@ function StrategyScreen() {
   );
 }
 
+// ─── Architecture Screen ──────────────────────────────────────────────────
+// Visualizes the UCP-X Extension Manifest (conceptual — non-operational).
+// Read-only display. Nothing here modifies any existing engine or screen.
+function ArchitectureScreen() {
+  const [activeLayer, setActiveLayer] = useState<string>("brain");
+
+  const BRAIN_ENGINES = [
+    { name: "Intent",      icon: "🧠", desc: "Parses all user requests and routes to the correct engine or module." },
+    { name: "Planning",    icon: "📋", desc: "Breaks complex requests into sequenced steps with dependency tracking." },
+    { name: "Story",       icon: "📖", desc: "Generates fictional narrative structures across 12 formats and 12 genres." },
+    { name: "Character",   icon: "🧑", desc: "Creates full character profiles across 12 archetypes with complete arcs." },
+    { name: "World",       icon: "🌍", desc: "Builds fictional worlds across 10 types with regions, factions, and history." },
+    { name: "Mechanics",   icon: "⚙️", desc: "Generates game mechanics: puzzles, skill trees, crafting, progression, HUD." },
+    { name: "Workflow",    icon: "🔄", desc: "Produces workflow structures with steps, packets, screens, and outcomes." },
+    { name: "Data",        icon: "📊", desc: "Mock data generation: industries, roles, agencies, states, vendors, domains." },
+    { name: "State",       icon: "💾", desc: "Persistent fictional state: role, agency, industry, scenario, mode." },
+    { name: "Assembly",    icon: "🔗", desc: "Connection Layer: links all elements into a unified connected project." },
+    { name: "Deployment",  icon: "📦", desc: "Conceptual export packaging: produces fictional export document lists." },
+  ];
+
+  const EXTENSIONS: { category: string; icon: string; color: string; modules: string[]; desc: string }[] = [
+    {
+      category: "Creative",   icon: "🎬", color: "blue",
+      modules: ["Cinematic","Comic","Storyboard","Dialogue","Voice","World Lore","Music","Narrative","Film/Game Series","Virtual Theater"],
+      desc: "Generates fictional creative production structures: cinematic packages, comic layouts, storyboards, dialogue trees, and virtual theater concepts.",
+    },
+    {
+      category: "Simulation", icon: "🔬", color: "purple",
+      modules: ["Physics","Economics","Training","Behavior","Scientific","Disaster","Sociological","Multi-Industry"],
+      desc: "Conceptual simulation frameworks: fictional physics systems, economic models, behavioral simulations, and disaster scenario generators.",
+    },
+    {
+      category: "Business / SaaS", icon: "🏢", color: "green",
+      modules: ["CRM","ERP","Workflow","Dashboards","Compliance","HR","Finance","Marketing","E-Commerce","Support","Marketplace","Inventory","Project Management","AI Decision Support"],
+      desc: "Fictional SaaS module structures: CRM pipelines, ERP flows, compliance templates, and AI-assisted decision support frameworks.",
+    },
+    {
+      category: "Data",        icon: "📈", color: "orange",
+      modules: ["Synthetic Data","Predictive Analytics","Reporting","Visualization","Auto-ML","Streaming","ETL Packs"],
+      desc: "Conceptual data layer: synthetic dataset generation, fictional analytics pipelines, and mock ETL package structures.",
+    },
+    {
+      category: "Game",        icon: "🎮", color: "red",
+      modules: ["Combat","NPC AI","Progression","Multiplayer","Procedural World","Quests","Franchise Series","Cross-Platform Deployment"],
+      desc: "Advanced game engine modules: fictional combat systems, NPC behavior trees, procedural world generators, and cross-platform deployment concepts.",
+    },
+    {
+      category: "Futuristic",  icon: "🌌", color: "violet",
+      modules: ["Recursive Creativity","Multi-Reality VR/AR/MR","Autonomous SaaS Generator","Synthetic Talent Engine","Predictive Story Engine","Infinite World Builder","Global Scenario Engine","Cross-Project Dependency","Adaptive Self-Improving Pipelines"],
+      desc: "Speculative and experimental conceptual modules — non-operational, future-facing design patterns for recursive, cross-domain, and self-organizing fictional systems.",
+    },
+  ];
+
+  const PIPELINE = [
+    { step: "Request",             icon: "💬", desc: "User input received and parsed by the Intent Engine." },
+    { step: "Planning",            icon: "📋", desc: "Request broken into sequenced tasks with engine selection." },
+    { step: "Engine Selection",    icon: "🧠", desc: "Correct core engine(s) identified and activated for the request type." },
+    { step: "Extension Activation",icon: "🔌", desc: "Relevant extension modules activated to supplement core engines." },
+    { step: "Parallel Generation", icon: "⚡", desc: "Multiple engines generate their respective fictional outputs simultaneously." },
+    { step: "Validation",          icon: "✅", desc: "Completeness Pass scores output and flags missing sections." },
+    { step: "Assembly",            icon: "🔗", desc: "Connection Layer links all outputs into a unified fictional project." },
+    { step: "Deployment Packaging",icon: "📦", desc: "Conceptual export package compiled: documents, index, safety declaration." },
+  ];
+
+  const INFRASTRUCTURE = [
+    { name: "Async Execution",            icon: "⚡", desc: "Conceptual async pipeline — engines run non-blocking in sequence or parallel." },
+    { name: "Persistent Storage",         icon: "💾", desc: "localStorage-backed state: interaction, conversation, workflows, packets, creations." },
+    { name: "Asset Management",           icon: "🗂️", desc: "All generated outputs stored in session as typed engine objects with IDs." },
+    { name: "Error Handling & Self-Correction", icon: "🔁", desc: "Completeness Pass auto-fixes critical missing sections; ConversationEngine falls back gracefully." },
+    { name: "Resource Control",           icon: "🛡️", desc: "All engines are singleton classes — one instance per session, no duplicates." },
+    { name: "Monitoring & Logging",       icon: "📋", desc: "Full action log: every state change, navigation, and generation timestamped." },
+    { name: "Version Control & Governance",icon: "🏷️", desc: "Checkpoint system via Replit — every significant change creates a restorable commit." },
+  ];
+
+  const INTERFACES = [
+    { name: "Prompt Mode",       icon: "💬", desc: "Conversational Brain bar — natural language parsed by ConversationEngine into structured intents." },
+    { name: "Visual Builder",    icon: "🖥️", desc: "Every screen is a form-driven visual interface: dropdowns, sliders, buttons, cards." },
+    { name: "Project Explorer",  icon: "🗂️", desc: "Connection Layer: assemble and browse all generated project elements in one view." },
+    { name: "Engine Console",    icon: "🔧", desc: "This Architecture screen — view the full system map, pipeline, and extension registry." },
+    { name: "Output Packaging",  icon: "📦", desc: "Conceptual export: every generated output includes a fictional export document list." },
+    { name: "API Integration",   icon: "🔌", desc: "Integration Engine: 23 fictional demo API packets across 9 categories." },
+  ];
+
+  const GOVERNANCE = [
+    { name: "Permissions",          icon: "🔑", desc: "Role-based access: 15 fictional roles with level classification (clinical/ops/system/compliance)." },
+    { name: "Audit Logging",        icon: "📋", desc: "Full action log with timestamps, previous/next state, and action type for every interaction." },
+    { name: "Compliance Templates", icon: "📄", desc: "Fictional regulatory blueprints: governance patterns, consent flows, jurisdiction variations." },
+    { name: "Security Policies",    icon: "🛡️", desc: "Safety Core: all outputs labeled non-operational, fictional, non-clinical, non-legal, non-financial." },
+    { name: "Version Control",      icon: "🏷️", desc: "Checkpoint system captures codebase + chat session + DB state at every significant milestone." },
+  ];
+
+  const FUTURISTIC_LAYERS = [
+    { name: "Recursive Creativity",           icon: "🔁", desc: "Conceptual pattern: generated outputs feed back as inputs, producing ever-expanding fictional universes." },
+    { name: "Cross-Domain Fusion",            icon: "⚗️", desc: "Story + Game + SaaS + Simulation elements merged into a single cross-domain fictional project." },
+    { name: "Multi-Reality VR/AR/MR",         icon: "🥽", desc: "Conceptual spatial interface layer — fictional worlds mapped to VR/AR/MR display formats." },
+    { name: "Autonomous SaaS Generator",      icon: "🤖", desc: "Conceptual: a SaaS product generated end-to-end from a single natural language prompt." },
+    { name: "Synthetic Talent Engine",        icon: "🧬", desc: "Fictional personas with generated skills, career paths, and project histories — for simulation contexts." },
+    { name: "Predictive Story Engine",        icon: "🔮", desc: "Conceptual: narrative outcomes predicted from character motivations and world conditions." },
+    { name: "Infinite World Builder",         icon: "🌌", desc: "Endless procedural world generation — regions, factions, and lore expand on demand." },
+    { name: "Global Scenario Engine",         icon: "🌍", desc: "Multi-country, multi-agency, multi-industry scenario modeling across jurisdictions." },
+    { name: "Cross-Project Dependency Engine",icon: "🕸️", desc: "Links elements across multiple connected projects into a shared fictional universe graph." },
+    { name: "Adaptive Self-Improving Pipelines", icon: "📈", desc: "Conceptual: pipeline steps self-optimize based on output quality signals and completeness scores." },
+  ];
+
+  const LAYERS = [
+    { id: "brain",          label: "Brain Core",        icon: "🧠" },
+    { id: "extensions",     label: "Extensions",        icon: "🔌" },
+    { id: "pipeline",       label: "Pipeline",          icon: "⚡" },
+    { id: "interfaces",     label: "Interfaces",        icon: "🖥️" },
+    { id: "infrastructure", label: "Infrastructure",    icon: "⚙️" },
+    { id: "governance",     label: "Governance",        icon: "🏛️" },
+    { id: "futuristic",     label: "Futuristic Layers", icon: "🌌" },
+  ];
+
+  const colorMap: Record<string, string> = {
+    blue: "border-blue-200 bg-blue-50",
+    purple: "border-purple-200 bg-purple-50",
+    green: "border-green-200 bg-green-50",
+    orange: "border-orange-200 bg-orange-50",
+    red: "border-red-200 bg-red-50",
+    violet: "border-violet-200 bg-violet-50",
+  };
+  const badgeMap: Record<string, string> = {
+    blue: "bg-blue-100 text-blue-700",
+    purple: "bg-purple-100 text-purple-700",
+    green: "bg-green-100 text-green-700",
+    orange: "bg-orange-100 text-orange-700",
+    red: "bg-red-100 text-red-700",
+    violet: "bg-violet-100 text-violet-700",
+  };
+
+  return (
+    <div className="space-y-4 pb-8">
+      <SectionHeader
+        title="🗺️ System Architecture Map"
+        subtitle="UCP-X Extension + Architecture Registry — read-only visualization · Existing platform untouched · All layers conceptual"
+      />
+
+      {/* Manifest badge */}
+      <div className="bg-gradient-to-r from-blue-600 to-violet-600 rounded-xl p-4 text-white">
+        <p className="text-[11px] font-bold opacity-80 mb-0.5">MANIFEST</p>
+        <p className="text-[15px] font-bold">UCP-X Full Extension + Architecture Pack</p>
+        <p className="text-[11px] opacity-80 mt-1">Core platform intact · Auto-linked to brain · Non-destructive · All modules conceptual</p>
+        <div className="flex flex-wrap gap-1.5 mt-2.5">
+          {["Intent","Planning","Story","Character","World","Mechanics","Workflow","Data","State","Assembly","Deployment"].map(e => (
+            <span key={e} className="text-[9px] font-bold bg-white/20 rounded-full px-2 py-0.5">{e}</span>
+          ))}
+        </div>
+      </div>
+
+      {/* Layer selector */}
+      <div className="flex flex-wrap gap-1.5">
+        {LAYERS.map(l => (
+          <button key={l.id} onClick={() => setActiveLayer(l.id)}
+            className={`flex items-center gap-1.5 px-3 py-1.5 rounded-full text-[11px] font-semibold border transition-all ${activeLayer === l.id ? "bg-blue-500 text-white border-blue-500" : "bg-white border-border text-muted-foreground hover:border-blue-300"}`}>
+            <span>{l.icon}</span><span>{l.label}</span>
+          </button>
+        ))}
+      </div>
+
+      {/* Brain Core */}
+      {activeLayer === "brain" && (
+        <div className="space-y-3">
+          <div className="bg-muted/20 rounded-xl p-3">
+            <p className="text-[11px] text-muted-foreground">11 core engines that form the central brain. All are implemented, active, and running in this session. [Conceptual architecture map — demo display only]</p>
+          </div>
+          <div className="grid grid-cols-1 sm:grid-cols-2 gap-2">
+            {BRAIN_ENGINES.map(e => (
+              <div key={e.name} className="flex items-start gap-3 border border-border rounded-xl p-3 bg-white">
+                <span className="text-xl mt-0.5">{e.icon}</span>
+                <div>
+                  <p className="text-[13px] font-bold text-foreground">{e.name} Engine</p>
+                  <p className="text-[11px] text-muted-foreground mt-0.5">{e.desc}</p>
+                </div>
+              </div>
+            ))}
+          </div>
+        </div>
+      )}
+
+      {/* Extensions */}
+      {activeLayer === "extensions" && (
+        <div className="space-y-3">
+          <div className="bg-muted/20 rounded-xl p-3">
+            <p className="text-[11px] text-muted-foreground">6 extension categories with {EXTENSIONS.reduce((n, e) => n + e.modules.length, 0)} total modules. Extensions plug into the core brain without modifying existing engines. [Conceptual registry — non-operational]</p>
+          </div>
+          {EXTENSIONS.map(ext => (
+            <div key={ext.category} className={`border rounded-xl p-4 space-y-2 ${colorMap[ext.color]}`}>
+              <div className="flex items-center gap-2">
+                <span className="text-xl">{ext.icon}</span>
+                <p className="text-[13px] font-bold text-foreground">{ext.category}</p>
+                <span className={`ml-auto text-[9px] font-bold px-2 py-0.5 rounded-full ${badgeMap[ext.color]}`}>{ext.modules.length} modules</span>
+              </div>
+              <p className="text-[11px] text-muted-foreground">{ext.desc}</p>
+              <div className="flex flex-wrap gap-1.5 pt-1">
+                {ext.modules.map(m => (
+                  <span key={m} className={`text-[10px] font-semibold px-2 py-0.5 rounded-full ${badgeMap[ext.color]}`}>{m}</span>
+                ))}
+              </div>
+            </div>
+          ))}
+        </div>
+      )}
+
+      {/* Pipeline */}
+      {activeLayer === "pipeline" && (
+        <div className="space-y-3">
+          <div className="bg-muted/20 rounded-xl p-3">
+            <p className="text-[11px] text-muted-foreground">8-step autonomous pipeline — every request flows through all stages from parsing to export packaging. [Conceptual — non-operational]</p>
+          </div>
+          <div className="relative">
+            {PIPELINE.map((step, i) => (
+              <div key={step.step} className="flex gap-3 mb-3">
+                <div className="flex flex-col items-center">
+                  <div className="w-9 h-9 flex items-center justify-center rounded-full bg-blue-100 text-blue-600 font-bold text-[12px] shrink-0 border-2 border-blue-300">{i + 1}</div>
+                  {i < PIPELINE.length - 1 && <div className="w-0.5 flex-1 bg-blue-100 mt-1 mb-0 min-h-[20px]" />}
+                </div>
+                <div className="flex-1 border border-border rounded-xl p-3 bg-white">
+                  <div className="flex items-center gap-2 mb-1">
+                    <span>{step.icon}</span>
+                    <p className="text-[13px] font-bold text-foreground">{step.step}</p>
+                  </div>
+                  <p className="text-[11px] text-muted-foreground">{step.desc}</p>
+                </div>
+              </div>
+            ))}
+          </div>
+        </div>
+      )}
+
+      {/* Interfaces */}
+      {activeLayer === "interfaces" && (
+        <div className="space-y-3">
+          <div className="bg-muted/20 rounded-xl p-3">
+            <p className="text-[11px] text-muted-foreground">6 interface modes — all active in this platform. [Conceptual architecture layer — demo display]</p>
+          </div>
+          <div className="grid grid-cols-1 sm:grid-cols-2 gap-2">
+            {INTERFACES.map(iface => (
+              <div key={iface.name} className="flex items-start gap-3 border border-border rounded-xl p-3 bg-white">
+                <span className="text-xl mt-0.5">{iface.icon}</span>
+                <div>
+                  <p className="text-[13px] font-bold text-foreground">{iface.name}</p>
+                  <p className="text-[11px] text-muted-foreground mt-0.5">{iface.desc}</p>
+                </div>
+              </div>
+            ))}
+          </div>
+        </div>
+      )}
+
+      {/* Infrastructure */}
+      {activeLayer === "infrastructure" && (
+        <div className="space-y-3">
+          <div className="bg-muted/20 rounded-xl p-3">
+            <p className="text-[11px] text-muted-foreground">7 infrastructure layers that underpin all engines and modules. [Body of the architecture — conceptual map]</p>
+          </div>
+          <div className="space-y-2">
+            {INFRASTRUCTURE.map(item => (
+              <div key={item.name} className="flex items-start gap-3 border border-border rounded-xl p-3 bg-white">
+                <span className="text-xl mt-0.5">{item.icon}</span>
+                <div>
+                  <p className="text-[13px] font-bold text-foreground">{item.name}</p>
+                  <p className="text-[11px] text-muted-foreground mt-0.5">{item.desc}</p>
+                </div>
+              </div>
+            ))}
+          </div>
+        </div>
+      )}
+
+      {/* Governance */}
+      {activeLayer === "governance" && (
+        <div className="space-y-3">
+          <div className="bg-muted/20 rounded-xl p-3">
+            <p className="text-[11px] text-muted-foreground">5 governance and security layers — active across the full platform. [Conceptual governance map]</p>
+          </div>
+          <div className="space-y-2">
+            {GOVERNANCE.map(item => (
+              <div key={item.name} className="flex items-start gap-3 border border-border rounded-xl p-3 bg-white">
+                <span className="text-xl mt-0.5">{item.icon}</span>
+                <div>
+                  <p className="text-[13px] font-bold text-foreground">{item.name}</p>
+                  <p className="text-[11px] text-muted-foreground mt-0.5">{item.desc}</p>
+                </div>
+              </div>
+            ))}
+          </div>
+        </div>
+      )}
+
+      {/* Futuristic hidden layers */}
+      {activeLayer === "futuristic" && (
+        <div className="space-y-3">
+          <div className="bg-violet-50 border border-violet-200 rounded-xl p-3">
+            <p className="text-[11px] text-violet-800 font-semibold">SPECULATIVE / FUTURE-FACING LAYERS</p>
+            <p className="text-[11px] text-violet-700 mt-0.5">These are conceptual design patterns for recursive, cross-domain, and adaptive systems. None are operational — they describe future architectural directions. [Non-operational — conceptual only]</p>
+          </div>
+          <div className="space-y-2">
+            {FUTURISTIC_LAYERS.map(item => (
+              <div key={item.name} className="flex items-start gap-3 border border-violet-200 rounded-xl p-3 bg-violet-50">
+                <span className="text-xl mt-0.5">{item.icon}</span>
+                <div>
+                  <p className="text-[13px] font-bold text-foreground">{item.name}</p>
+                  <p className="text-[11px] text-muted-foreground mt-0.5">{item.desc}</p>
+                </div>
+              </div>
+            ))}
+          </div>
+        </div>
+      )}
+
+      {/* Footer note */}
+      <div className="bg-amber-50 border border-amber-200 rounded-xl p-3">
+        <p className="text-[11px] text-amber-800 font-semibold">⚠️ ARCHITECTURE MAP DISCLAIMER</p>
+        <p className="text-[11px] text-amber-700 mt-0.5">This screen is a read-only visualization of the UCP-X manifest. It does not modify, overwrite, or replace any existing engine, screen, or data. All layers described here are conceptual. Existing platform functionality is fully intact. Nothing is operational beyond what was already built.</p>
+      </div>
+    </div>
+  );
+}
+
 // ─── Main Universal App ───────────────────────────────────────────────────
 export function UniversalApp() {
   const { state, setView } = useInteraction();
@@ -3019,8 +3340,9 @@ export function UniversalApp() {
     creative:    <CreativeScreen />,
     games:       <GamesScreen />,
     story:       <StoryScreen />,
-    connection:  <ConnectionScreen />,
+    connection:   <ConnectionScreen />,
     strategy:    <StrategyScreen />,
+    architecture: <ArchitectureScreen />,
     roles:       <RolesScreen />,
     agencies:    <AgenciesScreen />,
     states:      <StatesScreen />,

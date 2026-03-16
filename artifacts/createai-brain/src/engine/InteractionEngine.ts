@@ -222,7 +222,7 @@ export type UniversalView =
   | "home" | "dashboard" | "roles" | "agencies" | "states"
   | "vendors" | "programs" | "packets" | "submissions" | "settings" | "talk"
   | "industries" | "workflows" | "creative" | "games" | "story"
-  | "connection" | "strategy";
+  | "connection" | "strategy" | "architecture";
 
 export interface ActionLogEntry {
   id: string;
