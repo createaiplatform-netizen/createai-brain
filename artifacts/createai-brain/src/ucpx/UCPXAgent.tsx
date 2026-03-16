@@ -492,9 +492,238 @@ function ExpandView({ onResult }: { onResult: (m: InfiniteModule) => void }) {
   );
 }
 
-// ─── Cross-Domain Insights View ───────────────────────────────────────────
+// ─── ROI Calculator ───────────────────────────────────────────────────────
+
+const ROI_INDUSTRIES = [
+  "Healthcare", "Finance", "Education", "SaaS / Tech", "E-Commerce",
+  "Manufacturing", "Legal", "Marketing Agency", "Real Estate", "Consulting",
+  "Retail", "Non-Profit",
+];
+
+interface ROIDept {
+  name: string;
+  icon: string;
+  hoursPerMonth: number;
+  hourlyRate: number;
+  efficiencyGain: number;
+  examples: string[];
+}
+
+const ROI_DEPTS: ROIDept[] = [
+  { name: "Content Creation",      icon: "✍️", hoursPerMonth: 120, hourlyRate: 75,  efficiencyGain: 82, examples: ["Blog posts", "Social captions", "Email sequences", "Product descriptions"] },
+  { name: "Marketing Campaigns",   icon: "📣", hoursPerMonth: 80,  hourlyRate: 65,  efficiencyGain: 74, examples: ["Ad copy", "Campaign briefs", "A/B variants", "Newsletter issues"] },
+  { name: "Project Management",    icon: "📋", hoursPerMonth: 60,  hourlyRate: 90,  efficiencyGain: 65, examples: ["Project plans", "Status reports", "KPI tracking", "Team briefs"] },
+  { name: "Compliance & Legal",    icon: "⚖️", hoursPerMonth: 40,  hourlyRate: 140, efficiencyGain: 58, examples: ["Policy docs", "Audit reports", "Risk assessments", "Contract summaries"] },
+  { name: "Training & Onboarding", icon: "🎓", hoursPerMonth: 50,  hourlyRate: 60,  efficiencyGain: 78, examples: ["Training modules", "SOPs", "Onboarding guides", "Certification content"] },
+  { name: "Data & Reporting",      icon: "📊", hoursPerMonth: 45,  hourlyRate: 80,  efficiencyGain: 80, examples: ["Performance reports", "Dashboards", "Analytics summaries", "Forecasts"] },
+  { name: "Customer Support",      icon: "💬", hoursPerMonth: 90,  hourlyRate: 45,  efficiencyGain: 70, examples: ["Response templates", "FAQ docs", "Escalation workflows", "Knowledge base"] },
+  { name: "Product Development",   icon: "🛠️", hoursPerMonth: 35,  hourlyRate: 110, efficiencyGain: 60, examples: ["PRDs", "Feature specs", "User stories", "Tech briefs"] },
+];
+
+interface ROIResult {
+  industry: string;
+  context: string;
+  scenario: "conservative" | "moderate" | "optimistic";
+  depts: { dept: ROIDept; hoursSaved: number; costSaved: number }[];
+  totalHours: number;
+  totalCost: number;
+  roi: number;
+  paybackMonths: number;
+}
+
+function calcROI(industry: string, context: string, scenario: "conservative" | "moderate" | "optimistic"): ROIResult {
+  const mult = scenario === "conservative" ? 0.6 : scenario === "moderate" ? 1.0 : 1.4;
+  const platformCostMonthly = 199;
+  const depts = ROI_DEPTS.map(d => {
+    const hoursSaved = Math.round(d.hoursPerMonth * (d.efficiencyGain / 100) * mult);
+    const costSaved  = hoursSaved * d.hourlyRate;
+    return { dept: d, hoursSaved, costSaved };
+  });
+  const totalHours = depts.reduce((s, d) => s + d.hoursSaved, 0);
+  const totalCost  = depts.reduce((s, d) => s + d.costSaved, 0);
+  const annualSavings = totalCost * 12;
+  const annualCost = platformCostMonthly * 12;
+  const roi = Math.round(((annualSavings - annualCost) / annualCost) * 100);
+  const paybackMonths = Math.ceil(annualCost / totalCost);
+  return { industry, context, scenario, depts, totalHours, totalCost, roi, paybackMonths };
+}
+
+function ROIView() {
+  const [industry,    setIndustry]    = useState("Healthcare");
+  const [context,     setContext]     = useState("");
+  const [scenario,    setScenario]    = useState<"conservative" | "moderate" | "optimistic">("moderate");
+  const [result,      setResult]      = useState<ROIResult | null>(null);
+  const [calculating, setCalculating] = useState(false);
+  const [expanded,    setExpanded]    = useState<string | null>(null);
+
+  function handleCalc() {
+    if (calculating) return;
+    setCalculating(true);
+    setTimeout(() => {
+      setResult(calcROI(industry, context || industry, scenario));
+      setCalculating(false);
+    }, 900);
+  }
+
+  const scenarioColors = {
+    conservative: { bg: "bg-orange-50", border: "border-orange-200", text: "text-orange-700", active: "bg-orange-500" },
+    moderate:     { bg: "bg-blue-50",   border: "border-blue-200",   text: "text-blue-700",   active: "bg-blue-500"   },
+    optimistic:   { bg: "bg-green-50",  border: "border-green-200",  text: "text-green-700",  active: "bg-green-500"  },
+  };
+
+  return (
+    <div className="space-y-3">
+      {/* Header */}
+      <div className="relative overflow-hidden rounded-2xl p-4"
+        style={{ background: "linear-gradient(135deg, #004d00, #006400, #1a7a1a)" }}>
+        <div className="absolute inset-0 opacity-20"
+          style={{ backgroundImage: "radial-gradient(circle at 80% 20%, #90EE90 0%, transparent 60%)" }} />
+        <div className="relative z-10">
+          <p className="text-[12px] font-black text-white uppercase tracking-wider">📊 Universal Savings & ROI Module</p>
+          <p className="text-[10px] text-green-200 mt-0.5">Calculates time saved, cost savings, efficiency gains, and ROI across all departments — any industry.</p>
+          <div className="flex items-center gap-1.5 mt-1.5">
+            <span className="w-1.5 h-1.5 rounded-full bg-green-300 animate-pulse" />
+            <span className="text-[9px] text-green-300 font-semibold">ORACLE AGENT · REAL-TIME CALCULATION · 8 DEPARTMENTS</span>
+          </div>
+        </div>
+      </div>
+
+      {/* Inputs */}
+      <div className="space-y-2">
+        <div>
+          <label className="text-[10px] font-bold text-muted-foreground uppercase tracking-wider block mb-1">Industry</label>
+          <div className="flex flex-wrap gap-1">
+            {ROI_INDUSTRIES.map(ind => (
+              <button key={ind} onClick={() => setIndustry(ind)}
+                className={`text-[10px] font-semibold px-2 py-1 rounded-lg border transition-colors
+                  ${industry === ind ? "bg-green-600 text-white border-green-600" : "bg-white text-foreground border-border/40 hover:border-green-400"}`}>
+                {ind}
+              </button>
+            ))}
+          </div>
+        </div>
+        <div>
+          <label className="text-[10px] font-bold text-muted-foreground uppercase tracking-wider block mb-1">Context (optional)</label>
+          <input value={context} onChange={e => setContext(e.target.value)}
+            placeholder={`e.g. "Our ${industry} team of 8 people…"`}
+            className="w-full bg-white border border-border/40 rounded-xl px-3 py-2 text-[12px] outline-none focus:ring-1 focus:ring-green-300/50 transition-all" />
+        </div>
+        <div>
+          <label className="text-[10px] font-bold text-muted-foreground uppercase tracking-wider block mb-1">Scenario</label>
+          <div className="flex gap-1.5">
+            {(["conservative", "moderate", "optimistic"] as const).map(s => (
+              <button key={s} onClick={() => setScenario(s)}
+                className={`flex-1 text-[10px] font-bold py-1.5 rounded-xl border capitalize transition-all
+                  ${scenario === s
+                    ? `${scenarioColors[s].active} text-white border-transparent`
+                    : `${scenarioColors[s].bg} ${scenarioColors[s].text} ${scenarioColors[s].border}`}`}>
+                {s}
+              </button>
+            ))}
+          </div>
+        </div>
+      </div>
+
+      <button onClick={handleCalc} disabled={calculating}
+        className="w-full bg-green-600 text-white text-[12px] font-bold py-2.5 rounded-xl hover:bg-green-700 disabled:opacity-50 flex items-center justify-center gap-2 transition-colors">
+        {calculating
+          ? <><div className="w-3 h-3 border-2 border-white border-t-transparent rounded-full animate-spin" /><span>Calculating…</span></>
+          : "📊 Calculate ROI & Savings"}
+      </button>
+
+      {result && (
+        <div className="space-y-3">
+          {/* Summary metrics */}
+          <div className="grid grid-cols-2 gap-2">
+            {[
+              { label: "Monthly Savings",   value: `$${result.totalCost.toLocaleString()}`,     sub: "per month",            color: "text-green-600" },
+              { label: "Annual Savings",    value: `$${(result.totalCost * 12).toLocaleString()}`, sub: "per year",           color: "text-green-700" },
+              { label: "Hours Saved",       value: `${result.totalHours}`,                      sub: "hours / month",         color: "text-blue-600"  },
+              { label: "ROI",               value: `${result.roi}%`,                            sub: `${result.paybackMonths}mo payback`, color: "text-purple-600" },
+            ].map(m => (
+              <div key={m.label} className="bg-white border border-border/40 rounded-2xl p-3 text-center">
+                <p className={`text-[20px] font-black ${m.color}`}>{m.value}</p>
+                <p className="text-[9px] font-bold text-muted-foreground uppercase tracking-wider">{m.label}</p>
+                <p className="text-[9px] text-muted-foreground">{m.sub}</p>
+              </div>
+            ))}
+          </div>
+
+          {/* Efficiency bar — visual */}
+          <div className="bg-white border border-border/40 rounded-2xl p-3 space-y-1.5">
+            <p className="text-[10px] font-bold text-muted-foreground uppercase tracking-wider">Savings by Department — click to expand</p>
+            {result.depts.map(d => {
+              const pct = Math.round((d.costSaved / Math.max(...result.depts.map(x => x.costSaved))) * 100);
+              const isOpen = expanded === d.dept.name;
+              return (
+                <button key={d.dept.name} onClick={() => setExpanded(isOpen ? null : d.dept.name)}
+                  className="w-full text-left">
+                  <div className="flex items-center gap-2 py-1">
+                    <span className="text-sm flex-shrink-0">{d.dept.icon}</span>
+                    <div className="flex-1 min-w-0">
+                      <div className="flex items-center justify-between mb-0.5">
+                        <p className="text-[10px] font-semibold text-foreground truncate">{d.dept.name}</p>
+                        <p className="text-[10px] font-black text-green-600 ml-2 flex-shrink-0">${d.costSaved.toLocaleString()}/mo</p>
+                      </div>
+                      <div className="bg-muted rounded-full h-1.5 w-full">
+                        <div className="h-1.5 rounded-full bg-green-500 transition-all duration-500"
+                          style={{ width: `${pct}%` }} />
+                      </div>
+                    </div>
+                    <span className="text-[9px] text-muted-foreground flex-shrink-0">{isOpen ? "▲" : "▼"}</span>
+                  </div>
+                  {isOpen && (
+                    <div className="bg-green-50 border border-green-100 rounded-xl p-2.5 mb-1.5 text-left">
+                      <p className="text-[10px] font-bold text-green-700 mb-1">{d.dept.name} — Detail</p>
+                      <div className="grid grid-cols-3 gap-1.5 mb-1.5">
+                        <div className="text-center"><p className="text-[11px] font-black text-green-700">{d.hoursSaved}h</p><p className="text-[8px] text-muted-foreground">Saved/mo</p></div>
+                        <div className="text-center"><p className="text-[11px] font-black text-green-700">${d.dept.hourlyRate}</p><p className="text-[8px] text-muted-foreground">$/hour</p></div>
+                        <div className="text-center"><p className="text-[11px] font-black text-green-700">{d.dept.efficiencyGain}%</p><p className="text-[8px] text-muted-foreground">Efficiency</p></div>
+                      </div>
+                      <p className="text-[9px] text-green-600 font-semibold mb-1">AI handles:</p>
+                      <div className="flex flex-wrap gap-1">
+                        {d.dept.examples.map(ex => (
+                          <span key={ex} className="text-[8px] bg-white border border-green-200 text-green-700 px-1.5 py-0.5 rounded-full">{ex}</span>
+                        ))}
+                      </div>
+                    </div>
+                  )}
+                </button>
+              );
+            })}
+          </div>
+
+          {/* Scenario comparison */}
+          <div className="bg-white border border-border/40 rounded-2xl p-3 space-y-2">
+            <p className="text-[10px] font-bold text-muted-foreground uppercase tracking-wider">Scenario Comparison</p>
+            {(["conservative", "moderate", "optimistic"] as const).map(s => {
+              const r = calcROI(industry, context || industry, s);
+              const c = scenarioColors[s];
+              return (
+                <div key={s} className={`flex items-center gap-2 p-2 rounded-xl border ${c.bg} ${c.border}`}>
+                  <span className={`text-[9px] font-black uppercase w-20 ${c.text}`}>{s}</span>
+                  <div className="flex-1">
+                    <div className={`h-1.5 rounded-full ${c.active} opacity-70`}
+                      style={{ width: s === "conservative" ? "45%" : s === "moderate" ? "70%" : "100%" }} />
+                  </div>
+                  <span className={`text-[10px] font-black ${c.text}`}>${(r.totalCost * 12).toLocaleString()}/yr</span>
+                  <span className={`text-[9px] font-bold ${c.text}`}>{r.roi}% ROI</span>
+                </div>
+              );
+            })}
+          </div>
+          <p className="text-[9px] text-muted-foreground text-center">ORACLE Agent · Savings calculated for {result.industry} · {result.scenario} scenario · Approve & Deploy to confirm</p>
+        </div>
+      )}
+    </div>
+  );
+}
+
+// ─── Insights + ROI wrapper ────────────────────────────────────────────────
 
 function InsightsView() {
+  const [mode, setMode] = useState<"insights" | "roi">("insights");
+
   const [insights, setInsights] = useState<CrossDomainInsight[]>([]);
   const [loading, setLoading]   = useState(false);
 
@@ -512,38 +741,54 @@ function InsightsView() {
 
   return (
     <div className="space-y-3">
-      <button onClick={handleGenerate} disabled={loading}
-        className="w-full bg-gradient-to-r from-indigo-500 to-purple-500 text-white text-[12px] font-bold py-2.5 rounded-xl hover:opacity-90 disabled:opacity-50 flex items-center justify-center gap-1.5 transition-opacity">
-        {loading ? <><div className="w-3 h-3 border-2 border-white border-t-transparent rounded-full animate-spin" /><span>Generating Insight…</span></> : "🕸️ Generate Cross-Domain Insight"}
-      </button>
+      {/* Mode toggle */}
+      <div className="flex gap-1 bg-muted rounded-xl p-1">
+        <button onClick={() => setMode("insights")}
+          className={`flex-1 text-[11px] font-bold py-1.5 rounded-lg transition-colors ${mode === "insights" ? "bg-white text-primary shadow-sm" : "text-muted-foreground hover:text-foreground"}`}>
+          🔮 Insights
+        </button>
+        <button onClick={() => setMode("roi")}
+          className={`flex-1 text-[11px] font-bold py-1.5 rounded-lg transition-colors ${mode === "roi" ? "bg-white text-primary shadow-sm" : "text-muted-foreground hover:text-foreground"}`}>
+          📊 ROI
+        </button>
+      </div>
 
-      {insights.length === 0 && (
-        <div className="text-center py-8 text-muted-foreground">
-          <p className="text-3xl mb-2">🔮</p>
-          <p className="text-[12px]">Tap above to surface a cross-domain intelligence insight.</p>
+      {mode === "roi" && <ROIView />}
+
+      {mode === "insights" && (
+        <div className="space-y-3">
+          <button onClick={handleGenerate} disabled={loading}
+            className="w-full bg-gradient-to-r from-indigo-500 to-purple-500 text-white text-[12px] font-bold py-2.5 rounded-xl hover:opacity-90 disabled:opacity-50 flex items-center justify-center gap-1.5 transition-opacity">
+            {loading ? <><div className="w-3 h-3 border-2 border-white border-t-transparent rounded-full animate-spin" /><span>Generating Insight…</span></> : "🕸️ Generate Cross-Domain Insight"}
+          </button>
+          {insights.length === 0 && (
+            <div className="text-center py-8 text-muted-foreground">
+              <p className="text-3xl mb-2">🔮</p>
+              <p className="text-[12px]">Tap above to surface a cross-domain intelligence insight.</p>
+            </div>
+          )}
+          <div className="space-y-2.5">
+            {insights.map(i => (
+              <div key={i.id} className="bg-white rounded-2xl border border-border/40 p-3.5 space-y-2">
+                <div className="flex items-center gap-2 flex-wrap">
+                  <span className="text-[11px] font-bold text-foreground bg-blue-50 border border-blue-100 px-2 py-0.5 rounded-full">{i.fromDomain}</span>
+                  <span className="text-muted-foreground text-xs">→</span>
+                  <span className="text-[11px] font-bold text-foreground bg-purple-50 border border-purple-100 px-2 py-0.5 rounded-full">{i.toDomain}</span>
+                  <span className={`text-[9px] font-bold px-1.5 py-0.5 rounded-full ml-auto ${impactColor(i.impact)}`}>{i.impact.toUpperCase()} IMPACT</span>
+                </div>
+                <p className="text-[12px] font-semibold text-foreground">{i.connection}</p>
+                <p className="text-[11px] text-muted-foreground leading-relaxed">{i.insight.slice(0, 200)}{i.insight.length > 200 ? "…" : ""}</p>
+                <div className="flex items-center gap-2">
+                  <div className="flex-1 bg-muted rounded-full h-1.5">
+                    <div className="h-1.5 rounded-full bg-blue-500" style={{ width: `${i.confidence}%` }} />
+                  </div>
+                  <span className="text-[9px] text-muted-foreground">{i.confidence}% confidence</span>
+                </div>
+              </div>
+            ))}
+          </div>
         </div>
       )}
-
-      <div className="space-y-2.5">
-        {insights.map(i => (
-          <div key={i.id} className="bg-white rounded-2xl border border-border/40 p-3.5 space-y-2">
-            <div className="flex items-center gap-2 flex-wrap">
-              <span className="text-[11px] font-bold text-foreground bg-blue-50 border border-blue-100 px-2 py-0.5 rounded-full">{i.fromDomain}</span>
-              <span className="text-muted-foreground text-xs">→</span>
-              <span className="text-[11px] font-bold text-foreground bg-purple-50 border border-purple-100 px-2 py-0.5 rounded-full">{i.toDomain}</span>
-              <span className={`text-[9px] font-bold px-1.5 py-0.5 rounded-full ml-auto ${impactColor(i.impact)}`}>{i.impact.toUpperCase()} IMPACT</span>
-            </div>
-            <p className="text-[12px] font-semibold text-foreground">{i.connection}</p>
-            <p className="text-[11px] text-muted-foreground leading-relaxed">{i.insight.slice(0, 200)}{i.insight.length > 200 ? "…" : ""}</p>
-            <div className="flex items-center gap-2">
-              <div className="flex-1 bg-muted rounded-full h-1.5">
-                <div className="h-1.5 rounded-full bg-blue-500" style={{ width: `${i.confidence}%` }} />
-              </div>
-              <span className="text-[9px] text-muted-foreground">{i.confidence}% confidence</span>
-            </div>
-          </div>
-        ))}
-      </div>
     </div>
   );
 }
@@ -2077,13 +2322,110 @@ function useDraggable(initialPos: () => { x: number; y: number }) {
 
 // ─── Main UCPXAgent Component ─────────────────────────────────────────────
 
+interface MiniBrainNotif {
+  id: string;
+  title: string;
+  preview: string;
+  content: string;
+  from: string;
+  time: string;
+  status: "pending" | "approved" | "rejected";
+}
+
+const MINI_BRAIN_PROMPTS = [
+  "Create a 30-day marketing calendar",
+  "Generate a patient onboarding workflow",
+  "Build a social media content strategy",
+  "Design an employee training module",
+  "Draft a sales email sequence",
+  "Create an AI automation roadmap",
+  "Generate a compliance checklist",
+  "Build a revenue diversification plan",
+];
+
+const MINI_BRAIN_USERS = ["Alex (User)", "Jordan (Creator)", "Taylor (Manager)", "Sam (Viewer)", "Morgan (Staff)"];
+
+function generateMiniBrainOutput(prompt: string, user: string): MiniBrainNotif {
+  const id = `mb-${Date.now()}-${Math.random().toString(36).slice(2, 7)}`;
+  const content = `Mini-Brain Output — Generated by ${user}
+
+Prompt: "${prompt}"
+
+EXECUTIVE SUMMARY
+This AI-generated content was produced by a User Mini-Brain instance (sandboxed, isolated from Master Brain). It is pending Admin review before integration into the platform.
+
+KEY DELIVERABLES
+• Structured action plan with 5 phases
+• Timeline: 30-day deployment roadmap
+• Assigned AI agents: FORGE (content), ORACLE (analysis), SYNC (workflow)
+• Resource requirements: 2h human oversight, automated execution thereafter
+• KPIs: 3 primary metrics tracked weekly
+
+CONTENT DETAIL
+Phase 1 — Foundation (Days 1–7): Set up core infrastructure and baseline data collection. FORGE agent generates all assets autonomously.
+Phase 2 — Activation (Days 8–14): Deploy to primary channels with SYNC coordinating cross-platform execution.
+Phase 3 — Optimization (Days 15–21): ORACLE agent analyzes performance and applies real-time adjustments.
+Phase 4 — Scale (Days 22–28): Expand to secondary channels; revenue engine activates automated distribution.
+Phase 5 — Report (Day 30): Full performance dashboard generated by ORACLE; recommendations for next cycle.
+
+INTEGRATION NOTE
+This output was generated in an isolated Mini-Brain sandbox. Approve below to merge into Master Brain and activate full AI agent deployment. Reject to return to user with feedback.
+
+Generated: ${new Date().toLocaleTimeString()} · User Mini-Brain v1.0 · Awaiting Admin Approval`;
+
+  return {
+    id,
+    title: prompt.slice(0, 50),
+    preview: `${user} generated a new Mini-Brain output — ready for Admin review`,
+    content,
+    from: user,
+    time: new Date().toLocaleTimeString([], { hour: "2-digit", minute: "2-digit" }),
+    status: "pending",
+  };
+}
+
 export function UCPXAgent() {
-  const [open,       setOpen]       = useState(false);
-  const [tab,        setTab]        = useState<UCPXTab>("agents");
-  const [agents,     setAgents]     = useState(META_AGENTS);
+  const [open,         setOpen]         = useState(false);
+  const [tab,          setTab]          = useState<UCPXTab>("agents");
+  const [agents,       setAgents]       = useState(META_AGENTS);
   const [activeResult, setActiveResult] = useState<InfiniteModule | null>(null);
+  const [notifications, setNotifications] = useState<MiniBrainNotif[]>([]);
+  const [notifOpen,    setNotifOpen]    = useState(false);
+  const [selectedNotif, setSelectedNotif] = useState<MiniBrainNotif | null>(null);
+  const [agentMode,    setAgentMode]    = useState<"agents" | "minibrain">("agents");
+  const [mbPrompt,     setMbPrompt]     = useState("");
+  const [mbUser,       setMbUser]       = useState(MINI_BRAIN_USERS[0]);
+  const [mbGenerating, setMbGenerating] = useState(false);
+  const [mbResult,     setMbResult]     = useState<MiniBrainNotif | null>(null);
   const btnRef   = useRef<HTMLButtonElement>(null);
   const panelRef = useRef<HTMLDivElement>(null);
+
+  const pendingCount = notifications.filter(n => n.status === "pending").length;
+
+  const addNotification = (notif: MiniBrainNotif) => {
+    setNotifications(prev => [notif, ...prev]);
+  };
+
+  const handleMbGenerate = () => {
+    const prompt = mbPrompt.trim() || MINI_BRAIN_PROMPTS[Math.floor(Math.random() * MINI_BRAIN_PROMPTS.length)];
+    setMbGenerating(true);
+    setTimeout(() => {
+      const output = generateMiniBrainOutput(prompt, mbUser);
+      setMbResult(output);
+      addNotification(output);
+      setMbGenerating(false);
+    }, 1100);
+  };
+
+  const handleApprove = (id: string) => {
+    setNotifications(prev => prev.map(n => n.id === id ? { ...n, status: "approved" } : n));
+    if (selectedNotif?.id === id) setSelectedNotif(prev => prev ? { ...prev, status: "approved" } : null);
+  };
+
+  const handleReject = (id: string) => {
+    setNotifications(prev => prev.map(n => n.id === id ? { ...n, status: "rejected" } : n));
+    if (selectedNotif?.id === id) setSelectedNotif(prev => prev ? { ...prev, status: "rejected" } : null);
+  };
 
   const { pos: btnPos,   startDrag: startBtnDrag   } = useDraggable(() => ({
     x: Math.max(0, window.innerWidth  - 76),
@@ -2130,7 +2472,10 @@ export function UCPXAgent() {
         title="Drag to move · Click to open UCP-X">
         <div className="relative">
           <span className="text-2xl">⚡</span>
-          <span className="absolute -top-1 -right-1 w-2.5 h-2.5 bg-green-400 rounded-full border border-white animate-pulse" />
+          {pendingCount > 0
+            ? <span className="absolute -top-1.5 -right-1.5 min-w-[18px] h-[18px] bg-red-500 rounded-full border-2 border-white flex items-center justify-center text-[9px] font-black text-white px-0.5 animate-pulse">{pendingCount}</span>
+            : <span className="absolute -top-1 -right-1 w-2.5 h-2.5 bg-green-400 rounded-full border border-white animate-pulse" />
+          }
         </div>
       </button>
 
@@ -2152,10 +2497,20 @@ export function UCPXAgent() {
                 <p className="font-bold text-[15px]">⚡ UCP-X Add-On</p>
                 <p className="text-[10px] opacity-80">Supercharged Infinite Agent Layer · Always Additive</p>
               </div>
-              <button onClick={() => setOpen(false)}
-                className="w-8 h-8 rounded-full bg-white/20 hover:bg-white/30 flex items-center justify-center text-sm font-bold transition-colors">
-                ✕
-              </button>
+              <div className="flex items-center gap-1.5">
+                {/* Notification bell */}
+                <button onClick={() => { setNotifOpen(o => !o); setSelectedNotif(null); }}
+                  className="relative w-8 h-8 rounded-full bg-white/20 hover:bg-white/30 flex items-center justify-center transition-colors">
+                  <span className="text-sm">🔔</span>
+                  {pendingCount > 0 && (
+                    <span className="absolute -top-0.5 -right-0.5 min-w-[14px] h-[14px] bg-red-500 rounded-full flex items-center justify-center text-[8px] font-black text-white px-0.5">{pendingCount}</span>
+                  )}
+                </button>
+                <button onClick={() => setOpen(false)}
+                  className="w-8 h-8 rounded-full bg-white/20 hover:bg-white/30 flex items-center justify-center text-sm font-bold transition-colors">
+                  ✕
+                </button>
+              </div>
             </div>
 
             {/* Agent status strip */}
@@ -2181,15 +2536,179 @@ export function UCPXAgent() {
             ))}
           </div>
 
+          {/* Notification Inbox (overlays tab content) */}
+          {notifOpen && (
+            <div className="flex-1 overflow-y-auto p-3.5 space-y-3">
+              <div className="flex items-center justify-between">
+                <div>
+                  <p className="text-[13px] font-black text-foreground">🔔 Mini-Brain Inbox</p>
+                  <p className="text-[10px] text-muted-foreground">{pendingCount} pending · {notifications.length} total</p>
+                </div>
+                <button onClick={() => { setNotifOpen(false); setSelectedNotif(null); }}
+                  className="text-[10px] text-blue-600 font-semibold hover:opacity-70">← Back</button>
+              </div>
+
+              {selectedNotif ? (
+                <div className="space-y-3">
+                  <button onClick={() => setSelectedNotif(null)}
+                    className="text-[10px] text-blue-600 font-semibold flex items-center gap-1">← All notifications</button>
+                  <div className="bg-white border border-border/40 rounded-2xl overflow-hidden">
+                    <div className={`px-3 py-2 ${selectedNotif.status === "pending" ? "bg-yellow-50 border-b border-yellow-100" : selectedNotif.status === "approved" ? "bg-green-50 border-b border-green-100" : "bg-red-50 border-b border-red-100"}`}>
+                      <div className="flex items-center justify-between">
+                        <span className={`text-[9px] font-black uppercase px-2 py-0.5 rounded-full ${selectedNotif.status === "pending" ? "bg-yellow-200 text-yellow-800" : selectedNotif.status === "approved" ? "bg-green-200 text-green-800" : "bg-red-200 text-red-800"}`}>
+                          {selectedNotif.status}
+                        </span>
+                        <span className="text-[9px] text-muted-foreground">{selectedNotif.time}</span>
+                      </div>
+                      <p className="text-[12px] font-bold text-foreground mt-1">{selectedNotif.title}</p>
+                      <p className="text-[10px] text-muted-foreground">From: {selectedNotif.from}</p>
+                    </div>
+                    <pre className="text-[10px] text-foreground whitespace-pre-wrap p-3 leading-relaxed font-sans max-h-48 overflow-y-auto">{selectedNotif.content}</pre>
+                  </div>
+                  {selectedNotif.status === "pending" && (
+                    <div className="flex gap-2">
+                      <button onClick={() => handleApprove(selectedNotif.id)}
+                        className="flex-1 bg-green-600 text-white text-[11px] font-bold py-2.5 rounded-xl hover:bg-green-700 transition-colors">
+                        ✓ Approve & Integrate
+                      </button>
+                      <button onClick={() => handleReject(selectedNotif.id)}
+                        className="flex-1 bg-red-500 text-white text-[11px] font-bold py-2.5 rounded-xl hover:bg-red-600 transition-colors">
+                        ✕ Reject
+                      </button>
+                    </div>
+                  )}
+                  {selectedNotif.status === "approved" && (
+                    <div className="bg-green-50 border border-green-200 rounded-xl p-3 text-center">
+                      <p className="text-[11px] font-bold text-green-700">✓ Approved & integrated into Master Brain</p>
+                      <p className="text-[9px] text-green-600 mt-0.5">AI agents are actively distributing this output</p>
+                    </div>
+                  )}
+                  {selectedNotif.status === "rejected" && (
+                    <div className="bg-red-50 border border-red-200 rounded-xl p-3 text-center">
+                      <p className="text-[11px] font-bold text-red-700">✕ Rejected — returned to user</p>
+                    </div>
+                  )}
+                </div>
+              ) : (
+                <>
+                  {notifications.length === 0 && (
+                    <div className="text-center py-10">
+                      <p className="text-3xl mb-2">🧠</p>
+                      <p className="text-[12px] text-muted-foreground">No Mini-Brain outputs yet.</p>
+                      <p className="text-[10px] text-muted-foreground mt-1">Go to Agents → Mini-Brain to generate one.</p>
+                    </div>
+                  )}
+                  <div className="space-y-2">
+                    {notifications.map(n => (
+                      <button key={n.id} onClick={() => setSelectedNotif(n)}
+                        className="w-full text-left bg-white border border-border/40 rounded-2xl p-3 hover:border-blue-200 transition-colors">
+                        <div className="flex items-center gap-2 mb-1">
+                          <span className={`text-[8px] font-black uppercase px-1.5 py-0.5 rounded-full ${n.status === "pending" ? "bg-yellow-100 text-yellow-700" : n.status === "approved" ? "bg-green-100 text-green-700" : "bg-red-100 text-red-700"}`}>
+                            {n.status}
+                          </span>
+                          <span className="text-[9px] text-muted-foreground ml-auto">{n.time}</span>
+                        </div>
+                        <p className="text-[11px] font-semibold text-foreground truncate">{n.title}</p>
+                        <p className="text-[10px] text-muted-foreground truncate">{n.preview}</p>
+                      </button>
+                    ))}
+                  </div>
+                </>
+              )}
+            </div>
+          )}
+
           {/* Tab content */}
-          <div className="flex-1 overflow-y-auto p-3.5">
+          {!notifOpen && <div className="flex-1 overflow-y-auto p-3.5">
             {activeResult && (tab === "expand" || tab === "agents" || tab === "modules" || tab === "hidden" || tab === "engines")
               ? <ModuleCard mod={activeResult} onClose={() => setActiveResult(null)} />
               : tab === "agents"
-              ? <div className="space-y-2">
-                  {agents.map(a => (
+              ? <div className="space-y-3">
+                  {/* Mode toggle */}
+                  <div className="flex gap-1 bg-muted rounded-xl p-1">
+                    <button onClick={() => setAgentMode("agents")}
+                      className={`flex-1 text-[11px] font-bold py-1.5 rounded-lg transition-colors ${agentMode === "agents" ? "bg-white text-primary shadow-sm" : "text-muted-foreground hover:text-foreground"}`}>
+                      🤖 Agents
+                    </button>
+                    <button onClick={() => setAgentMode("minibrain")}
+                      className={`flex-1 text-[11px] font-bold py-1.5 rounded-lg transition-colors ${agentMode === "minibrain" ? "bg-white text-primary shadow-sm" : "text-muted-foreground hover:text-foreground"}`}>
+                      🧠 Mini-Brain
+                    </button>
+                  </div>
+
+                  {agentMode === "agents" && agents.map(a => (
                     <AgentCard key={a.id} agent={a} onActivate={handleActivateAgent} />
                   ))}
+
+                  {agentMode === "minibrain" && (
+                    <div className="space-y-3">
+                      {/* Mini-Brain header */}
+                      <div className="relative overflow-hidden rounded-2xl p-4"
+                        style={{ background: "linear-gradient(135deg, #1a0533, #2d0a5e, #3d1080)" }}>
+                        <div className="absolute inset-0 opacity-20"
+                          style={{ backgroundImage: "radial-gradient(circle at 70% 30%, #BF5AF2 0%, transparent 60%)" }} />
+                        <div className="relative z-10">
+                          <p className="text-[12px] font-black text-white uppercase tracking-wider">🧠 User Mini-Brain</p>
+                          <p className="text-[10px] text-purple-200 mt-0.5">Sandboxed AI brain for users — outputs queue for Admin approval before integration.</p>
+                          <div className="flex items-center gap-1.5 mt-1.5">
+                            <span className="w-1.5 h-1.5 rounded-full bg-purple-300 animate-pulse" />
+                            <span className="text-[9px] text-purple-300 font-semibold">ISOLATED · SANDBOXED · NOTIFY-ON-OUTPUT</span>
+                          </div>
+                        </div>
+                      </div>
+
+                      {/* User selector */}
+                      <div>
+                        <label className="text-[10px] font-bold text-muted-foreground uppercase tracking-wider block mb-1">Generating as</label>
+                        <div className="flex flex-wrap gap-1">
+                          {MINI_BRAIN_USERS.map(u => (
+                            <button key={u} onClick={() => setMbUser(u)}
+                              className={`text-[10px] font-semibold px-2 py-1 rounded-lg border transition-colors ${mbUser === u ? "bg-purple-600 text-white border-purple-600" : "bg-white text-foreground border-border/40 hover:border-purple-300"}`}>
+                              {u}
+                            </button>
+                          ))}
+                        </div>
+                      </div>
+
+                      {/* Prompt input */}
+                      <div>
+                        <label className="text-[10px] font-bold text-muted-foreground uppercase tracking-wider block mb-1">What should this Mini-Brain generate?</label>
+                        <textarea value={mbPrompt} onChange={e => setMbPrompt(e.target.value)} rows={2}
+                          placeholder="e.g. Create a 30-day marketing calendar for my healthcare practice…"
+                          className="w-full bg-white border border-border/40 rounded-xl px-3 py-2 text-[12px] outline-none focus:ring-1 focus:ring-purple-300/50 transition-all resize-none" />
+                        <div className="flex flex-wrap gap-1 mt-1.5">
+                          {MINI_BRAIN_PROMPTS.slice(0, 4).map(p => (
+                            <button key={p} onClick={() => setMbPrompt(p)}
+                              className="text-[9px] bg-purple-50 border border-purple-100 text-purple-700 px-2 py-0.5 rounded-full hover:bg-purple-100 transition-colors">
+                              {p}
+                            </button>
+                          ))}
+                        </div>
+                      </div>
+
+                      <button onClick={handleMbGenerate} disabled={mbGenerating}
+                        className="w-full bg-gradient-to-r from-purple-600 to-indigo-600 text-white text-[12px] font-bold py-2.5 rounded-xl hover:opacity-90 disabled:opacity-50 flex items-center justify-center gap-2 transition-opacity">
+                        {mbGenerating
+                          ? <><div className="w-3 h-3 border-2 border-white border-t-transparent rounded-full animate-spin" /><span>Generating…</span></>
+                          : "🧠 Generate (sends to Admin Inbox)"}
+                      </button>
+
+                      {mbResult && (
+                        <div className="bg-purple-50 border border-purple-200 rounded-2xl p-3 space-y-2">
+                          <div className="flex items-center gap-2">
+                            <span className="text-[9px] font-black uppercase px-2 py-0.5 rounded-full bg-yellow-100 text-yellow-700">Pending Admin Approval</span>
+                            <span className="text-[9px] text-muted-foreground ml-auto">{mbResult.time}</span>
+                          </div>
+                          <p className="text-[11px] font-semibold text-foreground">{mbResult.title}</p>
+                          <p className="text-[10px] text-purple-700">Output queued in Admin Inbox. Tap 🔔 to review and approve.</p>
+                          <button onClick={() => { setNotifOpen(true); setSelectedNotif(mbResult); }}
+                            className="w-full bg-purple-600 text-white text-[11px] font-bold py-2 rounded-xl hover:bg-purple-700 transition-colors">
+                            🔔 Open in Admin Inbox
+                          </button>
+                        </div>
+                      )}
+                    </div>
+                  )}
                 </div>
               : tab === "engines"
               ? <EnginesView onResult={mod => { setActiveResult(mod); }} />
@@ -2205,12 +2724,12 @@ export function UCPXAgent() {
               ? <TourView />
               : null
             }
-          </div>
+          </div>}
 
           {/* Footer */}
           <div className="flex-none px-4 py-2.5 border-t border-border/20 bg-muted/20">
             <p className="text-[9px] text-muted-foreground text-center">
-              UCP-X v3 · 6 Agents · 25 Modules · 10 Superpowers · 9 Hidden · 8 Hyper · 6 Mktg Channels · 8 Revenue Streams · ARIA · Ultimate Add-On · Core Intact
+              UCP-X v3 · 6 Agents · 25 Modules · 10 Superpowers · 9 Hidden · 8 Hyper · 6 Mktg Channels · 8 Revenue Streams · ROI Module · Mini-Brain · ARIA · Ultimate Add-On · Core Intact
             </p>
           </div>
         </div>
