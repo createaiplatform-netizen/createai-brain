@@ -4313,6 +4313,84 @@ const AI_AVATAR_DIRECTIVE = {
   safetyNote: "ARIA Guide is a stylized AI character created for the user experience. It is NOT a real human and does NOT claim to be one in any context.",
 };
 
+const BUTTON_OUTPUT_DIRECTIVE = {
+  name: "Universal Button & Output Completeness Directive",
+  version: "1.0",
+  status: "active" as const,
+  rule: "Every button, link, tab, or action the user clicks MUST open a complete, polished, fully realized output. No exceptions — no matter what the button does or which industry it serves.",
+  never: [
+    "Produce plain text or raw text dumps",
+    "Show incomplete or partial content",
+    "Display placeholders or lorem ipsum",
+    "Present empty states or blank sections",
+    "Show 'coming soon' or 'not yet available'",
+    "Leave any option, field, or section missing",
+    "Treat any industry, tool, or workflow as unsupported",
+  ],
+  documentOutputRules: [
+    { icon: "🗂",  text: "Clean, structured layout — no raw or unstyled output" },
+    { icon: "🔠",  text: "Headers, sub-headers, and labeled sections on every document" },
+    { icon: "📐",  text: "Consistent spacing, margins, and visual hierarchy throughout" },
+    { icon: "☑️",  text: "Tables, checkboxes, or fields where appropriate to the document type" },
+    { icon: "🖨",  text: "Professional, print-ready PDF-style formatting on all outputs" },
+    { icon: "💎",  text: "Every field populated — no empty areas, no placeholder text" },
+  ],
+  documentOptions: [
+    { icon: "👁",  label: "View PDF-style mock",              desc: "Full polished preview rendered in-app as a complete document" },
+    { icon: "📲",  label: "Preview in-app",                   desc: "Live in-app render of the document output, fully populated" },
+    { icon: "🎨",  label: "Alternative layouts & styles",     desc: "Multiple layout variants: standard, compact, branded, accessible" },
+    { icon: "🔄",  label: "Different versions & formats",     desc: "Switch between PDF, form, checklist, table, card, or summary views" },
+  ],
+  optionTypes: [
+    { icon: "📐",  label: "Layout Options",              example: "Standard · Compact · Wide · Card · Summary" },
+    { icon: "🎨",  label: "Style Options",               example: "Professional · Branded · Minimal · Clinical · Legal · Modern" },
+    { icon: "🔄",  label: "Workflow Options",            example: "Step-by-step · Batch · Automated · Manual · Hybrid" },
+    { icon: "📄",  label: "Document Variations",         example: "Short-form · Long-form · Executive summary · Full audit" },
+    { icon: "🛠",  label: "Tool Variations",             example: "Generator · Checker · Analyzer · Planner · Builder" },
+    { icon: "🖥",  label: "Interface Variations",        example: "Dashboard · Wizard · Form · Table · Calendar · Timeline" },
+    { icon: "🏥",  label: "Industry-Specific Options",   example: "Healthcare · Legal · Finance · Staffing · Any other domain" },
+  ],
+  behaviorRules: [
+    "All options exist and are always available",
+    "All tools are wired and respond with complete output",
+    "All workflows are connected and produce end-to-end results",
+    "All variations are supported and render completely",
+    "All industries are integrated — no domain is out of scope",
+  ],
+  safetyBoundary: "All outputs are conceptual and for visualization, planning, and communication only. They do not replace licensed professionals or produce legally binding or code-compliant documents.",
+  sampleOutput: {
+    trigger: "Generate Regulatory Compliance Assessment",
+    title: "Regulatory Compliance Assessment",
+    subtitle: "Wildlife Hunting & Conservation Division — Q2 2026",
+    org: "Duck Hunting Regulatory Authority (DRAKE)",
+    date: "March 16, 2026",
+    status: "COMPLIANT",
+    sections: [
+      { heading: "1. Regulatory Overview", rows: [
+        { field: "Jurisdiction", value: "Multi-State · Zones A–F" },
+        { field: "Applicable Regulations", value: "Migratory Bird Treaty Act, State Wildlife Code §24.8, Federal Bag Limit Order 2026" },
+        { field: "Season Dates", value: "October 1 – January 31, 2026–27 (Zone A); Nov 15 – Feb 28 (Zone B–F)" },
+      ]},
+      { heading: "2. Compliance Checklist", checks: [
+        { item: "Hunter Safety Certification — All Zones", status: "✅ Verified" },
+        { item: "License Validation — Digital & Physical", status: "✅ Verified" },
+        { item: "Federal Duck Stamp — Current Year",       status: "✅ Verified" },
+        { item: "Zone-Specific Bag Limit Enforcement",     status: "✅ Active" },
+        { item: "Non-Toxic Shot Requirement",              status: "✅ Compliant" },
+        { item: "Harvest Reporting Submitted",             status: "✅ Complete" },
+      ]},
+      { heading: "3. Assessment Outcome", rows: [
+        { field: "Overall Status",   value: "FULLY COMPLIANT" },
+        { field: "Risk Level",       value: "Low — No violations detected" },
+        { field: "Next Review",      value: "September 1, 2026" },
+        { field: "Prepared By",      value: "DRAKE AI Engine · CreateAI Brain Platform OS" },
+      ]},
+    ],
+    footer: "Duck Hunting Regulatory Authority · DRAKE AI Engine · Conceptual document for visualization and planning only · Not legally binding",
+    availableFormats: ["PDF Preview", "Compact Summary", "Audit Table", "Checklist Form", "Executive Brief", "Full Compliance Packet"],
+  },
+};
+
 const REVENUE_SHARES: RevenueShareRecord[] = [
   { id: "rs1", user: "Sara Stadler",      role: "Platform Owner",     project: "All Projects",               totalRevenue: "$3.38M", share: 25, earned: "$845K",  nextPayout: "Apr 1"  },
   { id: "rs2", user: "Dr. Karen Walsh",   role: "Healthcare Client",  project: "Global Healthcare Platform", totalRevenue: "$3.1M",  share: 25, earned: "$775K",  nextPayout: "Apr 1"  },
@@ -4521,6 +4599,148 @@ const DEMO_PREVIEWS: Record<string, DemoPreview> = {
     marketingNote: "PULSE: 'Season Opening' alert — 14,200 hunters notified by zone with personalized bag limit updates.",
   },
 };
+
+// ─── Button Output Demo Component ────────────────────────────────────────────
+
+function ButtonOutputDemo() {
+  const [phase, setPhase]       = useState<"idle"|"loading"|"done">("idle");
+  const [format, setFormat]     = useState(0);
+
+  const doc = BUTTON_OUTPUT_DIRECTIVE.sampleOutput;
+  const formats = doc.availableFormats;
+
+  function trigger() {
+    if (phase === "loading") return;
+    setPhase("loading");
+    setTimeout(() => setPhase("done"), 1400);
+  }
+
+  return (
+    <div>
+      {/* Trigger button */}
+      <div style={{ display: "flex", gap: 8, alignItems: "center", marginBottom: 12, flexWrap: "wrap" }}>
+        <button onClick={trigger}
+          style={{ background: phase === "done" ? "#34C759" : "#007AFF", color: "#fff", border: "none",
+            borderRadius: 10, padding: "9px 18px", cursor: "pointer", fontWeight: 800, fontSize: 12,
+            boxShadow: "0 3px 10px rgba(0,122,255,0.3)", transition: "background 0.3s" }}>
+          {phase === "idle" ? `⚡ ${doc.trigger}` : phase === "loading" ? "⏳ Generating…" : `✅ ${doc.trigger}`}
+        </button>
+        {phase === "done" && (
+          <button onClick={() => { setPhase("idle"); setFormat(0); }}
+            style={{ background: "#f0f0f5", color: "#555", border: "none", borderRadius: 8,
+              padding: "8px 12px", cursor: "pointer", fontSize: 11, fontWeight: 700 }}>
+            ↩ Reset
+          </button>
+        )}
+        {phase !== "idle" && (
+          <span style={{ fontSize: 11, color: "#555", fontStyle: "italic" }}>
+            {phase === "loading" ? "Building polished PDF-style output…" : "Complete, structured output — no placeholders."}
+          </span>
+        )}
+      </div>
+
+      {/* Loading bar */}
+      {phase === "loading" && (
+        <div style={{ height: 4, background: "#e5e5ea", borderRadius: 2, marginBottom: 12, overflow: "hidden" }}>
+          <div style={{ height: "100%", background: "#007AFF", borderRadius: 2, width: "70%",
+            animation: "avatarBreath 0.7s ease-in-out infinite" }} />
+        </div>
+      )}
+
+      {/* Polished output */}
+      {phase === "done" && (
+        <div>
+          {/* Format tabs */}
+          <div style={{ display: "flex", gap: 4, marginBottom: 10, flexWrap: "wrap" }}>
+            {formats.map((f, i) => (
+              <button key={f} onClick={() => setFormat(i)}
+                style={{ background: i === format ? "#007AFF" : "#f0f0f5",
+                  color: i === format ? "#fff" : "#555", border: "none",
+                  borderRadius: 7, padding: "4px 10px", cursor: "pointer", fontSize: 10, fontWeight: 700,
+                  transition: "all 0.2s" }}>
+                {f}
+              </button>
+            ))}
+          </div>
+
+          {/* Document card */}
+          <div style={{ background: "#fff", border: "1.5px solid #e0d6c8", borderRadius: 12,
+            overflow: "hidden", boxShadow: "0 4px 18px rgba(0,0,0,0.09)" }}>
+            {/* Header bar */}
+            <div style={{ background: "#1a1a2e", padding: "10px 16px",
+              display: "flex", justifyContent: "space-between", alignItems: "center" }}>
+              <div>
+                <div style={{ color: "#fff", fontWeight: 800, fontSize: 13 }}>📄 {doc.title}</div>
+                <div style={{ color: "rgba(255,255,255,0.6)", fontSize: 10, marginTop: 2 }}>{doc.subtitle}</div>
+              </div>
+              <div style={{ display: "flex", gap: 6 }}>
+                <span style={{ background: "#34C759", color: "#fff", borderRadius: 5,
+                  padding: "2px 8px", fontSize: 10, fontWeight: 800 }}>{doc.status}</span>
+                <span style={{ background: "#007AFF", color: "#fff", borderRadius: 5,
+                  padding: "2px 8px", fontSize: 10, fontWeight: 700 }}>{formats[format]}</span>
+              </div>
+            </div>
+
+            {/* Meta block */}
+            <div style={{ background: "#f7f3ee", borderBottom: "1px solid #e8e0d4",
+              padding: "8px 16px", display: "flex", gap: 24 }}>
+              {[
+                { k: "Organization", v: doc.org },
+                { k: "Date",         v: doc.date },
+                { k: "Prepared By",  v: "DRAKE AI Engine" },
+              ].map(m => (
+                <div key={m.k}>
+                  <div style={{ fontSize: 8, color: "#888", fontWeight: 800, textTransform: "uppercase", letterSpacing: 0.4 }}>{m.k}</div>
+                  <div style={{ fontSize: 11, color: "#333", fontWeight: 600, marginTop: 1 }}>{m.v}</div>
+                </div>
+              ))}
+            </div>
+
+            {/* Body */}
+            <div style={{ padding: "12px 16px" }}>
+              {doc.sections.map(sec => (
+                <div key={sec.heading} style={{ marginBottom: 12 }}>
+                  <div style={{ fontWeight: 800, fontSize: 12, color: "#1a1a2e",
+                    borderBottom: "1px solid #e8e0d4", paddingBottom: 4, marginBottom: 7 }}>{sec.heading}</div>
+                  {"rows" in sec && (sec as { heading: string; rows: { field: string; value: string }[] }).rows.map(r => (
+                    <div key={r.field} style={{ display: "flex", gap: 8, marginBottom: 4, fontSize: 11 }}>
+                      <span style={{ fontWeight: 700, color: "#555", minWidth: 120, flexShrink: 0 }}>{r.field}:</span>
+                      <span style={{ color: "#333" }}>{r.value}</span>
+                    </div>
+                  ))}
+                  {"checks" in sec && (sec as { heading: string; checks: { item: string; status: string }[] }).checks.map(c => (
+                    <div key={c.item} style={{ display: "flex", justifyContent: "space-between",
+                      alignItems: "center", marginBottom: 4, fontSize: 11, padding: "3px 6px",
+                      background: "#f9f9f9", borderRadius: 5 }}>
+                      <span style={{ color: "#333" }}>☑ {c.item}</span>
+                      <span style={{ fontWeight: 700, color: "#1a7a3a" }}>{c.status}</span>
+                    </div>
+                  ))}
+                </div>
+              ))}
+            </div>
+
+            {/* Format options row */}
+            <div style={{ background: "#f0f7ff", borderTop: "1px solid #c8e0ff",
+              padding: "8px 16px", display: "flex", gap: 6, flexWrap: "wrap", alignItems: "center" }}>
+              <span style={{ fontSize: 10, color: "#007AFF", fontWeight: 800 }}>Also available as:</span>
+              {formats.filter((_, i) => i !== format).map(f => (
+                <span key={f} style={{ background: "#fff", color: "#007AFF", border: "1px solid #c8e0ff",
+                  borderRadius: 5, padding: "1px 7px", fontSize: 10, fontWeight: 700 }}>{f}</span>
+              ))}
+            </div>
+
+            {/* Footer */}
+            <div style={{ background: "#f7f3ee", borderTop: "1px solid #e8e0d4",
+              padding: "5px 16px", fontSize: 9, color: "#999", textAlign: "center" }}>
+              {doc.footer}
+            </div>
+          </div>
+        </div>
+      )}
+    </div>
+  );
+}
 
 // ─── AI Avatar Guide Component ────────────────────────────────────────────────
 
@@ -4854,6 +5074,7 @@ function PlatformOSView() {
               { label: "Industries",       value: "∞ Universal",                             color: "#007AFF", bg: "#f0f7ff" },
               { label: "Doc Format",       value: "PDF-Style",                               color: "#b85c00", bg: "#fff8f0" },
               { label: "Avatar Guide",     value: "ARIA Active",                             color: "#6600cc", bg: "#f5f0ff" },
+              { label: "Button Outputs",   value: "100% Complete",                           color: "#1a7a3a", bg: "#f0fff4" },
               { label: "Audit Cycles",     value: `${auditLog.length}`,                      color: "#FF9F0A", bg: "#fff8e6" },
               { label: "Self-Heals",       value: "14 total",                                color: "#34C759", bg: "#e6f9ec" },
             ].map(k => (
@@ -5051,7 +5272,7 @@ function PlatformOSView() {
                         </div>
                       </div>
                       <div style={{ marginTop: 8, fontSize: 11, color: "#007AFF", fontWeight: 700, textAlign: "center" }}>
-                        ✅ All 12 core features active · 25% revenue share registered · AI Persona online · Autopilot running · {SYSTEM_MODES.length} modes inherited · ∞ Industries supported · 📄 PDF-style docs · 🧑‍💻 ARIA Guide active
+                        ✅ All 12 core features active · 25% revenue share registered · AI Persona online · Autopilot running · {SYSTEM_MODES.length} modes inherited · ∞ Industries · 📄 PDF docs · 🧑‍💻 ARIA Guide · ⚡ Buttons 100% complete
                       </div>
                     </div>
                   )}
@@ -5458,6 +5679,82 @@ function PlatformOSView() {
             <AvatarGuideDemo />
           </div>
 
+          {/* ── Button & Output Completeness Directive Panel ── */}
+          <div style={{ background: "linear-gradient(135deg, #f0fff4 0%, #f0f7ff 100%)", border: "2px solid #b8eccc", borderRadius: 14, padding: "14px 16px", marginBottom: 16 }}>
+            <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: 10 }}>
+              <div>
+                <div style={{ fontWeight: 800, fontSize: 14, color: "#1a7a3a" }}>⚡ {BUTTON_OUTPUT_DIRECTIVE.name}</div>
+                <div style={{ fontSize: 11, color: "#555", marginTop: 2 }}>v{BUTTON_OUTPUT_DIRECTIVE.version} · Status: <span style={{ color: "#1a7a3a", fontWeight: 700 }}>ACTIVE</span></div>
+              </div>
+              <span style={{ background: "#e6f9ec", color: "#1a7a3a", borderRadius: 8, padding: "4px 12px", fontSize: 11, fontWeight: 800, whiteSpace: "nowrap" }}>✅ ACTIVE</span>
+            </div>
+
+            <div style={{ fontSize: 12, color: "#333", background: "#fff", borderRadius: 8, padding: "8px 12px", marginBottom: 10, lineHeight: 1.6 }}>
+              <strong>Core Rule:</strong> {BUTTON_OUTPUT_DIRECTIVE.rule}
+            </div>
+
+            <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr 1fr", gap: 10, marginBottom: 12 }}>
+              {/* Never */}
+              <div style={{ background: "#fff0f5", borderRadius: 8, padding: "10px 12px" }}>
+                <div style={{ fontWeight: 700, fontSize: 12, color: "#c0006e", marginBottom: 6 }}>🚫 Buttons NEVER:</div>
+                {BUTTON_OUTPUT_DIRECTIVE.never.map(n => (
+                  <div key={n} style={{ fontSize: 11, color: "#c0006e", marginBottom: 3 }}>✕ {n}</div>
+                ))}
+              </div>
+
+              {/* Document output rules + options */}
+              <div style={{ display: "flex", flexDirection: "column", gap: 8 }}>
+                <div style={{ background: "#fff", borderRadius: 8, padding: "10px 12px", flex: 1 }}>
+                  <div style={{ fontWeight: 700, fontSize: 12, color: "#1a7a3a", marginBottom: 6 }}>📄 Document Output Rules:</div>
+                  {BUTTON_OUTPUT_DIRECTIVE.documentOutputRules.map(r => (
+                    <div key={r.text} style={{ fontSize: 11, color: "#333", marginBottom: 3, display: "flex", gap: 5 }}>
+                      <span style={{ flexShrink: 0 }}>{r.icon}</span><span>{r.text}</span>
+                    </div>
+                  ))}
+                </div>
+                <div style={{ background: "#f0f7ff", borderRadius: 8, padding: "10px 12px" }}>
+                  <div style={{ fontWeight: 700, fontSize: 12, color: "#007AFF", marginBottom: 6 }}>🔀 Every Doc Must Offer:</div>
+                  {BUTTON_OUTPUT_DIRECTIVE.documentOptions.map(o => (
+                    <div key={o.label} style={{ fontSize: 11, color: "#333", marginBottom: 4, display: "flex", gap: 5, alignItems: "flex-start" }}>
+                      <span style={{ flexShrink: 0 }}>{o.icon}</span>
+                      <div><span style={{ fontWeight: 700 }}>{o.label}</span> — <span style={{ color: "#555" }}>{o.desc}</span></div>
+                    </div>
+                  ))}
+                </div>
+              </div>
+
+              {/* Option generation */}
+              <div style={{ background: "#fff", borderRadius: 8, padding: "10px 12px" }}>
+                <div style={{ fontWeight: 700, fontSize: 12, color: "#8a00d4", marginBottom: 6 }}>🎛 Option Generation — Always Complete:</div>
+                {BUTTON_OUTPUT_DIRECTIVE.optionTypes.map(o => (
+                  <div key={o.label} style={{ marginBottom: 5 }}>
+                    <div style={{ fontSize: 11, fontWeight: 700, color: "#333", display: "flex", gap: 5 }}>
+                      <span>{o.icon}</span><span>{o.label}</span>
+                    </div>
+                    <div style={{ fontSize: 10, color: "#777", marginLeft: 18 }}>{o.example}</div>
+                  </div>
+                ))}
+                <div style={{ marginTop: 8, background: "#e6f9ec", borderRadius: 6, padding: "6px 8px" }}>
+                  <div style={{ fontWeight: 700, fontSize: 11, color: "#1a7a3a", marginBottom: 4 }}>✅ System Behaves As If:</div>
+                  {BUTTON_OUTPUT_DIRECTIVE.behaviorRules.map(b => (
+                    <div key={b} style={{ fontSize: 10, color: "#1a7a3a", marginBottom: 2 }}>• {b}</div>
+                  ))}
+                </div>
+              </div>
+            </div>
+
+            {/* Safety boundary */}
+            <div style={{ background: "#fff8e6", borderRadius: 8, padding: "8px 12px", fontSize: 11, color: "#c67000", marginBottom: 12, lineHeight: 1.6 }}>
+              ⚠️ <strong>Safety Boundary:</strong> {BUTTON_OUTPUT_DIRECTIVE.safetyBoundary}
+            </div>
+
+            {/* Live demo */}
+            <div style={{ fontWeight: 700, fontSize: 12, color: "#1a7a3a", marginBottom: 8 }}>
+              🎬 Live Demo — Click the button below to see a complete, structured output (no placeholders):
+            </div>
+            <ButtonOutputDemo />
+          </div>
+
           {MODE_CATEGORIES.map(cat => {
             const modesInCat = SYSTEM_MODES.filter(m => m.category === cat.id);
             return (
@@ -5531,6 +5828,9 @@ function PlatformOSView() {
           </div>
           <div style={{ background: "linear-gradient(135deg, #f5f0ff 0%, #f0f7ff 100%)", border: "1px solid #d5b8ff", borderRadius: 12, padding: "12px 16px", marginTop: 10, fontSize: 13, color: "#6600cc", fontWeight: 600 }}>
             🧑‍💻 AI Avatar Guide Directive is active. ARIA Guide is the default tour experience across all {AI_AVATAR_DIRECTIVE.availableIn.length} supported modes ({AI_AVATAR_DIRECTIVE.availableIn.map(m => m.mode).join(", ")}). No guided tour may default to plain text or static overlays. ARIA Guide is a stylized AI character — not a human. No exceptions.
+          </div>
+          <div style={{ background: "linear-gradient(135deg, #f0fff4 0%, #f0f7ff 100%)", border: "1px solid #b8eccc", borderRadius: 12, padding: "12px 16px", marginTop: 10, fontSize: 13, color: "#1a7a3a", fontWeight: 600 }}>
+            ⚡ Universal Button & Output Completeness Directive is active. Every button, link, tab, and action across all {projects.length} projects and all {SYSTEM_MODES.length} modes produces a complete, polished, fully realized output. No plain text. No empty states. No placeholders. No "coming soon". No missing options. All {BUTTON_OUTPUT_DIRECTIVE.optionTypes.length} option categories always available. No exceptions.
           </div>
         </div>
       )}

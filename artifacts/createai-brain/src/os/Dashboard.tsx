@@ -37,7 +37,7 @@ interface DashboardProps {
 }
 
 export function Dashboard({ onHamburger, isNarrow }: DashboardProps) {
-  const { openApp, appRegistry, routeIntent, platformMode, setPlatformMode } = useOS();
+  const { openApp, appRegistry, routeIntent, platformMode, setPlatformMode, activeApp } = useOS();
   const [intentInput, setIntentInput]     = useState("");
   const [intentResult, setIntentResult]   = useState<{ app: AppId; label: string } | null>(null);
   const [showSuggestions, setShowSuggestions] = useState(false);
@@ -61,7 +61,7 @@ export function Dashboard({ onHamburger, isNarrow }: DashboardProps) {
   useEffect(() => {
     const stored = PlatformStore.getRecent();
     setRecents(stored.length > 0 ? stored : FALLBACK_RECENTS);
-  });
+  }, [activeApp]);
 
   const handleIntentSearch = (query: string) => {
     if (!query.trim()) { setIntentResult(null); return; }
