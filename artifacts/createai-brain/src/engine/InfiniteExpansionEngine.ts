@@ -133,7 +133,7 @@ export const CORE_ENGINES = [
 
 export const MANIFEST = {
   name: "UCP-X Universal Add-On",
-  version: "3.0",
+  version: "7.0",
   coreIntact: true,
   nonDestructive: true,
   autoLinkToBrain: true,
@@ -195,6 +195,20 @@ export const MANIFEST = {
   savingsCostOptimization: true,
   realTimeMonitoring: true,
   adaptiveDecisionUpdates: true,
+  masterBrainControlCenter: true,
+  miniBrainDepartmentNetwork: true,
+  multiProjectOrchestration: true,
+  roiSavingsDashboards: true,
+  staffRoleTrainingAutoNotify: true,
+  trainingRetakesEnabled: true,
+  customBrandingPerProject: true,
+  multiUserPermissions: true,
+  auditTrailAllActions: true,
+  connectAllOneClick: true,
+  predictiveAdaptiveGuidance: true,
+  infiniteProjectScaling: true,
+  zeroManualWorkRequired: true,
+  additiveOnlyNoOverrides: true,
 };
 
 // ─── Hyper-Innovative AI Layer ─────────────────────────────────────────────

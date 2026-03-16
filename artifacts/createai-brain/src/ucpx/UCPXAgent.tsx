@@ -2211,10 +2211,592 @@ function generateDecisions(scale: DecisionScale, context: string, industry: stri
   ];
 }
 
+// ─── Master Brain View (UCP-X Multi-Industry Project Add-On) ─────────────
+
+interface MasterProject {
+  id: string; name: string; industry: string; icon: string;
+  mode: "live" | "test" | "demo"; roi: string; savings: string;
+  connected: boolean; miniBrains: number; departments: string[]; color: string;
+}
+interface MiniBrainDept { id: string; dept: string; icon: string; status: "active" | "deciding" | "idle"; lastDecision: string; alert?: string; }
+interface ROIEntry { source: string; icon: string; amount: string; pct: string; trend: "up" | "down" | "stable"; }
+interface TrainingRole { role: string; icon: string; completed: number; pending: number; overdue: number; }
+interface ComplianceRule { framework: string; icon: string; status: "compliant" | "review" | "pending"; lastCheck: string; }
+interface AuditEntry { id: string; ts: string; user: string; action: string; project: string; result: "success" | "warning" | "info"; }
+interface PermRole { role: string; icon: string; depts: string[]; access: "admin" | "editor" | "viewer"; }
+interface HealLog { id: string; integration: string; issue: string; status: "fixed" | "retrying" | "detected"; ts: string; }
+interface CommMessage { id: string; channel: "email" | "sms" | "platform"; subject: string; status: "sent" | "pending" | "scheduled"; recipients: number; }
+interface BrandProfile { projectId: string; primaryColor: string; logoEmoji: string; language: string; tagline: string; }
+
+const MASTER_PROJECTS: MasterProject[] = [
+  { id: "p1", name: "ApexCare Health Network",   industry: "Healthcare",   icon: "🏥", mode: "live", roi: "$2.4M", savings: "$890K", connected: true,  miniBrains: 8, departments: ["Clinical","Billing","HR","Compliance","IT","Marketing","Operations","Admin"], color: "#007AFF" },
+  { id: "p2", name: "ClearPath Education Hub",   industry: "Education",    icon: "🎓", mode: "test", roi: "$1.1M", savings: "$340K", connected: false, miniBrains: 6, departments: ["Academics","Admin","Finance","Student Services","IT","Marketing"],              color: "#34C759" },
+  { id: "p3", name: "Summit Financial Group",    industry: "Finance",      icon: "💼", mode: "demo", roi: "$4.7M", savings: "$1.2M", connected: true,  miniBrains: 7, departments: ["Trading","Compliance","Risk","HR","IT","Marketing","Client Services"],          color: "#FF9500" },
+  { id: "p4", name: "InnoRetail Platform",       industry: "Retail",       icon: "🛒", mode: "live", roi: "$890K", savings: "$210K", connected: true,  miniBrains: 5, departments: ["Inventory","Sales","Marketing","Logistics","HR"],                               color: "#AF52DE" },
+  { id: "p5", name: "BuildSmart Construction",   industry: "Construction", icon: "🏗️", mode: "test", roi: "$1.8M", savings: "$560K", connected: false, miniBrains: 6, departments: ["Engineering","Safety","Finance","HR","Procurement","Operations"],               color: "#FF3B30" },
+  { id: "p6", name: "GreenOps AgriTech",         industry: "Agriculture",  icon: "🌾", mode: "demo", roi: "$640K", savings: "$180K", connected: true,  miniBrains: 4, departments: ["Field Ops","Supply Chain","Finance","Tech"],                                    color: "#32D74B" },
+];
+
+const MINI_BRAIN_POOL: MiniBrainDept[] = [
+  { id: "mb1",  dept: "Clinical",       icon: "🩺", status: "active",   lastDecision: "Auto-approved 14 patient workflow changes", alert: "Notified Master Brain: Scheduling conflict resolved" },
+  { id: "mb2",  dept: "Billing",        icon: "💳", status: "deciding",  lastDecision: "Flagged 3 invoices for compliance review" },
+  { id: "mb3",  dept: "HR",             icon: "👥", status: "idle",      lastDecision: "Sent training notifications to 12 staff" },
+  { id: "mb4",  dept: "Compliance",     icon: "🛡️", status: "active",   lastDecision: "HIPAA audit passed — 0 violations found" },
+  { id: "mb5",  dept: "IT",             icon: "💻", status: "active",   lastDecision: "Self-healed 2 API connections", alert: "Integration restored: EHR sync active" },
+  { id: "mb6",  dept: "Marketing",      icon: "📣", status: "deciding",  lastDecision: "Drafting Q2 campaign — awaiting brand approval" },
+  { id: "mb7",  dept: "Operations",     icon: "⚙️", status: "idle",      lastDecision: "Optimized 6 workflows — 23% efficiency gain" },
+  { id: "mb8",  dept: "Academics",      icon: "📚", status: "active",   lastDecision: "Distributed new curriculum to 420 students" },
+  { id: "mb9",  dept: "Finance",        icon: "💰", status: "deciding",  lastDecision: "Running predictive cash-flow model", alert: "Alert: Q3 budget variance detected — notify CFO?" },
+  { id: "mb10", dept: "Trading",        icon: "📈", status: "active",   lastDecision: "Auto-executed 3 risk-adjusted trades" },
+  { id: "mb11", dept: "Risk",           icon: "⚠️", status: "active",   lastDecision: "Identified 2 high-risk exposures — flagged for review" },
+  { id: "mb12", dept: "Inventory",      icon: "📦", status: "idle",      lastDecision: "Restocked 8 SKUs — zero stockout in 14 days" },
+  { id: "mb13", dept: "Safety",         icon: "🦺", status: "deciding",  lastDecision: "Running compliance check on 5 active job sites" },
+  { id: "mb14", dept: "Field Ops",      icon: "🚜", status: "active",   lastDecision: "Auto-scheduled seasonal harvest rotation" },
+];
+
+const ROI_DATA: ROIEntry[] = [
+  { source: "Workflow Automation",    icon: "⚙️", amount: "$1.2M", pct: "+340%", trend: "up"   },
+  { source: "Staff Training Savings", icon: "🎓", amount: "$380K", pct: "+220%", trend: "up"   },
+  { source: "Integration Efficiency", icon: "🔌", amount: "$560K", pct: "+180%", trend: "up"   },
+  { source: "Compliance Avoidance",   icon: "🛡️", amount: "$890K", pct: "+510%", trend: "up"   },
+  { source: "Marketing Automation",   icon: "📣", amount: "$240K", pct: "+150%", trend: "stable"},
+  { source: "Vendor Optimization",    icon: "🤝", amount: "$420K", pct: "+290%", trend: "up"   },
+  { source: "AI Decision Engine",     icon: "🧠", amount: "$730K", pct: "+420%", trend: "up"   },
+  { source: "Self-Healing Systems",   icon: "🔄", amount: "$190K", pct: "+110%", trend: "stable"},
+];
+
+const TRAINING_ROLES: TrainingRole[] = [
+  { role: "Clinical Staff",   icon: "🩺", completed: 142, pending: 8,  overdue: 2  },
+  { role: "Finance Team",     icon: "💰", completed: 67,  pending: 3,  overdue: 0  },
+  { role: "IT Engineers",     icon: "💻", completed: 38,  pending: 5,  overdue: 1  },
+  { role: "Operations Leads", icon: "⚙️", completed: 89,  pending: 11, overdue: 3  },
+  { role: "Compliance Reps",  icon: "🛡️", completed: 24,  pending: 2,  overdue: 0  },
+  { role: "Sales Team",       icon: "🛒", completed: 55,  pending: 7,  overdue: 4  },
+];
+
+const COMPLIANCE_RULES: ComplianceRule[] = [
+  { framework: "HIPAA",        icon: "🏥", status: "compliant", lastCheck: "Today, 09:14 AM"    },
+  { framework: "GDPR",         icon: "🇪🇺", status: "compliant", lastCheck: "Today, 08:50 AM"    },
+  { framework: "SOC 2",        icon: "🔐", status: "compliant", lastCheck: "Yesterday, 11:30 PM" },
+  { framework: "PCI-DSS",      icon: "💳", status: "review",    lastCheck: "2 days ago"          },
+  { framework: "FINRA",        icon: "📊", status: "compliant", lastCheck: "Today, 06:00 AM"     },
+  { framework: "OSHA",         icon: "🦺", status: "compliant", lastCheck: "Today, 07:45 AM"     },
+  { framework: "FERPA",        icon: "🎓", status: "pending",   lastCheck: "3 days ago"          },
+  { framework: "ISO 27001",    icon: "🔒", status: "compliant", lastCheck: "Yesterday, 09:00 AM" },
+];
+
+const AUDIT_LOG: AuditEntry[] = [
+  { id: "a1", ts: "09:41 AM", user: "Master Brain",   action: "Connected all workflows for ApexCare Health Network",         project: "ApexCare",   result: "success" },
+  { id: "a2", ts: "09:38 AM", user: "Mini-Brain IT",  action: "Self-healed EHR integration — restored in 12s",              project: "ApexCare",   result: "success" },
+  { id: "a3", ts: "09:35 AM", user: "AI Compliance",  action: "HIPAA scan completed — 0 violations",                        project: "ApexCare",   result: "success" },
+  { id: "a4", ts: "09:30 AM", user: "Mini-Brain HR",  action: "Auto-sent training notification to 12 staff",                project: "Summit",     result: "success" },
+  { id: "a5", ts: "09:22 AM", user: "Master Brain",   action: "PCI-DSS review triggered — 2 items require attention",       project: "Summit",     result: "warning" },
+  { id: "a6", ts: "09:15 AM", user: "AI Decisions",   action: "Approved 7 operational changes across 3 projects",           project: "InnoRetail", result: "success" },
+  { id: "a7", ts: "09:08 AM", user: "Mini-Brain Risk", action: "Risk model updated — Q3 exposure re-evaluated",              project: "Summit",     result: "info"    },
+  { id: "a8", ts: "08:55 AM", user: "Master Brain",   action: "Global ROI report generated — $10.9M total identified value",project: "All",        result: "success" },
+];
+
+const PERM_ROLES: PermRole[] = [
+  { role: "Master Admin",     icon: "👑", depts: ["All Departments"], access: "admin"  },
+  { role: "Project Manager",  icon: "🎯", depts: ["Operations","HR","Finance"],        access: "editor" },
+  { role: "Clinical Director",icon: "🩺", depts: ["Clinical","Compliance"],            access: "editor" },
+  { role: "Finance Lead",     icon: "💰", depts: ["Finance","Billing"],               access: "editor" },
+  { role: "IT Manager",       icon: "💻", depts: ["IT","Operations"],                 access: "admin"  },
+  { role: "Staff",            icon: "👤", depts: ["Assigned Only"],                   access: "viewer" },
+];
+
+const HEAL_LOGS: HealLog[] = [
+  { id: "h1", integration: "EHR Sync (Epic)",      issue: "Connection timeout",        status: "fixed",     ts: "09:38 AM" },
+  { id: "h2", integration: "Payment Gateway",      issue: "Auth token expired",        status: "fixed",     ts: "09:20 AM" },
+  { id: "h3", integration: "CRM Connector",        issue: "Rate limit hit",            status: "retrying",  ts: "09:15 AM" },
+  { id: "h4", integration: "Payroll API",          issue: "Schema mismatch",           status: "fixed",     ts: "08:50 AM" },
+  { id: "h5", integration: "Compliance Database",  issue: "Cert renewal needed",       status: "detected",  ts: "08:30 AM" },
+  { id: "h6", integration: "Analytics Pipeline",   issue: "Data lag > 30s",            status: "fixed",     ts: "08:10 AM" },
+];
+
+const COMM_MESSAGES: CommMessage[] = [
+  { id: "c1", channel: "email",    subject: "Q2 Compliance Training Reminder — All Staff",          status: "sent",      recipients: 142 },
+  { id: "c2", channel: "sms",      subject: "Urgent: Shift change notification — Clinical Team",     status: "sent",      recipients: 38  },
+  { id: "c3", channel: "platform", subject: "New ROI Dashboard Available — Finance Review",          status: "sent",      recipients: 12  },
+  { id: "c4", channel: "email",    subject: "Monthly Investor Report — Summit Financial Group",       status: "scheduled", recipients: 8   },
+  { id: "c5", channel: "platform", subject: "AI Decision Approved: Workflow Optimization Deployed",  status: "sent",      recipients: 89  },
+  { id: "c6", channel: "sms",      subject: "Training Module Due: HIPAA Refresher — by Friday",      status: "pending",   recipients: 22  },
+];
+
+const BRAND_PROFILES: BrandProfile[] = [
+  { projectId: "p1", primaryColor: "#007AFF", logoEmoji: "🏥", language: "English (US)",   tagline: "AI-Powered Healthcare Excellence" },
+  { projectId: "p2", primaryColor: "#34C759", logoEmoji: "🎓", language: "English (US)",   tagline: "Smarter Learning, Brighter Futures" },
+  { projectId: "p3", primaryColor: "#FF9500", logoEmoji: "💼", language: "English (UK)",   tagline: "Intelligent Finance. Total Confidence." },
+  { projectId: "p4", primaryColor: "#AF52DE", logoEmoji: "🛒", language: "English (US)",   tagline: "Retail Reimagined by AI" },
+  { projectId: "p5", primaryColor: "#FF3B30", logoEmoji: "🏗️", language: "English (AU)",  tagline: "Build Safer. Build Smarter." },
+  { projectId: "p6", primaryColor: "#32D74B", logoEmoji: "🌾", language: "English (US)",   tagline: "Cultivating Intelligence at Scale" },
+];
+
+function MasterBrainView() {
+  const [mbTab,      setMbTab]      = useState<"overview"|"projects"|"minibrains"|"roi"|"training"|"compliance"|"comms"|"branding"|"permissions"|"audit"|"heal">("overview");
+  const [projects,   setProjects]   = useState(MASTER_PROJECTS);
+  const [connecting, setConnecting] = useState(false);
+  const [connected,  setConnected]  = useState(false);
+  const [selProj,    setSelProj]    = useState<string | null>(null);
+  const [genComm,    setGenComm]    = useState<string | null>(null);
+  const [commDone,   setCommDone]   = useState<Set<string>>(new Set());
+  const [healBusy,   setHealBusy]   = useState<string | null>(null);
+  const [healed,     setHealed]     = useState<Set<string>>(new Set());
+  const [trainSent,  setTrainSent]  = useState<Set<string>>(new Set());
+  const [brandEditing, setBrandEditing] = useState<string | null>(null);
+  const [toast,      setToast]      = useState<string | null>(null);
+
+  const showToast = (msg: string) => { setToast(msg); setTimeout(() => setToast(null), 2200); };
+
+  const connectAll = () => {
+    setConnecting(true);
+    let i = 0;
+    const interval = setInterval(() => {
+      setProjects(prev => prev.map((p, idx) => idx === i ? { ...p, connected: true } : p));
+      i++;
+      if (i >= projects.length) {
+        clearInterval(interval);
+        setConnecting(false);
+        setConnected(true);
+        showToast("✅ All 6 projects connected — workflows live, dashboards populated, ROI updated");
+      }
+    }, 320);
+  };
+
+  const healIntegration = (id: string) => {
+    setHealBusy(id);
+    setTimeout(() => { setHealed(prev => new Set([...prev, id])); setHealBusy(null); showToast("🔧 Integration self-healed and restored"); }, 1400);
+  };
+
+  const sendComm = (id: string) => {
+    setGenComm(id);
+    setTimeout(() => { setCommDone(prev => new Set([...prev, id])); setGenComm(null); showToast("📤 Message auto-generated and queued"); }, 900);
+  };
+
+  const sendTraining = (role: string) => {
+    setTrainSent(prev => new Set([...prev, role]));
+    showToast(`🎓 Training notifications sent to all ${role} — retake links included`);
+  };
+
+  const MB_TABS = [
+    { id: "overview"     as const, label: "🏠 Overview"    },
+    { id: "projects"     as const, label: "📁 Projects"    },
+    { id: "minibrains"   as const, label: "🧠 Mini-Brains" },
+    { id: "roi"          as const, label: "💰 ROI"         },
+    { id: "training"     as const, label: "🎓 Training"    },
+    { id: "compliance"   as const, label: "🛡️ Compliance"  },
+    { id: "comms"        as const, label: "📣 Comms"       },
+    { id: "heal"         as const, label: "🔄 Healing"     },
+    { id: "branding"     as const, label: "🎨 Branding"    },
+    { id: "permissions"  as const, label: "👥 Permissions" },
+    { id: "audit"        as const, label: "📋 Audit"       },
+  ];
+
+  const connectedCount = projects.filter(p => p.connected).length;
+  const totalROI = "$10.9M";
+  const totalSavings = "$3.4M";
+
+  return (
+    <div className="space-y-3">
+      {/* Toast */}
+      {toast && <div className="fixed top-4 right-4 z-50 bg-green-600 text-white text-[11px] font-bold px-4 py-2 rounded-xl shadow-xl animate-in slide-in-from-top-2">{toast}</div>}
+
+      {/* Master Brain Header */}
+      <div className="bg-gradient-to-r from-blue-600 to-indigo-700 rounded-2xl p-4 text-white space-y-3">
+        <div className="flex items-center justify-between">
+          <div className="flex items-center gap-2">
+            <span className="text-2xl">🧠</span>
+            <div>
+              <p className="font-black text-[14px] tracking-tight">MASTER BRAIN</p>
+              <p className="text-[10px] text-blue-200">Multi-Industry Project Control Center</p>
+            </div>
+          </div>
+          <div className="flex items-center gap-1.5">
+            <span className={`w-2 h-2 rounded-full ${connectedCount === projects.length ? "bg-green-400" : "bg-yellow-400"} animate-pulse`} />
+            <span className="text-[11px] font-bold">{connectedCount}/{projects.length} Live</span>
+          </div>
+        </div>
+        <div className="grid grid-cols-3 gap-2">
+          {[["🏭 Projects", String(projects.length)], ["💰 Total ROI", totalROI], ["💵 Savings", totalSavings]].map(([label, val]) => (
+            <div key={label} className="bg-white/15 rounded-xl p-2 text-center">
+              <p className="text-[10px] text-blue-200">{label}</p>
+              <p className="font-black text-[15px]">{val}</p>
+            </div>
+          ))}
+        </div>
+        <button onClick={connectAll} disabled={connecting || connectedCount === projects.length}
+          className="w-full bg-white text-blue-700 font-black text-[13px] py-2.5 rounded-xl hover:bg-blue-50 disabled:opacity-50 transition-all flex items-center justify-center gap-2 shadow-sm">
+          {connecting
+            ? <><div className="w-4 h-4 border-2 border-blue-700 border-t-transparent rounded-full animate-spin" /><span>Connecting All Projects…</span></>
+            : connectedCount === projects.length
+            ? "✅ All Projects Connected & Live"
+            : "⚡ Connect All — Auto-Link Workflows, Dashboards & ROI"}
+        </button>
+      </div>
+
+      {/* Sub-tabs */}
+      <div className="flex gap-1 overflow-x-auto pb-0.5" style={{ scrollbarWidth: "none" }}>
+        {MB_TABS.map(t => (
+          <button key={t.id} onClick={() => setMbTab(t.id)}
+            className={`flex-none px-2.5 py-1.5 rounded-full text-[10px] font-bold whitespace-nowrap transition-all ${mbTab === t.id ? "bg-blue-600 text-white shadow-sm" : "bg-muted text-muted-foreground hover:bg-muted/80"}`}>
+            {t.label}
+          </button>
+        ))}
+      </div>
+
+      {/* ── Overview ── */}
+      {mbTab === "overview" && (
+        <div className="space-y-3">
+          <div className="grid grid-cols-2 gap-2">
+            {[
+              { icon: "🔄", label: "Self-Healing",      val: "6 fixed today",     color: "bg-green-50 border-green-200"  },
+              { icon: "🎓", label: "Training Active",   val: "337 completions",   color: "bg-blue-50 border-blue-200"    },
+              { icon: "🛡️", label: "Compliance",        val: "7/8 compliant",     color: "bg-emerald-50 border-emerald-200" },
+              { icon: "🧠", label: "Mini-Brains",       val: "14 departments",    color: "bg-purple-50 border-purple-200" },
+              { icon: "📣", label: "Auto-Comms",        val: "6 messages sent",   color: "bg-orange-50 border-orange-200" },
+              { icon: "📋", label: "Audit Entries",     val: "8 logged today",    color: "bg-gray-50 border-gray-200"    },
+            ].map(item => (
+              <div key={item.label} className={`flex items-center gap-2.5 p-3 rounded-xl border ${item.color}`}>
+                <span className="text-xl">{item.icon}</span>
+                <div>
+                  <p className="text-[11px] font-bold text-foreground">{item.label}</p>
+                  <p className="text-[10px] text-muted-foreground">{item.val}</p>
+                </div>
+              </div>
+            ))}
+          </div>
+          <div className="bg-blue-50 border border-blue-200 rounded-2xl p-3 space-y-2">
+            <p className="text-[11px] font-black text-blue-800 uppercase tracking-wide">🤖 Master Brain Status</p>
+            {[
+              "✅ All predictive models running — adaptive optimization active",
+              "✅ Self-healing engine monitoring 29 integrations",
+              "✅ Legal Compliance Guard enforcing HIPAA, GDPR, SOC 2, FINRA, OSHA",
+              "✅ Mini-Brains active across 14 departments",
+              `${connectedCount < projects.length ? "⚠️" : "✅"} ${connectedCount}/${projects.length} projects fully connected`,
+              "✅ Audit trail logging all actions in real time",
+            ].map((line, i) => (
+              <p key={i} className="text-[10px] text-blue-700">{line}</p>
+            ))}
+          </div>
+        </div>
+      )}
+
+      {/* ── Projects ── */}
+      {mbTab === "projects" && (
+        <div className="space-y-2">
+          <p className="text-[10px] text-muted-foreground">Tap a project to see details · Drag to reorder (simulated)</p>
+          {projects.map(proj => (
+            <div key={proj.id} className="bg-white border border-border rounded-2xl overflow-hidden">
+              <button onClick={() => setSelProj(selProj === proj.id ? null : proj.id)}
+                className="w-full flex items-center gap-3 p-3 text-left hover:bg-muted/30 transition-colors">
+                <span className="text-2xl">{proj.icon}</span>
+                <div className="flex-1 min-w-0">
+                  <div className="flex items-center gap-1.5 flex-wrap">
+                    <p className="text-[12px] font-bold text-foreground">{proj.name}</p>
+                    <span className={`text-[9px] font-black px-1.5 py-0.5 rounded-full uppercase ${proj.mode === "live" ? "bg-green-100 text-green-700" : proj.mode === "test" ? "bg-yellow-100 text-yellow-700" : "bg-blue-100 text-blue-700"}`}>{proj.mode}</span>
+                    {proj.connected && <span className="text-[9px] font-bold text-green-600">● Live</span>}
+                  </div>
+                  <p className="text-[10px] text-muted-foreground">{proj.industry} · ROI: {proj.roi} · Savings: {proj.savings}</p>
+                </div>
+                <span className="text-muted-foreground text-xs">{selProj === proj.id ? "▲" : "▼"}</span>
+              </button>
+              {selProj === proj.id && (
+                <div className="px-3 pb-3 space-y-2 border-t border-border/40 pt-2">
+                  <div className="flex flex-wrap gap-1">
+                    {proj.departments.map(d => (
+                      <span key={d} className="text-[9px] bg-muted px-2 py-0.5 rounded-full text-muted-foreground font-semibold">{d}</span>
+                    ))}
+                  </div>
+                  <div className="grid grid-cols-3 gap-1.5 text-center">
+                    {[["🧠 Mini-Brains", String(proj.miniBrains)], ["💰 ROI", proj.roi], ["💵 Savings", proj.savings]].map(([k, v]) => (
+                      <div key={k} className="bg-muted/50 rounded-xl p-2">
+                        <p className="text-[9px] text-muted-foreground">{k}</p>
+                        <p className="text-[11px] font-bold text-foreground">{v}</p>
+                      </div>
+                    ))}
+                  </div>
+                  {!proj.connected && (
+                    <button onClick={() => { setProjects(p => p.map(x => x.id === proj.id ? { ...x, connected: true } : x)); showToast(`✅ ${proj.name} connected — workflows live`); }}
+                      className="w-full bg-blue-600 text-white text-[11px] font-bold py-2 rounded-xl hover:bg-blue-700 transition-colors">
+                      ⚡ Connect This Project
+                    </button>
+                  )}
+                  {proj.connected && (
+                    <div className="bg-green-50 border border-green-200 rounded-xl px-3 py-2 text-[10px] text-green-700 font-semibold text-center">✅ Fully connected — all workflows, dashboards & ROI live</div>
+                  )}
+                </div>
+              )}
+            </div>
+          ))}
+        </div>
+      )}
+
+      {/* ── Mini-Brains ── */}
+      {mbTab === "minibrains" && (
+        <div className="space-y-2">
+          <div className="bg-purple-50 border border-purple-200 rounded-xl p-3 text-[10px] text-purple-700">
+            <p className="font-bold mb-1">🧠 Mini-Brain Network — {MINI_BRAIN_POOL.length} Departments Active</p>
+            <p>Each Mini-Brain operates independently, makes department-level decisions, and notifies Master Brain for approval when needed. All decisions are logged.</p>
+          </div>
+          {MINI_BRAIN_POOL.map(mb => (
+            <div key={mb.id} className="bg-white border border-border rounded-2xl p-3 space-y-1.5">
+              <div className="flex items-center justify-between">
+                <div className="flex items-center gap-2">
+                  <span className="text-xl">{mb.icon}</span>
+                  <div>
+                    <p className="text-[12px] font-bold text-foreground">{mb.dept}</p>
+                    <p className="text-[10px] text-muted-foreground">{mb.lastDecision}</p>
+                  </div>
+                </div>
+                <span className={`text-[9px] font-black px-2 py-0.5 rounded-full uppercase ${mb.status === "active" ? "bg-green-100 text-green-700" : mb.status === "deciding" ? "bg-yellow-100 text-yellow-700 animate-pulse" : "bg-gray-100 text-gray-500"}`}>{mb.status}</span>
+              </div>
+              {mb.alert && (
+                <div className="bg-amber-50 border border-amber-200 rounded-lg px-2.5 py-1.5 flex items-center gap-2">
+                  <span className="text-[10px]">🔔</span>
+                  <p className="text-[10px] text-amber-700 font-semibold">{mb.alert}</p>
+                </div>
+              )}
+            </div>
+          ))}
+        </div>
+      )}
+
+      {/* ── ROI ── */}
+      {mbTab === "roi" && (
+        <div className="space-y-2">
+          <div className="grid grid-cols-2 gap-2">
+            {[["Total Identified ROI", totalROI, "bg-blue-600"], ["Total Savings", totalSavings, "bg-green-600"]].map(([label, val, bg]) => (
+              <div key={label} className={`${bg} rounded-2xl p-3 text-white text-center`}>
+                <p className="text-[10px] opacity-80">{label}</p>
+                <p className="font-black text-2xl">{val}</p>
+                <p className="text-[9px] opacity-70">Across all 6 projects</p>
+              </div>
+            ))}
+          </div>
+          {ROI_DATA.map(row => (
+            <div key={row.source} className="flex items-center gap-3 p-3 bg-white border border-border rounded-2xl">
+              <span className="text-xl">{row.icon}</span>
+              <div className="flex-1">
+                <p className="text-[12px] font-bold text-foreground">{row.source}</p>
+              </div>
+              <div className="text-right">
+                <p className="text-[13px] font-black text-green-600">{row.amount}</p>
+                <p className={`text-[10px] font-bold ${row.trend === "up" ? "text-green-500" : row.trend === "down" ? "text-red-500" : "text-muted-foreground"}`}>
+                  {row.trend === "up" ? "▲" : row.trend === "down" ? "▼" : "→"} {row.pct}
+                </p>
+              </div>
+            </div>
+          ))}
+          <div className="bg-blue-50 border border-blue-200 rounded-xl p-3">
+            <p className="text-[10px] text-blue-700 font-semibold">📊 ROI dashboards update in real-time as workflows execute, integrations succeed, and AI decisions are approved. Click any project to drill down by vendor, department, or workflow.</p>
+          </div>
+        </div>
+      )}
+
+      {/* ── Training ── */}
+      {mbTab === "training" && (
+        <div className="space-y-2">
+          <div className="bg-blue-50 border border-blue-200 rounded-xl p-3 text-[10px] text-blue-700">
+            <p className="font-bold mb-1">🎓 Auto-Training System</p>
+            <p>Notifications auto-sent when new modules are assigned. Staff can retake tests. Overdue alerts escalate to department Mini-Brain.</p>
+          </div>
+          {TRAINING_ROLES.map(tr => (
+            <div key={tr.role} className="bg-white border border-border rounded-2xl p-3">
+              <div className="flex items-center justify-between mb-2">
+                <div className="flex items-center gap-2">
+                  <span className="text-xl">{tr.icon}</span>
+                  <p className="text-[12px] font-bold text-foreground">{tr.role}</p>
+                </div>
+                {trainSent.has(tr.role)
+                  ? <span className="text-[10px] text-green-600 font-bold">✅ Sent</span>
+                  : <button onClick={() => sendTraining(tr.role)} className="text-[10px] bg-blue-600 text-white font-bold px-2.5 py-1 rounded-lg hover:bg-blue-700 transition-colors">📤 Notify</button>
+                }
+              </div>
+              <div className="grid grid-cols-3 gap-1.5 text-center">
+                {[["✅ Done", String(tr.completed), "text-green-600"], ["⏳ Pending", String(tr.pending), "text-yellow-600"], ["🔴 Overdue", String(tr.overdue), "text-red-600"]].map(([label, val, col]) => (
+                  <div key={label} className="bg-muted/50 rounded-xl p-2">
+                    <p className="text-[9px] text-muted-foreground">{label}</p>
+                    <p className={`text-[13px] font-black ${col}`}>{val}</p>
+                  </div>
+                ))}
+              </div>
+            </div>
+          ))}
+        </div>
+      )}
+
+      {/* ── Compliance ── */}
+      {mbTab === "compliance" && (
+        <div className="space-y-2">
+          <div className="bg-emerald-50 border border-emerald-200 rounded-xl p-3 text-[10px] text-emerald-700">
+            <p className="font-bold mb-1">🛡️ Legal Compliance Guard — Active</p>
+            <p>Continuously monitors HIPAA, GDPR, SOC 2, PCI-DSS, FINRA, OSHA, FERPA, ISO 27001 across all projects. Auto-remediates where possible and alerts Mini-Brain compliance teams.</p>
+          </div>
+          {COMPLIANCE_RULES.map(rule => (
+            <div key={rule.framework} className="flex items-center gap-3 p-3 bg-white border border-border rounded-2xl">
+              <span className="text-xl">{rule.icon}</span>
+              <div className="flex-1">
+                <p className="text-[12px] font-bold text-foreground">{rule.framework}</p>
+                <p className="text-[10px] text-muted-foreground">Last checked: {rule.lastCheck}</p>
+              </div>
+              <span className={`text-[9px] font-black px-2 py-0.5 rounded-full uppercase ${rule.status === "compliant" ? "bg-green-100 text-green-700" : rule.status === "review" ? "bg-yellow-100 text-yellow-700" : "bg-orange-100 text-orange-700"}`}>{rule.status}</span>
+            </div>
+          ))}
+        </div>
+      )}
+
+      {/* ── Comms ── */}
+      {mbTab === "comms" && (
+        <div className="space-y-2">
+          <div className="bg-orange-50 border border-orange-200 rounded-xl p-3 text-[10px] text-orange-700">
+            <p className="font-bold mb-1">📣 Multi-Channel Communication Engine</p>
+            <p>Email, SMS, and platform notifications auto-generated by AI for each project. All messages include role-based personalization and compliance-approved language.</p>
+          </div>
+          {COMM_MESSAGES.map(msg => (
+            <div key={msg.id} className="bg-white border border-border rounded-2xl p-3">
+              <div className="flex items-center justify-between mb-1.5">
+                <div className="flex items-center gap-2">
+                  <span className="text-base">{msg.channel === "email" ? "📧" : msg.channel === "sms" ? "💬" : "🔔"}</span>
+                  <span className="text-[10px] font-bold uppercase text-muted-foreground">{msg.channel}</span>
+                </div>
+                <div className="flex items-center gap-1.5">
+                  <span className={`text-[9px] font-black px-2 py-0.5 rounded-full uppercase ${msg.status === "sent" ? "bg-green-100 text-green-700" : msg.status === "scheduled" ? "bg-blue-100 text-blue-700" : "bg-yellow-100 text-yellow-700"}`}>{msg.status}</span>
+                  {commDone.has(msg.id)
+                    ? <span className="text-[9px] text-green-600 font-bold">✅</span>
+                    : <button onClick={() => sendComm(msg.id)} disabled={genComm === msg.id}
+                        className="text-[9px] bg-blue-600 text-white font-bold px-2 py-0.5 rounded-lg hover:bg-blue-700 disabled:opacity-50 transition-colors">
+                        {genComm === msg.id ? "…" : "📤 Re-send"}
+                      </button>
+                  }
+                </div>
+              </div>
+              <p className="text-[11px] text-foreground font-semibold">{msg.subject}</p>
+              <p className="text-[10px] text-muted-foreground">{msg.recipients} recipients</p>
+            </div>
+          ))}
+        </div>
+      )}
+
+      {/* ── Self-Healing ── */}
+      {mbTab === "heal" && (
+        <div className="space-y-2">
+          <div className="bg-green-50 border border-green-200 rounded-xl p-3 text-[10px] text-green-700">
+            <p className="font-bold mb-1">🔄 Self-Healing Integration Engine</p>
+            <p>Monitors all integrations 24/7. Auto-detects failures, diagnoses root cause, and retries until fully functional. Zero manual intervention required.</p>
+          </div>
+          {HEAL_LOGS.map(log => (
+            <div key={log.id} className="bg-white border border-border rounded-2xl p-3">
+              <div className="flex items-center justify-between mb-1">
+                <p className="text-[12px] font-bold text-foreground">{log.integration}</p>
+                <span className={`text-[9px] font-black px-2 py-0.5 rounded-full uppercase ${log.status === "fixed" || healed.has(log.id) ? "bg-green-100 text-green-700" : log.status === "retrying" ? "bg-yellow-100 text-yellow-700 animate-pulse" : "bg-red-100 text-red-700"}`}>
+                  {healed.has(log.id) ? "fixed" : log.status}
+                </span>
+              </div>
+              <p className="text-[10px] text-muted-foreground">{log.issue} · {log.ts}</p>
+              {(log.status !== "fixed" && !healed.has(log.id)) && (
+                <button onClick={() => healIntegration(log.id)} disabled={healBusy === log.id}
+                  className="mt-2 w-full bg-orange-500 text-white text-[10px] font-bold py-1.5 rounded-xl hover:bg-orange-600 disabled:opacity-50 transition-colors flex items-center justify-center gap-1.5">
+                  {healBusy === log.id ? <><div className="w-3 h-3 border-2 border-white border-t-transparent rounded-full animate-spin" /><span>Healing…</span></> : "🔧 Trigger Self-Heal"}
+                </button>
+              )}
+              {(log.status === "fixed" || healed.has(log.id)) && (
+                <div className="mt-1.5 text-[10px] text-green-600 font-semibold">✅ Integration healthy — auto-verified and running</div>
+              )}
+            </div>
+          ))}
+        </div>
+      )}
+
+      {/* ── Branding ── */}
+      {mbTab === "branding" && (
+        <div className="space-y-2">
+          <div className="bg-purple-50 border border-purple-200 rounded-xl p-3 text-[10px] text-purple-700">
+            <p className="font-bold mb-1">🎨 Custom Branding Per Project</p>
+            <p>Each project carries its own logo, primary color, language, and tagline. All AI-generated content is localized and brand-consistent.</p>
+          </div>
+          {BRAND_PROFILES.map(brand => {
+            const proj = projects.find(p => p.id === brand.projectId);
+            if (!proj) return null;
+            return (
+              <div key={brand.projectId} className="bg-white border border-border rounded-2xl p-3">
+                <div className="flex items-center justify-between mb-2">
+                  <div className="flex items-center gap-2">
+                    <span className="text-2xl" style={{ color: brand.primaryColor }}>{brand.logoEmoji}</span>
+                    <div>
+                      <p className="text-[12px] font-bold text-foreground">{proj.name}</p>
+                      <p className="text-[10px] text-muted-foreground italic">"{brand.tagline}"</p>
+                    </div>
+                  </div>
+                  <button onClick={() => setBrandEditing(brandEditing === brand.projectId ? null : brand.projectId)}
+                    className="text-[10px] bg-purple-100 text-purple-700 font-bold px-2 py-1 rounded-lg hover:bg-purple-200 transition-colors">✏️ Edit</button>
+                </div>
+                <div className="flex gap-2 flex-wrap">
+                  <span className="text-[9px] bg-muted px-2 py-0.5 rounded-full font-semibold">🌐 {brand.language}</span>
+                  <span className="text-[9px] bg-muted px-2 py-0.5 rounded-full font-semibold" style={{ color: brand.primaryColor }}>● Brand Color</span>
+                </div>
+                {brandEditing === brand.projectId && (
+                  <div className="mt-2 bg-purple-50 border border-purple-200 rounded-xl p-2 text-[10px] text-purple-700 font-semibold text-center">
+                    ✅ Branding locked per project — logo, color, language, and tone auto-applied to all AI outputs.
+                  </div>
+                )}
+              </div>
+            );
+          })}
+        </div>
+      )}
+
+      {/* ── Permissions ── */}
+      {mbTab === "permissions" && (
+        <div className="space-y-2">
+          <div className="bg-blue-50 border border-blue-200 rounded-xl p-3 text-[10px] text-blue-700">
+            <p className="font-bold mb-1">👥 Multi-User Permissions</p>
+            <p>Granular access control by role, department, and project. Mini-Brains enforce permissions autonomously.</p>
+          </div>
+          {PERM_ROLES.map(role => (
+            <div key={role.role} className="flex items-center gap-3 p-3 bg-white border border-border rounded-2xl">
+              <span className="text-xl">{role.icon}</span>
+              <div className="flex-1">
+                <p className="text-[12px] font-bold text-foreground">{role.role}</p>
+                <p className="text-[10px] text-muted-foreground">{role.depts.join(" · ")}</p>
+              </div>
+              <span className={`text-[9px] font-black px-2 py-0.5 rounded-full uppercase ${role.access === "admin" ? "bg-red-100 text-red-700" : role.access === "editor" ? "bg-blue-100 text-blue-700" : "bg-gray-100 text-gray-500"}`}>{role.access}</span>
+            </div>
+          ))}
+        </div>
+      )}
+
+      {/* ── Audit ── */}
+      {mbTab === "audit" && (
+        <div className="space-y-2">
+          <div className="bg-gray-50 border border-gray-200 rounded-xl p-3 text-[10px] text-gray-600">
+            <p className="font-bold mb-1">📋 Audit Log — All Actions Tracked</p>
+            <p>Every decision, connection, notification, and system change is logged with user, timestamp, project, and outcome.</p>
+          </div>
+          {AUDIT_LOG.map(entry => (
+            <div key={entry.id} className="flex items-start gap-3 p-3 bg-white border border-border rounded-2xl">
+              <span className={`text-base mt-0.5 ${entry.result === "success" ? "" : entry.result === "warning" ? "" : ""}`}>
+                {entry.result === "success" ? "✅" : entry.result === "warning" ? "⚠️" : "ℹ️"}
+              </span>
+              <div className="flex-1 min-w-0">
+                <p className="text-[11px] font-semibold text-foreground leading-snug">{entry.action}</p>
+                <div className="flex items-center gap-2 mt-0.5">
+                  <span className="text-[9px] text-muted-foreground">{entry.ts}</span>
+                  <span className="text-[9px] text-primary font-semibold">{entry.user}</span>
+                  <span className="text-[9px] bg-muted px-1.5 py-0.5 rounded-full text-muted-foreground">{entry.project}</span>
+                </div>
+              </div>
+            </div>
+          ))}
+        </div>
+      )}
+    </div>
+  );
+}
+
 // ─── Engines View ─────────────────────────────────────────────────────────
 
 function EnginesView({ onResult }: { onResult?: (m: InfiniteModule) => void }) {
-  const [section, setSection] = useState<"engines" | "workflow" | "interactive" | "marketing" | "revenue" | "teams" | "growth" | "tools" | "sim" | "hub" | "integration" | "industry" | "decide">("engines");
+  const [section, setSection] = useState<"engines" | "workflow" | "interactive" | "marketing" | "revenue" | "teams" | "growth" | "tools" | "sim" | "hub" | "integration" | "industry" | "decide" | "master">("engines");
 
   // Marketing state
   const [mktCtx,       setMktCtx]       = useState("");
@@ -2282,6 +2864,7 @@ function EnginesView({ onResult }: { onResult?: (m: InfiniteModule) => void }) {
     { id: "industry" as const,    label: "🏭 Industry" },
     { id: "decide" as const,      label: "🎯 Decide"   },
     { id: "integration" as const, label: "Status"     },
+    { id: "master"      as const, label: "🧠 Master"  },
   ];
 
   function runMkt(ch: MktChannel) {
@@ -3484,6 +4067,8 @@ function EnginesView({ onResult }: { onResult?: (m: InfiniteModule) => void }) {
           </div>
         </>
       )}
+
+      {section === "master" && <MasterBrainView />}
     </div>
   );
 }
@@ -4938,7 +5523,7 @@ export function UCPXAgent() {
           {/* Footer */}
           <div className="flex-none px-4 py-2.5 border-t border-border/20 bg-muted/20">
             <p className="text-[9px] text-muted-foreground text-center">
-              UCP-X v6 · 6 Agents · 25 Modules · 10 Powers · 9 Hidden · 8 Hyper · Mktg · Revenue · ROI · Mini-Brain · ARIA · Teams · Growth · Tools · Sim · Predict · Hub · Industry · 🎯 Decide (5 scales · 6 domains) · Self-Healing · Legal Guard · Core Intact
+              UCP-X v7 · 6 Agents · 25 Modules · 10 Powers · 9 Hidden · 8 Hyper · Mktg · Revenue · ROI · Teams · Growth · Tools · Sim · Predict · Hub · Industry · 🎯 Decide · 🧠 Master Brain · 6 Projects · 14 Mini-Brains · Self-Healing · Legal Guard · Training · Branding · Permissions · Audit · Additive Only · Core Intact
             </p>
           </div>
         </div>
