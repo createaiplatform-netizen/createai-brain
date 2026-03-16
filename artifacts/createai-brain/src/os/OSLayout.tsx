@@ -13,11 +13,13 @@ import { AdminApp } from "@/apps/AdminApp";
 import { FamilyApp } from "@/apps/FamilyApp";
 import { IntegrationApp } from "@/apps/IntegrationApp";
 import { MonetizationApp } from "@/apps/MonetizationApp";
+import { CreatorApp } from "@/apps/CreatorApp";
 
 const APP_COMPONENTS: Record<string, React.ComponentType> = {
   chat: ChatApp,
   projects: ProjectsApp,
   tools: ToolsApp,
+  creator: CreatorApp,
   people: PeopleApp,
   documents: DocumentsApp,
   marketing: MarketingApp,

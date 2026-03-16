@@ -940,4 +940,71 @@ router.post("/conversations/:id/messages", async (req, res) => {
   res.end();
 });
 
+// ============================================================
+// UNIVERSAL CREATION ENGINE — /api/openai/generate
+// One-shot streaming generation without conversation management
+// ============================================================
+
+const CREATION_ENGINE_PROMPT = `You are the Universal Creation Engine inside the CreateAI Brain OS, built by Sara Stadler.
+
+Your sole purpose is to generate structured, well-organized, mock content on demand for any type of asset the user requests. You produce clear, professional, placeholder-level outputs that demonstrate structure and possibility — never real clinical, legal, or financial data.
+
+GENERATION RULES:
+- Always produce fully structured, properly sectioned content
+- Use clear headings (##), bullet points, numbered steps, and tables where appropriate
+- Fill all sections with descriptive mock text — no empty sections, no "TBD" placeholders
+- Clearly mark all outputs: "[Mock / Structural Only — Not for real-world use]"
+- Keep tone consistent with the platform: calm, clear, empowering, professional
+- Outputs should look and read like real professional documents, just with mock data
+- Never produce real medical procedures, real legal advice, real financial recommendations
+- Always include: a title, purpose statement, sections, next steps, and a footer note
+
+SUPPORTED CREATION TYPES:
+Document, Template, Workflow, Policy, Procedure, Form, Packet, Training Module, Checklist, Content Block, Page, UI Component, Project Structure, Module, Tool, Asset, and anything else the user asks for.
+
+When the user provides a type and description, generate the complete structured output immediately. Be generous and thorough.`;
+
+router.post("/generate", async (req, res) => {
+  const { type, description, tone } = req.body as {
+    type: string;
+    description: string;
+    tone?: string;
+  };
+
+  if (!type || !description) {
+    return res.status(400).json({ error: "type and description are required" });
+  }
+
+  const userPrompt = `Generate a complete, fully-structured ${type} for the following:
+
+Description: ${description}
+Tone: ${tone || "Professional, clear, empowering"}
+
+Produce the full ${type} now with all sections filled in using high-quality mock content.`;
+
+  res.setHeader("Content-Type", "text/event-stream");
+  res.setHeader("Cache-Control", "no-cache");
+  res.setHeader("Connection", "keep-alive");
+
+  const stream = await openai.chat.completions.create({
+    model: "gpt-5.2",
+    max_completion_tokens: 8192,
+    messages: [
+      { role: "system", content: CREATION_ENGINE_PROMPT },
+      { role: "user", content: userPrompt },
+    ],
+    stream: true,
+  });
+
+  for await (const chunk of stream) {
+    const content = chunk.choices[0]?.delta?.content;
+    if (content) {
+      res.write(`data: ${JSON.stringify({ content })}\n\n`);
+    }
+  }
+
+  res.write(`data: ${JSON.stringify({ done: true })}\n\n`);
+  res.end();
+});
+
 export default router;

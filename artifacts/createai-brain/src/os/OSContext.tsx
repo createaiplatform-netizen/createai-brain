@@ -4,6 +4,7 @@ export type AppId =
   | "chat"
   | "projects"
   | "tools"
+  | "creator"
   | "people"
   | "documents"
   | "marketing"
@@ -24,6 +25,7 @@ export const ALL_APPS: AppDef[] = [
   { id: "chat", label: "AI Chat", icon: "💬", color: "#007AFF", description: "Talk to the CreateAI Brain" },
   { id: "projects", label: "Projects", icon: "📁", color: "#5856D6", description: "All your projects & workspaces" },
   { id: "tools", label: "Tools", icon: "🛠️", color: "#FF9500", description: "Brochures, docs, pages & more" },
+  { id: "creator", label: "Create", icon: "✨", color: "#FF2D55", description: "Generate anything — docs, workflows, modules" },
   { id: "people", label: "People", icon: "👥", color: "#34C759", description: "Contacts, profiles & invites" },
   { id: "documents", label: "Documents", icon: "📄", color: "#FF6B6B", description: "Files, forms & structured docs" },
   { id: "marketing", label: "Marketing", icon: "📣", color: "#FF2D55", description: "Brand, campaigns & content" },

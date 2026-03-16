@@ -9,9 +9,9 @@ const RECENT_ITEMS = [
 ];
 
 const QUICK_ACTIONS = [
-  { icon: "✨", label: "New Project", app: "projects" as AppId },
+  { icon: "✨", label: "Create Anything", app: "creator" as AppId },
   { icon: "💬", label: "Open Chat", app: "chat" as AppId },
-  { icon: "📄", label: "New Document", app: "documents" as AppId },
+  { icon: "📁", label: "New Project", app: "projects" as AppId },
   { icon: "📣", label: "Marketing", app: "marketing" as AppId },
 ];
 
