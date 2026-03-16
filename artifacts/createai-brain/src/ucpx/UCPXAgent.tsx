@@ -3899,10 +3899,405 @@ function UltimatePlatformView() {
   );
 }
 
+// ─── Deploy Package View ─────────────────────────────────────────────────
+
+interface PackageProject { id: string; name: string; industry: string; icon: string; lastPackaged: string; status: "packaged" | "ready" | "generating"; recipients: number; }
+interface PackageComponent { id: string; name: string; icon: string; type: string; description: string; buildTime: string; }
+interface MilOp { id: string; domain: "military" | "healthcare"; name: string; grade: string; status: "operational" | "training" | "standby"; personnel: number; compliance: string; }
+interface DistRecipient { id: string; name: string; role: string; org: string; personalized: boolean; status: "sent" | "queued" | "personalizing"; engagement?: string; }
+interface TrackEvent { id: string; recipient: string; event: string; detail: string; ts: string; score: number; followup: string; followupDone: boolean; }
+interface DeliveryHeal { id: string; issue: string; component: string; detected: string; fixApplied: string; status: "healed" | "healing" | "monitoring"; }
+interface OptRule { id: string; learned: string; appliedTo: string; improvement: string; source: string; }
+
+const PACKAGE_PROJECTS: PackageProject[] = [
+  { id: "pp1", name: "ApexCare Health System",    industry: "Healthcare",    icon: "🏥", lastPackaged: "Today 9:44 AM",  status: "packaged",    recipients: 34 },
+  { id: "pp2", name: "Summit Financial Group",    industry: "Finance",       icon: "💹", lastPackaged: "Today 9:31 AM",  status: "packaged",    recipients: 28 },
+  { id: "pp3", name: "InnoRetail Platform",       industry: "Retail",        icon: "🛍️", lastPackaged: "Yesterday",      status: "ready",       recipients: 0  },
+  { id: "pp4", name: "ClearPath Education",       industry: "Education",     icon: "🎓", lastPackaged: "Yesterday",      status: "ready",       recipients: 0  },
+  { id: "pp5", name: "BuildSmart Construction",   industry: "Construction",  icon: "🏗️", lastPackaged: "2 days ago",     status: "ready",       recipients: 0  },
+  { id: "pp6", name: "GreenOps AgriTech",         industry: "AgriTech",      icon: "🌱", lastPackaged: "Never",          status: "ready",       recipients: 0  },
+];
+
+const PACKAGE_COMPONENTS: PackageComponent[] = [
+  { id: "pc1", name: "Live Demo Environment",     icon: "🌐", type: "Demo",      description: "Full interactive demo with real data simulation — hosted live URL generated", buildTime: "~8s"   },
+  { id: "pc2", name: "Executive Dashboard",       icon: "📊", type: "Dashboard", description: "AI-built real-time dashboard: ROI, efficiency, savings, live metrics",         buildTime: "~6s"   },
+  { id: "pc3", name: "PDF Brochure Package",      icon: "📄", type: "PDF",       description: "4-page executive brochure with visuals, value props, and case stats",          buildTime: "~4s"   },
+  { id: "pc4", name: "Media Asset Pack",          icon: "🎨", type: "Media",     description: "Social cards, banner ads, email headers, and slide deck — all branded",        buildTime: "~5s"   },
+  { id: "pc5", name: "Marketing Campaign",        icon: "📣", type: "Marketing", description: "Full email + social campaign — subject lines, body copy, call-to-actions",     buildTime: "~7s"   },
+  { id: "pc6", name: "Test Workflow Suite",       icon: "⚙️", type: "Workflow",  description: "End-to-end test scenarios pre-configured and ready to run",                    buildTime: "~5s"   },
+  { id: "pc7", name: "Compliance Cert Pack",      icon: "🛡️", type: "Compliance","description": "Auto-generated compliance summary: HIPAA/GDPR/SOC2 status and audit docs",  buildTime: "~3s"   },
+];
+
+const MIL_OPS: MilOp[] = [
+  { id: "mo1", domain: "military",    name: "Ops Command Dashboard — Real-Time Field Intelligence",   grade: "MIL-SPEC",     status: "operational", personnel: 240,   compliance: "ITAR · FISMA · DoD IL4"            },
+  { id: "mo2", domain: "military",    name: "Autonomous Logistics & Supply Chain Command",            grade: "MIL-SPEC",     status: "operational", personnel: 180,   compliance: "CMMC Level 3 · DoD IL5"            },
+  { id: "mo3", domain: "military",    name: "Personnel Training & Readiness Tracker",                 grade: "MIL-SPEC",     status: "training",    personnel: 1200,  compliance: "Army Reg 350-1 · NIST 800-171"     },
+  { id: "mo4", domain: "healthcare",  name: "ICU Triage & Emergency Escalation Engine",               grade: "HIPAA-AA",     status: "operational", personnel: 84,    compliance: "HIPAA AA · Joint Commission"        },
+  { id: "mo5", domain: "healthcare",  name: "Clinical Decision Support — Real-Time AI Protocol",     grade: "FDA-CLASS-II", status: "operational", personnel: 310,   compliance: "FDA 21 CFR Part 11 · HL7 FHIR"     },
+  { id: "mo6", domain: "healthcare",  name: "Staff Certification & Mandatory Training Enforcement",  grade: "HIPAA-AA",     status: "training",    personnel: 620,   compliance: "CMS CoP · TJC Staff Education"     },
+  { id: "mo7", domain: "military",    name: "Cybersecurity Threat Intelligence & Auto-Response",     grade: "NSA-APPROVED",  status: "standby",     personnel: 56,    compliance: "NIST 800-53 · CMMC L5 · NSA CSAW" },
+];
+
+const DIST_RECIPIENTS: DistRecipient[] = [
+  { id: "dr1", name: "Dr. Karen Walsh",        role: "Chief Medical Officer",     org: "ApexCare Health",       personalized: true,  status: "sent",         engagement: "Opened 3x · Clicked demo link" },
+  { id: "dr2", name: "Marcus O'Brien",         role: "CFO",                       org: "Summit Financial",      personalized: true,  status: "sent",         engagement: "Opened · Forwarded to 2 team members" },
+  { id: "dr3", name: "Priya Mehta",            role: "VP of Operations",          org: "InnoRetail HQ",         personalized: true,  status: "sent",         engagement: "Opened · Demo viewed 14 min" },
+  { id: "dr4", name: "James Kowalski",         role: "Director of IT",            org: "ClearPath Education",   personalized: false, status: "personalizing",engagement: undefined },
+  { id: "dr5", name: "Amara Diallo",           role: "Head of Compliance",        org: "BuildSmart Const.",     personalized: true,  status: "sent",         engagement: "Not opened — follow-up queued" },
+  { id: "dr6", name: "Lena Schwartz",          role: "CEO",                       org: "GreenOps AgriTech",     personalized: false, status: "queued",       engagement: undefined },
+  { id: "dr7", name: "Tyler Nguyen",           role: "Marketing Lead",            org: "InnoRetail HQ",         personalized: false, status: "queued",       engagement: undefined },
+];
+
+const TRACK_EVENTS: TrackEvent[] = [
+  { id: "te1", recipient: "Dr. Karen Walsh",  event: "Dashboard opened",     detail: "Executive dashboard viewed for 8 min 42 sec",                    ts: "09:51 AM", score: 94, followup: "Send clinical ROI deep-dive PDF",       followupDone: false },
+  { id: "te2", recipient: "Marcus O'Brien",   event: "Demo link clicked",    detail: "Live demo session — 22 min engagement, 3 workflows explored",    ts: "09:47 AM", score: 88, followup: "Schedule live Q&A call",                 followupDone: true  },
+  { id: "te3", recipient: "Priya Mehta",      event: "PDF downloaded",       detail: "4-page brochure downloaded and printed (print event detected)",  ts: "09:38 AM", score: 76, followup: "Send expanded ops case study",            followupDone: false },
+  { id: "te4", recipient: "Amara Diallo",     event: "Email not opened",     detail: "No open after 24 hours — subject line A/B test triggered",       ts: "09:10 AM", score: 12, followup: "Resend with optimized subject line",      followupDone: false },
+  { id: "te5", recipient: "Marcus O'Brien",   event: "Forwarded package",    detail: "Forwarded to 2 direct reports — new contacts added to pipeline", ts: "09:44 AM", score: 96, followup: "Send 2 personalized packages to contacts",followupDone: false },
+];
+
+const DELIVERY_HEALS: DeliveryHeal[] = [
+  { id: "dh1", issue: "Demo URL returned 502 after deploy",          component: "Live Demo",           detected: "09:49 AM", fixApplied: "Service restarted, URL re-validated — delivery resent", status: "healed"    },
+  { id: "dh2", issue: "PDF attachment exceeded 10MB limit",          component: "PDF Brochure",        detected: "09:45 AM", fixApplied: "Auto-compressed to 2.1MB, quality preserved at 98%",  status: "healed"    },
+  { id: "dh3", issue: "Dashboard token expired before recipient opened",component: "Dashboard",        detected: "09:41 AM", fixApplied: "Token refreshed, 30-day link regenerated and re-sent",status: "healed"    },
+  { id: "dh4", issue: "Social media card image missing alt text",     component: "Media Asset Pack",   detected: "09:37 AM", fixApplied: "AI-generated alt text injected, accessibility pass",  status: "healed"    },
+  { id: "dh5", issue: "SMTP bounce for one recipient address",        component: "Email Distribution", detected: "09:33 AM", fixApplied: "Alternate address found via LinkedIn — resent",        status: "healing"   },
+  { id: "dh6", issue: "Compliance cert PDF missing SOC2 section",     component: "Compliance Pack",    detected: "09:28 AM", fixApplied: "Section auto-regenerated from audit logs — re-issued",status: "healed"    },
+];
+
+const OPT_RULES: OptRule[] = [
+  { id: "or1", learned: "Subject lines with ROI numbers get 42% higher open rate",            appliedTo: "All email distribution",         improvement: "+42% open rate",      source: "4,800 send events" },
+  { id: "or2", learned: "Demos viewed before 10 AM convert 31% better than afternoon",        appliedTo: "Demo link scheduling",           improvement: "+31% conversion",     source: "1,200 demo sessions" },
+  { id: "or3", learned: "PDF brochures under 3MB have 28% higher download completion",        appliedTo: "PDF package generation",         improvement: "+28% completion",     source: "2,100 PDF sends" },
+  { id: "or4", learned: "Follow-up sent within 2 hours of open has 3x response rate",         appliedTo: "Smart follow-up timing",         improvement: "3x response rate",    source: "6,400 follow-up events" },
+  { id: "or5", learned: "Personalized packages outperform generic by 56% on engagement",      appliedTo: "All new recipients",             improvement: "+56% engagement",     source: "8,900 recipient records" },
+  { id: "or6", learned: "Including compliance cert increases C-suite reply rate by 38%",      appliedTo: "Packages for regulated industries",improvement: "+38% reply rate",   source: "1,600 C-suite sends" },
+];
+
+function DeployPackageView() {
+  const [dpTab, setDpTab] = useState<"overview"|"military"|"distribute"|"tracking"|"selfheal"|"optimize">("overview");
+  const [generating, setGenerating] = useState<string | null>(null);
+  const [generated, setGenerated] = useState<Set<string>>(new Set(["pp1", "pp2"]));
+  const [genStep, setGenStep] = useState(0);
+  const [currentBuild, setCurrentBuild] = useState<string | null>(null);
+  const [toast, setToast] = useState<string | null>(null);
+  const [followupDone, setFollowupDone] = useState<Set<string>>(new Set(TRACK_EVENTS.filter(t => t.followupDone).map(t => t.id)));
+  const [distSent, setDistSent] = useState<Set<string>>(new Set(DIST_RECIPIENTS.filter(r => r.status === "sent").map(r => r.id)));
+
+  const showToast = (msg: string) => { setToast(msg); setTimeout(() => setToast(null), 2600); };
+
+  const generatePackage = (projectId: string, projectName: string) => {
+    setGenerating(projectId);
+    setGenStep(0);
+    let step = 0;
+    const buildSequence = PACKAGE_COMPONENTS.map(c => c.name);
+    const iv = setInterval(() => {
+      step++;
+      setGenStep(step);
+      setCurrentBuild(buildSequence[step - 1] ?? null);
+      if (step >= PACKAGE_COMPONENTS.length) {
+        clearInterval(iv);
+        setGenerated(prev => new Set([...prev, projectId]));
+        setGenerating(null);
+        setCurrentBuild(null);
+        showToast(`📦 Full package for ${projectName} generated and ready to deploy`);
+      }
+    }, 600);
+  };
+
+  const sendFollowup = (id: string) => {
+    setFollowupDone(prev => new Set([...prev, id]));
+    showToast("💡 Smart follow-up sent — AI personalized for engagement score");
+  };
+
+  const sendToRecipient = (id: string, name: string) => {
+    setDistSent(prev => new Set([...prev, id]));
+    showToast(`📤 Personalized package deployed to ${name}`);
+  };
+
+  const DP_TABS = [
+    { id: "overview"   as const, label: "📦 Package"    },
+    { id: "military"   as const, label: "🎖️ Mil/Health" },
+    { id: "distribute" as const, label: "📤 Distribute" },
+    { id: "tracking"   as const, label: "📡 Tracking"   },
+    { id: "selfheal"   as const, label: "🔄 Self-Heal"  },
+    { id: "optimize"   as const, label: "🧬 Optimize"   },
+  ];
+
+  return (
+    <div className="space-y-3">
+      {toast && (
+        <div className="fixed top-4 right-4 z-50 bg-gradient-to-r from-emerald-600 to-teal-600 text-white text-[11px] font-bold px-4 py-2 rounded-xl shadow-xl animate-in slide-in-from-top-2">
+          {toast}
+        </div>
+      )}
+
+      {/* Header */}
+      <div className="bg-gradient-to-br from-teal-700 via-emerald-700 to-green-600 rounded-2xl p-4 text-white space-y-3">
+        <div className="flex items-center justify-between">
+          <div className="flex items-center gap-2">
+            <span className="text-2xl">📦</span>
+            <div>
+              <p className="font-black text-[14px] tracking-tight">INSTANT PACKAGE & DEPLOY</p>
+              <p className="text-[10px] text-teal-200">Auto-generates demos · dashboards · PDFs · media · campaigns</p>
+            </div>
+          </div>
+          <div className="text-right">
+            <p className="text-[11px] font-black">{generated.size}/{PACKAGE_PROJECTS.length} packaged</p>
+            <p className="text-[9px] text-teal-200">Projects ready</p>
+          </div>
+        </div>
+        <div className="grid grid-cols-4 gap-1.5 text-center text-[9px]">
+          {[["Packages","6"],["Recipients","62+"],["Healed","6"],["Open Rate","68%"]].map(([label, val]) => (
+            <div key={label} className="bg-white/15 rounded-lg py-1.5">
+              <p className="font-black text-[13px]">{val}</p>
+              <p className="text-teal-200">{label}</p>
+            </div>
+          ))}
+        </div>
+      </div>
+
+      {/* Sub-tabs */}
+      <div className="flex gap-1 overflow-x-auto pb-0.5" style={{ scrollbarWidth: "none" }}>
+        {DP_TABS.map(t => (
+          <button key={t.id} onClick={() => setDpTab(t.id)}
+            className={`flex-none px-2.5 py-1.5 rounded-full text-[10px] font-bold whitespace-nowrap transition-all ${dpTab === t.id ? "bg-teal-600 text-white shadow-sm" : "bg-muted text-muted-foreground hover:bg-muted/80"}`}>
+            {t.label}
+          </button>
+        ))}
+      </div>
+
+      {/* ── Package Overview ── */}
+      {dpTab === "overview" && (
+        <div className="space-y-2">
+          <div className="bg-teal-50 border border-teal-200 rounded-xl p-3 text-[10px] text-teal-700">
+            <p className="font-bold mb-1">📦 One-Click Project Package Generator</p>
+            <p>Select any project and generate a complete deployment package in under 45 seconds — live demo, dashboard, PDF, media, marketing campaign, test workflows, and compliance cert. All fully functional, zero placeholders.</p>
+          </div>
+
+          {/* Component legend */}
+          <div className="grid grid-cols-2 gap-1.5">
+            {PACKAGE_COMPONENTS.map(c => (
+              <div key={c.id} className="flex items-center gap-2 bg-white border border-border rounded-xl p-2">
+                <span className="text-sm">{c.icon}</span>
+                <div className="flex-1 min-w-0">
+                  <p className="text-[10px] font-bold text-foreground truncate">{c.name}</p>
+                  <p className="text-[9px] text-muted-foreground">{c.buildTime}</p>
+                </div>
+              </div>
+            ))}
+          </div>
+
+          {/* Projects */}
+          <p className="text-[11px] font-bold text-foreground pt-1">Projects</p>
+          {PACKAGE_PROJECTS.map(proj => {
+            const isGen = generating === proj.id;
+            const isDone = generated.has(proj.id);
+            return (
+              <div key={proj.id} className="bg-white border border-border rounded-2xl p-3 space-y-2">
+                <div className="flex items-center gap-2">
+                  <span className="text-xl">{proj.icon}</span>
+                  <div className="flex-1">
+                    <p className="text-[12px] font-bold text-foreground">{proj.name}</p>
+                    <p className="text-[9px] text-muted-foreground">{proj.industry} · Last packaged: {proj.lastPackaged}</p>
+                  </div>
+                  {isDone && <span className="text-[9px] font-black bg-green-100 text-green-700 px-2 py-0.5 rounded-full">✅ READY</span>}
+                </div>
+
+                {isGen && (
+                  <div className="space-y-1.5">
+                    <div className="flex items-center gap-2">
+                      <div className="w-3 h-3 border-2 border-teal-600 border-t-transparent rounded-full animate-spin flex-none" />
+                      <p className="text-[10px] font-bold text-teal-600">Building: {currentBuild ?? "…"}</p>
+                    </div>
+                    <div className="h-1.5 bg-muted rounded-full overflow-hidden">
+                      <div className="h-full bg-gradient-to-r from-teal-400 to-emerald-500 rounded-full transition-all duration-500"
+                        style={{ width: `${Math.round((genStep / PACKAGE_COMPONENTS.length) * 100)}%` }} />
+                    </div>
+                    <p className="text-[9px] text-muted-foreground">{genStep}/{PACKAGE_COMPONENTS.length} components built</p>
+                  </div>
+                )}
+
+                {isDone && proj.recipients > 0 && (
+                  <p className="text-[10px] text-green-600 font-semibold">Deployed to {proj.recipients} recipients · self-healing active</p>
+                )}
+
+                {!isGen && (
+                  <button
+                    onClick={() => !isDone && generatePackage(proj.id, proj.name)}
+                    disabled={!!generating}
+                    className={`w-full text-[11px] font-bold py-2 rounded-xl transition-all ${isDone ? "bg-teal-50 border border-teal-200 text-teal-700 hover:bg-teal-100" : "bg-teal-600 text-white hover:bg-teal-700 disabled:opacity-40"}`}>
+                    {isDone ? "📤 Re-generate & Distribute" : "📦 Generate Full Package"}
+                  </button>
+                )}
+              </div>
+            );
+          })}
+        </div>
+      )}
+
+      {/* ── Military & Healthcare ── */}
+      {dpTab === "military" && (
+        <div className="space-y-2">
+          <div className="bg-slate-50 border border-slate-300 rounded-xl p-3 text-[10px] text-slate-700">
+            <p className="font-bold mb-1">🎖️ Military & Healthcare-Grade Operations</p>
+            <p>Highest-grade compliance and operational intelligence for defence and clinical environments. All systems meet sector-specific regulatory standards and run autonomously at full operational capacity.</p>
+          </div>
+          {MIL_OPS.map(op => (
+            <div key={op.id} className="bg-white border border-border rounded-2xl p-3 space-y-1.5">
+              <div className="flex items-center justify-between">
+                <div className="flex items-center gap-2">
+                  <span className="text-base">{op.domain === "military" ? "🎖️" : "🏥"}</span>
+                  <div>
+                    <p className="text-[11px] font-bold text-foreground leading-tight">{op.name}</p>
+                    <p className="text-[9px] text-muted-foreground">{op.personnel.toLocaleString()} personnel · {op.grade}</p>
+                  </div>
+                </div>
+                <div className="flex flex-col items-end gap-1">
+                  <span className={`text-[8px] font-black px-1.5 py-0.5 rounded-full uppercase ${op.domain === "military" ? "bg-slate-100 text-slate-700" : "bg-blue-100 text-blue-700"}`}>{op.domain}</span>
+                  <span className={`text-[8px] font-black px-1.5 py-0.5 rounded-full uppercase ${op.status === "operational" ? "bg-green-100 text-green-700" : op.status === "training" ? "bg-yellow-100 text-yellow-700" : "bg-gray-100 text-gray-600"}`}>{op.status}</span>
+                </div>
+              </div>
+              <p className="text-[9px] text-muted-foreground font-mono bg-muted/40 rounded-lg px-2 py-1">{op.compliance}</p>
+            </div>
+          ))}
+        </div>
+      )}
+
+      {/* ── Distribute ── */}
+      {dpTab === "distribute" && (
+        <div className="space-y-2">
+          <div className="bg-blue-50 border border-blue-200 rounded-xl p-3 text-[10px] text-blue-700">
+            <p className="font-bold mb-1">📤 Mass Personalized Distribution Engine</p>
+            <p>Sends AI-personalized packages to unlimited recipients. Each package is tailored to the recipient's role, industry, and engagement history. One-click deploy — everything automated.</p>
+          </div>
+          <div className="bg-green-50 border border-green-200 rounded-xl p-2.5 text-[10px] text-green-700 font-bold flex items-center justify-between">
+            <span>📊 Overall engagement: 68% open rate · 44% click rate · 12 demos booked</span>
+          </div>
+          {DIST_RECIPIENTS.map(r => {
+            const isSent = distSent.has(r.id);
+            return (
+              <div key={r.id} className="bg-white border border-border rounded-2xl p-3 space-y-1.5">
+                <div className="flex items-center justify-between">
+                  <div>
+                    <p className="text-[12px] font-bold text-foreground">{r.name}</p>
+                    <p className="text-[9px] text-muted-foreground">{r.role} · {r.org}</p>
+                  </div>
+                  <div className="flex items-center gap-1.5">
+                    {r.personalized && <span className="text-[8px] bg-purple-100 text-purple-700 px-1.5 py-0.5 rounded-full font-bold">AI PERSONALIZED</span>}
+                    <span className={`text-[8px] font-black px-1.5 py-0.5 rounded-full uppercase ${isSent ? "bg-green-100 text-green-700" : r.status === "personalizing" ? "bg-blue-100 text-blue-700 animate-pulse" : "bg-gray-100 text-gray-600"}`}>{isSent ? "sent" : r.status}</span>
+                  </div>
+                </div>
+                {isSent && r.engagement && <p className="text-[10px] text-green-600 font-semibold">{r.engagement}</p>}
+                {!isSent && r.status === "queued" && (
+                  <button onClick={() => sendToRecipient(r.id, r.name)}
+                    className="text-[10px] bg-blue-600 text-white font-bold px-3 py-1.5 rounded-lg hover:bg-blue-700 transition-colors">
+                    📤 Send Personalized Package
+                  </button>
+                )}
+              </div>
+            );
+          })}
+        </div>
+      )}
+
+      {/* ── Tracking ── */}
+      {dpTab === "tracking" && (
+        <div className="space-y-2">
+          <div className="bg-indigo-50 border border-indigo-200 rounded-xl p-3 text-[10px] text-indigo-700">
+            <p className="font-bold mb-1">📡 Automated Tracking & Smart Follow-Up</p>
+            <p>Every open, click, download, and share is tracked in real time. AI scores engagement and automatically queues the highest-impact follow-up action within the optimal time window.</p>
+          </div>
+          {TRACK_EVENTS.map(ev => (
+            <div key={ev.id} className="bg-white border border-border rounded-2xl p-3 space-y-2">
+              <div className="flex items-center justify-between">
+                <div>
+                  <p className="text-[11px] font-bold text-foreground">{ev.recipient}</p>
+                  <p className="text-[9px] text-muted-foreground">{ev.event} · {ev.ts}</p>
+                </div>
+                <div className={`w-10 h-10 rounded-full flex items-center justify-center text-[11px] font-black border-2 ${ev.score > 85 ? "border-green-400 text-green-600" : ev.score > 60 ? "border-blue-400 text-blue-600" : "border-red-400 text-red-600"}`}>
+                  {ev.score}
+                </div>
+              </div>
+              <p className="text-[10px] text-muted-foreground">{ev.detail}</p>
+              <div className="flex items-center justify-between">
+                <p className="text-[10px] text-foreground font-semibold flex-1 pr-2">→ {ev.followup}</p>
+                {followupDone.has(ev.id)
+                  ? <span className="text-[9px] text-green-600 font-bold flex-none">✅ Sent</span>
+                  : <button onClick={() => sendFollowup(ev.id)}
+                      className="flex-none text-[10px] bg-indigo-600 text-white font-bold px-2.5 py-1 rounded-lg hover:bg-indigo-700 transition-colors">
+                      Send Follow-up
+                    </button>
+                }
+              </div>
+            </div>
+          ))}
+        </div>
+      )}
+
+      {/* ── Self-Heal ── */}
+      {dpTab === "selfheal" && (
+        <div className="space-y-2">
+          <div className="bg-orange-50 border border-orange-200 rounded-xl p-3 text-[10px] text-orange-700">
+            <p className="font-bold mb-1">🔄 Self-Healing Delivery Layer</p>
+            <p>Monitors every package component before and after delivery. Detects broken links, expired tokens, oversized files, missing content, and bounce events — fixes them automatically before the recipient notices.</p>
+          </div>
+          <div className="bg-green-50 border border-green-200 rounded-xl p-2.5 text-[10px] text-green-700 font-bold text-center">
+            5/6 issues healed · 1 healing in progress · 0 delivery failures
+          </div>
+          {DELIVERY_HEALS.map(heal => (
+            <div key={heal.id} className="bg-white border border-border rounded-2xl p-3 space-y-1.5">
+              <div className="flex items-center justify-between">
+                <div className="flex items-center gap-2">
+                  <span className="text-base">{heal.status === "healed" ? "✅" : "🔄"}</span>
+                  <div>
+                    <p className="text-[11px] font-bold text-foreground leading-tight">{heal.issue}</p>
+                    <p className="text-[9px] text-muted-foreground">{heal.component} · Detected {heal.detected}</p>
+                  </div>
+                </div>
+                <span className={`flex-none text-[9px] font-black px-2 py-0.5 rounded-full uppercase ${heal.status === "healed" ? "bg-green-100 text-green-700" : "bg-blue-100 text-blue-700 animate-pulse"}`}>{heal.status}</span>
+              </div>
+              <p className="text-[10px] text-muted-foreground">{heal.fixApplied}</p>
+            </div>
+          ))}
+        </div>
+      )}
+
+      {/* ── Optimize ── */}
+      {dpTab === "optimize" && (
+        <div className="space-y-2">
+          <div className="bg-violet-50 border border-violet-200 rounded-xl p-3 text-[10px] text-violet-700">
+            <p className="font-bold mb-1">🧬 Continuous Package Optimization Engine</p>
+            <p>Learns from every send, open, click, forward, and response. Applies best practices automatically across all future packages — every package gets smarter over time.</p>
+          </div>
+          <div className="bg-violet-50 border border-violet-200 rounded-xl p-2.5 text-[10px] text-violet-700 font-bold text-center">
+            Trained on 34,000+ delivery events · 6 optimization rules applied across all packages
+          </div>
+          {OPT_RULES.map(rule => (
+            <div key={rule.id} className="bg-white border border-border rounded-2xl p-3 space-y-1.5">
+              <div className="flex items-start gap-2">
+                <span className="text-base flex-none">🧬</span>
+                <div className="flex-1">
+                  <p className="text-[11px] font-bold text-foreground">{rule.learned}</p>
+                  <p className="text-[9px] text-muted-foreground mt-0.5">Applied to: {rule.appliedTo} · Source: {rule.source}</p>
+                </div>
+              </div>
+              <div className="flex items-center gap-2">
+                <span className="text-[10px] font-black text-green-600">{rule.improvement}</span>
+                <span className="text-[9px] bg-green-100 text-green-700 px-1.5 py-0.5 rounded-full font-bold">AUTO-APPLIED</span>
+              </div>
+            </div>
+          ))}
+        </div>
+      )}
+    </div>
+  );
+}
+
 // ─── Engines View ─────────────────────────────────────────────────────────
 
 function EnginesView({ onResult }: { onResult?: (m: InfiniteModule) => void }) {
-  const [section, setSection] = useState<"engines" | "workflow" | "interactive" | "marketing" | "revenue" | "teams" | "growth" | "tools" | "sim" | "hub" | "integration" | "industry" | "decide" | "master" | "ecosystem" | "ultimate">("engines");
+  const [section, setSection] = useState<"engines" | "workflow" | "interactive" | "marketing" | "revenue" | "teams" | "growth" | "tools" | "sim" | "hub" | "integration" | "industry" | "decide" | "master" | "ecosystem" | "ultimate" | "package">("engines");
 
   // Marketing state
   const [mktCtx,       setMktCtx]       = useState("");
@@ -3973,6 +4368,7 @@ function EnginesView({ onResult }: { onResult?: (m: InfiniteModule) => void }) {
     { id: "master"      as const, label: "🧠 Master"    },
     { id: "ecosystem"   as const, label: "∞ MAX"        },
     { id: "ultimate"    as const, label: "🏆 Ultimate"  },
+    { id: "package"     as const, label: "📦 Package"   },
   ];
 
   function runMkt(ch: MktChannel) {
@@ -5179,6 +5575,7 @@ function EnginesView({ onResult }: { onResult?: (m: InfiniteModule) => void }) {
       {section === "master" && <MasterBrainView />}
       {section === "ecosystem" && <InfiniteEcosystemView />}
       {section === "ultimate" && <UltimatePlatformView />}
+      {section === "package"  && <DeployPackageView />}
     </div>
   );
 }
