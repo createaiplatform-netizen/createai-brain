@@ -3086,8 +3086,18 @@ function ArchitectureScreen() {
         "Invisible Automation Engine",
         "Infinite Experimentation Layer",
         "Dynamic Multi-Domain Content Fusion Engine",
+        "AI-Creates-AI Recursive Agent Layer",
+        "Real-Time World Simulation Engine",
+        "Consciousness-Style Agents",
+        "Cross-Temporal Prediction Engine",
+        "Self-Evolving Universes",
+        "Hyper-Integrated Reality Engine",
+        "Autonomous Meta-Platform Generator",
+        "Emotional / Sentient Simulation Engine",
+        "Multi-Domain Cross-Pollination Engine",
+        "Infinite Self-Scaling Intelligence",
       ],
-      desc: "21 next-generation conceptual innovation engines — autonomous, self-improving, cross-domain, and predictive systems. Non-operational speculative design layer representing the outer boundary of what the UCP-X architecture is designed to support.",
+      desc: "31 next-generation conceptual innovation engines — autonomous, self-improving, cross-domain, and predictive systems. Non-operational speculative design layer representing the outer boundary of what the UCP-X architecture is designed to support.",
     },
   ];
 
@@ -3102,6 +3112,7 @@ function ArchitectureScreen() {
     { step: "Deployment Packaging",     icon: "📦", desc: "Conceptual export package compiled: documents, index, safety declaration." },
     { step: "Instant Action Execution", icon: "⚡", desc: "InstantActionInterface intercepts any step — one-click direct engine launch bypassing the full pipeline when speed is needed." },
     { step: "Innovation Execution",     icon: "🚀", desc: "Innovation layer activates conceptual advanced modules: predictive, autonomous, cross-domain, and self-improving engines applied to the output." },
+    { step: "Impossible AI Execution",  icon: "🌌", desc: "Meta-creative intelligence layer: AI-Creates-AI, consciousness-style agents, cross-temporal prediction, self-evolving universes, and infinite self-scaling — fully conceptual, non-operational." },
   ];
 
   const INFRASTRUCTURE = [
@@ -3146,6 +3157,15 @@ function ArchitectureScreen() {
     { name: "Invisible Automation Engine",              icon: "👁️", desc: "Conceptual: background automation that pre-generates related outputs before the user requests them." },
     { name: "Infinite Experimentation Layer",           icon: "🧪", desc: "Conceptual: continuously generates alternative variants of any output for A/B comparison and creative exploration." },
     { name: "Dynamic Multi-Domain Content Fusion Engine", icon: "🌐", desc: "Conceptual: merges outputs from multiple domain-specific engines (game + business + story + simulation) into a single unified fictional project at scale." },
+    { name: "AI-Creates-AI Recursive Agent Layer",        icon: "🤖", desc: "Conceptual: AI agents that autonomously generate new specialized sub-agents, each inheriting goals and improving on the parent generation." },
+    { name: "Consciousness-Style Agents",                 icon: "🧬", desc: "Conceptual: synthetic agents with simulated awareness loops — goal memory, self-reflection, and context persistence across sessions." },
+    { name: "Cross-Temporal Prediction Engine",           icon: "⏳", desc: "Conceptual: predicts fictional outcomes across time horizons — 1 week, 1 year, 10 years — for any generated story, world, or strategy." },
+    { name: "Self-Evolving Universes",                    icon: "🌀", desc: "Conceptual: fictional worlds that evolve autonomously — factions shift, histories rewrite, and new lore emerges between sessions." },
+    { name: "Hyper-Integrated Reality Engine",            icon: "🥽", desc: "Conceptual: all outputs simultaneously formatted for VR, AR, MR, physical print, digital, and interactive media." },
+    { name: "Autonomous Meta-Platform Generator",         icon: "🏗️", desc: "Conceptual: generates complete fictional platform architectures — product, tech stack, team structure, go-to-market — from a single prompt." },
+    { name: "Emotional / Sentient Simulation Engine",     icon: "💠", desc: "Conceptual: simulates emotional states, relationships, and sentiment dynamics for fictional characters and synthetic agent populations." },
+    { name: "Multi-Domain Cross-Pollination Engine",      icon: "🌿", desc: "Conceptual: applies game mechanics to business workflows, story structures to SaaS onboarding, and world-building logic to training modules." },
+    { name: "Infinite Self-Scaling Intelligence",         icon: "♾️", desc: "Conceptual: the system grows its own capabilities over time — each generation of output improves the quality and coherence of the next." },
   ];
 
   const LAYERS = [
