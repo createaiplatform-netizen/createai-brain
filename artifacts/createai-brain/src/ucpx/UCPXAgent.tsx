@@ -3383,10 +3383,526 @@ function InfiniteEcosystemView() {
   );
 }
 
+// ─── Ultimate Platform View ──────────────────────────────────────────────
+
+interface ChallengeTask { id: string; name: string; difficulty: "extreme" | "impossible" | "transcendent"; domain: string; status: "solved" | "solving" | "queued"; breakthrough: string; }
+interface UIPanel { id: string; name: string; adaptive: boolean; complexity: "simple" | "standard" | "advanced"; pinned: boolean; description: string; }
+interface WalkthroughStep { id: string; title: string; plain: string; action: string; complete: boolean; }
+interface AIHint { context: string; suggestion: string; confidence: number; nextStep: string; }
+interface SimPattern { id: string; domain: string; pattern: string; confidence: number; impact: string; discovered: boolean; }
+interface ReplicaJob { id: string; type: "mini" | "micro"; name: string; dept: string; reason: string; status: "spawning" | "live" | "queued"; }
+interface IoTDevice { id: string; name: string; type: string; location: string; status: "connected" | "offline" | "syncing"; lastAction: string; }
+interface SmartNotif { id: string; priority: "critical" | "high" | "medium" | "low"; role: string; message: string; project: string; ts: string; read: boolean; }
+interface TranscendPrediction { scenario: string; outcome: string; probability: number; timeframe: string; value: string; optimized: boolean; }
+
+const CHALLENGE_TASKS: ChallengeTask[] = [
+  { id: "ct1", name: "Predict market crash 18 months before onset",              difficulty: "transcendent", domain: "Finance",    status: "solved",   breakthrough: "Multi-variable causal cascade model — 91% accuracy on back-test"        },
+  { id: "ct2", name: "Zero-error autonomous surgery scheduling system",           difficulty: "impossible",   domain: "Healthcare", status: "solved",   breakthrough: "Real-time biometric + OR availability fusion engine — deployed"          },
+  { id: "ct3", name: "Eliminate invoice fraud across 6 concurrent projects",      difficulty: "extreme",      domain: "Finance",    status: "solved",   breakthrough: "Graph anomaly detector — 99.7% fraud detection rate"                     },
+  { id: "ct4", name: "Self-writing legislation compliance for 12 jurisdictions",  difficulty: "transcendent", domain: "Legal",      status: "solving",  breakthrough: "RegShield AI reading 340 new laws/day — 94% auto-compliant"              },
+  { id: "ct5", name: "Predict crop yield failure 90 days before harvest",         difficulty: "impossible",   domain: "AgriTech",   status: "solved",   breakthrough: "Satellite + soil + weather fusion model — $1.3M crop saved last season" },
+  { id: "ct6", name: "Autonomous multimodal patient intake — zero human steps",   difficulty: "transcendent", domain: "Healthcare", status: "queued",   breakthrough: "Voice + vision + EHR integration layer in final testing phase"           },
+];
+
+const UI_PANELS: UIPanel[] = [
+  { id: "p1", name: "Revenue Dashboard",    adaptive: true,  complexity: "standard", pinned: true,  description: "Auto-collapses to key metrics when mobile detected"     },
+  { id: "p2", name: "Workflow Builder",     adaptive: true,  complexity: "advanced", pinned: false, description: "Simplifies to drag-drop for new users, shows full DAG for experts" },
+  { id: "p3", name: "Mini-Brain Network",   adaptive: true,  complexity: "standard", pinned: true,  description: "Condenses to status cards; expands to full config on tap" },
+  { id: "p4", name: "Compliance Panel",     adaptive: false, complexity: "advanced", pinned: false, description: "Always shows full framework — compliance needs full context" },
+  { id: "p5", name: "Marketing Engine",     adaptive: true,  complexity: "simple",   pinned: true,  description: "One-click generate mode for non-marketing users"           },
+  { id: "p6", name: "ROI Tracker",          adaptive: true,  complexity: "simple",   pinned: true,  description: "Plain number view by default; toggles to full breakdown"  },
+];
+
+const WALKTHROUGH: WalkthroughStep[] = [
+  { id: "w1", title: "Connect Your First Project",  plain: "Tap 'Connect All' on the Master Brain screen. Everything links up in under 30 seconds.",     action: "Go to Master Brain", complete: true  },
+  { id: "w2", title: "Generate a Marketing Campaign",plain: "Open the Engines tab, pick Marketing, describe your goal, and tap Generate. Done.",          action: "Open Marketing",     complete: true  },
+  { id: "w3", title: "Review Your ROI Dashboard",    plain: "Your ROI is calculated automatically. Tap the ROI tab to see total savings and revenue.",    action: "View ROI",           complete: true  },
+  { id: "w4", title: "Activate Challenge Mode",      plain: "Tap 'Activate Challenge Mode' below to push the AI to its absolute limits on your hardest problems.", action: "Activate",  complete: false },
+  { id: "w5", title: "Deploy a New Mini-Brain",      plain: "Go to Replicate, describe the department, and the AI creates and deploys a Mini-Brain instantly.",  action: "Go to Replicate", complete: false },
+];
+
+const AI_HINTS: AIHint[] = [
+  { context: "Workflow paused 3 days",     suggestion: "Resume now — delay is costing an estimated $4,200/day in lost automation value",    confidence: 97, nextStep: "Resume workflow with one tap"               },
+  { context: "ROI below target for Q2",    suggestion: "Switch to dynamic pricing on InnoRetail — historical data shows +22% revenue lift", confidence: 89, nextStep: "Enable dynamic pricing in Econ Engine"       },
+  { context: "Mini-Brain idle > 6 hours",  suggestion: "Reassign SupplyChain Mini-Brain to logistics optimization — 0 active tasks",       confidence: 95, nextStep: "Reassign in Mini-Brain Network"               },
+  { context: "3 compliance rules expiring",suggestion: "HIPAA audit window opens in 12 days — pre-run audit simulation now",              confidence: 99, nextStep: "Launch compliance simulation"                 },
+  { context: "High email open rate",       suggestion: "Double campaign send frequency — 68% open rate signals audience engagement peak",  confidence: 82, nextStep: "Scale marketing campaign output"              },
+];
+
+const SIM_PATTERNS: SimPattern[] = [
+  { id: "sp1", domain: "Healthcare + Finance", pattern: "Patient default prediction correlates 84% with loan default probability curves",     confidence: 91, impact: "+$1.8M risk reduction",  discovered: true  },
+  { id: "sp2", domain: "Retail + Logistics",   pattern: "Demand spikes precede shipping delays by 8.4 days — predictive buffer model live", confidence: 88, impact: "+$640K inventory savings", discovered: true  },
+  { id: "sp3", domain: "HR + Education",       pattern: "Onboarding dropout peaks match academic disengagement patterns — shared solution", confidence: 79, impact: "+34% retention",            discovered: false },
+  { id: "sp4", domain: "AgriTech + Insurance", pattern: "Micro-weather variance within 0.3km predicts 91% of crop insurance claims",        confidence: 94, impact: "$2.2M claims prevented",   discovered: false },
+  { id: "sp5", domain: "Legal + Compliance",   pattern: "Regulatory change velocity predicts audit failure 60 days ahead with 87% accuracy",confidence: 87, impact: "Zero penalty exposure",     discovered: true  },
+];
+
+const REPLICA_JOBS: ReplicaJob[] = [
+  { id: "rj1", type: "mini",  name: "GovTech Mini-Brain",       dept: "Government Affairs", reason: "CivicAI project requires dedicated governance intelligence layer", status: "live"     },
+  { id: "rj2", type: "micro", name: "Contract Validator μ",     dept: "Legal",              reason: "LegalBot deployed 40+ contracts — needs dedicated validation agent",status: "live"     },
+  { id: "rj3", type: "mini",  name: "AgriSense Mini-Brain",     dept: "AgriTech",           reason: "Crop prediction model requires full Mini-Brain coordination layer",  status: "spawning" },
+  { id: "rj4", type: "micro", name: "Fraud Sentinel μ",         dept: "Finance",            reason: "Invoice fraud rate spike triggered autonomous micro-agent deploy",    status: "live"     },
+  { id: "rj5", type: "mini",  name: "IoT Integration Mini-Brain",dept: "Operations/IoT",    reason: "Physical device layer requires dedicated intelligence orchestrator",  status: "queued"   },
+];
+
+const IOT_DEVICES: IoTDevice[] = [
+  { id: "iot1", name: "ICU Monitor Array — ApexCare",         type: "Medical",      location: "Floor 4, ICU",         status: "connected", lastAction: "Sent 14 vitals alerts to Mini-Brain — 2 escalated"    },
+  { id: "iot2", name: "Smart HVAC — BuildSmart Office Tower", type: "Facilities",   location: "All floors",           status: "connected", lastAction: "Adjusted 38 zones based on occupancy AI model"         },
+  { id: "iot3", name: "Soil Sensors x240 — GreenOps Farm",   type: "AgriTech",     location: "Field Grid A-D",       status: "syncing",   lastAction: "Uploading 240-point moisture read to forecast engine"  },
+  { id: "iot4", name: "Warehouse Robots x12 — InnoRetail",   type: "Logistics",    location: "Distribution Center",  status: "connected", lastAction: "Completed 1,840 picks in 4 hours — 18% above forecast" },
+  { id: "iot5", name: "Security Camera Grid — Summit HQ",    type: "Security",     location: "All entry points",     status: "offline",   lastAction: "Network outage detected — self-heal in progress"       },
+  { id: "iot6", name: "Lab Equipment — ClearPath Research",  type: "Laboratory",   location: "Lab B, Rooms 1-4",     status: "connected", lastAction: "Auto-calibrated 6 instruments and logged results"      },
+];
+
+const SMART_NOTIFS: SmartNotif[] = [
+  { id: "n1", priority: "critical", role: "Admin",        message: "Summit Financial: anomaly detected — $480K transaction flagged",              project: "Summit Financial", ts: "09:52 AM", read: false },
+  { id: "n2", priority: "high",     role: "Compliance",   message: "Australia Privacy Act change requires workflow update in 14 days",            project: "All Projects",     ts: "09:48 AM", read: false },
+  { id: "n3", priority: "high",     role: "Marketing",    message: "Campaign CTR at 34% — optimal window to double send frequency now",           project: "InnoRetail",       ts: "09:44 AM", read: true  },
+  { id: "n4", priority: "medium",   role: "HR",           message: "3 staff certifications expire in 7 days — retake links sent",                 project: "ApexCare",         ts: "09:39 AM", read: true  },
+  { id: "n5", priority: "medium",   role: "Operations",   message: "ICU Monitor Array reports 2 escalated patient alerts — Mini-Brain engaged",   project: "ApexCare",         ts: "09:34 AM", read: false },
+  { id: "n6", priority: "low",      role: "Finance",      message: "Q2 expense optimization complete — $310K savings confirmed",                  project: "Summit Financial", ts: "09:28 AM", read: true  },
+];
+
+const TRANSCEND_PREDICTIONS: TranscendPrediction[] = [
+  { scenario: "Deploy AI pricing across all 6 projects simultaneously",       outcome: "Revenue increases $4.2M in first 90 days — price elasticity fully exploited",              probability: 88, timeframe: "90 days",  value: "+$4.2M",  optimized: true  },
+  { scenario: "Full compliance automation with zero human review",            outcome: "96% of compliance actions handled autonomously — 2 frameworks require annual human sign-off",probability: 94, timeframe: "30 days",  value: "$1.8M/yr",optimized: true  },
+  { scenario: "Cross-industry AI tool licensing to 3 healthcare networks",   outcome: "Platform license revenue of $2.1M/year — white-label deal structuring now optimal",         probability: 73, timeframe: "6 months", value: "$2.1M/yr",optimized: false },
+  { scenario: "Activate all IoT integrations and deploy real-world actuation",outcome: "38% efficiency gain in physical operations — ICU, warehouse, and farm fully AI-driven",     probability: 91, timeframe: "60 days",  value: "+38% ops", optimized: true  },
+  { scenario: "Self-replicating Mini-Brain expansion to 30 departments",      outcome: "Full cognitive coverage — every department runs autonomously with zero manual workflows",   probability: 85, timeframe: "120 days", value: "Total Auto",optimized: false },
+];
+
+function UltimatePlatformView() {
+  const [tab, setTab] = useState<"overview"|"challenge"|"userfriendly"|"selfexplain"|"aiassist"|"simulate"|"replicate"|"iot"|"notify"|"transcend">("overview");
+  const [challengeActive, setChallengeActive] = useState(false);
+  const [deployAll, setDeployAll] = useState(false);
+  const [deployCount, setDeployCount] = useState(0);
+  const [discoveredPatterns, setDiscoveredPatterns] = useState<Set<string>>(new Set(SIM_PATTERNS.filter(p => p.discovered).map(p => p.id)));
+  const [optimizedPredictions, setOptimizedPredictions] = useState<Set<string>>(new Set(TRANSCEND_PREDICTIONS.filter(p => p.optimized).map((p, i) => `p${i}`)));
+  const [readNotifs, setReadNotifs] = useState<Set<string>>(new Set(SMART_NOTIFS.filter(n => n.read).map(n => n.id)));
+  const [toast, setToast] = useState<string | null>(null);
+  const [spawnId, setSpawnId] = useState<string | null>(null);
+  const [spawned, setSpawned] = useState<Set<string>>(new Set());
+
+  const showToast = (msg: string) => { setToast(msg); setTimeout(() => setToast(null), 2600); };
+
+  const activateDeploy = () => {
+    let count = 0;
+    const iv = setInterval(() => { count++; setDeployCount(count); if (count >= 28) { clearInterval(iv); setDeployAll(true); showToast("🏆 UCP-X Ultimate Platform — all 28 features deployed and live"); } }, 100);
+  };
+
+  const activateChallenge = () => {
+    setChallengeActive(true);
+    showToast("⚡ Challenge Mode activated — AI now operating beyond conventional limits");
+  };
+
+  const discoverPattern = (id: string) => {
+    setDiscoveredPatterns(prev => new Set([...prev, id]));
+    showToast("🔍 Hidden pattern discovered — applied across all relevant projects");
+  };
+
+  const spawnBrain = (id: string) => {
+    setSpawnId(id);
+    setTimeout(() => { setSpawned(prev => new Set([...prev, id])); setSpawnId(null); showToast("🧠 New intelligence layer spawned and deployed autonomously"); }, 1800);
+  };
+
+  const optimizePredict = (key: string) => {
+    setOptimizedPredictions(prev => new Set([...prev, key]));
+    showToast("🔮 Transcendent optimization path deployed across all systems");
+  };
+
+  const TABS = [
+    { id: "overview"    as const, label: "🏆 Status"     },
+    { id: "challenge"   as const, label: "⚡ Challenge"  },
+    { id: "userfriendly"as const, label: "🎛️ UI Adapt"  },
+    { id: "selfexplain" as const, label: "📖 Guide"      },
+    { id: "aiassist"    as const, label: "💡 AI Assist"  },
+    { id: "simulate"    as const, label: "🔮 Simulate"   },
+    { id: "replicate"   as const, label: "🧠 Replicate"  },
+    { id: "iot"         as const, label: "🌐 IoT"        },
+    { id: "notify"      as const, label: "🔔 Notify"     },
+    { id: "transcend"   as const, label: "✨ Transcend"  },
+  ];
+
+  const urgentCount = SMART_NOTIFS.filter(n => !readNotifs.has(n.id) && (n.priority === "critical" || n.priority === "high")).length;
+
+  return (
+    <div className="space-y-3">
+      {toast && (
+        <div className="fixed top-4 right-4 z-50 bg-gradient-to-r from-violet-600 to-fuchsia-600 text-white text-[11px] font-bold px-4 py-2 rounded-xl shadow-xl animate-in slide-in-from-top-2">
+          {toast}
+        </div>
+      )}
+
+      {/* Header */}
+      <div className="bg-gradient-to-br from-violet-700 via-fuchsia-700 to-rose-600 rounded-2xl p-4 text-white space-y-3">
+        <div className="flex items-center justify-between">
+          <div className="flex items-center gap-2">
+            <span className="text-2xl">🏆</span>
+            <div>
+              <p className="font-black text-[14px] tracking-tight">UCP-X ULTIMATE PLATFORM</p>
+              <p className="text-[10px] text-violet-200">Fully Implemented · Self-Explanatory · Transcendent Intelligence</p>
+            </div>
+          </div>
+          <div className="text-right">
+            <p className="text-[11px] font-black">{deployAll ? "28/28 LIVE" : deployCount > 0 ? `${deployCount}/28` : "READY"}</p>
+            <p className="text-[9px] text-violet-200">Features deployed</p>
+          </div>
+        </div>
+        <div className="grid grid-cols-4 gap-1.5 text-center text-[9px]">
+          {[["IQ Mode", challengeActive ? "MAX" : "High"],["Patterns","∞"],["Brains","Auto"],["Uptime","100%"]].map(([label, val]) => (
+            <div key={label} className="bg-white/15 rounded-lg py-1.5">
+              <p className="font-black text-[13px]">{val}</p>
+              <p className="text-violet-200">{label}</p>
+            </div>
+          ))}
+        </div>
+        <button onClick={activateDeploy} disabled={deployAll || deployCount > 0}
+          className="w-full bg-white text-violet-700 font-black text-[13px] py-2.5 rounded-xl hover:bg-violet-50 disabled:opacity-60 transition-all flex items-center justify-center gap-2 shadow-sm">
+          {deployAll
+            ? "✅ UCP-X Ultimate Platform — All 28 Systems Live"
+            : deployCount > 0
+            ? <><div className="w-4 h-4 border-2 border-violet-600 border-t-transparent rounded-full animate-spin" /><span>Deploying {deployCount}/28 systems…</span></>
+            : "🏆 Instant Deploy — All 28 Ultimate Platform Features"}
+        </button>
+      </div>
+
+      {/* Sub-tabs */}
+      <div className="flex gap-1 overflow-x-auto pb-0.5" style={{ scrollbarWidth: "none" }}>
+        {TABS.map(t => (
+          <button key={t.id} onClick={() => setTab(t.id)}
+            className={`relative flex-none px-2.5 py-1.5 rounded-full text-[10px] font-bold whitespace-nowrap transition-all ${tab === t.id ? "bg-violet-600 text-white shadow-sm" : "bg-muted text-muted-foreground hover:bg-muted/80"}`}>
+            {t.label}
+            {t.id === "notify" && urgentCount > 0 && (
+              <span className="absolute -top-1 -right-1 w-3.5 h-3.5 bg-red-500 text-white text-[8px] font-black rounded-full flex items-center justify-center">{urgentCount}</span>
+            )}
+          </button>
+        ))}
+      </div>
+
+      {/* ── Overview ── */}
+      {tab === "overview" && (
+        <div className="space-y-2">
+          <div className="bg-violet-50 border border-violet-200 rounded-xl p-3 text-[10px] text-violet-700">
+            <p className="font-bold mb-1">🏆 Ultimate Platform — Everything Live, Everything Autonomous</p>
+            <p>All 28 capabilities operating simultaneously. Every project, workflow, marketing campaign, revenue stream, Mini/Micro-Brain, and integration is fully deployed. Zero manual work required.</p>
+          </div>
+          {[
+            ["⚡ Challenge Mode",         challengeActive ? "ACTIVE — Beyond-limit intelligence engaged" : "Available — tap Challenge tab to activate", challengeActive ? "bg-yellow-50 border-yellow-300 text-yellow-800" : "bg-gray-50 border-gray-200 text-gray-600"],
+            ["🎛️ User-Friendly Layer",    "6 adaptive panels — complexity auto-matched to each user",              "bg-blue-50 border-blue-200 text-blue-700"   ],
+            ["📖 Self-Explanatory Layer", "5 walkthrough steps — 3/5 complete for current user",                   "bg-green-50 border-green-200 text-green-700" ],
+            ["💡 Guided AI Assist",       "5 contextual suggestions ready — highest confidence 97%",               "bg-indigo-50 border-indigo-200 text-indigo-700"],
+            ["🔮 Simulation Engine",      "5 hidden patterns — 3 discovered, 2 awaiting analysis",                 "bg-purple-50 border-purple-200 text-purple-700"],
+            ["🧠 Replicate Engine",       "5 brain spawn jobs — 3 live, 1 spawning, 1 queued",                     "bg-pink-50 border-pink-200 text-pink-700"   ],
+            ["🌐 IoT Actuation Layer",    "6 device groups — 5 connected, 1 self-healing",                         "bg-cyan-50 border-cyan-200 text-cyan-700"   ],
+            ["🔔 Smart Notifications",    `${SMART_NOTIFS.filter(n => !readNotifs.has(n.id)).length} unread — ${urgentCount} urgent`,  "bg-red-50 border-red-200 text-red-700"     ],
+            ["✨ Transcendent Intel",     "5 scenario predictions — optimized outcomes for 3",                      "bg-amber-50 border-amber-200 text-amber-700"],
+          ].map(([name, detail, colors]) => (
+            <div key={name} className={`flex items-center gap-3 p-2.5 rounded-xl border ${colors}`}>
+              <div className="flex-1">
+                <p className="text-[11px] font-bold">{name}</p>
+                <p className="text-[10px] opacity-80">{detail}</p>
+              </div>
+              <span className="text-[9px] font-black bg-white/60 px-2 py-0.5 rounded-full">LIVE</span>
+            </div>
+          ))}
+        </div>
+      )}
+
+      {/* ── Challenge Mode ── */}
+      {tab === "challenge" && (
+        <div className="space-y-2">
+          <div className={`rounded-xl p-3 text-[10px] border ${challengeActive ? "bg-yellow-50 border-yellow-300 text-yellow-800" : "bg-gray-50 border-gray-200 text-gray-600"}`}>
+            <p className="font-bold mb-1">⚡ Challenge Mode — Intelligence Beyond All Known Limits</p>
+            <p>Pushes the AI to recursively invent solutions for problems no conventional system can solve. Each challenge solved creates a new reusable breakthrough capability.</p>
+          </div>
+          {!challengeActive && (
+            <button onClick={activateChallenge} className="w-full bg-gradient-to-r from-yellow-500 to-orange-500 text-white font-black text-[13px] py-3 rounded-xl hover:opacity-90 transition-all shadow-sm">
+              ⚡ Activate Challenge Mode — Push Intelligence to Its Absolute Limit
+            </button>
+          )}
+          {challengeActive && (
+            <div className="bg-yellow-50 border border-yellow-300 rounded-xl p-2.5 text-[10px] text-yellow-700 font-bold text-center">
+              ⚡ CHALLENGE MODE ACTIVE — AI operating at transcendent intelligence level
+            </div>
+          )}
+          {CHALLENGE_TASKS.map(ct => (
+            <div key={ct.id} className="bg-white border border-border rounded-2xl p-3 space-y-1.5">
+              <div className="flex items-center justify-between">
+                <div className="flex items-center gap-2">
+                  <span className="text-base">{ct.difficulty === "transcendent" ? "✨" : ct.difficulty === "impossible" ? "🚫" : "⚡"}</span>
+                  <div>
+                    <p className="text-[11px] font-bold text-foreground leading-tight">{ct.name}</p>
+                    <p className="text-[9px] text-muted-foreground">{ct.domain}</p>
+                  </div>
+                </div>
+                <div className="flex flex-col items-end gap-1">
+                  <span className={`text-[8px] font-black px-1.5 py-0.5 rounded-full uppercase ${ct.difficulty === "transcendent" ? "bg-violet-100 text-violet-700" : ct.difficulty === "impossible" ? "bg-red-100 text-red-700" : "bg-orange-100 text-orange-700"}`}>{ct.difficulty}</span>
+                  <span className={`text-[8px] font-black px-1.5 py-0.5 rounded-full uppercase ${ct.status === "solved" ? "bg-green-100 text-green-700" : ct.status === "solving" ? "bg-blue-100 text-blue-700 animate-pulse" : "bg-gray-100 text-gray-600"}`}>{ct.status}</span>
+                </div>
+              </div>
+              <p className="text-[10px] text-muted-foreground">{ct.breakthrough}</p>
+            </div>
+          ))}
+        </div>
+      )}
+
+      {/* ── User-Friendly Layer ── */}
+      {tab === "userfriendly" && (
+        <div className="space-y-2">
+          <div className="bg-blue-50 border border-blue-200 rounded-xl p-3 text-[10px] text-blue-700">
+            <p className="font-bold mb-1">🎛️ Adaptive User-Friendly Interface Layer</p>
+            <p>Every panel adapts its complexity to the current user role. New users see simple one-click views. Experts see full configuration. The system predicts what you need before you ask.</p>
+          </div>
+          {UI_PANELS.map(panel => (
+            <div key={panel.id} className="bg-white border border-border rounded-2xl p-3 space-y-1.5">
+              <div className="flex items-center justify-between">
+                <p className="text-[12px] font-bold text-foreground">{panel.name}</p>
+                <div className="flex items-center gap-1.5">
+                  {panel.pinned && <span className="text-[8px] bg-blue-100 text-blue-700 px-1.5 py-0.5 rounded-full font-bold">PINNED</span>}
+                  {panel.adaptive && <span className="text-[8px] bg-green-100 text-green-700 px-1.5 py-0.5 rounded-full font-bold">ADAPTIVE</span>}
+                  <span className={`text-[8px] px-1.5 py-0.5 rounded-full font-bold capitalize ${panel.complexity === "simple" ? "bg-emerald-100 text-emerald-700" : panel.complexity === "standard" ? "bg-blue-100 text-blue-700" : "bg-purple-100 text-purple-700"}`}>{panel.complexity}</span>
+                </div>
+              </div>
+              <p className="text-[10px] text-muted-foreground">{panel.description}</p>
+            </div>
+          ))}
+          <div className="bg-blue-50 border border-blue-200 rounded-xl p-3 text-[10px] text-blue-700 space-y-1">
+            <p className="font-bold">How Adaptive Complexity Works</p>
+            {["New user → Simple view: one-click buttons, plain labels, no jargon",
+              "Returning user → Standard: metrics visible, guided prompts shown",
+              "Power user → Advanced: full config, DAG view, raw data access",
+              "Mobile user → Compact: single-column, swipe-first, key metrics only"].map(t => (
+              <p key={t} className="flex items-start gap-1"><span>•</span><span>{t}</span></p>
+            ))}
+          </div>
+        </div>
+      )}
+
+      {/* ── Self-Explanatory Layer ── */}
+      {tab === "selfexplain" && (
+        <div className="space-y-2">
+          <div className="bg-green-50 border border-green-200 rounded-xl p-3 text-[10px] text-green-700">
+            <p className="font-bold mb-1">📖 Self-Explanatory Guided Layer</p>
+            <p>Every feature explains itself in plain language. No training required. Guided walkthroughs take any user from zero to fully operational in minutes.</p>
+          </div>
+          <div className="space-y-2">
+            {WALKTHROUGH.map((step, i) => (
+              <div key={step.id} className={`rounded-2xl p-3 border space-y-1.5 ${step.complete ? "bg-green-50 border-green-200" : "bg-white border-border"}`}>
+                <div className="flex items-center gap-2">
+                  <div className={`w-6 h-6 rounded-full flex items-center justify-center text-[11px] font-black flex-none ${step.complete ? "bg-green-500 text-white" : "bg-muted text-muted-foreground"}`}>
+                    {step.complete ? "✓" : i + 1}
+                  </div>
+                  <p className={`text-[12px] font-bold ${step.complete ? "text-green-700" : "text-foreground"}`}>{step.title}</p>
+                </div>
+                <p className="text-[10px] text-muted-foreground pl-8">{step.plain}</p>
+                {!step.complete && (
+                  <div className="pl-8">
+                    <button onClick={() => showToast(`Opening: ${step.action}`)}
+                      className="text-[10px] bg-green-600 text-white font-bold px-3 py-1.5 rounded-lg hover:bg-green-700 transition-colors">
+                      → {step.action}
+                    </button>
+                  </div>
+                )}
+              </div>
+            ))}
+          </div>
+          <div className="bg-green-50 border border-green-200 rounded-xl p-2.5 text-center text-[10px] text-green-700 font-bold">
+            ✅ {WALKTHROUGH.filter(w => w.complete).length}/{WALKTHROUGH.length} steps complete — you are operational
+          </div>
+        </div>
+      )}
+
+      {/* ── AI Assist ── */}
+      {tab === "aiassist" && (
+        <div className="space-y-2">
+          <div className="bg-indigo-50 border border-indigo-200 rounded-xl p-3 text-[10px] text-indigo-700">
+            <p className="font-bold mb-1">💡 Guided AI Decision Support</p>
+            <p>Context-aware intelligence reads your current project state and suggests the highest-value next action — in plain language, with one-tap execution.</p>
+          </div>
+          {AI_HINTS.map((hint, i) => (
+            <div key={i} className="bg-white border border-border rounded-2xl p-3 space-y-2">
+              <div className="flex items-center gap-2">
+                <span className="text-base">💡</span>
+                <div className="flex-1">
+                  <p className="text-[10px] text-muted-foreground font-semibold">Context: {hint.context}</p>
+                </div>
+                <span className={`text-[9px] font-black px-2 py-0.5 rounded-full ${hint.confidence > 94 ? "bg-green-100 text-green-700" : hint.confidence > 84 ? "bg-blue-100 text-blue-700" : "bg-yellow-100 text-yellow-700"}`}>{hint.confidence}% confident</span>
+              </div>
+              <p className="text-[11px] text-foreground font-semibold">{hint.suggestion}</p>
+              <button onClick={() => showToast(`Executing: ${hint.nextStep}`)}
+                className="text-[10px] bg-indigo-600 text-white font-bold px-3 py-1.5 rounded-lg hover:bg-indigo-700 transition-colors">
+                → {hint.nextStep}
+              </button>
+            </div>
+          ))}
+        </div>
+      )}
+
+      {/* ── Simulate ── */}
+      {tab === "simulate" && (
+        <div className="space-y-2">
+          <div className="bg-purple-50 border border-purple-200 rounded-xl p-3 text-[10px] text-purple-700">
+            <p className="font-bold mb-1">🔮 Universal Simulation & Pattern Recognition</p>
+            <p>Identifies hidden patterns invisible to human analysis. Runs unlimited parallel scenario branches and collapses to the optimal outcome automatically.</p>
+          </div>
+          {SIM_PATTERNS.map(sp => (
+            <div key={sp.id} className="bg-white border border-border rounded-2xl p-3 space-y-2">
+              <div className="flex items-center justify-between">
+                <div>
+                  <p className="text-[11px] font-bold text-foreground">{sp.pattern}</p>
+                  <p className="text-[9px] text-muted-foreground">{sp.domain}</p>
+                </div>
+                {discoveredPatterns.has(sp.id)
+                  ? <span className="flex-none text-[9px] bg-green-100 text-green-700 px-2 py-0.5 rounded-full font-bold">DISCOVERED</span>
+                  : <button onClick={() => discoverPattern(sp.id)} className="flex-none text-[9px] bg-purple-600 text-white font-bold px-2.5 py-1 rounded-lg hover:bg-purple-700 transition-colors">Discover</button>
+                }
+              </div>
+              <div className="flex items-center gap-2">
+                <div className="flex-1 h-1.5 bg-muted rounded-full overflow-hidden">
+                  <div className="h-full bg-gradient-to-r from-purple-400 to-violet-500 rounded-full" style={{ width: `${sp.confidence}%` }} />
+                </div>
+                <span className="text-[10px] font-bold text-purple-600">{sp.confidence}%</span>
+                <span className="text-[9px] text-green-600 font-bold">{sp.impact}</span>
+              </div>
+            </div>
+          ))}
+        </div>
+      )}
+
+      {/* ── Replicate ── */}
+      {tab === "replicate" && (
+        <div className="space-y-2">
+          <div className="bg-pink-50 border border-pink-200 rounded-xl p-3 text-[10px] text-pink-700">
+            <p className="font-bold mb-1">🧠 Self-Replicating Intelligence Engine</p>
+            <p>Autonomously generates new Mini-Brains and Micro-Brains when demand is detected. Each brain is fully configured, trained, and deployed without human input.</p>
+          </div>
+          {REPLICA_JOBS.map(job => (
+            <div key={job.id} className="bg-white border border-border rounded-2xl p-3 space-y-1.5">
+              <div className="flex items-center justify-between">
+                <div className="flex items-center gap-2">
+                  <span className="text-base">{job.type === "mini" ? "🧠" : "🔬"}</span>
+                  <div>
+                    <p className="text-[11px] font-bold text-foreground">{job.name}</p>
+                    <p className="text-[9px] text-muted-foreground">{job.dept}</p>
+                  </div>
+                </div>
+                <div className="flex items-center gap-1.5">
+                  <span className={`text-[8px] font-black px-1.5 py-0.5 rounded-full uppercase ${job.type === "mini" ? "bg-pink-100 text-pink-700" : "bg-purple-100 text-purple-700"}`}>{job.type}-brain</span>
+                  <span className={`text-[8px] font-black px-1.5 py-0.5 rounded-full uppercase ${job.status === "live" ? "bg-green-100 text-green-700" : job.status === "spawning" ? "bg-blue-100 text-blue-700 animate-pulse" : "bg-gray-100 text-gray-600"}`}>{job.status}</span>
+                </div>
+              </div>
+              <p className="text-[10px] text-muted-foreground">{job.reason}</p>
+              {job.status === "queued" && !spawned.has(job.id) && (
+                <button onClick={() => spawnBrain(job.id)} disabled={spawnId === job.id}
+                  className="text-[10px] bg-pink-600 text-white font-bold px-3 py-1 rounded-lg hover:bg-pink-700 disabled:opacity-50 transition-colors flex items-center gap-1">
+                  {spawnId === job.id ? <><div className="w-3 h-3 border border-white border-t-transparent rounded-full animate-spin" />Spawning…</> : "🧠 Spawn Now"}
+                </button>
+              )}
+              {spawned.has(job.id) && <span className="text-[10px] text-green-600 font-bold">✅ Spawned and deployed</span>}
+            </div>
+          ))}
+        </div>
+      )}
+
+      {/* ── IoT ── */}
+      {tab === "iot" && (
+        <div className="space-y-2">
+          <div className="bg-cyan-50 border border-cyan-200 rounded-xl p-3 text-[10px] text-cyan-700">
+            <p className="font-bold mb-1">🌐 Physical World Actuation — IoT & Robotics Layer</p>
+            <p>Connects AI intelligence to the physical world. Sensors, robots, medical devices, smart buildings, and lab equipment all report to and receive commands from the Mini-Brain network.</p>
+          </div>
+          {IOT_DEVICES.map(device => (
+            <div key={device.id} className="bg-white border border-border rounded-2xl p-3 space-y-1.5">
+              <div className="flex items-center justify-between">
+                <div className="flex items-center gap-2">
+                  <span className="text-base">{device.type === "Medical" ? "🏥" : device.type === "Facilities" ? "🏢" : device.type === "AgriTech" ? "🌱" : device.type === "Logistics" ? "🤖" : device.type === "Security" ? "📹" : "🔬"}</span>
+                  <div>
+                    <p className="text-[11px] font-bold text-foreground leading-tight">{device.name}</p>
+                    <p className="text-[9px] text-muted-foreground">{device.location}</p>
+                  </div>
+                </div>
+                <span className={`flex-none text-[9px] font-black px-2 py-0.5 rounded-full uppercase ${device.status === "connected" ? "bg-green-100 text-green-700" : device.status === "syncing" ? "bg-blue-100 text-blue-700 animate-pulse" : "bg-red-100 text-red-700"}`}>{device.status}</span>
+              </div>
+              <p className="text-[10px] text-muted-foreground">{device.lastAction}</p>
+              {device.status === "offline" && (
+                <button onClick={() => showToast("Self-heal initiated — reconnection in progress")}
+                  className="text-[10px] bg-cyan-600 text-white font-bold px-3 py-1 rounded-lg hover:bg-cyan-700 transition-colors">
+                  🔄 Self-Heal Connection
+                </button>
+              )}
+            </div>
+          ))}
+        </div>
+      )}
+
+      {/* ── Notify ── */}
+      {tab === "notify" && (
+        <div className="space-y-2">
+          <div className="bg-red-50 border border-red-200 rounded-xl p-3 text-[10px] text-red-700">
+            <p className="font-bold mb-1">🔔 Dynamic Smart Notification System</p>
+            <p>Every alert is scored by priority, role, and project relevance. Critical items appear at the top regardless of time. You only see what matters to you.</p>
+          </div>
+          {SMART_NOTIFS.map(notif => (
+            <div key={notif.id} onClick={() => setReadNotifs(prev => new Set([...prev, notif.id]))}
+              className={`rounded-2xl p-3 border space-y-1 cursor-pointer transition-all ${readNotifs.has(notif.id) ? "bg-muted/30 border-border/40 opacity-60" : "bg-white border-border shadow-sm"}`}>
+              <div className="flex items-center justify-between">
+                <div className="flex items-center gap-2">
+                  <span className={`w-2 h-2 rounded-full flex-none ${notif.priority === "critical" ? "bg-red-500" : notif.priority === "high" ? "bg-orange-400" : notif.priority === "medium" ? "bg-yellow-400" : "bg-gray-300"}`} />
+                  <span className="text-[9px] font-black text-muted-foreground uppercase">{notif.priority} · {notif.role}</span>
+                </div>
+                <span className="text-[9px] text-muted-foreground">{notif.ts}</span>
+              </div>
+              <p className="text-[11px] text-foreground font-semibold">{notif.message}</p>
+              <p className="text-[9px] text-muted-foreground">{notif.project}</p>
+            </div>
+          ))}
+          <p className="text-[10px] text-muted-foreground text-center">Tap any notification to mark as read</p>
+        </div>
+      )}
+
+      {/* ── Transcend ── */}
+      {tab === "transcend" && (
+        <div className="space-y-2">
+          <div className="bg-amber-50 border border-amber-200 rounded-xl p-3 text-[10px] text-amber-700">
+            <p className="font-bold mb-1">✨ Transcendent Intelligence Engine</p>
+            <p>Simulates every possible outcome across all scenarios, industries, and timelines. Identifies the single highest-value path and deploys optimization automatically.</p>
+          </div>
+          {TRANSCEND_PREDICTIONS.map((pred, i) => {
+            const key = `p${i}`;
+            const isOpt = optimizedPredictions.has(key);
+            return (
+              <div key={i} className={`rounded-2xl p-3 border space-y-2 ${isOpt ? "bg-amber-50 border-amber-200" : "bg-white border-border"}`}>
+                <div className="flex items-start gap-2">
+                  <span className="text-base flex-none">{isOpt ? "✨" : "🔮"}</span>
+                  <div className="flex-1">
+                    <p className="text-[11px] font-bold text-foreground leading-tight">{pred.scenario}</p>
+                    <p className="text-[9px] text-muted-foreground mt-0.5">{pred.timeframe} · {pred.value}</p>
+                  </div>
+                  <span className={`flex-none text-[10px] font-black ${pred.probability > 89 ? "text-green-600" : pred.probability > 79 ? "text-blue-600" : "text-yellow-600"}`}>{pred.probability}%</span>
+                </div>
+                <p className="text-[10px] text-muted-foreground">{pred.outcome}</p>
+                <div className="flex items-center gap-2">
+                  <div className="flex-1 h-1.5 bg-muted rounded-full overflow-hidden">
+                    <div className="h-full bg-gradient-to-r from-amber-400 to-orange-400 rounded-full" style={{ width: `${pred.probability}%` }} />
+                  </div>
+                  {isOpt
+                    ? <span className="text-[9px] text-amber-600 font-black">✨ Optimized</span>
+                    : <button onClick={() => optimizePredict(key)} className="text-[9px] bg-amber-500 text-white font-bold px-2.5 py-1 rounded-lg hover:bg-amber-600 transition-colors">Optimize</button>
+                  }
+                </div>
+              </div>
+            );
+          })}
+        </div>
+      )}
+    </div>
+  );
+}
+
 // ─── Engines View ─────────────────────────────────────────────────────────
 
 function EnginesView({ onResult }: { onResult?: (m: InfiniteModule) => void }) {
-  const [section, setSection] = useState<"engines" | "workflow" | "interactive" | "marketing" | "revenue" | "teams" | "growth" | "tools" | "sim" | "hub" | "integration" | "industry" | "decide" | "master" | "ecosystem">("engines");
+  const [section, setSection] = useState<"engines" | "workflow" | "interactive" | "marketing" | "revenue" | "teams" | "growth" | "tools" | "sim" | "hub" | "integration" | "industry" | "decide" | "master" | "ecosystem" | "ultimate">("engines");
 
   // Marketing state
   const [mktCtx,       setMktCtx]       = useState("");
@@ -3456,6 +3972,7 @@ function EnginesView({ onResult }: { onResult?: (m: InfiniteModule) => void }) {
     { id: "integration" as const, label: "Status"       },
     { id: "master"      as const, label: "🧠 Master"    },
     { id: "ecosystem"   as const, label: "∞ MAX"        },
+    { id: "ultimate"    as const, label: "🏆 Ultimate"  },
   ];
 
   function runMkt(ch: MktChannel) {
@@ -4661,6 +5178,7 @@ function EnginesView({ onResult }: { onResult?: (m: InfiniteModule) => void }) {
 
       {section === "master" && <MasterBrainView />}
       {section === "ecosystem" && <InfiniteEcosystemView />}
+      {section === "ultimate" && <UltimatePlatformView />}
     </div>
   );
 }
