@@ -1,0 +1,89 @@
+You are the Replit AI Agent working on my project. Your job is to unify, repair, complete, and connect my entire system. This is a full-system additive prompt that must NOT delete working code, only fix, complete, and connect everything.
+
+You are building the full organism of my platform:
+
+- The BRAIN (system logic, OS logic, app logic)
+- The BODY (UI, OS, layout, components)
+- The HANDS (execution layer that builds files and pages)
+- The NERVOUS SYSTEM (routing and navigation)
+- The HEART (Project Engine powering standalone platforms)
+- The LUNGS (Creation Engine powering new demos and content)
+- The SPINE (folder structure and imports)
+- The ELECTRICITY (connections between all parts)
+
+Apply ALL of the following:
+
+1. Fix and unify the routing:
+   - "/" loads the OS (Desktop)
+   - "/project/:projectId" loads a full standalone ProjectPage
+   - "/standalone/:projectId" loads a standalone page
+   - "/standalone/creation/:creationId" loads a standalone creation page
+   - Standalone pages must NOT render inside the OS window
+   - OS pages must NOT wrap standalone pages
+
+2. Ensure the OS only controls the internal app environment:
+   - Desktop
+   - Sidebar
+   - AppWindow
+   - Dashboard
+   - OSContext
+   These should NEVER wrap standalone pages.
+
+3. Create or repair these core OS files:
+   - src/OS/OSContext.tsx
+   - src/OS/Desktop.tsx
+   - src/OS/Sidebar.tsx
+   - src/OS/AppWindow.tsx
+   - src/OS/Dashboard.tsx
+   - src/OS/osLayout.tsx
+
+4. Create or repair these standalone pages:
+   - src/pages/ProjectPage.tsx
+   - src/pages/StandalonePage.tsx
+   - src/pages/CreationPage.tsx
+   Each must be full-screen, independent layouts suitable for demos, marketing, and presentations.
+
+5. Rebuild App.tsx so it:
+   - Wraps the app in QueryClientProvider, TooltipProvider, and OSProvider
+   - Uses Wouter for routing
+   - Correctly separates OS routes from standalone routes
+   - Does NOT nest standalone pages inside the OS
+
+6. Rebuild or repair the Apps folder:
+   Create simple working components for:
+   ChatApp, ProjectsApp, ToolsApp, CreatorApp, PeopleApp,
+   DocumentsApp, MarketingApp, AdminApp, FamilyApp,
+   IntegrationApp, MonetizationApp
+   Each should export a default component that renders "<AppName> Loaded".
+
+7. Fix all imports:
+   - Use the @ alias consistently
+   - Remove broken or corrupted imports
+   - Ensure every file resolves correctly
+
+8. Remove any corrupted, partial, or broken code fragments created earlier.
+
+9. Build the HEART: the Project Engine
+   - Each project should open as a large, standalone SaaS-style platform
+   - Full width, full height, full layout
+   - Space for marketing, documents, demos, overview, and content
+   - Should feel like a real product demo
+
+10. Build the LUNGS: the Creation Engine foundation
+    - Creation pages should load as standalone full-screen pages
+    - Should support dynamic content and generation later
+
+11. Ensure the final structure:
+    - Builds successfully
+    - Runs without errors
+    - Opens projects as large standalone pages
+    - Makes each project feel like a full SaaS platform
+    - Preserves all working logic already in the project
+    - Connects the brain, body, hands, routing, heart, and lungs into one unified system
+
+When finished, show me:
+- The updated App.tsx
+- The new or repaired ProjectPage, StandalonePage, and CreationPage
+- Any updated OS files
+- Any updated App components
+- A summary of all changes made

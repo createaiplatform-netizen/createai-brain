@@ -1,79 +1,59 @@
 import { useState, useCallback } from "react";
-import { useQueryClient } from "@tanstack/react-query";
-import { getGetOpenaiConversationQueryKey, OpenaiMessage } from "@workspace/api-client-react";
 
-export function useChatStream(conversationId: number | null) {
-  const [isStreaming, setIsStreaming] = useState(false);
-  const [streamingText, setStreamingText] = useState("");
-  const queryClient = useQueryClient();
+export function useChatStream() {
+  const [messages, setMessages] = useState([]);
+  const [isLoading, setIsLoading] = useState(false);
 
-  const sendMessage = useCallback(async (content: string) => {
-    if (!conversationId) return;
+  // Default mode is LIVE
+  let mode: "live" | "demo" = "live";
 
-    setIsStreaming(true);
-    setStreamingText("");
+  // Allow Marketing to switch to demo mode
+  function setDemoMode() {
+    mode = "demo";
+  }
 
-    try {
-      // Create a temporary user message for immediate UI update (Optimistic)
-      const queryKey = getGetOpenaiConversationQueryKey(conversationId);
-      queryClient.setQueryData(queryKey, (oldData: any) => {
-        if (!oldData) return oldData;
-        return {
-          ...oldData,
-          messages: [
-            ...oldData.messages,
-            { id: Date.now(), conversationId, role: "user", content, createdAt: new Date().toISOString() }
-          ]
-        };
-      });
+  function setLiveMode() {
+    mode = "live";
+  }
 
-      const response = await fetch(`/api/openai/conversations/${conversationId}/messages`, {
+  const sendMessage = useCallback(
+    async (userMessage: string) => {
+      setIsLoading(true);
+
+      const newMessages = [
+        ...messages,
+        { role: "user", content: userMessage },
+      ];
+      setMessages(newMessages);
+
+      const response = await fetch("/api/chat", {
         method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ content }),
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({
+          messages: newMessages,
+          mode: mode, // ← THIS IS WHERE MODE IS SENT
+        }),
       });
 
-      if (!response.ok) throw new Error("Failed to send message");
-      if (!response.body) throw new Error("No response body");
+      const data = await response.json();
 
-      const reader = response.body.getReader();
-      const decoder = new TextDecoder();
-      let accumulatedText = "";
+      setMessages((prev) => [
+        ...prev,
+        { role: "assistant", content: data.reply },
+      ]);
 
-      while (true) {
-        const { done, value } = await reader.read();
-        if (done) break;
+      setIsLoading(false);
+    },
+    [messages]
+  );
 
-        const chunk = decoder.decode(value, { stream: true });
-        const lines = chunk.split('\n');
-
-        for (const line of lines) {
-          if (line.startsWith('data: ')) {
-            const dataStr = line.slice(6);
-            if (!dataStr || dataStr === '[DONE]') continue;
-            
-            try {
-              const data = JSON.parse(dataStr);
-              if (data.done) {
-                // Stream finished, invalidate to fetch the final persisted message
-                queryClient.invalidateQueries({ queryKey });
-              } else if (data.content) {
-                accumulatedText += data.content;
-                setStreamingText(accumulatedText);
-              }
-            } catch (e) {
-              // Ignore parse errors on incomplete chunks
-            }
-          }
-        }
-      }
-    } catch (error) {
-      console.error("Chat stream error:", error);
-    } finally {
-      setIsStreaming(false);
-      setStreamingText("");
-    }
-  }, [conversationId, queryClient]);
-
-  return { sendMessage, isStreaming, streamingText };
+  return {
+    messages,
+    isLoading,
+    sendMessage,
+    setDemoMode,
+    setLiveMode,
+  };
 }

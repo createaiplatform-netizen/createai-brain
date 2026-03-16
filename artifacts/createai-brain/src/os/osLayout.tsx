@@ -4,17 +4,17 @@ import { useMediaQuery } from "@/hooks/use-media-query";
 import { Sidebar } from "./Sidebar";
 import { Dashboard } from "./Dashboard";
 import { AppWindow } from "./AppWindow";
-import { ChatApp } from "@/apps/ChatApp";
-import { ProjectsApp } from "@/apps/ProjectsApp";
-import { ToolsApp } from "@/apps/ToolsApp";
-import { PeopleApp } from "@/apps/PeopleApp";
-import { DocumentsApp } from "@/apps/DocumentsApp";
-import { MarketingApp } from "@/apps/MarketingApp";
-import { AdminApp } from "@/apps/AdminApp";
-import { FamilyApp } from "@/apps/FamilyApp";
-import { IntegrationApp } from "@/apps/IntegrationApp";
-import { MonetizationApp } from "@/apps/MonetizationApp";
-import { CreatorApp } from "@/apps/CreatorApp";
+import { ChatApp } from "@/Apps/ChatApp";
+import { ProjectsApp } from "@/Apps/ProjectsApp";
+import { ToolsApp } from "@/Apps/ToolsApp";
+import { PeopleApp } from "@/Apps/PeopleApp";
+import { DocumentsApp } from "@/Apps/DocumentsApp";
+import { MarketingApp } from "@/Apps/MarketingApp";
+import { AdminApp } from "@/Apps/AdminApp";
+import { FamilyApp } from "@/Apps/FamilyApp";
+import { IntegrationApp } from "@/Apps/IntegrationApp";
+import { MonetizationApp } from "@/Apps/MonetizationApp";
+import { CreatorApp } from "@/Apps/CreatorApp";
 
 const APP_COMPONENTS: Record<string, React.ComponentType> = {
   chat: ChatApp,

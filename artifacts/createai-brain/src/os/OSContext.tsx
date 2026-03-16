@@ -1,6 +1,6 @@
 import React, { createContext, useContext, useState, useCallback } from "react";
 
-// ─── App Registry (Infinite Expansion Layer) ─────────────────────────────────
+// ─── App Registry (Infinite Expansion Layer) ──────────────────────────────
 export type AppId =
   | "chat" | "projects" | "tools" | "creator" | "people"
   | "documents" | "marketing" | "admin" | "family"
@@ -30,9 +30,9 @@ export const DEFAULT_APPS: AppDef[] = [
   { id: "monetization", label: "Monetize",    icon: "💰", color: "#FFD60A", description: "Storefront, plans & earnings",            category: "business" },
 ];
 
-export const ALL_APPS = DEFAULT_APPS; // backward compat
+export const ALL_APPS = DEFAULT_APPS;
 
-// ─── Preference Brain ─────────────────────────────────────────────────────────
+// ─── Preference Brain ─────────────────────────────────────────────────────
 export type ToneOption = "Professional" | "Plain Language" | "Executive Brief" | "Educational" | "Empowering" | "Clinical Structural";
 export type LanguageOption = "English" | "Tamil" | "Tamil–English" | "Spanish" | "French";
 export type StyleOption = "Guided" | "Smart" | "Fast" | "Adaptive";
@@ -57,7 +57,7 @@ const DEFAULT_PREFERENCES: PreferenceBrain = {
   revenueShare: 25,
 };
 
-// ─── Intent Routing (Global Brain) ───────────────────────────────────────────
+// ─── Intent Routing (Global Brain) ─────────────────────────────────────────
 const INTENT_MAP: { keywords: string[]; target: AppId }[] = [
   { keywords: ["chat", "talk", "ask", "message", "brain"], target: "chat" },
   { keywords: ["create", "generate", "build", "make", "write"], target: "creator" },
@@ -82,7 +82,7 @@ function routeIntentFn(intent: string): AppId | null {
   return null;
 }
 
-// ─── OS State ─────────────────────────────────────────────────────────────────
+// ─── OS State ─────────────────────────────────────────────────────────────
 interface OSState {
   activeApp: AppId | null;
   sidebarCollapsed: boolean;

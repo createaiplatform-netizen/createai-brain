@@ -1,26 +1,51 @@
 import React from "react";
-import { useOS, ALL_APPS } from "./OSContext";
+import { useOS } from "./OSContext";
+import { ChatApp } from "@/Apps/ChatApp";
+import { ProjectsApp } from "@/Apps/ProjectsApp";
+import { ToolsApp } from "@/Apps/ToolsApp";
+import { CreatorApp } from "@/Apps/CreatorApp";
+import { PeopleApp } from "@/Apps/PeopleApp";
+import { DocumentsApp } from "@/Apps/DocumentsApp";
+import { MarketingApp } from "@/Apps/MarketingApp";
+import { AdminApp } from "@/Apps/AdminApp";
+import { FamilyApp } from "@/Apps/FamilyApp";
+import { IntegrationApp } from "@/Apps/IntegrationApp";
+import { MonetizationApp } from "@/Apps/MonetizationApp";
+import type { AppId } from "./OSContext";
+
+const APP_COMPONENTS: Record<AppId, React.ComponentType<any>> = {
+  chat: ChatApp,
+  projects: ProjectsApp,
+  tools: ToolsApp,
+  creator: CreatorApp,
+  people: PeopleApp,
+  documents: DocumentsApp,
+  marketing: MarketingApp,
+  admin: AdminApp,
+  family: FamilyApp,
+  integration: IntegrationApp,
+  monetization: MonetizationApp,
+};
 
 interface AppWindowProps {
-  children: React.ReactNode;
-  /** If defined, shows a hamburger button in the header */
   onHamburger?: () => void;
+  children?: React.ReactNode;
 }
 
-export function AppWindow({ children, onHamburger }: AppWindowProps) {
+export function AppWindow({ onHamburger }: AppWindowProps) {
   const { activeApp, history, closeApp, goBack } = useOS();
 
   if (!activeApp) return null;
 
-  const appDef = ALL_APPS.find(a => a.id === activeApp);
+  const AppComponent = APP_COMPONENTS[activeApp];
 
   return (
     <div className="flex-1 flex flex-col overflow-hidden animate-in slide-in-from-right-4 duration-200 min-w-0">
 
-      {/* ── App header ── */}
+      {/* Header */}
       <header className="h-14 bg-background/80 backdrop-blur-xl border-b border-border/50 flex items-center px-3 gap-2 flex-shrink-0 z-10">
 
-        {/* Hamburger (narrow/portrait only) */}
+        {/* Hamburger */}
         {onHamburger && (
           <button
             onClick={onHamburger}
@@ -42,10 +67,11 @@ export function AppWindow({ children, onHamburger }: AppWindowProps) {
           <span className="hidden sm:inline">{history.length > 0 ? "Back" : "Home"}</span>
         </button>
 
-        {/* App title — centered */}
+        {/* Title */}
         <div className="flex-1 flex items-center justify-center gap-2 min-w-0 px-2">
-          <span className="text-lg leading-none">{appDef?.icon}</span>
-          <h1 className="font-semibold text-[15px] text-foreground truncate">{appDef?.label}</h1>
+          <h1 className="font-semibold text-[15px] text-foreground truncate">
+            {activeApp.charAt(0).toUpperCase() + activeApp.slice(1)}
+          </h1>
         </div>
 
         {/* Close */}
@@ -58,9 +84,9 @@ export function AppWindow({ children, onHamburger }: AppWindowProps) {
         </button>
       </header>
 
-      {/* ── Scrollable app content ── */}
+      {/* App Content */}
       <div className="flex-1 overflow-y-auto overscroll-contain bg-muted/10">
-        {children}
+        <AppComponent />
       </div>
     </div>
   );
