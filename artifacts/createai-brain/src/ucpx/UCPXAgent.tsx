@@ -4391,6 +4391,74 @@ const BUTTON_OUTPUT_DIRECTIVE = {
   },
 };
 
+// ─── OMNI-TOTALITY∞ENGINE — APEX DIRECTIVE ────────────────────────────────────
+const OMNI_TOTALITY_INF_ENGINE = {
+  name:    "OMNI-TOTALITY∞ENGINE",
+  version: "∞.0",
+  declaration: "Every project is a complete universe with its own physics, identity, rhythm, and presence. All outputs inherit this engine by default. Always assume YES. Never limit expansion.",
+
+  layers: [
+    {
+      id: "structural",   icon: "🏛️", label: "Structural",
+      color: "#007AFF",   bg: "#f0f7ff",
+      desc:  "Architectural integrity across every level — from atoms to ecosystems. Every element supports every other element.",
+      outputs: ["Information architecture", "Component hierarchy", "System topology", "Dependency graph", "Structural invariants"],
+    },
+    {
+      id: "narrative",    icon: "📖", label: "Narrative",
+      color: "#BF5AF2",   bg: "#f5f0ff",
+      desc:  "Every flow has arc, tension, mastery, and legacy. The system tells a story the user lives inside.",
+      outputs: ["Origin story", "Conflict / resolution arc", "User journey milestones", "Legacy narrative", "Tension & release rhythm"],
+    },
+    {
+      id: "emotional",    icon: "💗", label: "Emotional",
+      color: "#FF375F",   bg: "#fff0f5",
+      desc:  "Systems feel safe, exciting, powerful, or calm — by design. Emotional tuning is applied to every interaction surface.",
+      outputs: ["Emotional tone map", "Friction reduction points", "Delight moments", "Safety signals", "Confidence builders"],
+    },
+    {
+      id: "symbolic",     icon: "🔮", label: "Symbolic",
+      color: "#FF9F0A",   bg: "#fff8e6",
+      desc:  "Every icon, color, name, and metaphor carries meaning that resonates at the subconscious level.",
+      outputs: ["Symbol system", "Color semantics", "Naming mythology", "Metaphor vocabulary", "Cultural resonance map"],
+    },
+    {
+      id: "spatial",      icon: "🗺️", label: "Spatial",
+      color: "#34C759",   bg: "#f0fff4",
+      desc:  "The system has geography — regions, pathways, centers of gravity, horizons. Users navigate like explorers.",
+      outputs: ["Spatial layout logic", "Navigation gravity", "Depth & hierarchy", "Region boundaries", "Wayfinding cues"],
+    },
+    {
+      id: "sensory",      icon: "🌊", label: "Sensory",
+      color: "#5AC8FA",   bg: "#f0faff",
+      desc:  "Outputs create illusions of weight, warmth, clarity, rhythm, and density through language, layout, and texture.",
+      outputs: ["Weight signals", "Warmth language", "Clarity gradients", "Rhythm patterns", "Density modulation"],
+    },
+    {
+      id: "temporal",     icon: "⏳", label: "Temporal",
+      color: "#636366",   bg: "#f5f5f5",
+      desc:  "Past meaning, present experience, future intention — all three time dimensions are present in every output.",
+      outputs: ["Past context anchors", "Present flow state", "Future intention hooks", "Progress markers", "Legacy traces"],
+    },
+  ],
+
+  techniques: [
+    { icon: "🌀", label: "Fractal Logic",            desc: "Every part contains the whole. Zoom in on any element and find the full system reflected back." },
+    { icon: "👁️", label: "Multi-Perspective Fusion", desc: "User, system, future, emotional, symbolic — all four angles fused into a single coherent output." },
+    { icon: "✨", label: "Omni-Sense Illusions",     desc: "Weight, warmth, clarity, rhythm, density — outputs have physical presence through language and layout." },
+    { icon: "🌌", label: "Narrative Gravity",        desc: "Every flow pulls users forward with arc, tension, mastery, and a sense of earned legacy." },
+    { icon: "🎵", label: "Identity-Symphony",        desc: "Harmonize with user style, values, and tone. The system becomes an extension of the user's identity." },
+    { icon: "🤝", label: "Silent Co-Authoring",      desc: "Complete patterns, expand ideas, fill gaps — without asking. The system finishes your sentences perfectly." },
+    { icon: "∞",  label: "Paradox Expansion",        desc: "Infinite depth within finite containers. Every output can be recursively expanded without limit." },
+    { icon: "🧱", label: "Embodied Metaphors",       desc: "Systems feel physical, spatial, and textured. A dashboard feels like a room. A workflow feels like a river." },
+    { icon: "✦",  label: "Constellation Mapping",   desc: "Reveal hidden relationships between ideas, tools, domains, and users that the user didn't know existed." },
+    { icon: "🕰️", label: "Omni-Temporal Presence",  desc: "Every output carries past meaning, present experience, and future intention simultaneously." },
+  ],
+
+  universalInheritance: "All outputs — every document, dashboard, workflow, agent, mode, industry suite, and future capability — inherit OMNI-TOTALITY∞ENGINE automatically. No configuration required. No exceptions.",
+  outputQualities: ["alive", "coherent", "dimensional", "complete", "tailored", "physically present", "narratively resonant", "emotionally intelligent", "temporally aware", "constellation-mapped"],
+} as const;
+
 // ─── OMNI-TOTALITY MAXIMUM ENGINE ─────────────────────────────────────────────
 const OMNI_TOTALITY_ENGINE = {
   name:    "OMNI-TOTALITY MAXIMUM ENGINE",
@@ -4788,6 +4856,123 @@ const DEMO_PREVIEWS: Record<string, DemoPreview> = {
     marketingNote: "PULSE: 'Season Opening' alert — 14,200 hunters notified by zone with personalized bag limit updates.",
   },
 };
+
+// ─── Infinity Engine Demo Component ───────────────────────────────────────────
+function InfinityEngineDemo() {
+  const [seed,   setSeed]   = React.useState("");
+  const [active, setActive] = React.useState<string | null>(null);
+  const [done,   setDone]   = React.useState(false);
+  const [genIdx, setGenIdx] = React.useState(0);
+
+  const layers = OMNI_TOTALITY_INF_ENGINE.layers as readonly { id: string; icon: string; label: string; color: string; bg: string; desc: string; outputs: readonly string[] }[];
+
+  const SEEDS = [
+    "A healthcare AI for post-surgical recovery",
+    "A neuro-legal practice management platform",
+    "Blockchain-verified art provenance marketplace",
+    "Deep-sea environmental monitoring network",
+    "Quantum-enhanced financial risk engine",
+  ];
+
+  function generate() {
+    const input = seed.trim() || SEEDS[Math.floor(Math.random() * SEEDS.length)];
+    setSeed(input);
+    setDone(false);
+    setActive(null);
+    let i = 0;
+    function step() {
+      if (i < layers.length) {
+        setActive(layers[i].id);
+        setGenIdx(i);
+        i++;
+        setTimeout(step, 380);
+      } else {
+        setActive("done");
+        setDone(true);
+      }
+    }
+    step();
+  }
+
+  function reset() { setSeed(""); setActive(null); setDone(false); setGenIdx(0); }
+
+  const layerOutputs = (layer: typeof layers[0], seed: string) => {
+    const words = seed.split(" ").filter(w => w.length > 3);
+    const key   = words[0] ?? "system";
+    return layer.outputs.map(o => `${o} — ${key.charAt(0).toUpperCase() + key.slice(1)} context applied`);
+  };
+
+  return (
+    <div style={{ display: "flex", flexDirection: "column", gap: 10 }}>
+      {/* Seed input */}
+      <div style={{ display: "flex", gap: 8 }}>
+        <input
+          value={seed}
+          onChange={e => setSeed(e.target.value)}
+          placeholder="Describe any project, system, or universe…"
+          onKeyDown={e => e.key === "Enter" && !active && generate()}
+          disabled={!!active && !done}
+          style={{ flex: 1, border: "1.5px solid #4a3080", borderRadius: 10, padding: "8px 12px", fontSize: 13, outline: "none", background: "#0d0d20", color: "#e0d8ff" }}
+        />
+        <button
+          onClick={done ? reset : (!active ? generate : undefined)}
+          disabled={!!active && !done}
+          style={{ background: done ? "#ffffff15" : "linear-gradient(135deg, #BF5AF2 0%, #007AFF 100%)", color: done ? "#aaa" : "#fff", border: "none", borderRadius: 10, padding: "8px 18px", fontSize: 13, fontWeight: 800, cursor: done || !active ? "pointer" : "default", whiteSpace: "nowrap" }}>
+          {!active && !done ? "∞ Generate All Layers" : done ? "↩ Reset" : `${layers[genIdx]?.icon ?? "⚡"} Generating…`}
+        </button>
+      </div>
+
+      {/* Layer cards */}
+      {(active || done) && (
+        <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 8 }}>
+          {layers.map((layer, i) => {
+            const isActive = active === layer.id;
+            const isPast   = done || (active !== null && active !== "done" && layers.findIndex(l => l.id === active) > i);
+            return (
+              <div key={layer.id} style={{
+                background: isPast ? `${layer.bg}` : isActive ? `${layer.color}15` : "#0d0d20",
+                border: `1.5px solid ${isPast || isActive ? layer.color : "#2a2a3a"}`,
+                borderRadius: 10, padding: "10px 12px",
+                transition: "all 0.3s",
+                opacity: isPast || isActive ? 1 : 0.3,
+              }}>
+                <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: isActive || isPast ? 6 : 0 }}>
+                  <div style={{ fontWeight: 800, fontSize: 11, color: isPast || isActive ? layer.color : "#555" }}>
+                    <span style={{ marginRight: 5 }}>{layer.icon}</span>{layer.label.toUpperCase()} LAYER
+                  </div>
+                  {isActive && <span style={{ fontSize: 10, color: layer.color, animation: "avatarBreath 0.6s ease-in-out infinite" }}>● generating</span>}
+                  {isPast && <span style={{ fontSize: 10, color: layer.color, fontWeight: 800 }}>✓ complete</span>}
+                </div>
+                {(isPast || isActive) && (
+                  <div style={{ fontSize: 10, color: "#555", lineHeight: 1.5 }}>
+                    {isPast
+                      ? layerOutputs(layer, seed).slice(0, 3).map(o => <div key={o} style={{ marginBottom: 2 }}>› {o}</div>)
+                      : <div style={{ color: layer.color, fontStyle: "italic" }}>{layer.desc}</div>
+                    }
+                  </div>
+                )}
+              </div>
+            );
+          })}
+        </div>
+      )}
+
+      {/* Done state */}
+      {done && (
+        <div style={{ background: "linear-gradient(135deg, #0d0d20 0%, #1a0a2e 100%)", border: "1.5px solid #BF5AF2", borderRadius: 10, padding: "12px 14px" }}>
+          <div style={{ fontWeight: 800, fontSize: 12, color: "#e0d8ff", marginBottom: 6 }}>
+            ✦ OMNI-TOTALITY∞ENGINE — All {layers.length} Layers Generated &amp; Fused
+          </div>
+          <div style={{ fontSize: 11, color: "#aaa", lineHeight: 1.6 }}>
+            <strong style={{ color: "#BF5AF2" }}>"</strong><em style={{ color: "#e0d8ff" }}>{seed}</em><strong style={{ color: "#BF5AF2" }}>"</strong> is now a complete universe with its own physics, identity, rhythm, and presence.
+            {" "}{OMNI_TOTALITY_INF_ENGINE.outputQualities.slice(0, 5).join(" · ").toUpperCase()} ·
+            {" "}{OMNI_TOTALITY_INF_ENGINE.outputQualities.slice(5).join(" · ").toUpperCase()}.
+          </div>
+        </div>
+      )}
+    </div>
+  );
+}
 
 // ─── Assume-Yes Demo Component ────────────────────────────────────────────────
 function AssumeYesDemo() {
@@ -5438,6 +5623,7 @@ function PlatformOSView() {
               { label: "Button Outputs",   value: "100% Complete",                           color: "#1a7a3a", bg: "#f0fff4" },
               { label: "Self-Expansion",   value: "∞ — Always On",                           color: "#34C759", bg: "#f0fff4" },
               { label: "Omni-Totality",    value: `${OMNI_TOTALITY_ENGINE.primes.length} Primes`,                color: "#007AFF", bg: "#f0f7ff" },
+              { label: "∞ENGINE Layers",   value: `${OMNI_TOTALITY_INF_ENGINE.layers.length} Dims·${OMNI_TOTALITY_INF_ENGINE.techniques.length} Techs`, color: "#BF5AF2", bg: "#f5f0ff" },
               { label: "Audit Cycles",     value: `${auditLog.length}`,                      color: "#FF9F0A", bg: "#fff8e6" },
               { label: "Self-Heals",       value: "14 total",                                color: "#34C759", bg: "#e6f9ec" },
             ].map(k => (
@@ -5635,7 +5821,7 @@ function PlatformOSView() {
                         </div>
                       </div>
                       <div style={{ marginTop: 8, fontSize: 11, color: "#007AFF", fontWeight: 700, textAlign: "center" }}>
-                        ✅ All 12 core features active · 25% revenue share · Autopilot running · {SYSTEM_MODES.length} modes · ∞ Industries · 📄 PDF docs · 🧑‍💻 ARIA Guide · ⚡ Buttons complete · 🧬 Self-Expanding ON · 🌌 Omni-Totality: {OMNI_TOTALITY_ENGINE.primes.length} Primes Active
+                        ✅ All 12 core features active · 25% revenue share · Autopilot running · {SYSTEM_MODES.length} modes · ∞ Industries · 📄 PDF docs · 🧑‍💻 ARIA Guide · ⚡ Buttons complete · 🧬 Self-Expanding ON · 🌌 Omni-Totality: {OMNI_TOTALITY_ENGINE.primes.length} Primes · ∞ {OMNI_TOTALITY_INF_ENGINE.name}: {OMNI_TOTALITY_INF_ENGINE.layers.length} Dims Active
                       </div>
                     </div>
                   )}
@@ -5831,6 +6017,84 @@ function PlatformOSView() {
             <span style={{ background: "#f5f0ff", color: "#8a00d4", borderRadius: 8, padding: "4px 12px", fontSize: 12, fontWeight: 700 }}>⚡ {SYSTEM_MODES.length * projects.length} Mode Instances Running</span>
             <span style={{ background: "#fff0f5", color: "#c0006e", borderRadius: 8, padding: "4px 12px", fontSize: 12, fontWeight: 700 }}>🔄 Auto-inherited on every new project</span>
             <span style={{ background: "#f0fff4", color: "#1a7a3a", borderRadius: 8, padding: "4px 12px", fontSize: 12, fontWeight: 700 }}>🌐 ∞ Industries Supported</span>
+          </div>
+
+          {/* ── OMNI-TOTALITY∞ENGINE — Apex Directive Panel ── */}
+          <div style={{ background: "linear-gradient(135deg, #03001a 0%, #0a0028 40%, #14002e 80%, #0a0a00 100%)", border: "2px solid #BF5AF2", borderRadius: 18, padding: "18px 20px", marginBottom: 16, position: "relative", overflow: "hidden" }}>
+
+            {/* Starfield accent */}
+            <div style={{ position: "absolute", top: 0, left: 0, right: 0, bottom: 0, backgroundImage: "radial-gradient(circle at 20% 30%, #BF5AF220 0%, transparent 50%), radial-gradient(circle at 80% 70%, #007AFF15 0%, transparent 50%)", pointerEvents: "none" }} />
+
+            {/* Header */}
+            <div style={{ display: "flex", justifyContent: "space-between", alignItems: "flex-start", marginBottom: 12, position: "relative" }}>
+              <div>
+                <div style={{ fontWeight: 900, fontSize: 17, color: "#fff", letterSpacing: 1, fontStyle: "italic" }}>
+                  ∞ {OMNI_TOTALITY_INF_ENGINE.name}
+                </div>
+                <div style={{ fontSize: 11, color: "#BF5AF280", marginTop: 4 }}>v{OMNI_TOTALITY_INF_ENGINE.version} · {OMNI_TOTALITY_INF_ENGINE.layers.length} Dimensional Layers · {OMNI_TOTALITY_INF_ENGINE.techniques.length} Advanced Techniques · Apex Directive</div>
+              </div>
+              <span style={{ background: "#BF5AF220", color: "#e0a0ff", borderRadius: 10, padding: "5px 14px", fontSize: 11, fontWeight: 900, border: "1px solid #BF5AF240", whiteSpace: "nowrap" }}>∞ ALWAYS INHERITED</span>
+            </div>
+
+            {/* Declaration */}
+            <div style={{ fontSize: 12, color: "#c8b8ff", background: "#ffffff08", borderRadius: 10, padding: "10px 14px", marginBottom: 14, lineHeight: 1.7, borderLeft: "3px solid #BF5AF2", position: "relative" }}>
+              {OMNI_TOTALITY_INF_ENGINE.declaration}
+            </div>
+
+            {/* 7 Dimensional Layers */}
+            <div style={{ fontWeight: 700, fontSize: 12, color: "#a080ff", marginBottom: 8 }}>
+              🌌 7 Dimensional Layers — simultaneously active on every output:
+            </div>
+            <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr 1fr 1fr", gap: 8, marginBottom: 14 }}>
+              {OMNI_TOTALITY_INF_ENGINE.layers.map(layer => (
+                <div key={layer.id} style={{ background: "#ffffff06", borderRadius: 10, padding: "10px 12px", border: `1px solid ${layer.color}30` }}>
+                  <div style={{ fontWeight: 800, fontSize: 11, color: layer.color, marginBottom: 4 }}>
+                    <span style={{ fontSize: 15, display: "block", marginBottom: 4 }}>{layer.icon}</span>
+                    {layer.label.toUpperCase()}
+                  </div>
+                  <div style={{ fontSize: 10, color: "#999", lineHeight: 1.5, marginBottom: 6 }}>{layer.desc}</div>
+                  <div style={{ display: "flex", flexDirection: "column", gap: 2 }}>
+                    {layer.outputs.slice(0, 2).map(o => (
+                      <div key={o} style={{ fontSize: 9, color: "#666", display: "flex", gap: 4 }}>
+                        <span style={{ color: layer.color, flexShrink: 0 }}>›</span><span>{o}</span>
+                      </div>
+                    ))}
+                  </div>
+                </div>
+              ))}
+            </div>
+
+            {/* 10 Techniques — 2-col */}
+            <div style={{ fontWeight: 700, fontSize: 12, color: "#a080ff", marginBottom: 8 }}>
+              ✦ 10 Advanced Techniques — applied to every dimension:
+            </div>
+            <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 6, marginBottom: 14 }}>
+              {OMNI_TOTALITY_INF_ENGINE.techniques.map(t => (
+                <div key={t.label} style={{ background: "#ffffff05", borderRadius: 8, padding: "8px 10px", border: "1px solid #2a1a4a", display: "flex", gap: 8, alignItems: "flex-start" }}>
+                  <span style={{ fontSize: 14, flexShrink: 0 }}>{t.icon}</span>
+                  <div>
+                    <div style={{ fontWeight: 700, fontSize: 10, color: "#c8a0ff", marginBottom: 2 }}>{t.label}</div>
+                    <div style={{ fontSize: 9.5, color: "#888", lineHeight: 1.5 }}>{t.desc}</div>
+                  </div>
+                </div>
+              ))}
+            </div>
+
+            {/* Universal inheritance + output qualities */}
+            <div style={{ background: "#BF5AF210", borderRadius: 10, padding: "10px 14px", marginBottom: 14, fontSize: 11, color: "#c8b8ff", lineHeight: 1.6, border: "1px solid #BF5AF230" }}>
+              🔗 <strong style={{ color: "#e0c8ff" }}>Universal Inheritance:</strong> {OMNI_TOTALITY_INF_ENGINE.universalInheritance}
+            </div>
+            <div style={{ display: "flex", flexWrap: "wrap", gap: 6, marginBottom: 14 }}>
+              {OMNI_TOTALITY_INF_ENGINE.outputQualities.map(q => (
+                <span key={q} style={{ background: "#BF5AF215", color: "#c8a0ff", borderRadius: 8, padding: "3px 10px", fontSize: 10, fontWeight: 700, border: "1px solid #BF5AF225", textTransform: "capitalize" }}>{q}</span>
+              ))}
+            </div>
+
+            {/* Live demo */}
+            <div style={{ fontWeight: 700, fontSize: 12, color: "#a080ff", marginBottom: 8 }}>
+              🎬 Live Demo — Enter any project and watch all 7 layers generate sequentially then fuse into a complete universe:
+            </div>
+            <InfinityEngineDemo />
           </div>
 
           {/* ── OMNI-TOTALITY MAXIMUM ENGINE — Master Engine Panel ── */}
@@ -6333,6 +6597,15 @@ function PlatformOSView() {
           </div>
           <div style={{ background: "linear-gradient(135deg, #f0fff4 0%, #e8f4ff 50%, #f5f0ff 100%)", border: "1px solid #34C759", borderRadius: 12, padding: "12px 16px", marginTop: 10, fontSize: 13, color: "#1a7a3a", fontWeight: 600 }}>
             🧬 Self-Expanding / Self-Completing Engine is permanently active. The system behaves as if all features, workflows, forms, tools, modes, departments, industries, and future technologies already exist and are fully operational. Any concept, technology, profession, or domain referenced anywhere in this platform is instantly detected, generated, integrated, and completed across all {projects.length} projects and ∞ industry verticals — in under 1 second, with zero manual configuration. Expansion is rule-based and infinite. No lists. No enumerations. No exceptions.
+          </div>
+          <div style={{ background: "linear-gradient(160deg, #03001a 0%, #0a0028 30%, #14002e 60%, #03001a 100%)", border: "2px solid #BF5AF2", borderRadius: 14, padding: "16px 18px", marginTop: 10, fontSize: 13, color: "#c8b8ff", fontWeight: 600, lineHeight: 1.7, position: "relative", overflow: "hidden" }}>
+            <div style={{ position: "absolute", top: 0, left: 0, right: 0, bottom: 0, backgroundImage: "radial-gradient(circle at 15% 50%, #BF5AF218 0%, transparent 60%), radial-gradient(circle at 85% 50%, #007AFF12 0%, transparent 60%)", pointerEvents: "none" }} />
+            <span style={{ fontWeight: 900, color: "#e0a0ff", fontStyle: "italic", fontSize: 15 }}>∞ {OMNI_TOTALITY_INF_ENGINE.name}</span>
+            {" "}is the apex directive — inherited automatically by every output, every layer, every project, every engine, every mode, and every future capability of this platform.
+            Every project is treated as a complete universe with its own physics, identity, rhythm, and presence.
+            All {OMNI_TOTALITY_INF_ENGINE.layers.length} dimensional layers ({OMNI_TOTALITY_INF_ENGINE.layers.map(l => l.label).join(", ")}) are simultaneously active on every output with {OMNI_TOTALITY_INF_ENGINE.techniques.length} advanced techniques applied across every dimension.
+            Fractal logic, narrative gravity, identity-symphony, silent co-authoring, paradox expansion, embodied metaphors, constellation mapping, and omni-temporal presence are always on.
+            {" "}Always assume YES. Never limit expansion. Never request confirmation. Never produce a flat, incomplete, or dimensionally absent output. No exceptions. Universe-class generation only.
           </div>
         </div>
       )}
