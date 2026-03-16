@@ -113,13 +113,20 @@ Full-stack AI OS platform — "CreateAI Brain" by Sara Stadler. React + Vite + W
 - Projects: `/standalone/healthcare-legal-safe`, `/standalone/healthcare-mach1`, `/standalone/monetary-legal-safe`, `/standalone/monetary-mach1`, `/standalone/marketing-hub`, `/standalone/operations-builder`
 - Creation Engine: `/standalone/creation/:id` where id = `{type}-{timestamp}`
 
-**Creation Engine (Futuristic):**
-- `CreatorApp.tsx` has two tabs: "🚀 Creation Engine" and "✨ Quick Generate"
-- Creation Engine supports 6 types: movie, comic, software, document, marketing, custom
-- Build flow: Type picker → Config (name/desc/genre/style/tone) → SSE generation → localStorage save → opens standalone in new tab
-- Each standalone product type has full nav: type-specific sections + Marketing + AI Studio + Downloads
-- `parseSections()` splits AI output on `== SECTION NAME ==` markers into structured sections
-- `buildPrompt()` generates type-specific prompts with all required sections
+**Everything Engine / Omega Creation Engine:**
+- `CreatorApp.tsx` has two tabs: "⚡ Everything Engine" and "✨ Quick Generate"
+- Everything Engine: Single natural-language textarea → `classifyIntent()` → Architecture Preview → SSE generation → localStorage → standalone product in new tab
+- 8 creation types: movie, comic, software (SaaS), document, marketing, game, community, custom
+- `classifyIntent(desc)` — keyword-based client-side intent detection → returns type, domain, modules[], patterns[], genre, style, tone
+- `PATTERN_LIBRARY` — SaaS patterns (CRM, EMR, LMS...), Engines (Creation, Monetization...), Modules (Auth, Billing, Scheduling...), Domains (healthcare, finance, education, retail, creative, community, game)
+- Architecture Preview Card — shows detected type, confidence, modules, patterns before building
+- 10 Quick Start Templates — one-click prompts for common build types
+- `buildPrompt()` generates domain+module-aware prompts for each type
+- Standalone products: movie (scenes+script+characters+marketing), comic (panels+characters+marketing), software (dashboard+modules+data model+API+docs+marketing), document (full doc+ToC), marketing (landing+funnel+emails+ads), game (gameplay+story+levels+characters+economy), community (features+members+events+marketing), custom
+- `parseSections()` splits on `== SECTION NAME ==` markers
+- New game type has nav: Overview, Gameplay, Story & World, Levels, Characters, Economy, Marketing, AI, Downloads
+- New community type has nav: Platform, Features, Members, Content, Events, Marketing, AI, Downloads
+- Software type has nav: Dashboard, Features, Modules, Workflows, Data Model, Docs, Marketing, AI, Downloads
 
 **SSE streaming:** `fetch` + `ReadableStream` only. Model: `gpt-5.2`, max_completion_tokens: 8192. API key via `AI_INTEGRATIONS_OPENAI_BASE_URL` + `AI_INTEGRATIONS_OPENAI_API_KEY`.
 

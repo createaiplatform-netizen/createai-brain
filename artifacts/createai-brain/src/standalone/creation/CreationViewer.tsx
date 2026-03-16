@@ -6,9 +6,11 @@ import { StandaloneLayout, StandaloneMode } from "../StandaloneLayout";
 const TYPE_META: Record<CreationType, { icon: string; color: string; label: string; accentBg: string }> = {
   movie:     { icon: "🎬", color: "#FF2D55", label: "Film Production",     accentBg: "from-red-900/20 to-black" },
   comic:     { icon: "📖", color: "#FF9500", label: "Comic Universe",      accentBg: "from-orange-900/20 to-black" },
-  software:  { icon: "💻", color: "#007AFF", label: "Software Product",    accentBg: "from-blue-900/20 to-black" },
+  software:  { icon: "💻", color: "#007AFF", label: "Software / SaaS",    accentBg: "from-blue-900/20 to-black" },
   document:  { icon: "📄", color: "#34C759", label: "Document Suite",      accentBg: "from-green-900/20 to-black" },
   marketing: { icon: "📣", color: "#FF9500", label: "Marketing System",    accentBg: "from-orange-900/20 to-black" },
+  game:      { icon: "🎮", color: "#5856D6", label: "Game Production",     accentBg: "from-purple-900/20 to-black" },
+  community: { icon: "🌐", color: "#30B0C7", label: "Community Platform",  accentBg: "from-cyan-900/20 to-black" },
   custom:    { icon: "✨", color: "#BF5AF2", label: "Custom Creation",     accentBg: "from-purple-900/20 to-black" },
 };
 
@@ -23,9 +25,11 @@ function buildNavItems(type: CreationType) {
   ];
   if (type === "movie")     return [{ id: "overview", label: "Film Info", icon: "🎬" }, { id: "scenes", label: "Scenes", icon: "🎭" }, { id: "characters", label: "Characters", icon: "🎭" }, { id: "script", label: "Script", icon: "📜" }, { id: "marketing", label: "Marketing", icon: "📣" }, { id: "ai", label: "AI Studio", icon: "🤖" }, { id: "downloads", label: "Downloads", icon: "⬇️" }];
   if (type === "comic")     return [{ id: "overview", label: "Issue Info", icon: "📖" }, { id: "panels", label: "Panels", icon: "🎨" }, { id: "characters", label: "Characters", icon: "🦸" }, { id: "story", label: "Full Story", icon: "📜" }, { id: "marketing", label: "Marketing", icon: "📣" }, { id: "ai", label: "AI Studio", icon: "🤖" }, { id: "downloads", label: "Downloads", icon: "⬇️" }];
-  if (type === "software")  return [{ id: "overview", label: "Dashboard", icon: "📊" }, { id: "features", label: "Features", icon: "⚡" }, { id: "workflows", label: "Workflows", icon: "🔄" }, { id: "docs", label: "Docs", icon: "📖" }, { id: "marketing", label: "Marketing", icon: "📣" }, { id: "ai", label: "AI Studio", icon: "🤖" }, { id: "downloads", label: "Downloads", icon: "⬇️" }];
+  if (type === "software")  return [{ id: "overview", label: "Dashboard", icon: "📊" }, { id: "features", label: "Features", icon: "⚡" }, { id: "modules", label: "Modules", icon: "🧩" }, { id: "workflows", label: "Workflows", icon: "🔄" }, { id: "data", label: "Data Model", icon: "🗃️" }, { id: "docs", label: "Docs", icon: "📖" }, { id: "marketing", label: "Marketing", icon: "📣" }, { id: "ai", label: "AI Studio", icon: "🤖" }, { id: "downloads", label: "Downloads", icon: "⬇️" }];
   if (type === "document")  return [{ id: "overview", label: "Summary", icon: "📋" }, { id: "document", label: "Full Document", icon: "📄" }, { id: "toc", label: "Table of Contents", icon: "🗂️" }, { id: "ai", label: "AI Studio", icon: "🤖" }, { id: "downloads", label: "Downloads", icon: "⬇️" }];
   if (type === "marketing") return [{ id: "overview", label: "Brand", icon: "🎯" }, { id: "landing", label: "Landing Page", icon: "🖼️" }, { id: "funnel", label: "Funnel", icon: "⬇️" }, { id: "emails", label: "Emails", icon: "✉️" }, { id: "ads", label: "Ads", icon: "📢" }, { id: "ai", label: "AI Studio", icon: "🤖" }, { id: "downloads", label: "Downloads", icon: "⬇️" }];
+  if (type === "game")      return [{ id: "overview", label: "Game Info", icon: "🎮" }, { id: "gameplay", label: "Gameplay", icon: "🕹️" }, { id: "story", label: "Story & World", icon: "📖" }, { id: "levels", label: "Levels", icon: "🗺️" }, { id: "characters", label: "Characters", icon: "🧙" }, { id: "economy", label: "Economy", icon: "💎" }, { id: "marketing", label: "Marketing", icon: "📣" }, { id: "ai", label: "AI Studio", icon: "🤖" }, { id: "downloads", label: "Downloads", icon: "⬇️" }];
+  if (type === "community") return [{ id: "overview", label: "Platform", icon: "🌐" }, { id: "features", label: "Features", icon: "⚡" }, { id: "members", label: "Members", icon: "👥" }, { id: "content", label: "Content", icon: "📝" }, { id: "events", label: "Events", icon: "📅" }, { id: "marketing", label: "Marketing", icon: "📣" }, { id: "ai", label: "AI Studio", icon: "🤖" }, { id: "downloads", label: "Downloads", icon: "⬇️" }];
   return base;
 }
 
@@ -688,6 +692,315 @@ function AdsSection({ creation }: { creation: Creation }) {
   );
 }
 
+// ─── Software: Modules & Data ─────────────────────────────────────────────────
+function ModulesSection({ creation }: { creation: Creation }) {
+  const modules = findSections(creation, ["module", "module:"]);
+  const [active, setActive] = useState<number | null>(0);
+
+  if (modules.length === 0) {
+    // Fall back to features
+    return <FeaturesSection creation={creation} />;
+  }
+
+  return (
+    <div className="p-5 md:p-6 space-y-4 max-w-3xl mx-auto">
+      <div>
+        <h2 className="text-xl font-bold text-foreground">Modules</h2>
+        <p className="text-[12px] text-muted-foreground mt-0.5">Auto-detected modules built into this product</p>
+      </div>
+      <div className="flex gap-1.5 flex-wrap">
+        {modules.map((m, i) => (
+          <button key={i} onClick={() => setActive(active === i ? null : i)}
+            className={`text-[11px] px-3 py-1.5 rounded-full border font-semibold transition-all ${active === i ? "bg-primary text-white border-primary" : "border-border/50 text-muted-foreground hover:border-primary/30"}`}>
+            🧩 {m.title.replace(/module[:\s]*/i, "").trim()}
+          </button>
+        ))}
+      </div>
+      {active !== null && modules[active] && (
+        <div className="bg-background rounded-2xl border border-border/50 p-5 space-y-3">
+          <div className="flex items-center gap-2">
+            <div className="w-10 h-10 rounded-xl bg-primary/10 flex items-center justify-center text-xl">🧩</div>
+            <h3 className="font-bold text-[16px] text-foreground">{modules[active].title.replace(/module[:\s]*/i, "").trim()} Module</h3>
+          </div>
+          <pre className="text-[13px] text-muted-foreground whitespace-pre-wrap leading-relaxed font-sans">{modules[active].content}</pre>
+        </div>
+      )}
+      <div className="grid grid-cols-2 md:grid-cols-3 gap-2">
+        {modules.filter((_, i) => i !== active).slice(0, 6).map((m, i) => (
+          <button key={i} onClick={() => setActive(modules.indexOf(m))}
+            className="p-3 bg-muted/30 rounded-xl border border-border/30 text-left hover:border-primary/20 transition-colors">
+            <p className="text-[11px] font-semibold text-foreground">{m.title.replace(/module[:\s]*/i, "").trim()}</p>
+            <p className="text-[9px] text-muted-foreground mt-0.5 truncate">{m.content.slice(0, 60)}</p>
+          </button>
+        ))}
+      </div>
+    </div>
+  );
+}
+
+function DataModelSection({ creation }: { creation: Creation }) {
+  const dataModel = findSection(creation, ["data model", "database", "entities", "schema"]);
+  const api = findSection(creation, ["api overview", "api endpoints", "rest api"]);
+
+  const entities = dataModel ? dataModel.split(/\n(?=[A-Z])/).filter(b => b.trim()) : [];
+  const endpoints = api ? api.split(/\n(?=(?:GET|POST|PUT|DELETE|PATCH|\d+\.))/i).filter(b => b.trim()) : [];
+
+  return (
+    <div className="p-5 md:p-6 space-y-5 max-w-3xl mx-auto">
+      <h2 className="text-xl font-bold text-foreground">Data Model & API</h2>
+
+      {dataModel && (
+        <div className="space-y-3">
+          <p className="text-[11px] font-bold text-muted-foreground uppercase tracking-wider">Core Entities (Mock Schema)</p>
+          {entities.length > 1 ? (
+            <div className="grid md:grid-cols-2 gap-2">
+              {entities.slice(0, 8).map((e, i) => (
+                <div key={i} className="bg-background border border-border/50 rounded-xl p-3.5">
+                  <pre className="text-[11px] text-foreground whitespace-pre-wrap font-mono leading-relaxed">{e.trim()}</pre>
+                </div>
+              ))}
+            </div>
+          ) : (
+            <ContentBlock title="" content={dataModel} />
+          )}
+        </div>
+      )}
+
+      {api && (
+        <div className="space-y-3">
+          <p className="text-[11px] font-bold text-muted-foreground uppercase tracking-wider">API Endpoints (Conceptual)</p>
+          <div className="space-y-1.5">
+            {endpoints.length > 1 ? (
+              endpoints.slice(0, 8).map((ep, i) => {
+                const method = ep.match(/^(GET|POST|PUT|DELETE|PATCH)/i)?.[1]?.toUpperCase();
+                const colors: Record<string, string> = { GET: "#34C759", POST: "#007AFF", PUT: "#FF9500", DELETE: "#FF3B30", PATCH: "#FF9500" };
+                return (
+                  <div key={i} className="flex items-start gap-2 bg-background border border-border/50 rounded-xl p-3">
+                    {method && <span className="text-[9px] font-bold px-1.5 py-0.5 rounded text-white flex-shrink-0 mt-0.5" style={{ backgroundColor: colors[method] ?? "#636366" }}>{method}</span>}
+                    <pre className="text-[11px] text-foreground whitespace-pre-wrap font-mono leading-relaxed">{ep.replace(/^(GET|POST|PUT|DELETE|PATCH)\s*/i, "").trim()}</pre>
+                  </div>
+                );
+              })
+            ) : (
+              <ContentBlock title="" content={api} />
+            )}
+          </div>
+        </div>
+      )}
+
+      {!dataModel && !api && (
+        <p className="text-muted-foreground text-center py-8">No data model content found.</p>
+      )}
+      <p className="text-[10px] text-muted-foreground">Mock schema — conceptual only. No real database or API is configured.</p>
+    </div>
+  );
+}
+
+// ─── Game sections ────────────────────────────────────────────────────────────
+function GameOverview({ creation }: { creation: Creation }) {
+  const overview = findSection(creation, ["game overview", "overview", "summary"]);
+  const artDir = findSection(creation, ["art direction", "visual style"]);
+  const techOverview = findSection(creation, ["technical overview", "technical"]);
+  return (
+    <div className="p-5 md:p-6 space-y-5 max-w-4xl mx-auto">
+      <div className="bg-gradient-to-br from-purple-50 to-indigo-50 border border-purple-100 rounded-2xl p-6 space-y-3">
+        <div className="flex items-center gap-3">
+          <div className="w-16 h-16 rounded-2xl bg-purple-100 flex items-center justify-center text-3xl flex-shrink-0">🎮</div>
+          <div>
+            <h1 className="text-2xl font-bold text-foreground">{creation.name}</h1>
+            <p className="text-[13px] text-muted-foreground">{creation.genre} · {creation.style} · Demo Build</p>
+          </div>
+        </div>
+        <div className="flex gap-2 flex-wrap">
+          {[creation.genre, creation.style, creation.tone, "Indie Demo"].map(t => (
+            <span key={t} className="text-[11px] bg-purple-100 text-purple-700 px-2.5 py-1 rounded-full font-medium">{t}</span>
+          ))}
+        </div>
+      </div>
+      <ContentBlock title="Game Overview" content={overview} />
+      <div className="grid md:grid-cols-2 gap-3">
+        {artDir && <ContentBlock title="Art Direction" content={artDir} />}
+        {techOverview && <ContentBlock title="Technical Overview" content={techOverview} />}
+      </div>
+    </div>
+  );
+}
+
+function GameplaySection({ creation }: { creation: Creation }) {
+  const mechanics = findSection(creation, ["core gameplay", "gameplay mechanic", "mechanics"]);
+  const ai = findSection(creation, ["ai & npc", "npc behavior", "ai behavior", "ai"]);
+  return (
+    <div className="p-5 md:p-6 space-y-4 max-w-3xl mx-auto">
+      <h2 className="text-xl font-bold text-foreground">Gameplay</h2>
+      <ContentBlock title="Core Mechanics" content={mechanics || "No gameplay data found."} />
+      {ai && <ContentBlock title="AI & NPC Behavior" content={ai} />}
+      <div className="bg-purple-50 border border-purple-200 rounded-2xl p-4">
+        <p className="text-[12px] font-semibold text-purple-700">🎮 Demo Mode — Simulation Only</p>
+        <p className="text-[11px] text-purple-600 mt-1">All gameplay is conceptual/mock. No real game engine is active. This is a design document viewer.</p>
+      </div>
+    </div>
+  );
+}
+
+function GameStorySection({ creation }: { creation: Creation }) {
+  const story = findSection(creation, ["story & setting", "story", "setting", "world building", "narrative"]);
+  const world = findSection(creation, ["world building", "lore", "geography"]);
+  return (
+    <div className="p-5 md:p-6 space-y-4 max-w-3xl mx-auto">
+      <h2 className="text-xl font-bold text-foreground">Story & World</h2>
+      <ContentBlock title="Story & Setting" content={story || "No story content found."} />
+      {world && world !== story && <ContentBlock title="World Building" content={world} />}
+    </div>
+  );
+}
+
+function LevelsSection({ creation }: { creation: Creation }) {
+  const levels = findSections(creation, ["level", "tutorial", "boss", "challenge", "chapter", "area"]);
+  const [active, setActive] = useState<number | null>(0);
+  return (
+    <div className="p-5 md:p-6 space-y-4 max-w-3xl mx-auto">
+      <h2 className="text-xl font-bold text-foreground">Levels & Areas</h2>
+      <div className="space-y-2">
+        {levels.map((lvl, i) => (
+          <div key={i} className="bg-background rounded-2xl border border-border/50 overflow-hidden">
+            <button onClick={() => setActive(active === i ? null : i)}
+              className="w-full flex items-center gap-3 p-4 text-left hover:bg-muted/20 transition-colors">
+              <div className="w-10 h-10 rounded-xl bg-purple-100 flex items-center justify-center font-bold text-purple-700 text-sm flex-shrink-0">L{i+1}</div>
+              <div className="flex-1 min-w-0">
+                <p className="font-semibold text-[14px] text-foreground">{lvl.title}</p>
+                <p className="text-[11px] text-muted-foreground truncate">{lvl.content.slice(0, 80)}</p>
+              </div>
+              <span className="text-muted-foreground text-sm">{active === i ? "▲" : "▼"}</span>
+            </button>
+            {active === i && (
+              <div className="border-t border-border/30 p-4 bg-muted/10">
+                <pre className="text-[13px] text-foreground whitespace-pre-wrap leading-relaxed font-sans">{lvl.content}</pre>
+              </div>
+            )}
+          </div>
+        ))}
+        {levels.length === 0 && <p className="text-muted-foreground text-center py-8">No level data found.</p>}
+      </div>
+    </div>
+  );
+}
+
+function GameEconomySection({ creation }: { creation: Creation }) {
+  const economy = findSection(creation, ["game economy", "economy", "currency", "progression", "rewards"]);
+  return (
+    <div className="p-5 md:p-6 space-y-4 max-w-3xl mx-auto">
+      <h2 className="text-xl font-bold text-foreground">Game Economy</h2>
+      <ContentBlock title="" content={economy || "No economy data found."} />
+    </div>
+  );
+}
+
+// ─── Community sections ───────────────────────────────────────────────────────
+function CommunityOverview({ creation }: { creation: Creation }) {
+  const overview = findSection(creation, ["platform overview", "overview", "mission"]);
+  const gamification = findSection(creation, ["gamification", "reputation", "badges"]);
+  const monetization = findSection(creation, ["monetization", "revenue", "pricing"]);
+  return (
+    <div className="p-5 md:p-6 space-y-5 max-w-4xl mx-auto">
+      <div className="bg-gradient-to-br from-cyan-50 to-blue-50 border border-cyan-100 rounded-2xl p-6 space-y-3">
+        <div className="flex items-center gap-3">
+          <div className="w-16 h-16 rounded-2xl bg-cyan-100 flex items-center justify-center text-3xl flex-shrink-0">🌐</div>
+          <div>
+            <h1 className="text-2xl font-bold text-foreground">{creation.name}</h1>
+            <p className="text-[13px] text-muted-foreground">{creation.genre} · Community Platform · Demo Mode</p>
+          </div>
+        </div>
+      </div>
+      <ContentBlock title="Platform Overview" content={overview} />
+      <div className="grid md:grid-cols-2 gap-3">
+        {gamification && <ContentBlock title="Gamification" content={gamification} />}
+        {monetization && <ContentBlock title="Monetization" content={monetization} />}
+      </div>
+    </div>
+  );
+}
+
+function CommunityFeaturesSection({ creation }: { creation: Creation }) {
+  const features = findSection(creation, ["core features", "features", "member experience"]);
+  const moderation = findSection(creation, ["moderation", "safety", "community guidelines"]);
+  return (
+    <div className="p-5 md:p-6 space-y-4 max-w-3xl mx-auto">
+      <h2 className="text-xl font-bold text-foreground">Platform Features</h2>
+      <ContentBlock title="Core Features" content={features || "No feature data found."} />
+      {moderation && <ContentBlock title="Moderation & Safety" content={moderation} />}
+    </div>
+  );
+}
+
+function MembersSection({ creation }: { creation: Creation }) {
+  const members = findSection(creation, ["member experience", "profile", "onboarding", "discovery"]);
+  const groups = findSection(creation, ["groups", "channels", "clubs"]);
+
+  const mockMembers = [
+    { name: "Alex Rivera", role: "Member", joined: "Jan 2026", posts: "42", badge: "🥇" },
+    { name: "Sam Chen", role: "Moderator", joined: "Mar 2025", posts: "128", badge: "🛡️" },
+    { name: "Jordan Kim", role: "Member", joined: "Feb 2026", posts: "17", badge: "🌱" },
+    { name: "Casey Morgan", role: "Contributor", joined: "Dec 2025", posts: "89", badge: "⭐" },
+    { name: "Riley Park", role: "Member", joined: "Mar 2026", posts: "5", badge: "🌱" },
+  ];
+
+  return (
+    <div className="p-5 md:p-6 space-y-4 max-w-3xl mx-auto">
+      <h2 className="text-xl font-bold text-foreground">Members</h2>
+      <div className="space-y-1.5">
+        {mockMembers.map((m, i) => (
+          <div key={i} className="flex items-center gap-3 p-3.5 bg-background rounded-xl border border-border/50">
+            <div className="w-9 h-9 rounded-full bg-cyan-100 flex items-center justify-center text-lg flex-shrink-0">{m.badge}</div>
+            <div className="flex-1">
+              <p className="font-semibold text-[13px] text-foreground">{m.name}</p>
+              <p className="text-[10px] text-muted-foreground">{m.role} · Joined {m.joined} · {m.posts} posts</p>
+            </div>
+          </div>
+        ))}
+      </div>
+      {members && <ContentBlock title="Member Experience Design" content={members} />}
+      {groups && <ContentBlock title="Groups & Channels" content={groups} />}
+    </div>
+  );
+}
+
+function CommunityContentSection({ creation }: { creation: Creation }) {
+  const content = findSection(creation, ["content & posts", "content", "posts"]);
+  return (
+    <div className="p-5 md:p-6 space-y-4 max-w-3xl mx-auto">
+      <h2 className="text-xl font-bold text-foreground">Content & Posts</h2>
+      <ContentBlock title="" content={content || "No content data found."} />
+    </div>
+  );
+}
+
+function EventsSection({ creation }: { creation: Creation }) {
+  const events = findSection(creation, ["events", "gatherings", "meetups"]);
+  const mockEvents = [
+    { name: "Weekly Community Call", date: "Every Thursday", type: "Virtual", attendees: "~45" },
+    { name: "Monthly Showcase", date: "Last Friday of Month", type: "Hybrid", attendees: "~120" },
+    { name: "Annual Summit", date: "Q3 2026 (Mock)", type: "In-Person", attendees: "~500" },
+  ];
+  return (
+    <div className="p-5 md:p-6 space-y-4 max-w-3xl mx-auto">
+      <h2 className="text-xl font-bold text-foreground">Events</h2>
+      <div className="space-y-2">
+        {mockEvents.map((e, i) => (
+          <div key={i} className="flex items-center gap-3 p-4 bg-background rounded-2xl border border-border/50">
+            <div className="w-10 h-10 rounded-xl bg-cyan-100 flex items-center justify-center text-xl flex-shrink-0">📅</div>
+            <div className="flex-1">
+              <p className="font-semibold text-[13px] text-foreground">{e.name}</p>
+              <p className="text-[11px] text-muted-foreground">{e.date} · {e.type} · {e.attendees} attendees</p>
+            </div>
+            <span className="text-[10px] text-cyan-600 font-semibold border border-cyan-200 px-2 py-0.5 rounded-full">Mock</span>
+          </div>
+        ))}
+      </div>
+      {events && <ContentBlock title="Events Platform Design" content={events} />}
+    </div>
+  );
+}
+
 // ─── Generic content section ──────────────────────────────────────────────────
 function GenericContent({ creation }: { creation: Creation }) {
   const [active, setActive] = useState<number | null>(null);
@@ -757,15 +1070,36 @@ export function CreationViewer({ creation }: { creation: Creation }) {
       }
     }
 
-    // Software
+    // Software / SaaS
     if (creation.type === "software") {
       if (section === "overview")   return <SoftwareDashboard creation={creation} />;
       if (section === "features")   return <FeaturesSection creation={creation} />;
+      if (section === "modules")    return <ModulesSection creation={creation} />;
       if (section === "workflows")  return <WorkflowsSection creation={creation} />;
+      if (section === "data")       return <DataModelSection creation={creation} />;
       if (section === "docs") {
-        const docs = findSections(creation, ["documentation", "getting started", "key concepts"]);
-        return <div className="p-5 md:p-6 space-y-4 max-w-3xl mx-auto"><h2 className="text-xl font-bold">Documentation</h2>{docs.map((d, i) => <ContentBlock key={i} title={d.title.replace(/documentation[—\s-]*/i, "").trim()} content={d.content} />)}</div>;
+        const docs = findSections(creation, ["documentation", "getting started", "key concepts", "user guide"]);
+        return <div className="p-5 md:p-6 space-y-4 max-w-3xl mx-auto"><h2 className="text-xl font-bold">Documentation</h2>{docs.length > 0 ? docs.map((d, i) => <ContentBlock key={i} title={d.title.replace(/documentation[—\s-]*/i, "").trim()} content={d.content} />) : <p className="text-muted-foreground text-center py-8">No documentation found.</p>}</div>;
       }
+    }
+
+    // Game
+    if (creation.type === "game") {
+      if (section === "overview")    return <GameOverview creation={creation} />;
+      if (section === "gameplay")    return <GameplaySection creation={creation} />;
+      if (section === "story")       return <GameStorySection creation={creation} />;
+      if (section === "levels")      return <LevelsSection creation={creation} />;
+      if (section === "characters")  return <CharactersSection creation={creation} />;
+      if (section === "economy")     return <GameEconomySection creation={creation} />;
+    }
+
+    // Community
+    if (creation.type === "community") {
+      if (section === "overview")  return <CommunityOverview creation={creation} />;
+      if (section === "features")  return <CommunityFeaturesSection creation={creation} />;
+      if (section === "members")   return <MembersSection creation={creation} />;
+      if (section === "content")   return <CommunityContentSection creation={creation} />;
+      if (section === "events")    return <EventsSection creation={creation} />;
     }
 
     // Document
