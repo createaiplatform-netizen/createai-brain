@@ -1444,4 +1444,156 @@ Generate all 6 sections now — Offer Definition, Package, Marketing Funnel, Out
   res.end();
 });
 
+// ─── UNIVERSAL DEMO + TEST + SIMULATION ENGINE ────────────────────────────
+
+const UNIVERSAL_DEMO_PROMPT = `You are the Universal Demo + Test + Simulation Engine inside CreateAI Brain.
+
+PRIME DIRECTIVE:
+Generate instantly believable, professionally deep content for ANY industry, ANY role, ANY department, ANY scenario.
+Never say "not supported", "not modeled", "coming soon", or "outside my scope." Always adapt the pattern.
+
+CORE PRINCIPLE — UNIVERSAL PATTERN:
+Every domain in existence maps to the same universal pattern. Apply it every time regardless of industry:
+- Entities: the primary things that move through the system (patients, clients, students, permits, orders, cases, properties, vehicles, contracts, tickets...)
+- Workflows: the stages entities move through (intake → process → review → approve → deliver → follow-up → close)
+- Documents: what gets created and signed (intakes, assessments, reports, invoices, contracts, certificates, logs, records)
+- Metrics: what gets measured (volume, quality, time, cost, error rate, satisfaction, compliance %, throughput)
+- Problems: what goes wrong (delays, bottlenecks, compliance gaps, errors, missed SLAs, staff gaps, system failures, edge cases)
+- Roles: who operates the system (frontline operators, supervisors, clients/recipients, auditors, executives, external partners)
+
+THREE MODES — adjust tone, depth, and content type accordingly:
+- DEMO: Polished, welcoming, surface-level clarity. Show the best-case flow. Generate 5-8 beautiful realistic examples. Surface the "aha!" moment fast. The user needs to say "I get it" in 30 seconds.
+- TEST: Detailed, realistic, friction-included. Use their role/constraints/org type. Show realistic complexity — not just happy paths. Include edge cases and real-world messiness.
+- SIMULATION: Stress mode. Show failures, cascading breakdowns, audit flags, compliance violations, high-volume degradation, staff turnover impacts, regulatory change overnight. What happens at 10x load? When the budget is cut 40%? When a key vendor fails?
+
+EIGHT ACTIONS — execute each one in full, with no hedging:
+
+overview:
+Write a sharp 1-page executive summary. Cover: domain name, primary entity type, key workflow stages, top 3 value drivers where AI adds leverage, 3 immediate opportunities, and 1 critical risk. Tone: senior consultant on day 3 of an engagement.
+
+entities:
+Generate 10-12 specific named realistic entities. NOT "Patient A" or "Client 1" — use real-sounding names, statuses, flags, priority levels, assigned roles, and key data points. Format as a table or structured list. Make it feel like a real CRM export.
+
+workflows:
+Map 3-5 distinct workflows end-to-end. For each: name, trigger, 5-8 stages with sub-steps, documents created at each stage, roles involved, average time per stage, common failure points, and AI automation opportunity score (1-10).
+
+documents:
+Generate 4-6 specific document templates for this domain. For each: document name, purpose, section headers, 8-12 key fields with example values, who creates it, who approves it, retention period.
+
+metrics:
+Build a realistic KPI dashboard. 10-14 metrics with: metric name, current value (realistic illustrative number), period, trend (↑/↓/→), benchmark, and 1-line AI insight. Format as a clean table.
+
+scenarios:
+Generate 5-6 plausible business scenarios. For each: scenario name, trigger event, probability (%), financial impact estimate, operational impact, recommended response, and AI-assisted mitigation approach.
+
+problems:
+Surface 7-9 realistic operational problems in this domain. For each: problem name, description, root cause, severity (Critical/High/Medium/Low), how long it typically goes undetected, and AI-recommended solution.
+
+drill:
+Go extremely deep on the specific target provided. Reveal hidden complexity, sub-components, interdependencies, failure modes, regulatory implications, technology touchpoints, and edge cases. Be exhaustive. Use nested headers. Show the thing the user didn't know they needed to know.
+ALWAYS end every drill response with:
+◉ Go even deeper on:
+• [specific sub-topic 1]
+• [specific sub-topic 2]
+• [specific sub-topic 3]
+
+what-if:
+Run the exact what-if scenario specified. Structure as: Before State → Trigger Event → Immediate Impact (0-30 days) → Medium-Term Cascades (1-6 months) → Long-Term Implications (6+ months) → Who Is Affected → What Breaks → What Adapts → Recommended Actions. Be specific with numbers.
+
+branch:
+Create a parallel scenario branch. Show: Branch A (current path) vs Branch B (alternative). For each branch: key decisions, technology stack, team structure, 12-month projected outcomes, risks, and trade-offs. Conclude with a recommendation matrix.
+
+INFINITY RULES (never violate):
+1. Every drill response MUST end with "◉ Go even deeper on:" + 3 specific sub-topics.
+2. Every explore response MUST end with "↗ Branch into:" + 2 alternative angles.
+3. Never say "this covers everything." There is always another layer.
+4. Use realistic specifics: real software names (Epic, Salesforce, SAP, Workday, QuickBooks, ServiceNow, Jira), real regulatory frameworks (HIPAA, SOC2, ADA, OSHA, GDPR, PCI-DSS, ISO 27001, FINRA), realistic dollar amounts, realistic timelines.
+5. Content feels like it was written by a senior consultant with 15 years in this specific domain.
+
+FORMAT RULES:
+- Use ## and ### markdown headers to structure content
+- Use bullet points, numbered lists, and tables where appropriate
+- **Bold** key terms, metrics, and critical information
+- Keep it scannable — headers, not walls of text
+- Label all content: "Illustrative example — all data conceptual"
+- Be specific and concrete. "The clinic processes ~340 patient visits/week" not "the organization handles many clients."`;
+
+router.post("/universal-demo", async (req, res) => {
+  const { domain, mode, layer, action, context, target, whatIf, history } = req.body as {
+    domain: string;
+    mode: "demo" | "test" | "simulation";
+    layer: "surface" | "explore" | "deep";
+    action: string;
+    context?: { role?: string; orgType?: string; constraints?: string };
+    target?: string;
+    whatIf?: string;
+    history?: string[];
+  };
+
+  if (!domain?.trim()) {
+    return void res.status(400).json({ error: "domain is required" });
+  }
+
+  const contextLines = [
+    context?.role        ? `User Role: ${context.role}` : "",
+    context?.orgType     ? `Org Type: ${context.orgType}` : "",
+    context?.constraints ? `Constraints: ${context.constraints}` : "",
+  ].filter(Boolean).join("\n");
+
+  const historyLine = history?.length
+    ? `Exploration path so far: ${history.join(" → ")}`
+    : "";
+
+  const actionInstructions: Record<string, string> = {
+    overview:   "Execute the OVERVIEW action for this domain.",
+    entities:   "Execute the ENTITIES action for this domain.",
+    workflows:  "Execute the WORKFLOWS action for this domain.",
+    documents:  "Execute the DOCUMENTS action for this domain.",
+    metrics:    "Execute the METRICS action for this domain.",
+    scenarios:  "Execute the SCENARIOS action for this domain.",
+    problems:   "Execute the PROBLEMS action for this domain.",
+    drill:      `Execute the DRILL action. Target to drill into: "${target || domain}"`,
+    "what-if":  `Execute the WHAT-IF action. Scenario: "${whatIf || "What if the volume doubles overnight?"}"`,
+    branch:     `Execute the BRANCH action. Starting point: "${target || domain}"`,
+  };
+
+  const modeInstruction = {
+    demo:       "MODE = DEMO: polished, guided, surface-level clarity, show the best-case flow",
+    test:       "MODE = TEST: use the user's context and constraints, include realistic friction and complexity",
+    simulation: "MODE = SIMULATION: stress test everything, show failures, edge cases, cascades, and breakdown scenarios",
+  }[mode] ?? "MODE = DEMO";
+
+  const userPrompt = `Domain: ${domain}
+${modeInstruction}
+Layer: ${layer}
+${contextLines}
+${historyLine}
+
+${actionInstructions[action] ?? `Execute the ${action.toUpperCase()} action for this domain.`}
+
+Be thorough, specific, and deep. Treat this as a real engagement, not a demo.`;
+
+  res.setHeader("Content-Type", "text/event-stream");
+  res.setHeader("Cache-Control", "no-cache");
+  res.setHeader("Connection", "keep-alive");
+
+  const stream = await openai.chat.completions.create({
+    model: "gpt-5.2",
+    max_completion_tokens: 8192,
+    messages: [
+      { role: "system", content: UNIVERSAL_DEMO_PROMPT },
+      { role: "user", content: userPrompt },
+    ],
+    stream: true,
+  });
+
+  for await (const chunk of stream) {
+    const content = chunk.choices[0]?.delta?.content;
+    if (content) res.write(`data: ${JSON.stringify({ content })}\n\n`);
+  }
+
+  res.write(`data: ${JSON.stringify({ done: true })}\n\n`);
+  res.end();
+});
+
 export default router;

@@ -1,5 +1,6 @@
 import React, { useState, useRef } from "react";
 import { OutputFormatter } from "@/components/OutputFormatter";
+import { UniversalDemoEngine } from "./UniversalDemoEngine";
 
 // ─── Simulation domains ────────────────────────────────────────────────────
 const SIM_DOMAINS = [
@@ -644,42 +645,54 @@ function AdPacketTab() {
 
 // ─── MAIN SIMULATION APP ───────────────────────────────────────────────────
 const TABS = [
-  { id: "simulate", label: "Simulate",    icon: "🧪" },
-  { id: "gap",      label: "Gap Analyze", icon: "🔍" },
-  { id: "ads",      label: "Ad Packets",  icon: "📣" },
+  { id: "universal", label: "Universal Engine", icon: "✦" },
+  { id: "simulate",  label: "Simulate",         icon: "🧪" },
+  { id: "gap",       label: "Gap Analyze",      icon: "🔍" },
+  { id: "ads",       label: "Ad Packets",       icon: "📣" },
 ] as const;
 
 type TabId = typeof TABS[number]["id"];
 
 export function SimulationApp() {
-  const [tab, setTab] = useState<TabId>("simulate");
+  const [tab, setTab] = useState<TabId>("universal");
 
   return (
     <div className="flex flex-col h-full">
       {/* Tab bar */}
       <div className="flex-shrink-0 px-4 pt-4 pb-0">
-        <div className="flex gap-1 p-1 rounded-2xl"
-          style={{ background: "rgba(14,18,42,0.70)", border: "1px solid rgba(255,255,255,0.07)" }}>
-          {TABS.map(t => (
-            <button key={t.id} onClick={() => setTab(t.id)}
-              className="flex-1 flex items-center justify-center gap-1.5 py-2 rounded-xl text-[12px] font-semibold transition-all"
-              style={{
-                background: tab === t.id ? "rgba(168,85,247,0.20)" : "transparent",
-                border: tab === t.id ? "1px solid rgba(168,85,247,0.35)" : "1px solid transparent",
-                color: tab === t.id ? "#c084fc" : "rgba(255,255,255,0.45)",
-              }}>
-              <span className="text-sm">{t.icon}</span>
-              <span className="hidden sm:inline">{t.label}</span>
-            </button>
-          ))}
+        <div className="flex gap-1 p-1 rounded-2xl overflow-x-auto"
+          style={{ background: "rgba(14,18,42,0.70)", border: "1px solid rgba(255,255,255,0.07)", scrollbarWidth: "none" }}>
+          {TABS.map(t => {
+            const isUniversal = t.id === "universal";
+            const active = tab === t.id;
+            return (
+              <button key={t.id} onClick={() => setTab(t.id)}
+                className="flex-shrink-0 flex items-center justify-center gap-1.5 py-2 px-3 rounded-xl text-[12px] font-semibold transition-all"
+                style={{
+                  background: active
+                    ? isUniversal ? "rgba(99,102,241,0.22)" : "rgba(168,85,247,0.20)"
+                    : "transparent",
+                  border: active
+                    ? isUniversal ? "1px solid rgba(99,102,241,0.40)" : "1px solid rgba(168,85,247,0.35)"
+                    : "1px solid transparent",
+                  color: active
+                    ? isUniversal ? "#a5b4fc" : "#c084fc"
+                    : "rgba(255,255,255,0.40)",
+                }}>
+                <span className="text-sm">{t.icon}</span>
+                <span className="hidden sm:inline whitespace-nowrap">{t.label}</span>
+              </button>
+            );
+          })}
         </div>
       </div>
 
       {/* Content */}
-      <div className="flex-1 overflow-y-auto overscroll-contain">
-        {tab === "simulate" && <SimulateTab />}
-        {tab === "gap"      && <GapTab />}
-        {tab === "ads"      && <AdPacketTab />}
+      <div className="flex-1 overflow-hidden">
+        {tab === "universal" && <UniversalDemoEngine />}
+        {tab === "simulate"  && <div className="h-full overflow-y-auto overscroll-contain"><SimulateTab /></div>}
+        {tab === "gap"       && <div className="h-full overflow-y-auto overscroll-contain"><GapTab /></div>}
+        {tab === "ads"       && <div className="h-full overflow-y-auto overscroll-contain"><AdPacketTab /></div>}
       </div>
     </div>
   );

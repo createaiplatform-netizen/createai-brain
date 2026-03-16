@@ -1,4 +1,17 @@
-# Workspace
+# CreateAI Brain – Workspace
+
+## Universal Demo + Test + Simulation Engine (NEW)
+- **File**: `artifacts/createai-brain/src/Apps/UniversalDemoEngine.tsx`
+- **API**: `POST /api/openai/universal-demo` — any domain, any mode, any action, streaming
+- **Entry**: SimulationApp → first tab "✦ Universal Engine"
+- **Architecture**: 3-layer (Surface → Explore → Deep) × 3-mode (Demo / Test / Simulation)
+- **8 actions**: overview, entities, workflows, documents, metrics, scenarios, problems, drill, what-if, branch
+- **Infinite depth**: Go Deeper, Branch, What If — never a dead end
+- **18 popular domain presets** + freeform text for any domain
+- **Content cache** per domain+mode+action to avoid redundant API calls
+- **History stack** with Back navigation across layers
+
+
 
 ## Overview
 
