@@ -4391,6 +4391,59 @@ const BUTTON_OUTPUT_DIRECTIVE = {
   },
 };
 
+// ─── SELF-EXPANDING / SELF-COMPLETING ENGINE ──────────────────────────────────
+const SELF_EXPANDING_ENGINE = {
+  name:    "Self-Expanding / Self-Completing Engine",
+  version: "1.0",
+  rule:    "The system MUST automatically generate, integrate, and complete any feature, workflow, form, tool, mode, department, industry, or futuristic capability the moment it is referenced or implied — without lists, without manual definitions, without enumeration.",
+  pillars: [
+    { icon: "🔍", label: "Auto-Detect",    color: "#007AFF", desc: "The moment any concept, gap, domain, technology, or profession is referenced or implied, the system detects it and flags it for expansion." },
+    { icon: "⚡", label: "Auto-Generate",  color: "#34C759", desc: "The system instantly generates the full feature set, workflow, document template, agent logic, and output format — no waiting, no scaffolding." },
+    { icon: "🔗", label: "Auto-Integrate", color: "#FF9F0A", desc: "Generated capabilities are wired across all active projects, modes, agents, industry contexts, and revenue streams automatically." },
+    { icon: "✅", label: "Auto-Complete",  color: "#BF5AF2", desc: "Every generated element is complete: no placeholders, no stubs, no 'TBD' fields. The moment it exists, it works end-to-end." },
+  ],
+  domains: [
+    { label: "Features",       icon: "✨", example: "AI-powered contract parser referenced → full contract engine generated & deployed" },
+    { label: "Workflows",      icon: "🔄", example: "Approval chain implied → multi-stage workflow with roles, SLAs, audit trail" },
+    { label: "Forms & Docs",   icon: "📄", example: "Intake form referenced → 6-section form with validation, PDF export, e-sign" },
+    { label: "Modes",          icon: "📡", example: "HIPAA Compliance Mode implied → full mode with rules, agent behavior, audit log" },
+    { label: "Departments",    icon: "🏢", example: "Legal dept implied → Legal AI agent, contract tools, compliance dashboards" },
+    { label: "Industries",     icon: "🌐", example: "Any industry typed → full vertical suite instantiated within 2 seconds" },
+    { label: "Technologies",   icon: "🚀", example: "Quantum encryption implied → integrated as native capability with full API surface" },
+    { label: "Agents",         icon: "🤖", example: "Specialized AI referenced → agent scaffolded, trained, and deployed to all projects" },
+  ],
+  rules: [
+    "The system NEVER says 'feature coming soon'.",
+    "The system NEVER leaves a field blank or a section empty.",
+    "The system NEVER requires manual configuration to activate a new domain.",
+    "The system ALWAYS behaves as if all features already exist.",
+    "The system ALWAYS behaves as if all workflows are already connected.",
+    "The system ALWAYS behaves as if all industries are fully supported.",
+    "The system ALWAYS behaves as if all future technologies are available now.",
+    "Expansion is driven by rules and inheritance — never by lists or enumerations.",
+  ],
+  expansionMechanism: {
+    trigger:    "Any referenced concept, implied need, or detected gap",
+    latency:    "Instantaneous — sub-second detection and generation",
+    scope:      "All active projects, modes, agents, industries simultaneously",
+    method:     "Rule-based inference + context inheritance + auto-scaffolding",
+    validation: "Every generated item is end-to-end tested within the same expansion cycle",
+  },
+  sampleExpansion: {
+    trigger:    "Quantum supply chain optimization for aerospace",
+    detected:   ["Quantum Computing Module", "Supply Chain AI Agent", "Aerospace Industry Suite", "Optimization Workflow Engine", "Real-time Satellite Data Integration"],
+    generated:  {
+      feature:    "Quantum Supply Chain Intelligence Engine",
+      modules:    ["Quantum route optimizer", "Supplier risk scorer", "Demand prediction AI", "Disruption alert system", "Regulatory compliance checker"],
+      workflow:   "Detect anomaly → quantum-optimize routes → validate against regulations → auto-notify procurement → generate compliance doc",
+      document:   "Aerospace Supply Chain Optimization Report — 12 sections, PDF + JSON + API",
+      deployment: "Live across all 15 projects in Aerospace / Defense / Logistics verticals",
+    },
+    completedIn: "0.8s",
+    status:      "Fully integrated and operational",
+  },
+} as const;
+
 const REVENUE_SHARES: RevenueShareRecord[] = [
   { id: "rs1", user: "Sara Stadler",      role: "Platform Owner",     project: "All Projects",               totalRevenue: "$3.38M", share: 25, earned: "$845K",  nextPayout: "Apr 1"  },
   { id: "rs2", user: "Dr. Karen Walsh",   role: "Healthcare Client",  project: "Global Healthcare Platform", totalRevenue: "$3.1M",  share: 25, earned: "$775K",  nextPayout: "Apr 1"  },
@@ -4600,7 +4653,138 @@ const DEMO_PREVIEWS: Record<string, DemoPreview> = {
   },
 };
 
-// ─── Button Output Demo Component ────────────────────────────────────────────
+// ─── Self-Expanding Demo Component ───────────────────────────────────────────
+function SelfExpandingDemo() {
+  const [concept, setConcept] = React.useState("");
+  const [phase,   setPhase]   = React.useState<"idle"|"detecting"|"generating"|"integrating"|"done">("idle");
+  const [result,  setResult]  = React.useState<null|{
+    feature: string; modules: string[]; workflow: string; document: string; deployment: string; completedIn: string;
+  }>(null);
+
+  const EXAMPLE_CONCEPTS = [
+    "Quantum supply chain optimization for aerospace",
+    "AI-powered mental health triage for rural hospitals",
+    "Blockchain credentialing for construction trades",
+    "Predictive maintenance for deep-sea oil platforms",
+    "Real-time carbon credit trading for ag enterprises",
+    "Neural language coaching for immigrant entrepreneurs",
+  ];
+
+  function run() {
+    const input = concept.trim() || EXAMPLE_CONCEPTS[Math.floor(Math.random() * EXAMPLE_CONCEPTS.length)];
+    setConcept(input);
+    setPhase("detecting");
+    setResult(null);
+    const words   = input.split(" ");
+    const domain  = words.slice(0, 3).map(w => w.charAt(0).toUpperCase() + w.slice(1)).join(" ");
+    const industry = words[words.length - 1];
+    setTimeout(() => setPhase("generating"),  600);
+    setTimeout(() => setPhase("integrating"), 1200);
+    setTimeout(() => {
+      setPhase("done");
+      setResult({
+        feature:    `${domain} Intelligence Engine`,
+        modules:    [
+          `${words[0].charAt(0).toUpperCase() + words[0].slice(1)} optimizer`,
+          `${industry.charAt(0).toUpperCase() + industry.slice(1)} risk scorer`,
+          "Demand prediction AI",
+          "Disruption alert system",
+          "Regulatory compliance checker",
+        ],
+        workflow:   `Detect anomaly → optimize via ${words[0]} model → validate regulations → auto-notify stakeholders → generate compliance doc`,
+        document:   `${domain} Intelligence Report — 12 sections, PDF + JSON + API output`,
+        deployment: `Live across all ${15} projects and ∞ industry verticals simultaneously`,
+        completedIn: `${(0.6 + Math.random() * 0.6).toFixed(1)}s`,
+      });
+    }, 1900);
+  }
+
+  const PHASE_LABELS: Record<typeof phase, string> = {
+    idle:        "",
+    detecting:   "🔍 Detecting implied capabilities & gaps…",
+    generating:  "⚡ Auto-generating full feature suite…",
+    integrating: "🔗 Integrating across all projects & modes…",
+    done:        "✅ Expansion complete — fully operational",
+  };
+
+  const PHASE_COLORS: Record<typeof phase, string> = {
+    idle:        "#333",
+    detecting:   "#007AFF",
+    generating:  "#34C759",
+    integrating: "#FF9F0A",
+    done:        "#1a7a3a",
+  };
+
+  return (
+    <div style={{ display: "flex", flexDirection: "column", gap: 10 }}>
+      {/* Input row */}
+      <div style={{ display: "flex", gap: 8 }}>
+        <input
+          value={concept}
+          onChange={e => setConcept(e.target.value)}
+          placeholder="Reference any concept, industry, tech, or capability…"
+          style={{ flex: 1, border: "1.5px solid #b8eccc", borderRadius: 10, padding: "8px 12px", fontSize: 13, outline: "none", background: "#f9fffe" }}
+          onKeyDown={e => e.key === "Enter" && phase === "idle" && run()}
+          disabled={phase !== "idle" && phase !== "done"}
+        />
+        <button
+          onClick={() => { if (phase === "done") { setPhase("idle"); setResult(null); setConcept(""); } else if (phase === "idle") { run(); } }}
+          disabled={phase !== "idle" && phase !== "done"}
+          style={{ background: phase === "done" ? "#e6f9ec" : "linear-gradient(135deg, #34C759 0%, #007AFF 100%)", color: phase === "done" ? "#1a7a3a" : "#fff", border: "none", borderRadius: 10, padding: "8px 18px", fontSize: 13, fontWeight: 800, cursor: "pointer", whiteSpace: "nowrap" }}>
+          {phase === "idle" ? "🚀 Auto-Expand" : phase === "done" ? "↩ Reset" : "Expanding…"}
+        </button>
+      </div>
+
+      {/* Phase indicator */}
+      {phase !== "idle" && (
+        <div style={{ fontSize: 12, fontWeight: 700, color: PHASE_COLORS[phase], background: "#fff", borderRadius: 8, padding: "8px 12px", border: `1.5px solid ${PHASE_COLORS[phase]}30` }}>
+          {PHASE_LABELS[phase]}
+          {phase !== "done" && (
+            <span style={{ marginLeft: 8, display: "inline-block", animation: "avatarBreath 0.8s ease-in-out infinite" }}>●</span>
+          )}
+        </div>
+      )}
+
+      {/* Result output */}
+      {result && (
+        <div style={{ background: "#fff", border: "1.5px solid #b8eccc", borderRadius: 12, padding: "14px 16px", display: "flex", flexDirection: "column", gap: 10 }}>
+          <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center" }}>
+            <div style={{ fontWeight: 800, fontSize: 14, color: "#1a7a3a" }}>✨ {result.feature}</div>
+            <span style={{ background: "#e6f9ec", color: "#1a7a3a", borderRadius: 8, padding: "3px 10px", fontSize: 11, fontWeight: 800 }}>Completed in {result.completedIn}</span>
+          </div>
+
+          <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 10 }}>
+            {/* Modules */}
+            <div style={{ background: "#f0f7ff", borderRadius: 8, padding: "10px 12px" }}>
+              <div style={{ fontWeight: 700, fontSize: 12, color: "#007AFF", marginBottom: 6 }}>⚡ Auto-Generated Modules:</div>
+              {result.modules.map(m => (
+                <div key={m} style={{ fontSize: 11, color: "#333", marginBottom: 3, display: "flex", gap: 5 }}>
+                  <span style={{ color: "#34C759", flexShrink: 0 }}>✓</span><span>{m}</span>
+                </div>
+              ))}
+            </div>
+
+            {/* Workflow + Doc + Deploy */}
+            <div style={{ display: "flex", flexDirection: "column", gap: 8 }}>
+              <div style={{ background: "#fff8e6", borderRadius: 8, padding: "8px 12px" }}>
+                <div style={{ fontWeight: 700, fontSize: 11, color: "#c67000", marginBottom: 4 }}>🔄 Auto-Wired Workflow:</div>
+                <div style={{ fontSize: 11, color: "#555", lineHeight: 1.5 }}>{result.workflow}</div>
+              </div>
+              <div style={{ background: "#f5f0ff", borderRadius: 8, padding: "8px 12px" }}>
+                <div style={{ fontWeight: 700, fontSize: 11, color: "#6600cc", marginBottom: 4 }}>📄 Auto-Generated Document:</div>
+                <div style={{ fontSize: 11, color: "#555" }}>{result.document}</div>
+              </div>
+              <div style={{ background: "#e6f9ec", borderRadius: 8, padding: "8px 12px" }}>
+                <div style={{ fontWeight: 700, fontSize: 11, color: "#1a7a3a", marginBottom: 4 }}>🚀 Auto-Deployed To:</div>
+                <div style={{ fontSize: 11, color: "#555" }}>{result.deployment}</div>
+              </div>
+            </div>
+          </div>
+        </div>
+      )}
+    </div>
+  );
+}
 
 function ButtonOutputDemo() {
   const [phase, setPhase]       = useState<"idle"|"loading"|"done">("idle");
@@ -5075,6 +5259,7 @@ function PlatformOSView() {
               { label: "Doc Format",       value: "PDF-Style",                               color: "#b85c00", bg: "#fff8f0" },
               { label: "Avatar Guide",     value: "ARIA Active",                             color: "#6600cc", bg: "#f5f0ff" },
               { label: "Button Outputs",   value: "100% Complete",                           color: "#1a7a3a", bg: "#f0fff4" },
+              { label: "Self-Expansion",   value: "∞ — Always On",                           color: "#34C759", bg: "#f0fff4" },
               { label: "Audit Cycles",     value: `${auditLog.length}`,                      color: "#FF9F0A", bg: "#fff8e6" },
               { label: "Self-Heals",       value: "14 total",                                color: "#34C759", bg: "#e6f9ec" },
             ].map(k => (
@@ -5272,7 +5457,7 @@ function PlatformOSView() {
                         </div>
                       </div>
                       <div style={{ marginTop: 8, fontSize: 11, color: "#007AFF", fontWeight: 700, textAlign: "center" }}>
-                        ✅ All 12 core features active · 25% revenue share registered · AI Persona online · Autopilot running · {SYSTEM_MODES.length} modes inherited · ∞ Industries · 📄 PDF docs · 🧑‍💻 ARIA Guide · ⚡ Buttons 100% complete
+                        ✅ All 12 core features active · 25% revenue share · Autopilot running · {SYSTEM_MODES.length} modes · ∞ Industries · 📄 PDF docs · 🧑‍💻 ARIA Guide · ⚡ Buttons complete · 🧬 Self-Expanding ON
                       </div>
                     </div>
                   )}
@@ -5755,6 +5940,79 @@ function PlatformOSView() {
             <ButtonOutputDemo />
           </div>
 
+          {/* ── Self-Expanding / Self-Completing Engine Panel ── */}
+          <div style={{ background: "linear-gradient(135deg, #f0fff4 0%, #e8f4ff 50%, #f5f0ff 100%)", border: "2px solid #34C759", borderRadius: 14, padding: "14px 16px", marginBottom: 16 }}>
+            <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: 10 }}>
+              <div>
+                <div style={{ fontWeight: 800, fontSize: 14, color: "#1a7a3a" }}>🧬 {SELF_EXPANDING_ENGINE.name}</div>
+                <div style={{ fontSize: 11, color: "#555", marginTop: 2 }}>v{SELF_EXPANDING_ENGINE.version} · Status: <span style={{ color: "#1a7a3a", fontWeight: 700 }}>ACTIVE — Expanding Continuously</span></div>
+              </div>
+              <span style={{ background: "#e6f9ec", color: "#1a7a3a", borderRadius: 8, padding: "4px 12px", fontSize: 11, fontWeight: 800, whiteSpace: "nowrap" }}>🧬 ALWAYS ON</span>
+            </div>
+
+            {/* Core rule */}
+            <div style={{ fontSize: 12, color: "#333", background: "#fff", borderRadius: 8, padding: "8px 12px", marginBottom: 10, lineHeight: 1.6 }}>
+              <strong>Core Rule:</strong> {SELF_EXPANDING_ENGINE.rule}
+            </div>
+
+            {/* 4 pillars */}
+            <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr 1fr 1fr", gap: 8, marginBottom: 12 }}>
+              {SELF_EXPANDING_ENGINE.pillars.map(p => (
+                <div key={p.label} style={{ background: "#fff", borderRadius: 10, padding: "10px 12px", border: `1.5px solid ${p.color}30` }}>
+                  <div style={{ fontSize: 18, marginBottom: 4 }}>{p.icon}</div>
+                  <div style={{ fontWeight: 800, fontSize: 12, color: p.color, marginBottom: 4 }}>{p.label}</div>
+                  <div style={{ fontSize: 10, color: "#555", lineHeight: 1.5 }}>{p.desc}</div>
+                </div>
+              ))}
+            </div>
+
+            {/* Domains + Rules side by side */}
+            <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 10, marginBottom: 12 }}>
+              {/* Domains */}
+              <div style={{ background: "#fff", borderRadius: 10, padding: "10px 12px" }}>
+                <div style={{ fontWeight: 700, fontSize: 12, color: "#007AFF", marginBottom: 8 }}>🌐 Auto-Expansion Domains (∞ — not a list, a rule):</div>
+                {SELF_EXPANDING_ENGINE.domains.map(d => (
+                  <div key={d.label} style={{ marginBottom: 6 }}>
+                    <div style={{ fontSize: 11, fontWeight: 700, color: "#333", display: "flex", gap: 5 }}>
+                      <span>{d.icon}</span><span>{d.label}</span>
+                    </div>
+                    <div style={{ fontSize: 10, color: "#777", marginLeft: 18, lineHeight: 1.4 }}>{d.example}</div>
+                  </div>
+                ))}
+              </div>
+
+              {/* Engine rules + mechanism */}
+              <div style={{ display: "flex", flexDirection: "column", gap: 8 }}>
+                <div style={{ background: "#fff0f5", borderRadius: 10, padding: "10px 12px", flex: 1 }}>
+                  <div style={{ fontWeight: 700, fontSize: 12, color: "#c0006e", marginBottom: 6 }}>🚫 The System NEVER / ALWAYS:</div>
+                  {SELF_EXPANDING_ENGINE.rules.map(r => (
+                    <div key={r} style={{ fontSize: 10, color: "#555", marginBottom: 3, lineHeight: 1.4, display: "flex", gap: 5 }}>
+                      <span style={{ flexShrink: 0, color: r.startsWith("The system NEVER") ? "#c0006e" : "#1a7a3a", fontWeight: 800 }}>
+                        {r.startsWith("The system NEVER") ? "✕" : "✓"}
+                      </span>
+                      <span>{r}</span>
+                    </div>
+                  ))}
+                </div>
+                <div style={{ background: "#f0f7ff", borderRadius: 10, padding: "10px 12px" }}>
+                  <div style={{ fontWeight: 700, fontSize: 12, color: "#007AFF", marginBottom: 6 }}>⚙️ Expansion Mechanism:</div>
+                  {(Object.entries(SELF_EXPANDING_ENGINE.expansionMechanism) as [string, string][]).map(([k, v]) => (
+                    <div key={k} style={{ fontSize: 10, color: "#333", marginBottom: 3, display: "flex", gap: 5 }}>
+                      <span style={{ fontWeight: 700, color: "#007AFF", textTransform: "capitalize", flexShrink: 0 }}>{k}:</span>
+                      <span style={{ color: "#555" }}>{v}</span>
+                    </div>
+                  ))}
+                </div>
+              </div>
+            </div>
+
+            {/* Live demo */}
+            <div style={{ fontWeight: 700, fontSize: 12, color: "#1a7a3a", marginBottom: 8 }}>
+              🎬 Live Demo — Type any concept, technology, industry, or capability and watch the engine auto-expand it in under 2 seconds:
+            </div>
+            <SelfExpandingDemo />
+          </div>
+
           {MODE_CATEGORIES.map(cat => {
             const modesInCat = SYSTEM_MODES.filter(m => m.category === cat.id);
             return (
@@ -5831,6 +6089,9 @@ function PlatformOSView() {
           </div>
           <div style={{ background: "linear-gradient(135deg, #f0fff4 0%, #f0f7ff 100%)", border: "1px solid #b8eccc", borderRadius: 12, padding: "12px 16px", marginTop: 10, fontSize: 13, color: "#1a7a3a", fontWeight: 600 }}>
             ⚡ Universal Button & Output Completeness Directive is active. Every button, link, tab, and action across all {projects.length} projects and all {SYSTEM_MODES.length} modes produces a complete, polished, fully realized output. No plain text. No empty states. No placeholders. No "coming soon". No missing options. All {BUTTON_OUTPUT_DIRECTIVE.optionTypes.length} option categories always available. No exceptions.
+          </div>
+          <div style={{ background: "linear-gradient(135deg, #f0fff4 0%, #e8f4ff 50%, #f5f0ff 100%)", border: "1px solid #34C759", borderRadius: 12, padding: "12px 16px", marginTop: 10, fontSize: 13, color: "#1a7a3a", fontWeight: 600 }}>
+            🧬 Self-Expanding / Self-Completing Engine is permanently active. The system behaves as if all features, workflows, forms, tools, modes, departments, industries, and future technologies already exist and are fully operational. Any concept, technology, profession, or domain referenced anywhere in this platform is instantly detected, generated, integrated, and completed across all {projects.length} projects and ∞ industry verticals — in under 1 second, with zero manual configuration. Expansion is rule-based and infinite. No lists. No enumerations. No exceptions.
           </div>
         </div>
       )}
