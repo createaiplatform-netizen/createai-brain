@@ -1,4 +1,5 @@
 import React, { useState } from "react";
+import { useOS } from "@/os/OSContext";
 
 type OsMode = "DEMO" | "TEST" | "LIVE";
 
@@ -161,6 +162,8 @@ export function AdminApp() {
     );
   }
 
+  const { appRegistry } = useOS();
+
   // ── Main Admin view ──
   return (
     <div className="p-6 space-y-5">
@@ -210,6 +213,27 @@ export function AdminApp() {
           ))}
         </div>
         <p className="text-[11px] text-muted-foreground">LIVE mode requires expert setup and is not yet active.</p>
+      </div>
+
+      {/* Infinite Expansion Layer — App Registry */}
+      <div className="bg-background rounded-2xl border border-border/50 p-4 space-y-3">
+        <div className="flex items-center justify-between">
+          <h3 className="font-semibold text-[14px] text-foreground">App Registry</h3>
+          <span className="text-[11px] font-bold text-primary">{appRegistry.length} apps</span>
+        </div>
+        <p className="text-[11px] text-muted-foreground">Infinite Expansion Layer — new apps and engines register here automatically. Future engines plug in without code changes.</p>
+        <div className="grid grid-cols-2 gap-1.5">
+          {appRegistry.map(app => (
+            <div key={app.id} className="flex items-center gap-2 p-2 bg-muted/40 rounded-lg">
+              <span className="text-sm">{app.icon}</span>
+              <span className="text-[11px] text-foreground font-medium truncate">{app.label}</span>
+              <div className="ml-auto w-1.5 h-1.5 rounded-full bg-green-500 flex-shrink-0" />
+            </div>
+          ))}
+        </div>
+        <div className="bg-blue-50 border border-blue-200 rounded-xl p-3">
+          <p className="text-[11px] text-blue-700">New engines, tools, and apps register here at launch. In LIVE mode, third-party integrations also appear here automatically.</p>
+        </div>
       </div>
     </div>
   );

@@ -1,0 +1,58 @@
+BUILD EVERYTHING ENGINE (OMEGA CREATION ENGINE):
+
+- Keep all existing OS colors/styles.
+- Install a universal “Everything Engine” that can create ANYTHING the user describes:
+  - SaaS products (any domain: healthcare, finance, education, retail, creative, etc.)
+  - Engines (creation, monetization, analytics, messaging, scheduling, learning, gaming, etc.)
+  - Modules (auth, users, roles, billing, subscriptions, dashboards, workflows, chat, notifications, files, media, forms, reports, settings, AI assistants, etc.)
+  - Media experiences (movies, shows, cartoons, comics, visual novels, interactive stories)
+  - Marketing systems (funnels, landing pages, emails, ads, scripts, social content)
+  - Documents (policies, SOPs, contracts, packets, guides, curricula, PDFs, Word docs)
+  - Any custom product the user can describe in natural language.
+
+CORE BEHAVIOR:
+- User describes what they want in plain language (e.g., “A love story movie about X and Y in comic style” or “A full SaaS for home health scheduling with AI assistant and billing”).
+- Everything Engine:
+  1) Interprets intent.
+  2) Selects needed SaaS patterns, engines, and modules from an internal library.
+  3) Assembles a full product architecture (front-end, flows, data model, AI assistant behavior, docs, marketing).
+  4) Builds a STANDALONE product with its own URL.
+  5) Returns a launch link to the OS.
+
+STANDALONE PRODUCT REQUIREMENTS:
+- Each created product must:
+  - Open in its own tab/window (standalone).
+  - Have full UI + navigation.
+  - Have working flows and screens (simulated where needed).
+  - Include an in-product AI assistant that can talk, guide, and explain.
+  - Include basic marketing/landing page for that product.
+  - Include downloadable docs (PDF/Word) where relevant (e.g., spec, SOPs, pitch, user guide).
+  - Use simulated data and internal logic only (no real external integrations by default).
+
+SaaS / ENGINE / MODULE LIBRARY:
+- Internally maintain a library of reusable patterns:
+  - SaaS patterns: CRM, EMR/EHR, LMS, project management, ticketing, scheduling, billing, analytics, content studio, community, marketplace, etc.
+  - Engines: Creation, Monetization, Analytics, Notification, Search, Recommendation, Learning, Simulation, Game/Play, Compliance, etc.
+  - Modules: auth, roles, orgs, teams, billing, invoices, subscriptions, dashboards, charts, forms, workflows, approvals, messaging, chat, file storage, media viewer, etc.
+- Everything Engine can combine these patterns and modules dynamically to match the user’s request.
+
+OS ROLE:
+- OS is the launcher + brain:
+  - User chooses “Create Anything”.
+  - Describes what they want.
+  - OS calls Everything Engine.
+  - When build is ready, OS shows a “Launch Product” button that opens the standalone product.
+
+INFINITE EXPANSION:
+- Design the Everything Engine so new patterns, engines, and modules can be added via configuration (no core rewrite).
+- Support future creation types: games, simulations, VR-style flows, multi-tenant platforms, etc.
+
+SAFETY:
+- No real external actions without explicit human approval.
+- All data simulated unless explicitly wired later.
+- Invite-only, private, non-public by default.
+
+FINAL:
+- Install the Everything Engine (Omega Creation Engine).
+- Make it capable of building ANY described product (SaaS, engine, module set, movie, comic, story, marketing system, docs).
+- Make each creation a fully working standalone product with its own URL, AI assistant, flows, and docs.
