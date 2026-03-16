@@ -100,13 +100,26 @@ Full-stack AI OS platform — "CreateAI Brain" by Sara Stadler. React + Vite + W
 - `src/os/OSLayout.tsx` — Responsive 3-tier iOS-inspired layout (mobile/tablet/desktop)
 - `src/os/Dashboard.tsx` — Global Brain search bar + intent routing
 - `src/apps/` — 11 apps: Chat, Projects, Tools, Creator, People, Documents, Marketing, Admin, Family, Integration, Monetization
-- `src/standalone/` — Standalone Project Engine (new tab full products)
-  - `StandaloneLayout.tsx` — shared shell for all standalone products
+- `src/standalone/` — Standalone engines (all open in new tab)
+  - `StandaloneLayout.tsx` — shared shell for all standalone products (sidebar nav, mode switcher Demo/Test/Live)
   - `HealthcareProduct.tsx` — full Healthcare standalone (8 sections + AI chat)
   - `GenericProduct.tsx` — infinite expansion engine (Finance, Marketing, Operations, etc.)
+  - `creation/CreationStore.ts` — localStorage persistence for Creation Engine (`createai_creations_v1`, max 50 items)
+  - `creation/CreationViewer.tsx` — universal type-adaptive standalone viewer (Movie/Comic/Software/Document/Marketing/Custom)
 - `src/pages/StandalonePage.tsx` — Wouter route handler for `/standalone/:projectId`
+- `src/pages/CreationPage.tsx` — Wouter route handler for `/standalone/creation/:creationId`
 
-**Standalone URLs:** `/standalone/healthcare-legal-safe`, `/standalone/healthcare-mach1`, `/standalone/monetary-legal-safe`, `/standalone/monetary-mach1`, `/standalone/marketing-hub`, `/standalone/operations-builder`
+**Standalone URLs:**
+- Projects: `/standalone/healthcare-legal-safe`, `/standalone/healthcare-mach1`, `/standalone/monetary-legal-safe`, `/standalone/monetary-mach1`, `/standalone/marketing-hub`, `/standalone/operations-builder`
+- Creation Engine: `/standalone/creation/:id` where id = `{type}-{timestamp}`
+
+**Creation Engine (Futuristic):**
+- `CreatorApp.tsx` has two tabs: "🚀 Creation Engine" and "✨ Quick Generate"
+- Creation Engine supports 6 types: movie, comic, software, document, marketing, custom
+- Build flow: Type picker → Config (name/desc/genre/style/tone) → SSE generation → localStorage save → opens standalone in new tab
+- Each standalone product type has full nav: type-specific sections + Marketing + AI Studio + Downloads
+- `parseSections()` splits AI output on `== SECTION NAME ==` markers into structured sections
+- `buildPrompt()` generates type-specific prompts with all required sections
 
 **SSE streaming:** `fetch` + `ReadableStream` only. Model: `gpt-5.2`, max_completion_tokens: 8192. API key via `AI_INTEGRATIONS_OPENAI_BASE_URL` + `AI_INTEGRATIONS_OPENAI_API_KEY`.
 
