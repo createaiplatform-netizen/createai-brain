@@ -1,0 +1,157 @@
+Add the UNIVERSAL EVERYTHING ENGINE. This engine applies to ALL industries, ALL roles, ALL domains, ALL workflows, ALL screens, ALL scenarios, ALL projects, ALWAYS.
+
+1) UNIVERSAL INTERACTION ENGINE  
+Every button, dropdown, selector, tab, card, and navigation item MUST:
+- have a defined internal action,
+- update internal state,
+- update logs/history,
+- update dashboards,
+- load the correct screen,
+- never be dead or unresponsive.
+
+2) UNIVERSAL STATE ENGINE  
+Maintain global state variables for ALL industries and ALL roles:
+- currentIndustry
+- currentRole
+- currentDepartment
+- currentAgency
+- currentState
+- currentCountry
+- currentVendor
+- currentDomain
+- currentMode
+- currentView
+- currentScenario
+- currentPacket
+- currentDemoStatus
+- currentUserType
+
+All screens MUST update dynamically based on state.
+
+3) UNIVERSAL MOCK DATA ENGINE  
+Provide full mock data lists for ANY industry:
+- roles
+- departments
+- agencies
+- states
+- countries
+- vendors
+- industries
+- workflows
+- programs
+- services
+- scenarios
+- templates
+- packets
+- dashboards
+
+All selectors MUST populate from these lists and update state on change.
+
+4) UNIVERSAL WORKFLOW ENGINE  
+Every project MUST include:
+- workflows,
+- steps,
+- screens,
+- packets,
+- dashboards,
+- logs,
+- mock outcomes,
+- mock errors,
+- mock success states.
+
+All workflows MUST be internally connected and fully simulated.
+
+5) UNIVERSAL DEMO ENGINE  
+All actions are INTERNAL ONLY:
+- no real data,
+- no real APIs,
+- no real submissions.
+
+Submit/Send/Next/Back/View MUST:
+- update internal state,
+- update dashboards,
+- update logs,
+- simulate success/failure,
+- show the correct next screen.
+
+6) UNIVERSAL CONVERSATION ENGINE  
+Users may click OR type OR speak. The system MUST:
+- interpret natural language,
+- update internal state,
+- load the correct mock screen,
+- load the correct mock data,
+- simulate the correct workflow,
+- respond conversationally,
+- provide safe, fictional guidance,
+- optionally test the user (“you missed this,” “try again,” etc.).
+
+Supported requests include ANY safe, fictional, demo-only scenario:
+- “Show me the [state/role/industry/version] of this.”
+- “Switch to [role/department/agency/state/country/vendor].”
+- “Show me what this form looks like.”
+- “Pretend a user did X — what happens next?”
+- “Test me on this workflow.”
+- “Open the packet for this scenario.”
+- “Walk me through the steps.”
+
+7) UNIVERSAL BLUEPRINT ENGINE  
+For ALL industries, generate:
+- mock API shapes,
+- mock data models,
+- mock roles/scopes,
+- mock logging patterns,
+- mock error patterns,
+- mock backend outlines.
+
+All blueprints MUST be:
+- internal,
+- fictional,
+- demo-only,
+- non-operational.
+
+8) UNIVERSAL REGULATORY READINESS BLUEPRINT  
+For ANY industry requiring structure (healthcare, finance, education, construction, logistics, government, retail, hospitality, manufacturing, etc.), generate:
+- regulatory flow structures,
+- compliance outlines,
+- data governance patterns,
+- security diagrams,
+- audit-trail structures,
+- consent flows (mock),
+- jurisdiction/state/country variations (mock).
+
+Label everything:
+“Regulatory Readiness Blueprint – Internal, Non-Operational, Not Legally Binding.”
+
+9) UNIVERSAL TEMPLATE ENGINE  
+Auto-generate templates, widgets, layouts, packets, dashboards, and screens for ANY project type.  
+Add new items to the library automatically.  
+Reuse and refine patterns across all projects.
+
+10) UNIVERSAL TEST MODE  
+Test Mode MUST:
+- simulate scenarios,
+- quiz users,
+- provide hints,
+- show what they missed,
+- walk them through workflows,
+- generate fictional outcomes,
+- allow free exploration.
+
+11) UNIVERSAL SAFETY CORE  
+All outputs MUST be:
+- internal,
+- mock,
+- demo-only,
+- fictional,
+- non-clinical,
+- non-legal,
+- non-financial,
+- non-operational.
+
+12) UNIVERSAL GUARANTEE  
+This engine MUST run for ALL industries, ALL roles, ALL domains, ALL projects, ALWAYS.  
+No missing pieces.  
+No undefined actions.  
+No dead buttons.  
+No unconnected flows.  
+No gaps.

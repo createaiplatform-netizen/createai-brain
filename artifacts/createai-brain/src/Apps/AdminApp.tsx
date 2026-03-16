@@ -1,6 +1,9 @@
 import React, { useState, useEffect } from "react";
 import { useOS } from "@/os/OSContext";
 import { CreationStore } from "@/standalone/creation/CreationStore";
+import { ConnectionEngine, NODE_TYPE_CFG, NodeType } from "@/engine/ConnectionEngine";
+import { RegulatoryEngine } from "@/engine/RegulatoryEngine";
+import { BackendBlueprintEngine } from "@/engine/BackendBlueprintEngine";
 
 type OsMode = "DEMO" | "TEST" | "LIVE";
 
@@ -21,6 +24,9 @@ const SECTIONS = [
   { id: "safety",   label: "Safety Shell",    value: "ON",     icon: "🛡️", desc: "Global error prevention active" },
   { id: "audit",    label: "Audit Log",       value: `${AUDIT_LOG.length}`, icon: "📋", desc: "Recent activity log" },
   { id: "debug",    label: "Debug Panel",     value: "Live",   icon: "🔬", desc: "System state, engines, localStorage" },
+  { id: "connection-layer",    label: "Connection Layer",   value: "30+ nodes", icon: "🕸️", desc: "Internal module/flow/brain fabric" },
+  { id: "regulatory",          label: "Regulatory Blueprints", value: "6",     icon: "📜", desc: "HIPAA, GDPR, SOC2, CMS, ADA — blueprint only" },
+  { id: "backend-blueprints",  label: "Backend Blueprints", value: "5",         icon: "🏗️", desc: "API specs, data models, security patterns" },
 ];
 
 const ENGINE_LIST = [
@@ -42,6 +48,261 @@ const USER_LIST = [
   { name: "Maria L.",     role: "Viewer",  status: "Active", access: "Read-only" },
 ];
 
+// ─── RegulatorySection component ─────────────────────────────────────────────
+function RegulatorySection({ onBack }: { onBack: () => void }) {
+  const [selectedId, setSelectedId] = useState<string | null>(null);
+  const blueprints = RegulatoryEngine.getAll();
+  const stats = RegulatoryEngine.getStats();
+
+  if (selectedId) {
+    const bp = RegulatoryEngine.getById(selectedId)!;
+    const mappedCount  = bp.clauses.filter(c => c.mockStatus === "mapped").length;
+    const partialCount = bp.clauses.filter(c => c.mockStatus === "partial").length;
+    const gapCount     = bp.clauses.filter(c => c.mockStatus === "gap").length;
+    return (
+      <div className="p-5 space-y-4 overflow-y-auto">
+        <div className="flex items-center gap-2">
+          <button onClick={() => setSelectedId(null)} className="text-primary text-sm font-medium">‹ Regulatory</button>
+          <h2 className="text-[16px] font-bold text-foreground flex-1 truncate">{bp.framework}</h2>
+          <span className={`text-[9px] font-bold px-2 py-0.5 rounded-full flex-shrink-0 ${bp.status === "blueprint-ready" ? "bg-green-100 text-green-700" : "bg-orange-100 text-orange-700"}`}>{bp.status}</span>
+        </div>
+        <div className="bg-red-50 border border-red-200 rounded-xl p-3">
+          <p className="text-[10px] text-red-700 font-bold">⚠️ {bp.disclaimer}</p>
+        </div>
+        <div className="bg-background border border-border/50 rounded-xl p-3 space-y-1">
+          <p className="text-[11px] font-semibold text-foreground">{bp.title}</p>
+          <p className="text-[11px] text-muted-foreground">{bp.summary}</p>
+        </div>
+        <div className="grid grid-cols-3 gap-2">
+          {([["✓ Mapped", mappedCount, "bg-green-50 border-green-200 text-green-700"],
+             ["~ Partial", partialCount, "bg-yellow-50 border-yellow-200 text-yellow-700"],
+             ["⚠ Gap", gapCount, "bg-red-50 border-red-200 text-red-700"]] as const).map(([l, v, cls]) => (
+            <div key={l} className={`rounded-xl border p-2 text-center ${cls}`}>
+              <p className="text-base font-bold">{v}</p><p className="text-[9px] font-bold">{l}</p>
+            </div>
+          ))}
+        </div>
+        {bp.clauses.length > 0 && (
+          <div className="space-y-1.5">
+            <p className="text-[10px] font-bold text-muted-foreground uppercase tracking-wider">Clauses</p>
+            {bp.clauses.map(c => (
+              <div key={c.id} className={`rounded-xl border p-3 space-y-1 ${c.mockStatus === "mapped" ? "border-green-200 bg-green-50/40" : c.mockStatus === "gap" ? "border-red-200 bg-red-50/40" : "border-yellow-200 bg-yellow-50/40"}`}>
+                <div className="flex items-center gap-2">
+                  <span className="text-[9px] font-mono text-muted-foreground">{c.reference}</span>
+                  <p className="text-[12px] font-semibold text-foreground">{c.title}</p>
+                  <span className="ml-auto text-[9px] font-bold">{c.mockStatus === "mapped" ? "✓" : c.mockStatus === "gap" ? "⚠" : "~"}</span>
+                </div>
+                <p className="text-[11px] text-muted-foreground">{c.description}</p>
+                <p className="text-[10px] text-foreground/70 italic">Blueprint: {c.implementationNote}</p>
+              </div>
+            ))}
+          </div>
+        )}
+        {bp.gapAnalysis.length > 0 && (
+          <div className="space-y-1.5">
+            <p className="text-[10px] font-bold text-muted-foreground uppercase tracking-wider">Gap Analysis</p>
+            <div className="bg-background border border-border/50 rounded-xl p-3 space-y-1">
+              {bp.gapAnalysis.map((g, i) => <p key={i} className={`text-[11px] ${g.startsWith("⚠") ? "text-orange-700" : "text-green-700"}`}>{g}</p>)}
+            </div>
+          </div>
+        )}
+        {bp.auditTrail.length > 0 && (
+          <div className="space-y-1.5">
+            <p className="text-[10px] font-bold text-muted-foreground uppercase tracking-wider">Audit Trail Spec (Mock)</p>
+            {bp.auditTrail.map((a, i) => (
+              <div key={i} className="bg-background border border-border/50 rounded-xl p-3 space-y-1">
+                <div className="flex items-center gap-2">
+                  <p className="text-[12px] font-semibold text-foreground">{a.event}</p>
+                  <span className="ml-auto text-[9px] px-1.5 py-0.5 rounded-full bg-orange-100 text-orange-700 font-bold">MOCK</span>
+                </div>
+                <p className="text-[10px] text-muted-foreground">Actor: {a.actor} · Retention: {a.retention}</p>
+                <div className="flex flex-wrap gap-1">{a.dataLogged.map(f => <span key={f} className="text-[9px] px-1.5 py-0.5 rounded-full bg-muted text-muted-foreground font-mono">{f}</span>)}</div>
+              </div>
+            ))}
+          </div>
+        )}
+        {bp.complianceNotes.length > 0 && (
+          <div className="bg-muted/40 border border-border/30 rounded-xl p-3 space-y-1">
+            <p className="text-[10px] font-bold text-muted-foreground uppercase tracking-wider mb-1">Compliance Notes</p>
+            {bp.complianceNotes.map((n, i) => <p key={i} className="text-[11px] text-muted-foreground">· {n}</p>)}
+          </div>
+        )}
+      </div>
+    );
+  }
+
+  return (
+    <div className="p-5 space-y-4">
+      <div className="flex items-center gap-2">
+        <button onClick={onBack} className="text-primary text-sm font-medium">‹ Admin</button>
+        <h2 className="text-xl font-bold text-foreground flex-1">📜 Regulatory Blueprints</h2>
+      </div>
+      <div className="bg-red-50 border border-red-200 rounded-xl p-3">
+        <p className="text-[11px] text-red-700 font-bold">⚠️ REGULATORY READINESS BLUEPRINT — Internal, Non-Operational, Not Legally Binding.</p>
+        <p className="text-[10px] text-red-600 mt-1">Structural models only. No real certification, compliance authorization, or legal authority.</p>
+      </div>
+      <div className="grid grid-cols-3 gap-2">
+        {([["Blueprints", stats.total], ["Ready", stats.ready], ["Draft", stats.draft]] as const).map(([l, v]) => (
+          <div key={l} className="bg-background border border-border/50 rounded-xl p-2.5 text-center">
+            <p className="text-lg font-bold text-foreground">{v}</p><p className="text-[9px] text-muted-foreground">{l}</p>
+          </div>
+        ))}
+      </div>
+      <div className="space-y-2">
+        {blueprints.map(bp => (
+          <button key={bp.id} onClick={() => setSelectedId(bp.id)}
+            className="w-full flex items-center gap-3 p-4 bg-background rounded-2xl border border-border/50 hover:border-primary/20 hover:shadow-sm transition-all text-left">
+            <div className="flex-1 min-w-0 space-y-0.5">
+              <div className="flex items-center gap-2">
+                <p className="font-semibold text-[13px] text-foreground">{bp.framework}</p>
+                <span className={`text-[9px] font-bold px-1.5 py-0.5 rounded-full ${bp.status === "blueprint-ready" ? "bg-green-100 text-green-700" : "bg-orange-100 text-orange-700"}`}>{bp.status}</span>
+              </div>
+              <p className="text-[11px] text-muted-foreground">{bp.domain} · {bp.clauses.length} clauses · {bp.gapAnalysis.filter(g => g.startsWith("⚠")).length} gaps</p>
+            </div>
+            <span className="text-muted-foreground text-sm">›</span>
+          </button>
+        ))}
+      </div>
+      <div className="bg-amber-50 border border-amber-200 rounded-xl p-3">
+        <p className="text-[10px] text-amber-700">Real compliance requires certified legal, compliance, and security professionals.</p>
+      </div>
+    </div>
+  );
+}
+
+// ─── BackendBlueprintsSection component ──────────────────────────────────────
+const METHOD_COLOR: Record<string, string> = { GET: "bg-green-100 text-green-700", POST: "bg-blue-100 text-blue-700", PATCH: "bg-orange-100 text-orange-700", PUT: "bg-yellow-100 text-yellow-700", DELETE: "bg-red-100 text-red-700" };
+
+function BackendBlueprintsSection({ onBack }: { onBack: () => void }) {
+  const [selectedId, setSelectedId] = useState<string | null>(null);
+  const blueprints = BackendBlueprintEngine.getAll();
+  const stats = BackendBlueprintEngine.getStats();
+
+  if (selectedId) {
+    const bp = BackendBlueprintEngine.getById(selectedId)!;
+    return (
+      <div className="p-5 space-y-4 overflow-y-auto">
+        <div className="flex items-center gap-2">
+          <button onClick={() => setSelectedId(null)} className="text-primary text-sm font-medium">‹ Blueprints</button>
+          <h2 className="text-[15px] font-bold text-foreground flex-1 truncate">{bp.title}</h2>
+          <span className={`text-[9px] font-bold px-1.5 py-0.5 rounded-full flex-shrink-0 ${bp.status === "blueprint-ready" ? "bg-green-100 text-green-700" : "bg-orange-100 text-orange-700"}`}>{bp.status}</span>
+        </div>
+        <div className="bg-blue-50 border border-blue-200 rounded-xl p-2.5">
+          <p className="text-[10px] text-blue-700 font-bold">{bp.disclaimer}</p>
+        </div>
+        <p className="text-[12px] text-muted-foreground">{bp.summary}</p>
+        {bp.dataModels.length > 0 && (
+          <div className="space-y-2">
+            <p className="text-[10px] font-bold text-muted-foreground uppercase tracking-wider">Data Models</p>
+            {bp.dataModels.map(m => (
+              <div key={m.name} className="bg-background border border-border/50 rounded-xl p-3 space-y-2">
+                <p className="font-bold text-[13px] text-foreground">{m.name}</p>
+                <p className="text-[11px] text-muted-foreground">{m.description}</p>
+                <div className="space-y-1">
+                  {m.fields.map(f => (
+                    <div key={f.name} className="flex items-start gap-2">
+                      <span className="text-[10px] font-mono text-primary w-24 flex-shrink-0">{f.name}</span>
+                      <span className="text-[10px] font-mono text-muted-foreground w-16 flex-shrink-0">{f.type}</span>
+                      <span className="text-[10px] text-muted-foreground flex-1">{f.description}</span>
+                      {f.required && <span className="text-[8px] text-red-500 flex-shrink-0">req</span>}
+                    </div>
+                  ))}
+                </div>
+                {m.indexes && <p className="text-[10px] text-muted-foreground">Indexes: {m.indexes.join(", ")}</p>}
+                {m.relations && <p className="text-[10px] text-muted-foreground">Relations: {m.relations.join(", ")}</p>}
+              </div>
+            ))}
+          </div>
+        )}
+        {bp.apiEndpoints.length > 0 && (
+          <div className="space-y-2">
+            <p className="text-[10px] font-bold text-muted-foreground uppercase tracking-wider">API Endpoints (Mock Spec)</p>
+            {bp.apiEndpoints.map(ep => (
+              <div key={ep.path} className="bg-background border border-border/50 rounded-xl p-3 space-y-1.5">
+                <div className="flex items-center gap-2">
+                  <span className={`text-[10px] font-bold px-2 py-0.5 rounded-full flex-shrink-0 ${METHOD_COLOR[ep.method] ?? "bg-muted"}`}>{ep.method}</span>
+                  <span className="text-[11px] font-mono text-foreground truncate">{ep.path}</span>
+                </div>
+                <p className="text-[11px] text-muted-foreground">{ep.description}</p>
+                <div className="flex flex-wrap gap-1">
+                  <span className="text-[9px] text-muted-foreground">Roles:</span>
+                  {ep.roles.map(r => <span key={r} className="text-[9px] px-1.5 py-0.5 rounded-full bg-muted text-muted-foreground">{r}</span>)}
+                  {ep.rateLimit && <span className="text-[9px] px-1.5 py-0.5 rounded-full bg-orange-50 text-orange-600 ml-auto">{ep.rateLimit}</span>}
+                </div>
+                {ep.errorCodes && ep.errorCodes.length > 0 && (
+                  <div className="flex flex-wrap gap-1">{ep.errorCodes.map(e => <span key={e.code} className="text-[9px] px-1.5 py-0.5 rounded-full bg-red-50 text-red-600 font-mono">{e.code}: {e.meaning}</span>)}</div>
+                )}
+              </div>
+            ))}
+          </div>
+        )}
+        <div className="bg-background border border-border/50 rounded-xl p-3 space-y-2">
+          <p className="text-[10px] font-bold text-muted-foreground uppercase tracking-wider">Security Spec</p>
+          {[["Auth", bp.security.authMethod], ["Rate Limit", bp.security.rateLimiting], ["Session", bp.security.sessionTimeout], ["MFA", bp.security.mfaRequired ? "Required" : "Optional"]].map(([k, v]) => (
+            <div key={String(k)} className="flex gap-2"><span className="text-[10px] text-muted-foreground w-24">{String(k)}</span><span className="text-[10px] text-foreground">{String(v)}</span></div>
+          ))}
+          {bp.security.notes.map((n, i) => <p key={i} className="text-[10px] text-muted-foreground">· {n}</p>)}
+        </div>
+        <div className="space-y-1.5">
+          <p className="text-[10px] font-bold text-muted-foreground uppercase tracking-wider">Error Patterns</p>
+          {bp.errorPatterns.map(e => (
+            <div key={e.code} className="bg-background border border-border/50 rounded-xl p-3 space-y-0.5">
+              <div className="flex items-center gap-2"><span className="text-[10px] font-bold text-red-600 font-mono">{e.code}</span><p className="text-[12px] font-semibold text-foreground">{e.name}</p></div>
+              <p className="text-[11px] text-muted-foreground">{e.description}</p>
+              <p className="text-[10px] text-foreground/70">User msg: "{e.userMessage}"</p>
+              <p className="text-[10px] text-blue-600">Action: {e.action}</p>
+            </div>
+          ))}
+        </div>
+        {bp.designNotes.length > 0 && (
+          <div className="bg-muted/40 border border-border/30 rounded-xl p-3 space-y-1">
+            <p className="text-[10px] font-bold text-muted-foreground uppercase tracking-wider mb-1">Design Notes</p>
+            {bp.designNotes.map((n, i) => <p key={i} className="text-[11px] text-muted-foreground">· {n}</p>)}
+          </div>
+        )}
+      </div>
+    );
+  }
+
+  return (
+    <div className="p-5 space-y-4">
+      <div className="flex items-center gap-2">
+        <button onClick={onBack} className="text-primary text-sm font-medium">‹ Admin</button>
+        <h2 className="text-xl font-bold text-foreground flex-1">🏗️ Backend Blueprints</h2>
+      </div>
+      <div className="bg-blue-50 border border-blue-200 rounded-xl p-3">
+        <p className="text-[11px] text-blue-700 font-medium">Design-Only Spec — No real endpoints deployed. Structural starting point for real engineering teams.</p>
+      </div>
+      <div className="grid grid-cols-4 gap-2">
+        {([["Bps", stats.blueprints], ["Endpoints", stats.endpoints], ["Models", stats.dataModels], ["Ready", stats.ready]] as const).map(([l, v]) => (
+          <div key={l} className="bg-background border border-border/50 rounded-xl p-2 text-center">
+            <p className="text-base font-bold text-foreground">{v}</p><p className="text-[8px] text-muted-foreground">{l}</p>
+          </div>
+        ))}
+      </div>
+      <div className="space-y-2">
+        {blueprints.map(bp => (
+          <button key={bp.id} onClick={() => setSelectedId(bp.id)}
+            className="w-full flex items-center gap-3 p-4 bg-background rounded-2xl border border-border/50 hover:border-primary/20 hover:shadow-sm transition-all text-left">
+            <div className="flex-1 min-w-0 space-y-0.5">
+              <div className="flex items-center gap-2">
+                <p className="font-semibold text-[13px] text-foreground">{bp.title}</p>
+                <span className={`text-[9px] font-bold px-1.5 py-0.5 rounded-full ${bp.status === "blueprint-ready" ? "bg-green-100 text-green-700" : "bg-orange-100 text-orange-700"}`}>{bp.status}</span>
+              </div>
+              <p className="text-[11px] text-muted-foreground">{bp.domain} · {bp.apiEndpoints.length} endpoints · {bp.dataModels.length} models</p>
+            </div>
+            <span className="text-muted-foreground text-sm">›</span>
+          </button>
+        ))}
+      </div>
+      <div className="bg-amber-50 border border-amber-200 rounded-xl p-3">
+        <p className="text-[10px] text-amber-700">All API specs, data models, and security patterns are design documents only. Real engineering teams implement against these specs.</p>
+      </div>
+    </div>
+  );
+}
+
+// ─────────────────────────────────────────────────────────────────────────────
 export function AdminApp() {
   const { appRegistry, openApp } = useOS();
   const [osMode, setOsMode] = useState<OsMode>("DEMO");
@@ -78,6 +339,82 @@ export function AdminApp() {
   };
 
   // ── Section drill-downs ──
+
+  if (activeSection === "connection-layer") {
+    const stats = ConnectionEngine.getStats();
+    const types = Object.keys(NODE_TYPE_CFG) as NodeType[];
+    return (
+      <div className="p-5 space-y-4">
+        <div className="flex items-center gap-2">
+          <button onClick={() => setActiveSection(null)} className="text-primary text-sm font-medium">‹ Admin</button>
+          <h2 className="text-xl font-bold text-foreground flex-1">🕸️ Connection Layer</h2>
+        </div>
+        <div className="bg-blue-50 border border-blue-200 rounded-xl p-3">
+          <p className="text-[12px] text-blue-700 font-medium">Internal fabric only — all connections are structural and non-operational. {stats.active} active / {stats.blueprint} blueprint nodes.</p>
+        </div>
+        {/* Type filter chips */}
+        <div className="grid grid-cols-4 gap-2">
+          {types.map(t => {
+            const cfg = NODE_TYPE_CFG[t];
+            const count = stats.byType[t] ?? 0;
+            return (
+              <div key={t} className={`rounded-xl p-2 text-center ${cfg.bg} border border-${cfg.bg}`}>
+                <p className="text-base">{cfg.icon}</p>
+                <p className="text-[9px] font-bold text-foreground">{count}</p>
+                <p className="text-[8px] text-muted-foreground leading-tight">{cfg.label}</p>
+              </div>
+            );
+          })}
+        </div>
+        {types.map(t => {
+          const nodes = ConnectionEngine.getByType(t);
+          if (nodes.length === 0) return null;
+          const cfg = NODE_TYPE_CFG[t];
+          return (
+            <div key={t} className="space-y-1.5">
+              <p className="text-[10px] font-bold text-muted-foreground uppercase tracking-wider flex items-center gap-1.5">
+                <span>{cfg.icon}</span>{cfg.label}s
+                <span className="text-[9px] px-1.5 py-0.5 rounded-full bg-muted">{nodes.length}</span>
+              </p>
+              {nodes.map(node => (
+                <div key={node.id} className={`rounded-xl border p-3 space-y-1 ${node.status === "blueprint" ? "border-orange-200 bg-orange-50/50" : "border-border/50 bg-background"}`}>
+                  <div className="flex items-center gap-2">
+                    <p className="font-semibold text-[12px] text-foreground">{node.name}</p>
+                    <span className={`text-[9px] font-bold px-1.5 py-0.5 rounded-full ml-auto ${node.status === "active" ? "bg-green-100 text-green-700" : node.status === "blueprint" ? "bg-orange-100 text-orange-700" : "bg-muted text-muted-foreground"}`}>
+                      {node.status}
+                    </span>
+                  </div>
+                  <p className="text-[11px] text-muted-foreground">{node.description}</p>
+                  {node.links.length > 0 && (
+                    <div className="flex flex-wrap gap-1 pt-0.5">
+                      {node.links.map(lid => {
+                        const linked = ConnectionEngine.getNode(lid);
+                        if (!linked) return null;
+                        const lcfg = NODE_TYPE_CFG[linked.type];
+                        return <span key={lid} className="text-[9px] px-1.5 py-0.5 rounded-full bg-muted text-muted-foreground font-mono">{lcfg.icon} {linked.name}</span>;
+                      })}
+                    </div>
+                  )}
+                </div>
+              ))}
+            </div>
+          );
+        })}
+        <div className="bg-amber-50 border border-amber-200 rounded-xl p-3">
+          <p className="text-[10px] text-amber-700">All connections are INTERNAL ONLY. Non-operational outside this system. Blueprint nodes require real engineering implementation before activation.</p>
+        </div>
+      </div>
+    );
+  }
+
+  if (activeSection === "regulatory") {
+    return <RegulatorySection onBack={() => setActiveSection(null)} />;
+  }
+
+  if (activeSection === "backend-blueprints") {
+    return <BackendBlueprintsSection onBack={() => setActiveSection(null)} />;
+  }
+
   if (activeSection === "debug") {
     return (
       <div className="p-5 space-y-4">
