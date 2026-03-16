@@ -17,6 +17,7 @@ import { MonetizationApp } from "@/Apps/MonetizationApp";
 import { CreatorApp } from "@/Apps/CreatorApp";
 import { UniversalApp } from "@/Apps/UniversalApp";
 import { ConversationOverlay } from "./ConversationOverlay";
+import { UCPXAgent } from "@/ucpx/UCPXAgent";
 
 const APP_COMPONENTS: Record<string, React.ComponentType> = {
   chat: ChatApp,
@@ -65,6 +66,9 @@ export function OSLayout() {
     <div className="flex h-[100dvh] w-full bg-background overflow-hidden">
       {/* ── Global Conversation Overlay — available on every screen ── */}
       <ConversationOverlay />
+
+      {/* ── UCP-X Meta-AI Agent Layer — injected platform-wide ── */}
+      <UCPXAgent />
 
       {/* ── Persistent sidebar (medium+) ── */}
       {showSidebar && (

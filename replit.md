@@ -350,6 +350,43 @@ Full-stack AI OS platform — "CreateAI Brain" by Sara Stadler. React + Vite + W
 - Never call hooks outside React components or at module root
 - `BrainGen.ts` path: `src/engine/BrainGen.ts` — import as `@/engine/BrainGen`
 
+**UCP-X Supercharged Add-On Layer (v1 — latest):**
+- Manifest: "UCP-X Supercharged Infinite Add-On" — fully additive, never overrides core
+- `src/engine/InfiniteExpansionEngine.ts` — core engine for all UCP-X expansion functionality
+- `src/ucpx/UCPXAgent.tsx` — floating Meta-AI agent panel, injected into osLayout globally
+- Injected at: `osLayout.tsx` → `<UCPXAgent />` (renders floating ⚡ button + panel on every screen)
+
+**6 Meta-AI Agents (META_AGENTS constant):**
+- ORACLE (🔮) — Predictive Intelligence · 18-month forecasts, risk modeling, cross-temporal predictions
+- FORGE (⚡) — Content & Package Builder · Infinite generation, module packaging, distribution
+- NEXUS (🕸️) — Cross-Domain Integration · Workflow automation, API bridging, multi-agent collaboration
+- SENTINEL (🛡️) — Risk & Compliance · Real-time checks, regulatory, quality assurance
+- PULSE (💓) — Emotional & Engagement AI · Sentiment, emotional simulation, engagement optimization
+- VECTOR (💎) — Revenue & Distribution · Autonomous revenue optimization, packaging, live deployment
+- Each agent: id, name, role, specialty, color, icon, status (active/running/idle/complete), taskCount, lastOutput?
+- `InfiniteExpansionEngine.activateAgent(id, task)` — runs agent, returns InfiniteModule, increments taskCount
+
+**11 Core Engines (CORE_ENGINES constant):**
+- Intent, Planning, Story, Character, World, Mechanics, Workflow, Data, State, Assembly, Deployment
+- All shown as active (green status dots) in the UCP-X Engines tab
+
+**InfiniteExpansionEngine singleton:**
+- `generateModule(domain?, agentId?)` — generates InfiniteModule (module/insight/prediction/workflow/innovation)
+- `generateCrossDomainInsight()` — returns CrossDomainInsight with fromDomain, toDomain, connection, insight, impact, confidence
+- `activateAgent(id, task)` → InfiniteModule
+- `expandAll()` → 5 modules across 5 domains
+- `getAgents()`, `getModules()`, `getInsights()`, `getTour()`
+- INSIGHT_BRIDGES[10] — hardcoded cross-domain connection pairs (Healthcare↔Marketing, Gaming↔Education, etc.)
+
+**UCPXAgent panel (5 tabs):**
+- Agents tab: 6 agent cards with status, task count, expandable + run-task form
+- Engines tab: 11 core engine status list + UCP-X layer summary
+- Expand tab: domain + agent + type selectors → generate module or Expand All (5 domains)
+- Insights tab: Cross-domain insights generator with confidence bars, impact badges
+- Tour tab: 7-step interactive guided tour (progress bar, prev/next nav, completion state)
+- Result overlay: ModuleCard with content display, Copy button, back nav
+- Floating trigger: bottom-right, gradient indigo→blue, ⚡ icon, green pulse dot when agents are active
+
 ### `scripts` (`@workspace/scripts`)
 
 Utility scripts package. Each script is a `.ts` file in `src/` with a corresponding npm script in `package.json`. Run scripts via `pnpm --filter @workspace/scripts run <script>`. Scripts can import any workspace package (e.g., `@workspace/db`) by adding it as a dependency in `scripts/package.json`.
