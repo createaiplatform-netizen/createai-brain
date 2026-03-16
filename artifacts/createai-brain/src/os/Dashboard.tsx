@@ -167,6 +167,56 @@ export function Dashboard({ onHamburger, isNarrow }: DashboardProps) {
             </h2>
           </div>
 
+          {/* ── Platform Intelligence Strip ── */}
+          <div className={`animate-fade-up delay-50 ${mounted ? "" : "opacity-0"}`}>
+            <div
+              className="rounded-2xl p-4"
+              style={{
+                background: "rgba(14,18,42,0.65)",
+                border: "1px solid rgba(255,255,255,0.07)",
+                boxShadow: "0 2px 16px rgba(0,0,0,0.30)",
+              }}
+            >
+              <div className="flex items-center gap-2 mb-3 flex-wrap">
+                <span className="label-xs">Platform Intelligence</span>
+                <div className="flex-1 h-px" style={{ background: "rgba(255,255,255,0.05)" }} />
+                <span className="label-xs" style={{ color: "rgba(34,197,94,0.70)" }}>● All Engines Active</span>
+              </div>
+              <div className="flex flex-wrap gap-1.5 mb-3">
+                {[
+                  { name: "BrainGen",   desc: "Content Engine" },
+                  { name: "UCP-X",      desc: "Meta-AI Agent" },
+                  { name: "Simulate",   desc: "Scenario Engine" },
+                  { name: "Ad-Gen",     desc: "Ad Packets" },
+                  { name: "Monetize",   desc: "Revenue Engine" },
+                  { name: "Streaming",  desc: "Live AI Output" },
+                ].map(e => (
+                  <span key={e.name} className="engine-pill active" title={e.desc}>
+                    <span className="dot" />
+                    {e.name}
+                  </span>
+                ))}
+              </div>
+              <div className="grid grid-cols-4 gap-2">
+                {[
+                  { label: "Apps",         value: "13", icon: "🗂️" },
+                  { label: "Tools",        value: "30", icon: "🛠️" },
+                  { label: "AI Engines",   value: "6",  icon: "🧠" },
+                  { label: "Output Types", value: "12+", icon: "📄" },
+                ].map(s => (
+                  <div key={s.label} className="rounded-xl p-2.5 text-center"
+                    style={{ background: "rgba(99,102,241,0.06)", border: "1px solid rgba(99,102,241,0.12)" }}>
+                    <p className="text-[16px]">{s.icon}</p>
+                    <p className="font-bold text-[14px] mt-0.5" style={{ color: "rgba(255,255,255,0.90)", letterSpacing: "-0.02em" }}>
+                      {s.value}
+                    </p>
+                    <p className="text-[9px] mt-0.5" style={{ color: "rgba(255,255,255,0.30)" }}>{s.label}</p>
+                  </div>
+                ))}
+              </div>
+            </div>
+          </div>
+
           {/* ── Intent search bar ── */}
           <div className={`relative animate-fade-up delay-50 ${mounted ? "" : "opacity-0"}`}>
             <form onSubmit={handleIntentSubmit}>

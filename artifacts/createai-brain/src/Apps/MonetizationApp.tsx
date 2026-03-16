@@ -32,8 +32,22 @@ const PLANS = [
 
 // ─── Helpers ──────────────────────────────────────────────────────────────────
 function effortBadge(effort: Opportunity["effort"]) {
-  const map = { Low: "bg-green-100 text-green-700", Medium: "bg-orange-100 text-orange-700", High: "bg-red-100 text-red-700" };
-  return map[effort];
+  const map = {
+    Low:    "text-green-400",
+    Medium: "text-orange-400",
+    High:   "text-red-400",
+  };
+  const bg = {
+    Low:    "rgba(34,197,94,0.12)",
+    Medium: "rgba(249,115,22,0.12)",
+    High:   "rgba(239,68,68,0.12)",
+  };
+  const border = {
+    Low:    "rgba(34,197,94,0.25)",
+    Medium: "rgba(249,115,22,0.25)",
+    High:   "rgba(239,68,68,0.25)",
+  };
+  return { className: map[effort], bg: bg[effort], border: border[effort] };
 }
 
 // ─── Opportunity detail ───────────────────────────────────────────────────────
@@ -78,12 +92,12 @@ function OpportunityDetail({ opp, onBack }: { opp: Opportunity; onBack: () => vo
       <div>
         <h2 className="text-xl font-bold text-foreground">{opp.title}</h2>
         <div className="flex items-center gap-2 mt-1">
-          <span className="text-[11px] bg-blue-100 text-blue-700 font-semibold px-2 py-0.5 rounded-full">{opp.type}</span>
-          <span className={`text-[11px] font-semibold px-2 py-0.5 rounded-full ${effortBadge(opp.effort)}`}>{opp.effort} Effort</span>
+          <span className="text-[11px] font-semibold px-2 py-0.5 rounded-full" style={{ background: "rgba(14,165,233,0.12)", color: "#38bdf8", border: "1px solid rgba(14,165,233,0.22)" }}>{opp.type}</span>
+          <span className={`text-[11px] font-semibold px-2 py-0.5 rounded-full ${effortBadge(opp.effort).className}`} style={{ background: effortBadge(opp.effort).bg, border: `1px solid ${effortBadge(opp.effort).border}` }}>{opp.effort} Effort</span>
         </div>
       </div>
 
-      <div className="bg-background rounded-2xl border border-border/50 divide-y divide-border/30">
+      <div className="rounded-2xl border divide-y divide-white/5">
         {[
           { label: "Description",       value: opp.description },
           { label: "Estimated Value",   value: opp.estimatedValue },
@@ -118,7 +132,7 @@ function OpportunityDetail({ opp, onBack }: { opp: Opportunity; onBack: () => vo
       {staged && plan && (
         <div className="space-y-4">
           <div className="bg-green-50 border border-green-200 rounded-2xl p-4">
-            <p className="text-green-700 font-bold text-[14px]">✓ Content Plan Generated — Ready for Your Review</p>
+            <p className="font-bold text-green-400 text-[14px]">✓ Content Plan Generated — Ready for Your Review</p>
             <p className="text-[12px] text-green-600 mt-1">Review each section below. Copy what you want to use. Nothing is sent automatically.</p>
           </div>
 
@@ -127,7 +141,7 @@ function OpportunityDetail({ opp, onBack }: { opp: Opportunity; onBack: () => vo
             { key: "campaign", label: "📅 30-Day Campaign Plan",    content: plan.campaign },
             { key: "adCopy",   label: "📣 Ad Copy",                 content: plan.adCopy },
           ].map(({ key, label, content }) => (
-            <div key={key} className="bg-background border border-border/50 rounded-2xl p-4 space-y-2">
+            <div key={key} className="border rounded-2xl p-4 space-y-2">
               <div className="flex items-center gap-2">
                 <p className="font-semibold text-[13px] text-foreground flex-1">{label}</p>
                 <button onClick={() => copy(key, content)}
@@ -135,7 +149,7 @@ function OpportunityDetail({ opp, onBack }: { opp: Opportunity; onBack: () => vo
                   {copied === key ? "✓ Copied" : "Copy"}
                 </button>
               </div>
-              <div className="bg-muted/30 rounded-xl p-3 max-h-40 overflow-y-auto">
+              <div className="bg-muted/15 rounded-xl p-3 max-h-40 overflow-y-auto">
                 <pre className="text-[11px] text-foreground whitespace-pre-wrap font-sans leading-relaxed">{content}</pre>
               </div>
             </div>
@@ -214,7 +228,7 @@ function SmartEngine() {
             {phase === "idle" ? "▶ Run Cycle" : phase === "scanning" ? "Scanning…" : `▶ Run Again (${cycleCount} done)`}
           </button>
           {discovered.length > 0 && !running && (
-            <button onClick={reset} className="px-4 py-2.5 border border-border/50 rounded-xl text-[12px] text-muted-foreground hover:bg-muted transition-colors">
+            <button onClick={reset} className="px-4 py-2.5 border border-white/8 rounded-xl text-[12px] text-muted-foreground hover:bg-muted transition-colors">
               Reset
             </button>
           )}
@@ -235,7 +249,7 @@ function SmartEngine() {
           </p>
           {discovered.map((opp, i) => (
             <button key={opp.id} onClick={() => setSelectedOpp(opp)}
-              className="w-full flex items-start gap-3 p-4 bg-background rounded-2xl border border-border/50 hover:border-primary/20 hover:shadow-sm transition-all text-left animate-in fade-in slide-in-from-bottom-2 duration-300"
+              className="w-full flex items-start gap-3 p-4 rounded-2xl border hover:border-primary/20 hover:shadow-sm transition-all text-left animate-in fade-in slide-in-from-bottom-2 duration-300"
               style={{ animationDelay: `${i * 50}ms` }}>
               <div className="w-10 h-10 rounded-xl bg-primary/10 flex items-center justify-center text-primary font-bold text-sm flex-shrink-0">
                 {opp.type === "Subscription" ? "♻️" : opp.type === "SaaS" ? "☁️" : opp.type === "Education" ? "🎓" : opp.type === "Enterprise" ? "🏢" : "💡"}
@@ -247,8 +261,8 @@ function SmartEngine() {
                 </div>
                 <p className="text-[11px] text-muted-foreground mt-0.5 truncate">{opp.estimatedValue}</p>
                 <div className="flex items-center gap-2 mt-1">
-                  <span className="text-[10px] bg-blue-100 text-blue-700 font-semibold px-1.5 py-0.5 rounded-full">{opp.type}</span>
-                  <span className={`text-[10px] font-semibold px-1.5 py-0.5 rounded-full ${effortBadge(opp.effort)}`}>{opp.effort}</span>
+                  <span className="text-[10px] font-semibold px-1.5 py-0.5 rounded-full" style={{ background: "rgba(14,165,233,0.12)", color: "#38bdf8", border: "1px solid rgba(14,165,233,0.22)" }}>{opp.type}</span>
+                  <span className={`text-[10px] font-semibold px-1.5 py-0.5 rounded-full ${effortBadge(opp.effort).className}`} style={{ background: effortBadge(opp.effort).bg, border: `1px solid ${effortBadge(opp.effort).border}` }}>{opp.effort}</span>
                 </div>
               </div>
               <span className="text-muted-foreground text-xs mt-1 flex-shrink-0">→</span>
@@ -346,17 +360,17 @@ function FunnelGenerator() {
           <div>
             <label className="text-[13px] font-semibold text-foreground block mb-1.5">Offer / Product Name</label>
             <input value={offerName} onChange={e => setOfferName(e.target.value)} placeholder="e.g. Monthly Horse Boarding Membership"
-              className="w-full bg-background border border-border/50 rounded-xl p-3 text-[13px] text-foreground placeholder:text-muted-foreground outline-none focus:ring-2 focus:ring-primary/20 transition-all" />
+              className="w-full border rounded-xl p-3 text-[13px] text-foreground placeholder:text-muted-foreground outline-none focus:ring-2 focus:ring-primary/20 transition-all" />
           </div>
           <div>
             <label className="text-[13px] font-semibold text-foreground block mb-1.5">Price (optional)</label>
             <input value={price} onChange={e => setPrice(e.target.value)} placeholder="e.g. $297/mo or Custom"
-              className="w-full bg-background border border-border/50 rounded-xl p-3 text-[13px] text-foreground placeholder:text-muted-foreground outline-none focus:ring-2 focus:ring-primary/20 transition-all" />
+              className="w-full border rounded-xl p-3 text-[13px] text-foreground placeholder:text-muted-foreground outline-none focus:ring-2 focus:ring-primary/20 transition-all" />
           </div>
           <div>
             <label className="text-[13px] font-semibold text-foreground block mb-1.5">Target Audience</label>
             <input value={audience} onChange={e => setAudience(e.target.value)} placeholder="e.g. Horse owners in rural Minnesota"
-              className="w-full bg-background border border-border/50 rounded-xl p-3 text-[13px] text-foreground placeholder:text-muted-foreground outline-none focus:ring-2 focus:ring-primary/20 transition-all" />
+              className="w-full border rounded-xl p-3 text-[13px] text-foreground placeholder:text-muted-foreground outline-none focus:ring-2 focus:ring-primary/20 transition-all" />
           </div>
           <p className="text-[11px] text-muted-foreground">Tone from your Preference Brain: <strong>{preferences.tone}</strong></p>
           <button onClick={generate} disabled={!offerName.trim() || streaming}
@@ -381,7 +395,7 @@ function FunnelGenerator() {
             <div className="flex gap-2 ml-auto">
               {!streaming && (
                 <>
-                  <button onClick={copy} className="text-[12px] bg-muted border border-border/50 rounded-lg px-3 py-1.5 text-foreground hover:bg-muted/80 transition-colors">
+                  <button onClick={copy} className="text-[12px] bg-muted border border-white/8 rounded-lg px-3 py-1.5 text-foreground hover:bg-muted/80 transition-colors">
                     {copied ? "✓ Copied!" : "Copy"}
                   </button>
                   <button onClick={reset} className="text-[12px] bg-primary text-white rounded-lg px-3 py-1.5 hover:opacity-90 transition-opacity">
@@ -390,13 +404,13 @@ function FunnelGenerator() {
                 </>
               )}
               {streaming && (
-                <button onClick={reset} className="text-[12px] bg-red-50 text-red-500 border border-red-200 rounded-lg px-3 py-1.5 hover:bg-red-100 transition-colors">
+                <button onClick={reset} className="text-[12px] rounded-lg px-3 py-1.5 transition-colors" style={{ background: "rgba(239,68,68,0.10)", color: "#f87171", border: "1px solid rgba(239,68,68,0.20)" }}>
                   Stop
                 </button>
               )}
             </div>
           </div>
-          <div className="bg-muted/40 border border-border/40 rounded-2xl p-4 max-h-[55vh] overflow-y-auto">
+          <div className="bg-muted/20 border border-white/6 rounded-2xl p-4 max-h-[55vh] overflow-y-auto">
             <pre className="text-[12px] text-foreground whitespace-pre-wrap font-mono leading-relaxed">
               {streamText}
               {streaming && <span className="inline-block w-2 h-3 bg-primary/60 animate-pulse ml-0.5 align-middle" />}
@@ -446,7 +460,7 @@ function PreferenceBrainPanel() {
           <div className="flex flex-wrap gap-2">
             {TONES.map(t => (
               <button key={t} onClick={() => updatePreferences({ tone: t })}
-                className={`text-[12px] px-3 py-1.5 rounded-full border transition-all ${preferences.tone === t ? "bg-primary text-white border-primary" : "border-border/50 text-muted-foreground hover:border-primary/30"}`}>
+                className={`text-[12px] px-3 py-1.5 rounded-full border transition-all ${preferences.tone === t ? "bg-primary text-white border-primary" : "border-white/8 text-muted-foreground hover:border-primary/30"}`}>
                 {t}
               </button>
             ))}
@@ -458,7 +472,7 @@ function PreferenceBrainPanel() {
           <div className="flex flex-wrap gap-2">
             {LANGUAGES.map(l => (
               <button key={l} onClick={() => updatePreferences({ language: l })}
-                className={`text-[12px] px-3 py-1.5 rounded-full border transition-all ${preferences.language === l ? "bg-primary text-white border-primary" : "border-border/50 text-muted-foreground hover:border-primary/30"}`}>
+                className={`text-[12px] px-3 py-1.5 rounded-full border transition-all ${preferences.language === l ? "bg-primary text-white border-primary" : "border-white/8 text-muted-foreground hover:border-primary/30"}`}>
                 {l}
               </button>
             ))}
@@ -470,7 +484,7 @@ function PreferenceBrainPanel() {
           <div className="grid grid-cols-2 gap-2">
             {STYLES.map(s => (
               <button key={s} onClick={() => updatePreferences({ interactionStyle: s })}
-                className={`py-2 rounded-xl text-[12px] font-semibold border transition-all ${preferences.interactionStyle === s ? "bg-primary text-white border-primary" : "border-border/50 text-muted-foreground hover:border-primary/30"}`}>
+                className={`py-2 rounded-xl text-[12px] font-semibold border transition-all ${preferences.interactionStyle === s ? "bg-primary text-white border-primary" : "border-white/8 text-muted-foreground hover:border-primary/30"}`}>
                 {s}
                 <span className="block text-[10px] opacity-70 font-normal">
                   {s === "Guided" ? "Step by step" : s === "Smart" ? "Contextual help" : s === "Fast" ? "Skip intro" : "Reads the room"}
@@ -485,7 +499,7 @@ function PreferenceBrainPanel() {
           <div className="flex flex-wrap gap-2">
             {INTERESTS_OPTIONS.map(ind => (
               <button key={ind} onClick={() => toggleInterest(ind)}
-                className={`text-[12px] px-3 py-1.5 rounded-full border transition-all ${preferences.interests.includes(ind) ? "bg-primary/10 text-primary border-primary/30" : "border-border/50 text-muted-foreground hover:border-primary/30"}`}>
+                className={`text-[12px] px-3 py-1.5 rounded-full border transition-all ${preferences.interests.includes(ind) ? "bg-primary/10 text-primary border-primary/30" : "border-white/8 text-muted-foreground hover:border-primary/30"}`}>
                 {ind}
               </button>
             ))}
@@ -503,7 +517,7 @@ function PreferenceBrainPanel() {
           <p className="text-[11px] text-muted-foreground mt-1">Platform revenue share — default 25%, adjustable including 0%. Mock only.</p>
         </div>
 
-        <div className="flex items-center justify-between p-3 bg-background rounded-xl border border-border/50">
+        <div className="flex items-center justify-between p-3 bg-background rounded-xl border border-white/8">
           <div>
             <p className="font-semibold text-[13px] text-foreground">Zero Overwhelm Mode</p>
             <p className="text-[11px] text-muted-foreground">Reduce visible options across all apps</p>
@@ -514,7 +528,7 @@ function PreferenceBrainPanel() {
           </button>
         </div>
 
-        <div className="bg-background rounded-2xl border border-border/50 p-4 space-y-2">
+        <div className="rounded-2xl border p-4 space-y-2">
           <p className="font-semibold text-[13px] text-foreground">Group Memory (Mock)</p>
           {preferences.groupMembers.map((m, i) => (
             <div key={i} className="flex items-center gap-2">
@@ -540,13 +554,13 @@ function PlansTab() {
   return (
     <div className="space-y-3">
       {PLANS.map(plan => (
-        <div key={plan.name} className="p-4 bg-background rounded-2xl border border-border/50">
+        <div key={plan.name} className="p-4 rounded-2xl border">
           <div className="flex items-center justify-between mb-3">
             <div>
               <p className="font-bold text-[15px] text-foreground">{plan.name}</p>
               <p className="text-[13px] font-semibold" style={{ color: plan.color }}>{plan.price}</p>
             </div>
-            <span className="text-[10px] bg-orange-100 text-orange-600 font-semibold px-2 py-0.5 rounded-full">MOCK</span>
+            <span className="text-[10px] font-semibold px-2 py-0.5 rounded-full" style={{ background: "rgba(249,115,22,0.12)", color: "#fb923c", border: "1px solid rgba(249,115,22,0.22)" }}>MOCK</span>
           </div>
           <div className="space-y-1 mb-3">
             {plan.features.map(f => (
@@ -580,13 +594,13 @@ function RevenueTab() {
     <div className="space-y-3">
       <div className="grid grid-cols-2 gap-3">
         {stats.map(stat => (
-          <div key={stat.label} className="bg-background rounded-2xl border border-border/50 p-4 text-center">
+          <div key={stat.label} className="rounded-2xl border p-4 text-center">
             <p className="text-xl font-bold" style={{ color: stat.color }}>{stat.value}</p>
             <p className="text-[11px] text-muted-foreground mt-0.5">{stat.label}</p>
           </div>
         ))}
       </div>
-      <div className="bg-background rounded-2xl border border-border/50 p-4 space-y-2">
+      <div className="rounded-2xl border p-4 space-y-2">
         <p className="font-semibold text-[13px] text-foreground">Revenue Breakdown (Mock)</p>
         {[
           { source: "Creator Licenses", amount: "$1,580" },

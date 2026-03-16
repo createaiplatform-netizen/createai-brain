@@ -95,14 +95,27 @@ Generated React Query hooks and fetch client from the OpenAPI spec (e.g. `useHea
 
 Full-stack AI OS platform — "CreateAI Brain" by Sara Stadler. React + Vite + Wouter + TailwindCSS.
 
-**Dark Glass UI (fully applied):**
+**Platform:** 13 apps, 6 AI engines, 30+ tools, 12+ output types. Dark glass OS with indigo (#6366f1) accent.
+
+**Dark Glass UI (fully applied across all 13 apps):**
 - Global dark theme: `hsl(231,47%,6%)` background, `#6366f1` indigo primary throughout
-- All `bg-white` replaced with `bg-background` or `bg-muted/40` across: MarketingApp, AdminApp, Dashboard, PeopleApp, CreatorApp, ToolsApp
-- All status badges upgraded to dark-compatible: `bg-green-500/15 text-green-400`, `bg-primary/15 text-primary`, `bg-orange-500/15 text-orange-400`
-- Notification banners: `bg-green-50 border-green-200` → `bg-green-500/10 border-green-500/20`
-- All `bg-blue-500` (non-brand) replaced with `bg-primary` for consistent indigo accent
-- Dashboard platform status strip, mode menu, and "Manage" button updated for dark theme
-- SelectPills, content type selectors, campaign tabs — all updated to primary-based active states
+- All light-mode badge classes (bg-green-100, bg-blue-100, bg-orange-100, bg-red-50) replaced with dark glass `rgba()` inline styles
+- Status badges: `text-green-400` with `rgba(34,197,94,0.12)` background + `rgba(34,197,94,0.25)` border
+- All apps verified: MonetizationApp, FamilyApp, DocumentsApp, ChatApp, Dashboard — fully dark glass
+
+**Components built this session:**
+- `src/os/ConversationOverlay.tsx` — dark glass AI chat overlay with streaming, animated brain avatar, pulse ring, OutputFormatter, empty orb state, typing indicator, app-context awareness
+- `src/components/OutputFormatter.tsx` — fenced code blocks with copy button, info/warning/success/callout boxes, blockquote cards, italic support
+- `src/components/MediaPlayer.tsx` — universal audio/video player with HTML5 APIs, progress bar, volume, skip ±10s, fullscreen, AudioTrack playlist card
+- `src/os/Dashboard.tsx` — Platform Intelligence Strip: 6 engine pills (BrainGen, UCP-X, Simulate, Ad-Gen, Monetize, Streaming) + 4 stat cards (13 Apps, 30 Tools, 6 Engines, 12+ Output Types)
+- `src/os/Sidebar.tsx` — Category-grouped sidebar (Core/Build/Business/System) with section headers and active indicator bars
+- `src/index.css` — Cinematic CSS system: streaming-cursor, glass-overlay, neon-divider, stat-card, engine-pill, depth-ring, hover-lift, approval-banner, premium scrollbar, shimmer/glow effects, display-heading typography
+
+**ChatApp workspaces (9 total):**
+1. Main Brain · 2. Healthcare Demo · 3. Grants & Funding Explorer · 4. Business & Operations Builder
+5. Marketing & Storytelling Studio · 6. CreateAI Messaging Hub · 7. Product & Launch Pad
+8. Legal & Contracts Studio · 9. Creative Writing Lab
+Workspace picker: scrollable dropdown with `maxHeight: min(520px, 70vh)` + styled scrollbar
 
 **Key architecture:**
 - `src/os/OSContext.tsx` — Preference Brain state, Global Brain `routeIntent()`, Infinite Expansion `appRegistry`

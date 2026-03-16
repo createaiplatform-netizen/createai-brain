@@ -16,6 +16,7 @@ import { IntegrationApp } from "@/Apps/IntegrationApp";
 import { MonetizationApp } from "@/Apps/MonetizationApp";
 import { CreatorApp } from "@/Apps/CreatorApp";
 import { UniversalApp } from "@/Apps/UniversalApp";
+import { SimulationApp } from "@/Apps/SimulationApp";
 import { ConversationOverlay } from "./ConversationOverlay";
 import { UCPXAgent } from "@/ucpx/UCPXAgent";
 
@@ -31,6 +32,7 @@ const APP_COMPONENTS: Record<string, React.ComponentType> = {
   family: FamilyApp,
   integration: IntegrationApp,
   monetization: MonetizationApp,
+  simulation: SimulationApp,
   universal: UniversalApp,
 };
 

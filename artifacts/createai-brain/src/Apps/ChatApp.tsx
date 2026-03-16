@@ -41,6 +41,21 @@ const PROJECTS = [
     emoji: "✉️",
     description: "Generate professional emails and texts. Easy Mode: sent via your own device.",
   },
+  {
+    name: "Product & Launch Pad",
+    emoji: "🚀",
+    description: "Design products, plan launches, build roadmaps, and structure go-to-market strategies. Concept mode.",
+  },
+  {
+    name: "Legal & Contracts Studio",
+    emoji: "⚖️",
+    description: "Draft agreements, policies, terms, and compliance frameworks. Conceptual only — always verify with a licensed attorney.",
+  },
+  {
+    name: "Creative Writing Lab",
+    emoji: "✍️",
+    description: "Write stories, scripts, pitches, bios, speeches, and creative copy. Full creative freedom with zero limits.",
+  },
 ];
 
 const PROJECT_SUGGESTIONS: Record<number, string[]> = {
@@ -74,6 +89,24 @@ const PROJECT_SUGGESTIONS: Record<number, string[]> = {
     "Draft a professional re-engagement email sequence",
     "Write a cold outreach sequence for enterprise sales",
     "Generate an automated nurture flow — 7 messages",
+  ],
+  6: [
+    "Design a complete product roadmap for my SaaS startup",
+    "Build a full go-to-market strategy with phases and KPIs",
+    "Create a product requirements document from scratch",
+    "Map out a pre-launch checklist for a digital product",
+  ],
+  7: [
+    "Draft a freelance contractor agreement template",
+    "Create a Privacy Policy for a SaaS platform",
+    "Write a standard Terms of Service document",
+    "Generate an NDA for a new partnership",
+  ],
+  8: [
+    "Write a cinematic short story about a future AI city",
+    "Draft a motivational keynote speech for a founder event",
+    "Create a compelling founder bio for my website",
+    "Write a film pitch for a docu-series concept I have",
   ],
 };
 
@@ -204,16 +237,18 @@ export function ChatApp() {
           <>
             <div className="fixed inset-0 z-10" onClick={() => setShowPicker(false)} />
             <div
-              className="absolute top-full left-1/2 -translate-x-1/2 mt-1.5 z-20 w-80 rounded-2xl shadow-2xl overflow-hidden"
+              className="absolute top-full left-1/2 -translate-x-1/2 mt-1.5 z-20 w-80 rounded-2xl shadow-2xl overflow-hidden flex flex-col"
               style={{
                 background: "rgba(10,12,30,0.96)",
                 border: "1px solid rgba(255,255,255,0.10)",
                 backdropFilter: "blur(40px)",
+                maxHeight: "min(520px, 70vh)",
               }}
             >
-              <div className="px-4 py-3 border-b" style={{ borderColor: "rgba(255,255,255,0.07)" }}>
+              <div className="px-4 py-3 border-b flex-shrink-0" style={{ borderColor: "rgba(255,255,255,0.07)" }}>
                 <p className="section-label">Choose Workspace</p>
               </div>
+              <div className="overflow-y-auto flex-1 overscroll-contain" style={{ scrollbarWidth: "thin", scrollbarColor: "rgba(99,102,241,0.3) transparent" }}>
               {PROJECTS.map((proj, i) => (
                 <button
                   key={proj.name}
@@ -238,6 +273,7 @@ export function ChatApp() {
                   )}
                 </button>
               ))}
+              </div>
             </div>
           </>
         )}
