@@ -1,0 +1,58 @@
+====================================================
+SMART LAYOUT FIX (KEEP ALL COLORS & STYLE)
+====================================================
+
+Do NOT change any colors, themes, fonts, or visual style.  
+Only fix the layout behavior so the OS always looks clean, centered, and responsive.
+
+====================================================
+SMART DASHBOARD BEHAVIOR
+====================================================
+
+- The dashboard must always center itself on the screen.
+- It must never be pushed to the right.
+- It must never appear half-screen.
+- It must automatically resize and reflow based on screen size.
+- Cards and quick actions must stay evenly spaced and visually balanced.
+
+====================================================
+HAMBURGER MENU BEHAVIOR
+====================================================
+
+- Keep the hamburger menu exactly as designed.
+- When tapped, it must slide out a clean navigation panel.
+- When closed, the dashboard must return to full width.
+- The menu must never overlap or distort the dashboard layout.
+- The menu must scroll smoothly if content exceeds screen height.
+
+====================================================
+RESPONSIVE OS RULES
+====================================================
+
+The OS must automatically adjust itself:
+
+- On small screens → collapse into mobile mode.
+- On medium screens → use hybrid mode.
+- On large screens → use full desktop mode.
+
+All modes must:
+- keep your exact colors
+- keep your exact style
+- keep your exact spacing
+- keep your exact vibe
+
+====================================================
+APPS & PROJECTS LAYOUT
+====================================================
+
+- Apps must appear in a clean grid.
+- Projects must appear in a clean list or grid.
+- No overlapping, no stacking, no shifting.
+- Everything must stay aligned and readable.
+
+====================================================
+FINAL OUTPUT
+====================================================
+
+Apply these layout fixes WITHOUT changing any colors, themes, or visual style.  
+Make the OS smart, responsive, centered, and clean on every device.

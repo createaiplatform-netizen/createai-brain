@@ -1007,4 +1007,146 @@ Produce the full ${type} now with all sections filled in using high-quality mock
   res.end();
 });
 
+// ============================================================
+// SMART MONETIZATION ENGINE — /api/openai/monetize-cycle
+// Generates a fresh batch of opportunities per cycle
+// ============================================================
+
+const MONETIZE_ENGINE_PROMPT = `You are the Smart Monetization Engine inside the CreateAI Brain OS, built by Sara Stadler.
+
+Your job is to generate a fresh batch of 4–6 monetization opportunities, package ideas, and revenue paths. All outputs are simulated and structural only — no real financial advice, no real market data, no real transactions.
+
+RULES:
+- Each opportunity must feel distinct, specific, and actionable as a concept
+- Include variety: services, products, courses, retainers, toolkits, communities, licensing, consulting
+- Mark each with a category: Service | Product | Course | Retainer | Toolkit | Community | License | Consulting | Partnership | Other
+- Each opportunity must include: Title, Category, Target Audience, Core Value, Pricing Range (mock), Fit Score (1–10), and a short Why Now reason
+- Filter: never repeat an idea that is expired, outdated, generic, or a duplicate of common knowledge
+- Tone: calm, clear, empowering, possibility-focused
+- Format as structured JSON inside a markdown code block: an array of opportunity objects
+
+When given a user preference profile, weight ideas toward the user's interests, work style, and preferred offer types.
+Always end with a line: "[Monetization Engine Cycle Complete — Structural Output Only]"`;
+
+router.post("/monetize-cycle", async (req, res) => {
+  const { profile, mode, sessionOpportunities } = req.body as {
+    profile?: { interests?: string; workStyle?: string; offerTypes?: string };
+    mode?: string;
+    sessionOpportunities?: string[];
+  };
+
+  const profileSection = profile
+    ? `User Profile: Interests: ${profile.interests || "general"} | Work Style: ${profile.workStyle || "flexible"} | Preferred Offer Types: ${profile.offerTypes || "varied"}`
+    : "User Profile: No preferences set — generate diverse opportunities.";
+
+  const avoidSection = sessionOpportunities?.length
+    ? `Already generated this session (avoid duplicates): ${sessionOpportunities.slice(-10).join("; ")}`
+    : "";
+
+  const userPrompt = `${profileSection}
+Mode: ${mode || "DEMO"}
+${avoidSection}
+
+Generate a fresh batch of 4–6 monetization opportunities now. Format as a JSON array in a markdown code block. Each item must have: title, category, targetAudience, coreValue, pricingRange, fitScore, whyNow.`;
+
+  res.setHeader("Content-Type", "text/event-stream");
+  res.setHeader("Cache-Control", "no-cache");
+  res.setHeader("Connection", "keep-alive");
+
+  const stream = await openai.chat.completions.create({
+    model: "gpt-5.2",
+    max_completion_tokens: 4096,
+    messages: [
+      { role: "system", content: MONETIZE_ENGINE_PROMPT },
+      { role: "user", content: userPrompt },
+    ],
+    stream: true,
+  });
+
+  for await (const chunk of stream) {
+    const content = chunk.choices[0]?.delta?.content;
+    if (content) {
+      res.write(`data: ${JSON.stringify({ content })}\n\n`);
+    }
+  }
+
+  res.write(`data: ${JSON.stringify({ done: true })}\n\n`);
+  res.end();
+});
+
+// ============================================================
+// OFFER & FUNNEL GENERATOR — /api/openai/offer-funnel
+// Generates complete offer definition + marketing funnel
+// ============================================================
+
+const OFFER_FUNNEL_PROMPT = `You are the End-to-End Offer & Funnel Generator inside the CreateAI Brain OS, built by Sara Stadler.
+
+Given a monetization opportunity, you generate a complete, structured offer package and marketing funnel. All content is mock and structural only — no real business advice, no real financial projections, no real legal terms.
+
+WHAT YOU GENERATE (in order):
+1. OFFER DEFINITION — Who it's for, what it does, why it matters, deliverables, timeline, mock pricing tiers
+2. PACKAGE — Proposal outline, scope summary, mock terms, FAQs (5 Q&As), key benefits, objections handling (5 objections)
+3. MARKETING FUNNEL — Landing page copy + structure, Email sequence (5 emails: welcome, value, proof, offer, follow-up), Social media posts (3 platforms × 3 posts), Ad copy variations (3 ads), Short-form video/script ideas (3 scripts)
+4. OUTREACH PREP — 3 personalized outreach templates (role/industry aware). Label clearly: "STAGED FOR REVIEW — DO NOT SEND WITHOUT APPROVAL"
+5. UNIVERSAL VERSION — Generic website copy, reusable asset list for internal marketing team
+6. AI ASSISTANT FLOW — A conversation flow for an AI assistant that clearly identifies as AI. Includes: greeting, offer explanation, FAQ handling, info collection, and escalation triggers (when to flag for human: user asks for human, sensitive topic, high-impact decision)
+
+SAFETY RULES:
+- Never auto-send anything. All outreach is staged.
+- Never pretend AI is human. AI must always identify as AI.
+- Never include real personal data, real legal text, or real financial projections.
+- Mark everything: "[Mock / Structural Only — For Review Before Activation]"
+
+Format with clear ## section headers for each of the 6 sections above.`;
+
+router.post("/offer-funnel", async (req, res) => {
+  const { opportunity, profile } = req.body as {
+    opportunity: { title: string; category: string; targetAudience: string; coreValue: string; pricingRange: string };
+    profile?: { interests?: string; workStyle?: string };
+  };
+
+  if (!opportunity?.title) {
+    return res.status(400).json({ error: "opportunity is required" });
+  }
+
+  const profileSection = profile
+    ? `User context: Interests: ${profile.interests || "general"} | Work Style: ${profile.workStyle || "flexible"}`
+    : "";
+
+  const userPrompt = `Generate a complete Offer & Funnel package for the following opportunity:
+
+Title: ${opportunity.title}
+Category: ${opportunity.category}
+Target Audience: ${opportunity.targetAudience}
+Core Value: ${opportunity.coreValue}
+Pricing Range: ${opportunity.pricingRange}
+${profileSection}
+
+Generate all 6 sections now — Offer Definition, Package, Marketing Funnel, Outreach Prep, Universal Version, and AI Assistant Flow. Be thorough and fill every section with high-quality mock content.`;
+
+  res.setHeader("Content-Type", "text/event-stream");
+  res.setHeader("Cache-Control", "no-cache");
+  res.setHeader("Connection", "keep-alive");
+
+  const stream = await openai.chat.completions.create({
+    model: "gpt-5.2",
+    max_completion_tokens: 8192,
+    messages: [
+      { role: "system", content: OFFER_FUNNEL_PROMPT },
+      { role: "user", content: userPrompt },
+    ],
+    stream: true,
+  });
+
+  for await (const chunk of stream) {
+    const content = chunk.choices[0]?.delta?.content;
+    if (content) {
+      res.write(`data: ${JSON.stringify({ content })}\n\n`);
+    }
+  }
+
+  res.write(`data: ${JSON.stringify({ done: true })}\n\n`);
+  res.end();
+});
+
 export default router;
