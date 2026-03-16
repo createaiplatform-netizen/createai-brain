@@ -4,9 +4,9 @@ import { BrainGen } from "@/engine/BrainGen";
 
 // ─── Helpers ───────────────────────────────────────────────────────────────
 function statusCls(status: PlatformUser["status"]) {
-  return status === "Active"  ? "bg-green-100 text-green-700"  :
-         status === "Invited" ? "bg-blue-100 text-blue-700"    :
-                                "bg-orange-100 text-orange-700";
+  return status === "Active"  ? "bg-green-500/15 text-green-400"  :
+         status === "Invited" ? "bg-primary/15 text-primary"       :
+                                "bg-orange-500/15 text-orange-400";
 }
 
 function Avatar({ name, size = 10 }: { name: string; size?: number }) {
@@ -116,7 +116,7 @@ function ProfileView({ user, onBack }: { user: PlatformUser; onBack: () => void 
         )}
         {user.phone && (
           <a href={`sms:${user.phone}`}
-            className="flex-1 text-center text-[12px] bg-green-100 text-green-700 font-semibold py-2.5 rounded-xl hover:bg-green-200 transition-colors">
+            className="flex-1 text-center text-[12px] bg-green-500/15 text-green-400 font-semibold py-2.5 rounded-xl hover:bg-green-500/25 transition-colors">
             💬 Text
           </a>
         )}
@@ -153,13 +153,13 @@ function ProfileView({ user, onBack }: { user: PlatformUser; onBack: () => void 
             </div>
             {user.email && (
               <a href={`mailto:${user.email}?subject=Your Invite to CreateAI Brain&body=${encodeURIComponent(inviteMsg)}`}
-                className="block w-full text-center text-[12px] bg-green-100 text-green-700 font-semibold py-2.5 rounded-xl hover:bg-green-200 transition-colors">
+                className="block w-full text-center text-[12px] bg-green-500/15 text-green-400 font-semibold py-2.5 rounded-xl hover:bg-green-500/25 transition-colors">
                 📧 Open in Email App
               </a>
             )}
             {user.phone && (
               <a href={`sms:${user.phone}&body=${encodeURIComponent(inviteMsg.slice(0, 320))}`}
-                className="block w-full text-center text-[12px] bg-blue-100 text-blue-700 font-semibold py-2.5 rounded-xl hover:bg-blue-200 transition-colors">
+                className="block w-full text-center text-[12px] bg-primary/15 text-primary font-semibold py-2.5 rounded-xl hover:bg-primary/25 transition-colors">
                 💬 Open in Messages App
               </a>
             )}
@@ -240,8 +240,8 @@ function InviteView({ onBack, onSaved }: { onBack: () => void; onSaved: () => vo
           </div>
 
           {saved && (
-            <div className="bg-green-50 border border-green-200 rounded-xl p-3 text-center">
-              <p className="text-green-700 font-semibold text-[13px]">✓ All contacts saved to People!</p>
+            <div className="bg-green-500/10 border border-green-500/20 rounded-xl p-3 text-center">
+              <p className="text-green-400 font-semibold text-[13px]">✓ All contacts saved to People!</p>
             </div>
           )}
 
@@ -325,8 +325,8 @@ function AddPersonView({ onBack, onAdded }: { onBack: () => void; onAdded: (u: P
       </div>
 
       {done && (
-        <div className="bg-green-50 border border-green-200 rounded-xl p-3 text-center">
-          <p className="text-green-700 font-semibold">✓ Person added! Returning to People…</p>
+        <div className="bg-green-500/10 border border-green-500/20 rounded-xl p-3 text-center">
+          <p className="text-green-400 font-semibold">✓ Person added! Returning to People…</p>
         </div>
       )}
 

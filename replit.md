@@ -95,6 +95,15 @@ Generated React Query hooks and fetch client from the OpenAPI spec (e.g. `useHea
 
 Full-stack AI OS platform — "CreateAI Brain" by Sara Stadler. React + Vite + Wouter + TailwindCSS.
 
+**Dark Glass UI (fully applied):**
+- Global dark theme: `hsl(231,47%,6%)` background, `#6366f1` indigo primary throughout
+- All `bg-white` replaced with `bg-background` or `bg-muted/40` across: MarketingApp, AdminApp, Dashboard, PeopleApp, CreatorApp, ToolsApp
+- All status badges upgraded to dark-compatible: `bg-green-500/15 text-green-400`, `bg-primary/15 text-primary`, `bg-orange-500/15 text-orange-400`
+- Notification banners: `bg-green-50 border-green-200` → `bg-green-500/10 border-green-500/20`
+- All `bg-blue-500` (non-brand) replaced with `bg-primary` for consistent indigo accent
+- Dashboard platform status strip, mode menu, and "Manage" button updated for dark theme
+- SelectPills, content type selectors, campaign tabs — all updated to primary-based active states
+
 **Key architecture:**
 - `src/os/OSContext.tsx` — Preference Brain state, Global Brain `routeIntent()`, Infinite Expansion `appRegistry`
 - `src/os/OSLayout.tsx` — Responsive 3-tier iOS-inspired layout (mobile/tablet/desktop)

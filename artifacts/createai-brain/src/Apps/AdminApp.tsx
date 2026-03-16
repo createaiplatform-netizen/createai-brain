@@ -363,7 +363,7 @@ function AdminUsersSection({ onBack, onGoToPeople }: { onBack: () => void; onGoT
                 <p className="font-semibold text-[13px] text-foreground">{u.name}</p>
                 <p className="text-[11px] text-muted-foreground">{u.role} {u.email ? `· ${u.email}` : ""}</p>
               </div>
-              <span className={`text-[10px] font-bold px-2 py-0.5 rounded-full flex-shrink-0 ${u.status === "Active" ? "bg-green-100 text-green-700" : u.status === "Invited" ? "bg-blue-100 text-blue-700" : "bg-orange-100 text-orange-700"}`}>
+              <span className={`text-[10px] font-bold px-2 py-0.5 rounded-full flex-shrink-0 ${u.status === "Active" ? "bg-green-500/15 text-green-400" : u.status === "Invited" ? "bg-primary/15 text-primary" : "bg-orange-500/15 text-orange-400"}`}>
                 {u.status}
               </span>
             </div>
@@ -390,11 +390,11 @@ function AdminUsersSection({ onBack, onGoToPeople }: { onBack: () => void; onGoT
       <div className="bg-primary/5 border border-primary/15 rounded-2xl p-4 space-y-3">
         <p className="font-semibold text-[13px] text-foreground">+ Quick Invite User</p>
         {inviteDone && (
-          <div className="bg-green-50 border border-green-200 rounded-xl p-3 space-y-2">
-            <p className="text-green-700 font-semibold text-[12px]">✓ User invited! Here's their link:</p>
-            <p className="text-[11px] font-mono text-foreground break-all bg-white rounded-lg p-2 border border-green-200">{inviteLink}</p>
+          <div className="bg-green-500/10 border border-green-500/20 rounded-xl p-3 space-y-2">
+            <p className="text-green-400 font-semibold text-[12px]">✓ User invited! Here's their link:</p>
+            <p className="text-[11px] font-mono text-foreground break-all bg-background rounded-lg p-2 border border-green-500/20">{inviteLink}</p>
             <button onClick={() => { navigator.clipboard.writeText(inviteLink); setCopied(true); setTimeout(() => setCopied(false), 1500); }}
-              className="w-full text-[11px] bg-green-100 text-green-700 font-semibold py-2 rounded-xl hover:bg-green-200 transition-colors">
+              className="w-full text-[11px] bg-green-500/15 text-green-400 font-semibold py-2 rounded-xl hover:bg-green-500/25 transition-colors">
               {copied ? "✓ Copied Link" : "Copy Invite Link"}
             </button>
             <button onClick={() => setInviteDone(false)}

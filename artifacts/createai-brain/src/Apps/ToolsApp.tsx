@@ -126,7 +126,8 @@ export function ToolsApp() {
         {history.length === 0
           ? <div className="text-center py-16 text-muted-foreground text-sm">
               <p className="text-3xl mb-3">📭</p>
-              <p>Nothing generated yet.</p>
+              <p className="font-semibold text-foreground mb-1">Your history will appear here</p>
+              <p className="text-[12px]">Pick a tool and generate something — it'll live right here, ready to copy or revisit.</p>
               <button onClick={() => setView("grid")} className="mt-4 text-primary text-sm font-medium">Open a Tool →</button>
             </div>
           : <div className="space-y-2">
@@ -166,7 +167,7 @@ export function ToolsApp() {
           </div>
           <div className="ml-auto flex items-center gap-2 flex-wrap">
             {streaming && (
-              <button onClick={handleStop} className="text-[12px] bg-red-50 text-red-500 border border-red-200 rounded-lg px-3 py-1.5 hover:bg-red-100 transition-colors">Stop</button>
+              <button onClick={handleStop} className="text-[12px] bg-red-500/10 text-red-400 border border-red-500/20 rounded-lg px-3 py-1.5 hover:bg-red-500/15 transition-colors">Stop</button>
             )}
             {!streaming && streamText && (
               <>

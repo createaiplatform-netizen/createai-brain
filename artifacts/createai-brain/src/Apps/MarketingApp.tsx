@@ -58,10 +58,10 @@ function SectionHeader({ title, sub }: { title: string; sub?: string }) {
 
 function StatusBadge({ status }: { status: Campaign["status"] }) {
   const map = {
-    Active:    "bg-green-100 text-green-700",
-    Scheduled: "bg-blue-100 text-blue-700",
-    Draft:     "bg-gray-100 text-gray-600",
-    Completed: "bg-purple-100 text-purple-700",
+    Active:    "bg-green-500/15 text-green-400",
+    Scheduled: "bg-primary/15 text-primary",
+    Draft:     "bg-muted text-muted-foreground",
+    Completed: "bg-purple-500/15 text-purple-400",
   };
   return <span className={`text-[10px] font-bold px-2 py-0.5 rounded-full ${map[status]}`}>{status}</span>;
 }
@@ -77,8 +77,8 @@ function SelectPills({
           <button key={o} onClick={() => onChange(o)}
             className={`px-3 py-1.5 rounded-full text-[11px] font-semibold border transition-all ${
               value === o
-                ? "bg-blue-500 text-white border-blue-500"
-                : "bg-white text-muted-foreground border-border hover:border-blue-300 hover:text-blue-600"
+                ? "bg-primary text-white border-primary"
+                : "bg-muted/40 text-muted-foreground border-border/50 hover:border-primary/30 hover:text-primary"
             }`}>
             {o}
           </button>
@@ -142,7 +142,7 @@ function HomeView({ setView, campaigns, history }: {
           { label: "Conversions",     value: ANALYTICS.totalConversions, icon: "🎯" },
           { label: "Est. Revenue",    value: ANALYTICS.totalRevenue,     icon: "💰" },
         ].map(s => (
-          <div key={s.label} className="bg-white rounded-2xl border border-border/50 p-3 text-center">
+          <div key={s.label} className="bg-background rounded-2xl border border-border/50 p-3 text-center">
             <p className="text-xl">{s.icon}</p>
             <p className="text-[15px] font-bold text-foreground mt-0.5">{s.value}</p>
             <p className="text-[10px] text-muted-foreground">{s.label}</p>
@@ -176,7 +176,7 @@ function HomeView({ setView, campaigns, history }: {
         </div>
         <div className="space-y-2">
           {campaigns.filter(c => c.status === "Active").map(c => (
-            <div key={c.id} className="bg-white rounded-2xl border border-border/50 p-3 flex items-center gap-3">
+            <div key={c.id} className="bg-background rounded-2xl border border-border/50 p-3 flex items-center gap-3">
               <div className="w-9 h-9 rounded-xl flex-shrink-0" style={{ backgroundColor: c.color + "22" }}>
                 <div className="w-full h-full flex items-center justify-center text-base">📣</div>
               </div>
@@ -199,7 +199,7 @@ function HomeView({ setView, campaigns, history }: {
           </div>
           <div className="space-y-1.5">
             {history.slice(0, 3).map(h => (
-              <div key={h.id} className="bg-white rounded-xl border border-border/50 px-3 py-2 flex items-center gap-2">
+              <div key={h.id} className="bg-background rounded-xl border border-border/50 px-3 py-2 flex items-center gap-2">
                 <span className="text-base">{h.type === "social" ? "📲" : h.type === "email" ? "✉️" : h.type === "ad" ? "📣" : h.type === "blog" ? "📝" : "🎬"}</span>
                 <p className="text-[12px] text-foreground truncate flex-1">{h.label}</p>
                 <p className="text-[10px] text-muted-foreground flex-shrink-0">{h.createdAt.toLocaleTimeString([], { hour: "2-digit", minute: "2-digit" })}</p>
@@ -211,7 +211,7 @@ function HomeView({ setView, campaigns, history }: {
 
       {/* Analytics link */}
       <button onClick={() => setView("analytics")}
-        className="w-full bg-white border border-border/50 rounded-2xl p-4 flex items-center gap-3 hover:border-primary/20 hover:shadow-sm transition-all text-left">
+        className="w-full bg-background border border-border/50 rounded-2xl p-4 flex items-center gap-3 hover:border-primary/20 hover:shadow-sm transition-all text-left">
         <span className="text-2xl">📊</span>
         <div>
           <p className="font-semibold text-[13px] text-foreground">View Analytics</p>
@@ -266,7 +266,7 @@ function GenerateView({ onResult }: { onResult: (r: GenResult) => void }) {
           {(["Social Post", "Email", "Ad Copy", "Blog Post", "Video Script"] as ContentType[]).map(t => (
             <button key={t} onClick={() => setContentType(t)}
               className={`flex flex-col items-center gap-1 p-2.5 rounded-xl border text-center transition-all ${
-                contentType === t ? "bg-blue-500 text-white border-blue-500" : "bg-white text-muted-foreground border-border hover:border-blue-200"
+                contentType === t ? "bg-primary text-white border-primary" : "bg-muted/40 text-muted-foreground border-border/50 hover:border-primary/30"
               }`}>
               <span className="text-xl">{typeIcons[t]}</span>
               <span className="text-[9px] font-semibold leading-tight">{t}</span>
@@ -299,7 +299,7 @@ function GenerateView({ onResult }: { onResult: (r: GenResult) => void }) {
             contentType === "Blog Post"    ? "e.g. How AI is transforming home health agencies" :
                                             "e.g. 5 reasons to start using AI in your business today"
           }
-          className="w-full bg-white border border-border/50 rounded-xl p-3 text-[13px] text-foreground placeholder:text-muted-foreground resize-none outline-none focus:ring-2 focus:ring-blue-300/50 focus:border-blue-300 transition-all"
+          className="w-full bg-background border border-border/50 rounded-xl p-3 text-[13px] text-foreground placeholder:text-muted-foreground resize-none outline-none focus:ring-2 focus:ring-primary/20 focus:border-primary/30 transition-all"
           rows={3} />
       </div>
 
@@ -315,7 +315,7 @@ function GenerateView({ onResult }: { onResult: (r: GenResult) => void }) {
             "Horse boarding services",
           ].map(q => (
             <button key={q} onClick={() => setTopic(q)}
-              className="text-[10px] bg-blue-50 text-blue-600 border border-blue-200 hover:bg-blue-100 px-2.5 py-1 rounded-full transition-colors font-medium">
+              className="text-[10px] bg-primary/10 text-primary border border-primary/20 hover:bg-primary/15 px-2.5 py-1 rounded-full transition-colors font-medium">
               {q}
             </button>
           ))}
@@ -323,7 +323,7 @@ function GenerateView({ onResult }: { onResult: (r: GenResult) => void }) {
       </div>
 
       <button onClick={handleGenerate} disabled={!topic.trim() || generating}
-        className="w-full bg-blue-500 text-white text-sm font-semibold py-3 rounded-xl hover:bg-blue-600 transition-colors disabled:opacity-40 flex items-center justify-center gap-2">
+        className="w-full bg-primary text-white text-sm font-semibold py-3 rounded-xl hover:opacity-90 transition-opacity disabled:opacity-40 flex items-center justify-center gap-2">
         {generating
           ? <><div className="w-4 h-4 border-2 border-white border-t-transparent rounded-full animate-spin" /><span>Generating…</span></>
           : <span>Generate {typeIcons[contentType]} {contentType}</span>
@@ -361,7 +361,7 @@ function CampaignView({ campaigns, onResult }: { campaigns: Campaign[]; onResult
       <div className="flex gap-1.5">
         {(["list", "plan"] as const).map(t => (
           <button key={t} onClick={() => setTab(t)}
-            className={`flex-1 py-2 rounded-xl text-[12px] font-semibold transition-all ${tab === t ? "bg-blue-500 text-white" : "bg-muted text-muted-foreground hover:bg-muted/80"}`}>
+            className={`flex-1 py-2 rounded-xl text-[12px] font-semibold transition-all ${tab === t ? "bg-primary text-white" : "bg-muted text-muted-foreground hover:bg-muted/80"}`}>
             {t === "list" ? "📋 Campaign List" : "✨ Plan a Campaign"}
           </button>
         ))}
@@ -370,7 +370,7 @@ function CampaignView({ campaigns, onResult }: { campaigns: Campaign[]; onResult
       {tab === "list" && (
         <div className="space-y-2">
           {campaigns.map(c => (
-            <div key={c.id} className="bg-white rounded-2xl border border-border/50 p-4 space-y-2">
+            <div key={c.id} className="bg-background rounded-2xl border border-border/50 p-4 space-y-2">
               <div className="flex items-center gap-2">
                 <div className="w-9 h-9 rounded-xl flex items-center justify-center text-lg flex-shrink-0" style={{ backgroundColor: c.color + "22" }}>📣</div>
                 <div className="flex-1 min-w-0">
@@ -404,18 +404,18 @@ function CampaignView({ campaigns, onResult }: { campaigns: Campaign[]; onResult
             <label className="text-[12px] font-semibold text-muted-foreground block mb-1.5">Campaign Goal</label>
             <input value={planGoal} onChange={e => setPlanGoal(e.target.value)}
               placeholder="e.g. Generate 200 leads in 4 weeks"
-              className="w-full bg-white border border-border/50 rounded-xl px-3 py-2.5 text-[13px] text-foreground placeholder:text-muted-foreground outline-none focus:ring-2 focus:ring-blue-300/50 focus:border-blue-300 transition-all" />
+              className="w-full bg-background border border-border/50 rounded-xl px-3 py-2.5 text-[13px] text-foreground placeholder:text-muted-foreground outline-none focus:ring-2 focus:ring-primary/20 focus:border-primary/30 transition-all" />
           </div>
           <div>
             <label className="text-[12px] font-semibold text-muted-foreground block mb-1.5">Target Audience</label>
             <input value={planAudience} onChange={e => setPlanAudience(e.target.value)}
               placeholder="e.g. Small healthcare agencies, 10–50 employees"
-              className="w-full bg-white border border-border/50 rounded-xl px-3 py-2.5 text-[13px] text-foreground placeholder:text-muted-foreground outline-none focus:ring-2 focus:ring-blue-300/50 transition-all" />
+              className="w-full bg-background border border-border/50 rounded-xl px-3 py-2.5 text-[13px] text-foreground placeholder:text-muted-foreground outline-none focus:ring-2 focus:ring-primary/20 focus:border-primary/30 transition-all" />
           </div>
           <SelectPills label="Timeline" value={planTimeline} onChange={setPlanTimeline}
             options={["2 weeks", "4 weeks", "6 weeks", "8 weeks", "3 months"]} />
           <button onClick={handlePlan} disabled={!planGoal.trim() || planning}
-            className="w-full bg-blue-500 text-white text-sm font-semibold py-3 rounded-xl hover:bg-blue-600 transition-colors disabled:opacity-40 flex items-center justify-center gap-2">
+            className="w-full bg-primary text-white text-sm font-semibold py-3 rounded-xl hover:opacity-90 transition-opacity disabled:opacity-40 flex items-center justify-center gap-2">
             {planning
               ? <><div className="w-4 h-4 border-2 border-white border-t-transparent rounded-full animate-spin" /><span>Planning…</span></>
               : "Generate Campaign Plan"
@@ -452,7 +452,7 @@ function AnalyticsView() {
 
       <div className="grid grid-cols-2 gap-2">
         {stats.map(s => (
-          <div key={s.label} className="bg-white rounded-2xl border border-border/50 p-3 flex items-center gap-2.5">
+          <div key={s.label} className="bg-background rounded-2xl border border-border/50 p-3 flex items-center gap-2.5">
             <div className="w-9 h-9 rounded-xl flex items-center justify-center text-lg flex-shrink-0" style={{ backgroundColor: s.color + "22" }}>
               {s.icon}
             </div>
@@ -465,7 +465,7 @@ function AnalyticsView() {
       </div>
 
       {/* Channel breakdown */}
-      <div className="bg-white rounded-2xl border border-border/50 p-4 space-y-3">
+      <div className="bg-background rounded-2xl border border-border/50 p-4 space-y-3">
         <p className="text-[12px] font-bold text-foreground uppercase tracking-wider">Channel Breakdown</p>
         {channels.map(ch => (
           <div key={ch.name} className="space-y-1">
@@ -481,8 +481,8 @@ function AnalyticsView() {
       </div>
 
       {/* Top campaign */}
-      <div className="bg-gradient-to-br from-blue-50 to-indigo-50 border border-blue-100 rounded-2xl p-4 space-y-1">
-        <p className="text-[10px] font-bold text-blue-600 uppercase tracking-wider">Top Performing Campaign</p>
+      <div className="bg-primary/10 border border-primary/20 rounded-2xl p-4 space-y-1">
+        <p className="text-[10px] font-bold text-primary uppercase tracking-wider">Top Performing Campaign</p>
         <p className="font-bold text-foreground">{ANALYTICS.topCampaign}</p>
         <p className="text-[12px] text-muted-foreground">9,100 reach · 540 conversions · $42,660 est. revenue</p>
       </div>
@@ -516,7 +516,7 @@ function HistoryView({ history, onSelect }: { history: GenResult[]; onSelect: (r
       <div className="space-y-2">
         {history.map(h => (
           <button key={h.id} onClick={() => onSelect(h)}
-            className="w-full flex items-start gap-3 p-3.5 bg-white rounded-2xl border border-border/50 hover:border-blue-200 hover:shadow-sm transition-all text-left">
+            className="w-full flex items-start gap-3 p-3.5 bg-background rounded-2xl border border-border/50 hover:border-primary/20 hover:shadow-sm transition-all text-left">
             <span className="text-xl flex-shrink-0 mt-0.5">{typeIcons[h.type] ?? "✨"}</span>
             <div className="flex-1 min-w-0">
               <p className="font-semibold text-[13px] text-foreground truncate">{h.label}</p>
@@ -561,7 +561,7 @@ export function MarketingApp() {
             <button key={n.id} onClick={() => setView(n.id as MarketingView)}
               className={`flex items-center gap-1.5 px-3 py-1.5 rounded-xl text-[11px] font-semibold whitespace-nowrap transition-all flex-shrink-0 ${
                 view === n.id || (view === "result" && n.id === "history")
-                  ? "bg-blue-500 text-white"
+                  ? "bg-primary text-white"
                   : "text-muted-foreground hover:text-foreground hover:bg-muted/60"
               }`}>
               <span>{n.icon}</span>

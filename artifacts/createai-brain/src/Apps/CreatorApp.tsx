@@ -148,10 +148,10 @@ function BuildProgress({ name, icon, color, pct, log }: { name: string; icon: st
 
 // ─── Status badge config ──────────────────────────────────────────────────────
 const STATUS_STYLES: Record<string, { label: string; className: string }> = {
-  "draft":       { label: "Draft",       className: "bg-gray-100 text-gray-500" },
-  "in-progress": { label: "In Progress", className: "bg-blue-100 text-blue-600" },
-  "complete":    { label: "Complete",    className: "bg-green-100 text-green-600" },
-  "archived":    { label: "Archived",    className: "bg-orange-100 text-orange-600" },
+  "draft":       { label: "Draft",       className: "bg-muted text-muted-foreground" },
+  "in-progress": { label: "In Progress", className: "bg-primary/15 text-primary" },
+  "complete":    { label: "Complete",    className: "bg-green-500/15 text-green-400" },
+  "archived":    { label: "Archived",    className: "bg-orange-500/15 text-orange-400" },
 };
 
 // ─── Gallery ──────────────────────────────────────────────────────────────────
@@ -394,9 +394,9 @@ function EverythingEngine() {
           <p className="text-[14px] text-muted-foreground mt-1">"{name}"</p>
           <p className="text-[12px] text-muted-foreground">{meta.label} · {creation?.sections.length ?? 0} sections · {intent.modules.length} modules</p>
         </div>
-        <div className="bg-green-50 border border-green-200 rounded-2xl p-4">
-          <p className="text-[13px] text-green-700 font-semibold">⚡ Standalone product built successfully</p>
-          <p className="text-[11px] text-green-600 mt-1">Full UI, AI Studio, workflows, marketing, and downloads — all in its own tab.</p>
+        <div className="bg-green-500/10 border border-green-500/20 rounded-2xl p-4">
+          <p className="text-[13px] text-green-400 font-semibold">⚡ Standalone product built successfully</p>
+          <p className="text-[11px] text-green-400/70 mt-1">Full UI, AI Studio, workflows, marketing, and downloads — all in its own tab.</p>
         </div>
         <div className="flex flex-col gap-2">
           <button onClick={() => openCreation(builtId)}
@@ -571,7 +571,7 @@ function QuickGenerator() {
         <div className="flex items-center gap-2 flex-wrap">
           <button onClick={() => { setView("grid"); setST(null); setTxt(""); }} className="text-primary text-sm font-medium">‹</button>
           <span className="text-xl">{td?.icon}</span><p className="font-bold flex-1 text-[14px]">{selectedType}</p>
-          <div className="flex gap-1.5">{streaming && <button onClick={() => abortRef.current?.abort()} className="text-[11px] bg-red-50 text-red-500 border border-red-200 rounded-lg px-2.5 py-1">Stop</button>}{!streaming && streamText && <><button onClick={copy} className="text-[11px] bg-muted rounded-lg px-2.5 py-1">{copied ? "✓" : "Copy"}</button><button onClick={() => { setView("grid"); setST(null); setTxt(""); }} className="text-[11px] bg-primary text-white rounded-lg px-2.5 py-1">+ New</button></>}</div>
+          <div className="flex gap-1.5">{streaming && <button onClick={() => abortRef.current?.abort()} className="text-[11px] bg-red-500/10 text-red-400 border border-red-500/20 rounded-lg px-2.5 py-1">Stop</button>}{!streaming && streamText && <><button onClick={copy} className="text-[11px] bg-muted rounded-lg px-2.5 py-1">{copied ? "✓" : "Copy"}</button><button onClick={() => { setView("grid"); setST(null); setTxt(""); }} className="text-[11px] bg-primary text-white rounded-lg px-2.5 py-1">+ New</button></>}</div>
         </div>
         {!streamText && streaming && <div className="flex items-center gap-3 py-8 justify-center text-muted-foreground text-sm"><div className="w-4 h-4 border-2 border-primary border-t-transparent rounded-full animate-spin" /><span>Generating…</span></div>}
         {streamText && <div className="bg-muted/40 border border-border/40 rounded-2xl p-4 max-h-[60vh] overflow-y-auto"><pre className="text-[12px] whitespace-pre-wrap font-mono leading-relaxed">{streamText}{streaming && <span className="inline-block w-2 h-3 bg-primary/60 animate-pulse ml-0.5 align-middle" />}</pre></div>}

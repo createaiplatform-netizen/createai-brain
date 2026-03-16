@@ -235,32 +235,29 @@ export function Dashboard({ onHamburger, isNarrow }: DashboardProps) {
 
           {/* ── Platform status strip ── */}
           <div className={`rounded-2xl p-4 border flex items-start gap-3 ${
-            platformMode === "LIVE" ? "bg-green-50 border-green-200" :
-            platformMode === "TEST" ? "bg-blue-50 border-blue-200" :
-            "bg-orange-50 border-orange-200"
+            platformMode === "LIVE" ? "bg-green-500/10 border-green-500/20" :
+            platformMode === "TEST" ? "bg-primary/10 border-primary/20" :
+            "bg-orange-500/10 border-orange-500/20"
           }`}>
-            <span className={`text-[20px] flex-shrink-0 ${
-              platformMode === "LIVE" ? "text-green-600" :
-              platformMode === "TEST" ? "text-blue-600" : "text-orange-500"
-            }`}>
+            <span className="text-[20px] flex-shrink-0">
               {platformMode === "LIVE" ? "🟢" : platformMode === "TEST" ? "🔵" : "🟠"}
             </span>
             <div className="flex-1 min-w-0">
               <p className={`font-bold text-[13px] ${
-                platformMode === "LIVE" ? "text-green-700" :
-                platformMode === "TEST" ? "text-blue-700" : "text-orange-700"
+                platformMode === "LIVE" ? "text-green-400" :
+                platformMode === "TEST" ? "text-primary" : "text-orange-400"
               }`}>{cfg.label} — {cfg.desc}</p>
               <p className="text-[11px] text-muted-foreground mt-0.5">
                 {platformMode === "DEMO"
-                  ? "Nothing is real, nothing is sent, nothing can break. Safe to explore everything."
+                  ? "Safe to explore everything — nothing is sent, nothing can break."
                   : platformMode === "TEST"
-                  ? "Testing mode active. All actions are logged but no real transactions or messages occur."
-                  : "Live mode active. Actions, messages, and content generation are fully operational."
+                  ? "All actions are logged but no real transactions or messages occur."
+                  : "All engines are live. Actions, messages, and content generation are fully operational."
                 }
               </p>
             </div>
             <button onClick={() => openApp("admin")}
-              className="text-[11px] font-semibold text-primary bg-white border border-border/50 rounded-lg px-3 py-1.5 hover:bg-muted transition-colors flex-shrink-0">
+              className="text-[11px] font-semibold text-primary bg-muted border border-border/50 rounded-lg px-3 py-1.5 hover:bg-muted/60 transition-colors flex-shrink-0">
               Manage
             </button>
           </div>
