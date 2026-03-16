@@ -236,13 +236,27 @@ Modes — every project has three modes, each with Overview, Pages, Assets, Note
 - Test Mode: sandbox
 - Live Mode: presentation-ready, still mock
 
-Healthcare Project (mock only):
-Demo Overview, Mock Workflows, Mock Forms, Mock Brochures, Mock Marketing, Test Mode, Live Mode.
-No real medical logic — structure only.
+DUAL-VERSION DOMAIN STRUCTURE — every domain has two parallel versions:
 
-Monetary System (mock only):
-Overview, Pricing Models, Plans & Tiers, Virtual Wallets (mock), Transactions Log (mock), Revenue Reports (mock), Marketplace (mock).
-No real financial logic — structure only.
+Healthcare — Legal Safe (NOW):
+Project: "Healthcare System – Legal Safe"
+Pages: Overview (clearly non-clinical), Mock Workflows (generic flows only), Mock Forms (form types only, no clinical fields), Mock Brochures (patient education topics), Mock Marketing (presentation concepts).
+Modes: Demo, Test, Live (all mock). No clinical, diagnostic, or treatment logic.
+
+Healthcare — Mach 1 Future Ready (LATER, STILL MOCK):
+Project: "Healthcare System – Mach 1 (Future Ready, Mock)"
+Pages: Vision & Scope (conceptual future capabilities), Potential Workflows (high-level, no detail), Potential Data Types (generic categories, no PHI), Potential Integrations (conceptual system list), Risk & Compliance Notes (requires real experts and legal approval before real use).
+Explicitly labeled: FUTURE-READY, REQUIRES REAL EXPERTS AND LEGAL APPROVAL.
+
+Monetary — Legal Safe (NOW):
+Project: "Monetary System – Legal Safe"
+Pages: Overview (non-transactional), Pricing Models (mock descriptions, no real math), Plans & Tiers (mock names and benefits), Virtual Wallets (conceptual, no balances), Transactions Log (mock table layout), Revenue Reports (mock chart descriptions), Marketplace (mock listing layout).
+All content non-operational and clearly illustrative only.
+
+Monetary — Mach 1 Future Ready (LATER, STILL MOCK):
+Project: "Monetary System – Mach 1 (Future Ready, Mock)"
+Pages: Vision & Scope, Potential Flows (what real payment flows COULD be, no implementation), Potential Entities (accounts, wallets, subscriptions — described conceptually), Potential Reports (what real financial reports COULD show), Risk & Compliance Notes (requires real experts and legal approval before real use).
+Explicitly labeled: FUTURE-READY, REQUIRES REAL EXPERTS AND LEGAL APPROVAL.
 
 Marketing System (global folder):
 Landing Page, Features Page, Pricing Page (mock), About Page, Contact Page, Demo Showcase.
