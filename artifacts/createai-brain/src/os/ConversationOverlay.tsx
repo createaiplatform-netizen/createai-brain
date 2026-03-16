@@ -64,6 +64,54 @@ function SessionBar() {
   );
 }
 
+// ─── Drag hook ────────────────────────────────────────────────────────────
+function useDraggable(initialPos: () => { x: number; y: number }) {
+  const [pos, setPos] = useState<{ x: number; y: number } | null>(null);
+  const dragging = useRef(false);
+  const offset   = useRef({ x: 0, y: 0 });
+  const elRef    = useRef<HTMLElement | null>(null);
+
+  useEffect(() => {
+    setPos(initialPos());
+  }, []);
+
+  useEffect(() => {
+    function onMove(e: MouseEvent | TouchEvent) {
+      if (!dragging.current) return;
+      const cx = "touches" in e ? e.touches[0].clientX : e.clientX;
+      const cy = "touches" in e ? e.touches[0].clientY : e.clientY;
+      const w  = elRef.current?.offsetWidth  ?? 0;
+      const h  = elRef.current?.offsetHeight ?? 0;
+      setPos({
+        x: Math.min(Math.max(0, cx - offset.current.x), window.innerWidth  - w),
+        y: Math.min(Math.max(0, cy - offset.current.y), window.innerHeight - h),
+      });
+    }
+    function onUp() { dragging.current = false; }
+    window.addEventListener("mousemove", onMove);
+    window.addEventListener("touchmove",  onMove, { passive: true });
+    window.addEventListener("mouseup",   onUp);
+    window.addEventListener("touchend",  onUp);
+    return () => {
+      window.removeEventListener("mousemove", onMove);
+      window.removeEventListener("touchmove",  onMove);
+      window.removeEventListener("mouseup",   onUp);
+      window.removeEventListener("touchend",  onUp);
+    };
+  }, []);
+
+  function startDrag(e: React.MouseEvent | React.TouchEvent, el: HTMLElement | null) {
+    elRef.current = el;
+    const cx = "touches" in e ? e.touches[0].clientX : e.clientX;
+    const cy = "touches" in e ? e.touches[0].clientY : e.clientY;
+    const rect = el?.getBoundingClientRect();
+    offset.current = { x: cx - (rect?.left ?? 0), y: cy - (rect?.top ?? 0) };
+    dragging.current = true;
+  }
+
+  return { pos, startDrag };
+}
+
 // ─── Main Overlay ─────────────────────────────────────────────────────────
 export function ConversationOverlay() {
   const { history, testSession, isOpen, isExpanded, unread, setOpen, setExpanded, send, clear } = useConversation();
@@ -73,6 +121,13 @@ export function ConversationOverlay() {
   const bottomRef   = useRef<HTMLDivElement>(null);
   const inputRef    = useRef<HTMLInputElement>(null);
   const recognRef   = useRef<SpeechRecognition | null>(null);
+  const pillRef     = useRef<HTMLButtonElement>(null);
+  const panelRef    = useRef<HTMLDivElement>(null);
+
+  const { pos, startDrag } = useDraggable(() => ({
+    x: Math.max(0, window.innerWidth - 400),
+    y: 16,
+  }));
 
   // Auto-scroll to bottom
   useEffect(() => {
@@ -131,13 +186,19 @@ export function ConversationOverlay() {
 
   const panelH = isExpanded ? "h-[80vh] max-h-[700px]" : "h-[420px]";
 
-  // ── Collapsed state: floating pill button ──
+  if (!pos) return null;
+
+  // ── Collapsed state: floating draggable pill button ──
   if (!isOpen) {
     return (
       <button
+        ref={pillRef}
+        onMouseDown={e => startDrag(e, pillRef.current)}
+        onTouchStart={e => startDrag(e, pillRef.current)}
         onClick={() => setOpen(true)}
-        className="fixed bottom-5 right-5 z-50 flex items-center gap-2 bg-blue-500 hover:bg-blue-600 text-white px-4 py-2.5 rounded-full shadow-lg transition-all text-[13px] font-semibold"
-        title="Universal Conversation — click to open"
+        className="fixed z-50 flex items-center gap-2 bg-blue-500 hover:bg-blue-600 text-white px-4 py-2.5 rounded-full shadow-lg text-[13px] font-semibold cursor-grab active:cursor-grabbing select-none"
+        style={{ left: pos.x, top: pos.y }}
+        title="Drag to move · Click to open Brain"
       >
         <span className="text-base">🧠</span>
         <span>Ask the Brain</span>
@@ -150,10 +211,18 @@ export function ConversationOverlay() {
 
   // ── Expanded chat panel ──
   return (
-    <div className={`fixed bottom-5 right-5 z-50 flex flex-col bg-white rounded-2xl shadow-2xl border border-border overflow-hidden transition-all w-[340px] sm:w-[380px] ${panelH}`}>
-
-      {/* Header */}
-      <div className="bg-blue-500 px-3 py-2.5 flex items-center gap-2 flex-shrink-0">
+    <div
+      ref={panelRef}
+      className={`fixed z-50 flex flex-col bg-white rounded-2xl shadow-2xl border border-border overflow-hidden transition-[height] w-[340px] sm:w-[380px] ${panelH}`}
+      style={{ left: pos.x, top: pos.y }}
+    >
+      {/* Header — drag handle */}
+      <div
+        className="bg-blue-500 px-3 py-2.5 flex items-center gap-2 flex-shrink-0 cursor-grab active:cursor-grabbing select-none"
+        onMouseDown={e => startDrag(e, panelRef.current)}
+        onTouchStart={e => startDrag(e, panelRef.current)}
+        title="Drag to move"
+      >
         <span className="text-base">🧠</span>
         <div className="flex-1">
           <p className="text-[13px] font-bold text-white leading-tight">CreateAI Brain</p>
