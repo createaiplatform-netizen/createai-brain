@@ -1,5 +1,6 @@
 import React, { useState } from "react";
 import { useOS } from "@/os/OSContext";
+import { BrainGen } from "@/engine/BrainGen";
 
 type FamilyView = "home" | "projects" | "apps" | "documents" | "help";
 
@@ -34,6 +35,7 @@ export function FamilyApp() {
   const [view, setView] = useState<FamilyView>("home");
   const [openFaq, setOpenFaq] = useState<number | null>(null);
   const [openDoc, setOpenDoc] = useState<string | null>(null);
+  const [docContent, setDocContent] = useState<Record<string, string>>({});
 
   if (view === "projects") {
     return (
@@ -88,26 +90,41 @@ export function FamilyApp() {
   if (view === "documents") {
     if (openDoc) {
       const doc = FAMILY_DOCS.find(d => d.name === openDoc)!;
+      const content = docContent[openDoc] ?? "";
+      const handleGenerate = () => {
+        const gen = BrainGen.generateDocument(doc.name, doc.type);
+        setDocContent(prev => ({ ...prev, [openDoc]: gen.content }));
+      };
       return (
         <div className="p-6 space-y-5">
           <button onClick={() => setOpenDoc(null)} className="text-primary text-sm font-medium">‹ My Documents</button>
           <div className="flex items-center gap-3">
             <span className="text-3xl">{doc.icon}</span>
-            <div>
+            <div className="flex-1">
               <h2 className="text-xl font-bold text-foreground">{doc.name}</h2>
               <p className="text-[12px] text-muted-foreground">{doc.type}</p>
             </div>
           </div>
-          <div className="bg-background border border-border/50 rounded-2xl p-5 space-y-4">
-            <div className="border-b border-border/30 pb-3">
-              <h3 className="font-semibold text-[14px] text-foreground">Section 1 — Introduction</h3>
-              <p className="text-[13px] text-muted-foreground mt-1">Welcome to {doc.name}. This document is part of your personal Family workspace and is pre-populated with placeholder content. You can edit it anytime using the Create Anything app or the AI Chat.</p>
-            </div>
-            <div>
-              <h3 className="font-semibold text-[14px] text-foreground">Section 2 — Content</h3>
-              <p className="text-[13px] text-muted-foreground mt-1">This section contains your personalized {doc.type.toLowerCase()} content. All information here is mock and can be freely replaced with real content.</p>
-            </div>
-          </div>
+          {content
+            ? <div className="bg-background border border-border/50 rounded-2xl p-5">
+                <pre className="text-[12px] text-foreground whitespace-pre-wrap leading-relaxed">{content}</pre>
+              </div>
+            : <div className="bg-muted/30 border border-border/40 rounded-2xl p-6 text-center space-y-3">
+                <p className="text-3xl">🧠</p>
+                <p className="font-semibold text-foreground">Generate "{doc.name}" with Brain</p>
+                <p className="text-[12px] text-muted-foreground">Tap below — the Brain creates real structured content instantly.</p>
+                <button onClick={handleGenerate}
+                  className="bg-primary text-white text-sm font-semibold px-6 py-2.5 rounded-xl hover:opacity-90 transition-opacity">
+                  Generate with Brain
+                </button>
+              </div>
+          }
+          {content && (
+            <button onClick={handleGenerate}
+              className="w-full bg-muted border border-border/50 text-foreground text-[12px] font-semibold py-2.5 rounded-xl hover:bg-muted/80 transition-colors">
+              🔄 Regenerate
+            </button>
+          )}
         </div>
       );
     }

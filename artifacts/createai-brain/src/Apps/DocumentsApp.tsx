@@ -1,4 +1,5 @@
 import React, { useState } from "react";
+import { BrainGen } from "@/engine/BrainGen";
 
 const DOCS = [
   { name: "Healthcare – Mock Workflow Overview", type: "Document", project: "Healthcare Legal Safe", size: "2 pages", icon: "📄" },
@@ -36,6 +37,10 @@ const DOC_CONTENT: Record<string, { sections: { title: string; body: string }[] 
   ]},
 };
 
+interface UserDoc {
+  name: string; type: string; project: string; size: string; icon: string; generatedContent?: string;
+}
+
 export function DocumentsApp() {
   const [selected, setSelected] = useState<string | null>(null);
   const [editMode, setEditMode] = useState(false);
@@ -44,7 +49,8 @@ export function DocumentsApp() {
   const [newName, setNewName] = useState("");
   const [newType, setNewType] = useState("Document");
   const [newCreated, setNewCreated] = useState(false);
-  const [userDocs, setUserDocs] = useState<typeof DOCS>([]);
+  const [generating, setGenerating] = useState(false);
+  const [userDocs, setUserDocs] = useState<UserDoc[]>([]);
 
   if (showNew) {
     if (newCreated) {
@@ -85,25 +91,36 @@ export function DocumentsApp() {
           </div>
           <button onClick={() => {
             if (!newName.trim()) return;
-            setUserDocs(prev => [...prev, { name: newName, type: newType, project: "My Workspace", size: "1 page", icon: "📄" }]);
-            setNewCreated(true);
-          }} disabled={!newName.trim()}
-            className="w-full bg-primary text-white text-sm font-semibold py-3 rounded-xl hover:opacity-90 disabled:opacity-40">
-            Create Document (Mock)
+            setGenerating(true);
+            setTimeout(() => {
+              const gen = BrainGen.generateDocument(newName, newType);
+              setUserDocs(prev => [...prev, {
+                name: newName, type: newType, project: "My Workspace", size: "AI-generated", icon: "📄",
+                generatedContent: gen.content,
+              }]);
+              setGenerating(false);
+              setNewCreated(true);
+            }, 700);
+          }} disabled={!newName.trim() || generating}
+            className="w-full bg-primary text-white text-sm font-semibold py-3 rounded-xl hover:opacity-90 disabled:opacity-40 flex items-center justify-center gap-2">
+            {generating
+              ? <><div className="w-4 h-4 border-2 border-white border-t-transparent rounded-full animate-spin" /><span>Generating with Brain…</span></>
+              : "🧠 Generate Document with Brain"
+            }
           </button>
-          <p className="text-[11px] text-muted-foreground text-center">Documents are created with mock scaffold content. Use Create Anything app for AI-generated content.</p>
+          <p className="text-[11px] text-muted-foreground text-center">CreateAI Brain generates real structured content instantly.</p>
         </div>
       </div>
     );
   }
 
   if (selected) {
-    const allDocs = [...DOCS, ...userDocs];
+    const allDocs: UserDoc[] = [...DOCS, ...userDocs];
     const doc = allDocs.find(d => d.name === selected)!;
-    const content = DOC_CONTENT[selected] ?? { sections: [
-      { title: "Overview", body: "This document contains mock structural content for your reference." },
-      { title: "Content", body: "Add your real content here in Edit mode." },
-    ]};
+    const predefined = DOC_CONTENT[selected];
+    const sectionText = predefined
+      ? predefined.sections.map(s => `## ${s.title}\n\n${s.body}`).join("\n\n")
+      : (doc as UserDoc).generatedContent ?? "Content not yet generated. Click Edit to add content.";
 
     if (editMode) {
       return (
@@ -112,12 +129,12 @@ export function DocumentsApp() {
             <button onClick={() => { setEditMode(false); setEditedContent(""); }} className="text-primary text-sm font-medium">‹ View</button>
             <h2 className="text-lg font-bold text-foreground flex-1 truncate">{doc.name}</h2>
           </div>
-          <p className="text-[11px] text-muted-foreground">Editing mock content — changes are session-only.</p>
+          <p className="text-[11px] text-muted-foreground">Editing content — changes are session-only.</p>
           <textarea
-            value={editedContent || content.sections.map(s => `## ${s.title}\n${s.body}`).join("\n\n")}
+            value={editedContent || sectionText}
             onChange={e => setEditedContent(e.target.value)}
             className="w-full bg-background border border-border/50 rounded-xl p-3 text-[12px] text-foreground font-mono resize-none outline-none focus:ring-2 focus:ring-primary/20 transition-all"
-            rows={14}
+            rows={16}
           />
           <button onClick={() => setEditMode(false)}
             className="w-full bg-primary text-white text-sm font-semibold py-2.5 rounded-xl hover:opacity-90">
@@ -137,13 +154,18 @@ export function DocumentsApp() {
             <p className="text-[12px] text-muted-foreground">{doc.type} · {doc.project} · {doc.size}</p>
           </div>
         </div>
-        <div className="bg-background border border-border/50 rounded-2xl p-5 space-y-4">
-          {content.sections.map((s, i) => (
-            <div key={i} className={i < content.sections.length - 1 ? "border-b border-border/30 pb-4" : ""}>
-              <h3 className="font-semibold text-[15px] text-foreground">{s.title}</h3>
-              <p className="text-[13px] text-muted-foreground mt-1 whitespace-pre-line">{s.body}</p>
-            </div>
-          ))}
+        <div className="bg-background border border-border/50 rounded-2xl p-5">
+          {predefined
+            ? <div className="space-y-4">
+                {predefined.sections.map((s, i) => (
+                  <div key={i} className={i < predefined.sections.length - 1 ? "border-b border-border/30 pb-4" : ""}>
+                    <h3 className="font-semibold text-[15px] text-foreground">{s.title}</h3>
+                    <p className="text-[13px] text-muted-foreground mt-1 whitespace-pre-line">{s.body}</p>
+                  </div>
+                ))}
+              </div>
+            : <pre className="text-[12px] text-foreground whitespace-pre-wrap leading-relaxed font-mono">{editedContent || sectionText}</pre>
+          }
         </div>
         <div className="flex gap-2">
           <button onClick={() => setEditMode(true)}
@@ -151,8 +173,8 @@ export function DocumentsApp() {
             Edit
           </button>
           <button onClick={() => {
-              const text = (editedContent || content.sections.map(s => `## ${s.title}\n${s.body}`).join("\n\n"));
-              const full = `${doc.name}\n${"=".repeat(doc.name.length)}\n${doc.type} · ${doc.project}\n\n${text}\n\n---\nExported from CreateAI Brain · All content is mock and structural only.`;
+              const text = editedContent || sectionText;
+              const full = `${doc.name}\n${"=".repeat(doc.name.length)}\n${doc.type} · ${doc.project}\n\n${text}\n\n---\nGenerated by CreateAI Brain · Internal use only.`;
               const blob = new Blob([full], { type: "text/plain" });
               const url = URL.createObjectURL(blob);
               const a = document.createElement("a"); a.href = url;
@@ -163,12 +185,12 @@ export function DocumentsApp() {
             ↓ Export .txt
           </button>
         </div>
-        <p className="text-[10px] text-muted-foreground text-center">All content is mock and structural only.</p>
+        <p className="text-[10px] text-muted-foreground text-center">Generated by CreateAI Brain · Internal use only.</p>
       </div>
     );
   }
 
-  const allDocs = [...DOCS, ...userDocs];
+  const allDocs: UserDoc[] = [...DOCS, ...userDocs];
   return (
     <div className="p-6 space-y-5">
       <div className="flex items-center justify-between">

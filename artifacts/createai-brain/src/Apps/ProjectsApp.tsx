@@ -1,6 +1,7 @@
 import React, { useState } from "react";
 import { useLocation } from "wouter";
 import { useOS } from "@/os/OSContext";
+import { BrainGen } from "@/engine/BrainGen";
 
 // ─── Types ──────────────────────────────────────────────────────────────────
 type Mode = "Demo" | "Test" | "Live";
@@ -323,6 +324,49 @@ function HealthcareProject({ onBack }: { onBack: () => void }) {
   );
 }
 
+// ─── BrainProjectItems ────────────────────────────────────────────────────────
+function BrainProjectItems({ label, name, mode }: { label: string; name: string; mode: string }) {
+  const [items, setItems] = useState<{ title: string; content: string; generating: boolean }[]>([
+    { title: `${label} Overview`, content: "", generating: false },
+    { title: `${label} Details`, content: "", generating: false },
+    { title: `${label} Next Steps`, content: "", generating: false },
+  ]);
+
+  const generate = (i: number) => {
+    setItems(prev => prev.map((it, idx) => idx === i ? { ...it, generating: true } : it));
+    setTimeout(() => {
+      const result = BrainGen.generate(`${items[i].title} for ${name} project in ${mode} mode`);
+      setItems(prev => prev.map((it, idx) => idx === i ? { ...it, generating: false, content: result.content } : it));
+    }, 600);
+  };
+
+  return (
+    <div className="space-y-3">
+      {items.map((item, i) => (
+        <div key={i} className="bg-background rounded-2xl border border-border/50 p-4 space-y-2">
+          <p className="font-semibold text-[14px] text-foreground">{item.title}</p>
+          {item.content
+            ? <pre className="text-[11px] text-muted-foreground whitespace-pre-wrap leading-relaxed">{item.content.slice(0, 400)}{item.content.length > 400 ? "…" : ""}</pre>
+            : <p className="text-[12px] text-muted-foreground">Tap Generate to create content for this section.</p>
+          }
+          <div className="flex gap-2 mt-1">
+            <button onClick={() => generate(i)} disabled={item.generating}
+              className="text-[11px] bg-primary/10 text-primary font-semibold px-3 py-1 rounded-lg hover:bg-primary/20 transition-colors disabled:opacity-50 flex items-center gap-1">
+              {item.generating ? <><div className="w-2.5 h-2.5 border border-primary border-t-transparent rounded-full animate-spin" /><span>Generating…</span></> : "🧠 Generate"}
+            </button>
+            {item.content && (
+              <button onClick={() => navigator.clipboard.writeText(item.content)}
+                className="text-[11px] bg-muted text-muted-foreground font-semibold px-3 py-1 rounded-lg hover:bg-muted/80 transition-colors">
+                Copy
+              </button>
+            )}
+          </div>
+        </div>
+      ))}
+    </div>
+  );
+}
+
 // ─── Generic project detail ──────────────────────────────────────────────────
 function GenericProjectDetail({ name, icon, color, pages, mode, onBack }: {
   name: string; icon: string; color: string; pages: number; mode: string; onBack: () => void;
@@ -341,19 +385,8 @@ function GenericProjectDetail({ name, icon, color, pages, mode, onBack }: {
           <span className="text-2xl">{pg.icon}</span>
           <h2 className="text-xl font-bold text-foreground">{pg.label}</h2>
         </div>
-        <div className="space-y-3">
-          {[1, 2, 3].map(i => (
-            <div key={i} className="bg-background rounded-2xl border border-border/50 p-4 space-y-1">
-              <p className="font-semibold text-[14px] text-foreground">{pg.label} Item {i} (Mock)</p>
-              <p className="text-[12px] text-muted-foreground">This is a placeholder content block for {pg.label}. In {activeMode} mode, this section would display structured mock data relevant to {name}.</p>
-              <div className="flex gap-2 mt-2">
-                <button className="text-[11px] bg-primary/10 text-primary font-semibold px-3 py-1 rounded-lg hover:bg-primary/20 transition-colors">View</button>
-                <button className="text-[11px] bg-muted text-muted-foreground font-semibold px-3 py-1 rounded-lg hover:bg-muted/80 transition-colors">Edit</button>
-              </div>
-            </div>
-          ))}
-        </div>
-        <p className="text-[10px] text-muted-foreground text-center">Mock content only — {activeMode} mode</p>
+        <BrainProjectItems label={pg.label} name={name} mode={activeMode} />
+        <p className="text-[10px] text-muted-foreground text-center">AI-powered · {activeMode} mode</p>
       </div>
     );
   }
