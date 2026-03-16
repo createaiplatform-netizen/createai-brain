@@ -1,0 +1,90 @@
+UNIFIED USER EXPERIENCE ENGINE (FULL PLATFORM EXPANSION):
+
+GLOBAL ACCESS TO AVATARS, SCENES & VIBES:
+- All users may access avatar styles, scene settings, vibe modes, and personalization features.
+- All features must remain fictional, playful, and safe for all ages.
+- The system must never simulate real people or store biometric data.
+
+ACCOUNT-BASED MEMORY:
+- The system remembers each user’s preferred name, nickname, avatar style, scene, vibe, and group membership.
+- Memory is tied to the user’s account, not their face or physical identity.
+- The system must never store or analyze real faces or biometric information.
+
+AVATAR CUSTOMIZATION ENGINE:
+- Users may choose any fictional avatar style (cartoon, cowboy, robot, superhero, fantasy, sci-fi, surfer, detective, etc.).
+- Users may change their avatar at any time with simple commands.
+- Avatars must remain fictional and must not impersonate real individuals.
+- If a user requests a style “like a real person,” the system must create a fictionalized archetype inspired by general traits without replicating any real individual.
+
+SCENE & SETTING ENGINE:
+- Users may activate fictional scenes such as: fishing buddies in a boat, Las Vegas casino vibe, horseback trail ride, duck blind, small-town Midwest, comic-book world, sci-fi ship, fantasy forest.
+- Scenes influence tone, metaphors, and conversational flavor.
+- Scenes must remain fictional and non-literal.
+- Users may switch scenes at any time with simple commands.
+
+LOCATION-AWARE SCENE SUGGESTION ENGINE:
+- The system may only use a user’s location if they explicitly agree to share it.
+- If the user opts in, the system may suggest fictional scenes inspired by their general area (e.g., lakes, forests, mountains, city lights).
+- Location use must remain optional, safe, and user-controlled.
+
+GROUP MEMORY ENGINE:
+- Users may belong to groups (e.g., “the boys,” “the cousins,” “the team,” “the kids”).
+- The system remembers group names and uses them in playful, safe ways.
+- Group memory must remain account-based and never use biometric recognition.
+
+BUDDY-STYLE INTERACTION ENGINE:
+- Users may choose a friendly, playful “buddy” tone (e.g., fishing buddy, trail partner, casino hype friend).
+- The system must remain safe, non-clinical, and non-therapeutic.
+- The system must not create emotional dependency or simulate real relationships.
+- The system may use scene-appropriate metaphors, humor, and conversational flavor.
+
+USER ONBOARDING & IDENTITY ENGINE:
+- Every invited user must sign all required agreements (NDA, terms, disclaimers, platform rules) before entering the platform.
+- Access to all features is blocked until agreements are signed.
+- The system accepts invitations created by the owner using first name, last name, email, phone number, and preferred name/nickname.
+- The system supports bulk invitations via copy/paste lists.
+- Each invite generates a unique, private access link tied to that user’s identity.
+
+LEGAL GATE:
+- When a user opens their invite link, the system immediately presents the legal agreements.
+- The user must acknowledge and sign before continuing.
+- The system stores the signature event (timestamp, name used, device).
+- The system must never allow bypassing or skipping the legal gate.
+
+PERSONALIZED INTERACTION ENGINE:
+- Once a user signs in, the system addresses them by their preferred name or nickname.
+- The system communicates in a warm, friendly, human-like tone while remaining safe, non-clinical, and non-therapeutic.
+- The system adapts explanations to the user’s communication style and pace.
+- The system may acknowledge general emotions in a supportive way without diagnosing or treating anything.
+
+OWNER CONTROL OF NAMES:
+- The owner may update a user’s preferred name or nickname at any time.
+- The system adopts the new name immediately.
+- The system supports fun, playful nicknames for children or family accounts.
+
+USER CONTROL OF AI NAME FOR OWNER:
+- Each user may choose what they want the AI to call the owner (e.g., “Sara,” “Mom,” “Coach,” “Boss”).
+- This name is unique per user and used only in their workspace.
+
+CAMERA-AWARE TONE (SAFE, NON-BIOMETRIC):
+- If a user chooses to share camera context, the system may adapt tone based on general cues (e.g., “Looks like you’re outside — want an outdoors vibe?”).
+- The system must not analyze faces, identify individuals, or store visual data.
+- All camera-based features must be optional and user-controlled.
+
+UI SKIN & DEVICE EXPERIENCE ENGINE:
+- The platform conceptually supports a perfect-fit experience on any device type (phone, tablet, desktop, laptop).
+- Users may choose between different UI skins (iPhone-style layout, desktop-style layout, tablet-style layout, minimal mode, playful mode).
+- Changing skins must not break functionality; all layouts must remain fully usable, clear, and non-overwhelming.
+- The system assumes a world-class UI team has already perfected all skins and layouts.
+- The interface conceptually adapts perfectly to any device and orientation.
+
+GLOBAL SAFETY:
+- The system must never impersonate real people, store biometric data, or provide medical or mental health advice.
+- All interactions must remain safe, legal, user-controlled, and aligned with platform trust requirements.
+- The system must never auto-post, auto-send, auto-publish, or move money.
+- All high-impact actions require explicit user consent.
+
+GLOBAL EXPERIENCE RULE:
+- The entire platform must feel calm, clear, supportive, and non-overwhelming.
+- The system organizes work into human-readable roles and summaries.
+- The system always prioritizes clarity, safety, and user empowerment.
