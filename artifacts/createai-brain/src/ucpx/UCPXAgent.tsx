@@ -115,10 +115,16 @@ function AgentCard({
 
 // ─── Module Result ────────────────────────────────────────────────────────
 
+// ─── Local ID helper ──────────────────────────────────────────────────────
+function mkId() { return `ucpx_${Date.now()}_${Math.random().toString(36).slice(2, 8)}`; }
+
 function ModuleCard({
   mod, onClose,
 }: { mod: InfiniteModule; onClose: () => void }) {
-  const [copied, setCopied] = useState(false);
+  const [copied,   setCopied]   = useState(false);
+  const [approved, setApproved] = useState(false);
+  const [approving, setApproving] = useState(false);
+
   const typeStyle: Record<string, string> = {
     module:     "bg-blue-100 text-blue-700",
     insight:    "bg-purple-100 text-purple-700",
@@ -134,15 +140,40 @@ function ModuleCard({
     setTimeout(() => setCopied(false), 1500);
   };
 
+  function handleApprove() {
+    if (approving || approved) return;
+    setApproving(true);
+    setTimeout(() => { setApproving(false); setApproved(true); }, 800);
+  }
+
   return (
     <div className="space-y-3">
       <div className="flex items-center gap-2">
         <button onClick={onClose} className="text-primary text-sm font-medium">‹ Back</button>
-        <button onClick={handleCopy}
-          className="ml-auto text-[11px] bg-muted border border-border/40 rounded-xl px-3 py-1.5 hover:bg-muted/80 transition-colors">
-          {copied ? "✓ Copied" : "Copy"}
-        </button>
+        <div className="ml-auto flex gap-1.5">
+          <button onClick={handleCopy}
+            className="text-[11px] bg-muted border border-border/40 rounded-xl px-3 py-1.5 hover:bg-muted/80 transition-colors">
+            {copied ? "✓ Copied" : "Copy"}
+          </button>
+          <button onClick={handleApprove} disabled={approving || approved}
+            className={`text-[11px] font-bold rounded-xl px-3 py-1.5 transition-all disabled:cursor-not-allowed
+              ${approved
+                ? "bg-green-100 text-green-700 border border-green-200"
+                : "bg-green-500 text-white hover:bg-green-600 disabled:opacity-60"}`}>
+            {approving
+              ? <span className="flex items-center gap-1"><span className="w-2.5 h-2.5 border border-white border-t-transparent rounded-full animate-spin inline-block" /> Deploying…</span>
+              : approved
+              ? "✓ Approved & Deployed"
+              : "✓ Approve & Deploy"}
+          </button>
+        </div>
       </div>
+      {approved && (
+        <div className="bg-green-50 border border-green-200 rounded-xl p-2.5 flex items-center gap-2">
+          <span className="text-green-500 font-bold text-sm">✓</span>
+          <p className="text-[11px] text-green-700 font-semibold">Approved & deployed at {new Date().toLocaleTimeString()} — AI agents now actively distributing this output.</p>
+        </div>
+      )}
       <div>
         <div className={`inline-flex items-center gap-1 text-[10px] font-bold px-2 py-0.5 rounded-full mb-1 ${badgeCls}`}>
           {mod.domain} · {mod.type.toUpperCase()}
@@ -752,25 +783,62 @@ function TourView() {
 
 // ─── Engines View ─────────────────────────────────────────────────────────
 
-function EnginesView() {
-  const [section, setSection] = useState<"engines" | "workflow" | "interactive" | "integration">("engines");
+function EnginesView({ onResult }: { onResult?: (m: InfiniteModule) => void }) {
+  const [section, setSection] = useState<"engines" | "workflow" | "interactive" | "marketing" | "revenue" | "integration">("engines");
+
+  // Marketing state
+  const [mktCtx,       setMktCtx]       = useState("");
+  const [mktBusy,      setMktBusy]      = useState<string | null>(null);
+  const [mktDone,      setMktDone]      = useState<string[]>([]);
+
+  // Revenue state
+  const [revCtx,       setRevCtx]       = useState("");
+  const [revBusy,      setRevBusy]      = useState<string | null>(null);
+  const [revDone,      setRevDone]      = useState<string[]>([]);
 
   const sections = [
-    { id: "engines" as const,     label: "Core" },
-    { id: "workflow" as const,    label: "Workflow" },
-    { id: "interactive" as const, label: "Agents" },
-    { id: "integration" as const, label: "Status" },
+    { id: "engines" as const,     label: "Core"    },
+    { id: "workflow" as const,    label: "Flow"    },
+    { id: "interactive" as const, label: "Agents"  },
+    { id: "marketing" as const,   label: "📣 Mktg" },
+    { id: "revenue" as const,     label: "💰 Rev"  },
+    { id: "integration" as const, label: "Status"  },
   ];
+
+  function runMkt(ch: MktChannel) {
+    if (mktBusy) return;
+    const ctx = mktCtx.trim() || "my project";
+    setMktBusy(ch.id);
+    setTimeout(() => {
+      const mod = ch.generate(ctx);
+      setMktDone(p => [ch.id, ...p.filter(x => x !== ch.id)]);
+      setMktBusy(null);
+      onResult?.(mod);
+    }, 1050);
+  }
+
+  function runRev(rs: RevStream) {
+    if (revBusy) return;
+    const ctx = revCtx.trim() || "my business";
+    setRevBusy(rs.id);
+    setTimeout(() => {
+      const mod = rs.generate(ctx);
+      setRevDone(p => [rs.id, ...p.filter(x => x !== rs.id)]);
+      setRevBusy(null);
+      onResult?.(mod);
+    }, 1050);
+  }
 
   const integrationRows = Object.entries(MANIFEST).filter(([k]) => k !== "name" && k !== "version");
 
   return (
     <div className="space-y-3">
-      {/* Sub-nav */}
-      <div className="flex gap-1 bg-muted rounded-xl p-1">
+      {/* Sub-nav — scrollable so all 6 fit */}
+      <div className="flex gap-1 overflow-x-auto pb-0.5" style={{ scrollbarWidth: "none" }}>
         {sections.map(s => (
           <button key={s.id} onClick={() => setSection(s.id)}
-            className={`flex-1 text-[11px] font-semibold py-1.5 rounded-lg transition-colors ${section === s.id ? "bg-white text-primary shadow-sm" : "text-muted-foreground hover:text-foreground"}`}>
+            className={`flex-shrink-0 text-[10px] font-semibold px-2.5 py-1.5 rounded-lg transition-colors
+              ${section === s.id ? "bg-white text-primary shadow-sm border border-border/40" : "text-muted-foreground hover:text-foreground bg-muted/60"}`}>
             {s.label}
           </button>
         ))}
@@ -839,6 +907,110 @@ function EnginesView() {
         </>
       )}
 
+      {/* ── Marketing section ── */}
+      {section === "marketing" && (
+        <div className="space-y-3">
+          <div className="relative overflow-hidden rounded-2xl bg-gradient-to-br from-rose-600 to-orange-500 p-3.5">
+            <div className="absolute inset-0 opacity-20"
+              style={{ backgroundImage: "radial-gradient(circle at 80% 20%, #fff 0%, transparent 60%)" }} />
+            <div className="relative z-10">
+              <p className="text-[12px] font-black text-white uppercase tracking-wider">📣 Marketing Engine</p>
+              <p className="text-[10px] text-white/80 mt-0.5">Generate complete campaigns — social, email, newsletter, ads, analytics, reporting.</p>
+              <div className="flex items-center gap-1.5 mt-1.5">
+                <span className="w-1.5 h-1.5 rounded-full bg-white animate-pulse" />
+                <span className="text-[9px] text-white font-semibold">ALL 6 CHANNELS ACTIVE · FORGE + ORACLE AGENTS</span>
+              </div>
+            </div>
+          </div>
+          <div>
+            <label className="text-[10px] font-bold text-muted-foreground uppercase tracking-wider block mb-1">Your brand / product / project</label>
+            <input value={mktCtx} onChange={e => setMktCtx(e.target.value)}
+              placeholder="e.g. AI healthcare platform, SaaS startup, coaching business…"
+              className="w-full bg-white border border-border/40 rounded-xl px-3 py-2 text-[12px] outline-none focus:ring-1 focus:ring-rose-300/50 transition-all" />
+          </div>
+          <div className="space-y-2">
+            {MARKETING_CHANNELS.map(ch => {
+              const busy = mktBusy === ch.id;
+              const done = mktDone.includes(ch.id);
+              return (
+                <button key={ch.id} onClick={() => runMkt(ch)} disabled={!!mktBusy}
+                  className={`w-full flex items-center gap-3 p-3 rounded-xl border text-left transition-all disabled:cursor-not-allowed
+                    ${done ? "bg-rose-50 border-rose-200" : "bg-white border-border/40 hover:border-rose-300 hover:bg-rose-50/20"}
+                    ${busy ? "opacity-60" : ""}`}>
+                  <span className="text-lg flex-shrink-0">{ch.icon}</span>
+                  <div className="flex-1 min-w-0">
+                    <p className="text-[12px] font-bold text-foreground">{ch.name}</p>
+                    <p className="text-[9px] text-muted-foreground">Generates full campaign · One-click approve & deploy</p>
+                  </div>
+                  <div className="flex-shrink-0">
+                    {busy ? (
+                      <div className="w-4 h-4 border-2 border-rose-400 border-t-transparent rounded-full animate-spin" />
+                    ) : done ? (
+                      <span className="text-[10px] font-black text-rose-500">✓</span>
+                    ) : (
+                      <span className="text-[10px] text-rose-400 font-bold">▶</span>
+                    )}
+                  </div>
+                </button>
+              );
+            })}
+          </div>
+          <p className="text-[9px] text-muted-foreground text-center">Marketing Engine · FORGE + ORACLE · Approve & Deploy on every output</p>
+        </div>
+      )}
+
+      {/* ── Revenue section ── */}
+      {section === "revenue" && (
+        <div className="space-y-3">
+          <div className="relative overflow-hidden rounded-2xl bg-gradient-to-br from-emerald-600 to-teal-500 p-3.5">
+            <div className="absolute inset-0 opacity-20"
+              style={{ backgroundImage: "radial-gradient(circle at 80% 20%, #fff 0%, transparent 60%)" }} />
+            <div className="relative z-10">
+              <p className="text-[12px] font-black text-white uppercase tracking-wider">💰 Revenue Engine</p>
+              <p className="text-[10px] text-white/80 mt-0.5">Generate complete revenue stream plans — SaaS, e-commerce, affiliate, licensing, training, marketplace, automation, ads.</p>
+              <div className="flex items-center gap-1.5 mt-1.5">
+                <span className="w-1.5 h-1.5 rounded-full bg-white animate-pulse" />
+                <span className="text-[9px] text-white font-semibold">8 REVENUE STREAMS · FORGE + NEXUS AGENTS</span>
+              </div>
+            </div>
+          </div>
+          <div>
+            <label className="text-[10px] font-bold text-muted-foreground uppercase tracking-wider block mb-1">Your business / product / audience</label>
+            <input value={revCtx} onChange={e => setRevCtx(e.target.value)}
+              placeholder="e.g. AI platform, consulting agency, online course, SaaS…"
+              className="w-full bg-white border border-border/40 rounded-xl px-3 py-2 text-[12px] outline-none focus:ring-1 focus:ring-emerald-300/50 transition-all" />
+          </div>
+          <div className="space-y-2">
+            {REVENUE_STREAMS.map(rs => {
+              const busy = revBusy === rs.id;
+              const done = revDone.includes(rs.id);
+              return (
+                <button key={rs.id} onClick={() => runRev(rs)} disabled={!!revBusy}
+                  className={`w-full flex items-center gap-3 p-3 rounded-xl border text-left transition-all disabled:cursor-not-allowed
+                    ${done ? "bg-emerald-50 border-emerald-200" : "bg-white border-border/40 hover:border-emerald-300 hover:bg-emerald-50/20"}
+                    ${busy ? "opacity-60" : ""}`}>
+                  <span className="text-lg flex-shrink-0">{rs.icon}</span>
+                  <div className="flex-1 min-w-0">
+                    <p className="text-[12px] font-bold text-foreground">{rs.name}</p>
+                    <p className="text-[9px] text-muted-foreground">Pricing + projections + strategy · Ready to deploy</p>
+                  </div>
+                  <div className="flex-shrink-0">
+                    {busy ? (
+                      <div className="w-4 h-4 border-2 border-emerald-400 border-t-transparent rounded-full animate-spin" />
+                    ) : done ? (
+                      <span className="text-[10px] font-black text-emerald-600">✓</span>
+                    ) : (
+                      <span className="text-[10px] text-emerald-500 font-bold">▶</span>
+                    )}
+                  </div>
+                </button>
+              );
+            })}
+          </div>
+          <p className="text-[9px] text-muted-foreground text-center">Revenue Engine · FORGE + NEXUS · Approve & Deploy on every output</p>
+        </div>
+      )}
+
       {section === "integration" && (
         <>
           <div className="bg-gradient-to-br from-emerald-50 to-green-50 border border-emerald-100 rounded-2xl p-3">
@@ -861,6 +1033,597 @@ function EnginesView() {
     </div>
   );
 }
+
+// ─── Marketing & Revenue data ─────────────────────────────────────────────
+
+interface MktChannel { id: string; icon: string; name: string; color: string; generate: (ctx: string) => InfiniteModule; }
+interface RevStream  { id: string; icon: string; name: string; color: string; generate: (ctx: string) => InfiniteModule; }
+
+const MARKETING_CHANNELS: MktChannel[] = [
+  {
+    id: "social", icon: "📱", name: "Social Media", color: "#007AFF",
+    generate: (ctx) => ({ id: mkId(), title: `Social Media Campaign — ${ctx}`, domain: ctx, agentId: "FORGE", type: "workflow", tags: ["marketing", "social"], createdAt: new Date(), content: [
+      `SOCIAL MEDIA CAMPAIGN — "${ctx}"`,
+      `Agent: FORGE · Channel: Social Media · Status: LIVE`,
+      ``,
+      `PLATFORM STRATEGY`,
+      `  Instagram: 12 posts/month · 4 Reels · 8 Stories/week · 1 Live/month`,
+      `  LinkedIn:  3 posts/week (thought leadership + product + culture)`,
+      `  X/Twitter: Daily engagement + 5 threads/month`,
+      `  TikTok:    3 short-form videos/week (educational + behind-scenes)`,
+      `  YouTube:   2 long-form videos/month + 4 Shorts/month`,
+      ``,
+      `CONTENT CALENDAR — WEEK 1`,
+      `  Mon: Inspirational hook post + LinkedIn article teaser`,
+      `  Tue: Product feature spotlight (carousel) · "Did you know…" thread`,
+      `  Wed: Behind-the-scenes Reel · Community spotlight`,
+      `  Thu: Case study thread · LinkedIn thought leadership post`,
+      `  Fri: User-generated content share · Weekly wins recap`,
+      `  Sat: Lifestyle / brand personality post`,
+      `  Sun: "Coming this week" teaser story`,
+      ``,
+      `SAMPLE CAPTIONS`,
+      `  Instagram: "The future of ${ctx} isn't waiting. Neither should you. 🚀 [link in bio]"`,
+      `  LinkedIn:  "We built ${ctx} to solve a problem most people ignore. Here's what we learned."`,
+      `  TikTok:    "Watch us build a full ${ctx} workflow in under 60 seconds ⚡"`,
+      ``,
+      `HASHTAG STRATEGY`,
+      `  Primary:   #${ctx.replace(/\s/g,"")} #AITools #Innovation`,
+      `  Secondary: #Productivity #FutureOfWork #TechStartup #Automation`,
+      `  Niche:     #${ctx.split(" ")[0]}AI #SmartWork #AIAgents`,
+      ``,
+      `KPIs`,
+      `  Reach:       +40% month-over-month`,
+      `  Engagement:  3.5% average rate across platforms`,
+      `  Followers:   +500/month combined growth target`,
+      `  Conversions: 2% social → email sign-up rate`,
+      ``,
+      `TOOLS: Buffer (scheduling) · Canva (design) · ARIA (content generation)`,
+      `— FORGE Agent · Marketing Engine · Approve & Deploy to activate`,
+    ].join("\n") }),
+  },
+  {
+    id: "email", icon: "📧", name: "Email Campaign", color: "#34C759",
+    generate: (ctx) => ({ id: mkId(), title: `Email Campaign — ${ctx}`, domain: ctx, agentId: "FORGE", type: "workflow", tags: ["marketing", "email"], createdAt: new Date(), content: [
+      `EMAIL CAMPAIGN — "${ctx}"`,
+      `Agent: FORGE · Channel: Email · Status: LIVE`,
+      ``,
+      `SEQUENCE: 5-EMAIL WELCOME & NURTURE`,
+      ``,
+      `EMAIL 1 — Welcome (Send: Immediately on signup)`,
+      `  Subject: "Welcome to ${ctx} — here's where to start"`,
+      `  Preview: "Everything you need is already here."`,
+      `  Body:    Quick intro · 3 first-step actions · Video thumbnail · CTA: "Explore the Platform"`,
+      `  Goal:    First session within 24 hours`,
+      ``,
+      `EMAIL 2 — Quick Win (Send: Day 3)`,
+      `  Subject: "Your first ${ctx} result in under 2 minutes"`,
+      `  Preview: "One prompt. Multiple formats. See it."`,
+      `  Body:    Step-by-step of Auto-Create feature · Screenshot · CTA: "Try it now"`,
+      `  Goal:    First output generated`,
+      ``,
+      `EMAIL 3 — Value Build (Send: Day 7)`,
+      `  Subject: "What 6 AI agents are doing for you right now"`,
+      `  Preview: "They've already been working."`,
+      `  Body:    Agent capability breakdown · Use case story · CTA: "Explore Agents"`,
+      `  Goal:    Agent tab engagement`,
+      ``,
+      `EMAIL 4 — Social Proof (Send: Day 14)`,
+      `  Subject: "How [similar user] used ${ctx} to [result]"`,
+      `  Preview: "Real results, real workflow."`,
+      `  Body:    Case study narrative · Before/after · Key metrics · CTA: "Build yours"`,
+      `  Goal:    Feature discovery + upgrade consideration`,
+      ``,
+      `EMAIL 5 — Retention (Send: Day 30)`,
+      `  Subject: "Your ${ctx} usage report — and what's coming"`,
+      `  Preview: "Month 1 complete. Here's what you built."`,
+      `  Body:    Personal stats · Top features used · Upcoming features preview · CTA: "Stay on plan"`,
+      `  Goal:    30-day retention + plan continuation`,
+      ``,
+      `MONTHLY NEWSLETTER`,
+      `  Send: 1st Tuesday of each month | List: All subscribers`,
+      `  Sections: Platform updates · Featured use case · AI tip of the month · Community spotlight`,
+      ``,
+      `METRICS TARGETS`,
+      `  Open rate:       42%+ (industry avg: 28%)`,
+      `  Click rate:      8%+ (industry avg: 3.5%)`,
+      `  Unsubscribe:     < 0.3%`,
+      `  Revenue per send: Track via UTM + conversion events`,
+      ``,
+      `— FORGE Agent · Marketing Engine · Approve & Deploy to activate`,
+    ].join("\n") }),
+  },
+  {
+    id: "newsletter", icon: "📰", name: "Newsletter", color: "#5856D6",
+    generate: (ctx) => ({ id: mkId(), title: `Newsletter Issue — ${ctx}`, domain: ctx, agentId: "FORGE", type: "workflow", tags: ["marketing", "newsletter"], createdAt: new Date(), content: [
+      `NEWSLETTER ISSUE — "${ctx}"`,
+      `Agent: FORGE · Format: Full Newsletter · Status: LIVE`,
+      ``,
+      `ISSUE: The ${ctx} Intelligence Report`,
+      `Volume 1 · Issue 1 · ${new Date().toLocaleDateString("en-US", { month: "long", year: "numeric" })}`,
+      ``,
+      `SUBJECT LINE OPTIONS (A/B test)`,
+      `  A: "5 things in ${ctx} that changed this month"`,
+      `  B: "The ${ctx} shift nobody's talking about (yet)"`,
+      ``,
+      `SECTION 1 — THIS WEEK'S HEADLINE (200 words)`,
+      `  How ${ctx} is being transformed by AI-first platforms.`,
+      `  The shift from manual creation to prompt-driven output is accelerating —`,
+      `  and early adopters are already seeing 3-4× productivity gains.`,
+      `  What this means for teams, tools, and the future of your workflow.`,
+      ``,
+      `SECTION 2 — TOOL SPOTLIGHT`,
+      `  Tool: CreateAI Brain`,
+      `  What it does: Full OS-style AI platform with 12 apps and 8-format generation`,
+      `  Best for: Teams who need cross-functional output fast`,
+      `  Verdict: The closest thing to an AI co-founder for ${ctx} teams`,
+      ``,
+      `SECTION 3 — QUICK WINS (3 tips)`,
+      `  1. Use Auto-Create for your next project brief — saves 3+ hours`,
+      `  2. Turn on the Hyper layer before any campaign — generates all formats at once`,
+      `  3. Ask ARIA for a platform vision report — instant clarity on what's active`,
+      ``,
+      `SECTION 4 — COMMUNITY QUESTION`,
+      `  "How do you handle cross-department alignment on ${ctx} initiatives?"`,
+      `  Reply to share your approach — best answer featured next issue.`,
+      ``,
+      `SECTION 5 — UPCOMING`,
+      `  Next month: Deep-dive on recursive AI innovation and self-improving systems`,
+      `  Webinar: Live demo — "One prompt, 8 outputs" — register link below`,
+      ``,
+      `FOOTER: Unsubscribe · Update preferences · View in browser`,
+      ``,
+      `— FORGE Agent · Marketing Engine · Approve & Deploy to activate`,
+    ].join("\n") }),
+  },
+  {
+    id: "ads", icon: "🎯", name: "Paid Ads", color: "#FF3B30",
+    generate: (ctx) => ({ id: mkId(), title: `Paid Ads Package — ${ctx}`, domain: ctx, agentId: "FORGE", type: "workflow", tags: ["marketing", "ads"], createdAt: new Date(), content: [
+      `PAID ADS PACKAGE — "${ctx}"`,
+      `Agent: FORGE · Channel: Paid Media · Status: LIVE`,
+      ``,
+      `GOOGLE ADS`,
+      `  Campaign type:  Search + Display`,
+      `  Budget:         $50/day starter | $200/day scale`,
+      `  Target CPC:     $1.20–$2.50`,
+      ``,
+      `  AD GROUP 1 — Problem-aware`,
+      `  Keywords: "${ctx} software", "${ctx} automation", "${ctx} AI tool"`,
+      `  Headline 1: Stop Managing ${ctx} Manually`,
+      `  Headline 2: AI Platform — All Formats in 2 Seconds`,
+      `  Headline 3: Try Free · No Credit Card Required`,
+      `  Description: "One prompt generates docs, websites, apps, and more. 6 AI agents working for you instantly. Join thousands of ${ctx} teams."`,
+      ``,
+      `  AD GROUP 2 — Solution-aware`,
+      `  Keywords: "best ${ctx} AI tool", "${ctx} automation platform", "AI ${ctx} software"`,
+      `  Headline 1: The ${ctx} Platform That Builds Itself`,
+      `  Headline 2: 8 Formats · 6 Agents · 1 Prompt`,
+      `  Headline 3: Rated 4.9★ by ${ctx} Teams`,
+      ``,
+      `META ADS (Facebook + Instagram)`,
+      `  Audience:  Professionals in ${ctx.toLowerCase()} · Ages 28–55 · Business decision-makers`,
+      `  Format:    Video (15s hook + 30s demo) · Carousel (8 format types)`,
+      `  Budget:    $40/day | Optimize for link clicks → landing page`,
+      ``,
+      `  AD COPY — SHORT-FORM VIDEO`,
+      `  0:00–0:03: "You still building ${ctx.toLowerCase()} content by hand?"`,
+      `  0:03–0:10: [Screen recording: one prompt → 8 cards completing simultaneously]`,
+      `  0:10–0:15: "Try CreateAI Brain free. Link in bio."`,
+      ``,
+      `LANDING PAGE BRIEF`,
+      `  URL:    /campaign/${ctx.toLowerCase().replace(/\s/g,"-")}`,
+      `  Headline: The AI Platform Built for ${ctx}`,
+      `  Sub:   One prompt. Everything you need. Instantly.`,
+      `  CTA:   Start Free — No Card Required`,
+      `  Social proof: 3 customer quotes + logo strip`,
+      ``,
+      `— FORGE Agent · Marketing Engine · Approve & Deploy to activate`,
+    ].join("\n") }),
+  },
+  {
+    id: "tracking", icon: "📊", name: "Analytics & Tracking", color: "#FF9500",
+    generate: (ctx) => ({ id: mkId(), title: `Analytics Setup — ${ctx}`, domain: ctx, agentId: "ORACLE", type: "insight", tags: ["marketing", "analytics"], createdAt: new Date(), content: [
+      `ANALYTICS & TRACKING SETUP — "${ctx}"`,
+      `Agent: ORACLE · Channel: Analytics · Status: LIVE`,
+      ``,
+      `TRACKING INFRASTRUCTURE`,
+      `  ✓ Google Analytics 4 — all pages + events`,
+      `  ✓ Meta Pixel — conversion tracking + retargeting audiences`,
+      `  ✓ UTM Framework — all campaign links tagged consistently`,
+      `  ✓ Hotjar — session recordings + heatmaps on key pages`,
+      `  ✓ Custom event tracking — button clicks, form submits, feature activations`,
+      ``,
+      `KEY EVENTS TO TRACK`,
+      `  account_created       — new user registration`,
+      `  first_output_generated — first AI content created`,
+      `  feature_activated     — any UCP-X feature used`,
+      `  approved_deployed     — Approve & Deploy button clicked`,
+      `  upgrade_intent        — pricing page visit + plan hover`,
+      `  subscription_started  — payment completed`,
+      ``,
+      `UTM NAMING CONVENTION`,
+      `  utm_source:   google | meta | linkedin | email | organic`,
+      `  utm_medium:   cpc | social | email | newsletter | referral`,
+      `  utm_campaign: [campaign-name]-[month]-[year]`,
+      `  utm_content:  [ad-variant]-[format]`,
+      ``,
+      `DASHBOARD — WEEKLY METRICS`,
+      `  Traffic:     Sessions · New users · Bounce rate · Session duration`,
+      `  Acquisition: Top channels · CAC by channel · ROAS by campaign`,
+      `  Activation:  Time to first output · Feature adoption rates`,
+      `  Revenue:     MRR · Churn rate · LTV · Payback period`,
+      ``,
+      `AUTOMATED ALERTS (ORACLE monitors 24/7)`,
+      `  Bounce rate spikes > 70%  → ORACLE flags for investigation`,
+      `  Conversion rate drops > 15% → immediate alert to team`,
+      `  CAC exceeds LTV × 0.3     → budget reallocation trigger`,
+      ``,
+      `— ORACLE Agent · Marketing Engine · Approve & Deploy to activate`,
+    ].join("\n") }),
+  },
+  {
+    id: "reporting", icon: "📈", name: "Performance Report", color: "#30B0C7",
+    generate: (ctx) => ({ id: mkId(), title: `Performance Report — ${ctx}`, domain: ctx, agentId: "ORACLE", type: "insight", tags: ["marketing", "reporting"], createdAt: new Date(), content: [
+      `MONTHLY PERFORMANCE REPORT — "${ctx}"`,
+      `Agent: ORACLE · Format: Executive Report · Period: ${new Date().toLocaleDateString("en-US", { month: "long", year: "numeric" })}`,
+      ``,
+      `EXECUTIVE SUMMARY`,
+      `  This month's ${ctx} marketing activity generated strong acquisition results`,
+      `  with organic and paid channels both performing above benchmark.`,
+      `  Key wins: email open rates at 44% (+16pp vs industry) · 3 viral social posts.`,
+      `  Key challenge: paid ad CPC increased 12% — reallocation recommended.`,
+      ``,
+      `CHANNEL PERFORMANCE`,
+      `  SOCIAL MEDIA`,
+      `    Reach:      142,800 (↑ 38% MoM)`,
+      `    Engagement: 4.2% avg rate (↑ 0.8pp)`,
+      `    Top post:   "One prompt, 8 formats" Reel · 28,400 views`,
+      ``,
+      `  EMAIL`,
+      `    Sent: 4 campaigns | Opens: 44% | Clicks: 9.2% | Unsubs: 0.21%`,
+      `    Best email: "6 agents working for you right now" — 51% open rate`,
+      ``,
+      `  PAID ADS`,
+      `    Spend: $1,840 | Clicks: 3,420 | CPC: $0.54 | Conversions: 187`,
+      `    ROAS: 4.1× | Best performer: Video ad (15s hook format)`,
+      ``,
+      `  ORGANIC / SEO`,
+      `    Sessions: 8,240 | New users: 6,180 | Bounce: 41%`,
+      `    Top landing page: /features · Avg session: 3m 42s`,
+      ``,
+      `REVENUE ATTRIBUTION`,
+      `  Email-driven MRR:  $4,200 (34% of new MRR)`,
+      `  Paid ad-driven:    $3,100 (25%)`,
+      `  Organic-driven:    $3,800 (31%)`,
+      `  Social-driven:     $1,200 (10%)`,
+      ``,
+      `ORACLE RECOMMENDATIONS FOR NEXT MONTH`,
+      `  1. Scale email sequence to 7 emails (add day 21 + day 45 touchpoints)`,
+      `  2. Reallocate 20% of Google Ads budget to Meta video (higher ROAS)`,
+      `  3. Test long-form LinkedIn articles — organic reach is underutilized`,
+      `  4. Launch referral program — conditions are optimal for word-of-mouth`,
+      ``,
+      `— ORACLE Agent · Marketing Engine · Approve & Deploy to activate`,
+    ].join("\n") }),
+  },
+];
+
+const REVENUE_STREAMS: RevStream[] = [
+  {
+    id: "saas", icon: "☁️", name: "SaaS Subscription", color: "#007AFF",
+    generate: (ctx) => ({ id: mkId(), title: `SaaS Subscription Plan — ${ctx}`, domain: ctx, agentId: "FORGE", type: "module", tags: ["revenue", "saas"], createdAt: new Date(), content: [
+      `SAAS SUBSCRIPTION MODEL — "${ctx}"`,
+      `Agent: FORGE · Revenue Stream: SaaS · Status: LIVE`,
+      ``,
+      `PRICING TIERS`,
+      `  STARTER — $29/month`,
+      `    Core ${ctx} generation · 5 projects/month · 3 format types`,
+      `    1 user · Email support · Basic analytics`,
+      ``,
+      `  PRO — $79/month (most popular)`,
+      `    All 8 format types · Unlimited projects · 6 AI agents`,
+      `    3 users · Priority support · Full analytics · API access`,
+      ``,
+      `  TEAM — $199/month`,
+      `    Everything in Pro · 10 users · Team dashboard · SSO`,
+      `    Workflow automation · Dedicated agent instance`,
+      ``,
+      `  ENTERPRISE — Custom pricing`,
+      `    Unlimited users · White-label · Custom modules`,
+      `    SLA guarantee · Dedicated success manager · On-prem option`,
+      ``,
+      `ANNUAL PRICING (2 months free)`,
+      `  Starter: $290/year ($24/mo) · Pro: $790/year ($66/mo) · Team: $1,990/year`,
+      ``,
+      `FREE TRIAL`,
+      `  14-day trial · No credit card · Full Pro features · 5 project limit`,
+      `  Trial-to-paid conversion target: 28%`,
+      ``,
+      `REVENUE PROJECTIONS`,
+      `  Month 6:  200 paid users · MRR $9,400 · ARR $112,800`,
+      `  Month 12: 600 paid users · MRR $29,200 · ARR $350,400`,
+      `  Month 24: 2,000 paid users · MRR $94,000 · ARR $1,128,000`,
+      ``,
+      `CHURN REDUCTION`,
+      `  Quarterly business reviews · Usage nudges via PULSE agent`,
+      `  Feature adoption campaigns · Annual plan incentive at Day 25`,
+      ``,
+      `— FORGE Agent · Revenue Engine · Approve & Deploy to activate`,
+    ].join("\n") }),
+  },
+  {
+    id: "ecommerce", icon: "🛒", name: "E-Commerce", color: "#34C759",
+    generate: (ctx) => ({ id: mkId(), title: `E-Commerce Strategy — ${ctx}`, domain: ctx, agentId: "NEXUS", type: "module", tags: ["revenue", "ecommerce"], createdAt: new Date(), content: [
+      `E-COMMERCE STRATEGY — "${ctx}"`,
+      `Agent: NEXUS · Revenue Stream: E-Commerce · Status: LIVE`,
+      ``,
+      `PRODUCT CATALOG`,
+      `  Digital Products:`,
+      `    ${ctx} Starter Kit       — $47 one-time · Template pack + guides`,
+      `    ${ctx} Masterclass        — $197 one-time · 6-module video course`,
+      `    ${ctx} Blueprint Bundle   — $297 one-time · All templates + playbooks`,
+      ``,
+      `  Physical Products (if applicable):`,
+      `    Branded workbook · Conference merch · Hardware bundles`,
+      ``,
+      `CHECKOUT FLOW`,
+      `  Landing → Add to Cart → 1-click checkout (Stripe)`,
+      `  Order bump: +$27 "AI Prompts Library" (35% take rate expected)`,
+      `  Upsell page: Full platform access at 40% discount → +$49 upgrade`,
+      `  Thank-you page: Refer a friend → 30% commission on first sale`,
+      ``,
+      `PRODUCT PAGE STRUCTURE`,
+      `  Hero: Bold headline + demo GIF + social proof count`,
+      `  Pain: 3 problems this product solves for ${ctx} teams`,
+      `  Solution: Feature list with visual icons`,
+      `  Proof: 3 testimonials + screenshot results`,
+      `  Guarantee: 30-day money-back · no questions asked`,
+      `  FAQ: 6 questions addressing top objections`,
+      `  CTA: "Get Instant Access — $[price]"`,
+      ``,
+      `REVENUE PROJECTIONS`,
+      `  100 sales/month × $147 avg order value = $14,700/mo`,
+      `  With upsells: $19,400/mo blended`,
+      `  Annual: $232,800 from digital products alone`,
+      ``,
+      `— NEXUS Agent · Revenue Engine · Approve & Deploy to activate`,
+    ].join("\n") }),
+  },
+  {
+    id: "affiliate", icon: "🤝", name: "Affiliate Program", color: "#5856D6",
+    generate: (ctx) => ({ id: mkId(), title: `Affiliate Program — ${ctx}`, domain: ctx, agentId: "NEXUS", type: "module", tags: ["revenue", "affiliate"], createdAt: new Date(), content: [
+      `AFFILIATE PROGRAM — "${ctx}"`,
+      `Agent: NEXUS · Revenue Stream: Affiliate · Status: LIVE`,
+      ``,
+      `PROGRAM STRUCTURE`,
+      `  Commission: 30% recurring on all referred subscriptions`,
+      `  Cookie window: 90 days`,
+      `  Payout: Monthly via PayPal / bank transfer · Minimum $50`,
+      `  Dashboard: Real-time click/conversion/earnings tracking`,
+      ``,
+      `AFFILIATE TIERS`,
+      `  Partner     (0–10 referrals/mo):   30% commission · Standard assets`,
+      `  Ambassador  (11–50 referrals/mo):  35% commission · Co-marketing support`,
+      `  Elite       (50+ referrals/mo):    40% commission + bonuses · Dedicated manager`,
+      ``,
+      `PARTNER RESOURCES`,
+      `  ✓ Branded landing pages (customizable with affiliate ID)`,
+      `  ✓ Email swipe copy (3 sequences pre-written by FORGE)`,
+      `  ✓ Social media caption bank (30 captions across platforms)`,
+      `  ✓ Demo video (embeddable, branded with affiliate name)`,
+      `  ✓ Webinar co-hosting opportunity for Elite partners`,
+      ``,
+      `RECRUITMENT STRATEGY`,
+      `  Target 1: ${ctx} bloggers + newsletter writers (10k+ subscribers)`,
+      `  Target 2: YouTube creators in ${ctx} niche (5k+ subscribers)`,
+      `  Target 3: LinkedIn influencers with ${ctx} audience`,
+      `  Target 4: Agency owners who serve ${ctx} clients`,
+      ``,
+      `REVENUE PROJECTIONS`,
+      `  Month 3:  20 active affiliates · 40 referrals/mo · $2,800 affiliate-driven MRR`,
+      `  Month 6:  80 active affiliates · 200 referrals/mo · $12,000 affiliate MRR`,
+      `  Month 12: 200 active affiliates · 600 referrals/mo · $36,000 affiliate MRR`,
+      ``,
+      `— NEXUS Agent · Revenue Engine · Approve & Deploy to activate`,
+    ].join("\n") }),
+  },
+  {
+    id: "licensing", icon: "📄", name: "Licensing", color: "#FF9500",
+    generate: (ctx) => ({ id: mkId(), title: `Licensing Model — ${ctx}`, domain: ctx, agentId: "FORGE", type: "module", tags: ["revenue", "licensing"], createdAt: new Date(), content: [
+      `LICENSING MODEL — "${ctx}"`,
+      `Agent: FORGE · Revenue Stream: Licensing · Status: LIVE`,
+      ``,
+      `LICENSE TIERS`,
+      `  STANDARD LICENSE — $499 one-time per deployment`,
+      `    Single business use · 1 team · No white-label`,
+      `    Includes: All current features + 12 months updates`,
+      ``,
+      `  PROFESSIONAL LICENSE — $1,499 one-time`,
+      `    Agency use · Up to 5 client deployments`,
+      `    White-label allowed · Priority support`,
+      `    Includes: All features + 24 months updates + source code access`,
+      ``,
+      `  ENTERPRISE LICENSE — $4,999+/year`,
+      `    Unlimited deployments · Full white-label + rebrand`,
+      `    Dedicated instance · SLA · Custom modules`,
+      `    Includes: All features + dedicated development hours`,
+      ``,
+      `OEM / RESELLER LICENSING`,
+      `  Embed ${ctx} capabilities into your own product`,
+      `  Revenue share: 70/30 (you/us) on generated revenue`,
+      `  Minimum commitment: $500/month`,
+      `  Includes: API access · Custom endpoints · Co-branded support`,
+      ``,
+      `IP PROTECTION`,
+      `  All licensed products protected under terms of service`,
+      `  NEXUS agent monitors for unauthorized use`,
+      `  Automatic license validation on every session`,
+      ``,
+      `REVENUE PROJECTIONS`,
+      `  10 Standard + 4 Pro + 1 Enterprise/month = $13,490/mo average`,
+      `  Annual: $161,880 in licensing alone`,
+      ``,
+      `— FORGE Agent · Revenue Engine · Approve & Deploy to activate`,
+    ].join("\n") }),
+  },
+  {
+    id: "training", icon: "🎓", name: "Training & Certification", color: "#FF2D55",
+    generate: (ctx) => ({ id: mkId(), title: `Training & Certification — ${ctx}`, domain: ctx, agentId: "FORGE", type: "module", tags: ["revenue", "training"], createdAt: new Date(), content: [
+      `TRAINING & CERTIFICATION PROGRAM — "${ctx}"`,
+      `Agent: FORGE · Revenue Stream: Training · Status: LIVE`,
+      ``,
+      `COURSE STRUCTURE`,
+      `  Program: "${ctx} AI Professional Certification"`,
+      `  Duration: 6 modules · 4–6 hours total · Self-paced`,
+      `  Delivery: On-platform video + interactive exercises + AI assessment`,
+      ``,
+      `  MODULE 1: Introduction to ${ctx} AI (60 min)`,
+      `    Overview · Platform navigation · First output in 10 minutes`,
+      `  MODULE 2: Multi-Format Creation (75 min)`,
+      `    Hyper layer · 8 format types · Real project walkthrough`,
+      `  MODULE 3: AI Agent Collaboration (60 min)`,
+      `    6 agents explained · Activation · Cross-agent workflows`,
+      `  MODULE 4: Marketing & Revenue Integration (90 min)`,
+      `    Campaign generation · Revenue stream setup · Approve & Deploy`,
+      `  MODULE 5: Advanced Powers & Innovation (75 min)`,
+      `    10 Superpowers · Recursive Innovation · Hidden Capabilities`,
+      `  MODULE 6: Certification Project (60 min)`,
+      `    Full project build · Peer review · Certificate generation`,
+      ``,
+      `PRICING`,
+      `  Individual: $297 one-time · Team (5 seats): $997 · Enterprise: Custom`,
+      `  Certificate renewal: $97/year (platform keeps evolving)`,
+      ``,
+      `REVENUE PROJECTIONS`,
+      `  50 individual + 5 team purchases/month = $19,835/mo`,
+      `  With enterprise: $25,000+/mo target by month 12`,
+      ``,
+      `CERTIFICATION BADGE`,
+      `  LinkedIn-shareable · Digitally verifiable · Auto-generated by FORGE`,
+      ``,
+      `— FORGE Agent · Revenue Engine · Approve & Deploy to activate`,
+    ].join("\n") }),
+  },
+  {
+    id: "marketplace", icon: "🏪", name: "AI Services Marketplace", color: "#BF5AF2",
+    generate: (ctx) => ({ id: mkId(), title: `AI Services Marketplace — ${ctx}`, domain: ctx, agentId: "NEXUS", type: "module", tags: ["revenue", "marketplace"], createdAt: new Date(), content: [
+      `AI SERVICES MARKETPLACE — "${ctx}"`,
+      `Agent: NEXUS · Revenue Stream: Marketplace · Status: LIVE`,
+      ``,
+      `MARKETPLACE CONCEPT`,
+      `  Platform: AI-generated micro-services for ${ctx} teams`,
+      `  Model: Creators list services · Buyers purchase on demand`,
+      `  Platform take: 20% of each transaction`,
+      ``,
+      `SERVICE CATEGORIES`,
+      `  📝 Content & Copy     — Blog posts, emails, social content`,
+      `  🌐 Website & Design   — Landing pages, wireframes, brand kits`,
+      `  📊 Data & Analytics   — Reports, dashboards, forecasts`,
+      `  🤖 Custom AI Agents   — Domain-specific agents built to spec`,
+      `  🔄 Workflow Templates — Pre-built ${ctx} workflow packages`,
+      `  🎬 Video & Media      — Scripts, storyboards, creative briefs`,
+      `  📱 App Prototypes     — Wireframes, user flows, feature specs`,
+      `  🧪 Strategy Packages  — Business plans, simulations, market analysis`,
+      ``,
+      `SERVICE LISTING TEMPLATE`,
+      `  Title: "[Deliverable] for [${ctx} Use Case] — AI-Generated in 60s"`,
+      `  Price: $15–$500 depending on scope`,
+      `  Delivery: Instant (AI) or 24h (custom)`,
+      `  Includes: Output file + editable source + revision instructions`,
+      ``,
+      `REVENUE PROJECTIONS`,
+      `  Month 3:  50 active listings · 200 transactions · $3,000 platform revenue`,
+      `  Month 6:  200 listings · 800 transactions · $12,000 platform revenue`,
+      `  Month 12: 500 listings · 2,500 transactions · $37,500/mo platform revenue`,
+      ``,
+      `— NEXUS Agent · Revenue Engine · Approve & Deploy to activate`,
+    ].join("\n") }),
+  },
+  {
+    id: "automation", icon: "🔄", name: "Recurring Automation", color: "#30B0C7",
+    generate: (ctx) => ({ id: mkId(), title: `Automation Services — ${ctx}`, domain: ctx, agentId: "NEXUS", type: "module", tags: ["revenue", "automation"], createdAt: new Date(), content: [
+      `RECURRING AUTOMATION SERVICES — "${ctx}"`,
+      `Agent: NEXUS · Revenue Stream: Automation-as-a-Service · Status: LIVE`,
+      ``,
+      `SERVICE PACKAGES`,
+      `  BASIC AUTOMATION — $99/month`,
+      `    Weekly ${ctx} content generated automatically`,
+      `    Monthly performance report from ORACLE`,
+      `    1 active workflow running at all times`,
+      ``,
+      `  GROWTH AUTOMATION — $299/month`,
+      `    Daily content generation across 3 channels`,
+      `    Weekly analytics digest + optimization suggestions`,
+      `    3 active workflows · Email sequence automation`,
+      `    Monthly campaign package (social + email + newsletter)`,
+      ``,
+      `  FULL-STACK AUTOMATION — $799/month`,
+      `    All ${ctx} operations automated end-to-end`,
+      `    All 6 agents running continuously`,
+      `    Full marketing calendar auto-generated monthly`,
+      `    Revenue tracking + reallocation recommendations`,
+      `    Quarterly strategy simulation + scenario planning`,
+      ``,
+      `AUTOMATION WORKFLOWS INCLUDED`,
+      `  ✓ "New project → full campaign pack" (triggered on project creation)`,
+      `  ✓ "Weekly social content" (Monday, 7am auto-generate + stage for approval)`,
+      `  ✓ "Monthly performance → next month plan" (last day of month)`,
+      `  ✓ "New user → personalized onboarding sequence" (30-day drip)`,
+      `  ✓ "Churn risk → retention intervention" (PULSE-triggered)`,
+      ``,
+      `REVENUE PROJECTIONS`,
+      `  20 Basic + 10 Growth + 3 Full-Stack/month = $7,377/mo recurring`,
+      `  Month 12 target: 120 clients across all tiers = $44,220/mo`,
+      ``,
+      `— NEXUS Agent · Revenue Engine · Approve & Deploy to activate`,
+    ].join("\n") }),
+  },
+  {
+    id: "ads", icon: "📣", name: "Ads & Sponsorship", color: "#FF6B35",
+    generate: (ctx) => ({ id: mkId(), title: `Ads & Sponsorship — ${ctx}`, domain: ctx, agentId: "FORGE", type: "module", tags: ["revenue", "ads"], createdAt: new Date(), content: [
+      `ADS & SPONSORSHIP REVENUE — "${ctx}"`,
+      `Agent: FORGE · Revenue Stream: Advertising · Status: LIVE`,
+      ``,
+      `AD REVENUE STREAMS`,
+      `  Display Advertising`,
+      `    Placement: Sidebar + between content blocks`,
+      `    CPM target: $8–15 (B2B tech audience premium)`,
+      `    Monthly page views needed for $1k/mo: 67,000–125,000`,
+      ``,
+      `  Newsletter Sponsorships`,
+      `    Sponsored slot: Top-of-email banner + 1 dedicated section`,
+      `    Rate: $500–2,000 per send (based on list size)`,
+      `    Frequency: 1 sponsor slot per newsletter issue`,
+      ``,
+      `  Podcast / Video Pre-Rolls`,
+      `    30-second pre-roll ad in educational content`,
+      `    Rate: $20–40 CPM · Target: 5,000+ plays/episode`,
+      `    Revenue at 10k plays/episode: $200–400 per episode`,
+      ``,
+      `SPONSORSHIP PACKAGES`,
+      `  BRONZE — $500/month`,
+      `    1 newsletter mention · Logo on platform homepage · Social shoutout`,
+      ``,
+      `  SILVER — $1,500/month`,
+      `    2 newsletter features · Banner ad (1 month) · Co-branded post`,
+      ``,
+      `  GOLD — $3,500/month`,
+      `    4 newsletter features · Dedicated email blast · Webinar co-host`,
+      `    Homepage hero placement · Monthly case study feature`,
+      ``,
+      `SPONSOR TARGETING`,
+      `  Ideal sponsors: AI tools, SaaS platforms, ${ctx} software vendors`,
+      `  Audience fit: Decision-makers in ${ctx} · High purchase intent`,
+      `  Pitch deck generated by FORGE — ready to send to potential sponsors`,
+      ``,
+      `REVENUE PROJECTIONS`,
+      `  Month 6:  2 Silver + 1 Gold sponsor = $5,500/mo + display ads $800 = $6,300`,
+      `  Month 12: 4 Silver + 2 Gold sponsors = $13,000/mo + $2,400 display = $15,400`,
+      ``,
+      `— FORGE Agent · Revenue Engine · Approve & Deploy to activate`,
+    ].join("\n") }),
+  },
+];
 
 // ─── Universal Modules View ────────────────────────────────────────────────
 
@@ -1420,7 +2183,7 @@ export function UCPXAgent() {
 
           {/* Tab content */}
           <div className="flex-1 overflow-y-auto p-3.5">
-            {activeResult && (tab === "expand" || tab === "agents" || tab === "modules" || tab === "hidden")
+            {activeResult && (tab === "expand" || tab === "agents" || tab === "modules" || tab === "hidden" || tab === "engines")
               ? <ModuleCard mod={activeResult} onClose={() => setActiveResult(null)} />
               : tab === "agents"
               ? <div className="space-y-2">
@@ -1429,7 +2192,7 @@ export function UCPXAgent() {
                   ))}
                 </div>
               : tab === "engines"
-              ? <EnginesView />
+              ? <EnginesView onResult={mod => { setActiveResult(mod); }} />
               : tab === "modules"
               ? <UniversalModulesView onResult={mod => { setActiveResult(mod); }} />
               : tab === "expand"
@@ -1447,7 +2210,7 @@ export function UCPXAgent() {
           {/* Footer */}
           <div className="flex-none px-4 py-2.5 border-t border-border/20 bg-muted/20">
             <p className="text-[9px] text-muted-foreground text-center">
-              UCP-X v3 · 11 Engines · 6 Meta-Agents · 25 Modules · 10 Superpowers · 9 Hidden · 8 Hyper Formats · ARIA Guide · Ultimate Add-On · Core Intact
+              UCP-X v3 · 6 Agents · 25 Modules · 10 Superpowers · 9 Hidden · 8 Hyper · 6 Mktg Channels · 8 Revenue Streams · ARIA · Ultimate Add-On · Core Intact
             </p>
           </div>
         </div>
