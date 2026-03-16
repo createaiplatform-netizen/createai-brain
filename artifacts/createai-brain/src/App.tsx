@@ -11,6 +11,7 @@ import ProjectPage from "@/pages/ProjectPage";
 import { OSProvider } from "@/os/OSContext";
 import { OSLayout } from "@/os/osLayout";
 import { InteractionProvider } from "@/os/InteractionContext";
+import { ConversationProvider } from "@/os/ConversationContext";
 
 const queryClient = new QueryClient({
   defaultOptions: {
@@ -44,11 +45,13 @@ function App() {
     <QueryClientProvider client={queryClient}>
       <TooltipProvider>
         <InteractionProvider>
-          <OSProvider>
-            <WouterRouter base={import.meta.env.BASE_URL.replace(/\/$/, "")}>
-              <Router />
-            </WouterRouter>
-          </OSProvider>
+          <ConversationProvider>
+            <OSProvider>
+              <WouterRouter base={import.meta.env.BASE_URL.replace(/\/$/, "")}>
+                <Router />
+              </WouterRouter>
+            </OSProvider>
+          </ConversationProvider>
         </InteractionProvider>
         <Toaster />
       </TooltipProvider>

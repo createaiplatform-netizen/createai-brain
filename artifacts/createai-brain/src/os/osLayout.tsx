@@ -16,6 +16,7 @@ import { IntegrationApp } from "@/Apps/IntegrationApp";
 import { MonetizationApp } from "@/Apps/MonetizationApp";
 import { CreatorApp } from "@/Apps/CreatorApp";
 import { UniversalApp } from "@/Apps/UniversalApp";
+import { ConversationOverlay } from "./ConversationOverlay";
 
 const APP_COMPONENTS: Record<string, React.ComponentType> = {
   chat: ChatApp,
@@ -62,6 +63,8 @@ export function OSLayout() {
 
   return (
     <div className="flex h-[100dvh] w-full bg-background overflow-hidden">
+      {/* ── Global Conversation Overlay — available on every screen ── */}
+      <ConversationOverlay />
 
       {/* ── Persistent sidebar (medium+) ── */}
       {showSidebar && (

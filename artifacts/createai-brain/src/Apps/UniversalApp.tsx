@@ -3,8 +3,9 @@
 // All interaction is INTERNAL ONLY — mock/demo data, no real APIs.
 // ═══════════════════════════════════════════════════════════════════════════
 
-import React, { useState } from "react";
+import React, { useState, useRef, useEffect } from "react";
 import { useInteraction } from "@/os/InteractionContext";
+import { useConversation } from "@/os/ConversationContext";
 import {
   MOCK_ROLES, MOCK_DEPARTMENTS, MOCK_AGENCIES, MOCK_STATES,
   MOCK_VENDORS, MOCK_HEALTHCARE_CATEGORIES, MOCK_PROVIDER_TYPES,
@@ -17,6 +18,7 @@ import { IntegrationEngine } from "@/engine/IntegrationEngine";
 // ─── Nav definition ───────────────────────────────────────────────────────
 const NAV_ITEMS: { id: UniversalView; label: string; icon: string }[] = [
   { id: "home",        label: "Home",             icon: "🏠" },
+  { id: "talk",        label: "Talk / Test",       icon: "🧠" },
   { id: "dashboard",   label: "Dashboard",        icon: "📊" },
   { id: "roles",       label: "Roles",            icon: "🎭" },
   { id: "agencies",    label: "Agencies",         icon: "🏛️" },
@@ -835,6 +837,153 @@ function SettingsScreen() {
   );
 }
 
+// ─── Screen: Talk / Test Mode ─────────────────────────────────────────────
+const TALK_CHIPS = [
+  "help", "Test me on workflows", "Walk me through the submission flow",
+  "Switch to System Admin", "Change agency to SAMHSA", "Set state to Texas",
+  "Go to Dashboard", "Pretend a user submitted a packet",
+  "What roles are available?", "Quiz me on agencies",
+  "What happens if status is rejected?", "Show me all vendors",
+];
+
+function TalkScreen() {
+  const { history, testSession, send, clear } = useConversation();
+  const [input, setInput] = useState("");
+  const [listening, setListening] = useState(false);
+  const bottomRef = useRef<HTMLDivElement>(null);
+
+  useEffect(() => {
+    bottomRef.current?.scrollIntoView({ behavior: "smooth" });
+  }, [history]);
+
+  const handleSend = () => {
+    const t = input.trim();
+    if (!t) return;
+    setInput("");
+    send(t);
+  };
+
+  const toggleListen = () => {
+    const SR = (window as any).SpeechRecognition ?? (window as any).webkitSpeechRecognition;
+    if (!SR) { alert("Speech recognition not supported."); return; }
+    if (listening) { setListening(false); return; }
+    const recog: SpeechRecognition = new SR();
+    recog.lang = "en-US";
+    recog.onresult = (e: SpeechRecognitionEvent) => {
+      const t2 = e.results[0][0].transcript;
+      setListening(false);
+      send(t2);
+    };
+    recog.onerror = () => setListening(false);
+    recog.onend   = () => setListening(false);
+    recog.start();
+    setListening(true);
+  };
+
+  return (
+    <div className="flex flex-col h-full">
+      {/* Header */}
+      <div className="bg-gradient-to-br from-blue-500 to-blue-700 px-4 py-3 flex-shrink-0">
+        <div className="flex items-center justify-between">
+          <div>
+            <p className="text-white font-bold text-[14px]">🧠 Universal Brain — Talk & Test</p>
+            <p className="text-blue-200 text-[10px]">Type, click, or speak · All internal · Mock · Demo-only</p>
+          </div>
+          {testSession.isActive && (
+            <div className="bg-white/20 text-white text-[10px] font-bold px-2 py-1 rounded-xl">
+              Quiz {testSession.currentIndex + 1}/{testSession.questions.length} · Score: {testSession.score}
+            </div>
+          )}
+        </div>
+        {/* Quick chips */}
+        <div className="flex flex-wrap gap-1.5 mt-2">
+          {TALK_CHIPS.slice(0, 6).map(c => (
+            <button key={c} onClick={() => send(c)}
+              className="text-[10px] bg-white/20 hover:bg-white/30 text-white px-2 py-0.5 rounded-full font-medium transition-all">
+              {c}
+            </button>
+          ))}
+        </div>
+      </div>
+
+      {/* Messages */}
+      <div className="flex-1 overflow-y-auto p-3 space-y-2 bg-[#F2F2F7]">
+        {history.length === 0 ? (
+          <div className="flex flex-col items-center justify-center h-full text-center gap-2 pt-8">
+            <span className="text-5xl">🧠</span>
+            <p className="text-[14px] font-bold text-foreground">Universal Interaction Engine</p>
+            <p className="text-[12px] text-muted-foreground max-w-xs">
+              Say anything. Switch roles, navigate screens, simulate scenarios, get walk-throughs, or take a quiz.
+            </p>
+            <p className="text-[10px] text-muted-foreground mt-1 italic">All internal · mock · demo-only · non-operational</p>
+          </div>
+        ) : (
+          history.map(msg => (
+            <div key={msg.id} className={`flex ${msg.role === "user" ? "justify-end" : "justify-start"}`}>
+              {msg.role === "system" && (
+                <div className="w-6 h-6 rounded-full bg-blue-500 flex items-center justify-center text-white text-[9px] font-bold mr-1.5 mt-0.5 flex-shrink-0">AI</div>
+              )}
+              <div className={`max-w-[85%] rounded-2xl px-3 py-2 text-[12px] whitespace-pre-wrap shadow-sm leading-relaxed
+                ${msg.role === "user"
+                  ? "bg-blue-500 text-white rounded-br-sm"
+                  : "bg-white border border-border text-foreground rounded-bl-sm"}`}>
+                {msg.text}
+                {msg.stateChange && (
+                  <div className="mt-1 text-[9px] font-mono opacity-60">✓ state: {msg.stateChange}</div>
+                )}
+                <div className={`text-[9px] mt-0.5 ${msg.role === "user" ? "text-blue-200" : "text-muted-foreground"}`}>
+                  {new Date(msg.timestamp).toLocaleTimeString([], { hour: "2-digit", minute: "2-digit" })}
+                </div>
+              </div>
+            </div>
+          ))
+        )}
+        <div ref={bottomRef} />
+      </div>
+
+      {/* More quick chips */}
+      <div className="px-3 pt-2 flex flex-wrap gap-1.5 bg-white border-t border-border flex-shrink-0">
+        {TALK_CHIPS.slice(6).map(c => (
+          <button key={c} onClick={() => send(c)}
+            className="text-[9px] bg-muted text-muted-foreground hover:bg-blue-50 hover:text-blue-600 px-2 py-0.5 rounded-full transition-all">
+            {c}
+          </button>
+        ))}
+      </div>
+
+      {/* Disclaimer */}
+      <div className="px-3 py-1 bg-white flex-shrink-0">
+        <p className="text-[8px] text-center text-muted-foreground">
+          DEMO ONLY · No clinical/legal/financial guidance · All responses fictional & non-operational
+        </p>
+      </div>
+
+      {/* Input */}
+      <div className="border-t border-border bg-white px-3 py-2 flex items-center gap-2 flex-shrink-0">
+        <button onClick={toggleListen}
+          className={`w-8 h-8 rounded-full flex items-center justify-center text-sm flex-shrink-0 transition-all
+            ${listening ? "bg-red-500 text-white animate-pulse" : "bg-muted text-muted-foreground hover:bg-blue-50 hover:text-blue-500"}`}>
+          🎤
+        </button>
+        <input value={input} onChange={e => setInput(e.target.value)}
+          onKeyDown={e => { if (e.key === "Enter") { e.preventDefault(); handleSend(); } }}
+          placeholder={testSession.isActive && testSession.awaitingAnswer ? "Type A, B, C, D or your answer…" : "Type or speak anything…"}
+          className="flex-1 bg-muted rounded-xl px-3 py-1.5 text-[12px] text-foreground placeholder:text-muted-foreground focus:outline-none focus:ring-1 focus:ring-blue-300"
+        />
+        <button onClick={handleSend} disabled={!input.trim()}
+          className="w-8 h-8 rounded-full bg-blue-500 hover:bg-blue-600 disabled:opacity-40 flex items-center justify-center text-white flex-shrink-0 transition-all">
+          <svg width="14" height="14" viewBox="0 0 24 24" fill="currentColor"><path d="M2.01 21L23 12 2.01 3 2 10l15 2-15 2z"/></svg>
+        </button>
+        <button onClick={clear}
+          className="w-8 h-8 rounded-full bg-muted flex items-center justify-center text-muted-foreground hover:bg-red-50 hover:text-red-500 text-sm flex-shrink-0 transition-all"
+          title="Clear history">
+          🗑
+        </button>
+      </div>
+    </div>
+  );
+}
+
 // ─── Main Universal App ───────────────────────────────────────────────────
 export function UniversalApp() {
   const { state, setView } = useInteraction();
@@ -842,6 +991,7 @@ export function UniversalApp() {
 
   const screens: Record<string, React.ReactNode> = {
     home:        <HomeScreen />,
+    talk:        <TalkScreen />,
     dashboard:   <DashboardScreen />,
     roles:       <RolesScreen />,
     agencies:    <AgenciesScreen />,

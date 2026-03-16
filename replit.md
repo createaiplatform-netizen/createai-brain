@@ -161,6 +161,42 @@ Full-stack AI OS platform — "CreateAI Brain" by Sara Stadler. React + Vite + W
 - `marketing-hub` — red/pink gradient, campaigns+email+ads+social
 - `operations-builder` — indigo gradient, TEST mode, 34 mock workflows
 
+**Universal Interaction + Conversation + Test Mode Engine (complete):**
+- `src/engine/ConversationEngine.ts` — Full NLP intent parser + conversation + quiz engine
+  - 18 intent types: switch-role, switch-agency, switch-state, switch-vendor, switch-department, switch-user-type, switch-demo-status, navigate, open-packet, walk-through, simulate, show-form, show-data, test-me, test-answer, status-check, explain, next-step, back-step, reset, help, unknown
+  - 21 compiled RegExp pattern arrays — matches natural language across all intents
+  - Entity extraction: auto-extracts roles/agencies/states/vendors/departments from free text
+  - Screen mapping: maps every intent to the correct `UniversalView` target
+  - Response templates: 2–3 per intent with variable substitution (entity, label, topic)
+  - Walk-through generator: topic-aware step-by-step narrative (submission, enrollment, packet, role, full flow)
+  - Simulate handler: scenario-aware fictional outcome narratives
+  - Status-check: builds live session context summary
+  - 12-question quiz bank covering: roles, submission-flow, agencies, demo-status, programs, vendors, packets, regulatory, workflows, states, action-log
+  - `startTest(topic)`, `nextTestQuestion()`, `gradAnswer(input)`, `quizSummary()` — full quiz lifecycle
+  - Grading: letter (A/B/C/D) or text matching; tracks score/totalAnswered; "You missed X" feedback + explanation
+  - `process(input)` — single entry point: detects intent → extracts entity → applies state update → returns userMsg + systemMsg + intent
+  - Rolling 200-entry conversation history in localStorage key `"createai_conversation_v1"`
+  - `addSystemMessage(text)` — inject programmatic messages into history
+- `src/os/ConversationContext.tsx` — React context
+  - `ConversationProvider` sits inside `InteractionProvider` in App.tsx
+  - `useConversation()` exposes: history, testSession, lastIntent, isOpen, isExpanded, unread, setOpen, setExpanded, send, clear, refresh
+  - `send(text)` auto-applies detected stateUpdate to InteractionEngine and dispatches action log entry
+  - Auto-navigates to the detected target screen via `interaction.setView()`
+  - Unread counter increments when new system messages arrive while panel is closed
+- `src/os/ConversationOverlay.tsx` — Persistent floating chat panel (every screen)
+  - Lives in `osLayout.tsx` — rendered on every app and home screen, above all content
+  - Collapsed: animated "🧠 Ask the Brain" pill button with unread badge
+  - Expanded: 340–380px wide floating panel with: session context bar, 12 quick-action chips, message thread, disclaimer, send button, 🎤 voice input (Web Speech API)
+  - Voice: holds listening state, transcribes, auto-sends
+  - Expand/collapse height toggle; 🗑 clear; × close
+  - Typing indicator (3-dot bounce animation)
+  - `TalkScreen` in `UniversalApp.tsx` — full-screen version of conversation history + identical input bar
+- `UniversalApp.tsx` updated:
+  - Nav now has 11 items including "🧠 Talk / Test" screen
+  - TalkScreen: gradient header, 12 quick chips in 2 rows, full message thread, voice input, quiz score badge
+  - Both TalkScreen and ConversationOverlay share the same ConversationEngine and history
+- `App.tsx` provider nesting: QueryClientProvider > TooltipProvider > InteractionProvider > ConversationProvider > OSProvider > Router
+
 **Universal Interaction Engine (complete):**
 - `src/engine/InteractionEngine.ts` — Universal state management + comprehensive mock data
   - 9 universal state fields: currentRole, currentDepartment, currentAgency, currentState, currentVendor, currentView, currentUserType, currentPacket, currentDemoStatus
