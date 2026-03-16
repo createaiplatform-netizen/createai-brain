@@ -25,6 +25,8 @@ import {
   StoryEngine, CharacterEngine, WorldEngine,
   StoryFormat, StoryGenre, CharacterArchetype, WorldType,
 } from "@/engine/UniversalStoryEngine";
+import { ConnectionEngine, ProjectFormat, ProjectElement } from "@/engine/UniversalConnectionEngine";
+import { StrategyEngine, StrategyFocus, TimeHorizon } from "@/engine/UniversalStrategyEngine";
 
 // ─── Nav definition ───────────────────────────────────────────────────────
 const NAV_ITEMS: { id: UniversalView; label: string; icon: string }[] = [
@@ -36,6 +38,8 @@ const NAV_ITEMS: { id: UniversalView; label: string; icon: string }[] = [
   { id: "creative",    label: "Creative",         icon: "🎬" },
   { id: "games",       label: "Games",            icon: "🎮" },
   { id: "story",       label: "Story / World",    icon: "📖" },
+  { id: "connection",  label: "Connection",       icon: "🔗" },
+  { id: "strategy",    label: "Strategy",         icon: "📈" },
   { id: "roles",       label: "Roles",            icon: "🎭" },
   { id: "agencies",    label: "Agencies",         icon: "🏛️" },
   { id: "states",      label: "States",           icon: "🗺️" },
@@ -2389,6 +2393,618 @@ function StoryScreen() {
   );
 }
 
+// ─── Connection Screen ────────────────────────────────────────────────────
+function ConnectionScreen() {
+  const { dispatch } = useInteraction();
+  const formats = ConnectionEngine.getFormats();
+
+  const [projects, setProjects] = useState(() => ConnectionEngine.getAll());
+  const [activeId, setActiveId] = useState<string | null>(null);
+  const [createForm, setCreateForm] = useState({
+    title: "", format: "movie" as ProjectFormat, logline: "",
+  });
+  const [addEl, setAddEl] = useState({
+    type: "story" as ProjectElement["type"],
+    label: "", summary: "", completeness: 75,
+  });
+  const [activeTab, setActiveTab] = useState<"overview"|"threads"|"completeness"|"export">("overview");
+  const [showAdd, setShowAdd] = useState(false);
+
+  const createProject = () => {
+    if (!createForm.title.trim()) return;
+    const p = ConnectionEngine.create({ title: createForm.title, format: createForm.format, logline: createForm.logline || undefined });
+    setProjects(ConnectionEngine.getAll());
+    setActiveId(p.id);
+    setActiveTab("overview");
+    dispatch("CREATE_CONNECTION_PROJECT", `${createForm.format}:${createForm.title.slice(0, 40)}`);
+    setCreateForm({ title: "", format: "movie", logline: "" });
+  };
+
+  const addElement = () => {
+    if (!activeId || !addEl.label.trim()) return;
+    ConnectionEngine.addElement(activeId, {
+      type: addEl.type, label: addEl.label, summary: addEl.summary || `${addEl.type} element for this project. [Fictional]`, completeness: addEl.completeness,
+    });
+    setProjects(ConnectionEngine.getAll());
+    dispatch("ADD_PROJECT_ELEMENT", `${addEl.type}:${addEl.label}`);
+    setAddEl({ type: "story", label: "", summary: "", completeness: 75 });
+    setShowAdd(false);
+  };
+
+  const removeEl = (label: string) => {
+    if (!activeId) return;
+    ConnectionEngine.removeElement(activeId, label);
+    setProjects(ConnectionEngine.getAll());
+    dispatch("REMOVE_PROJECT_ELEMENT", label);
+  };
+
+  const active = projects.find(p => p.id === activeId);
+
+  const ELEMENT_TYPES: { value: ProjectElement["type"]; label: string; icon: string }[] = [
+    { value: "story",     label: "Story",    icon: "📖" },
+    { value: "character", label: "Character",icon: "🧑" },
+    { value: "world",     label: "World",    icon: "🌍" },
+    { value: "mechanics", label: "Mechanics",icon: "⚙️" },
+    { value: "workflow",  label: "Workflow", icon: "🔄" },
+    { value: "creative",  label: "Creative", icon: "🎬" },
+    { value: "custom",    label: "Custom",   icon: "✏️" },
+  ];
+
+  const TABS = [
+    { id: "overview",     label: "Overview" },
+    { id: "threads",      label: "Connections" },
+    { id: "completeness", label: "Pass" },
+    { id: "export",       label: "Export" },
+  ] as const;
+
+  const scoreColor = (score: number) =>
+    score >= 90 ? "text-green-600" : score >= 70 ? "text-blue-600" : score >= 50 ? "text-amber-600" : "text-red-500";
+
+  const statusColor = (s: string) => ({
+    complete: "bg-green-100 text-green-700",
+    partial:  "bg-amber-100 text-amber-700",
+    missing:  "bg-red-100 text-red-600",
+  }[s] ?? "bg-muted text-muted-foreground");
+
+  return (
+    <div className="space-y-4 pb-8">
+      <SectionHeader
+        title="🔗 Universal Connection Layer"
+        subtitle="Link Story · Character · World · Mechanics · Workflow into a unified fictional project. Completeness Pass included."
+      />
+
+      {/* Create project form */}
+      <div className="bg-white border border-border rounded-xl p-4 space-y-3">
+        <p className="text-[12px] font-bold text-foreground">Create Connected Project</p>
+        <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+          <div>
+            <label className="text-[11px] font-semibold text-muted-foreground block mb-1">PROJECT TITLE *</label>
+            <input value={createForm.title} onChange={e => setCreateForm(f => ({ ...f, title: e.target.value }))} placeholder="e.g. The Iron Realms Universe" className="w-full text-[12px] border border-border rounded-lg px-2.5 py-2 bg-white text-foreground placeholder:text-muted-foreground/60" />
+          </div>
+          <div>
+            <label className="text-[11px] font-semibold text-muted-foreground block mb-1">FORMAT</label>
+            <select value={createForm.format} onChange={e => setCreateForm(f => ({ ...f, format: e.target.value as ProjectFormat }))} className="w-full text-[12px] border border-border rounded-lg px-2.5 py-2 bg-white text-foreground">
+              {formats.map(f => <option key={f.value} value={f.value}>{f.icon} {f.label}</option>)}
+            </select>
+          </div>
+        </div>
+        <div>
+          <label className="text-[11px] font-semibold text-muted-foreground block mb-1">LOGLINE (optional)</label>
+          <input value={createForm.logline} onChange={e => setCreateForm(f => ({ ...f, logline: e.target.value }))} placeholder="One-sentence description of the project" className="w-full text-[12px] border border-border rounded-lg px-2.5 py-2 bg-white text-foreground placeholder:text-muted-foreground/60" />
+        </div>
+        <p className="text-[10px] text-muted-foreground">{formats.find(f => f.value === createForm.format)?.desc ?? ""}</p>
+        <button onClick={createProject} disabled={!createForm.title.trim()} className="w-full py-2.5 bg-blue-500 text-white rounded-xl text-[13px] font-bold disabled:opacity-40 hover:bg-blue-600 transition-colors">
+          🔗 Create Connected Project
+        </button>
+      </div>
+
+      {/* Project switcher */}
+      {projects.length > 1 && (
+        <div className="flex flex-wrap gap-2">
+          {projects.map(p => (
+            <button key={p.id} onClick={() => { setActiveId(p.id); setActiveTab("overview"); }}
+              className={`px-3 py-1.5 rounded-full text-[11px] font-semibold border ${activeId === p.id ? "bg-blue-500 text-white border-blue-500" : "border-border text-muted-foreground hover:border-blue-300"}`}>
+              {formats.find(f => f.value === p.format)?.icon} {p.title.slice(0, 24)}
+            </button>
+          ))}
+        </div>
+      )}
+
+      {/* Active project */}
+      {active && (
+        <div className="bg-white border border-border rounded-xl overflow-hidden">
+          {/* Header */}
+          <div className="p-4 border-b border-border bg-gradient-to-r from-blue-50 to-white">
+            <div className="flex items-start justify-between">
+              <div>
+                <h3 className="text-[16px] font-bold text-foreground">{active.title}</h3>
+                <p className="text-[11px] text-muted-foreground">{formats.find(f => f.value === active.format)?.label} · {active.elements.length} elements</p>
+                <p className="text-[11px] text-muted-foreground italic mt-0.5">"{active.logline}"</p>
+              </div>
+              <div className="text-right">
+                <p className={`text-[22px] font-bold ${scoreColor(active.completeness.overallScore)}`}>{active.completeness.overallScore}%</p>
+                <p className="text-[9px] text-muted-foreground">COMPLETENESS</p>
+                {active.completeness.readyToExport && <p className="text-[9px] text-green-600 font-bold">✓ READY</p>}
+              </div>
+            </div>
+          </div>
+
+          {/* Tab bar */}
+          <div className="flex border-b border-border bg-white overflow-x-auto">
+            {TABS.map(t => (
+              <button key={t.id} onClick={() => setActiveTab(t.id)}
+                className={`px-4 py-2.5 text-[11px] font-semibold whitespace-nowrap border-b-2 transition-colors ${activeTab === t.id ? "border-blue-500 text-blue-600" : "border-transparent text-muted-foreground hover:text-foreground"}`}>
+                {t.label}
+              </button>
+            ))}
+          </div>
+
+          <div className="p-4 space-y-4">
+            {/* Overview tab */}
+            {activeTab === "overview" && (
+              <div className="space-y-4">
+                <div className="flex items-center justify-between">
+                  <p className="text-[12px] font-bold text-foreground">Project Elements ({active.elements.length})</p>
+                  <button onClick={() => setShowAdd(s => !s)} className="px-3 py-1.5 bg-blue-500 text-white rounded-lg text-[11px] font-semibold hover:bg-blue-600 transition-colors">
+                    {showAdd ? "✕ Cancel" : "+ Add Element"}
+                  </button>
+                </div>
+
+                {showAdd && (
+                  <div className="bg-blue-50 border border-blue-200 rounded-xl p-3 space-y-2">
+                    <p className="text-[11px] font-bold text-blue-800">Add Project Element</p>
+                    <div className="grid grid-cols-3 sm:grid-cols-7 gap-1.5">
+                      {ELEMENT_TYPES.map(et => (
+                        <button key={et.value} onClick={() => setAddEl(a => ({ ...a, type: et.value }))}
+                          className={`flex flex-col items-center p-1.5 rounded-lg border text-[9px] font-semibold transition-all ${addEl.type === et.value ? "border-blue-500 bg-blue-100 text-blue-700" : "border-border bg-white text-muted-foreground"}`}>
+                          <span>{et.icon}</span><span>{et.label}</span>
+                        </button>
+                      ))}
+                    </div>
+                    <div className="grid grid-cols-2 gap-2">
+                      <div>
+                        <label className="text-[10px] font-semibold text-muted-foreground block mb-0.5">LABEL *</label>
+                        <input value={addEl.label} onChange={e => setAddEl(a => ({ ...a, label: e.target.value }))} placeholder={`e.g. "The Final Act" (story)`} className="w-full text-[11px] border border-border rounded-lg px-2 py-1.5 bg-white text-foreground placeholder:text-muted-foreground/60" />
+                      </div>
+                      <div>
+                        <label className="text-[10px] font-semibold text-muted-foreground block mb-0.5">COMPLETENESS %</label>
+                        <input type="range" min={10} max={100} step={5} value={addEl.completeness} onChange={e => setAddEl(a => ({ ...a, completeness: +e.target.value }))} className="w-full mt-1" />
+                        <p className="text-[10px] text-muted-foreground text-center">{addEl.completeness}%</p>
+                      </div>
+                    </div>
+                    <div>
+                      <label className="text-[10px] font-semibold text-muted-foreground block mb-0.5">SUMMARY (optional)</label>
+                      <input value={addEl.summary} onChange={e => setAddEl(a => ({ ...a, summary: e.target.value }))} placeholder="Brief description of this element" className="w-full text-[11px] border border-border rounded-lg px-2 py-1.5 bg-white text-foreground placeholder:text-muted-foreground/60" />
+                    </div>
+                    <button onClick={addElement} disabled={!addEl.label.trim()} className="w-full py-2 bg-blue-500 text-white rounded-lg text-[11px] font-bold disabled:opacity-40 hover:bg-blue-600 transition-colors">
+                      Add {ELEMENT_TYPES.find(e => e.value === addEl.type)?.label} Element
+                    </button>
+                  </div>
+                )}
+
+                {active.elements.length === 0 ? (
+                  <div className="bg-muted/20 rounded-xl p-6 text-center">
+                    <p className="text-[13px] text-muted-foreground">No elements yet. Click "+ Add Element" to link your first Story, Character, World, or Mechanic.</p>
+                    <p className="text-[11px] text-muted-foreground mt-1">Generate content from other engine screens, then link it here. [Demo — all fictional]</p>
+                  </div>
+                ) : (
+                  <div className="space-y-2">
+                    {active.elements.map(el => (
+                      <div key={el.label} className="border border-border rounded-xl p-3">
+                        <div className="flex items-start justify-between">
+                          <div className="flex items-start gap-2 flex-1">
+                            <span className="text-lg mt-0.5">{ELEMENT_TYPES.find(e => e.value === el.type)?.icon}</span>
+                            <div className="flex-1">
+                              <div className="flex items-center gap-2 flex-wrap">
+                                <p className="text-[13px] font-semibold text-foreground">{el.label}</p>
+                                <span className={`text-[9px] font-bold px-2 py-0.5 rounded-full ${statusColor(el.status)}`}>{el.status.toUpperCase()}</span>
+                              </div>
+                              <p className="text-[11px] text-muted-foreground mt-0.5">{el.summary}</p>
+                              <div className="mt-1.5 flex items-center gap-2">
+                                <div className="flex-1 h-1 bg-muted rounded-full overflow-hidden">
+                                  <div className="h-full bg-blue-400 rounded-full" style={{ width: `${el.completeness}%` }} />
+                                </div>
+                                <span className="text-[10px] text-muted-foreground">{el.completeness}%</span>
+                              </div>
+                            </div>
+                          </div>
+                          <button onClick={() => removeEl(el.label)} className="ml-2 text-[10px] text-red-400 hover:text-red-600 font-semibold">✕</button>
+                        </div>
+                      </div>
+                    ))}
+                  </div>
+                )}
+
+                {/* Notes */}
+                <div>
+                  <p className="text-[11px] font-semibold text-muted-foreground mb-1.5">INTERNAL NOTES</p>
+                  <div className="space-y-0.5">
+                    {active.internalNotes.map((n, i) => <p key={i} className="text-[10px] text-muted-foreground">{n}</p>)}
+                  </div>
+                </div>
+              </div>
+            )}
+
+            {/* Connections tab */}
+            {activeTab === "threads" && (
+              <div className="space-y-3">
+                <p className="text-[12px] text-muted-foreground">Connection threads are auto-generated from the element types in your project. They describe the structural and narrative links between elements. [Fictional]</p>
+                {active.threads.length === 0 ? (
+                  <div className="bg-muted/20 rounded-xl p-6 text-center">
+                    <p className="text-[13px] text-muted-foreground">No connection threads yet. Add 2+ elements with complementary types (e.g. Story + World) to generate threads.</p>
+                  </div>
+                ) : (
+                  active.threads.map((t, i) => (
+                    <div key={i} className="border border-border rounded-xl p-3 space-y-1.5">
+                      <div className="flex items-center gap-2">
+                        <span className="font-semibold text-[12px] text-foreground">{t.from}</span>
+                        <span className="text-muted-foreground">→</span>
+                        <span className="font-semibold text-[12px] text-foreground">{t.to}</span>
+                        <span className={`ml-auto text-[9px] font-bold px-2 py-0.5 rounded-full ${t.strength === "strong" ? "bg-green-100 text-green-700" : t.strength === "medium" ? "bg-blue-100 text-blue-700" : "bg-muted text-muted-foreground"}`}>
+                          {t.strength.toUpperCase()} LINK
+                        </span>
+                      </div>
+                      <p className="text-[11px] text-muted-foreground">{t.description}</p>
+                    </div>
+                  ))
+                )}
+              </div>
+            )}
+
+            {/* Completeness pass tab */}
+            {activeTab === "completeness" && (
+              <div className="space-y-4">
+                <div className={`rounded-xl p-4 text-center border ${active.completeness.overallScore >= 70 ? "bg-green-50 border-green-200" : "bg-amber-50 border-amber-200"}`}>
+                  <p className={`text-[36px] font-bold ${scoreColor(active.completeness.overallScore)}`}>{active.completeness.overallScore}<span className="text-[18px]">%</span></p>
+                  <p className="text-[12px] text-foreground font-semibold mt-1">Overall Completeness Score</p>
+                  <p className="text-[11px] text-muted-foreground mt-1">{active.completeness.recommendation}</p>
+                  {active.completeness.readyToExport && <p className="text-[11px] text-green-700 font-bold mt-2">✓ Ready for conceptual export</p>}
+                </div>
+
+                {active.completeness.issues.length > 0 && (
+                  <div>
+                    <p className="text-[11px] font-semibold text-muted-foreground mb-2">ISSUES FOUND</p>
+                    <div className="space-y-2">
+                      {active.completeness.issues.map((issue, i) => (
+                        <div key={i} className={`rounded-lg p-3 border text-[11px] ${issue.severity === "critical" ? "bg-red-50 border-red-200" : issue.severity === "major" ? "bg-amber-50 border-amber-200" : "bg-blue-50 border-blue-100"}`}>
+                          <div className="flex items-center gap-2 mb-1">
+                            <span className={`text-[9px] font-bold px-2 py-0.5 rounded-full ${issue.severity === "critical" ? "bg-red-100 text-red-700" : issue.severity === "major" ? "bg-amber-100 text-amber-700" : "bg-blue-100 text-blue-700"}`}>{issue.severity.toUpperCase()}</span>
+                            <span className="font-semibold text-foreground">{issue.element}</span>
+                            {issue.autoFixed && <span className="text-[9px] text-green-700 font-bold ml-auto">AUTO-FIXED</span>}
+                          </div>
+                          <p className="text-muted-foreground">{issue.description}</p>
+                          <p className="text-foreground mt-1 font-semibold">→ {issue.suggestion}</p>
+                        </div>
+                      ))}
+                    </div>
+                  </div>
+                )}
+
+                {active.completeness.autoFixes.length > 0 && (
+                  <div>
+                    <p className="text-[11px] font-semibold text-muted-foreground mb-2">AUTO-FIXES APPLIED</p>
+                    <div className="space-y-1">
+                      {active.completeness.autoFixes.map((fix, i) => (
+                        <div key={i} className="text-[10px] text-green-700 bg-green-50 border border-green-100 rounded-lg px-3 py-1.5">{fix}</div>
+                      ))}
+                    </div>
+                  </div>
+                )}
+
+                {active.completeness.issues.length === 0 && (
+                  <div className="bg-green-50 border border-green-200 rounded-xl p-4 text-center">
+                    <p className="text-[13px] font-bold text-green-700">No issues found</p>
+                    <p className="text-[11px] text-green-600 mt-0.5">This project passed all completeness checks. [Fictional assessment]</p>
+                  </div>
+                )}
+              </div>
+            )}
+
+            {/* Export tab */}
+            {activeTab === "export" && (
+              <div className="space-y-4">
+                <div className="bg-muted/20 rounded-xl p-3">
+                  <p className="text-[11px] font-semibold text-muted-foreground mb-1">CONCEPTUAL EXPORT PACKAGE</p>
+                  <p className="text-[11px] text-muted-foreground">What would be included in an export of this project. All documents are fictional. No real file is generated.</p>
+                </div>
+                <div className="space-y-1.5">
+                  {active.exportPackage.map((item, i) => (
+                    <div key={i} className="flex items-center gap-2 px-3 py-2 bg-white border border-border rounded-lg text-[11px]">
+                      <span className="text-blue-400">📄</span>
+                      <span className="text-foreground">{item}</span>
+                    </div>
+                  ))}
+                </div>
+                <div className="bg-amber-50 border border-amber-200 rounded-xl p-3">
+                  <p className="text-[11px] text-amber-800 font-semibold">⚠️ {active.safetyNote}</p>
+                </div>
+              </div>
+            )}
+          </div>
+        </div>
+      )}
+    </div>
+  );
+}
+
+// ─── Strategy Screen ──────────────────────────────────────────────────────
+function StrategyScreen() {
+  const { dispatch } = useInteraction();
+  const focusOptions  = StrategyEngine.getFocusOptions();
+  const horizonOptions = StrategyEngine.getHorizonOptions();
+
+  const [form, setForm] = useState({
+    focus:   "growth" as StrategyFocus,
+    horizon: "90-day" as TimeHorizon,
+    context: "",
+    title:   "",
+  });
+  const [roadmaps, setRoadmaps] = useState(() => StrategyEngine.getAll());
+  const [activeId, setActiveId] = useState<string | null>(null);
+  const [activeTab, setActiveTab] = useState<"milestones"|"competitive"|"revenue"|"risks"|"quick">("milestones");
+
+  const generate = () => {
+    const r = StrategyEngine.generate({
+      focus:   form.focus,
+      horizon: form.horizon,
+      context: form.context || undefined,
+      title:   form.title || undefined,
+    });
+    setRoadmaps(StrategyEngine.getAll());
+    setActiveId(r.id);
+    setActiveTab("milestones");
+    dispatch("GENERATE_STRATEGY", `${form.focus}:${form.horizon}`);
+  };
+
+  const active = roadmaps.find(r => r.id === activeId);
+  const TABS = [
+    { id: "milestones",  label: "Milestones" },
+    { id: "competitive", label: "Competitive" },
+    { id: "revenue",     label: "Revenue" },
+    { id: "risks",       label: "Risks" },
+    { id: "quick",       label: "Quick Wins" },
+  ] as const;
+
+  return (
+    <div className="space-y-4 pb-8">
+      <SectionHeader
+        title="📈 Strategy & Roadmap Module"
+        subtitle="Conceptual planning: roadmaps, milestones, growth, revenue, competitive positioning. Non-operational · No guarantees implied."
+      />
+
+      {/* Generator */}
+      <div className="bg-white border border-border rounded-xl p-4 space-y-3">
+        <p className="text-[12px] font-bold text-foreground">Generate Strategy Roadmap</p>
+
+        <div>
+          <p className="text-[11px] font-semibold text-muted-foreground mb-1.5">FOCUS AREA</p>
+          <div className="grid grid-cols-2 sm:grid-cols-4 gap-2">
+            {focusOptions.map(f => (
+              <button key={f.value} onClick={() => setForm(fm => ({ ...fm, focus: f.value }))}
+                className={`flex items-center gap-1.5 px-2 py-2 rounded-lg border text-left text-[11px] font-semibold transition-all ${form.focus === f.value ? "border-blue-500 bg-blue-50 text-blue-700" : "border-border text-muted-foreground hover:border-blue-200"}`}>
+                <span>{f.icon}</span><span>{f.label}</span>
+              </button>
+            ))}
+          </div>
+          <p className="text-[10px] text-muted-foreground mt-1.5">{focusOptions.find(f => f.value === form.focus)?.desc ?? ""}</p>
+        </div>
+
+        <div className="grid grid-cols-2 sm:grid-cols-3 gap-3">
+          <div>
+            <label className="text-[11px] font-semibold text-muted-foreground block mb-1">TIME HORIZON</label>
+            <select value={form.horizon} onChange={e => setForm(f => ({ ...f, horizon: e.target.value as TimeHorizon }))} className="w-full text-[12px] border border-border rounded-lg px-2.5 py-2 bg-white text-foreground">
+              {horizonOptions.map(h => <option key={h.value} value={h.value}>{h.label}</option>)}
+            </select>
+          </div>
+          <div>
+            <label className="text-[11px] font-semibold text-muted-foreground block mb-1">CUSTOM TITLE</label>
+            <input value={form.title} onChange={e => setForm(f => ({ ...f, title: e.target.value }))} placeholder="Auto-generated if blank" className="w-full text-[12px] border border-border rounded-lg px-2.5 py-2 bg-white text-foreground placeholder:text-muted-foreground/60" />
+          </div>
+          <div>
+            <label className="text-[11px] font-semibold text-muted-foreground block mb-1">CONTEXT</label>
+            <input value={form.context} onChange={e => setForm(f => ({ ...f, context: e.target.value }))} placeholder="e.g. creative media platform" className="w-full text-[12px] border border-border rounded-lg px-2.5 py-2 bg-white text-foreground placeholder:text-muted-foreground/60" />
+          </div>
+        </div>
+
+        <button onClick={generate} className="w-full py-2.5 bg-blue-500 text-white rounded-xl text-[13px] font-bold hover:bg-blue-600 transition-colors">
+          📈 Generate {form.horizon} {focusOptions.find(f => f.value === form.focus)?.label} Roadmap
+        </button>
+        <p className="text-[10px] text-muted-foreground text-center">Conceptual planning only — not real business advice · No outcomes guaranteed or implied</p>
+      </div>
+
+      {/* Roadmap switcher */}
+      {roadmaps.length > 1 && (
+        <div className="flex flex-wrap gap-2">
+          {roadmaps.map(r => (
+            <button key={r.id} onClick={() => { setActiveId(r.id); setActiveTab("milestones"); }}
+              className={`px-3 py-1.5 rounded-full text-[11px] font-semibold border transition-all ${activeId === r.id ? "bg-blue-500 text-white border-blue-500" : "border-border text-muted-foreground hover:border-blue-300"}`}>
+              {focusOptions.find(f => f.value === r.focus)?.icon} {r.title.slice(0, 28)}
+            </button>
+          ))}
+        </div>
+      )}
+
+      {/* Active roadmap */}
+      {active && (
+        <div className="bg-white border border-border rounded-xl overflow-hidden">
+          {/* Header */}
+          <div className="p-4 border-b border-border bg-gradient-to-r from-green-50 to-white">
+            <h3 className="text-[15px] font-bold text-foreground">{active.title}</h3>
+            <p className="text-[11px] text-muted-foreground">{horizonOptions.find(h => h.value === active.horizon)?.label} · {focusOptions.find(f => f.value === active.focus)?.label} · Conceptual</p>
+          </div>
+
+          {/* North Star */}
+          <div className="px-4 pt-4 pb-0">
+            <div className="bg-blue-50 border border-blue-100 rounded-xl p-3">
+              <p className="text-[10px] font-bold text-blue-600 mb-1">★ NORTH STAR</p>
+              <p className="text-[12px] text-blue-800 font-medium italic">"{active.northStar}"</p>
+            </div>
+          </div>
+
+          {/* Principles */}
+          <div className="px-4 pt-3">
+            <p className="text-[11px] font-semibold text-muted-foreground mb-1.5">OPERATING PRINCIPLES</p>
+            <div className="space-y-1">
+              {active.principles.map((p, i) => <p key={i} className="text-[11px] text-foreground pl-2 border-l-2 border-blue-100">{p}</p>)}
+            </div>
+          </div>
+
+          {/* Tab bar */}
+          <div className="flex border-b border-border mt-3 overflow-x-auto">
+            {TABS.map(t => (
+              <button key={t.id} onClick={() => setActiveTab(t.id)}
+                className={`px-4 py-2.5 text-[11px] font-semibold whitespace-nowrap border-b-2 transition-colors ${activeTab === t.id ? "border-blue-500 text-blue-600" : "border-transparent text-muted-foreground hover:text-foreground"}`}>
+                {t.label}
+              </button>
+            ))}
+          </div>
+
+          <div className="p-4 space-y-4">
+            {/* Milestones */}
+            {activeTab === "milestones" && (
+              <div className="space-y-3">
+                {active.milestones.map((m, i) => (
+                  <div key={i} className="border border-border rounded-xl overflow-hidden">
+                    <div className="flex items-center gap-3 p-3 bg-muted/10">
+                      <span className="w-7 h-7 flex items-center justify-center bg-blue-100 text-blue-700 rounded-full text-[11px] font-bold shrink-0">{i + 1}</span>
+                      <div>
+                        <p className="text-[10px] font-bold text-muted-foreground">{m.phase}</p>
+                        <p className="text-[13px] font-bold text-foreground">{m.title}</p>
+                        <p className="text-[10px] text-blue-600">{m.timeframe}</p>
+                      </div>
+                    </div>
+                    <div className="p-3 space-y-2 text-[11px]">
+                      <p className="text-muted-foreground">{m.description}</p>
+                      <div>
+                        <p className="font-semibold text-foreground mb-1">KEY ACTIONS</p>
+                        <div className="space-y-0.5">
+                          {m.keyActions.map(a => <p key={a} className="text-muted-foreground pl-2 border-l-2 border-blue-100">{a}</p>)}
+                        </div>
+                      </div>
+                      <div className="flex gap-3 pt-1">
+                        <div className="flex-1 bg-green-50 border border-green-100 rounded-lg p-2">
+                          <p className="text-[9px] font-bold text-green-700 mb-0.5">SUCCESS METRIC</p>
+                          <p className="text-foreground">{m.successMetric}</p>
+                        </div>
+                        <div className="flex-1 bg-amber-50 border border-amber-100 rounded-lg p-2">
+                          <p className="text-[9px] font-bold text-amber-700 mb-0.5">RISK NOTE</p>
+                          <p className="text-foreground">{m.riskNote}</p>
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+                ))}
+              </div>
+            )}
+
+            {/* Competitive */}
+            {activeTab === "competitive" && (
+              <div className="space-y-3 text-[11px]">
+                <p className="text-muted-foreground">{active.competitive.positioning}</p>
+                {[
+                  { label: "STRENGTHS", items: active.competitive.strengthAreas, cls: "bg-green-50 border-green-100 text-green-800" },
+                  { label: "DIFFERENTIATORS", items: active.competitive.differentiators, cls: "bg-blue-50 border-blue-100 text-blue-800" },
+                  { label: "GAPS TO ADDRESS", items: active.competitive.gapAreas, cls: "bg-amber-50 border-amber-100 text-amber-800" },
+                  { label: "THREATS (CONCEPTUAL)", items: active.competitive.threats, cls: "bg-red-50 border-red-100 text-red-700" },
+                  { label: "OPPORTUNITIES (CONCEPTUAL)", items: active.competitive.opportunities, cls: "bg-purple-50 border-purple-100 text-purple-800" },
+                ].map(({ label, items, cls }) => (
+                  <div key={label}>
+                    <p className="font-semibold text-muted-foreground mb-1.5">{label}</p>
+                    <div className={`border rounded-xl p-3 space-y-1 ${cls}`}>
+                      {items.map(item => <p key={item} className="pl-2 border-l-2 border-current/20">{item}</p>)}
+                    </div>
+                  </div>
+                ))}
+              </div>
+            )}
+
+            {/* Revenue */}
+            {activeTab === "revenue" && (
+              <div className="space-y-4 text-[11px]">
+                <div className="bg-blue-50 border border-blue-100 rounded-xl p-3">
+                  <p className="font-semibold text-blue-800 mb-1">PRIORITIZATION</p>
+                  <p className="text-blue-700">{active.revenueModel.prioritization}</p>
+                </div>
+                <div className="space-y-2">
+                  {active.revenueModel.streams.map(s => (
+                    <div key={s.name} className="border border-border rounded-xl p-3 space-y-1">
+                      <div className="flex items-center gap-2">
+                        <span className="font-bold text-foreground">{s.name}</span>
+                        <span className="text-[9px] font-bold px-2 py-0.5 bg-muted rounded-full text-muted-foreground">{s.type}</span>
+                        <span className="text-[9px] text-blue-600 ml-auto">{s.stage}</span>
+                      </div>
+                      <p className="text-muted-foreground">{s.description}</p>
+                    </div>
+                  ))}
+                </div>
+                <div>
+                  <p className="font-semibold text-muted-foreground mb-1.5">ASSUMPTIONS (CONCEPTUAL)</p>
+                  <div className="space-y-1">
+                    {active.revenueModel.assumptions.map((a, i) => <p key={i} className="text-muted-foreground pl-2 border-l-2 border-blue-100">{a}</p>)}
+                  </div>
+                </div>
+                <div className="bg-amber-50 border border-amber-200 rounded-xl p-3">
+                  <p className="text-amber-800 font-semibold">⚠️ {active.revenueModel.disclaimer}</p>
+                </div>
+              </div>
+            )}
+
+            {/* Risks */}
+            {activeTab === "risks" && (
+              <div className="space-y-2">
+                {active.risks.map((r, i) => (
+                  <div key={i} className={`border rounded-xl p-3 text-[11px] space-y-1 ${r.level === "High" ? "border-red-200 bg-red-50" : r.level === "Medium" ? "border-amber-200 bg-amber-50" : "border-border bg-white"}`}>
+                    <div className="flex items-center gap-2">
+                      <span className={`text-[9px] font-bold px-2 py-0.5 rounded-full ${r.level === "High" ? "bg-red-100 text-red-700" : r.level === "Medium" ? "bg-amber-100 text-amber-700" : "bg-green-100 text-green-700"}`}>{r.level.toUpperCase()}</span>
+                      <p className="text-foreground font-semibold flex-1">{r.description}</p>
+                    </div>
+                    <p className="text-muted-foreground pl-2 border-l-2 border-current/20"><span className="font-semibold">Mitigation:</span> {r.mitigation}</p>
+                  </div>
+                ))}
+              </div>
+            )}
+
+            {/* Quick wins + long bets */}
+            {activeTab === "quick" && (
+              <div className="space-y-4 text-[11px]">
+                <div>
+                  <p className="font-semibold text-muted-foreground mb-2">⚡ QUICK WINS (First 60 Days)</p>
+                  <div className="space-y-1.5">
+                    {active.quickWins.map((w, i) => (
+                      <div key={i} className="flex items-start gap-2 bg-green-50 border border-green-100 rounded-lg px-3 py-2">
+                        <span className="text-green-600 font-bold mt-0.5">{i + 1}.</span>
+                        <p className="text-green-800">{w}</p>
+                      </div>
+                    ))}
+                  </div>
+                </div>
+                <div>
+                  <p className="font-semibold text-muted-foreground mb-2">🎯 LONG BETS (12–36 Months)</p>
+                  <div className="space-y-1.5">
+                    {active.longBets.map((b, i) => (
+                      <div key={i} className="flex items-start gap-2 bg-blue-50 border border-blue-100 rounded-lg px-3 py-2">
+                        <span className="text-blue-600 font-bold mt-0.5">{i + 1}.</span>
+                        <p className="text-blue-800">{b}</p>
+                      </div>
+                    ))}
+                  </div>
+                </div>
+                <div className="bg-muted/20 border border-border rounded-xl p-3">
+                  <p className="font-semibold text-foreground mb-1">RECOMMENDATION</p>
+                  <p className="text-muted-foreground">{active.recommendation}</p>
+                </div>
+                <div className="bg-amber-50 border border-amber-200 rounded-xl p-3">
+                  <p className="text-amber-800 font-semibold text-[11px]">⚠️ {active.disclaimer}</p>
+                </div>
+              </div>
+            )}
+          </div>
+        </div>
+      )}
+    </div>
+  );
+}
+
 // ─── Main Universal App ───────────────────────────────────────────────────
 export function UniversalApp() {
   const { state, setView } = useInteraction();
@@ -2403,6 +3019,8 @@ export function UniversalApp() {
     creative:    <CreativeScreen />,
     games:       <GamesScreen />,
     story:       <StoryScreen />,
+    connection:  <ConnectionScreen />,
+    strategy:    <StrategyScreen />,
     roles:       <RolesScreen />,
     agencies:    <AgenciesScreen />,
     states:      <StatesScreen />,

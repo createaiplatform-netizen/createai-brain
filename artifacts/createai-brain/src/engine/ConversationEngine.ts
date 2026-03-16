@@ -20,6 +20,7 @@ export type IntentType =
   | "switch-industry" | "switch-country" | "switch-domain" | "switch-mode"
   | "start-workflow" | "generate-creative"
   | "generate-game" | "generate-story" | "generate-character" | "generate-world"
+  | "create-project" | "generate-strategy"
   | "navigate" | "open-packet" | "walk-through" | "simulate"
   | "show-form" | "show-data" | "test-me" | "status-check"
   | "explain" | "help" | "test-answer" | "next-step" | "back-step"
@@ -185,6 +186,27 @@ const PATTERNS: { intent: IntentType; patterns: RegExp[] }[] = [
       /\b(character profile|character arc|character sheet|character bio|character backstory)\b/i,
       /\b(character engine|create a character|design a character)\b/i,
       /\b(archetype|hero's journey|character motivation|character flaw|character relationship)\b/i,
+    ],
+  },
+  {
+    intent: "create-project",
+    patterns: [
+      /\b(create|build|link|connect|assemble|combine|unify).*(project|connected project|cross-media|universe project)\b/i,
+      /\b(connection layer|completeness pass|link my|connect my|project builder)\b/i,
+      /\b(link).*(story|character|world|mechanic|workflow)\b/i,
+      /\b(assemble|combine|unify).*(element|asset|module|engine)\b/i,
+    ],
+  },
+  {
+    intent: "generate-strategy",
+    patterns: [
+      /\b(generate|create|build|make|plan|develop).*(strategy|roadmap|strategic plan|milestone|growth plan)\b/i,
+      /\b(strategy|roadmap).*(growth|revenue|product|market|competitive|hiring|technology|partnership|creative ip|platform|expansion|turnaround)\b/i,
+      /\b(growth|revenue|competitive|market|hiring|technology|turnaround).*(strategy|roadmap|plan|milestones)\b/i,
+      /\b(how.*(grow|scale|revenue|compete|surpass|beat|expand|outcompete))\b/i,
+      /\b(surpass|beat|outcompete|dominate|scale to).*(google|meta|apple|microsoft|netflix|disney|amazon|company)\b/i,
+      /\b(90.day|30.day|6.month|1.year|3.year|5.year).*(plan|roadmap|strategy|horizon)\b/i,
+      /\b(quick wins|long bets|north star|competitive position|moat|revenue model|milestones)\b/i,
     ],
   },
   {
@@ -520,6 +542,51 @@ function extractEntity(text: string, intent: IntentType): { entity: string | nul
     return { entity: "hero", entityLabel: "Hero (default)", stateUpdate: null };
   }
 
+  if (intent === "create-project") {
+    const FORMATS: { keywords: string[]; type: string; label: string }[] = [
+      { keywords: ["movie", "film", "cinema", "feature"], type: "movie", label: "Movie" },
+      { keywords: ["tv", "television", "series", "season", "episode"], type: "tv-series", label: "TV Series" },
+      { keywords: ["game", "video game", "gaming"], type: "video-game", label: "Video Game" },
+      { keywords: ["comic", "graphic novel"], type: "comic", label: "Comic" },
+      { keywords: ["novel", "book", "prose"], type: "novel", label: "Novel" },
+      { keywords: ["training", "course", "module"], type: "training-module", label: "Training Module" },
+      { keywords: ["simulation", "sim"], type: "simulation", label: "Simulation" },
+      { keywords: ["interactive story", "interactive fiction", "branching"], type: "interactive-story", label: "Interactive Story" },
+      { keywords: ["documentary", "docu"], type: "documentary", label: "Documentary" },
+      { keywords: ["world bible", "world-bible", "lore bible"], type: "world-bible", label: "World Bible" },
+      { keywords: ["cross-media", "cross media", "multiverse", "universe"], type: "cross-media", label: "Cross-Media Universe" },
+    ];
+    for (const f of FORMATS) {
+      if (f.keywords.some(k => lower.includes(k))) {
+        return { entity: f.type, entityLabel: f.label, stateUpdate: null };
+      }
+    }
+    return { entity: null, entityLabel: null, stateUpdate: null };
+  }
+
+  if (intent === "generate-strategy") {
+    const FOCUS_TYPES: { keywords: string[]; type: string; label: string }[] = [
+      { keywords: ["growth", "user growth", "acquire", "scale"], type: "growth", label: "User Growth" },
+      { keywords: ["revenue", "monetize", "monetization", "pricing", "subscription"], type: "revenue", label: "Revenue Model" },
+      { keywords: ["product", "roadmap", "features", "product strategy"], type: "product", label: "Product Strategy" },
+      { keywords: ["market", "beachhead", "segment", "go-to-market", "gtm"], type: "market", label: "Market Strategy" },
+      { keywords: ["competitive", "compete", "competition", "moat", "differentiate", "surpass", "beat", "outcompete"], type: "competitive", label: "Competitive Strategy" },
+      { keywords: ["hiring", "team", "org", "culture", "people"], type: "hiring", label: "Team Building" },
+      { keywords: ["technology", "tech stack", "architecture", "infrastructure"], type: "technology", label: "Technology Strategy" },
+      { keywords: ["partner", "partnership", "alliance", "deal"], type: "partnerships", label: "Partnerships" },
+      { keywords: ["creative ip", "ip strategy", "franchise", "intellectual property"], type: "creative-ip", label: "Creative IP" },
+      { keywords: ["platform", "ecosystem", "marketplace", "network effect"], type: "platform", label: "Platform Strategy" },
+      { keywords: ["expand", "expansion", "geographic", "global", "international"], type: "expansion", label: "Market Expansion" },
+      { keywords: ["turnaround", "pivot", "restructure", "stabilize", "recovery"], type: "turnaround", label: "Turnaround" },
+    ];
+    for (const f of FOCUS_TYPES) {
+      if (f.keywords.some(k => lower.includes(k))) {
+        return { entity: f.type, entityLabel: f.label, stateUpdate: null };
+      }
+    }
+    return { entity: "growth", entityLabel: "Growth Strategy", stateUpdate: null };
+  }
+
   if (intent === "generate-world") {
     const WORLD_TYPES: { keywords: string[]; type: string; label: string }[] = [
       { keywords: ["fantasy", "magic", "elves", "dwarves", "wizard"], type: "fantasy", label: "Fantasy World" },
@@ -564,6 +631,8 @@ function extractScreen(text: string, intent: IntentType): UniversalView | null {
     if (lower.includes("creative") || lower.includes("production") || lower.includes("media")) return "creative";
     if (lower.includes("game") || lower.includes("gdd")) return "games";
     if (lower.includes("story") || lower.includes("narrative") || lower.includes("character") || lower.includes("world build")) return "story";
+    if (lower.includes("connect") || lower.includes("link project") || lower.includes("linked project") || lower.includes("completeness")) return "connection";
+    if (lower.includes("strategy") || lower.includes("roadmap") || lower.includes("growth") || lower.includes("revenue model") || lower.includes("milestone")) return "strategy";
   }
 
   if (intent === "switch-industry") return "industries";
@@ -572,6 +641,8 @@ function extractScreen(text: string, intent: IntentType): UniversalView | null {
   if (intent === "generate-creative") return "creative";
   if (intent === "generate-game") return "games";
   if (intent === "generate-story" || intent === "generate-character" || intent === "generate-world") return "story";
+  if (intent === "create-project") return "connection";
+  if (intent === "generate-strategy") return "strategy";
   if (intent === "switch-role") return "roles";
   if (intent === "switch-agency") return "agencies";
   if (intent === "switch-state") return "states";
@@ -802,6 +873,20 @@ const RESPONSES: Record<IntentType, (entity: string | null, entityLabel: string 
   ] : [
     "What type of world? Options: Fantasy, Sci-Fi, Contemporary, Historical, Post-Apocalyptic, Alternate History, Mythological, Horror, Utopia, Dystopia. Navigate to the Story / World screen, World tab, to generate a complete fictional world.",
     "Try 'create a dystopian world' or 'build a fantasy realm.' The World Engine generates regions, factions, culture, technology, ecology, and history — all entirely fictional.",
+  ],
+  "create-project": (entity, label) => entity ? [
+    `Creating a connected project for "${label ?? "your project"}". Navigate to the Connection Layer screen. Select a format (Movie, TV Series, Video Game, Comic, Novel, etc.), set a title and logline, then add elements — Story, Character, World, Mechanics, or Workflow. The Completeness Pass will auto-score the project and flag missing sections. All fictional, internal, demo-only.`,
+    `Opening the Connection Layer for "${label ?? "a new project"}". The Connection Layer links all your generated elements — story, characters, world, and mechanics — into a unified project. Connection threads are auto-generated, and the Internal Completeness Pass scores 0–100 with auto-fixes. Non-operational — conceptual only.`,
+  ] : [
+    "The Connection Layer links your generated Story, Character, World, Game Mechanics, and Workflow elements into a unified fictional project. Navigate to Connection, create a project, choose a format (Movie / Game / Novel / World Bible / Cross-Media Universe, etc.), then add the elements you've generated. The Completeness Pass scores the project and flags critical, major, and minor gaps — auto-filling where possible.",
+    "Try 'create a connected project for my game' or 'link my story and world into a cross-media project.' The Connection Layer assembles any combination of generated elements and runs an Internal Completeness Pass to score and fix the result. All fictional — demo-only.",
+  ],
+  "generate-strategy": (entity, label) => entity ? [
+    `Generating a ${label ?? "growth strategy"} roadmap. Navigate to the Strategy screen. Choose your Focus (Growth, Revenue, Product, Market, Competitive, Creative IP, etc.), set a time horizon (30 days to 5 years), and generate a full conceptual roadmap with: North Star, milestones, key actions, success metrics, competitive position, revenue model, risks, quick wins, and long bets. Conceptual planning only — no outcomes guaranteed.`,
+    `Opening Strategy & Roadmap Module for "${label ?? "your strategy"}". Choose a focus area and horizon, then generate a structured conceptual roadmap. Includes: competitive positioning, revenue model with prioritization, risk register with mitigations, and quick-win actions. Non-operational — not real business advice.`,
+  ] : [
+    "The Strategy & Roadmap Module generates conceptual planning frameworks: milestones, competitive position, revenue model, risks, quick wins, and long bets. Navigate to the Strategy screen, pick a focus area (Growth / Revenue / Product / Market / Creative IP / Turnaround, etc.), set a time horizon, and generate a full fictional roadmap. Conceptual only — no real advice, no guarantees.",
+    "Try 'generate a 90-day growth strategy' or 'create a revenue model roadmap.' The Strategy module covers 12 focus types across 6 time horizons. Every output is conceptual planning assistance — not real business, financial, or legal advice. Navigate to the Strategy screen to begin.",
   ],
   "open-packet": (entity, label) => label ? [
     `Opening the ${label} packet. You'll see the mock endpoint, version, status, and available flow actions.`,

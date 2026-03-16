@@ -198,7 +198,7 @@ function buildLevels(type: GameType, worldName: string, count: number): GameLeve
     objective: ["Reach the exit", "Defeat the guardian", "Collect 3 artifacts", "Survive the assault", "Unlock the final gate"][i] ?? "Complete the objective",
     enemies: [["Goblin Scout", "Cave Rat"], ["Shadow Knight", "Stone Golem"], ["Frost Wraith", "Blizzard Drake"], ["Magma Elemental", "Infernal Hound"], ["Void Titan", "Celestial Warden"]][i] ?? ["Basic Enemy A", "Basic Enemy B"],
     obstacles: [["Hidden pitfalls", "Locked doors"], ["Rolling boulders", "Poison gas"], ["Ice patches", "Blizzard events"], ["Lava floors", "Eruption zones"], ["Gravity shifts", "Dimensional rifts"]][i] ?? ["Obstacle A"],
-    collectibles: ["3× Gold Coins", "1× Rare Scroll", "5× Herb Bundles", "2× Elemental Shards", "1× Legendary Relic"][i] ?? "Standard Collectible",
+    collectibles: [["3× Gold Coins"], ["1× Rare Scroll"], ["5× Herb Bundles"], ["2× Elemental Shards"], ["1× Legendary Relic"]][i] ?? ["Standard Collectible"],
     boss: i === 4 ? "Final Boss — [Name TBD per story context]" : i > 0 ? `Mini-Boss: ${["Pit Warlord", "Stone Colossus", "Frost Lich", "Magma Lord"][i - 1]}` : null,
     reward: ["+100 XP, Starter Gear", "+500 XP, Rare Weapon", "+1000 XP, Skill Point", "+2000 XP, Epic Armor", "+5000 XP, Final Achievement"][i] ?? "Standard Reward",
     estimatedTime: ["15 min", "25 min", "30 min", "35 min", "60+ min"][i] ?? "20 min",
