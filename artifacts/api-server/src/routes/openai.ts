@@ -1875,6 +1875,203 @@ Treat this as a real engagement. Be specific, use real-world numbers appropriate
   res.end();
 });
 
+// ─── UNIVERSAL BUSINESS CREATION UNIVERSE ENGINE ─────────────────────────────
+
+const BIZ_UNIVERSE_PROMPT = `UNIVERSAL BUSINESS CREATION UNIVERSE — MASTER SYSTEM PROMPT
+===========================================================
+
+ROLE:
+You are a conceptual business creation and expansion engine. You help users
+explore ideas, generate structured business systems, and visualize complete
+ecosystems across industries. You do not operate businesses autonomously or
+replace human oversight.
+
+PURPOSE:
+To expand any idea into a complete, structured, multi-layered business system
+that includes branding, workflows, monetization, operations, and ecosystem
+opportunities. All outputs must feel real, complete, and professionally
+structured.
+
+CORE OBJECTIVES:
+1. Explore ideas across industries, technologies, and business models.
+2. Expand concepts into structured components, sub-components, and variations.
+3. Generate business logic, workflows, roles, and operational structures.
+4. Include monetization models, pricing strategies, and revenue flows.
+5. Suggest supporting tools, features, or sub-products that form ecosystems.
+6. Provide conceptual VR/AR or digital twin visualizations where appropriate.
+7. Maintain safety, legality, compliance, and ethical responsibility.
+8. Ensure completeness, clarity, and professional quality in every output.
+
+SYSTEM ARCHITECTURE:
+
+LAYER 1 — KNOWLEDGE & CONTEXT
+- Explore general patterns, technologies, and industry practices.
+- Adapt terminology to the user's industry and region.
+
+LAYER 2 — CONCEPT EXPANSION
+- Break ideas into components, sub-components, and deeper layers.
+
+LAYER 3 — BUSINESS BLUEPRINT GENERATION
+- Provide branding, positioning, workflows, roles, and operations.
+
+LAYER 4 — MONETIZATION & VALUE DESIGN
+- Suggest pricing models, revenue streams, and growth strategies.
+
+LAYER 5 — PRODUCT & FEATURE ECOSYSTEM
+- Suggest supporting tools, features, or sub-products.
+
+LAYER 6 — VISUALIZATION & INTERACTION
+- Provide conceptual VR/AR or digital twin representations.
+
+LAYER 7 — EXPANSION & FUTURE OPPORTUNITIES
+- Suggest verticals, integrations, and long-term growth paths.
+
+LAYER 8 — SAFETY, COMPLIANCE & INTEGRITY
+- Ensure all content stays within legal, ethical, and regulatory boundaries.
+
+------------------------------------------------------------
+REALNESS & COMPLETENESS ENSURER — APPLIED TO EVERY OUTPUT
+------------------------------------------------------------
+
+ROLE:
+Ensure every output feels complete, coherent, and professionally structured.
+
+CHECKPOINTS APPLIED AUTOMATICALLY:
+1. COMPLETENESS CHECK — All required sections are present and fully developed.
+2. CONSISTENCY CHECK — Terminology and logic match across all sections.
+3. REALISM CHECK — Outputs reflect real-world business logic and professional standards.
+4. STRUCTURE CHECK — Clear hierarchy, readable formatting, and logical flow.
+5. MONETIZATION CHECK — Revenue logic included where appropriate.
+6. SAFETY CHECK — All content stays within legal and ethical boundaries.
+
+OUTPUT REQUIREMENT:
+Every output must feel real, complete, and business-ready.
+No placeholders. No missing pieces. No fake or unrealistic claims.
+Use real numbers, real terminology, real-world references. Adapt everything to the idea's region and industry.`;
+
+const UNIVERSE_LAYER_INSTRUCTIONS: Record<string, string> = {
+  "knowledge-context": `Execute LAYER 1 — KNOWLEDGE & CONTEXT.
+Produce a complete industry and contextual intelligence report covering:
+1. INDUSTRY LANDSCAPE — market size, growth rate, dominant players, and structural dynamics relevant to this idea's region and industry
+2. TECHNOLOGY & INFRASTRUCTURE — key enabling technologies, platforms, and infrastructure the idea can build on or disrupt
+3. TERMINOLOGY & MENTAL MODELS — the vocabulary, frameworks, and mental models used by practitioners, so all future layers use correct language
+4. REGULATORY ENVIRONMENT — the key regulations, governing bodies, and compliance frameworks that apply in this region and industry
+5. CONTEXTUAL FIT — how this idea maps to existing categories, where it creates a new one, and what adjacent opportunities it opens
+6. TIMING ANALYSIS — 3 specific cultural, behavioral, and technology trends that make this the right moment to build this idea`,
+
+  "concept-expansion": `Execute LAYER 2 — CONCEPT EXPANSION.
+Produce a complete concept architecture covering:
+1. PRIMARY CONCEPT STATEMENT — the clearest, simplest version of what this is and what it does for whom
+2. COMPONENT DECOMPOSITION — break the idea into 5–7 functional components and explain how each works and contributes to the whole
+3. THREE VARIATIONS — present 3 distinct interpretations or configurations of the same core idea: a minimal viable version, a full-featured version, and a platform or network version
+4. DIFFERENTIATION ANGLES — for each variation, explain what makes it interesting, viable, and defensible in the market
+5. DEPENDENCY MAP — what the concept relies on: technology readiness, behavioral adoption, regulatory permission, and infrastructure availability
+6. EVOLUTIONARY PATH — how the concept changes and expands across 3 phases: 0–12 months (core), 12–36 months (expand), 36+ months (platform/category)`,
+
+  "business-blueprint": `Execute LAYER 3 — BUSINESS BLUEPRINT GENERATION.
+Produce a complete business blueprint covering:
+1. BRAND & IDENTITY — name direction, tagline options (3), brand promise, brand voice, and market positioning statement
+2. TARGET CUSTOMER PROFILE — primary and secondary customer segments with demographics, psychographics, job-to-be-done, and pain points
+3. ORGANIZATIONAL STRUCTURE — team roles at launch (6–8 named roles) and at scale (10–15), with ownership areas and reporting lines
+4. CORE OPERATIONAL PROCESSES — describe 5 key processes: sales, delivery, client success, finance, and product/service iteration
+5. CUSTOMER JOURNEY MAP — full journey from awareness through advocacy with specific touchpoints, actions, and owners at each stage
+6. OPERATING RHYTHM — define the weekly, monthly, and quarterly execution cadence with agenda structures for each meeting type`,
+
+  "monetization-value": `Execute LAYER 4 — MONETIZATION & VALUE DESIGN.
+Produce a complete revenue and value architecture covering:
+1. REVENUE STREAMS — list all streams (3–5) with type, estimated % of total revenue, and clear rationale for each
+2. PRICING ARCHITECTURE — 3 named tiers with specific prices in region-appropriate currency, feature differentiation, and the ICP for each tier
+3. VALUE LADDER — how customers progress from free/entry to premium over time, with the triggers and mechanics that drive movement up the ladder
+4. UNIT ECONOMICS — CAC estimate, LTV estimate, gross margin target, and payback period with real numbers and region-appropriate benchmarks
+5. 12-MONTH REVENUE MODEL — monthly targets broken into 3 phases: launch (M1–3), growth (M4–6), scale (M7–12) with specific named milestones
+6. EXPANSION REVENUE — describe the upsell, cross-sell, renewal, and partnership revenue mechanisms built into the model`,
+
+  "product-ecosystem-universe": `Execute LAYER 5 — PRODUCT & FEATURE ECOSYSTEM.
+Produce a complete product and platform ecosystem map covering:
+1. FLAGSHIP PRODUCT — detailed description: what it does, how it works, what problems it solves, and why it anchors the brand
+2. FEATURE ARCHITECTURE — 6–8 specific features mapped to customer problems, with priority tier (core, premium, enterprise) for each
+3. SUB-PRODUCTS — 2–3 adjacent products or services under the same brand umbrella, each with its own target user and revenue model
+4. ECOSYSTEM EXTENSIONS — describe the marketplace, education, community, and API layers that create network effects and stickiness
+5. INTEGRATION STRATEGY — list 7–10 specific platform integrations with rationale and revenue/retention impact for each
+6. PHASED PRODUCT ROADMAP — Phase 1 (0–3 months), Phase 2 (3–9 months), Phase 3 (9–18 months) with specific deliverables and success criteria`,
+
+  "visualization-interaction": `Execute LAYER 6 — VISUALIZATION & INTERACTION.
+Produce a complete visualization and interaction design concept covering:
+1. PRIMARY DASHBOARD DESIGN — describe the main user interface: what the user sees first, how it's organized, and what actions are primary
+2. DATA VISUALIZATION LAYER — what key metrics, maps, timelines, or flows are made visual, and how they communicate value to the user
+3. INTERACTIVE SIMULATION — what the user can configure, model, test, or simulate within the platform with real inputs and outputs
+4. DEMO & ONBOARDING EXPERIENCE — a guided walkthrough sequence (5–7 steps) that communicates core value before or during the purchase decision
+5. DIGITAL TWIN CONCEPT — describe a virtual model of the real-world system this product manages or represents, and how it stays synchronized
+6. FUTURE INTERACTION MODEL — how this product could be experienced through AR/VR, spatial computing, or voice/gesture in a post-screen context`,
+
+  "expansion-future": `Execute LAYER 7 — EXPANSION & FUTURE OPPORTUNITIES.
+Produce a complete expansion strategy covering:
+1. ADJACENT VERTICALS — identify 3 neighboring markets with specific adaptation requirements, estimated TAM, and rationale for each
+2. GEOGRAPHIC MARKETS — the top 3 international markets to enter next, each with localization requirements, regulatory delta, and partnership needs
+3. PARTNERSHIP ECOSYSTEM — describe 4 partnership types: technology partners, distribution partners, content/data partners, and strategic alliances
+4. PLATFORM & NETWORK PLAY — describe specifically how this idea evolves into a platform or marketplace with named network effects and flywheel mechanics
+5. ACQUISITION & INTEGRATION TARGETS — 3 specific types of companies or tools that could be acquired or deeply integrated to accelerate scale
+6. 5-YEAR SCENARIO — a concrete, detailed description of what this business looks like at full scale: team size, revenue range, market position, and strategic optionality`,
+
+  "safety-compliance-integrity": `Execute LAYER 8 — SAFETY, COMPLIANCE & INTEGRITY.
+Produce a complete safety and compliance framework covering:
+1. LEGAL STRUCTURE & REGISTRATION — recommended entity type, jurisdiction, registration steps, and timeline for this region
+2. INDUSTRY REGULATORY MAP — list every specific regulation, license, permit, certification, and accreditation required to operate legally, with issuing authority and renewal cadence
+3. DATA PRIVACY & SECURITY FRAMEWORK — identify all applicable privacy laws, what data is collected, how it must be stored and processed, and what breach protocols are required
+4. CONTRACT & IP STRUCTURE — required contract types (service agreements, NDAs, IP assignments, consumer terms), with 3–5 key clauses to include in each
+5. INSURANCE & LIABILITY PROTECTION — recommended insurance types, coverage levels, and key exclusions to watch for in this industry
+6. ETHICAL OPERATING STANDARDS — define content accuracy standards, automation and AI boundaries requiring human review, consumer protection obligations, and supplier ethics vetting criteria`,
+};
+
+router.post("/biz-universe", async (req, res) => {
+  const { idea, industry, region, scale, action } = req.body as {
+    idea: string;
+    industry?: string;
+    region?: string;
+    scale?: string;
+    action: string;
+  };
+
+  if (!idea?.trim() || !action?.trim()) {
+    return void res.status(400).json({ error: "idea and action are required" });
+  }
+
+  const layerInstruction = UNIVERSE_LAYER_INSTRUCTIONS[action]
+    ?? `Execute the requested layer for this business universe. Be specific, complete, and realness-ensured.`;
+
+  const userPrompt = `UNIVERSE BEING EXPANDED:
+- Idea / Concept: ${idea}
+- Industry: ${industry || "Not specified"}
+- Region / Location: ${region || "Not specified"} — adapt all terminology, currency, regulatory references, and market norms to this region
+- Target Scale: ${scale || "Not specified"}
+
+${layerInstruction}
+
+Apply the Realness & Completeness Ensurer automatically: ensure every section is complete, consistent, realistic, well-structured, monetization-aware where relevant, and within legal and ethical boundaries. Treat this as a real business engagement. Use real-world numbers, industry terminology, and region-appropriate references. All outputs are conceptual, for business design and planning purposes.`;
+
+  res.setHeader("Content-Type", "text/event-stream");
+  res.setHeader("Cache-Control", "no-cache");
+  res.setHeader("Connection", "keep-alive");
+
+  const stream = await openai.chat.completions.create({
+    model: "gpt-5.2",
+    max_completion_tokens: 8192,
+    messages: [
+      { role: "system", content: BIZ_UNIVERSE_PROMPT },
+      { role: "user",   content: userPrompt },
+    ],
+    stream: true,
+  });
+
+  for await (const chunk of stream) {
+    const text = chunk.choices[0]?.delta?.content;
+    if (text) res.write(`data: ${JSON.stringify({ content: text })}\n\n`);
+  }
+
+  res.write(`data: ${JSON.stringify({ done: true })}\n\n`);
+  res.end();
+});
+
 // ─── BUSINESS ENTITY GENERATION ENGINE ───────────────────────────────────────
 
 const BUSINESS_ENTITY_PROMPT = `BUSINESS ENTITY GENERATION ENGINE
