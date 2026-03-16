@@ -18,6 +18,7 @@ import {
   SUPERPOWERS, Superpower, generateSuperpower,
   SUBSCRIPTION_REPLACEMENTS, SubscriptionReplacement, generateSelfSufficientAudit,
   HIDDEN_CAPABILITIES, HiddenCapability, generateHiddenCapability,
+  InventionCategory, Invention, generateInvention,
 } from "@/engine/InfiniteExpansionEngine";
 
 // ─── Panel tabs ───────────────────────────────────────────────────────────
@@ -158,7 +159,7 @@ function ModuleCard({
 // ─── Infinite Expand View ─────────────────────────────────────────────────
 
 function ExpandView({ onResult }: { onResult: (m: InfiniteModule) => void }) {
-  const [mode, setMode] = useState<"expand" | "powers">("powers");
+  const [mode, setMode] = useState<"expand" | "powers" | "invent">("powers");
 
   // ── Expand sub-state ──
   const [domain,     setDomain]     = useState("");
@@ -171,6 +172,13 @@ function ExpandView({ onResult }: { onResult: (m: InfiniteModule) => void }) {
   const [activatingId, setActivatingId] = useState<string | null>(null);
   const [activatedIds, setActivatedIds] = useState<string[]>([]);
   const [powerDomain,  setPowerDomain]  = useState("");
+
+  // ── Invent sub-state ──
+  const [inventPrompt,   setInventPrompt]   = useState("");
+  const [inventCategory, setInventCategory] = useState<InventionCategory>("agent");
+  const [inventing,      setInventing]      = useState(false);
+  const [inventions,     setInventions]     = useState<Invention[]>([]);
+  const [cycleCount,     setCycleCount]     = useState(0);
 
   const handleGenerate = () => {
     setGenerating(true);
@@ -204,16 +212,49 @@ function ExpandView({ onResult }: { onResult: (m: InfiniteModule) => void }) {
     }, 900);
   };
 
+  const handleInvent = () => {
+    if (!inventPrompt.trim() || inventing) return;
+    setInventing(true);
+    setTimeout(() => {
+      const inv = generateInvention(inventPrompt.trim(), inventCategory);
+      setInventions(prev => [inv, ...prev.slice(0, 7)]);
+      setCycleCount(c => c + 1);
+      setInventing(false);
+      onResult({
+        id: inv.id,
+        title: inv.name,
+        domain: inventPrompt,
+        agentId: "FORGE",
+        content: inv.content,
+        tags: [inv.category, "invention", "recursive"],
+        createdAt: inv.createdAt,
+        type: "innovation",
+      });
+    }, 1100);
+  };
+
+  const INVENT_CATEGORIES: { id: InventionCategory; icon: string; label: string }[] = [
+    { id: "agent",    icon: "🤖", label: "AI Agent" },
+    { id: "tool",     icon: "🔧", label: "AI Tool" },
+    { id: "workflow", icon: "🔄", label: "Workflow" },
+    { id: "engine",   icon: "⚙️", label: "Engine" },
+    { id: "module",   icon: "🌐", label: "Module" },
+  ];
+
   return (
     <div className="space-y-3">
       {/* Mode toggle */}
       <div className="flex gap-1 bg-muted rounded-xl p-1">
         <button onClick={() => setMode("powers")}
-          className={`flex-1 text-[11px] font-bold py-1.5 rounded-lg transition-colors ${mode === "powers" ? "bg-white text-primary shadow-sm" : "text-muted-foreground hover:text-foreground"}`}>
-          ⚡ Superpowers
+          className={`flex-1 text-[10px] font-bold py-1.5 rounded-lg transition-colors ${mode === "powers" ? "bg-white text-primary shadow-sm" : "text-muted-foreground hover:text-foreground"}`}>
+          ⚡ Powers
+        </button>
+        <button onClick={() => setMode("invent")}
+          className={`flex-1 text-[10px] font-bold py-1.5 rounded-lg transition-colors ${mode === "invent" ? "bg-white text-primary shadow-sm" : "text-muted-foreground hover:text-foreground"}`}>
+          🔁 Invent
         </button>
         <button onClick={() => setMode("expand")}
-          className={`flex-1 text-[11px] font-bold py-1.5 rounded-lg transition-colors ${mode === "expand" ? "bg-white text-primary shadow-sm" : "text-muted-foreground hover:text-foreground"}`}>
+          className={`flex-1 text-[10px] font-bold py-1.5 rounded-lg transition-colors ${mode === "expand" ? "bg-white text-primary shadow-sm" : "text-muted-foreground hover:text-foreground"}`}>
           ♾️ Expand
         </button>
       </div>
@@ -260,6 +301,99 @@ function ExpandView({ onResult }: { onResult: (m: InfiniteModule) => void }) {
             })}
           </div>
           <p className="text-[9px] text-muted-foreground text-center">UCP-X Superpowers Add-On · Additive Only · Core Intact · Self-Improving</p>
+        </div>
+      )}
+
+      {/* ── Invent mode ── */}
+      {mode === "invent" && (
+        <div className="space-y-3">
+          {/* Header */}
+          <div className="relative overflow-hidden rounded-2xl bg-gradient-to-br from-emerald-900 to-teal-900 border border-emerald-700/50 p-3">
+            <div className="relative z-10">
+              <div className="flex items-center justify-between">
+                <div>
+                  <p className="text-[12px] font-black text-white uppercase tracking-wider">🔁 Recursive Innovation</p>
+                  <p className="text-[10px] text-emerald-300 mt-0.5">Invent new agents, tools, workflows, or engines from a prompt</p>
+                </div>
+                <div className="text-right">
+                  <p className="text-[20px] font-black text-emerald-300">{cycleCount}</p>
+                  <p className="text-[8px] text-emerald-400 font-semibold uppercase">Inventions</p>
+                </div>
+              </div>
+              {cycleCount > 0 && (
+                <div className="flex items-center gap-1.5 mt-2">
+                  <span className="w-1.5 h-1.5 rounded-full bg-green-400 animate-pulse" />
+                  <span className="text-[9px] text-green-400 font-semibold">Recursive loop active — each invention improves the system</span>
+                </div>
+              )}
+            </div>
+          </div>
+
+          {/* Category selector */}
+          <div>
+            <p className="text-[10px] font-bold text-muted-foreground uppercase tracking-wider mb-2">What to Invent</p>
+            <div className="grid grid-cols-5 gap-1">
+              {INVENT_CATEGORIES.map(c => (
+                <button key={c.id} onClick={() => setInventCategory(c.id)}
+                  className={`flex flex-col items-center gap-0.5 p-2 rounded-xl border text-center transition-all
+                    ${inventCategory === c.id ? "border-emerald-400 bg-emerald-50" : "border-border/40 hover:border-emerald-200 bg-white"}`}>
+                  <span className="text-base">{c.icon}</span>
+                  <span className="text-[8px] font-bold leading-tight">{c.label}</span>
+                </button>
+              ))}
+            </div>
+          </div>
+
+          {/* Prompt input */}
+          <div>
+            <label className="text-[10px] font-bold text-muted-foreground uppercase tracking-wider block mb-1.5">
+              Describe what to invent
+            </label>
+            <textarea
+              value={inventPrompt}
+              onChange={e => setInventPrompt(e.target.value)}
+              onKeyDown={e => { if (e.key === "Enter" && (e.metaKey || e.ctrlKey)) handleInvent(); }}
+              placeholder={`e.g. "patient risk scoring agent" / "fraud detection workflow" / "real estate forecasting engine"…`}
+              rows={3}
+              className="w-full bg-white border border-border/40 rounded-xl px-3 py-2 text-[12px] outline-none focus:ring-1 focus:ring-emerald-300/50 transition-all resize-none"
+            />
+          </div>
+
+          {/* Invent button */}
+          <button onClick={handleInvent} disabled={inventing || !inventPrompt.trim()}
+            className="w-full bg-gradient-to-r from-emerald-500 to-teal-500 text-white text-[12px] font-bold py-2.5 rounded-xl hover:opacity-90 disabled:opacity-40 flex items-center justify-center gap-2 transition-all">
+            {inventing ? (
+              <><div className="w-3 h-3 border-2 border-white border-t-transparent rounded-full animate-spin" /><span>Inventing…</span></>
+            ) : (
+              <>🔁 Invent <span className="opacity-70 font-normal text-[10px]">⌘↵</span></>
+            )}
+          </button>
+
+          {/* Invention log */}
+          {inventions.length > 0 && (
+            <div>
+              <p className="text-[10px] font-bold text-muted-foreground uppercase tracking-wider mb-1.5">Invention Log — This Session</p>
+              <div className="space-y-1.5">
+                {inventions.map((inv, i) => (
+                  <button key={inv.id}
+                    onClick={() => onResult({
+                      id: inv.id, title: inv.name, domain: inv.prompt,
+                      agentId: "FORGE", content: inv.content,
+                      tags: [inv.category, "invention"], createdAt: inv.createdAt, type: "innovation",
+                    })}
+                    className="w-full flex items-center gap-2 p-2.5 bg-white rounded-xl border border-emerald-200/60 hover:border-emerald-300 transition-colors text-left">
+                    <span className="text-[10px] text-emerald-600 font-black w-4 flex-shrink-0">#{cycleCount - i}</span>
+                    <div className="flex-1 min-w-0">
+                      <p className="text-[11px] font-bold text-foreground truncate">{inv.name}</p>
+                      <p className="text-[9px] text-muted-foreground truncate">{inv.prompt}</p>
+                    </div>
+                    <span className="text-[9px] text-emerald-500 font-semibold flex-shrink-0">{inv.category}</span>
+                  </button>
+                ))}
+              </div>
+            </div>
+          )}
+          <p className="text-[9px] text-muted-foreground text-center">UCP-X Recursive Innovation · Additive Only · Always Forward · Core Intact</p>
         </div>
       )}
 
