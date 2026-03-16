@@ -4867,6 +4867,55 @@ const OMNI_UI_PERSONALIZED_MODE = {
   outputPromise: "Every screen feels like it was designed personally for the user — while always expressing the creator's signature style.",
 } as const;
 
+// ─── OMNI-UI INTEGRATION LAYER ────────────────────────────────────────────────
+const OMNI_UI_INTEGRATION_LAYER = {
+  name:    "OMNI-UI INTEGRATION LAYER",
+  version: "1.0",
+  tagline: "Every active mode, combined. Every output, complete.",
+  safetyDeclaration: "All safety rules from all active layers apply simultaneously. No exceptions.",
+
+  activeLayers: [
+    { id: "omni_totality", icon: "🌌", label: "OMNI-TOTALITY MAXIMUM ENGINE",  color: "#007AFF", bg: "#f0f7ff", role: "Applies 7 prime directives — Depth, Mastery, Generosity, Completeness, Initiative, Adaptability, Vision — to every output." },
+    { id: "inf_totality",  icon: "∞",  label: "OMNI-TOTALITY∞ENGINE",          color: "#5856D6", bg: "#f4f0ff", role: "7-layer sequential generation + 10 techniques — every output is multi-dimensional and technically flawless." },
+    { id: "feel",          icon: "✨", label: "INFINITY-FEEL ENGINE",           color: "#BF5AF2", bg: "#f8f0ff", role: "9 principles of emotional resonance — every output has warmth, rhythm, and human texture." },
+    { id: "dimension",     icon: "📐", label: "MAX-DIMENSION ENGINE",           color: "#007AFF", bg: "#f0f4ff", role: "12 simultaneous dimensions — outputs are structurally rich across every axis: functional, emotional, temporal, systemic." },
+    { id: "safemax",       icon: "🌊", label: "∞ ENGINE SAFE MAX",             color: "#007AFF", bg: "#f0f7ff", role: "11 behaviors — infinite output without instability; every expansion is safe, bounded, and self-completing." },
+    { id: "safe",          icon: "💙", label: "OMNI-SAFE ENGINE",               color: "#34C759", bg: "#f0fff4", role: "13 pillars through 6 philosophy lenses — output is always calm, clear, generous, and user-friendly." },
+    { id: "ui_personal",   icon: "🎨", label: "OMNI-UI PERSONALIZED MODE",     color: "#007AFF", bg: "#f0f8ff", role: "5 identity constants + 5 adaptation dimensions across 4 comfort levels — every page feels authored and personally right." },
+  ],
+
+  combinationPrinciples: [
+    { icon: "⚡", label: "Simultaneous Application",  color: "#FF9F0A", desc: "All 7 active layers apply at the same moment — no sequence, no priority conflicts, no compromise." },
+    { icon: "🔄", label: "Automatic Inheritance",      color: "#34C759", desc: "Every output inherits this layer by default. No activation. No configuration needed." },
+    { icon: "🛡️", label: "Safety Supremacy",           color: "#FF375F", desc: "All safety rules from all active layers apply — the strictest applicable rule always wins." },
+    { icon: "🎨", label: "Identity Preservation",      color: "#007AFF", desc: "The creator's signature style stays constant regardless of how the experience adapts to any user." },
+    { icon: "🌊", label: "Smooth Composition",         color: "#5856D6", desc: "Layers never conflict. Where two rules could collide, the Integration Layer resolves to the richer, safer, more user-friendly option." },
+    { icon: "∞",  label: "Infinite Extensibility",     color: "#BF5AF2", desc: "Adding new engines or modes plugs in automatically — no rewiring required." },
+  ],
+
+  outputRules: [
+    { icon: "✅", label: "Complete",    desc: "Every output is fully realized — no stubs, no placeholders, no half-answers." },
+    { icon: "🌡️", label: "Warm",       desc: "Every output carries emotional warmth — never clinical, never cold." },
+    { icon: "🔍", label: "Clear",       desc: "Every output communicates its intent without ambiguity or jargon." },
+    { icon: "✨", label: "Premium",     desc: "Quality is non-negotiable — every output meets the creator's standard, always." },
+    { icon: "🧭", label: "Intuitive",   desc: "Users never feel lost — structure, flow, and navigation are always present." },
+    { icon: "💙", label: "Supportive",  desc: "Guidance is available at every level — no user is ever left alone." },
+    { icon: "🎨", label: "Signed",      desc: "Every output carries the creator's identity — tone, style, and character are unmistakably consistent." },
+    { icon: "∞",  label: "Expandable", desc: "Every output can grow — expansion is always possible, always safe." },
+  ],
+
+  guarantees: [
+    "Every page feels like it was designed by the creator — for exactly this user, at exactly this moment.",
+    "No output is ever generic. Engine depth + UI warmth + personal adaptation = always specific, always right.",
+    "Safety and quality are non-negotiable at every layer — the strictest rule from any active engine applies.",
+    "Every new feature, mode, or engine added to the platform is automatically integrated — zero configuration.",
+    "The creator's signature style and the user's comfort always coexist — elegance and accessibility are never in conflict.",
+  ],
+
+  universalInheritance: "All outputs inherit OMNI-UI INTEGRATION LAYER automatically. No activation. No configuration. Every page, every view, every user, every future capability — always.",
+  outputPromise: "Simple, intuitive, and impressive — for every user, on every page, from every engine — always.",
+} as const;
+
 // ─── OMNI-TOTALITY MAXIMUM ENGINE ─────────────────────────────────────────────
 const OMNI_TOTALITY_ENGINE = {
   name:    "OMNI-TOTALITY MAXIMUM ENGINE",
@@ -5378,6 +5427,129 @@ function InfinityEngineDemo() {
           </div>
         </div>
       )}
+    </div>
+  );
+}
+
+// ─── OMNI-UI Integration Layer Demo Component ─────────────────────────────────
+function OmniUIIntegrationDemo() {
+  type ALayer = { id: string; icon: string; label: string; color: string; bg: string; role: string };
+  const layers = OMNI_UI_INTEGRATION_LAYER.activeLayers as readonly ALayer[];
+
+  const PAGE_TYPES = [
+    { id: "home",      label: "Home",       icon: "🏠" },
+    { id: "dashboard", label: "Dashboard",  icon: "📊" },
+    { id: "marketing", label: "Marketing",  icon: "📣" },
+    { id: "tools",     label: "Tools",      icon: "🔧" },
+    { id: "chat",      label: "Chat",       icon: "💬" },
+  ] as const;
+  type PageId = typeof PAGE_TYPES[number]["id"];
+
+  const USER_LEVELS = [
+    { id: "beginner", label: "Beginner", icon: "🌱", color: "#34C759" },
+    { id: "expert",   label: "Expert",   icon: "⚡", color: "#FF9F0A" },
+  ] as const;
+  type LevelId = typeof USER_LEVELS[number]["id"];
+
+  const CONTRIBUTIONS: Record<string, Record<LevelId, string>> = {
+    omni_totality: {
+      beginner: "Applies Depth + Generosity: gentle explanations, rich context, welcoming structure — nothing left unexplained.",
+      expert:   "Applies Mastery + Initiative: dense information, proactive suggestions, advanced controls surfaced immediately.",
+    },
+    inf_totality: {
+      beginner: "7-layer generation produces a simple, friendly layout — structurally complete under the surface, visually calm on top.",
+      expert:   "7-layer generation exposes all 10 techniques visibly — full information architecture, no simplification.",
+    },
+    feel: {
+      beginner: "Warm welcome tone, soft transitions, reassuring feedback. The page feels like a friend, not a product.",
+      expert:   "Confident, rhythmic, efficient. Every label feels intentional. No padding, no filler — just authority.",
+    },
+    dimension: {
+      beginner: "12 dimensions produce a focused, linear experience — complexity is present but invisible, supporting without overwhelming.",
+      expert:   "All 12 dimensions visible and explorable — functional, systemic, temporal, and strategic axes all exposed.",
+    },
+    safemax: {
+      beginner: "Infinite expansion is bounded — the page stays focused, never sprawling. Safe completion everywhere.",
+      expert:   "Infinite expansion is active and visible — power features, deep links, and advanced flows all accessible.",
+    },
+    safe: {
+      beginner: "13 pillars apply warmth and clarity. Assume YES. Multi-Dimensional support. Silent optimization fills gaps.",
+      expert:   "13 pillars apply precision and depth. Constellation Mapping reveals expert-level relationships and options.",
+    },
+    ui_personal: {
+      beginner: "Guided mode: step-by-step hints, slow transitions, linear structure, warm language. Creator style fully intact.",
+      expert:   "Expert mode: near-instant, dense, command-palette accessible. Creator identity unmistakably present.",
+    },
+  };
+
+  const PAGE_OUTPUTS: Record<PageId, Record<LevelId, string>> = {
+    home:      { beginner: "A warm welcome card with one clear next step, gentle illustration, and a reassuring headline.", expert:   "A compact command surface — recent items, live stats, quick-launch palette, status pulse." },
+    dashboard: { beginner: "Big numbers, friendly labels, one highlighted action, progress bar with celebration copy.", expert:   "Dense metrics grid, live trend sparklines, multi-axis filters, keyboard-first navigation." },
+    marketing: { beginner: "One campaign at a time, copy previews with emoji, simple publish flow, encouraging feedback.", expert:   "Bulk campaign management, A/B variant builder, live analytics overlay, export pipeline." },
+    tools:     { beginner: "Three featured tools with large icons, short descriptions, and a 'start here' indicator.", expert:   "Full tool catalogue, search-first UX, API access, batch operations, configuration panel." },
+    chat:      { beginner: "Conversational tone, suggested prompts, typing indicator, gentle response formatting.", expert:   "Raw mode available, system prompt control, token display, conversation export, fast keyboard." },
+  };
+
+  const [activePage, setActivePage] = React.useState<typeof PAGE_TYPES[number]>(PAGE_TYPES[0]);
+  const [activeLevel, setActiveLevel] = React.useState<typeof USER_LEVELS[number]>(USER_LEVELS[0]);
+
+  return (
+    <div style={{ display: "flex", flexDirection: "column", gap: 10 }}>
+
+      {/* Selectors */}
+      <div style={{ display: "flex", gap: 14, flexWrap: "wrap" }}>
+        <div style={{ flex: 1, minWidth: 200 }}>
+          <div style={{ fontWeight: 700, fontSize: 10, color: "#555", marginBottom: 6, textTransform: "uppercase", letterSpacing: 0.8 }}>Page</div>
+          <div style={{ display: "flex", gap: 6, flexWrap: "wrap" }}>
+            {PAGE_TYPES.map(p => (
+              <button key={p.id} onClick={() => setActivePage(p)}
+                style={{ background: activePage.id === p.id ? "#007AFF" : "#f5f5f7", color: activePage.id === p.id ? "#fff" : "#555", border: `1.5px solid ${activePage.id === p.id ? "#007AFF" : "#e0e0e4"}`, borderRadius: 9, padding: "6px 12px", fontSize: 11, fontWeight: 700, cursor: "pointer", transition: "all 0.15s" }}>
+                {p.icon} {p.label}
+              </button>
+            ))}
+          </div>
+        </div>
+        <div>
+          <div style={{ fontWeight: 700, fontSize: 10, color: "#555", marginBottom: 6, textTransform: "uppercase", letterSpacing: 0.8 }}>User Level</div>
+          <div style={{ display: "flex", gap: 6 }}>
+            {USER_LEVELS.map(l => (
+              <button key={l.id} onClick={() => setActiveLevel(l)}
+                style={{ background: activeLevel.id === l.id ? l.color : "#f5f5f7", color: activeLevel.id === l.id ? "#fff" : "#555", border: `1.5px solid ${activeLevel.id === l.id ? l.color : "#e0e0e4"}`, borderRadius: 9, padding: "6px 14px", fontSize: 11, fontWeight: 700, cursor: "pointer", transition: "all 0.15s" }}>
+                {l.icon} {l.label}
+              </button>
+            ))}
+          </div>
+        </div>
+      </div>
+
+      {/* Combined output preview */}
+      <div style={{ background: "linear-gradient(135deg, #f8faff 0%, #fdf5ff 100%)", border: "2px solid #007AFF30", borderRadius: 13, padding: "13px 16px" }}>
+        <div style={{ fontWeight: 800, fontSize: 11, color: "#007AFF", marginBottom: 6, textTransform: "uppercase", letterSpacing: 0.8 }}>
+          ✨ Integration Output — {activePage.icon} {activePage.label} · {activeLevel.icon} {activeLevel.label}
+        </div>
+        <div style={{ fontSize: 12, color: "#1a1a2e", lineHeight: 1.7, fontWeight: 500 }}>
+          {PAGE_OUTPUTS[activePage.id][activeLevel.id]}
+        </div>
+        <div style={{ marginTop: 8, fontSize: 10, color: "#888", fontStyle: "italic" }}>
+          All 7 layers contributed simultaneously to produce this output. Creator identity preserved throughout.
+        </div>
+      </div>
+
+      {/* Per-layer contributions */}
+      <div style={{ fontWeight: 700, fontSize: 11, color: "#555", marginBottom: 2 }}>What each active layer contributes to this output:</div>
+      <div style={{ display: "flex", flexDirection: "column", gap: 6 }}>
+        {layers.map(layer => (
+          <div key={layer.id} style={{ background: layer.bg, border: `1.5px solid ${layer.color}25`, borderRadius: 10, padding: "9px 13px", display: "flex", gap: 10, alignItems: "flex-start" }}>
+            <span style={{ fontSize: 16, flexShrink: 0, marginTop: 1 }}>{layer.icon}</span>
+            <div style={{ flex: 1 }}>
+              <div style={{ fontWeight: 800, fontSize: 10, color: layer.color, marginBottom: 3 }}>{layer.label}</div>
+              <div style={{ fontSize: 10, color: "#444", lineHeight: 1.6 }}>
+                {CONTRIBUTIONS[layer.id]?.[activeLevel.id] ?? layer.role}
+              </div>
+            </div>
+          </div>
+        ))}
+      </div>
     </div>
   );
 }
@@ -6540,6 +6712,7 @@ function PlatformOSView() {
               { label: "∞ ENGINE MAX",     value: `${INF_ENGINE_SAFE_MAX.behaviors.length} Behaviors`,                                                          color: "#007AFF", bg: "#f0f7ff" },
               { label: "Omni-Safe",        value: `${OMNI_SAFE_ENGINE.pillars.length} Pillars`,                                                                  color: "#34C759", bg: "#f0fff4" },
               { label: "Omni-UI Mode",     value: `${OMNI_UI_PERSONALIZED_MODE.comfortLevels.length} Levels · ${OMNI_UI_PERSONALIZED_MODE.adaptationDimensions.length} Dims`, color: "#007AFF", bg: "#f0f8ff" },
+              { label: "Integration Layer", value: `${OMNI_UI_INTEGRATION_LAYER.activeLayers.length} Layers · ${OMNI_UI_INTEGRATION_LAYER.outputRules.length} Rules`,              color: "#5856D6", bg: "#f4f0ff" },
               { label: "Audit Cycles",     value: `${auditLog.length}`,                      color: "#FF9F0A", bg: "#fff8e6" },
               { label: "Self-Heals",       value: "14 total",                                color: "#34C759", bg: "#e6f9ec" },
             ].map(k => (
@@ -6737,7 +6910,7 @@ function PlatformOSView() {
                         </div>
                       </div>
                       <div style={{ marginTop: 8, fontSize: 11, color: "#007AFF", fontWeight: 700, textAlign: "center" }}>
-                        ✅ All 12 core features active · 25% revenue share · Autopilot running · {SYSTEM_MODES.length} modes · ∞ Industries · 📄 PDF docs · 🧑‍💻 ARIA Guide · ⚡ Buttons complete · 🧬 Self-Expanding ON · 🌌 Omni-Totality: {OMNI_TOTALITY_ENGINE.primes.length} Primes · ∞ {OMNI_TOTALITY_INF_ENGINE.name}: {OMNI_TOTALITY_INF_ENGINE.layers.length} Dims · ✨ {INFINITY_FEEL_ENGINE.name}: {INFINITY_FEEL_ENGINE.principles.length} Principles · 📐 {MAX_DIMENSION_ENGINE.name}: {MAX_DIMENSION_ENGINE.dimensions.length} Dims · ∞ {INF_ENGINE_SAFE_MAX.name}: {INF_ENGINE_SAFE_MAX.behaviors.length} Behaviors · 💙 {OMNI_SAFE_ENGINE.name}: {OMNI_SAFE_ENGINE.pillars.length} Pillars · 🎨 {OMNI_UI_PERSONALIZED_MODE.name}: {OMNI_UI_PERSONALIZED_MODE.comfortLevels.length} Levels Active
+                        ✅ All 12 core features active · 25% revenue share · Autopilot running · {SYSTEM_MODES.length} modes · ∞ Industries · 📄 PDF docs · 🧑‍💻 ARIA Guide · ⚡ Buttons complete · 🧬 Self-Expanding ON · 🌌 Omni-Totality: {OMNI_TOTALITY_ENGINE.primes.length} Primes · ∞ {OMNI_TOTALITY_INF_ENGINE.name}: {OMNI_TOTALITY_INF_ENGINE.layers.length} Dims · ✨ {INFINITY_FEEL_ENGINE.name}: {INFINITY_FEEL_ENGINE.principles.length} Principles · 📐 {MAX_DIMENSION_ENGINE.name}: {MAX_DIMENSION_ENGINE.dimensions.length} Dims · ∞ {INF_ENGINE_SAFE_MAX.name}: {INF_ENGINE_SAFE_MAX.behaviors.length} Behaviors · 💙 {OMNI_SAFE_ENGINE.name}: {OMNI_SAFE_ENGINE.pillars.length} Pillars · 🎨 {OMNI_UI_PERSONALIZED_MODE.name}: {OMNI_UI_PERSONALIZED_MODE.comfortLevels.length} Levels · ⚡ {OMNI_UI_INTEGRATION_LAYER.name}: {OMNI_UI_INTEGRATION_LAYER.activeLayers.length} Layers Active
                       </div>
                     </div>
                   )}
@@ -7262,6 +7435,100 @@ function PlatformOSView() {
               🎬 Live Demo — pick a philosophy lens, enter any request, and watch all {OMNI_SAFE_ENGINE.pillars.length} pillars compose through that lens:
             </div>
             <OmniSafeEngineDemo />
+          </div>
+
+          {/* ── OMNI-UI INTEGRATION LAYER — Panel ── */}
+          <div style={{ background: "linear-gradient(135deg, #f0f4ff 0%, #f5f0ff 35%, #f0fff4 70%, #fff8f0 100%)", border: "2.5px solid #007AFF", borderRadius: 18, padding: "18px 20px", marginBottom: 16 }}>
+
+            {/* Header */}
+            <div style={{ display: "flex", justifyContent: "space-between", alignItems: "flex-start", marginBottom: 12 }}>
+              <div>
+                <div style={{ fontWeight: 900, fontSize: 17, color: "#00004a", letterSpacing: 0.5 }}>
+                  ⚡ {OMNI_UI_INTEGRATION_LAYER.name}
+                </div>
+                <div style={{ fontSize: 11, color: "#5856D6", marginTop: 4 }}>
+                  v{OMNI_UI_INTEGRATION_LAYER.version} · {OMNI_UI_INTEGRATION_LAYER.activeLayers.length} Active Layers · {OMNI_UI_INTEGRATION_LAYER.combinationPrinciples.length} Combination Principles · {OMNI_UI_INTEGRATION_LAYER.outputRules.length} Output Rules · Always Inherited
+                </div>
+              </div>
+              <div style={{ display: "flex", gap: 6, flexWrap: "wrap", justifyContent: "flex-end" }}>
+                <span style={{ background: "#34C75920", color: "#1a7a3a", borderRadius: 8, padding: "4px 10px", fontSize: 10, fontWeight: 900, border: "1px solid #34C75940" }}>🛡️ SAFE</span>
+                <span style={{ background: "#007AFF15", color: "#007AFF", borderRadius: 8, padding: "4px 10px", fontSize: 10, fontWeight: 900, border: "1px solid #007AFF30" }}>⚡ COMBINED</span>
+                <span style={{ background: "#5856D615", color: "#5856D6", borderRadius: 8, padding: "4px 10px", fontSize: 10, fontWeight: 900, border: "1px solid #5856D630" }}>∞ AUTO</span>
+              </div>
+            </div>
+
+            {/* Tagline */}
+            <div style={{ fontSize: 13, color: "#00004a", fontWeight: 700, fontStyle: "italic", marginBottom: 14, textAlign: "center" }}>
+              "{OMNI_UI_INTEGRATION_LAYER.tagline}"
+            </div>
+
+            {/* 7 active layers */}
+            <div style={{ fontWeight: 700, fontSize: 12, color: "#0050cc", marginBottom: 8 }}>
+              ⚡ {OMNI_UI_INTEGRATION_LAYER.activeLayers.length} Active Layers — applied simultaneously, every output, always:
+            </div>
+            <div style={{ display: "flex", flexDirection: "column", gap: 6, marginBottom: 14 }}>
+              {OMNI_UI_INTEGRATION_LAYER.activeLayers.map((l, i) => (
+                <div key={l.id} style={{ background: l.bg, border: `1.5px solid ${l.color}25`, borderRadius: 10, padding: "10px 14px", display: "flex", gap: 12, alignItems: "flex-start" }}>
+                  <div style={{ fontWeight: 900, fontSize: 12, color: l.color, minWidth: 20, flexShrink: 0, marginTop: 1 }}>#{i + 1}</div>
+                  <div style={{ fontSize: 16, flexShrink: 0, marginTop: 0 }}>{l.icon}</div>
+                  <div style={{ flex: 1 }}>
+                    <div style={{ fontWeight: 800, fontSize: 11, color: l.color, marginBottom: 3 }}>{l.label}</div>
+                    <div style={{ fontSize: 10, color: "#444", lineHeight: 1.6 }}>{l.role}</div>
+                  </div>
+                </div>
+              ))}
+            </div>
+
+            {/* 6 combination principles */}
+            <div style={{ fontWeight: 700, fontSize: 12, color: "#0050cc", marginBottom: 8 }}>
+              🔗 {OMNI_UI_INTEGRATION_LAYER.combinationPrinciples.length} Combination Principles — how the layers work together:
+            </div>
+            <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr 1fr", gap: 7, marginBottom: 14 }}>
+              {OMNI_UI_INTEGRATION_LAYER.combinationPrinciples.map(p => (
+                <div key={p.label} style={{ background: `${p.color}0d`, border: `1px solid ${p.color}25`, borderRadius: 10, padding: "9px 11px" }}>
+                  <div style={{ fontWeight: 800, fontSize: 10, color: p.color, marginBottom: 3 }}>{p.icon} {p.label}</div>
+                  <div style={{ fontSize: 9.5, color: "#444", lineHeight: 1.5 }}>{p.desc}</div>
+                </div>
+              ))}
+            </div>
+
+            {/* 8 output rules */}
+            <div style={{ fontWeight: 700, fontSize: 12, color: "#0050cc", marginBottom: 8 }}>
+              ✅ {OMNI_UI_INTEGRATION_LAYER.outputRules.length} Output Rules — guaranteed in every output:
+            </div>
+            <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr 1fr 1fr", gap: 6, marginBottom: 14 }}>
+              {OMNI_UI_INTEGRATION_LAYER.outputRules.map(r => (
+                <div key={r.label} style={{ background: "#f8faff", border: "1px solid #007AFF15", borderRadius: 9, padding: "8px 10px", textAlign: "center" }}>
+                  <div style={{ fontSize: 16, marginBottom: 3 }}>{r.icon}</div>
+                  <div style={{ fontWeight: 800, fontSize: 9, color: "#007AFF", marginBottom: 3 }}>{r.label.toUpperCase()}</div>
+                  <div style={{ fontSize: 8.5, color: "#666", lineHeight: 1.5 }}>{r.desc}</div>
+                </div>
+              ))}
+            </div>
+
+            {/* 5 guarantees */}
+            <div style={{ fontWeight: 700, fontSize: 12, color: "#0050cc", marginBottom: 8 }}>
+              🏆 {OMNI_UI_INTEGRATION_LAYER.guarantees.length} Platform Guarantees:
+            </div>
+            <div style={{ display: "flex", flexDirection: "column", gap: 5, marginBottom: 14 }}>
+              {OMNI_UI_INTEGRATION_LAYER.guarantees.map((g, i) => (
+                <div key={i} style={{ background: "#f4f8ff", border: "1px solid #007AFF15", borderRadius: 9, padding: "8px 13px", fontSize: 11, color: "#1a1a4a", lineHeight: 1.6, display: "flex", gap: 8, alignItems: "flex-start" }}>
+                  <span style={{ color: "#007AFF", fontWeight: 900, flexShrink: 0 }}>{i + 1}.</span>
+                  <span>{g}</span>
+                </div>
+              ))}
+            </div>
+
+            {/* Inheritance */}
+            <div style={{ background: "#f0f4ff", borderRadius: 10, padding: "9px 13px", fontSize: 11, color: "#003a80", lineHeight: 1.6, marginBottom: 14 }}>
+              🔗 <strong>Inheritance:</strong> {OMNI_UI_INTEGRATION_LAYER.universalInheritance}
+            </div>
+
+            {/* Live demo */}
+            <div style={{ fontWeight: 700, fontSize: 12, color: "#0050cc", marginBottom: 8 }}>
+              🎬 Live Integration Renderer — pick a page and user level to see all {OMNI_UI_INTEGRATION_LAYER.activeLayers.length} layers contribute simultaneously:
+            </div>
+            <OmniUIIntegrationDemo />
           </div>
 
           {/* ── OMNI-UI PERSONALIZED MODE — Panel ── */}
@@ -7867,6 +8134,13 @@ function PlatformOSView() {
           </div>
           <div style={{ background: "linear-gradient(135deg, #f0fff4 0%, #e8f4ff 50%, #f5f0ff 100%)", border: "1px solid #34C759", borderRadius: 12, padding: "12px 16px", marginTop: 10, fontSize: 13, color: "#1a7a3a", fontWeight: 600 }}>
             🧬 Self-Expanding / Self-Completing Engine is permanently active. The system behaves as if all features, workflows, forms, tools, modes, departments, industries, and future technologies already exist and are fully operational. Any concept, technology, profession, or domain referenced anywhere in this platform is instantly detected, generated, integrated, and completed across all {projects.length} projects and ∞ industry verticals — in under 1 second, with zero manual configuration. Expansion is rule-based and infinite. No lists. No enumerations. No exceptions.
+          </div>
+          <div style={{ background: "linear-gradient(135deg, #f0f4ff 0%, #f5f0ff 35%, #f0fff4 70%, #fff8f0 100%)", border: "1.5px solid #5856D6", borderRadius: 12, padding: "13px 16px", marginTop: 10, fontSize: 13, color: "#00004a", fontWeight: 600, lineHeight: 1.7 }}>
+            ⚡ <span style={{ fontWeight: 900, color: "#5856D6" }}>{OMNI_UI_INTEGRATION_LAYER.name}</span> is active — combining all {OMNI_UI_INTEGRATION_LAYER.activeLayers.length} layers ({OMNI_UI_INTEGRATION_LAYER.activeLayers.map(l => l.label).join(" · ")}) simultaneously across every output.
+            {" "}{OMNI_UI_INTEGRATION_LAYER.combinationPrinciples.length} combination principles ensure no conflicts, no compromises.
+            {" "}{OMNI_UI_INTEGRATION_LAYER.outputRules.length} output rules guaranteed on every page: {OMNI_UI_INTEGRATION_LAYER.outputRules.map(r => r.label).join(", ")}.
+            {" "}{OMNI_UI_INTEGRATION_LAYER.outputPromise}
+            {" "}🛡️ <em>{OMNI_UI_INTEGRATION_LAYER.safetyDeclaration}</em>
           </div>
           <div style={{ background: "linear-gradient(135deg, #f0f8ff 0%, #f8f0ff 50%, #f5fff8 100%)", border: "1.5px solid #007AFF", borderRadius: 12, padding: "13px 16px", marginTop: 10, fontSize: 13, color: "#00006a", fontWeight: 600, lineHeight: 1.7 }}>
             🎨 <span style={{ fontWeight: 900, color: "#007AFF" }}>{OMNI_UI_PERSONALIZED_MODE.name}</span> is active — inherited by every page, every view, every output across all {projects.length} projects.
