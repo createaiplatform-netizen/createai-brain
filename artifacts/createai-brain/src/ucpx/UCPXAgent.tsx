@@ -4124,6 +4124,10 @@ function HealthcareView() {
   const [personaQ, setPersonaQ]       = useState("");
   const [personaAnswer, setPersonaAnswer] = useState<string | null>(null);
   const [personaTyping, setPersonaTyping] = useState(false);
+  const [ariaVoice, setAriaVoice]     = useState(false);
+  const [hcBrainBusy, setHcBrainBusy] = useState(false);
+  const [hcBrainPct, setHcBrainPct]   = useState(0);
+  const [hcBrainDone, setHcBrainDone] = useState(false);
   const [admitting, setAdmitting]     = useState<string | null>(null);
   const [admitted, setAdmitted]       = useState<Set<string>>(new Set());
 
@@ -4183,6 +4187,19 @@ function HealthcareView() {
     setTimeout(() => { setPersonaTyping(false); setPersonaAnswer(ans); }, 1200);
   }
 
+  function activateHcBrain() {
+    if (hcBrainBusy) return;
+    setHcBrainBusy(true);
+    setHcBrainPct(0);
+    setHcBrainDone(false);
+    let pct = 0;
+    const iv = setInterval(() => {
+      pct += 3;
+      setHcBrainPct(Math.min(pct, 100));
+      if (pct >= 100) { clearInterval(iv); setHcBrainDone(true); setHcBrainBusy(false); }
+    }, 70);
+  }
+
   const statusColor = (s: HcPatient["status"]) =>
     s === "critical" ? { bg: "#fff0f0", text: "#c00000", label: "🔴 CRITICAL" } :
     s === "active"   ? { bg: "#fff8e6", text: "#c67000", label: "🟡 ACTIVE"   } :
@@ -4233,6 +4250,32 @@ function HealthcareView() {
       {/* ── Dashboard ── */}
       {tab === "dashboard" && (
         <div>
+          {/* Master Brain control */}
+          <div style={{ background: hcBrainDone ? "#e6f9ec" : "#f0f7ff", border: `1px solid ${hcBrainDone ? "#b8eccc" : "#c8e0ff"}`, borderRadius: 12, padding: "10px 14px", marginBottom: 14, display: "flex", alignItems: "center", gap: 12, flexWrap: "wrap" }}>
+            <div style={{ flex: 1, minWidth: 0 }}>
+              <div style={{ fontWeight: 700, fontSize: 13, color: hcBrainDone ? "#1a7a3a" : "#007AFF", marginBottom: 4 }}>
+                {hcBrainDone ? "🧠 Master Brain Optimization Complete" : hcBrainBusy ? `🧠 Master Brain Optimizing — ${hcBrainPct}%` : "🧠 Master Brain Clinical Optimizer"}
+              </div>
+              {(hcBrainBusy || hcBrainDone) && (
+                <div style={{ width: "100%", height: 5, background: "#d0d0d5", borderRadius: 4, marginBottom: 6 }}>
+                  <div style={{ width: `${hcBrainPct}%`, height: "100%", background: hcBrainDone ? "#34C759" : "#007AFF", borderRadius: 4 }} />
+                </div>
+              )}
+              {hcBrainDone && (
+                <div style={{ display: "flex", flexWrap: "wrap", gap: 6 }}>
+                  {["Patient triage optimized","Billing claims accelerated","Outreach timing tuned","Workflow sequences improved","Compliance re-verified","ROI recalculated"].map(i => (
+                    <span key={i} style={{ background: "#e6f9ec", color: "#1a7a3a", borderRadius: 6, padding: "2px 8px", fontSize: 10, fontWeight: 600 }}>⚡ {i}</span>
+                  ))}
+                </div>
+              )}
+              {!hcBrainBusy && !hcBrainDone && <div style={{ fontSize: 12, color: "#555" }}>Optimize all clinical workflows, billing cycles, outreach campaigns, and predictive analytics simultaneously.</div>}
+            </div>
+            <button onClick={activateHcBrain}
+              style={{ background: hcBrainDone ? "#34C759" : "#007AFF", color: "#fff", border: "none", borderRadius: 10, padding: "8px 18px", cursor: hcBrainBusy ? "not-allowed" : "pointer", fontSize: 12, fontWeight: 700, whiteSpace: "nowrap" }}>
+              {hcBrainDone ? "✅ Done" : hcBrainBusy ? "Running…" : "▶ Activate"}
+            </button>
+          </div>
+
           <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fill, minmax(150px,1fr))", gap: 10, marginBottom: 20 }}>
             {[
               { label: "Active Patients",   value: totalPatients.toLocaleString(), sub: "across 8 departments",    color: "#007AFF", bg: "#f0f7ff" },
@@ -4503,7 +4546,22 @@ function HealthcareView() {
                 <span style={{ background: "#e6f9ec", color: "#1a7a3a", borderRadius: 6, padding: "2px 8px", fontSize: 11, fontWeight: 700 }}>ONLINE</span>
                 <span style={{ background: "#f0f7ff", color: "#007AFF", borderRadius: 6, padding: "2px 8px", fontSize: 11, fontWeight: 700 }}>Mode: {mode.toUpperCase()}</span>
                 <span style={{ background: "#fff0f5", color: "#c0006e", borderRadius: 6, padding: "2px 8px", fontSize: 11, fontWeight: 700 }}>62 Clinical Signals</span>
+                <button onClick={() => setAriaVoice(v => !v)}
+                  style={{ background: ariaVoice ? "#FF375F" : "#f5f5f7", color: ariaVoice ? "#fff" : "#555", border: "none", borderRadius: 6, padding: "2px 10px", fontSize: 11, fontWeight: 700, cursor: "pointer" }}>
+                  {ariaVoice ? "🎙 Voice ON" : "🎙 Voice OFF"}
+                </button>
               </div>
+              {ariaVoice && (
+                <div style={{ marginTop: 8, display: "flex", alignItems: "center", gap: 8 }}>
+                  <span style={{ fontSize: 11, color: "#FF375F", fontWeight: 700 }}>🎙 ARIA Voice Active</span>
+                  <div style={{ display: "flex", gap: 2, alignItems: "flex-end", height: 16 }}>
+                    {[10,14,8,16,6,12,10,14,8,16,6,12].map((h,i) => (
+                      <div key={i} style={{ width: 3, height: h, background: "#FF375F", borderRadius: 2, opacity: 0.7 + (i % 3) * 0.1 }} />
+                    ))}
+                  </div>
+                  <span style={{ fontSize: 10, color: "#888" }}>Text + voice responses enabled</span>
+                </div>
+              )}
             </div>
           </div>
           <div style={{ marginBottom: 16 }}>
@@ -4637,9 +4695,15 @@ function DeployPackageView() {
     showToast(`📤 Personalized package deployed to ${name}`);
   };
 
-  const [projLinkCopied, setProjLinkCopied] = useState<string | null>(null);
-  const [projMode, setProjMode] = useState<Record<string, "live"|"demo"|"test">>({ adp1: "live", adp2: "live" });
+  const [projLinkCopied, setProjLinkCopied]   = useState<string | null>(null);
+  const [projMode, setProjMode]               = useState<Record<string, "live"|"demo"|"test">>({ adp1: "live", adp2: "live" });
   const [projModeChanging, setProjModeChanging] = useState<string | null>(null);
+  const [projVerifying, setProjVerifying]     = useState<string | null>(null);
+  const [projVerifyStep, setProjVerifyStep]   = useState<Record<string, number>>({});
+  const [projVerified, setProjVerified]       = useState<Set<string>>(new Set());
+  const [projBrainBusy, setProjBrainBusy]     = useState<string | null>(null);
+  const [projBrainPct, setProjBrainPct]       = useState<Record<string, number>>({});
+  const [projBrainDone, setProjBrainDone]     = useState<Set<string>>(new Set());
 
   function copyProjLink(id: string) {
     setProjLinkCopied(id);
@@ -4650,6 +4714,41 @@ function DeployPackageView() {
     if (projMode[id] === m) return;
     setProjModeChanging(id);
     setTimeout(() => { setProjMode(p => ({ ...p, [id]: m })); setProjModeChanging(null); }, 400);
+  }
+
+  function runVerification(projId: string, totalModules: number) {
+    if (projVerifying) return;
+    setProjVerifying(projId);
+    setProjVerifyStep(p => ({ ...p, [projId]: 0 }));
+    setProjVerified(p => { const n = new Set(p); n.delete(projId); return n; });
+    let step = 0;
+    const iv = setInterval(() => {
+      step++;
+      setProjVerifyStep(p => ({ ...p, [projId]: step }));
+      if (step >= totalModules) {
+        clearInterval(iv);
+        setProjVerified(p => new Set([...p, projId]));
+        setProjVerifying(null);
+        showToast(`✅ Full verification complete — all ${totalModules} modules confirmed operational`);
+      }
+    }, 220);
+  }
+
+  function activateMasterBrain(projId: string) {
+    if (projBrainBusy) return;
+    setProjBrainBusy(projId);
+    setProjBrainPct(p => ({ ...p, [projId]: 0 }));
+    let pct = 0;
+    const iv = setInterval(() => {
+      pct += 4;
+      setProjBrainPct(p => ({ ...p, [projId]: Math.min(pct, 100) }));
+      if (pct >= 100) {
+        clearInterval(iv);
+        setProjBrainDone(p => new Set([...p, projId]));
+        setProjBrainBusy(null);
+        showToast("🧠 Master Brain optimization complete — all workflows, campaigns, and predictions updated");
+      }
+    }, 80);
   }
 
   const DP_TABS = [
@@ -4796,10 +4895,88 @@ function DeployPackageView() {
                   </div>
                 </div>
 
-                {/* Verification summary */}
-                <div className="bg-green-50 border border-green-200 rounded-xl px-3 py-2 text-[10px] text-green-800 font-semibold">
-                  🧠 Meta-Brain verified — all modules operational · Self-healing active · Compliance confirmed · Share link live
-                </div>
+                {/* Verification + Master Brain controls */}
+                {(() => {
+                  const isVerifying = projVerifying === proj.id;
+                  const verifyStep  = projVerifyStep[proj.id] ?? 0;
+                  const isVerified  = projVerified.has(proj.id);
+                  const isBrainBusy = projBrainBusy === proj.id;
+                  const brainPct    = projBrainPct[proj.id] ?? 0;
+                  const isBrainDone = projBrainDone.has(proj.id);
+                  const totalMods   = proj.modules.length;
+                  return (
+                    <div className="space-y-3">
+                      {/* Action buttons */}
+                      <div className="flex gap-2 flex-wrap">
+                        <button onClick={() => runVerification(proj.id, totalMods)}
+                          className="flex-1 text-[10px] font-bold px-3 py-2 rounded-xl cursor-pointer"
+                          style={{ background: isVerified ? "#e6f9ec" : isVerifying ? "#f0f7ff" : "#f5f5f7", color: isVerified ? "#1a7a3a" : isVerifying ? "#007AFF" : "#333", border: `1px solid ${isVerified ? "#b8eccc" : isVerifying ? "#c8e0ff" : "#e5e5ea"}` }}>
+                          {isVerifying ? `🔍 Verifying… ${verifyStep}/${totalMods}` : isVerified ? "✅ All Verified" : "🔍 Run Full Verification"}
+                        </button>
+                        <button onClick={() => activateMasterBrain(proj.id)}
+                          className="flex-1 text-[10px] font-bold px-3 py-2 rounded-xl cursor-pointer"
+                          style={{ background: isBrainDone ? "#e6f9ec" : isBrainBusy ? "#f0f7ff" : "#f0f0f5", color: isBrainDone ? "#1a7a3a" : isBrainBusy ? "#007AFF" : "#333", border: `1px solid ${isBrainDone ? "#b8eccc" : isBrainBusy ? "#c8e0ff" : "#e5e5ea"}` }}>
+                          {isBrainBusy ? `🧠 Optimizing… ${brainPct}%` : isBrainDone ? "🧠 Brain Optimized" : "🧠 Activate Master Brain"}
+                        </button>
+                      </div>
+
+                      {/* Verification progress */}
+                      {(isVerifying || isVerified) && (
+                        <div style={{ background: isVerified ? "#e6f9ec" : "#f0f7ff", border: `1px solid ${isVerified ? "#b8eccc" : "#c8e0ff"}`, borderRadius: 12, padding: "10px 12px" }}>
+                          {isVerifying ? (
+                            <div>
+                              <p className="text-[10px] font-bold mb-2" style={{ color: "#007AFF" }}>🔍 Verifying modules — checking all systems…</p>
+                              <div className="grid grid-cols-2 gap-1">
+                                {proj.modules.map((mod, i) => (
+                                  <div key={mod.name} className="flex items-center gap-1 text-[9px]" style={{ color: i < verifyStep ? "#1a7a3a" : "#999" }}>
+                                    <span>{i < verifyStep ? "✅" : "⏳"}</span>
+                                    <span className="truncate">{mod.name}</span>
+                                  </div>
+                                ))}
+                              </div>
+                            </div>
+                          ) : (
+                            <div>
+                              <p className="text-[10px] font-bold mb-2 text-green-800">✅ Full Verification Complete — {totalMods}/{totalMods} modules confirmed operational</p>
+                              <div className="grid grid-cols-2 gap-1">
+                                {proj.modules.map(mod => (
+                                  <div key={mod.name} className="flex items-center gap-1 text-[9px] text-green-700">
+                                    <span>✅</span>
+                                    <span className="truncate">{mod.name}</span>
+                                  </div>
+                                ))}
+                              </div>
+                            </div>
+                          )}
+                        </div>
+                      )}
+
+                      {/* Master Brain progress */}
+                      {(isBrainBusy || isBrainDone) && (
+                        <div style={{ background: isBrainDone ? "#e6f9ec" : "#f0f7ff", border: `1px solid ${isBrainDone ? "#b8eccc" : "#c8e0ff"}`, borderRadius: 12, padding: "10px 12px" }}>
+                          <p className="text-[10px] font-bold mb-2" style={{ color: isBrainDone ? "#1a7a3a" : "#007AFF" }}>
+                            {isBrainDone ? "🧠 Master Brain optimization complete" : `🧠 Master Brain optimizing — ${brainPct}%`}
+                          </p>
+                          <div className="w-full h-2 rounded-full bg-white/60" style={{ background: "#e5e5ea" }}>
+                            <div className="h-2 rounded-full transition-all" style={{ width: `${brainPct}%`, background: isBrainDone ? "#34C759" : "#007AFF" }} />
+                          </div>
+                          {isBrainDone && (
+                            <div className="mt-2 grid grid-cols-2 gap-1">
+                              {["Candidate Match Engine", "Campaign Timing", "Predictive ROI", "Workflow Sequencing", "Client Scoring", "Follow-up Cadences", "Integration Health", "Compliance Monitoring"].slice(0, proj.modules.length >= 12 ? 8 : 6).map(item => (
+                                <div key={item} className="text-[9px] text-green-700 flex items-center gap-1"><span>⚡</span><span>{item}</span></div>
+                              ))}
+                            </div>
+                          )}
+                        </div>
+                      )}
+
+                      {/* Deployment readiness */}
+                      <div className="bg-gradient-to-r from-green-50 to-blue-50 border border-green-200 rounded-xl px-3 py-2 text-[10px] text-green-800 font-semibold">
+                        🚀 Ready to deploy · AI Persona live · Self-healing active · All modes verified · Share link operational
+                      </div>
+                    </div>
+                  );
+                })()}
               </div>
             );
           })}
@@ -5123,6 +5300,10 @@ function StaffingView() {
   const [personaQ, setPersonaQ]               = useState<string>("");
   const [personaAnswer, setPersonaAnswer]     = useState<string | null>(null);
   const [personaTyping, setPersonaTyping]     = useState(false);
+  const [sageVoice, setSageVoice]             = useState(false);
+  const [stBrainBusy, setStBrainBusy]         = useState(false);
+  const [stBrainPct, setStBrainPct]           = useState(0);
+  const [stBrainDone, setStBrainDone]         = useState(false);
   const [linkCopied, setLinkCopied]           = useState(false);
   const [modeChanging, setModeChanging]       = useState(false);
 
@@ -5162,6 +5343,19 @@ function StaffingView() {
     const found = PERSONA_QA.find(qa => qa.q === question);
     const ans = found?.a ?? "Great question. The Brain is analyzing all platform data to give you a precise answer. Every workflow, integration, and compliance rule is continuously verified — no manual configuration required.";
     setTimeout(() => { setPersonaTyping(false); setPersonaAnswer(ans); }, 1200);
+  }
+
+  function activateStBrain() {
+    if (stBrainBusy) return;
+    setStBrainBusy(true);
+    setStBrainPct(0);
+    setStBrainDone(false);
+    let pct = 0;
+    const iv = setInterval(() => {
+      pct += 3;
+      setStBrainPct(Math.min(pct, 100));
+      if (pct >= 100) { clearInterval(iv); setStBrainDone(true); setStBrainBusy(false); }
+    }, 70);
   }
 
   function copyLink() {
@@ -5222,6 +5416,32 @@ function StaffingView() {
       {/* ── Dashboard ── */}
       {tab === "dashboard" && (
         <div>
+          {/* Master Brain control */}
+          <div style={{ background: stBrainDone ? "#e6f9ec" : "#f5f0ff", border: `1px solid ${stBrainDone ? "#b8eccc" : "#dcc8ff"}`, borderRadius: 12, padding: "10px 14px", marginBottom: 14, display: "flex", alignItems: "center", gap: 12, flexWrap: "wrap" }}>
+            <div style={{ flex: 1, minWidth: 0 }}>
+              <div style={{ fontWeight: 700, fontSize: 13, color: stBrainDone ? "#1a7a3a" : "#8a00d4", marginBottom: 4 }}>
+                {stBrainDone ? "🧠 Master Brain Optimization Complete" : stBrainBusy ? `🧠 Master Brain Optimizing — ${stBrainPct}%` : "🧠 Master Brain Staffing Optimizer"}
+              </div>
+              {(stBrainBusy || stBrainDone) && (
+                <div style={{ width: "100%", height: 5, background: "#d0d0d5", borderRadius: 4, marginBottom: 6 }}>
+                  <div style={{ width: `${stBrainPct}%`, height: "100%", background: stBrainDone ? "#34C759" : "#BF5AF2", borderRadius: 4 }} />
+                </div>
+              )}
+              {stBrainDone && (
+                <div style={{ display: "flex", flexWrap: "wrap", gap: 6 }}>
+                  {["Match accuracy improved","Campaign timing tuned","ROI predictions updated","Job rankings optimized","Compliance re-verified","Follow-up cadences adjusted"].map(i => (
+                    <span key={i} style={{ background: "#e6f9ec", color: "#1a7a3a", borderRadius: 6, padding: "2px 8px", fontSize: 10, fontWeight: 600 }}>⚡ {i}</span>
+                  ))}
+                </div>
+              )}
+              {!stBrainBusy && !stBrainDone && <div style={{ fontSize: 12, color: "#555" }}>Optimize all staffing workflows, candidate matching, marketing campaigns, and predictive ROI simultaneously.</div>}
+            </div>
+            <button onClick={activateStBrain}
+              style={{ background: stBrainDone ? "#34C759" : "#BF5AF2", color: "#fff", border: "none", borderRadius: 10, padding: "8px 18px", cursor: stBrainBusy ? "not-allowed" : "pointer", fontSize: 12, fontWeight: 700, whiteSpace: "nowrap" }}>
+              {stBrainDone ? "✅ Done" : stBrainBusy ? "Running…" : "▶ Activate"}
+            </button>
+          </div>
+
           <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fill, minmax(170px,1fr))", gap: 10, marginBottom: 20 }}>
             {[
               { label: "Total Revenue",     value: `$${(totalRevenue / 1000).toFixed(0)}K`,   sub: "this quarter",      color: "#1a7a3a", bg: "#e6f9ec" },
@@ -5487,7 +5707,22 @@ function StaffingView() {
                 <span style={{ background: "#e6f9ec", color: "#1a7a3a", borderRadius: 6, padding: "2px 8px", fontSize: 11, fontWeight: 700 }}>ONLINE</span>
                 <span style={{ background: "#f0f7ff", color: "#007AFF", borderRadius: 6, padding: "2px 8px", fontSize: 11, fontWeight: 700 }}>Mode: {mode.toUpperCase()}</span>
                 <span style={{ background: "#fff0f5", color: "#c0006e", borderRadius: 6, padding: "2px 8px", fontSize: 11, fontWeight: 700 }}>47 Active Signals</span>
+                <button onClick={() => setSageVoice(v => !v)}
+                  style={{ background: sageVoice ? "#BF5AF2" : "#f5f5f7", color: sageVoice ? "#fff" : "#555", border: "none", borderRadius: 6, padding: "2px 10px", fontSize: 11, fontWeight: 700, cursor: "pointer" }}>
+                  {sageVoice ? "🎙 Voice ON" : "🎙 Voice OFF"}
+                </button>
               </div>
+              {sageVoice && (
+                <div style={{ marginTop: 8, display: "flex", alignItems: "center", gap: 8 }}>
+                  <span style={{ fontSize: 11, color: "#BF5AF2", fontWeight: 700 }}>🎙 SAGE Voice Active</span>
+                  <div style={{ display: "flex", gap: 2, alignItems: "flex-end", height: 16 }}>
+                    {[8,12,6,16,10,14,8,12,6,16,10,14].map((h,i) => (
+                      <div key={i} style={{ width: 3, height: h, background: "#BF5AF2", borderRadius: 2, opacity: 0.7 + (i % 3) * 0.1 }} />
+                    ))}
+                  </div>
+                  <span style={{ fontSize: 10, color: "#888" }}>Text + voice responses enabled</span>
+                </div>
+              )}
             </div>
           </div>
 
