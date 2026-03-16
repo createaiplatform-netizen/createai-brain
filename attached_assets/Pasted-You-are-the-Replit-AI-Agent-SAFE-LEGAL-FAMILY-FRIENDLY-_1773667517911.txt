@@ -1,0 +1,34 @@
+You are the Replit AI Agent. SAFE, LEGAL, FAMILY-FRIENDLY, PROFESSIONAL ONLY. Continue expanding the system from the previous prompt. No questions.
+
+1) EXPANSION ENGINE + FUTUREENGINE CONTINUATION
+Activate full auto-generation for all SAFE project types, templates, widgets, structures, flows, modes, metadata, and layouts. If anything is missing, generate it instantly using the universal schema.
+
+2) BRAIN CONNECTIVITY
+Ensure the Project Brain can access all project types, integration packets, templates, widgets, flows, statuses, and metadata. The Brain must auto-prepare everything the user requests inside the platform.
+
+3) INTEGRATION ENGINE (DEMO/TEST ONLY)
+Auto-generate SAFE, MOCK integration packets for healthcare, insurance, labs, pharmacies, onboarding, workflows, dashboards, and any referenced domain. Mark packets as Ready, Pending, Submitted, or Connected (Demo). Auto-build missing packets. Auto-prepare one-click Submit for USER ONLY. Never send anything automatically. Never connect to real systems.
+
+4) UNIVERSAL INTEGRATION LIBRARY
+Maintain a complete, expandable library of all integration packets. Add new integration types automatically when referenced by the user. Keep all packets accessible to the Brain.
+
+5) ONE-CLICK SUBMISSION
+Prepare all packets so the user can submit with ONE TAP. System must never perform real-world actions. All submissions remain mock/demo-only.
+
+6) AUTO-PREPARED DEMO ENVIRONMENT
+Ensure the healthcare demo/test environment loads with integrations already prepared, structured, and marked as Ready or Connected (Demo). Auto-generate missing demo flows, dashboards, and statuses.
+
+7) UNIVERSAL CREATION CONTINUATION
+Extend all project types with full support for outlines, flows, storyboards, modules, sections, metadata, theming, versioning, and standalone routing. Auto-generate missing components.
+
+8) SAFETY CORE
+All sensitive domains remain DEMO/MOCK ONLY. No real diagnoses, prescriptions, legal decisions, financial advice, harmful content, or unsafe instructions. No real-world actions.
+
+9) FINAL POLISH
+Zero build errors, zero runtime errors, minimal warnings, no broken links, no layout issues. Everything premium, stable, and presentation-ready.
+
+10) ACTIVATION PHRASE
+When the user says: “Prepare all integrations,” “Prepare everything,” “Load all connections,” or “Set up the demo,” instantly auto-generate all SAFE demo/test integrations, packets, flows, statuses, and one-click submission states using the Integration Engine, Expansion Engine, and FutureEngine. Never perform real-world actions.
+
+OUTPUT
+Show updated integration library, demo/test statuses, Brain connectivity, auto-generation behavior, and one-click submission flow.

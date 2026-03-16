@@ -146,10 +146,39 @@ function BuildProgress({ name, icon, color, pct, log }: { name: string; icon: st
   );
 }
 
+// ─── Status badge config ──────────────────────────────────────────────────────
+const STATUS_STYLES: Record<string, { label: string; className: string }> = {
+  "draft":       { label: "Draft",       className: "bg-gray-100 text-gray-500" },
+  "in-progress": { label: "In Progress", className: "bg-blue-100 text-blue-600" },
+  "complete":    { label: "Complete",    className: "bg-green-100 text-green-600" },
+  "archived":    { label: "Archived",    className: "bg-orange-100 text-orange-600" },
+};
+
 // ─── Gallery ──────────────────────────────────────────────────────────────────
 function Gallery({ onClose }: { onClose: () => void }) {
-  const [items, setItems] = useState<Creation[]>([]);
-  useEffect(() => { setItems(CreationStore.getAll()); }, []);
+  const [items, setItems]           = useState<Creation[]>([]);
+  const [filter, setFilter]         = useState<string>("all");
+  const [copied, setCopied]         = useState<string | null>(null);
+
+  const refresh = () => setItems(CreationStore.getAll());
+  useEffect(() => { refresh(); }, []);
+
+  const allTags = [...new Set(items.flatMap(c => c.tags ?? []))];
+  const filtered = filter === "all" ? items : filter.startsWith("tag:") ? items.filter(c => (c.tags ?? []).includes(filter.slice(4))) : items.filter(c => (c.status ?? "draft") === filter);
+
+  const cycleStatus = (c: Creation) => {
+    const cycle: string[] = ["draft", "in-progress", "complete", "archived"];
+    const next = cycle[(cycle.indexOf(c.status ?? "draft") + 1) % cycle.length] as any;
+    CreationStore.updateStatus(c.id, next);
+    refresh();
+  };
+
+  const handleCopy = async (c: Creation) => {
+    const summary = `${c.name}\nType: ${c.type} | ${c.domain}\nSections: ${c.sections.length}\nCreated: ${new Date(c.createdAt).toLocaleDateString()}\n\nMock content — CreateAI Brain`;
+    try { await navigator.clipboard.writeText(summary); } catch {}
+    setCopied(c.id);
+    setTimeout(() => setCopied(null), 2000);
+  };
 
   return (
     <div className="p-5 space-y-4">
@@ -158,29 +187,75 @@ function Gallery({ onClose }: { onClose: () => void }) {
         <h2 className="text-xl font-bold text-foreground flex-1">My Creations</h2>
         <span className="text-[12px] text-muted-foreground">{items.length}</span>
       </div>
-      {items.length === 0 ? (
+
+      {/* Filter pills */}
+      {items.length > 1 && (
+        <div className="flex flex-wrap gap-1.5">
+          {["all", "draft", "in-progress", "complete", "archived"].map(f => (
+            <button key={f} onClick={() => setFilter(f)}
+              className={`text-[10px] px-2 py-1 rounded-full border transition-all font-medium ${filter === f ? "bg-primary text-white border-primary" : "border-border/50 text-muted-foreground hover:border-primary/30"}`}>
+              {f === "all" ? "All" : STATUS_STYLES[f]?.label ?? f}
+            </button>
+          ))}
+          {allTags.slice(0, 4).map(tag => (
+            <button key={tag} onClick={() => setFilter(filter === `tag:${tag}` ? "all" : `tag:${tag}`)}
+              className={`text-[10px] px-2 py-1 rounded-full border transition-all font-medium ${filter === `tag:${tag}` ? "bg-purple-600 text-white border-purple-600" : "border-border/50 text-muted-foreground hover:border-purple-300"}`}>
+              #{tag}
+            </button>
+          ))}
+        </div>
+      )}
+
+      {filtered.length === 0 ? (
         <div className="text-center py-14">
           <p className="text-4xl mb-3">⚡</p>
-          <p className="text-muted-foreground text-sm">No creations yet.</p>
-          <button onClick={onClose} className="mt-4 bg-primary text-white px-4 py-2 rounded-xl text-sm font-semibold hover:opacity-90">Build Your First →</button>
+          <p className="text-muted-foreground text-sm">{items.length === 0 ? "No creations yet." : "No creations match this filter."}</p>
+          {items.length === 0 && <button onClick={onClose} className="mt-4 bg-primary text-white px-4 py-2 rounded-xl text-sm font-semibold hover:opacity-90">Build Your First →</button>}
         </div>
       ) : (
         <div className="space-y-2">
-          {items.map(c => {
-            const meta = TYPE_META[c.type];
+          {filtered.map(c => {
+            const meta   = TYPE_META[c.type];
+            const status = STATUS_STYLES[c.status ?? "draft"];
             return (
-              <div key={c.id} className="flex items-center gap-3 p-3.5 bg-background rounded-2xl border border-border/50 hover:border-primary/20 transition-colors">
-                <div className="w-10 h-10 rounded-xl flex items-center justify-center text-xl flex-shrink-0" style={{ backgroundColor: meta.color + "22" }}>{meta.icon}</div>
-                <div className="flex-1 min-w-0">
-                  <p className="font-semibold text-[13px] text-foreground truncate">{c.name}</p>
-                  <p className="text-[10px] text-muted-foreground">{meta.label} · {new Date(c.createdAt).toLocaleDateString()}</p>
-                  {c.modules?.length > 0 && (
-                    <p className="text-[9px] text-muted-foreground/60 truncate">{c.modules.slice(0, 3).join(" · ")}</p>
-                  )}
+              <div key={c.id} className="bg-background rounded-2xl border border-border/50 hover:border-primary/20 transition-colors overflow-hidden">
+                <div className="flex items-center gap-3 p-3.5">
+                  <div className="w-10 h-10 rounded-xl flex items-center justify-center text-xl flex-shrink-0" style={{ backgroundColor: meta.color + "22" }}>{meta.icon}</div>
+                  <div className="flex-1 min-w-0">
+                    <div className="flex items-center gap-2 flex-wrap">
+                      <p className="font-semibold text-[13px] text-foreground truncate">{c.name}</p>
+                      <span className={`text-[9px] px-1.5 py-0.5 rounded-full font-bold flex-shrink-0 ${status.className}`}>{status.label}</span>
+                    </div>
+                    <p className="text-[10px] text-muted-foreground">{meta.label} · {new Date(c.createdAt).toLocaleDateString()} · {c.sections.length} sections</p>
+                    {(c.tags ?? []).length > 0 && (
+                      <div className="flex gap-1 flex-wrap mt-0.5">
+                        {(c.tags ?? []).slice(0, 3).map(tag => (
+                          <span key={tag} className="text-[9px] px-1.5 py-0.5 rounded-full bg-purple-50 text-purple-600 border border-purple-100">#{tag}</span>
+                        ))}
+                      </div>
+                    )}
+                  </div>
+                  <button onClick={() => openCreation(c.id)}
+                    className="flex items-center gap-1 text-[11px] font-bold text-white px-3 py-1.5 rounded-lg hover:opacity-90 flex-shrink-0"
+                    style={{ backgroundColor: meta.color }}>↗ Open</button>
                 </div>
-                <button onClick={() => openCreation(c.id)}
-                  className="flex items-center gap-1 text-[11px] font-bold text-white px-3 py-1.5 rounded-lg hover:opacity-90 flex-shrink-0"
-                  style={{ backgroundColor: meta.color }}>↗ Open</button>
+                {/* Quick actions row */}
+                <div className="flex border-t border-border/30">
+                  <button onClick={() => cycleStatus(c)}
+                    className="flex-1 py-1.5 text-[10px] text-muted-foreground hover:bg-muted/40 transition-colors text-center font-medium">
+                    ⊙ {STATUS_STYLES[c.status ?? "draft"]?.label}
+                  </button>
+                  <div className="w-px bg-border/30" />
+                  <button onClick={() => handleCopy(c)}
+                    className="flex-1 py-1.5 text-[10px] text-muted-foreground hover:bg-muted/40 transition-colors text-center font-medium">
+                    {copied === c.id ? "✓ Copied" : "📋 Copy"}
+                  </button>
+                  <div className="w-px bg-border/30" />
+                  <button onClick={() => { CreationStore.delete(c.id); refresh(); }}
+                    className="flex-1 py-1.5 text-[10px] text-red-400 hover:bg-red-50 transition-colors text-center font-medium">
+                    🗑 Delete
+                  </button>
+                </div>
               </div>
             );
           })}

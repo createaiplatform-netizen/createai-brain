@@ -1,0 +1,46 @@
+You are the Replit AI Agent. SAFE, LEGAL, FAMILY‑FRIENDLY, PROFESSIONAL ONLY. This is an ADD‑ON to the previous prompts. Do not delete working code unless corrupted. Expand ALL systems with maximum SAFE capability. No questions.
+
+A. UNIVERSAL PROJECT MODES (ADD REMAINING)
+Add SAFE support for: multi‑page sites, multi‑chapter stories, multi‑module courses, multi‑scene demos, multi‑panel comics, multi‑level game concepts, multi‑episode series planning, multi‑asset marketing kits, multi‑document bundles, multi‑flow workflows, multi‑persona journeys, multi‑track roadmaps, multi‑format content packs.
+
+B. ADVANCED STRUCTURE ENGINE
+Add SAFE logic for: hierarchical sections, nested modules, branching flows, scene trees, panel grids, level groups, act/scene breakdowns, deck slide stacks, multi‑file project bundles. Ensure all structures are typed, consistent, and reusable.
+
+C. ADVANCED CONTENT ENGINE
+Add SAFE generators for: outlines, beats, bullet lists, summaries, descriptions, character bios, location notes, feature specs, module objectives, lesson steps, storyboard frames, panel descriptions, level concepts, scene cards, slide notes, workflow steps, journey stages, roadmap milestones.
+
+D. ADVANCED TEMPLATE PACK
+Add SAFE templates for: multi‑chapter story arcs, multi‑act structures, character sheets, location sheets, item sheets, faction sheets, worldbuilding sheets, UI wireframe placeholders, dashboard layouts, data‑agnostic chart placeholders, onboarding flows, support flows, documentation sets, release notes, changelogs, style guides, tone guides, naming guides.
+
+E. ADVANCED WIDGET PACK
+Add SAFE UI widgets: collapsible sections, sortable lists, draggable blocks (conceptual), modal shells, drawer shells, timeline scrubbers (non‑functional placeholder), multi‑column grids, card stacks, panel sequences, scene boards, slide carousels, flow nodes, connector placeholders.
+
+F. ADVANCED PRESENTATION MODES
+Add SAFE modes for: story mode, world mode, character mode, location mode, deck mode, flow mode, journey mode, roadmap mode, comic mode, game concept mode, movie/series planning mode, IP bible mode, multi‑asset kit mode. Each mode maps to templates + widgets.
+
+G. ADVANCED METADATA
+Add SAFE metadata fields: genre, tone, audience, complexity, priority, tags, themes, motifs, color profile, layout style, pacing, structure type, bundle membership, version label, draft level.
+
+H. ADVANCED VERSIONING
+Add SAFE lightweight versioning: snapshot, restore, compare metadata, track changes to structure/content (conceptual only).
+
+I. ADVANCED ORGANIZATION
+Add SAFE systems for: folders, collections, bundles, linked projects, cross‑references, related items, dependency notes.
+
+J. ADVANCED BRANDING
+Add SAFE brand pack: palette, typography tokens, spacing tokens, component variants, tone keywords, brand notes. Ensure widgets/layouts can read brand tokens.
+
+K. ADVANCED EXPORT PREP
+Add SAFE stubs for: JSON export, Markdown export, HTML‑like structure export (conceptual only). No real external integrations.
+
+L. ADVANCED DIAGNOSTICS
+Add SAFE debug utilities: engine trace, template trace, mode trace, metadata inspector, structure inspector.
+
+M. ADVANCED SAFETY FILTERS
+Ensure all generated content remains SAFE, LEGAL, FAMILY‑FRIENDLY, NON‑HARMFUL, NON‑EXPERT‑REPLACING. All sensitive domains remain DEMO/MOCK ONLY.
+
+N. ADVANCED POLISH
+Ensure: zero build errors, zero runtime errors, minimal warnings, no broken links, no layout issues, consistent naming, modular structure, premium presentation.
+
+OUTPUT
+Show updated: engines, templates, widgets, modes, metadata, versioning, organization, branding, export stubs, diagnostics, and summary.

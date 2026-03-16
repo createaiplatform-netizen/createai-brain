@@ -1,5 +1,6 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import { useOS } from "@/os/OSContext";
+import { CreationStore } from "@/standalone/creation/CreationStore";
 
 type OsMode = "DEMO" | "TEST" | "LIVE";
 
@@ -19,6 +20,7 @@ const SECTIONS = [
   { id: "security", label: "Security",        value: "Active", icon: "🔒", desc: "RBAC, invite-only, audit log" },
   { id: "safety",   label: "Safety Shell",    value: "ON",     icon: "🛡️", desc: "Global error prevention active" },
   { id: "audit",    label: "Audit Log",       value: `${AUDIT_LOG.length}`, icon: "📋", desc: "Recent activity log" },
+  { id: "debug",    label: "Debug Panel",     value: "Live",   icon: "🔬", desc: "System state, engines, localStorage" },
 ];
 
 const ENGINE_LIST = [
@@ -46,6 +48,27 @@ export function AdminApp() {
   const [activeSection, setActiveSection] = useState<string | null>(null);
   const [confirmLive, setConfirmLive] = useState(false);
   const [logAdded, setLogAdded] = useState(false);
+  const [debugData, setDebugData] = useState<Record<string, unknown>>({});
+
+  useEffect(() => {
+    if (activeSection === "debug") {
+      const creations = CreationStore.getAll();
+      const lsKeys: string[] = [];
+      try { for (let i = 0; i < localStorage.length; i++) { const k = localStorage.key(i); if (k) lsKeys.push(k); } } catch {}
+      setDebugData({
+        timestamp:       new Date().toISOString(),
+        appMode:         osMode,
+        registered_apps: appRegistry.length,
+        creations_count: creations.length,
+        creations_types: [...new Set(creations.map(c => c.type))],
+        all_tags:        [...new Set(creations.flatMap(c => c.tags ?? []))],
+        localStorage_keys: lsKeys,
+        engine_modules:  ["TemplateLibrary (19 types)", "ProjectIntelligence", "ExportEngine", "ThemeEngine", "CreationStore v2", "classifyIntent", "buildPrompt", "parseSections"],
+        safety_status:   "ACTIVE — all sensitive domains demo-only",
+        version:         "CreateAI Brain v3 — Omega Packet Engine",
+      });
+    }
+  }, [activeSection]);
 
   const handleModeSwitch = (m: OsMode) => {
     if (m === "LIVE") { setConfirmLive(true); return; }
@@ -55,6 +78,39 @@ export function AdminApp() {
   };
 
   // ── Section drill-downs ──
+  if (activeSection === "debug") {
+    return (
+      <div className="p-5 space-y-4">
+        <div className="flex items-center gap-2">
+          <button onClick={() => setActiveSection(null)} className="text-primary text-sm font-medium">‹ Admin</button>
+          <h2 className="text-xl font-bold text-foreground flex-1">🔬 Debug Panel</h2>
+          <button onClick={() => { setActiveSection(null); setTimeout(() => setActiveSection("debug"), 50); }}
+            className="text-[11px] bg-muted px-2.5 py-1.5 rounded-lg text-muted-foreground hover:bg-muted/80">⟳ Refresh</button>
+        </div>
+        <div className="bg-amber-50 border border-amber-200 rounded-xl p-3">
+          <p className="text-[12px] text-amber-700 font-medium">🛡️ Debug mode — read-only system state. No changes made.</p>
+        </div>
+        <div className="space-y-2">
+          {Object.entries(debugData).map(([key, value]) => (
+            <div key={key} className="bg-background border border-border/50 rounded-xl p-3.5">
+              <p className="text-[10px] font-bold text-muted-foreground uppercase tracking-wider mb-1">{key.replace(/_/g, " ")}</p>
+              {Array.isArray(value) ? (
+                value.length > 0
+                  ? <div className="flex flex-wrap gap-1">{value.map((v, i) => <span key={i} className="text-[10px] px-2 py-0.5 rounded-full bg-primary/10 text-primary font-mono">{String(v)}</span>)}</div>
+                  : <p className="text-[12px] text-muted-foreground font-mono italic">empty</p>
+              ) : (
+                <p className="text-[12px] text-foreground font-mono">{String(value)}</p>
+              )}
+            </div>
+          ))}
+        </div>
+        <div className="bg-muted/40 border border-border/30 rounded-xl p-3">
+          <p className="text-[10px] text-muted-foreground">All debug output is read-only. No data is transmitted externally. This panel is for DEMO/TEST inspection only.</p>
+        </div>
+      </div>
+    );
+  }
+
   if (activeSection === "engines") {
     return (
       <div className="p-6 space-y-4">

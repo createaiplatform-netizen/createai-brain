@@ -6,17 +6,25 @@ import { ProjectType, getTemplate, ProjectTemplate } from "./TemplateLibrary";
 
 // ─── Detection keywords per type ─────────────────────────────────────────────
 const KEYWORD_MAP: Record<ProjectType, string[]> = {
-  "movie":          ["movie", "film", "cinema", "animation", "cartoon", "tv show", "episode", "screenplay", "script", "scene", "director", "plot", "logline", "trailer", "actor", "animated"],
-  "comic":          ["comic", "manga", "graphic novel", "panel", "superhero", "webcomic", "issue", "character arc", "illustration", "sequential art"],
-  "game":           ["game", "gaming", "rpg", "puzzle", "strategy game", "simulation game", "player", "level", "quest", "achievement", "leaderboard", "gameplay", "indie game", "gamer"],
-  "training":       ["training", "course", "lesson", "learning", "lms", "module", "curriculum", "student", "teacher", "quiz", "assessment", "e-learning", "certification", "educational", "academy"],
-  "brochure":       ["brochure", "pamphlet", "leaflet", "print", "flyer", "handout", "tri-fold"],
-  "landing-page":   ["landing page", "squeeze page", "opt-in page", "lead capture", "conversion page"],
-  "marketing":      ["marketing system", "funnel", "email sequence", "campaign", "ad copy", "social media content", "lead generation", "advertising", "nurture", "content calendar"],
-  "product-launch": ["product launch", "launch plan", "go-to-market", "launch strategy", "press release", "roadmap", "announcement", "beta launch", "gtm"],
-  "app-saas":       ["saas", "platform", "software", "app", "application", "dashboard", "crm", "erp", "lms", "ehr", "emr", "system", "tool", "suite", "engine", "module", "api", "portal", "hub", "workspace", "subscription"],
-  "website":        ["website", "site", "web presence", "homepage", "multi-page site", "company website"],
-  "custom":         [],
+  "movie":             ["movie", "film", "cinema", "animation", "cartoon", "tv show", "episode", "screenplay", "script", "scene", "director", "plot", "logline", "trailer", "actor", "animated"],
+  "comic":             ["comic", "manga", "graphic novel", "panel", "superhero", "webcomic", "issue", "character arc", "illustration", "sequential art"],
+  "game":              ["game", "gaming", "rpg", "puzzle", "strategy game", "simulation game", "player", "level", "quest", "achievement", "leaderboard", "gameplay", "indie game", "gamer"],
+  "training":          ["training", "course", "lesson", "learning", "lms", "module", "curriculum", "student", "teacher", "quiz", "assessment", "e-learning", "certification", "educational", "academy"],
+  "brochure":          ["brochure", "pamphlet", "leaflet", "print", "flyer", "handout", "tri-fold"],
+  "landing-page":      ["landing page", "squeeze page", "opt-in page", "lead capture", "conversion page"],
+  "marketing":         ["marketing system", "funnel", "email sequence", "campaign", "ad copy", "social media content", "lead generation", "advertising", "nurture", "content calendar"],
+  "product-launch":    ["product launch", "launch plan", "go-to-market", "launch strategy", "press release", "announcement", "beta launch", "gtm"],
+  "app-saas":          ["saas", "platform", "software", "app", "application", "crm", "erp", "lms", "ehr", "emr", "system", "tool", "suite", "engine", "module", "api", "portal", "hub", "workspace", "subscription"],
+  "website":           ["website", "site", "web presence", "homepage", "multi-page site", "company website"],
+  "presentation-deck": ["presentation", "slide deck", "pitch deck", "keynote", "slides", "powerpoint", "deck", "investor pitch", "board presentation"],
+  "workflow-map":      ["workflow", "process map", "process flow", "flowchart", "sop", "standard operating procedure", "workflow map", "process diagram", "bpmn", "swimlane"],
+  "user-journey":      ["user journey", "customer journey", "journey map", "experience map", "ux flow", "touchpoints", "persona journey", "service blueprint"],
+  "ip-bible":          ["ip bible", "story universe", "world building", "lore", "canon", "story bible", "tv bible", "franchise bible", "fictional world", "universe guide"],
+  "dashboard-concept": ["dashboard", "analytics dashboard", "kpi dashboard", "data visualization", "reporting dashboard", "admin dashboard", "metrics dashboard", "bi dashboard"],
+  "internal-tool":     ["internal tool", "admin panel", "back office", "staff tool", "ops tool", "internal system", "management tool", "admin interface", "internal app"],
+  "knowledge-base":    ["knowledge base", "help center", "documentation", "docs", "kb", "wiki", "help docs", "user guide", "technical documentation", "support docs"],
+  "roadmap-doc":       ["roadmap", "product roadmap", "strategic plan", "strategic roadmap", "now next later", "okr", "objectives", "milestones", "quarterly plan", "annual plan"],
+  "custom":            [],
 };
 
 // ─── Domain safety mapping ────────────────────────────────────────────────────

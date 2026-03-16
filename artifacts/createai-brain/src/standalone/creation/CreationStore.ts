@@ -15,6 +15,15 @@ export interface CreationSection {
   content: string;
 }
 
+export type CreationStatus = "draft" | "in-progress" | "complete" | "archived";
+
+export interface CreationSnapshot {
+  ts: string;
+  label: string;
+  rawContent: string;
+  sections: CreationSection[];
+}
+
 export interface Creation {
   id: string;
   type: CreationType;
@@ -23,12 +32,18 @@ export interface Creation {
   genre: string;
   style: string;
   tone: string;
-  domain: string;        // Auto-detected domain (Healthcare, Finance, etc.)
-  modules: string[];     // Auto-detected modules
-  patterns: string[];    // SaaS/engine patterns
+  domain: string;
+  modules: string[];
+  patterns: string[];
   createdAt: string;
   rawContent: string;
   sections: CreationSection[];
+  // Metadata
+  status?: CreationStatus;
+  tags?: string[];
+  collectionId?: string;
+  themeColor?: string;
+  snapshots?: CreationSnapshot[];
 }
 
 // ─── localStorage ─────────────────────────────────────────────────────────────
@@ -43,10 +58,84 @@ function saveAll(list: Creation[]) {
 }
 
 export const CreationStore = {
-  getAll: () => loadAll(),
-  get: (id: string) => loadAll().find(c => c.id === id),
-  save(c: Creation) { const l = loadAll().filter(x => x.id !== c.id); l.unshift(c); saveAll(l.slice(0, 50)); },
+  getAll: ()           => loadAll(),
+  get:    (id: string) => loadAll().find(c => c.id === id),
+
+  save(c: Creation) {
+    const l = loadAll().filter(x => x.id !== c.id);
+    l.unshift(c);
+    saveAll(l.slice(0, 50));
+  },
+
   delete: (id: string) => saveAll(loadAll().filter(c => c.id !== id)),
+
+  updateStatus(id: string, status: CreationStatus) {
+    const list = loadAll();
+    const idx  = list.findIndex(c => c.id === id);
+    if (idx < 0) return;
+    list[idx] = { ...list[idx], status };
+    saveAll(list);
+  },
+
+  addTag(id: string, tag: string) {
+    const list = loadAll();
+    const idx  = list.findIndex(c => c.id === id);
+    if (idx < 0) return;
+    const tags = list[idx].tags ?? [];
+    if (!tags.includes(tag)) list[idx] = { ...list[idx], tags: [...tags, tag] };
+    saveAll(list);
+  },
+
+  removeTag(id: string, tag: string) {
+    const list = loadAll();
+    const idx  = list.findIndex(c => c.id === id);
+    if (idx < 0) return;
+    list[idx] = { ...list[idx], tags: (list[idx].tags ?? []).filter(t => t !== tag) };
+    saveAll(list);
+  },
+
+  setTheme(id: string, themeColor: string) {
+    const list = loadAll();
+    const idx  = list.findIndex(c => c.id === id);
+    if (idx < 0) return;
+    list[idx] = { ...list[idx], themeColor };
+    saveAll(list);
+  },
+
+  createSnapshot(id: string, label?: string) {
+    const list = loadAll();
+    const idx  = list.findIndex(c => c.id === id);
+    if (idx < 0) return;
+    const snap: CreationSnapshot = {
+      ts: new Date().toISOString(),
+      label: label ?? `Snapshot ${new Date().toLocaleString()}`,
+      rawContent: list[idx].rawContent,
+      sections:   list[idx].sections,
+    };
+    const snapshots = [...(list[idx].snapshots ?? []), snap].slice(-10); // max 10 snapshots
+    list[idx] = { ...list[idx], snapshots };
+    saveAll(list);
+    return snap;
+  },
+
+  restoreSnapshot(id: string, snapshotIndex: number) {
+    const list = loadAll();
+    const idx  = list.findIndex(c => c.id === id);
+    if (idx < 0) return;
+    const snap = (list[idx].snapshots ?? [])[snapshotIndex];
+    if (!snap) return;
+    list[idx] = { ...list[idx], rawContent: snap.rawContent, sections: snap.sections };
+    saveAll(list);
+    return list[idx];
+  },
+
+  getByStatus: (status: CreationStatus) => loadAll().filter(c => c.status === status),
+  getByCollection: (collectionId: string) => loadAll().filter(c => c.collectionId === collectionId),
+  getByTag: (tag: string) => loadAll().filter(c => (c.tags ?? []).includes(tag)),
+  getAllTags: () => {
+    const all = loadAll().flatMap(c => c.tags ?? []);
+    return [...new Set(all)].sort();
+  },
 };
 
 // ─── Section Parser ───────────────────────────────────────────────────────────

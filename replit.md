@@ -161,6 +161,31 @@ Full-stack AI OS platform — "CreateAI Brain" by Sara Stadler. React + Vite + W
 - `marketing-hub` — red/pink gradient, campaigns+email+ads+social
 - `operations-builder` — indigo gradient, TEST mode, 34 mock workflows
 
+**Engine Expansion Layer (v3):**
+- `src/engine/ExportEngine.ts` — Safe local-only export stubs: `exportAsJSON(creation)` → .json, `exportAsMarkdown(creation)` → .md, `exportAsText(creation, sectionTitle?)` → .txt, `copyToClipboard(text)` → navigator.clipboard fallback. `EXPORT_OPTIONS[]` descriptor array. All filenames include `_MOCK` suffix. No network calls.
+- `src/engine/ThemeEngine.ts` — Accent color palette: `ACCENT_COLORS[10]` (blue, purple, green, red, orange, teal, indigo, pink, slate, gold). `getBrandProfile(colorIdOrHex)` returns `BrandProfile` with gradient, surface tint, button/badge styles. `PRESET_THEMES[6]` bundles (Midnight/Daybreak/Executive/Creative/Growth/Fire). `applyAccentToDocument(id)` / `resetAccentOnDocument()` set CSS variable `--color-accent`.
+
+**CreationStore v2 (updated):**
+- `Creation` interface extended with: `status?: CreationStatus`, `tags?: string[]`, `collectionId?: string`, `themeColor?: string`, `snapshots?: CreationSnapshot[]`
+- `CreationStore` new methods: `updateStatus`, `addTag`, `removeTag`, `setTheme`, `createSnapshot` (max 10 per item), `restoreSnapshot`, `getByStatus`, `getByCollection`, `getByTag`, `getAllTags`
+
+**Gallery v2 (updated in CreatorApp.tsx):**
+- Filter pills: All / Draft / In Progress / Complete / Archived / tag filters
+- Status badge (colored pill) shown per creation
+- Tags shown as `#tag` pills
+- Quick action row per card: cycle status / clipboard copy / delete
+- Filter by tag: click `#tagname` pill
+
+**Downloads v2 (updated in CreationViewer.tsx DownloadsSection):**
+- Export Formats grid: JSON (.json), Markdown (.md), Copy Summary (clipboard), Full Text (.txt)
+- Individual Sections: up to 5 section-level .txt downloads
+- All export handlers inline (no imports needed from ExportEngine)
+
+**Admin Debug Panel (new in AdminApp.tsx):**
+- Section card "🔬 Debug Panel" in Admin app
+- Drill-down shows live system state: timestamp, mode, registered apps count, creations count, creation types, all tags, localStorage keys, engine modules, safety status, version string
+- Read-only, no side effects
+
 **SSE streaming:** `fetch` + `ReadableStream` only. Model: `gpt-5.2`, max_completion_tokens: 8192. API key via `AI_INTEGRATIONS_OPENAI_BASE_URL` + `AI_INTEGRATIONS_OPENAI_API_KEY`.
 
 **Colors:** Primary `#007AFF`, never change. All content is mock/simulation only.

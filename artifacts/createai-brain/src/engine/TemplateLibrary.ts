@@ -13,6 +13,14 @@ export type ProjectType =
   | "comic"
   | "movie"
   | "app-saas"
+  | "presentation-deck"
+  | "workflow-map"
+  | "user-journey"
+  | "ip-bible"
+  | "dashboard-concept"
+  | "internal-tool"
+  | "knowledge-base"
+  | "roadmap-doc"
   | "custom";
 
 export interface TemplateNavItem {
@@ -585,19 +593,346 @@ const CUSTOM_TEMPLATE: ProjectTemplate = {
   suggestedModules: ["Overview", "Core Content", "Structure", "Feature Set", "Action Plan"],
 };
 
+// ─── Presentation Deck ────────────────────────────────────────────────────────
+const PRESENTATION_DECK_TEMPLATE: ProjectTemplate = {
+  type: "presentation-deck", label: "Presentation Deck", icon: "🖥️", color: "#5856D6",
+  gradient: "from-indigo-600 via-violet-700 to-purple-800",
+  tagline: "Slide deck — from pitch to keynote", description: "A polished slide deck covering your core narrative, key data, and a strong close.",
+  layoutMode: "marketing",
+  navItems: [
+    { id: "cover", label: "Cover", icon: "🎯" }, { id: "agenda", label: "Agenda", icon: "📋" },
+    { id: "problem", label: "Problem", icon: "❓" }, { id: "solution", label: "Solution", icon: "💡" },
+    { id: "proof", label: "Proof", icon: "⭐" }, { id: "close", label: "Close", icon: "🚀" },
+  ],
+  sections: [
+    { id: "cover", label: "Cover Slide", icon: "🎯", description: "Opening title and hook", blocks: [
+      { type: "heading", label: "Title", hint: "Deck title — bold, memorable, benefit-led" },
+      { type: "paragraph", label: "Presenter & Context", hint: "Your name, company, event, date" },
+    ]},
+    { id: "agenda", label: "Agenda", icon: "📋", description: "What you'll cover", blocks: [
+      { type: "list", label: "Agenda Items", hint: "5-7 topics in the order you'll cover them" },
+    ]},
+    { id: "problem", label: "Problem / Opportunity", icon: "❓", description: "The challenge being addressed", blocks: [
+      { type: "paragraph", label: "Problem Statement", hint: "The core problem — make it vivid and relatable" },
+      { type: "list", label: "Why It Matters", hint: "3-4 data points or insights that make the problem real" },
+    ]},
+    { id: "solution", label: "Solution", icon: "💡", description: "Your answer and how it works", blocks: [
+      { type: "paragraph", label: "Solution Overview", hint: "What you've built / propose — clear, jargon-free" },
+      { type: "feature-grid", label: "Key Points", hint: "4-6 key features or proof points as a grid" },
+    ]},
+    { id: "proof", label: "Proof & Social", icon: "⭐", description: "Evidence and validation", blocks: [
+      { type: "testimonial", label: "Testimonials / Case", hint: "1-2 testimonials or a quick case study outcome" },
+      { type: "list", label: "Data Points", hint: "3-4 stats or metrics that validate the solution" },
+    ]},
+    { id: "close", label: "Close & CTA", icon: "🚀", description: "Next steps and ask", blocks: [
+      { type: "cta", label: "The Ask", hint: "What you want from the audience — be specific" },
+      { type: "paragraph", label: "Contact / Next Steps", hint: "Follow-up contact and clear next action" },
+    ]},
+  ],
+  tourSteps: [
+    { title: "Presentation Deck", body: "Navigate each slide section in order. The goal is a clear narrative from problem to solution to close." },
+    { title: "Problem First", body: "Lead with the problem before showing your solution. The audience must feel the pain before they want the cure." },
+    { title: "Close with the Ask", body: "Always end with a specific, clear ask. Vague closes get vague results." },
+  ],
+  suggestedModules: ["Cover Slide", "Agenda", "Problem Statement", "Solution Overview", "Proof Points", "The Ask / CTA"],
+};
+
+// ─── Workflow Map ─────────────────────────────────────────────────────────────
+const WORKFLOW_MAP_TEMPLATE: ProjectTemplate = {
+  type: "workflow-map", label: "Workflow Map", icon: "🔄", color: "#34C759",
+  gradient: "from-green-600 via-emerald-700 to-teal-700",
+  tagline: "Process flow — steps, owners, and outcomes mapped", description: "A structured process map showing steps, decision points, roles, and outcomes — fully illustrative.",
+  layoutMode: "document",
+  navItems: [
+    { id: "overview", label: "Overview", icon: "📋" }, { id: "flow", label: "Flow", icon: "🔄" },
+    { id: "roles", label: "Roles", icon: "👥" }, { id: "exceptions", label: "Exceptions", icon: "⚠️" },
+    { id: "metrics", label: "Metrics", icon: "📊" },
+  ],
+  sections: [
+    { id: "overview", label: "Workflow Overview", icon: "📋", description: "What this workflow does and why it matters", blocks: [
+      { type: "heading", label: "Workflow Name & Purpose", hint: "What process this maps — who triggers it and what it produces" },
+      { type: "list", label: "Scope & Boundaries", hint: "What's included and excluded from this workflow" },
+    ]},
+    { id: "flow", label: "Workflow Steps", icon: "🔄", description: "The full step-by-step process", blocks: [
+      { type: "stepper", label: "Primary Flow", hint: "6-10 steps with name, description, owner role, and output" },
+      { type: "timeline", label: "Step Timeline", hint: "Estimated time per step and cumulative time" },
+    ]},
+    { id: "roles", label: "Roles & Owners", icon: "👥", description: "Who does what", blocks: [
+      { type: "feature-grid", label: "Role Cards", hint: "4-6 roles — title, responsibilities, touchpoints in this workflow" },
+    ]},
+    { id: "exceptions", label: "Exception Handling", icon: "⚠️", description: "What happens when things go wrong", blocks: [
+      { type: "list", label: "Exception Scenarios", hint: "4-5 common exceptions with trigger and resolution path" },
+    ]},
+    { id: "metrics", label: "Metrics & KPIs", icon: "📊", description: "How to measure success", blocks: [
+      { type: "feature-grid", label: "KPI Cards", hint: "4-6 metrics — name, definition, target, frequency" },
+    ]},
+  ],
+  tourSteps: [
+    { title: "Workflow Map", body: "This template maps a complete process — steps, roles, exceptions, and metrics." },
+    { title: "Start with Overview", body: "Define the scope before drawing any steps. Know exactly where the workflow starts and ends." },
+    { title: "Then the Steps", body: "The step-by-step flow is the core. Each step needs an owner, an action, and an output." },
+  ],
+  suggestedModules: ["Workflow Overview", "Step-by-Step Flow", "Roles & Owners", "Exception Handling", "KPIs & Metrics", "SOP Appendix"],
+};
+
+// ─── User Journey ─────────────────────────────────────────────────────────────
+const USER_JOURNEY_TEMPLATE: ProjectTemplate = {
+  type: "user-journey", label: "User Journey", icon: "🗺️", color: "#30B0C7",
+  gradient: "from-teal-500 via-cyan-600 to-blue-600",
+  tagline: "Customer experience map — touchpoints, emotions, and opportunities", description: "A detailed user journey map covering stages, touchpoints, emotions, pain points, and improvement opportunities.",
+  layoutMode: "document",
+  navItems: [
+    { id: "persona", label: "Persona", icon: "👤" }, { id: "stages", label: "Journey Stages", icon: "🗺️" },
+    { id: "touchpoints", label: "Touchpoints", icon: "📍" }, { id: "emotions", label: "Emotions", icon: "💭" },
+    { id: "opportunities", label: "Opportunities", icon: "💡" },
+  ],
+  sections: [
+    { id: "persona", label: "User Persona", icon: "👤", description: "Who is making this journey", blocks: [
+      { type: "panel", label: "Persona Profile", hint: "Name, age, job, goals, frustrations, key behaviors, and motivations (mock)" },
+      { type: "paragraph", label: "Scenario", hint: "The specific scenario or need driving this journey" },
+    ]},
+    { id: "stages", label: "Journey Stages", icon: "🗺️", description: "The phases of the experience", blocks: [
+      { type: "timeline", label: "Stage Sequence", hint: "5-6 stages — Awareness, Consideration, Decision, Onboarding, Ongoing Use, Advocacy" },
+    ]},
+    { id: "touchpoints", label: "Touchpoints", icon: "📍", description: "Every interaction point", blocks: [
+      { type: "stepper", label: "Touchpoints per Stage", hint: "For each stage: 2-3 touchpoints with channel (website, email, in-person, etc.)" },
+    ]},
+    { id: "emotions", label: "Emotions & Pain Points", icon: "💭", description: "How the user feels at each stage", blocks: [
+      { type: "list", label: "Emotional Arc", hint: "Stage-by-stage emotional score — high/med/low + specific feeling" },
+      { type: "list", label: "Key Pain Points", hint: "4-5 friction points with severity and impact on experience" },
+    ]},
+    { id: "opportunities", label: "Improvement Opportunities", icon: "💡", description: "How to make the journey better", blocks: [
+      { type: "feature-grid", label: "Opportunity Cards", hint: "6 specific improvement opportunities — gap, solution idea, impact, effort (H/M/L)" },
+    ]},
+  ],
+  tourSteps: [
+    { title: "User Journey Map", body: "This maps a real user's experience end-to-end — from first awareness to advocacy." },
+    { title: "Start with the Persona", body: "Ground the journey in a specific, real-feeling person. The more specific, the more useful the map." },
+    { title: "Map Emotions Last", body: "After you have stages and touchpoints, map how the user feels at each. That's where the insight lives." },
+  ],
+  suggestedModules: ["Persona Profile", "Journey Stages", "Touchpoints", "Emotional Arc", "Pain Points", "Opportunity Map"],
+};
+
+// ─── IP Bible / Story Universe ────────────────────────────────────────────────
+const IP_BIBLE_TEMPLATE: ProjectTemplate = {
+  type: "ip-bible", label: "Story Universe / IP Bible", icon: "📚", color: "#FF9500",
+  gradient: "from-amber-600 via-orange-600 to-red-600",
+  tagline: "Your story universe — world, characters, lore, and canon", description: "A complete IP bible / story universe document covering world-building, characters, lore, rules, and canon. Family-friendly and safe.",
+  layoutMode: "creative",
+  safetyNote: "All story content is safe, family-friendly, and fictional. No harmful, violent, or inappropriate content.",
+  navItems: [
+    { id: "world", label: "The World", icon: "🌍" }, { id: "characters", label: "Characters", icon: "👤" },
+    { id: "lore", label: "Lore & Rules", icon: "📜" }, { id: "factions", label: "Factions", icon: "⚔️" },
+    { id: "stories", label: "Story Arcs", icon: "📖" }, { id: "canon", label: "Canon Notes", icon: "📌" },
+  ],
+  sections: [
+    { id: "world", label: "The World", icon: "🌍", description: "Setting, geography, and tone", blocks: [
+      { type: "paragraph", label: "World Overview", hint: "Setting, tone, genre, historical era or future state, visual feel" },
+      { type: "list", label: "Key Locations", hint: "5-7 locations — name, description, significance to the story" },
+      { type: "image-placeholder", label: "World Map / Visual Reference", hint: "Concept map or visual description of the world" },
+    ]},
+    { id: "characters", label: "Characters", icon: "👤", description: "Central and supporting cast", blocks: [
+      { type: "panel", label: "Lead Character Profile", hint: "Name, appearance, abilities, backstory, motivation, arc, relationships" },
+      { type: "panel", label: "Supporting Characters", hint: "4-5 characters — role, relationship to lead, defining traits" },
+    ]},
+    { id: "lore", label: "Lore & World Rules", icon: "📜", description: "How the world works", blocks: [
+      { type: "list", label: "World Rules", hint: "5-7 rules that govern this universe — magic systems, physics, social rules, etc." },
+      { type: "paragraph", label: "History & Mythology", hint: "Key historical events, legends, or myths that shaped the world" },
+    ]},
+    { id: "factions", label: "Factions & Groups", icon: "⚔️", description: "Organizations and groups within the world", blocks: [
+      { type: "feature-grid", label: "Faction Cards", hint: "4-6 factions — name, symbol, goals, membership, relationship to protagonist" },
+    ]},
+    { id: "stories", label: "Story Arcs", icon: "📖", description: "Planned narratives and series", blocks: [
+      { type: "timeline", label: "Series/Arc Structure", hint: "3-5 planned story arcs or seasons — title, setup, central conflict, resolution direction" },
+    ]},
+    { id: "canon", label: "Canon Notes", icon: "📌", description: "Official rules and continuity", blocks: [
+      { type: "list", label: "Canon Decisions", hint: "5-7 locked canon decisions — things that are definitively true or false in this universe" },
+      { type: "faq", label: "Canon Q&A", hint: "Common universe questions with definitive answers" },
+    ]},
+  ],
+  tourSteps: [
+    { title: "Story Universe / IP Bible", body: "This is your master document for a story world — everything canon, consistent, and explorable." },
+    { title: "World First", body: "Build the world before the characters. Characters live within a world, and the world shapes who they become." },
+    { title: "Lock the Rules", body: "The Canon Notes section keeps your story consistent. Lock your rules early." },
+  ],
+  suggestedModules: ["World Overview", "Key Locations", "Character Profiles", "Lore & Rules", "Factions", "Story Arcs", "Canon Registry"],
+};
+
+// ─── Dashboard Concept ────────────────────────────────────────────────────────
+const DASHBOARD_CONCEPT_TEMPLATE: ProjectTemplate = {
+  type: "dashboard-concept", label: "Dashboard Concept", icon: "📊", color: "#007AFF",
+  gradient: "from-blue-700 via-blue-800 to-indigo-900",
+  tagline: "Data dashboard design — KPIs, charts, and user flows", description: "A structured concept for a data dashboard — KPIs, chart types, user roles, filters, and interaction design. All data is mock.",
+  layoutMode: "interactive",
+  navItems: [
+    { id: "overview", label: "Overview", icon: "📋" }, { id: "kpis", label: "KPIs", icon: "📊" },
+    { id: "charts", label: "Charts", icon: "📈" }, { id: "roles", label: "User Roles", icon: "👤" },
+    { id: "filters", label: "Filters", icon: "🔍" }, { id: "interactions", label: "Interactions", icon: "🖱️" },
+  ],
+  sections: [
+    { id: "overview", label: "Dashboard Overview", icon: "📋", description: "Purpose and scope", blocks: [
+      { type: "heading", label: "Dashboard Name & Goal", hint: "What decision or insight does this dashboard drive?" },
+      { type: "list", label: "Primary Use Cases", hint: "3-5 specific decisions users make with this dashboard" },
+    ]},
+    { id: "kpis", label: "KPIs & Metrics", icon: "📊", description: "The numbers that matter most", blocks: [
+      { type: "feature-grid", label: "KPI Cards", hint: "6-8 key metrics — name, formula/definition, target, current value (mock), trend" },
+    ]},
+    { id: "charts", label: "Chart Library", icon: "📈", description: "Visualization types and data sources", blocks: [
+      { type: "stepper", label: "Chart Specifications", hint: "5-6 charts — type (bar/line/pie/scatter), metric displayed, time range, drill-down option" },
+    ]},
+    { id: "roles", label: "User Roles", icon: "👤", description: "Who uses the dashboard and how", blocks: [
+      { type: "panel", label: "Role Profiles", hint: "3-4 user roles — job title, what they look at, what decisions they make, frequency of use" },
+    ]},
+    { id: "filters", label: "Filters & Controls", icon: "🔍", description: "How users narrow and explore", blocks: [
+      { type: "list", label: "Filter Controls", hint: "5-7 filter options — date range, region, team, category, status, etc." },
+    ]},
+    { id: "interactions", label: "Interaction Design", icon: "🖱️", description: "Click, drill-down, and alert behavior", blocks: [
+      { type: "list", label: "Interaction Patterns", hint: "4-5 key interactions — click behavior, drill-down paths, alert triggers, export options" },
+    ]},
+  ],
+  tourSteps: [
+    { title: "Dashboard Concept", body: "This builds a complete dashboard design spec — from KPIs to interaction patterns." },
+    { title: "Define KPIs First", body: "Every chart exists to show a KPI. Define what matters before choosing chart types." },
+    { title: "Design for Roles", body: "Different users need different views. Design the default view for the primary user role." },
+  ],
+  suggestedModules: ["KPI Cards", "Chart Library", "User Role Views", "Filter Controls", "Alert Rules", "Export Options"],
+};
+
+// ─── Internal Tool ────────────────────────────────────────────────────────────
+const INTERNAL_TOOL_TEMPLATE: ProjectTemplate = {
+  type: "internal-tool", label: "Internal Tool", icon: "🔧", color: "#636366",
+  gradient: "from-slate-600 via-gray-700 to-zinc-800",
+  tagline: "Admin tool concept — staff-facing productivity and operations", description: "A structured concept for an internal tool used by staff — admin panels, ops dashboards, back-office systems. All mock.",
+  layoutMode: "interactive",
+  navItems: [
+    { id: "overview", label: "Overview", icon: "📋" }, { id: "features", label: "Features", icon: "✨" },
+    { id: "access", label: "Access & Roles", icon: "🔐" }, { id: "workflows", label: "Workflows", icon: "⚙️" },
+    { id: "data", label: "Data", icon: "🗃️" },
+  ],
+  sections: [
+    { id: "overview", label: "Tool Overview", icon: "📋", description: "What this tool is and who uses it", blocks: [
+      { type: "heading", label: "Tool Name & Purpose", hint: "What problem this internal tool solves for which team" },
+      { type: "list", label: "Key Use Cases", hint: "4-5 specific tasks this tool enables for staff" },
+    ]},
+    { id: "features", label: "Features", icon: "✨", description: "Core functionality", blocks: [
+      { type: "feature-grid", label: "Feature Set", hint: "6 features — name, description, primary user, frequency of use" },
+    ]},
+    { id: "access", label: "Access & Roles", icon: "🔐", description: "Who can do what", blocks: [
+      { type: "panel", label: "Role Matrix", hint: "3-4 roles — name, access level, what they can view/edit/delete/approve" },
+    ]},
+    { id: "workflows", label: "Workflows", icon: "⚙️", description: "Key operational flows the tool supports", blocks: [
+      { type: "stepper", label: "Primary Workflow", hint: "6-8 steps of the primary operational workflow this tool powers" },
+    ]},
+    { id: "data", label: "Data & Integrations", icon: "🗃️", description: "What data the tool reads and writes", blocks: [
+      { type: "list", label: "Data Entities", hint: "5-7 data objects managed — name, fields, CRUD access" },
+      { type: "list", label: "Integrations", hint: "3-5 systems this tool connects to — name, data direction, frequency" },
+    ]},
+  ],
+  tourSteps: [
+    { title: "Internal Tool Concept", body: "This template specs a complete internal tool — features, roles, workflows, and data." },
+    { title: "Define Purpose Precisely", body: "Internal tools often grow out of control. Lock the purpose and primary users before adding features." },
+    { title: "Access Control is Critical", body: "The Roles section determines who can do what. Design access controls early." },
+  ],
+  suggestedModules: ["Tool Overview", "Feature Set", "Role Matrix", "Primary Workflow", "Data Entities", "Integration Points"],
+};
+
+// ─── Knowledge Base ───────────────────────────────────────────────────────────
+const KNOWLEDGE_BASE_TEMPLATE: ProjectTemplate = {
+  type: "knowledge-base", label: "Knowledge Base", icon: "📖", color: "#34C759",
+  gradient: "from-green-700 via-teal-700 to-cyan-700",
+  tagline: "Help center & documentation — organized, searchable, clear", description: "A structured knowledge base covering getting started guides, feature docs, FAQs, and troubleshooting — fully illustrative.",
+  layoutMode: "document",
+  navItems: [
+    { id: "overview", label: "Overview", icon: "📋" }, { id: "gettingstarted", label: "Getting Started", icon: "🚀" },
+    { id: "guides", label: "Guides", icon: "📖" }, { id: "faq", label: "FAQ", icon: "❓" },
+    { id: "troubleshooting", label: "Troubleshooting", icon: "🔧" },
+  ],
+  sections: [
+    { id: "overview", label: "KB Overview", icon: "📋", description: "What this knowledge base covers", blocks: [
+      { type: "heading", label: "Knowledge Base Title", hint: "Product or system name + scope of documentation" },
+      { type: "list", label: "Documentation Scope", hint: "What topics are covered — and what's out of scope" },
+    ]},
+    { id: "gettingstarted", label: "Getting Started", icon: "🚀", description: "New user onboarding guide", blocks: [
+      { type: "stepper", label: "Quick Start Steps", hint: "5-7 steps to get from zero to first value — each step with action and outcome" },
+    ]},
+    { id: "guides", label: "How-To Guides", icon: "📖", description: "Feature and task documentation", blocks: [
+      { type: "feature-grid", label: "Guide Index", hint: "6-8 guides — title, topic area, user level (beginner/advanced), estimated read time" },
+    ]},
+    { id: "faq", label: "FAQ", icon: "❓", description: "Common questions answered", blocks: [
+      { type: "faq", label: "Frequently Asked Questions", hint: "10-12 common questions with clear, jargon-free answers" },
+    ]},
+    { id: "troubleshooting", label: "Troubleshooting", icon: "🔧", description: "Common issues and resolutions", blocks: [
+      { type: "list", label: "Common Issues", hint: "5-6 common problems — symptom, cause, resolution steps" },
+    ]},
+  ],
+  tourSteps: [
+    { title: "Knowledge Base", body: "This builds a complete help center / documentation structure from scratch." },
+    { title: "Getting Started is Most Important", body: "Most users only read Getting Started. Make it excellent — short steps, clear outcomes." },
+    { title: "FAQs Reduce Support Load", body: "The FAQ section answers the questions your support team gets most. Write it from real questions." },
+  ],
+  suggestedModules: ["Quick Start", "Feature Guides", "FAQ", "Troubleshooting", "Video Guides", "Release Notes", "Glossary"],
+};
+
+// ─── Roadmap Document ─────────────────────────────────────────────────────────
+const ROADMAP_DOC_TEMPLATE: ProjectTemplate = {
+  type: "roadmap-doc", label: "Roadmap Document", icon: "🗺️", color: "#BF5AF2",
+  gradient: "from-purple-700 via-fuchsia-700 to-pink-700",
+  tagline: "Strategic roadmap — goals, phases, milestones, and ownership", description: "A complete strategic roadmap document covering vision, quarterly goals, phases, milestones, and ownership. All mock.",
+  layoutMode: "document",
+  navItems: [
+    { id: "vision", label: "Vision", icon: "🔭" }, { id: "goals", label: "Goals", icon: "🎯" },
+    { id: "roadmap", label: "Roadmap", icon: "🗺️" }, { id: "milestones", label: "Milestones", icon: "🏁" },
+    { id: "risks", label: "Risks", icon: "⚠️" },
+  ],
+  sections: [
+    { id: "vision", label: "Strategic Vision", icon: "🔭", description: "The north star", blocks: [
+      { type: "heading", label: "Vision Statement", hint: "One sentence — what the world looks like when this succeeds" },
+      { type: "paragraph", label: "Strategic Context", hint: "Why now? What market/org context makes this the right direction?" },
+    ]},
+    { id: "goals", label: "Goals & OKRs", icon: "🎯", description: "What success looks like", blocks: [
+      { type: "list", label: "Objectives", hint: "3-4 high-level objectives for this roadmap period" },
+      { type: "feature-grid", label: "Key Results", hint: "6-8 measurable key results — each tied to an objective" },
+    ]},
+    { id: "roadmap", label: "Roadmap Timeline", icon: "🗺️", description: "Phase-by-phase plan", blocks: [
+      { type: "roadmap", label: "Phases", hint: "4-5 phases — Now/Next/Later or Q1/Q2/Q3/Q4 — with scope and dependencies" },
+    ]},
+    { id: "milestones", label: "Milestones", icon: "🏁", description: "Key checkpoints", blocks: [
+      { type: "timeline", label: "Milestone Timeline", hint: "7-10 milestones with dates (mock), owners, and completion criteria" },
+    ]},
+    { id: "risks", label: "Risks & Assumptions", icon: "⚠️", description: "What could go wrong", blocks: [
+      { type: "list", label: "Risk Register", hint: "4-6 risks — likelihood, impact, mitigation strategy, owner" },
+      { type: "list", label: "Key Assumptions", hint: "3-5 assumptions this roadmap depends on being true" },
+    ]},
+  ],
+  tourSteps: [
+    { title: "Roadmap Document", body: "This builds a complete strategic roadmap from vision to risk register." },
+    { title: "Vision Drives Everything", body: "The vision statement is the anchor. Every phase, milestone, and goal should trace back to it." },
+    { title: "Track Risks Early", body: "The Risk Register often gets skipped. Don't skip it — risks caught early are risks mitigated." },
+  ],
+  suggestedModules: ["Vision Statement", "OKRs", "Phase Timeline", "Milestones", "Risk Register", "Assumptions Log"],
+};
+
 // ─── Template Map ─────────────────────────────────────────────────────────────
 export const TEMPLATE_LIBRARY: Record<ProjectType, ProjectTemplate> = {
-  "brochure":       BROCHURE_TEMPLATE,
-  "website":        WEBSITE_TEMPLATE,
-  "landing-page":   LANDING_PAGE_TEMPLATE,
-  "training":       TRAINING_TEMPLATE,
-  "marketing":      MARKETING_TEMPLATE,
-  "product-launch": PRODUCT_LAUNCH_TEMPLATE,
-  "game":           GAME_TEMPLATE,
-  "comic":          COMIC_TEMPLATE,
-  "movie":          MOVIE_TEMPLATE,
-  "app-saas":       APP_SAAS_TEMPLATE,
-  "custom":         CUSTOM_TEMPLATE,
+  "brochure":           BROCHURE_TEMPLATE,
+  "website":            WEBSITE_TEMPLATE,
+  "landing-page":       LANDING_PAGE_TEMPLATE,
+  "training":           TRAINING_TEMPLATE,
+  "marketing":          MARKETING_TEMPLATE,
+  "product-launch":     PRODUCT_LAUNCH_TEMPLATE,
+  "game":               GAME_TEMPLATE,
+  "comic":              COMIC_TEMPLATE,
+  "movie":              MOVIE_TEMPLATE,
+  "app-saas":           APP_SAAS_TEMPLATE,
+  "presentation-deck":  PRESENTATION_DECK_TEMPLATE,
+  "workflow-map":       WORKFLOW_MAP_TEMPLATE,
+  "user-journey":       USER_JOURNEY_TEMPLATE,
+  "ip-bible":           IP_BIBLE_TEMPLATE,
+  "dashboard-concept":  DASHBOARD_CONCEPT_TEMPLATE,
+  "internal-tool":      INTERNAL_TOOL_TEMPLATE,
+  "knowledge-base":     KNOWLEDGE_BASE_TEMPLATE,
+  "roadmap-doc":        ROADMAP_DOC_TEMPLATE,
+  "custom":             CUSTOM_TEMPLATE,
 };
 
 export function getTemplate(type: ProjectType): ProjectTemplate {
