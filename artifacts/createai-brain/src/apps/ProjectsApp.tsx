@@ -1,4 +1,5 @@
 import React, { useState } from "react";
+import { useOS } from "@/os/OSContext";
 
 // ─── Types ──────────────────────────────────────────────────────────────────
 type Mode = "Demo" | "Test" | "Live";
@@ -406,6 +407,65 @@ function GenericProjectDetail({ name, icon, color, pages, mode, onBack }: {
   );
 }
 
+// ─── Future Project Page ─────────────────────────────────────────────────────
+function FutureProjectPage({ name, icon, color, onBack, onGenerate }: {
+  name: string; icon: string; color: string;
+  onBack: () => void; onGenerate: () => void;
+}) {
+  const [generating, setGenerating] = useState(false);
+
+  const handleGenerate = () => {
+    setGenerating(true);
+    setTimeout(() => { onGenerate(); }, 500);
+  };
+
+  return (
+    <div className="p-6 space-y-5">
+      <button onClick={onBack} className="text-primary text-sm font-medium">‹ Projects</button>
+      <div className="flex items-center gap-3">
+        <div className="w-12 h-12 rounded-2xl flex items-center justify-center text-2xl flex-shrink-0"
+          style={{ backgroundColor: color + "22" }}>{icon}</div>
+        <div>
+          <h2 className="text-xl font-bold text-foreground">{name}</h2>
+          <span className="text-[11px] font-semibold px-2 py-0.5 rounded-full bg-purple-100 text-purple-700">NEXT GENERATION</span>
+        </div>
+      </div>
+
+      <div className="bg-gradient-to-br from-purple-50 to-blue-50 border border-purple-200 rounded-2xl p-5 space-y-3">
+        <p className="text-[14px] font-bold text-purple-900">This project is in design phase</p>
+        <p className="text-[13px] text-purple-800">The next-generation architecture isn't pre-built — it's meant to be generated fresh by the Omega Creation Engine, customized to your exact specifications.</p>
+        <p className="text-[12px] text-purple-700">When you generate it, the Everything Engine will build it as a standalone product with its own URL, navigation, AI assistant, and complete workflow system.</p>
+      </div>
+
+      <div className="space-y-2">
+        {[
+          { label: "🤖 AI-Powered Workflows", desc: "Every section driven by real-time intelligence" },
+          { label: "📊 Live Dashboard", desc: "Custom metrics, charts, and status tracking" },
+          { label: "🔧 Tool Suite", desc: "15+ interactive tools built for your industry" },
+          { label: "📄 Document Engine", desc: "Generate, edit, and export structured docs" },
+          { label: "🎨 Design System", desc: "Full theme control — colors, fonts, layouts" },
+          { label: "⚡ Packet AI", desc: "Section-by-section AI editing and Q&A" },
+        ].map(f => (
+          <div key={f.label} className="flex items-center gap-3 p-3 bg-background rounded-xl border border-border/40">
+            <span className="text-[13px] font-semibold text-foreground flex-1">{f.label}</span>
+            <span className="text-[11px] text-muted-foreground">{f.desc}</span>
+          </div>
+        ))}
+      </div>
+
+      <button onClick={handleGenerate} disabled={generating}
+        className="w-full py-3.5 rounded-xl text-white font-bold text-[14px] hover:opacity-90 transition-opacity disabled:opacity-70 flex items-center justify-center gap-2"
+        style={{ background: `linear-gradient(135deg, ${color}, ${color}cc)` }}>
+        {generating
+          ? <><span className="inline-block w-4 h-4 border-2 border-white border-t-transparent rounded-full animate-spin" /> Opening Everything Engine…</>
+          : <><span>✨</span> Generate {name} Now</>
+        }
+      </button>
+      <p className="text-[11px] text-muted-foreground text-center">The Everything Engine will open with "{name}" pre-filled as your build target.</p>
+    </div>
+  );
+}
+
 // ─── New Project Form ────────────────────────────────────────────────────────
 function NewProjectForm({ onBack }: { onBack: () => void }) {
   const [name, setName] = useState("");
@@ -458,6 +518,7 @@ function NewProjectForm({ onBack }: { onBack: () => void }) {
 
 // ─── Main ProjectsApp ────────────────────────────────────────────────────────
 export function ProjectsApp() {
+  const { openApp } = useOS();
   const [selected, setSelected] = useState<string | null>(null);
   const [showNewForm, setShowNewForm] = useState(false);
 
@@ -469,6 +530,15 @@ export function ProjectsApp() {
 
   if (selected) {
     const proj = PROJECTS.find(p => p.name === selected)!;
+    if (proj.mode === "FUTURE") {
+      return (
+        <FutureProjectPage
+          name={proj.name} icon={proj.icon} color={proj.color}
+          onBack={() => setSelected(null)}
+          onGenerate={() => { setSelected(null); openApp("creator"); }}
+        />
+      );
+    }
     return <GenericProjectDetail {...proj} mode={proj.mode} onBack={() => setSelected(null)} />;
   }
 

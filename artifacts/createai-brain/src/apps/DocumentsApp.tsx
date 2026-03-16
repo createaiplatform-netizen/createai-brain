@@ -150,8 +150,17 @@ export function DocumentsApp() {
             className="flex-1 bg-primary text-white text-sm font-medium py-2.5 rounded-xl hover:opacity-90 transition-colors">
             Edit
           </button>
-          <button className="flex-1 bg-muted text-muted-foreground text-sm font-medium py-2.5 rounded-xl cursor-default">
-            Export (Future)
+          <button onClick={() => {
+              const text = (editedContent || content.sections.map(s => `## ${s.title}\n${s.body}`).join("\n\n"));
+              const full = `${doc.name}\n${"=".repeat(doc.name.length)}\n${doc.type} · ${doc.project}\n\n${text}\n\n---\nExported from CreateAI Brain · All content is mock and structural only.`;
+              const blob = new Blob([full], { type: "text/plain" });
+              const url = URL.createObjectURL(blob);
+              const a = document.createElement("a"); a.href = url;
+              a.download = `${doc.name.replace(/\s+/g, "_")}.txt`; a.click();
+              URL.revokeObjectURL(url);
+            }}
+            className="flex-1 bg-muted text-foreground text-sm font-medium py-2.5 rounded-xl hover:bg-muted/80 transition-colors">
+            ↓ Export .txt
           </button>
         </div>
         <p className="text-[10px] text-muted-foreground text-center">All content is mock and structural only.</p>

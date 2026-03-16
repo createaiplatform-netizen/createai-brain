@@ -1538,6 +1538,14 @@ function TOCSection({ creation }: { creation: Creation }) {
 function MarketingSection({ creation }: { creation: Creation }) {
   const mktgSections = findSections(creation, ["marketing", "tagline", "trailer", "social", "solicitation", "brand", "landing", "funnel", "email", "ad", "pricing"]);
   const [tab, setTab] = useState(0);
+  const [shareCopied, setShareCopied] = useState(false);
+
+  const handleShare = () => {
+    navigator.clipboard.writeText(window.location.href).then(() => {
+      setShareCopied(true);
+      setTimeout(() => setShareCopied(false), 2500);
+    });
+  };
 
   return (
     <div className="p-5 md:p-6 space-y-4 max-w-3xl mx-auto">
@@ -1562,7 +1570,10 @@ function MarketingSection({ creation }: { creation: Creation }) {
         </div>
       )}
       <div className="grid grid-cols-2 gap-3">
-        <button className="bg-muted text-muted-foreground text-sm py-2.5 rounded-xl cursor-default">Share (Demo Mode)</button>
+        <button onClick={handleShare}
+          className={`text-sm font-semibold py-2.5 rounded-xl transition-all ${shareCopied ? "bg-green-100 text-green-700" : "bg-muted text-muted-foreground hover:bg-muted/80"}`}>
+          {shareCopied ? "✓ Link Copied!" : "🔗 Share"}
+        </button>
         <button onClick={() => downloadCreation(creation, mktgSections[tab]?.title)}
           className="bg-primary/10 text-primary text-sm font-semibold py-2.5 rounded-xl hover:bg-primary/20">
           ⬇ Export

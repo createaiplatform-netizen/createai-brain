@@ -28,6 +28,23 @@ export function StandaloneLayout({
   children, disclaimer,
 }: StandaloneLayoutProps) {
   const [navOpen, setNavOpen] = useState(false);
+  const [shareCopied, setShareCopied] = useState(false);
+
+  const backToOS = () => {
+    if (window.opener && !window.opener.closed) {
+      window.close();
+    } else {
+      const base = import.meta.env.BASE_URL?.replace(/\/$/, "") ?? "";
+      window.location.href = base || "/";
+    }
+  };
+
+  const shareURL = () => {
+    navigator.clipboard.writeText(window.location.href).then(() => {
+      setShareCopied(true);
+      setTimeout(() => setShareCopied(false), 2000);
+    });
+  };
 
   const modeColor = {
     Demo: "bg-green-100 text-green-700",
@@ -80,7 +97,7 @@ export function StandaloneLayout({
               </button>
             ))}
           </div>
-          <button onClick={() => window.close()} className="w-full py-1.5 rounded-xl text-[11px] text-muted-foreground hover:bg-muted transition-colors border border-border/40">
+          <button onClick={backToOS} className="w-full py-1.5 rounded-xl text-[11px] text-muted-foreground hover:bg-muted transition-colors border border-border/40">
             ← Back to OS
           </button>
         </div>
@@ -132,7 +149,7 @@ export function StandaloneLayout({
                     </button>
                   ))}
                 </div>
-                <button onClick={() => window.close()} className="w-full py-1.5 rounded-xl text-[11px] text-muted-foreground hover:bg-muted border border-border/40">
+                <button onClick={() => { setNavOpen(false); backToOS(); }} className="w-full py-1.5 rounded-xl text-[11px] text-muted-foreground hover:bg-muted border border-border/40">
                   ← Back to OS
                 </button>
               </div>
@@ -141,7 +158,7 @@ export function StandaloneLayout({
         )}
 
         {/* ── Top bar (desktop) ── */}
-        <div className="hidden md:flex h-14 border-b border-border/50 bg-background/80 backdrop-blur-xl items-center px-5 gap-4 flex-shrink-0">
+        <div className="hidden md:flex h-14 border-b border-border/50 bg-background/80 backdrop-blur-xl items-center px-5 gap-3 flex-shrink-0">
           <div className="flex-1">
             <h1 className="text-[15px] font-bold text-foreground">{navItems.find(n => n.id === activeSection)?.label ?? "Dashboard"}</h1>
           </div>
@@ -149,7 +166,11 @@ export function StandaloneLayout({
             <div className="w-2 h-2 rounded-full bg-green-500 animate-pulse" />
             <span className="text-[11px] text-muted-foreground font-medium">All engines active</span>
           </div>
-          <button onClick={() => window.close()} className="text-[12px] text-muted-foreground hover:text-foreground border border-border/50 px-3 py-1.5 rounded-xl hover:bg-muted transition-colors">
+          <button onClick={shareURL}
+            className={`text-[12px] font-medium border px-3 py-1.5 rounded-xl transition-all ${shareCopied ? "bg-green-100 text-green-700 border-green-200" : "text-muted-foreground hover:text-foreground border-border/50 hover:bg-muted"}`}>
+            {shareCopied ? "✓ Link Copied!" : "🔗 Share"}
+          </button>
+          <button onClick={backToOS} className="text-[12px] text-muted-foreground hover:text-foreground border border-border/50 px-3 py-1.5 rounded-xl hover:bg-muted transition-colors">
             ← OS
           </button>
         </div>
