@@ -19,6 +19,7 @@ import {
   SUBSCRIPTION_REPLACEMENTS, SubscriptionReplacement, generateSelfSufficientAudit,
   HIDDEN_CAPABILITIES, HiddenCapability, generateHiddenCapability,
   InventionCategory, Invention, generateInvention,
+  HYPER_FORMATS, HyperFormat, HyperFormatId, generateHyperPackage,
 } from "@/engine/InfiniteExpansionEngine";
 
 // ─── Panel tabs ───────────────────────────────────────────────────────────
@@ -870,9 +871,18 @@ function UniversalModulesView({ onResult }: { onResult: (mod: InfiniteModule) =>
 // ─── Hidden AI Capabilities View ──────────────────────────────────────────
 
 function HiddenCapabilitiesView({ onResult }: { onResult: (m: InfiniteModule) => void }) {
+  const [mode, setMode] = useState<"hidden" | "hyper">("hidden");
+
+  // ── Hidden sub-state ──
   const [unlockingId, setUnlockingId] = useState<string | null>(null);
   const [unlockedIds, setUnlockedIds] = useState<string[]>([]);
   const [domain,      setDomain]      = useState("");
+
+  // ── Hyper sub-state ──
+  const [hyperPrompt,   setHyperPrompt]   = useState("");
+  const [isGenerating,  setIsGenerating]  = useState(false);
+  const [hyperPackage,  setHyperPackage]  = useState<Record<HyperFormatId, InfiniteModule> | null>(null);
+  const [activeFormat,  setActiveFormat]  = useState<HyperFormatId | null>(null);
 
   function handleUnlock(hc: HiddenCapability) {
     if (unlockingId) return;
@@ -885,68 +895,187 @@ function HiddenCapabilitiesView({ onResult }: { onResult: (m: InfiniteModule) =>
     }, 950);
   }
 
+  function handleHyperGenerate() {
+    if (!hyperPrompt.trim() || isGenerating) return;
+    setIsGenerating(true);
+    setHyperPackage(null);
+    setActiveFormat(null);
+    setTimeout(() => {
+      const pkg = generateHyperPackage(hyperPrompt.trim());
+      setHyperPackage(pkg);
+      setIsGenerating(false);
+      onResult(pkg["document"]);
+    }, 1800);
+  }
+
+  function handleFormatClick(fmt: HyperFormat) {
+    if (!hyperPackage) return;
+    setActiveFormat(fmt.id);
+    onResult(hyperPackage[fmt.id]);
+  }
+
   return (
     <div className="space-y-3">
-      {/* Dramatic header */}
-      <div className="relative overflow-hidden rounded-2xl bg-gradient-to-br from-slate-900 to-indigo-950 border border-indigo-800/60 p-4">
-        <div className="absolute inset-0 opacity-20"
-          style={{ backgroundImage: "radial-gradient(circle at 70% 30%, #5856D6 0%, transparent 60%)" }} />
-        <div className="relative z-10">
-          <div className="flex items-center gap-2 mb-1">
-            <span className="text-base">✨</span>
-            <p className="text-[12px] font-black text-white tracking-wider uppercase">Hidden AI Capabilities</p>
+      {/* Mode toggle */}
+      <div className="flex gap-1 bg-muted rounded-xl p-1">
+        <button onClick={() => setMode("hidden")}
+          className={`flex-1 text-[11px] font-bold py-1.5 rounded-lg transition-colors ${mode === "hidden" ? "bg-white text-primary shadow-sm" : "text-muted-foreground hover:text-foreground"}`}>
+          ✨ Hidden
+        </button>
+        <button onClick={() => setMode("hyper")}
+          className={`flex-1 text-[11px] font-bold py-1.5 rounded-lg transition-colors ${mode === "hyper" ? "bg-white text-primary shadow-sm" : "text-muted-foreground hover:text-foreground"}`}>
+          🌐 Hyper
+        </button>
+      </div>
+
+      {/* ── Hidden mode ── */}
+      {mode === "hidden" && (
+        <div className="space-y-3">
+          <div className="relative overflow-hidden rounded-2xl bg-gradient-to-br from-slate-900 to-indigo-950 border border-indigo-800/60 p-4">
+            <div className="absolute inset-0 opacity-20"
+              style={{ backgroundImage: "radial-gradient(circle at 70% 30%, #5856D6 0%, transparent 60%)" }} />
+            <div className="relative z-10">
+              <div className="flex items-center gap-2 mb-1">
+                <span className="text-base">✨</span>
+                <p className="text-[12px] font-black text-white tracking-wider uppercase">Hidden AI Capabilities</p>
+              </div>
+              <p className="text-[10px] text-indigo-300 leading-snug">Advanced abilities most systems cannot achieve. Autonomous creativity, recursive intelligence, multi-platform deployment.</p>
+              <div className="flex items-center gap-2 mt-2">
+                <span className="w-1.5 h-1.5 rounded-full bg-green-400 animate-pulse" />
+                <span className="text-[9px] text-green-400 font-semibold">ALL 9 CAPABILITIES UNLOCKED · ADDITIVE ONLY · CORE INTACT</span>
+              </div>
+            </div>
           </div>
-          <p className="text-[10px] text-indigo-300 leading-snug">Advanced abilities most systems cannot achieve. Autonomous creativity, recursive intelligence, multi-platform deployment.</p>
-          <div className="flex items-center gap-2 mt-2">
-            <span className="w-1.5 h-1.5 rounded-full bg-green-400 animate-pulse" />
-            <span className="text-[9px] text-green-400 font-semibold">ALL 9 CAPABILITIES UNLOCKED · ADDITIVE ONLY · CORE INTACT</span>
+          <div>
+            <label className="text-[10px] font-bold text-muted-foreground uppercase tracking-wider block mb-1">Domain / Context (optional)</label>
+            <input value={domain} onChange={e => setDomain(e.target.value)}
+              placeholder="e.g. Healthcare, my game project, finance team…"
+              className="w-full bg-white border border-border/40 rounded-xl px-3 py-2 text-[12px] outline-none focus:ring-1 focus:ring-indigo-300/50 transition-all" />
           </div>
+          <div className="space-y-2">
+            {HIDDEN_CAPABILITIES.map(hc => {
+              const busy     = unlockingId === hc.id;
+              const unlocked = unlockedIds.includes(hc.id);
+              return (
+                <button key={hc.id} onClick={() => handleUnlock(hc)} disabled={!!unlockingId}
+                  className={`w-full flex items-start gap-3 p-3 rounded-xl border text-left transition-all
+                    ${unlocked ? "bg-indigo-50 border-indigo-200" : "bg-white border-border/40 hover:border-indigo-300 hover:bg-indigo-50/20"}
+                    ${busy ? "opacity-60" : ""} disabled:cursor-not-allowed`}>
+                  <span className="text-xl flex-shrink-0 mt-0.5">{hc.icon}</span>
+                  <div className="flex-1 min-w-0">
+                    <p className="text-[12px] font-bold text-foreground">{hc.name}</p>
+                    <p className="text-[10px] text-muted-foreground leading-snug">{hc.tagline}</p>
+                    {!busy && !unlocked && (
+                      <p className="text-[9px] text-indigo-500 font-semibold mt-1">▶ {hc.unlockLabel}</p>
+                    )}
+                  </div>
+                  <div className="flex-shrink-0 mt-0.5">
+                    {busy ? (
+                      <div className="w-4 h-4 border-2 border-indigo-500 border-t-transparent rounded-full animate-spin" />
+                    ) : unlocked ? (
+                      <span className="text-[10px] text-indigo-600 font-black">✓</span>
+                    ) : (
+                      <span className="text-[10px] text-indigo-400 font-bold">✨</span>
+                    )}
+                  </div>
+                </button>
+              );
+            })}
+          </div>
+          <p className="text-[9px] text-muted-foreground text-center">UCP-X Hidden Capabilities · Additive Only · Self-Improving · Core Intact</p>
         </div>
-      </div>
+      )}
 
-      {/* Domain input */}
-      <div>
-        <label className="text-[10px] font-bold text-muted-foreground uppercase tracking-wider block mb-1">Domain / Context (optional)</label>
-        <input value={domain} onChange={e => setDomain(e.target.value)}
-          placeholder="e.g. Healthcare, my game project, finance team…"
-          className="w-full bg-white border border-border/40 rounded-xl px-3 py-2 text-[12px] outline-none focus:ring-1 focus:ring-indigo-300/50 transition-all" />
-      </div>
+      {/* ── Hyper mode ── */}
+      {mode === "hyper" && (
+        <div className="space-y-3">
+          {/* Header */}
+          <div className="relative overflow-hidden rounded-2xl p-4"
+            style={{ background: "linear-gradient(135deg, #0f0c29, #302b63, #24243e)" }}>
+            <div className="absolute inset-0 opacity-30"
+              style={{ backgroundImage: "radial-gradient(circle at 20% 80%, #BF5AF2 0%, transparent 50%), radial-gradient(circle at 80% 20%, #007AFF 0%, transparent 50%)" }} />
+            <div className="relative z-10">
+              <div className="flex items-center gap-2 mb-1">
+                <span className="text-base">🌐</span>
+                <p className="text-[12px] font-black text-white tracking-wider uppercase">Hyper-Innovative AI Layer</p>
+              </div>
+              <p className="text-[10px] text-purple-200 leading-snug">One prompt → 8 formats generated simultaneously by 6 agents. Text, website, app, video, audio, 3D/AR/VR, simulation, software.</p>
+              <div className="flex items-center gap-1.5 mt-2 flex-wrap">
+                {HYPER_FORMATS.map(f => (
+                  <span key={f.id} className="text-base" title={f.name}>{f.icon}</span>
+                ))}
+                <span className="text-[9px] text-purple-300 font-semibold ml-1">ALL 8 FORMATS · SIMULTANEOUSLY</span>
+              </div>
+            </div>
+          </div>
 
-      {/* Capabilities list */}
-      <div className="space-y-2">
-        {HIDDEN_CAPABILITIES.map(hc => {
-          const busy     = unlockingId === hc.id;
-          const unlocked = unlockedIds.includes(hc.id);
-          return (
-            <button key={hc.id} onClick={() => handleUnlock(hc)} disabled={!!unlockingId}
-              className={`w-full flex items-start gap-3 p-3 rounded-xl border text-left transition-all
-                ${unlocked
-                  ? "bg-indigo-50 border-indigo-200"
-                  : "bg-white border-border/40 hover:border-indigo-300 hover:bg-indigo-50/20"}
-                ${busy ? "opacity-60" : ""}
-                disabled:cursor-not-allowed`}>
-              <span className="text-xl flex-shrink-0 mt-0.5">{hc.icon}</span>
-              <div className="flex-1 min-w-0">
-                <p className="text-[12px] font-bold text-foreground">{hc.name}</p>
-                <p className="text-[10px] text-muted-foreground leading-snug">{hc.tagline}</p>
-                {!busy && !unlocked && (
-                  <p className="text-[9px] text-indigo-500 font-semibold mt-1">▶ {hc.unlockLabel}</p>
-                )}
-              </div>
-              <div className="flex-shrink-0 mt-0.5">
-                {busy ? (
-                  <div className="w-4 h-4 border-2 border-indigo-500 border-t-transparent rounded-full animate-spin" />
-                ) : unlocked ? (
-                  <span className="text-[10px] text-indigo-600 font-black">✓</span>
-                ) : (
-                  <span className="text-[10px] text-indigo-400 font-bold">✨</span>
-                )}
-              </div>
-            </button>
-          );
-        })}
-      </div>
-      <p className="text-[9px] text-muted-foreground text-center">UCP-X Hidden Capabilities · Additive Only · Self-Improving · Core Intact</p>
+          {/* Prompt */}
+          <div>
+            <label className="text-[10px] font-bold text-muted-foreground uppercase tracking-wider block mb-1.5">Describe your project</label>
+            <textarea
+              value={hyperPrompt}
+              onChange={e => setHyperPrompt(e.target.value)}
+              onKeyDown={e => { if (e.key === "Enter" && (e.metaKey || e.ctrlKey)) handleHyperGenerate(); }}
+              placeholder={`e.g. "AI-powered healthcare onboarding platform" / "startup pitch for logistics AI" / "training program for sales teams"…`}
+              rows={2}
+              className="w-full bg-white border border-border/40 rounded-xl px-3 py-2 text-[12px] outline-none focus:ring-1 focus:ring-purple-300/50 transition-all resize-none"
+            />
+          </div>
+
+          {/* Generate button */}
+          <button onClick={handleHyperGenerate} disabled={isGenerating || !hyperPrompt.trim()}
+            className="w-full text-white text-[12px] font-bold py-2.5 rounded-xl disabled:opacity-40 flex items-center justify-center gap-2 transition-all"
+            style={{ background: isGenerating ? "#6B7280" : "linear-gradient(90deg, #BF5AF2, #5856D6, #007AFF)" }}>
+            {isGenerating ? (
+              <><div className="w-3 h-3 border-2 border-white border-t-transparent rounded-full animate-spin" /><span>Generating all 8 formats…</span></>
+            ) : (
+              <>🌐 Generate All Simultaneously <span className="opacity-60 font-normal text-[10px]">⌘↵</span></>
+            )}
+          </button>
+
+          {/* 8 format cards */}
+          <div className="grid grid-cols-2 gap-2">
+            {HYPER_FORMATS.map(fmt => {
+              const done = !!hyperPackage?.[fmt.id];
+              const isActive = activeFormat === fmt.id;
+              return (
+                <button key={fmt.id}
+                  onClick={() => handleFormatClick(fmt)}
+                  disabled={!done}
+                  className={`relative flex flex-col items-center gap-1.5 p-3 rounded-2xl border text-center transition-all
+                    ${done
+                      ? isActive
+                        ? "border-2 shadow-md text-white"
+                        : "border border-border/40 bg-white hover:shadow-sm hover:border-gray-300"
+                      : isGenerating
+                        ? "border border-border/30 bg-muted/40"
+                        : "border border-border/20 bg-muted/20 opacity-40"}
+                    disabled:cursor-not-allowed`}
+                  style={done && isActive ? { background: fmt.color, borderColor: fmt.color } : {}}>
+                  {isGenerating && !done && (
+                    <div className="absolute inset-0 flex items-center justify-center">
+                      <div className="w-4 h-4 border-2 border-current border-t-transparent rounded-full animate-spin opacity-60" />
+                    </div>
+                  )}
+                  <span className={`text-xl ${isGenerating && !done ? "opacity-20" : ""}`}>{fmt.icon}</span>
+                  <p className={`text-[10px] font-bold leading-tight ${done && isActive ? "text-white" : "text-foreground"}`}>{fmt.name}</p>
+                  <p className={`text-[8px] ${done && isActive ? "text-white/80" : "text-muted-foreground"}`}>{fmt.agent}</p>
+                  {done && !isActive && (
+                    <span className="absolute top-1.5 right-1.5 text-[8px] font-black" style={{ color: fmt.color }}>✓</span>
+                  )}
+                </button>
+              );
+            })}
+          </div>
+
+          {hyperPackage && (
+            <p className="text-[9px] text-center text-muted-foreground">
+              All 8 formats complete — tap any card to view its content
+            </p>
+          )}
+          <p className="text-[9px] text-muted-foreground text-center">UCP-X Hyper-Innovative Layer · Multi-Modal · Parallel Agents · Core Intact</p>
+        </div>
+      )}
     </div>
   );
 }
@@ -1133,7 +1262,7 @@ export function UCPXAgent() {
           {/* Footer */}
           <div className="flex-none px-4 py-2.5 border-t border-border/20 bg-muted/20">
             <p className="text-[9px] text-muted-foreground text-center">
-              UCP-X v3 · 11 Engines · 6 Meta-Agents · 25 Modules · 10 Superpowers · 9 Hidden Capabilities · Subscription-Free · Core Intact
+              UCP-X v3 · 11 Engines · 6 Meta-Agents · 25 Modules · 10 Superpowers · 9 Hidden Capabilities · 8 Hyper Formats · Subscription-Free · Core Intact
             </p>
           </div>
         </div>
