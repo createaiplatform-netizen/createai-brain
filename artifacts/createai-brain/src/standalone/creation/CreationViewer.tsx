@@ -94,14 +94,16 @@ function AIStudio({ creation }: { creation: Creation }) {
 
   useEffect(() => { bottomRef.current?.scrollIntoView({ behavior: "smooth" }); }, [messages, buf]);
 
-  const quick = {
+  const quick = ({
     movie:     ["Expand Scene 3", "Develop the protagonist more", "Write another scene", "Create a sequel pitch"],
     comic:     ["Write panel 9", "Expand the villain backstory", "Create a new issue summary", "Add a plot twist"],
     software:  ["Add a new feature", "Write onboarding copy", "Describe the mobile app", "Suggest integrations"],
     document:  ["Expand Section 2", "Add a case study", "Write a conclusion", "Add more recommendations"],
     marketing: ["Write a new email", "Create an ad variant", "Add a pricing tier", "Write a blog post"],
+    community: ["Improve onboarding", "Add engagement features", "Draft community rules", "Plan a virtual event"],
+    game:      ["Design a new level", "Add a power-up", "Write the story ending", "Create a boss battle"],
     custom:    ["Expand the concept", "Add more details", "Create a variation", "Build on this idea"],
-  }[creation.type] ?? ["Tell me more", "Add another section", "Expand this idea", "Create a variation"];
+  } as Record<string, string[]>)[creation.type] ?? ["Tell me more", "Add another section", "Expand this idea", "Create a variation"];
 
   const send = async (text?: string) => {
     const q = (text ?? input).trim();
@@ -758,7 +760,7 @@ function LevelDesignerUI({ color }: { color: string }) {
         {tiles.map(t => (
           <button key={t} onClick={() => setSelected(t)}
             className={`w-8 h-8 rounded-lg text-lg transition-all ${selected === t ? "ring-2 bg-muted" : "hover:bg-muted/50"}`}
-            style={{ ringColor: color }}>{t}</button>
+            >{t}</button>
         ))}
       </div>
       <div className="space-y-0.5">
@@ -766,7 +768,7 @@ function LevelDesignerUI({ color }: { color: string }) {
           <div key={r} className="flex gap-0.5">
             {row.map((cell, c) => (
               <button key={c} onClick={() => setGrid(g => g.map((row2, r2) => r2 === r ? row2.map((cell2, c2) => c2 === c ? selected : cell2) : row2))}
-                className="w-8 h-8 rounded text-base hover:ring-1 transition-all" style={{ ringColor: color }}>{cell}</button>
+                className="w-8 h-8 rounded text-base hover:ring-1 transition-all">{cell}</button>
             ))}
           </div>
         ))}

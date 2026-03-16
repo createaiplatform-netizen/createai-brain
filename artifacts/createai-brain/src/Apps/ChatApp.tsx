@@ -1,10 +1,5 @@
-import React, { useState, useEffect, useRef, useMemo } from "react";
+import React, { useState, useEffect, useRef } from "react";
 import { Send, ChevronDown, Sparkles } from "lucide-react";
-import {
-  useListOpenaiConversations,
-  useCreateOpenaiConversation,
-  useGetOpenaiConversation,
-} from "@workspace/api-client-react";
 import { useChatStream } from "@/hooks/use-chat-stream";
 import { ChatBubble } from "@/components/chat-bubble";
 import { TypingIndicator } from "@/components/typing-indicator";
@@ -28,48 +23,12 @@ export function ChatApp() {
   const [currentProjectIndex, setCurrentProjectIndex] = useState(0);
   const [showPicker, setShowPicker] = useState(false);
   const [inputMessage, setInputMessage] = useState("");
-  const [activeConversationId, setActiveConversationId] = useState<number | null>(null);
-  const [localSystemMessages, setLocalSystemMessages] = useState<Record<number, { id: number; content: string }[]>>({});
 
   const messagesEndRef = useRef<HTMLDivElement>(null);
   const inputRef = useRef<HTMLInputElement>(null);
   const currentProject = PROJECTS[currentProjectIndex];
 
-  const { data: conversations, refetch: refetchConversations } = useListOpenaiConversations();
-  const createConvMutation = useCreateOpenaiConversation();
-  const { data: activeConversation, isLoading: isLoadingMessages } = useGetOpenaiConversation(
-    activeConversationId as number,
-    { query: { enabled: !!activeConversationId } }
-  );
-  const { sendMessage, isStreaming, streamingText } = useChatStream(activeConversationId);
-
-  useEffect(() => {
-    if (!conversations) return;
-    const existingConv = conversations.find(c => c.title === currentProject.name);
-    if (existingConv) {
-      setActiveConversationId(existingConv.id);
-      addLocalSystemMessage(existingConv.id, `Switched to: ${currentProject.name} — ${currentProject.description}`);
-    } else {
-      createConvMutation.mutate(
-        { data: { title: currentProject.name } },
-        {
-          onSuccess: (newConv) => {
-            setActiveConversationId(newConv.id);
-            refetchConversations();
-            addLocalSystemMessage(newConv.id, `Switched to: ${currentProject.name} — ${currentProject.description}`);
-          },
-        }
-      );
-    }
-  }, [currentProject.name, conversations?.length]);
-
-  const addLocalSystemMessage = (convId: number, content: string) => {
-    setLocalSystemMessages(prev => {
-      const existing = prev[convId] || [];
-      if (existing.length > 0 && existing[existing.length - 1].content === content) return prev;
-      return { ...prev, [convId]: [...existing, { id: Date.now(), content }] };
-    });
-  };
+  const { messages, sendMessage, isStreaming, streamingText } = useChatStream();
 
   const selectProject = (index: number) => {
     setCurrentProjectIndex(index);
@@ -78,7 +37,7 @@ export function ChatApp() {
 
   const handleSend = (e?: React.FormEvent) => {
     e?.preventDefault();
-    if (!inputMessage.trim() || isStreaming || !activeConversationId) return;
+    if (!inputMessage.trim() || isStreaming) return;
     sendMessage(inputMessage.trim());
     setInputMessage("");
     setTimeout(() => inputRef.current?.focus(), 10);
@@ -86,19 +45,7 @@ export function ChatApp() {
 
   useEffect(() => {
     messagesEndRef.current?.scrollIntoView({ behavior: "smooth" });
-  }, [activeConversation?.messages, streamingText, localSystemMessages, activeConversationId]);
-
-  const renderMessages = useMemo(() => {
-    if (!activeConversation) return [];
-    const dbMessages = activeConversation.messages.map(m => ({ ...m, type: "db" }));
-    const sysMessages = (localSystemMessages[activeConversationId as number] || []).map(m => ({
-      id: m.id, role: "system" as const, content: m.content,
-      createdAt: new Date(m.id).toISOString(), type: "system",
-    }));
-    return [...dbMessages, ...sysMessages].sort(
-      (a, b) => new Date(a.createdAt).getTime() - new Date(b.createdAt).getTime()
-    );
-  }, [activeConversation, localSystemMessages, activeConversationId]);
+  }, [messages, streamingText]);
 
   return (
     <div className="flex flex-col h-full">
@@ -140,23 +87,22 @@ export function ChatApp() {
 
       {/* Messages */}
       <main className="flex-1 overflow-y-auto p-4 pb-2 scroll-smooth">
-        {isLoadingMessages && !activeConversation ? (
-          <div className="w-full h-full flex items-center justify-center">
-            <div className="animate-pulse flex flex-col items-center gap-3">
-              <div className="w-10 h-10 bg-muted rounded-full" />
-              <div className="w-24 h-3 bg-muted rounded-full" />
+        <div className="flex flex-col justify-end min-h-full">
+          {messages.length === 0 && (
+            <div className="flex flex-col items-center justify-center flex-1 gap-3 py-16 text-center">
+              <div className="w-14 h-14 rounded-2xl bg-primary/10 flex items-center justify-center text-2xl">🧠</div>
+              <p className="font-semibold text-foreground text-[15px]">{currentProject.name}</p>
+              <p className="text-[13px] text-muted-foreground max-w-xs leading-relaxed">{currentProject.description}</p>
+              <p className="text-[12px] text-muted-foreground/60 mt-2">Send a message to start your session</p>
             </div>
-          </div>
-        ) : (
-          <div className="flex flex-col justify-end min-h-full">
-            {renderMessages.map(msg => (
-              <ChatBubble key={`${msg.type}-${msg.id}`} role={msg.role as any} content={msg.content} />
-            ))}
-            {isStreaming && streamingText && <ChatBubble role="assistant" content={streamingText} isStreaming />}
-            {isStreaming && !streamingText && <TypingIndicator />}
-            <div ref={messagesEndRef} className="h-1" />
-          </div>
-        )}
+          )}
+          {messages.map(msg => (
+            <ChatBubble key={msg.id} role={msg.role as any} content={msg.content} />
+          ))}
+          {isStreaming && streamingText && <ChatBubble role="assistant" content={streamingText} isStreaming />}
+          {isStreaming && !streamingText && <TypingIndicator />}
+          <div ref={messagesEndRef} className="h-1" />
+        </div>
       </main>
 
       {/* Input */}
@@ -172,11 +118,11 @@ export function ChatApp() {
             onChange={e => setInputMessage(e.target.value)}
             placeholder="Message CreateAI Brain..."
             className="flex-1 bg-transparent border-none outline-none text-[15px] placeholder:text-muted-foreground py-1.5"
-            disabled={isStreaming || !activeConversationId}
+            disabled={isStreaming}
           />
           <button
             type="submit"
-            disabled={!inputMessage.trim() || isStreaming || !activeConversationId}
+            disabled={!inputMessage.trim() || isStreaming}
             className={cn(
               "ml-2 w-8 h-8 rounded-full flex items-center justify-center transition-all flex-shrink-0",
               inputMessage.trim() && !isStreaming

@@ -46,19 +46,20 @@ function OpportunityDetail({ opp, onBack }: { opp: Opportunity; onBack: () => vo
   const handleStage = async () => {
     setGenerating(true);
     const [emailRes, campaignRes, adRes] = await Promise.all([
-      BrainGen.generateEmail({
-        topic: `${opp.title} — write a compelling 3-email launch sequence for this offer: ${opp.description}. First email announces it, second shows value, third drives action.`,
-        tone: "Empowering",
-      }),
-      BrainGen.generateCampaign({
-        topic: `${opp.title} — create a 30-day launch campaign plan including social posts, email dates, ad targeting, and a soft-launch strategy. Estimated value: ${opp.estimatedValue}.`,
-        tone: "Professional",
-      }),
-      BrainGen.generateAdCopy({
-        topic: `${opp.title} — ${opp.description}`,
-        platform: "Universal",
-        tone: "Empowering",
-      }),
+      BrainGen.generateEmail(
+        `${opp.title} — write a compelling 3-email launch sequence for this offer: ${opp.description}. First email announces it, second shows value, third drives action.`,
+        "Launch",
+        "Empowering",
+      ),
+      BrainGen.generateCampaign(
+        `${opp.title} — create a 30-day launch campaign plan including social posts, email dates, ad targeting, and a soft-launch strategy. Estimated value: ${opp.estimatedValue}.`,
+        "Entrepreneurs",
+        "30 days",
+      ),
+      BrainGen.generateAdCopy(
+        `${opp.title} — ${opp.description}`,
+        "General",
+      ),
     ]);
     setPlan({ email: emailRes.content, campaign: campaignRes.content, adCopy: adRes.content });
     setStaged(true);

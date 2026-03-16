@@ -11,6 +11,7 @@ import { AdminApp } from "@/Apps/AdminApp";
 import { FamilyApp } from "@/Apps/FamilyApp";
 import { IntegrationApp } from "@/Apps/IntegrationApp";
 import { MonetizationApp } from "@/Apps/MonetizationApp";
+import { UniversalApp } from "@/Apps/UniversalApp";
 import type { AppId } from "./OSContext";
 
 const APP_COMPONENTS: Record<AppId, React.ComponentType<any>> = {
@@ -25,6 +26,7 @@ const APP_COMPONENTS: Record<AppId, React.ComponentType<any>> = {
   family: FamilyApp,
   integration: IntegrationApp,
   monetization: MonetizationApp,
+  universal: UniversalApp,
 };
 
 interface AppWindowProps {

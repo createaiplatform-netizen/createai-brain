@@ -139,7 +139,7 @@ const CHAPTER_PATTERNS: Record<CreativeType, (topic: string, audience: string, i
     emotion: ["Wonder", "Concern", "Understanding", "Impact", "Hope", "Purpose"][i] ?? "Reflection",
   }),
   training: (topic, audience, i) => ({
-    index: i, title: [`Module ${i + 1}: ` + ["Welcome & Objectives", "Core Concepts", "Demonstration", "Practice Scenario", "Knowledge Check", "Summary & Next Steps"][i] ?? `Module ${i + 1}`],
+    index: i, title: `Module ${i + 1}: ` + (["Welcome & Objectives", "Core Concepts", "Demonstration", "Practice Scenario", "Knowledge Check", "Summary & Next Steps"][i] ?? `Module ${i + 1}`),
     duration: ["5:00", "10:00", "8:00", "12:00", "5:00", "5:00"][i] ?? "8:00",
     narration: [
       `Welcome, ${audience}! Today you'll learn ${topic}. Objectives: understand X, apply Y, demonstrate Z (mock).`,

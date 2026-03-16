@@ -277,15 +277,15 @@ function GenerateView({ onResult }: { onResult: (r: GenResult) => void }) {
 
       {/* Context-specific options */}
       {contentType === "Social Post" && (
-        <SelectPills label="Platform" value={platform} onChange={setPlatform}
+        <SelectPills label="Platform" value={platform} onChange={(v) => setPlatform(v as Platform)}
           options={["Instagram", "LinkedIn", "Facebook", "Twitter", "TikTok", "General"]} />
       )}
       {contentType === "Email" && (
-        <SelectPills label="Email Type" value={emailType} onChange={setEmailType}
+        <SelectPills label="Email Type" value={emailType} onChange={(v) => setEmailType(v as EmailType)}
           options={["Welcome", "Follow-Up", "Nurture", "Promotional"]} />
       )}
 
-      <SelectPills label="Tone" value={tone} onChange={setTone}
+      <SelectPills label="Tone" value={tone} onChange={(v) => setTone(v as Tone)}
         options={["Professional", "Casual", "Enthusiastic", "Empathetic", "Bold"]} />
 
       {/* Topic input */}

@@ -120,7 +120,7 @@ export function ConversationOverlay() {
   const [typing,    setTyping]    = useState(false);
   const bottomRef   = useRef<HTMLDivElement>(null);
   const inputRef    = useRef<HTMLInputElement>(null);
-  const recognRef   = useRef<SpeechRecognition | null>(null);
+  const recognRef   = useRef<any>(null);
   const pillRef     = useRef<HTMLButtonElement>(null);
   const panelRef    = useRef<HTMLDivElement>(null);
 
@@ -167,11 +167,11 @@ export function ConversationOverlay() {
       return;
     }
 
-    const recog: SpeechRecognition = new SR();
+    const recog: any = new SR();
     recog.lang = "en-US";
     recog.interimResults = false;
     recog.maxAlternatives = 1;
-    recog.onresult = (e: SpeechRecognitionEvent) => {
+    recog.onresult = (e: any) => {
       const transcript = e.results[0][0].transcript;
       setInput(transcript);
       setListening(false);

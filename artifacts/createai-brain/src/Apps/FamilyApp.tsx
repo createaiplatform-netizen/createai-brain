@@ -73,7 +73,7 @@ export function FamilyApp() {
         <h2 className="text-xl font-bold text-foreground">My Apps</h2>
         <div className="grid grid-cols-2 gap-3">
           {FAMILY_APPS.map(app => (
-            <button key={app.name} onClick={() => openApp(app.appId)}
+            <button key={app.name} onClick={() => openApp(app.appId as any)}
               className="flex flex-col items-center gap-2 p-5 bg-background rounded-2xl border border-border/50 text-center hover:border-primary/30 hover:shadow-sm transition-all group">
               <span className="text-3xl group-hover:scale-110 transition-transform">{app.icon}</span>
               <p className="font-semibold text-[13px] text-foreground">{app.name}</p>

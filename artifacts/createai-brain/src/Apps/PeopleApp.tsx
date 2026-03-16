@@ -206,7 +206,7 @@ function InviteView({ onBack, onSaved }: { onBack: () => void; onSaved: () => vo
   const handleGenerateBulkMsg = async () => {
     setGeneratingMsg(true);
     const names = parsed.map(p => p.name.split(" ")[0]).join(", ");
-    const res = await BrainGen.generate({ type: "email", topic: `Platform invite for ${names} — write a warm, exciting invitation to join the CreateAI Brain platform` });
+    const res = await BrainGen.generate(`Platform invite for ${names} — write a warm, exciting invitation to join the CreateAI Brain platform`);
     setInviteMsg(res.content);
     setGeneratingMsg(false);
   };

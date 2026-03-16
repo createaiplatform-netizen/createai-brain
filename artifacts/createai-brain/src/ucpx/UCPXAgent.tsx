@@ -1543,7 +1543,7 @@ const GROWTH_MODULES: GrowthModule[] = [
     tagline: "Optimal pricing for every project, client & market segment",
     color: "from-emerald-600 to-teal-500",
     generate: (ctx) => ({
-      id: mkId(), agentId: "nexus", type: "module",
+      id: mkId(), agentId: "NEXUS", type: "module",
       title: `Dynamic Pricing Strategy — ${ctx}`,
       content: [
         `# 💲 Dynamic Pricing AI — ${ctx}`,
@@ -1578,7 +1578,7 @@ const GROWTH_MODULES: GrowthModule[] = [
         "",
         "> **Approved & ready to deploy** — pricing engine live, discount rules active, metering configured.",
       ].join("\n"),
-      approved: false, deployed: false,
+      approved: false, deployed: false, domain: "revenue", tags: [], createdAt: new Date(),
     }),
   },
   {
@@ -1588,7 +1588,7 @@ const GROWTH_MODULES: GrowthModule[] = [
     tagline: "Upsell bundles engineered for maximum market penetration",
     color: "from-violet-600 to-purple-500",
     generate: (ctx) => ({
-      id: mkId(), agentId: "atlas", type: "module",
+      id: mkId(), agentId: "NEXUS", type: "module",
       title: `Cross-Industry Bundle Strategy — ${ctx}`,
       content: [
         `# 📦 Cross-Industry Bundle Strategy — ${ctx}`,
@@ -1628,7 +1628,7 @@ const GROWTH_MODULES: GrowthModule[] = [
         "",
         "> **Approved & ready to deploy** — bundle catalog published, cross-sell triggers armed.",
       ].join("\n"),
-      approved: false, deployed: false,
+      approved: false, deployed: false, domain: "revenue", tags: [], createdAt: new Date(),
     }),
   },
   {
@@ -1638,7 +1638,7 @@ const GROWTH_MODULES: GrowthModule[] = [
     tagline: "AI-identified high-value partners & enterprise client targets",
     color: "from-orange-500 to-amber-400",
     generate: (ctx) => ({
-      id: mkId(), agentId: "atlas", type: "module",
+      id: mkId(), agentId: "NEXUS", type: "module",
       title: `Strategic Adoption Boosters — ${ctx}`,
       content: [
         `# 🚀 Strategic Adoption Boosters — ${ctx}`,
@@ -1672,7 +1672,7 @@ const GROWTH_MODULES: GrowthModule[] = [
         "",
         "> **Approved & ready to deploy** — outreach sequences armed, partner portal live.",
       ].join("\n"),
-      approved: false, deployed: false,
+      approved: false, deployed: false, domain: "revenue", tags: [], createdAt: new Date(),
     }),
   },
   {
@@ -1682,7 +1682,7 @@ const GROWTH_MODULES: GrowthModule[] = [
     tagline: "Regional AI clones deployed for automatic worldwide expansion",
     color: "from-blue-600 to-cyan-500",
     generate: (ctx) => ({
-      id: mkId(), agentId: "atlas", type: "module",
+      id: mkId(), agentId: "NEXUS", type: "module",
       title: `Global AI Agent Network — ${ctx}`,
       content: [
         `# 🌐 Global AI Agent Network — ${ctx}`,
@@ -1712,7 +1712,7 @@ const GROWTH_MODULES: GrowthModule[] = [
         "",
         "> **Approved & ready to deploy** — 4 regional clones live, 2 deploying, infinite scaling active.",
       ].join("\n"),
-      approved: false, deployed: false,
+      approved: false, deployed: false, domain: "revenue", tags: [], createdAt: new Date(),
     }),
   },
   {
@@ -1722,7 +1722,7 @@ const GROWTH_MODULES: GrowthModule[] = [
     tagline: "Automated IP protection for every new module & workflow",
     color: "from-rose-600 to-pink-500",
     generate: (ctx) => ({
-      id: mkId(), agentId: "synth", type: "module",
+      id: mkId(), agentId: "FORGE", type: "module",
       title: `Patent & IP Protection Brief — ${ctx}`,
       content: [
         `# ⚖️ Automated Patent & IP Brief — ${ctx}`,
@@ -1763,7 +1763,7 @@ const GROWTH_MODULES: GrowthModule[] = [
         "",
         "> **Approved & ready to file** — attorney brief generated, filing calendar set.",
       ].join("\n"),
-      approved: false, deployed: false,
+      approved: false, deployed: false, domain: "revenue", tags: [], createdAt: new Date(),
     }),
   },
   {
@@ -1773,7 +1773,7 @@ const GROWTH_MODULES: GrowthModule[] = [
     tagline: "Press-ready summaries & investor reports generated instantly",
     color: "from-indigo-600 to-violet-500",
     generate: (ctx) => ({
-      id: mkId(), agentId: "oracle", type: "insight",
+      id: mkId(), agentId: "ORACLE", type: "insight",
       title: `Investor & Media Report — ${ctx}`,
       content: [
         `# 📈 Investor & Media Report — ${ctx}`,
@@ -1812,7 +1812,7 @@ const GROWTH_MODULES: GrowthModule[] = [
         "",
         "> **Approved & ready to distribute** — formatted for board decks, press kits, and LP memos.",
       ].join("\n"),
-      approved: false, deployed: false,
+      approved: false, deployed: false, domain: "revenue", tags: [], createdAt: new Date(),
     }),
   },
 ];
@@ -2214,7 +2214,7 @@ function generateDecisions(scale: DecisionScale, context: string, industry: stri
 // ─── Engines View ─────────────────────────────────────────────────────────
 
 function EnginesView({ onResult }: { onResult?: (m: InfiniteModule) => void }) {
-  const [section, setSection] = useState<"engines" | "workflow" | "interactive" | "marketing" | "revenue" | "teams" | "growth" | "tools" | "sim" | "hub" | "integration">("engines");
+  const [section, setSection] = useState<"engines" | "workflow" | "interactive" | "marketing" | "revenue" | "teams" | "growth" | "tools" | "sim" | "hub" | "integration" | "industry" | "decide">("engines");
 
   // Marketing state
   const [mktCtx,       setMktCtx]       = useState("");

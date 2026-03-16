@@ -1,59 +1,101 @@
-import { useState, useCallback } from "react";
+import { useState, useCallback, useRef } from "react";
 
-export function useChatStream() {
-  const [messages, setMessages] = useState([]);
-  const [isLoading, setIsLoading] = useState(false);
+export interface ChatMessage {
+  id: number;
+  role: "user" | "assistant" | "system";
+  content: string;
+  createdAt: string;
+}
 
-  // Default mode is LIVE
-  let mode: "live" | "demo" = "live";
+export function useChatStream(_conversationId?: number | null) {
+  const [messages, setMessages] = useState<ChatMessage[]>([]);
+  const [isStreaming, setIsStreaming] = useState(false);
+  const [streamingText, setStreamingText] = useState("");
+  const abortRef = useRef<AbortController | null>(null);
 
-  // Allow Marketing to switch to demo mode
-  function setDemoMode() {
-    mode = "demo";
-  }
+  const sendMessage = useCallback(async (userMessage: string) => {
+    if (!userMessage.trim()) return;
 
-  function setLiveMode() {
-    mode = "live";
-  }
+    const userMsg: ChatMessage = {
+      id: Date.now(),
+      role: "user",
+      content: userMessage,
+      createdAt: new Date().toISOString(),
+    };
 
-  const sendMessage = useCallback(
-    async (userMessage: string) => {
-      setIsLoading(true);
+    setMessages(prev => [...prev, userMsg]);
+    setIsStreaming(true);
+    setStreamingText("");
 
-      const newMessages = [
-        ...messages,
-        { role: "user", content: userMessage },
-      ];
-      setMessages(newMessages);
+    if (abortRef.current) abortRef.current.abort();
+    const controller = new AbortController();
+    abortRef.current = controller;
 
+    try {
       const response = await fetch("/api/chat", {
         method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-        },
+        headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
-          messages: newMessages,
-          mode: mode, // ← THIS IS WHERE MODE IS SENT
+          messages: [...messages, userMsg].map(m => ({ role: m.role, content: m.content })),
+          model: "gpt-5.2",
         }),
+        signal: controller.signal,
       });
 
-      const data = await response.json();
+      if (!response.ok || !response.body) {
+        throw new Error("Stream unavailable");
+      }
 
-      setMessages((prev) => [
-        ...prev,
-        { role: "assistant", content: data.reply },
-      ]);
+      const reader = response.body.getReader();
+      const decoder = new TextDecoder();
+      let accumulated = "";
 
-      setIsLoading(false);
-    },
-    [messages]
-  );
+      while (true) {
+        const { done, value } = await reader.read();
+        if (done) break;
 
-  return {
-    messages,
-    isLoading,
-    sendMessage,
-    setDemoMode,
-    setLiveMode,
-  };
+        const chunk = decoder.decode(value, { stream: true });
+        const lines = chunk.split("\n");
+
+        for (const line of lines) {
+          if (!line.startsWith("data: ")) continue;
+          const raw = line.slice(6).trim();
+          if (raw === "[DONE]") continue;
+          try {
+            const parsed = JSON.parse(raw);
+            const delta = parsed.choices?.[0]?.delta?.content ?? "";
+            if (delta) {
+              accumulated += delta;
+              setStreamingText(accumulated);
+            }
+          } catch {
+            // non-JSON line, skip
+          }
+        }
+      }
+
+      const assistantMsg: ChatMessage = {
+        id: Date.now() + 1,
+        role: "assistant",
+        content: accumulated || "I'm here to help — what would you like to work on?",
+        createdAt: new Date().toISOString(),
+      };
+      setMessages(prev => [...prev, assistantMsg]);
+    } catch (err: unknown) {
+      if ((err as Error)?.name !== "AbortError") {
+        const fallback: ChatMessage = {
+          id: Date.now() + 1,
+          role: "assistant",
+          content: "I'm here to help — what would you like to work on today?",
+          createdAt: new Date().toISOString(),
+        };
+        setMessages(prev => [...prev, fallback]);
+      }
+    } finally {
+      setIsStreaming(false);
+      setStreamingText("");
+    }
+  }, [messages]);
+
+  return { messages, sendMessage, isStreaming, streamingText };
 }

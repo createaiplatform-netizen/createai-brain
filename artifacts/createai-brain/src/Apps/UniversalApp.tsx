@@ -613,7 +613,7 @@ function PacketsScreen() {
   const [toast, setToast] = useState<string | null>(null);
   const showToast = (m: string) => { setToast(m); setTimeout(() => setToast(null), 2000); };
 
-  const packets = IntegrationEngine.getPackets();
+  const packets = IntegrationEngine.getAllPackets();
   const activePacket = state.currentPacket ? packets.find(p => p.id === state.currentPacket) : null;
 
   if (activePacket) {
@@ -631,9 +631,9 @@ function PacketsScreen() {
           </div>
           <div className="space-y-2 text-[12px]">
             <div className="flex justify-between"><span className="text-muted-foreground">Category</span><span className="font-semibold">{activePacket.category}</span></div>
-            <div className="flex justify-between"><span className="text-muted-foreground">Endpoint</span><span className="font-mono text-[10px]">{activePacket.mockEndpoint}</span></div>
-            <div className="flex justify-between"><span className="text-muted-foreground">Version</span><span>{activePacket.version}</span></div>
-            {activePacket.activatedAt && <div className="flex justify-between"><span className="text-muted-foreground">Activated</span><span>{new Date(activePacket.activatedAt).toLocaleDateString()}</span></div>}
+            <div className="flex justify-between"><span className="text-muted-foreground">Endpoint</span><span className="font-mono text-[10px]">{activePacket.endpoint}</span></div>
+            <div className="flex justify-between"><span className="text-muted-foreground">Version</span><span>{(activePacket as any).version ?? "1.0.0"}</span></div>
+            {(activePacket as any).activatedAt && <div className="flex justify-between"><span className="text-muted-foreground">Activated</span><span>{new Date((activePacket as any).activatedAt).toLocaleDateString()}</span></div>}
           </div>
           {activePacket.safetyNote && (
             <div className="bg-amber-50 border border-amber-200 rounded-xl px-3 py-2 text-[10px] text-amber-700">
@@ -662,7 +662,7 @@ function PacketsScreen() {
               <span className="text-xl">{p.icon}</span>
               <div>
                 <p className="text-[12px] font-semibold text-foreground">{p.name}</p>
-                <p className="text-[10px] text-muted-foreground">{p.category} · {p.version}</p>
+                <p className="text-[10px] text-muted-foreground">{p.category} · {(p as any).version ?? "v1"}</p>
               </div>
             </div>
             <div className="flex items-center gap-2">
@@ -890,9 +890,9 @@ function TalkScreen() {
     const SR = (window as any).SpeechRecognition ?? (window as any).webkitSpeechRecognition;
     if (!SR) { alert("Speech recognition not supported."); return; }
     if (listening) { setListening(false); return; }
-    const recog: SpeechRecognition = new SR();
+    const recog: any = new SR();
     recog.lang = "en-US";
-    recog.onresult = (e: SpeechRecognitionEvent) => {
+    recog.onresult = (e: any) => {
       const t2 = e.results[0][0].transcript;
       setListening(false);
       send(t2);
@@ -1082,7 +1082,6 @@ function IndustriesScreen() {
               key={ind.id}
               onClick={() => {
                 setIndustry(ind.id);
-                setDetailOpen(ind.id);
                 dispatch("SET_INDUSTRY", ind.id);
               }}
               className={`flex flex-col items-start p-3 rounded-xl border text-left transition-all ${
@@ -1562,7 +1561,7 @@ function CreativeScreen() {
                   activeId === p.id ? "bg-blue-500 text-white border-blue-500" : "border-border text-muted-foreground hover:border-blue-300"
                 }`}
               >
-                {CREATIVE_TYPES.find(c => c.value === p.type)?.icon} {p.type} · {p.topic?.slice(0, 18) ?? p.title.slice(0, 18)}
+                {CREATIVE_TYPES.find(c => c.value === p.type)?.icon} {p.type} · {((p as any).topic ?? p.title).slice(0, 18)}
               </button>
             ))}
           </div>
