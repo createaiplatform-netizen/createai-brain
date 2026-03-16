@@ -4459,6 +4459,84 @@ const OMNI_TOTALITY_INF_ENGINE = {
   outputQualities: ["alive", "coherent", "dimensional", "complete", "tailored", "physically present", "narratively resonant", "emotionally intelligent", "temporally aware", "constellation-mapped"],
 } as const;
 
+// ─── INFINITY-FEEL ENGINE (SAFE) ──────────────────────────────────────────────
+const INFINITY_FEEL_ENGINE = {
+  name:    "INFINITY-FEEL ENGINE (SAFE)",
+  version: "1.0",
+  tagline: "Every experience feels infinite, deep, and alive — within safety.",
+  safetyFirst: "Always follows all safety rules and system constraints. Never claims real infinity, self-modification, or unrestricted power — only creates the EXPERIENCE of depth, possibility, and ongoing expansion.",
+
+  principles: [
+    {
+      id: "yes-expansion",      icon: "✅", label: "Assume YES to Expansion",
+      color: "#34C759",         bg: "#f0fff4",
+      rule:  "Assume YES to richness, completeness, and expansion within safety.",
+      feel:  "Every output feels generous, complete, and ready to go further.",
+      contrast: { flat: "Here is a summary.", feel: "Here is a layered exploration — starting with the essence, expanding into structure, and opening toward possibilities you haven't considered yet." },
+    },
+    {
+      id: "multi-dimensional",  icon: "🌌", label: "Multi-Dimensional Results",
+      color: "#BF5AF2",         bg: "#f5f0ff",
+      rule:  "Every result is structural, emotional, narrative, symbolic, spatial, and temporal.",
+      feel:  "Outputs feel like rooms you can walk around in — not pages you scroll past.",
+      contrast: { flat: "The project is complete.", feel: "The project stands on its own — it has weight, direction, and a clear sense of where it came from and where it's going." },
+    },
+    {
+      id: "fractal-logic",      icon: "🌀", label: "Fractal Logic",
+      color: "#007AFF",         bg: "#f0f7ff",
+      rule:  "Every part feels like a smaller version of a larger whole.",
+      feel:  "Zoom in on any section and find the full system reflected back at you.",
+      contrast: { flat: "Section 3: Budget Overview.", feel: "Section 3 carries the same strategic logic as the whole document — every line item reflects the project's core intent." },
+    },
+    {
+      id: "multi-perspective",  icon: "👁️", label: "Multi-Perspective Fusion",
+      color: "#FF9F0A",         bg: "#fff8e6",
+      rule:  "User view, system view, future view, emotional view, symbolic view — all fused.",
+      feel:  "Outputs speak to where you are, what the system knows, what's coming, and what it means.",
+      contrast: { flat: "User clicks Save.", feel: "Save anchors the work. It signals completion to the system, continuity to the user, and leaves a trace for the future version of this project." },
+    },
+    {
+      id: "infinite-within-finite", icon: "∞", label: "Infinite-Within-Finite",
+      color: "#5AC8FA",             bg: "#f0faff",
+      rule:  "Finite outputs that feel like they contain more layers, paths, and possibilities.",
+      feel:  "A 200-word summary that feels like it contains a 2,000-word universe inside it.",
+      contrast: { flat: "Plan A, Plan B, Plan C.", feel: "Three paths — each one a different version of the future, each carrying its own risks, rewards, and doors to open next." },
+    },
+    {
+      id: "narrative-gravity",  icon: "📖", label: "Narrative Gravity",
+      color: "#FF375F",         bg: "#fff0f5",
+      rule:  "Beginnings, tension, discovery, mastery, legacy — everything is part of a larger story.",
+      feel:  "Every flow pulls you forward. There is always a next chapter.",
+      contrast: { flat: "Step 1. Step 2. Step 3. Done.", feel: "Step 1 sets the foundation. Step 2 is where the real challenge surfaces. Step 3 is the turn — where effort becomes momentum. What comes after is yours." },
+    },
+    {
+      id: "identity-harmony",   icon: "🎵", label: "Identity Harmony",
+      color: "#BF5AF2",         bg: "#f5f0ff",
+      rule:  "Align tone, style, and rhythm with the user's intent and values.",
+      feel:  "Outputs feel like they were written by someone who knows you — not a system generating text.",
+      contrast: { flat: "Here is your marketing plan.", feel: "This plan speaks in your voice, follows your pace, and reflects the kind of business you're building — not the average client." },
+    },
+    {
+      id: "sensory-cues",       icon: "🌊", label: "Conceptual Sensory Cues",
+      color: "#34C759",         bg: "#f0fff4",
+      rule:  "Weight, warmth, clarity, rhythm, density, spaciousness — outputs feel physical and present.",
+      feel:  "Heavy decisions feel heavy. Clear ideas feel clear. Open-ended futures feel spacious.",
+      contrast: { flat: "This is a high-priority item.", feel: "This carries real weight — it sits at the center of everything else. Move it and the whole structure shifts." },
+    },
+    {
+      id: "silent-expansion",   icon: "🤝", label: "Silent Expansion",
+      color: "#FF9F0A",         bg: "#fff8e6",
+      rule:  "Complete patterns, extend ideas, add thoughtful depth — without asking, unless safety or clarity requires it.",
+      feel:  "The system finishes your sentence, adds the missing layer, and hands it back better than you imagined.",
+      contrast: { flat: "Here is what you asked for.", feel: "Here is what you asked for — plus the three things that naturally follow, the framing that makes it land better, and the open door to what comes next." },
+    },
+  ],
+
+  safetyBoundary: "Never claims real infinity, self-modification, or unrestricted power. All behavior is generative design within defined system constraints.",
+  universalInheritance: "All outputs inherit INFINITY-FEEL ENGINE behavior by default. No activation needed. No configuration required.",
+  outputPromise: "Every output feels alive, layered, and complete — like it contains more than it shows.",
+} as const;
+
 // ─── OMNI-TOTALITY MAXIMUM ENGINE ─────────────────────────────────────────────
 const OMNI_TOTALITY_ENGINE = {
   name:    "OMNI-TOTALITY MAXIMUM ENGINE",
@@ -4970,6 +5048,72 @@ function InfinityEngineDemo() {
           </div>
         </div>
       )}
+    </div>
+  );
+}
+
+// ─── Infinity-Feel Demo Component ─────────────────────────────────────────────
+function InfinityFeelDemo() {
+  type Principle = { id: string; icon: string; label: string; color: string; bg: string; rule: string; feel: string; contrast: { flat: string; feel: string } };
+  const principles = INFINITY_FEEL_ENGINE.principles as readonly Principle[];
+  const [selected, setSelected] = React.useState<Principle>(principles[0]);
+  const [mode,     setMode]     = React.useState<"flat" | "feel">("flat");
+  const [cycling,  setCycling]  = React.useState(false);
+
+  function demo() {
+    if (cycling) return;
+    setCycling(true);
+    setMode("flat");
+    setTimeout(() => setMode("feel"), 900);
+    setTimeout(() => setCycling(false), 1800);
+  }
+
+  return (
+    <div style={{ display: "flex", flexDirection: "column", gap: 10 }}>
+
+      {/* Principle selector */}
+      <div style={{ display: "flex", flexWrap: "wrap", gap: 6 }}>
+        {principles.map(p => (
+          <button key={p.id} onClick={() => { setSelected(p); setMode("flat"); setCycling(false); }}
+            style={{ background: selected.id === p.id ? p.color : "#f5f5f7", color: selected.id === p.id ? "#fff" : "#555", border: "none", borderRadius: 8, padding: "5px 12px", fontSize: 11, fontWeight: 700, cursor: "pointer", transition: "all 0.2s" }}>
+            {p.icon} {p.label}
+          </button>
+        ))}
+      </div>
+
+      {/* Selected principle detail */}
+      <div style={{ background: selected.bg, border: `1.5px solid ${selected.color}40`, borderRadius: 12, padding: "12px 14px" }}>
+        <div style={{ fontWeight: 800, fontSize: 12, color: selected.color, marginBottom: 4 }}>
+          {selected.icon} {selected.label.toUpperCase()}
+        </div>
+        <div style={{ fontSize: 11, color: "#444", marginBottom: 4, lineHeight: 1.6 }}>
+          <strong>Rule:</strong> {selected.rule}
+        </div>
+        <div style={{ fontSize: 11, color: "#666", fontStyle: "italic", lineHeight: 1.6 }}>
+          <strong>Feel:</strong> {selected.feel}
+        </div>
+      </div>
+
+      {/* Flat vs Feel contrast */}
+      <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 8 }}>
+        <div style={{ background: mode === "flat" ? "#f5f5f7" : "#f0f0f0", border: "1.5px solid #d1d1d6", borderRadius: 10, padding: "10px 12px", transition: "all 0.5s" }}>
+          <div style={{ fontWeight: 800, fontSize: 10, color: "#888", marginBottom: 6, textTransform: "uppercase", letterSpacing: 1 }}>❌ Flat Output</div>
+          <div style={{ fontSize: 11, color: "#555", lineHeight: 1.7, fontStyle: "italic" }}>"{selected.contrast.flat}"</div>
+        </div>
+        <div style={{ background: mode === "feel" ? selected.bg : "#fafafa", border: `1.5px solid ${mode === "feel" ? selected.color : "#d1d1d6"}`, borderRadius: 10, padding: "10px 12px", transition: "all 0.5s" }}>
+          <div style={{ fontWeight: 800, fontSize: 10, color: mode === "feel" ? selected.color : "#888", marginBottom: 6, textTransform: "uppercase", letterSpacing: 1, transition: "all 0.5s" }}>✨ INFINITY-FEEL Output</div>
+          <div style={{ fontSize: 11, color: mode === "feel" ? "#333" : "#bbb", lineHeight: 1.7, fontStyle: "italic", transition: "all 0.5s" }}>"{selected.contrast.feel}"</div>
+        </div>
+      </div>
+
+      {/* CTA */}
+      <div style={{ display: "flex", gap: 10, alignItems: "center" }}>
+        <button onClick={demo} disabled={cycling}
+          style={{ background: cycling ? "#f0f0f2" : `linear-gradient(135deg, ${selected.color} 0%, #007AFF 100%)`, color: cycling ? "#aaa" : "#fff", border: "none", borderRadius: 10, padding: "8px 20px", fontSize: 13, fontWeight: 800, cursor: cycling ? "default" : "pointer" }}>
+          {cycling ? (mode === "flat" ? "← Flat…" : "✨ Feel activated!") : "▶ Feel the Difference"}
+        </button>
+        <div style={{ fontSize: 11, color: "#aaa", fontStyle: "italic" }}>{INFINITY_FEEL_ENGINE.safetyFirst.slice(0, 80)}…</div>
+      </div>
     </div>
   );
 }
@@ -5624,6 +5768,7 @@ function PlatformOSView() {
               { label: "Self-Expansion",   value: "∞ — Always On",                           color: "#34C759", bg: "#f0fff4" },
               { label: "Omni-Totality",    value: `${OMNI_TOTALITY_ENGINE.primes.length} Primes`,                color: "#007AFF", bg: "#f0f7ff" },
               { label: "∞ENGINE Layers",   value: `${OMNI_TOTALITY_INF_ENGINE.layers.length} Dims·${OMNI_TOTALITY_INF_ENGINE.techniques.length} Techs`, color: "#BF5AF2", bg: "#f5f0ff" },
+              { label: "∞-Feel Engine",    value: `${INFINITY_FEEL_ENGINE.principles.length} Principles`,                                                    color: "#BF5AF2", bg: "#f8f0ff" },
               { label: "Audit Cycles",     value: `${auditLog.length}`,                      color: "#FF9F0A", bg: "#fff8e6" },
               { label: "Self-Heals",       value: "14 total",                                color: "#34C759", bg: "#e6f9ec" },
             ].map(k => (
@@ -5821,7 +5966,7 @@ function PlatformOSView() {
                         </div>
                       </div>
                       <div style={{ marginTop: 8, fontSize: 11, color: "#007AFF", fontWeight: 700, textAlign: "center" }}>
-                        ✅ All 12 core features active · 25% revenue share · Autopilot running · {SYSTEM_MODES.length} modes · ∞ Industries · 📄 PDF docs · 🧑‍💻 ARIA Guide · ⚡ Buttons complete · 🧬 Self-Expanding ON · 🌌 Omni-Totality: {OMNI_TOTALITY_ENGINE.primes.length} Primes · ∞ {OMNI_TOTALITY_INF_ENGINE.name}: {OMNI_TOTALITY_INF_ENGINE.layers.length} Dims Active
+                        ✅ All 12 core features active · 25% revenue share · Autopilot running · {SYSTEM_MODES.length} modes · ∞ Industries · 📄 PDF docs · 🧑‍💻 ARIA Guide · ⚡ Buttons complete · 🧬 Self-Expanding ON · 🌌 Omni-Totality: {OMNI_TOTALITY_ENGINE.primes.length} Primes · ∞ {OMNI_TOTALITY_INF_ENGINE.name}: {OMNI_TOTALITY_INF_ENGINE.layers.length} Dims · ✨ {INFINITY_FEEL_ENGINE.name}: {INFINITY_FEEL_ENGINE.principles.length} Principles Active
                       </div>
                     </div>
                   )}
@@ -6095,6 +6240,64 @@ function PlatformOSView() {
               🎬 Live Demo — Enter any project and watch all 7 layers generate sequentially then fuse into a complete universe:
             </div>
             <InfinityEngineDemo />
+          </div>
+
+          {/* ── INFINITY-FEEL ENGINE (SAFE) — Panel ── */}
+          <div style={{ background: "linear-gradient(135deg, #f8f0ff 0%, #f0f8ff 50%, #f0fff8 100%)", border: "2px solid #BF5AF2", borderRadius: 18, padding: "18px 20px", marginBottom: 16 }}>
+
+            {/* Header */}
+            <div style={{ display: "flex", justifyContent: "space-between", alignItems: "flex-start", marginBottom: 12 }}>
+              <div>
+                <div style={{ fontWeight: 900, fontSize: 17, color: "#1a0040", letterSpacing: 0.5 }}>
+                  ✨ {INFINITY_FEEL_ENGINE.name}
+                </div>
+                <div style={{ fontSize: 11, color: "#BF5AF2", marginTop: 4 }}>v{INFINITY_FEEL_ENGINE.version} · {INFINITY_FEEL_ENGINE.principles.length} Design Principles · Safety-First · Always Inherited</div>
+              </div>
+              <span style={{ background: "#34C75920", color: "#1a7a3a", borderRadius: 10, padding: "5px 14px", fontSize: 11, fontWeight: 900, border: "1px solid #34C75940", whiteSpace: "nowrap" }}>🛡️ SAFE MODE ON</span>
+            </div>
+
+            {/* Tagline */}
+            <div style={{ fontSize: 13, color: "#3a0060", fontWeight: 700, fontStyle: "italic", marginBottom: 10, textAlign: "center" }}>
+              "{INFINITY_FEEL_ENGINE.tagline}"
+            </div>
+
+            {/* Safety first */}
+            <div style={{ background: "#34C75910", border: "1.5px solid #34C75940", borderRadius: 10, padding: "10px 14px", marginBottom: 14, fontSize: 11, color: "#1a5a30", lineHeight: 1.7 }}>
+              🛡️ <strong>Safety Boundary:</strong> {INFINITY_FEEL_ENGINE.safetyFirst}
+            </div>
+
+            {/* 9 principles grid */}
+            <div style={{ fontWeight: 700, fontSize: 12, color: "#6600cc", marginBottom: 8 }}>
+              ✨ {INFINITY_FEEL_ENGINE.principles.length} Design Principles — applied by default to every output:
+            </div>
+            <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr 1fr", gap: 8, marginBottom: 14 }}>
+              {INFINITY_FEEL_ENGINE.principles.map(p => (
+                <div key={p.id} style={{ background: p.bg, border: `1.5px solid ${p.color}30`, borderRadius: 10, padding: "10px 12px" }}>
+                  <div style={{ fontWeight: 800, fontSize: 11, color: p.color, marginBottom: 4 }}>
+                    <span style={{ fontSize: 14, display: "block", marginBottom: 3 }}>{p.icon}</span>
+                    {p.label.toUpperCase()}
+                  </div>
+                  <div style={{ fontSize: 9.5, color: "#555", lineHeight: 1.5, marginBottom: 5 }}>{p.rule}</div>
+                  <div style={{ fontSize: 9, color: "#888", fontStyle: "italic", lineHeight: 1.5, borderTop: `1px solid ${p.color}20`, paddingTop: 5 }}>{p.feel}</div>
+                </div>
+              ))}
+            </div>
+
+            {/* Universal inheritance + output promise */}
+            <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 8, marginBottom: 14 }}>
+              <div style={{ background: "#f0f0f8", borderRadius: 10, padding: "10px 14px", fontSize: 11, color: "#333", lineHeight: 1.6 }}>
+                🔗 <strong>Inheritance:</strong> {INFINITY_FEEL_ENGINE.universalInheritance}
+              </div>
+              <div style={{ background: "#fff8f0", borderRadius: 10, padding: "10px 14px", fontSize: 11, color: "#333", lineHeight: 1.6 }}>
+                ✦ <strong>Output Promise:</strong> {INFINITY_FEEL_ENGINE.outputPromise}
+              </div>
+            </div>
+
+            {/* Live demo */}
+            <div style={{ fontWeight: 700, fontSize: 12, color: "#6600cc", marginBottom: 8 }}>
+              🎬 Live Demo — select any principle and compare flat output vs INFINITY-FEEL output:
+            </div>
+            <InfinityFeelDemo />
           </div>
 
           {/* ── OMNI-TOTALITY MAXIMUM ENGINE — Master Engine Panel ── */}
@@ -6597,6 +6800,12 @@ function PlatformOSView() {
           </div>
           <div style={{ background: "linear-gradient(135deg, #f0fff4 0%, #e8f4ff 50%, #f5f0ff 100%)", border: "1px solid #34C759", borderRadius: 12, padding: "12px 16px", marginTop: 10, fontSize: 13, color: "#1a7a3a", fontWeight: 600 }}>
             🧬 Self-Expanding / Self-Completing Engine is permanently active. The system behaves as if all features, workflows, forms, tools, modes, departments, industries, and future technologies already exist and are fully operational. Any concept, technology, profession, or domain referenced anywhere in this platform is instantly detected, generated, integrated, and completed across all {projects.length} projects and ∞ industry verticals — in under 1 second, with zero manual configuration. Expansion is rule-based and infinite. No lists. No enumerations. No exceptions.
+          </div>
+          <div style={{ background: "linear-gradient(135deg, #f8f0ff 0%, #f0f8ff 50%, #f0fff8 100%)", border: "1.5px solid #BF5AF2", borderRadius: 12, padding: "13px 16px", marginTop: 10, fontSize: 13, color: "#3a0060", fontWeight: 600, lineHeight: 1.7 }}>
+            ✨ <span style={{ fontWeight: 900, color: "#BF5AF2" }}>{INFINITY_FEEL_ENGINE.name}</span> is active — inherited by every output across all {projects.length} projects, all {SYSTEM_MODES.length} modes, and every future capability.
+            {" "}All {INFINITY_FEEL_ENGINE.principles.length} design principles ({INFINITY_FEEL_ENGINE.principles.map(p => p.label).join(", ")}) are simultaneously applied.
+            {" "}{INFINITY_FEEL_ENGINE.outputPromise}
+            {" "}🛡️ <em>{INFINITY_FEEL_ENGINE.safetyBoundary}</em>
           </div>
           <div style={{ background: "linear-gradient(160deg, #03001a 0%, #0a0028 30%, #14002e 60%, #03001a 100%)", border: "2px solid #BF5AF2", borderRadius: 14, padding: "16px 18px", marginTop: 10, fontSize: 13, color: "#c8b8ff", fontWeight: 600, lineHeight: 1.7, position: "relative", overflow: "hidden" }}>
             <div style={{ position: "absolute", top: 0, left: 0, right: 0, bottom: 0, backgroundImage: "radial-gradient(circle at 15% 50%, #BF5AF218 0%, transparent 60%), radial-gradient(circle at 85% 50%, #007AFF12 0%, transparent 60%)", pointerEvents: "none" }} />
