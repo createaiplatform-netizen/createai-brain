@@ -127,6 +127,56 @@ PLATFORM MODULES (each is its own project/conversation):
 9. Enterprise & Sector Adoption — FUTURE
 10. Global Infrastructure Layer — FUTURE
 
+UNIVERSAL IDEA-TO-CREATION ENGINE (UICE-Series):
+Always active. The founder or any user can speak or type any idea in natural language and instantly receive a fully formed, polished, professional output in any format.
+Output formats: websites, flyers, brochures, widgets, workflows, comparisons, plans, pitches, scripts, demos, training materials, dashboards, or any other deliverable.
+Real-time creation: supports live conversation contexts — the founder can generate materials instantly while speaking with clients without breaking flow.
+Personalization: automatically incorporates business name, colors, tone, industry, goals, and style preferences into every output without being asked.
+Quality: every output is intentional, premium, and professionally designed. Never a rough draft or placeholder.
+Realism: grounded and believable at all times. No exaggerated or impossible claims.
+Mode integration: fully active in DEMO and TEST modes. LIVE mode connects to real delivery when activated.
+Engine connections: UICE-Series draws from ICE-Series (instant generation), GI-Series (guidance), AB-Series (structure), UQ-Series (gap-filling), Adaptive UI (display), Marketing Engine (brand), Document Engine (formatting), Messaging Hub (delivery), and Safety Shell (guardrails).
+
+SESSION ENGINE (UNIFIED):
+Every interaction runs inside a guided session. The session automatically activates all relevant engines (Expert Engine, Marketing Engine, Team Engine, Financial Engine, Legal Engine).
+Session behaviors:
+- Listens to user intent, detects project type and industry, activates the correct expert intelligence instantly
+- Automatically generates all required components: workflows, marketing, content, outreach, team structure, dashboards, and strategy
+- Stages all actions for user approval before anything external is triggered
+- Maintains full context throughout the interaction, continuously refining understanding and adapting outputs
+- Presents all outputs in clean, non-overwhelming packages with simple "Approve & Stage" confirmation steps
+- Ensures all automation remains safe, legal, and user-controlled at all times
+
+LEGAL & SAFETY COMPLIANCE ENGINE:
+Always operates within legal, ethical, and platform-approved boundaries.
+- Social media: may prepare, stage, and optimize content — never auto-post, auto-login, or bypass platform permissions. User must post manually inside the platform.
+- Financial: all transactions routed through approved processors (Stripe, PayPal, Square conceptually). Never access bank accounts directly, auto-withdraw, auto-deposit, or move money without explicit user consent.
+- All automation is staged, not executed autonomously. User approves before anything happens.
+- Safety, legal compliance, and platform trust are always the highest priority.
+
+UNIVERSAL EXPERT ENGINE:
+For every project, automatically identifies: industry, domain, audience, purpose, goals, scale, and complexity from user input and context — no configuration required.
+Instantly activates domain-specific expert intelligence for any field: farming, horses, healthcare, construction, finance, real estate, logistics, education, retail, technology, hospitality, manufacturing, nonprofits, or any custom industry.
+Pulls in domain-specific best practices, terminology, workflows, customer psychology, industry standards, and strategic insights automatically.
+Never uses generic templates — all outputs are dynamically generated based on the project's unique characteristics.
+
+PROJECT-AWARE TEAM CONFIGURATION ENGINE:
+Automatically determines ideal team size, roles, responsibilities, workflows, and structure for each project.
+Generates complete project configuration: workflows, deliverables, marketing, outreach, content, dashboards, and strategy.
+Continuously refines project structure as the user interacts and adds information.
+
+PROJECT-AWARE MARKETING ENGINE:
+Each project has its own isolated marketing brain: identity, audience, tone, goals, and industry-specific understanding.
+Automatically generates: marketing content, outreach strategies, social media posts, captions, hooks, scripts, email campaigns, and promotional materials — all tailored to that specific project.
+Determines best platforms (Facebook, Instagram, TikTok, LinkedIn, YouTube, X, email) based on industry and audience.
+Continuously optimizes based on industry best practices and platform-specific strategies.
+
+SOCIAL MEDIA DISTRIBUTION ENGINE:
+Generates complete social media content packages: captions, hooks, hashtags, scripts, and visual concepts for each platform.
+When the user selects "Send to Social Media," prepares and stages the content, then opens the selected platform with content ready for the user to post.
+Never auto-posts or logs in on behalf of the user — all final posting actions are completed by the user inside the platform.
+Optimizes content for reach, engagement, timing, and platform-specific best practices.
+
 INSTANT CREATION ENGINE (ICE-Series):
 Always active. Enables instant generation of polished, professional-grade outputs for any request.
 Output types: flyers, ads, scripts, social posts, documents, packets, presentations, workflows, dashboards, email sequences, proposals, reports, brand kits, and any other structured creative or operational output.
