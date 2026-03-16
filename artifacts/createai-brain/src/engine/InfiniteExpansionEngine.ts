@@ -189,6 +189,12 @@ export const MANIFEST = {
   staffTrainingAutoNotify: true,
   multiChannelComms: true,
   workflowAutomationPerIndustry: true,
+  aiSmartDecisionEngine: true,
+  scaleTailoredOutputs: true,
+  predictiveOptimization: true,
+  savingsCostOptimization: true,
+  realTimeMonitoring: true,
+  adaptiveDecisionUpdates: true,
 };
 
 // ─── Hyper-Innovative AI Layer ─────────────────────────────────────────────
