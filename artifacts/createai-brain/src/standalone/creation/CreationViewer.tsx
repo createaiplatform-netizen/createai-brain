@@ -15,22 +15,24 @@ const TYPE_META: Record<CreationType, { icon: string; color: string; label: stri
 };
 
 // ─── Nav definitions per type ─────────────────────────────────────────────────
+const OMEGA_NAV = [
+  { id: "packetai",  label: "Packet AI",  icon: "⚡" },
+  { id: "tools",     label: "Tools",      icon: "🔧" },
+  { id: "design",    label: "Design",     icon: "🎨" },
+  { id: "ai",        label: "AI Chat",    icon: "🤖" },
+  { id: "downloads", label: "Downloads",  icon: "⬇️" },
+];
+
 function buildNavItems(type: CreationType) {
-  const base = [
-    { id: "overview",   label: "Overview",    icon: "🏠" },
-    { id: "content",    label: "Content",     icon: "📋" },
-    { id: "marketing",  label: "Marketing",   icon: "📣" },
-    { id: "ai",         label: "AI Studio",   icon: "🤖" },
-    { id: "downloads",  label: "Downloads",   icon: "⬇️" },
-  ];
-  if (type === "movie")     return [{ id: "overview", label: "Film Info", icon: "🎬" }, { id: "scenes", label: "Scenes", icon: "🎭" }, { id: "characters", label: "Characters", icon: "🎭" }, { id: "script", label: "Script", icon: "📜" }, { id: "marketing", label: "Marketing", icon: "📣" }, { id: "ai", label: "AI Studio", icon: "🤖" }, { id: "downloads", label: "Downloads", icon: "⬇️" }];
-  if (type === "comic")     return [{ id: "overview", label: "Issue Info", icon: "📖" }, { id: "panels", label: "Panels", icon: "🎨" }, { id: "characters", label: "Characters", icon: "🦸" }, { id: "story", label: "Full Story", icon: "📜" }, { id: "marketing", label: "Marketing", icon: "📣" }, { id: "ai", label: "AI Studio", icon: "🤖" }, { id: "downloads", label: "Downloads", icon: "⬇️" }];
-  if (type === "software")  return [{ id: "overview", label: "Dashboard", icon: "📊" }, { id: "features", label: "Features", icon: "⚡" }, { id: "modules", label: "Modules", icon: "🧩" }, { id: "workflows", label: "Workflows", icon: "🔄" }, { id: "data", label: "Data Model", icon: "🗃️" }, { id: "docs", label: "Docs", icon: "📖" }, { id: "marketing", label: "Marketing", icon: "📣" }, { id: "ai", label: "AI Studio", icon: "🤖" }, { id: "downloads", label: "Downloads", icon: "⬇️" }];
-  if (type === "document")  return [{ id: "overview", label: "Summary", icon: "📋" }, { id: "document", label: "Full Document", icon: "📄" }, { id: "toc", label: "Table of Contents", icon: "🗂️" }, { id: "ai", label: "AI Studio", icon: "🤖" }, { id: "downloads", label: "Downloads", icon: "⬇️" }];
-  if (type === "marketing") return [{ id: "overview", label: "Brand", icon: "🎯" }, { id: "landing", label: "Landing Page", icon: "🖼️" }, { id: "funnel", label: "Funnel", icon: "⬇️" }, { id: "emails", label: "Emails", icon: "✉️" }, { id: "ads", label: "Ads", icon: "📢" }, { id: "ai", label: "AI Studio", icon: "🤖" }, { id: "downloads", label: "Downloads", icon: "⬇️" }];
-  if (type === "game")      return [{ id: "overview", label: "Game Info", icon: "🎮" }, { id: "gameplay", label: "Gameplay", icon: "🕹️" }, { id: "story", label: "Story & World", icon: "📖" }, { id: "levels", label: "Levels", icon: "🗺️" }, { id: "characters", label: "Characters", icon: "🧙" }, { id: "economy", label: "Economy", icon: "💎" }, { id: "marketing", label: "Marketing", icon: "📣" }, { id: "ai", label: "AI Studio", icon: "🤖" }, { id: "downloads", label: "Downloads", icon: "⬇️" }];
-  if (type === "community") return [{ id: "overview", label: "Platform", icon: "🌐" }, { id: "features", label: "Features", icon: "⚡" }, { id: "members", label: "Members", icon: "👥" }, { id: "content", label: "Content", icon: "📝" }, { id: "events", label: "Events", icon: "📅" }, { id: "marketing", label: "Marketing", icon: "📣" }, { id: "ai", label: "AI Studio", icon: "🤖" }, { id: "downloads", label: "Downloads", icon: "⬇️" }];
-  return base;
+  const mkt = { id: "marketing", label: "Marketing", icon: "📣" };
+  if (type === "movie")     return [{ id: "overview", label: "Film Info", icon: "🎬" }, { id: "scenes", label: "Scenes", icon: "🎭" }, { id: "characters", label: "Characters", icon: "🎭" }, { id: "script", label: "Script", icon: "📜" }, mkt, ...OMEGA_NAV];
+  if (type === "comic")     return [{ id: "overview", label: "Issue Info", icon: "📖" }, { id: "panels", label: "Panels", icon: "🎨" }, { id: "characters", label: "Characters", icon: "🦸" }, { id: "story", label: "Full Story", icon: "📜" }, mkt, ...OMEGA_NAV];
+  if (type === "software")  return [{ id: "overview", label: "Dashboard", icon: "📊" }, { id: "features", label: "Features", icon: "⚡" }, { id: "modules", label: "Modules", icon: "🧩" }, { id: "workflows", label: "Workflows", icon: "🔄" }, { id: "data", label: "Data Model", icon: "🗃️" }, { id: "docs", label: "Docs", icon: "📖" }, mkt, ...OMEGA_NAV];
+  if (type === "document")  return [{ id: "overview", label: "Summary", icon: "📋" }, { id: "document", label: "Full Document", icon: "📄" }, { id: "toc", label: "Table of Contents", icon: "🗂️" }, ...OMEGA_NAV];
+  if (type === "marketing") return [{ id: "overview", label: "Brand", icon: "🎯" }, { id: "landing", label: "Landing Page", icon: "🖼️" }, { id: "funnel", label: "Funnel", icon: "⬇️" }, { id: "emails", label: "Emails", icon: "✉️" }, { id: "ads", label: "Ads", icon: "📢" }, ...OMEGA_NAV];
+  if (type === "game")      return [{ id: "overview", label: "Game Info", icon: "🎮" }, { id: "gameplay", label: "Gameplay", icon: "🕹️" }, { id: "story", label: "Story & World", icon: "📖" }, { id: "levels", label: "Levels", icon: "🗺️" }, { id: "characters", label: "Characters", icon: "🧙" }, { id: "economy", label: "Economy", icon: "💎" }, mkt, ...OMEGA_NAV];
+  if (type === "community") return [{ id: "overview", label: "Platform", icon: "🌐" }, { id: "features", label: "Features", icon: "⚡" }, { id: "members", label: "Members", icon: "👥" }, { id: "content", label: "Content", icon: "📝" }, { id: "events", label: "Events", icon: "📅" }, mkt, ...OMEGA_NAV];
+  return [{ id: "overview", label: "Overview", icon: "🏠" }, { id: "content", label: "Content", icon: "📋" }, mkt, ...OMEGA_NAV];
 }
 
 // ─── Section Finder ───────────────────────────────────────────────────────────
@@ -187,6 +189,978 @@ function AIStudio({ creation }: { creation: Creation }) {
             <svg viewBox="0 0 24 24" className="w-4 h-4 ml-0.5" fill="none" stroke="currentColor" strokeWidth={2.5}><path d="m22 2-7 20-4-9-9-4z"/><path d="M22 2 11 13"/></svg>
           </button>
         </form>
+      </div>
+    </div>
+  );
+}
+
+// ─── Packet AI Editor ─────────────────────────────────────────────────────────
+const PACKET_QUICK_ACTIONS: Record<string, string[]> = {
+  movie:     ["Rewrite the opening scene", "Make the protagonist more compelling", "Add a dramatic twist", "Expand the villain's arc", "Write a sequel hook"],
+  comic:     ["Add a cliffhanger ending", "Expand the fight sequence", "Deepen the hero's motivation", "Write a new panel description", "Add a plot twist"],
+  software:  ["Expand the feature list", "Rewrite the onboarding flow", "Add a new module section", "Improve the dashboard metrics", "Describe the mobile experience"],
+  document:  ["Strengthen the executive summary", "Add supporting data points", "Write a stronger conclusion", "Expand the recommendations", "Add a case study"],
+  marketing: ["Rewrite the hero headline", "Add a new pricing tier", "Make the CTA more urgent", "Improve the email subject lines", "Add a testimonial section"],
+  game:      ["Design a new level", "Expand the character backstory", "Add a boss encounter", "Describe the game economy better", "Write a new quest line"],
+  community: ["Improve the onboarding flow", "Add member engagement mechanics", "Describe moderation tools", "Expand the events calendar", "Add a reputation system"],
+  custom:    ["Expand this concept further", "Add more structure", "Make it more detailed", "Add a new section", "Refine the core idea"],
+};
+
+interface PacketEditorProps {
+  creation: Creation;
+  onSectionUpdate: (title: string, newContent: string) => void;
+}
+
+function PacketEditor({ creation, onSectionUpdate }: PacketEditorProps) {
+  const meta = TYPE_META[creation.type];
+  const [selectedSection, setSelectedSection] = useState(creation.sections[0]?.title ?? "");
+  const [instruction, setInstruction] = useState("");
+  const [streaming, setStreaming] = useState(false);
+  const [buf, setBuf] = useState("");
+  const [lastUpdated, setLastUpdated] = useState<string | null>(null);
+  const [activeTab, setActiveTab] = useState<"edit" | "chat">("edit");
+  const [chatMessages, setChatMessages] = useState<Array<{ role: string; content: string }>>([]);
+  const [chatInput, setChatInput] = useState("");
+  const abortRef = useRef<AbortController | null>(null);
+  const bottomRef = useRef<HTMLDivElement>(null);
+  useEffect(() => { bottomRef.current?.scrollIntoView({ behavior: "smooth" }); }, [chatMessages, buf]);
+
+  const quickActions = PACKET_QUICK_ACTIONS[creation.type] ?? PACKET_QUICK_ACTIONS.custom;
+  const currentSection = creation.sections.find(s => s.title === selectedSection);
+
+  const runEdit = async (instr?: string) => {
+    const q = (instr ?? instruction).trim();
+    if (!q || streaming) return;
+    setInstruction("");
+    setStreaming(true); setBuf("");
+    const controller = new AbortController();
+    abortRef.current = controller;
+    try {
+      const secContent = currentSection?.content?.slice(0, 600) ?? "";
+      const prompt = `You are an AI editor for a ${meta.label} called "${creation.name}".
+
+CURRENT SECTION: "${selectedSection}"
+CURRENT CONTENT (excerpt): ${secContent}
+
+EDIT INSTRUCTION: ${q}
+
+TASK: Rewrite or expand this section based on the instruction. Keep the same format and style as the original. Make it rich, detailed, and compelling. Output ONLY the improved section content — no headings, no preamble, no labels.`;
+      const res = await fetch("/api/openai/generate", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ type: "Document", description: prompt, tone: creation.tone || "Creative" }),
+        signal: controller.signal,
+      });
+      if (!res.ok || !res.body) throw new Error("Failed");
+      const reader = res.body.getReader(); const decoder = new TextDecoder(); let acc = "";
+      while (true) {
+        const { done, value } = await reader.read(); if (done) break;
+        for (const line of decoder.decode(value, { stream: true }).split("\n")) {
+          if (!line.startsWith("data: ")) continue;
+          const d = line.slice(6); if (!d || d === "[DONE]") continue;
+          try { const p = JSON.parse(d); if (p.content) { acc += p.content; setBuf(acc); } } catch {}
+        }
+      }
+      if (acc) { onSectionUpdate(selectedSection, acc); setLastUpdated(selectedSection); }
+    } catch (err: any) {
+      if (err.name !== "AbortError") setBuf("[Error — please retry]");
+    } finally { setStreaming(false); setBuf(""); abortRef.current = null; }
+  };
+
+  const runChat = async (text?: string) => {
+    const q = (text ?? chatInput).trim();
+    if (!q || streaming) return;
+    setChatInput("");
+    setChatMessages(prev => [...prev, { role: "user", content: q }]);
+    setStreaming(true); setBuf("");
+    const controller = new AbortController();
+    abortRef.current = controller;
+    try {
+      const context = creation.sections.slice(0, 3).map(s => `${s.title}: ${s.content.slice(0, 150)}`).join("\n");
+      const res = await fetch("/api/openai/generate", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          type: "Document",
+          description: `[Packet AI — ${creation.name} — ${meta.label}]\n\nContext:\n${context}\n\nUser: "${q}"\n\nRespond helpfully about this ${creation.type} creation. Be creative and detailed.`,
+          tone: creation.tone || "Creative",
+        }),
+        signal: controller.signal,
+      });
+      if (!res.ok || !res.body) throw new Error("Failed");
+      const reader = res.body.getReader(); const decoder = new TextDecoder(); let acc = "";
+      while (true) {
+        const { done, value } = await reader.read(); if (done) break;
+        for (const line of decoder.decode(value, { stream: true }).split("\n")) {
+          if (!line.startsWith("data: ")) continue;
+          const d = line.slice(6); if (!d || d === "[DONE]") continue;
+          try { const p = JSON.parse(d); if (p.content) { acc += p.content; setBuf(acc); } } catch {}
+        }
+      }
+      setChatMessages(prev => [...prev, { role: "assistant", content: acc }]);
+    } catch (err: any) {
+      if (err.name !== "AbortError") setChatMessages(prev => [...prev, { role: "assistant", content: "[Error — retry]" }]);
+    } finally { setStreaming(false); setBuf(""); abortRef.current = null; }
+  };
+
+  return (
+    <div className="flex flex-col h-full">
+      <div className="flex-none px-5 py-3 border-b border-border/30 space-y-2">
+        <div className="flex items-center justify-between">
+          <div>
+            <p className="text-[13px] font-bold text-foreground flex items-center gap-1.5">
+              <span style={{ color: meta.color }}>⚡</span> Packet AI
+              <span className="text-[10px] text-muted-foreground font-normal ml-1">· Edits only this packet</span>
+            </p>
+          </div>
+          <div className="flex gap-1 bg-muted/40 rounded-full p-0.5">
+            {(["edit", "chat"] as const).map(t => (
+              <button key={t} onClick={() => setActiveTab(t)}
+                className={`px-3 py-1 rounded-full text-[11px] font-semibold transition-all ${activeTab === t ? "bg-background shadow-sm text-foreground" : "text-muted-foreground"}`}>
+                {t === "edit" ? "✏️ Edit Sections" : "💬 Chat"}
+              </button>
+            ))}
+          </div>
+        </div>
+      </div>
+
+      {activeTab === "edit" && (
+        <div className="flex-1 overflow-y-auto p-4 space-y-4">
+          <div className="bg-muted/30 rounded-2xl p-4 border border-border/30 space-y-3">
+            <p className="text-[11px] font-semibold text-muted-foreground uppercase tracking-wide">Quick Actions</p>
+            <div className="flex flex-wrap gap-1.5">
+              {quickActions.map(q => (
+                <button key={q} onClick={() => { setInstruction(q); }}
+                  disabled={streaming}
+                  className="text-[11px] px-2.5 py-1.5 rounded-full border border-border/50 text-muted-foreground hover:border-primary/50 hover:text-primary hover:bg-primary/5 transition-all disabled:opacity-40">
+                  {q}
+                </button>
+              ))}
+            </div>
+          </div>
+
+          <div className="space-y-3">
+            <div>
+              <label className="text-[11px] font-semibold text-muted-foreground uppercase tracking-wide block mb-1.5">Section to Edit</label>
+              <select value={selectedSection} onChange={e => setSelectedSection(e.target.value)}
+                className="w-full text-[13px] px-3 py-2 rounded-xl border border-border/50 bg-background text-foreground outline-none focus:border-primary/50">
+                {creation.sections.map(s => <option key={s.title} value={s.title}>{s.title}</option>)}
+              </select>
+            </div>
+            {currentSection && (
+              <div className="bg-muted/20 rounded-xl p-3 border border-border/30">
+                <p className="text-[10px] text-muted-foreground font-semibold mb-1">CURRENT CONTENT PREVIEW</p>
+                <p className="text-[12px] text-foreground line-clamp-3 leading-relaxed">{currentSection.content.slice(0, 200)}…</p>
+              </div>
+            )}
+            <div>
+              <label className="text-[11px] font-semibold text-muted-foreground uppercase tracking-wide block mb-1.5">Edit Instruction</label>
+              <textarea
+                value={instruction}
+                onChange={e => setInstruction(e.target.value)}
+                placeholder='e.g. "Make this more dramatic and add specific details…"'
+                rows={3}
+                className="w-full text-[13px] px-3 py-2 rounded-xl border border-border/50 bg-background text-foreground resize-none outline-none focus:border-primary/50 placeholder:text-muted-foreground/50"
+              />
+            </div>
+            <button onClick={() => runEdit()} disabled={!instruction.trim() || streaming}
+              className="w-full py-2.5 rounded-xl text-[13px] font-bold text-white transition-all disabled:opacity-40"
+              style={{ background: streaming ? "#8E8E93" : `linear-gradient(135deg, ${meta.color}, ${meta.color}CC)` }}>
+              {streaming ? "⚡ Updating section…" : "⚡ Update This Section"}
+            </button>
+            {lastUpdated && !streaming && (
+              <p className="text-[11px] text-green-600 font-semibold text-center">✓ "{lastUpdated}" updated successfully</p>
+            )}
+          </div>
+
+          {streaming && buf && (
+            <div className="bg-background border border-border/50 rounded-2xl p-4">
+              <p className="text-[10px] text-muted-foreground font-semibold mb-2">GENERATING UPDATE…</p>
+              <pre className="text-[12px] text-foreground whitespace-pre-wrap leading-relaxed font-sans line-clamp-6">{buf}<span className="inline-block w-2 h-3 bg-primary/60 animate-pulse ml-0.5 align-middle" /></pre>
+            </div>
+          )}
+
+          <div className="bg-muted/20 rounded-2xl p-4 border border-border/30">
+            <p className="text-[11px] text-muted-foreground">Packet AI edits only this packet. Changes update the live view immediately. All content is mock/simulated.</p>
+          </div>
+        </div>
+      )}
+
+      {activeTab === "chat" && (
+        <div className="flex flex-col flex-1 overflow-hidden">
+          <div className="flex-1 overflow-y-auto p-4 space-y-3">
+            {chatMessages.length === 0 && (
+              <div className="text-center py-8 space-y-2">
+                <div className="text-4xl">⚡</div>
+                <p className="text-[13px] font-semibold text-foreground">Packet AI is ready</p>
+                <p className="text-[12px] text-muted-foreground">Ask anything about this {meta.label.toLowerCase()}, request ideas, or get feedback.</p>
+                <div className="flex flex-wrap gap-1.5 justify-center mt-3">
+                  {["What could be improved?", "Suggest three variations", "What's missing?", "How would you market this?"].map(q => (
+                    <button key={q} onClick={() => runChat(q)} disabled={streaming}
+                      className="text-[11px] px-2.5 py-1 rounded-full border border-border/50 text-muted-foreground hover:text-primary hover:border-primary/40 transition-colors">
+                      {q}
+                    </button>
+                  ))}
+                </div>
+              </div>
+            )}
+            {chatMessages.map((msg, i) => (
+              <div key={i} className={`flex ${msg.role === "user" ? "justify-end" : "justify-start"}`}>
+                {msg.role !== "user" && <div className="w-7 h-7 rounded-full flex items-center justify-center text-sm flex-shrink-0 mr-2" style={{ background: `${meta.color}20` }}>⚡</div>}
+                <div className={`max-w-[82%] rounded-2xl px-4 py-3 ${msg.role === "user" ? "bg-primary text-white rounded-br-sm" : "bg-background border border-border/50"}`}>
+                  <pre className="text-[12px] whitespace-pre-wrap leading-relaxed font-sans">{msg.content}</pre>
+                </div>
+              </div>
+            ))}
+            {streaming && buf && (
+              <div className="flex justify-start">
+                <div className="w-7 h-7 rounded-full flex items-center justify-center text-sm flex-shrink-0 mr-2" style={{ background: `${meta.color}20` }}>⚡</div>
+                <div className="max-w-[82%] bg-background border border-border/50 rounded-2xl px-4 py-3">
+                  <pre className="text-[12px] whitespace-pre-wrap font-sans leading-relaxed">{buf}<span className="inline-block w-2 h-3 bg-primary/60 animate-pulse ml-0.5 align-middle" /></pre>
+                </div>
+              </div>
+            )}
+            {streaming && !buf && (
+              <div className="flex gap-1 pl-2">
+                {[0,1,2].map(i => <div key={i} className="w-2 h-2 bg-muted-foreground/40 rounded-full animate-bounce" style={{ animationDelay: `${i*150}ms` }} />)}
+              </div>
+            )}
+            <div ref={bottomRef} />
+          </div>
+          <div className="flex-none p-3 border-t border-border/50 bg-background/80">
+            <form onSubmit={e => { e.preventDefault(); runChat(); }}
+              className="flex items-center gap-2 bg-muted/50 border border-border/50 rounded-full pl-4 pr-1.5 py-1.5">
+              <input value={chatInput} onChange={e => setChatInput(e.target.value)} placeholder="Ask Packet AI anything…"
+                className="flex-1 bg-transparent border-none outline-none text-[13px] placeholder:text-muted-foreground" disabled={streaming} />
+              <button type="submit" disabled={!chatInput.trim() || streaming}
+                className="w-8 h-8 rounded-full bg-primary text-white flex items-center justify-center hover:opacity-90 disabled:opacity-40 flex-shrink-0">
+                <svg viewBox="0 0 24 24" className="w-4 h-4 ml-0.5" fill="none" stroke="currentColor" strokeWidth={2.5}><path d="m22 2-7 20-4-9-9-4z"/><path d="M22 2 11 13"/></svg>
+              </button>
+            </form>
+          </div>
+        </div>
+      )}
+    </div>
+  );
+}
+
+// ─── Tools Section ────────────────────────────────────────────────────────────
+interface ToolDef { id: string; icon: string; name: string; desc: string; }
+
+const TOOLS_BY_TYPE: Record<string, ToolDef[]> = {
+  software:  [
+    { id: "form",      icon: "📝", name: "Form Builder",         desc: "Design input forms, fields, and validation flows" },
+    { id: "workflow",  icon: "🔄", name: "Workflow Designer",     desc: "Map out step-by-step process flows and automations" },
+    { id: "dashboard", icon: "📊", name: "Dashboard Configurator",desc: "Configure KPI cards, charts, and metric layouts" },
+    { id: "api",       icon: "🔌", name: "API Explorer",          desc: "Browse and test simulated API endpoints" },
+    { id: "pricing",   icon: "💰", name: "Pricing Configurator",  desc: "Design subscription tiers, features, and trial options" },
+  ],
+  movie: [
+    { id: "scene",     icon: "🎬", name: "Scene Builder",         desc: "Construct scenes with location, action, and dialogue" },
+    { id: "character", icon: "🧑", name: "Character Sheet",        desc: "Build detailed character profiles and arcs" },
+    { id: "timeline",  icon: "📅", name: "Story Timeline",         desc: "Map your narrative beats across the three-act structure" },
+    { id: "budget",    icon: "💸", name: "Budget Estimator",       desc: "Rough production cost breakdown by department" },
+  ],
+  comic: [
+    { id: "panel",     icon: "🖼️", name: "Panel Scripter",        desc: "Write panel-by-panel visual descriptions and dialogue" },
+    { id: "character", icon: "🦸", name: "Character Profile",      desc: "Design hero/villain origin, powers, and appearance" },
+    { id: "issue",     icon: "📖", name: "Issue Planner",          desc: "Plan your story arc across multiple issues" },
+  ],
+  game: [
+    { id: "level",     icon: "🗺️", name: "Level Designer",        desc: "Lay out level structure, zones, and encounters" },
+    { id: "character", icon: "🧙", name: "Character Creator",      desc: "Build player character stats, abilities, and traits" },
+    { id: "quest",     icon: "⚔️", name: "Quest Planner",          desc: "Design quest objectives, rewards, and NPC interactions" },
+    { id: "economy",   icon: "💎", name: "Item Forge",             desc: "Create weapons, items, and economy balance" },
+  ],
+  community: [
+    { id: "onboard",   icon: "🚀", name: "Onboarding Builder",     desc: "Design the new member welcome and setup flow" },
+    { id: "calendar",  icon: "📅", name: "Content Calendar",       desc: "Plan weekly posts, topics, and engagement cadence" },
+    { id: "event",     icon: "🎉", name: "Event Planner",          desc: "Structure virtual and in-person community events" },
+    { id: "rules",     icon: "📜", name: "Community Rules Editor", desc: "Draft community guidelines and moderation policies" },
+  ],
+  document: [
+    { id: "outline",   icon: "📋", name: "Section Outliner",       desc: "Build and reorganize the document structure" },
+    { id: "summary",   icon: "✍️",  name: "Executive Summary Tool", desc: "Craft a concise, compelling exec summary" },
+    { id: "data",      icon: "📊", name: "Data Table Builder",      desc: "Create comparison tables and supporting data structures" },
+  ],
+  marketing: [
+    { id: "headline",  icon: "✏️",  name: "Headline Generator",    desc: "Generate A/B variants for hero headlines and CTAs" },
+    { id: "persona",   icon: "👤", name: "Persona Builder",         desc: "Define your target audience personas in detail" },
+    { id: "campaign",  icon: "📣", name: "Campaign Planner",        desc: "Map out multi-channel campaign structure and timing" },
+    { id: "email",     icon: "✉️",  name: "Email Sequence Builder", desc: "Design welcome, nurture, and conversion email flows" },
+  ],
+  custom: [
+    { id: "concept",   icon: "💡", name: "Concept Builder",        desc: "Flesh out the core concept, vision, and goals" },
+    { id: "structure", icon: "🏗️", name: "Structure Planner",      desc: "Define key sections, components, and organization" },
+    { id: "style",     icon: "🎨", name: "Style Guide",            desc: "Choose colors, typography, and visual direction" },
+  ],
+};
+
+function ToolCard({ tool, creation }: { tool: ToolDef; creation: Creation }) {
+  const [open, setOpen] = useState(false);
+  const meta = TYPE_META[creation.type];
+
+  const renderToolUI = () => {
+    if (tool.id === "form") {
+      return <FormBuilderUI color={meta.color} />;
+    }
+    if (tool.id === "workflow" || tool.id === "timeline") {
+      return <WorkflowUI creation={creation} color={meta.color} />;
+    }
+    if (tool.id === "dashboard") {
+      return <DashboardConfigUI color={meta.color} />;
+    }
+    if (tool.id === "pricing") {
+      return <PricingConfigUI color={meta.color} />;
+    }
+    if (tool.id === "scene" || tool.id === "panel") {
+      return <SceneBuilderUI creation={creation} color={meta.color} />;
+    }
+    if (tool.id === "character") {
+      return <CharacterSheetUI creation={creation} color={meta.color} />;
+    }
+    if (tool.id === "level") {
+      return <LevelDesignerUI color={meta.color} />;
+    }
+    if (tool.id === "quest") {
+      return <QuestPlannerUI color={meta.color} />;
+    }
+    if (tool.id === "economy" || tool.id === "budget") {
+      return <EconomyUI color={meta.color} />;
+    }
+    if (tool.id === "onboard") {
+      return <OnboardingUI color={meta.color} />;
+    }
+    if (tool.id === "calendar") {
+      return <ContentCalendarUI color={meta.color} />;
+    }
+    if (tool.id === "headline") {
+      return <HeadlineGeneratorUI color={meta.color} />;
+    }
+    if (tool.id === "persona") {
+      return <PersonaBuilderUI color={meta.color} />;
+    }
+    if (tool.id === "outline" || tool.id === "structure") {
+      return <OutlinerUI creation={creation} color={meta.color} />;
+    }
+    if (tool.id === "api") {
+      return <ApiExplorerUI creation={creation} color={meta.color} />;
+    }
+    return (
+      <div className="p-4 text-center text-muted-foreground text-[13px]">
+        <div className="text-3xl mb-2">{tool.icon}</div>
+        <p className="font-semibold">{tool.name}</p>
+        <p className="text-[11px] mt-1">This tool is ready. Describe what you want to build using Packet AI.</p>
+      </div>
+    );
+  };
+
+  return (
+    <div className="bg-background rounded-2xl border border-border/50 overflow-hidden">
+      <button onClick={() => setOpen(!open)}
+        className="w-full flex items-center gap-3 p-4 text-left hover:bg-muted/20 transition-colors">
+        <div className="w-10 h-10 rounded-xl flex items-center justify-center text-xl flex-shrink-0"
+          style={{ background: `${meta.color}15` }}>{tool.icon}</div>
+        <div className="flex-1 min-w-0">
+          <p className="font-semibold text-[13px] text-foreground">{tool.name}</p>
+          <p className="text-[11px] text-muted-foreground">{tool.desc}</p>
+        </div>
+        <span className="text-muted-foreground text-sm">{open ? "▲" : "▼"}</span>
+      </button>
+      {open && (
+        <div className="border-t border-border/30 bg-muted/10">
+          {renderToolUI()}
+        </div>
+      )}
+    </div>
+  );
+}
+
+function FormBuilderUI({ color }: { color: string }) {
+  const fieldTypes = ["Text", "Email", "Phone", "Select", "Textarea", "Date", "File", "Checkbox"];
+  const [fields, setFields] = useState([
+    { type: "Text", label: "Full Name", required: true },
+    { type: "Email", label: "Email Address", required: true },
+    { type: "Phone", label: "Phone Number", required: false },
+  ]);
+  const [next, setNext] = useState("Select");
+  return (
+    <div className="p-4 space-y-3">
+      <p className="text-[11px] font-semibold text-muted-foreground uppercase tracking-wide">Form Fields</p>
+      <div className="space-y-1.5">
+        {fields.map((f, i) => (
+          <div key={i} className="flex items-center gap-2 bg-background rounded-lg px-3 py-2 border border-border/40">
+            <span className="text-[10px] font-bold px-1.5 py-0.5 rounded" style={{ background: `${color}20`, color }}>
+              {f.type}
+            </span>
+            <span className="flex-1 text-[12px] text-foreground">{f.label}</span>
+            {f.required && <span className="text-[10px] text-red-500">*</span>}
+            <button onClick={() => setFields(fs => fs.filter((_, j) => j !== i))}
+              className="text-[10px] text-muted-foreground hover:text-red-500 transition-colors">✕</button>
+          </div>
+        ))}
+      </div>
+      <div className="flex gap-2">
+        <select value={next} onChange={e => setNext(e.target.value)}
+          className="flex-1 text-[12px] px-2 py-1.5 rounded-lg border border-border/50 bg-background outline-none">
+          {fieldTypes.map(t => <option key={t}>{t}</option>)}
+        </select>
+        <button onClick={() => setFields(fs => [...fs, { type: next, label: `${next} Field`, required: false }])}
+          className="px-3 py-1.5 rounded-lg text-[12px] font-semibold text-white"
+          style={{ background: color }}>+ Add</button>
+      </div>
+      <p className="text-[10px] text-muted-foreground">Simulated form builder · {fields.length} fields · Not connected to real database</p>
+    </div>
+  );
+}
+
+function WorkflowUI({ creation, color }: { creation: Creation; color: string }) {
+  const defaultSteps = ["User submits request", "System validates input", "AI processes data", "Results returned", "User receives output"];
+  const [steps, setSteps] = useState(defaultSteps);
+  const [newStep, setNewStep] = useState("");
+  return (
+    <div className="p-4 space-y-3">
+      <p className="text-[11px] font-semibold text-muted-foreground uppercase tracking-wide">Workflow Steps</p>
+      <div className="space-y-1.5">
+        {steps.map((s, i) => (
+          <div key={i} className="flex items-center gap-2 bg-background rounded-lg px-3 py-2.5 border border-border/40">
+            <span className="w-5 h-5 rounded-full flex items-center justify-center text-[10px] font-bold flex-shrink-0"
+              style={{ background: `${color}20`, color }}>{i + 1}</span>
+            <span className="flex-1 text-[12px] text-foreground">{s}</span>
+            <button onClick={() => setSteps(ss => ss.filter((_, j) => j !== i))}
+              className="text-[10px] text-muted-foreground hover:text-red-500 transition-colors">✕</button>
+          </div>
+        ))}
+      </div>
+      <div className="flex gap-2">
+        <input value={newStep} onChange={e => setNewStep(e.target.value)} placeholder="Add a step…"
+          className="flex-1 text-[12px] px-3 py-1.5 rounded-lg border border-border/50 bg-background outline-none placeholder:text-muted-foreground/50" />
+        <button onClick={() => { if (newStep.trim()) { setSteps(ss => [...ss, newStep.trim()]); setNewStep(""); } }}
+          className="px-3 py-1.5 rounded-lg text-[12px] font-semibold text-white"
+          style={{ background: color }}>+ Add</button>
+      </div>
+    </div>
+  );
+}
+
+function DashboardConfigUI({ color }: { color: string }) {
+  const kpis = [
+    { label: "Total Users", value: "12,847", trend: "+12%", on: true },
+    { label: "Monthly Revenue", value: "$48,320", trend: "+8%", on: true },
+    { label: "Active Sessions", value: "3,291", trend: "+5%", on: true },
+    { label: "Churn Rate", value: "2.1%", trend: "-0.3%", on: false },
+    { label: "NPS Score", value: "72", trend: "+4", on: false },
+    { label: "Support Tickets", value: "94", trend: "-12%", on: false },
+  ];
+  const [enabled, setEnabled] = useState<boolean[]>(kpis.map(k => k.on));
+  return (
+    <div className="p-4 space-y-3">
+      <p className="text-[11px] font-semibold text-muted-foreground uppercase tracking-wide">Dashboard KPIs · Toggle to show/hide</p>
+      <div className="grid grid-cols-2 gap-2">
+        {kpis.map((k, i) => (
+          <button key={i} onClick={() => setEnabled(e => e.map((v, j) => j === i ? !v : v))}
+            className={`p-3 rounded-xl border text-left transition-all ${enabled[i] ? "border-2 bg-background" : "border-border/30 bg-muted/20 opacity-50"}`}
+            style={{ borderColor: enabled[i] ? color : undefined }}>
+            <p className="text-[11px] font-semibold text-foreground">{k.label}</p>
+            <p className="text-[15px] font-bold mt-0.5" style={{ color: enabled[i] ? color : undefined }}>{k.value}</p>
+            <p className="text-[10px] text-muted-foreground">{k.trend}</p>
+          </button>
+        ))}
+      </div>
+      <p className="text-[10px] text-muted-foreground">All values are simulated · {enabled.filter(Boolean).length} of {kpis.length} KPIs enabled</p>
+    </div>
+  );
+}
+
+function PricingConfigUI({ color }: { color: string }) {
+  const [tiers, setTiers] = useState([
+    { name: "Starter", price: "0", features: "5 users, 1GB storage, Basic AI" },
+    { name: "Pro", price: "49", features: "25 users, 20GB storage, Full AI, Priority support" },
+    { name: "Enterprise", price: "299", features: "Unlimited users, Custom storage, Dedicated AI, SLA" },
+  ]);
+  return (
+    <div className="p-4 space-y-3">
+      <p className="text-[11px] font-semibold text-muted-foreground uppercase tracking-wide">Pricing Tiers (Simulated)</p>
+      {tiers.map((t, i) => (
+        <div key={i} className="bg-background rounded-xl border border-border/40 p-3 space-y-1.5">
+          <div className="flex items-center gap-2">
+            <span className="font-bold text-[13px] text-foreground">{t.name}</span>
+            <span className="text-[12px]" style={{ color }}>${t.price}/mo</span>
+          </div>
+          <p className="text-[11px] text-muted-foreground">{t.features}</p>
+        </div>
+      ))}
+      <button onClick={() => setTiers(ts => [...ts, { name: "Custom Tier", price: "99", features: "Custom features" }])}
+        className="w-full py-2 rounded-xl text-[12px] font-semibold border border-dashed border-border/60 text-muted-foreground hover:border-primary/40 hover:text-primary transition-colors">
+        + Add Tier
+      </button>
+    </div>
+  );
+}
+
+function SceneBuilderUI({ creation, color }: { creation: Creation; color: string }) {
+  const [location, setLocation] = useState("INT. OFFICE — DAY");
+  const [action, setAction] = useState("The protagonist enters a dimly lit room.");
+  const [dialogue, setDialogue] = useState("ALEX\n(urgently)\nWe don't have much time.");
+  return (
+    <div className="p-4 space-y-3">
+      <p className="text-[11px] font-semibold text-muted-foreground uppercase tracking-wide">Scene Builder</p>
+      {[
+        { label: "Slug Line", value: location, set: setLocation },
+        { label: "Action", value: action, set: setAction },
+        { label: "Dialogue", value: dialogue, set: setDialogue },
+      ].map(f => (
+        <div key={f.label}>
+          <label className="text-[10px] font-bold text-muted-foreground block mb-1">{f.label.toUpperCase()}</label>
+          <textarea value={f.value} onChange={e => f.set(e.target.value)} rows={f.label === "Dialogue" ? 3 : 2}
+            className="w-full text-[12px] px-3 py-2 rounded-lg border border-border/50 bg-background font-mono resize-none outline-none" />
+        </div>
+      ))}
+      <p className="text-[10px] text-muted-foreground">Simulated scene template · No export without Packet AI</p>
+    </div>
+  );
+}
+
+function CharacterSheetUI({ creation, color }: { creation: Creation; color: string }) {
+  const [name, setName] = useState("Alex Morgan");
+  const [role, setRole] = useState("Protagonist");
+  const [traits, setTraits] = useState("Determined, analytical, secretly afraid of failure");
+  const [arc, setArc] = useState("Learns to trust others and accept vulnerability");
+  return (
+    <div className="p-4 space-y-3">
+      <p className="text-[11px] font-semibold text-muted-foreground uppercase tracking-wide">Character Sheet</p>
+      {[
+        { label: "Name", value: name, set: setName, rows: 1 },
+        { label: "Role", value: role, set: setRole, rows: 1 },
+        { label: "Traits", value: traits, set: setTraits, rows: 2 },
+        { label: "Character Arc", value: arc, set: setArc, rows: 2 },
+      ].map(f => (
+        <div key={f.label}>
+          <label className="text-[10px] font-bold text-muted-foreground block mb-1">{f.label.toUpperCase()}</label>
+          <textarea value={f.value} onChange={e => f.set(e.target.value)} rows={f.rows}
+            className="w-full text-[12px] px-3 py-2 rounded-lg border border-border/50 bg-background resize-none outline-none" />
+        </div>
+      ))}
+    </div>
+  );
+}
+
+function LevelDesignerUI({ color }: { color: string }) {
+  const tiles = ["🌿", "🏔️", "🌊", "🔥", "🏰", "🌀", "💎", "⚔️", "⬛"];
+  const [selected, setSelected] = useState("🌿");
+  const [grid, setGrid] = useState<string[][]>(
+    Array.from({ length: 5 }, (_, r) => Array.from({ length: 8 }, (_, c) => c === 0 || c === 7 ? "🏰" : r === 2 ? "🌊" : "🌿"))
+  );
+  return (
+    <div className="p-4 space-y-3">
+      <p className="text-[11px] font-semibold text-muted-foreground uppercase tracking-wide">Level Map Editor</p>
+      <div className="flex gap-1.5 flex-wrap">
+        {tiles.map(t => (
+          <button key={t} onClick={() => setSelected(t)}
+            className={`w-8 h-8 rounded-lg text-lg transition-all ${selected === t ? "ring-2 bg-muted" : "hover:bg-muted/50"}`}
+            style={{ ringColor: color }}>{t}</button>
+        ))}
+      </div>
+      <div className="space-y-0.5">
+        {grid.map((row, r) => (
+          <div key={r} className="flex gap-0.5">
+            {row.map((cell, c) => (
+              <button key={c} onClick={() => setGrid(g => g.map((row2, r2) => r2 === r ? row2.map((cell2, c2) => c2 === c ? selected : cell2) : row2))}
+                className="w-8 h-8 rounded text-base hover:ring-1 transition-all" style={{ ringColor: color }}>{cell}</button>
+            ))}
+          </div>
+        ))}
+      </div>
+      <p className="text-[10px] text-muted-foreground">Click a tile type, then click the grid to paint · Simulated</p>
+    </div>
+  );
+}
+
+function QuestPlannerUI({ color }: { color: string }) {
+  const [quests, setQuests] = useState([
+    { name: "The Lost Artifact", type: "Main", reward: "300 XP + Epic Sword", done: false },
+    { name: "Village Defense", type: "Side", reward: "150 XP + Gold", done: false },
+    { name: "The Merchant's Request", type: "Fetch", reward: "50 XP + Potion", done: true },
+  ]);
+  return (
+    <div className="p-4 space-y-3">
+      <p className="text-[11px] font-semibold text-muted-foreground uppercase tracking-wide">Quest Planner</p>
+      <div className="space-y-2">
+        {quests.map((q, i) => (
+          <div key={i} className="flex items-start gap-2 p-3 bg-background rounded-xl border border-border/40">
+            <button onClick={() => setQuests(qs => qs.map((qq, j) => j === i ? { ...qq, done: !qq.done } : qq))}
+              className="w-5 h-5 rounded border-2 flex items-center justify-center flex-shrink-0 mt-0.5 transition-all"
+              style={{ borderColor: color, background: q.done ? color : "transparent" }}>
+              {q.done && <svg viewBox="0 0 12 12" className="w-3 h-3 text-white"><path d="M2 6l3 3 5-5" stroke="currentColor" strokeWidth={2} fill="none"/></svg>}
+            </button>
+            <div className="flex-1">
+              <p className={`text-[12px] font-semibold ${q.done ? "line-through text-muted-foreground" : "text-foreground"}`}>{q.name}</p>
+              <p className="text-[10px] text-muted-foreground">{q.type} · {q.reward}</p>
+            </div>
+          </div>
+        ))}
+      </div>
+    </div>
+  );
+}
+
+function EconomyUI({ color }: { color: string }) {
+  const items = [
+    { name: "Health Potion", type: "Consumable", cost: "50g", rarity: "Common" },
+    { name: "Shadow Blade", type: "Weapon", cost: "1,200g", rarity: "Rare" },
+    { name: "Dragon Scale Armor", type: "Armor", cost: "4,500g", rarity: "Epic" },
+    { name: "Void Crystal", type: "Material", cost: "800g", rarity: "Rare" },
+  ];
+  const rarityColors: Record<string, string> = { Common: "#8E8E93", Uncommon: "#30D158", Rare: "#007AFF", Epic: "#BF5AF2", Legendary: "#FFD60A" };
+  return (
+    <div className="p-4 space-y-3">
+      <p className="text-[11px] font-semibold text-muted-foreground uppercase tracking-wide">Item Economy</p>
+      <div className="space-y-1.5">
+        {items.map((item, i) => (
+          <div key={i} className="flex items-center gap-2 p-2.5 bg-background rounded-lg border border-border/40">
+            <div className="w-2 h-2 rounded-full flex-shrink-0" style={{ background: rarityColors[item.rarity] ?? color }} />
+            <span className="flex-1 text-[12px] text-foreground font-semibold">{item.name}</span>
+            <span className="text-[10px] text-muted-foreground">{item.type}</span>
+            <span className="text-[11px] font-bold" style={{ color }}>{item.cost}</span>
+          </div>
+        ))}
+      </div>
+      <p className="text-[10px] text-muted-foreground">Simulated item economy · Values are placeholder</p>
+    </div>
+  );
+}
+
+function OnboardingUI({ color }: { color: string }) {
+  const [steps, setSteps] = useState([
+    { label: "Welcome & value proposition screen", done: true },
+    { label: "Create profile (name, avatar, interests)", done: true },
+    { label: "Choose community areas to follow", done: false },
+    { label: "Invite friends or skip", done: false },
+    { label: "Complete first post or action", done: false },
+  ]);
+  return (
+    <div className="p-4 space-y-3">
+      <p className="text-[11px] font-semibold text-muted-foreground uppercase tracking-wide">Onboarding Flow · {steps.filter(s => s.done).length}/{steps.length} steps configured</p>
+      <div className="space-y-1.5">
+        {steps.map((s, i) => (
+          <button key={i} onClick={() => setSteps(ss => ss.map((x, j) => j === i ? { ...x, done: !x.done } : x))}
+            className="w-full flex items-center gap-2 p-2.5 bg-background rounded-lg border border-border/40 text-left hover:bg-muted/20 transition-colors">
+            <div className="w-5 h-5 rounded-full border-2 flex items-center justify-center flex-shrink-0"
+              style={{ borderColor: color, background: s.done ? color : "transparent" }}>
+              {s.done && <span className="text-white text-[9px]">✓</span>}
+            </div>
+            <span className={`text-[12px] ${s.done ? "text-foreground font-semibold" : "text-muted-foreground"}`}>{s.label}</span>
+          </button>
+        ))}
+      </div>
+    </div>
+  );
+}
+
+function ContentCalendarUI({ color }: { color: string }) {
+  const days = ["Mon", "Tue", "Wed", "Thu", "Fri", "Sat", "Sun"];
+  const types = ["📝 Post", "🎥 Video", "🗳️ Poll", "📣 Announce", "❓ Q&A", "⬜ Rest"];
+  const [calendar, setCalendar] = useState(["📝 Post", "🎥 Video", "❓ Q&A", "📣 Announce", "📝 Post", "⬜ Rest", "⬜ Rest"]);
+  return (
+    <div className="p-4 space-y-3">
+      <p className="text-[11px] font-semibold text-muted-foreground uppercase tracking-wide">Weekly Content Calendar</p>
+      <div className="grid grid-cols-7 gap-1">
+        {days.map((d, i) => (
+          <div key={i} className="space-y-1">
+            <p className="text-[9px] font-bold text-muted-foreground text-center">{d}</p>
+            <select value={calendar[i]} onChange={e => setCalendar(c => c.map((v, j) => j === i ? e.target.value : v))}
+              className="w-full text-[9px] p-1 rounded border border-border/40 bg-background outline-none">
+              {types.map(t => <option key={t}>{t}</option>)}
+            </select>
+          </div>
+        ))}
+      </div>
+    </div>
+  );
+}
+
+function HeadlineGeneratorUI({ color }: { color: string }) {
+  const variants = [
+    "The All-in-One Platform That Finally Gets You",
+    "Stop Juggling Tools. Start Shipping Faster.",
+    "Built for Teams Who Can't Afford to Slow Down",
+    "Everything You Need. Nothing You Don't.",
+  ];
+  const [selected, setSelected] = useState(0);
+  return (
+    <div className="p-4 space-y-3">
+      <p className="text-[11px] font-semibold text-muted-foreground uppercase tracking-wide">Headline Variants · Click to select</p>
+      <div className="space-y-2">
+        {variants.map((v, i) => (
+          <button key={i} onClick={() => setSelected(i)}
+            className={`w-full p-3 rounded-xl border text-left transition-all ${selected === i ? "border-2" : "border-border/40 hover:bg-muted/20"}`}
+            style={{ borderColor: selected === i ? color : undefined, background: selected === i ? `${color}08` : undefined }}>
+            <p className="text-[13px] font-semibold text-foreground">{v}</p>
+            {selected === i && <p className="text-[10px] mt-1" style={{ color }}>✓ Selected</p>}
+          </button>
+        ))}
+      </div>
+    </div>
+  );
+}
+
+function PersonaBuilderUI({ color }: { color: string }) {
+  const [name, setName] = useState("The Busy Founder");
+  const [age, setAge] = useState("32–45");
+  const [pain, setPain] = useState("Too many tools, not enough time");
+  const [goal, setGoal] = useState("Ship faster with a smaller team");
+  return (
+    <div className="p-4 space-y-3">
+      <p className="text-[11px] font-semibold text-muted-foreground uppercase tracking-wide">Customer Persona</p>
+      {[
+        { label: "Persona Name", value: name, set: setName },
+        { label: "Age Range", value: age, set: setAge },
+        { label: "Pain Point", value: pain, set: setPain },
+        { label: "Core Goal", value: goal, set: setGoal },
+      ].map(f => (
+        <div key={f.label}>
+          <label className="text-[10px] font-bold text-muted-foreground block mb-1">{f.label.toUpperCase()}</label>
+          <input value={f.value} onChange={e => f.set(e.target.value)}
+            className="w-full text-[12px] px-3 py-2 rounded-lg border border-border/50 bg-background outline-none" />
+        </div>
+      ))}
+    </div>
+  );
+}
+
+function OutlinerUI({ creation, color }: { creation: Creation; color: string }) {
+  const [sections, setSections] = useState(creation.sections.slice(0, 6).map(s => s.title));
+  const [newSec, setNewSec] = useState("");
+  return (
+    <div className="p-4 space-y-3">
+      <p className="text-[11px] font-semibold text-muted-foreground uppercase tracking-wide">Section Outline · {sections.length} sections</p>
+      <div className="space-y-1.5">
+        {sections.map((s, i) => (
+          <div key={i} className="flex items-center gap-2 p-2.5 bg-background rounded-lg border border-border/40">
+            <span className="w-5 h-5 rounded flex items-center justify-center text-[10px] font-bold flex-shrink-0"
+              style={{ background: `${color}20`, color }}>{i + 1}</span>
+            <span className="flex-1 text-[12px] text-foreground">{s}</span>
+            <button onClick={() => setSections(ss => ss.filter((_, j) => j !== i))}
+              className="text-[10px] text-muted-foreground hover:text-red-500 transition-colors">✕</button>
+          </div>
+        ))}
+      </div>
+      <div className="flex gap-2">
+        <input value={newSec} onChange={e => setNewSec(e.target.value)} placeholder="Add section…"
+          className="flex-1 text-[12px] px-3 py-1.5 rounded-lg border border-border/50 bg-background outline-none placeholder:text-muted-foreground/50" />
+        <button onClick={() => { if (newSec.trim()) { setSections(ss => [...ss, newSec.trim()]); setNewSec(""); } }}
+          className="px-3 py-1.5 rounded-lg text-[12px] font-semibold text-white"
+          style={{ background: color }}>+ Add</button>
+      </div>
+    </div>
+  );
+}
+
+function ApiExplorerUI({ creation, color }: { creation: Creation; color: string }) {
+  const endpoints = [
+    { method: "GET",    path: "/api/v1/users",        status: "200" },
+    { method: "POST",   path: "/api/v1/users",        status: "201" },
+    { method: "GET",    path: "/api/v1/analytics",    status: "200" },
+    { method: "PUT",    path: "/api/v1/settings",     status: "200" },
+    { method: "DELETE", path: "/api/v1/users/:id",    status: "204" },
+  ];
+  const methodColors: Record<string, string> = { GET: "#34C759", POST: "#007AFF", PUT: "#FF9500", DELETE: "#FF3B30", PATCH: "#BF5AF2" };
+  const [active, setActive] = useState<number | null>(null);
+  return (
+    <div className="p-4 space-y-3">
+      <p className="text-[11px] font-semibold text-muted-foreground uppercase tracking-wide">Simulated API Endpoints</p>
+      <div className="space-y-1.5">
+        {endpoints.map((ep, i) => (
+          <button key={i} onClick={() => setActive(active === i ? null : i)}
+            className="w-full flex items-center gap-2 p-2.5 bg-background rounded-lg border border-border/40 text-left hover:bg-muted/10 transition-colors">
+            <span className="text-[10px] font-bold px-1.5 py-0.5 rounded flex-shrink-0"
+              style={{ background: `${methodColors[ep.method]}20`, color: methodColors[ep.method] }}>{ep.method}</span>
+            <span className="flex-1 text-[11px] text-foreground font-mono">{ep.path}</span>
+            <span className="text-[10px] text-green-600 font-bold">{ep.status}</span>
+          </button>
+        ))}
+      </div>
+      <p className="text-[10px] text-muted-foreground">Simulated REST API · No real connections</p>
+    </div>
+  );
+}
+
+function ToolsSection({ creation }: { creation: Creation }) {
+  const tools = TOOLS_BY_TYPE[creation.type] ?? TOOLS_BY_TYPE.custom;
+  const meta = TYPE_META[creation.type];
+  return (
+    <div className="p-5 md:p-6 space-y-4 max-w-3xl mx-auto">
+      <div>
+        <h2 className="text-xl font-bold text-foreground">Simulated Tools</h2>
+        <p className="text-[12px] text-muted-foreground mt-0.5">
+          {tools.length} context-aware tools for this {meta.label.toLowerCase()}. Generated on demand. All simulated.
+        </p>
+      </div>
+      <div className="space-y-2">
+        {tools.map(tool => <ToolCard key={tool.id} tool={tool} creation={creation} />)}
+      </div>
+      <div className="bg-muted/30 rounded-2xl p-4 border border-border/30 text-center">
+        <p className="text-[12px] font-semibold text-foreground">Need a different tool?</p>
+        <p className="text-[11px] text-muted-foreground mt-1">Describe it in Packet AI and it will generate a custom tool for this packet instantly.</p>
+      </div>
+    </div>
+  );
+}
+
+// ─── Design Section ───────────────────────────────────────────────────────────
+interface Theme { name: string; color: string; bg: string; desc: string; }
+
+const DESIGN_THEMES: Record<string, Theme[]> = {
+  software:  [
+    { name: "Ocean Blue",    color: "#007AFF", bg: "#E8F0FE", desc: "Professional, trustworthy, tech-forward" },
+    { name: "Emerald",       color: "#34C759", bg: "#E8F8EE", desc: "Growth, innovation, sustainability" },
+    { name: "Deep Violet",   color: "#5856D6", bg: "#EDECFA", desc: "AI-native, futuristic, premium" },
+    { name: "Slate Pro",     color: "#636366", bg: "#F2F2F7", desc: "Minimal, focused, enterprise-grade" },
+  ],
+  movie: [
+    { name: "Cinematic Red",  color: "#FF2D55", bg: "#FEE8EC", desc: "Dramatic, high-stakes, theatrical" },
+    { name: "Epic Gold",      color: "#FFD60A", bg: "#FFFBE8", desc: "Blockbuster, prestige, Oscar bait" },
+    { name: "Noir Shadow",    color: "#3A3A3C", bg: "#F2F2F7", desc: "Dark, mysterious, classic noir" },
+    { name: "Sci-Fi Blue",    color: "#0A84FF", bg: "#E5F3FF", desc: "Future-set, technological, cosmic" },
+  ],
+  comic: [
+    { name: "Classic Orange", color: "#FF9500", bg: "#FFF3E0", desc: "Bold, fun, timeless comics feel" },
+    { name: "Vivid Red",      color: "#FF3B30", bg: "#FDECEA", desc: "Action-packed, superhero energy" },
+    { name: "Deep Blue",      color: "#0A84FF", bg: "#E5F3FF", desc: "Noir detective, cinematic drama" },
+    { name: "Comics Gold",    color: "#FFD60A", bg: "#FFFBE8", desc: "Golden age, retro, collector's" },
+  ],
+  game: [
+    { name: "Purple Realm",   color: "#5856D6", bg: "#EDECFA", desc: "Fantasy, mystical, RPG classic" },
+    { name: "Forest Green",   color: "#30D158", bg: "#E8FAF0", desc: "Open world, exploration, nature" },
+    { name: "Lava Orange",    color: "#FF6B00", bg: "#FFF0E5", desc: "Action, combat, intense energy" },
+    { name: "Ice Blue",       color: "#40C8E0", bg: "#E5F9FC", desc: "Sci-fi, space, cyberpunk" },
+  ],
+  community: [
+    { name: "Cyan Connect",   color: "#30B0C7", bg: "#E5F6F9", desc: "Open, welcoming, collaborative" },
+    { name: "Purple Hub",     color: "#BF5AF2", bg: "#F5EAFE", desc: "Creative, expressive, vibrant" },
+    { name: "Green Grove",    color: "#30D158", bg: "#E8FAF0", desc: "Growth, wellness, sustainable" },
+    { name: "Warm Gold",      color: "#FFD60A", bg: "#FFFBE8", desc: "Premium, aspirational, exclusive" },
+  ],
+  document: [
+    { name: "Scholar Green",  color: "#34C759", bg: "#E8F8EE", desc: "Academic, professional, clean" },
+    { name: "Ink Blue",       color: "#007AFF", bg: "#E8F0FE", desc: "Corporate, authoritative, clear" },
+    { name: "Warm Sepia",     color: "#A8763E", bg: "#F5ECD9", desc: "Classic, editorial, refined" },
+    { name: "Midnight",       color: "#3A3A3C", bg: "#F2F2F7", desc: "Minimal, focused, distraction-free" },
+  ],
+  marketing: [
+    { name: "Bold Orange",    color: "#FF9500", bg: "#FFF3E0", desc: "Energetic, conversion-driven, warm" },
+    { name: "Power Red",      color: "#FF2D55", bg: "#FEE8EC", desc: "Urgent, bold, high-conversion" },
+    { name: "Growth Green",   color: "#30D158", bg: "#E8FAF0", desc: "Trust-building, results-focused" },
+    { name: "Brand Blue",     color: "#007AFF", bg: "#E8F0FE", desc: "Professional, dependable, clear" },
+  ],
+  custom: [
+    { name: "Cosmic Purple",  color: "#BF5AF2", bg: "#F5EAFE", desc: "Creative, unique, futuristic" },
+    { name: "Electric Blue",  color: "#007AFF", bg: "#E8F0FE", desc: "Modern, versatile, clean" },
+    { name: "Solar Gold",     color: "#FFD60A", bg: "#FFFBE8", desc: "Premium, optimistic, warm" },
+    { name: "Aurora Green",   color: "#30D158", bg: "#E8FAF0", desc: "Fresh, innovative, natural" },
+  ],
+};
+
+const FONT_PAIRS = [
+  { name: "Modern Sans",      heading: "Inter / SF Pro",      body: "Inter / System UI",    desc: "Clean, versatile, universal" },
+  { name: "Editorial Serif",  heading: "Playfair Display",    body: "Georgia / Lora",       desc: "Premium, editorial, trust" },
+  { name: "Tech Mono",        heading: "JetBrains Mono",      body: "Inter / Roboto",       desc: "Developer-native, precise" },
+];
+
+const LAYOUT_OPTIONS = [
+  { id: "minimal",  name: "Minimal",  icon: "◻️", desc: "Generous whitespace, focused, distraction-free" },
+  { id: "rich",     name: "Rich",     icon: "▦",  desc: "Card-based grid, data-dense, feature-rich" },
+  { id: "focused",  name: "Focused",  icon: "▬",  desc: "Single column, deep reading, narrative" },
+];
+
+interface DesignSectionProps {
+  creation: Creation;
+  selectedTheme: string;
+  onThemeChange: (themeName: string, color: string) => void;
+}
+
+function DesignSection({ creation, selectedTheme, onThemeChange }: DesignSectionProps) {
+  const meta = TYPE_META[creation.type];
+  const themes = DESIGN_THEMES[creation.type] ?? DESIGN_THEMES.custom;
+  const [selectedFont, setSelectedFont] = useState(0);
+  const [selectedLayout, setSelectedLayout] = useState("minimal");
+  const [applied, setApplied] = useState(false);
+
+  const applyTheme = (theme: Theme) => {
+    onThemeChange(theme.name, theme.color);
+    setApplied(true);
+    setTimeout(() => setApplied(false), 2000);
+  };
+
+  return (
+    <div className="p-5 md:p-6 space-y-6 max-w-3xl mx-auto">
+      <div>
+        <h2 className="text-xl font-bold text-foreground">Packet Design</h2>
+        <p className="text-[12px] text-muted-foreground mt-0.5">Customize the visual style of this packet. Changes apply to this packet only.</p>
+      </div>
+
+      <div className="space-y-3">
+        <div className="flex items-center justify-between">
+          <h3 className="text-[14px] font-bold text-foreground">Color Theme</h3>
+          {applied && <span className="text-[11px] text-green-600 font-semibold">✓ Applied</span>}
+        </div>
+        <div className="grid grid-cols-2 gap-3">
+          {themes.map(theme => (
+            <button key={theme.name} onClick={() => applyTheme(theme)}
+              className={`p-4 rounded-2xl border-2 text-left transition-all space-y-2 ${selectedTheme === theme.name ? "shadow-md" : "border-border/40 hover:border-border"}`}
+              style={{ borderColor: selectedTheme === theme.name ? theme.color : undefined, background: selectedTheme === theme.name ? theme.bg : undefined }}>
+              <div className="flex items-center gap-2">
+                <div className="w-6 h-6 rounded-full" style={{ background: theme.color }} />
+                <span className="font-bold text-[13px] text-foreground">{theme.name}</span>
+                {selectedTheme === theme.name && <span className="ml-auto text-[10px] font-bold" style={{ color: theme.color }}>Active</span>}
+              </div>
+              <div className="flex gap-1">
+                {[theme.color, theme.bg, "#F2F2F7", "#1C1C1E"].map((c, i) => (
+                  <div key={i} className="flex-1 h-4 rounded" style={{ background: c }} />
+                ))}
+              </div>
+              <p className="text-[10px] text-muted-foreground">{theme.desc}</p>
+            </button>
+          ))}
+        </div>
+      </div>
+
+      <div className="space-y-3">
+        <h3 className="text-[14px] font-bold text-foreground">Font Pairing</h3>
+        <div className="space-y-2">
+          {FONT_PAIRS.map((pair, i) => (
+            <button key={i} onClick={() => setSelectedFont(i)}
+              className={`w-full p-4 rounded-2xl border-2 text-left transition-all ${selectedFont === i ? "border-primary/60 bg-primary/5" : "border-border/40 hover:border-border"}`}>
+              <div className="flex items-center justify-between">
+                <div>
+                  <p className="font-bold text-[13px] text-foreground">{pair.name}</p>
+                  <p className="text-[10px] text-muted-foreground">{pair.heading} · {pair.body}</p>
+                </div>
+                {selectedFont === i && <div className="w-4 h-4 rounded-full bg-primary flex items-center justify-center"><svg viewBox="0 0 12 12" className="w-2.5 h-2.5 text-white"><path d="M2 6l3 3 5-5" stroke="currentColor" strokeWidth={2} fill="none"/></svg></div>}
+              </div>
+              <p className="text-[11px] text-muted-foreground mt-1">{pair.desc}</p>
+            </button>
+          ))}
+        </div>
+      </div>
+
+      <div className="space-y-3">
+        <h3 className="text-[14px] font-bold text-foreground">Layout Style</h3>
+        <div className="grid grid-cols-3 gap-2">
+          {LAYOUT_OPTIONS.map(opt => (
+            <button key={opt.id} onClick={() => setSelectedLayout(opt.id)}
+              className={`p-3 rounded-2xl border-2 text-center transition-all space-y-1 ${selectedLayout === opt.id ? "border-primary/60 bg-primary/5" : "border-border/40 hover:border-border"}`}>
+              <p className="text-2xl">{opt.icon}</p>
+              <p className="font-bold text-[12px] text-foreground">{opt.name}</p>
+              <p className="text-[9px] text-muted-foreground">{opt.desc}</p>
+            </button>
+          ))}
+        </div>
+      </div>
+
+      <div className="bg-muted/30 rounded-2xl p-4 border border-border/30">
+        <p className="text-[12px] font-semibold text-foreground mb-1">Apply via Packet AI</p>
+        <p className="text-[11px] text-muted-foreground">For deeper visual changes — fonts, spacing, component styles — open Packet AI and describe the change. It updates only this packet.</p>
       </div>
     </div>
   );
@@ -1032,21 +2006,42 @@ function GenericContent({ creation }: { creation: Creation }) {
 export function CreationViewer({ creation }: { creation: Creation }) {
   const [section, setSection] = useState("overview");
   const [mode, setMode] = useState<StandaloneMode>("Demo");
-  const meta = TYPE_META[creation.type];
+  const [editedSections, setEditedSections] = useState(creation.sections);
+  const [selectedTheme, setSelectedTheme] = useState("");
+  const [themeColor, setThemeColor] = useState("");
+
+  const baseMeta = TYPE_META[creation.type];
+  const meta = { ...baseMeta, color: themeColor || baseMeta.color };
   const navItems = buildNavItems(creation.type);
 
+  const editedCreation = { ...creation, sections: editedSections };
+
+  const handleSectionUpdate = (title: string, newContent: string) => {
+    setEditedSections(prev =>
+      prev.map(s => s.title === title ? { ...s, content: newContent } : s)
+    );
+  };
+
+  const handleThemeChange = (themeName: string, color: string) => {
+    setSelectedTheme(themeName);
+    setThemeColor(color);
+  };
+
   const renderSection = () => {
-    if (section === "ai")        return <AIStudio creation={creation} />;
-    if (section === "downloads") return <DownloadsSection creation={creation} />;
-    if (section === "marketing") return <MarketingSection creation={creation} />;
+    if (section === "packetai") return <PacketEditor creation={editedCreation} onSectionUpdate={handleSectionUpdate} />;
+    if (section === "tools")    return <ToolsSection creation={editedCreation} />;
+    if (section === "design")   return <DesignSection creation={editedCreation} selectedTheme={selectedTheme} onThemeChange={handleThemeChange} />;
+    if (section === "ai")        return <AIStudio creation={editedCreation} />;
+    if (section === "downloads") return <DownloadsSection creation={editedCreation} />;
+    if (section === "marketing") return <MarketingSection creation={editedCreation} />;
 
     // Movie
     if (creation.type === "movie") {
-      if (section === "overview")    return <MovieOverview creation={creation} />;
-      if (section === "scenes")      return <ScenesSection creation={creation} />;
-      if (section === "characters")  return <CharactersSection creation={creation} />;
+      if (section === "overview")    return <MovieOverview creation={editedCreation} />;
+      if (section === "scenes")      return <ScenesSection creation={editedCreation} />;
+      if (section === "characters")  return <CharactersSection creation={editedCreation} />;
       if (section === "script") {
-        const script = findSection(creation, ["script", "screenplay", "full script"]);
+        const script = findSection(editedCreation, ["script", "screenplay", "full script"]);
         return <div className="p-5 md:p-6 max-w-3xl mx-auto space-y-4"><h2 className="text-xl font-bold">Script</h2><ContentBlock title="" content={script || "No script content found."} /></div>;
       }
     }
@@ -1054,79 +2049,79 @@ export function CreationViewer({ creation }: { creation: Creation }) {
     // Comic
     if (creation.type === "comic") {
       if (section === "overview") {
-        const overview = findSection(creation, ["story overview", "overview", "summary"]);
-        const artDir   = findSection(creation, ["art direction"]);
+        const overview = findSection(editedCreation, ["story overview", "overview", "summary"]);
+        const artDir   = findSection(editedCreation, ["art direction"]);
         return <div className="p-5 md:p-6 space-y-5 max-w-3xl mx-auto">
           <div className="bg-gradient-to-br from-orange-50 to-yellow-50 border border-orange-100 rounded-2xl p-6"><div className="flex items-center gap-3 mb-3"><div className="w-16 h-16 rounded-2xl bg-orange-100 flex items-center justify-center text-3xl">📖</div><div><h1 className="text-2xl font-bold">{creation.name}</h1><p className="text-[13px] text-muted-foreground">{creation.genre} · {creation.style}</p></div></div></div>
           <ContentBlock title="Story Overview" content={overview} />
           <ContentBlock title="Art Direction" content={artDir} />
         </div>;
       }
-      if (section === "panels")      return <PanelsSection creation={creation} />;
-      if (section === "characters")  return <CharactersSection creation={creation} />;
+      if (section === "panels")      return <PanelsSection creation={editedCreation} />;
+      if (section === "characters")  return <CharactersSection creation={editedCreation} />;
       if (section === "story") {
-        const full = findSection(creation, ["full issue", "script", "full story"]);
+        const full = findSection(editedCreation, ["full issue", "script", "full story"]);
         return <div className="p-5 md:p-6 max-w-3xl mx-auto space-y-4"><h2 className="text-xl font-bold">Full Story</h2><ContentBlock title="" content={full || creation.rawContent.slice(0, 3000)} /></div>;
       }
     }
 
     // Software / SaaS
     if (creation.type === "software") {
-      if (section === "overview")   return <SoftwareDashboard creation={creation} />;
-      if (section === "features")   return <FeaturesSection creation={creation} />;
-      if (section === "modules")    return <ModulesSection creation={creation} />;
-      if (section === "workflows")  return <WorkflowsSection creation={creation} />;
-      if (section === "data")       return <DataModelSection creation={creation} />;
+      if (section === "overview")   return <SoftwareDashboard creation={editedCreation} />;
+      if (section === "features")   return <FeaturesSection creation={editedCreation} />;
+      if (section === "modules")    return <ModulesSection creation={editedCreation} />;
+      if (section === "workflows")  return <WorkflowsSection creation={editedCreation} />;
+      if (section === "data")       return <DataModelSection creation={editedCreation} />;
       if (section === "docs") {
-        const docs = findSections(creation, ["documentation", "getting started", "key concepts", "user guide"]);
+        const docs = findSections(editedCreation, ["documentation", "getting started", "key concepts", "user guide"]);
         return <div className="p-5 md:p-6 space-y-4 max-w-3xl mx-auto"><h2 className="text-xl font-bold">Documentation</h2>{docs.length > 0 ? docs.map((d, i) => <ContentBlock key={i} title={d.title.replace(/documentation[—\s-]*/i, "").trim()} content={d.content} />) : <p className="text-muted-foreground text-center py-8">No documentation found.</p>}</div>;
       }
     }
 
     // Game
     if (creation.type === "game") {
-      if (section === "overview")    return <GameOverview creation={creation} />;
-      if (section === "gameplay")    return <GameplaySection creation={creation} />;
-      if (section === "story")       return <GameStorySection creation={creation} />;
-      if (section === "levels")      return <LevelsSection creation={creation} />;
-      if (section === "characters")  return <CharactersSection creation={creation} />;
-      if (section === "economy")     return <GameEconomySection creation={creation} />;
+      if (section === "overview")    return <GameOverview creation={editedCreation} />;
+      if (section === "gameplay")    return <GameplaySection creation={editedCreation} />;
+      if (section === "story")       return <GameStorySection creation={editedCreation} />;
+      if (section === "levels")      return <LevelsSection creation={editedCreation} />;
+      if (section === "characters")  return <CharactersSection creation={editedCreation} />;
+      if (section === "economy")     return <GameEconomySection creation={editedCreation} />;
     }
 
     // Community
     if (creation.type === "community") {
-      if (section === "overview")  return <CommunityOverview creation={creation} />;
-      if (section === "features")  return <CommunityFeaturesSection creation={creation} />;
-      if (section === "members")   return <MembersSection creation={creation} />;
-      if (section === "content")   return <CommunityContentSection creation={creation} />;
-      if (section === "events")    return <EventsSection creation={creation} />;
+      if (section === "overview")  return <CommunityOverview creation={editedCreation} />;
+      if (section === "features")  return <CommunityFeaturesSection creation={editedCreation} />;
+      if (section === "members")   return <MembersSection creation={editedCreation} />;
+      if (section === "content")   return <CommunityContentSection creation={editedCreation} />;
+      if (section === "events")    return <EventsSection creation={editedCreation} />;
     }
 
     // Document
     if (creation.type === "document") {
       if (section === "overview") {
-        const exec = findSection(creation, ["executive summary", "summary", "overview"]);
+        const exec = findSection(editedCreation, ["executive summary", "summary", "overview"]);
         return <div className="p-5 md:p-6 space-y-5 max-w-3xl mx-auto"><h2 className="text-xl font-bold">Executive Summary</h2><ContentBlock title="" content={exec} /></div>;
       }
-      if (section === "document") return <FullDocumentSection creation={creation} />;
-      if (section === "toc")      return <TOCSection creation={creation} />;
+      if (section === "document") return <FullDocumentSection creation={editedCreation} />;
+      if (section === "toc")      return <TOCSection creation={editedCreation} />;
     }
 
     // Marketing system
     if (creation.type === "marketing") {
       if (section === "overview") {
-        const brand = findSection(creation, ["brand positioning", "brand", "overview"]);
+        const brand = findSection(editedCreation, ["brand positioning", "brand", "overview"]);
         return <div className="p-5 md:p-6 space-y-5 max-w-3xl mx-auto"><div className="bg-gradient-to-br from-orange-50 to-yellow-50 border border-orange-100 rounded-2xl p-6"><div className="flex items-center gap-3"><div className="w-16 h-16 rounded-2xl bg-orange-100 flex items-center justify-center text-3xl">📣</div><div><h1 className="text-2xl font-bold">{creation.name}</h1><p className="text-[13px] text-muted-foreground">Marketing System · {creation.genre}</p></div></div></div><ContentBlock title="Brand Positioning" content={brand} /></div>;
       }
-      if (section === "landing") return <LandingSection creation={creation} />;
-      if (section === "funnel")  return <FunnelSection creation={creation} />;
-      if (section === "emails")  return <EmailsSection creation={creation} />;
-      if (section === "ads")     return <AdsSection creation={creation} />;
+      if (section === "landing") return <LandingSection creation={editedCreation} />;
+      if (section === "funnel")  return <FunnelSection creation={editedCreation} />;
+      if (section === "emails")  return <EmailsSection creation={editedCreation} />;
+      if (section === "ads")     return <AdsSection creation={editedCreation} />;
     }
 
     // Custom + fallback
     if (section === "overview") {
-      const overview = findSection(creation, ["overview", "summary", "introduction"]);
+      const overview = findSection(editedCreation, ["overview", "summary", "introduction"]);
       return (
         <div className="p-5 md:p-6 space-y-5 max-w-3xl mx-auto">
           <div className="rounded-2xl p-6 space-y-2 border" style={{ background: `linear-gradient(135deg, ${meta.color}15, transparent)`, borderColor: `${meta.color}30` }}>
@@ -1142,10 +2137,12 @@ export function CreationViewer({ creation }: { creation: Creation }) {
         </div>
       );
     }
-    if (section === "content") return <GenericContent creation={creation} />;
+    if (section === "content") return <GenericContent creation={editedCreation} />;
 
-    return <GenericContent creation={creation} />;
+    return <GenericContent creation={editedCreation} />;
   };
+
+  const fullHeight = section === "ai" || section === "packetai";
 
   return (
     <StandaloneLayout
@@ -1157,9 +2154,9 @@ export function CreationViewer({ creation }: { creation: Creation }) {
       onSectionChange={setSection}
       mode={mode}
       onModeChange={setMode}
-      disclaimer={`${creation.name} · ${meta.label} · All content is mock/simulated · Powered by CreateAI Brain`}
+      disclaimer={`${creation.name} · ${meta.label} · Omega Packet · All content mock/simulated · CreateAI Brain`}
     >
-      <div className={section === "ai" ? "h-full flex flex-col" : ""}>
+      <div className={fullHeight ? "h-full flex flex-col" : ""}>
         {renderSection()}
       </div>
     </StandaloneLayout>

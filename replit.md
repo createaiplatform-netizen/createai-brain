@@ -128,6 +128,16 @@ Full-stack AI OS platform — "CreateAI Brain" by Sara Stadler. React + Vite + W
 - New community type has nav: Platform, Features, Members, Content, Events, Marketing, AI, Downloads
 - Software type has nav: Dashboard, Features, Modules, Workflows, Data Model, Docs, Marketing, AI, Downloads
 
+**Omega Packet Engine (CreationViewer v3):**
+- `OMEGA_NAV` constant: Packet AI (packetai), Tools (tools), Design (design), AI Chat (ai), Downloads — appended to every type's nav
+- `editedSections` state in CreationViewer: allows Packet AI to update sections in-memory; propagates via `editedCreation`
+- `selectedTheme` / `themeColor` state: Design section calls `onThemeChange` → updates `meta.color` live
+- `PacketEditor` component: Edit Sections tab (quick actions, section dropdown, instruction textarea, SSE section rewrite) + Chat tab (freeform AI chat)
+- `ToolsSection`: `TOOLS_BY_TYPE` registry (5 tools for software, 4 for movie/game/community, 3 for comic/document/marketing) → each tool is a `ToolCard` that expands into a mini interactive UI
+- Mini tool UIs: FormBuilderUI, WorkflowUI, DashboardConfigUI, PricingConfigUI, SceneBuilderUI, CharacterSheetUI, LevelDesignerUI, QuestPlannerUI, EconomyUI, OnboardingUI, ContentCalendarUI, HeadlineGeneratorUI, PersonaBuilderUI, OutlinerUI, ApiExplorerUI
+- `DesignSection`: `DESIGN_THEMES` (4 themes per type), `FONT_PAIRS` (3 options), `LAYOUT_OPTIONS` (Minimal/Rich/Focused); clicking a theme calls `onThemeChange`
+- Section editing flow: user selects section → types instruction → clicks "Update This Section" → SSE generates new content → `handleSectionUpdate()` replaces section in `editedSections` → all renderers immediately see updated content
+
 **SSE streaming:** `fetch` + `ReadableStream` only. Model: `gpt-5.2`, max_completion_tokens: 8192. API key via `AI_INTEGRATIONS_OPENAI_BASE_URL` + `AI_INTEGRATIONS_OPENAI_API_KEY`.
 
 **Colors:** Primary `#007AFF`, never change. All content is mock/simulation only.
