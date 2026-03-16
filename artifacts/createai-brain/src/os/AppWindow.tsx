@@ -74,7 +74,7 @@ export function AppWindow({ onHamburger }: AppWindowProps) {
   const icon         = APP_ICONS[activeApp];
 
   return (
-    <div className="flex-1 flex flex-col overflow-hidden min-w-0 animate-in slide-in-from-right-4 duration-200">
+    <div key={activeApp} className="flex-1 flex flex-col overflow-hidden min-w-0 animate-fade-up" style={{ animationDuration: "0.32s" }}>
 
       {/* ── Top bar ── */}
       <header

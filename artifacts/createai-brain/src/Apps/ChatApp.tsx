@@ -19,6 +19,75 @@ const PROJECTS = [
   { name: "CreateAI Messaging Hub", description: "Generate professional emails and texts. Easy Mode: sent via your own device." },
 ];
 
+const PROJECT_SUGGESTIONS: Record<number, string[]> = {
+  0: ["What can you help me create today?", "Give me a 7-day content plan", "Write an email sequence for my audience"],
+  1: ["Walk me through the demo patient flow", "What safety disclaimers apply here?", "Summarize the mock appointments"],
+  2: ["Find grant ideas for a healthcare nonprofit", "What federal funding applies to home care?", "Draft a grant narrative outline"],
+  3: ["Map out my team roles and responsibilities", "Create an onboarding checklist", "Draft a weekly standup template"],
+  4: ["Write a brand story for my business", "Create 5 subject lines for an email campaign", "Build a 30-day social content calendar"],
+  5: ["Draft a professional follow-up email", "Write a friendly re-engagement text", "Generate an outreach sequence — 3 emails"],
+};
+
+function ChatEmptyState({
+  project,
+  onSuggest,
+}: {
+  project: { name: string; description: string };
+  onSuggest: (text: string) => void;
+}) {
+  const idx = PROJECTS.findIndex(p => p.name === project.name);
+  const suggestions = PROJECT_SUGGESTIONS[idx] ?? PROJECT_SUGGESTIONS[0];
+
+  return (
+    <div className="flex flex-col items-center justify-center flex-1 gap-5 py-14 text-center animate-fade-up px-4">
+      <div className="relative">
+        <div
+          className="w-16 h-16 rounded-2xl flex items-center justify-center text-3xl animate-float"
+          style={{
+            background: "linear-gradient(135deg, rgba(99,102,241,0.20) 0%, rgba(139,92,246,0.20) 100%)",
+            border: "1px solid rgba(99,102,241,0.25)",
+            boxShadow: "0 0 0 0 rgba(99,102,241,0.4)",
+          }}
+        >
+          🧠
+        </div>
+        <div
+          className="absolute inset-0 rounded-2xl animate-pulse-ring pointer-events-none"
+          style={{ borderRadius: "1rem" }}
+        />
+      </div>
+
+      <div className="space-y-1.5 max-w-xs">
+        <p className="font-bold text-[16px] text-foreground" style={{ letterSpacing: "-0.02em" }}>
+          {project.name}
+        </p>
+        <p className="text-[13px] text-muted-foreground leading-relaxed">
+          {project.description}
+        </p>
+      </div>
+
+      <div className="w-full max-w-sm space-y-2">
+        <p className="section-label text-center mb-2.5">Try asking</p>
+        {suggestions.map((s, i) => (
+          <button
+            key={s}
+            onClick={() => onSuggest(s)}
+            className={`w-full text-left px-4 py-3 rounded-2xl text-[13px] font-medium transition-all duration-200 animate-fade-up delay-${(i + 1) * 100} card-interactive`}
+            style={{
+              background: "rgba(14,18,42,0.70)",
+              border: "1px solid rgba(255,255,255,0.08)",
+              color: "rgba(255,255,255,0.80)",
+            }}
+          >
+            <span className="text-primary mr-2">↗</span>
+            {s}
+          </button>
+        ))}
+      </div>
+    </div>
+  );
+}
+
 export function ChatApp() {
   const [currentProjectIndex, setCurrentProjectIndex] = useState(0);
   const [showPicker, setShowPicker] = useState(false);
@@ -89,12 +158,10 @@ export function ChatApp() {
       <main className="flex-1 overflow-y-auto p-4 pb-2 scroll-smooth">
         <div className="flex flex-col justify-end min-h-full">
           {messages.length === 0 && (
-            <div className="flex flex-col items-center justify-center flex-1 gap-3 py-16 text-center">
-              <div className="w-14 h-14 rounded-2xl bg-primary/10 flex items-center justify-center text-2xl">🧠</div>
-              <p className="font-semibold text-foreground text-[15px]">{currentProject.name}</p>
-              <p className="text-[13px] text-muted-foreground max-w-xs leading-relaxed">{currentProject.description}</p>
-              <p className="text-[12px] text-muted-foreground/60 mt-2">Send a message to start your session</p>
-            </div>
+            <ChatEmptyState
+              project={currentProject}
+              onSuggest={text => { sendMessage(text); }}
+            />
           )}
           {messages.map(msg => (
             <ChatBubble key={msg.id} role={msg.role as any} content={msg.content} />
@@ -106,10 +173,9 @@ export function ChatApp() {
       </main>
 
       {/* Input */}
-      <footer className="flex-none p-3 bg-background/80 backdrop-blur-xl border-t border-border/50">
-        <form
-          onSubmit={handleSend}
-          className="relative flex items-center w-full bg-muted/50 border border-border/50 rounded-full pl-4 pr-1.5 py-1.5 shadow-sm focus-within:ring-2 focus-within:ring-primary/20 focus-within:border-primary/30 transition-all"
+      <footer className="flex-none p-3 border-t" style={{ background: "rgba(8,10,22,0.88)", borderColor: "rgba(255,255,255,0.07)", backdropFilter: "blur(32px)" }}>
+        <form onSubmit={handleSend} className="relative flex items-center w-full rounded-full pl-4 pr-1.5 py-1.5 input-premium transition-all"
+          style={{ background: "rgba(255,255,255,0.05)", border: "1px solid rgba(255,255,255,0.10)" }}
         >
           <input
             ref={inputRef}
@@ -126,9 +192,10 @@ export function ChatApp() {
             className={cn(
               "ml-2 w-8 h-8 rounded-full flex items-center justify-center transition-all flex-shrink-0",
               inputMessage.trim() && !isStreaming
-                ? "bg-primary text-primary-foreground shadow-sm hover:scale-105 active:scale-95"
-                : "bg-muted text-muted-foreground cursor-not-allowed"
+                ? "bg-primary text-primary-foreground hover:scale-105 active:scale-95"
+                : "text-muted-foreground cursor-not-allowed"
             )}
+            style={inputMessage.trim() && !isStreaming ? { boxShadow: "0 2px 10px rgba(99,102,241,0.40)" } : { background: "rgba(255,255,255,0.06)" }}
           >
             <Send className="w-4 h-4 ml-0.5" />
           </button>

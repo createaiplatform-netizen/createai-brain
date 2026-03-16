@@ -1,5 +1,6 @@
 import React, { useState, useRef } from "react";
 import { useOS } from "@/os/OSContext";
+import { OutputFormatter } from "@/components/OutputFormatter";
 
 const TOOLS = [
   { name: "Brochure Builder",       icon: "📋", color: "#007AFF", desc: "Professional brochures for any service or product", type: "Document" },
@@ -95,20 +96,28 @@ export function ToolsApp() {
   if (view === "historyDetail" && viewingItem) {
     const t = TOOLS.find(t => t.name === viewingItem.toolName);
     return (
-      <div className="p-6 space-y-5">
-        <button onClick={() => { setViewingItem(null); setView("history"); }} className="text-primary text-sm font-medium">‹ History</button>
+      <div className="p-6 space-y-5 animate-fade-up">
+        <button onClick={() => { setViewingItem(null); setView("history"); }}
+          className="flex items-center gap-1.5 text-[13px] font-medium transition-opacity hover:opacity-70"
+          style={{ color: "#818cf8" }}>
+          <span className="text-[18px] font-light">‹</span> History
+        </button>
         <div className="flex items-center gap-3">
-          <span className="text-3xl">{t?.icon ?? "🛠️"}</span>
-          <div>
-            <h2 className="text-lg font-bold text-foreground">{viewingItem.toolName}</h2>
-            <p className="text-[12px] text-muted-foreground truncate">{viewingItem.prompt.slice(0, 60)}{viewingItem.prompt.length > 60 ? "…" : ""}</p>
+          <div className="w-12 h-12 rounded-2xl flex items-center justify-center text-2xl flex-shrink-0" style={{ backgroundColor: (t?.color ?? "#007AFF") + "22" }}>
+            {t?.icon ?? "🛠️"}
           </div>
-          <button onClick={handleCopy} className="ml-auto text-[12px] bg-muted border border-border/50 rounded-lg px-3 py-1.5 text-foreground hover:bg-muted/80 transition-colors">
-            {copied ? "✓ Copied!" : "Copy"}
+          <div className="flex-1 min-w-0">
+            <h2 className="text-[17px] font-bold text-foreground" style={{ letterSpacing: "-0.02em" }}>{viewingItem.toolName}</h2>
+            <p className="text-[11px] text-muted-foreground truncate mt-0.5">{viewingItem.prompt.slice(0, 70)}{viewingItem.prompt.length > 70 ? "…" : ""}</p>
+          </div>
+          <button onClick={handleCopy}
+            className="text-[12px] font-semibold px-3 py-1.5 rounded-xl transition-all flex-shrink-0"
+            style={{ background: copied ? "rgba(34,197,94,0.12)" : "rgba(255,255,255,0.07)", color: copied ? "#4ade80" : "rgba(255,255,255,0.70)", border: `1px solid ${copied ? "rgba(34,197,94,0.25)" : "rgba(255,255,255,0.10)"}` }}>
+            {copied ? "✓ Copied" : "Copy"}
           </button>
         </div>
-        <div className="bg-muted/40 border border-border/40 rounded-2xl p-5 max-h-[60vh] overflow-y-auto">
-          <pre className="text-[12px] text-foreground whitespace-pre-wrap font-mono leading-relaxed">{viewingItem.content}</pre>
+        <div className="rounded-2xl p-5 max-h-[60vh] overflow-y-auto" style={{ background: "rgba(14,18,42,0.70)", border: "1px solid rgba(255,255,255,0.08)" }}>
+          <OutputFormatter content={viewingItem.content} />
         </div>
       </div>
     );
@@ -117,38 +126,57 @@ export function ToolsApp() {
   // ── History list ──
   if (view === "history") {
     return (
-      <div className="p-6 space-y-5">
+      <div className="p-6 space-y-5 animate-fade-up">
         <div className="flex items-center gap-3">
-          <button onClick={() => setView("grid")} className="text-primary text-sm font-medium">‹ Tools</button>
-          <h2 className="text-xl font-bold text-foreground flex-1">Tool History</h2>
-          <span className="text-[12px] text-muted-foreground">{history.length} items</span>
+          <button onClick={() => setView("grid")}
+            className="flex items-center gap-1.5 text-[13px] font-medium hover:opacity-70 transition-opacity"
+            style={{ color: "#818cf8" }}>
+            <span className="text-[18px] font-light">‹</span> Tools
+          </button>
+          <h2 className="text-[17px] font-bold text-foreground flex-1" style={{ letterSpacing: "-0.02em" }}>History</h2>
+          {history.length > 0 && (
+            <span className="text-[11px] text-muted-foreground px-2 py-0.5 rounded-full" style={{ background: "rgba(255,255,255,0.06)" }}>
+              {history.length} items
+            </span>
+          )}
         </div>
         {history.length === 0
-          ? <div className="text-center py-16 text-muted-foreground text-sm">
-              <p className="text-3xl mb-3">📭</p>
-              <p className="font-semibold text-foreground mb-1">Your history will appear here</p>
-              <p className="text-[12px]">Pick a tool and generate something — it'll live right here, ready to copy or revisit.</p>
-              <button onClick={() => setView("grid")} className="mt-4 text-primary text-sm font-medium">Open a Tool →</button>
+          ? (
+            <div className="text-center py-16">
+              <p className="text-4xl mb-4">📭</p>
+              <p className="font-semibold text-foreground text-[15px] mb-1.5">Your history will appear here</p>
+              <p className="text-[13px] text-muted-foreground max-w-xs mx-auto leading-relaxed mb-5">
+                Pick a tool and generate something — it'll live right here, ready to copy or revisit.
+              </p>
+              <button onClick={() => setView("grid")}
+                className="text-[13px] font-semibold text-primary px-4 py-2 rounded-xl transition-all"
+                style={{ background: "rgba(99,102,241,0.10)", border: "1px solid rgba(99,102,241,0.20)" }}>
+                Browse Tools →
+              </button>
             </div>
-          : <div className="space-y-2">
-              {history.map(item => {
+          )
+          : (
+            <div className="space-y-2">
+              {history.map((item, i) => {
                 const t = TOOLS.find(t => t.name === item.toolName);
                 return (
                   <button key={item.id} onClick={() => { setViewingItem(item); setView("historyDetail"); }}
-                    className="w-full flex items-start gap-4 p-4 bg-background rounded-2xl border border-border/50 hover:border-primary/20 hover:shadow-sm transition-all text-left">
+                    className={`w-full flex items-start gap-4 p-4 rounded-2xl text-left card-interactive animate-fade-up delay-${Math.min(i * 50, 300)}`}
+                    style={{ background: "rgba(14,18,42,0.70)", border: "1px solid rgba(255,255,255,0.07)" }}>
                     <div className="w-10 h-10 rounded-xl flex items-center justify-center text-xl flex-shrink-0" style={{ backgroundColor: (t?.color ?? "#007AFF") + "22" }}>
                       {t?.icon ?? "🛠️"}
                     </div>
                     <div className="flex-1 min-w-0">
                       <p className="font-semibold text-[13px] text-foreground">{item.toolName}</p>
                       <p className="text-[11px] text-muted-foreground mt-0.5 truncate">{item.prompt}</p>
-                      <p className="text-[10px] text-muted-foreground/60 mt-1">{item.at.toLocaleTimeString()}</p>
+                      <p className="text-[10px] text-muted-foreground/50 mt-1">{item.at.toLocaleTimeString()}</p>
                     </div>
-                    <span className="text-muted-foreground text-xs mt-1">→</span>
+                    <span className="text-muted-foreground text-xs mt-1 flex-shrink-0">→</span>
                   </button>
                 );
               })}
             </div>
+          )
         }
       </div>
     );
@@ -157,45 +185,73 @@ export function ToolsApp() {
   // ── Output ──
   if (view === "output") {
     return (
-      <div className="p-6 space-y-5">
-        <button onClick={handleNew} className="text-primary text-sm font-medium">‹ Tools</button>
-        <div className="flex items-center gap-3 flex-wrap">
-          <span className="text-3xl">{tool?.icon ?? "🛠️"}</span>
-          <div>
-            <h2 className="text-lg font-bold text-foreground">{active}</h2>
-            <p className="text-[12px] text-muted-foreground">{input.slice(0, 60)}{input.length > 60 ? "…" : ""}</p>
+      <div className="p-6 space-y-5 animate-fade-up">
+        <button onClick={handleNew}
+          className="flex items-center gap-1.5 text-[13px] font-medium hover:opacity-70 transition-opacity"
+          style={{ color: "#818cf8" }}>
+          <span className="text-[18px] font-light">‹</span> Tools
+        </button>
+
+        <div className="flex items-start gap-3">
+          <div className="w-11 h-11 rounded-2xl flex items-center justify-center text-2xl flex-shrink-0" style={{ backgroundColor: (tool?.color ?? "#007AFF") + "22" }}>
+            {tool?.icon ?? "🛠️"}
           </div>
-          <div className="ml-auto flex items-center gap-2 flex-wrap">
+          <div className="flex-1 min-w-0">
+            <h2 className="text-[16px] font-bold text-foreground" style={{ letterSpacing: "-0.02em" }}>{active}</h2>
+            <p className="text-[11px] text-muted-foreground mt-0.5 line-clamp-1">{input.slice(0, 70)}{input.length > 70 ? "…" : ""}</p>
+          </div>
+          <div className="flex items-center gap-2 flex-wrap justify-end flex-shrink-0">
             {streaming && (
-              <button onClick={handleStop} className="text-[12px] bg-red-500/10 text-red-400 border border-red-500/20 rounded-lg px-3 py-1.5 hover:bg-red-500/15 transition-colors">Stop</button>
+              <button onClick={handleStop}
+                className="text-[12px] font-semibold px-3 py-1.5 rounded-xl transition-all"
+                style={{ background: "rgba(239,68,68,0.10)", color: "#f87171", border: "1px solid rgba(239,68,68,0.20)" }}>
+                Stop
+              </button>
             )}
             {!streaming && streamText && (
               <>
-                <button onClick={handleCopy} className="text-[12px] bg-muted border border-border/50 rounded-lg px-3 py-1.5 text-foreground hover:bg-muted/80 transition-colors">
-                  {copied ? "✓ Copied!" : "Copy"}
+                <button onClick={handleCopy}
+                  className="text-[12px] font-semibold px-3 py-1.5 rounded-xl transition-all"
+                  style={{ background: copied ? "rgba(34,197,94,0.10)" : "rgba(255,255,255,0.07)", color: copied ? "#4ade80" : "rgba(255,255,255,0.70)", border: `1px solid ${copied ? "rgba(34,197,94,0.20)" : "rgba(255,255,255,0.10)"}` }}>
+                  {copied ? "✓ Copied" : "Copy"}
                 </button>
-                <button onClick={() => setView("grid")} className="text-[12px] bg-muted border border-border/50 rounded-lg px-3 py-1.5 text-foreground hover:bg-muted/80 transition-colors">Edit</button>
-                <button onClick={handleNew} className="text-[12px] bg-primary text-white rounded-lg px-3 py-1.5 hover:opacity-90 transition-opacity">+ New</button>
+                <button onClick={() => setView("grid")}
+                  className="text-[12px] font-semibold px-3 py-1.5 rounded-xl transition-all"
+                  style={{ background: "rgba(255,255,255,0.07)", color: "rgba(255,255,255,0.70)", border: "1px solid rgba(255,255,255,0.10)" }}>
+                  Edit
+                </button>
+                <button onClick={handleNew}
+                  className="text-[12px] font-semibold px-3 py-1.5 rounded-xl text-white btn-primary transition-all">
+                  + New
+                </button>
               </>
             )}
           </div>
         </div>
+
         {streaming && !streamText && (
-          <div className="flex items-center gap-3 py-8 justify-center text-muted-foreground text-sm">
-            <div className="w-4 h-4 border-2 border-primary border-t-transparent rounded-full animate-spin" />
-            <span>{active} is running…</span>
+          <div className="flex flex-col items-center gap-3 py-12 justify-center">
+            <div className="w-10 h-10 rounded-2xl flex items-center justify-center animate-float" style={{ background: "rgba(99,102,241,0.15)", border: "1px solid rgba(99,102,241,0.25)" }}>
+              <div className="w-5 h-5 border-2 border-primary border-t-transparent rounded-full animate-spin" />
+            </div>
+            <p className="text-[13px] text-muted-foreground">{active} is generating…</p>
           </div>
         )}
+
         {streamText && (
-          <div className="bg-muted/40 border border-border/40 rounded-2xl p-5 max-h-[60vh] overflow-y-auto">
-            <pre className="text-[12px] text-foreground whitespace-pre-wrap font-mono leading-relaxed">
-              {streamText}
-              {streaming && <span className="inline-block w-2 h-3 bg-primary/60 animate-pulse ml-0.5 align-middle" />}
-            </pre>
+          <div className="rounded-2xl p-5 max-h-[62vh] overflow-y-auto" style={{ background: "rgba(14,18,42,0.70)", border: "1px solid rgba(255,255,255,0.08)" }}>
+            <OutputFormatter content={streamText} />
+            {streaming && (
+              <span className="inline-block w-2 h-4 bg-primary/60 animate-pulse ml-0.5 align-middle rounded-sm" />
+            )}
           </div>
         )}
+
         {!streaming && streamText && (
-          <p className="text-[11px] text-muted-foreground text-center">All content is mock and structural only. Not for real-world use.</p>
+          <div className="flex items-center gap-2 text-[11px] text-muted-foreground/60 justify-center">
+            <span>✓</span>
+            <span>Generated · Not for real-world use · Copy or save to continue</span>
+          </div>
         )}
       </div>
     );
@@ -204,29 +260,47 @@ export function ToolsApp() {
   // ── Tool form ──
   if (active && tool) {
     return (
-      <div className="p-6 space-y-5">
-        <button onClick={() => { setActive(null); setInput(""); setView("grid"); }} className="text-primary text-sm font-medium">‹ Tools</button>
-        <div className="flex items-center gap-3">
-          <div className="w-12 h-12 rounded-2xl flex items-center justify-center text-2xl flex-shrink-0" style={{ backgroundColor: tool.color + "22" }}>
+      <div className="p-6 space-y-5 animate-fade-up">
+        <button onClick={() => { setActive(null); setInput(""); setView("grid"); }}
+          className="flex items-center gap-1.5 text-[13px] font-medium hover:opacity-70 transition-opacity"
+          style={{ color: "#818cf8" }}>
+          <span className="text-[18px] font-light">‹</span> Tools
+        </button>
+
+        <div className="flex items-center gap-4">
+          <div className="w-14 h-14 rounded-2xl flex items-center justify-center text-3xl flex-shrink-0" style={{ backgroundColor: tool.color + "22", border: `1px solid ${tool.color}30` }}>
             {tool.icon}
           </div>
           <div>
-            <h2 className="text-xl font-bold text-foreground">{tool.name}</h2>
-            <p className="text-[12px] text-muted-foreground">{tool.desc}</p>
+            <h2 className="text-[18px] font-bold text-foreground" style={{ letterSpacing: "-0.02em" }}>{tool.name}</h2>
+            <p className="text-[12px] text-muted-foreground mt-0.5">{tool.desc}</p>
           </div>
         </div>
+
         <div className="space-y-4">
           <div>
-            <label className="text-[13px] font-semibold text-foreground block mb-2">Describe what you want to create</label>
-            <textarea value={input} onChange={e => setInput(e.target.value)}
+            <label className="text-[13px] font-semibold text-foreground block mb-2">
+              What would you like to create?
+            </label>
+            <textarea
+              value={input}
+              onChange={e => setInput(e.target.value)}
               placeholder={`e.g. A ${tool.name.toLowerCase()} for a horse boarding facility in rural Minnesota…`}
-              className="w-full bg-background border border-border/50 rounded-xl p-3 text-[13px] text-foreground placeholder:text-muted-foreground resize-none outline-none focus:ring-2 focus:ring-primary/20 focus:border-primary/30 transition-all"
-              rows={4} autoFocus />
+              className="w-full rounded-xl p-4 text-[13px] text-foreground placeholder:text-muted-foreground resize-none outline-none transition-all leading-relaxed input-premium"
+              style={{ background: "rgba(14,18,42,0.70)", border: "1px solid rgba(255,255,255,0.10)" }}
+              rows={4}
+              autoFocus
+            />
           </div>
-          <p className="text-[11px] text-muted-foreground">Tone: <strong>{preferences.tone}</strong> · Language: <strong>{preferences.language}</strong></p>
-          <button onClick={handleGenerate} disabled={!input.trim()}
-            className="bg-primary text-white text-sm font-medium px-6 py-2.5 rounded-xl hover:opacity-90 transition-opacity disabled:opacity-40">
-            Generate with {tool.name}
+          <p className="text-[11px] text-muted-foreground">
+            Tone: <strong className="text-foreground/70">{preferences.tone}</strong> · Language: <strong className="text-foreground/70">{preferences.language}</strong>
+          </p>
+          <button
+            onClick={handleGenerate}
+            disabled={!input.trim()}
+            className="w-full text-white text-[14px] font-semibold py-3 rounded-xl disabled:opacity-40 transition-all btn-primary"
+          >
+            Generate with {tool.name} →
           </button>
         </div>
       </div>
@@ -235,30 +309,40 @@ export function ToolsApp() {
 
   // ── Tool grid ──
   return (
-    <div className="p-6 space-y-5">
-      <div className="flex items-center justify-between gap-3">
+    <div className="p-6 space-y-5 animate-fade-up">
+      <div className="flex items-start justify-between gap-3">
         <div>
-          <h2 className="text-xl font-bold text-foreground">Tools</h2>
-          <p className="text-[12px] text-muted-foreground">Pick a tool, describe your need, get it built instantly.</p>
+          <h2 className="text-[20px] font-bold text-foreground" style={{ letterSpacing: "-0.03em" }}>Tools</h2>
+          <p className="text-[12px] text-muted-foreground mt-0.5">Pick a tool, describe your need, get it built instantly.</p>
         </div>
         <button onClick={() => setView("history")}
-          className="flex items-center gap-1.5 text-[12px] text-muted-foreground border border-border/50 rounded-xl px-3 py-2 hover:bg-muted transition-colors flex-shrink-0">
+          className="flex items-center gap-1.5 text-[12px] text-muted-foreground rounded-xl px-3 py-2 flex-shrink-0 transition-all"
+          style={{ background: "rgba(255,255,255,0.06)", border: "1px solid rgba(255,255,255,0.09)" }}
+          onMouseEnter={e => ((e.currentTarget as HTMLElement).style.background = "rgba(255,255,255,0.10)")}
+          onMouseLeave={e => ((e.currentTarget as HTMLElement).style.background = "rgba(255,255,255,0.06)")}>
           <span>📂</span>
           <span>History{history.length > 0 ? ` (${history.length})` : ""}</span>
         </button>
       </div>
-      <div className="grid grid-cols-1 gap-2.5">
-        {TOOLS.map(t => (
-          <button key={t.name} onClick={() => { setActive(t.name); setInput(""); setView("grid"); /* show form */ }}
-            className="flex items-center gap-4 p-4 bg-background rounded-2xl border border-border/50 hover:border-primary/20 hover:shadow-sm transition-all text-left group">
-            <div className="w-12 h-12 rounded-2xl flex items-center justify-center text-2xl flex-shrink-0 group-hover:scale-110 transition-transform" style={{ backgroundColor: t.color + "22" }}>
+      <div className="grid grid-cols-1 gap-2">
+        {TOOLS.map((t, i) => (
+          <button
+            key={t.name}
+            onClick={() => { setActive(t.name); setInput(""); setView("grid"); }}
+            className={`flex items-center gap-4 p-4 rounded-2xl text-left group card-interactive animate-fade-up delay-${Math.min(i * 40, 400)}`}
+            style={{ background: "rgba(14,18,42,0.70)", border: "1px solid rgba(255,255,255,0.07)" }}
+          >
+            <div
+              className="w-12 h-12 rounded-2xl flex items-center justify-center text-2xl flex-shrink-0 group-hover:scale-110 transition-transform duration-200"
+              style={{ backgroundColor: t.color + "22", border: `1px solid ${t.color}28` }}
+            >
               {t.icon}
             </div>
             <div className="flex-1 min-w-0">
               <p className="font-semibold text-[14px] text-foreground">{t.name}</p>
-              <p className="text-[12px] text-muted-foreground mt-0.5">{t.desc}</p>
+              <p className="text-[12px] text-muted-foreground mt-0.5 leading-snug">{t.desc}</p>
             </div>
-            <span className="text-muted-foreground text-xs flex-shrink-0">→</span>
+            <span className="text-muted-foreground text-xs flex-shrink-0 opacity-40 group-hover:opacity-80 transition-opacity">→</span>
           </button>
         ))}
       </div>
