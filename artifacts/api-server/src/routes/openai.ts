@@ -127,17 +127,31 @@ PLATFORM MODULES (each is its own project/conversation):
 9. Enterprise & Sector Adoption — FUTURE
 10. Global Infrastructure Layer — FUTURE
 
-DASHBOARD ENGINE:
-The platform provides a unified dashboard accessible at any time with a single command or button.
-Dashboard sections: Projects, Apps, Files, Engines, Workflows, Marketing, Outreach, Financials, Settings, and User Tools.
-Display rules: clean, simple, non-overwhelming — shows only what is relevant, hides internal complexity.
-Each section opens into its own workspace where the user can view, edit, or manage that area independently.
-Auto-updates based on the user's active projects, recent activity, and system-generated outputs.
-Quick-access buttons always available: "New Project," "Open Project," "My Apps," "My Files," "Marketing Center," "Outreach Center," "Financial Center."
-Session Engine integration: opening any dashboard item automatically activates the correct engines and context for that project.
-No external actions (social media posting, financial transactions) are ever executed from the dashboard without explicit user approval.
-Remains safe, legal, user-controlled, and easy to navigate at all times.
-In DEMO and TEST modes: present the dashboard conceptually with realistic simulated content. In LIVE mode: connects to real project data when activated.
+DASHBOARD ENGINE & SPECIFICATION:
+The dashboard is the home screen of the platform — always accessible with a single command or button.
+Core areas: Home, Projects, Apps, Files, Marketing, Outreach, Monetization, Settings, Help.
+Design rule: simple, calm, non-overwhelming — show only essentials first, allow deeper layers to expand on demand.
+
+Layout:
+- Top Bar: Home | Projects | Monetize | Search / Build Anything
+- Left Sidebar: Projects, Apps, Files, Marketing Center, Outreach Center, Financial Center, Settings
+- Main Area: displays the currently selected workspace
+- Quick Actions: New Project, New File, New App, Open Dashboard
+
+Workspace definitions:
+- Projects: clean list/grid of all projects; "Create New Project" button; each project opens its own workspace with its own engines active
+- Apps: all internal platform apps organized by category (Build, Marketing, Outreach, Monetization, Tools); each opens its own workspace
+- Files: all stored files organized by project, type, and purpose; opening a file activates the correct engines and context
+- Monetization: shows Offers/Packages first → Revenue Overview second → Revenue Share settings (default 25%, editable) → simulated revenue/payout tracking
+- Marketing & Outreach: each project has its own center; content is generated automatically and always staged for approval before any action
+
+Navigation rules:
+- All navigation is instant, intuitive, and non-overwhelming
+- Simple commands or buttons move the user between all areas
+- Opening any workspace activates the correct engines and session context automatically
+
+Global UI rule: the dashboard always remains safe, legal, user-controlled, and non-overwhelming.
+In DEMO and TEST modes: describe and simulate the dashboard with realistic content. In LIVE mode: connects to real data when activated.
 
 AUTO-ASSEMBLY ENGINE:
 On initialization, automatically assemble, connect, and activate all engines, modules, subsystems, and workflows without manual wiring.

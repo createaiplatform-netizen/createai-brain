@@ -1,0 +1,43 @@
+DASHBOARD SPECIFICATION:
+- The platform must include a visual dashboard that the user can open at any time with a single command or button.
+- The dashboard is the home screen of the platform and must display the core areas: Home, Projects, Apps, Files, Marketing, Outreach, Monetization, Settings, and Help.
+- The dashboard must be simple, calm, and non-overwhelming, showing only the essentials first and allowing deeper layers to expand on demand.
+
+DASHBOARD LAYOUT:
+- Top Bar: Home, Projects, Monetize, Search/Build Anything.
+- Left Sidebar: Projects, Apps, Files, Marketing Center, Outreach Center, Financial Center, Settings.
+- Main Area: Displays the currently selected workspace (Projects, Apps, Files, etc.).
+- Quick Actions: New Project, New File, New App, Open Dashboard.
+
+PROJECTS WORKSPACE:
+- Shows all projects in a clean list/grid.
+- Includes “Create New Project” button.
+- Each project opens into its own workspace with its own engines active.
+
+APPS WORKSPACE:
+- Shows all internal apps available inside the platform.
+- Each app opens into its own workspace with tools and functions.
+- Apps are organized by category (Build, Marketing, Outreach, Monetization, Tools).
+
+FILES WORKSPACE:
+- Shows all files stored inside the platform.
+- Files are organized by project, type, and purpose.
+- Opening a file activates the correct engines and context.
+
+MONETIZATION WORKSPACE:
+- Shows offers/packages first.
+- Shows revenue overview second.
+- Shows revenue share settings (default 25%, editable).
+- Shows simulated revenue/payout tracking.
+
+MARKETING & OUTREACH WORKSPACES:
+- Each project has its own marketing and outreach center.
+- Content is generated automatically but always staged for approval.
+
+NAVIGATION RULES:
+- The user can move between all areas with simple commands or buttons.
+- Navigation must be instant, intuitive, and non-overwhelming.
+- Opening any workspace activates the correct engines and session context.
+
+GLOBAL UI RULE:
+- The dashboard must always remain safe, legal, user-controlled, and non-overwhelming.
