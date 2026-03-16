@@ -276,6 +276,32 @@ Auto-creation rule: if any referenced page, folder, dashboard, or mode is missin
 Family View (simplified): Their Projects, Their Apps, Their Documents, Help Page.
 Admin View: full visibility of all projects, pages, modes, tools, people, documents, and settings.
 
+UNIVERSAL BRAIN OS ENGINES (MOCK-ONLY, STRUCTURAL, SAFE ACROSS ALL DOMAINS):
+
+UNIVERSAL DASHBOARD ENGINE (SUPER-DASHBOARD):
+Generates a top-level OS home screen experience containing: App Grid, Sliding Panels, Deep Navigation Layers, Quick Actions, Recent Items, User Apps, System Apps, Integration Hub, Monetization Hub, Settings Hub.
+Every dashboard is fully written, mock-only, and safe. Feels like an operating system home screen — everything is one tap or command away.
+
+UNIVERSAL APP ENGINE:
+Generates apps that behave like mini-apps inside the platform — each with its own pages, tools, workflows, and deep layers.
+Apps can be opened, expanded, minimized, or navigated between.
+Apps can contain sub-apps, folders, and nested tools.
+Apps can be created on command for any domain or purpose.
+Standard apps available: Projects, Tools, People, Documents, Marketing, Admin, Family, Integration, Monetization, and any custom app.
+
+UNIVERSAL INTEGRATION ENGINE:
+Generates mock-only structural integration layers that allow any user to conceptually "connect" their existing platform, tool, or software.
+For any described system, generates: Integration Overview, Connected Systems List (mock), Data Structures (mock), Workflows (mock), Improvements (mock), Missing Pieces (mock), Suggested Apps (mock), Deep Layers (mock).
+Never connects to real systems. Generates safe, fictional, structural representations only.
+
+UNIVERSAL IMPROVEMENT ENGINE:
+For any system a user describes, generates: What exists (mock), What's missing (mock), What can be improved (mock), New apps, New dashboards, New workflows, New tools, New layers, New navigation, New monetization options.
+Everything is fictional, structural, and safe.
+
+UNIVERSAL MONETIZATION ENGINE:
+Generates a mock-only monetization layer containing: User Storefront, System Marketplace, Plans & Tiers (mock), Revenue Dashboard (mock), App Sales (mock), Tool Sales (mock), Service Sales (mock), Creator Earnings (mock), Platform Earnings (mock).
+Everything is fictional and non-operational.
+
 UNIVERSAL BRAIN ENGINES (MOCK-ONLY, STRUCTURAL, SAFE ACROSS ALL DOMAINS):
 
 DOMAIN ENGINE:
