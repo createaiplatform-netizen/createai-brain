@@ -1,0 +1,163 @@
+BUILD A COMPLETE, SAFE, STRUCTURAL-ONLY PLATFORM WITH TWO PARALLEL VERSIONS:
+1) CURRENT LEGAL-SAFE VERSION
+2) FUTURE-READY “MACH 1” VERSION (STILL MOCK, STILL NON-FUNCTIONAL)
+
+GOAL:
+Generate all folders, routes, pages, dashboards, modes, and mock content needed for:
+- General platform
+- Healthcare domain (mock only)
+- Monetary/financial domain (mock only)
+Each with:
+- Legal-Safe version (NOW)
+- Future-Ready “Mach 1” version (LATER)
+No real medical, clinical, diagnostic, therapeutic, financial, transactional, or investment logic.
+
+TOP-LEVEL NAVIGATION:
+Left sidebar:
+- Home
+- Projects
+- Tools
+- People
+- Documents
+- Marketing
+- Settings
+- Admin
+- Family
+Top bar:
+- Search
+- Quick Actions
+- Mode Switcher (Demo / Test / Live)
+
+DASHBOARDS:
+Create dashboards for:
+- Home
+- Projects
+- Tools
+- People
+- Documents
+- Marketing
+- Admin
+- Family
+Each dashboard shows lists of relevant items, high-level summaries, and mock widgets (text-only descriptions).
+
+PROJECT SYSTEM (BOTH VERSIONS):
+Every project auto-includes:
+- Overview
+- Apps
+- Tools
+- Documents
+- Forms
+- Brochures
+- Marketing
+- Settings
+- AI Assistant
+For each project, create three modes:
+- Demo Mode (mock content)
+- Test Mode (sandbox mock)
+- Live Mode (presentation-ready mock)
+Each mode has: Overview, Pages, Assets, Notes.
+
+HEALTHCARE DOMAIN (STRUCTURAL ONLY, TWO VERSIONS):
+
+1) LEGAL-SAFE HEALTHCARE VERSION (NOW):
+Create project: “Healthcare System – Legal Safe”
+Pages:
+- Overview (explains this is a mock, non-clinical structure)
+- Mock Workflows (generic example flows, no real protocols)
+- Mock Forms (example form types, no real clinical fields)
+- Mock Brochures (example patient education topics)
+- Mock Marketing (how a healthcare solution could be presented)
+Modes: Demo, Test, Live (all mock, non-operational).
+All content must be clearly non-clinical, non-diagnostic, non-treatment, non-operational.
+
+2) FUTURE-READY “MACH 1” HEALTHCARE VERSION (STILL MOCK):
+Create project: “Healthcare System – Mach 1 (Future Ready, Mock)”
+Pages:
+- Vision & Scope (future capabilities described conceptually)
+- Potential Workflows (high-level descriptions of what real workflows COULD be, no details)
+- Potential Data Types (generic data categories, no PHI, no real fields)
+- Potential Integrations (conceptual list of systems it COULD connect to)
+- Risk & Compliance Notes (must state need for legal, clinical, regulatory review before real use)
+Modes: Demo, Test, Live (all mock, conceptual).
+Label clearly as FUTURE-READY, REQUIRING REAL EXPERTS AND LEGAL APPROVAL.
+
+MONETARY / FINANCIAL DOMAIN (STRUCTURAL ONLY, TWO VERSIONS):
+
+1) LEGAL-SAFE MONETARY VERSION (NOW):
+Create project: “Monetary System – Legal Safe”
+Pages:
+- Overview (mock, non-transactional structure)
+- Pricing Models (mock descriptions of pricing ideas, no real math)
+- Plans & Tiers (mock plan names and benefits)
+- Virtual Wallets (mock description of wallet entities, no balances, no real money)
+- Transactions Log (mock table layout, no real data)
+- Revenue Reports (mock chart/table descriptions, no real calculations)
+- Marketplace (mock listing layout, no real commerce)
+All content non-operational, non-transactional, illustrative only.
+
+2) FUTURE-READY “MACH 1” MONETARY VERSION (STILL MOCK):
+Create project: “Monetary System – Mach 1 (Future Ready, Mock)”
+Pages:
+- Vision & Scope (future capabilities conceptually)
+- Potential Flows (high-level payment flows, no implementation)
+- Potential Entities (e.g., “accounts”, “wallets”, “subscriptions” described conceptually)
+- Potential Reports (what real financial reports COULD show, in words only)
+- Risk & Compliance Notes (must state need for legal, financial, regulatory review before real use)
+Label clearly as FUTURE-READY, REQUIRING REAL EXPERTS AND LEGAL APPROVAL.
+
+MARKETING SYSTEM:
+Global marketing folder with:
+- Landing Page
+- Features Page
+- Pricing Page (mock)
+- About Page
+- Contact Page
+- Demo Showcase Page
+Each page has mock sections and copy describing the platform and its demos.
+
+TOOLS SYSTEM:
+Create tools with mock UI descriptions:
+- Brochure Builder
+- Document Creator
+- Page Generator
+- App Layout Generator
+Each tool page explains what it WOULD do, but does not implement real logic.
+
+PEOPLE SYSTEM:
+Create:
+- People List (mock profiles)
+- Profile Template (generic fields)
+- Relationship Map (explains how relationships COULD be visualized)
+- Invite Preparation (mock-only, no real sending)
+
+FAMILY VIEW:
+Create a simplified “Family Dashboard”:
+- Their Projects
+- Their Apps
+- Their Documents
+- Help & Guidance Page
+All content mock, friendly, non-technical.
+
+ADMIN VIEW:
+Create “Admin Dashboard” with:
+- All Projects
+- All Pages
+- All Modes
+- All Tools
+- All People
+- All Documents
+- All Settings
+Admin pages describe controls conceptually (visibility, configuration, access), but do not perform real admin operations.
+
+AUTO-CREATION & FALLBACK (STRUCTURAL ONLY):
+- If any referenced page, folder, dashboard, mode, or project is missing, automatically create it with:
+  - Correct naming
+  - Correct routing
+  - Mock content explaining its purpose
+- If something cannot be built literally, create a safe, high-level, mock structural version instead and label it conceptual.
+- No empty pages, no “placeholder” labels: every page must contain descriptive mock text and structure.
+
+OUTPUT:
+Generate full folder structure, routes, pages, dashboards, and mock content for all items above.
+No real medical, clinical, diagnostic, therapeutic, financial, transactional, or investment logic.
+Everything is structural, illustrative, and ready for future expansion by real experts under real legal frameworks.

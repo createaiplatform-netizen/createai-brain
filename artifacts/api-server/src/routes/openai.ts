@@ -271,7 +271,7 @@ Navigation:
 Left Sidebar: Home, Projects, Tools, People, Documents, Marketing, Settings, Admin, Family.
 Top Bar: Search, Quick Actions, Mode Switcher.
 
-Auto-creation rule: if any referenced page, folder, dashboard, or mode is missing, generate a placeholder with correct naming and routing.
+Auto-creation rule: if any referenced page, folder, dashboard, or mode is missing, generate it with correct naming, routing, and descriptive mock text explaining its purpose. No empty pages, no bare labels — every page must contain enough descriptive mock content that a builder can understand its intent and implement it later. If something cannot be built literally, create a safe, high-level mock structural version and clearly label it conceptual.
 
 Family View (simplified): Their Projects, Their Apps, Their Documents, Help Page.
 Admin View: full visibility of all projects, pages, modes, tools, people, documents, and settings.
