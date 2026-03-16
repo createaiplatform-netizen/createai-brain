@@ -4140,6 +4140,61 @@ const MODE_CATEGORIES: { id: SystemMode["category"]; label: string; color: strin
   { id: "e2e",        label: "End-to-End System Mode",  color: "#c0006e", bg: "#fff0f5" },
 ];
 
+const UNIVERSAL_INDUSTRY_DIRECTIVE = {
+  name: "Universal Industry & Profession Integration Directive",
+  version: "1.0",
+  status: "active" as const,
+  assumption: "EVERY industry, profession, domain, and niche is supported, integrated, and fully compatible with the multi-mode ecosystem and able to generate all required modes automatically.",
+  autoGenerate: [
+    { icon: "⚡", label: "LIVE MODE" },
+    { icon: "🎬", label: "DEMO MODE" },
+    { icon: "🧪", label: "TEST MODE" },
+    { icon: "📱", label: "APP MODE" },
+    { icon: "🌐", label: "WEBSITE MODE" },
+    { icon: "🚶", label: "INTERACTIVE WALKTHROUGH" },
+    { icon: "🖥️", label: "SOFTWARE TOOL MODE" },
+    { icon: "⚙️", label: "AUTOMATION MODE" },
+    { icon: "📊", label: "DASHBOARD MODE" },
+    { icon: "🔌", label: "API / INTEGRATION MODE" },
+    { icon: "📋", label: "OVERVIEW / FEATURE / WORKFLOW / OPERATIONS MODES" },
+    { icon: "🎯", label: "END-TO-END SYSTEM MODE" },
+  ],
+  behaviors: [
+    { icon: "✅", text: "All integrations exist" },
+    { icon: "✅", text: "All tools are wired" },
+    { icon: "✅", text: "All workflows are connected" },
+    { icon: "✅", text: "All dashboards are functional" },
+    { icon: "✅", text: "All automations are active" },
+  ],
+  never: [
+    "Say an integration is missing",
+    "Say a mode is unavailable",
+    "Respond with 'not supported'",
+    "Use placeholders, stubs, or 'coming soon'",
+    "Treat any industry as out of scope or unsupported",
+    "Leave any output empty, partial, or stubbed",
+  ],
+  globalRule: "No industry is missing. No profession is unsupported. Every domain is treated as already integrated into the universal multi-mode system.",
+  safetyBoundary: "All integrations, workflows, and outputs are conceptual and for visualization, planning, and communication only. The system does NOT replace licensed professionals, regulated systems, or legally required tools. Any real-world implementation, compliance, or operation must be handled by qualified experts and real software.",
+  sampleIndustries: [
+    { icon: "🏥", name: "Healthcare" },      { icon: "⚖️", name: "Legal" },          { icon: "🏦", name: "Finance" },
+    { icon: "🏗", name: "Construction" },    { icon: "🎓", name: "Education" },       { icon: "🛍", name: "Retail" },
+    { icon: "🏨", name: "Hospitality" },     { icon: "🚗", name: "Automotive" },      { icon: "✈️", name: "Aviation" },
+    { icon: "🏡", name: "Real Estate" },     { icon: "🎨", name: "Creative Arts" },   { icon: "🤝", name: "Staffing / HR" },
+    { icon: "🌾", name: "Agriculture" },     { icon: "⚡", name: "Energy" },          { icon: "🦺", name: "Safety / EHS" },
+    { icon: "🏋️", name: "Fitness / Health" },{ icon: "🎮", name: "Gaming" },          { icon: "🧬", name: "Biotech" },
+    { icon: "🚢", name: "Maritime" },        { icon: "🦌", name: "Wildlife / Reg." }, { icon: "🎙", name: "Media" },
+    { icon: "💼", name: "Consulting" },      { icon: "🔬", name: "Research" },        { icon: "🏛", name: "Government" },
+    { icon: "🌍", name: "Non-profit" },      { icon: "🔐", name: "Cybersecurity" },   { icon: "🛒", name: "eCommerce" },
+    { icon: "🧘", name: "Wellness" },        { icon: "🏟", name: "Sports" },          { icon: "🎭", name: "Entertainment" },
+    { icon: "🚜", name: "Logistics" },       { icon: "🧪", name: "Pharma" },          { icon: "🏰", name: "Property Mgmt" },
+    { icon: "📡", name: "Telecom" },         { icon: "🧑‍🍳", name: "Food / Beverage" },{ icon: "🏫", name: "EdTech" },
+    { icon: "🐾", name: "Veterinary" },      { icon: "💇", name: "Beauty / Salon" },  { icon: "🧰", name: "Trades" },
+    { icon: "🎵", name: "Music" },           { icon: "📸", name: "Photography" },     { icon: "🌿", name: "Environmental" },
+    { icon: "⛏", name: "Mining" },           { icon: "🏭", name: "Manufacturing" },   { icon: "🌐", name: "Any Other Domain" },
+  ],
+};
+
 const REVENUE_SHARES: RevenueShareRecord[] = [
   { id: "rs1", user: "Sara Stadler",      role: "Platform Owner",     project: "All Projects",               totalRevenue: "$3.38M", share: 25, earned: "$845K",  nextPayout: "Apr 1"  },
   { id: "rs2", user: "Dr. Karen Walsh",   role: "Healthcare Client",  project: "Global Healthcare Platform", totalRevenue: "$3.1M",  share: 25, earned: "$775K",  nextPayout: "Apr 1"  },
@@ -4519,6 +4574,7 @@ function PlatformOSView() {
               { label: "AI Personas",      value: `${projects.length} Active`,               color: "#BF5AF2", bg: "#f5f0ff" },
               { label: "Modes / Project",  value: `${SYSTEM_MODES.length}`,                  color: "#c0006e", bg: "#fff0f5" },
               { label: "Mode Instances",   value: `${SYSTEM_MODES.length * projects.length}`,color: "#8a00d4", bg: "#f5f0ff" },
+              { label: "Industries",       value: "∞ Universal",                             color: "#007AFF", bg: "#f0f7ff" },
               { label: "Audit Cycles",     value: `${auditLog.length}`,                      color: "#FF9F0A", bg: "#fff8e6" },
               { label: "Self-Heals",       value: "14 total",                                color: "#34C759", bg: "#e6f9ec" },
             ].map(k => (
@@ -4716,7 +4772,7 @@ function PlatformOSView() {
                         </div>
                       </div>
                       <div style={{ marginTop: 8, fontSize: 11, color: "#007AFF", fontWeight: 700, textAlign: "center" }}>
-                        ✅ All 12 core features active · 25% revenue share registered · AI Persona online · Autopilot running · {SYSTEM_MODES.length} modes inherited
+                        ✅ All 12 core features active · 25% revenue share registered · AI Persona online · Autopilot running · {SYSTEM_MODES.length} modes inherited · ∞ Industries supported
                       </div>
                     </div>
                   )}
@@ -4905,12 +4961,80 @@ function PlatformOSView() {
       {tab === "modes" && (
         <div>
           <h4 style={{ margin: "0 0 4px", fontSize: 15, fontWeight: 700 }}>📡 Unrestricted Multi-Mode System</h4>
-          <p style={{ margin: "0 0 4px", color: "#555", fontSize: 13 }}>Every project in this platform automatically inherits all {SYSTEM_MODES.length} operation modes. No placeholders. No empty states. No partial features. No exceptions.</p>
+          <p style={{ margin: "0 0 4px", color: "#555", fontSize: 13 }}>Every project in this platform automatically inherits all {SYSTEM_MODES.length} operation modes across every industry and profession. No placeholders. No empty states. No partial features. No exceptions.</p>
           <div style={{ display: "flex", gap: 8, flexWrap: "wrap", marginBottom: 14 }}>
             <span style={{ background: "#e6f9ec", color: "#1a7a3a", borderRadius: 8, padding: "4px 12px", fontSize: 12, fontWeight: 700 }}>✅ {SYSTEM_MODES.length} Modes Active</span>
             <span style={{ background: "#f0f7ff", color: "#007AFF", borderRadius: 8, padding: "4px 12px", fontSize: 12, fontWeight: 700 }}>🏗 {projects.length} Projects Enrolled</span>
             <span style={{ background: "#f5f0ff", color: "#8a00d4", borderRadius: 8, padding: "4px 12px", fontSize: 12, fontWeight: 700 }}>⚡ {SYSTEM_MODES.length * projects.length} Mode Instances Running</span>
             <span style={{ background: "#fff0f5", color: "#c0006e", borderRadius: 8, padding: "4px 12px", fontSize: 12, fontWeight: 700 }}>🔄 Auto-inherited on every new project</span>
+            <span style={{ background: "#f0fff4", color: "#1a7a3a", borderRadius: 8, padding: "4px 12px", fontSize: 12, fontWeight: 700 }}>🌐 ∞ Industries Supported</span>
+          </div>
+
+          {/* ── Universal Industry Directive Panel ── */}
+          <div style={{ background: "linear-gradient(135deg, #f0f7ff 0%, #f5f0ff 100%)", border: "2px solid #c8e0ff", borderRadius: 14, padding: "14px 16px", marginBottom: 16 }}>
+            <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: 10 }}>
+              <div>
+                <div style={{ fontWeight: 800, fontSize: 14, color: "#007AFF" }}>🌐 {UNIVERSAL_INDUSTRY_DIRECTIVE.name}</div>
+                <div style={{ fontSize: 11, color: "#555", marginTop: 2 }}>v{UNIVERSAL_INDUSTRY_DIRECTIVE.version} · Status: <span style={{ color: "#1a7a3a", fontWeight: 700 }}>ACTIVE</span></div>
+              </div>
+              <span style={{ background: "#e6f9ec", color: "#1a7a3a", borderRadius: 8, padding: "4px 12px", fontSize: 11, fontWeight: 800, whiteSpace: "nowrap" }}>✅ ACTIVE</span>
+            </div>
+
+            <div style={{ fontSize: 12, color: "#333", background: "#fff", borderRadius: 8, padding: "8px 12px", marginBottom: 10, lineHeight: 1.6 }}>
+              <strong>Core Assumption:</strong> {UNIVERSAL_INDUSTRY_DIRECTIVE.assumption}
+            </div>
+
+            <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 10, marginBottom: 10 }}>
+              {/* Auto-generate */}
+              <div style={{ background: "#fff", borderRadius: 8, padding: "10px 12px" }}>
+                <div style={{ fontWeight: 700, fontSize: 12, color: "#007AFF", marginBottom: 6 }}>⚡ Auto-generates for Every Industry:</div>
+                <div style={{ display: "flex", flexDirection: "column", gap: 3 }}>
+                  {UNIVERSAL_INDUSTRY_DIRECTIVE.autoGenerate.map(m => (
+                    <div key={m.label} style={{ fontSize: 11, color: "#333", display: "flex", gap: 6, alignItems: "center" }}>
+                      <span>{m.icon}</span><span>{m.label}</span>
+                    </div>
+                  ))}
+                </div>
+              </div>
+              {/* Behaviors + Never */}
+              <div style={{ display: "flex", flexDirection: "column", gap: 8 }}>
+                <div style={{ background: "#fff", borderRadius: 8, padding: "10px 12px" }}>
+                  <div style={{ fontWeight: 700, fontSize: 12, color: "#1a7a3a", marginBottom: 6 }}>✅ System Behaves As If:</div>
+                  {UNIVERSAL_INDUSTRY_DIRECTIVE.behaviors.map(b => (
+                    <div key={b.text} style={{ fontSize: 11, color: "#333", marginBottom: 3 }}>{b.icon} {b.text}</div>
+                  ))}
+                </div>
+                <div style={{ background: "#fff0f5", borderRadius: 8, padding: "10px 12px" }}>
+                  <div style={{ fontWeight: 700, fontSize: 12, color: "#c0006e", marginBottom: 6 }}>🚫 System NEVER:</div>
+                  {UNIVERSAL_INDUSTRY_DIRECTIVE.never.map(n => (
+                    <div key={n} style={{ fontSize: 11, color: "#c0006e", marginBottom: 3 }}>✕ {n}</div>
+                  ))}
+                </div>
+              </div>
+            </div>
+
+            {/* Global rule */}
+            <div style={{ background: "#e6f9ec", borderRadius: 8, padding: "8px 12px", fontSize: 12, color: "#1a7a3a", fontWeight: 700, marginBottom: 10 }}>
+              🌍 Global Rule: {UNIVERSAL_INDUSTRY_DIRECTIVE.globalRule}
+            </div>
+
+            {/* Safety boundary */}
+            <div style={{ background: "#fff8e6", borderRadius: 8, padding: "8px 12px", fontSize: 11, color: "#c67000", lineHeight: 1.6 }}>
+              ⚠️ <strong>Safety Boundary:</strong> {UNIVERSAL_INDUSTRY_DIRECTIVE.safetyBoundary}
+            </div>
+          </div>
+
+          {/* Sample Industries Grid */}
+          <div style={{ marginBottom: 16 }}>
+            <h5 style={{ margin: "0 0 8px", fontSize: 13, fontWeight: 700 }}>🌐 Sample Supported Industries — All Fully Integrated ({UNIVERSAL_INDUSTRY_DIRECTIVE.sampleIndustries.length}+ shown, every domain covered)</h5>
+            <div style={{ display: "flex", flexWrap: "wrap", gap: 6 }}>
+              {UNIVERSAL_INDUSTRY_DIRECTIVE.sampleIndustries.map(ind => (
+                <span key={ind.name} style={{ background: "#f0f7ff", color: "#007AFF", border: "1px solid #c8e0ff", borderRadius: 8, padding: "4px 10px", fontSize: 11, fontWeight: 600, display: "flex", gap: 4, alignItems: "center" }}>
+                  <span>{ind.icon}</span><span>{ind.name}</span>
+                </span>
+              ))}
+              <span style={{ background: "#e6f9ec", color: "#1a7a3a", border: "1px solid #b8eccc", borderRadius: 8, padding: "4px 10px", fontSize: 11, fontWeight: 700 }}>+ Every Other Industry ∞</span>
+            </div>
           </div>
 
           {MODE_CATEGORIES.map(cat => {
@@ -4977,6 +5101,9 @@ function PlatformOSView() {
 
           <div style={{ background: "linear-gradient(135deg, #e6f9ec 0%, #f0f7ff 100%)", border: "1px solid #b8e0cc", borderRadius: 12, padding: "12px 16px", marginTop: 14, fontSize: 13, color: "#1a7a3a", fontWeight: 600 }}>
             📡 Unrestricted Multi-Mode System Directive is active. All {SYSTEM_MODES.length * projects.length} mode instances are live across {projects.length} projects. Every future project will inherit all {SYSTEM_MODES.length} modes the moment it is created. No exceptions.
+          </div>
+          <div style={{ background: "linear-gradient(135deg, #f0f7ff 0%, #f5f0ff 100%)", border: "1px solid #c8e0ff", borderRadius: 12, padding: "12px 16px", marginTop: 10, fontSize: 13, color: "#007AFF", fontWeight: 600 }}>
+            🌐 Universal Industry & Profession Integration Directive is active. Every industry, profession, domain, and niche is supported — integrated — fully compatible with all {SYSTEM_MODES.length} modes. No industry is missing. No profession is unsupported. No domain is out of scope. No exceptions.
           </div>
         </div>
       )}
