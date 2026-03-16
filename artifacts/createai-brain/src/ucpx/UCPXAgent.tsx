@@ -2076,6 +2076,55 @@ const COMPLIANCE_BADGES = [
   { id: "ccpa",     label: "CCPA",      color: "#0891B2", bg: "#ECFEFF" },
 ];
 
+// ─── Multi-Industry Project data ──────────────────────────────────────────
+
+const INDUSTRY_LIST = [
+  { id: "healthcare",    icon: "🏥", label: "Healthcare",         compliance: ["HIPAA","HITECH","CMS"] },
+  { id: "finance",       icon: "🏦", label: "Finance & Banking",  compliance: ["SOX","PCI-DSS","FINRA"] },
+  { id: "education",     icon: "🎓", label: "Education",          compliance: ["FERPA","COPPA"] },
+  { id: "saas",          icon: "💻", label: "SaaS / Tech",        compliance: ["SOC2","GDPR"] },
+  { id: "ecommerce",     icon: "🛒", label: "E-Commerce",         compliance: ["PCI-DSS","GDPR"] },
+  { id: "manufacturing", icon: "🏭", label: "Manufacturing",      compliance: ["ISO9001","OSHA"] },
+  { id: "legal",         icon: "⚖️", label: "Legal Services",     compliance: ["ABA","GDPR"] },
+  { id: "marketing",     icon: "📣", label: "Marketing Agency",   compliance: ["FTC","GDPR","CAN-SPAM"] },
+  { id: "realestate",    icon: "🏠", label: "Real Estate",        compliance: ["RESPA","FCRA"] },
+  { id: "consulting",    icon: "🤝", label: "Consulting",         compliance: ["GDPR","SOC2"] },
+  { id: "retail",        icon: "🏪", label: "Retail",             compliance: ["PCI-DSS","ADA"] },
+  { id: "nonprofit",     icon: "💚", label: "Non-Profit",         compliance: ["IRS-501c3","GDPR"] },
+  { id: "government",    icon: "🏛️", label: "Government",         compliance: ["FedRAMP","FISMA","ADA"] },
+  { id: "creative",      icon: "🎨", label: "Creative Studio",    compliance: ["GDPR","DMCA"] },
+];
+
+interface IndustryDept {
+  id: string;
+  icon: string;
+  name: string;
+  staff: number;
+  efficiency: number;
+  roi: number;
+  workflows: string[];
+  training: string[];
+}
+
+const INDUSTRY_DEPTS: IndustryDept[] = [
+  { id: "ops",        icon: "⚙️", name: "Operations",         staff: 12, efficiency: 84, roi: 340,  workflows: ["Intake → triage → assign → resolve", "SLA tracking", "Vendor management"], training: ["Operations SOP v3", "Incident Response", "Vendor Protocol"] },
+  { id: "marketing",  icon: "📣", name: "Marketing",          staff: 8,  efficiency: 79, roi: 620,  workflows: ["Campaign brief → asset gen → schedule → publish", "A/B test loop", "Social calendar"], training: ["Brand Guidelines", "Campaign Launch Checklist", "Ad Policy Compliance"] },
+  { id: "finance",    icon: "💰", name: "Finance",            staff: 6,  efficiency: 88, roi: 910,  workflows: ["Invoice → approval → reconcile → report", "Monthly close", "Budget vs. actual"], training: ["Financial Controls", "Expense Policy", "Audit Readiness"] },
+  { id: "legal",      icon: "⚖️", name: "Legal & Compliance", staff: 4,  efficiency: 71, roi: 1240, workflows: ["Contract review → redline → sign → archive", "Policy update cycle", "Risk scan"], training: ["Contract Handling Protocol", "Regulatory Update Q1", "Data Privacy SOP"] },
+  { id: "training",   icon: "🎓", name: "Training & HR",      staff: 5,  efficiency: 82, roi: 290,  workflows: ["Onboarding → assess → certify → track", "Retake management", "L&D calendar"], training: ["New Employee Orientation", "Role-Specific Modules", "Annual Compliance Test"] },
+  { id: "product",    icon: "🛠️", name: "Product",            staff: 10, efficiency: 76, roi: 480,  workflows: ["Discovery → spec → build → ship", "User feedback loop", "Release notes gen"], training: ["Product Roadmap Overview", "Feature Prioritization Framework", "Sprint Protocol"] },
+  { id: "support",    icon: "💬", name: "Customer Success",   staff: 14, efficiency: 77, roi: 360,  workflows: ["Ticket intake → triage → resolve → CSAT", "Escalation path", "Knowledge base update"], training: ["Support Tone & Handling", "Escalation Protocol", "Product Q&A Update"] },
+  { id: "creative",   icon: "🎨", name: "Creative",           staff: 7,  efficiency: 80, roi: 510,  workflows: ["Brief → concept → create → review → publish", "Asset library management", "Brand compliance"], training: ["Brand Identity Guide", "Creative Brief Protocol", "File Naming & Delivery"] },
+];
+
+const COMM_CHANNELS = [
+  { id: "email",  icon: "📧", label: "Email Blast",       desc: "AI-written campaign to all staff & clients" },
+  { id: "sms",    icon: "📱", label: "SMS Alert",         desc: "Short-form notification to mobile contacts" },
+  { id: "notif",  icon: "🔔", label: "Platform Alert",    desc: "In-platform push to all active users" },
+  { id: "slack",  icon: "💬", label: "Slack / Teams",     desc: "Auto-post summary to all connected channels" },
+  { id: "report", icon: "📄", label: "PDF Report",        desc: "Full investor/executive PDF auto-generated" },
+];
+
 // ─── Engines View ─────────────────────────────────────────────────────────
 
 function EnginesView({ onResult }: { onResult?: (m: InfiniteModule) => void }) {
@@ -2108,6 +2157,14 @@ function EnginesView({ onResult }: { onResult?: (m: InfiniteModule) => void }) {
   const [simResults,   setSimResults]   = useState<SimScenario[] | null>(null);
   const [simCount,     setSimCount]     = useState(0);
 
+  const [indIndustry,  setIndIndustry]  = useState("healthcare");
+  const [indMode,      setIndMode]      = useState<"live" | "test" | "demo">("live");
+  const [indDept,      setIndDept]      = useState<string | null>(null);
+  const [indTrainBusy, setIndTrainBusy] = useState<string | null>(null);
+  const [indTrainDone, setIndTrainDone] = useState<string[]>([]);
+  const [indCommBusy,  setIndCommBusy]  = useState<string | null>(null);
+  const [indCommDone,  setIndCommDone]  = useState<string[]>([]);
+
   const [hubCat,       setHubCat]       = useState("Productivity");
   const [hubConnected, setHubConnected] = useState<Set<string>>(new Set());
   const [hubConnecting,setHubConnecting]= useState<string | null>(null);
@@ -2126,8 +2183,9 @@ function EnginesView({ onResult }: { onResult?: (m: InfiniteModule) => void }) {
     { id: "growth" as const,      label: "💹 Growth"},
     { id: "tools" as const,       label: "🛠️ Tools" },
     { id: "sim" as const,         label: "🔮 Sim"   },
-    { id: "hub" as const,         label: "🔌 Hub"   },
-    { id: "integration" as const, label: "Status"  },
+    { id: "hub" as const,         label: "🔌 Hub"      },
+    { id: "industry" as const,    label: "🏭 Industry" },
+    { id: "integration" as const, label: "Status"     },
   ];
 
   function runMkt(ch: MktChannel) {
@@ -2797,6 +2855,204 @@ function EnginesView({ onResult }: { onResult?: (m: InfiniteModule) => void }) {
             </div>
 
             <p className="text-[9px] text-muted-foreground text-center">{INTEGRATIONS.length} integrations across {INTEGRATION_CATEGORIES.length} categories · Self-healing active · Legal Guard enabled · Additive-only · Zero conflicts</p>
+          </div>
+        );
+      })()}
+
+      {/* ─── Industry section ─── */}
+      {section === "industry" && (() => {
+        const ind = INDUSTRY_LIST.find(i => i.id === indIndustry) ?? INDUSTRY_LIST[0];
+        const modeBg: Record<string, string> = { live: "#34C759", test: "#FF9F0A", demo: "#007AFF" };
+
+        function launchTraining(deptId: string) {
+          if (indTrainBusy || indTrainDone.includes(deptId)) return;
+          setIndTrainBusy(deptId);
+          setTimeout(() => {
+            setIndTrainDone(p => [...p, deptId]);
+            setIndTrainBusy(null);
+          }, 1100);
+        }
+
+        function sendComm(chId: string) {
+          if (indCommBusy || indCommDone.includes(chId)) return;
+          setIndCommBusy(chId);
+          setTimeout(() => {
+            setIndCommDone(p => [...p, chId]);
+            setIndCommBusy(null);
+          }, 950);
+        }
+
+        return (
+          <div className="space-y-3">
+            {/* Header */}
+            <div className="relative overflow-hidden rounded-2xl p-4"
+              style={{ background: "linear-gradient(135deg, #0a001a, #001628, #001f0d)" }}>
+              <div className="absolute inset-0 opacity-40"
+                style={{ backgroundImage: "radial-gradient(circle at 30% 30%, #8b5cf6 0%, transparent 50%), radial-gradient(circle at 80% 70%, #10b981 0%, transparent 50%)" }} />
+              <div className="relative z-10">
+                <p className="text-[12px] font-black text-white uppercase tracking-wider">🏭 Multi-Industry Project Hub</p>
+                <p className="text-[10px] text-purple-200 mt-0.5">Every industry fully configured with live workflows, department dashboards, staff training, marketing, ROI tracking, and legal compliance. Demo-ready in one click.</p>
+                <div className="flex items-center gap-2 mt-2 flex-wrap">
+                  {(["live", "test", "demo"] as const).map(m => (
+                    <button key={m} onClick={() => setIndMode(m)}
+                      className="text-[9px] font-black px-3 py-1 rounded-full transition-all"
+                      style={{ background: indMode === m ? modeBg[m] : "#ffffff22", color: indMode === m ? "#fff" : "#ffffff99", border: `1px solid ${indMode === m ? modeBg[m] : "#ffffff33"}` }}>
+                      {m === "live" ? "● LIVE" : m === "test" ? "🧪 TEST" : "🎬 DEMO"}
+                    </button>
+                  ))}
+                </div>
+              </div>
+            </div>
+
+            {/* Industry selector */}
+            <div>
+              <p className="text-[10px] font-bold text-muted-foreground uppercase tracking-wide mb-1.5">Select Industry</p>
+              <div className="grid grid-cols-4 gap-1">
+                {INDUSTRY_LIST.map(i => (
+                  <button key={i.id} onClick={() => { setIndIndustry(i.id); setIndDept(null); }}
+                    className={`flex flex-col items-center gap-0.5 py-2 rounded-xl border text-center transition-all ${indIndustry === i.id ? "bg-purple-600 border-purple-500 text-white" : "bg-white border-border/40 text-muted-foreground hover:border-purple-300"}`}>
+                    <span className="text-base">{i.icon}</span>
+                    <span className="text-[7px] font-bold leading-tight">{i.label}</span>
+                  </button>
+                ))}
+              </div>
+            </div>
+
+            {/* Selected industry overview */}
+            <div className="bg-white border border-border/40 rounded-2xl p-3">
+              <div className="flex items-center justify-between mb-2">
+                <div className="flex items-center gap-2">
+                  <span className="text-xl">{ind.icon}</span>
+                  <div>
+                    <p className="text-[11px] font-black text-foreground">{ind.label}</p>
+                    <div className="flex gap-1 flex-wrap mt-0.5">
+                      {ind.compliance.map(c => (
+                        <span key={c} className="text-[7px] bg-blue-100 text-blue-700 font-bold px-1.5 py-0.5 rounded-full">{c}</span>
+                      ))}
+                    </div>
+                  </div>
+                </div>
+                <div className="text-right">
+                  <p className="text-[10px] font-black" style={{ color: modeBg[indMode] }}>
+                    {indMode === "live" ? "● LIVE" : indMode === "test" ? "🧪 TEST" : "🎬 DEMO"}
+                  </p>
+                  <p className="text-[8px] text-muted-foreground">Mode active</p>
+                </div>
+              </div>
+              <div className="grid grid-cols-3 gap-2 text-center">
+                <div className="bg-purple-50 rounded-xl p-2">
+                  <p className="text-[14px] font-black text-purple-700">{INDUSTRY_DEPTS.length}</p>
+                  <p className="text-[8px] text-purple-500 font-bold">Departments</p>
+                </div>
+                <div className="bg-emerald-50 rounded-xl p-2">
+                  <p className="text-[14px] font-black text-emerald-700">{INDUSTRY_DEPTS.reduce((s, d) => s + d.staff, 0)}</p>
+                  <p className="text-[8px] text-emerald-500 font-bold">Total Staff</p>
+                </div>
+                <div className="bg-blue-50 rounded-xl p-2">
+                  <p className="text-[14px] font-black text-blue-700">${(INDUSTRY_DEPTS.reduce((s, d) => s + d.roi, 0) / 1000).toFixed(0)}K</p>
+                  <p className="text-[8px] text-blue-500 font-bold">ROI / mo</p>
+                </div>
+              </div>
+            </div>
+
+            {/* Department dashboard */}
+            <div>
+              <p className="text-[10px] font-bold text-muted-foreground uppercase tracking-wide mb-1.5">📊 Interactive Department Dashboards</p>
+              <div className="space-y-1.5">
+                {INDUSTRY_DEPTS.map(dept => {
+                  const expanded = indDept === dept.id;
+                  const trainDone = indTrainDone.includes(dept.id);
+                  const trainBusy = indTrainBusy === dept.id;
+                  return (
+                    <div key={dept.id}
+                      className={`bg-white border rounded-2xl overflow-hidden transition-all cursor-pointer ${expanded ? "border-purple-300 shadow-sm" : "border-border/40"}`}
+                      onClick={() => setIndDept(expanded ? null : dept.id)}>
+                      <div className="flex items-center gap-2.5 p-2.5">
+                        <span className="text-lg flex-shrink-0">{dept.icon}</span>
+                        <div className="flex-1 min-w-0">
+                          <p className="text-[11px] font-black text-foreground">{dept.name}</p>
+                          <div className="flex items-center gap-2 mt-0.5">
+                            <div className="flex-1 bg-muted rounded-full h-1">
+                              <div className="h-1 rounded-full bg-purple-500" style={{ width: `${dept.efficiency}%` }} />
+                            </div>
+                            <span className="text-[8px] font-bold text-purple-600">{dept.efficiency}% eff.</span>
+                          </div>
+                        </div>
+                        <div className="text-right flex-shrink-0">
+                          <p className="text-[10px] font-black text-emerald-600">${dept.roi}K</p>
+                          <p className="text-[7px] text-muted-foreground">{dept.staff} staff</p>
+                        </div>
+                        <span className="text-[9px] text-muted-foreground ml-1">{expanded ? "▲" : "▼"}</span>
+                      </div>
+                      {expanded && (
+                        <div className="px-3 pb-3 space-y-2.5 border-t border-border/30 pt-2.5"
+                          onClick={e => e.stopPropagation()}>
+                          {/* Workflows */}
+                          <div>
+                            <p className="text-[9px] font-bold text-muted-foreground uppercase tracking-wide mb-1">Active Workflows</p>
+                            {dept.workflows.map((wf, i) => (
+                              <p key={i} className="text-[9px] text-muted-foreground flex items-start gap-1.5 mb-0.5">
+                                <span className="text-purple-500 flex-shrink-0">▸</span>{wf}
+                              </p>
+                            ))}
+                          </div>
+                          {/* Training */}
+                          <div>
+                            <div className="flex items-center justify-between mb-1">
+                              <p className="text-[9px] font-bold text-muted-foreground uppercase tracking-wide">Staff Training Modules</p>
+                              <button onClick={() => launchTraining(dept.id)} disabled={trainDone || !!indTrainBusy}
+                                className={`text-[8px] font-black px-2 py-0.5 rounded-full transition-all ${trainDone ? "bg-emerald-100 text-emerald-700" : trainBusy ? "bg-gray-100 text-gray-400" : "bg-purple-600 text-white hover:bg-purple-500"}`}>
+                                {trainDone ? "✓ Launched" : trainBusy ? "⏳…" : "▶ Launch All"}
+                              </button>
+                            </div>
+                            {dept.training.map((t, i) => (
+                              <div key={i} className="flex items-center gap-2 py-0.5">
+                                <span className={`w-1.5 h-1.5 rounded-full flex-shrink-0 ${trainDone ? "bg-emerald-500" : "bg-gray-300"}`} />
+                                <span className="text-[9px] text-muted-foreground">{t}</span>
+                                {trainDone && <span className="text-[8px] text-emerald-600 font-bold ml-auto">Notified ✓</span>}
+                              </div>
+                            ))}
+                          </div>
+                        </div>
+                      )}
+                    </div>
+                  );
+                })}
+              </div>
+            </div>
+
+            {/* Multi-channel comms */}
+            <div className="bg-white border border-border/40 rounded-2xl p-3">
+              <p className="text-[10px] font-black text-foreground mb-2 uppercase tracking-wide">📡 Multi-Channel Communications</p>
+              <p className="text-[9px] text-muted-foreground mb-2">Auto-generate and deploy outreach across every channel — one click per channel or use "Send All".</p>
+              <div className="space-y-1.5">
+                {COMM_CHANNELS.map(ch => {
+                  const done = indCommDone.includes(ch.id);
+                  const busy = indCommBusy === ch.id;
+                  return (
+                    <div key={ch.id} className={`flex items-center gap-2.5 p-2 rounded-xl border transition-all ${done ? "border-emerald-300 bg-emerald-50/30" : "border-border/30"}`}>
+                      <span className="text-base flex-shrink-0">{ch.icon}</span>
+                      <div className="flex-1 min-w-0">
+                        <p className="text-[10px] font-black text-foreground">{ch.label}</p>
+                        <p className="text-[9px] text-muted-foreground">{ch.desc}</p>
+                      </div>
+                      <button onClick={() => sendComm(ch.id)} disabled={done || !!indCommBusy}
+                        className={`flex-shrink-0 text-[9px] font-black px-2.5 py-1 rounded-full transition-all ${done ? "bg-emerald-100 text-emerald-700" : busy ? "bg-gray-100 text-gray-400" : "bg-primary text-white hover:bg-primary/90"}`}>
+                        {done ? "✓ Sent" : busy ? "…" : "Send"}
+                      </button>
+                    </div>
+                  );
+                })}
+              </div>
+              <button
+                onClick={() => COMM_CHANNELS.forEach((ch, i) => setTimeout(() => sendComm(ch.id), i * 200))}
+                disabled={!!indCommBusy || indCommDone.length === COMM_CHANNELS.length}
+                className="w-full mt-2 py-2 rounded-xl font-black text-[11px] bg-primary text-white hover:bg-primary/90 disabled:opacity-50 transition-all">
+                ⚡ Send All Channels
+              </button>
+            </div>
+
+            <p className="text-[9px] text-muted-foreground text-center">{INDUSTRY_LIST.length} industries · {INDUSTRY_DEPTS.length} dept dashboards · 5 comm channels · Live / Test / Demo modes · Compliance guards active</p>
           </div>
         );
       })()}
@@ -4379,7 +4635,7 @@ export function UCPXAgent() {
           {/* Footer */}
           <div className="flex-none px-4 py-2.5 border-t border-border/20 bg-muted/20">
             <p className="text-[9px] text-muted-foreground text-center">
-              UCP-X v4 · 6 Agents · 25 Modules · 10 Powers · 9 Hidden · 8 Hyper · Mktg · Revenue · ROI · Mini-Brain · ARIA · Teams · Growth · 🛠️ Tools · 🔮 Sim · 📡 Predict · 🔌 Hub (29 integrations) · Self-Healing · Legal Guard · Core Intact
+              UCP-X v5 · 6 Agents · 25 Modules · 10 Powers · 9 Hidden · 8 Hyper · Mktg · Revenue · ROI · Mini-Brain · ARIA · Teams · Growth · Tools · Sim · Predict · 🔌 Hub · 🏭 14 Industries · 8 Dept Dashboards · Self-Healing · Legal Guard · Core Intact
             </p>
           </div>
         </div>

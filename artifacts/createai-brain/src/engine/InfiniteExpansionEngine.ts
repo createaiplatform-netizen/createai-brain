@@ -183,6 +183,12 @@ export const MANIFEST = {
   suggestedIntegrationsActive: true,
   connectAllOption: true,
   statusLogging: true,
+  multiIndustryProjects: true,
+  liveTestDemoModes: true,
+  departmentDashboards: true,
+  staffTrainingAutoNotify: true,
+  multiChannelComms: true,
+  workflowAutomationPerIndustry: true,
 };
 
 // ─── Hyper-Innovative AI Layer ─────────────────────────────────────────────
