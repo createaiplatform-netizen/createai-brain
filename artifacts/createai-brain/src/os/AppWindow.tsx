@@ -14,19 +14,49 @@ import { MonetizationApp } from "@/Apps/MonetizationApp";
 import { UniversalApp } from "@/Apps/UniversalApp";
 import type { AppId } from "./OSContext";
 
+const APP_LABELS: Record<AppId, string> = {
+  chat:         "Chat",
+  projects:     "Projects",
+  tools:        "Tools",
+  creator:      "Creator",
+  people:       "People",
+  documents:    "Documents",
+  marketing:    "Marketing",
+  admin:        "Admin",
+  family:       "Family",
+  integration:  "Integration",
+  monetization: "Monetization",
+  universal:    "Universal",
+};
+
+const APP_ICONS: Record<AppId, string> = {
+  chat:         "💬",
+  projects:     "📁",
+  tools:        "🔧",
+  creator:      "✨",
+  people:       "👥",
+  documents:    "📄",
+  marketing:    "📣",
+  admin:        "⚙️",
+  family:       "🏡",
+  integration:  "🔗",
+  monetization: "💰",
+  universal:    "🌐",
+};
+
 const APP_COMPONENTS: Record<AppId, React.ComponentType<any>> = {
-  chat: ChatApp,
-  projects: ProjectsApp,
-  tools: ToolsApp,
-  creator: CreatorApp,
-  people: PeopleApp,
-  documents: DocumentsApp,
-  marketing: MarketingApp,
-  admin: AdminApp,
-  family: FamilyApp,
-  integration: IntegrationApp,
+  chat:         ChatApp,
+  projects:     ProjectsApp,
+  tools:        ToolsApp,
+  creator:      CreatorApp,
+  people:       PeopleApp,
+  documents:    DocumentsApp,
+  marketing:    MarketingApp,
+  admin:        AdminApp,
+  family:       FamilyApp,
+  integration:  IntegrationApp,
   monetization: MonetizationApp,
-  universal: UniversalApp,
+  universal:    UniversalApp,
 };
 
 interface AppWindowProps {
@@ -40,39 +70,55 @@ export function AppWindow({ onHamburger }: AppWindowProps) {
   if (!activeApp) return null;
 
   const AppComponent = APP_COMPONENTS[activeApp];
+  const label        = APP_LABELS[activeApp];
+  const icon         = APP_ICONS[activeApp];
 
   return (
-    <div className="flex-1 flex flex-col overflow-hidden animate-in slide-in-from-right-4 duration-200 min-w-0">
+    <div className="flex-1 flex flex-col overflow-hidden min-w-0 animate-in slide-in-from-right-4 duration-200">
 
-      {/* Header */}
-      <header className="h-14 bg-background/80 backdrop-blur-xl border-b border-border/50 flex items-center px-3 gap-2 flex-shrink-0 z-10">
-
-        {/* Hamburger */}
+      {/* ── Top bar ── */}
+      <header
+        className="flex items-center h-14 px-4 gap-3 flex-shrink-0 z-10 glass-topbar"
+      >
+        {/* Hamburger — mobile only */}
         {onHamburger && (
           <button
             onClick={onHamburger}
             aria-label="Open navigation"
-            className="w-8 h-8 flex flex-col items-center justify-center gap-[5px] rounded-lg hover:bg-muted transition-colors flex-shrink-0"
+            className="w-8 h-8 flex flex-col items-center justify-center gap-[5px] rounded-xl transition-all duration-150 flex-shrink-0"
+            style={{ color: "rgba(255,255,255,0.55)" }}
+            onMouseEnter={e => ((e.currentTarget as HTMLElement).style.background = "rgba(255,255,255,0.07)")}
+            onMouseLeave={e => ((e.currentTarget as HTMLElement).style.background = "transparent")}
           >
-            <span className="w-5 h-0.5 bg-foreground/70 rounded-full" />
-            <span className="w-5 h-0.5 bg-foreground/70 rounded-full" />
-            <span className="w-5 h-0.5 bg-foreground/70 rounded-full" />
+            <span className="w-4.5 h-[1.5px] rounded-full block" style={{ background: "rgba(255,255,255,0.55)" }} />
+            <span className="w-4.5 h-[1.5px] rounded-full block" style={{ background: "rgba(255,255,255,0.55)" }} />
+            <span className="w-4.5 h-[1.5px] rounded-full block" style={{ background: "rgba(255,255,255,0.55)" }} />
           </button>
         )}
 
         {/* Back / Home */}
         <button
           onClick={history.length > 0 ? goBack : closeApp}
-          className="flex items-center gap-1 text-primary text-sm font-medium hover:opacity-70 transition-opacity flex-shrink-0"
+          className="flex items-center gap-1 text-sm font-medium transition-opacity duration-150 flex-shrink-0 hover:opacity-70"
+          style={{ color: "#818cf8" }}
         >
-          <span className="text-base leading-none">‹</span>
-          <span className="hidden sm:inline">{history.length > 0 ? "Back" : "Home"}</span>
+          <span className="text-[18px] leading-none font-light">‹</span>
+          <span className="hidden sm:inline text-[13px]" style={{ letterSpacing: "-0.01em" }}>
+            {history.length > 0 ? "Back" : "Home"}
+          </span>
         </button>
 
+        {/* Separator */}
+        <div className="h-4 w-px flex-shrink-0" style={{ background: "rgba(255,255,255,0.10)" }} />
+
         {/* Title */}
-        <div className="flex-1 flex items-center justify-center gap-2 min-w-0 px-2">
-          <h1 className="font-semibold text-[15px] text-foreground truncate">
-            {activeApp.charAt(0).toUpperCase() + activeApp.slice(1)}
+        <div className="flex-1 flex items-center gap-2 min-w-0">
+          <span className="text-base leading-none">{icon}</span>
+          <h1
+            className="font-semibold text-[15px] truncate"
+            style={{ color: "rgba(255,255,255,0.90)", letterSpacing: "-0.02em" }}
+          >
+            {label}
           </h1>
         </div>
 
@@ -80,14 +126,32 @@ export function AppWindow({ onHamburger }: AppWindowProps) {
         <button
           onClick={closeApp}
           aria-label="Close app"
-          className="w-7 h-7 rounded-full bg-muted flex items-center justify-center text-muted-foreground hover:bg-muted/80 transition-colors text-xs flex-shrink-0"
+          className="w-7 h-7 rounded-full flex items-center justify-center text-xs flex-shrink-0 transition-all duration-150 font-medium"
+          style={{
+            background: "rgba(255,255,255,0.07)",
+            color: "rgba(255,255,255,0.45)",
+            border: "1px solid rgba(255,255,255,0.08)",
+          }}
+          onMouseEnter={e => {
+            (e.currentTarget as HTMLElement).style.background = "rgba(239, 68, 68, 0.18)";
+            (e.currentTarget as HTMLElement).style.color = "#f87171";
+            (e.currentTarget as HTMLElement).style.borderColor = "rgba(239,68,68,0.25)";
+          }}
+          onMouseLeave={e => {
+            (e.currentTarget as HTMLElement).style.background = "rgba(255,255,255,0.07)";
+            (e.currentTarget as HTMLElement).style.color = "rgba(255,255,255,0.45)";
+            (e.currentTarget as HTMLElement).style.borderColor = "rgba(255,255,255,0.08)";
+          }}
         >
           ✕
         </button>
       </header>
 
-      {/* App Content */}
-      <div className="flex-1 overflow-y-auto overscroll-contain bg-muted/10">
+      {/* ── App content ── */}
+      <div
+        className="flex-1 overflow-y-auto overscroll-contain"
+        style={{ background: "rgba(7,9,20,0.60)" }}
+      >
         <AppComponent />
       </div>
     </div>

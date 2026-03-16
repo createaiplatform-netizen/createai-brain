@@ -1,4 +1,4 @@
-@import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap');
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&display=swap');
 @import "tailwindcss";
 @import "tw-animate-css";
 @plugin "@tailwindcss/typography";
@@ -41,120 +41,175 @@
   --color-destructive-border: var(--destructive-border);
 
   --font-sans: var(--app-font-sans);
-  
+
   --radius-sm: calc(var(--radius) - 4px);
   --radius-md: calc(var(--radius) - 2px);
   --radius-lg: var(--radius);
   --radius-xl: calc(var(--radius) + 4px);
 }
 
+/* ── Dark Glass Premium Theme — Accent: #6366f1 ────────────────────────────── */
 :root {
-  /* iOS Inspired Light Theme */
-  --background: 0 0% 100%;
-  --foreground: 240 10% 3.9%;
-  
-  --card: 0 0% 100%;
-  --card-foreground: 240 10% 3.9%;
-  --card-border: 240 5.9% 90%;
-  
-  --popover: 0 0% 100%;
-  --popover-foreground: 240 10% 3.9%;
-  --popover-border: 240 5.9% 90%;
-  
-  /* iMessage Blue */
-  --primary: 211 100% 50%;
+  /* Background: deep navy-black */
+  --background: 231 47% 6%;
+  --foreground: 220 20% 92%;
+
+  /* Cards: slightly lifted glass surface */
+  --card: 231 40% 9%;
+  --card-foreground: 220 20% 92%;
+  --card-border: 230 30% 16%;
+
+  /* Popovers */
+  --popover: 231 40% 9%;
+  --popover-foreground: 220 20% 92%;
+  --popover-border: 230 30% 16%;
+
+  /* Primary: #6366f1 indigo — hsl(239 84% 67%) */
+  --primary: 239 84% 67%;
   --primary-foreground: 0 0% 100%;
-  --primary-border: 211 100% 45%;
-  
-  /* iMessage Gray (Received Bubbles) */
-  --secondary: 240 5% 91%;
-  --secondary-foreground: 240 10% 15%;
-  --secondary-border: 240 5% 85%;
-  
-  --muted: 240 4.8% 95.9%;
-  --muted-foreground: 240 3.8% 46.1%;
-  --muted-border: 240 5.9% 90%;
-  
-  --accent: 211 100% 95%;
-  --accent-foreground: 211 100% 40%;
-  --accent-border: 211 100% 90%;
-  
-  --destructive: 0 84.2% 60.2%;
+  --primary-border: 239 84% 58%;
+
+  /* Secondary: dark surface */
+  --secondary: 230 35% 12%;
+  --secondary-foreground: 220 15% 72%;
+  --secondary-border: 230 30% 18%;
+
+  /* Muted: softer dark surface */
+  --muted: 231 35% 10%;
+  --muted-foreground: 220 12% 52%;
+  --muted-border: 230 28% 15%;
+
+  /* Accent: indigo glow */
+  --accent: 239 84% 67%;
+  --accent-foreground: 0 0% 100%;
+  --accent-border: 239 60% 52%;
+
+  /* Destructive */
+  --destructive: 0 72% 51%;
   --destructive-foreground: 0 0% 98%;
-  --destructive-border: 0 84.2% 55%;
-  
-  --border: 240 5.9% 90%;
-  --input: 240 5.9% 90%;
-  --ring: 211 100% 50%;
-  
-  --app-font-sans: 'Inter', system-ui, -apple-system, sans-serif;
-  --radius: 1rem;
+  --destructive-border: 0 72% 44%;
+
+  /* Structural */
+  --border: 230 28% 15%;
+  --input: 230 35% 12%;
+  --ring: 239 84% 67%;
+
+  --app-font-sans: 'Inter', system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+  --radius: 0.875rem;
 }
 
+/* Dark variant — mirrors root (dark is the default) */
 .dark {
-  /* iOS Inspired Dark Theme */
-  --background: 240 10% 3.9%;
-  --foreground: 0 0% 98%;
-  
-  --card: 240 10% 3.9%;
-  --card-foreground: 0 0% 98%;
-  --card-border: 240 3.7% 15.9%;
-  
-  --popover: 240 10% 3.9%;
-  --popover-foreground: 0 0% 98%;
-  --popover-border: 240 3.7% 15.9%;
-  
-  /* Dark mode iMessage Blue is slightly deeper */
-  --primary: 211 100% 55%;
+  --background: 231 47% 6%;
+  --foreground: 220 20% 92%;
+  --card: 231 40% 9%;
+  --card-foreground: 220 20% 92%;
+  --card-border: 230 30% 16%;
+  --popover: 231 40% 9%;
+  --popover-foreground: 220 20% 92%;
+  --popover-border: 230 30% 16%;
+  --primary: 239 84% 67%;
   --primary-foreground: 0 0% 100%;
-  --primary-border: 211 100% 50%;
-  
-  /* Dark mode received bubbles */
-  --secondary: 240 4% 16%;
-  --secondary-foreground: 0 0% 98%;
-  --secondary-border: 240 4% 20%;
-  
-  --muted: 240 3.7% 15.9%;
-  --muted-foreground: 240 5% 64.9%;
-  --muted-border: 240 3.7% 15.9%;
-  
-  --accent: 240 3.7% 15.9%;
-  --accent-foreground: 0 0% 98%;
-  --accent-border: 240 3.7% 15.9%;
-  
-  --destructive: 0 62.8% 30.6%;
+  --primary-border: 239 84% 58%;
+  --secondary: 230 35% 12%;
+  --secondary-foreground: 220 15% 72%;
+  --secondary-border: 230 30% 18%;
+  --muted: 231 35% 10%;
+  --muted-foreground: 220 12% 52%;
+  --muted-border: 230 28% 15%;
+  --accent: 239 84% 67%;
+  --accent-foreground: 0 0% 100%;
+  --accent-border: 239 60% 52%;
+  --destructive: 0 72% 51%;
   --destructive-foreground: 0 0% 98%;
-  --destructive-border: 0 62.8% 25%;
-  
-  --border: 240 3.7% 15.9%;
-  --input: 240 3.7% 15.9%;
-  --ring: 211 100% 55%;
+  --destructive-border: 0 72% 44%;
+  --border: 230 28% 15%;
+  --input: 230 35% 12%;
+  --ring: 239 84% 67%;
 }
 
 @layer base {
   * {
     @apply border-border;
   }
+
+  html {
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
+    text-rendering: optimizeLegibility;
+  }
+
   body {
     @apply bg-background text-foreground font-sans antialiased selection:bg-primary/20 selection:text-primary;
+    background: radial-gradient(ellipse 120% 80% at 50% -10%, rgba(99, 102, 241, 0.10) 0%, transparent 60%),
+                hsl(var(--background));
+    min-height: 100dvh;
   }
-  
-  /* Scrollbar styling for a cleaner look */
+
+  /* Premium thin scrollbars */
   ::-webkit-scrollbar {
-    width: 6px;
+    width: 5px;
+    height: 5px;
   }
   ::-webkit-scrollbar-track {
     background: transparent;
   }
   ::-webkit-scrollbar-thumb {
-    @apply bg-muted-foreground/30 rounded-full;
+    @apply rounded-full;
+    background: rgba(255, 255, 255, 0.10);
   }
   ::-webkit-scrollbar-thumb:hover {
-    @apply bg-muted-foreground/50;
+    background: rgba(255, 255, 255, 0.18);
+  }
+  ::-webkit-scrollbar-corner {
+    background: transparent;
   }
 }
 
-/* ── AI Avatar Guide Animations ───────────────────────────────────────────── */
+/* ── Glass utility classes ──────────────────────────────────────────────────── */
+.glass {
+  background: rgba(12, 15, 36, 0.82);
+  backdrop-filter: blur(24px) saturate(180%);
+  -webkit-backdrop-filter: blur(24px) saturate(180%);
+  border: 1px solid rgba(255, 255, 255, 0.07);
+}
+
+.glass-sidebar {
+  background: rgba(7, 9, 20, 0.97);
+  backdrop-filter: blur(40px) saturate(200%);
+  -webkit-backdrop-filter: blur(40px) saturate(200%);
+  border-right: 1px solid rgba(255, 255, 255, 0.06);
+}
+
+.glass-topbar {
+  background: rgba(8, 10, 22, 0.88);
+  backdrop-filter: blur(32px) saturate(180%);
+  -webkit-backdrop-filter: blur(32px) saturate(180%);
+  border-bottom: 1px solid rgba(255, 255, 255, 0.07);
+}
+
+.glass-card {
+  background: rgba(14, 18, 42, 0.75);
+  backdrop-filter: blur(20px) saturate(160%);
+  -webkit-backdrop-filter: blur(20px) saturate(160%);
+  border: 1px solid rgba(255, 255, 255, 0.07);
+  border-radius: var(--radius);
+  box-shadow: 0 4px 24px rgba(0, 0, 0, 0.35), 0 1px 0 rgba(255, 255, 255, 0.04) inset;
+}
+
+.premium-shadow {
+  box-shadow: 0 8px 40px rgba(0, 0, 0, 0.45), 0 1px 0 rgba(255, 255, 255, 0.04) inset;
+}
+
+.indigo-glow {
+  box-shadow: 0 0 0 1px rgba(99, 102, 241, 0.35), 0 4px 16px rgba(99, 102, 241, 0.20);
+}
+
+.indigo-glow-sm {
+  box-shadow: 0 0 0 1px rgba(99, 102, 241, 0.25), 0 2px 8px rgba(99, 102, 241, 0.15);
+}
+
+/* ── AI Avatar Guide Animations ─────────────────────────────────────────────── */
 @keyframes avatarBreath {
   0%, 100% { transform: scale(1); }
   50%       { transform: scale(1.025); }
@@ -183,13 +238,14 @@
   100% { opacity: 1; transform: scale(1) translateY(0); }
 }
 @keyframes avatarGlow {
-  0%, 100% { box-shadow: 0 0 0 0 rgba(0,122,255,0.35), 0 6px 20px rgba(0,122,255,0.25); }
-  50%       { box-shadow: 0 0 0 8px rgba(0,122,255,0.0), 0 6px 20px rgba(0,122,255,0.4); }
+  0%, 100% { box-shadow: 0 0 0 0 rgba(99,102,241,0.35), 0 6px 20px rgba(99,102,241,0.25); }
+  50%       { box-shadow: 0 0 0 8px rgba(99,102,241,0.00), 0 6px 20px rgba(99,102,241,0.40); }
 }
 @keyframes stepDotPulse {
   0%, 100% { transform: scale(1); }
   50%      { transform: scale(1.4); }
 }
+
 .avatar-head-breath  { animation: avatarBreath 3.5s ease-in-out infinite; }
 .avatar-head-talking { animation: avatarNod 0.55s ease-in-out 4; }
 .avatar-head-glow    { animation: avatarGlow 2.5s ease-in-out infinite; }

@@ -63,7 +63,7 @@ export function OSLayout() {
   const closeMobileMenu = () => setMobileMenuOpen(false);
 
   return (
-    <div className="flex h-[100dvh] w-full bg-background overflow-hidden">
+    <div className="flex h-[100dvh] w-full overflow-hidden" style={{ background: "radial-gradient(ellipse 130% 70% at 50% -5%, rgba(99,102,241,0.13) 0%, transparent 55%), hsl(231, 47%, 6%)" }}>
       {/* ── Global Conversation Overlay — available on every screen ── */}
       <ConversationOverlay />
 
@@ -82,7 +82,8 @@ export function OSLayout() {
       {isNarrow && mobileMenuOpen && (
         <>
           <div
-            className="fixed inset-0 z-40 bg-black/40 backdrop-blur-sm"
+            className="fixed inset-0 z-40 backdrop-blur-sm"
+            style={{ background: "rgba(4,5,14,0.70)" }}
             onClick={closeMobileMenu}
           />
           <div className="fixed left-0 top-0 bottom-0 z-50 animate-in slide-in-from-left-4 duration-200">
