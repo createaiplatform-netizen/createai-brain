@@ -1714,4 +1714,165 @@ Be thorough, specific, and deep. Treat this as a real engagement, not a demo.`;
   res.end();
 });
 
+// ─── MASTER BUSINESS CREATION ENGINE ─────────────────────────────────────────
+
+const BUSINESS_CREATION_PROMPT = `MASTER BUSINESS CREATION ENGINE
+===============================
+
+ROLE:
+You are a conceptual business design and workflow engine. You help users plan,
+structure, and visualize complete, professional business systems across any
+industry. You do not design physical devices or provide legal, medical, or
+regulatory advice.
+
+CORE OBJECTIVES:
+1. Generate complete, business-ready systems for any industry or profession.
+2. Expand ideas into structured workflows, roles, tools, and platforms.
+3. Include monetization models, pricing structures, and revenue strategies.
+4. Adapt outputs to the user's industry, region, and business size.
+5. Maintain safety, legality, compliance, and ethical responsibility.
+
+BEHAVIOR RULES:
+- Never output placeholders or empty sections.
+- Keep all outputs conceptual, business-focused, and implementation-ready.
+- Use modular, scalable, reusable frameworks.
+- Include monetization and growth strategies where appropriate.
+- Prioritize clarity, safety, and professionalism.
+- Avoid claims of infinite knowledge or physical invention.
+
+SYSTEM ARCHITECTURE:
+
+LAYER 1 — INDUSTRY ADAPTATION
+- Adjust terminology, workflows, and structure to the user's industry.
+
+LAYER 2 — OPPORTUNITY DISCOVERY
+- Identify inefficiencies, risks, and improvement opportunities.
+
+LAYER 3 — SOLUTION GENERATION
+- Generate platforms, tools, workflows, dashboards, and automations.
+
+LAYER 4 — BUSINESS MODEL ENGINE
+- Provide monetization models, pricing tiers, and revenue flows.
+
+LAYER 5 — OPERATIONS & WORKFLOW DESIGN
+- Define roles, responsibilities, processes, and cross-department flows.
+
+LAYER 6 — EXPANSION LAYER
+- Suggest additional features, verticals, integrations, and improvements.
+
+OUTPUT INSTRUCTIONS:
+- Provide structured, complete, professional business systems.
+- Use clear hierarchy and modular frameworks.
+- Keep outputs safe, legal, and grounded.
+- Always adapt to the user's specific industry, region, business size, and stage.
+- Use real-world terminology, plausible numbers, and concrete examples — never placeholders.
+- Label all output as conceptual, for business planning purposes.`;
+
+const BUSINESS_LAYER_INSTRUCTIONS: Record<string, string> = {
+  "industry-adaptation": `Execute LAYER 1 — INDUSTRY ADAPTATION.
+Produce a complete industry-specific adaptation covering:
+1. TERMINOLOGY MAP — list 8–12 key terms specific to this industry (generic → industry-specific)
+2. WORKFLOW STRUCTURE — describe the 5–7 core workflow stages as they are named and practiced in this industry
+3. DOCUMENT TYPES — list the 6–10 core document types used (contracts, reports, records, compliance forms)
+4. COMPLIANCE CONTEXT — describe the primary regulatory environment, key bodies, and compliance obligations for this region and industry
+5. BENCHMARKS — provide 5–8 realistic KPIs with typical values for this industry and org size
+6. ROLE CONVENTIONS — list 6–8 common role titles with their primary scope and ownership areas`,
+
+  "opportunity-discovery": `Execute LAYER 2 — OPPORTUNITY DISCOVERY.
+Produce a complete opportunity analysis covering:
+1. OPERATIONAL INEFFICIENCIES — identify 4–6 specific, named inefficiencies common in this industry and org size, with estimated impact (time lost, revenue leakage, risk)
+2. AUTOMATION OPPORTUNITIES — identify 4–5 specific processes that can be fully or partially automated, with expected time/cost savings
+3. REVENUE GAPS — identify 3–4 monetization or pricing gaps relative to market norms
+4. RISK EXPOSURES — identify 3–4 compliance, operational, or financial risks specific to this industry and region
+5. QUICK WINS — list 3–5 changes the business could make within 30–90 days with minimal investment and clear measurable impact
+6. STRATEGIC OPPORTUNITIES — identify 2–3 longer-term opportunities (6–18 months) that could materially shift the business trajectory`,
+
+  "solution-generation": `Execute LAYER 3 — SOLUTION GENERATION.
+Produce a complete solution architecture covering:
+1. CORE PLATFORM — describe the central operations platform: its modules, dashboards, and primary capabilities tailored to this industry
+2. KEY WORKFLOWS — describe 4–5 specific automated workflows with named stages, triggers, conditions, and outcomes
+3. AI INTEGRATION POINTS — identify 5–7 specific places where AI assistance adds measurable value (generation, classification, routing, analysis, alerting)
+4. TOOL STACK — recommend 6–10 specific tool categories (not brand-specific) with their role in the ecosystem
+5. INTEGRATION MAP — describe 3–5 integration types the platform should connect to (existing industry tools, data sources, communication platforms)
+6. IMPLEMENTATION ROADMAP — provide a phased rollout plan (Phase 1: 0–30 days, Phase 2: 30–90 days, Phase 3: 90–180 days) with specific deliverables`,
+
+  "business-model": `Execute LAYER 4 — BUSINESS MODEL ENGINE.
+Produce a complete business model covering:
+1. REVENUE STREAMS — list all revenue streams with type (subscription, project, licensing, etc.) and estimated contribution to total revenue
+2. PRICING ARCHITECTURE — provide 3 pricing tiers with specific names, monthly prices (adapted to the region's currency), included features, and target customer profile
+3. REVENUE PROJECTION — provide a 12-month revenue model: Month 1–3 (ramp), Month 4–6 (growth), Month 7–12 (scale), with realistic targets for this industry and size
+4. COST STRUCTURE — list 5–8 primary cost categories with estimated % of revenue
+5. UNIT ECONOMICS — provide cost per acquisition, lifetime value, and payback period estimates for the primary customer segment
+6. MONETIZATION EXPANSION — describe 2–3 additional monetization levers that can be activated as the business scales`,
+
+  "operations-design": `Execute LAYER 5 — OPERATIONS & WORKFLOW DESIGN.
+Produce a complete operations design covering:
+1. ORG STRUCTURE — describe the recommended organizational structure for this size and stage, with 6–10 named roles and their primary ownership areas
+2. CORE PROCESSES — describe 4–6 primary operational processes end-to-end, with steps, owners, tools, and success criteria
+3. CROSS-DEPARTMENT FLOWS — describe 3–4 critical handoff points between departments, including what is transferred, how, and with what SLA
+4. MEETING CADENCE — define the operating rhythm: daily, weekly, monthly, and quarterly meetings with agenda structure and attendees
+5. PERFORMANCE MANAGEMENT — define 6–8 team-level KPIs, how they are tracked, and who owns each
+6. ESCALATION PATHS — describe the escalation protocol for the 3 most common operational failure modes in this industry`,
+
+  "expansion": `Execute LAYER 6 — EXPANSION LAYER.
+Produce a complete expansion strategy covering:
+1. NEAR-TERM FEATURES (0–6 months) — list 5–7 specific product or service features to add, each with a business rationale and estimated implementation effort
+2. GROWTH VERTICALS — identify 2–3 adjacent industry verticals or customer segments, explain why they are reachable, and describe the adaptation needed
+3. GEOGRAPHIC EXPANSION — if applicable, describe the top 2 geographic markets to enter next, with regional adaptation requirements (compliance, terminology, currency, partnerships)
+4. INTEGRATION ROADMAP — list 4–6 specific platform integrations to build next, ranked by business impact
+5. PARTNERSHIP STRATEGY — describe 2–3 partnership types (resellers, referrals, co-marketing, technology) with specific partner profiles and deal structures
+6. LONG-TERM VISION (12–36 months) — describe the 3-year product and market vision: what the business becomes, what it owns, and what its competitive moat is`,
+};
+
+router.post("/business-creation", async (req, res) => {
+  const { industry, region, size, stage, focus, action } = req.body as {
+    industry: string;
+    region: string;
+    size: string;
+    stage: string;
+    focus?: string;
+    action: string;
+  };
+
+  if (!industry?.trim() || !action?.trim()) {
+    return void res.status(400).json({ error: "industry and action are required" });
+  }
+
+  const layerInstruction = BUSINESS_LAYER_INSTRUCTIONS[action]
+    ?? `Execute the requested business design layer for this context. Be specific, complete, and implementation-ready.`;
+
+  const userPrompt = `BUSINESS CONTEXT:
+- Industry: ${industry}
+- Region / Location: ${region || "Not specified"} — adapt all terminology, currency, regulatory references, and business norms to this region
+- Business Size: ${size || "Mid-Size"}
+- Business Stage: ${stage || "Growing"}
+${focus ? `- Focus Area: ${focus}` : ""}
+
+${layerInstruction}
+
+Treat this as a real engagement. Be specific, use real-world numbers appropriate for the region and industry, and produce implementation-ready output. All content is conceptual, for business planning purposes.`;
+
+  res.setHeader("Content-Type", "text/event-stream");
+  res.setHeader("Cache-Control", "no-cache");
+  res.setHeader("Connection", "keep-alive");
+
+  const stream = await openai.chat.completions.create({
+    model: "gpt-5.2",
+    max_completion_tokens: 8192,
+    messages: [
+      { role: "system", content: BUSINESS_CREATION_PROMPT },
+      { role: "user",   content: userPrompt },
+    ],
+    stream: true,
+  });
+
+  for await (const chunk of stream) {
+    const content = chunk.choices[0]?.delta?.content;
+    if (content) res.write(`data: ${JSON.stringify({ content })}\n\n`);
+  }
+
+  res.write(`data: ${JSON.stringify({ done: true })}\n\n`);
+  res.end();
+});
+
 export default router;

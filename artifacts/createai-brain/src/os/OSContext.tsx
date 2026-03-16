@@ -5,7 +5,8 @@ import { PlatformStore, PlatformMode } from "@/engine/PlatformStore";
 export type AppId =
   | "chat" | "projects" | "tools" | "creator" | "people"
   | "documents" | "marketing" | "admin" | "family"
-  | "integration" | "monetization" | "universal" | "simulation";
+  | "integration" | "monetization" | "universal" | "simulation"
+  | "business";
 
 export interface AppDef {
   id: AppId;
@@ -29,8 +30,9 @@ export const DEFAULT_APPS: AppDef[] = [
   { id: "family",       label: "Family",      icon: "🏡", color: "#30B0C7", description: "Family-friendly simplified view",             category: "system" },
   { id: "integration",  label: "Integration", icon: "🔌", color: "#BF5AF2", description: "Connect & map existing tools",                category: "system" },
   { id: "monetization", label: "Monetize",    icon: "💰", color: "#FFD60A", description: "Storefront, plans & earnings",                category: "business" },
-  { id: "simulation",   label: "Simulate",    icon: "🧪", color: "#a855f7", description: "Simulations, gap analysis & ad packets",       category: "tools" },
-  { id: "universal",    label: "Universal",   icon: "🌐", color: "#007AFF", description: "Universal interaction hub — all flows wired", category: "system" },
+  { id: "simulation",   label: "Simulate",    icon: "🧪", color: "#a855f7", description: "Simulations, gap analysis & ad packets",              category: "tools"     },
+  { id: "universal",    label: "Universal",   icon: "🌐", color: "#007AFF", description: "Universal interaction hub — all flows wired",         category: "system"    },
+  { id: "business",     label: "BizEngine",   icon: "🏗️", color: "#f59e0b", description: "6-layer business design: model, ops, monetization",   category: "business"  },
 ];
 
 export const ALL_APPS = DEFAULT_APPS;
@@ -74,6 +76,7 @@ const INTENT_MAP: { keywords: string[]; target: AppId }[] = [
   { keywords: ["admin", "settings", "control", "mode", "user"],           target: "admin" },
   { keywords: ["family", "home", "personal"],                              target: "family" },
   { keywords: ["integration", "connect", "api", "third-party"],           target: "integration" },
+  { keywords: ["business", "bizengine", "biz engine", "business plan", "business model", "startup", "venture", "monetization model", "operations design", "expansion", "opportunity"],  target: "business" },
 ];
 
 function routeIntentFn(intent: string): AppId | null {
@@ -99,6 +102,7 @@ const APP_META: Record<AppId, { icon: string; label: string }> = {
   monetization: { icon: "💰", label: "Monetize" },
   simulation:   { icon: "🧪", label: "Simulate" },
   universal:    { icon: "🌐", label: "Universal" },
+  business:     { icon: "🏗️", label: "BizEngine" },
 };
 
 // ─── OS State ──────────────────────────────────────────────────────────────

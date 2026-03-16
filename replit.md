@@ -278,7 +278,8 @@ Workspace picker: scrollable dropdown with `maxHeight: min(520px, 70vh)` + style
 - App.tsx: InteractionProvider wraps OSProvider — context available in ALL apps
 - OSContext.tsx: `AppId` includes "universal" and "simulation"; DEFAULT_APPS has both entries
 - SimulationApp.tsx: New app with 3 tabs — Simulate (12 domains), Gap Analyze, Ad Packets (human approval required)
-- API: `/api/openai/simulate` (universal simulation engine) and `/api/openai/ad-gen` (advertising packet generator) added
+- BusinessCreationApp.tsx: New app "BizEngine" (🏗️) — 6-layer conceptual business design engine; left profile panel (industry, region, size, stage, focus); 6 layer tabs; per-layer AI generation + "Generate Full Plan" sequential all-layers button; progress tracker; seed framework cards shown as scaffolding; routes to `/api/openai/business-creation`
+- API: `/api/openai/simulate` (universal simulation engine), `/api/openai/ad-gen` (advertising packet generator), and `/api/openai/business-creation` (Master Business Creation Engine — 6 layers × detailed structured instructions) added
 - ToolsApp: Organized into 4 sections — Build (15 tools), Simulate (8 tools), Advertise (6 tools), Custom; routes to correct endpoint per section
 - osLayout.tsx: `APP_COMPONENTS["universal"]` = UniversalApp
 

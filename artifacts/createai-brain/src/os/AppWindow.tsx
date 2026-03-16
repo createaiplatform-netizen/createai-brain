@@ -13,6 +13,7 @@ import { IntegrationApp } from "@/Apps/IntegrationApp";
 import { MonetizationApp } from "@/Apps/MonetizationApp";
 import { UniversalApp } from "@/Apps/UniversalApp";
 import { SimulationApp } from "@/Apps/SimulationApp";
+import { BusinessCreationApp } from "@/Apps/BusinessCreationApp";
 import type { AppId } from "./OSContext";
 
 const APP_LABELS: Record<AppId, string> = {
@@ -29,6 +30,7 @@ const APP_LABELS: Record<AppId, string> = {
   monetization: "Monetization",
   simulation:   "Simulate",
   universal:    "Universal",
+  business:     "Business Creation Engine",
 };
 
 const APP_ICONS: Record<AppId, string> = {
@@ -45,6 +47,7 @@ const APP_ICONS: Record<AppId, string> = {
   monetization: "💰",
   simulation:   "🧪",
   universal:    "🌐",
+  business:     "🏗️",
 };
 
 const APP_COMPONENTS: Record<AppId, React.ComponentType<any>> = {
@@ -61,6 +64,7 @@ const APP_COMPONENTS: Record<AppId, React.ComponentType<any>> = {
   monetization: MonetizationApp,
   simulation:   SimulationApp,
   universal:    UniversalApp,
+  business:     BusinessCreationApp,
 };
 
 interface AppWindowProps {
