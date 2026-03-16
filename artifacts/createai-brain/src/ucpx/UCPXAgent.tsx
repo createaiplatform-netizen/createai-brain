@@ -4001,6 +4001,97 @@ const PLATFORM_ALL_PROJECTS: PlatformProject[] = [
     coreModules: ["Patient Management","Clinical Workflows","Billing & Revenue Cycle","HIPAA Compliance","AI Persona (ARIA)","Meta-Brain Clinical Oversight","Staff Scheduling","Referral & Outreach","Predictive Analytics","EHR Integration","Live/Demo/Test Modes","Self-Healing"],
     persona: "ARIA", aiSignals: 62,
   },
+  {
+    id: "plat3", name: "Legal Tech & Law Firm Ops", icon: "⚖️", industry: "Legal Services",
+    status: "live", created: "Mar 16, 2026", revenue: "$0", revenueShare: 25, users: 1,
+    agents: ["ORACLE","NEXUS","SENTINEL","FORGE"],
+    coreModules: ["Case Management","Contract Review & Drafting","Client Billing & Invoicing","ABA/GDPR Compliance","AI Persona (LEX)","Meta-Brain Legal Oversight","Document Automation","Court Deadline Tracker","Predictive Case Analytics","E-Discovery Integration","Live/Demo/Test Modes","Self-Healing"],
+    persona: "LEX", aiSignals: 38,
+  },
+  {
+    id: "plat4", name: "Real Estate & Property Management", icon: "🏠", industry: "Real Estate",
+    status: "live", created: "Mar 16, 2026", revenue: "$0", revenueShare: 25, users: 1,
+    agents: ["ORACLE","NEXUS","PULSE","FORGE"],
+    coreModules: ["Listing Management","Tenant CRM","Lease Automation","Maintenance Workflows","AI Persona (HAVEN)","Meta-Brain Property Oversight","Predictive Vacancy Analytics","Marketing Automation","Compliance (Fair Housing)","Payment Tracking","Live/Demo/Test Modes","Self-Healing"],
+    persona: "HAVEN", aiSignals: 41,
+  },
+  {
+    id: "plat5", name: "Financial Services Platform", icon: "📈", industry: "Financial Services",
+    status: "live", created: "Mar 16, 2026", revenue: "$0", revenueShare: 25, users: 1,
+    agents: ["ORACLE","SENTINEL","NEXUS","VECTOR"],
+    coreModules: ["Portfolio Tracking","Client Reporting","SEC/FINRA Compliance","Risk Modeling","AI Persona (APEX)","Meta-Brain Financial Oversight","Predictive Market Analytics","Audit Trail Automation","Onboarding Workflows","Integration (Salesforce/Fiserv)","Live/Demo/Test Modes","Self-Healing"],
+    persona: "APEX", aiSignals: 54,
+  },
+  {
+    id: "plat6", name: "Education & eLearning Platform", icon: "🎓", industry: "Education",
+    status: "live", created: "Mar 16, 2026", revenue: "$0", revenueShare: 25, users: 1,
+    agents: ["ORACLE","FORGE","PULSE","NEXUS"],
+    coreModules: ["Course Management","Student Analytics","Enrollment Automation","FERPA Compliance","AI Persona (NOVA)","Meta-Brain Academic Oversight","Predictive Outcome Analytics","Parent/Guardian Outreach","LMS Integration","Certification Tracking","Live/Demo/Test Modes","Self-Healing"],
+    persona: "NOVA", aiSignals: 36,
+  },
+  {
+    id: "plat7", name: "Construction & Project Management", icon: "🏗️", industry: "Construction",
+    status: "live", created: "Mar 16, 2026", revenue: "$0", revenueShare: 25, users: 1,
+    agents: ["ORACLE","NEXUS","SENTINEL","FORGE"],
+    coreModules: ["Job Costing & Budgeting","Subcontractor CRM","Safety & OSHA Compliance","Project Scheduling","AI Persona (BUILD)","Meta-Brain Site Oversight","Predictive Delay Analytics","RFI & Submittal Tracking","Equipment Management","Field-to-Office Integration","Live/Demo/Test Modes","Self-Healing"],
+    persona: "BUILD", aiSignals: 44,
+  },
+  {
+    id: "plat8", name: "Retail & E-Commerce Operations", icon: "🛍️", industry: "Retail",
+    status: "live", created: "Mar 16, 2026", revenue: "$0", revenueShare: 25, users: 1,
+    agents: ["ORACLE","FORGE","PULSE","VECTOR"],
+    coreModules: ["Inventory Management","Customer Analytics","Campaign Automation","Returns & Refund Workflows","AI Persona (GRID)","Meta-Brain Retail Oversight","Predictive Demand Analytics","Loyalty Program Engine","PCI-DSS Compliance","Shopify/Stripe Integration","Live/Demo/Test Modes","Self-Healing"],
+    persona: "GRID", aiSignals: 49,
+  },
+  {
+    id: "plat9", name: "Manufacturing & Supply Chain", icon: "🏭", industry: "Manufacturing",
+    status: "live", created: "Mar 16, 2026", revenue: "$0", revenueShare: 25, users: 1,
+    agents: ["ORACLE","NEXUS","SENTINEL","VECTOR"],
+    coreModules: ["Production Scheduling","Supplier CRM","QA & ISO Compliance","Logistics Tracking","AI Persona (CHAIN)","Meta-Brain Operations Oversight","Predictive Maintenance Analytics","ERP Integration","Inventory Optimization","Incident Reporting","Live/Demo/Test Modes","Self-Healing"],
+    persona: "CHAIN", aiSignals: 51,
+  },
+  {
+    id: "plat10", name: "Non-Profit & NGO Management", icon: "🤝", industry: "Non-Profit",
+    status: "live", created: "Mar 16, 2026", revenue: "$0", revenueShare: 25, users: 1,
+    agents: ["ORACLE","FORGE","PULSE","SENTINEL"],
+    coreModules: ["Donor CRM","Grant Tracking & Reporting","Program Impact Analytics","IRS 990 Compliance","AI Persona (IMPACT)","Meta-Brain Mission Oversight","Volunteer Management","Campaign Automation","Board Reporting","Salesforce NPSP Integration","Live/Demo/Test Modes","Self-Healing"],
+    persona: "IMPACT", aiSignals: 33,
+  },
+  {
+    id: "plat11", name: "SaaS & Tech Startup Platform", icon: "💻", industry: "SaaS / Technology",
+    status: "live", created: "Mar 16, 2026", revenue: "$0", revenueShare: 25, users: 1,
+    agents: ["ORACLE","FORGE","PULSE","NEXUS"],
+    coreModules: ["Product Analytics","Churn Prediction Engine","Onboarding Automation","SOC2 Compliance","AI Persona (PIXEL)","Meta-Brain Product Oversight","Revenue & MRR Tracking","Feature Usage Analytics","In-App Messaging","Stripe/Mixpanel Integration","Live/Demo/Test Modes","Self-Healing"],
+    persona: "PIXEL", aiSignals: 58,
+  },
+  {
+    id: "plat12", name: "Government & Public Sector", icon: "🏛️", industry: "Government",
+    status: "live", created: "Mar 16, 2026", revenue: "$0", revenueShare: 25, users: 1,
+    agents: ["ORACLE","SENTINEL","NEXUS","VECTOR"],
+    coreModules: ["Case Management","Policy Compliance Automation","Public Outreach Campaigns","FOIA & Records Management","AI Persona (CIVIX)","Meta-Brain Civic Oversight","Constituent Analytics","Budget Tracking","ADA Compliance","GovTech Integration","Live/Demo/Test Modes","Self-Healing"],
+    persona: "CIVIX", aiSignals: 39,
+  },
+  {
+    id: "plat13", name: "Hospitality & Event Management", icon: "🏨", industry: "Hospitality",
+    status: "live", created: "Mar 16, 2026", revenue: "$0", revenueShare: 25, users: 1,
+    agents: ["ORACLE","FORGE","PULSE","NEXUS"],
+    coreModules: ["Booking & Reservation Engine","Guest Experience CRM","Revenue Management","Health & Safety Compliance","AI Persona (HOST)","Meta-Brain Hospitality Oversight","Event Planning Automation","Vendor Management","Marketing & Loyalty Campaigns","PMS Integration","Live/Demo/Test Modes","Self-Healing"],
+    persona: "HOST", aiSignals: 42,
+  },
+  {
+    id: "plat14", name: "Agriculture & AgriTech Platform", icon: "🌾", industry: "Agriculture",
+    status: "live", created: "Mar 16, 2026", revenue: "$0", revenueShare: 25, users: 1,
+    agents: ["ORACLE","NEXUS","SENTINEL","VECTOR"],
+    coreModules: ["Crop & Yield Analytics","Supply Chain Management","USDA/EPA Compliance","Field Operations Tracking","AI Persona (FIELD)","Meta-Brain AgriTech Oversight","Predictive Harvest Analytics","Equipment Maintenance","Supplier & Buyer CRM","IoT Sensor Integration","Live/Demo/Test Modes","Self-Healing"],
+    persona: "FIELD", aiSignals: 35,
+  },
+  {
+    id: "plat15", name: "Duck Hunting Regulatory Platform", icon: "🦆", industry: "Hunting & Wildlife Regulation",
+    status: "live", created: "Mar 16, 2026", revenue: "$0", revenueShare: 25, users: 1,
+    agents: ["ORACLE","SENTINEL","NEXUS","PULSE"],
+    coreModules: ["License & Permit Management","Season & Bag Limit Compliance","Warden Dispatch & Routing","Population & Harvest Analytics","AI Persona (DRAKE)","Meta-Brain Wildlife Oversight","Migratory Bird Treaty Act Compliance","Hunter Registration & Renewal","Land Access & Zone Mapping","USFWS Data Integration","Live/Demo/Test Modes","Self-Healing"],
+    persona: "DRAKE", aiSignals: 29,
+  },
 ];
 
 const CORE_FEATURE_INHERITANCE = [
@@ -4062,7 +4153,170 @@ const NEW_PROJECT_INDUSTRIES = [
   "Government & Public Sector",
   "Hospitality & Event Management",
   "Agriculture & AgriTech",
+  "Duck Hunting & Wildlife Regulation",
+  "Custom Industry (define below)",
 ];
+
+interface DemoPreviewKPI { label: string; value: string; }
+interface DemoPreview {
+  headline: string; scenario: string;
+  kpis: DemoPreviewKPI[];
+  liveInsight: string; masterBrainResult: string; selfHealEvent: string;
+  complianceNote: string; marketingNote: string;
+}
+
+const DEMO_PREVIEWS: Record<string, DemoPreview> = {
+  plat1: {
+    headline: "Global Staffing Company — DEMO PREVIEW",
+    scenario: "Recruiting agency managing 124 active candidates across 31 open roles. AI-driven matching, compliance, and client outreach running live.",
+    kpis: [{ label: "Active Candidates", value: "124" },{ label: "Open Jobs", value: "31" },{ label: "Match Accuracy", value: "97.4%" },{ label: "Revenue", value: "$284K" }],
+    liveInsight: "SAGE: 3 high-match candidates unreached for 7+ days — outreach sequence queued by PULSE.",
+    masterBrainResult: "Match weights recalibrated · campaign timing adjusted · 6 interviews auto-scheduled.",
+    selfHealEvent: "LinkedIn Recruiter token expired — NEXUS refreshed in 12s, 0 data loss.",
+    complianceNote: "SENTINEL: EEOC, FLSA, I-9, E-Verify all current. 6 pending candidates auto-reminded.",
+    marketingNote: "FORGE generated 3 email variants for Q2 Client Nurture — open rate 38.7%.",
+  },
+  plat2: {
+    headline: "Global Healthcare Platform — DEMO PREVIEW",
+    scenario: "Clinical operations platform managing 1,847 patients across ICU, ED, and Oncology. Billing, compliance, and care workflows running autonomously.",
+    kpis: [{ label: "Active Patients", value: "1,847" },{ label: "Billing First-Pass", value: "94.2%" },{ label: "HIPAA Violations", value: "0" },{ label: "Revenue", value: "$3.1M" }],
+    liveInsight: "ARIA: ICU risk score elevated — 3 patients flagged for early intervention before discharge.",
+    masterBrainResult: "Triage scoring improved · 5 billing appeals auto-filed · staff scheduling rebalanced.",
+    selfHealEvent: "Epic EHR HL7 v2 format error — NEXUS patched in 8s, FHIR R4 endpoints restored.",
+    complianceNote: "SENTINEL: 1,240 records encrypted · CMS, TJC, HIPAA certs current · 0 access violations.",
+    marketingNote: "PULSE: 'Healthcare Decision Makers Q2' campaign — 41.2% open rate, 84 replies routed to ARIA.",
+  },
+  plat3: {
+    headline: "Legal Tech & Law Firm Ops — DEMO PREVIEW",
+    scenario: "Law firm OS managing active caseloads, contract drafting, court deadlines, and client billing with full ABA/GDPR compliance automation.",
+    kpis: [{ label: "Active Cases", value: "48" },{ label: "Contracts Drafted", value: "12" },{ label: "Billable Hours Tracked", value: "1,240h" },{ label: "Compliance Status", value: "✅ ABA/GDPR" }],
+    liveInsight: "LEX: 2 court deadlines within 72h — auto-reminders sent to attorneys, calendar entries created.",
+    masterBrainResult: "Billing rate optimization applied · contract template library updated · 4 deadlines pre-flagged.",
+    selfHealEvent: "E-Discovery integration timeout — NEXUS reconnected in 6s, document index restored.",
+    complianceNote: "SENTINEL: All GDPR data handling protocols current · client confidentiality rules enforced.",
+    marketingNote: "FORGE: 'Q2 New Client Outreach' campaign drafted — targeting corporate general counsels.",
+  },
+  plat4: {
+    headline: "Real Estate & Property Management — DEMO PREVIEW",
+    scenario: "Property management OS handling 320 units across 14 buildings. Tenant CRM, lease automation, maintenance dispatch, and Fair Housing compliance live.",
+    kpis: [{ label: "Units Managed", value: "320" },{ label: "Occupancy Rate", value: "96.2%" },{ label: "Open Maintenance Requests", value: "8" },{ label: "Leases Auto-Renewed", value: "14" }],
+    liveInsight: "HAVEN: 4 leases expiring in 30 days — renewal offers auto-drafted and sent by FORGE.",
+    masterBrainResult: "Vacancy prediction updated · rent pricing optimized vs. local market · 3 units re-listed.",
+    selfHealEvent: "Payment processing API timeout — NEXUS rerouted to backup processor in 4s.",
+    complianceNote: "SENTINEL: Fair Housing Act compliance confirmed · all tenant communications logged.",
+    marketingNote: "PULSE: '3 Units Available' campaign — targeted to waitlist of 42 pre-qualified applicants.",
+  },
+  plat5: {
+    headline: "Financial Services Platform — DEMO PREVIEW",
+    scenario: "Wealth management OS tracking $48M AUM across 72 client portfolios. Risk modeling, SEC/FINRA compliance, and client reporting fully automated.",
+    kpis: [{ label: "AUM", value: "$48M" },{ label: "Client Portfolios", value: "72" },{ label: "Compliance Flags", value: "0" },{ label: "Reports Generated", value: "18" }],
+    liveInsight: "APEX: Portfolio drift detected in 3 accounts — rebalancing recommendations generated by ORACLE.",
+    masterBrainResult: "Risk exposure models updated · client report batch generated · 2 accounts flagged for review.",
+    selfHealEvent: "Market data feed latency spike — VECTOR switched to backup feed in 3s, 0 data gaps.",
+    complianceNote: "SENTINEL: All SEC/FINRA filings current · audit trail complete · 0 violations.",
+    marketingNote: "FORGE: 'Q2 Market Outlook' client newsletter — personalized per portfolio by ORACLE.",
+  },
+  plat6: {
+    headline: "Education & eLearning Platform — DEMO PREVIEW",
+    scenario: "eLearning OS managing 2,400 students, 180 courses, and 60 instructors. Enrollment automation, FERPA compliance, and predictive outcome analytics live.",
+    kpis: [{ label: "Active Students", value: "2,400" },{ label: "Courses Live", value: "180" },{ label: "Completion Rate", value: "78.4%" },{ label: "At-Risk Students Flagged", value: "34" }],
+    liveInsight: "NOVA: 34 students below engagement threshold — personalized re-engagement plans generated by FORGE.",
+    masterBrainResult: "Course sequencing optimized · at-risk early alert system calibrated · 12 certifications issued.",
+    selfHealEvent: "LMS sync failure — NEXUS re-established connection in 9s, grade data re-synced.",
+    complianceNote: "SENTINEL: FERPA data handling verified · all student records access-logged.",
+    marketingNote: "PULSE: 'Spring Enrollment' campaign — 1,800 prospects · 44.1% open rate.",
+  },
+  plat7: {
+    headline: "Construction & Project Management — DEMO PREVIEW",
+    scenario: "Construction OS coordinating 6 active job sites, 42 subcontractors, and $18M in active contracts. OSHA compliance, scheduling, and cost tracking autonomous.",
+    kpis: [{ label: "Active Job Sites", value: "6" },{ label: "Subcontractors", value: "42" },{ label: "Active Contract Value", value: "$18M" },{ label: "OSHA Violations", value: "0" }],
+    liveInsight: "BUILD: Site #3 behind schedule by 4 days — ORACLE ran delay analysis, 3 mitigation options presented.",
+    masterBrainResult: "Schedule rebalanced across 6 sites · equipment utilization optimized · 8 RFIs auto-routed.",
+    selfHealEvent: "Field-to-office data sync error — NEXUS corrected payload format in 11s.",
+    complianceNote: "SENTINEL: All OSHA safety checklists current · incident reports 0 this quarter.",
+    marketingNote: "FORGE: Subcontractor bid solicitation for Site #5 — 14 targeted outreach packages sent.",
+  },
+  plat8: {
+    headline: "Retail & E-Commerce Operations — DEMO PREVIEW",
+    scenario: "Retail OS managing 12,000 SKUs, 3 storefronts, and $2.1M monthly GMV. Demand forecasting, loyalty engine, and PCI-DSS compliance fully automated.",
+    kpis: [{ label: "Active SKUs", value: "12,000" },{ label: "Monthly GMV", value: "$2.1M" },{ label: "Inventory Accuracy", value: "99.1%" },{ label: "Loyalty Members", value: "8,400" }],
+    liveInsight: "GRID: 3 SKUs predicted to stock out in 5 days — reorder requests auto-submitted to suppliers.",
+    masterBrainResult: "Demand model updated · promotional timing optimized · 6 underperforming SKUs flagged.",
+    selfHealEvent: "Shopify webhook failure — NEXUS re-subscribed and replayed 12 missed events in 7s.",
+    complianceNote: "SENTINEL: PCI-DSS Level 1 compliance confirmed · all card data tokenized.",
+    marketingNote: "PULSE: 'Spring Sale' campaign — 8,400 loyalty members · 52.3% open rate · $140K attributed.",
+  },
+  plat9: {
+    headline: "Manufacturing & Supply Chain — DEMO PREVIEW",
+    scenario: "Manufacturing OS coordinating 4 production lines, 180 suppliers, and ISO 9001 quality management. Predictive maintenance and logistics fully automated.",
+    kpis: [{ label: "Production Lines", value: "4" },{ label: "Active Suppliers", value: "180" },{ label: "OEE Score", value: "87.3%" },{ label: "Quality Defect Rate", value: "0.4%" }],
+    liveInsight: "CHAIN: Line #2 vibration anomaly detected — maintenance dispatched before failure. Downtime avoided.",
+    masterBrainResult: "Production schedule rebalanced · supplier lead times updated · 3 bottlenecks resolved.",
+    selfHealEvent: "ERP sync timeout — VECTOR normalized payload and re-pushed in 14s, 0 production impact.",
+    complianceNote: "SENTINEL: ISO 9001 audit trail current · all NCRs closed · OSHA incident log clear.",
+    marketingNote: "FORGE: Supplier performance report auto-generated and distributed to 12 key vendors.",
+  },
+  plat10: {
+    headline: "Non-Profit & NGO Management — DEMO PREVIEW",
+    scenario: "Non-profit OS managing 1,200 donors, 8 active grants, and 3 programs. IRS 990 compliance, impact reporting, and donor retention fully automated.",
+    kpis: [{ label: "Active Donors", value: "1,200" },{ label: "Grants Managed", value: "8" },{ label: "Donor Retention Rate", value: "84.2%" },{ label: "Program Impact Score", value: "94/100" }],
+    liveInsight: "IMPACT: 48 lapsed donors identified — PULSE queued re-engagement sequence with impact story.",
+    masterBrainResult: "Grant reporting timeline optimized · donor segment scoring updated · 3 campaigns retimed.",
+    selfHealEvent: "Salesforce NPSP sync error — NEXUS corrected field mapping in 8s, donor records restored.",
+    complianceNote: "SENTINEL: IRS 990 prep data current · all grant compliance checkboxes verified.",
+    marketingNote: "FORGE: 'Year in Impact' donor report — personalized per giving level, 1,200 versions auto-generated.",
+  },
+  plat11: {
+    headline: "SaaS & Tech Startup Platform — DEMO PREVIEW",
+    scenario: "SaaS OS tracking 4,200 users, $420K MRR, and 14 product features in active use. Churn prediction, onboarding automation, and SOC2 compliance live.",
+    kpis: [{ label: "Active Users", value: "4,200" },{ label: "MRR", value: "$420K" },{ label: "Churn Risk Accounts", value: "12" },{ label: "NPS Score", value: "72" }],
+    liveInsight: "PIXEL: 12 accounts showing churn signals — success team notified, FORGE drafted intervention emails.",
+    masterBrainResult: "Churn model retrained · onboarding flow A/B tested · feature adoption nudges deployed.",
+    selfHealEvent: "Mixpanel event ingestion lag — VECTOR buffered events and re-sent in 18s, 0 data loss.",
+    complianceNote: "SENTINEL: SOC2 Type II controls all passing · annual pen test scheduled.",
+    marketingNote: "PULSE: 'New Feature Announcement' campaign — 4,200 users · 61.4% open rate.",
+  },
+  plat12: {
+    headline: "Government & Public Sector — DEMO PREVIEW",
+    scenario: "Government OS managing 840 active constituent cases, public outreach campaigns, and full FOIA/ADA compliance. Policy automation running autonomously.",
+    kpis: [{ label: "Active Cases", value: "840" },{ label: "Avg Resolution Time", value: "4.2 days" },{ label: "FOIA Requests", value: "18" },{ label: "Compliance Score", value: "98/100" }],
+    liveInsight: "CIVIX: 3 FOIA requests nearing 20-day deadline — ORACLE auto-prioritized and routed to staff.",
+    masterBrainResult: "Case routing optimized · outreach campaign segmented by district · budget variance flagged.",
+    selfHealEvent: "GovTech data sync outage — NEXUS switched to backup endpoint in 5s, case data preserved.",
+    complianceNote: "SENTINEL: ADA compliance confirmed · all public-facing content meets WCAG 2.1 AA.",
+    marketingNote: "FORGE: 'Community Services Q2' outreach — 12,000 constituents · segmented by zip code.",
+  },
+  plat13: {
+    headline: "Hospitality & Event Management — DEMO PREVIEW",
+    scenario: "Hospitality OS managing 280 rooms, 6 events in pipeline, and $1.4M in active bookings. Guest CRM, revenue management, and health compliance autonomous.",
+    kpis: [{ label: "Rooms Managed", value: "280" },{ label: "Occupancy Rate", value: "88.6%" },{ label: "Active Events", value: "6" },{ label: "Guest Satisfaction", value: "4.8/5" }],
+    liveInsight: "HOST: Event on Mar 22 at 94% capacity — upsell packages auto-offered to 12 registered guests.",
+    masterBrainResult: "Dynamic pricing updated for peak weekend · vendor contracts reviewed · 3 upsells converted.",
+    selfHealEvent: "PMS sync error — NEXUS reconciled room status in 7s, 0 double-bookings.",
+    complianceNote: "SENTINEL: Health & safety inspection checklist current · food handler certs verified.",
+    marketingNote: "PULSE: 'Spring Staycation' campaign — loyalty base of 3,200 guests · 48.7% open rate.",
+  },
+  plat14: {
+    headline: "Agriculture & AgriTech Platform — DEMO PREVIEW",
+    scenario: "AgriTech OS managing 4,800 acres across 3 farm operations. Crop analytics, supply chain, USDA/EPA compliance, and IoT sensor integration live.",
+    kpis: [{ label: "Acres Managed", value: "4,800" },{ label: "Active Sensors", value: "240" },{ label: "Yield Forecast Accuracy", value: "94.8%" },{ label: "Compliance Violations", value: "0" }],
+    liveInsight: "FIELD: Moisture levels low in Zone 4 — ORACLE triggered irrigation schedule adjustment.",
+    masterBrainResult: "Harvest timing model updated · supplier contracts pre-negotiated · 2 equipment alerts resolved.",
+    selfHealEvent: "IoT sensor data dropout in Zone 7 — VECTOR switched to interpolation model in 3s.",
+    complianceNote: "SENTINEL: USDA organic certification data current · EPA pesticide logs verified.",
+    marketingNote: "FORGE: Crop yield report for 3 buyers auto-generated with delivery timeline projections.",
+  },
+  plat15: {
+    headline: "Duck Hunting Regulatory Platform — DEMO PREVIEW",
+    scenario: "Wildlife regulatory OS managing 14,200 licensed hunters, 6 active duck seasons, migratory zone compliance, and USFWS integration across 3 states.",
+    kpis: [{ label: "Licensed Hunters", value: "14,200" },{ label: "Active Seasons", value: "6" },{ label: "Bag Limit Violations", value: "0" },{ label: "MBTA Compliance", value: "✅ Current" }],
+    liveInsight: "DRAKE: Mallard population count below threshold in Zone 3 — bag limit auto-reduced from 6 to 4.",
+    masterBrainResult: "Warden routing optimized for peak opening weekend · harvest quota models updated · 3 zones re-mapped.",
+    selfHealEvent: "USFWS data feed timeout — NEXUS switched to cached population data in 4s, quota limits preserved.",
+    complianceNote: "SENTINEL: Migratory Bird Treaty Act compliance confirmed · all zone boundaries USFWS-verified.",
+    marketingNote: "PULSE: 'Season Opening' alert — 14,200 hunters notified by zone with personalized bag limit updates.",
+  },
+};
 
 // ─── Platform OS View ─────────────────────────────────────────────────────────
 
@@ -4081,6 +4335,8 @@ function PlatformOSView() {
   const [buildStep, setBuildStep]       = useState(0);
   const [shareToast, setShareToast]     = useState<string | null>(null);
   const [shareLinks, setShareLinks]     = useState<Set<string>>(new Set());
+  const [activeDemoPreview, setActiveDemoPreview] = useState<string | null>(null);
+  const [generatingDemo, setGeneratingDemo]       = useState<string | null>(null);
   const [invites, setInvites]           = useState(INVITE_RECIPIENTS);
   const [sendingInvite, setSendingInvite] = useState<string | null>(null);
   const [sentInvites, setSentInvites]   = useState<Set<string>>(new Set(INVITE_RECIPIENTS.filter(r => r.status === "sent" || r.status === "opened").map(r => r.id)));
@@ -4170,6 +4426,17 @@ function PlatformOSView() {
     setPayoutDone(p => new Set([...p, id]));
     setShareToast(`💰 Revenue payout processed for ${user} — funds transferred`);
     setTimeout(() => setShareToast(null), 2500);
+  }
+
+  function generateDemoPreview(projId: string, projName: string) {
+    setGeneratingDemo(projId);
+    setActiveDemoPreview(null);
+    setTimeout(() => {
+      setGeneratingDemo(null);
+      setActiveDemoPreview(projId);
+      setShareToast(`🎬 Demo Preview for ${projName} is ready — all 12 features active`);
+      setTimeout(() => setShareToast(null), 2500);
+    }, 1400);
   }
 
   const totalRevenue = "$3.38M";
@@ -4322,36 +4589,88 @@ function PlatformOSView() {
           <div style={{ display: "flex", flexDirection: "column", gap: 12 }}>
             {projects.map(proj => {
               const linked = shareLinks.has(proj.id);
+              const isDemoActive = activeDemoPreview === proj.id;
+              const isGenerating = generatingDemo === proj.id;
+              const preview = DEMO_PREVIEWS[proj.id];
               return (
-                <div key={proj.id} style={{ background: "#fafafa", border: "1px solid #e5e5ea", borderRadius: 16, padding: "14px 16px" }}>
-                  <div style={{ display: "flex", justifyContent: "space-between", alignItems: "flex-start", flexWrap: "wrap", gap: 8, marginBottom: 10 }}>
+                <div key={proj.id} style={{ background: "#fafafa", border: `1px solid ${isDemoActive ? "#007AFF" : "#e5e5ea"}`, borderRadius: 16, padding: "14px 16px", transition: "border-color 0.2s" }}>
+                  {/* Header row */}
+                  <div style={{ display: "flex", justifyContent: "space-between", alignItems: "flex-start", flexWrap: "wrap", gap: 8, marginBottom: 8 }}>
                     <div style={{ display: "flex", gap: 10, alignItems: "center" }}>
-                      <span style={{ fontSize: 28 }}>{proj.icon}</span>
+                      <span style={{ fontSize: 26 }}>{proj.icon}</span>
                       <div>
-                        <div style={{ fontWeight: 700, fontSize: 15 }}>{proj.name}</div>
-                        <div style={{ fontSize: 12, color: "#777" }}>{proj.industry} · Created {proj.created} · {proj.users} users</div>
+                        <div style={{ fontWeight: 700, fontSize: 14 }}>{proj.name}</div>
+                        <div style={{ fontSize: 11, color: "#777" }}>{proj.industry} · {proj.created} · {proj.users} user{proj.users !== 1 ? "s" : ""}</div>
                       </div>
                     </div>
-                    <div style={{ display: "flex", gap: 6, alignItems: "center", flexWrap: "wrap" }}>
-                      <span style={{ background: "#e6f9ec", color: "#1a7a3a", borderRadius: 6, padding: "2px 9px", fontSize: 11, fontWeight: 700 }}>✅ LIVE</span>
-                      <span style={{ background: "#f5f0ff", color: "#8a00d4", borderRadius: 6, padding: "2px 9px", fontSize: 11, fontWeight: 700 }}>🤖 {proj.persona}</span>
+                    <div style={{ display: "flex", gap: 5, alignItems: "center", flexWrap: "wrap" }}>
+                      <span style={{ background: "#e6f9ec", color: "#1a7a3a", borderRadius: 5, padding: "1px 7px", fontSize: 10, fontWeight: 700 }}>⚡ LIVE</span>
+                      <span style={{ background: "#f0f7ff", color: "#007AFF", borderRadius: 5, padding: "1px 7px", fontSize: 10, fontWeight: 700 }}>🎬 DEMO</span>
+                      <span style={{ background: "#fff8e6", color: "#c67000", borderRadius: 5, padding: "1px 7px", fontSize: 10, fontWeight: 700 }}>🧪 TEST</span>
+                      <span style={{ background: "#f5f0ff", color: "#8a00d4", borderRadius: 5, padding: "1px 7px", fontSize: 10, fontWeight: 700 }}>🤖 {proj.persona}</span>
                       <button onClick={() => generateShareLink(proj.id, proj.name)}
-                        style={{ background: linked ? "#e6f9ec" : "#f0f7ff", color: linked ? "#1a7a3a" : "#007AFF", border: `1px solid ${linked ? "#b8eccc" : "#c8e0ff"}`, borderRadius: 8, padding: "4px 12px", cursor: "pointer", fontSize: 11, fontWeight: 700 }}>
-                        {linked ? "✅ Link Copied" : "🔗 Share Link"}
+                        style={{ background: linked ? "#e6f9ec" : "#f0f7ff", color: linked ? "#1a7a3a" : "#007AFF", border: `1px solid ${linked ? "#b8eccc" : "#c8e0ff"}`, borderRadius: 7, padding: "3px 10px", cursor: "pointer", fontSize: 10, fontWeight: 700 }}>
+                        {linked ? "✅ Copied" : "🔗 Share"}
                       </button>
                     </div>
                   </div>
-                  <div style={{ display: "flex", gap: 10, fontSize: 12, color: "#555", marginBottom: 10, flexWrap: "wrap" }}>
-                    <span style={{ background: "#e6f9ec", color: "#1a7a3a", borderRadius: 6, padding: "2px 8px", fontWeight: 700 }}>💰 {proj.revenue}</span>
-                    <span style={{ background: "#f5f0ff", color: "#8a00d4", borderRadius: 6, padding: "2px 8px", fontWeight: 700 }}>💵 {proj.revenueShare}% share</span>
-                    <span style={{ background: "#f0f7ff", color: "#007AFF", borderRadius: 6, padding: "2px 8px", fontWeight: 700 }}>🧠 {proj.agents.join(" · ")}</span>
+                  {/* Stats row */}
+                  <div style={{ display: "flex", gap: 6, fontSize: 11, marginBottom: 8, flexWrap: "wrap" }}>
+                    <span style={{ background: "#e6f9ec", color: "#1a7a3a", borderRadius: 5, padding: "2px 7px", fontWeight: 700 }}>💰 {proj.revenue}</span>
+                    <span style={{ background: "#f5f0ff", color: "#8a00d4", borderRadius: 5, padding: "2px 7px", fontWeight: 700 }}>💵 {proj.revenueShare}% share</span>
+                    <span style={{ background: "#f0f7ff", color: "#007AFF", borderRadius: 5, padding: "2px 7px", fontWeight: 700 }}>📡 {proj.aiSignals} signals</span>
+                    <span style={{ background: "#f0f7ff", color: "#007AFF", borderRadius: 5, padding: "2px 7px", fontWeight: 700 }}>🧠 {proj.agents.join(" · ")}</span>
                   </div>
-                  <div style={{ display: "flex", flexWrap: "wrap", gap: 4 }}>
-                    {proj.coreModules.slice(0,8).map(m => (
-                      <span key={m} style={{ background: "#e6f9ec", color: "#1a7a3a", borderRadius: 6, padding: "2px 7px", fontSize: 10, fontWeight: 600 }}>✅ {m}</span>
+                  {/* Module chips */}
+                  <div style={{ display: "flex", flexWrap: "wrap", gap: 3, marginBottom: 10 }}>
+                    {proj.coreModules.slice(0,6).map(m => (
+                      <span key={m} style={{ background: "#e6f9ec", color: "#1a7a3a", borderRadius: 5, padding: "1px 6px", fontSize: 9, fontWeight: 600 }}>✅ {m}</span>
                     ))}
-                    {proj.coreModules.length > 8 && <span style={{ background: "#f0f0f5", color: "#555", borderRadius: 6, padding: "2px 7px", fontSize: 10, fontWeight: 600 }}>+{proj.coreModules.length - 8} more</span>}
+                    {proj.coreModules.length > 6 && <span style={{ background: "#f0f0f5", color: "#555", borderRadius: 5, padding: "1px 6px", fontSize: 9, fontWeight: 600 }}>+{proj.coreModules.length - 6} more</span>}
                   </div>
+                  {/* Demo Preview button */}
+                  <button onClick={() => isDemoActive ? setActiveDemoPreview(null) : generateDemoPreview(proj.id, proj.name)}
+                    style={{ background: isDemoActive ? "#007AFF" : "#f0f7ff", color: isDemoActive ? "#fff" : "#007AFF", border: `1px solid ${isDemoActive ? "#007AFF" : "#c8e0ff"}`, borderRadius: 8, padding: "5px 14px", cursor: "pointer", fontSize: 11, fontWeight: 700, width: "100%" }}>
+                    {isGenerating ? "🔄 Generating Demo Preview…" : isDemoActive ? "▲ Hide Demo Preview" : "🎬 Generate Demo Preview"}
+                  </button>
+                  {/* Demo Preview Panel */}
+                  {isDemoActive && preview && (
+                    <div style={{ marginTop: 10, background: "linear-gradient(135deg, #f0f7ff 0%, #f5f0ff 100%)", border: "1px solid #c8e0ff", borderRadius: 12, padding: "14px 16px" }}>
+                      <div style={{ fontWeight: 700, fontSize: 13, color: "#007AFF", marginBottom: 4 }}>🎬 {preview.headline}</div>
+                      <div style={{ fontSize: 12, color: "#555", marginBottom: 10, lineHeight: 1.5 }}>{preview.scenario}</div>
+                      {/* KPIs */}
+                      <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fill, minmax(110px,1fr))", gap: 6, marginBottom: 10 }}>
+                        {preview.kpis.map(k => (
+                          <div key={k.label} style={{ background: "#fff", borderRadius: 8, padding: "8px 10px", textAlign: "center" }}>
+                            <div style={{ fontSize: 16, fontWeight: 800, color: "#007AFF" }}>{k.value}</div>
+                            <div style={{ fontSize: 10, color: "#666", fontWeight: 600 }}>{k.label}</div>
+                          </div>
+                        ))}
+                      </div>
+                      {/* Mode strips */}
+                      <div style={{ display: "flex", gap: 6, marginBottom: 10, flexWrap: "wrap" }}>
+                        <span style={{ background: "#e6f9ec", color: "#1a7a3a", borderRadius: 6, padding: "3px 10px", fontSize: 11, fontWeight: 700 }}>⚡ LIVE — production data active</span>
+                        <span style={{ background: "#f0f7ff", color: "#007AFF", borderRadius: 6, padding: "3px 10px", fontSize: 11, fontWeight: 700 }}>🎬 DEMO — showcase mode ready</span>
+                        <span style={{ background: "#fff8e6", color: "#c67000", borderRadius: 6, padding: "3px 10px", fontSize: 11, fontWeight: 700 }}>🧪 TEST — isolated sandbox active</span>
+                      </div>
+                      {/* Insights */}
+                      {[
+                        { icon: "🤖", label: "AI Persona Insight", text: preview.liveInsight },
+                        { icon: "🧠", label: "Master Brain Result", text: preview.masterBrainResult },
+                        { icon: "🔧", label: "Self-Heal Event", text: preview.selfHealEvent },
+                        { icon: "⚖️", label: "Compliance Status", text: preview.complianceNote },
+                        { icon: "📣", label: "Marketing Automation", text: preview.marketingNote },
+                      ].map(row => (
+                        <div key={row.label} style={{ display: "flex", gap: 8, marginBottom: 6, fontSize: 12, background: "#fff", borderRadius: 8, padding: "7px 10px" }}>
+                          <span style={{ fontSize: 14, flexShrink: 0 }}>{row.icon}</span>
+                          <div><span style={{ fontWeight: 700, color: "#333" }}>{row.label}: </span><span style={{ color: "#555" }}>{row.text}</span></div>
+                        </div>
+                      ))}
+                      <div style={{ marginTop: 8, fontSize: 11, color: "#007AFF", fontWeight: 700, textAlign: "center" }}>
+                        ✅ All 12 core features active · 25% revenue share registered · AI Persona online · Autopilot running
+                      </div>
+                    </div>
+                  )}
                 </div>
               );
             })}
