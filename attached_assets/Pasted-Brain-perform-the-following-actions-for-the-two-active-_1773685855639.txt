@@ -1,0 +1,36 @@
+Brain, perform the following actions for the two active projects only: Global Staffing Company and Global Healthcare Platform.
+
+1. Full Functional Verification:
+   - Check all dashboards, workflows, candidate/client (or patient/agency) modules, job postings, integrations, and predictive analytics.
+   - Ensure Demo, Test, and Live modes exist and are fully populated with realistic sample data for demo/test modes.
+   - Confirm all buttons, emails, links, marketing campaigns, and interactive elements are fully functional.
+   - Self-heal any missing or broken elements immediately.
+
+2. AI Persona Deployment:
+   - Attach fully personalized AI assistants to each project.
+   - Enable voice, visual, and text interactions for all users accessing project links.
+   - Ensure AI guides users, answers questions, highlights key workflows, and adapts dynamically based on user interaction.
+
+3. Automation & Optimization:
+   - Activate all Master Brain features for continuous optimization of workflows, candidate/patient placements, marketing campaigns, and predictive ROI.
+   - Verify marketing campaigns are ready to send, personalized, and functional.
+   - Ensure all integrations with external systems/tools are live and self-healing if any fail.
+
+4. Isolation & Environment Integrity:
+   - Keep these two projects fully isolated from any other projects or AI platforms.
+   - Verify all environments are fully self-contained, scalable, and ready for immediate sharing.
+   - Generate unique, fully operational links for each project.
+
+5. Max Capabilities Check:
+   - Confirm the system can perform any previously described advanced or “unrealistic” capabilities.
+   - Automatically generate any missing modules, templates, dashboards, or workflows needed to fully realize these capabilities.
+
+6. Deployment Confirmation:
+   - Once all steps are complete, produce a status summary confirming:
+     - All functions work exactly as described.
+     - AI personas are active and interactive.
+     - Demo/Test/Live modes are verified.
+     - Marketing campaigns, predictive analytics, and workflows are fully operational.
+     - Projects are ready to send to any user immediately.
+
+Execute all tasks and report when both projects are fully functional, verified, and ready to deploy.
