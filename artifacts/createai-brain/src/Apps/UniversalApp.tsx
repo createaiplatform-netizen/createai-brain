@@ -3057,6 +3057,11 @@ function ArchitectureScreen() {
       modules: ["Recursive Creativity","Multi-Reality VR/AR/MR","Autonomous SaaS Generator","Synthetic Talent Engine","Predictive Story Engine","Infinite World Builder","Global Scenario Engine","Cross-Project Dependency","Adaptive Self-Improving Pipelines"],
       desc: "Speculative and experimental conceptual modules — non-operational, future-facing design patterns for recursive, cross-domain, and self-organizing fictional systems.",
     },
+    {
+      category: "Interactive",  icon: "⚡", color: "orange",
+      modules: ["InstantActionInterface"],
+      desc: "One-click execution interface — the floating ⚡ button available in every Universal Hub screen. Launches any engine or screen instantly without navigating the sidebar.",
+    },
   ];
 
   const PIPELINE = [
@@ -3067,7 +3072,8 @@ function ArchitectureScreen() {
     { step: "Parallel Generation", icon: "⚡", desc: "Multiple engines generate their respective fictional outputs simultaneously." },
     { step: "Validation",          icon: "✅", desc: "Completeness Pass scores output and flags missing sections." },
     { step: "Assembly",            icon: "🔗", desc: "Connection Layer links all outputs into a unified fictional project." },
-    { step: "Deployment Packaging",icon: "📦", desc: "Conceptual export package compiled: documents, index, safety declaration." },
+    { step: "Deployment Packaging",     icon: "📦", desc: "Conceptual export package compiled: documents, index, safety declaration." },
+    { step: "Instant Action Execution", icon: "⚡", desc: "InstantActionInterface intercepts any step — one-click direct engine launch bypassing the full pipeline when speed is needed." },
   ];
 
   const INFRASTRUCTURE = [
@@ -3086,7 +3092,8 @@ function ArchitectureScreen() {
     { name: "Project Explorer",  icon: "🗂️", desc: "Connection Layer: assemble and browse all generated project elements in one view." },
     { name: "Engine Console",    icon: "🔧", desc: "This Architecture screen — view the full system map, pipeline, and extension registry." },
     { name: "Output Packaging",  icon: "📦", desc: "Conceptual export: every generated output includes a fictional export document list." },
-    { name: "API Integration",   icon: "🔌", desc: "Integration Engine: 23 fictional demo API packets across 9 categories." },
+    { name: "API Integration",          icon: "🔌", desc: "Integration Engine: 23 fictional demo API packets across 9 categories." },
+    { name: "InstantActionInterface",   icon: "⚡", desc: "Floating ⚡ popup button — one-click engine launcher available from any screen in the Universal Hub. No sidebar navigation required." },
   ];
 
   const GOVERNANCE = [
@@ -3326,6 +3333,115 @@ function ArchitectureScreen() {
   );
 }
 
+// ─── Instant Action Interface ─────────────────────────────────────────────
+// New interactive extension from the UCP-X manifest.
+// One-click popup that triggers any engine from anywhere in the hub.
+// Purely additive — does not modify any existing screen or engine.
+function InstantActionInterface() {
+  const { setView, dispatch } = useInteraction();
+  const [open, setOpen] = useState(false);
+
+  const ACTIONS: { label: string; icon: string; desc: string; action: () => void }[] = [
+    {
+      label: "Story",         icon: "📖",
+      desc: "Generate a narrative structure",
+      action: () => { setView("story");      dispatch("IAI_LAUNCH", "story"); },
+    },
+    {
+      label: "Character",     icon: "🧑",
+      desc: "Create a character profile",
+      action: () => { setView("story");      dispatch("IAI_LAUNCH", "character"); },
+    },
+    {
+      label: "World",         icon: "🌍",
+      desc: "Build a fictional world",
+      action: () => { setView("story");      dispatch("IAI_LAUNCH", "world"); },
+    },
+    {
+      label: "Game GDD",      icon: "🎮",
+      desc: "Generate a game design document",
+      action: () => { setView("games");      dispatch("IAI_LAUNCH", "games"); },
+    },
+    {
+      label: "Creative",      icon: "🎬",
+      desc: "Produce a creative package",
+      action: () => { setView("creative");   dispatch("IAI_LAUNCH", "creative"); },
+    },
+    {
+      label: "Workflow",      icon: "🔄",
+      desc: "Build a workflow structure",
+      action: () => { setView("workflows");  dispatch("IAI_LAUNCH", "workflows"); },
+    },
+    {
+      label: "Connection",    icon: "🔗",
+      desc: "Assemble a connected project",
+      action: () => { setView("connection"); dispatch("IAI_LAUNCH", "connection"); },
+    },
+    {
+      label: "Strategy",      icon: "📈",
+      desc: "Generate a roadmap",
+      action: () => { setView("strategy");   dispatch("IAI_LAUNCH", "strategy"); },
+    },
+    {
+      label: "Industries",    icon: "🏭",
+      desc: "Explore industry library",
+      action: () => { setView("industries"); dispatch("IAI_LAUNCH", "industries"); },
+    },
+    {
+      label: "Architecture",  icon: "🗺️",
+      desc: "View system architecture map",
+      action: () => { setView("architecture"); dispatch("IAI_LAUNCH", "architecture"); },
+    },
+  ];
+
+  return (
+    <>
+      {/* Floating trigger button */}
+      <button
+        onClick={() => setOpen(o => !o)}
+        title="InstantActionInterface — one-click engine launcher"
+        className="fixed bottom-5 right-5 z-50 w-12 h-12 rounded-full bg-blue-500 text-white text-xl shadow-lg flex items-center justify-center hover:bg-blue-600 transition-all active:scale-95"
+        style={{ boxShadow: "0 4px 20px rgba(0,122,255,0.4)" }}
+      >
+        {open ? "✕" : "⚡"}
+      </button>
+
+      {/* Popup */}
+      {open && (
+        <>
+          <div className="fixed inset-0 z-40" onClick={() => setOpen(false)} />
+          <div className="fixed bottom-20 right-5 z-50 w-64 bg-white border border-border rounded-2xl shadow-2xl overflow-hidden"
+            style={{ boxShadow: "0 8px 40px rgba(0,0,0,0.18)" }}>
+            <div className="px-4 py-3 bg-gradient-to-r from-blue-500 to-blue-600 text-white">
+              <p className="text-[13px] font-bold">⚡ Instant Actions</p>
+              <p className="text-[10px] opacity-80">One-click engine launcher · All fictional</p>
+            </div>
+            <div className="p-2 space-y-0.5 max-h-80 overflow-y-auto">
+              {ACTIONS.map(a => (
+                <button
+                  key={a.label}
+                  onClick={() => { a.action(); setOpen(false); }}
+                  className="w-full flex items-center gap-3 px-3 py-2.5 rounded-xl text-left hover:bg-blue-50 transition-colors group"
+                >
+                  <span className="text-lg shrink-0">{a.icon}</span>
+                  <div className="flex-1 min-w-0">
+                    <p className="text-[12px] font-semibold text-foreground group-hover:text-blue-700">{a.label}</p>
+                    <p className="text-[10px] text-muted-foreground truncate">{a.desc}</p>
+                  </div>
+                  <span className="text-muted-foreground/40 group-hover:text-blue-400 text-[10px]">→</span>
+                </button>
+              ))}
+            </div>
+            <div className="px-3 py-2 border-t border-border">
+              <p className="text-[9px] text-muted-foreground text-center">InstantActionInterface · UCP-X Extension · Non-operational</p>
+            </div>
+          </div>
+        </>
+      )}
+    </>
+  );
+}
+
 // ─── Main Universal App ───────────────────────────────────────────────────
 export function UniversalApp() {
   const { state, setView } = useInteraction();
@@ -3416,6 +3532,9 @@ export function UniversalApp() {
           {screens[state.currentView]}
         </div>
       </div>
+
+      {/* InstantActionInterface — UCP-X interactive extension */}
+      <InstantActionInterface />
     </div>
   );
 }
