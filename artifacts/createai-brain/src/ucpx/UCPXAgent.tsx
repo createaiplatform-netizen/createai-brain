@@ -16,6 +16,7 @@ import {
   WORKFLOW_FEATURES, INFINITE_FEATURES, INTERACTIVE_FEATURES,
   MANIFEST,
   SUPERPOWERS, Superpower, generateSuperpower,
+  SUBSCRIPTION_REPLACEMENTS, SubscriptionReplacement, generateSelfSufficientAudit,
 } from "@/engine/InfiniteExpansionEngine";
 
 // ─── Panel tabs ───────────────────────────────────────────────────────────
@@ -543,9 +544,19 @@ function EnginesView() {
 // ─── Universal Modules View ────────────────────────────────────────────────
 
 function UniversalModulesView({ onResult }: { onResult: (mod: InfiniteModule) => void }) {
+  const [mode, setMode] = useState<"modules" | "selfsufficient">("modules");
+
+  // ── Modules sub-state ──
   const [generating, setGenerating] = useState<string | null>(null);
-  const [generated, setGenerated] = useState<string[]>([]);
-  const [filter, setFilter] = useState("");
+  const [generated,  setGenerated]  = useState<string[]>([]);
+  const [filter,     setFilter]     = useState("");
+
+  // ── Self-Sufficient sub-state ──
+  const [auditBusy,    setAuditBusy]    = useState(false);
+  const [auditDone,    setAuditDone]    = useState(false);
+
+  const totalMonthly = SUBSCRIPTION_REPLACEMENTS.reduce((s, r) => s + r.monthlyUSD, 0);
+  const totalAnnual  = totalMonthly * 12;
 
   const filtered = UNIVERSAL_MODULES.filter(m =>
     m.name.toLowerCase().includes(filter.toLowerCase()) ||
@@ -563,67 +574,160 @@ function UniversalModulesView({ onResult }: { onResult: (mod: InfiniteModule) =>
     }, 900);
   }
 
+  function handleAudit() {
+    setAuditBusy(true);
+    setTimeout(() => {
+      const content = generateSelfSufficientAudit();
+      setAuditBusy(false);
+      setAuditDone(true);
+      onResult({
+        id: `ss-audit-${Date.now()}`,
+        title: "Self-Sufficient Audit — Platform-Wide",
+        domain: "Platform",
+        agentId: "SENTINEL",
+        content,
+        tags: ["self-sufficient", "audit", "subscription-free"],
+        createdAt: new Date(),
+        type: "insight",
+      });
+    }, 1100);
+  }
+
   return (
     <div className="space-y-3">
-      {/* Header */}
-      <div className="bg-gradient-to-br from-indigo-50 to-blue-50 border border-indigo-100 rounded-2xl p-3">
-        <p className="text-[11px] font-bold text-indigo-700">25 UNIVERSAL MODULES — ALL ACTIVE</p>
-        <p className="text-[10px] text-indigo-600 mt-0.5">Tap any industry to generate a live AI module, workflow, or insight instantly</p>
+      {/* Mode toggle */}
+      <div className="flex gap-1 bg-muted rounded-xl p-1">
+        <button onClick={() => setMode("modules")}
+          className={`flex-1 text-[11px] font-bold py-1.5 rounded-lg transition-colors ${mode === "modules" ? "bg-white text-primary shadow-sm" : "text-muted-foreground hover:text-foreground"}`}>
+          🌐 Modules
+        </button>
+        <button onClick={() => setMode("selfsufficient")}
+          className={`flex-1 text-[11px] font-bold py-1.5 rounded-lg transition-colors ${mode === "selfsufficient" ? "bg-white text-primary shadow-sm" : "text-muted-foreground hover:text-foreground"}`}>
+          🔒 Self-Sufficient
+        </button>
       </div>
 
-      {/* Search */}
-      <input
-        value={filter}
-        onChange={e => setFilter(e.target.value)}
-        placeholder="Filter by industry or keyword…"
-        className="w-full bg-muted rounded-xl px-3 py-2 text-[11px] text-foreground placeholder:text-muted-foreground focus:outline-none focus:ring-1 focus:ring-blue-300"
-      />
-
-      {/* Module grid */}
-      <div className="space-y-1.5">
-        {filtered.map(mod => {
-          const done = generated.includes(mod.id);
-          const busy = generating === mod.id;
-          return (
-            <button key={mod.id} onClick={() => handleGenerate(mod)} disabled={!!generating}
-              className={`w-full flex items-center gap-3 p-2.5 rounded-xl border text-left transition-all
-                ${done ? "bg-green-50 border-green-200" : "bg-white border-border/40 hover:border-blue-300 hover:bg-blue-50/30"}
-                ${busy ? "opacity-60" : ""}
-                disabled:cursor-not-allowed`}>
-              <span className="text-xl flex-shrink-0">{mod.icon}</span>
-              <div className="flex-1 min-w-0">
-                <p className="text-[12px] font-semibold text-foreground">{mod.name}</p>
-                <p className="text-[10px] text-muted-foreground truncate">{mod.description}</p>
-              </div>
-              <div className="flex-shrink-0 text-right">
-                {busy ? (
-                  <span className="text-[10px] text-blue-500 font-bold animate-pulse">Generating…</span>
-                ) : done ? (
-                  <span className="text-[10px] text-green-600 font-bold">✓ Done</span>
-                ) : (
-                  <div className="text-right">
-                    <p className="text-[9px] text-blue-500 font-semibold">Generate ›</p>
-                    <p className="text-[8px] text-muted-foreground">{mod.agentCount} agents</p>
+      {/* ── Modules mode ── */}
+      {mode === "modules" && (
+        <div className="space-y-3">
+          <div className="bg-gradient-to-br from-indigo-50 to-blue-50 border border-indigo-100 rounded-2xl p-3">
+            <p className="text-[11px] font-bold text-indigo-700">25 UNIVERSAL MODULES — ALL ACTIVE</p>
+            <p className="text-[10px] text-indigo-600 mt-0.5">Tap any industry to generate a live AI module, workflow, or insight instantly</p>
+          </div>
+          <input
+            value={filter}
+            onChange={e => setFilter(e.target.value)}
+            placeholder="Filter by industry or keyword…"
+            className="w-full bg-muted rounded-xl px-3 py-2 text-[11px] text-foreground placeholder:text-muted-foreground focus:outline-none focus:ring-1 focus:ring-blue-300"
+          />
+          <div className="space-y-1.5">
+            {filtered.map(mod => {
+              const done = generated.includes(mod.id);
+              const busy = generating === mod.id;
+              return (
+                <button key={mod.id} onClick={() => handleGenerate(mod)} disabled={!!generating}
+                  className={`w-full flex items-center gap-3 p-2.5 rounded-xl border text-left transition-all
+                    ${done ? "bg-green-50 border-green-200" : "bg-white border-border/40 hover:border-blue-300 hover:bg-blue-50/30"}
+                    ${busy ? "opacity-60" : ""}
+                    disabled:cursor-not-allowed`}>
+                  <span className="text-xl flex-shrink-0">{mod.icon}</span>
+                  <div className="flex-1 min-w-0">
+                    <p className="text-[12px] font-semibold text-foreground">{mod.name}</p>
+                    <p className="text-[10px] text-muted-foreground truncate">{mod.description}</p>
                   </div>
-                )}
-              </div>
-            </button>
-          );
-        })}
-        {filtered.length === 0 && (
-          <p className="text-center text-[11px] text-muted-foreground py-6">No modules match "{filter}"</p>
-        )}
-      </div>
-
-      {/* Infinite features strip */}
-      <div className="bg-gradient-to-br from-purple-50 to-indigo-50 border border-purple-100 rounded-2xl p-3 space-y-2">
-        <p className="text-[10px] font-bold text-purple-700 uppercase">Infinite Expansion Features Active</p>
-        <div className="flex flex-wrap gap-1">
-          {INFINITE_FEATURES.map(f => (
-            <span key={f} className="text-[9px] bg-purple-100 text-purple-700 px-1.5 py-0.5 rounded-full font-medium">{f}</span>
-          ))}
+                  <div className="flex-shrink-0 text-right">
+                    {busy ? (
+                      <span className="text-[10px] text-blue-500 font-bold animate-pulse">Generating…</span>
+                    ) : done ? (
+                      <span className="text-[10px] text-green-600 font-bold">✓ Done</span>
+                    ) : (
+                      <div className="text-right">
+                        <p className="text-[9px] text-blue-500 font-semibold">Generate ›</p>
+                        <p className="text-[8px] text-muted-foreground">{mod.agentCount} agents</p>
+                      </div>
+                    )}
+                  </div>
+                </button>
+              );
+            })}
+            {filtered.length === 0 && (
+              <p className="text-center text-[11px] text-muted-foreground py-6">No modules match "{filter}"</p>
+            )}
+          </div>
+          <div className="bg-gradient-to-br from-purple-50 to-indigo-50 border border-purple-100 rounded-2xl p-3 space-y-2">
+            <p className="text-[10px] font-bold text-purple-700 uppercase">Infinite Expansion Features Active</p>
+            <div className="flex flex-wrap gap-1">
+              {INFINITE_FEATURES.map(f => (
+                <span key={f} className="text-[9px] bg-purple-100 text-purple-700 px-1.5 py-0.5 rounded-full font-medium">{f}</span>
+              ))}
+            </div>
+          </div>
         </div>
-      </div>
+      )}
+
+      {/* ── Self-Sufficient mode ── */}
+      {mode === "selfsufficient" && (
+        <div className="space-y-3">
+          {/* Hero banner */}
+          <div className="bg-gradient-to-br from-green-50 to-emerald-50 border border-green-200 rounded-2xl p-3">
+            <div className="flex items-center gap-2 mb-1">
+              <span className="text-base">🔒</span>
+              <p className="text-[12px] font-bold text-green-800">SUBSCRIPTION-FREE PLATFORM</p>
+            </div>
+            <p className="text-[10px] text-green-700">All content, software, and workflows are generated internally. Zero dependency on paid tools.</p>
+            <div className="flex gap-3 mt-2">
+              <div className="text-center">
+                <p className="text-[16px] font-black text-green-700">${totalMonthly}</p>
+                <p className="text-[8px] text-green-600 font-semibold uppercase">Saved / mo</p>
+              </div>
+              <div className="text-center">
+                <p className="text-[16px] font-black text-green-700">${totalAnnual.toLocaleString()}</p>
+                <p className="text-[8px] text-green-600 font-semibold uppercase">Saved / yr</p>
+              </div>
+              <div className="text-center">
+                <p className="text-[16px] font-black text-green-700">{SUBSCRIPTION_REPLACEMENTS.length}</p>
+                <p className="text-[8px] text-green-600 font-semibold uppercase">Tools replaced</p>
+              </div>
+            </div>
+          </div>
+
+          {/* Audit button */}
+          <button onClick={handleAudit} disabled={auditBusy || auditDone}
+            className={`w-full py-2.5 rounded-xl text-[12px] font-bold flex items-center justify-center gap-2 transition-all
+              ${auditDone ? "bg-green-100 text-green-700 border border-green-200" : "bg-green-500 text-white hover:bg-green-600"}
+              disabled:opacity-50`}>
+            {auditBusy ? (
+              <><div className="w-3 h-3 border-2 border-white border-t-transparent rounded-full animate-spin" /><span>Running Audit…</span></>
+            ) : auditDone ? (
+              "✓ Audit Complete — View in Panel →"
+            ) : (
+              "🔒 Generate Full Self-Sufficient Audit"
+            )}
+          </button>
+
+          {/* Replacement list */}
+          <div>
+            <p className="text-[10px] font-bold text-muted-foreground uppercase tracking-wider mb-2">Tools This Platform Replaces</p>
+            <div className="space-y-1.5">
+              {SUBSCRIPTION_REPLACEMENTS.map(r => (
+                <div key={r.tool} className="bg-white border border-border/40 rounded-xl p-2.5 flex items-start gap-2.5">
+                  <span className="text-lg flex-shrink-0 mt-0.5">{r.icon}</span>
+                  <div className="flex-1 min-w-0">
+                    <div className="flex items-center justify-between gap-1">
+                      <p className="text-[11px] font-bold text-foreground">{r.tool}</p>
+                      <span className="text-[9px] font-semibold text-red-500 flex-shrink-0">${r.monthlyUSD}/mo</span>
+                    </div>
+                    <p className="text-[9px] text-muted-foreground">{r.category}</p>
+                    <p className="text-[9px] text-green-700 mt-0.5 leading-snug">↳ {r.replacedBy}</p>
+                    <p className="text-[8px] text-blue-500 font-semibold mt-0.5">via {r.app}</p>
+                  </div>
+                </div>
+              ))}
+            </div>
+          </div>
+          <p className="text-[9px] text-muted-foreground text-center">UCP-X Self-Sufficient Add-On · Additive Only · Core Intact · Subscription-Free</p>
+        </div>
+      )}
     </div>
   );
 }

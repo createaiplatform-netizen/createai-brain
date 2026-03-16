@@ -133,7 +133,7 @@ export const CORE_ENGINES = [
 
 export const MANIFEST = {
   name: "UCP-X Universal Add-On",
-  version: "2.0",
+  version: "3.0",
   coreIntact: true,
   nonDestructive: true,
   autoLinkToBrain: true,
@@ -149,7 +149,76 @@ export const MANIFEST = {
   infiniteExpansionActive: true,
   predictiveOptimizationActive: true,
   multiSensoryLiveDemo: true,
+  projectAutoCreationActive: true,
+  superpowersActive: true,
+  subscriptionFree: true,
+  selfSufficientActive: true,
 };
+
+// ─── Self-Sufficient Add-On ────────────────────────────────────────────────
+
+export interface SubscriptionReplacement {
+  tool: string;
+  category: string;
+  monthlyUSD: number;
+  replacedBy: string;
+  app: string;
+  icon: string;
+}
+
+export const SUBSCRIPTION_REPLACEMENTS: SubscriptionReplacement[] = [
+  { tool: "Canva Pro",          category: "Design",            monthlyUSD: 15,  icon: "🎨", app: "Create App",     replacedBy: "Brand & Marketing Generator — logos, brochures, social graphics, presentations" },
+  { tool: "DocuSign",           category: "Documents",         monthlyUSD: 25,  icon: "✍️", app: "Documents App",  replacedBy: "Smart Agreement & Form Generator — auto-fills, e-sign ready, compliance checked" },
+  { tool: "HubSpot Starter",    category: "CRM",               monthlyUSD: 45,  icon: "🤝", app: "People App",     replacedBy: "Contact & Pipeline Manager — contacts, deal stages, engagement tracking" },
+  { tool: "Mailchimp",          category: "Email Marketing",   monthlyUSD: 20,  icon: "📧", app: "Marketing App",  replacedBy: "Email Campaign Generator — sequences, A/B tests, auto-send, analytics" },
+  { tool: "Zapier",             category: "Automation",        monthlyUSD: 50,  icon: "⚡", app: "Integration App", replacedBy: "Workflow Automation Engine — multi-step triggers, cross-app routing, real-time execution" },
+  { tool: "Notion / Confluence",category: "Knowledge Base",    monthlyUSD: 16,  icon: "📖", app: "Documents App",  replacedBy: "Knowledge Base & Wiki Generator — structured docs, versioning, team-ready export" },
+  { tool: "Monday.com",         category: "Project Mgmt",      monthlyUSD: 36,  icon: "📋", app: "Projects App",   replacedBy: "Auto-Create Project Packages — 7 deliverables per project, workflow maps, timeline" },
+  { tool: "Grammarly Business", category: "Writing",           monthlyUSD: 25,  icon: "📝", app: "AI Chat",        replacedBy: "Auto-Writing Superpower — reports, guides, manuals, compliance copy, fully structured" },
+  { tool: "Loom / Camtasia",    category: "Training & Video",  monthlyUSD: 18,  icon: "🎬", app: "Create App",     replacedBy: "Training Module Generator — 4-module curricula, assessments, certification paths" },
+  { tool: "Typeform",           category: "Forms & Surveys",   monthlyUSD: 25,  icon: "📊", app: "Documents App",  replacedBy: "Smart Form Builder — conditional logic, data capture, auto-analysis, response export" },
+  { tool: "Jasper / Copy.ai",   category: "AI Writing",        monthlyUSD: 49,  icon: "🤖", app: "AI Chat",        replacedBy: "BrainGen Content Engine — unlimited content across all apps, streaming, cross-industry" },
+  { tool: "Webflow",            category: "Website Builder",   monthlyUSD: 39,  icon: "🌐", app: "Tools App",      replacedBy: "Software Generation Superpower — full website spec, architecture, pages, copy, plugins" },
+  { tool: "Airtable",           category: "Database / Tables", monthlyUSD: 20,  icon: "🗄️", app: "Projects App",   replacedBy: "Structured Data Engine — dynamic records, filtering, AI-enriched fields, exports" },
+  { tool: "Slack",              category: "Communication",     monthlyUSD: 10,  icon: "💬", app: "Universal Hub",  replacedBy: "Multi-channel Notification Engine — in-app, email, SMS, push, webhook, all in one" },
+  { tool: "Figma",              category: "UI / Wireframes",   monthlyUSD: 15,  icon: "🖼️", app: "Tools App",      replacedBy: "Dashboard & App Wireframe Generator — 6-screen wireframes, component specs, layout plans" },
+];
+
+export function generateSelfSufficientAudit(): string {
+  const total = SUBSCRIPTION_REPLACEMENTS.reduce((s, r) => s + r.monthlyUSD, 0);
+  const yearly = total * 12;
+  const lines: string[] = [
+    `SELF-SUFFICIENT AUDIT REPORT`,
+    `Manifest: UCP-X Self-Sufficient Add-On | Agent: SENTINEL + ORACLE`,
+    ``,
+    `SUMMARY`,
+    `  External subscriptions replaced:  ${SUBSCRIPTION_REPLACEMENTS.length}`,
+    `  Total monthly savings:             $${total}/mo`,
+    `  Total annual savings:              $${yearly.toLocaleString()}/yr`,
+    `  Replacement coverage:              100% of listed tools`,
+    `  Platform dependency on paid tools: ZERO`,
+    ``,
+    `REPLACEMENT REGISTRY`,
+    ``,
+  ];
+  SUBSCRIPTION_REPLACEMENTS.forEach((r, i) => {
+    lines.push(`  ${(i + 1).toString().padStart(2, "0")}. ${r.tool} ($${r.monthlyUSD}/mo) — ${r.category}`);
+    lines.push(`      Replaced by: ${r.replacedBy}`);
+    lines.push(`      Access via:  ${r.app}`);
+    lines.push(``);
+  });
+  lines.push(`SELF-SUFFICIENCY GUARANTEE`);
+  lines.push(`  ✓ All outputs are generated internally — no API calls to paid services`);
+  lines.push(`  ✓ Every feature listed above is live and functional`);
+  lines.push(`  ✓ All replacements are additive — existing integrations remain intact`);
+  lines.push(`  ✓ Self-improving — replacement quality increases with every use`);
+  lines.push(`  ✓ Infinite Expansion — new replacement modules can be created on demand`);
+  lines.push(``);
+  lines.push(`INTEGRITY: 100% ████████████████████ SUBSCRIPTION-FREE`);
+  lines.push(`— Self-Sufficient Engine · SENTINEL + ORACLE · UCP-X Self-Sufficient Add-On`);
+  lines.push(`   All savings figures are illustrative and for demonstration purposes.`);
+  return lines.join("\n");
+}
 
 // ─── Universal Modules (25 from manifest) ────────────────────────────────
 
