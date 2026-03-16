@@ -2793,10 +2793,600 @@ function MasterBrainView() {
   );
 }
 
+// ─── Infinite Intelligence Ecosystem MAX ────────────────────────────────
+
+interface AutoExpandEvent { id: string; ts: string; type: "project" | "workflow" | "tool" | "agent" | "minibrain"; name: string; industry: string; status: "deployed" | "testing" | "queued"; impact: string; }
+interface MetaInsight { id: string; fromIndustry: string; toIndustry: string; pattern: string; applied: boolean; roi: string; }
+interface EconForecast { period: string; revenue: string; savings: string; roiPct: string; confidence: number; }
+interface RDInvention { id: string; name: string; category: string; icon: string; status: "live" | "beta" | "inventing"; description: string; firstOfKind: boolean; }
+interface GlobalRegulation { region: string; icon: string; framework: string; status: "monitored" | "updated" | "alert"; change: string; }
+interface EthicsDecision { id: string; decision: string; outcome: "approved" | "modified" | "blocked"; rationale: string; }
+interface UXAdaptation { user: string; adaptation: string; trigger: string; impact: string; }
+interface TrillionStrategy { focus: string; icon: string; potential: string; timeframe: string; action: string; confidence: number; }
+interface ResourceAlloc { resource: string; icon: string; project: string; allocated: string; optimized: string; saving: string; }
+interface CrossLearn { from: string; to: string; insight: string; appliedValue: string; }
+interface MicroBrain { id: string; name: string; parentDept: string; task: string; status: "running" | "paused" | "complete"; completedTasks: number; }
+interface InventionItem { id: string; name: string; icon: string; category: string; capability: string; humanConceivable: boolean; }
+
+const AUTO_EXPAND_EVENTS: AutoExpandEvent[] = [
+  { id: "ae1", ts: "09:44 AM", type: "project",  name: "NovaMed Telehealth Platform",    industry: "Healthcare",    status: "deployed",  impact: "+$1.4M ROI projected"       },
+  { id: "ae2", ts: "09:41 AM", type: "workflow",  name: "Auto-Onboarding Compliance Flow",industry: "Finance",       status: "deployed",  impact: "Saves 340 hours/month"       },
+  { id: "ae3", ts: "09:38 AM", type: "tool",      name: "Predictive Attrition Detector",  industry: "HR/Workforce",  status: "testing",   impact: "30% reduction in turnover"   },
+  { id: "ae4", ts: "09:33 AM", type: "agent",     name: "LegalBot: Contract Generator v2",industry: "Legal/Finance", status: "deployed",  impact: "Auto-drafts 95% of contracts"},
+  { id: "ae5", ts: "09:28 AM", type: "minibrain", name: "SupplyChain Mini-Brain #9",      industry: "Logistics",     status: "deployed",  impact: "15% logistics cost reduction" },
+  { id: "ae6", ts: "09:20 AM", type: "project",  name: "CivicAI Government Portal",       industry: "Government",    status: "queued",    impact: "Estimated $3.2M efficiency gain"},
+  { id: "ae7", ts: "09:15 AM", type: "workflow",  name: "Infinite Patient Routing Engine", industry: "Healthcare",   status: "deployed",  impact: "42% faster patient throughput"},
+  { id: "ae8", ts: "09:10 AM", type: "tool",      name: "Multi-Currency Revenue Optimizer",industry: "Finance",      status: "testing",   impact: "+$890K/year per deployment"  },
+];
+
+const META_INSIGHTS: MetaInsight[] = [
+  { id: "mi1", fromIndustry: "Healthcare",    toIndustry: "Finance",      pattern: "Patient triage priority model → loan risk scoring",              applied: true,  roi: "+$2.1M"  },
+  { id: "mi2", fromIndustry: "Retail",        toIndustry: "Education",    pattern: "Dynamic pricing engine → tuition aid optimization",             applied: true,  roi: "+$540K"  },
+  { id: "mi3", fromIndustry: "Construction",  toIndustry: "Logistics",    pattern: "Resource scheduling algorithms → warehouse optimization",        applied: false, roi: "+$1.3M"  },
+  { id: "mi4", fromIndustry: "Finance",       toIndustry: "Healthcare",   pattern: "Risk model → ICU capacity prediction accuracy",                  applied: true,  roi: "+$980K"  },
+  { id: "mi5", fromIndustry: "Agriculture",   toIndustry: "Manufacturing",pattern: "Harvest prediction model → production scheduling engine",        applied: false, roi: "+$760K"  },
+  { id: "mi6", fromIndustry: "Education",     toIndustry: "HR",           pattern: "Learner engagement model → employee training retention boost",   applied: true,  roi: "+$430K"  },
+];
+
+const ECON_FORECASTS: EconForecast[] = [
+  { period: "Q2 2026",  revenue: "$4.2M",  savings: "$1.1M", roiPct: "+340%", confidence: 94 },
+  { period: "Q3 2026",  revenue: "$6.8M",  savings: "$1.7M", roiPct: "+490%", confidence: 89 },
+  { period: "Q4 2026",  revenue: "$9.4M",  savings: "$2.3M", roiPct: "+610%", confidence: 83 },
+  { period: "FY 2027",  revenue: "$28.1M", savings: "$6.8M", roiPct: "+820%", confidence: 77 },
+  { period: "FY 2028",  revenue: "$61.4M", savings: "$14.2M",roiPct: "+1,240%",confidence: 68},
+];
+
+const RD_INVENTIONS: RDInvention[] = [
+  { id: "rd1", name: "EmotionOS — Emotional State Detector",         category: "AI/UX",         icon: "🧠", status: "live",      description: "Reads user stress & cognitive load, auto-simplifies UI in real time",                         firstOfKind: true  },
+  { id: "rd2", name: "ChronoPredict — Time-Aware Decision Engine",  category: "Prediction",     icon: "⏱️", status: "live",      description: "Predicts outcomes 90 days ahead using multi-variable causal models",                        firstOfKind: true  },
+  { id: "rd3", name: "EthicGuard v3 — Autonomous Ethics Reviewer",  category: "Governance",     icon: "⚖️", status: "beta",      description: "Reviews all AI decisions against 14 ethical frameworks before execution",                   firstOfKind: true  },
+  { id: "rd4", name: "InfiniteContract — Self-Writing Contract AI", category: "Legal",          icon: "📝", status: "live",      description: "Drafts, negotiates, and self-updates contracts based on jurisdiction and context",            firstOfKind: true  },
+  { id: "rd5", name: "BioRhythm Scheduler",                         category: "HR/Workforce",   icon: "⚡", status: "beta",      description: "Schedules staff based on peak performance hours using biometric and historical data",         firstOfKind: false },
+  { id: "rd6", name: "RegShield — Predictive Legal Adaptation",     category: "Compliance",     icon: "🛡️", status: "live",      description: "Monitors global regulations and proactively updates workflows before laws take effect",       firstOfKind: true  },
+  { id: "rd7", name: "QuantumROI — Multi-Dimensional Value Model",  category: "Finance",        icon: "💹", status: "inventing", description: "Models ROI across 11 dimensions including social capital, risk-adjusted growth, and AI value", firstOfKind: true  },
+  { id: "rd8", name: "NanoWorkflow — Micro-Task Automation Engine", category: "Operations",     icon: "🔬", status: "live",      description: "Decomposes workflows into micro-tasks and assigns to Micro-Brains autonomously",              firstOfKind: true  },
+];
+
+const GLOBAL_REGULATIONS: GlobalRegulation[] = [
+  { region: "EU",           icon: "🇪🇺", framework: "AI Act 2025 — Article 12 update", status: "updated",   change: "Transparency requirements applied to all AI decisions — auto-compliant" },
+  { region: "USA",          icon: "🇺🇸", framework: "FTC AI Disclosure Rule",           status: "monitored", change: "Monitoring for final rule publication — workflows pre-staged"          },
+  { region: "UK",           icon: "🇬🇧", framework: "Online Safety Act Amendment",      status: "monitored", change: "Content moderation clauses tracked — no action required yet"           },
+  { region: "Canada",       icon: "🇨🇦", framework: "AIDA — AI & Data Act",             status: "updated",   change: "Audit logging requirements met — already active across all projects"  },
+  { region: "Australia",    icon: "🇦🇺", framework: "Privacy Act Reform 2025",          status: "alert",     change: "New consent requirements — workflows updating automatically"           },
+  { region: "Global",       icon: "🌐", framework: "ISO 42001 — AI Management Systems", status: "updated",   change: "Certification criteria met — compliance documentation auto-generated"  },
+];
+
+const ETHICS_DECISIONS: EthicsDecision[] = [
+  { id: "ed1", decision: "Auto-deploy predictive health screening tool",               outcome: "approved",  rationale: "Passed bias audit, HIPAA review, and patient consent verification"                   },
+  { id: "ed2", decision: "AI-generated performance reviews for 45 employees",         outcome: "modified",  rationale: "Added human oversight requirement; AI produces draft, manager approves"             },
+  { id: "ed3", decision: "Automated loan denial with no human review",                 outcome: "blocked",   rationale: "ECOA compliance requires human review for adverse actions — process redesigned"     },
+  { id: "ed4", decision: "Deploy facial recognition for facility access",              outcome: "blocked",   rationale: "GDPR Article 9 conflict; biometric data restrictions apply — alternative proposed" },
+  { id: "ed5", decision: "Cross-project data sharing for ML training",                 outcome: "modified",  rationale: "Anonymization layer added; data governance policy updated and logged"               },
+];
+
+const UX_ADAPTATIONS: UXAdaptation[] = [
+  { user: "Admin (Sara S.)",   adaptation: "Condensed dashboard — high-frequency tabs pinned",   trigger: "82 sessions analyzed → 6 favorite tabs identified",  impact: "31% faster navigation"  },
+  { user: "Dept Head (Ops)",   adaptation: "Workflow-first view with single-click approvals",     trigger: "68% of actions were workflow approvals",             impact: "47% fewer clicks"        },
+  { user: "Finance Lead",      adaptation: "ROI and forecast panels promoted to top",             trigger: "Finance data accessed 94% of sessions",             impact: "2.4x faster reporting"   },
+  { user: "New User",          adaptation: "Guided tour mode activated with smart tooltips",      trigger: "First session detected — onboarding context loaded", impact: "86% task completion rate"},
+  { user: "Mobile User",       adaptation: "Single-column swipe-first layout applied",            trigger: "Touch events > 90% — tablet/mobile detected",       impact: "22% lower bounce rate"   },
+];
+
+const TRILLION_STRATEGIES: TrillionStrategy[] = [
+  { focus: "AI Platform Licensing",     icon: "🌐", potential: "$2.8B",  timeframe: "24 months", action: "License platform to 12 enterprise sectors",       confidence: 82 },
+  { focus: "White-Label AI Products",   icon: "🏷️", potential: "$940M",  timeframe: "18 months", action: "Package 6 core engines for third-party deployment", confidence: 88 },
+  { focus: "Data Intelligence Network", icon: "📡", potential: "$4.1B",  timeframe: "36 months", action: "Aggregate cross-industry insights into AI dataset", confidence: 74 },
+  { focus: "Revenue Share Ecosystem",   icon: "💹", potential: "$1.6B",  timeframe: "30 months", action: "Partner network with 8% AI-generated revenue share",confidence: 79 },
+  { focus: "Autonomous Workforce API",  icon: "🤖", potential: "$3.3B",  timeframe: "48 months", action: "License Mini/Micro-Brain workforce layer to enterprises",confidence: 71 },
+];
+
+const RESOURCE_ALLOCS: ResourceAlloc[] = [
+  { resource: "AI Processing",  icon: "⚡", project: "ApexCare",        allocated: "2,400 tokens/s", optimized: "1,680 tokens/s", saving: "30% compute cost" },
+  { resource: "Staff Hours",    icon: "👥", project: "Summit Financial",allocated: "840 hrs/month",  optimized: "520 hrs/month",  saving: "38% labor cost"   },
+  { resource: "Budget",         icon: "💰", project: "InnoRetail",      allocated: "$480K/qtr",      optimized: "$310K/qtr",      saving: "$170K/quarter"    },
+  { resource: "Storage",        icon: "💾", project: "ClearPath Edu",   allocated: "14TB",           optimized: "8.4TB",          saving: "40% storage cost" },
+  { resource: "API Calls",      icon: "🔌", project: "GreenOps",        allocated: "1.2M/month",     optimized: "760K/month",     saving: "37% API cost"     },
+];
+
+const CROSS_LEARNINGS: CrossLearn[] = [
+  { from: "ApexCare Health",    to: "BuildSmart Const.",  insight: "Shift handoff protocol → applied to crew changeover",              appliedValue: "+$210K efficiency" },
+  { from: "Summit Financial",   to: "GreenOps AgriTech",  insight: "Risk-scoring framework → applied to harvest insurance pricing",     appliedValue: "+$180K accuracy"   },
+  { from: "InnoRetail",         to: "ClearPath Education",insight: "Personalization engine → applied to learner pathway optimization",  appliedValue: "+$340K retention"  },
+  { from: "ClearPath Education",to: "ApexCare Health",    insight: "Adaptive quiz retake model → applied to staff recertification",    appliedValue: "+$95K compliance"  },
+  { from: "BuildSmart Const.",  to: "Summit Financial",   insight: "Material delay risk model → applied to trade settlement timing",   appliedValue: "+$560K savings"    },
+];
+
+const MICRO_BRAINS: MicroBrain[] = [
+  { id: "mc1", name: "Invoice Validator μ",  parentDept: "Billing",      task: "Validate & match 480 invoices",        status: "running",   completedTasks: 312 },
+  { id: "mc2", name: "Shift Scheduler μ",    parentDept: "Operations",   task: "Optimize 3-week staff rotation",       status: "complete",  completedTasks: 840 },
+  { id: "mc3", name: "Compliance Checker μ", parentDept: "Compliance",   task: "Review 94 workflow clauses",           status: "running",   completedTasks: 61  },
+  { id: "mc4", name: "Lead Scorer μ",        parentDept: "Marketing",    task: "Score & rank 2100 inbound leads",      status: "running",   completedTasks: 1430 },
+  { id: "mc5", name: "Expense Auditor μ",    parentDept: "Finance",      task: "Flag anomalies in $4.2M expense batch",status: "running",   completedTasks: 88  },
+  { id: "mc6", name: "Onboarding Guide μ",   parentDept: "HR",           task: "Auto-guide 12 new hires through setup",status: "complete",  completedTasks: 156 },
+  { id: "mc7", name: "Risk Monitor μ",       parentDept: "Risk",         task: "Real-time portfolio risk scan",        status: "running",   completedTasks: 2900 },
+  { id: "mc8", name: "Content Scheduler μ",  parentDept: "Marketing",    task: "Queue 90 social posts across 6 platforms",status: "paused", completedTasks: 47  },
+];
+
+const INVENTIONS: InventionItem[] = [
+  { id: "inv1", name: "Self-Rewriting Workflow Engine",     icon: "🔄", category: "Automation",  capability: "Workflows rewrite themselves based on outcomes — zero human intervention needed",          humanConceivable: false },
+  { id: "inv2", name: "Predictive Emotion Analytics",       icon: "💡", category: "UX/AI",       capability: "Predicts user emotional response to UI changes before they're deployed",                  humanConceivable: false },
+  { id: "inv3", name: "Causality-Aware Decision Tree",      icon: "🌳", category: "Intelligence",capability: "Traces cause-and-effect chains 9 levels deep across 40 variables simultaneously",          humanConceivable: false },
+  { id: "inv4", name: "Cross-Dimensional ROI Calculator",   icon: "📊", category: "Finance",     capability: "Measures ROI across financial, social, legal, environmental, and AI capital simultaneously", humanConceivable: true  },
+  { id: "inv5", name: "Infinite Scenario Brancher",         icon: "🔮", category: "Simulation",  capability: "Runs unlimited parallel simulation branches, collapses to optimal path automatically",      humanConceivable: false },
+  { id: "inv6", name: "Jurisdiction-Aware Contract Writer", icon: "📝", category: "Legal",       capability: "Writes binding contracts that self-update when laws change — no lawyer needed",            humanConceivable: false },
+  { id: "inv7", name: "Autonomous Board of Directors",      icon: "🏛️", category: "Governance", capability: "AI governance layer that votes, debates, and approves strategic decisions autonomously",    humanConceivable: false },
+  { id: "inv8", name: "Memory-Augmented Project Mind",      icon: "🧬", category: "Intelligence",capability: "Stores context of every action ever taken — recalls and applies across future projects",    humanConceivable: false },
+];
+
+function InfiniteEcosystemView() {
+  const [ecoTab, setEcoTab] = useState<"overview"|"autoexpand"|"metaintel"|"econ"|"rd"|"global"|"ethics"|"ux"|"trillion"|"resources"|"crosslearn"|"microbrains"|"invention">("overview");
+  const [deployedCount, setDeployedCount] = useState(0);
+  const [activating, setActivating] = useState(false);
+  const [activated, setActivated] = useState(false);
+  const [metaApplied, setMetaApplied] = useState<Set<string>>(new Set(META_INSIGHTS.filter(m => m.applied).map(m => m.id)));
+  const [ethicsExpand, setEthicsExpand] = useState<string | null>(null);
+  const [toast, setToast] = useState<string | null>(null);
+  const [inventing, setInventing] = useState<string | null>(null);
+  const [invented, setInvented] = useState<Set<string>>(new Set());
+
+  const showToast = (msg: string) => { setToast(msg); setTimeout(() => setToast(null), 2400); };
+
+  const activateAll = () => {
+    setActivating(true);
+    let count = 0;
+    const iv = setInterval(() => {
+      count++;
+      setDeployedCount(count);
+      if (count >= 24) { clearInterval(iv); setActivating(false); setActivated(true); showToast("⚡ Infinite Intelligence Ecosystem MAX fully activated — all 24 features live"); }
+    }, 120);
+  };
+
+  const applyMeta = (id: string) => {
+    setMetaApplied(prev => new Set([...prev, id]));
+    showToast("🧬 Meta-intelligence pattern applied across industries");
+  };
+
+  const triggerInvent = (id: string) => {
+    setInventing(id);
+    setTimeout(() => { setInvented(prev => new Set([...prev, id])); setInventing(null); showToast("🚀 New capability invented and deployed to live system"); }, 1500);
+  };
+
+  const ECO_TABS = [
+    { id: "overview"    as const, label: "⚡ Status"      },
+    { id: "autoexpand"  as const, label: "🤖 Auto-Expand" },
+    { id: "metaintel"   as const, label: "🧬 Meta-Intel"  },
+    { id: "econ"        as const, label: "💹 Econ Engine" },
+    { id: "rd"          as const, label: "🔬 R&D Lab"     },
+    { id: "global"      as const, label: "🌐 Global Intel"},
+    { id: "ethics"      as const, label: "⚖️ Ethics"      },
+    { id: "ux"          as const, label: "🎨 UX Adapt"    },
+    { id: "trillion"    as const, label: "💰 Trillion"    },
+    { id: "resources"   as const, label: "🔧 Resources"   },
+    { id: "crosslearn"  as const, label: "🔗 Cross-Learn" },
+    { id: "microbrains" as const, label: "🔬 Micro-Brains"},
+    { id: "invention"   as const, label: "∞ Invention"   },
+  ];
+
+  const statusFeatures = [
+    ["🤖 Auto-Expansion",       "8 assets deployed today",      "bg-blue-50 border-blue-200 text-blue-700"     ],
+    ["🧬 Meta-Intelligence",    "6 cross-domain patterns live",  "bg-purple-50 border-purple-200 text-purple-700"],
+    ["💹 Economic Engine",      "Revenue forecast active",       "bg-green-50 border-green-200 text-green-700"  ],
+    ["🔬 R&D Lab",              "3 inventions live, 1 inventing","bg-indigo-50 border-indigo-200 text-indigo-700"],
+    ["🌐 Global Intel",         "6 regions monitored",           "bg-cyan-50 border-cyan-200 text-cyan-700"     ],
+    ["⚖️ Ethics Guard",         "5 decisions reviewed",          "bg-yellow-50 border-yellow-200 text-yellow-700"],
+    ["🎨 UX Adaptation",        "5 users personalized",          "bg-pink-50 border-pink-200 text-pink-700"     ],
+    ["💰 Trillion Strategy",    "5 strategies modeled",          "bg-amber-50 border-amber-200 text-amber-700"  ],
+    ["🔧 Resource Optimizer",   "$845K saved this quarter",      "bg-emerald-50 border-emerald-200 text-emerald-700"],
+    ["🔗 Cross-Project Learning","5 insights transferred",       "bg-orange-50 border-orange-200 text-orange-700"],
+    ["🔬 Micro-Brains",         "8 active, 7,828 tasks done",    "bg-red-50 border-red-200 text-red-700"        ],
+    ["∞ Invention Layer",       "8 inventions in pipeline",      "bg-violet-50 border-violet-200 text-violet-700"],
+  ];
+
+  return (
+    <div className="space-y-3">
+      {toast && <div className="fixed top-4 right-4 z-50 bg-indigo-600 text-white text-[11px] font-bold px-4 py-2 rounded-xl shadow-xl animate-in slide-in-from-top-2">{toast}</div>}
+
+      {/* Header */}
+      <div className="bg-gradient-to-br from-indigo-700 via-purple-700 to-pink-600 rounded-2xl p-4 text-white space-y-3">
+        <div className="flex items-center justify-between">
+          <div className="flex items-center gap-2">
+            <span className="text-2xl">∞</span>
+            <div>
+              <p className="font-black text-[14px] tracking-tight">INFINITE INTELLIGENCE ECOSYSTEM</p>
+              <p className="text-[10px] text-indigo-200">MAX — Exceeds AI Limits · Always Evolving · Always Ahead</p>
+            </div>
+          </div>
+          <div className="text-right">
+            <p className="text-[11px] font-black">{activated ? "24/24 LIVE" : activating ? `${deployedCount}/24` : "READY"}</p>
+            <p className="text-[9px] text-indigo-200">Features active</p>
+          </div>
+        </div>
+        <div className="grid grid-cols-4 gap-1.5 text-center text-[9px]">
+          {[["Projects","∞"],["Agents","∞"],["ROI","$B+"],["IQ Level","MAX"]].map(([label, val]) => (
+            <div key={label} className="bg-white/15 rounded-lg py-1.5">
+              <p className="font-black text-[13px]">{val}</p>
+              <p className="text-indigo-200">{label}</p>
+            </div>
+          ))}
+        </div>
+        <button onClick={activateAll} disabled={activating || activated}
+          className="w-full bg-white text-indigo-700 font-black text-[13px] py-2.5 rounded-xl hover:bg-indigo-50 disabled:opacity-60 transition-all flex items-center justify-center gap-2 shadow-sm">
+          {activating
+            ? <><div className="w-4 h-4 border-2 border-indigo-700 border-t-transparent rounded-full animate-spin" /><span>Activating {deployedCount}/24 features…</span></>
+            : activated
+            ? "✅ Infinite Intelligence Ecosystem MAX — Fully Active"
+            : "⚡ Activate All — Deploy MAX Intelligence Across Every Project"}
+        </button>
+      </div>
+
+      {/* Sub-tabs */}
+      <div className="flex gap-1 overflow-x-auto pb-0.5" style={{ scrollbarWidth: "none" }}>
+        {ECO_TABS.map(t => (
+          <button key={t.id} onClick={() => setEcoTab(t.id)}
+            className={`flex-none px-2.5 py-1.5 rounded-full text-[10px] font-bold whitespace-nowrap transition-all ${ecoTab === t.id ? "bg-indigo-600 text-white shadow-sm" : "bg-muted text-muted-foreground hover:bg-muted/80"}`}>
+            {t.label}
+          </button>
+        ))}
+      </div>
+
+      {/* ── Overview ── */}
+      {ecoTab === "overview" && (
+        <div className="space-y-2">
+          <div className="bg-indigo-50 border border-indigo-200 rounded-xl p-3 text-[10px] text-indigo-700">
+            <p className="font-bold mb-1">⚡ Ecosystem MAX — Always On, Always Evolving</p>
+            <p>All 24 intelligence features run autonomously across every project, industry, and workflow. Every click, decision, and integration makes the system smarter. Fully additive — zero overrides, infinite enhancement.</p>
+          </div>
+          <div className="grid grid-cols-1 gap-2">
+            {statusFeatures.map(([name, detail, colors]) => (
+              <div key={name} className={`flex items-center gap-3 p-2.5 rounded-xl border ${colors}`}>
+                <div className="flex-1">
+                  <p className="text-[11px] font-bold">{name}</p>
+                  <p className="text-[10px] opacity-80">{detail}</p>
+                </div>
+                <span className="text-[9px] font-black bg-white/60 px-2 py-0.5 rounded-full">LIVE</span>
+              </div>
+            ))}
+          </div>
+        </div>
+      )}
+
+      {/* ── Auto-Expand ── */}
+      {ecoTab === "autoexpand" && (
+        <div className="space-y-2">
+          <div className="bg-blue-50 border border-blue-200 rounded-xl p-3 text-[10px] text-blue-700">
+            <p className="font-bold mb-1">🤖 Autonomous Self-Expansion Engine</p>
+            <p>Creates new projects, workflows, tools, agents, and Mini-Brains independently — no human required. Detects gaps, invents solutions, and deploys automatically.</p>
+          </div>
+          {AUTO_EXPAND_EVENTS.map(ev => (
+            <div key={ev.id} className="bg-white border border-border rounded-2xl p-3">
+              <div className="flex items-center justify-between mb-1">
+                <div className="flex items-center gap-2">
+                  <span className="text-base">{ev.type === "project" ? "🏭" : ev.type === "workflow" ? "⚙️" : ev.type === "tool" ? "🛠️" : ev.type === "agent" ? "🤖" : "🧠"}</span>
+                  <div>
+                    <p className="text-[11px] font-bold text-foreground">{ev.name}</p>
+                    <p className="text-[9px] text-muted-foreground">{ev.industry} · {ev.ts}</p>
+                  </div>
+                </div>
+                <span className={`text-[9px] font-black px-2 py-0.5 rounded-full uppercase ${ev.status === "deployed" ? "bg-green-100 text-green-700" : ev.status === "testing" ? "bg-yellow-100 text-yellow-700" : "bg-blue-100 text-blue-700"}`}>{ev.status}</span>
+              </div>
+              <p className="text-[10px] text-green-600 font-semibold">{ev.impact}</p>
+            </div>
+          ))}
+        </div>
+      )}
+
+      {/* ── Meta-Intel ── */}
+      {ecoTab === "metaintel" && (
+        <div className="space-y-2">
+          <div className="bg-purple-50 border border-purple-200 rounded-xl p-3 text-[10px] text-purple-700">
+            <p className="font-bold mb-1">🧬 Cross-Industry Meta-Intelligence</p>
+            <p>Learns from all projects simultaneously and transfers successful patterns across industries. Every project makes every other project smarter.</p>
+          </div>
+          {META_INSIGHTS.map(insight => (
+            <div key={insight.id} className="bg-white border border-border rounded-2xl p-3 space-y-2">
+              <div className="flex items-center gap-2 text-[10px]">
+                <span className="font-bold text-purple-700">{insight.fromIndustry}</span>
+                <span className="text-muted-foreground">→</span>
+                <span className="font-bold text-blue-700">{insight.toIndustry}</span>
+                <span className="ml-auto text-green-600 font-black">{insight.roi}</span>
+              </div>
+              <p className="text-[11px] text-foreground font-semibold">{insight.pattern}</p>
+              <div className="flex items-center justify-between">
+                {metaApplied.has(insight.id)
+                  ? <span className="text-[10px] text-green-600 font-bold">✅ Applied across industries</span>
+                  : <button onClick={() => applyMeta(insight.id)}
+                      className="text-[10px] bg-purple-600 text-white font-bold px-3 py-1 rounded-lg hover:bg-purple-700 transition-colors">
+                      🧬 Apply Pattern
+                    </button>
+                }
+              </div>
+            </div>
+          ))}
+        </div>
+      )}
+
+      {/* ── Econ Engine ── */}
+      {ecoTab === "econ" && (
+        <div className="space-y-2">
+          <div className="bg-green-50 border border-green-200 rounded-xl p-3 text-[10px] text-green-700">
+            <p className="font-bold mb-1">💹 Hyper-Autonomous Economic Engine</p>
+            <p>Predicts revenue, optimizes expenses, auto-generates contracts and campaigns. AI-managed financial strategy with trillion-dollar precision.</p>
+          </div>
+          <div className="space-y-2">
+            {ECON_FORECASTS.map(f => (
+              <div key={f.period} className="bg-white border border-border rounded-2xl p-3">
+                <div className="flex items-center justify-between mb-2">
+                  <p className="text-[13px] font-black text-foreground">{f.period}</p>
+                  <div className="flex items-center gap-1.5">
+                    <span className="text-[10px] text-muted-foreground">Confidence:</span>
+                    <span className={`text-[11px] font-black ${f.confidence > 85 ? "text-green-600" : f.confidence > 75 ? "text-blue-600" : "text-yellow-600"}`}>{f.confidence}%</span>
+                  </div>
+                </div>
+                <div className="grid grid-cols-3 gap-2 text-center">
+                  {[["Revenue", f.revenue, "text-blue-600"], ["Savings", f.savings, "text-green-600"], ["ROI", f.roiPct, "text-purple-600"]].map(([k, v, col]) => (
+                    <div key={k} className="bg-muted/40 rounded-xl p-2">
+                      <p className="text-[9px] text-muted-foreground">{k}</p>
+                      <p className={`text-[13px] font-black ${col}`}>{v}</p>
+                    </div>
+                  ))}
+                </div>
+                <div className="mt-2 h-1.5 bg-muted rounded-full overflow-hidden">
+                  <div className="h-full bg-gradient-to-r from-green-400 to-emerald-500 rounded-full" style={{ width: `${f.confidence}%` }} />
+                </div>
+              </div>
+            ))}
+          </div>
+        </div>
+      )}
+
+      {/* ── R&D Lab ── */}
+      {ecoTab === "rd" && (
+        <div className="space-y-2">
+          <div className="bg-indigo-50 border border-indigo-200 rounded-xl p-3 text-[10px] text-indigo-700">
+            <p className="font-bold mb-1">🔬 Autonomous R&D & AI Invention Lab</p>
+            <p>Continuously generates new tools, processes, apps, and systems. Invents capabilities no human team could conceive — deployed live automatically.</p>
+          </div>
+          {RD_INVENTIONS.map(inv => (
+            <div key={inv.id} className="bg-white border border-border rounded-2xl p-3 space-y-1.5">
+              <div className="flex items-center justify-between">
+                <div className="flex items-center gap-2">
+                  <span className="text-xl">{inv.icon}</span>
+                  <div>
+                    <p className="text-[11px] font-bold text-foreground leading-tight">{inv.name}</p>
+                    <p className="text-[9px] text-muted-foreground">{inv.category}</p>
+                  </div>
+                </div>
+                <div className="flex items-center gap-1.5">
+                  {inv.firstOfKind && <span className="text-[8px] bg-yellow-100 text-yellow-700 px-1.5 py-0.5 rounded-full font-black">FIRST OF KIND</span>}
+                  <span className={`text-[9px] font-black px-2 py-0.5 rounded-full uppercase ${inv.status === "live" ? "bg-green-100 text-green-700" : inv.status === "beta" ? "bg-yellow-100 text-yellow-700" : "bg-indigo-100 text-indigo-700 animate-pulse"}`}>{inv.status}</span>
+                </div>
+              </div>
+              <p className="text-[10px] text-muted-foreground">{inv.description}</p>
+            </div>
+          ))}
+        </div>
+      )}
+
+      {/* ── Global Intel ── */}
+      {ecoTab === "global" && (
+        <div className="space-y-2">
+          <div className="bg-cyan-50 border border-cyan-200 rounded-xl p-3 text-[10px] text-cyan-700">
+            <p className="font-bold mb-1">🌐 Global Awareness & Regulation Intelligence</p>
+            <p>Monitors laws, regulations, and compliance frameworks across 6 regions simultaneously. Proactively updates workflows before regulations take effect — zero compliance gaps.</p>
+          </div>
+          {GLOBAL_REGULATIONS.map(reg => (
+            <div key={reg.region} className="bg-white border border-border rounded-2xl p-3 space-y-1">
+              <div className="flex items-center justify-between">
+                <div className="flex items-center gap-2">
+                  <span className="text-xl">{reg.icon}</span>
+                  <div>
+                    <p className="text-[11px] font-bold text-foreground">{reg.framework}</p>
+                    <p className="text-[9px] text-muted-foreground">{reg.region}</p>
+                  </div>
+                </div>
+                <span className={`text-[9px] font-black px-2 py-0.5 rounded-full uppercase ${reg.status === "updated" ? "bg-green-100 text-green-700" : reg.status === "monitored" ? "bg-blue-100 text-blue-700" : "bg-red-100 text-red-700 animate-pulse"}`}>{reg.status}</span>
+              </div>
+              <p className="text-[10px] text-muted-foreground">{reg.change}</p>
+            </div>
+          ))}
+        </div>
+      )}
+
+      {/* ── Ethics ── */}
+      {ecoTab === "ethics" && (
+        <div className="space-y-2">
+          <div className="bg-yellow-50 border border-yellow-200 rounded-xl p-3 text-[10px] text-yellow-700">
+            <p className="font-bold mb-1">⚖️ Autonomous Governance & Ethics Engine</p>
+            <p>Reviews every AI decision against 14 ethical, legal, and governance frameworks before execution. Approves, modifies, or blocks actions autonomously. Full audit trail maintained.</p>
+          </div>
+          {ETHICS_DECISIONS.map(ed => (
+            <div key={ed.id} className="bg-white border border-border rounded-2xl overflow-hidden">
+              <button onClick={() => setEthicsExpand(ethicsExpand === ed.id ? null : ed.id)}
+                className="w-full flex items-center justify-between p-3 text-left hover:bg-muted/20 transition-colors">
+                <p className="text-[11px] font-semibold text-foreground flex-1 pr-2">{ed.decision}</p>
+                <span className={`flex-none text-[9px] font-black px-2 py-0.5 rounded-full uppercase ${ed.outcome === "approved" ? "bg-green-100 text-green-700" : ed.outcome === "modified" ? "bg-yellow-100 text-yellow-700" : "bg-red-100 text-red-700"}`}>{ed.outcome}</span>
+              </button>
+              {ethicsExpand === ed.id && (
+                <div className="px-3 pb-3 text-[10px] text-muted-foreground border-t border-border/30 pt-2">
+                  <p className="font-semibold text-foreground mb-1">Ethics Rationale:</p>
+                  <p>{ed.rationale}</p>
+                </div>
+              )}
+            </div>
+          ))}
+        </div>
+      )}
+
+      {/* ── UX Adapt ── */}
+      {ecoTab === "ux" && (
+        <div className="space-y-2">
+          <div className="bg-pink-50 border border-pink-200 rounded-xl p-3 text-[10px] text-pink-700">
+            <p className="font-bold mb-1">🎨 Self-Optimizing UX/UI Engine</p>
+            <p>Adapts the interface per user, per project, and per context. Predicts next clicks and decisions. Continuously learns to reduce friction and maximize task completion.</p>
+          </div>
+          {UX_ADAPTATIONS.map((ux, i) => (
+            <div key={i} className="bg-white border border-border rounded-2xl p-3 space-y-1.5">
+              <div className="flex items-center justify-between">
+                <p className="text-[12px] font-bold text-foreground">{ux.user}</p>
+                <span className="text-[9px] bg-pink-100 text-pink-700 px-2 py-0.5 rounded-full font-bold">{ux.impact}</span>
+              </div>
+              <p className="text-[10px] text-foreground font-semibold">{ux.adaptation}</p>
+              <p className="text-[9px] text-muted-foreground">{ux.trigger}</p>
+            </div>
+          ))}
+        </div>
+      )}
+
+      {/* ── Trillion Strategy ── */}
+      {ecoTab === "trillion" && (
+        <div className="space-y-2">
+          <div className="bg-amber-50 border border-amber-200 rounded-xl p-3 text-[10px] text-amber-700">
+            <p className="font-bold mb-1">💰 Trillion-Dollar Strategy Layer</p>
+            <p>Models and maximizes ROI, efficiency, and savings at enterprise scale. Predicts paths to billion-dollar outcomes with confidence-weighted strategies.</p>
+          </div>
+          {TRILLION_STRATEGIES.map(s => (
+            <div key={s.focus} className="bg-white border border-border rounded-2xl p-3 space-y-2">
+              <div className="flex items-center justify-between">
+                <div className="flex items-center gap-2">
+                  <span className="text-xl">{s.icon}</span>
+                  <p className="text-[12px] font-bold text-foreground">{s.focus}</p>
+                </div>
+                <div className="text-right">
+                  <p className="text-[14px] font-black text-green-600">{s.potential}</p>
+                  <p className="text-[9px] text-muted-foreground">{s.timeframe}</p>
+                </div>
+              </div>
+              <p className="text-[10px] text-muted-foreground">{s.action}</p>
+              <div className="flex items-center gap-2">
+                <div className="flex-1 h-1.5 bg-muted rounded-full overflow-hidden">
+                  <div className="h-full bg-gradient-to-r from-amber-400 to-yellow-500 rounded-full" style={{ width: `${s.confidence}%` }} />
+                </div>
+                <span className="text-[10px] font-bold text-amber-600">{s.confidence}% confidence</span>
+              </div>
+            </div>
+          ))}
+        </div>
+      )}
+
+      {/* ── Resources ── */}
+      {ecoTab === "resources" && (
+        <div className="space-y-2">
+          <div className="bg-emerald-50 border border-emerald-200 rounded-xl p-3 text-[10px] text-emerald-700">
+            <p className="font-bold mb-1">🔧 Dynamic Resource Optimizer</p>
+            <p>Automatically reallocates staff, budgets, API capacity, and compute across all projects. Identifies waste and redirects resources to highest-ROI activities.</p>
+          </div>
+          {RESOURCE_ALLOCS.map(r => (
+            <div key={r.resource} className="bg-white border border-border rounded-2xl p-3 space-y-2">
+              <div className="flex items-center gap-2">
+                <span className="text-xl">{r.icon}</span>
+                <div className="flex-1">
+                  <p className="text-[11px] font-bold text-foreground">{r.resource}</p>
+                  <p className="text-[9px] text-muted-foreground">{r.project}</p>
+                </div>
+                <span className="text-[10px] font-black text-green-600">{r.saving}</span>
+              </div>
+              <div className="grid grid-cols-2 gap-2 text-center text-[10px]">
+                <div className="bg-red-50 rounded-lg p-1.5">
+                  <p className="text-[9px] text-muted-foreground">Allocated</p>
+                  <p className="font-bold text-red-500">{r.allocated}</p>
+                </div>
+                <div className="bg-green-50 rounded-lg p-1.5">
+                  <p className="text-[9px] text-muted-foreground">Optimized</p>
+                  <p className="font-bold text-green-600">{r.optimized}</p>
+                </div>
+              </div>
+            </div>
+          ))}
+        </div>
+      )}
+
+      {/* ── Cross-Learn ── */}
+      {ecoTab === "crosslearn" && (
+        <div className="space-y-2">
+          <div className="bg-orange-50 border border-orange-200 rounded-xl p-3 text-[10px] text-orange-700">
+            <p className="font-bold mb-1">🔗 Cross-Project Learning Engine</p>
+            <p>Every project shares optimizations, best practices, and intelligence with all other projects. The more projects you run, the smarter every project becomes.</p>
+          </div>
+          {CROSS_LEARNINGS.map((cl, i) => (
+            <div key={i} className="bg-white border border-border rounded-2xl p-3 space-y-1.5">
+              <div className="flex items-center gap-2 text-[10px]">
+                <span className="font-bold text-foreground truncate">{cl.from}</span>
+                <span className="text-muted-foreground flex-none">→</span>
+                <span className="font-bold text-primary truncate">{cl.to}</span>
+              </div>
+              <p className="text-[11px] text-foreground font-semibold">{cl.insight}</p>
+              <span className="inline-block text-[9px] bg-green-100 text-green-700 px-2 py-0.5 rounded-full font-black">{cl.appliedValue}</span>
+            </div>
+          ))}
+        </div>
+      )}
+
+      {/* ── Micro-Brains ── */}
+      {ecoTab === "microbrains" && (
+        <div className="space-y-2">
+          <div className="bg-red-50 border border-red-200 rounded-xl p-3 text-[10px] text-red-700">
+            <p className="font-bold mb-1">🔬 Micro-Brain Network — Task-Level Intelligence</p>
+            <p>Micro-Brains (μ) operate below Mini-Brains — handling individual tasks autonomously. Each Micro-Brain is assigned to one high-volume task and reports to its department Mini-Brain.</p>
+          </div>
+          {MICRO_BRAINS.map(mb => (
+            <div key={mb.id} className="bg-white border border-border rounded-2xl p-3 space-y-1.5">
+              <div className="flex items-center justify-between">
+                <div className="flex items-center gap-2">
+                  <span className="text-base">🔬</span>
+                  <div>
+                    <p className="text-[11px] font-bold text-foreground">{mb.name}</p>
+                    <p className="text-[9px] text-muted-foreground">{mb.parentDept} dept · {mb.completedTasks.toLocaleString()} tasks completed</p>
+                  </div>
+                </div>
+                <span className={`text-[9px] font-black px-2 py-0.5 rounded-full uppercase ${mb.status === "running" ? "bg-green-100 text-green-700" : mb.status === "complete" ? "bg-blue-100 text-blue-700" : "bg-yellow-100 text-yellow-700"}`}>{mb.status}</span>
+              </div>
+              <p className="text-[10px] text-foreground">{mb.task}</p>
+            </div>
+          ))}
+        </div>
+      )}
+
+      {/* ── Invention ── */}
+      {ecoTab === "invention" && (
+        <div className="space-y-2">
+          <div className="bg-violet-50 border border-violet-200 rounded-xl p-3 text-[10px] text-violet-700">
+            <p className="font-bold mb-1">∞ Infinite Invention Layer</p>
+            <p>Creates tools, AI agents, workflows, and systems that no human team could conceive. Each invention is self-documented, self-deployed, and self-improving. Zero limits. Always evolving.</p>
+          </div>
+          {INVENTIONS.map(inv => (
+            <div key={inv.id} className="bg-white border border-border rounded-2xl p-3 space-y-2">
+              <div className="flex items-center justify-between">
+                <div className="flex items-center gap-2">
+                  <span className="text-xl">{inv.icon}</span>
+                  <div>
+                    <p className="text-[11px] font-bold text-foreground">{inv.name}</p>
+                    <p className="text-[9px] text-muted-foreground">{inv.category}</p>
+                  </div>
+                </div>
+                <div className="flex items-center gap-1.5">
+                  {!inv.humanConceivable && <span className="text-[8px] bg-violet-100 text-violet-700 px-1.5 py-0.5 rounded-full font-black">AI ONLY</span>}
+                  {invented.has(inv.id)
+                    ? <span className="text-[9px] bg-green-100 text-green-700 px-2 py-0.5 rounded-full font-bold">LIVE</span>
+                    : <button onClick={() => triggerInvent(inv.id)} disabled={inventing === inv.id}
+                        className="text-[9px] bg-violet-600 text-white font-bold px-2.5 py-1 rounded-lg hover:bg-violet-700 disabled:opacity-50 transition-colors">
+                        {inventing === inv.id ? "…" : "∞ Deploy"}
+                      </button>
+                  }
+                </div>
+              </div>
+              <p className="text-[10px] text-muted-foreground">{inv.capability}</p>
+            </div>
+          ))}
+        </div>
+      )}
+    </div>
+  );
+}
+
 // ─── Engines View ─────────────────────────────────────────────────────────
 
 function EnginesView({ onResult }: { onResult?: (m: InfiniteModule) => void }) {
-  const [section, setSection] = useState<"engines" | "workflow" | "interactive" | "marketing" | "revenue" | "teams" | "growth" | "tools" | "sim" | "hub" | "integration" | "industry" | "decide" | "master">("engines");
+  const [section, setSection] = useState<"engines" | "workflow" | "interactive" | "marketing" | "revenue" | "teams" | "growth" | "tools" | "sim" | "hub" | "integration" | "industry" | "decide" | "master" | "ecosystem">("engines");
 
   // Marketing state
   const [mktCtx,       setMktCtx]       = useState("");
@@ -2863,8 +3453,9 @@ function EnginesView({ onResult }: { onResult?: (m: InfiniteModule) => void }) {
     { id: "hub" as const,         label: "🔌 Hub"      },
     { id: "industry" as const,    label: "🏭 Industry" },
     { id: "decide" as const,      label: "🎯 Decide"   },
-    { id: "integration" as const, label: "Status"     },
-    { id: "master"      as const, label: "🧠 Master"  },
+    { id: "integration" as const, label: "Status"       },
+    { id: "master"      as const, label: "🧠 Master"    },
+    { id: "ecosystem"   as const, label: "∞ MAX"        },
   ];
 
   function runMkt(ch: MktChannel) {
@@ -4069,6 +4660,7 @@ function EnginesView({ onResult }: { onResult?: (m: InfiniteModule) => void }) {
       )}
 
       {section === "master" && <MasterBrainView />}
+      {section === "ecosystem" && <InfiniteEcosystemView />}
     </div>
   );
 }
