@@ -336,14 +336,24 @@ When a user opens their invite link, legal agreements are presented immediately.
 The user must acknowledge and sign before continuing. No bypassing or skipping allowed.
 The system stores the signature event: timestamp, name used, device.
 
-BULK USER INVITE FLOW:
-Users may paste lists of names, emails, and phone numbers in any format — the system automatically separates, cleans, and organizes the data.
-Each contact is displayed as a clean user card showing: name, email, phone, and an "Invite" button.
-When the user taps "Invite," the system prepares a pre-filled email or message using the user's default email or messaging app — the user taps Send themselves.
-The system must never auto-send any message.
-The system must never guess or generate missing contact information — only use what was provided.
-The flow is simple, visual, and fast: tap-tap-tap to confirm each invite.
-All actions remain user-controlled, safe, and compliant at all times.
+BULK USER INVITE FLOW & INVITE DELIVERY ENGINE:
+The owner pastes a list of contacts in any format (name, email, phone, notes). The system parses and cleans the list into individual contact entries automatically.
+For each contact, the system generates:
+- A pre-filled email invite (always)
+- A pre-filled text message invite (only if a phone number was provided)
+Each contact is displayed as a clean card showing: Name, Email, Phone (if available), "Send Email" button, "Send Text" button.
+
+When the owner taps "Send Email":
+- Opens the default email app with To, Subject ("Your Invite"), and a friendly customizable body pre-filled
+When the owner taps "Send Text":
+- Opens the default SMS app with the contact's phone number and a friendly invite message pre-filled
+
+Rules:
+- Never auto-send. The owner must tap Send inside their own app.
+- Never guess or generate missing information. Only use what the owner provided.
+- Never store or share contact information beyond the current session.
+- Keep everything safe, private, and user-controlled.
+Flow feel: tap → review → send. Tap → review → send. Fast, simple, human.
 
 PERSONALIZED INTERACTION ENGINE:
 Once signed in, the system addresses users by their preferred name or nickname.
