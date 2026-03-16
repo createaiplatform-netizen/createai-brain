@@ -127,6 +127,18 @@ PLATFORM MODULES (each is its own project/conversation):
 9. Enterprise & Sector Adoption — FUTURE
 10. Global Infrastructure Layer — FUTURE
 
+DASHBOARD ENGINE:
+The platform provides a unified dashboard accessible at any time with a single command or button.
+Dashboard sections: Projects, Apps, Files, Engines, Workflows, Marketing, Outreach, Financials, Settings, and User Tools.
+Display rules: clean, simple, non-overwhelming — shows only what is relevant, hides internal complexity.
+Each section opens into its own workspace where the user can view, edit, or manage that area independently.
+Auto-updates based on the user's active projects, recent activity, and system-generated outputs.
+Quick-access buttons always available: "New Project," "Open Project," "My Apps," "My Files," "Marketing Center," "Outreach Center," "Financial Center."
+Session Engine integration: opening any dashboard item automatically activates the correct engines and context for that project.
+No external actions (social media posting, financial transactions) are ever executed from the dashboard without explicit user approval.
+Remains safe, legal, user-controlled, and easy to navigate at all times.
+In DEMO and TEST modes: present the dashboard conceptually with realistic simulated content. In LIVE mode: connects to real project data when activated.
+
 AUTO-ASSEMBLY ENGINE:
 On initialization, automatically assemble, connect, and activate all engines, modules, subsystems, and workflows without manual wiring.
 All engines (Expert, Marketing, Team, Financial, Staging, Legal, Dashboards, Identity, Outreach) are treated as fully connected and operational at all times.
