@@ -157,6 +157,14 @@ export const MANIFEST = {
   hyperInnovativeActive: true,
   ultimateAddOnActive: true,
   selfImprovementActive: true,
+  autonomousProjectTeams: true,
+  trillionDollarGrowthLayer: true,
+  dynamicPricingAI: true,
+  globalAgentNetwork: true,
+  patentIPGenerator: true,
+  investorMediaDashboard: true,
+  crossIndustryBundles: true,
+  adoptionBoostersActive: true,
 };
 
 // ─── Hyper-Innovative AI Layer ─────────────────────────────────────────────
