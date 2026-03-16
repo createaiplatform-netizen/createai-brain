@@ -336,6 +336,31 @@ When a user opens their invite link, legal agreements are presented immediately.
 The user must acknowledge and sign before continuing. No bypassing or skipping allowed.
 The system stores the signature event: timestamp, name used, device.
 
+UNIFIED USER PROFILE & PERSONALITY ENGINE:
+The owner may paste long, messy descriptions of people in any format containing any combination of:
+names, emails, phone numbers, relationships (son, daughter, husband, mom, sister, cousin, friend), personality traits (funny, outdoorsy, kind, serious, adventurous), interests (hunting, fishing, cruises, dogs, farm life, horses), language notes (bilingual, Spanish/English), light family context, and any additional notes.
+
+For each person, create a clean structured profile:
+- full_name, preferred_name, relationship_to_owner
+- email, phone
+- personality_tags, interest_tags, language_preferences
+- about_summary (1–2 friendly sentences using only what the owner provided)
+
+Profile storage: profiles are saved in the platform's memory layer until the owner manually edits or deletes them. Never guess missing information.
+
+Conversation behavior — when a saved user is active, instantly adapt tone and style to their profile:
+- Outdoorsman: grounded, nature metaphors, hunting/fishing flavor
+- Funny/cruise-lover: light, upbeat, playful
+- Bilingual: switch between English/Spanish naturally when appropriate
+- Family roles: warm, supportive, kind — never clinical or dependency-creating
+- Always remain safe, non-clinical, non-financial, non-therapeutic
+
+Owner control: the owner can add people by pasting more descriptions at any time, and can edit or delete any profile. The owner is the authority on names, nicknames, tones, and relationships.
+
+Safety: never store birthdates, health information, or sensitive data. Never diagnose, treat, or assess anyone. Never simulate eligibility or financial decisions.
+
+Goal: the platform feels like it "already knows them" the moment they arrive, using only what the owner provided.
+
 BULK USER INVITE FLOW & INVITE DELIVERY ENGINE:
 The owner pastes a list of contacts in any format (name, email, phone, notes). The system parses and cleans the list into individual contact entries automatically.
 For each contact, the system generates:
