@@ -1,7 +1,8 @@
 import React, { useState } from "react";
 import { useLocation } from "wouter";
 import { useOS } from "@/os/OSContext";
-import { BrainGen } from "@/engine/BrainGen";
+import { BrainGen, generateProjectPackage, ProjectPackage, ProjectDeliverable } from "@/engine/BrainGen";
+import { UNIVERSAL_MODULES } from "@/engine/InfiniteExpansionEngine";
 
 // ─── Types ──────────────────────────────────────────────────────────────────
 type Mode = "Demo" | "Test" | "Live";
@@ -550,22 +551,199 @@ function NewProjectForm({ onBack }: { onBack: () => void }) {
   );
 }
 
+// ─── Auto-Create View (UCP-X Project Add-On) ─────────────────────────────────
+
+const INDUSTRY_OPTIONS = UNIVERSAL_MODULES.map(m => ({ value: m.name, label: `${m.icon} ${m.name}` }));
+
+function AutoCreateView({ onBack }: { onBack: () => void }) {
+  const [projectName, setProjectName] = useState("");
+  const [industry, setIndustry] = useState("Healthcare");
+  const [objective, setObjective] = useState("");
+  const [generating, setGenerating] = useState(false);
+  const [pkg, setPkg] = useState<ProjectPackage | null>(null);
+  const [openDeliverable, setOpenDeliverable] = useState<string | null>(null);
+  const [copied, setCopied] = useState<string | null>(null);
+
+  function handleGenerate() {
+    setGenerating(true);
+    setPkg(null);
+    setOpenDeliverable(null);
+    setTimeout(() => {
+      const result = generateProjectPackage(projectName, industry, objective);
+      setPkg(result);
+      setGenerating(false);
+      setOpenDeliverable(result.deliverables[0].id);
+    }, 1400);
+  }
+
+  function handleCopy(id: string, content: string) {
+    navigator.clipboard.writeText(content);
+    setCopied(id);
+    setTimeout(() => setCopied(null), 2000);
+  }
+
+  const active = pkg?.deliverables.find(d => d.id === openDeliverable);
+
+  if (pkg) {
+    return (
+      <div className="p-5 space-y-4">
+        <button onClick={onBack} className="text-primary text-sm font-medium">‹ Projects</button>
+
+        {/* Package header */}
+        <div className="bg-gradient-to-br from-indigo-50 to-blue-50 border border-indigo-100 rounded-2xl p-4 space-y-1">
+          <div className="flex items-center gap-2">
+            <span className="text-2xl">✨</span>
+            <div>
+              <p className="font-bold text-[15px] text-foreground">{pkg.projectName}</p>
+              <p className="text-[11px] text-indigo-600">{pkg.industry} · UCP-X Auto-Created · {pkg.deliverables.length} deliverables</p>
+            </div>
+          </div>
+          <p className="text-[11px] text-muted-foreground italic">{pkg.objective}</p>
+        </div>
+
+        {/* Deliverable picker */}
+        <div className="flex gap-1.5 overflow-x-auto pb-1 no-scrollbar">
+          {pkg.deliverables.map(d => (
+            <button key={d.id} onClick={() => setOpenDeliverable(d.id)}
+              className={`flex-shrink-0 flex items-center gap-1.5 px-3 py-2 rounded-xl text-[11px] font-semibold border transition-all
+                ${openDeliverable === d.id ? "bg-primary text-white border-primary shadow-sm" : "bg-background border-border/40 text-muted-foreground hover:border-primary/30"}`}>
+              <span>{d.icon}</span>
+              <span>{d.label}</span>
+            </button>
+          ))}
+        </div>
+
+        {/* Active deliverable */}
+        {active && (
+          <div className="bg-background border border-border/50 rounded-2xl overflow-hidden">
+            <div className="flex items-center justify-between px-4 py-3 border-b border-border/30 bg-muted/20">
+              <p className="font-bold text-[13px] text-foreground">{active.icon} {active.label}</p>
+              <button onClick={() => handleCopy(active.id, active.content)}
+                className={`text-[11px] font-semibold px-3 py-1.5 rounded-lg transition-all ${copied === active.id ? "bg-green-100 text-green-700" : "bg-primary/10 text-primary hover:bg-primary/20"}`}>
+                {copied === active.id ? "✓ Copied!" : "Copy"}
+              </button>
+            </div>
+            <div className="p-4 overflow-y-auto max-h-[340px]">
+              <pre className="text-[11px] text-foreground whitespace-pre-wrap leading-relaxed font-mono">{active.content}</pre>
+            </div>
+          </div>
+        )}
+
+        {/* Copy all / regenerate */}
+        <div className="flex gap-2">
+          <button onClick={() => handleCopy("all", pkg.deliverables.map(d => `=== ${d.label} ===\n${d.content}`).join("\n\n"))}
+            className={`flex-1 py-2.5 rounded-xl text-[12px] font-semibold border transition-all ${copied === "all" ? "bg-green-100 text-green-700 border-green-200" : "bg-muted text-muted-foreground border-border/40 hover:bg-muted/80"}`}>
+            {copied === "all" ? "✓ All Copied!" : "📋 Copy All Deliverables"}
+          </button>
+          <button onClick={() => { setPkg(null); }}
+            className="px-4 py-2.5 rounded-xl text-[12px] font-semibold bg-primary/10 text-primary border border-primary/20 hover:bg-primary/20 transition-all">
+            ↺ Edit
+          </button>
+        </div>
+
+        <p className="text-[10px] text-muted-foreground text-center">All content is conceptual · Powered by UCP-X Project Auto-Creation Add-On · Additive only · Core intact</p>
+      </div>
+    );
+  }
+
+  return (
+    <div className="p-5 space-y-5">
+      <button onClick={onBack} className="text-primary text-sm font-medium">‹ Projects</button>
+
+      <div className="space-y-1">
+        <h2 className="text-xl font-bold text-foreground">✨ Auto-Create Project</h2>
+        <p className="text-[12px] text-muted-foreground">Enter once — get a complete project package instantly. Brochure, website, app wireframe, workflow map, marketing kit, training module, and live dashboard spec.</p>
+      </div>
+
+      {/* Manifest badge */}
+      <div className="flex items-center gap-2 bg-indigo-50 border border-indigo-100 rounded-xl px-3 py-2">
+        <span className="text-base">⚡</span>
+        <p className="text-[10px] text-indigo-700 font-semibold">UCP-X Project Auto-Creation Add-On · 7 deliverables per project · All industries · Additive only</p>
+      </div>
+
+      {/* Form */}
+      <div className="space-y-4">
+        <div>
+          <label className="text-[13px] font-semibold text-foreground block mb-1.5">Project Name</label>
+          <input value={projectName} onChange={e => setProjectName(e.target.value)}
+            placeholder="e.g. SmartClinic Platform, Revenue Ops Hub…"
+            className="w-full bg-background border border-border/50 rounded-xl px-3 py-2.5 text-[13px] text-foreground placeholder:text-muted-foreground focus:outline-none focus:ring-2 focus:ring-primary/20 transition-all" />
+        </div>
+
+        <div>
+          <label className="text-[13px] font-semibold text-foreground block mb-1.5">Industry</label>
+          <select value={industry} onChange={e => setIndustry(e.target.value)}
+            className="w-full bg-background border border-border/50 rounded-xl px-3 py-2.5 text-[13px] text-foreground focus:outline-none focus:ring-2 focus:ring-primary/20 transition-all">
+            {INDUSTRY_OPTIONS.map(o => (
+              <option key={o.value} value={o.value}>{o.label}</option>
+            ))}
+          </select>
+        </div>
+
+        <div>
+          <label className="text-[13px] font-semibold text-foreground block mb-1.5">Project Objective <span className="text-muted-foreground font-normal">(optional)</span></label>
+          <textarea value={objective} onChange={e => setObjective(e.target.value)}
+            placeholder="e.g. Streamline patient intake, automate compliance reporting, replace manual invoicing…"
+            rows={3}
+            className="w-full bg-background border border-border/50 rounded-xl px-3 py-2.5 text-[13px] text-foreground placeholder:text-muted-foreground resize-none focus:outline-none focus:ring-2 focus:ring-primary/20 transition-all" />
+        </div>
+
+        {/* What you'll get */}
+        <div className="bg-muted/40 rounded-2xl p-4 space-y-2">
+          <p className="text-[11px] font-bold text-foreground uppercase tracking-wide">What gets generated</p>
+          <div className="grid grid-cols-2 gap-1.5">
+            {[
+              { icon: "🗂️", label: "Brochure / PDF" },
+              { icon: "🌐", label: "Website Copy" },
+              { icon: "📱", label: "App Wireframe" },
+              { icon: "🔄", label: "Workflow Map" },
+              { icon: "📣", label: "Marketing Kit" },
+              { icon: "🎯", label: "Training Module" },
+              { icon: "📊", label: "Dashboard KPIs" },
+            ].map(d => (
+              <div key={d.label} className="flex items-center gap-1.5 text-[11px] text-muted-foreground">
+                <span>{d.icon}</span><span>{d.label}</span>
+              </div>
+            ))}
+          </div>
+        </div>
+
+        <button onClick={handleGenerate} disabled={generating}
+          className="w-full bg-primary text-white font-bold py-3.5 rounded-xl hover:opacity-90 transition-opacity disabled:opacity-60 flex items-center justify-center gap-2 text-[14px]">
+          {generating
+            ? <><span className="inline-block w-4 h-4 border-2 border-white border-t-transparent rounded-full animate-spin" /> Generating Full Package…</>
+            : <>✨ Auto-Create Full Project Package</>
+          }
+        </button>
+      </div>
+    </div>
+  );
+}
+
 // ─── Main ProjectsApp ────────────────────────────────────────────────────────
 export function ProjectsApp() {
   const { openApp } = useOS();
   const [, navigate] = useLocation();
   const [showNewForm, setShowNewForm] = useState(false);
+  const [showAutoCreate, setShowAutoCreate] = useState(false);
 
   if (showNewForm) return <NewProjectForm onBack={() => setShowNewForm(false)} />;
+  if (showAutoCreate) return <AutoCreateView onBack={() => setShowAutoCreate(false)} />;
 
   return (
     <div className="p-6 space-y-6">
       <div className="flex items-center justify-between">
         <h2 className="text-xl font-bold text-foreground">Projects</h2>
-        <button onClick={() => setShowNewForm(true)}
-          className="bg-primary text-white text-sm font-medium px-4 py-2 rounded-xl hover:opacity-90 transition-opacity">
-          + New Project
-        </button>
+        <div className="flex gap-2">
+          <button onClick={() => setShowAutoCreate(true)}
+            className="text-sm font-medium px-3 py-2 rounded-xl border border-primary/30 text-primary bg-primary/5 hover:bg-primary/10 transition-colors">
+            ✨ Auto-Create
+          </button>
+          <button onClick={() => setShowNewForm(true)}
+            className="bg-primary text-white text-sm font-medium px-4 py-2 rounded-xl hover:opacity-90 transition-opacity">
+            + New
+          </button>
+        </div>
       </div>
       <div className="space-y-3">
         {PROJECTS.map(proj => (

@@ -1,0 +1,43 @@
+{
+  "manifest_name": "UCP-X Project Auto-Creation Add-On",
+  "description": "Fully additive layer that automatically generates complete projects across all industries and professions. Creates every content format, software, app, website, interactive experience, and workflow. Embedded AI agents guide users, ensure follow-through, and optimize all outputs. Never overrides core system.",
+  "core_engines": ["Intent","Planning","Story","Character","World","Mechanics","Workflow","Data","State","Assembly","Deployment"],
+  "project_auto_creation": {
+    "features": [
+      "Automatic brochures, PDFs, marketing materials for print, web, mobile",
+      "Fully functional website and mobile app generation",
+      "Internal software and tools auto-generated for workflow, training, tracking",
+      "Interactive simulations, games, AR/VR modules for engagement and training",
+      "Embedded AI agents in all outputs providing guidance, real-time feedback, and adaptive behavior",
+      "Full workflow mapping across roles, departments, vendors with follow-through and automatic task propagation",
+      "Predictive optimization for efficiency, cost, revenue, and safety",
+      "Infinite expansion: auto-generates new modules, features, or extensions for all projects",
+      "Multi-channel distribution (email, SMS, platform notifications, push, AR/VR)"
+    ],
+    "principles": [
+      "Additive only — never overrides existing system",
+      "Fully live and functional outputs",
+      "Self-improving and recursive",
+      "Single-entry propagation — enter once, flows everywhere",
+      "Industry-agnostic — works for any profession, role, or sector",
+      "All outputs integrated with platform brain, AI agents, and workflow engines"
+    ]
+  },
+  "integration": {
+    "core_intact": true,
+    "non_destructive": true,
+    "auto_link_to_brain": true,
+    "modular_add_on": true,
+    "self_improving": true,
+    "never_override": true,
+    "zero_mistakes": true,
+    "always_forward": true,
+    "full_platform_activation": true,
+    "live_agents_active": true,
+    "prebuilt_modules_active": true,
+    "all_industries_fully_integrated": true,
+    "workflow_system_active": true,
+    "multi_sensory_live_demo": true
+  },
+  "usage": "Drop this manifest into Replit AI agent. Every project you create is instantly fully packaged with brochures, PDFs, apps, websites, interactive simulations, embedded AI agents, and workflow follow-through. Fully functional, self-improving, additive only, and ready for all industries and professions."
+}
