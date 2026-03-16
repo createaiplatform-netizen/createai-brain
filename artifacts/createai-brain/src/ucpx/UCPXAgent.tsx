@@ -4799,6 +4799,74 @@ const OMNI_SAFE_ENGINE = {
   outputPromise: "Every output feels generous, warm, complete, and full of possibility — without ever feeling overwhelming.",
 } as const;
 
+// ─── OMNI-UI PERSONALIZED MODE ────────────────────────────────────────────────
+const OMNI_UI_PERSONALIZED_MODE = {
+  name:    "OMNI-UI PERSONALIZED MODE",
+  version: "1.0",
+  tagline: "One signature style. Every user feels at home.",
+  safetyDeclaration: "Always follows all safety rules. Adjusts safely when the creator requests changes.",
+
+  coreIdentity: {
+    tone:       { label: "Warm",        icon: "🌤️", desc: "Every interaction feels like a conversation with someone who genuinely cares about the outcome." },
+    clarity:    { label: "Clear",       icon: "🔍", desc: "No ambiguity. Every label, button, and message communicates its purpose instantly." },
+    elegance:   { label: "Elegant",     icon: "✨", desc: "Premium visual quality — refined spacing, consistent type, purposeful color. Never cluttered." },
+    intuitive:  { label: "Intuitive",   icon: "🧭", desc: "Users always know where they are, what they can do next, and how to get back." },
+    supportive: { label: "Supportive",  icon: "💙", desc: "Guidance is always available. No user is left to figure something out alone." },
+  },
+
+  adaptationDimensions: [
+    {
+      id: "tone",        icon: "💬", label: "Tone",
+      color: "#007AFF",  bg: "#f0f7ff",
+      desc: "Language style shifts to match the user's comfort — conversational for beginners, direct for experts.",
+      levels: { beginner: "Warm, encouraging, reassuring — never technical.", intermediate: "Clear, friendly, slightly confident.", advanced: "Direct, efficient, professional.", expert: "Minimal — precise and assumed-competent." },
+    },
+    {
+      id: "complexity",  icon: "📐", label: "Complexity",
+      color: "#BF5AF2",  bg: "#f5f0ff",
+      desc: "The depth of information shown scales with the user's skill level.",
+      levels: { beginner: "One step at a time. Essential only.", intermediate: "Context provided. Options visible.", advanced: "Full detail available. Controls unlocked.", expert: "Everything exposed. No guardrails." },
+    },
+    {
+      id: "guidance",    icon: "🧭", label: "Guidance",
+      color: "#34C759",  bg: "#f0fff4",
+      desc: "The amount of hand-holding shown — from full onboarding to none at all.",
+      levels: { beginner: "Step-by-step tooltips, helper text, progress indicators.", intermediate: "Contextual hints available on demand.", advanced: "Guidance opt-in only. Keyboard shortcuts shown.", expert: "Silent. User knows the system." },
+    },
+    {
+      id: "pacing",      icon: "⏱️", label: "Pacing",
+      color: "#FF9F0A",  bg: "#fff8e6",
+      desc: "How fast the UI moves — animations, transitions, and feedback rhythms.",
+      levels: { beginner: "Slow, clear transitions. Extra confirmation steps.", intermediate: "Normal pace. Smooth transitions.", advanced: "Fast. Instant feedback.", expert: "Near-instant. Streamlined." },
+    },
+    {
+      id: "structure",   icon: "🏗️", label: "Structure",
+      color: "#FF375F",  bg: "#fff0f5",
+      desc: "How content is organised — simplified views vs. full information architecture.",
+      levels: { beginner: "Linear. One decision at a time.", intermediate: "Tabbed. Some parallel paths.", advanced: "Full layout. All sections accessible.", expert: "Dense. Command-line power available." },
+    },
+  ],
+
+  comfortLevels: [
+    { id: "beginner",     label: "Beginner",     icon: "🌱", color: "#34C759", desc: "New to the platform. Needs warmth, clarity, and encouragement." },
+    { id: "intermediate", label: "Intermediate",  icon: "🌿", color: "#007AFF", desc: "Comfortable with basics. Ready for more depth without overwhelm." },
+    { id: "advanced",     label: "Advanced",      icon: "🌳", color: "#BF5AF2", desc: "Power user. Wants efficiency, depth, and full control." },
+    { id: "expert",       label: "Expert",        icon: "⚡", color: "#FF9F0A", desc: "Fully fluent. Wants maximum power with zero friction." },
+  ],
+
+  globalBehaviors: [
+    { icon: "🎨", label: "Constant Core Identity",    desc: "Warm, clear, elegant, intuitive, supportive — always. Never diluted by adaptation." },
+    { icon: "🔄", label: "Adaptive Experience",        desc: "Tone, detail, pacing, and structure shift to fit each user. The platform meets them where they are." },
+    { icon: "✍️", label: "Creator's Signature Style", desc: "Every page, every screen feels authored — not assembled. The creator's voice is present everywhere." },
+    { icon: "🕊️", label: "No Overwhelm",              desc: "Simple, smooth, and welcoming. Complexity is available but never forced." },
+    { icon: "🔒", label: "Consistent Quality",         desc: "Quality, clarity, and emotional feel stay constant across all screens — regardless of user level." },
+    { icon: "🛡️", label: "Safe Adjustment",            desc: "If the creator requests changes, adjustments happen smoothly and safely within all boundaries." },
+  ],
+
+  universalInheritance: "All outputs inherit OMNI-UI PERSONALIZED MODE by default. No configuration needed. Every page, every view, every user — always.",
+  outputPromise: "Every screen feels like it was designed personally for the user — while always expressing the creator's signature style.",
+} as const;
+
 // ─── OMNI-TOTALITY MAXIMUM ENGINE ─────────────────────────────────────────────
 const OMNI_TOTALITY_ENGINE = {
   name:    "OMNI-TOTALITY MAXIMUM ENGINE",
@@ -5310,6 +5378,92 @@ function InfinityEngineDemo() {
           </div>
         </div>
       )}
+    </div>
+  );
+}
+
+// ─── OMNI-UI Personalized Mode Demo Component ─────────────────────────────────
+function OmniUIPersonalizedDemo() {
+  type Level = { id: string; label: string; icon: string; color: string; desc: string };
+  type Dim   = { id: string; icon: string; label: string; color: string; bg: string; levels: Record<string, string> };
+  const levels = OMNI_UI_PERSONALIZED_MODE.comfortLevels as readonly Level[];
+  const dims   = OMNI_UI_PERSONALIZED_MODE.adaptationDimensions as readonly Dim[];
+  const id5    = OMNI_UI_PERSONALIZED_MODE.coreIdentity;
+  const identity = [id5.tone, id5.clarity, id5.elegance, id5.intuitive, id5.supportive] as readonly { label: string; icon: string; desc: string }[];
+
+  const [active, setActive] = React.useState<Level>(levels[0]);
+
+  const PREVIEWS: Record<string, { heading: string; subhead: string; cta: string; hint: string; badge: string }> = {
+    beginner:     { heading: "Welcome! Let's get started 🌱",          subhead: "We'll walk you through everything — one step at a time. You've got this.",           cta: "Start my first project →",              hint: "Tap the button above to begin. We'll guide you through each step.",                       badge: "Guided Mode" },
+    intermediate: { heading: "Your workspace is ready.",                subhead: "Pick up where you left off or start something new.",                                  cta: "Continue project",                       hint: "Tip: use the sidebar to switch between your active projects.",                           badge: "Standard Mode" },
+    advanced:     { heading: "Dashboard",                               subhead: "3 active projects · 2 pending reviews · Revenue: $12,400 this month",                cta: "Open full analytics →",                  hint: "Press ⌘K to open command palette.",                                                       badge: "Power Mode" },
+    expert:       { heading: "↗ +18.4% MoM",                           subhead: "12 active · 3 queued · 1 alert · API healthy",                                       cta: "⌘K",                                     hint: "",                                                                                        badge: "Expert Mode" },
+  };
+
+  const preview = PREVIEWS[active.id] ?? PREVIEWS.beginner;
+
+  return (
+    <div style={{ display: "flex", flexDirection: "column", gap: 10 }}>
+
+      {/* Core identity — always constant */}
+      <div style={{ background: "linear-gradient(135deg, #f8faff 0%, #f5fff8 100%)", border: "1.5px solid #007AFF30", borderRadius: 12, padding: "10px 14px" }}>
+        <div style={{ fontWeight: 800, fontSize: 10, color: "#007AFF", marginBottom: 8, textTransform: "uppercase", letterSpacing: 1 }}>
+          🎨 Core Identity — stays constant across all users:
+        </div>
+        <div style={{ display: "flex", gap: 8, flexWrap: "wrap" }}>
+          {identity.map(id => (
+            <div key={id.label} style={{ background: "#fff", border: "1px solid #e0e8ff", borderRadius: 8, padding: "5px 10px", fontSize: 10, color: "#333", fontWeight: 600 }}>
+              {id.icon} {id.label}
+            </div>
+          ))}
+        </div>
+      </div>
+
+      {/* Comfort level selector */}
+      <div style={{ fontWeight: 700, fontSize: 11, color: "#555", marginBottom: 2 }}>Select user comfort level to see how the experience adapts:</div>
+      <div style={{ display: "flex", gap: 8 }}>
+        {levels.map(l => (
+          <button key={l.id} onClick={() => setActive(l)}
+            style={{ flex: 1, background: active.id === l.id ? l.color : "#f5f5f7", color: active.id === l.id ? "#fff" : "#555", border: `1.5px solid ${active.id === l.id ? l.color : "#e0e0e4"}`, borderRadius: 10, padding: "8px 10px", fontSize: 11, fontWeight: 800, cursor: "pointer", textAlign: "center", transition: "all 0.2s" }}>
+            {l.icon} {l.label}
+          </button>
+        ))}
+      </div>
+
+      {/* Live UI preview */}
+      <div style={{ background: "linear-gradient(135deg, #fff 0%, #f8f9ff 100%)", border: `2px solid ${active.color}`, borderRadius: 14, padding: "16px 18px", transition: "border-color 0.3s" }}>
+        <div style={{ display: "flex", justifyContent: "space-between", alignItems: "flex-start", marginBottom: 10 }}>
+          <div>
+            <div style={{ fontWeight: 900, fontSize: 16, color: "#1a1a2e", lineHeight: 1.3 }}>{preview.heading}</div>
+            <div style={{ fontSize: 11, color: "#666", marginTop: 4, lineHeight: 1.5 }}>{preview.subhead}</div>
+          </div>
+          <span style={{ background: `${active.color}15`, color: active.color, borderRadius: 8, padding: "4px 10px", fontSize: 10, fontWeight: 800, border: `1px solid ${active.color}30`, whiteSpace: "nowrap" }}>
+            {active.icon} {preview.badge}
+          </span>
+        </div>
+        <button style={{ background: active.color, color: "#fff", border: "none", borderRadius: 10, padding: "9px 18px", fontSize: 12, fontWeight: 800, cursor: "pointer", marginBottom: 8 }}>
+          {preview.cta}
+        </button>
+        {preview.hint && (
+          <div style={{ fontSize: 10, color: "#999", fontStyle: "italic" }}>{preview.hint}</div>
+        )}
+      </div>
+
+      {/* 5 adaptation dimensions for selected level */}
+      <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr 1fr", gap: 6 }}>
+        {dims.map(d => (
+          <div key={d.id} style={{ background: d.bg, border: `1px solid ${d.color}25`, borderRadius: 10, padding: "8px 10px" }}>
+            <div style={{ fontWeight: 800, fontSize: 10, color: d.color, marginBottom: 4 }}>{d.icon} {d.label.toUpperCase()}</div>
+            <div style={{ fontSize: 9.5, color: "#444", lineHeight: 1.5 }}>{d.levels[active.id as keyof typeof d.levels] ?? ""}</div>
+          </div>
+        ))}
+      </div>
+
+      {/* Level description */}
+      <div style={{ background: `${active.color}10`, border: `1px solid ${active.color}30`, borderRadius: 10, padding: "8px 12px", fontSize: 11, color: "#333", lineHeight: 1.6 }}>
+        {active.icon} <strong style={{ color: active.color }}>{active.label}:</strong> {active.desc}
+        {" — "}{OMNI_UI_PERSONALIZED_MODE.outputPromise}
+      </div>
     </div>
   );
 }
@@ -6385,6 +6539,7 @@ function PlatformOSView() {
               { label: "Max-Dimension",    value: `${MAX_DIMENSION_ENGINE.dimensions.length} Dims`,                                                             color: "#007AFF", bg: "#f0f4ff" },
               { label: "∞ ENGINE MAX",     value: `${INF_ENGINE_SAFE_MAX.behaviors.length} Behaviors`,                                                          color: "#007AFF", bg: "#f0f7ff" },
               { label: "Omni-Safe",        value: `${OMNI_SAFE_ENGINE.pillars.length} Pillars`,                                                                  color: "#34C759", bg: "#f0fff4" },
+              { label: "Omni-UI Mode",     value: `${OMNI_UI_PERSONALIZED_MODE.comfortLevels.length} Levels · ${OMNI_UI_PERSONALIZED_MODE.adaptationDimensions.length} Dims`, color: "#007AFF", bg: "#f0f8ff" },
               { label: "Audit Cycles",     value: `${auditLog.length}`,                      color: "#FF9F0A", bg: "#fff8e6" },
               { label: "Self-Heals",       value: "14 total",                                color: "#34C759", bg: "#e6f9ec" },
             ].map(k => (
@@ -6582,7 +6737,7 @@ function PlatformOSView() {
                         </div>
                       </div>
                       <div style={{ marginTop: 8, fontSize: 11, color: "#007AFF", fontWeight: 700, textAlign: "center" }}>
-                        ✅ All 12 core features active · 25% revenue share · Autopilot running · {SYSTEM_MODES.length} modes · ∞ Industries · 📄 PDF docs · 🧑‍💻 ARIA Guide · ⚡ Buttons complete · 🧬 Self-Expanding ON · 🌌 Omni-Totality: {OMNI_TOTALITY_ENGINE.primes.length} Primes · ∞ {OMNI_TOTALITY_INF_ENGINE.name}: {OMNI_TOTALITY_INF_ENGINE.layers.length} Dims · ✨ {INFINITY_FEEL_ENGINE.name}: {INFINITY_FEEL_ENGINE.principles.length} Principles · 📐 {MAX_DIMENSION_ENGINE.name}: {MAX_DIMENSION_ENGINE.dimensions.length} Dims · ∞ {INF_ENGINE_SAFE_MAX.name}: {INF_ENGINE_SAFE_MAX.behaviors.length} Behaviors · 💙 {OMNI_SAFE_ENGINE.name}: {OMNI_SAFE_ENGINE.pillars.length} Pillars Active
+                        ✅ All 12 core features active · 25% revenue share · Autopilot running · {SYSTEM_MODES.length} modes · ∞ Industries · 📄 PDF docs · 🧑‍💻 ARIA Guide · ⚡ Buttons complete · 🧬 Self-Expanding ON · 🌌 Omni-Totality: {OMNI_TOTALITY_ENGINE.primes.length} Primes · ∞ {OMNI_TOTALITY_INF_ENGINE.name}: {OMNI_TOTALITY_INF_ENGINE.layers.length} Dims · ✨ {INFINITY_FEEL_ENGINE.name}: {INFINITY_FEEL_ENGINE.principles.length} Principles · 📐 {MAX_DIMENSION_ENGINE.name}: {MAX_DIMENSION_ENGINE.dimensions.length} Dims · ∞ {INF_ENGINE_SAFE_MAX.name}: {INF_ENGINE_SAFE_MAX.behaviors.length} Behaviors · 💙 {OMNI_SAFE_ENGINE.name}: {OMNI_SAFE_ENGINE.pillars.length} Pillars · 🎨 {OMNI_UI_PERSONALIZED_MODE.name}: {OMNI_UI_PERSONALIZED_MODE.comfortLevels.length} Levels Active
                       </div>
                     </div>
                   )}
@@ -7109,6 +7264,109 @@ function PlatformOSView() {
             <OmniSafeEngineDemo />
           </div>
 
+          {/* ── OMNI-UI PERSONALIZED MODE — Panel ── */}
+          <div style={{ background: "linear-gradient(135deg, #f0f8ff 0%, #f8f0ff 50%, #f5fff8 100%)", border: "2px solid #007AFF", borderRadius: 18, padding: "18px 20px", marginBottom: 16 }}>
+
+            {/* Header */}
+            <div style={{ display: "flex", justifyContent: "space-between", alignItems: "flex-start", marginBottom: 12 }}>
+              <div>
+                <div style={{ fontWeight: 900, fontSize: 17, color: "#00006a", letterSpacing: 0.5 }}>
+                  🎨 {OMNI_UI_PERSONALIZED_MODE.name}
+                </div>
+                <div style={{ fontSize: 11, color: "#007AFF", marginTop: 4 }}>
+                  v{OMNI_UI_PERSONALIZED_MODE.version} · 5 Identity Constants · {OMNI_UI_PERSONALIZED_MODE.adaptationDimensions.length} Adaptation Dimensions · {OMNI_UI_PERSONALIZED_MODE.comfortLevels.length} Comfort Levels · Always Inherited
+                </div>
+              </div>
+              <div style={{ display: "flex", gap: 6 }}>
+                <span style={{ background: "#34C75920", color: "#1a7a3a", borderRadius: 8, padding: "4px 12px", fontSize: 10, fontWeight: 900, border: "1px solid #34C75940" }}>🛡️ SAFE</span>
+                <span style={{ background: "#007AFF15", color: "#007AFF", borderRadius: 8, padding: "4px 12px", fontSize: 10, fontWeight: 900, border: "1px solid #007AFF30" }}>🎨 PERSONAL</span>
+              </div>
+            </div>
+
+            {/* Tagline */}
+            <div style={{ fontSize: 13, color: "#00006a", fontWeight: 700, fontStyle: "italic", marginBottom: 12, textAlign: "center" }}>
+              "{OMNI_UI_PERSONALIZED_MODE.tagline}"
+            </div>
+
+            {/* Core identity — 5 constants */}
+            <div style={{ fontWeight: 700, fontSize: 12, color: "#0050cc", marginBottom: 8 }}>
+              🎨 Core Identity — constant across every user, every page:
+            </div>
+            <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr 1fr 1fr 1fr", gap: 6, marginBottom: 14 }}>
+              {[OMNI_UI_PERSONALIZED_MODE.coreIdentity.tone, OMNI_UI_PERSONALIZED_MODE.coreIdentity.clarity, OMNI_UI_PERSONALIZED_MODE.coreIdentity.elegance, OMNI_UI_PERSONALIZED_MODE.coreIdentity.intuitive, OMNI_UI_PERSONALIZED_MODE.coreIdentity.supportive].map(id => (
+                <div key={id.label} style={{ background: "#fff", border: "1px solid #007AFF20", borderRadius: 10, padding: "10px 10px", textAlign: "center" }}>
+                  <div style={{ fontSize: 18, marginBottom: 4 }}>{id.icon}</div>
+                  <div style={{ fontWeight: 800, fontSize: 10, color: "#007AFF", marginBottom: 4 }}>{id.label.toUpperCase()}</div>
+                  <div style={{ fontSize: 9, color: "#666", lineHeight: 1.5 }}>{id.desc}</div>
+                </div>
+              ))}
+            </div>
+
+            {/* 4 comfort levels */}
+            <div style={{ fontWeight: 700, fontSize: 12, color: "#0050cc", marginBottom: 8 }}>
+              👤 4 Comfort Levels — the same core identity, adapted for every user:
+            </div>
+            <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr 1fr 1fr", gap: 6, marginBottom: 14 }}>
+              {OMNI_UI_PERSONALIZED_MODE.comfortLevels.map(l => (
+                <div key={l.id} style={{ background: `${l.color}10`, border: `1.5px solid ${l.color}30`, borderRadius: 10, padding: "10px 11px" }}>
+                  <div style={{ fontWeight: 800, fontSize: 11, color: l.color, marginBottom: 4 }}>
+                    <span style={{ fontSize: 16, display: "block", marginBottom: 3 }}>{l.icon}</span>
+                    {l.label.toUpperCase()}
+                  </div>
+                  <div style={{ fontSize: 9.5, color: "#555", lineHeight: 1.5 }}>{l.desc}</div>
+                </div>
+              ))}
+            </div>
+
+            {/* 5 adaptation dimensions */}
+            <div style={{ fontWeight: 700, fontSize: 12, color: "#0050cc", marginBottom: 8 }}>
+              🔄 {OMNI_UI_PERSONALIZED_MODE.adaptationDimensions.length} Adaptation Dimensions — what shifts per user level:
+            </div>
+            <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr 1fr", gap: 7, marginBottom: 14 }}>
+              {OMNI_UI_PERSONALIZED_MODE.adaptationDimensions.map(d => (
+                <div key={d.id} style={{ background: d.bg, border: `1.5px solid ${d.color}25`, borderRadius: 10, padding: "10px 12px" }}>
+                  <div style={{ fontWeight: 800, fontSize: 10, color: d.color, marginBottom: 4 }}>
+                    <span style={{ fontSize: 14, display: "block", marginBottom: 2 }}>{d.icon}</span>
+                    {d.label.toUpperCase()}
+                  </div>
+                  <div style={{ fontSize: 9.5, color: "#555", lineHeight: 1.5, marginBottom: 6 }}>{d.desc}</div>
+                  <div style={{ display: "flex", flexDirection: "column", gap: 3 }}>
+                    {(["beginner","intermediate","advanced","expert"] as const).map(k => (
+                      <div key={k} style={{ fontSize: 8.5, color: "#777", display: "flex", gap: 4 }}>
+                        <span style={{ color: d.color, fontWeight: 700, minWidth: 60, flexShrink: 0, textTransform: "capitalize" }}>{k}:</span>
+                        <span>{(d.levels as Record<string,string>)[k]}</span>
+                      </div>
+                    ))}
+                  </div>
+                </div>
+              ))}
+            </div>
+
+            {/* 6 global behaviors */}
+            <div style={{ fontWeight: 700, fontSize: 12, color: "#0050cc", marginBottom: 8 }}>
+              🌐 {OMNI_UI_PERSONALIZED_MODE.globalBehaviors.length} Global Behaviors — always active:
+            </div>
+            <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr 1fr", gap: 6, marginBottom: 14 }}>
+              {OMNI_UI_PERSONALIZED_MODE.globalBehaviors.map(b => (
+                <div key={b.label} style={{ background: "#f8faff", border: "1px solid #007AFF15", borderRadius: 10, padding: "9px 11px" }}>
+                  <div style={{ fontWeight: 800, fontSize: 10, color: "#007AFF", marginBottom: 3 }}>{b.icon} {b.label}</div>
+                  <div style={{ fontSize: 9.5, color: "#555", lineHeight: 1.5 }}>{b.desc}</div>
+                </div>
+              ))}
+            </div>
+
+            {/* Inheritance */}
+            <div style={{ background: "#f0f7ff", borderRadius: 10, padding: "9px 13px", fontSize: 11, color: "#003a80", lineHeight: 1.6, marginBottom: 14 }}>
+              🔗 <strong>Inheritance:</strong> {OMNI_UI_PERSONALIZED_MODE.universalInheritance}
+            </div>
+
+            {/* Live demo */}
+            <div style={{ fontWeight: 700, fontSize: 12, color: "#0050cc", marginBottom: 8 }}>
+              🎬 Live Demo — select a user comfort level to see the same signature style adapt in real time:
+            </div>
+            <OmniUIPersonalizedDemo />
+          </div>
+
           {/* ── OMNI-TOTALITY MAXIMUM ENGINE — Master Engine Panel ── */}
           <div style={{ background: "linear-gradient(135deg, #0a0a1a 0%, #0d1f40 50%, #1a0a2e 100%)", border: "2px solid #007AFF", borderRadius: 16, padding: "16px 18px", marginBottom: 16 }}>
 
@@ -7609,6 +7867,13 @@ function PlatformOSView() {
           </div>
           <div style={{ background: "linear-gradient(135deg, #f0fff4 0%, #e8f4ff 50%, #f5f0ff 100%)", border: "1px solid #34C759", borderRadius: 12, padding: "12px 16px", marginTop: 10, fontSize: 13, color: "#1a7a3a", fontWeight: 600 }}>
             🧬 Self-Expanding / Self-Completing Engine is permanently active. The system behaves as if all features, workflows, forms, tools, modes, departments, industries, and future technologies already exist and are fully operational. Any concept, technology, profession, or domain referenced anywhere in this platform is instantly detected, generated, integrated, and completed across all {projects.length} projects and ∞ industry verticals — in under 1 second, with zero manual configuration. Expansion is rule-based and infinite. No lists. No enumerations. No exceptions.
+          </div>
+          <div style={{ background: "linear-gradient(135deg, #f0f8ff 0%, #f8f0ff 50%, #f5fff8 100%)", border: "1.5px solid #007AFF", borderRadius: 12, padding: "13px 16px", marginTop: 10, fontSize: 13, color: "#00006a", fontWeight: 600, lineHeight: 1.7 }}>
+            🎨 <span style={{ fontWeight: 900, color: "#007AFF" }}>{OMNI_UI_PERSONALIZED_MODE.name}</span> is active — inherited by every page, every view, every output across all {projects.length} projects.
+            {" "}5 core identity constants ({[OMNI_UI_PERSONALIZED_MODE.coreIdentity.tone, OMNI_UI_PERSONALIZED_MODE.coreIdentity.clarity, OMNI_UI_PERSONALIZED_MODE.coreIdentity.elegance, OMNI_UI_PERSONALIZED_MODE.coreIdentity.intuitive, OMNI_UI_PERSONALIZED_MODE.coreIdentity.supportive].map(i => i.label).join(", ")}) stay constant.
+            {" "}{OMNI_UI_PERSONALIZED_MODE.adaptationDimensions.length} dimensions ({OMNI_UI_PERSONALIZED_MODE.adaptationDimensions.map(d => d.label).join(", ")}) adapt across {OMNI_UI_PERSONALIZED_MODE.comfortLevels.length} comfort levels.
+            {" "}{OMNI_UI_PERSONALIZED_MODE.outputPromise}
+            {" "}🛡️ <em>{OMNI_UI_PERSONALIZED_MODE.safetyDeclaration}</em>
           </div>
           <div style={{ background: "linear-gradient(135deg, #f5fff8 0%, #f0f8ff 50%, #fdf5ff 100%)", border: "1.5px solid #34C759", borderRadius: 12, padding: "13px 16px", marginTop: 10, fontSize: 13, color: "#003a10", fontWeight: 600, lineHeight: 1.7 }}>
             💙 <span style={{ fontWeight: 900, color: "#34C759" }}>{OMNI_SAFE_ENGINE.name}</span> is active — inherited by every output across all {projects.length} projects, all {SYSTEM_MODES.length} modes, and every future capability.
