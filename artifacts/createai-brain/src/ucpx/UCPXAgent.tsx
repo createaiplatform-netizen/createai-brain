@@ -15,6 +15,7 @@ import {
   UNIVERSAL_MODULES, UniversalModule,
   WORKFLOW_FEATURES, INFINITE_FEATURES, INTERACTIVE_FEATURES,
   MANIFEST,
+  SUPERPOWERS, Superpower, generateSuperpower,
 } from "@/engine/InfiniteExpansionEngine";
 
 // ─── Panel tabs ───────────────────────────────────────────────────────────
@@ -155,11 +156,19 @@ function ModuleCard({
 // ─── Infinite Expand View ─────────────────────────────────────────────────
 
 function ExpandView({ onResult }: { onResult: (m: InfiniteModule) => void }) {
+  const [mode, setMode] = useState<"expand" | "powers">("powers");
+
+  // ── Expand sub-state ──
   const [domain,     setDomain]     = useState("");
   const [agentId,    setAgentId]    = useState<AgentId>("FORGE");
   const [type,       setType]       = useState<InfiniteModule["type"]>("innovation");
   const [generating, setGenerating] = useState(false);
   const [recent,     setRecent]     = useState<InfiniteModule[]>([]);
+
+  // ── Powers sub-state ──
+  const [activatingId, setActivatingId] = useState<string | null>(null);
+  const [activatedIds, setActivatedIds] = useState<string[]>([]);
+  const [powerDomain,  setPowerDomain]  = useState("");
 
   const handleGenerate = () => {
     setGenerating(true);
@@ -182,64 +191,133 @@ function ExpandView({ onResult }: { onResult: (m: InfiniteModule) => void }) {
     }, 1200);
   };
 
+  const handleActivatePower = (sp: Superpower) => {
+    if (activatingId) return;
+    setActivatingId(sp.id);
+    setTimeout(() => {
+      const mod = generateSuperpower(sp.id, powerDomain);
+      setActivatedIds(prev => [sp.id, ...prev.filter(x => x !== sp.id)]);
+      setActivatingId(null);
+      onResult(mod);
+    }, 900);
+  };
+
   return (
-    <div className="space-y-4">
-      <div>
-        <p className="text-[10px] font-bold text-muted-foreground uppercase tracking-wider mb-2">Agent</p>
-        <div className="grid grid-cols-3 gap-1.5">
-          {META_AGENTS.map(a => (
-            <button key={a.id} onClick={() => setAgentId(a.id)}
-              className={`flex flex-col items-center gap-0.5 p-2 rounded-xl border text-center transition-all ${agentId === a.id ? "border-blue-400 bg-blue-50" : "border-border/40 hover:border-blue-200"}`}>
-              <span className="text-base">{a.icon}</span>
-              <span className="text-[9px] font-bold">{a.name}</span>
-            </button>
-          ))}
-        </div>
-      </div>
-
-      <div>
-        <p className="text-[10px] font-bold text-muted-foreground uppercase tracking-wider mb-2">Module Type</p>
-        <div className="flex flex-wrap gap-1.5">
-          {(["innovation", "prediction", "workflow", "insight", "module"] as const).map(t => (
-            <button key={t} onClick={() => setType(t)}
-              className={`text-[10px] font-semibold px-2.5 py-1 rounded-full border transition-all ${type === t ? "bg-blue-500 text-white border-blue-500" : "border-border/40 text-muted-foreground hover:border-blue-200"}`}>
-              {t}
-            </button>
-          ))}
-        </div>
-      </div>
-
-      <div>
-        <label className="text-[10px] font-bold text-muted-foreground uppercase tracking-wider block mb-1.5">Domain (optional)</label>
-        <input value={domain} onChange={e => setDomain(e.target.value)}
-          placeholder="e.g. Healthcare, Finance, Gaming…"
-          className="w-full bg-white border border-border/40 rounded-xl px-3 py-2 text-[12px] outline-none focus:ring-1 focus:ring-blue-300/50 transition-all" />
-      </div>
-
-      <div className="grid grid-cols-2 gap-2">
-        <button onClick={handleGenerate} disabled={generating}
-          className="bg-blue-500 text-white text-[12px] font-bold py-2.5 rounded-xl hover:bg-blue-600 disabled:opacity-40 flex items-center justify-center gap-1.5 transition-colors">
-          {generating ? <><div className="w-3 h-3 border-2 border-white border-t-transparent rounded-full animate-spin" /><span>Generating…</span></> : "⚡ Generate"}
+    <div className="space-y-3">
+      {/* Mode toggle */}
+      <div className="flex gap-1 bg-muted rounded-xl p-1">
+        <button onClick={() => setMode("powers")}
+          className={`flex-1 text-[11px] font-bold py-1.5 rounded-lg transition-colors ${mode === "powers" ? "bg-white text-primary shadow-sm" : "text-muted-foreground hover:text-foreground"}`}>
+          ⚡ Superpowers
         </button>
-        <button onClick={handleExpandAll} disabled={generating}
-          className="bg-gradient-to-r from-purple-500 to-blue-500 text-white text-[12px] font-bold py-2.5 rounded-xl hover:opacity-90 disabled:opacity-40 transition-opacity">
-          ♾️ Expand All
+        <button onClick={() => setMode("expand")}
+          className={`flex-1 text-[11px] font-bold py-1.5 rounded-lg transition-colors ${mode === "expand" ? "bg-white text-primary shadow-sm" : "text-muted-foreground hover:text-foreground"}`}>
+          ♾️ Expand
         </button>
       </div>
 
-      {recent.length > 0 && (
-        <div>
-          <p className="text-[10px] font-bold text-muted-foreground uppercase tracking-wider mb-1.5">Recent</p>
-          <div className="space-y-1">
-            {recent.slice(0, 3).map(m => (
-              <button key={m.id} onClick={() => onResult(m)}
-                className="w-full flex items-center gap-2 p-2.5 bg-white rounded-xl border border-border/40 hover:border-blue-200 transition-colors text-left">
-                <span className="text-sm">{META_AGENTS.find(a => a.id === m.agentId)?.icon}</span>
-                <p className="text-[11px] text-foreground truncate">{m.title}</p>
-                <span className="ml-auto text-muted-foreground text-xs">→</span>
-              </button>
-            ))}
+      {/* ── Powers mode ── */}
+      {mode === "powers" && (
+        <div className="space-y-3">
+          <div className="bg-gradient-to-br from-violet-50 to-blue-50 border border-violet-100 rounded-2xl p-3">
+            <p className="text-[11px] font-bold text-violet-700">SUPERPOWERS ADD-ON — ALL 10 ACTIVE</p>
+            <p className="text-[10px] text-violet-600 mt-0.5">Tap any superpower to activate it and generate real output</p>
           </div>
+          <div>
+            <label className="text-[10px] font-bold text-muted-foreground uppercase tracking-wider block mb-1">Domain / Context (optional)</label>
+            <input value={powerDomain} onChange={e => setPowerDomain(e.target.value)}
+              placeholder="e.g. Healthcare, Finance, my project…"
+              className="w-full bg-white border border-border/40 rounded-xl px-3 py-2 text-[12px] outline-none focus:ring-1 focus:ring-violet-300/50 transition-all" />
+          </div>
+          <div className="space-y-2">
+            {SUPERPOWERS.map(sp => {
+              const busy = activatingId === sp.id;
+              const done = activatedIds.includes(sp.id);
+              return (
+                <button key={sp.id} onClick={() => handleActivatePower(sp)} disabled={!!activatingId}
+                  className={`w-full flex items-center gap-3 p-3 rounded-xl border text-left transition-all
+                    ${done ? "bg-green-50 border-green-200" : "bg-white border-border/40 hover:border-violet-300 hover:bg-violet-50/30"}
+                    ${busy ? "opacity-60" : ""}
+                    disabled:cursor-not-allowed`}>
+                  <span className="text-xl flex-shrink-0">{sp.icon}</span>
+                  <div className="flex-1 min-w-0">
+                    <p className="text-[12px] font-bold text-foreground">{sp.name}</p>
+                    <p className="text-[10px] text-muted-foreground leading-snug">{sp.tagline}</p>
+                  </div>
+                  <div className="flex-shrink-0">
+                    {busy ? (
+                      <div className="w-4 h-4 border-2 border-violet-500 border-t-transparent rounded-full animate-spin" />
+                    ) : done ? (
+                      <span className="text-[10px] text-green-600 font-bold">✓</span>
+                    ) : (
+                      <span className="text-[10px] text-violet-500 font-bold">▶</span>
+                    )}
+                  </div>
+                </button>
+              );
+            })}
+          </div>
+          <p className="text-[9px] text-muted-foreground text-center">UCP-X Superpowers Add-On · Additive Only · Core Intact · Self-Improving</p>
+        </div>
+      )}
+
+      {/* ── Expand mode ── */}
+      {mode === "expand" && (
+        <div className="space-y-4">
+          <div>
+            <p className="text-[10px] font-bold text-muted-foreground uppercase tracking-wider mb-2">Agent</p>
+            <div className="grid grid-cols-3 gap-1.5">
+              {META_AGENTS.map(a => (
+                <button key={a.id} onClick={() => setAgentId(a.id)}
+                  className={`flex flex-col items-center gap-0.5 p-2 rounded-xl border text-center transition-all ${agentId === a.id ? "border-blue-400 bg-blue-50" : "border-border/40 hover:border-blue-200"}`}>
+                  <span className="text-base">{a.icon}</span>
+                  <span className="text-[9px] font-bold">{a.name}</span>
+                </button>
+              ))}
+            </div>
+          </div>
+          <div>
+            <p className="text-[10px] font-bold text-muted-foreground uppercase tracking-wider mb-2">Module Type</p>
+            <div className="flex flex-wrap gap-1.5">
+              {(["innovation", "prediction", "workflow", "insight", "module"] as const).map(t => (
+                <button key={t} onClick={() => setType(t)}
+                  className={`text-[10px] font-semibold px-2.5 py-1 rounded-full border transition-all ${type === t ? "bg-blue-500 text-white border-blue-500" : "border-border/40 text-muted-foreground hover:border-blue-200"}`}>
+                  {t}
+                </button>
+              ))}
+            </div>
+          </div>
+          <div>
+            <label className="text-[10px] font-bold text-muted-foreground uppercase tracking-wider block mb-1.5">Domain (optional)</label>
+            <input value={domain} onChange={e => setDomain(e.target.value)}
+              placeholder="e.g. Healthcare, Finance, Gaming…"
+              className="w-full bg-white border border-border/40 rounded-xl px-3 py-2 text-[12px] outline-none focus:ring-1 focus:ring-blue-300/50 transition-all" />
+          </div>
+          <div className="grid grid-cols-2 gap-2">
+            <button onClick={handleGenerate} disabled={generating}
+              className="bg-blue-500 text-white text-[12px] font-bold py-2.5 rounded-xl hover:bg-blue-600 disabled:opacity-40 flex items-center justify-center gap-1.5 transition-colors">
+              {generating ? <><div className="w-3 h-3 border-2 border-white border-t-transparent rounded-full animate-spin" /><span>Generating…</span></> : "⚡ Generate"}
+            </button>
+            <button onClick={handleExpandAll} disabled={generating}
+              className="bg-gradient-to-r from-purple-500 to-blue-500 text-white text-[12px] font-bold py-2.5 rounded-xl hover:opacity-90 disabled:opacity-40 transition-opacity">
+              ♾️ Expand All
+            </button>
+          </div>
+          {recent.length > 0 && (
+            <div>
+              <p className="text-[10px] font-bold text-muted-foreground uppercase tracking-wider mb-1.5">Recent</p>
+              <div className="space-y-1">
+                {recent.slice(0, 3).map(m => (
+                  <button key={m.id} onClick={() => onResult(m)}
+                    className="w-full flex items-center gap-2 p-2.5 bg-white rounded-xl border border-border/40 hover:border-blue-200 transition-colors text-left">
+                    <span className="text-sm">{META_AGENTS.find(a => a.id === m.agentId)?.icon}</span>
+                    <p className="text-[11px] text-foreground truncate">{m.title}</p>
+                    <span className="ml-auto text-muted-foreground text-xs">→</span>
+                  </button>
+                ))}
+              </div>
+            </div>
+          )}
         </div>
       )}
     </div>
