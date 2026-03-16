@@ -3406,6 +3406,50 @@ function ArchitectureScreen() {
 function InstantActionInterface() {
   const { setView, dispatch } = useInteraction();
   const [open, setOpen] = useState(false);
+  const [pos, setPos] = useState<{ x: number; y: number } | null>(null);
+  const dragging = useRef(false);
+  const dragOffset = useRef({ x: 0, y: 0 });
+  const btnRef = useRef<HTMLButtonElement>(null);
+
+  useEffect(() => {
+    setPos({ x: window.innerWidth - 68, y: window.innerHeight - 68 });
+  }, []);
+
+  useEffect(() => {
+    function onMove(e: MouseEvent | TouchEvent) {
+      if (!dragging.current) return;
+      const clientX = "touches" in e ? e.touches[0].clientX : e.clientX;
+      const clientY = "touches" in e ? e.touches[0].clientY : e.clientY;
+      const bw = btnRef.current?.offsetWidth ?? 48;
+      const bh = btnRef.current?.offsetHeight ?? 48;
+      setPos({
+        x: Math.min(Math.max(0, clientX - dragOffset.current.x), window.innerWidth - bw),
+        y: Math.min(Math.max(0, clientY - dragOffset.current.y), window.innerHeight - bh),
+      });
+    }
+    function onUp() { dragging.current = false; }
+    window.addEventListener("mousemove", onMove);
+    window.addEventListener("touchmove", onMove, { passive: true });
+    window.addEventListener("mouseup", onUp);
+    window.addEventListener("touchend", onUp);
+    return () => {
+      window.removeEventListener("mousemove", onMove);
+      window.removeEventListener("touchmove", onMove);
+      window.removeEventListener("mouseup", onUp);
+      window.removeEventListener("touchend", onUp);
+    };
+  }, []);
+
+  function startDrag(e: React.MouseEvent | React.TouchEvent) {
+    const clientX = "touches" in e ? e.touches[0].clientX : e.clientX;
+    const clientY = "touches" in e ? e.touches[0].clientY : e.clientY;
+    const rect = btnRef.current?.getBoundingClientRect();
+    dragOffset.current = {
+      x: clientX - (rect?.left ?? 0),
+      y: clientY - (rect?.top ?? 0),
+    };
+    dragging.current = true;
+  }
 
   const ACTIONS: { label: string; icon: string; desc: string; action: () => void }[] = [
     {
@@ -3460,24 +3504,41 @@ function InstantActionInterface() {
     },
   ];
 
+  if (!pos) return null;
+
+  const popupLeft = pos.x + 48 + 8 > window.innerWidth - 264
+    ? pos.x - 264 - 8
+    : pos.x + 48 + 8;
+  const popupTop = Math.min(pos.y, window.innerHeight - 360);
+
   return (
     <>
-      {/* Floating trigger button */}
+      {/* Floating draggable trigger button */}
       <button
+        ref={btnRef}
+        onMouseDown={(e) => { startDrag(e); }}
+        onTouchStart={(e) => { startDrag(e); }}
         onClick={() => setOpen(o => !o)}
-        title="InstantActionInterface — one-click engine launcher"
-        className="fixed bottom-5 right-5 z-50 w-12 h-12 rounded-full bg-blue-500 text-white text-xl shadow-lg flex items-center justify-center hover:bg-blue-600 transition-all active:scale-95"
-        style={{ boxShadow: "0 4px 20px rgba(0,122,255,0.4)" }}
+        title="Drag to move · Click to open Instant Actions"
+        className="fixed z-50 w-12 h-12 rounded-full bg-blue-500 text-white text-xl shadow-lg flex items-center justify-center hover:bg-blue-600 active:scale-95 cursor-grab active:cursor-grabbing select-none"
+        style={{
+          left: pos.x,
+          top: pos.y,
+          boxShadow: "0 4px 20px rgba(0,122,255,0.4)",
+          transition: dragging.current ? "none" : undefined,
+        }}
       >
         {open ? "✕" : "⚡"}
       </button>
 
-      {/* Popup */}
+      {/* Popup — positions relative to button */}
       {open && (
         <>
           <div className="fixed inset-0 z-40" onClick={() => setOpen(false)} />
-          <div className="fixed bottom-20 right-5 z-50 w-64 bg-white border border-border rounded-2xl shadow-2xl overflow-hidden"
-            style={{ boxShadow: "0 8px 40px rgba(0,0,0,0.18)" }}>
+          <div
+            className="fixed z-50 w-64 bg-white border border-border rounded-2xl shadow-2xl overflow-hidden"
+            style={{ left: popupLeft, top: popupTop, boxShadow: "0 8px 40px rgba(0,0,0,0.18)" }}
+          >
             <div className="px-4 py-3 bg-gradient-to-r from-blue-500 to-blue-600 text-white">
               <p className="text-[13px] font-bold">⚡ Instant Actions</p>
               <p className="text-[10px] opacity-80">One-click engine launcher · All fictional</p>
