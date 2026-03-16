@@ -14,16 +14,16 @@ import {
 
 // ─── Quick-action chips shown as suggestions ──────────────────────────────
 const QUICK_CHIPS = [
+  { label: "Create a plan",       text: "Create a roadmap for launching a healthcare app" },
+  { label: "Brainstorm ideas",    text: "Brainstorm 6 ideas for an AI onboarding workflow" },
+  { label: "Generate content",    text: "Write a character description for a sci-fi hero" },
+  { label: "Send Invites",        text: "Send invites to my team" },
+  { label: "Walk Through",        text: "Walk me through the submission flow" },
+  { label: "Test Me",             text: "Test me on workflows" },
   { label: "Help",                text: "help" },
   { label: "My Status",           text: "What's my current status?" },
-  { label: "Test Me",             text: "Test me on workflows" },
-  { label: "Walk Through",        text: "Walk me through the submission flow" },
-  { label: "Show Roles",          text: "Show me all available roles" },
-  { label: "Simulate",            text: "Pretend a care coordinator submitted a packet" },
   { label: "Switch: Admin",       text: "Switch to System Admin" },
-  { label: "Switch: CMS",         text: "Change agency to CMS" },
   { label: "Switch: Texas",       text: "Set state to Texas" },
-  { label: "Open Packets",        text: "Open the Packets screen" },
   { label: "Go to Dashboard",     text: "Go to Dashboard" },
   { label: "Explain Platform",    text: "What is this platform?" },
 ];
@@ -262,11 +262,12 @@ export function ConversationOverlay() {
         {history.length === 0 ? (
           <div className="flex flex-col items-center justify-center h-full text-center gap-2">
             <span className="text-4xl">🧠</span>
-            <p className="text-[13px] font-semibold text-foreground">Universal Interaction Engine</p>
+            <p className="text-[13px] font-semibold text-foreground">CreateAI Brain — UCP-X v2</p>
             <p className="text-[11px] text-muted-foreground max-w-[240px]">
-              Type, click, or speak. I can switch roles, navigate screens, walk you through workflows, simulate scenarios, and test your knowledge.
+              Type <em>anything</em> — I respond instantly. Create plans, generate content, switch roles, navigate screens, run walk-throughs, or ask any question.
             </p>
-            <p className="text-[9px] text-muted-foreground italic mt-1">All internal · mock · demo-only</p>
+            <p className="text-[10px] text-blue-500 font-medium mt-0.5">I never ignore a message.</p>
+            <p className="text-[9px] text-muted-foreground italic">All internal · fictional · demo-only</p>
           </div>
         ) : (
           <>

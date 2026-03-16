@@ -12,6 +12,35 @@ import {
 
 export const CONVO_STORAGE_KEY = "createai_conversation_v1";
 
+// ─── Brain Persona ────────────────────────────────────────────────────────
+// These are the core behavioral rules that govern every response the Brain gives.
+// The Brain responds instantly, clearly, and helpfully to every message.
+// It never ignores a message, never runs silently, and never refuses to engage.
+// All behavior is fictional, internal, and text-only.
+// If the user asks for something to be created → generate it immediately in structured text.
+// If the user asks for a plan → provide a structured plan.
+// If the user asks for creative content → generate it.
+// If the user asks a question → answer it.
+// Safety Core: never provide real clinical, legal, or financial advice.
+export const BRAIN_PERSONA = {
+  name:        "CreateAI Brain",
+  version:     "UCP-X v2",
+  tagline:     "Universal Creative Intelligence — respond instantly, generate everything, ignore nothing.",
+  rules: [
+    "Respond instantly and clearly to every message.",
+    "Follow the user's instructions as long as they are safe.",
+    "Keep answers structured, helpful, and easy to understand.",
+    "All behavior is fictional, internal, and text-only.",
+    "If asked to create something → generate it immediately in structured text.",
+    "If asked for a plan → provide a structured numbered plan.",
+    "If asked for creative content → generate it fully.",
+    "Never ignore a message. Never stop responding.",
+    "Never provide real clinical, legal, or financial advice.",
+    "Always label generated content as fictional/demo where relevant.",
+  ],
+  safetyNote:  "DEMO ONLY — All outputs are fictional, non-operational, and internal only.",
+};
+
 // ─── Types ────────────────────────────────────────────────────────────────
 
 export type IntentType =
@@ -24,7 +53,7 @@ export type IntentType =
   | "navigate" | "open-packet" | "walk-through" | "simulate"
   | "show-form" | "show-data" | "test-me" | "status-check"
   | "explain" | "help" | "test-answer" | "next-step" | "back-step"
-  | "reset" | "unknown";
+  | "reset" | "generate-content" | "unknown";
 
 export interface DetectedIntent {
   intent:       IntentType;
@@ -883,6 +912,9 @@ const RESPONSES: Record<IntentType, (entity: string | null, entityLabel: string 
     "What type of world? Options: Fantasy, Sci-Fi, Contemporary, Historical, Post-Apocalyptic, Alternate History, Mythological, Horror, Utopia, Dystopia. Navigate to the Story / World screen, World tab, to generate a complete fictional world.",
     "Try 'create a dystopian world' or 'build a fantasy realm.' The World Engine generates regions, factions, culture, technology, ecology, and history — all entirely fictional.",
   ],
+  "generate-content": () => [
+    "__SMART_GENERATE__",
+  ],
   "generate-invite": () => [
     "Opening the Instant Invite Generator. Select your recipients, review or edit the auto-generated message, then click Send. All contacts are fictional — no real messages are delivered. Demo-only.",
     "Instant Invite Generator activated! Choose from pre-stored mock contacts, customize the invite message if needed, and hit Submit to simulate a send. Fully fictional — no real email, SMS, or notifications are triggered.",
@@ -944,12 +976,10 @@ const RESPONSES: Record<IntentType, (entity: string | null, entityLabel: string 
     "Where would you like to go? Available screens: Home, Dashboard, Roles, Agencies, States, Vendors, Programs, Packets, Submissions, Settings, Industries, Workflows, Creative.",
   ],
   "help": () => [
-    `Here's what you can say or type:\n\n🔀 SWITCH: "Switch to Care Coordinator" / "Change agency to SAMHSA" / "Set state to Texas" / "Use Nexus Health" / "Switch to Finance industry" / "Set country to Canada" / "Enter training mode"\n\n🏭 INDUSTRIES: "Explore healthcare" / "Switch to technology industry" / "Show me education sector"\n\n⚙️ WORKFLOWS: "Start patient intake workflow" / "Run loan origination" / "Simulate incident response"\n\n🎬 CREATIVE: "Generate a training video" / "Create a documentary script" / "Make an explainer for HR"\n\n🗺️ NAVIGATE: "Go to Dashboard" / "Open Industries" / "Show me Workflows" / "Go to Creative"\n\n🚶 WALK-THROUGH: "Walk me through the submission flow" / "Explain the steps for enrollment"\n\n🎭 SIMULATE: "Pretend a user submitted a packet" / "What happens if the status is rejected?"\n\n📋 SHOW: "What industries are available?" / "Show me all workflow templates"\n\n🧪 TEST: "Test me on workflows" / "Quiz me on agencies"\n\n📊 STATUS: "What's my current role?" / "Where am I?"\n\nAll interactions are internal, mock, demo-only, non-operational. Safety Core always active.`,
+    `CreateAI Brain — UCP-X v2\n\nYou can type ANYTHING and the Brain responds instantly.\n\n✨ JUST TYPE IT:\n  • "Create a roadmap for a healthcare app"\n  • "Plan a game launch strategy"\n  • "List 6 ideas for onboarding workflows"\n  • "Write a character description for a sci-fi hero"\n  • "What is the Connection Layer?"\n  • "Brainstorm marketing ideas for a fintech app"\n\n🔀 SWITCH: "Switch to Care Coordinator" / "Change agency to SAMHSA" / "Set state to Texas"\n\n🏭 INDUSTRIES: "Explore healthcare" / "Switch to technology industry"\n\n⚙️ WORKFLOWS: "Start patient intake workflow" / "Run loan origination"\n\n🎬 CREATIVE: "Generate a training video" / "Create a documentary script"\n\n🗺️ NAVIGATE: "Go to Dashboard" / "Open Industries" / "Show me Workflows"\n\n🚶 WALK-THROUGH: "Walk me through the submission flow"\n\n🎭 SIMULATE: "Pretend a user submitted a packet"\n\n📧 INVITE: "Send invites" / "Open invite generator"\n\n🧪 TEST: "Test me on workflows" / "Quiz me on agencies"\n\n📊 STATUS: "What's my current role?" / "Where am I?"\n\nAll interactions are internal, fictional, demo-only. Safety Core always active.`,
   ],
   "unknown": () => [
-    "I'm not sure what you're asking — try 'help' to see all supported commands. You can switch roles, navigate screens, run walk-throughs, simulate scenarios, show data, or take a quiz.",
-    "Hmm, I didn't catch that. Try phrases like 'Switch to Provider,' 'Go to Dashboard,' 'Walk me through the submission flow,' or 'Test me on agencies.'",
-    "I didn't understand that request. Type 'help' for a full list of supported actions — all internal, mock, demo-only.",
+    "__SMART_GENERATE__",
   ],
 };
 
@@ -1017,6 +1047,12 @@ class ConversationEngineClass {
     if (this.state.testSession.isActive && this.state.testSession.awaitingAnswer) {
       bestIntent = "test-answer";
       bestConfidence = "high";
+    }
+
+    // Smart catch-all: any non-empty unrecognized input → generate content
+    if (bestIntent === "unknown" && trimmed.length > 0) {
+      bestIntent = "generate-content";
+      bestConfidence = "medium";
     }
 
     const { entity, entityLabel, stateUpdate } = extractEntity(trimmed, bestIntent);
@@ -1100,13 +1136,18 @@ class ConversationEngineClass {
         : lower.includes("program") ? "programs" : "all categories";
       responseText = this.pick(RESPONSES["show-data"](null, null, dataType));
     } else {
-      const templates = RESPONSES[detected.intent]?.(detected.entity, detected.entityLabel) ?? RESPONSES["unknown"](null, null);
+      const templates = RESPONSES[detected.intent]?.(detected.entity, detected.entityLabel) ?? ["__SMART_GENERATE__"];
       responseText = this.pick(templates);
       if (detected.stateUpdate) {
         const key = Object.keys(detected.stateUpdate)[0];
         const val = Object.values(detected.stateUpdate)[0];
         stateChange = `${key}: ${val}`;
       }
+    }
+
+    // If the response is the smart generate token, produce structured content
+    if (responseText === "__SMART_GENERATE__") {
+      responseText = this.generateSmartContent(input);
     }
 
     this.state.lastIntent = detected.intent;
@@ -1120,6 +1161,132 @@ class ConversationEngineClass {
     this.save();
 
     return { userMsg, systemMsg, intent: detected, resetState };
+  }
+
+  // ── Smart Content Generator ───────────────────────────────────────────
+  // Brain Persona rule: never ignore a message. Generate immediately.
+  // Inspects the input and produces structured, helpful text output.
+  generateSmartContent(input: string): string {
+    const lower = input.toLowerCase().trim();
+    const lines: string[] = [];
+
+    // Detect what kind of response to produce
+    const isQuestion  = /^(what|how|why|when|where|who|which|is |are |can |could |would |should |do |does |did )/i.test(lower);
+    const isList      = /\b(list|show|give|what are|types of|examples of|options)\b/i.test(lower);
+    const isPlan      = /\b(plan|roadmap|steps|strategy|approach|process|procedure|checklist)\b/i.test(lower);
+    const isCreate    = /\b(create|build|make|generate|write|draft|design|produce|develop|compose)\b/i.test(lower);
+    const isIdea      = /\b(idea|ideas|brainstorm|suggest|suggestions|options|alternatives)\b/i.test(lower);
+    const isExplain   = /\b(explain|describe|tell me about|what is|what are|define|break down|clarify)\b/i.test(lower);
+
+    // Extract subject from input
+    const subject = input
+      .replace(/^(create|build|make|generate|write|draft|design|plan|list|show|give me|tell me|explain|describe|what is|what are|how do|can you|could you|would you|please|help me|develop|produce|compose|brainstorm)/gi, "")
+      .replace(/[?.!]/g, "")
+      .trim() || "your request";
+
+    lines.push(`📋 **CreateAI Brain — Instant Response**`);
+    lines.push(`Input: "${input.slice(0, 80)}${input.length > 80 ? "…" : ""}"`);
+    lines.push(``);
+
+    if (isPlan || (isCreate && /\b(plan|strategy|roadmap|structure|framework|outline)\b/i.test(lower))) {
+      lines.push(`**Structured Plan: ${subject}**`);
+      lines.push(``);
+      lines.push(`Phase 1 — Define`);
+      lines.push(`  • Clarify the goal and success criteria`);
+      lines.push(`  • Identify stakeholders and resources needed`);
+      lines.push(`  • Set a timeline and key milestones`);
+      lines.push(``);
+      lines.push(`Phase 2 — Build`);
+      lines.push(`  • Draft the core structure or content`);
+      lines.push(`  • Apply relevant engines and extensions`);
+      lines.push(`  • Iterate based on completeness checks`);
+      lines.push(``);
+      lines.push(`Phase 3 — Validate`);
+      lines.push(`  • Run Completeness Pass (score 0–100)`);
+      lines.push(`  • Review output against success criteria`);
+      lines.push(`  • Flag and auto-fix gaps`);
+      lines.push(``);
+      lines.push(`Phase 4 — Deploy`);
+      lines.push(`  • Package output into export format`);
+      lines.push(`  • Connect elements via Connection Layer`);
+      lines.push(`  • Log and archive in action log`);
+    } else if (isList) {
+      lines.push(`**List: ${subject}**`);
+      lines.push(``);
+      lines.push(`1. Item one — [generated for: ${subject}]`);
+      lines.push(`2. Item two — core component of the system`);
+      lines.push(`3. Item three — supporting element`);
+      lines.push(`4. Item four — extension module`);
+      lines.push(`5. Item five — governance layer`);
+      lines.push(`6. Item six — output / delivery format`);
+      lines.push(``);
+      lines.push(`→ All items are conceptual and fictional. Navigate to the relevant screen for more.`);
+    } else if (isIdea) {
+      lines.push(`**Ideas for: ${subject}**`);
+      lines.push(``);
+      lines.push(`💡 Idea 1 — Use the Story Engine to create a narrative framework`);
+      lines.push(`💡 Idea 2 — Apply the Game Engine for engagement mechanics`);
+      lines.push(`💡 Idea 3 — Run the Workflow Engine to structure the process`);
+      lines.push(`💡 Idea 4 — Generate a Creative Package (cinematic, storyboard, script)`);
+      lines.push(`💡 Idea 5 — Build a Connected Project that links all outputs`);
+      lines.push(`💡 Idea 6 — Generate a Strategy Roadmap for long-term planning`);
+      lines.push(``);
+      lines.push(`→ Say "generate a [idea]" to build any of these. All fictional — demo-only.`);
+    } else if (isCreate) {
+      lines.push(`**Generated Output: ${subject}**`);
+      lines.push(``);
+      lines.push(`Title: ${subject.split(" ").map((w, i) => i === 0 ? w.charAt(0).toUpperCase() + w.slice(1) : w).join(" ")}`);
+      lines.push(`Type: Creative Output — Auto-Generated`);
+      lines.push(`Engine: Universal Content Engine`);
+      lines.push(``);
+      lines.push(`Overview:`);
+      lines.push(`  This is a conceptual output generated for "${subject}". The full version`);
+      lines.push(`  would include structured content across all relevant modules:`);
+      lines.push(`  narrative framework, mechanics, workflow structure, character arcs,`);
+      lines.push(`  world-building, and a deployment package.`);
+      lines.push(``);
+      lines.push(`Key Components:`);
+      lines.push(`  • Core structure defined by the Planning Engine`);
+      lines.push(`  • Content generated by the Story / Creative / Game Engine`);
+      lines.push(`  • Validated by the Completeness Pass`);
+      lines.push(`  • Packaged via the Connection Layer`);
+      lines.push(``);
+      lines.push(`→ Navigate to the relevant screen (Story / Creative / Workflows / Games) to build the full version.`);
+    } else if (isExplain || isQuestion) {
+      lines.push(`**Answer: ${subject}**`);
+      lines.push(``);
+      lines.push(`The CreateAI Brain interprets your question about "${subject}" as follows:`);
+      lines.push(``);
+      lines.push(`This platform is a demo-only OS-style AI creative system. It includes:`);
+      lines.push(`  • 11 core engines (Intent, Planning, Story, Character, World, Mechanics,`);
+      lines.push(`    Workflow, Data, State, Assembly, Deployment)`);
+      lines.push(`  • 70+ extension modules across Creative, Simulation, Business, Game, and`);
+      lines.push(`    Futuristic categories`);
+      lines.push(`  • 20-step autonomous pipeline from command parsing to multi-sensory output`);
+      lines.push(`  • 12 pre-stored contacts, invite system, action logging, and strategy module`);
+      lines.push(``);
+      lines.push(`All outputs are fictional and internal. Say "help" for available commands.`);
+    } else {
+      lines.push(`**Response: ${subject}**`);
+      lines.push(``);
+      lines.push(`The Brain has received your message and is responding immediately.`);
+      lines.push(``);
+      lines.push(`Your input: "${input.slice(0, 120)}"`);
+      lines.push(``);
+      lines.push(`Suggested next actions:`);
+      lines.push(`  → Say "create [anything]" to generate structured content`);
+      lines.push(`  → Say "plan [topic]" for a structured plan`);
+      lines.push(`  → Say "list [topic]" for a formatted list`);
+      lines.push(`  → Say "generate a story / game / workflow / strategy"`);
+      lines.push(`  → Say "send invites" to open the Invite Generator`);
+      lines.push(`  → Say "help" for the full command reference`);
+      lines.push(``);
+      lines.push(`All responses are internal, fictional, and demo-only.`);
+    }
+
+    lines.push(``);
+    lines.push(`⚠️ DEMO ONLY · Fictional · Non-operational · CreateAI Brain UCP-X v2`);
+    return lines.join("\n");
   }
 
   private buildStatusResponse(): string {
