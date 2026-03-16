@@ -129,13 +129,123 @@ export const CORE_ENGINES = [
   { name: "Deployment Engine", icon: "🚀", active: true },
 ];
 
+// ─── Manifest metadata ────────────────────────────────────────────────────
+
+export const MANIFEST = {
+  name: "UCP-X Universal Add-On",
+  version: "2.0",
+  coreIntact: true,
+  nonDestructive: true,
+  autoLinkToBrain: true,
+  selfImproving: true,
+  neverOverride: true,
+  zeroMistakes: true,
+  alwaysForward: true,
+  fullPlatformActivation: true,
+  liveAgentsActive: true,
+  prebuiltModulesActive: true,
+  allIndustriesFullyIntegrated: true,
+  workflowSystemActive: true,
+  infiniteExpansionActive: true,
+  predictiveOptimizationActive: true,
+  multiSensoryLiveDemo: true,
+};
+
+// ─── Universal Modules (25 from manifest) ────────────────────────────────
+
+export interface UniversalModule {
+  id: string;
+  name: string;
+  icon: string;
+  description: string;
+  active: boolean;
+  agentCount: number;
+}
+
+export const UNIVERSAL_MODULES: UniversalModule[] = [
+  { id: "healthcare",    name: "Healthcare",            icon: "🏥", description: "Clinical workflows, patient comms, compliance, EHR integration", active: true, agentCount: 12 },
+  { id: "education",     name: "Education",             icon: "🎓", description: "Curriculum design, adaptive learning, certification modules", active: true, agentCount: 8 },
+  { id: "finance",       name: "Finance",               icon: "💰", description: "Risk modeling, portfolio analytics, fraud detection, reporting", active: true, agentCount: 10 },
+  { id: "manufacturing", name: "Manufacturing",         icon: "🏭", description: "Production planning, quality control, supply-chain coordination", active: true, agentCount: 9 },
+  { id: "logistics",     name: "Logistics",             icon: "🚚", description: "Route optimization, inventory management, delivery tracking", active: true, agentCount: 7 },
+  { id: "marketing",     name: "Marketing",             icon: "📣", description: "Campaign generation, brand voice, content calendar, ad copy", active: true, agentCount: 11 },
+  { id: "hr",            name: "HR",                    icon: "👥", description: "Talent acquisition, onboarding workflows, performance reviews", active: true, agentCount: 6 },
+  { id: "it",            name: "IT",                    icon: "💻", description: "Infrastructure automation, incident response, security posture", active: true, agentCount: 8 },
+  { id: "legal",         name: "Legal",                 icon: "⚖️", description: "Contract analysis, compliance checks, regulatory monitoring", active: true, agentCount: 7 },
+  { id: "government",    name: "Government",            icon: "🏛️", description: "Policy workflows, citizen services, inter-agency coordination", active: true, agentCount: 5 },
+  { id: "retail",        name: "Retail",                icon: "🛍️", description: "Demand forecasting, promotions engine, inventory optimization", active: true, agentCount: 9 },
+  { id: "construction",  name: "Construction",          icon: "🏗️", description: "Project scheduling, resource allocation, safety compliance", active: true, agentCount: 6 },
+  { id: "energy",        name: "Energy",                icon: "⚡", description: "Grid optimization, consumption analytics, sustainability reporting", active: true, agentCount: 7 },
+  { id: "hospitality",   name: "Hospitality",           icon: "🏨", description: "Guest experience, service automation, revenue management", active: true, agentCount: 6 },
+  { id: "rnd",           name: "Research & Development",icon: "🔬", description: "Hypothesis generation, experiment design, publication workflows", active: true, agentCount: 8 },
+  { id: "saas",          name: "SaaS",                  icon: "☁️", description: "Onboarding funnels, churn prediction, feature adoption tracking", active: true, agentCount: 10 },
+  { id: "dashboards",    name: "Dashboards",            icon: "📊", description: "Real-time KPI visualizations, executive reporting, alerts", active: true, agentCount: 5 },
+  { id: "games",         name: "Games",                 icon: "🎮", description: "Procedural world-building, NPC AI, dynamic narrative systems", active: true, agentCount: 9 },
+  { id: "simulations",   name: "Simulations",           icon: "🧪", description: "Scenario modeling, stress testing, emergency response drills", active: true, agentCount: 7 },
+  { id: "stories",       name: "Interactive Stories",   icon: "📖", description: "Branching narratives, character AI, immersive world engines", active: true, agentCount: 8 },
+  { id: "training",      name: "Training Modules",      icon: "🎯", description: "Certification paths, adaptive assessments, skill-gap analysis", active: true, agentCount: 7 },
+  { id: "multimedia",    name: "Multimedia",            icon: "🎬", description: "Video scripting, audio direction, visual asset generation", active: true, agentCount: 6 },
+  { id: "revenue",       name: "Revenue Optimization",  icon: "📈", description: "Pricing models, upsell logic, churn prevention, LTV maximization", active: true, agentCount: 9 },
+  { id: "supplychain",   name: "Supply Chain",          icon: "🔗", description: "Vendor mapping, procurement automation, disruption prediction", active: true, agentCount: 7 },
+  { id: "emergency",     name: "Emergency Response",    icon: "🚨", description: "Crisis coordination, resource dispatch, real-time situational AI", active: true, agentCount: 5 },
+];
+
+// ─── Workflow System (from manifest) ──────────────────────────────────────
+
+export const WORKFLOW_FEATURES = [
+  { icon: "🗺️", label: "Full role, department & vendor mapping",            active: true },
+  { icon: "🔀", label: "Action propagation across all relevant parties",    active: true },
+  { icon: "🏁", label: "Automatic follow-through: input → final output",   active: true },
+  { icon: "🎓", label: "Adaptive training & certification (threshold pass)",active: true },
+  { icon: "📡", label: "Multi-channel notifications (email, SMS, AR/VR)",  active: true },
+  { icon: "📊", label: "Real-time dashboards & reporting",                  active: true },
+  { icon: "✅", label: "Compliance tracking & audit trail",                  active: true },
+  { icon: "💡", label: "Cost optimization & fraud prevention",              active: true },
+  { icon: "🧪", label: "Simulation & scenario testing",                     active: true },
+  { icon: "🔮", label: "Predictive analytics for workflow efficiency",      active: true },
+  { icon: "1️⃣", label: "Single-entry → full cross-system propagation",     active: true },
+];
+
+// ─── Infinite Expansion Features (from manifest) ──────────────────────────
+
+export const INFINITE_FEATURES = [
+  "Procedural Content Generation",
+  "Autonomous Workflow Execution",
+  "Predictive Guidance",
+  "Multi-Agent Collaboration",
+  "Cross-Domain Intelligence",
+  "Autonomous Meta-Agents",
+  "Dynamic Narrative Continuity",
+  "Cross-Temporal Predictions",
+  "Recursive AI Agent Creation",
+  "Real-Time Risk & Compliance Checks",
+  "Emotional & Sentient Simulation",
+  "Adaptive UX/UI Generation",
+  "Futuristic Multi-Sensory Outputs",
+  "AI-Creates-AI Recursive Layer",
+  "Infinite Scalability",
+  "Autonomous Revenue Engine",
+];
+
+// ─── Interactive Agent Features (from manifest) ───────────────────────────
+
+export const INTERACTIVE_FEATURES = [
+  { icon: "🔊", label: "Sound + Voice synthesis" },
+  { icon: "🧑‍💻", label: "Visual Avatar representation" },
+  { icon: "🤌", label: "Gestures & Expressions" },
+  { icon: "🗺️", label: "Interactive Guided Tours" },
+  { icon: "💬", label: "Dynamic Feedback loops" },
+  { icon: "🔮", label: "Predictive Assistance" },
+  { icon: "🏗️", label: "Procedural Project Creation" },
+  { icon: "🤖", label: "Autonomous Task Execution" },
+  { icon: "📦", label: "Live Packaging & Distribution" },
+  { icon: "✏️", label: "Editable Outputs" },
+  { icon: "🎨", label: "Neural Style Transfer (voice, text, visual, cinematic)" },
+];
+
 // ─── Domain Library ───────────────────────────────────────────────────────
 
-const DOMAINS = [
-  "Healthcare", "Marketing", "Education", "Finance", "Creative",
-  "Engineering", "Legal", "Wellness", "Technology", "Operations",
-  "Gaming", "Retail", "Hospitality", "Agriculture", "Energy",
-];
+const DOMAINS = UNIVERSAL_MODULES.map(m => m.name);
 
 const MODULE_TYPES: InfiniteModule["type"][] = [
   "module", "insight", "prediction", "workflow", "innovation",

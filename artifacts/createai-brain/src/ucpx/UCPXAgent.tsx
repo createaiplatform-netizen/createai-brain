@@ -12,10 +12,13 @@ import {
   MetaAgent, InfiniteModule, CrossDomainInsight,
   AgentId, GUIDED_TOUR, TourStep,
   generateModule, generateCrossDomainInsight,
+  UNIVERSAL_MODULES, UniversalModule,
+  WORKFLOW_FEATURES, INFINITE_FEATURES, INTERACTIVE_FEATURES,
+  MANIFEST,
 } from "@/engine/InfiniteExpansionEngine";
 
 // ─── Panel tabs ───────────────────────────────────────────────────────────
-type UCPXTab = "agents" | "engines" | "expand" | "insights" | "tour";
+type UCPXTab = "agents" | "engines" | "expand" | "insights" | "tour" | "modules";
 
 // ─── Tiny atoms ──────────────────────────────────────────────────────────
 
@@ -350,33 +353,198 @@ function TourView() {
 // ─── Engines View ─────────────────────────────────────────────────────────
 
 function EnginesView() {
+  const [section, setSection] = useState<"engines" | "workflow" | "interactive" | "integration">("engines");
+
+  const sections = [
+    { id: "engines" as const,     label: "Core" },
+    { id: "workflow" as const,    label: "Workflow" },
+    { id: "interactive" as const, label: "Agents" },
+    { id: "integration" as const, label: "Status" },
+  ];
+
+  const integrationRows = Object.entries(MANIFEST).filter(([k]) => k !== "name" && k !== "version");
+
   return (
     <div className="space-y-3">
-      <div className="bg-gradient-to-br from-green-50 to-emerald-50 border border-green-100 rounded-2xl p-3">
-        <div className="flex items-center gap-2 mb-1">
-          <div className="w-2 h-2 rounded-full bg-green-400 animate-pulse" />
-          <p className="text-[11px] font-bold text-green-700">ALL ENGINES OPERATIONAL</p>
-        </div>
-        <p className="text-[10px] text-green-600">11 of 11 core engines active · UCP-X Add-On layer deployed</p>
-      </div>
-
-      <div className="space-y-1.5">
-        {CORE_ENGINES.map(e => (
-          <div key={e.name} className="flex items-center gap-3 p-2.5 bg-white rounded-xl border border-border/40">
-            <span className="text-lg">{e.icon}</span>
-            <p className="flex-1 text-[12px] font-medium text-foreground">{e.name}</p>
-            <div className="flex items-center gap-1.5">
-              <StatusDot active={e.active} />
-              <span className="text-[10px] text-green-600 font-semibold">Active</span>
-            </div>
-          </div>
+      {/* Sub-nav */}
+      <div className="flex gap-1 bg-muted rounded-xl p-1">
+        {sections.map(s => (
+          <button key={s.id} onClick={() => setSection(s.id)}
+            className={`flex-1 text-[11px] font-semibold py-1.5 rounded-lg transition-colors ${section === s.id ? "bg-white text-primary shadow-sm" : "text-muted-foreground hover:text-foreground"}`}>
+            {s.label}
+          </button>
         ))}
       </div>
 
-      <div className="bg-gradient-to-br from-purple-50 to-blue-50 border border-purple-100 rounded-2xl p-3 space-y-1">
-        <p className="text-[10px] font-bold text-purple-700 uppercase">UCP-X Add-On Layer</p>
-        <p className="text-[11px] text-muted-foreground">Infinite Expansion · Meta-AI Agents · Predictive Innovation · Cross-Domain Intelligence · Autonomous Workflows · Multi-Sensory Output</p>
-        <p className="text-[10px] text-green-600 font-semibold">✓ Deployed · Additive Only · Core Intact</p>
+      {section === "engines" && (
+        <>
+          <div className="bg-gradient-to-br from-green-50 to-emerald-50 border border-green-100 rounded-2xl p-3">
+            <div className="flex items-center gap-2 mb-1">
+              <div className="w-2 h-2 rounded-full bg-green-400 animate-pulse" />
+              <p className="text-[11px] font-bold text-green-700">ALL 11 ENGINES OPERATIONAL</p>
+            </div>
+            <p className="text-[10px] text-green-600">UCP-X Add-On layer fully deployed · Additive only · Core intact</p>
+          </div>
+          <div className="space-y-1.5">
+            {CORE_ENGINES.map(e => (
+              <div key={e.name} className="flex items-center gap-3 p-2.5 bg-white rounded-xl border border-border/40">
+                <span className="text-lg">{e.icon}</span>
+                <p className="flex-1 text-[12px] font-medium text-foreground">{e.name}</p>
+                <div className="flex items-center gap-1.5">
+                  <StatusDot active={e.active} />
+                  <span className="text-[10px] text-green-600 font-semibold">Active</span>
+                </div>
+              </div>
+            ))}
+          </div>
+        </>
+      )}
+
+      {section === "workflow" && (
+        <>
+          <div className="bg-gradient-to-br from-blue-50 to-indigo-50 border border-blue-100 rounded-2xl p-3">
+            <p className="text-[11px] font-bold text-blue-700">WORKFLOW SYSTEM — LIVE</p>
+            <p className="text-[10px] text-blue-600 mt-0.5">Universal live-action workflow engine for any industry or profession</p>
+          </div>
+          <div className="space-y-1.5">
+            {WORKFLOW_FEATURES.map((f, i) => (
+              <div key={i} className="flex items-center gap-3 p-2.5 bg-white rounded-xl border border-border/40">
+                <span className="text-base">{f.icon}</span>
+                <p className="flex-1 text-[11px] text-foreground">{f.label}</p>
+                <span className="text-[10px] text-green-600 font-bold">✓</span>
+              </div>
+            ))}
+          </div>
+        </>
+      )}
+
+      {section === "interactive" && (
+        <>
+          <div className="bg-gradient-to-br from-pink-50 to-purple-50 border border-pink-100 rounded-2xl p-3">
+            <p className="text-[11px] font-bold text-purple-700">INTERACTIVE AGENTS — LIVE</p>
+            <p className="text-[10px] text-purple-600 mt-0.5">Injected into all existing and new projects, files, and modules</p>
+          </div>
+          <div className="space-y-1.5">
+            {INTERACTIVE_FEATURES.map((f, i) => (
+              <div key={i} className="flex items-center gap-3 p-2.5 bg-white rounded-xl border border-border/40">
+                <span className="text-base">{f.icon}</span>
+                <p className="flex-1 text-[11px] text-foreground">{f.label}</p>
+                <span className="text-[10px] text-green-600 font-bold">✓</span>
+              </div>
+            ))}
+          </div>
+          <div className="bg-muted/50 rounded-xl p-2.5 text-[10px] text-muted-foreground text-center">
+            Safeguards: Additive Only · Zero Mistakes · Core System Intact · Always Forward · Self-Improving
+          </div>
+        </>
+      )}
+
+      {section === "integration" && (
+        <>
+          <div className="bg-gradient-to-br from-emerald-50 to-green-50 border border-emerald-100 rounded-2xl p-3">
+            <p className="text-[11px] font-bold text-emerald-700">MANIFEST v{MANIFEST.version} — FULLY ACTIVE</p>
+            <p className="text-[10px] text-emerald-600 mt-0.5">{MANIFEST.name} · All flags confirmed live</p>
+          </div>
+          <div className="space-y-1.5">
+            {integrationRows.map(([key, val]) => (
+              <div key={key} className="flex items-center gap-3 p-2 bg-white rounded-xl border border-border/40">
+                <span className="text-[10px] font-bold text-green-500">✓</span>
+                <p className="flex-1 text-[10px] text-foreground font-medium">
+                  {key.replace(/([A-Z])/g, " $1").replace(/^./, s => s.toUpperCase())}
+                </p>
+                <span className="text-[9px] bg-green-100 text-green-700 px-1.5 py-0.5 rounded-full font-bold">ON</span>
+              </div>
+            ))}
+          </div>
+        </>
+      )}
+    </div>
+  );
+}
+
+// ─── Universal Modules View ────────────────────────────────────────────────
+
+function UniversalModulesView({ onResult }: { onResult: (mod: InfiniteModule) => void }) {
+  const [generating, setGenerating] = useState<string | null>(null);
+  const [generated, setGenerated] = useState<string[]>([]);
+  const [filter, setFilter] = useState("");
+
+  const filtered = UNIVERSAL_MODULES.filter(m =>
+    m.name.toLowerCase().includes(filter.toLowerCase()) ||
+    m.description.toLowerCase().includes(filter.toLowerCase())
+  );
+
+  function handleGenerate(mod: UniversalModule) {
+    if (generating) return;
+    setGenerating(mod.id);
+    setTimeout(() => {
+      const result = generateModule(mod.name);
+      setGenerated(prev => [mod.id, ...prev]);
+      setGenerating(null);
+      onResult(result);
+    }, 900);
+  }
+
+  return (
+    <div className="space-y-3">
+      {/* Header */}
+      <div className="bg-gradient-to-br from-indigo-50 to-blue-50 border border-indigo-100 rounded-2xl p-3">
+        <p className="text-[11px] font-bold text-indigo-700">25 UNIVERSAL MODULES — ALL ACTIVE</p>
+        <p className="text-[10px] text-indigo-600 mt-0.5">Tap any industry to generate a live AI module, workflow, or insight instantly</p>
+      </div>
+
+      {/* Search */}
+      <input
+        value={filter}
+        onChange={e => setFilter(e.target.value)}
+        placeholder="Filter by industry or keyword…"
+        className="w-full bg-muted rounded-xl px-3 py-2 text-[11px] text-foreground placeholder:text-muted-foreground focus:outline-none focus:ring-1 focus:ring-blue-300"
+      />
+
+      {/* Module grid */}
+      <div className="space-y-1.5">
+        {filtered.map(mod => {
+          const done = generated.includes(mod.id);
+          const busy = generating === mod.id;
+          return (
+            <button key={mod.id} onClick={() => handleGenerate(mod)} disabled={!!generating}
+              className={`w-full flex items-center gap-3 p-2.5 rounded-xl border text-left transition-all
+                ${done ? "bg-green-50 border-green-200" : "bg-white border-border/40 hover:border-blue-300 hover:bg-blue-50/30"}
+                ${busy ? "opacity-60" : ""}
+                disabled:cursor-not-allowed`}>
+              <span className="text-xl flex-shrink-0">{mod.icon}</span>
+              <div className="flex-1 min-w-0">
+                <p className="text-[12px] font-semibold text-foreground">{mod.name}</p>
+                <p className="text-[10px] text-muted-foreground truncate">{mod.description}</p>
+              </div>
+              <div className="flex-shrink-0 text-right">
+                {busy ? (
+                  <span className="text-[10px] text-blue-500 font-bold animate-pulse">Generating…</span>
+                ) : done ? (
+                  <span className="text-[10px] text-green-600 font-bold">✓ Done</span>
+                ) : (
+                  <div className="text-right">
+                    <p className="text-[9px] text-blue-500 font-semibold">Generate ›</p>
+                    <p className="text-[8px] text-muted-foreground">{mod.agentCount} agents</p>
+                  </div>
+                )}
+              </div>
+            </button>
+          );
+        })}
+        {filtered.length === 0 && (
+          <p className="text-center text-[11px] text-muted-foreground py-6">No modules match "{filter}"</p>
+        )}
+      </div>
+
+      {/* Infinite features strip */}
+      <div className="bg-gradient-to-br from-purple-50 to-indigo-50 border border-purple-100 rounded-2xl p-3 space-y-2">
+        <p className="text-[10px] font-bold text-purple-700 uppercase">Infinite Expansion Features Active</p>
+        <div className="flex flex-wrap gap-1">
+          {INFINITE_FEATURES.map(f => (
+            <span key={f} className="text-[9px] bg-purple-100 text-purple-700 px-1.5 py-0.5 rounded-full font-medium">{f}</span>
+          ))}
+        </div>
       </div>
     </div>
   );
@@ -462,6 +630,7 @@ export function UCPXAgent() {
   const TAB_ITEMS: { id: UCPXTab; label: string; icon: string }[] = [
     { id: "agents",  label: "Agents",   icon: "🤖" },
     { id: "engines", label: "Engines",  icon: "⚙️" },
+    { id: "modules", label: "Modules",  icon: "🌐" },
     { id: "expand",  label: "Expand",   icon: "♾️" },
     { id: "insights",label: "Insights", icon: "🔮" },
     { id: "tour",    label: "Tour",     icon: "🗺️" },
@@ -535,7 +704,7 @@ export function UCPXAgent() {
 
           {/* Tab content */}
           <div className="flex-1 overflow-y-auto p-3.5">
-            {activeResult && (tab === "expand" || tab === "agents")
+            {activeResult && (tab === "expand" || tab === "agents" || tab === "modules")
               ? <ModuleCard mod={activeResult} onClose={() => setActiveResult(null)} />
               : tab === "agents"
               ? <div className="space-y-2">
@@ -545,6 +714,8 @@ export function UCPXAgent() {
                 </div>
               : tab === "engines"
               ? <EnginesView />
+              : tab === "modules"
+              ? <UniversalModulesView onResult={mod => { setActiveResult(mod); }} />
               : tab === "expand"
               ? <ExpandView onResult={mod => { setActiveResult(mod); }} />
               : tab === "insights"
@@ -558,7 +729,7 @@ export function UCPXAgent() {
           {/* Footer */}
           <div className="flex-none px-4 py-2.5 border-t border-border/20 bg-muted/20">
             <p className="text-[9px] text-muted-foreground text-center">
-              UCP-X · Additive Only · Core Intact · 11 Engines Active · 6 Meta-Agents · All content internal/fictional
+              UCP-X v2 · 11 Engines · 6 Meta-Agents · 25 Universal Modules · Additive Only · Core Intact
             </p>
           </div>
         </div>
