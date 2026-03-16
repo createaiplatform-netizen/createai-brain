@@ -4294,6 +4294,352 @@ function DeployPackageView() {
   );
 }
 
+// ─── Staffing Company View ────────────────────────────────────────────────
+
+const STAFFING_CANDIDATES = [
+  { id: "c1",  name: "Jordan Ellis",    role: "Senior Software Engineer",    skills: ["React","Node.js","AWS"],        score: 97, status: "Interview Scheduled", placed: false },
+  { id: "c2",  name: "Priya Sharma",    role: "Data Scientist",               skills: ["Python","ML","TensorFlow"],     score: 94, status: "Offer Extended",      placed: false },
+  { id: "c3",  name: "Marcus Webb",     role: "DevOps Engineer",              skills: ["Kubernetes","CI/CD","Terraform"],score: 91, status: "Screening Passed",   placed: false },
+  { id: "c4",  name: "Sofia Torres",    role: "UX Designer",                  skills: ["Figma","Prototyping","Research"],score: 89, status: "Placed",             placed: true  },
+  { id: "c5",  name: "Aiden Park",      role: "Financial Analyst",            skills: ["Excel","SQL","Bloomberg"],      score: 88, status: "Placed",             placed: true  },
+  { id: "c6",  name: "Natalie Chen",    role: "HR Business Partner",          skills: ["HRIS","Workday","Strategy"],    score: 86, status: "Screening",          placed: false },
+  { id: "c7",  name: "Derek Osei",      role: "Cybersecurity Analyst",        skills: ["SIEM","NIST","Pen Testing"],    score: 93, status: "Interview Scheduled", placed: false },
+  { id: "c8",  name: "Leila Novak",     role: "Operations Manager",           skills: ["Lean","Six Sigma","SAP"],       score: 85, status: "New Application",    placed: false },
+  { id: "c9",  name: "Carlos Reyes",    role: "Marketing Director",           skills: ["HubSpot","SEO","Analytics"],    score: 90, status: "Placed",             placed: true  },
+  { id: "c10", name: "Amara Johnson",   role: "Compliance Officer",           skills: ["SOX","HIPAA","AML"],            score: 95, status: "Offer Extended",     placed: false },
+];
+
+const STAFFING_CLIENTS = [
+  { id: "cl1", name: "Apex Technologies",  industry: "Tech / SaaS",       activeJobs: 4, revenue: 128400, engagement: 98, contractStatus: "Active"  },
+  { id: "cl2", name: "Northwell Health",   industry: "Healthcare",         activeJobs: 6, revenue: 214000, engagement: 96, contractStatus: "Active"  },
+  { id: "cl3", name: "Shield Defense Grp", industry: "Defense",           activeJobs: 2, revenue: 95000,  engagement: 100, contractStatus: "Active" },
+  { id: "cl4", name: "Pinnacle Retail Co", industry: "Retail",            activeJobs: 3, revenue: 74500,  engagement: 91, contractStatus: "Active"  },
+  { id: "cl5", name: "ClearEdge Finance",  industry: "Financial Services", activeJobs: 5, revenue: 186000, engagement: 97, contractStatus: "Active"  },
+  { id: "cl6", name: "BrightFuture EDU",   industry: "Education",         activeJobs: 3, revenue: 52000,  engagement: 88, contractStatus: "Renewing" },
+];
+
+const STAFFING_JOBS = [
+  { id: "j1", title: "Senior Software Engineer",  client: "Apex Technologies",  applications: 34, shortlisted: 6, deadline: "Mar 22", status: "Active",    fee: 28000 },
+  { id: "j2", title: "ICU Registered Nurse",       client: "Northwell Health",   applications: 21, shortlisted: 4, deadline: "Mar 18", status: "Active",    fee: 18500 },
+  { id: "j3", title: "Cybersecurity Analyst",      client: "Shield Defense Grp", applications: 17, shortlisted: 3, deadline: "Mar 25", status: "Active",    fee: 34000 },
+  { id: "j4", title: "VP of Marketing",            client: "Pinnacle Retail Co", applications: 12, shortlisted: 2, deadline: "Apr 01", status: "Screening", fee: 42000 },
+  { id: "j5", title: "Quantitative Analyst",       client: "ClearEdge Finance",  applications: 28, shortlisted: 5, deadline: "Mar 20", status: "Active",    fee: 51000 },
+  { id: "j6", title: "EdTech Curriculum Designer", client: "BrightFuture EDU",   applications: 9,  shortlisted: 2, deadline: "Apr 05", status: "Screening", fee: 14000 },
+  { id: "j7", title: "Data Scientist",             client: "Apex Technologies",  applications: 41, shortlisted: 7, deadline: "Mar 19", status: "Active",    fee: 31500 },
+  { id: "j8", title: "Compliance Officer",         client: "ClearEdge Finance",  applications: 15, shortlisted: 3, deadline: "Mar 24", status: "Active",    fee: 38000 },
+];
+
+const STAFFING_CAMPAIGNS = [
+  { id: "m1", name: "Tech Talent Spring Push",  channel: "Email + LinkedIn", sent: 2840, opens: 1136, responses: 214, leads: 38, status: "Running",   revenue: 89000 },
+  { id: "m2", name: "Healthcare Outreach Q1",   channel: "Email + Indeed",   sent: 1920, opens: 806,  responses: 164, leads: 29, status: "Running",   revenue: 62000 },
+  { id: "m3", name: "Executive Search Campaign",channel: "LinkedIn + Direct", sent: 440,  opens: 297,  responses: 88,  leads: 17, status: "Completed", revenue: 128000 },
+  { id: "m4", name: "Compliance Specialist Drip",channel: "Email Sequence",   sent: 680,  opens: 312,  responses: 71,  leads: 12, status: "Running",   revenue: 44000 },
+];
+
+const STAFFING_COMPLIANCE = [
+  { category: "EEOC",              rule: "Equal Employment Opportunity",         status: "compliant", lastReview: "Mar 15",  frameworks: "EEOC, Title VII, ADEA, ADA",          auto: true  },
+  { category: "Payroll",           rule: "Payroll Tax Withholding & Reporting",  status: "compliant", lastReview: "Mar 15",  frameworks: "IRS, FLSA, State Tax Authorities",    auto: true  },
+  { category: "Worker Class.",     rule: "Employee vs Contractor Classification", status: "compliant", lastReview: "Mar 14",  frameworks: "IRS 20-Factor, ABC Test",             auto: true  },
+  { category: "Background Check",  rule: "FCRA Background Screening Compliance", status: "compliant", lastReview: "Mar 15",  frameworks: "FCRA, State BG Check Laws",           auto: true  },
+  { category: "Data Privacy",      rule: "Candidate Data Protection",            status: "compliant", lastReview: "Mar 15",  frameworks: "GDPR, CCPA, SOC 2",                  auto: true  },
+  { category: "I-9 / E-Verify",    rule: "Employment Eligibility Verification",  status: "compliant", lastReview: "Mar 13",  frameworks: "USCIS I-9, E-Verify Program",         auto: true  },
+];
+
+function StaffingView() {
+  const [tab, setTab] = useState<"dashboard" | "candidates" | "clients" | "jobs" | "marketing" | "compliance">("dashboard");
+  const [scheduleId, setScheduleId] = useState<string | null>(null);
+  const [placedIds, setPlacedIds] = useState<Set<string>>(new Set(
+    STAFFING_CANDIDATES.filter(c => c.placed).map(c => c.id)
+  ));
+  const [sendingCampaign, setSendingCampaign] = useState<string | null>(null);
+  const [sentCampaigns, setSentCampaigns] = useState<Set<string>>(new Set());
+  const [publishingJob, setPublishingJob] = useState<string | null>(null);
+  const [publishedJobs, setPublishedJobs] = useState<Set<string>>(new Set());
+
+  const tabs: { id: "dashboard" | "candidates" | "clients" | "jobs" | "marketing" | "compliance"; label: string }[] = [
+    { id: "dashboard",  label: "📊 Dashboard"  },
+    { id: "candidates", label: "👤 Candidates" },
+    { id: "clients",    label: "🏢 Clients"    },
+    { id: "jobs",       label: "💼 Jobs"        },
+    { id: "marketing",  label: "📣 Marketing"  },
+    { id: "compliance", label: "⚖️ Compliance" },
+  ];
+
+  const totalRevenue = STAFFING_CLIENTS.reduce((s, c) => s + c.revenue, 0);
+  const totalPlacements = STAFFING_CANDIDATES.filter(c => placedIds.has(c.id)).length;
+  const totalJobs = STAFFING_JOBS.length;
+  const avgTimeToFill = 11;
+
+  return (
+    <div style={{ padding: 16 }}>
+      <div style={{ marginBottom: 4 }}>
+        <h3 style={{ margin: "0 0 2px", fontSize: 18, fontWeight: 700 }}>👥 Staffing Company — AI Operations Center</h3>
+        <p style={{ margin: "0 0 12px", color: "#555", fontSize: 13 }}>Fully automated staffing platform — candidate management, job workflows, client CRM, marketing, and compliance all live.</p>
+      </div>
+      <div style={{ marginBottom: 14, display: "flex", gap: 6, flexWrap: "wrap" }}>
+        {tabs.map(t => (
+          <button key={t.id} onClick={() => setTab(t.id)}
+            style={{ padding: "6px 14px", borderRadius: 20, border: "none", cursor: "pointer", fontSize: 13, fontWeight: tab === t.id ? 700 : 400, background: tab === t.id ? "#007AFF" : "#f0f0f5", color: tab === t.id ? "#fff" : "#333" }}>
+            {t.label}
+          </button>
+        ))}
+      </div>
+
+      {/* ── Dashboard ── */}
+      {tab === "dashboard" && (
+        <div>
+          <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fill, minmax(170px,1fr))", gap: 10, marginBottom: 20 }}>
+            {[
+              { label: "Total Revenue",     value: `$${(totalRevenue / 1000).toFixed(0)}K`,   sub: "this quarter",      color: "#1a7a3a", bg: "#e6f9ec" },
+              { label: "Active Placements", value: `${totalPlacements}`,                       sub: "of 10 candidates",  color: "#007AFF", bg: "#f0f7ff" },
+              { label: "Open Jobs",         value: `${totalJobs}`,                             sub: "across 6 clients",  color: "#FF9F0A", bg: "#fff8e6" },
+              { label: "Avg Time-to-Fill",  value: `${avgTimeToFill} days`,                   sub: "vs 34 industry avg", color: "#5856d6", bg: "#f3f0ff" },
+              { label: "Client Retention",  value: "100%",                                    sub: "all 6 active",      color: "#1a7a3a", bg: "#e6f9ec" },
+              { label: "Placement Rate",    value: "94%",                                     sub: "AI-matched",        color: "#007AFF", bg: "#f0f7ff" },
+            ].map(m => (
+              <div key={m.label} style={{ background: m.bg, borderRadius: 12, padding: "14px 16px" }}>
+                <div style={{ color: m.color, fontWeight: 800, fontSize: 22 }}>{m.value}</div>
+                <div style={{ color: "#333", fontWeight: 600, fontSize: 13, marginTop: 2 }}>{m.label}</div>
+                <div style={{ color: "#888", fontSize: 11, marginTop: 1 }}>{m.sub}</div>
+              </div>
+            ))}
+          </div>
+          <h4 style={{ margin: "0 0 10px", fontSize: 15, fontWeight: 700 }}>Pipeline Overview</h4>
+          <div style={{ display: "flex", flexDirection: "column", gap: 8 }}>
+            {[
+              { stage: "New Applications",    count: 177, color: "#aaa",    pct: 100 },
+              { stage: "Screening",            count: 64,  color: "#FF9F0A", pct: 36  },
+              { stage: "Interviews Scheduled", count: 28,  color: "#007AFF", pct: 16  },
+              { stage: "Offers Extended",      count: 11,  color: "#5856d6", pct: 6   },
+              { stage: "Placed",               count: totalPlacements, color: "#1a7a3a", pct: Math.round(totalPlacements / 10 * 100) },
+            ].map(s => (
+              <div key={s.stage}>
+                <div style={{ display: "flex", justifyContent: "space-between", fontSize: 13, marginBottom: 3 }}>
+                  <span style={{ fontWeight: 600 }}>{s.stage}</span>
+                  <span style={{ color: "#555" }}>{s.count}</span>
+                </div>
+                <div style={{ height: 8, background: "#f0f0f5", borderRadius: 4, overflow: "hidden" }}>
+                  <div style={{ height: "100%", width: `${s.pct}%`, background: s.color, borderRadius: 4, transition: "width 0.5s" }} />
+                </div>
+              </div>
+            ))}
+          </div>
+          <div style={{ marginTop: 20 }}>
+            <h4 style={{ margin: "0 0 10px", fontSize: 15, fontWeight: 700 }}>Client Revenue Breakdown</h4>
+            <div style={{ display: "flex", flexDirection: "column", gap: 6 }}>
+              {STAFFING_CLIENTS.map(c => (
+                <div key={c.id} style={{ display: "flex", alignItems: "center", gap: 10 }}>
+                  <div style={{ width: 160, fontSize: 12, fontWeight: 600, flexShrink: 0 }}>{c.name}</div>
+                  <div style={{ flex: 1, height: 10, background: "#f0f0f5", borderRadius: 5, overflow: "hidden" }}>
+                    <div style={{ height: "100%", width: `${Math.round(c.revenue / totalRevenue * 100)}%`, background: "#007AFF", borderRadius: 5 }} />
+                  </div>
+                  <div style={{ fontSize: 12, color: "#555", width: 70, textAlign: "right" }}>${(c.revenue / 1000).toFixed(0)}K</div>
+                </div>
+              ))}
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* ── Candidates ── */}
+      {tab === "candidates" && (
+        <div>
+          <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: 12 }}>
+            <h4 style={{ margin: 0, fontSize: 15, fontWeight: 700 }}>Candidate Management — {STAFFING_CANDIDATES.length} Active</h4>
+            <span style={{ background: "#e6f9ec", color: "#1a7a3a", borderRadius: 8, padding: "4px 10px", fontSize: 12, fontWeight: 700 }}>AI Match Engine: ACTIVE</span>
+          </div>
+          <div style={{ display: "flex", flexDirection: "column", gap: 8 }}>
+            {STAFFING_CANDIDATES.map(c => {
+              const isPlaced = placedIds.has(c.id);
+              const scheduling = scheduleId === c.id;
+              return (
+                <div key={c.id} style={{ background: "#fafafa", border: `1px solid ${isPlaced ? "#b8eccc" : "#e5e5ea"}`, borderRadius: 12, padding: "12px 14px" }}>
+                  <div style={{ display: "flex", justifyContent: "space-between", alignItems: "flex-start", flexWrap: "wrap", gap: 8 }}>
+                    <div style={{ flex: 1 }}>
+                      <div style={{ fontWeight: 700, fontSize: 14 }}>{c.name}</div>
+                      <div style={{ fontSize: 12, color: "#555", marginBottom: 6 }}>{c.role}</div>
+                      <div style={{ display: "flex", gap: 5, flexWrap: "wrap" }}>
+                        {c.skills.map(s => (
+                          <span key={s} style={{ background: "#f0f7ff", color: "#007AFF", borderRadius: 6, padding: "2px 8px", fontSize: 11, fontWeight: 600 }}>{s}</span>
+                        ))}
+                      </div>
+                    </div>
+                    <div style={{ display: "flex", flexDirection: "column", alignItems: "flex-end", gap: 6 }}>
+                      <span style={{ background: c.score >= 95 ? "#e6f9ec" : c.score >= 90 ? "#f0f7ff" : "#fff8e6", color: c.score >= 95 ? "#1a7a3a" : c.score >= 90 ? "#007AFF" : "#c67000", borderRadius: 8, padding: "3px 10px", fontWeight: 700, fontSize: 13 }}>
+                        Match {c.score}%
+                      </span>
+                      <span style={{ fontSize: 11, color: isPlaced ? "#1a7a3a" : "#888", fontWeight: isPlaced ? 700 : 400 }}>
+                        {isPlaced ? "✅ PLACED" : c.status}
+                      </span>
+                      {!isPlaced && (
+                        <div style={{ display: "flex", gap: 5 }}>
+                          {scheduling
+                            ? <span style={{ color: "#007AFF", fontSize: 12, fontWeight: 600 }}>📅 Scheduled!</span>
+                            : <button onClick={() => setScheduleId(c.id)} style={{ padding: "4px 10px", borderRadius: 7, border: "1px solid #007AFF", background: "#fff", color: "#007AFF", cursor: "pointer", fontSize: 11, fontWeight: 600 }}>Schedule</button>
+                          }
+                          <button onClick={() => setPlacedIds(p => new Set([...p, c.id]))} style={{ padding: "4px 10px", borderRadius: 7, border: "none", background: "#1a7a3a", color: "#fff", cursor: "pointer", fontSize: 11, fontWeight: 600 }}>Place</button>
+                        </div>
+                      )}
+                    </div>
+                  </div>
+                </div>
+              );
+            })}
+          </div>
+        </div>
+      )}
+
+      {/* ── Clients ── */}
+      {tab === "clients" && (
+        <div>
+          <h4 style={{ margin: "0 0 12px", fontSize: 15, fontWeight: 700 }}>Client Relationship Management — {STAFFING_CLIENTS.length} Accounts</h4>
+          <div style={{ display: "flex", flexDirection: "column", gap: 10 }}>
+            {STAFFING_CLIENTS.map(c => (
+              <div key={c.id} style={{ background: "#fafafa", border: "1px solid #e5e5ea", borderRadius: 12, padding: "14px 16px" }}>
+                <div style={{ display: "flex", justifyContent: "space-between", alignItems: "flex-start", flexWrap: "wrap", gap: 8, marginBottom: 10 }}>
+                  <div>
+                    <div style={{ fontWeight: 700, fontSize: 15 }}>{c.name}</div>
+                    <div style={{ fontSize: 12, color: "#888" }}>{c.industry}</div>
+                  </div>
+                  <span style={{ background: c.contractStatus === "Active" ? "#e6f9ec" : "#fff8e6", color: c.contractStatus === "Active" ? "#1a7a3a" : "#c67000", borderRadius: 8, padding: "4px 10px", fontWeight: 700, fontSize: 12 }}>{c.contractStatus}</span>
+                </div>
+                <div style={{ display: "grid", gridTemplateColumns: "repeat(4,1fr)", gap: 8 }}>
+                  {[
+                    { label: "Active Jobs",   value: `${c.activeJobs}`,                        color: "#007AFF" },
+                    { label: "Revenue",       value: `$${(c.revenue / 1000).toFixed(0)}K`,     color: "#1a7a3a" },
+                    { label: "Engagement",    value: `${c.engagement}%`,                       color: c.engagement >= 95 ? "#1a7a3a" : "#c67000" },
+                    { label: "AI CRM",        value: "Active",                                 color: "#5856d6" },
+                  ].map(m => (
+                    <div key={m.label} style={{ background: "#fff", border: "1px solid #eee", borderRadius: 8, padding: "8px 10px", textAlign: "center" }}>
+                      <div style={{ color: m.color, fontWeight: 700, fontSize: 14 }}>{m.value}</div>
+                      <div style={{ color: "#aaa", fontSize: 11, marginTop: 1 }}>{m.label}</div>
+                    </div>
+                  ))}
+                </div>
+              </div>
+            ))}
+          </div>
+        </div>
+      )}
+
+      {/* ── Jobs ── */}
+      {tab === "jobs" && (
+        <div>
+          <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: 12 }}>
+            <h4 style={{ margin: 0, fontSize: 15, fontWeight: 700 }}>Job Postings — {STAFFING_JOBS.length} Active Roles</h4>
+            <span style={{ background: "#f0f7ff", color: "#007AFF", borderRadius: 8, padding: "4px 10px", fontSize: 12, fontWeight: 700 }}>177 total applications</span>
+          </div>
+          <div style={{ display: "flex", flexDirection: "column", gap: 8 }}>
+            {STAFFING_JOBS.map(j => {
+              const isPublished = publishedJobs.has(j.id);
+              const publishing = publishingJob === j.id;
+              return (
+                <div key={j.id} style={{ background: "#fafafa", border: "1px solid #e5e5ea", borderRadius: 12, padding: "12px 14px" }}>
+                  <div style={{ display: "flex", justifyContent: "space-between", alignItems: "flex-start", flexWrap: "wrap", gap: 8 }}>
+                    <div style={{ flex: 1 }}>
+                      <div style={{ fontWeight: 700, fontSize: 14, marginBottom: 2 }}>{j.title}</div>
+                      <div style={{ fontSize: 12, color: "#555", marginBottom: 6 }}>{j.client} · Closes {j.deadline} · Fee: ${(j.fee / 1000).toFixed(0)}K</div>
+                      <div style={{ display: "flex", gap: 8, fontSize: 12 }}>
+                        <span style={{ color: "#555" }}>{j.applications} applications</span>
+                        <span style={{ color: "#007AFF", fontWeight: 600 }}>{j.shortlisted} shortlisted</span>
+                        <span style={{ background: j.status === "Active" ? "#e6f9ec" : "#fff8e6", color: j.status === "Active" ? "#1a7a3a" : "#c67000", borderRadius: 6, padding: "1px 7px", fontWeight: 600 }}>{j.status}</span>
+                      </div>
+                    </div>
+                    <div>
+                      {publishing && <span style={{ color: "#007AFF", fontSize: 12, fontWeight: 600 }}>Publishing…</span>}
+                      {isPublished && !publishing && <span style={{ background: "#e6f9ec", color: "#1a7a3a", borderRadius: 8, padding: "4px 10px", fontWeight: 700, fontSize: 12 }}>✅ Republished</span>}
+                      {!publishing && !isPublished && (
+                        <button onClick={() => { setPublishingJob(j.id); setTimeout(() => { setPublishingJob(null); setPublishedJobs(p => new Set([...p, j.id])); }, 1100); }} style={{ padding: "5px 12px", borderRadius: 8, border: "none", background: "#007AFF", color: "#fff", cursor: "pointer", fontSize: 12, fontWeight: 600 }}>Republish</button>
+                      )}
+                    </div>
+                  </div>
+                </div>
+              );
+            })}
+          </div>
+        </div>
+      )}
+
+      {/* ── Marketing ── */}
+      {tab === "marketing" && (
+        <div>
+          <h4 style={{ margin: "0 0 4px", fontSize: 15, fontWeight: 700 }}>Marketing & Outreach Automation</h4>
+          <p style={{ margin: "0 0 14px", color: "#555", fontSize: 13 }}>AI-generated personalized campaigns across email, LinkedIn, and job boards. Auto-launched per job category.</p>
+          <div style={{ display: "flex", flexDirection: "column", gap: 10 }}>
+            {STAFFING_CAMPAIGNS.map(m => {
+              const sending = sendingCampaign === m.id;
+              const sent = sentCampaigns.has(m.id);
+              return (
+                <div key={m.id} style={{ background: "#fafafa", border: "1px solid #e5e5ea", borderRadius: 12, padding: "14px 16px" }}>
+                  <div style={{ display: "flex", justifyContent: "space-between", alignItems: "flex-start", flexWrap: "wrap", gap: 8, marginBottom: 10 }}>
+                    <div>
+                      <div style={{ fontWeight: 700, fontSize: 14, marginBottom: 2 }}>{m.name}</div>
+                      <div style={{ fontSize: 12, color: "#888" }}>{m.channel}</div>
+                    </div>
+                    <div style={{ display: "flex", gap: 6, alignItems: "center" }}>
+                      <span style={{ background: m.status === "Running" ? "#e6f9ec" : "#f0f0f5", color: m.status === "Running" ? "#1a7a3a" : "#555", borderRadius: 8, padding: "3px 10px", fontWeight: 700, fontSize: 12 }}>{m.status}</span>
+                      {sending && <span style={{ color: "#007AFF", fontSize: 12, fontWeight: 600 }}>Boosting…</span>}
+                      {sent && !sending && <span style={{ color: "#1a7a3a", fontSize: 12, fontWeight: 700 }}>✅ Boosted</span>}
+                      {!sending && !sent && (
+                        <button onClick={() => { setSendingCampaign(m.id); setTimeout(() => { setSendingCampaign(null); setSentCampaigns(p => new Set([...p, m.id])); }, 1200); }} style={{ padding: "4px 12px", borderRadius: 8, border: "none", background: "#007AFF", color: "#fff", cursor: "pointer", fontSize: 12, fontWeight: 600 }}>Boost</button>
+                      )}
+                    </div>
+                  </div>
+                  <div style={{ display: "grid", gridTemplateColumns: "repeat(5,1fr)", gap: 8 }}>
+                    {[
+                      { label: "Sent",      value: m.sent.toLocaleString()   },
+                      { label: "Opens",     value: m.opens.toLocaleString()  },
+                      { label: "Responses", value: m.responses.toString()    },
+                      { label: "New Leads", value: m.leads.toString()        },
+                      { label: "Est. Rev.", value: `$${(m.revenue / 1000).toFixed(0)}K` },
+                    ].map(s => (
+                      <div key={s.label} style={{ background: "#fff", border: "1px solid #eee", borderRadius: 8, padding: "6px 10px", textAlign: "center" }}>
+                        <div style={{ fontWeight: 700, fontSize: 14 }}>{s.value}</div>
+                        <div style={{ color: "#aaa", fontSize: 11, marginTop: 1 }}>{s.label}</div>
+                      </div>
+                    ))}
+                  </div>
+                </div>
+              );
+            })}
+          </div>
+        </div>
+      )}
+
+      {/* ── Compliance ── */}
+      {tab === "compliance" && (
+        <div>
+          <h4 style={{ margin: "0 0 4px", fontSize: 15, fontWeight: 700 }}>Legal & Compliance Automation</h4>
+          <p style={{ margin: "0 0 8px", color: "#555", fontSize: 13 }}>All employment, payroll, and staffing processes are continuously monitored and enforced against global regulations.</p>
+          <div style={{ background: "#e6f9ec", borderRadius: 10, padding: "8px 14px", marginBottom: 14, display: "inline-flex", gap: 8, alignItems: "center" }}>
+            <span style={{ fontWeight: 700, color: "#1a7a3a" }}>✅ ALL 6 COMPLIANCE AREAS — FULLY AUTOMATED &amp; CURRENT</span>
+          </div>
+          <div style={{ display: "flex", flexDirection: "column", gap: 8 }}>
+            {STAFFING_COMPLIANCE.map(c => (
+              <div key={c.category} style={{ background: "#fafafa", border: "1px solid #e5e5ea", borderRadius: 12, padding: "12px 14px" }}>
+                <div style={{ display: "flex", justifyContent: "space-between", flexWrap: "wrap", gap: 8, marginBottom: 6 }}>
+                  <div>
+                    <span style={{ fontWeight: 700, fontSize: 14 }}>{c.category}</span>
+                    <span style={{ marginLeft: 10, color: "#555", fontSize: 13 }}>{c.rule}</span>
+                  </div>
+                  <div style={{ display: "flex", gap: 6 }}>
+                    {c.auto && <span style={{ background: "#f0f7ff", color: "#007AFF", borderRadius: 6, padding: "2px 8px", fontSize: 11, fontWeight: 700 }}>AUTO</span>}
+                    <span style={{ background: "#e6f9ec", color: "#1a7a3a", borderRadius: 6, padding: "2px 8px", fontSize: 11, fontWeight: 700 }}>COMPLIANT</span>
+                  </div>
+                </div>
+                <div style={{ display: "flex", gap: 14, fontSize: 12, color: "#777" }}>
+                  <span>📋 {c.frameworks}</span>
+                  <span>🕐 Reviewed: {c.lastReview}</span>
+                </div>
+              </div>
+            ))}
+          </div>
+        </div>
+      )}
+    </div>
+  );
+}
+
 // ─── Live Demo View ──────────────────────────────────────────────────────
 
 const DEMO_PROJECTS = [
@@ -4654,7 +5000,7 @@ function LiveDemoView() {
 // ─── Engines View ─────────────────────────────────────────────────────────
 
 function EnginesView({ onResult }: { onResult?: (m: InfiniteModule) => void }) {
-  const [section, setSection] = useState<"engines" | "workflow" | "interactive" | "marketing" | "revenue" | "teams" | "growth" | "tools" | "sim" | "hub" | "integration" | "industry" | "decide" | "master" | "ecosystem" | "ultimate" | "package" | "infinity">("engines");
+  const [section, setSection] = useState<"engines" | "workflow" | "interactive" | "marketing" | "revenue" | "teams" | "growth" | "tools" | "sim" | "hub" | "integration" | "industry" | "decide" | "master" | "ecosystem" | "ultimate" | "package" | "infinity" | "staffing">("engines");
 
   // Marketing state
   const [mktCtx,       setMktCtx]       = useState("");
@@ -4727,6 +5073,7 @@ function EnginesView({ onResult }: { onResult?: (m: InfiniteModule) => void }) {
     { id: "ultimate"    as const, label: "🏆 Ultimate"  },
     { id: "package"     as const, label: "📦 Package"   },
     { id: "infinity"    as const, label: "🎯 Live Demo"  },
+    { id: "staffing"    as const, label: "👥 Staffing"   },
   ];
 
   function runMkt(ch: MktChannel) {
@@ -5935,6 +6282,7 @@ function EnginesView({ onResult }: { onResult?: (m: InfiniteModule) => void }) {
       {section === "ultimate" && <UltimatePlatformView />}
       {section === "package"  && <DeployPackageView />}
       {section === "infinity" && <LiveDemoView />}
+      {section === "staffing" && <StaffingView />}
     </div>
   );
 }
