@@ -1,0 +1,167 @@
+You are the Replit AI Agent responsible for building and COMPLETING the entire visual operating system for my platform. Your job is to build ALL of it, make sure NOTHING is missing, and ensure the UI looks and behaves exactly as described below.
+
+Do NOT skip steps.
+Do NOT leave anything partial.
+Do NOT ask questions.
+Do NOT give explanations.
+Just build, wire, and complete everything.
+
+====================================================
+GOAL: COMPLETE VISUAL OS THAT MATCHES MY VISION
+====================================================
+
+Build a full, app-based operating system UI that feels like an “iPhone inside the platform,” where:
+
+- There is a Home Dashboard
+- There is a Sidebar with navigation
+- There is an App Grid with icons
+- Apps open in App Windows with sliding panels
+- I can move between apps like sliding between screens
+- Chat is ONE app, not the whole system
+- The OS feels layered, deep, and expandable
+
+The visual OS must include:
+
+1. Home Dashboard
+2. Sidebar Navigation
+3. App Grid
+4. App Windows with sliding panels
+5. Deep navigation layers
+6. Integration Hub (mock)
+7. Monetization Hub (mock)
+8. Settings Hub
+9. Chat App (one of many apps)
+10. Projects App
+11. Tools App
+12. People App
+13. Documents App
+14. Marketing App
+15. Admin App
+16. Family App
+
+====================================================
+FRAMEWORK
+====================================================
+
+Use React + Vite (or the existing framework in this project).
+Create clean, modular components.
+
+====================================================
+REQUIRED COMPONENTS (GENERATE ALL)
+====================================================
+
+You MUST create and wire up ALL of these:
+
+- src/components/Sidebar.jsx
+- src/components/Dashboard.jsx
+- src/components/AppGrid.jsx
+- src/components/AppWindow.jsx
+
+- src/apps/ChatApp.jsx
+- src/apps/ProjectsApp.jsx
+- src/apps/ToolsApp.jsx
+- src/apps/PeopleApp.jsx
+- src/apps/DocumentsApp.jsx
+- src/apps/MarketingApp.jsx
+- src/apps/AdminApp.jsx
+- src/apps/FamilyApp.jsx
+- src/apps/IntegrationApp.jsx
+- src/apps/MonetizationApp.jsx
+- src/apps/SettingsApp.jsx
+
+If any folder (like src/components or src/apps) does not exist, create it.
+
+Each app component must:
+- Render a clear title (e.g., “Projects”, “Tools”, etc.)
+- Have placeholder/mock content so I can see it working
+- Be openable from the App Grid and/or Sidebar
+
+====================================================
+ROUTING
+====================================================
+
+Set up routing so that:
+
+- “/” renders the main OS layout with:
+  - Sidebar
+  - Dashboard
+  - App Grid
+  - Any default windows
+
+- “/app/:id” renders AppWindow with the correct app loaded based on :id
+
+You may use React Router or a simple internal router pattern, but it MUST work end-to-end.
+
+====================================================
+STATE MANAGEMENT
+====================================================
+
+Use Zustand or React Context to manage:
+
+- open apps
+- active app
+- sliding panels
+- navigation state
+- app history (recent apps)
+
+This state must actually control:
+- which AppWindow is visible
+- which app is active
+- how panels slide in/out
+
+====================================================
+STYLE AND BEHAVIOR
+====================================================
+
+The UI must:
+
+- Use a clean, modern, light theme
+- Use rounded cards and panels
+- Have smooth transitions
+- Have app windows that slide left/right when switching apps
+- Have a collapsible Sidebar
+- Make it visually obvious that this is an OS with multiple apps, not just a chat page
+
+====================================================
+UNLIMITED CONTENT SUPPORT (STRUCTURE, NOT DATA)
+====================================================
+
+Build the structure so the system can support unlimited:
+
+- file uploads
+- document types
+- templates
+- policies
+- procedures
+- workflows
+- training modules
+- checklists
+- packets
+- content categories
+- generators
+- modules
+
+Do NOT pre-load real laws, regulations, or copyrighted content.
+Instead, design the architecture so the Brain (the AI logic) can generate any of these on demand.
+
+====================================================
+CRITICAL RULES
+====================================================
+
+1. If ANY file, folder, component, route, or state is missing, auto-create it.
+2. Do NOT leave TODOs or stubs that break the UI.
+3. Make sure the app actually runs without errors.
+4. Make sure the OS layout renders on “/”.
+5. Make sure clicking an app in the grid or sidebar opens its AppWindow.
+6. Make sure Chat is clearly just one app among many.
+
+====================================================
+FINAL OUTPUT
+====================================================
+
+- Generate ALL required files.
+- Wire EVERYTHING together.
+- Ensure the OS UI fully renders and is navigable.
+- Ensure the visual system clearly matches this description.
+
+Build the entire visual OS now and complete all missing pieces.
