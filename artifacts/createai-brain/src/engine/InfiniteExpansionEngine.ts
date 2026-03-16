@@ -156,6 +156,7 @@ export const MANIFEST = {
   recursiveInnovationActive: true,
   hyperInnovativeActive: true,
   ultimateAddOnActive: true,
+  selfImprovementActive: true,
 };
 
 // ─── Hyper-Innovative AI Layer ─────────────────────────────────────────────

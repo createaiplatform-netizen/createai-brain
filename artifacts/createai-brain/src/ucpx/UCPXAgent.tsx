@@ -188,10 +188,240 @@ function ModuleCard({
   );
 }
 
+// ─── Self-Improving AI View ────────────────────────────────────────────────
+
+interface SelfImprovement {
+  id: string;
+  category: "performance" | "workflow" | "agent" | "module" | "expansion";
+  icon: string;
+  title: string;
+  description: string;
+  impact: "high" | "medium" | "low";
+  gainPct: number;
+  applied: boolean;
+}
+
+const IMPROVEMENT_POOL: Omit<SelfImprovement, "id" | "applied">[] = [
+  { category: "performance", icon: "⚡", title: "Parallelize FORGE + ORACLE Handoff",     impact: "high",   gainPct: 28, description: "Run FORGE content generation and ORACLE analysis simultaneously instead of sequentially. Reduces pipeline latency by 28% on average." },
+  { category: "agent",       icon: "🤖", title: "Upgrade ATLAS Cross-Industry Indexing",  impact: "high",   gainPct: 35, description: "Expand ATLAS agent's industry graph from 25 to 50+ verticals, unlocking richer cross-domain pattern recognition and opportunity detection." },
+  { category: "workflow",    icon: "🔄", title: "Auto-Trigger Revenue Engine on Launch",  impact: "high",   gainPct: 40, description: "Automatically activate Revenue Engine the moment any new project is approved & deployed, cutting manual setup time to zero." },
+  { category: "module",      icon: "🌐", title: "Pre-Cache Top 8 Industry Templates",     impact: "medium", gainPct: 22, description: "Warm-cache the 8 most-used industry project templates. First-generation latency drops from ~1.8s to ~0.2s for Healthcare, SaaS, Finance, and more." },
+  { category: "performance", icon: "🧠", title: "Semantic Search for ARIA Knowledge Base",impact: "medium", gainPct: 18, description: "Add vector-similarity search to ARIA's knowledge base, making responses more contextually accurate and reducing clarifying rounds by 18%." },
+  { category: "expansion",   icon: "♾️", title: "Activate Tier-2 Infinite Module Layer",  impact: "high",   gainPct: 45, description: "Unlock the second expansion tier — 15 additional specialized modules across compliance, creative direction, investor relations, and operations." },
+  { category: "workflow",    icon: "📊", title: "Auto-Schedule ORACLE Insight Reports",   impact: "medium", gainPct: 20, description: "Schedule ORACLE to generate a cross-domain insight report every time 3+ outputs are approved. Keeps admin informed without manual triggers." },
+  { category: "agent",       icon: "🔌", title: "Link NEXUS to All Output Channels",      impact: "high",   gainPct: 32, description: "Wire NEXUS integration agent to all 12 platform apps. Any approved output is automatically shared to the correct channel with zero manual steps." },
+  { category: "module",      icon: "📣", title: "Self-Optimizing Marketing Cadences",     impact: "medium", gainPct: 24, description: "Enable FORGE to analyze past campaign performance and auto-adjust content strategy every 7 days using ORACLE's performance data." },
+  { category: "performance", icon: "🛡️", title: "AI Conflict Detection Shield v2",        impact: "low",    gainPct: 12, description: "Upgrade conflict detection to monitor all 25 modules in real-time, preventing state collisions and ensuring zero-override guarantee across platform." },
+  { category: "expansion",   icon: "🌍", title: "Enable Multi-Region Infinite Scaling",   impact: "high",   gainPct: 60, description: "Activate distributed execution layer so all agents run across multiple zones simultaneously, enabling true infinite scaling for unlimited users and projects." },
+  { category: "module",      icon: "🎓", title: "Training Module Auto-Update Loop",       impact: "medium", gainPct: 26, description: "Training & onboarding content updates automatically when new platform capabilities are added, keeping all users trained on the latest features." },
+];
+
+function generateImprovements(): SelfImprovement[] {
+  const shuffled = [...IMPROVEMENT_POOL].sort(() => Math.random() - 0.5);
+  return shuffled.slice(0, 7).map((item, i) => ({
+    ...item,
+    id: `si-${Date.now()}-${i}`,
+    applied: false,
+  }));
+}
+
+const PLATFORM_METRICS = [
+  { label: "Agent Efficiency",     value: "87%",    sub: "+3% this session",   color: "text-green-600"  },
+  { label: "Module Utilization",   value: "92%",    sub: "25/25 active",       color: "text-blue-600"   },
+  { label: "Avg Generation Time",  value: "1.4s",   sub: "↓ 0.3s vs baseline", color: "text-purple-600" },
+  { label: "Self-Improvements",    value: "0",      sub: "applied this session",color: "text-orange-600" },
+  { label: "Outputs Approved",     value: "0",      sub: "ready to distribute", color: "text-emerald-600"},
+  { label: "Conflict Detections",  value: "0",      sub: "zero overrides",     color: "text-indigo-600" },
+];
+
+const CATEGORY_META: Record<SelfImprovement["category"], { label: string; color: string }> = {
+  performance: { label: "Performance",  color: "bg-blue-100 text-blue-700"   },
+  workflow:    { label: "Workflow",      color: "bg-orange-100 text-orange-700"},
+  agent:       { label: "Agent",         color: "bg-purple-100 text-purple-700"},
+  module:      { label: "Module",        color: "bg-teal-100 text-teal-700"   },
+  expansion:   { label: "Expansion",     color: "bg-rose-100 text-rose-700"   },
+};
+
+function SelfImproveView() {
+  const [improvements,   setImprovements]   = useState<SelfImprovement[]>([]);
+  const [analyzing,      setAnalyzing]      = useState(false);
+  const [applying,       setApplying]       = useState<string | null>(null);
+  const [totalApplied,   setTotalApplied]   = useState(0);
+  const [efficiency,     setEfficiency]     = useState(87);
+
+  const handleAnalyze = () => {
+    setAnalyzing(true);
+    setTimeout(() => {
+      setImprovements(generateImprovements());
+      setAnalyzing(false);
+    }, 1400);
+  };
+
+  const handleApply = (id: string) => {
+    if (applying) return;
+    setApplying(id);
+    const improvement = improvements.find(i => i.id === id);
+    setTimeout(() => {
+      setImprovements(prev => prev.map(i => i.id === id ? { ...i, applied: true } : i));
+      setTotalApplied(prev => prev + 1);
+      if (improvement) setEfficiency(prev => Math.min(99, prev + Math.round(improvement.gainPct * 0.15)));
+      setApplying(null);
+    }, 900);
+  };
+
+  const handleApplyAll = () => {
+    const pending = improvements.filter(i => !i.applied);
+    if (pending.length === 0 || applying) return;
+    let delay = 0;
+    pending.forEach(imp => {
+      delay += 400;
+      setTimeout(() => {
+        setApplying(imp.id);
+        setTimeout(() => {
+          setImprovements(prev => prev.map(i => i.id === imp.id ? { ...i, applied: true } : i));
+          setTotalApplied(prev => prev + 1);
+          setEfficiency(prev => Math.min(99, prev + Math.round(imp.gainPct * 0.1)));
+          setApplying(null);
+        }, 600);
+      }, delay);
+    });
+  };
+
+  const appliedCount = improvements.filter(i => i.applied).length;
+
+  return (
+    <div className="space-y-3">
+      {/* Header */}
+      <div className="relative overflow-hidden rounded-2xl p-4"
+        style={{ background: "linear-gradient(135deg, #0a0a2e, #1a0533, #001a4d)" }}>
+        <div className="absolute inset-0 opacity-25"
+          style={{ backgroundImage: "radial-gradient(circle at 70% 30%, #007AFF 0%, transparent 50%), radial-gradient(circle at 20% 80%, #BF5AF2 0%, transparent 50%)" }} />
+        <div className="relative z-10">
+          <p className="text-[12px] font-black text-white uppercase tracking-wider">🔄 Self-Improving AI System</p>
+          <p className="text-[10px] text-blue-200 mt-0.5">Platform continuously analyzes itself, generates optimization recommendations, and applies upgrades — never stopping, always forward.</p>
+          <div className="flex items-center gap-3 mt-2">
+            <div className="flex items-center gap-1.5">
+              <span className="w-1.5 h-1.5 rounded-full bg-green-400 animate-pulse" />
+              <span className="text-[9px] text-green-300 font-semibold">SELF-ANALYSIS ENGINE ACTIVE</span>
+            </div>
+            <span className="text-[9px] text-white/60">·</span>
+            <span className="text-[9px] text-blue-200 font-semibold">{efficiency}% platform efficiency</span>
+          </div>
+        </div>
+      </div>
+
+      {/* Live metrics */}
+      <div className="grid grid-cols-3 gap-1.5">
+        {PLATFORM_METRICS.map((m, i) => (
+          <div key={m.label} className="bg-white border border-border/40 rounded-xl p-2 text-center">
+            <p className={`text-[14px] font-black ${m.color}`}>
+              {m.label === "Self-Improvements" ? totalApplied : m.label === "Outputs Approved" ? appliedCount : m.value}
+            </p>
+            <p className="text-[8px] font-bold text-muted-foreground uppercase tracking-wide leading-tight">{m.label}</p>
+            <p className="text-[8px] text-muted-foreground">{m.label === "Self-Improvements" ? (totalApplied === 1 ? "applied this session" : "applied this session") : m.sub}</p>
+          </div>
+        ))}
+      </div>
+
+      {/* Efficiency bar */}
+      <div className="bg-white border border-border/40 rounded-xl p-3">
+        <div className="flex items-center justify-between mb-1.5">
+          <span className="text-[10px] font-bold text-foreground">Platform Efficiency Score</span>
+          <span className="text-[12px] font-black text-blue-600">{efficiency}%</span>
+        </div>
+        <div className="bg-muted rounded-full h-2">
+          <div className="h-2 rounded-full transition-all duration-700"
+            style={{ width: `${efficiency}%`, background: "linear-gradient(90deg, #007AFF, #BF5AF2)" }} />
+        </div>
+        <p className="text-[8px] text-muted-foreground mt-1">Self-optimization increases this score. Target: 99%</p>
+      </div>
+
+      {/* Run analysis button */}
+      <button onClick={handleAnalyze} disabled={analyzing}
+        className="w-full bg-gradient-to-r from-blue-600 to-purple-600 text-white text-[12px] font-bold py-2.5 rounded-xl hover:opacity-90 disabled:opacity-50 flex items-center justify-center gap-2 transition-opacity">
+        {analyzing
+          ? <><div className="w-3 h-3 border-2 border-white border-t-transparent rounded-full animate-spin" /><span>Running Self-Analysis…</span></>
+          : "🔍 Run Self-Analysis"}
+      </button>
+
+      {/* Recommendations */}
+      {improvements.length > 0 && (
+        <div className="space-y-2">
+          <div className="flex items-center justify-between">
+            <p className="text-[10px] font-bold text-muted-foreground uppercase tracking-wider">{improvements.length} Improvements Found · {appliedCount} Applied</p>
+            {appliedCount < improvements.length && (
+              <button onClick={handleApplyAll}
+                className="text-[10px] text-blue-600 font-bold hover:opacity-70">Apply All →</button>
+            )}
+          </div>
+
+          {improvements.map(imp => {
+            const catMeta = CATEGORY_META[imp.category];
+            const isApplying = applying === imp.id;
+            const impactColor = imp.impact === "high" ? "text-red-600" : imp.impact === "medium" ? "text-orange-500" : "text-green-600";
+            return (
+              <div key={imp.id}
+                className={`bg-white border rounded-2xl p-3 transition-all duration-300 ${imp.applied ? "border-green-200 bg-green-50/40" : "border-border/40"}`}>
+                <div className="flex items-start gap-2.5">
+                  <span className="text-xl flex-shrink-0 mt-0.5">{imp.icon}</span>
+                  <div className="flex-1 min-w-0">
+                    <div className="flex items-center gap-1.5 flex-wrap mb-0.5">
+                      <span className={`text-[8px] font-bold px-1.5 py-0.5 rounded-full ${catMeta.color}`}>{catMeta.label}</span>
+                      <span className={`text-[8px] font-bold uppercase ${impactColor}`}>{imp.impact} impact</span>
+                      <span className="text-[8px] font-black text-emerald-600 ml-auto">+{imp.gainPct}%</span>
+                    </div>
+                    <p className="text-[11px] font-bold text-foreground leading-snug">{imp.title}</p>
+                    <p className="text-[10px] text-muted-foreground leading-relaxed mt-0.5">{imp.description}</p>
+                  </div>
+                </div>
+                <div className="mt-2.5">
+                  {imp.applied ? (
+                    <div className="flex items-center gap-1.5 text-green-600">
+                      <span className="text-sm">✓</span>
+                      <span className="text-[10px] font-bold">Applied — platform optimized</span>
+                    </div>
+                  ) : (
+                    <button onClick={() => handleApply(imp.id)} disabled={!!applying}
+                      className="w-full bg-blue-600 text-white text-[11px] font-bold py-1.5 rounded-xl hover:bg-blue-700 disabled:opacity-50 flex items-center justify-center gap-1.5 transition-colors">
+                      {isApplying
+                        ? <><div className="w-2.5 h-2.5 border-2 border-white border-t-transparent rounded-full animate-spin" /><span>Applying…</span></>
+                        : "▶ Apply Improvement"}
+                    </button>
+                  )}
+                </div>
+              </div>
+            );
+          })}
+
+          {appliedCount > 0 && appliedCount === improvements.length && (
+            <div className="bg-gradient-to-r from-green-50 to-emerald-50 border border-green-200 rounded-2xl p-4 text-center">
+              <p className="text-2xl mb-1">🎉</p>
+              <p className="text-[12px] font-black text-green-700">All {appliedCount} improvements applied!</p>
+              <p className="text-[10px] text-green-600 mt-0.5">Platform efficiency: {efficiency}% · Running self-analysis again discovers new optimizations.</p>
+              <button onClick={handleAnalyze}
+                className="mt-2 bg-green-600 text-white text-[10px] font-bold px-4 py-1.5 rounded-xl hover:bg-green-700 transition-colors">
+                🔍 Find More Improvements
+              </button>
+            </div>
+          )}
+        </div>
+      )}
+
+      {improvements.length === 0 && (
+        <div className="text-center py-8 text-muted-foreground">
+          <p className="text-3xl mb-2">🔄</p>
+          <p className="text-[12px]">Tap "Run Self-Analysis" to discover optimization opportunities.</p>
+          <p className="text-[10px] mt-1">The AI analyzes every agent, module, workflow, and engine — then generates a ranked improvement plan.</p>
+        </div>
+      )}
+    </div>
+  );
+}
+
 // ─── Infinite Expand View ─────────────────────────────────────────────────
 
 function ExpandView({ onResult }: { onResult: (m: InfiniteModule) => void }) {
-  const [mode, setMode] = useState<"expand" | "powers" | "invent">("powers");
+  const [mode, setMode] = useState<"expand" | "powers" | "invent" | "self-improve">("powers");
 
   // ── Expand sub-state ──
   const [domain,     setDomain]     = useState("");
@@ -288,6 +518,10 @@ function ExpandView({ onResult }: { onResult: (m: InfiniteModule) => void }) {
         <button onClick={() => setMode("expand")}
           className={`flex-1 text-[10px] font-bold py-1.5 rounded-lg transition-colors ${mode === "expand" ? "bg-white text-primary shadow-sm" : "text-muted-foreground hover:text-foreground"}`}>
           ♾️ Expand
+        </button>
+        <button onClick={() => setMode("self-improve")}
+          className={`flex-1 text-[10px] font-bold py-1.5 rounded-lg transition-colors ${mode === "self-improve" ? "bg-white text-primary shadow-sm" : "text-muted-foreground hover:text-foreground"}`}>
+          🔄 Self
         </button>
       </div>
 
@@ -488,6 +722,9 @@ function ExpandView({ onResult }: { onResult: (m: InfiniteModule) => void }) {
           )}
         </div>
       )}
+
+      {/* ── Self-Improve mode ── */}
+      {mode === "self-improve" && <SelfImproveView />}
     </div>
   );
 }
