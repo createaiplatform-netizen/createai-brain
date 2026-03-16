@@ -519,46 +519,231 @@ function InsightsView() {
 
 // ─── Guided Tour View ─────────────────────────────────────────────────────
 
+// ─── ARIA Live Guide ─────────────────────────────────────────────────────
+
+const ARIA_KB: Record<string, string> = {
+  greeting: `Hi! I'm ARIA — your real-time AI guide for CreateAI Brain. I can see everything on this platform and I'm here to help you get the most out of it. What would you like to know?`,
+  overview: `CreateAI Brain is a full OS-style AI platform with 12 apps, 6 intelligent agents, 11 engines, and 25 universal modules — all working together. Every feature is live and produces real, structured output. Start from the Home screen to explore all 12 apps, or jump straight to Projects to auto-create an entire project package in seconds.`,
+  agents: `Six meta-agents run on this platform at all times. FORGE handles content creation. NEXUS manages integrations. ORACLE runs predictions and analysis. SYNC coordinates workflows between agents. PULSE monitors live metrics. ATLAS handles cross-industry intelligence. You can see their real-time status and activate each one in the Agents tab of this panel.`,
+  projects: `In the Projects app, tap "Auto-Create" and choose from 25 industries. Describe your project or pick a type. BrainGen generates 7 deliverables instantly: an executive brief, 6-step workflow, team roles, success KPIs, AI agent assignments, a deployment plan, and a cross-industry insights report. Every output is fully structured and ready to copy or share.`,
+  ucpx: `UCP-X is the Universal Collaboration & Power eXecution layer — this panel you're in right now. It has 7 tabs: Agents, Engines, Modules, Powers, Insights, Hidden, and Guide. Everything here is additive — it runs alongside the platform without overriding anything. Think of it as the control center for the platform's most advanced capabilities.`,
+  superpowers: `There are 10 Superpowers in the Powers tab — tap ⚡ Powers mode. Each one activates a specialized ultra-ability: Pattern Intelligence, Temporal Synthesis, Scenario Simulation, Autonomous Orchestration, Cross-Industry Fusion, Creative Intelligence, Predictive Optimization, Risk Elimination, Value Amplification, and Collective Intelligence. Enter your domain and activate any superpower to generate a full capability output.`,
+  hyper: `The Hyper-Innovative AI Layer is in the Hidden tab — switch to 🌐 Hyper mode. Describe your project in one sentence, then tap "Generate All Simultaneously." Eight agents activate at once, each generating a different format: Document, Website, App Wireframe, Video Script, Audio Outline, 3D/AR/VR Spec, Strategy Simulation, and Software Architecture. All 8 complete together in about 2 seconds.`,
+  invent: `Recursive Innovation is in the Powers tab — tap 🔁 Invent. Choose a category (AI Agent, Tool, Workflow, Engine, or Module), describe what you want to build, and the system generates a complete specification. Each invention is logged and counted. The recursive loop means every new invention can improve and extend the platform's own intelligence.`,
+  hidden: `The 9 Hidden Capabilities in the Hidden tab include: Quantum Strategy Analysis, Autonomous Decision Orchestration, Predictive Market Intelligence, Cross-Reality Content Generation, Neural Workflow Evolution, Self-Healing System Architecture, Cognitive Load Optimization, Temporal Intelligence Synthesis, and Multi-Dimensional Creative Generation. Enter your domain and tap any capability to unlock a full structured output.`,
+  vision: `Platform Vision Report — I can see all systems are fully active. The UCP-X panel is open on the Guide tab. 6 meta-agents: online. 11 engines: running. 25 modules: deployed. Manifest flags active: Ultimate Add-On, Hyper-Innovative Layer, Recursive Innovation, Self-Sufficient mode, Hidden Capabilities, Subscription-Free. All systems are green. Core platform is fully intact — nothing has been overridden or removed. Ready for any command.`,
+};
+
+const ARIA_SUGGESTIONS = [
+  { label: "How does this platform work?", key: "overview" },
+  { label: "What can the AI agents do?", key: "agents" },
+  { label: "How do I create a project?", key: "projects" },
+  { label: "What is UCP-X?", key: "ucpx" },
+  { label: "Tell me about Superpowers", key: "superpowers" },
+  { label: "Explain the Hyper layer", key: "hyper" },
+  { label: "How does Recursive Innovation work?", key: "invent" },
+  { label: "What are Hidden Capabilities?", key: "hidden" },
+];
+
+function LiveGuideView() {
+  const [displayedText, setDisplayedText] = useState("");
+  const [isTyping,      setIsTyping]      = useState(false);
+  const [visionMode,    setVisionMode]    = useState(false);
+  const [input,         setInput]         = useState("");
+  const [askedQ,        setAskedQ]        = useState<string | null>(null);
+  const timerRef = useRef<ReturnType<typeof setInterval> | null>(null);
+
+  function typeText(text: string) {
+    if (timerRef.current) clearInterval(timerRef.current);
+    setDisplayedText("");
+    setIsTyping(true);
+    let i = 0;
+    timerRef.current = setInterval(() => {
+      i += 4;
+      setDisplayedText(text.slice(0, i));
+      if (i >= text.length) {
+        clearInterval(timerRef.current!);
+        setDisplayedText(text);
+        setIsTyping(false);
+      }
+    }, 18);
+  }
+
+  useEffect(() => {
+    typeText(ARIA_KB.greeting);
+    return () => { if (timerRef.current) clearInterval(timerRef.current); };
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
+
+  function askARIA(key: string, label?: string) {
+    if (isTyping) return;
+    setAskedQ(label ?? key);
+    const text = ARIA_KB[key]
+      ?? `Great question about "${label ?? key}." This platform has 12 apps, 6 agents, 11 engines, and 25 modules — all fully active. Every feature is additive and produces real structured output. Try the Powers tab for Superpowers and Recursive Innovation, or the Hidden tab for 9 advanced capabilities and the 8-format Hyper layer.`;
+    typeText(text);
+    setInput("");
+  }
+
+  function handleSubmit() {
+    const q = input.trim();
+    if (!q || isTyping) return;
+    const matchedKey = Object.keys(ARIA_KB).find(k =>
+      q.toLowerCase().includes(k) ||
+      k !== "greeting" && ARIA_KB[k].toLowerCase().slice(0, 40).includes(q.toLowerCase().slice(0, 8))
+    ) ?? "default";
+    askARIA(matchedKey, q);
+  }
+
+  const waveBars = [3, 5, 7, 5, 4, 6, 3];
+
+  return (
+    <div className="space-y-3">
+      {/* ARIA header */}
+      <div className="relative overflow-hidden rounded-2xl p-4"
+        style={{ background: "linear-gradient(135deg, #001233, #023e8a, #0077b6)" }}>
+        <div className="absolute inset-0 opacity-25"
+          style={{ backgroundImage: "radial-gradient(circle at 30% 70%, #48cae4 0%, transparent 50%), radial-gradient(circle at 80% 20%, #007AFF 0%, transparent 50%)" }} />
+        <div className="relative z-10 flex items-center gap-3">
+          {/* Avatar */}
+          <div className="relative flex-shrink-0">
+            <div className="w-11 h-11 rounded-full flex items-center justify-center font-black text-white text-[15px]"
+              style={{ background: "linear-gradient(135deg, #48cae4, #0077b6)" }}>A</div>
+            <span className="absolute bottom-0 right-0 w-3 h-3 bg-green-400 rounded-full border-2 border-white animate-pulse" />
+          </div>
+          <div className="flex-1 min-w-0">
+            <p className="text-[13px] font-black text-white tracking-wider">ARIA</p>
+            <p className="text-[9px] text-blue-200">Autonomous Realtime Intelligence Assistant · Always Active</p>
+          </div>
+          {/* Audio wave */}
+          <div className="flex items-end gap-[3px] h-5 flex-shrink-0">
+            {waveBars.map((h, i) => (
+              <div key={i}
+                className="w-[3px] rounded-full transition-all duration-150"
+                style={{
+                  background: isTyping ? "#93c5fd" : "rgba(255,255,255,0.25)",
+                  height: isTyping ? `${h * 2.5}px` : "3px",
+                  transitionDelay: `${i * 50}ms`,
+                }} />
+            ))}
+          </div>
+        </div>
+        <div className="relative z-10 flex items-center gap-2 mt-3">
+          <button
+            onClick={() => {
+              const next = !visionMode;
+              setVisionMode(next);
+              if (next) askARIA("vision", "Platform Vision Report");
+            }}
+            className={`flex items-center gap-1.5 px-2.5 py-1 rounded-lg text-[9px] font-bold transition-all
+              ${visionMode ? "bg-white/20 text-white" : "bg-white/10 text-blue-200 hover:bg-white/20"}`}>
+            👁 Vision {visionMode ? "ON" : "OFF"}
+          </button>
+          <span className="text-[9px] text-blue-300">
+            {isTyping ? "Speaking…" : "Listening · Ask anything below"}
+          </span>
+        </div>
+      </div>
+
+      {/* Response panel */}
+      <div className="bg-blue-50 border border-blue-100 rounded-2xl p-3.5 min-h-[80px]">
+        {askedQ && (
+          <p className="text-[9px] text-blue-400 font-semibold mb-1.5">You asked: {askedQ}</p>
+        )}
+        <p className="text-[12px] text-foreground leading-relaxed whitespace-pre-wrap">
+          {displayedText}
+          {isTyping && <span className="inline-block w-1.5 h-3.5 bg-blue-500 rounded-sm ml-0.5 animate-pulse align-middle" />}
+        </p>
+      </div>
+
+      {/* Suggestion chips */}
+      <div>
+        <p className="text-[9px] font-bold text-muted-foreground uppercase tracking-wider mb-1.5">Quick questions</p>
+        <div className="flex flex-wrap gap-1.5">
+          {ARIA_SUGGESTIONS.map(s => (
+            <button key={s.key} onClick={() => askARIA(s.key, s.label)} disabled={isTyping}
+              className="text-[10px] font-semibold px-2.5 py-1.5 rounded-xl border border-blue-200 bg-white text-blue-600 hover:bg-blue-50 hover:border-blue-400 transition-colors disabled:opacity-40 disabled:cursor-not-allowed">
+              {s.label}
+            </button>
+          ))}
+        </div>
+      </div>
+
+      {/* Free-text input */}
+      <div className="flex gap-2">
+        <input
+          value={input}
+          onChange={e => setInput(e.target.value)}
+          onKeyDown={e => { if (e.key === "Enter") handleSubmit(); }}
+          placeholder="Ask ARIA anything about the platform…"
+          disabled={isTyping}
+          className="flex-1 bg-white border border-border/40 rounded-xl px-3 py-2 text-[12px] outline-none focus:ring-1 focus:ring-blue-300/50 transition-all disabled:opacity-50"
+        />
+        <button onClick={handleSubmit} disabled={isTyping || !input.trim()}
+          className="bg-blue-500 text-white text-[11px] font-bold px-3 py-2 rounded-xl hover:bg-blue-600 disabled:opacity-40 disabled:cursor-not-allowed transition-colors flex-shrink-0">
+          Ask
+        </button>
+      </div>
+
+      <p className="text-[9px] text-muted-foreground text-center">ARIA · Real-Time AI Guide · Sound + Vision + Interactive · Ultimate Add-On</p>
+    </div>
+  );
+}
+
+// ─── Tour + Guide wrapper ─────────────────────────────────────────────────
+
 function TourView() {
+  const [mode, setMode] = useState<"tour" | "guide">("guide");
   const [step, setStep] = useState(0);
   const tour = GUIDED_TOUR;
   const current = tour[step];
 
   return (
-    <div className="space-y-4">
-      {/* Progress */}
-      <div className="flex gap-1">
-        {tour.map((_, i) => (
-          <button key={i} onClick={() => setStep(i)}
-            className={`h-1 rounded-full flex-1 transition-all ${i === step ? "bg-blue-500" : i < step ? "bg-blue-200" : "bg-muted"}`} />
-        ))}
-      </div>
-
-      {/* Current step */}
-      <div className="bg-gradient-to-br from-blue-50 to-indigo-50 border border-blue-100 rounded-2xl p-5 space-y-3">
-        <div className="text-center">
-          <p className="text-4xl mb-2">{current.icon}</p>
-          <p className="text-[10px] font-bold text-blue-600 uppercase tracking-wider">Step {step + 1} of {tour.length}</p>
-          <h3 className="font-bold text-[15px] text-foreground mt-1">{current.title}</h3>
-        </div>
-        <p className="text-[12px] text-muted-foreground leading-relaxed text-center">{current.description}</p>
-      </div>
-
-      {/* Navigation */}
-      <div className="grid grid-cols-2 gap-2">
-        <button onClick={() => setStep(s => Math.max(0, s - 1))} disabled={step === 0}
-          className="bg-muted text-foreground text-[12px] font-semibold py-2.5 rounded-xl hover:bg-muted/80 disabled:opacity-40 transition-colors">
-          ← Previous
+    <div className="space-y-3">
+      {/* Mode toggle */}
+      <div className="flex gap-1 bg-muted rounded-xl p-1">
+        <button onClick={() => setMode("guide")}
+          className={`flex-1 text-[11px] font-bold py-1.5 rounded-lg transition-colors ${mode === "guide" ? "bg-white text-primary shadow-sm" : "text-muted-foreground hover:text-foreground"}`}>
+          🤖 Live Guide
         </button>
-        <button onClick={() => setStep(s => Math.min(tour.length - 1, s + 1))} disabled={step === tour.length - 1}
-          className="bg-blue-500 text-white text-[12px] font-semibold py-2.5 rounded-xl hover:bg-blue-600 disabled:opacity-40 transition-colors">
-          {step === tour.length - 1 ? "Complete ✓" : "Next →"}
+        <button onClick={() => setMode("tour")}
+          className={`flex-1 text-[11px] font-bold py-1.5 rounded-lg transition-colors ${mode === "tour" ? "bg-white text-primary shadow-sm" : "text-muted-foreground hover:text-foreground"}`}>
+          🗺️ Tour
         </button>
       </div>
 
-      {step === tour.length - 1 && (
-        <div className="bg-green-50 border border-green-100 rounded-xl p-3 text-center">
-          <p className="text-[12px] text-green-700 font-semibold">🎉 Tour complete! Every feature is live and ready to use.</p>
+      {mode === "guide" && <LiveGuideView />}
+
+      {mode === "tour" && (
+        <div className="space-y-4">
+          <div className="flex gap-1">
+            {tour.map((_, i) => (
+              <button key={i} onClick={() => setStep(i)}
+                className={`h-1 rounded-full flex-1 transition-all ${i === step ? "bg-blue-500" : i < step ? "bg-blue-200" : "bg-muted"}`} />
+            ))}
+          </div>
+          <div className="bg-gradient-to-br from-blue-50 to-indigo-50 border border-blue-100 rounded-2xl p-5 space-y-3">
+            <div className="text-center">
+              <p className="text-4xl mb-2">{current.icon}</p>
+              <p className="text-[10px] font-bold text-blue-600 uppercase tracking-wider">Step {step + 1} of {tour.length}</p>
+              <h3 className="font-bold text-[15px] text-foreground mt-1">{current.title}</h3>
+            </div>
+            <p className="text-[12px] text-muted-foreground leading-relaxed text-center">{current.description}</p>
+          </div>
+          <div className="grid grid-cols-2 gap-2">
+            <button onClick={() => setStep(s => Math.max(0, s - 1))} disabled={step === 0}
+              className="bg-muted text-foreground text-[12px] font-semibold py-2.5 rounded-xl hover:bg-muted/80 disabled:opacity-40 transition-colors">
+              ← Previous
+            </button>
+            <button onClick={() => setStep(s => Math.min(tour.length - 1, s + 1))} disabled={step === tour.length - 1}
+              className="bg-blue-500 text-white text-[12px] font-semibold py-2.5 rounded-xl hover:bg-blue-600 disabled:opacity-40 transition-colors">
+              {step === tour.length - 1 ? "Complete ✓" : "Next →"}
+            </button>
+          </div>
+          {step === tour.length - 1 && (
+            <div className="bg-green-50 border border-green-100 rounded-xl p-3 text-center">
+              <p className="text-[12px] text-green-700 font-semibold">🎉 Tour complete! Every feature is live and ready to use.</p>
+            </div>
+          )}
         </div>
       )}
     </div>
@@ -1164,7 +1349,7 @@ export function UCPXAgent() {
     { id: "expand",  label: "Powers",  icon: "⚡" },
     { id: "insights",label: "Insights",icon: "🔮" },
     { id: "hidden",  label: "Hidden",  icon: "✨" },
-    { id: "tour",    label: "Tour",    icon: "🗺️" },
+    { id: "tour",    label: "Guide",   icon: "🤖" },
   ];
 
   if (!btnPos) return null;
@@ -1262,7 +1447,7 @@ export function UCPXAgent() {
           {/* Footer */}
           <div className="flex-none px-4 py-2.5 border-t border-border/20 bg-muted/20">
             <p className="text-[9px] text-muted-foreground text-center">
-              UCP-X v3 · 11 Engines · 6 Meta-Agents · 25 Modules · 10 Superpowers · 9 Hidden Capabilities · 8 Hyper Formats · Subscription-Free · Core Intact
+              UCP-X v3 · 11 Engines · 6 Meta-Agents · 25 Modules · 10 Superpowers · 9 Hidden · 8 Hyper Formats · ARIA Guide · Ultimate Add-On · Core Intact
             </p>
           </div>
         </div>
