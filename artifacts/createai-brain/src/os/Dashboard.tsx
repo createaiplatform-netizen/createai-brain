@@ -2,63 +2,68 @@ import React from "react";
 import { useOS, ALL_APPS, AppId } from "./OSContext";
 
 const RECENT_ITEMS = [
-  { icon: "💬", label: "Main Brain — last session", app: "chat" as AppId },
-  { icon: "📁", label: "Healthcare System – Legal Safe", app: "projects" as AppId },
-  { icon: "📣", label: "Brand Kit Draft", app: "marketing" as AppId },
-  { icon: "👥", label: "People List — 3 pending invites", app: "people" as AppId },
+  { icon: "💬", label: "Main Brain — last session",         app: "chat"       as AppId },
+  { icon: "📁", label: "Healthcare System – Legal Safe",    app: "projects"   as AppId },
+  { icon: "📣", label: "Brand Kit Draft",                   app: "marketing"  as AppId },
+  { icon: "👥", label: "People List — 3 pending invites",   app: "people"     as AppId },
 ];
 
 const QUICK_ACTIONS = [
-  { icon: "✨", label: "Create Anything", app: "creator" as AppId },
-  { icon: "💬", label: "Open Chat", app: "chat" as AppId },
-  { icon: "📁", label: "New Project", app: "projects" as AppId },
-  { icon: "📣", label: "Marketing", app: "marketing" as AppId },
+  { icon: "✨", label: "Create Anything", app: "creator"    as AppId },
+  { icon: "💬", label: "Open Chat",       app: "chat"       as AppId },
+  { icon: "📁", label: "New Project",     app: "projects"   as AppId },
+  { icon: "📣", label: "Marketing",       app: "marketing"  as AppId },
 ];
 
 interface DashboardProps {
   onHamburger?: () => void;
+  /** True when in narrow/portrait phone mode */
+  isNarrow?: boolean;
 }
 
-export function Dashboard({ onHamburger }: DashboardProps) {
+export function Dashboard({ onHamburger, isNarrow }: DashboardProps) {
   const { openApp } = useOS();
 
   return (
     <div className="flex-1 flex flex-col overflow-hidden bg-muted/20 min-w-0">
-      {/* Top bar */}
+
+      {/* ── Top bar ── */}
       <header className="h-14 bg-background/80 backdrop-blur-xl border-b border-border/50 flex items-center px-4 gap-3 sticky top-0 z-10 flex-shrink-0">
-        {/* Hamburger (mobile only) */}
         {onHamburger && (
           <button
             onClick={onHamburger}
-            className="w-8 h-8 flex flex-col items-center justify-center gap-1.5 rounded-lg hover:bg-muted transition-colors flex-shrink-0"
-            aria-label="Open menu"
+            aria-label="Open navigation"
+            className="w-8 h-8 flex flex-col items-center justify-center gap-[5px] rounded-lg hover:bg-muted transition-colors flex-shrink-0"
           >
             <span className="w-5 h-0.5 bg-foreground/70 rounded-full" />
             <span className="w-5 h-0.5 bg-foreground/70 rounded-full" />
             <span className="w-5 h-0.5 bg-foreground/70 rounded-full" />
           </button>
         )}
-
         <div className="flex-1 min-w-0">
           <h1 className="font-semibold text-[15px] text-foreground truncate">CreateAI OS</h1>
           <p className="text-[11px] text-muted-foreground">Demo Mode · All engines active</p>
         </div>
         <div className="flex items-center gap-2 flex-shrink-0">
           <div className="w-2 h-2 rounded-full bg-green-500 animate-pulse" />
-          <span className="text-[11px] text-muted-foreground font-medium">Live</span>
+          <span className="text-[11px] text-muted-foreground font-medium hidden sm:inline">Live</span>
         </div>
       </header>
 
-      {/* Scrollable content — centered with max-width */}
-      <div className="flex-1 overflow-y-auto">
-        <div className="w-full max-w-5xl mx-auto px-4 sm:px-6 py-6 space-y-8">
+      {/* ── Scrollable body — centered with max-width ── */}
+      <div className="flex-1 overflow-y-auto overscroll-contain">
+        <div className="w-full max-w-5xl mx-auto px-4 sm:px-6 py-5 space-y-7">
 
           {/* Quick Actions */}
           <section>
-            <h2 className="text-[13px] font-semibold text-muted-foreground uppercase tracking-wider mb-3">
+            <h2 className="text-[11px] font-semibold text-muted-foreground uppercase tracking-wider mb-3">
               Quick Actions
             </h2>
-            <div className="grid grid-cols-2 sm:grid-cols-4 gap-3">
+            {/*
+              Portrait narrow  → 2 cols
+              Landscape / wide → 4 cols
+            */}
+            <div className={`grid gap-3 ${isNarrow ? "grid-cols-2" : "grid-cols-2 sm:grid-cols-4"}`}>
               {QUICK_ACTIONS.map(qa => (
                 <button
                   key={qa.label}
@@ -72,12 +77,21 @@ export function Dashboard({ onHamburger }: DashboardProps) {
             </div>
           </section>
 
-          {/* App Grid */}
+          {/* All Apps */}
           <section>
-            <h2 className="text-[13px] font-semibold text-muted-foreground uppercase tracking-wider mb-3">
+            <h2 className="text-[11px] font-semibold text-muted-foreground uppercase tracking-wider mb-3">
               All Apps
             </h2>
-            <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 gap-3">
+            {/*
+              Portrait narrow  → 2 cols
+              Landscape medium → 3–4 cols
+              Wide desktop     → 5 cols
+            */}
+            <div className={`grid gap-3 ${
+              isNarrow
+                ? "grid-cols-2"
+                : "grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5"
+            }`}>
               {ALL_APPS.map(app => (
                 <button
                   key={app.id}
@@ -99,9 +113,9 @@ export function Dashboard({ onHamburger }: DashboardProps) {
             </div>
           </section>
 
-          {/* Recent Items */}
+          {/* Recent */}
           <section>
-            <h2 className="text-[13px] font-semibold text-muted-foreground uppercase tracking-wider mb-3">
+            <h2 className="text-[11px] font-semibold text-muted-foreground uppercase tracking-wider mb-3">
               Recent
             </h2>
             <div className="bg-background rounded-2xl border border-border/50 shadow-sm divide-y divide-border/30">
@@ -121,14 +135,14 @@ export function Dashboard({ onHamburger }: DashboardProps) {
 
           {/* System Status */}
           <section>
-            <h2 className="text-[13px] font-semibold text-muted-foreground uppercase tracking-wider mb-3">
+            <h2 className="text-[11px] font-semibold text-muted-foreground uppercase tracking-wider mb-3">
               System Status
             </h2>
             <div className="grid grid-cols-3 gap-3">
               {[
-                { label: "Engines Active", value: "30+", color: "#34C759" },
-                { label: "Mode", value: "DEMO", color: "#007AFF" },
-                { label: "Safety Shell", value: "ON", color: "#34C759" },
+                { label: "Engines Active", value: "30+",   color: "#34C759" },
+                { label: "Mode",           value: "DEMO",  color: "#007AFF" },
+                { label: "Safety Shell",   value: "ON",    color: "#34C759" },
               ].map(stat => (
                 <div key={stat.label} className="bg-background rounded-2xl border border-border/50 p-4 text-center">
                   <p className="text-xl font-bold" style={{ color: stat.color }}>{stat.value}</p>

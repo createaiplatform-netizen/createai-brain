@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import { useOS } from "./OSContext";
 import { useMediaQuery } from "@/hooks/use-media-query";
 import { Sidebar } from "./Sidebar";
@@ -30,46 +30,69 @@ const APP_COMPONENTS: Record<string, React.ComponentType> = {
   monetization: MonetizationApp,
 };
 
+/**
+ * Three layout tiers — derived from width + orientation:
+ *
+ *  NARROW   (< 768px)           → hamburger overlay, no sidebar, full-screen panels
+ *  MEDIUM   (768–1023px)        → icon-only sidebar (60px flex sibling), no hamburger
+ *  WIDE     (≥ 1024px)          → full sidebar (220px), no hamburger
+ */
 export function OSLayout() {
   const { activeApp } = useOS();
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
-  const isDesktop = useMediaQuery("(min-width: 768px)");
+
+  // Breakpoints
+  const isMediumPlus = useMediaQuery("(min-width: 768px)");   // tablet+
+  const isWidePlus    = useMediaQuery("(min-width: 1024px)");  // desktop
+
+  // Close overlay when the screen widens past the narrow threshold
+  useEffect(() => {
+    if (isMediumPlus) setMobileMenuOpen(false);
+  }, [isMediumPlus]);
+
+  const isNarrow      = !isMediumPlus;                         // phone portrait / narrow
+  const showHamburger = isNarrow;
+  const showSidebar   = isMediumPlus;                          // medium + wide
+  const sidebarIconOnly = isMediumPlus && !isWidePlus;         // medium only → icon-only
 
   const ActiveComponent = activeApp ? APP_COMPONENTS[activeApp] : null;
-
   const closeMobileMenu = () => setMobileMenuOpen(false);
 
   return (
     <div className="flex h-[100dvh] w-full bg-background overflow-hidden">
 
-      {/* ── Desktop sidebar (always visible, flex sibling) ── */}
-      {isDesktop && (
-        <Sidebar onNav={closeMobileMenu} />
+      {/* ── Persistent sidebar (medium+) ── */}
+      {showSidebar && (
+        <Sidebar
+          onNav={closeMobileMenu}
+          forceCollapsed={sidebarIconOnly}
+        />
       )}
 
-      {/* ── Mobile overlay sidebar ── */}
-      {!isDesktop && mobileMenuOpen && (
+      {/* ── Overlay sidebar (narrow / hamburger mode) ── */}
+      {isNarrow && mobileMenuOpen && (
         <>
-          {/* Backdrop */}
           <div
             className="fixed inset-0 z-40 bg-black/40 backdrop-blur-sm"
             onClick={closeMobileMenu}
           />
-          {/* Slide-in panel */}
           <div className="fixed left-0 top-0 bottom-0 z-50 animate-in slide-in-from-left-4 duration-200">
             <Sidebar onNav={closeMobileMenu} forceExpanded />
           </div>
         </>
       )}
 
-      {/* ── Main content area ── */}
+      {/* ── Main area ── */}
       <div className="flex-1 flex flex-col overflow-hidden min-w-0">
         {activeApp && ActiveComponent ? (
-          <AppWindow onHamburger={isDesktop ? undefined : () => setMobileMenuOpen(true)}>
+          <AppWindow onHamburger={showHamburger ? () => setMobileMenuOpen(true) : undefined}>
             <ActiveComponent />
           </AppWindow>
         ) : (
-          <Dashboard onHamburger={isDesktop ? undefined : () => setMobileMenuOpen(true)} />
+          <Dashboard
+            onHamburger={showHamburger ? () => setMobileMenuOpen(true) : undefined}
+            isNarrow={isNarrow}
+          />
         )}
       </div>
     </div>
