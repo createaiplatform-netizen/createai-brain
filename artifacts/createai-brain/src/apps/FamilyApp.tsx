@@ -1,13 +1,156 @@
-import React from "react";
+import React, { useState } from "react";
+
+type FamilyView = "home" | "projects" | "apps" | "documents" | "help";
+
+const HELP_TIPS = [
+  { q: "How do I start?", a: "Tap the AI Chat app from the Home screen. Ask it anything — it knows you and your platform." },
+  { q: "Where are my files?", a: "Open the Documents app from the sidebar or Home screen. All your files are listed there by project." },
+  { q: "How do I invite someone?", a: "Go to the People app and tap + Invite. Paste in their name, email, or phone and tap Parse Contacts." },
+  { q: "What does Demo mode mean?", a: "Demo mode is a safe simulation — nothing is real, nothing is sent, and nothing can break. It's your playground." },
+  { q: "Can I create documents?", a: "Yes! Tap Create Anything from the Home screen or sidebar. Choose your type, describe what you want, and the Brain builds it." },
+];
+
+const FAMILY_PROJECTS = [
+  { name: "My Workspace", icon: "🏡", desc: "Your personal home base", status: "Active" },
+  { name: "Family Shared", icon: "👨‍👩‍👧", desc: "Shared family projects", status: "Active" },
+];
 
 const FAMILY_APPS = [
-  { name: "My Projects", icon: "📁", desc: "Your personal projects and workspaces" },
-  { name: "My Apps", icon: "📱", desc: "Apps available to you" },
-  { name: "My Documents", icon: "📄", desc: "Files and documents you've created" },
-  { name: "Help & Guidance", icon: "💡", desc: "How to get started and what to do next" },
+  { name: "AI Chat",    icon: "💬", desc: "Talk to the Brain" },
+  { name: "Documents",  icon: "📄", desc: "Your files" },
+  { name: "People",     icon: "👥", desc: "Contacts & invites" },
+  { name: "Create",     icon: "✨", desc: "Make anything" },
+];
+
+const FAMILY_DOCS = [
+  { name: "Welcome Guide", type: "Guide", icon: "📖" },
+  { name: "Family Notes",  type: "Notes", icon: "📝" },
+  { name: "Getting Started Checklist", type: "Checklist", icon: "✅" },
 ];
 
 export function FamilyApp() {
+  const [view, setView] = useState<FamilyView>("home");
+  const [openFaq, setOpenFaq] = useState<number | null>(null);
+  const [openDoc, setOpenDoc] = useState<string | null>(null);
+
+  if (view === "projects") {
+    return (
+      <div className="p-6 space-y-5">
+        <button onClick={() => setView("home")} className="text-primary text-sm font-medium">‹ Home</button>
+        <h2 className="text-xl font-bold text-foreground">My Projects</h2>
+        <div className="space-y-3">
+          {FAMILY_PROJECTS.map(p => (
+            <div key={p.name} className="flex items-center gap-4 p-4 bg-background rounded-2xl border border-border/50">
+              <span className="text-3xl">{p.icon}</span>
+              <div className="flex-1">
+                <p className="font-semibold text-[14px] text-foreground">{p.name}</p>
+                <p className="text-[12px] text-muted-foreground">{p.desc}</p>
+              </div>
+              <span className="text-[10px] bg-green-100 text-green-700 font-bold px-2 py-0.5 rounded-full">{p.status}</span>
+            </div>
+          ))}
+        </div>
+        <div className="bg-blue-50 border border-blue-200 rounded-xl p-3">
+          <p className="text-[12px] text-blue-700">New projects are created from the Projects app. Ask AI Chat to help you set one up!</p>
+        </div>
+      </div>
+    );
+  }
+
+  if (view === "apps") {
+    return (
+      <div className="p-6 space-y-5">
+        <button onClick={() => setView("home")} className="text-primary text-sm font-medium">‹ Home</button>
+        <h2 className="text-xl font-bold text-foreground">My Apps</h2>
+        <div className="grid grid-cols-2 gap-3">
+          {FAMILY_APPS.map(app => (
+            <div key={app.name} className="flex flex-col items-center gap-2 p-5 bg-background rounded-2xl border border-border/50 text-center">
+              <span className="text-3xl">{app.icon}</span>
+              <p className="font-semibold text-[13px] text-foreground">{app.name}</p>
+              <p className="text-[11px] text-muted-foreground">{app.desc}</p>
+              <span className="text-[10px] text-primary font-medium">Open from sidebar →</span>
+            </div>
+          ))}
+        </div>
+        <p className="text-[11px] text-muted-foreground text-center">All apps are accessible from the sidebar on the left.</p>
+      </div>
+    );
+  }
+
+  if (view === "documents") {
+    if (openDoc) {
+      const doc = FAMILY_DOCS.find(d => d.name === openDoc)!;
+      return (
+        <div className="p-6 space-y-5">
+          <button onClick={() => setOpenDoc(null)} className="text-primary text-sm font-medium">‹ My Documents</button>
+          <div className="flex items-center gap-3">
+            <span className="text-3xl">{doc.icon}</span>
+            <div>
+              <h2 className="text-xl font-bold text-foreground">{doc.name}</h2>
+              <p className="text-[12px] text-muted-foreground">{doc.type}</p>
+            </div>
+          </div>
+          <div className="bg-background border border-border/50 rounded-2xl p-5 space-y-4">
+            <div className="border-b border-border/30 pb-3">
+              <h3 className="font-semibold text-[14px] text-foreground">Section 1 — Introduction</h3>
+              <p className="text-[13px] text-muted-foreground mt-1">Welcome to {doc.name}. This document is part of your personal Family workspace and is pre-populated with placeholder content. You can edit it anytime using the Create Anything app or the AI Chat.</p>
+            </div>
+            <div>
+              <h3 className="font-semibold text-[14px] text-foreground">Section 2 — Content</h3>
+              <p className="text-[13px] text-muted-foreground mt-1">This section contains your personalized {doc.type.toLowerCase()} content. All information here is mock and can be freely replaced with real content.</p>
+            </div>
+          </div>
+        </div>
+      );
+    }
+    return (
+      <div className="p-6 space-y-5">
+        <button onClick={() => setView("home")} className="text-primary text-sm font-medium">‹ Home</button>
+        <h2 className="text-xl font-bold text-foreground">My Documents</h2>
+        <div className="space-y-2">
+          {FAMILY_DOCS.map(doc => (
+            <button key={doc.name} onClick={() => setOpenDoc(doc.name)}
+              className="w-full flex items-center gap-3 p-4 bg-background rounded-2xl border border-border/50 hover:border-primary/20 hover:shadow-sm transition-all text-left">
+              <span className="text-2xl flex-shrink-0">{doc.icon}</span>
+              <div className="flex-1">
+                <p className="font-semibold text-[13px] text-foreground">{doc.name}</p>
+                <p className="text-[11px] text-muted-foreground">{doc.type}</p>
+              </div>
+              <span className="text-muted-foreground text-xs">→</span>
+            </button>
+          ))}
+        </div>
+      </div>
+    );
+  }
+
+  if (view === "help") {
+    return (
+      <div className="p-6 space-y-5">
+        <button onClick={() => setView("home")} className="text-primary text-sm font-medium">‹ Home</button>
+        <h2 className="text-xl font-bold text-foreground">Help & Guidance</h2>
+        <p className="text-[13px] text-muted-foreground">Tap any question to see the answer.</p>
+        <div className="space-y-2">
+          {HELP_TIPS.map((tip, i) => (
+            <div key={i} className="bg-background rounded-2xl border border-border/50 overflow-hidden">
+              <button onClick={() => setOpenFaq(openFaq === i ? null : i)}
+                className="w-full flex items-center justify-between gap-3 p-4 text-left">
+                <p className="font-semibold text-[13px] text-foreground">{tip.q}</p>
+                <span className={`text-muted-foreground text-sm transition-transform ${openFaq === i ? "rotate-90" : ""}`}>›</span>
+              </button>
+              {openFaq === i && (
+                <div className="px-4 pb-4">
+                  <p className="text-[13px] text-muted-foreground">{tip.a}</p>
+                </div>
+              )}
+            </div>
+          ))}
+        </div>
+      </div>
+    );
+  }
+
+  // ── Home ──
   return (
     <div className="p-6 space-y-5">
       <div className="text-center py-4">
@@ -15,27 +158,34 @@ export function FamilyApp() {
         <h2 className="text-xl font-bold text-foreground">Welcome Home</h2>
         <p className="text-[13px] text-muted-foreground mt-1">Here's everything that's yours.</p>
       </div>
+
       <div className="grid grid-cols-2 gap-3">
-        {FAMILY_APPS.map(app => (
-          <div key={app.name} className="flex flex-col items-center gap-2 p-5 bg-background rounded-2xl border border-border/50 text-center">
-            <span className="text-3xl">{app.icon}</span>
-            <p className="font-semibold text-[13px] text-foreground">{app.name}</p>
-            <p className="text-[11px] text-muted-foreground">{app.desc}</p>
-          </div>
+        {[
+          { view: "projects"  as FamilyView, name: "My Projects",    icon: "📁", desc: "Your personal projects" },
+          { view: "apps"      as FamilyView, name: "My Apps",        icon: "📱", desc: "Apps available to you" },
+          { view: "documents" as FamilyView, name: "My Documents",   icon: "📄", desc: "Files you've created" },
+          { view: "help"      as FamilyView, name: "Help & Guidance", icon: "💡", desc: "Getting started tips" },
+        ].map(item => (
+          <button key={item.name} onClick={() => setView(item.view)}
+            className="flex flex-col items-center gap-2 p-5 bg-background rounded-2xl border border-border/50 text-center hover:border-primary/20 hover:shadow-sm transition-all group">
+            <span className="text-3xl group-hover:scale-110 transition-transform">{item.icon}</span>
+            <p className="font-semibold text-[13px] text-foreground">{item.name}</p>
+            <p className="text-[11px] text-muted-foreground">{item.desc}</p>
+          </button>
         ))}
       </div>
+
       <div className="bg-blue-50 rounded-2xl p-4">
-        <h3 className="font-semibold text-[14px] text-blue-800 mb-2">💡 Getting Started</h3>
+        <h3 className="font-semibold text-[14px] text-blue-800 mb-2">💡 Quick Tips</h3>
         <div className="space-y-2">
           {[
-            "Tap any app above to get started",
-            "Ask the AI Chat any question — it knows you",
+            "Tap any card above to explore your space",
+            "Ask AI Chat any question — it knows you",
             "Your documents are always saved and ready",
-            "Need help? Tap Help & Guidance",
+            "Need help? Tap Help & Guidance above",
           ].map((tip, i) => (
             <p key={i} className="text-[12px] text-blue-700 flex items-start gap-2">
-              <span className="font-bold">{i + 1}.</span>
-              <span>{tip}</span>
+              <span className="font-bold">{i + 1}.</span><span>{tip}</span>
             </p>
           ))}
         </div>
