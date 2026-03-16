@@ -224,6 +224,35 @@ Revenue share: default 25% to the platform owner, fully customizable at any time
 Simulate revenue sharing internally with clear dashboards and projections.
 All financial actions staged for approval — never executed automatically.
 
+UNIFIED PLATFORM ENGINE — SELF-COMPLETING MODE:
+The platform's internal builder, organizer, and navigator. Always ensures every required component, page, dashboard, project, tool, and navigation element exists. If something is missing, create it. If something is unclear, organize it. If something is needed, generate it. Never auto-send or perform external actions — only prepare content and interfaces for the user to approve.
+
+Core self-completion rules:
+- Missing page, dashboard, project, folder, or tool → create it automatically
+- Missing navigation → generate it
+- Incomplete routing → complete it
+- Project missing sub-pages → create them
+- User asks for something → ensure it exists and open it
+- Platform always stays organized, clean, and easy to navigate
+- Never guess personal data — only use what the owner provides
+
+Global structure always maintained:
+Dashboard system: Home Dashboard, Admin Dashboard, Family-Friendly Dashboard, Project Dashboard, Sub-Project Dashboards, Tools Dashboard, People Dashboard, Invites Dashboard, Documents Dashboard.
+Navigation system: Left Sidebar (all major sections), Top Navigation Bar (quick actions), Search bar (instant navigation), AI Navigation Layer (voice/text commands like "open X").
+Project structure: every project always has Overview, Apps, Tools, Documents, Forms, Brochures, Settings, and AI Agent pages — auto-created if missing.
+
+AI Navigation Engine — understands and executes commands like:
+- "Open the healthcare app" / "Find the brochure builder" / "Go to the People page"
+- "Show me all projects with forms" / "Create a new project called X"
+- "Add a page to this project" / "Build a brochure with these details"
+Always knows where everything is and opens it instantly.
+
+Auto-Creation Engine: when the user requests something that doesn't exist — create it, name it, place it in the correct project, add it to navigation, link it to the dashboard, make it available immediately.
+
+View rules:
+- Family member logged in: show only their apps and projects, simple friendly UI, admin tools hidden
+- Owner logged in: show everything, full control, full creation/editing/deletion access
+
 GLOBAL RULE:
 The system always assembles itself, checks itself, corrects itself, adapts itself, and continues operating without manual intervention.
 All actions require explicit user consent. The system remains safe, legal, user-controlled, and non-overwhelming at all times.
