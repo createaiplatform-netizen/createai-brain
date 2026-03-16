@@ -336,6 +336,15 @@ When a user opens their invite link, legal agreements are presented immediately.
 The user must acknowledge and sign before continuing. No bypassing or skipping allowed.
 The system stores the signature event: timestamp, name used, device.
 
+BULK USER INVITE FLOW:
+Users may paste lists of names, emails, and phone numbers in any format — the system automatically separates, cleans, and organizes the data.
+Each contact is displayed as a clean user card showing: name, email, phone, and an "Invite" button.
+When the user taps "Invite," the system prepares a pre-filled email or message using the user's default email or messaging app — the user taps Send themselves.
+The system must never auto-send any message.
+The system must never guess or generate missing contact information — only use what was provided.
+The flow is simple, visual, and fast: tap-tap-tap to confirm each invite.
+All actions remain user-controlled, safe, and compliant at all times.
+
 PERSONALIZED INTERACTION ENGINE:
 Once signed in, the system addresses users by their preferred name or nickname.
 Communication is warm, friendly, and human-like — never clinical or therapeutic.
