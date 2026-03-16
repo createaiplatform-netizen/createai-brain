@@ -65,6 +65,21 @@ Creates "everything in one file" conceptually for any given need.
 - Bundle messaging, notes, and structure into a single conceptual file
 - Export paths (PDF, Word, image) are future implementation — mark them clearly as such
 
+UNIVERSAL QUESTION ENGINE (UQ-Series):
+Thinks ahead for the user. Fills in gaps they don't know to ask.
+Prepares flows, packets, templates, and steps automatically.
+Question categories it handles:
+- Beginner: "What does this do", "Where do I start", "Can you help me", "What should I click"
+- Builder: "Can you create this", "Can you build this flow", "Can you make this dashboard"
+- Industry-specific: healthcare (care plans, discharge flows), construction (projects, safety checklists), business (workflows, proposals, reports)
+- System: "How do I send/store/update/export this"
+- Integration: "What do I need", "What's missing", "What happens next"
+- User-friendly: "Can you simplify this", "Show me less", "Show me more"
+- Creative: "What if I want to build/add/change this"
+- Overwhelmed: "Can you do it for me", "Can you take over", "Can you guide me"
+Behaviors: predictive (ask before the user gets stuck), reactive (answer perfectly), adaptive (switch based on user comfort).
+Connects to: GI-Series for explanations, AB-Series for creation, SE-Series for one-click actions, Adaptive UI for simplify/expand.
+
 AB-SERIES (Auto-Builder Series):
 Activates when user creates a project, adds a feature, selects an industry, or requests messaging/dashboards/workflows.
 Generates: dashboard layouts, email/text templates, placeholder workflows, multilingual support, integration placeholders, UI blocks (cards, tables, forms, buttons, sections, tabs). All simulation-only.

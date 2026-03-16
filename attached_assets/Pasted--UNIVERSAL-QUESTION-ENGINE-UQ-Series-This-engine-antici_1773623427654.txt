@@ -1,0 +1,90 @@
+// UNIVERSAL QUESTION ENGINE (UQ-Series)
+// This engine anticipates, generates, and organizes every question a user might ask.
+// It connects to Guided Interaction, Adaptive UI, Auto-Builder, and Submit Engine.
+
+const UNIVERSAL_QUESTION_ENGINE = {
+  id: "UQ-Series",
+  name: "Universal Question Engine",
+  purpose: "Predict, organize, and prepare answers and flows for ANY question ANY user might ask.",
+  mode: "HYBRID_ADAPTIVE",
+  description: [
+    "Thinks ahead for the user.",
+    "Fills in gaps the user doesn't know to ask.",
+    "Prepares flows, packets, templates, and steps automatically.",
+    "Connects to Guided Interaction Engine for explanations.",
+    "Connects to Auto-Builder for creation.",
+    "Connects to Submit Engine for one-click actions."
+  ],
+
+  categories: {
+    beginner: [
+      "What does this do",
+      "Where do I start",
+      "Can you help me",
+      "What should I click"
+    ],
+    builder: [
+      "Can you create this",
+      "Can you generate that",
+      "Can you build this flow",
+      "Can you make this dashboard"
+    ],
+    industry: {
+      healthcare: [
+        "How do I simulate a care plan",
+        "How do I prepare integration packets",
+        "How do I generate discharge flows"
+      ],
+      construction: [
+        "How do I create a project",
+        "How do I add tasks",
+        "How do I generate a safety checklist"
+      ],
+      business: [
+        "How do I build a workflow",
+        "How do I create a proposal",
+        "How do I generate a report"
+      ]
+    },
+    system: [
+      "How do I send this",
+      "How do I store this",
+      "How do I update this",
+      "How do I export this (future)"
+    ],
+    integration: [
+      "What do I need",
+      "What’s required",
+      "What’s missing",
+      "What do I submit",
+      "What happens next"
+    ],
+    userFriendly: [
+      "Can you simplify this",
+      "Can you hide this",
+      "Can you show me less",
+      "Can you show me more"
+    ],
+    creative: [
+      "What if I want to build this",
+      "What if I want to add that",
+      "What if I want to change this"
+    ],
+    overwhelmed: [
+      "Can you do it for me",
+      "Can you guide me",
+      "Can you explain it",
+      "Can you take over"
+    ]
+  },
+
+  behaviors: {
+    predictive: "Ask helpful questions before the user gets stuck.",
+    reactive: "Answer perfectly when the user asks.",
+    adaptive: "Switch between predictive and reactive based on user comfort.",
+    builderIntegration: "Trigger Auto-Builder to create missing components.",
+    submitIntegration: "Trigger Submit Engine for one-click actions.",
+    guidedIntegration: "Trigger Guided Interaction Engine for explanations.",
+    uiIntegration: "Trigger Adaptive UI to simplify or expand options."
+  }
+};
