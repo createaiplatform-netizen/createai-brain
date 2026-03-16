@@ -41,6 +41,7 @@ const USER_LIST = [
 ];
 
 export function AdminApp() {
+  const { appRegistry, openApp } = useOS();
   const [osMode, setOsMode] = useState<OsMode>("DEMO");
   const [activeSection, setActiveSection] = useState<string | null>(null);
   const [confirmLive, setConfirmLive] = useState(false);
@@ -119,6 +120,72 @@ export function AdminApp() {
     );
   }
 
+  if (activeSection === "projects") {
+    return (
+      <div className="p-6 space-y-4">
+        <button onClick={() => setActiveSection(null)} className="text-primary text-sm font-medium">‹ Admin</button>
+        <h2 className="text-xl font-bold text-foreground">All Projects (6)</h2>
+        <p className="text-[12px] text-muted-foreground">Overview of all registered projects in {osMode} mode.</p>
+        <div className="space-y-2">
+          {[
+            { name: "Healthcare System – Legal Safe", mode: "DEMO",   icon: "🏥", color: "#34C759" },
+            { name: "Healthcare System – Mach 1",    mode: "FUTURE", icon: "🔬", color: "#BF5AF2" },
+            { name: "Monetary System – Legal Safe",  mode: "DEMO",   icon: "💳", color: "#007AFF" },
+            { name: "Monetary System – Mach 1",      mode: "FUTURE", icon: "🚀", color: "#FF9500" },
+            { name: "Marketing Hub",                 mode: "DEMO",   icon: "📣", color: "#FF2D55" },
+            { name: "Operations Builder",            mode: "TEST",   icon: "🏗️", color: "#5856D6" },
+          ].map(p => (
+            <div key={p.name} className="flex items-center gap-3 p-3 bg-background rounded-xl border border-border/50">
+              <span className="text-xl">{p.icon}</span>
+              <span className="text-[13px] text-foreground font-medium flex-1">{p.name}</span>
+              <span className={`text-[10px] font-bold px-2 py-0.5 rounded-full flex-shrink-0 ${p.mode === "FUTURE" ? "bg-purple-100 text-purple-700" : p.mode === "TEST" ? "bg-orange-100 text-orange-700" : "bg-green-100 text-green-700"}`}>{p.mode}</span>
+            </div>
+          ))}
+        </div>
+        <button onClick={() => { setActiveSection(null); openApp("projects"); }}
+          className="w-full bg-primary text-white text-sm font-semibold py-2.5 rounded-xl hover:opacity-90 transition-opacity">
+          Open Projects App →
+        </button>
+      </div>
+    );
+  }
+
+  if (activeSection === "safety") {
+    return (
+      <div className="p-6 space-y-4">
+        <button onClick={() => setActiveSection(null)} className="text-primary text-sm font-medium">‹ Admin</button>
+        <h2 className="text-xl font-bold text-foreground">Safety Shell</h2>
+        <div className="bg-green-50 border border-green-200 rounded-2xl p-4">
+          <div className="flex items-center gap-2 mb-2">
+            <div className="w-2.5 h-2.5 rounded-full bg-green-500 animate-pulse" />
+            <p className="font-bold text-green-800 text-[14px]">Safety Shell: ACTIVE</p>
+          </div>
+          <p className="text-[12px] text-green-700">Global error prevention is active. All engines are within safe operating parameters.</p>
+        </div>
+        <div className="space-y-2">
+          {[
+            { name: "Fail-Safe Engine", desc: "Catches and recovers from all generation errors", status: "ON" },
+            { name: "Self-Check Engine", desc: "Validates all outputs before display", status: "ON" },
+            { name: "Zero-Overwhelm Mode", desc: "Reduces UI complexity on demand", status: "ON" },
+            { name: "Staging Engine", desc: "Requires approval before any external action", status: "ON" },
+            { name: "Legal Safety Layer", desc: "All outputs labeled mock/simulated", status: "ON" },
+            { name: "RBAC Access Control", desc: "Role-based permissions enforced", status: "ON" },
+          ].map(item => (
+            <div key={item.name} className="flex items-center gap-3 p-3 bg-background rounded-xl border border-border/50">
+              <div className="w-2 h-2 rounded-full bg-green-500 flex-shrink-0" />
+              <div className="flex-1 min-w-0">
+                <p className="font-semibold text-[12px] text-foreground">{item.name}</p>
+                <p className="text-[11px] text-muted-foreground">{item.desc}</p>
+              </div>
+              <span className="text-[10px] font-bold text-green-700 bg-green-100 px-2 py-0.5 rounded-full flex-shrink-0">{item.status}</span>
+            </div>
+          ))}
+        </div>
+        <p className="text-[10px] text-muted-foreground text-center">All safety systems are structural/mock only. Platform is in {osMode} mode.</p>
+      </div>
+    );
+  }
+
   if (activeSection === "security") {
     return (
       <div className="p-6 space-y-4">
@@ -161,8 +228,6 @@ export function AdminApp() {
       </div>
     );
   }
-
-  const { appRegistry } = useOS();
 
   // ── Main Admin view ──
   return (

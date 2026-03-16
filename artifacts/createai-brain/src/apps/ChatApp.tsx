@@ -26,6 +26,7 @@ const PROJECTS = [
 
 export function ChatApp() {
   const [currentProjectIndex, setCurrentProjectIndex] = useState(0);
+  const [showPicker, setShowPicker] = useState(false);
   const [inputMessage, setInputMessage] = useState("");
   const [activeConversationId, setActiveConversationId] = useState<number | null>(null);
   const [localSystemMessages, setLocalSystemMessages] = useState<Record<number, { id: number; content: string }[]>>({});
@@ -70,7 +71,10 @@ export function ChatApp() {
     });
   };
 
-  const cycleProject = () => setCurrentProjectIndex(prev => (prev + 1) % PROJECTS.length);
+  const selectProject = (index: number) => {
+    setCurrentProjectIndex(index);
+    setShowPicker(false);
+  };
 
   const handleSend = (e?: React.FormEvent) => {
     e?.preventDefault();
@@ -99,17 +103,39 @@ export function ChatApp() {
   return (
     <div className="flex flex-col h-full">
       {/* Project switcher bar */}
-      <div className="flex-none flex items-center justify-center py-2 border-b border-border/30 bg-background/50">
+      <div className="flex-none relative flex items-center justify-center py-2 border-b border-border/30 bg-background/50">
         <button
-          onClick={cycleProject}
+          onClick={() => setShowPicker(p => !p)}
           className="flex items-center gap-1.5 px-4 py-1.5 rounded-full hover:bg-muted active:bg-muted/80 transition-colors group"
         >
           <div className="w-5 h-5 rounded-full bg-primary/10 flex items-center justify-center text-primary">
             <Sparkles className="w-3 h-3" />
           </div>
           <span className="font-semibold text-[14px] tracking-tight text-foreground">{currentProject.name}</span>
-          <ChevronDown className="w-3.5 h-3.5 text-muted-foreground group-hover:text-foreground transition-colors" />
+          <ChevronDown className={`w-3.5 h-3.5 text-muted-foreground transition-all ${showPicker ? "rotate-180 text-primary" : "group-hover:text-foreground"}`} />
         </button>
+
+        {showPicker && (
+          <>
+            <div className="fixed inset-0 z-10" onClick={() => setShowPicker(false)} />
+            <div className="absolute top-full left-1/2 -translate-x-1/2 mt-1 z-20 w-72 bg-background border border-border/50 rounded-2xl shadow-xl overflow-hidden">
+              <div className="px-3 py-2 border-b border-border/30">
+                <p className="text-[11px] font-semibold text-muted-foreground uppercase tracking-wider">Switch Brain Context</p>
+              </div>
+              {PROJECTS.map((proj, i) => (
+                <button key={proj.name} onClick={() => selectProject(i)}
+                  className={`w-full flex items-start gap-3 px-4 py-3 text-left hover:bg-muted/50 transition-colors ${i === currentProjectIndex ? "bg-primary/5" : ""}`}>
+                  <div className={`w-2 h-2 rounded-full mt-1.5 flex-shrink-0 ${i === currentProjectIndex ? "bg-primary" : "bg-muted-foreground/30"}`} />
+                  <div className="flex-1 min-w-0">
+                    <p className={`text-[13px] font-semibold leading-tight ${i === currentProjectIndex ? "text-primary" : "text-foreground"}`}>{proj.name}</p>
+                    <p className="text-[11px] text-muted-foreground mt-0.5 leading-snug">{proj.description}</p>
+                  </div>
+                  {i === currentProjectIndex && <span className="text-primary text-xs font-bold flex-shrink-0 mt-0.5">✓</span>}
+                </button>
+              ))}
+            </div>
+          </>
+        )}
       </div>
 
       {/* Messages */}

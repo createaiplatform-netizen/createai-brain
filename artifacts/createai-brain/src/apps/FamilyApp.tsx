@@ -1,4 +1,5 @@
 import React, { useState } from "react";
+import { useOS } from "@/os/OSContext";
 
 type FamilyView = "home" | "projects" | "apps" | "documents" | "help";
 
@@ -16,10 +17,10 @@ const FAMILY_PROJECTS = [
 ];
 
 const FAMILY_APPS = [
-  { name: "AI Chat",    icon: "💬", desc: "Talk to the Brain" },
-  { name: "Documents",  icon: "📄", desc: "Your files" },
-  { name: "People",     icon: "👥", desc: "Contacts & invites" },
-  { name: "Create",     icon: "✨", desc: "Make anything" },
+  { name: "AI Chat",   icon: "💬", desc: "Talk to the Brain",    appId: "chat"      },
+  { name: "Documents", icon: "📄", desc: "Your files",           appId: "documents" },
+  { name: "People",    icon: "👥", desc: "Contacts & invites",   appId: "people"    },
+  { name: "Create",    icon: "✨", desc: "Make anything",        appId: "creator"   },
 ];
 
 const FAMILY_DOCS = [
@@ -29,6 +30,7 @@ const FAMILY_DOCS = [
 ];
 
 export function FamilyApp() {
+  const { openApp } = useOS();
   const [view, setView] = useState<FamilyView>("home");
   const [openFaq, setOpenFaq] = useState<number | null>(null);
   const [openDoc, setOpenDoc] = useState<string | null>(null);
@@ -40,16 +42,21 @@ export function FamilyApp() {
         <h2 className="text-xl font-bold text-foreground">My Projects</h2>
         <div className="space-y-3">
           {FAMILY_PROJECTS.map(p => (
-            <div key={p.name} className="flex items-center gap-4 p-4 bg-background rounded-2xl border border-border/50">
-              <span className="text-3xl">{p.icon}</span>
+            <button key={p.name} onClick={() => openApp("projects")}
+              className="w-full flex items-center gap-4 p-4 bg-background rounded-2xl border border-border/50 hover:border-primary/20 hover:shadow-sm transition-all text-left group">
+              <span className="text-3xl group-hover:scale-110 transition-transform">{p.icon}</span>
               <div className="flex-1">
                 <p className="font-semibold text-[14px] text-foreground">{p.name}</p>
                 <p className="text-[12px] text-muted-foreground">{p.desc}</p>
               </div>
               <span className="text-[10px] bg-green-100 text-green-700 font-bold px-2 py-0.5 rounded-full">{p.status}</span>
-            </div>
+            </button>
           ))}
         </div>
+        <button onClick={() => openApp("projects")}
+          className="w-full bg-primary text-white text-sm font-semibold py-2.5 rounded-xl hover:opacity-90 transition-opacity">
+          Open Projects App →
+        </button>
         <div className="bg-blue-50 border border-blue-200 rounded-xl p-3">
           <p className="text-[12px] text-blue-700">New projects are created from the Projects app. Ask AI Chat to help you set one up!</p>
         </div>
@@ -64,15 +71,16 @@ export function FamilyApp() {
         <h2 className="text-xl font-bold text-foreground">My Apps</h2>
         <div className="grid grid-cols-2 gap-3">
           {FAMILY_APPS.map(app => (
-            <div key={app.name} className="flex flex-col items-center gap-2 p-5 bg-background rounded-2xl border border-border/50 text-center">
-              <span className="text-3xl">{app.icon}</span>
+            <button key={app.name} onClick={() => openApp(app.appId)}
+              className="flex flex-col items-center gap-2 p-5 bg-background rounded-2xl border border-border/50 text-center hover:border-primary/30 hover:shadow-sm transition-all group">
+              <span className="text-3xl group-hover:scale-110 transition-transform">{app.icon}</span>
               <p className="font-semibold text-[13px] text-foreground">{app.name}</p>
               <p className="text-[11px] text-muted-foreground">{app.desc}</p>
-              <span className="text-[10px] text-primary font-medium">Open from sidebar →</span>
-            </div>
+              <span className="text-[10px] text-primary font-semibold">Open →</span>
+            </button>
           ))}
         </div>
-        <p className="text-[11px] text-muted-foreground text-center">All apps are accessible from the sidebar on the left.</p>
+        <p className="text-[11px] text-muted-foreground text-center">Tap any app to open it now.</p>
       </div>
     );
   }
