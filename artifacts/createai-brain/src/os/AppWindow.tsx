@@ -12,6 +12,7 @@ import { FamilyApp } from "@/Apps/FamilyApp";
 import { IntegrationApp } from "@/Apps/IntegrationApp";
 import { MonetizationApp } from "@/Apps/MonetizationApp";
 import { UniversalApp } from "@/Apps/UniversalApp";
+import { SimulationApp } from "@/Apps/SimulationApp";
 import type { AppId } from "./OSContext";
 
 const APP_LABELS: Record<AppId, string> = {
@@ -26,6 +27,7 @@ const APP_LABELS: Record<AppId, string> = {
   family:       "Family",
   integration:  "Integration",
   monetization: "Monetization",
+  simulation:   "Simulate",
   universal:    "Universal",
 };
 
@@ -41,6 +43,7 @@ const APP_ICONS: Record<AppId, string> = {
   family:       "🏡",
   integration:  "🔗",
   monetization: "💰",
+  simulation:   "🧪",
   universal:    "🌐",
 };
 
@@ -56,6 +59,7 @@ const APP_COMPONENTS: Record<AppId, React.ComponentType<any>> = {
   family:       FamilyApp,
   integration:  IntegrationApp,
   monetization: MonetizationApp,
+  simulation:   SimulationApp,
   universal:    UniversalApp,
 };
 

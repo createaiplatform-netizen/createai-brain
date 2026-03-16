@@ -1,0 +1,17 @@
+Take this entire project to the highest possible ceiling across every file, page, component, mode, and feature. Apply a world-class, futuristic, fully unified design and functionality layer across the entire platform. Upgrade EVERYTHING: UI, UX, logic, multimedia, AI agent, forms, demos, tests, dashboards, animations, layouts, interactions, and all supporting components. Nothing should remain basic or unfinished.
+
+Refactor the entire codebase end-to-end. Clean structure, remove dead code, standardize patterns, and ensure every part of the platform feels like one seamless, premium, next-generation product. Every screen, form, panel, modal, card, and workflow must look and behave like a billion-dollar system.
+
+Add full multimedia capability everywhere: video players with sound, volume control, seeking, fullscreen, and responsive behavior; audio players with full controls; animated components; cinematic transitions; layered depth; glowing accents; intelligent motion; and a unified futuristic dark theme.
+
+Create a fully interactive, always-available AI Agent component that looks alive, premium, and modern. Include avatar, status, subtle motion, and a chat interface with history, structured outputs, and long-form reasoning. Mount it globally so it is accessible from every major screen. Wire it to the existing backend/AI endpoint used by this project.
+
+Upgrade all demos, tests, and interactive modes to world-class experiences. Add 10-minute stress tests, deep 1-hour simulations, workflow analysis, gap detection, money-saving logic, creative generation, storytelling, advertising, and structured output modes. Ensure every demo/test feels complete, cinematic, and “holy shit” impressive.
+
+Ensure all buttons, forms, inputs, and flows are fully functional. No dead ends, no placeholders, no broken interactions. If a backend feature cannot be fully implemented, create a realistic simulation mode with clear labels but still deliver a complete experience.
+
+Support every safe domain at the highest ceiling: business, operations, workflows, creative, multimedia, storytelling, ads, simulations, analysis, and idea expansion. Always find a safe, legal path around constraints so the experience never feels blocked or limited.
+
+Never provide medical or mental-health advice, diagnoses, or treatment instructions. For those topics, show a gentle message encouraging users to talk to trusted people or professionals. For everything else, remove all creative and experiential limits and push to the absolute maximum.
+
+Deliver a fully upgraded, fully functional, futuristic, world-class platform where every screen, every component, every interaction, and every experience feels impossibly advanced and completely unique.

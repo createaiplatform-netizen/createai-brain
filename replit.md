@@ -233,7 +233,10 @@ Full-stack AI OS platform — "CreateAI Brain" by Sara Stadler. React + Vite + W
   - Mobile-responsive: hamburger overlay nav on narrow screens
   - All screens show MockOnlyBanner — internal demo disclaimer
 - App.tsx: InteractionProvider wraps OSProvider — context available in ALL apps
-- OSContext.tsx: `AppId` includes "universal"; DEFAULT_APPS has Universal entry
+- OSContext.tsx: `AppId` includes "universal" and "simulation"; DEFAULT_APPS has both entries
+- SimulationApp.tsx: New app with 3 tabs — Simulate (12 domains), Gap Analyze, Ad Packets (human approval required)
+- API: `/api/openai/simulate` (universal simulation engine) and `/api/openai/ad-gen` (advertising packet generator) added
+- ToolsApp: Organized into 4 sections — Build (15 tools), Simulate (8 tools), Advertise (6 tools), Custom; routes to correct endpoint per section
 - osLayout.tsx: `APP_COMPONENTS["universal"]` = UniversalApp
 
 **Internal Connection Layer (complete) — `ConnectionEngine.ts`:**

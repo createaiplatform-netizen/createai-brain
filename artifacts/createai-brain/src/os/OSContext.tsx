@@ -5,7 +5,7 @@ import { PlatformStore, PlatformMode } from "@/engine/PlatformStore";
 export type AppId =
   | "chat" | "projects" | "tools" | "creator" | "people"
   | "documents" | "marketing" | "admin" | "family"
-  | "integration" | "monetization" | "universal";
+  | "integration" | "monetization" | "universal" | "simulation";
 
 export interface AppDef {
   id: AppId;
@@ -29,6 +29,7 @@ export const DEFAULT_APPS: AppDef[] = [
   { id: "family",       label: "Family",      icon: "🏡", color: "#30B0C7", description: "Family-friendly simplified view",             category: "system" },
   { id: "integration",  label: "Integration", icon: "🔌", color: "#BF5AF2", description: "Connect & map existing tools",                category: "system" },
   { id: "monetization", label: "Monetize",    icon: "💰", color: "#FFD60A", description: "Storefront, plans & earnings",                category: "business" },
+  { id: "simulation",   label: "Simulate",    icon: "🧪", color: "#a855f7", description: "Simulations, gap analysis & ad packets",       category: "tools" },
   { id: "universal",    label: "Universal",   icon: "🌐", color: "#007AFF", description: "Universal interaction hub — all flows wired", category: "system" },
 ];
 
@@ -65,6 +66,7 @@ const INTENT_MAP: { keywords: string[]; target: AppId }[] = [
   { keywords: ["create", "generate", "build", "make", "write"],           target: "creator" },
   { keywords: ["project", "workspace", "healthcare", "medical"],          target: "projects" },
   { keywords: ["tool", "brochure", "document", "page", "generator"],      target: "tools" },
+  { keywords: ["simulate", "simulation", "analyze", "gap", "scenario", "stress", "ad packet", "advertising"], target: "simulation" },
   { keywords: ["marketing", "campaign", "brand", "social", "email"],      target: "marketing" },
   { keywords: ["people", "contact", "invite", "person"],                  target: "people" },
   { keywords: ["file", "doc", "document"],                                 target: "documents" },
@@ -95,6 +97,7 @@ const APP_META: Record<AppId, { icon: string; label: string }> = {
   family:       { icon: "🏡", label: "Family" },
   integration:  { icon: "🔌", label: "Integration" },
   monetization: { icon: "💰", label: "Monetize" },
+  simulation:   { icon: "🧪", label: "Simulate" },
   universal:    { icon: "🌐", label: "Universal" },
 };
 

@@ -5,7 +5,7 @@ import { PlatformStore, RecentActivity, PlatformMode } from "@/engine/PlatformSt
 const QUICK_ACTIONS = [
   { icon: "✨", label: "Create Anything", sub: "Docs, content, apps",   app: "creator"    as AppId, color: "#6366f1" },
   { icon: "💬", label: "Open Chat",       sub: "Talk to the Brain",     app: "chat"       as AppId, color: "#22d3ee" },
-  { icon: "📁", label: "New Project",     sub: "Start a system",        app: "projects"   as AppId, color: "#34d399" },
+  { icon: "🧪", label: "Simulate",        sub: "Analyze & ad packets",  app: "simulation" as AppId, color: "#a855f7" },
   { icon: "📣", label: "Marketing",       sub: "Campaigns & content",   app: "marketing"  as AppId, color: "#f472b6" },
 ];
 
@@ -23,13 +23,15 @@ const MODE_CFG: Record<PlatformMode, { label: string; color: string; dot: string
 };
 
 const INTENT_SUGGESTIONS = [
+  "Simulate a business model",
   "Generate a marketing brochure",
-  "Open the Healthcare project",
+  "Run a gap analysis on my workflow",
   "Create a landing page funnel",
-  "Chat with the Brain",
-  "Show me revenue stats",
+  "Generate an ad packet for my idea",
   "Build a content calendar",
+  "Chat with the Brain",
   "Write a pitch deck",
+  "Analyze a software architecture",
   "Create an email sequence",
 ];
 

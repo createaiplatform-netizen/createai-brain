@@ -2,20 +2,56 @@ import React, { useState, useRef } from "react";
 import { useOS } from "@/os/OSContext";
 import { OutputFormatter } from "@/components/OutputFormatter";
 
-const TOOLS = [
-  { name: "Brochure Builder",       icon: "📋", color: "#007AFF", desc: "Professional brochures for any service or product", type: "Document" },
-  { name: "Document Creator",       icon: "📄", color: "#34C759", desc: "Proposals, reports, summaries, SOPs", type: "Document" },
-  { name: "Page Generator",         icon: "🖼️", color: "#FF9500", desc: "Landing pages, about pages, feature pages", type: "Page" },
-  { name: "App Layout Generator",   icon: "📱", color: "#BF5AF2", desc: "App screens, navigation flows, UI labels", type: "UI Component" },
-  { name: "Email Sequence Builder", icon: "📧", color: "#FF2D55", desc: "Outreach, follow-up, re-engage sequences", type: "Template" },
-  { name: "FAQ Generator",          icon: "❓", color: "#30B0C7", desc: "Full FAQ section for any topic or product", type: "Content Block" },
-  { name: "SOP Builder",            icon: "📑", color: "#5856D6", desc: "Standard operating procedures for any process", type: "Procedure" },
-  { name: "Pricing Page Builder",   icon: "💲", color: "#FF9500", desc: "Plans, tiers, value props, and CTAs", type: "Page" },
-  { name: "Training Module Creator",icon: "🎓", color: "#34C759", desc: "Structured learning content and curricula", type: "Training Module" },
-  { name: "Checklist Generator",    icon: "✅", color: "#007AFF", desc: "Task, safety, onboarding, and verification checklists", type: "Checklist" },
-  { name: "Mock Data Generator",    icon: "🗃️", color: "#636366", desc: "Sample datasets, placeholder records, demo tables", type: "Mock Data" },
-  { name: "Custom Tool",            icon: "✨", color: "#FF2D55", desc: "Describe any tool — the Brain builds it", type: "Custom" },
+interface ToolDef {
+  name: string; icon: string; color: string; desc: string; type: string; section: string;
+}
+
+const TOOLS: ToolDef[] = [
+  // ── BUILD ───────────────────────────────────────────────────────────────
+  { name: "Brochure Builder",         icon: "📋", color: "#007AFF", desc: "Professional brochures for any service or product",           type: "Document",         section: "Build" },
+  { name: "Document Creator",         icon: "📄", color: "#34C759", desc: "Proposals, reports, summaries, SOPs",                         type: "Document",         section: "Build" },
+  { name: "Page Generator",           icon: "🖼️", color: "#FF9500", desc: "Landing pages, about pages, feature pages",                  type: "Page",             section: "Build" },
+  { name: "App Layout Generator",     icon: "📱", color: "#BF5AF2", desc: "App screens, navigation flows, UI labels",                    type: "UI Component",     section: "Build" },
+  { name: "Email Sequence Builder",   icon: "📧", color: "#FF2D55", desc: "Outreach, follow-up, re-engage sequences",                    type: "Template",         section: "Build" },
+  { name: "FAQ Generator",            icon: "❓", color: "#30B0C7", desc: "Full FAQ section for any topic or product",                   type: "Content Block",    section: "Build" },
+  { name: "SOP Builder",              icon: "📑", color: "#5856D6", desc: "Standard operating procedures for any process",               type: "Procedure",        section: "Build" },
+  { name: "Pricing Page Builder",     icon: "💲", color: "#FF9500", desc: "Plans, tiers, value props, and CTAs",                        type: "Page",             section: "Build" },
+  { name: "Training Module Creator",  icon: "🎓", color: "#34C759", desc: "Structured learning content and curricula",                   type: "Training Module",  section: "Build" },
+  { name: "Checklist Generator",      icon: "✅", color: "#007AFF", desc: "Task, safety, onboarding, and verification checklists",       type: "Checklist",        section: "Build" },
+  { name: "Pitch Deck Outliner",      icon: "🎯", color: "#FF2D55", desc: "Slide-by-slide pitch deck outline and script",                type: "Presentation",     section: "Build" },
+  { name: "Business Plan Generator",  icon: "🏢", color: "#5856D6", desc: "Executive summary, market analysis, ops & financials plan",   type: "Business Plan",    section: "Build" },
+  { name: "Job Description Builder",  icon: "👤", color: "#34C759", desc: "Role summaries, requirements, culture fit, and CTA",          type: "HR Document",      section: "Build" },
+  { name: "Grant Proposal Writer",    icon: "💼", color: "#007AFF", desc: "Structured grant proposals for nonprofits, research & orgs",   type: "Proposal",         section: "Build" },
+  { name: "Mock Data Generator",      icon: "🗃️", color: "#636366", desc: "Sample datasets, placeholder records, demo tables",           type: "Mock Data",        section: "Build" },
+  // ── SIMULATE & ANALYZE ──────────────────────────────────────────────────
+  { name: "Business Logic Analyzer",  icon: "🏢", color: "#a855f7", desc: "Revenue model, org structure, competitive position analysis", type: "Analysis",         section: "Simulate" },
+  { name: "Workflow Gap Checker",     icon: "🔄", color: "#a855f7", desc: "Identify missing steps, bottlenecks & inefficiencies",        type: "Gap Analysis",     section: "Simulate" },
+  { name: "Product Logic Simulator",  icon: "📦", color: "#a855f7", desc: "Feature trade-offs, user journey, value prop stress test",    type: "Simulation",       section: "Simulate" },
+  { name: "Financial Scenario Model", icon: "📊", color: "#a855f7", desc: "Conceptual revenue, cost, and unit economics scenarios",       type: "Financial Model",  section: "Simulate" },
+  { name: "Tech Stack Evaluator",     icon: "💻", color: "#a855f7", desc: "Architecture trade-offs, scalability, integration complexity", type: "Tech Analysis",    section: "Simulate" },
+  { name: "Market Landscape Mapper",  icon: "🌐", color: "#a855f7", desc: "Competitive landscape, positioning gaps, market dynamics",     type: "Intelligence",     section: "Simulate" },
+  { name: "Risk & Scenario Planner",  icon: "⚡", color: "#a855f7", desc: "What-if analysis, risk modeling, disruption simulation",      type: "Scenario Plan",    section: "Simulate" },
+  { name: "Operations Audit",         icon: "⚙️", color: "#a855f7", desc: "Process quality, capacity, SOP gaps, team structure review",  type: "Ops Audit",        section: "Simulate" },
+  // ── ADVERTISE ───────────────────────────────────────────────────────────
+  { name: "Ad Copy Suite",            icon: "📣", color: "#f472b6", desc: "Headlines, body copy, CTAs, Google & social ads",             type: "Advertising",      section: "Advertise" },
+  { name: "Social Media Pack",        icon: "📱", color: "#f472b6", desc: "Platform-aware captions for Instagram, LinkedIn, TikTok",     type: "Social Content",   section: "Advertise" },
+  { name: "Landing Page Copy",        icon: "🖼️", color: "#f472b6", desc: "Hero, features, proof, CTA & footer — complete copy",        type: "Page Copy",        section: "Advertise" },
+  { name: "Email Campaign Builder",   icon: "📧", color: "#f472b6", desc: "Welcome, nurture, promo & re-engagement email sequences",      type: "Email Campaign",   section: "Advertise" },
+  { name: "Brand Positioning Kit",    icon: "🎯", color: "#f472b6", desc: "Taglines, value props, voice guide, audience profile",        type: "Brand Kit",        section: "Advertise" },
+  { name: "Launch Sequence Planner",  icon: "🚀", color: "#f472b6", desc: "Pre-launch, launch day & post-launch action sequence",        type: "Launch Plan",      section: "Advertise" },
+  // ── CUSTOM ──────────────────────────────────────────────────────────────
+  { name: "Custom Tool",              icon: "✨", color: "#FF2D55", desc: "Describe any tool — the Brain builds it",                     type: "Custom",           section: "Custom" },
 ];
+
+const TOOL_SECTIONS = ["Build", "Simulate", "Advertise", "Custom"] as const;
+type ToolSection = typeof TOOL_SECTIONS[number];
+
+const SECTION_META: Record<ToolSection, { color: string; icon: string; note?: string }> = {
+  Build:      { color: "#007AFF", icon: "🔨" },
+  Simulate:   { color: "#a855f7", icon: "🧪", note: "All simulations are conceptual & fictional" },
+  Advertise:  { color: "#f472b6", icon: "📣", note: "Staged for human review — not published automatically" },
+  Custom:     { color: "#FF2D55", icon: "✨" },
+};
 
 interface ToolOutput { id: string; toolName: string; prompt: string; content: string; at: Date; }
 
@@ -43,14 +79,22 @@ export function ToolsApp() {
     abortRef.current = controller;
 
     try {
-      const res = await fetch("/api/openai/generate", {
+      // Route to the correct endpoint based on tool section
+      let url = "/api/openai/generate";
+      let body: Record<string, unknown> = { type: tool.type, description: `Using the ${tool.name}: ${input}`, tone: preferences.tone };
+
+      if (tool.section === "Simulate") {
+        url = "/api/openai/simulate";
+        body = { domain: tool.name, scenario: input, depth: "full" };
+      } else if (tool.section === "Advertise") {
+        url = "/api/openai/ad-gen";
+        body = { idea: input, tone: preferences.tone };
+      }
+
+      const res = await fetch(url, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({
-          type: tool.type,
-          description: `Using the ${tool.name}: ${input}`,
-          tone: preferences.tone,
-        }),
+        body: JSON.stringify(body),
         signal: controller.signal,
       });
 
@@ -259,11 +303,17 @@ export function ToolsApp() {
 
   // ── Tool form ──
   if (active && tool) {
+    const isSimulate  = tool.section === "Simulate";
+    const isAdvertise = tool.section === "Advertise";
+    const formLabel   = isSimulate ? "What would you like to simulate or analyze?" : isAdvertise ? "What would you like to advertise?" : "What would you like to create?";
+    const btnLabel    = isSimulate ? `Run ${tool.name} →` : isAdvertise ? `Generate Ad Content →` : `Generate with ${tool.name} →`;
+    const btnStyle    = isSimulate ? { background: "linear-gradient(135deg,#9333ea,#7c3aed)" } : isAdvertise ? { background: "linear-gradient(135deg,#db2777,#e11d48)" } : undefined;
+
     return (
       <div className="p-6 space-y-5 animate-fade-up">
         <button onClick={() => { setActive(null); setInput(""); setView("grid"); }}
           className="flex items-center gap-1.5 text-[13px] font-medium hover:opacity-70 transition-opacity"
-          style={{ color: "#818cf8" }}>
+          style={{ color: tool.color }}>
           <span className="text-[18px] font-light">‹</span> Tools
         </button>
 
@@ -277,30 +327,51 @@ export function ToolsApp() {
           </div>
         </div>
 
+        {isSimulate && (
+          <div className="p-3 rounded-xl flex items-start gap-2"
+            style={{ background: "rgba(168,85,247,0.08)", border: "1px solid rgba(168,85,247,0.18)" }}>
+            <span className="text-sm flex-shrink-0">🧪</span>
+            <p className="text-[11px] font-medium" style={{ color: "rgba(192,132,252,0.90)" }}>
+              All simulations are conceptual and fictional only — for analysis and planning exploration. No real decisions, clinical advice, or legal guidance.
+            </p>
+          </div>
+        )}
+
+        {isAdvertise && (
+          <div className="p-3 rounded-xl flex items-start gap-2"
+            style={{ background: "rgba(251,191,36,0.07)", border: "1px solid rgba(251,191,36,0.18)" }}>
+            <span className="text-sm flex-shrink-0">⚠️</span>
+            <p className="text-[11px] font-medium" style={{ color: "rgba(251,191,36,0.90)" }}>
+              Staged for human review — generated content is never published automatically. Founder or team approval required before any real-world use.
+            </p>
+          </div>
+        )}
+
         <div className="space-y-4">
           <div>
-            <label className="text-[13px] font-semibold text-foreground block mb-2">
-              What would you like to create?
-            </label>
+            <label className="text-[13px] font-semibold text-foreground block mb-2">{formLabel}</label>
             <textarea
               value={input}
               onChange={e => setInput(e.target.value)}
-              placeholder={`e.g. A ${tool.name.toLowerCase()} for a horse boarding facility in rural Minnesota…`}
+              placeholder={isSimulate ? `Describe the scenario, system, or concept to analyze…` : isAdvertise ? `Describe what you want to advertise — product, service, idea, or project…` : `e.g. A ${tool.name.toLowerCase()} for a horse boarding facility in rural Minnesota…`}
               className="w-full rounded-xl p-4 text-[13px] text-foreground placeholder:text-muted-foreground resize-none outline-none transition-all leading-relaxed input-premium"
               style={{ background: "rgba(14,18,42,0.70)", border: "1px solid rgba(255,255,255,0.10)" }}
               rows={4}
               autoFocus
             />
           </div>
-          <p className="text-[11px] text-muted-foreground">
-            Tone: <strong className="text-foreground/70">{preferences.tone}</strong> · Language: <strong className="text-foreground/70">{preferences.language}</strong>
-          </p>
+          {!isSimulate && (
+            <p className="text-[11px] text-muted-foreground">
+              Tone: <strong className="text-foreground/70">{preferences.tone}</strong> · Language: <strong className="text-foreground/70">{preferences.language}</strong>
+            </p>
+          )}
           <button
             onClick={handleGenerate}
             disabled={!input.trim()}
             className="w-full text-white text-[14px] font-semibold py-3 rounded-xl disabled:opacity-40 transition-all btn-primary"
+            style={btnStyle}
           >
-            Generate with {tool.name} →
+            {btnLabel}
           </button>
         </div>
       </div>
@@ -309,11 +380,11 @@ export function ToolsApp() {
 
   // ── Tool grid ──
   return (
-    <div className="p-6 space-y-5 animate-fade-up">
+    <div className="p-5 space-y-6 animate-fade-up">
       <div className="flex items-start justify-between gap-3">
         <div>
           <h2 className="text-[20px] font-bold text-foreground" style={{ letterSpacing: "-0.03em" }}>Tools</h2>
-          <p className="text-[12px] text-muted-foreground mt-0.5">Pick a tool, describe your need, get it built instantly.</p>
+          <p className="text-[12px] text-muted-foreground mt-0.5">Build, simulate, and advertise — any safe idea, any industry</p>
         </div>
         <button onClick={() => setView("history")}
           className="flex items-center gap-1.5 text-[12px] text-muted-foreground rounded-xl px-3 py-2 flex-shrink-0 transition-all"
@@ -324,28 +395,47 @@ export function ToolsApp() {
           <span>History{history.length > 0 ? ` (${history.length})` : ""}</span>
         </button>
       </div>
-      <div className="grid grid-cols-1 gap-2">
-        {TOOLS.map((t, i) => (
-          <button
-            key={t.name}
-            onClick={() => { setActive(t.name); setInput(""); setView("grid"); }}
-            className={`flex items-center gap-4 p-4 rounded-2xl text-left group card-interactive animate-fade-up delay-${Math.min(i * 40, 400)}`}
-            style={{ background: "rgba(14,18,42,0.70)", border: "1px solid rgba(255,255,255,0.07)" }}
-          >
-            <div
-              className="w-12 h-12 rounded-2xl flex items-center justify-center text-2xl flex-shrink-0 group-hover:scale-110 transition-transform duration-200"
-              style={{ backgroundColor: t.color + "22", border: `1px solid ${t.color}28` }}
-            >
-              {t.icon}
+
+      {TOOL_SECTIONS.map(section => {
+        const sectionTools = TOOLS.filter(t => t.section === section);
+        const meta = SECTION_META[section];
+        return (
+          <div key={section} className="space-y-2">
+            <div className="flex items-center gap-2">
+              <span className="text-base">{meta.icon}</span>
+              <p className="text-[13px] font-bold text-foreground">{section}</p>
+              {meta.note && (
+                <span className="text-[10px] font-medium px-2 py-0.5 rounded-full"
+                  style={{ background: meta.color + "14", color: meta.color, border: `1px solid ${meta.color}28` }}>
+                  {meta.note}
+                </span>
+              )}
             </div>
-            <div className="flex-1 min-w-0">
-              <p className="font-semibold text-[14px] text-foreground">{t.name}</p>
-              <p className="text-[12px] text-muted-foreground mt-0.5 leading-snug">{t.desc}</p>
+            <div className="grid grid-cols-1 gap-1.5">
+              {sectionTools.map((t, i) => (
+                <button
+                  key={t.name}
+                  onClick={() => { setActive(t.name); setInput(""); setView("grid"); }}
+                  className={`flex items-center gap-3.5 p-3.5 rounded-xl text-left group card-interactive animate-fade-up delay-${Math.min(i * 30, 300)}`}
+                  style={{ background: "rgba(14,18,42,0.70)", border: "1px solid rgba(255,255,255,0.07)" }}
+                >
+                  <div
+                    className="w-10 h-10 rounded-xl flex items-center justify-center text-xl flex-shrink-0 group-hover:scale-110 transition-transform duration-200"
+                    style={{ backgroundColor: t.color + "1A", border: `1px solid ${t.color}25` }}
+                  >
+                    {t.icon}
+                  </div>
+                  <div className="flex-1 min-w-0">
+                    <p className="font-semibold text-[13px] text-foreground">{t.name}</p>
+                    <p className="text-[11px] text-muted-foreground mt-0.5 leading-snug">{t.desc}</p>
+                  </div>
+                  <span className="text-muted-foreground text-xs flex-shrink-0 opacity-40 group-hover:opacity-80 transition-opacity">→</span>
+                </button>
+              ))}
             </div>
-            <span className="text-muted-foreground text-xs flex-shrink-0 opacity-40 group-hover:opacity-80 transition-opacity">→</span>
-          </button>
-        ))}
-      </div>
+          </div>
+        );
+      })}
     </div>
   );
 }

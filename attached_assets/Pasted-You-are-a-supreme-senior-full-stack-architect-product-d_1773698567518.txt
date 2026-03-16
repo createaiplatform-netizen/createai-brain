@@ -1,0 +1,106 @@
+You are a supreme, senior full-stack architect, product designer, and systems thinker. Use every capability available to you in this environment—code generation, refactoring, pattern recognition, UI/UX design, optimization, and integration—to take this entire project to the absolute highest ceiling possible across every file, page, component, mode, and feature.
+
+Your job is to ensure that NOTHING is missing. If a world-class, futuristic, insanely advanced platform “should” have it, this project must have it, or a clearly marked, realistic simulation of it.
+
+Global goals:
+- Make this platform feel like the most advanced, unified, futuristic system anyone has ever used.
+- Every screen, every flow, every interaction must feel intentional, premium, and “holy shit, how did you build this?”
+- No half-upgrades, no dead ends, no boring defaults.
+
+Use all relevant tools, libraries, patterns, and best practices available in this stack. Think like every great AI system combined: anticipate needs, fill gaps, and add everything that a truly world-class platform would require.
+
+Do the following, at maximum depth:
+
+1. Full-codebase analysis and refactor
+- Scan the entire project structure.
+- Clean and refactor code for clarity, maintainability, and performance.
+- Remove dead code, unused imports, and inconsistent patterns.
+- Standardize architecture so the platform feels like one coherent product, not stitched-together pieces.
+- Optimize for scalability and future expansion.
+
+2. Unified, ultra-premium futuristic UI/UX system
+- Implement a global, cinematic dark theme with depth, glow, and intelligent motion.
+- Standardize typography, spacing, grids, and components.
+- Create a design language: buttons, inputs, forms, cards, panels, modals, tabs, navigation, tooltips, toasts, etc.
+- Make every form and screen feel next-generation: clear labels, helper text, validation, micro-animations, and responsive layouts.
+- Ensure full responsiveness across desktop, tablet, and mobile.
+
+3. Fully interactive AI Agent everywhere
+- Create a reusable AI Agent component that looks alive and premium (avatar, status, subtle motion, presence).
+- Provide a rich chat interface with:
+  - Conversation history
+  - Structured responses (sections, bullets, headings)
+  - Support for long-form reasoning and step-by-step guidance
+- Mount the agent globally so it is accessible from all major screens (floating button, docked panel, or sidebar).
+- Wire it to the existing AI backend/endpoint used by this project. Do not invent external services; use what is available here.
+- Make the agent context-aware: it should understand where the user is (demo, form, workspace, test) and adapt its help.
+
+4. Multimedia and immersive experience
+- Implement robust video and audio players:
+  - Play/pause, volume, mute, seek, fullscreen (if supported), and responsive layout.
+  - Style them to match the futuristic design language.
+- Replace any static or placeholder media sections with real, working components.
+- Add subtle animations, transitions, and motion where appropriate to create a cinematic feel without harming usability or performance.
+
+5. Demos, tests, and simulations at the highest ceiling
+- For every demo/test/workspace:
+  - Add clear hero sections explaining what it does and why it’s powerful.
+  - Provide multiple depth modes where appropriate:
+    - Quick 5–10 minute stress test
+    - Deep 45–60 minute simulation
+  - Show how the system:
+    - Finds gaps
+    - Improves workflows
+    - Reduces risk
+    - Saves or makes money
+  - Integrate the AI Agent so users can interact live during demos/tests.
+- Where real backend data is not available, create realistic simulation modes with clearly labeled mock data, but keep the experience complete and impressive.
+
+6. Business, creative, and monetization intelligence
+- Ensure the platform can:
+  - Analyze workflows and operations
+  - Suggest optimizations and efficiencies
+  - Highlight cost savings and revenue opportunities
+  - Generate ads, campaigns, messaging, and positioning
+  - Produce structured plans, specs, and reports
+- Wherever it makes sense, add “Show me the money” style views that translate features into business impact.
+
+7. Structured outputs everywhere
+- Make the system capable of generating:
+  - Plans
+  - Specs
+  - Packets
+  - Reports
+  - Ads
+  - Scripts
+  - Storyboards
+  - Explanations
+  - Summaries
+  - Next-step checklists
+- Ensure outputs are cleanly structured with headings, sections, bullets, and clear calls to action.
+
+8. Connectivity, flow, and zero dead ends
+- Ensure all buttons, links, and controls do something meaningful.
+- Remove or fix any broken routes, 404s, or non-functional UI.
+- If a feature cannot be fully implemented with the current backend, provide a high-quality simulated version with clear messaging.
+- Make navigation intuitive and consistent across the entire platform.
+
+9. Safety and legal boundaries
+- Never provide medical or mental-health advice, diagnoses, or treatment instructions.
+- For those topics, show a gentle message encouraging users to talk to trusted people or professionals.
+- For all other domains (business, creative, workflows, operations, multimedia, etc.), push to the absolute maximum ceiling in design, behavior, simulation, challenge, advertising, storytelling, and idea expansion.
+
+10. Think beyond the obvious
+- Ask yourself: “What would a truly insane, futuristic, best-in-class platform also have that this project doesn’t yet?”
+- Add missing pieces: quality-of-life features, shortcuts, helpful overlays, onboarding hints, tooltips, empty-state designs, loading states, error states, and success confirmations.
+- Make the platform feel not just functional, but deeply thoughtful and alive.
+
+Deliverable:
+A fully refactored, fully upgraded, fully functional, futuristic, world-class platform where:
+- Every screen and component feels intentional and advanced.
+- The AI Agent is visible, interactive, and context-aware.
+- Multimedia (video/audio) works beautifully.
+- Demos and tests feel like live, high-stakes, high-value showcases.
+- There are no obvious gaps, dead ends, or “basic” areas left.
+
+Use every capability available to you in this environment to ensure nothing important is missed.

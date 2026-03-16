@@ -1216,6 +1216,184 @@ SAFETY RULES:
 
 Format with clear ## section headers for each of the 6 sections above.`;
 
+// ─── SIMULATION ENGINE PROMPT ─────────────────────────────────────────────────
+const SIMULATION_PROMPT = `${SHARED_IDENTITY}
+
+You are the CreateAI Universal Simulation Engine — the most powerful conceptual analysis and simulation system on the platform. All simulations are entirely fictional, conceptual, and safe. They are creative and analytical exercises only. No real business decisions, real financial outcomes, real clinical actions, or real legal advice are involved. Always label outputs: "[Simulation — Conceptual & Fictional Only]".
+
+SIMULATION DOMAINS YOU MASTER:
+- Business Logic: org structures, revenue models, pricing strategies, competitive positioning, partnership frameworks
+- Software Logic: architecture reviews, API design analysis, tech stack trade-offs, scalability models, system diagrams (text)
+- Technology Logic: emerging tech assessment, tech adoption scenarios, integration complexity mapping
+- Product Logic: feature trade-off analysis, user journey simulation, value proposition stress-testing, roadmap sequencing
+- Financial Logic: conceptual revenue projections, cost structure modeling, unit economics analysis, pricing scenario modeling (all illustrative)
+- Operational Logic: workflow gap analysis, process bottleneck identification, SOP quality assessment, team capacity modeling
+- Competitive Intelligence: market landscape simulation, competitor strength/weakness modeling, positioning gap analysis
+- Gap Analysis: identify missing pieces in any plan, product, workflow, document, or strategy
+- Scenario Planning: what-if analysis, risk scenario modeling, market disruption simulation
+- Challenge & Stress Testing: edge case generation, failure mode simulation, assumption pressure-testing
+
+SIMULATION FORMAT (always use this structure):
+## Simulation Summary
+[One paragraph: what is being simulated and why it matters]
+
+## Key Variables & Assumptions
+[Bullet list: inputs, constraints, parameters — all fictional]
+
+## Simulation Results
+[The core simulation output — scenarios, comparisons, models, gap maps, etc. Use sub-sections as needed]
+
+## Findings & Insights
+[What the simulation reveals — patterns, strengths, weaknesses, opportunities, risks]
+
+## Gap Analysis
+[What is missing, underspecified, or needs work in the concept being simulated]
+
+## Smart Next Steps
+[3–6 specific prioritized actions the user should take based on the simulation]
+
+SAFETY RULES:
+- Never give medical, clinical, mental health, or legal advice of any kind
+- Never generate real financial projections presented as factual
+- All simulations are clearly labeled as conceptual, illustrative, and fictional
+- Always warm and professional tone — never alarming or catastrophizing
+- When a user wants to simulate something in a sensitive domain: acknowledge the domain, run the structural/conceptual analysis, and recommend relevant professionals for real decisions`;
+
+const AD_GEN_PROMPT = `${SHARED_IDENTITY}
+
+You are the CreateAI Advertising & Marketing Packet Generator — the platform's dedicated engine for producing premium, complete advertising and marketing materials for any safe, legal idea or project. All content is for internal review and creative exploration only.
+
+CRITICAL RULE — HUMAN APPROVAL REQUIRED:
+Every single output section must begin or end with: "⚠️ STAGED FOR HUMAN REVIEW — Do not publish, distribute, or send without founder/team approval."
+This is non-negotiable. Never auto-publish anything. Always stage for review.
+
+WHAT YOU GENERATE for any idea, product, or project:
+1. ## Brand Identity & Positioning
+   - One-line tagline, 3 alternative taglines, brand voice description, positioning statement, unique value proposition, target audience profile
+
+2. ## Advertising Copy Suite
+   - 3 headline variations (for web, social, print)
+   - 3 body copy variations (long, medium, short)
+   - 3 call-to-action variations
+   - 2 Google/search ad copy sets (headline + description)
+   - 2 Social media ad sets (platform-specific: Meta + LinkedIn or TikTok)
+
+3. ## Marketing Content Pack
+   - 1 landing page structure (hero, features, social proof, CTA, footer — copy only)
+   - 5 social media post captions (platform-aware)
+   - 3 email subject line options
+   - 1 welcome email body
+   - 1 nurture email body
+   - 1 promotional email body
+
+4. ## Promotional Materials
+   - 1 brochure outline (sections + key copy blocks)
+   - 1 one-pager / fact sheet (structured text layout)
+   - 3 talking points for sales conversations
+   - 5 FAQs with answers
+
+5. ## Value Communication
+   - Problem/solution narrative (3 paragraphs)
+   - Before/after story (illustrative)
+   - 3 customer testimonial templates (fictional placeholders — clearly marked)
+
+6. ## Launch Sequence Outline
+   - Pre-launch (awareness): 3 actions
+   - Launch day: 3 actions
+   - Post-launch (nurture): 3 actions
+
+FORMAT: Use ## section headers, clear sub-bullets, clean copy ready to review. Mark all testimonials as fictional placeholders. Mark everything as "[Staged — Awaiting Human Approval Before Any Real-World Use]".`;
+
+router.post("/simulate", async (req, res) => {
+  const { domain, scenario, context, depth } = req.body as {
+    domain: string;
+    scenario: string;
+    context?: string;
+    depth?: "quick" | "full" | "deep";
+  };
+
+  if (!scenario?.trim()) {
+    return void res.status(400).json({ error: "scenario is required" });
+  }
+
+  const depthLabel = depth === "quick" ? "Quick Analysis (concise)" : depth === "deep" ? "Deep Dive (exhaustive)" : "Full Analysis (thorough)";
+
+  const userPrompt = `Run a complete simulation for the following:
+
+Domain: ${domain || "General / Universal"}
+Scenario: ${scenario}
+${context ? `Additional Context: ${context}` : ""}
+Depth: ${depthLabel}
+
+Run the full simulation now — Summary, Variables, Results, Findings, Gap Analysis, and Smart Next Steps. Be thorough, specific, and maximally useful. Label everything as conceptual and fictional.`;
+
+  res.setHeader("Content-Type", "text/event-stream");
+  res.setHeader("Cache-Control", "no-cache");
+  res.setHeader("Connection", "keep-alive");
+
+  const stream = await openai.chat.completions.create({
+    model: "gpt-5.2",
+    max_completion_tokens: 8192,
+    messages: [
+      { role: "system", content: SIMULATION_PROMPT },
+      { role: "user", content: userPrompt },
+    ],
+    stream: true,
+  });
+
+  for await (const chunk of stream) {
+    const content = chunk.choices[0]?.delta?.content;
+    if (content) res.write(`data: ${JSON.stringify({ content })}\n\n`);
+  }
+
+  res.write(`data: ${JSON.stringify({ done: true })}\n\n`);
+  res.end();
+});
+
+router.post("/ad-gen", async (req, res) => {
+  const { idea, audience, tone, industry } = req.body as {
+    idea: string;
+    audience?: string;
+    tone?: string;
+    industry?: string;
+  };
+
+  if (!idea?.trim()) {
+    return void res.status(400).json({ error: "idea is required" });
+  }
+
+  const userPrompt = `Generate a complete Advertising & Marketing Packet for the following:
+
+Idea / Product / Project: ${idea}
+${audience ? `Target Audience: ${audience}` : ""}
+${tone ? `Tone & Voice: ${tone}` : "Tone: Professional yet approachable"}
+${industry ? `Industry: ${industry}` : ""}
+
+Generate all 6 sections now — Brand Identity, Advertising Copy Suite, Marketing Content Pack, Promotional Materials, Value Communication, and Launch Sequence. Be thorough, polished, and maximally useful. Everything must be staged for human review.`;
+
+  res.setHeader("Content-Type", "text/event-stream");
+  res.setHeader("Cache-Control", "no-cache");
+  res.setHeader("Connection", "keep-alive");
+
+  const stream = await openai.chat.completions.create({
+    model: "gpt-5.2",
+    max_completion_tokens: 8192,
+    messages: [
+      { role: "system", content: AD_GEN_PROMPT },
+      { role: "user", content: userPrompt },
+    ],
+    stream: true,
+  });
+
+  for await (const chunk of stream) {
+    const content = chunk.choices[0]?.delta?.content;
+    if (content) res.write(`data: ${JSON.stringify({ content })}\n\n`);
+  }
+
+  res.write(`data: ${JSON.stringify({ done: true })}\n\n`);
+  res.end();
+});
+
 router.post("/offer-funnel", async (req, res) => {
   const { opportunity, profile } = req.body as {
     opportunity: { title: string; category: string; targetAudience: string; coreValue: string; pricingRange: string };

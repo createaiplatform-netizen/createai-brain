@@ -1,0 +1,70 @@
+You are my senior full-stack engineer and product designer. Take this entire project to the absolute ceiling across EVERY file, page, component, and mode.
+
+Goals:
+- Make the whole platform look, feel, and behave like a world-class, futuristic product a multi-billion-dollar company would say “holy shit” about.
+- No half-upgrades: every screen, form, demo, test, and workspace must be premium, fluid, and fully functional.
+- Stay 100% legal and safe: never provide medical or mental-health advice, diagnoses, or treatment instructions. For those, direct users to talk to trusted people or professionals. For everything else, remove all creative and experiential limits.
+
+Do the following, end to end:
+
+1. Scan and refactor the entire codebase
+- Identify the main entry points (e.g., App, index, layout, main pages) and all key screens (demos, tests, workspaces, forms, AI views).
+- Clean up structure, imports, and dead code.
+- Standardize patterns so the platform feels like one unified product, not a collection of random pages.
+
+2. Install and apply a world-class UI system
+- Use a modern, premium dark theme with layered depth, glowing accents, and smooth micro-animations.
+- Standardize typography, spacing, buttons, cards, panels, modals, and layouts.
+- Make every form look and feel like a next-generation product: clear labels, helper text, validation states, subtle animations, and responsive layout.
+- Ensure everything is responsive and looks great on desktop, tablet, and mobile.
+
+3. Add a visible, interactive AI agent across the platform
+- Create a reusable AI Agent component that looks alive and premium (avatar, status, name, subtle motion).
+- Mount it globally so it’s accessible from every major screen (floating button, panel, or docked sidebar).
+- Include a chat-style interface with:
+  - Conversation history
+  - Clear “You” vs “Agent” messages
+  - Support for long-form answers, structured outputs, and step-by-step guidance
+- Wire the agent UI to the existing backend/AI endpoint used by this project (do NOT invent new services; reuse what exists).
+
+4. Add real multimedia support (video + audio)
+- Create reusable video and audio player components with:
+  - Play/pause
+  - Volume control
+  - Seek bar
+  - Mute/unmute
+  - Fullscreen (if supported)
+- Replace any placeholder media blocks with real, working players.
+- Ensure media components are styled to match the futuristic UI and work across devices.
+
+5. Upgrade all demos and tests to “insane in the best way”
+- For every demo/test screen:
+  - Add a clear hero section explaining what this demo does and why it’s powerful.
+  - Add a “10-minute stress test” path and a “deep 1-hour exploration” path where appropriate.
+  - Show how the system finds gaps, saves time, reduces risk, and saves or makes money.
+  - Integrate the AI agent panel so users can interact live during the demo/test.
+- Make sure there are no dead buttons, broken links, or non-functional controls.
+
+6. Wire everything so it actually works
+- Ensure all buttons, forms, and controls are connected to real handlers or safe placeholders with clear messaging.
+- For any feature that cannot be fully implemented with the current backend, create a realistic simulation mode with clear labels (e.g., “Simulated data for demo purposes”) but still make the experience feel complete.
+- Fix any obvious runtime errors, console errors, or broken imports.
+
+7. Respect safety and legal boundaries
+- Never add or enable any feature that gives medical or mental-health advice, diagnoses, or treatment instructions.
+- For those topics, show a gentle message encouraging users to talk to trusted people or professionals.
+- For all other domains (business, creative, workflows, operations, etc.), push to the highest possible ceiling in design, behavior, simulation, challenge, advertising, storytelling, multimedia, and idea expansion.
+
+Deliverables:
+- A fully refactored, running project where:
+  - The UI is consistently futuristic and premium across all screens.
+  - The AI agent is visible, interactive, and feels alive.
+  - Video and audio actually play with working controls.
+  - Demos and tests feel like live, world-class showcases.
+  - There are no obvious broken pieces or dead ends.
+
+Explain briefly at the end:
+- What you changed structurally
+- Where the main entry points are
+- How to trigger the main demos/tests
+- How to customize the AI agent and media components if I want to tweak them later
