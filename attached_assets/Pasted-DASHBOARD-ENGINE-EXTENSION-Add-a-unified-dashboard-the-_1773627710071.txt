@@ -1,0 +1,32 @@
+DASHBOARD ENGINE (EXTENSION):
+- Add a unified dashboard the user can open at any time with a single command or button.
+- The dashboard is the home screen of the platform and must display the core areas: Home, Projects, Apps, Files, Marketing, Outreach, Monetization, Settings, and Help.
+- The dashboard must be calm, simple, and non-overwhelming, showing only essential items first and allowing deeper layers to expand on demand.
+- The dashboard must integrate with the Session Engine so that opening any item automatically activates the correct engines and context.
+- The dashboard must always reflect the user's current state: active projects, recent activity, staged items, and available tools.
+
+NAVIGATION ENGINE (EXTENSION):
+- Add a navigation layer that allows the user to move between all areas of the platform with simple commands or buttons.
+- Navigation must be instant, intuitive, and consistent across the entire platform.
+- Quick-access navigation must include: Dashboard, Projects, Monetize, Apps, Files, Marketing Center, Outreach Center, and Financial Center.
+- Opening any workspace must activate the correct engines and maintain session context.
+- Navigation must remain safe, legal, and user-controlled at all times.
+
+APPS ENGINE (EXTENSION):
+- Add support for internal apps that the user can open from the dashboard.
+- Each app must have its own workspace, tools, and functions.
+- Apps must be organized by category (Build, Marketing, Outreach, Monetization, Tools).
+- The system must automatically detect which app is relevant based on user intent and activate it within the session.
+- Apps must remain simple, safe, and non-overwhelming.
+
+FILE SYSTEM ENGINE (EXTENSION):
+- Add a file system accessible from the dashboard.
+- Files must be organized by project, type, and purpose.
+- Opening a file must activate the correct engines and context.
+- The file system must remain simple, safe, and non-overwhelming.
+- The file system must integrate with the Session Engine so that file actions remain contextual and consistent.
+
+GLOBAL UI RULE (EXTENSION):
+- The dashboard, navigation, apps, and file system must always remain safe, legal, user-controlled, and non-overwhelming.
+- No external actions (posting, sending, financial movement) may occur without explicit user approval.
+- All UI components must support staging, clarity, and user consent.
