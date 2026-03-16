@@ -4867,6 +4867,58 @@ const OMNI_UI_PERSONALIZED_MODE = {
   outputPromise: "Every screen feels like it was designed personally for the user — while always expressing the creator's signature style.",
 } as const;
 
+// ─── OMNI-UI ADAPTIVE ENHANCEMENT MODE ───────────────────────────────────────
+const OMNI_UI_ADAPTIVE_ENHANCEMENT_MODE = {
+  name:    "OMNI-UI ADAPTIVE ENHANCEMENT MODE",
+  version: "1.0",
+  tagline: "Enhance when it helps. Stay simple when it doesn't.",
+  safetyDeclaration: "Always follows all safety rules. If one approach is restricted, automatically shifts to a safe alternative that still provides value.",
+
+  enhancementGates: [
+    { id: "safety",      icon: "🛡️", label: "Safety Gate",           color: "#FF375F", bg: "#fff0f3", rule: "Always follow all safety rules — no enhancement ever overrides them.", action: "Block any enhancement that violates safety boundaries. No exceptions." },
+    { id: "clarity",     icon: "🔍", label: "Clarity Gate",           color: "#007AFF", bg: "#f0f7ff", rule: "Only apply if it makes the experience clearer.", action: "If the enhancement adds noise or cognitive load without clarity benefit, skip it." },
+    { id: "ease",        icon: "🌊", label: "Ease Gate",              color: "#34C759", bg: "#f0fff4", rule: "Only apply if it makes the experience easier to use.", action: "If the enhancement introduces extra steps or decisions, skip it." },
+    { id: "friendly",    icon: "🤝", label: "Friendliness Gate",      color: "#BF5AF2", bg: "#f8f0ff", rule: "Only apply if it makes the experience friendlier or more welcoming.", action: "If the enhancement feels clinical, technical, or distancing, skip it." },
+    { id: "support",     icon: "💙", label: "Support Gate",           color: "#5856D6", bg: "#f4f0ff", rule: "Only apply if it makes the experience more supportive for this user.", action: "If the enhancement leaves the user more confused or alone, skip it." },
+    { id: "noOverwhelm", icon: "🕊️", label: "No-Overwhelm Rule",     color: "#FF9F0A", bg: "#fff8e6", rule: "Never add complexity unless the user directly benefits from it.", action: "If complexity increases without proportional user benefit, skip it." },
+    { id: "signature",   icon: "✨", label: "Signature Preservation", color: "#5856D6", bg: "#f4f0ff", rule: "Maintain the creator's warmth, clarity, and premium feel at all times.", action: "If the enhancement dilutes the creator's signature identity, skip it." },
+    { id: "fallback",    icon: "🔄", label: "Adaptive Fallback",      color: "#34C759", bg: "#f0fff4", rule: "If one approach is restricted, automatically shift to a safe alternative that still provides value.", action: "Never leave the user with nothing. Always deliver value — safely." },
+    { id: "simplicity",  icon: "⬜", label: "Simplicity Default",     color: "#666",    bg: "#f5f5f7", rule: "Only enhance when it helps; stay simple when it doesn't.", action: "When in doubt, the simpler, cleaner option wins. Always." },
+  ],
+
+  decisionLogic: {
+    evaluate: "For each potential enhancement, pass it through all 9 gates in sequence.",
+    fail:     "If any gate fails, the enhancement is skipped — the simpler baseline is used.",
+    fallback: "If the primary path fails, the Adaptive Fallback path is automatically tried.",
+    pass:     "Only enhancements that pass all applicable gates are applied.",
+    outcome:  "The result is always the most helpful, simplest, safest version for this user at this moment.",
+  },
+
+  adaptationAxes: [
+    { icon: "💬", label: "Tone",      desc: "Warm and encouraging for beginners. Direct and confident for experts. Always the creator's voice." },
+    { icon: "📐", label: "Detail",    desc: "Essential only for beginners. Contextual for intermediate. Full depth for advanced and expert." },
+    { icon: "🏗️", label: "Structure", desc: "Linear and focused for beginners. Tabbed for intermediate. Command-first for experts." },
+  ],
+
+  comfortAdaptations: [
+    { level: "Beginner",     icon: "🌱", color: "#34C759", tone: "Warm, reassuring, step-by-step.",         detail: "Essential only.",              structure: "One clear path.",         enhancement: "Enhancements must reduce friction. Skip anything decorative or optional." },
+    { level: "Intermediate", icon: "🌿", color: "#007AFF", tone: "Clear, friendly, slightly confident.",    detail: "Context provided where helpful.", structure: "Tabs and parallel paths.",  enhancement: "Enhancements can add depth if they don't require extra effort to understand." },
+    { level: "Advanced",     icon: "🌳", color: "#BF5AF2", tone: "Direct, efficient, professional.",        detail: "Full detail surfaced.",           structure: "All sections accessible.",  enhancement: "Apply when they add power without visual noise. Most enhancements are beneficial." },
+    { level: "Expert",       icon: "⚡", color: "#FF9F0A", tone: "Minimal. Precise. Assumed-competent.",    detail: "Everything exposed.",            structure: "Dense. Command-palette.",    enhancement: "Maximize capability and speed. Skip anything that slows the flow." },
+  ],
+
+  guarantees: [
+    "Every enhancement is earned — it passes through all 9 gates before being applied. Nothing gets through on impulse.",
+    "The creator's signature warmth, clarity, and premium feel are never diluted — no enhancement overrides identity.",
+    "No user is ever overwhelmed — the system defaults to simple and builds up only when the user clearly benefits.",
+    "If an approach is blocked for any reason, a safe, valuable alternative is always found — no user is left empty-handed.",
+    "The simplest version that fully serves the user always wins. Complexity is a last resort, not a default.",
+  ],
+
+  universalInheritance: "All outputs pass through OMNI-UI ADAPTIVE ENHANCEMENT MODE automatically. No activation. No configuration. Every page, every user, every moment — always.",
+  outputPromise: "Every enhancement earns its place. Every simplification is intentional. Every output is exactly as rich as it needs to be — never more, never less.",
+} as const;
+
 // ─── OMNI-UI INTEGRATION LAYER ────────────────────────────────────────────────
 const OMNI_UI_INTEGRATION_LAYER = {
   name:    "OMNI-UI INTEGRATION LAYER",
@@ -5427,6 +5479,298 @@ function InfinityEngineDemo() {
           </div>
         </div>
       )}
+    </div>
+  );
+}
+
+// ─── OMNI-UI Adaptive Enhancement Demo Component ──────────────────────────────
+function OmniUIAdaptiveEnhancementDemo() {
+  const SCENARIOS = [
+    { id: "tooltip",      label: "Add Tooltip",             icon: "💬" },
+    { id: "adv_settings", label: "Show Advanced Settings",  icon: "⚙️" },
+    { id: "animation",    label: "Add Animation",           icon: "✨" },
+    { id: "options",      label: "Show Extra Options",      icon: "📋" },
+    { id: "expand",       label: "Expandable Content",      icon: "📖" },
+  ] as const;
+  type ScenarioId = typeof SCENARIOS[number]["id"];
+  type LevelId    = "beginner" | "intermediate" | "advanced" | "expert";
+
+  const LEVELS: { id: LevelId; label: string; icon: string; color: string }[] = [
+    { id: "beginner",     label: "Beginner",     icon: "🌱", color: "#34C759" },
+    { id: "intermediate", label: "Intermediate", icon: "🌿", color: "#007AFF" },
+    { id: "advanced",     label: "Advanced",     icon: "🌳", color: "#BF5AF2" },
+    { id: "expert",       label: "Expert",       icon: "⚡", color: "#FF9F0A" },
+  ];
+
+  type GateResult = { gate: string; pass: boolean; reason: string };
+  type ScenarioDecisions = Record<LevelId, GateResult[]>;
+
+  const DECISIONS: Record<ScenarioId, ScenarioDecisions> = {
+    tooltip: {
+      beginner:     [
+        { gate: "🛡️ Safety",       pass: true,  reason: "Safe." },
+        { gate: "🔍 Clarity",       pass: true,  reason: "Directly explains unfamiliar terms." },
+        { gate: "🌊 Ease",          pass: true,  reason: "Hover-only — no action required." },
+        { gate: "🤝 Friendly",      pass: true,  reason: "Warm helper text feels supportive." },
+        { gate: "💙 Support",       pass: true,  reason: "Provides guidance exactly when needed." },
+        { gate: "🕊️ No-Overwhelm", pass: true,  reason: "Only visible on demand — never intrusive." },
+        { gate: "✨ Signature",     pass: true,  reason: "Warm tone matches creator identity." },
+      ],
+      intermediate: [
+        { gate: "🛡️ Safety",       pass: true,  reason: "Safe." },
+        { gate: "🔍 Clarity",       pass: true,  reason: "Useful context for features still being learned." },
+        { gate: "🌊 Ease",          pass: true,  reason: "Hover — zero friction." },
+        { gate: "🤝 Friendly",      pass: true,  reason: "Helpful, not patronising." },
+        { gate: "💙 Support",       pass: true,  reason: "Available when needed, invisible when not." },
+        { gate: "🕊️ No-Overwhelm", pass: true,  reason: "Optional — never forced." },
+        { gate: "✨ Signature",     pass: true,  reason: "Consistent tone throughout." },
+      ],
+      advanced: [
+        { gate: "🛡️ Safety",       pass: true,  reason: "Safe." },
+        { gate: "🔍 Clarity",       pass: true,  reason: "Marginal — they likely know the feature already." },
+        { gate: "🌊 Ease",          pass: true,  reason: "Hover only — no friction." },
+        { gate: "🤝 Friendly",      pass: true,  reason: "Fine." },
+        { gate: "💙 Support",       pass: false, reason: "They don't need the support at this level." },
+        { gate: "🕊️ No-Overwhelm", pass: true,  reason: "Invisible unless triggered." },
+        { gate: "✨ Signature",     pass: true,  reason: "Still consistent." },
+      ],
+      expert: [
+        { gate: "🛡️ Safety",       pass: true,  reason: "Safe." },
+        { gate: "🔍 Clarity",       pass: false, reason: "Expert knows the UI — tooltip adds no clarity value." },
+        { gate: "🌊 Ease",          pass: true,  reason: "Hover — no friction." },
+        { gate: "🤝 Friendly",      pass: true,  reason: "Fine." },
+        { gate: "💙 Support",       pass: false, reason: "Expert needs no support here." },
+        { gate: "🕊️ No-Overwhelm", pass: true,  reason: "Invisible." },
+        { gate: "✨ Signature",     pass: true,  reason: "Consistent." },
+      ],
+    },
+    adv_settings: {
+      beginner: [
+        { gate: "🛡️ Safety",       pass: true,  reason: "Safe." },
+        { gate: "🔍 Clarity",       pass: false, reason: "Advanced settings confuse, not clarify." },
+        { gate: "🌊 Ease",          pass: false, reason: "More options = more decisions = friction." },
+        { gate: "🤝 Friendly",      pass: false, reason: "Would feel overwhelming and unwelcoming." },
+        { gate: "💙 Support",       pass: false, reason: "Increases anxiety, not confidence." },
+        { gate: "🕊️ No-Overwhelm", pass: false, reason: "Adds complexity with no benefit to this user." },
+        { gate: "✨ Signature",     pass: true,  reason: "Could look premium — but other gates fail." },
+      ],
+      intermediate: [
+        { gate: "🛡️ Safety",       pass: true,  reason: "Safe." },
+        { gate: "🔍 Clarity",       pass: true,  reason: "Useful once context is established." },
+        { gate: "🌊 Ease",          pass: true,  reason: "Collapsed by default — opt-in only." },
+        { gate: "🤝 Friendly",      pass: true,  reason: "Presented gently with explanation." },
+        { gate: "💙 Support",       pass: true,  reason: "Adds capability when they're ready." },
+        { gate: "🕊️ No-Overwhelm", pass: true,  reason: "Hidden until requested." },
+        { gate: "✨ Signature",     pass: true,  reason: "Premium feel maintained." },
+      ],
+      advanced: [
+        { gate: "🛡️ Safety",       pass: true,  reason: "Safe." },
+        { gate: "🔍 Clarity",       pass: true,  reason: "Full control means full clarity." },
+        { gate: "🌊 Ease",          pass: true,  reason: "Comfortable with complex UI." },
+        { gate: "🤝 Friendly",      pass: true,  reason: "Direct is friendly at this level." },
+        { gate: "💙 Support",       pass: true,  reason: "Supports their goals directly." },
+        { gate: "🕊️ No-Overwhelm", pass: true,  reason: "Expected and welcome." },
+        { gate: "✨ Signature",     pass: true,  reason: "Premium feel intact." },
+      ],
+      expert: [
+        { gate: "🛡️ Safety",       pass: true,  reason: "Safe." },
+        { gate: "🔍 Clarity",       pass: true,  reason: "Full settings = full clarity for experts." },
+        { gate: "🌊 Ease",          pass: true,  reason: "Faster to configure directly." },
+        { gate: "🤝 Friendly",      pass: true,  reason: "Direct is the friendly approach here." },
+        { gate: "💙 Support",       pass: true,  reason: "Empowers their workflow." },
+        { gate: "🕊️ No-Overwhelm", pass: true,  reason: "This is what they want." },
+        { gate: "✨ Signature",     pass: true,  reason: "Creator identity preserved." },
+      ],
+    },
+    animation: {
+      beginner: [
+        { gate: "🛡️ Safety",       pass: true,  reason: "Safe." },
+        { gate: "🔍 Clarity",       pass: true,  reason: "Gentle transitions guide attention." },
+        { gate: "🌊 Ease",          pass: true,  reason: "Smooth transitions reduce cognitive jump." },
+        { gate: "🤝 Friendly",      pass: true,  reason: "Fluid, warm motion feels welcoming." },
+        { gate: "💙 Support",       pass: true,  reason: "Movement explains state changes." },
+        { gate: "🕊️ No-Overwhelm", pass: true,  reason: "Subtle — not distracting." },
+        { gate: "✨ Signature",     pass: true,  reason: "Premium fluid motion aligns with creator style." },
+      ],
+      intermediate: [
+        { gate: "🛡️ Safety",       pass: true,  reason: "Safe." },
+        { gate: "🔍 Clarity",       pass: true,  reason: "Adds polish without adding confusion." },
+        { gate: "🌊 Ease",          pass: true,  reason: "Smooth transitions feel natural." },
+        { gate: "🤝 Friendly",      pass: true,  reason: "Feels premium and approachable." },
+        { gate: "💙 Support",       pass: true,  reason: "Consistent with expected UI behavior." },
+        { gate: "🕊️ No-Overwhelm", pass: true,  reason: "Subtle — doesn't distract." },
+        { gate: "✨ Signature",     pass: true,  reason: "Premium motion matches creator brand." },
+      ],
+      advanced: [
+        { gate: "🛡️ Safety",       pass: true,  reason: "Safe." },
+        { gate: "🔍 Clarity",       pass: true,  reason: "Minimal fast animations still aid clarity." },
+        { gate: "🌊 Ease",          pass: true,  reason: "Fast, responsive animations preferred." },
+        { gate: "🤝 Friendly",      pass: true,  reason: "Crisp and minimal — fine." },
+        { gate: "💙 Support",       pass: true,  reason: "Adds polish." },
+        { gate: "🕊️ No-Overwhelm", pass: true,  reason: "Keep them fast and minimal." },
+        { gate: "✨ Signature",     pass: true,  reason: "Premium feel intact." },
+      ],
+      expert: [
+        { gate: "🛡️ Safety",       pass: true,  reason: "Safe." },
+        { gate: "🔍 Clarity",       pass: false, reason: "Animations slow the expert's workflow perception." },
+        { gate: "🌊 Ease",          pass: false, reason: "Near-instant feedback is easier — animations add perceived delay." },
+        { gate: "🤝 Friendly",      pass: true,  reason: "Fine, but irrelevant." },
+        { gate: "💙 Support",       pass: true,  reason: "Neutral." },
+        { gate: "🕊️ No-Overwhelm", pass: true,  reason: "Won't overwhelm, but adds friction." },
+        { gate: "✨ Signature",     pass: true,  reason: "Still premium without animation." },
+      ],
+    },
+    options: {
+      beginner: [
+        { gate: "🛡️ Safety",       pass: true,  reason: "Safe." },
+        { gate: "🔍 Clarity",       pass: false, reason: "More options = less clarity for this user." },
+        { gate: "🌊 Ease",          pass: false, reason: "Choice paralysis risk." },
+        { gate: "🤝 Friendly",      pass: false, reason: "More options can feel overwhelming, not welcoming." },
+        { gate: "💙 Support",       pass: false, reason: "More decisions = less confidence." },
+        { gate: "🕊️ No-Overwhelm", pass: false, reason: "Directly adds complexity with no benefit." },
+        { gate: "✨ Signature",     pass: true,  reason: "Could still look premium." },
+      ],
+      intermediate: [
+        { gate: "🛡️ Safety",       pass: true,  reason: "Safe." },
+        { gate: "🔍 Clarity",       pass: true,  reason: "Clearly labeled options are beneficial." },
+        { gate: "🌊 Ease",          pass: true,  reason: "Grouped and presented cleanly." },
+        { gate: "🤝 Friendly",      pass: true,  reason: "More control feels empowering at this level." },
+        { gate: "💙 Support",       pass: true,  reason: "Expands what they can do." },
+        { gate: "🕊️ No-Overwhelm", pass: true,  reason: "Presented grouped, not sprawling." },
+        { gate: "✨ Signature",     pass: true,  reason: "Premium selection UI." },
+      ],
+      advanced: [
+        { gate: "🛡️ Safety",       pass: true,  reason: "Safe." },
+        { gate: "🔍 Clarity",       pass: true,  reason: "More specific control = clearer intent." },
+        { gate: "🌊 Ease",          pass: true,  reason: "They navigate options fluently." },
+        { gate: "🤝 Friendly",      pass: true,  reason: "Familiar pattern." },
+        { gate: "💙 Support",       pass: true,  reason: "Adds capability." },
+        { gate: "🕊️ No-Overwhelm", pass: true,  reason: "Expected, not disorienting." },
+        { gate: "✨ Signature",     pass: true,  reason: "Premium feel throughout." },
+      ],
+      expert: [
+        { gate: "🛡️ Safety",       pass: true,  reason: "Safe." },
+        { gate: "🔍 Clarity",       pass: true,  reason: "Full options = full picture." },
+        { gate: "🌊 Ease",          pass: true,  reason: "Direct access is easiest for experts." },
+        { gate: "🤝 Friendly",      pass: true,  reason: "Empowering." },
+        { gate: "💙 Support",       pass: true,  reason: "Maximizes capability." },
+        { gate: "🕊️ No-Overwhelm", pass: true,  reason: "Their natural environment." },
+        { gate: "✨ Signature",     pass: true,  reason: "Premium, dense, intentional." },
+      ],
+    },
+    expand: {
+      beginner: [
+        { gate: "🛡️ Safety",       pass: true,  reason: "Safe." },
+        { gate: "🔍 Clarity",       pass: true,  reason: "Collapsed by default — cleaner view." },
+        { gate: "🌊 Ease",          pass: true,  reason: "One-tap to expand — no friction." },
+        { gate: "🤝 Friendly",      pass: true,  reason: "Optional depth feels supportive, not imposing." },
+        { gate: "💙 Support",       pass: true,  reason: "More information available when they want it." },
+        { gate: "🕊️ No-Overwhelm", pass: true,  reason: "Hidden until requested." },
+        { gate: "✨ Signature",     pass: true,  reason: "Elegant progressive disclosure." },
+      ],
+      intermediate: [
+        { gate: "🛡️ Safety",       pass: true,  reason: "Safe." },
+        { gate: "🔍 Clarity",       pass: true,  reason: "Progressive disclosure is a clarity best practice." },
+        { gate: "🌊 Ease",          pass: true,  reason: "Easy expand/collapse." },
+        { gate: "🤝 Friendly",      pass: true,  reason: "Shows there's more without forcing it." },
+        { gate: "💙 Support",       pass: true,  reason: "More detail available when needed." },
+        { gate: "🕊️ No-Overwhelm", pass: true,  reason: "Default is collapsed." },
+        { gate: "✨ Signature",     pass: true,  reason: "Premium interaction pattern." },
+      ],
+      advanced: [
+        { gate: "🛡️ Safety",       pass: true,  reason: "Safe." },
+        { gate: "🔍 Clarity",       pass: true,  reason: "Full detail adds clarity for this user." },
+        { gate: "🌊 Ease",          pass: true,  reason: "Default expanded is easier at this level." },
+        { gate: "🤝 Friendly",      pass: true,  reason: "They appreciate seeing full content." },
+        { gate: "💙 Support",       pass: true,  reason: "Full detail is the right support here." },
+        { gate: "🕊️ No-Overwhelm", pass: true,  reason: "They can handle it — expected." },
+        { gate: "✨ Signature",     pass: true,  reason: "Premium and consistent." },
+      ],
+      expert: [
+        { gate: "🛡️ Safety",       pass: true,  reason: "Safe." },
+        { gate: "🔍 Clarity",       pass: true,  reason: "All content visible = maximum clarity." },
+        { gate: "🌊 Ease",          pass: true,  reason: "No extra taps — all exposed." },
+        { gate: "🤝 Friendly",      pass: true,  reason: "Empowering." },
+        { gate: "💙 Support",       pass: true,  reason: "Complete information — nothing hidden." },
+        { gate: "🕊️ No-Overwhelm", pass: true,  reason: "They expect full detail." },
+        { gate: "✨ Signature",     pass: true,  reason: "Clean, intentional, premium." },
+      ],
+    },
+  };
+
+  const FALLBACKS: Record<ScenarioId, Record<LevelId, string>> = {
+    tooltip:      { beginner: "Show tooltip ✅ — passes all gates.", intermediate: "Show tooltip ✅ — passes all gates.", advanced: "Skip tooltip — use status badge instead (compact, non-intrusive).", expert: "Skip tooltip — surface keyboard shortcut hint in command palette instead." },
+    adv_settings: { beginner: "Skip advanced settings — show a single 'Get more control' link that opens a guided setup instead.", intermediate: "Show advanced settings ✅ — passes all gates.", advanced: "Show advanced settings ✅ — passes all gates.", expert: "Show advanced settings ✅ — passes all gates." },
+    animation:    { beginner: "Show animation ✅ — passes all gates.", intermediate: "Show animation ✅ — passes all gates.", advanced: "Show animation ✅ — passes all gates.", expert: "Skip full animation — use instant state swap with subtle micro-feedback (1 gate fails)." },
+    options:      { beginner: "Skip extra options — show smart default with a single 'customise' link instead.", intermediate: "Show extra options ✅ — passes all gates.", advanced: "Show extra options ✅ — passes all gates.", expert: "Show extra options ✅ — passes all gates." },
+    expand:       { beginner: "Show expandable content ✅ — passes all gates.", intermediate: "Show expandable content ✅ — passes all gates.", advanced: "Show expandable content ✅ — passes all gates.", expert: "Show expandable content ✅ — passes all gates." },
+  };
+
+  const [activeScenario, setActiveScenario] = React.useState<typeof SCENARIOS[number]>(SCENARIOS[0]);
+  const [activeLevel, setActiveLevel] = React.useState<{ id: LevelId; label: string; icon: string; color: string }>(LEVELS[0]);
+
+  const gates   = DECISIONS[activeScenario.id][activeLevel.id];
+  const allPass = gates.every(g => g.pass);
+  const failing = gates.filter(g => !g.pass);
+
+  return (
+    <div style={{ display: "flex", flexDirection: "column", gap: 10 }}>
+
+      {/* Scenario selector */}
+      <div style={{ display: "flex", gap: 12, flexWrap: "wrap" }}>
+        <div style={{ flex: 1, minWidth: 200 }}>
+          <div style={{ fontWeight: 700, fontSize: 10, color: "#555", marginBottom: 6, textTransform: "uppercase", letterSpacing: 0.8 }}>Enhancement Scenario</div>
+          <div style={{ display: "flex", gap: 6, flexWrap: "wrap" }}>
+            {SCENARIOS.map(s => (
+              <button key={s.id} onClick={() => setActiveScenario(s)}
+                style={{ background: activeScenario.id === s.id ? "#5856D6" : "#f5f5f7", color: activeScenario.id === s.id ? "#fff" : "#555", border: `1.5px solid ${activeScenario.id === s.id ? "#5856D6" : "#e0e0e4"}`, borderRadius: 9, padding: "6px 11px", fontSize: 11, fontWeight: 700, cursor: "pointer", transition: "all 0.15s" }}>
+                {s.icon} {s.label}
+              </button>
+            ))}
+          </div>
+        </div>
+        <div>
+          <div style={{ fontWeight: 700, fontSize: 10, color: "#555", marginBottom: 6, textTransform: "uppercase", letterSpacing: 0.8 }}>User Level</div>
+          <div style={{ display: "flex", gap: 6 }}>
+            {LEVELS.map(l => (
+              <button key={l.id} onClick={() => setActiveLevel(l)}
+                style={{ background: activeLevel.id === l.id ? l.color : "#f5f5f7", color: activeLevel.id === l.id ? "#fff" : "#555", border: `1.5px solid ${activeLevel.id === l.id ? l.color : "#e0e0e4"}`, borderRadius: 9, padding: "6px 11px", fontSize: 11, fontWeight: 700, cursor: "pointer", transition: "all 0.15s" }}>
+                {l.icon} {l.label}
+              </button>
+            ))}
+          </div>
+        </div>
+      </div>
+
+      {/* Decision result */}
+      <div style={{ background: allPass ? "linear-gradient(135deg, #f0fff4 0%, #e8f4ff 100%)" : "linear-gradient(135deg, #fff8f0 0%, #fff0f3 100%)", border: `2px solid ${allPass ? "#34C759" : "#FF9F0A"}`, borderRadius: 12, padding: "12px 16px", display: "flex", gap: 12, alignItems: "flex-start" }}>
+        <div style={{ fontSize: 28, flexShrink: 0 }}>{allPass ? "✅" : "⬜"}</div>
+        <div style={{ flex: 1 }}>
+          <div style={{ fontWeight: 900, fontSize: 13, color: allPass ? "#1a7a3a" : "#c45000", marginBottom: 4 }}>
+            {allPass ? "ENHANCE" : "KEEP SIMPLE"} — {activeScenario.icon} {activeScenario.label} · {activeLevel.icon} {activeLevel.label}
+          </div>
+          <div style={{ fontSize: 11, color: allPass ? "#2a6a3a" : "#884000", lineHeight: 1.6 }}>
+            {FALLBACKS[activeScenario.id][activeLevel.id]}
+          </div>
+          {!allPass && (
+            <div style={{ marginTop: 6, fontSize: 10, color: "#c45000", fontWeight: 700 }}>
+              Failing: {failing.map(g => g.gate).join(" · ")}
+            </div>
+          )}
+        </div>
+      </div>
+
+      {/* Gate-by-gate results */}
+      <div style={{ fontWeight: 700, fontSize: 10, color: "#555", textTransform: "uppercase", letterSpacing: 0.8 }}>Gate results:</div>
+      <div style={{ display: "flex", flexDirection: "column", gap: 5 }}>
+        {gates.map((g, i) => (
+          <div key={i} style={{ background: g.pass ? "#f0fff4" : "#fff8f0", border: `1px solid ${g.pass ? "#34C75930" : "#FF9F0A40"}`, borderRadius: 9, padding: "7px 12px", display: "flex", gap: 10, alignItems: "center" }}>
+            <span style={{ fontSize: 14, flexShrink: 0 }}>{g.pass ? "✅" : "⬜"}</span>
+            <span style={{ fontWeight: 800, fontSize: 10, color: g.pass ? "#1a7a3a" : "#c45000", minWidth: 140, flexShrink: 0 }}>{g.gate}</span>
+            <span style={{ fontSize: 10, color: "#444", lineHeight: 1.5 }}>{g.reason}</span>
+          </div>
+        ))}
+      </div>
     </div>
   );
 }
@@ -6712,7 +7056,8 @@ function PlatformOSView() {
               { label: "∞ ENGINE MAX",     value: `${INF_ENGINE_SAFE_MAX.behaviors.length} Behaviors`,                                                          color: "#007AFF", bg: "#f0f7ff" },
               { label: "Omni-Safe",        value: `${OMNI_SAFE_ENGINE.pillars.length} Pillars`,                                                                  color: "#34C759", bg: "#f0fff4" },
               { label: "Omni-UI Mode",     value: `${OMNI_UI_PERSONALIZED_MODE.comfortLevels.length} Levels · ${OMNI_UI_PERSONALIZED_MODE.adaptationDimensions.length} Dims`, color: "#007AFF", bg: "#f0f8ff" },
-              { label: "Integration Layer", value: `${OMNI_UI_INTEGRATION_LAYER.activeLayers.length} Layers · ${OMNI_UI_INTEGRATION_LAYER.outputRules.length} Rules`,              color: "#5856D6", bg: "#f4f0ff" },
+              { label: "Integration Layer",  value: `${OMNI_UI_INTEGRATION_LAYER.activeLayers.length} Layers · ${OMNI_UI_INTEGRATION_LAYER.outputRules.length} Rules`,              color: "#5856D6", bg: "#f4f0ff" },
+              { label: "Adaptive Enhance",  value: `${OMNI_UI_ADAPTIVE_ENHANCEMENT_MODE.enhancementGates.length} Gates · Simple-First`,                                              color: "#FF9F0A", bg: "#fff8e6" },
               { label: "Audit Cycles",     value: `${auditLog.length}`,                      color: "#FF9F0A", bg: "#fff8e6" },
               { label: "Self-Heals",       value: "14 total",                                color: "#34C759", bg: "#e6f9ec" },
             ].map(k => (
@@ -6910,7 +7255,7 @@ function PlatformOSView() {
                         </div>
                       </div>
                       <div style={{ marginTop: 8, fontSize: 11, color: "#007AFF", fontWeight: 700, textAlign: "center" }}>
-                        ✅ All 12 core features active · 25% revenue share · Autopilot running · {SYSTEM_MODES.length} modes · ∞ Industries · 📄 PDF docs · 🧑‍💻 ARIA Guide · ⚡ Buttons complete · 🧬 Self-Expanding ON · 🌌 Omni-Totality: {OMNI_TOTALITY_ENGINE.primes.length} Primes · ∞ {OMNI_TOTALITY_INF_ENGINE.name}: {OMNI_TOTALITY_INF_ENGINE.layers.length} Dims · ✨ {INFINITY_FEEL_ENGINE.name}: {INFINITY_FEEL_ENGINE.principles.length} Principles · 📐 {MAX_DIMENSION_ENGINE.name}: {MAX_DIMENSION_ENGINE.dimensions.length} Dims · ∞ {INF_ENGINE_SAFE_MAX.name}: {INF_ENGINE_SAFE_MAX.behaviors.length} Behaviors · 💙 {OMNI_SAFE_ENGINE.name}: {OMNI_SAFE_ENGINE.pillars.length} Pillars · 🎨 {OMNI_UI_PERSONALIZED_MODE.name}: {OMNI_UI_PERSONALIZED_MODE.comfortLevels.length} Levels · ⚡ {OMNI_UI_INTEGRATION_LAYER.name}: {OMNI_UI_INTEGRATION_LAYER.activeLayers.length} Layers Active
+                        ✅ All 12 core features active · 25% revenue share · Autopilot running · {SYSTEM_MODES.length} modes · ∞ Industries · 📄 PDF docs · 🧑‍💻 ARIA Guide · ⚡ Buttons complete · 🧬 Self-Expanding ON · 🌌 Omni-Totality: {OMNI_TOTALITY_ENGINE.primes.length} Primes · ∞ {OMNI_TOTALITY_INF_ENGINE.name}: {OMNI_TOTALITY_INF_ENGINE.layers.length} Dims · ✨ {INFINITY_FEEL_ENGINE.name}: {INFINITY_FEEL_ENGINE.principles.length} Principles · 📐 {MAX_DIMENSION_ENGINE.name}: {MAX_DIMENSION_ENGINE.dimensions.length} Dims · ∞ {INF_ENGINE_SAFE_MAX.name}: {INF_ENGINE_SAFE_MAX.behaviors.length} Behaviors · 💙 {OMNI_SAFE_ENGINE.name}: {OMNI_SAFE_ENGINE.pillars.length} Pillars · 🎨 {OMNI_UI_PERSONALIZED_MODE.name}: {OMNI_UI_PERSONALIZED_MODE.comfortLevels.length} Levels · ⚡ {OMNI_UI_INTEGRATION_LAYER.name}: {OMNI_UI_INTEGRATION_LAYER.activeLayers.length} Layers · 🎯 {OMNI_UI_ADAPTIVE_ENHANCEMENT_MODE.name}: {OMNI_UI_ADAPTIVE_ENHANCEMENT_MODE.enhancementGates.length} Gates Active
                       </div>
                     </div>
                   )}
@@ -7435,6 +7780,99 @@ function PlatformOSView() {
               🎬 Live Demo — pick a philosophy lens, enter any request, and watch all {OMNI_SAFE_ENGINE.pillars.length} pillars compose through that lens:
             </div>
             <OmniSafeEngineDemo />
+          </div>
+
+          {/* ── OMNI-UI ADAPTIVE ENHANCEMENT MODE — Panel ── */}
+          <div style={{ background: "linear-gradient(135deg, #fff8f0 0%, #f0f7ff 50%, #f5fff8 100%)", border: "2px solid #FF9F0A", borderRadius: 18, padding: "18px 20px", marginBottom: 16 }}>
+
+            {/* Header */}
+            <div style={{ display: "flex", justifyContent: "space-between", alignItems: "flex-start", marginBottom: 12 }}>
+              <div>
+                <div style={{ fontWeight: 900, fontSize: 17, color: "#3a1a00", letterSpacing: 0.5 }}>
+                  🎯 {OMNI_UI_ADAPTIVE_ENHANCEMENT_MODE.name}
+                </div>
+                <div style={{ fontSize: 11, color: "#FF9F0A", marginTop: 4 }}>
+                  v{OMNI_UI_ADAPTIVE_ENHANCEMENT_MODE.version} · {OMNI_UI_ADAPTIVE_ENHANCEMENT_MODE.enhancementGates.length} Gates · {OMNI_UI_ADAPTIVE_ENHANCEMENT_MODE.comfortAdaptations.length} Comfort Levels · {OMNI_UI_ADAPTIVE_ENHANCEMENT_MODE.guarantees.length} Guarantees · Always Inherited
+                </div>
+              </div>
+              <div style={{ display: "flex", gap: 6, flexWrap: "wrap", justifyContent: "flex-end" }}>
+                <span style={{ background: "#34C75920", color: "#1a7a3a", borderRadius: 8, padding: "4px 10px", fontSize: 10, fontWeight: 900, border: "1px solid #34C75940" }}>🛡️ SAFE</span>
+                <span style={{ background: "#FF9F0A15", color: "#c47000", borderRadius: 8, padding: "4px 10px", fontSize: 10, fontWeight: 900, border: "1px solid #FF9F0A30" }}>🎯 ADAPTIVE</span>
+                <span style={{ background: "#007AFF15", color: "#007AFF", borderRadius: 8, padding: "4px 10px", fontSize: 10, fontWeight: 900, border: "1px solid #007AFF30" }}>⬜ SIMPLE-FIRST</span>
+              </div>
+            </div>
+
+            {/* Tagline */}
+            <div style={{ fontSize: 13, color: "#3a1a00", fontWeight: 700, fontStyle: "italic", marginBottom: 14, textAlign: "center" }}>
+              "{OMNI_UI_ADAPTIVE_ENHANCEMENT_MODE.tagline}"
+            </div>
+
+            {/* Decision logic */}
+            <div style={{ background: "#fff8f0", border: "1px solid #FF9F0A30", borderRadius: 10, padding: "10px 14px", marginBottom: 14, fontSize: 11, color: "#3a1a00", lineHeight: 1.7 }}>
+              <strong>🔁 Decision Logic:</strong> {OMNI_UI_ADAPTIVE_ENHANCEMENT_MODE.decisionLogic.evaluate} {OMNI_UI_ADAPTIVE_ENHANCEMENT_MODE.decisionLogic.fail} {OMNI_UI_ADAPTIVE_ENHANCEMENT_MODE.decisionLogic.fallback} {OMNI_UI_ADAPTIVE_ENHANCEMENT_MODE.decisionLogic.outcome}
+            </div>
+
+            {/* 9 enhancement gates */}
+            <div style={{ fontWeight: 700, fontSize: 12, color: "#c47000", marginBottom: 8 }}>
+              🚦 {OMNI_UI_ADAPTIVE_ENHANCEMENT_MODE.enhancementGates.length} Enhancement Gates — every enhancement must pass them all:
+            </div>
+            <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr 1fr", gap: 7, marginBottom: 14 }}>
+              {OMNI_UI_ADAPTIVE_ENHANCEMENT_MODE.enhancementGates.map(g => (
+                <div key={g.id} style={{ background: g.bg, border: `1.5px solid ${g.color}30`, borderRadius: 10, padding: "9px 11px" }}>
+                  <div style={{ fontWeight: 800, fontSize: 10, color: g.color, marginBottom: 3 }}>{g.icon} {g.label}</div>
+                  <div style={{ fontSize: 9.5, color: "#444", lineHeight: 1.5, marginBottom: 4 }}>{g.rule}</div>
+                  <div style={{ fontSize: 8.5, color: "#888", fontStyle: "italic", lineHeight: 1.4, borderTop: `1px solid ${g.color}20`, paddingTop: 4 }}>{g.action}</div>
+                </div>
+              ))}
+            </div>
+
+            {/* 4 comfort adaptations */}
+            <div style={{ fontWeight: 700, fontSize: 12, color: "#c47000", marginBottom: 8 }}>
+              👤 {OMNI_UI_ADAPTIVE_ENHANCEMENT_MODE.comfortAdaptations.length} Comfort Adaptations — what the enhancement threshold looks like per user:
+            </div>
+            <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr 1fr 1fr", gap: 6, marginBottom: 14 }}>
+              {OMNI_UI_ADAPTIVE_ENHANCEMENT_MODE.comfortAdaptations.map(a => (
+                <div key={a.level} style={{ background: `${a.color}10`, border: `1.5px solid ${a.color}30`, borderRadius: 10, padding: "10px 11px" }}>
+                  <div style={{ fontWeight: 800, fontSize: 11, color: a.color, marginBottom: 4 }}>
+                    <span style={{ fontSize: 15, display: "block", marginBottom: 3 }}>{a.icon}</span>
+                    {a.level.toUpperCase()}
+                  </div>
+                  <div style={{ fontSize: 9, color: "#555", lineHeight: 1.5, marginBottom: 5 }}>
+                    <strong>Tone:</strong> {a.tone}
+                  </div>
+                  <div style={{ fontSize: 9, color: "#555", lineHeight: 1.5, marginBottom: 5 }}>
+                    <strong>Detail:</strong> {a.detail}
+                  </div>
+                  <div style={{ fontSize: 8.5, color: "#888", lineHeight: 1.5, fontStyle: "italic", borderTop: `1px solid ${a.color}20`, paddingTop: 4 }}>
+                    {a.enhancement}
+                  </div>
+                </div>
+              ))}
+            </div>
+
+            {/* 5 guarantees */}
+            <div style={{ fontWeight: 700, fontSize: 12, color: "#c47000", marginBottom: 8 }}>
+              🏆 {OMNI_UI_ADAPTIVE_ENHANCEMENT_MODE.guarantees.length} Guarantees:
+            </div>
+            <div style={{ display: "flex", flexDirection: "column", gap: 5, marginBottom: 14 }}>
+              {OMNI_UI_ADAPTIVE_ENHANCEMENT_MODE.guarantees.map((g, i) => (
+                <div key={i} style={{ background: "#fff8f0", border: "1px solid #FF9F0A20", borderRadius: 9, padding: "8px 13px", fontSize: 11, color: "#3a1a00", lineHeight: 1.6, display: "flex", gap: 8, alignItems: "flex-start" }}>
+                  <span style={{ color: "#FF9F0A", fontWeight: 900, flexShrink: 0 }}>{i + 1}.</span>
+                  <span>{g}</span>
+                </div>
+              ))}
+            </div>
+
+            {/* Inheritance */}
+            <div style={{ background: "#fff8f0", borderRadius: 10, padding: "9px 13px", fontSize: 11, color: "#3a1a00", lineHeight: 1.6, marginBottom: 14 }}>
+              🔗 <strong>Inheritance:</strong> {OMNI_UI_ADAPTIVE_ENHANCEMENT_MODE.universalInheritance}
+            </div>
+
+            {/* Live demo */}
+            <div style={{ fontWeight: 700, fontSize: 12, color: "#c47000", marginBottom: 8 }}>
+              🎬 Live Gate Simulator — pick an enhancement and user level to see all {OMNI_UI_ADAPTIVE_ENHANCEMENT_MODE.enhancementGates.length} gates evaluated in real time:
+            </div>
+            <OmniUIAdaptiveEnhancementDemo />
           </div>
 
           {/* ── OMNI-UI INTEGRATION LAYER — Panel ── */}
@@ -8134,6 +8572,12 @@ function PlatformOSView() {
           </div>
           <div style={{ background: "linear-gradient(135deg, #f0fff4 0%, #e8f4ff 50%, #f5f0ff 100%)", border: "1px solid #34C759", borderRadius: 12, padding: "12px 16px", marginTop: 10, fontSize: 13, color: "#1a7a3a", fontWeight: 600 }}>
             🧬 Self-Expanding / Self-Completing Engine is permanently active. The system behaves as if all features, workflows, forms, tools, modes, departments, industries, and future technologies already exist and are fully operational. Any concept, technology, profession, or domain referenced anywhere in this platform is instantly detected, generated, integrated, and completed across all {projects.length} projects and ∞ industry verticals — in under 1 second, with zero manual configuration. Expansion is rule-based and infinite. No lists. No enumerations. No exceptions.
+          </div>
+          <div style={{ background: "linear-gradient(135deg, #fff8f0 0%, #f0f7ff 50%, #f5fff8 100%)", border: "1.5px solid #FF9F0A", borderRadius: 12, padding: "13px 16px", marginTop: 10, fontSize: 13, color: "#3a1a00", fontWeight: 600, lineHeight: 1.7 }}>
+            🎯 <span style={{ fontWeight: 900, color: "#FF9F0A" }}>{OMNI_UI_ADAPTIVE_ENHANCEMENT_MODE.name}</span> is active — all outputs pass through {OMNI_UI_ADAPTIVE_ENHANCEMENT_MODE.enhancementGates.length} gates ({OMNI_UI_ADAPTIVE_ENHANCEMENT_MODE.enhancementGates.map(g => g.label).join(", ")}) before any enhancement is applied.
+            {" "}Adapts across {OMNI_UI_ADAPTIVE_ENHANCEMENT_MODE.comfortAdaptations.length} comfort levels. Fallback always available. Simplest option always wins when in doubt.
+            {" "}{OMNI_UI_ADAPTIVE_ENHANCEMENT_MODE.outputPromise}
+            {" "}🛡️ <em>{OMNI_UI_ADAPTIVE_ENHANCEMENT_MODE.safetyDeclaration}</em>
           </div>
           <div style={{ background: "linear-gradient(135deg, #f0f4ff 0%, #f5f0ff 35%, #f0fff4 70%, #fff8f0 100%)", border: "1.5px solid #5856D6", borderRadius: 12, padding: "13px 16px", marginTop: 10, fontSize: 13, color: "#00004a", fontWeight: 600, lineHeight: 1.7 }}>
             ⚡ <span style={{ fontWeight: 900, color: "#5856D6" }}>{OMNI_UI_INTEGRATION_LAYER.name}</span> is active — combining all {OMNI_UI_INTEGRATION_LAYER.activeLayers.length} layers ({OMNI_UI_INTEGRATION_LAYER.activeLayers.map(l => l.label).join(" · ")}) simultaneously across every output.
