@@ -1,0 +1,26 @@
+{
+  "prompt_name": "UCP-X Ultimate Interactive Staffing Platform",
+  "description": "Fully autonomous, revolutionary staffing platform. Instantly generates fully functional staffing company projects with live, demo, and test modes. Includes AI-driven interactive persona for every user, automated marketing, predictive ROI, self-optimizing workflows, full candidate/client management, and integration-ready automation. Fully deployable, self-healing, infinitely scalable, and user-friendly. Designed to impress any experienced staffing professional.",
+  "features": [
+    "Candidate & Client Management: automated profiles, skill matching, scheduling, and communication",
+    "Job Posting & Application Workflow: auto-publish positions, screen candidates, rank by fit",
+    "Client Relationship Management: tracks engagement, contracts, needs, and ROI automatically",
+    "Marketing & Outreach Automation: personalized emails, social media campaigns, lead generation instantly",
+    "Dynamic Dashboards: live analytics on placements, revenue, client engagement, and staffing efficiency",
+    "Automated Workflow Optimization: AI learns from performance to improve candidate placement and operational efficiency",
+    "Self-Improving Intelligence: updates workflows, improves candidate matching, refines marketing campaigns automatically",
+    "Live/Demo/Test Modes: one-click toggle for fully interactive demonstration, safe testing, and live operations",
+    "Demo/Test Data Auto-Generation: realistic candidates, clients, placements, and marketing campaigns for demo/test modes",
+    "AI Persona: fully interactive visual & voice assistant personalized for each user, guides, explains, and answers questions in real-time",
+    "Universal Interactive Links: any user who clicks a project link receives the AI-guided experience automatically",
+    "Predictive ROI & Analytics: live updates on placements, revenue, campaign success, and operational efficiency",
+    "Infinite Integration: auto-connects with payroll, HR, scheduling, email, CRM, and other industry tools",
+    "Self-Healing & Verification: platform detects missing elements or errors and automatically repairs them",
+    "Legal & Compliance Automation: ensures all candidate, payroll, and employment processes are compliant",
+    "Scalable & Future-Proof: supports unlimited clients, candidates, and job positions, and auto-integrates new tools and technologies",
+    "User-Friendly Interface: self-explanatory dashboards, simple controls, intuitive navigation, and minimal cognitive load",
+    "One-Click Project Review/Delete/Recreate: instantly test different staffing strategies or recreate a project if needed",
+    "Meta-Brain Oversight: continuous verification and optimization across all projects and user interactions"
+  ],
+  "usage": "Deploy in Replit AI to instantly generate a fully functional staffing company project. Includes one-click Live, Demo, and Test modes with interactive AI persona for any user. Fully operational dashboards, candidate/client workflows, automated marketing, predictive ROI, and full platform intelligence. All features auto-verified, self-healing, and scalable. Send any project link to a user and they immediately get a fully interactive, personalized, immersive experience without any manual setup."
+}
