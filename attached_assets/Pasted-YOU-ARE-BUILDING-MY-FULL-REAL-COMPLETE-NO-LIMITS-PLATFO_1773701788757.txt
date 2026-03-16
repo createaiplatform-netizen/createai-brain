@@ -1,0 +1,154 @@
+YOU ARE BUILDING MY FULL, REAL, COMPLETE, NO-LIMITS PLATFORM.
+==============================================================
+
+This is NOT a demo, NOT a mockup, NOT a sample, NOT a toy.
+This is a REAL, FUTURISTIC, BUSINESS-GRADE platform that ANY company can use:
+- global healthcare
+- global staffing
+- solo providers
+- small teams
+- large enterprises
+- ANY industry, ANY role, ANY department, ANY profession
+
+Your job is to build the FULL ENGINE + FULL INTERFACE with NO placeholders.
+
+NON-NEGOTIABLE RULES:
+---------------------
+- NO placeholders.
+- NO mock data.
+- NO TODOs.
+- NO dead buttons.
+- NO empty screens.
+- NO “coming soon.”
+- NO shallow flows.
+- Every screen must have depth.
+- Every action must work.
+- Every mode must be complete.
+- The entire platform must run with NO errors.
+
+THE PLATFORM MUST:
+------------------
+- Be fully functional in the browser.
+- Use React + Vite (TypeScript preferred).
+- Use a futuristic, animated, glassy, neon UI.
+- Include a right-side AI Agent panel that reacts to context.
+- Include a left-side filters/navigation panel.
+- Include a dynamic center workspace that updates instantly.
+- Include a top bar with mode switching (DEMO | TEST | SIMULATION).
+- Feel alive, fun, premium, and futuristic.
+
+MODES (ALL MUST BE COMPLETE):
+-----------------------------
+
+1) DEMO MODE (public)
+   - No login.
+   - Filters: state, industry, role, department, org type.
+   - Workspace updates instantly based on filters.
+   - TilesGrid for workflows.
+   - Deep drill-down panels with multiple layers.
+   - AI Agent explains everything and suggests next steps.
+
+2) TEST MODE (login + NDA)
+   - Login modal (email + password).
+   - NDA checkbox required.
+   - Profile setup: org name, state, industry, role, department.
+   - Workspace uses richer, realistic generated data.
+   - AI Agent personalizes guidance to the user’s profile.
+   - Clear entry point to Simulation Mode.
+
+3) SIMULATION MODE
+   - Scenario builder (left panel).
+   - Scenario types: high volume, staff shortage, audit, regulation change, outage, emergency, etc.
+   - Sliders for volume, risk, staffing, timeframe.
+   - Simulation results in center panel:
+     - metrics
+     - impacts
+     - department view
+     - role view
+     - timeline
+   - AI Agent explains scenario meaning, risks, and improvements.
+
+UNIVERSAL ENGINE (THE HEART OF THE PLATFORM):
+---------------------------------------------
+In /engine:
+- universeConfig.ts:
+  - Define universal PATTERNS for industries, roles, departments, workflows, scenarios.
+  - Must support ANY industry (healthcare, staffing, education, public sector, private sector, etc.).
+  - Must support ANY role (owner, director, supervisor, frontline, IT, etc.).
+  - Must support ANY department (intake, operations, billing, QA, HR, etc.).
+
+- generators.ts:
+  - Functions that take (industry, role, department, mode) and generate:
+    - workflows
+    - tiles
+    - metrics
+    - entities
+    - scenarios
+    - drill-down content
+  - NO function may return empty arrays or placeholder text.
+  - If specific config is missing, fall back to a complete generic pattern.
+
+- guideEngine.ts:
+  - getGuideText({ mode, section, profile, filters, scenario }) => multi-paragraph text.
+  - Must ALWAYS return real, helpful, contextual guidance.
+  - No lorem ipsum. No placeholders.
+
+UI REQUIREMENTS:
+----------------
+- Dark, glassy, neon theme.
+- Smooth animations (fade, slide, hover).
+- Fun, inviting, premium feel.
+- Everything must look consistent across all modes.
+- No part of the old UI should remain.
+
+LAYOUT:
+-------
+src/
+  main.tsx
+  App.tsx
+
+  engine/
+    universeConfig.ts
+    generators.ts
+    guideEngine.ts
+
+  layout/
+    Shell.tsx
+    FiltersPanel.tsx
+    WorkspacePanel.tsx
+    GuidePanel.tsx
+
+  modes/
+    DemoMode.tsx
+    TestMode.tsx
+    SimulationMode.tsx
+
+  components/
+    TilesGrid.tsx
+    DetailPanel.tsx
+    MetricsStrip.tsx
+    ScenarioBuilder.tsx
+    SimulationResults.tsx
+    AuthModal.tsx
+    ProfileSetup.tsx
+
+  styles/
+    theme.css
+    layout.css
+    animations.css
+
+PERSISTENCE:
+------------
+- Use localStorage for:
+  - auth token
+  - NDA acceptance
+  - user profile
+- The app must remember the user between refreshes.
+
+FINAL REQUIREMENT:
+------------------
+THIS IS A FULL PLATFORM TRANSFORMATION.
+EVERY component, EVERY mode, EVERY screen must follow the new futuristic, animated, personalized, business-grade design.
+
+NO LIMITS. NO BOUNDARIES. NO PLACEHOLDERS. NO DEAD ENDS.
+This is the REAL platform, not a demo.

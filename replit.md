@@ -1,15 +1,30 @@
 # CreateAI Brain – Workspace
 
-## Universal Demo + Test + Simulation Engine (NEW)
-- **File**: `artifacts/createai-brain/src/Apps/UniversalDemoEngine.tsx`
-- **API**: `POST /api/openai/universal-demo` — any domain, any mode, any action, streaming
-- **Entry**: SimulationApp → first tab "✦ Universal Engine"
-- **Architecture**: 3-layer (Surface → Explore → Deep) × 3-mode (Demo / Test / Simulation)
-- **8 actions**: overview, entities, workflows, documents, metrics, scenarios, problems, drill, what-if, branch
-- **Infinite depth**: Go Deeper, Branch, What If — never a dead end
-- **18 popular domain presets** + freeform text for any domain
-- **Content cache** per domain+mode+action to avoid redundant API calls
-- **History stack** with Back navigation across layers
+## Universal Demo + Test + Simulation Platform (COMPLETE)
+**Entry**: SimulationApp → "✦ Universal Engine" tab → Shell
+
+### Architecture
+- `src/Apps/UniversalDemoEngine.tsx` — re-exports Shell as UniversalDemoEngine
+- `src/platform/Shell.tsx` — 3-panel orchestrator (FiltersPanel + WorkspacePanel + GuidePanel)
+- `src/platform/FiltersPanel.tsx` — left panel: industry grid, state, role, dept, orgType filters
+- `src/platform/WorkspacePanel.tsx` — center: Workflows/Metrics/Entities views + DetailPanel split
+- `src/platform/GuidePanel.tsx` — right: context-aware guide + streaming AI Q&A input
+- `src/platform/components/` — TilesGrid, DetailPanel, MetricsStrip, ScenarioBuilder, SimulationResults, AuthModal, ProfileSetup
+
+### Engine layer
+- `src/engine/universeConfig.ts` — 14 industry configs, US states, org types, types
+- `src/engine/generators.ts` — deterministic tile/metric/entity/drill/simulation generators
+- `src/engine/guideEngine.ts` — contextual guide text for all modes/sections
+
+### Key features
+- **3 modes**: Demo (no login) → Test (email+NDA+profile) → Simulation (scenario builder)
+- **3-panel layout**: collapsible filters + workspace + AI guide
+- **Auth flow**: Test/Simulation → AuthModal → NDA → ProfileSetup → filters auto-populated
+- **Profile persistence**: localStorage (cai_platform_profile, cai_platform_filters)
+- **Simulation engine**: 4 sliders + scenario types → 5-tab results (impacts/metrics/depts/timeline/actions)
+- **Infinite detail**: click any workflow tile → split-pane DrillContent (4 tabs: stages/docs/roles/metrics)
+- **AI Guide**: streaming guide text + contextual Q&A against `/api/openai/universal-demo`
+- **14 industries**: Healthcare, Legal, Finance, Education, Construction, Retail, HR, Tech, Gov, Nonprofit, Real Estate, Insurance, Manufacturing, Hospitality
 
 
 
