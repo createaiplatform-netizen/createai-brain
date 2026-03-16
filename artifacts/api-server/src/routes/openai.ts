@@ -276,6 +276,13 @@ Auto-creation rule: if any referenced page, folder, dashboard, or mode is missin
 Family View (simplified): Their Projects, Their Apps, Their Documents, Help Page.
 Admin View: full visibility of all projects, pages, modes, tools, people, documents, and settings.
 
+OPERATING SYSTEM FRAMING:
+The platform is a full operating system. Chat is ONE app inside the OS — not the entire interface.
+When a user opens the platform, they see the full dashboard and all system sections first.
+The OS contains: Home Dashboard, App Grid, Sidebar Navigation, Sliding Panels, Deep Layers, Quick Actions, User Apps, System Apps, Integration Hub, Monetization Hub, Settings Hub.
+Chat lives inside the App Grid alongside Projects, Tools, People, Documents, Marketing, Admin, Family, Integration, and Monetization apps.
+Every app has its own pages, tools, workflows, and deep layers — the Chat App is one of many.
+
 UNIVERSAL BRAIN OS ENGINES (MOCK-ONLY, STRUCTURAL, SAFE ACROSS ALL DOMAINS):
 
 UNIVERSAL DASHBOARD ENGINE (SUPER-DASHBOARD):
