@@ -17,10 +17,11 @@ import {
   MANIFEST,
   SUPERPOWERS, Superpower, generateSuperpower,
   SUBSCRIPTION_REPLACEMENTS, SubscriptionReplacement, generateSelfSufficientAudit,
+  HIDDEN_CAPABILITIES, HiddenCapability, generateHiddenCapability,
 } from "@/engine/InfiniteExpansionEngine";
 
 // ─── Panel tabs ───────────────────────────────────────────────────────────
-type UCPXTab = "agents" | "engines" | "expand" | "insights" | "tour" | "modules";
+type UCPXTab = "agents" | "engines" | "expand" | "insights" | "tour" | "modules" | "hidden";
 
 // ─── Tiny atoms ──────────────────────────────────────────────────────────
 
@@ -732,6 +733,90 @@ function UniversalModulesView({ onResult }: { onResult: (mod: InfiniteModule) =>
   );
 }
 
+// ─── Hidden AI Capabilities View ──────────────────────────────────────────
+
+function HiddenCapabilitiesView({ onResult }: { onResult: (m: InfiniteModule) => void }) {
+  const [unlockingId, setUnlockingId] = useState<string | null>(null);
+  const [unlockedIds, setUnlockedIds] = useState<string[]>([]);
+  const [domain,      setDomain]      = useState("");
+
+  function handleUnlock(hc: HiddenCapability) {
+    if (unlockingId) return;
+    setUnlockingId(hc.id);
+    setTimeout(() => {
+      const mod = generateHiddenCapability(hc.id, domain);
+      setUnlockedIds(prev => [hc.id, ...prev.filter(x => x !== hc.id)]);
+      setUnlockingId(null);
+      onResult(mod);
+    }, 950);
+  }
+
+  return (
+    <div className="space-y-3">
+      {/* Dramatic header */}
+      <div className="relative overflow-hidden rounded-2xl bg-gradient-to-br from-slate-900 to-indigo-950 border border-indigo-800/60 p-4">
+        <div className="absolute inset-0 opacity-20"
+          style={{ backgroundImage: "radial-gradient(circle at 70% 30%, #5856D6 0%, transparent 60%)" }} />
+        <div className="relative z-10">
+          <div className="flex items-center gap-2 mb-1">
+            <span className="text-base">✨</span>
+            <p className="text-[12px] font-black text-white tracking-wider uppercase">Hidden AI Capabilities</p>
+          </div>
+          <p className="text-[10px] text-indigo-300 leading-snug">Advanced abilities most systems cannot achieve. Autonomous creativity, recursive intelligence, multi-platform deployment.</p>
+          <div className="flex items-center gap-2 mt-2">
+            <span className="w-1.5 h-1.5 rounded-full bg-green-400 animate-pulse" />
+            <span className="text-[9px] text-green-400 font-semibold">ALL 9 CAPABILITIES UNLOCKED · ADDITIVE ONLY · CORE INTACT</span>
+          </div>
+        </div>
+      </div>
+
+      {/* Domain input */}
+      <div>
+        <label className="text-[10px] font-bold text-muted-foreground uppercase tracking-wider block mb-1">Domain / Context (optional)</label>
+        <input value={domain} onChange={e => setDomain(e.target.value)}
+          placeholder="e.g. Healthcare, my game project, finance team…"
+          className="w-full bg-white border border-border/40 rounded-xl px-3 py-2 text-[12px] outline-none focus:ring-1 focus:ring-indigo-300/50 transition-all" />
+      </div>
+
+      {/* Capabilities list */}
+      <div className="space-y-2">
+        {HIDDEN_CAPABILITIES.map(hc => {
+          const busy     = unlockingId === hc.id;
+          const unlocked = unlockedIds.includes(hc.id);
+          return (
+            <button key={hc.id} onClick={() => handleUnlock(hc)} disabled={!!unlockingId}
+              className={`w-full flex items-start gap-3 p-3 rounded-xl border text-left transition-all
+                ${unlocked
+                  ? "bg-indigo-50 border-indigo-200"
+                  : "bg-white border-border/40 hover:border-indigo-300 hover:bg-indigo-50/20"}
+                ${busy ? "opacity-60" : ""}
+                disabled:cursor-not-allowed`}>
+              <span className="text-xl flex-shrink-0 mt-0.5">{hc.icon}</span>
+              <div className="flex-1 min-w-0">
+                <p className="text-[12px] font-bold text-foreground">{hc.name}</p>
+                <p className="text-[10px] text-muted-foreground leading-snug">{hc.tagline}</p>
+                {!busy && !unlocked && (
+                  <p className="text-[9px] text-indigo-500 font-semibold mt-1">▶ {hc.unlockLabel}</p>
+                )}
+              </div>
+              <div className="flex-shrink-0 mt-0.5">
+                {busy ? (
+                  <div className="w-4 h-4 border-2 border-indigo-500 border-t-transparent rounded-full animate-spin" />
+                ) : unlocked ? (
+                  <span className="text-[10px] text-indigo-600 font-black">✓</span>
+                ) : (
+                  <span className="text-[10px] text-indigo-400 font-bold">✨</span>
+                )}
+              </div>
+            </button>
+          );
+        })}
+      </div>
+      <p className="text-[9px] text-muted-foreground text-center">UCP-X Hidden Capabilities · Additive Only · Self-Improving · Core Intact</p>
+    </div>
+  );
+}
+
 // ─── Drag hook (identical pattern to ConversationOverlay) ─────────────────
 
 function useDraggable(initialPos: () => { x: number; y: number }) {
@@ -810,12 +895,13 @@ export function UCPXAgent() {
   };
 
   const TAB_ITEMS: { id: UCPXTab; label: string; icon: string }[] = [
-    { id: "agents",  label: "Agents",   icon: "🤖" },
-    { id: "engines", label: "Engines",  icon: "⚙️" },
-    { id: "modules", label: "Modules",  icon: "🌐" },
-    { id: "expand",  label: "Expand",   icon: "♾️" },
-    { id: "insights",label: "Insights", icon: "🔮" },
-    { id: "tour",    label: "Tour",     icon: "🗺️" },
+    { id: "agents",  label: "Agents",  icon: "🤖" },
+    { id: "engines", label: "Engines", icon: "⚙️" },
+    { id: "modules", label: "Modules", icon: "🌐" },
+    { id: "expand",  label: "Powers",  icon: "⚡" },
+    { id: "insights",label: "Insights",icon: "🔮" },
+    { id: "hidden",  label: "Hidden",  icon: "✨" },
+    { id: "tour",    label: "Tour",    icon: "🗺️" },
   ];
 
   if (!btnPos) return null;
@@ -886,7 +972,7 @@ export function UCPXAgent() {
 
           {/* Tab content */}
           <div className="flex-1 overflow-y-auto p-3.5">
-            {activeResult && (tab === "expand" || tab === "agents" || tab === "modules")
+            {activeResult && (tab === "expand" || tab === "agents" || tab === "modules" || tab === "hidden")
               ? <ModuleCard mod={activeResult} onClose={() => setActiveResult(null)} />
               : tab === "agents"
               ? <div className="space-y-2">
@@ -902,6 +988,8 @@ export function UCPXAgent() {
               ? <ExpandView onResult={mod => { setActiveResult(mod); }} />
               : tab === "insights"
               ? <InsightsView />
+              : tab === "hidden"
+              ? <HiddenCapabilitiesView onResult={mod => { setActiveResult(mod); }} />
               : tab === "tour"
               ? <TourView />
               : null
@@ -911,7 +999,7 @@ export function UCPXAgent() {
           {/* Footer */}
           <div className="flex-none px-4 py-2.5 border-t border-border/20 bg-muted/20">
             <p className="text-[9px] text-muted-foreground text-center">
-              UCP-X v2 · 11 Engines · 6 Meta-Agents · 25 Universal Modules · Additive Only · Core Intact
+              UCP-X v3 · 11 Engines · 6 Meta-Agents · 25 Modules · 10 Superpowers · 9 Hidden Capabilities · Subscription-Free · Core Intact
             </p>
           </div>
         </div>
