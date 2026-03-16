@@ -4,6 +4,7 @@ import { CreationStore } from "@/standalone/creation/CreationStore";
 import { ConnectionEngine, NODE_TYPE_CFG, NodeType } from "@/engine/ConnectionEngine";
 import { RegulatoryEngine } from "@/engine/RegulatoryEngine";
 import { BackendBlueprintEngine } from "@/engine/BackendBlueprintEngine";
+import { PlatformStore, PlatformUser } from "@/engine/PlatformStore";
 
 type OsMode = "DEMO" | "TEST" | "LIVE";
 
@@ -302,14 +303,151 @@ function BackendBlueprintsSection({ onBack }: { onBack: () => void }) {
   );
 }
 
+// ─── AdminUsersSection ────────────────────────────────────────────────────────
+function AdminUsersSection({ onBack, onGoToPeople }: { onBack: () => void; onGoToPeople: () => void }) {
+  const [users, setUsers] = useState<PlatformUser[]>([]);
+  const [inviteName, setInviteName]   = useState("");
+  const [inviteEmail, setInviteEmail] = useState("");
+  const [inviteRole, setInviteRole]   = useState("Creator");
+  const [inviteDone, setInviteDone]   = useState(false);
+  const [inviteLink, setInviteLink]   = useState("");
+  const [copied, setCopied]           = useState(false);
+
+  const loadUsers = () => setUsers(PlatformStore.getUsers());
+  useEffect(() => {
+    loadUsers();
+    window.addEventListener("cai:users-change", loadUsers);
+    return () => window.removeEventListener("cai:users-change", loadUsers);
+  }, []);
+
+  const handleInvite = () => {
+    if (!inviteName.trim()) return;
+    PlatformStore.addUser({
+      name: inviteName.trim(), email: inviteEmail.trim(), phone: "",
+      role: inviteRole, tags: [], status: "Invited", createdBy: "admin",
+    });
+    const link = PlatformStore.generateInviteLink(inviteName);
+    setInviteLink(link);
+    setInviteDone(true);
+    setInviteName(""); setInviteEmail("");
+  };
+
+  const handleStatusChange = (id: string, s: PlatformUser["status"]) => {
+    PlatformStore.updateUserStatus(id, s);
+    loadUsers();
+  };
+
+  const handleRemove = (id: string) => {
+    PlatformStore.removeUser(id);
+    loadUsers();
+  };
+
+  return (
+    <div className="p-5 space-y-5 overflow-y-auto">
+      <div className="flex items-center gap-2">
+        <button onClick={onBack} className="text-primary text-sm font-medium">‹ Admin</button>
+        <h2 className="text-xl font-bold text-foreground flex-1">Users ({users.length})</h2>
+        <button onClick={onGoToPeople}
+          className="text-[11px] bg-primary/10 text-primary font-semibold px-3 py-1.5 rounded-xl hover:bg-primary/20 transition-colors">
+          Open People App →
+        </button>
+      </div>
+
+      {/* Live user list */}
+      <div className="space-y-2">
+        {users.map(u => (
+          <div key={u.id} className="bg-background border border-border/50 rounded-2xl p-3.5 space-y-2">
+            <div className="flex items-center gap-3">
+              <div className="w-9 h-9 rounded-full bg-primary/10 flex items-center justify-center text-primary font-bold flex-shrink-0">{u.name[0]}</div>
+              <div className="flex-1 min-w-0">
+                <p className="font-semibold text-[13px] text-foreground">{u.name}</p>
+                <p className="text-[11px] text-muted-foreground">{u.role} {u.email ? `· ${u.email}` : ""}</p>
+              </div>
+              <span className={`text-[10px] font-bold px-2 py-0.5 rounded-full flex-shrink-0 ${u.status === "Active" ? "bg-green-100 text-green-700" : u.status === "Invited" ? "bg-blue-100 text-blue-700" : "bg-orange-100 text-orange-700"}`}>
+                {u.status}
+              </span>
+            </div>
+            {u.name !== "Sara Stadler" && (
+              <div className="flex gap-1.5">
+                {(["Active", "Invited", "Pending"] as PlatformUser["status"][]).map(s => (
+                  <button key={s} onClick={() => handleStatusChange(u.id, s)}
+                    className={`flex-1 text-[10px] font-semibold py-1.5 rounded-lg border transition-all
+                      ${u.status === s ? "bg-primary text-white border-primary" : "border-border/40 text-muted-foreground hover:border-primary/30"}`}>
+                    {s}
+                  </button>
+                ))}
+                <button onClick={() => handleRemove(u.id)}
+                  className="text-[10px] font-semibold px-2 py-1.5 rounded-lg border border-red-200 text-red-500 hover:bg-red-50 transition-colors">
+                  Remove
+                </button>
+              </div>
+            )}
+          </div>
+        ))}
+      </div>
+
+      {/* Quick invite form */}
+      <div className="bg-primary/5 border border-primary/15 rounded-2xl p-4 space-y-3">
+        <p className="font-semibold text-[13px] text-foreground">+ Quick Invite User</p>
+        {inviteDone && (
+          <div className="bg-green-50 border border-green-200 rounded-xl p-3 space-y-2">
+            <p className="text-green-700 font-semibold text-[12px]">✓ User invited! Here's their link:</p>
+            <p className="text-[11px] font-mono text-foreground break-all bg-white rounded-lg p-2 border border-green-200">{inviteLink}</p>
+            <button onClick={() => { navigator.clipboard.writeText(inviteLink); setCopied(true); setTimeout(() => setCopied(false), 1500); }}
+              className="w-full text-[11px] bg-green-100 text-green-700 font-semibold py-2 rounded-xl hover:bg-green-200 transition-colors">
+              {copied ? "✓ Copied Link" : "Copy Invite Link"}
+            </button>
+            <button onClick={() => setInviteDone(false)}
+              className="w-full text-[11px] bg-muted text-muted-foreground font-semibold py-2 rounded-xl hover:bg-muted/80 transition-colors">
+              + Invite Another
+            </button>
+          </div>
+        )}
+        {!inviteDone && (
+          <>
+            <input value={inviteName} onChange={e => setInviteName(e.target.value)} placeholder="Full Name *"
+              className="w-full bg-background border border-border/50 rounded-xl px-3 py-2 text-[13px] outline-none focus:ring-2 focus:ring-primary/20 transition-all" />
+            <input value={inviteEmail} onChange={e => setInviteEmail(e.target.value)} placeholder="Email (optional)" type="email"
+              className="w-full bg-background border border-border/50 rounded-xl px-3 py-2 text-[13px] outline-none focus:ring-2 focus:ring-primary/20 transition-all" />
+            <div className="flex gap-2">
+              {["Creator", "Viewer", "Admin"].map(r => (
+                <button key={r} onClick={() => setInviteRole(r)}
+                  className={`flex-1 text-[11px] font-semibold py-2 rounded-xl border transition-all
+                    ${inviteRole === r ? "bg-primary text-white border-primary" : "border-border/50 text-muted-foreground hover:border-primary/30"}`}>
+                  {r}
+                </button>
+              ))}
+            </div>
+            <button onClick={handleInvite} disabled={!inviteName.trim()}
+              className="w-full bg-primary text-white text-sm font-semibold py-2.5 rounded-xl hover:opacity-90 disabled:opacity-40 transition-opacity">
+              Generate Invite Link
+            </button>
+          </>
+        )}
+      </div>
+
+      <div className="bg-orange-50 border border-orange-200 rounded-xl p-3">
+        <p className="text-[11px] text-orange-700">User data is stored locally in this browser session. Real user management requires authentication and backend setup.</p>
+      </div>
+    </div>
+  );
+}
+
 // ─────────────────────────────────────────────────────────────────────────────
 export function AdminApp() {
-  const { appRegistry, openApp } = useOS();
-  const [osMode, setOsMode] = useState<OsMode>("DEMO");
+  const { appRegistry, openApp, platformMode, setPlatformMode } = useOS();
+  const osMode = platformMode;
   const [activeSection, setActiveSection] = useState<string | null>(null);
   const [confirmLive, setConfirmLive] = useState(false);
   const [logAdded, setLogAdded] = useState(false);
   const [debugData, setDebugData] = useState<Record<string, unknown>>({});
+  const [liveUserCount, setLiveUserCount] = useState(() => PlatformStore.getUsers().length);
+
+  useEffect(() => {
+    const refresh = () => setLiveUserCount(PlatformStore.getUsers().length);
+    window.addEventListener("cai:users-change", refresh);
+    return () => window.removeEventListener("cai:users-change", refresh);
+  }, []);
 
   useEffect(() => {
     if (activeSection === "debug") {
@@ -333,7 +471,7 @@ export function AdminApp() {
 
   const handleModeSwitch = (m: OsMode) => {
     if (m === "LIVE") { setConfirmLive(true); return; }
-    setOsMode(m);
+    setPlatformMode(m);
     setLogAdded(true);
     setTimeout(() => setLogAdded(false), 3000);
   };
@@ -468,28 +606,7 @@ export function AdminApp() {
   }
 
   if (activeSection === "users") {
-    return (
-      <div className="p-6 space-y-4">
-        <button onClick={() => setActiveSection(null)} className="text-primary text-sm font-medium">‹ Admin</button>
-        <h2 className="text-xl font-bold text-foreground">Users ({USER_LIST.length})</h2>
-        <p className="text-[11px] text-muted-foreground">Mock user list — structural only. RBAC enforced.</p>
-        <div className="space-y-2">
-          {USER_LIST.map(u => (
-            <div key={u.name} className="flex items-center gap-3 p-4 bg-background rounded-2xl border border-border/50">
-              <div className="w-10 h-10 rounded-full bg-primary/10 flex items-center justify-center text-primary font-bold flex-shrink-0">{u.name[0]}</div>
-              <div className="flex-1 min-w-0">
-                <p className="font-semibold text-[13px] text-foreground">{u.name}</p>
-                <p className="text-[11px] text-muted-foreground">{u.role} · {u.access}</p>
-              </div>
-              <span className={`text-[10px] font-bold px-2 py-0.5 rounded-full flex-shrink-0 ${u.status === "Active" ? "bg-green-100 text-green-700" : "bg-blue-100 text-blue-700"}`}>{u.status}</span>
-            </div>
-          ))}
-        </div>
-        <div className="bg-orange-50 border border-orange-200 rounded-xl p-3">
-          <p className="text-[11px] text-orange-700">Real user management requires authentication setup and legal compliance. Mock only.</p>
-        </div>
-      </div>
-    );
+    return <AdminUsersSection onBack={() => setActiveSection(null)} onGoToPeople={() => { setActiveSection(null); openApp("people"); }} />;
   }
 
   if (activeSection === "audit") {
@@ -609,12 +726,21 @@ export function AdminApp() {
     return (
       <div className="p-6 space-y-5">
         <button onClick={() => setConfirmLive(false)} className="text-primary text-sm font-medium">‹ Admin</button>
-        <div className="bg-gray-50 border border-gray-200 rounded-2xl p-6 text-center space-y-3">
-          <p className="text-3xl">🔒</p>
-          <h3 className="font-bold text-foreground text-lg">Live Mode — Not Yet Active</h3>
-          <p className="text-[13px] text-muted-foreground">Live mode requires real integrations, legal agreements, compliance review, and expert configuration. It is a future placeholder only and cannot be activated from this interface.</p>
+        <div className="space-y-3">
+          <div className="bg-green-50 border border-green-200 rounded-2xl p-5 space-y-3">
+            <p className="text-3xl text-center">🟢</p>
+            <h3 className="font-bold text-foreground text-lg text-center">Switch to Live Mode?</h3>
+            <p className="text-[13px] text-muted-foreground text-center">Live Mode enables all platform features to operate at full capacity. Content generation, campaign staging, and invite flows become fully operational for you and all invited users.</p>
+          </div>
+          <div className="bg-amber-50 border border-amber-200 rounded-xl p-3">
+            <p className="text-[11px] text-amber-700 font-medium">⚠️ Note: Real third-party integrations, financial transactions, and clinical workflows require additional legal and technical setup before use. Content generation and invites are always safe to use in Live Mode.</p>
+          </div>
+          <button onClick={() => { setPlatformMode("LIVE"); setLogAdded(true); setConfirmLive(false); setTimeout(() => setLogAdded(false), 3000); }}
+            className="w-full bg-green-600 text-white text-sm font-bold py-3 rounded-xl hover:opacity-90 transition-opacity">
+            ✓ Activate Live Mode
+          </button>
           <button onClick={() => setConfirmLive(false)}
-            className="bg-primary text-white text-sm font-semibold px-5 py-2.5 rounded-xl hover:opacity-90 transition-opacity">
+            className="w-full bg-muted text-muted-foreground text-sm font-semibold py-2.5 rounded-xl hover:bg-muted/80 transition-colors">
             Stay in {osMode} Mode
           </button>
         </div>
@@ -643,7 +769,7 @@ export function AdminApp() {
             className="p-4 bg-background rounded-2xl border border-border/50 space-y-1 text-left hover:border-primary/20 hover:shadow-sm transition-all group">
             <div className="flex items-center justify-between">
               <span className="text-xl">{s.icon}</span>
-              <span className="text-[13px] font-bold text-foreground">{s.id === "projects" ? "6" : s.id === "users" ? "3" : s.value}</span>
+              <span className="text-[13px] font-bold text-foreground">{s.id === "projects" ? "6" : s.id === "users" ? String(liveUserCount) : s.value}</span>
             </div>
             <p className="font-semibold text-[13px] text-foreground">{s.label}</p>
             <p className="text-[11px] text-muted-foreground">{s.desc}</p>

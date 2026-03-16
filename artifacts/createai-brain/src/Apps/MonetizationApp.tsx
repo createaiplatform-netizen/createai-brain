@@ -1,5 +1,6 @@
 import React, { useState, useRef, useEffect } from "react";
 import { useOS } from "@/os/OSContext";
+import { BrainGen } from "@/engine/BrainGen";
 
 // ─── Types ───────────────────────────────────────────────────────────────────
 interface Opportunity {
@@ -37,10 +38,41 @@ function effortBadge(effort: Opportunity["effort"]) {
 
 // ─── Opportunity detail ───────────────────────────────────────────────────────
 function OpportunityDetail({ opp, onBack }: { opp: Opportunity; onBack: () => void }) {
-  const [launched, setLaunched] = useState(false);
+  const [staged, setStaged]         = useState(false);
+  const [generating, setGenerating] = useState(false);
+  const [plan, setPlan]             = useState<{email: string; campaign: string; adCopy: string} | null>(null);
+  const [copied, setCopied]         = useState<string | null>(null);
+
+  const handleStage = async () => {
+    setGenerating(true);
+    const [emailRes, campaignRes, adRes] = await Promise.all([
+      BrainGen.generateEmail({
+        topic: `${opp.title} — write a compelling 3-email launch sequence for this offer: ${opp.description}. First email announces it, second shows value, third drives action.`,
+        tone: "Empowering",
+      }),
+      BrainGen.generateCampaign({
+        topic: `${opp.title} — create a 30-day launch campaign plan including social posts, email dates, ad targeting, and a soft-launch strategy. Estimated value: ${opp.estimatedValue}.`,
+        tone: "Professional",
+      }),
+      BrainGen.generateAdCopy({
+        topic: `${opp.title} — ${opp.description}`,
+        platform: "Universal",
+        tone: "Empowering",
+      }),
+    ]);
+    setPlan({ email: emailRes.content, campaign: campaignRes.content, adCopy: adRes.content });
+    setStaged(true);
+    setGenerating(false);
+  };
+
+  const copy = (what: string, text: string) => {
+    navigator.clipboard.writeText(text);
+    setCopied(what);
+    setTimeout(() => setCopied(null), 1500);
+  };
 
   return (
-    <div className="p-5 space-y-5">
+    <div className="p-5 space-y-5 overflow-y-auto">
       <button onClick={onBack} className="text-primary text-sm font-medium">‹ Opportunities</button>
       <div>
         <h2 className="text-xl font-bold text-foreground">{opp.title}</h2>
@@ -49,13 +81,14 @@ function OpportunityDetail({ opp, onBack }: { opp: Opportunity; onBack: () => vo
           <span className={`text-[11px] font-semibold px-2 py-0.5 rounded-full ${effortBadge(opp.effort)}`}>{opp.effort} Effort</span>
         </div>
       </div>
+
       <div className="bg-background rounded-2xl border border-border/50 divide-y divide-border/30">
         {[
-          { label: "Description", value: opp.description },
-          { label: "Estimated Value", value: opp.estimatedValue },
-          { label: "Readiness Score", value: `${opp.readiness}% — ready to test` },
-          { label: "Recommended Action", value: "Create an offer package, write 3-email sequence, stage for approval before sending." },
-          { label: "Next Revenue Step", value: "Soft-launch to existing contacts via email or text. No cold outreach required." },
+          { label: "Description",       value: opp.description },
+          { label: "Estimated Value",   value: opp.estimatedValue },
+          { label: "Readiness Score",   value: `${opp.readiness}% — ready to test` },
+          { label: "Recommended Action",value: "Generate the content plan below, review it, then soft-launch to existing contacts." },
+          { label: "Next Revenue Step", value: "Share via email or text to warm contacts. No cold outreach required." },
         ].map(row => (
           <div key={row.label} className="px-4 py-3">
             <p className="text-[11px] font-semibold text-muted-foreground uppercase tracking-wider">{row.label}</p>
@@ -63,16 +96,53 @@ function OpportunityDetail({ opp, onBack }: { opp: Opportunity; onBack: () => vo
           </div>
         ))}
       </div>
-      {!launched
-        ? <button onClick={() => setLaunched(true)} className="w-full bg-primary text-white text-sm font-semibold py-3 rounded-xl hover:opacity-90 transition-opacity">
-            Stage This Opportunity (Mock)
-          </button>
-        : <div className="bg-green-50 border border-green-200 rounded-xl p-4 text-center">
-            <p className="text-green-700 font-semibold text-[14px]">✓ Staged for Review</p>
-            <p className="text-[12px] text-green-600 mt-1">This opportunity is ready for your review and approval before any action is taken.</p>
+
+      {/* Stage button */}
+      {!staged && !generating && (
+        <button onClick={handleStage}
+          className="w-full bg-primary text-white text-sm font-semibold py-3 rounded-xl hover:opacity-90 transition-opacity flex items-center justify-center gap-2">
+          🧠 Generate Full Content Plan &amp; Stage
+        </button>
+      )}
+
+      {generating && (
+        <div className="bg-primary/5 border border-primary/15 rounded-2xl p-5 flex flex-col items-center gap-3">
+          <div className="w-8 h-8 border-3 border-primary border-t-transparent rounded-full animate-spin" />
+          <p className="font-semibold text-[14px] text-foreground">Brain is building your content plan…</p>
+          <p className="text-[12px] text-muted-foreground">Email sequence · Campaign plan · Ad copy — all generating now</p>
+        </div>
+      )}
+
+      {/* Generated plan */}
+      {staged && plan && (
+        <div className="space-y-4">
+          <div className="bg-green-50 border border-green-200 rounded-2xl p-4">
+            <p className="text-green-700 font-bold text-[14px]">✓ Content Plan Generated — Ready for Your Review</p>
+            <p className="text-[12px] text-green-600 mt-1">Review each section below. Copy what you want to use. Nothing is sent automatically.</p>
           </div>
-      }
-      <p className="text-[10px] text-muted-foreground text-center">All content is mock and structural only. No real revenue flows are created.</p>
+
+          {[
+            { key: "email",    label: "📧 Email Sequence (3-Part)", content: plan.email },
+            { key: "campaign", label: "📅 30-Day Campaign Plan",    content: plan.campaign },
+            { key: "adCopy",   label: "📣 Ad Copy",                 content: plan.adCopy },
+          ].map(({ key, label, content }) => (
+            <div key={key} className="bg-background border border-border/50 rounded-2xl p-4 space-y-2">
+              <div className="flex items-center gap-2">
+                <p className="font-semibold text-[13px] text-foreground flex-1">{label}</p>
+                <button onClick={() => copy(key, content)}
+                  className="text-[11px] bg-muted text-muted-foreground font-semibold px-3 py-1.5 rounded-lg hover:bg-muted/80 transition-colors flex-shrink-0">
+                  {copied === key ? "✓ Copied" : "Copy"}
+                </button>
+              </div>
+              <div className="bg-muted/30 rounded-xl p-3 max-h-40 overflow-y-auto">
+                <pre className="text-[11px] text-foreground whitespace-pre-wrap font-sans leading-relaxed">{content}</pre>
+              </div>
+            </div>
+          ))}
+        </div>
+      )}
+
+      <p className="text-[10px] text-muted-foreground text-center">All content is generated for your review. No real revenue flows are created without your explicit approval.</p>
     </div>
   );
 }

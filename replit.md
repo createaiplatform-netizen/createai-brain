@@ -387,6 +387,27 @@ Full-stack AI OS platform — "CreateAI Brain" by Sara Stadler. React + Vite + W
 - Result overlay: ModuleCard with content display, Copy button, back nav
 - Floating trigger: bottom-right, gradient indigo→blue, ⚡ icon, green pulse dot when agents are active
 
+**PlatformStore (src/engine/PlatformStore.ts) — Shared cross-app state layer:**
+- `PlatformMode` = "DEMO" | "TEST" | "LIVE" — persisted in localStorage, accessible from every app via `useOS().platformMode`
+- `PlatformUser` — id, name, email, phone, role, tags, status (Active/Invited/Pending), addedAt, createdBy
+- `PlatformStore.getUsers()` — returns seed users + any added ones (from localStorage)
+- `PlatformStore.addUser()` — saves to localStorage, fires `cai:users-change` event
+- `PlatformStore.updateUserStatus()` — fires `cai:users-change` event
+- `PlatformStore.removeUser()` — protects Sara Stadler from removal
+- `PlatformStore.getMode()` / `setMode()` — fires `cai:mode-change` event (OSContext listens)
+- `PlatformStore.getRecent()` / `pushRecent()` — recent activity log (last 8 items)
+- `PlatformStore.generateInviteLink(name)` — generates base64-encoded invite URL
+- `PlatformStore.generateInviteMessage(name, role, link)` — full personalized invite message
+
+**Cross-app wiring (as of this session):**
+- OSContext: `platformMode` state + `setPlatformMode()` — dispatches to all apps via event
+- Dashboard: live mode badge (orange/blue/green dot), clickable mode menu, real recent activity from PlatformStore
+- PeopleApp: reads from PlatformStore.getUsers(), saves new people, status toggles, manual add form, parse-and-save bulk invite, Brain-generated invite messages with copy+mailto+sms links
+- AdminApp Users section: reads live user count and list from PlatformStore, status toggle + remove + quick invite with link generation
+- AdminApp Mode Switcher: now calls OSContext.setPlatformMode() → propagates everywhere
+- AdminApp Live Mode: now actually allows activating Live Mode with informational confirmation
+- MonetizationApp: "Stage This Opportunity" now calls BrainGen to generate real email sequence + campaign plan + ad copy (3 parallel generators) before showing the green confirmation
+
 ### `scripts` (`@workspace/scripts`)
 
 Utility scripts package. Each script is a `.ts` file in `src/` with a corresponding npm script in `package.json`. Run scripts via `pnpm --filter @workspace/scripts run <script>`. Scripts can import any workspace package (e.g., `@workspace/db`) by adding it as a dependency in `scripts/package.json`.
