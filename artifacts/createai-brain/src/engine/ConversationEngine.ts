@@ -17,6 +17,8 @@ export const CONVO_STORAGE_KEY = "createai_conversation_v1";
 export type IntentType =
   | "switch-role" | "switch-agency" | "switch-state" | "switch-vendor"
   | "switch-department" | "switch-user-type" | "switch-demo-status"
+  | "switch-industry" | "switch-country" | "switch-domain" | "switch-mode"
+  | "start-workflow" | "generate-creative"
   | "navigate" | "open-packet" | "walk-through" | "simulate"
   | "show-form" | "show-data" | "test-me" | "status-check"
   | "explain" | "help" | "test-answer" | "next-step" | "back-step"
@@ -110,10 +112,58 @@ const PATTERNS: { intent: IntentType; patterns: RegExp[] }[] = [
     ],
   },
   {
+    intent: "switch-industry",
+    patterns: [
+      /\b(switch|change|set|show|use|explore).*(industry|sector|vertical|field)\b/i,
+      /\b(healthcare|finance|education|technology|nonprofit|retail|manufacturing|logistics|hospitality|construction|energy|insurance|hr|marketing|legal|emergency|creative|research|government|human.?services)\b.*(industry|mode|sector|view|demo|switch|change)/i,
+      /\b(industry|sector|vertical)\b.*(change|switch|to|set|for)/i,
+      /\bswitch to\b.*(healthcare|finance|education|tech|nonprofit|retail|manufacturing|logistics|hospitality|construction|energy|insurance|hr|marketing|legal|emergency|creative|research|government)/i,
+    ],
+  },
+  {
+    intent: "switch-country",
+    patterns: [
+      /\b(switch|change|set|show|use).*(country|nation|region|jurisdiction|locale)\b/i,
+      /\b(united states|canada|united kingdom|australia|germany|france|japan|india|brazil|mexico)\b.*(view|mode|switch|change|context|scenario)/i,
+      /\bcountry\b.*(change|switch|to|set|for)/i,
+    ],
+  },
+  {
+    intent: "switch-domain",
+    patterns: [
+      /\b(switch|change|set|show|use).*(domain|area|focus|function|specialty)\b/i,
+      /\b(operations|compliance|clinical|financial|technical|creative|research|policy|training|sales|marketing|hr|legal|quality|risk|data|product|engineering|community)\b.*(domain|view|mode|focus)/i,
+    ],
+  },
+  {
+    intent: "switch-mode",
+    patterns: [
+      /\b(switch|change|set|enter|go into|use|activate).*(mode|demo mode|training mode|simulation mode|blueprint mode|creative mode)\b/i,
+      /\b(demo|training|simulation|blueprint|creative)\s+mode\b/i,
+      /\bmode\b.*(change|switch|to|set|for)/i,
+    ],
+  },
+  {
+    intent: "start-workflow",
+    patterns: [
+      /\b(start|run|begin|launch|simulate|initiate|trigger).*(workflow|process|flow|procedure)\b/i,
+      /\b(workflow|process)\b.*(start|run|begin|launch|simulate|show|view)/i,
+      /\b(patient intake|grant application|incident response|loan origination|product launch|hiring|content production|emergency response)\b.*(workflow|process|start|run)/i,
+    ],
+  },
+  {
+    intent: "generate-creative",
+    patterns: [
+      /\b(generate|create|build|make|produce|write|draft).*(video|documentary|training|simulation|storyboard|script|explainer|podcast|course|presentation|webinar|commercial|creative|production)\b/i,
+      /\b(video|documentary|training|script|storyboard|explainer|podcast|course|presentation|webinar|commercial)\b.*(generate|create|build|make|produce|write|for)\b/i,
+      /\b(creative|production)\b.*(package|plan|outline|structure|generate|create)\b/i,
+    ],
+  },
+  {
     intent: "navigate",
     patterns: [
-      /\b(go to|open|show|take me to|navigate to|load|display|view)\b.*(home|dashboard|roles?|agencies|states?|vendors?|programs?|packets?|submissions?|settings?|talk|conversation|universal|hub)\b/i,
-      /\b(home|dashboard|roles?|agencies|states?|vendors?|programs?|packets?|submissions?|settings?)\s*(screen|page|view|tab|section)\b/i,
+      /\b(go to|open|show|take me to|navigate to|load|display|view)\b.*(home|dashboard|roles?|agencies|states?|vendors?|programs?|packets?|submissions?|settings?|talk|conversation|universal|hub|industries|workflows?|creative)\b/i,
+      /\b(home|dashboard|roles?|agencies|states?|vendors?|programs?|packets?|submissions?|settings?|industries|workflows?|creative)\s*(screen|page|view|tab|section)\b/i,
     ],
   },
   {
@@ -251,6 +301,121 @@ function extractEntity(text: string, intent: IntentType): { entity: string | nul
     }
   }
 
+  // Universal Everything Engine entity extraction
+  if (intent === "switch-industry") {
+    const INDUSTRY_KEYWORDS: { keywords: string[]; id: string; label: string }[] = [
+      { keywords: ["healthcare", "health care", "medical", "hospital", "clinical"], id: "healthcare", label: "Healthcare" },
+      { keywords: ["finance", "banking", "financial", "bank"], id: "finance", label: "Finance & Banking" },
+      { keywords: ["education", "school", "university", "academic", "learning"], id: "education", label: "Education" },
+      { keywords: ["technology", "tech", "software", "saas", "it "], id: "technology", label: "Technology" },
+      { keywords: ["nonprofit", "non-profit", "ngo", "charity"], id: "nonprofit", label: "Nonprofit & NGO" },
+      { keywords: ["retail", "ecommerce", "e-commerce", "store", "shopping"], id: "retail", label: "Retail & E-Commerce" },
+      { keywords: ["manufacturing", "factory", "production", "industrial"], id: "manufacturing", label: "Manufacturing" },
+      { keywords: ["logistics", "supply chain", "shipping", "freight", "warehouse"], id: "logistics", label: "Logistics & Supply Chain" },
+      { keywords: ["hospitality", "hotel", "restaurant", "tourism", "travel"], id: "hospitality", label: "Hospitality & Tourism" },
+      { keywords: ["construction", "real estate", "building", "property", "architecture"], id: "construction", label: "Construction & Real Estate" },
+      { keywords: ["energy", "utility", "utilities", "oil", "gas", "electric", "renewable"], id: "energy", label: "Energy & Utilities" },
+      { keywords: ["insurance", "insurer", "actuarial", "underwriting"], id: "insurance", label: "Insurance" },
+      { keywords: ["hr", "human resources", "workforce", "hiring", "talent"], id: "hr-workforce", label: "HR & Workforce" },
+      { keywords: ["marketing", "advertising", "campaign", "brand"], id: "marketing", label: "Marketing & Advertising" },
+      { keywords: ["legal", "law", "compliance", "regulatory"], id: "legal-compliance", label: "Legal & Compliance" },
+      { keywords: ["emergency", "fire", "police", "ems", "dispatch", "public safety"], id: "emergency-services", label: "Emergency Services" },
+      { keywords: ["creative", "media", "film", "tv", "music", "entertainment", "gaming"], id: "creative-media", label: "Creative & Media" },
+      { keywords: ["research", "science", "laboratory", "clinical trial", "biotech"], id: "research-science", label: "Research & Science" },
+      { keywords: ["government", "public sector", "federal", "state agency", "municipal"], id: "government", label: "Government / Public Sector" },
+      { keywords: ["human services", "social services", "case management", "family services"], id: "human-services", label: "Human Services" },
+    ];
+    for (const ind of INDUSTRY_KEYWORDS) {
+      if (ind.keywords.some(k => lower.includes(k))) {
+        return { entity: ind.id, entityLabel: ind.label, stateUpdate: { currentIndustry: ind.id } };
+      }
+    }
+  }
+
+  if (intent === "switch-country") {
+    const COUNTRIES = [
+      "united states", "canada", "united kingdom", "australia", "germany", "france",
+      "japan", "south korea", "india", "brazil", "mexico", "netherlands", "sweden",
+      "singapore", "south africa", "nigeria", "new zealand", "switzerland",
+    ];
+    for (const c of COUNTRIES) {
+      if (lower.includes(c)) {
+        const label = c.replace(/\b\w/g, l => l.toUpperCase());
+        return { entity: label, entityLabel: label, stateUpdate: { currentCountry: label } };
+      }
+    }
+  }
+
+  if (intent === "switch-domain") {
+    const DOMAINS = [
+      "operations", "compliance", "clinical", "financial", "technical", "creative",
+      "research", "policy", "training", "sales", "marketing", "hr", "legal",
+      "quality", "risk", "data", "product", "engineering", "community",
+    ];
+    for (const d of DOMAINS) {
+      if (lower.includes(d)) {
+        const label = d.charAt(0).toUpperCase() + d.slice(1);
+        return { entity: d, entityLabel: label, stateUpdate: { currentDomain: label } };
+      }
+    }
+  }
+
+  if (intent === "switch-mode") {
+    const MODES = [
+      { key: "demo", label: "Demo Mode" },
+      { key: "training", label: "Training Mode" },
+      { key: "simulation", label: "Simulation Mode" },
+      { key: "blueprint", label: "Blueprint Mode" },
+      { key: "creative", label: "Creative Production" },
+    ];
+    for (const m of MODES) {
+      if (lower.includes(m.key)) {
+        return { entity: m.key, entityLabel: m.label, stateUpdate: { currentMode: m.key } };
+      }
+    }
+  }
+
+  if (intent === "start-workflow") {
+    const WF_MAP: { keywords: string[]; id: string; label: string }[] = [
+      { keywords: ["patient intake", "patient admission", "intake"], id: "wf-patient-intake", label: "Patient Intake" },
+      { keywords: ["grant", "grant application"], id: "wf-grant-application", label: "Grant Application" },
+      { keywords: ["incident response", "security incident", "breach"], id: "wf-incident-response", label: "IT Incident Response" },
+      { keywords: ["loan", "loan origination", "lending"], id: "wf-loan-origination", label: "Loan Origination" },
+      { keywords: ["product launch", "launch", "release"], id: "wf-product-launch", label: "Product Launch" },
+      { keywords: ["hiring", "recruiting", "recruitment", "job req"], id: "wf-hiring", label: "Full-Cycle Recruiting" },
+      { keywords: ["content production", "creative production", "video production"], id: "wf-content-production", label: "Content Production" },
+      { keywords: ["emergency response", "emergency", "incident command"], id: "wf-emergency-response", label: "Emergency Response" },
+    ];
+    for (const wf of WF_MAP) {
+      if (wf.keywords.some(k => lower.includes(k))) {
+        return { entity: wf.id, entityLabel: wf.label, stateUpdate: { currentScenario: wf.id } };
+      }
+    }
+    return { entity: "workflows", entityLabel: "Workflows", stateUpdate: null };
+  }
+
+  if (intent === "generate-creative") {
+    const CREATIVE_TYPES: { keywords: string[]; type: string; label: string }[] = [
+      { keywords: ["video", "marketing video"], type: "video", label: "Marketing Video" },
+      { keywords: ["documentary"], type: "documentary", label: "Documentary" },
+      { keywords: ["training", "training module", "training video"], type: "training", label: "Training Module" },
+      { keywords: ["simulation", "interactive simulation"], type: "simulation", label: "Simulation" },
+      { keywords: ["storyboard"], type: "storyboard", label: "Storyboard" },
+      { keywords: ["script", "screenplay"], type: "script", label: "Script" },
+      { keywords: ["explainer"], type: "explainer", label: "Explainer Video" },
+      { keywords: ["podcast"], type: "podcast", label: "Podcast Episode" },
+      { keywords: ["course", "online course", "elearning"], type: "course", label: "Online Course" },
+      { keywords: ["presentation", "slide deck", "slides"], type: "presentation", label: "Presentation" },
+      { keywords: ["webinar"], type: "webinar", label: "Webinar" },
+      { keywords: ["commercial", "ad", "advertisement"], type: "commercial", label: "Commercial Spot" },
+    ];
+    for (const ct of CREATIVE_TYPES) {
+      if (ct.keywords.some(k => lower.includes(k))) {
+        return { entity: ct.type, entityLabel: ct.label, stateUpdate: { currentMode: "creative" } };
+      }
+    }
+  }
+
   return { entity: null, entityLabel: null, stateUpdate: null };
 }
 
@@ -269,7 +434,15 @@ function extractScreen(text: string, intent: IntentType): UniversalView | null {
     if (lower.includes("setting")) return "settings";
     if (lower.includes("talk") || lower.includes("convers") || lower.includes("chat")) return "home";
     if (lower.includes("home")) return "home";
+    if (lower.includes("industr") || lower.includes("sector")) return "industries";
+    if (lower.includes("workflow") || lower.includes("process")) return "workflows";
+    if (lower.includes("creative") || lower.includes("production") || lower.includes("media")) return "creative";
   }
+
+  if (intent === "switch-industry") return "industries";
+  if (intent === "switch-country" || intent === "switch-domain" || intent === "switch-mode") return "industries";
+  if (intent === "start-workflow") return "workflows";
+  if (intent === "generate-creative") return "creative";
   if (intent === "switch-role") return "roles";
   if (intent === "switch-agency") return "agencies";
   if (intent === "switch-state") return "states";
@@ -433,11 +606,45 @@ const RESPONSES: Record<IntentType, (entity: string | null, entityLabel: string 
   ],
   "switch-user-type": (_, label) => [`User type updated to ${label}.`],
   "switch-demo-status": (_, label) => [`Demo status set to ${label}.`],
-  "navigate": (_, label) => label ? [
-    `Navigating to the ${label} screen now.`,
-    `Opening ${label}. You can also tap it in the sidebar anytime.`,
+  "switch-industry": (_, label) => label ? [
+    `Industry switched to ${label}. The Industries screen will now show roles, departments, workflows, vendors, regulations, and scenarios specific to ${label}. All mock data — internal only.`,
+    `Now exploring ${label}. Every screen adapts: roles, agencies, workflows, and regulations reflect this industry context. Navigate to the Industries screen to explore further.`,
+    `${label} mode active. The Universal Everything Engine has loaded the full mock data set for this industry — roles, workflows, programs, vendors, and sample scenarios.`,
   ] : [
-    "Where would you like to go? Available screens: Home, Dashboard, Roles, Agencies, States, Vendors, Programs, Packets, Submissions, Settings.",
+    "Which industry? Available: Healthcare, Finance, Education, Technology, Nonprofit, Retail, Manufacturing, Logistics, Hospitality, Construction, Energy, Insurance, HR, Marketing, Legal, Emergency Services, Creative Media, Research, Government, Human Services.",
+    "Say 'switch to healthcare' or 'explore finance industry' to change the active industry context. The Industries screen shows all 20 available options.",
+  ],
+  "switch-country": (_, label) => label ? [
+    `Country context set to ${label}. Jurisdictional variations (regulatory, language, compliance patterns) are now reflected in mock data. All fictional — non-operational.`,
+    `${label} selected. The mock regulatory readiness blueprint and workflow patterns now reflect this jurisdiction. See the Industries screen for country context.`,
+  ] : [
+    "Which country? Available: United States, Canada, United Kingdom, Australia, Germany, France, Japan, India, Brazil, Mexico, and 35+ others. Try 'switch to Canada' or 'set country to Germany.'",
+  ],
+  "switch-domain": (_, label) => label ? [
+    `Domain set to ${label}. This filters the view to focus on ${label}-specific workflows, roles, and data patterns.`,
+    `${label} domain active. Navigate to the Industries screen to see domain-specific content.`,
+  ] : [
+    "Which domain? Options: Operations, Compliance, Clinical, Financial, Technical, Creative, Research, Policy, Training, Sales, Marketing, HR, Legal, Quality, Risk, Data, Product, Engineering, Community.",
+  ],
+  "switch-mode": (_, label) => label ? [
+    `Mode switched to ${label}. The platform now operates in ${label}: all outputs, interactions, and engine behaviors reflect this mode. All fictional — internal only.`,
+    `${label} activated. In this mode, the Universal Everything Engine adjusts how screens, workflows, and responses are generated.`,
+  ] : [
+    "Available modes: Demo Mode (safe mock interactions), Training Mode (guided learning with quiz), Simulation Mode (full workflow simulation), Blueprint Mode (API/data/regulatory design view), Creative Production (generate production packages). Say 'enter training mode' or 'switch to simulation mode.'",
+  ],
+  "start-workflow": (entity, label) => entity && entity !== "workflows" ? [
+    `Starting the "${label}" workflow simulation. Navigate to the Workflows screen to step through each stage, trigger mock outcomes, and view the action log. All steps are fictional — no real processes are initiated.`,
+    `"${label}" workflow loaded. Head to the Workflows screen to begin. You'll be able to advance each step, choose mock outcomes (success/failure/warning), and review the full simulation log.`,
+  ] : [
+    "Which workflow? Available templates: Patient Intake, Grant Application, IT Incident Response, Loan Origination, Product Launch, Full-Cycle Recruiting, Content Production, Emergency Response. Navigate to the Workflows screen to browse and start any workflow.",
+    "Try 'start patient intake workflow' or 'run loan origination.' The Workflows screen shows all 8 templates across different industries — each with full step-by-step simulation.",
+  ],
+  "generate-creative": (entity, label) => entity ? [
+    `Generating a "${label}" production package. Navigate to the Creative screen and select "${label}" to generate a full fictional package: title, purpose, chapters, style guide, emotional arc, mock actors, and disclaimer. All demo-only — non-operational.`,
+    `"${label}" creative package ready to generate. Head to the Creative Production screen. You can customize: topic, audience, and tone. The engine produces a complete fictional outline — scripts, chapters, visuals, transitions — all internal, safe, non-factual.`,
+  ] : [
+    "What would you like to create? Options: Video, Documentary, Training Module, Simulation, Storyboard, Script, Explainer, Podcast, Online Course, Presentation, Webinar, Commercial. Navigate to the Creative screen and choose a type to generate a full fictional production package.",
+    "Try 'generate a training video' or 'create a documentary script.' The Creative Production screen will generate a complete fictional package — chapters, narration, style guide, and mock cast.",
   ],
   "open-packet": (entity, label) => label ? [
     `Opening the ${label} packet. You'll see the mock endpoint, version, status, and available flow actions.`,
@@ -475,8 +682,14 @@ const RESPONSES: Record<IntentType, (entity: string | null, entityLabel: string 
   "reset": () => [
     "Session state has been reset to defaults. All selections (role, agency, state, vendor, packet) return to their default values. Action log cleared.",
   ],
+  "navigate": (_, label) => label ? [
+    `Navigating to the ${label} screen now.`,
+    `Opening ${label}. You can also tap it in the sidebar anytime.`,
+  ] : [
+    "Where would you like to go? Available screens: Home, Dashboard, Roles, Agencies, States, Vendors, Programs, Packets, Submissions, Settings, Industries, Workflows, Creative.",
+  ],
   "help": () => [
-    `Here's what you can say or type:\n\n🔀 SWITCH: "Switch to Care Coordinator" / "Change agency to SAMHSA" / "Set state to Texas" / "Use Nexus Health"\n\n🗺️ NAVIGATE: "Go to Dashboard" / "Open Packets" / "Show me Submissions"\n\n🚶 WALK-THROUGH: "Walk me through the submission flow" / "Explain the steps for enrollment"\n\n🎭 SIMULATE: "Pretend a user submitted a packet" / "What happens if the status is rejected?"\n\n📋 SHOW: "Show me what the form looks like" / "What roles are available?"\n\n🧪 TEST: "Test me on workflows" / "Quiz me on agencies"\n\n📊 STATUS: "What's my current role?" / "Where am I?"\n\nAll interactions are internal, mock, demo-only.`,
+    `Here's what you can say or type:\n\n🔀 SWITCH: "Switch to Care Coordinator" / "Change agency to SAMHSA" / "Set state to Texas" / "Use Nexus Health" / "Switch to Finance industry" / "Set country to Canada" / "Enter training mode"\n\n🏭 INDUSTRIES: "Explore healthcare" / "Switch to technology industry" / "Show me education sector"\n\n⚙️ WORKFLOWS: "Start patient intake workflow" / "Run loan origination" / "Simulate incident response"\n\n🎬 CREATIVE: "Generate a training video" / "Create a documentary script" / "Make an explainer for HR"\n\n🗺️ NAVIGATE: "Go to Dashboard" / "Open Industries" / "Show me Workflows" / "Go to Creative"\n\n🚶 WALK-THROUGH: "Walk me through the submission flow" / "Explain the steps for enrollment"\n\n🎭 SIMULATE: "Pretend a user submitted a packet" / "What happens if the status is rejected?"\n\n📋 SHOW: "What industries are available?" / "Show me all workflow templates"\n\n🧪 TEST: "Test me on workflows" / "Quiz me on agencies"\n\n📊 STATUS: "What's my current role?" / "Where am I?"\n\nAll interactions are internal, mock, demo-only, non-operational. Safety Core always active.`,
   ],
   "unknown": () => [
     "I'm not sure what you're asking — try 'help' to see all supported commands. You can switch roles, navigate screens, run walk-throughs, simulate scenarios, show data, or take a quiz.",

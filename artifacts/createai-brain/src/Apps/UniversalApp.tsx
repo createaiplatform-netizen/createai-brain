@@ -14,12 +14,21 @@ import {
   InteractionEngine,
 } from "@/engine/InteractionEngine";
 import { IntegrationEngine } from "@/engine/IntegrationEngine";
+import {
+  UNIVERSAL_INDUSTRIES, UNIVERSAL_COUNTRIES, UNIVERSAL_DOMAINS,
+  UNIVERSAL_MODES, UNIVERSAL_SCENARIOS, getIndustry, getScenariosForIndustry,
+} from "@/engine/UniversalMockDataEngine";
+import { WorkflowEngine, Workflow, MockOutcome } from "@/engine/UniversalWorkflowEngine";
+import { CreativeEngine, CreativeType } from "@/engine/UniversalCreativeEngine";
 
 // ─── Nav definition ───────────────────────────────────────────────────────
 const NAV_ITEMS: { id: UniversalView; label: string; icon: string }[] = [
   { id: "home",        label: "Home",             icon: "🏠" },
   { id: "talk",        label: "Talk / Test",       icon: "🧠" },
   { id: "dashboard",   label: "Dashboard",        icon: "📊" },
+  { id: "industries",  label: "Industries",       icon: "🏭" },
+  { id: "workflows",   label: "Workflows",        icon: "⚙️" },
+  { id: "creative",    label: "Creative",         icon: "🎬" },
   { id: "roles",       label: "Roles",            icon: "🎭" },
   { id: "agencies",    label: "Agencies",         icon: "🏛️" },
   { id: "states",      label: "States",           icon: "🗺️" },
@@ -984,6 +993,684 @@ function TalkScreen() {
   );
 }
 
+// ─── Industries Screen ────────────────────────────────────────────────────
+function IndustriesScreen() {
+  const { state, setIndustry, setCountry, setDomain, setMode, setScenario, dispatch } = useInteraction();
+  const activeInd = getIndustry(state.currentIndustry ?? "healthcare");
+  const scenarios = getScenariosForIndustry(state.currentIndustry ?? "healthcare");
+
+  return (
+    <div className="space-y-5 pb-8">
+      <SectionHeader
+        title="🏭 Universal Industry Library"
+        subtitle="20 industries · ALL roles, domains, workflows, vendors, regulations. Internal mock data only."
+      />
+
+      {/* Mode selector */}
+      <div className="bg-white border border-border rounded-xl p-3">
+        <p className="text-[11px] font-semibold text-muted-foreground mb-2">PLATFORM MODE</p>
+        <div className="flex flex-wrap gap-2">
+          {UNIVERSAL_MODES.map(m => (
+            <button
+              key={m.id}
+              onClick={() => { setMode(m.id); dispatch("SET_MODE", m.id); }}
+              className={`px-3 py-1.5 rounded-full text-[11px] font-semibold border transition-all ${
+                state.currentMode === m.id
+                  ? "bg-blue-500 text-white border-blue-500"
+                  : "bg-white text-muted-foreground border-border hover:border-blue-300"
+              }`}
+            >
+              {m.icon} {m.label}
+            </button>
+          ))}
+        </div>
+        <p className="text-[10px] text-muted-foreground mt-1.5">
+          {UNIVERSAL_MODES.find(m => m.id === state.currentMode)?.description ?? "Demo mode active."}
+        </p>
+      </div>
+
+      {/* Country + Domain */}
+      <div className="grid grid-cols-2 gap-3">
+        <div className="bg-white border border-border rounded-xl p-3">
+          <p className="text-[11px] font-semibold text-muted-foreground mb-2">🌐 COUNTRY CONTEXT</p>
+          <select
+            value={state.currentCountry}
+            onChange={e => { setCountry(e.target.value); dispatch("SET_COUNTRY", e.target.value); }}
+            className="w-full text-[12px] border border-border rounded-lg px-2 py-1.5 bg-white text-foreground"
+          >
+            {UNIVERSAL_COUNTRIES.map(c => (
+              <option key={c} value={c}>{c}</option>
+            ))}
+          </select>
+          <p className="text-[10px] text-muted-foreground mt-1">Jurisdictional mock context only</p>
+        </div>
+        <div className="bg-white border border-border rounded-xl p-3">
+          <p className="text-[11px] font-semibold text-muted-foreground mb-2">🎯 DOMAIN FOCUS</p>
+          <select
+            value={state.currentDomain}
+            onChange={e => { setDomain(e.target.value); dispatch("SET_DOMAIN", e.target.value); }}
+            className="w-full text-[12px] border border-border rounded-lg px-2 py-1.5 bg-white text-foreground"
+          >
+            {UNIVERSAL_DOMAINS.map(d => (
+              <option key={d} value={d}>{d}</option>
+            ))}
+          </select>
+          <p className="text-[10px] text-muted-foreground mt-1">Filter by domain area</p>
+        </div>
+      </div>
+
+      {/* Industry grid */}
+      <div>
+        <p className="text-[11px] font-semibold text-muted-foreground mb-2">SELECT INDUSTRY</p>
+        <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 gap-2">
+          {UNIVERSAL_INDUSTRIES.map(ind => (
+            <button
+              key={ind.id}
+              onClick={() => {
+                setIndustry(ind.id);
+                setDetailOpen(ind.id);
+                dispatch("SET_INDUSTRY", ind.id);
+              }}
+              className={`flex flex-col items-start p-3 rounded-xl border text-left transition-all ${
+                state.currentIndustry === ind.id
+                  ? "border-blue-500 bg-blue-50 shadow-sm"
+                  : "border-border bg-white hover:border-blue-200 hover:bg-blue-50/30"
+              }`}
+            >
+              <span className="text-xl mb-1">{ind.icon}</span>
+              <span className="text-[11px] font-semibold text-foreground leading-tight">{ind.label}</span>
+              <span className="text-[9px] text-muted-foreground mt-0.5">{ind.domains[0]} · {ind.roles.length} roles</span>
+            </button>
+          ))}
+        </div>
+      </div>
+
+      {/* Active industry detail */}
+      {activeInd && (
+        <div className="bg-white border border-border rounded-xl p-4 space-y-4">
+          <div className="flex items-center gap-2">
+            <span className="text-2xl">{activeInd.icon}</span>
+            <div>
+              <h3 className="text-[15px] font-bold text-foreground">{activeInd.label}</h3>
+              <p className="text-[11px] text-muted-foreground">Mock data only · Non-operational · Internal</p>
+            </div>
+          </div>
+
+          {([
+            { label: "Roles", items: activeInd.roles },
+            { label: "Departments", items: activeInd.departments },
+            { label: "Workflows", items: activeInd.workflows },
+            { label: "Programs", items: activeInd.programs },
+            { label: "Vendors", items: activeInd.vendors },
+            { label: "Regulations (Mock)", items: activeInd.regulations },
+          ] as const).map(({ label, items }) => (
+            <div key={label}>
+              <p className="text-[11px] font-semibold text-muted-foreground mb-1.5">{label.toUpperCase()}</p>
+              <div className="flex flex-wrap gap-1.5">
+                {items.map(item => (
+                  <span key={item} className="px-2 py-0.5 bg-muted rounded-full text-[11px] text-foreground">{item}</span>
+                ))}
+              </div>
+            </div>
+          ))}
+
+          {/* Scenarios */}
+          <div>
+            <p className="text-[11px] font-semibold text-muted-foreground mb-1.5">DEMO SCENARIOS</p>
+            <div className="space-y-1.5">
+              {scenarios.slice(0, 6).map(s => (
+                <button
+                  key={s.id}
+                  onClick={() => { setScenario(s.id); dispatch("SET_SCENARIO", s.id); }}
+                  className={`w-full flex items-center justify-between px-3 py-2 rounded-lg border text-left text-[12px] transition-all ${
+                    state.currentScenario === s.id
+                      ? "border-blue-500 bg-blue-50 text-blue-700 font-semibold"
+                      : "border-border bg-white text-foreground hover:border-blue-200"
+                  }`}
+                >
+                  <span>{s.label}</span>
+                  {state.currentScenario === s.id && <span className="text-blue-500 text-[10px] font-bold">ACTIVE</span>}
+                </button>
+              ))}
+            </div>
+          </div>
+
+          {activeInd.scenarios.length > 0 && (
+            <div>
+              <p className="text-[11px] font-semibold text-muted-foreground mb-1.5">EXAMPLE SCENARIOS (FICTIONAL)</p>
+              <div className="space-y-1">
+                {activeInd.scenarios.map(s => (
+                  <div key={s} className="text-[11px] text-muted-foreground pl-2 border-l-2 border-blue-100">{s}</div>
+                ))}
+              </div>
+            </div>
+          )}
+        </div>
+      )}
+
+      <div className="bg-amber-50 border border-amber-200 rounded-xl p-3">
+        <p className="text-[11px] text-amber-800 font-semibold">⚠️ Universal Safety Core Active</p>
+        <p className="text-[10px] text-amber-700 mt-0.5">All industry data is fictional, internal, and non-operational. No clinical, legal, financial, or regulatory guidance is provided. Demo use only.</p>
+      </div>
+    </div>
+  );
+}
+
+// ─── Workflows Screen ─────────────────────────────────────────────────────
+function WorkflowsScreen() {
+  const { state, dispatch } = useInteraction();
+  const [activeWfs, setActiveWfs] = useState<Workflow[]>(() => WorkflowEngine.getAll());
+  const [activeTab, setActiveTab] = useState<"templates" | "active">("templates");
+  const [expandedWf, setExpandedWf] = useState<string | null>(null);
+  const templates = WorkflowEngine.getTemplates();
+  const industryTemplates = templates.filter(t => t.industry === state.currentIndustry);
+  const otherTemplates = templates.filter(t => t.industry !== state.currentIndustry);
+
+  const startWf = (templateId: string) => {
+    const wf = WorkflowEngine.startWorkflow(templateId);
+    setActiveWfs(WorkflowEngine.getAll());
+    setExpandedWf(wf.id);
+    setActiveTab("active");
+    dispatch("START_WORKFLOW", templateId);
+  };
+
+  const advanceWf = (id: string, outcome: MockOutcome) => {
+    WorkflowEngine.advanceStep(id, outcome);
+    setActiveWfs(WorkflowEngine.getAll());
+    dispatch("ADVANCE_WORKFLOW_STEP", `${id}:${outcome}`);
+  };
+
+  const resetWf = (id: string) => {
+    WorkflowEngine.resetWorkflow(id);
+    setActiveWfs(WorkflowEngine.getAll());
+    dispatch("RESET_WORKFLOW", id);
+  };
+
+  const deleteWf = (id: string) => {
+    WorkflowEngine.deleteWorkflow(id);
+    setActiveWfs(WorkflowEngine.getAll());
+    if (expandedWf === id) setExpandedWf(null);
+  };
+
+  const statusColor = (s: string) => ({
+    "not-started": "text-muted-foreground",
+    "in-progress": "text-blue-600",
+    "complete": "text-green-600",
+    "failed": "text-red-500",
+    "paused": "text-amber-600",
+  }[s] ?? "text-muted-foreground");
+
+  const stepStatusColor = (s: string) => ({
+    "pending": "bg-muted text-muted-foreground",
+    "in-progress": "bg-blue-100 text-blue-700",
+    "complete": "bg-green-100 text-green-700",
+    "error": "bg-red-100 text-red-600",
+    "warning": "bg-amber-100 text-amber-700",
+    "skipped": "bg-gray-100 text-gray-500",
+  }[s] ?? "bg-muted text-muted-foreground");
+
+  return (
+    <div className="space-y-4 pb-8">
+      <SectionHeader
+        title="⚙️ Universal Workflow Engine"
+        subtitle="Simulate workflows for any industry. All steps are fictional mock outcomes. No real processes triggered."
+      />
+
+      <div className="flex gap-2">
+        {(["templates", "active"] as const).map(tab => (
+          <button
+            key={tab}
+            onClick={() => setActiveTab(tab)}
+            className={`px-4 py-2 rounded-full text-[12px] font-semibold border transition-all ${
+              activeTab === tab ? "bg-blue-500 text-white border-blue-500" : "border-border text-muted-foreground hover:border-blue-300"
+            }`}
+          >
+            {tab === "templates" ? `📋 Templates (${templates.length})` : `⚙️ Active (${activeWfs.length})`}
+          </button>
+        ))}
+      </div>
+
+      {activeTab === "templates" && (
+        <div className="space-y-4">
+          {industryTemplates.length > 0 && (
+            <div>
+              <p className="text-[11px] font-semibold text-muted-foreground mb-2">FOR YOUR INDUSTRY ({(getIndustry(state.currentIndustry)?.label ?? "Healthcare").toUpperCase()})</p>
+              <div className="space-y-2">
+                {industryTemplates.map(t => (
+                  <div key={t.id} className="bg-white border border-blue-200 rounded-xl p-3">
+                    <div className="flex items-start justify-between">
+                      <div>
+                        <p className="text-[13px] font-semibold text-foreground">{t.name}</p>
+                        <p className="text-[11px] text-muted-foreground">{t.description}</p>
+                        <p className="text-[10px] text-blue-600 mt-0.5">{t.steps.length} steps · {t.domain}</p>
+                      </div>
+                      <button
+                        onClick={() => startWf(t.id)}
+                        className="ml-3 px-3 py-1.5 bg-blue-500 text-white rounded-lg text-[11px] font-semibold hover:bg-blue-600 transition-colors shrink-0"
+                      >
+                        ▶ Start
+                      </button>
+                    </div>
+                  </div>
+                ))}
+              </div>
+            </div>
+          )}
+          <div>
+            <p className="text-[11px] font-semibold text-muted-foreground mb-2">ALL WORKFLOW TEMPLATES</p>
+            <div className="space-y-2">
+              {otherTemplates.map(t => (
+                <div key={t.id} className="bg-white border border-border rounded-xl p-3">
+                  <div className="flex items-start justify-between">
+                    <div>
+                      <p className="text-[13px] font-semibold text-foreground">{t.name}</p>
+                      <p className="text-[11px] text-muted-foreground">{t.description}</p>
+                      <p className="text-[10px] text-muted-foreground mt-0.5">{t.industry} · {t.steps.length} steps · {t.domain}</p>
+                    </div>
+                    <button
+                      onClick={() => startWf(t.id)}
+                      className="ml-3 px-3 py-1.5 border border-blue-400 text-blue-600 rounded-lg text-[11px] font-semibold hover:bg-blue-50 transition-colors shrink-0"
+                    >
+                      ▶ Start
+                    </button>
+                  </div>
+                </div>
+              ))}
+            </div>
+          </div>
+        </div>
+      )}
+
+      {activeTab === "active" && (
+        <div className="space-y-3">
+          {activeWfs.length === 0 ? (
+            <div className="bg-muted/30 rounded-xl p-8 text-center">
+              <p className="text-[13px] text-muted-foreground">No active workflows. Start one from the Templates tab.</p>
+            </div>
+          ) : (
+            activeWfs.map(wf => (
+              <div key={wf.id} className="bg-white border border-border rounded-xl overflow-hidden">
+                <button
+                  onClick={() => setExpandedWf(expandedWf === wf.id ? null : wf.id)}
+                  className="w-full flex items-center justify-between p-3 text-left"
+                >
+                  <div>
+                    <p className="text-[13px] font-semibold text-foreground">{wf.name}</p>
+                    <p className={`text-[11px] font-semibold ${statusColor(wf.status)}`}>
+                      {wf.status.replace("-", " ").toUpperCase()} · Step {Math.min(wf.currentStep + 1, wf.steps.length)}/{wf.steps.length}
+                    </p>
+                  </div>
+                  <span className="text-muted-foreground">{expandedWf === wf.id ? "▲" : "▼"}</span>
+                </button>
+
+                {expandedWf === wf.id && (
+                  <div className="border-t border-border px-3 pb-3 space-y-3">
+                    {/* Progress bar */}
+                    <div className="mt-2">
+                      <div className="h-1.5 bg-muted rounded-full overflow-hidden">
+                        <div
+                          className="h-full bg-blue-500 rounded-full transition-all"
+                          style={{ width: `${(wf.currentStep / wf.steps.length) * 100}%` }}
+                        />
+                      </div>
+                    </div>
+
+                    {/* Steps */}
+                    <div className="space-y-2">
+                      {wf.steps.map((step, i) => (
+                        <div
+                          key={step.id}
+                          className={`rounded-lg p-2.5 border ${
+                            i === wf.currentStep && wf.status === "in-progress"
+                              ? "border-blue-300 bg-blue-50"
+                              : "border-border bg-white"
+                          }`}
+                        >
+                          <div className="flex items-center justify-between mb-1">
+                            <p className="text-[12px] font-semibold text-foreground">{i + 1}. {step.title}</p>
+                            <span className={`text-[10px] font-bold px-2 py-0.5 rounded-full ${stepStatusColor(step.status)}`}>
+                              {step.status.toUpperCase()}
+                            </span>
+                          </div>
+                          <p className="text-[11px] text-muted-foreground">{step.description}</p>
+                          <p className="text-[10px] text-muted-foreground mt-0.5">Actor: {step.actor} · {step.duration}</p>
+                          {step.errorNote && (
+                            <p className="text-[10px] text-red-500 mt-1">⚠ {step.errorNote}</p>
+                          )}
+                          {step.completedAt && (
+                            <p className="text-[10px] text-green-600 mt-0.5">✓ {step.outcomes.success}</p>
+                          )}
+                          {/* Advance buttons for current step */}
+                          {i === wf.currentStep && wf.status === "in-progress" && (
+                            <div className="flex gap-2 mt-2">
+                              {(["success", "failure", "partial"] as MockOutcome[]).map(outcome => (
+                                <button
+                                  key={outcome}
+                                  onClick={() => advanceWf(wf.id, outcome)}
+                                  className={`px-2 py-1 rounded text-[10px] font-semibold transition-colors ${
+                                    outcome === "success" ? "bg-green-100 text-green-700 hover:bg-green-200"
+                                    : outcome === "failure" ? "bg-red-100 text-red-600 hover:bg-red-200"
+                                    : "bg-amber-100 text-amber-700 hover:bg-amber-200"
+                                  }`}
+                                >
+                                  {outcome === "success" ? "✓ Success" : outcome === "failure" ? "✗ Failure" : "⚠ Partial"}
+                                </button>
+                              ))}
+                            </div>
+                          )}
+                        </div>
+                      ))}
+                    </div>
+
+                    {/* Actions */}
+                    <div className="flex gap-2">
+                      <button
+                        onClick={() => resetWf(wf.id)}
+                        className="px-3 py-1.5 border border-border rounded-lg text-[11px] font-semibold text-muted-foreground hover:bg-muted"
+                      >
+                        ↺ Reset
+                      </button>
+                      <button
+                        onClick={() => deleteWf(wf.id)}
+                        className="px-3 py-1.5 border border-red-200 rounded-lg text-[11px] font-semibold text-red-500 hover:bg-red-50"
+                      >
+                        🗑 Delete
+                      </button>
+                    </div>
+
+                    {/* Log */}
+                    {wf.log.length > 0 && (
+                      <div>
+                        <p className="text-[11px] font-semibold text-muted-foreground mb-1.5">WORKFLOW LOG (mock)</p>
+                        <div className="space-y-1 max-h-32 overflow-y-auto">
+                          {wf.log.map((entry, i) => (
+                            <div key={i} className="text-[10px] text-muted-foreground border-b border-border pb-1">
+                              <span className="text-blue-500">[{entry.action}]</span> {entry.step} — {entry.result}
+                            </div>
+                          ))}
+                        </div>
+                      </div>
+                    )}
+                  </div>
+                )}
+              </div>
+            ))
+          )}
+        </div>
+      )}
+
+      <div className="bg-amber-50 border border-amber-200 rounded-xl p-3">
+        <p className="text-[11px] text-amber-800 font-semibold">⚠️ Universal Safety Core · Workflow Engine</p>
+        <p className="text-[10px] text-amber-700 mt-0.5">All workflow steps, outcomes, logs, and actors are entirely fictional. No real business processes, submissions, or approvals are triggered. Internal demo only.</p>
+      </div>
+    </div>
+  );
+}
+
+// ─── Creative Screen ──────────────────────────────────────────────────────
+function CreativeScreen() {
+  const { dispatch } = useInteraction();
+  const CREATIVE_TYPES: { value: CreativeType; label: string; icon: string }[] = [
+    { value: "video",        label: "Marketing Video",    icon: "🎬" },
+    { value: "documentary",  label: "Documentary",        icon: "🎥" },
+    { value: "training",     label: "Training Module",    icon: "🎓" },
+    { value: "simulation",   label: "Simulation",         icon: "🔬" },
+    { value: "storyboard",   label: "Storyboard",         icon: "🎨" },
+    { value: "script",       label: "Script",             icon: "📝" },
+    { value: "explainer",    label: "Explainer Video",    icon: "💡" },
+    { value: "podcast",      label: "Podcast Episode",    icon: "🎙️" },
+    { value: "course",       label: "Online Course",      icon: "📚" },
+    { value: "presentation", label: "Presentation",       icon: "📊" },
+    { value: "webinar",      label: "Webinar",            icon: "🖥️" },
+    { value: "commercial",   label: "Commercial Spot",    icon: "📺" },
+  ];
+  const TONE_OPTIONS = ["Professional", "Cinematic", "Educational", "Playful", "Dramatic", "Inspiring", "Authoritative", "Friendly", "Urgent", "Reflective"];
+
+  const [form, setForm] = useState({
+    type: "video" as CreativeType,
+    topic: "",
+    audience: "",
+    tone: "Professional",
+    title: "",
+  });
+  const [generated, setGenerated] = useState(() => CreativeEngine.getAll());
+  const [activeId, setActiveId] = useState<string | null>(null);
+  const [expandedChapter, setExpandedChapter] = useState<number | null>(null);
+
+  const generate = () => {
+    if (!form.topic.trim()) return;
+    const pkg = CreativeEngine.generate({
+      type: form.type,
+      topic: form.topic,
+      audience: form.audience || "general audiences",
+      tone: form.tone,
+      title: form.title || undefined,
+    });
+    setGenerated(CreativeEngine.getAll());
+    setActiveId(pkg.id);
+    setExpandedChapter(0);
+    dispatch("GENERATE_CREATIVE", `${form.type}:${form.topic.slice(0, 40)}`);
+  };
+
+  const activePkg = generated.find(p => p.id === activeId);
+
+  return (
+    <div className="space-y-4 pb-8">
+      <SectionHeader
+        title="🎬 Universal Creative Production Engine"
+        subtitle="Generate fictional production packages for any creative format. Non-operational · Demo-only · Internal."
+      />
+
+      {/* Generator form */}
+      <div className="bg-white border border-border rounded-xl p-4 space-y-3">
+        <p className="text-[12px] font-bold text-foreground">Generate Production Package</p>
+
+        <div>
+          <p className="text-[11px] font-semibold text-muted-foreground mb-1.5">FORMAT</p>
+          <div className="grid grid-cols-3 sm:grid-cols-4 gap-2">
+            {CREATIVE_TYPES.map(ct => (
+              <button
+                key={ct.value}
+                onClick={() => setForm(f => ({ ...f, type: ct.value }))}
+                className={`flex flex-col items-center p-2 rounded-lg border text-center transition-all ${
+                  form.type === ct.value
+                    ? "border-blue-500 bg-blue-50 text-blue-700"
+                    : "border-border bg-white text-muted-foreground hover:border-blue-200"
+                }`}
+              >
+                <span className="text-lg">{ct.icon}</span>
+                <span className="text-[10px] font-semibold mt-0.5 leading-tight">{ct.label}</span>
+              </button>
+            ))}
+          </div>
+        </div>
+
+        <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+          <div>
+            <label className="text-[11px] font-semibold text-muted-foreground block mb-1">TOPIC / SUBJECT *</label>
+            <input
+              value={form.topic}
+              onChange={e => setForm(f => ({ ...f, topic: e.target.value }))}
+              placeholder="e.g. Patient safety protocols"
+              className="w-full text-[12px] border border-border rounded-lg px-2.5 py-2 bg-white text-foreground placeholder:text-muted-foreground/60"
+            />
+          </div>
+          <div>
+            <label className="text-[11px] font-semibold text-muted-foreground block mb-1">TARGET AUDIENCE</label>
+            <input
+              value={form.audience}
+              onChange={e => setForm(f => ({ ...f, audience: e.target.value }))}
+              placeholder="e.g. Healthcare professionals"
+              className="w-full text-[12px] border border-border rounded-lg px-2.5 py-2 bg-white text-foreground placeholder:text-muted-foreground/60"
+            />
+          </div>
+          <div>
+            <label className="text-[11px] font-semibold text-muted-foreground block mb-1">CUSTOM TITLE (optional)</label>
+            <input
+              value={form.title}
+              onChange={e => setForm(f => ({ ...f, title: e.target.value }))}
+              placeholder="Leave blank for auto-generated"
+              className="w-full text-[12px] border border-border rounded-lg px-2.5 py-2 bg-white text-foreground placeholder:text-muted-foreground/60"
+            />
+          </div>
+          <div>
+            <label className="text-[11px] font-semibold text-muted-foreground block mb-1">TONE / STYLE</label>
+            <select
+              value={form.tone}
+              onChange={e => setForm(f => ({ ...f, tone: e.target.value }))}
+              className="w-full text-[12px] border border-border rounded-lg px-2.5 py-2 bg-white text-foreground"
+            >
+              {TONE_OPTIONS.map(t => <option key={t}>{t}</option>)}
+            </select>
+          </div>
+        </div>
+
+        <button
+          onClick={generate}
+          disabled={!form.topic.trim()}
+          className="w-full py-2.5 bg-blue-500 text-white rounded-xl text-[13px] font-bold disabled:opacity-40 hover:bg-blue-600 transition-colors"
+        >
+          ✨ Generate {CREATIVE_TYPES.find(c => c.value === form.type)?.label}
+        </button>
+        <p className="text-[10px] text-muted-foreground text-center">Fictional output only — not a real production document</p>
+      </div>
+
+      {/* Generated packages list */}
+      {generated.length > 1 && (
+        <div>
+          <p className="text-[11px] font-semibold text-muted-foreground mb-2">GENERATED PACKAGES ({generated.length})</p>
+          <div className="flex flex-wrap gap-2">
+            {generated.map(p => (
+              <button
+                key={p.id}
+                onClick={() => { setActiveId(p.id); setExpandedChapter(0); }}
+                className={`px-3 py-1.5 rounded-full text-[11px] font-semibold border transition-all ${
+                  activeId === p.id ? "bg-blue-500 text-white border-blue-500" : "border-border text-muted-foreground hover:border-blue-300"
+                }`}
+              >
+                {CREATIVE_TYPES.find(c => c.value === p.type)?.icon} {p.type} · {p.topic?.slice(0, 18) ?? p.title.slice(0, 18)}
+              </button>
+            ))}
+          </div>
+        </div>
+      )}
+
+      {/* Active package display */}
+      {activePkg && (
+        <div className="bg-white border border-border rounded-xl p-4 space-y-4">
+          <div>
+            <h3 className="text-[16px] font-bold text-foreground">{activePkg.title}</h3>
+            <p className="text-[12px] text-muted-foreground">{activePkg.subtitle}</p>
+          </div>
+
+          <div className="grid grid-cols-2 gap-2 text-[11px]">
+            {[
+              ["Format", CREATIVE_TYPES.find(c => c.value === activePkg.type)?.label],
+              ["Audience", activePkg.audience],
+              ["Tone", activePkg.tone],
+              ["Duration", activePkg.totalDuration],
+              ["Structure", activePkg.structure],
+            ].map(([k, v]) => (
+              <div key={k as string} className="bg-muted/30 rounded-lg p-2">
+                <p className="text-[9px] font-bold text-muted-foreground">{k as string}</p>
+                <p className="text-foreground font-semibold text-[11px] mt-0.5">{v as string}</p>
+              </div>
+            ))}
+          </div>
+
+          <div>
+            <p className="text-[11px] font-semibold text-muted-foreground mb-1">PURPOSE</p>
+            <p className="text-[12px] text-foreground">{activePkg.purpose}</p>
+          </div>
+
+          <div>
+            <p className="text-[11px] font-semibold text-muted-foreground mb-1">EMOTIONAL ARC</p>
+            <p className="text-[12px] text-foreground">{activePkg.emotionalArc}</p>
+          </div>
+
+          {/* Style guide */}
+          <div>
+            <p className="text-[11px] font-semibold text-muted-foreground mb-2">STYLE GUIDE</p>
+            <div className="bg-muted/20 rounded-lg p-3 space-y-1.5 text-[11px]">
+              <div><span className="font-semibold">Visual:</span> {activePkg.styleGuide.visualStyle}</div>
+              <div><span className="font-semibold">Music:</span> {activePkg.styleGuide.musicGenre}</div>
+              <div><span className="font-semibold">Voiceover:</span> {activePkg.styleGuide.voiceoverStyle}</div>
+              <div><span className="font-semibold">Typography:</span> {activePkg.styleGuide.typography}</div>
+              <div className="flex items-center gap-2">
+                <span className="font-semibold">Color Palette:</span>
+                {activePkg.styleGuide.colorPalette.map(c => (
+                  <span key={c} style={{ background: c }} className="w-4 h-4 rounded-full border border-border inline-block" title={c} />
+                ))}
+              </div>
+            </div>
+          </div>
+
+          {/* Mock actors */}
+          <div>
+            <p className="text-[11px] font-semibold text-muted-foreground mb-2">MOCK TALENT (FICTIONAL)</p>
+            <div className="flex flex-wrap gap-2">
+              {activePkg.mockActors.map(a => (
+                <div key={a.name} className="bg-muted/30 rounded-lg px-3 py-2 text-[11px]">
+                  <p className="font-semibold text-foreground">{a.name}</p>
+                  <p className="text-muted-foreground">{a.role} · {a.style}</p>
+                </div>
+              ))}
+            </div>
+          </div>
+
+          {/* Chapters */}
+          <div>
+            <p className="text-[11px] font-semibold text-muted-foreground mb-2">
+              {activePkg.type === "script" ? "SCENES" : activePkg.type === "storyboard" ? "FRAMES" : "CHAPTERS"} ({activePkg.chapters.length})
+            </p>
+            <div className="space-y-2">
+              {activePkg.chapters.map((ch) => (
+                <div key={ch.index} className="border border-border rounded-lg overflow-hidden">
+                  <button
+                    onClick={() => setExpandedChapter(expandedChapter === ch.index ? null : ch.index)}
+                    className="w-full flex items-center justify-between px-3 py-2.5 text-left bg-white hover:bg-muted/20 transition-colors"
+                  >
+                    <div>
+                      <span className="text-[12px] font-semibold text-foreground">{ch.title}</span>
+                      <span className="text-[10px] text-muted-foreground ml-2">· {ch.duration} · {ch.pacing}</span>
+                    </div>
+                    <div className="flex items-center gap-2">
+                      <span className="text-[10px] text-blue-500 font-semibold">{ch.emotion}</span>
+                      <span className="text-muted-foreground text-[12px]">{expandedChapter === ch.index ? "▲" : "▼"}</span>
+                    </div>
+                  </button>
+                  {expandedChapter === ch.index && (
+                    <div className="border-t border-border p-3 space-y-2 bg-muted/5 text-[11px]">
+                      <div><span className="font-semibold text-muted-foreground">NARRATION / COPY:</span><p className="mt-0.5 text-foreground whitespace-pre-wrap">{ch.narration}</p></div>
+                      <div><span className="font-semibold text-muted-foreground">VISUALS:</span><p className="mt-0.5 text-foreground">{ch.visuals}</p></div>
+                      <div className="flex gap-4">
+                        <div><span className="font-semibold text-muted-foreground">TRANSITION:</span> {ch.transition}</div>
+                        <div><span className="font-semibold text-muted-foreground">PACING:</span> {ch.pacing}</div>
+                      </div>
+                    </div>
+                  )}
+                </div>
+              ))}
+            </div>
+          </div>
+
+          {/* CTA */}
+          <div className="bg-blue-50 border border-blue-200 rounded-lg p-3">
+            <p className="text-[11px] font-semibold text-blue-800">CALL TO ACTION (FICTIONAL)</p>
+            <p className="text-[12px] text-blue-700 mt-0.5">{activePkg.callToAction}</p>
+          </div>
+
+          {/* Disclaimer */}
+          <div className="bg-amber-50 border border-amber-200 rounded-xl p-3">
+            <p className="text-[11px] text-amber-800 font-semibold">⚠️ Disclaimer</p>
+            <p className="text-[10px] text-amber-700 mt-0.5">{activePkg.disclaimer}</p>
+          </div>
+        </div>
+      )}
+    </div>
+  );
+}
+
 // ─── Main Universal App ───────────────────────────────────────────────────
 export function UniversalApp() {
   const { state, setView } = useInteraction();
@@ -993,6 +1680,9 @@ export function UniversalApp() {
     home:        <HomeScreen />,
     talk:        <TalkScreen />,
     dashboard:   <DashboardScreen />,
+    industries:  <IndustriesScreen />,
+    workflows:   <WorkflowsScreen />,
+    creative:    <CreativeScreen />,
     roles:       <RolesScreen />,
     agencies:    <AgenciesScreen />,
     states:      <StatesScreen />,

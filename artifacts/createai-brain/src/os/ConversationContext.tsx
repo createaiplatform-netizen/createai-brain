@@ -56,6 +56,12 @@ export function ConversationProvider({ children }: { children: React.ReactNode }
       if (intent.stateUpdate.currentAgency)     interaction.setAgency(intent.stateUpdate.currentAgency);
       if (intent.stateUpdate.currentState)      interaction.setState(intent.stateUpdate.currentState);
       if (intent.stateUpdate.currentVendor)     interaction.setVendor(intent.stateUpdate.currentVendor);
+      // Universal Everything Engine fields
+      if (intent.stateUpdate.currentIndustry)   interaction.setIndustry(intent.stateUpdate.currentIndustry);
+      if (intent.stateUpdate.currentCountry)    interaction.setCountry(intent.stateUpdate.currentCountry);
+      if (intent.stateUpdate.currentDomain)     interaction.setDomain(intent.stateUpdate.currentDomain);
+      if (intent.stateUpdate.currentMode)       interaction.setMode(intent.stateUpdate.currentMode);
+      if (intent.stateUpdate.currentScenario)   interaction.setScenario(intent.stateUpdate.currentScenario);
     }
 
     // Navigate if needed

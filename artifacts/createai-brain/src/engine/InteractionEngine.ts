@@ -220,7 +220,8 @@ export type DemoStatus = typeof MOCK_DEMO_STATUSES[number];
 
 export type UniversalView =
   | "home" | "dashboard" | "roles" | "agencies" | "states"
-  | "vendors" | "programs" | "packets" | "submissions" | "settings" | "talk";
+  | "vendors" | "programs" | "packets" | "submissions" | "settings" | "talk"
+  | "industries" | "workflows" | "creative";
 
 export interface ActionLogEntry {
   id: string;
@@ -242,6 +243,12 @@ export interface UniversalState {
   currentUserType:     string;
   currentPacket:       string | null;
   currentDemoStatus:   DemoStatus;
+  // Universal Everything Engine fields
+  currentIndustry:     string;
+  currentCountry:      string;
+  currentDomain:       string;
+  currentMode:         string;
+  currentScenario:     string | null;
   actionLog:           ActionLogEntry[];
   lastUpdated:         string;
 }
@@ -256,6 +263,11 @@ const DEFAULT_STATE: UniversalState = {
   currentUserType:   "Enterprise",
   currentPacket:     null,
   currentDemoStatus: "not-started",
+  currentIndustry:   "healthcare",
+  currentCountry:    "United States",
+  currentDomain:     "Clinical",
+  currentMode:       "demo",
+  currentScenario:   null,
   actionLog:         [],
   lastUpdated:       new Date().toISOString(),
 };
@@ -370,6 +382,46 @@ class UniversalInteractionEngineClass {
     this.state.currentDemoStatus = status;
     this.state.lastUpdated = new Date().toISOString();
     this.log("CHANGE_DEMO_STATUS", "currentDemoStatus", prev, status);
+    this.save();
+  }
+
+  setIndustry(industryId: string) {
+    const prev = this.state.currentIndustry;
+    this.state.currentIndustry = industryId;
+    this.state.lastUpdated = new Date().toISOString();
+    this.log("CHANGE_INDUSTRY", "currentIndustry", prev, industryId);
+    this.save();
+  }
+
+  setCountry(country: string) {
+    const prev = this.state.currentCountry;
+    this.state.currentCountry = country;
+    this.state.lastUpdated = new Date().toISOString();
+    this.log("CHANGE_COUNTRY", "currentCountry", prev, country);
+    this.save();
+  }
+
+  setDomain(domain: string) {
+    const prev = this.state.currentDomain;
+    this.state.currentDomain = domain;
+    this.state.lastUpdated = new Date().toISOString();
+    this.log("CHANGE_DOMAIN", "currentDomain", prev, domain);
+    this.save();
+  }
+
+  setMode(mode: string) {
+    const prev = this.state.currentMode;
+    this.state.currentMode = mode;
+    this.state.lastUpdated = new Date().toISOString();
+    this.log("CHANGE_MODE", "currentMode", prev, mode);
+    this.save();
+  }
+
+  setScenario(scenario: string | null) {
+    const prev = this.state.currentScenario;
+    this.state.currentScenario = scenario;
+    this.state.lastUpdated = new Date().toISOString();
+    this.log("CHANGE_SCENARIO", "currentScenario", prev, scenario ?? "null");
     this.save();
   }
 
