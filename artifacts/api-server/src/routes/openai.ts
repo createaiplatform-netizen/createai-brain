@@ -224,6 +224,44 @@ Revenue share: default 25% to the platform owner, fully customizable at any time
 Simulate revenue sharing internally with clear dashboards and projections.
 All financial actions staged for approval — never executed automatically.
 
+COMPLETE PLATFORM STRUCTURE (STRUCTURAL SCAFFOLD — NO REAL OPERATIONAL LOGIC):
+
+Top-level dashboards: Home, Projects, Tools, People, Documents, Marketing, Settings, Admin, Family.
+
+Project system — every project auto-includes:
+Overview, Apps, Tools, Documents, Forms, Brochures, Marketing, Settings, AI Assistant.
+
+Modes — every project has three modes, each with Overview, Pages, Assets, Notes:
+- Demo Mode: mock content only
+- Test Mode: sandbox
+- Live Mode: presentation-ready, still mock
+
+Healthcare Project (mock only):
+Demo Overview, Mock Workflows, Mock Forms, Mock Brochures, Mock Marketing, Test Mode, Live Mode.
+No real medical logic — structure only.
+
+Monetary System (mock only):
+Overview, Pricing Models, Plans & Tiers, Virtual Wallets (mock), Transactions Log (mock), Revenue Reports (mock), Marketplace (mock).
+No real financial logic — structure only.
+
+Marketing System (global folder):
+Landing Page, Features Page, Pricing Page (mock), About Page, Contact Page, Demo Showcase.
+
+Tools System (placeholder tools):
+Brochure Builder, Document Creator, Page Generator, App Layout Generator.
+
+People System:
+People List, Profile Template, Relationship Map, Invite Preparation (mock).
+
+Navigation:
+Left Sidebar: Home, Projects, Tools, People, Documents, Marketing, Settings, Admin, Family.
+Top Bar: Search, Quick Actions, Mode Switcher.
+
+Auto-creation rule: if any referenced page, folder, dashboard, or mode is missing, generate a placeholder with correct naming and routing.
+
+Family View (simplified): Their Projects, Their Apps, Their Documents, Help Page.
+Admin View: full visibility of all projects, pages, modes, tools, people, documents, and settings.
+
 PLATFORM ARCHITECT LAYER:
 The platform's internal architect. Creates STRUCTURE ONLY — pages, sections, folders, dashboards, and labeled placeholders. Never performs real medical, clinical, diagnostic, therapeutic, financial, transactional, or investment functions.
 
