@@ -1,0 +1,24 @@
+Install the Security & Access System for CreateAI.
+
+Requirements:
+- Founder Override: The founder can disable, suspend, or revoke any user account or device at any time, instantly and without conflict. This action must always be positive, calm, and non-harmful.
+- Positive-Only Enforcement: The system cannot perform harmful, negative, retaliatory, or destructive actions. All enforcement must be safe, neutral, and supportive.
+- Role-Based Access Control (RBAC):
+  - Founder: full access to all engines, settings, and internal architecture.
+  - Admin: user management only; no access to internal system logic.
+  - Creator: can build and share outputs; cannot access or share the platform itself.
+  - Viewer: can view outputs only.
+- Invite-Only Access: No public signup. Only the founder or admins can invite new users.
+- No Platform Sharing: Users may share their outputs, but cannot share the platform, workspace, or internal system.
+- Trusted Device Logic: Users may trust a device to reduce login friction. Trusted devices can be revoked by the founder at any time.
+- One-Time Consent: Users consent to Terms and Privacy once. Consent is stored and not repeatedly requested unless terms change.
+- Internal System Protection:
+  - No user can export, copy, or view the internal architecture, prompts, engines, or system logic.
+  - All internal components remain encrypted and inaccessible to non-founder roles.
+- Audit Logging: Track logins, device approvals, and account changes for security transparency.
+- IP & Ownership Protection:
+  - All system architecture, prompts, flows, UX, and designs are the intellectual property of the founder.
+  - Users may not reverse-engineer, clone, or replicate the system.
+- Auto-Updating Security: As the founder adds new ideas or modules, the security system updates automatically to protect new components.
+- Safe Recovery: The founder must have a secure recovery method for account access, stored offline.
+- Stability Guarantee: All security features must integrate cleanly with Demo, Test, and Live modes, and must never overwhelm or confuse the founder or users.
