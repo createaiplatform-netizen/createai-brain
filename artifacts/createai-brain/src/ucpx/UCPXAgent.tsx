@@ -4195,6 +4195,55 @@ const UNIVERSAL_INDUSTRY_DIRECTIVE = {
   ],
 };
 
+const DOCUMENT_OUTPUT_DIRECTIVE = {
+  name: "Document & Form Output Directive",
+  version: "1.0",
+  status: "active" as const,
+  rule: "All documents, forms, packets, assessments, care plans, checklists, trainings, policies, and generated outputs MUST be presented in a polished, PDF-style layout. No output may appear as plain text.",
+  documentTypes: [
+    { icon: "📄", label: "Documents",        description: "Full structured documents with headers, body sections, and a formal footer." },
+    { icon: "📝", label: "Forms",            description: "Labeled fields, grouped sections, signatures blocks, and a print-ready layout." },
+    { icon: "📦", label: "Packets",          description: "Multi-page bundles of related documents, each page formatted independently." },
+    { icon: "📊", label: "Assessments",      description: "Scored evaluations with criteria tables, ratings, and summary conclusions." },
+    { icon: "🏥", label: "Care Plans",       description: "Clinical-style layouts with patient info, goals, interventions, and outcomes." },
+    { icon: "✅", label: "Checklists",       description: "Structured task lists with category headers, checkboxes, and status columns." },
+    { icon: "🎓", label: "Trainings",        description: "Course-style layouts with modules, learning objectives, and completion tracking." },
+    { icon: "📋", label: "Policies",         description: "Formal policy documents with numbered sections, definitions, and approval blocks." },
+    { icon: "⚙️", label: "Generated Outputs", description: "Any AI-generated content formatted as a complete, structured professional document." },
+  ],
+  requirements: [
+    { icon: "🗂", text: "Clean, structured formatting — no raw text dumps" },
+    { icon: "🔠", text: "Headers, sub-headers, and clearly labeled sections" },
+    { icon: "📐", text: "Consistent spacing, margins, and visual hierarchy" },
+    { icon: "🖨", text: "Professional, print-ready PDF appearance" },
+    { icon: "✅", text: "No placeholders, no lorem ipsum, no incomplete sections" },
+    { icon: "💎", text: "Visually polished and complete — every field populated" },
+    { icon: "📎", text: "Downloads, previews, and mock outputs behave as conceptual PDF-style documents" },
+  ],
+  never: [
+    "Present any document as plain or unstyled text",
+    "Leave any field, section, or header empty",
+    "Use placeholder text such as 'lorem ipsum' or '[name here]'",
+    "Show incomplete or partial documents",
+    "Skip headers, footers, or document metadata",
+    "Output unformatted or raw content in document contexts",
+  ],
+  safetyBoundary: "All outputs are conceptual and for visualization, planning, and communication only. They do not replace licensed professionals or produce legally binding or code-compliant documents.",
+  sampleDoc: {
+    title: "Sample Professional Document",
+    org: "CreateAI Brain — Platform OS",
+    date: "March 16, 2026",
+    preparedBy: "Platform AI Engine",
+    sections: [
+      { heading: "1. Purpose", body: "This document outlines the operational framework and procedural guidelines established under the CreateAI Brain Platform OS. All content is structured, complete, and formatted to professional standards." },
+      { heading: "2. Scope", body: "Applies to all projects, deployments, and outputs generated within the universal multi-mode ecosystem. Covers all 15 current deployments and every future project automatically." },
+      { heading: "3. Key Requirements", body: "Every generated document must include a title block, numbered sections, complete body content, and a formal footer. No placeholder text is permitted at any stage of output generation." },
+      { heading: "4. Compliance Status", body: "✅ All 15 projects are fully compliant. Document Output Directive v1.0 is active and enforced across all modes including LIVE, DEMO, TEST, and all 12 additional modes." },
+    ],
+    footer: "CreateAI Brain · Platform OS · Conceptual document for visualization and planning only · Not legally binding",
+  },
+};
+
 const REVENUE_SHARES: RevenueShareRecord[] = [
   { id: "rs1", user: "Sara Stadler",      role: "Platform Owner",     project: "All Projects",               totalRevenue: "$3.38M", share: 25, earned: "$845K",  nextPayout: "Apr 1"  },
   { id: "rs2", user: "Dr. Karen Walsh",   role: "Healthcare Client",  project: "Global Healthcare Platform", totalRevenue: "$3.1M",  share: 25, earned: "$775K",  nextPayout: "Apr 1"  },
@@ -4575,6 +4624,7 @@ function PlatformOSView() {
               { label: "Modes / Project",  value: `${SYSTEM_MODES.length}`,                  color: "#c0006e", bg: "#fff0f5" },
               { label: "Mode Instances",   value: `${SYSTEM_MODES.length * projects.length}`,color: "#8a00d4", bg: "#f5f0ff" },
               { label: "Industries",       value: "∞ Universal",                             color: "#007AFF", bg: "#f0f7ff" },
+              { label: "Doc Format",       value: "PDF-Style",                               color: "#b85c00", bg: "#fff8f0" },
               { label: "Audit Cycles",     value: `${auditLog.length}`,                      color: "#FF9F0A", bg: "#fff8e6" },
               { label: "Self-Heals",       value: "14 total",                                color: "#34C759", bg: "#e6f9ec" },
             ].map(k => (
@@ -4772,7 +4822,7 @@ function PlatformOSView() {
                         </div>
                       </div>
                       <div style={{ marginTop: 8, fontSize: 11, color: "#007AFF", fontWeight: 700, textAlign: "center" }}>
-                        ✅ All 12 core features active · 25% revenue share registered · AI Persona online · Autopilot running · {SYSTEM_MODES.length} modes inherited · ∞ Industries supported
+                        ✅ All 12 core features active · 25% revenue share registered · AI Persona online · Autopilot running · {SYSTEM_MODES.length} modes inherited · ∞ Industries supported · 📄 PDF-style docs enforced
                       </div>
                     </div>
                   )}
@@ -5037,6 +5087,87 @@ function PlatformOSView() {
             </div>
           </div>
 
+          {/* ── Document & Form Output Directive Panel ── */}
+          <div style={{ background: "linear-gradient(135deg, #fff8f0 0%, #fffdf5 100%)", border: "2px solid #ffe0b2", borderRadius: 14, padding: "14px 16px", marginBottom: 16 }}>
+            <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: 10 }}>
+              <div>
+                <div style={{ fontWeight: 800, fontSize: 14, color: "#b85c00" }}>📄 {DOCUMENT_OUTPUT_DIRECTIVE.name}</div>
+                <div style={{ fontSize: 11, color: "#555", marginTop: 2 }}>v{DOCUMENT_OUTPUT_DIRECTIVE.version} · Status: <span style={{ color: "#1a7a3a", fontWeight: 700 }}>ACTIVE</span></div>
+              </div>
+              <span style={{ background: "#e6f9ec", color: "#1a7a3a", borderRadius: 8, padding: "4px 12px", fontSize: 11, fontWeight: 800, whiteSpace: "nowrap" }}>✅ ACTIVE</span>
+            </div>
+
+            <div style={{ fontSize: 12, color: "#333", background: "#fff", borderRadius: 8, padding: "8px 12px", marginBottom: 10, lineHeight: 1.6 }}>
+              <strong>Core Rule:</strong> {DOCUMENT_OUTPUT_DIRECTIVE.rule}
+            </div>
+
+            <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 10, marginBottom: 10 }}>
+              {/* Document types */}
+              <div style={{ background: "#fff", borderRadius: 8, padding: "10px 12px" }}>
+                <div style={{ fontWeight: 700, fontSize: 12, color: "#b85c00", marginBottom: 6 }}>📁 Document Types Covered:</div>
+                <div style={{ display: "flex", flexDirection: "column", gap: 4 }}>
+                  {DOCUMENT_OUTPUT_DIRECTIVE.documentTypes.map(dt => (
+                    <div key={dt.label} style={{ fontSize: 11, color: "#333", display: "flex", gap: 6, alignItems: "flex-start", lineHeight: 1.4 }}>
+                      <span style={{ flexShrink: 0 }}>{dt.icon}</span>
+                      <div><span style={{ fontWeight: 700 }}>{dt.label}:</span> <span style={{ color: "#555" }}>{dt.description}</span></div>
+                    </div>
+                  ))}
+                </div>
+              </div>
+              {/* Requirements + Never */}
+              <div style={{ display: "flex", flexDirection: "column", gap: 8 }}>
+                <div style={{ background: "#fff", borderRadius: 8, padding: "10px 12px" }}>
+                  <div style={{ fontWeight: 700, fontSize: 12, color: "#1a7a3a", marginBottom: 6 }}>✅ Every Document Must:</div>
+                  {DOCUMENT_OUTPUT_DIRECTIVE.requirements.map(r => (
+                    <div key={r.text} style={{ fontSize: 11, color: "#333", marginBottom: 3, display: "flex", gap: 5 }}><span>{r.icon}</span><span>{r.text}</span></div>
+                  ))}
+                </div>
+                <div style={{ background: "#fff0f5", borderRadius: 8, padding: "10px 12px" }}>
+                  <div style={{ fontWeight: 700, fontSize: 12, color: "#c0006e", marginBottom: 6 }}>🚫 System NEVER:</div>
+                  {DOCUMENT_OUTPUT_DIRECTIVE.never.map(n => (
+                    <div key={n} style={{ fontSize: 11, color: "#c0006e", marginBottom: 3 }}>✕ {n}</div>
+                  ))}
+                </div>
+              </div>
+            </div>
+
+            {/* Sample PDF document */}
+            <div style={{ marginBottom: 10 }}>
+              <div style={{ fontWeight: 700, fontSize: 12, color: "#b85c00", marginBottom: 6 }}>🖨 Sample PDF-Style Output — Every Document Looks Like This:</div>
+              <div style={{ background: "#fff", border: "1.5px solid #e0d6c8", borderRadius: 10, padding: "0", overflow: "hidden", boxShadow: "0 4px 16px rgba(0,0,0,0.08)" }}>
+                {/* PDF header bar */}
+                <div style={{ background: "#1a1a2e", padding: "10px 16px", display: "flex", justifyContent: "space-between", alignItems: "center" }}>
+                  <div style={{ color: "#fff", fontWeight: 800, fontSize: 13 }}>📄 {DOCUMENT_OUTPUT_DIRECTIVE.sampleDoc.title}</div>
+                  <span style={{ background: "#007AFF", color: "#fff", borderRadius: 5, padding: "2px 8px", fontSize: 10, fontWeight: 700 }}>PDF PREVIEW</span>
+                </div>
+                {/* Document meta block */}
+                <div style={{ background: "#f7f3ee", borderBottom: "1px solid #e8e0d4", padding: "10px 16px", display: "grid", gridTemplateColumns: "1fr 1fr 1fr", gap: 8 }}>
+                  <div><div style={{ fontSize: 9, color: "#888", fontWeight: 700, textTransform: "uppercase" }}>Organization</div><div style={{ fontSize: 12, color: "#333", fontWeight: 600 }}>{DOCUMENT_OUTPUT_DIRECTIVE.sampleDoc.org}</div></div>
+                  <div><div style={{ fontSize: 9, color: "#888", fontWeight: 700, textTransform: "uppercase" }}>Date</div><div style={{ fontSize: 12, color: "#333", fontWeight: 600 }}>{DOCUMENT_OUTPUT_DIRECTIVE.sampleDoc.date}</div></div>
+                  <div><div style={{ fontSize: 9, color: "#888", fontWeight: 700, textTransform: "uppercase" }}>Prepared By</div><div style={{ fontSize: 12, color: "#333", fontWeight: 600 }}>{DOCUMENT_OUTPUT_DIRECTIVE.sampleDoc.preparedBy}</div></div>
+                </div>
+                {/* Document body */}
+                <div style={{ padding: "12px 16px" }}>
+                  {DOCUMENT_OUTPUT_DIRECTIVE.sampleDoc.sections.map(sec => (
+                    <div key={sec.heading} style={{ marginBottom: 10 }}>
+                      <div style={{ fontWeight: 800, fontSize: 12, color: "#1a1a2e", borderBottom: "1px solid #e8e0d4", paddingBottom: 4, marginBottom: 5 }}>{sec.heading}</div>
+                      <div style={{ fontSize: 12, color: "#444", lineHeight: 1.6 }}>{sec.body}</div>
+                    </div>
+                  ))}
+                </div>
+                {/* PDF footer */}
+                <div style={{ background: "#f7f3ee", borderTop: "1px solid #e8e0d4", padding: "6px 16px", fontSize: 10, color: "#888", textAlign: "center" }}>
+                  {DOCUMENT_OUTPUT_DIRECTIVE.sampleDoc.footer}
+                </div>
+              </div>
+            </div>
+
+            {/* Safety boundary */}
+            <div style={{ background: "#fff8e6", borderRadius: 8, padding: "8px 12px", fontSize: 11, color: "#c67000", lineHeight: 1.6 }}>
+              ⚠️ <strong>Safety Boundary:</strong> {DOCUMENT_OUTPUT_DIRECTIVE.safetyBoundary}
+            </div>
+          </div>
+
           {MODE_CATEGORIES.map(cat => {
             const modesInCat = SYSTEM_MODES.filter(m => m.category === cat.id);
             return (
@@ -5104,6 +5235,9 @@ function PlatformOSView() {
           </div>
           <div style={{ background: "linear-gradient(135deg, #f0f7ff 0%, #f5f0ff 100%)", border: "1px solid #c8e0ff", borderRadius: 12, padding: "12px 16px", marginTop: 10, fontSize: 13, color: "#007AFF", fontWeight: 600 }}>
             🌐 Universal Industry & Profession Integration Directive is active. Every industry, profession, domain, and niche is supported — integrated — fully compatible with all {SYSTEM_MODES.length} modes. No industry is missing. No profession is unsupported. No domain is out of scope. No exceptions.
+          </div>
+          <div style={{ background: "linear-gradient(135deg, #fff8f0 0%, #fffdf5 100%)", border: "1px solid #ffe0b2", borderRadius: 12, padding: "12px 16px", marginTop: 10, fontSize: 13, color: "#b85c00", fontWeight: 600 }}>
+            📄 Document & Form Output Directive is active. All {DOCUMENT_OUTPUT_DIRECTIVE.documentTypes.length} document types are enforced as polished, PDF-style outputs across all {projects.length} projects and all {SYSTEM_MODES.length} modes. No plain text. No placeholders. No incomplete sections. No exceptions.
           </div>
         </div>
       )}
