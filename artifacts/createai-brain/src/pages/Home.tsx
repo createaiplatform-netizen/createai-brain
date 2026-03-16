@@ -16,9 +16,26 @@ function cn(...inputs: ClassValue[]) {
 }
 
 const PROJECTS = [
-  { name: "Main Brain", description: "Your core CreateAI Brain is active." },
-  { name: "Healthcare Demo", description: "ApexCare Nexus — demo mode loaded." },
-  { name: "New Project", description: "This is a placeholder project you can rename later." }
+  {
+    name: "Main Brain",
+    description: "Your core CreateAI Brain is active. All engines and 30 series loaded.",
+  },
+  {
+    name: "Healthcare Demo",
+    description: "ApexCare Nexus — simulation only, non-clinical demo mode loaded.",
+  },
+  {
+    name: "Grants & Funding Explorer",
+    description: "Explore grant ideas, funding concepts, and narratives. Simulation only.",
+  },
+  {
+    name: "Business & Operations Builder",
+    description: "Structure your operations, roles, and workflows. Conceptual mode.",
+  },
+  {
+    name: "Marketing & Storytelling Studio",
+    description: "Craft your brand narratives, campaigns, and messaging. Ideation mode.",
+  },
 ];
 
 export default function Home() {

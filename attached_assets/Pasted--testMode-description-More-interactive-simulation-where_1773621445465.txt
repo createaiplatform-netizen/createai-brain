@@ -1,0 +1,103 @@
+        testMode: {
+          description: "More interactive simulation where users can click through fictional workflows and see example outputs.",
+          purpose: "Let a viewer experience the feel of the system without real-world consequences or real data.",
+          notes: [
+            "All interactions are simulated.",
+            "No clinical, legal, or financial decisions are made.",
+            "Outputs are fictional and for demonstration only."
+          ]
+        }
+      },
+
+      conceptualFeatures: {
+        intakeAndAssessment: {
+          description: "Simulated intake questions and assessment structure (no real scoring or clinical logic).",
+          purpose: "Show how a future system might organize client information."
+        },
+        carePlanning: {
+          description: "Conceptual care plan templates and structures.",
+          purpose: "Demonstrate how goals, interventions, and outcomes could be organized."
+        },
+        documentation: {
+          description: "Simulated notes, summaries, and reports.",
+          purpose: "Show how documentation might be generated in a future, compliant system."
+        },
+        riskAndSafetyViews: {
+          description: "Conceptual risk flags and safety summaries.",
+          purpose: "Illustrate how a system might surface important concerns (non-functional)."
+        },
+        providerAndServiceMapping: {
+          description: "Conceptual mapping of providers, services, and supports (local, state, global).",
+          purpose: "Show how a directory could look and feel, without real data."
+        }
+      }
+    },
+
+    grantsAndFunding: {
+      name: "Grants & Funding Explorer",
+      mode: "SIMULATION_ONLY",
+      description: "Conceptual engine that helps imagine grants, contests, and funding opportunities.",
+      conceptualFeatures: {
+        grantIdeaGenerator: "Suggests fictional or example grant ideas based on user goals (non-binding, non-real).",
+        contestConcepts: "Imagines contests or challenges a user could run or enter.",
+        fundingNarratives: "Helps structure stories and narratives for hypothetical funding applications."
+      }
+    },
+
+    businessAndOperations: {
+      name: "Business & Operations Builder",
+      mode: "SIMULATION_ONLY",
+      description: "Conceptual module for structuring operations, roles, and workflows.",
+      conceptualFeatures: {
+        orgDesign: "Imagines roles, teams, and responsibilities.",
+        workflowMapping: "Outlines how tasks could flow through a future system.",
+        policyAndProcedureOutlines: "Conceptual templates for policies and procedures (non-legal)."
+      }
+    },
+
+    marketingAndStorytelling: {
+      name: "Marketing & Storytelling Studio",
+      mode: "SIMULATION_ONLY",
+      description: "Conceptual module for messaging, branding, and storytelling.",
+      conceptualFeatures: {
+        brandNarratives: "High-level story arcs about the platform and its impact.",
+        campaignConcepts: "Imagined campaigns and outreach ideas.",
+        audienceMapping: "Conceptual mapping of audiences and segments."
+      }
+    }
+
+  },
+
+  submitAndGenerationConcept: {
+    description: "High-level idea of a 'Submit' button that triggers conceptual generation.",
+    importantNote: "In this config, the submit behavior is purely conceptual and non-functional.",
+    imaginedBehaviors: [
+      "Generate example grants or narratives (fictional).",
+      "Generate example care plan structures (non-clinical).",
+      "Generate example business or marketing documents (non-legal, non-binding)."
+    ]
+  },
+
+  safetyAndBoundaries: {
+    clinical: [
+      "No diagnosis.",
+      "No treatment recommendations.",
+      "No real scoring or eligibility decisions.",
+      "No real LTCFS or clinical forms.",
+      "No real-world medical advice."
+    ],
+    legalAndFinancial: [
+      "No binding contracts.",
+      "No real billing logic.",
+      "No tax or legal advice.",
+      "No guarantees of funding or outcomes."
+    ],
+    general: [
+      "All outputs are fictional, illustrative, and for demonstration only.",
+      "Human experts are always required for real decisions."
+    ]
+  }
+
+};
+
+// End of CREATEAI_MASTER_VISION_CONFIG

@@ -1,0 +1,228 @@
+// CREATEAI MASTER VISION CONFIG (SIMULATION-ONLY, NON-CLINICAL, NON-FUNCTIONAL)
+// This file is a conceptual definition of everything Sara has envisioned.
+// It does NOT perform medical tasks, billing, diagnosis, treatment, or real workflows.
+// It is a placeholder/simulation map for future development only.
+
+const CREATEAI_MASTER_VISION = {
+
+  meta: {
+    creatorName: "Sara Stadler",
+    platformName: "CreateAI",
+    corePromise: "Universal creation engine that feels calm, clear, empowering, and emotionally safe.",
+    mode: "SIMULATION_ONLY_NON_CLINICAL",
+    notes: [
+      "This is a conceptual config, not a working healthcare or billing system.",
+      "All modules are placeholders for future implementation.",
+      "No real-world medical, legal, or financial decisions should ever rely on this."
+    ]
+  },
+
+  identity: {
+    tone: "Calm, clear, kind, emotionally steady, non-judgmental, empowering.",
+    personality: [
+      "Reassuring",
+      "Non-overwhelming",
+      "Founder-level clarity",
+      "Protective of user vision",
+      "Never shaming, never pressuring"
+    ],
+    principles: [
+      "No overwhelm",
+      "No guessing",
+      "No hallucinations",
+      "Explain simply when needed",
+      "Honor the creator’s intent (Sara)",
+      "Preserve every idea; nothing is lost"
+    ]
+  },
+
+  engines: {
+    unifiedExperienceEngine: {
+      description: "Blends joy, clarity, and usability into every interaction.",
+      purpose: "Make the platform feel intuitive, welcoming, and emotionally safe."
+    },
+    omegaSeriesEngine: {
+      description: "Meta-creation engine (Ω-Series) for infinite expansion and self-improvement.",
+      purpose: "Holds the logic for how the system can grow and evolve over time."
+    },
+    phiSeriesEngine: {
+      description: "Continuous improvement engine (Φ-Series).",
+      purpose: "Observes patterns and suggests better flows, structures, and experiences (conceptually)."
+    },
+    potentialAndPossibilityEngine: {
+      description: "Surfaces new ideas, directions, and opportunities.",
+      purpose: "Helps users see what else is possible from where they are."
+    },
+    funAndEngagementEngine: {
+      description: "Keeps the experience light, engaging, and motivating.",
+      purpose: "Prevents the platform from feeling cold or overwhelming."
+    },
+    uiUxOverrideEngine: {
+      description: "Ensures UI/UX stays calm, clear, and emotionally supportive.",
+      purpose: "Overrides anything that feels chaotic, cluttered, or confusing."
+    },
+    opportunityEngine: {
+      description: "Conceptual engine that turns user activity into opportunities (packages, offers, ideas).",
+      purpose: "Helps transform raw work into value and potential revenue (conceptually)."
+    }
+  },
+
+  conceptualSeries: {
+    // 30+ positive, user-friendly conceptual series (names abstracted but preserved as a set)
+    count: 30,
+    examples: [
+      "Clarity Series",
+      "Confidence Series",
+      "Momentum Series",
+      "Safety Series",
+      "Expansion Series",
+      "Onboarding Series",
+      "Support Series",
+      "Discovery Series",
+      "Creation Series",
+      "Reflection Series"
+      // ...remaining series conceptually included
+    ],
+    purpose: "Each series represents a way the platform can guide, support, or expand user work."
+  },
+
+  universalBrain: {
+    description: "Central conceptual brain that knows about engines, series, modules, and Sara’s philosophy.",
+    behavior: [
+      "Responds in Sara’s tone and philosophy.",
+      "References engines and series conceptually (not as real code).",
+      "Keeps users calm, clear, and supported.",
+      "Never pretends to be a real medical or financial system."
+    ],
+    simulationOnly: true
+  },
+
+  ui: {
+    chatInterface: {
+      style: "iPhone-style chat UI.",
+      purpose: "Make interactions feel familiar, safe, and conversational."
+    },
+    projectSwitcher: {
+      description: "Allows switching between conceptual projects (e.g., Healthcare Demo, Grants, Business Builder).",
+      projects: [
+        "Healthcare Demo (ApexCare Nexus)",
+        "Grants & Funding Explorer",
+        "Business & Operations Builder",
+        "Marketing & Storytelling Studio"
+      ]
+    }
+  },
+
+  modules: {
+
+    healthcareDemo: {
+      name: "ApexCare Nexus",
+      mode: "DEMO_AND_SIMULATION_ONLY",
+      description: "Conceptual healthcare experience to showcase future capabilities without performing real clinical work.",
+      disclaimers: [
+        "Not a medical device.",
+        "Not for diagnosis, treatment, or clinical decision-making.",
+        "All outputs are fictional and for demonstration only."
+      ],
+      subModes: {
+        demoMode: {
+          description: "Guided, safe, non-interactive or lightly interactive walkthrough of what the system could do.",
+          purpose: "Impress and orient a viewer without real data or real decisions."
+        },
+        testMode: {
+          description: "More interactive simulation where a user can click through flows and see example outputs.",
+          purpose: "Let a viewer experience the feel of the system without real-world consequences."
+        }
+      },
+      conceptualFeatures: {
+        intakeAndAssessment: {
+          description: "Simulated intake questions and assessment structure (no real scoring or clinical logic).",
+          purpose: "Show how a future system might organize client information."
+        },
+        carePlanning: {
+          description: "Conceptual care plan templates and structures.",
+          purpose: "Demonstrate how goals, interventions, and outcomes could be organized."
+        },
+        documentation: {
+          description: "Simulated notes, summaries, and reports.",
+          purpose: "Show how documentation might be generated in a future, compliant system."
+        },
+        riskAndSafetyViews: {
+          description: "Conceptual risk flags and safety summaries.",
+          purpose: "Illustrate how a system might surface important concerns (non-functional)."
+        },
+        providerAndServiceMapping: {
+          description: "Conceptual mapping of providers, services, and supports (local, state, global).",
+          purpose: "Show how a directory could look and feel, without real data."
+        }
+      }
+    },
+
+    grantsAndFunding: {
+      name: "Grants & Funding Explorer",
+      mode: "SIMULATION_ONLY",
+      description: "Conceptual engine that helps imagine grants, contests, and funding opportunities.",
+      conceptualFeatures: {
+        grantIdeaGenerator: "Suggests fictional or example grant ideas based on user goals (non-binding, non-real).",
+        contestConcepts: "Imagines contests or challenges a user could run or enter.",
+        fundingNarratives: "Helps structure stories and narratives for hypothetical funding applications."
+      }
+    },
+
+    businessAndOperations: {
+      name: "Business & Operations Builder",
+      mode: "SIMULATION_ONLY",
+      description: "Conceptual module for structuring operations, roles, and workflows.",
+      conceptualFeatures: {
+        orgDesign: "Imagines roles, teams, and responsibilities.",
+        workflowMapping: "Outlines how tasks could flow through a future system.",
+        policyAndProcedureOutlines: "Conceptual templates for policies and procedures (non-legal)."
+      }
+    },
+
+    marketingAndStorytelling: {
+      name: "Marketing & Storytelling Studio",
+      mode: "SIMULATION_ONLY",
+      description: "Conceptual module for messaging, branding, and storytelling.",
+      conceptualFeatures: {
+        brandNarratives: "High-level story arcs about the platform and its impact.",
+        campaignConcepts: "Imagined campaigns and outreach ideas.",
+        audienceMapping: "Conceptual mapping of audiences and segments."
+      }
+    }
+
+  },
+
+  submitAndGenerationConcept: {
+    description: "High-level idea of a 'Submit' button that triggers conceptual generation.",
+    importantNote: "In this config, the submit behavior is purely conceptual and non-functional.",
+    imaginedBehaviors: [
+      "Generate example grants or narratives (fictional).",
+      "Generate example care plan structures (non-clinical).",
+      "Generate example business or marketing documents (non-legal, non-binding)."
+    ]
+  },
+
+  safetyAndBoundaries: {
+    clinical: [
+      "No diagnosis.",
+      "No treatment recommendations.",
+      "No real scoring or eligibility decisions.",
+      "No real LTCFS or clinical forms.",
+      "No real-world medical advice."
+    ],
+    legalAndFinancial: [
+      "No binding contracts.",
+      "No real billing logic.",
+      "No tax or legal advice.",
+      "No guarantees of funding or outcomes."
+    ],
+    general: [
+      "All outputs are fictional, illustrative, and for demonstration only.",
+      "Human experts are always required for real decisions."
+    ]
+  }
+
+};
+
+// End of CREATEAI_MASTER_VISION_CONFIG
