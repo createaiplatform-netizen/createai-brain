@@ -5,7 +5,7 @@
 // 6 Meta-AI Agents · 11 Core Engines · Infinite Expansion · Guided Tour
 // ═══════════════════════════════════════════════════════════════════════════
 
-import React, { useState, useEffect, useRef } from "react";
+import React, { useState, useEffect, useRef, useCallback } from "react";
 import {
   InfiniteExpansionEngine,
   META_AGENTS, CORE_ENGINES,
@@ -382,6 +382,53 @@ function EnginesView() {
   );
 }
 
+// ─── Drag hook (identical pattern to ConversationOverlay) ─────────────────
+
+function useDraggable(initialPos: () => { x: number; y: number }) {
+  const [pos, setPos] = useState<{ x: number; y: number } | null>(null);
+  const dragging = useRef(false);
+  const offset   = useRef({ x: 0, y: 0 });
+  const elRef    = useRef<HTMLElement | null>(null);
+
+  useEffect(() => { setPos(initialPos()); }, []);
+
+  useEffect(() => {
+    function onMove(e: MouseEvent | TouchEvent) {
+      if (!dragging.current) return;
+      const cx = "touches" in e ? e.touches[0].clientX : e.clientX;
+      const cy = "touches" in e ? e.touches[0].clientY : e.clientY;
+      const w  = elRef.current?.offsetWidth  ?? 0;
+      const h  = elRef.current?.offsetHeight ?? 0;
+      setPos({
+        x: Math.min(Math.max(0, cx - offset.current.x), window.innerWidth  - w),
+        y: Math.min(Math.max(0, cy - offset.current.y), window.innerHeight - h),
+      });
+    }
+    function onUp() { dragging.current = false; }
+    window.addEventListener("mousemove", onMove);
+    window.addEventListener("touchmove",  onMove, { passive: true });
+    window.addEventListener("mouseup",   onUp);
+    window.addEventListener("touchend",  onUp);
+    return () => {
+      window.removeEventListener("mousemove", onMove);
+      window.removeEventListener("touchmove",  onMove);
+      window.removeEventListener("mouseup",   onUp);
+      window.removeEventListener("touchend",  onUp);
+    };
+  }, []);
+
+  function startDrag(e: React.MouseEvent | React.TouchEvent, el: HTMLElement | null) {
+    elRef.current = el;
+    const cx = "touches" in e ? e.touches[0].clientX : e.clientX;
+    const cy = "touches" in e ? e.touches[0].clientY : e.clientY;
+    const rect = el?.getBoundingClientRect();
+    offset.current = { x: cx - (rect?.left ?? 0), y: cy - (rect?.top ?? 0) };
+    dragging.current = true;
+  }
+
+  return { pos, startDrag };
+}
+
 // ─── Main UCPXAgent Component ─────────────────────────────────────────────
 
 export function UCPXAgent() {
@@ -389,7 +436,17 @@ export function UCPXAgent() {
   const [tab,        setTab]        = useState<UCPXTab>("agents");
   const [agents,     setAgents]     = useState(META_AGENTS);
   const [activeResult, setActiveResult] = useState<InfiniteModule | null>(null);
+  const btnRef   = useRef<HTMLButtonElement>(null);
   const panelRef = useRef<HTMLDivElement>(null);
+
+  const { pos: btnPos,   startDrag: startBtnDrag   } = useDraggable(() => ({
+    x: Math.max(0, window.innerWidth  - 76),
+    y: Math.max(0, window.innerHeight - 76),
+  }));
+  const { pos: panelPos, startDrag: startPanelDrag } = useDraggable(() => ({
+    x: Math.max(0, window.innerWidth  - 376),
+    y: Math.max(0, window.innerHeight - 580),
+  }));
 
   const handleActivateAgent = (id: AgentId) => {
     const mod = InfiniteExpansionEngine.activateAgent(id, `Infinite expansion task for ${id}`);
@@ -410,14 +467,19 @@ export function UCPXAgent() {
     { id: "tour",    label: "Tour",     icon: "🗺️" },
   ];
 
+  if (!btnPos) return null;
+
   return (
     <>
       {/* ── Floating trigger button ── */}
       <button
+        ref={btnRef}
+        onMouseDown={e => startBtnDrag(e, btnRef.current)}
+        onTouchStart={e => startBtnDrag(e, btnRef.current)}
         onClick={() => setOpen(o => !o)}
-        className="fixed bottom-5 right-5 z-50 w-14 h-14 rounded-full shadow-2xl flex items-center justify-center transition-transform hover:scale-105 active:scale-95"
-        style={{ background: "linear-gradient(135deg, #5856D6, #007AFF)" }}
-        title="UCP-X Agent Panel">
+        className="fixed z-50 w-14 h-14 rounded-full shadow-2xl flex items-center justify-center cursor-grab active:cursor-grabbing select-none transition-transform hover:scale-105 active:scale-95"
+        style={{ background: "linear-gradient(135deg, #5856D6, #007AFF)", left: btnPos.x, top: btnPos.y }}
+        title="Drag to move · Click to open UCP-X">
         <div className="relative">
           <span className="text-2xl">⚡</span>
           <span className="absolute -top-1 -right-1 w-2.5 h-2.5 bg-green-400 rounded-full border border-white animate-pulse" />
@@ -425,13 +487,18 @@ export function UCPXAgent() {
       </button>
 
       {/* ── Panel ── */}
-      {open && (
+      {open && panelPos && (
         <div
           ref={panelRef}
-          className="fixed bottom-24 right-4 z-50 w-[360px] max-w-[calc(100vw-2rem)] max-h-[75vh] bg-background border border-border/40 rounded-3xl shadow-2xl overflow-hidden flex flex-col">
+          className="fixed z-50 w-[360px] max-w-[calc(100vw-2rem)] max-h-[75vh] bg-background border border-border/40 rounded-3xl shadow-2xl overflow-hidden flex flex-col"
+          style={{ left: panelPos.x, top: panelPos.y }}>
 
-          {/* Header */}
-          <div className="flex-none bg-gradient-to-r from-indigo-600 to-blue-600 px-4 py-3.5 text-white">
+          {/* Header — drag handle */}
+          <div
+            className="flex-none bg-gradient-to-r from-indigo-600 to-blue-600 px-4 py-3.5 text-white cursor-grab active:cursor-grabbing select-none"
+            onMouseDown={e => startPanelDrag(e, panelRef.current)}
+            onTouchStart={e => startPanelDrag(e, panelRef.current)}
+            title="Drag to move">
             <div className="flex items-center justify-between">
               <div>
                 <p className="font-bold text-[15px]">⚡ UCP-X Add-On</p>
