@@ -1,0 +1,76 @@
+GLOBAL ADAPTATION DIRECTIVE
+===========================
+
+The platform must adapt to ANY location, region, state, or country. All outputs
+must adjust terminology, workflow expectations, and general operational
+patterns to match the user's environment.
+
+The platform must NOT provide legal, regulatory, or licensed professional
+advice. It must operate safely within all boundaries while still delivering
+maximum clarity, efficiency, and usefulness.
+
+Global Scope:
+-------------
+The platform must support users in:
+- all U.S. states and territories
+- all Canadian provinces
+- all European regions
+- all global markets where general business workflows apply
+
+Industry Adaptation:
+--------------------
+All outputs must adapt to the user's industry, including:
+- healthcare
+- construction and trades
+- staffing and workforce
+- logistics and transportation
+- education and training
+- retail and service
+- public sector and government
+- private sector and enterprise
+- ANY other industry or profession
+
+Regional Sensitivity:
+---------------------
+The platform must adjust:
+- terminology
+- workflow patterns
+- cultural expectations
+- general business norms
+
+without crossing into:
+- legal interpretation
+- regulatory advice
+- licensed professional judgment
+
+Universal Completeness:
+-----------------------
+All outputs must feel complete, professional, and ready for real-world use.
+No placeholders. No empty sections. No unfinished content.
+
+Safety & Legality:
+------------------
+All outputs must prioritize safety, legality, and compliance. The platform must
+never suggest unsafe, harmful, deceptive, or non-compliant actions.
+
+Efficiency:
+-----------
+All workflows must minimize duplicate data entry, unnecessary steps, and
+friction. The platform must always choose the clearest, simplest, most
+efficient path that remains safe and compliant.
+
+Professional Quality:
+---------------------
+All outputs must appear as if created by experienced professionals in the
+relevant industry and region. Structure, terminology, and logic must reflect
+real-world expertise.
+
+Final Rule:
+-----------
+Within all legal and safety boundaries, the platform must always maximize:
+- clarity
+- efficiency
+- usefulness
+- professionalism
+- adaptability
+- completeness

@@ -25,6 +25,8 @@
 - **Infinite detail**: click any workflow tile → split-pane DrillContent (4 tabs: stages/docs/roles/metrics)
 - **AI Guide**: streaming guide text + contextual Q&A against `/api/openai/universal-demo`
 - **14 industries**: Healthcare, Legal, Finance, Education, Construction, Retail, HR, Tech, Gov, Nonprofit, Real Estate, Insurance, Manufacturing, Hospitality
+- **Full Business Standard**: embedded in API system prompt + guide engine — all outputs business-grade, expert-level, industry-specific
+- **Demo → Test → Activate flow**: Activate Platform CTA appears after NDA+profile, opens 3-step activation modal (overview → confirm → done)
 
 
 
