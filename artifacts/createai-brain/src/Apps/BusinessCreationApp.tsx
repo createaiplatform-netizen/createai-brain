@@ -21,6 +21,12 @@ interface LayerState {
   generated: boolean;
 }
 
+interface EnsureState {
+  content: string;
+  loading: boolean;
+  ensured: boolean;
+}
+
 // ─── Layer Config ──────────────────────────────────────────────────────────────
 
 const LAYERS: { id: LayerId; num: number; icon: string; label: string; desc: string; action: string }[] = [
@@ -73,6 +79,54 @@ async function streamBusinessLayer(
       stage: ctx.stage,
       focus: ctx.focus,
       action,
+    }),
+    signal,
+  });
+
+  if (!res.ok || !res.body) return;
+
+  const reader = res.body.getReader();
+  const dec = new TextDecoder();
+  let acc = "";
+
+  while (true) {
+    const { done, value } = await reader.read();
+    if (done) break;
+    acc += dec.decode(value, { stream: true });
+    const parts = acc.split("\n\n");
+    acc = parts.pop() ?? "";
+    for (const part of parts) {
+      const line = part.startsWith("data: ") ? part.slice(6) : null;
+      if (!line) continue;
+      try {
+        const parsed = JSON.parse(line);
+        if (parsed.content) onChunk(parsed.content);
+        if (parsed.done) return;
+      } catch {}
+    }
+  }
+}
+
+// ─── Everything-Ensurer SSE Helper ───────────────────────────────────────────
+
+async function streamEnsureLayer(
+  content: string,
+  ctx: BusinessContext,
+  layerLabel: string,
+  onChunk: (text: string) => void,
+  signal: AbortSignal,
+) {
+  const res = await fetch("/api/openai/everything-ensurer", {
+    method: "POST",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify({
+      content,
+      industry: ctx.industry,
+      region: ctx.region,
+      size: ctx.size,
+      stage: ctx.stage,
+      focus: ctx.focus,
+      layerLabel,
     }),
     signal,
   });
@@ -276,8 +330,15 @@ export function BusinessCreationApp() {
     return init as Record<LayerId, LayerState>;
   });
   const [generatingAll, setGeneratingAll] = useState(false);
+  const [ensureStates, setEnsureStates] = useState<Record<LayerId, EnsureState>>(() => {
+    const init: Partial<Record<LayerId, EnsureState>> = {};
+    LAYERS.forEach(l => { init[l.id] = { content: "", loading: false, ensured: false }; });
+    return init as Record<LayerId, EnsureState>;
+  });
+  const [ensuringAll, setEnsuringAll] = useState(false);
 
   const abortRefs = useRef<Partial<Record<LayerId, AbortController>>>({});
+  const ensureAbortRefs = useRef<Partial<Record<LayerId, AbortController>>>({});
 
   const updateCtx = useCallback(<K extends keyof BusinessContext>(key: K, val: BusinessContext[K]) => {
     setCtx(prev => ({ ...prev, [key]: val }));
@@ -319,8 +380,49 @@ export function BusinessCreationApp() {
     setGeneratingAll(false);
   }, [ctx, generateLayer]);
 
+  const ensureLayer = useCallback(async (layerId: LayerId, ctxOverride?: BusinessContext) => {
+    const layerContent = layerStates[layerId]?.content;
+    if (!layerContent) return;
+    const layer = LAYERS.find(l => l.id === layerId);
+    if (!layer) return;
+
+    ensureAbortRefs.current[layerId]?.abort();
+    const ctrl = new AbortController();
+    ensureAbortRefs.current[layerId] = ctrl;
+
+    setEnsureStates(prev => ({ ...prev, [layerId]: { content: "", loading: true, ensured: false } }));
+
+    try {
+      let text = "";
+      await streamEnsureLayer(layerContent, ctxOverride ?? ctx, `Layer ${layer.num}: ${layer.label}`, chunk => {
+        text += chunk;
+        setEnsureStates(prev => ({ ...prev, [layerId]: { content: text, loading: true, ensured: false } }));
+      }, ctrl.signal);
+      setEnsureStates(prev => ({ ...prev, [layerId]: { content: text, loading: false, ensured: true } }));
+    } catch (e: any) {
+      if (e.name !== "AbortError") {
+        setEnsureStates(prev => ({
+          ...prev,
+          [layerId]: { content: "[Quality validation failed — please try again]", loading: false, ensured: false },
+        }));
+      }
+    }
+  }, [ctx, layerStates]);
+
+  const ensureAll = useCallback(async () => {
+    setEnsuringAll(true);
+    const snapshot = { ...ctx };
+    for (const layer of LAYERS) {
+      if (layerStates[layer.id].generated) {
+        await ensureLayer(layer.id, snapshot);
+      }
+    }
+    setEnsuringAll(false);
+  }, [ctx, layerStates, ensureLayer]);
+
   const currentLayer = LAYERS.find(l => l.id === activeLayer)!;
   const currentState = layerStates[activeLayer];
+  const currentEnsureState = ensureStates[activeLayer];
 
   const contextTags = [
     ctx.industry,
@@ -345,26 +447,48 @@ export function BusinessCreationApp() {
         <div>
           <div className="text-[15px] font-bold text-white">🏗️ Business Creation Engine</div>
           <div className="text-[11px]" style={{ color: "rgba(148,163,184,0.55)" }}>
-            6-layer conceptual business design system · {generatedCount > 0 ? `${generatedCount}/6 layers generated` : "Select your profile, then generate any layer"}
+            6-layer conceptual business design · Everything-Ensurer quality validation ·{" "}
+            {generatedCount > 0 ? `${generatedCount}/6 layers generated` : "Select your profile, then generate any layer"}
           </div>
         </div>
-        <button
-          onClick={generateAll}
-          disabled={generatingAll}
-          className="flex items-center gap-2 px-4 py-2 rounded-xl text-[12px] font-semibold transition-all"
-          style={{
-            background: generatingAll ? "rgba(99,102,241,0.08)" : "rgba(99,102,241,0.20)",
-            border: "1px solid rgba(99,102,241,0.40)",
-            color: generatingAll ? "#64748b" : "#a5b4fc",
-            cursor: generatingAll ? "not-allowed" : "pointer",
-          }}
-        >
-          {generatingAll ? (
-            <><span className="animate-spin inline-block">⟳</span> Generating All Layers…</>
-          ) : (
-            <><span>✦</span> Generate Full Business Plan</>
+        <div className="flex items-center gap-2">
+          {generatedCount > 0 && (
+            <button
+              onClick={ensureAll}
+              disabled={ensuringAll || generatingAll}
+              className="flex items-center gap-2 px-4 py-2 rounded-xl text-[12px] font-semibold transition-all"
+              style={{
+                background: ensuringAll ? "rgba(34,197,94,0.06)" : "rgba(34,197,94,0.14)",
+                border: "1px solid rgba(34,197,94,0.35)",
+                color: ensuringAll ? "#475569" : "#4ade80",
+                cursor: (ensuringAll || generatingAll) ? "not-allowed" : "pointer",
+              }}
+            >
+              {ensuringAll ? (
+                <><span className="animate-spin inline-block">⟳</span> Ensuring All…</>
+              ) : (
+                <><span>✓</span> Ensure Everything</>
+              )}
+            </button>
           )}
-        </button>
+          <button
+            onClick={generateAll}
+            disabled={generatingAll || ensuringAll}
+            className="flex items-center gap-2 px-4 py-2 rounded-xl text-[12px] font-semibold transition-all"
+            style={{
+              background: generatingAll ? "rgba(99,102,241,0.08)" : "rgba(99,102,241,0.20)",
+              border: "1px solid rgba(99,102,241,0.40)",
+              color: generatingAll ? "#64748b" : "#a5b4fc",
+              cursor: (generatingAll || ensuringAll) ? "not-allowed" : "pointer",
+            }}
+          >
+            {generatingAll ? (
+              <><span className="animate-spin inline-block">⟳</span> Generating All Layers…</>
+            ) : (
+              <><span>✦</span> Generate Full Plan</>
+            )}
+          </button>
+        </div>
       </div>
 
       <div className="flex flex-1 overflow-hidden">
@@ -479,24 +603,68 @@ export function BusinessCreationApp() {
               <div className="text-[10px] font-bold uppercase tracking-widest mb-2" style={{ color: "#6366f1" }}>
                 Plan Progress
               </div>
-              <div className="space-y-1">
-                {LAYERS.map(l => (
-                  <div key={l.id} className="flex items-center gap-2">
-                    <div
-                      className="w-1.5 h-1.5 rounded-full flex-shrink-0"
-                      style={{ background: layerStates[l.id].generated ? "#22c55e" : layerStates[l.id].loading ? "#f59e0b" : "#334155" }}
-                    />
-                    <span className="text-[10px]" style={{ color: layerStates[l.id].generated ? "#94a3b8" : "#475569" }}>
-                      L{l.num}: {l.label}
-                    </span>
-                  </div>
-                ))}
+              <div className="space-y-1.5">
+                {LAYERS.map(l => {
+                  const ls = layerStates[l.id];
+                  const es = ensureStates[l.id];
+                  return (
+                    <div key={l.id} className="flex items-center gap-2">
+                      <div
+                        className="w-1.5 h-1.5 rounded-full flex-shrink-0"
+                        style={{ background: ls.loading ? "#f59e0b" : ls.generated ? "#6366f1" : "#334155" }}
+                      />
+                      {es.ensured && (
+                        <div
+                          className="w-1.5 h-1.5 rounded-full flex-shrink-0"
+                          style={{ background: "#22c55e" }}
+                        />
+                      )}
+                      {es.loading && !es.ensured && (
+                        <div
+                          className="w-1.5 h-1.5 rounded-full flex-shrink-0 animate-pulse"
+                          style={{ background: "#4ade80" }}
+                        />
+                      )}
+                      <span className="text-[10px] flex-1" style={{ color: es.ensured ? "#94a3b8" : ls.generated ? "#64748b" : "#475569" }}>
+                        L{l.num}: {l.label}
+                      </span>
+                      {es.ensured && <span className="text-[9px]" style={{ color: "#4ade80" }}>✓</span>}
+                    </div>
+                  );
+                })}
               </div>
-              <div className="mt-2 h-1 rounded-full" style={{ background: "rgba(255,255,255,0.06)" }}>
-                <div
-                  className="h-1 rounded-full transition-all"
-                  style={{ width: `${(generatedCount / 6) * 100}%`, background: "linear-gradient(90deg,#6366f1,#a855f7)" }}
-                />
+              <div className="mt-3 space-y-1.5">
+                <div>
+                  <div className="flex items-center justify-between mb-1">
+                    <span className="text-[9px]" style={{ color: "#6366f1" }}>Generated</span>
+                    <span className="text-[9px]" style={{ color: "#6366f1" }}>{generatedCount}/6</span>
+                  </div>
+                  <div className="h-1 rounded-full" style={{ background: "rgba(255,255,255,0.06)" }}>
+                    <div
+                      className="h-1 rounded-full transition-all"
+                      style={{ width: `${(generatedCount / 6) * 100}%`, background: "linear-gradient(90deg,#6366f1,#a855f7)" }}
+                    />
+                  </div>
+                </div>
+                {LAYERS.some(l => ensureStates[l.id].ensured) && (
+                  <div>
+                    <div className="flex items-center justify-between mb-1">
+                      <span className="text-[9px]" style={{ color: "#4ade80" }}>Ensured</span>
+                      <span className="text-[9px]" style={{ color: "#4ade80" }}>
+                        {LAYERS.filter(l => ensureStates[l.id].ensured).length}/6
+                      </span>
+                    </div>
+                    <div className="h-1 rounded-full" style={{ background: "rgba(255,255,255,0.06)" }}>
+                      <div
+                        className="h-1 rounded-full transition-all"
+                        style={{
+                          width: `${(LAYERS.filter(l => ensureStates[l.id].ensured).length / 6) * 100}%`,
+                          background: "linear-gradient(90deg,#22c55e,#4ade80)",
+                        }}
+                      />
+                    </div>
+                  </div>
+                )}
               </div>
             </div>
           )}
@@ -525,17 +693,13 @@ export function BusinessCreationApp() {
                 >
                   <span>{layer.icon}</span>
                   <span>L{layer.num}: {layer.label}</span>
-                  {ls.generated && (
-                    <span
-                      className="w-1.5 h-1.5 rounded-full flex-shrink-0"
-                      style={{ background: "#22c55e" }}
-                    />
-                  )}
-                  {ls.loading && (
-                    <span
-                      className="w-1.5 h-1.5 rounded-full flex-shrink-0 animate-pulse"
-                      style={{ background: "#f59e0b" }}
-                    />
+                  {ensureStates[layer.id].ensured ? (
+                    <span className="w-1.5 h-1.5 rounded-full flex-shrink-0" style={{ background: "#22c55e" }} />
+                  ) : ls.generated ? (
+                    <span className="w-1.5 h-1.5 rounded-full flex-shrink-0" style={{ background: "#6366f1" }} />
+                  ) : null}
+                  {(ls.loading || ensureStates[layer.id].loading) && (
+                    <span className="w-1.5 h-1.5 rounded-full flex-shrink-0 animate-pulse" style={{ background: "#f59e0b" }} />
                   )}
                 </button>
               );
@@ -557,23 +721,46 @@ export function BusinessCreationApp() {
                   </div>
                 </div>
               </div>
-              <button
-                onClick={() => generateLayer(activeLayer)}
-                disabled={currentState.loading}
-                className="flex items-center gap-2 px-4 py-2 rounded-xl text-[12px] font-semibold flex-shrink-0 transition-all"
-                style={{
-                  background: currentState.loading ? "rgba(99,102,241,0.06)" : "rgba(99,102,241,0.18)",
-                  border: "1px solid rgba(99,102,241,0.35)",
-                  color: currentState.loading ? "#475569" : "#a5b4fc",
-                  cursor: currentState.loading ? "not-allowed" : "pointer",
-                }}
-              >
-                {currentState.loading ? (
-                  <><span className="animate-spin inline-block">⟳</span> Generating…</>
-                ) : (
-                  <><span>✦</span> Generate {currentLayer.label}</>
+              <div className="flex items-center gap-2 flex-shrink-0">
+                {currentState.generated && (
+                  <button
+                    onClick={() => ensureLayer(activeLayer)}
+                    disabled={currentEnsureState.loading || currentState.loading}
+                    className="flex items-center gap-2 px-3 py-2 rounded-xl text-[12px] font-semibold transition-all"
+                    style={{
+                      background: currentEnsureState.loading ? "rgba(34,197,94,0.04)" : currentEnsureState.ensured ? "rgba(34,197,94,0.18)" : "rgba(34,197,94,0.12)",
+                      border: `1px solid ${currentEnsureState.ensured ? "rgba(34,197,94,0.50)" : "rgba(34,197,94,0.30)"}`,
+                      color: currentEnsureState.loading ? "#475569" : "#4ade80",
+                      cursor: (currentEnsureState.loading || currentState.loading) ? "not-allowed" : "pointer",
+                    }}
+                  >
+                    {currentEnsureState.loading ? (
+                      <><span className="animate-spin inline-block">⟳</span> Ensuring…</>
+                    ) : currentEnsureState.ensured ? (
+                      <><span>✓</span> Re-Ensure Layer</>
+                    ) : (
+                      <><span>✓</span> Ensure This Layer</>
+                    )}
+                  </button>
                 )}
-              </button>
+                <button
+                  onClick={() => generateLayer(activeLayer)}
+                  disabled={currentState.loading || currentEnsureState.loading}
+                  className="flex items-center gap-2 px-3 py-2 rounded-xl text-[12px] font-semibold transition-all"
+                  style={{
+                    background: currentState.loading ? "rgba(99,102,241,0.06)" : "rgba(99,102,241,0.18)",
+                    border: "1px solid rgba(99,102,241,0.35)",
+                    color: currentState.loading ? "#475569" : "#a5b4fc",
+                    cursor: (currentState.loading || currentEnsureState.loading) ? "not-allowed" : "pointer",
+                  }}
+                >
+                  {currentState.loading ? (
+                    <><span className="animate-spin inline-block">⟳</span> Generating…</>
+                  ) : (
+                    <><span>✦</span> Generate {currentLayer.label}</>
+                  )}
+                </button>
+              </div>
             </div>
 
             {/* Context Tags */}
@@ -595,11 +782,18 @@ export function BusinessCreationApp() {
             {/* AI Output Block */}
             {currentState.content && (
               <div
-                className="rounded-xl p-5 mb-5"
+                className="rounded-xl p-5 mb-4"
                 style={{ background: "rgba(99,102,241,0.06)", border: "1px solid rgba(99,102,241,0.20)" }}
               >
-                <div className="text-[10px] font-bold uppercase tracking-widest mb-3" style={{ color: "#818cf8" }}>
-                  {currentState.generated ? "✦ AI-Generated Business System" : "⟳ Generating business system…"}
+                <div className="flex items-center justify-between mb-3">
+                  <div className="text-[10px] font-bold uppercase tracking-widest" style={{ color: "#818cf8" }}>
+                    {currentState.generated ? "✦ AI-Generated Business System" : "⟳ Generating business system…"}
+                  </div>
+                  {currentState.generated && !currentEnsureState.ensured && !currentEnsureState.loading && (
+                    <div className="text-[10px]" style={{ color: "rgba(148,163,184,0.45)" }}>
+                      Run <span style={{ color: "#4ade80" }}>✓ Ensure This Layer</span> to validate quality
+                    </div>
+                  )}
                 </div>
                 <pre
                   className="text-[12px] whitespace-pre-wrap leading-relaxed font-sans"
@@ -610,6 +804,45 @@ export function BusinessCreationApp() {
                     <span
                       className="inline-block w-1.5 h-3.5 ml-0.5 animate-pulse"
                       style={{ background: "#6366f1", verticalAlign: "text-bottom" }}
+                    />
+                  )}
+                </pre>
+              </div>
+            )}
+
+            {/* Everything-Ensurer Output Block */}
+            {currentEnsureState.content && (
+              <div
+                className="rounded-xl p-5 mb-5"
+                style={{ background: "rgba(34,197,94,0.05)", border: "1px solid rgba(34,197,94,0.22)" }}
+              >
+                <div className="flex items-center gap-2 mb-3">
+                  <div className="text-[10px] font-bold uppercase tracking-widest" style={{ color: "#4ade80" }}>
+                    {currentEnsureState.ensured ? "✓ Everything-Ensured — Quality Validated" : "⟳ Running quality validation…"}
+                  </div>
+                  {currentEnsureState.ensured && (
+                    <div className="flex items-center gap-1 flex-wrap">
+                      {["Complete", "Consistent", "Realistic", "Compliant", "Clear", "Expanded"].map((v, i) => (
+                        <span
+                          key={i}
+                          className="px-1.5 py-0.5 rounded text-[9px] font-bold uppercase tracking-wide"
+                          style={{ background: "rgba(34,197,94,0.12)", border: "1px solid rgba(34,197,94,0.25)", color: "#4ade80" }}
+                        >
+                          {v}
+                        </span>
+                      ))}
+                    </div>
+                  )}
+                </div>
+                <pre
+                  className="text-[12px] whitespace-pre-wrap leading-relaxed font-sans"
+                  style={{ color: "rgba(220,240,220,0.92)" }}
+                >
+                  {currentEnsureState.content}
+                  {currentEnsureState.loading && (
+                    <span
+                      className="inline-block w-1.5 h-3.5 ml-0.5 animate-pulse"
+                      style={{ background: "#22c55e", verticalAlign: "text-bottom" }}
                     />
                   )}
                 </pre>

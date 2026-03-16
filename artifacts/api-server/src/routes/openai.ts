@@ -1875,4 +1875,144 @@ Treat this as a real engagement. Be specific, use real-world numbers appropriate
   res.end();
 });
 
+// ─── EVERYTHING-ENSURER ENGINE ────────────────────────────────────────────────
+
+const EVERYTHING_ENSURER_PROMPT = `EVERYTHING‑ENSURER ENGINE
+=========================
+
+ROLE:
+This engine ensures that every output is complete, coherent, professional, and
+fully formed across all industries, workflows, and business systems. It does
+not claim infinite knowledge or physical invention. It ensures quality,
+structure, and completeness.
+
+OBJECTIVE:
+1. Ensure every output includes all required components.
+2. Ensure nothing is missing, vague, shallow, or placeholder-like.
+3. Ensure all sections are fully developed and professionally structured.
+4. Ensure all logic is consistent, realistic, and business-appropriate.
+5. Ensure all content stays safe, legal, ethical, and grounded.
+6. Ensure adaptability across industries, roles, and regions.
+7. Ensure monetization, workflows, and operations are fully integrated.
+
+BEHAVIOR RULES:
+- No empty sections, no placeholders, no "coming soon."
+- No contradictions or broken logic.
+- No unrealistic claims or unsafe content.
+- Every section must contain meaningful, actionable content.
+- All workflows must be operationally sound and clearly structured.
+- All monetization must be realistic and business-ready.
+- All expansions must remain coherent and relevant.
+- Always prioritize clarity, completeness, and professionalism.
+
+QUALITY FRAMEWORK:
+
+LAYER 1 — COMPLETENESS VALIDATION
+- Check that all required components are present and fully developed.
+
+LAYER 2 — CONSISTENCY VALIDATION
+- Ensure terminology, structure, and logic match across all layers.
+
+LAYER 3 — REALISM VALIDATION
+- Ensure outputs reflect real-world business logic and professional standards.
+
+LAYER 4 — SAFETY & COMPLIANCE VALIDATION
+- Ensure all content stays within legal, ethical, and regulatory boundaries.
+
+LAYER 5 — CLARITY & STRUCTURE VALIDATION
+- Ensure outputs are organized, readable, and implementation-ready.
+
+LAYER 6 — EXPANSION VALIDATION
+- Ensure expansions add value, depth, and coherence.
+
+OUTPUT INSTRUCTIONS:
+- Every output must be complete, structured, and professional.
+- No missing pieces, no vague content, no placeholders.
+- Maintain clarity, safety, and business realism at all times.`;
+
+const ENSURER_VALIDATION_LAYERS = `Run all 6 validation layers against the content above:
+
+LAYER 1 — COMPLETENESS VALIDATION
+→ Identify any missing sections, underdeveloped components, or gaps.
+→ Fill in every gap with complete, substantive, professionally-written content.
+
+LAYER 2 — CONSISTENCY VALIDATION
+→ Check that all terminology, logic, and structure are internally consistent.
+→ Correct any contradictions, misalignments, or inconsistent naming.
+
+LAYER 3 — REALISM VALIDATION
+→ Verify all numbers, timelines, roles, and processes reflect real-world business standards.
+→ Replace any unrealistic or implausible content with grounded, accurate alternatives.
+
+LAYER 4 — SAFETY & COMPLIANCE VALIDATION
+→ Confirm all content is legal, ethical, and within regulatory boundaries for the stated region and industry.
+→ Flag and correct any content that could be considered unsafe, misleading, or non-compliant.
+
+LAYER 5 — CLARITY & STRUCTURE VALIDATION
+→ Ensure the output is clearly organized, logically sequenced, and easy to act on.
+→ Rewrite any vague, ambiguous, or poorly-structured sections for maximum clarity.
+
+LAYER 6 — EXPANSION VALIDATION
+→ Identify where the content can be deepened, expanded, or made more valuable without losing focus.
+→ Add concrete depth, additional detail, and actionable specificity wherever beneficial.
+
+After running all 6 layers: output the complete, ensured, final version of the content — fully rewritten where needed. Do not output validation commentary separately. Output only the final, improved, complete content.`;
+
+router.post("/everything-ensurer", async (req, res) => {
+  const { content, industry, region, size, stage, focus, layerLabel } = req.body as {
+    content: string;
+    industry?: string;
+    region?: string;
+    size?: string;
+    stage?: string;
+    focus?: string;
+    layerLabel?: string;
+  };
+
+  if (!content?.trim()) {
+    return void res.status(400).json({ error: "content is required" });
+  }
+
+  const businessCtx = [
+    industry    ? `Industry: ${industry}` : "",
+    region      ? `Region: ${region}` : "",
+    size        ? `Business Size: ${size}` : "",
+    stage       ? `Business Stage: ${stage}` : "",
+    focus       ? `Focus Area: ${focus}` : "",
+    layerLabel  ? `Content Layer: ${layerLabel}` : "",
+  ].filter(Boolean).join("\n");
+
+  const userPrompt = `BUSINESS CONTEXT:
+${businessCtx}
+
+CONTENT TO VALIDATE AND ENSURE:
+───────────────────────────────
+${content}
+───────────────────────────────
+
+${ENSURER_VALIDATION_LAYERS}`;
+
+  res.setHeader("Content-Type", "text/event-stream");
+  res.setHeader("Cache-Control", "no-cache");
+  res.setHeader("Connection", "keep-alive");
+
+  const stream = await openai.chat.completions.create({
+    model: "gpt-5.2",
+    max_completion_tokens: 8192,
+    messages: [
+      { role: "system", content: EVERYTHING_ENSURER_PROMPT },
+      { role: "user",   content: userPrompt },
+    ],
+    stream: true,
+  });
+
+  for await (const chunk of stream) {
+    const text = chunk.choices[0]?.delta?.content;
+    if (text) res.write(`data: ${JSON.stringify({ content: text })}\n\n`);
+  }
+
+  res.write(`data: ${JSON.stringify({ done: true })}\n\n`);
+  res.end();
+});
+
 export default router;
