@@ -1,4 +1,5 @@
 import React, { useState } from "react";
+import { useLocation } from "wouter";
 import { useOS } from "@/os/OSContext";
 
 // ─── Types ──────────────────────────────────────────────────────────────────
@@ -519,28 +520,10 @@ function NewProjectForm({ onBack }: { onBack: () => void }) {
 // ─── Main ProjectsApp ────────────────────────────────────────────────────────
 export function ProjectsApp() {
   const { openApp } = useOS();
-  const [selected, setSelected] = useState<string | null>(null);
+  const [, navigate] = useLocation();
   const [showNewForm, setShowNewForm] = useState(false);
 
   if (showNewForm) return <NewProjectForm onBack={() => setShowNewForm(false)} />;
-
-  if (selected === "Healthcare System – Legal Safe") {
-    return <HealthcareProject onBack={() => setSelected(null)} />;
-  }
-
-  if (selected) {
-    const proj = PROJECTS.find(p => p.name === selected)!;
-    if (proj.mode === "FUTURE") {
-      return (
-        <FutureProjectPage
-          name={proj.name} icon={proj.icon} color={proj.color}
-          onBack={() => setSelected(null)}
-          onGenerate={() => { setSelected(null); openApp("creator"); }}
-        />
-      );
-    }
-    return <GenericProjectDetail {...proj} mode={proj.mode} onBack={() => setSelected(null)} />;
-  }
 
   return (
     <div className="p-6 space-y-6">
@@ -554,28 +537,29 @@ export function ProjectsApp() {
       <div className="space-y-3">
         {PROJECTS.map(proj => (
           <div key={proj.name} className="bg-background rounded-2xl border border-border/50 hover:border-primary/20 hover:shadow-sm transition-all overflow-hidden">
-            {/* Main row — click to open in OS */}
-            <button onClick={() => setSelected(proj.name)}
+            {/* Main row — navigate to full standalone project page */}
+            <button
+              onClick={() => navigate(`/project/${proj.slug}`)}
               className="w-full flex items-center gap-4 p-4 text-left">
               <div className="w-12 h-12 rounded-2xl flex items-center justify-center text-2xl flex-shrink-0" style={{ backgroundColor: proj.color + "22" }}>
                 {proj.icon}
               </div>
               <div className="flex-1 min-w-0">
                 <p className="font-semibold text-[14px] text-foreground truncate">{proj.name}</p>
-                <p className="text-[12px] text-muted-foreground mt-0.5">{proj.pages} pages · Tap to preview in OS</p>
+                <p className="text-[12px] text-muted-foreground mt-0.5">{proj.pages} sections · Full platform page</p>
               </div>
               <span className={`text-[11px] font-semibold px-2 py-0.5 rounded-full flex-shrink-0 ${proj.mode === "FUTURE" ? "bg-purple-100 text-purple-700" : proj.mode === "TEST" ? "bg-orange-100 text-orange-700" : "bg-green-100 text-green-700"}`}>
                 {proj.mode}
               </span>
             </button>
-            {/* Standalone launch strip */}
+            {/* Standalone omega engine strip */}
             <div className="border-t border-border/30 px-4 py-2.5 flex items-center justify-between bg-muted/20">
-              <p className="text-[11px] text-muted-foreground">Full standalone product with AI, workflows, dashboards & docs</p>
+              <p className="text-[11px] text-muted-foreground">Open as full AI-powered standalone product</p>
               <button
                 onClick={() => openStandalone(proj.slug)}
                 className="flex items-center gap-1.5 text-[11px] font-bold text-white px-3 py-1.5 rounded-lg hover:opacity-90 transition-opacity flex-shrink-0"
                 style={{ backgroundColor: proj.color }}>
-                <span>↗</span><span>Open App</span>
+                <span>↗</span><span>Standalone App</span>
               </button>
             </div>
           </div>
@@ -584,7 +568,7 @@ export function ProjectsApp() {
 
       <div className="bg-blue-50 border border-blue-200 rounded-2xl p-4">
         <p className="text-[12px] text-blue-700 font-semibold">Standalone Project Engine</p>
-        <p className="text-[11px] text-blue-600 mt-1">Every project opens as a full standalone software product in a new tab — with its own URL, navigation, AI assistant, workflows, dashboards, marketing pages, and downloadable documents. All simulated.</p>
+        <p className="text-[11px] text-blue-600 mt-1">Click any project to open its full marketing-style platform page. Use "Standalone App" to launch the AI-powered product engine in a new tab.</p>
       </div>
     </div>
   );

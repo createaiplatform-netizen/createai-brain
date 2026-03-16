@@ -6,6 +6,7 @@ import { TooltipProvider } from "@/components/ui/tooltip";
 import NotFound from "@/pages/not-found";
 import StandalonePage from "@/pages/StandalonePage";
 import CreationPage from "@/pages/CreationPage";
+import ProjectPage from "@/pages/ProjectPage";
 
 import { OSProvider } from "@/os/OSContext";
 import { OSLayout } from "@/os/osLayout";
@@ -22,9 +23,16 @@ const queryClient = new QueryClient({
 function Router() {
   return (
     <Switch>
+      {/* OS — root only */}
       <Route path="/" component={OSLayout} />
+
+      {/* Standalone project pages — full SaaS layout, no OS chrome */}
+      <Route path="/project/:projectId" component={ProjectPage} />
+
+      {/* Creation Engine outputs — full standalone products */}
       <Route path="/standalone/creation/:creationId" component={CreationPage} />
       <Route path="/standalone/:projectId" component={StandalonePage} />
+
       <Route component={NotFound} />
     </Switch>
   );
