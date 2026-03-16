@@ -1,23 +1,36 @@
 import React from "react";
 import { useOS, ALL_APPS, AppId } from "./OSContext";
 
-export function Sidebar() {
+interface SidebarProps {
+  onNav?: () => void;
+  forceExpanded?: boolean;
+}
+
+export function Sidebar({ onNav, forceExpanded }: SidebarProps) {
   const { activeApp, sidebarCollapsed, openApp, closeApp, toggleSidebar } = useOS();
+
+  const collapsed = forceExpanded ? false : sidebarCollapsed;
+  const width = collapsed ? 60 : 220;
+
+  const handleNav = (fn: () => void) => {
+    fn();
+    onNav?.();
+  };
 
   return (
     <aside
       className="flex flex-col h-full bg-background border-r border-border/50 transition-all duration-300 flex-shrink-0"
-      style={{ width: sidebarCollapsed ? 60 : 200 }}
+      style={{ width }}
     >
       {/* Top branding */}
       <div className="flex items-center h-14 px-3 border-b border-border/50 gap-2 overflow-hidden">
         <button
-          onClick={toggleSidebar}
+          onClick={() => { if (!forceExpanded) toggleSidebar(); }}
           className="w-8 h-8 rounded-xl bg-primary flex items-center justify-center text-white text-sm font-bold flex-shrink-0 hover:opacity-90 transition-opacity"
         >
           C
         </button>
-        {!sidebarCollapsed && (
+        {!collapsed && (
           <span className="font-semibold text-sm text-foreground truncate">CreateAI OS</span>
         )}
       </div>
@@ -28,15 +41,17 @@ export function Sidebar() {
           icon="🏠"
           label="Home"
           active={activeApp === null}
-          collapsed={sidebarCollapsed}
-          onClick={closeApp}
+          collapsed={collapsed}
+          onClick={() => handleNav(closeApp)}
         />
       </div>
 
       {/* Apps */}
       <div className="flex-1 overflow-y-auto px-2 py-1 space-y-0.5">
-        {!sidebarCollapsed && (
-          <p className="text-[10px] font-semibold text-muted-foreground uppercase tracking-wider px-2 py-1">Apps</p>
+        {!collapsed && (
+          <p className="text-[10px] font-semibold text-muted-foreground uppercase tracking-wider px-2 py-1">
+            Apps
+          </p>
         )}
         {ALL_APPS.map(app => (
           <SidebarItem
@@ -44,23 +59,25 @@ export function Sidebar() {
             icon={app.icon}
             label={app.label}
             active={activeApp === app.id}
-            collapsed={sidebarCollapsed}
-            onClick={() => openApp(app.id as AppId)}
+            collapsed={collapsed}
+            onClick={() => handleNav(() => openApp(app.id as AppId))}
             color={app.color}
           />
         ))}
       </div>
 
-      {/* Bottom collapse toggle */}
-      <div className="px-2 pb-3 pt-1 border-t border-border/50">
-        <button
-          onClick={toggleSidebar}
-          className="w-full flex items-center justify-center gap-2 h-8 rounded-lg text-muted-foreground hover:bg-muted hover:text-foreground transition-colors text-xs"
-        >
-          <span>{sidebarCollapsed ? "→" : "←"}</span>
-          {!sidebarCollapsed && <span>Collapse</span>}
-        </button>
-      </div>
+      {/* Bottom collapse toggle (desktop only — not shown when force-expanded on mobile) */}
+      {!forceExpanded && (
+        <div className="px-2 pb-3 pt-1 border-t border-border/50">
+          <button
+            onClick={toggleSidebar}
+            className="w-full flex items-center justify-center gap-2 h-8 rounded-lg text-muted-foreground hover:bg-muted hover:text-foreground transition-colors text-xs"
+          >
+            <span>{collapsed ? "→" : "←"}</span>
+            {!collapsed && <span>Collapse</span>}
+          </button>
+        </div>
+      )}
     </aside>
   );
 }

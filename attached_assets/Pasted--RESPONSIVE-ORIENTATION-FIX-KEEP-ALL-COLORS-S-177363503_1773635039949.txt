@@ -1,0 +1,60 @@
+====================================================
+RESPONSIVE ORIENTATION FIX (KEEP ALL COLORS & STYLE)
+====================================================
+
+Do NOT change any colors, themes, fonts, or visual style.
+
+Fix the OS so it behaves correctly in BOTH orientations:
+
+====================================================
+PORTRAIT MODE (PHONE UP-AND-DOWN)
+====================================================
+
+When the screen is narrow or vertical:
+
+- Switch to a single-column layout.
+- Center the dashboard.
+- Stack cards vertically with generous spacing.
+- Hide the sidebar completely.
+- Use ONLY the hamburger menu for navigation.
+- Ensure no content is squeezed, overlapped, or pushed to the right.
+- App windows must open full-screen in portrait mode.
+- The layout must reflow instantly when rotated.
+
+====================================================
+LANDSCAPE MODE (PHONE SIDEWAYS)
+====================================================
+
+When the screen is wide:
+
+- Use the wider multi-column layout.
+- Keep spacing balanced and clean.
+- Sidebar may appear if space allows.
+- Dashboard cards may appear in 2–3 columns.
+- App windows may use split-view if needed.
+
+====================================================
+SMART ORIENTATION DETECTION
+====================================================
+
+The OS must automatically detect:
+
+- screen width
+- orientation
+- available space
+
+And switch layouts instantly WITHOUT changing colors or style.
+
+====================================================
+APPS & PROJECTS LAYOUT
+====================================================
+
+- In portrait: show apps and projects in a single clean column or 2-column grid.
+- In landscape: show apps and projects in a wider grid.
+- No overlapping, no squeezing, no broken spacing.
+
+====================================================
+FINAL OUTPUT
+====================================================
+
+Apply responsive orientation rules so the OS looks perfect in both portrait and landscape, without changing any colors or visual style.
