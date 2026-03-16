@@ -3062,6 +3062,33 @@ function ArchitectureScreen() {
       modules: ["InstantActionInterface"],
       desc: "One-click execution interface — the floating ⚡ button available in every Universal Hub screen. Launches any engine or screen instantly without navigating the sidebar.",
     },
+    {
+      category: "Innovation",   icon: "🚀", color: "violet",
+      modules: [
+        "Predictive Autonomy Engine",
+        "Cross-Project Learning Engine",
+        "Multi-Reality Deployment Engine",
+        "Synthetic Talent / Autonomous Agent Layer",
+        "Infinite World Generator",
+        "Autonomous Distribution & Monetization Engine",
+        "AI-Assisted Discovery Engine",
+        "Automated Compliance & Risk Simulation",
+        "Recursive Self-Improvement Accelerator",
+        "Adaptive Cross-Domain Fusion Layer",
+        "Autonomous Multi-Series / Franchise Builder",
+        "Next-Level Procedural Content Engine",
+        "Dynamic Narrative Continuity Engine",
+        "Autonomous Market Trend Analyzer",
+        "Self-Optimizing UX / UI Generator",
+        "AI-Generated Creative Super Agents",
+        "Global Scenario Simulation Layer",
+        "Instant Action for Futuristic Outputs",
+        "Invisible Automation Engine",
+        "Infinite Experimentation Layer",
+        "Dynamic Multi-Domain Content Fusion Engine",
+      ],
+      desc: "21 next-generation conceptual innovation engines — autonomous, self-improving, cross-domain, and predictive systems. Non-operational speculative design layer representing the outer boundary of what the UCP-X architecture is designed to support.",
+    },
   ];
 
   const PIPELINE = [
@@ -3074,6 +3101,7 @@ function ArchitectureScreen() {
     { step: "Assembly",            icon: "🔗", desc: "Connection Layer links all outputs into a unified fictional project." },
     { step: "Deployment Packaging",     icon: "📦", desc: "Conceptual export package compiled: documents, index, safety declaration." },
     { step: "Instant Action Execution", icon: "⚡", desc: "InstantActionInterface intercepts any step — one-click direct engine launch bypassing the full pipeline when speed is needed." },
+    { step: "Innovation Execution",     icon: "🚀", desc: "Innovation layer activates conceptual advanced modules: predictive, autonomous, cross-domain, and self-improving engines applied to the output." },
   ];
 
   const INFRASTRUCTURE = [
@@ -3114,7 +3142,10 @@ function ArchitectureScreen() {
     { name: "Infinite World Builder",         icon: "🌌", desc: "Endless procedural world generation — regions, factions, and lore expand on demand." },
     { name: "Global Scenario Engine",         icon: "🌍", desc: "Multi-country, multi-agency, multi-industry scenario modeling across jurisdictions." },
     { name: "Cross-Project Dependency Engine",icon: "🕸️", desc: "Links elements across multiple connected projects into a shared fictional universe graph." },
-    { name: "Adaptive Self-Improving Pipelines", icon: "📈", desc: "Conceptual: pipeline steps self-optimize based on output quality signals and completeness scores." },
+    { name: "Adaptive Self-Improving Pipelines",        icon: "📈", desc: "Conceptual: pipeline steps self-optimize based on output quality signals and completeness scores." },
+    { name: "Invisible Automation Engine",              icon: "👁️", desc: "Conceptual: background automation that pre-generates related outputs before the user requests them." },
+    { name: "Infinite Experimentation Layer",           icon: "🧪", desc: "Conceptual: continuously generates alternative variants of any output for A/B comparison and creative exploration." },
+    { name: "Dynamic Multi-Domain Content Fusion Engine", icon: "🌐", desc: "Conceptual: merges outputs from multiple domain-specific engines (game + business + story + simulation) into a single unified fictional project at scale." },
   ];
 
   const LAYERS = [
