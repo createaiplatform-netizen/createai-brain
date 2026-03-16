@@ -3059,8 +3059,13 @@ function ArchitectureScreen() {
     },
     {
       category: "Interactive",  icon: "⚡", color: "orange",
-      modules: ["InstantActionInterface", "AI Concierge Guided Walkthrough", "Multi-Sensory Live Demo"],
+      modules: ["InstantActionInterface", "AI Concierge Guided Walkthrough", "Multi-Sensory Live Demo", "Visual/UX Schematic Walkthrough"],
       desc: "One-click execution interface, guided walkthrough, and multi-sensory live demo layer — the floating ⚡ button launches any engine instantly; the AI Concierge provides a guided tour; Multi-Sensory Live Demo presents platform outputs across text, visual, and audio conceptual channels.",
+    },
+    {
+      category: "Prebuilt Modules", icon: "🏥", color: "green",
+      modules: ["Healthcare","Patient Management","Analytics","Scheduling","ADL/IADL Automation","Compliance Templates","Care Plans"],
+      desc: "Pre-integrated domain modules — Healthcare workflows, patient management flows, care plan structures, ADL/IADL automation templates, and compliance scaffolding. All fictional and non-operational. Not clinical guidance.",
     },
     {
       category: "Innovation",   icon: "🚀", color: "violet",
@@ -3118,7 +3123,8 @@ function ArchitectureScreen() {
     { step: "Innovation Execution",     icon: "🚀", desc: "Innovation layer activates conceptual advanced modules: predictive, autonomous, cross-domain, and self-improving engines applied to the output." },
     { step: "Impossible AI Execution",  icon: "🌌", desc: "Meta-creative intelligence layer: AI-Creates-AI, consciousness-style agents, cross-temporal prediction, self-evolving universes, and infinite self-scaling — fully conceptual, non-operational." },
     { step: "Full Platform Activation",    icon: "✅", desc: "All engines, extensions, interfaces, pipelines, and futuristic layers confirmed active. AI Concierge Walkthrough available. Platform fully live — forward-only, zero-regression." },
-    { step: "Multi-Sensory Live Execution",icon: "🎯", desc: "Final output layer: text, visual, audio, and interactive formats generated simultaneously — conceptual multi-sensory output packaging." },
+    { step: "Multi-Sensory Live Execution",    icon: "🎯", desc: "Final output layer: text, visual, audio, and interactive formats generated simultaneously — conceptual multi-sensory output packaging." },
+    { step: "Visual/UX Walkthrough Execution", icon: "🖼️", desc: "Generates conceptual screen-by-screen UX schematics and visual flow diagrams for any project, workflow, or platform output." },
   ];
 
   const INFRASTRUCTURE = [
@@ -3141,6 +3147,7 @@ function ArchitectureScreen() {
     { name: "InstantActionInterface",   icon: "⚡", desc: "Floating ⚡ popup button — one-click engine launcher available from any screen in the Universal Hub. No sidebar navigation required." },
     { name: "AI Concierge Guided Walkthrough", icon: "🧭", desc: "Guided interactive walkthrough of the full platform — steps through every engine, screen, and capability in sequence. Conceptual interface layer." },
     { name: "Multi-Sensory Live Demo",         icon: "🎯", desc: "Conceptual live demo mode: outputs presented across text, visual structure, and audio description simultaneously for maximum impact." },
+    { name: "Visual Schematic Display",        icon: "🖼️", desc: "Conceptual UX schematic layer — generates screen flow diagrams, wireframe descriptions, and visual architecture maps for any generated project." },
   ];
 
   const GOVERNANCE = [
