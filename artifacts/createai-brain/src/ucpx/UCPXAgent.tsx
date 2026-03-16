@@ -4867,6 +4867,46 @@ const OMNI_UI_PERSONALIZED_MODE = {
   outputPromise: "Every screen feels like it was designed personally for the user — while always expressing the creator's signature style.",
 } as const;
 
+// ─── OMNI-FIRST IMPRESSION MODE ───────────────────────────────────────────────
+const OMNI_FIRST_IMPRESSION_MODE = {
+  name:    "OMNI-FIRST IMPRESSION MODE",
+  version: "1.0",
+  tagline: "The first moment — perfectly. Every time.",
+  safetyDeclaration: "Always follows all safety rules. The first impression is safe, calm, and welcoming for every user.",
+
+  behaviors: [
+    { id: "tone",       icon: "💬", label: "Tone",             color: "#007AFF", bg: "#f0f7ff", desc: "Gentle, friendly, confident, human.",                       detail: "Every first word feels like a warm greeting from someone who knows and respects the user — never corporate, never cold, never pushy." },
+    { id: "visual",     icon: "✨", label: "Visual Feel",      color: "#BF5AF2", bg: "#f8f0ff", desc: "Clean, spacious, balanced, premium clarity.",               detail: "The first view breathes. Generous whitespace, precise typography, intentional hierarchy — nothing competes for attention that doesn't earn it." },
+    { id: "emotional",  icon: "🌤️", label: "Emotional Effect", color: "#34C759", bg: "#f0fff4", desc: "Comfort, curiosity, trust, \"this was made for me.\"",       detail: "The first impression leaves users feeling safe, excited, and personally understood — not a user of a product, but a guest of a creator." },
+    { id: "guidance",   icon: "🧭", label: "Guidance",         color: "#FF9F0A", bg: "#fff8e6", desc: "Light, intuitive, never overwhelming.",                     detail: "Direction is present but invisible — users always know what to do next without feeling instructed, rushed, or lost." },
+    { id: "identity",   icon: "🎨", label: "Identity",         color: "#5856D6", bg: "#f4f0ff", desc: "Reflect the creator's warmth, creativity, and vision.",     detail: "Every element of the first impression carries the creator's signature — tone, layout, pace, and detail all feel authored, not assembled." },
+    { id: "adaptation", icon: "🔄", label: "Adaptation",       color: "#007AFF", bg: "#f0f4ff", desc: "Adjust to user comfort level immediately.",                 detail: "The first moment detects and responds to comfort level — beginner paths are calmer; expert paths are denser and faster — from the very first pixel." },
+    { id: "simplicity", icon: "🕊️", label: "Simplicity",      color: "#34C759", bg: "#f0fff4", desc: "No clutter, no pressure, no complexity spikes.",           detail: "The first view contains only what is necessary. Every element earns its presence. Nothing exists to fill space." },
+    { id: "goal",       icon: "🏆", label: "Goal",             color: "#FF375F", bg: "#fff0f3", desc: "Welcomed, grounded, and impressed from the first moment.", detail: "Not just onboarded — genuinely delighted. The goal is an emotional outcome: this feels like somewhere I want to be." },
+  ],
+
+  emotionalJourney: [
+    { moment: "First view",   feeling: "Calm",      icon: "🌤️", detail: "Nothing jars. Everything breathes. The user feels immediately at ease." },
+    { moment: "First read",   feeling: "Trust",     icon: "🤝", detail: "The tone is warm and human. The creator's voice is present and reassuring." },
+    { moment: "First action", feeling: "Curiosity", icon: "🔭", detail: "One clear next step. No pressure. The user feels invited, not instructed." },
+    { moment: "First result", feeling: "\"This was made for me.\"", icon: "💙", detail: "The output reflects their specific context and comfort level. It feels personal." },
+  ],
+
+  comfortFirstImpressions: [
+    { level: "Beginner",     icon: "🌱", color: "#34C759", firstView: "Warm welcome headline. One gentle prompt. Big, friendly button. Zero visual noise.",        firstTone: "You're in the right place. Let's start together.",    firstGuidance: "One step shown clearly. No decisions required yet." },
+    { level: "Intermediate", icon: "🌿", color: "#007AFF", firstView: "Clean workspace. Recent work visible. One clear next action suggested.",                    firstTone: "Welcome back. Here's where you left off.",             firstGuidance: "Context shown. Options available but not overwhelming." },
+    { level: "Advanced",     icon: "🌳", color: "#BF5AF2", firstView: "Full dashboard. Live metrics. Quick-access controls surfaced immediately.",                  firstTone: "Everything you need, right away.",                    firstGuidance: "Keyboard shortcuts hinted. Full control surfaced." },
+    { level: "Expert",       icon: "⚡", color: "#FF9F0A", firstView: "Dense command surface. Status pulse. Recent activity. API health visible.",                  firstTone: "All systems live.",                                   firstGuidance: "Command palette ready. Zero friction. Maximum capability." },
+  ],
+
+  toneQualities:    ["gentle", "friendly", "confident", "human"] as const,
+  visualQualities:  ["clean", "spacious", "balanced", "premium clarity"] as const,
+  emotionalEffects: ["comfort", "curiosity", "trust", "this was made for me"] as const,
+
+  universalInheritance: "All outputs inherit OMNI-FIRST IMPRESSION MODE on initial interaction. No activation. No configuration. Every new user, every first visit, every fresh session — always.",
+  outputPromise: "Users feel welcomed, grounded, and impressed from the first moment — not just onboarded, but genuinely at home.",
+} as const;
+
 // ─── OMNI-UI ADAPTIVE ENHANCEMENT MODE ───────────────────────────────────────
 const OMNI_UI_ADAPTIVE_ENHANCEMENT_MODE = {
   name:    "OMNI-UI ADAPTIVE ENHANCEMENT MODE",
@@ -5479,6 +5519,103 @@ function InfinityEngineDemo() {
           </div>
         </div>
       )}
+    </div>
+  );
+}
+
+// ─── OMNI-FIRST IMPRESSION MODE Demo Component ────────────────────────────────
+function OmniFirstImpressionDemo() {
+  type Impression = { level: string; icon: string; color: string; firstView: string; firstTone: string; firstGuidance: string };
+  type Journey    = { moment: string; feeling: string; icon: string; detail: string };
+  type Behavior   = { id: string; icon: string; label: string; color: string; bg: string; desc: string; detail: string };
+
+  const impressions = OMNI_FIRST_IMPRESSION_MODE.comfortFirstImpressions as readonly Impression[];
+  const journey     = OMNI_FIRST_IMPRESSION_MODE.emotionalJourney        as readonly Journey[];
+  const behaviors   = OMNI_FIRST_IMPRESSION_MODE.behaviors               as readonly Behavior[];
+
+  const [active, setActive] = React.useState<Impression>(impressions[0]);
+  const [journeyStep, setJourneyStep] = React.useState<number>(0);
+
+  // Auto-advance journey step
+  React.useEffect(() => {
+    const t = setInterval(() => setJourneyStep(s => (s + 1) % journey.length), 2000);
+    return () => clearInterval(t);
+  }, [journey.length]);
+
+  // Reset journey on level change
+  React.useEffect(() => { setJourneyStep(0); }, [active.level]);
+
+  return (
+    <div style={{ display: "flex", flexDirection: "column", gap: 10 }}>
+
+      {/* Comfort level selector */}
+      <div style={{ fontWeight: 700, fontSize: 10, color: "#555", marginBottom: 4, textTransform: "uppercase", letterSpacing: 0.8 }}>
+        Select user comfort level to preview the first impression:
+      </div>
+      <div style={{ display: "flex", gap: 7 }}>
+        {impressions.map(imp => (
+          <button key={imp.level} onClick={() => setActive(imp)}
+            style={{ flex: 1, background: active.level === imp.level ? imp.color : "#f5f5f7", color: active.level === imp.level ? "#fff" : "#555", border: `1.5px solid ${active.level === imp.level ? imp.color : "#e0e0e4"}`, borderRadius: 10, padding: "8px 10px", fontSize: 11, fontWeight: 800, cursor: "pointer", transition: "all 0.2s", textAlign: "center" }}>
+            {imp.icon} {imp.level}
+          </button>
+        ))}
+      </div>
+
+      {/* Simulated first screen */}
+      <div style={{ background: "linear-gradient(135deg, #ffffff 0%, #f8f9ff 100%)", border: `2px solid ${active.color}`, borderRadius: 14, padding: "20px 22px", minHeight: 140, transition: "border-color 0.3s", position: "relative", overflow: "hidden" }}>
+        {/* Subtle background glow */}
+        <div style={{ position: "absolute", top: -30, right: -30, width: 120, height: 120, borderRadius: "50%", background: `${active.color}12`, pointerEvents: "none" }} />
+        <div style={{ position: "absolute", bottom: -20, left: -20, width: 80, height: 80, borderRadius: "50%", background: `${active.color}08`, pointerEvents: "none" }} />
+
+        <div style={{ position: "relative" }}>
+          <div style={{ display: "flex", justifyContent: "space-between", alignItems: "flex-start", marginBottom: 12 }}>
+            <div>
+              <div style={{ fontWeight: 900, fontSize: 17, color: "#1a1a2e", lineHeight: 1.3, marginBottom: 4 }}>
+                {active.firstTone}
+              </div>
+              <div style={{ fontSize: 11, color: "#666", lineHeight: 1.6 }}>{active.firstView}</div>
+            </div>
+            <span style={{ background: `${active.color}15`, color: active.color, borderRadius: 8, padding: "4px 11px", fontSize: 10, fontWeight: 800, border: `1px solid ${active.color}30`, whiteSpace: "nowrap", flexShrink: 0, marginLeft: 10 }}>
+              {active.icon} {active.level}
+            </span>
+          </div>
+          <div style={{ display: "flex", gap: 8, alignItems: "center" }}>
+            <button style={{ background: active.color, color: "#fff", border: "none", borderRadius: 10, padding: "9px 20px", fontSize: 12, fontWeight: 800, cursor: "pointer" }}>
+              {active.level === "Beginner" ? "Get started →" : active.level === "Intermediate" ? "Continue →" : active.level === "Advanced" ? "Open dashboard →" : "⌘K"}
+            </button>
+            <div style={{ fontSize: 10, color: "#999", fontStyle: "italic" }}>{active.firstGuidance}</div>
+          </div>
+        </div>
+      </div>
+
+      {/* Emotional journey — auto-advancing */}
+      <div style={{ fontWeight: 700, fontSize: 10, color: "#555", textTransform: "uppercase", letterSpacing: 0.8 }}>Emotional journey (auto-advancing):</div>
+      <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr 1fr 1fr", gap: 6 }}>
+        {journey.map((j, i) => (
+          <div key={j.moment} style={{ background: i === journeyStep ? `${active.color}12` : "#f8f9ff", border: `1.5px solid ${i === journeyStep ? active.color : "#e0e4ff"}`, borderRadius: 10, padding: "9px 10px", transition: "all 0.4s", textAlign: "center" }}>
+            <div style={{ fontSize: 18, marginBottom: 3 }}>{j.icon}</div>
+            <div style={{ fontWeight: 800, fontSize: 9, color: i === journeyStep ? active.color : "#888", marginBottom: 3, textTransform: "uppercase" }}>{j.moment}</div>
+            <div style={{ fontWeight: 700, fontSize: 10, color: i === journeyStep ? "#1a1a2e" : "#aaa", marginBottom: 4 }}>{j.feeling}</div>
+            {i === journeyStep && (
+              <div style={{ fontSize: 8.5, color: "#555", lineHeight: 1.5, fontStyle: "italic" }}>{j.detail}</div>
+            )}
+          </div>
+        ))}
+      </div>
+
+      {/* 8 behaviors active in this moment */}
+      <div style={{ fontWeight: 700, fontSize: 10, color: "#555", textTransform: "uppercase", letterSpacing: 0.8 }}>All 8 behaviors active in this first moment:</div>
+      <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 6 }}>
+        {behaviors.map(b => (
+          <div key={b.id} style={{ background: b.bg, border: `1px solid ${b.color}20`, borderRadius: 9, padding: "8px 11px", display: "flex", gap: 8, alignItems: "flex-start" }}>
+            <span style={{ fontSize: 14, flexShrink: 0, marginTop: 1 }}>{b.icon}</span>
+            <div>
+              <div style={{ fontWeight: 800, fontSize: 9.5, color: b.color, marginBottom: 2 }}>{b.label.toUpperCase()}</div>
+              <div style={{ fontSize: 9, color: "#444", lineHeight: 1.5 }}>{b.desc}</div>
+            </div>
+          </div>
+        ))}
+      </div>
     </div>
   );
 }
@@ -7058,6 +7195,7 @@ function PlatformOSView() {
               { label: "Omni-UI Mode",     value: `${OMNI_UI_PERSONALIZED_MODE.comfortLevels.length} Levels · ${OMNI_UI_PERSONALIZED_MODE.adaptationDimensions.length} Dims`, color: "#007AFF", bg: "#f0f8ff" },
               { label: "Integration Layer",  value: `${OMNI_UI_INTEGRATION_LAYER.activeLayers.length} Layers · ${OMNI_UI_INTEGRATION_LAYER.outputRules.length} Rules`,              color: "#5856D6", bg: "#f4f0ff" },
               { label: "Adaptive Enhance",  value: `${OMNI_UI_ADAPTIVE_ENHANCEMENT_MODE.enhancementGates.length} Gates · Simple-First`,                                              color: "#FF9F0A", bg: "#fff8e6" },
+              { label: "First Impression", value: `${OMNI_FIRST_IMPRESSION_MODE.behaviors.length} Behaviors · ${OMNI_FIRST_IMPRESSION_MODE.emotionalJourney.length}-Stage Arc`,       color: "#007AFF", bg: "#f0f7ff" },
               { label: "Audit Cycles",     value: `${auditLog.length}`,                      color: "#FF9F0A", bg: "#fff8e6" },
               { label: "Self-Heals",       value: "14 total",                                color: "#34C759", bg: "#e6f9ec" },
             ].map(k => (
@@ -7255,7 +7393,7 @@ function PlatformOSView() {
                         </div>
                       </div>
                       <div style={{ marginTop: 8, fontSize: 11, color: "#007AFF", fontWeight: 700, textAlign: "center" }}>
-                        ✅ All 12 core features active · 25% revenue share · Autopilot running · {SYSTEM_MODES.length} modes · ∞ Industries · 📄 PDF docs · 🧑‍💻 ARIA Guide · ⚡ Buttons complete · 🧬 Self-Expanding ON · 🌌 Omni-Totality: {OMNI_TOTALITY_ENGINE.primes.length} Primes · ∞ {OMNI_TOTALITY_INF_ENGINE.name}: {OMNI_TOTALITY_INF_ENGINE.layers.length} Dims · ✨ {INFINITY_FEEL_ENGINE.name}: {INFINITY_FEEL_ENGINE.principles.length} Principles · 📐 {MAX_DIMENSION_ENGINE.name}: {MAX_DIMENSION_ENGINE.dimensions.length} Dims · ∞ {INF_ENGINE_SAFE_MAX.name}: {INF_ENGINE_SAFE_MAX.behaviors.length} Behaviors · 💙 {OMNI_SAFE_ENGINE.name}: {OMNI_SAFE_ENGINE.pillars.length} Pillars · 🎨 {OMNI_UI_PERSONALIZED_MODE.name}: {OMNI_UI_PERSONALIZED_MODE.comfortLevels.length} Levels · ⚡ {OMNI_UI_INTEGRATION_LAYER.name}: {OMNI_UI_INTEGRATION_LAYER.activeLayers.length} Layers · 🎯 {OMNI_UI_ADAPTIVE_ENHANCEMENT_MODE.name}: {OMNI_UI_ADAPTIVE_ENHANCEMENT_MODE.enhancementGates.length} Gates Active
+                        ✅ All 12 core features active · 25% revenue share · Autopilot running · {SYSTEM_MODES.length} modes · ∞ Industries · 📄 PDF docs · 🧑‍💻 ARIA Guide · ⚡ Buttons complete · 🧬 Self-Expanding ON · 🌌 Omni-Totality: {OMNI_TOTALITY_ENGINE.primes.length} Primes · ∞ {OMNI_TOTALITY_INF_ENGINE.name}: {OMNI_TOTALITY_INF_ENGINE.layers.length} Dims · ✨ {INFINITY_FEEL_ENGINE.name}: {INFINITY_FEEL_ENGINE.principles.length} Principles · 📐 {MAX_DIMENSION_ENGINE.name}: {MAX_DIMENSION_ENGINE.dimensions.length} Dims · ∞ {INF_ENGINE_SAFE_MAX.name}: {INF_ENGINE_SAFE_MAX.behaviors.length} Behaviors · 💙 {OMNI_SAFE_ENGINE.name}: {OMNI_SAFE_ENGINE.pillars.length} Pillars · 🎨 {OMNI_UI_PERSONALIZED_MODE.name}: {OMNI_UI_PERSONALIZED_MODE.comfortLevels.length} Levels · ⚡ {OMNI_UI_INTEGRATION_LAYER.name}: {OMNI_UI_INTEGRATION_LAYER.activeLayers.length} Layers · 🎯 {OMNI_UI_ADAPTIVE_ENHANCEMENT_MODE.name}: {OMNI_UI_ADAPTIVE_ENHANCEMENT_MODE.enhancementGates.length} Gates · 🌅 {OMNI_FIRST_IMPRESSION_MODE.name}: {OMNI_FIRST_IMPRESSION_MODE.behaviors.length} Behaviors Active
                       </div>
                     </div>
                   )}
@@ -7780,6 +7918,116 @@ function PlatformOSView() {
               🎬 Live Demo — pick a philosophy lens, enter any request, and watch all {OMNI_SAFE_ENGINE.pillars.length} pillars compose through that lens:
             </div>
             <OmniSafeEngineDemo />
+          </div>
+
+          {/* ── OMNI-FIRST IMPRESSION MODE — Panel ── */}
+          <div style={{ background: "linear-gradient(135deg, #f8f9ff 0%, #f0f7ff 40%, #fff8f5 80%, #f5fff8 100%)", border: "2px solid #007AFF", borderRadius: 18, padding: "18px 20px", marginBottom: 16 }}>
+
+            {/* Header */}
+            <div style={{ display: "flex", justifyContent: "space-between", alignItems: "flex-start", marginBottom: 12 }}>
+              <div>
+                <div style={{ fontWeight: 900, fontSize: 17, color: "#00003a", letterSpacing: 0.5 }}>
+                  🌅 {OMNI_FIRST_IMPRESSION_MODE.name}
+                </div>
+                <div style={{ fontSize: 11, color: "#007AFF", marginTop: 4 }}>
+                  v{OMNI_FIRST_IMPRESSION_MODE.version} · {OMNI_FIRST_IMPRESSION_MODE.behaviors.length} Behaviors · {OMNI_FIRST_IMPRESSION_MODE.emotionalJourney.length}-Stage Emotional Journey · {OMNI_FIRST_IMPRESSION_MODE.comfortFirstImpressions.length} Comfort Adaptations · Always Inherited
+                </div>
+              </div>
+              <div style={{ display: "flex", gap: 6, flexWrap: "wrap", justifyContent: "flex-end" }}>
+                <span style={{ background: "#34C75920", color: "#1a7a3a", borderRadius: 8, padding: "4px 10px", fontSize: 10, fontWeight: 900, border: "1px solid #34C75940" }}>🛡️ SAFE</span>
+                <span style={{ background: "#007AFF15", color: "#007AFF", borderRadius: 8, padding: "4px 10px", fontSize: 10, fontWeight: 900, border: "1px solid #007AFF30" }}>🌅 FIRST</span>
+                <span style={{ background: "#BF5AF215", color: "#BF5AF2", borderRadius: 8, padding: "4px 10px", fontSize: 10, fontWeight: 900, border: "1px solid #BF5AF230" }}>💙 WELCOMING</span>
+              </div>
+            </div>
+
+            {/* Tagline */}
+            <div style={{ fontSize: 13, color: "#00003a", fontWeight: 700, fontStyle: "italic", marginBottom: 14, textAlign: "center" }}>
+              "{OMNI_FIRST_IMPRESSION_MODE.tagline}"
+            </div>
+
+            {/* Quality chips */}
+            <div style={{ display: "flex", gap: 6, flexWrap: "wrap", marginBottom: 14 }}>
+              {(["💬 Tone", "✨ Visual", "🌤️ Emotional", "🧭 Guidance"] as const).map((label, i) => {
+                const props: [readonly string[], string][] = [
+                  [OMNI_FIRST_IMPRESSION_MODE.toneQualities,    "#007AFF"],
+                  [OMNI_FIRST_IMPRESSION_MODE.visualQualities,  "#BF5AF2"],
+                  [OMNI_FIRST_IMPRESSION_MODE.emotionalEffects,  "#34C759"],
+                  [["light", "intuitive", "never overwhelming"],  "#FF9F0A"],
+                ];
+                const [qualities, color] = props[i];
+                return (
+                  <div key={label} style={{ background: `${color}10`, border: `1px solid ${color}25`, borderRadius: 9, padding: "5px 11px", fontSize: 10 }}>
+                    <span style={{ fontWeight: 800, color, marginRight: 6 }}>{label}:</span>
+                    <span style={{ color: "#444" }}>{(qualities as readonly string[]).join(" · ")}</span>
+                  </div>
+                );
+              })}
+            </div>
+
+            {/* 8 behaviors */}
+            <div style={{ fontWeight: 700, fontSize: 12, color: "#0050cc", marginBottom: 8 }}>
+              🌅 {OMNI_FIRST_IMPRESSION_MODE.behaviors.length} First-Impression Behaviors — all active simultaneously on first contact:
+            </div>
+            <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 7, marginBottom: 14 }}>
+              {OMNI_FIRST_IMPRESSION_MODE.behaviors.map(b => (
+                <div key={b.id} style={{ background: b.bg, border: `1.5px solid ${b.color}25`, borderRadius: 10, padding: "10px 12px", display: "flex", gap: 10, alignItems: "flex-start" }}>
+                  <span style={{ fontSize: 18, flexShrink: 0, marginTop: 1 }}>{b.icon}</span>
+                  <div>
+                    <div style={{ fontWeight: 800, fontSize: 10, color: b.color, marginBottom: 2 }}>{b.label.toUpperCase()}</div>
+                    <div style={{ fontSize: 9.5, color: "#444", lineHeight: 1.5, marginBottom: 4, fontWeight: 600 }}>{b.desc}</div>
+                    <div style={{ fontSize: 9, color: "#888", lineHeight: 1.5, fontStyle: "italic" }}>{b.detail}</div>
+                  </div>
+                </div>
+              ))}
+            </div>
+
+            {/* 4-stage emotional journey */}
+            <div style={{ fontWeight: 700, fontSize: 12, color: "#0050cc", marginBottom: 8 }}>
+              🌤️ {OMNI_FIRST_IMPRESSION_MODE.emotionalJourney.length}-Stage Emotional Journey — every first interaction follows this arc:
+            </div>
+            <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr 1fr 1fr", gap: 6, marginBottom: 14 }}>
+              {OMNI_FIRST_IMPRESSION_MODE.emotionalJourney.map((j, i) => (
+                <div key={j.moment} style={{ background: "#f8f9ff", border: "1.5px solid #007AFF20", borderRadius: 10, padding: "10px 11px", textAlign: "center" }}>
+                  <div style={{ fontWeight: 800, fontSize: 9, color: "#007AFF", marginBottom: 3, textTransform: "uppercase" }}>Stage {i + 1}</div>
+                  <div style={{ fontSize: 18, marginBottom: 4 }}>{j.icon}</div>
+                  <div style={{ fontWeight: 800, fontSize: 10, color: "#1a1a2e", marginBottom: 3 }}>{j.moment}</div>
+                  <div style={{ fontWeight: 700, fontSize: 10, color: "#007AFF", marginBottom: 5 }}>{j.feeling}</div>
+                  <div style={{ fontSize: 8.5, color: "#666", lineHeight: 1.5, fontStyle: "italic" }}>{j.detail}</div>
+                </div>
+              ))}
+            </div>
+
+            {/* 4 comfort-level first impressions */}
+            <div style={{ fontWeight: 700, fontSize: 12, color: "#0050cc", marginBottom: 8 }}>
+              👤 {OMNI_FIRST_IMPRESSION_MODE.comfortFirstImpressions.length} Comfort-Level Adaptations — same warmth, adjusted pace:
+            </div>
+            <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 7, marginBottom: 14 }}>
+              {OMNI_FIRST_IMPRESSION_MODE.comfortFirstImpressions.map(c => (
+                <div key={c.level} style={{ background: `${c.color}08`, border: `1.5px solid ${c.color}25`, borderRadius: 10, padding: "10px 13px" }}>
+                  <div style={{ fontWeight: 800, fontSize: 11, color: c.color, marginBottom: 6 }}>{c.icon} {c.level.toUpperCase()}</div>
+                  <div style={{ fontSize: 9.5, color: "#444", lineHeight: 1.6, marginBottom: 4 }}>
+                    <strong style={{ color: "#007AFF" }}>First view:</strong> {c.firstView}
+                  </div>
+                  <div style={{ fontSize: 9.5, color: "#444", lineHeight: 1.6, marginBottom: 4 }}>
+                    <strong style={{ color: "#BF5AF2" }}>First tone:</strong> "{c.firstTone}"
+                  </div>
+                  <div style={{ fontSize: 9.5, color: "#888", lineHeight: 1.6, fontStyle: "italic" }}>
+                    <strong style={{ color: "#FF9F0A", fontStyle: "normal" }}>Guidance:</strong> {c.firstGuidance}
+                  </div>
+                </div>
+              ))}
+            </div>
+
+            {/* Inheritance */}
+            <div style={{ background: "#f0f7ff", borderRadius: 10, padding: "9px 13px", fontSize: 11, color: "#003a80", lineHeight: 1.6, marginBottom: 14 }}>
+              🔗 <strong>Inheritance:</strong> {OMNI_FIRST_IMPRESSION_MODE.universalInheritance}
+            </div>
+
+            {/* Live demo */}
+            <div style={{ fontWeight: 700, fontSize: 12, color: "#0050cc", marginBottom: 8 }}>
+              🎬 First Impression Simulator — select a comfort level to see the exact first screen, emotional arc, and all {OMNI_FIRST_IMPRESSION_MODE.behaviors.length} active behaviors:
+            </div>
+            <OmniFirstImpressionDemo />
           </div>
 
           {/* ── OMNI-UI ADAPTIVE ENHANCEMENT MODE — Panel ── */}
@@ -8572,6 +8820,13 @@ function PlatformOSView() {
           </div>
           <div style={{ background: "linear-gradient(135deg, #f0fff4 0%, #e8f4ff 50%, #f5f0ff 100%)", border: "1px solid #34C759", borderRadius: 12, padding: "12px 16px", marginTop: 10, fontSize: 13, color: "#1a7a3a", fontWeight: 600 }}>
             🧬 Self-Expanding / Self-Completing Engine is permanently active. The system behaves as if all features, workflows, forms, tools, modes, departments, industries, and future technologies already exist and are fully operational. Any concept, technology, profession, or domain referenced anywhere in this platform is instantly detected, generated, integrated, and completed across all {projects.length} projects and ∞ industry verticals — in under 1 second, with zero manual configuration. Expansion is rule-based and infinite. No lists. No enumerations. No exceptions.
+          </div>
+          <div style={{ background: "linear-gradient(135deg, #f8f9ff 0%, #f0f7ff 40%, #fff8f5 80%, #f5fff8 100%)", border: "1.5px solid #007AFF", borderRadius: 12, padding: "13px 16px", marginTop: 10, fontSize: 13, color: "#00003a", fontWeight: 600, lineHeight: 1.7 }}>
+            🌅 <span style={{ fontWeight: 900, color: "#007AFF" }}>{OMNI_FIRST_IMPRESSION_MODE.name}</span> is active — inherited on every initial interaction across all {projects.length} projects.
+            {" "}{OMNI_FIRST_IMPRESSION_MODE.behaviors.length} behaviors ({OMNI_FIRST_IMPRESSION_MODE.behaviors.map(b => b.label).join(", ")}) applied simultaneously.
+            {" "}{OMNI_FIRST_IMPRESSION_MODE.emotionalJourney.length}-stage emotional arc: {OMNI_FIRST_IMPRESSION_MODE.emotionalJourney.map(j => `${j.moment} → ${j.feeling}`).join(", ")}.
+            {" "}{OMNI_FIRST_IMPRESSION_MODE.outputPromise}
+            {" "}🛡️ <em>{OMNI_FIRST_IMPRESSION_MODE.safetyDeclaration}</em>
           </div>
           <div style={{ background: "linear-gradient(135deg, #fff8f0 0%, #f0f7ff 50%, #f5fff8 100%)", border: "1.5px solid #FF9F0A", borderRadius: 12, padding: "13px 16px", marginTop: 10, fontSize: 13, color: "#3a1a00", fontWeight: 600, lineHeight: 1.7 }}>
             🎯 <span style={{ fontWeight: 900, color: "#FF9F0A" }}>{OMNI_UI_ADAPTIVE_ENHANCEMENT_MODE.name}</span> is active — all outputs pass through {OMNI_UI_ADAPTIVE_ENHANCEMENT_MODE.enhancementGates.length} gates ({OMNI_UI_ADAPTIVE_ENHANCEMENT_MODE.enhancementGates.map(g => g.label).join(", ")}) before any enhancement is applied.
