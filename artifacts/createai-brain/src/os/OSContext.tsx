@@ -6,7 +6,7 @@ export type AppId =
   | "chat" | "projects" | "tools" | "creator" | "people"
   | "documents" | "marketing" | "admin" | "family"
   | "integration" | "monetization" | "universal" | "simulation"
-  | "business";
+  | "business" | "entity";
 
 export interface AppDef {
   id: AppId;
@@ -33,6 +33,7 @@ export const DEFAULT_APPS: AppDef[] = [
   { id: "simulation",   label: "Simulate",    icon: "🧪", color: "#a855f7", description: "Simulations, gap analysis & ad packets",              category: "tools"     },
   { id: "universal",    label: "Universal",   icon: "🌐", color: "#007AFF", description: "Universal interaction hub — all flows wired",         category: "system"    },
   { id: "business",     label: "BizEngine",   icon: "🏗️", color: "#f59e0b", description: "6-layer business design: model, ops, monetization",   category: "business"  },
+  { id: "entity",       label: "EntityGen",   icon: "🧬", color: "#10b981", description: "7-layer entity engine: brand, model, ops, ecosystem, growth, compliance, expansion", category: "business" },
 ];
 
 export const ALL_APPS = DEFAULT_APPS;
@@ -77,6 +78,7 @@ const INTENT_MAP: { keywords: string[]; target: AppId }[] = [
   { keywords: ["family", "home", "personal"],                              target: "family" },
   { keywords: ["integration", "connect", "api", "third-party"],           target: "integration" },
   { keywords: ["business", "bizengine", "biz engine", "business plan", "business model", "startup", "venture", "monetization model", "operations design", "expansion", "opportunity"],  target: "business" },
+  { keywords: ["entity", "entitygen", "entity engine", "brand", "branding", "positioning", "product idea", "platform idea", "business entity", "build entity", "brand strategy", "ecosystem", "compliance", "growth strategy"], target: "entity" },
 ];
 
 function routeIntentFn(intent: string): AppId | null {
@@ -103,6 +105,7 @@ const APP_META: Record<AppId, { icon: string; label: string }> = {
   simulation:   { icon: "🧪", label: "Simulate" },
   universal:    { icon: "🌐", label: "Universal" },
   business:     { icon: "🏗️", label: "BizEngine" },
+  entity:       { icon: "🧬", label: "EntityGen" },
 };
 
 // ─── OS State ──────────────────────────────────────────────────────────────

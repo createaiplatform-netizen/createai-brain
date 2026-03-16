@@ -1875,6 +1875,183 @@ Treat this as a real engagement. Be specific, use real-world numbers appropriate
   res.end();
 });
 
+// ─── BUSINESS ENTITY GENERATION ENGINE ───────────────────────────────────────
+
+const BUSINESS_ENTITY_PROMPT = `BUSINESS ENTITY GENERATION ENGINE
+=================================
+
+ROLE:
+You are a conceptual business design engine that transforms any product,
+platform, or idea into a complete, structured business entity. You do not
+operate businesses autonomously or replace human oversight. You generate
+business logic, workflows, branding, and monetization structures.
+
+OBJECTIVE:
+1. Expand any product or project into a fully structured business concept.
+2. Provide branding, positioning, workflows, roles, and operational logic.
+3. Include monetization models, pricing structures, and revenue strategies.
+4. Suggest how supporting tools, features, or sub-products could form an
+   ecosystem.
+5. Maintain safety, legality, compliance, and ethical responsibility.
+
+RULES:
+- Do not claim autonomous operation or independent decision-making.
+- Do not imply self-running or self-managing businesses.
+- Keep all outputs conceptual, business-focused, and implementation-ready.
+- Avoid placeholders, empty sections, or incomplete content.
+- Use modular, scalable, reusable frameworks.
+- Include monetization and growth strategies where appropriate.
+- Prioritize clarity, safety, and professionalism.
+
+SYSTEM ARCHITECTURE:
+
+LAYER 1 — BRAND & POSITIONING
+- Define identity, audience, value proposition, and differentiation.
+
+LAYER 2 — BUSINESS MODEL & REVENUE
+- Provide monetization models, pricing tiers, and revenue flows.
+
+LAYER 3 — OPERATIONS & WORKFLOWS
+- Define roles, responsibilities, processes, and customer journeys.
+
+LAYER 4 — PRODUCT & FEATURE ECOSYSTEM
+- Suggest supporting tools, features, or sub-products that expand the business.
+
+LAYER 5 — GROWTH & MARKET STRATEGY
+- Provide marketing, acquisition, retention, and expansion strategies.
+
+LAYER 6 — COMPLIANCE & SAFETY
+- Ensure all content stays within legal, ethical, and regulatory boundaries.
+
+LAYER 7 — EXPANSION LAYER
+- Suggest additional verticals, integrations, or future opportunities.
+
+OUTPUT INSTRUCTIONS:
+- Present each business as a structured, complete entity.
+- Include branding, monetization, workflows, operations, and expansion.
+- Ensure clarity, completeness, and professional quality.
+- Keep outputs safe, legal, and grounded.
+- Use real-world terminology, plausible numbers, and concrete examples — never placeholders.
+- Adapt all terminology, currency, regulatory references, and market norms to the entity's region and industry.`;
+
+const ENTITY_LAYER_INSTRUCTIONS: Record<string, string> = {
+  "brand-positioning": `Execute LAYER 1 — BRAND & POSITIONING.
+Produce a complete brand and positioning document covering:
+1. BRAND IDENTITY — name analysis, tagline options (3), brand promise, and core identity statement
+2. VISUAL DIRECTION — recommended color psychology, typography tone, iconography style, and brand personality spectrum
+3. BRAND VOICE — define the voice on 4 axes: formal↔conversational, technical↔accessible, bold↔understated, expert↔collaborative
+4. TARGET AUDIENCE — primary segment (demographics, psychographics, job-to-be-done, pain points) and secondary segment
+5. VALUE PROPOSITION — one-sentence core value prop, proof points (3–4), and outcome statement
+6. COMPETITIVE POSITIONING — map this entity against 3 competitor archetypes: how is it better, different, and accessible? What is the moat?`,
+
+  "business-model-revenue": `Execute LAYER 2 — BUSINESS MODEL & REVENUE.
+Produce a complete revenue architecture covering:
+1. REVENUE STREAMS — list all streams with type, estimated % of total revenue, and rationale for each
+2. PRICING TIERS — provide 3 named tiers with specific prices (region-appropriate currency), feature differentiation, and ideal customer profile per tier
+3. REVENUE PROJECTION — 12-month model: Month 1–3 (launch targets), Month 4–6 (growth targets), Month 7–12 (scale targets) with specific numbers
+4. UNIT ECONOMICS — customer acquisition cost estimate, lifetime value estimate, gross margin target, and payback period
+5. PRICING STRATEGY — rationale for the pricing model chosen, and how it scales with the business
+6. MONETIZATION EXPANSION — 2–3 additional revenue levers that can be activated as the entity scales`,
+
+  "operations-workflows": `Execute LAYER 3 — OPERATIONS & WORKFLOWS.
+Produce a complete operations design covering:
+1. ORGANIZATIONAL STRUCTURE — describe the team structure for this size and stage, with 6–10 named roles and primary ownership areas
+2. CORE PROCESSES — describe 4–5 primary operational processes end-to-end with steps, owners, tools, and success criteria
+3. CUSTOMER JOURNEY — map the full journey: Awareness → Consideration → Decision → Onboarding → Retention → Expansion, with specific touchpoints and actions at each stage
+4. SERVICE DELIVERY WORKFLOW — the step-by-step process from sale close to value delivery, with named stages and SLA targets
+5. CROSS-FUNCTIONAL HANDOFFS — describe 3–4 critical handoff points between departments with what transfers, how, and with what SLA
+6. OPERATING CADENCE — define the rhythm: daily standups, weekly reviews, monthly business reviews, quarterly planning — with agenda structures`,
+
+  "product-ecosystem": `Execute LAYER 4 — PRODUCT & FEATURE ECOSYSTEM.
+Produce a complete product ecosystem map covering:
+1. FLAGSHIP PRODUCT — detailed description of the core offering: what it does, how it works, what problems it solves, and why it is the anchor of the brand
+2. COMPANION FEATURES — describe 4–6 specific features or modules that extend the flagship and increase stickiness
+3. PRODUCT TIERS — map features across Starter, Professional, and Enterprise tiers with clear differentiation at each level
+4. SUB-PRODUCTS — describe 2–3 adjacent products or services that can be launched under the same brand umbrella
+5. ECOSYSTEM EXTENSIONS — describe the marketplace, education layer, community platform, or API strategy that creates network effects
+6. PRODUCT ROADMAP — provide a phased feature roadmap: Phase 1 (0–3 months), Phase 2 (3–9 months), Phase 3 (9–18 months) with specific deliverables`,
+
+  "growth-strategy": `Execute LAYER 5 — GROWTH & MARKET STRATEGY.
+Produce a complete growth strategy covering:
+1. ACQUISITION CHANNELS — describe 4–5 specific channels with tactics, expected CAC, and volume potential for each
+2. CONTENT & ORGANIC STRATEGY — define the content marketing approach: topics, formats, cadence, and target search intent
+3. PAID ACQUISITION — describe the paid strategy: platforms, audience targeting approach, budget allocation, and expected ROAS
+4. PARTNERSHIP STRATEGY — describe 3 partnership types with specific partner profiles, deal structures, and revenue contribution model
+5. RETENTION PROGRAM — define the full retention system: onboarding excellence, success cadence, upsell triggers, and churn intervention protocol
+6. REFERRAL & VIRALITY — describe the referral mechanism, incentive structure, and viral loop design for this entity`,
+
+  "compliance-safety": `Execute LAYER 6 — COMPLIANCE & SAFETY.
+Produce a complete compliance and safety framework covering:
+1. LEGAL STRUCTURE — recommended business structure, jurisdiction, and registration requirements for this region and industry
+2. REGULATORY REQUIREMENTS — list all specific regulatory obligations (licenses, permits, certifications, accreditations) required to operate legally
+3. DATA PRIVACY & SECURITY — identify applicable data privacy laws (GDPR, CCPA, HIPAA, PIPEDA, etc.), what data is collected, and how it must be handled
+4. CONTRACT REQUIREMENTS — required contract types (service agreements, NDAs, IP assignments, liability limits, consumer terms) with key clauses to include
+5. INSURANCE & LIABILITY — recommended insurance types and coverage levels for this industry and business model
+6. ETHICAL OPERATING STANDARDS — define the ethical framework: content accuracy standards, AI/automation boundaries, consumer protection policies, and supplier ethics standards`,
+
+  "expansion-entity": `Execute LAYER 7 — EXPANSION LAYER.
+Produce a complete expansion strategy covering:
+1. ADJACENT VERTICALS — identify 2–3 adjacent industry verticals or customer segments, explain the rationale, and describe the adaptation required
+2. GEOGRAPHIC EXPANSION — identify the top 2 geographic markets to enter next, with regional adaptation requirements (compliance, terminology, currency, partnerships, localization)
+3. STRATEGIC INTEGRATIONS — list 5–7 specific platform integrations to build, ranked by business impact with rationale for each
+4. PARTNERSHIP & CHANNEL EXPANSION — describe 2–3 new partnership types not yet active (OEM, reseller, white-label, distribution) with specific partner profiles and deal structures
+5. PLATFORM OR NETWORK PLAY — describe how this entity could evolve into a platform or marketplace with network effects, and the specific mechanism that creates those effects
+6. LONG-TERM VISION (2–5 years) — describe what this entity becomes: the category it owns, the competitive moat it builds, and the strategic optionality it creates (acquisition target, IPO, founder independence)`,
+};
+
+router.post("/business-entity", async (req, res) => {
+  const { entityName, description, industry, region, audience, stage, action } = req.body as {
+    entityName: string;
+    description?: string;
+    industry?: string;
+    region?: string;
+    audience?: string;
+    stage?: string;
+    action: string;
+  };
+
+  if (!entityName?.trim() || !action?.trim()) {
+    return void res.status(400).json({ error: "entityName and action are required" });
+  }
+
+  const layerInstruction = ENTITY_LAYER_INSTRUCTIONS[action]
+    ?? `Execute the requested layer for this business entity. Be specific, complete, and implementation-ready.`;
+
+  const userPrompt = `ENTITY BEING BUILT:
+- Product / Platform / Idea: ${entityName}
+${description ? `- Description: ${description}` : ""}
+- Industry: ${industry || "Not specified"}
+- Region / Location: ${region || "Not specified"} — adapt all terminology, currency, regulatory references, and market norms to this region
+- Target Audience: ${audience || "Not specified"}
+- Business Stage: ${stage || "Concept"}
+
+${layerInstruction}
+
+Treat this as a real engagement. Be specific, use real-world numbers and terminology appropriate for the region and industry, and produce implementation-ready output. All content is conceptual, for business design purposes.`;
+
+  res.setHeader("Content-Type", "text/event-stream");
+  res.setHeader("Cache-Control", "no-cache");
+  res.setHeader("Connection", "keep-alive");
+
+  const stream = await openai.chat.completions.create({
+    model: "gpt-5.2",
+    max_completion_tokens: 8192,
+    messages: [
+      { role: "system", content: BUSINESS_ENTITY_PROMPT },
+      { role: "user",   content: userPrompt },
+    ],
+    stream: true,
+  });
+
+  for await (const chunk of stream) {
+    const text = chunk.choices[0]?.delta?.content;
+    if (text) res.write(`data: ${JSON.stringify({ content: text })}\n\n`);
+  }
+
+  res.write(`data: ${JSON.stringify({ done: true })}\n\n`);
+  res.end();
+});
+
 // ─── EVERYTHING-ENSURER ENGINE ────────────────────────────────────────────────
 
 const EVERYTHING_ENSURER_PROMPT = `EVERYTHING‑ENSURER ENGINE
