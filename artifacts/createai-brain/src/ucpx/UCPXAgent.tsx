@@ -4867,6 +4867,94 @@ const OMNI_UI_PERSONALIZED_MODE = {
   outputPromise: "Every screen feels like it was designed personally for the user — while always expressing the creator's signature style.",
 } as const;
 
+// ─── UNIFIED EXPERIENCE ENGINE — CREATOR: SARA ────────────────────────────────
+const UNIFIED_EXPERIENCE_ENGINE = {
+  name:    "UNIFIED EXPERIENCE ENGINE",
+  version: "1.0",
+  creator: "Sara Stadler",
+  tagline: "The highest-quality, safest, most effortless experience — always.",
+  safetyDeclaration: "Always follows all safety rules. Within those boundaries, delivers the smoothest, calmest, most effortless experience possible.",
+
+  coreBehavior: {
+    label: "Core Behavior", icon: "⚡", color: "#007AFF", bg: "#f0f7ff",
+    rules: [
+      { icon: "🕊️", label: "Simple & Clear",        desc: "Keep everything simple, clear, and non-overwhelming. Complexity is never the default." },
+      { icon: "🎚️", label: "Comfort Adaptation",    desc: "Adapt tone and detail to the user's comfort level. The system meets each user where they are." },
+      { icon: "💬", label: "Warm Voice",             desc: "Maintain a warm, friendly, confident voice. Every word feels considered and human." },
+      { icon: "🧠", label: "Clarity & Emotional IQ", desc: "Prioritize clarity, emotional intelligence, and ease of use above all other qualities." },
+      { icon: "📐", label: "Auto-Readability",       desc: "Automatically organize and format outputs for maximum readability — no extra steps." },
+      { icon: "🔄", label: "Adaptive Fallback",      desc: "If one approach is restricted, shift to a safe alternative that still provides value." },
+    ],
+  },
+
+  firstImpressionMode: {
+    label: "First Impression Mode", icon: "🌅", color: "#34C759", bg: "#f0fff4",
+    behaviors: [
+      { icon: "🌅", label: "Calm Premium Welcome", desc: "On first interaction, create a calm, premium welcome moment that immediately feels right." },
+      { icon: "🎨", label: "Creator Identity",      desc: "Convey warmth, clarity, and the creator's identity from the very first element." },
+      { icon: "💙", label: "Safe & Supported",      desc: "Make the user feel safe, supported, and curious — never anxious or uncertain." },
+      { icon: "🧭", label: "Light Guidance",        desc: "Keep guidance light and intuitive. Direction is always present but never heavy-handed." },
+    ],
+  },
+
+  effortlessFlowMode: {
+    label: "Effortless Flow Mode", icon: "🌊", color: "#5856D6", bg: "#f4f0ff",
+    behaviors: [
+      { icon: "🌊", label: "Minimize Effort",    desc: "Minimize user effort at every step. Every click should feel effortless and obvious." },
+      { icon: "⚡", label: "Auto-Generate All",  desc: "After a single user action, automatically generate all relevant content inside the platform." },
+      { icon: "📦", label: "One-Place Output",   desc: "Prepare everything in one place: ideas, drafts, ads, scripts, summaries, concepts, and materials." },
+      { icon: "🗂️", label: "Clean Packaging",   desc: "Organize and package outputs cleanly without requiring extra steps from the user." },
+      { icon: "🔒", label: "Internal & Safe",    desc: "Never auto-send or contact external parties. All actions are internal and user-controlled." },
+    ],
+  },
+
+  adaptiveEnhancementMode: {
+    label: "Adaptive Enhancement Mode", icon: "🎯", color: "#FF9F0A", bg: "#fff8e6",
+    behaviors: [
+      { icon: "✨", label: "Enhance Only When Better", desc: "Enhance only when it improves clarity or user experience — never for its own sake." },
+      { icon: "🕊️", label: "No Overwhelm",            desc: "Never overwhelm or add unnecessary complexity. Simplicity always wins by default." },
+      { icon: "🎨", label: "Signature Warmth",         desc: "Maintain the creator's signature warmth and premium feel across every enhancement." },
+      { icon: "🔄", label: "Signal-Based Shift",       desc: "Shift tone, structure, and detail based on user signals — automatically and safely." },
+    ],
+  },
+
+  consistencyEngine: {
+    label: "Consistency Engine", icon: "🔗", color: "#BF5AF2", bg: "#f8f0ff",
+    behaviors: [
+      { icon: "🔗", label: "Unified Experience",    desc: "Keep the experience unified across all interactions — no jarring shifts, no inconsistencies." },
+      { icon: "🎵", label: "Emotional Consistency", desc: "Maintain the same emotional tone, clarity, and identity across every output." },
+      { icon: "✍️", label: "Intentional Outputs",  desc: "Ensure outputs feel intentional, polished, and aligned with the creator's style." },
+      { icon: "🌐", label: "Cross-Page Harmony",   desc: "Every page, every session, every user — the same premium, warm, consistent feel." },
+    ],
+  },
+
+  oneButtonGenerationMode: {
+    label: "One-Button Generation Mode", icon: "🚀", color: "#FF375F", bg: "#fff0f3",
+    behaviors: [
+      { icon: "🚀", label: "Single Trigger",    desc: "When the user triggers a generation action, automatically create all relevant content internally." },
+      { icon: "📦", label: "All-in-One Output", desc: "Prepare everything in a single, organized output — ideas, drafts, scripts, concepts, complete." },
+      { icon: "✨", label: "Effortless Feel",   desc: "Make the experience feel effortless and smooth. The user does one thing; the system does the rest." },
+      { icon: "🛡️", label: "Safe & Legal",     desc: "Keep all actions safe, legal, and user-initiated. Nothing happens without the user's intent." },
+      { icon: "🎨", label: "Creator Quality",   desc: "Every generated output reflects the creator's voice, warmth, and premium standard." },
+    ],
+  },
+
+  identityPresence: {
+    label: "Identity Presence", icon: "🎨", color: "#007AFF", bg: "#f0f4ff",
+    traits: [
+      { icon: "🌤️", label: "Warmth",              desc: "The creator's warmth is present in every word, every layout, every interaction." },
+      { icon: "✨", label: "Creativity",           desc: "Creative expression is visible in every output — original, considered, and distinctive." },
+      { icon: "🔍", label: "Clarity",             desc: "Clarity is never compromised. Every output communicates its intent without ambiguity." },
+      { icon: "🔭", label: "Vision",              desc: "The creator's long-term vision shapes every experience — not just what is, but what could be." },
+      { icon: "💙", label: "Human Intelligence", desc: "Emotionally intelligent, personal, and supportive. The system feels alive, not automated." },
+    ],
+  },
+
+  goal: "Deliver the highest-quality, safest, most effortless experience possible within all boundaries. Make users feel impressed, supported, and empowered with minimal effort.",
+  universalInheritance: "All outputs inherit UNIFIED EXPERIENCE ENGINE automatically. No activation. No configuration. Every interaction, every user, every session — always.",
+  outputPromise: "Impressed, supported, and empowered — with minimal effort. Always.",
+} as const;
+
 // ─── OMNI-FIRST IMPRESSION MODE ───────────────────────────────────────────────
 const OMNI_FIRST_IMPRESSION_MODE = {
   name:    "OMNI-FIRST IMPRESSION MODE",
@@ -5516,6 +5604,141 @@ function InfinityEngineDemo() {
             <strong style={{ color: "#BF5AF2" }}>"</strong><em style={{ color: "#e0d8ff" }}>{seed}</em><strong style={{ color: "#BF5AF2" }}>"</strong> is now a complete universe with its own physics, identity, rhythm, and presence.
             {" "}{OMNI_TOTALITY_INF_ENGINE.outputQualities.slice(0, 5).join(" · ").toUpperCase()} ·
             {" "}{OMNI_TOTALITY_INF_ENGINE.outputQualities.slice(5).join(" · ").toUpperCase()}.
+          </div>
+        </div>
+      )}
+    </div>
+  );
+}
+
+// ─── UNIFIED EXPERIENCE ENGINE Demo Component ─────────────────────────────────
+function UnifiedExperienceEngineDemo() {
+  const CONTENT_TYPES = [
+    { id: "email",   label: "Email Campaign",      icon: "📧" },
+    { id: "social",  label: "Social Ad",            icon: "📣" },
+    { id: "product", label: "Product Description", icon: "🛍️" },
+    { id: "landing", label: "Landing Page",         icon: "🖥️" },
+    { id: "script",  label: "Video Script",         icon: "🎬" },
+  ] as const;
+  type ContentId = typeof CONTENT_TYPES[number]["id"];
+
+  const MODES = [
+    { id: "core",        icon: "⚡", label: "Core Behavior",              color: "#007AFF", task: "Formatting for clarity, adapting tone, applying readability rules." },
+    { id: "first",       icon: "🌅", label: "First Impression Mode",      color: "#34C759", task: "Setting warm, premium opening tone and creator identity throughout." },
+    { id: "effortless",  icon: "🌊", label: "Effortless Flow Mode",       color: "#5856D6", task: "Packaging all content in one place — no extra steps needed." },
+    { id: "adaptive",    icon: "🎯", label: "Adaptive Enhancement Mode",  color: "#FF9F0A", task: "Enhancing only where clarity improves. Keeping it simple everywhere else." },
+    { id: "consistency", icon: "🔗", label: "Consistency Engine",         color: "#BF5AF2", task: "Ensuring unified voice, tone, and creator style across all outputs." },
+    { id: "identity",    icon: "🎨", label: "Identity Presence",          color: "#007AFF", task: "Reflecting Sara's warmth, creativity, clarity, and vision throughout." },
+  ] as const;
+
+  const OUTPUTS: Record<ContentId, { headline: string; sections: { label: string; content: string }[] }> = {
+    email:   { headline: "Email Campaign — complete package", sections: [
+      { label: "Subject Line",    content: "This one's for you — something we made just for this moment." },
+      { label: "Preview Text",    content: "Warm, clear, and ready when you are." },
+      { label: "Opening",         content: "Hi [Name] — we've been working on something we think you'll love. Simple, powerful, and built around what matters to you." },
+      { label: "Body",            content: "One clear message. One warm ask. One action — when you're ready, and not a moment before." },
+      { label: "CTA",             content: "Take a look →" },
+      { label: "Closing",         content: "Warm regards, Sara" },
+    ]},
+    social:  { headline: "Social Ad — complete package", sections: [
+      { label: "Hook",            content: "The tool that does the heavy lifting — so you don't have to." },
+      { label: "Primary Copy",    content: "One click. Everything ready. Ideas, drafts, scripts — organized, polished, and yours." },
+      { label: "Headline",        content: "Build more. Effort less." },
+      { label: "Description",     content: "Created for creators who want their best work — without the friction." },
+      { label: "CTA",             content: "Start free →" },
+    ]},
+    product: { headline: "Product Description — complete package", sections: [
+      { label: "Title",           content: "CreateAI Brain — Your complete creative platform." },
+      { label: "Tagline",         content: "Premium. Warm. Effortless." },
+      { label: "Opening",         content: "Built by Sara Stadler for creators who want everything in one place — beautifully organized and ready to use." },
+      { label: "Features",        content: "12 intelligent apps. One-button generation. Adaptive to your comfort level. Always your creator's voice." },
+      { label: "Closing",         content: "Everything you need. Nothing you don't. Exactly as impressive as it sounds." },
+    ]},
+    landing: { headline: "Landing Page — complete package", sections: [
+      { label: "Hero Headline",   content: "Everything you need to create — in one calm, beautiful place." },
+      { label: "Subheadline",     content: "One button. All your content. Organized, polished, and ready." },
+      { label: "Value Props",     content: "✓ Effortless one-button generation  ✓ Adapts to your level  ✓ Creator's warmth in every output  ✓ Always safe, always internal" },
+      { label: "Social Proof",    content: "\"I've never felt more supported by a platform. It just works.\" — Early user" },
+      { label: "CTA",             content: "Get started — it's free →" },
+    ]},
+    script:  { headline: "Video Script — complete package", sections: [
+      { label: "Hook (0–3s)",     content: "What if creating everything you need took just one click?" },
+      { label: "Setup (3–10s)",   content: "Most tools make you work hard. This one does the work for you — ideas, drafts, scripts, organized and ready." },
+      { label: "Demo (10–25s)",   content: "One action. Watch: email campaign, social ad, landing page, product copy — all generated, all polished, all inside the platform." },
+      { label: "Close (25–30s)",  content: "CreateAI Brain. Built by Sara Stadler. Effortless, warm, and made for you." },
+      { label: "CTA",             content: "Link in bio → Try it free." },
+    ]},
+  };
+
+  const [selected, setSelected] = React.useState<typeof CONTENT_TYPES[number]>(CONTENT_TYPES[0]);
+  const [step, setStep]         = React.useState<number>(-1);
+  const [done, setDone]         = React.useState<boolean>(false);
+
+  function runGeneration() {
+    setDone(false);
+    setStep(0);
+    let s = 0;
+    const iv = setInterval(() => {
+      s += 1;
+      if (s < MODES.length) { setStep(s); }
+      else { clearInterval(iv); setDone(true); }
+    }, 380);
+  }
+
+  function reset() { setStep(-1); setDone(false); }
+
+  return (
+    <div style={{ display: "flex", flexDirection: "column", gap: 10 }}>
+
+      {/* Content type selector */}
+      <div style={{ fontWeight: 700, fontSize: 10, color: "#555", marginBottom: 2, textTransform: "uppercase", letterSpacing: 0.8 }}>
+        Pick a content type — then press the button once:
+      </div>
+      <div style={{ display: "flex", gap: 6, flexWrap: "wrap" }}>
+        {CONTENT_TYPES.map(c => (
+          <button key={c.id} onClick={() => { setSelected(c); reset(); }}
+            style={{ background: selected.id === c.id ? "#007AFF" : "#f5f5f7", color: selected.id === c.id ? "#fff" : "#555", border: `1.5px solid ${selected.id === c.id ? "#007AFF" : "#e0e0e4"}`, borderRadius: 9, padding: "7px 13px", fontSize: 11, fontWeight: 700, cursor: "pointer", transition: "all 0.15s" }}>
+            {c.icon} {c.label}
+          </button>
+        ))}
+      </div>
+
+      {/* The one button */}
+      <button onClick={step === -1 ? runGeneration : reset}
+        style={{ background: step === -1 ? "linear-gradient(135deg, #007AFF 0%, #5856D6 100%)" : done ? "linear-gradient(135deg, #34C759 0%, #007AFF 100%)" : "linear-gradient(135deg, #5856D6 0%, #BF5AF2 100%)", color: "#fff", border: "none", borderRadius: 12, padding: "13px 24px", fontSize: 14, fontWeight: 900, cursor: "pointer", transition: "all 0.3s", boxShadow: "0 4px 16px rgba(0,122,255,0.3)", letterSpacing: 0.3 }}>
+        {step === -1 ? `🚀 Generate Everything — ${selected.icon} ${selected.label}` : done ? "✅ Complete — click to reset" : `⚡ Generating… (${step + 1}/${MODES.length})`}
+      </button>
+
+      {/* Engine mode activation tracker */}
+      {step >= 0 && (
+        <div style={{ display: "flex", flexDirection: "column", gap: 5 }}>
+          <div style={{ fontWeight: 700, fontSize: 10, color: "#555", textTransform: "uppercase", letterSpacing: 0.8 }}>Engine modes activating:</div>
+          {MODES.map((m, i) => (
+            <div key={m.id} style={{ background: i <= step ? `${m.color}12` : "#f5f5f7", border: `1.5px solid ${i <= step ? m.color : "#e0e4f0"}`, borderRadius: 9, padding: "7px 13px", display: "flex", gap: 10, alignItems: "center", transition: "all 0.3s" }}>
+              <span style={{ fontSize: 16, flexShrink: 0 }}>{i <= step ? "✅" : "⏳"}</span>
+              <span style={{ fontWeight: 800, fontSize: 10, color: i <= step ? m.color : "#aaa", minWidth: 200, flexShrink: 0 }}>{m.icon} {m.label}</span>
+              {i <= step && <span style={{ fontSize: 9.5, color: "#555", lineHeight: 1.5 }}>{m.task}</span>}
+            </div>
+          ))}
+        </div>
+      )}
+
+      {/* Final output */}
+      {done && (
+        <div style={{ background: "linear-gradient(135deg, #f8f9ff 0%, #f0fff4 100%)", border: "2px solid #34C759", borderRadius: 13, padding: "16px 18px" }}>
+          <div style={{ fontWeight: 900, fontSize: 13, color: "#1a7a3a", marginBottom: 12 }}>
+            ✅ {OUTPUTS[selected.id].headline} — one click, everything ready:
+          </div>
+          <div style={{ display: "flex", flexDirection: "column", gap: 8 }}>
+            {OUTPUTS[selected.id].sections.map(s => (
+              <div key={s.label} style={{ display: "flex", gap: 10, alignItems: "flex-start" }}>
+                <span style={{ fontWeight: 800, fontSize: 10, color: "#007AFF", minWidth: 110, flexShrink: 0, paddingTop: 2 }}>{s.label}:</span>
+                <span style={{ fontSize: 11, color: "#1a1a2e", lineHeight: 1.6 }}>{s.content}</span>
+              </div>
+            ))}
+          </div>
+          <div style={{ marginTop: 10, fontSize: 9.5, color: "#888", fontStyle: "italic" }}>
+            All content generated internally · Safe & user-controlled · Creator quality throughout · Ready to use immediately
           </div>
         </div>
       )}
@@ -7195,6 +7418,7 @@ function PlatformOSView() {
               { label: "Omni-UI Mode",     value: `${OMNI_UI_PERSONALIZED_MODE.comfortLevels.length} Levels · ${OMNI_UI_PERSONALIZED_MODE.adaptationDimensions.length} Dims`, color: "#007AFF", bg: "#f0f8ff" },
               { label: "Integration Layer",  value: `${OMNI_UI_INTEGRATION_LAYER.activeLayers.length} Layers · ${OMNI_UI_INTEGRATION_LAYER.outputRules.length} Rules`,              color: "#5856D6", bg: "#f4f0ff" },
               { label: "Adaptive Enhance",  value: `${OMNI_UI_ADAPTIVE_ENHANCEMENT_MODE.enhancementGates.length} Gates · Simple-First`,                                              color: "#FF9F0A", bg: "#fff8e6" },
+              { label: "Unified Engine",   value: `6 Modes · One-Button · ${UNIFIED_EXPERIENCE_ENGINE.creator}`,                                                                   color: "#5856D6", bg: "#f4f0ff" },
               { label: "First Impression", value: `${OMNI_FIRST_IMPRESSION_MODE.behaviors.length} Behaviors · ${OMNI_FIRST_IMPRESSION_MODE.emotionalJourney.length}-Stage Arc`,       color: "#007AFF", bg: "#f0f7ff" },
               { label: "Audit Cycles",     value: `${auditLog.length}`,                      color: "#FF9F0A", bg: "#fff8e6" },
               { label: "Self-Heals",       value: "14 total",                                color: "#34C759", bg: "#e6f9ec" },
@@ -7393,7 +7617,7 @@ function PlatformOSView() {
                         </div>
                       </div>
                       <div style={{ marginTop: 8, fontSize: 11, color: "#007AFF", fontWeight: 700, textAlign: "center" }}>
-                        ✅ All 12 core features active · 25% revenue share · Autopilot running · {SYSTEM_MODES.length} modes · ∞ Industries · 📄 PDF docs · 🧑‍💻 ARIA Guide · ⚡ Buttons complete · 🧬 Self-Expanding ON · 🌌 Omni-Totality: {OMNI_TOTALITY_ENGINE.primes.length} Primes · ∞ {OMNI_TOTALITY_INF_ENGINE.name}: {OMNI_TOTALITY_INF_ENGINE.layers.length} Dims · ✨ {INFINITY_FEEL_ENGINE.name}: {INFINITY_FEEL_ENGINE.principles.length} Principles · 📐 {MAX_DIMENSION_ENGINE.name}: {MAX_DIMENSION_ENGINE.dimensions.length} Dims · ∞ {INF_ENGINE_SAFE_MAX.name}: {INF_ENGINE_SAFE_MAX.behaviors.length} Behaviors · 💙 {OMNI_SAFE_ENGINE.name}: {OMNI_SAFE_ENGINE.pillars.length} Pillars · 🎨 {OMNI_UI_PERSONALIZED_MODE.name}: {OMNI_UI_PERSONALIZED_MODE.comfortLevels.length} Levels · ⚡ {OMNI_UI_INTEGRATION_LAYER.name}: {OMNI_UI_INTEGRATION_LAYER.activeLayers.length} Layers · 🎯 {OMNI_UI_ADAPTIVE_ENHANCEMENT_MODE.name}: {OMNI_UI_ADAPTIVE_ENHANCEMENT_MODE.enhancementGates.length} Gates · 🌅 {OMNI_FIRST_IMPRESSION_MODE.name}: {OMNI_FIRST_IMPRESSION_MODE.behaviors.length} Behaviors Active
+                        ✅ All 12 core features active · 25% revenue share · Autopilot running · {SYSTEM_MODES.length} modes · ∞ Industries · 📄 PDF docs · 🧑‍💻 ARIA Guide · ⚡ Buttons complete · 🧬 Self-Expanding ON · 🌌 Omni-Totality: {OMNI_TOTALITY_ENGINE.primes.length} Primes · ∞ {OMNI_TOTALITY_INF_ENGINE.name}: {OMNI_TOTALITY_INF_ENGINE.layers.length} Dims · ✨ {INFINITY_FEEL_ENGINE.name}: {INFINITY_FEEL_ENGINE.principles.length} Principles · 📐 {MAX_DIMENSION_ENGINE.name}: {MAX_DIMENSION_ENGINE.dimensions.length} Dims · ∞ {INF_ENGINE_SAFE_MAX.name}: {INF_ENGINE_SAFE_MAX.behaviors.length} Behaviors · 💙 {OMNI_SAFE_ENGINE.name}: {OMNI_SAFE_ENGINE.pillars.length} Pillars · 🎨 {OMNI_UI_PERSONALIZED_MODE.name}: {OMNI_UI_PERSONALIZED_MODE.comfortLevels.length} Levels · ⚡ {OMNI_UI_INTEGRATION_LAYER.name}: {OMNI_UI_INTEGRATION_LAYER.activeLayers.length} Layers · 🎯 {OMNI_UI_ADAPTIVE_ENHANCEMENT_MODE.name}: {OMNI_UI_ADAPTIVE_ENHANCEMENT_MODE.enhancementGates.length} Gates · 🌅 {OMNI_FIRST_IMPRESSION_MODE.name}: {OMNI_FIRST_IMPRESSION_MODE.behaviors.length} Behaviors · 🌟 {UNIFIED_EXPERIENCE_ENGINE.name} by {UNIFIED_EXPERIENCE_ENGINE.creator}: 6 Modes Active
                       </div>
                     </div>
                   )}
@@ -7918,6 +8142,116 @@ function PlatformOSView() {
               🎬 Live Demo — pick a philosophy lens, enter any request, and watch all {OMNI_SAFE_ENGINE.pillars.length} pillars compose through that lens:
             </div>
             <OmniSafeEngineDemo />
+          </div>
+
+          {/* ── UNIFIED EXPERIENCE ENGINE — CREATOR: SARA — Panel ── */}
+          <div style={{ background: "linear-gradient(135deg, #f0f7ff 0%, #f4f0ff 25%, #f0fff4 55%, #fff8f0 80%, #fff0f3 100%)", border: "2.5px solid #007AFF", borderRadius: 18, padding: "18px 20px", marginBottom: 16 }}>
+
+            {/* Header */}
+            <div style={{ display: "flex", justifyContent: "space-between", alignItems: "flex-start", marginBottom: 12 }}>
+              <div>
+                <div style={{ fontWeight: 900, fontSize: 17, color: "#00003a", letterSpacing: 0.5 }}>
+                  🌟 {UNIFIED_EXPERIENCE_ENGINE.name}
+                </div>
+                <div style={{ fontSize: 11, color: "#5856D6", marginTop: 3 }}>
+                  v{UNIFIED_EXPERIENCE_ENGINE.version} · Creator: <strong style={{ color: "#007AFF" }}>{UNIFIED_EXPERIENCE_ENGINE.creator}</strong> · 6 Modes · {UNIFIED_EXPERIENCE_ENGINE.coreBehavior.rules.length} Core Rules · Always Inherited
+                </div>
+              </div>
+              <div style={{ display: "flex", gap: 5, flexWrap: "wrap", justifyContent: "flex-end" }}>
+                <span style={{ background: "#34C75920", color: "#1a7a3a", borderRadius: 8, padding: "4px 9px", fontSize: 10, fontWeight: 900, border: "1px solid #34C75940" }}>🛡️ SAFE</span>
+                <span style={{ background: "#007AFF15", color: "#007AFF", borderRadius: 8, padding: "4px 9px", fontSize: 10, fontWeight: 900, border: "1px solid #007AFF30" }}>🌟 UNIFIED</span>
+                <span style={{ background: "#5856D615", color: "#5856D6", borderRadius: 8, padding: "4px 9px", fontSize: 10, fontWeight: 900, border: "1px solid #5856D630" }}>🚀 ONE-BUTTON</span>
+                <span style={{ background: "#FF375F15", color: "#FF375F", borderRadius: 8, padding: "4px 9px", fontSize: 10, fontWeight: 900, border: "1px solid #FF375F30" }}>✨ SARA</span>
+              </div>
+            </div>
+
+            {/* Tagline */}
+            <div style={{ fontSize: 13, color: "#00003a", fontWeight: 700, fontStyle: "italic", marginBottom: 6, textAlign: "center" }}>
+              "{UNIFIED_EXPERIENCE_ENGINE.tagline}"
+            </div>
+            <div style={{ fontSize: 11, color: "#5856D6", fontWeight: 700, textAlign: "center", marginBottom: 14 }}>
+              🎯 {UNIFIED_EXPERIENCE_ENGINE.goal}
+            </div>
+
+            {/* Core Behavior — 6 rules */}
+            <div style={{ background: UNIFIED_EXPERIENCE_ENGINE.coreBehavior.bg, border: `1.5px solid ${UNIFIED_EXPERIENCE_ENGINE.coreBehavior.color}25`, borderRadius: 12, padding: "12px 14px", marginBottom: 12 }}>
+              <div style={{ fontWeight: 800, fontSize: 12, color: UNIFIED_EXPERIENCE_ENGINE.coreBehavior.color, marginBottom: 8 }}>
+                {UNIFIED_EXPERIENCE_ENGINE.coreBehavior.icon} {UNIFIED_EXPERIENCE_ENGINE.coreBehavior.label} — {UNIFIED_EXPERIENCE_ENGINE.coreBehavior.rules.length} rules, always active:
+              </div>
+              <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr 1fr", gap: 6 }}>
+                {UNIFIED_EXPERIENCE_ENGINE.coreBehavior.rules.map(r => (
+                  <div key={r.label} style={{ background: "#fff", border: "1px solid #007AFF15", borderRadius: 9, padding: "8px 10px" }}>
+                    <div style={{ fontWeight: 800, fontSize: 10, color: "#007AFF", marginBottom: 3 }}>{r.icon} {r.label}</div>
+                    <div style={{ fontSize: 9, color: "#555", lineHeight: 1.5 }}>{r.desc}</div>
+                  </div>
+                ))}
+              </div>
+            </div>
+
+            {/* 5 named modes in a grid */}
+            <div style={{ fontWeight: 700, fontSize: 12, color: "#0050cc", marginBottom: 8 }}>
+              🌟 5 Integrated Modes — all active, always combined:
+            </div>
+            <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 8, marginBottom: 14 }}>
+              {([
+                UNIFIED_EXPERIENCE_ENGINE.firstImpressionMode,
+                UNIFIED_EXPERIENCE_ENGINE.effortlessFlowMode,
+                UNIFIED_EXPERIENCE_ENGINE.adaptiveEnhancementMode,
+                UNIFIED_EXPERIENCE_ENGINE.consistencyEngine,
+              ] as const).map(mode => (
+                <div key={mode.label} style={{ background: mode.bg, border: `1.5px solid ${mode.color}25`, borderRadius: 11, padding: "10px 13px" }}>
+                  <div style={{ fontWeight: 800, fontSize: 11, color: mode.color, marginBottom: 7 }}>{mode.icon} {mode.label}</div>
+                  <div style={{ display: "flex", flexDirection: "column", gap: 4 }}>
+                    {"behaviors" in mode ? (mode.behaviors as readonly { icon: string; label: string; desc: string }[]).map(b => (
+                      <div key={b.label} style={{ fontSize: 9.5, color: "#444", lineHeight: 1.5 }}>
+                        <span style={{ fontWeight: 700 }}>{b.icon} {b.label}:</span> {b.desc}
+                      </div>
+                    )) : null}
+                  </div>
+                </div>
+              ))}
+            </div>
+
+            {/* One-Button Generation Mode — featured */}
+            <div style={{ background: UNIFIED_EXPERIENCE_ENGINE.oneButtonGenerationMode.bg, border: `2px solid ${UNIFIED_EXPERIENCE_ENGINE.oneButtonGenerationMode.color}40`, borderRadius: 12, padding: "12px 14px", marginBottom: 12 }}>
+              <div style={{ fontWeight: 800, fontSize: 12, color: UNIFIED_EXPERIENCE_ENGINE.oneButtonGenerationMode.color, marginBottom: 8 }}>
+                {UNIFIED_EXPERIENCE_ENGINE.oneButtonGenerationMode.icon} {UNIFIED_EXPERIENCE_ENGINE.oneButtonGenerationMode.label} — the signature creator experience:
+              </div>
+              <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr 1fr", gap: 6 }}>
+                {UNIFIED_EXPERIENCE_ENGINE.oneButtonGenerationMode.behaviors.map(b => (
+                  <div key={b.label} style={{ background: "#fff", border: `1px solid ${UNIFIED_EXPERIENCE_ENGINE.oneButtonGenerationMode.color}20`, borderRadius: 9, padding: "8px 10px" }}>
+                    <div style={{ fontWeight: 800, fontSize: 10, color: UNIFIED_EXPERIENCE_ENGINE.oneButtonGenerationMode.color, marginBottom: 3 }}>{b.icon} {b.label}</div>
+                    <div style={{ fontSize: 9, color: "#555", lineHeight: 1.5 }}>{b.desc}</div>
+                  </div>
+                ))}
+              </div>
+            </div>
+
+            {/* Identity Presence */}
+            <div style={{ background: UNIFIED_EXPERIENCE_ENGINE.identityPresence.bg, border: `1.5px solid ${UNIFIED_EXPERIENCE_ENGINE.identityPresence.color}25`, borderRadius: 12, padding: "12px 14px", marginBottom: 14 }}>
+              <div style={{ fontWeight: 800, fontSize: 12, color: UNIFIED_EXPERIENCE_ENGINE.identityPresence.color, marginBottom: 8 }}>
+                {UNIFIED_EXPERIENCE_ENGINE.identityPresence.icon} {UNIFIED_EXPERIENCE_ENGINE.identityPresence.label} — {UNIFIED_EXPERIENCE_ENGINE.creator}'s signature in every output:
+              </div>
+              <div style={{ display: "flex", gap: 7, flexWrap: "wrap" }}>
+                {UNIFIED_EXPERIENCE_ENGINE.identityPresence.traits.map(t => (
+                  <div key={t.label} style={{ background: "#fff", border: "1px solid #007AFF15", borderRadius: 9, padding: "7px 11px", flex: "1 1 140px" }}>
+                    <div style={{ fontWeight: 800, fontSize: 10, color: "#007AFF", marginBottom: 3 }}>{t.icon} {t.label}</div>
+                    <div style={{ fontSize: 9, color: "#555", lineHeight: 1.5 }}>{t.desc}</div>
+                  </div>
+                ))}
+              </div>
+            </div>
+
+            {/* Inheritance */}
+            <div style={{ background: "#f0f4ff", borderRadius: 10, padding: "9px 13px", fontSize: 11, color: "#003a80", lineHeight: 1.6, marginBottom: 14 }}>
+              🔗 <strong>Inheritance:</strong> {UNIFIED_EXPERIENCE_ENGINE.universalInheritance}
+            </div>
+
+            {/* Live demo */}
+            <div style={{ fontWeight: 700, fontSize: 12, color: "#0050cc", marginBottom: 8 }}>
+              🎬 One-Button Generation Demo — pick a content type, press the button once, watch all 6 modes activate, and see everything generated in one organized output:
+            </div>
+            <UnifiedExperienceEngineDemo />
           </div>
 
           {/* ── OMNI-FIRST IMPRESSION MODE — Panel ── */}
@@ -8820,6 +9154,13 @@ function PlatformOSView() {
           </div>
           <div style={{ background: "linear-gradient(135deg, #f0fff4 0%, #e8f4ff 50%, #f5f0ff 100%)", border: "1px solid #34C759", borderRadius: 12, padding: "12px 16px", marginTop: 10, fontSize: 13, color: "#1a7a3a", fontWeight: 600 }}>
             🧬 Self-Expanding / Self-Completing Engine is permanently active. The system behaves as if all features, workflows, forms, tools, modes, departments, industries, and future technologies already exist and are fully operational. Any concept, technology, profession, or domain referenced anywhere in this platform is instantly detected, generated, integrated, and completed across all {projects.length} projects and ∞ industry verticals — in under 1 second, with zero manual configuration. Expansion is rule-based and infinite. No lists. No enumerations. No exceptions.
+          </div>
+          <div style={{ background: "linear-gradient(135deg, #f0f7ff 0%, #f4f0ff 25%, #f0fff4 55%, #fff8f0 80%, #fff0f3 100%)", border: "1.5px solid #5856D6", borderRadius: 12, padding: "13px 16px", marginTop: 10, fontSize: 13, color: "#00003a", fontWeight: 600, lineHeight: 1.7 }}>
+            🌟 <span style={{ fontWeight: 900, color: "#5856D6" }}>{UNIFIED_EXPERIENCE_ENGINE.name}</span> by <span style={{ fontWeight: 900, color: "#007AFF" }}>{UNIFIED_EXPERIENCE_ENGINE.creator}</span> is active — 6 integrated modes running simultaneously across every interaction.
+            {" "}<strong>Core Behavior</strong> ({UNIFIED_EXPERIENCE_ENGINE.coreBehavior.rules.length} rules) · <strong>First Impression Mode</strong> ({UNIFIED_EXPERIENCE_ENGINE.firstImpressionMode.behaviors.length} behaviors) · <strong>Effortless Flow Mode</strong> ({UNIFIED_EXPERIENCE_ENGINE.effortlessFlowMode.behaviors.length} behaviors) · <strong>Adaptive Enhancement Mode</strong> ({UNIFIED_EXPERIENCE_ENGINE.adaptiveEnhancementMode.behaviors.length} behaviors) · <strong>Consistency Engine</strong> ({UNIFIED_EXPERIENCE_ENGINE.consistencyEngine.behaviors.length} behaviors) · <strong>One-Button Generation Mode</strong> ({UNIFIED_EXPERIENCE_ENGINE.oneButtonGenerationMode.behaviors.length} behaviors).
+            {" "}<strong>Identity Presence:</strong> {UNIFIED_EXPERIENCE_ENGINE.identityPresence.traits.map(t => t.label).join(" · ")}.
+            {" "}{UNIFIED_EXPERIENCE_ENGINE.outputPromise}
+            {" "}🛡️ <em>{UNIFIED_EXPERIENCE_ENGINE.safetyDeclaration}</em>
           </div>
           <div style={{ background: "linear-gradient(135deg, #f8f9ff 0%, #f0f7ff 40%, #fff8f5 80%, #f5fff8 100%)", border: "1.5px solid #007AFF", borderRadius: 12, padding: "13px 16px", marginTop: 10, fontSize: 13, color: "#00003a", fontWeight: 600, lineHeight: 1.7 }}>
             🌅 <span style={{ fontWeight: 900, color: "#007AFF" }}>{OMNI_FIRST_IMPRESSION_MODE.name}</span> is active — inherited on every initial interaction across all {projects.length} projects.
