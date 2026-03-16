@@ -4109,6 +4109,37 @@ const CORE_FEATURE_INHERITANCE = [
   "Full isolation & environment integrity",
 ];
 
+interface SystemMode {
+  id: string; icon: string; label: string; category: "core" | "experience" | "tool" | "doc" | "e2e";
+  description: string; status: "active";
+}
+
+const SYSTEM_MODES: SystemMode[] = [
+  { id: "live",      icon: "⚡", label: "LIVE MODE",              category: "core",       status: "active", description: "Fully operational production-ready system. Complete flows, real-feeling data, all outputs present. No gaps." },
+  { id: "demo",      icon: "🎬", label: "DEMO MODE",              category: "core",       status: "active", description: "Guided showcase with rich pre-populated data. Full workflows from start to finish. Polished for external audiences." },
+  { id: "test",      icon: "🧪", label: "TEST MODE",              category: "core",       status: "active", description: "Isolated sandbox using synthetic data. Full coherent experience. All endpoints return valid responses." },
+  { id: "app",       icon: "📱", label: "APP MODE",               category: "experience", status: "active", description: "Simulated mobile/tablet experience with onboarding, dashboards, tools, and complete end-to-end workflows." },
+  { id: "website",   icon: "🌐", label: "WEBSITE MODE",           category: "experience", status: "active", description: "Simulated website experience: homepage, features page, demo, pricing, and complete user acquisition journey." },
+  { id: "walkthrough",icon:"🚶", label: "WALKTHROUGH MODE",       category: "experience", status: "active", description: "Guided step-by-step narrative showing the entire user experience from entry to objective completion." },
+  { id: "software",  icon: "🖥️", label: "SOFTWARE TOOL MODE",     category: "tool",       status: "active", description: "Complete conceptual interface showing all tools, controls, settings, and functionality. No dead buttons." },
+  { id: "automation",icon: "⚙️", label: "AUTOMATION MODE",        category: "tool",       status: "active", description: "Full conceptual automations, workflows, triggers, conditions, and system logic displayed end-to-end." },
+  { id: "dashboard", icon: "📊", label: "DASHBOARD MODE",         category: "tool",       status: "active", description: "Conceptual analytics, KPIs, monitoring panels, health indicators, and operational controls fully populated." },
+  { id: "api",       icon: "🔌", label: "API / INTEGRATION MODE", category: "tool",       status: "active", description: "Conceptual integrations with external tools and services. All endpoints, payloads, and responses shown." },
+  { id: "overview",  icon: "📋", label: "OVERVIEW MODE",          category: "doc",        status: "active", description: "System purpose, structure, and capabilities explained with full context and no gaps." },
+  { id: "feature",   icon: "✨", label: "FEATURE MODE",           category: "doc",        status: "active", description: "Every feature broken down in detail with use case, workflow, and output described completely." },
+  { id: "workflow",  icon: "🔄", label: "WORKFLOW MODE",          category: "doc",        status: "active", description: "Every task flow shown from input to output, with all steps, branches, and decision points mapped." },
+  { id: "operations",icon: "🏗️", label: "OPERATIONS MODE",        category: "doc",        status: "active", description: "Architecture, integrations, automation logic, and operational processes explained completely." },
+  { id: "e2e",       icon: "🎯", label: "END-TO-END SYSTEM MODE", category: "e2e",        status: "active", description: "Full lifecycle: user enters → performs task → system processes → generates output → objective complete. No skipped steps." },
+];
+
+const MODE_CATEGORIES: { id: SystemMode["category"]; label: string; color: string; bg: string }[] = [
+  { id: "core",       label: "Core Operation Modes",    color: "#1a7a3a", bg: "#e6f9ec" },
+  { id: "experience", label: "Experience Modes",        color: "#007AFF", bg: "#f0f7ff" },
+  { id: "tool",       label: "Tool & Software Modes",   color: "#8a00d4", bg: "#f5f0ff" },
+  { id: "doc",        label: "Documentation Modes",     color: "#c67000", bg: "#fff8e6" },
+  { id: "e2e",        label: "End-to-End System Mode",  color: "#c0006e", bg: "#fff0f5" },
+];
+
 const REVENUE_SHARES: RevenueShareRecord[] = [
   { id: "rs1", user: "Sara Stadler",      role: "Platform Owner",     project: "All Projects",               totalRevenue: "$3.38M", share: 25, earned: "$845K",  nextPayout: "Apr 1"  },
   { id: "rs2", user: "Dr. Karen Walsh",   role: "Healthcare Client",  project: "Global Healthcare Platform", totalRevenue: "$3.1M",  share: 25, earned: "$775K",  nextPayout: "Apr 1"  },
@@ -4321,7 +4352,7 @@ const DEMO_PREVIEWS: Record<string, DemoPreview> = {
 // ─── Platform OS View ─────────────────────────────────────────────────────────
 
 function PlatformOSView() {
-  type PlatTab = "status" | "projects" | "revenue" | "invites" | "autorun";
+  type PlatTab = "status" | "projects" | "revenue" | "invites" | "autorun" | "modes";
 
   const [tab, setTab]                   = useState<PlatTab>("status");
   const [autopilot, setAutopilot]       = useState(true);
@@ -4351,6 +4382,7 @@ function PlatformOSView() {
     { id: "revenue",  label: "💰 Revenue"   },
     { id: "invites",  label: "📬 Invites"   },
     { id: "autorun",  label: "🤖 Auto-Run"  },
+    { id: "modes",    label: "📡 Modes"     },
   ];
 
   function runAudit() {
@@ -4481,12 +4513,14 @@ function PlatformOSView() {
           {/* Summary strip */}
           <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fill, minmax(140px,1fr))", gap: 10, marginBottom: 16 }}>
             {[
-              { label: "Live Projects",    value: `${liveProjects}`,     color: "#34C759", bg: "#e6f9ec" },
-              { label: "Platform Revenue", value: totalRevenue,          color: "#007AFF", bg: "#f0f7ff" },
-              { label: "Revenue Shared",   value: totalEarned,           color: "#34C759", bg: "#e6f9ec" },
-              { label: "AI Personas",      value: "2 Active",            color: "#BF5AF2", bg: "#f5f0ff" },
-              { label: "Audit Cycles",     value: `${auditLog.length}`,  color: "#FF9F0A", bg: "#fff8e6" },
-              { label: "Self-Heals",       value: "14 total",            color: "#34C759", bg: "#e6f9ec" },
+              { label: "Live Projects",    value: `${liveProjects}`,                         color: "#34C759", bg: "#e6f9ec" },
+              { label: "Platform Revenue", value: totalRevenue,                              color: "#007AFF", bg: "#f0f7ff" },
+              { label: "Revenue Shared",   value: totalEarned,                               color: "#34C759", bg: "#e6f9ec" },
+              { label: "AI Personas",      value: `${projects.length} Active`,               color: "#BF5AF2", bg: "#f5f0ff" },
+              { label: "Modes / Project",  value: `${SYSTEM_MODES.length}`,                  color: "#c0006e", bg: "#fff0f5" },
+              { label: "Mode Instances",   value: `${SYSTEM_MODES.length * projects.length}`,color: "#8a00d4", bg: "#f5f0ff" },
+              { label: "Audit Cycles",     value: `${auditLog.length}`,                      color: "#FF9F0A", bg: "#fff8e6" },
+              { label: "Self-Heals",       value: "14 total",                                color: "#34C759", bg: "#e6f9ec" },
             ].map(k => (
               <div key={k.label} style={{ background: k.bg, borderRadius: 12, padding: "10px 14px" }}>
                 <div style={{ fontSize: 20, fontWeight: 800, color: k.color }}>{k.value}</div>
@@ -4608,6 +4642,7 @@ function PlatformOSView() {
                       <span style={{ background: "#f0f7ff", color: "#007AFF", borderRadius: 5, padding: "1px 7px", fontSize: 10, fontWeight: 700 }}>🎬 DEMO</span>
                       <span style={{ background: "#fff8e6", color: "#c67000", borderRadius: 5, padding: "1px 7px", fontSize: 10, fontWeight: 700 }}>🧪 TEST</span>
                       <span style={{ background: "#f5f0ff", color: "#8a00d4", borderRadius: 5, padding: "1px 7px", fontSize: 10, fontWeight: 700 }}>🤖 {proj.persona}</span>
+                      <span style={{ background: "#fff0f5", color: "#c0006e", borderRadius: 5, padding: "1px 7px", fontSize: 10, fontWeight: 700 }}>📡 {SYSTEM_MODES.length} Modes</span>
                       <button onClick={() => generateShareLink(proj.id, proj.name)}
                         style={{ background: linked ? "#e6f9ec" : "#f0f7ff", color: linked ? "#1a7a3a" : "#007AFF", border: `1px solid ${linked ? "#b8eccc" : "#c8e0ff"}`, borderRadius: 7, padding: "3px 10px", cursor: "pointer", fontSize: 10, fontWeight: 700 }}>
                         {linked ? "✅ Copied" : "🔗 Share"}
@@ -4666,8 +4701,22 @@ function PlatformOSView() {
                           <div><span style={{ fontWeight: 700, color: "#333" }}>{row.label}: </span><span style={{ color: "#555" }}>{row.text}</span></div>
                         </div>
                       ))}
+                      {/* All modes strip */}
+                      <div style={{ marginTop: 10, paddingTop: 10, borderTop: "1px solid #e0ecff" }}>
+                        <div style={{ fontSize: 11, fontWeight: 700, color: "#333", marginBottom: 5 }}>📡 {SYSTEM_MODES.length} Modes Active — All Inherited:</div>
+                        <div style={{ display: "flex", flexWrap: "wrap", gap: 4 }}>
+                          {SYSTEM_MODES.map(m => {
+                            const catStyle = MODE_CATEGORIES.find(c => c.id === m.category);
+                            return (
+                              <span key={m.id} style={{ background: catStyle?.bg ?? "#f0f0f5", color: catStyle?.color ?? "#555", borderRadius: 5, padding: "2px 7px", fontSize: 9, fontWeight: 700 }}>
+                                {m.icon} {m.label}
+                              </span>
+                            );
+                          })}
+                        </div>
+                      </div>
                       <div style={{ marginTop: 8, fontSize: 11, color: "#007AFF", fontWeight: 700, textAlign: "center" }}>
-                        ✅ All 12 core features active · 25% revenue share registered · AI Persona online · Autopilot running
+                        ✅ All 12 core features active · 25% revenue share registered · AI Persona online · Autopilot running · {SYSTEM_MODES.length} modes inherited
                       </div>
                     </div>
                   )}
@@ -4833,6 +4882,101 @@ function PlatformOSView() {
 
           <div style={{ background: "linear-gradient(135deg, #e6f9ec 0%, #f0f7ff 100%)", border: "1px solid #b8e0cc", borderRadius: 12, padding: "12px 16px", fontSize: 13, color: "#1a7a3a", fontWeight: 600 }}>
             ⚡ Platform OS is live and self-sustaining. Every current project is verified, optimized, and maintained. Every future project will inherit full capabilities automatically the moment it is created.
+          </div>
+          {/* Mode inheritance in Auto-Run */}
+          <h5 style={{ margin: "14px 0 8px", fontSize: 13, fontWeight: 700 }}>📡 Mode Inheritance Engine — Active on All {projects.length} Projects</h5>
+          <div style={{ display: "flex", flexWrap: "wrap", gap: 6 }}>
+            {SYSTEM_MODES.map(m => {
+              const cat = MODE_CATEGORIES.find(c => c.id === m.category);
+              return (
+                <span key={m.id} style={{ background: cat?.bg ?? "#f0f0f5", color: cat?.color ?? "#555", borderRadius: 6, padding: "3px 10px", fontSize: 11, fontWeight: 700 }}>
+                  {m.icon} {m.label}
+                </span>
+              );
+            })}
+          </div>
+          <div style={{ marginTop: 8, fontSize: 12, color: "#555" }}>
+            {SYSTEM_MODES.length} modes × {projects.length} projects = <strong>{SYSTEM_MODES.length * projects.length} active mode instances</strong> · all inherited automatically · no placeholders · no empty states · no exceptions.
+          </div>
+        </div>
+      )}
+
+      {/* ── Modes ── */}
+      {tab === "modes" && (
+        <div>
+          <h4 style={{ margin: "0 0 4px", fontSize: 15, fontWeight: 700 }}>📡 Unrestricted Multi-Mode System</h4>
+          <p style={{ margin: "0 0 4px", color: "#555", fontSize: 13 }}>Every project in this platform automatically inherits all {SYSTEM_MODES.length} operation modes. No placeholders. No empty states. No partial features. No exceptions.</p>
+          <div style={{ display: "flex", gap: 8, flexWrap: "wrap", marginBottom: 14 }}>
+            <span style={{ background: "#e6f9ec", color: "#1a7a3a", borderRadius: 8, padding: "4px 12px", fontSize: 12, fontWeight: 700 }}>✅ {SYSTEM_MODES.length} Modes Active</span>
+            <span style={{ background: "#f0f7ff", color: "#007AFF", borderRadius: 8, padding: "4px 12px", fontSize: 12, fontWeight: 700 }}>🏗 {projects.length} Projects Enrolled</span>
+            <span style={{ background: "#f5f0ff", color: "#8a00d4", borderRadius: 8, padding: "4px 12px", fontSize: 12, fontWeight: 700 }}>⚡ {SYSTEM_MODES.length * projects.length} Mode Instances Running</span>
+            <span style={{ background: "#fff0f5", color: "#c0006e", borderRadius: 8, padding: "4px 12px", fontSize: 12, fontWeight: 700 }}>🔄 Auto-inherited on every new project</span>
+          </div>
+
+          {MODE_CATEGORIES.map(cat => {
+            const modesInCat = SYSTEM_MODES.filter(m => m.category === cat.id);
+            return (
+              <div key={cat.id} style={{ marginBottom: 16 }}>
+                <h5 style={{ margin: "0 0 8px", fontSize: 13, fontWeight: 700, color: cat.color }}>{cat.label}</h5>
+                <div style={{ display: "flex", flexDirection: "column", gap: 6 }}>
+                  {modesInCat.map(mode => (
+                    <div key={mode.id} style={{ display: "flex", gap: 12, background: "#fafafa", border: `1px solid ${cat.bg === "#f0f0f5" ? "#e5e5ea" : cat.bg}`, borderRadius: 10, padding: "10px 14px", alignItems: "flex-start" }}>
+                      <span style={{ fontSize: 18, flexShrink: 0, marginTop: 1 }}>{mode.icon}</span>
+                      <div style={{ flex: 1 }}>
+                        <div style={{ fontWeight: 700, fontSize: 12, color: cat.color, marginBottom: 2 }}>{mode.label}</div>
+                        <div style={{ fontSize: 12, color: "#555", lineHeight: 1.5 }}>{mode.description}</div>
+                      </div>
+                      <span style={{ background: cat.bg, color: cat.color, borderRadius: 5, padding: "2px 8px", fontSize: 10, fontWeight: 700, whiteSpace: "nowrap", flexShrink: 0 }}>✅ ALL {projects.length}</span>
+                    </div>
+                  ))}
+                </div>
+              </div>
+            );
+          })}
+
+          {/* Global rules */}
+          <div style={{ background: "#fafafa", border: "1px solid #e5e5ea", borderRadius: 12, padding: "14px 16px", marginBottom: 14 }}>
+            <h5 style={{ margin: "0 0 10px", fontSize: 13, fontWeight: 700 }}>📋 Global Rules — Active on All Projects</h5>
+            {[
+              { rule: "Every project MUST automatically generate every applicable mode.", status: "✅ Enforced" },
+              { rule: "No output may skip required modes.", status: "✅ Enforced" },
+              { rule: "All outputs must behave as fully operational, complete systems.", status: "✅ Enforced" },
+              { rule: "All outputs must be polished, coherent, and end-to-end.", status: "✅ Enforced" },
+              { rule: "No placeholders. No empty states. No partial features. No 'coming soon'. No stubs. No gaps.", status: "✅ Enforced" },
+              { rule: "All new projects inherit all modes instantly on creation.", status: "✅ Enforced" },
+              { rule: "All outputs are conceptual and for visualization, planning, and communication only.", status: "✅ Acknowledged" },
+            ].map(item => (
+              <div key={item.rule} style={{ display: "flex", justifyContent: "space-between", alignItems: "flex-start", gap: 10, marginBottom: 6, fontSize: 12 }}>
+                <span style={{ color: "#333", flex: 1, lineHeight: 1.5 }}>{item.rule}</span>
+                <span style={{ background: "#e6f9ec", color: "#1a7a3a", borderRadius: 5, padding: "1px 8px", fontWeight: 700, whiteSpace: "nowrap", flexShrink: 0, fontSize: 11 }}>{item.status}</span>
+              </div>
+            ))}
+          </div>
+
+          {/* Per-project enrollment grid */}
+          <h5 style={{ margin: "0 0 8px", fontSize: 13, fontWeight: 700 }}>🏗 Project Enrollment — {SYSTEM_MODES.length} Modes per Project</h5>
+          <div style={{ display: "flex", flexDirection: "column", gap: 6 }}>
+            {projects.map(proj => (
+              <div key={proj.id} style={{ display: "flex", justifyContent: "space-between", alignItems: "center", background: "#fafafa", border: "1px solid #e5e5ea", borderRadius: 10, padding: "8px 14px", flexWrap: "wrap", gap: 6 }}>
+                <div style={{ display: "flex", gap: 8, alignItems: "center" }}>
+                  <span style={{ fontSize: 16 }}>{proj.icon}</span>
+                  <div>
+                    <div style={{ fontWeight: 700, fontSize: 12 }}>{proj.name}</div>
+                    <div style={{ fontSize: 11, color: "#777" }}>{proj.industry}</div>
+                  </div>
+                </div>
+                <div style={{ display: "flex", gap: 4, flexWrap: "wrap" }}>
+                  {SYSTEM_MODES.map(m => (
+                    <span key={m.id} style={{ background: "#e6f9ec", color: "#1a7a3a", borderRadius: 4, padding: "1px 5px", fontSize: 9, fontWeight: 700 }}>{m.icon}</span>
+                  ))}
+                  <span style={{ background: "#f0f7ff", color: "#007AFF", borderRadius: 4, padding: "1px 6px", fontSize: 9, fontWeight: 700 }}>+{SYSTEM_MODES.length} modes</span>
+                </div>
+              </div>
+            ))}
+          </div>
+
+          <div style={{ background: "linear-gradient(135deg, #e6f9ec 0%, #f0f7ff 100%)", border: "1px solid #b8e0cc", borderRadius: 12, padding: "12px 16px", marginTop: 14, fontSize: 13, color: "#1a7a3a", fontWeight: 600 }}>
+            📡 Unrestricted Multi-Mode System Directive is active. All {SYSTEM_MODES.length * projects.length} mode instances are live across {projects.length} projects. Every future project will inherit all {SYSTEM_MODES.length} modes the moment it is created. No exceptions.
           </div>
         </div>
       )}
