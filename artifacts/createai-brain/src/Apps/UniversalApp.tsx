@@ -3061,7 +3061,7 @@ function ArchitectureScreen() {
     },
     {
       category: "Interactive",  icon: "⚡", color: "orange",
-      modules: ["InstantActionInterface", "AI Concierge Guided Walkthrough", "Multi-Sensory Live Demo", "Visual/UX Schematic Walkthrough"],
+      modules: ["InstantActionInterface", "AI Concierge Guided Walkthrough", "Multi-Sensory Live Demo", "Visual/UX Schematic Walkthrough", "Live Invite Popup Interface"],
       desc: "One-click execution interface, guided walkthrough, and multi-sensory live demo layer — the floating ⚡ button launches any engine instantly; the AI Concierge provides a guided tour; Multi-Sensory Live Demo presents platform outputs across text, visual, and audio conceptual channels.",
     },
     {
@@ -3113,6 +3113,12 @@ function ArchitectureScreen() {
   ];
 
   const PIPELINE = [
+    { step: "Command Parsing",      icon: "🗣️", desc: "Invite-specific command parsed — 'create invites', 'send invitation', or IAI tap detected. Recipient scope determined." },
+    { step: "Recipient Fetching",   icon: "👥", desc: "Pre-stored mock contacts loaded and filtered. 12 fictional contacts across Email, SMS, and Platform channels." },
+    { step: "Message Generation",   icon: "✍️", desc: "Auto-generated invite message composed for selected recipient set. Editable before submission." },
+    { step: "Pop-Up Interface",     icon: "📨", desc: "Invite Generator popup rendered — draggable, with recipient toggles, editable message, live preview chips, and Send button." },
+    { step: "Submit Execution",     icon: "🚀", desc: "Send clicked — invite record logged to localStorage, action dispatched to platform action log. Demo-only, no real messages sent." },
+    { step: "Post-Send Automation", icon: "📊", desc: "Conceptual: follow-up tracking, engagement logging, and recursive self-improvement signals queued. Non-operational." },
     { step: "Request",             icon: "💬", desc: "User input received and parsed by the Intent Engine." },
     { step: "Planning",            icon: "📋", desc: "Request broken into sequenced tasks with engine selection." },
     { step: "Engine Selection",    icon: "🧠", desc: "Correct core engine(s) identified and activated for the request type." },
@@ -3150,6 +3156,7 @@ function ArchitectureScreen() {
     { name: "AI Concierge Guided Walkthrough", icon: "🧭", desc: "Guided interactive walkthrough of the full platform — steps through every engine, screen, and capability in sequence. Conceptual interface layer." },
     { name: "Multi-Sensory Live Demo",         icon: "🎯", desc: "Conceptual live demo mode: outputs presented across text, visual structure, and audio description simultaneously for maximum impact." },
     { name: "Visual Schematic Display",        icon: "🖼️", desc: "Conceptual UX schematic layer — generates screen flow diagrams, wireframe descriptions, and visual architecture maps for any generated project." },
+    { name: "Live Invite Popup Interface",      icon: "📨", desc: "Fully functional draggable invite popup — 12 pre-stored mock contacts, AI-generated editable message, recipient toggles, send simulation, and action logging." },
   ];
 
   const GOVERNANCE = [
