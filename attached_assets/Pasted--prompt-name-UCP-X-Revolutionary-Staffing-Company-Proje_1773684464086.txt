@@ -1,0 +1,21 @@
+{
+  "prompt_name": "UCP-X Revolutionary Staffing Company Project",
+  "description": "Instantly generates a fully functional staffing company project for demonstration. Includes all workflows, dashboards, candidate/client management, marketing campaigns, automation, ROI tracking, and self-improving intelligence. Designed to impress even the most experienced staffing professionals. Fully deployable with one click, minimal tokens, fully user-friendly.",
+  "features": [
+    "Candidate & client management system: automated profiles, skill matching, scheduling, and communication",
+    "Job posting & application workflow: auto-publish positions, screen candidates, rank by fit",
+    "Client relationship management: tracks engagement, contracts, needs, and ROI automatically",
+    "Marketing & outreach automation: personalized emails, social media campaigns, and lead generation instantly",
+    "Dynamic dashboards: live analytics on placements, revenue, client engagement, and staffing efficiency",
+    "Automated workflow optimization: AI learns from performance to improve candidate placement and operational efficiency",
+    "Self-improving intelligence: updates workflows, improves candidate matching, and refines marketing campaigns automatically",
+    "Scalable & deployable: supports unlimited clients, candidates, and job positions without manual work",
+    "Integration-ready: connects to email, payroll, scheduling, HR systems, and external APIs seamlessly",
+    "One-Click Live Demo: instantly generates a full staffing operation for live, interactive demonstration",
+    "Click-to-review/delete/recreate workflow: test different staffing strategies instantly",
+    "Legal & compliance automation: ensures all candidate, payroll, and employment processes are fully compliant",
+    "Future-proof: automatically integrates new tools, systems, and technologies as they become available",
+    "User-friendly interface: self-explanatory dashboards, simple controls, and intuitive navigation for any skill level"
+  ],
+  "usage": "Deploy in Replit AI agent to instantly generate a fully functional staffing company project. All dashboards, workflows, marketing, candidate/client management, analytics, and demo environments are live and interactive. Perfect to demonstrate to experienced staffing professionals, showing automated intelligence, predictive analytics, revenue tracking, and operational efficiency instantly. Fully functional, legal, compliant, and user-friendly across all scales and industries."
+}

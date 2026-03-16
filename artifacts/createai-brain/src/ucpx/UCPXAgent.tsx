@@ -4294,10 +4294,367 @@ function DeployPackageView() {
   );
 }
 
+// ─── Live Demo View ──────────────────────────────────────────────────────
+
+const DEMO_PROJECTS = [
+  { id: "saas",   name: "SaaS Revenue Engine",    industry: "Tech / SaaS",       status: "live",     roi: 340, users: 1240, workflows: 18, integrations: 12 },
+  { id: "health", name: "Healthcare Patient Hub",  industry: "Healthcare",        status: "live",     roi: 290, users: 870,  workflows: 24, integrations: 9  },
+  { id: "mil",    name: "Military Ops Command",    industry: "Defense",           status: "staging",  roi: 510, users: 420,  workflows: 31, integrations: 7  },
+  { id: "retail", name: "Retail Growth Suite",     industry: "Retail / E-com",    status: "live",     roi: 260, users: 3400, workflows: 14, integrations: 15 },
+  { id: "edu",    name: "Education AI Tutor",      industry: "Education",         status: "live",     roi: 210, users: 5800, workflows: 11, integrations: 6  },
+  { id: "fin",    name: "FinTech Compliance AI",   industry: "Financial Services", status: "staging", roi: 420, users: 650,  workflows: 22, integrations: 11 },
+];
+
+const DEMO_PHASES = [
+  { id: "workflows",    icon: "⚙️",  label: "Workflows",        detail: "18 autonomous workflows activated — billing, onboarding, reporting, support all running" },
+  { id: "dashboard",   icon: "📊",  label: "Dashboard",         detail: "Live analytics dashboard deployed — real-time revenue, churn, and engagement metrics" },
+  { id: "integrations",icon: "🔌",  label: "Integrations",      detail: "12 integrations auto-connected — Stripe, HubSpot, Slack, GitHub, Salesforce and more" },
+  { id: "marketing",   icon: "📣",  label: "Marketing",         detail: "Campaign deployed — 3 email sequences, 2 ad sets, social posts and landing page live" },
+  { id: "emails",      icon: "✉️",  label: "Pre-loaded Emails", detail: "9 personalized emails queued and ready — intro, demo invite, follow-up, proposal, close" },
+  { id: "pdf",         icon: "📄",  label: "PDF Package",        detail: "7-page professional package generated — ROI summary, case study, pricing, compliance cert" },
+  { id: "brain",       icon: "🧠",  label: "Brain Intelligence", detail: "Mini-Brain deployed — continuously monitoring KPIs, predicting churn, auto-suggesting actions" },
+];
+
+const OVERSIGHT_PROJECTS = [
+  { name: "SaaS Revenue Engine",   score: 98, issues: 0, lastCheck: "2s ago",   uptime: "99.98%", compliance: "✅ Full", alerts: [] },
+  { name: "Healthcare Patient Hub", score: 97, issues: 1, lastCheck: "5s ago",  uptime: "99.95%", compliance: "✅ Full", alerts: ["HIPAA cert renewal in 90 days"] },
+  { name: "Military Ops Command",  score: 99, issues: 0, lastCheck: "1s ago",   uptime: "100%",   compliance: "✅ Full", alerts: [] },
+  { name: "Retail Growth Suite",   score: 95, issues: 2, lastCheck: "8s ago",   uptime: "99.87%", compliance: "✅ Full", alerts: ["CDN latency +12ms", "Cart abandonment up 3%"] },
+  { name: "Education AI Tutor",    score: 96, issues: 1, lastCheck: "4s ago",   uptime: "99.91%", compliance: "✅ Full", alerts: ["Student session anomaly detected — resolved"] },
+  { name: "FinTech Compliance AI", score: 100, issues: 0, lastCheck: "3s ago",  uptime: "100%",   compliance: "✅ Full", alerts: [] },
+];
+
+const SECURITY_POLICIES = [
+  { name: "Data Encryption",      standard: "AES-256 + TLS 1.3", scope: "All data at rest and in transit", status: "enforced", lastAudit: "Today 09:14",  coverage: 100 },
+  { name: "Identity & Access",    standard: "OAuth 2.0 + MFA",   scope: "All users, APIs, and services",   status: "enforced", lastAudit: "Today 09:14",  coverage: 100 },
+  { name: "Global Compliance",    standard: "GDPR · HIPAA · SOC 2 · ISO 27001", scope: "All projects and jurisdictions", status: "enforced", lastAudit: "Today 09:14", coverage: 100 },
+  { name: "Threat Detection",     standard: "AI-powered SIEM",   scope: "Real-time across all environments", status: "active",   lastAudit: "2m ago",      coverage: 100 },
+  { name: "Privacy Controls",     standard: "CCPA · PIPEDA · LGPD", scope: "All user data and communications", status: "enforced", lastAudit: "Today 09:14", coverage: 100 },
+  { name: "Audit Trail",          standard: "Immutable log ledger", scope: "Every action, workflow, deployment", status: "active", lastAudit: "Live",        coverage: 100 },
+];
+
+const SELF_DOCS: { time: string; category: string; action: string; detail: string; by: string }[] = [
+  { time: "09:47:32", category: "Deployment",  action: "Project deployed",        detail: "SaaS Revenue Engine v3.2 deployed to production — all 18 workflows live", by: "Brain / Auto" },
+  { time: "09:46:18", category: "Integration", action: "Stripe auto-connected",   detail: "Stripe integration verified — webhooks configured, test transactions passed", by: "FORGE Agent" },
+  { time: "09:45:55", category: "Security",    action: "Security scan complete",  detail: "Full security audit passed — 0 vulnerabilities, all 6 policies enforced",    by: "SENTINEL" },
+  { time: "09:45:01", category: "Marketing",   action: "Campaign launched",       detail: "3-sequence email campaign deployed — 1,240 recipients queued",               by: "PULSE Agent" },
+  { time: "09:44:30", category: "Compliance",  action: "HIPAA cert renewed",      detail: "Healthcare Hub HIPAA compliance certificate renewed — valid 12 months",      by: "ORACLE Agent" },
+  { time: "09:44:00", category: "Invention",   action: "New workflow invented",   detail: "Brain detected revenue gap → auto-generated upsell trigger workflow",         by: "NEXUS Agent" },
+  { time: "09:43:15", category: "Optimization","action": "Performance tuned",     detail: "Dashboard load time reduced 34% — bundle optimized, CDN rules updated",       by: "VECTOR Agent" },
+  { time: "09:42:58", category: "Report",      action: "PDF package created",     detail: "7-page executive package auto-generated and delivered to 6 recipients",       by: "Brain / Auto" },
+];
+
+const PRELOADED_EMAILS: { id: string; subject: string; type: string; recipient: string; preview: string; sent: boolean; opens: number }[] = [
+  { id: "e1", subject: "Your [Project] is live — here's what it can do for you",  type: "Intro",         recipient: "All leads",          preview: "Your AI-powered platform is ready. Here's a live demo link, your ROI projections, and a 1-click onboarding...", sent: true,  opens: 312 },
+  { id: "e2", subject: "🎯 Live demo inside — see your ROI in 90 seconds",         type: "Demo Invite",   recipient: "Warm prospects",      preview: "We've pre-built a personalized demo for your industry. One click launches your full platform, live...",         sent: true,  opens: 187 },
+  { id: "e3", subject: "Re: Your [Project] — smart follow-up based on your opens", type: "Follow-up",     recipient: "Openers (187)",       preview: "You opened our last email but didn't book a call. Here are the 3 most common questions we answer...",             sent: false, opens: 0   },
+  { id: "e4", subject: "Full proposal + pricing — tailored for [Company]",         type: "Proposal",      recipient: "Sales-qualified",     preview: "Based on your usage patterns, here's a tailored proposal including ROI timeline, implementation plan, and...",   sent: false, opens: 0   },
+  { id: "e5", subject: "Military-grade compliance package — ready for your review", type: "Compliance",   recipient: "Enterprise / Gov",    preview: "Attached: HIPAA cert, SOC 2 report, FISMA authorization, and our full security audit results for your team...",  sent: true,  opens: 44  },
+  { id: "e6", subject: "Your Brain found a $47K revenue gap — here's how to fix it", type: "Insight",     recipient: "Active customers",    preview: "Our AI continuously monitors your metrics. This week, it found a missed upsell pattern worth $47,240/mo...",      sent: false, opens: 0   },
+];
+
+function LiveDemoView() {
+  const [tab, setTab] = useState<"demo" | "oversight" | "security" | "docs" | "emails">("demo");
+  const [selectedProject, setSelectedProject] = useState<string>("saas");
+  const [demoPhase, setDemoPhase] = useState<number>(-1);
+  const [demoBusy, setDemoBusy] = useState(false);
+  const [demoComplete, setDemoComplete] = useState(false);
+  const [projectStates, setProjectStates] = useState<Record<string, "idle" | "reviewing" | "deploying" | "deployed" | "deleted">>({});
+  const [emailStates, setEmailStates] = useState<Record<string, "idle" | "sending" | "sent">>({});
+
+  const project = DEMO_PROJECTS.find(p => p.id === selectedProject) ?? DEMO_PROJECTS[0];
+
+  function launchDemo() {
+    setDemoPhase(-1);
+    setDemoComplete(false);
+    setDemoBusy(true);
+    DEMO_PHASES.forEach((_, i) => {
+      setTimeout(() => {
+        setDemoPhase(i);
+        if (i === DEMO_PHASES.length - 1) {
+          setTimeout(() => { setDemoBusy(false); setDemoComplete(true); }, 600);
+        }
+      }, i * 900);
+    });
+  }
+
+  function setProj(id: string, state: "idle" | "reviewing" | "deploying" | "deployed" | "deleted") {
+    setProjectStates(p => ({ ...p, [id]: state }));
+  }
+
+  function sendEmail(id: string) {
+    setEmailStates(p => ({ ...p, [id]: "sending" }));
+    setTimeout(() => setEmailStates(p => ({ ...p, [id]: "sent" })), 1400);
+  }
+
+  const tabs: { id: "demo" | "oversight" | "security" | "docs" | "emails"; label: string }[] = [
+    { id: "demo",      label: "🎯 One-Click Demo"    },
+    { id: "oversight", label: "🔭 AI Oversight"      },
+    { id: "security",  label: "🔐 Security & Privacy" },
+    { id: "docs",      label: "📋 Self-Docs"          },
+    { id: "emails",    label: "✉️ Pre-loaded Emails"  },
+  ];
+
+  return (
+    <div style={{ padding: 16 }}>
+      <div style={{ marginBottom: 12, display: "flex", gap: 6, flexWrap: "wrap" }}>
+        {tabs.map(t => (
+          <button key={t.id} onClick={() => setTab(t.id)}
+            style={{ padding: "6px 14px", borderRadius: 20, border: "none", cursor: "pointer", fontSize: 13, fontWeight: tab === t.id ? 700 : 400, background: tab === t.id ? "#007AFF" : "#f0f0f5", color: tab === t.id ? "#fff" : "#333" }}>
+            {t.label}
+          </button>
+        ))}
+      </div>
+
+      {/* ── One-Click Live Demo ── */}
+      {tab === "demo" && (
+        <div>
+          <h3 style={{ margin: "0 0 4px", fontSize: 17, fontWeight: 700 }}>One-Click Live Demo</h3>
+          <p style={{ margin: "0 0 16px", color: "#555", fontSize: 13 }}>Select any project, launch a complete live demo in seconds — all workflows, dashboards, integrations, emails, and PDFs deploy instantly.</p>
+
+          {/* Project picker */}
+          <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fill, minmax(270px, 1fr))", gap: 10, marginBottom: 16 }}>
+            {DEMO_PROJECTS.map(p => (
+              <div key={p.id} onClick={() => { setSelectedProject(p.id); setDemoPhase(-1); setDemoComplete(false); }}
+                style={{ border: `2px solid ${selectedProject === p.id ? "#007AFF" : "#e5e5ea"}`, borderRadius: 12, padding: "12px 14px", cursor: "pointer", background: selectedProject === p.id ? "#f0f7ff" : "#fafafa", transition: "border-color 0.2s" }}>
+                <div style={{ fontWeight: 700, fontSize: 14, marginBottom: 2 }}>{p.name}</div>
+                <div style={{ fontSize: 12, color: "#888", marginBottom: 8 }}>{p.industry}</div>
+                <div style={{ display: "flex", gap: 8, fontSize: 12, flexWrap: "wrap" }}>
+                  <span style={{ background: p.status === "live" ? "#e6f9ec" : "#fff3e0", color: p.status === "live" ? "#1a7a3a" : "#c66000", borderRadius: 6, padding: "2px 7px", fontWeight: 600 }}>{p.status.toUpperCase()}</span>
+                  <span style={{ background: "#f0f7ff", color: "#007AFF", borderRadius: 6, padding: "2px 7px" }}>ROI {p.roi}%</span>
+                  <span style={{ color: "#555" }}>{p.users.toLocaleString()} users</span>
+                </div>
+              </div>
+            ))}
+          </div>
+
+          {/* Launch button */}
+          <div style={{ display: "flex", alignItems: "center", gap: 12, marginBottom: 20 }}>
+            <button onClick={launchDemo} disabled={demoBusy}
+              style={{ background: demoBusy ? "#aaa" : "#007AFF", color: "#fff", border: "none", borderRadius: 10, padding: "12px 28px", fontWeight: 700, fontSize: 15, cursor: demoBusy ? "not-allowed" : "pointer" }}>
+              {demoBusy ? "Launching…" : demoComplete ? "🔄 Relaunch Demo" : "🚀 Launch Live Demo"}
+            </button>
+            {demoComplete && <span style={{ color: "#1a7a3a", fontWeight: 600, fontSize: 14 }}>✅ Demo live — all systems deployed</span>}
+          </div>
+
+          {/* Demo phases visualizer */}
+          {demoPhase >= 0 && (
+            <div style={{ background: "#0a0a0a", borderRadius: 14, padding: 20, marginBottom: 20 }}>
+              <div style={{ color: "#007AFF", fontSize: 13, fontWeight: 700, marginBottom: 12, letterSpacing: 1 }}>🧠 CREATEAI BRAIN — LIVE DEPLOY SEQUENCE · {project.name.toUpperCase()}</div>
+              {DEMO_PHASES.map((ph, i) => {
+                const done = i <= demoPhase;
+                const active = i === demoPhase;
+                return (
+                  <div key={ph.id} style={{ display: "flex", alignItems: "flex-start", gap: 12, marginBottom: 10, opacity: done ? 1 : 0.3, transition: "opacity 0.4s" }}>
+                    <div style={{ fontSize: 20, minWidth: 28, marginTop: 1 }}>{ph.icon}</div>
+                    <div style={{ flex: 1 }}>
+                      <div style={{ color: active ? "#FFD60A" : done ? "#30d158" : "#666", fontWeight: 700, fontSize: 13 }}>
+                        {active ? "⚡ " : done ? "✅ " : "○ "}{ph.label}
+                      </div>
+                      {done && <div style={{ color: "#aaa", fontSize: 12, marginTop: 2 }}>{ph.detail}</div>}
+                    </div>
+                    {done && <div style={{ color: "#30d158", fontSize: 11, whiteSpace: "nowrap" }}>LIVE</div>}
+                  </div>
+                );
+              })}
+              {demoComplete && (
+                <div style={{ marginTop: 16, borderTop: "1px solid #222", paddingTop: 14, display: "grid", gridTemplateColumns: "repeat(4, 1fr)", gap: 10 }}>
+                  {[
+                    { label: "ROI",         value: `+${project.roi}%`,                         color: "#30d158" },
+                    { label: "Active Users", value: project.users.toLocaleString(),              color: "#007AFF" },
+                    { label: "Workflows",   value: `${project.workflows} running`,               color: "#FFD60A" },
+                    { label: "Integrations",value: `${project.integrations} connected`,          color: "#FF9F0A" },
+                  ].map(m => (
+                    <div key={m.label} style={{ background: "#161616", borderRadius: 10, padding: "10px 12px", textAlign: "center" }}>
+                      <div style={{ color: m.color, fontWeight: 700, fontSize: 20 }}>{m.value}</div>
+                      <div style={{ color: "#888", fontSize: 11, marginTop: 2 }}>{m.label}</div>
+                    </div>
+                  ))}
+                </div>
+              )}
+            </div>
+          )}
+
+          {/* Click-to-Live project workflow */}
+          <h4 style={{ margin: "0 0 10px", fontSize: 15, fontWeight: 700 }}>Click-to-Live Workflow</h4>
+          <p style={{ margin: "0 0 12px", color: "#666", fontSize: 13 }}>Review, deploy, delete, or recreate any project with one click.</p>
+          <div style={{ display: "flex", flexDirection: "column", gap: 8 }}>
+            {DEMO_PROJECTS.map(p => {
+              const st = projectStates[p.id] ?? "idle";
+              return (
+                <div key={p.id} style={{ background: "#fafafa", border: "1px solid #e5e5ea", borderRadius: 10, padding: "10px 14px", display: "flex", alignItems: "center", justifyContent: "space-between", flexWrap: "wrap", gap: 8 }}>
+                  <div>
+                    <div style={{ fontWeight: 600, fontSize: 14 }}>{p.name}</div>
+                    <div style={{ fontSize: 12, color: "#888" }}>{p.industry} · {p.workflows} workflows · {p.integrations} integrations</div>
+                  </div>
+                  <div style={{ display: "flex", gap: 6 }}>
+                    {st === "idle" && <>
+                      <button onClick={() => setProj(p.id, "reviewing")} style={{ padding: "5px 12px", borderRadius: 8, border: "1px solid #007AFF", background: "#fff", color: "#007AFF", cursor: "pointer", fontSize: 12, fontWeight: 600 }}>Review</button>
+                      <button onClick={() => { setProj(p.id, "deploying"); setTimeout(() => setProj(p.id, "deployed"), 1200); }} style={{ padding: "5px 12px", borderRadius: 8, border: "none", background: "#007AFF", color: "#fff", cursor: "pointer", fontSize: 12, fontWeight: 600 }}>Deploy</button>
+                    </>}
+                    {st === "reviewing" && <>
+                      <span style={{ fontSize: 12, color: "#555", alignSelf: "center" }}>ROI {p.roi}% · {p.users.toLocaleString()} users</span>
+                      <button onClick={() => { setProj(p.id, "deploying"); setTimeout(() => setProj(p.id, "deployed"), 1200); }} style={{ padding: "5px 12px", borderRadius: 8, border: "none", background: "#30d158", color: "#fff", cursor: "pointer", fontSize: 12, fontWeight: 600 }}>✅ Deploy</button>
+                      <button onClick={() => setProj(p.id, "deleted")} style={{ padding: "5px 12px", borderRadius: 8, border: "none", background: "#ff3b30", color: "#fff", cursor: "pointer", fontSize: 12, fontWeight: 600 }}>Delete</button>
+                    </>}
+                    {st === "deploying" && <span style={{ fontSize: 13, color: "#007AFF", fontWeight: 600 }}>⚡ Deploying…</span>}
+                    {st === "deployed" && <>
+                      <span style={{ fontSize: 12, background: "#e6f9ec", color: "#1a7a3a", borderRadius: 8, padding: "4px 10px", fontWeight: 600 }}>✅ LIVE</span>
+                      <button onClick={() => setProj(p.id, "idle")} style={{ padding: "5px 10px", borderRadius: 8, border: "1px solid #aaa", background: "#fff", color: "#555", cursor: "pointer", fontSize: 12 }}>Reset</button>
+                    </>}
+                    {st === "deleted" && <>
+                      <span style={{ fontSize: 12, color: "#ff3b30", fontWeight: 600 }}>Deleted</span>
+                      <button onClick={() => { setProj(p.id, "deploying"); setTimeout(() => setProj(p.id, "deployed"), 1400); }} style={{ padding: "5px 12px", borderRadius: 8, border: "none", background: "#ff9f0a", color: "#fff", cursor: "pointer", fontSize: 12, fontWeight: 600 }}>Recreate</button>
+                    </>}
+                  </div>
+                </div>
+              );
+            })}
+          </div>
+        </div>
+      )}
+
+      {/* ── AI Oversight Layer ── */}
+      {tab === "oversight" && (
+        <div>
+          <h3 style={{ margin: "0 0 4px", fontSize: 17, fontWeight: 700 }}>AI Oversight Layer</h3>
+          <p style={{ margin: "0 0 16px", color: "#555", fontSize: 13 }}>Continuously monitoring all projects for performance, compliance, and operational integrity.</p>
+          <div style={{ display: "flex", flexDirection: "column", gap: 10 }}>
+            {OVERSIGHT_PROJECTS.map(p => (
+              <div key={p.name} style={{ background: "#fafafa", border: "1px solid #e5e5ea", borderRadius: 12, padding: "14px 16px" }}>
+                <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", flexWrap: "wrap", gap: 8, marginBottom: 8 }}>
+                  <div style={{ fontWeight: 700, fontSize: 14 }}>{p.name}</div>
+                  <div style={{ display: "flex", gap: 8, alignItems: "center" }}>
+                    <span style={{ fontSize: 12, color: "#888" }}>Last check: {p.lastCheck}</span>
+                    <span style={{ background: p.score >= 99 ? "#e6f9ec" : p.score >= 96 ? "#fff8e6" : "#fff0f0", color: p.score >= 99 ? "#1a7a3a" : p.score >= 96 ? "#c67000" : "#c00", borderRadius: 8, padding: "3px 10px", fontWeight: 700, fontSize: 13 }}>Score {p.score}/100</span>
+                  </div>
+                </div>
+                <div style={{ display: "grid", gridTemplateColumns: "repeat(4, 1fr)", gap: 8, marginBottom: p.alerts.length ? 10 : 0 }}>
+                  {[
+                    { label: "Uptime",     val: p.uptime,      color: "#1a7a3a" },
+                    { label: "Issues",     val: `${p.issues} open`, color: p.issues === 0 ? "#1a7a3a" : "#c67000" },
+                    { label: "Compliance", val: p.compliance,  color: "#1a7a3a" },
+                    { label: "AI Watch",   val: "Active",      color: "#007AFF" },
+                  ].map(m => (
+                    <div key={m.label} style={{ background: "#fff", border: "1px solid #eee", borderRadius: 8, padding: "6px 10px" }}>
+                      <div style={{ color: m.color, fontWeight: 700, fontSize: 13 }}>{m.val}</div>
+                      <div style={{ color: "#aaa", fontSize: 11 }}>{m.label}</div>
+                    </div>
+                  ))}
+                </div>
+                {p.alerts.length > 0 && p.alerts.map((a, i) => (
+                  <div key={i} style={{ background: "#fff8e6", borderRadius: 8, padding: "6px 10px", fontSize: 12, color: "#a05000", display: "flex", alignItems: "center", gap: 6, marginTop: 4 }}>
+                    <span>⚠️</span> {a}
+                  </div>
+                ))}
+              </div>
+            ))}
+          </div>
+        </div>
+      )}
+
+      {/* ── Security & Privacy ── */}
+      {tab === "security" && (
+        <div>
+          <h3 style={{ margin: "0 0 4px", fontSize: 17, fontWeight: 700 }}>Security & Privacy Enforcement</h3>
+          <p style={{ margin: "0 0 4px", color: "#555", fontSize: 13 }}>All data, communications, and operations are fully protected and globally compliant.</p>
+          <div style={{ background: "#e6f9ec", borderRadius: 10, padding: "8px 14px", marginBottom: 16, display: "inline-flex", gap: 8, alignItems: "center" }}>
+            <span style={{ fontWeight: 700, color: "#1a7a3a" }}>✅ ALL 6 POLICIES ENFORCED — 100% COVERAGE</span>
+          </div>
+          <div style={{ display: "flex", flexDirection: "column", gap: 10 }}>
+            {SECURITY_POLICIES.map(p => (
+              <div key={p.name} style={{ background: "#fafafa", border: "1px solid #e5e5ea", borderRadius: 12, padding: "14px 16px" }}>
+                <div style={{ display: "flex", justifyContent: "space-between", alignItems: "flex-start", flexWrap: "wrap", gap: 8, marginBottom: 6 }}>
+                  <div>
+                    <div style={{ fontWeight: 700, fontSize: 14 }}>{p.name}</div>
+                    <div style={{ fontSize: 12, color: "#555", marginTop: 2 }}>{p.standard}</div>
+                  </div>
+                  <div style={{ display: "flex", gap: 6, alignItems: "center" }}>
+                    <span style={{ background: "#e6f9ec", color: "#1a7a3a", borderRadius: 8, padding: "3px 10px", fontWeight: 700, fontSize: 12 }}>{p.status.toUpperCase()}</span>
+                    <span style={{ background: "#f0f7ff", color: "#007AFF", borderRadius: 8, padding: "3px 10px", fontWeight: 700, fontSize: 12 }}>{p.coverage}%</span>
+                  </div>
+                </div>
+                <div style={{ display: "flex", gap: 12, fontSize: 12, color: "#777" }}>
+                  <span>📍 {p.scope}</span>
+                  <span>🕐 Audited: {p.lastAudit}</span>
+                </div>
+              </div>
+            ))}
+          </div>
+        </div>
+      )}
+
+      {/* ── Self-Documentation ── */}
+      {tab === "docs" && (
+        <div>
+          <h3 style={{ margin: "0 0 4px", fontSize: 17, fontWeight: 700 }}>Self-Documentation Log</h3>
+          <p style={{ margin: "0 0 16px", color: "#555", fontSize: 13 }}>Every action, workflow, and deployment is automatically documented for audit, training, and regulatory review.</p>
+          <div style={{ background: "#0a0a0a", borderRadius: 14, padding: 16 }}>
+            <div style={{ color: "#007AFF", fontSize: 12, fontWeight: 700, marginBottom: 12, letterSpacing: 1 }}>📋 AUTO-GENERATED AUDIT LOG — TODAY</div>
+            <div style={{ display: "flex", flexDirection: "column", gap: 2 }}>
+              {SELF_DOCS.map((d, i) => (
+                <div key={i} style={{ display: "grid", gridTemplateColumns: "70px 100px 160px 1fr 80px", gap: 8, alignItems: "start", padding: "8px 0", borderBottom: "1px solid #1a1a1a", fontSize: 12 }}>
+                  <span style={{ color: "#555", fontFamily: "monospace" }}>{d.time}</span>
+                  <span style={{ color: d.category === "Security" ? "#30d158" : d.category === "Deployment" ? "#007AFF" : d.category === "Compliance" ? "#FFD60A" : d.category === "Invention" ? "#FF9F0A" : "#aaa", fontWeight: 600 }}>{d.category}</span>
+                  <span style={{ color: "#ddd", fontWeight: 600 }}>{d.action}</span>
+                  <span style={{ color: "#888" }}>{d.detail}</span>
+                  <span style={{ color: "#555", fontSize: 11 }}>{d.by}</span>
+                </div>
+              ))}
+            </div>
+            <div style={{ marginTop: 12, color: "#555", fontSize: 11, textAlign: "center" }}>Log auto-exports to PDF · Immutable ledger · Zero manual effort</div>
+          </div>
+        </div>
+      )}
+
+      {/* ── Pre-loaded Emails ── */}
+      {tab === "emails" && (
+        <div>
+          <h3 style={{ margin: "0 0 4px", fontSize: 17, fontWeight: 700 }}>Pre-Loaded Email Library</h3>
+          <p style={{ margin: "0 0 16px", color: "#555", fontSize: 13 }}>All projects ship with AI-personalized, ready-to-send emails. One click to deploy to unlimited recipients.</p>
+          <div style={{ display: "flex", flexDirection: "column", gap: 10 }}>
+            {PRELOADED_EMAILS.map(e => {
+              const st = emailStates[e.id];
+              const sent = st === "sent" || (e.sent && st === undefined);
+              return (
+                <div key={e.id} style={{ background: "#fafafa", border: `1px solid ${sent ? "#b8eccc" : "#e5e5ea"}`, borderRadius: 12, padding: "14px 16px" }}>
+                  <div style={{ display: "flex", justifyContent: "space-between", alignItems: "flex-start", flexWrap: "wrap", gap: 8, marginBottom: 6 }}>
+                    <div style={{ flex: 1 }}>
+                      <div style={{ fontWeight: 700, fontSize: 14, marginBottom: 2 }}>{e.subject}</div>
+                      <div style={{ display: "flex", gap: 6, marginBottom: 6 }}>
+                        <span style={{ background: "#f0f7ff", color: "#007AFF", borderRadius: 6, padding: "2px 8px", fontSize: 11, fontWeight: 600 }}>{e.type}</span>
+                        <span style={{ color: "#888", fontSize: 12 }}>→ {e.recipient}</span>
+                        {e.opens > 0 && <span style={{ color: "#1a7a3a", fontSize: 12 }}>📬 {e.opens} opens</span>}
+                      </div>
+                      <div style={{ color: "#777", fontSize: 12, fontStyle: "italic" }}>"{e.preview}"</div>
+                    </div>
+                    <div>
+                      {st === "sending" && <span style={{ color: "#007AFF", fontWeight: 600, fontSize: 13 }}>Sending…</span>}
+                      {sent && <span style={{ background: "#e6f9ec", color: "#1a7a3a", borderRadius: 8, padding: "5px 12px", fontWeight: 700, fontSize: 12 }}>✅ SENT</span>}
+                      {!sent && st !== "sending" && (
+                        <button onClick={() => sendEmail(e.id)} style={{ background: "#007AFF", color: "#fff", border: "none", borderRadius: 8, padding: "6px 16px", fontWeight: 700, fontSize: 13, cursor: "pointer" }}>
+                          Send Now
+                        </button>
+                      )}
+                    </div>
+                  </div>
+                </div>
+              );
+            })}
+          </div>
+          <div style={{ marginTop: 16, background: "#f0f7ff", borderRadius: 10, padding: "10px 14px", fontSize: 13, color: "#007AFF", fontWeight: 600 }}>
+            ✨ All emails are AI-personalized per recipient. Scale to unlimited contacts without losing personalization.
+          </div>
+        </div>
+      )}
+    </div>
+  );
+}
+
 // ─── Engines View ─────────────────────────────────────────────────────────
 
 function EnginesView({ onResult }: { onResult?: (m: InfiniteModule) => void }) {
-  const [section, setSection] = useState<"engines" | "workflow" | "interactive" | "marketing" | "revenue" | "teams" | "growth" | "tools" | "sim" | "hub" | "integration" | "industry" | "decide" | "master" | "ecosystem" | "ultimate" | "package">("engines");
+  const [section, setSection] = useState<"engines" | "workflow" | "interactive" | "marketing" | "revenue" | "teams" | "growth" | "tools" | "sim" | "hub" | "integration" | "industry" | "decide" | "master" | "ecosystem" | "ultimate" | "package" | "infinity">("engines");
 
   // Marketing state
   const [mktCtx,       setMktCtx]       = useState("");
@@ -4369,6 +4726,7 @@ function EnginesView({ onResult }: { onResult?: (m: InfiniteModule) => void }) {
     { id: "ecosystem"   as const, label: "∞ MAX"        },
     { id: "ultimate"    as const, label: "🏆 Ultimate"  },
     { id: "package"     as const, label: "📦 Package"   },
+    { id: "infinity"    as const, label: "🎯 Live Demo"  },
   ];
 
   function runMkt(ch: MktChannel) {
@@ -5576,6 +5934,7 @@ function EnginesView({ onResult }: { onResult?: (m: InfiniteModule) => void }) {
       {section === "ecosystem" && <InfiniteEcosystemView />}
       {section === "ultimate" && <UltimatePlatformView />}
       {section === "package"  && <DeployPackageView />}
+      {section === "infinity" && <LiveDemoView />}
     </div>
   );
 }
