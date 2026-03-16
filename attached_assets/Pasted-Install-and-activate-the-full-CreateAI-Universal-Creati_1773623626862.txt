@@ -1,0 +1,18 @@
+Install and activate the full CreateAI Universal Creation Platform.
+
+Requirements:
+- Define CreateAI as a universal, adaptive, multi-industry creation engine that can conceptually build, simulate, guide, and structure anything a user wants with one click.
+- Enable three system modes: DEMO (safe simulation), TEST (sandbox), and LIVE (future-ready, inactive until activated by the founder).
+- Install the Marketing Engine with automatic generation of: website copy, pitch decks, brochures, social posts, outreach messages, follow-ups, brand kits, and product descriptions. Ensure it updates automatically as new ideas are added.
+- Install the Universal Question Engine (UQ-Series) in HYBRID ADAPTIVE mode. It must anticipate user needs, fill in missing logic, prepare flows before users ask, and connect to Guided Interaction, Auto-Builder, Submit Engine, Adaptive UI, Messaging Hub, Document Engine, and Integration Brain.
+- Install the Auto-Builder Series to automatically generate dashboards, workflows, templates, packets, documents, and UI components for any industry or project.
+- Install the Guided Interaction Engine to explain, guide, simplify, and adapt to user comfort levels.
+- Install the Submit Engine for one-click actions across the entire platform.
+- Install the Adaptive UI Layer to simplify or expand the interface based on user preferences and overwhelm levels.
+- Install the Messaging Hub for device-based sending (mailto/sms) and future-ready placeholders for professional providers.
+- Install the Document Engine for structured documents, summaries, packets, and conceptual exports.
+- Install the Integration Brain for conceptual simulation of healthcare, business, and system integrations.
+- Install the Safety Shell to prevent overwhelm, confusion, dead ends, or negative UX states.
+- Ensure the entire system auto-updates as the founder adds new ideas, modules, or industries.
+- Ensure all engines remain connected, stable, positive, and conflict-free.
+- Confirm CreateAI is now a platform that builds itself, updates itself, and prepares everything needed for future subscription activation.
