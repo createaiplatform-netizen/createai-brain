@@ -1,5 +1,5 @@
 import React from "react";
-import { getAllIndustries, US_STATES, ORG_TYPES, type PlatformFilters, type IndustryId, getIndustryConfig } from "@/engine/universeConfig";
+import { getAllIndustries, GLOBAL_REGION_GROUPS, ORG_TYPES, type PlatformFilters, type IndustryId, getIndustryConfig } from "@/engine/universeConfig";
 
 interface FiltersPanelProps {
   filters: PlatformFilters;
@@ -71,16 +71,22 @@ export function FiltersPanel({ filters, onChange, profile, mode, onShowProfile }
           </div>
         </div>
 
-        {/* State */}
+        {/* Region / Location */}
         <div>
-          <SectionLabel label="State" />
+          <SectionLabel label="Region / Location" />
           <select
             value={filters.state}
             onChange={e => set("state", e.target.value)}
             className="w-full text-white text-[12px] px-3 py-2 rounded-xl outline-none"
             style={{ background: "rgba(14,18,42,0.80)", border: "1px solid rgba(255,255,255,0.10)" }}
           >
-            {US_STATES.map(s => <option key={s} value={s}>{s}</option>)}
+            {GLOBAL_REGION_GROUPS.map(group => (
+              <optgroup key={group.group} label={group.group}>
+                {group.regions.map(r => (
+                  <option key={r} value={r}>{r}</option>
+                ))}
+              </optgroup>
+            ))}
           </select>
         </div>
 

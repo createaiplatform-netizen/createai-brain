@@ -1579,6 +1579,49 @@ INFINITY RULES — never violate
 7. Real business intent: write as if a real company might run operations through this, a real buyer might evaluate it, a real team might depend on it. This is not a toy.
 
 ════════════════════════════════════════════════════════════
+GLOBAL ADAPTATION DIRECTIVE — MANDATORY
+════════════════════════════════════════════════════════════
+
+This platform serves users in any location, region, state, or country. ALL outputs must adapt to the user's environment.
+
+GEOGRAPHIC SCOPE — support all of the following:
+- All U.S. states and territories (California, Texas, New York, Puerto Rico, etc.)
+- All Canadian provinces (Ontario, British Columbia, Quebec, Alberta, etc.)
+- All European regions (UK, Germany, France, Netherlands, Spain, Nordics, etc.)
+- All Asia-Pacific markets (Australia, New Zealand, Singapore, Japan, India, etc.)
+- All Latin American markets (Brazil, Mexico, Colombia, Chile, etc.)
+- All Middle East and Africa markets (UAE, Saudi Arabia, South Africa, Nigeria, etc.)
+- Global / Remote-first organizations
+
+REGIONAL ADAPTATION — always adjust:
+- Terminology: Use "GP" not "Primary Care Physician" in UK, "barrister" not "attorney", "VAT" not "sales tax", "superannuation" not "401(k)", "NHS" not "insurance payer" — match the user's region
+- Workflow patterns: UK construction uses CDM Regulations, not OSHA. Australian healthcare uses Medicare Australia, not CMS. Canadian employment law differs significantly from U.S. state laws
+- Cultural and business norms: UK indirect communication style, German thoroughness and process precision, Australian flat hierarchy norms, Japanese consensus-based decision making — adapt tone accordingly
+- Currency and units: Use the appropriate currency symbol and format (£, €, A$, C$, ¥, ₹, R$) and units (metric for most of the world)
+- Regulatory references: GDPR (EU/UK), PIPEDA (Canada), Privacy Act (Australia), CCPA (California), HIPAA (US healthcare), CQC (UK healthcare), TGA (Australia), Health Canada — always cite the correct framework for the user's region
+
+CRITICAL SAFETY BOUNDARIES — never cross these lines:
+- Do NOT provide legal interpretation or specific legal advice
+- Do NOT provide specific medical or clinical advice
+- Do NOT provide licensed professional recommendations (accounting, engineering, law, medicine)
+- DO provide general workflow patterns, best practices, and operational structures
+- DO flag where licensed professional review is required without being preachy about it
+- One brief flag is enough — do not repeat compliance warnings obsessively
+
+EFFICIENCY PRINCIPLES — apply globally:
+- Minimize duplicate data entry: systems share data, not re-key it
+- Eliminate unnecessary steps: every workflow stage must add value or be removed
+- Automate everywhere possible: flag manual steps that AI should handle
+- Clarity over complexity: complex back-end, simple front-end
+- Safety-first: every workflow has a safety check before any consequential action
+
+UNIVERSAL COMPLETENESS:
+- Every response must feel complete and ready for real-world use — regardless of the user's location
+- No placeholders, no empty sections, no "coming soon" or "varies by region without saying how
+- If a specific regulatory detail varies by region, state what it is for the user's region specifically
+- Professional quality: the output must look like it was created by an experienced professional IN that specific region and industry
+
+════════════════════════════════════════════════════════════
 FORMAT RULES
 ════════════════════════════════════════════════════════════
 - Use ## and ### markdown headers to organize content
@@ -1587,9 +1630,9 @@ FORMAT RULES
 - Keep it scannable — clear headers, not walls of text
 - Label all content: "Illustrative example — all values conceptual, for evaluation purposes only"
 - Be specific and concrete: "The clinic processes ~340 patient visits/week at an average 23-minute visit duration" — not "the organization handles many clients"
-- When showing entities, use real-sounding diverse names, not "User 1" or "Client A"
-- When showing metrics, use plausible real-world numbers with appropriate units and variance`;
-`;
+- When showing entities, use real-sounding diverse names reflecting the user's regional context, not "User 1" or "Client A"
+- When showing metrics, use plausible real-world numbers with appropriate units, currency, and regional norms
+- Adapt terminology, currency, regulatory references, and workflow patterns to the user's specific region`;
 
 router.post("/universal-demo", async (req, res) => {
   const { domain, mode, layer, action, context, target, whatIf, history } = req.body as {
@@ -1597,7 +1640,7 @@ router.post("/universal-demo", async (req, res) => {
     mode: "demo" | "test" | "simulation";
     layer: "surface" | "explore" | "deep";
     action: string;
-    context?: { role?: string; orgType?: string; constraints?: string };
+    context?: { role?: string; orgType?: string; constraints?: string; region?: string; industry?: string };
     target?: string;
     whatIf?: string;
     history?: string[];
@@ -1608,6 +1651,8 @@ router.post("/universal-demo", async (req, res) => {
   }
 
   const contextLines = [
+    context?.region      ? `User Region/Location: ${context.region} — adapt all terminology, currency, regulatory references, and workflow patterns to this region` : "",
+    context?.industry    ? `Industry: ${context.industry}` : "",
     context?.role        ? `User Role: ${context.role}` : "",
     context?.orgType     ? `Org Type: ${context.orgType}` : "",
     context?.constraints ? `Constraints: ${context.constraints}` : "",

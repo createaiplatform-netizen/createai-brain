@@ -1,5 +1,5 @@
 import React, { useState } from "react";
-import { getAllIndustries, US_STATES, ORG_TYPES, type UserProfile, type IndustryId } from "@/engine/universeConfig";
+import { getAllIndustries, GLOBAL_REGION_GROUPS, ORG_TYPES, type UserProfile, type IndustryId } from "@/engine/universeConfig";
 import { getIndustryConfig } from "@/engine/universeConfig";
 
 interface ProfileSetupProps {
@@ -88,15 +88,21 @@ export function ProfileSetup({ email, initialProfile, onSave }: ProfileSetupProp
             </div>
           </Field>
 
-          {/* State */}
-          <Field label="State">
+          {/* Region / Location */}
+          <Field label="Region / Location">
             <select
               value={state}
               onChange={e => setState(e.target.value)}
               className="w-full bg-transparent text-white text-[13px] px-3 py-2.5 rounded-xl outline-none"
               style={{ background: "rgba(14,18,42,0.80)", border: "1px solid rgba(99,102,241,0.22)" }}
             >
-              {US_STATES.map(s => <option key={s} value={s}>{s}</option>)}
+              {GLOBAL_REGION_GROUPS.map(group => (
+                <optgroup key={group.group} label={group.group}>
+                  {group.regions.map(r => (
+                    <option key={r} value={r}>{r}</option>
+                  ))}
+                </optgroup>
+              ))}
             </select>
           </Field>
 

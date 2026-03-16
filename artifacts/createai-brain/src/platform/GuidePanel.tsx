@@ -7,7 +7,7 @@ interface GuidePanelProps {
 
 async function streamGuide(
   prompt: string,
-  systemCtx: string,
+  ctx: GuideContext,
   onChunk: (t: string) => void,
   signal: AbortSignal,
 ) {
@@ -15,11 +15,17 @@ async function streamGuide(
     method: "POST",
     headers: { "Content-Type": "application/json" },
     body: JSON.stringify({
-      domain: systemCtx,
-      mode: "demo",
+      domain: `${ctx.filters.industry} platform`,
+      mode: ctx.mode,
       layer: "surface",
       action: "drill",
       target: prompt,
+      context: {
+        region: ctx.filters.state,
+        industry: ctx.filters.industry,
+        role: ctx.filters.role || undefined,
+        orgType: ctx.filters.orgType || undefined,
+      },
     }),
     signal,
   });
@@ -60,9 +66,8 @@ export function GuidePanel({ ctx }: GuidePanelProps) {
     abortRef.current = controller;
     setAiStreaming(true);
     setAiText("");
-    const systemCtx = `${ctx.filters.industry} platform guide — mode: ${ctx.mode} — section: ${ctx.section}`;
     try {
-      await streamGuide(q, systemCtx, t => setAiText(t), controller.signal);
+      await streamGuide(q, ctx, t => setAiText(t), controller.signal);
     } catch (e: any) {
       if (e.name !== "AbortError") setAiText("[Could not reach AI guide — please try again]");
     } finally {

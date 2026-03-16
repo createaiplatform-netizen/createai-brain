@@ -54,7 +54,7 @@ function getDemoGuide(ctx: GuideContext, industry: string, entities: string, org
         },
         {
           heading: "Industry-specific structure",
-          body: `This workspace is configured for ${industry}. Workflows, metrics, document types, and compliance references are specific to this industry — not generic. Filter by state to activate jurisdiction-specific regulatory context. Filter by role and department to see what your team would actually see on day one.`,
+          body: `This workspace is configured for ${industry}. Workflows, metrics, document types, and compliance references are specific to this industry — not generic. Filter by region to activate jurisdiction-specific regulatory context. Filter by role and department to see what your team would actually see on day one.`,
         },
         {
           heading: "Demo → Test → Activate",
@@ -146,11 +146,11 @@ function getDemoGuide(ctx: GuideContext, industry: string, entities: string, org
     },
     filters: {
       title: "Precision Context Configuration",
-      intro: `These filters configure the platform for your exact operational context. Industry, state, role, department, and org type are not cosmetic — they change the workflows, compliance references, document types, metric benchmarks, and AI guidance shown throughout the entire workspace.`,
+      intro: `These filters configure the platform for your exact operational context. Industry, region, role, department, and org type are not cosmetic — they change the workflows, compliance references, document types, metric benchmarks, and AI guidance shown throughout the entire workspace.`,
       paragraphs: [
         {
           heading: "Why context precision matters",
-          body: `A healthcare clinic in California (HIPAA + DMHC regulations, Medi-Cal payer mix) has fundamentally different workflows and compliance requirements than a construction firm in Texas (OSHA 1926, Texas lien law, prevailing wage rules). This platform adapts every layer — content, compliance gates, document templates, benchmarks, and AI recommendations — to your exact context.`,
+          body: `A healthcare clinic in California (HIPAA, Medi-Cal) operates differently from one in Ontario (OHIP, PHIPA), England (NHS, CQC), or Australia (Medicare Australia, TGA). A construction firm in Texas (OSHA 1926, Texas lien law) follows different rules than one in Germany (DGUV) or the UAE (Tasneef). This platform adapts terminology, currency, regulatory references, workflow patterns, and benchmarks to your exact region — worldwide.`,
         },
         {
           heading: "Role and department filtering",
@@ -159,7 +159,7 @@ function getDemoGuide(ctx: GuideContext, industry: string, entities: string, org
       ],
       nextSteps: [
         "Set your industry first — this changes the entire workflow and document set",
-        "Select your state to activate relevant regulatory compliance context",
+        "Select your region to activate relevant regulatory compliance context",
         "Set your role and department to get tailored guidance in the AI panel",
         "Try different org types to see how volume and complexity baselines shift",
       ],
@@ -179,7 +179,7 @@ function getTestGuide(ctx: GuideContext, industry: string, entities: string, org
       paragraphs: [
         {
           heading: "Your context is live",
-          body: `The platform has configured itself based on your profile: ${industry} industry, ${ctx.filters.state || "your state"}, ${roleLabel} role${ctx.filters.department ? `, ${ctx.filters.department} department` : ""}. Workflow tiles now reflect the volume patterns, compliance requirements, and role priorities relevant to your actual situation — not a generic demo.`,
+          body: `The platform has configured itself based on your profile: ${industry} industry, ${ctx.filters.state || "your region"}, ${roleLabel} role${ctx.filters.department ? `, ${ctx.filters.department} department` : ""}. Workflow tiles now reflect the volume patterns, compliance requirements, and role priorities relevant to your actual situation — not a generic demo.`,
         },
         {
           heading: "Real operational patterns, illustrative data",
@@ -212,8 +212,8 @@ function getTestGuide(ctx: GuideContext, industry: string, entities: string, org
           body: `For ${orgLabel}, the highest-value AI intervention in this workflow is at the initial routing stage — intelligent assignment based on case type, complexity, and staff capacity. In comparable ${industry} organizations, this eliminates 35-55% of manual coordination overhead. The second-highest opportunity is at the documentation stage — AI pre-population of known fields from prior records reduces entry time by up to 70%.`,
         },
         {
-          heading: "Compliance and risk for your state",
-          body: `Compliance requirements for ${ctx.filters.state || "your state"} are embedded in this workflow's structure. Regulatory gates appear at the correct stages. Document retention requirements are set. Any stage that touches a regulated data type has an automatic audit trail — no manual logging required.`,
+          heading: "Compliance and risk for your region",
+          body: `Compliance requirements for ${ctx.filters.state || "your region"} are embedded in this workflow's structure. Regulatory gates appear at the correct stages. Document retention requirements are set. Any stage that touches a regulated data type has an automatic audit trail — no manual logging required.`,
         },
       ],
       nextSteps: [
@@ -226,11 +226,11 @@ function getTestGuide(ctx: GuideContext, industry: string, entities: string, org
     },
     metrics: {
       title: `${industry} KPIs — Your Operational Context`,
-      intro: `These metrics are calibrated for ${orgLabel} — adjusted for your industry, state regulatory context, and org type. Use them as your evaluation baseline. In a live deployment, these connect to your real data and update continuously.`,
+      intro: `These metrics are calibrated for ${orgLabel} — adjusted for your industry, regional regulatory context, and org type. Use them as your evaluation baseline. In a live deployment, these connect to your real data and update continuously.`,
       paragraphs: [
         {
           heading: "Calibration to your context",
-          body: `Volume-based metrics reflect realistic throughput for a ${ctx.filters.orgType || "mid-size"} ${industry} organization in ${ctx.filters.state || "your state"}. Compliance metrics reflect your state's specific regulatory thresholds. Benchmarks are compared against similar organizations — same industry, same scale, similar complexity.`,
+          body: `Volume-based metrics reflect realistic throughput for a ${ctx.filters.orgType || "mid-size"} ${industry} organization in ${ctx.filters.state || "your region"}. Compliance metrics reflect your region's specific regulatory thresholds. Benchmarks are compared against similar organizations — same industry, same scale, similar complexity.`,
         },
         {
           heading: "What changes when you go live",

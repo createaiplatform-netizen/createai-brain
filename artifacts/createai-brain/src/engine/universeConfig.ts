@@ -183,16 +183,89 @@ export function getAllIndustries(): IndustryConfig[] {
   return Object.values(INDUSTRY_CONFIGS);
 }
 
-export const US_STATES = [
-  "Alabama","Alaska","Arizona","Arkansas","California","Colorado","Connecticut",
-  "Delaware","Florida","Georgia","Hawaii","Idaho","Illinois","Indiana","Iowa",
-  "Kansas","Kentucky","Louisiana","Maine","Maryland","Massachusetts","Michigan",
-  "Minnesota","Mississippi","Missouri","Montana","Nebraska","Nevada","New Hampshire",
-  "New Jersey","New Mexico","New York","North Carolina","North Dakota","Ohio",
-  "Oklahoma","Oregon","Pennsylvania","Rhode Island","South Carolina","South Dakota",
-  "Tennessee","Texas","Utah","Vermont","Virginia","Washington","West Virginia",
-  "Wisconsin","Wyoming","Washington D.C.",
+// ─── Global Regions ──────────────────────────────────────────────────────────
+// Organized by region group. Displayed in the FiltersPanel region dropdown.
+// "state" field name retained internally for backwards compatibility.
+
+export interface RegionGroup {
+  group: string;
+  regions: string[];
+}
+
+export const GLOBAL_REGION_GROUPS: RegionGroup[] = [
+  {
+    group: "🇺🇸 United States",
+    regions: [
+      "Alabama","Alaska","Arizona","Arkansas","California","Colorado","Connecticut",
+      "Delaware","Florida","Georgia","Hawaii","Idaho","Illinois","Indiana","Iowa",
+      "Kansas","Kentucky","Louisiana","Maine","Maryland","Massachusetts","Michigan",
+      "Minnesota","Mississippi","Missouri","Montana","Nebraska","Nevada","New Hampshire",
+      "New Jersey","New Mexico","New York","North Carolina","North Dakota","Ohio",
+      "Oklahoma","Oregon","Pennsylvania","Rhode Island","South Carolina","South Dakota",
+      "Tennessee","Texas","Utah","Vermont","Virginia","Washington","West Virginia",
+      "Wisconsin","Wyoming","Washington D.C.","Puerto Rico","Guam","U.S. Virgin Islands",
+    ],
+  },
+  {
+    group: "🇨🇦 Canada",
+    regions: [
+      "Alberta","British Columbia","Manitoba","New Brunswick",
+      "Newfoundland and Labrador","Northwest Territories","Nova Scotia","Nunavut",
+      "Ontario","Prince Edward Island","Quebec","Saskatchewan","Yukon",
+    ],
+  },
+  {
+    group: "🇬🇧 United Kingdom",
+    regions: ["England","Scotland","Wales","Northern Ireland"],
+  },
+  {
+    group: "🇪🇺 European Union",
+    regions: [
+      "Austria","Belgium","Bulgaria","Croatia","Cyprus","Czech Republic","Denmark",
+      "Estonia","Finland","France","Germany","Greece","Hungary","Ireland","Italy",
+      "Latvia","Lithuania","Luxembourg","Malta","Netherlands","Poland","Portugal",
+      "Romania","Slovakia","Slovenia","Spain","Sweden",
+    ],
+  },
+  {
+    group: "🌏 Asia-Pacific",
+    regions: [
+      "Australia — New South Wales","Australia — Queensland","Australia — Victoria",
+      "Australia — Western Australia","New Zealand","Singapore","Japan","South Korea",
+      "India — Maharashtra","India — Karnataka","India — Delhi NCR",
+      "Hong Kong","Taiwan","Philippines","Malaysia","Indonesia","Thailand",
+    ],
+  },
+  {
+    group: "🌎 Latin America",
+    regions: [
+      "Brazil — São Paulo","Brazil — Rio de Janeiro","Mexico — Mexico City",
+      "Mexico — Monterrey","Argentina — Buenos Aires","Colombia — Bogotá",
+      "Chile — Santiago","Peru — Lima","Costa Rica","Panama",
+    ],
+  },
+  {
+    group: "🌍 Middle East & Africa",
+    regions: [
+      "United Arab Emirates","Saudi Arabia","Qatar","Israel","Jordan",
+      "South Africa — Gauteng","South Africa — Western Cape","Nigeria — Lagos",
+      "Kenya — Nairobi","Egypt — Cairo",
+    ],
+  },
+  {
+    group: "🌐 Global / Remote",
+    regions: [
+      "Global — Remote First","Global — Multiple Locations","International Operations",
+    ],
+  },
 ];
+
+// Flat list for backwards-compatible uses
+export const US_STATES: string[] = GLOBAL_REGION_GROUPS
+  .find(g => g.group.includes("United States"))?.regions ?? [];
+
+// Full flat list for any use that needs all regions
+export const ALL_REGIONS: string[] = GLOBAL_REGION_GROUPS.flatMap(g => g.regions);
 
 export const ORG_TYPES = [
   "Small Business (1-50)", "Mid-Size (51-250)", "Large Enterprise (251-1000)",
