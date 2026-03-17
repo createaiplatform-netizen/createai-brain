@@ -1,6 +1,6 @@
-import React, { useState, useEffect, useRef } from "react";
-import { Send, ChevronDown, Sparkles, Zap, Plus } from "lucide-react";
-import { useChatStream } from "@/hooks/use-chat-stream";
+import React, { useState, useEffect, useRef, useCallback } from "react";
+import { Send, ChevronDown, Sparkles, Zap, Plus, Trash2, History } from "lucide-react";
+import { useChatStream, type ChatMessage } from "@/hooks/use-chat-stream";
 import { ChatBubble } from "@/components/chat-bubble";
 import { TypingIndicator } from "@/components/typing-indicator";
 import { SaveToProjectModal } from "@/components/SaveToProjectModal";
@@ -12,7 +12,6 @@ function cn(...inputs: ClassValue[]) {
   return twMerge(clsx(inputs));
 }
 
-// ─── Built-in workspaces (always present) ──────────────────────────────────
 const BUILT_IN_WORKSPACES = [
   {
     id: "main-brain",
@@ -110,6 +109,13 @@ interface Workspace {
   isProject?: boolean;
 }
 
+interface DbConversation {
+  id: number;
+  title: string;
+  appId: string | null;
+  createdAt: string;
+}
+
 function ChatEmptyState({
   workspace,
   onSuggest,
@@ -132,7 +138,6 @@ function ChatEmptyState({
         >
           {workspace.emoji}
         </div>
-        <div className="absolute inset-0 rounded-3xl animate-pulse-ring pointer-events-none" style={{ borderRadius: "1.5rem" }} />
       </div>
 
       <div className="space-y-2 max-w-sm">
@@ -187,15 +192,43 @@ export function ChatApp() {
   const [workspaces, setWorkspaces] = useState<Workspace[]>(BUILT_IN_WORKSPACES);
   const [selectedId, setSelectedId] = useState<string>(BUILT_IN_WORKSPACES[0].id);
   const [showPicker, setShowPicker] = useState(false);
+  const [showHistory, setShowHistory] = useState(false);
   const [inputMessage, setInputMessage] = useState("");
   const [saveModal, setSaveModal] = useState<{ content: string; label: string } | null>(null);
-  const [loadingProjects, setLoadingProjects] = useState(true);
+
+  const [activeConvId, setActiveConvId] = useState<number | null>(null);
+  const [convHistory, setConvHistory] = useState<DbConversation[]>([]);
+  const [loadingHistory, setLoadingHistory] = useState(false);
+  const activeConvRef = useRef<number | null>(null);
 
   const messagesEndRef = useRef<HTMLDivElement>(null);
   const inputRef = useRef<HTMLInputElement>(null);
   const currentWorkspace = workspaces.find(w => w.id === selectedId) ?? workspaces[0];
 
-  const { messages, sendMessage, isStreaming, streamingText } = useChatStream();
+  const persistUserMessage = useCallback(async (content: string) => {
+    if (!activeConvRef.current) return;
+    await fetch(`/api/conversations/${activeConvRef.current}/messages`, {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      credentials: "include",
+      body: JSON.stringify({ role: "user", content }),
+    });
+  }, []);
+
+  const persistAssistantMessage = useCallback(async (content: string) => {
+    if (!activeConvRef.current) return;
+    await fetch(`/api/conversations/${activeConvRef.current}/messages`, {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      credentials: "include",
+      body: JSON.stringify({ role: "assistant", content }),
+    });
+  }, []);
+
+  const { messages, sendMessage, isStreaming, streamingText, loadMessages } = useChatStream({
+    onUserMessage: persistUserMessage,
+    onAssistantMessage: persistAssistantMessage,
+  });
 
   useEffect(() => {
     fetch("/api/projects", { credentials: "include" })
@@ -212,20 +245,102 @@ export function ChatApp() {
           setWorkspaces([...BUILT_IN_WORKSPACES, ...projectWorkspaces]);
         }
       })
-      .catch(() => {})
-      .finally(() => setLoadingProjects(false));
+      .catch(() => {});
   }, []);
 
-  const handleSend = (e?: React.FormEvent) => {
+  const loadConversationHistory = useCallback(async (appId: string) => {
+    setLoadingHistory(true);
+    try {
+      const r = await fetch(`/api/conversations?appId=${encodeURIComponent(appId)}`, { credentials: "include" });
+      if (r.ok) {
+        const d = await r.json();
+        setConvHistory(d.conversations ?? []);
+      }
+    } catch {}
+    finally { setLoadingHistory(false); }
+  }, []);
+
+  const startNewConversation = useCallback(async (workspaceId: string, workspaceName: string) => {
+    try {
+      const r = await fetch("/api/conversations", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        credentials: "include",
+        body: JSON.stringify({ title: `${workspaceName} Chat`, appId: workspaceId }),
+      });
+      if (r.ok) {
+        const d = await r.json();
+        const id = d.conversation?.id ?? null;
+        setActiveConvId(id);
+        activeConvRef.current = id;
+        loadMessages([]);
+        return id;
+      }
+    } catch {}
+    return null;
+  }, [loadMessages]);
+
+  const loadConversation = useCallback(async (convId: number) => {
+    setShowHistory(false);
+    setActiveConvId(convId);
+    activeConvRef.current = convId;
+    try {
+      const r = await fetch(`/api/conversations/${convId}/messages`, { credentials: "include" });
+      if (r.ok) {
+        const d = await r.json();
+        const loaded: ChatMessage[] = (d.messages ?? []).map((m: { id: number; role: string; content: string; createdAt: string }) => ({
+          id: m.id,
+          role: m.role as "user" | "assistant",
+          content: m.content,
+          createdAt: m.createdAt,
+        }));
+        loadMessages(loaded);
+      }
+    } catch {}
+  }, [loadMessages]);
+
+  useEffect(() => {
+    activeConvRef.current = null;
+    setActiveConvId(null);
+    loadMessages([]);
+    loadConversationHistory(selectedId);
+  }, [selectedId]);
+
+  const ensureConversation = useCallback(async () => {
+    if (activeConvRef.current) return activeConvRef.current;
+    return startNewConversation(currentWorkspace.id, currentWorkspace.name);
+  }, [currentWorkspace, startNewConversation]);
+
+  const handleSend = async (e?: React.FormEvent) => {
     e?.preventDefault();
     if (!inputMessage.trim() || isStreaming) return;
-    sendMessage(inputMessage.trim(), currentWorkspace.name);
+    const msg = inputMessage.trim();
     setInputMessage("");
+    await ensureConversation();
+    sendMessage(msg, currentWorkspace.name);
     setTimeout(() => inputRef.current?.focus(), 10);
   };
 
-  const handleSuggest = (text: string) => {
+  const handleSuggest = async (text: string) => {
+    await ensureConversation();
     sendMessage(text, currentWorkspace.name);
+  };
+
+  const handleNewChat = async () => {
+    setShowHistory(false);
+    await startNewConversation(currentWorkspace.id, currentWorkspace.name);
+    loadConversationHistory(selectedId);
+  };
+
+  const handleDeleteConv = async (convId: number, e: React.MouseEvent) => {
+    e.stopPropagation();
+    await fetch(`/api/conversations/${convId}`, { method: "DELETE", credentials: "include" });
+    setConvHistory(prev => prev.filter(c => c.id !== convId));
+    if (activeConvRef.current === convId) {
+      activeConvRef.current = null;
+      setActiveConvId(null);
+      loadMessages([]);
+    }
   };
 
   useEffect(() => {
@@ -234,14 +349,21 @@ export function ChatApp() {
 
   return (
     <div className="flex flex-col h-full">
-      {/* Workspace switcher bar */}
       <div
-        className="flex-none relative flex items-center justify-center py-2 border-b"
+        className="flex-none relative flex items-center justify-between px-3 py-2 border-b"
         style={{ borderColor: "rgba(255,255,255,0.07)", background: "rgba(8,10,22,0.60)", backdropFilter: "blur(20px)" }}
       >
         <button
-          onClick={() => setShowPicker(p => !p)}
-          className="flex items-center gap-2 px-4 py-1.5 rounded-full hover:bg-white/5 active:bg-white/8 transition-colors group"
+          onClick={() => { setShowHistory(h => !h); setShowPicker(false); }}
+          className="p-1.5 rounded-xl hover:bg-white/5 transition-colors"
+          title="Conversation history"
+        >
+          <History className="w-4 h-4 text-muted-foreground" />
+        </button>
+
+        <button
+          onClick={() => { setShowPicker(p => !p); setShowHistory(false); }}
+          className="flex items-center gap-2 px-3 py-1.5 rounded-full hover:bg-white/5 active:bg-white/8 transition-colors group"
         >
           <span className="text-base">{currentWorkspace.emoji}</span>
           <span className="font-semibold text-[14px] tracking-tight text-foreground">{currentWorkspace.name}</span>
@@ -249,6 +371,14 @@ export function ChatApp() {
             "w-3.5 h-3.5 text-muted-foreground transition-all duration-200",
             showPicker ? "rotate-180 text-primary" : "group-hover:text-foreground"
           )} />
+        </button>
+
+        <button
+          onClick={handleNewChat}
+          className="p-1.5 rounded-xl hover:bg-white/5 transition-colors"
+          title="New conversation"
+        >
+          <Plus className="w-4 h-4 text-muted-foreground" />
         </button>
 
         {showPicker && (
@@ -268,7 +398,6 @@ export function ChatApp() {
               </div>
 
               <div className="overflow-y-auto flex-1 overscroll-contain" style={{ scrollbarWidth: "thin", scrollbarColor: "rgba(99,102,241,0.3) transparent" }}>
-                {/* Built-in workspaces */}
                 <div className="px-3 pt-2 pb-1">
                   <p className="text-[9px] font-bold uppercase tracking-widest px-1 mb-1" style={{ color: "#64748b" }}>Built-in Workspaces</p>
                 </div>
@@ -292,7 +421,6 @@ export function ChatApp() {
                   </button>
                 ))}
 
-                {/* User's real projects */}
                 {workspaces.filter(w => w.isProject).length > 0 && (
                   <>
                     <div className="px-3 pt-3 pb-1 border-t" style={{ borderColor: "rgba(255,255,255,0.06)" }}>
@@ -320,7 +448,6 @@ export function ChatApp() {
                   </>
                 )}
 
-                {/* Create new project link */}
                 <div className="p-3 border-t" style={{ borderColor: "rgba(255,255,255,0.06)" }}>
                   <button
                     onClick={() => { setShowPicker(false); openApp("projos"); }}
@@ -334,9 +461,60 @@ export function ChatApp() {
             </div>
           </>
         )}
+
+        {showHistory && (
+          <>
+            <div className="fixed inset-0 z-10" onClick={() => setShowHistory(false)} />
+            <div
+              className="absolute top-full left-2 mt-1.5 z-20 w-72 rounded-2xl shadow-2xl overflow-hidden flex flex-col"
+              style={{
+                background: "rgba(10,12,30,0.96)",
+                border: "1px solid rgba(255,255,255,0.10)",
+                backdropFilter: "blur(40px)",
+                maxHeight: "min(420px, 70vh)",
+              }}
+            >
+              <div className="px-4 py-3 border-b flex items-center justify-between" style={{ borderColor: "rgba(255,255,255,0.07)" }}>
+                <p className="section-label">Conversation History</p>
+                <button onClick={handleNewChat} className="text-[11px] text-primary font-semibold hover:opacity-70">+ New</button>
+              </div>
+              <div className="overflow-y-auto flex-1">
+                {loadingHistory ? (
+                  <div className="flex items-center gap-2 p-4 text-[12px] text-muted-foreground">
+                    <div className="w-3 h-3 border-2 border-primary border-t-transparent rounded-full animate-spin" />
+                    Loading…
+                  </div>
+                ) : convHistory.length === 0 ? (
+                  <div className="p-4 text-center text-[12px] text-muted-foreground">No conversations yet</div>
+                ) : (
+                  convHistory.map(conv => (
+                    <button
+                      key={conv.id}
+                      onClick={() => loadConversation(conv.id)}
+                      className={cn(
+                        "w-full flex items-center gap-3 px-4 py-3 text-left transition-colors group",
+                        activeConvId === conv.id ? "bg-primary/8" : "hover:bg-white/4"
+                      )}
+                    >
+                      <div className="flex-1 min-w-0">
+                        <p className={cn("text-[12px] font-medium truncate", activeConvId === conv.id ? "text-primary" : "text-foreground")}>{conv.title}</p>
+                        <p className="text-[10px] text-muted-foreground mt-0.5">{new Date(conv.createdAt).toLocaleDateString()}</p>
+                      </div>
+                      <button
+                        onClick={(e) => handleDeleteConv(conv.id, e)}
+                        className="opacity-0 group-hover:opacity-100 p-1 hover:text-red-400 text-muted-foreground transition-all"
+                      >
+                        <Trash2 className="w-3 h-3" />
+                      </button>
+                    </button>
+                  ))
+                )}
+              </div>
+            </div>
+          </>
+        )}
       </div>
 
-      {/* Messages */}
       <main className="flex-1 overflow-y-auto p-4 pb-2 scroll-smooth">
         <div className="flex flex-col justify-end min-h-full max-w-3xl mx-auto">
           {messages.length === 0 && (
@@ -369,7 +547,6 @@ export function ChatApp() {
         </div>
       </main>
 
-      {/* Input */}
       <footer
         className="flex-none p-3 border-t"
         style={{ background: "rgba(8,10,22,0.92)", borderColor: "rgba(255,255,255,0.07)", backdropFilter: "blur(32px)" }}
@@ -409,7 +586,7 @@ export function ChatApp() {
             </button>
           </form>
           <p className="text-center text-[10px] text-muted-foreground/60 mt-1.5">
-            All responses are structured with sections &amp; smart next steps
+            All responses are structured with sections &amp; smart next steps · Conversations are saved automatically
           </p>
         </div>
       </footer>

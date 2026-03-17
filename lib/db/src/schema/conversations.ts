@@ -4,13 +4,17 @@ import { z } from "zod/v4";
 
 export const conversations = pgTable("conversations", {
   id: serial("id").primaryKey(),
+  userId: text("user_id").notNull().default(""),
   title: text("title").notNull(),
+  appId: text("app_id").notNull().default("chat"),
   createdAt: timestamp("created_at", { withTimezone: true }).defaultNow().notNull(),
+  updatedAt: timestamp("updated_at", { withTimezone: true }).defaultNow().notNull(),
 });
 
 export const insertConversationSchema = createInsertSchema(conversations).omit({
   id: true,
   createdAt: true,
+  updatedAt: true,
 });
 
 export type Conversation = typeof conversations.$inferSelect;

@@ -7,11 +7,20 @@ export interface ChatMessage {
   createdAt: string;
 }
 
-export function useChatStream(_conversationId?: number | null) {
+interface UseChatStreamOptions {
+  onUserMessage?: (content: string) => Promise<void>;
+  onAssistantMessage?: (content: string) => Promise<void>;
+}
+
+export function useChatStream(opts?: UseChatStreamOptions) {
   const [messages, setMessages] = useState<ChatMessage[]>([]);
   const [isStreaming, setIsStreaming] = useState(false);
   const [streamingText, setStreamingText] = useState("");
   const abortRef = useRef<AbortController | null>(null);
+
+  const loadMessages = useCallback((loaded: ChatMessage[]) => {
+    setMessages(loaded);
+  }, []);
 
   const sendMessage = useCallback(async (userMessage: string, workspace?: string) => {
     if (!userMessage.trim()) return;
@@ -23,12 +32,16 @@ export function useChatStream(_conversationId?: number | null) {
       createdAt: new Date().toISOString(),
     };
 
+    if (opts?.onUserMessage) {
+      await opts.onUserMessage(userMessage).catch(() => {});
+    }
+
     setMessages(prev => {
       const next = [...prev, userMsg];
       startStream(next, workspace);
       return next;
     });
-  }, []);
+  }, [opts?.onUserMessage]);
 
   function startStream(allMessages: ChatMessage[], workspace?: string) {
     setIsStreaming(true);
@@ -43,6 +56,7 @@ export function useChatStream(_conversationId?: number | null) {
         const response = await fetch("/api/openai/chat", {
           method: "POST",
           headers: { "Content-Type": "application/json" },
+          credentials: "include",
           body: JSON.stringify({
             messages: allMessages.map(m => ({ role: m.role, content: m.content })),
             model: "gpt-5.2",
@@ -86,13 +100,18 @@ export function useChatStream(_conversationId?: number | null) {
           }
         }
 
+        const finalContent = accumulated || "I'm here — what would you like to create or explore?";
         const assistantMsg: ChatMessage = {
           id: Date.now() + 1,
           role: "assistant",
-          content: accumulated || "I'm here — what would you like to create or explore?",
+          content: finalContent,
           createdAt: new Date().toISOString(),
         };
         setMessages(prev => [...prev, assistantMsg]);
+
+        if (opts?.onAssistantMessage) {
+          opts.onAssistantMessage(finalContent).catch(() => {});
+        }
       } catch (err: unknown) {
         if ((err as Error)?.name !== "AbortError") {
           const fallback: ChatMessage = {
@@ -110,5 +129,5 @@ export function useChatStream(_conversationId?: number | null) {
     })();
   }
 
-  return { messages, sendMessage, isStreaming, streamingText };
+  return { messages, sendMessage, isStreaming, streamingText, loadMessages };
 }

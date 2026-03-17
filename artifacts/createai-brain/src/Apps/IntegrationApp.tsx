@@ -407,9 +407,26 @@ function ConfigureTab() {
 
   const simulateConnect = () => {
     setStatus("connecting");
-    setTimeout(() => {
-      setStatus(Math.random() > 0.15 ? "connected" : "failed");
-      if (Math.random() > 0.15) setConns(prev => new Set([...prev, selected!]));
+    setTimeout(async () => {
+      const success = Math.random() > 0.15;
+      setStatus(success ? "connected" : "failed");
+      if (success && selected) {
+        setConns(prev => new Set([...prev, selected]));
+        try {
+          await fetch("/api/integrations", {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            credentials: "include",
+            body: JSON.stringify({
+              name: selected,
+              type: "api",
+              category: intg?.category ?? "General",
+              status: "configured",
+              isEnabled: true,
+            }),
+          });
+        } catch {}
+      }
     }, 2200);
   };
 
@@ -527,23 +544,141 @@ function ConfigureTab() {
   );
 }
 
+// ─── Registry Tab (real DB-backed integrations) ────────────────────────────────
+interface DbIntegration {
+  id: number;
+  name: string;
+  type: string;
+  category: string;
+  status: string;
+  isEnabled: boolean;
+  createdAt: string;
+}
+
+function RegistryTab() {
+  const [integrations, setIntegrations] = useState<DbIntegration[]>([]);
+  const [loading, setLoading] = useState(true);
+  const [deleting, setDeleting] = useState<number | null>(null);
+
+  const load = useCallback(async () => {
+    setLoading(true);
+    try {
+      const r = await fetch("/api/integrations", { credentials: "include" });
+      if (r.ok) {
+        const d = await r.json();
+        setIntegrations(d.integrations ?? []);
+      }
+    } catch {}
+    finally { setLoading(false); }
+  }, []);
+
+  useEffect(() => { load(); }, []);
+
+  const handleToggle = async (intg: DbIntegration) => {
+    try {
+      await fetch(`/api/integrations/${intg.id}`, {
+        method: "PUT",
+        headers: { "Content-Type": "application/json" },
+        credentials: "include",
+        body: JSON.stringify({ isEnabled: !intg.isEnabled }),
+      });
+      setIntegrations(prev => prev.map(i => i.id === intg.id ? { ...i, isEnabled: !i.isEnabled } : i));
+    } catch {}
+  };
+
+  const handleDelete = async (id: number) => {
+    setDeleting(id);
+    try {
+      await fetch(`/api/integrations/${id}`, { method: "DELETE", credentials: "include" });
+      setIntegrations(prev => prev.filter(i => i.id !== id));
+    } catch {}
+    finally { setDeleting(null); }
+  };
+
+  if (loading) {
+    return (
+      <div className="flex items-center justify-center py-16 gap-2">
+        <div className="w-4 h-4 border-2 border-primary border-t-transparent rounded-full animate-spin" />
+        <span className="text-[13px] text-muted-foreground">Loading integrations…</span>
+      </div>
+    );
+  }
+
+  return (
+    <div className="p-4 space-y-4">
+      <div>
+        <h2 className="text-[15px] font-bold text-foreground">My Integration Registry</h2>
+        <p className="text-[12px] text-muted-foreground mt-0.5">All connections you've configured — saved to your account.</p>
+      </div>
+
+      {integrations.length === 0 ? (
+        <div className="text-center py-12 space-y-3">
+          <p className="text-4xl">🔌</p>
+          <p className="text-[14px] font-semibold text-foreground">No integrations saved yet</p>
+          <p className="text-[12px] text-muted-foreground">Go to the Configure tab to set one up. Your connections will appear here.</p>
+        </div>
+      ) : (
+        <div className="space-y-2">
+          {integrations.map(intg => (
+            <div key={intg.id} className="flex items-center gap-3 p-4 rounded-2xl border border-border/50 bg-background">
+              <div className="w-9 h-9 rounded-xl flex items-center justify-center text-lg flex-shrink-0"
+                style={{ background: "rgba(99,102,241,0.12)", border: "1px solid rgba(99,102,241,0.22)" }}>
+                🔌
+              </div>
+              <div className="flex-1 min-w-0">
+                <p className="font-semibold text-[13px] text-foreground truncate">{intg.name}</p>
+                <p className="text-[11px] text-muted-foreground">{intg.category} · Added {new Date(intg.createdAt).toLocaleDateString()}</p>
+              </div>
+              <div className="flex items-center gap-2 flex-shrink-0">
+                <button
+                  onClick={() => handleToggle(intg)}
+                  className={`text-[10px] font-bold px-2.5 py-1 rounded-full transition-colors ${intg.isEnabled ? "bg-green-100 text-green-700" : "bg-gray-100 text-gray-500"}`}
+                >
+                  {intg.isEnabled ? "● On" : "○ Off"}
+                </button>
+                <button
+                  onClick={() => handleDelete(intg.id)}
+                  disabled={deleting === intg.id}
+                  className="text-[11px] text-red-400 hover:text-red-600 px-2 py-1 rounded-lg hover:bg-red-50 transition-colors"
+                >
+                  {deleting === intg.id ? "…" : "✕"}
+                </button>
+              </div>
+            </div>
+          ))}
+        </div>
+      )}
+
+      <div className="p-3 rounded-xl text-[11px] text-muted-foreground flex items-start gap-2"
+        style={{ background: "rgba(99,102,241,0.06)", border: "1px solid rgba(99,102,241,0.12)" }}>
+        <span className="flex-shrink-0">ℹ️</span>
+        <span>Integrations are saved to your account. Toggle them on/off to control access. Use the Configure tab to add new connections.</span>
+      </div>
+    </div>
+  );
+}
+
 // ─── Main IntegrationApp ──────────────────────────────────────────────────────
 export function IntegrationApp() {
-  const [tab, setTab] = useState<"packets" | "configure">("packets");
+  const [tab, setTab] = useState<"registry" | "packets" | "configure">("registry");
   return (
     <div className="flex flex-col h-full">
-      {/* Tab bar */}
       <div className="flex gap-1 p-3 border-b border-border/50 bg-background flex-shrink-0">
-        <button onClick={() => setTab("packets")}
-          className={`flex-1 flex items-center justify-center gap-1.5 py-2 rounded-xl text-[12px] font-bold transition-colors ${tab === "packets" ? "bg-gradient-to-r from-primary to-purple-600 text-white" : "text-muted-foreground hover:bg-muted"}`}>
-          <span>🔌</span><span>Demo Packets</span>
+        <button onClick={() => setTab("registry")}
+          className={`flex-1 flex items-center justify-center gap-1.5 py-2 rounded-xl text-[12px] font-bold transition-colors ${tab === "registry" ? "bg-primary text-white" : "text-muted-foreground hover:bg-muted"}`}>
+          <span>📋</span><span>Registry</span>
         </button>
         <button onClick={() => setTab("configure")}
           className={`flex-1 flex items-center justify-center gap-1.5 py-2 rounded-xl text-[12px] font-bold transition-colors ${tab === "configure" ? "bg-primary text-white" : "text-muted-foreground hover:bg-muted"}`}>
           <span>⚙️</span><span>Configure</span>
         </button>
+        <button onClick={() => setTab("packets")}
+          className={`flex-1 flex items-center justify-center gap-1.5 py-2 rounded-xl text-[12px] font-bold transition-colors ${tab === "packets" ? "bg-gradient-to-r from-primary to-purple-600 text-white" : "text-muted-foreground hover:bg-muted"}`}>
+          <span>🔌</span><span>Demo</span>
+        </button>
       </div>
       <div className="flex-1 overflow-y-auto">
+        {tab === "registry"  && <RegistryTab />}
         {tab === "packets"   && <PacketsTab />}
         {tab === "configure" && <ConfigureTab />}
       </div>

@@ -52,6 +52,19 @@ export function SaveToProjectModal({ content, label, defaultFileType = "Document
         }),
       });
       if (!res.ok) throw new Error("Save failed");
+      const selectedProject = projects.find(p => p.id === selected);
+      fetch("/api/activity", {
+        method: "POST",
+        credentials: "include",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          action: "file_saved",
+          label: `Saved "${fileName.trim()}" to ${selectedProject?.name ?? "project"}`,
+          icon: "💾",
+          appId: "documents",
+          projectId: selected,
+        }),
+      }).catch(() => {});
       setSaved(true);
       setTimeout(onClose, 1000);
     } catch {

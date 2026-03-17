@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from "react";
 import { useOS, AppId } from "./OSContext";
-import { PlatformStore, RecentActivity, PlatformMode } from "@/engine/PlatformStore";
+import { PlatformStore, PlatformMode } from "@/engine/PlatformStore";
 import { BrainstormChat } from "./BrainstormChat";
 import { useAuth } from "@workspace/replit-auth-web";
 
@@ -9,13 +9,6 @@ const QUICK_ACTIONS = [
   { icon: "💬", label: "AI Chat",         sub: "Talk to the Brain",      app: "chat"       as AppId, color: "#06b6d4" },
   { icon: "🧪", label: "Simulate",        sub: "Analyze & forecast",     app: "simulation" as AppId, color: "#a855f7" },
   { icon: "📣", label: "Marketing",       sub: "Campaigns & content",    app: "marketing"  as AppId, color: "#f472b6" },
-];
-
-const FALLBACK_RECENTS: RecentActivity[] = [
-  { id: "f1", appId: "chat",       label: "AI Chat — Main Brain",            icon: "💬", at: new Date().toISOString() },
-  { id: "f2", appId: "projects",   label: "Healthcare System – Legal Safe",  icon: "📁", at: new Date().toISOString() },
-  { id: "f3", appId: "marketing",  label: "Brand Kit Draft",                 icon: "📣", at: new Date().toISOString() },
-  { id: "f4", appId: "people",     label: "People — invites pending",        icon: "👥", at: new Date().toISOString() },
 ];
 
 const MODE_CFG: Record<PlatformMode, { label: string; color: string; dot: string; bg: string; border: string; text: string }> = {
@@ -48,6 +41,9 @@ interface DashboardProps {
   onShowTour?: () => void;
 }
 
+interface ActivityItem { id: number; label: string; icon: string; appId: string; createdAt: string; }
+interface ProjectItem  { id: string; name: string; icon: string; industry: string; }
+
 export function Dashboard({ onHamburger, onShowTour }: DashboardProps) {
   const { openApp, appRegistry, routeIntent, platformMode, setPlatformMode, activeApp } = useOS();
   const { user } = useAuth();
@@ -55,28 +51,32 @@ export function Dashboard({ onHamburger, onShowTour }: DashboardProps) {
   const [intentInput, setIntentInput]         = useState("");
   const [intentResult, setIntentResult]       = useState<{ app: AppId; label: string } | null>(null);
   const [showSuggestions, setShowSuggestions] = useState(false);
-  const [recents, setRecents]                 = useState<RecentActivity[]>([]);
   const [showModeMenu, setShowModeMenu]       = useState(false);
   const [showBrainstorm, setShowBrainstorm]   = useState(false);
   const [mounted, setMounted]                 = useState(false);
+  const [activity, setActivity]               = useState<ActivityItem[]>([]);
+  const [recentProjects, setRecentProjects]   = useState<ProjectItem[]>([]);
+  const [loadingRecents, setLoadingRecents]   = useState(true);
 
   const cfg = MODE_CFG[platformMode];
 
   useEffect(() => { setMounted(true); }, []);
 
-  useEffect(() => {
-    const load = () => {
-      const stored = PlatformStore.getRecent();
-      setRecents(stored.length > 0 ? stored : FALLBACK_RECENTS);
-    };
-    load();
-    window.addEventListener("cai:mode-change", load);
-    return () => window.removeEventListener("cai:mode-change", load);
-  }, []);
+  const loadRecents = () => {
+    Promise.all([
+      fetch("/api/activity?limit=6", { credentials: "include" })
+        .then(r => r.ok ? r.json() : { activity: [] })
+        .then(d => setActivity(d.activity ?? [])),
+      fetch("/api/projects", { credentials: "include" })
+        .then(r => r.ok ? r.json() : { projects: [] })
+        .then(d => setRecentProjects((d.projects ?? []).slice(0, 4))),
+    ]).finally(() => setLoadingRecents(false));
+  };
 
+  useEffect(() => { loadRecents(); }, []);
   useEffect(() => {
     const stored = PlatformStore.getRecent();
-    setRecents(stored.length > 0 ? stored : FALLBACK_RECENTS);
+    if (stored.length > 0) loadRecents();
   }, [activeApp]);
 
   const handleIntentSearch = (query: string) => {
@@ -323,13 +323,54 @@ export function Dashboard({ onHamburger, onShowTour }: DashboardProps) {
             </div>
           </section>
 
-          {/* ── Recent ── */}
-          {recents.length > 0 && (
+          {/* ── Your Projects ── */}
+          <section className={`transition-opacity duration-500 delay-150 ${mounted ? "opacity-100" : "opacity-0"}`}>
+            <div className="flex items-center justify-between mb-3">
+              <p className="text-[11px] font-bold uppercase tracking-widest" style={{ color: "#9ca3af" }}>Your Projects</p>
+              <button onClick={() => openApp("projos")} className="text-[11px] font-semibold" style={{ color: "#6366f1" }}>View all →</button>
+            </div>
+            {loadingRecents ? (
+              <div className="flex items-center gap-2 text-[12px] py-2" style={{ color: "#9ca3af" }}>
+                <span className="inline-block w-3 h-3 border-2 border-indigo-400 border-t-transparent rounded-full animate-spin" />
+                Loading your projects…
+              </div>
+            ) : recentProjects.length === 0 ? (
+              <button onClick={() => openApp("projos")}
+                className="w-full flex items-center gap-3 p-4 rounded-2xl text-left transition-all"
+                style={{ background: "#f8fafc", border: "2px dashed rgba(99,102,241,0.25)" }}>
+                <span className="text-2xl">📁</span>
+                <div>
+                  <p className="text-[13px] font-semibold" style={{ color: "#374151" }}>No projects yet</p>
+                  <p className="text-[11px]" style={{ color: "#6b7280" }}>Tap to create your first project in ProjectOS</p>
+                </div>
+              </button>
+            ) : (
+              <div className="grid grid-cols-2 gap-2">
+                {recentProjects.map(p => (
+                  <button key={p.id} onClick={() => openApp("projos")}
+                    className="flex items-center gap-2.5 p-3 rounded-xl text-left transition-all"
+                    style={{ background: "#fff", border: "1px solid rgba(0,0,0,0.07)", boxShadow: "0 1px 3px rgba(0,0,0,0.05)" }}
+                    onMouseEnter={e => { (e.currentTarget as HTMLElement).style.borderColor = "rgba(99,102,241,0.30)"; (e.currentTarget as HTMLElement).style.transform = "translateY(-1px)"; }}
+                    onMouseLeave={e => { (e.currentTarget as HTMLElement).style.borderColor = "rgba(0,0,0,0.07)"; (e.currentTarget as HTMLElement).style.transform = ""; }}
+                  >
+                    <span className="text-xl flex-shrink-0">{p.icon || "📁"}</span>
+                    <div className="flex-1 min-w-0">
+                      <p className="text-[12px] font-semibold truncate" style={{ color: "#0f172a" }}>{p.name}</p>
+                      <p className="text-[10px]" style={{ color: "#6b7280" }}>{p.industry}</p>
+                    </div>
+                  </button>
+                ))}
+              </div>
+            )}
+          </section>
+
+          {/* ── Recent Activity ── */}
+          {activity.length > 0 && (
             <section className={`transition-opacity duration-500 delay-200 ${mounted ? "opacity-100" : "opacity-0"}`}>
-              <p className="text-[11px] font-bold uppercase tracking-widest mb-3" style={{ color: "#9ca3af" }}>Continue Where You Left Off</p>
+              <p className="text-[11px] font-bold uppercase tracking-widest mb-3" style={{ color: "#9ca3af" }}>Recent Activity</p>
               <div className="space-y-1.5">
-                {recents.slice(0, 5).map(r => (
-                  <button key={r.id} onClick={() => openApp(r.appId as AppId)}
+                {activity.slice(0, 5).map(r => (
+                  <button key={r.id} onClick={() => openApp((r.appId || "creator") as AppId)}
                     className="w-full flex items-center gap-3 p-3 rounded-xl text-left transition-all"
                     style={{ background: "#fff", border: "1px solid rgba(0,0,0,0.07)" }}
                     onMouseEnter={e => { (e.currentTarget as HTMLElement).style.background = "#f8fafc"; (e.currentTarget as HTMLElement).style.borderColor = "rgba(99,102,241,0.25)"; }}

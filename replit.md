@@ -1,5 +1,50 @@
 # CreateAI Brain – Workspace
 
+## Real Data Platform (COMPLETE — No mock/demo data anywhere)
+
+### DB Tables
+- `users` — auth + NDA state
+- `sessions` — session KV store
+- `projects` — user-scoped projects
+- `project_folders` + `project_files` — full file tree under projects
+- `brainstorm_sessions` + `brainstorm_messages` — BrainGen sessions
+- `conversations` — chat sessions (userId, appId, title, createdAt, updatedAt)
+- `messages` — per-conversation messages (conversationId, role, content)
+- `project_chat_messages` — project-specific chat history
+- `activity_log` — universal activity feed (userId, action, label, icon, appId, projectId)
+- `integrations` — user-registered integrations (name, type, category, status, isEnabled, configJson)
+
+### Real API Routes (all auth-protected, 401 if unauthenticated)
+- `GET/POST /api/activity` — activity feed CRUD
+- `GET/POST /api/conversations`, `GET/POST /:id/messages`, `DELETE /:id` — chat persistence
+- `GET/POST/PUT/DELETE /api/integrations` — integration registry
+- `GET/PUT /api/user/me` — user profile
+- `GET/POST/PUT/DELETE /api/projects` + files/folders endpoints — full ProjectOS
+
+### Universal Activity Logging
+- All saves via `SaveToProjectModal` POST to `/api/activity`
+- ProjectOSApp logs creates/renames/deletes to `/api/activity`
+- Dashboard feeds from `/api/activity` (real recent activity) and `/api/projects` (real recent projects)
+
+### ChatApp Persistence
+- Creates a conversation in DB when first message is sent
+- Persists all user + assistant messages to `/api/conversations/:id/messages`
+- History panel shows past conversations, loads messages on select
+- Delete individual conversations
+
+### IntegrationApp Real Registry
+- "Registry" tab: loads real integrations from `/api/integrations`
+- Toggle on/off, delete — all persisted to DB
+- Configure tab saves to DB after successful wizard flow
+
+### FamilyApp Real Projects
+- Loads real projects from `/api/projects` on mount
+- Shows empty state if no projects yet
+
+### SimulationApp Save to Project
+- "💾 Save" button on every output panel
+- SaveToProjectModal saves to chosen project + logs to activity feed
+
 ## Auth + NDA Flow (COMPLETE, FULLY LIVE)
 ### Three-tier access model
 1. **Public (not logged in)**: Preview landing page — shows all 19 app icons, value props, "NDA required" notice, "Log in" CTA

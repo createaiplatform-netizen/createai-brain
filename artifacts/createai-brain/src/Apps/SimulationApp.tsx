@@ -1,6 +1,7 @@
 import React, { useState, useRef } from "react";
 import { OutputFormatter } from "@/components/OutputFormatter";
 import { UniversalDemoEngine } from "./UniversalDemoEngine";
+import { SaveToProjectModal } from "@/components/SaveToProjectModal";
 
 // ─── Simulation domains ────────────────────────────────────────────────────
 const SIM_DOMAINS = [
@@ -73,6 +74,7 @@ function OutputPanel({
   onNew: () => void; onCopy: () => void;
 }) {
   const [copied, setCopied] = useState(false);
+  const [showSave, setShowSave] = useState(false);
   const handleCopy = () => {
     navigator.clipboard.writeText(streamText).then(() => {
       setCopied(true); setTimeout(() => setCopied(false), 2000);
@@ -82,6 +84,14 @@ function OutputPanel({
 
   return (
     <div className="space-y-4 animate-fade-up">
+      {showSave && (
+        <SaveToProjectModal
+          content={streamText}
+          label={label}
+          defaultFileType="Document"
+          onClose={() => setShowSave(false)}
+        />
+      )}
       <div className="flex items-center gap-3 flex-wrap">
         <div className="w-9 h-9 rounded-xl flex items-center justify-center text-lg flex-shrink-0"
           style={{ background: "rgba(168,85,247,0.15)", border: "1px solid rgba(168,85,247,0.25)" }}>
@@ -98,6 +108,11 @@ function OutputPanel({
                 className="text-[12px] font-semibold px-3 py-1.5 rounded-xl transition-all"
                 style={{ background: copied ? "rgba(34,197,94,0.10)" : "rgba(255,255,255,0.07)", color: copied ? "#4ade80" : "rgba(255,255,255,0.70)", border: `1px solid ${copied ? "rgba(34,197,94,0.20)" : "rgba(255,255,255,0.10)"}` }}>
                 {copied ? "✓ Copied" : "Copy"}
+              </button>
+              <button onClick={() => setShowSave(true)}
+                className="text-[12px] font-semibold px-3 py-1.5 rounded-xl text-white transition-all"
+                style={{ background: "rgba(99,102,241,0.80)" }}>
+                💾 Save
               </button>
               <button onClick={onNew}
                 className="text-[12px] font-semibold px-3 py-1.5 rounded-xl text-white transition-all"

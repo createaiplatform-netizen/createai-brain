@@ -102,7 +102,7 @@ const DASHBOARD_ACTIONS = [
 
 async function apiListProjects(): Promise<Project[]> {
   try {
-    const res = await fetch("/api/projects");
+    const res = await fetch("/api/projects", { credentials: "include" });
     if (!res.ok) return [];
     const data = await res.json() as { projects: Project[] };
     return data.projects ?? [];
@@ -113,18 +113,24 @@ async function apiCreateProject(name: string, industry: string): Promise<Project
   try {
     const res = await fetch("/api/projects", {
       method: "POST",
+      credentials: "include",
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify({ name, industry }),
     });
     if (!res.ok) return null;
     const data = await res.json() as { project: Project };
+    fetch("/api/activity", {
+      method: "POST", credentials: "include",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ action: "project_created", label: `Created project "${name}"`, icon: "📁", appId: "projos", projectId: String(data.project?.id ?? "") }),
+    }).catch(() => {});
     return data.project;
   } catch { return null; }
 }
 
 async function apiDeleteProject(id: string): Promise<boolean> {
   try {
-    const res = await fetch(`/api/projects/${id}`, { method: "DELETE" });
+    const res = await fetch(`/api/projects/${id}`, { method: "DELETE", credentials: "include" });
     return res.ok;
   } catch { return false; }
 }
@@ -133,25 +139,31 @@ async function apiAddFile(projectId: string, name: string, fileType: string, fol
   try {
     const res = await fetch(`/api/projects/${projectId}/files`, {
       method: "POST",
+      credentials: "include",
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify({ name, fileType, folderId: folderId || undefined }),
     });
     if (!res.ok) return null;
     const data = await res.json() as { file: ProjectFile };
+    fetch("/api/activity", {
+      method: "POST", credentials: "include",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ action: "file_created", label: `Created file "${name}"`, icon: "📄", appId: "projos", projectId }),
+    }).catch(() => {});
     return data.file;
   } catch { return null; }
 }
 
 async function apiDeleteFile(projectId: string, fileId: string): Promise<boolean> {
   try {
-    const res = await fetch(`/api/projects/${projectId}/files/${fileId}`, { method: "DELETE" });
+    const res = await fetch(`/api/projects/${projectId}/files/${fileId}`, { method: "DELETE", credentials: "include" });
     return res.ok;
   } catch { return false; }
 }
 
 async function apiLoadFileContent(fileId: string): Promise<string> {
   try {
-    const res = await fetch(`/api/projects/files/${fileId}`);
+    const res = await fetch(`/api/projects/files/${fileId}`, { credentials: "include" });
     if (!res.ok) return "";
     const data = await res.json() as { file: ProjectFile };
     return data.file.content ?? "";
@@ -162,6 +174,7 @@ async function apiSaveFileContent(projectId: string, fileId: string, content: st
   try {
     const res = await fetch(`/api/projects/${projectId}/files/${fileId}`, {
       method: "PUT",
+      credentials: "include",
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify({ content }),
     });
@@ -173,6 +186,7 @@ async function apiUpdateProject(id: string, updates: { name?: string; descriptio
   try {
     const res = await fetch(`/api/projects/${id}`, {
       method: "PUT",
+      credentials: "include",
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify(updates),
     });

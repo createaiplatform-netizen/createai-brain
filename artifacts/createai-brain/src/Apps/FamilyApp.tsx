@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import { useOS } from "@/os/OSContext";
 import { BrainGen } from "@/engine/BrainGen";
 
@@ -10,11 +10,6 @@ const HELP_TIPS = [
   { q: "How do I invite someone?", a: "Go to the People app and tap + Invite. Paste in their name, email, or phone and tap Parse Contacts." },
   { q: "What does Demo mode mean?", a: "Demo mode is a safe simulation — nothing is real, nothing is sent, and nothing can break. It's your playground." },
   { q: "Can I create documents?", a: "Yes! Tap Create Anything from the Home screen or sidebar. Choose your type, describe what you want, and the Brain builds it." },
-];
-
-const FAMILY_PROJECTS = [
-  { name: "My Workspace", icon: "🏡", desc: "Your personal home base", status: "Active" },
-  { name: "Family Shared", icon: "👨‍👩‍👧", desc: "Shared family projects", status: "Active" },
 ];
 
 const FAMILY_APPS = [
@@ -36,32 +31,51 @@ export function FamilyApp() {
   const [openFaq, setOpenFaq] = useState<number | null>(null);
   const [openDoc, setOpenDoc] = useState<string | null>(null);
   const [docContent, setDocContent] = useState<Record<string, string>>({});
+  const [realProjects, setRealProjects] = useState<Array<{ id: string; name: string; icon: string; industry: string }>>([]);
+  const [loadingProjects, setLoadingProjects] = useState(true);
+
+  useEffect(() => {
+    fetch("/api/projects", { credentials: "include" })
+      .then(r => r.ok ? r.json() : { projects: [] })
+      .then(d => setRealProjects(d.projects ?? []))
+      .catch(() => {})
+      .finally(() => setLoadingProjects(false));
+  }, []);
 
   if (view === "projects") {
     return (
       <div className="p-6 space-y-5">
         <button onClick={() => setView("home")} className="text-primary text-sm font-medium">‹ Home</button>
         <h2 className="text-xl font-bold text-foreground">My Projects</h2>
-        <div className="space-y-3">
-          {FAMILY_PROJECTS.map(p => (
-            <button key={p.name} onClick={() => openApp("projects")}
-              className="w-full flex items-center gap-4 p-4 rounded-2xl hover:border-primary/20 hover:shadow-sm transition-all text-left group">
-              <span className="text-3xl group-hover:scale-110 transition-transform">{p.icon}</span>
-              <div className="flex-1">
-                <p className="font-semibold text-[14px] text-foreground">{p.name}</p>
-                <p className="text-[12px] text-muted-foreground">{p.desc}</p>
-              </div>
-              <span className="text-[10px] font-bold px-2 py-0.5 rounded-full" style={{ background: "rgba(34,197,94,0.10)", color: "#4ade80", border: "1px solid rgba(34,197,94,0.22)" }}>{p.status}</span>
-            </button>
-          ))}
-        </div>
-        <button onClick={() => openApp("projects")}
+        {loadingProjects ? (
+          <div className="flex items-center gap-2 text-[12px] text-muted-foreground py-4">
+            <div className="w-3 h-3 border-2 border-primary border-t-transparent rounded-full animate-spin" />
+            Loading your projects…
+          </div>
+        ) : realProjects.length === 0 ? (
+          <div className="text-center py-6 space-y-2">
+            <p className="text-3xl">📁</p>
+            <p className="text-[13px] text-muted-foreground">No projects yet. Create one from ProjectOS!</p>
+          </div>
+        ) : (
+          <div className="space-y-3">
+            {realProjects.map(p => (
+              <button key={p.id} onClick={() => openApp("projos")}
+                className="w-full flex items-center gap-4 p-4 rounded-2xl hover:border-primary/20 hover:shadow-sm transition-all text-left group">
+                <span className="text-3xl group-hover:scale-110 transition-transform">{p.icon || "📁"}</span>
+                <div className="flex-1">
+                  <p className="font-semibold text-[14px] text-foreground">{p.name}</p>
+                  <p className="text-[12px] text-muted-foreground">{p.industry}</p>
+                </div>
+                <span className="text-[10px] font-bold px-2 py-0.5 rounded-full" style={{ background: "rgba(34,197,94,0.10)", color: "#4ade80", border: "1px solid rgba(34,197,94,0.22)" }}>Active</span>
+              </button>
+            ))}
+          </div>
+        )}
+        <button onClick={() => openApp("projos")}
           className="w-full bg-primary text-white text-sm font-semibold py-2.5 rounded-xl hover:opacity-90 transition-opacity">
-          Open Projects App →
+          Open ProjectOS →
         </button>
-        <div className="bg-blue-50 border border-blue-200 rounded-xl p-3">
-          <p className="text-[12px] text-primary/60">New projects are created from the Projects app. Ask AI Chat to help you set one up!</p>
-        </div>
       </div>
     );
   }
