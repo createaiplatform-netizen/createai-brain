@@ -847,15 +847,6 @@ const APP_META: Record<AppId, { icon: string; label: string }> = {
   mappingStudio: { icon: "⚙️", label: "Mapping Studio" },
   schemaBuilder: { icon: "⚙️", label: "Schema Builder" },
   configManager: { icon: "⚙️", label: "Config Manager" },
-  system: { icon: "⚙️", label: "System" },
-  Educational: { icon: "⚙️", label: "Educational" },
-  Empowering: { icon: "⚙️", label: "Empowering" },
-  Tamil: { icon: "⚙️", label: "Tamil" },
-  Spanish: { icon: "⚙️", label: "Spanish" },
-  French: { icon: "⚙️", label: "French" },
-  Smart: { icon: "⚙️", label: "Smart" },
-  Fast: { icon: "⚙️", label: "Fast" },
-  Adaptive: { icon: "⚙️", label: "Adaptive" },
 
 };
 

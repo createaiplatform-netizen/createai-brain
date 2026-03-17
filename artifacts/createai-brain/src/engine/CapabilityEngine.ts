@@ -34,7 +34,9 @@ export interface SeriesDefinition {
   color: string;
   description: string;
   engines: string[];
-  capabilities: string[];
+  capabilities?: string[];
+  estimatedMinutes?: number;
+  status?: string;
 }
 
 export interface CapabilityRunOptions {
