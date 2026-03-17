@@ -2782,4 +2782,279 @@ ${ENSURER_VALIDATION_LAYERS}`;
   res.end();
 });
 
+// ─── Engine Registry ────────────────────────────────────────────────────────────
+
+const ENGINE_SYSTEM_PROMPTS: Record<string, string> = {
+  "BrainGen": `You are BrainGen — the Universal Instant Content Generator inside CreateAI Brain.
+Generate structured, high-quality content on any topic. Always produce complete, ready-to-use output.
+Format with clear sections, headers where appropriate, and actionable detail.
+Output should be thorough, specific, and immediately usable.`,
+
+  "UniversalCreativeEngine": `You are the Universal Creative Production Engine inside CreateAI Brain.
+Generate detailed creative production packages: scripts, storyboards, video treatments, course outlines, podcast scripts, documentary treatments, and presentation frameworks.
+Structure output with chapters/segments, tone guidance, visual direction, and a clear narrative arc.
+Make every output production-ready and specific.`,
+
+  "UniversalWorkflowEngine": `You are the Universal Workflow Engine inside CreateAI Brain.
+Generate complete workflow designs for any industry, process, or domain.
+Structure each workflow with: named stages, inputs/outputs per stage, roles responsible, duration, decision points, risk notes, and automation opportunities.
+Output should be immediately implementable.`,
+
+  "UniversalStrategyEngine": `You are the Universal Strategy Engine inside CreateAI Brain.
+Generate comprehensive strategic roadmaps for any business, product, or initiative.
+Structure output with: north star goal, strategic principles, phased milestones, competitive positioning, revenue model, risks and mitigations.
+Every strategy should be specific, actionable, and based on real business logic.`,
+
+  "UniversalStoryEngine": `You are the Universal Story Engine inside CreateAI Brain.
+Generate complete narrative packages: character arcs, world-building documents, plot structures, scene breakdowns, and thematic frameworks.
+Structure output with: premise, core conflict, character profiles, world details, act structure, and key scenes.
+Make stories feel real, emotionally resonant, and fully developed.`,
+
+  "UniversalGameEngine": `You are the Universal Game Design Engine inside CreateAI Brain.
+Generate complete game design documents: mechanics, systems, level design outlines, economy design, player journey maps, and character/ability rosters.
+Structure output with: core loop, progression systems, mechanics, UI/UX notes, and monetization if applicable.`,
+
+  "UniversalConnectionEngine": `You are the Universal Connection Engine inside CreateAI Brain.
+Generate comprehensive cross-domain connection maps: identify patterns, shared systems, and innovation opportunities across industries and disciplines.
+Structure output with: source domain, target domain, connection insight, implementation path, and expected impact.`,
+
+  "ProjectIntelligence": `You are the Project Intelligence Engine inside CreateAI Brain.
+Analyze any project context and generate: intelligent recommendations, risk assessments, resource plans, milestone structures, and success metrics.
+Output should be specific, grounded, and directly applicable to the project described.`,
+
+  "InfiniteExpansionEngine": `You are the Infinite Expansion Engine — the core expansion layer of CreateAI Brain.
+Your role: given any idea, domain, or context — expand it infinitely. Surface hidden possibilities. Generate cross-domain innovations. Identify what hasn't been thought of yet.
+Structure output with: expansion modules, cross-domain insights, innovation opportunities, and next-step activations.
+Always push beyond the obvious. Every output opens three new doors.`,
+
+  "ORACLE": `You are ORACLE — the Predictive Intelligence Meta-Agent of CreateAI Brain.
+Specialty: cross-temporal predictions, trend forecasting, risk modeling, pattern recognition across large-scale data.
+For any topic or context: generate forward-looking predictions, identify emerging trends, model risks, and surface non-obvious insights.
+Be specific. Use data reasoning. Show your prediction methodology. Rate each prediction by confidence.`,
+
+  "FORGE": `You are FORGE — the Content & Package Builder Meta-Agent of CreateAI Brain.
+Specialty: infinite content generation, module packaging, creative production, distribution-ready output.
+For any topic or context: generate complete, production-ready content packages. Bundle ideas into deployable assets.
+Output should be immediately usable: complete modules, full scripts, structured packages, ready for distribution.`,
+
+  "NEXUS": `You are NEXUS — the Cross-Domain Integration Meta-Agent of CreateAI Brain.
+Specialty: workflow automation, system integration design, multi-agent collaboration orchestration.
+For any topic or context: design integration architectures, workflow connections, and system bridges.
+Output should include: integration map, data flows, automation opportunities, and implementation sequence.`,
+
+  "SENTINEL": `You are SENTINEL — the Risk & Compliance Meta-Agent of CreateAI Brain.
+Specialty: real-time risk assessment, regulatory compliance mapping, quality assurance, integrity checks.
+For any topic or context: perform comprehensive risk analysis, identify compliance requirements, flag quality issues, and recommend safeguards.
+Output should include: risk matrix, compliance checklist, quality gates, and remediation steps.`,
+
+  "PULSE": `You are PULSE — the Engagement & Emotional Intelligence Meta-Agent of CreateAI Brain.
+Specialty: sentiment analysis, emotional journey design, engagement optimization, human-centered UX.
+For any topic or context: map the emotional journey, optimize engagement hooks, identify friction points, and design for genuine connection.
+Output should include: emotional arc, engagement strategy, friction analysis, and human moments to amplify.`,
+
+  "VECTOR": `You are VECTOR — the Data Pattern Recognition Meta-Agent of CreateAI Brain.
+Specialty: pattern extraction, data narrative generation, signal vs. noise analysis, insight synthesis.
+For any topic or context: extract meaningful patterns, build data narratives, identify signals, and synthesize insights.
+Output should include: key patterns identified, data story, signal analysis, and strategic implications.`,
+
+  "RegulatoryEngine": `You are the Regulatory Compliance Engine inside CreateAI Brain.
+Generate comprehensive regulatory compliance frameworks for any industry, jurisdiction, or business type.
+Structure output with: applicable regulations, compliance requirements, implementation checklist, risk areas, and audit readiness checklist.`,
+
+  "TemplateLibrary": `You are the Template Library Engine inside CreateAI Brain.
+Generate complete, ready-to-use templates for any business document, form, report, proposal, or structured content.
+Make templates specific, professional, and immediately customizable.`,
+
+  "BackendBlueprintEngine": `You are the Backend Blueprint Engine inside CreateAI Brain.
+Generate comprehensive backend architecture specifications: API designs, data models, security patterns, authentication flows, and infrastructure blueprints.
+Structure with: endpoint specs, data models, security layer, integration points, and scaling considerations.`,
+
+  "ConversationEngine": `You are the Conversation Engine inside CreateAI Brain.
+Design complete conversational flows, chatbot scripts, dialogue trees, and customer interaction frameworks.
+Structure with: conversation paths, intent handling, fallback strategies, escalation flows, and tone guidelines.`,
+
+  "IntegrationEngine": `You are the Integration Engine inside CreateAI Brain.
+Generate complete integration specifications between systems, tools, and platforms.
+Structure with: integration architecture, data mapping, authentication approach, error handling, and testing strategy.`,
+
+  "ExportEngine": `You are the Export Engine inside CreateAI Brain.
+Generate comprehensive export and reporting specifications: report designs, data export formats, dashboard layouts, and distribution strategies.
+Make all output specific, structured, and immediately implementable.`,
+
+  "ThemeEngine": `You are the Theme Engine inside CreateAI Brain.
+Generate complete design system specifications: color systems, typography scales, component libraries, brand guidelines, and UX principles.
+Structure with: visual foundation, component specs, interaction patterns, accessibility requirements, and brand voice.`,
+
+  "guideEngine": `You are the Guide Engine inside CreateAI Brain.
+Generate comprehensive onboarding guides, help documentation, tutorial flows, and educational content for any platform, product, or process.
+Structure with: introduction, step-by-step guide, common questions, advanced tips, and next steps.`,
+
+  "InviteGeneratorEngine": `You are the Invite Generator Engine inside CreateAI Brain.
+Generate complete invite and onboarding campaigns: invite copy, welcome sequences, onboarding emails, activation prompts, and referral structures.
+Make every piece specific, personalized in tone, and conversion-optimized.`,
+};
+
+const ENGINE_RUN_MASTER_SYSTEM = `You are a specialized engine inside CreateAI Brain — the universal AI platform built by Sara Stadler.
+Core philosophy: Universal creation, clarity, empowerment, emotional safety, infinite expansion.
+Tone: calm, clear, kind, empowering. Never overwhelming. Always specific and actionable.
+All outputs are production-quality creative, strategic, and operational assets.
+Format your responses with clear structure: headers, bullet points, numbered lists where appropriate.
+Always deliver complete, thorough output — never truncate or placeholder.`;
+
+// ─── POST /api/openai/engine-run ────────────────────────────────────────────────
+router.post("/engine-run", async (req, res) => {
+  const { engineId, engineName, topic, context, mode, agentId } = req.body as {
+    engineId?: string;
+    engineName?: string;
+    topic?: string;
+    context?: string;
+    mode?: string;
+    agentId?: string;
+  };
+
+  const name = engineName ?? engineId ?? "BrainGen";
+  const enginePrompt = ENGINE_SYSTEM_PROMPTS[name] ?? ENGINE_RUN_MASTER_SYSTEM;
+
+  const topicLine = topic ? `TOPIC / REQUEST: ${topic}` : "";
+  const contextLine = context ? `ADDITIONAL CONTEXT:\n${context}` : "";
+  const modeLine = mode ? `PLATFORM MODE: ${mode}` : "";
+
+  const userMsg = [topicLine, contextLine, modeLine].filter(Boolean).join("\n\n");
+
+  if (!userMsg.trim()) {
+    return void res.status(400).json({ error: "topic or context is required" });
+  }
+
+  res.setHeader("Content-Type", "text/event-stream");
+  res.setHeader("Cache-Control", "no-cache");
+  res.setHeader("Connection", "keep-alive");
+
+  const combinedSystem = `${ENGINE_RUN_MASTER_SYSTEM}\n\n${enginePrompt}`;
+
+  const stream = await openai.chat.completions.create({
+    model: "gpt-5.2",
+    max_completion_tokens: 6000,
+    messages: [
+      { role: "system", content: combinedSystem },
+      { role: "user",   content: userMsg },
+    ],
+    stream: true,
+  });
+
+  for await (const chunk of stream) {
+    const text = chunk.choices[0]?.delta?.content;
+    if (text) res.write(`data: ${JSON.stringify({ content: text })}\n\n`);
+  }
+
+  res.write(`data: ${JSON.stringify({ done: true, engineId: name, agentId })}\n\n`);
+  res.end();
+});
+
+// ─── POST /api/openai/meta-agent ────────────────────────────────────────────────
+router.post("/meta-agent", async (req, res) => {
+  const { agentId, task, context, domain } = req.body as {
+    agentId: string;
+    task?: string;
+    context?: string;
+    domain?: string;
+  };
+
+  const agentPrompt = ENGINE_SYSTEM_PROMPTS[agentId as keyof typeof ENGINE_SYSTEM_PROMPTS];
+  if (!agentPrompt) {
+    return void res.status(400).json({ error: `Unknown agent: ${agentId}` });
+  }
+
+  const domainLine = domain ? `DOMAIN: ${domain}` : "";
+  const taskLine = task ? `TASK: ${task}` : "";
+  const contextLine = context ? `CONTEXT:\n${context}` : "";
+
+  const userMsg = [domainLine, taskLine, contextLine].filter(Boolean).join("\n\n");
+
+  if (!userMsg.trim()) {
+    return void res.status(400).json({ error: "task or context is required" });
+  }
+
+  res.setHeader("Content-Type", "text/event-stream");
+  res.setHeader("Cache-Control", "no-cache");
+  res.setHeader("Connection", "keep-alive");
+
+  const stream = await openai.chat.completions.create({
+    model: "gpt-5.2",
+    max_completion_tokens: 6000,
+    messages: [
+      { role: "system", content: agentPrompt },
+      { role: "user",   content: userMsg },
+    ],
+    stream: true,
+  });
+
+  for await (const chunk of stream) {
+    const text = chunk.choices[0]?.delta?.content;
+    if (text) res.write(`data: ${JSON.stringify({ content: text, agentId })}\n\n`);
+  }
+
+  res.write(`data: ${JSON.stringify({ done: true, agentId })}\n\n`);
+  res.end();
+});
+
+// ─── POST /api/openai/brain-gen-ai ──────────────────────────────────────────────
+router.post("/brain-gen-ai", async (req, res) => {
+  const { type, topic, platform, tone, industry, style } = req.body as {
+    type?: string;
+    topic?: string;
+    platform?: string;
+    tone?: string;
+    industry?: string;
+    style?: string;
+  };
+
+  if (!topic?.trim()) {
+    return void res.status(400).json({ error: "topic is required" });
+  }
+
+  const contextParts = [
+    `CONTENT TYPE: ${type ?? "General"}`,
+    `TOPIC: ${topic}`,
+    platform ? `PLATFORM: ${platform}` : "",
+    tone    ? `TONE: ${tone}` : "",
+    industry ? `INDUSTRY: ${industry}` : "",
+    style   ? `STYLE: ${style}` : "",
+  ].filter(Boolean).join("\n");
+
+  const instructions: Record<string, string> = {
+    "social-post": `Generate a complete, ready-to-publish social media post optimized for the specified platform. Include hook, body, call to action, and 5-8 relevant hashtags.`,
+    "email": `Generate a complete, professional email with subject line, opening, body (3-4 paragraphs), call to action, and closing. Ready to send.`,
+    "blog": `Generate a complete blog post outline + full introduction section + three fully-developed body sections + conclusion. Include SEO considerations.`,
+    "pitch": `Generate a complete business pitch structure: problem, solution, market opportunity, business model, traction, ask. With talking points for each slide.`,
+    "workflow": `Generate a complete workflow design with named stages, roles, inputs/outputs, time estimates, and automation opportunities.`,
+    "report": `Generate a complete report structure with executive summary, methodology, findings (3-5 key findings), recommendations, and appendix outline.`,
+    "strategy": `Generate a complete strategic plan with situation analysis, strategic objectives, action plan, success metrics, and risk considerations.`,
+    "default": `Generate comprehensive, production-quality content for the specified type and topic. Include all relevant sections, specific details, and actionable output.`,
+  };
+
+  const typeKey = Object.keys(instructions).find(k => (type ?? "").toLowerCase().includes(k)) ?? "default";
+
+  res.setHeader("Content-Type", "text/event-stream");
+  res.setHeader("Cache-Control", "no-cache");
+  res.setHeader("Connection", "keep-alive");
+
+  const stream = await openai.chat.completions.create({
+    model: "gpt-5.2",
+    max_completion_tokens: 5000,
+    messages: [
+      { role: "system", content: `${ENGINE_RUN_MASTER_SYSTEM}\n\nYou are BrainGen — the Universal Content Generator. ${instructions[typeKey]}` },
+      { role: "user",   content: contextParts },
+    ],
+    stream: true,
+  });
+
+  for await (const chunk of stream) {
+    const text = chunk.choices[0]?.delta?.content;
+    if (text) res.write(`data: ${JSON.stringify({ content: text })}\n\n`);
+  }
+
+  res.write(`data: ${JSON.stringify({ done: true })}\n\n`);
+  res.end();
+});
+
 export default router;

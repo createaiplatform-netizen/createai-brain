@@ -21,6 +21,7 @@ import { BizDevApp } from "@/Apps/BizDevApp";
 import { ProjectBuilderApp } from "@/Apps/ProjectBuilderApp";
 import { ProjectOSApp } from "@/Apps/ProjectOSApp";
 import { NotificationsApp } from "@/Apps/NotificationsApp";
+import { BrainHubApp } from "@/Apps/BrainHubApp";
 import type { AppId } from "./OSContext";
 
 const APP_LABELS: Record<AppId, string> = {
@@ -44,6 +45,7 @@ const APP_LABELS: Record<AppId, string> = {
   projbuilder:  "Project File Builder",
   projos:         "Universal Project Platform",
   notifications:  "Notifications",
+  brainhub:       "Brain Hub — Capability Center",
 };
 
 const APP_ICONS: Record<AppId, string> = {
@@ -67,6 +69,7 @@ const APP_ICONS: Record<AppId, string> = {
   projbuilder:  "📋",
   projos:         "📂",
   notifications:  "🔔",
+  brainhub:       "⚡",
 };
 
 const APP_COMPONENTS: Record<AppId, React.ComponentType<any>> = {
@@ -90,6 +93,7 @@ const APP_COMPONENTS: Record<AppId, React.ComponentType<any>> = {
   projbuilder:  ProjectBuilderApp,
   projos:         ProjectOSApp,
   notifications:  NotificationsApp,
+  brainhub:       BrainHubApp,
 };
 
 interface AppWindowProps {

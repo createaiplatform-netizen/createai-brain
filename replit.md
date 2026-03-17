@@ -27,6 +27,9 @@
 - `GET/POST/PUT/DELETE /api/projects` + files/folders endpoints — full ProjectOS
 - `PUT /api/projects/:id/status` — archive/restore project (`{ status: "active"|"archived" }`)
 - `GET/POST/PUT/DELETE /api/people` — full people/contact CRUD
+- `POST /api/openai/engine-run` — run ANY engine with real streaming AI (engineId, topic, context → SSE stream)
+- `POST /api/openai/meta-agent` — activate any of 6 Meta-Agents (ORACLE/FORGE/NEXUS/SENTINEL/PULSE/VECTOR) with real AI
+- `POST /api/openai/brain-gen-ai` — BrainGen real AI content generator (type, topic, platform, tone → SSE stream)
 - `GET/POST/PUT/DELETE /api/notifications` — notification center (+ `/read-all`, `/:id/read`)
 - `GET/POST/PUT/DELETE /api/documents` — standalone document registry (pin, template support)
 - `GET/POST/PUT/DELETE /api/projects/:id/tasks` — per-project task CRUD
@@ -42,6 +45,10 @@
 - **All generator apps** — `credentials:"include"` on every fetch (BizDevApp, BizUniverseApp, BusinessCreationApp, BusinessEntityApp, ProjectBuilderApp, CreatorApp, MarketingApp, ToolsApp, SimulationApp)
 - **ErrorBoundary** — global `<ErrorBoundary appName={label}>` wraps every app in AppWindow.tsx; shows graceful error + Reload button
 - **Universal breadcrumb bar** — thin indigo-tinted bar below top header in every app showing "CreateAI Brain › {icon} {AppLabel}"
+- **BrainHubApp** — NEW: full capability nerve center with all 25 engines, 6 Meta-Agents, 9 Series, real AI generation on every engine, "Save to Project" on every output, platform stats from DB; registered as "Brain Hub" in OS
+- **CapabilityEngine.ts** — NEW: central engine registry with all 25 engines, 9 series definitions (Ω, Φ, UQ, ICE, AEL, UCP-X, GI, SE, DE, AB), `runEngine()`, `runMetaAgent()`, `saveEngineOutput()`, `fetchPlatformStats()` — all calling real backend APIs
+- **TaskBoard in ProjectOSApp** — NEW: "📋 Tasks" view in ProjectOS with real Kanban board (To Do / In Progress / Done), add/move/delete tasks via `/api/projects/:id/tasks`, priority levels (low/medium/high) with color coding
+- **22 registered apps** — all in OSContext/AppWindow/APP_LABELS/APP_ICONS/APP_COMPONENTS: chat, projects, tools, creator, people, documents, marketing, admin, family, integration, monetization, simulation, universal, business, entity, bizcreator, bizdev, projbuilder, projos, notifications, brainhub
 
 ### Universal Activity Logging
 - All saves via `SaveToProjectModal` POST to `/api/activity`

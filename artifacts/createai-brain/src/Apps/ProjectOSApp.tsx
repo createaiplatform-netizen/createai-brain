@@ -3,7 +3,20 @@ import { MediaPlayer } from "../components/MediaPlayer";
 
 // ─── Types ────────────────────────────────────────────────────────────────────
 
-type ViewMode = "dashboard+folders" | "dashboard" | "folders" | "simple" | "advanced";
+type ViewMode = "dashboard+folders" | "dashboard" | "folders" | "simple" | "advanced" | "tasks";
+
+// ─── Task Types ───────────────────────────────────────────────────────────────
+interface ProjectTask {
+  id: string;
+  projectId: string;
+  title: string;
+  description?: string;
+  status: "todo" | "in-progress" | "done";
+  priority: "low" | "medium" | "high";
+  assignedTo?: string;
+  dueAt?: string;
+  createdAt: string;
+}
 
 interface ProjectFile {
   id: string;
@@ -214,6 +227,243 @@ async function apiLoadChatHistory(projectId: string): Promise<{ role: "user" | "
     const data = await res.json() as { messages: { role: "user" | "ai"; text: string }[] };
     return data.messages ?? [];
   } catch { return []; }
+}
+
+// ─── Task API ─────────────────────────────────────────────────────────────────
+
+async function apiListTasks(projectId: string): Promise<ProjectTask[]> {
+  try {
+    const res = await fetch(`/api/projects/${projectId}/tasks`, { credentials: "include" });
+    if (!res.ok) return [];
+    return await res.json() as ProjectTask[];
+  } catch { return []; }
+}
+
+async function apiCreateTask(projectId: string, title: string, status: ProjectTask["status"], priority: ProjectTask["priority"], description?: string): Promise<ProjectTask | null> {
+  try {
+    const res = await fetch(`/api/projects/${projectId}/tasks`, {
+      method: "POST", credentials: "include",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ title, status, priority, description }),
+    });
+    if (!res.ok) return null;
+    return await res.json() as ProjectTask;
+  } catch { return null; }
+}
+
+async function apiUpdateTask(projectId: string, taskId: string, updates: Partial<Pick<ProjectTask, "status" | "priority" | "title" | "description">>): Promise<boolean> {
+  try {
+    const res = await fetch(`/api/projects/${projectId}/tasks/${taskId}`, {
+      method: "PUT", credentials: "include",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify(updates),
+    });
+    return res.ok;
+  } catch { return false; }
+}
+
+async function apiDeleteTask(projectId: string, taskId: string): Promise<boolean> {
+  try {
+    const res = await fetch(`/api/projects/${projectId}/tasks/${taskId}`, {
+      method: "DELETE", credentials: "include",
+    });
+    return res.ok;
+  } catch { return false; }
+}
+
+// ─── TaskBoard Component ──────────────────────────────────────────────────────
+
+const TASK_COLS: { id: ProjectTask["status"]; label: string; icon: string; color: string }[] = [
+  { id: "todo",        label: "To Do",      icon: "⬜", color: "#94a3b8" },
+  { id: "in-progress", label: "In Progress", icon: "🔵", color: "#6366f1" },
+  { id: "done",        label: "Done",       icon: "✅", color: "#34C759" },
+];
+
+const PRIORITY_COLORS: Record<ProjectTask["priority"], string> = {
+  low: "#94a3b8", medium: "#FF9500", high: "#FF3B30",
+};
+
+function TaskBoard({ projectId }: { projectId: string }) {
+  const [tasks, setTasks] = useState<ProjectTask[]>([]);
+  const [loading, setLoading] = useState(true);
+  const [showAdd, setShowAdd] = useState<ProjectTask["status"] | null>(null);
+  const [newTitle, setNewTitle] = useState("");
+  const [newPriority, setNewPriority] = useState<ProjectTask["priority"]>("medium");
+  const [newDesc, setNewDesc] = useState("");
+  const [saving, setSaving] = useState(false);
+
+  useEffect(() => {
+    setLoading(true);
+    apiListTasks(projectId).then(t => { setTasks(t); setLoading(false); });
+  }, [projectId]);
+
+  const handleAdd = async (status: ProjectTask["status"]) => {
+    if (!newTitle.trim()) return;
+    setSaving(true);
+    const task = await apiCreateTask(projectId, newTitle.trim(), status, newPriority, newDesc.trim() || undefined);
+    if (task) setTasks(prev => [...prev, task]);
+    setNewTitle(""); setNewDesc(""); setNewPriority("medium"); setShowAdd(null);
+    setSaving(false);
+  };
+
+  const handleMove = async (task: ProjectTask, newStatus: ProjectTask["status"]) => {
+    setTasks(prev => prev.map(t => t.id === task.id ? { ...t, status: newStatus } : t));
+    await apiUpdateTask(projectId, task.id, { status: newStatus });
+  };
+
+  const handleDelete = async (task: ProjectTask) => {
+    setTasks(prev => prev.filter(t => t.id !== task.id));
+    await apiDeleteTask(projectId, task.id);
+  };
+
+  if (loading) {
+    return (
+      <div style={{ display: "flex", alignItems: "center", justifyContent: "center", padding: 40, color: "#475569", fontSize: 13 }}>
+        Loading tasks…
+      </div>
+    );
+  }
+
+  return (
+    <div style={{ display: "flex", gap: 12, padding: "16px", overflowX: "auto", height: "100%", alignItems: "flex-start" }}>
+      {TASK_COLS.map(col => {
+        const colTasks = tasks.filter(t => t.status === col.id);
+        return (
+          <div key={col.id} style={{
+            width: 260, flexShrink: 0, display: "flex", flexDirection: "column", gap: 8,
+            background: "rgba(0,0,0,0.2)", borderRadius: 12, padding: "12px",
+            border: `1px solid ${col.color}22`,
+          }}>
+            {/* Column header */}
+            <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", marginBottom: 4 }}>
+              <div style={{ display: "flex", alignItems: "center", gap: 6 }}>
+                <span style={{ fontSize: 14 }}>{col.icon}</span>
+                <span style={{ fontSize: 12, fontWeight: 700, color: col.color }}>{col.label}</span>
+                <span style={{
+                  fontSize: 10, background: `${col.color}22`, color: col.color,
+                  borderRadius: 20, padding: "1px 7px", fontWeight: 700,
+                }}>{colTasks.length}</span>
+              </div>
+              <button
+                onClick={() => { setShowAdd(col.id); setNewTitle(""); setNewDesc(""); setNewPriority("medium"); }}
+                style={{
+                  background: `${col.color}22`, border: `1px solid ${col.color}44`, borderRadius: 6,
+                  width: 22, height: 22, color: col.color, cursor: "pointer", fontSize: 14,
+                  display: "flex", alignItems: "center", justifyContent: "center",
+                }}
+              >+</button>
+            </div>
+
+            {/* Add form */}
+            {showAdd === col.id && (
+              <div style={{ background: "rgba(255,255,255,0.06)", borderRadius: 10, padding: 10, display: "flex", flexDirection: "column", gap: 6 }}>
+                <input
+                  autoFocus
+                  value={newTitle}
+                  onChange={e => setNewTitle(e.target.value)}
+                  placeholder="Task title…"
+                  style={{
+                    background: "rgba(255,255,255,0.08)", border: "1px solid rgba(255,255,255,0.12)",
+                    borderRadius: 6, padding: "6px 8px", color: "#e2e8f0", fontSize: 12,
+                  }}
+                  onKeyDown={e => { if (e.key === "Enter") handleAdd(col.id); if (e.key === "Escape") setShowAdd(null); }}
+                />
+                <input
+                  value={newDesc}
+                  onChange={e => setNewDesc(e.target.value)}
+                  placeholder="Description (optional)"
+                  style={{
+                    background: "rgba(255,255,255,0.06)", border: "1px solid rgba(255,255,255,0.08)",
+                    borderRadius: 6, padding: "5px 8px", color: "#94a3b8", fontSize: 11,
+                  }}
+                />
+                <div style={{ display: "flex", gap: 4 }}>
+                  {(["low", "medium", "high"] as ProjectTask["priority"][]).map(p => (
+                    <button
+                      key={p}
+                      onClick={() => setNewPriority(p)}
+                      style={{
+                        flex: 1, background: newPriority === p ? `${PRIORITY_COLORS[p]}22` : "rgba(255,255,255,0.04)",
+                        border: `1px solid ${newPriority === p ? PRIORITY_COLORS[p] : "transparent"}`,
+                        borderRadius: 5, padding: "4px 0", color: PRIORITY_COLORS[p],
+                        fontSize: 10, cursor: "pointer", fontWeight: 600, textTransform: "capitalize",
+                      }}
+                    >{p}</button>
+                  ))}
+                </div>
+                <div style={{ display: "flex", gap: 6 }}>
+                  <button
+                    onClick={() => handleAdd(col.id)}
+                    disabled={!newTitle.trim() || saving}
+                    style={{
+                      flex: 1, background: col.color, border: "none", borderRadius: 6,
+                      padding: "6px", color: "#fff", fontSize: 11, fontWeight: 700, cursor: "pointer",
+                    }}
+                  >{saving ? "…" : "Add Task"}</button>
+                  <button
+                    onClick={() => setShowAdd(null)}
+                    style={{
+                      background: "rgba(255,255,255,0.06)", border: "none", borderRadius: 6,
+                      padding: "6px 10px", color: "#94a3b8", fontSize: 11, cursor: "pointer",
+                    }}
+                  >Cancel</button>
+                </div>
+              </div>
+            )}
+
+            {/* Tasks */}
+            {colTasks.length === 0 && showAdd !== col.id && (
+              <div style={{ fontSize: 11, color: "#334155", textAlign: "center", padding: "16px 0" }}>No tasks yet</div>
+            )}
+            {colTasks.map(task => (
+              <div key={task.id} style={{
+                background: "rgba(255,255,255,0.05)", borderRadius: 8, padding: "10px",
+                border: "1px solid rgba(255,255,255,0.06)", display: "flex", flexDirection: "column", gap: 6,
+              }}>
+                <div style={{ display: "flex", alignItems: "flex-start", gap: 6 }}>
+                  <div style={{ flex: 1 }}>
+                    <div style={{ fontSize: 12, fontWeight: 600, color: "#e2e8f0", lineHeight: 1.3 }}>{task.title}</div>
+                    {task.description && (
+                      <div style={{ fontSize: 10, color: "#94a3b8", marginTop: 3, lineHeight: 1.4 }}>{task.description}</div>
+                    )}
+                  </div>
+                  <button
+                    onClick={() => handleDelete(task)}
+                    style={{
+                      background: "transparent", border: "none", color: "#475569",
+                      cursor: "pointer", fontSize: 11, padding: "0 2px", flexShrink: 0,
+                    }}
+                    title="Delete"
+                  >✕</button>
+                </div>
+                <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between" }}>
+                  <span style={{
+                    fontSize: 9, background: `${PRIORITY_COLORS[task.priority]}22`,
+                    color: PRIORITY_COLORS[task.priority], borderRadius: 4, padding: "2px 6px",
+                    fontWeight: 700, textTransform: "capitalize",
+                  }}>{task.priority}</span>
+                  <div style={{ display: "flex", gap: 4 }}>
+                    {TASK_COLS.filter(c => c.id !== task.status).map(c => (
+                      <button
+                        key={c.id}
+                        onClick={() => handleMove(task, c.id)}
+                        title={`Move to ${c.label}`}
+                        style={{
+                          background: `${c.color}15`, border: `1px solid ${c.color}33`,
+                          borderRadius: 4, padding: "2px 5px", color: c.color,
+                          fontSize: 9, cursor: "pointer", fontWeight: 600,
+                        }}
+                      >{c.icon}</button>
+                    ))}
+                  </div>
+                </div>
+              </div>
+            ))}
+          </div>
+        );
+      })}
+    </div>
+  );
 }
 
 // ─── SSE Project Chat ─────────────────────────────────────────────────────────
@@ -608,6 +858,7 @@ export function ProjectOSApp() {
     { id: "folders",           label: "Folders" },
     { id: "simple",            label: "Simple" },
     { id: "advanced",          label: "Advanced" },
+    { id: "tasks",             label: "📋 Tasks" },
   ];
 
   const activeFiles = activeFolderId
@@ -846,8 +1097,15 @@ export function ProjectOSApp() {
                 </div>
               )}
 
+              {/* ── Task Board ── */}
+              {viewMode === "tasks" && (
+                <div className="flex-1 overflow-hidden">
+                  <TaskBoard projectId={activeProject.id} />
+                </div>
+              )}
+
               {/* Folder + File View */}
-              {viewMode !== "dashboard" && (
+              {viewMode !== "dashboard" && viewMode !== "tasks" && (
                 <div className="flex flex-1 overflow-hidden">
 
                   {/* Folder Tree */}

@@ -7,7 +7,7 @@ export type AppId =
   | "documents" | "marketing" | "admin" | "family"
   | "integration" | "monetization" | "universal" | "simulation"
   | "business" | "entity" | "bizcreator" | "bizdev" | "projbuilder" | "projos"
-  | "notifications";
+  | "notifications" | "brainhub";
 
 export interface AppDef {
   id: AppId;
@@ -40,6 +40,7 @@ export const DEFAULT_APPS: AppDef[] = [
   { id: "projbuilder",  label: "ProjBuilder", icon: "📋", color: "#06b6d4", description: "7-section project file builder: overview, modules, ops, documents, tools, pricing, launch", category: "business" },
   { id: "projos",       label: "ProjectOS",   icon: "📂", color: "#6366f1", description: "Universal project platform: dashboard, folder view, sub-apps, AI helper, modes, search, delete", category: "system" },
   { id: "notifications", label: "Notifications", icon: "🔔", color: "#6366f1", description: "System notifications, alerts, and activity updates", category: "system" },
+  { id: "brainhub",      label: "Brain Hub",     icon: "⚡", color: "#6366f1", description: "All engines, meta-agents, and series — real AI capability center", category: "core" },
 ];
 
 export const ALL_APPS = DEFAULT_APPS;
@@ -80,6 +81,7 @@ const INTENT_MAP: { keywords: string[]; target: AppId }[] = [
   { keywords: ["people", "contact", "invite", "person"],                  target: "people" },
   { keywords: ["file", "doc", "document"],                                 target: "documents" },
   { keywords: ["notification", "alert", "inbox", "updates"],              target: "notifications" },
+  { keywords: ["brain hub", "capability", "engines", "meta-agent", "oracle", "forge", "nexus", "sentinel", "pulse", "vector", "series", "omega", "phi"], target: "brainhub" },
   { keywords: ["money", "monetize", "revenue", "earn", "funnel", "offer"],target: "monetization" },
   { keywords: ["admin", "settings", "control", "mode", "user"],           target: "admin" },
   { keywords: ["family", "home", "personal"],                              target: "family" },
@@ -122,6 +124,7 @@ const APP_META: Record<AppId, { icon: string; label: string }> = {
   projbuilder:  { icon: "📋", label: "ProjBuilder" },
   projos:       { icon: "📂", label: "ProjectOS" },
   notifications: { icon: "🔔", label: "Notifications" },
+  brainhub:      { icon: "⚡", label: "Brain Hub" },
 };
 
 // ─── OS State ──────────────────────────────────────────────────────────────
