@@ -1,0 +1,41 @@
+Before continuing, please expand this system to the maximum safe modular scale with no artificial upper limit.
+
+Within all legal, safety, and platform policy limits, continuously increase the number of engines, meta-agents, series layers, apps, and intelligence layers as far as is realistically useful, technically feasible, and fully policy-compliant. Do NOT bypass, weaken, or work around any restrictions. If a requested capability would violate safety or policy, implement the closest safe alternative and document the limitation in comments.
+
+1. Engines (no fixed upper limit):
+   • Generate engines in structured families and subfamilies.
+   • Continue adding new engines whenever a distinct, safe capability or workflow is identified.
+   • Engines are modes/presets, not autonomous systems.
+
+2. Meta-agents (no fixed upper limit):
+   • Define meta-agents as orchestrators with clear roles.
+   • Create multiple variants per role when useful.
+   • Meta-agents only coordinate allowed workflows.
+
+3. Series / layers (no fixed upper limit):
+   • Expand the series system as stacked behavior profiles.
+   • Add new series whenever a distinct, safe configuration pattern is useful.
+   • Organize them into categories and subcategories.
+
+4. OS Apps (no fixed upper limit):
+   • Treat apps as UI shells around engines, meta-agents, and workflows.
+   • Add new apps whenever a new capability, workflow, or engine family emerges.
+
+5. Intelligence layers (expand as far as safely feasible):
+   • Add safe architectural layers such as context, workflow, domain routing, UX, safety emphasis, etc.
+
+6. Registry and structure:
+   • Maintain a central registry for all engines, meta-agents, series, apps, and layers with:
+     – id
+     – name
+     – category
+     – purpose
+     – relationships
+   • Keep wiring focused on core flows; leave others available but not always active.
+
+7. Build method:
+   • Work incrementally.
+   • After each expansion step, run a full typecheck and summarize what was added.
+   • Wait for approval before continuing.
+
+There is no upper limit on the number of engines, meta-agents, series, or apps as long as all additions remain safe, legal, non-redundant, and policy-compliant.
