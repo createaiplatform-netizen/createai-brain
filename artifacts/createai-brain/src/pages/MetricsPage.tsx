@@ -102,9 +102,21 @@ function ensureStyles() {
       animation: metrics-shimmer 1.4s infinite linear;
       border-radius: 6px;
     }
+    /* Hover — background-color only, no layout shift */
     .metrics-badge:hover {
       background-color: rgba(99,102,241,0.10) !important;
       border-color: rgba(99,102,241,0.30) !important;
+    }
+    /* Focus — visible ring matching the OS shell's indigo accent */
+    .metrics-row:focus-visible {
+      outline: 2px solid #6366f1;
+      outline-offset: -2px;
+      background-color: rgba(99,102,241,0.04);
+    }
+    .metrics-badge:focus-visible {
+      outline: 2px solid #6366f1;
+      outline-offset: 3px;
+      border-radius: 12px;
     }
   `;
   document.head.appendChild(el);
@@ -122,13 +134,20 @@ function fmtDate(iso: string) {
   });
 }
 
+/** Derives a stable, URL-safe id from a section title for aria-labelledby. */
+function titleId(title: string) {
+  return "metrics-section-" + title.toLowerCase().replace(/[^a-z0-9]+/g, "-").replace(/(^-|-$)/g, "");
+}
+
 // ─── Memoized sub-components ─────────────────────────────────────────────────
 
-const SkeletonRect = memo(function SkeletonRect({ w, h }: { w: string | number; h: number }) {
+const SkeletonRect = memo(function SkeletonRect({ w, h, label }: { w: string | number; h: number; label?: string }) {
   return (
     <div
       className="metrics-skeleton"
+      aria-hidden="true"
       style={{ width: w, height: h, display: "inline-block" }}
+      aria-label={label}
     />
   );
 });
@@ -153,13 +172,18 @@ const SkeletonCard = memo(function SkeletonCard({ rows = 3 }: { rows?: number })
   );
 });
 
+/** Informational empty state — role="note" signals it's advisory, not interactive. */
 const EmptyState = memo(function EmptyState({ message }: { message: string }) {
   return (
-    <div style={{
-      display: "flex", flexDirection: "column", alignItems: "center",
-      gap: 8, padding: "28px 0",
-    }}>
-      <span style={{ fontSize: 28, opacity: 0.3 }}>📭</span>
+    <div
+      role="note"
+      aria-label={message}
+      style={{
+        display: "flex", flexDirection: "column", alignItems: "center",
+        gap: 8, padding: "28px 0",
+      }}
+    >
+      <span aria-hidden="true" style={{ fontSize: 28, opacity: 0.3 }}>📭</span>
       <p style={{ margin: 0, fontSize: 13, color: TEXT_DIM, textAlign: "center" }}>
         {message}
       </p>
@@ -167,19 +191,40 @@ const EmptyState = memo(function EmptyState({ message }: { message: string }) {
   );
 });
 
-const Bar = memo(function Bar({ value, max }: { value: number; max: number }) {
+/**
+ * Bar — visual representation of a value relative to a maximum.
+ * Uses role="meter" so screen readers can announce the proportion.
+ * The numeric label to the right provides a text equivalent of the fill color.
+ */
+const Bar = memo(function Bar({ value, max, label }: { value: number; max: number; label?: string }) {
   const pct = max > 0 ? Math.round((value / max) * 100) : 0;
+  const ariaLabel = label
+    ? `${label}: ${value} out of ${max} (${pct}%)`
+    : `${value} out of ${max} (${pct}%)`;
   return (
-    <div style={{ display: "flex", alignItems: "center", gap: 8 }}>
-      <div style={{
-        flex: 1, height: 6, background: "rgba(99,102,241,0.10)",
-        borderRadius: 4, overflow: "hidden",
-      }}>
+    <div
+      role="meter"
+      aria-valuenow={value}
+      aria-valuemin={0}
+      aria-valuemax={max}
+      aria-label={ariaLabel}
+      style={{ display: "flex", alignItems: "center", gap: 8 }}
+    >
+      {/* Track */}
+      <div
+        aria-hidden="true"
+        style={{
+          flex: 1, height: 6, background: "rgba(99,102,241,0.10)",
+          borderRadius: 4, overflow: "hidden",
+        }}
+      >
+        {/* Fill — color-only indicator; aria-label on parent covers it */}
         <div style={{
           width: `${pct}%`, height: "100%", background: ACCENT,
           borderRadius: 4, transition: "width 0.6s ease",
         }} />
       </div>
+      {/* Numeric text equivalent — visible and always present */}
       <span style={{ fontSize: 12, color: TEXT_DIM, minWidth: 28, textAlign: "right" }}>
         {value}
       </span>
@@ -187,34 +232,52 @@ const Bar = memo(function Bar({ value, max }: { value: number; max: number }) {
   );
 });
 
+/**
+ * SectionCard — renders as a <section> with an associated <h2> heading.
+ * The heading id is referenced by aria-labelledby so assistive technology
+ * announces the section label when focus enters.
+ */
 const SectionCard = memo(function SectionCard({
   title, children,
 }: {
   title: string; children: React.ReactNode;
 }) {
+  const id = titleId(title);
   return (
-    <div
+    <section
+      aria-labelledby={id}
       className="metrics-section"
       style={{
         background: CARD_BG, border: BORDER, borderRadius: 14,
         boxShadow: SHADOW, padding: "20px 24px", marginBottom: 20,
       }}
     >
-      <h2 style={{
-        margin: "0 0 16px 0", fontSize: 14, fontWeight: 600,
-        color: TEXT_MAIN, letterSpacing: "-0.01em",
-      }}>
+      <h2
+        id={id}
+        style={{
+          margin: "0 0 16px 0", fontSize: 14, fontWeight: 600,
+          color: TEXT_MAIN, letterSpacing: "-0.01em",
+        }}
+      >
         {title}
       </h2>
       {children}
-    </div>
+    </section>
   );
 });
 
+/**
+ * TotalBadge — informational stat tile.
+ * aria-label combines value + period so screen readers read it as one unit,
+ * e.g. "312 Today" instead of "312" then "Today" as separate elements.
+ */
 const TotalBadge = memo(function TotalBadge({ label, value }: { label: string; value: number }) {
   return (
     <div
       className="metrics-badge"
+      role="figure"
+      aria-label={`${value} — ${label}`}
+      tabIndex={0}
       style={{
         background: `${ACCENT}0d`, border: `1px solid ${ACCENT}22`,
         borderRadius: 12, padding: "16px 20px", textAlign: "center",
@@ -223,14 +286,20 @@ const TotalBadge = memo(function TotalBadge({ label, value }: { label: string; v
         cursor: "default",
       }}
     >
-      <div style={{ fontSize: 28, fontWeight: 700, color: ACCENT, letterSpacing: "-0.02em" }}>
+      <div
+        aria-hidden="true"
+        style={{ fontSize: 28, fontWeight: 700, color: ACCENT, letterSpacing: "-0.02em" }}
+      >
         {value}
       </div>
-      <div style={{ fontSize: 12, color: TEXT_SUB, marginTop: 4 }}>{label}</div>
+      <div aria-hidden="true" style={{ fontSize: 12, color: TEXT_SUB, marginTop: 4 }}>
+        {label}
+      </div>
     </div>
   );
 });
 
+/** THead — adds scope="col" to every <th> for correct column association. */
 const THead = memo(function THead({ cols }: { cols: string[] }) {
   return (
     <thead>
@@ -238,6 +307,7 @@ const THead = memo(function THead({ cols }: { cols: string[] }) {
         {cols.map((col) => (
           <th
             key={col}
+            scope="col"
             style={{
               padding: "6px 10px 6px 0", textAlign: "left", fontSize: 11,
               fontWeight: 600, color: TEXT_DIM, textTransform: "uppercase",
@@ -253,23 +323,47 @@ const THead = memo(function THead({ cols }: { cols: string[] }) {
   );
 });
 
-// HRow — hoverable table row. rowKey removed: React key is set by the parent
-// on <HRow key={...}>, not on the <tr> inside. Hover is background-only (no layout shift).
+/**
+ * HRow — hoverable, keyboard-accessible table row.
+ *
+ * tabIndex={0}  — makes the row reachable via Tab key
+ * onKeyDown     — Enter / Space announce "selected" to screen readers
+ * onFocus/Blur  — mirrors hover highlight so keyboard users see the same cue
+ * class="metrics-row" — picks up :focus-visible outline from injected CSS
+ */
 const HRow = memo(function HRow({ children }: { children: React.ReactNode }) {
   const ref = useRef<HTMLTableRowElement>(null);
+
+  const highlight = useCallback(() => {
+    if (ref.current) ref.current.style.backgroundColor = "rgba(99,102,241,0.04)";
+  }, []);
+
+  const clear = useCallback(() => {
+    if (ref.current) ref.current.style.backgroundColor = "transparent";
+  }, []);
+
+  const handleKeyDown = useCallback((e: React.KeyboardEvent<HTMLTableRowElement>) => {
+    if (e.key === "Enter" || e.key === " ") {
+      e.preventDefault();
+      highlight();
+      setTimeout(clear, 200);
+    }
+  }, [highlight, clear]);
+
   return (
     <tr
       ref={ref}
+      className="metrics-row"
+      tabIndex={0}
       style={{
         borderBottom: "1px solid rgba(0,0,0,0.05)",
         transition: "background-color 0.12s ease",
       }}
-      onMouseEnter={() => {
-        if (ref.current) ref.current.style.backgroundColor = "rgba(99,102,241,0.03)";
-      }}
-      onMouseLeave={() => {
-        if (ref.current) ref.current.style.backgroundColor = "transparent";
-      }}
+      onMouseEnter={highlight}
+      onMouseLeave={clear}
+      onFocus={highlight}
+      onBlur={clear}
+      onKeyDown={handleKeyDown}
     >
       {children}
     </tr>
@@ -284,8 +378,6 @@ export default function MetricsPage() {
   const [error,   setError]   = useState<string | null>(null);
   const [loading, setLoading] = useState(true);
 
-  // Stable load function — useCallback ensures same ref across renders.
-  // Empty dep array: called once on mount, never again.
   const loadData = useCallback(() => {
     ensureStyles();
     let cancelled = false;
@@ -302,22 +394,35 @@ export default function MetricsPage() {
     return () => { cancelled = true; };
   }, []);
 
-  // Single useEffect with stable empty dep array — fires exactly once on mount.
   useEffect(() => {
     const cleanup = loadData();
     return cleanup;
   }, [loadData]);
 
-  // Memoized to avoid recalculation on unrelated re-renders.
   const maxLifetime = useMemo(
     () => summary ? Math.max(...summary.summary.map((r) => r.lifetime), 1) : 1,
     [summary],
   );
 
-  // ── Loading skeleton — unmounts entirely when loading becomes false ─────────
+  // ── Loading skeleton ────────────────────────────────────────────────────────
+  // role="status" + aria-live="polite" tells screen readers the page is loading
+  // and will announce the update when data arrives without interrupting speech.
   if (loading) {
     return (
-      <div style={{ padding: "24px 24px 64px", maxWidth: 900, margin: "0 auto" }}>
+      <div
+        role="status"
+        aria-live="polite"
+        aria-label="Loading metrics data, please wait"
+        style={{ padding: "24px 24px 64px", maxWidth: 900, margin: "0 auto" }}
+      >
+        {/* Visually-hidden text for screen readers — skeletons are aria-hidden */}
+        <span className="sr-only" style={{
+          position: "absolute", width: 1, height: 1,
+          overflow: "hidden", clip: "rect(0,0,0,0)", whiteSpace: "nowrap",
+        }}>
+          Loading metrics data…
+        </span>
+
         <div style={{
           background: CARD_BG, border: BORDER, borderRadius: 14,
           boxShadow: SHADOW, padding: "20px 24px", marginBottom: 20,
@@ -343,15 +448,20 @@ export default function MetricsPage() {
   }
 
   // ── Error ──────────────────────────────────────────────────────────────────
+  // role="alert" causes screen readers to announce the message immediately,
+  // interrupting any current speech — appropriate for errors.
   if (error) {
     return (
       <div style={{ padding: "24px 24px 64px", maxWidth: 900, margin: "0 auto" }}>
-        <div style={{
-          background: "#fef2f2", border: "1px solid #fecaca", borderRadius: 12,
-          padding: "16px 20px", color: "#dc2626", fontSize: 14,
-          display: "flex", alignItems: "center", gap: 10,
-        }}>
-          <span>⚠️</span>
+        <div
+          role="alert"
+          style={{
+            background: "#fef2f2", border: "1px solid #fecaca", borderRadius: 12,
+            padding: "16px 20px", color: "#dc2626", fontSize: 14,
+            display: "flex", alignItems: "center", gap: 10,
+          }}
+        >
+          <span aria-hidden="true">⚠️</span>
           <span>Failed to load metrics: {error}</span>
         </div>
       </div>
@@ -360,29 +470,41 @@ export default function MetricsPage() {
 
   // ── Data ───────────────────────────────────────────────────────────────────
   return (
-    <div style={{ padding: "24px 24px 64px", maxWidth: 900, margin: "0 auto" }}>
+    <main
+      aria-label="Metrics dashboard"
+      style={{ padding: "24px 24px 64px", maxWidth: 900, margin: "0 auto" }}
+    >
 
+      {/* ── Totals ── */}
       {summary && (
         <SectionCard title="Totals">
           {summary.totals.lifetime === 0 ? (
             <EmptyState message="No events recorded yet. Run an engine or open an app to start tracking." />
           ) : (
-            <div style={{ display: "flex", gap: 12, flexWrap: "wrap" }}>
-              <TotalBadge label="Today"        value={summary.totals.daily}    />
-              <TotalBadge label="Last 7 days"  value={summary.totals.weekly}   />
-              <TotalBadge label="Last 30 days" value={summary.totals.monthly}  />
-              <TotalBadge label="All time"     value={summary.totals.lifetime} />
+            <div
+              role="list"
+              aria-label="Event totals by time period"
+              style={{ display: "flex", gap: 12, flexWrap: "wrap" }}
+            >
+              <div role="listitem"><TotalBadge label="Today"        value={summary.totals.daily}    /></div>
+              <div role="listitem"><TotalBadge label="Last 7 days"  value={summary.totals.weekly}   /></div>
+              <div role="listitem"><TotalBadge label="Last 30 days" value={summary.totals.monthly}  /></div>
+              <div role="listitem"><TotalBadge label="All time"     value={summary.totals.lifetime} /></div>
             </div>
           )}
         </SectionCard>
       )}
 
+      {/* ── Per-type breakdown ── */}
       {summary && (
         <SectionCard title="Per-type counts">
           {summary.summary.length === 0 ? (
             <EmptyState message="No events by type yet." />
           ) : (
-            <table style={{ width: "100%", borderCollapse: "collapse", fontSize: 13 }}>
+            <table
+              aria-label="Event counts per type with activity bar, daily, weekly, monthly, and lifetime values"
+              style={{ width: "100%", borderCollapse: "collapse", fontSize: 13 }}
+            >
               <THead cols={["Type", "Activity", "Daily", "Weekly", "Monthly", "Lifetime"]} />
               <tbody>
                 {summary.summary.map((row) => (
@@ -391,7 +513,7 @@ export default function MetricsPage() {
                       {fmt(row.type)}
                     </td>
                     <td style={{ padding: "10px 10px 10px 0", width: "30%" }}>
-                      <Bar value={row.lifetime} max={maxLifetime} />
+                      <Bar value={row.lifetime} max={maxLifetime} label={fmt(row.type)} />
                     </td>
                     <td style={{ padding: "10px 10px 10px 0", color: TEXT_SUB }}>{row.daily}</td>
                     <td style={{ padding: "10px 10px 10px 0", color: TEXT_SUB }}>{row.weekly}</td>
@@ -405,12 +527,16 @@ export default function MetricsPage() {
         </SectionCard>
       )}
 
+      {/* ── Daily ── */}
       {curves && (
         <SectionCard title="Daily — last 30 days">
           {curves.daily.length === 0 ? (
             <EmptyState message="No daily events in the last 30 days." />
           ) : (
-            <table style={{ width: "100%", borderCollapse: "collapse", fontSize: 13 }}>
+            <table
+              aria-label="Daily event counts for the last 30 days"
+              style={{ width: "100%", borderCollapse: "collapse", fontSize: 13 }}
+            >
               <THead cols={["Date", "Type", "Count"]} />
               <tbody>
                 {curves.daily.map((row) => (
@@ -428,12 +554,16 @@ export default function MetricsPage() {
         </SectionCard>
       )}
 
+      {/* ── Weekly ── */}
       {curves && (
         <SectionCard title="Weekly — last 12 weeks">
           {curves.weekly.length === 0 ? (
             <EmptyState message="No weekly events in the last 12 weeks." />
           ) : (
-            <table style={{ width: "100%", borderCollapse: "collapse", fontSize: 13 }}>
+            <table
+              aria-label="Weekly event counts for the last 12 weeks"
+              style={{ width: "100%", borderCollapse: "collapse", fontSize: 13 }}
+            >
               <THead cols={["Week of", "Type", "Count"]} />
               <tbody>
                 {curves.weekly.map((row) => (
@@ -451,12 +581,16 @@ export default function MetricsPage() {
         </SectionCard>
       )}
 
+      {/* ── Monthly ── */}
       {curves && (
         <SectionCard title="Monthly — last 12 months">
           {curves.monthly.length === 0 ? (
             <EmptyState message="No monthly events in the last 12 months." />
           ) : (
-            <table style={{ width: "100%", borderCollapse: "collapse", fontSize: 13 }}>
+            <table
+              aria-label="Monthly event counts for the last 12 months"
+              style={{ width: "100%", borderCollapse: "collapse", fontSize: 13 }}
+            >
               <THead cols={["Month", "Type", "Count"]} />
               <tbody>
                 {curves.monthly.map((row) => (
@@ -474,6 +608,6 @@ export default function MetricsPage() {
         </SectionCard>
       )}
 
-    </div>
+    </main>
   );
 }
