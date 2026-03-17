@@ -23,7 +23,7 @@ import {
   getRegistryItem,
   COMMAND_HANDLERS,
 } from "../services/commandProcessor";
-import { expandToLimit } from "../services/expansionEngine";
+import { expandToLimit, getExpansionHistory } from "../services/expansionEngine";
 import { logAudit } from "../services/audit";
 import { db } from "@workspace/db";
 
@@ -193,6 +193,22 @@ router.post("/expand", requireFounder, async (req: Request, res: Response) => {
   } catch (err) {
     console.error("[system/expand] Fatal error:", err);
     res.status(500).json({ error: "Expansion failed", detail: String(err) });
+  }
+});
+
+// ─── GET /api/system/expand/history ──────────────────────────────────────────
+
+router.get("/expand/history", requireFounder, async (_req: Request, res: Response) => {
+  try {
+    const history = await getExpansionHistory(50);
+    res.json({
+      ok:      true,
+      total:   history.length,
+      history,
+    });
+  } catch (err) {
+    console.error("[system/expand/history] error:", err);
+    res.status(500).json({ error: "Failed to retrieve expansion history", detail: String(err) });
   }
 });
 

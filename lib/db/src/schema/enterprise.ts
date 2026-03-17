@@ -7,7 +7,7 @@
  * multi-tenant mode.
  */
 
-import { boolean, index, jsonb, pgTable, serial, text, timestamp, varchar } from "drizzle-orm/pg-core";
+import { boolean, index, integer, jsonb, pgTable, serial, text, timestamp, varchar } from "drizzle-orm/pg-core";
 import { createInsertSchema } from "drizzle-zod";
 import { z } from "zod/v4";
 
@@ -173,3 +173,39 @@ export const ssoProviders = pgTable("sso_providers", {
 });
 
 export type SsoProvider = typeof ssoProviders.$inferSelect;
+
+// ─── Expansion Runs ───────────────────────────────────────────────────────────
+/**
+ * expansionRuns — persistent record of every Expansion Engine run.
+ *
+ * Every call to expandToLimit() writes a row here so the founder can
+ * review the full history of platform expansions. The complete summary
+ * (including the full step log) is stored as JSONB in `summary`.
+ *
+ * status: "completed" | "partial" | "no_viable_paths"
+ */
+export const expansionRuns = pgTable("expansion_runs", {
+  id:               serial("id").primaryKey(),
+  idea:             text("idea").notNull(),
+  status:           text("status").notNull().default("completed"),
+  totalIterations:  integer("total_iterations").notNull().default(0),
+  totalPaths:       integer("total_paths").notNull().default(0),
+  viablePaths:      integer("viable_paths").notNull().default(0),
+  executedPaths:    integer("executed_paths").notNull().default(0),
+  newRegistryItems: integer("new_registry_items").notNull().default(0),
+  totalRegistrySize: integer("total_registry_size").notNull().default(0),
+  protectionsApplied: integer("protections_applied").notNull().default(0),
+  optimizations:    integer("optimizations").notNull().default(0),
+  durationMs:       integer("duration_ms").notNull().default(0),
+  summary:          jsonb("summary").default({}),
+  triggeredBy:      text("triggered_by").default("founder"),
+  startedAt:        timestamp("started_at",   { withTimezone: true }).notNull().defaultNow(),
+  completedAt:      timestamp("completed_at", { withTimezone: true }).notNull().defaultNow(),
+  createdAt:        timestamp("created_at",   { withTimezone: true }).defaultNow().notNull(),
+}, (t) => [
+  index("expansion_runs_status_idx").on(t.status),
+  index("expansion_runs_created_idx").on(t.createdAt),
+]);
+
+export type ExpansionRun = typeof expansionRuns.$inferSelect;
+export type InsertExpansionRun = typeof expansionRuns.$inferInsert;

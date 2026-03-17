@@ -76,13 +76,25 @@ export function CommandCenterApp() {
     totalPaths: number; viablePaths: number; executedPaths: number;
     newRegistryItems: number; totalRegistrySize: number;
     protectionsApplied: number; optimizations: number;
-    startedAt: string; completedAt: string;
+    crossChains?: number; durationMs?: number; layers?: string[];
+    startedAt: string; completedAt: string; runId?: number;
   }
-  const [expandIdea, setExpandIdea]     = useState("");
-  const [expandRunning, setExpandRunning] = useState(false);
-  const [expandLog, setExpandLog]       = useState<ExpandLog[]>([]);
-  const [expandSummary, setExpandSummary] = useState<ExpandSummary | null>(null);
-  const [expandError, setExpandError]   = useState<string | null>(null);
+  interface HistoryRow {
+    id: number; idea: string; status: string; totalIterations: number;
+    totalPaths: number; viablePaths: number; executedPaths: number;
+    newRegistryItems: number; totalRegistrySize: number;
+    protectionsApplied: number; optimizations: number;
+    durationMs: number; triggeredBy: string | null;
+    startedAt: string; completedAt: string; createdAt: string;
+  }
+  const [expandIdea, setExpandIdea]         = useState("");
+  const [expandRunning, setExpandRunning]   = useState(false);
+  const [expandLog, setExpandLog]           = useState<ExpandLog[]>([]);
+  const [expandSummary, setExpandSummary]   = useState<ExpandSummary | null>(null);
+  const [expandError, setExpandError]       = useState<string | null>(null);
+  const [expandHistory, setExpandHistory]   = useState<HistoryRow[] | null>(null);
+  const [historyLoading, setHistoryLoading] = useState(false);
+  const [showHistory, setShowHistory]       = useState(false);
   const expandEndRef = useRef<HTMLDivElement>(null);
 
   useEffect(() => { expandEndRef.current?.scrollIntoView({ behavior: "smooth" }); }, [expandLog]);
@@ -190,15 +202,40 @@ export function CommandCenterApp() {
         totalRegistrySize: data.summary.totalRegistrySize,
         protectionsApplied: data.summary.protectionsApplied,
         optimizations:     data.summary.optimizations,
+        crossChains:       (data.summary as any).crossChains,
+        durationMs:        (data.summary as any).durationMs,
+        layers:            (data.summary as any).layers,
         startedAt:         data.summary.startedAt,
         completedAt:       data.summary.completedAt,
+        runId:             (data.summary as any).runId,
       });
+      // Refresh history after each run so it's always current
+      void loadHistory();
     } catch (err) {
       setExpandError(`Network error: ${String(err)}`);
     } finally {
       setExpandRunning(false);
     }
   }
+
+  // Load expansion history from DB
+  async function loadHistory() {
+    setHistoryLoading(true);
+    try {
+      const res = await fetch("/api/system/expand/history", { credentials: "include" });
+      if (!res.ok) return;
+      const data = await res.json() as { ok?: boolean; history?: HistoryRow[] };
+      if (data.ok && data.history) setExpandHistory(data.history);
+    } catch { /* silent */ } finally {
+      setHistoryLoading(false);
+    }
+  }
+
+  // Auto-load history when Expand tab opens
+  useEffect(() => {
+    if (activeTab !== "expand") return;
+    void loadHistory();
+  }, [activeTab]);
 
   // Fetch registry stats when System tab opens
   useEffect(() => {
@@ -1045,11 +1082,132 @@ export function CommandCenterApp() {
                     </div>
                   ))}
                 </div>
-                <p style={{ fontSize: 10, color: "#334155", margin: "10px 0 0", textAlign: "right" }}>
-                  {new Date(expandSummary.startedAt).toLocaleTimeString()} → {new Date(expandSummary.completedAt).toLocaleTimeString()}
-                </p>
+                <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", marginTop: 10 }}>
+                  <p style={{ fontSize: 10, color: "#334155", margin: 0 }}>
+                    {new Date(expandSummary.startedAt).toLocaleTimeString()} → {new Date(expandSummary.completedAt).toLocaleTimeString()}
+                    {expandSummary.durationMs != null && (
+                      <span style={{ marginLeft: 8, color: "#475569" }}>({(expandSummary.durationMs / 1000).toFixed(2)}s)</span>
+                    )}
+                  </p>
+                  <div style={{ display: "flex", gap: 6, alignItems: "center" }}>
+                    {expandSummary.runId != null && (
+                      <span style={{ fontSize: 9, color: "#475569" }}>Run #{expandSummary.runId} · Saved to DB</span>
+                    )}
+                    {expandSummary.crossChains != null && (
+                      <span style={{ fontSize: 9, padding: "2px 6px", background: "rgba(99,102,241,0.1)", borderRadius: 4, color: "#818cf8" }}>
+                        {expandSummary.crossChains} cross-chain(s)
+                      </span>
+                    )}
+                    {expandSummary.layers && expandSummary.layers.length > 0 && (
+                      <span style={{ fontSize: 9, padding: "2px 6px", background: "rgba(34,197,94,0.1)", borderRadius: 4, color: "#22c55e" }}>
+                        {expandSummary.layers.length} layers
+                      </span>
+                    )}
+                  </div>
+                </div>
               </div>
             )}
+
+            {/* Expansion History */}
+            <div style={{ margin: "0 16px 14px", flexShrink: 0 }}>
+              <button
+                onClick={() => {
+                  setShowHistory(h => !h);
+                  if (!showHistory && expandHistory === null) void loadHistory();
+                }}
+                style={{
+                  display: "flex", alignItems: "center", gap: 8, width: "100%",
+                  padding: "9px 12px", borderRadius: 9, border: "1px solid rgba(99,102,241,0.2)",
+                  background: showHistory ? "rgba(99,102,241,0.08)" : "rgba(255,255,255,0.02)",
+                  color: "#818cf8", fontSize: 12, fontWeight: 600, cursor: "pointer",
+                  justifyContent: "space-between",
+                }}
+              >
+                <span>📋 Expansion History</span>
+                <span style={{ display: "flex", alignItems: "center", gap: 6 }}>
+                  {expandHistory && (
+                    <span style={{ fontSize: 10, padding: "1px 6px", background: "rgba(99,102,241,0.15)", borderRadius: 8, color: "#a5b4fc" }}>
+                      {expandHistory.length} run{expandHistory.length !== 1 ? "s" : ""}
+                    </span>
+                  )}
+                  <span style={{ fontSize: 10, color: "#475569" }}>{showHistory ? "▲" : "▼"}</span>
+                </span>
+              </button>
+
+              {showHistory && (
+                <div style={{
+                  marginTop: 6, borderRadius: 9, border: "1px solid rgba(255,255,255,0.06)",
+                  background: "#0d1117", overflow: "hidden", maxHeight: 320, overflowY: "auto",
+                }}>
+                  {historyLoading && (
+                    <div style={{ padding: "16px", textAlign: "center", color: "#475569", fontSize: 12 }}>
+                      Loading history…
+                    </div>
+                  )}
+                  {!historyLoading && expandHistory && expandHistory.length === 0 && (
+                    <div style={{ padding: "16px", textAlign: "center", color: "#334155", fontSize: 12 }}>
+                      No expansion runs yet. Run your first expansion above.
+                    </div>
+                  )}
+                  {!historyLoading && expandHistory && expandHistory.map((row, i) => (
+                    <div
+                      key={row.id}
+                      style={{
+                        padding: "10px 14px",
+                        borderBottom: i < expandHistory.length - 1 ? "1px solid rgba(255,255,255,0.04)" : "none",
+                        background: i % 2 === 0 ? "transparent" : "rgba(255,255,255,0.01)",
+                      }}
+                    >
+                      <div style={{ display: "flex", alignItems: "flex-start", gap: 8, marginBottom: 5 }}>
+                        <span style={{
+                          fontSize: 9, padding: "2px 6px", borderRadius: 4, flexShrink: 0, marginTop: 1, fontWeight: 700,
+                          background: row.status === "completed" ? "rgba(34,197,94,0.12)" : "rgba(245,158,11,0.12)",
+                          color: row.status === "completed" ? "#22c55e" : "#f59e0b",
+                        }}>
+                          {row.status.toUpperCase()}
+                        </span>
+                        <span style={{ fontSize: 12, color: "#c4cfd8", flex: 1, lineHeight: 1.4 }}>
+                          {row.idea.length > 80 ? row.idea.slice(0, 80) + "…" : row.idea}
+                        </span>
+                        <span style={{ fontSize: 9, color: "#334155", flexShrink: 0, whiteSpace: "nowrap" }}>
+                          #{row.id}
+                        </span>
+                      </div>
+                      <div style={{ display: "flex", gap: 10, flexWrap: "wrap" }}>
+                        {[
+                          { label: "Paths",     value: row.executedPaths },
+                          { label: "Modules",   value: row.newRegistryItems },
+                          { label: "Protected", value: row.protectionsApplied },
+                          { label: "Opts",      value: row.optimizations },
+                          { label: "Iters",     value: row.totalIterations },
+                          { label: "ms",        value: row.durationMs },
+                        ].map(s => (
+                          <span key={s.label} style={{ fontSize: 9, color: "#475569" }}>
+                            <span style={{ color: "#6366f1", fontWeight: 700 }}>{s.value}</span> {s.label}
+                          </span>
+                        ))}
+                        <span style={{ fontSize: 9, color: "#334155", marginLeft: "auto" }}>
+                          {new Date(row.createdAt).toLocaleDateString()} {new Date(row.createdAt).toLocaleTimeString()}
+                          {row.triggeredBy && row.triggeredBy !== "founder" && (
+                            <span style={{ marginLeft: 6, color: "#6366f1" }}>· {row.triggeredBy}</span>
+                          )}
+                        </span>
+                      </div>
+                    </div>
+                  ))}
+                  {!historyLoading && expandHistory && expandHistory.length > 0 && (
+                    <div style={{ padding: "6px 14px", textAlign: "right", borderTop: "1px solid rgba(255,255,255,0.04)" }}>
+                      <button
+                        onClick={() => void loadHistory()}
+                        style={{ fontSize: 10, color: "#475569", background: "none", border: "none", cursor: "pointer", padding: "2px 4px" }}
+                      >
+                        ↻ Refresh
+                      </button>
+                    </div>
+                  )}
+                </div>
+              )}
+            </div>
           </div>
         )}
       </div>
