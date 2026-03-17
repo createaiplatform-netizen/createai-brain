@@ -18,6 +18,7 @@ import { BusinessEntityApp } from "@/Apps/BusinessEntityApp";
 import { BizUniverseApp } from "@/Apps/BizUniverseApp";
 import { BizDevApp } from "@/Apps/BizDevApp";
 import { ProjectBuilderApp } from "@/Apps/ProjectBuilderApp";
+import { ProjectOSApp } from "@/Apps/ProjectOSApp";
 import type { AppId } from "./OSContext";
 
 const APP_LABELS: Record<AppId, string> = {
@@ -39,6 +40,7 @@ const APP_LABELS: Record<AppId, string> = {
   bizcreator:   "Biz Universe Engine",
   bizdev:       "Real-World Business Planner",
   projbuilder:  "Project File Builder",
+  projos:       "Universal Project Platform",
 };
 
 const APP_ICONS: Record<AppId, string> = {
@@ -60,6 +62,7 @@ const APP_ICONS: Record<AppId, string> = {
   bizcreator:   "🌌",
   bizdev:       "⚡",
   projbuilder:  "📋",
+  projos:       "📂",
 };
 
 const APP_COMPONENTS: Record<AppId, React.ComponentType<any>> = {
@@ -81,6 +84,7 @@ const APP_COMPONENTS: Record<AppId, React.ComponentType<any>> = {
   bizcreator:   BizUniverseApp,
   bizdev:       BizDevApp,
   projbuilder:  ProjectBuilderApp,
+  projos:       ProjectOSApp,
 };
 
 interface AppWindowProps {

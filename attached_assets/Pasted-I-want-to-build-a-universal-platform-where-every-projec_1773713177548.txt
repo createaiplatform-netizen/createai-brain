@@ -1,0 +1,62 @@
+I want to build a universal platform where every project works the same way and follows the same structure. Please set up the system so that every project—existing or future—automatically includes:
+
+1. A universal dashboard at the top with large, clean buttons for:
+   - Apps
+   - Modes (Demo, Test, Live)
+   - Marketing Packet
+   - Company Packet
+   - AI Helper
+   - Add New File
+   - Add New Sub‑App
+   - Search Inside Project
+
+2. A universal folder view underneath the dashboard with:
+   - Apps
+   - Demo Mode
+   - Test Mode
+   - Live Mode
+   - Marketing Packet
+   - Company Materials
+   - Screens
+   - Files
+   - Data
+   - Any project‑specific folders (like Regulations, Maps, Gear Lists, Safety, etc.)
+   - A Mini AI Helper
+
+3. A universal toggle system so I can switch between:
+   - Dashboard view
+   - Folder view
+   - Dashboard + folders
+   - Simple view
+   - Advanced view
+
+4. A universal mini‑AI helper inside every project that can:
+   - Create new files
+   - Create new sub‑apps
+   - Organize files into the correct folders
+   - Delete files or folders safely
+   - Update content
+   - Help me customize the project
+
+5. A universal delete system that lets me remove any file, folder, sub‑app, or project without breaking anything.
+
+6. A universal search system that searches across:
+   - All projects
+   - All sub‑projects
+   - All files
+   - All screens
+   - All packets
+   - All folders
+
+7. A universal template for all future projects so that when I create a new project (like Hunting, Farming, Healthcare, Construction, etc.), it automatically gets:
+   - The dashboard
+   - The folder view
+   - The toggles
+   - The mini‑AI helper
+   - The delete system
+   - The search system
+   - The same structure as every other project
+
+8. Please choose the best‑looking default layout for me, but make sure I can toggle to any other layout later.
+
+This platform should feel organized, clean, modern, and easy to navigate. Every project should behave the same way, and everything should be easy to find, add, or delete.

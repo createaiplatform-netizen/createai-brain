@@ -6,7 +6,7 @@ export type AppId =
   | "chat" | "projects" | "tools" | "creator" | "people"
   | "documents" | "marketing" | "admin" | "family"
   | "integration" | "monetization" | "universal" | "simulation"
-  | "business" | "entity" | "bizcreator" | "bizdev" | "projbuilder";
+  | "business" | "entity" | "bizcreator" | "bizdev" | "projbuilder" | "projos";
 
 export interface AppDef {
   id: AppId;
@@ -37,6 +37,7 @@ export const DEFAULT_APPS: AppDef[] = [
   { id: "bizcreator",   label: "BizUniverse", icon: "🌌", color: "#8b5cf6", description: "8-layer universe engine: knowledge, blueprint, monetization, ecosystem, visualization, expansion", category: "business" },
   { id: "bizdev",       label: "BizPlanner",  icon: "⚡", color: "#f97316", description: "9-section real-world business planner: grounded, executable, no filler", category: "business" },
   { id: "projbuilder",  label: "ProjBuilder", icon: "📋", color: "#06b6d4", description: "7-section project file builder: overview, modules, ops, documents, tools, pricing, launch", category: "business" },
+  { id: "projos",       label: "ProjectOS",   icon: "📂", color: "#6366f1", description: "Universal project platform: dashboard, folder view, sub-apps, AI helper, modes, search, delete", category: "system" },
 ];
 
 export const ALL_APPS = DEFAULT_APPS;
@@ -85,6 +86,7 @@ const INTENT_MAP: { keywords: string[]; target: AppId }[] = [
   { keywords: ["universe", "bizcreator", "biz universe", "concept", "concept expansion", "idea", "visualize", "visualization", "digital twin", "vr", "ar", "knowledge context", "business system", "expand idea", "expand concept", "multi-layer"], target: "bizcreator" },
   { keywords: ["bizdev", "bizplanner", "biz planner", "biz dev", "business plan", "execution plan", "real world plan", "executable", "business development", "go to market", "gtm", "acquisition strategy", "legal risk", "tools systems", "target customers"], target: "bizdev" },
   { keywords: ["projbuilder", "project builder", "project file", "project plan", "healthcare platform", "construction project", "logistics hub", "sop", "standard operating procedure", "intake form", "phone script", "training outline", "launch plan", "30 days"], target: "projbuilder" },
+  { keywords: ["projos", "project os", "universal platform", "project dashboard", "folder view", "sub app", "project manager", "project management", "demo mode", "test mode", "live mode", "all projects", "organize projects", "hunting", "farming", "project folder"], target: "projos" },
 ];
 
 function routeIntentFn(intent: string): AppId | null {
@@ -115,6 +117,7 @@ const APP_META: Record<AppId, { icon: string; label: string }> = {
   bizcreator:   { icon: "🌌", label: "BizUniverse" },
   bizdev:       { icon: "⚡", label: "BizPlanner" },
   projbuilder:  { icon: "📋", label: "ProjBuilder" },
+  projos:       { icon: "📂", label: "ProjectOS" },
 };
 
 // ─── OS State ──────────────────────────────────────────────────────────────
