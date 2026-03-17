@@ -1,8 +1,8 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import { BrainGen } from "@/engine/BrainGen";
 import { OutputFormatter } from "@/components/OutputFormatter";
 
-const DOCS = [
+const STATIC_DOCS = [
   { name: "Healthcare – Mock Workflow Overview", type: "Document", project: "Healthcare Legal Safe", size: "2 pages", icon: "📄" },
   { name: "Operations – Role Structure",         type: "Report",   project: "Operations Builder",  size: "3 pages", icon: "📋" },
   { name: "Marketing – Brand Voice Guide",       type: "Brand Kit",project: "Marketing Hub",       size: "4 pages", icon: "🎨" },
@@ -38,12 +38,38 @@ const DOC_CONTENT: Record<string, { sections: { title: string; body: string }[] 
   ]},
 };
 
+interface DbFile {
+  id: string;
+  name: string;
+  fileType: string;
+  size: string;
+  content: string;
+  created: string;
+  projectId: number;
+  projectName: string | null;
+  projectIcon: string | null;
+}
+
 interface UserDoc {
   name: string; type: string; project: string; size: string; icon: string; generatedContent?: string;
 }
 
+function fileTypeIcon(type: string) {
+  const t = type.toLowerCase();
+  if (t.includes("video")) return "🎬";
+  if (t.includes("audio") || t.includes("music")) return "🎵";
+  if (t.includes("image") || t.includes("photo")) return "🖼️";
+  if (t.includes("sheet") || t.includes("spread")) return "📊";
+  if (t.includes("present") || t.includes("slide")) return "🎯";
+  if (t.includes("report")) return "📋";
+  if (t.includes("brand") || t.includes("kit")) return "🎨";
+  if (t.includes("check") || t.includes("form")) return "✅";
+  return "📄";
+}
+
 export function DocumentsApp() {
   const [selected, setSelected] = useState<string | null>(null);
+  const [selectedDbFile, setSelectedDbFile] = useState<DbFile | null>(null);
   const [editMode, setEditMode] = useState(false);
   const [editedContent, setEditedContent] = useState("");
   const [showNew, setShowNew] = useState(false);
@@ -52,6 +78,33 @@ export function DocumentsApp() {
   const [newCreated, setNewCreated] = useState(false);
   const [generating, setGenerating] = useState(false);
   const [userDocs, setUserDocs] = useState<UserDoc[]>([]);
+  const [dbFiles, setDbFiles] = useState<DbFile[]>([]);
+  const [loadingDb, setLoadingDb] = useState(true);
+  const [savingDb, setSavingDb] = useState(false);
+  const [savedDb, setSavedDb] = useState(false);
+
+  useEffect(() => {
+    fetch("/api/projects/all-files")
+      .then(r => r.ok ? r.json() : { files: [] })
+      .then((data: { files: DbFile[] }) => {
+        setDbFiles(data.files ?? []);
+        setLoadingDb(false);
+      })
+      .catch(() => setLoadingDb(false));
+  }, []);
+
+  const saveDbFileContent = async (file: DbFile, content: string) => {
+    setSavingDb(true);
+    await fetch(`/api/projects/${file.projectId}/files/${file.id}`, {
+      method: "PUT",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ content }),
+    });
+    setDbFiles(prev => prev.map(f => f.id === file.id ? { ...f, content } : f));
+    setSavingDb(false);
+    setSavedDb(true);
+    setTimeout(() => setSavedDb(false), 2000);
+  };
 
   if (showNew) {
     if (newCreated) {
@@ -145,8 +198,78 @@ export function DocumentsApp() {
     );
   }
 
+  if (selectedDbFile) {
+    const content = editedContent || selectedDbFile.content || "";
+    return (
+      <div className="p-6 space-y-5 animate-fade-up">
+        <div className="flex items-center gap-3">
+          <button onClick={() => { setSelectedDbFile(null); setEditedContent(""); setEditMode(false); }}
+            className="flex items-center gap-1 text-[13px] font-medium hover:opacity-70 transition-opacity"
+            style={{ color: "#818cf8" }}>
+            <span className="text-[18px] font-light">‹</span> Documents
+          </button>
+          <div className="flex-1" />
+          {savedDb && <span className="text-[11px] font-medium text-green-400">✓ Saved</span>}
+          {editMode
+            ? <button onClick={() => { saveDbFileContent(selectedDbFile, editedContent); setEditMode(false); }}
+                disabled={savingDb}
+                className="text-[12px] font-semibold px-3 py-1.5 rounded-xl text-white flex items-center gap-1"
+                style={{ background: "linear-gradient(135deg,#6366f1,#8b5cf6)" }}>
+                {savingDb ? <><div className="w-3 h-3 border-2 border-white border-t-transparent rounded-full animate-spin" /> Saving</> : "Save to Project"}
+              </button>
+            : <button onClick={() => { setEditedContent(content); setEditMode(true); }}
+                className="text-[12px] font-semibold px-3 py-1.5 rounded-xl"
+                style={{ background: "rgba(99,102,241,0.15)", color: "#a5b4fc", border: "1px solid rgba(99,102,241,0.25)" }}>
+                Edit
+              </button>
+          }
+        </div>
+
+        <div className="flex items-start gap-3">
+          <div className="w-12 h-12 rounded-2xl flex items-center justify-center text-2xl flex-shrink-0" style={{ background: "rgba(99,102,241,0.12)", border: "1px solid rgba(99,102,241,0.20)" }}>
+            {fileTypeIcon(selectedDbFile.fileType)}
+          </div>
+          <div className="flex-1 min-w-0">
+            <h2 className="text-[17px] font-bold text-foreground" style={{ letterSpacing: "-0.02em" }}>{selectedDbFile.name}</h2>
+            <p className="text-[11px] text-muted-foreground mt-0.5">{selectedDbFile.fileType} · {selectedDbFile.projectName ?? "Unknown Project"} · {selectedDbFile.size}</p>
+          </div>
+        </div>
+
+        {editMode
+          ? <textarea
+              value={editedContent}
+              onChange={e => setEditedContent(e.target.value)}
+              className="w-full rounded-xl p-4 text-[13px] text-foreground font-mono resize-none outline-none transition-all leading-relaxed input-premium"
+              style={{ background: "rgba(14,18,42,0.70)", border: "1px solid rgba(255,255,255,0.10)" }}
+              rows={16}
+              autoFocus
+            />
+          : <div className="rounded-2xl p-5 max-h-[55vh] overflow-y-auto" style={{ background: "rgba(14,18,42,0.70)", border: "1px solid rgba(255,255,255,0.08)" }}>
+              {content
+                ? <OutputFormatter content={content} />
+                : <p className="text-[13px] text-muted-foreground/60 text-center py-8">No content yet — click Edit to add content.</p>
+              }
+            </div>
+        }
+
+        <button onClick={() => {
+            const blob = new Blob([content], { type: "text/plain" });
+            const url = URL.createObjectURL(blob);
+            const a = document.createElement("a"); a.href = url;
+            a.download = `${selectedDbFile.name.replace(/\s+/g, "_")}.txt`; a.click();
+            URL.revokeObjectURL(url);
+          }}
+          className="w-full text-[13px] font-semibold py-2.5 rounded-xl transition-all"
+          style={{ background: "rgba(255,255,255,0.07)", color: "rgba(255,255,255,0.70)", border: "1px solid rgba(255,255,255,0.10)" }}>
+          ↓ Export .txt
+        </button>
+        <p className="text-[10px] text-muted-foreground/50 text-center">Generated by CreateAI Brain · Internal use only</p>
+      </div>
+    );
+  }
+
   if (selected) {
-    const allDocs: UserDoc[] = [...DOCS, ...userDocs];
+    const allDocs: UserDoc[] = [...STATIC_DOCS, ...userDocs];
     const doc = allDocs.find(d => d.name === selected)!;
     const predefined = DOC_CONTENT[selected];
     const sectionText = predefined
@@ -168,7 +291,7 @@ export function DocumentsApp() {
           <textarea
             value={editedContent || sectionText}
             onChange={e => setEditedContent(e.target.value)}
-            className="w-full rounded-xl p-4 text-[12px] text-foreground font-mono resize-none outline-none transition-all leading-relaxed input-premium"
+            className="w-full rounded-xl p-4 text-[13px] text-foreground font-mono resize-none outline-none transition-all leading-relaxed input-premium"
             style={{ background: "rgba(14,18,42,0.70)", border: "1px solid rgba(255,255,255,0.10)" }}
             rows={16}
           />
@@ -227,10 +350,7 @@ export function DocumentsApp() {
               URL.revokeObjectURL(url);
             }}
             className="flex-1 text-[13px] font-semibold py-2.5 rounded-xl transition-all"
-            style={{ background: "rgba(255,255,255,0.07)", color: "rgba(255,255,255,0.70)", border: "1px solid rgba(255,255,255,0.10)" }}
-            onMouseEnter={e => ((e.currentTarget as HTMLElement).style.background = "rgba(255,255,255,0.12)")}
-            onMouseLeave={e => ((e.currentTarget as HTMLElement).style.background = "rgba(255,255,255,0.07)")}
-          >
+            style={{ background: "rgba(255,255,255,0.07)", color: "rgba(255,255,255,0.70)", border: "1px solid rgba(255,255,255,0.10)" }}>
             ↓ Export .txt
           </button>
         </div>
@@ -239,13 +359,13 @@ export function DocumentsApp() {
     );
   }
 
-  const allDocs: UserDoc[] = [...DOCS, ...userDocs];
+  const allDocs: UserDoc[] = [...STATIC_DOCS, ...userDocs];
   return (
     <div className="p-6 space-y-5 animate-fade-up">
       <div className="flex items-center justify-between">
         <div>
           <h2 className="text-[20px] font-bold text-foreground" style={{ letterSpacing: "-0.03em" }}>Documents</h2>
-          <p className="text-[12px] text-muted-foreground mt-0.5">{allDocs.length} files · all generated by Brain</p>
+          <p className="text-[12px] text-muted-foreground mt-0.5">{dbFiles.length + allDocs.length} files total</p>
         </div>
         <button
           onClick={() => setShowNew(true)}
@@ -254,22 +374,59 @@ export function DocumentsApp() {
           + New
         </button>
       </div>
-      <div className="space-y-2">
-        {allDocs.map((doc, i) => (
-          <button key={doc.name} onClick={() => setSelected(doc.name)}
-            className={`w-full flex items-center gap-3 p-4 rounded-2xl text-left group card-interactive animate-fade-up delay-${Math.min(i * 60, 400)}`}
-            style={{ background: "rgba(14,18,42,0.70)", border: "1px solid rgba(255,255,255,0.07)" }}
-          >
-            <div className="w-10 h-10 rounded-xl flex items-center justify-center text-xl flex-shrink-0 group-hover:scale-110 transition-transform duration-200" style={{ background: "rgba(99,102,241,0.10)" }}>
-              {doc.icon}
-            </div>
-            <div className="flex-1 min-w-0">
-              <p className="font-semibold text-[13px] text-foreground truncate">{doc.name}</p>
-              <p className="text-[11px] text-muted-foreground mt-0.5">{doc.type} · {doc.project}</p>
-            </div>
-            <span className="text-[10px] text-muted-foreground/50 flex-shrink-0">{doc.size}</span>
-          </button>
-        ))}
+
+      {/* ── Project Files from DB ──────────────────────────────────────── */}
+      {dbFiles.length > 0 && (
+        <div>
+          <p className="text-[10px] font-bold uppercase tracking-wider text-muted-foreground/60 mb-2">From Projects</p>
+          <div className="space-y-2">
+            {dbFiles.map(file => (
+              <button key={file.id} onClick={() => { setSelectedDbFile(file); setEditedContent(""); setEditMode(false); }}
+                className="w-full flex items-center gap-3 p-4 rounded-2xl text-left group card-interactive"
+                style={{ background: "rgba(14,18,42,0.70)", border: "1px solid rgba(255,255,255,0.07)" }}>
+                <div className="w-10 h-10 rounded-xl flex items-center justify-center text-xl flex-shrink-0 group-hover:scale-110 transition-transform duration-200" style={{ background: "rgba(99,102,241,0.10)" }}>
+                  {fileTypeIcon(file.fileType)}
+                </div>
+                <div className="flex-1 min-w-0">
+                  <p className="font-semibold text-[13px] text-foreground truncate">{file.name}</p>
+                  <p className="text-[11px] text-muted-foreground mt-0.5 truncate">
+                    {file.fileType} · {file.projectIcon ?? ""} {file.projectName ?? "Unknown Project"}
+                  </p>
+                </div>
+                <span className="text-[10px] text-muted-foreground/50 flex-shrink-0">{file.size}</span>
+              </button>
+            ))}
+          </div>
+        </div>
+      )}
+
+      {loadingDb && (
+        <div className="flex items-center gap-2 text-[12px] text-muted-foreground">
+          <div className="w-3 h-3 border-2 border-primary border-t-transparent rounded-full animate-spin" />
+          Loading project files…
+        </div>
+      )}
+
+      {/* ── System & Generated Documents ──────────────────────────────── */}
+      <div>
+        {dbFiles.length > 0 && <p className="text-[10px] font-bold uppercase tracking-wider text-muted-foreground/60 mb-2">System Documents</p>}
+        <div className="space-y-2">
+          {allDocs.map((doc, i) => (
+            <button key={doc.name} onClick={() => setSelected(doc.name)}
+              className={`w-full flex items-center gap-3 p-4 rounded-2xl text-left group card-interactive animate-fade-up delay-${Math.min(i * 60, 400)}`}
+              style={{ background: "rgba(14,18,42,0.70)", border: "1px solid rgba(255,255,255,0.07)" }}
+            >
+              <div className="w-10 h-10 rounded-xl flex items-center justify-center text-xl flex-shrink-0 group-hover:scale-110 transition-transform duration-200" style={{ background: "rgba(99,102,241,0.10)" }}>
+                {doc.icon}
+              </div>
+              <div className="flex-1 min-w-0">
+                <p className="font-semibold text-[13px] text-foreground truncate">{doc.name}</p>
+                <p className="text-[11px] text-muted-foreground mt-0.5">{doc.type} · {doc.project}</p>
+              </div>
+              <span className="text-[10px] text-muted-foreground/50 flex-shrink-0">{doc.size}</span>
+            </button>
+          ))}
+        </div>
       </div>
     </div>
   );

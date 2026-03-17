@@ -166,6 +166,62 @@ router.post("/", async (req: Request, res: Response) => {
   }
 });
 
+// ─── GET /projects/files/:fileId ──────────────────────────────────────────
+
+router.get("/files/:fileId", async (req: Request, res: Response) => {
+  try {
+    const fileId = parseInt(req.params.fileId, 10);
+    const [file] = await db.select().from(projectFiles).where(eq(projectFiles.id, fileId));
+    if (!file) { res.status(404).json({ error: "File not found" }); return; }
+    res.json({
+      file: {
+        ...file,
+        id: file.id.toString(),
+        folderId: file.folderId?.toString() ?? "",
+        type: file.fileType,
+        created: file.createdAt.toLocaleDateString(),
+      },
+    });
+  } catch (err) {
+    res.status(500).json({ error: "Failed to fetch file" });
+  }
+});
+
+// ─── GET /projects/all-files ───────────────────────────────────────────────
+
+router.get("/all-files", async (_req: Request, res: Response) => {
+  try {
+    const files = await db
+      .select({
+        id: projectFiles.id,
+        name: projectFiles.name,
+        fileType: projectFiles.fileType,
+        size: projectFiles.size,
+        content: projectFiles.content,
+        createdAt: projectFiles.createdAt,
+        projectId: projectFiles.projectId,
+        folderId: projectFiles.folderId,
+        projectName: projects.name,
+        projectIndustry: projects.industry,
+        projectIcon: projects.icon,
+      })
+      .from(projectFiles)
+      .leftJoin(projects, eq(projectFiles.projectId, projects.id))
+      .orderBy(desc(projectFiles.createdAt));
+    res.json({
+      files: files.map(f => ({
+        ...f,
+        id: f.id.toString(),
+        folderId: f.folderId?.toString() ?? "",
+        type: f.fileType,
+        created: f.createdAt.toLocaleDateString(),
+      })),
+    });
+  } catch (err) {
+    res.status(500).json({ error: "Failed to list all files" });
+  }
+});
+
 // ─── GET /projects/:id ─────────────────────────────────────────────────────
 
 router.get("/:id", async (req: Request, res: Response) => {

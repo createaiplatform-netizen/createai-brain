@@ -720,12 +720,33 @@ function AutoCreateView({ onBack }: { onBack: () => void }) {
   );
 }
 
+interface DbProject {
+  id: string;
+  name: string;
+  industry: string;
+  icon: string;
+  color: string;
+  created: string;
+}
+
 // ─── Main ProjectsApp ────────────────────────────────────────────────────────
 export function ProjectsApp() {
   const { openApp } = useOS();
   const [, navigate] = useLocation();
   const [showNewForm, setShowNewForm] = useState(false);
   const [showAutoCreate, setShowAutoCreate] = useState(false);
+  const [dbProjects, setDbProjects] = useState<DbProject[]>([]);
+  const [loadingDb, setLoadingDb] = useState(true);
+
+  React.useEffect(() => {
+    fetch("/api/projects")
+      .then(r => r.ok ? r.json() : { projects: [] })
+      .then((data: { projects: DbProject[] }) => {
+        setDbProjects(data.projects ?? []);
+        setLoadingDb(false);
+      })
+      .catch(() => setLoadingDb(false));
+  }, []);
 
   if (showNewForm) return <NewProjectForm onBack={() => setShowNewForm(false)} />;
   if (showAutoCreate) return <AutoCreateView onBack={() => setShowAutoCreate(false)} />;
@@ -739,47 +760,79 @@ export function ProjectsApp() {
             className="text-sm font-medium px-3 py-2 rounded-xl border border-primary/30 text-primary bg-primary/5 hover:bg-primary/10 transition-colors">
             ✨ Auto-Create
           </button>
-          <button onClick={() => setShowNewForm(true)}
+          <button onClick={() => openApp("projos" as any)}
             className="bg-primary text-white text-sm font-medium px-4 py-2 rounded-xl hover:opacity-90 transition-opacity">
-            + New
+            + New in ProjectOS
           </button>
         </div>
       </div>
-      <div className="space-y-3">
-        {PROJECTS.map(proj => (
-          <div key={proj.name} className="bg-background rounded-2xl border border-border/50 hover:border-primary/20 hover:shadow-sm transition-all overflow-hidden">
-            {/* Main row — navigate to full standalone project page */}
-            <button
-              onClick={() => navigate(`/project/${proj.slug}`)}
-              className="w-full flex items-center gap-4 p-4 text-left">
-              <div className="w-12 h-12 rounded-2xl flex items-center justify-center text-2xl flex-shrink-0" style={{ backgroundColor: proj.color + "22" }}>
-                {proj.icon}
-              </div>
-              <div className="flex-1 min-w-0">
-                <p className="font-semibold text-[14px] text-foreground truncate">{proj.name}</p>
-                <p className="text-[12px] text-muted-foreground mt-0.5">{proj.pages} sections · Full platform page</p>
-              </div>
-              <span className={`text-[11px] font-semibold px-2 py-0.5 rounded-full flex-shrink-0 ${proj.mode === "FUTURE" ? "bg-purple-100 text-purple-700" : proj.mode === "TEST" ? "bg-orange-100 text-orange-700" : "bg-green-100 text-green-700"}`}>
-                {proj.mode}
-              </span>
-            </button>
-            {/* Standalone omega engine strip */}
-            <div className="border-t border-border/30 px-4 py-2.5 flex items-center justify-between bg-muted/20">
-              <p className="text-[11px] text-muted-foreground">Open as full AI-powered standalone product</p>
-              <button
-                onClick={() => openStandalone(proj.slug)}
-                className="flex items-center gap-1.5 text-[11px] font-bold text-white px-3 py-1.5 rounded-lg hover:opacity-90 transition-opacity flex-shrink-0"
-                style={{ backgroundColor: proj.color }}>
-                <span>↗</span><span>Standalone App</span>
-              </button>
-            </div>
-          </div>
-        ))}
-      </div>
 
-      <div className="bg-blue-50 border border-blue-200 rounded-2xl p-4">
-        <p className="text-[12px] text-blue-700 font-semibold">Standalone Project Engine</p>
-        <p className="text-[11px] text-blue-600 mt-1">Click any project to open its full marketing-style platform page. Use "Standalone App" to launch the AI-powered product engine in a new tab.</p>
+      {/* ── Real DB Projects ───────────────────────────────────────── */}
+      {(loadingDb || dbProjects.length > 0) && (
+        <div>
+          <p className="text-[10px] font-bold uppercase tracking-wider text-muted-foreground/60 mb-2">My Projects</p>
+          {loadingDb
+            ? <div className="flex items-center gap-2 text-[12px] text-muted-foreground py-2">
+                <div className="w-3 h-3 border-2 border-primary border-t-transparent rounded-full animate-spin" />
+                Loading…
+              </div>
+            : <div className="space-y-2">
+                {dbProjects.map(proj => (
+                  <div key={proj.id} className="bg-background rounded-2xl border border-border/50 hover:border-primary/20 hover:shadow-sm transition-all overflow-hidden">
+                    <div className="flex items-center gap-4 p-4">
+                      <div className="w-12 h-12 rounded-2xl flex items-center justify-center text-2xl flex-shrink-0" style={{ backgroundColor: (proj.color || "#6366f1") + "22" }}>
+                        {proj.icon || "📁"}
+                      </div>
+                      <div className="flex-1 min-w-0">
+                        <p className="font-semibold text-[14px] text-foreground truncate">{proj.name}</p>
+                        <p className="text-[12px] text-muted-foreground mt-0.5">{proj.industry} · Created {proj.created}</p>
+                      </div>
+                      <button
+                        onClick={() => openApp("projos" as any)}
+                        className="flex items-center gap-1.5 text-[11px] font-bold text-white px-3 py-1.5 rounded-lg hover:opacity-90 transition-opacity flex-shrink-0"
+                        style={{ background: "linear-gradient(135deg,#6366f1,#8b5cf6)" }}>
+                        Open in ProjectOS →
+                      </button>
+                    </div>
+                  </div>
+                ))}
+              </div>
+          }
+        </div>
+      )}
+
+      {/* ── Platform Demo Projects ─────────────────────────────────── */}
+      <div>
+        <p className="text-[10px] font-bold uppercase tracking-wider text-muted-foreground/60 mb-2">Platform Demo Projects</p>
+        <div className="space-y-3">
+          {PROJECTS.map(proj => (
+            <div key={proj.name} className="bg-background rounded-2xl border border-border/50 hover:border-primary/20 hover:shadow-sm transition-all overflow-hidden">
+              <button
+                onClick={() => navigate(`/project/${proj.slug}`)}
+                className="w-full flex items-center gap-4 p-4 text-left">
+                <div className="w-12 h-12 rounded-2xl flex items-center justify-center text-2xl flex-shrink-0" style={{ backgroundColor: proj.color + "22" }}>
+                  {proj.icon}
+                </div>
+                <div className="flex-1 min-w-0">
+                  <p className="font-semibold text-[14px] text-foreground truncate">{proj.name}</p>
+                  <p className="text-[12px] text-muted-foreground mt-0.5">{proj.pages} sections · Full platform page</p>
+                </div>
+                <span className={`text-[11px] font-semibold px-2 py-0.5 rounded-full flex-shrink-0 ${proj.mode === "FUTURE" ? "bg-purple-100 text-purple-700" : proj.mode === "TEST" ? "bg-orange-100 text-orange-700" : "bg-green-100 text-green-700"}`}>
+                  {proj.mode}
+                </span>
+              </button>
+              <div className="border-t border-border/30 px-4 py-2.5 flex items-center justify-between bg-muted/20">
+                <p className="text-[11px] text-muted-foreground">Open as full AI-powered standalone product</p>
+                <button
+                  onClick={() => openStandalone(proj.slug)}
+                  className="flex items-center gap-1.5 text-[11px] font-bold text-white px-3 py-1.5 rounded-lg hover:opacity-90 transition-opacity flex-shrink-0"
+                  style={{ backgroundColor: proj.color }}>
+                  <span>↗</span><span>Standalone App</span>
+                </button>
+              </div>
+            </div>
+          ))}
+        </div>
       </div>
     </div>
   );

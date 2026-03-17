@@ -1,4 +1,4 @@
-import React, { useState, useRef } from "react";
+import React, { useState, useRef, useEffect } from "react";
 import { useOS } from "@/os/OSContext";
 import { OutputFormatter } from "@/components/OutputFormatter";
 
@@ -55,6 +55,63 @@ const SECTION_META: Record<ToolSection, { color: string; icon: string; note?: st
 
 interface ToolOutput { id: string; toolName: string; prompt: string; content: string; at: Date; }
 
+interface SaveProject { id: string; name: string; icon: string; color: string; }
+
+function SaveToProjectModal({ content, toolName, onClose }: { content: string; toolName: string; onClose: () => void }) {
+  const [projects, setProjects] = useState<SaveProject[]>([]);
+  const [loading, setLoading] = useState(true);
+  const [saving, setSaving] = useState<string | null>(null);
+  const [saved, setSaved] = useState<string | null>(null);
+
+  useEffect(() => {
+    fetch("/api/projects")
+      .then(r => r.ok ? r.json() : { projects: [] })
+      .then((d: { projects: SaveProject[] }) => { setProjects(d.projects ?? []); setLoading(false); })
+      .catch(() => setLoading(false));
+  }, []);
+
+  const saveToProject = async (proj: SaveProject) => {
+    setSaving(proj.id);
+    await fetch(`/api/projects/${proj.id}/files`, {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ name: toolName, content, fileType: "Document", size: `${Math.round(content.length / 100) / 10} KB` }),
+    });
+    setSaving(null);
+    setSaved(proj.id);
+    setTimeout(() => { setSaved(null); onClose(); }, 1200);
+  };
+
+  return (
+    <div className="fixed inset-0 z-50 flex items-end sm:items-center justify-center" style={{ background: "rgba(0,0,0,0.60)", backdropFilter: "blur(8px)" }}
+      onClick={e => { if (e.target === e.currentTarget) onClose(); }}>
+      <div className="w-full max-w-sm mx-4 rounded-3xl overflow-hidden" style={{ background: "#0f172a", border: "1px solid rgba(255,255,255,0.10)" }}>
+        <div className="flex items-center justify-between px-5 py-4" style={{ borderBottom: "1px solid rgba(255,255,255,0.08)" }}>
+          <p className="text-[15px] font-bold text-white">Save to Project</p>
+          <button onClick={onClose} className="w-6 h-6 rounded-full flex items-center justify-center text-xs" style={{ background: "rgba(255,255,255,0.07)", color: "#9ca3af" }}>✕</button>
+        </div>
+        <div className="p-4 space-y-2 max-h-72 overflow-y-auto">
+          {loading && <div className="flex items-center gap-2 text-[12px] text-muted-foreground py-4 justify-center"><div className="w-4 h-4 border-2 border-primary border-t-transparent rounded-full animate-spin" />Loading projects…</div>}
+          {!loading && projects.length === 0 && (
+            <p className="text-[13px] text-center text-muted-foreground py-4">No projects yet. Create one in ProjectOS first.</p>
+          )}
+          {projects.map(proj => (
+            <button key={proj.id} onClick={() => saveToProject(proj)}
+              disabled={!!saving}
+              className="w-full flex items-center gap-3 p-3 rounded-2xl text-left transition-all"
+              style={{ background: saved === proj.id ? "rgba(34,197,94,0.12)" : "rgba(255,255,255,0.04)", border: `1px solid ${saved === proj.id ? "rgba(34,197,94,0.30)" : "rgba(255,255,255,0.08)"}` }}>
+              <span className="text-xl flex-shrink-0">{proj.icon || "📁"}</span>
+              <p className="flex-1 text-[13px] font-semibold text-white truncate">{proj.name}</p>
+              {saving === proj.id && <div className="w-4 h-4 border-2 border-primary border-t-transparent rounded-full animate-spin flex-shrink-0" />}
+              {saved === proj.id && <span className="text-green-400 text-sm flex-shrink-0">✓</span>}
+            </button>
+          ))}
+        </div>
+      </div>
+    </div>
+  );
+}
+
 export function ToolsApp() {
   const { preferences } = useOS();
   const [active, setActive] = useState<string | null>(null);
@@ -65,6 +122,7 @@ export function ToolsApp() {
   const [view, setView] = useState<"grid" | "output" | "history" | "historyDetail">("grid");
   const [viewingItem, setViewingItem] = useState<ToolOutput | null>(null);
   const [copied, setCopied] = useState(false);
+  const [showSaveModal, setShowSaveModal] = useState(false);
   const abortRef = useRef<AbortController | null>(null);
 
   const tool = active ? TOOLS.find(t => t.name === active) : null;
@@ -259,6 +317,11 @@ export function ToolsApp() {
                   style={{ background: copied ? "rgba(34,197,94,0.10)" : "rgba(255,255,255,0.07)", color: copied ? "#4ade80" : "rgba(255,255,255,0.70)", border: `1px solid ${copied ? "rgba(34,197,94,0.20)" : "rgba(255,255,255,0.10)"}` }}>
                   {copied ? "✓ Copied" : "Copy"}
                 </button>
+                <button onClick={() => setShowSaveModal(true)}
+                  className="text-[12px] font-semibold px-3 py-1.5 rounded-xl transition-all"
+                  style={{ background: "rgba(99,102,241,0.15)", color: "#a5b4fc", border: "1px solid rgba(99,102,241,0.25)" }}>
+                  Save to Project
+                </button>
                 <button onClick={() => setView("grid")}
                   className="text-[12px] font-semibold px-3 py-1.5 rounded-xl transition-all"
                   style={{ background: "rgba(255,255,255,0.07)", color: "rgba(255,255,255,0.70)", border: "1px solid rgba(255,255,255,0.10)" }}>
@@ -296,6 +359,14 @@ export function ToolsApp() {
             <span>✓</span>
             <span>Generated · Not for real-world use · Copy or save to continue</span>
           </div>
+        )}
+
+        {showSaveModal && active && (
+          <SaveToProjectModal
+            content={streamText}
+            toolName={active}
+            onClose={() => setShowSaveModal(false)}
+          />
         )}
       </div>
     );

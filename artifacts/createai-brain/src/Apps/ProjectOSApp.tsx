@@ -148,6 +148,37 @@ async function apiDeleteFile(projectId: string, fileId: string): Promise<boolean
   } catch { return false; }
 }
 
+async function apiLoadFileContent(fileId: string): Promise<string> {
+  try {
+    const res = await fetch(`/api/projects/files/${fileId}`);
+    if (!res.ok) return "";
+    const data = await res.json() as { file: ProjectFile };
+    return data.file.content ?? "";
+  } catch { return ""; }
+}
+
+async function apiSaveFileContent(projectId: string, fileId: string, content: string): Promise<boolean> {
+  try {
+    const res = await fetch(`/api/projects/${projectId}/files/${fileId}`, {
+      method: "PUT",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ content }),
+    });
+    return res.ok;
+  } catch { return false; }
+}
+
+async function apiUpdateProject(id: string, updates: { name?: string; description?: string }): Promise<boolean> {
+  try {
+    const res = await fetch(`/api/projects/${id}`, {
+      method: "PUT",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify(updates),
+    });
+    return res.ok;
+  } catch { return false; }
+}
+
 async function apiLoadChatHistory(projectId: string): Promise<{ role: "user" | "ai"; text: string }[]> {
   try {
     const res = await fetch(`/api/project-chat/${projectId}/history`);
@@ -339,6 +370,14 @@ export function ProjectOSApp() {
   const [newSubAppIcon, setNewSubAppIcon] = useState("📱");
   const [showModes, setShowModes] = useState(false);
   const [activeMode, setActiveMode] = useState<"Demo" | "Test" | "Live">("Live");
+  const [viewingFile, setViewingFile] = useState<ProjectFile | null>(null);
+  const [fileContentText, setFileContentText] = useState("");
+  const [fileContentEditing, setFileContentEditing] = useState(false);
+  const [fileContentLoading, setFileContentLoading] = useState(false);
+  const [fileContentSaving, setFileContentSaving] = useState(false);
+  const [fileContentSaved, setFileContentSaved] = useState(false);
+  const [editingProjectName, setEditingProjectName] = useState(false);
+  const [editProjectNameVal, setEditProjectNameVal] = useState("");
   const aiAbortRef = useRef<AbortController | null>(null);
   const aiScrollRef = useRef<HTMLDivElement>(null);
 
@@ -396,6 +435,48 @@ export function ProjectOSApp() {
       p.id === activeProject.id ? { ...p, files: p.files.filter(f => f.id !== fileId) } : p
     ));
   }, [activeProject]);
+
+  const openFileViewer = useCallback(async (file: ProjectFile) => {
+    setViewingFile(file);
+    setFileContentEditing(false);
+    setFileContentSaved(false);
+    if (file.content) {
+      setFileContentText(file.content);
+    } else {
+      setFileContentLoading(true);
+      const content = await apiLoadFileContent(file.id);
+      setFileContentText(content);
+      setFileContentLoading(false);
+    }
+  }, []);
+
+  const saveFileContent = useCallback(async () => {
+    if (!activeProject || !viewingFile) return;
+    setFileContentSaving(true);
+    const ok = await apiSaveFileContent(activeProject.id, viewingFile.id, fileContentText);
+    setFileContentSaving(false);
+    if (ok) {
+      setFileContentSaved(true);
+      setFileContentEditing(false);
+      setProjects(prev => prev.map(p =>
+        p.id === activeProject.id
+          ? { ...p, files: p.files.map(f => f.id === viewingFile.id ? { ...f, content: fileContentText } : f) }
+          : p
+      ));
+      setTimeout(() => setFileContentSaved(false), 2000);
+    }
+  }, [activeProject, viewingFile, fileContentText]);
+
+  const renameProject = useCallback(async () => {
+    if (!activeProject || !editProjectNameVal.trim()) return;
+    const ok = await apiUpdateProject(activeProject.id, { name: editProjectNameVal.trim() });
+    if (ok) {
+      setProjects(prev => prev.map(p =>
+        p.id === activeProject.id ? { ...p, name: editProjectNameVal.trim() } : p
+      ));
+    }
+    setEditingProjectName(false);
+  }, [activeProject, editProjectNameVal]);
 
   const addSubApp = useCallback(() => {
     if (!activeProject || !newSubAppName.trim()) return;
@@ -815,26 +896,32 @@ export function ProjectOSApp() {
                       {activeFiles.map(file => (
                         <div
                           key={file.id}
-                          className="group flex items-center gap-3 px-4 py-3 rounded-xl"
+                          className="group flex items-center gap-3 px-4 py-3 rounded-xl cursor-pointer transition-all"
                           style={{ background: "rgba(255,255,255,0.03)", border: "1px solid rgba(255,255,255,0.06)" }}
+                          onClick={() => openFileViewer(file)}
+                          onMouseEnter={e => (e.currentTarget as HTMLElement).style.background = "rgba(255,255,255,0.07)"}
+                          onMouseLeave={e => (e.currentTarget as HTMLElement).style.background = "rgba(255,255,255,0.03)"}
                         >
                           <span className="text-lg flex-shrink-0">
-                            {file.type === "Document" ? "📄" : file.type === "Spreadsheet" ? "📊" : file.type === "Image" ? "🖼️" : file.type === "Video" ? "🎬" : "📄"}
+                            {file.type === "Document" ? "📄" : file.type === "Spreadsheet" ? "📊" : file.type === "Image" ? "🖼️" : file.type === "Video" ? "🎬" : file.type === "Audio" ? "🎵" : file.type === "Presentation" ? "🎯" : "📄"}
                           </span>
                           <div className="flex-1 min-w-0">
                             <div className="text-[13px] text-white truncate">{file.name}</div>
-                            <div className="text-[10px]" style={{ color: "#334155" }}>
+                            <div className="text-[10px]" style={{ color: "#6b7280" }}>
                               {file.type} · Added {file.created}
                               {viewMode === "advanced" && ` · ${file.size}`}
                             </div>
                           </div>
-                          <button
-                            onClick={() => setDeleteTarget({ type: "file", id: file.id, label: file.name })}
-                            className="opacity-0 group-hover:opacity-100 px-2 py-1 rounded-lg text-[10px]"
-                            style={{ background: "rgba(239,68,68,0.12)", color: "#f87171" }}
-                          >
-                            Delete
-                          </button>
+                          <div className="flex items-center gap-1 opacity-0 group-hover:opacity-100">
+                            <span className="text-[10px] px-2 py-0.5 rounded-md" style={{ background: "rgba(99,102,241,0.15)", color: "#a5b4fc" }}>Open</span>
+                            <button
+                              onClick={e => { e.stopPropagation(); setDeleteTarget({ type: "file", id: file.id, label: file.name }); }}
+                              className="px-2 py-0.5 rounded-md text-[10px]"
+                              style={{ background: "rgba(239,68,68,0.12)", color: "#f87171" }}
+                            >
+                              Delete
+                            </button>
+                          </div>
                         </div>
                       ))}
                     </div>
@@ -1069,7 +1156,7 @@ export function ProjectOSApp() {
                 style={{ background: "rgba(99,102,241,0.08)", border: "1px solid rgba(99,102,241,0.30)" }}
               />
               <div className="grid grid-cols-3 gap-1.5">
-                {["Document","Spreadsheet","Image","Video","Script","Other"].map(t => (
+                {["Document","Spreadsheet","Presentation","Image","Video","Audio","Script","Other"].map(t => (
                   <button key={t} onClick={() => setNewFileType(t)}
                     className="py-1.5 rounded-lg text-[10px] font-medium"
                     style={{
@@ -1205,6 +1292,117 @@ export function ProjectOSApp() {
           onConfirm={confirmDelete}
           onCancel={() => setDeleteTarget(null)}
         />
+      )}
+
+      {/* ── File Content Viewer Modal ──────────────────────────────────── */}
+      {viewingFile && (
+        <div
+          className="fixed inset-0 z-50 flex items-end justify-center sm:items-center"
+          style={{ background: "rgba(0,0,0,0.65)", backdropFilter: "blur(8px)" }}
+          onClick={e => { if (e.target === e.currentTarget) setViewingFile(null); }}
+        >
+          <div
+            className="w-full max-w-2xl max-h-[90vh] flex flex-col rounded-t-3xl sm:rounded-3xl overflow-hidden"
+            style={{ background: "#0f172a", border: "1px solid rgba(255,255,255,0.10)" }}
+          >
+            {/* Header */}
+            <div className="flex items-center gap-3 px-5 py-4 flex-shrink-0" style={{ borderBottom: "1px solid rgba(255,255,255,0.08)" }}>
+              <span className="text-2xl flex-shrink-0">
+                {viewingFile.type === "Document" ? "📄" : viewingFile.type === "Spreadsheet" ? "📊" : viewingFile.type === "Image" ? "🖼️" : viewingFile.type === "Video" ? "🎬" : viewingFile.type === "Audio" ? "🎵" : viewingFile.type === "Presentation" ? "🎯" : "📄"}
+              </span>
+              <div className="flex-1 min-w-0">
+                <p className="text-[15px] font-bold text-white truncate">{viewingFile.name}</p>
+                <p className="text-[11px]" style={{ color: "#6b7280" }}>{viewingFile.type} · Added {viewingFile.created} · {viewingFile.size}</p>
+              </div>
+              <div className="flex items-center gap-2 flex-shrink-0">
+                {fileContentSaved && (
+                  <span className="text-[11px] font-medium text-green-400 px-2 py-0.5 rounded-full" style={{ background: "rgba(34,197,94,0.12)" }}>✓ Saved</span>
+                )}
+                {!fileContentEditing && (
+                  <button
+                    onClick={() => { setFileContentEditing(true); }}
+                    className="text-[12px] font-semibold px-3 py-1.5 rounded-xl"
+                    style={{ background: "rgba(99,102,241,0.15)", color: "#a5b4fc", border: "1px solid rgba(99,102,241,0.25)" }}
+                  >Edit</button>
+                )}
+                {fileContentEditing && (
+                  <button
+                    onClick={saveFileContent}
+                    disabled={fileContentSaving}
+                    className="text-[12px] font-semibold px-3 py-1.5 rounded-xl flex items-center gap-1.5 text-white"
+                    style={{ background: "linear-gradient(135deg,#6366f1,#8b5cf6)" }}
+                  >
+                    {fileContentSaving ? <><div className="w-3 h-3 border-2 border-white border-t-transparent rounded-full animate-spin" /> Saving…</> : "Save"}
+                  </button>
+                )}
+                <button
+                  onClick={() => {
+                    const blob = new Blob([fileContentText], { type: "text/plain" });
+                    const url = URL.createObjectURL(blob);
+                    const a = document.createElement("a"); a.href = url;
+                    a.download = `${viewingFile.name.replace(/\s+/g, "_")}.txt`; a.click();
+                    URL.revokeObjectURL(url);
+                  }}
+                  className="text-[12px] font-semibold px-3 py-1.5 rounded-xl"
+                  style={{ background: "rgba(255,255,255,0.07)", color: "rgba(255,255,255,0.60)", border: "1px solid rgba(255,255,255,0.10)" }}
+                >↓ Export</button>
+                <button onClick={() => setViewingFile(null)}
+                  className="w-7 h-7 rounded-full flex items-center justify-center text-sm"
+                  style={{ background: "rgba(255,255,255,0.07)", color: "#9ca3af" }}
+                >✕</button>
+              </div>
+            </div>
+
+            {/* Content */}
+            <div className="flex-1 overflow-y-auto p-5">
+              {fileContentLoading ? (
+                <div className="flex items-center justify-center py-16 gap-3">
+                  <div className="w-5 h-5 border-2 border-primary border-t-transparent rounded-full animate-spin" />
+                  <span className="text-[13px]" style={{ color: "#6b7280" }}>Loading content…</span>
+                </div>
+              ) : fileContentEditing ? (
+                <textarea
+                  value={fileContentText}
+                  onChange={e => setFileContentText(e.target.value)}
+                  className="w-full h-full min-h-[50vh] rounded-xl p-4 text-[13px] text-white font-mono resize-none outline-none leading-relaxed"
+                  style={{ background: "rgba(255,255,255,0.04)", border: "1px solid rgba(255,255,255,0.10)" }}
+                  autoFocus
+                />
+              ) : fileContentText ? (
+                <div className="space-y-4">
+                  {fileContentText.split(/\n(?=#{1,3} )/).map((section, i) => {
+                    const lines = section.split("\n");
+                    const heading = lines[0].replace(/^#{1,3} /, "");
+                    const body = lines.slice(1).join("\n").trim();
+                    const isHeading = /^#{1,3} /.test(lines[0]);
+                    if (isHeading && body) {
+                      return (
+                        <div key={i} className={i > 0 ? "pt-4" : ""} style={i > 0 ? { borderTop: "1px solid rgba(255,255,255,0.07)" } : {}}>
+                          <h3 className="font-bold text-[14px] text-white mb-2">{heading}</h3>
+                          <p className="text-[13px] leading-relaxed whitespace-pre-wrap" style={{ color: "#94a3b8" }}>{body}</p>
+                        </div>
+                      );
+                    }
+                    return (
+                      <p key={i} className="text-[13px] leading-relaxed whitespace-pre-wrap" style={{ color: "#94a3b8" }}>{section}</p>
+                    );
+                  })}
+                </div>
+              ) : (
+                <div className="text-center py-16">
+                  <p className="text-4xl mb-3">📝</p>
+                  <p className="font-semibold text-white mb-1">No content yet</p>
+                  <p className="text-[13px]" style={{ color: "#6b7280" }}>Click Edit to add content to this file.</p>
+                  <button onClick={() => setFileContentEditing(true)}
+                    className="mt-4 text-[13px] font-semibold text-white px-5 py-2.5 rounded-xl"
+                    style={{ background: "linear-gradient(135deg,#6366f1,#8b5cf6)" }}>
+                    Start Writing
+                  </button>
+                </div>
+              )}
+            </div>
+          </div>
+        </div>
       )}
     </div>
   );
