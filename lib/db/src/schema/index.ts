@@ -16,3 +16,4 @@ export * from "./notifications";
 export * from "./documents";
 export * from "./traction_events";
 export * from "./metrics";
+export * from "./opportunities";

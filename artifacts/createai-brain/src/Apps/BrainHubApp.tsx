@@ -59,6 +59,9 @@ const ENGINE_HINTS: Record<string, { placeholder: string; example: string }> = {
   CURATOR:                   { placeholder: "What topic or knowledge area should CURATOR organize?", example: "e.g. Everything known about reducing patient no-shows in outpatient clinics" },
   MENTOR:                    { placeholder: "What skill, role, or growth journey needs a mentorship plan?", example: "e.g. A junior product manager transitioning into a technical PM role in 6 months" },
   CATALYST:                  { placeholder: "What initiative is stuck or needs a breakthrough?", example: "e.g. Our MVP launch has stalled for 3 months — what's blocking us and how do we break through?" },
+
+  // ── Opportunity Engine ────────────────────────────────────────────────────
+  OpportunityEngine:         { placeholder: "What market, business, or domain should be scanned for opportunities?", example: "e.g. Our healthcare SaaS in mid-market — what expansion or partnership opportunities exist in the next 12 months?" },
 };
 
 // ─── Status Dot ─────────────────────────────────────────────────────────────────

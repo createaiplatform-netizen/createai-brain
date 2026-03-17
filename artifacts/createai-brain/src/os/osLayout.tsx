@@ -25,6 +25,7 @@ import { BizUniverseApp } from "@/Apps/BizUniverseApp";
 import { BizDevApp } from "@/Apps/BizDevApp";
 import { ProjectBuilderApp } from "@/Apps/ProjectBuilderApp";
 import { ProjectOSApp } from "@/Apps/ProjectOSApp";
+import { OpportunityApp } from "@/Apps/OpportunityApp";
 import { ConversationOverlay } from "./ConversationOverlay";
 import { UCPXAgent } from "@/ucpx/UCPXAgent";
 import { GuidedTour } from "./GuidedTour";
@@ -49,6 +50,7 @@ const APP_COMPONENTS: Record<string, React.ComponentType> = {
   bizdev:       BizDevApp,
   projbuilder:  ProjectBuilderApp,
   projos:       ProjectOSApp,
+  opportunity:  OpportunityApp,
 };
 
 /**

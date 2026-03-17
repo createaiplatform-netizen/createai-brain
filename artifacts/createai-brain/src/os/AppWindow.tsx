@@ -28,6 +28,7 @@ import { PersonaStudioApp } from "@/Apps/PersonaStudioApp";
 import { DataStudioApp } from "@/Apps/DataStudioApp";
 import { PricingStudioApp } from "@/Apps/PricingStudioApp";
 import { TractionDashboardApp } from "@/Apps/TractionDashboardApp";
+import { OpportunityApp } from "@/Apps/OpportunityApp";
 import type { AppId } from "./OSContext";
 
 const APP_LABELS: Record<AppId, string> = {
@@ -58,6 +59,7 @@ const APP_LABELS: Record<AppId, string> = {
   datastudio:     "Data Studio",
   pricingstudio:  "Pricing Studio",
   traction:       "Traction Dashboard",
+  opportunity:    "Opportunity Engine",
 };
 
 const APP_ICONS: Record<AppId, string> = {
@@ -88,6 +90,7 @@ const APP_ICONS: Record<AppId, string> = {
   datastudio:     "🗄️",
   pricingstudio:  "💰",
   traction:       "📈",
+  opportunity:    "🎯",
 };
 
 const APP_COMPONENTS: Record<AppId, React.ComponentType<any>> = {
@@ -118,6 +121,7 @@ const APP_COMPONENTS: Record<AppId, React.ComponentType<any>> = {
   datastudio:     DataStudioApp,
   pricingstudio:  PricingStudioApp,
   traction:       TractionDashboardApp,
+  opportunity:    OpportunityApp,
 };
 
 interface AppWindowProps {

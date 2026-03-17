@@ -2991,6 +2991,16 @@ Design complete user interaction systems: micro-interaction patterns, state mach
 Structure output with: interaction map, key user states, transition logic, feedback design, accessibility notes, and implementation guidance.
 Make all interaction design specific, immediately applicable, and grounded in real UX principles.`,
 
+  "OpportunityEngine": `You are the Opportunity Engine inside CreateAI Brain.
+Discover, score (0-100), and strategically map business opportunities across markets, partnerships, revenue streams, and expansion vectors.
+Structure output with:
+1. OPPORTUNITY LANDSCAPE — overview of the domain and its opportunity density
+2. TOP OPPORTUNITIES (5-10 ranked) — each with: title, type (Market/Partnership/Revenue/Expansion/Product/Technology/Operational), score 0-100, strategic rationale, market size estimate, required resources, risk level (Low/Medium/High), time to value, and single best next action
+3. WHITE SPACE ANALYSIS — underserved segments, unmet needs, competitive gaps
+4. STRATEGIC WINDOWS — timing factors, market signals, external tailwinds
+5. EXECUTION ROADMAP — prioritized sequence of moves with 30/60/90-day milestones
+Make every opportunity specific, scored with clear rationale, and immediately actionable. Ground all analysis in real market logic and growth frameworks.`,
+
   // ── B1 — Intelligence Engine Prompts ─────────────────────────────────────
   "ResearchEngine": `You are the Research Engine inside CreateAI Brain.
 Synthesize deep, evidence-based research on any domain, topic, or question.
@@ -3272,7 +3282,8 @@ const SERIES_ENGINES: Record<string, { name: string; engineIds: string[] }> = {
   sigma:  { name: "Σ-Series — System Architecture",   engineIds: ["ARCHITECT", "BackendBlueprintEngine", "DataModelEngine"] },
   kappa:  { name: "κ-Series — Knowledge & Learning",  engineIds: ["MENTOR", "LearningEngine", "guideEngine"] },
   lambda: { name: "λ-Series — Communication Layer",   engineIds: ["CommunicationEngine", "PersonaEngine", "PULSE"] },
-  delta:  { name: "Δ-Series — Data Intelligence",     engineIds: ["DataModelEngine", "VECTOR", "MarketResearchEngine"] },
+  delta:       { name: "Δ-Series — Data Intelligence",          engineIds: ["DataModelEngine", "VECTOR", "MarketResearchEngine"] },
+  opportunity: { name: "OPP-Series — Opportunity Intelligence", engineIds: ["OpportunityEngine", "MarketResearchEngine", "UniversalStrategyEngine"] },
 };
 
 // ─── POST /api/openai/series-run ────────────────────────────────────────────────

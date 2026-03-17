@@ -502,6 +502,19 @@ export const ALL_ENGINES: EngineDefinition[] = [
     status: "active",
     runCount: 0,
   },
+  // ── Opportunity Engine ────────────────────────────────────────────────
+  {
+    id: "OpportunityEngine",
+    name: "Opportunity Engine",
+    category: "intelligence",
+    icon: "🎯",
+    color: "#f59e0b",
+    description: "Discovers, scores, and strategically maps opportunities — market gaps, partnerships, revenue streams, and expansion vectors.",
+    series: "OPP-Series",
+    capabilities: ["Opportunity discovery", "Opportunity scoring", "Market gap analysis", "Revenue modeling", "Strategic prioritization", "Expansion mapping"],
+    status: "active",
+    runCount: 0,
+  },
 ];
 
 // ─── All Series Registry ──────────────────────────────────────────────────────
@@ -658,6 +671,16 @@ export const ALL_SERIES: SeriesDefinition[] = [
     description: "Data Intelligence Series — transforms raw data structures, patterns, and insights into strategic decision architectures.",
     engines: ["DataModelEngine", "VECTOR", "MarketResearchEngine"],
     capabilities: ["Data architecture", "Pattern intelligence", "Market signals", "Decision frameworks", "Strategic data modeling"],
+  },
+  {
+    id: "opportunity",
+    name: "OPP-Series",
+    symbol: "OPP",
+    icon: "🎯",
+    color: "#f59e0b",
+    description: "Opportunity Intelligence Series — scans markets, validates ideas, and builds execution pathways for every discovered opportunity.",
+    engines: ["OpportunityEngine", "MarketResearchEngine", "UniversalStrategyEngine"],
+    capabilities: ["Opportunity discovery", "Market validation", "Revenue modeling", "Strategic prioritization", "Execution mapping"],
   },
 ];
 

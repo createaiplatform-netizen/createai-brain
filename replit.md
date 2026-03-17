@@ -2,7 +2,7 @@
 
 ## Real Data Platform (COMPLETE — No mock/demo data anywhere)
 
-### DB Tables (16 total — all pushed to PostgreSQL)
+### DB Tables (17 total — all pushed to PostgreSQL)
 - `users` — auth + NDA state
 - `sessions` — session KV store
 - `projects` — user-scoped projects (`status`: active/archived, `archivedAt`)
@@ -18,6 +18,7 @@
 - `people` — contact registry (userId, name, email, phone, role, department, status, notes, addedAt)
 - `notifications` — NEW: system/app notifications (userId, type, title, body, read, appId, projectId, actionUrl)
 - `documents` — NEW: standalone documents (userId, projectId, title, body, docType, tags, isPinned, isTemplate)
+- `opportunities` — NEW: opportunity tracking (userId, title, type, status, priority, score 0-100, market, estimatedValue, confidence, source, aiInsight, tags, isStarred)
 
 ### Real API Routes (all auth-protected, 401 if unauthenticated)
 - `GET/POST /api/activity` — activity feed CRUD (supports `?limit=N`)
@@ -34,6 +35,12 @@
 - `GET/POST/PUT/DELETE /api/documents` — standalone document registry (pin, template support)
 - `GET/POST/PUT/DELETE /api/projects/:id/tasks` — per-project task CRUD
 - `GET/POST/PUT/DELETE /api/projects/:id/members` — project team management (roles: viewer/editor/owner)
+- `GET /api/opportunities` — list all user opportunities
+- `GET /api/opportunities/stats` — aggregate stats (total, won, in-progress, avg score, by type/status)
+- `GET/PUT/DELETE /api/opportunities/:id` — opportunity CRUD
+- `POST /api/opportunities` — create opportunity with type/status/priority/score/market/value/confidence/source/aiInsight/tags
+- `POST /api/openai/engine-run (OpportunityEngine)` — AI scan + score opportunities (SSE stream)
+- `POST /api/openai/series-run (opportunity)` — OPP-Series: OpportunityEngine + MarketResearchEngine + UniversalStrategyEngine
 
 ### Safety & Compliance Layer (server-side, ACTIVE)
 - **Content Safety Filter** (`contentSafetyCheck()`) — applied to `/api/openai/engine-run`, `/api/openai/meta-agent`, `/api/openai/brain-gen-ai` before any AI call; blocks CBRN weapons, CSAM, targeted violence, malware creation, fraud/deception with structured 400 error response (`error: "content_policy_violation"`)

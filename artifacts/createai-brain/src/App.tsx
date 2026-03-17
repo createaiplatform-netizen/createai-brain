@@ -70,6 +70,7 @@ const APP_PREVIEW = [
   { icon: "🗄️", label: "Data Studio" },
   { icon: "💡", label: "Pricing Studio" },
   { icon: "📈", label: "Traction" },
+  { icon: "🎯", label: "Opportunities" },
 ];
 
 // ─── Loading Screen ────────────────────────────────────────────────────────
