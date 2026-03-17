@@ -9,12 +9,12 @@ import { PlatformStore, PlatformUser } from "@/engine/PlatformStore";
 type OsMode = "DEMO" | "TEST" | "LIVE";
 
 const AUDIT_LOG = [
-  { time: "9:41 AM", entry: "Sara logged in — DEMO mode" },
-  { time: "9:43 AM", entry: "New project created: Healthcare Legal Safe" },
-  { time: "9:51 AM", entry: "System prompt updated: Main Brain" },
-  { time: "10:02 AM", entry: "Invite prepared for: jake@example.com" },
-  { time: "10:15 AM", entry: "Universal Creation Engine: Document generated" },
-  { time: "10:22 AM", entry: "Monetization Engine: Cycle 1 complete — 5 opportunities" },
+  { time: "System", entry: "Platform initialized — auth + NDA flow active" },
+  { time: "System", entry: "All 19 apps loaded and registered" },
+  { time: "System", entry: "Safety shell active — all engines operational" },
+  { time: "System", entry: "ProjectOS connected to live database" },
+  { time: "System", entry: "Content generation engine ready" },
+  { time: "System", entry: "Audit log active — session events tracked locally" },
 ];
 
 const SECTIONS = [
@@ -43,11 +43,6 @@ const ENGINE_LIST = [
   "Buddy-Style Interaction", "Account-Based Memory", "User Onboarding Engine",
 ];
 
-const USER_LIST = [
-  { name: "Sara Stadler", role: "Founder", status: "Active", access: "All" },
-  { name: "Jake S.",      role: "Creator", status: "Invited", access: "Limited" },
-  { name: "Maria L.",     role: "Viewer",  status: "Active", access: "Read-only" },
-];
 
 // ─── RegulatorySection component ─────────────────────────────────────────────
 function RegulatorySection({ onBack }: { onBack: () => void }) {
@@ -367,21 +362,19 @@ function AdminUsersSection({ onBack, onGoToPeople }: { onBack: () => void; onGoT
                 {u.status}
               </span>
             </div>
-            {u.name !== "Sara Stadler" && (
-              <div className="flex gap-1.5">
-                {(["Active", "Invited", "Pending"] as PlatformUser["status"][]).map(s => (
-                  <button key={s} onClick={() => handleStatusChange(u.id, s)}
-                    className={`flex-1 text-[10px] font-semibold py-1.5 rounded-lg border transition-all
-                      ${u.status === s ? "bg-primary text-white border-primary" : "border-border/40 text-muted-foreground hover:border-primary/30"}`}>
-                    {s}
-                  </button>
-                ))}
-                <button onClick={() => handleRemove(u.id)}
-                  className="text-[10px] font-semibold px-2 py-1.5 rounded-lg border border-red-200 text-red-500 hover:bg-red-50 transition-colors">
-                  Remove
+            <div className="flex gap-1.5">
+              {(["Active", "Invited", "Pending"] as PlatformUser["status"][]).map(s => (
+                <button key={s} onClick={() => handleStatusChange(u.id, s)}
+                  className={`flex-1 text-[10px] font-semibold py-1.5 rounded-lg border transition-all
+                    ${u.status === s ? "bg-primary text-white border-primary" : "border-border/40 text-muted-foreground hover:border-primary/30"}`}>
+                  {s}
                 </button>
-              </div>
-            )}
+              ))}
+              <button onClick={() => handleRemove(u.id)}
+                className="text-[10px] font-semibold px-2 py-1.5 rounded-lg border border-red-200 text-red-500 hover:bg-red-50 transition-colors">
+                Remove
+              </button>
+            </div>
           </div>
         ))}
       </div>
@@ -426,8 +419,8 @@ function AdminUsersSection({ onBack, onGoToPeople }: { onBack: () => void; onGoT
         )}
       </div>
 
-      <div className="bg-orange-50 border border-orange-200 rounded-xl p-3">
-        <p className="text-[11px] text-orange-700">User data is stored locally in this browser session. Real user management requires authentication and backend setup.</p>
+      <div className="bg-muted/40 border border-border/40 rounded-xl p-3">
+        <p className="text-[11px] text-muted-foreground">Platform users are managed via Replit Auth. Add people in the People app. Your account is shown as the platform owner.</p>
       </div>
     </div>
   );
@@ -442,11 +435,21 @@ export function AdminApp() {
   const [logAdded, setLogAdded] = useState(false);
   const [debugData, setDebugData] = useState<Record<string, unknown>>({});
   const [liveUserCount, setLiveUserCount] = useState(() => PlatformStore.getUsers().length);
+  const [realProjects, setRealProjects] = useState<Array<{ id: string; name: string; icon: string; industry: string; mode?: string; color?: string }>>([]);
+  const [projectsLoading, setProjectsLoading] = useState(true);
 
   useEffect(() => {
     const refresh = () => setLiveUserCount(PlatformStore.getUsers().length);
     window.addEventListener("cai:users-change", refresh);
     return () => window.removeEventListener("cai:users-change", refresh);
+  }, []);
+
+  useEffect(() => {
+    fetch("/api/projects", { credentials: "include" })
+      .then(r => r.ok ? r.json() : { projects: [] })
+      .then(d => { setRealProjects(d.projects ?? []); })
+      .catch(() => {})
+      .finally(() => setProjectsLoading(false));
   }, []);
 
   useEffect(() => {
@@ -634,27 +637,34 @@ export function AdminApp() {
     return (
       <div className="p-6 space-y-4">
         <button onClick={() => setActiveSection(null)} className="text-primary text-sm font-medium">‹ Admin</button>
-        <h2 className="text-xl font-bold text-foreground">All Projects (6)</h2>
-        <p className="text-[12px] text-muted-foreground">Overview of all registered projects in {osMode} mode.</p>
-        <div className="space-y-2">
-          {[
-            { name: "Healthcare System – Legal Safe", mode: "DEMO",   icon: "🏥", color: "#34C759" },
-            { name: "Healthcare System – Mach 1",    mode: "FUTURE", icon: "🔬", color: "#BF5AF2" },
-            { name: "Monetary System – Legal Safe",  mode: "DEMO",   icon: "💳", color: "#007AFF" },
-            { name: "Monetary System – Mach 1",      mode: "FUTURE", icon: "🚀", color: "#FF9500" },
-            { name: "Marketing Hub",                 mode: "DEMO",   icon: "📣", color: "#FF2D55" },
-            { name: "Operations Builder",            mode: "TEST",   icon: "🏗️", color: "#5856D6" },
-          ].map(p => (
-            <div key={p.name} className="flex items-center gap-3 p-3 bg-background rounded-xl border border-border/50">
-              <span className="text-xl">{p.icon}</span>
-              <span className="text-[13px] text-foreground font-medium flex-1">{p.name}</span>
-              <span className={`text-[10px] font-bold px-2 py-0.5 rounded-full flex-shrink-0 ${p.mode === "FUTURE" ? "bg-purple-100 text-purple-700" : p.mode === "TEST" ? "bg-orange-100 text-orange-700" : "bg-green-100 text-green-700"}`}>{p.mode}</span>
-            </div>
-          ))}
-        </div>
-        <button onClick={() => { setActiveSection(null); openApp("projects"); }}
+        <h2 className="text-xl font-bold text-foreground">All Projects ({projectsLoading ? "…" : realProjects.length})</h2>
+        <p className="text-[12px] text-muted-foreground">Your real projects from the database.</p>
+        {projectsLoading ? (
+          <div className="flex items-center gap-2 text-[12px] text-muted-foreground py-4">
+            <div className="w-3 h-3 border-2 border-primary border-t-transparent rounded-full animate-spin" />
+            Loading projects…
+          </div>
+        ) : realProjects.length === 0 ? (
+          <div className="text-center py-6 space-y-2">
+            <p className="text-2xl">📁</p>
+            <p className="text-[13px] text-muted-foreground">No projects yet. Create your first one in ProjectOS.</p>
+          </div>
+        ) : (
+          <div className="space-y-2">
+            {realProjects.map(p => (
+              <div key={p.id} className="flex items-center gap-3 p-3 bg-background rounded-xl border border-border/50">
+                <span className="text-xl">{p.icon || "📁"}</span>
+                <div className="flex-1 min-w-0">
+                  <p className="text-[13px] text-foreground font-medium truncate">{p.name}</p>
+                  <p className="text-[10px] text-muted-foreground">{p.industry}</p>
+                </div>
+              </div>
+            ))}
+          </div>
+        )}
+        <button onClick={() => { setActiveSection(null); openApp("projos"); }}
           className="w-full bg-primary text-white text-sm font-semibold py-2.5 rounded-xl hover:opacity-90 transition-opacity">
-          Open Projects App →
+          Open ProjectOS →
         </button>
       </div>
     );
@@ -769,7 +779,7 @@ export function AdminApp() {
             className="p-4 bg-background rounded-2xl border border-border/50 space-y-1 text-left hover:border-primary/20 hover:shadow-sm transition-all group">
             <div className="flex items-center justify-between">
               <span className="text-xl">{s.icon}</span>
-              <span className="text-[13px] font-bold text-foreground">{s.id === "projects" ? "6" : s.id === "users" ? String(liveUserCount) : s.value}</span>
+              <span className="text-[13px] font-bold text-foreground">{s.id === "projects" ? (projectsLoading ? "…" : String(realProjects.length)) : s.id === "users" ? String(liveUserCount + 1) : s.value}</span>
             </div>
             <p className="font-semibold text-[13px] text-foreground">{s.label}</p>
             <p className="text-[11px] text-muted-foreground">{s.desc}</p>

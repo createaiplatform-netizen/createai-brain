@@ -371,6 +371,7 @@ export function PeopleApp() {
   const [users, setUsers]       = useState<PlatformUser[]>([]);
   const [search, setSearch]     = useState("");
   const [filterStatus, setFilterStatus] = useState<PlatformUser["status"] | "All">("All");
+  const [authUser, setAuthUser] = useState<{ id: string; name: string; email: string; role: string } | null>(null);
 
   const loadUsers = () => setUsers(PlatformStore.getUsers());
 
@@ -378,6 +379,13 @@ export function PeopleApp() {
     loadUsers();
     window.addEventListener("cai:users-change", loadUsers);
     return () => window.removeEventListener("cai:users-change", loadUsers);
+  }, []);
+
+  useEffect(() => {
+    fetch("/api/user/me", { credentials: "include" })
+      .then(r => r.ok ? r.json() : null)
+      .then(d => { if (d?.id) setAuthUser(d); })
+      .catch(() => {});
   }, []);
 
   const selectedUser = selectedId ? users.find(u => u.id === selectedId) : null;
@@ -445,10 +453,32 @@ export function PeopleApp() {
 
       {/* List */}
       <div className="flex-1 overflow-y-auto p-4 space-y-2">
-        {filtered.length === 0 && (
+        {/* Auth user shown as "You" */}
+        {authUser && (
+          <div className="flex items-start gap-4 p-4 bg-primary/5 rounded-2xl border border-primary/15">
+            <div className="w-10 h-10 rounded-full bg-primary flex items-center justify-center text-white font-bold text-sm flex-shrink-0">
+              {authUser.name[0]?.toUpperCase()}
+            </div>
+            <div className="flex-1 min-w-0">
+              <div className="flex items-center gap-2">
+                <p className="font-semibold text-[14px] text-foreground">{authUser.name}</p>
+                <span className="text-[10px] text-primary font-semibold bg-primary/10 px-1.5 py-0.5 rounded-full">You</span>
+              </div>
+              <p className="text-[12px] text-muted-foreground truncate">{authUser.email || "Account owner"}</p>
+              <p className="text-[11px] text-primary mt-0.5">{authUser.role}</p>
+            </div>
+          </div>
+        )}
+
+        {filtered.length === 0 && !authUser && (
           <div className="text-center py-12 space-y-3">
             <p className="text-4xl">👥</p>
             <p className="text-muted-foreground text-[13px]">No people found. Tap + Invite or + Add to get started.</p>
+          </div>
+        )}
+        {filtered.length === 0 && authUser && (
+          <div className="text-center py-8 space-y-2">
+            <p className="text-muted-foreground text-[13px]">No additional people yet. Tap + Invite or + Add to grow your team.</p>
           </div>
         )}
         {filtered.map(u => (

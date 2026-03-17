@@ -62,7 +62,7 @@ const DEFAULT_PREFERENCES: PreferenceBrain = {
   language: "English",
   interactionStyle: "Adaptive",
   interests: ["Healthcare", "Marketing", "Operations"],
-  groupMembers: ["Sara (Founder)", "Jake (Creator)", "Maria (Viewer)"],
+  groupMembers: [],
   zeroOverwhelmMode: false,
   revenueShare: 25,
 };

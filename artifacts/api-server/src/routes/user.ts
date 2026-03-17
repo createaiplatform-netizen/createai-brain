@@ -1,0 +1,26 @@
+import { Router } from "express";
+import { eq } from "drizzle-orm";
+import { db, usersTable } from "@workspace/db";
+
+const router = Router();
+
+router.get("/me", async (req, res) => {
+  if (!req.user) { res.status(401).json({ error: "Unauthorized" }); return; }
+  try {
+    const [row] = await db.select().from(usersTable).where(eq(usersTable.id, req.user.id)).limit(1);
+    if (!row) { res.status(404).json({ error: "User not found" }); return; }
+    const name = [row.firstName, row.lastName].filter(Boolean).join(" ") || "User";
+    res.json({
+      id: row.id,
+      name,
+      email: row.email ?? "",
+      profileImageUrl: row.profileImageUrl ?? "",
+      role: "Admin",
+    });
+  } catch (err) {
+    console.error("GET /me error:", err);
+    res.status(500).json({ error: "Internal server error" });
+  }
+});
+
+export default router;

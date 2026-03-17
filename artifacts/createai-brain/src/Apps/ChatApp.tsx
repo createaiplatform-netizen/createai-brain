@@ -1,109 +1,92 @@
 import React, { useState, useEffect, useRef } from "react";
-import { Send, ChevronDown, Sparkles, Zap } from "lucide-react";
+import { Send, ChevronDown, Sparkles, Zap, Plus } from "lucide-react";
 import { useChatStream } from "@/hooks/use-chat-stream";
 import { ChatBubble } from "@/components/chat-bubble";
 import { TypingIndicator } from "@/components/typing-indicator";
 import { SaveToProjectModal } from "@/components/SaveToProjectModal";
 import { clsx, type ClassValue } from "clsx";
 import { twMerge } from "tailwind-merge";
+import { useOS } from "@/os/OSContext";
 
 function cn(...inputs: ClassValue[]) {
   return twMerge(clsx(inputs));
 }
 
-const PROJECTS = [
+// ─── Built-in workspaces (always present) ──────────────────────────────────
+const BUILT_IN_WORKSPACES = [
   {
+    id: "main-brain",
     name: "Main Brain",
     emoji: "🧠",
     description: "Universal creative intelligence. Build anything, plan anything, invent anything — all domains, zero limits.",
+    isBuiltIn: true,
   },
   {
-    name: "Healthcare Demo",
-    emoji: "🏥",
-    description: "ApexCare Nexus — simulation only, non-clinical demo mode. Explore how a future healthcare platform could work.",
-  },
-  {
+    id: "grants-explorer",
     name: "Grants & Funding Explorer",
     emoji: "💰",
-    description: "Explore grant ideas, funding concepts, narratives, and strategies. Simulation only.",
+    description: "Explore grant ideas, funding concepts, narratives, and strategies.",
+    isBuiltIn: true,
   },
   {
+    id: "business-ops",
     name: "Business & Operations Builder",
     emoji: "🏗️",
-    description: "Structure your operations, teams, workflows, and systems. Conceptual mode — bring any idea.",
+    description: "Structure your operations, teams, workflows, and systems.",
+    isBuiltIn: true,
   },
   {
+    id: "marketing-studio",
     name: "Marketing & Storytelling Studio",
     emoji: "🎯",
-    description: "Craft brand narratives, campaigns, messaging frameworks, and content. Ideation mode.",
+    description: "Craft brand narratives, campaigns, messaging frameworks, and content.",
+    isBuiltIn: true,
   },
   {
-    name: "CreateAI Messaging Hub",
-    emoji: "✉️",
-    description: "Generate professional emails and texts. Easy Mode: sent via your own device.",
-  },
-  {
-    name: "Product & Launch Pad",
-    emoji: "🚀",
-    description: "Design products, plan launches, build roadmaps, and structure go-to-market strategies. Concept mode.",
-  },
-  {
+    id: "legal-contracts",
     name: "Legal & Contracts Studio",
     emoji: "⚖️",
     description: "Draft agreements, policies, terms, and compliance frameworks. Conceptual only — always verify with a licensed attorney.",
+    isBuiltIn: true,
   },
   {
+    id: "creative-lab",
     name: "Creative Writing Lab",
     emoji: "✍️",
-    description: "Write stories, scripts, pitches, bios, speeches, and creative copy. Full creative freedom with zero limits.",
+    description: "Write stories, scripts, pitches, bios, speeches, and creative copy.",
+    isBuiltIn: true,
   },
 ];
 
-const PROJECT_SUGGESTIONS: Record<number, string[]> = {
-  0: [
+const BUILT_IN_SUGGESTIONS: Record<string, string[]> = {
+  "main-brain": [
     "Build a complete SaaS product plan from scratch",
     "Invent a new business model for the creator economy",
     "Design a 90-day launch strategy for a new platform",
     "Create a full org structure for a remote-first startup",
   ],
-  1: [
-    "Walk me through the demo patient intake flow",
-    "Design a mock care coordination dashboard",
-    "What does a future care planning system look like?",
-  ],
-  2: [
+  "grants-explorer": [
     "Find grant ideas for a community health nonprofit",
     "Draft a federal funding narrative for workforce development",
     "Map out a multi-grant strategy for a startup",
   ],
-  3: [
+  "business-ops": [
     "Design the complete operations structure for my company",
     "Map out a customer onboarding workflow end to end",
     "Create an employee handbook outline",
   ],
-  4: [
+  "marketing-studio": [
     "Build a 30-day social media content calendar",
     "Write a complete brand kit for my business",
     "Create a 5-email launch campaign from scratch",
   ],
-  5: [
-    "Draft a professional re-engagement email sequence",
-    "Write a cold outreach sequence for enterprise sales",
-    "Generate an automated nurture flow — 7 messages",
-  ],
-  6: [
-    "Design a complete product roadmap for my SaaS startup",
-    "Build a full go-to-market strategy with phases and KPIs",
-    "Create a product requirements document from scratch",
-    "Map out a pre-launch checklist for a digital product",
-  ],
-  7: [
+  "legal-contracts": [
     "Draft a freelance contractor agreement template",
     "Create a Privacy Policy for a SaaS platform",
     "Write a standard Terms of Service document",
     "Generate an NDA for a new partnership",
   ],
-  8: [
+  "creative-lab": [
     "Write a cinematic short story about a future AI city",
     "Draft a motivational keynote speech for a founder event",
     "Create a compelling founder bio for my website",
@@ -111,16 +94,30 @@ const PROJECT_SUGGESTIONS: Record<number, string[]> = {
   ],
 };
 
+const DEFAULT_SUGGESTIONS = [
+  "What can you help me build today?",
+  "Create a complete business plan for my idea",
+  "Design a product launch strategy",
+  "Write a professional proposal document",
+];
+
+interface Workspace {
+  id: string;
+  name: string;
+  emoji: string;
+  description: string;
+  isBuiltIn?: boolean;
+  isProject?: boolean;
+}
+
 function ChatEmptyState({
-  project,
-  projectIndex,
+  workspace,
   onSuggest,
 }: {
-  project: typeof PROJECTS[0];
-  projectIndex: number;
+  workspace: Workspace;
   onSuggest: (text: string) => void;
 }) {
-  const suggestions = PROJECT_SUGGESTIONS[projectIndex] ?? PROJECT_SUGGESTIONS[0];
+  const suggestions = BUILT_IN_SUGGESTIONS[workspace.id] ?? DEFAULT_SUGGESTIONS;
 
   return (
     <div className="flex flex-col items-center justify-center flex-1 gap-6 py-12 text-center animate-fade-up px-4">
@@ -133,21 +130,23 @@ function ChatEmptyState({
             boxShadow: "0 0 40px rgba(99,102,241,0.12)",
           }}
         >
-          {project.emoji}
+          {workspace.emoji}
         </div>
-        <div
-          className="absolute inset-0 rounded-3xl animate-pulse-ring pointer-events-none"
-          style={{ borderRadius: "1.5rem" }}
-        />
+        <div className="absolute inset-0 rounded-3xl animate-pulse-ring pointer-events-none" style={{ borderRadius: "1.5rem" }} />
       </div>
 
       <div className="space-y-2 max-w-sm">
         <p className="font-bold text-[18px] text-foreground gradient-text" style={{ letterSpacing: "-0.02em" }}>
-          {project.name}
+          {workspace.name}
         </p>
         <p className="text-[13px] text-muted-foreground leading-relaxed">
-          {project.description}
+          {workspace.description}
         </p>
+        {workspace.isProject && (
+          <p className="text-[11px] px-3 py-1 rounded-full inline-block" style={{ background: "rgba(99,102,241,0.12)", color: "#818cf8" }}>
+            Your Project
+          </p>
+        )}
       </div>
 
       <div className="w-full max-w-md space-y-2.5">
@@ -184,32 +183,49 @@ function ChatEmptyState({
 }
 
 export function ChatApp() {
-  const [currentProjectIndex, setCurrentProjectIndex] = useState(0);
+  const { openApp } = useOS();
+  const [workspaces, setWorkspaces] = useState<Workspace[]>(BUILT_IN_WORKSPACES);
+  const [selectedId, setSelectedId] = useState<string>(BUILT_IN_WORKSPACES[0].id);
   const [showPicker, setShowPicker] = useState(false);
   const [inputMessage, setInputMessage] = useState("");
   const [saveModal, setSaveModal] = useState<{ content: string; label: string } | null>(null);
+  const [loadingProjects, setLoadingProjects] = useState(true);
 
   const messagesEndRef = useRef<HTMLDivElement>(null);
   const inputRef = useRef<HTMLInputElement>(null);
-  const currentProject = PROJECTS[currentProjectIndex];
+  const currentWorkspace = workspaces.find(w => w.id === selectedId) ?? workspaces[0];
 
   const { messages, sendMessage, isStreaming, streamingText } = useChatStream();
 
-  const selectProject = (index: number) => {
-    setCurrentProjectIndex(index);
-    setShowPicker(false);
-  };
+  useEffect(() => {
+    fetch("/api/projects", { credentials: "include" })
+      .then(r => r.ok ? r.json() : null)
+      .then(d => {
+        if (d?.projects?.length) {
+          const projectWorkspaces: Workspace[] = d.projects.map((p: { id: string; name: string; icon: string; description?: string; industry?: string }) => ({
+            id: `project-${p.id}`,
+            name: p.name,
+            emoji: p.icon ?? "📁",
+            description: p.description || `Your ${p.industry || "General"} project workspace`,
+            isProject: true,
+          }));
+          setWorkspaces([...BUILT_IN_WORKSPACES, ...projectWorkspaces]);
+        }
+      })
+      .catch(() => {})
+      .finally(() => setLoadingProjects(false));
+  }, []);
 
   const handleSend = (e?: React.FormEvent) => {
     e?.preventDefault();
     if (!inputMessage.trim() || isStreaming) return;
-    sendMessage(inputMessage.trim(), currentProject.name);
+    sendMessage(inputMessage.trim(), currentWorkspace.name);
     setInputMessage("");
     setTimeout(() => inputRef.current?.focus(), 10);
   };
 
   const handleSuggest = (text: string) => {
-    sendMessage(text, currentProject.name);
+    sendMessage(text, currentWorkspace.name);
   };
 
   useEffect(() => {
@@ -218,7 +234,7 @@ export function ChatApp() {
 
   return (
     <div className="flex flex-col h-full">
-      {/* Project switcher bar */}
+      {/* Workspace switcher bar */}
       <div
         className="flex-none relative flex items-center justify-center py-2 border-b"
         style={{ borderColor: "rgba(255,255,255,0.07)", background: "rgba(8,10,22,0.60)", backdropFilter: "blur(20px)" }}
@@ -227,8 +243,8 @@ export function ChatApp() {
           onClick={() => setShowPicker(p => !p)}
           className="flex items-center gap-2 px-4 py-1.5 rounded-full hover:bg-white/5 active:bg-white/8 transition-colors group"
         >
-          <span className="text-base">{currentProject.emoji}</span>
-          <span className="font-semibold text-[14px] tracking-tight text-foreground">{currentProject.name}</span>
+          <span className="text-base">{currentWorkspace.emoji}</span>
+          <span className="font-semibold text-[14px] tracking-tight text-foreground">{currentWorkspace.name}</span>
           <ChevronDown className={cn(
             "w-3.5 h-3.5 text-muted-foreground transition-all duration-200",
             showPicker ? "rotate-180 text-primary" : "group-hover:text-foreground"
@@ -244,37 +260,76 @@ export function ChatApp() {
                 background: "rgba(10,12,30,0.96)",
                 border: "1px solid rgba(255,255,255,0.10)",
                 backdropFilter: "blur(40px)",
-                maxHeight: "min(520px, 70vh)",
+                maxHeight: "min(540px, 75vh)",
               }}
             >
               <div className="px-4 py-3 border-b flex-shrink-0" style={{ borderColor: "rgba(255,255,255,0.07)" }}>
                 <p className="section-label">Choose Workspace</p>
               </div>
+
               <div className="overflow-y-auto flex-1 overscroll-contain" style={{ scrollbarWidth: "thin", scrollbarColor: "rgba(99,102,241,0.3) transparent" }}>
-              {PROJECTS.map((proj, i) => (
-                <button
-                  key={proj.name}
-                  onClick={() => selectProject(i)}
-                  className={cn(
-                    "w-full flex items-start gap-3 px-4 py-3 text-left transition-colors",
-                    i === currentProjectIndex ? "bg-primary/8" : "hover:bg-white/4"
-                  )}
-                >
-                  <span className="text-xl flex-shrink-0 mt-0.5">{proj.emoji}</span>
-                  <div className="flex-1 min-w-0">
-                    <p className={cn(
-                      "text-[13px] font-semibold leading-tight",
-                      i === currentProjectIndex ? "text-primary" : "text-foreground"
-                    )}>
-                      {proj.name}
-                    </p>
-                    <p className="text-[11px] text-muted-foreground mt-0.5 leading-snug line-clamp-2">{proj.description}</p>
-                  </div>
-                  {i === currentProjectIndex && (
-                    <span className="text-primary text-xs font-bold flex-shrink-0 mt-0.5">✓</span>
-                  )}
-                </button>
-              ))}
+                {/* Built-in workspaces */}
+                <div className="px-3 pt-2 pb-1">
+                  <p className="text-[9px] font-bold uppercase tracking-widest px-1 mb-1" style={{ color: "#64748b" }}>Built-in Workspaces</p>
+                </div>
+                {workspaces.filter(w => w.isBuiltIn).map(ws => (
+                  <button
+                    key={ws.id}
+                    onClick={() => { setSelectedId(ws.id); setShowPicker(false); }}
+                    className={cn(
+                      "w-full flex items-start gap-3 px-4 py-3 text-left transition-colors",
+                      selectedId === ws.id ? "bg-primary/8" : "hover:bg-white/4"
+                    )}
+                  >
+                    <span className="text-xl flex-shrink-0 mt-0.5">{ws.emoji}</span>
+                    <div className="flex-1 min-w-0">
+                      <p className={cn("text-[13px] font-semibold leading-tight", selectedId === ws.id ? "text-primary" : "text-foreground")}>
+                        {ws.name}
+                      </p>
+                      <p className="text-[11px] text-muted-foreground mt-0.5 leading-snug line-clamp-2">{ws.description}</p>
+                    </div>
+                    {selectedId === ws.id && <span className="text-primary text-xs font-bold flex-shrink-0 mt-0.5">✓</span>}
+                  </button>
+                ))}
+
+                {/* User's real projects */}
+                {workspaces.filter(w => w.isProject).length > 0 && (
+                  <>
+                    <div className="px-3 pt-3 pb-1 border-t" style={{ borderColor: "rgba(255,255,255,0.06)" }}>
+                      <p className="text-[9px] font-bold uppercase tracking-widest px-1 mb-1" style={{ color: "#64748b" }}>Your Projects</p>
+                    </div>
+                    {workspaces.filter(w => w.isProject).map(ws => (
+                      <button
+                        key={ws.id}
+                        onClick={() => { setSelectedId(ws.id); setShowPicker(false); }}
+                        className={cn(
+                          "w-full flex items-start gap-3 px-4 py-3 text-left transition-colors",
+                          selectedId === ws.id ? "bg-primary/8" : "hover:bg-white/4"
+                        )}
+                      >
+                        <span className="text-xl flex-shrink-0 mt-0.5">{ws.emoji}</span>
+                        <div className="flex-1 min-w-0">
+                          <p className={cn("text-[13px] font-semibold leading-tight", selectedId === ws.id ? "text-primary" : "text-foreground")}>
+                            {ws.name}
+                          </p>
+                          <p className="text-[11px] text-muted-foreground mt-0.5 leading-snug line-clamp-2">{ws.description}</p>
+                        </div>
+                        {selectedId === ws.id && <span className="text-primary text-xs font-bold flex-shrink-0 mt-0.5">✓</span>}
+                      </button>
+                    ))}
+                  </>
+                )}
+
+                {/* Create new project link */}
+                <div className="p-3 border-t" style={{ borderColor: "rgba(255,255,255,0.06)" }}>
+                  <button
+                    onClick={() => { setShowPicker(false); openApp("projos"); }}
+                    className="w-full flex items-center gap-2 px-3 py-2 rounded-xl text-[12px] font-medium text-muted-foreground hover:text-foreground hover:bg-white/5 transition-colors"
+                  >
+                    <Plus className="w-3.5 h-3.5" />
+                    Create a new project
+                  </button>
+                </div>
               </div>
             </div>
           </>
@@ -286,8 +341,7 @@ export function ChatApp() {
         <div className="flex flex-col justify-end min-h-full max-w-3xl mx-auto">
           {messages.length === 0 && (
             <ChatEmptyState
-              project={currentProject}
-              projectIndex={currentProjectIndex}
+              workspace={currentWorkspace}
               onSuggest={handleSuggest}
             />
           )}
@@ -297,7 +351,7 @@ export function ChatApp() {
               {msg.role === "assistant" && msg.content && (
                 <div className="flex justify-start ml-10 -mt-1 mb-2">
                   <button
-                    onClick={() => setSaveModal({ content: msg.content, label: `${currentProject.name} — AI Response` })}
+                    onClick={() => setSaveModal({ content: msg.content, label: `${currentWorkspace.name} — AI Response` })}
                     className="text-[10px] px-2.5 py-1 rounded-lg font-medium transition-colors"
                     style={{ background: "rgba(99,102,241,0.10)", color: "#818cf8", border: "1px solid rgba(99,102,241,0.18)" }}
                   >
@@ -326,13 +380,13 @@ export function ChatApp() {
             className="relative flex items-center w-full rounded-2xl pl-4 pr-1.5 py-1.5 input-premium transition-all"
             style={{ background: "rgba(255,255,255,0.05)", border: "1px solid rgba(255,255,255,0.10)" }}
           >
-            <span className="text-base mr-2 flex-shrink-0">{currentProject.emoji}</span>
+            <span className="text-base mr-2 flex-shrink-0">{currentWorkspace.emoji}</span>
             <input
               ref={inputRef}
               type="text"
               value={inputMessage}
               onChange={e => setInputMessage(e.target.value)}
-              placeholder={`Message ${currentProject.name}...`}
+              placeholder={`Message ${currentWorkspace.name}...`}
               className="flex-1 bg-transparent border-none outline-none text-[15px] placeholder:text-muted-foreground py-1.5"
               disabled={isStreaming}
             />
@@ -355,7 +409,7 @@ export function ChatApp() {
             </button>
           </form>
           <p className="text-center text-[10px] text-muted-foreground/60 mt-1.5">
-            Responses are structured with sections &amp; smart next steps · Demo mode
+            All responses are structured with sections &amp; smart next steps
           </p>
         </div>
       </footer>

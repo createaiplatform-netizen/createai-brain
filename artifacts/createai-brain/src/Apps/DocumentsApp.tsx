@@ -84,7 +84,7 @@ export function DocumentsApp() {
   const [savedDb, setSavedDb] = useState(false);
 
   useEffect(() => {
-    fetch("/api/projects/all-files")
+    fetch("/api/projects/all-files", { credentials: "include" })
       .then(r => r.ok ? r.json() : { files: [] })
       .then((data: { files: DbFile[] }) => {
         setDbFiles(data.files ?? []);
@@ -97,6 +97,7 @@ export function DocumentsApp() {
     setSavingDb(true);
     await fetch(`/api/projects/${file.projectId}/files/${file.id}`, {
       method: "PUT",
+      credentials: "include",
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify({ content }),
     });

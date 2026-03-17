@@ -502,18 +502,42 @@ function FutureProjectPage({ name, icon, color, onBack, onGenerate }: {
 }
 
 // ─── New Project Form ────────────────────────────────────────────────────────
-function NewProjectForm({ onBack }: { onBack: () => void }) {
+function NewProjectForm({ onBack, onCreated }: { onBack: () => void; onCreated?: () => void }) {
   const [name, setName] = useState("");
+  const [description, setDescription] = useState("");
   const [industry, setIndustry] = useState("Healthcare");
+  const [creating, setCreating] = useState(false);
   const [created, setCreated] = useState(false);
+  const [error, setError] = useState<string | null>(null);
+
+  const handleCreate = async () => {
+    if (!name.trim()) return;
+    setCreating(true);
+    setError(null);
+    try {
+      const res = await fetch("/api/projects", {
+        method: "POST",
+        credentials: "include",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ name: name.trim(), industry, description: description.trim() }),
+      });
+      if (!res.ok) throw new Error("Failed to create project");
+      setCreated(true);
+      onCreated?.();
+    } catch {
+      setError("Could not create project. Please try again.");
+    } finally {
+      setCreating(false);
+    }
+  };
 
   if (created) {
     return (
       <div className="p-6 space-y-5 text-center">
         <div className="py-6">
           <p className="text-4xl mb-3">✅</p>
-          <h2 className="text-xl font-bold text-foreground">Project Created (Mock)</h2>
-          <p className="text-[13px] text-muted-foreground mt-1">"{name}" is ready. All pages are pre-populated with mock content.</p>
+          <h2 className="text-xl font-bold text-foreground">Project Created!</h2>
+          <p className="text-[13px] text-muted-foreground mt-1">"{name}" is live in your workspace with all standard folders scaffolded.</p>
         </div>
         <button onClick={onBack} className="bg-primary text-white text-sm font-semibold px-6 py-2.5 rounded-xl hover:opacity-90 transition-opacity">← Back to Projects</button>
       </div>
@@ -524,16 +548,29 @@ function NewProjectForm({ onBack }: { onBack: () => void }) {
     <div className="p-6 space-y-5">
       <button onClick={onBack} className="text-primary text-sm font-medium">‹ Projects</button>
       <h2 className="text-xl font-bold text-foreground">New Project</h2>
+
+      {error && (
+        <div className="px-3 py-2 rounded-xl text-[12px] text-red-600" style={{ background: "rgba(239,68,68,0.08)", border: "1px solid rgba(239,68,68,0.20)" }}>
+          {error}
+        </div>
+      )}
+
       <div className="space-y-4">
         <div>
-          <label className="text-[13px] font-semibold text-foreground block mb-1.5">Project Name</label>
+          <label className="text-[13px] font-semibold text-foreground block mb-1.5">Project Name *</label>
           <input value={name} onChange={e => setName(e.target.value)} placeholder="e.g. Client Portal v2"
             className="w-full bg-background border border-border/50 rounded-xl p-3 text-[13px] text-foreground placeholder:text-muted-foreground outline-none focus:ring-2 focus:ring-primary/20 transition-all" />
         </div>
         <div>
+          <label className="text-[13px] font-semibold text-foreground block mb-1.5">Description <span className="text-muted-foreground font-normal">(optional)</span></label>
+          <textarea value={description} onChange={e => setDescription(e.target.value)} placeholder="What is this project for?"
+            rows={2}
+            className="w-full bg-background border border-border/50 rounded-xl p-3 text-[13px] text-foreground placeholder:text-muted-foreground outline-none focus:ring-2 focus:ring-primary/20 transition-all resize-none" />
+        </div>
+        <div>
           <label className="text-[13px] font-semibold text-foreground block mb-1.5">Industry</label>
           <div className="grid grid-cols-3 gap-2">
-            {["Healthcare", "Finance", "Education", "Construction", "Retail", "Custom"].map(ind => (
+            {["Healthcare", "Finance", "Education", "Construction", "Retail", "General"].map(ind => (
               <button key={ind} onClick={() => setIndustry(ind)}
                 className={`py-2 rounded-xl text-[12px] font-semibold border transition-all ${industry === ind ? "bg-primary text-white border-primary" : "bg-background border-border/50 text-muted-foreground hover:border-primary/30"}`}>
                 {ind}
@@ -541,11 +578,13 @@ function NewProjectForm({ onBack }: { onBack: () => void }) {
             ))}
           </div>
         </div>
-        <button onClick={() => { if (name.trim()) setCreated(true); }} disabled={!name.trim()}
-          className="w-full bg-primary text-white text-sm font-semibold py-3 rounded-xl hover:opacity-90 transition-opacity disabled:opacity-40">
-          Create Project (Mock)
+        <button onClick={handleCreate} disabled={!name.trim() || creating}
+          className="w-full bg-primary text-white text-sm font-semibold py-3 rounded-xl hover:opacity-90 transition-opacity disabled:opacity-40 flex items-center justify-center gap-2">
+          {creating ? (
+            <><span className="inline-block w-4 h-4 border-2 border-white border-t-transparent rounded-full animate-spin" /> Creating Project…</>
+          ) : "Create Project"}
         </button>
-        <p className="text-[11px] text-muted-foreground text-center">Projects are created in Demo mode with mock scaffolding.</p>
+        <p className="text-[11px] text-muted-foreground text-center">Creates a real project with your standard folder structure in the database.</p>
       </div>
     </div>
   );
@@ -739,7 +778,7 @@ export function ProjectsApp() {
   const [loadingDb, setLoadingDb] = useState(true);
 
   React.useEffect(() => {
-    fetch("/api/projects")
+    fetch("/api/projects", { credentials: "include" })
       .then(r => r.ok ? r.json() : { projects: [] })
       .then((data: { projects: DbProject[] }) => {
         setDbProjects(data.projects ?? []);
@@ -748,7 +787,16 @@ export function ProjectsApp() {
       .catch(() => setLoadingDb(false));
   }, []);
 
-  if (showNewForm) return <NewProjectForm onBack={() => setShowNewForm(false)} />;
+  if (showNewForm) return <NewProjectForm
+    onBack={() => setShowNewForm(false)}
+    onCreated={() => {
+      setLoadingDb(true);
+      fetch("/api/projects", { credentials: "include" })
+        .then(r => r.ok ? r.json() : { projects: [] })
+        .then((data: { projects: DbProject[] }) => { setDbProjects(data.projects ?? []); })
+        .catch(() => {}).finally(() => setLoadingDb(false));
+    }}
+  />;
   if (showAutoCreate) return <AutoCreateView onBack={() => setShowAutoCreate(false)} />;
 
   return (

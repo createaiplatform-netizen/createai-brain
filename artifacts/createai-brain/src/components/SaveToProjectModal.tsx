@@ -1,7 +1,5 @@
 import React, { useState, useEffect } from "react";
 
-const API = "http://localhost:8080";
-
 interface Project {
   id: string;
   name: string;
@@ -24,30 +22,40 @@ export function SaveToProjectModal({ content, label, defaultFileType = "Document
   const [fileType, setFileType]   = useState(defaultFileType);
   const [saving, setSaving]       = useState(false);
   const [saved, setSaved]         = useState(false);
+  const [error, setError]         = useState<string | null>(null);
 
   useEffect(() => {
-    fetch(`${API}/api/projects`)
+    fetch("/api/projects", { credentials: "include" })
       .then(r => r.json())
       .then(d => {
         setProjects(d.projects ?? []);
         if (d.projects?.length) setSelected(d.projects[0].id);
       })
-      .catch(() => {})
+      .catch(() => setError("Could not load projects"))
       .finally(() => setLoading(false));
   }, []);
 
   const handleSave = async () => {
     if (!selected || !fileName.trim()) return;
     setSaving(true);
+    setError(null);
     try {
-      await fetch(`${API}/api/projects/${selected}/files`, {
+      const res = await fetch(`/api/projects/${selected}/files`, {
         method: "POST",
+        credentials: "include",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ name: fileName.trim(), fileType, content, size: `${Math.round(content.length / 1024 * 10) / 10} KB` }),
+        body: JSON.stringify({
+          name: fileName.trim(),
+          fileType,
+          content,
+          size: `${Math.round(content.length / 1024 * 10) / 10} KB`,
+        }),
       });
+      if (!res.ok) throw new Error("Save failed");
       setSaved(true);
-      setTimeout(onClose, 900);
+      setTimeout(onClose, 1000);
     } catch {
+      setError("Failed to save. Please try again.");
       setSaving(false);
     }
   };
@@ -64,12 +72,18 @@ export function SaveToProjectModal({ content, label, defaultFileType = "Document
           <button onClick={onClose} className="w-7 h-7 rounded-lg flex items-center justify-center text-slate-400 hover:text-white hover:bg-white/10 transition-colors">✕</button>
         </div>
 
+        {error && (
+          <div className="px-3 py-2 rounded-xl text-[12px] text-red-400" style={{ background: "rgba(239,68,68,0.10)", border: "1px solid rgba(239,68,68,0.25)" }}>
+            {error}
+          </div>
+        )}
+
         {loading ? (
           <div className="text-center py-6 text-slate-400 text-sm">Loading projects…</div>
         ) : projects.length === 0 ? (
-          <div className="text-center py-6 text-slate-400 text-sm">
-            <p>No projects yet.</p>
-            <p className="text-[11px] mt-1 opacity-60">Create a project in ProjectOS first.</p>
+          <div className="text-center py-6 space-y-2">
+            <p className="text-slate-400 text-sm">No projects yet.</p>
+            <p className="text-[11px] text-slate-500">Create a project in ProjectOS first, then save content here.</p>
           </div>
         ) : (
           <>
