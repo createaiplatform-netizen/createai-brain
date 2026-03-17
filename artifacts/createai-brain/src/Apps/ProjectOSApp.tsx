@@ -97,60 +97,83 @@ const DASHBOARD_ACTIONS = [
   { id: "search",    icon: "🔍", label: "Search Project",    color: "#f97316" },
 ];
 
-// ─── Storage ──────────────────────────────────────────────────────────────────
+// ─── API helpers ──────────────────────────────────────────────────────────────
 
-function loadProjects(): Project[] {
+async function apiListProjects(): Promise<Project[]> {
   try {
-    const raw = localStorage.getItem("projos_projects");
-    return raw ? JSON.parse(raw) : [];
+    const res = await fetch("/api/projects");
+    if (!res.ok) return [];
+    const data = await res.json() as { projects: Project[] };
+    return data.projects ?? [];
   } catch { return []; }
 }
 
-function saveProjects(projects: Project[]) {
-  try { localStorage.setItem("projos_projects", JSON.stringify(projects)); } catch {}
+async function apiCreateProject(name: string, industry: string): Promise<Project | null> {
+  try {
+    const res = await fetch("/api/projects", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ name, industry }),
+    });
+    if (!res.ok) return null;
+    const data = await res.json() as { project: Project };
+    return data.project;
+  } catch { return null; }
 }
 
-function makeProject(name: string, industry: string): Project {
-  const specific = (INDUSTRY_SPECIFIC[industry] ?? INDUSTRY_SPECIFIC.General)
-    .map((f, i) => ({ ...f, id: `spec-${i}`, universal: false, count: 0 }));
-  const folders: ProjectFolder[] = [
-    ...UNIVERSAL_FOLDERS.map(f => ({ ...f, count: 0 })),
-    ...specific,
-  ];
-  return {
-    id: `proj_${Date.now()}`,
-    name,
-    industry,
-    icon: INDUSTRY_ICONS[industry] ?? "📁",
-    color: INDUSTRY_COLORS[industry] ?? "#94a3b8",
-    created: new Date().toLocaleDateString(),
-    folders,
-    files: [],
-    subApps: [],
-  };
+async function apiDeleteProject(id: string): Promise<boolean> {
+  try {
+    const res = await fetch(`/api/projects/${id}`, { method: "DELETE" });
+    return res.ok;
+  } catch { return false; }
+}
+
+async function apiAddFile(projectId: string, name: string, fileType: string, folderId: string): Promise<ProjectFile | null> {
+  try {
+    const res = await fetch(`/api/projects/${projectId}/files`, {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ name, fileType, folderId: folderId || undefined }),
+    });
+    if (!res.ok) return null;
+    const data = await res.json() as { file: ProjectFile };
+    return data.file;
+  } catch { return null; }
+}
+
+async function apiDeleteFile(projectId: string, fileId: string): Promise<boolean> {
+  try {
+    const res = await fetch(`/api/projects/${projectId}/files/${fileId}`, { method: "DELETE" });
+    return res.ok;
+  } catch { return false; }
+}
+
+async function apiLoadChatHistory(projectId: string): Promise<{ role: "user" | "ai"; text: string }[]> {
+  try {
+    const res = await fetch(`/api/project-chat/${projectId}/history`);
+    if (!res.ok) return [];
+    const data = await res.json() as { messages: { role: "user" | "ai"; text: string }[] };
+    return data.messages ?? [];
+  } catch { return []; }
 }
 
 // ─── SSE Project Chat ─────────────────────────────────────────────────────────
 
 async function streamProjectChat(
   history: { role: "user" | "ai"; text: string }[],
-  projectName: string,
-  projectIndustry: string,
+  projectId: string,
+  lastMessage: string,
   onChunk: (t: string) => void,
   signal: AbortSignal,
 ) {
-  const systemNote = { role: "user" as const, content: `[Context: You are helping with the "${projectName}" project (industry: ${projectIndustry}). Help with files, folders, features, and project planning.]` };
-  const apiMessages = [
-    systemNote,
-    ...history.map(m => ({
-      role: (m.role === "user" ? "user" : "assistant") as "user" | "assistant",
-      content: m.text,
-    })),
-  ];
-  const res = await fetch("/api/openai/chat", {
+  const historyForApi = history.slice(0, -1).map(m => ({
+    role: m.role === "user" ? "user" : "assistant",
+    content: m.text,
+  }));
+  const res = await fetch(`/api/project-chat/${projectId}/chat`, {
     method: "POST",
     headers: { "Content-Type": "application/json" },
-    body: JSON.stringify({ messages: apiMessages, workspace: "ProjectChat" }),
+    body: JSON.stringify({ message: lastMessage, history: historyForApi }),
     signal,
   });
   if (!res.ok || !res.body) return;
@@ -168,9 +191,8 @@ async function streamProjectChat(
       const raw = part.slice(6).trim();
       if (raw === "[DONE]") return;
       try {
-        const p = JSON.parse(raw);
-        const delta = p.choices?.[0]?.delta?.content ?? p.content ?? "";
-        if (delta) onChunk(delta);
+        const p = JSON.parse(raw) as { content?: string };
+        if (p.content) onChunk(p.content);
       } catch {}
     }
   }
@@ -295,7 +317,8 @@ function SearchModal({
 // ─── Main App ──────────────────────────────────────────────────────────────────
 
 export function ProjectOSApp() {
-  const [projects, setProjects] = useState<Project[]>(loadProjects);
+  const [projects, setProjects] = useState<Project[]>([]);
+  const [loadingProjects, setLoadingProjects] = useState(true);
   const [activeProjectId, setActiveProjectId] = useState<string | null>(null);
   const [viewMode, setViewMode] = useState<ViewMode>("dashboard+folders");
   const [activeFolderId, setActiveFolderId] = useState<string | null>(null);
@@ -321,50 +344,54 @@ export function ProjectOSApp() {
 
   const activeProject = projects.find(p => p.id === activeProjectId) ?? null;
 
-  // Persist
-  useEffect(() => { saveProjects(projects); }, [projects]);
+  // Load projects from API on mount
+  useEffect(() => {
+    apiListProjects().then(list => {
+      setProjects(list);
+      setLoadingProjects(false);
+    });
+  }, []);
 
   // Auto-scroll AI
   useEffect(() => {
     if (aiScrollRef.current) aiScrollRef.current.scrollTop = aiScrollRef.current.scrollHeight;
   }, [aiMessages]);
 
-  const createProject = useCallback(() => {
+  const createProject = useCallback(async () => {
     if (!newProjName.trim()) return;
-    const proj = makeProject(newProjName.trim(), newProjIndustry);
-    setProjects(prev => [...prev, proj]);
-    setActiveProjectId(proj.id);
-    setActiveFolderId(null);
+    const proj = await apiCreateProject(newProjName.trim(), newProjIndustry);
+    if (proj) {
+      setProjects(prev => [...prev, proj]);
+      setActiveProjectId(proj.id);
+      setActiveFolderId(null);
+    }
     setShowNewProject(false);
     setNewProjName("");
     setNewProjIndustry("General");
   }, [newProjName, newProjIndustry]);
 
-  const deleteProject = useCallback((id: string) => {
+  const deleteProject = useCallback(async (id: string) => {
+    await apiDeleteProject(id);
     setProjects(prev => prev.filter(p => p.id !== id));
     if (activeProjectId === id) setActiveProjectId(null);
   }, [activeProjectId]);
 
-  const addFile = useCallback(() => {
+  const addFile = useCallback(async () => {
     if (!activeProject || !newFileName.trim()) return;
-    const file: ProjectFile = {
-      id: `file_${Date.now()}`,
-      name: newFileName.trim(),
-      type: newFileType,
-      size: "—",
-      created: new Date().toLocaleDateString(),
-      folderId: activeFolderId ?? "files",
-    };
-    setProjects(prev => prev.map(p =>
-      p.id === activeProject.id ? { ...p, files: [...p.files, file] } : p
-    ));
+    const file = await apiAddFile(activeProject.id, newFileName.trim(), newFileType, activeFolderId ?? "");
+    if (file) {
+      setProjects(prev => prev.map(p =>
+        p.id === activeProject.id ? { ...p, files: [...p.files, file] } : p
+      ));
+    }
     setShowAddFile(false);
     setNewFileName("");
     setNewFileType("Document");
   }, [activeProject, newFileName, newFileType, activeFolderId]);
 
-  const deleteFile = useCallback((fileId: string) => {
+  const deleteFile = useCallback(async (fileId: string) => {
     if (!activeProject) return;
+    await apiDeleteFile(activeProject.id, fileId);
     setProjects(prev => prev.map(p =>
       p.id === activeProject.id ? { ...p, files: p.files.filter(f => f.id !== fileId) } : p
     ));
@@ -405,7 +432,7 @@ export function ProjectOSApp() {
     aiAbortRef.current = ctrl;
     let reply = "";
     try {
-      await streamProjectChat(newHistory, activeProject.name, activeProject.industry, chunk => {
+      await streamProjectChat([...newHistory], activeProject.id, msg, chunk => {
         reply += chunk;
         setAiMessages(prev => {
           const updated = [...prev];
@@ -417,9 +444,17 @@ export function ProjectOSApp() {
     setAiLoading(false);
   }, [aiInput, aiLoading, activeProject, aiMessages]);
 
+  const openAIPanel = useCallback(async () => {
+    setShowAI(true);
+    if (activeProject && aiMessages.length === 0) {
+      const history = await apiLoadChatHistory(activeProject.id);
+      if (history.length > 0) setAiMessages(history);
+    }
+  }, [activeProject, aiMessages.length]);
+
   const handleDashboardAction = (actionId: string) => {
     switch (actionId) {
-      case "ai":       setShowAI(true); break;
+      case "ai":       openAIPanel(); break;
       case "addfile":  setShowAddFile(true); break;
       case "addsubapp":setShowAddSubApp(true); break;
       case "search":   setShowSearch(true); break;
@@ -478,7 +513,12 @@ export function ProjectOSApp() {
 
         {/* Project List */}
         <div className="flex-1 overflow-y-auto py-2">
-          {projects.length === 0 && (
+          {loadingProjects ? (
+            <div className="px-4 py-6 text-center">
+              <div className="text-2xl mb-2 animate-pulse">📂</div>
+              <div className="text-[10px]" style={{ color: "#334155" }}>Loading projects…</div>
+            </div>
+          ) : projects.length === 0 && (
             <div className="px-4 py-6 text-center">
               <div className="text-2xl mb-2">📂</div>
               <div className="text-[10px]" style={{ color: "#334155" }}>No projects yet</div>

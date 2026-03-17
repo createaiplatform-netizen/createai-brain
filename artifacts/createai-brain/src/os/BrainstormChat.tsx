@@ -72,40 +72,37 @@ const CHIPS = [
   { label: "📱 Plan a mobile app",   text: "I want to build a mobile app for a small business. What should I focus on, and what features are most important?" },
 ];
 
-// ─── Helpers ──────────────────────────────────────────────────────────────────
+// ─── API helpers ──────────────────────────────────────────────────────────────
 
-function saveBrainstormProject(name: string, industry: string): boolean {
+async function createBrainstormSession(title: string): Promise<number | null> {
   try {
-    const validIndustry = VALID_INDUSTRIES.includes(industry) ? industry : "General";
-    const specific = (INDUSTRY_SPECIFIC[validIndustry] ?? INDUSTRY_SPECIFIC.General)
-      .map((f, i) => ({ ...f, id: `spec-${i}`, universal: false, count: 0 }));
-    const folders = [...UNIVERSAL_FOLDERS, ...specific];
-    const project = {
-      id: `proj_${Date.now()}`,
-      name,
-      industry: validIndustry,
-      icon: INDUSTRY_ICONS[validIndustry] ?? "📁",
-      color: INDUSTRY_COLORS[validIndustry] ?? "#94a3b8",
-      created: new Date().toLocaleDateString(),
-      folders,
-      files: [],
-      subApps: [],
-    };
-    const existing = JSON.parse(localStorage.getItem("projos_projects") ?? "[]");
-    localStorage.setItem("projos_projects", JSON.stringify([...existing, project]));
-    return true;
-  } catch { return false; }
+    const res = await fetch("/api/brainstorm/sessions", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ title }),
+    });
+    if (!res.ok) return null;
+    const data = await res.json() as { session: { id: number } };
+    return data.session.id;
+  } catch { return null; }
+}
+
+interface StreamCallbacks {
+  onChunk: (t: string) => void;
+  onProjectCreated?: (p: { id: string; name: string; industry: string; icon: string; color: string }) => void;
 }
 
 async function streamBrainstorm(
-  msgs: { role: "user" | "assistant"; content: string }[],
-  onChunk: (t: string) => void,
+  sessionId: number,
+  message: string,
+  history: { role: string; content: string }[],
+  { onChunk, onProjectCreated }: StreamCallbacks,
   signal: AbortSignal,
 ): Promise<void> {
-  const res = await fetch("/api/openai/chat", {
+  const res = await fetch(`/api/brainstorm/sessions/${sessionId}/chat`, {
     method: "POST",
     headers: { "Content-Type": "application/json" },
-    body: JSON.stringify({ messages: msgs, workspace: "Brainstorm" }),
+    body: JSON.stringify({ message, history }),
     signal,
   });
   if (!res.ok || !res.body) return;
@@ -123,9 +120,9 @@ async function streamBrainstorm(
       const raw = part.slice(6).trim();
       if (raw === "[DONE]") return;
       try {
-        const p = JSON.parse(raw);
-        const delta = p.choices?.[0]?.delta?.content ?? p.content ?? "";
-        if (delta) onChunk(delta);
+        const p = JSON.parse(raw) as { content?: string; projectCreated?: { id: string; name: string; industry: string; icon: string; color: string } };
+        if (p.projectCreated && onProjectCreated) onProjectCreated(p.projectCreated);
+        else if (p.content) onChunk(p.content);
       } catch {}
     }
   }
@@ -180,10 +177,11 @@ interface BrainstormChatProps {
 }
 
 export function BrainstormChat({ isOpen, onClose, onGoToProjects }: BrainstormChatProps) {
-  const [messages, setMessages]             = useState<ChatMsg[]>([]);
-  const [input, setInput]                   = useState("");
-  const [isStreaming, setIsStreaming]        = useState(false);
-  const [createdProjects, setCreatedProjects] = useState<CreatedProject[]>([]);
+  const [messages, setMessages]               = useState<ChatMsg[]>([]);
+  const [input, setInput]                     = useState("");
+  const [isStreaming, setIsStreaming]          = useState(false);
+  const [createdProjects, setCreatedProjects]  = useState<CreatedProject[]>([]);
+  const [sessionId, setSessionId]             = useState<number | null>(null);
   const bottomRef = useRef<HTMLDivElement>(null);
   const inputRef  = useRef<HTMLInputElement>(null);
   const abortRef  = useRef<AbortController | null>(null);
@@ -203,8 +201,15 @@ export function BrainstormChat({ isOpen, onClose, onGoToProjects }: BrainstormCh
     setInput("");
     setIsStreaming(true);
 
-    const historyForApi = [...messages, userMsg].map(m => ({
-      role: (m.role === "user" ? "user" : "assistant") as "user" | "assistant",
+    let sid = sessionId;
+    if (!sid) {
+      const title = text.trim().slice(0, 60) || "New Brainstorm";
+      sid = await createBrainstormSession(title);
+      if (sid) setSessionId(sid);
+    }
+
+    const historyForApi = messages.map(m => ({
+      role: m.role === "user" ? "user" : "assistant",
       content: m.text,
     }));
 
@@ -215,29 +220,33 @@ export function BrainstormChat({ isOpen, onClose, onGoToProjects }: BrainstormCh
     const ctrl = new AbortController();
     abortRef.current = ctrl;
 
-    let full = "";
     try {
-      await streamBrainstorm(historyForApi, chunk => {
-        full += chunk;
-        const display = full.replace(/\[PROJECT:\{[^}]*\}\]/g, "").trim();
-        setMessages(prev => prev.map(m => m.id === aiId ? { ...m, text: display } : m));
-      }, ctrl.signal);
+      if (sid) {
+        await streamBrainstorm(
+          sid,
+          text.trim(),
+          historyForApi,
+          {
+            onChunk: (chunk) => {
+              setMessages(prev => prev.map(m =>
+                m.id === aiId ? { ...m, text: m.text + chunk } : m
+              ));
+            },
+            onProjectCreated: (proj) => {
+              setCreatedProjects(prev => [...prev, {
+                name: proj.name,
+                industry: proj.industry,
+                icon: proj.icon,
+              }]);
+            },
+          },
+          ctrl.signal,
+        );
+      }
     } catch {}
 
-    const match = full.match(/\[PROJECT:\{"name":"([^"]+)","industry":"([^"]+)"\}\]/);
-    if (match) {
-      const [, name, industry] = match;
-      const ok = saveBrainstormProject(name, industry);
-      if (ok) {
-        setCreatedProjects(prev => [...prev, {
-          name, industry,
-          icon: INDUSTRY_ICONS[industry] ?? "📁",
-        }]);
-      }
-    }
-
     setIsStreaming(false);
-  }, [messages, isStreaming]);
+  }, [messages, isStreaming, sessionId]);
 
   const handleKey = (e: React.KeyboardEvent) => {
     if (e.key === "Enter" && !e.shiftKey) { e.preventDefault(); send(input); }
@@ -398,7 +407,7 @@ export function BrainstormChat({ isOpen, onClose, onGoToProjects }: BrainstormCh
         {/* Footer hint */}
         <div className="px-4 pb-3 flex-shrink-0 text-center">
           <p className="text-[10px]" style={{ color: "#d1d5db" }}>
-            Demo · Outputs are conceptual · Projects created locally in your browser
+            Demo · Outputs are conceptual · Projects & chats saved to database
           </p>
         </div>
       </div>
