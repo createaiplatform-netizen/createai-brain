@@ -60,17 +60,64 @@ async function fetchCurves(): Promise<CurvesResponse> {
   return res.json();
 }
 
-// ─── Design tokens — identical to OS shell ─────────────────────────────────
+// ─── Design tokens ──────────────────────────────────────────────────────────
+// All values mirror the OS shell (osLayout, AppWindow, Sidebar).
+// Every inline literal below resolves to one of these constants.
+// Single source of truth — change one value to update the whole page.
 
-const CARD_BG   = "#ffffff";
-const BORDER    = "1px solid rgba(0,0,0,0.08)";
-const SHADOW    = "0 1px 4px rgba(0,0,0,0.06)";
-const TEXT_MAIN = "#0f172a";
-const TEXT_SUB  = "#64748b";
-const TEXT_DIM  = "#94a3b8";
-const ACCENT    = "#6366f1";
+// Base palette
+const ACCENT    = "#6366f1";   // indigo — OS shell primary accent
+const CARD_BG   = "#ffffff";   // card surface (OS sidebar bg)
+const TEXT_MAIN = "#0f172a";   // slate-900 — OS main text
+const TEXT_SUB  = "#64748b";   // slate-500 — secondary text
+const TEXT_DIM  = "#94a3b8";   // slate-400 — tertiary / placeholders
 
-// ─── CSS keyframes — injected once, never again ─────────────────────────────
+// Border & divider
+const BORDER_COLOR = "rgba(0,0,0,0.08)";   // OS sidebar border-right
+const DIVIDER_TH   = "rgba(0,0,0,0.07)";   // OS sidebar section separator
+const DIVIDER_ROW  = "rgba(0,0,0,0.05)";   // subtler row rule
+const BORDER       = `1px solid ${BORDER_COLOR}`;
+
+// Shadow scale — matches OS shell's two-layer subtle shadow
+const SHADOW = "0 1px 3px rgba(0,0,0,0.06), 0 1px 2px rgba(0,0,0,0.04)";
+
+// Accent tints (hex alpha suffix = opacity, no separate rgba needed)
+const ACCENT_BG      = `${ACCENT}0d`;   //  ~5 % — badge resting background
+const ACCENT_BORDER_CLR = `${ACCENT}22`; // ~13 % — badge resting border
+const ACCENT_TRACK   = `${ACCENT}1a`;   // ~10 % — bar track background
+const ACCENT_FOCUS_BG = `${ACCENT}0a`;  //  ~4 % — row hover / focus fill
+const ACCENT_HOVER_BG = `${ACCENT}1a`;  // ~10 % — badge hover background
+const ACCENT_HOVER_BD = `${ACCENT}4d`;  // ~30 % — badge hover border
+
+// Error state (full-opacity values — no tint needed)
+const ERROR_BG     = "#fef2f2";
+const ERROR_BORDER = "#fecaca";
+const ERROR_TEXT   = "#dc2626";
+
+// Border radii — OS rhythm (multiples of 2)
+const RADIUS_CARD  = 14;   // outer cards
+const RADIUS_BADGE = 12;   // stat badges, error box
+const RADIUS_SKEL  = 6;    // skeleton rect
+const RADIUS_BAR   = 4;    // bar track + fill, th micro-elements
+
+// Spacing — strict 4 / 8 px grid
+const PAD_PAGE     = "24px 24px 64px";  // page wrapper  (24 = 3×8, 64 = 8×8)
+const PAD_CARD     = "20px 24px";       // card inner    (20 = 5×4, 24 = 3×8)
+const PAD_TD       = "8px 8px 8px 0";   // body cell     (8 = 1×8)
+const PAD_TH       = "6px 8px 6px 0";   // header cell   (6 = 3×2, 8 = 1×8)
+const GAP_SECTION  = 20;               // section marginBottom (5×4)
+const GAP_CARD     = 16;               // inner card gap (2×8)
+const GAP_ROW      = 12;               // flex-row gap   (3×4)
+const GAP_INNER    = 8;                // sub-element gap (1×8)
+
+// Font scale — matches OS shell text hierarchy
+const FONT_XS    = 11;   // th labels, skeleton label
+const FONT_SM    = 12;   // secondary text, bar value
+const FONT_BODY  = 13;   // cell content, section body
+const FONT_LABEL = 14;   // section h2
+const FONT_STAT  = 28;   // badge number
+
+// ─── CSS keyframes — injected once, references tokens via template literal ──
 
 const STYLE_ID = "metrics-page-styles";
 
@@ -97,26 +144,26 @@ function ensureStyles() {
     .metrics-section:nth-child(5) { animation-delay: 0.24s; }
     .metrics-skeleton {
       background: linear-gradient(90deg,
-        rgba(0,0,0,0.06) 0%, rgba(0,0,0,0.03) 50%, rgba(0,0,0,0.06) 100%);
+        ${BORDER_COLOR} 0%, rgba(0,0,0,0.03) 50%, ${BORDER_COLOR} 100%);
       background-size: 800px 100%;
       animation: metrics-shimmer 1.4s infinite linear;
-      border-radius: 6px;
+      border-radius: ${RADIUS_SKEL}px;
     }
     /* Hover — background-color only, no layout shift */
     .metrics-badge:hover {
-      background-color: rgba(99,102,241,0.10) !important;
-      border-color: rgba(99,102,241,0.30) !important;
+      background-color: ${ACCENT_HOVER_BG} !important;
+      border-color:     ${ACCENT_HOVER_BD} !important;
     }
     /* Focus — visible ring matching the OS shell's indigo accent */
     .metrics-row:focus-visible {
-      outline: 2px solid #6366f1;
+      outline: 2px solid ${ACCENT};
       outline-offset: -2px;
-      background-color: rgba(99,102,241,0.04);
+      background-color: ${ACCENT_FOCUS_BG};
     }
     .metrics-badge:focus-visible {
-      outline: 2px solid #6366f1;
+      outline: 2px solid ${ACCENT};
       outline-offset: 3px;
-      border-radius: 12px;
+      border-radius: ${RADIUS_BADGE}px;
     }
   `;
   document.head.appendChild(el);
@@ -141,13 +188,12 @@ function titleId(title: string) {
 
 // ─── Memoized sub-components ─────────────────────────────────────────────────
 
-const SkeletonRect = memo(function SkeletonRect({ w, h, label }: { w: string | number; h: number; label?: string }) {
+const SkeletonRect = memo(function SkeletonRect({ w, h }: { w: string | number; h: number }) {
   return (
     <div
       className="metrics-skeleton"
       aria-hidden="true"
       style={{ width: w, height: h, display: "inline-block" }}
-      aria-label={label}
     />
   );
 });
@@ -155,16 +201,16 @@ const SkeletonRect = memo(function SkeletonRect({ w, h, label }: { w: string | n
 const SkeletonCard = memo(function SkeletonCard({ rows = 3 }: { rows?: number }) {
   return (
     <div style={{
-      background: CARD_BG, border: BORDER, borderRadius: 14,
-      boxShadow: SHADOW, padding: "20px 24px", marginBottom: 20,
+      background: CARD_BG, border: BORDER, borderRadius: RADIUS_CARD,
+      boxShadow: SHADOW, padding: PAD_CARD, marginBottom: GAP_SECTION,
     }}>
-      <SkeletonRect w={120} h={14} />
-      <div style={{ marginTop: 16, display: "flex", flexDirection: "column", gap: 12 }}>
+      <SkeletonRect w={120} h={FONT_LABEL} />
+      <div style={{ marginTop: GAP_CARD, display: "flex", flexDirection: "column", gap: GAP_ROW }}>
         {Array.from({ length: rows }).map((_, i) => (
-          <div key={i} style={{ display: "flex", gap: 12, alignItems: "center" }}>
-            <SkeletonRect w="35%" h={11} />
-            <SkeletonRect w="45%" h={8} />
-            <SkeletonRect w="10%" h={11} />
+          <div key={i} style={{ display: "flex", gap: GAP_ROW, alignItems: "center" }}>
+            <SkeletonRect w="35%" h={FONT_XS} />
+            <SkeletonRect w="45%" h={GAP_INNER} />
+            <SkeletonRect w="10%" h={FONT_XS} />
           </div>
         ))}
       </div>
@@ -180,11 +226,11 @@ const EmptyState = memo(function EmptyState({ message }: { message: string }) {
       aria-label={message}
       style={{
         display: "flex", flexDirection: "column", alignItems: "center",
-        gap: 8, padding: "28px 0",
+        gap: GAP_INNER, padding: "24px 0",
       }}
     >
-      <span aria-hidden="true" style={{ fontSize: 28, opacity: 0.3 }}>📭</span>
-      <p style={{ margin: 0, fontSize: 13, color: TEXT_DIM, textAlign: "center" }}>
+      <span aria-hidden="true" style={{ fontSize: FONT_STAT, opacity: 0.3 }}>📭</span>
+      <p style={{ margin: 0, fontSize: FONT_BODY, color: TEXT_DIM, textAlign: "center" }}>
         {message}
       </p>
     </div>
@@ -208,24 +254,24 @@ const Bar = memo(function Bar({ value, max, label }: { value: number; max: numbe
       aria-valuemin={0}
       aria-valuemax={max}
       aria-label={ariaLabel}
-      style={{ display: "flex", alignItems: "center", gap: 8 }}
+      style={{ display: "flex", alignItems: "center", gap: GAP_INNER }}
     >
       {/* Track */}
       <div
         aria-hidden="true"
         style={{
-          flex: 1, height: 6, background: "rgba(99,102,241,0.10)",
-          borderRadius: 4, overflow: "hidden",
+          flex: 1, height: 6, background: ACCENT_TRACK,
+          borderRadius: RADIUS_BAR, overflow: "hidden",
         }}
       >
         {/* Fill — color-only indicator; aria-label on parent covers it */}
         <div style={{
           width: `${pct}%`, height: "100%", background: ACCENT,
-          borderRadius: 4, transition: "width 0.6s ease",
+          borderRadius: RADIUS_BAR, transition: "width 0.6s ease",
         }} />
       </div>
       {/* Numeric text equivalent — visible and always present */}
-      <span style={{ fontSize: 12, color: TEXT_DIM, minWidth: 28, textAlign: "right" }}>
+      <span style={{ fontSize: FONT_SM, color: TEXT_DIM, minWidth: 28, textAlign: "right" }}>
         {value}
       </span>
     </div>
@@ -248,14 +294,14 @@ const SectionCard = memo(function SectionCard({
       aria-labelledby={id}
       className="metrics-section"
       style={{
-        background: CARD_BG, border: BORDER, borderRadius: 14,
-        boxShadow: SHADOW, padding: "20px 24px", marginBottom: 20,
+        background: CARD_BG, border: BORDER, borderRadius: RADIUS_CARD,
+        boxShadow: SHADOW, padding: PAD_CARD, marginBottom: GAP_SECTION,
       }}
     >
       <h2
         id={id}
         style={{
-          margin: "0 0 16px 0", fontSize: 14, fontWeight: 600,
+          margin: `0 0 ${GAP_CARD}px 0`, fontSize: FONT_LABEL, fontWeight: 600,
           color: TEXT_MAIN, letterSpacing: "-0.01em",
         }}
       >
@@ -279,8 +325,8 @@ const TotalBadge = memo(function TotalBadge({ label, value }: { label: string; v
       aria-label={`${value} — ${label}`}
       tabIndex={0}
       style={{
-        background: `${ACCENT}0d`, border: `1px solid ${ACCENT}22`,
-        borderRadius: 12, padding: "16px 20px", textAlign: "center",
+        background: ACCENT_BG, border: `1px solid ${ACCENT_BORDER_CLR}`,
+        borderRadius: RADIUS_BADGE, padding: `${GAP_CARD}px 20px`, textAlign: "center",
         flex: 1, minWidth: 100,
         transition: "background-color 0.15s ease, border-color 0.15s ease",
         cursor: "default",
@@ -288,11 +334,11 @@ const TotalBadge = memo(function TotalBadge({ label, value }: { label: string; v
     >
       <div
         aria-hidden="true"
-        style={{ fontSize: 28, fontWeight: 700, color: ACCENT, letterSpacing: "-0.02em" }}
+        style={{ fontSize: FONT_STAT, fontWeight: 700, color: ACCENT, letterSpacing: "-0.02em" }}
       >
         {value}
       </div>
-      <div aria-hidden="true" style={{ fontSize: 12, color: TEXT_SUB, marginTop: 4 }}>
+      <div aria-hidden="true" style={{ fontSize: FONT_SM, color: TEXT_SUB, marginTop: 4 }}>
         {label}
       </div>
     </div>
@@ -309,9 +355,9 @@ const THead = memo(function THead({ cols }: { cols: string[] }) {
             key={col}
             scope="col"
             style={{
-              padding: "6px 10px 6px 0", textAlign: "left", fontSize: 11,
+              padding: PAD_TH, textAlign: "left", fontSize: FONT_XS,
               fontWeight: 600, color: TEXT_DIM, textTransform: "uppercase",
-              letterSpacing: "0.06em", borderBottom: "1px solid rgba(0,0,0,0.07)",
+              letterSpacing: "0.06em", borderBottom: `1px solid ${DIVIDER_TH}`,
               whiteSpace: "nowrap",
             }}
           >
@@ -327,7 +373,7 @@ const THead = memo(function THead({ cols }: { cols: string[] }) {
  * HRow — hoverable, keyboard-accessible table row.
  *
  * tabIndex={0}  — makes the row reachable via Tab key
- * onKeyDown     — Enter / Space announce "selected" to screen readers
+ * onKeyDown     — Enter / Space flash the row for sighted keyboard users
  * onFocus/Blur  — mirrors hover highlight so keyboard users see the same cue
  * class="metrics-row" — picks up :focus-visible outline from injected CSS
  */
@@ -335,7 +381,7 @@ const HRow = memo(function HRow({ children }: { children: React.ReactNode }) {
   const ref = useRef<HTMLTableRowElement>(null);
 
   const highlight = useCallback(() => {
-    if (ref.current) ref.current.style.backgroundColor = "rgba(99,102,241,0.04)";
+    if (ref.current) ref.current.style.backgroundColor = ACCENT_FOCUS_BG;
   }, []);
 
   const clear = useCallback(() => {
@@ -356,7 +402,7 @@ const HRow = memo(function HRow({ children }: { children: React.ReactNode }) {
       className="metrics-row"
       tabIndex={0}
       style={{
-        borderBottom: "1px solid rgba(0,0,0,0.05)",
+        borderBottom: `1px solid ${DIVIDER_ROW}`,
         transition: "background-color 0.12s ease",
       }}
       onMouseEnter={highlight}
@@ -413,10 +459,10 @@ export default function MetricsPage() {
         role="status"
         aria-live="polite"
         aria-label="Loading metrics data, please wait"
-        style={{ padding: "24px 24px 64px", maxWidth: 900, margin: "0 auto" }}
+        style={{ padding: PAD_PAGE, maxWidth: 900, margin: "0 auto" }}
       >
         {/* Visually-hidden text for screen readers — skeletons are aria-hidden */}
-        <span className="sr-only" style={{
+        <span style={{
           position: "absolute", width: 1, height: 1,
           overflow: "hidden", clip: "rect(0,0,0,0)", whiteSpace: "nowrap",
         }}>
@@ -424,19 +470,20 @@ export default function MetricsPage() {
         </span>
 
         <div style={{
-          background: CARD_BG, border: BORDER, borderRadius: 14,
-          boxShadow: SHADOW, padding: "20px 24px", marginBottom: 20,
+          background: CARD_BG, border: BORDER, borderRadius: RADIUS_CARD,
+          boxShadow: SHADOW, padding: PAD_CARD, marginBottom: GAP_SECTION,
         }}>
-          <SkeletonRect w={60} h={14} />
-          <div style={{ display: "flex", gap: 12, marginTop: 16, flexWrap: "wrap" }}>
+          <SkeletonRect w={60} h={FONT_LABEL} />
+          <div style={{ display: "flex", gap: GAP_ROW, marginTop: GAP_CARD, flexWrap: "wrap" }}>
             {[0, 1, 2, 3].map((i) => (
               <div key={i} style={{
-                flex: 1, minWidth: 100, borderRadius: 12, padding: "16px 20px",
-                border: "1px solid rgba(0,0,0,0.06)",
-                display: "flex", flexDirection: "column", alignItems: "center", gap: 8,
+                flex: 1, minWidth: 100, borderRadius: RADIUS_BADGE,
+                padding: `${GAP_CARD}px 20px`,
+                border: BORDER,
+                display: "flex", flexDirection: "column", alignItems: "center", gap: GAP_INNER,
               }}>
-                <SkeletonRect w={40} h={28} />
-                <SkeletonRect w={60} h={11} />
+                <SkeletonRect w={40} h={FONT_STAT} />
+                <SkeletonRect w={60} h={FONT_XS} />
               </div>
             ))}
           </div>
@@ -452,13 +499,14 @@ export default function MetricsPage() {
   // interrupting any current speech — appropriate for errors.
   if (error) {
     return (
-      <div style={{ padding: "24px 24px 64px", maxWidth: 900, margin: "0 auto" }}>
+      <div style={{ padding: PAD_PAGE, maxWidth: 900, margin: "0 auto" }}>
         <div
           role="alert"
           style={{
-            background: "#fef2f2", border: "1px solid #fecaca", borderRadius: 12,
-            padding: "16px 20px", color: "#dc2626", fontSize: 14,
-            display: "flex", alignItems: "center", gap: 10,
+            background: ERROR_BG, border: `1px solid ${ERROR_BORDER}`,
+            borderRadius: RADIUS_BADGE, padding: `${GAP_CARD}px 20px`,
+            color: ERROR_TEXT, fontSize: FONT_BODY,
+            display: "flex", alignItems: "center", gap: GAP_ROW,
           }}
         >
           <span aria-hidden="true">⚠️</span>
@@ -472,7 +520,7 @@ export default function MetricsPage() {
   return (
     <main
       aria-label="Metrics dashboard"
-      style={{ padding: "24px 24px 64px", maxWidth: 900, margin: "0 auto" }}
+      style={{ padding: PAD_PAGE, maxWidth: 900, margin: "0 auto" }}
     >
 
       {/* ── Totals ── */}
@@ -484,7 +532,7 @@ export default function MetricsPage() {
             <div
               role="list"
               aria-label="Event totals by time period"
-              style={{ display: "flex", gap: 12, flexWrap: "wrap" }}
+              style={{ display: "flex", gap: GAP_ROW, flexWrap: "wrap" }}
             >
               <div role="listitem"><TotalBadge label="Today"        value={summary.totals.daily}    /></div>
               <div role="listitem"><TotalBadge label="Last 7 days"  value={summary.totals.weekly}   /></div>
@@ -503,22 +551,22 @@ export default function MetricsPage() {
           ) : (
             <table
               aria-label="Event counts per type with activity bar, daily, weekly, monthly, and lifetime values"
-              style={{ width: "100%", borderCollapse: "collapse", fontSize: 13 }}
+              style={{ width: "100%", borderCollapse: "collapse", fontSize: FONT_BODY }}
             >
               <THead cols={["Type", "Activity", "Daily", "Weekly", "Monthly", "Lifetime"]} />
               <tbody>
                 {summary.summary.map((row) => (
                   <HRow key={row.type}>
-                    <td style={{ padding: "10px 10px 10px 0", color: TEXT_MAIN, fontWeight: 500, whiteSpace: "nowrap" }}>
+                    <td style={{ padding: PAD_TD, color: TEXT_MAIN, fontWeight: 500, whiteSpace: "nowrap" }}>
                       {fmt(row.type)}
                     </td>
-                    <td style={{ padding: "10px 10px 10px 0", width: "30%" }}>
+                    <td style={{ padding: PAD_TD, width: "30%" }}>
                       <Bar value={row.lifetime} max={maxLifetime} label={fmt(row.type)} />
                     </td>
-                    <td style={{ padding: "10px 10px 10px 0", color: TEXT_SUB }}>{row.daily}</td>
-                    <td style={{ padding: "10px 10px 10px 0", color: TEXT_SUB }}>{row.weekly}</td>
-                    <td style={{ padding: "10px 10px 10px 0", color: TEXT_SUB }}>{row.monthly}</td>
-                    <td style={{ padding: "10px 0", color: ACCENT, fontWeight: 700 }}>{row.lifetime}</td>
+                    <td style={{ padding: PAD_TD, color: TEXT_SUB }}>{row.daily}</td>
+                    <td style={{ padding: PAD_TD, color: TEXT_SUB }}>{row.weekly}</td>
+                    <td style={{ padding: PAD_TD, color: TEXT_SUB }}>{row.monthly}</td>
+                    <td style={{ padding: `${GAP_INNER}px 0`, color: ACCENT, fontWeight: 700 }}>{row.lifetime}</td>
                   </HRow>
                 ))}
               </tbody>
@@ -535,17 +583,17 @@ export default function MetricsPage() {
           ) : (
             <table
               aria-label="Daily event counts for the last 30 days"
-              style={{ width: "100%", borderCollapse: "collapse", fontSize: 13 }}
+              style={{ width: "100%", borderCollapse: "collapse", fontSize: FONT_BODY }}
             >
               <THead cols={["Date", "Type", "Count"]} />
               <tbody>
                 {curves.daily.map((row) => (
                   <HRow key={`${row.date}-${row.type}`}>
-                    <td style={{ padding: "8px 10px 8px 0", color: TEXT_SUB, whiteSpace: "nowrap" }}>
+                    <td style={{ padding: PAD_TD, color: TEXT_SUB, whiteSpace: "nowrap" }}>
                       {fmtDate(row.date)}
                     </td>
-                    <td style={{ padding: "8px 10px 8px 0", color: TEXT_MAIN }}>{fmt(row.type)}</td>
-                    <td style={{ padding: "8px 0", color: ACCENT, fontWeight: 600 }}>{row.count}</td>
+                    <td style={{ padding: PAD_TD, color: TEXT_MAIN }}>{fmt(row.type)}</td>
+                    <td style={{ padding: `${GAP_INNER}px 0`, color: ACCENT, fontWeight: 600 }}>{row.count}</td>
                   </HRow>
                 ))}
               </tbody>
@@ -562,17 +610,17 @@ export default function MetricsPage() {
           ) : (
             <table
               aria-label="Weekly event counts for the last 12 weeks"
-              style={{ width: "100%", borderCollapse: "collapse", fontSize: 13 }}
+              style={{ width: "100%", borderCollapse: "collapse", fontSize: FONT_BODY }}
             >
               <THead cols={["Week of", "Type", "Count"]} />
               <tbody>
                 {curves.weekly.map((row) => (
                   <HRow key={`${row.weekStart}-${row.type}`}>
-                    <td style={{ padding: "8px 10px 8px 0", color: TEXT_SUB, whiteSpace: "nowrap" }}>
+                    <td style={{ padding: PAD_TD, color: TEXT_SUB, whiteSpace: "nowrap" }}>
                       {fmtDate(row.weekStart)}
                     </td>
-                    <td style={{ padding: "8px 10px 8px 0", color: TEXT_MAIN }}>{fmt(row.type)}</td>
-                    <td style={{ padding: "8px 0", color: ACCENT, fontWeight: 600 }}>{row.count}</td>
+                    <td style={{ padding: PAD_TD, color: TEXT_MAIN }}>{fmt(row.type)}</td>
+                    <td style={{ padding: `${GAP_INNER}px 0`, color: ACCENT, fontWeight: 600 }}>{row.count}</td>
                   </HRow>
                 ))}
               </tbody>
@@ -589,17 +637,17 @@ export default function MetricsPage() {
           ) : (
             <table
               aria-label="Monthly event counts for the last 12 months"
-              style={{ width: "100%", borderCollapse: "collapse", fontSize: 13 }}
+              style={{ width: "100%", borderCollapse: "collapse", fontSize: FONT_BODY }}
             >
               <THead cols={["Month", "Type", "Count"]} />
               <tbody>
                 {curves.monthly.map((row) => (
                   <HRow key={`${row.monthStart}-${row.type}`}>
-                    <td style={{ padding: "8px 10px 8px 0", color: TEXT_SUB, whiteSpace: "nowrap" }}>
+                    <td style={{ padding: PAD_TD, color: TEXT_SUB, whiteSpace: "nowrap" }}>
                       {fmtDate(row.monthStart)}
                     </td>
-                    <td style={{ padding: "8px 10px 8px 0", color: TEXT_MAIN }}>{fmt(row.type)}</td>
-                    <td style={{ padding: "8px 0", color: ACCENT, fontWeight: 600 }}>{row.count}</td>
+                    <td style={{ padding: PAD_TD, color: TEXT_MAIN }}>{fmt(row.type)}</td>
+                    <td style={{ padding: `${GAP_INNER}px 0`, color: ACCENT, fontWeight: 600 }}>{row.count}</td>
                   </HRow>
                 ))}
               </tbody>
