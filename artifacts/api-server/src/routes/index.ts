@@ -44,6 +44,15 @@ import cosmologyforgeRouter from "./cosmologyforge";
 import gameworldRouter from "./gameworld";
 import adaptersRouter from "./adapters";
 import publicRouter from "./public";
+import securityRouter from "./security";
+import financeRouter from "./finance";
+import educationRouter from "./education";
+import operationsRouter from "./operations";
+import sustainabilityRouter from "./sustainability";
+import hrRouter from "./hr";
+import legalaiRouter from "./legalai";
+import productdesignRouter from "./productdesign";
+import researchlabRouter from "./researchlab";
 
 const router: IRouter = Router();
 
@@ -86,6 +95,17 @@ router.use("/gameworld",          gameworldRouter);
 router.use("/legal",              legalRouter);
 router.use("/health",             healthcareRouter);
 router.use("/staffing",           staffingRouter);
+
+// ── Enterprise Suite Routes ───────────────────────────────────────────────────
+router.use("/security",           securityRouter);
+router.use("/finance",            financeRouter);
+router.use("/education",          educationRouter);
+router.use("/operations",         operationsRouter);
+router.use("/sustainability",     sustainabilityRouter);
+router.use("/hr",                 hrRouter);
+router.use("/legal-ai",           legalaiRouter);
+router.use("/product-design",     productdesignRouter);
+router.use("/research-lab",       researchlabRouter);
 
 // ── Public demo routes (no auth required) ────────────────────────────────────
 router.use("/public",             publicRouter);
