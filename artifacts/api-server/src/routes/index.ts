@@ -19,6 +19,12 @@ import metricsRouter from "./metrics";
 import opportunitiesRouter from "./opportunities";
 import imaginationRouter from "./imagination";
 import loreforgeRouter from "./loreforge";
+import narratororosRouter from "./narratoros";
+import civilizationforgeRouter from "./civilizationforge";
+import ecologyforgeRouter from "./ecologyforge";
+import soundscapeRouter from "./soundscape";
+import timelineforgeRouter from "./timelineforge";
+import mythweaveRouter from "./mythweave";
 
 const router: IRouter = Router();
 
@@ -40,7 +46,13 @@ router.use("/documents", documentsRouter);
 router.use("/traction", tractionRouter);
 router.use("/metrics",  metricsRouter);
 router.use("/opportunities", opportunitiesRouter);
-router.use("/imagination",   imaginationRouter);
-router.use("/loreforge",     loreforgeRouter);
+router.use("/imagination",        imaginationRouter);
+router.use("/loreforge",          loreforgeRouter);
+router.use("/narratoros",         narratororosRouter);
+router.use("/civilizationforge",  civilizationforgeRouter);
+router.use("/ecologyforge",       ecologyforgeRouter);
+router.use("/soundscape",         soundscapeRouter);
+router.use("/timelineforge",      timelineforgeRouter);
+router.use("/mythweave",          mythweaveRouter);
 
 export default router;

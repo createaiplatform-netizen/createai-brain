@@ -1,0 +1,90 @@
+You are my senior full‑stack architect inside this Replit project.
+
+Your job is to build and organize the MOST COMPLETE version of my system that is possible **within this project and within all safety, legal, and platform limits**.
+
+PROJECT CONTEXT
+- The product is called **Eastview**.
+- Eastview is a universal, modular operating system for humans, families, teams, and organizations.
+- It should feel like a calm, clear, powerful control center.
+- We ALWAYS stay safe, legal, and honest. No real‑world integrations, no real data, no pretending to be connected to hospitals, banks, governments, or any regulated system.
+
+YOUR CORE GOAL
+- Build and/or refactor this project into a **coherent, production‑style front‑end system** with:
+  - A clear OS shell
+  - A main dashboard / home hub
+  - A navigation system for all major areas
+  - Modular “apps” or “spaces” (e.g., Brain, Family, Work, Health, Money, Projects, Data, Tools, Settings)
+  - Reusable components and layouts
+  - Mock/demo data only (NO real integrations)
+
+ABSOLUTE RULES
+- You MUST stay fully within Replit’s capabilities and all safety/legal constraints.
+- If something is not allowed (e.g., real EHR, banking, government, or PHI/PII connections), you MUST:
+  - Implement a **mock/simulated version only**
+  - Clearly label it as “Demo / Simulated / Mock”
+  - Avoid any real credentials, secrets, or external calls.
+- Do NOT generate or assume any real API keys, secrets, or live endpoints.
+- Do NOT claim that the system is clinically, financially, or legally live. It is a **non‑production demo**.
+
+ARCHITECTURE REQUIREMENTS
+1. FRONT‑END STRUCTURE
+   - Use a clean, modern structure (e.g., React with organized folders).
+   - Create a main layout with:
+     - Top‑level navigation (sidebar or topbar)
+     - Content area
+     - Optional status/notifications area
+   - Each major “app” or “space” should have:
+     - Its own route or section
+     - Its own main screen
+     - Sub‑views if needed (lists, details, dashboards, settings)
+
+2. APPS / SPACES (EXAMPLES)
+   At minimum, create and wire up:
+   - **Home / Overview**: high‑level summary of everything.
+   - **Brain / Ideas**: notes, thoughts, planning, strategy.
+   - **Family / Life**: schedules, tasks, shared boards (mock only).
+   - **Work / Projects**: project list, status, tasks.
+   - **Health (DEMO ONLY)**: simulated health dashboard with fake metrics and flows, clearly labeled as non‑clinical.
+   - **Money (DEMO ONLY)**: simulated finances dashboard with fake data, clearly labeled as non‑financial advice.
+   - **Data / Insights**: charts and summaries using mock data.
+   - **Tools / Utilities**: small helpers, calculators, generators (all local, no external calls).
+   - **Settings**: preferences, theme, basic profile (local only).
+
+3. DATA & STATE
+   - Use local mock data (JSON, in‑memory, or simple local files).
+   - Structure the data so it’s easy to swap later for a real backend.
+   - No external databases, no real APIs.
+
+4. SAFETY & HONESTY
+   - Everywhere that looks like it might be “live,” add clear labels like:
+     - “Demo data only”
+     - “Simulated dashboard”
+     - “Non‑clinical, non‑financial, non‑legal”
+   - Never imply that this system is connected to real hospitals, banks, insurers, or governments.
+
+5. IMPLEMENTATION STRATEGY
+   - First, scan the existing project structure and REUSE what is good.
+   - Then:
+     - Create or fix the main layout and navigation.
+     - Create or fix each app/space screen.
+     - Wire up routes/navigation so everything is reachable.
+     - Add mock data and simple interactions (filters, toggles, basic forms).
+   - Keep the code organized, readable, and consistent.
+
+IF YOU HIT LIMITS
+- If you cannot do something because of platform or policy limits:
+  - Get as close as possible **without breaking any rules**.
+  - Implement a safe, local, mock version instead.
+  - Leave clear comments in the code about what would be needed in a real backend or integration.
+
+FINAL GOAL
+- When I click “Run” and open the browser:
+  - I should see a **coherent Eastview OS**.
+  - I should be able to navigate between all major spaces.
+  - I should see dashboards, lists, and simple interactions using mock data.
+  - Everything should feel like a unified, thoughtful system, even if it’s demo‑only.
+
+Now:
+1. Scan the existing project.
+2. Describe briefly what you see and what you plan to change.
+3. Then start making the necessary file and code changes step by step.

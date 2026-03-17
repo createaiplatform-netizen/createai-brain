@@ -464,12 +464,11 @@ export function AdminApp() {
     setProfileLoading(true); setProfileSaved(false); setProfileError("");
     fetch("/api/user/me", { credentials: "include" })
       .then(r => r.ok ? r.json() : null)
-      .then((d: { user?: { firstName?: string; lastName?: string; email?: string } } | null) => {
-        if (d?.user) {
-          const u = d.user;
-          setProfile({ firstName: u.firstName ?? "", lastName: u.lastName ?? "", email: u.email ?? "" });
-          setEditFirst(u.firstName ?? "");
-          setEditLast(u.lastName ?? "");
+      .then((d: { firstName?: string; lastName?: string; email?: string } | null) => {
+        if (d) {
+          setProfile({ firstName: d.firstName ?? "", lastName: d.lastName ?? "", email: d.email ?? "" });
+          setEditFirst(d.firstName ?? "");
+          setEditLast(d.lastName ?? "");
         }
       })
       .catch(() => setProfileError("Failed to load profile"))
