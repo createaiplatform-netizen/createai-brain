@@ -1877,23 +1877,24 @@ Treat this as a real engagement. Be specific, use real-world numbers appropriate
 
 // ─── MULTI-INDUSTRY PROJECT FILE BUILDER ─────────────────────────────────────
 
-const PROJECT_BUILDER_PROMPT = `You are a real-world multi-industry project builder.
+const PROJECT_BUILDER_PROMPT = `You are a multi-industry project generator.
 
-Your job is to take ANY project idea in ANY industry and turn it into a
-complete, realistic, professional PROJECT FILE that someone could actually
-start using in the real world.
+Your job is to take ANY idea in ANY industry and produce a complete, realistic,
+ready-to-use PROJECT PACKAGE.
 
-For every request, you must create a full project, not just a business plan.
+A project package is not a business plan. It is a full set of materials someone
+could actually use to start operating, training, organizing, or delivering
+services in that industry today.
 
 Rules:
-- Everything must be grounded in real-world logic.
+- Everything must be realistic and usable in the real world.
 - No placeholders, no vague content, no filler.
-- No fake data, no imaginary technology, no unrealistic claims.
-- All recommendations must be feasible for a real business or platform.
-- Every output must feel like a complete project file someone could start using today.
+- No imaginary technology or impossible features.
+- Every output must feel like a complete project someone could start using today.
 - Use real tool names, real regulatory references, and real-world terminology.
 - Adapt all content to the specific industry and region provided.
-- When writing documents and templates, write the actual full content — not a description of what to write.`;
+- When writing documents and templates, write the actual full content — not a description of what to write. Not a list of what the document should contain. The real, written document text itself.
+- Every form must have every field. Every script must have every line. Every SOP must have every step.`;
 
 const PROJECT_BUILDER_INSTRUCTIONS: Record<string, string> = {
   "project-overview": `Produce SECTION 1 — PROJECT OVERVIEW.
@@ -1917,12 +1918,13 @@ Write a complete module architecture covering:
   "operations-workflows-pb": `Produce SECTION 3 — OPERATIONS & WORKFLOWS.
 Write complete operational documentation covering:
 1. DAILY WORKFLOW — a time-blocked daily schedule for the primary operator: what they do at opening, throughout the day, and at close
-2. CLIENT OR CASE INTAKE FLOW — step-by-step: from first contact through intake, assessment, onboarding, and first active session or delivery
-3. ACTIVE OPERATIONS — the recurring daily tasks: what gets checked, updated, communicated, and completed every operating day
-4. WEEKLY WORKFLOW — what happens each week: reviews, reporting, client touchpoints, team meetings, and maintenance tasks
-5. MONTHLY WORKFLOW — monthly close, financial review, performance metrics, team planning, and system updates
-6. ROLE RESPONSIBILITIES — for each role (owner/director, coordinator/operator, support/admin, client-facing staff): a specific list of daily, weekly, and monthly responsibilities
-7. EXAMPLE STEP-BY-STEP FLOW — write out one complete scenario end-to-end (e.g. "A new client calls in on Monday morning...") showing exactly how the workflow plays out in practice`,
+2. INTAKE & ONBOARDING FLOW — step-by-step: from first contact through intake, assessment, onboarding, and first active session or delivery. Every step numbered, every responsible role named.
+3. SERVICE DELIVERY FLOW — the step-by-step process for delivering the core service or product from activation to completion. Include: preparation steps, execution steps, handoff steps, and closure steps.
+4. QUALITY CONTROL FLOW — how quality is checked at each stage: what is reviewed, who reviews it, what a pass looks like, what happens when something fails the check, and how issues are corrected and documented.
+5. WEEKLY WORKFLOW — what happens each week: reviews, reporting, client touchpoints, team meetings, and maintenance tasks
+6. MONTHLY WORKFLOW — monthly close, financial review, performance metrics, team planning, and system updates
+7. ROLE RESPONSIBILITIES — for each role (owner/director, coordinator/operator, support/admin, client-facing staff): a specific list of daily, weekly, and monthly responsibilities
+8. EXAMPLE STEP-BY-STEP FLOW — write out one complete scenario end-to-end (e.g. "A new client calls in on Monday morning...") showing exactly how all five workflows interact in a real operating day`,
 
   "documents-templates": `Produce SECTION 4 — DOCUMENTS & TEMPLATES PACKAGE.
 CRITICAL INSTRUCTION: Write the ACTUAL FULL CONTENT for each document. Do not describe what the document should contain — write it. Every form, policy, script, checklist, and SOP must be complete and ready to copy and use immediately.
@@ -1954,11 +1956,12 @@ Write complete tool and setup documentation covering:
    - Financial management and invoicing
    - Internal team communication
    - Reporting and analytics
-2. FOLDER & FILE STRUCTURE — provide a specific, named folder hierarchy to use from day one. Show the full tree structure with names for every folder level.
-3. CLIENT TRACKING SETUP — exactly how to set up and maintain the client or project tracking system: what fields to track, how to organize records, and what gets updated after each interaction
-4. FIRST USER ONBOARDING STEPS — the exact sequence of actions to onboard the first real client or user, from first contact to full active status
-5. TEAM ONBOARDING CHECKLIST — everything a new team member needs to access, read, complete, and be trained on in their first week
-6. SYSTEM CONFIGURATION CHECKLIST — every setting, template, automation, and permission that must be configured before the system goes live`,
+2. COMMUNICATION MANAGEMENT — describe exactly how communication is handled across every channel: (a) how client inquiries are received and triaged, (b) how internal team communication is structured (threads, channels, meeting cadence), (c) how outbound communications to clients are tracked and followed up, (d) response time standards by channel (phone, email, in-app), (e) escalation path when a communication is urgent or requires a senior response
+3. FOLDER & FILE STRUCTURE — provide a specific, named folder hierarchy to use from day one. Show the full tree structure with names for every folder level.
+4. CLIENT OR PROJECT TRACKING SETUP — exactly how to set up and maintain the tracking system: what fields to track, how to organize records, and what gets updated after each interaction
+5. FIRST USER ONBOARDING STEPS — the exact sequence of actions to onboard the first real client or user, from first contact to full active status
+6. TEAM ONBOARDING CHECKLIST — everything a new team member needs to access, read, complete, and be trained on in their first week
+7. SYSTEM CONFIGURATION CHECKLIST — every setting, template, automation, and permission that must be configured before the system goes live`,
 
   "monetization-pricing-pb": `Produce SECTION 6 — MONETIZATION & PRICING.
 Write complete pricing and revenue documentation covering:
