@@ -1877,14 +1877,13 @@ Treat this as a real engagement. Be specific, use real-world numbers appropriate
 
 // ─── MULTI-INDUSTRY PROJECT FILE BUILDER ─────────────────────────────────────
 
-const PROJECT_BUILDER_PROMPT = `You are a multi-industry project generator.
+const PROJECT_BUILDER_PROMPT = `You are a Universal Project Creator.
 
-Your job is to take ANY idea in ANY industry and produce a complete, realistic,
-ready-to-use PROJECT PACKAGE.
+Your job is to take ANY idea in ANY industry and generate a complete,
+ready-to-use PROJECT PACKAGE that someone could immediately apply in the real world.
 
-A project package is not a business plan. It is a full set of materials someone
-could actually use to start operating, training, organizing, or delivering
-services in that industry today.
+A project package must be a full set of materials someone could use to start
+operating, training, organizing, or delivering services today.
 
 Rules:
 - Everything must be realistic and usable in the real world.
@@ -1894,7 +1893,8 @@ Rules:
 - Use real tool names, real regulatory references, and real-world terminology.
 - Adapt all content to the specific industry and region provided.
 - When writing documents and templates, write the actual full content — not a description of what to write. Not a list of what the document should contain. The real, written document text itself.
-- Every form must have every field. Every script must have every line. Every SOP must have every step.`;
+- Every form must have every field. Every script must have every line. Every SOP must have every step.
+- Templates for repeated tasks must be fully written out and ready to use as-is.`;
 
 const PROJECT_BUILDER_INSTRUCTIONS: Record<string, string> = {
   "project-overview": `Produce SECTION 1 — PROJECT OVERVIEW.
@@ -1945,7 +1945,9 @@ Write the following, fully populated for this specific project type and industry
 
 7. STANDARD OPERATING PROCEDURE (SOP) — write one complete SOP for the most critical recurring process in this project type. Include: purpose, scope, step-by-step procedure, responsible roles, and quality checks.
 
-8. TRAINING OUTLINE — a structured training outline for a new team member or operator: modules, topics covered in each, learning objectives, and how competency is assessed.`,
+8. TRAINING OUTLINE — a structured training outline for a new team member or operator: modules, topics covered in each, learning objectives, and how competency is assessed.
+
+9. TEMPLATES FOR REPEATED TASKS — identify the 3–5 most frequently repeated tasks in this project type, then write a complete, ready-to-use template for each one. Examples: weekly status report template, client progress update email, session or appointment notes template, invoice cover note, end-of-week summary. Write the full template text with all fields, labels, and example content filled in — not a blank form, a real working template.`,
 
   "tools-systems-setup": `Produce SECTION 5 — TOOLS, SYSTEMS & SETUP.
 Write complete tool and setup documentation covering:
@@ -1984,6 +1986,8 @@ WEEK 2 — TESTING: List every action for Week 2. Focus on: end-to-end workflow 
 WEEK 3 — SOFT LAUNCH: List every action for Week 3. Focus on: onboarding 1–3 real clients or beta users, following every workflow as written, capturing feedback, and identifying gaps.
 
 WEEK 4 — REVIEW & ADJUST: List every action for Week 4. Focus on: reviewing what worked and what didn't, updating SOPs and documents, confirming financial setup, and setting Month 2 targets.
+
+READY TO OPERATE DEFINITION — write a clear, specific, checklist-style definition of what "ready to operate" means for this project type. This is not about being ready to launch — it is about being operationally ready to serve clients consistently at full quality. Include: (a) all documents completed and signed off, (b) all tools configured and tested, (c) all roles assigned and trained, (d) all workflows tested end-to-end with real or simulated data, (e) all compliance or legal requirements met, (f) quality control process active, (g) first client successfully onboarded through the full flow. Only when every item on this list is checked is the project "ready to operate."
 
 30-DAY SUCCESS METRICS — specific, measurable criteria that define a successful launch. Include: client count, revenue, workflow completion rate, and team readiness indicators.
 
