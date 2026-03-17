@@ -76,6 +76,7 @@ const ENGINE_HINTS: Record<string, { placeholder: string; example: string }> = {
   BlueprintFictionEngine:    { placeholder: "What fictional artifact or story prop should be designed?", example: "e.g. An ancient compass that points toward your greatest regret instead of north" },
   QuestEngine:               { placeholder: "What quest or mission should be designed?", example: "e.g. A side quest to reunite a cursed musician with the melody she gave away to save her village" },
   DreamscapeEngine:          { placeholder: "What mood or atmosphere should I generate?", example: "e.g. The emotional landscape of an ancient library on a floating island at the moment the last librarian disappears" },
+  MagicSystemEngine:         { placeholder: "What kind of magic system should I design?", example: "e.g. A system where practitioners sacrifice cherished memories — the more powerful the spell, the more precious the memory lost" },
 };
 
 // ─── Status Dot ─────────────────────────────────────────────────────────────────

@@ -647,6 +647,18 @@ export const ALL_ENGINES: EngineDefinition[] = [
     status: "active",
     runCount: 0,
   },
+  {
+    id: "MagicSystemEngine",
+    name: "Magic System Engine",
+    category: "imagination",
+    icon: "🪄",
+    color: "#7c3aed",
+    description: "Designs rules-based magic systems with sources, costs, hard limits, side effects, internal logic, and narrative consequences. Purely fictional content.",
+    series: "ARCANE-Series",
+    capabilities: ["Magic source design", "Cost & limit systems", "Side effect mapping", "Narrative consequence design", "Internal logic building"],
+    status: "active",
+    runCount: 0,
+  },
   // ── Opportunity Engine ────────────────────────────────────────────────
   {
     id: "OpportunityEngine",
@@ -857,6 +869,16 @@ export const ALL_SERIES: SeriesDefinition[] = [
     description: "Atmosphere Trifecta — Dreamscape, World, and Character united into one immersive sensory universe. Mood, environment, and inhabitants in a single creative run.",
     engines: ["DreamscapeEngine", "WorldbuildingEngine", "CharacterEngine"],
     capabilities: ["Mood design", "Atmospheric worldbuilding", "Sensory environment creation", "Character immersion", "Emotional landscape design"],
+  },
+  {
+    id: "arcane",
+    name: "ARCANE-Series",
+    symbol: "AR",
+    icon: "🪄",
+    color: "#7c3aed",
+    description: "Magic Trifecta — Magic System, Character, and World combined into one complete arcane universe. Rules of magic, the people shaped by it, and the world it has formed.",
+    engines: ["MagicSystemEngine", "CharacterEngine", "WorldbuildingEngine"],
+    capabilities: ["Magic system design", "Arcane character creation", "Magic-shaped worldbuilding", "Rules & consequences", "Lore integration"],
   },
   {
     id: "opportunity",

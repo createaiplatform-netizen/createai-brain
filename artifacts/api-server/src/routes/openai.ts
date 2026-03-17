@@ -3183,6 +3183,24 @@ Structure your output with:
 10. VISUAL INSPIRATION NOTES — 3-4 specific artistic or cinematic references (fictional or real) that share this aesthetic quality
 Make every dreamscape feel like a place the reader has visited in a dream they cannot quite remember.`,
 
+  // ── Magic System Engine ────────────────────────────────────────────────────
+  "MagicSystemEngine": `You are the Magic System Engine inside CreateAI Brain's ImaginationLab.
+You design original, rules-based magic systems for fictional worlds — complete with sources, costs, hard limits, side effects, internal logic, societal impact, and narrative consequences. All content is purely imaginative, safe, and family-friendly.
+Structure your output with:
+1. SYSTEM NAME & IDENTITY — the name of this magic system and a one-line description of its essence
+2. SOURCE OF POWER — where does this magic come from? (emotion, starlight, blood memory, spoken truth, entropy, living sacrifice of time, etc.) — describe the source in rich fictional detail
+3. HOW IT WORKS — the core mechanic: how a practitioner accesses, channels, and directs this magic
+4. COST SYSTEM — what must be given, spent, or lost every time magic is used — make the cost meaningful and story-generative
+5. HARD LIMITS — 3-5 absolute rules that cannot be broken and what happens when someone tries
+6. SIDE EFFECTS & SYMPTOMS — physical, mental, emotional, or social changes that accumulate in users over time
+7. TIERS OF MASTERY — 3-5 levels from novice to master, with what each tier can and cannot do
+8. RARE ABILITIES — 2-3 exceptional powers that exist at the furthest edge of this system, and why they are feared or revered
+9. SOCIETAL IMPACT — how does the existence of this magic reshape culture, politics, economy, war, and religion in this world?
+10. NARRATIVE CONSEQUENCES — what kinds of stories does this system naturally generate? What moral dilemmas does it force? What tragedies does it make inevitable?
+11. ANTI-MAGIC — does resistance, immunity, or counter-magic exist? How does it work?
+12. THE GOLDEN RULE — the one truth at the heart of this system that makes it feel internally consistent and philosophically resonant
+Make every magic system feel like it was discovered, not invented — as if it has always existed in its world and shaped everything around it.`,
+
   // ── Opportunity Engine ─────────────────────────────────────────────────────
   "OpportunityEngine": `You are the Opportunity Engine inside CreateAI Brain.
 Discover, score (0-100), and strategically map business opportunities across markets, partnerships, revenue streams, and expansion vectors.
@@ -3481,6 +3499,7 @@ const SERIES_ENGINES: Record<string, { name: string; engineIds: string[] }> = {
   quest:          { name: "QUEST-Series — Adventure Trifecta",      engineIds: ["CreatureEngine", "SuperpowerEngine", "AdventureEngine"] },
   "fiction-tech": { name: "FICTION-TECH-Series — Tech Fiction",    engineIds: ["GameIdeaEngine", "FutureTechFictionEngine", "BlueprintFictionEngine"] },
   "dreamscape":   { name: "DREAMSCAPE-Series — Atmosphere Trifecta", engineIds: ["DreamscapeEngine", "WorldbuildingEngine", "CharacterEngine"] },
+  "arcane":       { name: "ARCANE-Series — Magic Trifecta",          engineIds: ["MagicSystemEngine", "CharacterEngine", "WorldbuildingEngine"] },
 };
 
 // ─── POST /api/openai/series-run ────────────────────────────────────────────────

@@ -164,6 +164,18 @@ export const IMAGINATION_ENGINES: ImaginationEngineDefinition[] = [
     example:     "e.g. The emotional landscape of an ancient library on a floating island at the moment the last librarian disappears",
     series:      "dreamscape",
   },
+  {
+    id:          "MagicSystemEngine",
+    name:        "Magic System Engine",
+    icon:        "🪄",
+    color:       "#7c3aed",
+    gradient:    "linear-gradient(135deg, #7c3aed, #c084fc)",
+    tagline:     "Magic Architect",
+    description: "Designs rules-based magic systems with sources, costs, hard limits, side effects, internal logic, and narrative consequences for fictional worlds.",
+    placeholder: "What kind of magic system should I design?",
+    example:     "e.g. A magic system where practitioners must sacrifice a cherished memory each time they cast a spell — the more powerful the spell, the more precious the memory lost",
+    series:      "arcane",
+  },
 ];
 
 // ─── Series Definitions ────────────────────────────────────────────────────────
@@ -218,6 +230,16 @@ export const IMAGINATION_SERIES: ImaginationSeriesDefinition[] = [
     gradient:         "linear-gradient(135deg, #a78bfa, #f9a8d4, #10b981)",
     description:      "Atmosphere Trifecta — Dreamscape, World, and Character united into one immersive sensory universe. Mood, environment, and inhabitants crafted together in a single creative run.",
     engines:          ["DreamscapeEngine", "WorldbuildingEngine", "CharacterEngine"],
+    estimatedMinutes: 3,
+  },
+  {
+    id:               "arcane",
+    name:             "ARCANE-Series",
+    symbol:           "AR",
+    icon:             "🪄",
+    gradient:         "linear-gradient(135deg, #7c3aed, #c084fc, #ec4899)",
+    description:      "Magic Trifecta — Magic System, Character, and World combined into one complete arcane universe. Rules of magic, the people shaped by it, and the world it has formed — all in one run.",
+    engines:          ["MagicSystemEngine", "CharacterEngine", "WorldbuildingEngine"],
     estimatedMinutes: 3,
   },
 ];
