@@ -28,7 +28,7 @@ function groupApps(apps: AppDef[]): { category: string; apps: AppDef[] }[] {
 }
 
 export function Sidebar({ onNav, forceCollapsed, forceExpanded }: SidebarProps) {
-  const { activeApp, sidebarCollapsed, openApp, closeApp, toggleSidebar, unreadCount } = useOS();
+  const { activeApp, sidebarCollapsed, openApp, closeApp, toggleSidebar, unreadCount, founderTierActive } = useOS();
 
   const collapsed = forceCollapsed ? true : forceExpanded ? false : sidebarCollapsed;
   const width = collapsed ? 64 : 224;

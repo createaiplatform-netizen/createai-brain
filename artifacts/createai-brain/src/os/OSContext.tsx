@@ -1,5 +1,6 @@
 import React, { createContext, useContext, useState, useCallback, useEffect, useRef } from "react";
 import { PlatformStore, PlatformMode } from "@/engine/PlatformStore";
+import { loadFounderState, saveFounderState } from "@/engine/FounderTier";
 
 // ─── App Registry ──────────────────────────────────────────────────────────
 export type AppId =
@@ -7,7 +8,7 @@ export type AppId =
   | "documents" | "marketing" | "admin" | "family"
   | "integration" | "monetization" | "universal" | "simulation"
   | "business" | "entity" | "bizcreator" | "bizdev" | "projbuilder" | "projos"
-  | "notifications" | "brainhub"
+  | "notifications" | "brainhub" | "commandcenter"
   | "researchhub" | "learningcenter" | "personastudio" | "datastudio" | "pricingstudio"
   | "traction" | "opportunity" | "imaginationlab" | "loreforge"
   | "narratoros" | "civilizationforge" | "ecologyforge"
@@ -75,8 +76,9 @@ export const DEFAULT_APPS: AppDef[] = [
   { id: "bizdev",       label: "BizPlanner",  icon: "⚡", color: "#f97316", description: "9-section real-world business planner: grounded, executable, no filler", category: "business" },
   { id: "projbuilder",  label: "ProjBuilder", icon: "📋", color: "#06b6d4", description: "7-section project file builder: overview, modules, ops, documents, tools, pricing, launch", category: "business" },
   { id: "projos",       label: "ProjectOS",   icon: "📂", color: "#6366f1", description: "Universal project platform: dashboard, folder view, sub-apps, AI helper, modes, search, delete", category: "system" },
-  { id: "notifications", label: "Notifications", icon: "🔔", color: "#6366f1", description: "System notifications, alerts, and activity updates", category: "system" },
-  { id: "brainhub",      label: "Brain Hub",     icon: "⚡", color: "#6366f1", description: "All engines, meta-agents, and series — real AI capability center", category: "core" },
+  { id: "notifications",  label: "Notifications",   icon: "🔔", color: "#6366f1", description: "System notifications, alerts, and activity updates", category: "system" },
+  { id: "brainhub",       label: "Brain Hub",       icon: "⚡", color: "#6366f1", description: "All engines, meta-agents, and series — real AI capability center", category: "core" },
+  { id: "commandcenter",  label: "Command Center",  icon: "🎛️", color: "#6366f1", description: "Founder Tier — full platform control, auto-routing, messaging automation, and system status", category: "core" },
   { id: "researchhub",    label: "Research Hub",    icon: "🔬", color: "#007AFF", description: "Deep research, market analysis, and critical review — powered by Research, Market, and Critique engines", category: "tools" },
   { id: "learningcenter", label: "Learning Center", icon: "🎓", color: "#5856D6", description: "Learning paths, curricula, and mentorship — powered by Learning Engine and MENTOR meta-agent", category: "tools" },
   { id: "personastudio",  label: "Persona Studio",  icon: "👤", color: "#BF5AF2", description: "ICP creation, user personas, and communication strategy — powered by Persona and Communication engines", category: "business" },
@@ -246,6 +248,7 @@ const INTENT_MAP: { keywords: string[]; target: AppId }[] = [
   { keywords: ["file", "doc", "document"],                                 target: "documents" },
   { keywords: ["notification", "alert", "inbox", "updates"],              target: "notifications" },
   { keywords: ["brain hub", "capability", "engines", "meta-agent", "oracle", "forge", "nexus", "sentinel", "pulse", "vector", "series", "omega", "phi"], target: "brainhub" },
+  { keywords: ["command center", "commandcenter", "founder", "founder tier", "platform control", "command", "platform status", "systems online", "auto-wire", "protection", "replication", "auto wire"], target: "commandcenter" },
   { keywords: ["opportunity", "opportunities", "opportunity engine", "opp", "pipeline", "discover opportunities", "scan opportunities", "opportunity score", "market opportunity", "revenue opportunity", "partnership opportunity"], target: "opportunity" },
   { keywords: ["imagination", "imaginationlab", "story", "character", "worldbuilding", "creature", "superpower", "adventure", "comic", "quest", "fiction", "game idea", "creative", "storytelling", "world builder", "imagine", "dreamscape", "magic system"], target: "imaginationlab" },
   { keywords: ["loreforge", "lore", "mythology", "prophecy", "legend", "religion", "ancient history", "faction", "language engine", "curse", "prophet", "relic", "lorekeeper", "cosmology", "era", "pantheon", "deep lore"], target: "loreforge" },
@@ -308,6 +311,7 @@ const APP_META: Record<AppId, { icon: string; label: string }> = {
   projos:       { icon: "📂", label: "ProjectOS" },
   notifications:  { icon: "🔔", label: "Notifications" },
   brainhub:       { icon: "⚡", label: "Brain Hub" },
+  commandcenter:  { icon: "🎛️", label: "Command Center" },
   researchhub:    { icon: "🔬", label: "Research Hub" },
   learningcenter: { icon: "🎓", label: "Learning Center" },
   personastudio:  { icon: "👤", label: "Persona Studio" },
@@ -431,6 +435,7 @@ interface OSContextValue {
   preferences: PreferenceBrain;
   platformMode: PlatformMode;
   unreadCount: number;
+  founderTierActive: boolean;
   openApp: (id: AppId) => void;
   closeApp: () => void;
   goBack: () => void;
@@ -440,6 +445,7 @@ interface OSContextValue {
   registerApp: (app: AppDef) => void;
   setPlatformMode: (mode: PlatformMode) => void;
   setUnreadCount: React.Dispatch<React.SetStateAction<number>>;
+  activateFounderTier: () => void;
 }
 
 const OSContext = createContext<OSContextValue | null>(null);
@@ -452,6 +458,7 @@ export function OSProvider({ children }: { children: React.ReactNode }) {
   const [preferences, setPreferences]     = useState<PreferenceBrain>(() => loadPrefsFromLS());
   const [platformMode, setPlatformModeState] = useState<PlatformMode>(() => PlatformStore.getMode());
   const [unreadCount, setUnreadCount]     = useState(0);
+  const [founderTierActive, setFounderTierActive] = useState<boolean>(() => loadFounderState().active);
   // Prevent server save from re-triggering on server-hydration
   const serverHydrated = useRef(false);
 
@@ -547,12 +554,18 @@ export function OSProvider({ children }: { children: React.ReactNode }) {
     setPlatformModeState(mode);
   }, []);
 
+  const activateFounderTier = useCallback(() => {
+    const state = { active: true, activatedAt: new Date().toISOString(), founderName: "Sara Stadler", buildVersion: "Founder-1.0" };
+    saveFounderState(state);
+    setFounderTierActive(true);
+  }, []);
+
   return (
     <OSContext.Provider value={{
       activeApp, sidebarCollapsed, history, appRegistry, preferences, platformMode,
-      unreadCount, setUnreadCount,
+      unreadCount, setUnreadCount, founderTierActive,
       openApp, closeApp, goBack, toggleSidebar, routeIntent,
-      updatePreferences, registerApp, setPlatformMode,
+      updatePreferences, registerApp, setPlatformMode, activateFounderTier,
     }}>
       {children}
     </OSContext.Provider>

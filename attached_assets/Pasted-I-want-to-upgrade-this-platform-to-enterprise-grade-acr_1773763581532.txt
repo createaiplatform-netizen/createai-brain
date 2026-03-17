@@ -1,0 +1,56 @@
+I want to upgrade this platform to enterprise-grade across every dimension we discussed: security, compliance, integrations, governance, analytics, accessibility, and multi-tenant readiness.
+
+Implement the following in a clean, modular, well-documented way:
+
+1) Security & Audit
+- Add a centralized audit logging system that records: user ID, role, action, timestamp, resource affected, and outcome (success/failure).
+- Store logs in a dedicated AuditLog table with efficient querying and pagination.
+- Add basic encryption at rest for sensitive fields (e.g., tokens, secrets) using environment-based keys.
+- Ensure all sensitive config values are pulled from environment variables, not hardcoded.
+
+2) Compliance Patterns
+- Add a data retention policy layer: allow marking records with retention rules (e.g., keep X days, anonymize after Y).
+- Implement soft-delete with deletedAt fields where appropriate.
+- Add a simple “export my data” and “delete my data” pattern for user accounts (mock endpoints are fine for now, but structure them cleanly).
+
+3) Integrations & Extensibility
+- Add a generic Webhook system: 
+  - WebhookSubscriptions table with target URL, event type, and status.
+  - A small dispatcher that can send POST requests on key events (e.g., project created, message sent).
+- Scaffold SSO-ready structure:
+  - Add placeholders and routing for OAuth2 / OpenID Connect (e.g., Google/Microsoft), with clean separation so we can plug in real providers later.
+- Ensure all core actions (project creation, messaging, user updates) are exposed through a clean internal service layer that can later be wrapped by public APIs.
+
+4) Governance & Admin
+- Build an Admin Dashboard route and UI:
+  - View users, roles, projects, and system status.
+  - View audit logs with filters (by user, date range, action).
+  - Toggle user roles (within safe constraints).
+- Make sure Founder/Admin roles are enforced consistently across backend and frontend.
+
+5) Analytics & Observability
+- Add a basic analytics layer:
+  - Track key events (logins, project created, message sent, app opened) in an AnalyticsEvent table.
+  - Include timestamp, user ID, event type, and minimal metadata.
+- Create a simple Analytics view in the Admin Dashboard to see counts over time (even if just basic charts or tables).
+
+6) Multi-tenant Readiness
+- Refactor data models to optionally support an Organization or Tenant ID where appropriate (projects, users, messages), even if we only use a single tenant for now.
+- Keep the code structured so we can easily filter by tenant later without rewriting everything.
+
+7) UI/UX & Accessibility
+- Apply a consistent design system (buttons, inputs, cards, typography) using our existing stack.
+- Add basic accessibility improvements:
+  - Proper labels for inputs.
+  - Semantic HTML where possible.
+  - Keyboard-focusable interactive elements.
+- Ensure all new admin and analytics views are fully responsive and usable on mobile.
+
+8) Documentation & Structure
+- Add inline comments and short docstrings for all new services, models, and core functions.
+- Create a short ARCHITECTURE.md or SYSTEM_OVERVIEW.md that explains:
+  - Core modules (engines, messaging, projects, admin, analytics).
+  - How audit logs, analytics, and webhooks work.
+  - Where to plug in SSO and external integrations.
+
+Implement all of this incrementally but cohesively, keeping the codebase clean, modular, and ready for real enterprise use. When in doubt, choose patterns that match modern SaaS best practices (e.g., what you’d see in a production-grade multi-tenant app).

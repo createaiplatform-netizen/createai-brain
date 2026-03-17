@@ -26,6 +26,7 @@ const ProjectBuilderApp = React.lazy(() => import("@/Apps/ProjectBuilderApp").th
 const ProjectOSApp      = React.lazy(() => import("@/Apps/ProjectOSApp").then(m => ({ default: m.ProjectOSApp })));
 const NotificationsApp  = React.lazy(() => import("@/Apps/NotificationsApp").then(m => ({ default: m.NotificationsApp })));
 const BrainHubApp       = React.lazy(() => import("@/Apps/BrainHubApp").then(m => ({ default: m.BrainHubApp })));
+const CommandCenterApp  = React.lazy(() => import("@/Apps/CommandCenterApp").then(m => ({ default: m.CommandCenterApp })));
 const ResearchHubApp    = React.lazy(() => import("@/Apps/ResearchHubApp").then(m => ({ default: m.ResearchHubApp })));
 const LearningCenterApp = React.lazy(() => import("@/Apps/LearningCenterApp").then(m => ({ default: m.LearningCenterApp })));
 const PersonaStudioApp  = React.lazy(() => import("@/Apps/PersonaStudioApp").then(m => ({ default: m.PersonaStudioApp })));
@@ -175,6 +176,7 @@ const APP_COMPONENTS: Record<AppId, React.LazyExoticComponent<React.ComponentTyp
   projos:         ProjectOSApp,
   notifications:  NotificationsApp,
   brainhub:       BrainHubApp,
+  commandcenter:  CommandCenterApp,
   researchhub:    ResearchHubApp,
   learningcenter: LearningCenterApp,
   personastudio:  PersonaStudioApp,
