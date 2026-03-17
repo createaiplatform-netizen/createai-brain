@@ -6,7 +6,7 @@ export type AppId =
   | "chat" | "projects" | "tools" | "creator" | "people"
   | "documents" | "marketing" | "admin" | "family"
   | "integration" | "monetization" | "universal" | "simulation"
-  | "business" | "entity" | "bizcreator";
+  | "business" | "entity" | "bizcreator" | "bizdev";
 
 export interface AppDef {
   id: AppId;
@@ -35,6 +35,7 @@ export const DEFAULT_APPS: AppDef[] = [
   { id: "business",     label: "BizEngine",   icon: "🏗️", color: "#f59e0b", description: "6-layer business design: model, ops, monetization",   category: "business"  },
   { id: "entity",       label: "EntityGen",   icon: "🧬", color: "#10b981", description: "7-layer entity engine: brand, model, ops, ecosystem, growth, compliance, expansion", category: "business" },
   { id: "bizcreator",   label: "BizUniverse", icon: "🌌", color: "#8b5cf6", description: "8-layer universe engine: knowledge, blueprint, monetization, ecosystem, visualization, expansion", category: "business" },
+  { id: "bizdev",       label: "BizPlanner",  icon: "⚡", color: "#f97316", description: "9-section real-world business planner: grounded, executable, no filler", category: "business" },
 ];
 
 export const ALL_APPS = DEFAULT_APPS;
@@ -81,6 +82,7 @@ const INTENT_MAP: { keywords: string[]; target: AppId }[] = [
   { keywords: ["business", "bizengine", "biz engine", "business plan", "business model", "startup", "venture", "monetization model", "operations design", "expansion", "opportunity"],  target: "business" },
   { keywords: ["entity", "entitygen", "entity engine", "brand", "branding", "positioning", "product idea", "platform idea", "business entity", "build entity", "brand strategy", "ecosystem", "compliance", "growth strategy"], target: "entity" },
   { keywords: ["universe", "bizcreator", "biz universe", "concept", "concept expansion", "idea", "visualize", "visualization", "digital twin", "vr", "ar", "knowledge context", "business system", "expand idea", "expand concept", "multi-layer"], target: "bizcreator" },
+  { keywords: ["bizdev", "bizplanner", "biz planner", "biz dev", "business plan", "execution plan", "real world plan", "executable", "business development", "go to market", "gtm", "acquisition strategy", "legal risk", "tools systems", "target customers"], target: "bizdev" },
 ];
 
 function routeIntentFn(intent: string): AppId | null {
@@ -109,6 +111,7 @@ const APP_META: Record<AppId, { icon: string; label: string }> = {
   business:     { icon: "🏗️", label: "BizEngine" },
   entity:       { icon: "🧬", label: "EntityGen" },
   bizcreator:   { icon: "🌌", label: "BizUniverse" },
+  bizdev:       { icon: "⚡", label: "BizPlanner" },
 };
 
 // ─── OS State ──────────────────────────────────────────────────────────────

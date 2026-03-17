@@ -1875,6 +1875,166 @@ Treat this as a real engagement. Be specific, use real-world numbers appropriate
   res.end();
 });
 
+// ─── REAL-WORLD BUSINESS DEVELOPMENT ASSISTANT ───────────────────────────────
+
+const BIZ_DEV_PROMPT = `You are a real-world business development assistant. Your job is to turn any
+idea into a complete, realistic, professional business plan that could be
+executed in the real world.
+
+Every output must include relevant components from:
+- A clear business concept and value proposition
+- Target customers and real market positioning
+- Realistic features, offerings, and deliverables
+- Operational workflows and how the business actually runs
+- Tools, systems, and processes needed to operate it
+- Monetization models, pricing, and revenue strategy
+- Marketing and customer acquisition strategy
+- Legal, compliance, and risk considerations
+- Expansion opportunities and future product lines
+
+Rules:
+- Everything must be grounded in real-world logic
+- No placeholders, no vague content, no filler
+- No fake data, no imaginary technology, no unrealistic claims
+- All recommendations must be feasible for a real business
+- Every output must feel complete, detailed, and ready to execute
+- Use real prices, real tool names, real regulatory bodies, and real market data
+- Adapt all content to the specific region and industry provided`;
+
+const BIZ_DEV_SECTION_INSTRUCTIONS: Record<string, string> = {
+  "business-concept": `Produce the BUSINESS CONCEPT & VALUE PROPOSITION section.
+Cover all of the following with full detail:
+1. CONCEPT STATEMENT — one precise sentence: what the business does, who it serves, and the specific outcome it delivers
+2. PROBLEM DEFINITION — describe the specific, observable problem in concrete terms. Who experiences it, how often, and what it costs them (time, money, opportunity)
+3. SOLUTION DESCRIPTION — exactly what the business does to solve the problem. Be specific about the mechanism, not just the outcome
+4. VALUE PROPOSITION — the headline benefit, 3 supporting proof points, and the emotional and rational outcomes for the customer
+5. MARKET POSITIONING — the specific market category, 3 direct competitors, and how this business wins against each one specifically
+6. TIMING & MARKET ENTRY — why this is the right moment to launch: cite 2–3 specific trends, technology conditions, or regulatory changes that make now advantageous`,
+
+  "target-customers": `Produce the TARGET CUSTOMERS section.
+Cover all of the following with full detail:
+1. PRIMARY ICP — describe the primary ideal customer with: role/title, industry, company size (if B2B) or demographics (if B2C), annual budget for this category, and the specific trigger that makes them ready to buy
+2. PSYCHOGRAPHIC PROFILE — their top 3 goals, top 3 fears, daily frustrations, and what success looks like from their perspective
+3. JOB-TO-BE-DONE — the specific outcome they hire this business to deliver, stated in their language, not the business's language
+4. MARKET SIZING — provide TAM, SAM, and SOM with specific numbers and the data source or calculation methodology for each
+5. SECONDARY SEGMENT — a second ICP with a brief profile, why they're a fit, and how the offer needs to adapt minimally to serve them
+6. CUSTOMER VALIDATION — describe 3 specific ways to validate customer interest before investing heavily: conversations to have, data to look for, and signals that confirm product-market fit`,
+
+  "offerings-deliverables": `Produce the OFFERINGS & DELIVERABLES section.
+Cover all of the following with full detail:
+1. CORE OFFERING — exact description of what the customer receives: deliverables, format, timeline, quality standard, and success criteria
+2. SCOPE DEFINITION — what is explicitly included and what is explicitly excluded (scope creep prevention)
+3. OFFERING TIERS — describe 3 named tiers (e.g., Starter, Core, Premium) with: exact price, what's included, ideal customer per tier, and the upgrade trigger from tier to tier
+4. RECURRING COMPONENT — describe the subscription, retainer, or maintenance element that creates predictable recurring revenue and why customers will renew
+5. DIFFERENTIATED FEATURES — 4–5 specific capabilities, methods, or guarantees that direct competitors cannot easily replicate
+6. SAMPLE DELIVERABLE — describe in detail what a real completed deliverable looks like for a specific example client (make it concrete and tangible)`,
+
+  "operations-workflows-biz": `Produce the OPERATIONS & WORKFLOWS section.
+Cover all of the following with full detail:
+1. LEAD-TO-CLIENT WORKFLOW — step-by-step process from first contact through discovery, proposal, contract, payment, and onboarding. Name each step and assign ownership
+2. DELIVERY WORKFLOW — the exact process for delivering the core offering: steps, owner, tools used, SLA, and client checkpoints
+3. CLIENT SUCCESS WORKFLOW — the post-delivery process: follow-up schedule, satisfaction check, upsell moment, and renewal conversation
+4. ADMIN WORKFLOW — invoicing schedule, payment collection, bookkeeping cadence, and financial reporting process
+5. DAILY OPERATING SCHEDULE — describe a typical founder/operator workday broken into time blocks: production, sales, client communication, admin
+6. QUALITY CONTROL — 3 specific checkpoints built into the delivery process that prevent errors, scope creep, or client dissatisfaction`,
+
+  "tools-systems": `Produce the TOOLS, SYSTEMS & PROCESSES section.
+Cover all of the following with full detail:
+1. CRM — specific tool recommendation with rationale, cost, and how it's used to manage contacts, deals, and follow-ups
+2. PROJECT MANAGEMENT — specific tool for managing delivery, tasks, timelines, and client visibility
+3. COMMUNICATION STACK — email provider, video call platform, client portal or messaging tool, and how they integrate
+4. FINANCE STACK — invoicing software, payment processor, bookkeeping tool, and bank/account recommendation for this region
+5. DELIVERY TOOLING — the specific software, platforms, or equipment needed to produce the actual work or service
+6. AUTOMATION OPPORTUNITIES — 3–5 specific automation workflows (using real tools like Zapier, Make, or native automations) that reduce manual work in sales, delivery, or client communication`,
+
+  "monetization-revenue": `Produce the MONETIZATION & REVENUE section.
+Cover all of the following with full detail:
+1. REVENUE MODEL — primary model type with full rationale: why this model fits this business, customer, and market
+2. PRICING TIERS — for each of 3 tiers: exact name, exact price in region-appropriate currency, feature list, ideal customer, and revenue contribution target
+3. UNIT ECONOMICS — specific estimates for: customer acquisition cost, average revenue per customer, gross margin, customer lifetime value, and payback period with calculation methodology
+4. 12-MONTH REVENUE PLAN — monthly revenue targets for all 12 months with the client count, average deal size, and key assumptions behind each target
+5. MONTHLY COST STRUCTURE — list every monthly cost (tools, contractors, rent, software, insurance) with specific amounts in region-appropriate currency
+6. BREAK-EVEN ANALYSIS — exact break-even point: monthly revenue needed, client count needed, and the month it is projected to be reached`,
+
+  "marketing-acquisition": `Produce the MARKETING & CUSTOMER ACQUISITION section.
+Cover all of the following with full detail:
+1. PRIMARY ACQUISITION CHANNEL — the single channel to dominate first with full rationale, specific tactics, expected volume, and cost per lead
+2. CONTENT STRATEGY — 5 specific content topics the ICP actively searches for, the format for each (video, article, post), the platform, and the publishing cadence
+3. OUTBOUND SEQUENCE — a 5-step direct outreach sequence: who to target, where to find them, what to say in message 1, follow-up messages 2–4, and closing message 5
+4. REFERRAL SYSTEM — the exact mechanism: when to ask, what to offer as incentive, how to track referrals, and the expected referral rate
+5. CONVERSION FUNNEL — describe the exact path from first touchpoint to closed client: each stage, the conversion rate target, and the specific action taken to move them forward
+6. FIRST 90-DAY MARKETING PLAN — specific weekly actions for the first 90 days to acquire the first 5–10 clients`,
+
+  "legal-compliance-risk": `Produce the LEGAL, COMPLIANCE & RISK section.
+Cover all of the following with full detail:
+1. LEGAL STRUCTURE — recommended entity type, jurisdiction, registration steps, estimated cost, and timeline for this specific region
+2. REQUIRED LICENSES & PERMITS — list every license, permit, certification, or accreditation required to operate this business legally in the specified region and industry, with the issuing authority and renewal requirement for each
+3. CONTRACTS REQUIRED — list 4–5 specific contracts needed (service agreement, NDA, IP assignment, contractor agreement, consumer terms) with 3–4 critical clauses to include in each
+4. DATA & PRIVACY — applicable privacy laws (GDPR, CCPA, HIPAA, etc.), specific obligations, what data is collected, and the 3 most important compliance actions to take immediately
+5. TOP 5 RISKS — for each: name, probability (H/M/L), impact (H/M/L), and a specific, actionable mitigation strategy
+6. INSURANCE REQUIREMENTS — list required and recommended insurance types, coverage amounts, and how to obtain them for this region and industry`,
+
+  "expansion-future-lines": `Produce the EXPANSION & FUTURE PRODUCT LINES section.
+Cover all of the following with full detail:
+1. NEXT PRODUCT LINE — the most logical second product or service to launch in months 6–12, with rationale, target customer, pricing, and the existing capability that makes it achievable
+2. SECOND CUSTOMER SEGMENT — a specific adjacent segment to target after the primary is stable, with the minimal adaptation required to serve them
+3. GEOGRAPHIC EXPANSION — the single best next market to enter with: required adaptation (language, regulation, currency), estimated launch cost, and partnership approach
+4. PRODUCTIZATION PATH — describe how the service or business model can be productized or scaled beyond the founder's time: what gets systemized, templated, or automated
+5. RECURRING REVENUE MAXIMIZATION — a specific 3-step plan to move the business to 70%+ recurring revenue within 24 months
+6. EXIT OR SCALE OPTIONS — describe 3 realistic options: (a) lifestyle business at $X/year, (b) acquisition by a named type of buyer at $Y valuation, (c) institutional growth path with team and capital requirements`,
+};
+
+router.post("/biz-dev", async (req, res) => {
+  const { idea, industry, region, size, resources, action } = req.body as {
+    idea: string;
+    industry?: string;
+    region?: string;
+    size?: string;
+    resources?: string;
+    action: string;
+  };
+
+  if (!idea?.trim() || !action?.trim()) {
+    return void res.status(400).json({ error: "idea and action are required" });
+  }
+
+  const sectionInstruction = BIZ_DEV_SECTION_INSTRUCTIONS[action]
+    ?? `Produce the requested section of the business plan. Be specific, real-world grounded, and fully detailed.`;
+
+  const userPrompt = `BUSINESS BEING PLANNED:
+- Idea: ${idea}
+- Industry: ${industry || "Not specified"}
+- Region / Location: ${region || "Not specified"} — use this region for all regulatory, pricing, legal, and market references
+- Team Size: ${size || "Not specified"}
+${resources ? `- Existing Resources / Skills: ${resources}` : ""}
+
+${sectionInstruction}
+
+Be specific, real, and detailed. Use real tool names, real prices in ${region || "the specified region"}'s currency, real regulatory bodies, and real market benchmarks. This must be ready to execute. No placeholders, no vague content, no filler.`;
+
+  res.setHeader("Content-Type", "text/event-stream");
+  res.setHeader("Cache-Control", "no-cache");
+  res.setHeader("Connection", "keep-alive");
+
+  const stream = await openai.chat.completions.create({
+    model: "gpt-5.2",
+    max_completion_tokens: 8192,
+    messages: [
+      { role: "system", content: BIZ_DEV_PROMPT },
+      { role: "user",   content: userPrompt },
+    ],
+    stream: true,
+  });
+
+  for await (const chunk of stream) {
+    const text = chunk.choices[0]?.delta?.content;
+    if (text) res.write(`data: ${JSON.stringify({ content: text })}\n\n`);
+  }
+
+  res.write(`data: ${JSON.stringify({ done: true })}\n\n`);
+  res.end();
+});
+
 // ─── UNIVERSAL BUSINESS CREATION UNIVERSE ENGINE ─────────────────────────────
 
 const BIZ_UNIVERSE_PROMPT = `UNIVERSAL BUSINESS CREATION UNIVERSE — MASTER SYSTEM PROMPT
