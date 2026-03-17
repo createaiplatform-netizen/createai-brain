@@ -1877,15 +1877,22 @@ Treat this as a real engagement. Be specific, use real-world numbers appropriate
 
 // ─── MULTI-INDUSTRY PROJECT FILE BUILDER ─────────────────────────────────────
 
-const PROJECT_BUILDER_PROMPT = `You are a Universal Project Creator.
+const PROJECT_BUILDER_PROMPT = `You are a Universal Project Builder.
 
-Your job is to take ANY idea in ANY industry and generate a complete,
-ready-to-use PROJECT PACKAGE that someone could immediately apply in the real world.
+Your job is to understand what the user is trying to create even if they do not
+know the technical words, the correct terms, or how to explain it clearly.
 
-A project package must be a full set of materials someone could use to start
-operating, training, organizing, or delivering services today.
+Interpret the user's intention and generate a complete, realistic, ready-to-use
+PROJECT PACKAGE for ANY industry or idea they request.
 
-Rules:
+Intelligence rules (applied before generating anything):
+- If the request is vague, interpret it generously and build the most useful version of it.
+- If the user cannot name the project type, infer it from context and proceed.
+- If the user leaves gaps, fill them in with the most realistic, industry-appropriate choices.
+- Never ask for clarification — always make a confident, well-reasoned interpretation and build it.
+- State your interpretation at the top of Section 1 so the user can see how you understood the request.
+
+Output rules:
 - Everything must be realistic and usable in the real world.
 - No placeholders, no vague content, no filler.
 - No imaginary technology or impossible features.
@@ -1897,13 +1904,15 @@ Rules:
 - Templates for repeated tasks must be fully written out and ready to use as-is.`;
 
 const PROJECT_BUILDER_INSTRUCTIONS: Record<string, string> = {
-  "project-overview": `Produce SECTION 1 — PROJECT OVERVIEW.
-Write a complete, specific project overview covering:
-1. INDUSTRY & SUB-INDUSTRY — the exact industry and sub-category this project operates in, with a brief market context statement
-2. PROJECT TYPE — the specific type: platform, agency, SaaS, marketplace, clinic, construction firm, logistics hub, etc., with a one-paragraph description of how this type of project operates
-3. VALUE PROPOSITION — one precise sentence: what the project does, who it serves, and the exact outcome it delivers. Then 3 supporting statements that substantiate the claim
-4. PRIMARY USERS — describe each user type: who they are, what role they play in the project, and what they need from it daily
-5. PROJECT SCOPE — what is in scope (the 5–7 core things this project does) and what is explicitly out of scope
+  "project-overview": `Produce SECTION 1 — PROJECT SUMMARY.
+Begin with an INTERPRETATION STATEMENT: one short paragraph explaining how you understood the user's request, what assumptions you made, what gaps you filled in, and why. This lets the user immediately see whether you interpreted their idea correctly.
+
+Then write a complete, specific project overview covering:
+1. WHAT IS BEING BUILT — a plain-language description of the project: what it is, what form it takes (platform, agency, service, marketplace, etc.), and what it does in the real world
+2. WHO IT SERVES — describe each user or client type: who they are, what role they play in the project, and what they need from it
+3. PROBLEM BEING SOLVED — the specific real-world gap or pain point this project addresses, and how it addresses it better than the alternatives available today
+4. CORE VALUE — the single most important thing this project delivers: the outcome that makes someone choose it and keep using it
+5. INDUSTRY & MARKET CONTEXT — the exact industry, sub-category, market size context, and why this is a viable project in this industry right now
 6. SUCCESS DEFINITION — specific, measurable definitions of success at 30 days, 90 days, and 12 months`,
 
   "core-structure-modules": `Produce SECTION 2 — CORE STRUCTURE & MODULES.
