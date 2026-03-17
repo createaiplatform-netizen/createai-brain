@@ -766,6 +766,7 @@ interface DbProject {
   icon: string;
   color: string;
   created: string;
+  status?: string;
 }
 
 // ─── Main ProjectsApp ────────────────────────────────────────────────────────
@@ -776,26 +777,55 @@ export function ProjectsApp() {
   const [showAutoCreate, setShowAutoCreate] = useState(false);
   const [dbProjects, setDbProjects] = useState<DbProject[]>([]);
   const [loadingDb, setLoadingDb] = useState(true);
+  const [showArchived, setShowArchived] = useState(false);
+  const [archiving, setArchiving] = useState<string | null>(null);
 
-  React.useEffect(() => {
+  const loadProjects = React.useCallback(() => {
+    setLoadingDb(true);
     fetch("/api/projects", { credentials: "include" })
       .then(r => r.ok ? r.json() : { projects: [] })
-      .then((data: { projects: DbProject[] }) => {
-        setDbProjects(data.projects ?? []);
-        setLoadingDb(false);
-      })
-      .catch(() => setLoadingDb(false));
+      .then((data: { projects: DbProject[] }) => { setDbProjects(data.projects ?? []); })
+      .catch(() => {}).finally(() => setLoadingDb(false));
   }, []);
+
+  React.useEffect(() => { loadProjects(); }, [loadProjects]);
+
+  const handleArchive = async (id: string) => {
+    if (!confirm("Archive this project? You can restore it any time.")) return;
+    setArchiving(id);
+    try {
+      await fetch(`/api/projects/${id}/status`, {
+        method: "PUT",
+        credentials: "include",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ status: "archived" }),
+      });
+      setDbProjects(prev => prev.map(p => p.id === id ? { ...p, status: "archived" } : p));
+    } catch {}
+    finally { setArchiving(null); }
+  };
+
+  const handleRestore = async (id: string) => {
+    setArchiving(id);
+    try {
+      await fetch(`/api/projects/${id}/status`, {
+        method: "PUT",
+        credentials: "include",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ status: "active" }),
+      });
+      setDbProjects(prev => prev.map(p => p.id === id ? { ...p, status: "active" } : p));
+    } catch {}
+    finally { setArchiving(null); }
+  };
+
+  const activeProjects = dbProjects.filter(p => (p.status ?? "active") === "active");
+  const archivedProjects = dbProjects.filter(p => p.status === "archived");
+  const visibleProjects = showArchived ? archivedProjects : activeProjects;
 
   if (showNewForm) return <NewProjectForm
     onBack={() => setShowNewForm(false)}
-    onCreated={() => {
-      setLoadingDb(true);
-      fetch("/api/projects", { credentials: "include" })
-        .then(r => r.ok ? r.json() : { projects: [] })
-        .then((data: { projects: DbProject[] }) => { setDbProjects(data.projects ?? []); })
-        .catch(() => {}).finally(() => setLoadingDb(false));
-    }}
+    onCreated={loadProjects}
   />;
   if (showAutoCreate) return <AutoCreateView onBack={() => setShowAutoCreate(false)} />;
 
@@ -818,33 +848,75 @@ export function ProjectsApp() {
       {/* ── Real DB Projects ───────────────────────────────────────── */}
       {(loadingDb || dbProjects.length > 0) && (
         <div>
-          <p className="text-[10px] font-bold uppercase tracking-wider text-muted-foreground/60 mb-2">My Projects</p>
+          <div className="flex items-center gap-2 mb-2">
+            <p className="text-[10px] font-bold uppercase tracking-wider text-muted-foreground/60 flex-1">My Projects</p>
+            {!loadingDb && dbProjects.length > 0 && (
+              <div className="flex rounded-lg overflow-hidden border border-border/40">
+                <button onClick={() => setShowArchived(false)}
+                  className="text-[10px] font-semibold px-2.5 py-1 transition-all"
+                  style={!showArchived ? { background: "rgba(99,102,241,0.15)", color: "#818cf8" } : { color: "#64748b" }}>
+                  Active ({activeProjects.length})
+                </button>
+                <button onClick={() => setShowArchived(true)}
+                  className="text-[10px] font-semibold px-2.5 py-1 transition-all"
+                  style={showArchived ? { background: "rgba(99,102,241,0.15)", color: "#818cf8" } : { color: "#64748b" }}>
+                  Archived ({archivedProjects.length})
+                </button>
+              </div>
+            )}
+          </div>
           {loadingDb
             ? <div className="flex items-center gap-2 text-[12px] text-muted-foreground py-2">
                 <div className="w-3 h-3 border-2 border-primary border-t-transparent rounded-full animate-spin" />
                 Loading…
               </div>
-            : <div className="space-y-2">
-                {dbProjects.map(proj => (
-                  <div key={proj.id} className="bg-background rounded-2xl border border-border/50 hover:border-primary/20 hover:shadow-sm transition-all overflow-hidden">
-                    <div className="flex items-center gap-4 p-4">
-                      <div className="w-12 h-12 rounded-2xl flex items-center justify-center text-2xl flex-shrink-0" style={{ backgroundColor: (proj.color || "#6366f1") + "22" }}>
-                        {proj.icon || "📁"}
+            : visibleProjects.length === 0
+              ? <div className="text-center py-6 text-[13px] text-muted-foreground">
+                  {showArchived ? "No archived projects." : "No active projects. Create one with + New in ProjectOS."}
+                </div>
+              : <div className="space-y-2">
+                  {visibleProjects.map(proj => (
+                    <div key={proj.id} className="bg-background rounded-2xl border border-border/50 hover:border-primary/20 hover:shadow-sm transition-all overflow-hidden"
+                      style={proj.status === "archived" ? { opacity: 0.75 } : {}}>
+                      <div className="flex items-center gap-4 p-4">
+                        <div className="w-12 h-12 rounded-2xl flex items-center justify-center text-2xl flex-shrink-0" style={{ backgroundColor: (proj.color || "#6366f1") + "22" }}>
+                          {proj.icon || "📁"}
+                        </div>
+                        <div className="flex-1 min-w-0">
+                          <div className="flex items-center gap-2">
+                            <p className="font-semibold text-[14px] text-foreground truncate">{proj.name}</p>
+                            {proj.status === "archived" && (
+                              <span className="text-[9px] font-bold px-1.5 py-0.5 rounded-full flex-shrink-0" style={{ background: "rgba(100,116,139,0.12)", color: "#94a3b8" }}>Archived</span>
+                            )}
+                          </div>
+                          <p className="text-[12px] text-muted-foreground mt-0.5">{proj.industry} · Created {proj.created}</p>
+                        </div>
+                        <div className="flex items-center gap-2 flex-shrink-0">
+                          {proj.status === "archived" ? (
+                            <button onClick={() => handleRestore(proj.id)} disabled={archiving === proj.id}
+                              className="text-[11px] font-semibold px-3 py-1.5 rounded-lg transition-all disabled:opacity-50"
+                              style={{ background: "rgba(34,197,94,0.10)", color: "#4ade80", border: "1px solid rgba(34,197,94,0.20)" }}>
+                              {archiving === proj.id ? "…" : "↩ Restore"}
+                            </button>
+                          ) : (
+                            <>
+                              <button onClick={() => handleArchive(proj.id)} disabled={archiving === proj.id}
+                                className="text-[11px] font-semibold px-2.5 py-1.5 rounded-lg transition-all disabled:opacity-50"
+                                style={{ background: "rgba(100,116,139,0.08)", color: "#94a3b8", border: "1px solid rgba(100,116,139,0.15)" }}>
+                                {archiving === proj.id ? "…" : "Archive"}
+                              </button>
+                              <button onClick={() => openApp("projos" as any)}
+                                className="flex items-center gap-1.5 text-[11px] font-bold text-white px-3 py-1.5 rounded-lg hover:opacity-90 transition-opacity"
+                                style={{ background: "linear-gradient(135deg,#6366f1,#8b5cf6)" }}>
+                                Open →
+                              </button>
+                            </>
+                          )}
+                        </div>
                       </div>
-                      <div className="flex-1 min-w-0">
-                        <p className="font-semibold text-[14px] text-foreground truncate">{proj.name}</p>
-                        <p className="text-[12px] text-muted-foreground mt-0.5">{proj.industry} · Created {proj.created}</p>
-                      </div>
-                      <button
-                        onClick={() => openApp("projos" as any)}
-                        className="flex items-center gap-1.5 text-[11px] font-bold text-white px-3 py-1.5 rounded-lg hover:opacity-90 transition-opacity flex-shrink-0"
-                        style={{ background: "linear-gradient(135deg,#6366f1,#8b5cf6)" }}>
-                        Open in ProjectOS →
-                      </button>
                     </div>
-                  </div>
-                ))}
-              </div>
+                  ))}
+                </div>
           }
         </div>
       )}

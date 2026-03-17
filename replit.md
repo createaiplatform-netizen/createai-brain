@@ -35,6 +35,18 @@
 - `GET/POST/PUT/DELETE /api/projects/:id/tasks` — per-project task CRUD
 - `GET/POST/PUT/DELETE /api/projects/:id/members` — project team management (roles: viewer/editor/owner)
 
+### Safety & Compliance Layer (server-side, ACTIVE)
+- **Content Safety Filter** (`contentSafetyCheck()`) — applied to `/api/openai/engine-run`, `/api/openai/meta-agent`, `/api/openai/brain-gen-ai` before any AI call; blocks CBRN weapons, CSAM, targeted violence, malware creation, fraud/deception with structured 400 error response (`error: "content_policy_violation"`)
+- **Compliance Disclaimer Injector** (`injectComplianceDisclaimer()`) — auto-appends regulated-industry notices to system prompts based on keyword detection: healthcare (HIPAA, clinical disclaimers), legal (attorney disclaimer), financial (investment disclaimer)
+- Second layer: GPT-5.2 model's own safety training always active
+- All generator app routes (`/chat`, `/generate`, `/simulate`, etc.) covered by model-layer safety
+
+### Project Lifecycle (COMPLETE)
+- `status` field added to projects API response (`buildProjectResponse`)
+- `PUT /api/projects/:id/status` — archive/restore (already existed)
+- **ProjectsApp** updated: Active/Archived toggle tabs, Archive button on each project card, Restore button on archived projects
+- **ProjectOSApp** already had full archive/restore with `apiSetProjectStatus`, toggle, filtered lists
+
 ### Production Audit Completed (all apps)
 - **PeopleApp** — fully rewritten with real `/api/people` (no PlatformStore)
 - **DocumentsApp** — dual-tab: My Documents via `/api/documents` (create/edit/delete/pin/export) + Project Files from `/api/projects/all-files`

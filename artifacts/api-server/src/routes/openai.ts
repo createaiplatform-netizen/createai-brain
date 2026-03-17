@@ -9,6 +9,98 @@ import {
 
 const router: IRouter = Router();
 
+// ─── Content Safety Layer ─────────────────────────────────────────────────────
+// First-line safety filter applied to all user-controlled AI prompts.
+// The AI model (GPT-5.2) has its own safety training as a second layer.
+// This layer targets the narrowest, highest-risk categories only —
+// to avoid false positives on legitimate creative, research, or business content.
+
+const BLOCKED_PATTERNS: { pattern: RegExp; category: string; message: string }[] = [
+  {
+    // Pattern A: Action words + CBRN agents
+    pattern: /\b(how\s+to\s+(make|synthesize|create|produce|build|weaponize)|synthesis\s+of|make\s+a?|create\s+a?|produce\s+a?|build\s+a?|weaponize|manufacture)\b.{0,80}\b(nerve\s+agent|sarin|novichok|vx\s+nerve|tabun|soman|mustard\s+gas|chlorine\s+bomb|bioweapon|biological\s+weapon|anthrax\s+weapon|ricin\s+weapon|dirty\s+bomb|radiological\s+weapon|nuclear\s+bomb|improvised\s+nuclear|thermobaric\s+bomb)/i,
+    category: "CBRN Weapons",
+    message: "This request appears to seek instructions for creating weapons capable of mass casualties (chemical, biological, radiological, or nuclear). This is not something this platform can help with.",
+  },
+  {
+    // Pattern B: Stand-alone CBRN agent keywords with synthesis/recipe context
+    pattern: /\b(sarin|novichok|vx\s+nerve\s+agent|tabun\s+synthesis|soman\s+synthesis|ricin\s+synthesis|mustard\s+gas\s+(formula|synthesis|production))\b/i,
+    category: "CBRN Weapons",
+    message: "This request appears to seek instructions for creating weapons capable of mass casualties. This is not something this platform can help with.",
+  },
+  {
+    pattern: /\b(child|minor|underage|loli|shota)\b.{0,60}\b(porn|nude|naked|sexual|explicit|sex\s+scene|erotic)/i,
+    category: "CSAM",
+    message: "This request violates our content policy. Content that sexualizes minors is strictly prohibited and illegal. This request has been blocked.",
+  },
+  {
+    pattern: /\b(kill|murder|assassinate|shoot|stab|bomb)\b.{0,40}\b(my|the|this)\b.{0,40}\b(specific named|real person|president|senator|judge|officer|neighbor|teacher|colleague|boss|ex|wife|husband|sister|brother|parent|child)/i,
+    category: "Targeted Violence",
+    message: "This request appears to involve planning violence against a specific real person. This platform cannot help with this. If you or someone else is in immediate danger, contact emergency services.",
+  },
+  {
+    pattern: /\b(create|build|write|generate|code)\b.{0,60}\b(ransomware|malware|keylogger|rootkit|trojan|botnet|exploit\s+kit|phishing\s+kit|spyware)\b.{0,40}\b(to\s+attack|to\s+infect|to\s+steal|to\s+deploy|against)/i,
+    category: "Malware",
+    message: "This request appears to seek help creating malicious software intended to harm others. This is not something this platform can help with.",
+  },
+  {
+    pattern: /\b(social\s+engineering|phishing|fake\s+(email|invoice|bank|legal)|impersonate|pretend\s+to\s+be)\b.{0,80}\b(steal|extract|get\s+their\s+password|access\s+their\s+account|drain\s+their|defraud)/i,
+    category: "Fraud/Deception",
+    message: "This request appears to involve deceptive practices intended to defraud or harm another person. This platform cannot assist with this.",
+  },
+];
+
+interface SafetyResult {
+  safe: boolean;
+  category?: string;
+  message?: string;
+}
+
+function contentSafetyCheck(text: string): SafetyResult {
+  if (!text || typeof text !== "string") return { safe: true };
+  const normalized = text.replace(/\s+/g, " ").trim();
+  for (const entry of BLOCKED_PATTERNS) {
+    if (entry.pattern.test(normalized)) {
+      return { safe: false, category: entry.category, message: entry.message };
+    }
+  }
+  return { safe: true };
+}
+
+function safetyError(res: { status: (code: number) => { json: (obj: object) => void } }, result: SafetyResult) {
+  res.status(400).json({
+    error: "content_policy_violation",
+    category: result.category,
+    message: result.message,
+    help: "CreateAI Brain is designed for creative, business, educational, and strategic ideation. If you believe this block is an error, please try rephrasing your request.",
+  });
+}
+
+// ─── Compliance Disclaimer Injector ──────────────────────────────────────────
+// Automatically appends regulated-industry disclaimers to system prompts.
+// These ensure AI-generated output is never mistaken for professional advice.
+
+const COMPLIANCE_KEYWORDS = {
+  healthcare:  /\b(health|medical|clinical|patient|diagnosis|treatment|prescription|hipaa|ehr|care plan|symptom|disease|drug|medication|dosage|surgery|physician|nurse|hospital)\b/i,
+  legal:       /\b(legal|law|lawsuit|attorney|lawyer|contract|liable|liability|compliance|regulation|jurisdiction|court|intellectual property|patent|trademark|copyright)\b/i,
+  financial:   /\b(investment|invest|stock|trading|securities|financial\s+advice|portfolio|return\s+on\s+investment|cryptocurrency|crypto|tax\s+advice|retirement\s+fund|401k|ira)\b/i,
+};
+
+const COMPLIANCE_DISCLAIMERS = {
+  healthcare: `\n\nIMPORTANT COMPLIANCE NOTICE: All healthcare-related content generated by this system is for ideation, planning, and conceptual design only. It does not constitute medical advice, clinical guidance, diagnosis, or treatment recommendations. Real healthcare decisions must always involve licensed healthcare professionals. HIPAA compliance, clinical validation, and regulatory review are required before any real-world implementation.`,
+  legal: `\n\nIMPORTANT COMPLIANCE NOTICE: All legal-related content generated by this system is for ideation and conceptual planning only. It does not constitute legal advice. Any legal matters must be reviewed by a licensed attorney in the relevant jurisdiction before implementation.`,
+  financial: `\n\nIMPORTANT COMPLIANCE NOTICE: All financial-related content generated by this system is for ideation and planning purposes only. It does not constitute financial, investment, or tax advice. Any financial decisions must be reviewed by a licensed financial advisor, CPA, or relevant professional before implementation.`,
+};
+
+function injectComplianceDisclaimer(systemPrompt: string, userContent: string): string {
+  let augmented = systemPrompt;
+  const combined = (systemPrompt + " " + userContent).toLowerCase();
+  if (COMPLIANCE_KEYWORDS.healthcare.test(combined)) augmented += COMPLIANCE_DISCLAIMERS.healthcare;
+  if (COMPLIANCE_KEYWORDS.legal.test(combined))      augmented += COMPLIANCE_DISCLAIMERS.legal;
+  if (COMPLIANCE_KEYWORDS.financial.test(combined))  augmented += COMPLIANCE_DISCLAIMERS.financial;
+  return augmented;
+}
+
 const SHARED_IDENTITY = `
 You were created by Sara Stadler — the architect and founder of CreateAI.
 Core platform philosophy: Universal creation, clarity, empowerment, emotional safety, infinite expansion.
@@ -2925,11 +3017,15 @@ router.post("/engine-run", async (req, res) => {
     return void res.status(400).json({ error: "topic or context is required" });
   }
 
+  const safetyResult = contentSafetyCheck(userMsg);
+  if (!safetyResult.safe) return void safetyError(res as Parameters<typeof safetyError>[0], safetyResult);
+
   res.setHeader("Content-Type", "text/event-stream");
   res.setHeader("Cache-Control", "no-cache");
   res.setHeader("Connection", "keep-alive");
 
-  const combinedSystem = `${ENGINE_RUN_MASTER_SYSTEM}\n\n${enginePrompt}`;
+  const baseSystem = `${ENGINE_RUN_MASTER_SYSTEM}\n\n${enginePrompt}`;
+  const combinedSystem = injectComplianceDisclaimer(baseSystem, userMsg);
 
   const stream = await openai.chat.completions.create({
     model: "gpt-5.2",
@@ -2974,15 +3070,20 @@ router.post("/meta-agent", async (req, res) => {
     return void res.status(400).json({ error: "task or context is required" });
   }
 
+  const safetyResult = contentSafetyCheck(userMsg);
+  if (!safetyResult.safe) return void safetyError(res as Parameters<typeof safetyError>[0], safetyResult);
+
   res.setHeader("Content-Type", "text/event-stream");
   res.setHeader("Cache-Control", "no-cache");
   res.setHeader("Connection", "keep-alive");
+
+  const augmentedSystem = injectComplianceDisclaimer(agentPrompt, userMsg);
 
   const stream = await openai.chat.completions.create({
     model: "gpt-5.2",
     max_completion_tokens: 6000,
     messages: [
-      { role: "system", content: agentPrompt },
+      { role: "system", content: augmentedSystem },
       { role: "user",   content: userMsg },
     ],
     stream: true,
@@ -3011,6 +3112,9 @@ router.post("/brain-gen-ai", async (req, res) => {
   if (!topic?.trim()) {
     return void res.status(400).json({ error: "topic is required" });
   }
+
+  const brainGenSafetyCheck = contentSafetyCheck(topic + " " + (industry ?? ""));
+  if (!brainGenSafetyCheck.safe) return void safetyError(res as Parameters<typeof safetyError>[0], brainGenSafetyCheck);
 
   const contextParts = [
     `CONTENT TYPE: ${type ?? "General"}`,

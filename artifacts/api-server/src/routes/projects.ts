@@ -76,6 +76,8 @@ async function buildProjectResponse(projectId: number) {
     icon: project.icon,
     color: project.color,
     mode: project.mode,
+    status: project.status,
+    archivedAt: project.archivedAt ?? null,
     created: project.createdAt.toLocaleDateString(),
     createdAt: project.createdAt,
     folders: folders.map(f => ({
