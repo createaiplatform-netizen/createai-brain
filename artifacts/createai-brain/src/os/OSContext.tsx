@@ -7,7 +7,8 @@ export type AppId =
   | "documents" | "marketing" | "admin" | "family"
   | "integration" | "monetization" | "universal" | "simulation"
   | "business" | "entity" | "bizcreator" | "bizdev" | "projbuilder" | "projos"
-  | "notifications" | "brainhub";
+  | "notifications" | "brainhub"
+  | "researchhub" | "learningcenter" | "personastudio" | "datastudio" | "pricingstudio";
 
 export interface AppDef {
   id: AppId;
@@ -41,6 +42,11 @@ export const DEFAULT_APPS: AppDef[] = [
   { id: "projos",       label: "ProjectOS",   icon: "📂", color: "#6366f1", description: "Universal project platform: dashboard, folder view, sub-apps, AI helper, modes, search, delete", category: "system" },
   { id: "notifications", label: "Notifications", icon: "🔔", color: "#6366f1", description: "System notifications, alerts, and activity updates", category: "system" },
   { id: "brainhub",      label: "Brain Hub",     icon: "⚡", color: "#6366f1", description: "All engines, meta-agents, and series — real AI capability center", category: "core" },
+  { id: "researchhub",    label: "Research Hub",    icon: "🔬", color: "#007AFF", description: "Deep research, market analysis, and critical review — powered by Research, Market, and Critique engines", category: "tools" },
+  { id: "learningcenter", label: "Learning Center", icon: "🎓", color: "#5856D6", description: "Learning paths, curricula, and mentorship — powered by Learning Engine and MENTOR meta-agent", category: "tools" },
+  { id: "personastudio",  label: "Persona Studio",  icon: "👤", color: "#BF5AF2", description: "ICP creation, user personas, and communication strategy — powered by Persona and Communication engines", category: "business" },
+  { id: "datastudio",     label: "Data Studio",     icon: "🗄️", color: "#30B0C7", description: "Data modeling, schema design, and pattern intelligence — powered by DataModel Engine and VECTOR", category: "tools" },
+  { id: "pricingstudio",  label: "Pricing Studio",  icon: "💰", color: "#FFD60A", description: "Pricing strategy, packaging, and feedback frameworks — powered by Pricing and Feedback engines", category: "business" },
 ];
 
 export const ALL_APPS = DEFAULT_APPS;
@@ -139,8 +145,13 @@ const APP_META: Record<AppId, { icon: string; label: string }> = {
   bizdev:       { icon: "⚡", label: "BizPlanner" },
   projbuilder:  { icon: "📋", label: "ProjBuilder" },
   projos:       { icon: "📂", label: "ProjectOS" },
-  notifications: { icon: "🔔", label: "Notifications" },
-  brainhub:      { icon: "⚡", label: "Brain Hub" },
+  notifications:  { icon: "🔔", label: "Notifications" },
+  brainhub:       { icon: "⚡", label: "Brain Hub" },
+  researchhub:    { icon: "🔬", label: "Research Hub" },
+  learningcenter: { icon: "🎓", label: "Learning Center" },
+  personastudio:  { icon: "👤", label: "Persona Studio" },
+  datastudio:     { icon: "🗄️", label: "Data Studio" },
+  pricingstudio:  { icon: "💰", label: "Pricing Studio" },
 };
 
 // ─── OS Context value ───────────────────────────────────────────────────────

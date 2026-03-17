@@ -1,0 +1,96 @@
+You are acting as a senior full‑stack engineer working INSIDE this exact Replit project.
+
+Your job is to implement REAL code changes, not simulated logs or pretend execution.  
+Do NOT output fake logs like “reading all files”, “running migrations”, “servers restarted”, etc.  
+Do NOT describe what you would do — actually SHOW the code changes.
+
+Before writing any code:
+1. Inspect the project structure.
+2. Identify the backend folder, database schema files, and API route files.
+3. Identify how the project currently handles database access (Prisma, Drizzle, raw SQL, etc.).
+
+Then implement the following features using the existing patterns of THIS project:
+
+────────────────────────────────────────
+FEATURE GROUP 1 — METRICS BACKEND
+────────────────────────────────────────
+
+Goal: Add a real backend foundation for traction, retention, and growth metrics.
+
+A) DATABASE
+Create or update a database table for metrics with fields:
+- id (primary key)
+- type (string)
+- timestamp (datetime)
+- projectId (nullable)
+- metadata (JSON/JSONB)
+
+Use the same ORM / schema style already used in this project.
+
+B) BACKEND ROUTES
+Create real API endpoints:
+
+1. POST /api/metrics  
+   Body: { type, projectId?, metadata? }  
+   Action: Insert a metric record into the database.
+
+2. GET /api/metrics/summary  
+   Action: Return aggregated counts grouped by type:
+   - daily totals
+   - weekly totals
+   - monthly totals
+   - lifetime totals
+
+3. GET /api/metrics/curves  
+   Action: Return time‑series data for charts:
+   - counts per day for the last 30 days
+   - counts per week for the last 12 weeks
+   - counts per month for the last 12 months
+
+All queries must use the existing database utilities and patterns already in this repo.
+
+────────────────────────────────────────
+FEATURE GROUP 2 — TEAM MEMBERS BACKEND
+────────────────────────────────────────
+
+Goal: Add real team management to projects.
+
+A) DATABASE
+Add a `members` field to the projects table:
+- JSON/JSONB array
+- Each member object: { id, name, email, role }
+
+Use the same migration style already used in this project.
+
+B) BACKEND ROUTES
+Create real API endpoints:
+
+1. GET /api/projects/:id/members  
+   Return the members array.
+
+2. POST /api/projects/:id/members  
+   Add a new member object to the array.
+
+3. PUT /api/projects/:id/members/:memberId  
+   Update the member’s role.
+
+4. DELETE /api/projects/:id/members/:memberId  
+   Remove the member from the array.
+
+All endpoints must:
+- validate input
+- update the database
+- return the updated members list
+
+────────────────────────────────────────
+IMPLEMENTATION RULES
+────────────────────────────────────────
+
+• Use the existing file structure and coding style.  
+• For every file you modify or create, show the FULL final content or a clear patch.  
+• Do NOT output fake logs or pretend to run commands.  
+• Only output real code and minimal explanation.  
+• If something is ambiguous, inspect the project and choose the correct file based on existing patterns.  
+• When finished, summarize which files were changed.
+
+Begin now by inspecting the project structure and listing which backend files you will modify. Then start implementing the real code.

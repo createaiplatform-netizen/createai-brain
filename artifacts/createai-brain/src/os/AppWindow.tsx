@@ -22,6 +22,11 @@ import { ProjectBuilderApp } from "@/Apps/ProjectBuilderApp";
 import { ProjectOSApp } from "@/Apps/ProjectOSApp";
 import { NotificationsApp } from "@/Apps/NotificationsApp";
 import { BrainHubApp } from "@/Apps/BrainHubApp";
+import { ResearchHubApp } from "@/Apps/ResearchHubApp";
+import { LearningCenterApp } from "@/Apps/LearningCenterApp";
+import { PersonaStudioApp } from "@/Apps/PersonaStudioApp";
+import { DataStudioApp } from "@/Apps/DataStudioApp";
+import { PricingStudioApp } from "@/Apps/PricingStudioApp";
 import type { AppId } from "./OSContext";
 
 const APP_LABELS: Record<AppId, string> = {
@@ -46,6 +51,11 @@ const APP_LABELS: Record<AppId, string> = {
   projos:         "Universal Project Platform",
   notifications:  "Notifications",
   brainhub:       "Brain Hub — Capability Center",
+  researchhub:    "Research Hub",
+  learningcenter: "Learning Center",
+  personastudio:  "Persona Studio",
+  datastudio:     "Data Studio",
+  pricingstudio:  "Pricing Studio",
 };
 
 const APP_ICONS: Record<AppId, string> = {
@@ -70,6 +80,11 @@ const APP_ICONS: Record<AppId, string> = {
   projos:         "📂",
   notifications:  "🔔",
   brainhub:       "⚡",
+  researchhub:    "🔬",
+  learningcenter: "🎓",
+  personastudio:  "👤",
+  datastudio:     "🗄️",
+  pricingstudio:  "💰",
 };
 
 const APP_COMPONENTS: Record<AppId, React.ComponentType<any>> = {
@@ -94,6 +109,11 @@ const APP_COMPONENTS: Record<AppId, React.ComponentType<any>> = {
   projos:         ProjectOSApp,
   notifications:  NotificationsApp,
   brainhub:       BrainHubApp,
+  researchhub:    ResearchHubApp,
+  learningcenter: LearningCenterApp,
+  personastudio:  PersonaStudioApp,
+  datastudio:     DataStudioApp,
+  pricingstudio:  PricingStudioApp,
 };
 
 interface AppWindowProps {

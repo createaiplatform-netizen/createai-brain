@@ -37,6 +37,28 @@ const ENGINE_HINTS: Record<string, { placeholder: string; example: string }> = {
   SENTINEL:                  { placeholder: "What needs a risk and compliance analysis?", example: "e.g. Risks of launching a fintech app for unbanked communities" },
   PULSE:                     { placeholder: "What experience or journey should PULSE optimize for engagement?", example: "e.g. User onboarding for a meditation app targeting stressed executives" },
   VECTOR:                    { placeholder: "What data or domain should VECTOR extract patterns from?", example: "e.g. Patterns in why B2B SaaS companies churn in months 3-6" },
+
+  // ── B1 — Intelligence Engines ─────────────────────────────────────────────
+  ResearchEngine:            { placeholder: "What topic or domain should be deeply researched?", example: "e.g. Evidence-based approaches to reducing hospital readmission rates" },
+  PersonaEngine:             { placeholder: "Who is your user? Describe them briefly.", example: "e.g. First-generation college students applying to STEM programs in rural areas" },
+  MarketResearchEngine:      { placeholder: "What market or opportunity should be analyzed?", example: "e.g. AI-powered legal document review for solo law practitioners in the US" },
+  CritiqueEngine:            { placeholder: "What idea, plan, or assumption should be critically analyzed?", example: "e.g. Our plan to launch a freemium B2B SaaS with no sales team in year one" },
+  LearningEngine:            { placeholder: "What skill or knowledge area needs a learning path?", example: "e.g. Teaching non-technical founders how to read and review engineering roadmaps" },
+
+  // ── B2 — Workflow Engines ─────────────────────────────────────────────────
+  PricingEngine:             { placeholder: "What product or service needs a pricing strategy?", example: "e.g. A project management SaaS for construction firms — 3-tier pricing with enterprise" },
+  FeedbackEngine:            { placeholder: "What product or experience needs a feedback system?", example: "e.g. Post-discharge feedback system for a telehealth platform" },
+  CommunicationEngine:       { placeholder: "What communication challenge or campaign needs a plan?", example: "e.g. Announcing a major product pivot to existing customers and the press" },
+
+  // ── B3 — Data + Integration Engines ──────────────────────────────────────
+  DataModelEngine:           { placeholder: "What system or domain needs a data model?", example: "e.g. Multi-tenant healthcare scheduling app with patients, providers, and appointments" },
+  LocalizationEngine:        { placeholder: "What product or market needs a localization strategy?", example: "e.g. Expanding a US fintech app to Brazil, India, and Germany" },
+
+  // ── C1-C2 — New Meta-Agents ───────────────────────────────────────────────
+  ARCHITECT:                 { placeholder: "What system should ARCHITECT design from scratch?", example: "e.g. A real-time collaboration platform for distributed healthcare teams" },
+  CURATOR:                   { placeholder: "What topic or knowledge area should CURATOR organize?", example: "e.g. Everything known about reducing patient no-shows in outpatient clinics" },
+  MENTOR:                    { placeholder: "What skill, role, or growth journey needs a mentorship plan?", example: "e.g. A junior product manager transitioning into a technical PM role in 6 months" },
+  CATALYST:                  { placeholder: "What initiative is stuck or needs a breakthrough?", example: "e.g. Our MVP launch has stalled for 3 months — what's blocking us and how do we break through?" },
 };
 
 // ─── Status Dot ─────────────────────────────────────────────────────────────────
