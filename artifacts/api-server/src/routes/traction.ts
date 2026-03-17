@@ -10,8 +10,8 @@ const REGISTRY_SNAPSHOT = {
   metaAgents:       10,
   totalEngines:     39,
   series:           15,
-  apps:             26,
-  registryVersion:  "3.0",
+  apps:             121,
+  registryVersion:  "4.0",
   engineCategories: [
     "Creative", "Strategy", "Workflow", "Connectivity", "Intelligence",
     "Research", "Communication", "Data", "Growth", "Compliance",
