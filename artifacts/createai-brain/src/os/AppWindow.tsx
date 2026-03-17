@@ -154,6 +154,214 @@ const PrivacyPolicyStudioApp = React.lazy(() => import("@/Apps/PrivacyPolicyStud
 const LessonPlannerApp      = React.lazy(() => import("@/Apps/LessonPlannerApp").then(m => ({ default: m.LessonPlannerApp })));
 const CurriculumDesignerApp = React.lazy(() => import("@/Apps/CurriculumDesignerApp").then(m => ({ default: m.CurriculumDesignerApp })));
 
+// ── Enterprise Suite (generated) ───────────────────────────────────────────────
+const ZeroTrustApp = React.lazy(() => import("@/Apps/ZeroTrustApp").then(m => ({ default: m.ZeroTrustApp })));
+const ThreatModelApp = React.lazy(() => import("@/Apps/ThreatModelApp").then(m => ({ default: m.ThreatModelApp })));
+const SOCDashboardApp = React.lazy(() => import("@/Apps/SOCDashboardApp").then(m => ({ default: m.SOCDashboardApp })));
+const PenTestPlanApp = React.lazy(() => import("@/Apps/PenTestPlanApp").then(m => ({ default: m.PenTestPlanApp })));
+const IncidentResponseApp = React.lazy(() => import("@/Apps/IncidentResponseApp").then(m => ({ default: m.IncidentResponseApp })));
+const IAMStudioApp = React.lazy(() => import("@/Apps/IAMStudioApp").then(m => ({ default: m.IAMStudioApp })));
+const EncryptionPlannerApp = React.lazy(() => import("@/Apps/EncryptionPlannerApp").then(m => ({ default: m.EncryptionPlannerApp })));
+const VulnScannerApp = React.lazy(() => import("@/Apps/VulnScannerApp").then(m => ({ default: m.VulnScannerApp })));
+const SecurityAuditStudioApp = React.lazy(() => import("@/Apps/SecurityAuditStudioApp").then(m => ({ default: m.SecurityAuditStudioApp })));
+const CloudSecurityApp = React.lazy(() => import("@/Apps/CloudSecurityApp").then(m => ({ default: m.CloudSecurityApp })));
+const NetworkDefenseApp = React.lazy(() => import("@/Apps/NetworkDefenseApp").then(m => ({ default: m.NetworkDefenseApp })));
+const AppSecurityApp = React.lazy(() => import("@/Apps/AppSecurityApp").then(m => ({ default: m.AppSecurityApp })));
+const EndpointSecurityApp = React.lazy(() => import("@/Apps/EndpointSecurityApp").then(m => ({ default: m.EndpointSecurityApp })));
+const SecureSDLCApp = React.lazy(() => import("@/Apps/SecureSDLCApp").then(m => ({ default: m.SecureSDLCApp })));
+const PrivacyByDesignApp = React.lazy(() => import("@/Apps/PrivacyByDesignApp").then(m => ({ default: m.PrivacyByDesignApp })));
+const CyberResilienceApp = React.lazy(() => import("@/Apps/CyberResilienceApp").then(m => ({ default: m.CyberResilienceApp })));
+const RedTeamPlannerApp = React.lazy(() => import("@/Apps/RedTeamPlannerApp").then(m => ({ default: m.RedTeamPlannerApp })));
+const SecurityPostureApp = React.lazy(() => import("@/Apps/SecurityPostureApp").then(m => ({ default: m.SecurityPostureApp })));
+const CveTrackerApp = React.lazy(() => import("@/Apps/CveTrackerApp").then(m => ({ default: m.CveTrackerApp })));
+const SecurityPolicyApp = React.lazy(() => import("@/Apps/SecurityPolicyApp").then(m => ({ default: m.SecurityPolicyApp })));
+const FinancialModelerApp = React.lazy(() => import("@/Apps/FinancialModelerApp").then(m => ({ default: m.FinancialModelerApp })));
+const RevenueRecognitionApp = React.lazy(() => import("@/Apps/RevenueRecognitionApp").then(m => ({ default: m.RevenueRecognitionApp })));
+const CashFlowPlannerApp = React.lazy(() => import("@/Apps/CashFlowPlannerApp").then(m => ({ default: m.CashFlowPlannerApp })));
+const InvestmentThesisApp = React.lazy(() => import("@/Apps/InvestmentThesisApp").then(m => ({ default: m.InvestmentThesisApp })));
+const FundraisingStudioApp = React.lazy(() => import("@/Apps/FundraisingStudioApp").then(m => ({ default: m.FundraisingStudioApp })));
+const TaxStrategyApp = React.lazy(() => import("@/Apps/TaxStrategyApp").then(m => ({ default: m.TaxStrategyApp })));
+const EquityPlannerApp = React.lazy(() => import("@/Apps/EquityPlannerApp").then(m => ({ default: m.EquityPlannerApp })));
+const UnitEconomicsApp = React.lazy(() => import("@/Apps/UnitEconomicsApp").then(m => ({ default: m.UnitEconomicsApp })));
+const AuditPrepApp = React.lazy(() => import("@/Apps/AuditPrepApp").then(m => ({ default: m.AuditPrepApp })));
+const BudgetBuilderApp = React.lazy(() => import("@/Apps/BudgetBuilderApp").then(m => ({ default: m.BudgetBuilderApp })));
+const MAAnalyzerApp = React.lazy(() => import("@/Apps/MAAnalyzerApp").then(m => ({ default: m.MAAnalyzerApp })));
+const IPOReadinessApp = React.lazy(() => import("@/Apps/IPOReadinessApp").then(m => ({ default: m.IPOReadinessApp })));
+const GrantWriterApp = React.lazy(() => import("@/Apps/GrantWriterApp").then(m => ({ default: m.GrantWriterApp })));
+const CryptoTokenomicsApp = React.lazy(() => import("@/Apps/CryptoTokenomicsApp").then(m => ({ default: m.CryptoTokenomicsApp })));
+const InsurancePlannerApp = React.lazy(() => import("@/Apps/InsurancePlannerApp").then(m => ({ default: m.InsurancePlannerApp })));
+const DebtStructureApp = React.lazy(() => import("@/Apps/DebtStructureApp").then(m => ({ default: m.DebtStructureApp })));
+const FPADashboardApp = React.lazy(() => import("@/Apps/FPADashboardApp").then(m => ({ default: m.FPADashboardApp })));
+const TreasuryManagerApp = React.lazy(() => import("@/Apps/TreasuryManagerApp").then(m => ({ default: m.TreasuryManagerApp })));
+const FinanceReportApp = React.lazy(() => import("@/Apps/FinanceReportApp").then(m => ({ default: m.FinanceReportApp })));
+const CapTableApp = React.lazy(() => import("@/Apps/CapTableApp").then(m => ({ default: m.CapTableApp })));
+const EHRIntegrationApp = React.lazy(() => import("@/Apps/EHRIntegrationApp").then(m => ({ default: m.EHRIntegrationApp })));
+const ClinicalWorkflowApp = React.lazy(() => import("@/Apps/ClinicalWorkflowApp").then(m => ({ default: m.ClinicalWorkflowApp })));
+const PatientEngagementApp = React.lazy(() => import("@/Apps/PatientEngagementApp").then(m => ({ default: m.PatientEngagementApp })));
+const HealthcareComplianceApp = React.lazy(() => import("@/Apps/HealthcareComplianceApp").then(m => ({ default: m.HealthcareComplianceApp })));
+const TelehealthBuilderApp = React.lazy(() => import("@/Apps/TelehealthBuilderApp").then(m => ({ default: m.TelehealthBuilderApp })));
+const ClinicalTrialApp = React.lazy(() => import("@/Apps/ClinicalTrialApp").then(m => ({ default: m.ClinicalTrialApp })));
+const MedicalCodingApp = React.lazy(() => import("@/Apps/MedicalCodingApp").then(m => ({ default: m.MedicalCodingApp })));
+const HealthAnalyticsApp = React.lazy(() => import("@/Apps/HealthAnalyticsApp").then(m => ({ default: m.HealthAnalyticsApp })));
+const CareCoordinationApp = React.lazy(() => import("@/Apps/CareCoordinationApp").then(m => ({ default: m.CareCoordinationApp })));
+const HealthcareAPIApp = React.lazy(() => import("@/Apps/HealthcareAPIApp").then(m => ({ default: m.HealthcareAPIApp })));
+const MentalHealthPlatformApp = React.lazy(() => import("@/Apps/MentalHealthPlatformApp").then(m => ({ default: m.MentalHealthPlatformApp })));
+const HomeHealthOSApp = React.lazy(() => import("@/Apps/HomeHealthOSApp").then(m => ({ default: m.HomeHealthOSApp })));
+const PharmacyOSApp = React.lazy(() => import("@/Apps/PharmacyOSApp").then(m => ({ default: m.PharmacyOSApp })));
+const MedicalDeviceApp = React.lazy(() => import("@/Apps/MedicalDeviceApp").then(m => ({ default: m.MedicalDeviceApp })));
+const HealthDataGovernanceApp = React.lazy(() => import("@/Apps/HealthDataGovernanceApp").then(m => ({ default: m.HealthDataGovernanceApp })));
+const ClinicalDecisionApp = React.lazy(() => import("@/Apps/ClinicalDecisionApp").then(m => ({ default: m.ClinicalDecisionApp })));
+const HealthBillingApp = React.lazy(() => import("@/Apps/HealthBillingApp").then(m => ({ default: m.HealthBillingApp })));
+const PopulationHealthApp = React.lazy(() => import("@/Apps/PopulationHealthApp").then(m => ({ default: m.PopulationHealthApp })));
+const HIPAADashboardApp = React.lazy(() => import("@/Apps/HIPAADashboardApp").then(m => ({ default: m.HIPAADashboardApp })));
+const FHIRBuilderApp = React.lazy(() => import("@/Apps/FHIRBuilderApp").then(m => ({ default: m.FHIRBuilderApp })));
+const LearningPathBuilderApp = React.lazy(() => import("@/Apps/LearningPathBuilderApp").then(m => ({ default: m.LearningPathBuilderApp })));
+const AssessmentBuilderApp = React.lazy(() => import("@/Apps/AssessmentBuilderApp").then(m => ({ default: m.AssessmentBuilderApp })));
+const StudentEngagementApp = React.lazy(() => import("@/Apps/StudentEngagementApp").then(m => ({ default: m.StudentEngagementApp })));
+const LMSBuilderApp = React.lazy(() => import("@/Apps/LMSBuilderApp").then(m => ({ default: m.LMSBuilderApp })));
+const EdTechStackApp = React.lazy(() => import("@/Apps/EdTechStackApp").then(m => ({ default: m.EdTechStackApp })));
+const EduAccessibilityApp = React.lazy(() => import("@/Apps/EduAccessibilityApp").then(m => ({ default: m.EduAccessibilityApp })));
+const InstructionalDesignApp = React.lazy(() => import("@/Apps/InstructionalDesignApp").then(m => ({ default: m.InstructionalDesignApp })));
+const MicrolearningStudioApp = React.lazy(() => import("@/Apps/MicrolearningStudioApp").then(m => ({ default: m.MicrolearningStudioApp })));
+const GameLearningApp = React.lazy(() => import("@/Apps/GameLearningApp").then(m => ({ default: m.GameLearningApp })));
+const VirtualClassroomApp = React.lazy(() => import("@/Apps/VirtualClassroomApp").then(m => ({ default: m.VirtualClassroomApp })));
+const CredentialBuilderApp = React.lazy(() => import("@/Apps/CredentialBuilderApp").then(m => ({ default: m.CredentialBuilderApp })));
+const AdaptiveLearningApp = React.lazy(() => import("@/Apps/AdaptiveLearningApp").then(m => ({ default: m.AdaptiveLearningApp })));
+const ParentPortalApp = React.lazy(() => import("@/Apps/ParentPortalApp").then(m => ({ default: m.ParentPortalApp })));
+const TeacherToolboxApp = React.lazy(() => import("@/Apps/TeacherToolboxApp").then(m => ({ default: m.TeacherToolboxApp })));
+const K12PlatformApp = React.lazy(() => import("@/Apps/K12PlatformApp").then(m => ({ default: m.K12PlatformApp })));
+const HigherEduOSApp = React.lazy(() => import("@/Apps/HigherEduOSApp").then(m => ({ default: m.HigherEduOSApp })));
+const ContinuingEduApp = React.lazy(() => import("@/Apps/ContinuingEduApp").then(m => ({ default: m.ContinuingEduApp })));
+const SchoolAnalyticsApp = React.lazy(() => import("@/Apps/SchoolAnalyticsApp").then(m => ({ default: m.SchoolAnalyticsApp })));
+const EduMarketplaceApp = React.lazy(() => import("@/Apps/EduMarketplaceApp").then(m => ({ default: m.EduMarketplaceApp })));
+const SupplyChainOSApp = React.lazy(() => import("@/Apps/SupplyChainOSApp").then(m => ({ default: m.SupplyChainOSApp })));
+const InventoryOSApp = React.lazy(() => import("@/Apps/InventoryOSApp").then(m => ({ default: m.InventoryOSApp })));
+const QualityManagementApp = React.lazy(() => import("@/Apps/QualityManagementApp").then(m => ({ default: m.QualityManagementApp })));
+const FacilitiesOSApp = React.lazy(() => import("@/Apps/FacilitiesOSApp").then(m => ({ default: m.FacilitiesOSApp })));
+const ProcessMinerApp = React.lazy(() => import("@/Apps/ProcessMinerApp").then(m => ({ default: m.ProcessMinerApp })));
+const LogisticsOSApp = React.lazy(() => import("@/Apps/LogisticsOSApp").then(m => ({ default: m.LogisticsOSApp })));
+const ProcurementOSApp = React.lazy(() => import("@/Apps/ProcurementOSApp").then(m => ({ default: m.ProcurementOSApp })));
+const VendorOSApp = React.lazy(() => import("@/Apps/VendorOSApp").then(m => ({ default: m.VendorOSApp })));
+const OpsAnalyticsApp = React.lazy(() => import("@/Apps/OpsAnalyticsApp").then(m => ({ default: m.OpsAnalyticsApp })));
+const LeanSigmaApp = React.lazy(() => import("@/Apps/LeanSigmaApp").then(m => ({ default: m.LeanSigmaApp })));
+const ChangeManagementApp = React.lazy(() => import("@/Apps/ChangeManagementApp").then(m => ({ default: m.ChangeManagementApp })));
+const BCPBuilderApp = React.lazy(() => import("@/Apps/BCPBuilderApp").then(m => ({ default: m.BCPBuilderApp })));
+const KPIBuilderApp = React.lazy(() => import("@/Apps/KPIBuilderApp").then(m => ({ default: m.KPIBuilderApp })));
+const WorkflowRPAApp = React.lazy(() => import("@/Apps/WorkflowRPAApp").then(m => ({ default: m.WorkflowRPAApp })));
+const FieldOpsApp = React.lazy(() => import("@/Apps/FieldOpsApp").then(m => ({ default: m.FieldOpsApp })));
+const CapacityPlannerApp = React.lazy(() => import("@/Apps/CapacityPlannerApp").then(m => ({ default: m.CapacityPlannerApp })));
+const OKRStudioApp = React.lazy(() => import("@/Apps/OKRStudioApp").then(m => ({ default: m.OKRStudioApp })));
+const OpExDashboardApp = React.lazy(() => import("@/Apps/OpExDashboardApp").then(m => ({ default: m.OpExDashboardApp })));
+const SLAManagerApp = React.lazy(() => import("@/Apps/SLAManagerApp").then(m => ({ default: m.SLAManagerApp })));
+const OperationsWikiApp = React.lazy(() => import("@/Apps/OperationsWikiApp").then(m => ({ default: m.OperationsWikiApp })));
+const ESGReporterApp = React.lazy(() => import("@/Apps/ESGReporterApp").then(m => ({ default: m.ESGReporterApp })));
+const CarbonTrackerApp = React.lazy(() => import("@/Apps/CarbonTrackerApp").then(m => ({ default: m.CarbonTrackerApp })));
+const SustainabilityPlannerApp = React.lazy(() => import("@/Apps/SustainabilityPlannerApp").then(m => ({ default: m.SustainabilityPlannerApp })));
+const CircularEconomyApp = React.lazy(() => import("@/Apps/CircularEconomyApp").then(m => ({ default: m.CircularEconomyApp })));
+const RenewableEnergyApp = React.lazy(() => import("@/Apps/RenewableEnergyApp").then(m => ({ default: m.RenewableEnergyApp })));
+const SustainableSupplyApp = React.lazy(() => import("@/Apps/SustainableSupplyApp").then(m => ({ default: m.SustainableSupplyApp })));
+const GreenBuildingApp = React.lazy(() => import("@/Apps/GreenBuildingApp").then(m => ({ default: m.GreenBuildingApp })));
+const WasteTrackerApp = React.lazy(() => import("@/Apps/WasteTrackerApp").then(m => ({ default: m.WasteTrackerApp })));
+const WaterStewardshipApp = React.lazy(() => import("@/Apps/WaterStewardshipApp").then(m => ({ default: m.WaterStewardshipApp })));
+const BiodiversityApp = React.lazy(() => import("@/Apps/BiodiversityApp").then(m => ({ default: m.BiodiversityApp })));
+const SocialImpactApp = React.lazy(() => import("@/Apps/SocialImpactApp").then(m => ({ default: m.SocialImpactApp })));
+const GreenFinanceApp = React.lazy(() => import("@/Apps/GreenFinanceApp").then(m => ({ default: m.GreenFinanceApp })));
+const LCABuilderApp = React.lazy(() => import("@/Apps/LCABuilderApp").then(m => ({ default: m.LCABuilderApp })));
+const ClimateRiskApp = React.lazy(() => import("@/Apps/ClimateRiskApp").then(m => ({ default: m.ClimateRiskApp })));
+const SustainabilityReportApp = React.lazy(() => import("@/Apps/SustainabilityReportApp").then(m => ({ default: m.SustainabilityReportApp })));
+const SDGAlignmentApp = React.lazy(() => import("@/Apps/SDGAlignmentApp").then(m => ({ default: m.SDGAlignmentApp })));
+const CorpSustainabilityApp = React.lazy(() => import("@/Apps/CorpSustainabilityApp").then(m => ({ default: m.CorpSustainabilityApp })));
+const EnvironmentalOSApp = React.lazy(() => import("@/Apps/EnvironmentalOSApp").then(m => ({ default: m.EnvironmentalOSApp })));
+const NetZeroRoadmapApp = React.lazy(() => import("@/Apps/NetZeroRoadmapApp").then(m => ({ default: m.NetZeroRoadmapApp })));
+const GreenProcurementApp = React.lazy(() => import("@/Apps/GreenProcurementApp").then(m => ({ default: m.GreenProcurementApp })));
+const TalentAcquisitionApp = React.lazy(() => import("@/Apps/TalentAcquisitionApp").then(m => ({ default: m.TalentAcquisitionApp })));
+const EmployeeExperienceApp = React.lazy(() => import("@/Apps/EmployeeExperienceApp").then(m => ({ default: m.EmployeeExperienceApp })));
+const PerformanceOSApp = React.lazy(() => import("@/Apps/PerformanceOSApp").then(m => ({ default: m.PerformanceOSApp })));
+const LDStudioApp = React.lazy(() => import("@/Apps/LDStudioApp").then(m => ({ default: m.LDStudioApp })));
+const CompBenchmarkApp = React.lazy(() => import("@/Apps/CompBenchmarkApp").then(m => ({ default: m.CompBenchmarkApp })));
+const WorkforcePlannerApp = React.lazy(() => import("@/Apps/WorkforcePlannerApp").then(m => ({ default: m.WorkforcePlannerApp })));
+const DEIStudioApp = React.lazy(() => import("@/Apps/DEIStudioApp").then(m => ({ default: m.DEIStudioApp })));
+const OffboardingApp = React.lazy(() => import("@/Apps/OffboardingApp").then(m => ({ default: m.OffboardingApp })));
+const HRAnalyticsApp = React.lazy(() => import("@/Apps/HRAnalyticsApp").then(m => ({ default: m.HRAnalyticsApp })));
+const EngagementSurveyApp = React.lazy(() => import("@/Apps/EngagementSurveyApp").then(m => ({ default: m.EngagementSurveyApp })));
+const SuccessionPlannerApp = React.lazy(() => import("@/Apps/SuccessionPlannerApp").then(m => ({ default: m.SuccessionPlannerApp })));
+const HRISDesignerApp = React.lazy(() => import("@/Apps/HRISDesignerApp").then(m => ({ default: m.HRISDesignerApp })));
+const RemoteWorkOSApp = React.lazy(() => import("@/Apps/RemoteWorkOSApp").then(m => ({ default: m.RemoteWorkOSApp })));
+const OrgDesignApp = React.lazy(() => import("@/Apps/OrgDesignApp").then(m => ({ default: m.OrgDesignApp })));
+const EmployerBrandingApp = React.lazy(() => import("@/Apps/EmployerBrandingApp").then(m => ({ default: m.EmployerBrandingApp })));
+const HRComplianceApp = React.lazy(() => import("@/Apps/HRComplianceApp").then(m => ({ default: m.HRComplianceApp })));
+const WellnessProgramApp = React.lazy(() => import("@/Apps/WellnessProgramApp").then(m => ({ default: m.WellnessProgramApp })));
+const TalentPipelineApp = React.lazy(() => import("@/Apps/TalentPipelineApp").then(m => ({ default: m.TalentPipelineApp })));
+const OnboardingOSApp = React.lazy(() => import("@/Apps/OnboardingOSApp").then(m => ({ default: m.OnboardingOSApp })));
+const PeopleOpsApp = React.lazy(() => import("@/Apps/PeopleOpsApp").then(m => ({ default: m.PeopleOpsApp })));
+const LegalResearchApp = React.lazy(() => import("@/Apps/LegalResearchApp").then(m => ({ default: m.LegalResearchApp })));
+const ComplianceMappingApp = React.lazy(() => import("@/Apps/ComplianceMappingApp").then(m => ({ default: m.ComplianceMappingApp })));
+const LegalRiskApp = React.lazy(() => import("@/Apps/LegalRiskApp").then(m => ({ default: m.LegalRiskApp })));
+const IPStrategyApp = React.lazy(() => import("@/Apps/IPStrategyApp").then(m => ({ default: m.IPStrategyApp })));
+const LitigationPlannerApp = React.lazy(() => import("@/Apps/LitigationPlannerApp").then(m => ({ default: m.LitigationPlannerApp })));
+const CorporateGovernanceApp = React.lazy(() => import("@/Apps/CorporateGovernanceApp").then(m => ({ default: m.CorporateGovernanceApp })));
+const LegalTemplateApp = React.lazy(() => import("@/Apps/LegalTemplateApp").then(m => ({ default: m.LegalTemplateApp })));
+const DueDiligenceApp = React.lazy(() => import("@/Apps/DueDiligenceApp").then(m => ({ default: m.DueDiligenceApp })));
+const PrivacyLawApp = React.lazy(() => import("@/Apps/PrivacyLawApp").then(m => ({ default: m.PrivacyLawApp })));
+const LaborLawApp = React.lazy(() => import("@/Apps/LaborLawApp").then(m => ({ default: m.LaborLawApp })));
+const TradeComplianceApp = React.lazy(() => import("@/Apps/TradeComplianceApp").then(m => ({ default: m.TradeComplianceApp })));
+const RegulatoryFilingApp = React.lazy(() => import("@/Apps/RegulatoryFilingApp").then(m => ({ default: m.RegulatoryFilingApp })));
+const LegalAnalyticsApp = React.lazy(() => import("@/Apps/LegalAnalyticsApp").then(m => ({ default: m.LegalAnalyticsApp })));
+const ADRStudioApp = React.lazy(() => import("@/Apps/ADRStudioApp").then(m => ({ default: m.ADRStudioApp })));
+const ProductDiscoveryApp = React.lazy(() => import("@/Apps/ProductDiscoveryApp").then(m => ({ default: m.ProductDiscoveryApp })));
+const UserResearchApp = React.lazy(() => import("@/Apps/UserResearchApp").then(m => ({ default: m.UserResearchApp })));
+const JTBDStudioApp = React.lazy(() => import("@/Apps/JTBDStudioApp").then(m => ({ default: m.JTBDStudioApp })));
+const RoadmapBuilderApp = React.lazy(() => import("@/Apps/RoadmapBuilderApp").then(m => ({ default: m.RoadmapBuilderApp })));
+const FeaturePrioritizerApp = React.lazy(() => import("@/Apps/FeaturePrioritizerApp").then(m => ({ default: m.FeaturePrioritizerApp })));
+const UserStoryMapperApp = React.lazy(() => import("@/Apps/UserStoryMapperApp").then(m => ({ default: m.UserStoryMapperApp })));
+const DesignSprintApp = React.lazy(() => import("@/Apps/DesignSprintApp").then(m => ({ default: m.DesignSprintApp })));
+const PrototypingStudioApp = React.lazy(() => import("@/Apps/PrototypingStudioApp").then(m => ({ default: m.PrototypingStudioApp })));
+const UsabilityTestApp = React.lazy(() => import("@/Apps/UsabilityTestApp").then(m => ({ default: m.UsabilityTestApp })));
+const ProductMetricsApp = React.lazy(() => import("@/Apps/ProductMetricsApp").then(m => ({ default: m.ProductMetricsApp })));
+const CompetitiveProductApp = React.lazy(() => import("@/Apps/CompetitiveProductApp").then(m => ({ default: m.CompetitiveProductApp })));
+const LaunchPlannerApp = React.lazy(() => import("@/Apps/LaunchPlannerApp").then(m => ({ default: m.LaunchPlannerApp })));
+const FeedbackSystemApp = React.lazy(() => import("@/Apps/FeedbackSystemApp").then(m => ({ default: m.FeedbackSystemApp })));
+const DesignSystemBuilderApp = React.lazy(() => import("@/Apps/DesignSystemBuilderApp").then(m => ({ default: m.DesignSystemBuilderApp })));
+const ProductCultureApp = React.lazy(() => import("@/Apps/ProductCultureApp").then(m => ({ default: m.ProductCultureApp })));
+const PrimaryResearchApp = React.lazy(() => import("@/Apps/PrimaryResearchApp").then(m => ({ default: m.PrimaryResearchApp })));
+const MarketSurveyApp = React.lazy(() => import("@/Apps/MarketSurveyApp").then(m => ({ default: m.MarketSurveyApp })));
+const CIFrameworkApp = React.lazy(() => import("@/Apps/CIFrameworkApp").then(m => ({ default: m.CIFrameworkApp })));
+const InsightSynthesisApp = React.lazy(() => import("@/Apps/InsightSynthesisApp").then(m => ({ default: m.InsightSynthesisApp })));
+const ResearchReportApp = React.lazy(() => import("@/Apps/ResearchReportApp").then(m => ({ default: m.ResearchReportApp })));
+const DataCollectionApp = React.lazy(() => import("@/Apps/DataCollectionApp").then(m => ({ default: m.DataCollectionApp })));
+const HypothesisBuilderApp = React.lazy(() => import("@/Apps/HypothesisBuilderApp").then(m => ({ default: m.HypothesisBuilderApp })));
+const ExperimentDesignApp = React.lazy(() => import("@/Apps/ExperimentDesignApp").then(m => ({ default: m.ExperimentDesignApp })));
+const StatAnalyticsApp = React.lazy(() => import("@/Apps/StatAnalyticsApp").then(m => ({ default: m.StatAnalyticsApp })));
+const EthnographicResearchApp = React.lazy(() => import("@/Apps/EthnographicResearchApp").then(m => ({ default: m.EthnographicResearchApp })));
+const ResearchMethodApp = React.lazy(() => import("@/Apps/ResearchMethodApp").then(m => ({ default: m.ResearchMethodApp })));
+const KnowledgeBaseApp = React.lazy(() => import("@/Apps/KnowledgeBaseApp").then(m => ({ default: m.KnowledgeBaseApp })));
+const TrendsSentinelApp = React.lazy(() => import("@/Apps/TrendsSentinelApp").then(m => ({ default: m.TrendsSentinelApp })));
+const APIPlaygroundApp = React.lazy(() => import("@/Apps/APIPlaygroundApp").then(m => ({ default: m.APIPlaygroundApp })));
+const DatabaseStudioApp = React.lazy(() => import("@/Apps/DatabaseStudioApp").then(m => ({ default: m.DatabaseStudioApp })));
+const IntegrationBuilderApp = React.lazy(() => import("@/Apps/IntegrationBuilderApp").then(m => ({ default: m.IntegrationBuilderApp })));
+const WebhookManagerApp = React.lazy(() => import("@/Apps/WebhookManagerApp").then(m => ({ default: m.WebhookManagerApp })));
+const DataPipelineApp = React.lazy(() => import("@/Apps/DataPipelineApp").then(m => ({ default: m.DataPipelineApp })));
+const EventStreamApp = React.lazy(() => import("@/Apps/EventStreamApp").then(m => ({ default: m.EventStreamApp })));
+const NotificationBuilderApp = React.lazy(() => import("@/Apps/NotificationBuilderApp").then(m => ({ default: m.NotificationBuilderApp })));
+const WorkspaceOSApp = React.lazy(() => import("@/Apps/WorkspaceOSApp").then(m => ({ default: m.WorkspaceOSApp })));
+const SearchStudioApp = React.lazy(() => import("@/Apps/SearchStudioApp").then(m => ({ default: m.SearchStudioApp })));
+const AIAgentBuilderApp = React.lazy(() => import("@/Apps/AIAgentBuilderApp").then(m => ({ default: m.AIAgentBuilderApp })));
+const PluginManagerApp = React.lazy(() => import("@/Apps/PluginManagerApp").then(m => ({ default: m.PluginManagerApp })));
+const ExtensionStoreApp = React.lazy(() => import("@/Apps/ExtensionStoreApp").then(m => ({ default: m.ExtensionStoreApp })));
+const WidgetBuilderApp = React.lazy(() => import("@/Apps/WidgetBuilderApp").then(m => ({ default: m.WidgetBuilderApp })));
+const DashboardBuilderApp = React.lazy(() => import("@/Apps/DashboardBuilderApp").then(m => ({ default: m.DashboardBuilderApp })));
+const ReportingStudioApp = React.lazy(() => import("@/Apps/ReportingStudioApp").then(m => ({ default: m.ReportingStudioApp })));
+const AutomationCenterApp = React.lazy(() => import("@/Apps/AutomationCenterApp").then(m => ({ default: m.AutomationCenterApp })));
+const WorkflowBuilderApp = React.lazy(() => import("@/Apps/WorkflowBuilderApp").then(m => ({ default: m.WorkflowBuilderApp })));
+const TriggerManagerApp = React.lazy(() => import("@/Apps/TriggerManagerApp").then(m => ({ default: m.TriggerManagerApp })));
+const SchedulerApp = React.lazy(() => import("@/Apps/SchedulerApp").then(m => ({ default: m.SchedulerApp })));
+const JobManagerApp = React.lazy(() => import("@/Apps/JobManagerApp").then(m => ({ default: m.JobManagerApp })));
+const BatchProcessorApp = React.lazy(() => import("@/Apps/BatchProcessorApp").then(m => ({ default: m.BatchProcessorApp })));
+const DataTransformerApp = React.lazy(() => import("@/Apps/DataTransformerApp").then(m => ({ default: m.DataTransformerApp })));
+const MappingStudioApp = React.lazy(() => import("@/Apps/MappingStudioApp").then(m => ({ default: m.MappingStudioApp })));
+const SchemaBuilderApp = React.lazy(() => import("@/Apps/SchemaBuilderApp").then(m => ({ default: m.SchemaBuilderApp })));
+const ConfigManagerApp = React.lazy(() => import("@/Apps/ConfigManagerApp").then(m => ({ default: m.ConfigManagerApp })));
+
 // ── App registry ─────────────────────────────────────────────────────────────
 const APP_COMPONENTS: Record<AppId, React.LazyExoticComponent<React.ComponentType<any>>> = {
   // Core
@@ -291,6 +499,213 @@ const APP_COMPONENTS: Record<AppId, React.LazyExoticComponent<React.ComponentTyp
   // Education
   lessonplanner:      LessonPlannerApp,
   curriculumdesigner: CurriculumDesignerApp,
+  // Enterprise Suite
+  zeroTrust: ZeroTrustApp,
+  threatModel: ThreatModelApp,
+  socDashboard: SOCDashboardApp,
+  penTestPlan: PenTestPlanApp,
+  incidentResponse: IncidentResponseApp,
+  iamStudio: IAMStudioApp,
+  encryptionPlanner: EncryptionPlannerApp,
+  vulnScanner: VulnScannerApp,
+  securityAuditStudio: SecurityAuditStudioApp,
+  cloudSecurity: CloudSecurityApp,
+  networkDefense: NetworkDefenseApp,
+  appSecurity: AppSecurityApp,
+  endpointSecurity: EndpointSecurityApp,
+  secureSDLC: SecureSDLCApp,
+  privacyByDesign: PrivacyByDesignApp,
+  cyberResilience: CyberResilienceApp,
+  redTeamPlanner: RedTeamPlannerApp,
+  securityPosture: SecurityPostureApp,
+  cveTracker: CveTrackerApp,
+  securityPolicy: SecurityPolicyApp,
+  financialModeler: FinancialModelerApp,
+  revenueRecognition: RevenueRecognitionApp,
+  cashFlowPlanner: CashFlowPlannerApp,
+  investmentThesis: InvestmentThesisApp,
+  fundraisingStudio: FundraisingStudioApp,
+  taxStrategy: TaxStrategyApp,
+  equityPlanner: EquityPlannerApp,
+  unitEconomics: UnitEconomicsApp,
+  auditPrep: AuditPrepApp,
+  budgetBuilder: BudgetBuilderApp,
+  maAnalyzer: MAAnalyzerApp,
+  ipoReadiness: IPOReadinessApp,
+  grantWriter: GrantWriterApp,
+  cryptoTokenomics: CryptoTokenomicsApp,
+  insurancePlanner: InsurancePlannerApp,
+  debtStructure: DebtStructureApp,
+  fpaDashboard: FPADashboardApp,
+  treasuryManager: TreasuryManagerApp,
+  financeReport: FinanceReportApp,
+  capTable: CapTableApp,
+  ehrIntegration: EHRIntegrationApp,
+  clinicalWorkflow: ClinicalWorkflowApp,
+  patientEngagement: PatientEngagementApp,
+  healthcareCompliance: HealthcareComplianceApp,
+  telehealthBuilder: TelehealthBuilderApp,
+  clinicalTrial: ClinicalTrialApp,
+  medicalCoding: MedicalCodingApp,
+  healthAnalytics: HealthAnalyticsApp,
+  careCoordination: CareCoordinationApp,
+  healthcareAPI: HealthcareAPIApp,
+  mentalHealthPlatform: MentalHealthPlatformApp,
+  homeHealthOS: HomeHealthOSApp,
+  pharmacyOS: PharmacyOSApp,
+  medicalDevice: MedicalDeviceApp,
+  healthDataGovernance: HealthDataGovernanceApp,
+  clinicalDecision: ClinicalDecisionApp,
+  healthBilling: HealthBillingApp,
+  populationHealth: PopulationHealthApp,
+  hipaaDashboard: HIPAADashboardApp,
+  fhirBuilder: FHIRBuilderApp,
+  learningPathBuilder: LearningPathBuilderApp,
+  assessmentBuilder: AssessmentBuilderApp,
+  studentEngagement: StudentEngagementApp,
+  lmsBuilder: LMSBuilderApp,
+  edTechStack: EdTechStackApp,
+  eduAccessibility: EduAccessibilityApp,
+  instructionalDesign: InstructionalDesignApp,
+  microlearningStudio: MicrolearningStudioApp,
+  gameLearning: GameLearningApp,
+  virtualClassroom: VirtualClassroomApp,
+  credentialBuilder: CredentialBuilderApp,
+  adaptiveLearning: AdaptiveLearningApp,
+  parentPortal: ParentPortalApp,
+  teacherToolbox: TeacherToolboxApp,
+  k12Platform: K12PlatformApp,
+  higherEduOS: HigherEduOSApp,
+  continuingEdu: ContinuingEduApp,
+  schoolAnalytics: SchoolAnalyticsApp,
+  eduMarketplace: EduMarketplaceApp,
+  supplyChainOS: SupplyChainOSApp,
+  inventoryOS: InventoryOSApp,
+  qualityManagement: QualityManagementApp,
+  facilitiesOS: FacilitiesOSApp,
+  processMiner: ProcessMinerApp,
+  logisticsOS: LogisticsOSApp,
+  procurementOS: ProcurementOSApp,
+  vendorOS: VendorOSApp,
+  opsAnalytics: OpsAnalyticsApp,
+  leanSigma: LeanSigmaApp,
+  changeManagement: ChangeManagementApp,
+  bcpBuilder: BCPBuilderApp,
+  kpiBuilder: KPIBuilderApp,
+  workflowRPA: WorkflowRPAApp,
+  fieldOps: FieldOpsApp,
+  capacityPlanner: CapacityPlannerApp,
+  okrStudio: OKRStudioApp,
+  opExDashboard: OpExDashboardApp,
+  slaManager: SLAManagerApp,
+  operationsWiki: OperationsWikiApp,
+  esgReporter: ESGReporterApp,
+  carbonTracker: CarbonTrackerApp,
+  sustainabilityPlanner: SustainabilityPlannerApp,
+  circularEconomy: CircularEconomyApp,
+  renewableEnergy: RenewableEnergyApp,
+  sustainableSupply: SustainableSupplyApp,
+  greenBuilding: GreenBuildingApp,
+  wasteTracker: WasteTrackerApp,
+  waterStewardship: WaterStewardshipApp,
+  biodiversity: BiodiversityApp,
+  socialImpact: SocialImpactApp,
+  greenFinance: GreenFinanceApp,
+  lcaBuilder: LCABuilderApp,
+  climateRisk: ClimateRiskApp,
+  sustainabilityReport: SustainabilityReportApp,
+  sdgAlignment: SDGAlignmentApp,
+  corpSustainability: CorpSustainabilityApp,
+  environmentalOS: EnvironmentalOSApp,
+  netZeroRoadmap: NetZeroRoadmapApp,
+  greenProcurement: GreenProcurementApp,
+  talentAcquisition: TalentAcquisitionApp,
+  employeeExperience: EmployeeExperienceApp,
+  performanceOS: PerformanceOSApp,
+  ldStudio: LDStudioApp,
+  compBenchmark: CompBenchmarkApp,
+  workforcePlanner: WorkforcePlannerApp,
+  deiStudio: DEIStudioApp,
+  offboarding: OffboardingApp,
+  hrAnalytics: HRAnalyticsApp,
+  engagementSurvey: EngagementSurveyApp,
+  successionPlanner: SuccessionPlannerApp,
+  hrisDesigner: HRISDesignerApp,
+  remoteWorkOS: RemoteWorkOSApp,
+  orgDesign: OrgDesignApp,
+  employerBranding: EmployerBrandingApp,
+  hrCompliance: HRComplianceApp,
+  wellnessProgram: WellnessProgramApp,
+  talentPipeline: TalentPipelineApp,
+  onboardingOS: OnboardingOSApp,
+  peopleOps: PeopleOpsApp,
+  legalResearch: LegalResearchApp,
+  complianceMapping: ComplianceMappingApp,
+  legalRisk: LegalRiskApp,
+  ipStrategy: IPStrategyApp,
+  litigationPlanner: LitigationPlannerApp,
+  corporateGovernance: CorporateGovernanceApp,
+  legalTemplate: LegalTemplateApp,
+  dueDiligence: DueDiligenceApp,
+  privacyLaw: PrivacyLawApp,
+  laborLaw: LaborLawApp,
+  tradeCompliance: TradeComplianceApp,
+  regulatoryFiling: RegulatoryFilingApp,
+  legalAnalytics: LegalAnalyticsApp,
+  adrStudio: ADRStudioApp,
+  productDiscovery: ProductDiscoveryApp,
+  userResearch: UserResearchApp,
+  jtbdStudio: JTBDStudioApp,
+  roadmapBuilder: RoadmapBuilderApp,
+  featurePrioritizer: FeaturePrioritizerApp,
+  userStoryMapper: UserStoryMapperApp,
+  designSprint: DesignSprintApp,
+  prototypingStudio: PrototypingStudioApp,
+  usabilityTest: UsabilityTestApp,
+  productMetrics: ProductMetricsApp,
+  competitiveProduct: CompetitiveProductApp,
+  launchPlanner: LaunchPlannerApp,
+  feedbackSystem: FeedbackSystemApp,
+  designSystemBuilder: DesignSystemBuilderApp,
+  productCulture: ProductCultureApp,
+  primaryResearch: PrimaryResearchApp,
+  marketSurvey: MarketSurveyApp,
+  ciFramework: CIFrameworkApp,
+  insightSynthesis: InsightSynthesisApp,
+  researchReport: ResearchReportApp,
+  dataCollection: DataCollectionApp,
+  hypothesisBuilder: HypothesisBuilderApp,
+  experimentDesign: ExperimentDesignApp,
+  statAnalytics: StatAnalyticsApp,
+  ethnographicResearch: EthnographicResearchApp,
+  researchMethod: ResearchMethodApp,
+  knowledgeBase: KnowledgeBaseApp,
+  trendsSentinel: TrendsSentinelApp,
+  apiPlayground: APIPlaygroundApp,
+  databaseStudio: DatabaseStudioApp,
+  integrationBuilder: IntegrationBuilderApp,
+  webhookManager: WebhookManagerApp,
+  dataPipeline: DataPipelineApp,
+  eventStream: EventStreamApp,
+  notificationBuilder: NotificationBuilderApp,
+  workspaceOS: WorkspaceOSApp,
+  searchStudio: SearchStudioApp,
+  aiAgentBuilder: AIAgentBuilderApp,
+  pluginManager: PluginManagerApp,
+  extensionStore: ExtensionStoreApp,
+  widgetBuilder: WidgetBuilderApp,
+  dashboardBuilder: DashboardBuilderApp,
+  reportingStudio: ReportingStudioApp,
+  automationCenter: AutomationCenterApp,
+  workflowBuilder: WorkflowBuilderApp,
+  triggerManager: TriggerManagerApp,
+  scheduler: SchedulerApp,
+  jobManager: JobManagerApp,
+  batchProcessor: BatchProcessorApp,
+  dataTransformer: DataTransformerApp,
+  mappingStudio: MappingStudioApp,
+  schemaBuilder: SchemaBuilderApp,
+  configManager: ConfigManagerApp,
   // Platform
   metricsPanel:           MetricsPanelApp,
   integrationDashboard:   IntegrationDashboard,
