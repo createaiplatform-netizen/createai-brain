@@ -24,6 +24,7 @@ import {
   COMMAND_HANDLERS,
 } from "../services/commandProcessor";
 import { expandToLimit, getExpansionHistory } from "../services/expansionEngine";
+import { getConfigurationStatus, runSelfHeal } from "../services/systemConfigurator";
 import { logAudit } from "../services/audit";
 import { db } from "@workspace/db";
 
@@ -216,7 +217,9 @@ router.get("/expand/history", requireFounder, async (_req: Request, res: Respons
 // Public — no auth required
 
 router.get("/health", (_req: Request, res: Response) => {
-  const items = getRegistry();
+  const items  = getRegistry();
+  const config = getConfigurationStatus();
+
   res.json({
     status:               "online",
     commandSystem:        "active",
@@ -224,6 +227,16 @@ router.get("/health", (_req: Request, res: Response) => {
     founderExecution:     "FOUNDER-TIER FULL EXECUTION MODE — ACTIVE",
     executionVersion:     "FOUNDER-EXEC-1.0",
     disabledModes:        ["demo", "preview", "mock", "staging", "limited", "sandbox"],
+    // Configuration lock fields
+    locked:               config?.locked      ?? false,
+    lockedAt:             config?.lockedAt     ?? null,
+    configComplete:       config?.configComplete ?? false,
+    selfHealable:         config?.selfHealable ?? true,
+    selfHealApplied:      config?.selfHealApplied ?? 0,
+    allActive:            config?.allActive    ?? false,
+    allProtected:         config?.allProtected ?? false,
+    allIntegrated:        config?.allIntegrated ?? false,
+    // Registry
     registrySize:         items.length,
     activeItems:          items.filter(i => i.activationState === "on").length,
     integratedItems:      items.filter(i => i.commandCenterConnected).length,
@@ -234,9 +247,72 @@ router.get("/health", (_req: Request, res: Response) => {
     messagingDrafts:      false,
     uptime:               process.uptime(),
     timestamp:            new Date().toISOString(),
-    version:              "CreateAI Brain — Command Processor v1",
+    version:              "CreateAI Brain — Command Processor v2",
     founderTier:          "ACTIVE",
   });
+});
+
+// ─── GET /api/system/config ───────────────────────────────────────────────────
+// Founder-only — full configuration status
+
+router.get("/config", requireFounder, (_req: Request, res: Response) => {
+  const config = getConfigurationStatus();
+  const items  = getRegistry();
+
+  if (!config) {
+    res.json({
+      ok:      false,
+      message: "Configuration finalization pending — server may still be booting",
+      registrySize: items.length,
+    });
+    return;
+  }
+
+  res.json({
+    ok:     true,
+    config,
+    registry: {
+      total:      items.length,
+      active:     items.filter(i => i.activationState === "on").length,
+      integrated: items.filter(i => i.commandCenterConnected).length,
+      protected:  items.filter(i => i.protections.length > 0).length,
+      items:      items.map(i => ({
+        id: i.id, label: i.label, type: i.type,
+        activationState: i.activationState,
+        commandCenterConnected: i.commandCenterConnected,
+        protections: i.protections.length,
+      })),
+    },
+    timestamp: new Date().toISOString(),
+  });
+});
+
+// ─── POST /api/system/self-heal ───────────────────────────────────────────────
+// Founder-only — manually trigger a self-heal pass without restart
+
+router.post("/self-heal", requireFounder, async (req: Request, res: Response) => {
+  console.log(`[system/self-heal] Triggered by ${req.user!.id}`);
+  try {
+    const result = await runSelfHeal();
+
+    await logAudit(db as any, req, {
+      action:       "system.self-heal",
+      resource:     "system:configurator",
+      resourceType: "system",
+      outcome:      "success",
+      metadata:     result,
+    });
+
+    res.json({
+      ok:             true,
+      repaired:       result.repaired,
+      configComplete: result.configComplete,
+      timestamp:      new Date().toISOString(),
+    });
+  } catch (err) {
+    console.error("[system/self-heal] error:", err);
+    res.status(500).json({ error: "Self-heal failed", detail: String(err) });
+  }
 });
 
 export default router;

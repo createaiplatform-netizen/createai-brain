@@ -57,11 +57,21 @@ export function CommandCenterApp() {
     { id: "boot-exec", ts: new Date().toISOString(), kind: "ok", text: "FOUNDER-TIER FULL EXECUTION MODE — ACTIVE (FOUNDER-EXEC-1.0)" },
     { id: "boot-dis",  ts: new Date().toISOString(), kind: "ok", text: "Disabled: Demo Mode · Preview Mode · Mock Mode · Staging Mode · Limited Mode · Sandbox Mode" },
     { id: "boot-msg",  ts: new Date().toISOString(), kind: "ok", text: "Messaging: internal delivery · no confirmation · no drafts · all sends logged" },
-    { id: "boot-sys",  ts: new Date().toISOString(), kind: "ok", text: "System Command Processor v1 — 10 handlers · 19 systems · full capacity. Type a command or 'help'." },
+    { id: "boot-lock", ts: new Date().toISOString(), kind: "ok", text: "Platform configuration locked — self-heal active · all registry items protected · no reversion possible" },
+    { id: "boot-sys",  ts: new Date().toISOString(), kind: "ok", text: "System Command Processor v2 — 10 handlers · 19 systems · 30 registry items · full capacity. Type a command or 'help'." },
   ]);
   const [sysRunning, setSysRunning] = useState(false);
   const [registryStats, setRegistryStats] = useState<{ total: number; active: number; integrated: number; protected: number } | null>(null);
   const sysEndRef = useRef<HTMLDivElement>(null);
+
+  // ── Config lock state ────────────────────────────────────────────────────
+  interface ConfigStatus {
+    locked: boolean; lockedAt: string | null; executionMode: string;
+    configVersion: string; selfHealApplied: number; registrySize: number;
+    allActive: boolean; allProtected: boolean; allIntegrated: boolean;
+    disabledModes: string[]; configComplete: boolean; selfHealable: boolean;
+  }
+  const [configStatus, setConfigStatus] = useState<ConfigStatus | null>(null);
 
   useEffect(() => { sysEndRef.current?.scrollIntoView({ behavior: "smooth" }); }, [sysLogs]);
 
@@ -237,15 +247,24 @@ export function CommandCenterApp() {
     void loadHistory();
   }, [activeTab]);
 
-  // Fetch registry stats when System tab opens
+  // Fetch registry stats when System tab opens; fetch config when Status tab opens
   useEffect(() => {
-    if (activeTab !== "system") return;
-    fetch("/api/system/health", { credentials: "include" })
-      .then(r => r.ok ? r.json() : null)
-      .then((d: { registrySize?: number; activeItems?: number } | null) => {
-        if (d) setRegistryStats({ total: d.registrySize ?? 0, active: d.activeItems ?? 0, integrated: d.activeItems ?? 0, protected: d.activeItems ?? 0 });
-      })
-      .catch(() => {});
+    if (activeTab === "system") {
+      fetch("/api/system/health", { credentials: "include" })
+        .then(r => r.ok ? r.json() : null)
+        .then((d: { registrySize?: number; activeItems?: number } | null) => {
+          if (d) setRegistryStats({ total: d.registrySize ?? 0, active: d.activeItems ?? 0, integrated: d.activeItems ?? 0, protected: d.activeItems ?? 0 });
+        })
+        .catch(() => {});
+    }
+    if (activeTab === "status") {
+      fetch("/api/system/config", { credentials: "include" })
+        .then(r => r.ok ? r.json() : null)
+        .then((d: { ok?: boolean; config?: ConfigStatus } | null) => {
+          if (d?.ok && d.config) setConfigStatus(d.config);
+        })
+        .catch(() => {});
+    }
   }, [activeTab]);
 
   function addSysLog(kind: SysLog["kind"], text: string) {
@@ -427,6 +446,14 @@ export function CommandCenterApp() {
           }}>
             <span style={{ width: 6, height: 6, borderRadius: "50%", background: "#eab308", boxShadow: "0 0 6px #eab308", display: "inline-block" }} />
             <span style={{ fontSize: 10, fontWeight: 700, letterSpacing: "0.08em", color: "#fde047" }}>EXEC MODE: FULL</span>
+          </div>
+          <div style={{
+            display: "flex", alignItems: "center", gap: 6, padding: "4px 10px",
+            background: "rgba(99,102,241,0.10)", border: "1px solid rgba(99,102,241,0.3)",
+            borderRadius: 20, flexShrink: 0,
+          }}>
+            <span style={{ fontSize: 10 }}>🔒</span>
+            <span style={{ fontSize: 10, fontWeight: 700, letterSpacing: "0.08em", color: "#a5b4fc" }}>CONFIG LOCKED</span>
           </div>
         </div>
 
@@ -659,9 +686,80 @@ export function CommandCenterApp() {
               </div>
             </div>
 
+            {/* Configuration Lock Panel */}
+            <div style={{
+              padding: "12px 14px", marginBottom: 16,
+              background: configStatus?.configComplete
+                ? "linear-gradient(135deg, rgba(99,102,241,0.08) 0%, rgba(34,197,94,0.08) 100%)"
+                : "rgba(99,102,241,0.06)",
+              border: configStatus?.configComplete
+                ? "1px solid rgba(99,102,241,0.3)"
+                : "1px solid rgba(99,102,241,0.15)",
+              borderRadius: 12,
+            }}>
+              <div style={{ display: "flex", alignItems: "center", gap: 10, marginBottom: 10, flexWrap: "wrap" }}>
+                <span style={{ fontSize: 14 }}>🔒</span>
+                <span style={{ fontSize: 13, fontWeight: 700, color: "#a5b4fc" }}>
+                  Platform Configuration — {configStatus ? (configStatus.configComplete ? "LOCKED & COMPLETE" : "LOCKED (HEALING)") : "Awaiting Lock…"}
+                </span>
+                {configStatus?.configVersion && (
+                  <span style={{ padding: "2px 8px", borderRadius: 10, background: "rgba(99,102,241,0.15)", border: "1px solid rgba(99,102,241,0.3)", fontSize: 9, color: "#818cf8", fontWeight: 700 }}>
+                    {configStatus.configVersion}
+                  </span>
+                )}
+                <span style={{ marginLeft: "auto", padding: "2px 8px", borderRadius: 10,
+                  background: configStatus?.selfHealable ? "rgba(34,197,94,0.12)" : "rgba(245,158,11,0.12)",
+                  border: configStatus?.selfHealable ? "1px solid rgba(34,197,94,0.25)" : "1px solid rgba(245,158,11,0.25)",
+                  fontSize: 9, color: configStatus?.selfHealable ? "#22c55e" : "#f59e0b", fontWeight: 700
+                }}>
+                  {configStatus?.selfHealable ? "SELF-HEALING ACTIVE" : "CHECKING…"}
+                </span>
+              </div>
+
+              {configStatus ? (
+                <>
+                  <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fill, minmax(160px, 1fr))", gap: 6, marginBottom: 10 }}>
+                    {[
+                      { label: "Execution Mode", value: configStatus.executionMode.toUpperCase(), ok: true },
+                      { label: "All Active",     value: configStatus.allActive     ? "YES ✓" : "NO",  ok: configStatus.allActive },
+                      { label: "All Protected",  value: configStatus.allProtected  ? "YES ✓" : "NO",  ok: configStatus.allProtected },
+                      { label: "All Integrated", value: configStatus.allIntegrated ? "YES ✓" : "NO",  ok: configStatus.allIntegrated },
+                      { label: "Registry Size",  value: String(configStatus.registrySize) + " items", ok: true },
+                      { label: "Self-Heals Run", value: String(configStatus.selfHealApplied),          ok: true },
+                      { label: "Config Complete",value: configStatus.configComplete ? "YES ✓" : "NO",  ok: configStatus.configComplete },
+                      { label: "Modes Disabled", value: String(configStatus.disabledModes.length),     ok: true },
+                    ].map(s => (
+                      <div key={s.label} style={{
+                        padding: "7px 10px", background: "rgba(255,255,255,0.04)",
+                        border: `1px solid ${s.ok ? "rgba(34,197,94,0.1)" : "rgba(239,68,68,0.1)"}`,
+                        borderRadius: 7, display: "flex", flexDirection: "column", gap: 2,
+                      }}>
+                        <span style={{ fontSize: 9, color: "#475569", textTransform: "uppercase", letterSpacing: "0.06em" }}>{s.label}</span>
+                        <span style={{ fontSize: 11, fontWeight: 700, color: s.ok ? "#86efac" : "#f87171" }}>{s.value}</span>
+                      </div>
+                    ))}
+                  </div>
+                  <div style={{ display: "flex", gap: 5, flexWrap: "wrap" }}>
+                    {configStatus.disabledModes.map(m => (
+                      <span key={m} style={{ padding: "2px 7px", borderRadius: 6, background: "rgba(239,68,68,0.08)", border: "1px solid rgba(239,68,68,0.15)", fontSize: 9, color: "#f87171", fontWeight: 600 }}>
+                        ✗ {m}
+                      </span>
+                    ))}
+                    <span style={{ fontSize: 9, color: "#334155", marginLeft: "auto", alignSelf: "center" }}>
+                      Locked {configStatus.lockedAt ? new Date(configStatus.lockedAt).toLocaleTimeString() : ""}
+                    </span>
+                  </div>
+                </>
+              ) : (
+                <p style={{ fontSize: 11, color: "#475569", margin: 0 }}>
+                  Configuration lock pending — server boot sequence in progress…
+                </p>
+              )}
+            </div>
+
             <div style={{ marginBottom: 12 }}>
               <h3 style={{ fontSize: 13, fontWeight: 700, color: "#e2e8f0", margin: "0 0 4px", letterSpacing: "-0.01em" }}>Platform Systems</h3>
-              <p style={{ fontSize: 11, color: "#475569", margin: 0 }}>19/19 systems online · Founder Tier · Full execution capacity</p>
+              <p style={{ fontSize: 11, color: "#475569", margin: 0 }}>19/19 systems online · Founder Tier · Full execution capacity · Configuration locked</p>
             </div>
             <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fill, minmax(200px, 1fr))", gap: 8 }}>
               {PLATFORM_SYSTEMS.map(sys => (
