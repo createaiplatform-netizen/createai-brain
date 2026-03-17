@@ -128,11 +128,11 @@ function LoginScreen({ onLogin }: { onLogin: () => void }) {
           </p>
         </div>
 
-        {/* Public preview: 26 apps grid */}
+        {/* Public preview: app grid */}
         <div className="w-full">
           <p className="text-center text-[12px] font-semibold uppercase tracking-widest mb-5"
             style={{ color: "rgba(148,163,184,0.45)" }}>
-            27 AI-POWERED APPS INSIDE
+            121 AI-POWERED APPS INSIDE
           </p>
           <div className="grid grid-cols-4 gap-3">
             {APP_PREVIEW.map(({ icon, label }) => (
@@ -151,7 +151,7 @@ function LoginScreen({ onLogin }: { onLogin: () => void }) {
         <div className="w-full flex flex-col gap-3">
           {[
             { icon: "🔒", head: "Real products, real data", body: "Everything you create is live and fully functional — no demos, no placeholders." },
-            { icon: "📝", head: "One-time NDA to unlock", body: "Sign once and get full access to all 27 apps, forever." },
+            { icon: "📝", head: "One-time NDA to unlock", body: "Sign once and get full access to all 121 apps, forever." },
             { icon: "🤖", head: "AI does the heavy lifting", body: "Chat, generate, simulate, and ship — all from one intelligent OS." },
           ].map(({ icon, head, body }) => (
             <div key={head} className="flex items-start gap-4 p-4 rounded-2xl"
@@ -241,7 +241,7 @@ function NDAScreen({ userName, onSign }: NDAScreenProps) {
               One step away from full access
             </h1>
             <p className="text-[14px] mt-1.5" style={{ color: "#64748b" }}>
-              Sign the NDA once to unlock all 27 apps and your personal workspace.
+              Sign the NDA once to unlock all 121 apps and your personal workspace.
             </p>
           </div>
         </div>
@@ -250,7 +250,7 @@ function NDAScreen({ userName, onSign }: NDAScreenProps) {
         <div className="grid grid-cols-2 gap-3">
           {[
             { icon: "🗂️", label: "Real project workspaces" },
-            { icon: "🤖", label: "27 AI-powered apps" },
+            { icon: "🤖", label: "121 AI-powered apps" },
             { icon: "💾", label: "Files, folders, and data" },
             { icon: "🚀", label: "Ship real products" },
           ].map(({ icon, label }) => (

@@ -14,7 +14,36 @@ export type AppId =
   | "soundscape" | "timelineforge" | "mythweave"
   | "languageforge" | "magicsystem" | "urbanworld" | "warlore"
   | "characterforge" | "techforge" | "visualworld"
-  | "religionforge" | "cosmologyforge" | "gameworld";
+  | "religionforge" | "cosmologyforge" | "gameworld"
+  // ── Creative Writing ─────────────────────────────────────────────────────
+  | "scriptwriter" | "comicscript" | "poemforge" | "essaywriter" | "blogwriter"
+  | "copywriter" | "storyboarder" | "speechwriter" | "bookplanner" | "technicalwriter" | "contentcalendar"
+  // ── Business & Strategy ──────────────────────────────────────────────────
+  | "strategist" | "reportbuilder" | "proposalbuilder" | "emailcomposer" | "hiringassist"
+  | "meetingplanner" | "presentbuilder" | "budgetplanner" | "perfreviewer" | "contractdraft"
+  // ── World & Universe Building ────────────────────────────────────────────
+  | "alienspecies" | "planetbuilder" | "futurecivilization" | "monsterforge" | "artifactforge"
+  | "dimensionbuilder" | "dystopia" | "utopia" | "ancientcivilization"
+  // ── Learning & Research ──────────────────────────────────────────────────
+  | "researchassist" | "conceptexplainer" | "debateprep" | "criticalthinking" | "philosophyexplorer"
+  | "studyplanner" | "scienceexplainer" | "mathsolver"
+  // ── Lifestyle & Personal ─────────────────────────────────────────────────
+  | "journal" | "goalplanner" | "travelplanner" | "recipecreator" | "fitnesscoach"
+  | "meditationguide" | "financeadvisor" | "relationshipcoach"
+  // ── Music & Audio ────────────────────────────────────────────────────────
+  | "lyricswriter" | "songstructure" | "podcastplanner" | "musictheory" | "sounddesigner"
+  // ── Game Design ──────────────────────────────────────────────────────────
+  | "questdesigner" | "npccreator" | "dungeonbuilder" | "itemforge" | "gamenarrative" | "balancedesigner"
+  // ── AI & Technology ──────────────────────────────────────────────────────
+  | "promptengineer" | "datastoryteller" | "systemdesigner" | "codereviewer" | "devplanner"
+  // ── Health & Wellness ────────────────────────────────────────────────────
+  | "healthcoach" | "mentalhealth" | "nutritionplanner" | "sleepcoach" | "parentingguide"
+  // ── Arts & Culture ───────────────────────────────────────────────────────
+  | "artcritique" | "filmanalysis" | "culturalexplorer"
+  // ── Legal & Professional ─────────────────────────────────────────────────
+  | "legaldrafter" | "ipprotection" | "privacypolicy"
+  // ── Education & Teaching ─────────────────────────────────────────────────
+  | "lessonplanner" | "curriculumdesigner";
 
 export interface AppDef {
   id: AppId;
@@ -73,6 +102,93 @@ export const DEFAULT_APPS: AppDef[] = [
   { id: "religionforge",   label: "ReligionForge",      icon: "🙏", color: "#4f46e5", description: "Belief system & theology design — theology, deities, sacred texts, clergy, rituals, schisms, heresies, saints, afterlife, prayer, miracles, and holy wars", category: "tools" },
   { id: "cosmologyforge",  label: "CosmologyForge",     icon: "🌌", color: "#6366f1", description: "Universe physics & metaphysics — cosmology, planes of existence, creation myths, deity hierarchies, death mechanics, souls, cosmic conflict, void, and ascension", category: "tools" },
   { id: "gameworld",       label: "GameWorldStudio",    icon: "🎲", color: "#d97706", description: "Games & play culture design — board games, sports, gambling, children's games, deadly games, gladiators, championships, stadium culture, and wager culture", category: "tools" },
+  // ── Creative Writing Suite ────────────────────────────────────────────────
+  { id: "scriptwriter",    label: "Scriptwriter",        icon: "🎬", color: "#e11d48", description: "Professional screenplay and script writing studio — scenes, dialogue, structure, and pitch", category: "tools" },
+  { id: "comicscript",     label: "ComicScript Studio",  icon: "💥", color: "#7c3aed", description: "Comic book and graphic novel script writing — panels, captions, and visual storytelling", category: "tools" },
+  { id: "poemforge",       label: "PoemForge",           icon: "🌸", color: "#be185d", description: "Poetry creation and form exploration — sonnets to free verse, haiku to epic odes", category: "tools" },
+  { id: "essaywriter",     label: "Essay Writer",         icon: "📝", color: "#0369a1", description: "Academic, persuasive, and analytical essay writing — from thesis to conclusion", category: "tools" },
+  { id: "blogwriter",      label: "Blog Writer",          icon: "✍️", color: "#16a34a", description: "Blog posts, content strategy, SEO writing, and audience-focused content creation", category: "tools" },
+  { id: "copywriter",      label: "Copywriter",           icon: "💡", color: "#d97706", description: "Sales copy, headlines, CTAs, landing pages, ads, and conversion-focused writing", category: "tools" },
+  { id: "storyboarder",    label: "Storyboarder",         icon: "🎞️", color: "#7c3aed", description: "Scene-by-scene visual story planning — shot lists, visual beats, and narrative pacing", category: "tools" },
+  { id: "speechwriter",    label: "Speechwriter",         icon: "🎤", color: "#0891b2", description: "Speeches, toasts, keynotes, commencement addresses, and public remarks", category: "tools" },
+  { id: "bookplanner",     label: "Book Planner",         icon: "📚", color: "#6366f1", description: "Novel structure, chapter outlines, character development, and writing roadmaps", category: "tools" },
+  { id: "technicalwriter", label: "Technical Writer",     icon: "⚙️", color: "#475569", description: "Technical documentation, user guides, API references, and process manuals", category: "tools" },
+  { id: "contentcalendar", label: "Content Calendar",     icon: "📅", color: "#0f766e", description: "Content strategy, editorial calendars, campaign planning, and publishing schedules", category: "tools" },
+  // ── Business & Strategy Suite ─────────────────────────────────────────────
+  { id: "strategist",      label: "Business Strategist",  icon: "♟️", color: "#1d4ed8", description: "Business strategy, competitive analysis, market positioning, and growth planning", category: "business" },
+  { id: "reportbuilder",   label: "Report Builder",        icon: "📊", color: "#0369a1", description: "Business reports, executive summaries, board decks, and data narratives", category: "business" },
+  { id: "proposalbuilder", label: "Proposal Builder",      icon: "📨", color: "#7c3aed", description: "Business proposals, RFP responses, grant applications, and client pitches", category: "business" },
+  { id: "emailcomposer",   label: "Email Composer",        icon: "📧", color: "#16a34a", description: "Professional emails, newsletters, follow-ups, and communication templates", category: "business" },
+  { id: "hiringassist",    label: "Hiring Assistant",      icon: "🤝", color: "#d97706", description: "Job descriptions, interview questions, offer letters, and hiring process design", category: "business" },
+  { id: "meetingplanner",  label: "Meeting Planner",       icon: "🗓️", color: "#0891b2", description: "Meeting agendas, minutes, retrospectives, and facilitation guides", category: "business" },
+  { id: "presentbuilder",  label: "Presentation Builder",  icon: "📊", color: "#6366f1", description: "Presentation outlines, slide structures, speaker notes, and pitch decks", category: "business" },
+  { id: "budgetplanner",   label: "Budget Planner",        icon: "💰", color: "#16a34a", description: "Budget templates, financial narratives, cost justifications, and financial planning", category: "business" },
+  { id: "perfreviewer",    label: "Performance Reviewer",  icon: "⭐", color: "#7c3aed", description: "Performance reviews, feedback frameworks, 360 reviews, and development plans", category: "business" },
+  { id: "contractdraft",   label: "Contract Drafter",      icon: "📜", color: "#dc2626", description: "Contract templates, legal language, terms drafting, and agreement structures", category: "business" },
+  // ── World & Universe Building ─────────────────────────────────────────────
+  { id: "alienspecies",       label: "Alien Species Forge",   icon: "👾", color: "#7c3aed", description: "Xenobiology, alien civilizations, first contact protocols, and interstellar cultures", category: "tools" },
+  { id: "planetbuilder",      label: "Planet Builder",         icon: "🪐", color: "#0369a1", description: "Planetary creation: geology, climate, terrain, atmosphere, and ecological systems", category: "tools" },
+  { id: "futurecivilization", label: "Future Civilization",    icon: "🔭", color: "#0f766e", description: "Far-future society design: post-scarcity, interstellar, post-human, and deep future", category: "tools" },
+  { id: "monsterforge",       label: "Monster Forge",          icon: "🐉", color: "#dc2626", description: "Monster and creature design — biology, behavior, ecology, lore, and narrative role", category: "tools" },
+  { id: "artifactforge",      label: "Artifact Forge",         icon: "💎", color: "#d97706", description: "Magical artifacts, legendary items, cursed objects, and relics of power", category: "tools" },
+  { id: "dimensionbuilder",   label: "Dimension Builder",      icon: "🌀", color: "#6366f1", description: "Alternate dimensions, parallel worlds, pocket realities, and planes of existence", category: "tools" },
+  { id: "dystopia",           label: "Dystopia Builder",       icon: "🏭", color: "#475569", description: "Dystopian world design — systems of control, resistance, collapse, and moral complexity", category: "tools" },
+  { id: "utopia",             label: "Utopia Builder",         icon: "🌈", color: "#16a34a", description: "Utopian society design — what makes it work, what it costs, and who it might exclude", category: "tools" },
+  { id: "ancientcivilization",label: "Ancient Civilization",   icon: "🏛️", color: "#b45309", description: "Historical and fantasy ancient civilization design — rise, peak, and fall", category: "tools" },
+  // ── Learning & Research ───────────────────────────────────────────────────
+  { id: "researchassist",     label: "Research Assistant",     icon: "🔬", color: "#0369a1", description: "Research methodology, literature review frameworks, and academic investigation support", category: "tools" },
+  { id: "conceptexplainer",   label: "Concept Explainer",      icon: "💡", color: "#7c3aed", description: "Explain any concept clearly at any complexity level — from beginner to expert", category: "tools" },
+  { id: "debateprep",         label: "Debate Prep",            icon: "🎤", color: "#dc2626", description: "Argument construction, rebuttal preparation, logical analysis, and debate strategy", category: "tools" },
+  { id: "criticalthinking",   label: "Critical Thinking",      icon: "🧩", color: "#0891b2", description: "Logical analysis, cognitive bias identification, decision auditing, and reasoning improvement", category: "tools" },
+  { id: "philosophyexplorer", label: "Philosophy Explorer",    icon: "🦉", color: "#4f46e5", description: "Philosophical traditions, ethical frameworks, thought experiments, and applied ethics", category: "tools" },
+  { id: "studyplanner",       label: "Study Planner",          icon: "📖", color: "#16a34a", description: "Study schedules, spaced repetition, exam prep, and learning roadmaps", category: "tools" },
+  { id: "scienceexplainer",   label: "Science Explainer",      icon: "🔭", color: "#0369a1", description: "Scientific concepts, experiments, discoveries, and the history of science", category: "tools" },
+  { id: "mathsolver",         label: "Math Solver",            icon: "🔢", color: "#7c3aed", description: "Mathematical problem solving, proof construction, and mathematical intuition building", category: "tools" },
+  // ── Lifestyle & Personal ──────────────────────────────────────────────────
+  { id: "journal",            label: "Journal Studio",         icon: "📔", color: "#be185d", description: "Guided journaling, self-reflection prompts, emotional processing, and life writing", category: "tools" },
+  { id: "goalplanner",        label: "Goal Planner",           icon: "🎯", color: "#d97706", description: "SMART goals, OKRs, milestone planning, accountability systems, and progress tracking", category: "tools" },
+  { id: "travelplanner",      label: "Travel Planner",         icon: "✈️", color: "#0891b2", description: "Trip planning, itineraries, travel writing, cultural guides, and adventure design", category: "tools" },
+  { id: "recipecreator",      label: "Recipe Creator",         icon: "👨‍🍳", color: "#ef4444", description: "Recipe design, meal planning, cuisine exploration, and culinary storytelling", category: "tools" },
+  { id: "fitnesscoach",       label: "Fitness Coach",          icon: "💪", color: "#16a34a", description: "Workout plans, training programs, sports performance, and movement coaching", category: "tools" },
+  { id: "meditationguide",    label: "Meditation Guide",       icon: "🧘", color: "#6366f1", description: "Meditation scripts, mindfulness practices, breathwork, and contemplative exercises", category: "tools" },
+  { id: "financeadvisor",     label: "Finance Advisor",        icon: "📈", color: "#16a34a", description: "Personal finance planning, investment education, budgeting, and financial goal mapping", category: "tools" },
+  { id: "relationshipcoach",  label: "Relationship Coach",     icon: "💑", color: "#be185d", description: "Relationship communication, conflict resolution, boundary setting, and connection building", category: "tools" },
+  // ── Music & Audio ─────────────────────────────────────────────────────────
+  { id: "lyricswriter",    label: "Lyrics Writer",          icon: "🎵", color: "#7c3aed", description: "Song lyrics, rhyme schemes, verse/chorus structures, and lyrical storytelling", category: "tools" },
+  { id: "songstructure",   label: "Song Structure Studio",  icon: "🎼", color: "#0891b2", description: "Song arrangement, composition structure, genre conventions, and musical architecture", category: "tools" },
+  { id: "podcastplanner",  label: "Podcast Planner",        icon: "🎙️", color: "#d97706", description: "Podcast episodes, show notes, interview guides, and content strategy", category: "tools" },
+  { id: "musictheory",     label: "Music Theory Studio",    icon: "🎶", color: "#4f46e5", description: "Music theory exploration, harmony, counterpoint, composition principles, and ear training", category: "tools" },
+  { id: "sounddesigner",   label: "Sound Designer",         icon: "🔊", color: "#0f766e", description: "Sound design, audio world building, foley, and sonic identity systems", category: "tools" },
+  // ── Game Design ───────────────────────────────────────────────────────────
+  { id: "questdesigner",   label: "Quest Designer",     icon: "⚔️", color: "#dc2626", description: "Quest and mission design, narrative objectives, rewards, and player motivation", category: "tools" },
+  { id: "npccreator",      label: "NPC Creator",        icon: "🎭", color: "#7c3aed", description: "Non-player character creation — personality, motivation, dialogue, and behavior design", category: "tools" },
+  { id: "dungeonbuilder",  label: "Dungeon Builder",    icon: "🏰", color: "#475569", description: "Dungeon and environment design, encounter building, traps, puzzles, and atmosphere", category: "tools" },
+  { id: "itemforge",       label: "Item Forge",         icon: "🗡️", color: "#d97706", description: "Game items, weapons, armor, consumables, and equipment design", category: "tools" },
+  { id: "gamenarrative",   label: "Game Narrative",     icon: "📖", color: "#6366f1", description: "Game story, lore writing, world canon, cutscene narrative, and environmental storytelling", category: "tools" },
+  { id: "balancedesigner", label: "Balance Designer",   icon: "⚖️", color: "#0369a1", description: "Game balance, tuning, difficulty curves, and systemic design", category: "tools" },
+  // ── AI & Technology ───────────────────────────────────────────────────────
+  { id: "promptengineer",  label: "Prompt Engineer",    icon: "🤖", color: "#6366f1", description: "AI prompt design, chain-of-thought, system prompts, and prompt optimization", category: "tools" },
+  { id: "datastoryteller", label: "Data Storyteller",   icon: "📊", color: "#0369a1", description: "Data narratives, visualization scripts, insight communication, and analytical storytelling", category: "tools" },
+  { id: "systemdesigner",  label: "System Designer",    icon: "🏗️", color: "#475569", description: "System architecture, design patterns, technical documentation, and engineering clarity", category: "tools" },
+  { id: "codereviewer",    label: "Code Reviewer",      icon: "👨‍💻", color: "#16a34a", description: "Code review frameworks, best practices analysis, refactoring guides, and quality improvement", category: "tools" },
+  { id: "devplanner",      label: "Dev Planner",        icon: "🗂️", color: "#7c3aed", description: "Software development planning, sprint design, technical roadmaps, and estimation", category: "tools" },
+  // ── Health & Wellness ─────────────────────────────────────────────────────
+  { id: "healthcoach",       label: "Health Coach",         icon: "🏥", color: "#16a34a", description: "Health planning, wellness strategies, lifestyle design, and preventive health guidance", category: "tools" },
+  { id: "mentalhealth",      label: "Mental Health Support", icon: "💙", color: "#6366f1", description: "Mental health education, CBT tools, coping strategies, and emotional resilience building", category: "tools" },
+  { id: "nutritionplanner",  label: "Nutrition Planner",    icon: "🥗", color: "#16a34a", description: "Nutrition planning, diet design, macro balance, and evidence-based eating guidance", category: "tools" },
+  { id: "sleepcoach",        label: "Sleep Coach",          icon: "🌙", color: "#4f46e5", description: "Sleep optimization, insomnia strategies, sleep hygiene, and circadian rhythm coaching", category: "tools" },
+  { id: "parentingguide",    label: "Parenting Guide",      icon: "👨‍👩‍👧", color: "#d97706", description: "Parenting strategies, child development, discipline alternatives, and family communication", category: "tools" },
+  // ── Arts & Culture ────────────────────────────────────────────────────────
+  { id: "artcritique",     label: "Art Critique Studio",  icon: "🖼️", color: "#be185d", description: "Art analysis, criticism frameworks, art history, and creative interpretation", category: "tools" },
+  { id: "filmanalysis",    label: "Film Analysis Studio", icon: "🎬", color: "#1d4ed8", description: "Film theory, screenplay analysis, cinematography, and cinema criticism", category: "tools" },
+  { id: "culturalexplorer",label: "Cultural Explorer",    icon: "🌍", color: "#0f766e", description: "Cultural analysis, anthropology, cross-cultural comparison, and cultural intelligence", category: "tools" },
+  // ── Legal & Professional ──────────────────────────────────────────────────
+  { id: "legaldrafter",    label: "Legal Drafter",       icon: "⚖️", color: "#1d4ed8", description: "Legal document drafting, clause libraries, legal language, and document structures", category: "tools" },
+  { id: "ipprotection",    label: "IP Protection",        icon: "🛡️", color: "#7c3aed", description: "Intellectual property, trademark strategy, copyright guidance, and IP portfolio design", category: "tools" },
+  { id: "privacypolicy",   label: "Privacy Policy Studio",icon: "🔐", color: "#dc2626", description: "Privacy policies, terms of service, GDPR compliance, and data governance language", category: "tools" },
+  // ── Education & Teaching ──────────────────────────────────────────────────
+  { id: "lessonplanner",      label: "Lesson Planner",      icon: "📚", color: "#0369a1", description: "Lesson plans, learning objectives, activities, and teaching strategies", category: "tools" },
+  { id: "curriculumdesigner", label: "Curriculum Designer", icon: "🎓", color: "#7c3aed", description: "Course design, curriculum mapping, learning pathways, and instructional frameworks", category: "tools" },
 ];
 
 export const ALL_APPS = DEFAULT_APPS;
@@ -217,6 +333,93 @@ const APP_META: Record<AppId, { icon: string; label: string }> = {
   religionforge:   { icon: "🙏", label: "ReligionForge" },
   cosmologyforge:  { icon: "🌌", label: "CosmologyForge" },
   gameworld:       { icon: "🎲", label: "GameWorldStudio" },
+  // Creative Writing
+  scriptwriter:    { icon: "🎬", label: "Scriptwriter" },
+  comicscript:     { icon: "💥", label: "ComicScript Studio" },
+  poemforge:       { icon: "🌸", label: "PoemForge" },
+  essaywriter:     { icon: "📝", label: "Essay Writer" },
+  blogwriter:      { icon: "✍️", label: "Blog Writer" },
+  copywriter:      { icon: "💡", label: "Copywriter" },
+  storyboarder:    { icon: "🎞️", label: "Storyboarder" },
+  speechwriter:    { icon: "🎤", label: "Speechwriter" },
+  bookplanner:     { icon: "📚", label: "Book Planner" },
+  technicalwriter: { icon: "⚙️", label: "Technical Writer" },
+  contentcalendar: { icon: "📅", label: "Content Calendar" },
+  // Business & Strategy
+  strategist:      { icon: "♟️", label: "Business Strategist" },
+  reportbuilder:   { icon: "📊", label: "Report Builder" },
+  proposalbuilder: { icon: "📨", label: "Proposal Builder" },
+  emailcomposer:   { icon: "📧", label: "Email Composer" },
+  hiringassist:    { icon: "🤝", label: "Hiring Assistant" },
+  meetingplanner:  { icon: "🗓️", label: "Meeting Planner" },
+  presentbuilder:  { icon: "📊", label: "Presentation Builder" },
+  budgetplanner:   { icon: "💰", label: "Budget Planner" },
+  perfreviewer:    { icon: "⭐", label: "Performance Reviewer" },
+  contractdraft:   { icon: "📜", label: "Contract Drafter" },
+  // World Building
+  alienspecies:       { icon: "👾", label: "Alien Species Forge" },
+  planetbuilder:      { icon: "🪐", label: "Planet Builder" },
+  futurecivilization: { icon: "🔭", label: "Future Civilization" },
+  monsterforge:       { icon: "🐉", label: "Monster Forge" },
+  artifactforge:      { icon: "💎", label: "Artifact Forge" },
+  dimensionbuilder:   { icon: "🌀", label: "Dimension Builder" },
+  dystopia:           { icon: "🏭", label: "Dystopia Builder" },
+  utopia:             { icon: "🌈", label: "Utopia Builder" },
+  ancientcivilization:{ icon: "🏛️", label: "Ancient Civilization" },
+  // Learning & Research
+  researchassist:     { icon: "🔬", label: "Research Assistant" },
+  conceptexplainer:   { icon: "💡", label: "Concept Explainer" },
+  debateprep:         { icon: "🎤", label: "Debate Prep" },
+  criticalthinking:   { icon: "🧩", label: "Critical Thinking" },
+  philosophyexplorer: { icon: "🦉", label: "Philosophy Explorer" },
+  studyplanner:       { icon: "📖", label: "Study Planner" },
+  scienceexplainer:   { icon: "🔭", label: "Science Explainer" },
+  mathsolver:         { icon: "🔢", label: "Math Solver" },
+  // Lifestyle
+  journal:            { icon: "📔", label: "Journal Studio" },
+  goalplanner:        { icon: "🎯", label: "Goal Planner" },
+  travelplanner:      { icon: "✈️", label: "Travel Planner" },
+  recipecreator:      { icon: "👨‍🍳", label: "Recipe Creator" },
+  fitnesscoach:       { icon: "💪", label: "Fitness Coach" },
+  meditationguide:    { icon: "🧘", label: "Meditation Guide" },
+  financeadvisor:     { icon: "📈", label: "Finance Advisor" },
+  relationshipcoach:  { icon: "💑", label: "Relationship Coach" },
+  // Music & Audio
+  lyricswriter:    { icon: "🎵", label: "Lyrics Writer" },
+  songstructure:   { icon: "🎼", label: "Song Structure Studio" },
+  podcastplanner:  { icon: "🎙️", label: "Podcast Planner" },
+  musictheory:     { icon: "🎶", label: "Music Theory Studio" },
+  sounddesigner:   { icon: "🔊", label: "Sound Designer" },
+  // Game Design
+  questdesigner:   { icon: "⚔️", label: "Quest Designer" },
+  npccreator:      { icon: "🎭", label: "NPC Creator" },
+  dungeonbuilder:  { icon: "🏰", label: "Dungeon Builder" },
+  itemforge:       { icon: "🗡️", label: "Item Forge" },
+  gamenarrative:   { icon: "📖", label: "Game Narrative" },
+  balancedesigner: { icon: "⚖️", label: "Balance Designer" },
+  // AI & Tech
+  promptengineer:  { icon: "🤖", label: "Prompt Engineer" },
+  datastoryteller: { icon: "📊", label: "Data Storyteller" },
+  systemdesigner:  { icon: "🏗️", label: "System Designer" },
+  codereviewer:    { icon: "👨‍💻", label: "Code Reviewer" },
+  devplanner:      { icon: "🗂️", label: "Dev Planner" },
+  // Health & Wellness
+  healthcoach:       { icon: "🏥", label: "Health Coach" },
+  mentalhealth:      { icon: "💙", label: "Mental Health Support" },
+  nutritionplanner:  { icon: "🥗", label: "Nutrition Planner" },
+  sleepcoach:        { icon: "🌙", label: "Sleep Coach" },
+  parentingguide:    { icon: "👨‍👩‍👧", label: "Parenting Guide" },
+  // Arts & Culture
+  artcritique:     { icon: "🖼️", label: "Art Critique Studio" },
+  filmanalysis:    { icon: "🎬", label: "Film Analysis Studio" },
+  culturalexplorer:{ icon: "🌍", label: "Cultural Explorer" },
+  // Legal & Professional
+  legaldrafter:    { icon: "⚖️", label: "Legal Drafter" },
+  ipprotection:    { icon: "🛡️", label: "IP Protection" },
+  privacypolicy:   { icon: "🔐", label: "Privacy Policy Studio" },
+  // Education
+  lessonplanner:      { icon: "📚", label: "Lesson Planner" },
+  curriculumdesigner: { icon: "🎓", label: "Curriculum Designer" },
 };
 
 // ─── OS Context value ───────────────────────────────────────────────────────
