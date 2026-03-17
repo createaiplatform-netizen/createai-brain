@@ -1,15 +1,12 @@
 /**
  * LiveSimDashboard.tsx — Live Integration Simulation Dashboard
- *
- * Public page (no login required). Demonstrates real-time data flow through
- * every adapter in the platform registry.
- *
+ * Public page (no login required). Fully responsive — 320px → 1440px+.
  * No PHI · No credentials · No proprietary source code · View-only demo
  */
 
 import { useState, useEffect, useRef, useCallback } from "react";
 
-// ─── Types ──────────────────────────────────────────────────────────────────
+// ─── Types ───────────────────────────────────────────────────────────────────
 interface SimEvent {
   id: string;
   adapterId: string;
@@ -24,95 +21,70 @@ interface SimEvent {
   ts: string;
   payload?: unknown;
 }
-
 interface AdapterMeta {
-  id: string;
-  label: string;
-  icon: string;
-  authType: string;
-  complianceFlags: string[];
-  industry: string;
+  id: string; label: string; icon: string;
+  authType: string; complianceFlags: string[]; industry: string;
 }
-
 interface IndustryGroup {
-  label: string;
-  icon: string;
-  complianceNote: string;
-  adapters: AdapterMeta[];
+  label: string; icon: string; complianceNote: string; adapters: AdapterMeta[];
 }
 
-// ─── Industry colour map ────────────────────────────────────────────────────
-const INDUSTRY_COLORS: Record<string, string> = {
-  healthcare:   "#10b981",
-  payments:     "#8b5cf6",
-  crm:          "#3b82f6",
-  communication:"#f97316",
-  cloud:        "#0ea5e9",
-  ecommerce:    "#f59e0b",
-  productivity: "#6366f1",
-  data:         "#06b6d4",
-  "web3-iot":   "#a855f7",
+// ─── Colour maps ─────────────────────────────────────────────────────────────
+const IND: Record<string, string> = {
+  healthcare:"#10b981", payments:"#8b5cf6", crm:"#3b82f6",
+  communication:"#f97316", cloud:"#0ea5e9", ecommerce:"#f59e0b",
+  productivity:"#6366f1", data:"#06b6d4", "web3-iot":"#a855f7",
 };
-
-const TYPE_COLORS: Record<string, string> = {
-  FHIR: "#10b981", HL7: "#06b6d4", WEBHOOK: "#f97316",
-  REST: "#6366f1", AUTH: "#8b5cf6", MQTT: "#f59e0b",
+const TYPE: Record<string, string> = {
+  FHIR:"#10b981", HL7:"#06b6d4", WEBHOOK:"#f97316",
+  REST:"#6366f1", AUTH:"#8b5cf6", MQTT:"#f59e0b",
 };
 
 function fmt(ts: string) {
-  return new Date(ts).toLocaleTimeString("en-US", { hour12: false, hour: "2-digit", minute: "2-digit", second: "2-digit" });
+  return new Date(ts).toLocaleTimeString("en-US",
+    { hour12:false, hour:"2-digit", minute:"2-digit", second:"2-digit" });
 }
 function ago(ts: string) {
   const s = Math.floor((Date.now() - new Date(ts).getTime()) / 1000);
-  if (s < 5)  return "just now";
-  if (s < 60) return `${s}s ago`;
-  if (s < 3600) return `${Math.floor(s / 60)}m ago`;
-  return `${Math.floor(s / 3600)}h ago`;
+  if (s < 5)   return "just now";
+  if (s < 60)  return `${s}s ago`;
+  if (s < 3600) return `${Math.floor(s/60)}m ago`;
+  return `${Math.floor(s/3600)}h ago`;
 }
 
-// ─── Component ───────────────────────────────────────────────────────────────
+// ─── Component ────────────────────────────────────────────────────────────────
 export default function LiveSimDashboard() {
-  const [events, setEvents]               = useState<SimEvent[]>([]);
-  const [selected, setSelected]           = useState<SimEvent | null>(null);
-  const [simulating, setSimulating]       = useState<Set<string>>(new Set());
-  const [lastSim, setLastSim]             = useState<Map<string, SimEvent>>(new Map());
-  const [industries, setIndustries]       = useState<Record<string, IndustryGroup>>({});
-  const [suiteRunning, setSuiteRunning]   = useState(false);
-  const [sseConnected, setSseConnected]   = useState(false);
-  const [totalFired, setTotalFired]       = useState(0);
-  const [, setTick]                       = useState(0);
+  const [events, setEvents]             = useState<SimEvent[]>([]);
+  const [selected, setSelected]         = useState<SimEvent | null>(null);
+  const [simulating, setSimulating]     = useState<Set<string>>(new Set());
+  const [lastSim, setLastSim]           = useState<Map<string, SimEvent>>(new Map());
+  const [industries, setIndustries]     = useState<Record<string, IndustryGroup>>({});
+  const [suiteRunning, setSuiteRunning] = useState(false);
+  const [sseConnected, setSseConnected] = useState(false);
+  const [totalFired, setTotalFired]     = useState(0);
+  const [, setTick]                     = useState(0);
 
-  const logRef  = useRef<HTMLDivElement>(null);
-  const esRef   = useRef<EventSource | null>(null);
+  const logRef = useRef<HTMLDivElement>(null);
+  const esRef  = useRef<EventSource | null>(null);
 
-  // Keep re-rendering for "ago" freshness
   useEffect(() => {
     const t = setInterval(() => setTick(n => n + 1), 5000);
     return () => clearInterval(t);
   }, []);
 
-  // Load adapter registry
   useEffect(() => {
     fetch("/api/public/integration-demo")
       .then(r => r.json())
-      .then(d => {
-        if (d.adapters?.byIndustry) setIndustries(d.adapters.byIndustry);
-      })
+      .then(d => { if (d.adapters?.byIndustry) setIndustries(d.adapters.byIndustry); })
       .catch(() => {});
   }, []);
 
-  // SSE connection
   useEffect(() => {
     function connect() {
       const es = new EventSource("/api/public/events/stream");
       esRef.current = es;
-
-      es.onopen = () => setSseConnected(true);
-      es.onerror = () => {
-        setSseConnected(false);
-        es.close();
-        setTimeout(connect, 3000);
-      };
+      es.onopen  = () => setSseConnected(true);
+      es.onerror = () => { setSseConnected(false); es.close(); setTimeout(connect, 3000); };
       es.onmessage = (e) => {
         try {
           const msg = JSON.parse(e.data);
@@ -131,21 +103,17 @@ export default function LiveSimDashboard() {
     return () => { esRef.current?.close(); };
   }, []);
 
-  // Auto-scroll log
   useEffect(() => {
-    logRef.current?.scrollTo({ top: 0, behavior: "smooth" });
+    logRef.current?.scrollTo({ top:0, behavior:"smooth" });
   }, [events.length]);
 
   const simulate = useCallback(async (adapterId: string) => {
     if (simulating.has(adapterId)) return;
     setSimulating(prev => new Set(prev).add(adapterId));
     try {
-      const res = await fetch(`/api/public/simulate/adapter/${adapterId}`, { method: "POST" });
+      const res  = await fetch(`/api/public/simulate/adapter/${adapterId}`, { method:"POST" });
       const data = await res.json();
-      if (data.ok && data.event) {
-        // SSE will deliver it, but set selected immediately
-        setSelected(data.event);
-      }
+      if (data.ok && data.event) setSelected(data.event);
     } catch {}
     finally {
       setTimeout(() => {
@@ -157,260 +125,159 @@ export default function LiveSimDashboard() {
   const runFullSuite = useCallback(async () => {
     if (suiteRunning) return;
     setSuiteRunning(true);
-    const allIds = Object.values(industries).flatMap(g => g.adapters.map(a => a.id));
-    for (const id of allIds) {
+    const ids = Object.values(industries).flatMap(g => g.adapters.map(a => a.id));
+    for (const id of ids) {
       await simulate(id);
       await new Promise(r => setTimeout(r, 220));
     }
     setSuiteRunning(false);
   }, [industries, simulate, suiteRunning]);
 
-  const allAdapters = Object.values(industries).flatMap(g =>
-    g.adapters.map(a => ({ ...a, industryLabel: g.label, industryColor: INDUSTRY_COLORS[a.industry] ?? "#6366f1" }))
-  );
-
-  const adapterStatus = (id: string): "simulated" | "listening" => {
-    return lastSim.has(id) ? "simulated" : "listening";
-  };
+  const allAdapters = Object.values(industries).flatMap(g => g.adapters);
 
   return (
-    <div style={{
-      minHeight: "100vh",
-      background: "#0a0a0f",
-      color: "#e2e8f0",
-      fontFamily: "'Inter', -apple-system, sans-serif",
-    }}>
-      {/* ── Top banner ─────────────────────────────────────────────────────── */}
-      <div style={{
-        background: "rgba(99,102,241,0.12)",
-        borderBottom: "1px solid rgba(99,102,241,0.25)",
-        padding: "10px 24px",
-        display: "flex",
-        alignItems: "center",
-        justifyContent: "space-between",
-        fontSize: 12,
-        gap: 12,
-      }}>
-        <div style={{ display: "flex", alignItems: "center", gap: 12 }}>
-          <span style={{ fontWeight: 700, letterSpacing: "0.08em", color: "#a5b4fc" }}>
-            CREATEAI BRAIN · LIVE INTEGRATION SIMULATION
-          </span>
-          <span style={{
-            background: "#10b981",
-            color: "#fff",
-            borderRadius: 4,
-            padding: "2px 8px",
-            fontSize: 11,
-            fontWeight: 700,
-          }}>LIVE DEMO</span>
-          <span style={{
-            display: "flex", alignItems: "center", gap: 5,
-            color: sseConnected ? "#10b981" : "#f59e0b",
-          }}>
-            <span style={{
-              width: 7, height: 7, borderRadius: "50%",
+    <div className="sim-root">
+
+      {/* ── Banner ─────────────────────────────────────────────────────────── */}
+      <div className="sim-banner">
+        <div className="sim-banner-left">
+          <span className="sim-brand">CREATEAI BRAIN · LIVE INTEGRATION SIMULATION</span>
+          <span className="sim-badge-live">LIVE DEMO</span>
+          <span className="sim-sse" style={{ color: sseConnected ? "#10b981" : "#f59e0b" }}>
+            <span className="sim-dot" style={{
               background: sseConnected ? "#10b981" : "#f59e0b",
-              boxShadow: sseConnected ? "0 0 6px #10b981" : "0 0 6px #f59e0b",
-              display: "inline-block",
-              animation: sseConnected ? "pulse 2s infinite" : "none",
+              boxShadow: `0 0 5px ${sseConnected ? "#10b981" : "#f59e0b"}`,
+              animation: sseConnected ? "simdot 2s infinite" : "none",
             }} />
-            {sseConnected ? "SSE stream live" : "Reconnecting…"}
+            {sseConnected ? "Stream live" : "Connecting…"}
           </span>
         </div>
-        <span style={{ color: "#64748b" }}>
+        <span className="sim-banner-right">
           No PHI · No credentials · No source code · Authorized reviewer use only
         </span>
       </div>
 
       {/* ── Header ─────────────────────────────────────────────────────────── */}
-      <div style={{ padding: "24px 24px 0" }}>
-        <div style={{ display: "flex", alignItems: "center", gap: 16, marginBottom: 20 }}>
-          <div style={{
-            width: 52, height: 52, borderRadius: 14,
-            background: "linear-gradient(135deg,#6366f1,#8b5cf6)",
-            display: "flex", alignItems: "center", justifyContent: "center",
-            fontSize: 28, flexShrink: 0,
-          }}>🧠</div>
-          <div>
-            <div style={{ fontSize: 22, fontWeight: 700 }}>Live Integration Simulation Dashboard</div>
-            <div style={{ color: "#64748b", fontSize: 13, marginTop: 2 }}>
-              26 adapters · 9 industries · Real adapter code path · PHI-safe
-            </div>
+      <div className="sim-header">
+        <div className="sim-title-row">
+          <div className="sim-logo">🧠</div>
+          <div className="sim-title-text">
+            <div className="sim-title">Live Integration Simulation Dashboard</div>
+            <div className="sim-subtitle">26 adapters · 9 industries · Real adapter code path · PHI-safe</div>
           </div>
-          <div style={{ marginLeft: "auto", display: "flex", gap: 10 }}>
-            <button
-              onClick={runFullSuite}
-              disabled={suiteRunning || Object.keys(industries).length === 0}
-              style={{
-                padding: "10px 20px",
-                background: suiteRunning ? "rgba(99,102,241,0.3)" : "linear-gradient(135deg,#6366f1,#8b5cf6)",
-                border: "none", borderRadius: 8, color: "#fff",
-                fontWeight: 700, fontSize: 13, cursor: suiteRunning ? "not-allowed" : "pointer",
-                display: "flex", alignItems: "center", gap: 8,
-                transition: "all 0.2s",
-              }}
-            >
-              {suiteRunning ? (
-                <><span style={{ animation: "spin 1s linear infinite", display: "inline-block" }}>⟳</span> Running suite…</>
-              ) : (
-                <>▶ Run Full Suite</>
-              )}
-            </button>
-          </div>
+          <button
+            onClick={runFullSuite}
+            disabled={suiteRunning || Object.keys(industries).length === 0}
+            className="sim-suite-btn"
+            style={{
+              background: suiteRunning
+                ? "rgba(99,102,241,0.3)"
+                : "linear-gradient(135deg,#6366f1,#8b5cf6)",
+              cursor: suiteRunning ? "not-allowed" : "pointer",
+            }}
+          >
+            {suiteRunning
+              ? <><span className="sim-spin">⟳</span> Running…</>
+              : <>▶ Run All</>}
+          </button>
         </div>
 
-        {/* ── Metrics bar ────────────────────────────────────────────────── */}
-        <div style={{ display: "flex", gap: 10, marginBottom: 20, flexWrap: "wrap" }}>
+        {/* Metrics */}
+        <div className="sim-metrics">
           {[
-            { label: "Adapters",        value: allAdapters.length,  color: "#6366f1" },
-            { label: "Industries",      value: Object.keys(industries).length, color: "#10b981" },
-            { label: "Events fired",    value: totalFired + events.length, color: "#f97316" },
-            { label: "In log",          value: events.length,       color: "#06b6d4" },
-            { label: "Simulated",       value: lastSim.size,        color: "#8b5cf6" },
-            { label: "SSE clients",     value: sseConnected ? 1 : 0, color: "#10b981" },
+            { label:"Adapters",    value:allAdapters.length,                  color:"#6366f1" },
+            { label:"Industries",  value:Object.keys(industries).length,      color:"#10b981" },
+            { label:"Fired",       value:totalFired + events.length,          color:"#f97316" },
+            { label:"In Log",      value:events.length,                       color:"#06b6d4" },
+            { label:"Simulated",   value:lastSim.size,                        color:"#8b5cf6" },
+            { label:"SSE",         value:sseConnected ? "●" : "○",           color:sseConnected?"#10b981":"#f59e0b" },
           ].map(m => (
-            <div key={m.label} style={{
-              background: "rgba(255,255,255,0.04)",
-              border: "1px solid rgba(255,255,255,0.08)",
-              borderRadius: 10, padding: "10px 18px",
-              minWidth: 100,
-            }}>
-              <div style={{ fontSize: 22, fontWeight: 800, color: m.color }}>{m.value}</div>
-              <div style={{ fontSize: 11, color: "#64748b", textTransform: "uppercase", letterSpacing: "0.06em" }}>{m.label}</div>
+            <div key={m.label} className="sim-metric-card">
+              <div className="sim-metric-val" style={{ color:m.color }}>{m.value}</div>
+              <div className="sim-metric-lbl">{m.label}</div>
             </div>
           ))}
         </div>
       </div>
 
-      {/* ── Main layout ────────────────────────────────────────────────────── */}
-      <div style={{
-        display: "grid",
-        gridTemplateColumns: "1fr 380px",
-        gap: 16,
-        padding: "0 24px 24px",
-        alignItems: "start",
-      }}>
-        {/* ── LEFT: Adapter grid by industry ───────────────────────────── */}
-        <div style={{ display: "flex", flexDirection: "column", gap: 16 }}>
-          {Object.entries(industries).map(([industryId, group]) => {
-            const color = INDUSTRY_COLORS[industryId] ?? "#6366f1";
+      {/* ── Main layout: adapters left, log right ──────────────────────────── */}
+      <div className="sim-main">
+
+        {/* LEFT — Adapter grid */}
+        <div className="sim-adapters">
+          {Object.entries(industries).map(([indId, group]) => {
+            const color = IND[indId] ?? "#6366f1";
             return (
-              <div key={industryId} style={{
-                background: "rgba(255,255,255,0.03)",
-                border: "1px solid rgba(255,255,255,0.07)",
-                borderRadius: 14,
-                overflow: "hidden",
-              }}>
+              <div key={indId} className="sim-industry-block">
                 {/* Industry header */}
-                <div style={{
-                  padding: "12px 16px",
-                  borderBottom: `1px solid rgba(255,255,255,0.06)`,
-                  display: "flex", alignItems: "center", gap: 10,
-                  background: `linear-gradient(90deg, ${color}18, transparent)`,
+                <div className="sim-industry-hdr" style={{
+                  background:`linear-gradient(90deg,${color}18,transparent)`,
                 }}>
-                  <span style={{ fontSize: 18 }}>{group.icon}</span>
-                  <div>
-                    <div style={{ fontWeight: 700, fontSize: 14, color }}>{group.label}</div>
-                    <div style={{ fontSize: 11, color: "#64748b" }}>{group.complianceNote}</div>
+                  <span className="sim-industry-icon">{group.icon}</span>
+                  <div className="sim-industry-info">
+                    <span className="sim-industry-name" style={{ color }}>{group.label}</span>
+                    <span className="sim-industry-note">{group.complianceNote}</span>
                   </div>
-                  <div style={{ marginLeft: "auto", fontSize: 11, color: "#64748b" }}>
+                  <span className="sim-industry-count">
                     {group.adapters.length} adapter{group.adapters.length !== 1 ? "s" : ""}
-                  </div>
+                  </span>
                 </div>
 
                 {/* Adapter cards */}
-                <div style={{
-                  display: "grid",
-                  gridTemplateColumns: "repeat(auto-fill, minmax(260px, 1fr))",
-                  gap: 1,
-                  background: "rgba(255,255,255,0.04)",
-                }}>
+                <div className="sim-adapter-grid">
                   {group.adapters.map(adapter => {
-                    const status = adapterStatus(adapter.id);
+                    const simmed    = lastSim.has(adapter.id);
                     const isLoading = simulating.has(adapter.id);
-                    const last = lastSim.get(adapter.id);
-                    const isSelected = selected?.adapterId === adapter.id;
+                    const last      = lastSim.get(adapter.id);
+                    const isSel     = selected?.adapterId === adapter.id;
 
                     return (
                       <div
                         key={adapter.id}
-                        style={{
-                          background: isSelected
-                            ? `${color}14`
-                            : "rgba(10,10,15,0.8)",
-                          padding: "14px 16px",
-                          cursor: "pointer",
-                          transition: "background 0.15s",
-                          borderLeft: isSelected ? `3px solid ${color}` : "3px solid transparent",
-                        }}
+                        className="sim-adapter-card"
                         onClick={() => last && setSelected(last)}
+                        style={{
+                          background: isSel ? `${color}14` : "rgba(10,10,15,0.85)",
+                          borderLeft: `3px solid ${isSel ? color : "transparent"}`,
+                        }}
                       >
-                        <div style={{ display: "flex", alignItems: "flex-start", justifyContent: "space-between", gap: 8 }}>
-                          <div style={{ display: "flex", alignItems: "center", gap: 10, flex: 1, minWidth: 0 }}>
-                            <span style={{
-                              fontSize: 22, flexShrink: 0,
-                              filter: status === "simulated" ? "drop-shadow(0 0 4px " + color + ")" : "none",
-                              transition: "filter 0.5s",
-                            }}>{adapter.icon}</span>
-                            <div style={{ minWidth: 0 }}>
-                              <div style={{
-                                fontWeight: 600, fontSize: 13,
-                                whiteSpace: "nowrap", overflow: "hidden", textOverflow: "ellipsis",
-                              }}>{adapter.label}</div>
-                              <div style={{ display: "flex", alignItems: "center", gap: 6, marginTop: 3, flexWrap: "wrap" }}>
-                                <StatusPill status={status} color={color} />
-                                <span style={{
-                                  fontSize: 10, color: "#64748b",
-                                  background: "rgba(255,255,255,0.06)",
-                                  borderRadius: 4, padding: "1px 5px",
-                                }}>{adapter.authType}</span>
+                        <div className="sim-card-top">
+                          <div className="sim-card-info">
+                            <span
+                              className="sim-card-icon"
+                              style={{ filter: simmed ? `drop-shadow(0 0 4px ${color})` : "none" }}
+                            >{adapter.icon}</span>
+                            <div className="sim-card-meta">
+                              <div className="sim-card-name">{adapter.label}</div>
+                              <div className="sim-card-badges">
+                                <SimBadge simmed={simmed} color={color} />
+                                <span className="sim-auth-badge">{adapter.authType}</span>
                                 {adapter.complianceFlags.slice(0, 2).map(f => (
-                                  <span key={f} style={{
-                                    fontSize: 10,
-                                    background: `${color}22`,
-                                    color,
-                                    borderRadius: 4,
-                                    padding: "1px 5px",
+                                  <span key={f} className="sim-flag" style={{
+                                    background:`${color}22`, color,
                                   }}>{f}</span>
                                 ))}
                               </div>
                             </div>
                           </div>
-
-                          {/* Simulate button */}
                           <button
+                            className="sim-sim-btn"
                             onClick={e => { e.stopPropagation(); simulate(adapter.id); }}
                             disabled={isLoading}
                             style={{
-                              padding: "5px 12px",
                               background: isLoading ? "rgba(255,255,255,0.08)" : `${color}22`,
-                              border: `1px solid ${color}55`,
-                              borderRadius: 6,
+                              border:`1px solid ${color}55`,
                               color: isLoading ? "#64748b" : color,
-                              fontSize: 11,
-                              fontWeight: 700,
                               cursor: isLoading ? "not-allowed" : "pointer",
-                              flexShrink: 0,
-                              transition: "all 0.15s",
-                              letterSpacing: "0.04em",
                             }}
-                          >
-                            {isLoading ? "⟳" : "▶ SIM"}
-                          </button>
+                          >{isLoading ? "⟳" : "▶ SIM"}</button>
                         </div>
 
                         {last && (
-                          <div style={{
-                            marginTop: 8,
-                            fontSize: 11,
-                            color: "#64748b",
-                            display: "flex", alignItems: "center", gap: 6,
-                          }}>
-                            <span style={{ color: "#10b981" }}>✓</span>
-                            <span style={{
-                              whiteSpace: "nowrap", overflow: "hidden", textOverflow: "ellipsis",
-                            }}>{last.label}</span>
-                            <span style={{ marginLeft: "auto", flexShrink: 0, color: "#475569" }}>{ago(last.ts)} · {last.latencyMs}ms</span>
+                          <div className="sim-last-activity">
+                            <span style={{ color:"#10b981" }}>✓</span>
+                            <span className="sim-last-label">{last.label}</span>
+                            <span className="sim-last-meta">{ago(last.ts)} · {last.latencyMs}ms</span>
                           </div>
                         )}
                       </div>
@@ -422,273 +289,708 @@ export default function LiveSimDashboard() {
           })}
         </div>
 
-        {/* ── RIGHT: Event log + payload viewer ────────────────────────── */}
-        <div style={{ display: "flex", flexDirection: "column", gap: 12, position: "sticky", top: 16 }}>
+        {/* RIGHT — Event log + payload viewer */}
+        <div className="sim-sidebar">
+
           {/* Event log */}
-          <div style={{
-            background: "rgba(255,255,255,0.03)",
-            border: "1px solid rgba(255,255,255,0.07)",
-            borderRadius: 14,
-            overflow: "hidden",
-          }}>
-            <div style={{
-              padding: "12px 16px",
-              borderBottom: "1px solid rgba(255,255,255,0.06)",
-              display: "flex", alignItems: "center", justifyContent: "space-between",
-            }}>
-              <div style={{ fontWeight: 700, fontSize: 13 }}>
+          <div className="sim-panel">
+            <div className="sim-panel-hdr">
+              <span className="sim-panel-title">
                 Real-Time Event Log
-                <span style={{
-                  marginLeft: 8,
-                  background: "rgba(99,102,241,0.2)",
-                  color: "#a5b4fc",
-                  borderRadius: 10,
-                  padding: "1px 8px",
-                  fontSize: 11,
-                }}>{events.length}</span>
-              </div>
-              <div style={{ fontSize: 11, color: "#64748b" }}>SSE stream</div>
+                <span className="sim-count-badge">{events.length}</span>
+              </span>
+              <span className="sim-panel-sub">SSE stream</span>
             </div>
-            <div
-              ref={logRef}
-              style={{ maxHeight: 340, overflowY: "auto", scrollbarWidth: "thin" }}
-            >
+            <div ref={logRef} className="sim-log-scroll">
               {events.length === 0 ? (
-                <div style={{ padding: 24, textAlign: "center", color: "#475569", fontSize: 13 }}>
-                  Click any ▶ SIM button or Run Full Suite to start
+                <div className="sim-empty">
+                  Click ▶ SIM on any adapter or tap Run All to start
                 </div>
-              ) : (
-                events.map((ev, i) => (
-                  <div
-                    key={ev.id + i}
-                    onClick={() => setSelected(ev)}
-                    style={{
-                      padding: "9px 14px",
-                      borderBottom: "1px solid rgba(255,255,255,0.04)",
-                      cursor: "pointer",
-                      background: selected?.id === ev.id ? "rgba(99,102,241,0.12)" : "transparent",
-                      transition: "background 0.1s",
-                      animation: i === 0 ? "fadeIn 0.3s ease" : "none",
-                    }}
-                  >
-                    <div style={{ display: "flex", alignItems: "center", gap: 6, marginBottom: 3 }}>
-                      <span style={{ fontSize: 10, color: "#475569", fontVariantNumeric: "tabular-nums", flexShrink: 0 }}>
-                        {fmt(ev.ts)}
-                      </span>
-                      <span style={{
-                        fontSize: 10, fontWeight: 700,
-                        background: `${TYPE_COLORS[ev.type] ?? "#6366f1"}22`,
-                        color: TYPE_COLORS[ev.type] ?? "#6366f1",
-                        borderRadius: 4, padding: "1px 6px",
-                        flexShrink: 0,
-                      }}>{ev.type}</span>
-                      <span style={{
-                        fontSize: 10,
-                        color: ev.dir === "IN" ? "#10b981" : "#f97316",
-                        flexShrink: 0,
-                      }}>{ev.dir === "IN" ? "↓IN" : "↑OUT"}</span>
-                      <span style={{
-                        fontSize: 10,
-                        background: INDUSTRY_COLORS[ev.industry] ? `${INDUSTRY_COLORS[ev.industry]}22` : "rgba(255,255,255,0.06)",
-                        color: INDUSTRY_COLORS[ev.industry] ?? "#64748b",
-                        borderRadius: 4, padding: "1px 5px",
-                        flexShrink: 0,
-                      }}>{ev.industry}</span>
-                    </div>
-                    <div style={{
-                      fontSize: 12, fontWeight: 600,
-                      whiteSpace: "nowrap", overflow: "hidden", textOverflow: "ellipsis",
-                    }}>{ev.label}</div>
-                    <div style={{
-                      fontSize: 11, color: "#64748b", marginTop: 2,
-                      whiteSpace: "nowrap", overflow: "hidden", textOverflow: "ellipsis",
-                    }}>
-                      {ev.summary} · {ev.latencyMs}ms
-                    </div>
-                  </div>
-                ))
-              )}
-            </div>
-          </div>
-
-          {/* Payload viewer */}
-          {selected ? (
-            <div style={{
-              background: "rgba(255,255,255,0.03)",
-              border: "1px solid rgba(255,255,255,0.07)",
-              borderRadius: 14,
-              overflow: "hidden",
-              maxHeight: 440,
-              display: "flex",
-              flexDirection: "column",
-            }}>
-              <div style={{
-                padding: "12px 16px",
-                borderBottom: "1px solid rgba(255,255,255,0.06)",
-                display: "flex", alignItems: "center", justifyContent: "space-between",
-                flexShrink: 0,
-              }}>
-                <div style={{ fontWeight: 700, fontSize: 13 }}>
-                  Payload Viewer
-                  <span style={{
-                    marginLeft: 8, fontSize: 11, color: "#64748b",
-                    background: "rgba(255,255,255,0.06)", borderRadius: 4, padding: "1px 7px",
-                  }}>{selected.adapterLabel}</span>
-                </div>
-                <button
-                  onClick={() => setSelected(null)}
+              ) : events.map((ev, i) => (
+                <div
+                  key={ev.id + i}
+                  onClick={() => setSelected(ev)}
+                  className="sim-log-row"
                   style={{
-                    background: "none", border: "none", color: "#64748b",
-                    cursor: "pointer", fontSize: 16, lineHeight: 1, padding: "0 2px",
+                    background: selected?.id === ev.id ? "rgba(99,102,241,0.12)" : "transparent",
+                    animation: i === 0 ? "simfade 0.3s ease" : "none",
                   }}
-                >×</button>
-              </div>
-              <div style={{ padding: "6px 12px 4px", flexShrink: 0 }}>
-                <div style={{ display: "flex", gap: 6, flexWrap: "wrap" }}>
-                  {[
-                    { key: "type", val: selected.type },
-                    { key: "dir",  val: selected.dir },
-                    { key: "status", val: selected.status },
-                    { key: "latency", val: `${selected.latencyMs}ms` },
-                  ].map(b => (
-                    <span key={b.key} style={{
-                      fontSize: 10, background: "rgba(255,255,255,0.06)",
-                      borderRadius: 4, padding: "2px 7px", color: "#94a3b8",
-                    }}>
-                      <span style={{ color: "#64748b" }}>{b.key}: </span>{b.val}
-                    </span>
-                  ))}
-                </div>
-              </div>
-              <div style={{ overflowY: "auto", flex: 1, scrollbarWidth: "thin" }}>
-                <pre style={{
-                  margin: 0, padding: "10px 14px 14px",
-                  fontSize: 10.5, lineHeight: 1.6,
-                  color: "#a5b4fc",
-                  fontFamily: "'JetBrains Mono', 'Fira Code', monospace",
-                  whiteSpace: "pre-wrap", wordBreak: "break-all",
-                }}>
-                  {JSON.stringify(selected.payload, null, 2)}
-                </pre>
-              </div>
-              <div style={{
-                padding: "8px 14px",
-                borderTop: "1px solid rgba(255,255,255,0.06)",
-                fontSize: 10, color: "#475569",
-                flexShrink: 0,
-              }}>
-                ⚠ SIMULATED — No real PHI, credentials, or external systems involved
-              </div>
-            </div>
-          ) : (
-            <div style={{
-              background: "rgba(255,255,255,0.03)",
-              border: "1px dashed rgba(255,255,255,0.1)",
-              borderRadius: 14,
-              padding: 24,
-              textAlign: "center",
-              color: "#475569",
-              fontSize: 13,
-            }}>
-              Click any event or adapter to inspect the JSON payload
-            </div>
-          )}
-
-          {/* Legend */}
-          <div style={{
-            background: "rgba(255,255,255,0.02)",
-            border: "1px solid rgba(255,255,255,0.06)",
-            borderRadius: 10,
-            padding: "12px 14px",
-          }}>
-            <div style={{ fontSize: 11, fontWeight: 700, color: "#64748b", marginBottom: 8, letterSpacing: "0.06em" }}>
-              STATUS LEGEND
-            </div>
-            <div style={{ display: "flex", flexDirection: "column", gap: 5 }}>
-              {[
-                { dot: "#10b981", pulse: true,  label: "Listening",  desc: "Adapter wired · ready to receive" },
-                { dot: "#6366f1", pulse: true,  label: "Simulated",  desc: "Event fired through real code path" },
-              ].map(l => (
-                <div key={l.label} style={{ display: "flex", alignItems: "center", gap: 8, fontSize: 11 }}>
-                  <span style={{ width: 7, height: 7, borderRadius: "50%", background: l.dot, display: "inline-block", flexShrink: 0 }} />
-                  <span style={{ color: "#94a3b8", fontWeight: 600 }}>{l.label}</span>
-                  <span style={{ color: "#475569" }}>{l.desc}</span>
+                >
+                  <div className="sim-log-meta">
+                    <span className="sim-log-time">{fmt(ev.ts)}</span>
+                    <span className="sim-type-badge" style={{
+                      background:`${TYPE[ev.type]??"#6366f1"}22`,
+                      color:TYPE[ev.type]??"#6366f1",
+                    }}>{ev.type}</span>
+                    <span className="sim-dir" style={{
+                      color:ev.dir==="IN"?"#10b981":"#f97316",
+                    }}>{ev.dir==="IN"?"↓IN":"↑OUT"}</span>
+                    <span className="sim-ind-badge" style={{
+                      background:IND[ev.industry]?`${IND[ev.industry]}22`:"rgba(255,255,255,0.06)",
+                      color:IND[ev.industry]??"#64748b",
+                    }}>{ev.industry}</span>
+                  </div>
+                  <div className="sim-log-label">{ev.label}</div>
+                  <div className="sim-log-summary">{ev.summary} · {ev.latencyMs}ms</div>
                 </div>
               ))}
             </div>
           </div>
 
-          {/* Disclaimer */}
-          <div style={{
-            fontSize: 10, color: "#334155", lineHeight: 1.5,
-            borderTop: "1px solid rgba(255,255,255,0.05)",
-            paddingTop: 10,
-          }}>
-            This dashboard demonstrates integration architecture and data flow capability only.
+          {/* Payload viewer */}
+          {selected ? (
+            <div className="sim-panel sim-payload-panel">
+              <div className="sim-panel-hdr">
+                <span className="sim-panel-title">
+                  Payload Viewer
+                  <span className="sim-adapter-tag">{selected.adapterLabel}</span>
+                </span>
+                <button className="sim-close-btn" onClick={() => setSelected(null)}>✕</button>
+              </div>
+              <div className="sim-payload-meta">
+                {[
+                  { k:"type",    v:selected.type },
+                  { k:"dir",     v:selected.dir },
+                  { k:"status",  v:selected.status },
+                  { k:"latency", v:`${selected.latencyMs}ms` },
+                ].map(b => (
+                  <span key={b.k} className="sim-meta-pill">
+                    <span className="sim-meta-key">{b.k}:</span> {b.v}
+                  </span>
+                ))}
+              </div>
+              <div className="sim-payload-scroll">
+                <pre className="sim-payload-pre">
+                  {JSON.stringify(selected.payload, null, 2)}
+                </pre>
+              </div>
+              <div className="sim-payload-footer">
+                ⚠ SIMULATED — No real PHI, credentials, or external systems
+              </div>
+            </div>
+          ) : (
+            <div className="sim-panel sim-payload-empty">
+              Tap any event or adapter card to inspect the JSON payload
+            </div>
+          )}
+
+          {/* Legend */}
+          <div className="sim-panel sim-legend">
+            <div className="sim-legend-title">STATUS</div>
+            <div className="sim-legend-row">
+              <span className="sim-dot" style={{ background:"#10b981" }} />
+              <strong>Listening</strong>
+              <span className="sim-legend-desc">Adapter wired · ready to receive</span>
+            </div>
+            <div className="sim-legend-row">
+              <span className="sim-dot" style={{ background:"#6366f1", animation:"simdot 1.5s infinite" }} />
+              <strong>Simulated</strong>
+              <span className="sim-legend-desc">Event fired through real code path</span>
+            </div>
+          </div>
+
+          <div className="sim-disclaimer">
+            This dashboard demonstrates integration architecture only.
             No real PHI, credentials, API keys, or external systems are involved.
-            All events are simulated and pass through the live adapter validation code.
-            For authorized IT reviewer use only.
+            All events are simulated through the live adapter validation code.
           </div>
         </div>
       </div>
 
+      {/* ── Global styles ──────────────────────────────────────────────────── */}
       <style>{`
-        @keyframes pulse {
-          0%, 100% { opacity: 1; }
-          50% { opacity: 0.4; }
+        /* ── Reset & Root ───────────────────────────────────────────────── */
+        *, *::before, *::after { box-sizing: border-box; }
+        .sim-root {
+          min-height: 100vh;
+          background: #0a0a0f;
+          color: #e2e8f0;
+          font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
+          font-size: 14px;
+          overflow-x: hidden;
+          width: 100%;
         }
-        @keyframes spin {
-          from { transform: rotate(0deg); }
-          to { transform: rotate(360deg); }
+
+        /* ── Banner ─────────────────────────────────────────────────────── */
+        .sim-banner {
+          background: rgba(99,102,241,0.12);
+          border-bottom: 1px solid rgba(99,102,241,0.25);
+          padding: 10px 16px;
+          display: flex;
+          align-items: center;
+          justify-content: space-between;
+          flex-wrap: wrap;
+          gap: 8px;
+          font-size: 12px;
         }
-        @keyframes fadeIn {
-          from { opacity: 0; transform: translateY(-4px); }
-          to   { opacity: 1; transform: translateY(0); }
+        .sim-banner-left {
+          display: flex;
+          align-items: center;
+          flex-wrap: wrap;
+          gap: 8px;
         }
-        ::-webkit-scrollbar { width: 4px; height: 4px; }
-        ::-webkit-scrollbar-track { background: transparent; }
-        ::-webkit-scrollbar-thumb { background: rgba(255,255,255,0.1); border-radius: 2px; }
+        .sim-brand {
+          font-weight: 700;
+          letter-spacing: 0.07em;
+          color: #a5b4fc;
+          font-size: 11px;
+        }
+        .sim-badge-live {
+          background: #10b981;
+          color: #fff;
+          border-radius: 4px;
+          padding: 2px 8px;
+          font-size: 10px;
+          font-weight: 700;
+          white-space: nowrap;
+        }
+        .sim-sse {
+          display: flex;
+          align-items: center;
+          gap: 5px;
+          font-size: 11px;
+          white-space: nowrap;
+        }
+        .sim-dot {
+          width: 7px;
+          height: 7px;
+          border-radius: 50%;
+          display: inline-block;
+          flex-shrink: 0;
+        }
+        .sim-banner-right {
+          color: #64748b;
+          font-size: 10px;
+          white-space: nowrap;
+        }
+
+        /* ── Header ─────────────────────────────────────────────────────── */
+        .sim-header {
+          padding: 20px 16px 0;
+        }
+        .sim-title-row {
+          display: flex;
+          align-items: center;
+          gap: 12px;
+          flex-wrap: wrap;
+          margin-bottom: 16px;
+        }
+        .sim-logo {
+          width: 48px;
+          height: 48px;
+          border-radius: 12px;
+          background: linear-gradient(135deg,#6366f1,#8b5cf6);
+          display: flex;
+          align-items: center;
+          justify-content: center;
+          font-size: 26px;
+          flex-shrink: 0;
+        }
+        .sim-title-text { flex: 1; min-width: 0; }
+        .sim-title {
+          font-size: 18px;
+          font-weight: 700;
+          line-height: 1.3;
+        }
+        .sim-subtitle {
+          color: #64748b;
+          font-size: 12px;
+          margin-top: 2px;
+        }
+        .sim-suite-btn {
+          border: none;
+          border-radius: 8px;
+          color: #fff;
+          font-weight: 700;
+          font-size: 13px;
+          padding: 10px 18px;
+          display: flex;
+          align-items: center;
+          gap: 6px;
+          transition: all 0.2s;
+          white-space: nowrap;
+          flex-shrink: 0;
+        }
+
+        /* ── Metrics ────────────────────────────────────────────────────── */
+        .sim-metrics {
+          display: grid;
+          grid-template-columns: repeat(3, 1fr);
+          gap: 8px;
+          margin-bottom: 16px;
+        }
+        .sim-metric-card {
+          background: rgba(255,255,255,0.04);
+          border: 1px solid rgba(255,255,255,0.08);
+          border-radius: 10px;
+          padding: 10px 12px;
+          text-align: center;
+        }
+        .sim-metric-val {
+          font-size: 20px;
+          font-weight: 800;
+          line-height: 1.2;
+        }
+        .sim-metric-lbl {
+          font-size: 10px;
+          color: #64748b;
+          text-transform: uppercase;
+          letter-spacing: 0.05em;
+          margin-top: 2px;
+        }
+
+        /* ── Main two-column layout ──────────────────────────────────────── */
+        .sim-main {
+          display: flex;
+          flex-direction: column;
+          gap: 16px;
+          padding: 0 16px 32px;
+        }
+
+        /* ── Industry blocks ─────────────────────────────────────────────── */
+        .sim-adapters {
+          display: flex;
+          flex-direction: column;
+          gap: 14px;
+          min-width: 0;
+        }
+        .sim-industry-block {
+          background: rgba(255,255,255,0.03);
+          border: 1px solid rgba(255,255,255,0.07);
+          border-radius: 14px;
+          overflow: hidden;
+        }
+        .sim-industry-hdr {
+          padding: 10px 14px;
+          border-bottom: 1px solid rgba(255,255,255,0.06);
+          display: flex;
+          align-items: center;
+          gap: 8px;
+          flex-wrap: wrap;
+        }
+        .sim-industry-icon { font-size: 18px; flex-shrink: 0; }
+        .sim-industry-info {
+          flex: 1;
+          min-width: 0;
+          display: flex;
+          flex-direction: column;
+        }
+        .sim-industry-name { font-weight: 700; font-size: 13px; }
+        .sim-industry-note { font-size: 11px; color: #64748b; }
+        .sim-industry-count { font-size: 11px; color: #475569; white-space: nowrap; }
+
+        /* Adapter cards grid — 1 col on mobile, 2 on tablet, 3 on desktop */
+        .sim-adapter-grid {
+          display: grid;
+          grid-template-columns: 1fr;
+          gap: 1px;
+          background: rgba(255,255,255,0.04);
+        }
+        .sim-adapter-card {
+          padding: 14px 14px;
+          cursor: pointer;
+          transition: background 0.15s;
+        }
+        .sim-card-top {
+          display: flex;
+          align-items: flex-start;
+          justify-content: space-between;
+          gap: 8px;
+        }
+        .sim-card-info {
+          display: flex;
+          align-items: center;
+          gap: 10px;
+          flex: 1;
+          min-width: 0;
+        }
+        .sim-card-icon {
+          font-size: 22px;
+          flex-shrink: 0;
+          transition: filter 0.5s;
+        }
+        .sim-card-meta { min-width: 0; }
+        .sim-card-name {
+          font-weight: 600;
+          font-size: 13px;
+          white-space: nowrap;
+          overflow: hidden;
+          text-overflow: ellipsis;
+        }
+        .sim-card-badges {
+          display: flex;
+          align-items: center;
+          gap: 5px;
+          margin-top: 4px;
+          flex-wrap: wrap;
+        }
+        .sim-auth-badge {
+          font-size: 10px;
+          color: #64748b;
+          background: rgba(255,255,255,0.06);
+          border-radius: 4px;
+          padding: 1px 5px;
+        }
+        .sim-flag {
+          font-size: 10px;
+          border-radius: 4px;
+          padding: 1px 5px;
+        }
+        .sim-sim-btn {
+          padding: 6px 12px;
+          border-radius: 6px;
+          font-size: 11px;
+          font-weight: 700;
+          flex-shrink: 0;
+          transition: all 0.15s;
+          letter-spacing: 0.04em;
+          white-space: nowrap;
+          min-width: 56px;
+          text-align: center;
+        }
+        .sim-last-activity {
+          margin-top: 8px;
+          font-size: 11px;
+          color: #64748b;
+          display: flex;
+          align-items: center;
+          gap: 5px;
+          flex-wrap: wrap;
+        }
+        .sim-last-label {
+          overflow: hidden;
+          text-overflow: ellipsis;
+          white-space: nowrap;
+          flex: 1;
+          min-width: 0;
+        }
+        .sim-last-meta {
+          color: #475569;
+          flex-shrink: 0;
+          font-size: 10px;
+        }
+
+        /* ── Sidebar ─────────────────────────────────────────────────────── */
+        .sim-sidebar {
+          display: flex;
+          flex-direction: column;
+          gap: 12px;
+          min-width: 0;
+        }
+
+        /* ── Panels ──────────────────────────────────────────────────────── */
+        .sim-panel {
+          background: rgba(255,255,255,0.03);
+          border: 1px solid rgba(255,255,255,0.07);
+          border-radius: 14px;
+          overflow: hidden;
+        }
+        .sim-panel-hdr {
+          padding: 11px 14px;
+          border-bottom: 1px solid rgba(255,255,255,0.06);
+          display: flex;
+          align-items: center;
+          justify-content: space-between;
+          gap: 8px;
+        }
+        .sim-panel-title {
+          font-weight: 700;
+          font-size: 13px;
+          display: flex;
+          align-items: center;
+          gap: 7px;
+          flex-wrap: wrap;
+        }
+        .sim-panel-sub { font-size: 11px; color: #64748b; white-space: nowrap; }
+        .sim-count-badge {
+          background: rgba(99,102,241,0.2);
+          color: #a5b4fc;
+          border-radius: 10px;
+          padding: 1px 8px;
+          font-size: 11px;
+        }
+        .sim-adapter-tag {
+          font-size: 11px;
+          color: #64748b;
+          background: rgba(255,255,255,0.06);
+          border-radius: 4px;
+          padding: 1px 7px;
+          font-weight: 400;
+        }
+        .sim-close-btn {
+          background: none;
+          border: none;
+          color: #64748b;
+          cursor: pointer;
+          font-size: 15px;
+          line-height: 1;
+          padding: 2px 4px;
+          flex-shrink: 0;
+        }
+
+        /* ── Event log ───────────────────────────────────────────────────── */
+        .sim-log-scroll {
+          max-height: 320px;
+          overflow-y: auto;
+          scrollbar-width: thin;
+        }
+        .sim-empty {
+          padding: 28px 16px;
+          text-align: center;
+          color: #475569;
+          font-size: 13px;
+          line-height: 1.6;
+        }
+        .sim-log-row {
+          padding: 9px 14px;
+          border-bottom: 1px solid rgba(255,255,255,0.04);
+          cursor: pointer;
+          transition: background 0.1s;
+        }
+        .sim-log-meta {
+          display: flex;
+          align-items: center;
+          gap: 5px;
+          margin-bottom: 3px;
+          flex-wrap: wrap;
+        }
+        .sim-log-time {
+          font-size: 10px;
+          color: #475569;
+          font-variant-numeric: tabular-nums;
+          font-family: monospace;
+          flex-shrink: 0;
+        }
+        .sim-type-badge {
+          font-size: 10px;
+          font-weight: 700;
+          border-radius: 4px;
+          padding: 1px 6px;
+          flex-shrink: 0;
+        }
+        .sim-dir {
+          font-size: 10px;
+          font-weight: 700;
+          flex-shrink: 0;
+        }
+        .sim-ind-badge {
+          font-size: 10px;
+          border-radius: 4px;
+          padding: 1px 5px;
+          flex-shrink: 0;
+        }
+        .sim-log-label {
+          font-size: 12px;
+          font-weight: 600;
+          white-space: nowrap;
+          overflow: hidden;
+          text-overflow: ellipsis;
+        }
+        .sim-log-summary {
+          font-size: 11px;
+          color: #64748b;
+          margin-top: 2px;
+          white-space: nowrap;
+          overflow: hidden;
+          text-overflow: ellipsis;
+        }
+
+        /* ── Payload viewer ──────────────────────────────────────────────── */
+        .sim-payload-panel {
+          display: flex;
+          flex-direction: column;
+          max-height: 400px;
+        }
+        .sim-payload-meta {
+          padding: 6px 12px;
+          display: flex;
+          flex-wrap: wrap;
+          gap: 5px;
+        }
+        .sim-meta-pill {
+          font-size: 10px;
+          background: rgba(255,255,255,0.06);
+          border-radius: 4px;
+          padding: 2px 7px;
+          color: #94a3b8;
+        }
+        .sim-meta-key { color: #64748b; }
+        .sim-payload-scroll {
+          overflow-y: auto;
+          flex: 1;
+          scrollbar-width: thin;
+        }
+        .sim-payload-pre {
+          margin: 0;
+          padding: 10px 14px 14px;
+          font-size: 10.5px;
+          line-height: 1.6;
+          color: #a5b4fc;
+          font-family: 'JetBrains Mono','Fira Code',monospace;
+          white-space: pre-wrap;
+          word-break: break-all;
+        }
+        .sim-payload-footer {
+          padding: 8px 14px;
+          border-top: 1px solid rgba(255,255,255,0.06);
+          font-size: 10px;
+          color: #475569;
+          flex-shrink: 0;
+        }
+        .sim-payload-empty {
+          padding: 24px 16px;
+          text-align: center;
+          color: #475569;
+          font-size: 13px;
+          border-style: dashed;
+        }
+
+        /* ── Legend ──────────────────────────────────────────────────────── */
+        .sim-legend { padding: 12px 14px; }
+        .sim-legend-title {
+          font-size: 10px;
+          font-weight: 700;
+          color: #64748b;
+          letter-spacing: 0.08em;
+          margin-bottom: 8px;
+          text-transform: uppercase;
+        }
+        .sim-legend-row {
+          display: flex;
+          align-items: center;
+          gap: 7px;
+          font-size: 11px;
+          margin-bottom: 5px;
+          flex-wrap: wrap;
+        }
+        .sim-legend-desc { color: #475569; }
+
+        /* ── Disclaimer ──────────────────────────────────────────────────── */
+        .sim-disclaimer {
+          font-size: 10px;
+          color: #334155;
+          line-height: 1.6;
+          padding: 0 2px;
+        }
+
+        /* ── Adapter status badge ─────────────────────────────────────────── */
+        .sim-status-pill {
+          font-size: 10px;
+          font-weight: 700;
+          border-radius: 4px;
+          padding: 1px 6px;
+          display: inline-flex;
+          align-items: center;
+          gap: 3px;
+        }
+        .sim-status-dot {
+          width: 5px;
+          height: 5px;
+          border-radius: 50%;
+          display: inline-block;
+        }
+
+        /* ── Animations ──────────────────────────────────────────────────── */
+        @keyframes simdot {
+          0%,100% { opacity:1; }
+          50%      { opacity:0.3; }
+        }
+        @keyframes simfade {
+          from { opacity:0; transform:translateY(-4px); }
+          to   { opacity:1; transform:translateY(0); }
+        }
+        @keyframes simspin {
+          from { transform:rotate(0deg); }
+          to   { transform:rotate(360deg); }
+        }
+        .sim-spin { display:inline-block; animation:simspin 1s linear infinite; }
+
+        /* ── Scrollbars ──────────────────────────────────────────────────── */
+        ::-webkit-scrollbar { width:4px; height:4px; }
+        ::-webkit-scrollbar-track { background:transparent; }
+        ::-webkit-scrollbar-thumb { background:rgba(255,255,255,0.1); border-radius:2px; }
+
+        /* ════ RESPONSIVE BREAKPOINTS ════════════════════════════════════════ */
+
+        /* Tablet: 640px+ — adapter grid 2 columns */
+        @media (min-width: 640px) {
+          .sim-header { padding: 22px 24px 0; }
+          .sim-main   { padding: 0 24px 32px; }
+          .sim-banner { padding: 10px 24px; }
+          .sim-title  { font-size: 20px; }
+          .sim-metrics {
+            grid-template-columns: repeat(6, 1fr);
+          }
+          .sim-adapter-grid {
+            grid-template-columns: repeat(2, 1fr);
+          }
+          .sim-log-scroll { max-height: 360px; }
+        }
+
+        /* Desktop: 1024px+ — side-by-side main layout */
+        @media (min-width: 1024px) {
+          .sim-main {
+            display: grid;
+            grid-template-columns: 1fr 380px;
+            align-items: start;
+            gap: 16px;
+          }
+          .sim-sidebar {
+            position: sticky;
+            top: 16px;
+          }
+          .sim-title { font-size: 22px; }
+          .sim-adapter-grid {
+            grid-template-columns: repeat(auto-fill, minmax(240px, 1fr));
+          }
+          .sim-log-scroll { max-height: 360px; }
+          .sim-payload-panel { max-height: 420px; }
+        }
+
+        /* Large desktop: 1440px+ */
+        @media (min-width: 1440px) {
+          .sim-adapter-grid {
+            grid-template-columns: repeat(auto-fill, minmax(260px, 1fr));
+          }
+        }
+
+        /* Small mobile: max 375px — tighter padding */
+        @media (max-width: 375px) {
+          .sim-header { padding: 14px 12px 0; }
+          .sim-main   { padding: 0 12px 24px; gap: 12px; }
+          .sim-banner { padding: 8px 12px; }
+          .sim-banner-right { display: none; }
+          .sim-brand  { font-size: 10px; }
+          .sim-title  { font-size: 16px; }
+          .sim-suite-btn { padding: 8px 14px; font-size: 12px; }
+          .sim-metrics { gap: 6px; }
+          .sim-metric-card { padding: 8px 6px; }
+          .sim-metric-val { font-size: 17px; }
+        }
       `}</style>
     </div>
   );
 }
 
-// ─── Status pill sub-component ───────────────────────────────────────────────
-function StatusPill({ status, color }: { status: "simulated" | "listening"; color: string }) {
-  if (status === "simulated") {
+// ─── Status badge sub-component ───────────────────────────────────────────────
+function SimBadge({ simmed, color }: { simmed: boolean; color: string }) {
+  if (simmed) {
     return (
-      <span style={{
-        fontSize: 10, fontWeight: 700,
-        background: `${color}22`,
-        color,
-        borderRadius: 4,
-        padding: "1px 6px",
-        display: "flex", alignItems: "center", gap: 4,
+      <span className="sim-status-pill" style={{
+        background:`${color}22`, color,
       }}>
-        <span style={{
-          width: 5, height: 5, borderRadius: "50%",
-          background: color,
-          display: "inline-block",
-          animation: "pulse 1.5s infinite",
-        }} />
+        <span className="sim-status-dot" style={{
+          background:color, animation:"simdot 1.5s infinite",
+        }}/>
         SIMULATED
       </span>
     );
   }
   return (
-    <span style={{
-      fontSize: 10, fontWeight: 700,
-      background: "rgba(16,185,129,0.15)",
-      color: "#10b981",
-      borderRadius: 4,
-      padding: "1px 6px",
-      display: "flex", alignItems: "center", gap: 4,
+    <span className="sim-status-pill" style={{
+      background:"rgba(16,185,129,0.15)", color:"#10b981",
     }}>
-      <span style={{
-        width: 5, height: 5, borderRadius: "50%",
-        background: "#10b981",
-        display: "inline-block",
-      }} />
+      <span className="sim-status-dot" style={{ background:"#10b981" }}/>
       LISTENING
     </span>
   );

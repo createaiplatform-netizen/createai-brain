@@ -912,7 +912,7 @@ router.post("/simulate/:type", (req, res) => {
   };
   pushEvent(event);
 
-  res.json({ ok: true, event, _note: "SIMULATED EVENT — No real external system called. No real PHI." });
+  return res.json({ ok: true, event, _note: "SIMULATED EVENT — No real external system called. No real PHI." });
 });
 
 // ─── Pre-seeded demo events (used as fallback) ──────────────────────────────
