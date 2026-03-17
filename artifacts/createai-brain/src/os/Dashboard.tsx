@@ -1,29 +1,30 @@
-import React, { useState, useEffect } from "react";
-import { useOS, AppId } from "./OSContext";
+import React, { useState, useEffect, useCallback } from "react";
+import { useOS, AppId, ALL_APPS } from "./OSContext";
 import { PlatformStore, PlatformMode } from "@/engine/PlatformStore";
 import { BrainstormChat } from "./BrainstormChat";
+import { AppBrowserModal } from "./AppBrowserModal";
 import { useAuth } from "@workspace/replit-auth-web";
 
+// ─── Constants ────────────────────────────────────────────────────────────────
+
 const QUICK_ACTIONS = [
-  { icon: "✨", label: "Create Anything", sub: "Docs, content & apps",   app: "creator"    as AppId, color: "#6366f1" },
-  { icon: "💬", label: "AI Chat",         sub: "Talk to the Brain",      app: "chat"       as AppId, color: "#06b6d4" },
-  { icon: "🧪", label: "Simulate",        sub: "Analyze & forecast",     app: "simulation" as AppId, color: "#a855f7" },
-  { icon: "📣", label: "Marketing",       sub: "Campaigns & content",    app: "marketing"  as AppId, color: "#f472b6" },
+  { icon: "✨", label: "Create",    sub: "Docs & content",     app: "creator"    as AppId, color: "#6366f1" },
+  { icon: "💬", label: "AI Chat",   sub: "Talk to the Brain",  app: "chat"       as AppId, color: "#06b6d4" },
+  { icon: "📣", label: "Marketing", sub: "Campaigns & copy",   app: "marketing"  as AppId, color: "#f472b6" },
+  { icon: "⚡", label: "Brain Hub", sub: "Engines & series",   app: "brainhub"   as AppId, color: "#f59e0b" },
 ];
 
-const MODE_CFG: Record<PlatformMode, { label: string; color: string; dot: string; bg: string; border: string; text: string }> = {
-  DEMO: { label: "Demo",  color: "#f97316", dot: "#f97316", bg: "#fff7ed", border: "#fed7aa", text: "#c2410c" },
-  TEST: { label: "Test",  color: "#6366f1", dot: "#6366f1", bg: "#eef2ff", border: "#c7d2fe", text: "#4338ca" },
-  LIVE: { label: "Live",  color: "#16a34a", dot: "#22c55e", bg: "#f0fdf4", border: "#bbf7d0", text: "#15803d" },
+const MODE_CFG: Record<PlatformMode, { label: string; dot: string; bg: string; border: string; text: string }> = {
+  DEMO: { label: "Demo", dot: "#f97316", bg: "#fff7ed", border: "#fed7aa", text: "#c2410c" },
+  TEST: { label: "Test", dot: "#6366f1", bg: "#eef2ff", border: "#c7d2fe", text: "#4338ca" },
+  LIVE: { label: "Live", dot: "#22c55e", bg: "#f0fdf4", border: "#bbf7d0", text: "#15803d" },
 };
 
 const INTENT_SUGGESTIONS = [
   "Simulate a business model",
-  "Generate a marketing brochure",
-  "Create a landing page funnel",
-  "Build a content calendar",
-  "Chat with the Brain",
   "Write a pitch deck",
+  "Generate a marketing brochure",
+  "Build a content calendar",
   "Create an email sequence",
   "Run a gap analysis",
 ];
@@ -35,24 +36,43 @@ function getGreeting(): string {
   return "Good evening";
 }
 
+// ─── Types ────────────────────────────────────────────────────────────────────
+
+interface ActivityItem { id: number; label: string; icon: string; appId: string; createdAt: string; }
+interface ProjectItem  { id: string; name: string; icon: string; industry: string; }
+
+// ─── Featured Apps strip ───────────────────────────────────────────────────────
+
+const FEATURED: Array<{ id: AppId; icon: string; label: string; color: string }> = [
+  { id: "projos"      as AppId, icon: "🗂️",  label: "Projects",   color: "#6366f1" },
+  { id: "brainhub"   as AppId, icon: "⚡",  label: "Brain Hub",  color: "#f59e0b" },
+  { id: "brainGen"   as AppId, icon: "🧠",  label: "BrainGen",   color: "#8b5cf6" },
+  { id: "documents"  as AppId, icon: "📄",  label: "Documents",  color: "#0891b2" },
+  { id: "simulation" as AppId, icon: "🧪",  label: "Simulate",   color: "#a855f7" },
+  { id: "people"     as AppId, icon: "👥",  label: "People",     color: "#10b981" },
+  { id: "admin"      as AppId, icon: "⚙️",  label: "Admin",      color: "#6b7280" },
+  { id: "family"     as AppId, icon: "🏡",  label: "Family",     color: "#f472b6" },
+];
+
+// ─── Dashboard ────────────────────────────────────────────────────────────────
+
 interface DashboardProps {
   onHamburger?: () => void;
   isNarrow?: boolean;
   onShowTour?: () => void;
 }
 
-interface ActivityItem { id: number; label: string; icon: string; appId: string; createdAt: string; }
-interface ProjectItem  { id: string; name: string; icon: string; industry: string; }
-
 export function Dashboard({ onHamburger, onShowTour }: DashboardProps) {
-  const { openApp, appRegistry, routeIntent, platformMode, setPlatformMode, activeApp } = useOS();
+  const { openApp, routeIntent, platformMode, setPlatformMode, activeApp } = useOS();
   const { user } = useAuth();
   const displayName = user?.firstName || user?.email?.split("@")[0] || "";
+
   const [intentInput, setIntentInput]         = useState("");
   const [intentResult, setIntentResult]       = useState<{ app: AppId; label: string } | null>(null);
   const [showSuggestions, setShowSuggestions] = useState(false);
   const [showModeMenu, setShowModeMenu]       = useState(false);
   const [showBrainstorm, setShowBrainstorm]   = useState(false);
+  const [showAppBrowser, setShowAppBrowser]   = useState(false);
   const [mounted, setMounted]                 = useState(false);
   const [activity, setActivity]               = useState<ActivityItem[]>([]);
   const [recentProjects, setRecentProjects]   = useState<ProjectItem[]>([]);
@@ -62,28 +82,29 @@ export function Dashboard({ onHamburger, onShowTour }: DashboardProps) {
 
   useEffect(() => { setMounted(true); }, []);
 
-  const loadRecents = () => {
+  const loadRecents = useCallback(() => {
     Promise.all([
-      fetch("/api/activity?limit=6", { credentials: "include" })
+      fetch("/api/activity?limit=5", { credentials: "include" })
         .then(r => r.ok ? r.json() : { activity: [] })
         .then(d => setActivity(d.activity ?? [])),
       fetch("/api/projects", { credentials: "include" })
         .then(r => r.ok ? r.json() : { projects: [] })
         .then(d => setRecentProjects((d.projects ?? []).slice(0, 4))),
     ]).finally(() => setLoadingRecents(false));
-  };
+  }, []);
 
-  useEffect(() => { loadRecents(); }, []);
+  useEffect(() => { loadRecents(); }, [loadRecents]);
   useEffect(() => {
     const stored = PlatformStore.getRecent();
     if (stored.length > 0) loadRecents();
-  }, [activeApp]);
+  }, [activeApp, loadRecents]);
 
   const handleIntentSearch = (query: string) => {
     if (!query.trim()) { setIntentResult(null); return; }
     const targetId = routeIntent(query);
+    const all = ALL_APPS;
     if (targetId) {
-      const appDef = appRegistry.find(a => a.id === targetId);
+      const appDef = all.find(a => a.id === targetId);
       setIntentResult({ app: targetId, label: appDef?.label ?? targetId });
     } else {
       setIntentResult({ app: "chat", label: "AI Chat" });
@@ -105,10 +126,9 @@ export function Dashboard({ onHamburger, onShowTour }: DashboardProps) {
 
         {onHamburger && (
           <button onClick={onHamburger} aria-label="Open navigation"
-            className="w-8 h-8 flex flex-col items-center justify-center gap-[5px] rounded-xl transition-all duration-150 flex-shrink-0"
-            style={{ color: "#6b7280" }}
-            onMouseEnter={e => ((e.currentTarget as HTMLElement).style.background = "rgba(0,0,0,0.05)")}
-            onMouseLeave={e => ((e.currentTarget as HTMLElement).style.background = "transparent")}
+            className="w-9 h-9 flex flex-col items-center justify-center gap-[5px] rounded-xl transition-all flex-shrink-0"
+            onMouseEnter={e => (e.currentTarget.style.background = "rgba(0,0,0,0.05)")}
+            onMouseLeave={e => (e.currentTarget.style.background = "transparent")}
           >
             <span className="w-4 h-[1.5px] rounded-full block" style={{ background: "#6b7280" }} />
             <span className="w-4 h-[1.5px] rounded-full block" style={{ background: "#6b7280" }} />
@@ -117,18 +137,14 @@ export function Dashboard({ onHamburger, onShowTour }: DashboardProps) {
         )}
 
         <div className="flex-1 min-w-0">
-          <h1 className="font-bold text-[15px]" style={{ color: "#0f172a", letterSpacing: "-0.02em" }}>
-            CreateAI Brain
-          </h1>
+          <h1 className="font-bold text-[15px]" style={{ color: "#0f172a", letterSpacing: "-0.02em" }}>CreateAI Brain</h1>
         </div>
 
         {/* Mode badge */}
         <div className="relative">
-          <button
-            onClick={() => setShowModeMenu(m => !m)}
+          <button onClick={() => setShowModeMenu(m => !m)}
             className="flex items-center gap-1.5 px-3 py-1.5 rounded-full text-[11px] font-semibold transition-all"
-            style={{ background: cfg.bg, border: `1px solid ${cfg.border}`, color: cfg.text }}
-          >
+            style={{ background: cfg.bg, border: `1px solid ${cfg.border}`, color: cfg.text }}>
             <span className="w-1.5 h-1.5 rounded-full animate-pulse" style={{ background: cfg.dot }} />
             {cfg.label}
           </button>
@@ -138,7 +154,7 @@ export function Dashboard({ onHamburger, onShowTour }: DashboardProps) {
               style={{ background: "#fff", border: "1px solid rgba(0,0,0,0.09)", boxShadow: "0 8px 32px rgba(0,0,0,0.12)" }}>
               {(["DEMO", "TEST", "LIVE"] as PlatformMode[]).map(m => (
                 <button key={m} onClick={() => { setPlatformMode(m); setShowModeMenu(false); }}
-                  className="w-full flex items-center gap-2.5 px-3 py-2 rounded-xl text-left text-[12px] font-semibold transition-all"
+                  className="w-full flex items-center gap-2.5 px-3 py-2.5 rounded-xl text-left text-[12px] font-semibold transition-all"
                   style={platformMode === m
                     ? { background: MODE_CFG[m].bg, color: MODE_CFG[m].text }
                     : { color: "#374151" }}
@@ -147,7 +163,7 @@ export function Dashboard({ onHamburger, onShowTour }: DashboardProps) {
                 >
                   <span className="w-2 h-2 rounded-full" style={{ background: MODE_CFG[m].dot }} />
                   {MODE_CFG[m].label} Mode
-                  {platformMode === m && <span className="ml-auto text-[10px]">✓</span>}
+                  {platformMode === m && <span className="ml-auto">✓</span>}
                 </button>
               ))}
             </div>
@@ -158,95 +174,79 @@ export function Dashboard({ onHamburger, onShowTour }: DashboardProps) {
           <button onClick={onShowTour}
             className="hidden sm:flex flex-shrink-0 text-[11px] font-semibold px-3 py-2 rounded-full items-center gap-1.5 transition-all"
             style={{ background: "#eef2ff", color: "#6366f1", border: "1px solid #c7d2fe" }}
-            onMouseEnter={e => ((e.currentTarget as HTMLElement).style.background = "#e0e7ff")}
-            onMouseLeave={e => ((e.currentTarget as HTMLElement).style.background = "#eef2ff")}
-          >
-            ✦ Tour
-          </button>
+            onMouseEnter={e => (e.currentTarget.style.background = "#e0e7ff")}
+            onMouseLeave={e => (e.currentTarget.style.background = "#eef2ff")}
+          >✦ Tour</button>
         )}
 
         <button onClick={() => openApp("chat")}
           className="flex-shrink-0 text-[12px] font-semibold px-4 py-2 rounded-full flex items-center gap-1.5 transition-all"
           style={{ background: "#6366f1", color: "#fff", boxShadow: "0 2px 8px rgba(99,102,241,0.30)" }}
-          onMouseEnter={e => ((e.currentTarget as HTMLElement).style.background = "#4f46e5")}
-          onMouseLeave={e => ((e.currentTarget as HTMLElement).style.background = "#6366f1")}
-        >
-          🧠 Ask the Brain
-        </button>
+          onMouseEnter={e => (e.currentTarget.style.background = "#4f46e5")}
+          onMouseLeave={e => (e.currentTarget.style.background = "#6366f1")}
+        >🧠 Ask</button>
       </header>
 
       {/* ── Body ── */}
-      <div className="flex-1 overflow-y-auto">
-        <div className="max-w-2xl mx-auto px-4 py-6 space-y-7">
+      <div className="flex-1 overflow-y-auto overscroll-contain">
+        <div className="max-w-xl mx-auto px-4 py-7 space-y-8">
 
           {/* ── Greeting ── */}
           <div className={`transition-opacity duration-500 ${mounted ? "opacity-100" : "opacity-0"}`}>
-            <p className="text-[13px] font-medium" style={{ color: "#6b7280" }}>{getGreeting()}{displayName ? `, ${displayName}` : ""} 👋</p>
-            <h2 className="text-[24px] font-bold mt-0.5" style={{ color: "#0f172a", letterSpacing: "-0.03em" }}>
-              What would you like to create today?
+            <p className="text-[13px] font-medium" style={{ color: "#6b7280" }}>
+              {getGreeting()}{displayName ? `, ${displayName}` : ""} 👋
+            </p>
+            <h2 className="text-[22px] font-bold mt-1" style={{ color: "#0f172a", letterSpacing: "-0.03em" }}>
+              What would you like to build today?
             </h2>
           </div>
 
           {/* ── Brainstorm Banner ── */}
           <div className={`transition-opacity duration-500 delay-75 ${mounted ? "opacity-100" : "opacity-0"}`}>
-            <button
-              onClick={() => setShowBrainstorm(true)}
-              className="w-full flex items-center gap-4 p-4 rounded-2xl text-left transition-all group"
-              style={{
-                background: "linear-gradient(135deg,#6366f1 0%,#8b5cf6 100%)",
-                boxShadow: "0 4px 20px rgba(99,102,241,0.25)",
-              }}
-              onMouseEnter={e => ((e.currentTarget as HTMLElement).style.boxShadow = "0 6px 28px rgba(99,102,241,0.38)")}
-              onMouseLeave={e => ((e.currentTarget as HTMLElement).style.boxShadow = "0 4px 20px rgba(99,102,241,0.25)")}
+            <button onClick={() => setShowBrainstorm(true)}
+              className="w-full flex items-center gap-4 p-5 rounded-2xl text-left transition-all group"
+              style={{ background: "linear-gradient(135deg,#6366f1 0%,#8b5cf6 100%)", boxShadow: "0 4px 20px rgba(99,102,241,0.22)" }}
+              onMouseEnter={e => (e.currentTarget.style.boxShadow = "0 6px 28px rgba(99,102,241,0.36)")}
+              onMouseLeave={e => (e.currentTarget.style.boxShadow = "0 4px 20px rgba(99,102,241,0.22)")}
             >
-              <div className="w-12 h-12 rounded-2xl flex items-center justify-center text-2xl flex-shrink-0"
-                style={{ background: "rgba(255,255,255,0.18)" }}>
-                🧠
-              </div>
+              <div className="w-11 h-11 rounded-2xl flex items-center justify-center text-2xl flex-shrink-0"
+                style={{ background: "rgba(255,255,255,0.18)" }}>🧠</div>
               <div className="flex-1 min-w-0">
-                <p className="font-bold text-[15px] text-white" style={{ letterSpacing: "-0.01em" }}>
-                  Brainstorm with AI
-                </p>
-                <p className="text-[12px] mt-0.5" style={{ color: "rgba(255,255,255,0.72)" }}>
-                  Describe any idea — projects are built and organized automatically
+                <p className="font-bold text-[15px] text-white" style={{ letterSpacing: "-0.01em" }}>Brainstorm with AI</p>
+                <p className="text-[12px] mt-0.5" style={{ color: "rgba(255,255,255,0.70)" }}>
+                  Describe any idea — the Brain organizes and builds it
                 </p>
               </div>
-              <div className="flex-shrink-0 text-white/60 text-[20px] group-hover:translate-x-1 transition-transform">›</div>
+              <div className="flex-shrink-0 text-white/50 text-[22px] group-hover:translate-x-0.5 transition-transform">›</div>
             </button>
           </div>
 
-          {/* ── Search bar ── */}
+          {/* ── Search ── */}
           <div className={`relative transition-opacity duration-500 delay-75 ${mounted ? "opacity-100" : "opacity-0"}`}>
             <form onSubmit={handleIntentSubmit}>
               <div className="flex items-center gap-3 rounded-2xl px-4 py-3 transition-all"
-                style={{ background: "#fff", border: "1.5px solid rgba(0,0,0,0.09)", boxShadow: "0 2px 12px rgba(0,0,0,0.06)" }}
-                onFocus={() => {}}
-              >
-                <span className="text-[18px] flex-shrink-0">🔍</span>
+                style={{ background: "#fff", border: "1.5px solid rgba(0,0,0,0.09)", boxShadow: "0 2px 12px rgba(0,0,0,0.05)" }}>
+                <span className="text-[17px] flex-shrink-0">🔍</span>
                 <input
                   type="text"
                   value={intentInput}
                   onChange={e => { setIntentInput(e.target.value); handleIntentSearch(e.target.value); }}
                   onFocus={() => setShowSuggestions(true)}
                   onBlur={() => setTimeout(() => setShowSuggestions(false), 160)}
-                  placeholder="Search apps, or tell the Brain what to build…"
+                  placeholder="Search apps, or describe what you want to build…"
                   className="flex-1 bg-transparent outline-none text-[14px] min-w-0"
                   style={{ color: "#0f172a" }}
                 />
                 {intentInput && (
                   <button type="submit"
-                    className="text-[12px] font-semibold px-3 py-1.5 rounded-xl transition-all"
-                    style={{ background: "#6366f1", color: "#fff" }}
-                  >
-                    Go →
-                  </button>
+                    className="text-[12px] font-semibold px-3 py-1.5 rounded-xl transition-all flex-shrink-0"
+                    style={{ background: "#6366f1", color: "#fff" }}>Go →</button>
                 )}
               </div>
 
               {intentResult && (
                 <div className="absolute top-full left-0 right-0 mt-2 rounded-2xl px-4 py-2.5 text-[13px] font-medium flex items-center justify-between z-10"
-                  style={{ background: "linear-gradient(135deg,#6366f1,#4f46e5)", boxShadow: "0 4px 20px rgba(99,102,241,0.35)" }}
-                >
+                  style={{ background: "linear-gradient(135deg,#6366f1,#4f46e5)", boxShadow: "0 4px 20px rgba(99,102,241,0.35)" }}>
                   <span className="text-white">→ Open {intentResult.label}</span>
                   <span className="text-white/60 text-[11px]">Press Enter</span>
                 </div>
@@ -260,13 +260,11 @@ export function Dashboard({ onHamburger, onShowTour }: DashboardProps) {
                     {INTENT_SUGGESTIONS.map(s => (
                       <button key={s} type="button"
                         onMouseDown={() => { setIntentInput(s); handleIntentSearch(s); }}
-                        className="text-[11px] px-2.5 py-1 rounded-full transition-all"
+                        className="text-[11px] px-2.5 py-1.5 rounded-full transition-all"
                         style={{ background: "#f3f4f6", color: "#374151", border: "1px solid rgba(0,0,0,0.06)" }}
                         onMouseEnter={e => { (e.currentTarget as HTMLElement).style.background = "#eef2ff"; (e.currentTarget as HTMLElement).style.color = "#6366f1"; }}
                         onMouseLeave={e => { (e.currentTarget as HTMLElement).style.background = "#f3f4f6"; (e.currentTarget as HTMLElement).style.color = "#374151"; }}
-                      >
-                        {s}
-                      </button>
+                      >{s}</button>
                     ))}
                   </div>
                 </div>
@@ -276,48 +274,49 @@ export function Dashboard({ onHamburger, onShowTour }: DashboardProps) {
 
           {/* ── Quick Start ── */}
           <section className={`transition-opacity duration-500 delay-100 ${mounted ? "opacity-100" : "opacity-0"}`}>
-            <p className="text-[11px] font-bold uppercase tracking-widest mb-3" style={{ color: "#9ca3af" }}>Quick Start</p>
-            <div className="grid grid-cols-2 sm:grid-cols-4 gap-3">
+            <p className="text-[11px] font-semibold uppercase tracking-widest mb-3" style={{ color: "#c4c9d4" }}>Quick Start</p>
+            <div className="grid grid-cols-2 sm:grid-cols-4 gap-2.5">
               {QUICK_ACTIONS.map(a => (
                 <button key={a.label} onClick={() => openApp(a.app)}
-                  className="flex flex-col items-center gap-2.5 p-5 rounded-2xl text-center transition-all duration-200 group"
-                  style={{ background: "#fff", border: "1px solid rgba(0,0,0,0.07)", boxShadow: "0 1px 4px rgba(0,0,0,0.06)" }}
-                  onMouseEnter={e => { (e.currentTarget as HTMLElement).style.boxShadow = `0 4px 16px ${a.color}25`; (e.currentTarget as HTMLElement).style.borderColor = `${a.color}40`; (e.currentTarget as HTMLElement).style.transform = "translateY(-1px)"; }}
-                  onMouseLeave={e => { (e.currentTarget as HTMLElement).style.boxShadow = "0 1px 4px rgba(0,0,0,0.06)"; (e.currentTarget as HTMLElement).style.borderColor = "rgba(0,0,0,0.07)"; (e.currentTarget as HTMLElement).style.transform = ""; }}
+                  className="flex flex-col items-center gap-2.5 p-5 rounded-2xl text-center transition-all duration-200"
+                  style={{ background: "#fff", border: "1px solid rgba(0,0,0,0.07)", boxShadow: "0 1px 4px rgba(0,0,0,0.05)" }}
+                  onMouseEnter={e => { (e.currentTarget as HTMLElement).style.boxShadow = `0 4px 16px ${a.color}22`; (e.currentTarget as HTMLElement).style.borderColor = `${a.color}38`; (e.currentTarget as HTMLElement).style.transform = "translateY(-1px)"; }}
+                  onMouseLeave={e => { (e.currentTarget as HTMLElement).style.boxShadow = "0 1px 4px rgba(0,0,0,0.05)"; (e.currentTarget as HTMLElement).style.borderColor = "rgba(0,0,0,0.07)"; (e.currentTarget as HTMLElement).style.transform = ""; }}
                 >
-                  <div className="w-12 h-12 rounded-2xl flex items-center justify-center text-2xl"
-                    style={{ background: `${a.color}15` }}>
-                    {a.icon}
-                  </div>
+                  <div className="w-11 h-11 rounded-2xl flex items-center justify-center text-2xl"
+                    style={{ background: `${a.color}14` }}>{a.icon}</div>
                   <div>
                     <p className="font-semibold text-[12px] leading-tight" style={{ color: "#0f172a" }}>{a.label}</p>
-                    <p className="text-[10px] mt-0.5" style={{ color: "#6b7280" }}>{a.sub}</p>
+                    <p className="text-[10px] mt-0.5" style={{ color: "#9ca3af" }}>{a.sub}</p>
                   </div>
                 </button>
               ))}
             </div>
           </section>
 
-          {/* ── All Apps ── */}
-          <section className={`transition-opacity duration-500 delay-150 ${mounted ? "opacity-100" : "opacity-0"}`}>
-            <p className="text-[11px] font-bold uppercase tracking-widest mb-3" style={{ color: "#9ca3af" }}>All Apps</p>
-            <div className="grid grid-cols-1 sm:grid-cols-2 gap-2">
-              {appRegistry.map(app => (
-                <button key={app.id} onClick={() => openApp(app.id as AppId)}
-                  className="flex items-center gap-3 p-3.5 rounded-2xl text-left transition-all duration-150"
-                  style={{ background: "#fff", border: "1px solid rgba(0,0,0,0.07)", boxShadow: "0 1px 3px rgba(0,0,0,0.05)" }}
-                  onMouseEnter={e => { (e.currentTarget as HTMLElement).style.background = "#f8fafc"; (e.currentTarget as HTMLElement).style.borderColor = (app.color ?? "#6366f1") + "40"; (e.currentTarget as HTMLElement).style.transform = "translateX(2px)"; }}
-                  onMouseLeave={e => { (e.currentTarget as HTMLElement).style.background = "#fff"; (e.currentTarget as HTMLElement).style.borderColor = "rgba(0,0,0,0.07)"; (e.currentTarget as HTMLElement).style.transform = ""; }}
+          {/* ── Featured Apps ── */}
+          <section className={`transition-opacity duration-500 delay-125 ${mounted ? "opacity-100" : "opacity-0"}`}>
+            <div className="flex items-center justify-between mb-3">
+              <p className="text-[11px] font-semibold uppercase tracking-widest" style={{ color: "#c4c9d4" }}>Apps</p>
+              <button
+                onClick={() => setShowAppBrowser(true)}
+                className="text-[11px] font-semibold flex items-center gap-1 transition-all"
+                style={{ color: "#6366f1" }}
+                onMouseEnter={e => (e.currentTarget.style.opacity = "0.75")}
+                onMouseLeave={e => (e.currentTarget.style.opacity = "1")}
+              >Browse all {ALL_APPS.length} →</button>
+            </div>
+            <div className="grid grid-cols-4 gap-2">
+              {FEATURED.map(a => (
+                <button key={a.id} onClick={() => openApp(a.id)}
+                  className="flex flex-col items-center gap-2 p-3.5 rounded-2xl text-center transition-all"
+                  style={{ background: "#fff", border: "1px solid rgba(0,0,0,0.07)" }}
+                  onMouseEnter={e => { (e.currentTarget as HTMLElement).style.borderColor = a.color + "38"; (e.currentTarget as HTMLElement).style.transform = "translateY(-1px)"; }}
+                  onMouseLeave={e => { (e.currentTarget as HTMLElement).style.borderColor = "rgba(0,0,0,0.07)"; (e.currentTarget as HTMLElement).style.transform = ""; }}
                 >
-                  <div className="w-10 h-10 rounded-xl flex items-center justify-center text-xl flex-shrink-0"
-                    style={{ background: (app.color ?? "#6366f1") + "18" }}>
-                    {app.icon}
-                  </div>
-                  <div className="flex-1 min-w-0">
-                    <p className="font-semibold text-[13px] leading-tight" style={{ color: "#0f172a" }}>{app.label}</p>
-                    <p className="text-[11px] mt-0.5 truncate" style={{ color: "#6b7280" }}>{app.description}</p>
-                  </div>
-                  <span className="text-[16px] flex-shrink-0" style={{ color: "#d1d5db" }}>›</span>
+                  <div className="w-10 h-10 rounded-xl flex items-center justify-center text-xl"
+                    style={{ background: a.color + "18" }}>{a.icon}</div>
+                  <p className="text-[10px] font-semibold leading-tight" style={{ color: "#374151" }}>{a.label}</p>
                 </button>
               ))}
             </div>
@@ -326,37 +325,44 @@ export function Dashboard({ onHamburger, onShowTour }: DashboardProps) {
           {/* ── Your Projects ── */}
           <section className={`transition-opacity duration-500 delay-150 ${mounted ? "opacity-100" : "opacity-0"}`}>
             <div className="flex items-center justify-between mb-3">
-              <p className="text-[11px] font-bold uppercase tracking-widest" style={{ color: "#9ca3af" }}>Your Projects</p>
-              <button onClick={() => openApp("projos")} className="text-[11px] font-semibold" style={{ color: "#6366f1" }}>View all →</button>
+              <p className="text-[11px] font-semibold uppercase tracking-widest" style={{ color: "#c4c9d4" }}>Your Projects</p>
+              <button onClick={() => openApp("projos" as AppId)}
+                className="text-[11px] font-semibold transition-all" style={{ color: "#6366f1" }}
+                onMouseEnter={e => (e.currentTarget.style.opacity = "0.75")}
+                onMouseLeave={e => (e.currentTarget.style.opacity = "1")}
+              >View all →</button>
             </div>
             {loadingRecents ? (
               <div className="flex items-center gap-2 text-[12px] py-2" style={{ color: "#9ca3af" }}>
                 <span className="inline-block w-3 h-3 border-2 border-indigo-400 border-t-transparent rounded-full animate-spin" />
-                Loading your projects…
+                Loading…
               </div>
             ) : recentProjects.length === 0 ? (
-              <button onClick={() => openApp("projos")}
+              <button onClick={() => openApp("projos" as AppId)}
                 className="w-full flex items-center gap-3 p-4 rounded-2xl text-left transition-all"
-                style={{ background: "#f8fafc", border: "2px dashed rgba(99,102,241,0.25)" }}>
+                style={{ background: "#f8fafc", border: "2px dashed rgba(99,102,241,0.22)" }}
+                onMouseEnter={e => (e.currentTarget.style.borderColor = "rgba(99,102,241,0.42)")}
+                onMouseLeave={e => (e.currentTarget.style.borderColor = "rgba(99,102,241,0.22)")}
+              >
                 <span className="text-2xl">📁</span>
                 <div>
                   <p className="text-[13px] font-semibold" style={{ color: "#374151" }}>No projects yet</p>
-                  <p className="text-[11px]" style={{ color: "#6b7280" }}>Tap to create your first project in ProjectOS</p>
+                  <p className="text-[11px] mt-0.5" style={{ color: "#9ca3af" }}>Tap to create your first project</p>
                 </div>
               </button>
             ) : (
               <div className="grid grid-cols-2 gap-2">
                 {recentProjects.map(p => (
-                  <button key={p.id} onClick={() => openApp("projos")}
+                  <button key={p.id} onClick={() => openApp("projos" as AppId)}
                     className="flex items-center gap-2.5 p-3 rounded-xl text-left transition-all"
-                    style={{ background: "#fff", border: "1px solid rgba(0,0,0,0.07)", boxShadow: "0 1px 3px rgba(0,0,0,0.05)" }}
-                    onMouseEnter={e => { (e.currentTarget as HTMLElement).style.borderColor = "rgba(99,102,241,0.30)"; (e.currentTarget as HTMLElement).style.transform = "translateY(-1px)"; }}
+                    style={{ background: "#fff", border: "1px solid rgba(0,0,0,0.07)", boxShadow: "0 1px 3px rgba(0,0,0,0.04)" }}
+                    onMouseEnter={e => { (e.currentTarget as HTMLElement).style.borderColor = "rgba(99,102,241,0.28)"; (e.currentTarget as HTMLElement).style.transform = "translateY(-1px)"; }}
                     onMouseLeave={e => { (e.currentTarget as HTMLElement).style.borderColor = "rgba(0,0,0,0.07)"; (e.currentTarget as HTMLElement).style.transform = ""; }}
                   >
                     <span className="text-xl flex-shrink-0">{p.icon || "📁"}</span>
                     <div className="flex-1 min-w-0">
                       <p className="text-[12px] font-semibold truncate" style={{ color: "#0f172a" }}>{p.name}</p>
-                      <p className="text-[10px]" style={{ color: "#6b7280" }}>{p.industry}</p>
+                      <p className="text-[10px]" style={{ color: "#9ca3af" }}>{p.industry}</p>
                     </div>
                   </button>
                 ))}
@@ -367,32 +373,37 @@ export function Dashboard({ onHamburger, onShowTour }: DashboardProps) {
           {/* ── Recent Activity ── */}
           {activity.length > 0 && (
             <section className={`transition-opacity duration-500 delay-200 ${mounted ? "opacity-100" : "opacity-0"}`}>
-              <p className="text-[11px] font-bold uppercase tracking-widest mb-3" style={{ color: "#9ca3af" }}>Recent Activity</p>
+              <p className="text-[11px] font-semibold uppercase tracking-widest mb-3" style={{ color: "#c4c9d4" }}>Recent</p>
               <div className="space-y-1.5">
-                {activity.slice(0, 5).map(r => (
+                {activity.slice(0, 4).map(r => (
                   <button key={r.id} onClick={() => openApp((r.appId || "creator") as AppId)}
-                    className="w-full flex items-center gap-3 p-3 rounded-xl text-left transition-all"
+                    className="w-full flex items-center gap-3 p-3.5 rounded-xl text-left transition-all"
                     style={{ background: "#fff", border: "1px solid rgba(0,0,0,0.07)" }}
-                    onMouseEnter={e => { (e.currentTarget as HTMLElement).style.background = "#f8fafc"; (e.currentTarget as HTMLElement).style.borderColor = "rgba(99,102,241,0.25)"; }}
+                    onMouseEnter={e => { (e.currentTarget as HTMLElement).style.background = "#f8fafc"; (e.currentTarget as HTMLElement).style.borderColor = "rgba(99,102,241,0.22)"; }}
                     onMouseLeave={e => { (e.currentTarget as HTMLElement).style.background = "#fff"; (e.currentTarget as HTMLElement).style.borderColor = "rgba(0,0,0,0.07)"; }}
                   >
                     <span className="text-xl flex-shrink-0">{r.icon}</span>
                     <span className="flex-1 text-[13px] font-medium truncate" style={{ color: "#0f172a" }}>{r.label}</span>
                     <span className="text-[11px] font-semibold px-2 py-0.5 rounded-full flex-shrink-0"
-                      style={{ color: "#6366f1", background: "#eef2ff" }}>Open →</span>
+                      style={{ color: "#6366f1", background: "#eef2ff" }}>Open</span>
                   </button>
                 ))}
               </div>
             </section>
           )}
 
-          <div className="h-4" />
+          <div className="h-6" />
         </div>
       </div>
 
       {showModeMenu && <div className="fixed inset-0 z-40" onClick={() => setShowModeMenu(false)} />}
 
-      {/* ── Brainstorm Chat Panel ── */}
+      {/* ── App Browser ── */}
+      {showAppBrowser && (
+        <AppBrowserModal onClose={() => setShowAppBrowser(false)} />
+      )}
+
+      {/* ── Brainstorm Chat ── */}
       <BrainstormChat
         isOpen={showBrainstorm}
         onClose={() => setShowBrainstorm(false)}

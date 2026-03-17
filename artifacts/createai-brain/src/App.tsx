@@ -42,47 +42,22 @@ const INDIGO = "#6366f1";
 const PURPLE = "#8b5cf6";
 const DARK_BG = "linear-gradient(135deg, hsl(220,20%,10%) 0%, hsl(240,25%,14%) 50%, hsl(255,30%,12%) 100%)";
 
+// 12 featured apps shown on the landing page — clean preview, no overwhelm
 const APP_PREVIEW = [
-  // Core OS
-  { icon: "💬", label: "AI Chat" },
-  { icon: "🗂️", label: "Projects" },
-  { icon: "✨", label: "Creator" },
-  { icon: "📣", label: "Marketing" },
-  { icon: "📄", label: "Documents" },
-  { icon: "🧠", label: "BrainGen" },
-  { icon: "👥", label: "People" },
-  { icon: "⚡", label: "Brain Hub" },
-  // Creative Writing
-  { icon: "🎬", label: "Scriptwriter" },
-  { icon: "📚", label: "Book Planner" },
-  { icon: "🌸", label: "PoemForge" },
-  { icon: "📝", label: "Essay Writer" },
-  { icon: "✍️", label: "Blog Writer" },
-  { icon: "🎤", label: "Speechwriter" },
-  // Business & Strategy
-  { icon: "♟️", label: "Strategist" },
-  { icon: "📧", label: "Email Composer" },
-  { icon: "📨", label: "Proposal Builder" },
-  { icon: "🤝", label: "Hiring Assistant" },
-  // World Building
-  { icon: "🪐", label: "Planet Builder" },
-  { icon: "🐉", label: "Monster Forge" },
-  { icon: "👾", label: "Alien Species" },
-  { icon: "🌀", label: "Dimension Builder" },
-  // Learning
-  { icon: "🔬", label: "Research Assist" },
-  { icon: "🦉", label: "Philosophy" },
-  { icon: "🔢", label: "Math Solver" },
-  // Lifestyle
-  { icon: "🎯", label: "Goal Planner" },
-  { icon: "✈️", label: "Travel Planner" },
-  { icon: "📔", label: "Journal Studio" },
-  // Music, Game, Health, Arts
-  { icon: "🎵", label: "Lyrics Writer" },
-  { icon: "⚔️", label: "Quest Designer" },
+  { icon: "💬", label: "AI Chat"       },
+  { icon: "🗂️", label: "Projects"      },
+  { icon: "✨", label: "Creator"       },
+  { icon: "📣", label: "Marketing"     },
+  { icon: "🧠", label: "BrainGen"      },
+  { icon: "⚡", label: "Brain Hub"     },
+  { icon: "📚", label: "Book Planner"  },
+  { icon: "♟️", label: "Strategist"   },
+  { icon: "🪐", label: "Planet Builder"},
+  { icon: "🎬", label: "Scriptwriter"  },
+  { icon: "🔬", label: "Research"      },
   { icon: "💙", label: "Mental Health" },
-  { icon: "🖼️", label: "Art Critique" },
 ];
+const EXTRA_APP_COUNT = 110; // shown as "+110 more"
 
 // ─── Loading Screen ────────────────────────────────────────────────────────
 
@@ -140,20 +115,30 @@ function LoginScreen({ onLogin }: { onLogin: () => void }) {
 
         {/* Public preview: app grid */}
         <div className="w-full">
-          <p className="text-center text-[12px] font-semibold uppercase tracking-widest mb-5"
-            style={{ color: "rgba(148,163,184,0.45)" }}>
-            121 AI-POWERED APPS INSIDE
+          <p className="text-center text-[11px] font-semibold uppercase tracking-widest mb-4"
+            style={{ color: "rgba(148,163,184,0.40)" }}>
+            A few of the 122+ apps inside
           </p>
-          <div className="grid grid-cols-4 gap-3">
+          <div className="grid grid-cols-4 gap-2.5">
             {APP_PREVIEW.map(({ icon, label }) => (
               <div key={label}
-                className="flex flex-col items-center gap-2 p-3 rounded-2xl"
+                className="flex flex-col items-center gap-1.5 py-3 px-2 rounded-2xl"
                 style={{ background: "rgba(255,255,255,0.05)", border: "1px solid rgba(255,255,255,0.07)" }}>
-                <span className="text-2xl">{icon}</span>
-                <span className="text-[10px] font-medium text-center leading-tight"
-                  style={{ color: "rgba(203,213,225,0.70)" }}>{label}</span>
+                <span className="text-[22px]">{icon}</span>
+                <span className="text-[9px] font-medium text-center leading-tight"
+                  style={{ color: "rgba(203,213,225,0.65)" }}>{label}</span>
               </div>
             ))}
+            {/* "+more" tile */}
+            <div className="flex flex-col items-center justify-center gap-1 py-3 px-2 rounded-2xl"
+              style={{ background: "rgba(99,102,241,0.10)", border: "1px solid rgba(99,102,241,0.18)" }}>
+              <span className="text-[13px] font-bold" style={{ color: "rgba(165,167,255,0.85)" }}>
+                +{EXTRA_APP_COUNT}
+              </span>
+              <span className="text-[9px] text-center leading-tight" style={{ color: "rgba(165,167,255,0.55)" }}>
+                more
+              </span>
+            </div>
           </div>
         </div>
 
