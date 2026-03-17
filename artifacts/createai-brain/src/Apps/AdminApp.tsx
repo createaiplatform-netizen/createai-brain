@@ -11,16 +11,17 @@ interface ActivityEntry { id: number; action: string; details: string; createdAt
 interface PersonRecord { id: number; name: string; email: string | null; role: string; status: string; }
 
 const SECTIONS = [
-  { id: "projects", label: "All Projects",   value: "…",      icon: "📁", desc: "View, edit, or archive any project" },
-  { id: "users",    label: "People",          value: "…",      icon: "👥", desc: "Manage access, roles, and permissions" },
-  { id: "engines",  label: "Engines",         value: "30+",    icon: "⚙️", desc: "All engines loaded and connected" },
-  { id: "security", label: "Security",        value: "Active", icon: "🔒", desc: "RBAC, invite-only, audit log" },
-  { id: "safety",   label: "Safety Shell",    value: "ON",     icon: "🛡️", desc: "Global error prevention active" },
-  { id: "audit",    label: "Audit Log",       value: "…",      icon: "📋", desc: "Recent activity log" },
-  { id: "debug",    label: "Debug Panel",     value: "Live",   icon: "🔬", desc: "System state, engines, localStorage" },
+  { id: "profile",             label: "My Profile",         value: "Edit", icon: "👤", desc: "Edit your name and account info" },
+  { id: "projects",            label: "All Projects",       value: "…",      icon: "📁", desc: "View, edit, or archive any project" },
+  { id: "users",               label: "People",             value: "…",      icon: "👥", desc: "Manage access, roles, and permissions" },
+  { id: "engines",             label: "Engines",            value: "30+",    icon: "⚙️", desc: "All engines loaded and connected" },
+  { id: "security",            label: "Security",           value: "Active", icon: "🔒", desc: "RBAC, invite-only, audit log" },
+  { id: "safety",              label: "Safety Shell",       value: "ON",     icon: "🛡️", desc: "Global error prevention active" },
+  { id: "audit",               label: "Audit Log",          value: "…",      icon: "📋", desc: "Recent activity log" },
+  { id: "debug",               label: "Debug Panel",        value: "Live",   icon: "🔬", desc: "System state, engines, localStorage" },
   { id: "connection-layer",    label: "Connection Layer",   value: "30+ nodes", icon: "🕸️", desc: "Internal module/flow/brain fabric" },
-  { id: "regulatory",          label: "Regulatory Blueprints", value: "6",     icon: "📜", desc: "HIPAA, GDPR, SOC2, CMS, ADA — blueprint only" },
-  { id: "backend-blueprints",  label: "Backend Blueprints", value: "5",         icon: "🏗️", desc: "API specs, data models, security patterns" },
+  { id: "regulatory",          label: "Regulatory Blueprints", value: "6",   icon: "📜", desc: "HIPAA, GDPR, SOC2, CMS, ADA — blueprint only" },
+  { id: "backend-blueprints",  label: "Backend Blueprints", value: "5",      icon: "🏗️", desc: "API specs, data models, security patterns" },
 ];
 
 const ENGINE_LIST = [
@@ -436,6 +437,14 @@ export function AdminApp() {
   const [peopleCount, setPeopleCount] = useState<number | null>(null);
   const [auditLog, setAuditLog] = useState<ActivityEntry[]>([]);
   const [auditLoading, setAuditLoading] = useState(false);
+  // ── Profile state ──
+  const [profile, setProfile]           = useState<{ firstName: string; lastName: string; email: string } | null>(null);
+  const [profileLoading, setProfileLoading] = useState(false);
+  const [editFirst, setEditFirst]       = useState("");
+  const [editLast, setEditLast]         = useState("");
+  const [profileSaving, setProfileSaving] = useState(false);
+  const [profileSaved, setProfileSaved] = useState(false);
+  const [profileError, setProfileError] = useState("");
 
   useEffect(() => {
     fetch("/api/projects", { credentials: "include" })
@@ -449,6 +458,23 @@ export function AdminApp() {
       .then(d => { setPeopleCount((d.people ?? []).length); })
       .catch(() => {});
   }, []);
+
+  useEffect(() => {
+    if (activeSection !== "profile") return;
+    setProfileLoading(true); setProfileSaved(false); setProfileError("");
+    fetch("/api/user/me", { credentials: "include" })
+      .then(r => r.ok ? r.json() : null)
+      .then((d: { user?: { firstName?: string; lastName?: string; email?: string } } | null) => {
+        if (d?.user) {
+          const u = d.user;
+          setProfile({ firstName: u.firstName ?? "", lastName: u.lastName ?? "", email: u.email ?? "" });
+          setEditFirst(u.firstName ?? "");
+          setEditLast(u.lastName ?? "");
+        }
+      })
+      .catch(() => setProfileError("Failed to load profile"))
+      .finally(() => setProfileLoading(false));
+  }, [activeSection]);
 
   useEffect(() => {
     if (activeSection === "debug") {
@@ -751,6 +777,146 @@ export function AdminApp() {
             <span className={`ml-auto text-[10px] font-bold px-2 py-0.5 rounded-full flex-shrink-0 ${item.status === "Active" ? "bg-green-100 text-green-700" : "bg-orange-100 text-orange-700"}`}>{item.status}</span>
           </div>
         ))}
+      </div>
+    );
+  }
+
+  // ── Profile section ──
+  if (activeSection === "profile") {
+    const handleSave = async () => {
+      setProfileSaving(true); setProfileError(""); setProfileSaved(false);
+      try {
+        const res = await fetch("/api/user/me", {
+          method: "PUT", credentials: "include",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ firstName: editFirst.trim(), lastName: editLast.trim() }),
+        });
+        const data = await res.json() as { user?: { firstName?: string; lastName?: string }; error?: string };
+        if (data.user) {
+          setProfile(prev => prev ? { ...prev, firstName: data.user!.firstName ?? prev.firstName, lastName: data.user!.lastName ?? prev.lastName } : prev);
+          setProfileSaved(true);
+          setTimeout(() => setProfileSaved(false), 3000);
+        } else {
+          setProfileError(data.error ?? "Failed to save");
+        }
+      } catch { setProfileError("Network error"); }
+      finally { setProfileSaving(false); }
+    };
+
+    return (
+      <div className="p-6 space-y-5">
+        <button onClick={() => setActiveSection(null)} className="text-primary text-sm font-medium">‹ Admin</button>
+        <h2 className="text-xl font-bold text-foreground">My Profile</h2>
+
+        {profileLoading ? (
+          <div className="flex items-center gap-2 text-[12px] text-muted-foreground py-6">
+            <div className="w-3 h-3 border-2 border-primary border-t-transparent rounded-full animate-spin" />
+            Loading profile…
+          </div>
+        ) : (
+          <div className="space-y-4">
+            {/* Avatar */}
+            <div className="flex items-center gap-4 p-4 bg-background rounded-2xl border border-border/50">
+              <div style={{
+                width: 56, height: 56, borderRadius: "50%",
+                background: "rgba(99,102,241,0.2)", border: "2px solid rgba(99,102,241,0.4)",
+                display: "flex", alignItems: "center", justifyContent: "center",
+                fontSize: 22, fontWeight: 700, color: "#818cf8",
+              }}>
+                {(editFirst[0] ?? "?").toUpperCase()}{(editLast[0] ?? "").toUpperCase()}
+              </div>
+              <div>
+                <div style={{ fontSize: 16, fontWeight: 700, color: "#e2e8f0" }}>
+                  {editFirst || "—"} {editLast}
+                </div>
+                <div style={{ fontSize: 12, color: "#64748b", marginTop: 2 }}>
+                  {profile?.email ?? "No email on file"}
+                </div>
+              </div>
+            </div>
+
+            {/* Edit form */}
+            <div style={{
+              background: "rgba(99,102,241,0.08)", border: "1px solid rgba(99,102,241,0.2)",
+              borderRadius: 12, padding: "16px", display: "flex", flexDirection: "column", gap: 12,
+            }}>
+              <div style={{ fontSize: 11, fontWeight: 700, color: "#818cf8", textTransform: "uppercase", letterSpacing: 0.8 }}>
+                Edit Name
+              </div>
+
+              <div style={{ display: "flex", gap: 10 }}>
+                <div style={{ flex: 1, display: "flex", flexDirection: "column", gap: 4 }}>
+                  <label style={{ fontSize: 11, color: "#94a3b8" }}>First Name</label>
+                  <input
+                    value={editFirst}
+                    onChange={e => setEditFirst(e.target.value)}
+                    placeholder="First name"
+                    style={{
+                      background: "rgba(255,255,255,0.06)", border: "1px solid rgba(255,255,255,0.12)",
+                      borderRadius: 8, padding: "9px 12px", color: "#e2e8f0", fontSize: 13, fontFamily: "inherit",
+                    }}
+                  />
+                </div>
+                <div style={{ flex: 1, display: "flex", flexDirection: "column", gap: 4 }}>
+                  <label style={{ fontSize: 11, color: "#94a3b8" }}>Last Name</label>
+                  <input
+                    value={editLast}
+                    onChange={e => setEditLast(e.target.value)}
+                    placeholder="Last name"
+                    style={{
+                      background: "rgba(255,255,255,0.06)", border: "1px solid rgba(255,255,255,0.12)",
+                      borderRadius: 8, padding: "9px 12px", color: "#e2e8f0", fontSize: 13, fontFamily: "inherit",
+                    }}
+                  />
+                </div>
+              </div>
+
+              <div style={{ display: "flex", flexDirection: "column", gap: 4 }}>
+                <label style={{ fontSize: 11, color: "#94a3b8" }}>Email <span style={{ color: "#4f5a6e" }}>(read-only — managed by Replit Auth)</span></label>
+                <input
+                  value={profile?.email ?? ""}
+                  readOnly
+                  style={{
+                    background: "rgba(255,255,255,0.03)", border: "1px solid rgba(255,255,255,0.06)",
+                    borderRadius: 8, padding: "9px 12px", color: "#64748b", fontSize: 13, fontFamily: "inherit",
+                    cursor: "not-allowed",
+                  }}
+                />
+              </div>
+
+              <button
+                onClick={handleSave}
+                disabled={profileSaving || (!editFirst.trim() && !editLast.trim())}
+                style={{
+                  background: "#6366f1", border: "none", borderRadius: 10, padding: "10px 16px",
+                  color: "#fff", fontSize: 13, fontWeight: 700,
+                  cursor: profileSaving ? "not-allowed" : "pointer",
+                  opacity: (!editFirst.trim() && !editLast.trim()) ? 0.5 : 1,
+                }}
+              >
+                {profileSaving ? "Saving…" : "Save Name"}
+              </button>
+
+              {profileSaved && (
+                <div style={{ fontSize: 12, color: "#34C759", padding: "8px 12px", background: "rgba(52,199,89,0.1)", borderRadius: 8, border: "1px solid rgba(52,199,89,0.2)" }}>
+                  ✓ Profile saved successfully
+                </div>
+              )}
+              {profileError && (
+                <div style={{ fontSize: 12, color: "#ff6b6b", padding: "8px 12px", background: "rgba(255,59,48,0.1)", borderRadius: 8, border: "1px solid rgba(255,59,48,0.2)" }}>
+                  ⚠️ {profileError}
+                </div>
+              )}
+            </div>
+
+            <div className="bg-background rounded-2xl border border-border/50 p-4 space-y-1">
+              <p className="text-[11px] font-bold text-foreground">Account Info</p>
+              <p className="text-[11px] text-muted-foreground">Authentication: Replit Auth (OAuth)</p>
+              <p className="text-[11px] text-muted-foreground">Session: Persistent cookie-based session</p>
+              <p className="text-[11px] text-muted-foreground">Role: Platform Owner</p>
+            </div>
+          </div>
+        )}
       </div>
     );
   }

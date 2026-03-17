@@ -3,7 +3,16 @@ import { MediaPlayer } from "../components/MediaPlayer";
 
 // ─── Types ────────────────────────────────────────────────────────────────────
 
-type ViewMode = "dashboard+folders" | "dashboard" | "folders" | "simple" | "advanced" | "tasks";
+type ViewMode = "dashboard+folders" | "dashboard" | "folders" | "simple" | "advanced" | "tasks" | "team";
+
+// ─── Member Types ─────────────────────────────────────────────────────────────
+interface ProjectMember {
+  projectId: string;
+  userId: string;
+  addedByUserId: string;
+  role: "owner" | "editor" | "viewer";
+  createdAt?: string;
+}
 
 // ─── Task Types ───────────────────────────────────────────────────────────────
 interface ProjectTask {
@@ -658,6 +667,13 @@ export function ProjectOSApp() {
   const [editingProjectName, setEditingProjectName] = useState(false);
   const [editProjectNameVal, setEditProjectNameVal] = useState("");
   const [showArchived, setShowArchived] = useState(false);
+  // ── Member/Team state ──
+  const [members, setMembers]         = useState<ProjectMember[]>([]);
+  const [membersLoading, setMembersLoading] = useState(false);
+  const [memberError, setMemberError] = useState("");
+  const [addMemberId, setAddMemberId] = useState("");
+  const [addMemberRole, setAddMemberRole] = useState<"viewer" | "editor" | "owner">("viewer");
+  const [addingMember, setAddingMember] = useState(false);
   const aiAbortRef = useRef<AbortController | null>(null);
   const aiScrollRef = useRef<HTMLDivElement>(null);
 
@@ -678,6 +694,55 @@ export function ProjectOSApp() {
   useEffect(() => {
     if (aiScrollRef.current) aiScrollRef.current.scrollTop = aiScrollRef.current.scrollHeight;
   }, [aiMessages]);
+
+  // ── Load members when Team tab is active ────────────────────────────────
+  useEffect(() => {
+    if (viewMode !== "team" || !activeProjectId) return;
+    setMembersLoading(true);
+    setMemberError("");
+    fetch(`/api/projects/${activeProjectId}/members`, { credentials: "include" })
+      .then(r => r.json())
+      .then((data: { members?: ProjectMember[]; error?: string }) => {
+        if (data.members) setMembers(data.members);
+        else setMemberError(data.error ?? "Failed to load members");
+      })
+      .catch(() => setMemberError("Network error"))
+      .finally(() => setMembersLoading(false));
+  }, [viewMode, activeProjectId]);
+
+  const handleAddMember = useCallback(async () => {
+    if (!addMemberId.trim() || !activeProjectId) return;
+    setAddingMember(true); setMemberError("");
+    try {
+      const res = await fetch(`/api/projects/${activeProjectId}/members`, {
+        method: "POST", credentials: "include",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ memberId: addMemberId.trim(), role: addMemberRole }),
+      });
+      const data = await res.json() as { member?: ProjectMember; error?: string };
+      if (data.member) { setMembers(prev => [...prev, data.member!]); setAddMemberId(""); }
+      else setMemberError(data.error ?? "Failed to add member");
+    } catch { setMemberError("Network error"); }
+    finally { setAddingMember(false); }
+  }, [addMemberId, addMemberRole, activeProjectId]);
+
+  const handleUpdateMemberRole = useCallback(async (memberId: string, role: "owner" | "editor" | "viewer") => {
+    if (!activeProjectId) return;
+    await fetch(`/api/projects/${activeProjectId}/members/${memberId}`, {
+      method: "PUT", credentials: "include",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ role }),
+    });
+    setMembers(prev => prev.map(m => m.userId === memberId ? { ...m, role } : m));
+  }, [activeProjectId]);
+
+  const handleRemoveMember = useCallback(async (memberId: string) => {
+    if (!activeProjectId) return;
+    await fetch(`/api/projects/${activeProjectId}/members/${memberId}`, {
+      method: "DELETE", credentials: "include",
+    });
+    setMembers(prev => prev.filter(m => m.userId !== memberId));
+  }, [activeProjectId]);
 
   const createProject = useCallback(async () => {
     if (!newProjName.trim()) return;
@@ -859,6 +924,7 @@ export function ProjectOSApp() {
     { id: "simple",            label: "Simple" },
     { id: "advanced",          label: "Advanced" },
     { id: "tasks",             label: "📋 Tasks" },
+    { id: "team",              label: "👥 Team" },
   ];
 
   const activeFiles = activeFolderId
@@ -1104,8 +1170,174 @@ export function ProjectOSApp() {
                 </div>
               )}
 
+              {/* ── Team / Members Panel ── */}
+              {viewMode === "team" && (
+                <div className="flex-1 overflow-y-auto p-5" style={{ maxWidth: 680 }}>
+                  <div style={{ display: "flex", flexDirection: "column", gap: 18 }}>
+
+                    {/* Header */}
+                    <div>
+                      <div style={{ fontSize: 16, fontWeight: 700, color: "#e2e8f0" }}>
+                        👥 Team Members — {activeProject.name}
+                      </div>
+                      <div style={{ fontSize: 12, color: "#64748b", marginTop: 3 }}>
+                        Add collaborators by their user ID. Roles: viewer (read-only), editor (can edit files), owner (full access).
+                      </div>
+                    </div>
+
+                    {/* Add member form */}
+                    <div style={{
+                      background: "rgba(99,102,241,0.08)", border: "1px solid rgba(99,102,241,0.2)",
+                      borderRadius: 12, padding: "14px 16px", display: "flex", flexDirection: "column", gap: 10,
+                    }}>
+                      <div style={{ fontSize: 11, fontWeight: 700, color: "#818cf8", textTransform: "uppercase", letterSpacing: 0.8 }}>
+                        Add Member
+                      </div>
+                      <div style={{ display: "flex", gap: 8, alignItems: "flex-end", flexWrap: "wrap" }}>
+                        <div style={{ flex: 1, minWidth: 180, display: "flex", flexDirection: "column", gap: 4 }}>
+                          <label style={{ fontSize: 11, color: "#94a3b8" }}>User ID</label>
+                          <input
+                            value={addMemberId}
+                            onChange={e => setAddMemberId(e.target.value)}
+                            placeholder="e.g. user-abc123"
+                            style={{
+                              background: "rgba(255,255,255,0.06)", border: "1px solid rgba(255,255,255,0.12)",
+                              borderRadius: 8, padding: "8px 12px", color: "#e2e8f0", fontSize: 13, fontFamily: "inherit",
+                            }}
+                            onKeyDown={e => { if (e.key === "Enter") handleAddMember(); }}
+                          />
+                        </div>
+                        <div style={{ display: "flex", flexDirection: "column", gap: 4 }}>
+                          <label style={{ fontSize: 11, color: "#94a3b8" }}>Role</label>
+                          <select
+                            value={addMemberRole}
+                            onChange={e => setAddMemberRole(e.target.value as "viewer" | "editor" | "owner")}
+                            style={{
+                              background: "rgba(255,255,255,0.08)", border: "1px solid rgba(255,255,255,0.12)",
+                              borderRadius: 8, padding: "8px 12px", color: "#e2e8f0", fontSize: 13, cursor: "pointer",
+                            }}
+                          >
+                            <option value="viewer">Viewer</option>
+                            <option value="editor">Editor</option>
+                            <option value="owner">Owner</option>
+                          </select>
+                        </div>
+                        <button
+                          onClick={handleAddMember}
+                          disabled={addingMember || !addMemberId.trim()}
+                          style={{
+                            background: "#6366f1", border: "none", borderRadius: 8, padding: "8px 16px",
+                            color: "#fff", fontSize: 13, fontWeight: 600, cursor: addingMember || !addMemberId.trim() ? "not-allowed" : "pointer",
+                            opacity: !addMemberId.trim() ? 0.5 : 1,
+                          }}
+                        >{addingMember ? "Adding…" : "+ Add"}</button>
+                      </div>
+                      {memberError && (
+                        <div style={{ fontSize: 12, color: "#ff6b6b", padding: "6px 8px", background: "rgba(255,59,48,0.1)", borderRadius: 6 }}>
+                          ⚠️ {memberError}
+                        </div>
+                      )}
+                    </div>
+
+                    {/* Members list */}
+                    {membersLoading ? (
+                      <div style={{ fontSize: 13, color: "#64748b", padding: "20px 0", textAlign: "center" }}>
+                        Loading members…
+                      </div>
+                    ) : members.length === 0 ? (
+                      <div style={{
+                        textAlign: "center", padding: "32px 0",
+                        color: "#475569", fontSize: 13,
+                      }}>
+                        No team members yet. Add the first one above.
+                      </div>
+                    ) : (
+                      <div style={{ display: "flex", flexDirection: "column", gap: 8 }}>
+                        {members.map(member => {
+                          const roleColors: Record<string, string> = {
+                            owner: "#FF9500", editor: "#6366f1", viewer: "#34C759",
+                          };
+                          const roleColor = roleColors[member.role] ?? "#94a3b8";
+                          return (
+                            <div key={member.userId} style={{
+                              background: "rgba(255,255,255,0.04)", border: "1px solid rgba(255,255,255,0.08)",
+                              borderRadius: 10, padding: "12px 14px", display: "flex", alignItems: "center", gap: 12,
+                            }}>
+                              {/* Avatar */}
+                              <div style={{
+                                width: 36, height: 36, borderRadius: "50%",
+                                background: `${roleColor}22`, border: `1px solid ${roleColor}44`,
+                                display: "flex", alignItems: "center", justifyContent: "center",
+                                fontSize: 14, fontWeight: 700, color: roleColor, flexShrink: 0,
+                              }}>
+                                {member.userId.slice(0, 2).toUpperCase()}
+                              </div>
+                              {/* Info */}
+                              <div style={{ flex: 1, minWidth: 0 }}>
+                                <div style={{ fontSize: 13, fontWeight: 600, color: "#e2e8f0", overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap" }}>
+                                  {member.userId}
+                                </div>
+                                <div style={{ fontSize: 11, color: "#64748b", marginTop: 2 }}>
+                                  Added by {member.addedByUserId}
+                                  {member.createdAt && ` · ${new Date(member.createdAt).toLocaleDateString()}`}
+                                </div>
+                              </div>
+                              {/* Role selector */}
+                              <select
+                                value={member.role}
+                                onChange={e => handleUpdateMemberRole(member.userId, e.target.value as "owner" | "editor" | "viewer")}
+                                style={{
+                                  background: `${roleColor}18`, border: `1px solid ${roleColor}40`,
+                                  borderRadius: 6, padding: "4px 10px", color: roleColor,
+                                  fontSize: 11, fontWeight: 700, cursor: "pointer",
+                                }}
+                              >
+                                <option value="viewer">Viewer</option>
+                                <option value="editor">Editor</option>
+                                <option value="owner">Owner</option>
+                              </select>
+                              {/* Remove */}
+                              <button
+                                onClick={() => handleRemoveMember(member.userId)}
+                                style={{
+                                  background: "rgba(255,59,48,0.12)", border: "1px solid rgba(255,59,48,0.25)",
+                                  borderRadius: 6, padding: "4px 10px", color: "#ff6b6b",
+                                  fontSize: 11, cursor: "pointer",
+                                }}
+                                title="Remove member"
+                              >Remove</button>
+                            </div>
+                          );
+                        })}
+                      </div>
+                    )}
+
+                    {/* Role legend */}
+                    <div style={{
+                      background: "rgba(255,255,255,0.03)", border: "1px solid rgba(255,255,255,0.07)",
+                      borderRadius: 10, padding: "12px 14px",
+                    }}>
+                      <div style={{ fontSize: 11, fontWeight: 700, color: "#64748b", marginBottom: 8 }}>ROLE PERMISSIONS</div>
+                      {[
+                        { role: "viewer", color: "#34C759", perms: "Read-only — can view files and tasks, cannot edit or delete" },
+                        { role: "editor", color: "#6366f1", perms: "Can add/edit files, create tasks, and run AI — cannot delete the project or manage members" },
+                        { role: "owner",  color: "#FF9500", perms: "Full access — same as project creator" },
+                      ].map(r => (
+                        <div key={r.role} style={{ display: "flex", alignItems: "flex-start", gap: 8, marginBottom: 6 }}>
+                          <span style={{
+                            fontSize: 10, fontWeight: 700, color: r.color,
+                            background: `${r.color}22`, borderRadius: 4, padding: "1px 7px", flexShrink: 0, marginTop: 1,
+                          }}>{r.role.toUpperCase()}</span>
+                          <span style={{ fontSize: 12, color: "#64748b", lineHeight: 1.5 }}>{r.perms}</span>
+                        </div>
+                      ))}
+                    </div>
+                  </div>
+                </div>
+              )}
+
               {/* Folder + File View */}
-              {viewMode !== "dashboard" && viewMode !== "tasks" && (
+              {viewMode !== "dashboard" && viewMode !== "tasks" && viewMode !== "team" && (
                 <div className="flex flex-1 overflow-hidden">
 
                   {/* Folder Tree */}

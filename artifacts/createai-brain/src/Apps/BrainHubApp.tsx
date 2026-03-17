@@ -4,20 +4,40 @@ import {
   fetchPlatformStats, getEnginesByCategory,
   type EngineDefinition, type SeriesDefinition, type PlatformStats,
 } from "@/engine/CapabilityEngine";
+import { RegulatoryEngine } from "@/engine/RegulatoryEngine";
 import { SaveToProjectModal } from "@/components/SaveToProjectModal";
 
 // ─── Types ─────────────────────────────────────────────────────────────────────
-type HubView = "dashboard" | "engines" | "agents" | "series" | "run";
+type HubView = "dashboard" | "engines" | "agents" | "series" | "compliance" | "run" | "series-run";
 
-interface RunState {
-  engine: EngineDefinition | null;
-  topic: string;
-  context: string;
-  output: string;
-  running: boolean;
-  done: boolean;
-  error: string;
-}
+// Per-engine hint text shown in RunPanel (Step 4 — engine-specific hints)
+const ENGINE_HINTS: Record<string, { placeholder: string; example: string }> = {
+  BrainGen:                  { placeholder: "What content should BrainGen create?", example: "e.g. LinkedIn post about AI trends in healthcare" },
+  InfiniteExpansionEngine:   { placeholder: "What idea should be expanded infinitely?", example: "e.g. A community platform for rural educators" },
+  UniversalCreativeEngine:   { placeholder: "What creative project needs a full production package?", example: "e.g. A 6-episode podcast series on mental health for founders" },
+  UniversalWorkflowEngine:   { placeholder: "What process or workflow should be designed?", example: "e.g. Patient onboarding workflow for a telehealth clinic" },
+  UniversalStrategyEngine:   { placeholder: "What business or initiative needs a strategic roadmap?", example: "e.g. Launching a SaaS product for construction project managers" },
+  UniversalStoryEngine:      { placeholder: "What story world, character, or narrative needs building?", example: "e.g. A near-future thriller about AI governance in small towns" },
+  UniversalGameEngine:       { placeholder: "What game needs a complete design document?", example: "e.g. A mobile puzzle game for adults with memory challenges" },
+  UniversalConnectionEngine: { placeholder: "What two domains or systems should be connected?", example: "e.g. Healthcare + Construction (safety compliance)" },
+  ProjectIntelligence:       { placeholder: "Describe the project to analyze for risks and recommendations.", example: "e.g. Launching a home health aide scheduling app in 90 days" },
+  RegulatoryEngine:          { placeholder: "What industry or regulation needs a compliance framework?", example: "e.g. HIPAA compliance for a telehealth startup" },
+  BackendBlueprintEngine:    { placeholder: "What system needs a backend architecture design?", example: "e.g. Multi-tenant SaaS with RBAC and real-time notifications" },
+  TemplateLibrary:           { placeholder: "What document or template should be generated?", example: "e.g. Client onboarding agreement for a digital marketing agency" },
+  ConversationEngine:        { placeholder: "What conversational flow or chatbot script needs designing?", example: "e.g. Customer support bot for an e-commerce returns portal" },
+  IntegrationEngine:         { placeholder: "What systems need to be integrated?", example: "e.g. Salesforce CRM + HubSpot + Slack notifications" },
+  ExportEngine:              { placeholder: "What report or export format needs designing?", example: "e.g. Weekly performance dashboard for a logistics company" },
+  ThemeEngine:               { placeholder: "What brand or product needs a design system?", example: "e.g. Design system for a children's education platform" },
+  guideEngine:               { placeholder: "What product or process needs a complete guide?", example: "e.g. Onboarding guide for new users of a project management tool" },
+  InviteGeneratorEngine:     { placeholder: "What product or community needs an invite campaign?", example: "e.g. Referral campaign for a healthcare professional network" },
+  InteractionEngine:         { placeholder: "What user interface or experience needs interaction design?", example: "e.g. Mobile onboarding flow for a first-time investor app" },
+  ORACLE:                    { placeholder: "What topic or domain should ORACLE forecast and analyze?", example: "e.g. AI adoption trends in rural healthcare over the next 5 years" },
+  FORGE:                     { placeholder: "What content package should FORGE build and bundle?", example: "e.g. Complete brand launch package for a sustainable food startup" },
+  NEXUS:                     { placeholder: "What systems or workflows should NEXUS integrate?", example: "e.g. Automate the intake-to-invoice workflow for a consulting firm" },
+  SENTINEL:                  { placeholder: "What needs a risk and compliance analysis?", example: "e.g. Risks of launching a fintech app for unbanked communities" },
+  PULSE:                     { placeholder: "What experience or journey should PULSE optimize for engagement?", example: "e.g. User onboarding for a meditation app targeting stressed executives" },
+  VECTOR:                    { placeholder: "What data or domain should VECTOR extract patterns from?", example: "e.g. Patterns in why B2B SaaS companies churn in months 3-6" },
+};
 
 // ─── Status Dot ─────────────────────────────────────────────────────────────────
 function StatusDot({ active }: { active: boolean }) {
@@ -46,20 +66,19 @@ function StatCard({ icon, label, value, color }: { icon: string; label: string; 
 }
 
 // ─── Engine Card ──────────────────────────────────────────────────────────────
-function EngineCard({
-  engine, onRun, compact,
-}: {
+function EngineCard({ engine, onRun, compact }: {
   engine: EngineDefinition;
   onRun: (e: EngineDefinition) => void;
   compact?: boolean;
 }) {
   return (
-    <div style={{
-      background: "rgba(255,255,255,0.04)", border: "1px solid rgba(255,255,255,0.08)",
-      borderRadius: 12, padding: compact ? "12px 14px" : "16px",
-      display: "flex", flexDirection: "column", gap: 8, cursor: "pointer",
-      transition: "all 0.15s",
-    }}
+    <div
+      style={{
+        background: "rgba(255,255,255,0.04)", border: "1px solid rgba(255,255,255,0.08)",
+        borderRadius: 12, padding: compact ? "12px 14px" : "16px",
+        display: "flex", flexDirection: "column", gap: 8, cursor: "pointer",
+        transition: "all 0.15s",
+      }}
       onMouseEnter={e => { (e.currentTarget as HTMLDivElement).style.background = "rgba(99,102,241,0.08)"; (e.currentTarget as HTMLDivElement).style.borderColor = "rgba(99,102,241,0.3)"; }}
       onMouseLeave={e => { (e.currentTarget as HTMLDivElement).style.background = "rgba(255,255,255,0.04)"; (e.currentTarget as HTMLDivElement).style.borderColor = "rgba(255,255,255,0.08)"; }}
     >
@@ -104,91 +123,38 @@ function EngineCard({
   );
 }
 
-// ─── Series Card ─────────────────────────────────────────────────────────────
-function SeriesCard({ series }: { series: SeriesDefinition }) {
-  return (
-    <div style={{
-      background: "rgba(255,255,255,0.04)", border: "1px solid rgba(255,255,255,0.08)",
-      borderRadius: 12, padding: "16px",
-    }}>
-      <div style={{ display: "flex", alignItems: "center", gap: 12, marginBottom: 10 }}>
-        <div style={{
-          width: 44, height: 44, borderRadius: 10,
-          background: `${series.color}22`, border: `1px solid ${series.color}44`,
-          display: "flex", alignItems: "center", justifyContent: "center",
-          fontSize: 20, flexShrink: 0,
-        }}>{series.icon}</div>
-        <div>
-          <div style={{ display: "flex", alignItems: "center", gap: 8 }}>
-            <span style={{ fontSize: 16, fontWeight: 700, color: series.color }}>{series.name}</span>
-            <span style={{
-              fontSize: 10, background: `${series.color}22`, color: series.color,
-              borderRadius: 4, padding: "2px 6px", fontWeight: 700,
-            }}>{series.symbol}</span>
-          </div>
-          <div style={{ fontSize: 12, color: "#94a3b8", marginTop: 2 }}>{series.description}</div>
-        </div>
-      </div>
-      <div style={{ display: "flex", flexWrap: "wrap", gap: 4 }}>
-        {series.capabilities.map(cap => (
-          <span key={cap} style={{
-            fontSize: 10, background: "rgba(255,255,255,0.06)", borderRadius: 4,
-            padding: "2px 6px", color: "#94a3b8",
-          }}>{cap}</span>
-        ))}
-      </div>
-      <div style={{ marginTop: 10, display: "flex", flexWrap: "wrap", gap: 4 }}>
-        {series.engines.map(eid => (
-          <span key={eid} style={{
-            fontSize: 10, background: `${series.color}11`, borderRadius: 4,
-            padding: "2px 6px", color: series.color, border: `1px solid ${series.color}33`,
-          }}>{eid}</span>
-        ))}
-      </div>
-    </div>
-  );
-}
+// ─── Run Panel (Step 4: engine-specific hints) ────────────────────────────────
+function RunPanel({ engine, onBack }: { engine: EngineDefinition; onBack: () => void }) {
+  const hint = ENGINE_HINTS[engine.id] ?? {
+    placeholder: `What should ${engine.name} generate or analyze?`,
+    example: "",
+  };
 
-// ─── Run Panel ────────────────────────────────────────────────────────────────
-function RunPanel({
-  engine, onBack,
-}: {
-  engine: EngineDefinition;
-  onBack: () => void;
-}) {
-  const [topic, setTopic] = useState("");
+  const [topic, setTopic]   = useState("");
   const [context, setContext] = useState("");
   const [output, setOutput] = useState("");
   const [running, setRunning] = useState(false);
-  const [done, setDone] = useState(false);
-  const [error, setError] = useState("");
+  const [done, setDone]     = useState(false);
+  const [error, setError]   = useState("");
   const [showSave, setShowSave] = useState(false);
-  const outputRef = useRef<HTMLTextAreaElement>(null);
+  const outputRef = useRef<HTMLDivElement>(null);
 
   const handleRun = useCallback(async () => {
     if (!topic.trim()) return;
     setOutput(""); setError(""); setRunning(true); setDone(false);
 
-    const runFn = engine.category === "meta-agent" ? runMetaAgent : runEngine;
-
     if (engine.category === "meta-agent") {
       await runMetaAgent({
-        agentId: engine.id,
-        task: topic,
-        context,
-        domain: "",
+        agentId: engine.id, task: topic, context,
         onChunk: t => setOutput(prev => prev + t),
-        onDone: () => { setRunning(false); setDone(true); },
+        onDone:  () => { setRunning(false); setDone(true); },
         onError: e => { setError(e); setRunning(false); },
       });
     } else {
       await runEngine({
-        engineId: engine.id,
-        engineName: engine.name,
-        topic,
-        context,
+        engineId: engine.id, engineName: engine.name, topic, context,
         onChunk: t => setOutput(prev => prev + t),
-        onDone: () => { setRunning(false); setDone(true); },
+        onDone:  () => { setRunning(false); setDone(true); },
         onError: e => { setError(e); setRunning(false); },
       });
     }
@@ -200,44 +166,80 @@ function RunPanel({
 
   return (
     <div style={{ display: "flex", flexDirection: "column", gap: 16 }}>
+      {/* Header */}
       <div style={{ display: "flex", alignItems: "center", gap: 12 }}>
         <button onClick={onBack} style={{
           background: "rgba(255,255,255,0.08)", border: "none", borderRadius: 8,
           padding: "6px 12px", color: "#e2e8f0", cursor: "pointer", fontSize: 13,
         }}>← Back</button>
-        <div style={{ display: "flex", alignItems: "center", gap: 8 }}>
+        <div style={{ display: "flex", alignItems: "center", gap: 10 }}>
           <span style={{
-            width: 36, height: 36, borderRadius: 8, background: `${engine.color}22`,
-            display: "flex", alignItems: "center", justifyContent: "center", fontSize: 18,
+            width: 40, height: 40, borderRadius: 10, background: `${engine.color}22`,
+            display: "flex", alignItems: "center", justifyContent: "center", fontSize: 20,
+            border: `1px solid ${engine.color}44`,
           }}>{engine.icon}</span>
           <div>
-            <div style={{ fontSize: 16, fontWeight: 700, color: "#e2e8f0" }}>{engine.name}</div>
-            <div style={{ fontSize: 11, color: "#94a3b8" }}>{engine.description}</div>
+            <div style={{ fontSize: 17, fontWeight: 700, color: "#e2e8f0" }}>{engine.name}</div>
+            <div style={{ fontSize: 11, color: "#94a3b8" }}>
+              {engine.category === "meta-agent" ? "Meta-Agent" : `${engine.category} engine`}
+              {engine.series ? ` · ${engine.series}` : ""}
+            </div>
           </div>
         </div>
       </div>
 
-      <div style={{ display: "flex", flexDirection: "column", gap: 10 }}>
-        <label style={{ fontSize: 12, color: "#94a3b8", fontWeight: 600 }}>TOPIC / REQUEST *</label>
-        <input
+      {/* Description */}
+      <div style={{
+        background: `${engine.color}0d`, border: `1px solid ${engine.color}22`,
+        borderRadius: 10, padding: "12px 14px", fontSize: 13, color: "#94a3b8", lineHeight: 1.6,
+      }}>
+        {engine.description}
+      </div>
+
+      {/* Capabilities */}
+      <div style={{ display: "flex", flexWrap: "wrap", gap: 5 }}>
+        {engine.capabilities.map(cap => (
+          <span key={cap} style={{
+            fontSize: 10, background: `${engine.color}15`, borderRadius: 20,
+            padding: "3px 9px", color: engine.color, border: `1px solid ${engine.color}30`,
+          }}>{cap}</span>
+        ))}
+      </div>
+
+      {/* Topic input with engine-specific hint */}
+      <div style={{ display: "flex", flexDirection: "column", gap: 6 }}>
+        <label style={{ fontSize: 12, color: "#94a3b8", fontWeight: 600 }}>
+          TOPIC / REQUEST *
+        </label>
+        {hint.example && (
+          <div style={{ fontSize: 11, color: "#4f5a6e", fontStyle: "italic", marginBottom: 2 }}>
+            {hint.example}
+          </div>
+        )}
+        <textarea
           value={topic}
           onChange={e => setTopic(e.target.value)}
-          placeholder={`What should ${engine.name} generate or analyze?`}
+          placeholder={hint.placeholder}
+          rows={3}
           style={{
             background: "rgba(255,255,255,0.06)", border: "1px solid rgba(255,255,255,0.12)",
-            borderRadius: 8, padding: "10px 14px", color: "#e2e8f0", fontSize: 14,
+            borderRadius: 8, padding: "10px 14px", color: "#e2e8f0", fontSize: 13,
+            resize: "none", fontFamily: "inherit", lineHeight: 1.5,
           }}
-          onKeyDown={e => { if (e.key === "Enter" && !e.shiftKey) handleRun(); }}
+          onKeyDown={e => { if (e.key === "Enter" && e.metaKey) handleRun(); }}
         />
       </div>
 
-      <div style={{ display: "flex", flexDirection: "column", gap: 10 }}>
-        <label style={{ fontSize: 12, color: "#94a3b8", fontWeight: 600 }}>ADDITIONAL CONTEXT (optional)</label>
+      {/* Context input */}
+      <div style={{ display: "flex", flexDirection: "column", gap: 6 }}>
+        <label style={{ fontSize: 12, color: "#94a3b8", fontWeight: 600 }}>
+          ADDITIONAL CONTEXT <span style={{ fontWeight: 400, color: "#4f5a6e" }}>(optional)</span>
+        </label>
         <textarea
           value={context}
           onChange={e => setContext(e.target.value)}
-          placeholder="Industry, specific goals, constraints, or background..."
-          rows={3}
+          placeholder="Industry, constraints, target audience, existing assets, goals…"
+          rows={2}
           style={{
             background: "rgba(255,255,255,0.06)", border: "1px solid rgba(255,255,255,0.12)",
             borderRadius: 8, padding: "10px 14px", color: "#e2e8f0", fontSize: 13,
@@ -246,39 +248,47 @@ function RunPanel({
         />
       </div>
 
+      {/* Run button */}
       <button
         onClick={handleRun}
         disabled={running || !topic.trim()}
         style={{
           background: running ? "rgba(99,102,241,0.3)" : engine.color,
           border: "none", borderRadius: 10, padding: "12px 20px",
-          color: "#fff", fontSize: 14, fontWeight: 700, cursor: running ? "not-allowed" : "pointer",
+          color: "#fff", fontSize: 14, fontWeight: 700,
+          cursor: running ? "not-allowed" : "pointer",
           display: "flex", alignItems: "center", gap: 8, justifyContent: "center",
+          opacity: !topic.trim() && !running ? 0.5 : 1,
         }}
       >
-        {running ? (
-          <><span style={{ animation: "spin 1s linear infinite", display: "inline-block" }}>⚙️</span> Running {engine.name}…</>
-        ) : (
-          <><span>{engine.icon}</span> Activate {engine.name}</>
-        )}
+        {running
+          ? <><span style={{ animation: "spin 1s linear infinite", display: "inline-block" }}>⚙️</span> Running {engine.name}…</>
+          : <><span>{engine.icon}</span> Activate {engine.name}</>
+        }
       </button>
+      <div style={{ fontSize: 11, color: "#4f5a6e", textAlign: "center" }}>
+        {engine.category === "meta-agent" ? "⌘+Enter to run" : "⌘+Enter to run · Safety filter active"}
+      </div>
 
+      {/* Error */}
       {error && (
-        <div style={{ background: "rgba(255,59,48,0.12)", border: "1px solid rgba(255,59,48,0.3)", borderRadius: 8, padding: "10px 14px", color: "#ff3b30", fontSize: 13 }}>
-          ⚠️ {error}
-        </div>
+        <div style={{
+          background: "rgba(255,59,48,0.12)", border: "1px solid rgba(255,59,48,0.3)",
+          borderRadius: 8, padding: "10px 14px", color: "#ff3b30", fontSize: 13,
+        }}>⚠️ {error}</div>
       )}
 
+      {/* Output */}
       {output && (
         <div style={{ display: "flex", flexDirection: "column", gap: 8 }}>
           <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between" }}>
             <label style={{ fontSize: 12, color: "#94a3b8", fontWeight: 600 }}>
-              OUTPUT {running ? "— STREAMING…" : done ? "— COMPLETE" : ""}
+              {running ? "⟳ STREAMING OUTPUT…" : done ? "✅ OUTPUT COMPLETE" : "OUTPUT"}
             </label>
             {done && (
-              <div style={{ display: "flex", gap: 8 }}>
+              <div style={{ display: "flex", gap: 6 }}>
                 <button
-                  onClick={() => { navigator.clipboard.writeText(output); }}
+                  onClick={() => navigator.clipboard.writeText(output)}
                   style={{
                     background: "rgba(255,255,255,0.08)", border: "none", borderRadius: 6,
                     padding: "4px 10px", color: "#94a3b8", cursor: "pointer", fontSize: 11,
@@ -295,17 +305,15 @@ function RunPanel({
               </div>
             )}
           </div>
-          <textarea
+          <div
             ref={outputRef}
-            readOnly
-            value={output}
-            rows={18}
             style={{
               background: "rgba(0,0,0,0.3)", border: "1px solid rgba(255,255,255,0.08)",
               borderRadius: 8, padding: "14px", color: "#e2e8f0", fontSize: 13,
-              lineHeight: 1.7, resize: "none", fontFamily: "ui-monospace, monospace",
+              lineHeight: 1.7, maxHeight: 480, overflowY: "auto",
+              whiteSpace: "pre-wrap", fontFamily: "ui-monospace, monospace",
             }}
-          />
+          >{output}</div>
         </div>
       )}
 
@@ -317,24 +325,549 @@ function RunPanel({
         />
       )}
 
-      <style>{`@keyframes spin { from { transform: rotate(0deg); } to { transform: rotate(360deg); } }`}</style>
+      <style>{`@keyframes spin { from{transform:rotate(0deg)} to{transform:rotate(360deg)} }`}</style>
+    </div>
+  );
+}
+
+// ─── Series Run Panel (Step 3 — real sequential engine execution) ─────────────
+interface SeriesSection {
+  engineId: string;
+  content: string;
+  done: boolean;
+  error?: string;
+}
+
+function SeriesRunPanel({ series, onBack }: { series: SeriesDefinition; onBack: () => void }) {
+  const [topic, setTopic]     = useState("");
+  const [context, setContext] = useState("");
+  const [sections, setSections] = useState<SeriesSection[]>([]);
+  const [running, setRunning] = useState(false);
+  const [done, setDone]       = useState(false);
+  const [error, setError]     = useState("");
+  const [showSave, setShowSave] = useState(false);
+  const bottomRef = useRef<HTMLDivElement>(null);
+
+  useEffect(() => {
+    bottomRef.current?.scrollIntoView({ behavior: "smooth" });
+  }, [sections]);
+
+  const handleRun = useCallback(async () => {
+    if (!topic.trim()) return;
+    setSections([]); setError(""); setRunning(true); setDone(false);
+
+    try {
+      const resp = await fetch("/api/openai/series-run", {
+        method: "POST",
+        credentials: "include",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ seriesId: series.id, topic, context }),
+      });
+
+      if (!resp.ok || !resp.body) {
+        const err = await resp.json().catch(() => ({ error: `HTTP ${resp.status}` })) as { error?: string };
+        setError(err.error ?? "Series run failed"); setRunning(false); return;
+      }
+
+      const reader  = resp.body.getReader();
+      const decoder = new TextDecoder();
+
+      while (true) {
+        const { done: streamDone, value } = await reader.read();
+        if (streamDone) break;
+
+        const lines = decoder.decode(value).split("\n");
+        for (const line of lines) {
+          if (!line.startsWith("data: ")) continue;
+          try {
+            const data = JSON.parse(line.slice(6)) as {
+              type: string; engineId?: string; sectionIndex?: number;
+              content?: string; error?: string;
+            };
+
+            if (data.type === "section-start" && data.engineId) {
+              setSections(prev => [...prev, { engineId: data.engineId!, content: "", done: false }]);
+            } else if (data.type === "content" && data.engineId) {
+              setSections(prev => prev.map(s =>
+                s.engineId === data.engineId && !s.done
+                  ? { ...s, content: s.content + (data.content ?? "") }
+                  : s
+              ));
+            } else if (data.type === "section-done" && data.engineId) {
+              setSections(prev => prev.map(s =>
+                s.engineId === data.engineId ? { ...s, done: true } : s
+              ));
+            } else if (data.type === "section-error" && data.engineId) {
+              setSections(prev => prev.map(s =>
+                s.engineId === data.engineId ? { ...s, done: true, error: data.error } : s
+              ));
+            } else if (data.type === "series-done") {
+              setDone(true); setRunning(false);
+            }
+          } catch { /* skip malformed */ }
+        }
+      }
+    } catch (err) {
+      setError((err as Error).message); setRunning(false);
+    }
+  }, [series.id, topic, context]);
+
+  const allOutput = sections.map(s =>
+    `## ${s.engineId}\n\n${s.content}`
+  ).join("\n\n---\n\n");
+
+  return (
+    <div style={{ display: "flex", flexDirection: "column", gap: 16 }}>
+      {/* Header */}
+      <div style={{ display: "flex", alignItems: "center", gap: 12 }}>
+        <button onClick={onBack} style={{
+          background: "rgba(255,255,255,0.08)", border: "none", borderRadius: 8,
+          padding: "6px 12px", color: "#e2e8f0", cursor: "pointer", fontSize: 13,
+        }}>← Back</button>
+        <div style={{ display: "flex", alignItems: "center", gap: 10 }}>
+          <span style={{
+            width: 44, height: 44, borderRadius: 10, background: `${series.color}22`,
+            display: "flex", alignItems: "center", justifyContent: "center", fontSize: 22,
+            border: `1px solid ${series.color}44`,
+          }}>{series.icon}</span>
+          <div>
+            <div style={{ fontSize: 17, fontWeight: 700, color: series.color }}>{series.name}</div>
+            <div style={{ fontSize: 11, color: "#94a3b8" }}>
+              {series.engines.length} engines run in sequence · {series.symbol}
+            </div>
+          </div>
+        </div>
+      </div>
+
+      {/* Series description */}
+      <div style={{
+        background: `${series.color}0d`, border: `1px solid ${series.color}22`,
+        borderRadius: 10, padding: "12px 14px",
+      }}>
+        <div style={{ fontSize: 13, color: "#94a3b8", lineHeight: 1.6 }}>{series.description}</div>
+        <div style={{ display: "flex", flexWrap: "wrap", gap: 4, marginTop: 10 }}>
+          {series.engines.map(eid => (
+            <span key={eid} style={{
+              fontSize: 10, background: `${series.color}15`, borderRadius: 4,
+              padding: "2px 7px", color: series.color, border: `1px solid ${series.color}30`,
+            }}>{eid}</span>
+          ))}
+        </div>
+      </div>
+
+      {/* Input */}
+      {!running && !done && (
+        <>
+          <div style={{ display: "flex", flexDirection: "column", gap: 6 }}>
+            <label style={{ fontSize: 12, color: "#94a3b8", fontWeight: 600 }}>TOPIC *</label>
+            <textarea
+              value={topic}
+              onChange={e => setTopic(e.target.value)}
+              placeholder={`What should the ${series.name} analyze or build?`}
+              rows={3}
+              style={{
+                background: "rgba(255,255,255,0.06)", border: "1px solid rgba(255,255,255,0.12)",
+                borderRadius: 8, padding: "10px 14px", color: "#e2e8f0", fontSize: 13,
+                resize: "none", fontFamily: "inherit",
+              }}
+            />
+          </div>
+          <div style={{ display: "flex", flexDirection: "column", gap: 6 }}>
+            <label style={{ fontSize: 12, color: "#94a3b8", fontWeight: 600 }}>
+              CONTEXT <span style={{ fontWeight: 400, color: "#4f5a6e" }}>(optional)</span>
+            </label>
+            <textarea
+              value={context}
+              onChange={e => setContext(e.target.value)}
+              placeholder="Industry, goals, constraints, audience…"
+              rows={2}
+              style={{
+                background: "rgba(255,255,255,0.06)", border: "1px solid rgba(255,255,255,0.12)",
+                borderRadius: 8, padding: "10px 14px", color: "#e2e8f0", fontSize: 13,
+                resize: "none", fontFamily: "inherit",
+              }}
+            />
+          </div>
+          <button
+            onClick={handleRun}
+            disabled={!topic.trim()}
+            style={{
+              background: series.color, border: "none", borderRadius: 10, padding: "12px 20px",
+              color: "#fff", fontSize: 14, fontWeight: 700, cursor: !topic.trim() ? "not-allowed" : "pointer",
+              opacity: !topic.trim() ? 0.5 : 1,
+            }}
+          >
+            {series.icon} Activate {series.name} ({series.engines.length} engines)
+          </button>
+        </>
+      )}
+
+      {/* Error */}
+      {error && (
+        <div style={{
+          background: "rgba(255,59,48,0.12)", border: "1px solid rgba(255,59,48,0.3)",
+          borderRadius: 8, padding: "10px 14px", color: "#ff3b30", fontSize: 13,
+        }}>⚠️ {error}</div>
+      )}
+
+      {/* Streaming output — one section per engine */}
+      {sections.length > 0 && (
+        <div style={{ display: "flex", flexDirection: "column", gap: 14 }}>
+          <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between" }}>
+            <div style={{ fontSize: 13, fontWeight: 700, color: "#e2e8f0" }}>
+              {running ? "⟳ Running series…" : "✅ Series complete"}
+            </div>
+            {done && (
+              <div style={{ display: "flex", gap: 6 }}>
+                <button
+                  onClick={() => navigator.clipboard.writeText(allOutput)}
+                  style={{
+                    background: "rgba(255,255,255,0.08)", border: "none", borderRadius: 6,
+                    padding: "4px 10px", color: "#94a3b8", cursor: "pointer", fontSize: 11,
+                  }}
+                >Copy All</button>
+                <button
+                  onClick={() => setShowSave(true)}
+                  style={{
+                    background: "rgba(99,102,241,0.2)", border: "1px solid rgba(99,102,241,0.4)",
+                    borderRadius: 6, padding: "4px 10px", color: "#818cf8",
+                    cursor: "pointer", fontSize: 11, fontWeight: 600,
+                  }}
+                >💾 Save All</button>
+              </div>
+            )}
+          </div>
+
+          {sections.map((section, i) => (
+            <div key={section.engineId} style={{
+              background: "rgba(0,0,0,0.25)", border: "1px solid rgba(255,255,255,0.08)",
+              borderRadius: 10, overflow: "hidden",
+            }}>
+              <div style={{
+                display: "flex", alignItems: "center", justifyContent: "space-between",
+                padding: "10px 14px", borderBottom: "1px solid rgba(255,255,255,0.06)",
+                background: "rgba(255,255,255,0.03)",
+              }}>
+                <div style={{ display: "flex", alignItems: "center", gap: 8 }}>
+                  <span style={{
+                    fontSize: 10, fontWeight: 700, color: series.color,
+                    background: `${series.color}22`, borderRadius: 4, padding: "2px 7px",
+                  }}>ENGINE {i + 1}</span>
+                  <span style={{ fontSize: 12, fontWeight: 600, color: "#e2e8f0" }}>{section.engineId}</span>
+                </div>
+                {section.done && !section.error && <span style={{ fontSize: 11, color: "#34C759" }}>✓ Done</span>}
+                {section.error && <span style={{ fontSize: 11, color: "#ff3b30" }}>⚠ Error</span>}
+                {!section.done && <span style={{ fontSize: 11, color: "#94a3b8", animation: "pulse 1.5s infinite" }}>streaming…</span>}
+              </div>
+              <div style={{
+                padding: "12px 14px", fontSize: 12, color: "#94a3b8", lineHeight: 1.7,
+                whiteSpace: "pre-wrap", maxHeight: 320, overflowY: "auto",
+                fontFamily: "ui-monospace, monospace",
+              }}>
+                {section.error
+                  ? <span style={{ color: "#ff3b30" }}>{section.error}</span>
+                  : section.content || <span style={{ color: "#4f5a6e" }}>Waiting for output…</span>
+                }
+              </div>
+            </div>
+          ))}
+
+          <div ref={bottomRef} />
+        </div>
+      )}
+
+      {done && (
+        <button
+          onClick={() => { setSections([]); setDone(false); setError(""); }}
+          style={{
+            background: "rgba(255,255,255,0.06)", border: "1px solid rgba(255,255,255,0.12)",
+            borderRadius: 10, padding: "10px", color: "#94a3b8", cursor: "pointer", fontSize: 13,
+          }}
+        >↩ Run Again</button>
+      )}
+
+      {showSave && (
+        <SaveToProjectModal
+          content={allOutput}
+          label={`${series.name} — ${topic.slice(0, 40)}`}
+          onClose={() => setShowSave(false)}
+        />
+      )}
+      <style>{`@keyframes pulse { 0%,100%{opacity:1} 50%{opacity:0.4} }`}</style>
+    </div>
+  );
+}
+
+// ─── Compliance Panel (Step 2 — port of AdminApp's RegulatorySection) ─────────
+function CompliancePanel() {
+  const [selectedId, setSelectedId] = useState<string | null>(null);
+  const blueprints  = RegulatoryEngine.getAll();
+  const rawStats    = RegulatoryEngine.getStats();
+  const stats = {
+    totalBlueprints: rawStats.total,
+    totalClauses:    blueprints.reduce((n, b) => n + b.clauses.length, 0),
+    mapped:          blueprints.reduce((n, b) => n + b.clauses.filter(c => c.mockStatus === "mapped").length, 0),
+    gaps:            blueprints.reduce((n, b) => n + b.clauses.filter(c => c.mockStatus === "gap").length, 0),
+  };
+
+  const statusColors: Record<string, string> = {
+    mapped: "#34C759", partial: "#FF9500", gap: "#FF3B30", "not-applicable": "#636366",
+  };
+
+  if (selectedId) {
+    const bp = RegulatoryEngine.getById(selectedId)!;
+    const mappedCount  = bp.clauses.filter(c => c.mockStatus === "mapped").length;
+    const partialCount = bp.clauses.filter(c => c.mockStatus === "partial").length;
+    const gapCount     = bp.clauses.filter(c => c.mockStatus === "gap").length;
+    const total        = bp.clauses.length;
+    const readinessScore = total ? Math.round((mappedCount / total) * 100) : 0;
+
+    return (
+      <div style={{ display: "flex", flexDirection: "column", gap: 16 }}>
+        <div style={{ display: "flex", alignItems: "center", gap: 10 }}>
+          <button onClick={() => setSelectedId(null)} style={{
+            background: "rgba(255,255,255,0.08)", border: "none", borderRadius: 8,
+            padding: "6px 12px", color: "#e2e8f0", cursor: "pointer", fontSize: 13,
+          }}>← Compliance</button>
+          <h2 style={{ fontSize: 17, fontWeight: 700, color: "#e2e8f0", margin: 0, flex: 1 }}>{bp.framework}</h2>
+          <span style={{
+            fontSize: 10, fontWeight: 700, padding: "3px 8px", borderRadius: 20,
+            background: bp.status === "blueprint-ready" ? "rgba(52,199,89,0.2)" : "rgba(255,149,0,0.2)",
+            color: bp.status === "blueprint-ready" ? "#34C759" : "#FF9500",
+          }}>{bp.status}</span>
+        </div>
+
+        {/* Disclaimer */}
+        <div style={{
+          background: "rgba(255,59,48,0.1)", border: "1px solid rgba(255,59,48,0.25)",
+          borderRadius: 10, padding: "10px 14px",
+        }}>
+          <p style={{ fontSize: 11, color: "#ff6b6b", lineHeight: 1.5, margin: 0 }}>
+            ⚠️ {bp.disclaimer}
+          </p>
+        </div>
+
+        {/* Readiness score */}
+        <div style={{
+          background: "rgba(255,255,255,0.04)", border: "1px solid rgba(255,255,255,0.08)",
+          borderRadius: 12, padding: "16px",
+        }}>
+          <div style={{ fontSize: 12, color: "#94a3b8", marginBottom: 8 }}>BLUEPRINT READINESS SCORE</div>
+          <div style={{ display: "flex", alignItems: "center", gap: 14 }}>
+            <div style={{
+              fontSize: 42, fontWeight: 700,
+              color: readinessScore >= 70 ? "#34C759" : readinessScore >= 40 ? "#FF9500" : "#FF3B30",
+            }}>{readinessScore}%</div>
+            <div style={{ flex: 1 }}>
+              <div style={{ background: "rgba(255,255,255,0.08)", borderRadius: 4, height: 8, overflow: "hidden" }}>
+                <div style={{
+                  height: "100%", borderRadius: 4, transition: "width 0.5s",
+                  width: `${readinessScore}%`,
+                  background: readinessScore >= 70 ? "#34C759" : readinessScore >= 40 ? "#FF9500" : "#FF3B30",
+                }} />
+              </div>
+              <div style={{ display: "flex", gap: 12, marginTop: 8 }}>
+                {[["✓ Mapped", mappedCount, "#34C759"], ["~ Partial", partialCount, "#FF9500"], ["⚠ Gap", gapCount, "#FF3B30"]]
+                  .map(([l, v, c]) => (
+                    <span key={String(l)} style={{ fontSize: 11, color: String(c) }}>
+                      {String(l)}: {String(v)}
+                    </span>
+                  ))
+                }
+              </div>
+            </div>
+          </div>
+        </div>
+
+        {/* Summary */}
+        <div style={{
+          background: "rgba(255,255,255,0.03)", border: "1px solid rgba(255,255,255,0.07)",
+          borderRadius: 10, padding: "12px 14px", fontSize: 13, color: "#94a3b8", lineHeight: 1.6,
+        }}>{bp.summary}</div>
+
+        {/* Clauses */}
+        {bp.clauses.length > 0 && (
+          <div style={{ display: "flex", flexDirection: "column", gap: 8 }}>
+            <div style={{ fontSize: 11, fontWeight: 700, color: "#64748b", textTransform: "uppercase", letterSpacing: 1 }}>
+              Clauses ({bp.clauses.length})
+            </div>
+            {bp.clauses.map(c => (
+              <div key={c.id} style={{
+                background: "rgba(255,255,255,0.03)",
+                border: `1px solid ${statusColors[c.mockStatus] ?? "#636366"}33`,
+                borderRadius: 8, padding: "10px 12px",
+              }}>
+                <div style={{ display: "flex", alignItems: "center", gap: 8, marginBottom: 4 }}>
+                  <span style={{ fontSize: 10, color: "#64748b", fontFamily: "monospace" }}>{c.reference}</span>
+                  <span style={{ fontSize: 12, fontWeight: 600, color: "#e2e8f0", flex: 1 }}>{c.title}</span>
+                  <span style={{
+                    fontSize: 10, fontWeight: 700, color: statusColors[c.mockStatus],
+                    background: `${statusColors[c.mockStatus]}22`, borderRadius: 4, padding: "2px 6px",
+                  }}>
+                    {c.mockStatus === "mapped" ? "✓ Mapped" : c.mockStatus === "gap" ? "⚠ Gap" : c.mockStatus === "partial" ? "~ Partial" : "N/A"}
+                  </span>
+                </div>
+                <p style={{ fontSize: 11, color: "#94a3b8", margin: 0, lineHeight: 1.5 }}>{c.description}</p>
+                <p style={{ fontSize: 10, color: "#64748b", margin: "4px 0 0", fontStyle: "italic" }}>Blueprint: {c.implementationNote}</p>
+              </div>
+            ))}
+          </div>
+        )}
+
+        {/* Gap analysis */}
+        {bp.gapAnalysis.length > 0 && (
+          <div style={{ display: "flex", flexDirection: "column", gap: 6 }}>
+            <div style={{ fontSize: 11, fontWeight: 700, color: "#64748b", textTransform: "uppercase", letterSpacing: 1 }}>
+              Gap Analysis
+            </div>
+            <div style={{
+              background: "rgba(255,255,255,0.03)", border: "1px solid rgba(255,255,255,0.07)",
+              borderRadius: 8, padding: "12px",
+            }}>
+              {bp.gapAnalysis.map((g, i) => (
+                <div key={i} style={{
+                  fontSize: 12, lineHeight: 1.6,
+                  color: g.startsWith("⚠") ? "#FF9500" : "#34C759",
+                }}>{g}</div>
+              ))}
+            </div>
+          </div>
+        )}
+      </div>
+    );
+  }
+
+  return (
+    <div style={{ display: "flex", flexDirection: "column", gap: 20 }}>
+      <div>
+        <h2 style={{ fontSize: 18, fontWeight: 700, color: "#e2e8f0", margin: 0 }}>
+          🛡️ Compliance — Regulatory Readiness
+        </h2>
+        <p style={{ fontSize: 13, color: "#94a3b8", margin: "4px 0 0" }}>
+          Structural compliance blueprints for major regulatory frameworks.
+          These are architectural models — not legal certifications.
+        </p>
+      </div>
+
+      {/* Disclaimer banner */}
+      <div style={{
+        background: "rgba(255,149,0,0.1)", border: "1px solid rgba(255,149,0,0.25)",
+        borderRadius: 10, padding: "12px 14px",
+      }}>
+        <p style={{ fontSize: 12, color: "#FF9500", margin: 0, lineHeight: 1.5 }}>
+          ⚠️ All compliance content is a structural blueprint only. It does not constitute legal advice, certification,
+          or regulatory approval. Real compliance requires certified legal, compliance, and security professionals.
+        </p>
+      </div>
+
+      {/* Overall stats */}
+      <div style={{ display: "grid", gridTemplateColumns: "repeat(4, 1fr)", gap: 10 }}>
+        {[
+          { label: "Frameworks", value: stats.totalBlueprints, color: "#6366f1" },
+          { label: "Clauses", value: stats.totalClauses, color: "#007AFF" },
+          { label: "Mapped", value: stats.mapped, color: "#34C759" },
+          { label: "Gaps", value: stats.gaps, color: "#FF3B30" },
+        ].map(s => (
+          <div key={s.label} style={{
+            background: "rgba(255,255,255,0.04)", border: "1px solid rgba(255,255,255,0.08)",
+            borderRadius: 10, padding: "12px", textAlign: "center",
+          }}>
+            <div style={{ fontSize: 24, fontWeight: 700, color: s.color }}>{s.value}</div>
+            <div style={{ fontSize: 11, color: "#94a3b8", marginTop: 2 }}>{s.label}</div>
+          </div>
+        ))}
+      </div>
+
+      {/* Blueprint list */}
+      <div style={{ display: "flex", flexDirection: "column", gap: 8 }}>
+        {blueprints.map(bp => {
+          const mapped  = bp.clauses.filter(c => c.mockStatus === "mapped").length;
+          const total   = bp.clauses.length;
+          const score   = total ? Math.round((mapped / total) * 100) : 0;
+          return (
+            <button
+              key={bp.id}
+              onClick={() => setSelectedId(bp.id)}
+              style={{
+                background: "rgba(255,255,255,0.04)", border: "1px solid rgba(255,255,255,0.08)",
+                borderRadius: 12, padding: "14px 16px", cursor: "pointer", textAlign: "left",
+                display: "flex", alignItems: "center", gap: 14,
+                transition: "all 0.15s",
+              }}
+              onMouseEnter={e => { (e.currentTarget as HTMLButtonElement).style.borderColor = "rgba(99,102,241,0.3)"; }}
+              onMouseLeave={e => { (e.currentTarget as HTMLButtonElement).style.borderColor = "rgba(255,255,255,0.08)"; }}
+            >
+              <div style={{ flex: 1 }}>
+                <div style={{ display: "flex", alignItems: "center", gap: 8, marginBottom: 4 }}>
+                  <span style={{ fontSize: 14, fontWeight: 700, color: "#e2e8f0" }}>{bp.framework}</span>
+                  <span style={{
+                    fontSize: 9, fontWeight: 700, padding: "2px 6px", borderRadius: 4,
+                    background: bp.status === "blueprint-ready" ? "rgba(52,199,89,0.2)" : "rgba(255,149,0,0.2)",
+                    color: bp.status === "blueprint-ready" ? "#34C759" : "#FF9500",
+                  }}>{bp.status}</span>
+                </div>
+                <div style={{ fontSize: 12, color: "#64748b" }}>{bp.domain} · {total} clauses</div>
+                <div style={{ marginTop: 8, background: "rgba(255,255,255,0.06)", borderRadius: 3, height: 4, overflow: "hidden" }}>
+                  <div style={{
+                    height: "100%", width: `${score}%`, borderRadius: 3,
+                    background: score >= 70 ? "#34C759" : score >= 40 ? "#FF9500" : "#FF3B30",
+                  }} />
+                </div>
+              </div>
+              <div style={{ textAlign: "right", flexShrink: 0 }}>
+                <div style={{ fontSize: 20, fontWeight: 700, color: score >= 70 ? "#34C759" : score >= 40 ? "#FF9500" : "#FF3B30" }}>{score}%</div>
+                <div style={{ fontSize: 10, color: "#64748b" }}>ready</div>
+              </div>
+              <span style={{ fontSize: 16, color: "#64748b" }}>›</span>
+            </button>
+          );
+        })}
+      </div>
+
+      {/* Active safety systems */}
+      <div style={{
+        background: "linear-gradient(135deg, rgba(52,199,89,0.08), rgba(99,102,241,0.08))",
+        border: "1px solid rgba(52,199,89,0.2)", borderRadius: 12, padding: "16px",
+      }}>
+        <div style={{ fontSize: 12, fontWeight: 700, color: "#34C759", marginBottom: 10 }}>
+          ACTIVE SAFETY SYSTEMS
+        </div>
+        {[
+          { name: "Content Safety Filter", desc: "Blocks CBRN, CSAM, violence, malware, fraud at API layer", status: "ON" },
+          { name: "Compliance Disclaimer Injector", desc: "Auto-appends healthcare/legal/financial notices to AI prompts", status: "ON" },
+          { name: "GPT-5.2 Safety Training", desc: "Model-level safety as second layer on every AI call", status: "ON" },
+          { name: "Auth-Protected Routes", desc: "All data routes require authenticated session", status: "ON" },
+        ].map(s => (
+          <div key={s.name} style={{ display: "flex", alignItems: "flex-start", gap: 10, marginBottom: 8 }}>
+            <span style={{
+              fontSize: 9, fontWeight: 700, color: "#34C759", background: "rgba(52,199,89,0.15)",
+              borderRadius: 4, padding: "2px 6px", marginTop: 1, flexShrink: 0,
+            }}>{s.status}</span>
+            <div>
+              <div style={{ fontSize: 12, fontWeight: 600, color: "#e2e8f0" }}>{s.name}</div>
+              <div style={{ fontSize: 11, color: "#64748b", lineHeight: 1.4 }}>{s.desc}</div>
+            </div>
+          </div>
+        ))}
+      </div>
     </div>
   );
 }
 
 // ─── Main BrainHubApp ──────────────────────────────────────────────────────────
 export function BrainHubApp() {
-  const [view, setView] = useState<HubView>("dashboard");
-  const [stats, setStats] = useState<PlatformStats | null>(null);
+  const [view, setView]               = useState<HubView>("dashboard");
+  const [stats, setStats]             = useState<PlatformStats | null>(null);
   const [activeEngine, setActiveEngine] = useState<EngineDefinition | null>(null);
+  const [activeSeries, setActiveSeries] = useState<SeriesDefinition | null>(null);
   const [categoryFilter, setCategoryFilter] = useState<string>("all");
 
   useEffect(() => {
     fetchPlatformStats().then(setStats).catch(() => {});
   }, []);
 
-  const byCategory = getEnginesByCategory();
-  const metaAgents = byCategory["meta-agent"] ?? [];
+  const byCategory   = getEnginesByCategory();
+  const metaAgents   = byCategory["meta-agent"] ?? [];
   const otherEngines = ALL_ENGINES.filter(e => e.category !== "meta-agent");
 
   const filteredEngines = categoryFilter === "all"
@@ -342,13 +875,13 @@ export function BrainHubApp() {
     : otherEngines.filter(e => e.category === categoryFilter);
 
   const categories = [
-    { id: "all", label: "All Engines" },
-    { id: "universal", label: "Universal" },
-    { id: "creative", label: "Creative" },
-    { id: "workflow", label: "Workflow" },
+    { id: "all",          label: "All" },
+    { id: "universal",    label: "Universal" },
+    { id: "creative",     label: "Creative" },
+    { id: "workflow",     label: "Workflow" },
     { id: "intelligence", label: "Intelligence" },
-    { id: "integration", label: "Integration" },
-    { id: "platform", label: "Platform" },
+    { id: "integration",  label: "Integration" },
+    { id: "platform",     label: "Platform" },
   ];
 
   const handleRunEngine = useCallback((engine: EngineDefinition) => {
@@ -356,27 +889,43 @@ export function BrainHubApp() {
     setView("run");
   }, []);
 
+  const handleRunSeries = useCallback((series: SeriesDefinition) => {
+    setActiveSeries(series);
+    setView("series-run");
+  }, []);
+
+  // ── Run panel ──
   if (view === "run" && activeEngine) {
     return (
-      <div style={{ padding: "0 24px 24px" }}>
+      <div style={{ padding: "0 24px 24px", overflowY: "auto", height: "100%" }}>
         <RunPanel engine={activeEngine} onBack={() => { setView("engines"); setActiveEngine(null); }} />
       </div>
     );
   }
 
+  // ── Series run panel ──
+  if (view === "series-run" && activeSeries) {
+    return (
+      <div style={{ padding: "0 24px 24px", overflowY: "auto", height: "100%" }}>
+        <SeriesRunPanel series={activeSeries} onBack={() => { setView("series"); setActiveSeries(null); }} />
+      </div>
+    );
+  }
+
   const NAV_ITEMS: { id: HubView; label: string; icon: string }[] = [
-    { id: "dashboard", label: "Dashboard", icon: "📊" },
-    { id: "engines",   label: "Engines",   icon: "⚙️" },
-    { id: "agents",    label: "Meta-Agents", icon: "🤖" },
-    { id: "series",    label: "Series",    icon: "🧬" },
+    { id: "dashboard",  label: "Dashboard",   icon: "📊" },
+    { id: "engines",    label: "Engines",     icon: "⚙️" },
+    { id: "agents",     label: "Meta-Agents", icon: "🤖" },
+    { id: "series",     label: "Series",      icon: "🧬" },
+    { id: "compliance", label: "Compliance",  icon: "🛡️" },
   ];
 
   return (
     <div style={{ display: "flex", flexDirection: "column", height: "100%", overflow: "hidden" }}>
-      {/* Nav Bar */}
+      {/* Nav */}
       <div style={{
-        display: "flex", gap: 4, padding: "12px 24px 0",
-        borderBottom: "1px solid rgba(255,255,255,0.08)",
+        display: "flex", gap: 2, padding: "12px 24px 0",
+        borderBottom: "1px solid rgba(255,255,255,0.08)", overflowX: "auto",
       }}>
         {NAV_ITEMS.map(item => (
           <button
@@ -385,21 +934,18 @@ export function BrainHubApp() {
             style={{
               background: view === item.id ? "rgba(99,102,241,0.2)" : "transparent",
               border: view === item.id ? "1px solid rgba(99,102,241,0.4)" : "1px solid transparent",
-              borderBottom: view === item.id ? "1px solid rgba(99,102,241,0.4)" : "1px solid transparent",
               borderRadius: "8px 8px 0 0", padding: "8px 14px",
               color: view === item.id ? "#818cf8" : "#94a3b8",
-              cursor: "pointer", fontSize: 13, fontWeight: view === item.id ? 600 : 400,
-              display: "flex", alignItems: "center", gap: 6,
+              cursor: "pointer", fontSize: 12, fontWeight: view === item.id ? 600 : 400,
+              display: "flex", alignItems: "center", gap: 5, whiteSpace: "nowrap",
             }}
           >
             <span>{item.icon}</span>{item.label}
           </button>
         ))}
-
-        {/* Status pill */}
-        <div style={{ marginLeft: "auto", display: "flex", alignItems: "center", gap: 6, paddingBottom: 12 }}>
+        <div style={{ marginLeft: "auto", display: "flex", alignItems: "center", gap: 6, paddingBottom: 12, flexShrink: 0 }}>
           <StatusDot active={true} />
-          <span style={{ fontSize: 11, color: "#34C759", fontWeight: 600 }}>ALL SYSTEMS ACTIVE</span>
+          <span style={{ fontSize: 11, color: "#34C759", fontWeight: 600, whiteSpace: "nowrap" }}>ALL SYSTEMS ACTIVE</span>
         </div>
       </div>
 
@@ -414,38 +960,36 @@ export function BrainHubApp() {
                 ⚡ Brain Hub — Capability Center
               </h2>
               <p style={{ fontSize: 13, color: "#94a3b8", margin: "4px 0 0" }}>
-                All engines, meta-agents, and series are active and connected. Select any engine to generate real AI output.
+                {ALL_ENGINES.length} engines · 6 meta-agents · {ALL_SERIES.length} series · real AI on every activation
               </p>
             </div>
 
-            {/* Platform Stats */}
-            <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fill, minmax(130px, 1fr))", gap: 12 }}>
-              <StatCard icon="⚙️" label="Active Engines" value={stats?.engines ?? ALL_ENGINES.length} color="#6366f1" />
-              <StatCard icon="🤖" label="Meta-Agents" value={stats?.agents ?? 6} color="#FF9500" />
-              <StatCard icon="🧬" label="Series" value={stats?.series ?? ALL_SERIES.length} color="#BF5AF2" />
-              <StatCard icon="📁" label="Projects" value={stats?.projects ?? "—"} color="#007AFF" />
-              <StatCard icon="📄" label="Documents" value={stats?.documents ?? "—"} color="#34C759" />
-              <StatCard icon="👥" label="People" value={stats?.people ?? "—"} color="#FF2D55" />
+            {/* Stats */}
+            <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fill, minmax(130px, 1fr))", gap: 10 }}>
+              <StatCard icon="⚙️" label="Active Engines"  value={stats?.engines ?? ALL_ENGINES.length} color="#6366f1" />
+              <StatCard icon="🤖" label="Meta-Agents"     value={stats?.agents ?? 6}                   color="#FF9500" />
+              <StatCard icon="🧬" label="Series"          value={stats?.series ?? ALL_SERIES.length}    color="#BF5AF2" />
+              <StatCard icon="📁" label="Projects"        value={stats?.projects ?? "—"}                color="#007AFF" />
+              <StatCard icon="📄" label="Documents"       value={stats?.documents ?? "—"}               color="#34C759" />
+              <StatCard icon="👥" label="People"          value={stats?.people ?? "—"}                  color="#FF2D55" />
             </div>
 
-            {/* Quick-Launch Engines */}
+            {/* Quick-launch */}
             <div>
-              <h3 style={{ fontSize: 14, fontWeight: 700, color: "#e2e8f0", marginBottom: 12 }}>
-                🚀 Quick-Launch Engines
-              </h3>
-              <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fill, minmax(220px, 1fr))", gap: 10 }}>
-                {ALL_ENGINES.filter(e => ["BrainGen", "InfiniteExpansionEngine", "UniversalStrategyEngine", "UniversalCreativeEngine", "ORACLE", "FORGE"].includes(e.id)).map(engine => (
-                  <EngineCard key={engine.id} engine={engine} onRun={handleRunEngine} compact />
-                ))}
+              <h3 style={{ fontSize: 13, fontWeight: 700, color: "#e2e8f0", marginBottom: 10 }}>🚀 Quick-Launch Engines</h3>
+              <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fill, minmax(210px, 1fr))", gap: 8 }}>
+                {ALL_ENGINES
+                  .filter(e => ["BrainGen", "InfiniteExpansionEngine", "UniversalStrategyEngine", "UniversalCreativeEngine", "ORACLE", "FORGE"].includes(e.id))
+                  .map(engine => (
+                    <EngineCard key={engine.id} engine={engine} onRun={handleRunEngine} compact />
+                  ))}
               </div>
             </div>
 
-            {/* Meta-Agents overview */}
+            {/* Meta-agents overview */}
             <div>
-              <h3 style={{ fontSize: 14, fontWeight: 700, color: "#e2e8f0", marginBottom: 12 }}>
-                🤖 Meta-Agents — Running in Parallel
-              </h3>
-              <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fill, minmax(200px, 1fr))", gap: 10 }}>
+              <h3 style={{ fontSize: 13, fontWeight: 700, color: "#e2e8f0", marginBottom: 10 }}>🤖 Meta-Agents</h3>
+              <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fill, minmax(190px, 1fr))", gap: 8 }}>
                 {metaAgents.map(agent => (
                   <div
                     key={agent.id}
@@ -453,13 +997,15 @@ export function BrainHubApp() {
                     style={{
                       background: `${agent.color}11`, border: `1px solid ${agent.color}33`,
                       borderRadius: 10, padding: "12px 14px", cursor: "pointer",
-                      display: "flex", alignItems: "center", gap: 10,
+                      display: "flex", alignItems: "center", gap: 10, transition: "all 0.15s",
                     }}
                   >
-                    <span style={{ fontSize: 22 }}>{agent.icon}</span>
-                    <div style={{ flex: 1 }}>
+                    <span style={{ fontSize: 20 }}>{agent.icon}</span>
+                    <div style={{ flex: 1, minWidth: 0 }}>
                       <div style={{ fontSize: 13, fontWeight: 700, color: agent.color }}>{agent.name}</div>
-                      <div style={{ fontSize: 11, color: "#94a3b8", marginTop: 2 }}>{agent.capabilities[0]}</div>
+                      <div style={{ fontSize: 10, color: "#94a3b8", marginTop: 1, overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap" }}>
+                        {agent.capabilities[0]}
+                      </div>
                     </div>
                     <StatusDot active={true} />
                   </div>
@@ -467,21 +1013,19 @@ export function BrainHubApp() {
               </div>
             </div>
 
-            {/* Series Overview */}
+            {/* Series overview */}
             <div>
-              <h3 style={{ fontSize: 14, fontWeight: 700, color: "#e2e8f0", marginBottom: 12 }}>
-                🧬 Active Series
-              </h3>
-              <div style={{ display: "flex", gap: 8, flexWrap: "wrap" }}>
+              <h3 style={{ fontSize: 13, fontWeight: 700, color: "#e2e8f0", marginBottom: 10 }}>🧬 Series — Click to Activate</h3>
+              <div style={{ display: "flex", gap: 6, flexWrap: "wrap" }}>
                 {ALL_SERIES.map(s => (
                   <button
                     key={s.id}
-                    onClick={() => setView("series")}
+                    onClick={() => handleRunSeries(s)}
                     style={{
                       background: `${s.color}11`, border: `1px solid ${s.color}33`,
                       borderRadius: 20, padding: "6px 14px", cursor: "pointer",
                       display: "flex", alignItems: "center", gap: 6, color: s.color,
-                      fontSize: 12, fontWeight: 700,
+                      fontSize: 12, fontWeight: 700, transition: "all 0.15s",
                     }}
                   >
                     <span>{s.icon}</span> {s.name}
@@ -490,23 +1034,23 @@ export function BrainHubApp() {
               </div>
             </div>
 
-            {/* Capability declaration */}
+            {/* Platform declaration */}
             <div style={{
               background: "linear-gradient(135deg, rgba(99,102,241,0.12), rgba(191,90,242,0.08))",
-              border: "1px solid rgba(99,102,241,0.25)", borderRadius: 14, padding: "20px",
+              border: "1px solid rgba(99,102,241,0.25)", borderRadius: 14, padding: "18px",
             }}>
-              <div style={{ fontSize: 13, fontWeight: 700, color: "#818cf8", marginBottom: 10 }}>
-                PLATFORM DECLARATION — FULL CAPABILITY ACTIVE
+              <div style={{ fontSize: 12, fontWeight: 700, color: "#818cf8", marginBottom: 8 }}>
+                PLATFORM STATUS — FULL CAPABILITY ACTIVE
               </div>
-              <div style={{ display: "flex", flexDirection: "column", gap: 6 }}>
+              <div style={{ display: "flex", flexDirection: "column", gap: 5 }}>
                 {[
-                  "✅ All 25 engines connected and active",
-                  "✅ 6 Meta-Agents (Oracle, Forge, Nexus, Sentinel, Pulse, Vector) running",
-                  "✅ 9 Series implemented (Ω, Φ, UQ, ICE, AEL, UCP-X, GI, SE, DE, AB)",
-                  "✅ Real AI generation on every engine and agent",
-                  "✅ All outputs auto-saveable to project documents",
-                  "✅ 16 database tables storing real persistent data",
-                  "✅ Universal creation, expansion, and intelligence — fully operational",
+                  `✅ ${ALL_ENGINES.length} engines connected and active`,
+                  "✅ 6 Meta-Agents (Oracle, Forge, Nexus, Sentinel, Pulse, Vector) operational",
+                  `✅ ${ALL_SERIES.length} Series implemented — each runs member engines sequentially`,
+                  "✅ Real AI generation (GPT-5.2 streaming) on every engine and agent",
+                  "✅ Content safety filter active on all AI routes",
+                  "✅ All outputs saveable to project documents",
+                  "✅ 16 database tables — real persistent data",
                 ].map(item => (
                   <div key={item} style={{ fontSize: 12, color: "#94a3b8" }}>{item}</div>
                 ))}
@@ -518,17 +1062,17 @@ export function BrainHubApp() {
         {/* ── ENGINES ── */}
         {view === "engines" && (
           <div style={{ display: "flex", flexDirection: "column", gap: 16 }}>
-            <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between" }}>
+            <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", flexWrap: "wrap", gap: 8 }}>
               <h2 style={{ fontSize: 18, fontWeight: 700, color: "#e2e8f0", margin: 0 }}>
-                ⚙️ All Engines ({otherEngines.length})
+                ⚙️ Engines ({otherEngines.length})
               </h2>
-              <div style={{ display: "flex", gap: 6, flexWrap: "wrap" }}>
+              <div style={{ display: "flex", gap: 5, flexWrap: "wrap" }}>
                 {categories.map(cat => (
                   <button
                     key={cat.id}
                     onClick={() => setCategoryFilter(cat.id)}
                     style={{
-                      background: categoryFilter === cat.id ? "rgba(99,102,241,0.2)" : "rgba(255,255,255,0.06)",
+                      background: categoryFilter === cat.id ? "rgba(99,102,241,0.2)" : "rgba(255,255,255,0.05)",
                       border: categoryFilter === cat.id ? "1px solid rgba(99,102,241,0.4)" : "1px solid rgba(255,255,255,0.08)",
                       borderRadius: 20, padding: "4px 12px", cursor: "pointer",
                       color: categoryFilter === cat.id ? "#818cf8" : "#94a3b8",
@@ -554,11 +1098,11 @@ export function BrainHubApp() {
                 🤖 Meta-Agents — 6 Specialized AI Systems
               </h2>
               <p style={{ fontSize: 13, color: "#94a3b8", margin: "4px 0 0" }}>
-                Each Meta-Agent runs on real AI and specializes in a different intelligence domain.
+                Each Meta-Agent runs on real GPT-5.2 streaming with a specialized system identity.
                 Click any agent to activate it with your own topic and context.
               </p>
             </div>
-            <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fill, minmax(320px, 1fr))", gap: 14 }}>
+            <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fill, minmax(310px, 1fr))", gap: 14 }}>
               {metaAgents.map(agent => (
                 <div key={agent.id} style={{
                   background: `${agent.color}08`, border: `1px solid ${agent.color}33`,
@@ -568,11 +1112,11 @@ export function BrainHubApp() {
                     <div style={{
                       width: 48, height: 48, borderRadius: 12, background: `${agent.color}22`,
                       border: `1px solid ${agent.color}44`, display: "flex", alignItems: "center",
-                      justifyContent: "center", fontSize: 22,
+                      justifyContent: "center", fontSize: 24,
                     }}>{agent.icon}</div>
                     <div style={{ flex: 1 }}>
                       <div style={{ fontSize: 18, fontWeight: 700, color: agent.color }}>{agent.name}</div>
-                      <div style={{ fontSize: 11, color: "#94a3b8" }}>{agent.description.split(" — ")[0] ?? ""}</div>
+                      <div style={{ fontSize: 11, color: "#94a3b8" }}>Meta-Agent · Always active</div>
                     </div>
                     <div style={{ display: "flex", flexDirection: "column", alignItems: "center", gap: 2 }}>
                       <StatusDot active={true} />
@@ -583,11 +1127,16 @@ export function BrainHubApp() {
                   <div style={{ display: "flex", flexWrap: "wrap", gap: 4 }}>
                     {agent.capabilities.map(cap => (
                       <span key={cap} style={{
-                        fontSize: 10, background: `${agent.color}15`, borderRadius: 4,
-                        padding: "3px 8px", color: agent.color,
+                        fontSize: 10, background: `${agent.color}15`, borderRadius: 20,
+                        padding: "3px 9px", color: agent.color,
                       }}>{cap}</span>
                     ))}
                   </div>
+                  {ENGINE_HINTS[agent.id] && (
+                    <div style={{ fontSize: 11, color: "#4f5a6e", fontStyle: "italic" }}>
+                      {ENGINE_HINTS[agent.id].example}
+                    </div>
+                  )}
                   <button
                     onClick={() => handleRunEngine(agent)}
                     style={{
@@ -595,9 +1144,7 @@ export function BrainHubApp() {
                       padding: "10px 16px", color: "#fff", fontSize: 13, fontWeight: 700,
                       cursor: "pointer",
                     }}
-                  >
-                    ▶ Activate {agent.name}
-                  </button>
+                  >▶ Activate {agent.name}</button>
                 </div>
               ))}
             </div>
@@ -609,19 +1156,73 @@ export function BrainHubApp() {
           <div style={{ display: "flex", flexDirection: "column", gap: 16 }}>
             <div>
               <h2 style={{ fontSize: 18, fontWeight: 700, color: "#e2e8f0", margin: 0 }}>
-                🧬 All Series — {ALL_SERIES.length} Active
+                🧬 Series — {ALL_SERIES.length} Multi-Engine Workflows
               </h2>
               <p style={{ fontSize: 13, color: "#94a3b8", margin: "4px 0 0" }}>
-                Each series is a named group of engines and capabilities that work together under a unified design philosophy.
+                Each series runs its member engines in sequence, producing a combined multi-perspective output.
+                Click "Activate" to run the full series against your topic.
               </p>
             </div>
             <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fill, minmax(340px, 1fr))", gap: 14 }}>
               {ALL_SERIES.map(series => (
-                <SeriesCard key={series.id} series={series} />
+                <div key={series.id} style={{
+                  background: "rgba(255,255,255,0.03)", border: "1px solid rgba(255,255,255,0.08)",
+                  borderRadius: 14, padding: "18px", display: "flex", flexDirection: "column", gap: 12,
+                }}>
+                  <div style={{ display: "flex", alignItems: "center", gap: 12 }}>
+                    <div style={{
+                      width: 48, height: 48, borderRadius: 12, background: `${series.color}22`,
+                      border: `1px solid ${series.color}44`, display: "flex", alignItems: "center",
+                      justifyContent: "center", fontSize: 22, flexShrink: 0,
+                    }}>{series.icon}</div>
+                    <div style={{ flex: 1 }}>
+                      <div style={{ display: "flex", alignItems: "center", gap: 8 }}>
+                        <span style={{ fontSize: 16, fontWeight: 700, color: series.color }}>{series.name}</span>
+                        <span style={{
+                          fontSize: 10, background: `${series.color}22`, color: series.color,
+                          borderRadius: 4, padding: "2px 7px", fontWeight: 700,
+                        }}>{series.symbol}</span>
+                      </div>
+                      <div style={{ fontSize: 11, color: "#94a3b8", marginTop: 2 }}>
+                        {series.engines.length} engines run in sequence
+                      </div>
+                    </div>
+                  </div>
+                  <div style={{ fontSize: 13, color: "#94a3b8", lineHeight: 1.6 }}>{series.description}</div>
+                  <div style={{ display: "flex", flexWrap: "wrap", gap: 4 }}>
+                    {series.capabilities.map(cap => (
+                      <span key={cap} style={{
+                        fontSize: 10, background: "rgba(255,255,255,0.06)", borderRadius: 4,
+                        padding: "2px 6px", color: "#64748b",
+                      }}>{cap}</span>
+                    ))}
+                  </div>
+                  <div style={{ display: "flex", flexWrap: "wrap", gap: 4 }}>
+                    {series.engines.map(eid => (
+                      <span key={eid} style={{
+                        fontSize: 10, background: `${series.color}11`, borderRadius: 4,
+                        padding: "2px 6px", color: series.color, border: `1px solid ${series.color}33`,
+                      }}>{eid}</span>
+                    ))}
+                  </div>
+                  <button
+                    onClick={() => handleRunSeries(series)}
+                    style={{
+                      background: series.color, border: "none", borderRadius: 10,
+                      padding: "10px 16px", color: "#fff", fontSize: 13, fontWeight: 700,
+                      cursor: "pointer",
+                    }}
+                  >
+                    {series.icon} Activate {series.name}
+                  </button>
+                </div>
               ))}
             </div>
           </div>
         )}
+
+        {/* ── COMPLIANCE ── */}
+        {view === "compliance" && <CompliancePanel />}
 
       </div>
     </div>

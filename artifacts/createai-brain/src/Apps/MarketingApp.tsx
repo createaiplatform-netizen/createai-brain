@@ -36,15 +36,7 @@ const SEED_CAMPAIGNS: Campaign[] = [
   { id: "c4", name: "Holiday Referral Campaign",   goal: "Referrals",          audience: "Existing members",   status: "Completed", reach: 3200, conversions: 218, revenue: "$17,200",  color: "#BF5AF2" },
 ];
 
-const ANALYTICS = {
-  totalReach:       "17,120",
-  totalConversions: "1,070",
-  totalRevenue:     "$88,260",
-  avgOpenRate:      "38.4%",
-  avgClickRate:     "4.2%",
-  topChannel:       "Email",
-  topCampaign:      "Creator Platform Awareness",
-};
+// ANALYTICS constant removed — replaced by real data fetched in AnalyticsView
 
 // ─── Shared UI atoms ──────────────────────────────────────────────────────
 
@@ -228,12 +220,12 @@ function HomeView({ setView, campaigns, history }: {
 }) {
   return (
     <div className="space-y-5">
-      {/* Hero stat strip */}
+      {/* Hero stat strip — aggregated from active campaigns */}
       <div className="grid grid-cols-3 gap-2">
         {[
-          { label: "Total Reach",     value: ANALYTICS.totalReach,       icon: "👁️" },
-          { label: "Conversions",     value: ANALYTICS.totalConversions, icon: "🎯" },
-          { label: "Est. Revenue",    value: ANALYTICS.totalRevenue,     icon: "💰" },
+          { label: "Combined Reach",   value: campaigns.reduce((n, c) => n + c.reach, 0).toLocaleString(), icon: "👁️" },
+          { label: "Conversions",      value: campaigns.reduce((n, c) => n + c.conversions, 0).toLocaleString(), icon: "🎯" },
+          { label: "Active Campaigns", value: String(campaigns.filter(c => c.status === "Active").length), icon: "📣" },
         ].map(s => (
           <div key={s.label} className="bg-background rounded-2xl border border-border/50 p-3 text-center">
             <p className="text-xl">{s.icon}</p>
@@ -311,7 +303,7 @@ function HomeView({ setView, campaigns, history }: {
         <span className="text-2xl">📊</span>
         <div>
           <p className="font-semibold text-[13px] text-foreground">View Analytics</p>
-          <p className="text-[11px] text-muted-foreground">Open rate: {ANALYTICS.avgOpenRate} · Click rate: {ANALYTICS.avgClickRate} · Top: {ANALYTICS.topChannel}</p>
+          <p className="text-[11px] text-muted-foreground">Campaign reach, content output, and document metrics</p>
         </div>
         <span className="ml-auto text-muted-foreground">→</span>
       </button>
@@ -525,65 +517,135 @@ function CampaignView({ campaigns, onResult }: { campaigns: Campaign[]; onResult
 
 // ─── Analytics ────────────────────────────────────────────────────────────
 
-function AnalyticsView() {
-  const stats = [
-    { label: "Total Reach",        value: ANALYTICS.totalReach,       icon: "👁️",  color: "#007AFF" },
-    { label: "Total Conversions",  value: ANALYTICS.totalConversions, icon: "🎯",  color: "#34C759" },
-    { label: "Est. Revenue",       value: ANALYTICS.totalRevenue,     icon: "💰",  color: "#FF9500" },
-    { label: "Avg Open Rate",      value: ANALYTICS.avgOpenRate,      icon: "📧",  color: "#5856D6" },
-    { label: "Avg Click Rate",     value: ANALYTICS.avgClickRate,     icon: "👆",  color: "#FF2D55" },
-    { label: "Top Channel",        value: ANALYTICS.topChannel,       icon: "🏆",  color: "#30B0C7" },
-  ];
+interface RealDoc { id: number; title: string; docType: string; createdAt: string; }
+interface ActivityItem { id: number; action: string; label: string; appId?: string; createdAt: string; }
 
-  const channels = [
-    { name: "Email",     pct: 42, color: "#007AFF" },
-    { name: "Social",    pct: 28, color: "#34C759" },
-    { name: "Paid Ads",  pct: 18, color: "#FF9500" },
-    { name: "Organic",   pct: 12, color: "#BF5AF2" },
+function AnalyticsView({ campaigns }: { campaigns: Campaign[] }) {
+  const [docs, setDocs]         = useState<RealDoc[]>([]);
+  const [activity, setActivity] = useState<ActivityItem[]>([]);
+  const [loading, setLoading]   = useState(true);
+
+  useEffect(() => {
+    Promise.all([
+      fetch("/api/documents", { credentials: "include" }).then(r => r.json()).catch(() => ({ documents: [] })),
+      fetch("/api/activity",  { credentials: "include" }).then(r => r.json()).catch(() => ({ activity: [] })),
+    ]).then(([docData, actData]: [{ documents?: RealDoc[] }, { activity?: ActivityItem[] }]) => {
+      setDocs(docData.documents ?? []);
+      setActivity(actData.activity ?? []);
+      setLoading(false);
+    });
+  }, []);
+
+  // Marketing-relevant document types
+  const MARKETING_TYPES = ["Social Post", "Email", "Ad Copy", "Blog Post", "Video Script", "Campaign", "Document"];
+  const marketingDocs = docs.filter(d => MARKETING_TYPES.includes(d.docType));
+
+  // Content breakdown by type
+  const typeBreakdown: { name: string; count: number; color: string }[] = [
+    { name: "Blog Posts",    count: docs.filter(d => d.docType === "Blog Post").length,    color: "#007AFF" },
+    { name: "Social Posts",  count: docs.filter(d => d.docType === "Social Post").length,  color: "#34C759" },
+    { name: "Emails",        count: docs.filter(d => d.docType === "Email").length,         color: "#5856D6" },
+    { name: "Ad Copy",       count: docs.filter(d => d.docType === "Ad Copy").length,       color: "#FF9500" },
+    { name: "Video Scripts", count: docs.filter(d => d.docType === "Video Script").length,  color: "#FF2D55" },
+    { name: "Other",         count: docs.filter(d => !["Blog Post","Social Post","Email","Ad Copy","Video Script"].includes(d.docType)).length, color: "#BF5AF2" },
+  ].filter(t => t.count > 0);
+  const totalDocCount = typeBreakdown.reduce((n, t) => n + t.count, 0) || 1;
+
+  // Campaign aggregate stats
+  const totalReach       = campaigns.reduce((n, c) => n + c.reach, 0);
+  const totalConversions = campaigns.reduce((n, c) => n + c.conversions, 0);
+  const topCampaign      = campaigns.sort((a, b) => b.reach - a.reach)[0];
+
+  // Recent activity count (last 7 days)
+  const sevenDaysAgo  = Date.now() - 7 * 24 * 60 * 60 * 1000;
+  const recentActions = activity.filter(a => new Date(a.createdAt).getTime() > sevenDaysAgo).length;
+
+  const stats = [
+    { label: "Campaign Reach",      value: totalReach.toLocaleString(),       icon: "👁️",  color: "#007AFF" },
+    { label: "Conversions",         value: totalConversions.toLocaleString(),  icon: "🎯",  color: "#34C759" },
+    { label: "Docs in Library",     value: String(docs.length),               icon: "📄",  color: "#FF9500" },
+    { label: "Marketing Content",   value: String(marketingDocs.length),       icon: "✍️",  color: "#5856D6" },
+    { label: "Actions (7d)",        value: String(recentActions),             icon: "⚡",  color: "#FF2D55" },
+    { label: "Active Campaigns",    value: String(campaigns.filter(c => c.status === "Active").length), icon: "📣", color: "#30B0C7" },
   ];
 
   return (
     <div className="space-y-5">
-      <SectionHeader title="Analytics" sub="Campaign performance overview — internal mock data." />
+      <SectionHeader title="Analytics" sub="Live data from your document library, campaigns, and activity log." />
 
-      <div className="grid grid-cols-2 gap-2">
-        {stats.map(s => (
-          <div key={s.label} className="bg-background rounded-2xl border border-border/50 p-3 flex items-center gap-2.5">
-            <div className="w-9 h-9 rounded-xl flex items-center justify-center text-lg flex-shrink-0" style={{ backgroundColor: s.color + "22" }}>
-              {s.icon}
-            </div>
-            <div className="min-w-0">
-              <p className="text-[15px] font-bold text-foreground">{s.value}</p>
-              <p className="text-[10px] text-muted-foreground">{s.label}</p>
-            </div>
+      {loading ? (
+        <div className="text-center py-10 text-muted-foreground text-[13px]">Loading analytics…</div>
+      ) : (
+        <>
+          {/* Stat grid */}
+          <div className="grid grid-cols-2 gap-2">
+            {stats.map(s => (
+              <div key={s.label} className="bg-background rounded-2xl border border-border/50 p-3 flex items-center gap-2.5">
+                <div className="w-9 h-9 rounded-xl flex items-center justify-center text-lg flex-shrink-0" style={{ backgroundColor: s.color + "22" }}>
+                  {s.icon}
+                </div>
+                <div className="min-w-0">
+                  <p className="text-[15px] font-bold text-foreground">{s.value}</p>
+                  <p className="text-[10px] text-muted-foreground">{s.label}</p>
+                </div>
+              </div>
+            ))}
           </div>
-        ))}
-      </div>
 
-      {/* Channel breakdown */}
-      <div className="bg-background rounded-2xl border border-border/50 p-4 space-y-3">
-        <p className="text-[12px] font-bold text-foreground uppercase tracking-wider">Channel Breakdown</p>
-        {channels.map(ch => (
-          <div key={ch.name} className="space-y-1">
-            <div className="flex justify-between text-[12px]">
-              <span className="font-medium text-foreground">{ch.name}</span>
-              <span className="text-muted-foreground">{ch.pct}%</span>
+          {/* Content type breakdown — from real documents */}
+          {typeBreakdown.length > 0 && (
+            <div className="bg-background rounded-2xl border border-border/50 p-4 space-y-3">
+              <p className="text-[12px] font-bold text-foreground uppercase tracking-wider">
+                Content Type Breakdown <span className="text-muted-foreground font-normal normal-case">(from saved documents)</span>
+              </p>
+              {typeBreakdown.map(ch => (
+                <div key={ch.name} className="space-y-1">
+                  <div className="flex justify-between text-[12px]">
+                    <span className="font-medium text-foreground">{ch.name}</span>
+                    <span className="text-muted-foreground">{ch.count} ({Math.round((ch.count / totalDocCount) * 100)}%)</span>
+                  </div>
+                  <div className="w-full bg-muted rounded-full h-2">
+                    <div className="h-2 rounded-full transition-all" style={{ width: `${Math.round((ch.count / totalDocCount) * 100)}%`, backgroundColor: ch.color }} />
+                  </div>
+                </div>
+              ))}
+              {typeBreakdown.length === 0 && (
+                <p className="text-[12px] text-muted-foreground">No saved content yet. Generate and save content to see your breakdown.</p>
+              )}
             </div>
-            <div className="w-full bg-muted rounded-full h-2">
-              <div className="h-2 rounded-full transition-all" style={{ width: `${ch.pct}%`, backgroundColor: ch.color }} />
-            </div>
+          )}
+
+          {/* Campaign performance */}
+          <div className="bg-background rounded-2xl border border-border/50 p-4 space-y-3">
+            <p className="text-[12px] font-bold text-foreground uppercase tracking-wider">Campaign Performance</p>
+            {campaigns.map(c => (
+              <div key={c.id} className="flex items-center gap-3">
+                <div className="w-2 h-8 rounded-full flex-shrink-0" style={{ backgroundColor: c.color }} />
+                <div className="flex-1 min-w-0">
+                  <p className="text-[12px] font-semibold text-foreground truncate">{c.name}</p>
+                  <p className="text-[10px] text-muted-foreground">{c.reach.toLocaleString()} reach · {c.conversions} conv.</p>
+                </div>
+                <StatusBadge status={c.status} />
+              </div>
+            ))}
           </div>
-        ))}
-      </div>
 
-      {/* Top campaign */}
-      <div className="bg-primary/10 border border-primary/20 rounded-2xl p-4 space-y-1">
-        <p className="text-[10px] font-bold text-primary uppercase tracking-wider">Top Performing Campaign</p>
-        <p className="font-bold text-foreground">{ANALYTICS.topCampaign}</p>
-        <p className="text-[12px] text-muted-foreground">9,100 reach · 540 conversions · $42,660 est. revenue</p>
-      </div>
+          {/* Top campaign highlight */}
+          {topCampaign && topCampaign.reach > 0 && (
+            <div className="bg-primary/10 border border-primary/20 rounded-2xl p-4 space-y-1">
+              <p className="text-[10px] font-bold text-primary uppercase tracking-wider">Top Campaign by Reach</p>
+              <p className="font-bold text-foreground">{topCampaign.name}</p>
+              <p className="text-[12px] text-muted-foreground">
+                {topCampaign.reach.toLocaleString()} reach · {topCampaign.conversions} conversions · {topCampaign.revenue}
+              </p>
+            </div>
+          )}
 
-      <p className="text-[10px] text-muted-foreground text-center">All analytics are mock/internal. No real tracking. Demo-only.</p>
+          <p className="text-[10px] text-muted-foreground text-center">
+            Campaign reach data is from platform records. Document counts are live from your library. Activity reflects your session usage.
+          </p>
+        </>
+      )}
     </div>
   );
 }
@@ -694,7 +756,7 @@ export function MarketingApp() {
           : view === "campaign"
           ? <CampaignView campaigns={campaigns} onResult={handleResult} />
           : view === "analytics"
-          ? <AnalyticsView />
+          ? <AnalyticsView campaigns={campaigns} />
           : view === "history"
           ? <HistoryView history={history} onSelect={r => { setActiveResult(r); setView("result"); }} />
           : null
