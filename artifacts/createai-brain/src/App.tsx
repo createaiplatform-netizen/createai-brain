@@ -10,6 +10,7 @@ import StandalonePage from "@/pages/StandalonePage";
 import CreationPage from "@/pages/CreationPage";
 import ProjectPage from "@/pages/ProjectPage";
 import IntegrationDemoPage from "@/pages/IntegrationDemoPage";
+import LiveSimDashboard from "@/pages/LiveSimDashboard";
 
 import { OSProvider } from "@/os/OSContext";
 import { OSLayout } from "@/os/osLayout";
@@ -379,13 +380,15 @@ function AuthGate({ children }: { children: React.ReactNode }) {
 function App() {
   // Public routes bypass auth — check before AuthGate renders
   const base = import.meta.env.BASE_URL.replace(/\/$/, "");
-  const isPublicRoute = window.location.pathname.startsWith(`${base}/integration-demo`);
+  const path = window.location.pathname;
+  const isPublicRoute = path.startsWith(`${base}/integration-demo`) || path.startsWith(`${base}/live-sim`);
 
   if (isPublicRoute) {
     return (
       <QueryClientProvider client={queryClient}>
         <WouterRouter base={base}>
           <Route path="/integration-demo" component={IntegrationDemoPage} />
+          <Route path="/live-sim" component={LiveSimDashboard} />
         </WouterRouter>
       </QueryClientProvider>
     );
