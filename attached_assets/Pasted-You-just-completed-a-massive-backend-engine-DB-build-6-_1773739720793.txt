@@ -1,0 +1,70 @@
+You just completed a massive backend + engine + DB build:
+
+- 6 new modules: NarratorOS, CivilizationForge, EcologyForge, SoundscapeStudio, TimelineForge, MythweaveStudio
+- 6 new schema tables created and pushed
+- 6 new API routes created and mounted
+- 6 new engine definition files created
+- All typechecks clean, servers restarted, routes active
+
+Now I want you to FINISH THE FRONTEND so the whole system is usable from the UI.
+
+Your job now is:
+
+1. CREATE UI APPS FOR ALL 6 NEW MODULES
+   For each module, create a React/TSX app file that:
+   - Follows the same structure and style as LoreForgeApp / ImaginationLab
+   - Lists all engines for that module
+   - Lets the user:
+     - select an engine
+     - enter input
+     - run the engine via the existing /api/openai/series-run or equivalent endpoint
+     - view the streamed or returned output
+   - Includes:
+     - a title/header for the module
+     - a short description of what the module is for
+     - a list or grid of engines with human-readable names
+     - a main panel for running the selected engine
+
+   Modules and engines (use the engine IDs you already defined):
+
+   NarratorOS:
+   - SceneEngine, DialogueEngine, PlotTwistEngine, ActStructureEngine, ConflictEngine, ThemeEngine, ArcEngine, EndingEngine, OpeningEngine, MonologueEngine, EnsembleDynamicsEngine, NarrativeVoiceEngine, SubplotEngine
+
+   CivilizationForge:
+   - EconomyEngine, PoliticalSystemEngine, SocialStrataEngine, CulturalTraditionEngine, ArchitectureStyleEngine, LawSystemEngine, TradeRouteEngine, WarfareDoctrineEngine, CelebrationEngine, FoodCultureEngine, FashionEraEngine, SportsCultureEngine, InstitutionEngine
+
+   EcologyForge:
+   - BiomeEngine, EcosystemEngine, ApexCreatureEngine, ExtinctionEngine, EvolutionEngine, PathEngine, FloraEngine, FaunaEngine, ClimateSystemEngine, GeologyEngine, OceanicEngine, SymbiosisEngine, DisasterEngine, MigrationEngine
+
+   SoundscapeStudio:
+   - FictionalMusicEngine, InstrumentForgeEngine, AcousticEnvironmentEngine, CeremonialMusicEngine, WarMusicEngine, LullabyEngine, EpicBalladEngine, SilenceEngine, NatureSoundEngine, CrowdSoundEngine, SonicWeaponEngine, MusicMemoryEngine, HarmonySystemEngine
+
+   TimelineForge:
+   - TimelineEngine, AlternateHistoryEngine, ParallelTimelineEngine, TemporalParadoxEngine, HistoricalDivergenceEngine, AncestralLineEngine, FutureHistoryEngine, CalendarSystemEngine, AgeTransitionEngine, GenerationCycleEngine, PropheticTimelineEngine, CollapseTimelineEngine, ChronologyEngine
+
+   MythweaveStudio:
+   - ArchetypeEngine, SymbolSystemEngine, MotifEngine, FolkloreEngine, RitualDesignEngine, TricksterEngine, HeroJourneyEngine, ShadowNarrativeEngine, TransformationEngine, ThresholdEngine, MentorArchetypeEngine, OracleArchetypeEngine, DestinyEngine
+
+2. INTEGRATE THE 6 NEW APPS INTO THE MAIN OS NAVIGATION
+   - Add each module as a first-class section in the existing app navigation (same level as LoreForge / ImaginationLab / BrainHub etc.).
+   - Ensure each nav item routes to its new app.
+   - Use consistent naming and icons where applicable.
+
+3. USE EXISTING PATTERNS
+   - Reuse the same layout components, panels, and hooks used by LoreForgeApp and other existing creative apps.
+   - Reuse the same engine-run pattern (series-run or engine-run) you already wired for the other engines.
+   - Keep each app reasonably compact but fully functional.
+
+4. NO MORE PLANNING — ONLY IMPLEMENTATION
+   - Do NOT re-plan or re-describe the architecture.
+   - In this session, WRITE and MODIFY FILES only.
+   - Show me the key new UI app components and the updated navigation code.
+
+5. FINAL CHECK
+   - After creating all 6 UI apps and wiring navigation:
+     - Run a frontend typecheck
+     - Confirm the app builds and loads
+     - Confirm each new module screen renders without runtime errors
+
+Now begin:
+1. List the files you will

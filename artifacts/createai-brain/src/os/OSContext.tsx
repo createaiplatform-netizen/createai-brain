@@ -9,7 +9,9 @@ export type AppId =
   | "business" | "entity" | "bizcreator" | "bizdev" | "projbuilder" | "projos"
   | "notifications" | "brainhub"
   | "researchhub" | "learningcenter" | "personastudio" | "datastudio" | "pricingstudio"
-  | "traction" | "opportunity" | "imaginationlab" | "loreforge";
+  | "traction" | "opportunity" | "imaginationlab" | "loreforge"
+  | "narratoros" | "civilizationforge" | "ecologyforge"
+  | "soundscape" | "timelineforge" | "mythweave";
 
 export interface AppDef {
   id: AppId;
@@ -51,7 +53,13 @@ export const DEFAULT_APPS: AppDef[] = [
   { id: "traction",       label: "Traction",        icon: "📈", color: "#10b981", description: "Real traction signals, retention curves, growth analytics, and expansion velocity — all based on actual system activity", category: "system" },
   { id: "opportunity",    label: "Opportunities",    icon: "🎯", color: "#f59e0b", description: "Discover, score, and pursue high-value opportunities with AI intelligence, pipeline management, and strategic scanning", category: "business" },
   { id: "imaginationlab", label: "ImaginationLab",   icon: "✨", color: "#8b5cf6", description: "13 creative engines for story, character, world-building, creatures, superpowers, quests, dreamscapes, and magic systems — safe and fictional", category: "tools" },
-  { id: "loreforge",     label: "LoreForge",         icon: "📜", color: "#d97706", description: "Deep lore creation studio — mythology, religion, ancient history, prophecies, factions, languages, curses, relics, and cosmology for fictional worlds", category: "tools" },
+  { id: "loreforge",          label: "LoreForge",            icon: "📜", color: "#d97706", description: "Deep lore creation studio — mythology, religion, ancient history, prophecies, factions, languages, curses, relics, and cosmology for fictional worlds", category: "tools" },
+  { id: "narratoros",         label: "NarratorOS",           icon: "🎬", color: "#e11d48", description: "Cinematic narrative studio — scene design, dialogue, plot twists, act structure, conflict, theme, arc, monologue, and ensemble dynamics for fiction", category: "tools" },
+  { id: "civilizationforge",  label: "CivilizationForge",    icon: "🏛️", color: "#d97706", description: "Society and culture builder — economy, political systems, social strata, architecture, law, trade routes, war doctrine, food culture, and institutions", category: "tools" },
+  { id: "ecologyforge",       label: "EcologyForge",         icon: "🌿", color: "#15803d", description: "World ecology builder — biomes, ecosystems, apex creatures, extinction events, evolution, flora, fauna, climate, geology, and symbiosis for fictional worlds", category: "tools" },
+  { id: "soundscape",         label: "SoundscapeStudio",     icon: "🎵", color: "#7c3aed", description: "Fictional sound and music designer — music theory, instruments, acoustic environments, ceremonial music, war music, lullabies, epic ballads, and sonic systems", category: "tools" },
+  { id: "timelineforge",      label: "TimelineForge",        icon: "⏰", color: "#6366f1", description: "Temporal history studio — timelines, alternate history, parallel timelines, temporal paradoxes, historical divergences, dynasties, and civilizational collapse", category: "tools" },
+  { id: "mythweave",          label: "MythweaveStudio",      icon: "🕸️", color: "#7c3aed", description: "Myth, archetype, and symbol designer — archetypes, symbol systems, motifs, folklore, rituals, tricksters, hero journeys, shadow narratives, and destiny systems", category: "tools" },
 ];
 
 export const ALL_APPS = DEFAULT_APPS;
@@ -112,6 +120,12 @@ const INTENT_MAP: { keywords: string[]; target: AppId }[] = [
   { keywords: ["opportunity", "opportunities", "opportunity engine", "opp", "pipeline", "discover opportunities", "scan opportunities", "opportunity score", "market opportunity", "revenue opportunity", "partnership opportunity"], target: "opportunity" },
   { keywords: ["imagination", "imaginationlab", "story", "character", "worldbuilding", "creature", "superpower", "adventure", "comic", "quest", "fiction", "game idea", "creative", "storytelling", "world builder", "imagine", "dreamscape", "magic system"], target: "imaginationlab" },
   { keywords: ["loreforge", "lore", "mythology", "prophecy", "legend", "religion", "ancient history", "faction", "language engine", "curse", "prophet", "relic", "lorekeeper", "cosmology", "era", "pantheon", "deep lore"], target: "loreforge" },
+  { keywords: ["narratoros", "narrator", "scene", "dialogue", "plot twist", "act structure", "conflict engine", "monologue", "ensemble", "narrative voice", "subplot", "screenplay", "cinematic"], target: "narratoros" },
+  { keywords: ["civilizationforge", "civilization", "society", "political system", "social strata", "architecture style", "law system", "trade route", "warfare", "food culture", "fashion era", "sports culture", "institution"], target: "civilizationforge" },
+  { keywords: ["ecologyforge", "ecology", "biome", "ecosystem", "apex creature", "extinction", "evolution", "flora", "fauna", "climate system", "geology", "oceanic", "symbiosis", "disaster", "migration"], target: "ecologyforge" },
+  { keywords: ["soundscape", "soundscapestudio", "fictional music", "instrument forge", "acoustic environment", "ceremonial music", "war music", "lullaby", "epic ballad", "silence engine", "nature sound", "crowd sound", "sonic weapon", "harmony system"], target: "soundscape" },
+  { keywords: ["timelineforge", "timeline", "alternate history", "parallel timeline", "temporal paradox", "historical divergence", "ancestral line", "future history", "calendar system", "age transition", "generation cycle", "collapse timeline", "chronology"], target: "timelineforge" },
+  { keywords: ["mythweave", "mythweavestudio", "archetype", "symbol system", "motif", "folklore", "ritual", "trickster", "hero journey", "shadow narrative", "transformation", "threshold", "mentor archetype", "oracle archetype", "destiny"], target: "mythweave" },
   { keywords: ["money", "monetize", "revenue", "earn", "funnel", "offer"],target: "monetization" },
   { keywords: ["admin", "settings", "control", "mode", "user"],           target: "admin" },
   { keywords: ["family", "home", "personal"],                              target: "family" },
@@ -162,8 +176,14 @@ const APP_META: Record<AppId, { icon: string; label: string }> = {
   pricingstudio:  { icon: "💰", label: "Pricing Studio" },
   traction:       { icon: "📈", label: "Traction" },
   opportunity:    { icon: "🎯", label: "Opportunities" },
-  imaginationlab: { icon: "✨", label: "ImaginationLab" },
-  loreforge:      { icon: "📜", label: "LoreForge" },
+  imaginationlab:     { icon: "✨", label: "ImaginationLab" },
+  loreforge:          { icon: "📜", label: "LoreForge" },
+  narratoros:         { icon: "🎬", label: "NarratorOS" },
+  civilizationforge:  { icon: "🏛️", label: "CivilizationForge" },
+  ecologyforge:       { icon: "🌿", label: "EcologyForge" },
+  soundscape:         { icon: "🎵", label: "SoundscapeStudio" },
+  timelineforge:      { icon: "⏰", label: "TimelineForge" },
+  mythweave:          { icon: "🕸️", label: "MythweaveStudio" },
 };
 
 // ─── OS Context value ───────────────────────────────────────────────────────

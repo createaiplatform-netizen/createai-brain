@@ -31,6 +31,12 @@ import { TractionDashboardApp } from "@/Apps/TractionDashboardApp";
 import { OpportunityApp } from "@/Apps/OpportunityApp";
 import { ImaginationLabApp } from "@/Apps/ImaginationLabApp";
 import { LoreForgeApp } from "@/Apps/LoreForgeApp";
+import { NarratorOSApp } from "@/Apps/NarratorOSApp";
+import { CivilizationForgeApp } from "@/Apps/CivilizationForgeApp";
+import { EcologyForgeApp } from "@/Apps/EcologyForgeApp";
+import { SoundscapeStudioApp } from "@/Apps/SoundscapeStudioApp";
+import { TimelineForgeApp } from "@/Apps/TimelineForgeApp";
+import { MythweaveStudioApp } from "@/Apps/MythweaveStudioApp";
 import type { AppId } from "./OSContext";
 
 const APP_LABELS: Record<AppId, string> = {
@@ -63,7 +69,13 @@ const APP_LABELS: Record<AppId, string> = {
   traction:       "Traction Dashboard",
   opportunity:    "Opportunity Engine",
   imaginationlab: "ImaginationLab",
-  loreforge:      "LoreForge",
+  loreforge:          "LoreForge",
+  narratoros:         "NarratorOS — Narrative Studio",
+  civilizationforge:  "CivilizationForge",
+  ecologyforge:       "EcologyForge",
+  soundscape:         "SoundscapeStudio",
+  timelineforge:      "TimelineForge",
+  mythweave:          "MythweaveStudio",
 };
 
 const APP_ICONS: Record<AppId, string> = {
@@ -96,7 +108,13 @@ const APP_ICONS: Record<AppId, string> = {
   traction:       "📈",
   opportunity:    "🎯",
   imaginationlab: "✨",
-  loreforge:      "📜",
+  loreforge:          "📜",
+  narratoros:         "🎬",
+  civilizationforge:  "🏛️",
+  ecologyforge:       "🌿",
+  soundscape:         "🎵",
+  timelineforge:      "⏰",
+  mythweave:          "🕸️",
 };
 
 const APP_COMPONENTS: Record<AppId, React.ComponentType<any>> = {
@@ -129,7 +147,13 @@ const APP_COMPONENTS: Record<AppId, React.ComponentType<any>> = {
   traction:       TractionDashboardApp,
   opportunity:    OpportunityApp,
   imaginationlab: ImaginationLabApp,
-  loreforge:      LoreForgeApp,
+  loreforge:          LoreForgeApp,
+  narratoros:         NarratorOSApp,
+  civilizationforge:  CivilizationForgeApp,
+  ecologyforge:       EcologyForgeApp,
+  soundscape:         SoundscapeStudioApp,
+  timelineforge:      TimelineForgeApp,
+  mythweave:          MythweaveStudioApp,
 };
 
 interface AppWindowProps {
