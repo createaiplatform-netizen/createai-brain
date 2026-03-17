@@ -42,6 +42,7 @@ import visualworldRouter from "./visualworld";
 import religionforgeRouter from "./religionforge";
 import cosmologyforgeRouter from "./cosmologyforge";
 import gameworldRouter from "./gameworld";
+import adaptersRouter from "./adapters";
 
 const router: IRouter = Router();
 
@@ -86,6 +87,7 @@ router.use("/health",             healthcareRouter);
 router.use("/staffing",           staffingRouter);
 
 // ── Enterprise routes ────────────────────────────────────────────────────────
+router.use("/adapters",           adaptersRouter);
 router.use("/admin",              adminRouter);
 router.use("/webhooks",           webhooksRouter);
 router.use("/auth/sso",           ssoRouter);
