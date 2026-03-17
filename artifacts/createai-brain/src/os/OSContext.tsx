@@ -8,7 +8,8 @@ export type AppId =
   | "integration" | "monetization" | "universal" | "simulation"
   | "business" | "entity" | "bizcreator" | "bizdev" | "projbuilder" | "projos"
   | "notifications" | "brainhub"
-  | "researchhub" | "learningcenter" | "personastudio" | "datastudio" | "pricingstudio";
+  | "researchhub" | "learningcenter" | "personastudio" | "datastudio" | "pricingstudio"
+  | "traction";
 
 export interface AppDef {
   id: AppId;
@@ -47,6 +48,7 @@ export const DEFAULT_APPS: AppDef[] = [
   { id: "personastudio",  label: "Persona Studio",  icon: "👤", color: "#BF5AF2", description: "ICP creation, user personas, and communication strategy — powered by Persona and Communication engines", category: "business" },
   { id: "datastudio",     label: "Data Studio",     icon: "🗄️", color: "#30B0C7", description: "Data modeling, schema design, and pattern intelligence — powered by DataModel Engine and VECTOR", category: "tools" },
   { id: "pricingstudio",  label: "Pricing Studio",  icon: "💰", color: "#FFD60A", description: "Pricing strategy, packaging, and feedback frameworks — powered by Pricing and Feedback engines", category: "business" },
+  { id: "traction",       label: "Traction",        icon: "📈", color: "#10b981", description: "Real traction signals, retention curves, growth analytics, and expansion velocity — all based on actual system activity", category: "system" },
 ];
 
 export const ALL_APPS = DEFAULT_APPS;
@@ -152,6 +154,7 @@ const APP_META: Record<AppId, { icon: string; label: string }> = {
   personastudio:  { icon: "👤", label: "Persona Studio" },
   datastudio:     { icon: "🗄️", label: "Data Studio" },
   pricingstudio:  { icon: "💰", label: "Pricing Studio" },
+  traction:       { icon: "📈", label: "Traction" },
 };
 
 // ─── OS Context value ───────────────────────────────────────────────────────
