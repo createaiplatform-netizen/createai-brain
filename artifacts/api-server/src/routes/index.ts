@@ -10,6 +10,10 @@ import activityRouter from "./activity";
 import conversationsRouter from "./conversations";
 import integrationsRouter from "./integrations";
 import peopleRouter from "./people";
+import notificationsRouter from "./notifications";
+import documentsRouter from "./documents";
+import tasksRouter from "./tasks";
+import membersRouter from "./project_members";
 
 const router: IRouter = Router();
 
@@ -17,6 +21,8 @@ router.use(healthRouter);
 router.use(authRouter);
 router.use("/openai", openaiRouter);
 router.use("/projects", projectsRouter);
+router.use("/projects", tasksRouter);
+router.use("/projects", membersRouter);
 router.use("/brainstorm", brainstormRouter);
 router.use("/project-chat", projectChatRouter);
 router.use("/user", userRouter);
@@ -24,5 +30,7 @@ router.use("/activity", activityRouter);
 router.use("/conversations", conversationsRouter);
 router.use("/integrations", integrationsRouter);
 router.use("/people", peopleRouter);
+router.use("/notifications", notificationsRouter);
+router.use("/documents", documentsRouter);
 
 export default router;

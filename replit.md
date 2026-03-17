@@ -2,11 +2,13 @@
 
 ## Real Data Platform (COMPLETE — No mock/demo data anywhere)
 
-### DB Tables
+### DB Tables (16 total — all pushed to PostgreSQL)
 - `users` — auth + NDA state
 - `sessions` — session KV store
 - `projects` — user-scoped projects (`status`: active/archived, `archivedAt`)
 - `project_folders` + `project_files` — full file tree under projects
+- `project_tasks` — NEW: task board items per project (status: todo/in-progress/done, priority, assignedTo, dueAt)
+- `project_members` — NEW: project collaboration roles (viewer/editor/owner)
 - `brainstorm_sessions` + `brainstorm_messages` — BrainGen sessions
 - `conversations` — chat sessions (userId, appId, title, createdAt, updatedAt)
 - `messages` — per-conversation messages (conversationId, role, content)
@@ -14,6 +16,8 @@
 - `activity_log` — universal activity feed (userId, action, label, icon, appId, projectId)
 - `integrations` — user-registered integrations (name, type, category, status, isEnabled, configJson)
 - `people` — contact registry (userId, name, email, phone, role, department, status, notes, addedAt)
+- `notifications` — NEW: system/app notifications (userId, type, title, body, read, appId, projectId, actionUrl)
+- `documents` — NEW: standalone documents (userId, projectId, title, body, docType, tags, isPinned, isTemplate)
 
 ### Real API Routes (all auth-protected, 401 if unauthenticated)
 - `GET/POST /api/activity` — activity feed CRUD (supports `?limit=N`)
@@ -23,12 +27,18 @@
 - `GET/POST/PUT/DELETE /api/projects` + files/folders endpoints — full ProjectOS
 - `PUT /api/projects/:id/status` — archive/restore project (`{ status: "active"|"archived" }`)
 - `GET/POST/PUT/DELETE /api/people` — full people/contact CRUD
+- `GET/POST/PUT/DELETE /api/notifications` — notification center (+ `/read-all`, `/:id/read`)
+- `GET/POST/PUT/DELETE /api/documents` — standalone document registry (pin, template support)
+- `GET/POST/PUT/DELETE /api/projects/:id/tasks` — per-project task CRUD
+- `GET/POST/PUT/DELETE /api/projects/:id/members` — project team management (roles: viewer/editor/owner)
 
 ### Production Audit Completed (all apps)
 - **PeopleApp** — fully rewritten with real `/api/people` (no PlatformStore)
-- **DocumentsApp** — real DB files only, no static STATIC_DOCS or DOC_CONTENT arrays
+- **DocumentsApp** — dual-tab: My Documents via `/api/documents` (create/edit/delete/pin/export) + Project Files from `/api/projects/all-files`
+- **NotificationsApp** — NEW app: full notification center with mark-read, mark-all-read, delete, clear-all; registered in OSContext + AppWindow
+- **MonetizationApp** — `credentials:"include"` fixed on offer funnel; `SaveToProjectModal` + Export button added to output
 - **AdminApp** — real DB counts (projects, people), real audit log from `/api/activity`
-- **ProjectOSApp** — archive/restore with Active/Archived toggle in sidebar; `apiSetProjectStatus()`
+- **ProjectOSApp** — archive/restore with Active/Archived toggle in sidebar; chat credentials fixed
 - **All generator apps** — `credentials:"include"` on every fetch (BizDevApp, BizUniverseApp, BusinessCreationApp, BusinessEntityApp, ProjectBuilderApp, CreatorApp, MarketingApp, ToolsApp, SimulationApp)
 - **ErrorBoundary** — global `<ErrorBoundary appName={label}>` wraps every app in AppWindow.tsx; shows graceful error + Reload button
 - **Universal breadcrumb bar** — thin indigo-tinted bar below top header in every app showing "CreateAI Brain › {icon} {AppLabel}"

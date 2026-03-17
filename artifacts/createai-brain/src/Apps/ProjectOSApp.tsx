@@ -209,7 +209,7 @@ async function apiUpdateProject(id: string, updates: { name?: string; descriptio
 
 async function apiLoadChatHistory(projectId: string): Promise<{ role: "user" | "ai"; text: string }[]> {
   try {
-    const res = await fetch(`/api/project-chat/${projectId}/history`);
+    const res = await fetch(`/api/project-chat/${projectId}/history`, { credentials: "include" });
     if (!res.ok) return [];
     const data = await res.json() as { messages: { role: "user" | "ai"; text: string }[] };
     return data.messages ?? [];
@@ -231,6 +231,7 @@ async function streamProjectChat(
   }));
   const res = await fetch(`/api/project-chat/${projectId}/chat`, {
     method: "POST",
+    credentials: "include",
     headers: { "Content-Type": "application/json" },
     body: JSON.stringify({ message: lastMessage, history: historyForApi }),
     signal,

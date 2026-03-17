@@ -6,7 +6,8 @@ export type AppId =
   | "chat" | "projects" | "tools" | "creator" | "people"
   | "documents" | "marketing" | "admin" | "family"
   | "integration" | "monetization" | "universal" | "simulation"
-  | "business" | "entity" | "bizcreator" | "bizdev" | "projbuilder" | "projos";
+  | "business" | "entity" | "bizcreator" | "bizdev" | "projbuilder" | "projos"
+  | "notifications";
 
 export interface AppDef {
   id: AppId;
@@ -38,6 +39,7 @@ export const DEFAULT_APPS: AppDef[] = [
   { id: "bizdev",       label: "BizPlanner",  icon: "⚡", color: "#f97316", description: "9-section real-world business planner: grounded, executable, no filler", category: "business" },
   { id: "projbuilder",  label: "ProjBuilder", icon: "📋", color: "#06b6d4", description: "7-section project file builder: overview, modules, ops, documents, tools, pricing, launch", category: "business" },
   { id: "projos",       label: "ProjectOS",   icon: "📂", color: "#6366f1", description: "Universal project platform: dashboard, folder view, sub-apps, AI helper, modes, search, delete", category: "system" },
+  { id: "notifications", label: "Notifications", icon: "🔔", color: "#6366f1", description: "System notifications, alerts, and activity updates", category: "system" },
 ];
 
 export const ALL_APPS = DEFAULT_APPS;
@@ -77,6 +79,7 @@ const INTENT_MAP: { keywords: string[]; target: AppId }[] = [
   { keywords: ["marketing", "campaign", "brand", "social", "email"],      target: "marketing" },
   { keywords: ["people", "contact", "invite", "person"],                  target: "people" },
   { keywords: ["file", "doc", "document"],                                 target: "documents" },
+  { keywords: ["notification", "alert", "inbox", "updates"],              target: "notifications" },
   { keywords: ["money", "monetize", "revenue", "earn", "funnel", "offer"],target: "monetization" },
   { keywords: ["admin", "settings", "control", "mode", "user"],           target: "admin" },
   { keywords: ["family", "home", "personal"],                              target: "family" },
@@ -118,6 +121,7 @@ const APP_META: Record<AppId, { icon: string; label: string }> = {
   bizdev:       { icon: "⚡", label: "BizPlanner" },
   projbuilder:  { icon: "📋", label: "ProjBuilder" },
   projos:       { icon: "📂", label: "ProjectOS" },
+  notifications: { icon: "🔔", label: "Notifications" },
 };
 
 // ─── OS State ──────────────────────────────────────────────────────────────

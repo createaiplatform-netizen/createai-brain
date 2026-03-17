@@ -1,6 +1,7 @@
 import React, { useState, useRef, useEffect } from "react";
 import { useOS } from "@/os/OSContext";
 import { BrainGen } from "@/engine/BrainGen";
+import { SaveToProjectModal } from "@/components/SaveToProjectModal";
 
 // ─── Types ───────────────────────────────────────────────────────────────────
 interface Opportunity {
@@ -288,6 +289,7 @@ function FunnelGenerator() {
   const [streamText, setStreamText] = useState("");
   const [done, setDone] = useState(false);
   const [copied, setCopied] = useState(false);
+  const [showSaveModal, setShowSaveModal] = useState(false);
   const abortRef = useRef<AbortController | null>(null);
 
   const generate = async () => {
@@ -302,6 +304,7 @@ function FunnelGenerator() {
     try {
       const res = await fetch("/api/openai/offer-funnel", {
         method: "POST",
+        credentials: "include",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ offerName, price, audience, tone: preferences.tone }),
         signal: controller.signal,
@@ -416,8 +419,36 @@ function FunnelGenerator() {
               {streaming && <span className="inline-block w-2 h-3 bg-primary/60 animate-pulse ml-0.5 align-middle" />}
             </pre>
           </div>
+          {!streaming && (
+            <div className="flex gap-2">
+              <button onClick={() => setShowSaveModal(true)}
+                className="flex-1 text-[12px] font-semibold py-2.5 rounded-xl text-white transition-all"
+                style={{ background: "rgba(99,102,241,0.70)" }}>
+                💾 Save to Project
+              </button>
+              <button onClick={() => {
+                  const blob = new Blob([streamText], { type: "text/plain" });
+                  const url = URL.createObjectURL(blob);
+                  const a = document.createElement("a"); a.href = url;
+                  a.download = `${offerName.replace(/\s+/g, "_")}_funnel.txt`; a.click();
+                  URL.revokeObjectURL(url);
+                }}
+                className="flex-1 text-[12px] font-semibold py-2.5 rounded-xl transition-all"
+                style={{ background: "rgba(255,255,255,0.07)", color: "rgba(255,255,255,0.70)", border: "1px solid rgba(255,255,255,0.10)" }}>
+                ↓ Export
+              </button>
+            </div>
+          )}
           {!streaming && <p className="text-[10px] text-muted-foreground text-center">All content is mock and structural only. Stage for review before any real use.</p>}
         </div>
+      )}
+      {showSaveModal && (
+        <SaveToProjectModal
+          content={streamText}
+          label={`${offerName} — Offer Package`}
+          defaultFileType="Offer Funnel"
+          onClose={() => setShowSaveModal(false)}
+        />
       )}
     </div>
   );
