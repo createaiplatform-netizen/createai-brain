@@ -13,6 +13,9 @@ export const projects = pgTable("projects", {
   mode: text("mode").notNull().default("live"),
   status: text("status").notNull().default("active"),
   members: jsonb("members").default([]),
+  // Enterprise additions
+  tenantId: text("tenant_id").default("default"),             // multi-tenant scoping
+  deletedAt: timestamp("deleted_at", { withTimezone: true }), // soft-delete (null = active)
   archivedAt: timestamp("archived_at", { withTimezone: true }),
   createdAt: timestamp("created_at", { withTimezone: true }).defaultNow().notNull(),
   updatedAt: timestamp("updated_at", { withTimezone: true }).defaultNow().notNull(),

@@ -368,7 +368,7 @@ export function CommandCenterApp() {
                 }}>
                   <span style={{ fontSize: 16, flexShrink: 0 }}>{sys.icon}</span>
                   <div style={{ flex: 1, minWidth: 0 }}>
-                    <p style={{ fontSize: 12, fontWeight: 600, color: "#e2e8f0", margin: 0, truncate: true }}>{sys.label}</p>
+                    <p style={{ fontSize: 12, fontWeight: 600, color: "#e2e8f0", margin: 0, overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap" }}>{sys.label}</p>
                     <div style={{ display: "flex", alignItems: "center", gap: 4, marginTop: 2 }}>
                       <span style={{ width: 5, height: 5, borderRadius: "50%", background: "#22c55e", display: "inline-block", boxShadow: "0 0 4px #22c55e" }} />
                       <span style={{ fontSize: 9, color: "#22c55e", fontWeight: 700, letterSpacing: "0.06em" }}>ONLINE</span>

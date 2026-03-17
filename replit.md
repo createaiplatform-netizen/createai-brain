@@ -9,7 +9,24 @@
 - **Stack**: React + Vite + Wouter + React Query + Framer Motion + Recharts
 - **Seeded data**: 3 clients (Alice Reynolds, Acme Corp, Bob Nakamura), 4 matters, 5 time entries, 6 tasks, 4 notes, 1 invoice
 
-### DB Tables (25 total — all pushed to PostgreSQL)
+### Enterprise Layer (NEW — Production-Grade Features)
+- **Enterprise DB tables** (6 new, all pushed): `audit_logs`, `analytics_events`, `webhook_subscriptions`, `organizations`, `sso_providers`, `data_retention_policies`
+- **Auth table additions**: `role` (founder/admin/user/viewer), `tenantId`, `deletedAt` (soft-delete)
+- **Projects table additions**: `tenantId`, `deletedAt` (soft-delete)
+- **Enterprise services**: `services/audit.ts` (logAudit + auditMiddleware), `services/analytics.ts` (trackEvent + getEventCounts), `services/webhooks.ts` (dispatchWebhook, HMAC signing), `services/encryption.ts` (AES-256-GCM field encryption)
+- **Enterprise routes** (mounted at `/api/admin`, `/api/webhooks`, `/api/auth/sso`):
+  - `GET /api/admin/status` — platform health (users, projects, audit count, uptime)
+  - `GET/PATCH/DELETE /api/admin/users` — user list, role management, soft-delete
+  - `GET /api/admin/audit-logs` — paginated, filterable audit trail
+  - `GET /api/admin/analytics` — event counts, DAU, 30d window
+  - `GET /api/admin/projects` — all projects overview
+  - `POST /api/admin/gdpr/export/:userId` — GDPR data export bundle
+  - `DELETE /api/admin/gdpr/delete/:userId` — right-to-erasure (anonymize + soft-delete)
+  - `GET/POST/PATCH/DELETE /api/webhooks` + `POST /api/webhooks/:id/test` — webhook CRUD with HMAC
+  - `GET/POST /api/auth/sso/providers` — SSO provider registry (Google/Microsoft/Okta/GitHub scaffold)
+  - `GET /api/auth/sso/:id/authorize` + `/callback` — OIDC flow scaffold (ready for openid-client)
+
+### DB Tables (31 total — all pushed to PostgreSQL)
 - `users` — auth + NDA state
 - `sessions` — session KV store
 - `projects` — user-scoped projects (`status`: active/archived, `archivedAt`)
