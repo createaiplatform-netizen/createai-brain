@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from "react";
 import { useOS, AppId } from "./OSContext";
 import { PlatformStore, RecentActivity, PlatformMode } from "@/engine/PlatformStore";
+import { BrainstormChat } from "./BrainstormChat";
 
 const QUICK_ACTIONS = [
   { icon: "✨", label: "Create Anything", sub: "Docs, content & apps",   app: "creator"    as AppId, color: "#6366f1" },
@@ -53,6 +54,7 @@ export function Dashboard({ onHamburger, onShowTour }: DashboardProps) {
   const [showSuggestions, setShowSuggestions] = useState(false);
   const [recents, setRecents]                 = useState<RecentActivity[]>([]);
   const [showModeMenu, setShowModeMenu]       = useState(false);
+  const [showBrainstorm, setShowBrainstorm]   = useState(false);
   const [mounted, setMounted]                 = useState(false);
 
   const cfg = MODE_CFG[platformMode];
@@ -180,6 +182,34 @@ export function Dashboard({ onHamburger, onShowTour }: DashboardProps) {
             <h2 className="text-[24px] font-bold mt-0.5" style={{ color: "#0f172a", letterSpacing: "-0.03em" }}>
               What would you like to create today?
             </h2>
+          </div>
+
+          {/* ── Brainstorm Banner ── */}
+          <div className={`transition-opacity duration-500 delay-75 ${mounted ? "opacity-100" : "opacity-0"}`}>
+            <button
+              onClick={() => setShowBrainstorm(true)}
+              className="w-full flex items-center gap-4 p-4 rounded-2xl text-left transition-all group"
+              style={{
+                background: "linear-gradient(135deg,#6366f1 0%,#8b5cf6 100%)",
+                boxShadow: "0 4px 20px rgba(99,102,241,0.25)",
+              }}
+              onMouseEnter={e => ((e.currentTarget as HTMLElement).style.boxShadow = "0 6px 28px rgba(99,102,241,0.38)")}
+              onMouseLeave={e => ((e.currentTarget as HTMLElement).style.boxShadow = "0 4px 20px rgba(99,102,241,0.25)")}
+            >
+              <div className="w-12 h-12 rounded-2xl flex items-center justify-center text-2xl flex-shrink-0"
+                style={{ background: "rgba(255,255,255,0.18)" }}>
+                🧠
+              </div>
+              <div className="flex-1 min-w-0">
+                <p className="font-bold text-[15px] text-white" style={{ letterSpacing: "-0.01em" }}>
+                  Brainstorm with AI
+                </p>
+                <p className="text-[12px] mt-0.5" style={{ color: "rgba(255,255,255,0.72)" }}>
+                  Describe any idea — projects are built and organized automatically
+                </p>
+              </div>
+              <div className="flex-shrink-0 text-white/60 text-[20px] group-hover:translate-x-1 transition-transform">›</div>
+            </button>
           </div>
 
           {/* ── Search bar ── */}
@@ -317,6 +347,13 @@ export function Dashboard({ onHamburger, onShowTour }: DashboardProps) {
       </div>
 
       {showModeMenu && <div className="fixed inset-0 z-40" onClick={() => setShowModeMenu(false)} />}
+
+      {/* ── Brainstorm Chat Panel ── */}
+      <BrainstormChat
+        isOpen={showBrainstorm}
+        onClose={() => setShowBrainstorm(false)}
+        onGoToProjects={() => { openApp("projos" as AppId); setShowBrainstorm(false); }}
+      />
     </div>
   );
 }

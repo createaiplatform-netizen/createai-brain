@@ -130,21 +130,27 @@ function makeProject(name: string, industry: string): Project {
   };
 }
 
-// ─── SSE Mini AI Helper ───────────────────────────────────────────────────────
+// ─── SSE Project Chat ─────────────────────────────────────────────────────────
 
-async function streamMiniAI(
-  message: string,
+async function streamProjectChat(
+  history: { role: "user" | "ai"; text: string }[],
   projectName: string,
+  projectIndustry: string,
   onChunk: (t: string) => void,
   signal: AbortSignal,
 ) {
+  const systemNote = { role: "user" as const, content: `[Context: You are helping with the "${projectName}" project (industry: ${projectIndustry}). Help with files, folders, features, and project planning.]` };
+  const apiMessages = [
+    systemNote,
+    ...history.map(m => ({
+      role: (m.role === "user" ? "user" : "assistant") as "user" | "assistant",
+      content: m.text,
+    })),
+  ];
   const res = await fetch("/api/openai/chat", {
     method: "POST",
     headers: { "Content-Type": "application/json" },
-    body: JSON.stringify({
-      message,
-      systemContext: `You are a mini AI helper embedded inside the "${projectName}" project on the CreateAI Brain platform. You help the user organize files, create new files, add sub-apps, update content, and navigate their project. Be concise, practical, and action-oriented. Answer in 2–4 sentences max unless a list is needed.`,
-    }),
+    body: JSON.stringify({ messages: apiMessages, workspace: "ProjectChat" }),
     signal,
   });
   if (!res.ok || !res.body) return;
@@ -158,12 +164,13 @@ async function streamMiniAI(
     const parts = acc.split("\n\n");
     acc = parts.pop() ?? "";
     for (const part of parts) {
-      const line = part.startsWith("data: ") ? part.slice(6) : null;
-      if (!line) continue;
+      if (!part.startsWith("data: ")) continue;
+      const raw = part.slice(6).trim();
+      if (raw === "[DONE]") return;
       try {
-        const p = JSON.parse(line);
-        if (p.content) onChunk(p.content);
-        if (p.done) return;
+        const p = JSON.parse(raw);
+        const delta = p.choices?.[0]?.delta?.content ?? p.content ?? "";
+        if (delta) onChunk(delta);
       } catch {}
     }
   }
@@ -390,15 +397,15 @@ export function ProjectOSApp() {
     if (!aiInput.trim() || aiLoading || !activeProject) return;
     const msg = aiInput.trim();
     setAiInput("");
-    setAiMessages(prev => [...prev, { role: "user", text: msg }]);
+    const newHistory = [...aiMessages, { role: "user" as const, text: msg }];
+    setAiMessages([...newHistory, { role: "ai", text: "" }]);
     setAiLoading(true);
     aiAbortRef.current?.abort();
     const ctrl = new AbortController();
     aiAbortRef.current = ctrl;
     let reply = "";
-    setAiMessages(prev => [...prev, { role: "ai", text: "" }]);
     try {
-      await streamMiniAI(msg, activeProject.name, chunk => {
+      await streamProjectChat(newHistory, activeProject.name, activeProject.industry, chunk => {
         reply += chunk;
         setAiMessages(prev => {
           const updated = [...prev];
@@ -408,7 +415,7 @@ export function ProjectOSApp() {
       }, ctrl.signal);
     } catch {}
     setAiLoading(false);
-  }, [aiInput, aiLoading, activeProject]);
+  }, [aiInput, aiLoading, activeProject, aiMessages]);
 
   const handleDashboardAction = (actionId: string) => {
     switch (actionId) {
@@ -796,70 +803,130 @@ export function ProjectOSApp() {
               )}
             </div>
 
-            {/* ── Mini AI Helper Panel ──────────────────────────────────── */}
+            {/* ── Project Chat Panel ────────────────────────────────────── */}
             {showAI && (
               <div
-                className="w-72 flex-shrink-0 flex flex-col"
-                style={{ borderLeft: "1px solid rgba(6,182,212,0.20)", background: "rgba(0,20,25,0.60)" }}
+                className="w-80 flex-shrink-0 flex flex-col"
+                style={{ borderLeft: "1px solid rgba(255,255,255,0.08)", background: "#fff" }}
               >
+                {/* Chat header */}
                 <div
-                  className="flex items-center justify-between px-4 py-3 flex-shrink-0"
-                  style={{ borderBottom: "1px solid rgba(6,182,212,0.15)" }}
+                  className="flex items-center gap-2.5 px-4 py-3.5 flex-shrink-0"
+                  style={{ borderBottom: "1px solid rgba(0,0,0,0.07)", background: "#fff" }}
                 >
-                  <div>
-                    <div className="text-[12px] font-bold" style={{ color: "#22d3ee" }}>🤖 AI Helper</div>
-                    <div className="text-[9px]" style={{ color: "#334155" }}>{activeProject.name}</div>
+                  <div className="w-8 h-8 rounded-xl flex items-center justify-center text-sm flex-shrink-0"
+                    style={{ background: "linear-gradient(135deg,#6366f1,#8b5cf6)" }}>
+                    🤖
                   </div>
-                  <button onClick={() => setShowAI(false)} className="text-[11px]" style={{ color: "#334155" }}>✕</button>
+                  <div className="flex-1 min-w-0">
+                    <p className="text-[12px] font-bold" style={{ color: "#0f172a" }}>Project AI Chat</p>
+                    <p className="text-[10px] truncate" style={{ color: "#6b7280" }}>{activeProject.name}</p>
+                  </div>
+                  <button onClick={() => setShowAI(false)}
+                    className="w-6 h-6 rounded-full flex items-center justify-center text-xs transition-all"
+                    style={{ color: "#9ca3af", background: "rgba(0,0,0,0.05)" }}
+                    onMouseEnter={e => ((e.currentTarget as HTMLElement).style.color = "#ef4444")}
+                    onMouseLeave={e => ((e.currentTarget as HTMLElement).style.color = "#9ca3af")}
+                  >✕</button>
                 </div>
-                <div ref={aiScrollRef} className="flex-1 overflow-y-auto p-3 space-y-2">
+
+                {/* Messages */}
+                <div ref={aiScrollRef} className="flex-1 overflow-y-auto px-3 py-3 space-y-3"
+                  style={{ background: "#f8fafc" }}>
                   {aiMessages.length === 0 && (
-                    <div className="text-center py-6">
-                      <div className="text-2xl mb-2">🤖</div>
-                      <div className="text-[11px]" style={{ color: "#334155" }}>
-                        Ask me to create files, organize folders, add sub-apps, update content, or customize this project.
+                    <div className="flex flex-col items-center text-center pt-6 gap-3">
+                      <div className="w-12 h-12 rounded-2xl flex items-center justify-center text-2xl"
+                        style={{ background: "rgba(99,102,241,0.10)", border: "1px solid rgba(99,102,241,0.15)" }}>
+                        🤖
+                      </div>
+                      <p className="text-[12px] font-semibold" style={{ color: "#0f172a" }}>Project AI Chat</p>
+                      <p className="text-[11px] leading-relaxed max-w-[220px]" style={{ color: "#6b7280" }}>
+                        Ask me to add files, organize folders, plan features, or think through this project with you.
+                      </p>
+                      <div className="flex flex-col gap-1.5 w-full mt-1">
+                        {[
+                          "What files should this project have?",
+                          "Suggest a folder structure",
+                          "What features should I add first?",
+                          "Help me plan the next steps",
+                        ].map(chip => (
+                          <button key={chip}
+                            onClick={() => { setAiInput(chip); }}
+                            className="text-[11px] px-3 py-2 rounded-xl text-left transition-all"
+                            style={{ background: "#fff", border: "1px solid rgba(0,0,0,0.08)", color: "#374151" }}
+                            onMouseEnter={e => { (e.currentTarget as HTMLElement).style.borderColor = "rgba(99,102,241,0.30)"; (e.currentTarget as HTMLElement).style.background = "#faf5ff"; }}
+                            onMouseLeave={e => { (e.currentTarget as HTMLElement).style.borderColor = "rgba(0,0,0,0.08)"; (e.currentTarget as HTMLElement).style.background = "#fff"; }}
+                          >
+                            {chip}
+                          </button>
+                        ))}
                       </div>
                     </div>
                   )}
-                  {aiMessages.map((m, i) => (
-                    <div key={i} className={`flex ${m.role === "user" ? "justify-end" : "justify-start"}`}>
-                      <div
-                        className="max-w-[85%] px-3 py-2 rounded-xl text-[11px] leading-relaxed"
-                        style={m.role === "user"
-                          ? { background: "rgba(6,182,212,0.20)", color: "#e2e8f0" }
-                          : { background: "rgba(255,255,255,0.05)", color: "#94a3b8", border: "1px solid rgba(255,255,255,0.08)" }
-                        }
-                      >
-                        {m.text || (aiLoading && i === aiMessages.length - 1 ? (
-                          <span className="animate-pulse">●●●</span>
-                        ) : "")}
+                  {aiMessages.map((m, i) => {
+                    const isLast = i === aiMessages.length - 1;
+                    const showTyping = isLast && aiLoading && m.role === "ai" && !m.text;
+                    return (
+                      <div key={i} className={`flex ${m.role === "user" ? "justify-end" : "justify-start"} items-end gap-2`}>
+                        {m.role === "ai" && (
+                          <div className="w-6 h-6 rounded-full flex items-center justify-center text-xs flex-shrink-0 mb-0.5"
+                            style={{ background: "linear-gradient(135deg,#6366f1,#8b5cf6)" }}>
+                            🤖
+                          </div>
+                        )}
+                        <div
+                          className={`max-w-[82%] px-3 py-2.5 text-[12px] leading-relaxed ${m.role === "user" ? "rounded-2xl rounded-br-sm" : "rounded-2xl rounded-bl-sm"}`}
+                          style={m.role === "user"
+                            ? { background: "#6366f1", color: "#fff", boxShadow: "0 2px 8px rgba(99,102,241,0.25)" }
+                            : { background: "#fff", color: "#0f172a", border: "1px solid rgba(0,0,0,0.07)", boxShadow: "0 1px 3px rgba(0,0,0,0.05)" }
+                          }
+                        >
+                          {showTyping ? (
+                            <div className="flex gap-1.5 py-0.5">
+                              <div className="w-1.5 h-1.5 rounded-full animate-bounce" style={{ background: "#6366f1", animationDelay: "0ms" }} />
+                              <div className="w-1.5 h-1.5 rounded-full animate-bounce" style={{ background: "#6366f1", animationDelay: "150ms" }} />
+                              <div className="w-1.5 h-1.5 rounded-full animate-bounce" style={{ background: "#6366f1", animationDelay: "300ms" }} />
+                            </div>
+                          ) : (
+                            <span className="whitespace-pre-wrap">
+                              {m.text}
+                              {m.role === "ai" && aiLoading && isLast && m.text && (
+                                <span className="inline-block w-0.5 h-3 rounded-sm animate-pulse align-middle ml-0.5"
+                                  style={{ background: "#6366f1", opacity: 0.7 }} />
+                              )}
+                            </span>
+                          )}
+                        </div>
                       </div>
-                    </div>
-                  ))}
+                    );
+                  })}
                 </div>
-                <div
-                  className="flex gap-2 p-3 flex-shrink-0"
-                  style={{ borderTop: "1px solid rgba(6,182,212,0.15)" }}
-                >
+
+                {/* Input */}
+                <div className="flex gap-2 p-3 flex-shrink-0"
+                  style={{ borderTop: "1px solid rgba(0,0,0,0.07)", background: "#fff" }}>
                   <input
                     value={aiInput}
                     onChange={e => setAiInput(e.target.value)}
                     onKeyDown={e => e.key === "Enter" && sendAI()}
-                    placeholder="Ask the AI helper…"
-                    className="flex-1 text-white text-[11px] px-3 py-2 rounded-xl outline-none"
-                    style={{ background: "rgba(6,182,212,0.08)", border: "1px solid rgba(6,182,212,0.22)" }}
+                    placeholder="Ask about this project…"
+                    className="flex-1 text-[12px] px-3 py-2 rounded-xl outline-none transition-all"
+                    style={{ background: "#f1f5f9", border: "1.5px solid transparent", color: "#0f172a" }}
+                    onFocus={e => ((e.currentTarget as HTMLElement).style.borderColor = "rgba(99,102,241,0.35)")}
+                    onBlur={e => ((e.currentTarget as HTMLElement).style.borderColor = "transparent")}
                   />
                   <button
                     onClick={sendAI}
                     disabled={aiLoading || !aiInput.trim()}
-                    className="px-3 py-2 rounded-xl text-[12px]"
+                    className="w-8 h-8 rounded-xl flex items-center justify-center flex-shrink-0 transition-all"
                     style={{
-                      background: aiLoading ? "rgba(6,182,212,0.06)" : "rgba(6,182,212,0.20)",
-                      color: "#22d3ee",
-                      border: "1px solid rgba(6,182,212,0.30)",
+                      background: !aiLoading && aiInput.trim() ? "#6366f1" : "#e5e7eb",
+                      color: !aiLoading && aiInput.trim() ? "#fff" : "#9ca3af",
                     }}
                   >
-                    {aiLoading ? "⟳" : "↑"}
+                    <svg width="12" height="12" viewBox="0 0 24 24" fill="currentColor">
+                      <path d="M2.01 21L23 12 2.01 3 2 10l15 2-15 2z" />
+                    </svg>
                   </button>
                 </div>
               </div>
