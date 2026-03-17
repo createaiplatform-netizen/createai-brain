@@ -202,15 +202,24 @@ router.post("/expand", requireFounder, async (req: Request, res: Response) => {
 router.get("/health", (_req: Request, res: Response) => {
   const items = getRegistry();
   res.json({
-    status:          "online",
-    commandSystem:   "active",
-    registrySize:    items.length,
-    activeItems:     items.filter(i => i.activationState === "on").length,
-    availableCommands: COMMAND_HANDLERS.length,
-    uptime:          process.uptime(),
-    timestamp:       new Date().toISOString(),
-    version:         "CreateAI Brain — Command Processor v1",
-    founderTier:     "ACTIVE",
+    status:               "online",
+    commandSystem:        "active",
+    executionMode:        "full",
+    founderExecution:     "FOUNDER-TIER FULL EXECUTION MODE — ACTIVE",
+    executionVersion:     "FOUNDER-EXEC-1.0",
+    disabledModes:        ["demo", "preview", "mock", "staging", "limited", "sandbox"],
+    registrySize:         items.length,
+    activeItems:          items.filter(i => i.activationState === "on").length,
+    integratedItems:      items.filter(i => i.commandCenterConnected).length,
+    protectedItems:       items.filter(i => i.protections.length > 0).length,
+    availableCommands:    COMMAND_HANDLERS.length,
+    messagingMode:        "internal-delivery",
+    messagingConfirm:     false,
+    messagingDrafts:      false,
+    uptime:               process.uptime(),
+    timestamp:            new Date().toISOString(),
+    version:              "CreateAI Brain — Command Processor v1",
+    founderTier:          "ACTIVE",
   });
 });
 

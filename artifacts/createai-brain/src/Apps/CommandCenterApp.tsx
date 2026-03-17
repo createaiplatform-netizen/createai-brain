@@ -3,7 +3,8 @@ import { useOS } from "@/os/OSContext";
 import type { AppId } from "@/os/OSContext";
 import {
   PLATFORM_SYSTEMS, PLATFORM_STATS, AUTO_WIRE_RULE, REPLICATION_PROTECTION,
-  parseMessageIntent, loadFounderState,
+  FOUNDER_EXECUTION_CONFIG,
+  parseMessageIntent, loadFounderState, getExecutionModeStatus,
   type OutboundMessage,
 } from "@/engine/FounderTier";
 
@@ -35,8 +36,10 @@ export function CommandCenterApp() {
   const { openApp, routeIntent } = useOS();
   const [activeTab, setActiveTab] = useState<Tab>("command");
   const [input, setInput]         = useState("");
+  const execStatus = getExecutionModeStatus();
   const [logs, setLogs]           = useState<CommandLog[]>([
-    { id: "boot", input: "SYSTEM", result: "Founder Tier activated. All 18 systems online. Command Center ready.", ts: new Date().toISOString(), type: "info" },
+    { id: "boot-exec", input: "SYSTEM", result: `FOUNDER-TIER FULL EXECUTION MODE — ACTIVE. ${execStatus.disabledModes.join(", ")} disabled. All instructions execute directly. Messages delivered internally. No confirmation required.`, ts: new Date().toISOString(), type: "info" },
+    { id: "boot-sys",  input: "SYSTEM", result: "All 19 systems online. 100+ engines at full capacity. Expansion Engine active. Command Center ready.", ts: new Date().toISOString(), type: "info" },
   ]);
   const [sentMessages, setSentMessages] = useState<OutboundMessage[]>([]);
   const [isExecuting, setIsExecuting]   = useState(false);
@@ -51,7 +54,10 @@ export function CommandCenterApp() {
   }
   const [sysInput, setSysInput]   = useState("");
   const [sysLogs, setSysLogs]     = useState<SysLog[]>([
-    { id: "boot", ts: new Date().toISOString(), kind: "ok", text: "System Command Processor v1 — online. Founder Tier active. Type a command or 'help'." },
+    { id: "boot-exec", ts: new Date().toISOString(), kind: "ok", text: "FOUNDER-TIER FULL EXECUTION MODE — ACTIVE (FOUNDER-EXEC-1.0)" },
+    { id: "boot-dis",  ts: new Date().toISOString(), kind: "ok", text: "Disabled: Demo Mode · Preview Mode · Mock Mode · Staging Mode · Limited Mode · Sandbox Mode" },
+    { id: "boot-msg",  ts: new Date().toISOString(), kind: "ok", text: "Messaging: internal delivery · no confirmation · no drafts · all sends logged" },
+    { id: "boot-sys",  ts: new Date().toISOString(), kind: "ok", text: "System Command Processor v1 — 10 handlers · 19 systems · full capacity. Type a command or 'help'." },
   ]);
   const [sysRunning, setSysRunning] = useState(false);
   const [registryStats, setRegistryStats] = useState<{ total: number; active: number; integrated: number; protected: number } | null>(null);
@@ -303,7 +309,7 @@ export function CommandCenterApp() {
         setSentMessages(prev => [msg, ...prev]);
         addLog({
           input: trimmed,
-          result: `✓ Auto-sent via ${msg.channel.toUpperCase()} to "${msg.to}": "${msg.body}" — Founder Tier, no confirmation required.`,
+          result: `✓ DELIVERED [${msg.channel.toUpperCase()}] → "${msg.to}": "${msg.body}" — Full Execution Mode · Internal delivery · No confirmation · Logged at ${new Date(msg.deliveredAt).toLocaleTimeString()}.`,
           type: "message",
         });
         setIsExecuting(false);
@@ -375,7 +381,15 @@ export function CommandCenterApp() {
             borderRadius: 20, flexShrink: 0,
           }}>
             <span style={{ width: 6, height: 6, borderRadius: "50%", background: "#22c55e", animation: "pulse-green 2s infinite", display: "inline-block" }} />
-            <span style={{ fontSize: 10, fontWeight: 700, letterSpacing: "0.08em", color: "#86efac" }}>ALL SYSTEMS ONLINE</span>
+            <span style={{ fontSize: 10, fontWeight: 700, letterSpacing: "0.08em", color: "#86efac" }}>19 SYSTEMS ONLINE</span>
+          </div>
+          <div style={{
+            display: "flex", alignItems: "center", gap: 6, padding: "4px 10px",
+            background: "rgba(234,179,8,0.10)", border: "1px solid rgba(234,179,8,0.3)",
+            borderRadius: 20, flexShrink: 0,
+          }}>
+            <span style={{ width: 6, height: 6, borderRadius: "50%", background: "#eab308", boxShadow: "0 0 6px #eab308", display: "inline-block" }} />
+            <span style={{ fontSize: 10, fontWeight: 700, letterSpacing: "0.08em", color: "#fde047" }}>EXEC MODE: FULL</span>
           </div>
         </div>
 
@@ -547,22 +561,28 @@ export function CommandCenterApp() {
               </button>
             </div>
 
-            {/* Auto-send log */}
+            {/* Delivery log */}
             {sentMessages.length > 0 && (
               <div style={{ padding: "8px 16px", borderTop: "1px solid rgba(34,197,94,0.1)", background: "#0d1117" }}>
-                <p style={{ fontSize: 9, color: "#334155", fontWeight: 700, letterSpacing: "0.08em", margin: "0 0 6px", textTransform: "uppercase" }}>
-                  Auto-Sent Messages (Founder Tier — No Confirmation)
-                </p>
-                {sentMessages.slice(0, 3).map((m, i) => (
-                  <div key={i} style={{
-                    display: "flex", gap: 8, alignItems: "center", marginBottom: 4,
-                    fontSize: 11, color: "#86efac", fontFamily: "monospace",
+                <div style={{ display: "flex", alignItems: "center", gap: 8, marginBottom: 6 }}>
+                  <p style={{ fontSize: 9, color: "#22c55e", fontWeight: 700, letterSpacing: "0.08em", margin: 0, textTransform: "uppercase" }}>
+                    Internal Delivery Log — Full Execution Mode
+                  </p>
+                  <span style={{ fontSize: 9, padding: "1px 6px", borderRadius: 8, background: "rgba(34,197,94,0.15)", border: "1px solid rgba(34,197,94,0.3)", color: "#86efac" }}>
+                    NO CONFIRM · NO DRAFT · {sentMessages.length} DELIVERED
+                  </span>
+                </div>
+                {sentMessages.slice(0, 4).map((m) => (
+                  <div key={m.id} style={{
+                    display: "flex", gap: 8, alignItems: "center", marginBottom: 5, padding: "5px 8px",
+                    background: "rgba(34,197,94,0.05)", borderRadius: 6, border: "1px solid rgba(34,197,94,0.12)",
                   }}>
-                    <span style={{ color: "#22c55e" }}>✓</span>
-                    <span style={{ color: "#475569" }}>[{m.channel.toUpperCase()}]</span>
-                    <span>To: {m.to}</span>
+                    <span style={{ fontSize: 10, color: "#22c55e", flexShrink: 0 }}>✓ DELIVERED</span>
+                    <span style={{ fontSize: 9, color: "#475569", flexShrink: 0 }}>[{m.channel.toUpperCase()}]</span>
+                    <span style={{ fontSize: 11, color: "#86efac" }}>→ {m.to}</span>
                     <span style={{ color: "#334155" }}>·</span>
-                    <span style={{ color: "#64748b", flex: 1, overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap" }}>{m.body}</span>
+                    <span style={{ fontSize: 11, color: "#64748b", flex: 1, overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap" }}>{m.body}</span>
+                    <span style={{ fontSize: 9, color: "#334155", flexShrink: 0 }}>{new Date(m.deliveredAt).toLocaleTimeString()}</span>
                   </div>
                 ))}
               </div>
@@ -573,9 +593,38 @@ export function CommandCenterApp() {
         {/* Status Tab */}
         {activeTab === "status" && (
           <div style={{ padding: "16px" }}>
+
+            {/* Execution Mode Banner */}
+            <div style={{
+              padding: "12px 14px", marginBottom: 16,
+              background: "linear-gradient(135deg, rgba(234,179,8,0.08) 0%, rgba(99,102,241,0.08) 100%)",
+              border: "1px solid rgba(234,179,8,0.25)", borderRadius: 12,
+            }}>
+              <div style={{ display: "flex", alignItems: "center", gap: 10, marginBottom: 8, flexWrap: "wrap" }}>
+                <span style={{ fontSize: 14 }}>🚀</span>
+                <span style={{ fontSize: 13, fontWeight: 700, color: "#fde047" }}>FOUNDER-TIER FULL EXECUTION MODE — ACTIVE</span>
+                <span style={{ padding: "2px 8px", borderRadius: 10, background: "rgba(234,179,8,0.15)", border: "1px solid rgba(234,179,8,0.3)", fontSize: 9, color: "#fde047", fontWeight: 700 }}>FOUNDER-EXEC-1.0</span>
+              </div>
+              <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fill, minmax(180px, 1fr))", gap: 6 }}>
+                {Object.entries(FOUNDER_EXECUTION_CONFIG.rules).map(([key, val]) => (
+                  <div key={key} style={{ display: "flex", gap: 6, alignItems: "center", fontSize: 10, color: val ? "#86efac" : "#f87171" }}>
+                    <span>{val ? "✓" : "✗"}</span>
+                    <span style={{ color: "#94a3b8" }}>{key.replace(/([A-Z])/g, " $1").replace(/^./, s => s.toUpperCase())}</span>
+                  </div>
+                ))}
+              </div>
+              <div style={{ display: "flex", gap: 6, marginTop: 8, flexWrap: "wrap" }}>
+                {Object.keys(FOUNDER_EXECUTION_CONFIG.disabled).map(mode => (
+                  <span key={mode} style={{ padding: "2px 8px", borderRadius: 8, background: "rgba(239,68,68,0.1)", border: "1px solid rgba(239,68,68,0.2)", fontSize: 9, color: "#f87171", fontWeight: 600 }}>
+                    ✗ {mode.replace(/([A-Z])/g, " $1").trim()}
+                  </span>
+                ))}
+              </div>
+            </div>
+
             <div style={{ marginBottom: 12 }}>
               <h3 style={{ fontSize: 13, fontWeight: 700, color: "#e2e8f0", margin: "0 0 4px", letterSpacing: "-0.01em" }}>Platform Systems</h3>
-              <p style={{ fontSize: 11, color: "#475569", margin: 0 }}>18/18 systems online · Founder Tier · Full activation</p>
+              <p style={{ fontSize: 11, color: "#475569", margin: 0 }}>19/19 systems online · Founder Tier · Full execution capacity</p>
             </div>
             <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fill, minmax(200px, 1fr))", gap: 8 }}>
               {PLATFORM_SYSTEMS.map(sys => (

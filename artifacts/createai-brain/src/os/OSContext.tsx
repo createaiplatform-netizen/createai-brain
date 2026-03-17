@@ -555,7 +555,7 @@ export function OSProvider({ children }: { children: React.ReactNode }) {
   }, []);
 
   const activateFounderTier = useCallback(() => {
-    const state = { active: true, activatedAt: new Date().toISOString(), founderName: "Sara Stadler", buildVersion: "Founder-1.0" };
+    const state = { active: true, activatedAt: new Date().toISOString(), founderName: "Sara Stadler", buildVersion: "Founder-1.0", executionMode: "full" as const };
     saveFounderState(state);
     setFounderTierActive(true);
   }, []);
