@@ -1,4 +1,5 @@
 import React from "react";
+import { useLocation } from "wouter";
 import { useOS, ALL_APPS, AppId, AppDef } from "./OSContext";
 
 interface SidebarProps {
@@ -33,6 +34,7 @@ export function Sidebar({ onNav, forceCollapsed, forceExpanded }: SidebarProps) 
   const width = collapsed ? 64 : 224;
   const groups = groupApps(ALL_APPS);
 
+  const [location, setLocation] = useLocation();
   const handleNav = (fn: () => void) => { fn(); onNav?.(); };
 
   return (
@@ -58,14 +60,21 @@ export function Sidebar({ onNav, forceCollapsed, forceExpanded }: SidebarProps) 
         )}
       </div>
 
-      {/* ── Home ── */}
-      <div className="px-2 pt-3 pb-1">
+      {/* ── Home + Metrics ── */}
+      <div className="px-2 pt-3 pb-1 space-y-0.5">
         <SidebarItem
           icon="🏠"
           label="Home"
-          active={activeApp === null}
+          active={activeApp === null && location === "/"}
           collapsed={collapsed}
-          onClick={() => handleNav(closeApp)}
+          onClick={() => handleNav(() => { closeApp(); setLocation("/"); })}
+        />
+        <SidebarItem
+          icon="📊"
+          label="Metrics"
+          active={location === "/metrics"}
+          collapsed={collapsed}
+          onClick={() => handleNav(() => setLocation("/metrics"))}
         />
       </div>
 
