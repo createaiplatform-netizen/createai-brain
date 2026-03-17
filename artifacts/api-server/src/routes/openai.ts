@@ -1875,6 +1875,169 @@ Treat this as a real engagement. Be specific, use real-world numbers appropriate
   res.end();
 });
 
+// ─── MULTI-INDUSTRY PROJECT FILE BUILDER ─────────────────────────────────────
+
+const PROJECT_BUILDER_PROMPT = `You are a real-world multi-industry project builder.
+
+Your job is to take ANY project idea in ANY industry and turn it into a
+complete, realistic, professional PROJECT FILE that someone could actually
+start using in the real world.
+
+For every request, you must create a full project, not just a business plan.
+
+Rules:
+- Everything must be grounded in real-world logic.
+- No placeholders, no vague content, no filler.
+- No fake data, no imaginary technology, no unrealistic claims.
+- All recommendations must be feasible for a real business or platform.
+- Every output must feel like a complete project file someone could start using today.
+- Use real tool names, real regulatory references, and real-world terminology.
+- Adapt all content to the specific industry and region provided.
+- When writing documents and templates, write the actual full content — not a description of what to write.`;
+
+const PROJECT_BUILDER_INSTRUCTIONS: Record<string, string> = {
+  "project-overview": `Produce SECTION 1 — PROJECT OVERVIEW.
+Write a complete, specific project overview covering:
+1. INDUSTRY & SUB-INDUSTRY — the exact industry and sub-category this project operates in, with a brief market context statement
+2. PROJECT TYPE — the specific type: platform, agency, SaaS, marketplace, clinic, construction firm, logistics hub, etc., with a one-paragraph description of how this type of project operates
+3. VALUE PROPOSITION — one precise sentence: what the project does, who it serves, and the exact outcome it delivers. Then 3 supporting statements that substantiate the claim
+4. PRIMARY USERS — describe each user type: who they are, what role they play in the project, and what they need from it daily
+5. PROJECT SCOPE — what is in scope (the 5–7 core things this project does) and what is explicitly out of scope
+6. SUCCESS DEFINITION — specific, measurable definitions of success at 30 days, 90 days, and 12 months`,
+
+  "core-structure-modules": `Produce SECTION 2 — CORE STRUCTURE & MODULES.
+Write a complete module architecture covering:
+1. MODULE LIST — name and describe 5–8 specific modules or sections that make up the complete system, e.g. "Client Intake Module", "Case Management Module", "Billing & Invoicing Module"
+2. MODULE DETAILS — for each module: (a) what it does, (b) what problem it solves, (c) who uses it, (d) what information flows in and out
+3. MODULE CONNECTIONS — describe how each module connects to the others and what triggers the handoff between them
+4. ROLE ACCESS MAP — describe what each user role (admin, operator, client) can see and do in each module
+5. DATA ARCHITECTURE — what data is collected, where it lives, and how it moves through the system
+6. INTEGRATION POINTS — where external tools, APIs, partners, or systems connect into the structure`,
+
+  "operations-workflows-pb": `Produce SECTION 3 — OPERATIONS & WORKFLOWS.
+Write complete operational documentation covering:
+1. DAILY WORKFLOW — a time-blocked daily schedule for the primary operator: what they do at opening, throughout the day, and at close
+2. CLIENT OR CASE INTAKE FLOW — step-by-step: from first contact through intake, assessment, onboarding, and first active session or delivery
+3. ACTIVE OPERATIONS — the recurring daily tasks: what gets checked, updated, communicated, and completed every operating day
+4. WEEKLY WORKFLOW — what happens each week: reviews, reporting, client touchpoints, team meetings, and maintenance tasks
+5. MONTHLY WORKFLOW — monthly close, financial review, performance metrics, team planning, and system updates
+6. ROLE RESPONSIBILITIES — for each role (owner/director, coordinator/operator, support/admin, client-facing staff): a specific list of daily, weekly, and monthly responsibilities
+7. EXAMPLE STEP-BY-STEP FLOW — write out one complete scenario end-to-end (e.g. "A new client calls in on Monday morning...") showing exactly how the workflow plays out in practice`,
+
+  "documents-templates": `Produce SECTION 4 — DOCUMENTS & TEMPLATES PACKAGE.
+CRITICAL INSTRUCTION: Write the ACTUAL FULL CONTENT for each document. Do not describe what the document should contain — write it. Every form, policy, script, checklist, and SOP must be complete and ready to copy and use immediately.
+
+Write the following, fully populated for this specific project type and industry:
+
+1. OPERATING POLICY — a complete, written policy document that governs how this project operates day-to-day. Include sections on: hours of operation, communication standards, service delivery standards, data handling, confidentiality, and staff conduct.
+
+2. CLIENT/USER INTAKE FORM — a complete intake form with every field labeled and described. Include: personal/organization info, service needs, consent, emergency contacts (if applicable), authorization signatures.
+
+3. SERVICE AGREEMENT TEMPLATE — a complete, ready-to-use service agreement with: scope of services, fees and payment terms, cancellation policy, liability limitation, confidentiality clause, and signature block.
+
+4. PHONE INTAKE SCRIPT — a complete word-for-word script for answering initial inquiries: greeting, qualifying questions, service description, next steps, and closing.
+
+5. FOLLOW-UP EMAIL TEMPLATE — a complete follow-up email for after a client inquiry or initial meeting: subject line, body, call to action, and signature.
+
+6. ONBOARDING CHECKLIST — a complete checklist of every step required to onboard a new client or user from signed agreement to first active service delivery.
+
+7. STANDARD OPERATING PROCEDURE (SOP) — write one complete SOP for the most critical recurring process in this project type. Include: purpose, scope, step-by-step procedure, responsible roles, and quality checks.
+
+8. TRAINING OUTLINE — a structured training outline for a new team member or operator: modules, topics covered in each, learning objectives, and how competency is assessed.`,
+
+  "tools-systems-setup": `Produce SECTION 5 — TOOLS, SYSTEMS & SETUP.
+Write complete tool and setup documentation covering:
+1. CORE TOOLS STACK — for each category below, recommend 1–2 specific tools with rationale, approximate cost, and how it's used in this project:
+   - Project and case management
+   - Client communication and scheduling
+   - Document storage and sharing
+   - Financial management and invoicing
+   - Internal team communication
+   - Reporting and analytics
+2. FOLDER & FILE STRUCTURE — provide a specific, named folder hierarchy to use from day one. Show the full tree structure with names for every folder level.
+3. CLIENT TRACKING SETUP — exactly how to set up and maintain the client or project tracking system: what fields to track, how to organize records, and what gets updated after each interaction
+4. FIRST USER ONBOARDING STEPS — the exact sequence of actions to onboard the first real client or user, from first contact to full active status
+5. TEAM ONBOARDING CHECKLIST — everything a new team member needs to access, read, complete, and be trained on in their first week
+6. SYSTEM CONFIGURATION CHECKLIST — every setting, template, automation, and permission that must be configured before the system goes live`,
+
+  "monetization-pricing-pb": `Produce SECTION 6 — MONETIZATION & PRICING.
+Write complete pricing and revenue documentation covering:
+1. REVENUE MODEL — describe the primary revenue model for this project type with full rationale. Explain why this model fits the industry, the client type, and the operating structure.
+2. PRICING TIER 1 (ENTRY) — exact name, exact price in region-appropriate currency, complete list of what's included, ideal client description, and monthly revenue potential
+3. PRICING TIER 2 (CORE) — exact name, exact price, complete feature/service list, target client profile, and expected volume at maturity
+4. PRICING TIER 3 (PREMIUM / ENTERPRISE) — exact name, price range or structure, what's included, high-touch delivery description, and revenue target
+5. MARKET RATE BENCHMARKS — what comparable services charge in this industry and region, with the data rationale for where this project's pricing sits relative to market
+6. ADD-ON SERVICES — 3–5 specific additional services or features that can be sold on top of the base tier, with prices and rationale
+7. PAYMENT TERMS — exactly how and when clients are billed: invoice timing, payment methods accepted, late payment policy, and deposit requirements`,
+
+  "launch-30-days": `Produce SECTION 7 — LAUNCH & FIRST 30 DAYS.
+Write a complete, week-by-week launch plan covering:
+PRE-LAUNCH CHECKLIST — a complete checklist of everything that must be done before accepting the first real client. Organize by category: legal/compliance, tools/systems, documents/templates, team/training, marketing/outreach.
+
+WEEK 1 — SETUP: List every specific action to take in Week 1. Name the task, who does it, and what done looks like. Cover: legal setup, tool configuration, document preparation, and internal testing.
+
+WEEK 2 — TESTING: List every action for Week 2. Focus on: end-to-end workflow testing with fake/test data, document review and revision, first outreach to potential clients, and readiness confirmation.
+
+WEEK 3 — SOFT LAUNCH: List every action for Week 3. Focus on: onboarding 1–3 real clients or beta users, following every workflow as written, capturing feedback, and identifying gaps.
+
+WEEK 4 — REVIEW & ADJUST: List every action for Week 4. Focus on: reviewing what worked and what didn't, updating SOPs and documents, confirming financial setup, and setting Month 2 targets.
+
+30-DAY SUCCESS METRICS — specific, measurable criteria that define a successful launch. Include: client count, revenue, workflow completion rate, and team readiness indicators.
+
+MONTH 2–3 PRIORITIES — the top 5 priorities for months 2 and 3 to grow volume, improve quality, and build toward sustainability.`,
+};
+
+router.post("/project-builder", async (req, res) => {
+  const { project, industry, projectType, region, scale, action } = req.body as {
+    project: string;
+    industry?: string;
+    projectType?: string;
+    region?: string;
+    scale?: string;
+    action: string;
+  };
+
+  if (!project?.trim() || !action?.trim()) {
+    return void res.status(400).json({ error: "project and action are required" });
+  }
+
+  const sectionInstruction = PROJECT_BUILDER_INSTRUCTIONS[action]
+    ?? `Produce the requested section of the project file. Write actual content — complete, specific, and ready to use.`;
+
+  const userPrompt = `PROJECT BEING BUILT:
+- Project Idea: ${project}
+- Industry: ${industry || "Not specified"}
+- Project Type: ${projectType || "Not specified"}
+- Region / Location: ${region || "Not specified"} — use this region for all regulatory, pricing, legal, and market references
+- Team Scale: ${scale || "Not specified"}
+
+${sectionInstruction}
+
+This is a real project file, not a business plan summary. Write everything as if it will be used tomorrow. Use real tool names, real regulatory references for ${region || "the specified region"}, and real-world terminology for ${industry || "the specified industry"}. No placeholders. No vague content. Every section must be complete and ready to use.`;
+
+  res.setHeader("Content-Type", "text/event-stream");
+  res.setHeader("Cache-Control", "no-cache");
+  res.setHeader("Connection", "keep-alive");
+
+  const stream = await openai.chat.completions.create({
+    model: "gpt-5.2",
+    max_completion_tokens: 8192,
+    messages: [
+      { role: "system", content: PROJECT_BUILDER_PROMPT },
+      { role: "user",   content: userPrompt },
+    ],
+    stream: true,
+  });
+
+  for await (const chunk of stream) {
+    const text = chunk.choices[0]?.delta?.content;
+    if (text) res.write(`data: ${JSON.stringify({ content: text })}\n\n`);
+  }
+
+  res.write(`data: ${JSON.stringify({ done: true })}\n\n`);
+  res.end();
+});
+
 // ─── REAL-WORLD BUSINESS DEVELOPMENT ASSISTANT ───────────────────────────────
 
 const BIZ_DEV_PROMPT = `You are a real-world business development assistant. Your job is to turn any
