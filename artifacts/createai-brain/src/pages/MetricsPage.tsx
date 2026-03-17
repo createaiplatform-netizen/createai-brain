@@ -1,4 +1,16 @@
 import React, { memo, useCallback, useEffect, useMemo, useRef, useState } from "react";
+import { apiFetch }                           from "@/ael/fetch";
+import { fmtDate, fmtEnum }                  from "@/ael/time";
+import {
+  ACCENT, CARD_BG, TEXT_MAIN, TEXT_SUB, TEXT_DIM,
+  BORDER_COLOR, BORDER, DIVIDER_TH, DIVIDER_ROW, SHADOW,
+  ACCENT_BG, ACCENT_BORDER_CLR, ACCENT_TRACK, ACCENT_FOCUS_BG, ACCENT_HOVER_BG, ACCENT_HOVER_BD,
+  ERROR_BG, ERROR_BORDER, ERROR_TEXT,
+  RADIUS_CARD, RADIUS_BADGE, RADIUS_SKEL, RADIUS_BAR,
+  PAD_PAGE, PAD_CARD, PAD_TD, PAD_TH,
+  GAP_SECTION, GAP_CARD, GAP_ROW, GAP_INNER,
+  FONT_XS, FONT_SM, FONT_BODY, FONT_LABEL, FONT_STAT,
+} from "@/ael/tokens";
 
 // ─── Types ─────────────────────────────────────────────────────────────────
 
@@ -46,76 +58,15 @@ interface CurvesResponse {
   monthly: MonthlyPoint[];
 }
 
-// ─── Fetch helpers (module-level — stable, never recreated) ─────────────────
+// ─── Fetch helpers (module-level — thin wrappers over apiFetch from AEL) ────
 
-async function fetchSummary(): Promise<SummaryResponse> {
-  const res = await fetch("/api/metrics/summary", { credentials: "include" });
-  if (!res.ok) throw new Error(`summary ${res.status}`);
-  return res.json();
+function fetchSummary(): Promise<SummaryResponse> {
+  return apiFetch<SummaryResponse>("/api/metrics/summary");
 }
 
-async function fetchCurves(): Promise<CurvesResponse> {
-  const res = await fetch("/api/metrics/curves", { credentials: "include" });
-  if (!res.ok) throw new Error(`curves ${res.status}`);
-  return res.json();
+function fetchCurves(): Promise<CurvesResponse> {
+  return apiFetch<CurvesResponse>("/api/metrics/curves");
 }
-
-// ─── Design tokens ──────────────────────────────────────────────────────────
-// All values mirror the OS shell (osLayout, AppWindow, Sidebar).
-// Every inline literal below resolves to one of these constants.
-// Single source of truth — change one value to update the whole page.
-
-// Base palette
-const ACCENT    = "#6366f1";   // indigo — OS shell primary accent
-const CARD_BG   = "#ffffff";   // card surface (OS sidebar bg)
-const TEXT_MAIN = "#0f172a";   // slate-900 — OS main text
-const TEXT_SUB  = "#64748b";   // slate-500 — secondary text
-const TEXT_DIM  = "#94a3b8";   // slate-400 — tertiary / placeholders
-
-// Border & divider
-const BORDER_COLOR = "rgba(0,0,0,0.08)";   // OS sidebar border-right
-const DIVIDER_TH   = "rgba(0,0,0,0.07)";   // OS sidebar section separator
-const DIVIDER_ROW  = "rgba(0,0,0,0.05)";   // subtler row rule
-const BORDER       = `1px solid ${BORDER_COLOR}`;
-
-// Shadow scale — matches OS shell's two-layer subtle shadow
-const SHADOW = "0 1px 3px rgba(0,0,0,0.06), 0 1px 2px rgba(0,0,0,0.04)";
-
-// Accent tints (hex alpha suffix = opacity, no separate rgba needed)
-const ACCENT_BG      = `${ACCENT}0d`;   //  ~5 % — badge resting background
-const ACCENT_BORDER_CLR = `${ACCENT}22`; // ~13 % — badge resting border
-const ACCENT_TRACK   = `${ACCENT}1a`;   // ~10 % — bar track background
-const ACCENT_FOCUS_BG = `${ACCENT}0a`;  //  ~4 % — row hover / focus fill
-const ACCENT_HOVER_BG = `${ACCENT}1a`;  // ~10 % — badge hover background
-const ACCENT_HOVER_BD = `${ACCENT}4d`;  // ~30 % — badge hover border
-
-// Error state (full-opacity values — no tint needed)
-const ERROR_BG     = "#fef2f2";
-const ERROR_BORDER = "#fecaca";
-const ERROR_TEXT   = "#dc2626";
-
-// Border radii — OS rhythm (multiples of 2)
-const RADIUS_CARD  = 14;   // outer cards
-const RADIUS_BADGE = 12;   // stat badges, error box
-const RADIUS_SKEL  = 6;    // skeleton rect
-const RADIUS_BAR   = 4;    // bar track + fill, th micro-elements
-
-// Spacing — strict 4 / 8 px grid
-const PAD_PAGE     = "24px 24px 64px";  // page wrapper  (24 = 3×8, 64 = 8×8)
-const PAD_CARD     = "20px 24px";       // card inner    (20 = 5×4, 24 = 3×8)
-const PAD_TD       = "8px 8px 8px 0";   // body cell     (8 = 1×8)
-const PAD_TH       = "6px 8px 6px 0";   // header cell   (6 = 3×2, 8 = 1×8)
-const GAP_SECTION  = 20;               // section marginBottom (5×4)
-const GAP_CARD     = 16;               // inner card gap (2×8)
-const GAP_ROW      = 12;               // flex-row gap   (3×4)
-const GAP_INNER    = 8;                // sub-element gap (1×8)
-
-// Font scale — matches OS shell text hierarchy
-const FONT_XS    = 11;   // th labels, skeleton label
-const FONT_SM    = 12;   // secondary text, bar value
-const FONT_BODY  = 13;   // cell content, section body
-const FONT_LABEL = 14;   // section h2
-const FONT_STAT  = 28;   // badge number
 
 // ─── CSS keyframes — injected once, references tokens via template literal ──
 
@@ -170,16 +121,7 @@ function ensureStyles() {
 }
 
 // ─── Helpers (module-level — pure, stable) ──────────────────────────────────
-
-function fmt(s: string) {
-  return s.replace(/_/g, " ").replace(/\b\w/g, (c) => c.toUpperCase());
-}
-
-function fmtDate(iso: string) {
-  return new Date(iso).toLocaleDateString(undefined, {
-    month: "short", day: "numeric", year: "numeric",
-  });
-}
+// fmt / fmtDate are now imported as fmtEnum / fmtDate from @/ael/time.
 
 /** Derives a stable, URL-safe id from a section title for aria-labelledby. */
 function titleId(title: string) {
@@ -558,10 +500,10 @@ export default function MetricsPage() {
                 {summary.summary.map((row) => (
                   <HRow key={row.type}>
                     <td style={{ padding: PAD_TD, color: TEXT_MAIN, fontWeight: 500, whiteSpace: "nowrap" }}>
-                      {fmt(row.type)}
+                      {fmtEnum(row.type)}
                     </td>
                     <td style={{ padding: PAD_TD, width: "30%" }}>
-                      <Bar value={row.lifetime} max={maxLifetime} label={fmt(row.type)} />
+                      <Bar value={row.lifetime} max={maxLifetime} label={fmtEnum(row.type)} />
                     </td>
                     <td style={{ padding: PAD_TD, color: TEXT_SUB }}>{row.daily}</td>
                     <td style={{ padding: PAD_TD, color: TEXT_SUB }}>{row.weekly}</td>
@@ -592,7 +534,7 @@ export default function MetricsPage() {
                     <td style={{ padding: PAD_TD, color: TEXT_SUB, whiteSpace: "nowrap" }}>
                       {fmtDate(row.date)}
                     </td>
-                    <td style={{ padding: PAD_TD, color: TEXT_MAIN }}>{fmt(row.type)}</td>
+                    <td style={{ padding: PAD_TD, color: TEXT_MAIN }}>{fmtEnum(row.type)}</td>
                     <td style={{ padding: `${GAP_INNER}px 0`, color: ACCENT, fontWeight: 600 }}>{row.count}</td>
                   </HRow>
                 ))}
@@ -619,7 +561,7 @@ export default function MetricsPage() {
                     <td style={{ padding: PAD_TD, color: TEXT_SUB, whiteSpace: "nowrap" }}>
                       {fmtDate(row.weekStart)}
                     </td>
-                    <td style={{ padding: PAD_TD, color: TEXT_MAIN }}>{fmt(row.type)}</td>
+                    <td style={{ padding: PAD_TD, color: TEXT_MAIN }}>{fmtEnum(row.type)}</td>
                     <td style={{ padding: `${GAP_INNER}px 0`, color: ACCENT, fontWeight: 600 }}>{row.count}</td>
                   </HRow>
                 ))}
@@ -646,7 +588,7 @@ export default function MetricsPage() {
                     <td style={{ padding: PAD_TD, color: TEXT_SUB, whiteSpace: "nowrap" }}>
                       {fmtDate(row.monthStart)}
                     </td>
-                    <td style={{ padding: PAD_TD, color: TEXT_MAIN }}>{fmt(row.type)}</td>
+                    <td style={{ padding: PAD_TD, color: TEXT_MAIN }}>{fmtEnum(row.type)}</td>
                     <td style={{ padding: `${GAP_INNER}px 0`, color: ACCENT, fontWeight: 600 }}>{row.count}</td>
                   </HRow>
                 ))}

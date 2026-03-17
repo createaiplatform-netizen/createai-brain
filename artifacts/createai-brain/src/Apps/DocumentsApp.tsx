@@ -1,6 +1,7 @@
 import React, { useState, useEffect, useCallback, useRef } from "react";
 import { OutputFormatter } from "@/components/OutputFormatter";
 import { SaveToProjectModal } from "@/components/SaveToProjectModal";
+import { relativeTime } from "@/ael/time";
 
 // ─── Types ─────────────────────────────────────────────────────────────────
 
@@ -47,19 +48,6 @@ function fileTypeIcon(type: string) {
   if (t.includes("note"))                         return "📝";
   if (t.includes("contract") || t.includes("sop")) return "📜";
   return "📄";
-}
-
-function relativeTime(isoStr: string) {
-  const d = new Date(isoStr);
-  const diff = Date.now() - d.getTime();
-  const mins = Math.floor(diff / 60000);
-  if (mins < 1)   return "just now";
-  if (mins < 60)  return `${mins}m ago`;
-  const hrs = Math.floor(mins / 60);
-  if (hrs < 24)   return `${hrs}h ago`;
-  const days = Math.floor(hrs / 24);
-  if (days < 30)  return `${days}d ago`;
-  return d.toLocaleDateString();
 }
 
 // ─── API helpers ────────────────────────────────────────────────────────────

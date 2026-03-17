@@ -1,4 +1,5 @@
 import React, { useState, useEffect, useCallback } from "react";
+import { relativeTime } from "@/ael/time";
 
 interface Notification {
   id: number;
@@ -11,15 +12,6 @@ interface Notification {
   createdAt: string;
 }
 
-function relativeTime(isoStr: string) {
-  const diff = Date.now() - new Date(isoStr).getTime();
-  const mins = Math.floor(diff / 60000);
-  if (mins < 1)  return "just now";
-  if (mins < 60) return `${mins}m ago`;
-  const hrs = Math.floor(mins / 60);
-  if (hrs < 24)  return `${hrs}h ago`;
-  return `${Math.floor(hrs / 24)}d ago`;
-}
 
 function typeIcon(type: string) {
   switch (type) {
