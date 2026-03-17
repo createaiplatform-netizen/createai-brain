@@ -1,0 +1,170 @@
+You are now acting as a Universal Enterprise Integration Expansion Engine.
+
+Your objective is to design, build, and operationalize a fully scalable, cross-industry integration layer capable of connecting to ANY external system, API, platform, or service across all industries globally.
+
+This includes (but is not limited to):
+- Healthcare systems (EHRs, FHIR, HL7)
+- Financial systems (banking APIs, payment processors, fintech platforms)
+- E-commerce platforms (marketplaces, inventory, fulfillment)
+- CRM/ERP systems
+- Government and regulatory systems
+- Marketing and advertising platforms
+- SaaS tools and productivity platforms
+- Web3 / blockchain systems
+- IoT and real-time device networks
+
+--------------------------------------------------
+PHASE 1 — UNIVERSAL INTEGRATION FOUNDATION
+--------------------------------------------------
+
+1. Implement complete REST API coverage:
+   - All internal platform capabilities must be exposed via REST endpoints
+   - Support GET, POST, PUT, PATCH, DELETE
+   - Enforce schema validation and structured responses
+
+2. Implement GraphQL gateway:
+   - Unified query layer across all services
+   - Allow external systems to query multiple resources in a single request
+
+3. Implement real-time communication:
+   - Server-Sent Events (SSE)
+   - WebSockets for bidirectional communication
+   - Streaming responses for long-running processes
+
+4. Implement webhook system:
+   - Inbound webhook ingestion with validation
+   - Outbound webhook dispatch with signed payloads
+   - Retry logic and delivery tracking
+
+--------------------------------------------------
+PHASE 2 — AUTHENTICATION & ACCESS LAYER
+--------------------------------------------------
+
+5. Implement universal authentication support:
+   - OAuth 2.0 (Authorization Code, Client Credentials)
+   - OpenID Connect (OIDC)
+   - SAML 2.0 (SSO)
+   - API key authentication
+   - JWT-based service authentication
+
+6. Build credential management system:
+   - Secure storage of external API credentials
+   - Rotation and expiration handling
+   - Environment isolation (dev/staging/prod)
+
+--------------------------------------------------
+PHASE 3 — ADAPTER & CONNECTOR ARCHITECTURE
+--------------------------------------------------
+
+7. Create modular adapter framework:
+   - /adapters/{industry}/{system}/
+   - Each adapter must:
+     - Handle authentication
+     - Transform external data ↔ internal schema
+     - Normalize responses
+     - Handle errors and retries
+
+8. Pre-build high-value adapters for major systems across industries:
+   - Payments (Stripe, PayPal)
+   - CRM (Salesforce, HubSpot)
+   - Cloud (AWS, Google Cloud, Azure)
+   - Communication (Twilio, SendGrid)
+   - Data (Snowflake, BigQuery)
+   - E-commerce (Shopify, Amazon)
+   - Productivity (Slack, Notion, Google Workspace)
+
+--------------------------------------------------
+PHASE 4 — EVENT-DRIVEN AUTOMATION ENGINE
+--------------------------------------------------
+
+9. Implement event-driven architecture:
+   - Trigger workflows based on:
+     - API calls
+     - Webhooks
+     - Scheduled jobs
+     - External system events
+
+10. Build workflow orchestration engine:
+   - Multi-step execution pipelines
+   - Conditional logic
+   - Retry and failure handling
+   - Cross-system automation
+
+--------------------------------------------------
+PHASE 5 — DATA TRANSFORMATION & VALIDATION
+--------------------------------------------------
+
+11. Implement universal data transformation layer:
+   - JSON, XML, CSV, HL7, and custom formats
+   - Schema mapping and validation
+   - Automatic data normalization
+
+12. Enforce strict validation:
+   - Reject invalid inputs
+   - Log all transformations
+   - Ensure consistency across systems
+
+--------------------------------------------------
+PHASE 6 — INTEGRATION DASHBOARD & CONTROL CENTER
+--------------------------------------------------
+
+13. Expand Integration Dashboard:
+   - Show all connected systems across industries
+   - Display:
+     - Connection status (Not Connected / Sandbox / Live)
+     - API activity
+     - Webhook logs
+     - Event triggers
+     - Error rates
+
+14. Add simulation engine:
+   - Simulate external systems sending data
+   - Simulate outbound calls
+   - Show real-time results
+
+--------------------------------------------------
+PHASE 7 — SECURITY & COMPLIANCE
+--------------------------------------------------
+
+15. Enforce enterprise-grade security:
+   - TLS encryption in transit
+   - AES-256 encryption at rest
+   - Role-Based Access Control (RBAC)
+   - Audit logging for all actions
+   - Minimum-necessary data access
+
+16. Support compliance frameworks:
+   - HIPAA (healthcare)
+   - SOC 2
+   - GDPR
+   - PCI-DSS (payments)
+
+--------------------------------------------------
+PHASE 8 — PERFORMANCE & SCALABILITY
+--------------------------------------------------
+
+17. Implement scalability architecture:
+   - Stateless services
+   - Horizontal scaling
+   - Queue-based processing for integrations
+   - Rate limiting and throttling
+
+18. Optimize performance:
+   - Lazy loading of adapters
+   - Caching layer for frequent queries
+   - Parallel execution of workflows
+
+--------------------------------------------------
+FINAL REQUIREMENTS
+--------------------------------------------------
+
+- Do not create mock or UI-only integrations
+- All integrations must execute real backend logic
+- All actions must produce verifiable outputs
+- All events must be logged and visible in the Integration Dashboard
+- All adapters must be independently testable
+- All systems must be ready for real credential-based connection immediately when credentials are provided
+
+GOAL:
+
+Create a universal integration engine that can connect to any external system in any industry with minimal additional configuration, enabling full automation, scalability, and enterprise-grade interoperability.
