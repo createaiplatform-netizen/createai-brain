@@ -37,6 +37,16 @@ import { EcologyForgeApp } from "@/Apps/EcologyForgeApp";
 import { SoundscapeStudioApp } from "@/Apps/SoundscapeStudioApp";
 import { TimelineForgeApp } from "@/Apps/TimelineForgeApp";
 import { MythweaveStudioApp } from "@/Apps/MythweaveStudioApp";
+import { LanguageForgeApp } from "@/Apps/LanguageForgeApp";
+import { MagicSystemStudioApp } from "@/Apps/MagicSystemStudioApp";
+import { UrbanWorldEngineApp } from "@/Apps/UrbanWorldEngineApp";
+import { WarloreStudioApp } from "@/Apps/WarloreStudioApp";
+import { CharacterForgeApp } from "@/Apps/CharacterForgeApp";
+import { TechForgeApp } from "@/Apps/TechForgeApp";
+import { VisualWorldStudioApp } from "@/Apps/VisualWorldStudioApp";
+import { ReligionForgeApp } from "@/Apps/ReligionForgeApp";
+import { CosmologyForgeApp } from "@/Apps/CosmologyForgeApp";
+import { GameWorldStudioApp } from "@/Apps/GameWorldStudioApp";
 import type { AppId } from "./OSContext";
 
 const APP_LABELS: Record<AppId, string> = {
@@ -76,6 +86,16 @@ const APP_LABELS: Record<AppId, string> = {
   soundscape:         "SoundscapeStudio",
   timelineforge:      "TimelineForge",
   mythweave:          "MythweaveStudio",
+  languageforge:   "LanguageForge",
+  magicsystem:     "MagicSystemStudio",
+  urbanworld:      "UrbanWorldEngine",
+  warlore:         "WarloreStudio",
+  characterforge:  "CharacterForge",
+  techforge:       "TechForge",
+  visualworld:     "VisualWorldStudio",
+  religionforge:   "ReligionForge",
+  cosmologyforge:  "CosmologyForge",
+  gameworld:       "GameWorldStudio",
 };
 
 const APP_ICONS: Record<AppId, string> = {
@@ -115,6 +135,16 @@ const APP_ICONS: Record<AppId, string> = {
   soundscape:         "🎵",
   timelineforge:      "⏰",
   mythweave:          "🕸️",
+  languageforge:   "🔤",
+  magicsystem:     "✨",
+  urbanworld:      "🏙️",
+  warlore:         "⚔️",
+  characterforge:  "🧠",
+  techforge:       "🛸",
+  visualworld:     "🎨",
+  religionforge:   "🙏",
+  cosmologyforge:  "🌌",
+  gameworld:       "🎲",
 };
 
 const APP_COMPONENTS: Record<AppId, React.ComponentType<any>> = {
@@ -154,6 +184,16 @@ const APP_COMPONENTS: Record<AppId, React.ComponentType<any>> = {
   soundscape:         SoundscapeStudioApp,
   timelineforge:      TimelineForgeApp,
   mythweave:          MythweaveStudioApp,
+  languageforge:   LanguageForgeApp,
+  magicsystem:     MagicSystemStudioApp,
+  urbanworld:      UrbanWorldEngineApp,
+  warlore:         WarloreStudioApp,
+  characterforge:  CharacterForgeApp,
+  techforge:       TechForgeApp,
+  visualworld:     VisualWorldStudioApp,
+  religionforge:   ReligionForgeApp,
+  cosmologyforge:  CosmologyForgeApp,
+  gameworld:       GameWorldStudioApp,
 };
 
 interface AppWindowProps {

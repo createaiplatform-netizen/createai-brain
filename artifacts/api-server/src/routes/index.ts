@@ -25,6 +25,16 @@ import ecologyforgeRouter from "./ecologyforge";
 import soundscapeRouter from "./soundscape";
 import timelineforgeRouter from "./timelineforge";
 import mythweaveRouter from "./mythweave";
+import languageforgeRouter from "./languageforge";
+import magicsystemRouter from "./magicsystem";
+import urbanworldRouter from "./urbanworld";
+import warloreRouter from "./warlore";
+import characterforgeRouter from "./characterforge";
+import techforgeRouter from "./techforge";
+import visualworldRouter from "./visualworld";
+import religionforgeRouter from "./religionforge";
+import cosmologyforgeRouter from "./cosmologyforge";
+import gameworldRouter from "./gameworld";
 
 const router: IRouter = Router();
 
@@ -54,5 +64,15 @@ router.use("/ecologyforge",       ecologyforgeRouter);
 router.use("/soundscape",         soundscapeRouter);
 router.use("/timelineforge",      timelineforgeRouter);
 router.use("/mythweave",          mythweaveRouter);
+router.use("/languageforge",      languageforgeRouter);
+router.use("/magicsystem",        magicsystemRouter);
+router.use("/urbanworld",         urbanworldRouter);
+router.use("/warlore",            warloreRouter);
+router.use("/characterforge",     characterforgeRouter);
+router.use("/techforge",          techforgeRouter);
+router.use("/visualworld",        visualworldRouter);
+router.use("/religionforge",      religionforgeRouter);
+router.use("/cosmologyforge",     cosmologyforgeRouter);
+router.use("/gameworld",          gameworldRouter);
 
 export default router;

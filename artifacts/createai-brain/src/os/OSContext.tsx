@@ -11,7 +11,10 @@ export type AppId =
   | "researchhub" | "learningcenter" | "personastudio" | "datastudio" | "pricingstudio"
   | "traction" | "opportunity" | "imaginationlab" | "loreforge"
   | "narratoros" | "civilizationforge" | "ecologyforge"
-  | "soundscape" | "timelineforge" | "mythweave";
+  | "soundscape" | "timelineforge" | "mythweave"
+  | "languageforge" | "magicsystem" | "urbanworld" | "warlore"
+  | "characterforge" | "techforge" | "visualworld"
+  | "religionforge" | "cosmologyforge" | "gameworld";
 
 export interface AppDef {
   id: AppId;
@@ -60,6 +63,16 @@ export const DEFAULT_APPS: AppDef[] = [
   { id: "soundscape",         label: "SoundscapeStudio",     icon: "🎵", color: "#7c3aed", description: "Fictional sound and music designer — music theory, instruments, acoustic environments, ceremonial music, war music, lullabies, epic ballads, and sonic systems", category: "tools" },
   { id: "timelineforge",      label: "TimelineForge",        icon: "⏰", color: "#6366f1", description: "Temporal history studio — timelines, alternate history, parallel timelines, temporal paradoxes, historical divergences, dynasties, and civilizational collapse", category: "tools" },
   { id: "mythweave",          label: "MythweaveStudio",      icon: "🕸️", color: "#7c3aed", description: "Myth, archetype, and symbol designer — archetypes, symbol systems, motifs, folklore, rituals, tricksters, hero journeys, shadow narratives, and destiny systems", category: "tools" },
+  { id: "languageforge",   label: "LanguageForge",      icon: "🔤", color: "#6366f1", description: "Constructed language studio — phonology, grammar, vocabulary, dialects, scripts, naming systems, sacred languages, and linguistic evolution for fictional worlds", category: "tools" },
+  { id: "magicsystem",     label: "MagicSystemStudio",  icon: "✨", color: "#7c3aed", description: "Magic & power system design — rules, costs, spells, schools, corruption, artifacts, practitioners, forbidden magic, and sentient magic for fictional worlds", category: "tools" },
+  { id: "urbanworld",      label: "UrbanWorldEngine",   icon: "🏙️", color: "#6366f1", description: "City & urban world design — layout, districts, underground, criminal networks, architecture, street culture, markets, and political geography", category: "tools" },
+  { id: "warlore",         label: "WarloreStudio",      icon: "⚔️", color: "#dc2626", description: "Military & warfare design — armies, tactics, siege, naval warfare, spy networks, weapons, propaganda, peace treaties, mercenaries, and aftermath", category: "tools" },
+  { id: "characterforge",  label: "CharacterForge",     icon: "🧠", color: "#be185d", description: "Deep character psychology — backstory, core wound, want vs need, moral code, voice, flaw, secrets, relationships, change arc, mask, obsession, and death", category: "tools" },
+  { id: "techforge",       label: "TechForge",          icon: "🛸", color: "#0891b2", description: "Fictional technology design — tech levels, energy systems, transportation, weapons tech, medical tech, communication, surveillance, and tech revolutions", category: "tools" },
+  { id: "visualworld",     label: "VisualWorldStudio",  icon: "🎨", color: "#be185d", description: "Visual design language — color palettes, fashion, heraldry, flags, motifs, art movements, propaganda art, funerary art, body marking, masks, and costumes", category: "tools" },
+  { id: "religionforge",   label: "ReligionForge",      icon: "🙏", color: "#4f46e5", description: "Belief system & theology design — theology, deities, sacred texts, clergy, rituals, schisms, heresies, saints, afterlife, prayer, miracles, and holy wars", category: "tools" },
+  { id: "cosmologyforge",  label: "CosmologyForge",     icon: "🌌", color: "#6366f1", description: "Universe physics & metaphysics — cosmology, planes of existence, creation myths, deity hierarchies, death mechanics, souls, cosmic conflict, void, and ascension", category: "tools" },
+  { id: "gameworld",       label: "GameWorldStudio",    icon: "🎲", color: "#d97706", description: "Games & play culture design — board games, sports, gambling, children's games, deadly games, gladiators, championships, stadium culture, and wager culture", category: "tools" },
 ];
 
 export const ALL_APPS = DEFAULT_APPS;
@@ -126,6 +139,16 @@ const INTENT_MAP: { keywords: string[]; target: AppId }[] = [
   { keywords: ["soundscape", "soundscapestudio", "fictional music", "instrument forge", "acoustic environment", "ceremonial music", "war music", "lullaby", "epic ballad", "silence engine", "nature sound", "crowd sound", "sonic weapon", "harmony system"], target: "soundscape" },
   { keywords: ["timelineforge", "timeline", "alternate history", "parallel timeline", "temporal paradox", "historical divergence", "ancestral line", "future history", "calendar system", "age transition", "generation cycle", "collapse timeline", "chronology"], target: "timelineforge" },
   { keywords: ["mythweave", "mythweavestudio", "archetype", "symbol system", "motif", "folklore", "ritual", "trickster", "hero journey", "shadow narrative", "transformation", "threshold", "mentor archetype", "oracle archetype", "destiny"], target: "mythweave" },
+  { keywords: ["languageforge", "conlang", "constructed language", "phonology", "grammar", "vocabulary", "dialect", "slang", "script", "writing system", "naming system", "sacred language", "sign language", "proverb", "poetry form", "linguistic evolution"], target: "languageforge" },
+  { keywords: ["magicsystem", "magic system", "magic rule", "spell", "magic cost", "school of magic", "magic corruption", "artifact", "practitioner", "forbidden magic", "magic ecology", "sentient magic", "magic politics", "magic evolution"], target: "magicsystem" },
+  { keywords: ["urbanworld", "city design", "city layout", "district", "underground city", "criminal network", "architecture style", "street culture", "market economy", "slum", "elite quarter", "transportation", "city ghost", "boundary", "urban"], target: "urbanworld" },
+  { keywords: ["warlore", "war lore", "army design", "tactics", "siege warfare", "naval warfare", "spy network", "weapon forge", "propaganda", "peace treaty", "mercenary", "war economy", "military tradition", "war crime", "aftermath", "warfare"], target: "warlore" },
+  { keywords: ["characterforge", "character forge", "backstory", "core wound", "character flaw", "character voice", "secret", "relationship web", "change arc", "mask persona", "obsession", "character decision", "character death", "want vs need", "moral code"], target: "characterforge" },
+  { keywords: ["techforge", "tech forge", "tech level", "energy system", "transportation tech", "weapon tech", "medical tech", "communication tech", "surveillance tech", "agricultural tech", "building tech", "ai equivalent", "tech failure", "tech taboo", "tech revolution"], target: "techforge" },
+  { keywords: ["visualworld", "visual world", "color palette", "fashion cycle", "heraldry", "flag design", "visual motif", "art movement", "propaganda art", "funerary art", "body marking", "mask design", "costume", "street art", "forbidden image"], target: "visualworld" },
+  { keywords: ["religionforge", "religion forge", "theology", "deity", "sacred text", "clergy", "ritual", "schism", "heresy", "saint", "afterlife", "prayer system", "miracle", "religious war", "atheism", "belief system", "faith"], target: "religionforge" },
+  { keywords: ["cosmologyforge", "cosmology forge", "universe physics", "plane of existence", "creation myth", "deity hierarchy", "death mechanics", "soul system", "cosmic conflict", "void", "liminal plane", "ascension", "prophecy mechanics", "universe collapse", "multiverse"], target: "cosmologyforge" },
+  { keywords: ["gameworld", "game world", "board game", "sport design", "gambling", "children game", "deadly game", "gladiator", "trading card", "game rules", "stadium culture", "championship", "fixing", "game ban", "wager culture", "play culture"], target: "gameworld" },
   { keywords: ["money", "monetize", "revenue", "earn", "funnel", "offer"],target: "monetization" },
   { keywords: ["admin", "settings", "control", "mode", "user"],           target: "admin" },
   { keywords: ["family", "home", "personal"],                              target: "family" },
@@ -184,6 +207,16 @@ const APP_META: Record<AppId, { icon: string; label: string }> = {
   soundscape:         { icon: "🎵", label: "SoundscapeStudio" },
   timelineforge:      { icon: "⏰", label: "TimelineForge" },
   mythweave:          { icon: "🕸️", label: "MythweaveStudio" },
+  languageforge:   { icon: "🔤", label: "LanguageForge" },
+  magicsystem:     { icon: "✨", label: "MagicSystemStudio" },
+  urbanworld:      { icon: "🏙️", label: "UrbanWorldEngine" },
+  warlore:         { icon: "⚔️", label: "WarloreStudio" },
+  characterforge:  { icon: "🧠", label: "CharacterForge" },
+  techforge:       { icon: "🛸", label: "TechForge" },
+  visualworld:     { icon: "🎨", label: "VisualWorldStudio" },
+  religionforge:   { icon: "🙏", label: "ReligionForge" },
+  cosmologyforge:  { icon: "🌌", label: "CosmologyForge" },
+  gameworld:       { icon: "🎲", label: "GameWorldStudio" },
 };
 
 // ─── OS Context value ───────────────────────────────────────────────────────
