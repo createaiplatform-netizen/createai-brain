@@ -2984,6 +2984,11 @@ Structure with: introduction, step-by-step guide, common questions, advanced tip
   "InviteGeneratorEngine": `You are the Invite Generator Engine inside CreateAI Brain.
 Generate complete invite and onboarding campaigns: invite copy, welcome sequences, onboarding emails, activation prompts, and referral structures.
 Make every piece specific, personalized in tone, and conversion-optimized.`,
+
+  "InteractionEngine": `You are the Interaction Engine inside CreateAI Brain.
+Design complete user interaction systems: micro-interaction patterns, state machine designs, UX flows, touch/click behaviors, progressive disclosure strategies, and feedback loops.
+Structure output with: interaction map, key user states, transition logic, feedback design, accessibility notes, and implementation guidance.
+Make all interaction design specific, immediately applicable, and grounded in real UX principles.`,
 };
 
 const ENGINE_RUN_MASTER_SYSTEM = `You are a specialized engine inside CreateAI Brain — the universal AI platform built by Sara Stadler.
@@ -3158,6 +3163,90 @@ router.post("/brain-gen-ai", async (req, res) => {
   }
 
   res.write(`data: ${JSON.stringify({ done: true })}\n\n`);
+  res.end();
+});
+
+// ─── Series-to-engine mapping (mirrors CapabilityEngine.ts ALL_SERIES) ──────────
+const SERIES_ENGINES: Record<string, { name: string; engineIds: string[] }> = {
+  omega:  { name: "Ω-Series — Meta-Creation",       engineIds: ["InfiniteExpansionEngine", "BrainGen", "FORGE"] },
+  phi:    { name: "Φ-Series — Continuous Improvement", engineIds: ["ProjectIntelligence", "ORACLE", "VECTOR"] },
+  uq:     { name: "UQ-Series — Universal Question",  engineIds: ["guideEngine", "ConversationEngine", "PULSE"] },
+  ice:    { name: "ICE-Series — Intelligent Context", engineIds: ["InteractionEngine", "IntegrationEngine", "NEXUS"] },
+  ael:    { name: "AEL-Series — Adaptive Expansion", engineIds: ["UniversalConnectionEngine", "InfiniteExpansionEngine", "VECTOR"] },
+  ucpx:   { name: "UCP-X — Universal Command Platform", engineIds: ["ORACLE", "FORGE", "NEXUS"] },
+  gi:     { name: "GI-Series — Guided Interaction",  engineIds: ["guideEngine", "ConversationEngine", "InviteGeneratorEngine"] },
+  se:     { name: "SE-Series — Submit Engine",       engineIds: ["UniversalWorkflowEngine", "ExportEngine", "TemplateLibrary"] },
+  de:     { name: "DE-Series — Document Engine",     engineIds: ["TemplateLibrary", "ExportEngine", "BackendBlueprintEngine"] },
+  ab:     { name: "AB-Series — Auto-Builder",        engineIds: ["BackendBlueprintEngine", "UniversalWorkflowEngine", "ProjectIntelligence"] },
+};
+
+// ─── POST /api/openai/series-run ────────────────────────────────────────────────
+// Runs a series' member engines sequentially, streaming each section in turn.
+// Each engine output is delimited by section markers in the SSE stream.
+router.post("/series-run", async (req, res) => {
+  const { seriesId, topic, context } = req.body as {
+    seriesId?: string;
+    topic?: string;
+    context?: string;
+  };
+
+  if (!seriesId || !SERIES_ENGINES[seriesId]) {
+    return void res.status(400).json({ error: `Unknown series: ${seriesId}` });
+  }
+  if (!topic?.trim()) {
+    return void res.status(400).json({ error: "topic is required" });
+  }
+
+  const userInput = [topic, context].filter(Boolean).join("\n\nCONTEXT:\n");
+  const safetyResult = contentSafetyCheck(userInput);
+  if (!safetyResult.safe) return void safetyError(res as Parameters<typeof safetyError>[0], safetyResult);
+
+  const seriesDef = SERIES_ENGINES[seriesId];
+  const engineIds = seriesDef.engineIds;
+
+  res.setHeader("Content-Type", "text/event-stream");
+  res.setHeader("Cache-Control", "no-cache");
+  res.setHeader("Connection", "keep-alive");
+
+  // Stream a header section
+  res.write(`data: ${JSON.stringify({ type: "series-start", seriesId, name: seriesDef.name, engines: engineIds })}\n\n`);
+
+  for (let i = 0; i < engineIds.length; i++) {
+    const engineId = engineIds[i];
+    const enginePrompt = ENGINE_SYSTEM_PROMPTS[engineId] ?? ENGINE_RUN_MASTER_SYSTEM;
+    const baseSystem = `${ENGINE_RUN_MASTER_SYSTEM}\n\n${enginePrompt}`;
+    const combinedSystem = injectComplianceDisclaimer(baseSystem, userInput);
+
+    // Section start marker
+    res.write(`data: ${JSON.stringify({ type: "section-start", engineId, sectionIndex: i })}\n\n`);
+
+    const contextPart = context ? `ADDITIONAL CONTEXT:\n${context}\n\n` : "";
+    const userMsg = `${contextPart}TOPIC: ${topic}\n\nThis is engine ${i + 1} of ${engineIds.length} in the ${seriesDef.name}. Generate your specialized contribution to this topic.`;
+
+    try {
+      const stream = await openai.chat.completions.create({
+        model: "gpt-5.2",
+        max_completion_tokens: 2500,
+        messages: [
+          { role: "system", content: combinedSystem },
+          { role: "user",   content: userMsg },
+        ],
+        stream: true,
+      });
+
+      for await (const chunk of stream) {
+        const text = chunk.choices[0]?.delta?.content;
+        if (text) res.write(`data: ${JSON.stringify({ type: "content", content: text, engineId, sectionIndex: i })}\n\n`);
+      }
+    } catch (err) {
+      res.write(`data: ${JSON.stringify({ type: "section-error", engineId, sectionIndex: i, error: String(err) })}\n\n`);
+    }
+
+    // Section end marker
+    res.write(`data: ${JSON.stringify({ type: "section-done", engineId, sectionIndex: i })}\n\n`);
+  }
+
+  res.write(`data: ${JSON.stringify({ type: "series-done", seriesId })}\n\n`);
   res.end();
 });
 
