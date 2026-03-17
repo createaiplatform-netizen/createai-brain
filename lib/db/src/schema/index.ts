@@ -18,3 +18,4 @@ export * from "./traction_events";
 export * from "./metrics";
 export * from "./opportunities";
 export * from "./imagination_sessions";
+export * from "./loreforge_sessions";

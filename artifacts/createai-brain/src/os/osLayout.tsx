@@ -27,6 +27,7 @@ import { ProjectBuilderApp } from "@/Apps/ProjectBuilderApp";
 import { ProjectOSApp } from "@/Apps/ProjectOSApp";
 import { OpportunityApp } from "@/Apps/OpportunityApp";
 import { ImaginationLabApp } from "@/Apps/ImaginationLabApp";
+import { LoreForgeApp } from "@/Apps/LoreForgeApp";
 import { ConversationOverlay } from "./ConversationOverlay";
 import { UCPXAgent } from "@/ucpx/UCPXAgent";
 import { GuidedTour } from "./GuidedTour";
@@ -53,6 +54,7 @@ const APP_COMPONENTS: Record<string, React.ComponentType> = {
   projos:       ProjectOSApp,
   opportunity:  OpportunityApp,
   imaginationlab: ImaginationLabApp,
+  loreforge:      LoreForgeApp,
 };
 
 /**

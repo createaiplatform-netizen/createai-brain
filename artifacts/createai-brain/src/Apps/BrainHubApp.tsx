@@ -77,6 +77,19 @@ const ENGINE_HINTS: Record<string, { placeholder: string; example: string }> = {
   QuestEngine:               { placeholder: "What quest or mission should be designed?", example: "e.g. A side quest to reunite a cursed musician with the melody she gave away to save her village" },
   DreamscapeEngine:          { placeholder: "What mood or atmosphere should I generate?", example: "e.g. The emotional landscape of an ancient library on a floating island at the moment the last librarian disappears" },
   MagicSystemEngine:         { placeholder: "What kind of magic system should I design?", example: "e.g. A system where practitioners sacrifice cherished memories — the more powerful the spell, the more precious the memory lost" },
+  MythologyEngine:           { placeholder: "What mythology or pantheon should I create?", example: "e.g. A pantheon of gods born from the first seven sounds ever made, each governing a different domain" },
+  ProphecyEngine:            { placeholder: "What prophecy should I write?", example: "e.g. A prophecy given simultaneously to two rival kingdoms, each believing themselves the chosen ones" },
+  LegendEngine:              { placeholder: "What legend should I build?", example: "e.g. A warrior who traded her name for immortality and now wanders the world, forgotten by all who loved her" },
+  ReligionEngine:            { placeholder: "What fictional religion should I design?", example: "e.g. A religion that worships time itself, with priests forbidden from remembering the past" },
+  AncientHistoryEngine:      { placeholder: "What ancient civilization or era should I create?", example: "e.g. An empire built entirely on the art of forgetting — their greatest technology was erasure" },
+  FactionEngine:             { placeholder: "What faction, guild, or secret society should I design?", example: "e.g. A secret order of librarians who control the flow of information by deciding what gets written down" },
+  LanguageEngine:            { placeholder: "What fictional language concept should I design?", example: "e.g. A language where tense is determined by emotional certainty — things you feel sure about are past tense" },
+  CurseEngine:               { placeholder: "What curse should I design?", example: "e.g. A curse that makes everything you love slowly forget you — not hate you, just gently cease to remember you exist" },
+  ProphetEngine:             { placeholder: "What prophet or seer should I create?", example: "e.g. A prophet who can only see the future when completely alone, and loses the vision the moment she tries to share it" },
+  RelicEngine:               { placeholder: "What relic or legendary artifact should I design?", example: "e.g. A crown that grants perfect wisdom to its wearer, but causes them to slowly lose the capacity for joy" },
+  LoreKeeperEngine:          { placeholder: "What lore keeper or knowledge institution should I create?", example: "e.g. An order of blind historians who memorize entire libraries after the Great Burning" },
+  CosmologyEngine:           { placeholder: "What cosmology or universe structure should I design?", example: "e.g. A universe where the afterlife is a vast library and every book is someone's unlived life" },
+  EraEngine:                 { placeholder: "What historical era should I design?", example: "e.g. The Age of Hollow Crowns — when every ruler was secretly controlled by the same ancient council" },
 };
 
 // ─── Status Dot ─────────────────────────────────────────────────────────────────

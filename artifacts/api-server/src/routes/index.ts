@@ -18,6 +18,7 @@ import tractionRouter from "./traction";
 import metricsRouter from "./metrics";
 import opportunitiesRouter from "./opportunities";
 import imaginationRouter from "./imagination";
+import loreforgeRouter from "./loreforge";
 
 const router: IRouter = Router();
 
@@ -40,5 +41,6 @@ router.use("/traction", tractionRouter);
 router.use("/metrics",  metricsRouter);
 router.use("/opportunities", opportunitiesRouter);
 router.use("/imagination",   imaginationRouter);
+router.use("/loreforge",     loreforgeRouter);
 
 export default router;

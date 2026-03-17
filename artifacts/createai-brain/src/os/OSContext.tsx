@@ -9,7 +9,7 @@ export type AppId =
   | "business" | "entity" | "bizcreator" | "bizdev" | "projbuilder" | "projos"
   | "notifications" | "brainhub"
   | "researchhub" | "learningcenter" | "personastudio" | "datastudio" | "pricingstudio"
-  | "traction" | "opportunity" | "imaginationlab";
+  | "traction" | "opportunity" | "imaginationlab" | "loreforge";
 
 export interface AppDef {
   id: AppId;
@@ -50,7 +50,8 @@ export const DEFAULT_APPS: AppDef[] = [
   { id: "pricingstudio",  label: "Pricing Studio",  icon: "💰", color: "#FFD60A", description: "Pricing strategy, packaging, and feedback frameworks — powered by Pricing and Feedback engines", category: "business" },
   { id: "traction",       label: "Traction",        icon: "📈", color: "#10b981", description: "Real traction signals, retention curves, growth analytics, and expansion velocity — all based on actual system activity", category: "system" },
   { id: "opportunity",    label: "Opportunities",    icon: "🎯", color: "#f59e0b", description: "Discover, score, and pursue high-value opportunities with AI intelligence, pipeline management, and strategic scanning", category: "business" },
-  { id: "imaginationlab", label: "ImaginationLab",   icon: "✨", color: "#8b5cf6", description: "11 creative engines for story, character, world-building, creatures, superpowers, quests, and fictional technology — all safe, fictional, and family-friendly", category: "tools" },
+  { id: "imaginationlab", label: "ImaginationLab",   icon: "✨", color: "#8b5cf6", description: "13 creative engines for story, character, world-building, creatures, superpowers, quests, dreamscapes, and magic systems — safe and fictional", category: "tools" },
+  { id: "loreforge",     label: "LoreForge",         icon: "📜", color: "#d97706", description: "Deep lore creation studio — mythology, religion, ancient history, prophecies, factions, languages, curses, relics, and cosmology for fictional worlds", category: "tools" },
 ];
 
 export const ALL_APPS = DEFAULT_APPS;
@@ -109,7 +110,8 @@ const INTENT_MAP: { keywords: string[]; target: AppId }[] = [
   { keywords: ["notification", "alert", "inbox", "updates"],              target: "notifications" },
   { keywords: ["brain hub", "capability", "engines", "meta-agent", "oracle", "forge", "nexus", "sentinel", "pulse", "vector", "series", "omega", "phi"], target: "brainhub" },
   { keywords: ["opportunity", "opportunities", "opportunity engine", "opp", "pipeline", "discover opportunities", "scan opportunities", "opportunity score", "market opportunity", "revenue opportunity", "partnership opportunity"], target: "opportunity" },
-  { keywords: ["imagination", "imaginationlab", "story", "character", "worldbuilding", "creature", "superpower", "adventure", "comic", "quest", "fiction", "game idea", "creative", "storytelling", "world builder", "imagine"], target: "imaginationlab" },
+  { keywords: ["imagination", "imaginationlab", "story", "character", "worldbuilding", "creature", "superpower", "adventure", "comic", "quest", "fiction", "game idea", "creative", "storytelling", "world builder", "imagine", "dreamscape", "magic system"], target: "imaginationlab" },
+  { keywords: ["loreforge", "lore", "mythology", "prophecy", "legend", "religion", "ancient history", "faction", "language engine", "curse", "prophet", "relic", "lorekeeper", "cosmology", "era", "pantheon", "deep lore"], target: "loreforge" },
   { keywords: ["money", "monetize", "revenue", "earn", "funnel", "offer"],target: "monetization" },
   { keywords: ["admin", "settings", "control", "mode", "user"],           target: "admin" },
   { keywords: ["family", "home", "personal"],                              target: "family" },
@@ -161,6 +163,7 @@ const APP_META: Record<AppId, { icon: string; label: string }> = {
   traction:       { icon: "📈", label: "Traction" },
   opportunity:    { icon: "🎯", label: "Opportunities" },
   imaginationlab: { icon: "✨", label: "ImaginationLab" },
+  loreforge:      { icon: "📜", label: "LoreForge" },
 };
 
 // ─── OS Context value ───────────────────────────────────────────────────────
