@@ -2,7 +2,14 @@
 
 ## Real Data Platform (COMPLETE — No mock/demo data anywhere)
 
-### DB Tables (18 total — all pushed to PostgreSQL)
+### Legal Practice Manager Artifact (`/legal-pm/`)
+- **LexOS** — standalone legal PM app for attorneys (no auth required — open access)
+- **Pages**: Dashboard, Matters, Clients, Time & Expenses, Billing, Tasks
+- **API routes**: `/api/legal/*` — 28 routes across 7 resource types (no auth guards)
+- **Stack**: React + Vite + Wouter + React Query + Framer Motion + Recharts
+- **Seeded data**: 3 clients (Alice Reynolds, Acme Corp, Bob Nakamura), 4 matters, 5 time entries, 6 tasks, 4 notes, 1 invoice
+
+### DB Tables (25 total — all pushed to PostgreSQL)
 - `users` — auth + NDA state
 - `sessions` — session KV store
 - `projects` — user-scoped projects (`status`: active/archived, `archivedAt`)

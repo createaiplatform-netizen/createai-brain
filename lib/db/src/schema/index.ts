@@ -35,3 +35,4 @@ export * from "./visualworld_sessions";
 export * from "./religionforge_sessions";
 export * from "./cosmologyforge_sessions";
 export * from "./gameworld_sessions";
+export * from "./legal";

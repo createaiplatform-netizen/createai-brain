@@ -1,0 +1,31 @@
+kind = "web"
+previewPath = "/legal-pm/"
+title = "Legal Practice Manager"
+version = "1.0.0"
+id = "artifacts/legal-pm"
+router = "path"
+
+[[integratedSkills]]
+name = "react-vite"
+version = "1.0.0"
+
+[[services]]
+localPort = 22798
+name = "web"
+paths = ["/legal-pm/"]
+
+[services.development]
+run = "pnpm --filter @workspace/legal-pm run dev"
+
+[services.env]
+PORT = "22798"
+BASE_PATH = "/legal-pm/"
+
+[services.production]
+build = ["pnpm", "--filter", "@workspace/legal-pm", "run", "build"]
+publicDir = "artifacts/legal-pm/dist/public"
+serve = "static"
+
+[[services.production.rewrites]]
+from = "/*"
+to = "/index.html"

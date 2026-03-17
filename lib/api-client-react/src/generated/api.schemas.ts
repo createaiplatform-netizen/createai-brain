@@ -108,6 +108,274 @@ export interface OpenaiError {
   error: string;
 }
 
+export type LegalClientType =
+  (typeof LegalClientType)[keyof typeof LegalClientType];
+
+export const LegalClientType = {
+  individual: "individual",
+  company: "company",
+} as const;
+
+export interface LegalClient {
+  id: number;
+  name: string;
+  email?: string;
+  phone?: string;
+  address?: string;
+  type: LegalClientType;
+  notes?: string;
+  matterCount?: number;
+  createdAt: string;
+}
+
+export type CreateLegalClientBodyType =
+  (typeof CreateLegalClientBodyType)[keyof typeof CreateLegalClientBodyType];
+
+export const CreateLegalClientBodyType = {
+  individual: "individual",
+  company: "company",
+} as const;
+
+export interface CreateLegalClientBody {
+  name: string;
+  email?: string;
+  phone?: string;
+  address?: string;
+  type: CreateLegalClientBodyType;
+  notes?: string;
+}
+
+export type LegalMatterStatus =
+  (typeof LegalMatterStatus)[keyof typeof LegalMatterStatus];
+
+export const LegalMatterStatus = {
+  open: "open",
+  pending: "pending",
+  closed: "closed",
+  on_hold: "on_hold",
+} as const;
+
+export type LegalMatterBillingType =
+  (typeof LegalMatterBillingType)[keyof typeof LegalMatterBillingType];
+
+export const LegalMatterBillingType = {
+  hourly: "hourly",
+  flat_fee: "flat_fee",
+  contingency: "contingency",
+  retainer: "retainer",
+} as const;
+
+export interface LegalMatter {
+  id: number;
+  clientId: number;
+  clientName?: string;
+  title: string;
+  type: string;
+  status: LegalMatterStatus;
+  description?: string;
+  billingType: LegalMatterBillingType;
+  hourlyRate?: number;
+  flatFee?: number;
+  openedAt?: string;
+  closedAt?: string;
+  totalHours?: number;
+  totalBilled?: number;
+  createdAt: string;
+}
+
+export interface TimeEntry {
+  id: number;
+  matterId: number;
+  matterTitle?: string;
+  clientName?: string;
+  description: string;
+  hours: number;
+  rate: number;
+  amount: number;
+  date: string;
+  isBilled: boolean;
+  invoiceId?: number;
+  createdAt: string;
+}
+
+export type LegalTaskPriority =
+  (typeof LegalTaskPriority)[keyof typeof LegalTaskPriority];
+
+export const LegalTaskPriority = {
+  low: "low",
+  medium: "medium",
+  high: "high",
+  urgent: "urgent",
+} as const;
+
+export interface LegalTask {
+  id: number;
+  matterId: number;
+  matterTitle?: string;
+  title: string;
+  description?: string;
+  priority: LegalTaskPriority;
+  isCompleted: boolean;
+  dueAt?: string;
+  completedAt?: string;
+  createdAt: string;
+}
+
+export interface LegalNote {
+  id: number;
+  matterId: number;
+  content: string;
+  createdAt: string;
+  updatedAt: string;
+}
+
+export type LegalMatterDetail = LegalMatter & {
+  timeEntries: TimeEntry[];
+  tasks: LegalTask[];
+  notes: LegalNote[];
+};
+
+export type CreateLegalMatterBodyStatus =
+  (typeof CreateLegalMatterBodyStatus)[keyof typeof CreateLegalMatterBodyStatus];
+
+export const CreateLegalMatterBodyStatus = {
+  open: "open",
+  pending: "pending",
+  closed: "closed",
+  on_hold: "on_hold",
+} as const;
+
+export type CreateLegalMatterBodyBillingType =
+  (typeof CreateLegalMatterBodyBillingType)[keyof typeof CreateLegalMatterBodyBillingType];
+
+export const CreateLegalMatterBodyBillingType = {
+  hourly: "hourly",
+  flat_fee: "flat_fee",
+  contingency: "contingency",
+  retainer: "retainer",
+} as const;
+
+export interface CreateLegalMatterBody {
+  clientId: number;
+  title: string;
+  type: string;
+  status: CreateLegalMatterBodyStatus;
+  description?: string;
+  billingType: CreateLegalMatterBodyBillingType;
+  hourlyRate?: number;
+  flatFee?: number;
+  openedAt?: string;
+}
+
+export interface CreateTimeEntryBody {
+  matterId: number;
+  description: string;
+  hours: number;
+  rate: number;
+  date: string;
+  isBilled?: boolean;
+}
+
+export type LegalInvoiceStatus =
+  (typeof LegalInvoiceStatus)[keyof typeof LegalInvoiceStatus];
+
+export const LegalInvoiceStatus = {
+  draft: "draft",
+  sent: "sent",
+  paid: "paid",
+  overdue: "overdue",
+  cancelled: "cancelled",
+} as const;
+
+export interface InvoiceItem {
+  id: number;
+  invoiceId: number;
+  description: string;
+  quantity: number;
+  rate: number;
+  amount: number;
+}
+
+export interface LegalInvoice {
+  id: number;
+  clientId: number;
+  clientName?: string;
+  matterId?: number;
+  matterTitle?: string;
+  invoiceNumber: string;
+  status: LegalInvoiceStatus;
+  total: number;
+  notes?: string;
+  issuedAt?: string;
+  dueAt?: string;
+  paidAt?: string;
+  items?: InvoiceItem[];
+  createdAt: string;
+}
+
+export interface CreateInvoiceBody {
+  clientId: number;
+  matterId?: number;
+  notes?: string;
+  dueAt?: string;
+  timeEntryIds?: number[];
+}
+
+export type UpdateInvoiceBodyStatus =
+  (typeof UpdateInvoiceBodyStatus)[keyof typeof UpdateInvoiceBodyStatus];
+
+export const UpdateInvoiceBodyStatus = {
+  draft: "draft",
+  sent: "sent",
+  paid: "paid",
+  overdue: "overdue",
+  cancelled: "cancelled",
+} as const;
+
+export interface UpdateInvoiceBody {
+  status: UpdateInvoiceBodyStatus;
+  notes?: string;
+  dueAt?: string;
+  paidAt?: string;
+}
+
+export type CreateLegalTaskBodyPriority =
+  (typeof CreateLegalTaskBodyPriority)[keyof typeof CreateLegalTaskBodyPriority];
+
+export const CreateLegalTaskBodyPriority = {
+  low: "low",
+  medium: "medium",
+  high: "high",
+  urgent: "urgent",
+} as const;
+
+export interface CreateLegalTaskBody {
+  matterId: number;
+  title: string;
+  description?: string;
+  priority: CreateLegalTaskBodyPriority;
+  isCompleted?: boolean;
+  dueAt?: string;
+}
+
+export interface CreateLegalNoteBody {
+  matterId: number;
+  content: string;
+}
+
+export interface LegalDashboard {
+  totalClients: number;
+  totalMatters: number;
+  openMatters: number;
+  totalHoursThisMonth: number;
+  unbilledHours: number;
+  unbilledAmount: number;
+  totalBilledThisMonth: number;
+  overdueInvoices: number;
+  upcomingTasks: LegalTask[];
+  recentMatters: LegalMatter[];
+}
+
 export type AuthorizationSessionHeaderParameter = string;
 
 export type BeginBrowserLoginParams = {
@@ -118,4 +386,40 @@ export type HandleBrowserLoginCallbackParams = {
   code?: string;
   state?: string;
   iss?: string;
+};
+
+export type ListLegalClients200 = {
+  clients: LegalClient[];
+};
+
+export type ListLegalMatters200 = {
+  matters: LegalMatter[];
+};
+
+export type ListTimeEntriesParams = {
+  matterId?: number;
+};
+
+export type ListTimeEntries200 = {
+  entries: TimeEntry[];
+};
+
+export type ListInvoices200 = {
+  invoices: LegalInvoice[];
+};
+
+export type ListLegalTasksParams = {
+  matterId?: number;
+};
+
+export type ListLegalTasks200 = {
+  tasks: LegalTask[];
+};
+
+export type ListLegalNotesParams = {
+  matterId: number;
+};
+
+export type ListLegalNotes200 = {
+  notes: LegalNote[];
 };

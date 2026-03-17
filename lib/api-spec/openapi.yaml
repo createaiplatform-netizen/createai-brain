@@ -298,6 +298,517 @@ paths:
             application/json:
               schema:
                 $ref: '#/components/schemas/LogoutSuccess'
+  /legal/dashboard:
+    get:
+      operationId: getLegalDashboard
+      tags: [legal]
+      summary: Get dashboard stats
+      responses:
+        "200":
+          description: Dashboard statistics
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/LegalDashboard"
+  /legal/clients:
+    get:
+      operationId: listLegalClients
+      tags: [legal]
+      summary: List all clients
+      responses:
+        "200":
+          description: List of clients
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  clients:
+                    type: array
+                    items:
+                      $ref: "#/components/schemas/LegalClient"
+                required: [clients]
+    post:
+      operationId: createLegalClient
+      tags: [legal]
+      summary: Create a client
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/CreateLegalClientBody"
+      responses:
+        "201":
+          description: Created client
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/LegalClient"
+  /legal/clients/{id}:
+    get:
+      operationId: getLegalClient
+      tags: [legal]
+      summary: Get a client
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: integer
+      responses:
+        "200":
+          description: Client
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/LegalClient"
+    put:
+      operationId: updateLegalClient
+      tags: [legal]
+      summary: Update a client
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: integer
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/CreateLegalClientBody"
+      responses:
+        "200":
+          description: Updated client
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/LegalClient"
+    delete:
+      operationId: deleteLegalClient
+      tags: [legal]
+      summary: Delete a client
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: integer
+      responses:
+        "204":
+          description: Deleted
+  /legal/matters:
+    get:
+      operationId: listLegalMatters
+      tags: [legal]
+      summary: List all matters
+      responses:
+        "200":
+          description: List of matters
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  matters:
+                    type: array
+                    items:
+                      $ref: "#/components/schemas/LegalMatter"
+                required: [matters]
+    post:
+      operationId: createLegalMatter
+      tags: [legal]
+      summary: Create a matter
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/CreateLegalMatterBody"
+      responses:
+        "201":
+          description: Created matter
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/LegalMatter"
+  /legal/matters/{id}:
+    get:
+      operationId: getLegalMatter
+      tags: [legal]
+      summary: Get a matter with time entries and tasks
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: integer
+      responses:
+        "200":
+          description: Matter detail
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/LegalMatterDetail"
+    put:
+      operationId: updateLegalMatter
+      tags: [legal]
+      summary: Update a matter
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: integer
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/CreateLegalMatterBody"
+      responses:
+        "200":
+          description: Updated matter
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/LegalMatter"
+    delete:
+      operationId: deleteLegalMatter
+      tags: [legal]
+      summary: Delete a matter
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: integer
+      responses:
+        "204":
+          description: Deleted
+  /legal/time-entries:
+    get:
+      operationId: listTimeEntries
+      tags: [legal]
+      summary: List time entries
+      parameters:
+        - name: matterId
+          in: query
+          schema:
+            type: integer
+      responses:
+        "200":
+          description: List of time entries
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  entries:
+                    type: array
+                    items:
+                      $ref: "#/components/schemas/TimeEntry"
+                required: [entries]
+    post:
+      operationId: createTimeEntry
+      tags: [legal]
+      summary: Create a time entry
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/CreateTimeEntryBody"
+      responses:
+        "201":
+          description: Created time entry
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/TimeEntry"
+  /legal/time-entries/{id}:
+    put:
+      operationId: updateTimeEntry
+      tags: [legal]
+      summary: Update a time entry
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: integer
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/CreateTimeEntryBody"
+      responses:
+        "200":
+          description: Updated
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/TimeEntry"
+    delete:
+      operationId: deleteTimeEntry
+      tags: [legal]
+      summary: Delete a time entry
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: integer
+      responses:
+        "204":
+          description: Deleted
+  /legal/invoices:
+    get:
+      operationId: listInvoices
+      tags: [legal]
+      summary: List invoices
+      responses:
+        "200":
+          description: List of invoices
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  invoices:
+                    type: array
+                    items:
+                      $ref: "#/components/schemas/LegalInvoice"
+                required: [invoices]
+    post:
+      operationId: createInvoice
+      tags: [legal]
+      summary: Create an invoice
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/CreateInvoiceBody"
+      responses:
+        "201":
+          description: Created invoice
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/LegalInvoice"
+  /legal/invoices/{id}:
+    get:
+      operationId: getInvoice
+      tags: [legal]
+      summary: Get an invoice
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: integer
+      responses:
+        "200":
+          description: Invoice
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/LegalInvoice"
+    put:
+      operationId: updateInvoice
+      tags: [legal]
+      summary: Update invoice status
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: integer
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/UpdateInvoiceBody"
+      responses:
+        "200":
+          description: Updated invoice
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/LegalInvoice"
+    delete:
+      operationId: deleteInvoice
+      tags: [legal]
+      summary: Delete an invoice
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: integer
+      responses:
+        "204":
+          description: Deleted
+  /legal/tasks:
+    get:
+      operationId: listLegalTasks
+      tags: [legal]
+      summary: List tasks
+      parameters:
+        - name: matterId
+          in: query
+          schema:
+            type: integer
+      responses:
+        "200":
+          description: List of tasks
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  tasks:
+                    type: array
+                    items:
+                      $ref: "#/components/schemas/LegalTask"
+                required: [tasks]
+    post:
+      operationId: createLegalTask
+      tags: [legal]
+      summary: Create a task
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/CreateLegalTaskBody"
+      responses:
+        "201":
+          description: Created task
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/LegalTask"
+  /legal/tasks/{id}:
+    put:
+      operationId: updateLegalTask
+      tags: [legal]
+      summary: Update a task
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: integer
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/CreateLegalTaskBody"
+      responses:
+        "200":
+          description: Updated task
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/LegalTask"
+    delete:
+      operationId: deleteLegalTask
+      tags: [legal]
+      summary: Delete a task
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: integer
+      responses:
+        "204":
+          description: Deleted
+  /legal/notes:
+    get:
+      operationId: listLegalNotes
+      tags: [legal]
+      summary: List notes for a matter
+      parameters:
+        - name: matterId
+          in: query
+          required: true
+          schema:
+            type: integer
+      responses:
+        "200":
+          description: List of notes
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  notes:
+                    type: array
+                    items:
+                      $ref: "#/components/schemas/LegalNote"
+                required: [notes]
+    post:
+      operationId: createLegalNote
+      tags: [legal]
+      summary: Create a note
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/CreateLegalNoteBody"
+      responses:
+        "201":
+          description: Created note
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/LegalNote"
+  /legal/notes/{id}:
+    put:
+      operationId: updateLegalNote
+      tags: [legal]
+      summary: Update a note
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: integer
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/CreateLegalNoteBody"
+      responses:
+        "200":
+          description: Updated note
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/LegalNote"
+    delete:
+      operationId: deleteLegalNote
+      tags: [legal]
+      summary: Delete a note
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: integer
+      responses:
+        "204":
+          description: Deleted
 components:
   parameters:
     AuthorizationSessionHeader:
@@ -492,3 +1003,358 @@ components:
           type: string
       required:
         - error
+    LegalClient:
+      type: object
+      properties:
+        id:
+          type: integer
+        name:
+          type: string
+        email:
+          type: string
+        phone:
+          type: string
+        address:
+          type: string
+        type:
+          type: string
+          enum: [individual, company]
+        notes:
+          type: string
+        matterCount:
+          type: integer
+        createdAt:
+          type: string
+          format: date-time
+      required: [id, name, type, createdAt]
+    CreateLegalClientBody:
+      type: object
+      properties:
+        name:
+          type: string
+        email:
+          type: string
+        phone:
+          type: string
+        address:
+          type: string
+        type:
+          type: string
+          enum: [individual, company]
+        notes:
+          type: string
+      required: [name, type]
+    LegalMatter:
+      type: object
+      properties:
+        id:
+          type: integer
+        clientId:
+          type: integer
+        clientName:
+          type: string
+        title:
+          type: string
+        type:
+          type: string
+        status:
+          type: string
+          enum: [open, pending, closed, on_hold]
+        description:
+          type: string
+        billingType:
+          type: string
+          enum: [hourly, flat_fee, contingency, retainer]
+        hourlyRate:
+          type: number
+        flatFee:
+          type: number
+        openedAt:
+          type: string
+          format: date-time
+        closedAt:
+          type: string
+          format: date-time
+        totalHours:
+          type: number
+        totalBilled:
+          type: number
+        createdAt:
+          type: string
+          format: date-time
+      required: [id, clientId, title, type, status, billingType, createdAt]
+    LegalMatterDetail:
+      allOf:
+        - $ref: "#/components/schemas/LegalMatter"
+        - type: object
+          properties:
+            timeEntries:
+              type: array
+              items:
+                $ref: "#/components/schemas/TimeEntry"
+            tasks:
+              type: array
+              items:
+                $ref: "#/components/schemas/LegalTask"
+            notes:
+              type: array
+              items:
+                $ref: "#/components/schemas/LegalNote"
+          required: [timeEntries, tasks, notes]
+    CreateLegalMatterBody:
+      type: object
+      properties:
+        clientId:
+          type: integer
+        title:
+          type: string
+        type:
+          type: string
+        status:
+          type: string
+          enum: [open, pending, closed, on_hold]
+        description:
+          type: string
+        billingType:
+          type: string
+          enum: [hourly, flat_fee, contingency, retainer]
+        hourlyRate:
+          type: number
+        flatFee:
+          type: number
+        openedAt:
+          type: string
+          format: date-time
+      required: [clientId, title, type, status, billingType]
+    TimeEntry:
+      type: object
+      properties:
+        id:
+          type: integer
+        matterId:
+          type: integer
+        matterTitle:
+          type: string
+        clientName:
+          type: string
+        description:
+          type: string
+        hours:
+          type: number
+        rate:
+          type: number
+        amount:
+          type: number
+        date:
+          type: string
+          format: date-time
+        isBilled:
+          type: boolean
+        invoiceId:
+          type: integer
+        createdAt:
+          type: string
+          format: date-time
+      required: [id, matterId, description, hours, rate, amount, date, isBilled, createdAt]
+    CreateTimeEntryBody:
+      type: object
+      properties:
+        matterId:
+          type: integer
+        description:
+          type: string
+        hours:
+          type: number
+        rate:
+          type: number
+        date:
+          type: string
+          format: date-time
+        isBilled:
+          type: boolean
+      required: [matterId, description, hours, rate, date]
+    LegalInvoice:
+      type: object
+      properties:
+        id:
+          type: integer
+        clientId:
+          type: integer
+        clientName:
+          type: string
+        matterId:
+          type: integer
+        matterTitle:
+          type: string
+        invoiceNumber:
+          type: string
+        status:
+          type: string
+          enum: [draft, sent, paid, overdue, cancelled]
+        total:
+          type: number
+        notes:
+          type: string
+        issuedAt:
+          type: string
+          format: date-time
+        dueAt:
+          type: string
+          format: date-time
+        paidAt:
+          type: string
+          format: date-time
+        items:
+          type: array
+          items:
+            $ref: "#/components/schemas/InvoiceItem"
+        createdAt:
+          type: string
+          format: date-time
+      required: [id, clientId, invoiceNumber, status, total, createdAt]
+    InvoiceItem:
+      type: object
+      properties:
+        id:
+          type: integer
+        invoiceId:
+          type: integer
+        description:
+          type: string
+        quantity:
+          type: number
+        rate:
+          type: number
+        amount:
+          type: number
+      required: [id, invoiceId, description, quantity, rate, amount]
+    CreateInvoiceBody:
+      type: object
+      properties:
+        clientId:
+          type: integer
+        matterId:
+          type: integer
+        notes:
+          type: string
+        dueAt:
+          type: string
+          format: date-time
+        timeEntryIds:
+          type: array
+          items:
+            type: integer
+      required: [clientId]
+    UpdateInvoiceBody:
+      type: object
+      properties:
+        status:
+          type: string
+          enum: [draft, sent, paid, overdue, cancelled]
+        notes:
+          type: string
+        dueAt:
+          type: string
+          format: date-time
+        paidAt:
+          type: string
+          format: date-time
+      required: [status]
+    LegalTask:
+      type: object
+      properties:
+        id:
+          type: integer
+        matterId:
+          type: integer
+        matterTitle:
+          type: string
+        title:
+          type: string
+        description:
+          type: string
+        priority:
+          type: string
+          enum: [low, medium, high, urgent]
+        isCompleted:
+          type: boolean
+        dueAt:
+          type: string
+          format: date-time
+        completedAt:
+          type: string
+          format: date-time
+        createdAt:
+          type: string
+          format: date-time
+      required: [id, matterId, title, priority, isCompleted, createdAt]
+    CreateLegalTaskBody:
+      type: object
+      properties:
+        matterId:
+          type: integer
+        title:
+          type: string
+        description:
+          type: string
+        priority:
+          type: string
+          enum: [low, medium, high, urgent]
+        isCompleted:
+          type: boolean
+        dueAt:
+          type: string
+          format: date-time
+      required: [matterId, title, priority]
+    LegalNote:
+      type: object
+      properties:
+        id:
+          type: integer
+        matterId:
+          type: integer
+        content:
+          type: string
+        createdAt:
+          type: string
+          format: date-time
+        updatedAt:
+          type: string
+          format: date-time
+      required: [id, matterId, content, createdAt, updatedAt]
+    CreateLegalNoteBody:
+      type: object
+      properties:
+        matterId:
+          type: integer
+        content:
+          type: string
+      required: [matterId, content]
+    LegalDashboard:
+      type: object
+      properties:
+        totalClients:
+          type: integer
+        totalMatters:
+          type: integer
+        openMatters:
+          type: integer
+        totalHoursThisMonth:
+          type: number
+        unbilledHours:
+          type: number
+        unbilledAmount:
+          type: number
+        totalBilledThisMonth:
+          type: number
+        overdueInvoices:
+          type: integer
+        upcomingTasks:
+          type: array
+          items:
+            $ref: "#/components/schemas/LegalTask"
+        recentMatters:
+          type: array
+          items:
+            $ref: "#/components/schemas/LegalMatter"
+      required: [totalClients, totalMatters, openMatters, totalHoursThisMonth, unbilledHours, unbilledAmount, totalBilledThisMonth, overdueInvoices, upcomingTasks, recentMatters]

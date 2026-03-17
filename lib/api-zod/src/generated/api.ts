@@ -197,3 +197,620 @@ export const LogoutMobileSessionHeader = zod.object({
 export const LogoutMobileSessionResponse = zod.object({
   success: zod.boolean(),
 });
+
+/**
+ * @summary Get dashboard stats
+ */
+export const GetLegalDashboardResponse = zod.object({
+  totalClients: zod.number(),
+  totalMatters: zod.number(),
+  openMatters: zod.number(),
+  totalHoursThisMonth: zod.number(),
+  unbilledHours: zod.number(),
+  unbilledAmount: zod.number(),
+  totalBilledThisMonth: zod.number(),
+  overdueInvoices: zod.number(),
+  upcomingTasks: zod.array(
+    zod.object({
+      id: zod.number(),
+      matterId: zod.number(),
+      matterTitle: zod.string().optional(),
+      title: zod.string(),
+      description: zod.string().optional(),
+      priority: zod.enum(["low", "medium", "high", "urgent"]),
+      isCompleted: zod.boolean(),
+      dueAt: zod.date().optional(),
+      completedAt: zod.date().optional(),
+      createdAt: zod.date(),
+    }),
+  ),
+  recentMatters: zod.array(
+    zod.object({
+      id: zod.number(),
+      clientId: zod.number(),
+      clientName: zod.string().optional(),
+      title: zod.string(),
+      type: zod.string(),
+      status: zod.enum(["open", "pending", "closed", "on_hold"]),
+      description: zod.string().optional(),
+      billingType: zod.enum(["hourly", "flat_fee", "contingency", "retainer"]),
+      hourlyRate: zod.number().optional(),
+      flatFee: zod.number().optional(),
+      openedAt: zod.date().optional(),
+      closedAt: zod.date().optional(),
+      totalHours: zod.number().optional(),
+      totalBilled: zod.number().optional(),
+      createdAt: zod.date(),
+    }),
+  ),
+});
+
+/**
+ * @summary List all clients
+ */
+export const ListLegalClientsResponse = zod.object({
+  clients: zod.array(
+    zod.object({
+      id: zod.number(),
+      name: zod.string(),
+      email: zod.string().optional(),
+      phone: zod.string().optional(),
+      address: zod.string().optional(),
+      type: zod.enum(["individual", "company"]),
+      notes: zod.string().optional(),
+      matterCount: zod.number().optional(),
+      createdAt: zod.date(),
+    }),
+  ),
+});
+
+/**
+ * @summary Create a client
+ */
+export const CreateLegalClientBody = zod.object({
+  name: zod.string(),
+  email: zod.string().optional(),
+  phone: zod.string().optional(),
+  address: zod.string().optional(),
+  type: zod.enum(["individual", "company"]),
+  notes: zod.string().optional(),
+});
+
+/**
+ * @summary Get a client
+ */
+export const GetLegalClientParams = zod.object({
+  id: zod.coerce.number(),
+});
+
+export const GetLegalClientResponse = zod.object({
+  id: zod.number(),
+  name: zod.string(),
+  email: zod.string().optional(),
+  phone: zod.string().optional(),
+  address: zod.string().optional(),
+  type: zod.enum(["individual", "company"]),
+  notes: zod.string().optional(),
+  matterCount: zod.number().optional(),
+  createdAt: zod.date(),
+});
+
+/**
+ * @summary Update a client
+ */
+export const UpdateLegalClientParams = zod.object({
+  id: zod.coerce.number(),
+});
+
+export const UpdateLegalClientBody = zod.object({
+  name: zod.string(),
+  email: zod.string().optional(),
+  phone: zod.string().optional(),
+  address: zod.string().optional(),
+  type: zod.enum(["individual", "company"]),
+  notes: zod.string().optional(),
+});
+
+export const UpdateLegalClientResponse = zod.object({
+  id: zod.number(),
+  name: zod.string(),
+  email: zod.string().optional(),
+  phone: zod.string().optional(),
+  address: zod.string().optional(),
+  type: zod.enum(["individual", "company"]),
+  notes: zod.string().optional(),
+  matterCount: zod.number().optional(),
+  createdAt: zod.date(),
+});
+
+/**
+ * @summary Delete a client
+ */
+export const DeleteLegalClientParams = zod.object({
+  id: zod.coerce.number(),
+});
+
+/**
+ * @summary List all matters
+ */
+export const ListLegalMattersResponse = zod.object({
+  matters: zod.array(
+    zod.object({
+      id: zod.number(),
+      clientId: zod.number(),
+      clientName: zod.string().optional(),
+      title: zod.string(),
+      type: zod.string(),
+      status: zod.enum(["open", "pending", "closed", "on_hold"]),
+      description: zod.string().optional(),
+      billingType: zod.enum(["hourly", "flat_fee", "contingency", "retainer"]),
+      hourlyRate: zod.number().optional(),
+      flatFee: zod.number().optional(),
+      openedAt: zod.date().optional(),
+      closedAt: zod.date().optional(),
+      totalHours: zod.number().optional(),
+      totalBilled: zod.number().optional(),
+      createdAt: zod.date(),
+    }),
+  ),
+});
+
+/**
+ * @summary Create a matter
+ */
+export const CreateLegalMatterBody = zod.object({
+  clientId: zod.number(),
+  title: zod.string(),
+  type: zod.string(),
+  status: zod.enum(["open", "pending", "closed", "on_hold"]),
+  description: zod.string().optional(),
+  billingType: zod.enum(["hourly", "flat_fee", "contingency", "retainer"]),
+  hourlyRate: zod.number().optional(),
+  flatFee: zod.number().optional(),
+  openedAt: zod.date().optional(),
+});
+
+/**
+ * @summary Get a matter with time entries and tasks
+ */
+export const GetLegalMatterParams = zod.object({
+  id: zod.coerce.number(),
+});
+
+export const GetLegalMatterResponse = zod
+  .object({
+    id: zod.number(),
+    clientId: zod.number(),
+    clientName: zod.string().optional(),
+    title: zod.string(),
+    type: zod.string(),
+    status: zod.enum(["open", "pending", "closed", "on_hold"]),
+    description: zod.string().optional(),
+    billingType: zod.enum(["hourly", "flat_fee", "contingency", "retainer"]),
+    hourlyRate: zod.number().optional(),
+    flatFee: zod.number().optional(),
+    openedAt: zod.date().optional(),
+    closedAt: zod.date().optional(),
+    totalHours: zod.number().optional(),
+    totalBilled: zod.number().optional(),
+    createdAt: zod.date(),
+  })
+  .and(
+    zod.object({
+      timeEntries: zod.array(
+        zod.object({
+          id: zod.number(),
+          matterId: zod.number(),
+          matterTitle: zod.string().optional(),
+          clientName: zod.string().optional(),
+          description: zod.string(),
+          hours: zod.number(),
+          rate: zod.number(),
+          amount: zod.number(),
+          date: zod.date(),
+          isBilled: zod.boolean(),
+          invoiceId: zod.number().optional(),
+          createdAt: zod.date(),
+        }),
+      ),
+      tasks: zod.array(
+        zod.object({
+          id: zod.number(),
+          matterId: zod.number(),
+          matterTitle: zod.string().optional(),
+          title: zod.string(),
+          description: zod.string().optional(),
+          priority: zod.enum(["low", "medium", "high", "urgent"]),
+          isCompleted: zod.boolean(),
+          dueAt: zod.date().optional(),
+          completedAt: zod.date().optional(),
+          createdAt: zod.date(),
+        }),
+      ),
+      notes: zod.array(
+        zod.object({
+          id: zod.number(),
+          matterId: zod.number(),
+          content: zod.string(),
+          createdAt: zod.date(),
+          updatedAt: zod.date(),
+        }),
+      ),
+    }),
+  );
+
+/**
+ * @summary Update a matter
+ */
+export const UpdateLegalMatterParams = zod.object({
+  id: zod.coerce.number(),
+});
+
+export const UpdateLegalMatterBody = zod.object({
+  clientId: zod.number(),
+  title: zod.string(),
+  type: zod.string(),
+  status: zod.enum(["open", "pending", "closed", "on_hold"]),
+  description: zod.string().optional(),
+  billingType: zod.enum(["hourly", "flat_fee", "contingency", "retainer"]),
+  hourlyRate: zod.number().optional(),
+  flatFee: zod.number().optional(),
+  openedAt: zod.date().optional(),
+});
+
+export const UpdateLegalMatterResponse = zod.object({
+  id: zod.number(),
+  clientId: zod.number(),
+  clientName: zod.string().optional(),
+  title: zod.string(),
+  type: zod.string(),
+  status: zod.enum(["open", "pending", "closed", "on_hold"]),
+  description: zod.string().optional(),
+  billingType: zod.enum(["hourly", "flat_fee", "contingency", "retainer"]),
+  hourlyRate: zod.number().optional(),
+  flatFee: zod.number().optional(),
+  openedAt: zod.date().optional(),
+  closedAt: zod.date().optional(),
+  totalHours: zod.number().optional(),
+  totalBilled: zod.number().optional(),
+  createdAt: zod.date(),
+});
+
+/**
+ * @summary Delete a matter
+ */
+export const DeleteLegalMatterParams = zod.object({
+  id: zod.coerce.number(),
+});
+
+/**
+ * @summary List time entries
+ */
+export const ListTimeEntriesQueryParams = zod.object({
+  matterId: zod.coerce.number().optional(),
+});
+
+export const ListTimeEntriesResponse = zod.object({
+  entries: zod.array(
+    zod.object({
+      id: zod.number(),
+      matterId: zod.number(),
+      matterTitle: zod.string().optional(),
+      clientName: zod.string().optional(),
+      description: zod.string(),
+      hours: zod.number(),
+      rate: zod.number(),
+      amount: zod.number(),
+      date: zod.date(),
+      isBilled: zod.boolean(),
+      invoiceId: zod.number().optional(),
+      createdAt: zod.date(),
+    }),
+  ),
+});
+
+/**
+ * @summary Create a time entry
+ */
+export const CreateTimeEntryBody = zod.object({
+  matterId: zod.number(),
+  description: zod.string(),
+  hours: zod.number(),
+  rate: zod.number(),
+  date: zod.date(),
+  isBilled: zod.boolean().optional(),
+});
+
+/**
+ * @summary Update a time entry
+ */
+export const UpdateTimeEntryParams = zod.object({
+  id: zod.coerce.number(),
+});
+
+export const UpdateTimeEntryBody = zod.object({
+  matterId: zod.number(),
+  description: zod.string(),
+  hours: zod.number(),
+  rate: zod.number(),
+  date: zod.date(),
+  isBilled: zod.boolean().optional(),
+});
+
+export const UpdateTimeEntryResponse = zod.object({
+  id: zod.number(),
+  matterId: zod.number(),
+  matterTitle: zod.string().optional(),
+  clientName: zod.string().optional(),
+  description: zod.string(),
+  hours: zod.number(),
+  rate: zod.number(),
+  amount: zod.number(),
+  date: zod.date(),
+  isBilled: zod.boolean(),
+  invoiceId: zod.number().optional(),
+  createdAt: zod.date(),
+});
+
+/**
+ * @summary Delete a time entry
+ */
+export const DeleteTimeEntryParams = zod.object({
+  id: zod.coerce.number(),
+});
+
+/**
+ * @summary List invoices
+ */
+export const ListInvoicesResponse = zod.object({
+  invoices: zod.array(
+    zod.object({
+      id: zod.number(),
+      clientId: zod.number(),
+      clientName: zod.string().optional(),
+      matterId: zod.number().optional(),
+      matterTitle: zod.string().optional(),
+      invoiceNumber: zod.string(),
+      status: zod.enum(["draft", "sent", "paid", "overdue", "cancelled"]),
+      total: zod.number(),
+      notes: zod.string().optional(),
+      issuedAt: zod.date().optional(),
+      dueAt: zod.date().optional(),
+      paidAt: zod.date().optional(),
+      items: zod
+        .array(
+          zod.object({
+            id: zod.number(),
+            invoiceId: zod.number(),
+            description: zod.string(),
+            quantity: zod.number(),
+            rate: zod.number(),
+            amount: zod.number(),
+          }),
+        )
+        .optional(),
+      createdAt: zod.date(),
+    }),
+  ),
+});
+
+/**
+ * @summary Create an invoice
+ */
+export const CreateInvoiceBody = zod.object({
+  clientId: zod.number(),
+  matterId: zod.number().optional(),
+  notes: zod.string().optional(),
+  dueAt: zod.date().optional(),
+  timeEntryIds: zod.array(zod.number()).optional(),
+});
+
+/**
+ * @summary Get an invoice
+ */
+export const GetInvoiceParams = zod.object({
+  id: zod.coerce.number(),
+});
+
+export const GetInvoiceResponse = zod.object({
+  id: zod.number(),
+  clientId: zod.number(),
+  clientName: zod.string().optional(),
+  matterId: zod.number().optional(),
+  matterTitle: zod.string().optional(),
+  invoiceNumber: zod.string(),
+  status: zod.enum(["draft", "sent", "paid", "overdue", "cancelled"]),
+  total: zod.number(),
+  notes: zod.string().optional(),
+  issuedAt: zod.date().optional(),
+  dueAt: zod.date().optional(),
+  paidAt: zod.date().optional(),
+  items: zod
+    .array(
+      zod.object({
+        id: zod.number(),
+        invoiceId: zod.number(),
+        description: zod.string(),
+        quantity: zod.number(),
+        rate: zod.number(),
+        amount: zod.number(),
+      }),
+    )
+    .optional(),
+  createdAt: zod.date(),
+});
+
+/**
+ * @summary Update invoice status
+ */
+export const UpdateInvoiceParams = zod.object({
+  id: zod.coerce.number(),
+});
+
+export const UpdateInvoiceBody = zod.object({
+  status: zod.enum(["draft", "sent", "paid", "overdue", "cancelled"]),
+  notes: zod.string().optional(),
+  dueAt: zod.date().optional(),
+  paidAt: zod.date().optional(),
+});
+
+export const UpdateInvoiceResponse = zod.object({
+  id: zod.number(),
+  clientId: zod.number(),
+  clientName: zod.string().optional(),
+  matterId: zod.number().optional(),
+  matterTitle: zod.string().optional(),
+  invoiceNumber: zod.string(),
+  status: zod.enum(["draft", "sent", "paid", "overdue", "cancelled"]),
+  total: zod.number(),
+  notes: zod.string().optional(),
+  issuedAt: zod.date().optional(),
+  dueAt: zod.date().optional(),
+  paidAt: zod.date().optional(),
+  items: zod
+    .array(
+      zod.object({
+        id: zod.number(),
+        invoiceId: zod.number(),
+        description: zod.string(),
+        quantity: zod.number(),
+        rate: zod.number(),
+        amount: zod.number(),
+      }),
+    )
+    .optional(),
+  createdAt: zod.date(),
+});
+
+/**
+ * @summary Delete an invoice
+ */
+export const DeleteInvoiceParams = zod.object({
+  id: zod.coerce.number(),
+});
+
+/**
+ * @summary List tasks
+ */
+export const ListLegalTasksQueryParams = zod.object({
+  matterId: zod.coerce.number().optional(),
+});
+
+export const ListLegalTasksResponse = zod.object({
+  tasks: zod.array(
+    zod.object({
+      id: zod.number(),
+      matterId: zod.number(),
+      matterTitle: zod.string().optional(),
+      title: zod.string(),
+      description: zod.string().optional(),
+      priority: zod.enum(["low", "medium", "high", "urgent"]),
+      isCompleted: zod.boolean(),
+      dueAt: zod.date().optional(),
+      completedAt: zod.date().optional(),
+      createdAt: zod.date(),
+    }),
+  ),
+});
+
+/**
+ * @summary Create a task
+ */
+export const CreateLegalTaskBody = zod.object({
+  matterId: zod.number(),
+  title: zod.string(),
+  description: zod.string().optional(),
+  priority: zod.enum(["low", "medium", "high", "urgent"]),
+  isCompleted: zod.boolean().optional(),
+  dueAt: zod.date().optional(),
+});
+
+/**
+ * @summary Update a task
+ */
+export const UpdateLegalTaskParams = zod.object({
+  id: zod.coerce.number(),
+});
+
+export const UpdateLegalTaskBody = zod.object({
+  matterId: zod.number(),
+  title: zod.string(),
+  description: zod.string().optional(),
+  priority: zod.enum(["low", "medium", "high", "urgent"]),
+  isCompleted: zod.boolean().optional(),
+  dueAt: zod.date().optional(),
+});
+
+export const UpdateLegalTaskResponse = zod.object({
+  id: zod.number(),
+  matterId: zod.number(),
+  matterTitle: zod.string().optional(),
+  title: zod.string(),
+  description: zod.string().optional(),
+  priority: zod.enum(["low", "medium", "high", "urgent"]),
+  isCompleted: zod.boolean(),
+  dueAt: zod.date().optional(),
+  completedAt: zod.date().optional(),
+  createdAt: zod.date(),
+});
+
+/**
+ * @summary Delete a task
+ */
+export const DeleteLegalTaskParams = zod.object({
+  id: zod.coerce.number(),
+});
+
+/**
+ * @summary List notes for a matter
+ */
+export const ListLegalNotesQueryParams = zod.object({
+  matterId: zod.coerce.number(),
+});
+
+export const ListLegalNotesResponse = zod.object({
+  notes: zod.array(
+    zod.object({
+      id: zod.number(),
+      matterId: zod.number(),
+      content: zod.string(),
+      createdAt: zod.date(),
+      updatedAt: zod.date(),
+    }),
+  ),
+});
+
+/**
+ * @summary Create a note
+ */
+export const CreateLegalNoteBody = zod.object({
+  matterId: zod.number(),
+  content: zod.string(),
+});
+
+/**
+ * @summary Update a note
+ */
+export const UpdateLegalNoteParams = zod.object({
+  id: zod.coerce.number(),
+});
+
+export const UpdateLegalNoteBody = zod.object({
+  matterId: zod.number(),
+  content: zod.string(),
+});
+
+export const UpdateLegalNoteResponse = zod.object({
+  id: zod.number(),
+  matterId: zod.number(),
+  content: zod.string(),
+  createdAt: zod.date(),
+  updatedAt: zod.date(),
+});
+
+/**
+ * @summary Delete a note
+ */
+export const DeleteLegalNoteParams = zod.object({
+  id: zod.coerce.number(),
+});

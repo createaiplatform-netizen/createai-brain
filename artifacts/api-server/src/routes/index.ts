@@ -17,6 +17,7 @@ import membersRouter from "./project_members";
 import tractionRouter from "./traction";
 import metricsRouter from "./metrics";
 import opportunitiesRouter from "./opportunities";
+import legalRouter from "./legal";
 import imaginationRouter from "./imagination";
 import loreforgeRouter from "./loreforge";
 import narratororosRouter from "./narratoros";
@@ -74,5 +75,6 @@ router.use("/visualworld",        visualworldRouter);
 router.use("/religionforge",      religionforgeRouter);
 router.use("/cosmologyforge",     cosmologyforgeRouter);
 router.use("/gameworld",          gameworldRouter);
+router.use("/legal",              legalRouter);
 
 export default router;

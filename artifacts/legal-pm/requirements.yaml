@@ -1,0 +1,13 @@
+packages:
+  "recharts": "For dashboard analytics charts"
+  "date-fns": "For date formatting and manipulation"
+  "framer-motion": "For page transitions and interactive animations"
+  "clsx": "Utility for constructing className strings conditionally"
+  "tailwind-merge": "Utility function to efficiently merge Tailwind CSS classes"
+
+images: []
+
+notes:
+  - "App uses generated React Query hooks from @workspace/api-client-react"
+  - "Shadcn UI components are assumed to be present in src/components/ui"
+  - "The UI relies on a specific CSS variable theme designed for legal software (navy/slate/indigo)"

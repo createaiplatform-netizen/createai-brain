@@ -19,12 +19,34 @@ import type {
 import type {
   AuthUserEnvelope,
   BeginBrowserLoginParams,
+  CreateInvoiceBody,
+  CreateLegalClientBody,
+  CreateLegalMatterBody,
+  CreateLegalNoteBody,
+  CreateLegalTaskBody,
   CreateOpenaiConversationBody,
+  CreateTimeEntryBody,
   ErrorEnvelope,
   GenerateOpenaiImageBody,
   GenerateOpenaiImageResponse,
   HandleBrowserLoginCallbackParams,
   HealthStatus,
+  LegalClient,
+  LegalDashboard,
+  LegalInvoice,
+  LegalMatter,
+  LegalMatterDetail,
+  LegalNote,
+  LegalTask,
+  ListInvoices200,
+  ListLegalClients200,
+  ListLegalMatters200,
+  ListLegalNotes200,
+  ListLegalNotesParams,
+  ListLegalTasks200,
+  ListLegalTasksParams,
+  ListTimeEntries200,
+  ListTimeEntriesParams,
   LogoutSuccess,
   MobileTokenExchangeRequest,
   MobileTokenExchangeSuccess,
@@ -35,6 +57,8 @@ import type {
   SendOpenaiMessageBody,
   SignNdaBody,
   SignNdaResponse,
+  TimeEntry,
+  UpdateInvoiceBody,
 } from "./api.schemas";
 
 import { customFetch } from "../custom-fetch";
@@ -1328,4 +1352,2389 @@ export const useLogoutMobileSession = <
   TContext
 > => {
   return useMutation(getLogoutMobileSessionMutationOptions(options));
+};
+
+/**
+ * @summary Get dashboard stats
+ */
+export const getGetLegalDashboardUrl = () => {
+  return `/api/legal/dashboard`;
+};
+
+export const getLegalDashboard = async (
+  options?: RequestInit,
+): Promise<LegalDashboard> => {
+  return customFetch<LegalDashboard>(getGetLegalDashboardUrl(), {
+    ...options,
+    method: "GET",
+  });
+};
+
+export const getGetLegalDashboardQueryKey = () => {
+  return [`/api/legal/dashboard`] as const;
+};
+
+export const getGetLegalDashboardQueryOptions = <
+  TData = Awaited<ReturnType<typeof getLegalDashboard>>,
+  TError = ErrorType<unknown>,
+>(options?: {
+  query?: UseQueryOptions<
+    Awaited<ReturnType<typeof getLegalDashboard>>,
+    TError,
+    TData
+  >;
+  request?: SecondParameter<typeof customFetch>;
+}) => {
+  const { query: queryOptions, request: requestOptions } = options ?? {};
+
+  const queryKey = queryOptions?.queryKey ?? getGetLegalDashboardQueryKey();
+
+  const queryFn: QueryFunction<
+    Awaited<ReturnType<typeof getLegalDashboard>>
+  > = ({ signal }) => getLegalDashboard({ signal, ...requestOptions });
+
+  return { queryKey, queryFn, ...queryOptions } as UseQueryOptions<
+    Awaited<ReturnType<typeof getLegalDashboard>>,
+    TError,
+    TData
+  > & { queryKey: QueryKey };
+};
+
+export type GetLegalDashboardQueryResult = NonNullable<
+  Awaited<ReturnType<typeof getLegalDashboard>>
+>;
+export type GetLegalDashboardQueryError = ErrorType<unknown>;
+
+/**
+ * @summary Get dashboard stats
+ */
+
+export function useGetLegalDashboard<
+  TData = Awaited<ReturnType<typeof getLegalDashboard>>,
+  TError = ErrorType<unknown>,
+>(options?: {
+  query?: UseQueryOptions<
+    Awaited<ReturnType<typeof getLegalDashboard>>,
+    TError,
+    TData
+  >;
+  request?: SecondParameter<typeof customFetch>;
+}): UseQueryResult<TData, TError> & { queryKey: QueryKey } {
+  const queryOptions = getGetLegalDashboardQueryOptions(options);
+
+  const query = useQuery(queryOptions) as UseQueryResult<TData, TError> & {
+    queryKey: QueryKey;
+  };
+
+  return { ...query, queryKey: queryOptions.queryKey };
+}
+
+/**
+ * @summary List all clients
+ */
+export const getListLegalClientsUrl = () => {
+  return `/api/legal/clients`;
+};
+
+export const listLegalClients = async (
+  options?: RequestInit,
+): Promise<ListLegalClients200> => {
+  return customFetch<ListLegalClients200>(getListLegalClientsUrl(), {
+    ...options,
+    method: "GET",
+  });
+};
+
+export const getListLegalClientsQueryKey = () => {
+  return [`/api/legal/clients`] as const;
+};
+
+export const getListLegalClientsQueryOptions = <
+  TData = Awaited<ReturnType<typeof listLegalClients>>,
+  TError = ErrorType<unknown>,
+>(options?: {
+  query?: UseQueryOptions<
+    Awaited<ReturnType<typeof listLegalClients>>,
+    TError,
+    TData
+  >;
+  request?: SecondParameter<typeof customFetch>;
+}) => {
+  const { query: queryOptions, request: requestOptions } = options ?? {};
+
+  const queryKey = queryOptions?.queryKey ?? getListLegalClientsQueryKey();
+
+  const queryFn: QueryFunction<
+    Awaited<ReturnType<typeof listLegalClients>>
+  > = ({ signal }) => listLegalClients({ signal, ...requestOptions });
+
+  return { queryKey, queryFn, ...queryOptions } as UseQueryOptions<
+    Awaited<ReturnType<typeof listLegalClients>>,
+    TError,
+    TData
+  > & { queryKey: QueryKey };
+};
+
+export type ListLegalClientsQueryResult = NonNullable<
+  Awaited<ReturnType<typeof listLegalClients>>
+>;
+export type ListLegalClientsQueryError = ErrorType<unknown>;
+
+/**
+ * @summary List all clients
+ */
+
+export function useListLegalClients<
+  TData = Awaited<ReturnType<typeof listLegalClients>>,
+  TError = ErrorType<unknown>,
+>(options?: {
+  query?: UseQueryOptions<
+    Awaited<ReturnType<typeof listLegalClients>>,
+    TError,
+    TData
+  >;
+  request?: SecondParameter<typeof customFetch>;
+}): UseQueryResult<TData, TError> & { queryKey: QueryKey } {
+  const queryOptions = getListLegalClientsQueryOptions(options);
+
+  const query = useQuery(queryOptions) as UseQueryResult<TData, TError> & {
+    queryKey: QueryKey;
+  };
+
+  return { ...query, queryKey: queryOptions.queryKey };
+}
+
+/**
+ * @summary Create a client
+ */
+export const getCreateLegalClientUrl = () => {
+  return `/api/legal/clients`;
+};
+
+export const createLegalClient = async (
+  createLegalClientBody: CreateLegalClientBody,
+  options?: RequestInit,
+): Promise<LegalClient> => {
+  return customFetch<LegalClient>(getCreateLegalClientUrl(), {
+    ...options,
+    method: "POST",
+    headers: { "Content-Type": "application/json", ...options?.headers },
+    body: JSON.stringify(createLegalClientBody),
+  });
+};
+
+export const getCreateLegalClientMutationOptions = <
+  TError = ErrorType<unknown>,
+  TContext = unknown,
+>(options?: {
+  mutation?: UseMutationOptions<
+    Awaited<ReturnType<typeof createLegalClient>>,
+    TError,
+    { data: BodyType<CreateLegalClientBody> },
+    TContext
+  >;
+  request?: SecondParameter<typeof customFetch>;
+}): UseMutationOptions<
+  Awaited<ReturnType<typeof createLegalClient>>,
+  TError,
+  { data: BodyType<CreateLegalClientBody> },
+  TContext
+> => {
+  const mutationKey = ["createLegalClient"];
+  const { mutation: mutationOptions, request: requestOptions } = options
+    ? options.mutation &&
+      "mutationKey" in options.mutation &&
+      options.mutation.mutationKey
+      ? options
+      : { ...options, mutation: { ...options.mutation, mutationKey } }
+    : { mutation: { mutationKey }, request: undefined };
+
+  const mutationFn: MutationFunction<
+    Awaited<ReturnType<typeof createLegalClient>>,
+    { data: BodyType<CreateLegalClientBody> }
+  > = (props) => {
+    const { data } = props ?? {};
+
+    return createLegalClient(data, requestOptions);
+  };
+
+  return { mutationFn, ...mutationOptions };
+};
+
+export type CreateLegalClientMutationResult = NonNullable<
+  Awaited<ReturnType<typeof createLegalClient>>
+>;
+export type CreateLegalClientMutationBody = BodyType<CreateLegalClientBody>;
+export type CreateLegalClientMutationError = ErrorType<unknown>;
+
+/**
+ * @summary Create a client
+ */
+export const useCreateLegalClient = <
+  TError = ErrorType<unknown>,
+  TContext = unknown,
+>(options?: {
+  mutation?: UseMutationOptions<
+    Awaited<ReturnType<typeof createLegalClient>>,
+    TError,
+    { data: BodyType<CreateLegalClientBody> },
+    TContext
+  >;
+  request?: SecondParameter<typeof customFetch>;
+}): UseMutationResult<
+  Awaited<ReturnType<typeof createLegalClient>>,
+  TError,
+  { data: BodyType<CreateLegalClientBody> },
+  TContext
+> => {
+  return useMutation(getCreateLegalClientMutationOptions(options));
+};
+
+/**
+ * @summary Get a client
+ */
+export const getGetLegalClientUrl = (id: number) => {
+  return `/api/legal/clients/${id}`;
+};
+
+export const getLegalClient = async (
+  id: number,
+  options?: RequestInit,
+): Promise<LegalClient> => {
+  return customFetch<LegalClient>(getGetLegalClientUrl(id), {
+    ...options,
+    method: "GET",
+  });
+};
+
+export const getGetLegalClientQueryKey = (id: number) => {
+  return [`/api/legal/clients/${id}`] as const;
+};
+
+export const getGetLegalClientQueryOptions = <
+  TData = Awaited<ReturnType<typeof getLegalClient>>,
+  TError = ErrorType<unknown>,
+>(
+  id: number,
+  options?: {
+    query?: UseQueryOptions<
+      Awaited<ReturnType<typeof getLegalClient>>,
+      TError,
+      TData
+    >;
+    request?: SecondParameter<typeof customFetch>;
+  },
+) => {
+  const { query: queryOptions, request: requestOptions } = options ?? {};
+
+  const queryKey = queryOptions?.queryKey ?? getGetLegalClientQueryKey(id);
+
+  const queryFn: QueryFunction<Awaited<ReturnType<typeof getLegalClient>>> = ({
+    signal,
+  }) => getLegalClient(id, { signal, ...requestOptions });
+
+  return {
+    queryKey,
+    queryFn,
+    enabled: !!id,
+    ...queryOptions,
+  } as UseQueryOptions<
+    Awaited<ReturnType<typeof getLegalClient>>,
+    TError,
+    TData
+  > & { queryKey: QueryKey };
+};
+
+export type GetLegalClientQueryResult = NonNullable<
+  Awaited<ReturnType<typeof getLegalClient>>
+>;
+export type GetLegalClientQueryError = ErrorType<unknown>;
+
+/**
+ * @summary Get a client
+ */
+
+export function useGetLegalClient<
+  TData = Awaited<ReturnType<typeof getLegalClient>>,
+  TError = ErrorType<unknown>,
+>(
+  id: number,
+  options?: {
+    query?: UseQueryOptions<
+      Awaited<ReturnType<typeof getLegalClient>>,
+      TError,
+      TData
+    >;
+    request?: SecondParameter<typeof customFetch>;
+  },
+): UseQueryResult<TData, TError> & { queryKey: QueryKey } {
+  const queryOptions = getGetLegalClientQueryOptions(id, options);
+
+  const query = useQuery(queryOptions) as UseQueryResult<TData, TError> & {
+    queryKey: QueryKey;
+  };
+
+  return { ...query, queryKey: queryOptions.queryKey };
+}
+
+/**
+ * @summary Update a client
+ */
+export const getUpdateLegalClientUrl = (id: number) => {
+  return `/api/legal/clients/${id}`;
+};
+
+export const updateLegalClient = async (
+  id: number,
+  createLegalClientBody: CreateLegalClientBody,
+  options?: RequestInit,
+): Promise<LegalClient> => {
+  return customFetch<LegalClient>(getUpdateLegalClientUrl(id), {
+    ...options,
+    method: "PUT",
+    headers: { "Content-Type": "application/json", ...options?.headers },
+    body: JSON.stringify(createLegalClientBody),
+  });
+};
+
+export const getUpdateLegalClientMutationOptions = <
+  TError = ErrorType<unknown>,
+  TContext = unknown,
+>(options?: {
+  mutation?: UseMutationOptions<
+    Awaited<ReturnType<typeof updateLegalClient>>,
+    TError,
+    { id: number; data: BodyType<CreateLegalClientBody> },
+    TContext
+  >;
+  request?: SecondParameter<typeof customFetch>;
+}): UseMutationOptions<
+  Awaited<ReturnType<typeof updateLegalClient>>,
+  TError,
+  { id: number; data: BodyType<CreateLegalClientBody> },
+  TContext
+> => {
+  const mutationKey = ["updateLegalClient"];
+  const { mutation: mutationOptions, request: requestOptions } = options
+    ? options.mutation &&
+      "mutationKey" in options.mutation &&
+      options.mutation.mutationKey
+      ? options
+      : { ...options, mutation: { ...options.mutation, mutationKey } }
+    : { mutation: { mutationKey }, request: undefined };
+
+  const mutationFn: MutationFunction<
+    Awaited<ReturnType<typeof updateLegalClient>>,
+    { id: number; data: BodyType<CreateLegalClientBody> }
+  > = (props) => {
+    const { id, data } = props ?? {};
+
+    return updateLegalClient(id, data, requestOptions);
+  };
+
+  return { mutationFn, ...mutationOptions };
+};
+
+export type UpdateLegalClientMutationResult = NonNullable<
+  Awaited<ReturnType<typeof updateLegalClient>>
+>;
+export type UpdateLegalClientMutationBody = BodyType<CreateLegalClientBody>;
+export type UpdateLegalClientMutationError = ErrorType<unknown>;
+
+/**
+ * @summary Update a client
+ */
+export const useUpdateLegalClient = <
+  TError = ErrorType<unknown>,
+  TContext = unknown,
+>(options?: {
+  mutation?: UseMutationOptions<
+    Awaited<ReturnType<typeof updateLegalClient>>,
+    TError,
+    { id: number; data: BodyType<CreateLegalClientBody> },
+    TContext
+  >;
+  request?: SecondParameter<typeof customFetch>;
+}): UseMutationResult<
+  Awaited<ReturnType<typeof updateLegalClient>>,
+  TError,
+  { id: number; data: BodyType<CreateLegalClientBody> },
+  TContext
+> => {
+  return useMutation(getUpdateLegalClientMutationOptions(options));
+};
+
+/**
+ * @summary Delete a client
+ */
+export const getDeleteLegalClientUrl = (id: number) => {
+  return `/api/legal/clients/${id}`;
+};
+
+export const deleteLegalClient = async (
+  id: number,
+  options?: RequestInit,
+): Promise<void> => {
+  return customFetch<void>(getDeleteLegalClientUrl(id), {
+    ...options,
+    method: "DELETE",
+  });
+};
+
+export const getDeleteLegalClientMutationOptions = <
+  TError = ErrorType<unknown>,
+  TContext = unknown,
+>(options?: {
+  mutation?: UseMutationOptions<
+    Awaited<ReturnType<typeof deleteLegalClient>>,
+    TError,
+    { id: number },
+    TContext
+  >;
+  request?: SecondParameter<typeof customFetch>;
+}): UseMutationOptions<
+  Awaited<ReturnType<typeof deleteLegalClient>>,
+  TError,
+  { id: number },
+  TContext
+> => {
+  const mutationKey = ["deleteLegalClient"];
+  const { mutation: mutationOptions, request: requestOptions } = options
+    ? options.mutation &&
+      "mutationKey" in options.mutation &&
+      options.mutation.mutationKey
+      ? options
+      : { ...options, mutation: { ...options.mutation, mutationKey } }
+    : { mutation: { mutationKey }, request: undefined };
+
+  const mutationFn: MutationFunction<
+    Awaited<ReturnType<typeof deleteLegalClient>>,
+    { id: number }
+  > = (props) => {
+    const { id } = props ?? {};
+
+    return deleteLegalClient(id, requestOptions);
+  };
+
+  return { mutationFn, ...mutationOptions };
+};
+
+export type DeleteLegalClientMutationResult = NonNullable<
+  Awaited<ReturnType<typeof deleteLegalClient>>
+>;
+
+export type DeleteLegalClientMutationError = ErrorType<unknown>;
+
+/**
+ * @summary Delete a client
+ */
+export const useDeleteLegalClient = <
+  TError = ErrorType<unknown>,
+  TContext = unknown,
+>(options?: {
+  mutation?: UseMutationOptions<
+    Awaited<ReturnType<typeof deleteLegalClient>>,
+    TError,
+    { id: number },
+    TContext
+  >;
+  request?: SecondParameter<typeof customFetch>;
+}): UseMutationResult<
+  Awaited<ReturnType<typeof deleteLegalClient>>,
+  TError,
+  { id: number },
+  TContext
+> => {
+  return useMutation(getDeleteLegalClientMutationOptions(options));
+};
+
+/**
+ * @summary List all matters
+ */
+export const getListLegalMattersUrl = () => {
+  return `/api/legal/matters`;
+};
+
+export const listLegalMatters = async (
+  options?: RequestInit,
+): Promise<ListLegalMatters200> => {
+  return customFetch<ListLegalMatters200>(getListLegalMattersUrl(), {
+    ...options,
+    method: "GET",
+  });
+};
+
+export const getListLegalMattersQueryKey = () => {
+  return [`/api/legal/matters`] as const;
+};
+
+export const getListLegalMattersQueryOptions = <
+  TData = Awaited<ReturnType<typeof listLegalMatters>>,
+  TError = ErrorType<unknown>,
+>(options?: {
+  query?: UseQueryOptions<
+    Awaited<ReturnType<typeof listLegalMatters>>,
+    TError,
+    TData
+  >;
+  request?: SecondParameter<typeof customFetch>;
+}) => {
+  const { query: queryOptions, request: requestOptions } = options ?? {};
+
+  const queryKey = queryOptions?.queryKey ?? getListLegalMattersQueryKey();
+
+  const queryFn: QueryFunction<
+    Awaited<ReturnType<typeof listLegalMatters>>
+  > = ({ signal }) => listLegalMatters({ signal, ...requestOptions });
+
+  return { queryKey, queryFn, ...queryOptions } as UseQueryOptions<
+    Awaited<ReturnType<typeof listLegalMatters>>,
+    TError,
+    TData
+  > & { queryKey: QueryKey };
+};
+
+export type ListLegalMattersQueryResult = NonNullable<
+  Awaited<ReturnType<typeof listLegalMatters>>
+>;
+export type ListLegalMattersQueryError = ErrorType<unknown>;
+
+/**
+ * @summary List all matters
+ */
+
+export function useListLegalMatters<
+  TData = Awaited<ReturnType<typeof listLegalMatters>>,
+  TError = ErrorType<unknown>,
+>(options?: {
+  query?: UseQueryOptions<
+    Awaited<ReturnType<typeof listLegalMatters>>,
+    TError,
+    TData
+  >;
+  request?: SecondParameter<typeof customFetch>;
+}): UseQueryResult<TData, TError> & { queryKey: QueryKey } {
+  const queryOptions = getListLegalMattersQueryOptions(options);
+
+  const query = useQuery(queryOptions) as UseQueryResult<TData, TError> & {
+    queryKey: QueryKey;
+  };
+
+  return { ...query, queryKey: queryOptions.queryKey };
+}
+
+/**
+ * @summary Create a matter
+ */
+export const getCreateLegalMatterUrl = () => {
+  return `/api/legal/matters`;
+};
+
+export const createLegalMatter = async (
+  createLegalMatterBody: CreateLegalMatterBody,
+  options?: RequestInit,
+): Promise<LegalMatter> => {
+  return customFetch<LegalMatter>(getCreateLegalMatterUrl(), {
+    ...options,
+    method: "POST",
+    headers: { "Content-Type": "application/json", ...options?.headers },
+    body: JSON.stringify(createLegalMatterBody),
+  });
+};
+
+export const getCreateLegalMatterMutationOptions = <
+  TError = ErrorType<unknown>,
+  TContext = unknown,
+>(options?: {
+  mutation?: UseMutationOptions<
+    Awaited<ReturnType<typeof createLegalMatter>>,
+    TError,
+    { data: BodyType<CreateLegalMatterBody> },
+    TContext
+  >;
+  request?: SecondParameter<typeof customFetch>;
+}): UseMutationOptions<
+  Awaited<ReturnType<typeof createLegalMatter>>,
+  TError,
+  { data: BodyType<CreateLegalMatterBody> },
+  TContext
+> => {
+  const mutationKey = ["createLegalMatter"];
+  const { mutation: mutationOptions, request: requestOptions } = options
+    ? options.mutation &&
+      "mutationKey" in options.mutation &&
+      options.mutation.mutationKey
+      ? options
+      : { ...options, mutation: { ...options.mutation, mutationKey } }
+    : { mutation: { mutationKey }, request: undefined };
+
+  const mutationFn: MutationFunction<
+    Awaited<ReturnType<typeof createLegalMatter>>,
+    { data: BodyType<CreateLegalMatterBody> }
+  > = (props) => {
+    const { data } = props ?? {};
+
+    return createLegalMatter(data, requestOptions);
+  };
+
+  return { mutationFn, ...mutationOptions };
+};
+
+export type CreateLegalMatterMutationResult = NonNullable<
+  Awaited<ReturnType<typeof createLegalMatter>>
+>;
+export type CreateLegalMatterMutationBody = BodyType<CreateLegalMatterBody>;
+export type CreateLegalMatterMutationError = ErrorType<unknown>;
+
+/**
+ * @summary Create a matter
+ */
+export const useCreateLegalMatter = <
+  TError = ErrorType<unknown>,
+  TContext = unknown,
+>(options?: {
+  mutation?: UseMutationOptions<
+    Awaited<ReturnType<typeof createLegalMatter>>,
+    TError,
+    { data: BodyType<CreateLegalMatterBody> },
+    TContext
+  >;
+  request?: SecondParameter<typeof customFetch>;
+}): UseMutationResult<
+  Awaited<ReturnType<typeof createLegalMatter>>,
+  TError,
+  { data: BodyType<CreateLegalMatterBody> },
+  TContext
+> => {
+  return useMutation(getCreateLegalMatterMutationOptions(options));
+};
+
+/**
+ * @summary Get a matter with time entries and tasks
+ */
+export const getGetLegalMatterUrl = (id: number) => {
+  return `/api/legal/matters/${id}`;
+};
+
+export const getLegalMatter = async (
+  id: number,
+  options?: RequestInit,
+): Promise<LegalMatterDetail> => {
+  return customFetch<LegalMatterDetail>(getGetLegalMatterUrl(id), {
+    ...options,
+    method: "GET",
+  });
+};
+
+export const getGetLegalMatterQueryKey = (id: number) => {
+  return [`/api/legal/matters/${id}`] as const;
+};
+
+export const getGetLegalMatterQueryOptions = <
+  TData = Awaited<ReturnType<typeof getLegalMatter>>,
+  TError = ErrorType<unknown>,
+>(
+  id: number,
+  options?: {
+    query?: UseQueryOptions<
+      Awaited<ReturnType<typeof getLegalMatter>>,
+      TError,
+      TData
+    >;
+    request?: SecondParameter<typeof customFetch>;
+  },
+) => {
+  const { query: queryOptions, request: requestOptions } = options ?? {};
+
+  const queryKey = queryOptions?.queryKey ?? getGetLegalMatterQueryKey(id);
+
+  const queryFn: QueryFunction<Awaited<ReturnType<typeof getLegalMatter>>> = ({
+    signal,
+  }) => getLegalMatter(id, { signal, ...requestOptions });
+
+  return {
+    queryKey,
+    queryFn,
+    enabled: !!id,
+    ...queryOptions,
+  } as UseQueryOptions<
+    Awaited<ReturnType<typeof getLegalMatter>>,
+    TError,
+    TData
+  > & { queryKey: QueryKey };
+};
+
+export type GetLegalMatterQueryResult = NonNullable<
+  Awaited<ReturnType<typeof getLegalMatter>>
+>;
+export type GetLegalMatterQueryError = ErrorType<unknown>;
+
+/**
+ * @summary Get a matter with time entries and tasks
+ */
+
+export function useGetLegalMatter<
+  TData = Awaited<ReturnType<typeof getLegalMatter>>,
+  TError = ErrorType<unknown>,
+>(
+  id: number,
+  options?: {
+    query?: UseQueryOptions<
+      Awaited<ReturnType<typeof getLegalMatter>>,
+      TError,
+      TData
+    >;
+    request?: SecondParameter<typeof customFetch>;
+  },
+): UseQueryResult<TData, TError> & { queryKey: QueryKey } {
+  const queryOptions = getGetLegalMatterQueryOptions(id, options);
+
+  const query = useQuery(queryOptions) as UseQueryResult<TData, TError> & {
+    queryKey: QueryKey;
+  };
+
+  return { ...query, queryKey: queryOptions.queryKey };
+}
+
+/**
+ * @summary Update a matter
+ */
+export const getUpdateLegalMatterUrl = (id: number) => {
+  return `/api/legal/matters/${id}`;
+};
+
+export const updateLegalMatter = async (
+  id: number,
+  createLegalMatterBody: CreateLegalMatterBody,
+  options?: RequestInit,
+): Promise<LegalMatter> => {
+  return customFetch<LegalMatter>(getUpdateLegalMatterUrl(id), {
+    ...options,
+    method: "PUT",
+    headers: { "Content-Type": "application/json", ...options?.headers },
+    body: JSON.stringify(createLegalMatterBody),
+  });
+};
+
+export const getUpdateLegalMatterMutationOptions = <
+  TError = ErrorType<unknown>,
+  TContext = unknown,
+>(options?: {
+  mutation?: UseMutationOptions<
+    Awaited<ReturnType<typeof updateLegalMatter>>,
+    TError,
+    { id: number; data: BodyType<CreateLegalMatterBody> },
+    TContext
+  >;
+  request?: SecondParameter<typeof customFetch>;
+}): UseMutationOptions<
+  Awaited<ReturnType<typeof updateLegalMatter>>,
+  TError,
+  { id: number; data: BodyType<CreateLegalMatterBody> },
+  TContext
+> => {
+  const mutationKey = ["updateLegalMatter"];
+  const { mutation: mutationOptions, request: requestOptions } = options
+    ? options.mutation &&
+      "mutationKey" in options.mutation &&
+      options.mutation.mutationKey
+      ? options
+      : { ...options, mutation: { ...options.mutation, mutationKey } }
+    : { mutation: { mutationKey }, request: undefined };
+
+  const mutationFn: MutationFunction<
+    Awaited<ReturnType<typeof updateLegalMatter>>,
+    { id: number; data: BodyType<CreateLegalMatterBody> }
+  > = (props) => {
+    const { id, data } = props ?? {};
+
+    return updateLegalMatter(id, data, requestOptions);
+  };
+
+  return { mutationFn, ...mutationOptions };
+};
+
+export type UpdateLegalMatterMutationResult = NonNullable<
+  Awaited<ReturnType<typeof updateLegalMatter>>
+>;
+export type UpdateLegalMatterMutationBody = BodyType<CreateLegalMatterBody>;
+export type UpdateLegalMatterMutationError = ErrorType<unknown>;
+
+/**
+ * @summary Update a matter
+ */
+export const useUpdateLegalMatter = <
+  TError = ErrorType<unknown>,
+  TContext = unknown,
+>(options?: {
+  mutation?: UseMutationOptions<
+    Awaited<ReturnType<typeof updateLegalMatter>>,
+    TError,
+    { id: number; data: BodyType<CreateLegalMatterBody> },
+    TContext
+  >;
+  request?: SecondParameter<typeof customFetch>;
+}): UseMutationResult<
+  Awaited<ReturnType<typeof updateLegalMatter>>,
+  TError,
+  { id: number; data: BodyType<CreateLegalMatterBody> },
+  TContext
+> => {
+  return useMutation(getUpdateLegalMatterMutationOptions(options));
+};
+
+/**
+ * @summary Delete a matter
+ */
+export const getDeleteLegalMatterUrl = (id: number) => {
+  return `/api/legal/matters/${id}`;
+};
+
+export const deleteLegalMatter = async (
+  id: number,
+  options?: RequestInit,
+): Promise<void> => {
+  return customFetch<void>(getDeleteLegalMatterUrl(id), {
+    ...options,
+    method: "DELETE",
+  });
+};
+
+export const getDeleteLegalMatterMutationOptions = <
+  TError = ErrorType<unknown>,
+  TContext = unknown,
+>(options?: {
+  mutation?: UseMutationOptions<
+    Awaited<ReturnType<typeof deleteLegalMatter>>,
+    TError,
+    { id: number },
+    TContext
+  >;
+  request?: SecondParameter<typeof customFetch>;
+}): UseMutationOptions<
+  Awaited<ReturnType<typeof deleteLegalMatter>>,
+  TError,
+  { id: number },
+  TContext
+> => {
+  const mutationKey = ["deleteLegalMatter"];
+  const { mutation: mutationOptions, request: requestOptions } = options
+    ? options.mutation &&
+      "mutationKey" in options.mutation &&
+      options.mutation.mutationKey
+      ? options
+      : { ...options, mutation: { ...options.mutation, mutationKey } }
+    : { mutation: { mutationKey }, request: undefined };
+
+  const mutationFn: MutationFunction<
+    Awaited<ReturnType<typeof deleteLegalMatter>>,
+    { id: number }
+  > = (props) => {
+    const { id } = props ?? {};
+
+    return deleteLegalMatter(id, requestOptions);
+  };
+
+  return { mutationFn, ...mutationOptions };
+};
+
+export type DeleteLegalMatterMutationResult = NonNullable<
+  Awaited<ReturnType<typeof deleteLegalMatter>>
+>;
+
+export type DeleteLegalMatterMutationError = ErrorType<unknown>;
+
+/**
+ * @summary Delete a matter
+ */
+export const useDeleteLegalMatter = <
+  TError = ErrorType<unknown>,
+  TContext = unknown,
+>(options?: {
+  mutation?: UseMutationOptions<
+    Awaited<ReturnType<typeof deleteLegalMatter>>,
+    TError,
+    { id: number },
+    TContext
+  >;
+  request?: SecondParameter<typeof customFetch>;
+}): UseMutationResult<
+  Awaited<ReturnType<typeof deleteLegalMatter>>,
+  TError,
+  { id: number },
+  TContext
+> => {
+  return useMutation(getDeleteLegalMatterMutationOptions(options));
+};
+
+/**
+ * @summary List time entries
+ */
+export const getListTimeEntriesUrl = (params?: ListTimeEntriesParams) => {
+  const normalizedParams = new URLSearchParams();
+
+  Object.entries(params || {}).forEach(([key, value]) => {
+    if (value !== undefined) {
+      normalizedParams.append(key, value === null ? "null" : value.toString());
+    }
+  });
+
+  const stringifiedParams = normalizedParams.toString();
+
+  return stringifiedParams.length > 0
+    ? `/api/legal/time-entries?${stringifiedParams}`
+    : `/api/legal/time-entries`;
+};
+
+export const listTimeEntries = async (
+  params?: ListTimeEntriesParams,
+  options?: RequestInit,
+): Promise<ListTimeEntries200> => {
+  return customFetch<ListTimeEntries200>(getListTimeEntriesUrl(params), {
+    ...options,
+    method: "GET",
+  });
+};
+
+export const getListTimeEntriesQueryKey = (params?: ListTimeEntriesParams) => {
+  return [`/api/legal/time-entries`, ...(params ? [params] : [])] as const;
+};
+
+export const getListTimeEntriesQueryOptions = <
+  TData = Awaited<ReturnType<typeof listTimeEntries>>,
+  TError = ErrorType<unknown>,
+>(
+  params?: ListTimeEntriesParams,
+  options?: {
+    query?: UseQueryOptions<
+      Awaited<ReturnType<typeof listTimeEntries>>,
+      TError,
+      TData
+    >;
+    request?: SecondParameter<typeof customFetch>;
+  },
+) => {
+  const { query: queryOptions, request: requestOptions } = options ?? {};
+
+  const queryKey = queryOptions?.queryKey ?? getListTimeEntriesQueryKey(params);
+
+  const queryFn: QueryFunction<Awaited<ReturnType<typeof listTimeEntries>>> = ({
+    signal,
+  }) => listTimeEntries(params, { signal, ...requestOptions });
+
+  return { queryKey, queryFn, ...queryOptions } as UseQueryOptions<
+    Awaited<ReturnType<typeof listTimeEntries>>,
+    TError,
+    TData
+  > & { queryKey: QueryKey };
+};
+
+export type ListTimeEntriesQueryResult = NonNullable<
+  Awaited<ReturnType<typeof listTimeEntries>>
+>;
+export type ListTimeEntriesQueryError = ErrorType<unknown>;
+
+/**
+ * @summary List time entries
+ */
+
+export function useListTimeEntries<
+  TData = Awaited<ReturnType<typeof listTimeEntries>>,
+  TError = ErrorType<unknown>,
+>(
+  params?: ListTimeEntriesParams,
+  options?: {
+    query?: UseQueryOptions<
+      Awaited<ReturnType<typeof listTimeEntries>>,
+      TError,
+      TData
+    >;
+    request?: SecondParameter<typeof customFetch>;
+  },
+): UseQueryResult<TData, TError> & { queryKey: QueryKey } {
+  const queryOptions = getListTimeEntriesQueryOptions(params, options);
+
+  const query = useQuery(queryOptions) as UseQueryResult<TData, TError> & {
+    queryKey: QueryKey;
+  };
+
+  return { ...query, queryKey: queryOptions.queryKey };
+}
+
+/**
+ * @summary Create a time entry
+ */
+export const getCreateTimeEntryUrl = () => {
+  return `/api/legal/time-entries`;
+};
+
+export const createTimeEntry = async (
+  createTimeEntryBody: CreateTimeEntryBody,
+  options?: RequestInit,
+): Promise<TimeEntry> => {
+  return customFetch<TimeEntry>(getCreateTimeEntryUrl(), {
+    ...options,
+    method: "POST",
+    headers: { "Content-Type": "application/json", ...options?.headers },
+    body: JSON.stringify(createTimeEntryBody),
+  });
+};
+
+export const getCreateTimeEntryMutationOptions = <
+  TError = ErrorType<unknown>,
+  TContext = unknown,
+>(options?: {
+  mutation?: UseMutationOptions<
+    Awaited<ReturnType<typeof createTimeEntry>>,
+    TError,
+    { data: BodyType<CreateTimeEntryBody> },
+    TContext
+  >;
+  request?: SecondParameter<typeof customFetch>;
+}): UseMutationOptions<
+  Awaited<ReturnType<typeof createTimeEntry>>,
+  TError,
+  { data: BodyType<CreateTimeEntryBody> },
+  TContext
+> => {
+  const mutationKey = ["createTimeEntry"];
+  const { mutation: mutationOptions, request: requestOptions } = options
+    ? options.mutation &&
+      "mutationKey" in options.mutation &&
+      options.mutation.mutationKey
+      ? options
+      : { ...options, mutation: { ...options.mutation, mutationKey } }
+    : { mutation: { mutationKey }, request: undefined };
+
+  const mutationFn: MutationFunction<
+    Awaited<ReturnType<typeof createTimeEntry>>,
+    { data: BodyType<CreateTimeEntryBody> }
+  > = (props) => {
+    const { data } = props ?? {};
+
+    return createTimeEntry(data, requestOptions);
+  };
+
+  return { mutationFn, ...mutationOptions };
+};
+
+export type CreateTimeEntryMutationResult = NonNullable<
+  Awaited<ReturnType<typeof createTimeEntry>>
+>;
+export type CreateTimeEntryMutationBody = BodyType<CreateTimeEntryBody>;
+export type CreateTimeEntryMutationError = ErrorType<unknown>;
+
+/**
+ * @summary Create a time entry
+ */
+export const useCreateTimeEntry = <
+  TError = ErrorType<unknown>,
+  TContext = unknown,
+>(options?: {
+  mutation?: UseMutationOptions<
+    Awaited<ReturnType<typeof createTimeEntry>>,
+    TError,
+    { data: BodyType<CreateTimeEntryBody> },
+    TContext
+  >;
+  request?: SecondParameter<typeof customFetch>;
+}): UseMutationResult<
+  Awaited<ReturnType<typeof createTimeEntry>>,
+  TError,
+  { data: BodyType<CreateTimeEntryBody> },
+  TContext
+> => {
+  return useMutation(getCreateTimeEntryMutationOptions(options));
+};
+
+/**
+ * @summary Update a time entry
+ */
+export const getUpdateTimeEntryUrl = (id: number) => {
+  return `/api/legal/time-entries/${id}`;
+};
+
+export const updateTimeEntry = async (
+  id: number,
+  createTimeEntryBody: CreateTimeEntryBody,
+  options?: RequestInit,
+): Promise<TimeEntry> => {
+  return customFetch<TimeEntry>(getUpdateTimeEntryUrl(id), {
+    ...options,
+    method: "PUT",
+    headers: { "Content-Type": "application/json", ...options?.headers },
+    body: JSON.stringify(createTimeEntryBody),
+  });
+};
+
+export const getUpdateTimeEntryMutationOptions = <
+  TError = ErrorType<unknown>,
+  TContext = unknown,
+>(options?: {
+  mutation?: UseMutationOptions<
+    Awaited<ReturnType<typeof updateTimeEntry>>,
+    TError,
+    { id: number; data: BodyType<CreateTimeEntryBody> },
+    TContext
+  >;
+  request?: SecondParameter<typeof customFetch>;
+}): UseMutationOptions<
+  Awaited<ReturnType<typeof updateTimeEntry>>,
+  TError,
+  { id: number; data: BodyType<CreateTimeEntryBody> },
+  TContext
+> => {
+  const mutationKey = ["updateTimeEntry"];
+  const { mutation: mutationOptions, request: requestOptions } = options
+    ? options.mutation &&
+      "mutationKey" in options.mutation &&
+      options.mutation.mutationKey
+      ? options
+      : { ...options, mutation: { ...options.mutation, mutationKey } }
+    : { mutation: { mutationKey }, request: undefined };
+
+  const mutationFn: MutationFunction<
+    Awaited<ReturnType<typeof updateTimeEntry>>,
+    { id: number; data: BodyType<CreateTimeEntryBody> }
+  > = (props) => {
+    const { id, data } = props ?? {};
+
+    return updateTimeEntry(id, data, requestOptions);
+  };
+
+  return { mutationFn, ...mutationOptions };
+};
+
+export type UpdateTimeEntryMutationResult = NonNullable<
+  Awaited<ReturnType<typeof updateTimeEntry>>
+>;
+export type UpdateTimeEntryMutationBody = BodyType<CreateTimeEntryBody>;
+export type UpdateTimeEntryMutationError = ErrorType<unknown>;
+
+/**
+ * @summary Update a time entry
+ */
+export const useUpdateTimeEntry = <
+  TError = ErrorType<unknown>,
+  TContext = unknown,
+>(options?: {
+  mutation?: UseMutationOptions<
+    Awaited<ReturnType<typeof updateTimeEntry>>,
+    TError,
+    { id: number; data: BodyType<CreateTimeEntryBody> },
+    TContext
+  >;
+  request?: SecondParameter<typeof customFetch>;
+}): UseMutationResult<
+  Awaited<ReturnType<typeof updateTimeEntry>>,
+  TError,
+  { id: number; data: BodyType<CreateTimeEntryBody> },
+  TContext
+> => {
+  return useMutation(getUpdateTimeEntryMutationOptions(options));
+};
+
+/**
+ * @summary Delete a time entry
+ */
+export const getDeleteTimeEntryUrl = (id: number) => {
+  return `/api/legal/time-entries/${id}`;
+};
+
+export const deleteTimeEntry = async (
+  id: number,
+  options?: RequestInit,
+): Promise<void> => {
+  return customFetch<void>(getDeleteTimeEntryUrl(id), {
+    ...options,
+    method: "DELETE",
+  });
+};
+
+export const getDeleteTimeEntryMutationOptions = <
+  TError = ErrorType<unknown>,
+  TContext = unknown,
+>(options?: {
+  mutation?: UseMutationOptions<
+    Awaited<ReturnType<typeof deleteTimeEntry>>,
+    TError,
+    { id: number },
+    TContext
+  >;
+  request?: SecondParameter<typeof customFetch>;
+}): UseMutationOptions<
+  Awaited<ReturnType<typeof deleteTimeEntry>>,
+  TError,
+  { id: number },
+  TContext
+> => {
+  const mutationKey = ["deleteTimeEntry"];
+  const { mutation: mutationOptions, request: requestOptions } = options
+    ? options.mutation &&
+      "mutationKey" in options.mutation &&
+      options.mutation.mutationKey
+      ? options
+      : { ...options, mutation: { ...options.mutation, mutationKey } }
+    : { mutation: { mutationKey }, request: undefined };
+
+  const mutationFn: MutationFunction<
+    Awaited<ReturnType<typeof deleteTimeEntry>>,
+    { id: number }
+  > = (props) => {
+    const { id } = props ?? {};
+
+    return deleteTimeEntry(id, requestOptions);
+  };
+
+  return { mutationFn, ...mutationOptions };
+};
+
+export type DeleteTimeEntryMutationResult = NonNullable<
+  Awaited<ReturnType<typeof deleteTimeEntry>>
+>;
+
+export type DeleteTimeEntryMutationError = ErrorType<unknown>;
+
+/**
+ * @summary Delete a time entry
+ */
+export const useDeleteTimeEntry = <
+  TError = ErrorType<unknown>,
+  TContext = unknown,
+>(options?: {
+  mutation?: UseMutationOptions<
+    Awaited<ReturnType<typeof deleteTimeEntry>>,
+    TError,
+    { id: number },
+    TContext
+  >;
+  request?: SecondParameter<typeof customFetch>;
+}): UseMutationResult<
+  Awaited<ReturnType<typeof deleteTimeEntry>>,
+  TError,
+  { id: number },
+  TContext
+> => {
+  return useMutation(getDeleteTimeEntryMutationOptions(options));
+};
+
+/**
+ * @summary List invoices
+ */
+export const getListInvoicesUrl = () => {
+  return `/api/legal/invoices`;
+};
+
+export const listInvoices = async (
+  options?: RequestInit,
+): Promise<ListInvoices200> => {
+  return customFetch<ListInvoices200>(getListInvoicesUrl(), {
+    ...options,
+    method: "GET",
+  });
+};
+
+export const getListInvoicesQueryKey = () => {
+  return [`/api/legal/invoices`] as const;
+};
+
+export const getListInvoicesQueryOptions = <
+  TData = Awaited<ReturnType<typeof listInvoices>>,
+  TError = ErrorType<unknown>,
+>(options?: {
+  query?: UseQueryOptions<
+    Awaited<ReturnType<typeof listInvoices>>,
+    TError,
+    TData
+  >;
+  request?: SecondParameter<typeof customFetch>;
+}) => {
+  const { query: queryOptions, request: requestOptions } = options ?? {};
+
+  const queryKey = queryOptions?.queryKey ?? getListInvoicesQueryKey();
+
+  const queryFn: QueryFunction<Awaited<ReturnType<typeof listInvoices>>> = ({
+    signal,
+  }) => listInvoices({ signal, ...requestOptions });
+
+  return { queryKey, queryFn, ...queryOptions } as UseQueryOptions<
+    Awaited<ReturnType<typeof listInvoices>>,
+    TError,
+    TData
+  > & { queryKey: QueryKey };
+};
+
+export type ListInvoicesQueryResult = NonNullable<
+  Awaited<ReturnType<typeof listInvoices>>
+>;
+export type ListInvoicesQueryError = ErrorType<unknown>;
+
+/**
+ * @summary List invoices
+ */
+
+export function useListInvoices<
+  TData = Awaited<ReturnType<typeof listInvoices>>,
+  TError = ErrorType<unknown>,
+>(options?: {
+  query?: UseQueryOptions<
+    Awaited<ReturnType<typeof listInvoices>>,
+    TError,
+    TData
+  >;
+  request?: SecondParameter<typeof customFetch>;
+}): UseQueryResult<TData, TError> & { queryKey: QueryKey } {
+  const queryOptions = getListInvoicesQueryOptions(options);
+
+  const query = useQuery(queryOptions) as UseQueryResult<TData, TError> & {
+    queryKey: QueryKey;
+  };
+
+  return { ...query, queryKey: queryOptions.queryKey };
+}
+
+/**
+ * @summary Create an invoice
+ */
+export const getCreateInvoiceUrl = () => {
+  return `/api/legal/invoices`;
+};
+
+export const createInvoice = async (
+  createInvoiceBody: CreateInvoiceBody,
+  options?: RequestInit,
+): Promise<LegalInvoice> => {
+  return customFetch<LegalInvoice>(getCreateInvoiceUrl(), {
+    ...options,
+    method: "POST",
+    headers: { "Content-Type": "application/json", ...options?.headers },
+    body: JSON.stringify(createInvoiceBody),
+  });
+};
+
+export const getCreateInvoiceMutationOptions = <
+  TError = ErrorType<unknown>,
+  TContext = unknown,
+>(options?: {
+  mutation?: UseMutationOptions<
+    Awaited<ReturnType<typeof createInvoice>>,
+    TError,
+    { data: BodyType<CreateInvoiceBody> },
+    TContext
+  >;
+  request?: SecondParameter<typeof customFetch>;
+}): UseMutationOptions<
+  Awaited<ReturnType<typeof createInvoice>>,
+  TError,
+  { data: BodyType<CreateInvoiceBody> },
+  TContext
+> => {
+  const mutationKey = ["createInvoice"];
+  const { mutation: mutationOptions, request: requestOptions } = options
+    ? options.mutation &&
+      "mutationKey" in options.mutation &&
+      options.mutation.mutationKey
+      ? options
+      : { ...options, mutation: { ...options.mutation, mutationKey } }
+    : { mutation: { mutationKey }, request: undefined };
+
+  const mutationFn: MutationFunction<
+    Awaited<ReturnType<typeof createInvoice>>,
+    { data: BodyType<CreateInvoiceBody> }
+  > = (props) => {
+    const { data } = props ?? {};
+
+    return createInvoice(data, requestOptions);
+  };
+
+  return { mutationFn, ...mutationOptions };
+};
+
+export type CreateInvoiceMutationResult = NonNullable<
+  Awaited<ReturnType<typeof createInvoice>>
+>;
+export type CreateInvoiceMutationBody = BodyType<CreateInvoiceBody>;
+export type CreateInvoiceMutationError = ErrorType<unknown>;
+
+/**
+ * @summary Create an invoice
+ */
+export const useCreateInvoice = <
+  TError = ErrorType<unknown>,
+  TContext = unknown,
+>(options?: {
+  mutation?: UseMutationOptions<
+    Awaited<ReturnType<typeof createInvoice>>,
+    TError,
+    { data: BodyType<CreateInvoiceBody> },
+    TContext
+  >;
+  request?: SecondParameter<typeof customFetch>;
+}): UseMutationResult<
+  Awaited<ReturnType<typeof createInvoice>>,
+  TError,
+  { data: BodyType<CreateInvoiceBody> },
+  TContext
+> => {
+  return useMutation(getCreateInvoiceMutationOptions(options));
+};
+
+/**
+ * @summary Get an invoice
+ */
+export const getGetInvoiceUrl = (id: number) => {
+  return `/api/legal/invoices/${id}`;
+};
+
+export const getInvoice = async (
+  id: number,
+  options?: RequestInit,
+): Promise<LegalInvoice> => {
+  return customFetch<LegalInvoice>(getGetInvoiceUrl(id), {
+    ...options,
+    method: "GET",
+  });
+};
+
+export const getGetInvoiceQueryKey = (id: number) => {
+  return [`/api/legal/invoices/${id}`] as const;
+};
+
+export const getGetInvoiceQueryOptions = <
+  TData = Awaited<ReturnType<typeof getInvoice>>,
+  TError = ErrorType<unknown>,
+>(
+  id: number,
+  options?: {
+    query?: UseQueryOptions<
+      Awaited<ReturnType<typeof getInvoice>>,
+      TError,
+      TData
+    >;
+    request?: SecondParameter<typeof customFetch>;
+  },
+) => {
+  const { query: queryOptions, request: requestOptions } = options ?? {};
+
+  const queryKey = queryOptions?.queryKey ?? getGetInvoiceQueryKey(id);
+
+  const queryFn: QueryFunction<Awaited<ReturnType<typeof getInvoice>>> = ({
+    signal,
+  }) => getInvoice(id, { signal, ...requestOptions });
+
+  return {
+    queryKey,
+    queryFn,
+    enabled: !!id,
+    ...queryOptions,
+  } as UseQueryOptions<
+    Awaited<ReturnType<typeof getInvoice>>,
+    TError,
+    TData
+  > & { queryKey: QueryKey };
+};
+
+export type GetInvoiceQueryResult = NonNullable<
+  Awaited<ReturnType<typeof getInvoice>>
+>;
+export type GetInvoiceQueryError = ErrorType<unknown>;
+
+/**
+ * @summary Get an invoice
+ */
+
+export function useGetInvoice<
+  TData = Awaited<ReturnType<typeof getInvoice>>,
+  TError = ErrorType<unknown>,
+>(
+  id: number,
+  options?: {
+    query?: UseQueryOptions<
+      Awaited<ReturnType<typeof getInvoice>>,
+      TError,
+      TData
+    >;
+    request?: SecondParameter<typeof customFetch>;
+  },
+): UseQueryResult<TData, TError> & { queryKey: QueryKey } {
+  const queryOptions = getGetInvoiceQueryOptions(id, options);
+
+  const query = useQuery(queryOptions) as UseQueryResult<TData, TError> & {
+    queryKey: QueryKey;
+  };
+
+  return { ...query, queryKey: queryOptions.queryKey };
+}
+
+/**
+ * @summary Update invoice status
+ */
+export const getUpdateInvoiceUrl = (id: number) => {
+  return `/api/legal/invoices/${id}`;
+};
+
+export const updateInvoice = async (
+  id: number,
+  updateInvoiceBody: UpdateInvoiceBody,
+  options?: RequestInit,
+): Promise<LegalInvoice> => {
+  return customFetch<LegalInvoice>(getUpdateInvoiceUrl(id), {
+    ...options,
+    method: "PUT",
+    headers: { "Content-Type": "application/json", ...options?.headers },
+    body: JSON.stringify(updateInvoiceBody),
+  });
+};
+
+export const getUpdateInvoiceMutationOptions = <
+  TError = ErrorType<unknown>,
+  TContext = unknown,
+>(options?: {
+  mutation?: UseMutationOptions<
+    Awaited<ReturnType<typeof updateInvoice>>,
+    TError,
+    { id: number; data: BodyType<UpdateInvoiceBody> },
+    TContext
+  >;
+  request?: SecondParameter<typeof customFetch>;
+}): UseMutationOptions<
+  Awaited<ReturnType<typeof updateInvoice>>,
+  TError,
+  { id: number; data: BodyType<UpdateInvoiceBody> },
+  TContext
+> => {
+  const mutationKey = ["updateInvoice"];
+  const { mutation: mutationOptions, request: requestOptions } = options
+    ? options.mutation &&
+      "mutationKey" in options.mutation &&
+      options.mutation.mutationKey
+      ? options
+      : { ...options, mutation: { ...options.mutation, mutationKey } }
+    : { mutation: { mutationKey }, request: undefined };
+
+  const mutationFn: MutationFunction<
+    Awaited<ReturnType<typeof updateInvoice>>,
+    { id: number; data: BodyType<UpdateInvoiceBody> }
+  > = (props) => {
+    const { id, data } = props ?? {};
+
+    return updateInvoice(id, data, requestOptions);
+  };
+
+  return { mutationFn, ...mutationOptions };
+};
+
+export type UpdateInvoiceMutationResult = NonNullable<
+  Awaited<ReturnType<typeof updateInvoice>>
+>;
+export type UpdateInvoiceMutationBody = BodyType<UpdateInvoiceBody>;
+export type UpdateInvoiceMutationError = ErrorType<unknown>;
+
+/**
+ * @summary Update invoice status
+ */
+export const useUpdateInvoice = <
+  TError = ErrorType<unknown>,
+  TContext = unknown,
+>(options?: {
+  mutation?: UseMutationOptions<
+    Awaited<ReturnType<typeof updateInvoice>>,
+    TError,
+    { id: number; data: BodyType<UpdateInvoiceBody> },
+    TContext
+  >;
+  request?: SecondParameter<typeof customFetch>;
+}): UseMutationResult<
+  Awaited<ReturnType<typeof updateInvoice>>,
+  TError,
+  { id: number; data: BodyType<UpdateInvoiceBody> },
+  TContext
+> => {
+  return useMutation(getUpdateInvoiceMutationOptions(options));
+};
+
+/**
+ * @summary Delete an invoice
+ */
+export const getDeleteInvoiceUrl = (id: number) => {
+  return `/api/legal/invoices/${id}`;
+};
+
+export const deleteInvoice = async (
+  id: number,
+  options?: RequestInit,
+): Promise<void> => {
+  return customFetch<void>(getDeleteInvoiceUrl(id), {
+    ...options,
+    method: "DELETE",
+  });
+};
+
+export const getDeleteInvoiceMutationOptions = <
+  TError = ErrorType<unknown>,
+  TContext = unknown,
+>(options?: {
+  mutation?: UseMutationOptions<
+    Awaited<ReturnType<typeof deleteInvoice>>,
+    TError,
+    { id: number },
+    TContext
+  >;
+  request?: SecondParameter<typeof customFetch>;
+}): UseMutationOptions<
+  Awaited<ReturnType<typeof deleteInvoice>>,
+  TError,
+  { id: number },
+  TContext
+> => {
+  const mutationKey = ["deleteInvoice"];
+  const { mutation: mutationOptions, request: requestOptions } = options
+    ? options.mutation &&
+      "mutationKey" in options.mutation &&
+      options.mutation.mutationKey
+      ? options
+      : { ...options, mutation: { ...options.mutation, mutationKey } }
+    : { mutation: { mutationKey }, request: undefined };
+
+  const mutationFn: MutationFunction<
+    Awaited<ReturnType<typeof deleteInvoice>>,
+    { id: number }
+  > = (props) => {
+    const { id } = props ?? {};
+
+    return deleteInvoice(id, requestOptions);
+  };
+
+  return { mutationFn, ...mutationOptions };
+};
+
+export type DeleteInvoiceMutationResult = NonNullable<
+  Awaited<ReturnType<typeof deleteInvoice>>
+>;
+
+export type DeleteInvoiceMutationError = ErrorType<unknown>;
+
+/**
+ * @summary Delete an invoice
+ */
+export const useDeleteInvoice = <
+  TError = ErrorType<unknown>,
+  TContext = unknown,
+>(options?: {
+  mutation?: UseMutationOptions<
+    Awaited<ReturnType<typeof deleteInvoice>>,
+    TError,
+    { id: number },
+    TContext
+  >;
+  request?: SecondParameter<typeof customFetch>;
+}): UseMutationResult<
+  Awaited<ReturnType<typeof deleteInvoice>>,
+  TError,
+  { id: number },
+  TContext
+> => {
+  return useMutation(getDeleteInvoiceMutationOptions(options));
+};
+
+/**
+ * @summary List tasks
+ */
+export const getListLegalTasksUrl = (params?: ListLegalTasksParams) => {
+  const normalizedParams = new URLSearchParams();
+
+  Object.entries(params || {}).forEach(([key, value]) => {
+    if (value !== undefined) {
+      normalizedParams.append(key, value === null ? "null" : value.toString());
+    }
+  });
+
+  const stringifiedParams = normalizedParams.toString();
+
+  return stringifiedParams.length > 0
+    ? `/api/legal/tasks?${stringifiedParams}`
+    : `/api/legal/tasks`;
+};
+
+export const listLegalTasks = async (
+  params?: ListLegalTasksParams,
+  options?: RequestInit,
+): Promise<ListLegalTasks200> => {
+  return customFetch<ListLegalTasks200>(getListLegalTasksUrl(params), {
+    ...options,
+    method: "GET",
+  });
+};
+
+export const getListLegalTasksQueryKey = (params?: ListLegalTasksParams) => {
+  return [`/api/legal/tasks`, ...(params ? [params] : [])] as const;
+};
+
+export const getListLegalTasksQueryOptions = <
+  TData = Awaited<ReturnType<typeof listLegalTasks>>,
+  TError = ErrorType<unknown>,
+>(
+  params?: ListLegalTasksParams,
+  options?: {
+    query?: UseQueryOptions<
+      Awaited<ReturnType<typeof listLegalTasks>>,
+      TError,
+      TData
+    >;
+    request?: SecondParameter<typeof customFetch>;
+  },
+) => {
+  const { query: queryOptions, request: requestOptions } = options ?? {};
+
+  const queryKey = queryOptions?.queryKey ?? getListLegalTasksQueryKey(params);
+
+  const queryFn: QueryFunction<Awaited<ReturnType<typeof listLegalTasks>>> = ({
+    signal,
+  }) => listLegalTasks(params, { signal, ...requestOptions });
+
+  return { queryKey, queryFn, ...queryOptions } as UseQueryOptions<
+    Awaited<ReturnType<typeof listLegalTasks>>,
+    TError,
+    TData
+  > & { queryKey: QueryKey };
+};
+
+export type ListLegalTasksQueryResult = NonNullable<
+  Awaited<ReturnType<typeof listLegalTasks>>
+>;
+export type ListLegalTasksQueryError = ErrorType<unknown>;
+
+/**
+ * @summary List tasks
+ */
+
+export function useListLegalTasks<
+  TData = Awaited<ReturnType<typeof listLegalTasks>>,
+  TError = ErrorType<unknown>,
+>(
+  params?: ListLegalTasksParams,
+  options?: {
+    query?: UseQueryOptions<
+      Awaited<ReturnType<typeof listLegalTasks>>,
+      TError,
+      TData
+    >;
+    request?: SecondParameter<typeof customFetch>;
+  },
+): UseQueryResult<TData, TError> & { queryKey: QueryKey } {
+  const queryOptions = getListLegalTasksQueryOptions(params, options);
+
+  const query = useQuery(queryOptions) as UseQueryResult<TData, TError> & {
+    queryKey: QueryKey;
+  };
+
+  return { ...query, queryKey: queryOptions.queryKey };
+}
+
+/**
+ * @summary Create a task
+ */
+export const getCreateLegalTaskUrl = () => {
+  return `/api/legal/tasks`;
+};
+
+export const createLegalTask = async (
+  createLegalTaskBody: CreateLegalTaskBody,
+  options?: RequestInit,
+): Promise<LegalTask> => {
+  return customFetch<LegalTask>(getCreateLegalTaskUrl(), {
+    ...options,
+    method: "POST",
+    headers: { "Content-Type": "application/json", ...options?.headers },
+    body: JSON.stringify(createLegalTaskBody),
+  });
+};
+
+export const getCreateLegalTaskMutationOptions = <
+  TError = ErrorType<unknown>,
+  TContext = unknown,
+>(options?: {
+  mutation?: UseMutationOptions<
+    Awaited<ReturnType<typeof createLegalTask>>,
+    TError,
+    { data: BodyType<CreateLegalTaskBody> },
+    TContext
+  >;
+  request?: SecondParameter<typeof customFetch>;
+}): UseMutationOptions<
+  Awaited<ReturnType<typeof createLegalTask>>,
+  TError,
+  { data: BodyType<CreateLegalTaskBody> },
+  TContext
+> => {
+  const mutationKey = ["createLegalTask"];
+  const { mutation: mutationOptions, request: requestOptions } = options
+    ? options.mutation &&
+      "mutationKey" in options.mutation &&
+      options.mutation.mutationKey
+      ? options
+      : { ...options, mutation: { ...options.mutation, mutationKey } }
+    : { mutation: { mutationKey }, request: undefined };
+
+  const mutationFn: MutationFunction<
+    Awaited<ReturnType<typeof createLegalTask>>,
+    { data: BodyType<CreateLegalTaskBody> }
+  > = (props) => {
+    const { data } = props ?? {};
+
+    return createLegalTask(data, requestOptions);
+  };
+
+  return { mutationFn, ...mutationOptions };
+};
+
+export type CreateLegalTaskMutationResult = NonNullable<
+  Awaited<ReturnType<typeof createLegalTask>>
+>;
+export type CreateLegalTaskMutationBody = BodyType<CreateLegalTaskBody>;
+export type CreateLegalTaskMutationError = ErrorType<unknown>;
+
+/**
+ * @summary Create a task
+ */
+export const useCreateLegalTask = <
+  TError = ErrorType<unknown>,
+  TContext = unknown,
+>(options?: {
+  mutation?: UseMutationOptions<
+    Awaited<ReturnType<typeof createLegalTask>>,
+    TError,
+    { data: BodyType<CreateLegalTaskBody> },
+    TContext
+  >;
+  request?: SecondParameter<typeof customFetch>;
+}): UseMutationResult<
+  Awaited<ReturnType<typeof createLegalTask>>,
+  TError,
+  { data: BodyType<CreateLegalTaskBody> },
+  TContext
+> => {
+  return useMutation(getCreateLegalTaskMutationOptions(options));
+};
+
+/**
+ * @summary Update a task
+ */
+export const getUpdateLegalTaskUrl = (id: number) => {
+  return `/api/legal/tasks/${id}`;
+};
+
+export const updateLegalTask = async (
+  id: number,
+  createLegalTaskBody: CreateLegalTaskBody,
+  options?: RequestInit,
+): Promise<LegalTask> => {
+  return customFetch<LegalTask>(getUpdateLegalTaskUrl(id), {
+    ...options,
+    method: "PUT",
+    headers: { "Content-Type": "application/json", ...options?.headers },
+    body: JSON.stringify(createLegalTaskBody),
+  });
+};
+
+export const getUpdateLegalTaskMutationOptions = <
+  TError = ErrorType<unknown>,
+  TContext = unknown,
+>(options?: {
+  mutation?: UseMutationOptions<
+    Awaited<ReturnType<typeof updateLegalTask>>,
+    TError,
+    { id: number; data: BodyType<CreateLegalTaskBody> },
+    TContext
+  >;
+  request?: SecondParameter<typeof customFetch>;
+}): UseMutationOptions<
+  Awaited<ReturnType<typeof updateLegalTask>>,
+  TError,
+  { id: number; data: BodyType<CreateLegalTaskBody> },
+  TContext
+> => {
+  const mutationKey = ["updateLegalTask"];
+  const { mutation: mutationOptions, request: requestOptions } = options
+    ? options.mutation &&
+      "mutationKey" in options.mutation &&
+      options.mutation.mutationKey
+      ? options
+      : { ...options, mutation: { ...options.mutation, mutationKey } }
+    : { mutation: { mutationKey }, request: undefined };
+
+  const mutationFn: MutationFunction<
+    Awaited<ReturnType<typeof updateLegalTask>>,
+    { id: number; data: BodyType<CreateLegalTaskBody> }
+  > = (props) => {
+    const { id, data } = props ?? {};
+
+    return updateLegalTask(id, data, requestOptions);
+  };
+
+  return { mutationFn, ...mutationOptions };
+};
+
+export type UpdateLegalTaskMutationResult = NonNullable<
+  Awaited<ReturnType<typeof updateLegalTask>>
+>;
+export type UpdateLegalTaskMutationBody = BodyType<CreateLegalTaskBody>;
+export type UpdateLegalTaskMutationError = ErrorType<unknown>;
+
+/**
+ * @summary Update a task
+ */
+export const useUpdateLegalTask = <
+  TError = ErrorType<unknown>,
+  TContext = unknown,
+>(options?: {
+  mutation?: UseMutationOptions<
+    Awaited<ReturnType<typeof updateLegalTask>>,
+    TError,
+    { id: number; data: BodyType<CreateLegalTaskBody> },
+    TContext
+  >;
+  request?: SecondParameter<typeof customFetch>;
+}): UseMutationResult<
+  Awaited<ReturnType<typeof updateLegalTask>>,
+  TError,
+  { id: number; data: BodyType<CreateLegalTaskBody> },
+  TContext
+> => {
+  return useMutation(getUpdateLegalTaskMutationOptions(options));
+};
+
+/**
+ * @summary Delete a task
+ */
+export const getDeleteLegalTaskUrl = (id: number) => {
+  return `/api/legal/tasks/${id}`;
+};
+
+export const deleteLegalTask = async (
+  id: number,
+  options?: RequestInit,
+): Promise<void> => {
+  return customFetch<void>(getDeleteLegalTaskUrl(id), {
+    ...options,
+    method: "DELETE",
+  });
+};
+
+export const getDeleteLegalTaskMutationOptions = <
+  TError = ErrorType<unknown>,
+  TContext = unknown,
+>(options?: {
+  mutation?: UseMutationOptions<
+    Awaited<ReturnType<typeof deleteLegalTask>>,
+    TError,
+    { id: number },
+    TContext
+  >;
+  request?: SecondParameter<typeof customFetch>;
+}): UseMutationOptions<
+  Awaited<ReturnType<typeof deleteLegalTask>>,
+  TError,
+  { id: number },
+  TContext
+> => {
+  const mutationKey = ["deleteLegalTask"];
+  const { mutation: mutationOptions, request: requestOptions } = options
+    ? options.mutation &&
+      "mutationKey" in options.mutation &&
+      options.mutation.mutationKey
+      ? options
+      : { ...options, mutation: { ...options.mutation, mutationKey } }
+    : { mutation: { mutationKey }, request: undefined };
+
+  const mutationFn: MutationFunction<
+    Awaited<ReturnType<typeof deleteLegalTask>>,
+    { id: number }
+  > = (props) => {
+    const { id } = props ?? {};
+
+    return deleteLegalTask(id, requestOptions);
+  };
+
+  return { mutationFn, ...mutationOptions };
+};
+
+export type DeleteLegalTaskMutationResult = NonNullable<
+  Awaited<ReturnType<typeof deleteLegalTask>>
+>;
+
+export type DeleteLegalTaskMutationError = ErrorType<unknown>;
+
+/**
+ * @summary Delete a task
+ */
+export const useDeleteLegalTask = <
+  TError = ErrorType<unknown>,
+  TContext = unknown,
+>(options?: {
+  mutation?: UseMutationOptions<
+    Awaited<ReturnType<typeof deleteLegalTask>>,
+    TError,
+    { id: number },
+    TContext
+  >;
+  request?: SecondParameter<typeof customFetch>;
+}): UseMutationResult<
+  Awaited<ReturnType<typeof deleteLegalTask>>,
+  TError,
+  { id: number },
+  TContext
+> => {
+  return useMutation(getDeleteLegalTaskMutationOptions(options));
+};
+
+/**
+ * @summary List notes for a matter
+ */
+export const getListLegalNotesUrl = (params: ListLegalNotesParams) => {
+  const normalizedParams = new URLSearchParams();
+
+  Object.entries(params || {}).forEach(([key, value]) => {
+    if (value !== undefined) {
+      normalizedParams.append(key, value === null ? "null" : value.toString());
+    }
+  });
+
+  const stringifiedParams = normalizedParams.toString();
+
+  return stringifiedParams.length > 0
+    ? `/api/legal/notes?${stringifiedParams}`
+    : `/api/legal/notes`;
+};
+
+export const listLegalNotes = async (
+  params: ListLegalNotesParams,
+  options?: RequestInit,
+): Promise<ListLegalNotes200> => {
+  return customFetch<ListLegalNotes200>(getListLegalNotesUrl(params), {
+    ...options,
+    method: "GET",
+  });
+};
+
+export const getListLegalNotesQueryKey = (params?: ListLegalNotesParams) => {
+  return [`/api/legal/notes`, ...(params ? [params] : [])] as const;
+};
+
+export const getListLegalNotesQueryOptions = <
+  TData = Awaited<ReturnType<typeof listLegalNotes>>,
+  TError = ErrorType<unknown>,
+>(
+  params: ListLegalNotesParams,
+  options?: {
+    query?: UseQueryOptions<
+      Awaited<ReturnType<typeof listLegalNotes>>,
+      TError,
+      TData
+    >;
+    request?: SecondParameter<typeof customFetch>;
+  },
+) => {
+  const { query: queryOptions, request: requestOptions } = options ?? {};
+
+  const queryKey = queryOptions?.queryKey ?? getListLegalNotesQueryKey(params);
+
+  const queryFn: QueryFunction<Awaited<ReturnType<typeof listLegalNotes>>> = ({
+    signal,
+  }) => listLegalNotes(params, { signal, ...requestOptions });
+
+  return { queryKey, queryFn, ...queryOptions } as UseQueryOptions<
+    Awaited<ReturnType<typeof listLegalNotes>>,
+    TError,
+    TData
+  > & { queryKey: QueryKey };
+};
+
+export type ListLegalNotesQueryResult = NonNullable<
+  Awaited<ReturnType<typeof listLegalNotes>>
+>;
+export type ListLegalNotesQueryError = ErrorType<unknown>;
+
+/**
+ * @summary List notes for a matter
+ */
+
+export function useListLegalNotes<
+  TData = Awaited<ReturnType<typeof listLegalNotes>>,
+  TError = ErrorType<unknown>,
+>(
+  params: ListLegalNotesParams,
+  options?: {
+    query?: UseQueryOptions<
+      Awaited<ReturnType<typeof listLegalNotes>>,
+      TError,
+      TData
+    >;
+    request?: SecondParameter<typeof customFetch>;
+  },
+): UseQueryResult<TData, TError> & { queryKey: QueryKey } {
+  const queryOptions = getListLegalNotesQueryOptions(params, options);
+
+  const query = useQuery(queryOptions) as UseQueryResult<TData, TError> & {
+    queryKey: QueryKey;
+  };
+
+  return { ...query, queryKey: queryOptions.queryKey };
+}
+
+/**
+ * @summary Create a note
+ */
+export const getCreateLegalNoteUrl = () => {
+  return `/api/legal/notes`;
+};
+
+export const createLegalNote = async (
+  createLegalNoteBody: CreateLegalNoteBody,
+  options?: RequestInit,
+): Promise<LegalNote> => {
+  return customFetch<LegalNote>(getCreateLegalNoteUrl(), {
+    ...options,
+    method: "POST",
+    headers: { "Content-Type": "application/json", ...options?.headers },
+    body: JSON.stringify(createLegalNoteBody),
+  });
+};
+
+export const getCreateLegalNoteMutationOptions = <
+  TError = ErrorType<unknown>,
+  TContext = unknown,
+>(options?: {
+  mutation?: UseMutationOptions<
+    Awaited<ReturnType<typeof createLegalNote>>,
+    TError,
+    { data: BodyType<CreateLegalNoteBody> },
+    TContext
+  >;
+  request?: SecondParameter<typeof customFetch>;
+}): UseMutationOptions<
+  Awaited<ReturnType<typeof createLegalNote>>,
+  TError,
+  { data: BodyType<CreateLegalNoteBody> },
+  TContext
+> => {
+  const mutationKey = ["createLegalNote"];
+  const { mutation: mutationOptions, request: requestOptions } = options
+    ? options.mutation &&
+      "mutationKey" in options.mutation &&
+      options.mutation.mutationKey
+      ? options
+      : { ...options, mutation: { ...options.mutation, mutationKey } }
+    : { mutation: { mutationKey }, request: undefined };
+
+  const mutationFn: MutationFunction<
+    Awaited<ReturnType<typeof createLegalNote>>,
+    { data: BodyType<CreateLegalNoteBody> }
+  > = (props) => {
+    const { data } = props ?? {};
+
+    return createLegalNote(data, requestOptions);
+  };
+
+  return { mutationFn, ...mutationOptions };
+};
+
+export type CreateLegalNoteMutationResult = NonNullable<
+  Awaited<ReturnType<typeof createLegalNote>>
+>;
+export type CreateLegalNoteMutationBody = BodyType<CreateLegalNoteBody>;
+export type CreateLegalNoteMutationError = ErrorType<unknown>;
+
+/**
+ * @summary Create a note
+ */
+export const useCreateLegalNote = <
+  TError = ErrorType<unknown>,
+  TContext = unknown,
+>(options?: {
+  mutation?: UseMutationOptions<
+    Awaited<ReturnType<typeof createLegalNote>>,
+    TError,
+    { data: BodyType<CreateLegalNoteBody> },
+    TContext
+  >;
+  request?: SecondParameter<typeof customFetch>;
+}): UseMutationResult<
+  Awaited<ReturnType<typeof createLegalNote>>,
+  TError,
+  { data: BodyType<CreateLegalNoteBody> },
+  TContext
+> => {
+  return useMutation(getCreateLegalNoteMutationOptions(options));
+};
+
+/**
+ * @summary Update a note
+ */
+export const getUpdateLegalNoteUrl = (id: number) => {
+  return `/api/legal/notes/${id}`;
+};
+
+export const updateLegalNote = async (
+  id: number,
+  createLegalNoteBody: CreateLegalNoteBody,
+  options?: RequestInit,
+): Promise<LegalNote> => {
+  return customFetch<LegalNote>(getUpdateLegalNoteUrl(id), {
+    ...options,
+    method: "PUT",
+    headers: { "Content-Type": "application/json", ...options?.headers },
+    body: JSON.stringify(createLegalNoteBody),
+  });
+};
+
+export const getUpdateLegalNoteMutationOptions = <
+  TError = ErrorType<unknown>,
+  TContext = unknown,
+>(options?: {
+  mutation?: UseMutationOptions<
+    Awaited<ReturnType<typeof updateLegalNote>>,
+    TError,
+    { id: number; data: BodyType<CreateLegalNoteBody> },
+    TContext
+  >;
+  request?: SecondParameter<typeof customFetch>;
+}): UseMutationOptions<
+  Awaited<ReturnType<typeof updateLegalNote>>,
+  TError,
+  { id: number; data: BodyType<CreateLegalNoteBody> },
+  TContext
+> => {
+  const mutationKey = ["updateLegalNote"];
+  const { mutation: mutationOptions, request: requestOptions } = options
+    ? options.mutation &&
+      "mutationKey" in options.mutation &&
+      options.mutation.mutationKey
+      ? options
+      : { ...options, mutation: { ...options.mutation, mutationKey } }
+    : { mutation: { mutationKey }, request: undefined };
+
+  const mutationFn: MutationFunction<
+    Awaited<ReturnType<typeof updateLegalNote>>,
+    { id: number; data: BodyType<CreateLegalNoteBody> }
+  > = (props) => {
+    const { id, data } = props ?? {};
+
+    return updateLegalNote(id, data, requestOptions);
+  };
+
+  return { mutationFn, ...mutationOptions };
+};
+
+export type UpdateLegalNoteMutationResult = NonNullable<
+  Awaited<ReturnType<typeof updateLegalNote>>
+>;
+export type UpdateLegalNoteMutationBody = BodyType<CreateLegalNoteBody>;
+export type UpdateLegalNoteMutationError = ErrorType<unknown>;
+
+/**
+ * @summary Update a note
+ */
+export const useUpdateLegalNote = <
+  TError = ErrorType<unknown>,
+  TContext = unknown,
+>(options?: {
+  mutation?: UseMutationOptions<
+    Awaited<ReturnType<typeof updateLegalNote>>,
+    TError,
+    { id: number; data: BodyType<CreateLegalNoteBody> },
+    TContext
+  >;
+  request?: SecondParameter<typeof customFetch>;
+}): UseMutationResult<
+  Awaited<ReturnType<typeof updateLegalNote>>,
+  TError,
+  { id: number; data: BodyType<CreateLegalNoteBody> },
+  TContext
+> => {
+  return useMutation(getUpdateLegalNoteMutationOptions(options));
+};
+
+/**
+ * @summary Delete a note
+ */
+export const getDeleteLegalNoteUrl = (id: number) => {
+  return `/api/legal/notes/${id}`;
+};
+
+export const deleteLegalNote = async (
+  id: number,
+  options?: RequestInit,
+): Promise<void> => {
+  return customFetch<void>(getDeleteLegalNoteUrl(id), {
+    ...options,
+    method: "DELETE",
+  });
+};
+
+export const getDeleteLegalNoteMutationOptions = <
+  TError = ErrorType<unknown>,
+  TContext = unknown,
+>(options?: {
+  mutation?: UseMutationOptions<
+    Awaited<ReturnType<typeof deleteLegalNote>>,
+    TError,
+    { id: number },
+    TContext
+  >;
+  request?: SecondParameter<typeof customFetch>;
+}): UseMutationOptions<
+  Awaited<ReturnType<typeof deleteLegalNote>>,
+  TError,
+  { id: number },
+  TContext
+> => {
+  const mutationKey = ["deleteLegalNote"];
+  const { mutation: mutationOptions, request: requestOptions } = options
+    ? options.mutation &&
+      "mutationKey" in options.mutation &&
+      options.mutation.mutationKey
+      ? options
+      : { ...options, mutation: { ...options.mutation, mutationKey } }
+    : { mutation: { mutationKey }, request: undefined };
+
+  const mutationFn: MutationFunction<
+    Awaited<ReturnType<typeof deleteLegalNote>>,
+    { id: number }
+  > = (props) => {
+    const { id } = props ?? {};
+
+    return deleteLegalNote(id, requestOptions);
+  };
+
+  return { mutationFn, ...mutationOptions };
+};
+
+export type DeleteLegalNoteMutationResult = NonNullable<
+  Awaited<ReturnType<typeof deleteLegalNote>>
+>;
+
+export type DeleteLegalNoteMutationError = ErrorType<unknown>;
+
+/**
+ * @summary Delete a note
+ */
+export const useDeleteLegalNote = <
+  TError = ErrorType<unknown>,
+  TContext = unknown,
+>(options?: {
+  mutation?: UseMutationOptions<
+    Awaited<ReturnType<typeof deleteLegalNote>>,
+    TError,
+    { id: number },
+    TContext
+  >;
+  request?: SecondParameter<typeof customFetch>;
+}): UseMutationResult<
+  Awaited<ReturnType<typeof deleteLegalNote>>,
+  TError,
+  { id: number },
+  TContext
+> => {
+  return useMutation(getDeleteLegalNoteMutationOptions(options));
 };
