@@ -769,6 +769,211 @@ interface DbProject {
   status?: string;
 }
 
+// ─── Member types ─────────────────────────────────────────────────────────────
+interface Member {
+  id: string;
+  name: string;
+  email: string;
+  role: string;
+  addedAt: string;
+}
+
+const ROLES = ["Owner", "Editor", "Viewer", "Commenter"];
+
+// ─── TeamPanel ───────────────────────────────────────────────────────────────
+function TeamPanel({ projectId }: { projectId: string }) {
+  const [members, setMembers] = React.useState<Member[]>([]);
+  const [loading, setLoading] = React.useState(true);
+  const [addName, setAddName] = React.useState("");
+  const [addEmail, setAddEmail] = React.useState("");
+  const [addRole, setAddRole] = React.useState("Viewer");
+  const [adding, setAdding] = React.useState(false);
+  const [error, setError] = React.useState<string | null>(null);
+  const [removing, setRemoving] = React.useState<string | null>(null);
+  const [success, setSuccess] = React.useState<string | null>(null);
+
+  const load = React.useCallback(() => {
+    setLoading(true);
+    fetch(`/api/projects/${projectId}/members`, { credentials: "include" })
+      .then(r => r.ok ? r.json() : { members: [] })
+      .then((d: { members: Member[] }) => setMembers(d.members ?? []))
+      .catch(() => {})
+      .finally(() => setLoading(false));
+  }, [projectId]);
+
+  React.useEffect(() => { load(); }, [load]);
+
+  const handleAdd = async () => {
+    if (!addName.trim() && !addEmail.trim()) { setError("Enter a name or email."); return; }
+    setAdding(true); setError(null);
+    try {
+      const res = await fetch(`/api/projects/${projectId}/members`, {
+        method: "POST",
+        credentials: "include",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ name: addName.trim(), email: addEmail.trim(), role: addRole }),
+      });
+      const data = await res.json() as { member?: Member; error?: string };
+      if (data.member) {
+        setMembers(prev => [...prev, data.member!]);
+        setAddName(""); setAddEmail(""); setAddRole("Viewer");
+        setSuccess("Member added."); setTimeout(() => setSuccess(null), 3000);
+      } else { setError(data.error ?? "Failed to add member"); }
+    } catch { setError("Network error"); }
+    finally { setAdding(false); }
+  };
+
+  const handleRoleChange = async (m: Member, role: string) => {
+    const prev = members;
+    setMembers(ms => ms.map(x => x.id === m.id ? { ...x, role } : x));
+    try {
+      await fetch(`/api/projects/${projectId}/members/${m.id}`, {
+        method: "PUT",
+        credentials: "include",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ role }),
+      });
+    } catch { setMembers(prev); }
+  };
+
+  const handleRemove = async (id: string) => {
+    if (!confirm("Remove this member?")) return;
+    setRemoving(id);
+    try {
+      await fetch(`/api/projects/${projectId}/members/${id}`, { method: "DELETE", credentials: "include" });
+      setMembers(prev => prev.filter(m => m.id !== id));
+    } catch {}
+    finally { setRemoving(null); }
+  };
+
+  if (loading) return (
+    <div className="flex items-center gap-2 text-[12px] text-muted-foreground py-6">
+      <div className="w-3 h-3 border-2 border-primary border-t-transparent rounded-full animate-spin" /> Loading members…
+    </div>
+  );
+
+  return (
+    <div className="space-y-4">
+      {/* Add member form */}
+      <div className="bg-muted/40 rounded-2xl border border-border/30 p-4 space-y-3">
+        <p className="text-[11px] font-bold text-foreground uppercase tracking-wider">Invite Member</p>
+        <div className="space-y-2">
+          <input value={addName} onChange={e => setAddName(e.target.value)}
+            placeholder="Full name"
+            className="w-full bg-background border border-border/50 rounded-xl px-3 py-2 text-[13px] text-foreground placeholder:text-muted-foreground outline-none focus:ring-2 focus:ring-primary/20" />
+          <input value={addEmail} onChange={e => setAddEmail(e.target.value)}
+            placeholder="Email address (optional)"
+            className="w-full bg-background border border-border/50 rounded-xl px-3 py-2 text-[13px] text-foreground placeholder:text-muted-foreground outline-none focus:ring-2 focus:ring-primary/20" />
+          <div className="flex gap-2">
+            <select value={addRole} onChange={e => setAddRole(e.target.value)}
+              className="flex-1 bg-background border border-border/50 rounded-xl px-3 py-2 text-[13px] text-foreground outline-none focus:ring-2 focus:ring-primary/20">
+              {ROLES.map(r => <option key={r} value={r}>{r}</option>)}
+            </select>
+            <button onClick={handleAdd} disabled={adding}
+              className="bg-primary text-white font-semibold text-[13px] px-4 py-2 rounded-xl hover:opacity-90 transition-opacity disabled:opacity-50">
+              {adding ? "…" : "+ Add"}
+            </button>
+          </div>
+        </div>
+        {error && <p className="text-[11px] text-red-500">{error}</p>}
+        {success && <p className="text-[11px] text-green-600">{success}</p>}
+      </div>
+
+      {/* Member list */}
+      {members.length === 0 ? (
+        <div className="text-center py-8 space-y-2">
+          <p className="text-2xl">👥</p>
+          <p className="text-[13px] text-muted-foreground">No members yet. Add collaborators above.</p>
+        </div>
+      ) : (
+        <div className="space-y-2">
+          {members.map(m => (
+            <div key={m.id} className="flex items-center gap-3 p-3.5 bg-background rounded-2xl border border-border/50">
+              <div className="w-8 h-8 rounded-full bg-primary/20 flex items-center justify-center text-[12px] font-bold text-primary flex-shrink-0">
+                {m.name[0]?.toUpperCase() ?? "?"}
+              </div>
+              <div className="flex-1 min-w-0">
+                <p className="text-[13px] font-semibold text-foreground truncate">{m.name}</p>
+                {m.email && <p className="text-[11px] text-muted-foreground truncate">{m.email}</p>}
+              </div>
+              <select value={m.role} onChange={e => handleRoleChange(m, e.target.value)}
+                className="text-[11px] font-semibold bg-muted px-2 py-1 rounded-lg text-foreground outline-none border border-border/30 flex-shrink-0">
+                {ROLES.map(r => <option key={r} value={r}>{r}</option>)}
+              </select>
+              <button onClick={() => handleRemove(m.id)} disabled={removing === m.id}
+                className="text-[11px] text-red-400 hover:text-red-600 px-2 py-1 rounded-lg hover:bg-red-50 transition-colors flex-shrink-0 disabled:opacity-40">
+                {removing === m.id ? "…" : "✕"}
+              </button>
+            </div>
+          ))}
+        </div>
+      )}
+      <p className="text-[10px] text-muted-foreground text-center">Members are stored per project in the database.</p>
+    </div>
+  );
+}
+
+// ─── DbProjectDetail ─────────────────────────────────────────────────────────
+type DbProjectTab = "overview" | "team";
+
+function DbProjectDetail({ project, onBack }: { project: DbProject; onBack: () => void }) {
+  const { openApp } = useOS();
+  const [tab, setTab] = React.useState<DbProjectTab>("overview");
+
+  return (
+    <div className="p-6 space-y-5">
+      <button onClick={onBack} className="text-primary text-sm font-medium">‹ Projects</button>
+      <div className="flex items-center gap-3">
+        <div className="w-12 h-12 rounded-2xl flex items-center justify-center text-2xl flex-shrink-0"
+          style={{ backgroundColor: (project.color || "#6366f1") + "22" }}>
+          {project.icon || "📁"}
+        </div>
+        <div className="flex-1 min-w-0">
+          <h2 className="text-xl font-bold text-foreground truncate">{project.name}</h2>
+          <p className="text-[12px] text-muted-foreground">{project.industry} · Created {project.created}</p>
+        </div>
+      </div>
+
+      {/* Tab bar */}
+      <div className="flex rounded-xl overflow-hidden border border-border/40">
+        {([["overview", "📋 Overview"], ["team", "👥 Team"]] as [DbProjectTab, string][]).map(([t, label]) => (
+          <button key={t} onClick={() => setTab(t)}
+            className="flex-1 py-2 text-[12px] font-semibold transition-all"
+            style={tab === t
+              ? { background: "rgba(99,102,241,0.18)", color: "#818cf8" }
+              : { background: "transparent", color: "#64748b" }}>
+            {label}
+          </button>
+        ))}
+      </div>
+
+      {tab === "overview" && (
+        <div className="space-y-3">
+          <div className="grid grid-cols-2 gap-3">
+            {[
+              { icon: "🏭", label: "Industry",  value: project.industry },
+              { icon: "📅", label: "Created",   value: project.created },
+              { icon: "🔖", label: "Status",    value: project.status === "archived" ? "Archived" : "Active" },
+              { icon: "🆔", label: "Project ID", value: `#${project.id}` },
+            ].map(item => (
+              <div key={item.label} className="p-3 bg-background rounded-xl border border-border/50 space-y-0.5">
+                <p className="text-[10px] text-muted-foreground">{item.icon} {item.label}</p>
+                <p className="text-[13px] font-semibold text-foreground">{item.value}</p>
+              </div>
+            ))}
+          </div>
+          <button onClick={() => openApp("projos" as never)}
+            className="w-full bg-primary text-white text-sm font-semibold py-3 rounded-xl hover:opacity-90 transition-opacity">
+            Open in ProjectOS →
+          </button>
+        </div>
+      )}
+
+      {tab === "team" && <TeamPanel projectId={project.id} />}
+    </div>
+  );
+}
+
 // ─── Main ProjectsApp ────────────────────────────────────────────────────────
 export function ProjectsApp() {
   const { openApp } = useOS();
@@ -779,6 +984,7 @@ export function ProjectsApp() {
   const [loadingDb, setLoadingDb] = useState(true);
   const [showArchived, setShowArchived] = useState(false);
   const [archiving, setArchiving] = useState<string | null>(null);
+  const [selectedDbProject, setSelectedDbProject] = useState<DbProject | null>(null);
 
   const loadProjects = React.useCallback(() => {
     setLoadingDb(true);
@@ -823,6 +1029,7 @@ export function ProjectsApp() {
   const archivedProjects = dbProjects.filter(p => p.status === "archived");
   const visibleProjects = showArchived ? archivedProjects : activeProjects;
 
+  if (selectedDbProject) return <DbProjectDetail project={selectedDbProject} onBack={() => setSelectedDbProject(null)} />;
   if (showNewForm) return <NewProjectForm
     onBack={() => setShowNewForm(false)}
     onCreated={loadProjects}
@@ -905,7 +1112,7 @@ export function ProjectsApp() {
                                 style={{ background: "rgba(100,116,139,0.08)", color: "#94a3b8", border: "1px solid rgba(100,116,139,0.15)" }}>
                                 {archiving === proj.id ? "…" : "Archive"}
                               </button>
-                              <button onClick={() => openApp("projos" as any)}
+                              <button onClick={() => setSelectedDbProject(proj)}
                                 className="flex items-center gap-1.5 text-[11px] font-bold text-white px-3 py-1.5 rounded-lg hover:opacity-90 transition-opacity"
                                 style={{ background: "linear-gradient(135deg,#6366f1,#8b5cf6)" }}>
                                 Open →

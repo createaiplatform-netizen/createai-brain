@@ -183,6 +183,75 @@ router.post("/", async (req: Request, res: Response) => {
   }
 });
 
+// ─── Members endpoints ─────────────────────────────────────────────────────
+// Members are stored as JSONB on the project row: [{ id, name, email, role, addedAt }]
+
+type Member = { id: string; name: string; email: string; role: string; addedAt: string };
+
+router.get("/:id/members", async (req: Request, res: Response) => {
+  const userId = requireAuth(req, res);
+  if (!userId) return;
+  try {
+    const id = parseInt(req.params.id, 10);
+    const [row] = await db.select().from(projects).where(eq(projects.id, id));
+    if (!row || row.userId !== userId) { res.status(404).json({ error: "Not found" }); return; }
+    const members = (row.members ?? []) as Member[];
+    res.json({ members });
+  } catch { res.status(500).json({ error: "Failed to load members" }); }
+});
+
+router.post("/:id/members", async (req: Request, res: Response) => {
+  const userId = requireAuth(req, res);
+  if (!userId) return;
+  try {
+    const id = parseInt(req.params.id, 10);
+    const [row] = await db.select().from(projects).where(eq(projects.id, id));
+    if (!row || row.userId !== userId) { res.status(404).json({ error: "Not found" }); return; }
+    const { name, email, role = "Viewer" } = req.body as { name?: string; email?: string; role?: string };
+    if (!name?.trim() && !email?.trim()) { res.status(400).json({ error: "name or email required" }); return; }
+    const members = (row.members ?? []) as Member[];
+    const newMember: Member = {
+      id: `m-${Date.now()}`,
+      name: (name ?? email ?? "").trim(),
+      email: (email ?? "").trim(),
+      role,
+      addedAt: new Date().toISOString(),
+    };
+    const updated = [...members, newMember];
+    await db.update(projects).set({ members: updated } as never).where(eq(projects.id, id));
+    res.status(201).json({ member: newMember });
+  } catch { res.status(500).json({ error: "Failed to add member" }); }
+});
+
+router.put("/:id/members/:memberId", async (req: Request, res: Response) => {
+  const userId = requireAuth(req, res);
+  if (!userId) return;
+  try {
+    const id = parseInt(req.params.id, 10);
+    const [row] = await db.select().from(projects).where(eq(projects.id, id));
+    if (!row || row.userId !== userId) { res.status(404).json({ error: "Not found" }); return; }
+    const { role } = req.body as { role?: string };
+    const members = (row.members ?? []) as Member[];
+    const updated = members.map(m => m.id === req.params.memberId ? { ...m, ...(role ? { role } : {}) } : m);
+    await db.update(projects).set({ members: updated } as never).where(eq(projects.id, id));
+    res.json({ success: true });
+  } catch { res.status(500).json({ error: "Failed to update member" }); }
+});
+
+router.delete("/:id/members/:memberId", async (req: Request, res: Response) => {
+  const userId = requireAuth(req, res);
+  if (!userId) return;
+  try {
+    const id = parseInt(req.params.id, 10);
+    const [row] = await db.select().from(projects).where(eq(projects.id, id));
+    if (!row || row.userId !== userId) { res.status(404).json({ error: "Not found" }); return; }
+    const members = (row.members ?? []) as Member[];
+    const updated = members.filter(m => m.id !== req.params.memberId);
+    await db.update(projects).set({ members: updated } as never).where(eq(projects.id, id));
+    res.json({ success: true });
+  } catch { res.status(500).json({ error: "Failed to remove member" }); }
+});
+
 // ─── GET /projects/files/:fileId ──────────────────────────────────────────
 
 router.get("/files/:fileId", async (req: Request, res: Response) => {
