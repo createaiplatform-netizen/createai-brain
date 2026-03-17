@@ -43,35 +43,45 @@ const PURPLE = "#8b5cf6";
 const DARK_BG = "linear-gradient(135deg, hsl(220,20%,10%) 0%, hsl(240,25%,14%) 50%, hsl(255,30%,12%) 100%)";
 
 const APP_PREVIEW = [
+  // Core OS
   { icon: "💬", label: "AI Chat" },
   { icon: "🗂️", label: "Projects" },
   { icon: "✨", label: "Creator" },
   { icon: "📣", label: "Marketing" },
   { icon: "📄", label: "Documents" },
   { icon: "🧠", label: "BrainGen" },
-  { icon: "🧪", label: "Simulate" },
   { icon: "👥", label: "People" },
-  { icon: "💰", label: "Monetize" },
-  { icon: "🌐", label: "Integrations" },
-  { icon: "🏢", label: "Business" },
-  { icon: "🛠️", label: "Tools" },
-  { icon: "🚀", label: "BizCreator" },
-  { icon: "📊", label: "BizDev" },
-  { icon: "🏗️", label: "ProjBuilder" },
-  { icon: "🎯", label: "ProjOS" },
-  { icon: "🤖", label: "Universal" },
-  { icon: "👨‍👩‍👧", label: "Family" },
-  { icon: "⚙️", label: "Admin" },
-  { icon: "🧬", label: "EntityGen" },
   { icon: "⚡", label: "Brain Hub" },
-  { icon: "🔬", label: "Research Hub" },
-  { icon: "🎓", label: "Learning Center" },
-  { icon: "👤", label: "Persona Studio" },
-  { icon: "🗄️", label: "Data Studio" },
-  { icon: "💡", label: "Pricing Studio" },
-  { icon: "📈", label: "Traction" },
-  { icon: "🎯", label: "Opportunities" },
-  { icon: "✨", label: "ImaginationLab" },
+  // Creative Writing
+  { icon: "🎬", label: "Scriptwriter" },
+  { icon: "📚", label: "Book Planner" },
+  { icon: "🌸", label: "PoemForge" },
+  { icon: "📝", label: "Essay Writer" },
+  { icon: "✍️", label: "Blog Writer" },
+  { icon: "🎤", label: "Speechwriter" },
+  // Business & Strategy
+  { icon: "♟️", label: "Strategist" },
+  { icon: "📧", label: "Email Composer" },
+  { icon: "📨", label: "Proposal Builder" },
+  { icon: "🤝", label: "Hiring Assistant" },
+  // World Building
+  { icon: "🪐", label: "Planet Builder" },
+  { icon: "🐉", label: "Monster Forge" },
+  { icon: "👾", label: "Alien Species" },
+  { icon: "🌀", label: "Dimension Builder" },
+  // Learning
+  { icon: "🔬", label: "Research Assist" },
+  { icon: "🦉", label: "Philosophy" },
+  { icon: "🔢", label: "Math Solver" },
+  // Lifestyle
+  { icon: "🎯", label: "Goal Planner" },
+  { icon: "✈️", label: "Travel Planner" },
+  { icon: "📔", label: "Journal Studio" },
+  // Music, Game, Health, Arts
+  { icon: "🎵", label: "Lyrics Writer" },
+  { icon: "⚔️", label: "Quest Designer" },
+  { icon: "💙", label: "Mental Health" },
+  { icon: "🖼️", label: "Art Critique" },
 ];
 
 // ─── Loading Screen ────────────────────────────────────────────────────────

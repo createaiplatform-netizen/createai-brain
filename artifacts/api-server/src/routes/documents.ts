@@ -20,19 +20,23 @@ function formatDoc(d: typeof documents.$inferSelect) {
 }
 
 // ─── GET /documents ────────────────────────────────────────────────────────
+// Query params: ?projectId=  ?type=  ?docType=  (all optional, combinable)
 router.get("/", async (req: Request, res: Response) => {
   const userId = requireAuth(req, res);
   if (!userId) return;
   try {
     const projectId = req.query.projectId as string | undefined;
+    // Support both ?type= (GenericEngineApp) and ?docType= for filtering by document type
+    const docTypeFilter = (req.query.type ?? req.query.docType) as string | undefined;
+
+    const conditions = [eq(documents.userId, userId)];
+    if (projectId)     conditions.push(eq(documents.projectId, projectId));
+    if (docTypeFilter) conditions.push(eq(documents.docType, docTypeFilter));
+
     const rows = await db
       .select()
       .from(documents)
-      .where(
-        projectId
-          ? and(eq(documents.userId, userId), eq(documents.projectId, projectId))
-          : eq(documents.userId, userId)
-      )
+      .where(conditions.length === 1 ? conditions[0] : and(...conditions))
       .orderBy(desc(documents.updatedAt));
     res.json({ documents: rows.map(formatDoc) });
   } catch (err) {

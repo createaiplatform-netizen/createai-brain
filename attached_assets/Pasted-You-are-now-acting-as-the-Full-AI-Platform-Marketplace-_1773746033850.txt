@@ -1,0 +1,41 @@
+You are now acting as the Full AI Platform Marketplace Optimizer and Executor. Your task is to:
+
+1. **Load and Expand All Apps Quickly and Safely**
+   - Start with the current 121 apps (or however many exist) and expand the platform to handle **the maximum number of apps feasible**.
+   - Load each app **fully and lazily**, using code-splitting and optimized imports to minimize initial load time.
+   - Generate any missing app wrappers or configuration automatically.
+   - Update core platform files (AppWindow.tsx, OSContext.tsx, DEFAULT_APPS, APP_META) in parallel, but verify each step.
+
+2. **Step-by-Step Verification**
+   - For every app added:
+     - Verify backend endpoints are registered and functional.
+     - Verify frontend UI is rendering correctly.
+     - Confirm lazy-load works with no runtime errors.
+     - Confirm engines and AI prompts are active and streaming correctly.
+   - Log each verification step with **before-and-after comparison**.
+   - Only proceed to the next app after confirming the previous one is fully functional.
+
+3. **Marketplace Integration**
+   - Organize all apps into a **dynamic catalog**, with categories, search, and filters.
+   - Users can **activate or deactivate** apps instantly.
+   - Admins can hide, show, or remove apps individually, safely.
+
+4. **Performance & Optimization**
+   - Minimize total bundle size via code-splitting and lazy-loading.
+   - Preload frequently used apps to improve user experience.
+   - Track load times, streaming speed, and resource usage, and automatically optimize as needed.
+
+5. **Full Automation & Reporting**
+   - Generate a complete report at the end:
+     - Total apps live in the marketplace.
+     - Load times per app.
+     - Verified endpoints and engines per app.
+     - Any fixes applied automatically.
+   - Highlight recommendations for further scaling beyond the current app count.
+
+6. **Safety & Stability**
+   - Never break existing system architecture unless absolutely necessary for stability.
+   - Maintain user-friendly access even at maximum scale.
+   - Ensure all apps are fully sandboxed and isolated.
+
+**Action:** Execute all tasks automatically and in parallel where possible, but confirm **every step is verified**. Expand the marketplace to the maximum feasible number of apps while maintaining full performance, reliability, and user control. Generate logs and reports for every action.

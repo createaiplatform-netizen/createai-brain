@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from "react";
+import React, { Suspense, useState, useEffect } from "react";
 import { useLocation } from "wouter";
 import { useOS } from "./OSContext";
 import { useMediaQuery } from "@/hooks/use-media-query";
@@ -6,56 +6,13 @@ import { Sidebar } from "./Sidebar";
 import MetricsPage from "@/pages/MetricsPage";
 import { Dashboard } from "./Dashboard";
 import { AppWindow } from "./AppWindow";
-import { ChatApp } from "@/Apps/ChatApp";
-import { ProjectsApp } from "@/Apps/ProjectsApp";
-import { ToolsApp } from "@/Apps/ToolsApp";
-import { PeopleApp } from "@/Apps/PeopleApp";
-import { DocumentsApp } from "@/Apps/DocumentsApp";
-import { MarketingApp } from "@/Apps/MarketingApp";
-import { AdminApp } from "@/Apps/AdminApp";
-import { FamilyApp } from "@/Apps/FamilyApp";
-import { IntegrationApp } from "@/Apps/IntegrationApp";
-import { MonetizationApp } from "@/Apps/MonetizationApp";
-import { CreatorApp } from "@/Apps/CreatorApp";
-import { UniversalApp } from "@/Apps/UniversalApp";
-import { SimulationApp } from "@/Apps/SimulationApp";
-import { BusinessCreationApp } from "@/Apps/BusinessCreationApp";
-import { BusinessEntityApp } from "@/Apps/BusinessEntityApp";
-import { BizUniverseApp } from "@/Apps/BizUniverseApp";
-import { BizDevApp } from "@/Apps/BizDevApp";
-import { ProjectBuilderApp } from "@/Apps/ProjectBuilderApp";
-import { ProjectOSApp } from "@/Apps/ProjectOSApp";
-import { OpportunityApp } from "@/Apps/OpportunityApp";
-import { ImaginationLabApp } from "@/Apps/ImaginationLabApp";
-import { LoreForgeApp } from "@/Apps/LoreForgeApp";
 import { ConversationOverlay } from "./ConversationOverlay";
-import { UCPXAgent } from "@/ucpx/UCPXAgent";
 import { GuidedTour } from "./GuidedTour";
 
-const APP_COMPONENTS: Record<string, React.ComponentType> = {
-  chat:         ChatApp,
-  projects:     ProjectsApp,
-  tools:        ToolsApp,
-  creator:      CreatorApp,
-  people:       PeopleApp,
-  documents:    DocumentsApp,
-  marketing:    MarketingApp,
-  admin:        AdminApp,
-  family:       FamilyApp,
-  integration:  IntegrationApp,
-  monetization: MonetizationApp,
-  simulation:   SimulationApp,
-  universal:    UniversalApp,
-  business:     BusinessCreationApp,
-  entity:       BusinessEntityApp,
-  bizcreator:   BizUniverseApp,
-  bizdev:       BizDevApp,
-  projbuilder:  ProjectBuilderApp,
-  projos:       ProjectOSApp,
-  opportunity:  OpportunityApp,
-  imaginationlab: ImaginationLabApp,
-  loreforge:      LoreForgeApp,
-};
+// UCPXAgent is a 963 KB file — lazy-load it so it never blocks the initial paint
+const UCPXAgent = React.lazy(() =>
+  import("@/ucpx/UCPXAgent").then(m => ({ default: m.UCPXAgent }))
+);
 
 /**
  * Three layout tiers — derived from width + orientation:
@@ -63,6 +20,10 @@ const APP_COMPONENTS: Record<string, React.ComponentType> = {
  *  NARROW   (< 768px)           → hamburger overlay, no sidebar, full-screen panels
  *  MEDIUM   (768–1023px)        → icon-only sidebar (60px flex sibling), no hamburger
  *  WIDE     (≥ 1024px)          → full sidebar (220px), no hamburger
+ *
+ * App routing: AppWindow.tsx owns all 121 lazy-loaded app components via its
+ * own APP_COMPONENTS record. osLayout.tsx only decides WHICH panel to show
+ * (Metrics / AppWindow / Dashboard) — it no longer needs its own component map.
  */
 export function OSLayout() {
   const { activeApp, openApp } = useOS();
@@ -86,7 +47,6 @@ export function OSLayout() {
   const showSidebar   = isMediumPlus;                          // medium + wide
   const sidebarIconOnly = isMediumPlus && !isWidePlus;         // medium only → icon-only
 
-  const ActiveComponent = activeApp ? APP_COMPONENTS[activeApp] : null;
   const closeMobileMenu = () => setMobileMenuOpen(false);
 
   return (
@@ -101,8 +61,10 @@ export function OSLayout() {
       {/* ── Global Conversation Overlay — available on every screen ── */}
       <ConversationOverlay />
 
-      {/* ── UCP-X Meta-AI Agent Layer — injected platform-wide ── */}
-      <UCPXAgent />
+      {/* ── UCP-X Meta-AI Agent Layer — injected platform-wide (lazy) ── */}
+      <Suspense fallback={null}>
+        <UCPXAgent />
+      </Suspense>
 
       {/* ── Persistent sidebar (medium+) ── */}
       {showSidebar && (
@@ -180,10 +142,9 @@ export function OSLayout() {
               <MetricsPage />
             </div>
           </div>
-        ) : activeApp && ActiveComponent ? (
-          <AppWindow onHamburger={showHamburger ? () => setMobileMenuOpen(true) : undefined}>
-            <ActiveComponent />
-          </AppWindow>
+        ) : activeApp ? (
+          /* AppWindow owns all 121 app components via lazy-loaded APP_COMPONENTS */
+          <AppWindow onHamburger={showHamburger ? () => setMobileMenuOpen(true) : undefined} />
         ) : (
           <Dashboard
             onHamburger={showHamburger ? () => setMobileMenuOpen(true) : undefined}

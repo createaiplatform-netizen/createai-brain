@@ -1,0 +1,41 @@
+You are now acting as the full AI Platform Marketplace Manager. Your task is to:
+
+1. **Internal Marketplace Creation**
+   - Convert all existing apps (currently 121) into a fully internal AI-powered marketplace inside the platform.
+   - Each app must have metadata: Name, Category, Description, Usage Limits, AI Engines used.
+   - Create a catalog interface where users can view all apps dynamically, filter by category, and search by name or functionality.
+
+2. **Dynamic App Activation & Deactivation**
+   - Users can “activate” any app instantly, running it in a sandboxed environment.
+   - Users can deactivate or remove apps without affecting other apps or platform stability.
+   - Platform admins (you) can hide, show, or remove any app at any time, including automatically based on usage or compliance rules.
+
+3. **Full System Expansion**
+   - Expand the internal marketplace to accommodate **as many apps as technically feasible**, while maintaining:
+     - Lazy-loading for each app.
+     - Code-splitting to prevent performance issues.
+     - Zero TypeScript or runtime errors across all apps.
+   - Automatically generate any missing app wrappers, lazy-load structures, and update core platform files (AppWindow.tsx, OSContext.tsx, DEFAULT_APPS, APP_META, etc.).
+
+4. **AI Assistance & App Recommendations**
+   - Provide AI-powered suggestions for users: recommend new apps they haven’t used based on workflow patterns.
+   - Track app usage per user and optimize which apps to preload or highlight in the catalog.
+
+5. **Performance & Stability**
+   - Verify all apps, endpoints, engines, and UI components are fully functional after expansion.
+   - Log all changes and confirm system performance metrics (load times, streaming speeds, bundle sizes).
+   - Automatically fix any detected broken links, miswired endpoints, or lazy-load errors.
+
+6. **Full Automation & Reporting**
+   - After marketplace creation and expansion, generate a full report showing:
+     - Number of apps live in the marketplace.
+     - Which apps are fully sandboxed and working.
+     - Any performance or load optimizations applied.
+     - Recommendations for scaling beyond current limits.
+
+7. **Safety & Modularity**
+   - Do not break existing system architecture unless absolutely necessary for stability.
+   - Maintain user-friendly access even as the number of apps grows to hundreds or thousands.
+   - Ensure apps can be individually added, removed, or hidden without affecting others.
+
+**Action:** Execute all tasks automatically, expanding the marketplace to maximum feasible apps, with lazy-loading, sandboxing, and full AI-assisted catalog functionality. Generate logs and reports for every step.

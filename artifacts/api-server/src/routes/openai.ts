@@ -3671,6 +3671,7 @@ Always deliver complete, thorough output — never truncate or placeholder.`;
 
 // ─── POST /api/openai/engine-run ────────────────────────────────────────────────
 router.post("/engine-run", async (req, res) => {
+  if (!req.isAuthenticated()) return void res.status(401).json({ error: "Unauthorized" });
   const { engineId, engineName, topic, context, mode, agentId } = req.body as {
     engineId?: string;
     engineName?: string;
@@ -3731,6 +3732,7 @@ router.post("/engine-run", async (req, res) => {
 
 // ─── POST /api/openai/meta-agent ────────────────────────────────────────────────
 router.post("/meta-agent", async (req, res) => {
+  if (!req.isAuthenticated()) return void res.status(401).json({ error: "Unauthorized" });
   const { agentId, task, context, domain } = req.body as {
     agentId: string;
     task?: string;
@@ -3885,6 +3887,7 @@ const SERIES_ENGINES: Record<string, { name: string; engineIds: string[] }> = {
 // Runs a series' member engines sequentially, streaming each section in turn.
 // Each engine output is delimited by section markers in the SSE stream.
 router.post("/series-run", async (req, res) => {
+  if (!req.isAuthenticated()) return void res.status(401).json({ error: "Unauthorized" });
   const { seriesId, topic, context } = req.body as {
     seriesId?: string;
     topic?: string;
