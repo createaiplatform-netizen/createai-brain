@@ -7,17 +7,17 @@ import { AppBrowserModal } from "./AppBrowserModal";
 // These are the highest-value apps for daily use.
 // Everything else is accessible via the App Browser.
 const PINNED_IDS: AppId[] = [
-  "chat"         as AppId,
-  "projos"       as AppId,
-  "creator"      as AppId,
-  "brainhub"     as AppId,
-  "brainGen"     as AppId,
-  "marketing"    as AppId,
-  "documents"    as AppId,
-  "simulation"   as AppId,
-  "people"       as AppId,
-  "commandcenter" as AppId,
-  "admin"        as AppId,
+  "chat"                    as AppId,
+  "projos"                  as AppId,
+  "creator"                 as AppId,
+  "brainhub"                as AppId,
+  "integrationDashboard"    as AppId,
+  "marketing"               as AppId,
+  "documents"               as AppId,
+  "simulation"              as AppId,
+  "people"                  as AppId,
+  "commandcenter"           as AppId,
+  "admin"                   as AppId,
 ];
 
 interface SidebarProps {

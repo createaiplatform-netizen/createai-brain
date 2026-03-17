@@ -46,14 +46,14 @@ interface ProjectItem  { id: string; name: string; icon: string; industry: strin
 // ─── Featured Apps strip ───────────────────────────────────────────────────────
 
 const FEATURED: Array<{ id: AppId; icon: string; label: string; color: string }> = [
-  { id: "projos"      as AppId, icon: "🗂️",  label: "Projects",   color: "#6366f1" },
-  { id: "brainhub"   as AppId, icon: "⚡",  label: "Brain Hub",  color: "#f59e0b" },
-  { id: "brainGen"   as AppId, icon: "🧠",  label: "BrainGen",   color: "#8b5cf6" },
-  { id: "documents"  as AppId, icon: "📄",  label: "Documents",  color: "#0891b2" },
-  { id: "simulation" as AppId, icon: "🧪",  label: "Simulate",   color: "#a855f7" },
-  { id: "people"     as AppId, icon: "👥",  label: "People",     color: "#10b981" },
-  { id: "admin"      as AppId, icon: "⚙️",  label: "Admin",      color: "#6b7280" },
-  { id: "family"     as AppId, icon: "🏡",  label: "Family",     color: "#f472b6" },
+  { id: "projos"               as AppId, icon: "🗂️",  label: "Projects",    color: "#6366f1" },
+  { id: "brainhub"             as AppId, icon: "⚡",  label: "Brain Hub",   color: "#f59e0b" },
+  { id: "integrationDashboard" as AppId, icon: "🔗",  label: "Integrations",color: "#0891b2" },
+  { id: "documents"            as AppId, icon: "📄",  label: "Documents",   color: "#0891b2" },
+  { id: "simulation"           as AppId, icon: "🧪",  label: "Simulate",    color: "#a855f7" },
+  { id: "people"               as AppId, icon: "👥",  label: "People",      color: "#10b981" },
+  { id: "admin"                as AppId, icon: "⚙️",  label: "Admin",       color: "#6b7280" },
+  { id: "family"               as AppId, icon: "🏡",  label: "Family",      color: "#f472b6" },
 ];
 
 // ─── Dashboard ────────────────────────────────────────────────────────────────
@@ -331,6 +331,49 @@ export function Dashboard({ onHamburger, onShowTour }: DashboardProps) {
           <div className={`transition-opacity duration-500 delay-140 ${mounted ? "opacity-100" : "opacity-0"} -mx-4`}>
             <SmartRecommendations />
           </div>
+
+          {/* ── Platform ── */}
+          <section className={`transition-opacity duration-500 delay-145 ${mounted ? "opacity-100" : "opacity-0"}`}>
+            <p className="text-[11px] font-semibold uppercase tracking-widest mb-3" style={{ color: "#c4c9d4" }}>Platform</p>
+            <div className="grid grid-cols-2 gap-2.5">
+              {/* Integration Dashboard card */}
+              <button
+                onClick={() => openApp("integrationDashboard" as AppId)}
+                className="flex items-center gap-3 p-3.5 rounded-2xl text-left transition-all duration-200"
+                style={{ background: "#fff", border: "1px solid rgba(8,145,178,0.18)", boxShadow: "0 1px 4px rgba(8,145,178,0.06)" }}
+                onMouseEnter={e => { (e.currentTarget as HTMLElement).style.boxShadow = "0 4px 16px rgba(8,145,178,0.14)"; (e.currentTarget as HTMLElement).style.borderColor = "rgba(8,145,178,0.35)"; (e.currentTarget as HTMLElement).style.transform = "translateY(-1px)"; }}
+                onMouseLeave={e => { (e.currentTarget as HTMLElement).style.boxShadow = "0 1px 4px rgba(8,145,178,0.06)"; (e.currentTarget as HTMLElement).style.borderColor = "rgba(8,145,178,0.18)"; (e.currentTarget as HTMLElement).style.transform = ""; }}
+              >
+                <div className="w-9 h-9 rounded-xl flex items-center justify-center text-lg flex-shrink-0"
+                  style={{ background: "rgba(8,145,178,0.1)" }}>🔗</div>
+                <div className="min-w-0">
+                  <div className="flex items-center gap-1.5">
+                    <p className="text-[12px] font-semibold truncate" style={{ color: "#0e7490" }}>Integrations</p>
+                    <span className="w-1.5 h-1.5 rounded-full flex-shrink-0" style={{ background: "#22c55e" }} />
+                  </div>
+                  <p className="text-[10px] truncate" style={{ color: "#94a3b8" }}>23 connection points · 11 active</p>
+                </div>
+              </button>
+              {/* Platform Metrics card */}
+              <button
+                onClick={() => openApp("metricsPanel" as AppId)}
+                className="flex items-center gap-3 p-3.5 rounded-2xl text-left transition-all duration-200"
+                style={{ background: "#fff", border: "1px solid rgba(99,102,241,0.18)", boxShadow: "0 1px 4px rgba(99,102,241,0.06)" }}
+                onMouseEnter={e => { (e.currentTarget as HTMLElement).style.boxShadow = "0 4px 16px rgba(99,102,241,0.14)"; (e.currentTarget as HTMLElement).style.borderColor = "rgba(99,102,241,0.35)"; (e.currentTarget as HTMLElement).style.transform = "translateY(-1px)"; }}
+                onMouseLeave={e => { (e.currentTarget as HTMLElement).style.boxShadow = "0 1px 4px rgba(99,102,241,0.06)"; (e.currentTarget as HTMLElement).style.borderColor = "rgba(99,102,241,0.18)"; (e.currentTarget as HTMLElement).style.transform = ""; }}
+              >
+                <div className="w-9 h-9 rounded-xl flex items-center justify-center text-lg flex-shrink-0"
+                  style={{ background: "rgba(99,102,241,0.1)" }}>📊</div>
+                <div className="min-w-0">
+                  <div className="flex items-center gap-1.5">
+                    <p className="text-[12px] font-semibold truncate" style={{ color: "#4338ca" }}>Platform Metrics</p>
+                    <span className="w-1.5 h-1.5 rounded-full flex-shrink-0" style={{ background: "#22c55e" }} />
+                  </div>
+                  <p className="text-[10px] truncate" style={{ color: "#94a3b8" }}>315 endpoints · 86 engines · 37 systems</p>
+                </div>
+              </button>
+            </div>
+          </section>
 
           {/* ── Your Projects ── */}
           <section className={`transition-opacity duration-500 delay-150 ${mounted ? "opacity-100" : "opacity-0"}`}>
