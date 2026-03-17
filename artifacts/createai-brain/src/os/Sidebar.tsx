@@ -116,6 +116,17 @@ export function Sidebar({ onNav, forceCollapsed, forceExpanded }: SidebarProps) 
             color="#6366f1"
           />
         </div>
+        {/* ── Integration Dashboard ── */}
+        <div className="px-2 pb-1">
+          <SidebarItem
+            icon="🔗"
+            label="Integrations"
+            active={activeApp === "integrationDashboard"}
+            collapsed={collapsed}
+            onClick={() => handleNav(() => openApp("integrationDashboard" as AppId))}
+            color="#0891b2"
+          />
+        </div>
 
         {/* ── Browse all apps ── */}
         <div className="px-2 pb-2 pt-1" style={{ borderTop: "1px solid rgba(0,0,0,0.07)" }}>

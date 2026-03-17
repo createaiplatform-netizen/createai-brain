@@ -46,7 +46,7 @@ export type AppId =
   // ── Education & Teaching ─────────────────────────────────────────────────
   | "lessonplanner" | "curriculumdesigner"
   // ── Platform ─────────────────────────────────────────────────────────────
-  | "metricsPanel";
+  | "metricsPanel" | "integrationDashboard";
 
 export interface AppDef {
   id: AppId;
@@ -193,7 +193,8 @@ export const DEFAULT_APPS: AppDef[] = [
   // ── Education & Teaching ──────────────────────────────────────────────────
   { id: "lessonplanner",      label: "Lesson Planner",      icon: "📚", color: "#0369a1", description: "Lesson plans, learning objectives, activities, and teaching strategies", category: "tools" },
   { id: "curriculumdesigner", label: "Curriculum Designer", icon: "🎓", color: "#7c3aed", description: "Course design, curriculum mapping, learning pathways, and instructional frameworks", category: "tools" },
-  { id: "metricsPanel",      label: "Platform Metrics",   icon: "📊", color: "#6366f1", description: "Executive metrics panel — engines, series, endpoints, registry, systems, and expansion paths", category: "system" },
+  { id: "metricsPanel",           label: "Platform Metrics",       icon: "📊", color: "#6366f1", description: "Executive metrics panel — engines, series, endpoints, registry, systems, and expansion paths", category: "system" },
+  { id: "integrationDashboard",  label: "Integration Dashboard",  icon: "🔗", color: "#0891b2", description: "Full integration hub — REST, FHIR R4, HL7, OAuth2, webhooks, PHI safety, TLS status, and simulation mode", category: "system" },
 ];
 
 export const ALL_APPS = DEFAULT_APPS;
@@ -275,6 +276,7 @@ const INTENT_MAP: { keywords: string[]; target: AppId }[] = [
   { keywords: ["admin", "settings", "control", "mode", "user"],           target: "admin" },
   { keywords: ["family", "home", "personal"],                              target: "family" },
   { keywords: ["integration", "connect", "api", "third-party"],           target: "integration" },
+  { keywords: ["integration dashboard", "fhir", "hl7", "webhook", "rest api", "phi", "hipaa", "healthcare integration", "tls", "encrypt", "compliance", "simulate", "event log"], target: "integrationDashboard" },
   { keywords: ["business", "bizengine", "biz engine", "business plan", "business model", "startup", "venture", "monetization model", "operations design", "expansion", "opportunity"],  target: "business" },
   { keywords: ["entity", "entitygen", "entity engine", "brand", "branding", "positioning", "product idea", "platform idea", "business entity", "build entity", "brand strategy", "ecosystem", "compliance", "growth strategy"], target: "entity" },
   { keywords: ["universe", "bizcreator", "biz universe", "concept", "concept expansion", "idea", "visualize", "visualization", "digital twin", "vr", "ar", "knowledge context", "business system", "expand idea", "expand concept", "multi-layer"], target: "bizcreator" },
@@ -428,7 +430,8 @@ const APP_META: Record<AppId, { icon: string; label: string }> = {
   lessonplanner:      { icon: "📚", label: "Lesson Planner" },
   curriculumdesigner: { icon: "🎓", label: "Curriculum Designer" },
   // Platform
-  metricsPanel:       { icon: "📊", label: "Platform Metrics" },
+  metricsPanel:           { icon: "📊", label: "Platform Metrics" },
+  integrationDashboard:   { icon: "🔗", label: "Integration Dashboard" },
 };
 
 // ─── OS Context value ───────────────────────────────────────────────────────
