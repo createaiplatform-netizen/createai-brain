@@ -660,6 +660,208 @@ export interface UpdateHealthBillBody {
   insuranceCoverage?: number;
 }
 
+export interface Candidate {
+  id: number;
+  firstName: string;
+  lastName: string;
+  email: string;
+  phone?: string | null;
+  title?: string | null;
+  location?: string | null;
+  skills?: string | null;
+  experience?: number | null;
+  availability?: string | null;
+  status: string;
+  source?: string | null;
+  resumeUrl?: string | null;
+  notes?: string | null;
+  createdAt: string;
+}
+
+export interface Interview {
+  id: number;
+  submissionId: number;
+  candidateId: number;
+  requisitionId: number;
+  scheduledAt: string;
+  durationMinutes?: number;
+  type?: string;
+  status: string;
+  interviewerName?: string | null;
+  location?: string | null;
+  notes?: string | null;
+  feedback?: string | null;
+  outcome?: string | null;
+  createdAt: string;
+  candidateName?: string | null;
+  requisitionTitle?: string | null;
+}
+
+export interface StaffingDashboard {
+  totalCandidates?: number;
+  activePlacements?: number;
+  openRequisitions?: number;
+  interviewsThisWeek?: number;
+  recentCandidates?: Candidate[];
+  upcomingInterviews?: Interview[];
+  placementRevenue?: number;
+}
+
+export interface Submission {
+  id: number;
+  candidateId: number;
+  requisitionId: number;
+  status: string;
+  submittedAt: string;
+  notes?: string | null;
+  recruiterFeedback?: string | null;
+  clientFeedback?: string | null;
+  createdAt: string;
+  candidateName?: string | null;
+  requisitionTitle?: string | null;
+  clientName?: string | null;
+}
+
+export interface Placement {
+  id: number;
+  candidateId: number;
+  requisitionId: number;
+  clientId: number;
+  startDate: string;
+  endDate?: string | null;
+  type: string;
+  salary?: number | null;
+  fee?: number | null;
+  status: string;
+  notes?: string | null;
+  createdAt: string;
+  candidateName?: string | null;
+  clientName?: string | null;
+  requisitionTitle?: string | null;
+}
+
+export type CandidateDetail = Candidate & {
+  submissions?: Submission[];
+  interviews?: Interview[];
+  placements?: Placement[];
+};
+
+export interface CandidateInput {
+  firstName: string;
+  lastName: string;
+  email: string;
+  phone?: string;
+  title?: string;
+  location?: string;
+  skills?: string;
+  experience?: number;
+  availability?: string;
+  status?: string;
+  source?: string;
+  resumeUrl?: string;
+  notes?: string;
+}
+
+export interface StaffingClient {
+  id: number;
+  companyName: string;
+  industry?: string | null;
+  contactName?: string | null;
+  contactEmail?: string | null;
+  contactPhone?: string | null;
+  address?: string | null;
+  website?: string | null;
+  status: string;
+  notes?: string | null;
+  createdAt: string;
+  openRequisitions?: number;
+  activePlacements?: number;
+}
+
+export interface StaffingClientInput {
+  companyName: string;
+  industry?: string;
+  contactName?: string;
+  contactEmail?: string;
+  contactPhone?: string;
+  address?: string;
+  website?: string;
+  status?: string;
+  notes?: string;
+}
+
+export interface Requisition {
+  id: number;
+  clientId: number;
+  title: string;
+  department?: string | null;
+  location?: string | null;
+  type: string;
+  salaryMin?: number | null;
+  salaryMax?: number | null;
+  description?: string | null;
+  requirements?: string | null;
+  status: string;
+  priority: string;
+  targetDate?: string | null;
+  createdAt: string;
+  clientName?: string | null;
+  submissionCount?: number;
+}
+
+export interface RequisitionInput {
+  clientId: number;
+  title: string;
+  department?: string;
+  location?: string;
+  type?: string;
+  salaryMin?: number;
+  salaryMax?: number;
+  description?: string;
+  requirements?: string;
+  status?: string;
+  priority?: string;
+  targetDate?: string;
+}
+
+export interface SubmissionInput {
+  candidateId: number;
+  requisitionId: number;
+  status?: string;
+  submittedAt?: string;
+  notes?: string;
+  recruiterFeedback?: string;
+  clientFeedback?: string;
+}
+
+export interface InterviewInput {
+  submissionId: number;
+  candidateId: number;
+  requisitionId: number;
+  scheduledAt: string;
+  durationMinutes?: number;
+  type?: string;
+  status?: string;
+  interviewerName?: string;
+  location?: string;
+  notes?: string;
+  feedback?: string;
+  outcome?: string;
+}
+
+export interface PlacementInput {
+  candidateId: number;
+  requisitionId: number;
+  clientId: number;
+  startDate: string;
+  endDate?: string;
+  type?: string;
+  salary?: number;
+  fee?: number;
+  status?: string;
+  notes?: string;
+}
+
 export type AuthorizationSessionHeaderParameter = string;
 
 export type BeginBrowserLoginParams = {
@@ -721,6 +923,50 @@ export type ListHealthBillingParams = {
 
 export type ListHealthBilling200 = {
   bills: HealthBill[];
+};
+
+export type ListCandidatesParams = {
+  search?: string;
+  status?: string;
+};
+
+export type ListCandidates200 = {
+  candidates?: Candidate[];
+};
+
+export type ListClients200 = {
+  clients?: StaffingClient[];
+};
+
+export type ListRequisitionsParams = {
+  clientId?: number;
+  status?: string;
+};
+
+export type ListRequisitions200 = {
+  requisitions?: Requisition[];
+};
+
+export type ListSubmissionsParams = {
+  candidateId?: number;
+  requisitionId?: number;
+};
+
+export type ListSubmissions200 = {
+  submissions?: Submission[];
+};
+
+export type ListInterviewsParams = {
+  submissionId?: number;
+  candidateId?: number;
+};
+
+export type ListInterviews200 = {
+  interviews?: Interview[];
+};
+
+export type ListPlacements200 = {
+  placements?: Placement[];
 };
 
 export type ListLegalClients200 = {

@@ -1,0 +1,18 @@
+packages:
+  "framer-motion": "For page transitions, modal animations, and polished UI micro-interactions"
+  "recharts": "For dashboard analytics and data visualization"
+  "date-fns": "For professional date formatting across tables and details"
+  "clsx": "Utility for constructing className strings conditionally"
+  "tailwind-merge": "Utility for merging tailwind classes safely"
+
+images:
+  - path: "artifacts/staffing-os/public/images/logo-icon.png"
+    description: "A minimal, premium abstract geometric logo mark for an enterprise staffing platform called StaffingOS, utilizing deep navy blue and vibrant slate/teal accents, transparent background."
+    aspect_ratio: "1:1"
+  - path: "artifacts/staffing-os/public/images/auth-bg.png"
+    description: "A sophisticated, abstract deep navy blue and slate gradient background with subtle glassmorphism and light rays, representing enterprise technology and human resources."
+    aspect_ratio: "16:9"
+
+notes:
+  - "The frontend relies on the Orval-generated hooks from @workspace/api-client-react."
+  - "Relationships (like selecting a Client when creating a Requisition) fetch their respective list endpoints to populate dropdowns."

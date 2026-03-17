@@ -832,6 +832,470 @@ paths:
       responses:
         "204":
           description: Deleted
+  # ── Staffing Platform ────────────────────────────────────────────────────────
+  /staffing/dashboard:
+    get:
+      operationId: getStaffingDashboard
+      tags: [staffing]
+      summary: Get staffing dashboard metrics
+      responses:
+        "200":
+          description: Dashboard data
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/StaffingDashboard"
+  /staffing/candidates:
+    get:
+      operationId: listCandidates
+      tags: [staffing]
+      summary: List candidates
+      parameters:
+        - in: query
+          name: search
+          schema: { type: string }
+        - in: query
+          name: status
+          schema: { type: string }
+      responses:
+        "200":
+          description: Candidates list
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  candidates:
+                    type: array
+                    items: { $ref: "#/components/schemas/Candidate" }
+    post:
+      operationId: createCandidate
+      tags: [staffing]
+      summary: Create a candidate
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema: { $ref: "#/components/schemas/CandidateInput" }
+      responses:
+        "201":
+          description: Created
+          content:
+            application/json:
+              schema: { $ref: "#/components/schemas/Candidate" }
+  /staffing/candidates/{id}:
+    get:
+      operationId: getCandidate
+      tags: [staffing]
+      summary: Get candidate with full profile
+      parameters:
+        - in: path
+          name: id
+          required: true
+          schema: { type: integer }
+      responses:
+        "200":
+          description: Candidate detail
+          content:
+            application/json:
+              schema: { $ref: "#/components/schemas/CandidateDetail" }
+    put:
+      operationId: updateCandidate
+      tags: [staffing]
+      summary: Update candidate
+      parameters:
+        - in: path
+          name: id
+          required: true
+          schema: { type: integer }
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema: { $ref: "#/components/schemas/CandidateInput" }
+      responses:
+        "200":
+          description: Updated
+          content:
+            application/json:
+              schema: { $ref: "#/components/schemas/Candidate" }
+    delete:
+      operationId: deleteCandidate
+      tags: [staffing]
+      parameters:
+        - in: path
+          name: id
+          required: true
+          schema: { type: integer }
+      responses:
+        "204":
+          description: Deleted
+  /staffing/clients:
+    get:
+      operationId: listClients
+      tags: [staffing]
+      summary: List clients
+      responses:
+        "200":
+          description: Clients list
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  clients:
+                    type: array
+                    items: { $ref: "#/components/schemas/StaffingClient" }
+    post:
+      operationId: createClient
+      tags: [staffing]
+      summary: Create a client
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema: { $ref: "#/components/schemas/StaffingClientInput" }
+      responses:
+        "201":
+          description: Created
+          content:
+            application/json:
+              schema: { $ref: "#/components/schemas/StaffingClient" }
+  /staffing/clients/{id}:
+    get:
+      operationId: getClient
+      tags: [staffing]
+      summary: Get client detail
+      parameters:
+        - in: path
+          name: id
+          required: true
+          schema: { type: integer }
+      responses:
+        "200":
+          description: Client detail
+          content:
+            application/json:
+              schema: { $ref: "#/components/schemas/StaffingClient" }
+    put:
+      operationId: updateClient
+      tags: [staffing]
+      summary: Update client
+      parameters:
+        - in: path
+          name: id
+          required: true
+          schema: { type: integer }
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema: { $ref: "#/components/schemas/StaffingClientInput" }
+      responses:
+        "200":
+          description: Updated
+          content:
+            application/json:
+              schema: { $ref: "#/components/schemas/StaffingClient" }
+    delete:
+      operationId: deleteClient
+      tags: [staffing]
+      parameters:
+        - in: path
+          name: id
+          required: true
+          schema: { type: integer }
+      responses:
+        "204":
+          description: Deleted
+  /staffing/requisitions:
+    get:
+      operationId: listRequisitions
+      tags: [staffing]
+      summary: List job requisitions
+      parameters:
+        - in: query
+          name: clientId
+          schema: { type: integer }
+        - in: query
+          name: status
+          schema: { type: string }
+      responses:
+        "200":
+          description: Requisitions list
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  requisitions:
+                    type: array
+                    items: { $ref: "#/components/schemas/Requisition" }
+    post:
+      operationId: createRequisition
+      tags: [staffing]
+      summary: Create a job requisition
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema: { $ref: "#/components/schemas/RequisitionInput" }
+      responses:
+        "201":
+          description: Created
+          content:
+            application/json:
+              schema: { $ref: "#/components/schemas/Requisition" }
+  /staffing/requisitions/{id}:
+    get:
+      operationId: getRequisition
+      tags: [staffing]
+      summary: Get requisition detail
+      parameters:
+        - in: path
+          name: id
+          required: true
+          schema: { type: integer }
+      responses:
+        "200":
+          description: Requisition detail
+          content:
+            application/json:
+              schema: { $ref: "#/components/schemas/Requisition" }
+    put:
+      operationId: updateRequisition
+      tags: [staffing]
+      summary: Update requisition
+      parameters:
+        - in: path
+          name: id
+          required: true
+          schema: { type: integer }
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema: { $ref: "#/components/schemas/RequisitionInput" }
+      responses:
+        "200":
+          description: Updated
+          content:
+            application/json:
+              schema: { $ref: "#/components/schemas/Requisition" }
+    delete:
+      operationId: deleteRequisition
+      tags: [staffing]
+      parameters:
+        - in: path
+          name: id
+          required: true
+          schema: { type: integer }
+      responses:
+        "204":
+          description: Deleted
+  /staffing/submissions:
+    get:
+      operationId: listSubmissions
+      tags: [staffing]
+      summary: List candidate submissions
+      parameters:
+        - in: query
+          name: candidateId
+          schema: { type: integer }
+        - in: query
+          name: requisitionId
+          schema: { type: integer }
+      responses:
+        "200":
+          description: Submissions list
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  submissions:
+                    type: array
+                    items: { $ref: "#/components/schemas/Submission" }
+    post:
+      operationId: createSubmission
+      tags: [staffing]
+      summary: Create a submission
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema: { $ref: "#/components/schemas/SubmissionInput" }
+      responses:
+        "201":
+          description: Created
+          content:
+            application/json:
+              schema: { $ref: "#/components/schemas/Submission" }
+  /staffing/submissions/{id}:
+    put:
+      operationId: updateSubmission
+      tags: [staffing]
+      summary: Update submission status
+      parameters:
+        - in: path
+          name: id
+          required: true
+          schema: { type: integer }
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema: { $ref: "#/components/schemas/SubmissionInput" }
+      responses:
+        "200":
+          description: Updated
+          content:
+            application/json:
+              schema: { $ref: "#/components/schemas/Submission" }
+    delete:
+      operationId: deleteSubmission
+      tags: [staffing]
+      parameters:
+        - in: path
+          name: id
+          required: true
+          schema: { type: integer }
+      responses:
+        "204":
+          description: Deleted
+  /staffing/interviews:
+    get:
+      operationId: listInterviews
+      tags: [staffing]
+      summary: List interviews
+      parameters:
+        - in: query
+          name: submissionId
+          schema: { type: integer }
+        - in: query
+          name: candidateId
+          schema: { type: integer }
+      responses:
+        "200":
+          description: Interviews list
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  interviews:
+                    type: array
+                    items: { $ref: "#/components/schemas/Interview" }
+    post:
+      operationId: createInterview
+      tags: [staffing]
+      summary: Schedule an interview
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema: { $ref: "#/components/schemas/InterviewInput" }
+      responses:
+        "201":
+          description: Created
+          content:
+            application/json:
+              schema: { $ref: "#/components/schemas/Interview" }
+  /staffing/interviews/{id}:
+    put:
+      operationId: updateInterview
+      tags: [staffing]
+      summary: Update interview
+      parameters:
+        - in: path
+          name: id
+          required: true
+          schema: { type: integer }
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema: { $ref: "#/components/schemas/InterviewInput" }
+      responses:
+        "200":
+          description: Updated
+          content:
+            application/json:
+              schema: { $ref: "#/components/schemas/Interview" }
+    delete:
+      operationId: deleteInterview
+      tags: [staffing]
+      parameters:
+        - in: path
+          name: id
+          required: true
+          schema: { type: integer }
+      responses:
+        "204":
+          description: Deleted
+  /staffing/placements:
+    get:
+      operationId: listPlacements
+      tags: [staffing]
+      summary: List placements
+      responses:
+        "200":
+          description: Placements list
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  placements:
+                    type: array
+                    items: { $ref: "#/components/schemas/Placement" }
+    post:
+      operationId: createPlacement
+      tags: [staffing]
+      summary: Create a placement
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema: { $ref: "#/components/schemas/PlacementInput" }
+      responses:
+        "201":
+          description: Created
+          content:
+            application/json:
+              schema: { $ref: "#/components/schemas/Placement" }
+  /staffing/placements/{id}:
+    put:
+      operationId: updatePlacement
+      tags: [staffing]
+      summary: Update placement
+      parameters:
+        - in: path
+          name: id
+          required: true
+          schema: { type: integer }
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema: { $ref: "#/components/schemas/PlacementInput" }
+      responses:
+        "200":
+          description: Updated
+          content:
+            application/json:
+              schema: { $ref: "#/components/schemas/Placement" }
+    delete:
+      operationId: deletePlacement
+      tags: [staffing]
+      parameters:
+        - in: path
+          name: id
+          required: true
+          schema: { type: integer }
+      responses:
+        "204":
+          description: Deleted
   /legal/dashboard:
     get:
       operationId: getLegalDashboard
@@ -2321,3 +2785,230 @@ components:
         insuranceCoverage:
           type: number
       required: [status]
+    # ── Staffing Schemas ─────────────────────────────────────────────────────────
+    StaffingDashboard:
+      type: object
+      properties:
+        totalCandidates: { type: integer }
+        activePlacements: { type: integer }
+        openRequisitions: { type: integer }
+        interviewsThisWeek: { type: integer }
+        recentCandidates:
+          type: array
+          items: { $ref: "#/components/schemas/Candidate" }
+        upcomingInterviews:
+          type: array
+          items: { $ref: "#/components/schemas/Interview" }
+        placementRevenue: { type: number }
+    Candidate:
+      type: object
+      properties:
+        id: { type: integer }
+        firstName: { type: string }
+        lastName: { type: string }
+        email: { type: string }
+        phone: { type: string, nullable: true }
+        title: { type: string, nullable: true }
+        location: { type: string, nullable: true }
+        skills: { type: string, nullable: true }
+        experience: { type: integer, nullable: true }
+        availability: { type: string, nullable: true }
+        status: { type: string }
+        source: { type: string, nullable: true }
+        resumeUrl: { type: string, nullable: true }
+        notes: { type: string, nullable: true }
+        createdAt: { type: string, format: date-time }
+      required: [id, firstName, lastName, email, status, createdAt]
+    CandidateDetail:
+      allOf:
+        - $ref: "#/components/schemas/Candidate"
+        - type: object
+          properties:
+            submissions:
+              type: array
+              items: { $ref: "#/components/schemas/Submission" }
+            interviews:
+              type: array
+              items: { $ref: "#/components/schemas/Interview" }
+            placements:
+              type: array
+              items: { $ref: "#/components/schemas/Placement" }
+    CandidateInput:
+      type: object
+      properties:
+        firstName: { type: string }
+        lastName: { type: string }
+        email: { type: string }
+        phone: { type: string }
+        title: { type: string }
+        location: { type: string }
+        skills: { type: string }
+        experience: { type: integer }
+        availability: { type: string }
+        status: { type: string }
+        source: { type: string }
+        resumeUrl: { type: string }
+        notes: { type: string }
+      required: [firstName, lastName, email]
+    StaffingClient:
+      type: object
+      properties:
+        id: { type: integer }
+        companyName: { type: string }
+        industry: { type: string, nullable: true }
+        contactName: { type: string, nullable: true }
+        contactEmail: { type: string, nullable: true }
+        contactPhone: { type: string, nullable: true }
+        address: { type: string, nullable: true }
+        website: { type: string, nullable: true }
+        status: { type: string }
+        notes: { type: string, nullable: true }
+        createdAt: { type: string, format: date-time }
+        openRequisitions: { type: integer }
+        activePlacements: { type: integer }
+      required: [id, companyName, status, createdAt]
+    StaffingClientInput:
+      type: object
+      properties:
+        companyName: { type: string }
+        industry: { type: string }
+        contactName: { type: string }
+        contactEmail: { type: string }
+        contactPhone: { type: string }
+        address: { type: string }
+        website: { type: string }
+        status: { type: string }
+        notes: { type: string }
+      required: [companyName]
+    Requisition:
+      type: object
+      properties:
+        id: { type: integer }
+        clientId: { type: integer }
+        title: { type: string }
+        department: { type: string, nullable: true }
+        location: { type: string, nullable: true }
+        type: { type: string }
+        salaryMin: { type: number, nullable: true }
+        salaryMax: { type: number, nullable: true }
+        description: { type: string, nullable: true }
+        requirements: { type: string, nullable: true }
+        status: { type: string }
+        priority: { type: string }
+        targetDate: { type: string, format: date-time, nullable: true }
+        createdAt: { type: string, format: date-time }
+        clientName: { type: string, nullable: true }
+        submissionCount: { type: integer }
+      required: [id, clientId, title, type, status, priority, createdAt]
+    RequisitionInput:
+      type: object
+      properties:
+        clientId: { type: integer }
+        title: { type: string }
+        department: { type: string }
+        location: { type: string }
+        type: { type: string }
+        salaryMin: { type: number }
+        salaryMax: { type: number }
+        description: { type: string }
+        requirements: { type: string }
+        status: { type: string }
+        priority: { type: string }
+        targetDate: { type: string, format: date-time }
+      required: [clientId, title]
+    Submission:
+      type: object
+      properties:
+        id: { type: integer }
+        candidateId: { type: integer }
+        requisitionId: { type: integer }
+        status: { type: string }
+        submittedAt: { type: string, format: date-time }
+        notes: { type: string, nullable: true }
+        recruiterFeedback: { type: string, nullable: true }
+        clientFeedback: { type: string, nullable: true }
+        createdAt: { type: string, format: date-time }
+        candidateName: { type: string, nullable: true }
+        requisitionTitle: { type: string, nullable: true }
+        clientName: { type: string, nullable: true }
+      required: [id, candidateId, requisitionId, status, submittedAt, createdAt]
+    SubmissionInput:
+      type: object
+      properties:
+        candidateId: { type: integer }
+        requisitionId: { type: integer }
+        status: { type: string }
+        submittedAt: { type: string, format: date-time }
+        notes: { type: string }
+        recruiterFeedback: { type: string }
+        clientFeedback: { type: string }
+      required: [candidateId, requisitionId]
+    Interview:
+      type: object
+      properties:
+        id: { type: integer }
+        submissionId: { type: integer }
+        candidateId: { type: integer }
+        requisitionId: { type: integer }
+        scheduledAt: { type: string, format: date-time }
+        durationMinutes: { type: integer }
+        type: { type: string }
+        status: { type: string }
+        interviewerName: { type: string, nullable: true }
+        location: { type: string, nullable: true }
+        notes: { type: string, nullable: true }
+        feedback: { type: string, nullable: true }
+        outcome: { type: string, nullable: true }
+        createdAt: { type: string, format: date-time }
+        candidateName: { type: string, nullable: true }
+        requisitionTitle: { type: string, nullable: true }
+      required: [id, submissionId, candidateId, requisitionId, scheduledAt, status, createdAt]
+    InterviewInput:
+      type: object
+      properties:
+        submissionId: { type: integer }
+        candidateId: { type: integer }
+        requisitionId: { type: integer }
+        scheduledAt: { type: string, format: date-time }
+        durationMinutes: { type: integer }
+        type: { type: string }
+        status: { type: string }
+        interviewerName: { type: string }
+        location: { type: string }
+        notes: { type: string }
+        feedback: { type: string }
+        outcome: { type: string }
+      required: [submissionId, candidateId, requisitionId, scheduledAt]
+    Placement:
+      type: object
+      properties:
+        id: { type: integer }
+        candidateId: { type: integer }
+        requisitionId: { type: integer }
+        clientId: { type: integer }
+        startDate: { type: string, format: date-time }
+        endDate: { type: string, format: date-time, nullable: true }
+        type: { type: string }
+        salary: { type: number, nullable: true }
+        fee: { type: number, nullable: true }
+        status: { type: string }
+        notes: { type: string, nullable: true }
+        createdAt: { type: string, format: date-time }
+        candidateName: { type: string, nullable: true }
+        clientName: { type: string, nullable: true }
+        requisitionTitle: { type: string, nullable: true }
+      required: [id, candidateId, requisitionId, clientId, startDate, type, status, createdAt]
+    PlacementInput:
+      type: object
+      properties:
+        candidateId: { type: integer }
+        requisitionId: { type: integer }
+        clientId: { type: integer }
+        startDate: { type: string, format: date-time }
+        endDate: { type: string, format: date-time }
+        type: { type: string }
+        salary: { type: number }
+        fee: { type: number }
+        status: { type: string }
+        notes: { type: string }
+      required: [candidateId, requisitionId, clientId, startDate]

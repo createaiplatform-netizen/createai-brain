@@ -19,6 +19,7 @@ import metricsRouter from "./metrics";
 import opportunitiesRouter from "./opportunities";
 import legalRouter from "./legal";
 import healthcareRouter from "./healthcare";
+import staffingRouter from "./staffing";
 import imaginationRouter from "./imagination";
 import loreforgeRouter from "./loreforge";
 import narratororosRouter from "./narratoros";
@@ -78,5 +79,6 @@ router.use("/cosmologyforge",     cosmologyforgeRouter);
 router.use("/gameworld",          gameworldRouter);
 router.use("/legal",              legalRouter);
 router.use("/health",             healthcareRouter);
+router.use("/staffing",           staffingRouter);
 
 export default router;
