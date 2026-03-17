@@ -14,6 +14,7 @@ import notificationsRouter from "./notifications";
 import documentsRouter from "./documents";
 import tasksRouter from "./tasks";
 import membersRouter from "./project_members";
+import tractionRouter from "./traction";
 
 const router: IRouter = Router();
 
@@ -32,5 +33,6 @@ router.use("/integrations", integrationsRouter);
 router.use("/people", peopleRouter);
 router.use("/notifications", notificationsRouter);
 router.use("/documents", documentsRouter);
+router.use("/traction", tractionRouter);
 
 export default router;

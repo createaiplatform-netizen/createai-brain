@@ -14,3 +14,4 @@ export * from "./integrations";
 export * from "./people";
 export * from "./notifications";
 export * from "./documents";
+export * from "./traction_events";

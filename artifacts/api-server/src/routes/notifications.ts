@@ -1,6 +1,7 @@
 import { Router, type IRouter, type Request, type Response } from "express";
 import { eq, desc, and } from "drizzle-orm";
 import { db, notifications } from "@workspace/db";
+import { logTractionEvent } from "../lib/tractionLogger";
 
 const router: IRouter = Router();
 
@@ -42,6 +43,13 @@ router.post("/", async (req: Request, res: Response) => {
     const [row] = await db.insert(notifications).values({
       userId, type, title: title.trim(), body, appId, projectId, actionUrl,
     }).returning();
+    logTractionEvent({
+      eventType:   "notification_triggered",
+      category:    "retention",
+      subCategory: type,
+      userId,
+      metadata:    { type, appId: appId ?? null, hasProject: !!projectId },
+    });
     res.status(201).json({ notification: row });
   } catch (err) {
     console.error("[notifications] POST /", err);

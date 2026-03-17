@@ -2,6 +2,7 @@ import { Router, type IRouter } from "express";
 import { eq } from "drizzle-orm";
 import { db, conversations, messages } from "@workspace/db";
 import { openai } from "@workspace/integrations-openai-ai-server";
+import { logTractionEvent } from "../lib/tractionLogger";
 import {
   CreateOpenaiConversationBody,
   SendOpenaiMessageBody,
@@ -3124,6 +3125,13 @@ router.post("/engine-run", async (req, res) => {
 
   res.write(`data: ${JSON.stringify({ done: true, engineId: name, agentId })}\n\n`);
   res.end();
+  logTractionEvent({
+    eventType: "engine_run",
+    category:  "traction",
+    subCategory: name,
+    userId: (req as any).user?.id ?? null,
+    metadata: { engine: name, agentId: agentId ?? null },
+  });
 });
 
 // ─── POST /api/openai/meta-agent ────────────────────────────────────────────────
@@ -3176,6 +3184,13 @@ router.post("/meta-agent", async (req, res) => {
 
   res.write(`data: ${JSON.stringify({ done: true, agentId })}\n\n`);
   res.end();
+  logTractionEvent({
+    eventType:   "meta_agent_run",
+    category:    "traction",
+    subCategory: agentId,
+    userId:      (req as any).user?.id ?? null,
+    metadata:    { agentId },
+  });
 });
 
 // ─── POST /api/openai/brain-gen-ai ──────────────────────────────────────────────
@@ -3328,6 +3343,13 @@ router.post("/series-run", async (req, res) => {
 
   res.write(`data: ${JSON.stringify({ type: "series-done", seriesId })}\n\n`);
   res.end();
+  logTractionEvent({
+    eventType:   "series_run",
+    category:    "traction",
+    subCategory: seriesId,
+    userId:      (req as any).user?.id ?? null,
+    metadata:    { seriesId, engineCount: SERIES_ENGINES[seriesId!]?.engineIds?.length ?? 0 },
+  });
 });
 
 export default router;

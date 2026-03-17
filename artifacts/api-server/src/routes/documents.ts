@@ -1,6 +1,7 @@
 import { Router, type IRouter, type Request, type Response } from "express";
 import { eq, desc, and, or } from "drizzle-orm";
 import { db, documents } from "@workspace/db";
+import { logTractionEvent } from "../lib/tractionLogger";
 
 const router: IRouter = Router();
 
@@ -54,6 +55,13 @@ router.post("/", async (req: Request, res: Response) => {
       userId, title: title.trim(), body, docType, tags,
       projectId: projectId ?? null, isTemplate,
     }).returning();
+    logTractionEvent({
+      eventType:   "document_created",
+      category:    "retention",
+      subCategory: docType,
+      userId,
+      metadata:    { title: title.trim(), docType, hasProject: !!projectId, isTemplate },
+    });
     res.status(201).json({ document: formatDoc(row) });
   } catch (err) {
     console.error("[documents] POST /", err);

@@ -1,4 +1,5 @@
 import { Router, type IRouter, type Request, type Response } from "express";
+import { logTractionEvent } from "../lib/tractionLogger";
 import { eq, desc } from "drizzle-orm";
 import {
   db,
@@ -176,6 +177,13 @@ router.post("/", async (req: Request, res: Response) => {
     await db.insert(projectFolders).values([...universalRows, ...specificRows]);
 
     const full = await buildProjectResponse(project.id);
+    logTractionEvent({
+      eventType:   "project_created",
+      category:    "retention",
+      subCategory: industry,
+      userId,
+      metadata:    { name: name.trim(), industry },
+    });
     res.status(201).json({ project: full });
   } catch (err) {
     console.error("[projects] POST /", err);
