@@ -1,5 +1,6 @@
 import React, { useState, useRef, useCallback } from "react";
 import { GLOBAL_REGION_GROUPS, getAllIndustries } from "@/engine/universeConfig";
+import { SaveToProjectModal } from "@/components/SaveToProjectModal";
 
 // ─── Types ────────────────────────────────────────────────────────────────────
 
@@ -322,6 +323,7 @@ export function BizDevApp() {
     return init as Record<BizDevSectionId, SectionState>;
   });
   const [generatingAll, setGeneratingAll] = useState(false);
+  const [showSaveModal, setShowSaveModal] = useState(false);
 
   const abortRefs = useRef<Partial<Record<BizDevSectionId, AbortController>>>({});
 
@@ -648,27 +650,38 @@ export function BizDevApp() {
                   </div>
                 </div>
               </div>
-              <button
-                onClick={() => generateSection(activeSection)}
-                disabled={currentState.loading || !hasIdea}
-                className="flex items-center gap-2 px-3 py-2 rounded-xl text-[12px] font-semibold flex-shrink-0 transition-all"
-                style={{
-                  background: !hasIdea
-                    ? "rgba(255,255,255,0.03)"
-                    : currentState.loading
-                    ? "rgba(249,115,22,0.05)"
-                    : "rgba(249,115,22,0.18)",
-                  border: `1px solid ${!hasIdea ? "rgba(255,255,255,0.08)" : "rgba(249,115,22,0.38)"}`,
-                  color: !hasIdea ? "#334155" : currentState.loading ? "#475569" : "#fb923c",
-                  cursor: !hasIdea || currentState.loading ? "not-allowed" : "pointer",
-                }}
-              >
-                {currentState.loading ? (
-                  <><span className="animate-spin inline-block">⟳</span> Planning…</>
-                ) : (
-                  <><span>⚡</span> Plan {currentSection.label}</>
+              <div className="flex items-center gap-2 flex-shrink-0">
+                {currentState.generated && !currentState.loading && (
+                  <button
+                    onClick={() => setShowSaveModal(true)}
+                    className="flex items-center gap-2 px-3 py-2 rounded-xl text-[12px] font-semibold transition-all"
+                    style={{ background: "rgba(99,102,241,0.12)", border: "1px solid rgba(99,102,241,0.28)", color: "#a5b4fc" }}
+                  >
+                    💾 Save
+                  </button>
                 )}
-              </button>
+                <button
+                  onClick={() => generateSection(activeSection)}
+                  disabled={currentState.loading || !hasIdea}
+                  className="flex items-center gap-2 px-3 py-2 rounded-xl text-[12px] font-semibold flex-shrink-0 transition-all"
+                  style={{
+                    background: !hasIdea
+                      ? "rgba(255,255,255,0.03)"
+                      : currentState.loading
+                      ? "rgba(249,115,22,0.05)"
+                      : "rgba(249,115,22,0.18)",
+                    border: `1px solid ${!hasIdea ? "rgba(255,255,255,0.08)" : "rgba(249,115,22,0.38)"}`,
+                    color: !hasIdea ? "#334155" : currentState.loading ? "#475569" : "#fb923c",
+                    cursor: !hasIdea || currentState.loading ? "not-allowed" : "pointer",
+                  }}
+                >
+                  {currentState.loading ? (
+                    <><span className="animate-spin inline-block">⟳</span> Planning…</>
+                  ) : (
+                    <><span>⚡</span> Plan {currentSection.label}</>
+                  )}
+                </button>
+              </div>
             </div>
 
             {/* Context Tags */}
@@ -780,6 +793,14 @@ export function BizDevApp() {
           </div>
         </div>
       </div>
+      {showSaveModal && (
+        <SaveToProjectModal
+          content={currentState.content}
+          label={`${currentSection.label} — Business Plan`}
+          defaultFileType="Document"
+          onClose={() => setShowSaveModal(false)}
+        />
+      )}
     </div>
   );
 }

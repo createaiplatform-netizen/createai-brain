@@ -1,4 +1,5 @@
 import React, { useState, useEffect, useRef, useCallback } from "react";
+import { MediaPlayer } from "../components/MediaPlayer";
 
 // ─── Types ────────────────────────────────────────────────────────────────────
 
@@ -1355,6 +1356,16 @@ export function ProjectOSApp() {
 
             {/* Content */}
             <div className="flex-1 overflow-y-auto p-5">
+              {/* Media player placeholder for Video/Audio file types */}
+              {!fileContentLoading && !fileContentEditing && (viewingFile.type === "Video" || viewingFile.type === "Audio") && (
+                <div className="mb-4 rounded-2xl overflow-hidden" style={{ background: "rgba(0,0,0,0.40)", border: "1px solid rgba(255,255,255,0.10)" }}>
+                  <MediaPlayer
+                    type={viewingFile.type === "Video" ? "video" : "audio"}
+                    title={viewingFile.name}
+                    subtitle="No media source — text content below"
+                  />
+                </div>
+              )}
               {fileContentLoading ? (
                 <div className="flex items-center justify-center py-16 gap-3">
                   <div className="w-5 h-5 border-2 border-primary border-t-transparent rounded-full animate-spin" />

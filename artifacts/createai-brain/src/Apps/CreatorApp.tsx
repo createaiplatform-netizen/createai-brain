@@ -1,4 +1,5 @@
 import React, { useState, useRef, useEffect } from "react";
+import { SaveToProjectModal } from "@/components/SaveToProjectModal";
 import {
   CreationStore, Creation, CreationType, parseSections, buildPrompt,
   classifyIntent, IntentResult, PATTERN_LIBRARY,
@@ -512,6 +513,7 @@ function QuickGenerator() {
   const [streaming, setStr]   = useState(false);
   const [streamText, setTxt]  = useState("");
   const [history, setHist]    = useState<GenItem[]>([]);
+  const [showSaveModal, setShowSaveModal] = useState(false);
   const [view, setView]       = useState<"grid"|"form"|"output"|"history">("grid");
   const [viewing, setViewing] = useState<GenItem | null>(null);
   const [copied, setCopied]   = useState(false);
@@ -567,15 +569,25 @@ function QuickGenerator() {
   if (view === "output") {
     const td = QUICK_TYPES.find(t => t.id === selectedType);
     return (
-      <div className="p-5 space-y-4">
-        <div className="flex items-center gap-2 flex-wrap">
-          <button onClick={() => { setView("grid"); setST(null); setTxt(""); }} className="text-primary text-sm font-medium">‹</button>
-          <span className="text-xl">{td?.icon}</span><p className="font-bold flex-1 text-[14px]">{selectedType}</p>
-          <div className="flex gap-1.5">{streaming && <button onClick={() => abortRef.current?.abort()} className="text-[11px] bg-red-500/10 text-red-400 border border-red-500/20 rounded-lg px-2.5 py-1">Stop</button>}{!streaming && streamText && <><button onClick={copy} className="text-[11px] bg-muted rounded-lg px-2.5 py-1">{copied ? "✓" : "Copy"}</button><button onClick={() => { setView("grid"); setST(null); setTxt(""); }} className="text-[11px] bg-primary text-white rounded-lg px-2.5 py-1">+ New</button></>}</div>
+      <>
+        <div className="p-5 space-y-4">
+          <div className="flex items-center gap-2 flex-wrap">
+            <button onClick={() => { setView("grid"); setST(null); setTxt(""); }} className="text-primary text-sm font-medium">‹</button>
+            <span className="text-xl">{td?.icon}</span><p className="font-bold flex-1 text-[14px]">{selectedType}</p>
+            <div className="flex gap-1.5">{streaming && <button onClick={() => abortRef.current?.abort()} className="text-[11px] bg-red-500/10 text-red-400 border border-red-500/20 rounded-lg px-2.5 py-1">Stop</button>}{!streaming && streamText && <><button onClick={copy} className="text-[11px] bg-muted rounded-lg px-2.5 py-1">{copied ? "✓" : "Copy"}</button><button onClick={() => setShowSaveModal(true)} className="text-[11px] rounded-lg px-2.5 py-1 border" style={{ background: "rgba(99,102,241,0.12)", color: "#a5b4fc", borderColor: "rgba(99,102,241,0.30)" }}>💾 Save</button><button onClick={() => { setView("grid"); setST(null); setTxt(""); }} className="text-[11px] bg-primary text-white rounded-lg px-2.5 py-1">+ New</button></>}</div>
+          </div>
+          {!streamText && streaming && <div className="flex items-center gap-3 py-8 justify-center text-muted-foreground text-sm"><div className="w-4 h-4 border-2 border-primary border-t-transparent rounded-full animate-spin" /><span>Generating…</span></div>}
+          {streamText && <div className="bg-muted/40 border border-border/40 rounded-2xl p-4 max-h-[60vh] overflow-y-auto"><pre className="text-[12px] whitespace-pre-wrap font-mono leading-relaxed">{streamText}{streaming && <span className="inline-block w-2 h-3 bg-primary/60 animate-pulse ml-0.5 align-middle" />}</pre></div>}
         </div>
-        {!streamText && streaming && <div className="flex items-center gap-3 py-8 justify-center text-muted-foreground text-sm"><div className="w-4 h-4 border-2 border-primary border-t-transparent rounded-full animate-spin" /><span>Generating…</span></div>}
-        {streamText && <div className="bg-muted/40 border border-border/40 rounded-2xl p-4 max-h-[60vh] overflow-y-auto"><pre className="text-[12px] whitespace-pre-wrap font-mono leading-relaxed">{streamText}{streaming && <span className="inline-block w-2 h-3 bg-primary/60 animate-pulse ml-0.5 align-middle" />}</pre></div>}
-      </div>
+        {showSaveModal && (
+          <SaveToProjectModal
+            content={streamText}
+            label={`${selectedType ?? "Generated Content"}`}
+            defaultFileType="Document"
+            onClose={() => setShowSaveModal(false)}
+          />
+        )}
+      </>
     );
   }
   if (view === "form" && selectedType) {

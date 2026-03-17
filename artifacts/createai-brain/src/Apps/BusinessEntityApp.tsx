@@ -1,5 +1,6 @@
 import React, { useState, useRef, useCallback } from "react";
 import { GLOBAL_REGION_GROUPS, getAllIndustries } from "@/engine/universeConfig";
+import { SaveToProjectModal } from "@/components/SaveToProjectModal";
 
 // ─── Types ────────────────────────────────────────────────────────────────────
 
@@ -283,6 +284,7 @@ export function BusinessEntityApp() {
     return init as Record<EntityLayerId, LayerState>;
   });
   const [generatingAll, setGeneratingAll] = useState(false);
+  const [showSaveModal, setShowSaveModal] = useState(false);
 
   const abortRefs = useRef<Partial<Record<EntityLayerId, AbortController>>>({});
 
@@ -605,27 +607,38 @@ export function BusinessEntityApp() {
                   </div>
                 </div>
               </div>
-              <button
-                onClick={() => generateLayer(activeLayer)}
-                disabled={currentState.loading || !hasEntity}
-                className="flex items-center gap-2 px-3 py-2 rounded-xl text-[12px] font-semibold flex-shrink-0 transition-all"
-                style={{
-                  background: !hasEntity
-                    ? "rgba(255,255,255,0.03)"
-                    : currentState.loading
-                    ? "rgba(16,185,129,0.04)"
-                    : "rgba(16,185,129,0.16)",
-                  border: `1px solid ${!hasEntity ? "rgba(255,255,255,0.08)" : "rgba(16,185,129,0.35)"}`,
-                  color: !hasEntity ? "#334155" : currentState.loading ? "#475569" : "#34d399",
-                  cursor: !hasEntity || currentState.loading ? "not-allowed" : "pointer",
-                }}
-              >
-                {currentState.loading ? (
-                  <><span className="animate-spin inline-block">⟳</span> Building…</>
-                ) : (
-                  <><span>✦</span> Build {currentLayer.label}</>
+              <div className="flex items-center gap-2 flex-shrink-0">
+                {currentState.generated && !currentState.loading && (
+                  <button
+                    onClick={() => setShowSaveModal(true)}
+                    className="flex items-center gap-2 px-3 py-2 rounded-xl text-[12px] font-semibold transition-all"
+                    style={{ background: "rgba(99,102,241,0.12)", border: "1px solid rgba(99,102,241,0.28)", color: "#a5b4fc" }}
+                  >
+                    💾 Save
+                  </button>
                 )}
-              </button>
+                <button
+                  onClick={() => generateLayer(activeLayer)}
+                  disabled={currentState.loading || !hasEntity}
+                  className="flex items-center gap-2 px-3 py-2 rounded-xl text-[12px] font-semibold flex-shrink-0 transition-all"
+                  style={{
+                    background: !hasEntity
+                      ? "rgba(255,255,255,0.03)"
+                      : currentState.loading
+                      ? "rgba(16,185,129,0.04)"
+                      : "rgba(16,185,129,0.16)",
+                    border: `1px solid ${!hasEntity ? "rgba(255,255,255,0.08)" : "rgba(16,185,129,0.35)"}`,
+                    color: !hasEntity ? "#334155" : currentState.loading ? "#475569" : "#34d399",
+                    cursor: !hasEntity || currentState.loading ? "not-allowed" : "pointer",
+                  }}
+                >
+                  {currentState.loading ? (
+                    <><span className="animate-spin inline-block">⟳</span> Building…</>
+                  ) : (
+                    <><span>✦</span> Build {currentLayer.label}</>
+                  )}
+                </button>
+              </div>
             </div>
 
             {/* Entity Context Tags */}
@@ -722,6 +735,14 @@ export function BusinessEntityApp() {
           </div>
         </div>
       </div>
+      {showSaveModal && (
+        <SaveToProjectModal
+          content={currentState.content}
+          label={`${currentLayer.label} — Entity Design`}
+          defaultFileType="Document"
+          onClose={() => setShowSaveModal(false)}
+        />
+      )}
     </div>
   );
 }

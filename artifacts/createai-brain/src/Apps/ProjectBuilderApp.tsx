@@ -1,5 +1,6 @@
 import React, { useState, useRef, useCallback } from "react";
 import { GLOBAL_REGION_GROUPS, getAllIndustries } from "@/engine/universeConfig";
+import { SaveToProjectModal } from "@/components/SaveToProjectModal";
 
 // ─── Types ────────────────────────────────────────────────────────────────────
 
@@ -286,6 +287,7 @@ export function ProjectBuilderApp() {
     return init as Record<ProjectSectionId, SectionState>;
   });
   const [generatingAll, setGeneratingAll] = useState(false);
+  const [showSaveModal, setShowSaveModal] = useState(false);
 
   const abortRefs = useRef<Partial<Record<ProjectSectionId, AbortController>>>({});
 
@@ -620,27 +622,38 @@ export function ProjectBuilderApp() {
                   </div>
                 </div>
               </div>
-              <button
-                onClick={() => generateSection(activeSection)}
-                disabled={currentState.loading || !hasProject}
-                className="flex items-center gap-2 px-3 py-2 rounded-xl text-[12px] font-semibold flex-shrink-0 transition-all"
-                style={{
-                  background: !hasProject
-                    ? "rgba(255,255,255,0.03)"
-                    : currentState.loading
-                    ? "rgba(6,182,212,0.05)"
-                    : "rgba(6,182,212,0.18)",
-                  border: `1px solid ${!hasProject ? "rgba(255,255,255,0.08)" : "rgba(6,182,212,0.38)"}`,
-                  color: !hasProject ? "#334155" : currentState.loading ? "#475569" : "#22d3ee",
-                  cursor: !hasProject || currentState.loading ? "not-allowed" : "pointer",
-                }}
-              >
-                {currentState.loading ? (
-                  <><span className="animate-spin inline-block">⟳</span> Building…</>
-                ) : (
-                  <><span>📋</span> Build {currentSection.label}</>
+              <div className="flex items-center gap-2 flex-shrink-0">
+                {currentState.generated && !currentState.loading && (
+                  <button
+                    onClick={() => setShowSaveModal(true)}
+                    className="flex items-center gap-2 px-3 py-2 rounded-xl text-[12px] font-semibold transition-all"
+                    style={{ background: "rgba(99,102,241,0.12)", border: "1px solid rgba(99,102,241,0.28)", color: "#a5b4fc" }}
+                  >
+                    💾 Save
+                  </button>
                 )}
-              </button>
+                <button
+                  onClick={() => generateSection(activeSection)}
+                  disabled={currentState.loading || !hasProject}
+                  className="flex items-center gap-2 px-3 py-2 rounded-xl text-[12px] font-semibold flex-shrink-0 transition-all"
+                  style={{
+                    background: !hasProject
+                      ? "rgba(255,255,255,0.03)"
+                      : currentState.loading
+                      ? "rgba(6,182,212,0.05)"
+                      : "rgba(6,182,212,0.18)",
+                    border: `1px solid ${!hasProject ? "rgba(255,255,255,0.08)" : "rgba(6,182,212,0.38)"}`,
+                    color: !hasProject ? "#334155" : currentState.loading ? "#475569" : "#22d3ee",
+                    cursor: !hasProject || currentState.loading ? "not-allowed" : "pointer",
+                  }}
+                >
+                  {currentState.loading ? (
+                    <><span className="animate-spin inline-block">⟳</span> Building…</>
+                  ) : (
+                    <><span>📋</span> Build {currentSection.label}</>
+                  )}
+                </button>
+              </div>
             </div>
 
             {/* Context Tags */}
@@ -757,6 +770,14 @@ export function ProjectBuilderApp() {
           </div>
         </div>
       </div>
+      {showSaveModal && (
+        <SaveToProjectModal
+          content={currentState.content}
+          label={`${currentSection.label} — Project Plan`}
+          defaultFileType="Document"
+          onClose={() => setShowSaveModal(false)}
+        />
+      )}
     </div>
   );
 }

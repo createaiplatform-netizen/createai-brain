@@ -17,24 +17,36 @@ import { MonetizationApp } from "@/Apps/MonetizationApp";
 import { CreatorApp } from "@/Apps/CreatorApp";
 import { UniversalApp } from "@/Apps/UniversalApp";
 import { SimulationApp } from "@/Apps/SimulationApp";
+import { BusinessCreationApp } from "@/Apps/BusinessCreationApp";
+import { BusinessEntityApp } from "@/Apps/BusinessEntityApp";
+import { BizUniverseApp } from "@/Apps/BizUniverseApp";
+import { BizDevApp } from "@/Apps/BizDevApp";
+import { ProjectBuilderApp } from "@/Apps/ProjectBuilderApp";
+import { ProjectOSApp } from "@/Apps/ProjectOSApp";
 import { ConversationOverlay } from "./ConversationOverlay";
 import { UCPXAgent } from "@/ucpx/UCPXAgent";
 import { GuidedTour } from "./GuidedTour";
 
 const APP_COMPONENTS: Record<string, React.ComponentType> = {
-  chat: ChatApp,
-  projects: ProjectsApp,
-  tools: ToolsApp,
-  creator: CreatorApp,
-  people: PeopleApp,
-  documents: DocumentsApp,
-  marketing: MarketingApp,
-  admin: AdminApp,
-  family: FamilyApp,
-  integration: IntegrationApp,
+  chat:         ChatApp,
+  projects:     ProjectsApp,
+  tools:        ToolsApp,
+  creator:      CreatorApp,
+  people:       PeopleApp,
+  documents:    DocumentsApp,
+  marketing:    MarketingApp,
+  admin:        AdminApp,
+  family:       FamilyApp,
+  integration:  IntegrationApp,
   monetization: MonetizationApp,
-  simulation: SimulationApp,
-  universal: UniversalApp,
+  simulation:   SimulationApp,
+  universal:    UniversalApp,
+  business:     BusinessCreationApp,
+  entity:       BusinessEntityApp,
+  bizcreator:   BizUniverseApp,
+  bizdev:       BizDevApp,
+  projbuilder:  ProjectBuilderApp,
+  projos:       ProjectOSApp,
 };
 
 /**

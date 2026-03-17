@@ -3,6 +3,7 @@ import { Send, ChevronDown, Sparkles, Zap } from "lucide-react";
 import { useChatStream } from "@/hooks/use-chat-stream";
 import { ChatBubble } from "@/components/chat-bubble";
 import { TypingIndicator } from "@/components/typing-indicator";
+import { SaveToProjectModal } from "@/components/SaveToProjectModal";
 import { clsx, type ClassValue } from "clsx";
 import { twMerge } from "tailwind-merge";
 
@@ -186,6 +187,7 @@ export function ChatApp() {
   const [currentProjectIndex, setCurrentProjectIndex] = useState(0);
   const [showPicker, setShowPicker] = useState(false);
   const [inputMessage, setInputMessage] = useState("");
+  const [saveModal, setSaveModal] = useState<{ content: string; label: string } | null>(null);
 
   const messagesEndRef = useRef<HTMLDivElement>(null);
   const inputRef = useRef<HTMLInputElement>(null);
@@ -290,7 +292,20 @@ export function ChatApp() {
             />
           )}
           {messages.map(msg => (
-            <ChatBubble key={msg.id} role={msg.role as "user" | "assistant" | "system"} content={msg.content} />
+            <div key={msg.id}>
+              <ChatBubble role={msg.role as "user" | "assistant" | "system"} content={msg.content} />
+              {msg.role === "assistant" && msg.content && (
+                <div className="flex justify-start ml-10 -mt-1 mb-2">
+                  <button
+                    onClick={() => setSaveModal({ content: msg.content, label: `${currentProject.name} — AI Response` })}
+                    className="text-[10px] px-2.5 py-1 rounded-lg font-medium transition-colors"
+                    style={{ background: "rgba(99,102,241,0.10)", color: "#818cf8", border: "1px solid rgba(99,102,241,0.18)" }}
+                  >
+                    💾 Save to Project
+                  </button>
+                </div>
+              )}
+            </div>
           ))}
           {isStreaming && streamingText && (
             <ChatBubble role="assistant" content={streamingText} isStreaming />
@@ -344,6 +359,15 @@ export function ChatApp() {
           </p>
         </div>
       </footer>
+
+      {saveModal && (
+        <SaveToProjectModal
+          content={saveModal.content}
+          label={saveModal.label}
+          defaultFileType="Document"
+          onClose={() => setSaveModal(null)}
+        />
+      )}
     </div>
   );
 }
