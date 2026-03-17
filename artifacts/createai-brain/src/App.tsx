@@ -11,6 +11,7 @@ import CreationPage from "@/pages/CreationPage";
 import ProjectPage from "@/pages/ProjectPage";
 import IntegrationDemoPage from "@/pages/IntegrationDemoPage";
 import LiveSimDashboard from "@/pages/LiveSimDashboard";
+import IntegrationLivePage from "@/pages/IntegrationLivePage";
 
 import { OSProvider } from "@/os/OSContext";
 import { OSLayout } from "@/os/osLayout";
@@ -381,14 +382,18 @@ function App() {
   // Public routes bypass auth — check before AuthGate renders
   const base = import.meta.env.BASE_URL.replace(/\/$/, "");
   const path = window.location.pathname;
-  const isPublicRoute = path.startsWith(`${base}/integration-demo`) || path.startsWith(`${base}/live-sim`);
+  const isPublicRoute =
+    path.startsWith(`${base}/integration-demo`) ||
+    path.startsWith(`${base}/live-sim`) ||
+    path.startsWith(`${base}/integration-live`);
 
   if (isPublicRoute) {
     return (
       <QueryClientProvider client={queryClient}>
         <WouterRouter base={base}>
-          <Route path="/integration-demo" component={IntegrationDemoPage} />
-          <Route path="/live-sim" component={LiveSimDashboard} />
+          <Route path="/integration-demo"  component={IntegrationDemoPage} />
+          <Route path="/live-sim"          component={LiveSimDashboard} />
+          <Route path="/integration-live"  component={IntegrationLivePage} />
         </WouterRouter>
       </QueryClientProvider>
     );
