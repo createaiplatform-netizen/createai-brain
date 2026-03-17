@@ -114,13 +114,13 @@ export function AppWindow({ onHamburger }: AppWindowProps) {
             onClick={onHamburger}
             aria-label="Open navigation"
             className="w-8 h-8 flex flex-col items-center justify-center gap-[5px] rounded-xl transition-all duration-150 flex-shrink-0"
-            style={{ color: "rgba(255,255,255,0.55)" }}
-            onMouseEnter={e => ((e.currentTarget as HTMLElement).style.background = "rgba(255,255,255,0.07)")}
+            style={{ color: "#6b7280" }}
+            onMouseEnter={e => ((e.currentTarget as HTMLElement).style.background = "rgba(0,0,0,0.05)")}
             onMouseLeave={e => ((e.currentTarget as HTMLElement).style.background = "transparent")}
           >
-            <span className="w-4.5 h-[1.5px] rounded-full block" style={{ background: "rgba(255,255,255,0.55)" }} />
-            <span className="w-4.5 h-[1.5px] rounded-full block" style={{ background: "rgba(255,255,255,0.55)" }} />
-            <span className="w-4.5 h-[1.5px] rounded-full block" style={{ background: "rgba(255,255,255,0.55)" }} />
+            <span className="w-4 h-[1.5px] rounded-full block" style={{ background: "#6b7280" }} />
+            <span className="w-4 h-[1.5px] rounded-full block" style={{ background: "#6b7280" }} />
+            <span className="w-4 h-[1.5px] rounded-full block" style={{ background: "#6b7280" }} />
           </button>
         )}
 
@@ -128,7 +128,7 @@ export function AppWindow({ onHamburger }: AppWindowProps) {
         <button
           onClick={history.length > 0 ? goBack : closeApp}
           className="flex items-center gap-1 text-sm font-medium transition-opacity duration-150 flex-shrink-0 hover:opacity-70"
-          style={{ color: "#818cf8" }}
+          style={{ color: "#6366f1" }}
         >
           <span className="text-[18px] leading-none font-light">‹</span>
           <span className="hidden sm:inline text-[13px]" style={{ letterSpacing: "-0.01em" }}>
@@ -137,14 +137,14 @@ export function AppWindow({ onHamburger }: AppWindowProps) {
         </button>
 
         {/* Separator */}
-        <div className="h-4 w-px flex-shrink-0" style={{ background: "rgba(255,255,255,0.10)" }} />
+        <div className="h-4 w-px flex-shrink-0" style={{ background: "rgba(0,0,0,0.10)" }} />
 
         {/* Title */}
         <div className="flex-1 flex items-center gap-2 min-w-0">
           <span className="text-base leading-none">{icon}</span>
           <h1
             className="font-semibold text-[15px] truncate"
-            style={{ color: "rgba(255,255,255,0.90)", letterSpacing: "-0.02em" }}
+            style={{ color: "#0f172a", letterSpacing: "-0.02em" }}
           >
             {label}
           </h1>
@@ -155,20 +155,16 @@ export function AppWindow({ onHamburger }: AppWindowProps) {
           onClick={closeApp}
           aria-label="Close app"
           className="w-7 h-7 rounded-full flex items-center justify-center text-xs flex-shrink-0 transition-all duration-150 font-medium"
-          style={{
-            background: "rgba(255,255,255,0.07)",
-            color: "rgba(255,255,255,0.45)",
-            border: "1px solid rgba(255,255,255,0.08)",
-          }}
+          style={{ background: "rgba(0,0,0,0.05)", color: "#9ca3af", border: "1px solid rgba(0,0,0,0.07)" }}
           onMouseEnter={e => {
-            (e.currentTarget as HTMLElement).style.background = "rgba(239, 68, 68, 0.18)";
-            (e.currentTarget as HTMLElement).style.color = "#f87171";
-            (e.currentTarget as HTMLElement).style.borderColor = "rgba(239,68,68,0.25)";
+            (e.currentTarget as HTMLElement).style.background = "rgba(239,68,68,0.10)";
+            (e.currentTarget as HTMLElement).style.color = "#ef4444";
+            (e.currentTarget as HTMLElement).style.borderColor = "rgba(239,68,68,0.20)";
           }}
           onMouseLeave={e => {
-            (e.currentTarget as HTMLElement).style.background = "rgba(255,255,255,0.07)";
-            (e.currentTarget as HTMLElement).style.color = "rgba(255,255,255,0.45)";
-            (e.currentTarget as HTMLElement).style.borderColor = "rgba(255,255,255,0.08)";
+            (e.currentTarget as HTMLElement).style.background = "rgba(0,0,0,0.05)";
+            (e.currentTarget as HTMLElement).style.color = "#9ca3af";
+            (e.currentTarget as HTMLElement).style.borderColor = "rgba(0,0,0,0.07)";
           }}
         >
           ✕
@@ -178,7 +174,7 @@ export function AppWindow({ onHamburger }: AppWindowProps) {
       {/* ── App content ── */}
       <div
         className="flex-1 overflow-y-auto overscroll-contain"
-        style={{ background: "rgba(7,9,20,0.60)" }}
+        style={{ background: "hsl(220,20%,97%)" }}
       >
         <AppComponent />
       </div>

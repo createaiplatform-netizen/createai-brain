@@ -7,11 +7,11 @@ interface SidebarProps {
   forceExpanded?: boolean;
 }
 
-const CATEGORY_META: Record<string, { label: string; icon: string }> = {
-  core:     { label: "Core",       icon: "⬡" },
-  tools:    { label: "Build",      icon: "⚒" },
-  business: { label: "Business",   icon: "◈" },
-  system:   { label: "System",     icon: "⛭" },
+const CATEGORY_META: Record<string, { label: string }> = {
+  core:     { label: "Core" },
+  tools:    { label: "Build" },
+  business: { label: "Business" },
+  system:   { label: "System" },
 };
 
 const CATEGORY_ORDER = ["core", "tools", "business", "system"];
@@ -33,38 +33,27 @@ export function Sidebar({ onNav, forceCollapsed, forceExpanded }: SidebarProps) 
   const width = collapsed ? 64 : 224;
   const groups = groupApps(ALL_APPS);
 
-  const handleNav = (fn: () => void) => {
-    fn();
-    onNav?.();
-  };
+  const handleNav = (fn: () => void) => { fn(); onNav?.(); };
 
   return (
     <aside
-      className="flex flex-col h-full flex-shrink-0 overflow-hidden transition-all duration-300 ease-in-out glass-sidebar"
-      style={{ width }}
+      className="flex flex-col h-full flex-shrink-0 overflow-hidden transition-all duration-300 ease-in-out"
+      style={{ width, background: "#fff", borderRight: "1px solid rgba(0,0,0,0.08)", boxShadow: "2px 0 8px rgba(0,0,0,0.04)" }}
     >
-      {/* ── Brand row ── */}
-      <div
-        className="flex items-center h-14 px-3 gap-2.5 overflow-hidden flex-shrink-0"
-        style={{ borderBottom: "1px solid rgba(255,255,255,0.06)" }}
-      >
+      {/* ── Brand ── */}
+      <div className="flex items-center h-14 px-3 gap-2.5 overflow-hidden flex-shrink-0"
+        style={{ borderBottom: "1px solid rgba(0,0,0,0.07)" }}>
         <button
           onClick={() => { if (!forceCollapsed && !forceExpanded) toggleSidebar(); }}
           className="w-8 h-8 rounded-xl flex items-center justify-center text-white text-sm font-bold flex-shrink-0 transition-all duration-200 hover:scale-105"
-          style={{
-            background: "linear-gradient(135deg, #6366f1 0%, #8b5cf6 100%)",
-            boxShadow: "0 2px 12px rgba(99,102,241,0.45)",
-          }}
+          style={{ background: "linear-gradient(135deg,#6366f1,#8b5cf6)", boxShadow: "0 2px 8px rgba(99,102,241,0.30)" }}
           title="CreateAI Brain"
         >
           C
         </button>
         {!collapsed && (
-          <span
-            className="font-semibold text-[13px] truncate"
-            style={{ color: "rgba(255,255,255,0.88)", letterSpacing: "-0.01em" }}
-          >
-            CreateAI OS
+          <span className="font-semibold text-[13px] truncate" style={{ color: "#0f172a", letterSpacing: "-0.01em" }}>
+            CreateAI Brain
           </span>
         )}
       </div>
@@ -80,25 +69,19 @@ export function Sidebar({ onNav, forceCollapsed, forceExpanded }: SidebarProps) 
         />
       </div>
 
-      {/* ── App list with categories ── */}
+      {/* ── App list ── */}
       <div className="flex-1 overflow-y-auto px-2 pb-2">
         {groups.map(group => (
-          <div key={group.category} className="mb-2">
+          <div key={group.category} className="mb-3">
             {!collapsed && (
-              <div className="flex items-center gap-2 px-2 py-1.5">
-                <span className="text-[9px]" style={{ color: "rgba(255,255,255,0.20)" }}>
-                  {CATEGORY_META[group.category]?.icon}
-                </span>
-                <p
-                  className="text-[9px] font-bold uppercase tracking-widest"
-                  style={{ color: "rgba(255,255,255,0.22)", letterSpacing: "0.10em" }}
-                >
+              <div className="px-2 py-1.5">
+                <p className="text-[9px] font-bold uppercase tracking-widest" style={{ color: "#d1d5db" }}>
                   {CATEGORY_META[group.category]?.label}
                 </p>
               </div>
             )}
             {collapsed && group.category !== "core" && (
-              <div className="mx-auto w-4 h-px my-2" style={{ background: "rgba(255,255,255,0.08)" }} />
+              <div className="mx-auto w-6 h-px my-2" style={{ background: "rgba(0,0,0,0.08)" }} />
             )}
             <div className="space-y-0.5">
               {group.apps.map(app => (
@@ -119,19 +102,13 @@ export function Sidebar({ onNav, forceCollapsed, forceExpanded }: SidebarProps) 
 
       {/* ── Collapse toggle ── */}
       {!forceCollapsed && !forceExpanded && (
-        <div className="px-2 pb-3 pt-1" style={{ borderTop: "1px solid rgba(255,255,255,0.05)" }}>
+        <div className="px-2 pb-3 pt-1" style={{ borderTop: "1px solid rgba(0,0,0,0.07)" }}>
           <button
             onClick={toggleSidebar}
             className="w-full flex items-center justify-center gap-2 h-8 rounded-xl text-xs font-medium transition-all duration-200"
-            style={{ color: "rgba(255,255,255,0.30)" }}
-            onMouseEnter={e => {
-              (e.currentTarget as HTMLElement).style.background = "rgba(255,255,255,0.05)";
-              (e.currentTarget as HTMLElement).style.color = "rgba(255,255,255,0.60)";
-            }}
-            onMouseLeave={e => {
-              (e.currentTarget as HTMLElement).style.background = "transparent";
-              (e.currentTarget as HTMLElement).style.color = "rgba(255,255,255,0.30)";
-            }}
+            style={{ color: "#9ca3af" }}
+            onMouseEnter={e => { (e.currentTarget as HTMLElement).style.background = "rgba(0,0,0,0.04)"; (e.currentTarget as HTMLElement).style.color = "#6b7280"; }}
+            onMouseLeave={e => { (e.currentTarget as HTMLElement).style.background = "transparent"; (e.currentTarget as HTMLElement).style.color = "#9ca3af"; }}
           >
             <span style={{ fontSize: 11 }}>{collapsed ? "▶" : "◀"}</span>
             {!collapsed && <span>Collapse</span>}
@@ -142,15 +119,8 @@ export function Sidebar({ onNav, forceCollapsed, forceExpanded }: SidebarProps) 
   );
 }
 
-function SidebarItem({
-  icon, label, active, collapsed, onClick, color,
-}: {
-  icon: string;
-  label: string;
-  active: boolean;
-  collapsed: boolean;
-  onClick: () => void;
-  color?: string;
+function SidebarItem({ icon, label, active, collapsed, onClick, color }: {
+  icon: string; label: string; active: boolean; collapsed: boolean; onClick: () => void; color?: string;
 }) {
   const accentColor = color ?? "#6366f1";
 
@@ -159,44 +129,30 @@ function SidebarItem({
       onClick={onClick}
       title={collapsed ? label : undefined}
       className="w-full flex items-center gap-2.5 h-9 rounded-xl px-2 text-[13px] font-medium transition-all duration-150"
-      style={
-        active
-          ? {
-              background: `${accentColor}18`,
-              color: "#a5b4fc",
-              boxShadow: `inset 0 0 0 1px ${accentColor}28`,
-            }
-          : { color: "rgba(255,255,255,0.42)" }
+      style={active
+        ? { background: `${accentColor}14`, color: accentColor }
+        : { color: "#6b7280" }
       }
       onMouseEnter={e => {
         if (!active) {
-          (e.currentTarget as HTMLElement).style.background = "rgba(255,255,255,0.06)";
-          (e.currentTarget as HTMLElement).style.color = "rgba(255,255,255,0.82)";
+          (e.currentTarget as HTMLElement).style.background = "rgba(0,0,0,0.04)";
+          (e.currentTarget as HTMLElement).style.color = "#0f172a";
         }
       }}
       onMouseLeave={e => {
         if (!active) {
           (e.currentTarget as HTMLElement).style.background = "transparent";
-          (e.currentTarget as HTMLElement).style.color = "rgba(255,255,255,0.42)";
+          (e.currentTarget as HTMLElement).style.color = "#6b7280";
         }
       }}
     >
-      <span
-        className="text-base flex-shrink-0 w-5 text-center leading-none"
-        style={active ? {} : {}}
-      >
-        {icon}
-      </span>
+      <span className="text-base flex-shrink-0 w-5 text-center leading-none">{icon}</span>
       {!collapsed && (
-        <span className="truncate flex-1 text-left" style={{ letterSpacing: "-0.01em" }}>
-          {label}
-        </span>
+        <span className="truncate flex-1 text-left" style={{ letterSpacing: "-0.01em" }}>{label}</span>
       )}
       {!collapsed && active && (
-        <span
-          className="w-1 h-4 rounded-full flex-shrink-0"
-          style={{ background: `linear-gradient(to bottom, ${accentColor}, ${accentColor}88)` }}
-        />
+        <span className="w-1 h-4 rounded-full flex-shrink-0"
+          style={{ background: accentColor }} />
       )}
     </button>
   );

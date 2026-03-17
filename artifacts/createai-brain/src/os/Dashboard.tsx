@@ -1,44 +1,42 @@
-import React, { useState, useEffect, useRef } from "react";
+import React, { useState, useEffect } from "react";
 import { useOS, AppId } from "./OSContext";
 import { PlatformStore, RecentActivity, PlatformMode } from "@/engine/PlatformStore";
 
 const QUICK_ACTIONS = [
-  { icon: "✨", label: "Create Anything", sub: "Docs, content, apps",   app: "creator"    as AppId, color: "#6366f1" },
-  { icon: "💬", label: "Open Chat",       sub: "Talk to the Brain",     app: "chat"       as AppId, color: "#22d3ee" },
-  { icon: "🧪", label: "Simulate",        sub: "Analyze & ad packets",  app: "simulation" as AppId, color: "#a855f7" },
-  { icon: "📣", label: "Marketing",       sub: "Campaigns & content",   app: "marketing"  as AppId, color: "#f472b6" },
+  { icon: "✨", label: "Create Anything", sub: "Docs, content & apps",   app: "creator"    as AppId, color: "#6366f1" },
+  { icon: "💬", label: "AI Chat",         sub: "Talk to the Brain",      app: "chat"       as AppId, color: "#06b6d4" },
+  { icon: "🧪", label: "Simulate",        sub: "Analyze & forecast",     app: "simulation" as AppId, color: "#a855f7" },
+  { icon: "📣", label: "Marketing",       sub: "Campaigns & content",    app: "marketing"  as AppId, color: "#f472b6" },
 ];
 
 const FALLBACK_RECENTS: RecentActivity[] = [
-  { id: "f1", appId: "chat",       label: "AI Chat — Main Brain",             icon: "💬", at: new Date().toISOString() },
-  { id: "f2", appId: "projects",   label: "Healthcare System – Legal Safe",   icon: "📁", at: new Date().toISOString() },
-  { id: "f3", appId: "marketing",  label: "Brand Kit Draft",                  icon: "📣", at: new Date().toISOString() },
-  { id: "f4", appId: "people",     label: "People — invites pending",         icon: "👥", at: new Date().toISOString() },
+  { id: "f1", appId: "chat",       label: "AI Chat — Main Brain",            icon: "💬", at: new Date().toISOString() },
+  { id: "f2", appId: "projects",   label: "Healthcare System – Legal Safe",  icon: "📁", at: new Date().toISOString() },
+  { id: "f3", appId: "marketing",  label: "Brand Kit Draft",                 icon: "📣", at: new Date().toISOString() },
+  { id: "f4", appId: "people",     label: "People — invites pending",        icon: "👥", at: new Date().toISOString() },
 ];
 
-const MODE_CFG: Record<PlatformMode, { label: string; color: string; dot: string; desc: string; bg: string; border: string }> = {
-  DEMO: { label: "Demo Mode",  color: "text-orange-400", dot: "bg-orange-400", desc: "Safe simulation — nothing is real",     bg: "bg-orange-500/10", border: "border-orange-500/20" },
-  TEST: { label: "Test Mode",  color: "text-primary",    dot: "bg-primary",    desc: "Testing active — no live actions",      bg: "bg-primary/10",    border: "border-primary/20" },
-  LIVE: { label: "Live Mode",  color: "text-green-400",  dot: "bg-green-400",  desc: "All engines live and active",           bg: "bg-green-500/10",  border: "border-green-500/20" },
+const MODE_CFG: Record<PlatformMode, { label: string; color: string; dot: string; bg: string; border: string; text: string }> = {
+  DEMO: { label: "Demo",  color: "#f97316", dot: "#f97316", bg: "#fff7ed", border: "#fed7aa", text: "#c2410c" },
+  TEST: { label: "Test",  color: "#6366f1", dot: "#6366f1", bg: "#eef2ff", border: "#c7d2fe", text: "#4338ca" },
+  LIVE: { label: "Live",  color: "#16a34a", dot: "#22c55e", bg: "#f0fdf4", border: "#bbf7d0", text: "#15803d" },
 };
 
 const INTENT_SUGGESTIONS = [
   "Simulate a business model",
   "Generate a marketing brochure",
-  "Run a gap analysis on my workflow",
   "Create a landing page funnel",
-  "Generate an ad packet for my idea",
   "Build a content calendar",
   "Chat with the Brain",
   "Write a pitch deck",
-  "Analyze a software architecture",
   "Create an email sequence",
+  "Run a gap analysis",
 ];
 
 function getGreeting(): string {
-  const hour = new Date().getHours();
-  if (hour < 12) return "Good morning";
-  if (hour < 17) return "Good afternoon";
+  const h = new Date().getHours();
+  if (h < 12) return "Good morning";
+  if (h < 17) return "Good afternoon";
   return "Good evening";
 }
 
@@ -48,20 +46,18 @@ interface DashboardProps {
   onShowTour?: () => void;
 }
 
-export function Dashboard({ onHamburger, isNarrow, onShowTour }: DashboardProps) {
+export function Dashboard({ onHamburger, onShowTour }: DashboardProps) {
   const { openApp, appRegistry, routeIntent, platformMode, setPlatformMode, activeApp } = useOS();
-  const [intentInput, setIntentInput]       = useState("");
-  const [intentResult, setIntentResult]     = useState<{ app: AppId; label: string } | null>(null);
+  const [intentInput, setIntentInput]         = useState("");
+  const [intentResult, setIntentResult]       = useState<{ app: AppId; label: string } | null>(null);
   const [showSuggestions, setShowSuggestions] = useState(false);
-  const [recents, setRecents]               = useState<RecentActivity[]>([]);
-  const [showModeMenu, setShowModeMenu]     = useState(false);
-  const [mounted, setMounted]               = useState(false);
+  const [recents, setRecents]                 = useState<RecentActivity[]>([]);
+  const [showModeMenu, setShowModeMenu]       = useState(false);
+  const [mounted, setMounted]                 = useState(false);
 
   const cfg = MODE_CFG[platformMode];
 
-  useEffect(() => {
-    setMounted(true);
-  }, []);
+  useEffect(() => { setMounted(true); }, []);
 
   useEffect(() => {
     const load = () => {
@@ -85,88 +81,90 @@ export function Dashboard({ onHamburger, isNarrow, onShowTour }: DashboardProps)
       const appDef = appRegistry.find(a => a.id === targetId);
       setIntentResult({ app: targetId, label: appDef?.label ?? targetId });
     } else {
-      setIntentResult({ app: "chat", label: "AI Chat (ask the Brain)" });
+      setIntentResult({ app: "chat", label: "AI Chat" });
     }
   };
 
   const handleIntentSubmit = (e?: React.FormEvent) => {
     e?.preventDefault();
-    if (intentResult) {
-      openApp(intentResult.app);
-      setIntentInput("");
-      setIntentResult(null);
-    } else {
-      openApp("chat");
-    }
+    if (intentResult) { openApp(intentResult.app); setIntentInput(""); setIntentResult(null); }
+    else openApp("chat");
   };
 
   return (
-    <div className="flex-1 flex flex-col overflow-hidden min-w-0" style={{ background: "rgba(7,9,20,0.60)" }}>
+    <div className="flex-1 flex flex-col overflow-hidden min-w-0" style={{ background: "hsl(220,20%,97%)" }}>
 
       {/* ── Top bar ── */}
-      <header className="h-14 glass-topbar flex items-center px-4 gap-3 sticky top-0 z-10 flex-shrink-0">
+      <header className="h-14 flex items-center px-4 gap-3 flex-shrink-0 z-10"
+        style={{ background: "#fff", borderBottom: "1px solid rgba(0,0,0,0.08)", boxShadow: "0 1px 3px rgba(0,0,0,0.04)" }}>
+
         {onHamburger && (
           <button onClick={onHamburger} aria-label="Open navigation"
             className="w-8 h-8 flex flex-col items-center justify-center gap-[5px] rounded-xl transition-all duration-150 flex-shrink-0"
-            style={{ color: "rgba(255,255,255,0.55)" }}
-            onMouseEnter={e => ((e.currentTarget as HTMLElement).style.background = "rgba(255,255,255,0.07)")}
+            style={{ color: "#6b7280" }}
+            onMouseEnter={e => ((e.currentTarget as HTMLElement).style.background = "rgba(0,0,0,0.05)")}
             onMouseLeave={e => ((e.currentTarget as HTMLElement).style.background = "transparent")}
           >
-            <span className="w-4.5 h-[1.5px] rounded-full block" style={{ background: "rgba(255,255,255,0.55)" }} />
-            <span className="w-4.5 h-[1.5px] rounded-full block" style={{ background: "rgba(255,255,255,0.55)" }} />
-            <span className="w-4.5 h-[1.5px] rounded-full block" style={{ background: "rgba(255,255,255,0.55)" }} />
+            <span className="w-4 h-[1.5px] rounded-full block" style={{ background: "#6b7280" }} />
+            <span className="w-4 h-[1.5px] rounded-full block" style={{ background: "#6b7280" }} />
+            <span className="w-4 h-[1.5px] rounded-full block" style={{ background: "#6b7280" }} />
           </button>
         )}
 
         <div className="flex-1 min-w-0">
-          <h1 className="font-semibold text-[15px] truncate" style={{ color: "rgba(255,255,255,0.90)", letterSpacing: "-0.02em" }}>
-            CreateAI OS
+          <h1 className="font-bold text-[15px]" style={{ color: "#0f172a", letterSpacing: "-0.02em" }}>
+            CreateAI Brain
           </h1>
-          <button
-            onClick={() => setShowModeMenu(m => !m)}
-            className={`text-[11px] font-medium flex items-center gap-1.5 hover:opacity-75 transition-opacity ${cfg.color}`}
-          >
-            <span className={`w-1.5 h-1.5 rounded-full animate-pulse ${cfg.dot}`} />
-            {cfg.label} · {cfg.desc}
-          </button>
         </div>
 
-        {showModeMenu && (
-          <div className="absolute top-14 left-4 z-50 glass-card shadow-2xl p-2 space-y-1 min-w-[190px] animate-scale-in">
-            {(["DEMO", "TEST", "LIVE"] as PlatformMode[]).map(m => (
-              <button key={m} onClick={() => { setPlatformMode(m); setShowModeMenu(false); }}
-                className={`w-full flex items-center gap-2.5 px-3 py-2 rounded-xl text-left text-[12px] font-semibold transition-all duration-150
-                  ${platformMode === m ? "bg-primary/10 text-primary" : "text-foreground hover:bg-muted/60"}`}>
-                <span className={`w-2 h-2 rounded-full ${MODE_CFG[m].dot}`} />
-                {MODE_CFG[m].label}
-                {platformMode === m && <span className="ml-auto text-primary text-[10px]">✓</span>}
-              </button>
-            ))}
-            <p className="text-[9px] text-muted-foreground px-3 pt-1 pb-0.5 leading-relaxed">
-              Mode changes persist across sessions
-            </p>
-          </div>
-        )}
+        {/* Mode badge */}
+        <div className="relative">
+          <button
+            onClick={() => setShowModeMenu(m => !m)}
+            className="flex items-center gap-1.5 px-3 py-1.5 rounded-full text-[11px] font-semibold transition-all"
+            style={{ background: cfg.bg, border: `1px solid ${cfg.border}`, color: cfg.text }}
+          >
+            <span className="w-1.5 h-1.5 rounded-full animate-pulse" style={{ background: cfg.dot }} />
+            {cfg.label}
+          </button>
+
+          {showModeMenu && (
+            <div className="absolute top-full right-0 mt-2 z-50 rounded-2xl p-2 shadow-xl min-w-[160px]"
+              style={{ background: "#fff", border: "1px solid rgba(0,0,0,0.09)", boxShadow: "0 8px 32px rgba(0,0,0,0.12)" }}>
+              {(["DEMO", "TEST", "LIVE"] as PlatformMode[]).map(m => (
+                <button key={m} onClick={() => { setPlatformMode(m); setShowModeMenu(false); }}
+                  className="w-full flex items-center gap-2.5 px-3 py-2 rounded-xl text-left text-[12px] font-semibold transition-all"
+                  style={platformMode === m
+                    ? { background: MODE_CFG[m].bg, color: MODE_CFG[m].text }
+                    : { color: "#374151" }}
+                  onMouseEnter={e => { if (platformMode !== m) (e.currentTarget as HTMLElement).style.background = "rgba(0,0,0,0.04)"; }}
+                  onMouseLeave={e => { if (platformMode !== m) (e.currentTarget as HTMLElement).style.background = "transparent"; }}
+                >
+                  <span className="w-2 h-2 rounded-full" style={{ background: MODE_CFG[m].dot }} />
+                  {MODE_CFG[m].label} Mode
+                  {platformMode === m && <span className="ml-auto text-[10px]">✓</span>}
+                </button>
+              ))}
+            </div>
+          )}
+        </div>
 
         {onShowTour && (
-          <button
-            onClick={onShowTour}
-            className="flex-shrink-0 text-[11px] font-semibold px-3 py-2 rounded-full flex items-center gap-1.5 transition-all duration-150"
-            style={{
-              background: "rgba(99,102,241,0.12)",
-              color: "#a5b4fc",
-              border: "1px solid rgba(99,102,241,0.25)",
-            }}
-            onMouseEnter={e => ((e.currentTarget as HTMLElement).style.background = "rgba(99,102,241,0.22)")}
-            onMouseLeave={e => ((e.currentTarget as HTMLElement).style.background = "rgba(99,102,241,0.12)")}
+          <button onClick={onShowTour}
+            className="hidden sm:flex flex-shrink-0 text-[11px] font-semibold px-3 py-2 rounded-full items-center gap-1.5 transition-all"
+            style={{ background: "#eef2ff", color: "#6366f1", border: "1px solid #c7d2fe" }}
+            onMouseEnter={e => ((e.currentTarget as HTMLElement).style.background = "#e0e7ff")}
+            onMouseLeave={e => ((e.currentTarget as HTMLElement).style.background = "#eef2ff")}
           >
-            ✦ Show Me Everything
+            ✦ Tour
           </button>
         )}
 
-        <button
-          onClick={() => openApp("chat")}
-          className="flex-shrink-0 text-white text-[12px] font-semibold px-4 py-2 rounded-full flex items-center gap-1.5 btn-primary"
+        <button onClick={() => openApp("chat")}
+          className="flex-shrink-0 text-[12px] font-semibold px-4 py-2 rounded-full flex items-center gap-1.5 transition-all"
+          style={{ background: "#6366f1", color: "#fff", boxShadow: "0 2px 8px rgba(99,102,241,0.30)" }}
+          onMouseEnter={e => ((e.currentTarget as HTMLElement).style.background = "#4f46e5")}
+          onMouseLeave={e => ((e.currentTarget as HTMLElement).style.background = "#6366f1")}
         >
           🧠 Ask the Brain
         </button>
@@ -177,135 +175,62 @@ export function Dashboard({ onHamburger, isNarrow, onShowTour }: DashboardProps)
         <div className="max-w-2xl mx-auto px-4 py-6 space-y-7">
 
           {/* ── Greeting ── */}
-          <div className={`animate-fade-up ${mounted ? "" : "opacity-0"}`}>
-            <p className="text-[13px] text-muted-foreground font-medium">{getGreeting()}, Sara</p>
-            <h2 className="text-[22px] font-bold text-foreground mt-0.5" style={{ letterSpacing: "-0.03em" }}>
-              What would you like to <span className="gradient-text">create</span> today?
+          <div className={`transition-opacity duration-500 ${mounted ? "opacity-100" : "opacity-0"}`}>
+            <p className="text-[13px] font-medium" style={{ color: "#6b7280" }}>{getGreeting()}, Sara 👋</p>
+            <h2 className="text-[24px] font-bold mt-0.5" style={{ color: "#0f172a", letterSpacing: "-0.03em" }}>
+              What would you like to create today?
             </h2>
           </div>
 
-          {/* ── Platform Intelligence Strip ── */}
-          <div className={`animate-fade-up delay-50 ${mounted ? "" : "opacity-0"}`}>
-            <div
-              className="rounded-2xl p-4"
-              style={{
-                background: "rgba(14,18,42,0.65)",
-                border: "1px solid rgba(255,255,255,0.07)",
-                boxShadow: "0 2px 16px rgba(0,0,0,0.30)",
-              }}
-            >
-              <div className="flex items-center gap-2 mb-3 flex-wrap">
-                <span className="label-xs">Platform Intelligence</span>
-                <div className="flex-1 h-px" style={{ background: "rgba(255,255,255,0.05)" }} />
-                <span className="label-xs" style={{ color: "rgba(34,197,94,0.70)" }}>● All Engines Active</span>
-              </div>
-              <div className="flex flex-wrap gap-1.5 mb-3">
-                {[
-                  { name: "BrainGen",   desc: "Content Engine" },
-                  { name: "UCP-X",      desc: "Meta-AI Agent" },
-                  { name: "Simulate",   desc: "Scenario Engine" },
-                  { name: "Ad-Gen",     desc: "Ad Packets" },
-                  { name: "Monetize",   desc: "Revenue Engine" },
-                  { name: "Streaming",  desc: "Live AI Output" },
-                ].map(e => (
-                  <span key={e.name} className="engine-pill active" title={e.desc}>
-                    <span className="dot" />
-                    {e.name}
-                  </span>
-                ))}
-              </div>
-              <div className="grid grid-cols-4 gap-2">
-                {[
-                  { label: "Apps",         value: "13", icon: "🗂️" },
-                  { label: "Tools",        value: "30", icon: "🛠️" },
-                  { label: "AI Engines",   value: "6",  icon: "🧠" },
-                  { label: "Output Types", value: "12+", icon: "📄" },
-                ].map(s => (
-                  <div key={s.label} className="rounded-xl p-2.5 text-center"
-                    style={{ background: "rgba(99,102,241,0.06)", border: "1px solid rgba(99,102,241,0.12)" }}>
-                    <p className="text-[16px]">{s.icon}</p>
-                    <p className="font-bold text-[14px] mt-0.5" style={{ color: "rgba(255,255,255,0.90)", letterSpacing: "-0.02em" }}>
-                      {s.value}
-                    </p>
-                    <p className="text-[9px] mt-0.5" style={{ color: "rgba(255,255,255,0.30)" }}>{s.label}</p>
-                  </div>
-                ))}
-              </div>
-            </div>
-          </div>
-
-          {/* ── Intent search bar ── */}
-          <div className={`relative animate-fade-up delay-50 ${mounted ? "" : "opacity-0"}`}>
+          {/* ── Search bar ── */}
+          <div className={`relative transition-opacity duration-500 delay-75 ${mounted ? "opacity-100" : "opacity-0"}`}>
             <form onSubmit={handleIntentSubmit}>
-              <div
-                className="flex items-center gap-3 rounded-2xl px-4 py-3 input-premium transition-all"
-                style={{
-                  background: "rgba(14,18,42,0.85)",
-                  border: "1px solid rgba(255,255,255,0.10)",
-                  boxShadow: "0 4px 24px rgba(0,0,0,0.35), 0 1px 0 rgba(255,255,255,0.04) inset",
-                }}
+              <div className="flex items-center gap-3 rounded-2xl px-4 py-3 transition-all"
+                style={{ background: "#fff", border: "1.5px solid rgba(0,0,0,0.09)", boxShadow: "0 2px 12px rgba(0,0,0,0.06)" }}
+                onFocus={() => {}}
               >
-                <span className="text-[18px] flex-shrink-0 animate-float">🧠</span>
+                <span className="text-[18px] flex-shrink-0">🔍</span>
                 <input
                   type="text"
                   value={intentInput}
                   onChange={e => { setIntentInput(e.target.value); handleIntentSearch(e.target.value); }}
                   onFocus={() => setShowSuggestions(true)}
                   onBlur={() => setTimeout(() => setShowSuggestions(false), 160)}
-                  placeholder="Build anything... or ask the Brain"
-                  className="flex-1 bg-transparent outline-none text-[14px] text-foreground placeholder:text-muted-foreground min-w-0"
+                  placeholder="Search apps, or tell the Brain what to build…"
+                  className="flex-1 bg-transparent outline-none text-[14px] min-w-0"
+                  style={{ color: "#0f172a" }}
                 />
-                <button type="submit"
-                  className="text-[12px] font-semibold text-primary flex-shrink-0 px-3 py-1.5 rounded-xl transition-all duration-150"
-                  style={{ background: "rgba(99,102,241,0.12)", border: "1px solid rgba(99,102,241,0.18)" }}
-                  onMouseEnter={e => ((e.currentTarget as HTMLElement).style.background = "rgba(99,102,241,0.22)")}
-                  onMouseLeave={e => ((e.currentTarget as HTMLElement).style.background = "rgba(99,102,241,0.12)")}
-                >
-                  Ask
-                </button>
+                {intentInput && (
+                  <button type="submit"
+                    className="text-[12px] font-semibold px-3 py-1.5 rounded-xl transition-all"
+                    style={{ background: "#6366f1", color: "#fff" }}
+                  >
+                    Go →
+                  </button>
+                )}
               </div>
 
               {intentResult && (
-                <div
-                  className="absolute top-full left-0 right-0 mt-2 rounded-2xl px-4 py-2.5 text-[13px] font-medium flex items-center justify-between z-10 animate-scale-in"
-                  style={{
-                    background: "linear-gradient(135deg, #6366f1 0%, #5457d8 100%)",
-                    boxShadow: "0 4px 20px rgba(99,102,241,0.40)",
-                  }}
+                <div className="absolute top-full left-0 right-0 mt-2 rounded-2xl px-4 py-2.5 text-[13px] font-medium flex items-center justify-between z-10"
+                  style={{ background: "linear-gradient(135deg,#6366f1,#4f46e5)", boxShadow: "0 4px 20px rgba(99,102,241,0.35)" }}
                 >
                   <span className="text-white">→ Open {intentResult.label}</span>
                   <span className="text-white/60 text-[11px]">Press Enter</span>
                 </div>
               )}
 
-              {showSuggestions && !intentInput && !intentResult && (
-                <div
-                  className="absolute top-full left-0 right-0 mt-2 rounded-2xl p-3 shadow-2xl z-10 animate-scale-in"
-                  style={{
-                    background: "rgba(10,13,30,0.98)",
-                    border: "1px solid rgba(255,255,255,0.10)",
-                    backdropFilter: "blur(24px)",
-                  }}
-                >
-                  <p className="section-label mb-2 px-1">Suggestions</p>
+              {showSuggestions && !intentInput && (
+                <div className="absolute top-full left-0 right-0 mt-2 rounded-2xl p-3 shadow-xl z-10"
+                  style={{ background: "#fff", border: "1px solid rgba(0,0,0,0.08)", boxShadow: "0 8px 32px rgba(0,0,0,0.12)" }}>
+                  <p className="text-[10px] font-bold uppercase tracking-widest mb-2 px-1" style={{ color: "#9ca3af" }}>Try asking</p>
                   <div className="flex flex-wrap gap-1.5">
-                    {INTENT_SUGGESTIONS.map((s, i) => (
-                      <button
-                        key={s}
-                        type="button"
+                    {INTENT_SUGGESTIONS.map(s => (
+                      <button key={s} type="button"
                         onMouseDown={() => { setIntentInput(s); handleIntentSearch(s); }}
-                        className={`text-[11px] text-muted-foreground px-2.5 py-1 rounded-full transition-all duration-150 animate-fade-in delay-${Math.min(i * 50, 300)}`}
-                        style={{ background: "rgba(255,255,255,0.06)", border: "1px solid rgba(255,255,255,0.08)" }}
-                        onMouseEnter={e => {
-                          (e.currentTarget as HTMLElement).style.background = "rgba(99,102,241,0.15)";
-                          (e.currentTarget as HTMLElement).style.color = "#a5b4fc";
-                          (e.currentTarget as HTMLElement).style.borderColor = "rgba(99,102,241,0.25)";
-                        }}
-                        onMouseLeave={e => {
-                          (e.currentTarget as HTMLElement).style.background = "rgba(255,255,255,0.06)";
-                          (e.currentTarget as HTMLElement).style.color = "";
-                          (e.currentTarget as HTMLElement).style.borderColor = "rgba(255,255,255,0.08)";
-                        }}
+                        className="text-[11px] px-2.5 py-1 rounded-full transition-all"
+                        style={{ background: "#f3f4f6", color: "#374151", border: "1px solid rgba(0,0,0,0.06)" }}
+                        onMouseEnter={e => { (e.currentTarget as HTMLElement).style.background = "#eef2ff"; (e.currentTarget as HTMLElement).style.color = "#6366f1"; }}
+                        onMouseLeave={e => { (e.currentTarget as HTMLElement).style.background = "#f3f4f6"; (e.currentTarget as HTMLElement).style.color = "#374151"; }}
                       >
                         {s}
                       </button>
@@ -316,25 +241,24 @@ export function Dashboard({ onHamburger, isNarrow, onShowTour }: DashboardProps)
             </form>
           </div>
 
-          {/* ── Quick Actions ── */}
-          <section className={`animate-fade-up delay-100 ${mounted ? "" : "opacity-0"}`}>
-            <p className="section-label mb-3">Quick Actions</p>
+          {/* ── Quick Start ── */}
+          <section className={`transition-opacity duration-500 delay-100 ${mounted ? "opacity-100" : "opacity-0"}`}>
+            <p className="text-[11px] font-bold uppercase tracking-widest mb-3" style={{ color: "#9ca3af" }}>Quick Start</p>
             <div className="grid grid-cols-2 sm:grid-cols-4 gap-3">
-              {QUICK_ACTIONS.map((a, i) => (
-                <button
-                  key={a.label}
-                  onClick={() => openApp(a.app)}
-                  className={`flex flex-col items-center justify-center gap-2 p-4 rounded-2xl text-center transition-all duration-200 group glass-card card-interactive animate-fade-up delay-${100 + i * 50}`}
+              {QUICK_ACTIONS.map(a => (
+                <button key={a.label} onClick={() => openApp(a.app)}
+                  className="flex flex-col items-center gap-2.5 p-5 rounded-2xl text-center transition-all duration-200 group"
+                  style={{ background: "#fff", border: "1px solid rgba(0,0,0,0.07)", boxShadow: "0 1px 4px rgba(0,0,0,0.06)" }}
+                  onMouseEnter={e => { (e.currentTarget as HTMLElement).style.boxShadow = `0 4px 16px ${a.color}25`; (e.currentTarget as HTMLElement).style.borderColor = `${a.color}40`; (e.currentTarget as HTMLElement).style.transform = "translateY(-1px)"; }}
+                  onMouseLeave={e => { (e.currentTarget as HTMLElement).style.boxShadow = "0 1px 4px rgba(0,0,0,0.06)"; (e.currentTarget as HTMLElement).style.borderColor = "rgba(0,0,0,0.07)"; (e.currentTarget as HTMLElement).style.transform = ""; }}
                 >
-                  <div
-                    className="w-10 h-10 rounded-xl flex items-center justify-center text-xl transition-transform duration-200 group-hover:scale-110"
-                    style={{ background: `${a.color}18`, border: `1px solid ${a.color}28` }}
-                  >
+                  <div className="w-12 h-12 rounded-2xl flex items-center justify-center text-2xl"
+                    style={{ background: `${a.color}15` }}>
                     {a.icon}
                   </div>
                   <div>
-                    <p className="font-semibold text-[12px] text-foreground leading-tight">{a.label}</p>
-                    <p className="text-[10px] text-muted-foreground mt-0.5">{a.sub}</p>
+                    <p className="font-semibold text-[12px] leading-tight" style={{ color: "#0f172a" }}>{a.label}</p>
+                    <p className="text-[10px] mt-0.5" style={{ color: "#6b7280" }}>{a.sub}</p>
                   </div>
                 </button>
               ))}
@@ -342,97 +266,57 @@ export function Dashboard({ onHamburger, isNarrow, onShowTour }: DashboardProps)
           </section>
 
           {/* ── All Apps ── */}
-          <section className={`animate-fade-up delay-200 ${mounted ? "" : "opacity-0"}`}>
-            <p className="section-label mb-3">All Apps</p>
-            <div className="grid grid-cols-2 sm:grid-cols-3 gap-3">
-              {appRegistry.map((app, i) => (
-                <button
-                  key={app.id}
-                  onClick={() => openApp(app.id as AppId)}
-                  className={`flex items-start gap-3 p-4 rounded-2xl border text-left group card-interactive animate-fade-up delay-${Math.min(200 + i * 40, 500)}`}
-                  style={{
-                    background: "rgba(14,18,42,0.70)",
-                    border: "1px solid rgba(255,255,255,0.07)",
-                  }}
+          <section className={`transition-opacity duration-500 delay-150 ${mounted ? "opacity-100" : "opacity-0"}`}>
+            <p className="text-[11px] font-bold uppercase tracking-widest mb-3" style={{ color: "#9ca3af" }}>All Apps</p>
+            <div className="grid grid-cols-1 sm:grid-cols-2 gap-2">
+              {appRegistry.map(app => (
+                <button key={app.id} onClick={() => openApp(app.id as AppId)}
+                  className="flex items-center gap-3 p-3.5 rounded-2xl text-left transition-all duration-150"
+                  style={{ background: "#fff", border: "1px solid rgba(0,0,0,0.07)", boxShadow: "0 1px 3px rgba(0,0,0,0.05)" }}
+                  onMouseEnter={e => { (e.currentTarget as HTMLElement).style.background = "#f8fafc"; (e.currentTarget as HTMLElement).style.borderColor = (app.color ?? "#6366f1") + "40"; (e.currentTarget as HTMLElement).style.transform = "translateX(2px)"; }}
+                  onMouseLeave={e => { (e.currentTarget as HTMLElement).style.background = "#fff"; (e.currentTarget as HTMLElement).style.borderColor = "rgba(0,0,0,0.07)"; (e.currentTarget as HTMLElement).style.transform = ""; }}
                 >
-                  <div
-                    className="w-10 h-10 rounded-xl flex items-center justify-center text-xl flex-shrink-0 group-hover:scale-105 transition-transform duration-200"
-                    style={{ backgroundColor: (app.color ?? "#6366f1") + "22" }}
-                  >
+                  <div className="w-10 h-10 rounded-xl flex items-center justify-center text-xl flex-shrink-0"
+                    style={{ background: (app.color ?? "#6366f1") + "18" }}>
                     {app.icon}
                   </div>
                   <div className="flex-1 min-w-0">
-                    <p className="font-semibold text-[13px] text-foreground leading-tight">{app.label}</p>
-                    <p className="text-[11px] text-muted-foreground leading-snug mt-0.5 line-clamp-2">{app.description}</p>
+                    <p className="font-semibold text-[13px] leading-tight" style={{ color: "#0f172a" }}>{app.label}</p>
+                    <p className="text-[11px] mt-0.5 truncate" style={{ color: "#6b7280" }}>{app.description}</p>
                   </div>
+                  <span className="text-[16px] flex-shrink-0" style={{ color: "#d1d5db" }}>›</span>
                 </button>
               ))}
             </div>
           </section>
 
-          {/* ── Recent Activity ── */}
+          {/* ── Recent ── */}
           {recents.length > 0 && (
-            <section className={`animate-fade-up delay-300 ${mounted ? "" : "opacity-0"}`}>
-              <p className="section-label mb-3">Continue where you left off</p>
+            <section className={`transition-opacity duration-500 delay-200 ${mounted ? "opacity-100" : "opacity-0"}`}>
+              <p className="text-[11px] font-bold uppercase tracking-widest mb-3" style={{ color: "#9ca3af" }}>Continue Where You Left Off</p>
               <div className="space-y-1.5">
-                {recents.slice(0, 5).map((r, i) => (
-                  <button
-                    key={r.id}
-                    onClick={() => openApp(r.appId as AppId)}
-                    className={`w-full flex items-center gap-3 p-3.5 rounded-xl border text-left group transition-all duration-200 card-interactive animate-fade-up delay-${300 + i * 50}`}
-                    style={{
-                      background: "rgba(14,18,42,0.70)",
-                      border: "1px solid rgba(255,255,255,0.07)",
-                    }}
+                {recents.slice(0, 5).map(r => (
+                  <button key={r.id} onClick={() => openApp(r.appId as AppId)}
+                    className="w-full flex items-center gap-3 p-3 rounded-xl text-left transition-all"
+                    style={{ background: "#fff", border: "1px solid rgba(0,0,0,0.07)" }}
+                    onMouseEnter={e => { (e.currentTarget as HTMLElement).style.background = "#f8fafc"; (e.currentTarget as HTMLElement).style.borderColor = "rgba(99,102,241,0.25)"; }}
+                    onMouseLeave={e => { (e.currentTarget as HTMLElement).style.background = "#fff"; (e.currentTarget as HTMLElement).style.borderColor = "rgba(0,0,0,0.07)"; }}
                   >
-                    <span className="text-xl flex-shrink-0 group-hover:scale-110 transition-transform duration-200">{r.icon}</span>
-                    <span className="flex-1 text-[13px] font-medium text-foreground truncate">{r.label}</span>
-                    <span
-                      className="text-[10px] font-semibold flex-shrink-0 opacity-0 group-hover:opacity-100 transition-all duration-200 px-2 py-0.5 rounded-full"
-                      style={{ color: "#818cf8", background: "rgba(99,102,241,0.12)" }}
-                    >
-                      Open →
-                    </span>
+                    <span className="text-xl flex-shrink-0">{r.icon}</span>
+                    <span className="flex-1 text-[13px] font-medium truncate" style={{ color: "#0f172a" }}>{r.label}</span>
+                    <span className="text-[11px] font-semibold px-2 py-0.5 rounded-full flex-shrink-0"
+                      style={{ color: "#6366f1", background: "#eef2ff" }}>Open →</span>
                   </button>
                 ))}
               </div>
             </section>
           )}
 
-          {/* ── Platform status strip ── */}
-          <div
-            className={`rounded-2xl p-4 border flex items-start gap-3 animate-fade-up delay-400 ${mounted ? "" : "opacity-0"} ${cfg.bg} ${cfg.border}`}
-          >
-            <span className="text-[20px] flex-shrink-0 mt-0.5">
-              {platformMode === "LIVE" ? "🟢" : platformMode === "TEST" ? "🔵" : "🟠"}
-            </span>
-            <div className="flex-1 min-w-0">
-              <p className={`font-bold text-[13px] ${cfg.color}`}>{cfg.label} — {cfg.desc}</p>
-              <p className="text-[11px] text-muted-foreground mt-0.5 leading-relaxed">
-                {platformMode === "DEMO"
-                  ? "Safe to explore everything — nothing is sent, nothing can break."
-                  : platformMode === "TEST"
-                  ? "All actions are logged but no real transactions or messages occur."
-                  : "All engines are live. Actions, messages, and content generation are fully operational."}
-              </p>
-            </div>
-            <button
-              onClick={() => openApp("admin")}
-              className="text-[11px] font-semibold text-primary rounded-lg px-3 py-1.5 flex-shrink-0 transition-all duration-150"
-              style={{ background: "rgba(255,255,255,0.07)", border: "1px solid rgba(255,255,255,0.10)" }}
-              onMouseEnter={e => ((e.currentTarget as HTMLElement).style.background = "rgba(99,102,241,0.12)")}
-              onMouseLeave={e => ((e.currentTarget as HTMLElement).style.background = "rgba(255,255,255,0.07)")}
-            >
-              Manage
-            </button>
-          </div>
-
+          <div className="h-4" />
         </div>
       </div>
 
-      {showModeMenu && (
-        <div className="fixed inset-0 z-40" onClick={() => setShowModeMenu(false)} />
-      )}
+      {showModeMenu && <div className="fixed inset-0 z-40" onClick={() => setShowModeMenu(false)} />}
     </div>
   );
 }

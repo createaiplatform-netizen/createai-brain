@@ -48,38 +48,38 @@
   --radius-xl: calc(var(--radius) + 4px);
 }
 
-/* ── Dark Glass Premium Theme — Accent: #6366f1 ────────────────────────────── */
+/* ── Clean Light Theme — Accent: #6366f1 ────────────────────────────────────── */
 :root {
-  /* Background: deep navy-black */
-  --background: 231 47% 6%;
-  --foreground: 220 20% 92%;
+  /* Background: clean light grey */
+  --background: 220 20% 97%;
+  --foreground: 222 47% 11%;
 
-  /* Cards: slightly lifted glass surface */
-  --card: 231 40% 9%;
-  --card-foreground: 220 20% 92%;
-  --card-border: 230 30% 16%;
+  /* Cards: pure white */
+  --card: 0 0% 100%;
+  --card-foreground: 222 47% 11%;
+  --card-border: 220 13% 91%;
 
   /* Popovers */
-  --popover: 231 40% 9%;
-  --popover-foreground: 220 20% 92%;
-  --popover-border: 230 30% 16%;
+  --popover: 0 0% 100%;
+  --popover-foreground: 222 47% 11%;
+  --popover-border: 220 13% 91%;
 
-  /* Primary: #6366f1 indigo — hsl(239 84% 67%) */
+  /* Primary: #6366f1 indigo */
   --primary: 239 84% 67%;
   --primary-foreground: 0 0% 100%;
   --primary-border: 239 84% 58%;
 
-  /* Secondary: dark surface */
-  --secondary: 230 35% 12%;
-  --secondary-foreground: 220 15% 72%;
-  --secondary-border: 230 30% 18%;
+  /* Secondary: light surface */
+  --secondary: 220 14% 96%;
+  --secondary-foreground: 222 47% 11%;
+  --secondary-border: 220 13% 91%;
 
-  /* Muted: softer dark surface */
-  --muted: 231 35% 10%;
-  --muted-foreground: 220 12% 52%;
-  --muted-border: 230 28% 15%;
+  /* Muted */
+  --muted: 220 14% 96%;
+  --muted-foreground: 220 9% 46%;
+  --muted-border: 220 13% 91%;
 
-  /* Accent: indigo glow */
+  /* Accent */
   --accent: 239 84% 67%;
   --accent-foreground: 0 0% 100%;
   --accent-border: 239 60% 52%;
@@ -90,8 +90,8 @@
   --destructive-border: 0 72% 44%;
 
   /* Structural */
-  --border: 230 28% 15%;
-  --input: 230 35% 12%;
+  --border: 220 13% 91%;
+  --input: 220 13% 91%;
   --ring: 239 84% 67%;
 
   --app-font-sans: 'Inter', system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
@@ -141,12 +141,11 @@
 
   body {
     @apply bg-background text-foreground font-sans antialiased selection:bg-primary/20 selection:text-primary;
-    background: radial-gradient(ellipse 120% 80% at 50% -10%, rgba(99, 102, 241, 0.10) 0%, transparent 60%),
-                hsl(var(--background));
+    background: hsl(var(--background));
     min-height: 100dvh;
   }
 
-  /* Premium thin scrollbars */
+  /* Thin scrollbars */
   ::-webkit-scrollbar {
     width: 5px;
     height: 5px;
@@ -156,10 +155,10 @@
   }
   ::-webkit-scrollbar-thumb {
     @apply rounded-full;
-    background: rgba(255, 255, 255, 0.10);
+    background: rgba(0, 0, 0, 0.12);
   }
   ::-webkit-scrollbar-thumb:hover {
-    background: rgba(255, 255, 255, 0.18);
+    background: rgba(0, 0, 0, 0.20);
   }
   ::-webkit-scrollbar-corner {
     background: transparent;
@@ -168,33 +167,33 @@
 
 /* ── Glass utility classes ──────────────────────────────────────────────────── */
 .glass {
-  background: rgba(12, 15, 36, 0.82);
+  background: rgba(255, 255, 255, 0.92);
   backdrop-filter: blur(24px) saturate(180%);
   -webkit-backdrop-filter: blur(24px) saturate(180%);
-  border: 1px solid rgba(255, 255, 255, 0.07);
+  border: 1px solid rgba(0, 0, 0, 0.07);
 }
 
 .glass-sidebar {
-  background: rgba(7, 9, 20, 0.97);
-  backdrop-filter: blur(40px) saturate(200%);
-  -webkit-backdrop-filter: blur(40px) saturate(200%);
-  border-right: 1px solid rgba(255, 255, 255, 0.06);
+  background: rgba(255, 255, 255, 0.98);
+  backdrop-filter: blur(40px) saturate(180%);
+  -webkit-backdrop-filter: blur(40px) saturate(180%);
+  border-right: 1px solid rgba(0, 0, 0, 0.08);
 }
 
 .glass-topbar {
-  background: rgba(8, 10, 22, 0.88);
+  background: rgba(255, 255, 255, 0.96);
   backdrop-filter: blur(32px) saturate(180%);
   -webkit-backdrop-filter: blur(32px) saturate(180%);
-  border-bottom: 1px solid rgba(255, 255, 255, 0.07);
+  border-bottom: 1px solid rgba(0, 0, 0, 0.08);
 }
 
 .glass-card {
-  background: rgba(14, 18, 42, 0.75);
+  background: rgba(255, 255, 255, 0.95);
   backdrop-filter: blur(20px) saturate(160%);
   -webkit-backdrop-filter: blur(20px) saturate(160%);
-  border: 1px solid rgba(255, 255, 255, 0.07);
+  border: 1px solid rgba(0, 0, 0, 0.07);
   border-radius: var(--radius);
-  box-shadow: 0 4px 24px rgba(0, 0, 0, 0.35), 0 1px 0 rgba(255, 255, 255, 0.04) inset;
+  box-shadow: 0 1px 4px rgba(0, 0, 0, 0.06), 0 4px 16px rgba(0, 0, 0, 0.05);
 }
 
 .premium-shadow {
