@@ -1,0 +1,93 @@
+Continue from where you left off: you’ve already removed the placeholder projects, created Artifact 1 (HealthOS), wired the Healthcare OpenAPI spec, run codegen, and launched the HealthOS frontend generation. T001 is fully implemented.
+
+Now complete T002–T006 for Artifact 1 (HealthOS) in a clean, production-grade way:
+
+T002 – HealthOS frontend structure:
+- Create a dedicated HealthOS app with:
+  • Dashboard (key metrics, alerts, quick actions)
+  • Patients
+  • Providers
+  • Appointments
+  • Billing & Claims
+  • Tasks / Worklists
+  • Settings
+- Use the generated types from codegen for all API calls.
+- Make sure navigation is clear and mobile-friendly.
+
+T003 – HealthOS workflows:
+- Implement end-to-end flows for:
+  • Registering a new patient
+  • Scheduling and rescheduling appointments
+  • Assigning providers
+  • Recording visit notes
+  • Submitting and tracking claims
+- Each flow should:
+  • Validate inputs
+  • Call the correct backend routes
+  • Show success/error states
+  • Update the UI reactively
+
+T004 – HealthOS project integration:
+- Add HealthOS as a first-class project in the Projects view:
+  • Show it as “Healthcare System – HealthOS”
+  • Mark it as DEMO but production-grade
+  • Make the “Open as full AI-powered standalone product” button actually open the HealthOS app.
+- Remove any remaining references to the old placeholder healthcare entries.
+
+T005 – HealthOS seed data and demo mode:
+- Seed realistic demo data:
+  • Patients
+  • Providers
+  • Appointments
+  • Claims
+  • Tasks
+- Make sure the demo feels like a real, live healthcare system, not a toy.
+- Keep all data clearly marked as demo/simulated.
+
+Once HealthOS (Artifact 1) is fully wired and builds cleanly (no TS errors, no runtime errors), immediately scaffold Artifact 2 and Artifact 3 using the same pattern:
+
+Artifact 2 – StaffingOS:
+- A staffing platform for a global staffing company.
+- Core entities:
+  • Candidates
+  • Clients
+  • Job Requisitions
+  • Submissions
+  • Interviews
+  • Placements
+- Mirror the same structure as HealthOS:
+  • OpenAPI spec
+  • DB schema
+  • Backend routes
+  • Seed data
+  • Frontend app
+  • Project card in Projects view
+
+Artifact 3 – ConstructOS:
+- A construction management platform.
+- Core entities:
+  • Projects
+  • Sites
+  • Crews
+  • Tasks
+  • Materials
+  • Schedules
+  • Incidents
+- Same pattern:
+  • OpenAPI spec
+  • DB schema
+  • Backend routes
+  • Seed data
+  • Frontend app
+  • Project card in Projects view
+
+Important:
+- Follow the multi-artifact guide rules: if the skill requires one artifact at a time, complete HealthOS fully before generating StaffingOS and ConstructOS, but reuse the same architectural pattern.
+- Keep everything production-grade, not placeholder.
+- Do not reintroduce any hardcoded demo entries in ProjectsApp.tsx.
+
+After all three (HealthOS, StaffingOS, ConstructOS) are implemented and building cleanly, prepare a short summary of:
+- Routes added
+- Schemas created
+- Frontend apps created
+- How to open each app from the Projects view

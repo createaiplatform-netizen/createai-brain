@@ -1,0 +1,14 @@
+packages:
+  "framer-motion": "For smooth page transitions and micro-interactions"
+  "recharts": "For dashboard data visualization"
+  "date-fns": "For formatting clinical dates and times"
+  "clsx": "For conditional tailwind classes"
+  "tailwind-merge": "For merging tailwind classes safely"
+
+images:
+  - path: "artifacts/health-os/public/images/logo.png"
+    description: "A modern, minimalist medical cross logo combined with abstract geometric shapes, teal and deep slate colors, transparent background, highly polished"
+    aspect_ratio: "1:1"
+  - path: "artifacts/health-os/public/images/auth-bg.png"
+    description: "Abstract 3D rendering of DNA helix and medical data streams in soft teal and white, depth of field, clean clinical lighting"
+    aspect_ratio: "16:9"

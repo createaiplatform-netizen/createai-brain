@@ -8,12 +8,8 @@ import { UNIVERSAL_MODULES } from "@/engine/InfiniteExpansionEngine";
 type Mode = "Demo" | "Test" | "Live";
 
 const PROJECTS = [
-  { name: "Healthcare System – Legal Safe", mode: "DEMO",   pages: 6, icon: "🏥", color: "#34C759", hasDemo: true,  slug: "healthcare-legal-safe" },
-  { name: "Healthcare System – Mach 1",    mode: "FUTURE", pages: 5, icon: "🔬", color: "#BF5AF2", hasDemo: false, slug: "healthcare-mach1" },
-  { name: "Monetary System – Legal Safe",  mode: "DEMO",   pages: 7, icon: "💳", color: "#007AFF", hasDemo: false, slug: "monetary-legal-safe" },
-  { name: "Monetary System – Mach 1",      mode: "FUTURE", pages: 5, icon: "🚀", color: "#FF9500", hasDemo: false, slug: "monetary-mach1" },
-  { name: "Marketing Hub",                 mode: "DEMO",   pages: 6, icon: "📣", color: "#FF2D55", hasDemo: false, slug: "marketing-hub" },
-  { name: "Operations Builder",            mode: "TEST",   pages: 9, icon: "🏗️", color: "#5856D6", hasDemo: false, slug: "operations-builder" },
+  { name: "Marketing Hub",      mode: "DEMO", pages: 6, icon: "📣", color: "#FF2D55", hasDemo: false, slug: "marketing-hub" },
+  { name: "Operations Builder", mode: "TEST", pages: 9, icon: "🏗️", color: "#5856D6", hasDemo: false, slug: "operations-builder" },
 ];
 
 function openStandalone(slug: string) {

@@ -298,6 +298,540 @@ paths:
             application/json:
               schema:
                 $ref: '#/components/schemas/LogoutSuccess'
+  /health/dashboard:
+    get:
+      operationId: getHealthDashboard
+      tags: [health]
+      summary: Get healthcare dashboard stats
+      responses:
+        "200":
+          description: Dashboard stats
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/HealthDashboard"
+  /health/patients:
+    get:
+      operationId: listPatients
+      tags: [health]
+      summary: List patients
+      parameters:
+        - name: search
+          in: query
+          schema:
+            type: string
+        - name: status
+          in: query
+          schema:
+            type: string
+      responses:
+        "200":
+          description: Patient list
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  patients:
+                    type: array
+                    items:
+                      $ref: "#/components/schemas/Patient"
+                required: [patients]
+    post:
+      operationId: createPatient
+      tags: [health]
+      summary: Create patient
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/CreatePatientBody"
+      responses:
+        "201":
+          description: Created patient
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Patient"
+  /health/patients/{id}:
+    get:
+      operationId: getPatient
+      tags: [health]
+      summary: Get patient detail with records
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: integer
+      responses:
+        "200":
+          description: Patient detail
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/PatientDetail"
+    put:
+      operationId: updatePatient
+      tags: [health]
+      summary: Update patient
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: integer
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/CreatePatientBody"
+      responses:
+        "200":
+          description: Updated patient
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Patient"
+    delete:
+      operationId: deletePatient
+      tags: [health]
+      summary: Delete patient
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: integer
+      responses:
+        "204":
+          description: Deleted
+  /health/appointments:
+    get:
+      operationId: listAppointments
+      tags: [health]
+      summary: List appointments
+      parameters:
+        - name: patientId
+          in: query
+          schema:
+            type: integer
+        - name: doctorId
+          in: query
+          schema:
+            type: integer
+        - name: date
+          in: query
+          schema:
+            type: string
+      responses:
+        "200":
+          description: Appointment list
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  appointments:
+                    type: array
+                    items:
+                      $ref: "#/components/schemas/Appointment"
+                required: [appointments]
+    post:
+      operationId: createAppointment
+      tags: [health]
+      summary: Create appointment
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/CreateAppointmentBody"
+      responses:
+        "201":
+          description: Created appointment
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Appointment"
+  /health/appointments/{id}:
+    put:
+      operationId: updateAppointment
+      tags: [health]
+      summary: Update appointment
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: integer
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/CreateAppointmentBody"
+      responses:
+        "200":
+          description: Updated appointment
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Appointment"
+    delete:
+      operationId: deleteAppointment
+      tags: [health]
+      summary: Delete appointment
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: integer
+      responses:
+        "204":
+          description: Deleted
+  /health/doctors:
+    get:
+      operationId: listDoctors
+      tags: [health]
+      summary: List doctors
+      responses:
+        "200":
+          description: Doctor list
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  doctors:
+                    type: array
+                    items:
+                      $ref: "#/components/schemas/Doctor"
+                required: [doctors]
+    post:
+      operationId: createDoctor
+      tags: [health]
+      summary: Create doctor
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/CreateDoctorBody"
+      responses:
+        "201":
+          description: Created doctor
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Doctor"
+  /health/doctors/{id}:
+    put:
+      operationId: updateDoctor
+      tags: [health]
+      summary: Update doctor
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: integer
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/CreateDoctorBody"
+      responses:
+        "200":
+          description: Updated doctor
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Doctor"
+    delete:
+      operationId: deleteDoctor
+      tags: [health]
+      summary: Delete doctor
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: integer
+      responses:
+        "204":
+          description: Deleted
+  /health/departments:
+    get:
+      operationId: listDepartments
+      tags: [health]
+      summary: List departments
+      responses:
+        "200":
+          description: Department list
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  departments:
+                    type: array
+                    items:
+                      $ref: "#/components/schemas/Department"
+                required: [departments]
+    post:
+      operationId: createDepartment
+      tags: [health]
+      summary: Create department
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/CreateDepartmentBody"
+      responses:
+        "201":
+          description: Created department
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Department"
+  /health/medical-records:
+    get:
+      operationId: listMedicalRecords
+      tags: [health]
+      summary: List medical records for a patient
+      parameters:
+        - name: patientId
+          in: query
+          required: true
+          schema:
+            type: integer
+      responses:
+        "200":
+          description: Record list
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  records:
+                    type: array
+                    items:
+                      $ref: "#/components/schemas/MedicalRecord"
+                required: [records]
+    post:
+      operationId: createMedicalRecord
+      tags: [health]
+      summary: Create medical record
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/CreateMedicalRecordBody"
+      responses:
+        "201":
+          description: Created record
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/MedicalRecord"
+  /health/medical-records/{id}:
+    put:
+      operationId: updateMedicalRecord
+      tags: [health]
+      summary: Update medical record
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: integer
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/CreateMedicalRecordBody"
+      responses:
+        "200":
+          description: Updated record
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/MedicalRecord"
+    delete:
+      operationId: deleteMedicalRecord
+      tags: [health]
+      summary: Delete medical record
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: integer
+      responses:
+        "204":
+          description: Deleted
+  /health/prescriptions:
+    get:
+      operationId: listPrescriptions
+      tags: [health]
+      summary: List prescriptions
+      parameters:
+        - name: patientId
+          in: query
+          schema:
+            type: integer
+      responses:
+        "200":
+          description: Prescription list
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  prescriptions:
+                    type: array
+                    items:
+                      $ref: "#/components/schemas/Prescription"
+                required: [prescriptions]
+    post:
+      operationId: createPrescription
+      tags: [health]
+      summary: Create prescription
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/CreatePrescriptionBody"
+      responses:
+        "201":
+          description: Created prescription
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Prescription"
+  /health/prescriptions/{id}:
+    put:
+      operationId: updatePrescription
+      tags: [health]
+      summary: Update prescription
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: integer
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/CreatePrescriptionBody"
+      responses:
+        "200":
+          description: Updated prescription
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Prescription"
+    delete:
+      operationId: deletePrescription
+      tags: [health]
+      summary: Delete prescription
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: integer
+      responses:
+        "204":
+          description: Deleted
+  /health/billing:
+    get:
+      operationId: listHealthBilling
+      tags: [health]
+      summary: List billing records
+      parameters:
+        - name: patientId
+          in: query
+          schema:
+            type: integer
+      responses:
+        "200":
+          description: Billing list
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  bills:
+                    type: array
+                    items:
+                      $ref: "#/components/schemas/HealthBill"
+                required: [bills]
+    post:
+      operationId: createHealthBill
+      tags: [health]
+      summary: Create billing record
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/CreateHealthBillBody"
+      responses:
+        "201":
+          description: Created bill
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/HealthBill"
+  /health/billing/{id}:
+    put:
+      operationId: updateHealthBill
+      tags: [health]
+      summary: Update billing record
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: integer
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/UpdateHealthBillBody"
+      responses:
+        "200":
+          description: Updated bill
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/HealthBill"
+    delete:
+      operationId: deleteHealthBill
+      tags: [health]
+      summary: Delete billing record
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: integer
+      responses:
+        "204":
+          description: Deleted
   /legal/dashboard:
     get:
       operationId: getLegalDashboard
@@ -1358,3 +1892,432 @@ components:
           items:
             $ref: "#/components/schemas/LegalMatter"
       required: [totalClients, totalMatters, openMatters, totalHoursThisMonth, unbilledHours, unbilledAmount, totalBilledThisMonth, overdueInvoices, upcomingTasks, recentMatters]
+    HealthDashboard:
+      type: object
+      properties:
+        totalPatients:
+          type: integer
+        todayAppointments:
+          type: integer
+        activeDoctors:
+          type: integer
+        pendingBills:
+          type: integer
+        pendingBillAmount:
+          type: number
+        recentPatients:
+          type: array
+          items:
+            $ref: "#/components/schemas/Patient"
+        upcomingAppointments:
+          type: array
+          items:
+            $ref: "#/components/schemas/Appointment"
+      required: [totalPatients, todayAppointments, activeDoctors, pendingBills, pendingBillAmount, recentPatients, upcomingAppointments]
+    Patient:
+      type: object
+      properties:
+        id:
+          type: integer
+        firstName:
+          type: string
+        lastName:
+          type: string
+        dateOfBirth:
+          type: string
+          format: date-time
+        gender:
+          type: string
+          enum: [male, female, other]
+        email:
+          type: string
+        phone:
+          type: string
+        address:
+          type: string
+        bloodType:
+          type: string
+        allergies:
+          type: string
+        status:
+          type: string
+          enum: [active, inactive, discharged]
+        primaryDoctorId:
+          type: integer
+        primaryDoctorName:
+          type: string
+        departmentId:
+          type: integer
+        departmentName:
+          type: string
+        createdAt:
+          type: string
+          format: date-time
+      required: [id, firstName, lastName, gender, status, createdAt]
+    PatientDetail:
+      allOf:
+        - $ref: "#/components/schemas/Patient"
+        - type: object
+          properties:
+            appointments:
+              type: array
+              items:
+                $ref: "#/components/schemas/Appointment"
+            medicalRecords:
+              type: array
+              items:
+                $ref: "#/components/schemas/MedicalRecord"
+            prescriptions:
+              type: array
+              items:
+                $ref: "#/components/schemas/Prescription"
+            bills:
+              type: array
+              items:
+                $ref: "#/components/schemas/HealthBill"
+          required: [appointments, medicalRecords, prescriptions, bills]
+    CreatePatientBody:
+      type: object
+      properties:
+        firstName:
+          type: string
+        lastName:
+          type: string
+        dateOfBirth:
+          type: string
+          format: date-time
+        gender:
+          type: string
+          enum: [male, female, other]
+        email:
+          type: string
+        phone:
+          type: string
+        address:
+          type: string
+        bloodType:
+          type: string
+        allergies:
+          type: string
+        status:
+          type: string
+        primaryDoctorId:
+          type: integer
+        departmentId:
+          type: integer
+      required: [firstName, lastName, gender]
+    Appointment:
+      type: object
+      properties:
+        id:
+          type: integer
+        patientId:
+          type: integer
+        patientName:
+          type: string
+        doctorId:
+          type: integer
+        doctorName:
+          type: string
+        departmentId:
+          type: integer
+        departmentName:
+          type: string
+        scheduledAt:
+          type: string
+          format: date-time
+        durationMinutes:
+          type: integer
+        type:
+          type: string
+        status:
+          type: string
+          enum: [scheduled, confirmed, completed, cancelled, no_show]
+        notes:
+          type: string
+        createdAt:
+          type: string
+          format: date-time
+      required: [id, patientId, doctorId, scheduledAt, type, status, createdAt]
+    CreateAppointmentBody:
+      type: object
+      properties:
+        patientId:
+          type: integer
+        doctorId:
+          type: integer
+        departmentId:
+          type: integer
+        scheduledAt:
+          type: string
+          format: date-time
+        durationMinutes:
+          type: integer
+        type:
+          type: string
+        status:
+          type: string
+        notes:
+          type: string
+      required: [patientId, doctorId, scheduledAt, type]
+    Doctor:
+      type: object
+      properties:
+        id:
+          type: integer
+        firstName:
+          type: string
+        lastName:
+          type: string
+        specialty:
+          type: string
+        departmentId:
+          type: integer
+        departmentName:
+          type: string
+        email:
+          type: string
+        phone:
+          type: string
+        licenseNumber:
+          type: string
+        status:
+          type: string
+          enum: [active, inactive, on_leave]
+        patientCount:
+          type: integer
+        createdAt:
+          type: string
+          format: date-time
+      required: [id, firstName, lastName, specialty, status, createdAt]
+    CreateDoctorBody:
+      type: object
+      properties:
+        firstName:
+          type: string
+        lastName:
+          type: string
+        specialty:
+          type: string
+        departmentId:
+          type: integer
+        email:
+          type: string
+        phone:
+          type: string
+        licenseNumber:
+          type: string
+        status:
+          type: string
+      required: [firstName, lastName, specialty]
+    Department:
+      type: object
+      properties:
+        id:
+          type: integer
+        name:
+          type: string
+        description:
+          type: string
+        headDoctorId:
+          type: integer
+        headDoctorName:
+          type: string
+        floor:
+          type: string
+        capacity:
+          type: integer
+        createdAt:
+          type: string
+          format: date-time
+      required: [id, name, createdAt]
+    CreateDepartmentBody:
+      type: object
+      properties:
+        name:
+          type: string
+        description:
+          type: string
+        headDoctorId:
+          type: integer
+        floor:
+          type: string
+        capacity:
+          type: integer
+      required: [name]
+    MedicalRecord:
+      type: object
+      properties:
+        id:
+          type: integer
+        patientId:
+          type: integer
+        doctorId:
+          type: integer
+        doctorName:
+          type: string
+        visitDate:
+          type: string
+          format: date-time
+        chiefComplaint:
+          type: string
+        diagnosis:
+          type: string
+        treatment:
+          type: string
+        notes:
+          type: string
+        followUpDate:
+          type: string
+          format: date-time
+        createdAt:
+          type: string
+          format: date-time
+      required: [id, patientId, doctorId, visitDate, diagnosis, createdAt]
+    CreateMedicalRecordBody:
+      type: object
+      properties:
+        patientId:
+          type: integer
+        doctorId:
+          type: integer
+        visitDate:
+          type: string
+          format: date-time
+        chiefComplaint:
+          type: string
+        diagnosis:
+          type: string
+        treatment:
+          type: string
+        notes:
+          type: string
+        followUpDate:
+          type: string
+          format: date-time
+      required: [patientId, doctorId, visitDate, diagnosis]
+    Prescription:
+      type: object
+      properties:
+        id:
+          type: integer
+        patientId:
+          type: integer
+        patientName:
+          type: string
+        doctorId:
+          type: integer
+        doctorName:
+          type: string
+        medication:
+          type: string
+        dosage:
+          type: string
+        frequency:
+          type: string
+        startDate:
+          type: string
+          format: date-time
+        endDate:
+          type: string
+          format: date-time
+        refills:
+          type: integer
+        status:
+          type: string
+          enum: [active, completed, cancelled]
+        notes:
+          type: string
+        createdAt:
+          type: string
+          format: date-time
+      required: [id, patientId, doctorId, medication, dosage, frequency, startDate, status, createdAt]
+    CreatePrescriptionBody:
+      type: object
+      properties:
+        patientId:
+          type: integer
+        doctorId:
+          type: integer
+        medication:
+          type: string
+        dosage:
+          type: string
+        frequency:
+          type: string
+        startDate:
+          type: string
+          format: date-time
+        endDate:
+          type: string
+          format: date-time
+        refills:
+          type: integer
+        status:
+          type: string
+        notes:
+          type: string
+      required: [patientId, doctorId, medication, dosage, frequency, startDate]
+    HealthBill:
+      type: object
+      properties:
+        id:
+          type: integer
+        patientId:
+          type: integer
+        patientName:
+          type: string
+        appointmentId:
+          type: integer
+        description:
+          type: string
+        amount:
+          type: number
+        status:
+          type: string
+          enum: [pending, paid, partial, overdue, cancelled]
+        insuranceCoverage:
+          type: number
+        patientOwes:
+          type: number
+        dueDate:
+          type: string
+          format: date-time
+        paidDate:
+          type: string
+          format: date-time
+        createdAt:
+          type: string
+          format: date-time
+      required: [id, patientId, description, amount, status, createdAt]
+    CreateHealthBillBody:
+      type: object
+      properties:
+        patientId:
+          type: integer
+        appointmentId:
+          type: integer
+        description:
+          type: string
+        amount:
+          type: number
+        status:
+          type: string
+        insuranceCoverage:
+          type: number
+        dueDate:
+          type: string
+          format: date-time
+      required: [patientId, description, amount]
+    UpdateHealthBillBody:
+      type: object
+      properties:
+        status:
+          type: string
+          enum: [pending, paid, partial, overdue, cancelled]
+        paidDate:
+          type: string
+          format: date-time
+        insuranceCoverage:
+          type: number
+      required: [status]

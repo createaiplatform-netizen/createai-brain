@@ -376,6 +376,290 @@ export interface LegalDashboard {
   recentMatters: LegalMatter[];
 }
 
+export type PatientGender = (typeof PatientGender)[keyof typeof PatientGender];
+
+export const PatientGender = {
+  male: "male",
+  female: "female",
+  other: "other",
+} as const;
+
+export type PatientStatus = (typeof PatientStatus)[keyof typeof PatientStatus];
+
+export const PatientStatus = {
+  active: "active",
+  inactive: "inactive",
+  discharged: "discharged",
+} as const;
+
+export interface Patient {
+  id: number;
+  firstName: string;
+  lastName: string;
+  dateOfBirth?: string;
+  gender: PatientGender;
+  email?: string;
+  phone?: string;
+  address?: string;
+  bloodType?: string;
+  allergies?: string;
+  status: PatientStatus;
+  primaryDoctorId?: number;
+  primaryDoctorName?: string;
+  departmentId?: number;
+  departmentName?: string;
+  createdAt: string;
+}
+
+export type AppointmentStatus =
+  (typeof AppointmentStatus)[keyof typeof AppointmentStatus];
+
+export const AppointmentStatus = {
+  scheduled: "scheduled",
+  confirmed: "confirmed",
+  completed: "completed",
+  cancelled: "cancelled",
+  no_show: "no_show",
+} as const;
+
+export interface Appointment {
+  id: number;
+  patientId: number;
+  patientName?: string;
+  doctorId: number;
+  doctorName?: string;
+  departmentId?: number;
+  departmentName?: string;
+  scheduledAt: string;
+  durationMinutes?: number;
+  type: string;
+  status: AppointmentStatus;
+  notes?: string;
+  createdAt: string;
+}
+
+export interface HealthDashboard {
+  totalPatients: number;
+  todayAppointments: number;
+  activeDoctors: number;
+  pendingBills: number;
+  pendingBillAmount: number;
+  recentPatients: Patient[];
+  upcomingAppointments: Appointment[];
+}
+
+export interface MedicalRecord {
+  id: number;
+  patientId: number;
+  doctorId: number;
+  doctorName?: string;
+  visitDate: string;
+  chiefComplaint?: string;
+  diagnosis: string;
+  treatment?: string;
+  notes?: string;
+  followUpDate?: string;
+  createdAt: string;
+}
+
+export type PrescriptionStatus =
+  (typeof PrescriptionStatus)[keyof typeof PrescriptionStatus];
+
+export const PrescriptionStatus = {
+  active: "active",
+  completed: "completed",
+  cancelled: "cancelled",
+} as const;
+
+export interface Prescription {
+  id: number;
+  patientId: number;
+  patientName?: string;
+  doctorId: number;
+  doctorName?: string;
+  medication: string;
+  dosage: string;
+  frequency: string;
+  startDate: string;
+  endDate?: string;
+  refills?: number;
+  status: PrescriptionStatus;
+  notes?: string;
+  createdAt: string;
+}
+
+export type HealthBillStatus =
+  (typeof HealthBillStatus)[keyof typeof HealthBillStatus];
+
+export const HealthBillStatus = {
+  pending: "pending",
+  paid: "paid",
+  partial: "partial",
+  overdue: "overdue",
+  cancelled: "cancelled",
+} as const;
+
+export interface HealthBill {
+  id: number;
+  patientId: number;
+  patientName?: string;
+  appointmentId?: number;
+  description: string;
+  amount: number;
+  status: HealthBillStatus;
+  insuranceCoverage?: number;
+  patientOwes?: number;
+  dueDate?: string;
+  paidDate?: string;
+  createdAt: string;
+}
+
+export type PatientDetail = Patient & {
+  appointments: Appointment[];
+  medicalRecords: MedicalRecord[];
+  prescriptions: Prescription[];
+  bills: HealthBill[];
+};
+
+export type CreatePatientBodyGender =
+  (typeof CreatePatientBodyGender)[keyof typeof CreatePatientBodyGender];
+
+export const CreatePatientBodyGender = {
+  male: "male",
+  female: "female",
+  other: "other",
+} as const;
+
+export interface CreatePatientBody {
+  firstName: string;
+  lastName: string;
+  dateOfBirth?: string;
+  gender: CreatePatientBodyGender;
+  email?: string;
+  phone?: string;
+  address?: string;
+  bloodType?: string;
+  allergies?: string;
+  status?: string;
+  primaryDoctorId?: number;
+  departmentId?: number;
+}
+
+export interface CreateAppointmentBody {
+  patientId: number;
+  doctorId: number;
+  departmentId?: number;
+  scheduledAt: string;
+  durationMinutes?: number;
+  type: string;
+  status?: string;
+  notes?: string;
+}
+
+export type DoctorStatus = (typeof DoctorStatus)[keyof typeof DoctorStatus];
+
+export const DoctorStatus = {
+  active: "active",
+  inactive: "inactive",
+  on_leave: "on_leave",
+} as const;
+
+export interface Doctor {
+  id: number;
+  firstName: string;
+  lastName: string;
+  specialty: string;
+  departmentId?: number;
+  departmentName?: string;
+  email?: string;
+  phone?: string;
+  licenseNumber?: string;
+  status: DoctorStatus;
+  patientCount?: number;
+  createdAt: string;
+}
+
+export interface CreateDoctorBody {
+  firstName: string;
+  lastName: string;
+  specialty: string;
+  departmentId?: number;
+  email?: string;
+  phone?: string;
+  licenseNumber?: string;
+  status?: string;
+}
+
+export interface Department {
+  id: number;
+  name: string;
+  description?: string;
+  headDoctorId?: number;
+  headDoctorName?: string;
+  floor?: string;
+  capacity?: number;
+  createdAt: string;
+}
+
+export interface CreateDepartmentBody {
+  name: string;
+  description?: string;
+  headDoctorId?: number;
+  floor?: string;
+  capacity?: number;
+}
+
+export interface CreateMedicalRecordBody {
+  patientId: number;
+  doctorId: number;
+  visitDate: string;
+  chiefComplaint?: string;
+  diagnosis: string;
+  treatment?: string;
+  notes?: string;
+  followUpDate?: string;
+}
+
+export interface CreatePrescriptionBody {
+  patientId: number;
+  doctorId: number;
+  medication: string;
+  dosage: string;
+  frequency: string;
+  startDate: string;
+  endDate?: string;
+  refills?: number;
+  status?: string;
+  notes?: string;
+}
+
+export interface CreateHealthBillBody {
+  patientId: number;
+  appointmentId?: number;
+  description: string;
+  amount: number;
+  status?: string;
+  insuranceCoverage?: number;
+  dueDate?: string;
+}
+
+export type UpdateHealthBillBodyStatus =
+  (typeof UpdateHealthBillBodyStatus)[keyof typeof UpdateHealthBillBodyStatus];
+
+export const UpdateHealthBillBodyStatus = {
+  pending: "pending",
+  paid: "paid",
+  partial: "partial",
+  overdue: "overdue",
+  cancelled: "cancelled",
+} as const;
+
+export interface UpdateHealthBillBody {
+  status: UpdateHealthBillBodyStatus;
+  paidDate?: string;
+  insuranceCoverage?: number;
+}
+
 export type AuthorizationSessionHeaderParameter = string;
 
 export type BeginBrowserLoginParams = {
@@ -386,6 +670,57 @@ export type HandleBrowserLoginCallbackParams = {
   code?: string;
   state?: string;
   iss?: string;
+};
+
+export type ListPatientsParams = {
+  search?: string;
+  status?: string;
+};
+
+export type ListPatients200 = {
+  patients: Patient[];
+};
+
+export type ListAppointmentsParams = {
+  patientId?: number;
+  doctorId?: number;
+  date?: string;
+};
+
+export type ListAppointments200 = {
+  appointments: Appointment[];
+};
+
+export type ListDoctors200 = {
+  doctors: Doctor[];
+};
+
+export type ListDepartments200 = {
+  departments: Department[];
+};
+
+export type ListMedicalRecordsParams = {
+  patientId: number;
+};
+
+export type ListMedicalRecords200 = {
+  records: MedicalRecord[];
+};
+
+export type ListPrescriptionsParams = {
+  patientId?: number;
+};
+
+export type ListPrescriptions200 = {
+  prescriptions: Prescription[];
+};
+
+export type ListHealthBillingParams = {
+  patientId?: number;
+};
+
+export type ListHealthBilling200 = {
+  bills: HealthBill[];
 };
 
 export type ListLegalClients200 = {
