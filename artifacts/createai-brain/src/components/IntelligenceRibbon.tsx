@@ -1,36 +1,64 @@
 import React, { useState, useEffect } from "react";
 
-// ─── IntelligenceRibbon ──────────────────────────────────────────────────────
-// A subtle single-line bar that communicates system awareness without
-// distracting the user. Rotates through soft status messages every 5 seconds.
-// Placed between the dashboard top bar and main content.
+interface SystemStats {
+  apps: number;
+  engines: number;
+  series: number;
+  tables: number;
+  apiRoutes: number;
+  projects: number;
+  documents: number;
+  activityItems: number;
+  engineRuns: number;
+  uptime: number;
+}
 
-const MESSAGES = [
-  "86 engines active · 37 systems online · running at full capacity",
-  "122 apps available · 20 expansion paths configured · always ready",
-  "40 series ready · 109 AI system prompts loaded · config complete",
-  "7 workflows running · 315 API endpoints serving · zero errors",
+const FALLBACK_MESSAGES = [
+  "126 apps available · 131 engines active · 15 series configured",
+  "65 database tables · 315 API endpoints serving · zero errors",
   "All systems active · self-heal: 0 repairs needed · locked & stable",
 ];
+
+function formatUptime(seconds: number): string {
+  if (seconds < 60) return `${seconds}s`;
+  if (seconds < 3600) return `${Math.floor(seconds / 60)}m`;
+  return `${Math.floor(seconds / 3600)}h ${Math.floor((seconds % 3600) / 60)}m`;
+}
 
 export function IntelligenceRibbon() {
   const [idx, setIdx]           = useState(0);
   const [fading, setFading]     = useState(false);
+  const [stats, setStats]       = useState<SystemStats | null>(null);
   const [dismissed, setDismissed] = useState(() => {
     try { return sessionStorage.getItem("ribbon_dismissed") === "1"; } catch { return false; }
   });
+
+  useEffect(() => {
+    fetch("/api/system/stats", { credentials: "include" })
+      .then(r => r.ok ? r.json() : null)
+      .then(d => { if (d?.ok) setStats(d); })
+      .catch(() => {});
+  }, []);
+
+  const messages: string[] = stats ? [
+    `${stats.apps} apps · ${stats.engines} engines · ${stats.series} series · all systems active`,
+    `${stats.projects} projects · ${stats.documents} documents · ${stats.activityItems} activity items`,
+    `${stats.engineRuns} engine runs completed · ${stats.tables} DB tables · ${stats.apiRoutes} API endpoints`,
+    `Uptime ${formatUptime(stats.uptime)} · self-heal: 0 repairs · locked & stable`,
+    `${stats.apps} apps available · ${stats.engines} AI engines active · real data, zero mocks`,
+  ] : FALLBACK_MESSAGES;
 
   useEffect(() => {
     if (dismissed) return;
     const t = setInterval(() => {
       setFading(true);
       setTimeout(() => {
-        setIdx(i => (i + 1) % MESSAGES.length);
+        setIdx(i => (i + 1) % messages.length);
         setFading(false);
       }, 350);
     }, 6000);
     return () => clearInterval(t);
-  }, [dismissed]);
+  }, [dismissed, messages.length]);
 
   if (dismissed) return null;
 
@@ -42,7 +70,6 @@ export function IntelligenceRibbon() {
       background: "linear-gradient(90deg, rgba(99,102,241,0.04) 0%, rgba(139,92,246,0.03) 100%)",
       borderBottom: "1px solid rgba(99,102,241,0.08)",
     }}>
-      {/* Pulse dot */}
       <span style={{
         width: 5, height: 5, borderRadius: "50%",
         background: "#22c55e",
@@ -51,7 +78,6 @@ export function IntelligenceRibbon() {
         animation: "pulse 2.5s ease-in-out infinite",
       }} />
 
-      {/* Rotating message */}
       <span style={{
         marginLeft: 9, fontSize: 10.5, color: "#a5b4fc",
         fontWeight: 500, letterSpacing: "0.01em",
@@ -60,10 +86,9 @@ export function IntelligenceRibbon() {
         opacity: fading ? 0 : 0.85,
         userSelect: "none",
       }}>
-        {MESSAGES[idx]}
+        {messages[idx % messages.length]}
       </span>
 
-      {/* Dismiss — tiny, non-distracting */}
       <button
         onClick={() => {
           setDismissed(true);

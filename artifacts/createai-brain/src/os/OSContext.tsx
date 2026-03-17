@@ -479,6 +479,23 @@ export function OSProvider({ children }: { children: React.ReactNode }) {
     return () => window.removeEventListener("cai:mode-change", handler);
   }, []);
 
+  // ── Poll notifications every 30 seconds ──
+  useEffect(() => {
+    const poll = () => {
+      fetch("/api/notifications?limit=50", { credentials: "include" })
+        .then(r => r.ok ? r.json() : null)
+        .then(data => {
+          if (!data?.notifications) return;
+          const unread = (data.notifications as Array<{ read: boolean }>)
+            .filter(n => !n.read).length;
+          setUnreadCount(unread);
+        })
+        .catch(() => {});
+    };
+    const interval = setInterval(poll, 30_000);
+    return () => clearInterval(interval);
+  }, []);
+
   // ── On mount: hydrate preferences from server (server wins over localStorage) ──
   useEffect(() => {
     fetch("/api/user/me", { credentials: "include" })

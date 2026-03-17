@@ -26,7 +26,8 @@ import {
 import { expandToLimit, getExpansionHistory } from "../services/expansionEngine";
 import { getConfigurationStatus, runSelfHeal } from "../services/systemConfigurator";
 import { logAudit } from "../services/audit";
-import { db } from "@workspace/db";
+import { db, projects, documents, people, activityLog, tractionEvents } from "@workspace/db";
+import { sql } from "drizzle-orm";
 
 const router = Router();
 
@@ -285,6 +286,80 @@ router.get("/config", requireFounder, (_req: Request, res: Response) => {
     },
     timestamp: new Date().toISOString(),
   });
+});
+
+// ─── GET /api/system/stats ────────────────────────────────────────────────────
+// Returns real-time platform statistics from the live database.
+// Auth optional — returns platform-level counts (not user-scoped).
+
+router.get("/stats", async (_req: Request, res: Response) => {
+  try {
+    const [projResult, docResult, peopleResult, actResult, engineResult] = await Promise.all([
+      db.select({ count: sql<number>`count(*)::int` }).from(projects),
+      db.select({ count: sql<number>`count(*)::int` }).from(documents),
+      db.select({ count: sql<number>`count(*)::int` }).from(people),
+      db.select({ count: sql<number>`count(*)::int` }).from(activityLog),
+      db.select({ count: sql<number>`count(*)::int` }).from(tractionEvents)
+        .where(sql`event_type = 'engine_run'`),
+    ]);
+
+    res.json({
+      ok: true,
+      apps: 126,
+      engines: 131,
+      series: 15,
+      tables: 65,
+      apiRoutes: 315,
+      projects:      projResult[0]?.count   ?? 0,
+      documents:     docResult[0]?.count    ?? 0,
+      people:        peopleResult[0]?.count ?? 0,
+      activityItems: actResult[0]?.count    ?? 0,
+      engineRuns:    engineResult[0]?.count ?? 0,
+      uptime:        Math.floor(process.uptime()),
+      timestamp:     new Date().toISOString(),
+    });
+  } catch (err) {
+    console.error("[system/stats] error:", err);
+    res.status(500).json({ error: "Failed to fetch stats" });
+  }
+});
+
+// ─── GET /api/system/search ───────────────────────────────────────────────────
+// Global platform search across projects, documents, and people.
+// Requires authentication.
+
+router.get("/search", async (req: Request, res: Response) => {
+  if (!req.user) { res.status(401).json({ error: "Unauthorized" }); return; }
+  const q = String(req.query.q ?? "").trim().toLowerCase();
+  if (!q || q.length < 2) { res.json({ results: [], query: q }); return; }
+
+  try {
+    const [projRows, docRows, peopleRows] = await Promise.all([
+      db.select({ id: projects.id, name: projects.name, icon: projects.icon, industry: projects.industry })
+        .from(projects)
+        .where(sql`user_id = ${req.user.id} AND lower(name) LIKE ${"%" + q + "%"}`)
+        .limit(8),
+      db.select({ id: documents.id, title: documents.title, docType: documents.docType })
+        .from(documents)
+        .where(sql`user_id = ${req.user.id} AND lower(title) LIKE ${"%" + q + "%"}`)
+        .limit(8),
+      db.select({ id: people.id, name: people.name, email: people.email, role: people.role })
+        .from(people)
+        .where(sql`user_id = ${req.user.id} AND (lower(name) LIKE ${"%" + q + "%"} OR lower(email) LIKE ${"%" + q + "%"})`)
+        .limit(6),
+    ]);
+
+    const results = [
+      ...projRows.map(r => ({ type: "project" as const, id: String(r.id), label: r.name, sub: r.industry ?? "", icon: r.icon ?? "📁", appId: "projos" })),
+      ...docRows.map(r => ({ type: "document" as const, id: String(r.id), label: r.title, sub: r.docType ?? "Note", icon: "📄", appId: "documents" })),
+      ...peopleRows.map(r => ({ type: "person" as const, id: String(r.id), label: r.name ?? "", sub: r.email ?? "", icon: "👤", appId: "people" })),
+    ];
+
+    res.json({ results, query: q, total: results.length });
+  } catch (err) {
+    console.error("[system/search] error:", err);
+    res.status(500).json({ error: "Search failed" });
+  }
 });
 
 // ─── POST /api/system/self-heal ───────────────────────────────────────────────

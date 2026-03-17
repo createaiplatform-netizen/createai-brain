@@ -1,6 +1,6 @@
 import { Router, type IRouter } from "express";
 import { eq } from "drizzle-orm";
-import { db, conversations, messages } from "@workspace/db";
+import { db, conversations, messages, activityLog, notifications } from "@workspace/db";
 import { openai } from "@workspace/integrations-openai-ai-server";
 import { logTractionEvent } from "../lib/tractionLogger";
 import {
@@ -3966,6 +3966,14 @@ router.post("/engine-run", async (req, res) => {
     userId: (req as any).user?.id ?? null,
     metadata: { engine: name, agentId: agentId ?? null },
   });
+  const uid = (req as any).user?.id as string | undefined;
+  if (uid) {
+    db.insert(activityLog).values({
+      userId: uid, action: "engine_run",
+      label: `${name} engine`, icon: "⚡", appId: "brainhub",
+      meta: { engine: name },
+    }).catch(() => {});
+  }
 });
 
 // ─── POST /api/openai/meta-agent ────────────────────────────────────────────────
@@ -4213,6 +4221,22 @@ router.post("/series-run", async (req, res) => {
     userId:      (req as any).user?.id ?? null,
     metadata:    { seriesId, engineCount: SERIES_ENGINES[seriesId!]?.engineIds?.length ?? 0 },
   });
+  const serUid = (req as any).user?.id as string | undefined;
+  if (serUid) {
+    const serName    = SERIES_ENGINES[seriesId!]?.name ?? seriesId ?? "Series";
+    const engCount   = SERIES_ENGINES[seriesId!]?.engineIds?.length ?? 0;
+    db.insert(activityLog).values({
+      userId: serUid, action: "series_run",
+      label: `${serName}`, icon: "🔗", appId: "brainhub",
+      meta: { seriesId, engineCount: engCount },
+    }).catch(() => {});
+    db.insert(notifications).values({
+      userId: serUid, type: "success",
+      title: `Series complete — ${serName}`,
+      body: `Your ${engCount}-engine AI series run has finished successfully.`,
+      appId: "brainhub",
+    }).catch(() => {});
+  }
 });
 
 export default router;

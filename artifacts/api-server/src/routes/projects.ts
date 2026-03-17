@@ -6,6 +6,8 @@ import {
   projects,
   projectFolders,
   projectFiles,
+  activityLog,
+  notifications,
 } from "@workspace/db";
 
 const router: IRouter = Router();
@@ -184,6 +186,16 @@ router.post("/", async (req: Request, res: Response) => {
       userId,
       metadata:    { name: name.trim(), industry },
     });
+    db.insert(activityLog).values({
+      userId, action: "project_created", label: name.trim(),
+      icon, appId: "projos", meta: { industry },
+    }).catch(() => {});
+    db.insert(notifications).values({
+      userId, type: "info",
+      title: `Project created: ${name.trim()}`,
+      body: `New ${industry} project is ready with folders pre-configured.`,
+      appId: "projos",
+    }).catch(() => {});
     res.status(201).json({ project: full });
   } catch (err) {
     console.error("[projects] POST /", err);

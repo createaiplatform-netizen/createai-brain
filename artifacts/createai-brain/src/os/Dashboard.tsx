@@ -42,6 +42,8 @@ function getGreeting(): string {
 
 interface ActivityItem { id: number; label: string; icon: string; appId: string; createdAt: string; }
 interface ProjectItem  { id: string; name: string; icon: string; industry: string; }
+interface SearchResult { type: "project" | "document" | "person"; id: string; label: string; sub: string; icon: string; appId: string; }
+interface SystemStats  { projects: number; documents: number; people: number; engineRuns: number; }
 
 // ─── Featured Apps strip ───────────────────────────────────────────────────────
 
@@ -78,11 +80,22 @@ export function Dashboard({ onHamburger, onShowTour }: DashboardProps) {
   const [mounted, setMounted]                 = useState(false);
   const [activity, setActivity]               = useState<ActivityItem[]>([]);
   const [recentProjects, setRecentProjects]   = useState<ProjectItem[]>([]);
+  const [searchResults, setSearchResults]     = useState<SearchResult[]>([]);
+  const [searchLoading, setSearchLoading]     = useState(false);
+  const [sysStats, setSysStats]               = useState<SystemStats | null>(null);
+  const searchTimerRef = React.useRef<ReturnType<typeof setTimeout> | null>(null);
   const [loadingRecents, setLoadingRecents]   = useState(true);
 
   const cfg = MODE_CFG[platformMode];
 
   useEffect(() => { setMounted(true); }, []);
+
+  useEffect(() => {
+    fetch("/api/system/stats", { credentials: "include" })
+      .then(r => r.ok ? r.json() : null)
+      .then(d => { if (d?.ok) setSysStats(d); })
+      .catch(() => {});
+  }, []);
 
   const loadRecents = useCallback(() => {
     Promise.all([
@@ -102,15 +115,29 @@ export function Dashboard({ onHamburger, onShowTour }: DashboardProps) {
   }, [activeApp, loadRecents]);
 
   const handleIntentSearch = (query: string) => {
-    if (!query.trim()) { setIntentResult(null); return; }
+    if (!query.trim()) {
+      setIntentResult(null);
+      setSearchResults([]);
+      if (searchTimerRef.current) clearTimeout(searchTimerRef.current);
+      return;
+    }
     const targetId = routeIntent(query);
     const all = ALL_APPS;
     if (targetId) {
       const appDef = all.find(a => a.id === targetId);
       setIntentResult({ app: targetId, label: appDef?.label ?? targetId });
     } else {
-      setIntentResult({ app: "chat", label: "AI Chat" });
+      setIntentResult(null);
     }
+    if (searchTimerRef.current) clearTimeout(searchTimerRef.current);
+    searchTimerRef.current = setTimeout(() => {
+      setSearchLoading(true);
+      fetch(`/api/system/search?q=${encodeURIComponent(query)}&limit=6`, { credentials: "include" })
+        .then(r => r.ok ? r.json() : { results: [] })
+        .then((d: { results?: SearchResult[] }) => setSearchResults(d.results ?? []))
+        .catch(() => setSearchResults([]))
+        .finally(() => setSearchLoading(false));
+    }, 280);
   };
 
   const handleIntentSubmit = (e?: React.FormEvent) => {
@@ -206,6 +233,27 @@ export function Dashboard({ onHamburger, onShowTour }: DashboardProps) {
             </h2>
           </div>
 
+          {/* ── Live stats strip ── */}
+          {sysStats && (
+            <div className={`transition-opacity duration-500 delay-50 ${mounted ? "opacity-100" : "opacity-0"}`}>
+              <div className="grid grid-cols-4 gap-2">
+                {([
+                  { label: "Projects",  value: sysStats.projects,    icon: "📁", color: "#6366f1" },
+                  { label: "Documents", value: sysStats.documents,   icon: "📄", color: "#10b981" },
+                  { label: "People",    value: sysStats.people,      icon: "👥", color: "#f59e0b" },
+                  { label: "Runs",      value: sysStats.engineRuns,  icon: "⚡", color: "#8b5cf6" },
+                ] as const).map(s => (
+                  <div key={s.label} className="rounded-2xl p-3 text-center"
+                    style={{ background: "#fff", border: "1px solid rgba(0,0,0,0.07)", boxShadow: "0 1px 4px rgba(0,0,0,0.04)" }}>
+                    <div className="text-lg">{s.icon}</div>
+                    <div className="text-[15px] font-bold mt-0.5" style={{ color: s.color }}>{s.value}</div>
+                    <div className="text-[9px] font-semibold mt-0.5 uppercase tracking-wide" style={{ color: "#9ca3af" }}>{s.label}</div>
+                  </div>
+                ))}
+              </div>
+            </div>
+          )}
+
           {/* ── Brainstorm Banner ── */}
           <div className={`transition-opacity duration-500 delay-75 ${mounted ? "opacity-100" : "opacity-0"}`}>
             <button onClick={() => setShowBrainstorm(true)}
@@ -249,11 +297,64 @@ export function Dashboard({ onHamburger, onShowTour }: DashboardProps) {
                 )}
               </div>
 
-              {intentResult && (
+              {intentResult && !searchResults.length && (
                 <div className="absolute top-full left-0 right-0 mt-2 rounded-2xl px-4 py-2.5 text-[13px] font-medium flex items-center justify-between z-10"
                   style={{ background: "linear-gradient(135deg,#6366f1,#4f46e5)", boxShadow: "0 4px 20px rgba(99,102,241,0.35)" }}>
                   <span className="text-white">→ Open {intentResult.label}</span>
                   <span className="text-white/60 text-[11px]">Press Enter</span>
+                </div>
+              )}
+
+              {/* ── Global search results ── */}
+              {intentInput && searchResults.length > 0 && (
+                <div className="absolute top-full left-0 right-0 mt-2 rounded-2xl overflow-hidden z-10"
+                  style={{ background: "#fff", border: "1px solid rgba(0,0,0,0.09)", boxShadow: "0 8px 32px rgba(0,0,0,0.12)" }}>
+                  <div className="px-4 pt-3 pb-1">
+                    <p className="text-[10px] font-bold uppercase tracking-widest" style={{ color: "#9ca3af" }}>
+                      Results {searchLoading && <span className="ml-1 opacity-50">…</span>}
+                    </p>
+                  </div>
+                  {searchResults.map(r => (
+                    <button key={`${r.type}-${r.id}`}
+                      type="button"
+                      onMouseDown={() => {
+                        openApp(r.appId as AppId);
+                        setIntentInput("");
+                        setSearchResults([]);
+                        setIntentResult(null);
+                      }}
+                      className="w-full flex items-center gap-3 px-4 py-2.5 text-left transition-all"
+                      onMouseEnter={e => (e.currentTarget.style.background = "#f8fafc")}
+                      onMouseLeave={e => (e.currentTarget.style.background = "transparent")}
+                    >
+                      <span className="text-lg flex-shrink-0">{r.icon}</span>
+                      <div className="flex-1 min-w-0">
+                        <p className="text-[13px] font-semibold truncate" style={{ color: "#0f172a" }}>{r.label}</p>
+                        <p className="text-[10px] truncate" style={{ color: "#9ca3af" }}>{r.sub}</p>
+                      </div>
+                      <span className="text-[10px] font-semibold px-2 py-0.5 rounded-full flex-shrink-0 capitalize"
+                        style={{ background: r.type === "project" ? "#eef2ff" : r.type === "document" ? "#f0fdf4" : "#fdf4ff", color: r.type === "project" ? "#6366f1" : r.type === "document" ? "#16a34a" : "#9333ea" }}>
+                        {r.type}
+                      </span>
+                    </button>
+                  ))}
+                  {intentResult && (
+                    <div className="mx-3 mb-3 mt-1">
+                      <button type="submit"
+                        className="w-full rounded-xl py-2 text-[12px] font-semibold text-center transition-all"
+                        style={{ background: "#6366f1", color: "#fff" }}>
+                        → Open {intentResult.label}
+                      </button>
+                    </div>
+                  )}
+                </div>
+              )}
+
+              {intentInput && searchLoading && !searchResults.length && (
+                <div className="absolute top-full left-0 right-0 mt-2 rounded-2xl px-4 py-3 text-[12px] z-10 flex items-center gap-2"
+                  style={{ background: "#fff", border: "1px solid rgba(0,0,0,0.08)" }}>
+                  <span className="w-3 h-3 border-2 border-indigo-400 border-t-transparent rounded-full animate-spin flex-shrink-0" />
+                  <span style={{ color: "#9ca3af" }}>Searching…</span>
                 </div>
               )}
 
