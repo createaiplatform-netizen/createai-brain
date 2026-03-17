@@ -119,9 +119,33 @@ export const GetCurrentAuthUserResponse = zod.object({
       firstName: zod.string().nullish(),
       lastName: zod.string().nullish(),
       profileImageUrl: zod.string().nullish(),
+      ndaSigned: zod.boolean(),
     }),
     zod.null(),
   ]),
+});
+
+/**
+ * @summary Record NDA signature for the authenticated user
+ */
+export const SignNdaHeader = zod.object({
+  Authorization: zod.string().optional(),
+});
+
+export const SignNdaBody = zod.object({
+  fullName: zod.string().min(1),
+});
+
+export const SignNdaResponse = zod.object({
+  success: zod.boolean(),
+  user: zod.object({
+    id: zod.string(),
+    email: zod.string().nullish(),
+    firstName: zod.string().nullish(),
+    lastName: zod.string().nullish(),
+    profileImageUrl: zod.string().nullish(),
+    ndaSigned: zod.boolean(),
+  }),
 });
 
 /**

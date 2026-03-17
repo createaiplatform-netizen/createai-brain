@@ -175,6 +175,29 @@ paths:
             application/json:
               schema:
                 $ref: '#/components/schemas/AuthUserEnvelope'
+  /auth/nda:
+    post:
+      tags: [Auth]
+      operationId: signNda
+      summary: Record NDA signature for the authenticated user
+      parameters:
+        - $ref: '#/components/parameters/AuthorizationSessionHeader'
+        - $ref: '#/components/parameters/SessionCookie'
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/SignNdaBody'
+      responses:
+        '200':
+          description: NDA signed successfully.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/SignNdaResponse'
+        '401':
+          description: Not authenticated.
   /login:
     get:
       tags: [Auth]
@@ -292,7 +315,7 @@ components:
   schemas:
     AuthUser:
       type: object
-      required: [id]
+      required: [id, ndaSigned]
       properties:
         id:
           type: string
@@ -308,6 +331,23 @@ components:
         profileImageUrl:
           type: string
           nullable: true
+        ndaSigned:
+          type: boolean
+    SignNdaBody:
+      type: object
+      required: [fullName]
+      properties:
+        fullName:
+          type: string
+          minLength: 1
+    SignNdaResponse:
+      type: object
+      required: [success, user]
+      properties:
+        success:
+          type: boolean
+        user:
+          $ref: '#/components/schemas/AuthUser'
     AuthUserEnvelope:
       type: object
       required: [user]

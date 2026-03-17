@@ -1,5 +1,18 @@
 # CreateAI Brain – Workspace
 
+## Auth + NDA Flow (COMPLETE, FULLY LIVE)
+### Three-tier access model
+1. **Public (not logged in)**: Preview landing page — shows all 19 app icons, value props, "NDA required" notice, "Log in" CTA
+2. **Logged in, NDA not signed**: Full NDA signing screen — scrollable legal agreement, name field, checkbox, "Sign & Unlock Access" button → `POST /api/auth/nda` → DB update + session update → instant access
+3. **Logged in + NDA signed**: Full OS access — remembered forever, never asked again
+
+### NDA implementation details
+- DB: `usersTable.ndaSigned (boolean, default false)` + `usersTable.ndaSignedAt (timestamp nullable)`
+- API: `POST /api/auth/nda` — auth required, updates DB + updates session in-place → returns updated user
+- Frontend: `AuthGate` → `LoginScreen` → `NDAScreen` → full app (no page reload needed; `setUser()` updates React state in-place)
+- `useAuth()` hook now exposes `refreshUser()` and `setUser()` for post-NDA state updates
+- NDA signature stored in DB permanently — no re-signing after sign-out/sign-in
+
 ## Auth — Replit OIDC (COMPLETE, FULLY LIVE)
 - **Auth package**: `lib/replit-auth-web` — `useAuth()` hook providing `{ user, isLoading, isAuthenticated, login(), logout() }`
 - **API routes**: `GET /api/auth/user`, `GET /api/login`, `GET /api/callback`, `GET /api/logout`

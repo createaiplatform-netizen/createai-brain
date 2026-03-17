@@ -11,6 +11,17 @@ export interface AuthUser {
   firstName?: string | null;
   lastName?: string | null;
   profileImageUrl?: string | null;
+  ndaSigned: boolean;
+}
+
+export interface SignNdaBody {
+  /** @minLength 1 */
+  fullName: string;
+}
+
+export interface SignNdaResponse {
+  success: boolean;
+  user: AuthUser;
 }
 
 export interface AuthUserEnvelope {

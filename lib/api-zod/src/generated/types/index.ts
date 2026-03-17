@@ -25,3 +25,5 @@ export * from "./openaiConversationWithMessages";
 export * from "./openaiError";
 export * from "./openaiMessage";
 export * from "./sendOpenaiMessageBody";
+export * from "./signNdaBody";
+export * from "./signNdaResponse";

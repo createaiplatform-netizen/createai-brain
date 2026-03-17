@@ -33,6 +33,8 @@ import type {
   OpenaiError,
   OpenaiMessage,
   SendOpenaiMessageBody,
+  SignNdaBody,
+  SignNdaResponse,
 } from "./api.schemas";
 
 import { customFetch } from "../custom-fetch";
@@ -792,6 +794,92 @@ export function useGetCurrentAuthUser<
 
   return { ...query, queryKey: queryOptions.queryKey };
 }
+
+/**
+ * @summary Record NDA signature for the authenticated user
+ */
+export const getSignNdaUrl = () => {
+  return `/api/auth/nda`;
+};
+
+export const signNda = async (
+  signNdaBody: SignNdaBody,
+  options?: RequestInit,
+): Promise<SignNdaResponse> => {
+  return customFetch<SignNdaResponse>(getSignNdaUrl(), {
+    ...options,
+    method: "POST",
+    headers: { "Content-Type": "application/json", ...options?.headers },
+    body: JSON.stringify(signNdaBody),
+  });
+};
+
+export const getSignNdaMutationOptions = <
+  TError = ErrorType<void>,
+  TContext = unknown,
+>(options?: {
+  mutation?: UseMutationOptions<
+    Awaited<ReturnType<typeof signNda>>,
+    TError,
+    { data: BodyType<SignNdaBody> },
+    TContext
+  >;
+  request?: SecondParameter<typeof customFetch>;
+}): UseMutationOptions<
+  Awaited<ReturnType<typeof signNda>>,
+  TError,
+  { data: BodyType<SignNdaBody> },
+  TContext
+> => {
+  const mutationKey = ["signNda"];
+  const { mutation: mutationOptions, request: requestOptions } = options
+    ? options.mutation &&
+      "mutationKey" in options.mutation &&
+      options.mutation.mutationKey
+      ? options
+      : { ...options, mutation: { ...options.mutation, mutationKey } }
+    : { mutation: { mutationKey }, request: undefined };
+
+  const mutationFn: MutationFunction<
+    Awaited<ReturnType<typeof signNda>>,
+    { data: BodyType<SignNdaBody> }
+  > = (props) => {
+    const { data } = props ?? {};
+
+    return signNda(data, requestOptions);
+  };
+
+  return { mutationFn, ...mutationOptions };
+};
+
+export type SignNdaMutationResult = NonNullable<
+  Awaited<ReturnType<typeof signNda>>
+>;
+export type SignNdaMutationBody = BodyType<SignNdaBody>;
+export type SignNdaMutationError = ErrorType<void>;
+
+/**
+ * @summary Record NDA signature for the authenticated user
+ */
+export const useSignNda = <
+  TError = ErrorType<void>,
+  TContext = unknown,
+>(options?: {
+  mutation?: UseMutationOptions<
+    Awaited<ReturnType<typeof signNda>>,
+    TError,
+    { data: BodyType<SignNdaBody> },
+    TContext
+  >;
+  request?: SecondParameter<typeof customFetch>;
+}): UseMutationResult<
+  Awaited<ReturnType<typeof signNda>>,
+  TError,
+  { data: BodyType<SignNdaBody> },
+  TContext
+> => {
+  return useMutation(getSignNdaMutationOptions(options));
+};
 
 /**
  * @summary Start the browser OIDC login flow

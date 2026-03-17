@@ -5,13 +5,18 @@ import {
   ExchangeMobileAuthorizationCodeBody,
   ExchangeMobileAuthorizationCodeResponse,
   LogoutMobileSessionResponse,
+  SignNdaBody,
+  SignNdaResponse,
 } from "@workspace/api-zod";
 import { db, usersTable } from "@workspace/db";
+import { eq } from "drizzle-orm";
 import {
   clearSession,
   getOidcConfig,
   getSessionId,
+  getSession,
   createSession,
+  updateSession,
   deleteSession,
   SESSION_COOKIE,
   SESSION_TTL,
@@ -88,6 +93,53 @@ router.get("/auth/user", (req: Request, res: Response) => {
       user: req.isAuthenticated() ? req.user : null,
     }),
   );
+});
+
+router.post("/auth/nda", async (req: Request, res: Response) => {
+  if (!req.isAuthenticated()) {
+    res.status(401).json({ error: "Unauthorized" });
+    return;
+  }
+
+  const parsed = SignNdaBody.safeParse(req.body);
+  if (!parsed.success) {
+    res.status(400).json({ error: "fullName is required" });
+    return;
+  }
+
+  try {
+    const [updatedUser] = await db
+      .update(usersTable)
+      .set({ ndaSigned: true, ndaSignedAt: new Date() })
+      .where(eq(usersTable.id, req.user.id))
+      .returning();
+
+    const sid = getSessionId(req);
+    if (sid) {
+      const session = await getSession(sid);
+      if (session) {
+        session.user = {
+          ...session.user,
+          ndaSigned: true,
+        };
+        await updateSession(sid, session);
+      }
+    }
+
+    const user = {
+      id: updatedUser.id,
+      email: updatedUser.email,
+      firstName: updatedUser.firstName,
+      lastName: updatedUser.lastName,
+      profileImageUrl: updatedUser.profileImageUrl,
+      ndaSigned: true,
+    };
+
+    res.json(SignNdaResponse.parse({ success: true, user }));
+  } catch (err) {
+    console.error("[auth] POST /auth/nda", err);
+    res.status(500).json({ error: "Failed to record NDA signature" });
+  }
 });
 
 router.get("/login", async (req: Request, res: Response) => {
@@ -176,6 +228,7 @@ router.get("/callback", async (req: Request, res: Response) => {
       firstName: dbUser.firstName,
       lastName: dbUser.lastName,
       profileImageUrl: dbUser.profileImageUrl,
+      ndaSigned: dbUser.ndaSigned ?? false,
     },
     access_token: tokens.access_token,
     refresh_token: tokens.refresh_token,
@@ -246,6 +299,7 @@ router.post(
           firstName: dbUser.firstName,
           lastName: dbUser.lastName,
           profileImageUrl: dbUser.profileImageUrl,
+          ndaSigned: dbUser.ndaSigned ?? false,
         },
         access_token: tokens.access_token,
         refresh_token: tokens.refresh_token,

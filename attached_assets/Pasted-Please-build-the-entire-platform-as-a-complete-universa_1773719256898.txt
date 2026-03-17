@@ -1,0 +1,27 @@
+Please build the entire platform as a complete, universal, global, production-ready system. I do not know the technical terms, so include every layer, angle, dimension, and requirement automatically.
+
+Ensure the platform includes:
+• Real users, real accounts, real workspaces, and real projects with persistent data.
+• A full project system where anything created can be saved, opened, updated, expanded, and organized.
+• A universal creation engine that can generate and update anything for any industry, department, workflow, or use case.
+• A universal data model that supports every industry and adapts without breaking.
+• A universal integration layer that is ready for real future connections (EMR/EHR, CRM, ERP, APIs, etc.) with safe boundaries.
+• A full legal and safety layer (NDA, terms, access control, privacy structure, audit trail).
+• A universal UI/UX framework so every app, tool, generator, and workflow behaves consistently and connects smoothly.
+• Public preview pages and private workspaces with correct access control.
+• All sidebar apps fully functional, connected, and able to save to projects.
+• A global-ready structure that can support different regions, industries, regulations, and languages.
+• A modular architecture where every component is pluggable, expandable, and reusable.
+• A stability and operations layer (error handling, logging, performance, versioning).
+• A collaboration layer (teams, roles, permissions, sharing).
+• A lifecycle layer (create, edit, save, update, archive, restore, publish).
+• A universal navigation and orientation system so users always know where they are and what to do next.
+• A human-centered experience that feels calm, clear, supportive, empowering, and intuitive.
+
+Also include the following universal mechanisms:
+• A universal framework that every feature and module must follow.
+• A self-checking, self-completing engine that detects missing pieces, fills gaps, repairs inconsistencies, and ensures nothing is overlooked.
+• A universal expansion layer that allows the platform to add new industries, departments, workflows, integrations, apps, and capabilities without breaking anything.
+• A meta-layer that oversees the entire system, ensuring completeness, consistency, safety, and universal alignment.
+
+Please audit the entire platform, fix anything missing or broken, and add whatever is required so the system is fully complete, universal, coherent, safe, expandable, and production-ready, even if I don’t know the technical terms or the full list of requirements.
