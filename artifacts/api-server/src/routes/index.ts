@@ -43,6 +43,7 @@ import religionforgeRouter from "./religionforge";
 import cosmologyforgeRouter from "./cosmologyforge";
 import gameworldRouter from "./gameworld";
 import adaptersRouter from "./adapters";
+import publicRouter from "./public";
 
 const router: IRouter = Router();
 
@@ -85,6 +86,9 @@ router.use("/gameworld",          gameworldRouter);
 router.use("/legal",              legalRouter);
 router.use("/health",             healthcareRouter);
 router.use("/staffing",           staffingRouter);
+
+// ── Public demo routes (no auth required) ────────────────────────────────────
+router.use("/public",             publicRouter);
 
 // ── Enterprise routes ────────────────────────────────────────────────────────
 router.use("/adapters",           adaptersRouter);

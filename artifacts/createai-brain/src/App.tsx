@@ -9,6 +9,7 @@ import NotFound from "@/pages/not-found";
 import StandalonePage from "@/pages/StandalonePage";
 import CreationPage from "@/pages/CreationPage";
 import ProjectPage from "@/pages/ProjectPage";
+import IntegrationDemoPage from "@/pages/IntegrationDemoPage";
 
 import { OSProvider } from "@/os/OSContext";
 import { OSLayout } from "@/os/osLayout";
@@ -26,6 +27,7 @@ const queryClient = new QueryClient({
 function Router() {
   return (
     <Switch>
+      <Route path="/integration-demo" component={IntegrationDemoPage} />
       <Route path="/" component={OSLayout} />
       <Route path="/metrics" component={OSLayout} />
       <Route path="/project/:projectId" component={ProjectPage} />
@@ -375,6 +377,20 @@ function AuthGate({ children }: { children: React.ReactNode }) {
 // ─── App ───────────────────────────────────────────────────────────────────
 
 function App() {
+  // Public routes bypass auth — check before AuthGate renders
+  const base = import.meta.env.BASE_URL.replace(/\/$/, "");
+  const isPublicRoute = window.location.pathname.startsWith(`${base}/integration-demo`);
+
+  if (isPublicRoute) {
+    return (
+      <QueryClientProvider client={queryClient}>
+        <WouterRouter base={base}>
+          <Route path="/integration-demo" component={IntegrationDemoPage} />
+        </WouterRouter>
+      </QueryClientProvider>
+    );
+  }
+
   return (
     <QueryClientProvider client={queryClient}>
       <TooltipProvider>
@@ -382,7 +398,7 @@ function App() {
           <InteractionProvider>
             <ConversationProvider>
               <OSProvider>
-                <WouterRouter base={import.meta.env.BASE_URL.replace(/\/$/, "")}>
+                <WouterRouter base={base}>
                   <Router />
                 </WouterRouter>
               </OSProvider>
