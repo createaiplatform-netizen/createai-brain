@@ -99,13 +99,26 @@ async function buildProjectResponse(projectId: number) {
   };
 }
 
+// ─── Auth guard helper ─────────────────────────────────────────────────────
+
+function requireAuth(req: Request, res: Response): string | null {
+  if (!req.isAuthenticated()) {
+    res.status(401).json({ error: "Unauthorized" });
+    return null;
+  }
+  return req.user!.id;
+}
+
 // ─── GET /projects ─────────────────────────────────────────────────────────
 
-router.get("/", async (_req: Request, res: Response) => {
+router.get("/", async (req: Request, res: Response) => {
+  const userId = requireAuth(req, res);
+  if (!userId) return;
   try {
     const all = await db
       .select()
       .from(projects)
+      .where(eq(projects.userId, userId))
       .orderBy(desc(projects.createdAt));
 
     const list = await Promise.all(all.map(p => buildProjectResponse(p.id)));
@@ -119,6 +132,8 @@ router.get("/", async (_req: Request, res: Response) => {
 // ─── POST /projects ────────────────────────────────────────────────────────
 
 router.post("/", async (req: Request, res: Response) => {
+  const userId = requireAuth(req, res);
+  if (!userId) return;
   try {
     const { name, industry = "General", description = "" } = req.body as {
       name: string;
@@ -136,7 +151,7 @@ router.post("/", async (req: Request, res: Response) => {
 
     const [project] = await db
       .insert(projects)
-      .values({ name: name.trim(), industry, description, icon, color })
+      .values({ name: name.trim(), industry, description, icon, color, userId })
       .returning();
 
     const universalRows = UNIVERSAL_FOLDERS.map((f, i) => ({
@@ -169,6 +184,7 @@ router.post("/", async (req: Request, res: Response) => {
 // ─── GET /projects/files/:fileId ──────────────────────────────────────────
 
 router.get("/files/:fileId", async (req: Request, res: Response) => {
+  if (!requireAuth(req, res)) return;
   try {
     const fileId = parseInt(req.params.fileId, 10);
     const [file] = await db.select().from(projectFiles).where(eq(projectFiles.id, fileId));
@@ -189,7 +205,9 @@ router.get("/files/:fileId", async (req: Request, res: Response) => {
 
 // ─── GET /projects/all-files ───────────────────────────────────────────────
 
-router.get("/all-files", async (_req: Request, res: Response) => {
+router.get("/all-files", async (req: Request, res: Response) => {
+  const userId = requireAuth(req, res);
+  if (!userId) return;
   try {
     const files = await db
       .select({
@@ -207,6 +225,7 @@ router.get("/all-files", async (_req: Request, res: Response) => {
       })
       .from(projectFiles)
       .leftJoin(projects, eq(projectFiles.projectId, projects.id))
+      .where(eq(projects.userId, userId))
       .orderBy(desc(projectFiles.createdAt));
     res.json({
       files: files.map(f => ({
@@ -225,8 +244,12 @@ router.get("/all-files", async (_req: Request, res: Response) => {
 // ─── GET /projects/:id ─────────────────────────────────────────────────────
 
 router.get("/:id", async (req: Request, res: Response) => {
+  const userId = requireAuth(req, res);
+  if (!userId) return;
   try {
     const id = parseInt(req.params.id, 10);
+    const [row] = await db.select().from(projects).where(eq(projects.id, id));
+    if (!row || row.userId !== userId) { res.status(404).json({ error: "Project not found" }); return; }
     const full = await buildProjectResponse(id);
     if (!full) { res.status(404).json({ error: "Project not found" }); return; }
     res.json({ project: full });
@@ -239,8 +262,13 @@ router.get("/:id", async (req: Request, res: Response) => {
 // ─── PUT /projects/:id ─────────────────────────────────────────────────────
 
 router.put("/:id", async (req: Request, res: Response) => {
+  const userId = requireAuth(req, res);
+  if (!userId) return;
   try {
     const id = parseInt(req.params.id, 10);
+    const [row] = await db.select().from(projects).where(eq(projects.id, id));
+    if (!row || row.userId !== userId) { res.status(404).json({ error: "Project not found" }); return; }
+
     const { name, description, mode } = req.body as {
       name?: string;
       description?: string;
@@ -268,8 +296,12 @@ router.put("/:id", async (req: Request, res: Response) => {
 // ─── DELETE /projects/:id ──────────────────────────────────────────────────
 
 router.delete("/:id", async (req: Request, res: Response) => {
+  const userId = requireAuth(req, res);
+  if (!userId) return;
   try {
     const id = parseInt(req.params.id, 10);
+    const [row] = await db.select().from(projects).where(eq(projects.id, id));
+    if (!row || row.userId !== userId) { res.status(404).json({ error: "Project not found" }); return; }
     await db.delete(projects).where(eq(projects.id, id));
     res.json({ success: true });
   } catch (err) {
@@ -281,6 +313,7 @@ router.delete("/:id", async (req: Request, res: Response) => {
 // ─── FOLDERS ──────────────────────────────────────────────────────────────
 
 router.get("/:id/folders", async (req: Request, res: Response) => {
+  if (!requireAuth(req, res)) return;
   try {
     const projectId = parseInt(req.params.id, 10);
     const folders = await db
@@ -295,6 +328,7 @@ router.get("/:id/folders", async (req: Request, res: Response) => {
 });
 
 router.post("/:id/folders", async (req: Request, res: Response) => {
+  if (!requireAuth(req, res)) return;
   try {
     const projectId = parseInt(req.params.id, 10);
     const { name, icon = "📁" } = req.body as { name: string; icon?: string };
@@ -314,6 +348,7 @@ router.post("/:id/folders", async (req: Request, res: Response) => {
 });
 
 router.put("/:id/folders/:folderId", async (req: Request, res: Response) => {
+  if (!requireAuth(req, res)) return;
   try {
     const folderId = parseInt(req.params.folderId, 10);
     const { name, icon } = req.body as { name?: string; icon?: string };
@@ -328,6 +363,7 @@ router.put("/:id/folders/:folderId", async (req: Request, res: Response) => {
 });
 
 router.delete("/:id/folders/:folderId", async (req: Request, res: Response) => {
+  if (!requireAuth(req, res)) return;
   try {
     const folderId = parseInt(req.params.folderId, 10);
     await db.delete(projectFolders).where(eq(projectFolders.id, folderId));
@@ -340,6 +376,7 @@ router.delete("/:id/folders/:folderId", async (req: Request, res: Response) => {
 // ─── FILES ────────────────────────────────────────────────────────────────
 
 router.get("/:id/files", async (req: Request, res: Response) => {
+  if (!requireAuth(req, res)) return;
   try {
     const projectId = parseInt(req.params.id, 10);
     const files = await db
@@ -362,6 +399,7 @@ router.get("/:id/files", async (req: Request, res: Response) => {
 });
 
 router.post("/:id/files", async (req: Request, res: Response) => {
+  if (!requireAuth(req, res)) return;
   try {
     const projectId = parseInt(req.params.id, 10);
     const { name, content = "", fileType = "document", folderId, size = "0 KB" } = req.body as {
@@ -400,6 +438,7 @@ router.post("/:id/files", async (req: Request, res: Response) => {
 });
 
 router.put("/:id/files/:fileId", async (req: Request, res: Response) => {
+  if (!requireAuth(req, res)) return;
   try {
     const fileId = parseInt(req.params.fileId, 10);
     const { name, content, fileType, size } = req.body as {
@@ -421,6 +460,7 @@ router.put("/:id/files/:fileId", async (req: Request, res: Response) => {
 });
 
 router.delete("/:id/files/:fileId", async (req: Request, res: Response) => {
+  if (!requireAuth(req, res)) return;
   try {
     const fileId = parseInt(req.params.fileId, 10);
     await db.delete(projectFiles).where(eq(projectFiles.id, fileId));
