@@ -1,4 +1,4 @@
-import React, { createContext, useContext, useState, useCallback, useEffect } from "react";
+import React, { createContext, useContext, useState, useCallback, useEffect, useRef } from "react";
 import { PlatformStore, PlatformMode } from "@/engine/PlatformStore";
 
 // ─── App Registry ──────────────────────────────────────────────────────────
@@ -70,6 +70,22 @@ const DEFAULT_PREFERENCES: PreferenceBrain = {
   revenueShare: 25,
 };
 
+const PREFS_LS_KEY = "createai-brain-prefs-v1";
+
+function loadPrefsFromLS(): PreferenceBrain {
+  try {
+    const raw = localStorage.getItem(PREFS_LS_KEY);
+    if (!raw) return DEFAULT_PREFERENCES;
+    return { ...DEFAULT_PREFERENCES, ...JSON.parse(raw) };
+  } catch {
+    return DEFAULT_PREFERENCES;
+  }
+}
+
+function savePrefsToLS(prefs: PreferenceBrain) {
+  try { localStorage.setItem(PREFS_LS_KEY, JSON.stringify(prefs)); } catch {}
+}
+
 // ─── Intent Routing ────────────────────────────────────────────────────────
 const INTENT_MAP: { keywords: string[]; target: AppId }[] = [
   { keywords: ["chat", "talk", "ask", "message", "brain"],                target: "chat" },
@@ -127,17 +143,15 @@ const APP_META: Record<AppId, { icon: string; label: string }> = {
   brainhub:      { icon: "⚡", label: "Brain Hub" },
 };
 
-// ─── OS State ──────────────────────────────────────────────────────────────
-interface OSState {
+// ─── OS Context value ───────────────────────────────────────────────────────
+interface OSContextValue {
   activeApp: AppId | null;
   sidebarCollapsed: boolean;
   history: AppId[];
   appRegistry: AppDef[];
   preferences: PreferenceBrain;
   platformMode: PlatformMode;
-}
-
-interface OSContextValue extends OSState {
+  unreadCount: number;
   openApp: (id: AppId) => void;
   closeApp: () => void;
   goBack: () => void;
@@ -146,6 +160,7 @@ interface OSContextValue extends OSState {
   updatePreferences: (patch: Partial<PreferenceBrain>) => void;
   registerApp: (app: AppDef) => void;
   setPlatformMode: (mode: PlatformMode) => void;
+  setUnreadCount: React.Dispatch<React.SetStateAction<number>>;
 }
 
 const OSContext = createContext<OSContextValue | null>(null);
@@ -155,10 +170,13 @@ export function OSProvider({ children }: { children: React.ReactNode }) {
   const [sidebarCollapsed, setSidebarCollapsed] = useState(false);
   const [history, setHistory]             = useState<AppId[]>([]);
   const [appRegistry, setAppRegistry]     = useState<AppDef[]>(DEFAULT_APPS);
-  const [preferences, setPreferences]     = useState<PreferenceBrain>(DEFAULT_PREFERENCES);
+  const [preferences, setPreferences]     = useState<PreferenceBrain>(() => loadPrefsFromLS());
   const [platformMode, setPlatformModeState] = useState<PlatformMode>(() => PlatformStore.getMode());
+  const [unreadCount, setUnreadCount]     = useState(0);
+  // Prevent server save from re-triggering on server-hydration
+  const serverHydrated = useRef(false);
 
-  // Sync mode from custom events (e.g. Admin changes it)
+  // ── Sync mode from custom events ──
   useEffect(() => {
     const handler = (e: Event) => {
       setPlatformModeState((e as CustomEvent<PlatformMode>).detail);
@@ -167,12 +185,41 @@ export function OSProvider({ children }: { children: React.ReactNode }) {
     return () => window.removeEventListener("cai:mode-change", handler);
   }, []);
 
+  // ── On mount: hydrate preferences from server (server wins over localStorage) ──
+  useEffect(() => {
+    fetch("/api/user/me", { credentials: "include" })
+      .then(r => r.ok ? r.json() : null)
+      .then(data => {
+        if (data?.preferences && typeof data.preferences === "object") {
+          const merged: PreferenceBrain = { ...DEFAULT_PREFERENCES, ...data.preferences };
+          setPreferences(merged);
+          savePrefsToLS(merged);
+        }
+        // Load unread notification count
+        return fetch("/api/notifications?limit=50", { credentials: "include" });
+      })
+      .then(r => r && r.ok ? r.json() : null)
+      .then(data => {
+        if (data?.notifications) {
+          const unread = (data.notifications as Array<{ readAt: string | null }>)
+            .filter(n => !n.readAt).length;
+          setUnreadCount(unread);
+        }
+        serverHydrated.current = true;
+      })
+      .catch(() => { serverHydrated.current = true; });
+  }, []);
+
   const openApp = useCallback((id: AppId) => {
     setHistory(prev => activeApp ? [...prev, activeApp] : prev);
     setActiveApp(id);
-    // Track recent activity
     const meta = APP_META[id];
     if (meta) PlatformStore.pushRecent({ appId: id, label: meta.label, icon: meta.icon });
+    // Clear badge when notifications opens
+    if (id === "notifications") {
+      setUnreadCount(0);
+      fetch("/api/notifications/read-all", { method: "PUT", credentials: "include" }).catch(() => {});
+    }
   }, [activeApp]);
 
   const closeApp = useCallback(() => {
@@ -195,7 +242,21 @@ export function OSProvider({ children }: { children: React.ReactNode }) {
   const routeIntent = useCallback((intent: string): AppId | null => routeIntentFn(intent), []);
 
   const updatePreferences = useCallback((patch: Partial<PreferenceBrain>) => {
-    setPreferences(prev => ({ ...prev, ...patch }));
+    setPreferences(prev => {
+      const next = { ...prev, ...patch };
+      // Persist to localStorage immediately
+      savePrefsToLS(next);
+      // Fire-and-forget to server (only after initial server hydration)
+      if (serverHydrated.current) {
+        fetch("/api/user/me", {
+          method: "PUT",
+          credentials: "include",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ preferences: next }),
+        }).catch(() => {});
+      }
+      return next;
+    });
   }, []);
 
   const registerApp = useCallback((app: AppDef) => {
@@ -210,6 +271,7 @@ export function OSProvider({ children }: { children: React.ReactNode }) {
   return (
     <OSContext.Provider value={{
       activeApp, sidebarCollapsed, history, appRegistry, preferences, platformMode,
+      unreadCount, setUnreadCount,
       openApp, closeApp, goBack, toggleSidebar, routeIntent,
       updatePreferences, registerApp, setPlatformMode,
     }}>

@@ -27,7 +27,7 @@ function groupApps(apps: AppDef[]): { category: string; apps: AppDef[] }[] {
 }
 
 export function Sidebar({ onNav, forceCollapsed, forceExpanded }: SidebarProps) {
-  const { activeApp, sidebarCollapsed, openApp, closeApp, toggleSidebar } = useOS();
+  const { activeApp, sidebarCollapsed, openApp, closeApp, toggleSidebar, unreadCount } = useOS();
 
   const collapsed = forceCollapsed ? true : forceExpanded ? false : sidebarCollapsed;
   const width = collapsed ? 64 : 224;
@@ -93,6 +93,7 @@ export function Sidebar({ onNav, forceCollapsed, forceExpanded }: SidebarProps) 
                   collapsed={collapsed}
                   onClick={() => handleNav(() => openApp(app.id as AppId))}
                   color={app.color}
+                  badge={app.id === "notifications" && unreadCount > 0 ? unreadCount : undefined}
                 />
               ))}
             </div>
@@ -119,8 +120,9 @@ export function Sidebar({ onNav, forceCollapsed, forceExpanded }: SidebarProps) 
   );
 }
 
-function SidebarItem({ icon, label, active, collapsed, onClick, color }: {
-  icon: string; label: string; active: boolean; collapsed: boolean; onClick: () => void; color?: string;
+function SidebarItem({ icon, label, active, collapsed, onClick, color, badge }: {
+  icon: string; label: string; active: boolean; collapsed: boolean;
+  onClick: () => void; color?: string; badge?: number;
 }) {
   const accentColor = color ?? "#6366f1";
 
@@ -146,11 +148,30 @@ function SidebarItem({ icon, label, active, collapsed, onClick, color }: {
         }
       }}
     >
-      <span className="text-base flex-shrink-0 w-5 text-center leading-none">{icon}</span>
+      {/* Icon with badge overlay */}
+      <span className="relative flex-shrink-0 w-5 text-center leading-none">
+        <span className="text-base">{icon}</span>
+        {badge !== undefined && badge > 0 && (
+          <span
+            className="absolute -top-1 -right-1.5 min-w-[14px] h-[14px] rounded-full flex items-center justify-center text-white font-bold"
+            style={{ fontSize: 9, background: "#ef4444", lineHeight: 1, padding: "0 3px" }}
+          >
+            {badge > 99 ? "99+" : badge}
+          </span>
+        )}
+      </span>
       {!collapsed && (
         <span className="truncate flex-1 text-left" style={{ letterSpacing: "-0.01em" }}>{label}</span>
       )}
-      {!collapsed && active && (
+      {!collapsed && badge !== undefined && badge > 0 && (
+        <span
+          className="flex-shrink-0 min-w-[18px] h-[18px] rounded-full flex items-center justify-center text-white font-bold"
+          style={{ fontSize: 10, background: "#ef4444", padding: "0 4px" }}
+        >
+          {badge > 99 ? "99+" : badge}
+        </span>
+      )}
+      {!collapsed && active && badge === undefined && (
         <span className="w-1 h-4 rounded-full flex-shrink-0"
           style={{ background: accentColor }} />
       )}

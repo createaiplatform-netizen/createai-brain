@@ -21,6 +21,8 @@ export const usersTable = pgTable("users", {
   profileImageUrl: varchar("profile_image_url"),
   ndaSigned: boolean("nda_signed").notNull().default(false),
   ndaSignedAt: timestamp("nda_signed_at", { withTimezone: true }),
+  // User preference brain — persisted per-user, synced from OSContext
+  preferences: jsonb("preferences"),
   createdAt: timestamp("created_at", { withTimezone: true }).notNull().defaultNow(),
   updatedAt: timestamp("updated_at", { withTimezone: true }).notNull().defaultNow().$onUpdate(() => new Date()),
 });

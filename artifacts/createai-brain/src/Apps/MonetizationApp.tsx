@@ -465,6 +465,9 @@ function PreferenceBrainPanel() {
   const INTERESTS_OPTIONS = ["Healthcare", "Marketing", "Operations", "Finance", "Construction", "Education", "Retail", "Technology", "Nonprofit"];
 
   const save = () => {
+    // updatePreferences is already called on each interaction (tone/language/style/interests).
+    // This button gives explicit confirmation and also forces a server sync via updatePreferences.
+    updatePreferences({});
     setSaved(true);
     setTimeout(() => setSaved(false), 2500);
   };
@@ -572,7 +575,7 @@ function PreferenceBrainPanel() {
 
         <button onClick={save}
           className="w-full bg-primary text-white text-sm font-semibold py-3 rounded-xl hover:opacity-90 transition-opacity">
-          {saved ? "✓ Preferences Saved (Session)" : "Save Preferences"}
+          {saved ? "✓ Preferences Saved" : "Save Preferences"}
         </button>
       </div>
     </div>
