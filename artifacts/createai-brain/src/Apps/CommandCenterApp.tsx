@@ -7,7 +7,7 @@ import {
   type OutboundMessage,
 } from "@/engine/FounderTier";
 
-type Tab = "command" | "status" | "protect" | "autowire";
+type Tab = "command" | "status" | "protect" | "autowire" | "system";
 
 interface CommandLog {
   id: string;
@@ -43,6 +43,87 @@ export function CommandCenterApp() {
   const inputRef = useRef<HTMLInputElement>(null);
   const logEndRef = useRef<HTMLDivElement>(null);
   const founder = loadFounderState();
+
+  // ── System Command Processor state ──────────────────────────────────────
+  interface SysLog {
+    id: string; ts: string; kind: "input" | "output" | "log" | "error" | "ok";
+    text: string;
+  }
+  const [sysInput, setSysInput]   = useState("");
+  const [sysLogs, setSysLogs]     = useState<SysLog[]>([
+    { id: "boot", ts: new Date().toISOString(), kind: "ok", text: "System Command Processor v1 — online. Founder Tier active. Type a command or 'help'." },
+  ]);
+  const [sysRunning, setSysRunning] = useState(false);
+  const [registryStats, setRegistryStats] = useState<{ total: number; active: number; integrated: number; protected: number } | null>(null);
+  const sysEndRef = useRef<HTMLDivElement>(null);
+
+  useEffect(() => { sysEndRef.current?.scrollIntoView({ behavior: "smooth" }); }, [sysLogs]);
+
+  // Fetch registry stats when System tab opens
+  useEffect(() => {
+    if (activeTab !== "system") return;
+    fetch("/api/system/health", { credentials: "include" })
+      .then(r => r.ok ? r.json() : null)
+      .then((d: { registrySize?: number; activeItems?: number } | null) => {
+        if (d) setRegistryStats({ total: d.registrySize ?? 0, active: d.activeItems ?? 0, integrated: d.activeItems ?? 0, protected: d.activeItems ?? 0 });
+      })
+      .catch(() => {});
+  }, [activeTab]);
+
+  function addSysLog(kind: SysLog["kind"], text: string) {
+    setSysLogs(prev => [...prev, { id: Date.now().toString() + Math.random(), ts: new Date().toISOString(), kind, text }]);
+  }
+
+  async function executeSysCmd(instruction: string) {
+    const trimmed = instruction.trim();
+    if (!trimmed) return;
+    setSysInput("");
+    setSysRunning(true);
+    addSysLog("input", `> ${trimmed}`);
+
+    try {
+      const res = await fetch("/api/system/command", {
+        method: "POST",
+        credentials: "include",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ instruction: trimmed }),
+      });
+      const data = await res.json() as {
+        ok?: boolean;
+        instruction?: string;
+        totalActions?: number;
+        results?: Array<{ action: string; status: string; message: string; logs: string[] }>;
+        error?: string;
+      };
+
+      if (!res.ok || data.error) {
+        addSysLog("error", `✗ Error: ${data.error ?? "Unknown error"}`);
+        return;
+      }
+
+      addSysLog("ok", `✓ Executed: "${data.instruction}" — ${data.totalActions ?? 0} action(s)`);
+
+      for (const result of data.results ?? []) {
+        const icon = result.status === "executed" ? "✓" : result.status === "rejected" ? "✗" : "~";
+        addSysLog(result.status === "rejected" ? "error" : "output", `${icon} [${result.action}] ${result.message}`);
+        for (const line of result.logs ?? []) {
+          addSysLog("log", line);
+        }
+      }
+
+      // Refresh registry stats after command
+      fetch("/api/system/health", { credentials: "include" })
+        .then(r => r.ok ? r.json() : null)
+        .then((d: { registrySize?: number; activeItems?: number } | null) => {
+          if (d) setRegistryStats({ total: d.registrySize ?? 0, active: d.activeItems ?? 0, integrated: d.activeItems ?? 0, protected: d.activeItems ?? 0 });
+        })
+        .catch(() => {});
+    } catch (err) {
+      addSysLog("error", `✗ Network error: ${String(err)}`);
+    } finally {
+      setSysRunning(false);
+    }
+  }
 
   useEffect(() => {
     logEndRef.current?.scrollIntoView({ behavior: "smooth" });
@@ -130,6 +211,7 @@ export function CommandCenterApp() {
     { id: "status",   label: "Systems",    icon: "🟢" },
     { id: "protect",  label: "Protection", icon: "🛡️" },
     { id: "autowire", label: "Auto-Wire",  icon: "🔗" },
+    { id: "system",   label: "Sys Cmd",    icon: "⚡" },
   ];
 
   return (
@@ -479,6 +561,125 @@ export function CommandCenterApp() {
               <p style={{ fontSize: 11, color: "#64748b", margin: 0, lineHeight: 1.5 }}>
                 Founder Tier grants unlimited project generation, multi-artifact creation, Brain expansion, engine creation, module depth, schema growth, and system-level capabilities — within legal and safety boundaries. No caps or restrictions apply to this account.
               </p>
+            </div>
+          </div>
+        )}
+
+        {/* ── System Command Processor Tab ── */}
+        {activeTab === "system" && (
+          <div style={{ display: "flex", flexDirection: "column", height: "100%", gap: 0 }}>
+
+            {/* Header bar */}
+            <div style={{ padding: "12px 16px", background: "rgba(99,102,241,0.07)", borderBottom: "1px solid rgba(99,102,241,0.15)", flexShrink: 0 }}>
+              <div style={{ display: "flex", alignItems: "center", gap: 10, flexWrap: "wrap" }}>
+                <span style={{ fontSize: 13, fontWeight: 700, color: "#a5b4fc" }}>⚡ System Command Processor</span>
+                <span style={{ fontSize: 9, padding: "2px 8px", background: "rgba(99,102,241,0.2)", border: "1px solid rgba(99,102,241,0.35)", borderRadius: 10, color: "#818cf8", fontWeight: 700, letterSpacing: "0.07em" }}>FOUNDER ONLY</span>
+                {registryStats && (
+                  <span style={{ fontSize: 9, marginLeft: "auto", color: "#64748b" }}>
+                    Registry: {registryStats.total} items · {registryStats.active} active
+                  </span>
+                )}
+              </div>
+              <p style={{ fontSize: 10, color: "#475569", margin: "4px 0 0" }}>
+                Natural language → internal platform action. Commands route through 9 handler types automatically.
+              </p>
+            </div>
+
+            {/* Quick command pills */}
+            <div style={{ padding: "10px 16px", background: "#0d1117", borderBottom: "1px solid rgba(255,255,255,0.05)", flexShrink: 0, overflowX: "auto" }}>
+              <div style={{ display: "flex", gap: 6, flexWrap: "nowrap" }}>
+                {[
+                  "help",
+                  "status",
+                  "activate all engines",
+                  "register new module Analytics",
+                  "protect all systems",
+                  "integrate all",
+                  "founder tier",
+                  "inherit ui rules",
+                  "update state",
+                ].map(cmd => (
+                  <button key={cmd} onClick={() => executeSysCmd(cmd)}
+                    style={{
+                      padding: "4px 10px", borderRadius: 6, border: "1px solid rgba(99,102,241,0.2)",
+                      background: "rgba(99,102,241,0.06)", color: "#818cf8", fontSize: 10, fontWeight: 600,
+                      cursor: "pointer", whiteSpace: "nowrap", flexShrink: 0, fontFamily: "inherit",
+                    }}>
+                    {cmd}
+                  </button>
+                ))}
+              </div>
+            </div>
+
+            {/* Terminal output */}
+            <div style={{
+              flex: 1, overflowY: "auto", padding: "12px 16px", fontFamily: "monospace",
+              background: "#060a14", display: "flex", flexDirection: "column", gap: 3,
+              fontSize: 11, lineHeight: 1.6,
+            }}>
+              {sysLogs.map(log => {
+                const color = log.kind === "input" ? "#7dd3fc"
+                  : log.kind === "ok" ? "#86efac"
+                  : log.kind === "error" ? "#fca5a5"
+                  : log.kind === "output" ? "#c4b5fd"
+                  : "#64748b";
+                return (
+                  <div key={log.id} style={{ color, display: "flex", gap: 8, alignItems: "flex-start" }}>
+                    <span style={{ color: "#374151", flexShrink: 0, fontSize: 9, paddingTop: 2 }}>
+                      {new Date(log.ts).toLocaleTimeString("en-US", { hour12: false, hour: "2-digit", minute: "2-digit", second: "2-digit" })}
+                    </span>
+                    <span style={{ wordBreak: "break-word", flex: 1 }}>{log.text}</span>
+                  </div>
+                );
+              })}
+              {sysRunning && (
+                <div style={{ color: "#f59e0b", display: "flex", gap: 8, alignItems: "center" }}>
+                  <span style={{ color: "#374151", fontSize: 9 }}>
+                    {new Date().toLocaleTimeString("en-US", { hour12: false, hour: "2-digit", minute: "2-digit", second: "2-digit" })}
+                  </span>
+                  <span>Processing…</span>
+                  <span style={{ animation: "bounce 1s infinite" }}>⟳</span>
+                </div>
+              )}
+              <div ref={sysEndRef} />
+            </div>
+
+            {/* Input bar */}
+            <div style={{
+              padding: "10px 16px", background: "#0d1117", borderTop: "1px solid rgba(255,255,255,0.06)",
+              display: "flex", gap: 8, flexShrink: 0,
+            }}>
+              <input
+                value={sysInput}
+                onChange={e => setSysInput(e.target.value)}
+                onKeyDown={e => { if (e.key === "Enter" && !sysRunning) executeSysCmd(sysInput); }}
+                placeholder="enter system command… (try 'help' or 'activate all engines')"
+                disabled={sysRunning}
+                style={{
+                  flex: 1, background: "rgba(255,255,255,0.04)", border: "1px solid rgba(99,102,241,0.25)",
+                  borderRadius: 8, padding: "8px 12px", color: "#e2e8f0", fontSize: 12, fontFamily: "monospace",
+                  outline: "none", minWidth: 0,
+                }}
+              />
+              <button
+                onClick={() => executeSysCmd(sysInput)}
+                disabled={sysRunning || !sysInput.trim()}
+                style={{
+                  padding: "8px 14px", borderRadius: 8, background: sysRunning ? "rgba(99,102,241,0.2)" : "#6366f1",
+                  border: "none", color: "#fff", fontWeight: 700, fontSize: 12, cursor: sysRunning ? "not-allowed" : "pointer",
+                  flexShrink: 0, fontFamily: "inherit",
+                }}>
+                {sysRunning ? "…" : "▶"}
+              </button>
+              <button
+                onClick={() => setSysLogs([{ id: "clear", ts: new Date().toISOString(), kind: "ok", text: "Terminal cleared." }])}
+                style={{
+                  padding: "8px 10px", borderRadius: 8, background: "transparent",
+                  border: "1px solid rgba(255,255,255,0.08)", color: "#475569", fontSize: 11,
+                  cursor: "pointer", flexShrink: 0, fontFamily: "inherit",
+                }}>
+                ⌫
+              </button>
             </div>
           </div>
         )}

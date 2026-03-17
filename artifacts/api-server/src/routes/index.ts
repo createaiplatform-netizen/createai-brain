@@ -2,6 +2,7 @@ import { Router, type IRouter } from "express";
 import adminRouter     from "./admin";
 import webhooksRouter  from "./webhooks";
 import ssoRouter       from "./sso";
+import systemRouter    from "./system";
 import healthRouter from "./health";
 import authRouter from "./auth";
 import openaiRouter from "./openai";
@@ -88,5 +89,8 @@ router.use("/staffing",           staffingRouter);
 router.use("/admin",              adminRouter);
 router.use("/webhooks",           webhooksRouter);
 router.use("/auth/sso",           ssoRouter);
+
+// ── System Command Processor ─────────────────────────────────────────────────
+router.use("/system",             systemRouter);
 
 export default router;
