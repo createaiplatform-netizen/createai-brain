@@ -9,7 +9,6 @@ import NotFound from "@/pages/not-found";
 import StandalonePage from "@/pages/StandalonePage";
 import CreationPage from "@/pages/CreationPage";
 import ProjectPage from "@/pages/ProjectPage";
-import MetricsPage from "@/pages/MetricsPage";
 
 import { OSProvider } from "@/os/OSContext";
 import { OSLayout } from "@/os/osLayout";
@@ -28,7 +27,7 @@ function Router() {
   return (
     <Switch>
       <Route path="/" component={OSLayout} />
-      <Route path="/metrics" component={MetricsPage} />
+      <Route path="/metrics" component={OSLayout} />
       <Route path="/project/:projectId" component={ProjectPage} />
       <Route path="/standalone/creation/:creationId" component={CreationPage} />
       <Route path="/standalone/:projectId" component={StandalonePage} />

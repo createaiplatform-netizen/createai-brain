@@ -1,7 +1,9 @@
 import React, { useState, useEffect } from "react";
+import { useLocation } from "wouter";
 import { useOS } from "./OSContext";
 import { useMediaQuery } from "@/hooks/use-media-query";
 import { Sidebar } from "./Sidebar";
+import MetricsPage from "@/pages/MetricsPage";
 import { Dashboard } from "./Dashboard";
 import { AppWindow } from "./AppWindow";
 import { ChatApp } from "@/Apps/ChatApp";
@@ -58,8 +60,11 @@ const APP_COMPONENTS: Record<string, React.ComponentType> = {
  */
 export function OSLayout() {
   const { activeApp, openApp } = useOS();
+  const [location, setLocation] = useLocation();
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
   const [tourOpen, setTourOpen] = useState(false);
+
+  const isMetrics = location === "/metrics";
 
   // Breakpoints
   const isMediumPlus = useMediaQuery("(min-width: 768px)");   // tablet+
@@ -117,7 +122,56 @@ export function OSLayout() {
 
       {/* ── Main area ── */}
       <div className="flex-1 flex flex-col overflow-hidden min-w-0">
-        {activeApp && ActiveComponent ? (
+        {isMetrics ? (
+          <div className="flex-1 flex flex-col overflow-hidden min-w-0 animate-fade-up" style={{ animationDuration: "0.32s" }}>
+            {/* Top bar — matches AppWindow exactly */}
+            <header className="flex items-center h-14 px-4 gap-3 flex-shrink-0 z-10 glass-topbar">
+              {showHamburger && (
+                <button
+                  onClick={() => setMobileMenuOpen(true)}
+                  aria-label="Open navigation"
+                  className="w-8 h-8 flex flex-col items-center justify-center gap-[5px] rounded-xl transition-all duration-150 flex-shrink-0"
+                  style={{ color: "#6b7280" }}
+                  onMouseEnter={e => ((e.currentTarget as HTMLElement).style.background = "rgba(0,0,0,0.05)")}
+                  onMouseLeave={e => ((e.currentTarget as HTMLElement).style.background = "transparent")}
+                >
+                  <span className="w-4 h-[1.5px] rounded-full block" style={{ background: "#6b7280" }} />
+                  <span className="w-4 h-[1.5px] rounded-full block" style={{ background: "#6b7280" }} />
+                  <span className="w-4 h-[1.5px] rounded-full block" style={{ background: "#6b7280" }} />
+                </button>
+              )}
+              <button
+                onClick={() => setLocation("/")}
+                className="flex items-center gap-1 text-sm font-medium transition-opacity duration-150 flex-shrink-0 hover:opacity-70"
+                style={{ color: "#6366f1" }}
+              >
+                <span className="text-[18px] leading-none font-light">‹</span>
+                <span className="hidden sm:inline text-[13px]" style={{ letterSpacing: "-0.01em" }}>Home</span>
+              </button>
+              <div className="h-4 w-px flex-shrink-0" style={{ background: "rgba(0,0,0,0.10)" }} />
+              <div className="flex-1 flex items-center gap-2 min-w-0">
+                <span className="text-base leading-none">📊</span>
+                <h1 className="font-semibold text-[15px] truncate" style={{ color: "#0f172a", letterSpacing: "-0.02em" }}>
+                  Metrics
+                </h1>
+              </div>
+            </header>
+            {/* Breadcrumb — matches AppWindow exactly */}
+            <div
+              className="flex items-center gap-1.5 px-4 h-7 flex-shrink-0"
+              style={{ background: "rgba(99,102,241,0.04)", borderBottom: "1px solid rgba(99,102,241,0.08)" }}
+            >
+              <span className="text-[10px]" style={{ color: "#94a3b8" }}>CreateAI Brain</span>
+              <span className="text-[9px]" style={{ color: "#c7d2fe" }}>›</span>
+              <span className="text-[10px]" style={{ color: "#c7d2fe" }}>📊</span>
+              <span className="text-[10px] font-medium" style={{ color: "#6366f1" }}>Metrics</span>
+            </div>
+            {/* Scrollable content */}
+            <div className="flex-1 overflow-y-auto overscroll-contain" style={{ background: "hsl(220,20%,97%)" }}>
+              <MetricsPage />
+            </div>
+          </div>
+        ) : activeApp && ActiveComponent ? (
           <AppWindow onHamburger={showHamburger ? () => setMobileMenuOpen(true) : undefined}>
             <ActiveComponent />
           </AppWindow>
