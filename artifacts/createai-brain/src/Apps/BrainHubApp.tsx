@@ -90,6 +90,28 @@ const ENGINE_HINTS: Record<string, { placeholder: string; example: string }> = {
   LoreKeeperEngine:          { placeholder: "What lore keeper or knowledge institution should I create?", example: "e.g. An order of blind historians who memorize entire libraries after the Great Burning" },
   CosmologyEngine:           { placeholder: "What cosmology or universe structure should I design?", example: "e.g. A universe where the afterlife is a vast library and every book is someone's unlived life" },
   EraEngine:                 { placeholder: "What historical era should I design?", example: "e.g. The Age of Hollow Crowns — when every ruler was secretly controlled by the same ancient council" },
+
+  // ── Maximum-Capacity Engines (v3 Expansion) ────────────────────────────────
+  DeliverableEngine:         { placeholder: "What product or initiative needs a complete Demo/Test/Live deliverable package?", example: "e.g. A healthcare scheduling SaaS for home health agencies — build the full Demo, Test, and Live packages" },
+  AutomationEngine:          { placeholder: "What business process needs a complete automation system?", example: "e.g. Patient intake-to-invoice automation for a home health agency with Salesforce, EHR, and billing" },
+  ProductionEngine:          { placeholder: "What system needs a full production-readiness plan?", example: "e.g. Our healthcare SaaS launching in 60 days — full production checklist, deployment strategy, and runbook" },
+  ComplianceAuditEngine:     { placeholder: "What system or product needs a deep compliance audit?", example: "e.g. A telehealth platform — HIPAA, GDPR, and SOC2 audit with gap report and remediation roadmap" },
+  SecurityEngine:            { placeholder: "What system needs a complete security architecture and threat model?", example: "e.g. A multi-tenant SaaS handling PHI — STRIDE threat model, authentication design, and OWASP Top 10 coverage" },
+  ScalingEngine:             { placeholder: "What system needs a scaling architecture from zero to millions of users?", example: "e.g. Our scheduling platform hitting 10K concurrent users — database, API, and infrastructure scaling plan" },
+  MonetizationEngine:        { placeholder: "What product needs a complete revenue architecture?", example: "e.g. A B2B SaaS for construction project managers — 3-tier pricing, subscription logic, and 12-month revenue forecast" },
+  LaunchEngine:              { placeholder: "What product or initiative needs a complete go-to-market launch system?", example: "e.g. Launching a staffing OS platform for home health agencies in Q2 — 90-day plan, press kit, and day-1 playbook" },
+  GrowthEngine:              { placeholder: "What product or platform needs a data-driven growth system?", example: "e.g. Our SaaS with 500 users — acquisition channels, activation flow, referral program, and 10 growth experiments" },
+  RetentionEngine:           { placeholder: "What product needs a complete user retention architecture?", example: "e.g. A project management tool with 15% monthly churn — churn analysis, engagement loops, and save flow" },
+  AnalyticsEngine:           { placeholder: "What product or platform needs a complete analytics system?", example: "e.g. A healthcare SaaS — event taxonomy, funnel design, 3 dashboards, and A/B testing framework" },
+  APIDesignEngine:           { placeholder: "What system or feature needs a complete REST API specification?", example: "e.g. A multi-tenant scheduling API with authentication, RBAC, webhooks, and OpenAPI spec for 20 endpoints" },
+  UIUXEngine:                { placeholder: "What product or feature needs a complete UI/UX design system?", example: "e.g. A mobile-first home health agency dashboard — design principles, component library, and key screen wireframes" },
+  AccessibilityEngine:       { placeholder: "What product needs a WCAG 2.2 AA accessibility audit and implementation spec?", example: "e.g. Our scheduling web app — 50-point WCAG audit, keyboard navigation map, and ADA compliance statement" },
+  DevOpsEngine:              { placeholder: "What system needs a complete DevOps pipeline and infrastructure design?", example: "e.g. A SaaS platform with 3 environments — CI/CD pipeline, container architecture, monitoring, and SLO framework" },
+  MobileEngine:              { placeholder: "What product needs a complete mobile app specification for iOS and Android?", example: "e.g. A home health aide scheduling app — screen inventory, offline mode, push notifications, and App Store readiness" },
+  PartnershipEngine:         { placeholder: "What product or business needs a strategic partnership program?", example: "e.g. A healthcare SaaS — partner landscape, top 10 targets, outreach sequences, and co-marketing plan" },
+  ContentStrategyEngine:     { placeholder: "What brand or product needs a complete content strategy?", example: "e.g. A B2B SaaS for construction — content mission, 3 pillars, 90-day calendar, and SEO keyword strategy" },
+  SEOEngine:                 { placeholder: "What website or product needs a complete SEO strategy and technical audit?", example: "e.g. A healthcare scheduling platform — 30-keyword strategy, content gap analysis, and Core Web Vitals audit" },
+  PerformanceEngine:         { placeholder: "What system needs a complete performance optimization plan?", example: "e.g. Our React + Node SaaS — frontend bundle optimization, N+1 query elimination, and load testing plan" },
 };
 
 // ─── Status Dot ─────────────────────────────────────────────────────────────────

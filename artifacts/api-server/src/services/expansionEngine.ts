@@ -7,14 +7,15 @@
  * Pipeline:
  *   idea → generatePaths() → evaluatePaths() → filterViable()
  *        → executePaths() → chainCross() → autoOptimize() → autoProtect()
- *        → reExpansionScan() [up to 5 iterations]
+ *        → reExpansionScan() [up to 7 iterations]
  *        → persistRun() → ExpansionSummary
  *
- * v2 changes over v1:
- *   • 13 expansion paths (was 8) — added compliance, analytics, notification,
- *     search, and orchestration layers
- *   • MAX_ITERATIONS raised 3 → 5
- *   • No conservative defaults, no early-stopping, no artificial ceilings
+ * v3 changes over v2 (Maximum-Capacity Ceiling Rule applied):
+ *   • 20 expansion paths (was 13) — added security, devops, mobile,
+ *     monetization, launch, content, and accessibility layers
+ *   • MAX_ITERATIONS raised 5 → 7 — absolute maximum, no ceiling
+ *   • powerByLayer expanded to 20 layers (was 13)
+ *   • Full safety/legal/compliance scores maintained on all new layers
  *   • Cross-path dependency chaining: later iterations inherit prior outputs
  *   • Every run is persisted to the `expansion_runs` DB table
  *   • getExpansionHistory() for retrieval
@@ -115,7 +116,7 @@ export interface ExpansionHistoryRow {
 // ─── Constants ────────────────────────────────────────────────────────────────
 
 const VIABILITY_THRESHOLD = 70;
-const MAX_ITERATIONS      = 5;   // v2: raised from 3 — no artificial ceiling
+const MAX_ITERATIONS      = 7;   // v3: raised from 5 — absolute maximum, no ceiling
 
 const STANDARD_PROTECTIONS = [
   "founder-only",
@@ -170,7 +171,7 @@ function scorePath(layer: string, label: string, idea: string): {
   for (const term of legalRisk)      { if (combined.includes(term)) legal      -= 45; }
   for (const term of complianceRisk) { if (combined.includes(term)) compliance -= 45; }
 
-  // v2: expanded power table with 13 layers
+  // v3: expanded power table with 20 layers
   const powerByLayer: Record<string, number> = {
     orchestration: 98,
     engine:        95,
@@ -185,6 +186,13 @@ function scorePath(layer: string, label: string, idea: string): {
     ui:            80,
     data:          78,
     protection:    76,
+    security:      94,
+    devops:        90,
+    mobile:        84,
+    monetization:  88,
+    launch:        87,
+    content:       79,
+    accessibility: 77,
   };
 
   const power = powerByLayer[layer] ?? 75;
@@ -440,6 +448,132 @@ function generatePaths(idea: string, priorIds: string[] = []): ExpansionPath[] {
       ],
       registryIds: [`exp-protection-${ideaSlug}`],
       dependsOn: [`exp-compliance-${ideaSlug}`, `exp-data-${ideaSlug}`],
+    },
+    // ── 14. Security (threat model + hardening)
+    {
+      id:    `exp-security-${ideaSlug}`,
+      layer: "security",
+      label: `${ideaShort} — Security Architecture & Threat Model`,
+      description: `Full security architecture for "${idea}": threat modeling (STRIDE), authentication hardening, encryption-at-rest/in-transit, secret management, and penetration test spec.`,
+      steps: [
+        `Run STRIDE threat model for: ${idea}`,
+        `Define authentication: MFA, session expiry, token rotation`,
+        `Apply TLS 1.3 for all transport; AES-256 for data-at-rest`,
+        `Integrate secret management (env-scoped, rotated, audited)`,
+        `Generate penetration test checklist (OWASP Top 10)`,
+        `Register security controls in Compliance Engine`,
+        `Wire security events to Notification and Analytics layers`,
+      ],
+      registryIds: [`exp-security-${ideaSlug}`],
+      dependsOn: [`exp-protection-${ideaSlug}`, `exp-api-${ideaSlug}`],
+    },
+    // ── 15. DevOps (CI/CD + infrastructure)
+    {
+      id:    `exp-devops-${ideaSlug}`,
+      layer: "devops",
+      label: `${ideaShort} — DevOps Pipeline & Infrastructure`,
+      description: `A complete DevOps pipeline for "${idea}": CI/CD automation, container orchestration, blue-green deploys, monitoring, alerting, and infrastructure-as-code.`,
+      steps: [
+        `Design CI/CD pipeline: lint → test → build → deploy → verify`,
+        `Configure container spec (Dockerfile + compose)`,
+        `Set up blue-green deployment with automatic rollback`,
+        `Instrument health checks and uptime monitoring`,
+        `Define SLOs: 99.9% uptime, p95 < 300ms`,
+        `Wire deployment events to Notification Layer`,
+        `Generate infrastructure-as-code manifest`,
+      ],
+      registryIds: [`exp-devops-${ideaSlug}`],
+      dependsOn: [`exp-api-${ideaSlug}`, `exp-security-${ideaSlug}`],
+    },
+    // ── 16. Mobile (native app layer)
+    {
+      id:    `exp-mobile-${ideaSlug}`,
+      layer: "mobile",
+      label: `${ideaShort} — Mobile Platform Layer`,
+      description: `Native mobile app specification for "${idea}" targeting iOS and Android with Expo/React Native: screens, navigation, offline mode, push notifications, and App Store readiness.`,
+      steps: [
+        `Define mobile screen architecture and navigation tree`,
+        `Specify offline-first data sync with conflict resolution`,
+        `Configure push notification channels and payloads`,
+        `Apply accessibility: Dynamic Type, VoiceOver, contrast ratios`,
+        `Generate App Store listing copy + screenshots spec`,
+        `Wire mobile telemetry to Analytics Layer`,
+        `Register mobile build in DevOps pipeline`,
+      ],
+      registryIds: [`exp-mobile-${ideaSlug}`],
+      dependsOn: [`exp-ui-${ideaSlug}`, `exp-api-${ideaSlug}`],
+    },
+    // ── 17. Monetization (revenue architecture)
+    {
+      id:    `exp-monetization-${ideaSlug}`,
+      layer: "monetization",
+      label: `${ideaShort} — Revenue Architecture & Monetization Layer`,
+      description: `Complete monetization architecture for "${idea}": pricing tiers, billing integration, subscription logic, free-trial flows, upsell triggers, and revenue analytics.`,
+      steps: [
+        `Design pricing tiers: free, pro, enterprise`,
+        `Build subscription lifecycle: trial → activate → renew → cancel`,
+        `Configure usage-based billing triggers`,
+        `Define upsell and cross-sell logic`,
+        `Generate revenue forecast model (12-month)`,
+        `Wire billing events to Analytics and Notification layers`,
+        `Integrate payment gateway spec (Stripe-compatible)`,
+      ],
+      registryIds: [`exp-monetization-${ideaSlug}`],
+      dependsOn: [`exp-api-${ideaSlug}`, `exp-analytics-${ideaSlug}`],
+    },
+    // ── 18. Launch (go-to-market engine)
+    {
+      id:    `exp-launch-${ideaSlug}`,
+      layer: "launch",
+      label: `${ideaShort} — Launch & Go-To-Market Engine`,
+      description: `A complete go-to-market launch system for "${idea}": positioning, launch timeline, press kit, social strategy, email sequences, influencer outreach, and day-1 playbook.`,
+      steps: [
+        `Define launch positioning: who it's for, why it matters, what it replaces`,
+        `Build 90-day launch timeline with milestones`,
+        `Generate press kit: one-pager, quote, media assets list`,
+        `Write launch email sequence (5 emails, 0 → 30 days)`,
+        `Design social strategy: platform, cadence, formats`,
+        `Define influencer/partner outreach targets`,
+        `Wire launch events to Analytics Layer for day-1 tracking`,
+      ],
+      registryIds: [`exp-launch-${ideaSlug}`],
+      dependsOn: [`exp-analytics-${ideaSlug}`, `exp-monetization-${ideaSlug}`],
+    },
+    // ── 19. Content (content strategy layer)
+    {
+      id:    `exp-content-${ideaSlug}`,
+      layer: "content",
+      label: `${ideaShort} — Content Strategy & SEO Layer`,
+      description: `Full content strategy for "${idea}": editorial calendar, SEO keyword map, pillar content, social formats, video scripts, and distribution playbook.`,
+      steps: [
+        `Research top 20 SEO keywords for: ${idea}`,
+        `Design 3-pillar content architecture`,
+        `Build 90-day editorial calendar`,
+        `Generate hero content briefs (blog, video, podcast)`,
+        `Define content distribution: channels, cadence, formats`,
+        `Wire content performance to Analytics Layer`,
+        `Integrate content workflow with BrainGen engine`,
+      ],
+      registryIds: [`exp-content-${ideaSlug}`],
+      dependsOn: [`exp-analytics-${ideaSlug}`, `exp-launch-${ideaSlug}`],
+    },
+    // ── 20. Accessibility (ADA/WCAG compliance layer)
+    {
+      id:    `exp-accessibility-${ideaSlug}`,
+      layer: "accessibility",
+      label: `${ideaShort} — Accessibility & Inclusive Design Layer`,
+      description: `Full WCAG 2.2 AA accessibility implementation for "${idea}": keyboard navigation, screen reader support, color contrast, ARIA labeling, alt text, and ADA compliance audit.`,
+      steps: [
+        `Audit color contrast ratios (WCAG AA: 4.5:1 minimum)`,
+        `Apply ARIA labels and landmark roles to all UI components`,
+        `Ensure full keyboard navigation with visible focus indicators`,
+        `Add alt text spec for all images and icons`,
+        `Test with screen reader simulation (VoiceOver / NVDA)`,
+        `Generate ADA compliance checklist and gap report`,
+        `Register accessibility status in Compliance Engine`,
+      ],
+      registryIds: [`exp-accessibility-${ideaSlug}`],
+      dependsOn: [`exp-ui-${ideaSlug}`, `exp-compliance-${ideaSlug}`],
     },
   ];
 
