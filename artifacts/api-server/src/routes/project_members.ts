@@ -14,7 +14,7 @@ router.get("/:projectId/members", async (req: Request, res: Response) => {
   const userId = requireAuth(req, res);
   if (!userId) return;
   try {
-    const { projectId } = req.params;
+    const projectId = req.params.projectId as string;
     const [project] = await db.select().from(projects).where(eq(projects.id, parseInt(projectId, 10)));
     if (!project || project.userId !== userId) { res.status(404).json({ error: "Project not found" }); return; }
     const rows = await db.select().from(projectMembers).where(eq(projectMembers.projectId, projectId));
@@ -30,7 +30,7 @@ router.post("/:projectId/members", async (req: Request, res: Response) => {
   const userId = requireAuth(req, res);
   if (!userId) return;
   try {
-    const { projectId } = req.params;
+    const projectId = req.params.projectId as string;
     const [project] = await db.select().from(projects).where(eq(projects.id, parseInt(projectId, 10)));
     if (!project || project.userId !== userId) { res.status(404).json({ error: "Project not found" }); return; }
     const { memberId, role = "viewer" } = req.body as { memberId: string; role?: string };
@@ -54,7 +54,8 @@ router.put("/:projectId/members/:memberId", async (req: Request, res: Response) 
   const userId = requireAuth(req, res);
   if (!userId) return;
   try {
-    const { projectId, memberId } = req.params;
+    const projectId = req.params.projectId as string;
+    const memberId  = req.params.memberId  as string;
     const [project] = await db.select().from(projects).where(eq(projects.id, parseInt(projectId, 10)));
     if (!project || project.userId !== userId) { res.status(404).json({ error: "Project not found" }); return; }
     const { role } = req.body as { role: string };
@@ -73,7 +74,8 @@ router.delete("/:projectId/members/:memberId", async (req: Request, res: Respons
   const userId = requireAuth(req, res);
   if (!userId) return;
   try {
-    const { projectId, memberId } = req.params;
+    const projectId = req.params.projectId as string;
+    const memberId  = req.params.memberId  as string;
     const [project] = await db.select().from(projects).where(eq(projects.id, parseInt(projectId, 10)));
     if (!project || project.userId !== userId) { res.status(404).json({ error: "Project not found" }); return; }
     await db.delete(projectMembers)

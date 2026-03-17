@@ -28,7 +28,7 @@ function requireAuth(req: Request, res: Response): boolean {
 router.get("/:projectId/history", async (req: Request, res: Response) => {
   if (!requireAuth(req, res)) return;
   try {
-    const projectId = parseInt(req.params.projectId, 10);
+    const projectId = parseInt(req.params.projectId as string, 10);
     const msgs = await db
       .select()
       .from(projectChatMessages)
@@ -54,7 +54,7 @@ router.get("/:projectId/history", async (req: Request, res: Response) => {
 
 router.post("/:projectId/chat", async (req: Request, res: Response) => {
   if (!requireAuth(req, res)) return;
-  const projectId = parseInt(req.params.projectId, 10);
+  const projectId = parseInt(req.params.projectId as string, 10);
 
   try {
     const { message, history = [] } = req.body as {
@@ -134,7 +134,7 @@ router.post("/:projectId/chat", async (req: Request, res: Response) => {
 router.delete("/:projectId/history", async (req: Request, res: Response) => {
   if (!requireAuth(req, res)) return;
   try {
-    const projectId = parseInt(req.params.projectId, 10);
+    const projectId = parseInt(req.params.projectId as string, 10);
     await db.delete(projectChatMessages).where(eq(projectChatMessages.projectId, projectId));
     res.json({ success: true });
   } catch (err) {

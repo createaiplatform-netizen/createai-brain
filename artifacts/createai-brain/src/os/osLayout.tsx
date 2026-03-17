@@ -167,7 +167,10 @@ export function OSLayout() {
               <span className="text-[10px] font-medium" style={{ color: "#6366f1" }}>Metrics</span>
             </div>
             {/* Scrollable content */}
-            <div className="flex-1 overflow-y-auto overscroll-contain" style={{ background: "hsl(220,20%,97%)" }}>
+            <div
+              className="flex-1 overflow-y-auto"
+              style={{ background: "hsl(220,20%,97%)", overscrollBehavior: "contain" }}
+            >
               <MetricsPage />
             </div>
           </div>

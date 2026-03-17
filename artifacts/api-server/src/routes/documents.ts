@@ -74,7 +74,7 @@ router.get("/:id", async (req: Request, res: Response) => {
   const userId = requireAuth(req, res);
   if (!userId) return;
   try {
-    const id = parseInt(req.params.id, 10);
+    const id = parseInt(req.params.id as string, 10);
     const [row] = await db.select().from(documents)
       .where(and(eq(documents.id, id), eq(documents.userId, userId)));
     if (!row) { res.status(404).json({ error: "Document not found" }); return; }
@@ -90,7 +90,7 @@ router.put("/:id", async (req: Request, res: Response) => {
   const userId = requireAuth(req, res);
   if (!userId) return;
   try {
-    const id = parseInt(req.params.id, 10);
+    const id = parseInt(req.params.id as string, 10);
     const [existing] = await db.select().from(documents)
       .where(and(eq(documents.id, id), eq(documents.userId, userId)));
     if (!existing) { res.status(404).json({ error: "Document not found" }); return; }
@@ -121,7 +121,7 @@ router.delete("/:id", async (req: Request, res: Response) => {
   const userId = requireAuth(req, res);
   if (!userId) return;
   try {
-    const id = parseInt(req.params.id, 10);
+    const id = parseInt(req.params.id as string, 10);
     const [existing] = await db.select().from(documents)
       .where(and(eq(documents.id, id), eq(documents.userId, userId)));
     if (!existing) { res.status(404).json({ error: "Document not found" }); return; }

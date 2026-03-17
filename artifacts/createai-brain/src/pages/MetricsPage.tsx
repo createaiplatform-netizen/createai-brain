@@ -1,4 +1,4 @@
-import React, { useEffect, useRef, useState } from "react";
+import React, { memo, useCallback, useEffect, useMemo, useRef, useState } from "react";
 
 // ─── Types ─────────────────────────────────────────────────────────────────
 
@@ -46,7 +46,7 @@ interface CurvesResponse {
   monthly: MonthlyPoint[];
 }
 
-// ─── Fetch helpers ──────────────────────────────────────────────────────────
+// ─── Fetch helpers (module-level — stable, never recreated) ─────────────────
 
 async function fetchSummary(): Promise<SummaryResponse> {
   const res = await fetch("/api/metrics/summary", { credentials: "include" });
@@ -70,8 +70,7 @@ const TEXT_SUB  = "#64748b";
 const TEXT_DIM  = "#94a3b8";
 const ACCENT    = "#6366f1";
 
-// ─── CSS keyframes injected once ────────────────────────────────────────────
-// Matches the app's animate-fade-up pattern.
+// ─── CSS keyframes — injected once, never again ─────────────────────────────
 
 const STYLE_ID = "metrics-page-styles";
 
@@ -103,13 +102,15 @@ function ensureStyles() {
       animation: metrics-shimmer 1.4s infinite linear;
       border-radius: 6px;
     }
-    .metrics-row:hover td { background: rgba(99,102,241,0.03); }
-    .metrics-badge:hover  { background: rgba(99,102,241,0.10) !important; border-color: rgba(99,102,241,0.30) !important; }
+    .metrics-badge:hover {
+      background-color: rgba(99,102,241,0.10) !important;
+      border-color: rgba(99,102,241,0.30) !important;
+    }
   `;
   document.head.appendChild(el);
 }
 
-// ─── Helpers ────────────────────────────────────────────────────────────────
+// ─── Helpers (module-level — pure, stable) ──────────────────────────────────
 
 function fmt(s: string) {
   return s.replace(/_/g, " ").replace(/\b\w/g, (c) => c.toUpperCase());
@@ -121,18 +122,18 @@ function fmtDate(iso: string) {
   });
 }
 
-// ─── Skeleton loader ─────────────────────────────────────────────────────────
+// ─── Memoized sub-components ─────────────────────────────────────────────────
 
-function SkeletonRect({ w, h }: { w: string | number; h: number }) {
+const SkeletonRect = memo(function SkeletonRect({ w, h }: { w: string | number; h: number }) {
   return (
     <div
       className="metrics-skeleton"
       style={{ width: w, height: h, display: "inline-block" }}
     />
   );
-}
+});
 
-function SkeletonCard({ rows = 3 }: { rows?: number }) {
+const SkeletonCard = memo(function SkeletonCard({ rows = 3 }: { rows?: number }) {
   return (
     <div style={{
       background: CARD_BG, border: BORDER, borderRadius: 14,
@@ -150,11 +151,9 @@ function SkeletonCard({ rows = 3 }: { rows?: number }) {
       </div>
     </div>
   );
-}
+});
 
-// ─── Empty state ─────────────────────────────────────────────────────────────
-
-function EmptyState({ message }: { message: string }) {
+const EmptyState = memo(function EmptyState({ message }: { message: string }) {
   return (
     <div style={{
       display: "flex", flexDirection: "column", alignItems: "center",
@@ -166,11 +165,9 @@ function EmptyState({ message }: { message: string }) {
       </p>
     </div>
   );
-}
+});
 
-// ─── Sub-components ─────────────────────────────────────────────────────────
-
-function Bar({ value, max }: { value: number; max: number }) {
+const Bar = memo(function Bar({ value, max }: { value: number; max: number }) {
   const pct = max > 0 ? Math.round((value / max) * 100) : 0;
   return (
     <div style={{ display: "flex", alignItems: "center", gap: 8 }}>
@@ -188,9 +185,13 @@ function Bar({ value, max }: { value: number; max: number }) {
       </span>
     </div>
   );
-}
+});
 
-function SectionCard({ title, children }: { title: string; children: React.ReactNode }) {
+const SectionCard = memo(function SectionCard({
+  title, children,
+}: {
+  title: string; children: React.ReactNode;
+}) {
   return (
     <div
       className="metrics-section"
@@ -208,30 +209,29 @@ function SectionCard({ title, children }: { title: string; children: React.React
       {children}
     </div>
   );
-}
+});
 
-function TotalBadge({ label, value }: { label: string; value: number }) {
+const TotalBadge = memo(function TotalBadge({ label, value }: { label: string; value: number }) {
   return (
     <div
       className="metrics-badge"
       style={{
         background: `${ACCENT}0d`, border: `1px solid ${ACCENT}22`,
         borderRadius: 12, padding: "16px 20px", textAlign: "center",
-        flex: 1, minWidth: 100, transition: "background 0.15s ease, border-color 0.15s ease",
+        flex: 1, minWidth: 100,
+        transition: "background-color 0.15s ease, border-color 0.15s ease",
         cursor: "default",
       }}
     >
-      <div style={{
-        fontSize: 28, fontWeight: 700, color: ACCENT, letterSpacing: "-0.02em",
-      }}>
+      <div style={{ fontSize: 28, fontWeight: 700, color: ACCENT, letterSpacing: "-0.02em" }}>
         {value}
       </div>
       <div style={{ fontSize: 12, color: TEXT_SUB, marginTop: 4 }}>{label}</div>
     </div>
   );
-}
+});
 
-function THead({ cols }: { cols: string[] }) {
+const THead = memo(function THead({ cols }: { cols: string[] }) {
   return (
     <thead>
       <tr>
@@ -251,28 +251,30 @@ function THead({ cols }: { cols: string[] }) {
       </tr>
     </thead>
   );
-}
+});
 
-// Hoverable table row — same pattern as SidebarItem
-function HRow({ children, rowKey }: { children: React.ReactNode; rowKey: string }) {
+// HRow — hoverable table row. rowKey removed: React key is set by the parent
+// on <HRow key={...}>, not on the <tr> inside. Hover is background-only (no layout shift).
+const HRow = memo(function HRow({ children }: { children: React.ReactNode }) {
   const ref = useRef<HTMLTableRowElement>(null);
   return (
     <tr
       ref={ref}
-      key={rowKey}
-      className="metrics-row"
-      style={{ borderBottom: "1px solid rgba(0,0,0,0.05)", transition: "background 0.12s ease" }}
+      style={{
+        borderBottom: "1px solid rgba(0,0,0,0.05)",
+        transition: "background-color 0.12s ease",
+      }}
       onMouseEnter={() => {
-        if (ref.current) ref.current.style.background = "rgba(99,102,241,0.03)";
+        if (ref.current) ref.current.style.backgroundColor = "rgba(99,102,241,0.03)";
       }}
       onMouseLeave={() => {
-        if (ref.current) ref.current.style.background = "transparent";
+        if (ref.current) ref.current.style.backgroundColor = "transparent";
       }}
     >
       {children}
     </tr>
   );
-}
+});
 
 // ─── MetricsPage — content only, layout provided by OSLayout ───────────────
 
@@ -282,34 +284,51 @@ export default function MetricsPage() {
   const [error,   setError]   = useState<string | null>(null);
   const [loading, setLoading] = useState(true);
 
-  useEffect(() => {
+  // Stable load function — useCallback ensures same ref across renders.
+  // Empty dep array: called once on mount, never again.
+  const loadData = useCallback(() => {
     ensureStyles();
+    let cancelled = false;
     Promise.all([fetchSummary(), fetchCurves()])
-      .then(([s, c]) => { setSummary(s); setCurves(c); })
-      .catch((e) => setError(e.message))
-      .finally(() => setLoading(false));
+      .then(([s, c]) => {
+        if (!cancelled) { setSummary(s); setCurves(c); }
+      })
+      .catch((e) => {
+        if (!cancelled) setError(e.message);
+      })
+      .finally(() => {
+        if (!cancelled) setLoading(false);
+      });
+    return () => { cancelled = true; };
   }, []);
 
-  const maxLifetime = summary
-    ? Math.max(...summary.summary.map((r) => r.lifetime), 1)
-    : 1;
+  // Single useEffect with stable empty dep array — fires exactly once on mount.
+  useEffect(() => {
+    const cleanup = loadData();
+    return cleanup;
+  }, [loadData]);
 
-  // ── Loading skeleton ───────────────────────────────────────────────────────
+  // Memoized to avoid recalculation on unrelated re-renders.
+  const maxLifetime = useMemo(
+    () => summary ? Math.max(...summary.summary.map((r) => r.lifetime), 1) : 1,
+    [summary],
+  );
+
+  // ── Loading skeleton — unmounts entirely when loading becomes false ─────────
   if (loading) {
     return (
       <div style={{ padding: "24px 24px 64px", maxWidth: 900, margin: "0 auto" }}>
-        {/* Totals skeleton — 4 badges */}
         <div style={{
           background: CARD_BG, border: BORDER, borderRadius: 14,
           boxShadow: SHADOW, padding: "20px 24px", marginBottom: 20,
         }}>
           <SkeletonRect w={60} h={14} />
           <div style={{ display: "flex", gap: 12, marginTop: 16, flexWrap: "wrap" }}>
-            {[1, 2, 3, 4].map((i) => (
+            {[0, 1, 2, 3].map((i) => (
               <div key={i} style={{
                 flex: 1, minWidth: 100, borderRadius: 12, padding: "16px 20px",
-                border: "1px solid rgba(0,0,0,0.06)", display: "flex",
-                flexDirection: "column", alignItems: "center", gap: 8,
+                border: "1px solid rgba(0,0,0,0.06)",
+                display: "flex", flexDirection: "column", alignItems: "center", gap: 8,
               }}>
                 <SkeletonRect w={40} h={28} />
                 <SkeletonRect w={60} h={11} />
@@ -339,11 +358,10 @@ export default function MetricsPage() {
     );
   }
 
-  // ── Main render ────────────────────────────────────────────────────────────
+  // ── Data ───────────────────────────────────────────────────────────────────
   return (
     <div style={{ padding: "24px 24px 64px", maxWidth: 900, margin: "0 auto" }}>
 
-      {/* Totals */}
       {summary && (
         <SectionCard title="Totals">
           {summary.totals.lifetime === 0 ? (
@@ -359,7 +377,6 @@ export default function MetricsPage() {
         </SectionCard>
       )}
 
-      {/* Per-type breakdown */}
       {summary && (
         <SectionCard title="Per-type counts">
           {summary.summary.length === 0 ? (
@@ -369,28 +386,17 @@ export default function MetricsPage() {
               <THead cols={["Type", "Activity", "Daily", "Weekly", "Monthly", "Lifetime"]} />
               <tbody>
                 {summary.summary.map((row) => (
-                  <HRow key={row.type} rowKey={row.type}>
-                    <td style={{
-                      padding: "10px 10px 10px 0", color: TEXT_MAIN,
-                      fontWeight: 500, whiteSpace: "nowrap",
-                    }}>
+                  <HRow key={row.type}>
+                    <td style={{ padding: "10px 10px 10px 0", color: TEXT_MAIN, fontWeight: 500, whiteSpace: "nowrap" }}>
                       {fmt(row.type)}
                     </td>
                     <td style={{ padding: "10px 10px 10px 0", width: "30%" }}>
                       <Bar value={row.lifetime} max={maxLifetime} />
                     </td>
-                    <td style={{ padding: "10px 10px 10px 0", color: TEXT_SUB, fontSize: 13 }}>
-                      {row.daily}
-                    </td>
-                    <td style={{ padding: "10px 10px 10px 0", color: TEXT_SUB, fontSize: 13 }}>
-                      {row.weekly}
-                    </td>
-                    <td style={{ padding: "10px 10px 10px 0", color: TEXT_SUB, fontSize: 13 }}>
-                      {row.monthly}
-                    </td>
-                    <td style={{ padding: "10px 0", color: ACCENT, fontWeight: 700, fontSize: 13 }}>
-                      {row.lifetime}
-                    </td>
+                    <td style={{ padding: "10px 10px 10px 0", color: TEXT_SUB }}>{row.daily}</td>
+                    <td style={{ padding: "10px 10px 10px 0", color: TEXT_SUB }}>{row.weekly}</td>
+                    <td style={{ padding: "10px 10px 10px 0", color: TEXT_SUB }}>{row.monthly}</td>
+                    <td style={{ padding: "10px 0", color: ACCENT, fontWeight: 700 }}>{row.lifetime}</td>
                   </HRow>
                 ))}
               </tbody>
@@ -399,7 +405,6 @@ export default function MetricsPage() {
         </SectionCard>
       )}
 
-      {/* Daily */}
       {curves && (
         <SectionCard title="Daily — last 30 days">
           {curves.daily.length === 0 ? (
@@ -409,16 +414,12 @@ export default function MetricsPage() {
               <THead cols={["Date", "Type", "Count"]} />
               <tbody>
                 {curves.daily.map((row) => (
-                  <HRow key={`${row.date}-${row.type}`} rowKey={`${row.date}-${row.type}`}>
+                  <HRow key={`${row.date}-${row.type}`}>
                     <td style={{ padding: "8px 10px 8px 0", color: TEXT_SUB, whiteSpace: "nowrap" }}>
                       {fmtDate(row.date)}
                     </td>
-                    <td style={{ padding: "8px 10px 8px 0", color: TEXT_MAIN }}>
-                      {fmt(row.type)}
-                    </td>
-                    <td style={{ padding: "8px 0", color: ACCENT, fontWeight: 600 }}>
-                      {row.count}
-                    </td>
+                    <td style={{ padding: "8px 10px 8px 0", color: TEXT_MAIN }}>{fmt(row.type)}</td>
+                    <td style={{ padding: "8px 0", color: ACCENT, fontWeight: 600 }}>{row.count}</td>
                   </HRow>
                 ))}
               </tbody>
@@ -427,7 +428,6 @@ export default function MetricsPage() {
         </SectionCard>
       )}
 
-      {/* Weekly */}
       {curves && (
         <SectionCard title="Weekly — last 12 weeks">
           {curves.weekly.length === 0 ? (
@@ -437,16 +437,12 @@ export default function MetricsPage() {
               <THead cols={["Week of", "Type", "Count"]} />
               <tbody>
                 {curves.weekly.map((row) => (
-                  <HRow key={`${row.weekStart}-${row.type}`} rowKey={`${row.weekStart}-${row.type}`}>
+                  <HRow key={`${row.weekStart}-${row.type}`}>
                     <td style={{ padding: "8px 10px 8px 0", color: TEXT_SUB, whiteSpace: "nowrap" }}>
                       {fmtDate(row.weekStart)}
                     </td>
-                    <td style={{ padding: "8px 10px 8px 0", color: TEXT_MAIN }}>
-                      {fmt(row.type)}
-                    </td>
-                    <td style={{ padding: "8px 0", color: ACCENT, fontWeight: 600 }}>
-                      {row.count}
-                    </td>
+                    <td style={{ padding: "8px 10px 8px 0", color: TEXT_MAIN }}>{fmt(row.type)}</td>
+                    <td style={{ padding: "8px 0", color: ACCENT, fontWeight: 600 }}>{row.count}</td>
                   </HRow>
                 ))}
               </tbody>
@@ -455,7 +451,6 @@ export default function MetricsPage() {
         </SectionCard>
       )}
 
-      {/* Monthly */}
       {curves && (
         <SectionCard title="Monthly — last 12 months">
           {curves.monthly.length === 0 ? (
@@ -465,16 +460,12 @@ export default function MetricsPage() {
               <THead cols={["Month", "Type", "Count"]} />
               <tbody>
                 {curves.monthly.map((row) => (
-                  <HRow key={`${row.monthStart}-${row.type}`} rowKey={`${row.monthStart}-${row.type}`}>
+                  <HRow key={`${row.monthStart}-${row.type}`}>
                     <td style={{ padding: "8px 10px 8px 0", color: TEXT_SUB, whiteSpace: "nowrap" }}>
                       {fmtDate(row.monthStart)}
                     </td>
-                    <td style={{ padding: "8px 10px 8px 0", color: TEXT_MAIN }}>
-                      {fmt(row.type)}
-                    </td>
-                    <td style={{ padding: "8px 0", color: ACCENT, fontWeight: 600 }}>
-                      {row.count}
-                    </td>
+                    <td style={{ padding: "8px 10px 8px 0", color: TEXT_MAIN }}>{fmt(row.type)}</td>
+                    <td style={{ padding: "8px 0", color: ACCENT, fontWeight: 600 }}>{row.count}</td>
                   </HRow>
                 ))}
               </tbody>

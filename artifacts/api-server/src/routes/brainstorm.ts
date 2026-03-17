@@ -117,7 +117,7 @@ router.post("/sessions", async (req: Request, res: Response) => {
 router.get("/sessions/:id/messages", async (req: Request, res: Response) => {
   if (!requireAuth(req, res)) return;
   try {
-    const sessionId = parseInt(req.params.id, 10);
+    const sessionId = parseInt(req.params.id as string, 10);
     const msgs = await db
       .select()
       .from(brainstormMessages)
@@ -134,7 +134,7 @@ router.get("/sessions/:id/messages", async (req: Request, res: Response) => {
 router.post("/sessions/:id/messages", async (req: Request, res: Response) => {
   if (!requireAuth(req, res)) return;
   try {
-    const sessionId = parseInt(req.params.id, 10);
+    const sessionId = parseInt(req.params.id as string, 10);
     const { role, content } = req.body as { role: string; content: string };
     if (!content?.trim()) { res.status(400).json({ error: "content required" }); return; }
     const [msg] = await db
@@ -152,7 +152,7 @@ router.post("/sessions/:id/messages", async (req: Request, res: Response) => {
 router.post("/sessions/:id/chat", async (req: Request, res: Response) => {
   const userId = requireAuth(req, res);
   if (!userId) return;
-  const sessionId = parseInt(req.params.id, 10);
+  const sessionId = parseInt(req.params.id as string, 10);
 
   try {
     const { message, history = [] } = req.body as {
@@ -330,7 +330,7 @@ Rules:
 router.post("/sessions/:id/generate", async (req: Request, res: Response) => {
   const userId = requireAuth(req, res);
   if (!userId) return;
-  const sessionId = parseInt(req.params.id, 10);
+  const sessionId = parseInt(req.params.id as string, 10);
 
   try {
     const sessionMessages = await db
@@ -477,7 +477,7 @@ router.post("/sessions/:id/generate", async (req: Request, res: Response) => {
 router.delete("/sessions/:id", async (req: Request, res: Response) => {
   if (!requireAuth(req, res)) return;
   try {
-    const sessionId = parseInt(req.params.id, 10);
+    const sessionId = parseInt(req.params.id as string, 10);
     await db.delete(brainstormSessions).where(eq(brainstormSessions.id, sessionId));
     res.json({ success: true });
   } catch (err) {

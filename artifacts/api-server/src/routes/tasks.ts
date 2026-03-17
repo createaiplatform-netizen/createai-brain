@@ -19,7 +19,7 @@ router.get("/:projectId/tasks", async (req: Request, res: Response) => {
   const userId = requireAuth(req, res);
   if (!userId) return;
   try {
-    const { projectId } = req.params;
+    const projectId = req.params.projectId as string;
     const rows = await db
       .select()
       .from(projectTasks)
@@ -37,7 +37,7 @@ router.post("/:projectId/tasks", async (req: Request, res: Response) => {
   const userId = requireAuth(req, res);
   if (!userId) return;
   try {
-    const { projectId } = req.params;
+    const projectId = req.params.projectId as string;
     const { title, description = "", status = "todo", priority = "medium", assignedTo, dueAt } = req.body as {
       title: string; description?: string; status?: string;
       priority?: string; assignedTo?: string; dueAt?: string;
@@ -64,7 +64,7 @@ router.put("/:projectId/tasks/:taskId", async (req: Request, res: Response) => {
   const userId = requireAuth(req, res);
   if (!userId) return;
   try {
-    const taskId = parseInt(req.params.taskId, 10);
+    const taskId = parseInt(req.params.taskId as string, 10);
     const { title, description, status, priority, assignedTo, dueAt } = req.body as {
       title?: string; description?: string; status?: string;
       priority?: string; assignedTo?: string; dueAt?: string | null;
@@ -97,7 +97,7 @@ router.delete("/:projectId/tasks/:taskId", async (req: Request, res: Response) =
   const userId = requireAuth(req, res);
   if (!userId) return;
   try {
-    const taskId = parseInt(req.params.taskId, 10);
+    const taskId = parseInt(req.params.taskId as string, 10);
     await db.delete(projectTasks)
       .where(and(eq(projectTasks.id, taskId), eq(projectTasks.userId, userId)));
     res.json({ ok: true });

@@ -62,7 +62,7 @@ router.put("/:id/read", async (req: Request, res: Response) => {
   const userId = requireAuth(req, res);
   if (!userId) return;
   try {
-    const id = parseInt(req.params.id, 10);
+    const id = parseInt(req.params.id as string, 10);
     await db.update(notifications)
       .set({ read: true })
       .where(and(eq(notifications.id, id), eq(notifications.userId, userId)));
@@ -93,7 +93,7 @@ router.delete("/:id", async (req: Request, res: Response) => {
   const userId = requireAuth(req, res);
   if (!userId) return;
   try {
-    const id = parseInt(req.params.id, 10);
+    const id = parseInt(req.params.id as string, 10);
     await db.delete(notifications)
       .where(and(eq(notifications.id, id), eq(notifications.userId, userId)));
     res.json({ ok: true });
