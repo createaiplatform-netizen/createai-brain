@@ -847,6 +847,48 @@ router.post("/simulate/:type", (req, res) => {
     rest: "salesforce",
   };
 
+  // Native HL7 v2 simulation — return raw HL7 message format, not FHIR
+  if (type.toLowerCase() === "hl7") {
+    const msgId = `MSG${rnd(1000, 9999)}`;
+    const ts14 = now.replace(/[-:T.Z]/g, "").slice(0, 14);
+    const event: SimEvent = {
+      id: uid(),
+      adapterId: "hl7-v2-engine",
+      adapterLabel: "HL7 v2.6 Parser",
+      industry: "healthcare",
+      type: "HL7",
+      dir: "IN",
+      status: "success",
+      label: "HL7 ADT^A01 — Admit Patient [SIMULATED]",
+      summary: "HL7 v2.6 admit message parsed · ACK AA returned · no real PHI",
+      latencyMs: rnd(14, 38),
+      ts: now,
+      payload: {
+        raw: `MSH|^~\\&|CREATEAI-DEMO|DEMO-FACILITY|RECEIVER|RECV-FACILITY|${ts14}||ADT^A01|${msgId}|P|2.6\nEVN|A01|${ts14}\nPID|1||[REDACTED-MRN]^^^DEMO-FACILITY^MR||[REDACTED]^[REDACTED]||[REDACTED]|[REDACTED]|||[REDACTED]|||||||[REDACTED]\nPV1|1|I|[REDACTED]^[REDACTED]^[REDACTED]^DEMO-FACILITY||||[REDACTED]^[REDACTED]|||||||[REDACTED]|[REDACTED]||[REDACTED]|[REDACTED]`,
+        parsed: {
+          messageType: "ADT^A01",
+          version: "2.6",
+          messageId: msgId,
+          sendingApp: "CREATEAI-DEMO",
+          sendingFacility: "DEMO-FACILITY",
+          eventType: "Admit Patient",
+          timestamp: now,
+          segments: {
+            MSH: { sendingApp: "CREATEAI-DEMO", messageType: "ADT^A01", version: "2.6" },
+            EVN: { eventType: "A01", recordedDateTime: ts14 },
+            PID: { patientId: "[REDACTED — no PHI]", name: "[REDACTED]", dob: "[REDACTED]", gender: "[REDACTED]" },
+            PV1: { patientClass: "I", admitDateTime: ts14, attendingDoctor: "[REDACTED]" },
+          },
+        },
+        ack: `MSH|^~\\&|RECEIVER|RECV-FACILITY|CREATEAI-DEMO|DEMO-FACILITY|${ts14}||ACK^A01|ACK${rnd(100, 999)}|P|2.6\nMSA|AA|${msgId}|Message accepted successfully`,
+        validation: { schemaCheck: "PASSED", segmentCount: 4, fieldCount: 42, encodingCheck: "PASSED" },
+        _note: "SIMULATED DATA — No real PHI. HL7 v2.6 ADT^A01 Admit Message.",
+      },
+    };
+    pushEvent(event);
+    return res.json({ ok: true, event, _note: "SIMULATED — No real external system called. No real PHI." });
+  }
+
   const mappedId = legacyMap[type.toLowerCase()];
   if (!mappedId) {
     res.status(400).json({ error: `Unknown type. Valid: ${Object.keys(legacyMap).join(", ")}` });
@@ -858,7 +900,7 @@ router.post("/simulate/:type", (req, res) => {
     id: uid(),
     adapterId: mappedId,
     adapterLabel: sim.label,
-    industry: "healthcare",
+    industry: mappedId.includes("fhir") || mappedId.includes("health") ? "healthcare" : mappedId === "stripe" ? "payments" : mappedId === "salesforce" ? "crm" : "rest",
     type: sim.type,
     dir: sim.dir,
     status: "success",

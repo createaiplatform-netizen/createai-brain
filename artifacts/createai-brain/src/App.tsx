@@ -12,6 +12,7 @@ import ProjectPage from "@/pages/ProjectPage";
 import IntegrationDemoPage from "@/pages/IntegrationDemoPage";
 import LiveSimDashboard from "@/pages/LiveSimDashboard";
 import IntegrationLivePage from "@/pages/IntegrationLivePage";
+import IntegrationSuitePage from "@/pages/IntegrationSuitePage";
 
 import { OSProvider } from "@/os/OSContext";
 import { OSLayout } from "@/os/osLayout";
@@ -385,15 +386,17 @@ function App() {
   const isPublicRoute =
     path.startsWith(`${base}/integration-demo`) ||
     path.startsWith(`${base}/live-sim`) ||
-    path.startsWith(`${base}/integration-live`);
+    path.startsWith(`${base}/integration-live`) ||
+    path.startsWith(`${base}/integration-suite`);
 
   if (isPublicRoute) {
     return (
       <QueryClientProvider client={queryClient}>
         <WouterRouter base={base}>
-          <Route path="/integration-demo"  component={IntegrationDemoPage} />
-          <Route path="/live-sim"          component={LiveSimDashboard} />
-          <Route path="/integration-live"  component={IntegrationLivePage} />
+          <Route path="/integration-demo"   component={IntegrationDemoPage} />
+          <Route path="/live-sim"           component={LiveSimDashboard} />
+          <Route path="/integration-live"   component={IntegrationLivePage} />
+          <Route path="/integration-suite"  component={IntegrationSuitePage} />
         </WouterRouter>
       </QueryClientProvider>
     );
