@@ -105,6 +105,18 @@ export function Sidebar({ onNav, forceCollapsed, forceExpanded }: SidebarProps) 
           </div>
         </div>
 
+        {/* ── Platform Metrics ── */}
+        <div className="px-2 pb-1">
+          <SidebarItem
+            icon="📊"
+            label="Platform Metrics"
+            active={activeApp === "metricsPanel"}
+            collapsed={collapsed}
+            onClick={() => handleNav(() => openApp("metricsPanel" as AppId))}
+            color="#6366f1"
+          />
+        </div>
+
         {/* ── Browse all apps ── */}
         <div className="px-2 pb-2 pt-1" style={{ borderTop: "1px solid rgba(0,0,0,0.07)" }}>
           <button

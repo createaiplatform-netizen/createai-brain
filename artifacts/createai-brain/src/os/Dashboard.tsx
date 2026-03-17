@@ -4,6 +4,8 @@ import { PlatformStore, PlatformMode } from "@/engine/PlatformStore";
 import { BrainstormChat } from "./BrainstormChat";
 import { AppBrowserModal } from "./AppBrowserModal";
 import { useAuth } from "@workspace/replit-auth-web";
+import { IntelligenceRibbon } from "@/components/IntelligenceRibbon";
+import { SmartRecommendations } from "@/components/SmartRecommendations";
 
 // ─── Constants ────────────────────────────────────────────────────────────────
 
@@ -187,6 +189,9 @@ export function Dashboard({ onHamburger, onShowTour }: DashboardProps) {
         >🧠 Ask</button>
       </header>
 
+      {/* ── Intelligence Ribbon — subtle system-awareness bar ── */}
+      <IntelligenceRibbon />
+
       {/* ── Body ── */}
       <div className="flex-1 overflow-y-auto overscroll-contain">
         <div className="max-w-xl mx-auto px-4 py-7 space-y-8">
@@ -321,6 +326,11 @@ export function Dashboard({ onHamburger, onShowTour }: DashboardProps) {
               ))}
             </div>
           </section>
+
+          {/* ── Smart Recommendations ── */}
+          <div className={`transition-opacity duration-500 delay-140 ${mounted ? "opacity-100" : "opacity-0"} -mx-4`}>
+            <SmartRecommendations />
+          </div>
 
           {/* ── Your Projects ── */}
           <section className={`transition-opacity duration-500 delay-150 ${mounted ? "opacity-100" : "opacity-0"}`}>

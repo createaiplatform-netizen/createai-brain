@@ -52,6 +52,7 @@ const VisualWorldStudioApp = React.lazy(() => import("@/Apps/VisualWorldStudioAp
 const ReligionForgeApp  = React.lazy(() => import("@/Apps/ReligionForgeApp").then(m => ({ default: m.ReligionForgeApp })));
 const CosmologyForgeApp = React.lazy(() => import("@/Apps/CosmologyForgeApp").then(m => ({ default: m.CosmologyForgeApp })));
 const GameWorldStudioApp = React.lazy(() => import("@/Apps/GameWorldStudioApp").then(m => ({ default: m.GameWorldStudioApp })));
+const MetricsPanelApp    = React.lazy(() => import("@/Apps/MetricsPanelApp").then(m => ({ default: m.MetricsPanelApp })));
 
 // ── Creative Writing Suite ───────────────────────────────────────────────────
 const ScriptwriterApp    = React.lazy(() => import("@/Apps/ScriptwriterApp").then(m => ({ default: m.ScriptwriterApp })));
@@ -289,6 +290,8 @@ const APP_COMPONENTS: Record<AppId, React.LazyExoticComponent<React.ComponentTyp
   // Education
   lessonplanner:      LessonPlannerApp,
   curriculumdesigner: CurriculumDesignerApp,
+  // Platform
+  metricsPanel:       MetricsPanelApp,
 };
 
 // ── Loading skeleton ─────────────────────────────────────────────────────────
@@ -400,7 +403,11 @@ export function AppWindow({ onHamburger }: AppWindowProps) {
       >
         <ErrorBoundary appName={label}>
           <Suspense fallback={<AppSkeleton />}>
-            <AppComponent />
+            {AppComponent ? (
+              <AppComponent />
+            ) : (
+              <UniversalApp />
+            )}
           </Suspense>
         </ErrorBoundary>
       </div>

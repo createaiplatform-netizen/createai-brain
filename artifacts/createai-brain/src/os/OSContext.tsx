@@ -44,7 +44,9 @@ export type AppId =
   // ── Legal & Professional ─────────────────────────────────────────────────
   | "legaldrafter" | "ipprotection" | "privacypolicy"
   // ── Education & Teaching ─────────────────────────────────────────────────
-  | "lessonplanner" | "curriculumdesigner";
+  | "lessonplanner" | "curriculumdesigner"
+  // ── Platform ─────────────────────────────────────────────────────────────
+  | "metricsPanel";
 
 export interface AppDef {
   id: AppId;
@@ -191,6 +193,7 @@ export const DEFAULT_APPS: AppDef[] = [
   // ── Education & Teaching ──────────────────────────────────────────────────
   { id: "lessonplanner",      label: "Lesson Planner",      icon: "📚", color: "#0369a1", description: "Lesson plans, learning objectives, activities, and teaching strategies", category: "tools" },
   { id: "curriculumdesigner", label: "Curriculum Designer", icon: "🎓", color: "#7c3aed", description: "Course design, curriculum mapping, learning pathways, and instructional frameworks", category: "tools" },
+  { id: "metricsPanel",      label: "Platform Metrics",   icon: "📊", color: "#6366f1", description: "Executive metrics panel — engines, series, endpoints, registry, systems, and expansion paths", category: "system" },
 ];
 
 export const ALL_APPS = DEFAULT_APPS;
@@ -424,6 +427,8 @@ const APP_META: Record<AppId, { icon: string; label: string }> = {
   // Education
   lessonplanner:      { icon: "📚", label: "Lesson Planner" },
   curriculumdesigner: { icon: "🎓", label: "Curriculum Designer" },
+  // Platform
+  metricsPanel:       { icon: "📊", label: "Platform Metrics" },
 };
 
 // ─── OS Context value ───────────────────────────────────────────────────────
