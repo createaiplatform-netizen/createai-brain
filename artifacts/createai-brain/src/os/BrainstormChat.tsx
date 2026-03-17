@@ -1,4 +1,5 @@
 import React, { useState, useRef, useEffect, useCallback } from "react";
+import { ProjectGenerator, type GeneratedProject } from "./ProjectGenerator";
 
 // ─── Types ────────────────────────────────────────────────────────────────────
 
@@ -182,6 +183,7 @@ export function BrainstormChat({ isOpen, onClose, onGoToProjects }: BrainstormCh
   const [isStreaming, setIsStreaming]          = useState(false);
   const [createdProjects, setCreatedProjects]  = useState<CreatedProject[]>([]);
   const [sessionId, setSessionId]             = useState<number | null>(null);
+  const [showGenerator, setShowGenerator]     = useState(false);
   const bottomRef = useRef<HTMLDivElement>(null);
   const inputRef  = useRef<HTMLInputElement>(null);
   const abortRef  = useRef<AbortController | null>(null);
@@ -364,6 +366,36 @@ export function BrainstormChat({ isOpen, onClose, onGoToProjects }: BrainstormCh
                 const showStreaming = isLast && isStreaming && msg.role === "ai";
                 return <Bubble key={msg.id} msg={msg} streaming={showStreaming} />;
               })}
+
+              {/* Generate Project button — appears after 2+ messages */}
+              {messages.length >= 2 && !isStreaming && sessionId && (
+                <div className="flex flex-col items-center gap-2 py-4">
+                  <div className="flex items-center gap-2 w-full max-w-[300px]">
+                    <div className="flex-1 h-px" style={{ background: "rgba(0,0,0,0.07)" }} />
+                    <span className="text-[10px] font-medium" style={{ color: "#9ca3af" }}>Ready to build?</span>
+                    <div className="flex-1 h-px" style={{ background: "rgba(0,0,0,0.07)" }} />
+                  </div>
+                  <button
+                    onClick={() => setShowGenerator(true)}
+                    className="flex items-center gap-2.5 px-5 py-3 rounded-2xl font-semibold text-[13px] transition-all group"
+                    style={{
+                      background: "linear-gradient(135deg,#6366f1,#8b5cf6)",
+                      color: "#fff",
+                      boxShadow: "0 4px 16px rgba(99,102,241,0.30)",
+                    }}
+                    onMouseEnter={e => ((e.currentTarget as HTMLElement).style.boxShadow = "0 6px 22px rgba(99,102,241,0.42)")}
+                    onMouseLeave={e => ((e.currentTarget as HTMLElement).style.boxShadow = "0 4px 16px rgba(99,102,241,0.30)")}
+                  >
+                    <span className="text-base">🚀</span>
+                    Generate Full Project
+                    <span className="text-white/70 group-hover:translate-x-0.5 transition-transform">›</span>
+                  </button>
+                  <p className="text-[10px]" style={{ color: "#9ca3af" }}>
+                    Creates folders, files &amp; content from your idea
+                  </p>
+                </div>
+              )}
+
               <div ref={bottomRef} />
             </>
           )}
@@ -411,6 +443,24 @@ export function BrainstormChat({ isOpen, onClose, onGoToProjects }: BrainstormCh
           </p>
         </div>
       </div>
+
+      {/* Project Generator overlay */}
+      {sessionId && (
+        <ProjectGenerator
+          isOpen={showGenerator}
+          sessionId={sessionId}
+          onClose={() => setShowGenerator(false)}
+          onProjectReady={(proj: GeneratedProject) => {
+            setCreatedProjects(prev => [...prev, {
+              name: proj.name,
+              industry: proj.industry,
+              icon: proj.icon,
+            }]);
+            setShowGenerator(false);
+            if (onGoToProjects) onGoToProjects();
+          }}
+        />
+      )}
     </>
   );
 }

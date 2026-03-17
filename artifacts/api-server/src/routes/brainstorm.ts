@@ -6,6 +6,7 @@ import {
   brainstormMessages,
   projects,
   projectFolders,
+  projectFiles,
 } from "@workspace/db";
 import { openai } from "@workspace/integrations-openai-ai-server";
 
@@ -243,6 +244,208 @@ router.post("/sessions/:id/chat", async (req: Request, res: Response) => {
     console.error("[brainstorm] POST /chat", err);
     if (!res.headersSent) res.status(500).json({ error: "Brainstorm chat failed" });
     else res.end();
+  }
+});
+
+// ─── POST /brainstorm/sessions/:id/generate ────────────────────────────────
+// Analyzes the brainstorm conversation and creates a fully-structured project
+// with folders, starter files, and AI-generated content.
+
+const GENERATOR_PROMPT = `You are the CreateAI Project Generator — an expert system that transforms brainstorm conversations into complete, well-structured projects.
+
+Analyze the conversation provided and return ONLY a valid JSON object (no markdown, no explanation, no extra text) in this EXACT format:
+
+{
+  "name": "Concise Project Name (3-6 words)",
+  "industry": "ONE of: Healthcare | Construction | Hunting | Farming | Education | Logistics | Legal | Technology | Nonprofit | Retail | General",
+  "description": "2-3 sentence description of the project, its purpose, and who it's for.",
+  "features": [
+    "Feature description 1",
+    "Feature description 2",
+    "Feature description 3",
+    "Feature description 4",
+    "Feature description 5"
+  ],
+  "files": [
+    {
+      "name": "Project Overview.md",
+      "folderName": "Files",
+      "type": "document",
+      "content": "# [Project Name]\\n\\n## Overview\\n[2-3 paragraphs of real, useful overview content]\\n\\n## Goals\\n- Goal 1\\n- Goal 2\\n- Goal 3\\n\\n## Target Users\\n[Who this is built for]\\n\\n## Key Features\\n[List the key features with brief descriptions]"
+    },
+    {
+      "name": "Feature Roadmap.md",
+      "folderName": "Files",
+      "type": "document",
+      "content": "# Feature Roadmap\\n\\n## Phase 1 — Core (Month 1-2)\\n[3-4 core features with brief descriptions]\\n\\n## Phase 2 — Expansion (Month 3-4)\\n[3-4 expansion features]\\n\\n## Phase 3 — Advanced (Month 5-6)\\n[2-3 advanced features]"
+    },
+    {
+      "name": "Requirements.md",
+      "folderName": "Files",
+      "type": "document",
+      "content": "# Project Requirements\\n\\n## Functional Requirements\\n[6-8 numbered functional requirements specific to this project]\\n\\n## Technical Requirements\\n[4-5 technical requirements]\\n\\n## User Stories\\n[3-4 user stories in the format: As a [user], I want to [action] so that [benefit]]"
+    },
+    {
+      "name": "Marketing Overview.md",
+      "folderName": "Marketing Packet",
+      "type": "document",
+      "content": "# Marketing Overview\\n\\n## Value Proposition\\n[Clear 1-2 sentence value prop]\\n\\n## Target Market\\n[Who the ideal customers are]\\n\\n## Key Messages\\n[3-4 key marketing messages]\\n\\n## Competitive Advantage\\n[What makes this unique]"
+    },
+    {
+      "name": "Company Profile.md",
+      "folderName": "Company Materials",
+      "type": "document",
+      "content": "# Company Profile\\n\\n## About\\n[Brief company/project background tied to this specific idea]\\n\\n## Mission\\n[Clear mission statement]\\n\\n## Vision\\n[Where this is going in 3-5 years]\\n\\n## Team\\n[Placeholder for team info]"
+    }
+  ]
+}
+
+Rules:
+- Make all content SPECIFIC to the idea discussed — not generic boilerplate
+- "features" should be 5-7 concrete, specific features of THIS project
+- File content should be real, detailed, and immediately useful — at least 200 words per file
+- folderName must exactly match one of: Files, Marketing Packet, Company Materials, Apps, Demo Mode, Test Mode, Live Mode, Screens, Data, or an industry-specific folder name
+- Return ONLY the JSON object. No \`\`\`json wrapper. No explanation before or after.`;
+
+router.post("/sessions/:id/generate", async (req: Request, res: Response) => {
+  const sessionId = parseInt(req.params.id, 10);
+
+  try {
+    const sessionMessages = await db
+      .select()
+      .from(brainstormMessages)
+      .where(eq(brainstormMessages.sessionId, sessionId))
+      .orderBy(brainstormMessages.createdAt);
+
+    if (sessionMessages.length === 0) {
+      res.status(400).json({ error: "No messages in session to generate from" });
+      return;
+    }
+
+    const conversationText = sessionMessages
+      .map(m => `${m.role === "user" ? "User" : "AI"}: ${m.content}`)
+      .join("\n\n");
+
+    const generatorInput = `Here is the brainstorm conversation to turn into a project:\n\n${conversationText}`;
+
+    const completion = await openai.chat.completions.create({
+      model: "gpt-4o",
+      messages: [
+        { role: "user", content: GENERATOR_PROMPT },
+        { role: "user", content: generatorInput },
+      ],
+    } as Parameters<typeof openai.chat.completions.create>[0]);
+
+    const rawContent = (completion as { choices: { message: { content: string } }[] }).choices[0]?.message?.content ?? "";
+
+    let parsed: {
+      name: string;
+      industry: string;
+      description: string;
+      features: string[];
+      files: { name: string; folderName: string; type: string; content: string }[];
+    };
+
+    try {
+      const cleaned = rawContent.trim().replace(/^```json\s*/i, "").replace(/```\s*$/, "").trim();
+      parsed = JSON.parse(cleaned);
+    } catch {
+      res.status(500).json({ error: "Generator failed to produce valid JSON", raw: rawContent.slice(0, 500) });
+      return;
+    }
+
+    const industry = parsed.industry ?? "General";
+    const icon  = INDUSTRY_ICONS[industry]  ?? "📁";
+    const color = INDUSTRY_COLORS[industry] ?? "#94a3b8";
+
+    const [project] = await db
+      .insert(projects)
+      .values({
+        name: parsed.name,
+        industry,
+        description: parsed.description ?? "",
+        icon,
+        color,
+      })
+      .returning();
+
+    const specificDefs = INDUSTRY_SPECIFIC[industry] ?? INDUSTRY_SPECIFIC.General;
+    const folderRows = [
+      ...UNIVERSAL_FOLDERS.map((f, i) => ({
+        projectId: project.id,
+        name: f.name,
+        icon: f.icon,
+        isUniversal: true,
+        position: i,
+      })),
+      ...specificDefs.map((f, i) => ({
+        projectId: project.id,
+        name: f.name,
+        icon: f.icon,
+        isUniversal: false,
+        position: UNIVERSAL_FOLDERS.length + i,
+      })),
+    ];
+    const createdFolders = await db.insert(projectFolders).values(folderRows).returning();
+
+    const folderByName = new Map(createdFolders.map(f => [f.name, f]));
+
+    const createdFiles: typeof projectFiles.$inferSelect[] = [];
+
+    for (const file of (parsed.files ?? [])) {
+      const folder = folderByName.get(file.folderName);
+      const [inserted] = await db
+        .insert(projectFiles)
+        .values({
+          projectId: project.id,
+          folderId: folder?.id ?? null,
+          name: file.name,
+          content: file.content ?? "",
+          fileType: file.type ?? "document",
+          size: `${Math.round((file.content ?? "").length / 1024 * 10) / 10 || 1} KB`,
+        })
+        .returning();
+      createdFiles.push(inserted);
+    }
+
+    await db
+      .update(brainstormSessions)
+      .set({ updatedAt: new Date() })
+      .where(eq(brainstormSessions.id, sessionId));
+
+    res.json({
+      project: {
+        id: project.id.toString(),
+        name: project.name,
+        industry: project.industry,
+        description: project.description,
+        icon: project.icon,
+        color: project.color,
+        created: project.createdAt.toLocaleDateString(),
+        folders: createdFolders.map(f => ({
+          id: f.id.toString(),
+          name: f.name,
+          icon: f.icon,
+          universal: f.isUniversal,
+          count: 0,
+        })),
+        files: createdFiles.map(f => ({
+          id: f.id.toString(),
+          name: f.name,
+          content: f.content,
+          type: f.fileType,
+          fileType: f.fileType,
+          folderId: f.folderId?.toString() ?? "",
+          size: f.size,
+          created: f.createdAt.toLocaleDateString(),
+        })),
+        features: parsed.features ?? [],
+        subApps: [],
+      },
+    });
+  } catch (err) {
+    console.error("[brainstorm] POST /generate", err);
+    res.status(500).json({ error: "Project generation failed" });
   }
 });
 
