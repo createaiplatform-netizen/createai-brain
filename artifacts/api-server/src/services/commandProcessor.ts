@@ -94,6 +94,48 @@ export function getRegistryItem(id: string): RegistryEntry | undefined {
   return _registry.get(id);
 }
 
+/** Register or overwrite an item in the platform registry (used by ExpansionEngine) */
+export function registerInRegistry(id: string, entry: Omit<RegistryEntry, "id">): RegistryEntry {
+  const full: RegistryEntry = { id, ...entry };
+  _registry.set(id, full);
+  return full;
+}
+
+/** Activate a registry item by ID. Returns true if found. */
+export function activateInRegistry(id: string): boolean {
+  const item = _registry.get(id);
+  if (!item) return false;
+  item.activationState = "on";
+  item.status          = "active";
+  item.activatedAt     = ts();
+  _registry.set(id, item);
+  return true;
+}
+
+/** Apply additional protection strings to a registry item */
+export function applyProtectionInRegistry(id: string, protections: string[]): boolean {
+  const item = _registry.get(id);
+  if (!item) return false;
+  item.protections = [...new Set([...item.protections, ...protections])];
+  _registry.set(id, item);
+  return true;
+}
+
+/** Integrate a registry item (connect to Command Center) */
+export function integrateInRegistry(id: string): boolean {
+  const item = _registry.get(id);
+  if (!item) return false;
+  item.integratedAt           = ts();
+  item.commandCenterConnected = true;
+  _registry.set(id, item);
+  return true;
+}
+
+/** Returns count of all registry items */
+export function getRegistrySize(): number {
+  return _registry.size;
+}
+
 // ─── Pre-populate registry with known platform systems ───────────────────────
 const BUILT_IN_SYSTEMS = [
   { id: "core-os",         label: "Core OS",          type: "system" },

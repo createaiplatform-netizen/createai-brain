@@ -23,6 +23,7 @@ import {
   getRegistryItem,
   COMMAND_HANDLERS,
 } from "../services/commandProcessor";
+import { expandToLimit } from "../services/expansionEngine";
 import { logAudit } from "../services/audit";
 import { db } from "@workspace/db";
 
@@ -158,6 +159,41 @@ router.get("/commands", requireFounder, (_req: Request, res: Response) => {
     })),
     total: COMMAND_HANDLERS.length,
   });
+});
+
+// ─── POST /api/system/expand ──────────────────────────────────────────────────
+
+router.post("/expand", requireFounder, async (req: Request, res: Response) => {
+  const { idea } = req.body as { idea?: string };
+
+  if (!idea || typeof idea !== "string" || !idea.trim()) {
+    res.status(400).json({
+      error:   "Bad Request",
+      message: "Field 'idea' is required and must be a non-empty string",
+      example: { idea: "customer analytics dashboard with real-time metrics" },
+    });
+    return;
+  }
+
+  console.log(`[system/expand] Idea: "${idea.trim()}" from ${req.user!.id}`);
+
+  try {
+    const ctx = {
+      userId: req.user!.id,
+      role:   (req.user as any).role ?? "founder",
+      req,
+    };
+
+    const summary = await expandToLimit(idea.trim(), ctx);
+
+    res.json({
+      ok:      true,
+      summary,
+    });
+  } catch (err) {
+    console.error("[system/expand] Fatal error:", err);
+    res.status(500).json({ error: "Expansion failed", detail: String(err) });
+  }
 });
 
 // ─── GET /api/system/health ───────────────────────────────────────────────────

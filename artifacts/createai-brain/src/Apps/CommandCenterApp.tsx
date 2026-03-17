@@ -7,7 +7,7 @@ import {
   type OutboundMessage,
 } from "@/engine/FounderTier";
 
-type Tab = "command" | "status" | "protect" | "autowire" | "system";
+type Tab = "command" | "status" | "protect" | "autowire" | "system" | "expand";
 
 interface CommandLog {
   id: string;
@@ -58,6 +58,141 @@ export function CommandCenterApp() {
   const sysEndRef = useRef<HTMLDivElement>(null);
 
   useEffect(() => { sysEndRef.current?.scrollIntoView({ behavior: "smooth" }); }, [sysLogs]);
+
+  // ── Expansion Engine state ──────────────────────────────────────────────
+  interface ExpandLog {
+    id: string; ts: string;
+    kind: "init" | "generate" | "evaluate" | "execute" | "optimize" | "protect" | "complete" | "warn" | "error";
+    action: string; target: string; detail: string;
+  }
+  interface ExpandSummary {
+    idea: string; status: string; totalIterations: number;
+    totalPaths: number; viablePaths: number; executedPaths: number;
+    newRegistryItems: number; totalRegistrySize: number;
+    protectionsApplied: number; optimizations: number;
+    startedAt: string; completedAt: string;
+  }
+  const [expandIdea, setExpandIdea]     = useState("");
+  const [expandRunning, setExpandRunning] = useState(false);
+  const [expandLog, setExpandLog]       = useState<ExpandLog[]>([]);
+  const [expandSummary, setExpandSummary] = useState<ExpandSummary | null>(null);
+  const [expandError, setExpandError]   = useState<string | null>(null);
+  const expandEndRef = useRef<HTMLDivElement>(null);
+
+  useEffect(() => { expandEndRef.current?.scrollIntoView({ behavior: "smooth" }); }, [expandLog]);
+
+  const EXPAND_QUICK_IDEAS = [
+    "Customer analytics dashboard with real-time metrics",
+    "Automated invoice generation and payment tracking",
+    "Team collaboration and task management system",
+    "AI-powered content calendar and marketing automation",
+    "Compliance audit trail and regulatory reporting",
+    "Multi-channel notification and alert engine",
+    "Document versioning and approval workflows",
+    "Revenue forecasting and financial modeling engine",
+  ];
+
+  function kindToColor(kind: ExpandLog["kind"]): string {
+    const map: Record<string, string> = {
+      init:     "#818cf8", generate: "#a78bfa", evaluate: "#94a3b8",
+      execute:  "#22c55e", optimize: "#f59e0b",  protect:  "#6366f1",
+      complete: "#22c55e", warn:     "#f59e0b",   error:    "#ef4444",
+    };
+    return map[kind] ?? "#94a3b8";
+  }
+
+  function kindToIcon(kind: ExpandLog["kind"]): string {
+    const map: Record<string, string> = {
+      init:     "⚙",  generate: "🔀", evaluate: "📊",
+      execute:  "▶",  optimize: "✦",  protect:  "🛡",
+      complete: "✓",  warn:     "⚠",  error:    "✕",
+    };
+    return map[kind] ?? "·";
+  }
+
+  function logKindFromAction(action: string): ExpandLog["kind"] {
+    if (action.includes("init"))     return "init";
+    if (action.includes("generate")) return "generate";
+    if (action.includes("evaluate")) return "evaluate";
+    if (action.includes("execute") || action.includes("step") || action.includes("register") ||
+        action.includes("activate") || action.includes("integrate") || action.includes("document") ||
+        action.includes("inherit"))  return "execute";
+    if (action.includes("optim"))    return "optimize";
+    if (action.includes("protect"))  return "protect";
+    if (action.includes("complete")) return "complete";
+    if (action.includes("warn") || action.includes("skip")) return "warn";
+    return "evaluate";
+  }
+
+  async function runExpansion() {
+    const trimmed = expandIdea.trim();
+    if (!trimmed || expandRunning) return;
+    setExpandRunning(true);
+    setExpandLog([]);
+    setExpandSummary(null);
+    setExpandError(null);
+
+    const boot: ExpandLog = {
+      id: "boot", ts: new Date().toISOString(), kind: "init",
+      action: "expand:init", target: trimmed,
+      detail: `Expansion Engine initializing — idea: "${trimmed}"`,
+    };
+    setExpandLog([boot]);
+
+    try {
+      const res = await fetch("/api/system/expand", {
+        method: "POST",
+        credentials: "include",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ idea: trimmed }),
+      });
+      const data = await res.json() as {
+        ok?: boolean;
+        summary?: {
+          idea: string; status: string; totalIterations: number;
+          totalPaths: number; viablePaths: number; executedPaths: number;
+          newRegistryItems: number; totalRegistrySize: number;
+          protectionsApplied: number; optimizations: number;
+          startedAt: string; completedAt: string;
+          log: Array<{ ts: string; action: string; target: string; status: string; detail: string }>;
+        };
+        error?: string;
+      };
+
+      if (!res.ok || data.error || !data.summary) {
+        setExpandError(data.error ?? "Expansion failed — unknown error");
+        return;
+      }
+
+      const logs: ExpandLog[] = (data.summary.log ?? []).map((entry, i) => ({
+        id: `${i}-${entry.ts}`,
+        ts: entry.ts,
+        kind: logKindFromAction(entry.action),
+        action: entry.action,
+        target: entry.target,
+        detail: entry.detail,
+      }));
+      setExpandLog(logs);
+      setExpandSummary({
+        idea:              data.summary.idea,
+        status:            data.summary.status,
+        totalIterations:   data.summary.totalIterations,
+        totalPaths:        data.summary.totalPaths,
+        viablePaths:       data.summary.viablePaths,
+        executedPaths:     data.summary.executedPaths,
+        newRegistryItems:  data.summary.newRegistryItems,
+        totalRegistrySize: data.summary.totalRegistrySize,
+        protectionsApplied: data.summary.protectionsApplied,
+        optimizations:     data.summary.optimizations,
+        startedAt:         data.summary.startedAt,
+        completedAt:       data.summary.completedAt,
+      });
+    } catch (err) {
+      setExpandError(`Network error: ${String(err)}`);
+    } finally {
+      setExpandRunning(false);
+    }
+  }
 
   // Fetch registry stats when System tab opens
   useEffect(() => {
@@ -212,6 +347,7 @@ export function CommandCenterApp() {
     { id: "protect",  label: "Protection", icon: "🛡️" },
     { id: "autowire", label: "Auto-Wire",  icon: "🔗" },
     { id: "system",   label: "Sys Cmd",    icon: "⚡" },
+    { id: "expand",   label: "Expand",     icon: "🚀" },
   ];
 
   return (
@@ -681,6 +817,190 @@ export function CommandCenterApp() {
                 ⌫
               </button>
             </div>
+          </div>
+        )}
+
+        {/* ── Expansion Engine Tab ── */}
+        {activeTab === "expand" && (
+          <div style={{ display: "flex", flexDirection: "column", height: "100%" }}>
+
+            {/* Header */}
+            <div style={{ padding: "14px 16px", borderBottom: "1px solid rgba(99,102,241,0.15)", background: "rgba(99,102,241,0.07)", flexShrink: 0 }}>
+              <div style={{ display: "flex", alignItems: "center", gap: 10, flexWrap: "wrap" }}>
+                <span style={{ fontSize: 13, fontWeight: 700, color: "#a5b4fc" }}>🚀 Expansion Engine</span>
+                <span style={{ fontSize: 9, padding: "2px 8px", background: "rgba(99,102,241,0.2)", border: "1px solid rgba(99,102,241,0.35)", borderRadius: 10, color: "#818cf8", fontWeight: 700, letterSpacing: "0.07em" }}>FOUNDER ONLY</span>
+              </div>
+              <p style={{ fontSize: 11, color: "#475569", margin: "4px 0 0" }}>
+                Enter any idea. The engine expands it to the maximum safe, legal, compliant extent across all platform layers — automatically.
+              </p>
+            </div>
+
+            {/* Idea input area */}
+            <div style={{ padding: "14px 16px", borderBottom: "1px solid rgba(255,255,255,0.06)", flexShrink: 0, background: "#0d1117" }}>
+              <textarea
+                value={expandIdea}
+                onChange={e => setExpandIdea(e.target.value)}
+                disabled={expandRunning}
+                placeholder="Describe any idea, feature, or concept to expand…&#10;e.g. &quot;Customer analytics dashboard with real-time metrics and AI forecasting&quot;"
+                rows={3}
+                style={{
+                  width: "100%", background: "rgba(255,255,255,0.04)",
+                  border: "1px solid rgba(99,102,241,0.25)", borderRadius: 10,
+                  padding: "10px 12px", color: "#e2e8f0", fontSize: 13,
+                  fontFamily: "inherit", lineHeight: 1.5, resize: "vertical",
+                  outline: "none", boxSizing: "border-box",
+                }}
+                onKeyDown={e => { if (e.key === "Enter" && e.metaKey) runExpansion(); }}
+              />
+              <div style={{ display: "flex", alignItems: "center", gap: 8, marginTop: 8 }}>
+                <button
+                  onClick={runExpansion}
+                  disabled={!expandIdea.trim() || expandRunning}
+                  style={{
+                    padding: "9px 20px", borderRadius: 9, border: "none",
+                    background: expandIdea.trim() && !expandRunning ? "linear-gradient(135deg, #6366f1, #8b5cf6)" : "rgba(99,102,241,0.2)",
+                    color: expandIdea.trim() && !expandRunning ? "#fff" : "#4b5563",
+                    fontSize: 13, fontWeight: 700, cursor: expandIdea.trim() && !expandRunning ? "pointer" : "not-allowed",
+                    letterSpacing: "0.02em", transition: "all 0.15s", flexShrink: 0,
+                  }}
+                >
+                  {expandRunning ? "Expanding…" : "🚀 Expand to Limit"}
+                </button>
+                {expandLog.length > 0 && !expandRunning && (
+                  <button
+                    onClick={() => { setExpandLog([]); setExpandSummary(null); setExpandError(null); setExpandIdea(""); }}
+                    style={{
+                      padding: "9px 14px", borderRadius: 9, border: "1px solid rgba(255,255,255,0.08)",
+                      background: "transparent", color: "#475569", fontSize: 12, cursor: "pointer",
+                    }}
+                  >
+                    Clear
+                  </button>
+                )}
+                <span style={{ fontSize: 10, color: "#334155", marginLeft: "auto" }}>⌘+Enter to run</span>
+              </div>
+
+              {/* Quick ideas */}
+              <div style={{ display: "flex", gap: 5, flexWrap: "wrap", marginTop: 10 }}>
+                {EXPAND_QUICK_IDEAS.slice(0, 4).map(idea => (
+                  <button
+                    key={idea}
+                    onClick={() => setExpandIdea(idea)}
+                    style={{
+                      padding: "3px 9px", borderRadius: 5, fontSize: 10, cursor: "pointer",
+                      background: "rgba(99,102,241,0.07)", border: "1px solid rgba(99,102,241,0.15)",
+                      color: "#6366f1", whiteSpace: "nowrap",
+                    }}
+                  >
+                    {idea}
+                  </button>
+                ))}
+              </div>
+            </div>
+
+            {/* Expansion log */}
+            <div style={{ flex: 1, overflowY: "auto", padding: "10px 16px", display: "flex", flexDirection: "column", gap: 2 }}>
+
+              {expandError && (
+                <div style={{
+                  padding: "10px 14px", borderRadius: 8, background: "rgba(239,68,68,0.08)",
+                  border: "1px solid rgba(239,68,68,0.2)", color: "#f87171", fontSize: 12, marginBottom: 8,
+                }}>
+                  ✕ {expandError}
+                </div>
+              )}
+
+              {expandLog.length === 0 && !expandRunning && !expandError && (
+                <div style={{ textAlign: "center", padding: "40px 0", color: "#334155", fontSize: 12 }}>
+                  Enter an idea above and click "Expand to Limit" to begin.
+                </div>
+              )}
+
+              {expandRunning && expandLog.length === 0 && (
+                <div style={{ display: "flex", gap: 4, padding: "16px 0", alignItems: "center" }}>
+                  <span style={{ fontSize: 12, color: "#818cf8" }}>Initializing expansion pipeline</span>
+                  {[0,1,2].map(i => (
+                    <span key={i} style={{ width: 4, height: 4, borderRadius: "50%", background: "#6366f1", animation: `bounce 0.8s infinite ${i * 0.15}s`, display: "inline-block" }} />
+                  ))}
+                </div>
+              )}
+
+              {expandLog.map(entry => (
+                <div key={entry.id} style={{
+                  display: "flex", gap: 8, alignItems: "flex-start",
+                  padding: "3px 6px", borderRadius: 4,
+                  background: entry.kind === "complete" ? "rgba(34,197,94,0.06)" :
+                              entry.kind === "error"    ? "rgba(239,68,68,0.06)" :
+                              entry.kind === "warn"     ? "rgba(245,158,11,0.05)" :
+                              entry.kind === "execute"  ? "rgba(99,102,241,0.04)" : "transparent",
+                }}>
+                  <span style={{ fontSize: 10, flexShrink: 0, color: kindToColor(entry.kind), fontFamily: "monospace", marginTop: 1, minWidth: 12, textAlign: "center" }}>
+                    {kindToIcon(entry.kind)}
+                  </span>
+                  <span style={{ fontSize: 9, color: "#334155", fontFamily: "monospace", flexShrink: 0, marginTop: 2, whiteSpace: "nowrap" }}>
+                    {new Date(entry.ts).toLocaleTimeString()}
+                  </span>
+                  <span style={{ fontSize: 10, color: kindToColor(entry.kind), fontFamily: "monospace", flexShrink: 0, whiteSpace: "nowrap", fontWeight: 600 }}>
+                    [{entry.action}]
+                  </span>
+                  <span style={{ fontSize: 11, color: "#94a3b8", fontFamily: "monospace", lineHeight: 1.4, flex: 1, wordBreak: "break-word" }}>
+                    {entry.detail}
+                  </span>
+                </div>
+              ))}
+
+              {expandRunning && expandLog.length > 0 && (
+                <div style={{ display: "flex", gap: 4, padding: "8px 0", alignItems: "center", paddingLeft: 6 }}>
+                  {[0,1,2].map(i => (
+                    <span key={i} style={{ width: 4, height: 4, borderRadius: "50%", background: "#6366f1", animation: `bounce 0.8s infinite ${i * 0.15}s`, display: "inline-block" }} />
+                  ))}
+                  <span style={{ fontSize: 10, color: "#475569", marginLeft: 4 }}>Expanding…</span>
+                </div>
+              )}
+
+              <div ref={expandEndRef} />
+            </div>
+
+            {/* Expansion summary card */}
+            {expandSummary && (
+              <div style={{
+                margin: "0 16px 14px", padding: "12px 14px",
+                background: expandSummary.status === "completed"
+                  ? "rgba(34,197,94,0.07)" : "rgba(245,158,11,0.07)",
+                border: `1px solid ${expandSummary.status === "completed" ? "rgba(34,197,94,0.25)" : "rgba(245,158,11,0.25)"}`,
+                borderRadius: 12, flexShrink: 0,
+              }}>
+                <div style={{ display: "flex", alignItems: "center", gap: 8, marginBottom: 10 }}>
+                  <span style={{ fontSize: 14 }}>{expandSummary.status === "completed" ? "✓" : "⚠"}</span>
+                  <span style={{ fontSize: 13, fontWeight: 700, color: expandSummary.status === "completed" ? "#22c55e" : "#f59e0b" }}>
+                    Expansion {expandSummary.status === "completed" ? "Complete" : "Partial"} — "{expandSummary.idea.slice(0, 60)}{expandSummary.idea.length > 60 ? "…" : ""}"
+                  </span>
+                </div>
+                <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fill, minmax(130px, 1fr))", gap: 8 }}>
+                  {[
+                    { label: "Iterations",       value: expandSummary.totalIterations,   color: "#818cf8" },
+                    { label: "Paths Explored",   value: expandSummary.totalPaths,        color: "#a78bfa" },
+                    { label: "Viable Paths",     value: expandSummary.viablePaths,       color: "#22c55e" },
+                    { label: "Paths Executed",   value: expandSummary.executedPaths,     color: "#6366f1" },
+                    { label: "New Modules",      value: expandSummary.newRegistryItems,  color: "#22c55e" },
+                    { label: "Registry Total",   value: expandSummary.totalRegistrySize, color: "#94a3b8" },
+                    { label: "Protections",      value: expandSummary.protectionsApplied, color: "#6366f1" },
+                    { label: "Optimizations",    value: expandSummary.optimizations,     color: "#f59e0b" },
+                  ].map(stat => (
+                    <div key={stat.label} style={{
+                      padding: "8px 10px", background: "rgba(255,255,255,0.04)",
+                      border: "1px solid rgba(255,255,255,0.06)", borderRadius: 8, textAlign: "center",
+                    }}>
+                      <div style={{ fontSize: 18, fontWeight: 800, color: stat.color, lineHeight: 1 }}>{stat.value}</div>
+                      <div style={{ fontSize: 9, color: "#475569", marginTop: 3, textTransform: "uppercase", letterSpacing: "0.06em" }}>{stat.label}</div>
+                    </div>
+                  ))}
+                </div>
+                <p style={{ fontSize: 10, color: "#334155", margin: "10px 0 0", textAlign: "right" }}>
+                  {new Date(expandSummary.startedAt).toLocaleTimeString()} → {new Date(expandSummary.completedAt).toLocaleTimeString()}
+                </p>
+              </div>
+            )}
           </div>
         )}
       </div>
