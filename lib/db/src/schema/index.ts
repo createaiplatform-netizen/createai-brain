@@ -17,3 +17,4 @@ export * from "./documents";
 export * from "./traction_events";
 export * from "./metrics";
 export * from "./opportunities";
+export * from "./imagination_sessions";

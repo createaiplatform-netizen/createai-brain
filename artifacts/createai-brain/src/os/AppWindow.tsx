@@ -29,6 +29,7 @@ import { DataStudioApp } from "@/Apps/DataStudioApp";
 import { PricingStudioApp } from "@/Apps/PricingStudioApp";
 import { TractionDashboardApp } from "@/Apps/TractionDashboardApp";
 import { OpportunityApp } from "@/Apps/OpportunityApp";
+import { ImaginationLabApp } from "@/Apps/ImaginationLabApp";
 import type { AppId } from "./OSContext";
 
 const APP_LABELS: Record<AppId, string> = {
@@ -60,6 +61,7 @@ const APP_LABELS: Record<AppId, string> = {
   pricingstudio:  "Pricing Studio",
   traction:       "Traction Dashboard",
   opportunity:    "Opportunity Engine",
+  imaginationlab: "ImaginationLab",
 };
 
 const APP_ICONS: Record<AppId, string> = {
@@ -91,6 +93,7 @@ const APP_ICONS: Record<AppId, string> = {
   pricingstudio:  "💰",
   traction:       "📈",
   opportunity:    "🎯",
+  imaginationlab: "✨",
 };
 
 const APP_COMPONENTS: Record<AppId, React.ComponentType<any>> = {
@@ -122,6 +125,7 @@ const APP_COMPONENTS: Record<AppId, React.ComponentType<any>> = {
   pricingstudio:  PricingStudioApp,
   traction:       TractionDashboardApp,
   opportunity:    OpportunityApp,
+  imaginationlab: ImaginationLabApp,
 };
 
 interface AppWindowProps {

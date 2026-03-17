@@ -62,6 +62,19 @@ const ENGINE_HINTS: Record<string, { placeholder: string; example: string }> = {
 
   // ── Opportunity Engine ────────────────────────────────────────────────────
   OpportunityEngine:         { placeholder: "What market, business, or domain should be scanned for opportunities?", example: "e.g. Our healthcare SaaS in mid-market — what expansion or partnership opportunities exist in the next 12 months?" },
+
+  // ── ImaginationLab Engines (all fictional, safe, family-friendly) ─────────
+  StoryEngine:               { placeholder: "What kind of story should be built?", example: "e.g. A coming-of-age fantasy about a girl who can communicate with ancient trees" },
+  CharacterEngine:           { placeholder: "Describe the fictional character you want to design", example: "e.g. A reluctant wizard who lost their memory and must rediscover who they are" },
+  WorldbuildingEngine:       { placeholder: "What fictional world do you want to build?", example: "e.g. A floating archipelago of sky islands where different civilizations control different elements" },
+  CreatureEngine:            { placeholder: "What kind of creature do you want to invent?", example: "e.g. A bioluminescent deep-sea dragon that feeds on starlight and can walk between dreams" },
+  SuperpowerEngine:          { placeholder: "What fictional superpower should be designed?", example: "e.g. The ability to rewind a single object in time by 24 hours, but only while the user is asleep" },
+  AdventureEngine:           { placeholder: "What adventure scenario should be created?", example: "e.g. A group of misfits must cross a continent to deliver a baby phoenix before the winter eclipse" },
+  ComicPlotEngine:           { placeholder: "What kind of comic book story should be plotted?", example: "e.g. A teen superhero team discovers their city is built on top of a sleeping god who is waking up" },
+  GameIdeaEngine:            { placeholder: "What kind of game concept should be invented?", example: "e.g. A puzzle platformer where your shadow is an AI that sometimes disagrees with your decisions" },
+  FutureTechFictionEngine:   { placeholder: "What fictional future technology should be imagined?", example: "e.g. A device that lets people visit their own memories as if they were a video game level" },
+  BlueprintFictionEngine:    { placeholder: "What fictional artifact or story prop should be designed?", example: "e.g. An ancient compass that points toward your greatest regret instead of north" },
+  QuestEngine:               { placeholder: "What quest or mission should be designed?", example: "e.g. A side quest to reunite a cursed musician with the melody she gave away to save her village" },
 };
 
 // ─── Status Dot ─────────────────────────────────────────────────────────────────

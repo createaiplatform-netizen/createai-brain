@@ -9,7 +9,7 @@ export type AppId =
   | "business" | "entity" | "bizcreator" | "bizdev" | "projbuilder" | "projos"
   | "notifications" | "brainhub"
   | "researchhub" | "learningcenter" | "personastudio" | "datastudio" | "pricingstudio"
-  | "traction" | "opportunity";
+  | "traction" | "opportunity" | "imaginationlab";
 
 export interface AppDef {
   id: AppId;
@@ -49,7 +49,8 @@ export const DEFAULT_APPS: AppDef[] = [
   { id: "datastudio",     label: "Data Studio",     icon: "🗄️", color: "#30B0C7", description: "Data modeling, schema design, and pattern intelligence — powered by DataModel Engine and VECTOR", category: "tools" },
   { id: "pricingstudio",  label: "Pricing Studio",  icon: "💰", color: "#FFD60A", description: "Pricing strategy, packaging, and feedback frameworks — powered by Pricing and Feedback engines", category: "business" },
   { id: "traction",       label: "Traction",        icon: "📈", color: "#10b981", description: "Real traction signals, retention curves, growth analytics, and expansion velocity — all based on actual system activity", category: "system" },
-  { id: "opportunity",   label: "Opportunities",   icon: "🎯", color: "#f59e0b", description: "Discover, score, and pursue high-value opportunities with AI intelligence, pipeline management, and strategic scanning", category: "business" },
+  { id: "opportunity",    label: "Opportunities",    icon: "🎯", color: "#f59e0b", description: "Discover, score, and pursue high-value opportunities with AI intelligence, pipeline management, and strategic scanning", category: "business" },
+  { id: "imaginationlab", label: "ImaginationLab",   icon: "✨", color: "#8b5cf6", description: "11 creative engines for story, character, world-building, creatures, superpowers, quests, and fictional technology — all safe, fictional, and family-friendly", category: "tools" },
 ];
 
 export const ALL_APPS = DEFAULT_APPS;
@@ -108,6 +109,7 @@ const INTENT_MAP: { keywords: string[]; target: AppId }[] = [
   { keywords: ["notification", "alert", "inbox", "updates"],              target: "notifications" },
   { keywords: ["brain hub", "capability", "engines", "meta-agent", "oracle", "forge", "nexus", "sentinel", "pulse", "vector", "series", "omega", "phi"], target: "brainhub" },
   { keywords: ["opportunity", "opportunities", "opportunity engine", "opp", "pipeline", "discover opportunities", "scan opportunities", "opportunity score", "market opportunity", "revenue opportunity", "partnership opportunity"], target: "opportunity" },
+  { keywords: ["imagination", "imaginationlab", "story", "character", "worldbuilding", "creature", "superpower", "adventure", "comic", "quest", "fiction", "game idea", "creative", "storytelling", "world builder", "imagine"], target: "imaginationlab" },
   { keywords: ["money", "monetize", "revenue", "earn", "funnel", "offer"],target: "monetization" },
   { keywords: ["admin", "settings", "control", "mode", "user"],           target: "admin" },
   { keywords: ["family", "home", "personal"],                              target: "family" },
@@ -158,6 +160,7 @@ const APP_META: Record<AppId, { icon: string; label: string }> = {
   pricingstudio:  { icon: "💰", label: "Pricing Studio" },
   traction:       { icon: "📈", label: "Traction" },
   opportunity:    { icon: "🎯", label: "Opportunities" },
+  imaginationlab: { icon: "✨", label: "ImaginationLab" },
 };
 
 // ─── OS Context value ───────────────────────────────────────────────────────

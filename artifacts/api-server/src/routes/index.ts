@@ -17,6 +17,7 @@ import membersRouter from "./project_members";
 import tractionRouter from "./traction";
 import metricsRouter from "./metrics";
 import opportunitiesRouter from "./opportunities";
+import imaginationRouter from "./imagination";
 
 const router: IRouter = Router();
 
@@ -38,5 +39,6 @@ router.use("/documents", documentsRouter);
 router.use("/traction", tractionRouter);
 router.use("/metrics",  metricsRouter);
 router.use("/opportunities", opportunitiesRouter);
+router.use("/imagination",   imaginationRouter);
 
 export default router;

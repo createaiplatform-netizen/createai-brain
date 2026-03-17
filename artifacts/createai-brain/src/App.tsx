@@ -71,6 +71,7 @@ const APP_PREVIEW = [
   { icon: "💡", label: "Pricing Studio" },
   { icon: "📈", label: "Traction" },
   { icon: "🎯", label: "Opportunities" },
+  { icon: "✨", label: "ImaginationLab" },
 ];
 
 // ─── Loading Screen ────────────────────────────────────────────────────────

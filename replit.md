@@ -2,7 +2,7 @@
 
 ## Real Data Platform (COMPLETE — No mock/demo data anywhere)
 
-### DB Tables (17 total — all pushed to PostgreSQL)
+### DB Tables (18 total — all pushed to PostgreSQL)
 - `users` — auth + NDA state
 - `sessions` — session KV store
 - `projects` — user-scoped projects (`status`: active/archived, `archivedAt`)
@@ -18,7 +18,8 @@
 - `people` — contact registry (userId, name, email, phone, role, department, status, notes, addedAt)
 - `notifications` — NEW: system/app notifications (userId, type, title, body, read, appId, projectId, actionUrl)
 - `documents` — NEW: standalone documents (userId, projectId, title, body, docType, tags, isPinned, isTemplate)
-- `opportunities` — NEW: opportunity tracking (userId, title, type, status, priority, score 0-100, market, estimatedValue, confidence, source, aiInsight, tags, isStarred)
+- `opportunities` — opportunity tracking (userId, title, type, status, priority, score 0-100, market, estimatedValue, confidence, source, aiInsight, tags, isStarred)
+- `imagination_sessions` — NEW: ImaginationLab creative session persistence (userId, engineId, engineName, topic, output, title, tags, isStarred)
 
 ### Real API Routes (all auth-protected, 401 if unauthenticated)
 - `GET/POST /api/activity` — activity feed CRUD (supports `?limit=N`)
@@ -41,6 +42,11 @@
 - `POST /api/opportunities` — create opportunity with type/status/priority/score/market/value/confidence/source/aiInsight/tags
 - `POST /api/openai/engine-run (OpportunityEngine)` — AI scan + score opportunities (SSE stream)
 - `POST /api/openai/series-run (opportunity)` — OPP-Series: OpportunityEngine + MarketResearchEngine + UniversalStrategyEngine
+- `GET/POST/PUT/DELETE /api/imagination` — ImaginationLab session CRUD (save/load/star creative outputs)
+- `POST /api/openai/engine-run (11 imagination engines)` — StoryEngine, CharacterEngine, WorldbuildingEngine, CreatureEngine, SuperpowerEngine, AdventureEngine, ComicPlotEngine, GameIdeaEngine, FutureTechFictionEngine, BlueprintFictionEngine, QuestEngine
+- `POST /api/openai/series-run (imag)` — IMAG-Series: StoryEngine + CharacterEngine + WorldbuildingEngine
+- `POST /api/openai/series-run (quest)` — QUEST-Series: CreatureEngine + SuperpowerEngine + AdventureEngine
+- `POST /api/openai/series-run (fiction-tech)` — FICTION-TECH-Series: GameIdeaEngine + FutureTechFictionEngine + BlueprintFictionEngine
 
 ### Safety & Compliance Layer (server-side, ACTIVE)
 - **Content Safety Filter** (`contentSafetyCheck()`) — applied to `/api/openai/engine-run`, `/api/openai/meta-agent`, `/api/openai/brain-gen-ai` before any AI call; blocks CBRN weapons, CSAM, targeted violence, malware creation, fraud/deception with structured 400 error response (`error: "content_policy_violation"`)
