@@ -1,5 +1,18 @@
 # CreateAI Brain – Workspace
 
+## Auth — Replit OIDC (COMPLETE, FULLY LIVE)
+- **Auth package**: `lib/replit-auth-web` — `useAuth()` hook providing `{ user, isLoading, isAuthenticated, login(), logout() }`
+- **API routes**: `GET /api/auth/user`, `GET /api/login`, `GET /api/callback`, `GET /api/logout`
+- **DB tables**: `sessions` (KV store), `usersTable` (id, email, firstName, lastName, profileImageUrl, createdAt, updatedAt)
+- **Session cookie**: `httpOnly`, `secure`, `sameSite: lax`, `path: /`
+- **Auth middleware**: `authMiddleware.ts` wires `req.isAuthenticated()` + `req.user` on every request
+- **All API routes guarded**: projects, brainstorm, projectChat — all require real session; data scoped by `userId`
+- **Frontend auth gate**: `App.tsx` → `<AuthGate>` shows loading spinner → login screen → full OS
+- **Login screen**: Dark gradient, indigo brand, 3 feature pills, "Log in to get started" button → navigates to `/api/login?returnTo=<base>`
+- **Vite proxy**: `/api/*` → `http://localhost:8080` so `useAuth()` fetches + login redirects work in dev
+- **PlatformStore**: default mode `"LIVE"`, no seed users — all users are real authenticated accounts
+- **Dashboard greeting**: shows real user name from `useAuth()` (`firstName || email prefix`)
+
 ## Universal Demo + Test + Simulation Platform (COMPLETE)
 **Entry**: SimulationApp → "✦ Universal Engine" tab → Shell
 

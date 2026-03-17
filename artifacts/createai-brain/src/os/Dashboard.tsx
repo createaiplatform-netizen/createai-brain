@@ -2,6 +2,7 @@ import React, { useState, useEffect } from "react";
 import { useOS, AppId } from "./OSContext";
 import { PlatformStore, RecentActivity, PlatformMode } from "@/engine/PlatformStore";
 import { BrainstormChat } from "./BrainstormChat";
+import { useAuth } from "@workspace/replit-auth-web";
 
 const QUICK_ACTIONS = [
   { icon: "✨", label: "Create Anything", sub: "Docs, content & apps",   app: "creator"    as AppId, color: "#6366f1" },
@@ -49,6 +50,8 @@ interface DashboardProps {
 
 export function Dashboard({ onHamburger, onShowTour }: DashboardProps) {
   const { openApp, appRegistry, routeIntent, platformMode, setPlatformMode, activeApp } = useOS();
+  const { user } = useAuth();
+  const displayName = user?.firstName || user?.email?.split("@")[0] || "";
   const [intentInput, setIntentInput]         = useState("");
   const [intentResult, setIntentResult]       = useState<{ app: AppId; label: string } | null>(null);
   const [showSuggestions, setShowSuggestions] = useState(false);
@@ -178,7 +181,7 @@ export function Dashboard({ onHamburger, onShowTour }: DashboardProps) {
 
           {/* ── Greeting ── */}
           <div className={`transition-opacity duration-500 ${mounted ? "opacity-100" : "opacity-0"}`}>
-            <p className="text-[13px] font-medium" style={{ color: "#6b7280" }}>{getGreeting()}, Sara 👋</p>
+            <p className="text-[13px] font-medium" style={{ color: "#6b7280" }}>{getGreeting()}{displayName ? `, ${displayName}` : ""} 👋</p>
             <h2 className="text-[24px] font-bold mt-0.5" style={{ color: "#0f172a", letterSpacing: "-0.03em" }}>
               What would you like to create today?
             </h2>

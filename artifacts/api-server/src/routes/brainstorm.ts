@@ -66,13 +66,26 @@ Rules:
 - Only output the [PROJECT:...] tag ONCE when the user confirms.
 - Pick the most fitting industry from the allowed list based on the idea context.`;
 
+// ─── Auth guard helper ─────────────────────────────────────────────────────
+
+function requireAuth(req: Request, res: Response): string | null {
+  if (!req.isAuthenticated()) {
+    res.status(401).json({ error: "Unauthorized" });
+    return null;
+  }
+  return req.user!.id;
+}
+
 // ─── GET /brainstorm/sessions ──────────────────────────────────────────────
 
-router.get("/sessions", async (_req: Request, res: Response) => {
+router.get("/sessions", async (req: Request, res: Response) => {
+  const userId = requireAuth(req, res);
+  if (!userId) return;
   try {
     const sessions = await db
       .select()
       .from(brainstormSessions)
+      .where(eq(brainstormSessions.userId, userId))
       .orderBy(desc(brainstormSessions.updatedAt));
     res.json({ sessions });
   } catch (err) {
@@ -84,11 +97,13 @@ router.get("/sessions", async (_req: Request, res: Response) => {
 // ─── POST /brainstorm/sessions ─────────────────────────────────────────────
 
 router.post("/sessions", async (req: Request, res: Response) => {
+  const userId = requireAuth(req, res);
+  if (!userId) return;
   try {
     const { title = "New Brainstorm" } = req.body as { title?: string };
     const [session] = await db
       .insert(brainstormSessions)
-      .values({ title })
+      .values({ title, userId })
       .returning();
     res.status(201).json({ session });
   } catch (err) {
@@ -100,6 +115,7 @@ router.post("/sessions", async (req: Request, res: Response) => {
 // ─── GET /brainstorm/sessions/:id/messages ─────────────────────────────────
 
 router.get("/sessions/:id/messages", async (req: Request, res: Response) => {
+  if (!requireAuth(req, res)) return;
   try {
     const sessionId = parseInt(req.params.id, 10);
     const msgs = await db
@@ -116,6 +132,7 @@ router.get("/sessions/:id/messages", async (req: Request, res: Response) => {
 // ─── POST /brainstorm/sessions/:id/messages ────────────────────────────────
 
 router.post("/sessions/:id/messages", async (req: Request, res: Response) => {
+  if (!requireAuth(req, res)) return;
   try {
     const sessionId = parseInt(req.params.id, 10);
     const { role, content } = req.body as { role: string; content: string };
@@ -133,6 +150,8 @@ router.post("/sessions/:id/messages", async (req: Request, res: Response) => {
 // ─── POST /brainstorm/sessions/:id/chat  (SSE streaming) ──────────────────
 
 router.post("/sessions/:id/chat", async (req: Request, res: Response) => {
+  const userId = requireAuth(req, res);
+  if (!userId) return;
   const sessionId = parseInt(req.params.id, 10);
 
   try {
@@ -210,6 +229,7 @@ router.post("/sessions/:id/chat", async (req: Request, res: Response) => {
             description: meta.description ?? "",
             icon,
             color,
+            userId,
           })
           .returning();
 
@@ -308,6 +328,8 @@ Rules:
 - Return ONLY the JSON object. No \`\`\`json wrapper. No explanation before or after.`;
 
 router.post("/sessions/:id/generate", async (req: Request, res: Response) => {
+  const userId = requireAuth(req, res);
+  if (!userId) return;
   const sessionId = parseInt(req.params.id, 10);
 
   try {
@@ -366,6 +388,7 @@ router.post("/sessions/:id/generate", async (req: Request, res: Response) => {
         description: parsed.description ?? "",
         icon,
         color,
+        userId,
       })
       .returning();
 
@@ -452,6 +475,7 @@ router.post("/sessions/:id/generate", async (req: Request, res: Response) => {
 // ─── DELETE /brainstorm/sessions/:id ──────────────────────────────────────────
 
 router.delete("/sessions/:id", async (req: Request, res: Response) => {
+  if (!requireAuth(req, res)) return;
   try {
     const sessionId = parseInt(req.params.id, 10);
     await db.delete(brainstormSessions).where(eq(brainstormSessions.id, sessionId));

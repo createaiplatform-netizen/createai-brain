@@ -15,9 +15,18 @@ Your job: help plan files, suggest folder structures, brainstorm features, help 
 Be concise, practical, and encouraging. 2–4 sentences per response unless the user asks for a list or detailed plan.
 Always relate your suggestions back to the specific project context provided.`;
 
+function requireAuth(req: Request, res: Response): boolean {
+  if (!req.isAuthenticated()) {
+    res.status(401).json({ error: "Unauthorized" });
+    return false;
+  }
+  return true;
+}
+
 // ─── GET /project-chat/:projectId/history ─────────────────────────────────
 
 router.get("/:projectId/history", async (req: Request, res: Response) => {
+  if (!requireAuth(req, res)) return;
   try {
     const projectId = parseInt(req.params.projectId, 10);
     const msgs = await db
@@ -44,6 +53,7 @@ router.get("/:projectId/history", async (req: Request, res: Response) => {
 // ─── POST /project-chat/:projectId/chat  (SSE streaming) ──────────────────
 
 router.post("/:projectId/chat", async (req: Request, res: Response) => {
+  if (!requireAuth(req, res)) return;
   const projectId = parseInt(req.params.projectId, 10);
 
   try {
@@ -122,6 +132,7 @@ router.post("/:projectId/chat", async (req: Request, res: Response) => {
 // ─── DELETE /project-chat/:projectId/history ──────────────────────────────
 
 router.delete("/:projectId/history", async (req: Request, res: Response) => {
+  if (!requireAuth(req, res)) return;
   try {
     const projectId = parseInt(req.params.projectId, 10);
     await db.delete(projectChatMessages).where(eq(projectChatMessages.projectId, projectId));

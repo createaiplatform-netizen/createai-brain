@@ -42,31 +42,14 @@ function save(key: string, value: unknown) {
   try { localStorage.setItem(key, JSON.stringify(value)); } catch { /* ignore */ }
 }
 
-// ─── Default seed users ────────────────────────────────────────────────────
-const SEED_USERS: PlatformUser[] = [
-  {
-    id: "u1", name: "Sara Stadler", email: "sara@createai.app", phone: "555-0100",
-    role: "Founder", tags: ["founder", "creator", "admin"], status: "Active",
-    addedAt: new Date().toISOString(), createdBy: "system",
-  },
-  {
-    id: "u2", name: "Jake S.", email: "jake@example.com", phone: "555-0101",
-    role: "Creator", tags: ["funny", "outdoorsy", "fishing"], status: "Invited",
-    addedAt: new Date().toISOString(), createdBy: "sara",
-  },
-  {
-    id: "u3", name: "Maria L.", email: "maria@example.com", phone: "555-0102",
-    role: "Viewer", tags: ["bilingual", "adventurous"], status: "Active",
-    addedAt: new Date().toISOString(), createdBy: "sara",
-  },
-];
+// No seed users — all users are real authenticated accounts
 
 // ─── PlatformStore singleton ───────────────────────────────────────────────
 class PlatformStoreClass {
 
   // ── Mode ──────────────────────────────────────────────────────────────────
   getMode(): PlatformMode {
-    return load<PlatformMode>(MODE_KEY, "DEMO");
+    return load<PlatformMode>(MODE_KEY, "LIVE");
   }
 
   setMode(mode: PlatformMode) {
@@ -76,12 +59,7 @@ class PlatformStoreClass {
 
   // ── Users ─────────────────────────────────────────────────────────────────
   getUsers(): PlatformUser[] {
-    const stored = load<PlatformUser[]>(USERS_KEY, []);
-    if (stored.length === 0) {
-      save(USERS_KEY, SEED_USERS);
-      return SEED_USERS;
-    }
-    return stored;
+    return load<PlatformUser[]>(USERS_KEY, []);
   }
 
   addUser(user: Omit<PlatformUser, "id" | "addedAt">): PlatformUser {
@@ -106,7 +84,7 @@ class PlatformStoreClass {
   }
 
   removeUser(id: string) {
-    const users = this.getUsers().filter(u => u.id !== id && u.name !== "Sara Stadler");
+    const users = this.getUsers().filter(u => u.id !== id);
     save(USERS_KEY, users);
     window.dispatchEvent(new CustomEvent("cai:users-change"));
   }
@@ -152,9 +130,7 @@ Your role: ${role}
 This link is just for you — tap to open your dashboard and get started.
 
 Excited to have you on the platform!
-— Sara & the CreateAI Brain Team
-
-⚠️ Platform is currently in ${this.getMode()} mode. No real financial transactions or clinical actions are enabled.`;
+— The CreateAI Brain Team`;
   }
 }
 
