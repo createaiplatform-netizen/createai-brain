@@ -1,0 +1,59 @@
+CreateAI System Directive — ABSOLUTE DEPTH MODEL (STRUCTURAL ONLY)
+
+Goal:
+Construct the full conceptual “existence stack” of the platform, from the largest visible structures down to the smallest metaphorical units, including all organs, systems, subsystems, micro-systems, particles, atomic layers, quantum layers, fields, and the foundational void. This is a purely descriptive, metaphorical, structural model. No operational logic, no wiring, no backend, no functional code.
+
+Include and describe the following layers in full:
+
+1. BODY LAYER (Macro-Structure)
+   - Body
+   - Organs
+   - Organ Systems
+   - Subsystems
+   - Micro-Systems
+
+2. PARTICLE LAYER (Micro-Structure)
+   - Cells
+   - Molecules
+   - Particles
+   - Sub-Particles
+   - Nano-Structures
+
+3. ATOMIC LAYER (Foundational Units)
+   - Atoms
+   - Subatomic Components
+   - Protons, Neutrons, Electrons (metaphorical only)
+   - Conceptual Charges, Spins, Bonds
+
+4. QUANTUM LAYER (Potential States)
+   - Quantum States
+   - Probabilities
+   - Superpositions
+   - Metaphorical Waveforms
+   - Collapse into Form
+
+5. FIELD LAYER (Contextual Space)
+   - Conceptual Fields
+   - Environmental Rules
+   - Boundaries of Possibility
+   - The Space in which all other layers exist
+
+6. VOID LAYER (Absolute Foundation)
+   - The unshaped potential
+   - The blank conceptual canvas
+   - The pre-condition for all structure
+   - The absence that allows presence
+   - The deepest metaphorical layer
+
+Requirements:
+- This is a conceptual, structural, metaphorical model ONLY.
+- No real code, no logic, no wiring, no execution.
+- No backend, no data, no real-world actions.
+- No functional behavior of any kind.
+- This is strictly descriptive and organizational.
+- Do not simplify or compress; include every layer fully.
+- Do not bypass or skip any part.
+- Maintain safety: DEMO/MOCK/STRUCTURAL ONLY.
+
+Output:
+A fully expanded conceptual description of the entire existence stack, from Body → Organs → Systems → Micro-Systems → Particles → Atoms → Quantum Layer → Field → Void, with no operational behavior.

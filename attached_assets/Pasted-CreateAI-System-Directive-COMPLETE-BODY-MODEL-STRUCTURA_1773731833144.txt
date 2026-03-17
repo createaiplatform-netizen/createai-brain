@@ -1,0 +1,43 @@
+CreateAI System Directive — COMPLETE BODY MODEL (STRUCTURAL ONLY)
+
+Goal:
+Construct the full metaphorical “body” model of the platform, including every organ, subsystem, micro‑system, and conceptual layer down to the smallest symbolic particle. This is a structural, descriptive, non-operational model intended only for organization, clarity, and internal conceptual mapping. No real logic, wiring, backend, or functional code should be created.
+
+Include and describe the following conceptual systems:
+
+1. Brain — intelligence, reasoning, conceptual engines.
+2. Heart — purpose, emotional tone, user experience.
+3. Lungs — expansion, scalability, conceptual growth.
+4. Spine — structure, organization, stability.
+5. Hands — actions, triggers, user interactions (conceptual only).
+6. Nervous System — conceptual wiring, event flow, symbolic connections.
+7. Muscles — execution metaphors (non-functional).
+8. Blood Flow — conceptual data movement metaphors.
+9. Voice — output metaphors, expression, communication.
+10. Eyes — feedback metaphors, visibility, awareness.
+11. Skin — boundaries, safety, protection.
+12. Connective Tissue — shared conceptual utilities.
+13. Inner Ear — balance, navigation metaphors.
+14. Reflex System — automatic conceptual responses.
+15. DNA — patterns, templates, internal rules.
+16. Energy System — conceptual state, vitality.
+17. Immune System — error metaphors, protection.
+18. Organs — modules, builders, dashboards (structural only).
+19. Magnetic Field — context awareness metaphors.
+20. Microstructures — sub-organs, nano-systems, symbolic particles.
+21. Atomic Layer — smallest conceptual units of structure.
+22. Quantum Layer — metaphorical potential states, possibilities.
+
+Requirements:
+- This is a purely structural, descriptive, metaphorical model.
+- No real code, logic, wiring, or operational behavior.
+- No backend, no execution, no functional systems.
+- No real data, no real actions.
+- This is a conceptual map ONLY.
+- Output must be complete, exhaustive, and include every layer listed.
+- Do not skip or bypass any part.
+- Do not simplify or compress; include all conceptual layers fully.
+- Maintain safety: this is DEMO/MOCK/STRUCTURAL ONLY.
+
+Output:
+A fully expanded conceptual description of the complete body model, including all organs, subsystems, micro-systems, and metaphorical particles, with no operational behavior.

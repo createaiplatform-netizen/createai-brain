@@ -791,9 +791,9 @@ export function AdminApp() {
           headers: { "Content-Type": "application/json" },
           body: JSON.stringify({ firstName: editFirst.trim(), lastName: editLast.trim() }),
         });
-        const data = await res.json() as { user?: { firstName?: string; lastName?: string }; error?: string };
-        if (data.user) {
-          setProfile(prev => prev ? { ...prev, firstName: data.user!.firstName ?? prev.firstName, lastName: data.user!.lastName ?? prev.lastName } : prev);
+        const data = await res.json() as { ok?: boolean; firstName?: string; lastName?: string; error?: string };
+        if (res.ok && data.ok) {
+          setProfile(prev => prev ? { ...prev, firstName: data.firstName ?? prev.firstName, lastName: data.lastName ?? prev.lastName } : prev);
           setProfileSaved(true);
           setTimeout(() => setProfileSaved(false), 3000);
         } else {
