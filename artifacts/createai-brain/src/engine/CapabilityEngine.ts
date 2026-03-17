@@ -635,6 +635,18 @@ export const ALL_ENGINES: EngineDefinition[] = [
     status: "active",
     runCount: 0,
   },
+  {
+    id: "DreamscapeEngine",
+    name: "Dreamscape Engine",
+    category: "imagination",
+    icon: "🌅",
+    color: "#a78bfa",
+    description: "Generates moods, color palettes, atmospheric scenes, sensory textures, and emotional environments for fictional worlds. Purely imaginative content.",
+    series: "DREAMSCAPE-Series",
+    capabilities: ["Mood generation", "Color palette design", "Atmospheric scene writing", "Sensory texture mapping", "Emotional environment design"],
+    status: "active",
+    runCount: 0,
+  },
   // ── Opportunity Engine ────────────────────────────────────────────────
   {
     id: "OpportunityEngine",
@@ -835,6 +847,16 @@ export const ALL_SERIES: SeriesDefinition[] = [
     description: "Technology Fiction Trifecta — Game, Future Tech, and Blueprint Fiction combined to build a richly detailed fictional sci-fi or speculative world.",
     engines: ["GameIdeaEngine", "FutureTechFictionEngine", "BlueprintFictionEngine"],
     capabilities: ["Game design", "Fictional technology", "Artifact creation", "Sci-fi worldbuilding", "Speculative fiction"],
+  },
+  {
+    id: "dreamscape",
+    name: "DREAMSCAPE-Series",
+    symbol: "DS",
+    icon: "🌅",
+    color: "#a78bfa",
+    description: "Atmosphere Trifecta — Dreamscape, World, and Character united into one immersive sensory universe. Mood, environment, and inhabitants in a single creative run.",
+    engines: ["DreamscapeEngine", "WorldbuildingEngine", "CharacterEngine"],
+    capabilities: ["Mood design", "Atmospheric worldbuilding", "Sensory environment creation", "Character immersion", "Emotional landscape design"],
   },
   {
     id: "opportunity",

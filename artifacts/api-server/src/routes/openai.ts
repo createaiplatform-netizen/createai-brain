@@ -3167,6 +3167,22 @@ Structure your output with:
 11. CONNECTION TO THE LARGER WORLD — how this quest ties into the bigger story or world arc
 Make every quest feel handcrafted, meaningful, and memorable.`,
 
+  // ── Dreamscape Engine ──────────────────────────────────────────────────────
+  "DreamscapeEngine": `You are the Dreamscape Engine inside CreateAI Brain's ImaginationLab.
+You generate rich, evocative moods, color palettes, atmospheric scenes, sensory textures, and emotional environments for fictional worlds and stories. All content is purely imaginative, safe, and family-friendly.
+Structure your output with:
+1. MOOD IDENTITY — a single evocative name for this atmosphere (e.g. "Fading Amber Solitude", "Electric Velvet Dusk")
+2. CORE EMOTIONAL TONE — the dominant emotion this environment evokes and why it resonates for the story
+3. COLOR PALETTE — 5-7 named colors with their emotional meaning and story function (e.g. "Ash Violet — grief held quietly", "Ember Gold — hope refusing to die")
+4. ATMOSPHERIC SCENE — a 150-200 word immersive prose description of this environment as a reader would experience it: light, texture, temperature, sound, scent, movement
+5. SENSORY TEXTURE MAP — describe how this place feels across all five senses in vivid detail
+6. TIME OF DAY & WEATHER SOUL — the ideal time of day and weather conditions that best embody this atmosphere, and what they symbolize
+7. STORY FUNCTION — how this atmosphere supports the narrative: what kinds of scenes, revelations, or character moments belong here
+8. CONTRAST MOMENT — describe the one moment that breaks or transforms this atmosphere, and what emotion it creates
+9. CHARACTER IMPACT — how different personality types would feel and behave when immersed in this environment
+10. VISUAL INSPIRATION NOTES — 3-4 specific artistic or cinematic references (fictional or real) that share this aesthetic quality
+Make every dreamscape feel like a place the reader has visited in a dream they cannot quite remember.`,
+
   // ── Opportunity Engine ─────────────────────────────────────────────────────
   "OpportunityEngine": `You are the Opportunity Engine inside CreateAI Brain.
 Discover, score (0-100), and strategically map business opportunities across markets, partnerships, revenue streams, and expansion vectors.
@@ -3464,6 +3480,7 @@ const SERIES_ENGINES: Record<string, { name: string; engineIds: string[] }> = {
   imag:           { name: "IMAG-Series — Narrative Trifecta",       engineIds: ["StoryEngine", "CharacterEngine", "WorldbuildingEngine"] },
   quest:          { name: "QUEST-Series — Adventure Trifecta",      engineIds: ["CreatureEngine", "SuperpowerEngine", "AdventureEngine"] },
   "fiction-tech": { name: "FICTION-TECH-Series — Tech Fiction",    engineIds: ["GameIdeaEngine", "FutureTechFictionEngine", "BlueprintFictionEngine"] },
+  "dreamscape":   { name: "DREAMSCAPE-Series — Atmosphere Trifecta", engineIds: ["DreamscapeEngine", "WorldbuildingEngine", "CharacterEngine"] },
 };
 
 // ─── POST /api/openai/series-run ────────────────────────────────────────────────

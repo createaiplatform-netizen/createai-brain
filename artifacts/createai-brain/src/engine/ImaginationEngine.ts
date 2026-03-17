@@ -152,6 +152,18 @@ export const IMAGINATION_ENGINES: ImaginationEngineDefinition[] = [
     example:     "e.g. A side quest where you must reunite a cursed musician with the melody she gave away to save her village",
     series:      "imag",
   },
+  {
+    id:          "DreamscapeEngine",
+    name:        "Dreamscape Engine",
+    icon:        "🌅",
+    color:       "#a78bfa",
+    gradient:    "linear-gradient(135deg, #a78bfa, #f9a8d4)",
+    tagline:     "Atmosphere Architect",
+    description: "Generates moods, color palettes, atmospheric scenes, sensory textures, and emotional environments for fictional worlds and stories.",
+    placeholder: "What mood or atmosphere should I generate?",
+    example:     "e.g. The emotional landscape of an ancient library on a floating island at the moment the last librarian disappears",
+    series:      "dreamscape",
+  },
 ];
 
 // ─── Series Definitions ────────────────────────────────────────────────────────
@@ -196,6 +208,16 @@ export const IMAGINATION_SERIES: ImaginationSeriesDefinition[] = [
     gradient:         "linear-gradient(135deg, #3b82f6, #22d3ee, #64748b)",
     description:      "Technology Fiction Trifecta — Game, Future Tech, and Blueprint Fiction combined to build a richly detailed fictional sci-fi or speculative world with props, games, and technologies.",
     engines:          ["GameIdeaEngine", "FutureTechFictionEngine", "BlueprintFictionEngine"],
+    estimatedMinutes: 3,
+  },
+  {
+    id:               "dreamscape",
+    name:             "DREAMSCAPE-Series",
+    symbol:           "DS",
+    icon:             "🌅",
+    gradient:         "linear-gradient(135deg, #a78bfa, #f9a8d4, #10b981)",
+    description:      "Atmosphere Trifecta — Dreamscape, World, and Character united into one immersive sensory universe. Mood, environment, and inhabitants crafted together in a single creative run.",
+    engines:          ["DreamscapeEngine", "WorldbuildingEngine", "CharacterEngine"],
     estimatedMinutes: 3,
   },
 ];

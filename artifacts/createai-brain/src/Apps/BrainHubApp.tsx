@@ -75,6 +75,7 @@ const ENGINE_HINTS: Record<string, { placeholder: string; example: string }> = {
   FutureTechFictionEngine:   { placeholder: "What fictional future technology should be imagined?", example: "e.g. A device that lets people visit their own memories as if they were a video game level" },
   BlueprintFictionEngine:    { placeholder: "What fictional artifact or story prop should be designed?", example: "e.g. An ancient compass that points toward your greatest regret instead of north" },
   QuestEngine:               { placeholder: "What quest or mission should be designed?", example: "e.g. A side quest to reunite a cursed musician with the melody she gave away to save her village" },
+  DreamscapeEngine:          { placeholder: "What mood or atmosphere should I generate?", example: "e.g. The emotional landscape of an ancient library on a floating island at the moment the last librarian disappears" },
 };
 
 // ─── Status Dot ─────────────────────────────────────────────────────────────────
