@@ -9,6 +9,7 @@ import userRouter from "./user";
 import activityRouter from "./activity";
 import conversationsRouter from "./conversations";
 import integrationsRouter from "./integrations";
+import peopleRouter from "./people";
 
 const router: IRouter = Router();
 
@@ -22,5 +23,6 @@ router.use("/user", userRouter);
 router.use("/activity", activityRouter);
 router.use("/conversations", conversationsRouter);
 router.use("/integrations", integrationsRouter);
+router.use("/people", peopleRouter);
 
 export default router;

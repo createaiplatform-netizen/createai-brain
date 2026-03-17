@@ -37,6 +37,7 @@ interface Project {
   icon: string;
   color: string;
   created: string;
+  status?: "active" | "archived";
   folders: ProjectFolder[];
   files: ProjectFile[];
   subApps: SubApp[];
@@ -131,6 +132,18 @@ async function apiCreateProject(name: string, industry: string): Promise<Project
 async function apiDeleteProject(id: string): Promise<boolean> {
   try {
     const res = await fetch(`/api/projects/${id}`, { method: "DELETE", credentials: "include" });
+    return res.ok;
+  } catch { return false; }
+}
+
+async function apiSetProjectStatus(id: string, status: "active" | "archived"): Promise<boolean> {
+  try {
+    const res = await fetch(`/api/projects/${id}/status`, {
+      method: "PUT",
+      credentials: "include",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ status }),
+    });
     return res.ok;
   } catch { return false; }
 }
@@ -393,10 +406,14 @@ export function ProjectOSApp() {
   const [fileContentSaved, setFileContentSaved] = useState(false);
   const [editingProjectName, setEditingProjectName] = useState(false);
   const [editProjectNameVal, setEditProjectNameVal] = useState("");
+  const [showArchived, setShowArchived] = useState(false);
   const aiAbortRef = useRef<AbortController | null>(null);
   const aiScrollRef = useRef<HTMLDivElement>(null);
 
   const activeProject = projects.find(p => p.id === activeProjectId) ?? null;
+  const visibleProjects = projects.filter(p =>
+    showArchived ? p.status === "archived" : (p.status ?? "active") === "active"
+  );
 
   // Load projects from API on mount
   useEffect(() => {
@@ -429,6 +446,21 @@ export function ProjectOSApp() {
     setProjects(prev => prev.filter(p => p.id !== id));
     if (activeProjectId === id) setActiveProjectId(null);
   }, [activeProjectId]);
+
+  const archiveProject = useCallback(async (id: string) => {
+    const ok = await apiSetProjectStatus(id, "archived");
+    if (ok) {
+      setProjects(prev => prev.map(p => p.id === id ? { ...p, status: "archived" } : p));
+      if (activeProjectId === id) setActiveProjectId(null);
+    }
+  }, [activeProjectId]);
+
+  const restoreProject = useCallback(async (id: string) => {
+    const ok = await apiSetProjectStatus(id, "active");
+    if (ok) {
+      setProjects(prev => prev.map(p => p.id === id ? { ...p, status: "active" } : p));
+    }
+  }, []);
 
   const addFile = useCallback(async () => {
     if (!activeProject || !newFileName.trim()) return;
@@ -607,6 +639,20 @@ export function ProjectOSApp() {
           >🔍</button>
         </div>
 
+        {/* Active / Archived toggle */}
+        <div className="flex mx-3 mb-1 mt-1 rounded-lg overflow-hidden" style={{ border: "1px solid rgba(255,255,255,0.07)" }}>
+          <button
+            onClick={() => setShowArchived(false)}
+            className="flex-1 py-1.5 text-[10px] font-semibold transition-all"
+            style={!showArchived ? { background: "rgba(99,102,241,0.25)", color: "#a5b4fc" } : { background: "transparent", color: "#475569" }}
+          >Active</button>
+          <button
+            onClick={() => setShowArchived(true)}
+            className="flex-1 py-1.5 text-[10px] font-semibold transition-all"
+            style={showArchived ? { background: "rgba(99,102,241,0.25)", color: "#a5b4fc" } : { background: "transparent", color: "#475569" }}
+          >Archived</button>
+        </div>
+
         {/* Project List */}
         <div className="flex-1 overflow-y-auto py-2">
           {loadingProjects ? (
@@ -614,13 +660,15 @@ export function ProjectOSApp() {
               <div className="text-2xl mb-2 animate-pulse">📂</div>
               <div className="text-[10px]" style={{ color: "#334155" }}>Loading projects…</div>
             </div>
-          ) : projects.length === 0 && (
+          ) : visibleProjects.length === 0 && (
             <div className="px-4 py-6 text-center">
-              <div className="text-2xl mb-2">📂</div>
-              <div className="text-[10px]" style={{ color: "#334155" }}>No projects yet</div>
+              <div className="text-2xl mb-2">{showArchived ? "🗂️" : "📂"}</div>
+              <div className="text-[10px]" style={{ color: "#334155" }}>
+                {showArchived ? "No archived projects" : "No projects yet"}
+              </div>
             </div>
           )}
-          {projects.map(proj => (
+          {visibleProjects.map(proj => (
             <div
               key={proj.id}
               className="group flex items-center gap-2.5 px-3 py-2.5 mx-2 rounded-xl cursor-pointer transition-all mb-0.5"
@@ -630,37 +678,57 @@ export function ProjectOSApp() {
                   : "transparent",
                 border: `1px solid ${activeProjectId === proj.id ? `${proj.color}35` : "transparent"}`,
               }}
-              onClick={() => { setActiveProjectId(proj.id); setActiveFolderId(null); }}
+              onClick={() => { if (!showArchived) { setActiveProjectId(proj.id); setActiveFolderId(null); } }}
             >
-              <span className="text-base flex-shrink-0">{proj.icon}</span>
+              <span className="text-base flex-shrink-0" style={{ opacity: showArchived ? 0.5 : 1 }}>{proj.icon}</span>
               <div className="flex-1 min-w-0">
                 <div
                   className="text-[12px] font-medium truncate"
-                  style={{ color: activeProjectId === proj.id ? proj.color : "#94a3b8" }}
+                  style={{ color: activeProjectId === proj.id ? proj.color : showArchived ? "#475569" : "#94a3b8" }}
                 >
                   {proj.name}
                 </div>
                 <div className="text-[9px]" style={{ color: "#334155" }}>{proj.industry}</div>
               </div>
-              <button
-                onClick={e => { e.stopPropagation(); setDeleteTarget({ type: "project", id: proj.id, label: proj.name }); }}
-                className="opacity-0 group-hover:opacity-100 text-[10px] px-1 py-0.5 rounded"
-                style={{ color: "#f87171", background: "rgba(239,68,68,0.12)" }}
-              >✕</button>
+              {showArchived ? (
+                <button
+                  onClick={e => { e.stopPropagation(); restoreProject(proj.id); }}
+                  className="opacity-0 group-hover:opacity-100 text-[9px] px-1.5 py-0.5 rounded font-semibold"
+                  style={{ color: "#34d399", background: "rgba(52,211,153,0.12)" }}
+                  title="Restore project"
+                >↩</button>
+              ) : (
+                <div className="flex items-center gap-1 opacity-0 group-hover:opacity-100">
+                  <button
+                    onClick={e => { e.stopPropagation(); archiveProject(proj.id); }}
+                    className="text-[9px] px-1.5 py-0.5 rounded font-semibold"
+                    style={{ color: "#f59e0b", background: "rgba(245,158,11,0.12)" }}
+                    title="Archive project"
+                  >📦</button>
+                  <button
+                    onClick={e => { e.stopPropagation(); setDeleteTarget({ type: "project", id: proj.id, label: proj.name }); }}
+                    className="text-[10px] px-1 py-0.5 rounded"
+                    style={{ color: "#f87171", background: "rgba(239,68,68,0.12)" }}
+                    title="Delete project"
+                  >✕</button>
+                </div>
+              )}
             </div>
           ))}
         </div>
 
         {/* New Project Button */}
-        <div className="p-3" style={{ borderTop: "1px solid rgba(255,255,255,0.06)" }}>
-          <button
-            onClick={() => setShowNewProject(true)}
-            className="w-full py-2.5 rounded-xl text-[12px] font-semibold flex items-center justify-center gap-2"
-            style={{ background: "rgba(99,102,241,0.18)", border: "1px solid rgba(99,102,241,0.35)", color: "#818cf8" }}
-          >
-            <span>＋</span> New Project
-          </button>
-        </div>
+        {!showArchived && (
+          <div className="p-3" style={{ borderTop: "1px solid rgba(255,255,255,0.06)" }}>
+            <button
+              onClick={() => setShowNewProject(true)}
+              className="w-full py-2.5 rounded-xl text-[12px] font-semibold flex items-center justify-center gap-2"
+              style={{ background: "rgba(99,102,241,0.18)", border: "1px solid rgba(99,102,241,0.35)", color: "#818cf8" }}
+            >
+              <span>＋</span> New Project
+            </button>
+          </div>
+        )}
       </div>
 
       {/* ── Main Area ─────────────────────────────────────────────────────── */}

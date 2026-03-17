@@ -318,6 +318,7 @@ function EverythingEngine() {
       const res = await fetch("/api/openai/generate", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
+        credentials: "include",
         body: JSON.stringify({ type: "Document", description: prompt, tone: intent.tone }),
         signal: controller.signal,
       });
@@ -527,6 +528,7 @@ function QuickGenerator() {
       const res = await fetch("/api/openai/generate", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
+        credentials: "include",
         body: JSON.stringify({ type: selectedType, description, tone }),
         signal: ctrl.signal,
       });

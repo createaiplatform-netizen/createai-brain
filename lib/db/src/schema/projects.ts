@@ -10,7 +10,9 @@ export const projects = pgTable("projects", {
   icon: text("icon").notNull().default("📁"),
   color: text("color").notNull().default("#94a3b8"),
   userId: text("user_id").notNull().default("sara"),
-  mode: text("mode").notNull().default("demo"),
+  mode: text("mode").notNull().default("live"),
+  status: text("status").notNull().default("active"),
+  archivedAt: timestamp("archived_at", { withTimezone: true }),
   createdAt: timestamp("created_at", { withTimezone: true }).defaultNow().notNull(),
   updatedAt: timestamp("updated_at", { withTimezone: true }).defaultNow().notNull(),
 });

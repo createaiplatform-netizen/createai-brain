@@ -63,6 +63,7 @@ async function streamProjectSection(
   const res = await fetch("/api/openai/project-builder", {
     method: "POST",
     headers: { "Content-Type": "application/json" },
+    credentials: "include",
     body: JSON.stringify({
       project: ctx.project,
       industry: ctx.industry,

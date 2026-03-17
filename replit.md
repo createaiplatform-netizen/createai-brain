@@ -5,7 +5,7 @@
 ### DB Tables
 - `users` — auth + NDA state
 - `sessions` — session KV store
-- `projects` — user-scoped projects
+- `projects` — user-scoped projects (`status`: active/archived, `archivedAt`)
 - `project_folders` + `project_files` — full file tree under projects
 - `brainstorm_sessions` + `brainstorm_messages` — BrainGen sessions
 - `conversations` — chat sessions (userId, appId, title, createdAt, updatedAt)
@@ -13,13 +13,25 @@
 - `project_chat_messages` — project-specific chat history
 - `activity_log` — universal activity feed (userId, action, label, icon, appId, projectId)
 - `integrations` — user-registered integrations (name, type, category, status, isEnabled, configJson)
+- `people` — contact registry (userId, name, email, phone, role, department, status, notes, addedAt)
 
 ### Real API Routes (all auth-protected, 401 if unauthenticated)
-- `GET/POST /api/activity` — activity feed CRUD
+- `GET/POST /api/activity` — activity feed CRUD (supports `?limit=N`)
 - `GET/POST /api/conversations`, `GET/POST /:id/messages`, `DELETE /:id` — chat persistence
 - `GET/POST/PUT/DELETE /api/integrations` — integration registry
 - `GET/PUT /api/user/me` — user profile
 - `GET/POST/PUT/DELETE /api/projects` + files/folders endpoints — full ProjectOS
+- `PUT /api/projects/:id/status` — archive/restore project (`{ status: "active"|"archived" }`)
+- `GET/POST/PUT/DELETE /api/people` — full people/contact CRUD
+
+### Production Audit Completed (all apps)
+- **PeopleApp** — fully rewritten with real `/api/people` (no PlatformStore)
+- **DocumentsApp** — real DB files only, no static STATIC_DOCS or DOC_CONTENT arrays
+- **AdminApp** — real DB counts (projects, people), real audit log from `/api/activity`
+- **ProjectOSApp** — archive/restore with Active/Archived toggle in sidebar; `apiSetProjectStatus()`
+- **All generator apps** — `credentials:"include"` on every fetch (BizDevApp, BizUniverseApp, BusinessCreationApp, BusinessEntityApp, ProjectBuilderApp, CreatorApp, MarketingApp, ToolsApp, SimulationApp)
+- **ErrorBoundary** — global `<ErrorBoundary appName={label}>` wraps every app in AppWindow.tsx; shows graceful error + Reload button
+- **Universal breadcrumb bar** — thin indigo-tinted bar below top header in every app showing "CreateAI Brain › {icon} {AppLabel}"
 
 ### Universal Activity Logging
 - All saves via `SaveToProjectModal` POST to `/api/activity`

@@ -56,6 +56,7 @@ async function streamUniverseLayer(
   const res = await fetch("/api/openai/biz-universe", {
     method: "POST",
     headers: { "Content-Type": "application/json" },
+    credentials: "include",
     body: JSON.stringify({
       idea: ctx.idea,
       industry: ctx.industry,

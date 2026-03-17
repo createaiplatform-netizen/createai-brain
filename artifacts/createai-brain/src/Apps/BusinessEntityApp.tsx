@@ -59,6 +59,7 @@ async function streamEntityLayer(
   const res = await fetch("/api/openai/business-entity", {
     method: "POST",
     headers: { "Content-Type": "application/json" },
+    credentials: "include",
     body: JSON.stringify({
       entityName: ctx.entityName,
       description: ctx.description,

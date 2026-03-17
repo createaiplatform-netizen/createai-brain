@@ -9,3 +9,4 @@ export * from "./brainstorm_messages";
 export * from "./project_chat_messages";
 export * from "./activity_log";
 export * from "./integrations";
+export * from "./people";

@@ -73,6 +73,7 @@ async function streamBusinessLayer(
   const res = await fetch("/api/openai/business-creation", {
     method: "POST",
     headers: { "Content-Type": "application/json" },
+    credentials: "include",
     body: JSON.stringify({
       industry: ctx.industry,
       region: ctx.region,
@@ -120,6 +121,7 @@ async function streamEnsureLayer(
   const res = await fetch("/api/openai/everything-ensurer", {
     method: "POST",
     headers: { "Content-Type": "application/json" },
+    credentials: "include",
     body: JSON.stringify({
       content,
       industry: ctx.industry,

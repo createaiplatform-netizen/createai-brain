@@ -4,26 +4,19 @@ import { CreationStore } from "@/standalone/creation/CreationStore";
 import { ConnectionEngine, NODE_TYPE_CFG, NodeType } from "@/engine/ConnectionEngine";
 import { RegulatoryEngine } from "@/engine/RegulatoryEngine";
 import { BackendBlueprintEngine } from "@/engine/BackendBlueprintEngine";
-import { PlatformStore, PlatformUser } from "@/engine/PlatformStore";
 
 type OsMode = "DEMO" | "TEST" | "LIVE";
 
-const AUDIT_LOG = [
-  { time: "System", entry: "Platform initialized — auth + NDA flow active" },
-  { time: "System", entry: "All 19 apps loaded and registered" },
-  { time: "System", entry: "Safety shell active — all engines operational" },
-  { time: "System", entry: "ProjectOS connected to live database" },
-  { time: "System", entry: "Content generation engine ready" },
-  { time: "System", entry: "Audit log active — session events tracked locally" },
-];
+interface ActivityEntry { id: number; action: string; details: string; createdAt: string; }
+interface PersonRecord { id: number; name: string; email: string | null; role: string; status: string; }
 
 const SECTIONS = [
-  { id: "projects", label: "All Projects",   value: "6",      icon: "📁", desc: "View, edit, or archive any project" },
-  { id: "users",    label: "All Users",       value: "3",      icon: "👥", desc: "Manage access, roles, and permissions" },
+  { id: "projects", label: "All Projects",   value: "…",      icon: "📁", desc: "View, edit, or archive any project" },
+  { id: "users",    label: "People",          value: "…",      icon: "👥", desc: "Manage access, roles, and permissions" },
   { id: "engines",  label: "Engines",         value: "30+",    icon: "⚙️", desc: "All engines loaded and connected" },
   { id: "security", label: "Security",        value: "Active", icon: "🔒", desc: "RBAC, invite-only, audit log" },
   { id: "safety",   label: "Safety Shell",    value: "ON",     icon: "🛡️", desc: "Global error prevention active" },
-  { id: "audit",    label: "Audit Log",       value: `${AUDIT_LOG.length}`, icon: "📋", desc: "Recent activity log" },
+  { id: "audit",    label: "Audit Log",       value: "…",      icon: "📋", desc: "Recent activity log" },
   { id: "debug",    label: "Debug Panel",     value: "Live",   icon: "🔬", desc: "System state, engines, localStorage" },
   { id: "connection-layer",    label: "Connection Layer",   value: "30+ nodes", icon: "🕸️", desc: "Internal module/flow/brain fabric" },
   { id: "regulatory",          label: "Regulatory Blueprints", value: "6",     icon: "📜", desc: "HIPAA, GDPR, SOC2, CMS, ADA — blueprint only" },
@@ -300,127 +293,131 @@ function BackendBlueprintsSection({ onBack }: { onBack: () => void }) {
 
 // ─── AdminUsersSection ────────────────────────────────────────────────────────
 function AdminUsersSection({ onBack, onGoToPeople }: { onBack: () => void; onGoToPeople: () => void }) {
-  const [users, setUsers] = useState<PlatformUser[]>([]);
-  const [inviteName, setInviteName]   = useState("");
+  const [people, setPeople] = useState<PersonRecord[]>([]);
+  const [loading, setLoading] = useState(true);
+  const [inviteName, setInviteName] = useState("");
   const [inviteEmail, setInviteEmail] = useState("");
-  const [inviteRole, setInviteRole]   = useState("Creator");
-  const [inviteDone, setInviteDone]   = useState(false);
-  const [inviteLink, setInviteLink]   = useState("");
-  const [copied, setCopied]           = useState(false);
+  const [inviteRole, setInviteRole] = useState("Member");
+  const [inviteDone, setInviteDone] = useState(false);
+  const [saving, setSaving] = useState(false);
 
-  const loadUsers = () => setUsers(PlatformStore.getUsers());
-  useEffect(() => {
-    loadUsers();
-    window.addEventListener("cai:users-change", loadUsers);
-    return () => window.removeEventListener("cai:users-change", loadUsers);
-  }, []);
+  const loadPeople = async () => {
+    setLoading(true);
+    try {
+      const r = await fetch("/api/people", { credentials: "include" });
+      if (r.ok) { const d = await r.json(); setPeople(d.people ?? []); }
+    } catch {}
+    finally { setLoading(false); }
+  };
 
-  const handleInvite = () => {
+  useEffect(() => { loadPeople(); }, []);
+
+  const handleInvite = async () => {
     if (!inviteName.trim()) return;
-    PlatformStore.addUser({
-      name: inviteName.trim(), email: inviteEmail.trim(), phone: "",
-      role: inviteRole, tags: [], status: "Invited", createdBy: "admin",
-    });
-    const link = PlatformStore.generateInviteLink(inviteName);
-    setInviteLink(link);
-    setInviteDone(true);
-    setInviteName(""); setInviteEmail("");
+    setSaving(true);
+    try {
+      const r = await fetch("/api/people", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        credentials: "include",
+        body: JSON.stringify({ name: inviteName.trim(), email: inviteEmail.trim() || null, role: inviteRole, status: "Invited" }),
+      });
+      if (r.ok) {
+        await loadPeople();
+        setInviteDone(true);
+        setInviteName(""); setInviteEmail("");
+      }
+    } catch {}
+    finally { setSaving(false); }
   };
 
-  const handleStatusChange = (id: string, s: PlatformUser["status"]) => {
-    PlatformStore.updateUserStatus(id, s);
-    loadUsers();
+  const handleRemove = async (id: number) => {
+    if (!confirm("Remove this person?")) return;
+    await fetch(`/api/people/${id}`, { method: "DELETE", credentials: "include" });
+    await loadPeople();
   };
 
-  const handleRemove = (id: string) => {
-    PlatformStore.removeUser(id);
-    loadUsers();
+  const statusStyle = (status: string) => {
+    if (status === "Active")  return { background: "rgba(34,197,94,0.12)", color: "#4ade80" };
+    if (status === "Invited") return { background: "rgba(99,102,241,0.12)", color: "#818cf8" };
+    return { background: "rgba(251,146,60,0.12)", color: "#fb923c" };
   };
 
   return (
     <div className="p-5 space-y-5 overflow-y-auto">
       <div className="flex items-center gap-2">
         <button onClick={onBack} className="text-primary text-sm font-medium">‹ Admin</button>
-        <h2 className="text-xl font-bold text-foreground flex-1">Users ({users.length})</h2>
+        <h2 className="text-[17px] font-bold text-foreground flex-1">People ({loading ? "…" : people.length})</h2>
         <button onClick={onGoToPeople}
-          className="text-[11px] bg-primary/10 text-primary font-semibold px-3 py-1.5 rounded-xl hover:bg-primary/20 transition-colors">
+          className="text-[11px] font-semibold px-3 py-1.5 rounded-xl transition-colors"
+          style={{ background: "rgba(99,102,241,0.12)", color: "#818cf8" }}>
           Open People App →
         </button>
       </div>
 
-      {/* Live user list */}
-      <div className="space-y-2">
-        {users.map(u => (
-          <div key={u.id} className="bg-background border border-border/50 rounded-2xl p-3.5 space-y-2">
-            <div className="flex items-center gap-3">
-              <div className="w-9 h-9 rounded-full bg-primary/10 flex items-center justify-center text-primary font-bold flex-shrink-0">{u.name[0]}</div>
+      {loading ? (
+        <div className="flex items-center gap-2 text-[12px] text-muted-foreground py-4">
+          <div className="w-3 h-3 border-2 border-primary border-t-transparent rounded-full animate-spin" />
+          Loading…
+        </div>
+      ) : people.length === 0 ? (
+        <div className="text-center py-6 text-[13px] text-muted-foreground">No people added yet. Use the People app to add team members.</div>
+      ) : (
+        <div className="space-y-2">
+          {people.map(p => (
+            <div key={p.id} className="p-3 rounded-2xl border border-border/40 flex items-center gap-3"
+              style={{ background: "rgba(255,255,255,0.03)" }}>
+              <div className="w-9 h-9 rounded-full flex items-center justify-center font-bold text-sm flex-shrink-0"
+                style={{ background: "rgba(99,102,241,0.15)", color: "#818cf8" }}>{p.name[0]}</div>
               <div className="flex-1 min-w-0">
-                <p className="font-semibold text-[13px] text-foreground">{u.name}</p>
-                <p className="text-[11px] text-muted-foreground">{u.role} {u.email ? `· ${u.email}` : ""}</p>
+                <p className="font-semibold text-[13px] text-foreground">{p.name}</p>
+                <p className="text-[11px] text-muted-foreground">{p.role}{p.email ? ` · ${p.email}` : ""}</p>
               </div>
-              <span className={`text-[10px] font-bold px-2 py-0.5 rounded-full flex-shrink-0 ${u.status === "Active" ? "bg-green-500/15 text-green-400" : u.status === "Invited" ? "bg-primary/15 text-primary" : "bg-orange-500/15 text-orange-400"}`}>
-                {u.status}
-              </span>
-            </div>
-            <div className="flex gap-1.5">
-              {(["Active", "Invited", "Pending"] as PlatformUser["status"][]).map(s => (
-                <button key={s} onClick={() => handleStatusChange(u.id, s)}
-                  className={`flex-1 text-[10px] font-semibold py-1.5 rounded-lg border transition-all
-                    ${u.status === s ? "bg-primary text-white border-primary" : "border-border/40 text-muted-foreground hover:border-primary/30"}`}>
-                  {s}
-                </button>
-              ))}
-              <button onClick={() => handleRemove(u.id)}
-                className="text-[10px] font-semibold px-2 py-1.5 rounded-lg border border-red-200 text-red-500 hover:bg-red-50 transition-colors">
-                Remove
+              <span className="text-[10px] font-bold px-2 py-0.5 rounded-full flex-shrink-0" style={statusStyle(p.status)}>{p.status}</span>
+              <button onClick={() => handleRemove(p.id)}
+                className="text-[10px] font-semibold px-2 py-1 rounded-lg flex-shrink-0 transition-colors"
+                style={{ color: "#f87171", background: "rgba(239,68,68,0.08)" }}>
+                ✕
               </button>
             </div>
-          </div>
-        ))}
-      </div>
+          ))}
+        </div>
+      )}
 
-      {/* Quick invite form */}
-      <div className="bg-primary/5 border border-primary/15 rounded-2xl p-4 space-y-3">
-        <p className="font-semibold text-[13px] text-foreground">+ Quick Invite User</p>
+      <div className="rounded-2xl p-4 space-y-3" style={{ background: "rgba(99,102,241,0.06)", border: "1px solid rgba(99,102,241,0.14)" }}>
+        <p className="font-semibold text-[13px] text-foreground">+ Quick Add Person</p>
         {inviteDone && (
-          <div className="bg-green-500/10 border border-green-500/20 rounded-xl p-3 space-y-2">
-            <p className="text-green-400 font-semibold text-[12px]">✓ User invited! Here's their link:</p>
-            <p className="text-[11px] font-mono text-foreground break-all bg-background rounded-lg p-2 border border-green-500/20">{inviteLink}</p>
-            <button onClick={() => { navigator.clipboard.writeText(inviteLink); setCopied(true); setTimeout(() => setCopied(false), 1500); }}
-              className="w-full text-[11px] bg-green-500/15 text-green-400 font-semibold py-2 rounded-xl hover:bg-green-500/25 transition-colors">
-              {copied ? "✓ Copied Link" : "Copy Invite Link"}
-            </button>
-            <button onClick={() => setInviteDone(false)}
-              className="w-full text-[11px] bg-muted text-muted-foreground font-semibold py-2 rounded-xl hover:bg-muted/80 transition-colors">
-              + Invite Another
-            </button>
+          <div className="rounded-xl p-3 text-center" style={{ background: "rgba(34,197,94,0.10)", border: "1px solid rgba(34,197,94,0.20)" }}>
+            <p className="text-[13px] font-semibold" style={{ color: "#4ade80" }}>✓ Person added to People!</p>
+            <button onClick={() => setInviteDone(false)} className="text-[11px] text-muted-foreground mt-1">+ Add Another</button>
           </div>
         )}
         {!inviteDone && (
           <>
             <input value={inviteName} onChange={e => setInviteName(e.target.value)} placeholder="Full Name *"
-              className="w-full bg-background border border-border/50 rounded-xl px-3 py-2 text-[13px] outline-none focus:ring-2 focus:ring-primary/20 transition-all" />
+              className="w-full rounded-xl px-3 py-2 text-[13px] outline-none"
+              style={{ background: "rgba(14,18,42,0.70)", border: "1px solid rgba(255,255,255,0.10)", color: "#f8fafc" }} />
             <input value={inviteEmail} onChange={e => setInviteEmail(e.target.value)} placeholder="Email (optional)" type="email"
-              className="w-full bg-background border border-border/50 rounded-xl px-3 py-2 text-[13px] outline-none focus:ring-2 focus:ring-primary/20 transition-all" />
+              className="w-full rounded-xl px-3 py-2 text-[13px] outline-none"
+              style={{ background: "rgba(14,18,42,0.70)", border: "1px solid rgba(255,255,255,0.10)", color: "#f8fafc" }} />
             <div className="flex gap-2">
-              {["Creator", "Viewer", "Admin"].map(r => (
+              {["Member", "Creator", "Admin"].map(r => (
                 <button key={r} onClick={() => setInviteRole(r)}
-                  className={`flex-1 text-[11px] font-semibold py-2 rounded-xl border transition-all
-                    ${inviteRole === r ? "bg-primary text-white border-primary" : "border-border/50 text-muted-foreground hover:border-primary/30"}`}>
+                  className="flex-1 text-[11px] font-semibold py-2 rounded-xl border transition-all"
+                  style={inviteRole === r
+                    ? { background: "rgba(99,102,241,0.20)", borderColor: "rgba(99,102,241,0.45)", color: "#818cf8" }
+                    : { background: "rgba(255,255,255,0.04)", borderColor: "rgba(255,255,255,0.10)", color: "rgba(255,255,255,0.50)" }}>
                   {r}
                 </button>
               ))}
             </div>
-            <button onClick={handleInvite} disabled={!inviteName.trim()}
-              className="w-full bg-primary text-white text-sm font-semibold py-2.5 rounded-xl hover:opacity-90 disabled:opacity-40 transition-opacity">
-              Generate Invite Link
+            <button onClick={handleInvite} disabled={!inviteName.trim() || saving}
+              className="w-full text-white text-[13px] font-semibold py-2.5 rounded-xl disabled:opacity-40 transition-all"
+              style={{ background: "linear-gradient(135deg,#6366f1,#8b5cf6)" }}>
+              {saving ? "Adding…" : "Add to People"}
             </button>
           </>
         )}
-      </div>
-
-      <div className="bg-muted/40 border border-border/40 rounded-xl p-3">
-        <p className="text-[11px] text-muted-foreground">Platform users are managed via Replit Auth. Add people in the People app. Your account is shown as the platform owner.</p>
       </div>
     </div>
   );
@@ -434,15 +431,11 @@ export function AdminApp() {
   const [confirmLive, setConfirmLive] = useState(false);
   const [logAdded, setLogAdded] = useState(false);
   const [debugData, setDebugData] = useState<Record<string, unknown>>({});
-  const [liveUserCount, setLiveUserCount] = useState(() => PlatformStore.getUsers().length);
-  const [realProjects, setRealProjects] = useState<Array<{ id: string; name: string; icon: string; industry: string; mode?: string; color?: string }>>([]);
+  const [realProjects, setRealProjects] = useState<Array<{ id: string; name: string; icon: string; industry: string }>>([]);
   const [projectsLoading, setProjectsLoading] = useState(true);
-
-  useEffect(() => {
-    const refresh = () => setLiveUserCount(PlatformStore.getUsers().length);
-    window.addEventListener("cai:users-change", refresh);
-    return () => window.removeEventListener("cai:users-change", refresh);
-  }, []);
+  const [peopleCount, setPeopleCount] = useState<number | null>(null);
+  const [auditLog, setAuditLog] = useState<ActivityEntry[]>([]);
+  const [auditLoading, setAuditLoading] = useState(false);
 
   useEffect(() => {
     fetch("/api/projects", { credentials: "include" })
@@ -450,6 +443,11 @@ export function AdminApp() {
       .then(d => { setRealProjects(d.projects ?? []); })
       .catch(() => {})
       .finally(() => setProjectsLoading(false));
+
+    fetch("/api/people", { credentials: "include" })
+      .then(r => r.ok ? r.json() : { people: [] })
+      .then(d => { setPeopleCount((d.people ?? []).length); })
+      .catch(() => {});
   }, []);
 
   useEffect(() => {
@@ -613,22 +611,48 @@ export function AdminApp() {
   }
 
   if (activeSection === "audit") {
-    const log = logAdded
-      ? [{ time: "Now", entry: `System mode switched to ${osMode}` }, ...AUDIT_LOG]
-      : AUDIT_LOG;
+    if (!auditLog.length && !auditLoading) {
+      setAuditLoading(true);
+      fetch("/api/activity?limit=50", { credentials: "include" })
+        .then(r => r.ok ? r.json() : { activities: [] })
+        .then(d => { setAuditLog(d.activities ?? []); })
+        .catch(() => {})
+        .finally(() => setAuditLoading(false));
+    }
     return (
-      <div className="p-6 space-y-4">
+      <div className="p-5 space-y-4">
         <button onClick={() => setActiveSection(null)} className="text-primary text-sm font-medium">‹ Admin</button>
-        <h2 className="text-xl font-bold text-foreground">Audit Log</h2>
-        <div className="bg-background rounded-2xl border border-border/50 divide-y divide-border/30">
-          {log.map((entry, i) => (
-            <div key={i} className="flex items-start gap-3 px-4 py-3">
-              <span className="text-[10px] text-muted-foreground font-mono mt-0.5 flex-shrink-0 w-16">{entry.time}</span>
-              <p className="text-[12px] text-foreground font-mono">{entry.entry}</p>
-            </div>
-          ))}
-        </div>
-        <p className="text-[10px] text-muted-foreground text-center">Mock log — structural only</p>
+        <h2 className="text-[18px] font-bold text-foreground">Audit Log</h2>
+        {logAdded && (
+          <div className="rounded-xl p-2.5 text-[12px] font-semibold" style={{ background: "rgba(34,197,94,0.10)", color: "#4ade80" }}>
+            ✓ Mode switched to {osMode}
+          </div>
+        )}
+        {auditLoading ? (
+          <div className="flex items-center gap-2 text-[12px] text-muted-foreground py-4">
+            <div className="w-3 h-3 border-2 border-primary border-t-transparent rounded-full animate-spin" />
+            Loading activity…
+          </div>
+        ) : auditLog.length === 0 ? (
+          <div className="text-center py-8 space-y-2">
+            <p className="text-2xl">📋</p>
+            <p className="text-[13px] text-muted-foreground">No activity yet. Actions like creating projects, saving files, and adding people appear here.</p>
+          </div>
+        ) : (
+          <div className="rounded-2xl border border-border/50 divide-y divide-border/30" style={{ background: "rgba(255,255,255,0.03)" }}>
+            {auditLog.map((entry, i) => (
+              <div key={i} className="flex items-start gap-3 px-4 py-3">
+                <span className="text-[10px] text-muted-foreground font-mono mt-0.5 flex-shrink-0 w-16">
+                  {new Date(entry.createdAt).toLocaleTimeString([], { hour: "2-digit", minute: "2-digit" })}
+                </span>
+                <div className="flex-1 min-w-0">
+                  <p className="text-[12px] text-foreground font-medium">{entry.action}</p>
+                  {entry.details && <p className="text-[11px] text-muted-foreground mt-0.5 truncate">{entry.details}</p>}
+                </div>
+              </div>
+            ))}
+          </div>
+        )}
       </div>
     );
   }
@@ -774,18 +798,27 @@ export function AdminApp() {
 
       {/* Stat cards — all clickable */}
       <div className="grid grid-cols-2 gap-3">
-        {SECTIONS.map(s => (
-          <button key={s.id} onClick={() => setActiveSection(s.id)}
-            className="p-4 bg-background rounded-2xl border border-border/50 space-y-1 text-left hover:border-primary/20 hover:shadow-sm transition-all group">
-            <div className="flex items-center justify-between">
-              <span className="text-xl">{s.icon}</span>
-              <span className="text-[13px] font-bold text-foreground">{s.id === "projects" ? (projectsLoading ? "…" : String(realProjects.length)) : s.id === "users" ? String(liveUserCount + 1) : s.value}</span>
-            </div>
-            <p className="font-semibold text-[13px] text-foreground">{s.label}</p>
-            <p className="text-[11px] text-muted-foreground">{s.desc}</p>
-            <p className="text-[10px] text-primary font-medium opacity-0 group-hover:opacity-100 transition-opacity">View details →</p>
-          </button>
-        ))}
+        {SECTIONS.map(s => {
+          let val = s.value;
+          if (s.id === "projects") val = projectsLoading ? "…" : String(realProjects.length);
+          if (s.id === "users") val = peopleCount === null ? "…" : String(peopleCount);
+          if (s.id === "audit") val = auditLog.length > 0 ? String(auditLog.length) : "…";
+          return (
+            <button key={s.id} onClick={() => setActiveSection(s.id)}
+              className="p-4 rounded-2xl border space-y-1 text-left transition-all group"
+              style={{ background: "rgba(255,255,255,0.03)", border: "1px solid rgba(255,255,255,0.08)" }}
+              onMouseEnter={e => (e.currentTarget.style.borderColor = "rgba(99,102,241,0.30)")}
+              onMouseLeave={e => (e.currentTarget.style.borderColor = "rgba(255,255,255,0.08)")}>
+              <div className="flex items-center justify-between">
+                <span className="text-xl">{s.icon}</span>
+                <span className="text-[14px] font-bold text-foreground">{val}</span>
+              </div>
+              <p className="font-semibold text-[13px] text-foreground">{s.label}</p>
+              <p className="text-[11px] text-muted-foreground">{s.desc}</p>
+              <p className="text-[10px] font-medium opacity-0 group-hover:opacity-100 transition-opacity" style={{ color: "#818cf8" }}>View details →</p>
+            </button>
+          );
+        })}
       </div>
 
       {/* Mode switcher — now with real state */}

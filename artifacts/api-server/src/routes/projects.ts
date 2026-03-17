@@ -293,6 +293,32 @@ router.put("/:id", async (req: Request, res: Response) => {
   }
 });
 
+// ─── PUT /projects/:id/status (archive/restore) ────────────────────────────
+
+router.put("/:id/status", async (req: Request, res: Response) => {
+  const userId = requireAuth(req, res);
+  if (!userId) return;
+  try {
+    const id = parseInt(req.params.id, 10);
+    const [row] = await db.select().from(projects).where(eq(projects.id, id));
+    if (!row || row.userId !== userId) { res.status(404).json({ error: "Project not found" }); return; }
+
+    const { status } = req.body as { status: "active" | "archived" };
+    if (!["active", "archived"].includes(status)) { res.status(400).json({ error: "status must be active or archived" }); return; }
+
+    await db.update(projects).set({
+      status,
+      archivedAt: status === "archived" ? new Date() : null,
+      updatedAt: new Date(),
+    }).where(eq(projects.id, id));
+
+    res.json({ ok: true, status });
+  } catch (err) {
+    console.error("[projects] PUT /:id/status", err);
+    res.status(500).json({ error: "Failed to update project status" });
+  }
+});
+
 // ─── DELETE /projects/:id ──────────────────────────────────────────────────
 
 router.delete("/:id", async (req: Request, res: Response) => {

@@ -64,7 +64,7 @@ function SaveToProjectModal({ content, toolName, onClose }: { content: string; t
   const [saved, setSaved] = useState<string | null>(null);
 
   useEffect(() => {
-    fetch("/api/projects")
+    fetch("/api/projects", { credentials: "include" })
       .then(r => r.ok ? r.json() : { projects: [] })
       .then((d: { projects: SaveProject[] }) => { setProjects(d.projects ?? []); setLoading(false); })
       .catch(() => setLoading(false));
@@ -75,6 +75,7 @@ function SaveToProjectModal({ content, toolName, onClose }: { content: string; t
     await fetch(`/api/projects/${proj.id}/files`, {
       method: "POST",
       headers: { "Content-Type": "application/json" },
+      credentials: "include",
       body: JSON.stringify({ name: toolName, content, fileType: "Document", size: `${Math.round(content.length / 100) / 10} KB` }),
     });
     setSaving(null);

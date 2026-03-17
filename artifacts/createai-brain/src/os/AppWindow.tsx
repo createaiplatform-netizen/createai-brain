@@ -1,5 +1,6 @@
 import React from "react";
 import { useOS } from "./OSContext";
+import { ErrorBoundary } from "@/components/ErrorBoundary";
 import { ChatApp } from "@/Apps/ChatApp";
 import { ProjectsApp } from "@/Apps/ProjectsApp";
 import { ToolsApp } from "@/Apps/ToolsApp";
@@ -171,12 +172,25 @@ export function AppWindow({ onHamburger }: AppWindowProps) {
         </button>
       </header>
 
+      {/* ── Breadcrumb bar ── */}
+      <div
+        className="flex items-center gap-1.5 px-4 h-7 flex-shrink-0"
+        style={{ background: "rgba(99,102,241,0.04)", borderBottom: "1px solid rgba(99,102,241,0.08)" }}
+      >
+        <span className="text-[10px]" style={{ color: "#94a3b8" }}>CreateAI Brain</span>
+        <span className="text-[9px]" style={{ color: "#c7d2fe" }}>›</span>
+        <span className="text-[10px]" style={{ color: "#c7d2fe" }}>{icon}</span>
+        <span className="text-[10px] font-medium" style={{ color: "#6366f1" }}>{label}</span>
+      </div>
+
       {/* ── App content ── */}
       <div
         className="flex-1 overflow-y-auto overscroll-contain"
         style={{ background: "hsl(220,20%,97%)" }}
       >
-        <AppComponent />
+        <ErrorBoundary appName={label}>
+          <AppComponent />
+        </ErrorBoundary>
       </div>
     </div>
   );
