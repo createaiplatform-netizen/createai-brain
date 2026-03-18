@@ -1,4 +1,5 @@
 import React, { useState, useRef } from "react";
+import { streamEngine } from "@/controller";
 
 type Layer = "icp" | "persona" | "comms" | "positioning";
 
@@ -28,41 +29,25 @@ export function PersonaStudioApp() {
 
   async function run() {
     if (!subject.trim() || loading) return;
-    abortRef.current?.abort();
-    const ctrl = new AbortController();
-    abortRef.current = ctrl;
     setLoading(true);
     setStream("");
-
     const meta = LAYER_META[layer];
     try {
-      const res = await fetch("/api/openai/engine-run", {
-        method: "POST",
-        credentials: "include",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ engineId: meta.engine, prompt: `[${meta.label}] ${subject}` }),
-        signal: ctrl.signal,
+      await streamEngine({
+        engineId: meta.engine,
+        topic: `[${meta.label}] ${subject}`,
+        onChunk: (chunk) => setStream(s => s + chunk),
+        onDone: async (full) => {
+          setCards(c => [{ id: crypto.randomUUID(), layer, subject, output: full, ts: Date.now() }, ...c]);
+          await fetch("/api/documents", {
+            method: "POST",
+            credentials: "include",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify({ title: `[${meta.label}] ${subject}`, content: full, type: "persona" }),
+          });
+        },
+        onError: (err) => setStream(`Error — ${err}`),
       });
-      if (!res.body) throw new Error("No stream");
-      const reader = res.body.getReader();
-      const dec    = new TextDecoder();
-      let full     = "";
-      while (true) {
-        const { done, value } = await reader.read();
-        if (done) break;
-        const chunk = dec.decode(value);
-        full += chunk;
-        setStream(s => s + chunk);
-      }
-      setCards(c => [{ id: crypto.randomUUID(), layer, subject, output: full, ts: Date.now() }, ...c]);
-      await fetch("/api/documents", {
-        method: "POST",
-        credentials: "include",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ title: `[${meta.label}] ${subject}`, content: full, type: "persona" }),
-      });
-    } catch (e: any) {
-      if (e.name !== "AbortError") setStream("Error — please try again.");
     } finally {
       setLoading(false);
     }

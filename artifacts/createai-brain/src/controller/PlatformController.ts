@@ -1,12 +1,13 @@
 // ═══════════════════════════════════════════════════════════════════════════
-// PLATFORM CONTROLLER — Unified routing, activation, and orchestration layer.
-// Every engine, module, series, and output type flows through this singleton.
+// PLATFORM CONTROLLER — Single unified system controller.
+// Every engine, module, series, image, export, and output type flows here.
 // ═══════════════════════════════════════════════════════════════════════════
 
 import {
   ALL_ENGINES,
   ALL_SERIES,
-  runEngine as _runEngine,
+  runEngine    as _runEngine,
+  runMetaAgent as _runMetaAgent,
   saveEngineOutput,
   getEngine,
   getSeries,
@@ -25,170 +26,263 @@ export interface EngineRunHandle {
 
 export interface EngineRunRequest {
   engineId: string;
-  topic: string;
+  topic:    string;
   context?: string;
-  mode?: string;
+  mode?:    string;
   agentId?: string;
-  onChunk: (text: string) => void;
-  onDone?: (finalText: string) => void;
+  onChunk:  (text: string) => void;
+  onDone?:  (finalText: string) => void;
   onError?: (err: string) => void;
 }
 
 export interface SeriesRunRequest {
-  seriesId: string;
-  topic: string;
-  context?: string;
-  onSectionStart?: (engineId: string, index: number) => void;
-  onChunk?: (text: string, engineId: string, index: number) => void;
-  onSectionDone?: (engineId: string, index: number, text: string) => void;
-  onDone?: (sections: { engineId: string; text: string }[]) => void;
-  onError?: (err: string) => void;
+  seriesId:          string;
+  topic:             string;
+  context?:          string;
+  onSectionStart?:   (engineId: string, index: number) => void;
+  onChunk?:          (text: string, engineId: string, index: number) => void;
+  onSectionDone?:    (engineId: string, index: number, text: string) => void;
+  onDone?:           (sections: { engineId: string; text: string }[]) => void;
+  onError?:          (err: string) => void;
 }
 
 export interface OutputMeta {
-  engineId?: string;
+  engineId?:   string;
   engineName?: string;
-  title?: string;
-  docType?: string;
-  author?: string;
+  title?:      string;
+  docType?:    string;
+  author?:     string;
 }
 
 export interface ProcessedOutput {
-  raw: string;
-  document: DocumentSchema;
+  raw:       string;
+  document:  DocumentSchema;
   plainText: string;
 }
 
 export interface SaveOutputOpts {
-  engineId: string;
+  engineId:   string;
   engineName: string;
-  title: string;
-  content: string;
+  title:      string;
+  content:    string;
   projectId?: string;
 }
 
 export interface ActivityEntry {
-  engineId: string;
-  engineName: string;
-  topic: string;
-  timestamp: number;
+  engineId:    string;
+  engineName:  string;
+  topic:       string;
+  timestamp:   number;
   outputLength: number;
-  savedId?: string | null;
+  savedId?:    string | null;
+}
+
+export interface ImageGenOpts {
+  quality?: "standard" | "hd";
+  size?:    "1024x1024" | "1792x1024" | "1024x1792";
 }
 
 // ─── Intent → Engine routing table ───────────────────────────────────────────
-// Maps topic keywords to the most relevant engine ID.
 
 const INTENT_ROUTE_MAP: Record<string, string> = {
-  strategy:       "UniversalStrategyEngine",
-  strategic:      "UniversalStrategyEngine",
-  roadmap:        "UniversalStrategyEngine",
-  positioning:    "UniversalStrategyEngine",
-  competitive:    "CompetitiveIntelEngine",
-  market:         "MarketOpportunityEngine",
-  story:          "UniversalStoryEngine",
-  narrative:      "UniversalStoryEngine",
-  character:      "UniversalStoryEngine",
-  worldbuilding:  "UniversalStoryEngine",
-  creative:       "UniversalCreativeEngine",
-  script:         "UniversalCreativeEngine",
-  podcast:        "UniversalCreativeEngine",
-  video:          "UniversalCreativeEngine",
-  course:         "CourseDesignEngine",
-  education:      "CourseDesignEngine",
-  lesson:         "CourseDesignEngine",
-  curriculum:     "CourseDesignEngine",
-  workflow:       "UniversalWorkflowEngine",
-  process:        "UniversalWorkflowEngine",
-  automation:     "UniversalWorkflowEngine",
-  compliance:     "ComplianceAuditEngine",
-  regulatory:     "RegulatoryEngine",
-  hipaa:          "RegulatoryEngine",
-  gdpr:           "RegulatoryEngine",
-  audit:          "ComplianceAuditEngine",
-  content:        "ContentGenerationEngine",
-  marketing:      "MarketingEngine",
-  campaign:       "MarketingEngine",
-  brand:          "BrandStrategyEngine",
-  branding:       "BrandStrategyEngine",
-  data:           "DataEngine",
-  analytics:      "DataEngine",
-  dashboard:      "DataEngine",
-  security:       "SENTINEL",
-  risk:           "SENTINEL",
-  threat:         "SENTINEL",
-  legal:          "LegalAIEngine",
-  contract:       "LegalAIEngine",
-  agreement:      "LegalAIEngine",
-  research:       "ResearchEngine",
-  study:          "ResearchEngine",
-  literature:     "ResearchEngine",
-  financial:      "FinancialModelEngine",
-  finance:        "FinancialModelEngine",
-  budget:         "FinancialModelEngine",
-  investment:     "InvestorOutreachEngine",
-  pitch:          "InvestorOutreachEngine",
-  hr:             "HRPolicyEngine",
-  hiring:         "RecruitmentEngine",
-  recruitment:    "RecruitmentEngine",
-  performance:    "PerformanceMgmtEngine",
-  design:         "DesignSprintEngine",
-  sprint:         "DesignSprintEngine",
-  prototype:      "PrototypingEngine",
-  product:        "ProductDesignEngine",
-  trend:          "TrendsAnalysisEngine",
-  foresight:      "ForesightEngine",
-  expansion:      "InfiniteExpansionEngine",
-  idea:           "InfiniteExpansionEngine",
-  brainstorm:     "InfiniteExpansionEngine",
-  integration:    "IntegrationEngine",
-  connect:        "UniversalConnectionEngine",
-  connection:     "UniversalConnectionEngine",
-  health:         "HealthcareEngine",
-  medical:        "HealthcareEngine",
-  clinical:       "HealthcareEngine",
-  sustainability: "SustainabilityEngine",
-  green:          "SustainabilityEngine",
-  climate:        "SustainabilityEngine",
-  scale:          "ScalingEngine",
-  scaling:        "ScalingEngine",
-  infrastructure: "ScalingEngine",
-  accessibility:  "AccessibilityEngine",
-  wcag:           "AccessibilityEngine",
-  ada:            "AccessibilityEngine",
+  strategy:        "UniversalStrategyEngine",
+  strategic:       "UniversalStrategyEngine",
+  roadmap:         "UniversalStrategyEngine",
+  positioning:     "UniversalStrategyEngine",
+  competitive:     "CompetitiveIntelEngine",
+  market:          "MarketOpportunityEngine",
+  story:           "UniversalStoryEngine",
+  narrative:       "UniversalStoryEngine",
+  character:       "UniversalStoryEngine",
+  worldbuilding:   "UniversalStoryEngine",
+  creative:        "UniversalCreativeEngine",
+  script:          "UniversalCreativeEngine",
+  podcast:         "UniversalCreativeEngine",
+  video:           "UniversalCreativeEngine",
+  image:           "UniversalCreativeEngine",
+  course:          "CourseDesignEngine",
+  education:       "CourseDesignEngine",
+  lesson:          "CourseDesignEngine",
+  curriculum:      "CourseDesignEngine",
+  workflow:        "UniversalWorkflowEngine",
+  process:         "UniversalWorkflowEngine",
+  automation:      "UniversalWorkflowEngine",
+  compliance:      "ComplianceAuditEngine",
+  regulatory:      "RegulatoryEngine",
+  hipaa:           "RegulatoryEngine",
+  gdpr:            "RegulatoryEngine",
+  audit:           "ComplianceAuditEngine",
+  content:         "ContentGenerationEngine",
+  marketing:       "MarketingEngine",
+  campaign:        "MarketingEngine",
+  brand:           "BrandStrategyEngine",
+  branding:        "BrandStrategyEngine",
+  data:            "DataEngine",
+  analytics:       "DataEngine",
+  dashboard:       "DataEngine",
+  security:        "SENTINEL",
+  risk:            "SENTINEL",
+  threat:          "SENTINEL",
+  legal:           "LegalAIEngine",
+  contract:        "LegalAIEngine",
+  agreement:       "LegalAIEngine",
+  research:        "ResearchEngine",
+  study:           "ResearchEngine",
+  literature:      "ResearchEngine",
+  financial:       "FinancialModelEngine",
+  finance:         "FinancialModelEngine",
+  budget:          "FinancialModelEngine",
+  investment:      "InvestorOutreachEngine",
+  pitch:           "InvestorOutreachEngine",
+  hr:              "HRPolicyEngine",
+  hiring:          "RecruitmentEngine",
+  recruitment:     "RecruitmentEngine",
+  performance:     "PerformanceMgmtEngine",
+  design:          "DesignSprintEngine",
+  sprint:          "DesignSprintEngine",
+  prototype:       "PrototypingEngine",
+  product:         "ProductDesignEngine",
+  trend:           "TrendsAnalysisEngine",
+  foresight:       "ForesightEngine",
+  expansion:       "InfiniteExpansionEngine",
+  idea:            "InfiniteExpansionEngine",
+  brainstorm:      "InfiniteExpansionEngine",
+  integration:     "IntegrationEngine",
+  connect:         "UniversalConnectionEngine",
+  connection:      "UniversalConnectionEngine",
+  health:          "HealthcareEngine",
+  medical:         "HealthcareEngine",
+  clinical:        "HealthcareEngine",
+  sustainability:  "SustainabilityEngine",
+  green:           "SustainabilityEngine",
+  climate:         "SustainabilityEngine",
+  scale:           "ScalingEngine",
+  scaling:         "ScalingEngine",
+  infrastructure:  "ScalingEngine",
+  accessibility:   "AccessibilityEngine",
+  wcag:            "AccessibilityEngine",
+  ada:             "AccessibilityEngine",
+  code:            "ScalingEngine",
+  app:             "InfiniteExpansionEngine",
 };
 
 // ─── App → Engine registry ────────────────────────────────────────────────────
 
 export interface AppEngineConfig {
-  primaryEngines: string[];
-  primarySeries?: string[];
-  category: EngineCategory;
-  outputType: "document" | "form" | "stream" | "structured";
+  primaryEngines:  string[];
+  primarySeries?:  string[];
+  category:        EngineCategory;
+  outputType:      "document" | "form" | "stream" | "structured" | "image" | "code";
 }
 
 export const APP_ENGINE_REGISTRY: Record<string, AppEngineConfig> = {
-  braingen:      { primaryEngines: ["UniversalCreativeEngine", "ContentGenerationEngine", "UniversalStoryEngine"],         primarySeries: ["QuantumCreativity"],     category: "creative",       outputType: "document" },
-  brainhub:      { primaryEngines: ["InfiniteExpansionEngine", "NEXUS", "SENTINEL"],                                       primarySeries: ["Ω-Series", "ICE-Series"], category: "universal",      outputType: "document" },
-  strategist:    { primaryEngines: ["UniversalStrategyEngine", "CompetitiveIntelEngine", "MarketOpportunityEngine"],       primarySeries: ["Ω-Series"],              category: "intelligence",   outputType: "document" },
-  marketing:     { primaryEngines: ["MarketingEngine", "ContentGenerationEngine", "BrandStrategyEngine"],                  category: "creative",       outputType: "document" },
-  legal:         { primaryEngines: ["LegalAIEngine", "ComplianceAuditEngine", "RegulatoryEngine"],                         category: "legal",          outputType: "document" },
-  documents:     { primaryEngines: ["UniversalCreativeEngine", "ContentGenerationEngine"],                                 category: "universal",      outputType: "document" },
-  family:        { primaryEngines: ["UniversalStoryEngine", "UniversalCreativeEngine"],                                    category: "creative",       outputType: "document" },
-  research:      { primaryEngines: ["ResearchEngine", "DataEngine", "TrendsAnalysisEngine"],                               primarySeries: ["InsightDeliverySeries", "TrendsForesightSeries"], category: "research", outputType: "document" },
-  finance:       { primaryEngines: ["FinancialModelEngine", "InvestorOutreachEngine"],                                     category: "finance",        outputType: "document" },
-  hr:            { primaryEngines: ["HRPolicyEngine", "RecruitmentEngine", "PerformanceMgmtEngine"],                       category: "hr",             outputType: "document" },
-  admin:         { primaryEngines: ["UniversalWorkflowEngine", "ComplianceAuditEngine"],                                   category: "operations",     outputType: "document" },
-  creator:       { primaryEngines: ["UniversalCreativeEngine", "ContentGenerationEngine"],                                 primarySeries: ["QuantumCreativity"],     category: "creative",       outputType: "document" },
-  healthcare:    { primaryEngines: ["HealthcareEngine", "RegulatoryEngine", "ComplianceAuditEngine"],                      category: "healthcare",     outputType: "document" },
-  education:     { primaryEngines: ["CourseDesignEngine", "VirtualClassroomEngine", "TeacherToolsEngine"],                 primarySeries: ["StudentSuccessSeries"],  category: "education",      outputType: "document" },
-  security:      { primaryEngines: ["SENTINEL", "ComplianceAuditEngine"],                                                  category: "security",       outputType: "document" },
-  sustainability:{ primaryEngines: ["SustainabilityEngine"],                                                                category: "sustainability",  outputType: "document" },
-  imagination:   { primaryEngines: ["UniversalStoryEngine", "UniversalCreativeEngine"],                                    primarySeries: ["QuantumCreativity"],     category: "imagination",    outputType: "document" },
-  product:       { primaryEngines: ["ProductDesignEngine", "DesignSprintEngine", "PrototypingEngine"],                     category: "product",        outputType: "document" },
+  braingen:       { primaryEngines: ["UniversalCreativeEngine", "ContentGenerationEngine", "UniversalStoryEngine"],         primarySeries: ["QuantumCreativity"],       category: "creative",      outputType: "document" },
+  brainhub:       { primaryEngines: ["InfiniteExpansionEngine", "NEXUS", "SENTINEL"],                                       primarySeries: ["Ω-Series", "ICE-Series"],  category: "universal",     outputType: "document" },
+  strategist:     { primaryEngines: ["UniversalStrategyEngine", "CompetitiveIntelEngine", "MarketOpportunityEngine"],       primarySeries: ["Ω-Series"],               category: "intelligence",  outputType: "document" },
+  marketing:      { primaryEngines: ["MarketingEngine", "ContentGenerationEngine", "BrandStrategyEngine"],                  category: "creative",      outputType: "document" },
+  legal:          { primaryEngines: ["LegalAIEngine", "ComplianceAuditEngine", "RegulatoryEngine"],                         category: "legal",         outputType: "document" },
+  documents:      { primaryEngines: ["UniversalCreativeEngine", "ContentGenerationEngine"],                                 category: "universal",     outputType: "document" },
+  family:         { primaryEngines: ["UniversalStoryEngine", "UniversalCreativeEngine"],                                    category: "creative",      outputType: "document" },
+  research:       { primaryEngines: ["ResearchEngine", "DataEngine", "TrendsAnalysisEngine"],                               primarySeries: ["InsightDeliverySeries"],   category: "research",      outputType: "document" },
+  finance:        { primaryEngines: ["FinancialModelEngine", "InvestorOutreachEngine"],                                     category: "finance",       outputType: "document" },
+  hr:             { primaryEngines: ["HRPolicyEngine", "RecruitmentEngine", "PerformanceMgmtEngine"],                       category: "hr",            outputType: "document" },
+  admin:          { primaryEngines: ["UniversalWorkflowEngine", "ComplianceAuditEngine"],                                   category: "operations",    outputType: "document" },
+  creator:        { primaryEngines: ["UniversalCreativeEngine", "ContentGenerationEngine"],                                 primarySeries: ["QuantumCreativity"],       category: "creative",      outputType: "document" },
+  healthcare:     { primaryEngines: ["HealthcareEngine", "RegulatoryEngine", "ComplianceAuditEngine"],                      category: "healthcare",    outputType: "document" },
+  education:      { primaryEngines: ["CourseDesignEngine", "VirtualClassroomEngine", "TeacherToolsEngine"],                 primarySeries: ["StudentSuccessSeries"],    category: "education",     outputType: "document" },
+  security:       { primaryEngines: ["SENTINEL", "ComplianceAuditEngine"],                                                  category: "security",      outputType: "document" },
+  sustainability: { primaryEngines: ["SustainabilityEngine"],                                                               category: "sustainability", outputType: "document" },
+  imagination:    { primaryEngines: ["UniversalStoryEngine", "UniversalCreativeEngine"],                                    primarySeries: ["QuantumCreativity"],       category: "imagination",   outputType: "document" },
+  product:        { primaryEngines: ["ProductDesignEngine", "DesignSprintEngine", "PrototypingEngine"],                     category: "product",       outputType: "document" },
 };
 
-// ─── PlatformController ───────────────────────────────────────────────────────
+// ─── Module-level streaming function (usable outside React) ──────────────────
+// Every app, module, and engine that needs to run AI should call this.
+
+export async function streamEngine(opts: {
+  engineId:  string;
+  topic:     string;
+  context?:  string;
+  mode?:     string;
+  onChunk:   (text: string) => void;
+  onDone?:   (fullText: string) => void;
+  onError?:  (err: string) => void;
+}): Promise<void> {
+  const engine = getEngine(opts.engineId);
+  let accumulated = "";
+
+  return new Promise<void>((resolve) => {
+    const handleChunk = (t: string) => { accumulated += t; opts.onChunk(t); };
+    const handleDone  = () => { opts.onDone?.(accumulated); resolve(); };
+    const handleError = (e: string) => { opts.onError?.(e); resolve(); };
+
+    if (engine?.category === "meta-agent") {
+      _runMetaAgent({
+        agentId: opts.engineId,
+        task:    opts.topic,
+        context: opts.context,
+        onChunk: handleChunk,
+        onDone:  handleDone,
+        onError: handleError,
+      });
+    } else {
+      _runEngine({
+        engineId:   opts.engineId,
+        engineName: engine?.name ?? opts.engineId,
+        topic:      opts.topic,
+        context:    opts.context,
+        mode:       opts.mode,
+        onChunk:    handleChunk,
+        onDone:     handleDone,
+        onError:    handleError,
+      });
+    }
+  });
+}
+
+// ─── Export utilities (usable anywhere) ──────────────────────────────────────
+
+export function exportToPDF(title?: string): void {
+  const prev = document.title;
+  if (title) document.title = title;
+  window.print();
+  setTimeout(() => { document.title = prev; }, 500);
+}
+
+export function exportToMarkdown(content: string, filename: string): void {
+  const blob = new Blob([content], { type: "text/markdown;charset=utf-8" });
+  const url  = URL.createObjectURL(blob);
+  Object.assign(document.createElement("a"), { href: url, download: `${filename}.md` }).click();
+  URL.revokeObjectURL(url);
+}
+
+export function exportToText(content: string, filename: string): void {
+  const blob = new Blob([content], { type: "text/plain;charset=utf-8" });
+  const url  = URL.createObjectURL(blob);
+  Object.assign(document.createElement("a"), { href: url, download: `${filename}.txt` }).click();
+  URL.revokeObjectURL(url);
+}
+
+// ─── Image generation (module-level, no instance required) ───────────────────
+
+export async function generateImage(
+  prompt: string,
+  opts?: ImageGenOpts,
+): Promise<{ url: string }> {
+  const resp = await fetch("/api/openai/image-generate", {
+    method:      "POST",
+    credentials: "include",
+    headers:     { "Content-Type": "application/json" },
+    body:        JSON.stringify({ prompt, quality: opts?.quality ?? "standard", size: opts?.size ?? "1024x1024" }),
+  });
+  if (!resp.ok) {
+    const err = await resp.json().catch(() => ({})) as { error?: string };
+    throw new Error(err.error ?? `Image generation failed: ${resp.status}`);
+  }
+  return resp.json();
+}
+
+// ─── PlatformController class ─────────────────────────────────────────────────
 
 export class PlatformController {
   private _history: ActivityEntry[] = [];
@@ -196,21 +290,13 @@ export class PlatformController {
   // ─── Registry ────────────────────────────────────────────────────────────
 
   readonly engines: EngineDefinition[] = ALL_ENGINES;
-  readonly series: SeriesDefinition[]  = ALL_SERIES;
+  readonly series:  SeriesDefinition[]  = ALL_SERIES;
   get engineCount() { return ALL_ENGINES.length; }
   get seriesCount()  { return ALL_SERIES.length; }
 
-  getEngine(id: string): EngineDefinition | undefined {
-    return getEngine(id);
-  }
-
-  getSeries(id: string): SeriesDefinition | undefined {
-    return getSeries(id);
-  }
-
-  getEnginesByCategory(): Record<EngineCategory, EngineDefinition[]> {
-    return getEnginesByCategory();
-  }
+  getEngine(id: string):                         EngineDefinition | undefined { return getEngine(id); }
+  getSeries(id: string):                         SeriesDefinition | undefined { return getSeries(id); }
+  getEnginesByCategory(): Record<EngineCategory, EngineDefinition[]>           { return getEnginesByCategory(); }
 
   getEnginesForSeries(seriesId: string): EngineDefinition[] {
     const s = getSeries(seriesId);
@@ -256,34 +342,49 @@ export class PlatformController {
   }
 
   // ─── Engine Run ───────────────────────────────────────────────────────────
+  // Routes to meta-agent or standard engine automatically.
 
   runEngine(opts: EngineRunRequest): EngineRunHandle {
-    let aborted = false;
+    let aborted     = false;
     let accumulated = "";
-    const engine = getEngine(opts.engineId);
+    const engine    = getEngine(opts.engineId);
 
-    _runEngine({
-      engineId:   opts.engineId,
-      engineName: engine?.name ?? opts.engineId,
-      topic:      opts.topic,
-      context:    opts.context,
-      mode:       opts.mode,
-      agentId:    opts.agentId,
-      onChunk: (text) => {
-        if (aborted) return;
-        accumulated += text;
-        opts.onChunk(text);
-      },
-      onDone: () => {
-        if (aborted) return;
-        this._history = [
-          { engineId: opts.engineId, engineName: engine?.name ?? opts.engineId, topic: opts.topic, timestamp: Date.now(), outputLength: accumulated.length },
-          ...this._history,
-        ].slice(0, 100);
-        opts.onDone?.(accumulated);
-      },
-      onError: opts.onError,
-    });
+    const handleChunk = (text: string) => {
+      if (aborted) return;
+      accumulated += text;
+      opts.onChunk(text);
+    };
+    const handleDone = () => {
+      if (aborted) return;
+      this._history = [
+        { engineId: opts.engineId, engineName: engine?.name ?? opts.engineId, topic: opts.topic, timestamp: Date.now(), outputLength: accumulated.length },
+        ...this._history,
+      ].slice(0, 100);
+      opts.onDone?.(accumulated);
+    };
+
+    if (engine?.category === "meta-agent") {
+      _runMetaAgent({
+        agentId: opts.engineId,
+        task:    opts.topic,
+        context: opts.context,
+        onChunk: handleChunk,
+        onDone:  handleDone,
+        onError: opts.onError,
+      });
+    } else {
+      _runEngine({
+        engineId:   opts.engineId,
+        engineName: engine?.name ?? opts.engineId,
+        topic:      opts.topic,
+        context:    opts.context,
+        mode:       opts.mode,
+        agentId:    opts.agentId,
+        onChunk:    handleChunk,
+        onDone:     handleDone,
+        onError:    opts.onError,
+      });
+    }
 
     return { abort: () => { aborted = true; } };
   }
@@ -351,16 +452,12 @@ export class PlatformController {
 
   processOutput(rawText: string, meta: OutputMeta = {}): ProcessedOutput {
     const document = parseBodyToSchema(rawText, {
-      title:  meta.title ?? "AI Output",
+      title:   meta.title ?? "AI Output",
       docType: meta.docType ?? meta.engineId ?? "general",
-      author: meta.author,
-      tags:   [meta.engineId ?? "ai"].filter(Boolean) as string[],
+      author:  meta.author,
+      tags:    [meta.engineId ?? "ai"].filter(Boolean) as string[],
     });
-    return {
-      raw:       rawText,
-      document,
-      plainText: documentToPlainText(document),
-    };
+    return { raw: rawText, document, plainText: documentToPlainText(document) };
   }
 
   // ─── Save Output ──────────────────────────────────────────────────────────
@@ -369,6 +466,18 @@ export class PlatformController {
     const result = await saveEngineOutput(opts);
     return result ? String(result.id) : null;
   }
+
+  // ─── Image Generation ─────────────────────────────────────────────────────
+
+  generateImage(prompt: string, opts?: ImageGenOpts): Promise<{ url: string }> {
+    return generateImage(prompt, opts);
+  }
+
+  // ─── Export Utilities ─────────────────────────────────────────────────────
+
+  exportToPDF(title?: string):                          void { exportToPDF(title); }
+  exportToMarkdown(content: string, filename: string):  void { exportToMarkdown(content, filename); }
+  exportToText(content: string, filename: string):      void { exportToText(content, filename); }
 
   // ─── Activity ─────────────────────────────────────────────────────────────
 

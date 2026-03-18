@@ -4450,4 +4450,42 @@ router.post("/series-run", async (req, res) => {
   }
 });
 
+// ─── POST /api/openai/image-generate ─────────────────────────────────────────
+// Generate an image via DALL-E 3 and return the signed URL.
+
+router.post("/image-generate", async (req, res) => {
+  if (!req.isAuthenticated()) return void res.status(401).json({ error: "Unauthorized" });
+
+  const { prompt, quality = "standard", size = "1024x1024" } = req.body as {
+    prompt?:  string;
+    quality?: "standard" | "hd";
+    size?:    "1024x1024" | "1792x1024" | "1024x1792";
+  };
+
+  if (!prompt?.trim()) return void res.status(400).json({ error: "prompt required" });
+
+  const safetyResult = contentSafetyCheck(prompt);
+  if (!safetyResult.safe) {
+    return void safetyError(res as Parameters<typeof safetyError>[0], safetyResult);
+  }
+
+  try {
+    const response = await openai.images.generate({
+      model:   "dall-e-3",
+      prompt:  prompt.trim(),
+      n:       1,
+      size:    size as "1024x1024" | "1792x1024" | "1024x1792",
+      quality: quality as "standard" | "hd",
+    });
+
+    const url = response.data?.[0]?.url;
+    if (!url) return void res.status(500).json({ error: "No image URL returned" });
+
+    res.json({ url, prompt: prompt.trim(), size, quality });
+  } catch (err) {
+    const msg = err instanceof Error ? err.message : String(err);
+    res.status(500).json({ error: `Image generation failed: ${msg}` });
+  }
+});
+
 export default router;

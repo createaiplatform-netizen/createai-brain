@@ -1,4 +1,5 @@
 import React, { useState, useRef } from "react";
+import { streamEngine } from "@/controller";
 
 type PricingMode = "strategy" | "tiers" | "packaging" | "feedback";
 
@@ -28,41 +29,25 @@ export function PricingStudioApp() {
 
   async function run() {
     if (!product.trim() || loading) return;
-    abortRef.current?.abort();
-    const ctrl = new AbortController();
-    abortRef.current = ctrl;
     setLoading(true);
     setStream("");
-
     const meta = MODE_META[mode];
     try {
-      const res = await fetch("/api/openai/engine-run", {
-        method: "POST",
-        credentials: "include",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ engineId: meta.engine, prompt: `[${meta.label}] ${product}` }),
-        signal: ctrl.signal,
+      await streamEngine({
+        engineId: meta.engine,
+        topic: `[${meta.label}] ${product}`,
+        onChunk: (chunk) => setStream(s => s + chunk),
+        onDone: async (full) => {
+          setOutputs(o => [{ id: crypto.randomUUID(), mode, product, output: full, ts: Date.now() }, ...o]);
+          await fetch("/api/documents", {
+            method: "POST",
+            credentials: "include",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify({ title: `[${meta.label}] ${product}`, content: full, type: "pricing" }),
+          });
+        },
+        onError: (err) => setStream(`Error — ${err}`),
       });
-      if (!res.body) throw new Error("No stream");
-      const reader = res.body.getReader();
-      const dec    = new TextDecoder();
-      let full     = "";
-      while (true) {
-        const { done, value } = await reader.read();
-        if (done) break;
-        const chunk = dec.decode(value);
-        full += chunk;
-        setStream(s => s + chunk);
-      }
-      setOutputs(o => [{ id: crypto.randomUUID(), mode, product, output: full, ts: Date.now() }, ...o]);
-      await fetch("/api/documents", {
-        method: "POST",
-        credentials: "include",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ title: `[${meta.label}] ${product}`, content: full, type: "pricing" }),
-      });
-    } catch (e: any) {
-      if (e.name !== "AbortError") setStream("Error — please try again.");
     } finally {
       setLoading(false);
     }

@@ -1,88 +1,53 @@
 // ═══════════════════════════════════════════════════════════════════════════
-// GENERIC ENGINE APP — Reusable factory for all expanded apps
-// Accepts full config; renders grid / run / sessions pattern.
-// Uses /api/openai/engine-run (same SSE streaming as all other engines).
+// GENERIC ENGINE APP — Reusable factory for all expanded apps.
+// Every engine run goes through the unified PlatformController.
 // ═══════════════════════════════════════════════════════════════════════════
 
 import React, { useState, useRef, useCallback, useEffect } from "react";
-import { DocumentRenderer, parseBodyToSchema } from "@/engines/document";
+import { DocumentRenderer } from "@/engines/document";
+import { useEngineRun, useDocumentOutput } from "@/controller";
 
 // ── Types ────────────────────────────────────────────────────────────────────
 export interface GenericEngineDefinition {
-  id: string;
-  name: string;
-  icon: string;
-  tagline: string;
+  id:          string;
+  name:        string;
+  icon:        string;
+  tagline:     string;
   description: string;
   placeholder: string;
-  example: string;
-  color: string;
-  series?: string;
+  example:     string;
+  color:       string;
+  series?:     string;
 }
 
 export interface GenericSeriesDefinition {
-  id: string;
-  name: string;
-  icon: string;
+  id:          string;
+  name:        string;
+  icon:        string;
   description: string;
-  engines: string[];
+  engines:     string[];
 }
 
 export interface GenericEngineAppConfig {
-  appId: string;
-  title: string;
-  icon: string;
-  color: string;
-  description: string;
-  engines: GenericEngineDefinition[];
-  series?: GenericSeriesDefinition[];
+  appId:        string;
+  title:        string;
+  icon:         string;
+  color:        string;
+  description:  string;
+  engines:      GenericEngineDefinition[];
+  series?:      GenericSeriesDefinition[];
 }
 
 interface SavedSession {
-  id: number;
-  engineId: string;
-  engineName: string;
-  topic: string;
-  output: string;
-  createdAt: string;
+  id:          number;
+  engineId:    string;
+  engineName:  string;
+  topic:       string;
+  output:      string;
+  createdAt:   string;
 }
 
 type View = "grid" | "run" | "sessions" | "viewer";
-
-// ── Shared SSE runner ────────────────────────────────────────────────────────
-async function runEngine(opts: {
-  engineId: string;
-  engineName: string;
-  topic: string;
-  onChunk: (t: string) => void;
-  onDone?: () => void;
-  onError?: (e: string) => void;
-}): Promise<void> {
-  const { engineId, engineName, topic, onChunk, onDone, onError } = opts;
-  try {
-    const resp = await fetch("/api/openai/engine-run", {
-      method: "POST",
-      credentials: "include",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ engineId, engineName, topic }),
-    });
-    if (!resp.ok || !resp.body) { onError?.(`Engine returned ${resp.status}`); return; }
-    const reader = resp.body.getReader();
-    const decoder = new TextDecoder();
-    while (true) {
-      const { done, value } = await reader.read();
-      if (done) break;
-      for (const line of decoder.decode(value).split("\n")) {
-        if (!line.startsWith("data:")) continue;
-        try {
-          const p = JSON.parse(line.slice(5).trim()) as { content?: string; done?: boolean };
-          if (p.content) onChunk(p.content);
-          if (p.done) onDone?.();
-        } catch { /* skip */ }
-      }
-    }
-  } catch (err) { onError?.(String(err)); }
-}
 
 // ── Engine Card ──────────────────────────────────────────────────────────────
 function EngineCard({ engine, onSelect }: { engine: GenericEngineDefinition; onSelect: () => void }) {
@@ -95,14 +60,8 @@ function EngineCard({ engine, onSelect }: { engine: GenericEngineDefinition; onS
       style={{
         background: `linear-gradient(135deg,${engine.color}18,${engine.color}08)`,
         border: `1.5px solid ${hovered ? engine.color + "90" : engine.color + "40"}`,
-        borderRadius: 16,
-        padding: "18px 16px",
-        cursor: "pointer",
-        textAlign: "left",
-        transition: "all 0.18s",
-        display: "flex",
-        flexDirection: "column",
-        gap: 8,
+        borderRadius: 16, padding: "18px 16px", cursor: "pointer", textAlign: "left",
+        transition: "all 0.18s", display: "flex", flexDirection: "column", gap: 8,
         transform: hovered ? "translateY(-2px)" : "none",
       }}
     >
@@ -123,51 +82,38 @@ function EngineCard({ engine, onSelect }: { engine: GenericEngineDefinition; onS
   );
 }
 
-// ── Run Panel ────────────────────────────────────────────────────────────────
+// ── Run Panel — wired through PlatformController ──────────────────────────────
 function RunPanel({ engine, appId, onBack }: { engine: GenericEngineDefinition; appId: string; onBack: () => void }) {
-  const [topic, setTopic] = useState("");
-  const [output, setOutput] = useState("");
-  const [running, setRunning] = useState(false);
-  const [done, setDone] = useState(false);
-  const [saved, setSaved] = useState(false);
-  const [error, setError] = useState<string | null>(null);
+  const { run: runCtrl, output, document: doc, status, error, isRunning, isDone } = useEngineRun(engine.id);
+  const { saveDocument } = useDocumentOutput();
+  const [topic,  setTopic]  = useState("");
+  const [saved,  setSaved]  = useState(false);
   const outputRef = useRef<HTMLDivElement>(null);
 
-  const run = useCallback(async () => {
-    if (!topic.trim() || running) return;
-    setOutput(""); setRunning(true); setDone(false); setSaved(false); setError(null);
-    await runEngine({
-      engineId: engine.id,
-      engineName: engine.name,
-      topic: topic.trim(),
-      onChunk: chunk => {
-        setOutput(prev => prev + chunk);
-        if (outputRef.current) outputRef.current.scrollTop = outputRef.current.scrollHeight;
-      },
-      onDone: () => { setRunning(false); setDone(true); },
-      onError: err => { setError(err); setRunning(false); },
-    });
-  }, [topic, running, engine]);
+  const run = useCallback(() => {
+    if (!topic.trim() || isRunning) return;
+    setSaved(false);
+    runCtrl(topic.trim());
+  }, [topic, isRunning, runCtrl]);
 
   const save = useCallback(async () => {
     if (!output || saved) return;
-    try {
-      await fetch("/api/documents", {
-        method: "POST",
-        credentials: "include",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({
-          title: `${engine.name}: ${topic.trim().slice(0, 60)}`,
-          content: output,
-          type: `engine-session-${appId}`,
-        }),
-      });
-      setSaved(true);
-    } catch { /* silent */ }
-  }, [output, saved, engine, topic, appId]);
+    await saveDocument({
+      engineId:   engine.id,
+      engineName: engine.name,
+      title:      `${engine.name}: ${topic.trim().slice(0, 60)}`,
+      content:    output,
+    });
+    setSaved(true);
+  }, [output, saved, engine, topic, saveDocument]);
+
+  useEffect(() => {
+    if (outputRef.current) outputRef.current.scrollTop = outputRef.current.scrollHeight;
+  }, [output]);
 
   return (
     <div style={{ display: "flex", flexDirection: "column", height: "100%", gap: 16 }}>
+      {/* Header */}
       <div style={{ display: "flex", alignItems: "center", gap: 12 }}>
         <button onClick={onBack} style={{ background: "none", border: "none", color: "#94a3b8", cursor: "pointer", fontSize: 20 }}>←</button>
         <span style={{ fontSize: 22 }}>{engine.icon}</span>
@@ -176,7 +122,9 @@ function RunPanel({ engine, appId, onBack }: { engine: GenericEngineDefinition; 
           <div style={{ fontSize: 11, color: engine.color }}>{engine.tagline}</div>
         </div>
       </div>
+
       <div style={{ fontSize: 12, color: "#64748b", fontStyle: "italic" }}>{engine.example}</div>
+
       <textarea
         value={topic}
         onChange={e => setTopic(e.target.value)}
@@ -185,46 +133,48 @@ function RunPanel({ engine, appId, onBack }: { engine: GenericEngineDefinition; 
         onKeyDown={e => e.key === "Enter" && e.metaKey && run()}
         style={{ background: "rgba(255,255,255,0.05)", border: "1px solid rgba(255,255,255,0.12)", borderRadius: 10, padding: "10px 14px", color: "#e2e8f0", fontSize: 13, fontFamily: "inherit", resize: "none" }}
       />
+
       <button
         onClick={run}
-        disabled={running || !topic.trim()}
-        style={{ background: running ? "rgba(227,74,37,0.3)" : engine.color, border: "none", borderRadius: 10, padding: "11px 20px", color: "#fff", fontSize: 14, fontWeight: 700, cursor: running ? "not-allowed" : "pointer", opacity: !topic.trim() && !running ? 0.5 : 1 }}
+        disabled={isRunning || !topic.trim()}
+        style={{ background: isRunning ? "rgba(227,74,37,0.3)" : engine.color, border: "none", borderRadius: 10, padding: "11px 20px", color: "#fff", fontSize: 14, fontWeight: 700, cursor: isRunning ? "not-allowed" : "pointer", opacity: !topic.trim() && !isRunning ? 0.5 : 1 }}
       >
-        {running ? `⟳ Running ${engine.name}…` : `${engine.icon} Run ${engine.name}`}
+        {isRunning ? `⟳ Running ${engine.name}…` : `${engine.icon} Run ${engine.name}`}
       </button>
+
       {error && (
         <div style={{ background: "rgba(255,59,48,0.1)", border: "1px solid rgba(255,59,48,0.25)", borderRadius: 8, padding: "10px 14px", color: "#ff6b6b", fontSize: 13 }}>⚠️ {error}</div>
       )}
+
       {output && (
         <div style={{ display: "flex", flexDirection: "column", gap: 8, flex: 1, minHeight: 0 }}>
           <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between" }}>
-            <span style={{ fontSize: 11, fontWeight: 700, color: done ? "#34C759" : "#94a3b8" }}>
-              {running ? "⟳ GENERATING…" : done ? "✅ COMPLETE" : "OUTPUT"}
+            <span style={{ fontSize: 11, fontWeight: 700, color: isDone ? "#34C759" : "#94a3b8" }}>
+              {isRunning ? "⟳ GENERATING…" : isDone ? "✅ COMPLETE" : "OUTPUT"}
             </span>
-            {done && !saved && (
-              <button onClick={save} style={{ background: engine.color + "22", border: `1px solid ${engine.color}44`, borderRadius: 8, padding: "5px 12px", color: engine.color, fontSize: 11, fontWeight: 700, cursor: "pointer" }}>
-                💾 Save
-              </button>
-            )}
-            {saved && <span style={{ fontSize: 11, color: "#34C759", fontWeight: 700 }}>✓ Saved</span>}
+            <div style={{ display: "flex", gap: 6 }}>
+              {isDone && !saved && (
+                <button onClick={save} style={{ background: engine.color + "22", border: `1px solid ${engine.color}44`, borderRadius: 8, padding: "5px 12px", color: engine.color, fontSize: 11, fontWeight: 700, cursor: "pointer" }}>
+                  💾 Save
+                </button>
+              )}
+              {saved && <span style={{ fontSize: 11, color: "#34C759", fontWeight: 700 }}>✓ Saved</span>}
+            </div>
           </div>
           <div ref={outputRef} style={{ flex: 1, overflowY: "auto" }}>
-            {done && output ? (
-              <DocumentRenderer
-                schema={parseBodyToSchema(output, { title: topic, docType: engine.name })}
-                compact
-                toolbar
-              />
+            {isDone && doc ? (
+              <DocumentRenderer schema={doc} compact toolbar />
             ) : (
               <div style={{ background: "rgba(0,0,0,0.3)", border: "1px solid rgba(255,255,255,0.08)", borderRadius: 12, padding: "16px", fontSize: 13, color: "#e2e8f0", lineHeight: 1.7, whiteSpace: "pre-wrap", fontFamily: "inherit", minHeight: 120 }}>
                 {output}
-                {running && <span style={{ display: "inline-block", width: 8, height: 14, background: engine.color, borderRadius: 2, marginLeft: 2, animation: "blink 1s infinite" }} />}
-                {!running && !output && <span style={{ color: "#4f5a6e" }}>Output will appear here…</span>}
+                {isRunning && <span style={{ display: "inline-block", width: 8, height: 14, background: engine.color, borderRadius: 2, marginLeft: 2, animation: "blink 1s infinite" }} />}
+                {!isRunning && !output && <span style={{ color: "#4f5a6e" }}>Output will appear here…</span>}
               </div>
             )}
           </div>
         </div>
       )}
+      <style>{`@keyframes blink { 0%,100%{opacity:1} 50%{opacity:0} }`}</style>
     </div>
   );
 }
@@ -232,8 +182,9 @@ function RunPanel({ engine, appId, onBack }: { engine: GenericEngineDefinition; 
 // ── Sessions Panel ───────────────────────────────────────────────────────────
 function SessionsPanel({ appId, color, onBack }: { appId: string; color: string; onBack: () => void }) {
   const [sessions, setSessions] = useState<SavedSession[]>([]);
-  const [loading, setLoading] = useState(true);
+  const [loading,  setLoading]  = useState(true);
   const [selected, setSelected] = useState<SavedSession | null>(null);
+  const { processText } = useDocumentOutput();
 
   useEffect(() => {
     fetch(`/api/documents?type=engine-session-${appId}`, { credentials: "include" })
@@ -253,11 +204,7 @@ function SessionsPanel({ appId, color, onBack }: { appId: string; color: string;
           </div>
         </div>
         <div style={{ flex: 1, overflowY: "auto" }}>
-          <DocumentRenderer
-            schema={parseBodyToSchema(selected.output ?? "", { title: selected.topic, docType: selected.engineName })}
-            compact
-            toolbar
-          />
+          <DocumentRenderer schema={processText(selected.output ?? "", { title: selected.topic, docType: selected.engineName })} compact toolbar />
         </div>
       </div>
     );
@@ -271,20 +218,15 @@ function SessionsPanel({ appId, color, onBack }: { appId: string; color: string;
       </div>
       {loading && <div style={{ color: "#64748b", fontSize: 13 }}>Loading sessions…</div>}
       {!loading && sessions.length === 0 && (
-        <div style={{ color: "#64748b", fontSize: 13, textAlign: "center", marginTop: 40 }}>
-          No saved sessions yet. Run an engine and click Save.
-        </div>
+        <div style={{ color: "#64748b", fontSize: 13, textAlign: "center", marginTop: 40 }}>No saved sessions yet. Run an engine and click Save.</div>
       )}
       <div style={{ display: "flex", flexDirection: "column", gap: 8, overflowY: "auto" }}>
         {sessions.map(s => (
-          <button
-            key={s.id}
-            onClick={() => setSelected(s)}
-            style={{ background: "rgba(255,255,255,0.04)", border: "1px solid rgba(255,255,255,0.08)", borderRadius: 12, padding: "12px 16px", cursor: "pointer", textAlign: "left" }}
-          >
+          <button key={s.id} onClick={() => setSelected(s)}
+            style={{ background: "rgba(255,255,255,0.04)", border: "1px solid rgba(255,255,255,0.08)", borderRadius: 12, padding: "12px 16px", cursor: "pointer", textAlign: "left" }}>
             <div style={{ fontWeight: 600, fontSize: 13, color: "#f1f5f9", marginBottom: 4 }}>{s.engineName}</div>
             <div style={{ fontSize: 11, color: "#64748b", marginBottom: 4 }}>{s.topic}</div>
-            <div style={{ fontSize: 10, color: color }}>
+            <div style={{ fontSize: 10, color }}>
               {new Date(s.createdAt).toLocaleDateString("en-US", { month: "short", day: "numeric", year: "numeric" })}
             </div>
           </button>
@@ -296,18 +238,15 @@ function SessionsPanel({ appId, color, onBack }: { appId: string; color: string;
 
 // ── Main GenericEngineApp ────────────────────────────────────────────────────
 export function GenericEngineApp({ config }: { config: GenericEngineAppConfig }) {
-  const [view, setView] = useState<View>("grid");
+  const [view,         setView]         = useState<View>("grid");
   const [activeEngine, setActiveEngine] = useState<GenericEngineDefinition | null>(null);
-  const [search, setSearch] = useState("");
+  const [search,       setSearch]       = useState("");
 
   const filtered = config.engines.filter(e =>
     !search || e.name.toLowerCase().includes(search.toLowerCase()) || e.description.toLowerCase().includes(search.toLowerCase())
   );
 
-  const selectEngine = (engine: GenericEngineDefinition) => {
-    setActiveEngine(engine);
-    setView("run");
-  };
+  const selectEngine = (engine: GenericEngineDefinition) => { setActiveEngine(engine); setView("run"); };
 
   if (view === "run" && activeEngine) {
     return (
@@ -339,20 +278,14 @@ export function GenericEngineApp({ config }: { config: GenericEngineAppConfig })
               <div style={{ fontSize: 11, color: "#64748b" }}>{config.engines.length} AI engines</div>
             </div>
           </div>
-          <button
-            onClick={() => setView("sessions")}
-            style={{ background: "rgba(255,255,255,0.06)", border: "1px solid rgba(255,255,255,0.1)", borderRadius: 10, padding: "7px 14px", color: "#94a3b8", fontSize: 12, fontWeight: 600, cursor: "pointer" }}
-          >
+          <button onClick={() => setView("sessions")}
+            style={{ background: "rgba(255,255,255,0.06)", border: "1px solid rgba(255,255,255,0.1)", borderRadius: 10, padding: "7px 14px", color: "#94a3b8", fontSize: 12, fontWeight: 600, cursor: "pointer" }}>
             📂 Sessions
           </button>
         </div>
         <p style={{ fontSize: 12, color: "#64748b", margin: "0 0 12px" }}>{config.description}</p>
-        <input
-          value={search}
-          onChange={e => setSearch(e.target.value)}
-          placeholder="Search engines…"
-          style={{ width: "100%", background: "rgba(255,255,255,0.05)", border: "1px solid rgba(255,255,255,0.1)", borderRadius: 10, padding: "8px 14px", color: "#e2e8f0", fontSize: 13, boxSizing: "border-box" }}
-        />
+        <input value={search} onChange={e => setSearch(e.target.value)} placeholder="Search engines…"
+          style={{ width: "100%", background: "rgba(255,255,255,0.05)", border: "1px solid rgba(255,255,255,0.1)", borderRadius: 10, padding: "8px 14px", color: "#e2e8f0", fontSize: 13, boxSizing: "border-box" }} />
       </div>
 
       {/* Engine grid */}
@@ -383,8 +316,6 @@ export function GenericEngineApp({ config }: { config: GenericEngineAppConfig })
           <div style={{ textAlign: "center", color: "#64748b", marginTop: 40, fontSize: 13 }}>No engines match "{search}"</div>
         )}
       </div>
-
-      <style>{`@keyframes blink { 0%,100%{opacity:1} 50%{opacity:0} }`}</style>
     </div>
   );
 }

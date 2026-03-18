@@ -1,5 +1,17 @@
 # CreateAI Brain – Workspace
 
+## Unified Controller Layer (COMPLETE — All 13 Apps Wired)
+- **`src/controller/PlatformController.ts`**: Singleton controller — `streamEngine()` (module-level, no React needed, auto-routes meta-agents vs standard engines), `generateImage()`, `exportToPDF/Markdown/Text()`, `runEngine()`, `runSeries()`, `processOutput()`, `saveOutput()`. Full app→engine registry (`APP_ENGINE_REGISTRY`) and smart intent→engine routing table.
+- **`src/controller/hooks.ts`**: `usePlatform`, `useEngineRun(id)`, `useSeriesRun(id)`, `useDocumentOutput`, `useImageGenerate` — all React hooks wrapping controller
+- **`src/controller/ControllerContext.tsx`**: `PlatformProvider` wraps entire app in App.tsx
+- **`src/controller/index.ts`**: Barrel export — import everything from `@/controller`
+- **`POST /api/openai/image-generate`**: DALL-E 3 image generation with safety filter, quality and size params
+- **13 apps fully wired through controller**:
+  - `GenericEngineApp.tsx` → `useEngineRun` + `useDocumentOutput` + `DocumentRenderer` on done
+  - `BrainHubApp.tsx` → `useEngineRun` (handles meta-agent routing) + `useSeriesRun` (section-by-section streaming) + `DocumentRenderer` on done
+  - `CivilizationForgeApp`, `EcologyForgeApp`, `MythweaveStudioApp`, `NarratorOSApp`, `SoundscapeStudioApp`, `TimelineForgeApp` → `streamEngine` replacing custom `runXxxEngine` calls
+  - `PersonaStudioApp`, `PricingStudioApp`, `LearningCenterApp`, `DataStudioApp`, `ResearchHubApp` → `streamEngine` replacing raw fetch blocks
+
 ## Expansion Engine v3 (COMPLETE — Maximum-Capacity Ceiling Applied)
 - **expansionEngine.ts**: 20 expansion paths · 7 iterations · 20-layer power table
 - **openai.ts ENGINE_SYSTEM_PROMPTS**: 20 new max-capacity engines added (DeliverableEngine, AutomationEngine, ProductionEngine, ComplianceAuditEngine, SecurityEngine, ScalingEngine, MonetizationEngine, LaunchEngine, GrowthEngine, RetentionEngine, AnalyticsEngine, APIDesignEngine, UIUXEngine, AccessibilityEngine, DevOpsEngine, MobileEngine, PartnershipEngine, ContentStrategyEngine, SEOEngine, PerformanceEngine)

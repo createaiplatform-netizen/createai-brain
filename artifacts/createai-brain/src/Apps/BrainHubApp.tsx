@@ -1,11 +1,13 @@
 import React, { useState, useEffect, useRef, useCallback } from "react";
 import {
-  ALL_ENGINES, ALL_SERIES, runEngine, runMetaAgent, saveEngineOutput,
+  ALL_ENGINES, ALL_SERIES, saveEngineOutput,
   fetchPlatformStats, getEnginesByCategory,
   type EngineDefinition, type SeriesDefinition, type PlatformStats,
 } from "@/engine/CapabilityEngine";
 import { RegulatoryEngine } from "@/engine/RegulatoryEngine";
 import { SaveToProjectModal } from "@/components/SaveToProjectModal";
+import { useEngineRun, useSeriesRun } from "@/controller";
+import { DocumentRenderer } from "@/engines/document";
 
 // ─── Types ─────────────────────────────────────────────────────────────────────
 type HubView = "dashboard" | "engines" | "agents" | "series" | "compliance" | "run" | "series-run";
@@ -198,42 +200,23 @@ function EngineCard({ engine, onRun, compact }: {
   );
 }
 
-// ─── Run Panel (Step 4: engine-specific hints) ────────────────────────────────
+// ─── Run Panel — wired through PlatformController ─────────────────────────────
 function RunPanel({ engine, onBack }: { engine: EngineDefinition; onBack: () => void }) {
   const hint = ENGINE_HINTS[engine.id] ?? {
     placeholder: `What should ${engine.name} generate or analyze?`,
     example: "",
   };
 
-  const [topic, setTopic]   = useState("");
-  const [context, setContext] = useState("");
-  const [output, setOutput] = useState("");
-  const [running, setRunning] = useState(false);
-  const [done, setDone]     = useState(false);
-  const [error, setError]   = useState("");
+  const { run: runCtrl, output, document: doc, status, error: runError, isRunning, isDone } = useEngineRun(engine.id);
+  const [topic,    setTopic]    = useState("");
+  const [context,  setContext]  = useState("");
   const [showSave, setShowSave] = useState(false);
   const outputRef = useRef<HTMLDivElement>(null);
 
-  const handleRun = useCallback(async () => {
+  const handleRun = useCallback(() => {
     if (!topic.trim()) return;
-    setOutput(""); setError(""); setRunning(true); setDone(false);
-
-    if (engine.category === "meta-agent") {
-      await runMetaAgent({
-        agentId: engine.id, task: topic, context,
-        onChunk: t => setOutput(prev => prev + t),
-        onDone:  () => { setRunning(false); setDone(true); },
-        onError: e => { setError(e); setRunning(false); },
-      });
-    } else {
-      await runEngine({
-        engineId: engine.id, engineName: engine.name, topic, context,
-        onChunk: t => setOutput(prev => prev + t),
-        onDone:  () => { setRunning(false); setDone(true); },
-        onError: e => { setError(e); setRunning(false); },
-      });
-    }
-  }, [engine, topic, context]);
+    runCtrl(topic.trim(), { context });
+  }, [topic, context, runCtrl]);
 
   useEffect(() => {
     if (outputRef.current) outputRef.current.scrollTop = outputRef.current.scrollHeight;
@@ -326,17 +309,17 @@ function RunPanel({ engine, onBack }: { engine: EngineDefinition; onBack: () => 
       {/* Run button */}
       <button
         onClick={handleRun}
-        disabled={running || !topic.trim()}
+        disabled={isRunning || !topic.trim()}
         style={{
-          background: running ? "rgba(99,102,241,0.3)" : engine.color,
+          background: isRunning ? "rgba(99,102,241,0.3)" : engine.color,
           border: "none", borderRadius: 10, padding: "12px 20px",
           color: "#fff", fontSize: 14, fontWeight: 700,
-          cursor: running ? "not-allowed" : "pointer",
+          cursor: isRunning ? "not-allowed" : "pointer",
           display: "flex", alignItems: "center", gap: 8, justifyContent: "center",
-          opacity: !topic.trim() && !running ? 0.5 : 1,
+          opacity: !topic.trim() && !isRunning ? 0.5 : 1,
         }}
       >
-        {running
+        {isRunning
           ? <><span style={{ animation: "spin 1s linear infinite", display: "inline-block" }}>⚙️</span> Running {engine.name}…</>
           : <><span>{engine.icon}</span> Activate {engine.name}</>
         }
@@ -346,11 +329,11 @@ function RunPanel({ engine, onBack }: { engine: EngineDefinition; onBack: () => 
       </div>
 
       {/* Error */}
-      {error && (
+      {runError && (
         <div style={{
           background: "rgba(255,59,48,0.12)", border: "1px solid rgba(255,59,48,0.3)",
           borderRadius: 8, padding: "10px 14px", color: "#ff3b30", fontSize: 13,
-        }}>⚠️ {error}</div>
+        }}>⚠️ {runError}</div>
       )}
 
       {/* Output */}
@@ -358,9 +341,9 @@ function RunPanel({ engine, onBack }: { engine: EngineDefinition; onBack: () => 
         <div style={{ display: "flex", flexDirection: "column", gap: 8 }}>
           <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between" }}>
             <label style={{ fontSize: 12, color: "#94a3b8", fontWeight: 600 }}>
-              {running ? "⟳ STREAMING OUTPUT…" : done ? "✅ OUTPUT COMPLETE" : "OUTPUT"}
+              {isRunning ? "⟳ STREAMING OUTPUT…" : isDone ? "✅ OUTPUT COMPLETE" : "OUTPUT"}
             </label>
-            {done && (
+            {isDone && (
               <div style={{ display: "flex", gap: 6 }}>
                 <button
                   onClick={() => navigator.clipboard.writeText(output)}
@@ -380,15 +363,17 @@ function RunPanel({ engine, onBack }: { engine: EngineDefinition; onBack: () => 
               </div>
             )}
           </div>
-          <div
-            ref={outputRef}
-            style={{
-              background: "rgba(0,0,0,0.3)", border: "1px solid rgba(255,255,255,0.08)",
-              borderRadius: 8, padding: "14px", color: "#e2e8f0", fontSize: 13,
-              lineHeight: 1.7, maxHeight: 480, overflowY: "auto",
-              whiteSpace: "pre-wrap", fontFamily: "ui-monospace, monospace",
-            }}
-          >{output}</div>
+          <div ref={outputRef} style={{ maxHeight: 480, overflowY: "auto" }}>
+            {isDone && doc ? (
+              <DocumentRenderer schema={doc} compact toolbar />
+            ) : (
+              <div style={{
+                background: "rgba(0,0,0,0.3)", border: "1px solid rgba(255,255,255,0.08)",
+                borderRadius: 8, padding: "14px", color: "#e2e8f0", fontSize: 13,
+                lineHeight: 1.7, whiteSpace: "pre-wrap", fontFamily: "ui-monospace, monospace",
+              }}>{output}</div>
+            )}
+          </div>
         </div>
       )}
 
@@ -405,21 +390,11 @@ function RunPanel({ engine, onBack }: { engine: EngineDefinition; onBack: () => 
   );
 }
 
-// ─── Series Run Panel (Step 3 — real sequential engine execution) ─────────────
-interface SeriesSection {
-  engineId: string;
-  content: string;
-  done: boolean;
-  error?: string;
-}
-
+// ─── Series Run Panel — wired through PlatformController ──────────────────────
 function SeriesRunPanel({ series, onBack }: { series: SeriesDefinition; onBack: () => void }) {
-  const [topic, setTopic]     = useState("");
-  const [context, setContext] = useState("");
-  const [sections, setSections] = useState<SeriesSection[]>([]);
-  const [running, setRunning] = useState(false);
-  const [done, setDone]       = useState(false);
-  const [error, setError]     = useState("");
+  const { run: runSeries, sections, status, error: seriesError, allOutput, isRunning, isDone } = useSeriesRun(series.id);
+  const [topic,    setTopic]    = useState("");
+  const [context,  setContext]  = useState("");
   const [showSave, setShowSave] = useState(false);
   const bottomRef = useRef<HTMLDivElement>(null);
 
@@ -427,69 +402,10 @@ function SeriesRunPanel({ series, onBack }: { series: SeriesDefinition; onBack: 
     bottomRef.current?.scrollIntoView({ behavior: "smooth" });
   }, [sections]);
 
-  const handleRun = useCallback(async () => {
-    if (!topic.trim()) return;
-    setSections([]); setError(""); setRunning(true); setDone(false);
-
-    try {
-      const resp = await fetch("/api/openai/series-run", {
-        method: "POST",
-        credentials: "include",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ seriesId: series.id, topic, context }),
-      });
-
-      if (!resp.ok || !resp.body) {
-        const err = await resp.json().catch(() => ({ error: `HTTP ${resp.status}` })) as { error?: string };
-        setError(err.error ?? "Series run failed"); setRunning(false); return;
-      }
-
-      const reader  = resp.body.getReader();
-      const decoder = new TextDecoder();
-
-      while (true) {
-        const { done: streamDone, value } = await reader.read();
-        if (streamDone) break;
-
-        const lines = decoder.decode(value).split("\n");
-        for (const line of lines) {
-          if (!line.startsWith("data: ")) continue;
-          try {
-            const data = JSON.parse(line.slice(6)) as {
-              type: string; engineId?: string; sectionIndex?: number;
-              content?: string; error?: string;
-            };
-
-            if (data.type === "section-start" && data.engineId) {
-              setSections(prev => [...prev, { engineId: data.engineId!, content: "", done: false }]);
-            } else if (data.type === "content" && data.engineId) {
-              setSections(prev => prev.map(s =>
-                s.engineId === data.engineId && !s.done
-                  ? { ...s, content: s.content + (data.content ?? "") }
-                  : s
-              ));
-            } else if (data.type === "section-done" && data.engineId) {
-              setSections(prev => prev.map(s =>
-                s.engineId === data.engineId ? { ...s, done: true } : s
-              ));
-            } else if (data.type === "section-error" && data.engineId) {
-              setSections(prev => prev.map(s =>
-                s.engineId === data.engineId ? { ...s, done: true, error: data.error } : s
-              ));
-            } else if (data.type === "series-done") {
-              setDone(true); setRunning(false);
-            }
-          } catch { /* skip malformed */ }
-        }
-      }
-    } catch (err) {
-      setError((err as Error).message); setRunning(false);
-    }
-  }, [series.id, topic, context]);
-
-  const allOutput = sections.map(s =>
-    `## ${s.engineId}\n\n${s.content}`
-  ).join("\n\n---\n\n");
+  const handleRun = useCallback(() => {
+    if (!topic.trim() || isRunning) return;
+    runSeries(topic.trim(), context);
+  }, [topic, context, isRunning, runSeries]);
 
   return (
     <div style={{ display: "flex", flexDirection: "column", gap: 16 }}>
@@ -531,7 +447,7 @@ function SeriesRunPanel({ series, onBack }: { series: SeriesDefinition; onBack: 
       </div>
 
       {/* Input */}
-      {!running && !done && (
+      {!isRunning && !isDone && (
         <>
           <div style={{ display: "flex", flexDirection: "column", gap: 6 }}>
             <label style={{ fontSize: 12, color: "#94a3b8", fontWeight: 600 }}>TOPIC *</label>
@@ -578,11 +494,11 @@ function SeriesRunPanel({ series, onBack }: { series: SeriesDefinition; onBack: 
       )}
 
       {/* Error */}
-      {error && (
+      {seriesError && (
         <div style={{
           background: "rgba(255,59,48,0.12)", border: "1px solid rgba(255,59,48,0.3)",
           borderRadius: 8, padding: "10px 14px", color: "#ff3b30", fontSize: 13,
-        }}>⚠️ {error}</div>
+        }}>⚠️ {seriesError}</div>
       )}
 
       {/* Streaming output — one section per engine */}
@@ -590,9 +506,9 @@ function SeriesRunPanel({ series, onBack }: { series: SeriesDefinition; onBack: 
         <div style={{ display: "flex", flexDirection: "column", gap: 14 }}>
           <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between" }}>
             <div style={{ fontSize: 13, fontWeight: 700, color: "#e2e8f0" }}>
-              {running ? "⟳ Running series…" : "✅ Series complete"}
+              {isRunning ? "⟳ Running series…" : "✅ Series complete"}
             </div>
-            {done && (
+            {isDone && (
               <div style={{ display: "flex", gap: 6 }}>
                 <button
                   onClick={() => navigator.clipboard.writeText(allOutput)}
@@ -628,21 +544,18 @@ function SeriesRunPanel({ series, onBack }: { series: SeriesDefinition; onBack: 
                     fontSize: 10, fontWeight: 700, color: series.color,
                     background: `${series.color}22`, borderRadius: 4, padding: "2px 7px",
                   }}>ENGINE {i + 1}</span>
-                  <span style={{ fontSize: 12, fontWeight: 600, color: "#e2e8f0" }}>{section.engineId}</span>
+                  <span style={{ fontSize: 12, fontWeight: 600, color: "#e2e8f0" }}>{section.engineName || section.engineId}</span>
                 </div>
-                {section.done && !section.error && <span style={{ fontSize: 11, color: "#34C759" }}>✓ Done</span>}
-                {section.error && <span style={{ fontSize: 11, color: "#ff3b30" }}>⚠ Error</span>}
-                {!section.done && <span style={{ fontSize: 11, color: "#94a3b8", animation: "pulse 1.5s infinite" }}>streaming…</span>}
+                {section.status === "done" && <span style={{ fontSize: 11, color: "#34C759" }}>✓ Done</span>}
+                {section.status === "running" && <span style={{ fontSize: 11, color: "#94a3b8", animation: "pulse 1.5s infinite" }}>streaming…</span>}
+                {section.status === "pending" && <span style={{ fontSize: 11, color: "#4f5a6e" }}>pending</span>}
               </div>
               <div style={{
                 padding: "12px 14px", fontSize: 12, color: "#94a3b8", lineHeight: 1.7,
                 whiteSpace: "pre-wrap", maxHeight: 320, overflowY: "auto",
                 fontFamily: "ui-monospace, monospace",
               }}>
-                {section.error
-                  ? <span style={{ color: "#ff3b30" }}>{section.error}</span>
-                  : section.content || <span style={{ color: "#4f5a6e" }}>Waiting for output…</span>
-                }
+                {section.text || <span style={{ color: "#4f5a6e" }}>Waiting for output…</span>}
               </div>
             </div>
           ))}
@@ -651,9 +564,9 @@ function SeriesRunPanel({ series, onBack }: { series: SeriesDefinition; onBack: 
         </div>
       )}
 
-      {done && (
+      {isDone && (
         <button
-          onClick={() => { setSections([]); setDone(false); setError(""); }}
+          onClick={() => { }}
           style={{
             background: "rgba(255,255,255,0.06)", border: "1px solid rgba(255,255,255,0.12)",
             borderRadius: 10, padding: "10px", color: "#94a3b8", cursor: "pointer", fontSize: 13,

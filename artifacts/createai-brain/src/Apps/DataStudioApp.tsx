@@ -1,4 +1,5 @@
 import React, { useState, useRef } from "react";
+import { streamEngine } from "@/controller";
 
 type Operation = "schema" | "model" | "query" | "vector";
 
@@ -28,41 +29,25 @@ export function DataStudioApp() {
 
   async function run() {
     if (!subject.trim() || loading) return;
-    abortRef.current?.abort();
-    const ctrl = new AbortController();
-    abortRef.current = ctrl;
     setLoading(true);
     setStream("");
-
     const meta = OP_META[op];
     try {
-      const res = await fetch("/api/openai/engine-run", {
-        method: "POST",
-        credentials: "include",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ engineId: meta.engine, prompt: `[${meta.label}] ${subject}` }),
-        signal: ctrl.signal,
+      await streamEngine({
+        engineId: meta.engine,
+        topic: `[${meta.label}] ${subject}`,
+        onChunk: (chunk) => setStream(s => s + chunk),
+        onDone: async (full) => {
+          setOutputs(o => [{ id: crypto.randomUUID(), op, subject, output: full, ts: Date.now() }, ...o]);
+          await fetch("/api/documents", {
+            method: "POST",
+            credentials: "include",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify({ title: `[${meta.label}] ${subject}`, content: full, type: "data-model" }),
+          });
+        },
+        onError: (err) => setStream(`Error — ${err}`),
       });
-      if (!res.body) throw new Error("No stream");
-      const reader = res.body.getReader();
-      const dec    = new TextDecoder();
-      let full     = "";
-      while (true) {
-        const { done, value } = await reader.read();
-        if (done) break;
-        const chunk = dec.decode(value);
-        full += chunk;
-        setStream(s => s + chunk);
-      }
-      setOutputs(o => [{ id: crypto.randomUUID(), op, subject, output: full, ts: Date.now() }, ...o]);
-      await fetch("/api/documents", {
-        method: "POST",
-        credentials: "include",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ title: `[${meta.label}] ${subject}`, content: full, type: "data-model" }),
-      });
-    } catch (e: any) {
-      if (e.name !== "AbortError") setStream("Error — please try again.");
     } finally {
       setLoading(false);
     }

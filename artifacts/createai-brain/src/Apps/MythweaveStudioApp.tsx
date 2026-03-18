@@ -1,9 +1,9 @@
 import React, { useState, useRef, useCallback, useEffect } from "react";
 import {
   MYTHWEAVE_ENGINES, MYTHWEAVE_SERIES,
-  runMythweaveEngine,
   type MythweaveEngineDefinition, type MythweaveSeriesDefinition,
 } from "@/engine/MythweaveEngine";
+import { streamEngine } from "@/controller";
 
 interface SavedSession { id: number; engineId: string; engineName: string; topic: string; output: string; title: string | null; isStarred: boolean; createdAt: string; }
 type View = "grid" | "run" | "series" | "sessions" | "viewer";
@@ -31,7 +31,7 @@ function RunPanel({ engine, onBack }: { engine: MythweaveEngineDefinition; onBac
   const run = useCallback(async () => {
     if (!topic.trim() || running) return;
     setOutput(""); setRunning(true); setDone(false); setSaved(false); setError(null);
-    await runMythweaveEngine({ engineId: engine.id, engineName: engine.name, topic: topic.trim(),
+    await streamEngine({ engineId: engine.id, topic: topic.trim(),
       onChunk: chunk => { setOutput(prev => prev + chunk); if (outputRef.current) outputRef.current.scrollTop = outputRef.current.scrollHeight; },
       onDone: () => { setRunning(false); setDone(true); }, onError: err => { setError(err); setRunning(false); } });
   }, [topic, running, engine]);

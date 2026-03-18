@@ -1,10 +1,11 @@
 // ═══════════════════════════════════════════════════════════════════════════
 // PLATFORM HOOKS — All apps and engines access the controller through these.
 //
-//  usePlatform()       — full platform access (registry, routing, run, save)
-//  useEngineRun(id)    — run a single engine with streaming + auto-parse
-//  useSeriesRun(id)    — run a multi-engine series with per-section state
-//  useDocumentOutput() — document processing and save utilities
+//  usePlatform()         — full platform access
+//  useEngineRun(id)      — streaming engine run with auto-parse
+//  useSeriesRun(id)      — multi-engine series with per-section state
+//  useDocumentOutput()   — document processing and save utilities
+//  useImageGenerate()    — image generation via DALL-E 3
 // ═══════════════════════════════════════════════════════════════════════════
 
 import { useState, useCallback, useRef } from "react";
@@ -24,17 +25,15 @@ import type {
   SeriesRunRequest,
   OutputMeta,
   SaveOutputOpts,
+  ImageGenOpts,
 } from "./PlatformController";
 
 // ─── usePlatform ──────────────────────────────────────────────────────────────
-// Main access hook — registry, routing, run, save, history.
 
 export function usePlatform() {
   const { controller } = usePlatformContext();
   return {
     controller,
-
-    // Registry
     engines:      ALL_ENGINES,
     series:       ALL_SERIES,
     engineCount:  ALL_ENGINES.length,
@@ -42,30 +41,25 @@ export function usePlatform() {
     getEngine,
     getSeries,
     getEnginesByCategory,
-    getEnginesForSeries: (id: string) => controller.getEnginesForSeries(id),
-    getEnginesForApp:    (appId: string) => controller.getEnginesForApp(appId),
-    getSeriesForApp:     (appId: string) => controller.getSeriesForApp(appId),
-    getAppConfig:        (appId: string) => controller.getAppConfig(appId),
-
-    // Smart routing
-    routeToEngine: (intent: string, docType?: string) => controller.routeToEngine(intent, docType),
-    routeToSeries: (intent: string) => controller.routeToSeries(intent),
-
-    // Run
-    runEngine: (opts: EngineRunRequest) => controller.runEngine(opts),
-    runSeries: (opts: SeriesRunRequest) => controller.runSeries(opts),
-
-    // Output
-    processOutput: (text: string, meta?: OutputMeta) => controller.processOutput(text, meta),
-    saveOutput:    (opts: SaveOutputOpts)             => controller.saveOutput(opts),
-
-    // History
-    getActivityHistory: () => controller.getActivityHistory(),
+    getEnginesForSeries: (id: string)     => controller.getEnginesForSeries(id),
+    getEnginesForApp:    (appId: string)  => controller.getEnginesForApp(appId),
+    getSeriesForApp:     (appId: string)  => controller.getSeriesForApp(appId),
+    getAppConfig:        (appId: string)  => controller.getAppConfig(appId),
+    routeToEngine:       (intent: string, docType?: string) => controller.routeToEngine(intent, docType),
+    routeToSeries:       (intent: string) => controller.routeToSeries(intent),
+    runEngine:           (opts: EngineRunRequest) => controller.runEngine(opts),
+    runSeries:           (opts: SeriesRunRequest) => controller.runSeries(opts),
+    processOutput:       (text: string, meta?: OutputMeta) => controller.processOutput(text, meta),
+    saveOutput:          (opts: SaveOutputOpts) => controller.saveOutput(opts),
+    generateImage:       (prompt: string, opts?: ImageGenOpts) => controller.generateImage(prompt, opts),
+    exportToPDF:         (title?: string) => controller.exportToPDF(title),
+    exportToMarkdown:    (content: string, filename: string) => controller.exportToMarkdown(content, filename),
+    exportToText:        (content: string, filename: string) => controller.exportToText(content, filename),
+    getActivityHistory:  () => controller.getActivityHistory(),
   };
 }
 
 // ─── useEngineRun ─────────────────────────────────────────────────────────────
-// Complete engine run with streaming, auto document parsing, and optional save.
 
 export interface EngineRunState {
   run:       (topic: string, opts?: { context?: string; mode?: string; autoSave?: boolean; projectId?: string }) => void;
@@ -91,20 +85,15 @@ export function useEngineRun(engineId: string): EngineRunState {
 
   const run = useCallback(
     (topic: string, opts?: { context?: string; mode?: string; autoSave?: boolean; projectId?: string }) => {
-      setOutput("");
-      setDocument(null);
-      setSavedId(null);
-      setError(null);
-      setStatus("running");
-
+      setOutput(""); setDocument(null); setSavedId(null); setError(null); setStatus("running");
       const engine = getEngine(engineId);
 
       handleRef.current = controller.runEngine({
         engineId,
         topic,
-        context:  opts?.context,
-        mode:     opts?.mode,
-        onChunk:  (text) => setOutput(prev => prev + text),
+        context: opts?.context,
+        mode:    opts?.mode,
+        onChunk: (text) => setOutput(prev => prev + text),
         onDone: async (finalText) => {
           const processed = controller.processOutput(finalText, {
             engineId,
@@ -131,24 +120,13 @@ export function useEngineRun(engineId: string): EngineRunState {
     [engineId, controller],
   );
 
-  const abort = useCallback(() => {
-    handleRef.current?.abort();
-    setStatus("idle");
-  }, []);
-
-  const reset = useCallback(() => {
-    setOutput("");
-    setDocument(null);
-    setError(null);
-    setSavedId(null);
-    setStatus("idle");
-  }, []);
+  const abort = useCallback(() => { handleRef.current?.abort(); setStatus("idle"); }, []);
+  const reset = useCallback(() => { setOutput(""); setDocument(null); setError(null); setSavedId(null); setStatus("idle"); }, []);
 
   return { run, abort, reset, output, document, status, error, savedId, isRunning: status === "running", isDone: status === "done" };
 }
 
 // ─── useSeriesRun ─────────────────────────────────────────────────────────────
-// Multi-engine series run with per-section state tracking.
 
 export interface SeriesSection {
   engineId:   string;
@@ -158,22 +136,22 @@ export interface SeriesSection {
 }
 
 export interface SeriesRunState {
-  run:               (topic: string, context?: string) => void;
-  abort:             () => void;
-  reset:             () => void;
-  sections:          SeriesSection[];
-  status:            "idle" | "running" | "done" | "error";
-  error:             string | null;
-  currentIndex:      number;
-  allOutput:         string;
-  seriesDef:         SeriesDefinition | undefined;
-  isRunning:         boolean;
-  isDone:            boolean;
+  run:          (topic: string, context?: string) => void;
+  abort:        () => void;
+  reset:        () => void;
+  sections:     SeriesSection[];
+  status:       "idle" | "running" | "done" | "error";
+  error:        string | null;
+  currentIndex: number;
+  allOutput:    string;
+  seriesDef:    SeriesDefinition | undefined;
+  isRunning:    boolean;
+  isDone:       boolean;
 }
 
 export function useSeriesRun(seriesId: string): SeriesRunState {
-  const { controller }  = usePlatformContext();
-  const seriesDef       = getSeries(seriesId);
+  const { controller } = usePlatformContext();
+  const seriesDef = getSeries(seriesId);
 
   const makeInitial = (): SeriesSection[] =>
     (seriesDef?.engines ?? []).map(eid => ({
@@ -191,14 +169,10 @@ export function useSeriesRun(seriesId: string): SeriesRunState {
 
   const run = useCallback((topic: string, context?: string) => {
     setSections(makeInitial());
-    setStatus("running");
-    setError(null);
-    setCurrentIndex(0);
+    setStatus("running"); setError(null); setCurrentIndex(0);
 
     handleRef.current = controller.runSeries({
-      seriesId,
-      topic,
-      context,
+      seriesId, topic, context,
       onSectionStart: (engineId, index) => {
         setCurrentIndex(index);
         setSections(prev => prev.map((s, i) => i === index ? { ...s, status: "running" } : s));
@@ -209,14 +183,15 @@ export function useSeriesRun(seriesId: string): SeriesRunState {
       onSectionDone: (_eid, index) => {
         setSections(prev => prev.map((s, i) => i === index ? { ...s, status: "done" } : s));
       },
-      onDone: () => { setStatus("done"); setCurrentIndex(-1); },
+      onDone:  () => { setStatus("done"); setCurrentIndex(-1); },
       onError: (err) => { setError(err); setStatus("error"); },
     });
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [seriesId, controller]);
 
   const abort = useCallback(() => { handleRef.current?.abort(); setStatus("idle"); }, []);
-  const reset = useCallback(() => { setSections(makeInitial()); setStatus("idle"); setError(null); setCurrentIndex(-1); }, []);  // eslint-disable-line react-hooks/exhaustive-deps
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  const reset = useCallback(() => { setSections(makeInitial()); setStatus("idle"); setError(null); setCurrentIndex(-1); }, []);
 
   const allOutput = sections.map(s => `## ${s.engineName}\n\n${s.text}`).join("\n\n---\n\n");
 
@@ -224,25 +199,54 @@ export function useSeriesRun(seriesId: string): SeriesRunState {
 }
 
 // ─── useDocumentOutput ────────────────────────────────────────────────────────
-// Utilities for converting raw text to DocumentSchema and saving.
 
 export function useDocumentOutput() {
   const { controller } = usePlatformContext();
 
-  const processText = useCallback(
-    (text: string, meta?: OutputMeta) => controller.processOutput(text, meta).document,
-    [controller],
-  );
+  const processText  = useCallback((text: string, meta?: OutputMeta) => controller.processOutput(text, meta).document, [controller]);
+  const saveDocument = useCallback((opts: SaveOutputOpts)             => controller.saveOutput(opts),                  [controller]);
+  const toMarkdown   = useCallback((content: string, name: string)   => controller.exportToMarkdown(content, name),   [controller]);
+  const toText       = useCallback((content: string, name: string)   => controller.exportToText(content, name),       [controller]);
+  const toPDF        = useCallback((title?: string)                  => controller.exportToPDF(title),                [controller]);
 
-  const saveDocument = useCallback(
-    (opts: SaveOutputOpts) => controller.saveOutput(opts),
-    [controller],
-  );
-
-  return { processText, saveDocument };
+  return { processText, saveDocument, toMarkdown, toText, toPDF };
 }
 
-// ─── Re-export types that consuming files need ────────────────────────────────
+// ─── useImageGenerate ─────────────────────────────────────────────────────────
+
+export interface ImageGenerateState {
+  generate:   (prompt: string, opts?: ImageGenOpts) => void;
+  imageUrl:   string | null;
+  status:     "idle" | "generating" | "done" | "error";
+  error:      string | null;
+  reset:      () => void;
+}
+
+export function useImageGenerate(): ImageGenerateState {
+  const { controller } = usePlatformContext();
+  const [imageUrl, setImageUrl] = useState<string | null>(null);
+  const [status,   setStatus]   = useState<"idle" | "generating" | "done" | "error">("idle");
+  const [error,    setError]    = useState<string | null>(null);
+
+  const generate = useCallback(async (prompt: string, opts?: ImageGenOpts) => {
+    if (!prompt.trim()) return;
+    setStatus("generating"); setError(null); setImageUrl(null);
+    try {
+      const result = await controller.generateImage(prompt.trim(), opts);
+      setImageUrl(result.url);
+      setStatus("done");
+    } catch (err) {
+      setError((err as Error).message);
+      setStatus("error");
+    }
+  }, [controller]);
+
+  const reset = useCallback(() => { setImageUrl(null); setStatus("idle"); setError(null); }, []);
+
+  return { generate, imageUrl, status, error, reset };
+}
+
+// ─── Re-exports ───────────────────────────────────────────────────────────────
 
 export type { EngineDefinition, SeriesDefinition };
-export type { EngineRunRequest, SeriesRunRequest, OutputMeta, SaveOutputOpts };
+export type { EngineRunRequest, SeriesRunRequest, OutputMeta, SaveOutputOpts, ImageGenOpts };
