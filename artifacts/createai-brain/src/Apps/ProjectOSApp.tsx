@@ -957,6 +957,59 @@ function SearchModal({
 
 // ─── Main App ──────────────────────────────────────────────────────────────────
 
+// ── File-level workflow quick-action prompts ──────────────────────────────────
+function getFileWorkflows(file: ProjectFile): { label: string; icon: string; prompt: string }[] {
+  const n = file.name.toLowerCase();
+  const base: { label: string; icon: string; prompt: string }[] = [
+    { label: "Enhance",     icon: "✨", prompt: `Enhance and improve the "${file.name}" document. Make it more detailed, professional, and actionable. Return the improved content directly.` },
+    { label: "Add Section", icon: "＋", prompt: `Add one new, highly relevant section to "${file.name}" that would make it more complete.` },
+    { label: "Summarize",   icon: "📋", prompt: `Write a concise executive summary of "${file.name}".` },
+  ];
+  if (n.includes("budget") || n.includes("financ") || n.includes("revenue") || n.includes("p&l"))
+    return [{ label: "Build Budget",    icon: "💰", prompt: `Create a detailed line-item budget breakdown for this project.` }, ...base.slice(0, 2)];
+  if (n.includes("script") || n.includes("scene") || n.includes("screenplay") || n.includes("pilot") || n.includes("episode"))
+    return [
+      { label: "Write Next Scene", icon: "🎬", prompt: `Write the next scene for this script, continuing naturally from where it left off.` },
+      { label: "Format Script",    icon: "📐", prompt: `Reformat this content into proper screenplay format: scene headers, action lines, dialogue.` },
+      base[0],
+    ];
+  if (n.includes("pitch") || n.includes("deck") || n.includes("investor"))
+    return [{ label: "Sharpen Pitch", icon: "🎯", prompt: `Make this pitch more compelling. Sharpen the value proposition and key metrics.` }, ...base.slice(0, 2)];
+  if (n.includes("market") || n.includes("campaign") || n.includes("brand") || n.includes("audience"))
+    return [
+      { label: "Target Audience", icon: "🎯", prompt: `Define the ideal target audience, buyer personas, and messaging approach.` },
+      { label: "Campaign Ideas",  icon: "💡", prompt: `Generate 5 high-impact campaign concepts for this project.` },
+      base[0],
+    ];
+  if (n.includes("roadmap") || n.includes("sprint") || n.includes("milestone") || n.includes("timeline"))
+    return [
+      { label: "Next Milestones", icon: "🗺️", prompt: `Suggest the next 3 milestones this project should hit, with timelines.` },
+      { label: "Risk Analysis",   icon: "⚠️",  prompt: `Identify the top 5 risks for this project and propose mitigation strategies.` },
+      base[0],
+    ];
+  if (n.includes("legal") || n.includes("contract") || n.includes("nda") || n.includes("term"))
+    return [{ label: "Review Clauses", icon: "⚖️", prompt: `Review the key clauses in this document and suggest improvements or missing protections.` }, ...base.slice(0, 2)];
+  if (n.includes("lyric") || n.includes("track") || n.includes("song") || n.includes("chorus"))
+    return [
+      { label: "Write Verse", icon: "🎵", prompt: `Write a new verse for this track that fits the style and theme of the existing content.` },
+      { label: "Write Hook",  icon: "🎶", prompt: `Write a memorable, catchy hook/chorus for this song.` },
+      base[0],
+    ];
+  if (n.includes("chapter") || n.includes("outline") || n.includes("character") || n.includes("plot"))
+    return [
+      { label: "Write Scene",    icon: "📖", prompt: `Write the next scene or section, continuing naturally.` },
+      { label: "Character Arc",  icon: "🧑‍🎭", prompt: `Develop the character arcs and add depth to the characters.` },
+      base[0],
+    ];
+  if (n.includes("lesson") || n.includes("module") || n.includes("curriculum") || n.includes("course"))
+    return [
+      { label: "Add Exercise",  icon: "📝", prompt: `Add a practical exercise or quiz for this lesson module.` },
+      { label: "Learning Goals", icon: "🎓", prompt: `Define clear learning objectives and outcomes for this module.` },
+      base[0],
+    ];
+  return base;
+}
+
 export function ProjectOSApp() {
   const [projects, setProjects] = useState<Project[]>([]);
   const [loadingProjects, setLoadingProjects] = useState(true);
@@ -996,6 +1049,10 @@ export function ProjectOSApp() {
   const [fileContentLoading, setFileContentLoading] = useState(false);
   const [fileContentSaving, setFileContentSaving] = useState(false);
   const [fileContentSaved, setFileContentSaved] = useState(false);
+  // ── File-level agent chat ──
+  const [fileAiMessages, setFileAiMessages] = useState<{ role: "user" | "ai"; text: string }[]>([]);
+  const [fileAiInput, setFileAiInput]       = useState("");
+  const [fileAiLoading, setFileAiLoading]   = useState(false);
   const [editingProjectName, setEditingProjectName] = useState(false);
   const [editProjectNameVal, setEditProjectNameVal] = useState("");
   const [showArchived, setShowArchived] = useState(false);
@@ -1016,8 +1073,10 @@ export function ProjectOSApp() {
   const [addMemberId, setAddMemberId] = useState("");
   const [addMemberRole, setAddMemberRole] = useState<"viewer" | "editor" | "owner">("viewer");
   const [addingMember, setAddingMember] = useState(false);
-  const aiAbortRef = useRef<AbortController | null>(null);
-  const aiScrollRef = useRef<HTMLDivElement>(null);
+  const aiAbortRef     = useRef<AbortController | null>(null);
+  const aiScrollRef    = useRef<HTMLDivElement>(null);
+  const fileAiAbortRef = useRef<AbortController | null>(null);
+  const fileAiScrollRef= useRef<HTMLDivElement>(null);
 
   const activeProject = projects.find(p => p.id === activeProjectId) ?? null;
   const visibleProjects = projects.filter(p =>
@@ -1032,10 +1091,26 @@ export function ProjectOSApp() {
     });
   }, []);
 
-  // Auto-scroll AI
+  // Auto-scroll project AI
   useEffect(() => {
     if (aiScrollRef.current) aiScrollRef.current.scrollTop = aiScrollRef.current.scrollHeight;
   }, [aiMessages]);
+
+  // Reset file-level AI when a different file is opened
+  useEffect(() => {
+    if (viewingFile) {
+      setFileAiMessages([]);
+      setFileAiInput("");
+      setFileAiLoading(false);
+      fileAiAbortRef.current?.abort();
+    }
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [viewingFile?.id]);
+
+  // Auto-scroll file AI
+  useEffect(() => {
+    if (fileAiScrollRef.current) fileAiScrollRef.current.scrollTop = fileAiScrollRef.current.scrollHeight;
+  }, [fileAiMessages]);
 
   // Seed shared intelligence layer when active project changes
   useEffect(() => {
@@ -1325,6 +1400,47 @@ export function ProjectOSApp() {
     setAiLoading(false);
   }, [aiInput, aiLoading, activeProject, aiMessages]);
 
+  const sendFileAI = useCallback(async (overrideMsg?: string) => {
+    if (!activeProject || !viewingFile) return;
+    const msg = (overrideMsg ?? fileAiInput).trim();
+    if (!msg || fileAiLoading) return;
+    setFileAiInput("");
+    // Prepend file context so the agent focuses on this specific file
+    const prefix = fileContentText
+      ? `[File: ${viewingFile.name}]\n${fileContentText.slice(0, 1400)}\n\n`
+      : `[File: ${viewingFile.name}]\n\n`;
+    const fullMsg = prefix + msg;
+    const newHistory = [...fileAiMessages, { role: "user" as const, text: msg }];
+    setFileAiMessages([...newHistory, { role: "ai" as const, text: "" }]);
+    setFileAiLoading(true);
+    fileAiAbortRef.current?.abort();
+    const ctrl = new AbortController();
+    fileAiAbortRef.current = ctrl;
+    let reply = "";
+    try {
+      await streamProjectChat({
+        projectId:     activeProject.id,
+        message:       fullMsg,
+        history:       newHistory.slice(0, -1).map(m => ({
+          role:    m.role === "user" ? "user" as const : "assistant" as const,
+          content: m.text,
+        })),
+        scaffoldFiles: activeProject.files.map(f => f.name),
+        projectType:   activeProject.industry,
+        signal:        ctrl.signal,
+        onChunk: chunk => {
+          reply += chunk;
+          setFileAiMessages(prev => {
+            const updated = [...prev];
+            updated[updated.length - 1] = { role: "ai", text: reply };
+            return updated;
+          });
+        },
+      });
+    } catch { /* abort or network error — safe to ignore */ }
+    setFileAiLoading(false);
+  }, [fileAiInput, fileAiLoading, activeProject, viewingFile, fileAiMessages, fileContentText]);
+
   const openAIPanel = useCallback(async () => {
     setShowAI(true);
     if (activeProject && aiMessages.length === 0) {
@@ -1596,6 +1712,275 @@ export function ProjectOSApp() {
             </button>
           </div>
         </div>
+      ) : viewingFile ? (
+        <div className="flex-1 flex flex-col overflow-hidden">
+
+          {/* ── Breadcrumb Header ── */}
+          <div
+            className="flex items-center gap-2.5 px-5 py-2.5 flex-shrink-0"
+            style={{ borderBottom: "1px solid rgba(255,255,255,0.07)", background: "rgba(0,0,0,0.22)" }}
+          >
+            <button
+              onClick={() => setViewingFile(null)}
+              className="flex items-center gap-1.5 text-[11px] font-medium transition-colors flex-shrink-0"
+              style={{ color: "#64748b" }}
+              onMouseEnter={e => (e.currentTarget.style.color = "#a5b4fc")}
+              onMouseLeave={e => (e.currentTarget.style.color = "#64748b")}
+            >
+              ←&nbsp;{activeProject!.name}
+            </button>
+            <span style={{ color: "#2d3748", fontSize: 13 }}>/</span>
+            <span className="text-[12px] font-semibold truncate flex-1" style={{ color: "#e2e8f0" }}>
+              {viewingFile.type === "Document" ? "📄" : viewingFile.type === "Spreadsheet" ? "📊" : viewingFile.type === "Image" ? "🖼️" : viewingFile.type === "Video" ? "🎬" : viewingFile.type === "Audio" ? "🎵" : viewingFile.type === "Presentation" ? "🎯" : "📄"}&nbsp;{viewingFile.name}
+            </span>
+            <span className="text-[9px] font-semibold px-2 py-0.5 rounded-full flex-shrink-0"
+              style={{ background: "rgba(255,255,255,0.06)", color: "#475569" }}>
+              {viewingFile.type}
+            </span>
+            {fileContentSaved && (
+              <span className="text-[11px] font-medium text-green-400 px-2 py-0.5 rounded-full flex-shrink-0"
+                style={{ background: "rgba(34,197,94,0.12)" }}>✓ Saved</span>
+            )}
+            {!fileContentEditing ? (
+              <button
+                onClick={() => { setFileContentEditing(true); setFileContentSaved(false); }}
+                className="text-[11px] font-semibold px-3 py-1.5 rounded-xl flex-shrink-0"
+                style={{ background: "rgba(99,102,241,0.15)", color: "#a5b4fc", border: "1px solid rgba(99,102,241,0.25)" }}
+              >Edit</button>
+            ) : (
+              <button
+                onClick={saveFileContent}
+                disabled={fileContentSaving}
+                className="text-[11px] font-semibold px-3 py-1.5 rounded-xl flex items-center gap-1.5 text-white flex-shrink-0"
+                style={{ background: "linear-gradient(135deg,#6366f1,#8b5cf6)" }}
+              >
+                {fileContentSaving
+                  ? <><div className="w-3 h-3 border-2 border-white border-t-transparent rounded-full animate-spin" />Saving…</>
+                  : "Save"}
+              </button>
+            )}
+            <button
+              onClick={() => {
+                const blob = new Blob([fileContentText], { type: "text/plain" });
+                const url = URL.createObjectURL(blob);
+                const a = document.createElement("a"); a.href = url;
+                a.download = `${viewingFile.name.replace(/\s+/g, "_")}.txt`; a.click();
+                URL.revokeObjectURL(url);
+              }}
+              className="text-[11px] font-semibold px-3 py-1.5 rounded-xl flex-shrink-0"
+              style={{ background: "rgba(255,255,255,0.06)", color: "rgba(255,255,255,0.55)", border: "1px solid rgba(255,255,255,0.09)" }}
+            >↓ Export</button>
+          </div>
+
+          {/* ── Two-column body: Content + File Agent ── */}
+          <div className="flex flex-1 overflow-hidden">
+
+            {/* Left: File Content */}
+            <div className="flex-1 flex flex-col overflow-hidden">
+              <div className="flex-1 overflow-y-auto p-5">
+
+                {/* Media player placeholder */}
+                {!fileContentLoading && !fileContentEditing && (viewingFile.type === "Video" || viewingFile.type === "Audio") && (
+                  <div className="mb-4 rounded-2xl overflow-hidden" style={{ background: "rgba(0,0,0,0.40)", border: "1px solid rgba(255,255,255,0.10)" }}>
+                    <MediaPlayer
+                      type={viewingFile.type === "Video" ? "video" : "audio"}
+                      title={viewingFile.name}
+                      subtitle="No media source — text content below"
+                    />
+                  </div>
+                )}
+
+                {fileContentLoading ? (
+                  <div className="flex items-center justify-center py-16 gap-3">
+                    <div className="w-5 h-5 border-2 border-indigo-500 border-t-transparent rounded-full animate-spin" />
+                    <span className="text-[13px]" style={{ color: "#6b7280" }}>Loading…</span>
+                  </div>
+                ) : fileContentEditing ? (
+                  <textarea
+                    value={fileContentText}
+                    onChange={e => setFileContentText(e.target.value)}
+                    className="w-full min-h-[60vh] rounded-xl p-4 text-[13px] text-white font-mono resize-none outline-none leading-relaxed"
+                    style={{ background: "rgba(255,255,255,0.04)", border: "1px solid rgba(255,255,255,0.10)" }}
+                    autoFocus
+                  />
+                ) : fileContentText ? (
+                  <div className="space-y-4">
+                    {fileContentText.split(/\n(?=#{1,3} )/).map((section, i) => {
+                      const lines = section.split("\n");
+                      const heading = lines[0].replace(/^#{1,3} /, "");
+                      const body = lines.slice(1).join("\n").trim();
+                      const isHeading = /^#{1,3} /.test(lines[0]);
+                      if (isHeading && body) {
+                        return (
+                          <div key={i} className={i > 0 ? "pt-4" : ""} style={i > 0 ? { borderTop: "1px solid rgba(255,255,255,0.07)" } : {}}>
+                            <h3 className="font-bold text-[14px] text-white mb-2">{heading}</h3>
+                            <p className="text-[13px] leading-relaxed whitespace-pre-wrap" style={{ color: "#94a3b8" }}>{body}</p>
+                          </div>
+                        );
+                      }
+                      return <p key={i} className="text-[13px] leading-relaxed whitespace-pre-wrap" style={{ color: "#94a3b8" }}>{section}</p>;
+                    })}
+                  </div>
+                ) : (
+                  <div className="text-center py-20">
+                    <p className="text-4xl mb-3">📝</p>
+                    <p className="font-semibold text-white mb-1">No content yet</p>
+                    <p className="text-[13px] mb-4" style={{ color: "#6b7280" }}>
+                      Click Edit to write manually, or use the AI agent to generate content.
+                    </p>
+                    <div className="flex gap-2 justify-center">
+                      <button
+                        onClick={() => setFileContentEditing(true)}
+                        className="text-[12px] font-semibold text-white px-4 py-2 rounded-xl"
+                        style={{ background: "linear-gradient(135deg,#6366f1,#8b5cf6)" }}
+                      >Start Writing</button>
+                      <button
+                        onClick={() => sendFileAI(`Generate complete content for the "${viewingFile.name}" document. Make it detailed and ready to use.`)}
+                        className="text-[12px] font-semibold px-4 py-2 rounded-xl"
+                        style={{ background: "rgba(99,102,241,0.15)", border: "1px solid rgba(99,102,241,0.30)", color: "#a5b4fc" }}
+                      >✨ Generate with AI</button>
+                    </div>
+                  </div>
+                )}
+              </div>
+
+              {/* ── Workflow Quick Actions ── */}
+              {!fileContentEditing && (
+                <div
+                  className="flex-shrink-0 px-5 py-2.5"
+                  style={{ borderTop: "1px solid rgba(255,255,255,0.06)", background: "rgba(0,0,0,0.12)" }}
+                >
+                  <div className="flex items-center gap-2 flex-wrap">
+                    <span className="text-[9px] font-bold uppercase tracking-widest mr-1 flex-shrink-0" style={{ color: "#334155" }}>AI</span>
+                    {getFileWorkflows(viewingFile).map(wf => (
+                      <button
+                        key={wf.label}
+                        onClick={() => sendFileAI(wf.prompt)}
+                        disabled={fileAiLoading}
+                        className="text-[11px] font-medium px-3 py-1 rounded-full transition-all flex-shrink-0"
+                        style={{ background: "rgba(99,102,241,0.10)", border: "1px solid rgba(99,102,241,0.18)", color: "#a5b4fc", opacity: fileAiLoading ? 0.5 : 1 }}
+                        onMouseEnter={e => { if (!fileAiLoading) { (e.currentTarget as HTMLElement).style.background = "rgba(99,102,241,0.22)"; (e.currentTarget as HTMLElement).style.borderColor = "rgba(99,102,241,0.40)"; } }}
+                        onMouseLeave={e => { (e.currentTarget as HTMLElement).style.background = "rgba(99,102,241,0.10)"; (e.currentTarget as HTMLElement).style.borderColor = "rgba(99,102,241,0.18)"; }}
+                      >
+                        {wf.icon} {wf.label}
+                      </button>
+                    ))}
+                  </div>
+                </div>
+              )}
+            </div>
+
+            {/* Right: File Agent Chat */}
+            <div
+              className="w-72 flex-shrink-0 flex flex-col"
+              style={{ borderLeft: "1px solid rgba(255,255,255,0.07)", background: "#fff" }}
+            >
+              {/* Chat header */}
+              <div
+                className="flex items-center gap-2.5 px-4 py-3 flex-shrink-0"
+                style={{ borderBottom: "1px solid rgba(0,0,0,0.07)" }}
+              >
+                <div className="w-8 h-8 rounded-xl flex items-center justify-center text-sm flex-shrink-0"
+                  style={{ background: "linear-gradient(135deg,#6366f1,#8b5cf6)" }}>🤖</div>
+                <div className="flex-1 min-w-0">
+                  <p className="text-[12px] font-bold" style={{ color: "#0f172a" }}>File Agent</p>
+                  <p className="text-[10px] truncate" style={{ color: "#6b7280" }}>Focused on: {viewingFile.name}</p>
+                </div>
+              </div>
+
+              {/* Messages */}
+              <div ref={fileAiScrollRef} className="flex-1 overflow-y-auto px-3 py-3 space-y-3" style={{ background: "#f8fafc" }}>
+                {fileAiMessages.length === 0 && (
+                  <div className="flex flex-col items-center text-center pt-6 gap-3">
+                    <div className="w-11 h-11 rounded-2xl flex items-center justify-center text-xl"
+                      style={{ background: "rgba(99,102,241,0.10)", border: "1px solid rgba(99,102,241,0.15)" }}>📄</div>
+                    <p className="text-[12px] font-semibold" style={{ color: "#0f172a" }}>File Agent</p>
+                    <p className="text-[11px] leading-relaxed max-w-[200px]" style={{ color: "#6b7280" }}>
+                      I'm focused on <strong>{viewingFile.name}</strong>. Ask me to improve, expand, or rewrite any part of this file.
+                    </p>
+                    <div className="flex flex-col gap-1.5 w-full mt-1">
+                      {[
+                        `What should "${viewingFile.name}" include?`,
+                        "What's missing from this document?",
+                        "Rewrite this more professionally",
+                      ].map(chip => (
+                        <button key={chip}
+                          onClick={() => setFileAiInput(chip)}
+                          className="text-[11px] px-3 py-2 rounded-xl text-left"
+                          style={{ background: "#fff", border: "1px solid rgba(0,0,0,0.08)", color: "#374151" }}
+                          onMouseEnter={e => { (e.currentTarget as HTMLElement).style.borderColor = "rgba(99,102,241,0.30)"; (e.currentTarget as HTMLElement).style.background = "#faf5ff"; }}
+                          onMouseLeave={e => { (e.currentTarget as HTMLElement).style.borderColor = "rgba(0,0,0,0.08)"; (e.currentTarget as HTMLElement).style.background = "#fff"; }}
+                        >{chip}</button>
+                      ))}
+                    </div>
+                  </div>
+                )}
+                {fileAiMessages.map((m, i) => {
+                  const isLast = i === fileAiMessages.length - 1;
+                  const showTyping = isLast && fileAiLoading && m.role === "ai" && !m.text;
+                  return (
+                    <div key={i} className={`flex ${m.role === "user" ? "justify-end" : "justify-start"} items-end gap-2`}>
+                      {m.role === "ai" && (
+                        <div className="w-6 h-6 rounded-full flex items-center justify-center text-xs flex-shrink-0 mb-0.5"
+                          style={{ background: "linear-gradient(135deg,#6366f1,#8b5cf6)" }}>🤖</div>
+                      )}
+                      <div
+                        className={`max-w-[82%] px-3 py-2.5 text-[12px] leading-relaxed ${m.role === "user" ? "rounded-2xl rounded-br-sm" : "rounded-2xl rounded-bl-sm"}`}
+                        style={m.role === "user"
+                          ? { background: "#6366f1", color: "#fff", boxShadow: "0 2px 8px rgba(99,102,241,0.25)" }
+                          : { background: "#fff", color: "#0f172a", border: "1px solid rgba(0,0,0,0.07)", boxShadow: "0 1px 3px rgba(0,0,0,0.05)" }}
+                      >
+                        {showTyping ? (
+                          <div className="flex gap-1.5 py-0.5">
+                            <div className="w-1.5 h-1.5 rounded-full animate-bounce" style={{ background: "#6366f1", animationDelay: "0ms" }} />
+                            <div className="w-1.5 h-1.5 rounded-full animate-bounce" style={{ background: "#6366f1", animationDelay: "150ms" }} />
+                            <div className="w-1.5 h-1.5 rounded-full animate-bounce" style={{ background: "#6366f1", animationDelay: "300ms" }} />
+                          </div>
+                        ) : (
+                          <span className="whitespace-pre-wrap">
+                            {m.text}
+                            {m.role === "ai" && fileAiLoading && isLast && m.text && (
+                              <span className="inline-block w-0.5 h-3 rounded-sm animate-pulse align-middle ml-0.5"
+                                style={{ background: "#6366f1", opacity: 0.7 }} />
+                            )}
+                          </span>
+                        )}
+                      </div>
+                    </div>
+                  );
+                })}
+              </div>
+
+              {/* Input */}
+              <div className="flex gap-2 p-3 flex-shrink-0" style={{ borderTop: "1px solid rgba(0,0,0,0.07)" }}>
+                <input
+                  value={fileAiInput}
+                  onChange={e => setFileAiInput(e.target.value)}
+                  onKeyDown={e => e.key === "Enter" && sendFileAI()}
+                  placeholder={`Ask about ${viewingFile.name}…`}
+                  className="flex-1 text-[12px] px-3 py-2 rounded-xl outline-none"
+                  style={{ background: "#f1f5f9", border: "1.5px solid transparent", color: "#0f172a" }}
+                  onFocus={e => (e.currentTarget.style.borderColor = "rgba(99,102,241,0.35)")}
+                  onBlur={e => (e.currentTarget.style.borderColor = "transparent")}
+                />
+                <button
+                  onClick={() => sendFileAI()}
+                  disabled={fileAiLoading || !fileAiInput.trim()}
+                  className="w-8 h-8 rounded-xl flex items-center justify-center flex-shrink-0"
+                  style={{
+                    background: !fileAiLoading && fileAiInput.trim() ? "#6366f1" : "#e5e7eb",
+                    color: !fileAiLoading && fileAiInput.trim() ? "#fff" : "#9ca3af",
+                  }}
+                >
+                  <svg width="12" height="12" viewBox="0 0 24 24" fill="currentColor">
+                    <path d="M2.01 21L23 12 2.01 3 2 10l15 2-15 2z" />
+                  </svg>
+                </button>
+              </div>
+            </div>
+          </div>
+        </div>
+
       ) : (
         <div className="flex-1 flex flex-col overflow-hidden">
 
