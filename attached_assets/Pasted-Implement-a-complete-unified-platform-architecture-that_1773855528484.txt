@@ -1,0 +1,61 @@
+Implement a complete, unified platform architecture that supports private project creation, structured workspaces, project‑specific AI assistance, full editing capabilities, optional publishing, and platform‑controlled publishing flows. Build this at the highest UX and structural standard.
+
+REQUIREMENTS:
+
+1. PROJECT CREATION (PRIVATE BY DEFAULT)
+- When a user submits a new project, immediately create a private project container.
+- Automatically open the project workspace so the user sees it right away.
+- Projects must remain private and internal unless the user explicitly chooses to publish.
+
+2. PROJECT WORKSPACE
+- Each project must have its own dedicated workspace view.
+- Display all generated items, sections, and tools inside this workspace.
+- Provide a clear, organized structure (sidebar, list, or grid) for navigating project components.
+- Ensure the workspace persists and reloads correctly when reopened from the dashboard.
+
+3. PROJECT‑SPECIFIC AI HELPER
+- Include a built‑in AI helper inside each project workspace.
+- The AI helper must operate only on the content, files, and context of that specific project.
+- It must support editing, expanding, rewriting, and improving any part of the project.
+- The AI helper must not affect or reference other projects.
+
+4. EDITING CAPABILITIES
+- Provide full editing tools inside the project workspace.
+- Users must be able to modify text, styles, colors, layouts, and structural elements.
+- All edits must apply only within the project.
+- Ensure the editing tools are intuitive and follow modern UX patterns.
+
+5. DASHBOARD
+- The dashboard must show all user projects as individual tiles.
+- Selecting a project tile must reopen the project workspace with all content and the AI helper visible.
+- Include an empty‑state experience for new users.
+
+6. OPTIONAL PUBLISHING FLOW
+- Publishing must be a separate, explicit user action.
+- Nothing may be published, exported, or made public automatically.
+- Implement a platform‑controlled publishing pipeline that the user must pass through if they choose to publish.
+- Include clear UI for initiating publishing, reviewing content, and confirming the action.
+
+7. BILLING INTEGRATION HOOKS (NO ENFORCEMENT LANGUAGE)
+- Add clean integration points where a billing system can be connected later.
+- Publishing flows must route through these integration points.
+- Do not implement financial or legal enforcement; only create the structural hooks and routing needed for future billing logic.
+
+8. SAFETY & ISOLATION
+- All project data must remain isolated to the project container.
+- The AI helper must not access or modify other projects.
+- Publishing must never occur without explicit user action.
+- Keep all changes internal, safe, and non‑breaking.
+
+9. UX & STRUCTURE
+- Follow modern, high‑standard UX patterns used by leading creation platforms.
+- Ensure clarity, simplicity, and intuitive navigation.
+- Maintain consistent styling and layout across dashboard, workspace, and publishing flows.
+
+10. IMPLEMENTATION PROCESS
+- Begin by scanning the current codebase for project creation flow, workspace logic, routing, AI integration, and publishing mechanisms.
+- Identify missing components required to support this unified architecture.
+- Implement all required updates across frontend and backend.
+- Ensure TypeScript remains clean and the platform runs without errors.
+
+The final result must be a cohesive, private‑by‑default creation platform where each project has its own workspace, its own AI helper, full editing tools, optional publishing, and a platform‑controlled publishing pipeline with billing integration points ready for future legal and financial terms.

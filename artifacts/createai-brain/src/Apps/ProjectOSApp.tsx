@@ -1030,6 +1030,7 @@ export function ProjectOSApp() {
   const [newProjIndustry, setNewProjIndustry] = useState("General");
   const [newProjStep, setNewProjStep] = useState<1 | 2>(1);
   const [scaffoldStatus, setScaffoldStatus] = useState<{ current: number; total: number; label: string } | null>(null);
+  const [newlyCreatedId, setNewlyCreatedId] = useState<string | null>(null);
   const [showAI, setShowAI] = useState(false);
   const [aiMessages, setAiMessages] = useState<{ role: "user" | "ai"; text: string }[]>([]);
   const [aiInput, setAiInput] = useState("");
@@ -1246,10 +1247,19 @@ export function ProjectOSApp() {
       setNewProjName("");
       setNewProjStep(1);
       setNewProjIndustry("General");
+      // Open the AI agent panel automatically so the workspace feels complete
+      setShowAI(true);
+      setAiMessages([]);
+      // Switch to the files+folders view so scaffold files are visible as they appear
+      _setViewMode("dashboard+folders");
+      // Mark as newly created so workspace shows the scaffold launch UX
+      setNewlyCreatedId(proj.id);
       // Auto-generate internal identity package for new project
       ensureIdentityForProject({ id: proj.id, name: proj.name });
-      // Scaffold in background — show progress
+      // Scaffold all industry-standard files — workspace populates in real time
       await scaffoldProject(proj.id, proj.folders, newProjIndustry);
+      // Keep newlyCreatedId for a moment so the "workspace ready" message shows
+      setTimeout(() => setNewlyCreatedId(null), 4000);
     } else {
       setShowNewProject(false);
       setNewProjName("");
@@ -1696,20 +1706,93 @@ export function ProjectOSApp() {
 
       {/* ── Main Area ─────────────────────────────────────────────────────── */}
       {!activeProject ? (
-        <div className="flex-1 flex items-center justify-center">
-          <div className="text-center">
-            <div className="text-5xl mb-4">📂</div>
-            <div className="text-[16px] font-semibold text-white mb-2">Select a project to open it</div>
-            <div className="text-[12px] mb-6" style={{ color: "#475569" }}>
-              Or create a new one — every project gets the same universal shell
+        <div className="flex-1 flex flex-col overflow-hidden">
+          {/* ── Project Tiles Dashboard ── */}
+          <div className="flex-1 overflow-y-auto px-8 py-8">
+            <div className="flex items-center justify-between mb-6">
+              <div>
+                <div className="text-[18px] font-bold text-white">Your Projects</div>
+                <div className="text-[12px] mt-0.5" style={{ color: "#475569" }}>
+                  {projects.filter(p => p.status !== "archived").length > 0
+                    ? `${projects.filter(p => p.status !== "archived").length} active workspace${projects.filter(p => p.status !== "archived").length === 1 ? "" : "s"}`
+                    : "No projects yet — create your first one below"}
+                </div>
+              </div>
+              <button
+                onClick={() => setShowNewProject(true)}
+                className="flex items-center gap-2 px-4 py-2.5 rounded-xl text-[12px] font-semibold"
+                style={{ background: "linear-gradient(135deg,#6366f1,#8b5cf6)", color: "#fff" }}
+              >
+                ＋ New Project
+              </button>
             </div>
-            <button
-              onClick={() => setShowNewProject(true)}
-              className="px-5 py-2.5 rounded-xl text-[13px] font-semibold"
-              style={{ background: "rgba(99,102,241,0.22)", border: "1px solid rgba(99,102,241,0.40)", color: "#818cf8" }}
-            >
-              ＋ Create First Project
-            </button>
+
+            {projects.filter(p => p.status !== "archived").length === 0 ? (
+              <div
+                className="flex flex-col items-center justify-center rounded-2xl py-20 text-center"
+                style={{ border: "1px dashed rgba(99,102,241,0.20)", background: "rgba(99,102,241,0.03)" }}
+              >
+                <div className="text-5xl mb-4">🚀</div>
+                <div className="text-[15px] font-semibold text-white mb-2">Start your first project</div>
+                <div className="text-[12px] mb-6" style={{ color: "#475569" }}>
+                  Every project gets its own workspace, AI agent, and scaffolded documents
+                </div>
+                <button
+                  onClick={() => setShowNewProject(true)}
+                  className="px-6 py-2.5 rounded-xl text-[13px] font-semibold"
+                  style={{ background: "rgba(99,102,241,0.22)", border: "1px solid rgba(99,102,241,0.40)", color: "#818cf8" }}
+                >
+                  ＋ Create First Project
+                </button>
+              </div>
+            ) : (
+              <div className="grid grid-cols-3 gap-4">
+                {projects.filter(p => p.status !== "archived").map(p => {
+                  const color = INDUSTRY_COLORS[p.industry] ?? "#6366f1";
+                  return (
+                    <button
+                      key={p.id}
+                      onClick={() => { setActiveProjectId(p.id); setShowAI(true); }}
+                      className="flex flex-col text-left p-4 rounded-2xl transition-all group"
+                      style={{ background: "rgba(255,255,255,0.03)", border: "1px solid rgba(255,255,255,0.07)" }}
+                      onMouseEnter={e => {
+                        (e.currentTarget as HTMLElement).style.background = "rgba(255,255,255,0.06)";
+                        (e.currentTarget as HTMLElement).style.borderColor = `${color}40`;
+                      }}
+                      onMouseLeave={e => {
+                        (e.currentTarget as HTMLElement).style.background = "rgba(255,255,255,0.03)";
+                        (e.currentTarget as HTMLElement).style.borderColor = "rgba(255,255,255,0.07)";
+                      }}
+                    >
+                      <div className="flex items-start justify-between mb-3">
+                        <div
+                          className="w-10 h-10 rounded-xl flex items-center justify-center text-xl"
+                          style={{ background: `${color}18`, border: `1px solid ${color}30` }}
+                        >
+                          {p.icon}
+                        </div>
+                        <span
+                          className="text-[9px] font-bold px-2 py-0.5 rounded-full"
+                          style={{ background: `${color}18`, color, border: `1px solid ${color}30` }}
+                        >
+                          {p.industry}
+                        </span>
+                      </div>
+                      <div className="text-[13px] font-semibold text-white mb-1 truncate">{p.name}</div>
+                      <div className="text-[10px] mb-3" style={{ color: "#475569" }}>
+                        {p.files.length} {p.files.length === 1 ? "file" : "files"} · {p.created}
+                      </div>
+                      <div
+                        className="text-[10px] font-semibold opacity-0 group-hover:opacity-100 transition-opacity"
+                        style={{ color }}
+                      >
+                        Open workspace →
+                      </div>
+                    </button>
+                  );
+                })}
+              </div>
+            )}
           </div>
         </div>
       ) : viewingFile ? (
@@ -2410,6 +2493,50 @@ export function ProjectOSApp() {
 
                   {/* File List */}
                   <div className="flex-1 overflow-y-auto p-4">
+
+                    {/* ── Inline scaffold progress banner ── */}
+                    {scaffoldStatus && (
+                      <div
+                        className="mb-4 rounded-xl px-4 py-3"
+                        style={{ background: "rgba(99,102,241,0.10)", border: "1px solid rgba(99,102,241,0.22)" }}
+                      >
+                        <div className="flex items-center gap-2.5 mb-2">
+                          <div className="w-3.5 h-3.5 rounded-full border-2 border-indigo-400 border-t-transparent animate-spin flex-shrink-0" />
+                          <span className="text-[11px] font-semibold" style={{ color: "#a5b4fc" }}>
+                            Building workspace — {scaffoldStatus.label}
+                          </span>
+                        </div>
+                        <div className="w-full h-1 rounded-full overflow-hidden" style={{ background: "rgba(255,255,255,0.08)" }}>
+                          <div
+                            className="h-full rounded-full transition-all duration-500"
+                            style={{
+                              width: `${(scaffoldStatus.current / scaffoldStatus.total) * 100}%`,
+                              background: "linear-gradient(90deg,#6366f1,#818cf8)",
+                            }}
+                          />
+                        </div>
+                        <div className="text-[9px] mt-1" style={{ color: "#475569" }}>
+                          {scaffoldStatus.current} of {scaffoldStatus.total} documents
+                        </div>
+                      </div>
+                    )}
+
+                    {/* ── Workspace ready banner ── */}
+                    {!scaffoldStatus && newlyCreatedId === activeProject.id && activeFiles.length > 0 && (
+                      <div
+                        className="mb-4 rounded-xl px-4 py-3 flex items-center gap-3"
+                        style={{ background: "rgba(16,185,129,0.08)", border: "1px solid rgba(16,185,129,0.22)" }}
+                      >
+                        <span className="text-lg flex-shrink-0">✅</span>
+                        <div>
+                          <div className="text-[11px] font-semibold" style={{ color: "#34d399" }}>Workspace ready</div>
+                          <div className="text-[10px]" style={{ color: "#475569" }}>
+                            {activeFiles.length} documents scaffolded · Ask the Project Agent to start working on any of them
+                          </div>
+                        </div>
+                      </div>
+                    )}
+
                     <div className="flex items-center justify-between mb-4">
                       <div>
                         <div className="text-[13px] font-semibold text-white">
@@ -2430,7 +2557,7 @@ export function ProjectOSApp() {
                       </button>
                     </div>
 
-                    {activeFiles.length === 0 && (
+                    {activeFiles.length === 0 && !scaffoldStatus && (
                       <div
                         className="rounded-xl py-10 text-center"
                         style={{ border: "1px dashed rgba(255,255,255,0.08)" }}
@@ -2516,22 +2643,39 @@ export function ProjectOSApp() {
                 <div ref={aiScrollRef} className="flex-1 overflow-y-auto px-3 py-3 space-y-3"
                   style={{ background: "#f8fafc" }}>
                   {aiMessages.length === 0 && (
-                    <div className="flex flex-col items-center text-center pt-6 gap-3">
+                    <div className="flex flex-col items-center text-center pt-5 gap-3">
                       <div className="w-12 h-12 rounded-2xl flex items-center justify-center text-2xl"
                         style={{ background: "rgba(99,102,241,0.10)", border: "1px solid rgba(99,102,241,0.15)" }}>
                         🤖
                       </div>
-                      <p className="text-[12px] font-semibold" style={{ color: "#0f172a" }}>🧠 Project Agent</p>
+                      <div>
+                        <p className="text-[12px] font-semibold" style={{ color: "#0f172a" }}>
+                          {activeProject.industry !== "General" ? `${activeProject.industry} Agent` : "Project Agent"}
+                        </p>
+                        <p className="text-[10px] mt-0.5" style={{ color: "#6b7280" }}>
+                          Dedicated to <strong>{activeProject.name}</strong>
+                        </p>
+                      </div>
                       <p className="text-[11px] leading-relaxed max-w-[220px]" style={{ color: "#6b7280" }}>
-                        Ask me to add files, organize folders, plan features, or think through this project with you.
+                        {newlyCreatedId === activeProject.id
+                          ? `Your workspace is being built. I can start working on any document, explain what each file is for, or help you plan next steps.`
+                          : `I know everything inside this project. Ask me to write, improve, or expand any document — or plan what to work on next.`}
                       </p>
                       <div className="flex flex-col gap-1.5 w-full mt-1">
-                        {[
-                          "What files should this project have?",
-                          "Suggest a folder structure",
-                          "What features should I add first?",
-                          "Help me plan the next steps",
-                        ].map(chip => (
+                        {(newlyCreatedId === activeProject.id
+                          ? [
+                              `Walk me through this ${activeProject.industry !== "General" ? activeProject.industry.toLowerCase() : "project"}`,
+                              `Which document should I fill in first?`,
+                              `What are the most important things to complete?`,
+                              `Explain what each file in this workspace is for`,
+                            ]
+                          : [
+                              `What should I work on next?`,
+                              `Give me a status review of this project`,
+                              `What's missing from this project?`,
+                              `Help me plan the next milestone`,
+                            ]
+                        ).map(chip => (
                           <button key={chip}
                             onClick={() => { setAiInput(chip); }}
                             className="text-[11px] px-3 py-2 rounded-xl text-left transition-all"
