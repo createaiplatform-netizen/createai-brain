@@ -1,0 +1,77 @@
+# EXPANSION WAVE — 50 NEW SYSTEM‑LEVEL UPGRADES
+# (All conceptual. None implemented unless explicitly requested.)
+
+===========================================================
+CATEGORY 1 — DEEP EXPERIENCE LAYER ENHANCEMENTS (10)
+===========================================================
+
+1. Universal Resume — every app restores scroll, tab, filters, active item.
+2. Cross‑App Continuity — start a task in BrainHub, finish it in ProjectOS.
+3. Contextual Micro‑Hints — tiny, non‑annoying hints based on user flow.
+4. Session Bookmarks — save a moment in time and jump back instantly.
+5. Micro‑Timelines — per‑project history of key actions and changes.
+6. Ambient Progress Indicators — subtle signals that something is happening.
+7. Soft‑Focus Mode — hide everything except the current task.
+8. Adaptive UI Density — compact when busy, spacious when calm.
+9. Smart Defaults — UI remembers your patterns and adjusts automatically.
+10. Flow‑Aware Panels — panels open/close based on what you’re doing.
+
+===========================================================
+CATEGORY 2 — ADVANCED INTELLIGENCE BEHAVIORS (10)
+===========================================================
+
+11. Pattern Memory — remembers recurring workflows and preferences.
+12. Outcome‑Based Learning — “kept” outputs become positive signals.
+13. Failure Memory — avoids repeating patterns you undo or reject.
+14. Context Templates — reusable bundles like “Healthcare Demo Mode.”
+15. Session Archetypes — detects “build session” vs “writing session.”
+16. Adaptive Tone — shifts tone based on recent interactions.
+17. Intent Prediction — guesses what you’re trying to do next.
+18. Contextual Guardrails — warns before risky or destructive actions.
+19. Local Heuristics Engine — simple rules that adjust behavior instantly.
+20. Cross‑Session Intelligence — remembers patterns across days.
+
+===========================================================
+CATEGORY 3 — LOCAL‑FIRST INFRASTRUCTURE SUPERPOWERS (10)
+===========================================================
+
+21. Micro‑Cache Layer — RAM‑backed reads for ultra‑fast performance.
+22. Delta Writes — write only the changed parts of JSON.
+23. Compression Layer — compress large blobs (docs, chat, images).
+24. Snapshot Engine — time‑travel for storage files.
+25. Soft‑Delete Tombstones — safe deletes with undo potential.
+26. Archival Tier — move cold data to archive JSONs.
+27. Schema Evolution Engine — auto‑migrate old shapes to new ones.
+28. Local Journaling Log — append‑only log for replay/debugging.
+29. Write Coalescing — batch writes to reduce disk churn.
+30. Local Search Index — full‑text search across documents.
+
+===========================================================
+CATEGORY 4 — MULTI‑CONTEXT, MULTI‑PERSONA, MULTI‑WORKSPACE (10)
+===========================================================
+
+31. Workspaces — Family, Business, Healthcare Demo, etc.
+32. Personas — different modes for different roles.
+33. Role‑Aware UI — simpler UI for kids, richer for admin.
+34. Workspace Profiles — each workspace has its own settings + tone.
+35. Workspace Export/Import — portable bundles for moving between devices.
+36. Context Isolation — apps only see data relevant to the active workspace.
+37. Persona‑Based Defaults — tone, depth, verbosity adapt per persona.
+38. Workspace‑Scoped Intelligence — memory stays inside its workspace.
+39. Multi‑Persona Switching — fast switching between roles.
+40. Workspace‑Level Permissions — restrict access to sensitive areas.
+
+===========================================================
+CATEGORY 5 — OPERATOR‑LEVEL TOOLS & OBSERVABILITY (10)
+===========================================================
+
+41. Platform Health Dashboard — storage size, route health, errors.
+42. Storage Evolution Graphs — how data grows over time.
+43. Error Heatmaps — where failures cluster.
+44. Local Profiling — track slow routes, heavy flows, large files.
+45. Config‑As‑Data — feature flags and thresholds in JSON.
+46. Plugin Manifest System — declare what data each module touches.
+47. Capability Registry — machine-readable map of platform abilities.
+48. Self‑Documenting Routes — routes expose schemas/examples.
+49. Local Performance Traces — end‑to‑end timing for key flows.
+50. Storage Integrity Scanner — detect broken references or corruption.
