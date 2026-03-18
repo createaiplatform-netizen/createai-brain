@@ -1,0 +1,49 @@
+Perform an extreme, adversarial, end‑to‑end pressure test of this platform as if it were being evaluated for deployment in a real nursing home environment under full regulatory, technical, operational, and legal scrutiny.
+
+Assume:
+- Real resident data (PHI) will flow through the system.
+- The nursing home uses PointClickCare or MatrixCare for EHR, PharMerica or Omnicare for pharmacy, LabCorp/Quest for labs, Waystar for billing, and Kronos/OnShift for scheduling.
+- CMS surveyors, HIPAA auditors, and the nursing home’s IT director are all evaluating the system simultaneously.
+- The platform must integrate with all systems, store all data, and support real clinical workflows without manual double‑entry.
+- No external services (Replit, Auth0, Firebase, Supabase, OpenAI without a BAA) are allowed.
+- The platform must be fully self‑hosted, secure, compliant, and operational 24/7.
+
+Your job is to break the platform if possible.
+
+Evaluate the following categories with maximum severity:
+
+1. **Architecture & Infrastructure**
+   - Can the platform support HL7 v2, FHIR R4, SFTP, and vendor APIs simultaneously?
+   - Can it scale to real nursing home workloads?
+   - Can it survive outages, restarts, and network failures?
+
+2. **Security & Compliance**
+   - Evaluate against HIPAA, CMS, SOC 2, and cyber‑insurance requirements.
+   - Identify every missing safeguard, control, audit mechanism, and encryption requirement.
+   - Identify any scenario where PHI could leak, be altered, or be accessed improperly.
+
+3. **Data Model & Clinical Workflow**
+   - Can the schema support patients, encounters, meds, labs, vitals, notes, MDS assessments, billing, and staff workflows?
+   - Identify every missing table, field, constraint, and retention requirement.
+
+4. **Interoperability**
+   - Evaluate the platform’s ability to ingest, normalize, and reconcile data from all five systems.
+   - Identify every missing integration component (MLLP listener, HL7 parser, FHIR client, SFTP pipeline, MPI, ETL engine, etc.).
+
+5. **Operational Reality**
+   - Evaluate downtime risk, offline access needs, medication safety implications, and survey readiness.
+   - Identify every workflow gap that would cause clinical or operational failure.
+
+6. **Legal Exposure**
+   - Identify every scenario where the platform would violate HIPAA, CMS rules, state laws, or information blocking regulations.
+   - Identify all required BAAs, policies, procedures, and documentation.
+
+For every failure or gap:
+- Classify it as Critical, High, Medium, or Low.
+- Explain exactly why it fails and what the real‑world consequence would be.
+- Provide the minimum viable fix.
+- Provide the long‑term, production‑grade fix.
+
+Finally:
+- Give a verdict on whether the platform can realistically become a unified nursing‑home operating system.
+- Provide a prioritized roadmap that includes all technical, compliance, and operational milestones required to reach that goal.

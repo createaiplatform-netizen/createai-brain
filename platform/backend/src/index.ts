@@ -2,6 +2,8 @@ import "dotenv/config";
 import express from "express";
 import cors from "cors";
 import cookieParser from "cookie-parser";
+import helmet from "helmet";
+import rateLimit from "express-rate-limit";
 
 import { migrate } from "./db/migrate";
 import { loadUser } from "./middleware/auth";
@@ -11,61 +13,102 @@ import authRouter          from "./routes/auth";
 import usersRouter         from "./routes/users";
 import organizationsRouter from "./routes/organizations";
 import projectsRouter      from "./routes/projects";
-
-// Future: import aiRouter         from "./routes/ai";
-// Future: import complianceRouter from "./routes/compliance";
-// Future: import auditRouter      from "./routes/audit";
+import auditRouter         from "./routes/audit";
+import integrationsRouter  from "./routes/integrations";
 
 const app = express();
-const PORT = parseInt(process.env.PORT ?? "4000", 10);
+const PORT           = parseInt(process.env.PORT ?? "4000", 10);
 const SESSION_SECRET = process.env.SESSION_SECRET ?? "dev-secret-change-in-production";
 
 // ─── Startup guards ───────────────────────────────────────────────────────────
-// Fail loudly and immediately rather than silently misbehaving.
 
 if (!process.env.DATABASE_URL) {
   console.error("[server] FATAL: DATABASE_URL is not set.");
-  console.error("[server] Set it in .env (dev) or the docker-compose environment block (prod).");
+  console.error("[server]   Dev:  set it in platform/backend/.env");
+  console.error("[server]   Prod: add it to the backend service environment in docker-compose.yml");
   process.exit(1);
 }
 
 if (process.env.NODE_ENV === "production" && SESSION_SECRET === "dev-secret-change-in-production") {
   console.error("[server] FATAL: SESSION_SECRET must be set in production.");
-  console.error("[server] Generate one with: node -e \"console.log(require('crypto').randomBytes(64).toString('hex'))\"");
+  console.error("[server]   Generate: node -e \"console.log(require('crypto').randomBytes(64).toString('hex'))\"");
   process.exit(1);
 }
 
-// ─── Middleware ───────────────────────────────────────────────────────────────
+// ─── Security headers (Helmet) ────────────────────────────────────────────────
+// Sets X-Content-Type-Options, X-Frame-Options, X-XSS-Protection,
+// Referrer-Policy, Permissions-Policy, and more.
+// crossOriginResourcePolicy is relaxed for API use (assets served separately).
+
+app.use(
+  helmet({
+    crossOriginResourcePolicy: { policy: "cross-origin" },
+    contentSecurityPolicy: false, // Handled at nginx/Caddy level for the SPA
+  })
+);
+
+// ─── Rate limiting ────────────────────────────────────────────────────────────
+// Prevents brute-force on auth endpoints. General API is more permissive.
+
+const generalLimiter = rateLimit({
+  windowMs: 15 * 60 * 1000, // 15 minutes
+  max:      300,
+  standardHeaders: true,
+  legacyHeaders:   false,
+  message: { error: "Too many requests. Please try again in a few minutes." },
+});
+
+const authLimiter = rateLimit({
+  windowMs: 15 * 60 * 1000, // 15 minutes
+  max:      10,              // 10 login attempts per 15 minutes per IP
+  standardHeaders: true,
+  legacyHeaders:   false,
+  message: { error: "Too many login attempts. Please wait 15 minutes before trying again." },
+});
+
+const registerLimiter = rateLimit({
+  windowMs: 60 * 60 * 1000, // 1 hour
+  max:      5,               // 5 registrations per hour per IP
+  standardHeaders: true,
+  legacyHeaders:   false,
+  message: { error: "Too many registration attempts. Please try again in an hour." },
+});
+
+app.use(generalLimiter);
+
+// ─── Core middleware ──────────────────────────────────────────────────────────
 
 app.use(express.json({ limit: "10mb" }));
 app.use(express.urlencoded({ extended: true }));
 
 app.use(
   cors({
-    origin: process.env.FRONTEND_URL ?? "http://localhost:5173",
+    origin:      process.env.FRONTEND_URL ?? "http://localhost:5173",
     credentials: true,
   })
 );
 
+// cookie-parser must come before loadUser (reads signed cookies)
 app.use(cookieParser(SESSION_SECRET));
-app.use(loadUser);
 
-// Future: app.use(rateLimiter);
-// Future: app.use(auditMiddleware);
+// Attaches req.user from the session cookie on every request.
+// Also enforces inactivity timeout (SESSION_INACTIVITY_MINUTES env var).
+app.use(loadUser);
 
 // ─── Routes ───────────────────────────────────────────────────────────────────
 
 app.use("/health",        healthRouter);
+app.use("/auth/login",    authLimiter);
+app.use("/auth/register", registerLimiter);
+app.use("/auth/setup",    registerLimiter);
 app.use("/auth",          authRouter);
 app.use("/users",         usersRouter);
 app.use("/organizations", organizationsRouter);
 app.use("/projects",      projectsRouter);
+app.use("/audit",         auditRouter);
+app.use("/integrations",  integrationsRouter);
 
-// Future: app.use("/ai",         aiRouter);
-// Future: app.use("/compliance", complianceRouter);
-// Future: app.use("/audit",      auditRouter);
-
-// ─── 404 handler ──────────────────────────────────────────────────────────────
+// ─── 404 ──────────────────────────────────────────────────────────────────────
 
 app.use((_req, res) => {
   res.status(404).json({ error: "Route not found" });
@@ -85,10 +128,7 @@ app.use(
   }
 );
 
-// ─── Start with retry ────────────────────────────────────────────────────────
-// PostgreSQL may still be initialising when the backend starts (even with
-// Docker healthchecks). We retry the migration up to 5 times with
-// exponential backoff before giving up.
+// ─── Start ────────────────────────────────────────────────────────────────────
 
 async function migrateWithRetry(attempts = 5, delayMs = 2000): Promise<void> {
   for (let i = 1; i <= attempts; i++) {
@@ -104,33 +144,35 @@ async function migrateWithRetry(attempts = 5, delayMs = 2000): Promise<void> {
   }
 }
 
+async function cleanExpiredSessions(): Promise<void> {
+  const { default: pool } = await import("./db");
+  const client = await pool.connect();
+  try {
+    const result = await client.query(
+      "DELETE FROM sessions WHERE expires_at < NOW()"
+    );
+    if (result.rowCount && result.rowCount > 0) {
+      console.log(`[sessions] Cleaned ${result.rowCount} expired session(s).`);
+    }
+    // Also clean expired pending MFA tokens
+    await client.query("DELETE FROM pending_mfa WHERE expires_at < NOW()");
+  } catch (err) {
+    console.error("[sessions] Cleanup error:", err);
+  } finally {
+    client.release();
+  }
+}
+
 async function start(): Promise<void> {
   await migrateWithRetry();
-
-  // Clean up expired sessions on startup, then every hour.
-  // Prevents unbounded session table growth over time.
-  async function cleanExpiredSessions(): Promise<void> {
-    const { default: pool } = await import("./db");
-    const client = await pool.connect();
-    try {
-      const result = await client.query("DELETE FROM sessions WHERE expires_at < NOW()");
-      if (result.rowCount && result.rowCount > 0) {
-        console.log(`[sessions] Cleaned ${result.rowCount} expired session(s).`);
-      }
-    } catch (err) {
-      console.error("[sessions] Cleanup error:", err);
-    } finally {
-      client.release();
-    }
-  }
-
   await cleanExpiredSessions();
-  setInterval(cleanExpiredSessions, 60 * 60 * 1000);
+  setInterval(cleanExpiredSessions, 60 * 60 * 1000); // hourly
 
   app.listen(PORT, "0.0.0.0", () => {
     console.log(`[server] Universal Platform API running on port ${PORT}`);
-    console.log(`[server] Environment: ${process.env.NODE_ENV ?? "development"}`);
-    console.log(`[server] Health check: http://localhost:${PORT}/health`);
+    console.log(`[server] Environment:      ${process.env.NODE_ENV ?? "development"}`);
+    console.log(`[server] Inactivity limit: ${process.env.SESSION_INACTIVITY_MINUTES ?? "30"} min`);
+    console.log(`[server] Health check:     http://localhost:${PORT}/health`);
   });
 }
 

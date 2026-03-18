@@ -1,23 +1,27 @@
-version: "3.9"
 
 # ─── Universal Platform — Docker Compose ──────────────────────────────────────
-# Run the entire stack locally or on any server with:
-#   docker compose up --build
 #
 # First-time setup:
-#   1. Copy platform/backend/.env.example → platform/backend/.env
-#   2. Fill in any secrets (SESSION_SECRET, AI keys, etc.)
-#   3. docker compose up --build
+#   1. cp platform/docker/.env.example platform/docker/.env
+#   2. Edit platform/docker/.env and fill in all required secrets
+#   3. docker compose -f platform/docker/docker-compose.yml up --build
 #
 # Services:
-#   postgres  — PostgreSQL database (data persisted to a named volume)
-#   backend   — Node.js + Express API (port 4000)
-#   frontend  — React + Vite served via Nginx (port 3000)
+#   postgres  — PostgreSQL 16 (data in named volume, never lost on restart)
+#   backend   — Node.js + Express API (internal port 4000, not exposed)
+#   frontend  — React SPA served via nginx (internal port 80, not exposed)
+#   caddy     — TLS terminator + reverse proxy (exposes :80 and :443)
 #
-# Future services to add here:
-#   ollama    — Local AI model server (for fully on-premises AI)
-#   redis     — Session store / job queue
-#   worker    — Background job processor (compliance checks, notifications)
+# TLS:
+#   With DOMAIN=localhost  → Caddy uses its internal CA (self-signed).
+#   With DOMAIN=your.domain.com → Caddy auto-provisions Let's Encrypt TLS.
+#   Open port 80 and 443 on your firewall. Let's Encrypt requires port 80
+#   to be reachable for HTTP-01 ACME challenges.
+#
+# Nursing home server deployment:
+#   - Set DOMAIN to the server's fully qualified domain name.
+#   - Back up the postgres_data volume nightly to an encrypted location.
+#   - Rotate SESSION_SECRET annually and after any suspected compromise.
 
 services:
 
@@ -27,25 +31,23 @@ services:
     container_name: platform_postgres
     restart: unless-stopped
     environment:
-      POSTGRES_USER: ${POSTGRES_USER:-platform}
+      POSTGRES_USER:     ${POSTGRES_USER:-platform}
       POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:-changeme}
-      POSTGRES_DB: ${POSTGRES_DB:-universal_platform}
-    ports:
-      - "5432:5432"
+      POSTGRES_DB:       ${POSTGRES_DB:-universal_platform}
     volumes:
       - postgres_data:/var/lib/postgresql/data
-      # Future: Mount init SQL scripts here for first-run schema setup.
-      # - ./init.sql:/docker-entrypoint-initdb.d/init.sql
     healthcheck:
-      test: ["CMD-SHELL", "pg_isready -U ${POSTGRES_USER:-platform}"]
+      test:     ["CMD-SHELL", "pg_isready -U ${POSTGRES_USER:-platform}"]
       interval: 10s
-      timeout: 5s
-      retries: 5
+      timeout:  5s
+      retries:  5
+    # postgres is NOT exposed on host ports in production — only reachable
+    # internally by the backend container via Docker networking.
 
   # ─── Backend API ─────────────────────────────────────────────────────────────
   backend:
     build:
-      context: ..
+      context:    ..
       dockerfile: docker/backend.Dockerfile
     container_name: platform_backend
     restart: unless-stopped
@@ -53,37 +55,61 @@ services:
       postgres:
         condition: service_healthy
     environment:
-      NODE_ENV: production
-      PORT: 4000
-      DATABASE_URL: postgresql://${POSTGRES_USER:-platform}:${POSTGRES_PASSWORD:-changeme}@postgres:5432/${POSTGRES_DB:-universal_platform}
-      FRONTEND_URL: http://localhost:3000
-      # Future: SESSION_SECRET, JWT_SECRET, OPENAI_API_KEY, OLLAMA_BASE_URL
-    ports:
-      - "4000:4000"
+      NODE_ENV:                    production
+      PORT:                        4000
+      DATABASE_URL:                postgresql://${POSTGRES_USER:-platform}:${POSTGRES_PASSWORD:-changeme}@postgres:5432/${POSTGRES_DB:-universal_platform}
+      SESSION_SECRET:              ${SESSION_SECRET}
+      FRONTEND_URL:                ${FRONTEND_URL:-http://localhost:3000}
+      SESSION_INACTIVITY_MINUTES:  ${SESSION_INACTIVITY_MINUTES:-30}
+      APP_NAME:                    ${APP_NAME:-Universal Platform}
     healthcheck:
-      test: ["CMD-SHELL", "curl -f http://localhost:4000/health || exit 1"]
+      test:     ["CMD-SHELL", "node -e \"require('http').get('http://localhost:4000/health',r=>process.exit(r.statusCode===200?0:1))\""]
       interval: 15s
-      timeout: 5s
-      retries: 3
+      timeout:  5s
+      retries:  3
+    # backend is NOT exposed on host ports — only reachable by Caddy internally.
 
-  # ─── Frontend ────────────────────────────────────────────────────────────────
+  # ─── Frontend (nginx serves the compiled React SPA) ──────────────────────────
   frontend:
     build:
-      context: ..
+      context:    ..
       dockerfile: docker/frontend.Dockerfile
     container_name: platform_frontend
     restart: unless-stopped
     depends_on:
       - backend
+    # frontend is NOT exposed on host ports — only reachable by Caddy internally.
+
+  # ─── Caddy (TLS termination + reverse proxy) ──────────────────────────────────
+  # Caddy handles all inbound HTTPS traffic.
+  #   /api/*  → backend:4000   (strips /api prefix)
+  #   /*      → frontend:80    (serves the SPA)
+  #
+  # With DOMAIN=localhost, Caddy uses its local CA (self-signed cert).
+  # With a real domain, Caddy auto-provisions a Let's Encrypt certificate.
+  caddy:
+    image: caddy:2-alpine
+    container_name: platform_caddy
+    restart: unless-stopped
+    depends_on:
+      - backend
+      - frontend
     ports:
-      - "3000:80"
-    # Future: Mount nginx.conf here to customize caching, compression, and
-    #   /api proxy rules for production hardening.
+      - "80:80"
+      - "443:443"
+    environment:
+      DOMAIN: ${DOMAIN:-localhost}
+    volumes:
+      - ./Caddyfile:/etc/caddy/Caddyfile:ro
+      - caddy_data:/data
+      - caddy_config:/config
 
 # ─── Volumes ──────────────────────────────────────────────────────────────────
-# postgres_data persists your database between container restarts.
-# On a nursing home server, back up this volume nightly to an encrypted location.
 
 volumes:
   postgres_data:
+    driver: local
+  caddy_data:
+    driver: local
+  caddy_config:
     driver: local

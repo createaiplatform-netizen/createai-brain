@@ -1,0 +1,57 @@
+Run a maximum‑pressure stress test of the universal platform using three of the hardest industries: healthcare, finance, and legal. Use one realistic scenario for each industry and show exactly how the platform reacts, step by step, without writing long essays.
+
+Scenario 1 — Healthcare (Nursing Home Admission)
+Resident: Mrs. Rose Carter
+- Recent stroke
+- Severe peanut allergy
+- Mild swallowing issues
+- High fall risk
+- Loves walking outside and looking at flowers
+- Arrives from out of state
+- Hospital scanned and uploaded discharge instructions
+- Two CNAs on her unit have not completed stroke‑care training
+
+Show:
+- What data is extracted from the scanned packet
+- Where each piece of data goes in the system
+- What alerts fire (allergy, fall risk, stroke care, training gaps)
+- What tasks are created for nursing, dietary, therapy, pharmacy, activities
+- What caregivers actually see on their screen
+- How meds are reconciled and delivered
+- How preferences (walking outside) show up in the workflow
+- What gets logged in the audit trail
+
+Scenario 2 — Finance (High‑Risk Transaction Review)
+Client: John Ramirez
+- Large international wire transfer
+- Flags: unusual amount, new recipient, foreign jurisdiction
+- Compliance rules: AML, KYC, OFAC screening
+
+Show:
+- What data the platform extracts from the transaction
+- What risk alerts fire
+- What compliance workflows start
+- What the financial analyst sees
+- What gets blocked, escalated, or approved
+- What gets logged for audit and regulators
+
+Scenario 3 — Legal (New Case Intake With Conflicts)
+Client: Sarah Thompson
+- New legal matter: elder financial abuse
+- Opposing party is a former client of the firm
+- Sensitive documents uploaded
+- Mandatory retention rules apply
+
+Show:
+- What data is extracted from the intake documents
+- How conflict‑of‑interest checks run
+- What alerts fire
+- What tasks are created for attorneys and paralegals
+- How documents are stored with retention rules
+- What the legal team sees when opening the case
+- What gets logged in the audit trail
+
+For all three industries:
+- Keep the steps short and clear: “Input → System reaction → Who sees what.”
+- Show exactly how the universal engine handles data, alerts, workflows, compliance, and user views.
+- Push the system to the limit and reveal any weaknesses.

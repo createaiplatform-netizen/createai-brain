@@ -1,0 +1,49 @@
+# ─── Universal Platform — Caddyfile ──────────────────────────────────────────
+#
+# DOMAIN is injected from docker-compose.yml via the environment block.
+#   DOMAIN=localhost       → Caddy uses its internal CA (self-signed cert).
+#                            Trust the CA root with: caddy trust
+#   DOMAIN=your.domain.com → Caddy auto-provisions a Let's Encrypt cert.
+#                            Port 80 must be open for ACME HTTP-01 challenge.
+#
+# Routing:
+#   /api/*  → backend:4000  (proxy_pass strips the /api prefix)
+#   /*      → frontend:80   (SPA — all routes serve index.html via nginx)
+
+{$DOMAIN:localhost} {
+
+  # ── API proxy ──────────────────────────────────────────────────────────────
+  handle /api/* {
+    uri strip_prefix /api
+
+    reverse_proxy backend:4000 {
+      header_up X-Real-IP         {remote_host}
+      header_up X-Forwarded-Proto {scheme}
+      header_up X-Forwarded-Host  {host}
+    }
+  }
+
+  # ── SPA frontend ──────────────────────────────────────────────────────────
+  handle {
+    reverse_proxy frontend:80 {
+      header_up X-Real-IP         {remote_host}
+      header_up X-Forwarded-Proto {scheme}
+    }
+  }
+
+  # ── Security headers ──────────────────────────────────────────────────────
+  header {
+    Strict-Transport-Security "max-age=31536000; includeSubDomains; preload"
+    X-Content-Type-Options    "nosniff"
+    X-Frame-Options           "SAMEORIGIN"
+    Referrer-Policy           "strict-origin-when-cross-origin"
+    Permissions-Policy        "geolocation=(), camera=(), microphone=()"
+    -Server
+  }
+
+  # ── Access logs ───────────────────────────────────────────────────────────
+  log {
+    output stdout
+    format json
+  }
+}

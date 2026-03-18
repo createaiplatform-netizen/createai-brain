@@ -1,54 +1,181 @@
 import { Router, type Request, type Response } from "express";
-// import { query } from "../db";
+import { query } from "../db";
+import { requireAuth, requireRole } from "../middleware/auth";
 
 const router = Router();
 
-// ─── FUTURE: Auth middleware will protect all routes in this file ─────────────
-// import { requireAuth } from "../middleware/auth";
-// router.use(requireAuth);
+router.use(requireAuth);
 
 // ─── GET /users ───────────────────────────────────────────────────────────────
-// Returns a list of users scoped to the authenticated user's organization.
-//
-// Future: Pull real users from the database.
-// Future: Scope to req.user.organizationId so facilities only see their own staff.
-// Future: Add pagination (limit/offset or cursor-based).
-// Future: Add role filtering (?role=nurse&role=admin).
-// Future: Emit audit log entry on access (HIPAA requirement).
+// Returns users scoped to the authenticated user's organization.
+// Admins see all users in their org; members see only themselves.
 
-router.get("/", async (_req: Request, res: Response) => {
-  res.json({
-    users: [],
-    // Placeholder — real implementation will query the users table.
-    // Schema will include: id, email, firstName, lastName, role, organizationId,
-    //   createdAt, lastLoginAt, isActive, mfaEnabled.
-    _placeholder: true,
-  });
-});
+router.get("/", async (req: Request, res: Response): Promise<void> => {
+  if (!req.user) return;
+  try {
+    let rows: {
+      id: string; email: string; name: string | null; role: string;
+      is_active: boolean; last_login_at: Date | null; created_at: Date;
+      mfa_enabled: boolean | null;
+    }[];
 
-// ─── POST /users ──────────────────────────────────────────────────────────────
-// Creates a new user within the caller's organization.
-//
-// Future: Validate body with Zod schema.
-// Future: Hash password with bcrypt before storing.
-// Future: Send welcome/invite email.
-// Future: Emit audit log entry on creation.
+    if (req.user.role === "admin") {
+      rows = await query(
+        `SELECT u.id, u.email, u.name, u.role, u.is_active,
+                u.last_login_at, u.created_at, m.enabled AS mfa_enabled
+         FROM users u
+         LEFT JOIN user_mfa m ON m.user_id = u.id
+         WHERE u.organization_id = $1
+         ORDER BY u.created_at DESC`,
+        [req.user.organizationId]
+      );
+    } else {
+      rows = await query(
+        `SELECT u.id, u.email, u.name, u.role, u.is_active,
+                u.last_login_at, u.created_at, m.enabled AS mfa_enabled
+         FROM users u
+         LEFT JOIN user_mfa m ON m.user_id = u.id
+         WHERE u.id = $1`,
+        [req.user.id]
+      );
+    }
 
-router.post("/", async (_req: Request, res: Response) => {
-  res.status(201).json({
-    user: null,
-    _placeholder: true,
-    _todo: "Implement user creation with hashed password and org scoping.",
-  });
+    res.json({
+      users: rows.map((u) => ({
+        id:          u.id,
+        email:       u.email,
+        name:        u.name,
+        role:        u.role,
+        isActive:    u.is_active,
+        mfaEnabled:  u.mfa_enabled ?? false,
+        lastLoginAt: u.last_login_at,
+        createdAt:   u.created_at,
+      })),
+    });
+  } catch (err) {
+    console.error("[users] GET /users:", err);
+    res.status(500).json({ error: "Failed to load users." });
+  }
 });
 
 // ─── GET /users/:id ───────────────────────────────────────────────────────────
 
-router.get("/:id", async (req: Request, res: Response) => {
-  res.json({
-    user: { id: req.params.id },
-    _placeholder: true,
-  });
+router.get("/:id", async (req: Request, res: Response): Promise<void> => {
+  if (!req.user) return;
+  const { id } = req.params;
+
+  // Users can only view their own profile; admins can view any org member
+  const canView =
+    req.user.id === id ||
+    req.user.role === "admin";
+
+  if (!canView) {
+    res.status(403).json({ error: "Insufficient permissions." });
+    return;
+  }
+
+  try {
+    const rows = await query<{
+      id: string; email: string; name: string | null; role: string;
+      organization_id: string | null; is_active: boolean;
+      last_login_at: Date | null; created_at: Date; mfa_enabled: boolean | null;
+    }>(
+      `SELECT u.id, u.email, u.name, u.role, u.organization_id,
+              u.is_active, u.last_login_at, u.created_at,
+              m.enabled AS mfa_enabled
+       FROM users u
+       LEFT JOIN user_mfa m ON m.user_id = u.id
+       WHERE u.id = $1`,
+      [id]
+    );
+
+    if (rows.length === 0) {
+      res.status(404).json({ error: "User not found." });
+      return;
+    }
+
+    // Org isolation: admins can only see users in their own org
+    const user = rows[0];
+    if (
+      req.user.role !== "super_admin" &&
+      user.organization_id !== req.user.organizationId
+    ) {
+      res.status(403).json({ error: "Insufficient permissions." });
+      return;
+    }
+
+    res.json({
+      user: {
+        id:             user.id,
+        email:          user.email,
+        name:           user.name,
+        role:           user.role,
+        organizationId: user.organization_id,
+        isActive:       user.is_active,
+        mfaEnabled:     user.mfa_enabled ?? false,
+        lastLoginAt:    user.last_login_at,
+        createdAt:      user.created_at,
+      },
+    });
+  } catch (err) {
+    console.error("[users] GET /users/:id:", err);
+    res.status(500).json({ error: "Failed to load user." });
+  }
+});
+
+// ─── PATCH /users/:id ─────────────────────────────────────────────────────────
+// Admins can update name, role, isActive. Users can update their own name.
+
+router.patch("/:id", async (req: Request, res: Response): Promise<void> => {
+  if (!req.user) return;
+  const { id } = req.params;
+  const isOwnProfile = req.user.id === id;
+  const isAdmin      = req.user.role === "admin";
+
+  if (!isOwnProfile && !isAdmin) {
+    res.status(403).json({ error: "Insufficient permissions." });
+    return;
+  }
+
+  const { name, role, isActive } = req.body as {
+    name?: string; role?: string; isActive?: boolean;
+  };
+
+  try {
+    const updates: string[] = [];
+    const values:  unknown[] = [];
+    let   idx = 1;
+
+    if (name !== undefined) {
+      updates.push(`name = $${idx++}`);
+      values.push(name.trim() || null);
+    }
+    if (isAdmin && role !== undefined) {
+      updates.push(`role = $${idx++}`);
+      values.push(role);
+    }
+    if (isAdmin && isActive !== undefined) {
+      updates.push(`is_active = $${idx++}`);
+      values.push(isActive);
+    }
+
+    if (updates.length === 0) {
+      res.status(400).json({ error: "No fields to update." });
+      return;
+    }
+
+    updates.push(`updated_at = NOW()`);
+    values.push(id);
+    await query(
+      `UPDATE users SET ${updates.join(", ")} WHERE id = $${idx}`,
+      values
+    );
+
+    res.json({ success: true });
+  } catch (err) {
+    console.error("[users] PATCH /users/:id:", err);
+    res.status(500).json({ error: "Failed to update user." });
+  }
 });
 
 export default router;

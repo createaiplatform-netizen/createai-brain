@@ -1,0 +1,32 @@
+You’ve already completed a full adversarial audit and produced a phased fix/roadmap (Phase 1–4, plus interoperability/compliance milestones). Now I want you to move from analysis into implementation.
+
+Treat your own audit as the source of truth. Implement every fix and change you recommended across all phases, in a safe, legal, and production-minded way.
+
+Your tasks:
+
+1. Apply all Phase 1 and Phase 2 fixes from the independence audit:
+   - Fix all Docker startup crashes (schema.sql issue, SESSION_SECRET, healthcheck, DATABASE_URL guard, DB retry).
+   - Fix the core user flow (org creation on register, /auth/me behavior, protecting /users and /organizations, CORS env var).
+
+2. Apply all Phase 3 and Phase 4 fixes from the independence audit:
+   - Add rate limiting, Helmet, session cleanup.
+   - Add frontend routing, first-admin setup, non-root Docker user.
+
+3. From the interoperability/compliance audit, implement only the **foundational, non-PHI** pieces that can be safely built now:
+   - Clinical-ready schema skeleton (patients, patient_identifiers, encounters, medications, observations, clinical_notes, audit_log, etc.) using only synthetic/test data.
+   - Audit log infrastructure (triggers, append-only log table, basic admin query UI).
+   - TLS/HTTPS via Caddy in docker-compose (or clearly documented external terminator).
+   - MFA (TOTP-based) for user accounts.
+   - Session inactivity timeout (e.g., 15–30 minutes).
+   - HL7/FHIR test integration stubs wired to public test servers or simulators only (no real PHI).
+
+Implementation rules:
+- Do not use any real secrets or PHI; use environment variables and placeholders only.
+- Keep everything self-hosted and independent (no Replit, no external auth/storage).
+- Update all relevant files (backend, frontend, Docker, schema, env examples) and show the final, complete file tree and all changed files.
+- After implementing, run a final readiness check: can the platform be started with `docker compose up --build`, can a user register, be assigned an org, create a project, log out/in, and does the security baseline (rate limiting, Helmet, TLS, MFA, audit log skeleton) function as expected?
+
+Present your work as:
+1) A summary of all changes by phase,
+2) The updated file tree,
+3) The full contents of every new or modified file.

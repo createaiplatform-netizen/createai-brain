@@ -1,13 +1,7 @@
 # ─── Backend Dockerfile ───────────────────────────────────────────────────────
 # Multi-stage build:
 #   Stage 1 (builder): Install deps + compile TypeScript → JavaScript
-#   Stage 2 (runner):  Copy only the compiled output + production deps
-#
-# This keeps the final image small (~200MB vs ~600MB with devDeps).
-#
-# Future: Add a non-root USER for security hardening.
-# Future: Add HEALTHCHECK instruction (already handled by docker-compose).
-# Future: Pin the Node version to match your production environment exactly.
+#   Stage 2 (runner):  Minimal image with only production deps + compiled output
 
 # ── Stage 1: Build ────────────────────────────────────────────────────────────
 FROM node:20-alpine AS builder
@@ -27,10 +21,15 @@ WORKDIR /app
 
 ENV NODE_ENV=production
 
-COPY --from=builder /app/package*.json ./
+# Run as non-root user for security hardening.
+# The 'node' user (uid 1000) is included in node:alpine images.
+RUN chown -R node:node /app
+USER node
+
+COPY --from=builder --chown=node:node /app/package*.json ./
 RUN npm ci --omit=dev
 
-COPY --from=builder /app/dist ./dist
+COPY --from=builder --chown=node:node /app/dist ./dist
 
 EXPOSE 4000
 
