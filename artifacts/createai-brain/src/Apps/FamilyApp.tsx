@@ -1,5 +1,6 @@
 import React, { useState, useEffect, useCallback } from "react";
 import { FormEngine } from "@/engines/FormEngine";
+import { DocumentRenderer, parseBodyToSchema } from "@/engines/document";
 import { useOS } from "@/os/OSContext";
 import { BrainGen } from "@/engine/BrainGen";
 
@@ -204,8 +205,11 @@ export function FamilyApp() {
 
           {openDoc.body
             ? (
-              <div className="rounded-xl bg-white/4 border border-white/6 p-5">
-                <pre className="text-[12px] text-foreground whitespace-pre-wrap leading-relaxed">{openDoc.body}</pre>
+              <div className="max-h-[50vh] overflow-y-auto rounded-xl">
+                <DocumentRenderer
+                  schema={parseBodyToSchema(openDoc.body, { title: openDoc.title, docType: openDoc.docType })}
+                  compact
+                />
               </div>
             )
             : (

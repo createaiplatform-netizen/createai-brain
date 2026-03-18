@@ -1,7 +1,7 @@
 import React, { useState, useEffect, useCallback, useRef } from "react";
-import { OutputFormatter } from "@/components/OutputFormatter";
 import { SaveToProjectModal } from "@/components/SaveToProjectModal";
 import { relativeTime } from "@/ael/time";
+import { DocumentRenderer, parseBodyToSchema, documentToPlainText } from "@/engines/document";
 
 // ─── Types ─────────────────────────────────────────────────────────────────
 
@@ -274,14 +274,15 @@ function DocDetail({ doc, onBack, onUpdate, onDelete }: {
           className="w-full rounded-xl p-4 text-[13px] text-white font-mono resize-none outline-none leading-relaxed"
           style={{ background: "rgba(14,18,42,0.70)", border: "1px solid rgba(255,255,255,0.10)" }}
           rows={18} />
-      ) : (
-        <div className="rounded-2xl p-5 max-h-[52vh] overflow-y-auto"
-          style={{ background: "rgba(14,18,42,0.70)", border: "1px solid rgba(255,255,255,0.08)" }}>
-          {doc.body
-            ? <OutputFormatter content={doc.body} />
-            : <p className="text-[13px] text-gray-600 text-center py-8">No content yet — click Edit to add content.</p>
-          }
+      ) : doc.body ? (
+        <div className="max-h-[54vh] overflow-y-auto rounded-xl">
+          <DocumentRenderer
+            schema={parseBodyToSchema(doc.body, { title: doc.title, docType: doc.docType, date: doc.updatedAt, tags: doc.tags ? doc.tags.split(",").map(t => t.trim()).filter(Boolean) : undefined })}
+            compact
+          />
         </div>
+      ) : (
+        <p className="text-[13px] text-gray-600 text-center py-8">No content yet — click Edit to add content.</p>
       )}
 
       <div className="flex gap-2">
@@ -291,7 +292,8 @@ function DocDetail({ doc, onBack, onUpdate, onDelete }: {
           💾 Save to Project
         </button>
         <button onClick={() => {
-            const blob = new Blob([doc.body], { type: "text/plain" });
+            const text = doc.body ? documentToPlainText(parseBodyToSchema(doc.body, { title: doc.title, docType: doc.docType })) : doc.title;
+            const blob = new Blob([text], { type: "text/plain" });
             const url = URL.createObjectURL(blob);
             const a = document.createElement("a"); a.href = url;
             a.download = `${doc.title.replace(/\s+/g, "_")}.txt`; a.click();
@@ -397,7 +399,7 @@ function FileDetail({ file, onBack, onChange }: {
         <div className="rounded-2xl p-5 max-h-[52vh] overflow-y-auto"
           style={{ background: "rgba(14,18,42,0.70)", border: "1px solid rgba(255,255,255,0.08)" }}>
           {content
-            ? <OutputFormatter content={content} />
+            ? <DocumentRenderer schema={parseBodyToSchema(content, { title: file.name, docType: file.fileType })} compact />
             : <p className="text-[13px] text-gray-600 text-center py-8">No content yet — click Edit to add content.</p>
           }
         </div>

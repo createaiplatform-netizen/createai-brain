@@ -5,6 +5,7 @@
 // ═══════════════════════════════════════════════════════════════════════════
 
 import React, { useState, useRef, useCallback, useEffect } from "react";
+import { DocumentRenderer, parseBodyToSchema } from "@/engines/document";
 
 // ── Types ────────────────────────────────────────────────────────────────────
 export interface GenericEngineDefinition {
@@ -207,12 +208,20 @@ function RunPanel({ engine, appId, onBack }: { engine: GenericEngineDefinition; 
             )}
             {saved && <span style={{ fontSize: 11, color: "#34C759", fontWeight: 700 }}>✓ Saved</span>}
           </div>
-          <div
-            ref={outputRef}
-            style={{ flex: 1, overflowY: "auto", background: "rgba(0,0,0,0.3)", border: "1px solid rgba(255,255,255,0.08)", borderRadius: 12, padding: "16px", fontSize: 13, color: "#e2e8f0", lineHeight: 1.7, whiteSpace: "pre-wrap", fontFamily: "inherit" }}
-          >
-            {output}
-            {running && <span style={{ display: "inline-block", width: 8, height: 14, background: engine.color, borderRadius: 2, marginLeft: 2, animation: "blink 1s infinite" }} />}
+          <div ref={outputRef} style={{ flex: 1, overflowY: "auto" }}>
+            {done && output ? (
+              <DocumentRenderer
+                schema={parseBodyToSchema(output, { title: topic, docType: engine.name })}
+                compact
+                toolbar
+              />
+            ) : (
+              <div style={{ background: "rgba(0,0,0,0.3)", border: "1px solid rgba(255,255,255,0.08)", borderRadius: 12, padding: "16px", fontSize: 13, color: "#e2e8f0", lineHeight: 1.7, whiteSpace: "pre-wrap", fontFamily: "inherit", minHeight: 120 }}>
+                {output}
+                {running && <span style={{ display: "inline-block", width: 8, height: 14, background: engine.color, borderRadius: 2, marginLeft: 2, animation: "blink 1s infinite" }} />}
+                {!running && !output && <span style={{ color: "#4f5a6e" }}>Output will appear here…</span>}
+              </div>
+            )}
           </div>
         </div>
       )}
@@ -243,8 +252,12 @@ function SessionsPanel({ appId, color, onBack }: { appId: string; color: string;
             <div style={{ fontSize: 11, color: "#64748b" }}>{selected.topic}</div>
           </div>
         </div>
-        <div style={{ flex: 1, overflowY: "auto", background: "rgba(0,0,0,0.3)", border: "1px solid rgba(255,255,255,0.08)", borderRadius: 12, padding: 16, fontSize: 13, color: "#e2e8f0", lineHeight: 1.7, whiteSpace: "pre-wrap" }}>
-          {selected.output}
+        <div style={{ flex: 1, overflowY: "auto" }}>
+          <DocumentRenderer
+            schema={parseBodyToSchema(selected.output ?? "", { title: selected.topic, docType: selected.engineName })}
+            compact
+            toolbar
+          />
         </div>
       </div>
     );
