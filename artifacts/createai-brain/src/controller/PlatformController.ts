@@ -204,6 +204,7 @@ export async function streamEngine(opts: {
   topic:     string;
   context?:  string;
   mode?:     string;
+  signal?:   AbortSignal;
   onChunk:   (text: string) => void;
   onDone?:   (fullText: string) => void;
   onError?:  (err: string) => void;
@@ -232,6 +233,7 @@ export async function streamEngine(opts: {
         topic:      opts.topic,
         context:    opts.context,
         mode:       opts.mode,
+        signal:     opts.signal,
         onChunk:    handleChunk,
         onDone:     handleDone,
         onError:    handleError,

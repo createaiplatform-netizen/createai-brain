@@ -3,7 +3,7 @@ import {
   CIVILIZATION_ENGINES, CIVILIZATION_SERIES,
   type CivilizationEngineDefinition, type CivilizationSeriesDefinition,
 } from "@/engine/CivilizationEngine";
-import { streamEngine } from "@/controller";
+import { streamEngine, useSeriesRun } from "@/controller";
 
 interface SavedSession { id: number; engineId: string; engineName: string; topic: string; output: string; title: string | null; isStarred: boolean; createdAt: string; }
 type View = "grid" | "run" | "series" | "sessions" | "viewer";
@@ -67,45 +67,49 @@ function RunPanel({ engine, onBack }: { engine: CivilizationEngineDefinition; on
   );
 }
 
-function SeriesPanel({ onBack }: { onBack: () => void }) {
-  const [activeSeries, setActiveSeries] = useState<CivilizationSeriesDefinition | null>(null);
-  const [topic, setTopic] = useState(""); const [output, setOutput] = useState(""); const [running, setRunning] = useState(false); const [done, setDone] = useState(false);
+function ActiveSeriesRunPanel({ series, accentColor, onBack }: { series: CivilizationSeriesDefinition; accentColor: string; onBack: () => void }) {
+  const [topic, setTopic] = useState("");
+  const { run, abort, sections, isRunning, isDone } = useSeriesRun(series.id);
   const outputRef = useRef<HTMLDivElement>(null);
-  const runSeries = useCallback(async () => {
-    if (!activeSeries || !topic.trim() || running) return;
-    setOutput(""); setRunning(true); setDone(false);
-    try {
-      const resp = await fetch("/api/openai/series-run", { method: "POST", credentials: "include", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ seriesId: activeSeries.id, topic: topic.trim() }) });
-      if (!resp.ok || !resp.body) { setRunning(false); return; }
-      const reader = resp.body.getReader(); const decoder = new TextDecoder();
-      while (true) {
-        const { done: d, value } = await reader.read(); if (d) break;
-        for (const line of decoder.decode(value).split("\n")) {
-          if (!line.startsWith("data:")) continue;
-          try { const p = JSON.parse(line.slice(5).trim()) as { content?: string; done?: boolean }; if (p.content) { setOutput(prev => prev + p.content!); if (outputRef.current) outputRef.current.scrollTop = outputRef.current.scrollHeight; } if (p.done) { setRunning(false); setDone(true); } } catch { /* skip */ }
-        }
-      }
-    } catch { setRunning(false); }
-  }, [activeSeries, topic, running]);
-
-  if (activeSeries) return (
+  useEffect(() => { if (outputRef.current) outputRef.current.scrollTop = outputRef.current.scrollHeight; });
+  return (
     <div style={{ display: "flex", flexDirection: "column", height: "100%", gap: 16 }}>
       <div style={{ display: "flex", alignItems: "center", gap: 12 }}>
-        <button onClick={() => { setActiveSeries(null); setOutput(""); setTopic(""); }} style={{ background: "none", border: "none", color: "#94a3b8", cursor: "pointer", fontSize: 20 }}>←</button>
-        <span style={{ fontSize: 22 }}>{activeSeries.icon}</span>
-        <div><div style={{ fontWeight: 700, fontSize: 15, color: "#f1f5f9" }}>{activeSeries.name}</div><div style={{ fontSize: 11, color: "#94a3b8" }}>{activeSeries.engines.length} engines · ~{activeSeries.estimatedMinutes}min</div></div>
+        <button onClick={onBack} style={{ background: "none", border: "none", color: "#94a3b8", cursor: "pointer", fontSize: 20 }}>←</button>
+        <span style={{ fontSize: 22 }}>{series.icon}</span>
+        <div><div style={{ fontWeight: 700, fontSize: 15, color: "#f1f5f9" }}>{series.name}</div><div style={{ fontSize: 11, color: "#94a3b8" }}>{series.engines.length} engines · ~{series.estimatedMinutes}min</div></div>
       </div>
-      <p style={{ fontSize: 12, color: "#64748b", margin: 0 }}>{activeSeries.description}</p>
-      <div style={{ display: "flex", gap: 6, flexWrap: "wrap" }}>{activeSeries.engines.map(e => <span key={e} style={{ fontSize: 10, background: "rgba(255,255,255,0.06)", borderRadius: 6, padding: "3px 8px", color: "#94a3b8" }}>{e}</span>)}</div>
+      <p style={{ fontSize: 12, color: "#64748b", margin: 0 }}>{series.description}</p>
+      <div style={{ display: "flex", gap: 6, flexWrap: "wrap" }}>{series.engines.map(e => <span key={e} style={{ fontSize: 10, background: "rgba(255,255,255,0.06)", borderRadius: 6, padding: "3px 8px", color: "#94a3b8" }}>{e}</span>)}</div>
       <textarea value={topic} onChange={e => setTopic(e.target.value)} placeholder="Enter your civilization topic for the full series run…" rows={3}
         style={{ background: "rgba(255,255,255,0.05)", border: "1px solid rgba(255,255,255,0.12)", borderRadius: 10, padding: "10px 14px", color: "#e2e8f0", fontSize: 13, fontFamily: "inherit", resize: "none" }} />
-      <button onClick={runSeries} disabled={running || !topic.trim()} style={{ background: running ? "rgba(99,102,241,0.3)" : "#6366f1", border: "none", borderRadius: 10, padding: "11px 20px", color: "#fff", fontSize: 14, fontWeight: 700, cursor: running ? "not-allowed" : "pointer", opacity: !topic.trim() ? 0.5 : 1 }}>
-        {running ? "⟳ Running Series…" : `${activeSeries.icon} Run ${activeSeries.name}`}
-      </button>
-      {output && <div ref={outputRef} style={{ flex: 1, background: "rgba(255,255,255,0.03)", border: "1px solid rgba(255,255,255,0.08)", borderRadius: 10, padding: "14px 16px", overflowY: "auto", fontSize: 13, color: "#cbd5e1", lineHeight: 1.7, whiteSpace: "pre-wrap" }}>{output}{running && <span style={{ animation: "pulse 1s infinite" }}>▋</span>}</div>}
+      <div style={{ display: "flex", gap: 8 }}>
+        <button onClick={() => !isRunning && topic.trim() && run(topic.trim())} disabled={isRunning || !topic.trim()} style={{ flex: 1, background: isRunning ? `${accentColor}4d` : accentColor, border: "none", borderRadius: 10, padding: "11px 20px", color: "#fff", fontSize: 14, fontWeight: 700, cursor: isRunning ? "not-allowed" : "pointer", opacity: !topic.trim() ? 0.5 : 1 }}>
+          {isRunning ? "⟳ Running Series…" : `${series.icon} Run ${series.name}`}
+        </button>
+        {isRunning && <button onClick={abort} style={{ background: "rgba(239,68,68,0.15)", border: "1px solid rgba(239,68,68,0.3)", borderRadius: 10, padding: "11px 16px", color: "#ef4444", fontSize: 13, fontWeight: 700, cursor: "pointer" }}>Stop</button>}
+      </div>
+      {sections.some(s => s.text || s.status === "running") && (
+        <div ref={outputRef} style={{ flex: 1, display: "flex", flexDirection: "column", gap: 10, overflowY: "auto" }}>
+          {sections.map((s, i) => s.status !== "pending" && (
+            <div key={i} style={{ background: "rgba(255,255,255,0.03)", border: `1px solid ${s.status === "running" ? accentColor + "60" : "rgba(255,255,255,0.08)"}`, borderRadius: 10, padding: "14px 16px" }}>
+              <div style={{ display: "flex", alignItems: "center", gap: 8, marginBottom: 8 }}>
+                <span style={{ fontSize: 10, fontWeight: 700, color: s.status === "done" ? "#34C759" : accentColor, background: s.status === "done" ? "rgba(52,199,89,0.12)" : `${accentColor}20`, borderRadius: 4, padding: "2px 8px" }}>{s.status === "done" ? "✓ Done" : "⟳ Running"}</span>
+                <span style={{ fontSize: 12, fontWeight: 600, color: "#94a3b8" }}>{s.engineName}</span>
+              </div>
+              <div style={{ fontSize: 13, color: "#cbd5e1", lineHeight: 1.7, whiteSpace: "pre-wrap" }}>{s.text}{s.status === "running" && <span>▋</span>}</div>
+            </div>
+          ))}
+          {isDone && <div style={{ textAlign: "center", fontSize: 12, color: "#34C759", fontWeight: 700, padding: "8px 0" }}>✓ Series complete — {sections.length} engines</div>}
+        </div>
+      )}
     </div>
   );
+}
 
+function SeriesPanel({ onBack }: { onBack: () => void }) {
+  const [activeSeries, setActiveSeries] = useState<CivilizationSeriesDefinition | null>(null);
+  if (activeSeries) return <ActiveSeriesRunPanel series={activeSeries} accentColor="#6366f1" onBack={() => setActiveSeries(null)} />;
   return (
     <div style={{ display: "flex", flexDirection: "column", gap: 16 }}>
       <div style={{ display: "flex", alignItems: "center", gap: 12 }}>

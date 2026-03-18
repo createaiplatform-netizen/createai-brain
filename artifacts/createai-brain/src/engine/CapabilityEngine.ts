@@ -46,6 +46,7 @@ export interface CapabilityRunOptions {
   context?: string;
   mode?: string;
   agentId?: string;
+  signal?: AbortSignal;
   onChunk: (text: string) => void;
   onDone?: () => void;
   onError?: (err: string) => void;
@@ -1712,7 +1713,7 @@ export const ALL_SERIES: SeriesDefinition[] = [
 // ─── Engine Run ───────────────────────────────────────────────────────────────
 
 export async function runEngine(opts: CapabilityRunOptions): Promise<void> {
-  const { engineId, engineName, topic, context, mode, agentId, onChunk, onDone, onError } = opts;
+  const { engineId, engineName, topic, context, mode, agentId, signal, onChunk, onDone, onError } = opts;
 
   try {
     const resp = await fetch("/api/openai/engine-run", {
@@ -1720,6 +1721,7 @@ export async function runEngine(opts: CapabilityRunOptions): Promise<void> {
       credentials: "include",
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify({ engineId, engineName: engineName ?? engineId, topic, context, mode, agentId }),
+      signal,
     });
 
     if (!resp.ok || !resp.body) {

@@ -175,13 +175,24 @@ export function useSeriesRun(seriesId: string): SeriesRunState {
       seriesId, topic, context,
       onSectionStart: (engineId, index) => {
         setCurrentIndex(index);
-        setSections(prev => prev.map((s, i) => i === index ? { ...s, status: "running" } : s));
+        setSections(prev => {
+          // Dynamic series (not in ALL_SERIES) — add section if index is out of bounds
+          if (index >= prev.length) {
+            return [...prev, {
+              engineId,
+              engineName: getEngine(engineId)?.name ?? engineId,
+              text:        "",
+              status:      "running" as const,
+            }];
+          }
+          return prev.map((s, i) => i === index ? { ...s, status: "running" as const } : s);
+        });
       },
       onChunk: (text, _eid, index) => {
         setSections(prev => prev.map((s, i) => i === index ? { ...s, text: s.text + text } : s));
       },
       onSectionDone: (_eid, index) => {
-        setSections(prev => prev.map((s, i) => i === index ? { ...s, status: "done" } : s));
+        setSections(prev => prev.map((s, i) => i === index ? { ...s, status: "done" as const } : s));
       },
       onDone:  () => { setStatus("done"); setCurrentIndex(-1); },
       onError: (err) => { setError(err); setStatus("error"); },
