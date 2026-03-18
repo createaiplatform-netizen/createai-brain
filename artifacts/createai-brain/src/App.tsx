@@ -18,6 +18,7 @@ import { OSProvider } from "@/os/OSContext";
 import { OSLayout } from "@/os/osLayout";
 import { InteractionProvider } from "@/os/InteractionContext";
 import { ConversationProvider } from "@/os/ConversationContext";
+import { PlatformProvider } from "@/controller";
 
 const queryClient = new QueryClient({
   defaultOptions: {
@@ -406,15 +407,17 @@ function App() {
     <QueryClientProvider client={queryClient}>
       <TooltipProvider>
         <AuthGate>
-          <InteractionProvider>
-            <ConversationProvider>
-              <OSProvider>
-                <WouterRouter base={base}>
-                  <Router />
-                </WouterRouter>
-              </OSProvider>
-            </ConversationProvider>
-          </InteractionProvider>
+          <PlatformProvider>
+            <InteractionProvider>
+              <ConversationProvider>
+                <OSProvider>
+                  <WouterRouter base={base}>
+                    <Router />
+                  </WouterRouter>
+                </OSProvider>
+              </ConversationProvider>
+            </InteractionProvider>
+          </PlatformProvider>
         </AuthGate>
         <Toaster />
       </TooltipProvider>
