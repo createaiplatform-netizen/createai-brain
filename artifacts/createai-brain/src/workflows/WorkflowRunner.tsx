@@ -552,19 +552,14 @@ export function WorkflowRunner({ config }: WorkflowRunnerProps) {
         <ErrorStep session={session} onRetry={() => runEngine(session.topic)} />
       )}
 
-      {/* Save to Project modal — portal over the app */}
+      {/* Save to Project modal — fixed full-screen portal (self-contained in SaveToProjectModal) */}
       {showProjectModal && outputForModal && (
-        <div className="absolute inset-0 z-50 flex items-start justify-center overflow-y-auto"
-          style={{ background: "rgba(15,23,42,0.45)", backdropFilter: "blur(4px)" }}>
-          <div className="w-full max-w-lg mx-auto mt-8 mb-8">
-            <SaveToProjectModal
-              content={outputForModal}
-              label={`${cfg.engineLabel} — ${session.topic.slice(0, 50)}`}
-              defaultFileType="Document"
-              onClose={() => setProjectModal(false)}
-            />
-          </div>
-        </div>
+        <SaveToProjectModal
+          content={outputForModal}
+          label={`${cfg.engineLabel} — ${session.topic.slice(0, 50)}`}
+          defaultFileType="Document"
+          onClose={() => setProjectModal(false)}
+        />
       )}
 
     </div>

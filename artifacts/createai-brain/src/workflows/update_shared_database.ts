@@ -1,34 +1,44 @@
 // ═══════════════════════════════════════════════════════════════════════════
 // UPDATE SHARED DATABASE — Persistence step.
-// Saves workflow output to the Output Vault (localStorage) and
-// optionally as a file inside the active project.
+// Saves workflow output to the Output Vault (localStorage + DB) and
+// optionally formats it as a project file.
+//
+// Uses vaultAdd() from OutputVaultService which:
+//   1. Writes to localStorage "cai_vault_entries" (OutputVaultPanel reads this)
+//   2. Fires-and-forgets a POST to /api/documents for DB persistence
+//
+// NOTE: streamEngine() auto-saves the RAW generated output via
+// contextStore.recordOutput → vaultAdd. This explicit save persists the
+// EDITED version (if the user changed anything) so BrainHub vault reflects
+// the final reviewed state.
 // ═══════════════════════════════════════════════════════════════════════════
 
-import { saveEngineOutput } from "@/engine/CapabilityEngine";
+import { vaultAdd } from "@/services/OutputVaultService";
 import type { WorkflowSession } from "./WorkflowEngine";
 
 export interface SaveResult {
-  success:    boolean;
-  vaultId?:   string;
-  error?:     string;
+  success: boolean;
+  vaultId?: string;
+  error?:   string;
 }
 
 /**
- * Saves the workflow output to the Output Vault.
- * Uses saveEngineOutput from CapabilityEngine (which handles
- * localStorage persistence + background DB sync).
+ * Explicitly saves the current (possibly edited) output to the vault.
+ * Synchronous — vault writes to localStorage immediately, DB sync is async.
  */
-export async function saveToVault(session: WorkflowSession): Promise<SaveResult> {
+export function saveToVault(session: WorkflowSession): SaveResult {
   try {
     const text = (session.editedOutput || session.output).trim();
     if (!text) return { success: false, error: "No output to save." };
-    await saveEngineOutput({
-      engineId:    session.config.engineId,
-      engineName:  session.config.engineLabel,
-      title:       session.topic,
-      content:     text,
-    });
-    return { success: true };
+
+    const entry = vaultAdd(
+      session.config.engineId,
+      session.config.engineLabel,
+      session.topic,
+      text,
+    );
+
+    return { success: true, vaultId: entry.id };
   } catch (err) {
     console.error("[update_shared_database] saveToVault", err);
     return { success: false, error: (err as Error).message ?? "Save failed." };

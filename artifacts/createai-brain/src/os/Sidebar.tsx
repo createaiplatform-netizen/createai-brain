@@ -262,7 +262,7 @@ export function Sidebar({ onNav, forceCollapsed, forceExpanded }: SidebarProps) 
         {/* Evolution Pulse — platform-wide continuous improvement indicator */}
         <div style={{ padding: "0 8px 4px" }}>
           <button
-            onClick={() => handleNav(() => openApp("integration" as AppId))}
+            onClick={() => handleNav(() => openApp("commandcenter" as AppId))}
             title={collapsed ? `⚡ ${evolutionStats.total} improvements identified` : undefined}
             style={{
               width: "100%", display: "flex", alignItems: "center",
