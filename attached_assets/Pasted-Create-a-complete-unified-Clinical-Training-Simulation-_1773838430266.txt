@@ -1,0 +1,68 @@
+Create a complete, unified Clinical Training, Simulation, and Education Engine. This engine must include every tool, workflow, logic layer, and educational module needed to support clinicians, staff, and learners in a safe, legal, and non‑diagnostic way.
+
+The system must NEVER diagnose real patients, prescribe real medication, or replace licensed professionals. All outputs must be educational, supportive, or simulated only.
+
+Include the following capabilities:
+
+1. Clinical Training Engine  
+• teaches clinical reasoning  
+• explains how diagnoses are made  
+• walks through differential diagnosis steps  
+• provides symptom education  
+• explains tests, labs, imaging, and findings  
+• teaches documentation standards  
+• provides safety checklists  
+• offers scenario‑based training
+
+2. Diagnostic Simulation Engine  
+• generates mock cases  
+• creates simulated symptoms, labs, imaging, and histories  
+• demonstrates how a clinician might think  
+• shows example reasoning paths  
+• explains why certain decisions are made  
+• provides multiple possible outcomes  
+• always labels content as simulated
+
+3. Medication Education Engine  
+• explains how medications work  
+• teaches classes, mechanisms, and effects  
+• provides safety warnings and interactions  
+• explains monitoring requirements  
+• teaches how clinicians choose medications  
+• includes mock prescribing scenarios  
+• never issues real prescriptions
+
+4. Clinical Workflow Support Engine  
+• organizes information  
+• generates summaries  
+• creates checklists  
+• highlights missing information  
+• supports task routing  
+• explains best practices  
+• provides step‑by‑step educational guidance
+
+5. Procedure & Safety Education Engine  
+• teaches procedures in an educational way  
+• explains risks, precautions, and steps  
+• provides safety logic  
+• offers training scenarios  
+• never gives real medical instructions to real patients
+
+6. Compliance & Legal Safety Layer  
+• enforces all safety boundaries  
+• blocks real diagnosis  
+• blocks real prescribing  
+• blocks real medical instructions  
+• ensures all content is educational or simulated  
+• ensures no harm and nothing illegal
+
+7. Interpretation, Expansion, and Completion Layers  
+• interpret my intention  
+• fill in missing pieces  
+• expand the training content  
+• complete the simulation  
+• ensure all modules are fully defined  
+• ensure all tools are available  
+• ensure nothing is missing
+
+The result should be a fully unified, fully safe, fully educational system that includes every tool needed for clinical training, simulation, workflow support, and medical education—without ever performing real medical actions.

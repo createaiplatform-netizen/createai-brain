@@ -12,7 +12,7 @@ export type AppId =
   | "business" | "entity" | "bizcreator" | "bizdev" | "projbuilder" | "projos"
   | "notifications" | "brainhub" | "commandcenter"
   | "researchhub" | "learningcenter" | "personastudio" | "datastudio" | "pricingstudio"
-  | "traction" | "opportunity" | "imaginationlab" | "loreforge"
+  | "traction" | "opportunity" | "leadCycle" | "imaginationlab" | "loreforge"
   | "narratoros" | "civilizationforge" | "ecologyforge"
   | "soundscape" | "timelineforge" | "mythweave"
   | "languageforge" | "magicsystem" | "urbanworld" | "warlore"
@@ -297,6 +297,7 @@ export const DEFAULT_APPS: AppDef[] = [
   { id: "pricingstudio",  label: "Pricing Studio",  icon: "💰", color: "#FFD60A", description: "Pricing strategy, packaging, and feedback frameworks — powered by Pricing and Feedback engines", category: "business" },
   { id: "traction",       label: "Traction",        icon: "📈", color: "#10b981", description: "Real traction signals, retention curves, growth analytics, and expansion velocity — all based on actual system activity", category: "system" },
   { id: "opportunity",    label: "Opportunities",    icon: "🎯", color: "#f59e0b", description: "Discover, score, and pursue high-value opportunities with AI intelligence, pipeline management, and strategic scanning", category: "business" },
+  { id: "leadCycle",      label: "Lead Cycle",       icon: "🔄", color: "#6366f1", description: "Automatic lead generation engine — paste any input, get qualified leads, personalized outreach, and a ready-to-send proposal in seconds", category: "business" },
   { id: "imaginationlab", label: "ImaginationLab",   icon: "✨", color: "#8b5cf6", description: "13 creative engines for story, character, world-building, creatures, superpowers, quests, dreamscapes, and magic systems — safe and fictional", category: "tools" },
   { id: "loreforge",          label: "LoreForge",            icon: "📜", color: "#d97706", description: "Deep lore creation studio — mythology, religion, ancient history, prophecies, factions, languages, curses, relics, and cosmology for fictional worlds", category: "tools" },
   { id: "narratoros",         label: "NarratorOS",           icon: "🎬", color: "#e11d48", description: "Cinematic narrative studio — scene design, dialogue, plot twists, act structure, conflict, theme, arc, monologue, and ensemble dynamics for fiction", category: "tools" },
@@ -463,6 +464,7 @@ const INTENT_MAP: { keywords: string[]; target: AppId }[] = [
   { keywords: ["brain hub", "capability", "engines", "meta-agent", "oracle", "forge", "nexus", "sentinel", "pulse", "vector", "series", "omega", "phi"], target: "brainhub" },
   { keywords: ["command center", "commandcenter", "founder", "founder tier", "platform control", "command", "platform status", "systems online", "auto-wire", "protection", "replication", "auto wire"], target: "commandcenter" },
   { keywords: ["opportunity", "opportunities", "opportunity engine", "opp", "pipeline", "discover opportunities", "scan opportunities", "opportunity score", "market opportunity", "revenue opportunity", "partnership opportunity"], target: "opportunity" },
+  { keywords: ["lead", "leads", "lead generation", "lead cycle", "lead gen", "outreach", "cold email", "prospecting", "cold outreach", "pipeline leads", "generate leads", "find leads", "sales leads", "b2b leads", "lead qualification"], target: "leadCycle" },
   { keywords: ["imagination", "imaginationlab", "story", "character", "worldbuilding", "creature", "superpower", "adventure", "comic", "quest", "fiction", "game idea", "creative", "storytelling", "world builder", "imagine", "dreamscape", "magic system"], target: "imaginationlab" },
   { keywords: ["loreforge", "lore", "mythology", "prophecy", "legend", "religion", "ancient history", "faction", "language engine", "curse", "prophet", "relic", "lorekeeper", "cosmology", "era", "pantheon", "deep lore"], target: "loreforge" },
   { keywords: ["narratoros", "narrator", "scene", "dialogue", "plot twist", "act structure", "conflict engine", "monologue", "ensemble", "narrative voice", "subplot", "screenplay", "cinematic"], target: "narratoros" },
@@ -533,6 +535,7 @@ const APP_META: Record<AppId, { icon: string; label: string }> = {
   pricingstudio:  { icon: "💰", label: "Pricing Studio" },
   traction:       { icon: "📈", label: "Traction" },
   opportunity:    { icon: "🎯", label: "Opportunities" },
+  leadCycle:      { icon: "🔄", label: "Lead Cycle"     },
   imaginationlab:     { icon: "✨", label: "ImaginationLab" },
   loreforge:          { icon: "📜", label: "LoreForge" },
   narratoros:         { icon: "🎬", label: "NarratorOS" },

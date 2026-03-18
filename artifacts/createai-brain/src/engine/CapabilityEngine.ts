@@ -834,6 +834,17 @@ export const ALL_ENGINES: EngineDefinition[] = [
     status: "active",
     runCount: 0,
   },
+  {
+    id: "LeadCycleEngine",
+    name: "Lead Cycle Engine",
+    category: "intelligence",
+    icon: "🔄",
+    color: "#6366f1",
+    description: "Automatic 5-stage lead generation pipeline — signal analysis, lead identification, opportunity creation, outreach drafting, and proposal generation.",
+    capabilities: ["Signal analysis", "Lead qualification", "Fit scoring", "Outreach generation", "Proposal drafting", "Opportunity creation"],
+    status: "active",
+    runCount: 0,
+  },
 
   // ── Maximum-Capacity Engines (v3 Expansion) ─────────────────────────────────
   {

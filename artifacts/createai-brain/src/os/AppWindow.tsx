@@ -34,6 +34,7 @@ const DataStudioApp     = React.lazy(() => import("@/Apps/DataStudioApp").then(m
 const PricingStudioApp  = React.lazy(() => import("@/Apps/PricingStudioApp").then(m => ({ default: m.PricingStudioApp })));
 const TractionDashboardApp = React.lazy(() => import("@/Apps/TractionDashboardApp").then(m => ({ default: m.TractionDashboardApp })));
 const OpportunityApp    = React.lazy(() => import("@/Apps/OpportunityApp").then(m => ({ default: m.OpportunityApp })));
+const LeadCycleApp      = React.lazy(() => import("@/Apps/LeadCycleApp"));
 const ImaginationLabApp = React.lazy(() => import("@/Apps/ImaginationLabApp").then(m => ({ default: m.ImaginationLabApp })));
 const LoreForgeApp      = React.lazy(() => import("@/Apps/LoreForgeApp").then(m => ({ default: m.LoreForgeApp })));
 const NarratorOSApp     = React.lazy(() => import("@/Apps/NarratorOSApp").then(m => ({ default: m.NarratorOSApp })));
@@ -394,6 +395,7 @@ const APP_COMPONENTS: Record<AppId, React.LazyExoticComponent<React.ComponentTyp
   pricingstudio:  PricingStudioApp,
   traction:       TractionDashboardApp,
   opportunity:    OpportunityApp,
+  leadCycle:      LeadCycleApp,
   imaginationlab: ImaginationLabApp,
   loreforge:          LoreForgeApp,
   narratoros:         NarratorOSApp,
