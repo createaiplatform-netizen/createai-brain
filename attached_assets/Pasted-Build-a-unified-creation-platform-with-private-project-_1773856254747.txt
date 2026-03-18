@@ -1,0 +1,86 @@
+Build a unified creation platform with private project containers, dedicated workspaces, project‑specific AI, a conversational interface, responsive design, editing tools, optional publishing, and a platform‑controlled publishing pipeline. Implement all features below with modern UX and clean architecture.
+
+1. USER ACCOUNTS
+- Secure login, logout, password reset, and session management.
+- Each user’s data and projects must remain isolated.
+
+2. PROJECT CREATION (PRIVATE)
+- Create a private project container on submission.
+- Automatically open the workspace after creation.
+- No project becomes public unless the user explicitly publishes.
+
+3. PROJECT STORAGE
+- Store project content, chat history, workspace settings, and assets in a structured database.
+- Each project has its own isolated file system.
+
+4. WORKSPACE
+- Dedicated workspace per project.
+- Organized navigation (sidebar, list, or grid).
+- Workspace must persist and reload correctly.
+
+5. PROJECT‑SPECIFIC AI
+- AI operates only on the current project’s content.
+- Supports editing, expanding, rewriting, and improving project materials.
+- Must not access or reference other projects.
+
+6. CONVERSATIONAL INTERFACE
+- Large expanding chat input.
+- Bubble‑style messages, auto‑scroll, typing indicator.
+- Optional voice input and voice output.
+- Supports long‑form brainstorming and natural conversation.
+
+7. RESPONSIVE DESIGN
+- Full adaptation to phones, tablets, laptops, desktops, and large screens.
+- Touch‑friendly on mobile, precise on desktop.
+- Layouts, chat, and workspace must reflow cleanly.
+
+8. EDITING TOOLS
+- Users can modify text, styles, colors, layouts, and structure.
+- All edits apply only within the project.
+
+9. DASHBOARD
+- Shows all user projects as tiles.
+- Selecting a tile reopens the workspace with AI and content loaded.
+- Include a clean empty‑state for new users.
+
+10. ROUTING & NAVIGATION
+- Smooth transitions between dashboard, workspace, publishing, and settings.
+- No broken states.
+
+11. STATE MANAGEMENT
+- Maintain state for open projects, chat history, editing tools, and workspace layout.
+- Persist state across sessions and devices.
+
+12. REAL‑TIME BEHAVIOR
+- Streaming AI responses, smooth rendering, natural pacing.
+
+13. PUBLISHING FLOW (OPTIONAL)
+- Publishing requires explicit user action.
+- No automatic publishing or exporting.
+- Implement a platform‑controlled review and confirmation pipeline.
+
+14. BILLING HOOKS (NO LEGAL/FINANCIAL ENFORCEMENT)
+- Add integration points for future billing.
+- Publishing must route through these hooks.
+- Do not include legal terms, financial enforcement, or payment obligations.
+
+15. SAFETY & ISOLATION
+- Project data stays isolated.
+- AI cannot access other users or projects.
+- All actions must be safe, reversible, and non‑breaking.
+
+16. ERROR HANDLING
+- Graceful fallbacks, clear messages, and recovery options.
+
+17. PERFORMANCE
+- Fast loading, efficient rendering, optimized queries.
+
+18. UX STANDARDS
+- Clean, modern, intuitive design across all screens and flows.
+
+19. IMPLEMENTATION
+- Scan the codebase for project creation, workspace logic, routing, AI integration, and publishing.
+- Add missing components and update frontend/backend as needed.
+- Keep TypeScript clean and error‑free.
+
+Final result: a cohesive, private‑by‑default creation platform with dedicated workspaces, conversational AI, editing tools, responsive design, optional publishing, and a controlled publishing pipeline with billing integration points.

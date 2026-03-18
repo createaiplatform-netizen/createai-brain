@@ -19,6 +19,10 @@ export const projects = pgTable("projects", {
   archivedAt: timestamp("archived_at", { withTimezone: true }),
   createdAt: timestamp("created_at", { withTimezone: true }).defaultNow().notNull(),
   updatedAt: timestamp("updated_at", { withTimezone: true }).defaultNow().notNull(),
+  // Publishing pipeline (req 13 + 14)
+  publishStatus: text("publish_status"),                         // null = private, "published" = live
+  publishedAt:   timestamp("published_at", { withTimezone: true }),
+  publishUrl:    text("publish_url"),
 });
 
 export const insertProjectSchema = createInsertSchema(projects).omit({

@@ -1,0 +1,123 @@
+Build a unified creation platform with private project containers, dedicated workspaces, project‑specific AI, adaptive intelligence, predictive assistance, simulation‑mode reasoning, a conversational interface, responsive design, editing tools, optional publishing, and a platform‑controlled publishing pipeline. Implement all features below with modern UX, clean architecture, safe behavior, and automatic build → fix → validate → activate → deploy flow.
+
+1. USER ACCOUNTS
+- Secure login, logout, password reset, and session management.
+- Each user’s data and projects remain isolated.
+
+2. PROJECT CREATION (PRIVATE)
+- Create a private project container on submission.
+- Automatically open the workspace after creation.
+- No project becomes public unless the user explicitly publishes.
+
+3. PROJECT STORAGE
+- Store project content, chat history, workspace settings, and assets in a structured database.
+- Each project has its own isolated file system.
+
+4. WORKSPACE
+- Dedicated workspace per project.
+- Organized navigation (sidebar, list, or grid).
+- Workspace persists and reloads correctly.
+
+5. PROJECT‑SPECIFIC AI
+- AI operates only on the current project’s content.
+- Supports editing, expanding, rewriting, and improving project materials.
+- Must not access or reference other projects.
+
+6. ADAPTIVE INTELLIGENCE
+- Adjust UI elements based on user behavior.
+- Surface relevant tools contextually.
+- Modify workspace layout dynamically when appropriate.
+
+7. PREDICTIVE ASSISTANCE
+- Suggest next steps based on project type and user actions.
+- Offer context‑aware improvements and guidance.
+- Provide optional workflow suggestions.
+
+8. SIMULATION‑MODE REASONING
+- Provide training‑mode walkthroughs, mock workflows, and educational examples.
+- Demonstrate how systems or professionals typically approach scenarios.
+- Do not diagnose, prescribe, or impersonate regulated professionals.
+
+9. CONVERSATIONAL INTERFACE
+- Large expanding chat input.
+- Bubble‑style messages, auto‑scroll, typing indicator.
+- Optional voice input and voice output.
+- Supports long‑form brainstorming and natural conversation.
+
+10. RESPONSIVE DESIGN
+- Full adaptation to phones, tablets, laptops, desktops, and large screens.
+- Touch‑friendly on mobile, precise on desktop.
+- Layouts, chat, and workspace reflow cleanly.
+
+11. EDITING TOOLS
+- Users can modify text, styles, colors, layouts, and structure.
+- All edits apply only within the project.
+
+12. DASHBOARD
+- Shows all user projects as tiles.
+- Selecting a tile reopens the workspace with AI and content loaded.
+- Include a clean empty‑state for new users.
+
+13. ROUTING & NAVIGATION
+- Smooth transitions between dashboard, workspace, publishing, and settings.
+- No broken states.
+
+14. STATE MANAGEMENT
+- Maintain state for open projects, chat history, editing tools, and workspace layout.
+- Persist state across sessions and devices.
+
+15. REAL‑TIME BEHAVIOR
+- Streaming AI responses, smooth rendering, natural pacing.
+
+16. PUBLISHING FLOW (OPTIONAL)
+- Publishing requires explicit user action.
+- No automatic publishing or exporting.
+- Implement a platform‑controlled review and confirmation pipeline.
+
+17. BILLING HOOKS (NO LEGAL/FINANCIAL ENFORCEMENT)
+- Add integration points for future billing.
+- Publishing must route through these hooks.
+- Do not include legal terms, financial enforcement, or payment obligations.
+
+18. SAFETY & ISOLATION
+- Project data stays isolated.
+- AI cannot access other users or projects.
+- All actions must be safe, reversible, and non‑breaking.
+
+19. ERROR HANDLING
+- Graceful fallbacks, clear messages, and recovery options.
+
+20. PERFORMANCE
+- Fast loading, efficient rendering, optimized queries.
+
+21. ADVANCED PROJECT INTELLIGENCE
+- Detect project type and adjust AI behavior.
+- Provide context‑aware starter actions.
+- Maintain project‑level memory for continuity.
+
+22. SELF‑ORGANIZING STRUCTURE
+- Group related content.
+- Maintain logical hierarchy.
+- Clean up unused items when appropriate.
+
+23. ACCESSIBILITY INTELLIGENCE
+- Adaptive text sizing.
+- Contrast adjustments.
+- Motion reduction options.
+
+24. VOICE‑AWARE BEHAVIOR
+- Integrate optional voice input and output.
+- Adjust UI for hands‑free interaction when enabled.
+
+25. AUTOMATIC BUILD → FIX → VALIDATE → ACTIVATE → DEPLOY
+- After implementing changes, automatically fix backend and frontend issues.
+- Validate routing, state, workspace loading, and AI integration.
+- Ensure the platform runs cleanly without manual intervention.
+- Automatically deploy the updated system once validation passes.
+
+26. IMPLEMENTATION
+- Scan the codebase for project creation, workspace logic, routing, AI integration, and publishing.
+- Add missing components and update frontend/backend as needed.
+- Keep TypeScript clean and error‑free.
+
+Final result: a cohesive, advanced, private‑by‑default creation platform with adaptive intelligence, simulation‑mode reasoning, dedicated workspaces, conversational AI, editing tools, responsive design, optional publishing, and a controlled publishing pipeline with billing integration points, deployed automatically after successful validation.

@@ -930,3 +930,58 @@ export class PlatformController {
     return this._history;
   }
 }
+
+// ─── Publishing pipeline + billing hooks (req 13 + 14) ────────────────────────
+// All publish actions are routed through PlatformController per architecture rules.
+// Billing integration points are wired here — no financial enforcement yet.
+
+export interface BillingEligibility {
+  eligible: boolean;
+  plan: string;
+  publishLimit: number;  // -1 = unlimited
+  reason?: string;
+}
+
+/**
+ * checkBillingEligibility — integration point for future payment providers.
+ * Wire to Stripe / RevenueCat / custom billing backend here.
+ * Currently returns eligible for all users (no enforcement).
+ */
+export async function checkBillingEligibility(_projectId: string): Promise<BillingEligibility> {
+  await new Promise(r => setTimeout(r, 700));
+  return { eligible: true, plan: "Creator", publishLimit: -1 };
+}
+
+/**
+ * publishProject — sends publish request through the API server pipeline.
+ * The API server contains the billing gate before actual publish commit.
+ */
+export async function publishProject(projectId: string): Promise<{ ok: boolean; publishUrl?: string; error?: string }> {
+  try {
+    const res = await fetch(`/api/projects/${projectId}/publish`, {
+      method: "POST",
+      credentials: "include",
+      headers: { "Content-Type": "application/json" },
+    });
+    if (!res.ok) {
+      const body = await res.json().catch(() => ({})) as { error?: string };
+      return { ok: false, error: body.error ?? "Publish failed" };
+    }
+    return await res.json() as { ok: boolean; publishUrl?: string };
+  } catch (e) {
+    return { ok: false, error: String(e) };
+  }
+}
+
+/**
+ * unpublishProject — reverts a project to private-only state.
+ */
+export async function unpublishProject(projectId: string): Promise<boolean> {
+  try {
+    const res = await fetch(`/api/projects/${projectId}/publish`, {
+      method: "DELETE",
+      credentials: "include",
+    });
+    return res.ok;
+  } catch { return false; }
+}

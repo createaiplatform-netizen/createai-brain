@@ -32,3 +32,7 @@ export { PlatformProvider, usePlatformContext }        from "./ControllerContext
 // React hooks
 export { usePlatform, useEngineRun, useSeriesRun, useDocumentOutput, useImageGenerate } from "./hooks";
 export type { EngineRunState, SeriesRunState, SeriesSection, ImageGenerateState }        from "./hooks";
+
+// Publishing pipeline + billing hooks (req 13 + 14)
+export { checkBillingEligibility, publishProject, unpublishProject } from "./PlatformController";
+export type { BillingEligibility } from "./PlatformController";

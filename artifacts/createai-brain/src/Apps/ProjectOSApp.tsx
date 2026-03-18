@@ -1,8 +1,9 @@
 import React, { useState, useEffect, useRef, useCallback } from "react";
 import { MediaPlayer } from "../components/MediaPlayer";
-import { streamProjectChat, contextStore } from "@/controller";
+import { streamProjectChat, contextStore, checkBillingEligibility, publishProject, unpublishProject } from "@/controller";
 import { useUniversalResume } from "@/hooks/useUniversalResume";
 import { ensureIdentityForProject } from "@/engine/IdentityEngine";
+import { useMediaQuery } from "@/hooks/use-media-query";
 
 // ─── Types ────────────────────────────────────────────────────────────────────
 
@@ -644,6 +645,14 @@ async function apiDeleteTask(projectId: string, taskId: string): Promise<boolean
   } catch { return false; }
 }
 
+async function apiPublishProject(id: string): Promise<{ ok: boolean; publishUrl?: string }> {
+  return publishProject(id);
+}
+
+async function apiUnpublishProject(id: string): Promise<boolean> {
+  return unpublishProject(id);
+}
+
 // ─── TaskBoard Component ──────────────────────────────────────────────────────
 
 const TASK_COLS: { id: ProjectTask["status"]; label: string; icon: string; color: string }[] = [
@@ -1074,6 +1083,17 @@ export function ProjectOSApp() {
   const [addMemberId, setAddMemberId] = useState("");
   const [addMemberRole, setAddMemberRole] = useState<"viewer" | "editor" | "owner">("viewer");
   const [addingMember, setAddingMember] = useState(false);
+  // ── Publishing pipeline state (req 13 + 14) ──
+  const [showPublishModal, setShowPublishModal] = useState(false);
+  const [publishStep, setPublishStep] = useState<"review" | "billing" | "confirm" | "done">("review");
+  const [publishLoading, setPublishLoading] = useState(false);
+  const [publishBillingOk, setPublishBillingOk] = useState(false);
+  const [publishDoneUrl, setPublishDoneUrl] = useState<string | null>(null);
+  const [publishedProjectIds, setPublishedProjectIds] = useState<Set<string>>(new Set());
+  // ── Voice input state (req 6) ──
+  const [voiceListening, setVoiceListening] = useState(false);
+  // ── Responsive breakpoint (req 7) ──
+  const isMobile = useMediaQuery("(max-width: 768px)");
   const aiAbortRef     = useRef<AbortController | null>(null);
   const aiScrollRef    = useRef<HTMLDivElement>(null);
   const fileAiAbortRef = useRef<AbortController | null>(null);
@@ -1207,6 +1227,61 @@ export function ProjectOSApp() {
     });
     setMembers(prev => prev.filter(m => m.userId !== memberId));
   }, [activeProjectId]);
+
+  // ── Voice input (req 6 — optional) ─────────────────────────────────────────
+  const startVoiceInput = useCallback(() => {
+    const SR = (window as any).SpeechRecognition || (window as any).webkitSpeechRecognition;
+    if (!SR) return;
+    const recognition = new SR();
+    recognition.continuous = false;
+    recognition.interimResults = false;
+    recognition.onresult = (e: any) => {
+      const transcript = String(e.results[0][0].transcript ?? "");
+      setAiInput(prev => prev ? prev + " " + transcript : transcript);
+    };
+    recognition.onend = () => setVoiceListening(false);
+    recognition.onerror = () => setVoiceListening(false);
+    setVoiceListening(true);
+    recognition.start();
+  }, []);
+
+  // ── Publish pipeline (req 13 + 14) ─────────────────────────────────────────
+  const openPublishModal = useCallback(() => {
+    setPublishStep("review");
+    setPublishBillingOk(false);
+    setPublishDoneUrl(null);
+    setShowPublishModal(true);
+  }, []);
+
+  const runBillingCheck = useCallback(async () => {
+    if (!activeProject) return;
+    setPublishLoading(true);
+    setPublishStep("billing");
+    const result = await checkBillingEligibility(activeProject.id);
+    setPublishBillingOk(result.eligible);
+    setPublishStep(result.eligible ? "confirm" : "billing");
+    setPublishLoading(false);
+  }, [activeProject]);
+
+  const confirmPublish = useCallback(async () => {
+    if (!activeProject) return;
+    setPublishLoading(true);
+    const result = await apiPublishProject(activeProject.id);
+    if (result.ok) {
+      setPublishedProjectIds(prev => new Set([...prev, activeProject.id]));
+      setPublishDoneUrl(result.publishUrl ?? null);
+      setPublishStep("done");
+    }
+    setPublishLoading(false);
+  }, [activeProject]);
+
+  const handleUnpublish = useCallback(async () => {
+    if (!activeProject) return;
+    await apiUnpublishProject(activeProject.id);
+    setPublishedProjectIds(prev => { const n = new Set(prev); n.delete(activeProject.id); return n; });
+    setPublishDoneUrl(null);
+    setShowPublishModal(false);
+  }, [activeProject]);
 
   const scaffoldProject = useCallback(async (
     projectId: string,
@@ -2114,6 +2189,25 @@ export function ProjectOSApp() {
               >
                 🧠 Agent
               </button>
+              {publishedProjectIds.has(activeProject.id) ? (
+                <button
+                  onClick={openPublishModal}
+                  className="ml-1 px-2.5 py-1.5 rounded-lg text-[10px] font-semibold transition-all"
+                  style={{ background: "rgba(34,197,94,0.18)", border: "1px solid rgba(34,197,94,0.40)", color: "#4ade80" }}
+                >
+                  🌐 Published
+                </button>
+              ) : (
+                <button
+                  onClick={openPublishModal}
+                  className="ml-1 px-2.5 py-1.5 rounded-lg text-[10px] font-semibold transition-all"
+                  style={{ background: "rgba(99,102,241,0.18)", border: "1px solid rgba(99,102,241,0.35)", color: "#818cf8" }}
+                  onMouseEnter={e => { (e.currentTarget as HTMLElement).style.background = "rgba(99,102,241,0.28)"; }}
+                  onMouseLeave={e => { (e.currentTarget as HTMLElement).style.background = "rgba(99,102,241,0.18)"; }}
+                >
+                  ↑ Publish
+                </button>
+              )}
             </div>
           </div>
 
@@ -2741,6 +2835,29 @@ export function ProjectOSApp() {
                     onFocus={e => ((e.currentTarget as HTMLElement).style.borderColor = "rgba(99,102,241,0.35)")}
                     onBlur={e => ((e.currentTarget as HTMLElement).style.borderColor = "transparent")}
                   />
+                  {typeof window !== "undefined" && ((window as any).SpeechRecognition || (window as any).webkitSpeechRecognition) && (
+                    <button
+                      onClick={startVoiceInput}
+                      disabled={voiceListening}
+                      title="Voice input"
+                      className="w-8 h-8 rounded-xl flex items-center justify-center flex-shrink-0 transition-all"
+                      style={{
+                        background: voiceListening ? "rgba(239,68,68,0.15)" : "#f1f5f9",
+                        color: voiceListening ? "#ef4444" : "#94a3b8",
+                        border: `1px solid ${voiceListening ? "rgba(239,68,68,0.30)" : "transparent"}`,
+                      }}
+                    >
+                      {voiceListening ? (
+                        <svg width="11" height="11" viewBox="0 0 24 24" fill="currentColor">
+                          <rect x="6" y="4" width="4" height="16" rx="1"/><rect x="14" y="4" width="4" height="16" rx="1"/>
+                        </svg>
+                      ) : (
+                        <svg width="11" height="11" viewBox="0 0 24 24" fill="currentColor">
+                          <path d="M12 1a3 3 0 0 0-3 3v8a3 3 0 0 0 6 0V4a3 3 0 0 0-3-3z"/><path d="M19 10v2a7 7 0 0 1-14 0v-2H3v2a9 9 0 0 0 8 8.94V23h2v-2.06A9 9 0 0 0 21 12v-2h-2z"/>
+                        </svg>
+                      )}
+                    </button>
+                  )}
                   <button
                     onClick={sendAI}
                     disabled={aiLoading || !aiInput.trim()}
@@ -2762,6 +2879,171 @@ export function ProjectOSApp() {
       )}
 
       {/* ── Modals ────────────────────────────────────────────────────────── */}
+
+      {/* Publish Pipeline Modal (req 13 + 14) */}
+      {showPublishModal && activeProject && (
+        <div
+          className="fixed inset-0 z-50 flex items-center justify-center"
+          style={{ background: "rgba(0,0,0,0.72)" }}
+          onClick={() => !publishLoading && setShowPublishModal(false)}
+        >
+          <div
+            className="w-[440px] rounded-2xl p-7 shadow-2xl flex flex-col"
+            style={{ background: "rgba(12,16,24,0.99)", border: "1px solid rgba(99,102,241,0.30)" }}
+            onClick={e => e.stopPropagation()}
+          >
+            {publishStep === "done" ? (
+              <>
+                <div className="flex items-center gap-3 mb-4">
+                  <div className="w-10 h-10 rounded-xl flex items-center justify-center text-xl"
+                    style={{ background: "rgba(34,197,94,0.18)", border: "1px solid rgba(34,197,94,0.35)" }}>🌐</div>
+                  <div>
+                    <div className="text-[15px] font-bold text-white">Project Published</div>
+                    <div className="text-[11px] mt-0.5" style={{ color: "#475569" }}>{activeProject.name} is now live</div>
+                  </div>
+                </div>
+                {publishDoneUrl && (
+                  <div className="rounded-xl px-3.5 py-2.5 mb-4 flex items-center gap-2"
+                    style={{ background: "rgba(34,197,94,0.08)", border: "1px solid rgba(34,197,94,0.20)" }}>
+                    <span className="text-[11px] font-mono truncate flex-1" style={{ color: "#4ade80" }}>{publishDoneUrl}</span>
+                    <button
+                      onClick={() => { navigator.clipboard?.writeText(publishDoneUrl); }}
+                      className="text-[10px] font-semibold px-2 py-1 rounded-lg flex-shrink-0"
+                      style={{ background: "rgba(34,197,94,0.18)", color: "#4ade80" }}
+                    >Copy</button>
+                  </div>
+                )}
+                <div className="flex gap-2">
+                  <button
+                    onClick={handleUnpublish}
+                    className="flex-1 py-2.5 rounded-xl text-[12px] font-semibold"
+                    style={{ background: "rgba(239,68,68,0.12)", border: "1px solid rgba(239,68,68,0.25)", color: "#f87171" }}
+                  >Unpublish</button>
+                  <button
+                    onClick={() => setShowPublishModal(false)}
+                    className="flex-1 py-2.5 rounded-xl text-[12px] font-semibold text-white"
+                    style={{ background: "linear-gradient(135deg,#6366f1,#8b5cf6)" }}
+                  >Done</button>
+                </div>
+              </>
+            ) : publishStep === "billing" ? (
+              <>
+                <div className="flex items-center gap-3 mb-5">
+                  <div className="w-10 h-10 rounded-xl flex items-center justify-center text-xl"
+                    style={{ background: "rgba(245,158,11,0.18)", border: "1px solid rgba(245,158,11,0.35)" }}>💳</div>
+                  <div>
+                    <div className="text-[15px] font-bold text-white">Checking account</div>
+                    <div className="text-[11px] mt-0.5" style={{ color: "#475569" }}>Verifying publishing eligibility</div>
+                  </div>
+                </div>
+                <div className="rounded-xl p-4 mb-5" style={{ background: "rgba(255,255,255,0.03)", border: "1px solid rgba(255,255,255,0.07)" }}>
+                  {publishLoading ? (
+                    <div className="flex items-center gap-2.5">
+                      <div className="w-4 h-4 border-2 border-indigo-400 border-t-transparent rounded-full animate-spin flex-shrink-0" />
+                      <span className="text-[12px]" style={{ color: "#94a3b8" }}>Running billing eligibility check…</span>
+                    </div>
+                  ) : publishBillingOk ? (
+                    <div className="flex items-center gap-2.5">
+                      <span className="text-green-400 text-base">✓</span>
+                      <span className="text-[12px]" style={{ color: "#94a3b8" }}>Eligible — Creator plan · Unlimited publishes</span>
+                    </div>
+                  ) : (
+                    <div className="flex items-center gap-2.5">
+                      <span className="text-red-400 text-base">✕</span>
+                      <span className="text-[12px]" style={{ color: "#f87171" }}>Not eligible — upgrade required</span>
+                    </div>
+                  )}
+                </div>
+                {!publishLoading && publishBillingOk && (
+                  <button
+                    onClick={confirmPublish}
+                    className="w-full py-2.5 rounded-xl text-[13px] font-semibold text-white"
+                    style={{ background: "linear-gradient(135deg,#6366f1,#8b5cf6)" }}
+                  >
+                    Confirm & Publish →
+                  </button>
+                )}
+              </>
+            ) : publishStep === "confirm" ? (
+              <>
+                <div className="flex items-center gap-3 mb-5">
+                  <div className="w-10 h-10 rounded-xl flex items-center justify-center text-xl"
+                    style={{ background: `${activeProject.color}18`, border: `1px solid ${activeProject.color}35` }}>
+                    {activeProject.icon}
+                  </div>
+                  <div>
+                    <div className="text-[15px] font-bold text-white">Ready to publish</div>
+                    <div className="text-[11px] mt-0.5" style={{ color: "#475569" }}>{activeProject.name}</div>
+                  </div>
+                </div>
+                <div className="rounded-xl p-4 mb-5 space-y-2" style={{ background: "rgba(255,255,255,0.03)", border: "1px solid rgba(255,255,255,0.07)" }}>
+                  <div className="flex items-center gap-2 text-[11px]" style={{ color: "#94a3b8" }}>
+                    <span className="text-green-400">✓</span> Billing verified — Creator plan
+                  </div>
+                  <div className="flex items-center gap-2 text-[11px]" style={{ color: "#94a3b8" }}>
+                    <span className="text-green-400">✓</span> {activeProject.files.length} document{activeProject.files.length === 1 ? "" : "s"} will be published
+                  </div>
+                  <div className="flex items-center gap-2 text-[11px]" style={{ color: "#94a3b8" }}>
+                    <span className="text-indigo-400">○</span> Explicit publish required — no automatic sharing
+                  </div>
+                </div>
+                <div className="flex gap-2">
+                  <button
+                    onClick={() => setShowPublishModal(false)}
+                    className="flex-1 py-2.5 rounded-xl text-[12px] font-semibold"
+                    style={{ background: "rgba(255,255,255,0.05)", border: "1px solid rgba(255,255,255,0.08)", color: "#94a3b8" }}
+                  >Cancel</button>
+                  <button
+                    onClick={confirmPublish}
+                    disabled={publishLoading}
+                    className="flex-1 py-2.5 rounded-xl text-[13px] font-semibold text-white flex items-center justify-center gap-2"
+                    style={{ background: "linear-gradient(135deg,#6366f1,#8b5cf6)" }}
+                  >
+                    {publishLoading && <div className="w-3.5 h-3.5 border-2 border-white border-t-transparent rounded-full animate-spin" />}
+                    {publishLoading ? "Publishing…" : "Publish Now →"}
+                  </button>
+                </div>
+              </>
+            ) : (
+              /* review step */
+              <>
+                <div className="flex items-center justify-between mb-5">
+                  <div className="flex items-center gap-3">
+                    <div className="w-10 h-10 rounded-xl flex items-center justify-center text-xl"
+                      style={{ background: `${activeProject.color}18`, border: `1px solid ${activeProject.color}35` }}>
+                      {activeProject.icon}
+                    </div>
+                    <div>
+                      <div className="text-[15px] font-bold text-white">Publish Project</div>
+                      <div className="text-[11px] mt-0.5" style={{ color: "#475569" }}>{activeProject.name} · {activeProject.industry}</div>
+                    </div>
+                  </div>
+                  <button onClick={() => setShowPublishModal(false)} style={{ color: "#334155", fontSize: 16 }}>✕</button>
+                </div>
+                <div className="rounded-xl p-4 mb-5 space-y-3" style={{ background: "rgba(255,255,255,0.03)", border: "1px solid rgba(255,255,255,0.07)" }}>
+                  <div className="text-[11px] font-bold uppercase tracking-widest mb-2" style={{ color: "#475569" }}>What gets published</div>
+                  <div className="flex items-center gap-2 text-[12px]" style={{ color: "#94a3b8" }}>
+                    <span>📄</span> {activeProject.files.length} document{activeProject.files.length === 1 ? "" : "s"}
+                  </div>
+                  <div className="flex items-center gap-2 text-[12px]" style={{ color: "#94a3b8" }}>
+                    <span>📂</span> {activeProject.folders.filter(f => !f.universal).length} project folder{activeProject.folders.filter(f => !f.universal).length === 1 ? "" : "s"}
+                  </div>
+                  <div className="mt-3 pt-3 text-[11px] leading-relaxed" style={{ borderTop: "1px solid rgba(255,255,255,0.07)", color: "#475569" }}>
+                    Publishing is <strong className="text-white">always explicit</strong> — no project becomes public unless you confirm here. You can unpublish at any time.
+                  </div>
+                </div>
+                <button
+                  onClick={runBillingCheck}
+                  className="w-full py-3 rounded-xl text-[13px] font-semibold text-white"
+                  style={{ background: "linear-gradient(135deg,#6366f1,#8b5cf6)" }}
+                >
+                  Continue to billing check →
+                </button>
+              </>
+            )}
+          </div>
+        </div>
+      )}
 
       {/* New Project — 2-step modal */}
       {showNewProject && (

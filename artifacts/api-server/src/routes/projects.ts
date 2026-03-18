@@ -678,4 +678,80 @@ router.delete("/:id/files/:fileId", async (req: Request, res: Response) => {
   }
 });
 
+// ─── Publishing pipeline (req 13 + 14) ───────────────────────────────────────
+
+router.post("/:id/publish", async (req: Request, res: Response) => {
+  if (!requireAuth(req, res)) return;
+  try {
+    const projectId = parseInt(req.params.id as string, 10);
+    const userId = (req as any).user?.id ?? "sara";
+
+    const [project] = await db
+      .select()
+      .from(projects)
+      .where(and(eq(projects.id, projectId), eq(projects.userId, userId)));
+
+    if (!project) { res.status(404).json({ error: "Project not found" }); return; }
+
+    // ── Billing hook integration point ──────────────────────────────────────
+    // Wire to payment provider (Stripe, RevenueCat, etc.) here when billing goes live.
+    // Currently allows all publish actions — no financial enforcement yet.
+    const billingEligible = true;
+    if (!billingEligible) {
+      res.status(402).json({ error: "Upgrade required to publish projects" });
+      return;
+    }
+
+    const publishUrl = `https://createai.app/p/${projectId}`;
+    await db
+      .update(projects)
+      .set({
+        publishStatus: "published",
+        publishedAt: new Date(),
+        publishUrl,
+        updatedAt: new Date(),
+      })
+      .where(eq(projects.id, projectId));
+
+    logTractionEvent({
+      eventType: "project_published",
+      userId,
+      metadata: { projectId, projectName: project.name },
+    });
+
+    res.json({ ok: true, publishUrl, publishStatus: "published" });
+  } catch (err) {
+    res.status(500).json({ error: "Failed to publish project" });
+  }
+});
+
+router.delete("/:id/publish", async (req: Request, res: Response) => {
+  if (!requireAuth(req, res)) return;
+  try {
+    const projectId = parseInt(req.params.id as string, 10);
+    const userId = (req as any).user?.id ?? "sara";
+
+    const [project] = await db
+      .select()
+      .from(projects)
+      .where(and(eq(projects.id, projectId), eq(projects.userId, userId)));
+
+    if (!project) { res.status(404).json({ error: "Project not found" }); return; }
+
+    await db
+      .update(projects)
+      .set({
+        publishStatus: null,
+        publishedAt: null,
+        publishUrl: null,
+        updatedAt: new Date(),
+      })
+      .where(eq(projects.id, projectId));
+
+    res.json({ ok: true });
+  } catch (err) {
+    res.status(500).json({ error: "Failed to unpublish project" });
+  }
+});
+
 export default router;
