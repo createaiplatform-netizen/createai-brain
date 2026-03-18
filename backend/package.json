@@ -1,0 +1,13 @@
+{
+  "name": "createai-local-backend",
+  "version": "1.0.0",
+  "description": "CreateAI Brain — local JSON-file backend, zero external services",
+  "main": "server.js",
+  "scripts": {
+    "start": "node server.js",
+    "dev": "node server.js"
+  },
+  "dependencies": {
+    "express": "^4.22.1"
+  }
+}
