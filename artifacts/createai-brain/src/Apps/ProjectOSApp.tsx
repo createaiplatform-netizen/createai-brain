@@ -1,5 +1,6 @@
 import React, { useState, useEffect, useRef, useCallback } from "react";
 import { MediaPlayer } from "../components/MediaPlayer";
+import { streamProjectChat } from "@/controller";
 
 // ─── Types ────────────────────────────────────────────────────────────────────
 
@@ -475,48 +476,6 @@ function TaskBoard({ projectId }: { projectId: string }) {
   );
 }
 
-// ─── SSE Project Chat ─────────────────────────────────────────────────────────
-
-async function streamProjectChat(
-  history: { role: "user" | "ai"; text: string }[],
-  projectId: string,
-  lastMessage: string,
-  onChunk: (t: string) => void,
-  signal: AbortSignal,
-) {
-  const historyForApi = history.slice(0, -1).map(m => ({
-    role: m.role === "user" ? "user" : "assistant",
-    content: m.text,
-  }));
-  const res = await fetch(`/api/project-chat/${projectId}/chat`, {
-    method: "POST",
-    credentials: "include",
-    headers: { "Content-Type": "application/json" },
-    body: JSON.stringify({ message: lastMessage, history: historyForApi }),
-    signal,
-  });
-  if (!res.ok || !res.body) return;
-  const reader = res.body.getReader();
-  const dec = new TextDecoder();
-  let acc = "";
-  while (true) {
-    const { done, value } = await reader.read();
-    if (done) break;
-    acc += dec.decode(value, { stream: true });
-    const parts = acc.split("\n\n");
-    acc = parts.pop() ?? "";
-    for (const part of parts) {
-      if (!part.startsWith("data: ")) continue;
-      const raw = part.slice(6).trim();
-      if (raw === "[DONE]") return;
-      try {
-        const p = JSON.parse(raw) as { content?: string };
-        if (p.content) onChunk(p.content);
-      } catch {}
-    }
-  }
-}
-
 // ─── Sub-components ───────────────────────────────────────────────────────────
 
 function DeleteConfirm({
@@ -876,14 +835,23 @@ export function ProjectOSApp() {
     aiAbortRef.current = ctrl;
     let reply = "";
     try {
-      await streamProjectChat([...newHistory], activeProject.id, msg, chunk => {
-        reply += chunk;
-        setAiMessages(prev => {
-          const updated = [...prev];
-          updated[updated.length - 1] = { role: "ai", text: reply };
-          return updated;
-        });
-      }, ctrl.signal);
+      await streamProjectChat({
+        projectId: activeProject.id,
+        message:   msg,
+        history:   newHistory.slice(0, -1).map(m => ({
+          role:    m.role === "user" ? "user" as const : "assistant" as const,
+          content: m.text,
+        })),
+        signal:  ctrl.signal,
+        onChunk: chunk => {
+          reply += chunk;
+          setAiMessages(prev => {
+            const updated = [...prev];
+            updated[updated.length - 1] = { role: "ai", text: reply };
+            return updated;
+          });
+        },
+      });
     } catch {}
     setAiLoading(false);
   }, [aiInput, aiLoading, activeProject, aiMessages]);

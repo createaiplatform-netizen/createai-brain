@@ -2,7 +2,7 @@ import React, { useState, useRef } from "react";
 import { OutputFormatter } from "@/components/OutputFormatter";
 import { UniversalDemoEngine } from "./UniversalDemoEngine";
 import { SaveToProjectModal } from "@/components/SaveToProjectModal";
-import { streamSSE } from "@/ael/fetch";
+import { streamEngine } from "@/controller";
 
 // ─── Simulation domains ────────────────────────────────────────────────────
 const SIM_DOMAINS = [
@@ -141,13 +141,19 @@ function SimulateTab() {
     const controller = new AbortController();
     abortRef.current = controller;
     try {
-      await streamSSE(
-        "/api/openai/simulate",
-        { domain: domain?.label ?? "General", scenario, context, depth },
-        t => setStreamText(t),
-        () => {},
-        controller.signal,
-      );
+      let acc = "";
+      await streamEngine({
+        engineId: "BrainGen",
+        topic: [
+          `[SIMULATION — ${domain?.label ?? "General"}]`,
+          `Scenario: ${scenario}`,
+          context ? `Context: ${context}` : "",
+          `Depth: ${depth === "deep" ? "Exhaustive deep-dive" : depth === "quick" ? "Fast overview" : "Full analysis"}`,
+          `\nRun a structured simulation. Cover probable outcomes, edge cases, key risks, and concrete recommendations.`,
+        ].filter(Boolean).join("\n"),
+        signal: controller.signal,
+        onChunk: delta => { acc += delta; setStreamText(acc); },
+      });
     } catch (e: any) {
       if (e.name !== "AbortError") setStreamText("[Simulation error — please try again.]");
     } finally {
@@ -332,18 +338,17 @@ function GapTab() {
     abortRef.current = controller;
     const gt = GAP_TYPES.find(g => g.id === gapType);
     try {
-      await streamSSE(
-        "/api/openai/simulate",
-        {
-          domain: "Gap Analysis",
-          scenario: `Perform a ${gt?.label ?? "Gap Analysis"} on the following:\n\n${input}`,
-          context: `Focus specifically on identifying gaps, missing elements, weaknesses, and improvement opportunities. Be specific and actionable.`,
-          depth: "full",
-        },
-        t => setStreamText(t),
-        () => {},
-        controller.signal,
-      );
+      let acc = "";
+      await streamEngine({
+        engineId: "BrainGen",
+        topic: [
+          `[GAP ANALYSIS — ${gt?.label ?? "General"}]`,
+          `Subject:\n${input}`,
+          `\nPerform a rigorous gap analysis. Identify all missing elements, weaknesses, blind spots, and improvement opportunities. Be specific and actionable.`,
+        ].join("\n"),
+        signal: controller.signal,
+        onChunk: delta => { acc += delta; setStreamText(acc); },
+      });
     } catch (e: any) {
       if (e.name !== "AbortError") setStreamText("[Analysis error — please try again.]");
     } finally {
@@ -464,13 +469,20 @@ function AdPacketTab() {
     abortRef.current = controller;
     const finalAudience = audience === "Custom (describe below)" ? customAudience : audience;
     try {
-      await streamSSE(
-        "/api/openai/ad-gen",
-        { idea, audience: finalAudience, tone: adTone, industry },
-        t => setStreamText(t),
-        () => {},
-        controller.signal,
-      );
+      let acc = "";
+      await streamEngine({
+        engineId: "BrainGen",
+        topic: [
+          `[AD GENERATOR]`,
+          `Idea: ${idea}`,
+          finalAudience ? `Target Audience: ${finalAudience}` : "",
+          `Tone: ${adTone}`,
+          industry ? `Industry: ${industry}` : "",
+          `\nGenerate a complete ad package: attention-grabbing headline, sub-headline, body copy, CTA, and 3 ad copy variants (short form, medium form, story format).`,
+        ].filter(Boolean).join("\n"),
+        signal: controller.signal,
+        onChunk: delta => { acc += delta; setStreamText(acc); },
+      });
     } catch (e: any) {
       if (e.name !== "AbortError") setStreamText("[Generation error — please try again.]");
     } finally {

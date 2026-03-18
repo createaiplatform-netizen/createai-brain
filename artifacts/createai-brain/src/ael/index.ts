@@ -3,7 +3,7 @@
  *
  * Import from "@/ael" to access everything in one line:
  *
- *   import { apiFetch, apiPost, streamSSE } from "@/ael";
+ *   import { apiFetch, apiPost } from "@/ael";
  *   import { relativeTime, fmtDate, fmtEnum }  from "@/ael";
  *   import { ACCENT, SHADOW, RADIUS_CARD }      from "@/ael";
  *   import { useAsyncData, useCancellable }     from "@/ael";

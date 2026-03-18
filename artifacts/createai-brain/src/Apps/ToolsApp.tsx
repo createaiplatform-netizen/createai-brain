@@ -1,6 +1,7 @@
 import React, { useState, useRef, useEffect } from "react";
 import { useOS } from "@/os/OSContext";
 import { OutputFormatter } from "@/components/OutputFormatter";
+import { streamEngine } from "@/controller";
 
 interface ToolDef {
   name: string; icon: string; color: string; desc: string; type: string; section: string;
@@ -138,48 +139,31 @@ export function ToolsApp() {
     abortRef.current = controller;
 
     try {
-      // Route to the correct endpoint based on tool section
-      let url = "/api/openai/generate";
-      let body: Record<string, unknown> = { type: tool.type, description: `Using the ${tool.name}: ${input}`, tone: preferences.tone };
-
+      let topic: string;
       if (tool.section === "Simulate") {
-        url = "/api/openai/simulate";
-        body = { domain: tool.name, scenario: input, depth: "full" };
+        topic = `[SIMULATION — ${tool.name}]\n\nScenario:\n${input}\n\nRun a detailed, structured simulation. Show the most likely outcomes, key risks, and actionable recommendations.`;
       } else if (tool.section === "Advertise") {
-        url = "/api/openai/ad-gen";
-        body = { idea: input, tone: preferences.tone };
+        topic = `[AD GENERATOR — ${tool.name}]\n\nIdea:\n${input}\n\nTone: ${preferences.tone}\n\nGenerate compelling ad copy: headline, sub-headline, body copy, CTA, and 3 ad variants.`;
+      } else {
+        topic = `[${tool.name}]\n\nType: ${tool.type}\nTone: ${preferences.tone}\n\n${input}\n\nGenerate high-quality, detailed output for the above using the ${tool.name} tool.`;
       }
 
-      const res = await fetch(url, {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify(body),
-        signal: controller.signal,
-      });
-
-      if (!res.ok || !res.body) throw new Error("Generation failed");
-
-      const reader = res.body.getReader();
-      const decoder = new TextDecoder();
       let accumulated = "";
-
-      while (true) {
-        const { done, value } = await reader.read();
-        if (done) break;
-        const chunk = decoder.decode(value, { stream: true });
-        for (const line of chunk.split("\n")) {
-          if (!line.startsWith("data: ")) continue;
-          const dataStr = line.slice(6);
-          if (!dataStr || dataStr === "[DONE]") continue;
-          try {
-            const data = JSON.parse(dataStr);
-            if (data.content) { accumulated += data.content; setStreamText(accumulated); }
-            if (data.done) {
-              setHistory(prev => [{ id: Date.now().toString(), toolName: active, prompt: input, content: accumulated, at: new Date() }, ...prev]);
-            }
-          } catch {}
-        }
-      }
+      await streamEngine({
+        engineId: "BrainGen",
+        topic,
+        signal:   controller.signal,
+        onChunk:  delta => { accumulated += delta; setStreamText(accumulated); },
+        onDone:   () => {
+          setHistory(prev => [{
+            id: Date.now().toString(),
+            toolName: active,
+            prompt: input,
+            content: accumulated,
+            at: new Date(),
+          }, ...prev]);
+        },
+      });
     } catch (err: any) {
       if (err.name !== "AbortError") setStreamText("[Generation error — please try again.]");
     } finally {

@@ -17,6 +17,7 @@ import {
   type EngineCategory,
 } from "@/engine/CapabilityEngine";
 import { parseBodyToSchema, documentToPlainText, type DocumentSchema } from "@/engines";
+import { contextStore } from "@/store/platformContextStore";
 
 // ─── Types ────────────────────────────────────────────────────────────────────
 
@@ -200,28 +201,48 @@ export const APP_ENGINE_REGISTRY: Record<string, AppEngineConfig> = {
 // Every app, module, and engine that needs to run AI should call this.
 
 export async function streamEngine(opts: {
-  engineId:  string;
-  topic:     string;
-  context?:  string;
-  mode?:     string;
-  signal?:   AbortSignal;
-  onChunk:   (text: string) => void;
-  onDone?:   (fullText: string) => void;
-  onError?:  (err: string) => void;
+  engineId:       string;
+  topic:          string;
+  context?:       string;
+  mode?:          string;
+  signal?:        AbortSignal;
+  skipContext?:   boolean;
+  onChunk:        (text: string) => void;
+  onDone?:        (fullText: string) => void;
+  onError?:       (err: string) => void;
 }): Promise<void> {
   const engine = getEngine(opts.engineId);
+  const engineName = engine?.name ?? opts.engineId;
   let accumulated = "";
+
+  // ── Shared-context injection ─────────────────────────────────────────────
+  let enrichedContext = opts.context ?? "";
+  if (!opts.skipContext) {
+    const sharedCtx = contextStore.buildContextFor(opts.engineId);
+    if (sharedCtx) {
+      enrichedContext = enrichedContext
+        ? `${enrichedContext}\n\n${sharedCtx}`
+        : sharedCtx;
+    }
+  }
 
   return new Promise<void>((resolve) => {
     const handleChunk = (t: string) => { accumulated += t; opts.onChunk(t); };
-    const handleDone  = () => { opts.onDone?.(accumulated); resolve(); };
+    const handleDone  = () => {
+      // ── Record output in shared context store ────────────────────────────
+      if (accumulated) {
+        contextStore.recordOutput(opts.engineId, engineName, opts.topic, accumulated);
+      }
+      opts.onDone?.(accumulated);
+      resolve();
+    };
     const handleError = (e: string) => { opts.onError?.(e); resolve(); };
 
     if (engine?.category === "meta-agent") {
       _runMetaAgent({
         agentId: opts.engineId,
         task:    opts.topic,
-        context: opts.context,
+        context: enrichedContext || undefined,
         onChunk: handleChunk,
         onDone:  handleDone,
         onError: handleError,
@@ -229,9 +250,9 @@ export async function streamEngine(opts: {
     } else {
       _runEngine({
         engineId:   opts.engineId,
-        engineName: engine?.name ?? opts.engineId,
+        engineName,
         topic:      opts.topic,
-        context:    opts.context,
+        context:    enrichedContext || undefined,
         mode:       opts.mode,
         signal:     opts.signal,
         onChunk:    handleChunk,
@@ -367,6 +388,51 @@ export async function streamBrainstorm(opts: {
         } catch { /* skip */ }
       }
     }
+  } catch (err) {
+    if ((err as Error).name !== "AbortError") throw err;
+  }
+}
+
+// ─── Project-specific chat (session-aware, routes to dedicated endpoint) ─────
+
+export async function streamProjectChat(opts: {
+  projectId: string;
+  message:   string;
+  history:   { role: "user" | "assistant"; content: string }[];
+  signal?:   AbortSignal;
+  onChunk:   (text: string) => void;
+  onDone?:   (fullText: string) => void;
+}): Promise<void> {
+  try {
+    const res = await fetch(`/api/project-chat/${opts.projectId}/chat`, {
+      method:      "POST",
+      credentials: "include",
+      headers:     { "Content-Type": "application/json" },
+      body:        JSON.stringify({ message: opts.message, history: opts.history }),
+      signal:      opts.signal,
+    });
+    if (!res.ok || !res.body) return;
+    const reader = res.body.getReader();
+    const dec    = new TextDecoder();
+    let acc    = "";
+    let full   = "";
+    while (true) {
+      const { done, value } = await reader.read();
+      if (done) break;
+      acc += dec.decode(value, { stream: true });
+      const parts = acc.split("\n\n");
+      acc = parts.pop() ?? "";
+      for (const part of parts) {
+        if (!part.startsWith("data: ")) continue;
+        const raw = part.slice(6).trim();
+        if (raw === "[DONE]") { opts.onDone?.(full); return; }
+        try {
+          const p = JSON.parse(raw) as { content?: string };
+          if (p.content) { full += p.content; opts.onChunk(p.content); }
+        } catch { /* skip malformed */ }
+      }
+    }
+    opts.onDone?.(full);
   } catch (err) {
     if ((err as Error).name !== "AbortError") throw err;
   }

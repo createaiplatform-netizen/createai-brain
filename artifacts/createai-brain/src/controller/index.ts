@@ -7,12 +7,16 @@
 
 // Core controller class + module-level utilities
 export { PlatformController, APP_ENGINE_REGISTRY }    from "./PlatformController";
-export { streamEngine, streamSeries, streamChat, streamBrainstorm, generateImage, exportToPDF, exportToMarkdown, exportToText } from "./PlatformController";
+export { streamEngine, streamSeries, streamChat, streamBrainstorm, streamProjectChat, generateImage, exportToPDF, exportToMarkdown, exportToText } from "./PlatformController";
 export type {
   EngineRunHandle, EngineRunRequest, SeriesRunRequest,
   OutputMeta, ProcessedOutput, SaveOutputOpts,
   ActivityEntry, AppEngineConfig, ImageGenOpts,
 } from "./PlatformController";
+
+// Shared context / intelligence layer
+export { contextStore, useContextStore } from "@/store/platformContextStore";
+export type { OutputRecord, SessionContext, InsightRecord, ContextStoreState } from "@/store/platformContextStore";
 
 // React context + provider
 export { PlatformProvider, usePlatformContext }        from "./ControllerContext";

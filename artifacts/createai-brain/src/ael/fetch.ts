@@ -67,57 +67,8 @@ export async function apiDelete(url: string): Promise<void> {
   if (!res.ok) throw new Error(`DELETE ${url} → ${res.status}`);
 }
 
-// ─── SSE Streaming ──────────────────────────────────────────────────────────
-
-/**
- * POST to a Server-Sent Events endpoint, accumulate chunks, call `onChunk`
- * with the full accumulated text after each new piece arrives.
- *
- * Protocol expected from the server:
- *   data: {"content": "..."}\n\n
- *   data: {"done": true}\n\n
- *
- * `onChunk` receives the full accumulated string so far (not just the delta).
- * `onDone`  is called when `d.done === true` arrives.
- *
- * Compatible with: SimulationApp, GuidePanel streaming endpoints.
- *
- * @example
- *   await streamSSE("/api/openai/simulate", { domain, scenario }, t => setText(t), () => setDone(true), ctrl.signal);
- */
-export async function streamSSE(
-  url: string,
-  body: Record<string, unknown>,
-  onChunk: (accumulated: string) => void,
-  onDone: () => void,
-  signal: AbortSignal,
-): Promise<void> {
-  const res = await fetch(url, {
-    method: "POST",
-    headers: { "Content-Type": "application/json" },
-    credentials: "include",
-    body: JSON.stringify(body),
-    signal,
-  });
-  if (!res.ok || !res.body) throw new Error(`SSE ${url} → ${res.status}`);
-
-  const reader = res.body.getReader();
-  const dec    = new TextDecoder();
-  let acc      = "";
-
-  while (true) {
-    const { done, value } = await reader.read();
-    if (done) break;
-    const chunk = dec.decode(value, { stream: true });
-    for (const line of chunk.split("\n")) {
-      if (!line.startsWith("data: ")) continue;
-      const raw = line.slice(6);
-      if (!raw || raw === "[DONE]") continue;
-      try {
-        const d = JSON.parse(raw) as { content?: string; done?: boolean };
-        if (d.content) { acc += d.content; onChunk(acc); }
-        if (d.done)    onDone();
-      } catch { /* malformed line — skip */ }
-    }
-  }
-}
+// ─── AI Streaming ───────────────────────────────────────────────────────────
+//
+// All AI streaming now goes through the unified PlatformController.
+// Use streamEngine / streamSeries / streamChat / streamBrainstorm from "@/controller".
+// Direct SSE helpers have been removed to enforce controller-centric architecture.
