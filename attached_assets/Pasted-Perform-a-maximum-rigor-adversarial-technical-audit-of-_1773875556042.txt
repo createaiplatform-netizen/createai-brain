@@ -1,0 +1,49 @@
+Perform a maximum‑rigor, adversarial technical audit of this platform with the explicit goal of finding any point where it fails to function as a fully independent, self‑hosted system.
+
+Assume the following hard constraints:
+- No Replit services of any kind are available.
+- No external identity provider (Auth0, Clerk, etc.) is available.
+- No external storage provider (Firebase, Supabase, S3, etc.) is available.
+- The platform must run entirely on its own backend, its own database, and its own file system.
+- The platform must support real users, real data, and real multi‑tenant isolation.
+- The platform must be deployable on any machine or server (on‑prem, cloud, or local) without Replit.
+
+Your job is to determine whether the platform, exactly as it exists right now, can truly satisfy those constraints. If it cannot, you must identify every single reason why.
+
+Your audit must include:
+
+1. **Storage and data persistence**
+   - Can the platform store its own data (users, sessions, organizations, projects) in its own database without relying on any external service?
+   - Is the database schema sufficient for real multi‑tenant use?
+   - Are there any hidden assumptions that require Replit or any hosted storage?
+
+2. **Authentication and identity**
+   - Can the platform authenticate users using only its own backend and database (email + password, sessions, cookies)?
+   - Is there any remaining dependency on Replit, OIDC, or external auth providers?
+   - Are there any flows that would break if the platform is moved off Replit entirely?
+
+3. **Backend independence**
+   - Can the backend run on any machine with Node.js and PostgreSQL (or Docker), without Replit?
+   - Are there any hardcoded URLs, environment variables, or assumptions that tie it to Replit or a specific environment?
+
+4. **Frontend behavior**
+   - Can the frontend talk to the backend purely over HTTP, using only the configured API URL and CORS settings?
+   - Are there any assumptions that the app is running inside Replit or a specific host?
+
+5. **Deployment reality**
+   - Given only the repository and Docker configuration, can a competent IT admin deploy this on a fresh server with no Replit involved?
+   - List every blocker that would prevent a clean `docker compose up --build` deployment on a generic machine.
+
+6. **Adversarial challenge**
+   - For each claim that “this platform is independent and self‑hosted,” try to break it. Where does that claim fail today?
+   - For each place where it *does* hold, explain why it is truly independent and not secretly relying on Replit or any external provider.
+
+For every gap or failure you find:
+- Explain exactly why it breaks the independence or self‑hosting requirement.
+- Identify the specific files, settings, or flows involved.
+- Describe the minimum concrete changes required to fix it (code, config, or architecture).
+- Classify each as: Critical (blocks independence), High (unsafe or unreliable), Medium (limits real‑world use), or Low (polish).
+
+Finally, provide:
+- A clear verdict: **Can this platform, with its current architecture, be made fully independent and self‑hosted with reasonable fixes, or is there any fundamental limitation that makes that impossible?**
+- A prioritized list of changes required to reach true independence and self‑hosting, starting from the most critical blockers.
