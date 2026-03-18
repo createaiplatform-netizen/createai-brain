@@ -1,0 +1,108 @@
+Build a unified creation platform with private project containers, dedicated workspaces, project‑specific AI, adaptive intelligence, predictive assistance, simulation‑mode reasoning, conversational UI, responsive design, editing tools, optional publishing, and a controlled publishing pipeline. Implement all features below with clean architecture, safe behavior, and automatic build → fix → validate → activate → deploy.
+
+ACCOUNTS
+- Secure login/logout, password reset, session management.
+- Full user isolation.
+
+PROJECTS
+- Create private project containers on submission.
+- Auto-open workspace after creation.
+- No public access unless user publishes.
+
+STORAGE
+- Store project content, chat history, settings, and assets.
+- Each project has its own isolated file system.
+
+WORKSPACE
+- Dedicated workspace per project.
+- Organized navigation (sidebar/list/grid).
+- Persistent state across sessions.
+
+PROJECT AI
+- AI operates only on current project.
+- Supports editing, expanding, rewriting, improving.
+- No cross-project access.
+
+ADAPTIVE INTELLIGENCE
+- Adjust UI/tools based on user behavior.
+- Surface relevant actions contextually.
+
+PREDICTIVE ASSISTANCE
+- Suggest next steps based on project type + actions.
+- Offer workflow guidance and improvements.
+
+SIMULATION MODE
+- Provide training-mode walkthroughs, mock workflows, educational examples.
+- Demonstrate typical professional/system reasoning.
+- No diagnosis, prescription, or impersonation.
+
+CONVERSATIONAL UI
+- Expanding chat input, bubble messages, auto-scroll, typing indicator.
+- Optional voice input/output.
+
+RESPONSIVE DESIGN
+- Full adaptation to phones, tablets, desktops.
+- Touch-friendly mobile behavior.
+
+EDITING TOOLS
+- Modify text, styles, colors, layouts, structure.
+- All edits stay within project.
+
+DASHBOARD
+- Show all user projects as tiles.
+- Reopen workspace with AI + content loaded.
+- Clean empty-state for new users.
+
+ROUTING
+- Smooth transitions between dashboard, workspace, publishing, settings.
+
+STATE MGMT
+- Persist open project, chat, tools, layout.
+
+REAL-TIME
+- Streaming AI responses, smooth rendering.
+
+PUBLISHING (OPTIONAL)
+- Requires explicit user action.
+- Controlled review + confirmation pipeline.
+
+BILLING HOOKS
+- Integration points for future billing.
+- No legal terms or financial enforcement.
+
+SAFETY
+- Project isolation.
+- Safe, reversible actions.
+
+ERROR HANDLING
+- Graceful fallbacks, clear messages, recovery.
+
+PERFORMANCE
+- Fast loading, optimized queries.
+
+ADVANCED PROJECT INTELLIGENCE
+- Detect project type, adjust AI behavior.
+- Provide context-aware starter actions.
+- Maintain project-level memory.
+
+SELF-ORGANIZING STRUCTURE
+- Group related content, maintain hierarchy, clean unused items.
+
+ACCESSIBILITY
+- Adaptive text sizing, contrast options, motion reduction.
+
+VOICE-AWARE
+- Optional voice input/output, hands-free UI adjustments.
+
+AUTO BUILD → FIX → VALIDATE → ACTIVATE → DEPLOY
+- After implementing changes, auto-fix backend/frontend issues.
+- Validate routing, state, workspace loading, AI integration.
+- Ensure clean operation without manual intervention.
+- Auto-deploy once validation passes.
+
+IMPLEMENTATION
+- Scan codebase for project creation, workspace logic, routing, AI integration, publishing.
+- Add missing components, update frontend/backend.
+- Keep TypeScript clean and error-free.
+
+Final result: a cohesive, advanced, private-by-default creation platform with adaptive intelligence, simulation-mode reasoning, dedicated workspaces, conversational AI, editing tools, responsive design, optional publishing, billing hooks, and automatic deployment after validation.
