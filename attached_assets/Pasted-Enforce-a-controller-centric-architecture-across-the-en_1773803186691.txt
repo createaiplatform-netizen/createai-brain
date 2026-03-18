@@ -1,0 +1,19 @@
+Enforce a controller‑centric architecture across the entire platform. All apps, engines, modules, series, and output types must route through the unified controller with no local logic or pipelines.
+
+Ensure full-system coherence by applying one unified behavior model across all engines, modules, series, and logic layers. All components must follow the same standards, patterns, and execution rules.
+
+Unify platform intelligence by enabling all apps, engines, modules, and series to share context, reuse insights, and build on each other’s outputs through a shared reasoning layer.
+
+Enable cross-app intelligence by allowing every component to contribute to and draw from a shared context layer that improves reasoning, continuity, and output quality across the entire platform.
+
+Continuously evolve the system by strengthening logic, structure, and capability across all engines, modules, and series so the platform grows as one unified, more powerful version of itself.
+
+Continuously refine and improve the clarity, structure, and usefulness of all outputs using insights learned across the entire system.
+
+Allow safe rollback at any time by restoring previous behavior, routing, or logic for any component without disrupting the rest of the platform.
+
+Use the unified intelligence layer to guide the platform’s next evolution so the entire system learns from every interaction and improves the experience everywhere.
+
+Enhance the unified experience layer so all apps feel seamless, consistent, and intentional. Enable adaptive personalization, maintain context continuity, support cross-domain creativity, offer guided exploration modes, maintain unified safety and clarity, reuse effective patterns, apply platform-wide consistency rules, and maintain evolution awareness.
+
+Incorporate advanced platform-wide capabilities including unified onboarding, cross-app search, shared glossary, consistent terminology, adaptive tone, multi-step reasoning templates, output consistency checking, context stitching, automatic structure detection, pattern reuse, multi-app collaboration, smart suggestions, simplification and expansion modes, multi-format reasoning, cross-domain analogies, creative and business logic enhancers, research synthesis, multi-angle reasoning, user-intent detection, clarity/tone/structure filters, memory stitching, reasoning transparency, refinement loops, quality elevation, unified formatting, multi-step planning, idea-to-execution conversion, concept-to-structure conversion, structure-to-content conversion, content-to-action conversion, action-to-plan conversion, plan-to-deliverable conversion, deliverable-to-insight conversion, insight-to-improvement conversion, improvement-to-evolution conversion, and platform-wide standards for clarity, creativity, reasoning, safety, consistency, refinement, intelligence sharing, evolution awareness, improvement cycles, and unified experience.

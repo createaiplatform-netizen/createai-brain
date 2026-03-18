@@ -242,6 +242,136 @@ export async function streamEngine(opts: {
   });
 }
 
+// ─── Module-level series runner (usable outside React) ───────────────────────
+
+export async function streamSeries(opts: {
+  seriesId:         string;
+  topic:            string;
+  context?:         string;
+  signal?:          AbortSignal;
+  onSectionStart?:  (engineId: string, index: number) => void;
+  onChunk?:         (text: string) => void;
+  onSectionEnd?:    (engineId: string) => void;
+  onDone?:          () => void;
+  onError?:         (err: string) => void;
+}): Promise<void> {
+  try {
+    const resp = await fetch("/api/openai/series-run", {
+      method:      "POST",
+      credentials: "include",
+      headers:     { "Content-Type": "application/json" },
+      body:        JSON.stringify({ seriesId: opts.seriesId, topic: opts.topic, context: opts.context }),
+      signal:      opts.signal,
+    });
+    if (!resp.ok || !resp.body) { opts.onError?.(`Series returned ${resp.status}`); return; }
+    const reader  = resp.body.getReader();
+    const decoder = new TextDecoder();
+    while (true) {
+      const { done, value } = await reader.read();
+      if (done) break;
+      for (const line of decoder.decode(value).split("\n")) {
+        if (!line.startsWith("data:")) continue;
+        try {
+          const p = JSON.parse(line.slice(5).trim()) as { type?: string; content?: string; engineId?: string; sectionIndex?: number; done?: boolean };
+          if (p.type === "section-start" && p.engineId) opts.onSectionStart?.(p.engineId, p.sectionIndex ?? 0);
+          if (p.content) opts.onChunk?.(p.content);
+          if (p.type === "section-end" && p.engineId) opts.onSectionEnd?.(p.engineId);
+          if (p.done) { opts.onDone?.(); return; }
+        } catch { /* skip malformed */ }
+      }
+    }
+    opts.onDone?.();
+  } catch (err) {
+    if ((err as Error).name !== "AbortError") opts.onError?.((err as Error).message);
+  }
+}
+
+// ─── Module-level chat (multi-turn, usable outside React) ────────────────────
+
+export async function streamChat(opts: {
+  messages:  { role: string; content: string }[];
+  workspace?: string;
+  signal?:   AbortSignal;
+  onChunk?:  (delta: string, accumulated: string) => void;
+  onDone?:   (fullText: string) => void;
+  onError?:  (err: string) => void;
+}): Promise<void> {
+  try {
+    const response = await fetch("/api/openai/chat", {
+      method:      "POST",
+      headers:     { "Content-Type": "application/json" },
+      credentials: "include",
+      body:        JSON.stringify({ messages: opts.messages, model: "gpt-5.2", workspace: opts.workspace ?? "Main Brain" }),
+      signal:      opts.signal,
+    });
+    if (!response.ok || !response.body) { opts.onError?.(`Chat returned ${response.status}`); return; }
+    const reader      = response.body.getReader();
+    const decoder     = new TextDecoder();
+    let   accumulated = "";
+    while (true) {
+      const { done, value } = await reader.read();
+      if (done) break;
+      const chunk = decoder.decode(value, { stream: true });
+      for (const line of chunk.split("\n")) {
+        if (!line.startsWith("data: ")) continue;
+        const raw = line.slice(6).trim();
+        if (raw === "[DONE]") continue;
+        try {
+          const parsed = JSON.parse(raw);
+          const delta  = parsed.choices?.[0]?.delta?.content ?? parsed.content ?? "";
+          if (delta) { accumulated += delta; opts.onChunk?.(delta, accumulated); }
+        } catch { /* skip */ }
+      }
+    }
+    opts.onDone?.(accumulated);
+  } catch (err) {
+    if ((err as Error).name !== "AbortError") opts.onError?.((err as Error).message);
+  }
+}
+
+// ─── Module-level brainstorm (session-aware, usable outside React) ────────────
+
+export async function streamBrainstorm(opts: {
+  sessionId:        number;
+  message:          string;
+  history:          { role: string; content: string }[];
+  signal:           AbortSignal;
+  onChunk:          (text: string) => void;
+  onProjectCreated?: (p: { id: string; name: string; industry: string; icon: string; color: string }) => void;
+}): Promise<void> {
+  try {
+    const res = await fetch(`/api/brainstorm/sessions/${opts.sessionId}/chat`, {
+      method:  "POST",
+      headers: { "Content-Type": "application/json" },
+      body:    JSON.stringify({ message: opts.message, history: opts.history }),
+      signal:  opts.signal,
+    });
+    if (!res.ok || !res.body) return;
+    const reader = res.body.getReader();
+    const dec    = new TextDecoder();
+    let   acc    = "";
+    while (true) {
+      const { done, value } = await reader.read();
+      if (done) break;
+      acc += dec.decode(value, { stream: true });
+      const parts = acc.split("\n\n");
+      acc = parts.pop() ?? "";
+      for (const part of parts) {
+        if (!part.startsWith("data: ")) continue;
+        const raw = part.slice(6).trim();
+        if (raw === "[DONE]") return;
+        try {
+          const p = JSON.parse(raw) as { content?: string; projectCreated?: { id: string; name: string; industry: string; icon: string; color: string } };
+          if (p.projectCreated && opts.onProjectCreated) opts.onProjectCreated(p.projectCreated);
+          else if (p.content) opts.onChunk(p.content);
+        } catch { /* skip */ }
+      }
+    }
+  } catch (err) {
+    if ((err as Error).name !== "AbortError") throw err;
+  }
+}
+
 // ─── Export utilities (usable anywhere) ──────────────────────────────────────
 
 export function exportToPDF(title?: string): void {

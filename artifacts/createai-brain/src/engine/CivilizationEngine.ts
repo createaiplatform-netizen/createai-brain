@@ -1,3 +1,4 @@
+import { streamEngine, streamSeries } from "@/controller";
 // ═══════════════════════════════════════════════════════════════════════════
 // CIVILIZATION ENGINE — CivilizationForge Frontend Intelligence Layer
 // 13 society-building engines + 5 series. Fictional, safe, family-friendly.
@@ -41,33 +42,10 @@ export function getCivilizationEngineColor(id: string): string { return getCivil
 export function getCivilizationEngineIcon(id: string): string { return getCivilizationEngineById(id)?.icon ?? "🏛️"; }
 
 export async function runCivilizationEngine(opts: { engineId: string; engineName: string; topic: string; context?: string; onChunk: (t: string) => void; onDone?: () => void; onError?: (e: string) => void; }): Promise<void> {
-  const { engineId, engineName, topic, context, onChunk, onDone, onError } = opts;
-  try {
-    const resp = await fetch("/api/openai/engine-run", { method: "POST", credentials: "include", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ engineId, engineName, topic, context }) });
-    if (!resp.ok || !resp.body) { onError?.(`Engine returned ${resp.status}`); return; }
-    const reader = resp.body.getReader(); const decoder = new TextDecoder();
-    while (true) {
-      const { done, value } = await reader.read(); if (done) break;
-      for (const line of decoder.decode(value).split("\n")) {
-        if (!line.startsWith("data:")) continue;
-        try { const p = JSON.parse(line.slice(5).trim()) as { content?: string; done?: boolean }; if (p.content) onChunk(p.content); if (p.done) onDone?.(); } catch { /* skip */ }
-      }
-    }
-  } catch (err) { onError?.(String(err)); }
+  const { engineId, topic, context, onChunk, onDone, onError } = opts;
+  await streamEngine({ engineId, topic, context, onChunk, onDone: onDone ? () => onDone() : undefined, onError });
 }
 
 export async function runCivilizationSeries(opts: { seriesId: string; topic: string; context?: string; onSectionStart: (id: string, i: number) => void; onChunk: (t: string) => void; onSectionEnd: (id: string) => void; onDone?: () => void; onError?: (e: string) => void; }): Promise<void> {
-  const { seriesId, topic, context, onSectionStart, onChunk, onSectionEnd, onDone, onError } = opts;
-  try {
-    const resp = await fetch("/api/openai/series-run", { method: "POST", credentials: "include", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ seriesId, topic, context }) });
-    if (!resp.ok || !resp.body) { onError?.(`Series returned ${resp.status}`); return; }
-    const reader = resp.body.getReader(); const decoder = new TextDecoder();
-    while (true) {
-      const { done, value } = await reader.read(); if (done) break;
-      for (const line of decoder.decode(value).split("\n")) {
-        if (!line.startsWith("data:")) continue;
-        try { const p = JSON.parse(line.slice(5).trim()) as { type?: string; content?: string; engineId?: string; sectionIndex?: number; done?: boolean }; if (p.type === "section-start" && p.engineId) onSectionStart(p.engineId, p.sectionIndex ?? 0); if (p.content) onChunk(p.content); if (p.type === "section-end" && p.engineId) onSectionEnd(p.engineId); if (p.done) onDone?.(); } catch { /* skip */ }
-      }
-    }
-  } catch (err) { onError?.(String(err)); }
+  await streamSeries({ seriesId: opts.seriesId, topic: opts.topic, context: opts.context, onSectionStart: opts.onSectionStart, onChunk: opts.onChunk, onSectionEnd: opts.onSectionEnd, onDone: opts.onDone, onError: opts.onError });
 }

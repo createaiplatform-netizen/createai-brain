@@ -7,7 +7,7 @@
 
 // Core controller class + module-level utilities
 export { PlatformController, APP_ENGINE_REGISTRY }    from "./PlatformController";
-export { streamEngine, generateImage, exportToPDF, exportToMarkdown, exportToText } from "./PlatformController";
+export { streamEngine, streamSeries, streamChat, streamBrainstorm, generateImage, exportToPDF, exportToMarkdown, exportToText } from "./PlatformController";
 export type {
   EngineRunHandle, EngineRunRequest, SeriesRunRequest,
   OutputMeta, ProcessedOutput, SaveOutputOpts,

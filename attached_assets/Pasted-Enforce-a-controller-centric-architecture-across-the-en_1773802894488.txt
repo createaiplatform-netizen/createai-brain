@@ -1,0 +1,15 @@
+Enforce a controller‑centric architecture across the entire platform. All apps, engines, modules, series, and output types must route through the unified controller and follow the same execution, routing, and output patterns. No component may define its own logic or pipeline outside the controller.
+
+Ensure the entire platform operates as one coherent system by aligning all engines, modules, series, and logic layers under a unified behavior model. Every component must follow the same standards, patterns, and rules so the system stays consistent, stable, and fully synchronized.
+
+Unify the entire platform under a single intelligent behavior model. All apps, engines, modules, and series should share context, reuse insights, and build on each other’s outputs. The system should behave as one connected, evolving platform rather than separate tools.
+
+Enable cross‑app intelligence by allowing all engines, modules, and series to contribute to and draw from a shared context layer. This unified reasoning layer should improve outputs, maintain continuity, and allow the platform to learn across all apps.
+
+Continuously improve the quality, clarity, and usefulness of every output across the entire platform. Each app should automatically refine its reasoning, structure, and results based on what the rest of the system has learned.
+
+Evolve the entire system by strengthening every engine, module, series, and behavior with cleaner structure and more capable functionality. Apply these upgrades across the whole platform so it grows as a unified, more powerful version of itself.
+
+Maintain full flexibility and reversibility. Allow safe rollback at any time. Restore previous behavior for any app, engine, or module when requested, using earlier logic, routing, and output patterns without disrupting the rest of the system.
+
+Use the unified intelligence layer to guide the platform’s next evolution. Let the system learn from every interaction, refine its internal patterns, and elevate the experience across all apps so the platform grows as one mind.

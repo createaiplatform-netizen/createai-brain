@@ -1,3 +1,4 @@
+import { streamEngine } from "@/controller";
 export interface CosmologyForgeEngineDefinition { id: string; name: string; icon: string; color: string; tagline: string; description: string; placeholder: string; example: string; series?: string; }
 export interface CosmologyForgeSeriesDefinition { id: string; name: string; symbol: string; icon: string; gradient: string; description: string; engines: string[]; estimatedMinutes: number; }
 
@@ -26,17 +27,6 @@ export const COSMOLOGYFORGE_SERIES: CosmologyForgeSeriesDefinition[] = [
 ];
 
 export async function runCosmologyForgeEngine(opts: { engineId: string; engineName: string; topic: string; onChunk: (t: string) => void; onDone?: () => void; onError?: (e: string) => void; }): Promise<void> {
-  const { engineId, engineName, topic, onChunk, onDone, onError } = opts;
-  try {
-    const resp = await fetch("/api/openai/engine-run", { method: "POST", credentials: "include", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ engineId, engineName, topic }) });
-    if (!resp.ok || !resp.body) { onError?.(`Engine returned ${resp.status}`); return; }
-    const reader = resp.body.getReader(); const decoder = new TextDecoder();
-    while (true) {
-      const { done, value } = await reader.read(); if (done) break;
-      for (const line of decoder.decode(value).split("\n")) {
-        if (!line.startsWith("data:")) continue;
-        try { const p = JSON.parse(line.slice(5).trim()) as { content?: string; done?: boolean }; if (p.content) onChunk(p.content); if (p.done) onDone?.(); } catch { /* skip */ }
-      }
-    }
-  } catch (err) { onError?.(String(err)); }
+  const { engineId, topic, onChunk, onDone, onError } = opts;
+  await streamEngine({ engineId, topic, onChunk, onDone: onDone ? () => onDone() : undefined, onError });
 }
