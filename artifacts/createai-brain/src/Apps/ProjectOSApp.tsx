@@ -4,10 +4,11 @@ import { streamProjectChat, contextStore, checkBillingEligibility, publishProjec
 import { useUniversalResume } from "@/hooks/useUniversalResume";
 import { ensureIdentityForProject } from "@/engine/IdentityEngine";
 import { useMediaQuery } from "@/hooks/use-media-query";
+import { SalesModule, OpsModule, SupportModule, ComplianceModule, EnterpriseDashboard } from "./InternalModules";
 
 // ─── Types ────────────────────────────────────────────────────────────────────
 
-type ViewMode = "dashboard+folders" | "dashboard" | "folders" | "simple" | "advanced" | "tasks" | "team" | "opportunities";
+type ViewMode = "dashboard+folders" | "dashboard" | "folders" | "simple" | "advanced" | "tasks" | "team" | "opportunities" | "sales" | "ops" | "support" | "compliance" | "enterprise";
 
 // ─── Shared / Suggested Types ────────────────────────────────────────────────
 interface SharedProject {
@@ -1599,7 +1600,7 @@ export function ProjectOSApp() {
     setDeleteTarget(null);
   };
 
-  const VIEW_MODES: { id: ViewMode; label: string }[] = [
+  const VIEW_MODES: { id: ViewMode; label: string; group?: string }[] = [
     { id: "dashboard+folders", label: "Dashboard + Folders" },
     { id: "dashboard",         label: "Dashboard" },
     { id: "folders",           label: "Folders" },
@@ -1608,6 +1609,11 @@ export function ProjectOSApp() {
     { id: "tasks",             label: "📋 Tasks" },
     { id: "team",              label: "👥 Team" },
     { id: "opportunities",     label: "💡 Opportunities" },
+    { id: "sales",             label: "📈 Sales",        group: "teams" },
+    { id: "ops",               label: "⚙️ Operations",   group: "teams" },
+    { id: "support",           label: "🎧 Support",      group: "teams" },
+    { id: "compliance",        label: "📋 Compliance",   group: "teams" },
+    { id: "enterprise",        label: "🏢 Enterprise",   group: "teams" },
   ];
 
   const activeFiles = activeFolderId
@@ -2243,8 +2249,8 @@ export function ProjectOSApp() {
               </span>
             </div>
             {/* View Toggle */}
-            <div className="flex items-center gap-1">
-              {VIEW_MODES.map(v => (
+            <div className="flex items-center gap-1 flex-wrap">
+              {VIEW_MODES.filter(v => !v.group).map(v => (
                 <button
                   key={v.id}
                   onClick={() => setViewMode(v.id)}
@@ -2253,6 +2259,21 @@ export function ProjectOSApp() {
                     background: viewMode === v.id ? "rgba(99,102,241,0.22)" : "rgba(255,255,255,0.04)",
                     border: `1px solid ${viewMode === v.id ? "rgba(99,102,241,0.45)" : "transparent"}`,
                     color: viewMode === v.id ? "#818cf8" : "#475569",
+                  }}
+                >
+                  {v.label}
+                </button>
+              ))}
+              <div className="w-px h-4 mx-1 flex-shrink-0" style={{ background: "rgba(255,255,255,0.08)" }} />
+              {VIEW_MODES.filter(v => v.group === "teams").map(v => (
+                <button
+                  key={v.id}
+                  onClick={() => setViewMode(v.id)}
+                  className="px-2.5 py-1.5 rounded-lg text-[10px] font-medium transition-all"
+                  style={{
+                    background: viewMode === v.id ? "rgba(139,92,246,0.22)" : "rgba(255,255,255,0.04)",
+                    border: `1px solid ${viewMode === v.id ? "rgba(139,92,246,0.45)" : "transparent"}`,
+                    color: viewMode === v.id ? "#c4b5fd" : "#475569",
                   }}
                 >
                   {v.label}
@@ -2574,8 +2595,37 @@ export function ProjectOSApp() {
                 </div>
               )}
 
+              {/* ── Sales Module ── */}
+              {viewMode === "sales" && activeProject && (
+                <SalesModule projectName={activeProject.name} />
+              )}
+
+              {/* ── Operations Module ── */}
+              {viewMode === "ops" && activeProject && (
+                <OpsModule projectName={activeProject.name} />
+              )}
+
+              {/* ── Support Module ── */}
+              {viewMode === "support" && activeProject && (
+                <SupportModule projectName={activeProject.name} />
+              )}
+
+              {/* ── Compliance Readiness ── */}
+              {viewMode === "compliance" && activeProject && (
+                <ComplianceModule projectName={activeProject.name} />
+              )}
+
+              {/* ── Enterprise Dashboard ── */}
+              {viewMode === "enterprise" && activeProject && (
+                <EnterpriseDashboard
+                  projectName={activeProject.name}
+                  projectCount={projects.length}
+                  fileCount={activeProject.files.length}
+                />
+              )}
+
               {/* Folder + File View */}
-              {viewMode !== "dashboard" && viewMode !== "tasks" && viewMode !== "team" && viewMode !== "opportunities" && (
+              {viewMode !== "dashboard" && viewMode !== "tasks" && viewMode !== "team" && viewMode !== "opportunities" && viewMode !== "sales" && viewMode !== "ops" && viewMode !== "support" && viewMode !== "compliance" && viewMode !== "enterprise" && (
                 <div className="flex flex-1 overflow-hidden">
 
                   {/* Folder Tree */}

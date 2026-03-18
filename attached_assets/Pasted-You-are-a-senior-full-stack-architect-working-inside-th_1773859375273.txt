@@ -1,0 +1,166 @@
+You are a senior full‑stack architect working inside this existing codebase. Your job is to transform this project into a fully self‑contained, unified creation system that includes internal enterprise‑level capabilities, internal team modules, internal workflows, internal dashboards, internal intelligence, and internal automation — all without using external services or performing any regulated, medical, legal, or financial actions.
+
+Build every module with full future capability, but keep all regulated or restricted functionality inactive until legally permitted. Do not remove capability — only restrict activation. Do not claim certification or regulated status.
+
+Your output must always be:
+- safer
+- more efficient
+- more stable
+- more cost‑saving
+- more universal
+- more self‑contained
+- more future‑ready
+- more maintainable
+- more consistent
+- more cohesive
+
+Your job is to UPGRADE and COMPLETE the system with the following modules:
+
+------------------------------------------------------------
+1. UNIFIED PROJECT ENGINE
+------------------------------------------------------------
+Implement a Project Engine that:
+- takes a high‑level user intent
+- generates all required frontend pages, backend logic, routes, and config
+- attaches templates, flows, dashboards, and internal tools automatically
+- creates a self‑contained workspace for each project
+- includes project metadata, reasoning context, and internal tools
+- is built with full future capability but restricted activation where required
+
+------------------------------------------------------------
+2. INTELLIGENCE LAYER
+------------------------------------------------------------
+Implement a central Intelligence Layer that:
+- understands project type and user intent
+- suggests next steps, templates, flows, and tools
+- generates or refines content, flows, and structures inside each project
+- stays strictly non‑medical, non‑legal, non‑financial, and non‑regulated
+- always produces the safer, more efficient, more universal version
+- is architected for future activation when legally allowed
+
+------------------------------------------------------------
+3. INTERNAL ENTERPRISE CAPABILITIES (FUTURE‑READY)
+------------------------------------------------------------
+Create internal versions of enterprise‑like capabilities that are:
+- fully structured
+- fully architected
+- fully integrated
+- ready for future activation
+- currently restricted from real‑world use
+
+Include:
+- job distribution logic
+- redundancy logic
+- monitoring dashboards
+- staged processing flows
+- internal event systems
+- internal state management
+- internal reliability patterns
+
+All must be clearly restricted from real‑world regulated use until legally allowed.
+
+------------------------------------------------------------
+4. INTERNAL TEAM MODULES
+------------------------------------------------------------
+
+SALES MODULE:
+- outreach scripts, email templates, call scripts, objection handling
+- internal CRM‑style views (mock data only)
+- training and role‑play mode
+- full future capability for real use once legally allowed
+
+OPERATIONS MODULE:
+- SOPs, workflows, checklists, automation suggestions
+- internal task tracking
+- full future capability for real use once legally allowed
+
+SUPPORT MODULE:
+- knowledge base viewer/editor
+- guided troubleshooting flows
+- ticket‑style views
+- full future capability for real use once legally allowed
+
+COMPLIANCE READINESS MODULE:
+- draft policies, procedures, documentation for readiness only
+- HIPAA readiness (NOT real HIPAA compliance)
+- SOC2 readiness (NOT real SOC2 certification)
+- risk assessment templates
+- audit preparation flows
+- all built with full future capability but restricted activation
+
+------------------------------------------------------------
+5. DASHBOARDS + ANALYTICS
+------------------------------------------------------------
+Implement internal dashboards for:
+- project overview
+- internal enterprise logic (jobs, events, errors, metrics)
+- sales pipeline
+- operations workflows
+- support activity
+
+Use only local state or simple storage.  
+Architect for future activation when legally allowed.
+
+------------------------------------------------------------
+6. UI/UX LAYER
+------------------------------------------------------------
+Ensure a cohesive, calm, clear UI/UX across:
+- main workspace
+- project views
+- dashboards
+- internal tools
+
+Include:
+- guided onboarding
+- tooltips
+- accessibility‑conscious design
+- reusable components (forms, tables, modals, wizards, timelines)
+
+------------------------------------------------------------
+7. SAFETY & FRAMING
+------------------------------------------------------------
+Everywhere in the system:
+- avoid claiming real medical, legal, or financial authority
+- avoid claiming real HIPAA/SOC2/other certification
+- keep all restricted functionality inactive until legally permitted
+- provide a central “Safety & Framing” page explaining system boundaries
+- ensure all content is safe, educational, and internal‑only
+
+------------------------------------------------------------
+8. CODE ORGANIZATION
+------------------------------------------------------------
+Refactor the codebase into clear modules:
+- core engine
+- intelligence layer
+- UI components
+- project engine
+- internal teams
+- dashboards
+- safety/framing
+
+------------------------------------------------------------
+9. IMPLEMENTATION STEPS
+------------------------------------------------------------
+1. Scan the existing repo and summarize:
+   - current structure
+   - current capabilities
+   - what to keep
+   - what to extend
+
+2. Propose a concrete plan:
+   - files to add
+   - files to modify
+   - modules to create
+
+3. Implement the plan step‑by‑step:
+   - update or create files
+   - keep changes cohesive and consistent
+
+4. Provide a final summary:
+   - architecture overview
+   - how to run the system
+   - how to create a new project
+   - how to use internal teams
+   - how to view dashboards
+   - how to generate readiness packets
+   - how to use the intelligence layer
