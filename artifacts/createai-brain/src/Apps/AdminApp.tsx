@@ -1,5 +1,6 @@
 import React, { useState, useEffect } from "react";
 import { useOS } from "@/os/OSContext";
+import { FormEngine } from "@/engines/FormEngine";
 import { CreationStore } from "@/standalone/creation/CreationStore";
 import { ConnectionEngine, NODE_TYPE_CFG, NodeType } from "@/engine/ConnectionEngine";
 import { RegulatoryEngine } from "@/engine/RegulatoryEngine";
@@ -834,78 +835,49 @@ export function AdminApp() {
               </div>
             </div>
 
-            {/* Edit form */}
+            {/* Edit form — powered by FormEngine */}
             <div style={{
-              background: "rgba(99,102,241,0.08)", border: "1px solid rgba(99,102,241,0.2)",
-              borderRadius: 12, padding: "16px", display: "flex", flexDirection: "column", gap: 12,
+              background: "rgba(99,102,241,0.06)", border: "1px solid rgba(99,102,241,0.18)",
+              borderRadius: 12, padding: "16px",
             }}>
-              <div style={{ fontSize: 11, fontWeight: 700, color: "#818cf8", textTransform: "uppercase", letterSpacing: 0.8 }}>
-                Edit Name
-              </div>
-
-              <div style={{ display: "flex", gap: 10 }}>
-                <div style={{ flex: 1, display: "flex", flexDirection: "column", gap: 4 }}>
-                  <label style={{ fontSize: 11, color: "#94a3b8" }}>First Name</label>
-                  <input
-                    value={editFirst}
-                    onChange={e => setEditFirst(e.target.value)}
-                    placeholder="First name"
-                    style={{
-                      background: "rgba(255,255,255,0.06)", border: "1px solid rgba(255,255,255,0.12)",
-                      borderRadius: 8, padding: "9px 12px", color: "#e2e8f0", fontSize: 13, fontFamily: "inherit",
-                    }}
-                  />
-                </div>
-                <div style={{ flex: 1, display: "flex", flexDirection: "column", gap: 4 }}>
-                  <label style={{ fontSize: 11, color: "#94a3b8" }}>Last Name</label>
-                  <input
-                    value={editLast}
-                    onChange={e => setEditLast(e.target.value)}
-                    placeholder="Last name"
-                    style={{
-                      background: "rgba(255,255,255,0.06)", border: "1px solid rgba(255,255,255,0.12)",
-                      borderRadius: 8, padding: "9px 12px", color: "#e2e8f0", fontSize: 13, fontFamily: "inherit",
-                    }}
-                  />
-                </div>
-              </div>
-
-              <div style={{ display: "flex", flexDirection: "column", gap: 4 }}>
-                <label style={{ fontSize: 11, color: "#94a3b8" }}>Email <span style={{ color: "#4f5a6e" }}>(read-only — managed by Replit Auth)</span></label>
-                <input
-                  value={profile?.email ?? ""}
-                  readOnly
-                  style={{
-                    background: "rgba(255,255,255,0.03)", border: "1px solid rgba(255,255,255,0.06)",
-                    borderRadius: 8, padding: "9px 12px", color: "#64748b", fontSize: 13, fontFamily: "inherit",
-                    cursor: "not-allowed",
-                  }}
-                />
-              </div>
-
-              <button
-                onClick={handleSave}
-                disabled={profileSaving || (!editFirst.trim() && !editLast.trim())}
-                style={{
-                  background: "#6366f1", border: "none", borderRadius: 10, padding: "10px 16px",
-                  color: "#fff", fontSize: 13, fontWeight: 700,
-                  cursor: profileSaving ? "not-allowed" : "pointer",
-                  opacity: (!editFirst.trim() && !editLast.trim()) ? 0.5 : 1,
+              <FormEngine
+                schema={{
+                  id: "admin-profile",
+                  title: "Edit Name",
+                  compact: true,
+                  submitLabel: "Save Name",
+                  layout: "grid",
+                  fields: [
+                    { id: "firstName", type: "text",  label: "First Name", placeholder: "First name", required: true, width: "half" },
+                    { id: "lastName",  type: "text",  label: "Last Name",  placeholder: "Last name",  width: "half" },
+                    { id: "email",     type: "email", label: "Email", description: "Read-only — managed by Replit Auth", readOnly: true, disabled: true },
+                  ],
                 }}
-              >
-                {profileSaving ? "Saving…" : "Save Name"}
-              </button>
-
-              {profileSaved && (
-                <div style={{ fontSize: 12, color: "#34C759", padding: "8px 12px", background: "rgba(52,199,89,0.1)", borderRadius: 8, border: "1px solid rgba(52,199,89,0.2)" }}>
-                  ✓ Profile saved successfully
-                </div>
-              )}
-              {profileError && (
-                <div style={{ fontSize: 12, color: "#ff6b6b", padding: "8px 12px", background: "rgba(255,59,48,0.1)", borderRadius: 8, border: "1px solid rgba(255,59,48,0.2)" }}>
-                  ⚠️ {profileError}
-                </div>
-              )}
+                initialValues={{ firstName: editFirst, lastName: editLast, email: profile?.email ?? "" }}
+                onSubmit={async (vals) => {
+                  const first = (vals.firstName as string).trim();
+                  const last  = (vals.lastName  as string).trim();
+                  setEditFirst(first); setEditLast(last);
+                  setProfileSaving(true); setProfileError(""); setProfileSaved(false);
+                  try {
+                    const res = await fetch("/api/user/me", {
+                      method: "PUT", credentials: "include",
+                      headers: { "Content-Type": "application/json" },
+                      body: JSON.stringify({ firstName: first, lastName: last }),
+                    });
+                    const data = await res.json() as { ok?: boolean; firstName?: string; lastName?: string; error?: string };
+                    if (res.ok && data.ok) {
+                      setProfile(prev => prev ? { ...prev, firstName: data.firstName ?? prev.firstName, lastName: data.lastName ?? prev.lastName } : prev);
+                      setProfileSaved(true);
+                      setTimeout(() => setProfileSaved(false), 3000);
+                    } else { setProfileError(data.error ?? "Failed to save"); }
+                  } catch { setProfileError("Network error"); }
+                  finally { setProfileSaving(false); }
+                }}
+                loading={profileSaving}
+                error={profileError || undefined}
+                success={profileSaved ? "Profile saved successfully" : undefined}
+              />
             </div>
 
             <div className="bg-background rounded-2xl border border-border/50 p-4 space-y-1">

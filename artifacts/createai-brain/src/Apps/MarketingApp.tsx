@@ -5,6 +5,7 @@
 // ═══════════════════════════════════════════════════════════════════════════
 
 import React, { useState, useEffect } from "react";
+import { DemoModeShell, ModeBanner } from "@/engines/DemoModeEngine";
 import { OutputFormatter } from "@/components/OutputFormatter";
 import {
   BrainGen, GenResult,
@@ -711,6 +712,19 @@ export function MarketingApp() {
   };
 
   return (
+    <DemoModeShell
+      defaultMode="demo"
+      storageKey="marketing-app-mode"
+      showBanner={true}
+      demoPanelTitle="Marketing Platform — Demo Mode"
+      demoPanelSteps={[
+        "Browse the Home view to see live campaign stats.",
+        "Open Create to generate social posts, emails, and ads.",
+        "Switch to Live mode when ready to use real data.",
+      ]}
+      demoPanelNote="In Demo mode all content is AI-generated examples. No real campaigns are created."
+      style={{ padding: "12px 12px 0" }}
+    >
     <div className="flex flex-col h-full">
       {/* Top nav */}
       <div className="flex-none border-b" style={{ background: "rgba(8,10,22,0.80)", borderColor: "rgba(255,255,255,0.07)", backdropFilter: "blur(24px)" }}>
@@ -763,5 +777,6 @@ export function MarketingApp() {
         }
       </div>
     </div>
+    </DemoModeShell>
   );
 }

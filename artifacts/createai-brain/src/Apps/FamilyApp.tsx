@@ -1,4 +1,5 @@
 import React, { useState, useEffect, useCallback } from "react";
+import { FormEngine } from "@/engines/FormEngine";
 import { useOS } from "@/os/OSContext";
 import { BrainGen } from "@/engine/BrainGen";
 
@@ -253,63 +254,55 @@ export function FamilyApp() {
         </div>
         <h2 className="text-xl font-bold text-foreground">My Documents</h2>
 
-        {/* Create new document form */}
+        {/* Create new document form — powered by FormEngine */}
         {showCreate && (
           <div style={{
-            background: "rgba(99,102,241,0.1)", border: "1px solid rgba(99,102,241,0.25)",
-            borderRadius: 12, padding: "14px 16px", display: "flex", flexDirection: "column", gap: 10,
+            background: "rgba(99,102,241,0.08)", border: "1px solid rgba(99,102,241,0.22)",
+            borderRadius: 12, padding: "14px 16px",
           }}>
-            <div style={{ fontSize: 11, fontWeight: 700, color: "#818cf8" }}>CREATE NEW DOCUMENT</div>
-
-            {/* Templates */}
-            <div style={{ display: "flex", flexWrap: "wrap", gap: 5 }}>
+            <div style={{ fontSize: 11, fontWeight: 700, color: "#818cf8", marginBottom: 10, letterSpacing: "0.06em" }}>
+              CREATE NEW DOCUMENT
+            </div>
+            {/* Template quick-select chips */}
+            <div style={{ display: "flex", flexWrap: "wrap", gap: 5, marginBottom: 12 }}>
               {DOC_TEMPLATES.map(t => (
                 <button key={t.name} onClick={() => { setNewDocName(t.name); setNewDocType(t.type); }}
                   style={{
                     background: newDocName === t.name ? "rgba(99,102,241,0.3)" : "rgba(255,255,255,0.06)",
                     border: `1px solid ${newDocName === t.name ? "rgba(99,102,241,0.5)" : "rgba(255,255,255,0.1)"}`,
-                    borderRadius: 8, padding: "4px 10px", fontSize: 11, color: newDocName === t.name ? "#818cf8" : "#94a3b8",
-                    cursor: "pointer",
+                    borderRadius: 8, padding: "4px 10px", fontSize: 11,
+                    color: newDocName === t.name ? "#818cf8" : "#94a3b8", cursor: "pointer",
                   }}>
                   {t.icon} {t.name}
                 </button>
               ))}
             </div>
-
-            {/* Custom name */}
-            <input
-              value={newDocName}
-              onChange={e => setNewDocName(e.target.value)}
-              placeholder="Or type a custom document name…"
-              style={{
-                background: "rgba(255,255,255,0.06)", border: "1px solid rgba(255,255,255,0.12)",
-                borderRadius: 8, padding: "8px 12px", color: "#e2e8f0", fontSize: 13, fontFamily: "inherit",
+            <FormEngine
+              schema={{
+                id: "family-create-doc",
+                compact: true,
+                submitLabel: "🧠 Generate & Save",
+                fields: [
+                  { id: "title", type: "text",   label: "Document name", placeholder: "Or type a custom document name…", required: true },
+                  { id: "type",  type: "select", label: "Type",
+                    options: DOC_TEMPLATES.map(t => ({ value: t.type, label: `${t.icon} ${t.type}` })).concat(
+                      [{ value: "Document", label: "📄 Document" }, { value: "Note", label: "📝 Note" }]
+                    ),
+                  },
+                ],
               }}
+              initialValues={{ title: newDocName, type: newDocType }}
+              onSubmit={async (vals) => {
+                const title = (vals.title as string).trim();
+                const type  = vals.type as string;
+                setNewDocName(title); setNewDocType(type);
+                await handleGenerate(title, type);
+                setShowCreate(false); setNewDocName(""); setNewDocType("Document");
+              }}
+              onCancel={() => { setShowCreate(false); setNewDocName(""); }}
+              loading={savingDoc}
+              error={genError || undefined}
             />
-
-            <div style={{ display: "flex", gap: 8 }}>
-              <button onClick={handleCreateNew} disabled={savingDoc || !newDocName.trim()}
-                style={{
-                  background: "#6366f1", border: "none", borderRadius: 8, padding: "8px 16px",
-                  color: "#fff", fontSize: 13, fontWeight: 600, cursor: "pointer",
-                  opacity: !newDocName.trim() || savingDoc ? 0.5 : 1,
-                }}>
-                {savingDoc ? "Creating…" : "🧠 Generate & Save"}
-              </button>
-              <button onClick={() => { setShowCreate(false); setNewDocName(""); }}
-                style={{
-                  background: "rgba(255,255,255,0.06)", border: "none", borderRadius: 8, padding: "8px 12px",
-                  color: "#94a3b8", fontSize: 13, cursor: "pointer",
-                }}>
-                Cancel
-              </button>
-            </div>
-
-            {genError && (
-              <div style={{ fontSize: 12, color: "#ff6b6b", padding: "6px 10px", background: "rgba(255,59,48,0.1)", borderRadius: 6 }}>
-                ⚠️ {genError}
-              </div>
-            )}
           </div>
         )}
 

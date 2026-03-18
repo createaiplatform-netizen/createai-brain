@@ -1265,7 +1265,7 @@ export function BrainHubApp() {
                   </div>
                   <div style={{ fontSize: 13, color: "#94a3b8", lineHeight: 1.6 }}>{series.description}</div>
                   <div style={{ display: "flex", flexWrap: "wrap", gap: 4 }}>
-                    {series.capabilities.map(cap => (
+                    {(series.capabilities ?? []).map(cap => (
                       <span key={cap} style={{
                         fontSize: 10, background: "rgba(255,255,255,0.06)", borderRadius: 4,
                         padding: "2px 6px", color: "#64748b",
