@@ -542,19 +542,24 @@ export async function streamBrainstorm(opts: {
 // ─── Project-specific chat (session-aware, routes to dedicated endpoint) ─────
 
 export async function streamProjectChat(opts: {
-  projectId: string;
-  message:   string;
-  history:   { role: "user" | "assistant"; content: string }[];
-  signal?:   AbortSignal;
-  onChunk:   (text: string) => void;
-  onDone?:   (fullText: string) => void;
+  projectId:     string;
+  message:       string;
+  history:       { role: "user" | "assistant"; content: string }[];
+  scaffoldFiles?: string[];
+  signal?:       AbortSignal;
+  onChunk:       (text: string) => void;
+  onDone?:       (fullText: string) => void;
 }): Promise<void> {
   try {
     const res = await fetch(`/api/project-chat/${opts.projectId}/chat`, {
       method:      "POST",
       credentials: "include",
       headers:     { "Content-Type": "application/json" },
-      body:        JSON.stringify({ message: opts.message, history: opts.history }),
+      body:        JSON.stringify({
+        message:       opts.message,
+        history:       opts.history,
+        scaffoldFiles: opts.scaffoldFiles,
+      }),
       signal:      opts.signal,
     });
     if (!res.ok || !res.body) return;

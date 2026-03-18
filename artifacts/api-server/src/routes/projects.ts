@@ -28,23 +28,41 @@ const UNIVERSAL_FOLDERS = [
 ];
 
 const INDUSTRY_SPECIFIC: Record<string, { name: string; icon: string }[]> = {
-  Healthcare:   [{ name: "Regulations", icon: "⚖️" }, { name: "Patient Records", icon: "🏥" }, { name: "Compliance", icon: "✅" }],
-  Construction: [{ name: "Plans & Blueprints", icon: "📐" }, { name: "Safety", icon: "🦺" }, { name: "Permits", icon: "📋" }, { name: "Equipment", icon: "🚧" }],
-  Hunting:      [{ name: "Maps", icon: "🗺️" }, { name: "Gear Lists", icon: "🎒" }, { name: "Safety", icon: "🦺" }, { name: "Seasons & Regulations", icon: "📅" }],
-  Farming:      [{ name: "Crop Plans", icon: "🌱" }, { name: "Equipment", icon: "🚜" }, { name: "Soil Data", icon: "🌍" }, { name: "Harvest Logs", icon: "📊" }],
-  Education:    [{ name: "Curriculum", icon: "📚" }, { name: "Student Records", icon: "👤" }, { name: "Assessments", icon: "📝" }],
-  Logistics:    [{ name: "Routes", icon: "🗺️" }, { name: "Fleet", icon: "🚛" }, { name: "Schedules", icon: "📅" }, { name: "Manifests", icon: "📋" }],
-  Legal:        [{ name: "Cases", icon: "⚖️" }, { name: "Contracts", icon: "📄" }, { name: "Evidence", icon: "🔍" }],
-  Technology:   [{ name: "Source Code", icon: "💻" }, { name: "APIs", icon: "🔌" }, { name: "Deployments", icon: "🚀" }],
-  Nonprofit:    [{ name: "Donors", icon: "❤️" }, { name: "Grants", icon: "💰" }, { name: "Impact Reports", icon: "📊" }],
-  Retail:       [{ name: "Inventory", icon: "📦" }, { name: "Suppliers", icon: "🤝" }, { name: "POS Data", icon: "🛒" }],
-  General:      [{ name: "Notes", icon: "📝" }, { name: "Research", icon: "🔍" }],
+  // ── Traditional industries ────────────────────────────────────────────────
+  Healthcare:        [{ name: "Regulations", icon: "⚖️" }, { name: "Patient Records", icon: "🏥" }, { name: "Compliance", icon: "✅" }],
+  Construction:      [{ name: "Plans & Blueprints", icon: "📐" }, { name: "Safety", icon: "🦺" }, { name: "Permits", icon: "📋" }, { name: "Equipment", icon: "🚧" }],
+  Hunting:           [{ name: "Maps", icon: "🗺️" }, { name: "Gear Lists", icon: "🎒" }, { name: "Safety", icon: "🦺" }, { name: "Seasons & Regulations", icon: "📅" }],
+  Farming:           [{ name: "Crop Plans", icon: "🌱" }, { name: "Equipment", icon: "🚜" }, { name: "Soil Data", icon: "🌍" }, { name: "Harvest Logs", icon: "📊" }],
+  Education:         [{ name: "Curriculum", icon: "📚" }, { name: "Student Records", icon: "👤" }, { name: "Assessments", icon: "📝" }],
+  Logistics:         [{ name: "Routes", icon: "🗺️" }, { name: "Fleet", icon: "🚛" }, { name: "Schedules", icon: "📅" }, { name: "Manifests", icon: "📋" }],
+  Legal:             [{ name: "Cases", icon: "⚖️" }, { name: "Contracts", icon: "📄" }, { name: "Evidence", icon: "🔍" }],
+  Technology:        [{ name: "Source Code", icon: "💻" }, { name: "APIs", icon: "🔌" }, { name: "Deployments", icon: "🚀" }],
+  Nonprofit:         [{ name: "Donors", icon: "❤️" }, { name: "Grants", icon: "💰" }, { name: "Impact Reports", icon: "📊" }],
+  Retail:            [{ name: "Inventory", icon: "📦" }, { name: "Suppliers", icon: "🤝" }, { name: "POS Data", icon: "🛒" }],
+  General:           [{ name: "Notes", icon: "📝" }, { name: "Research", icon: "🔍" }],
+  // ── Creative & product project types ──────────────────────────────────────
+  "Film / Movie":    [{ name: "Development", icon: "📖" }, { name: "Pre-Production", icon: "📋" }, { name: "Production", icon: "🎬" }, { name: "Post-Production", icon: "✂️" }, { name: "Distribution", icon: "🌍" }, { name: "Legal", icon: "⚖️" }],
+  "Documentary":     [{ name: "Research", icon: "🔍" }, { name: "Pre-Production", icon: "📋" }, { name: "Production", icon: "🎥" }, { name: "Post-Production", icon: "✂️" }, { name: "Distribution", icon: "🌍" }],
+  "Video Game":      [{ name: "Game Design", icon: "🎮" }, { name: "Art & Assets", icon: "🎨" }, { name: "Engineering", icon: "💻" }, { name: "Audio", icon: "🎵" }, { name: "Production", icon: "⚙️" }, { name: "Business", icon: "📊" }],
+  "Mobile App":      [{ name: "Product", icon: "📱" }, { name: "Design", icon: "🎨" }, { name: "Engineering", icon: "💻" }, { name: "Marketing", icon: "📣" }, { name: "Operations", icon: "⚙️" }],
+  "Web App / SaaS":  [{ name: "Product", icon: "🖥️" }, { name: "Design", icon: "🎨" }, { name: "Engineering", icon: "💻" }, { name: "Growth", icon: "📈" }, { name: "Operations", icon: "⚙️" }],
+  "Business":        [{ name: "Foundation", icon: "🏛️" }, { name: "Finance", icon: "💰" }, { name: "Marketing", icon: "📣" }, { name: "Operations", icon: "⚙️" }, { name: "Legal", icon: "⚖️" }, { name: "Growth", icon: "📈" }],
+  "Startup":         [{ name: "Idea & Vision", icon: "💡" }, { name: "Product", icon: "📱" }, { name: "Business Model", icon: "💼" }, { name: "Fundraising", icon: "💰" }, { name: "Marketing", icon: "📣" }, { name: "Legal", icon: "⚖️" }],
+  "Physical Product":[{ name: "Discovery", icon: "🔍" }, { name: "Design", icon: "🎨" }, { name: "Manufacturing", icon: "🏭" }, { name: "Marketing", icon: "📣" }, { name: "Launch", icon: "🚀" }, { name: "Operations", icon: "⚙️" }],
+  "Book / Novel":    [{ name: "Story Development", icon: "📖" }, { name: "Writing", icon: "✏️" }, { name: "Editing", icon: "📝" }, { name: "Publishing", icon: "📚" }, { name: "Marketing", icon: "📣" }],
+  "Music / Album":   [{ name: "Creative", icon: "🎵" }, { name: "Recording", icon: "🎙️" }, { name: "Release", icon: "🚀" }, { name: "Marketing", icon: "📣" }],
+  "Podcast":         [{ name: "Strategy", icon: "🗺️" }, { name: "Production", icon: "🎙️" }, { name: "Distribution", icon: "📡" }, { name: "Growth", icon: "📈" }],
+  "Online Course":   [{ name: "Curriculum", icon: "📚" }, { name: "Production", icon: "🎬" }, { name: "Marketing", icon: "📣" }, { name: "Operations", icon: "⚙️" }],
 };
 
 const INDUSTRY_ICONS: Record<string, string> = {
   Healthcare: "🏥", Construction: "🏗️", Hunting: "🦌", Farming: "🌾",
   Education: "📚", Logistics: "🚛", Legal: "⚖️", Technology: "💻",
   Nonprofit: "❤️", Retail: "🛒", General: "📁",
+  "Film / Movie": "🎬", "Documentary": "📺", "Video Game": "🎮",
+  "Mobile App": "📱", "Web App / SaaS": "🖥️", "Business": "🏢",
+  "Startup": "🚀", "Physical Product": "📦", "Book / Novel": "📚",
+  "Music / Album": "🎵", "Podcast": "🎙️", "Online Course": "📖",
 };
 
 const INDUSTRY_COLORS: Record<string, string> = {
@@ -52,6 +70,10 @@ const INDUSTRY_COLORS: Record<string, string> = {
   Farming: "#84cc16", Education: "#6366f1", Logistics: "#0ea5e9",
   Legal: "#8b5cf6", Technology: "#06b6d4", Nonprofit: "#ec4899",
   Retail: "#f59e0b", General: "#94a3b8",
+  "Film / Movie": "#dc2626", "Documentary": "#0284c7", "Video Game": "#7c3aed",
+  "Mobile App": "#059669", "Web App / SaaS": "#2563eb", "Business": "#d97706",
+  "Startup": "#7c3aed", "Physical Product": "#b45309", "Book / Novel": "#6b7280",
+  "Music / Album": "#db2777", "Podcast": "#ea580c", "Online Course": "#0891b2",
 };
 
 // ─── Helper: build full project response object ───────────────────────────────
