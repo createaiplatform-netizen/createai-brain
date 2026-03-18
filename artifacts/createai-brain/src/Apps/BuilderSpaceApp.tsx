@@ -9,8 +9,8 @@ import React, { useState, useEffect, useCallback, useMemo } from "react";
 import {
   BuilderProposal, BuilderFile, FileStatus, ProposalStatus,
   getProposals, applyProposal, discardProposal, deleteProposal, clearAll,
-  updateProposalFile, computeDiff, seedDemoProposal, getStats,
-  addProposal,
+  updateProposalFile, computeDiff, seedDemoProposal, seedIdentityEngineProposal,
+  getStats, addProposal,
 } from "@/engine/BuilderSpaceEngine";
 
 // ─── Helpers ──────────────────────────────────────────────────────────────────
@@ -592,6 +592,7 @@ export function BuilderSpaceApp() {
 
   useEffect(() => {
     seedDemoProposal();
+    seedIdentityEngineProposal();
     refresh();
   }, []);
 
