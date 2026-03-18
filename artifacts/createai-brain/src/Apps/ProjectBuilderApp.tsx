@@ -1,6 +1,7 @@
 import React, { useState, useRef, useCallback } from "react";
 import { GLOBAL_REGION_GROUPS, getAllIndustries } from "@/engine/universeConfig";
 import { SaveToProjectModal } from "@/components/SaveToProjectModal";
+import { streamEngine } from "@/controller";
 
 // ─── Types ────────────────────────────────────────────────────────────────────
 
@@ -51,53 +52,6 @@ const DEFAULT_CTX: ProjectContext = {
   region: "United States",
   scale: "Small Team (2–10)",
 };
-
-// ─── SSE Streaming Helper ─────────────────────────────────────────────────────
-
-async function streamProjectSection(
-  ctx: ProjectContext,
-  action: string,
-  onChunk: (text: string) => void,
-  signal: AbortSignal,
-) {
-  const res = await fetch("/api/openai/project-builder", {
-    method: "POST",
-    headers: { "Content-Type": "application/json" },
-    credentials: "include",
-    body: JSON.stringify({
-      project: ctx.project,
-      industry: ctx.industry,
-      projectType: ctx.projectType,
-      region: ctx.region,
-      scale: ctx.scale,
-      action,
-    }),
-    signal,
-  });
-
-  if (!res.ok || !res.body) return;
-
-  const reader = res.body.getReader();
-  const dec = new TextDecoder();
-  let acc = "";
-
-  while (true) {
-    const { done, value } = await reader.read();
-    if (done) break;
-    acc += dec.decode(value, { stream: true });
-    const parts = acc.split("\n\n");
-    acc = parts.pop() ?? "";
-    for (const part of parts) {
-      const line = part.startsWith("data: ") ? part.slice(6) : null;
-      if (!line) continue;
-      try {
-        const parsed = JSON.parse(line);
-        if (parsed.content) onChunk(parsed.content);
-        if (parsed.done) return;
-      } catch {}
-    }
-  }
-}
 
 // ─── Seed Framework Cards ─────────────────────────────────────────────────────
 
@@ -308,10 +262,24 @@ export function ProjectBuilderApp() {
 
     try {
       let text = "";
-      await streamProjectSection(ctxOverride ?? ctx, section.action, chunk => {
-        text += chunk;
-        setSectionStates(prev => ({ ...prev, [sectionId]: { content: text, loading: true, generated: false } }));
-      }, ctrl.signal);
+      const c = ctxOverride ?? ctx;
+      await streamEngine({
+        engineId: "UniversalStrategyEngine",
+        topic: [
+          `PROJECT BUILDER — SECTION: ${section.label}`,
+          `Project: ${c.project}`,
+          `Industry: ${c.industry}`,
+          `Type: ${c.projectType}`,
+          `Region: ${c.region}`,
+          `Scale: ${c.scale}`,
+          `\nGenerate the ${section.label} section completely. Be specific, actionable, and thorough.`,
+        ].filter(Boolean).join("\n"),
+        signal: ctrl.signal,
+        onChunk: chunk => {
+          text += chunk;
+          setSectionStates(prev => ({ ...prev, [sectionId]: { content: text, loading: true, generated: false } }));
+        },
+      });
       setSectionStates(prev => ({ ...prev, [sectionId]: { content: text, loading: false, generated: true } }));
     } catch (e: any) {
       if (e.name !== "AbortError") {

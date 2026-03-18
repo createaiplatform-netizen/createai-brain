@@ -1,4 +1,5 @@
 import React, { useState, useEffect, useCallback } from "react";
+import { streamEngine } from "@/controller";
 
 interface Person {
   id: number;
@@ -65,38 +66,13 @@ function ProfileView({ person, onBack, onUpdate, onDelete }: {
   const handleGenerateInvite = async () => {
     setGenerating(true);
     try {
-      const r = await fetch("/api/openai/chat", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        credentials: "include",
-        body: JSON.stringify({
-          messages: [{
-            role: "user",
-            content: `Write a warm, professional 3-sentence platform invite message for ${person.name} who will be joining as ${person.role}. Include a placeholder link [PLATFORM_LINK]. Keep it personal and exciting.`,
-          }],
-          model: "gpt-5.2",
-        }),
+      let text = "";
+      await streamEngine({
+        engineId: "InteractionEngine",
+        topic: `Write a warm, professional 3-sentence platform invite message for ${person.name} who will be joining as ${person.role}. Include a placeholder link [PLATFORM_LINK]. Keep it personal and exciting.`,
+        onChunk: chunk => { text += chunk; },
+        onDone: () => { setInviteText(text.replace("[PLATFORM_LINK]", window.location.origin)); },
       });
-      if (r.ok && r.body) {
-        const reader = r.body.getReader();
-        const decoder = new TextDecoder();
-        let text = "";
-        while (true) {
-          const { done, value } = await reader.read();
-          if (done) break;
-          const chunk = decoder.decode(value, { stream: true });
-          for (const line of chunk.split("\n")) {
-            if (!line.startsWith("data: ")) continue;
-            const raw = line.slice(6).trim();
-            if (raw === "[DONE]") continue;
-            try {
-              const parsed = JSON.parse(raw);
-              text += parsed.choices?.[0]?.delta?.content ?? parsed.content ?? "";
-            } catch {}
-          }
-        }
-        setInviteText(text.replace("[PLATFORM_LINK]", window.location.origin));
-      }
     } catch {}
     finally { setGenerating(false); }
   };

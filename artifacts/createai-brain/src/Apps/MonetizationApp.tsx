@@ -2,6 +2,7 @@ import React, { useState, useRef, useEffect } from "react";
 import { useOS } from "@/os/OSContext";
 import { BrainGen } from "@/engine/BrainGen";
 import { SaveToProjectModal } from "@/components/SaveToProjectModal";
+import { streamEngine } from "@/controller";
 
 // ─── Types ───────────────────────────────────────────────────────────────────
 interface Opportunity {
@@ -302,35 +303,21 @@ function FunnelGenerator() {
     abortRef.current = controller;
 
     try {
-      const res = await fetch("/api/openai/offer-funnel", {
-        method: "POST",
-        credentials: "include",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ offerName, price, audience, tone: preferences.tone }),
+      let acc = "";
+      await streamEngine({
+        engineId: "MonetizationEngine",
+        topic: [
+          `OFFER & FUNNEL GENERATOR`,
+          `Offer Name: ${offerName}`,
+          price ? `Price: ${price}` : "",
+          audience ? `Target Audience: ${audience}` : "",
+          preferences.tone ? `Tone: ${preferences.tone}` : "",
+          `\nGenerate a complete offer package: compelling offer write-up, full funnel stages, 3 follow-up emails, ad copy, and a sales script.`,
+        ].filter(Boolean).join("\n"),
         signal: controller.signal,
+        onChunk: chunk => { acc += chunk; setStreamText(acc); },
+        onDone: () => setDone(true),
       });
-
-      if (!res.ok || !res.body) throw new Error("Funnel generation failed");
-
-      const reader = res.body.getReader();
-      const decoder = new TextDecoder();
-      let accumulated = "";
-
-      while (true) {
-        const { done: d, value } = await reader.read();
-        if (d) break;
-        const chunk = decoder.decode(value, { stream: true });
-        for (const line of chunk.split("\n")) {
-          if (!line.startsWith("data: ")) continue;
-          const dataStr = line.slice(6);
-          if (!dataStr || dataStr === "[DONE]") continue;
-          try {
-            const data = JSON.parse(dataStr);
-            if (data.content) { accumulated += data.content; setStreamText(accumulated); }
-            if (data.done) setDone(true);
-          } catch {}
-        }
-      }
     } catch (err: any) {
       if (err.name !== "AbortError") setStreamText("[Generation error — please try again.]");
     } finally {

@@ -1,5 +1,6 @@
 import React, { useState, useRef, useEffect } from "react";
 import { SaveToProjectModal } from "@/components/SaveToProjectModal";
+import { streamEngine } from "@/controller";
 import {
   CreationStore, Creation, CreationType, parseSections, buildPrompt,
   classifyIntent, IntentResult, PATTERN_LIBRARY,
@@ -315,15 +316,6 @@ function EverythingEngine() {
         intent.genre, intent.style, intent.tone,
         intent.domain, intent.modules, intent.patterns,
       );
-      const res = await fetch("/api/openai/generate", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        credentials: "include",
-        body: JSON.stringify({ type: "Document", description: prompt, tone: intent.tone }),
-        signal: controller.signal,
-      });
-      if (!res.ok || !res.body) throw new Error("Failed");
-      const reader = res.body.getReader(); const dec = new TextDecoder(); let acc = ""; let chars = 0;
 
       const buildMessages: Record<number, string> = {
         20: "📝 Writing core content…",
@@ -334,22 +326,18 @@ function EverythingEngine() {
         90: "📖 Building documentation…",
       };
 
-      while (true) {
-        const { done, value } = await reader.read(); if (done) break;
-        for (const line of dec.decode(value, { stream: true }).split("\n")) {
-          if (!line.startsWith("data: ")) continue;
-          const data = line.slice(6); if (!data || data === "[DONE]") continue;
-          try {
-            const p = JSON.parse(data);
-            if (p.content) {
-              acc += p.content; chars += p.content.length;
-              const newPct = Math.min(95, 5 + Math.floor(chars / 75));
-              setPct(newPct);
-              if (buildMessages[newPct]) setLog(prev => [...prev, buildMessages[newPct]]);
-            }
-          } catch {}
-        }
-      }
+      let acc = ""; let chars = 0;
+      await streamEngine({
+        engineId: "BrainGen",
+        topic: prompt,
+        signal: controller.signal,
+        onChunk: chunk => {
+          acc += chunk; chars += chunk.length;
+          const newPct = Math.min(95, 5 + Math.floor(chars / 75));
+          setPct(newPct);
+          if (buildMessages[newPct]) setLog(prev => [...prev, buildMessages[newPct]]);
+        },
+      });
 
       setLog(prev => [...prev, "🗂️ Parsing sections…", "💾 Saving to Engine Store…"]);
       setPct(98);
@@ -525,23 +513,14 @@ function QuickGenerator() {
     setStr(true); setTxt(""); setView("output");
     const ctrl = new AbortController(); abortRef.current = ctrl;
     try {
-      const res = await fetch("/api/openai/generate", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        credentials: "include",
-        body: JSON.stringify({ type: selectedType, description, tone }),
+      let acc = "";
+      await streamEngine({
+        engineId: "BrainGen",
+        topic: `${selectedType}: ${description}\nTone: ${tone}`,
         signal: ctrl.signal,
+        onChunk: chunk => { acc += chunk; setTxt(acc); },
+        onDone: () => setHist(prev => [{ id: Date.now().toString(), type: selectedType!, description, content: acc, createdAt: new Date() }, ...prev]),
       });
-      if (!res.ok || !res.body) throw new Error("Failed");
-      const reader = res.body.getReader(); const dec = new TextDecoder(); let acc = "";
-      while (true) {
-        const { done, value } = await reader.read(); if (done) break;
-        for (const line of dec.decode(value, { stream: true }).split("\n")) {
-          if (!line.startsWith("data: ")) continue;
-          const d = line.slice(6); if (!d || d === "[DONE]") continue;
-          try { const p = JSON.parse(d); if (p.content) { acc += p.content; setTxt(acc); } if (p.done) setHist(prev => [{ id: Date.now().toString(), type: selectedType, description, content: acc, createdAt: new Date() }, ...prev]); } catch {}
-        }
-      }
     } catch (err: any) {
       if (err.name !== "AbortError") setTxt("[Error — please retry.]");
     } finally { setStr(false); abortRef.current = null; }

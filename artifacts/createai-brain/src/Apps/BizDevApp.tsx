@@ -1,6 +1,7 @@
 import React, { useState, useRef, useCallback } from "react";
 import { GLOBAL_REGION_GROUPS, getAllIndustries } from "@/engine/universeConfig";
 import { SaveToProjectModal } from "@/components/SaveToProjectModal";
+import { streamEngine } from "@/controller";
 
 // ─── Types ────────────────────────────────────────────────────────────────────
 
@@ -47,53 +48,6 @@ const DEFAULT_CTX: BizDevContext = {
   size: "Solo / Freelance",
   resources: "",
 };
-
-// ─── SSE Streaming Helper ─────────────────────────────────────────────────────
-
-async function streamBizDevSection(
-  ctx: BizDevContext,
-  action: string,
-  onChunk: (text: string) => void,
-  signal: AbortSignal,
-) {
-  const res = await fetch("/api/openai/biz-dev", {
-    method: "POST",
-    headers: { "Content-Type": "application/json" },
-    credentials: "include",
-    body: JSON.stringify({
-      idea: ctx.idea,
-      industry: ctx.industry,
-      region: ctx.region,
-      size: ctx.size,
-      resources: ctx.resources,
-      action,
-    }),
-    signal,
-  });
-
-  if (!res.ok || !res.body) return;
-
-  const reader = res.body.getReader();
-  const dec = new TextDecoder();
-  let acc = "";
-
-  while (true) {
-    const { done, value } = await reader.read();
-    if (done) break;
-    acc += dec.decode(value, { stream: true });
-    const parts = acc.split("\n\n");
-    acc = parts.pop() ?? "";
-    for (const part of parts) {
-      const line = part.startsWith("data: ") ? part.slice(6) : null;
-      if (!line) continue;
-      try {
-        const parsed = JSON.parse(line);
-        if (parsed.content) onChunk(parsed.content);
-        if (parsed.done) return;
-      } catch {}
-    }
-  }
-}
 
 // ─── Seed Framework Cards ─────────────────────────────────────────────────────
 
@@ -344,10 +298,24 @@ export function BizDevApp() {
 
     try {
       let text = "";
-      await streamBizDevSection(ctxOverride ?? ctx, section.action, chunk => {
-        text += chunk;
-        setSectionStates(prev => ({ ...prev, [sectionId]: { content: text, loading: true, generated: false } }));
-      }, ctrl.signal);
+      const c = ctxOverride ?? ctx;
+      await streamEngine({
+        engineId: "UniversalStrategyEngine",
+        topic: [
+          `BUSINESS PLAN — SECTION: ${section.label}`,
+          `Business Idea: ${c.idea}`,
+          `Industry: ${c.industry}`,
+          `Region / Market: ${c.region}`,
+          `Team Size: ${c.size}`,
+          c.resources ? `Resources: ${c.resources}` : "",
+          `\nGenerate a comprehensive, specific, and actionable ${section.label} section. Include real-world tactics, concrete numbers, and clear next steps.`,
+        ].filter(Boolean).join("\n"),
+        signal: ctrl.signal,
+        onChunk: chunk => {
+          text += chunk;
+          setSectionStates(prev => ({ ...prev, [sectionId]: { content: text, loading: true, generated: false } }));
+        },
+      });
       setSectionStates(prev => ({ ...prev, [sectionId]: { content: text, loading: false, generated: true } }));
     } catch (e: any) {
       if (e.name !== "AbortError") {

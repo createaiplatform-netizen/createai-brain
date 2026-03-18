@@ -1,6 +1,7 @@
 import React, { useState, useRef, useCallback } from "react";
 import { GLOBAL_REGION_GROUPS, getAllIndustries } from "@/engine/universeConfig";
 import { SaveToProjectModal } from "@/components/SaveToProjectModal";
+import { streamEngine } from "@/controller";
 
 // ─── Types ────────────────────────────────────────────────────────────────────
 
@@ -47,54 +48,6 @@ const DEFAULT_CTX: EntityContext = {
   audience: "",
   stage: "Concept",
 };
-
-// ─── SSE Streaming Helper ─────────────────────────────────────────────────────
-
-async function streamEntityLayer(
-  ctx: EntityContext,
-  action: string,
-  onChunk: (text: string) => void,
-  signal: AbortSignal,
-) {
-  const res = await fetch("/api/openai/business-entity", {
-    method: "POST",
-    headers: { "Content-Type": "application/json" },
-    credentials: "include",
-    body: JSON.stringify({
-      entityName: ctx.entityName,
-      description: ctx.description,
-      industry: ctx.industry,
-      region: ctx.region,
-      audience: ctx.audience,
-      stage: ctx.stage,
-      action,
-    }),
-    signal,
-  });
-
-  if (!res.ok || !res.body) return;
-
-  const reader = res.body.getReader();
-  const dec = new TextDecoder();
-  let acc = "";
-
-  while (true) {
-    const { done, value } = await reader.read();
-    if (done) break;
-    acc += dec.decode(value, { stream: true });
-    const parts = acc.split("\n\n");
-    acc = parts.pop() ?? "";
-    for (const part of parts) {
-      const line = part.startsWith("data: ") ? part.slice(6) : null;
-      if (!line) continue;
-      try {
-        const parsed = JSON.parse(line);
-        if (parsed.content) onChunk(parsed.content);
-        if (parsed.done) return;
-      } catch {}
-    }
-  }
-}
 
 // ─── Seed Framework Cards ──────────────────────────────────────────────────────
 
@@ -305,10 +258,25 @@ export function BusinessEntityApp() {
 
     try {
       let text = "";
-      await streamEntityLayer(ctxOverride ?? ctx, layer.action, chunk => {
-        text += chunk;
-        setLayerStates(prev => ({ ...prev, [layerId]: { content: text, loading: true, generated: false } }));
-      }, ctrl.signal);
+      const c = ctxOverride ?? ctx;
+      await streamEngine({
+        engineId: "UniversalStrategyEngine",
+        topic: [
+          `BUSINESS ENTITY — SECTION: ${layer.label}`,
+          `Entity: ${c.entityName}`,
+          c.description ? `Description: ${c.description}` : "",
+          `Industry: ${c.industry}`,
+          `Region: ${c.region}`,
+          c.audience ? `Audience: ${c.audience}` : "",
+          `Stage: ${c.stage}`,
+          `\nGenerate the ${layer.label} section with full detail and real-world specifics.`,
+        ].filter(Boolean).join("\n"),
+        signal: ctrl.signal,
+        onChunk: chunk => {
+          text += chunk;
+          setLayerStates(prev => ({ ...prev, [layerId]: { content: text, loading: true, generated: false } }));
+        },
+      });
       setLayerStates(prev => ({ ...prev, [layerId]: { content: text, loading: false, generated: true } }));
     } catch (e: any) {
       if (e.name !== "AbortError") {

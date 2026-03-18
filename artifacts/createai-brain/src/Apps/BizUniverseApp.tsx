@@ -1,6 +1,7 @@
 import React, { useState, useRef, useCallback } from "react";
 import { GLOBAL_REGION_GROUPS, getAllIndustries } from "@/engine/universeConfig";
 import { SaveToProjectModal } from "@/components/SaveToProjectModal";
+import { streamEngine } from "@/controller";
 
 // ─── Types ────────────────────────────────────────────────────────────────────
 
@@ -44,52 +45,6 @@ const DEFAULT_CTX: UniverseContext = {
   region: "United States",
   scale: "Small Team (2–10)",
 };
-
-// ─── SSE Streaming Helper ─────────────────────────────────────────────────────
-
-async function streamUniverseLayer(
-  ctx: UniverseContext,
-  action: string,
-  onChunk: (text: string) => void,
-  signal: AbortSignal,
-) {
-  const res = await fetch("/api/openai/biz-universe", {
-    method: "POST",
-    headers: { "Content-Type": "application/json" },
-    credentials: "include",
-    body: JSON.stringify({
-      idea: ctx.idea,
-      industry: ctx.industry,
-      region: ctx.region,
-      scale: ctx.scale,
-      action,
-    }),
-    signal,
-  });
-
-  if (!res.ok || !res.body) return;
-
-  const reader = res.body.getReader();
-  const dec = new TextDecoder();
-  let acc = "";
-
-  while (true) {
-    const { done, value } = await reader.read();
-    if (done) break;
-    acc += dec.decode(value, { stream: true });
-    const parts = acc.split("\n\n");
-    acc = parts.pop() ?? "";
-    for (const part of parts) {
-      const line = part.startsWith("data: ") ? part.slice(6) : null;
-      if (!line) continue;
-      try {
-        const parsed = JSON.parse(line);
-        if (parsed.content) onChunk(parsed.content);
-        if (parsed.done) return;
-      } catch {}
-    }
-  }
-}
 
 // ─── Seed Framework Cards ─────────────────────────────────────────────────────
 
@@ -320,10 +275,23 @@ export function BizUniverseApp() {
 
     try {
       let text = "";
-      await streamUniverseLayer(ctxOverride ?? ctx, layer.action, chunk => {
-        text += chunk;
-        setLayerStates(prev => ({ ...prev, [layerId]: { content: text, loading: true, generated: false } }));
-      }, ctrl.signal);
+      const c = ctxOverride ?? ctx;
+      await streamEngine({
+        engineId: "InfiniteExpansionEngine",
+        topic: [
+          `BUSINESS UNIVERSE — LAYER: ${layer.label}`,
+          `Idea / Concept: ${c.idea}`,
+          `Industry: ${c.industry}`,
+          `Region: ${c.region}`,
+          `Scale: ${c.scale}`,
+          `\nExpand the ${layer.label} layer fully. Be specific, comprehensive, and visionary.`,
+        ].filter(Boolean).join("\n"),
+        signal: ctrl.signal,
+        onChunk: chunk => {
+          text += chunk;
+          setLayerStates(prev => ({ ...prev, [layerId]: { content: text, loading: true, generated: false } }));
+        },
+      });
       setLayerStates(prev => ({ ...prev, [layerId]: { content: text, loading: false, generated: true } }));
     } catch (e: any) {
       if (e.name !== "AbortError") {

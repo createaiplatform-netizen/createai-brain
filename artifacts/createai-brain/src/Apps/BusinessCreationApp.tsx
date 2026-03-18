@@ -1,6 +1,7 @@
 import React, { useState, useRef, useCallback } from "react";
 import { GLOBAL_REGION_GROUPS, getAllIndustries } from "@/engine/universeConfig";
 import { SaveToProjectModal } from "@/components/SaveToProjectModal";
+import { streamEngine } from "@/controller";
 
 // ─── Types ────────────────────────────────────────────────────────────────────
 
@@ -61,102 +62,6 @@ const DEFAULT_CTX: BusinessContext = {
   stage: "Growing",
   focus: "",
 };
-
-// ─── SSE Streaming Helper ─────────────────────────────────────────────────────
-
-async function streamBusinessLayer(
-  ctx: BusinessContext,
-  action: string,
-  onChunk: (text: string) => void,
-  signal: AbortSignal,
-) {
-  const res = await fetch("/api/openai/business-creation", {
-    method: "POST",
-    headers: { "Content-Type": "application/json" },
-    credentials: "include",
-    body: JSON.stringify({
-      industry: ctx.industry,
-      region: ctx.region,
-      size: ctx.size,
-      stage: ctx.stage,
-      focus: ctx.focus,
-      action,
-    }),
-    signal,
-  });
-
-  if (!res.ok || !res.body) return;
-
-  const reader = res.body.getReader();
-  const dec = new TextDecoder();
-  let acc = "";
-
-  while (true) {
-    const { done, value } = await reader.read();
-    if (done) break;
-    acc += dec.decode(value, { stream: true });
-    const parts = acc.split("\n\n");
-    acc = parts.pop() ?? "";
-    for (const part of parts) {
-      const line = part.startsWith("data: ") ? part.slice(6) : null;
-      if (!line) continue;
-      try {
-        const parsed = JSON.parse(line);
-        if (parsed.content) onChunk(parsed.content);
-        if (parsed.done) return;
-      } catch {}
-    }
-  }
-}
-
-// ─── Everything-Ensurer SSE Helper ───────────────────────────────────────────
-
-async function streamEnsureLayer(
-  content: string,
-  ctx: BusinessContext,
-  layerLabel: string,
-  onChunk: (text: string) => void,
-  signal: AbortSignal,
-) {
-  const res = await fetch("/api/openai/everything-ensurer", {
-    method: "POST",
-    headers: { "Content-Type": "application/json" },
-    credentials: "include",
-    body: JSON.stringify({
-      content,
-      industry: ctx.industry,
-      region: ctx.region,
-      size: ctx.size,
-      stage: ctx.stage,
-      focus: ctx.focus,
-      layerLabel,
-    }),
-    signal,
-  });
-
-  if (!res.ok || !res.body) return;
-
-  const reader = res.body.getReader();
-  const dec = new TextDecoder();
-  let acc = "";
-
-  while (true) {
-    const { done, value } = await reader.read();
-    if (done) break;
-    acc += dec.decode(value, { stream: true });
-    const parts = acc.split("\n\n");
-    acc = parts.pop() ?? "";
-    for (const part of parts) {
-      const line = part.startsWith("data: ") ? part.slice(6) : null;
-      if (!line) continue;
-      try {
-        const parsed = JSON.parse(line);
-        if (parsed.content) onChunk(parsed.content);
-        if (parsed.done) return;
-      } catch {}
-    }
-  }
-}
 
 // ─── Seed Framework Cards ──────────────────────────────────────────────────────
 
@@ -360,10 +265,24 @@ export function BusinessCreationApp() {
 
     try {
       let text = "";
-      await streamBusinessLayer(ctxOverride ?? ctx, layer.action, chunk => {
-        text += chunk;
-        setLayerStates(prev => ({ ...prev, [layerId]: { content: text, loading: true, generated: false } }));
-      }, ctrl.signal);
+      const c = ctxOverride ?? ctx;
+      await streamEngine({
+        engineId: "UniversalStrategyEngine",
+        topic: [
+          `BUSINESS CREATION — LAYER: ${layer.label}`,
+          `Industry: ${c.industry}`,
+          `Region: ${c.region}`,
+          `Team Size: ${c.size}`,
+          `Stage: ${c.stage}`,
+          c.focus ? `Focus: ${c.focus}` : "",
+          `\nGenerate the ${layer.label} layer. Be comprehensive, specific, and real-world grounded.`,
+        ].filter(Boolean).join("\n"),
+        signal: ctrl.signal,
+        onChunk: chunk => {
+          text += chunk;
+          setLayerStates(prev => ({ ...prev, [layerId]: { content: text, loading: true, generated: false } }));
+        },
+      });
       setLayerStates(prev => ({ ...prev, [layerId]: { content: text, loading: false, generated: true } }));
     } catch (e: any) {
       if (e.name !== "AbortError") {
@@ -398,10 +317,24 @@ export function BusinessCreationApp() {
 
     try {
       let text = "";
-      await streamEnsureLayer(layerContent, ctxOverride ?? ctx, `Layer ${layer.num}: ${layer.label}`, chunk => {
-        text += chunk;
-        setEnsureStates(prev => ({ ...prev, [layerId]: { content: text, loading: true, ensured: false } }));
-      }, ctrl.signal);
+      const c = ctxOverride ?? ctx;
+      await streamEngine({
+        engineId: "DeliverableEngine",
+        topic: [
+          `QUALITY VALIDATION — Layer ${layer.num}: ${layer.label}`,
+          `Original Content:`,
+          layerContent,
+          ``,
+          `Context: ${c.industry} | ${c.region} | ${c.size} | ${c.stage}${c.focus ? ` | ${c.focus}` : ""}`,
+          ``,
+          `Review and enhance this content. Fix any gaps, add specificity, and ensure it is comprehensive, actionable, and real-world grounded. Output the improved full version.`,
+        ].join("\n"),
+        signal: ctrl.signal,
+        onChunk: chunk => {
+          text += chunk;
+          setEnsureStates(prev => ({ ...prev, [layerId]: { content: text, loading: true, ensured: false } }));
+        },
+      });
       setEnsureStates(prev => ({ ...prev, [layerId]: { content: text, loading: false, ensured: true } }));
     } catch (e: any) {
       if (e.name !== "AbortError") {
