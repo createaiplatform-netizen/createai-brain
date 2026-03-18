@@ -1,6 +1,6 @@
 import React, { useState, useEffect, useRef, useCallback } from "react";
 import { MediaPlayer } from "../components/MediaPlayer";
-import { streamProjectChat } from "@/controller";
+import { streamProjectChat, contextStore } from "@/controller";
 
 // ─── Types ────────────────────────────────────────────────────────────────────
 
@@ -653,6 +653,16 @@ export function ProjectOSApp() {
   useEffect(() => {
     if (aiScrollRef.current) aiScrollRef.current.scrollTop = aiScrollRef.current.scrollHeight;
   }, [aiMessages]);
+
+  // Seed shared intelligence layer when active project changes
+  useEffect(() => {
+    if (activeProject) {
+      contextStore.setSessionContext({
+        projectId:   activeProject.id,
+        projectName: activeProject.name,
+      });
+    }
+  }, [activeProject]);
 
   // ── Load members when Team tab is active ────────────────────────────────
   useEffect(() => {

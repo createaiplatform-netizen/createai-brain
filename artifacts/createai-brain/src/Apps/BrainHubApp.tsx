@@ -6,11 +6,11 @@ import {
 } from "@/engine/CapabilityEngine";
 import { RegulatoryEngine } from "@/engine/RegulatoryEngine";
 import { SaveToProjectModal } from "@/components/SaveToProjectModal";
-import { useEngineRun, useSeriesRun } from "@/controller";
+import { useEngineRun, useSeriesRun, useContextStore, contextStore } from "@/controller";
 import { DocumentRenderer } from "@/engines/document";
 
 // ─── Types ─────────────────────────────────────────────────────────────────────
-type HubView = "dashboard" | "engines" | "agents" | "series" | "compliance" | "run" | "series-run";
+type HubView = "dashboard" | "engines" | "agents" | "series" | "compliance" | "intelligence" | "run" | "series-run";
 
 // Per-engine hint text shown in RunPanel (Step 4 — engine-specific hints)
 const ENGINE_HINTS: Record<string, { placeholder: string; example: string }> = {
@@ -208,10 +208,17 @@ function RunPanel({ engine, onBack }: { engine: EngineDefinition; onBack: () => 
   };
 
   const { run: runCtrl, output, document: doc, status, error: runError, isRunning, isDone } = useEngineRun(engine.id);
-  const [topic,    setTopic]    = useState("");
-  const [context,  setContext]  = useState("");
-  const [showSave, setShowSave] = useState(false);
+  const cs = useContextStore();
+  const [topic,         setTopic]         = useState("");
+  const [context,       setContext]       = useState("");
+  const [showSave,      setShowSave]      = useState(false);
+  const [rollbackText,  setRollbackText]  = useState<string | null>(null);
   const outputRef = useRef<HTMLDivElement>(null);
+
+  // When the engine reruns, clear any rollback override
+  useEffect(() => { if (isRunning) setRollbackText(null); }, [isRunning]);
+
+  const displayOutput = rollbackText ?? output;
 
   const handleRun = useCallback(() => {
     if (!topic.trim()) return;
@@ -337,16 +344,41 @@ function RunPanel({ engine, onBack }: { engine: EngineDefinition; onBack: () => 
       )}
 
       {/* Output */}
-      {output && (
+      {displayOutput && (
         <div style={{ display: "flex", flexDirection: "column", gap: 8 }}>
           <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between" }}>
             <label style={{ fontSize: 12, color: "#94a3b8", fontWeight: 600 }}>
               {isRunning ? "⟳ STREAMING OUTPUT…" : isDone ? "✅ OUTPUT COMPLETE" : "OUTPUT"}
+              {rollbackText && <span style={{ color: "#f59e0b", marginLeft: 8 }}>↩ Rolled back</span>}
             </label>
             {isDone && (
-              <div style={{ display: "flex", gap: 6 }}>
+              <div style={{ display: "flex", gap: 6, flexWrap: "wrap", justifyContent: "flex-end" }}>
+                {cs.canRollback(engine.id) && !rollbackText && (
+                  <button
+                    onClick={() => {
+                      const prev = contextStore.rollback(engine.id);
+                      if (prev) setRollbackText(prev.text);
+                    }}
+                    style={{
+                      background: "rgba(245,158,11,0.12)", border: "1px solid rgba(245,158,11,0.3)",
+                      borderRadius: 6, padding: "4px 10px", color: "#f59e0b",
+                      cursor: "pointer", fontSize: 11, fontWeight: 600,
+                    }}
+                    title="Restore the previous output for this engine"
+                  >↩ Rollback</button>
+                )}
+                {rollbackText && (
+                  <button
+                    onClick={() => setRollbackText(null)}
+                    style={{
+                      background: "rgba(255,255,255,0.06)", border: "1px solid rgba(255,255,255,0.12)",
+                      borderRadius: 6, padding: "4px 10px", color: "#94a3b8",
+                      cursor: "pointer", fontSize: 11,
+                    }}
+                  >Show latest</button>
+                )}
                 <button
-                  onClick={() => navigator.clipboard.writeText(output)}
+                  onClick={() => navigator.clipboard.writeText(displayOutput)}
                   style={{
                     background: "rgba(255,255,255,0.08)", border: "none", borderRadius: 6,
                     padding: "4px 10px", color: "#94a3b8", cursor: "pointer", fontSize: 11,
@@ -364,14 +396,14 @@ function RunPanel({ engine, onBack }: { engine: EngineDefinition; onBack: () => 
             )}
           </div>
           <div ref={outputRef} style={{ maxHeight: 480, overflowY: "auto" }}>
-            {isDone && doc ? (
+            {isDone && doc && !rollbackText ? (
               <DocumentRenderer schema={doc} compact toolbar />
             ) : (
               <div style={{
                 background: "rgba(0,0,0,0.3)", border: "1px solid rgba(255,255,255,0.08)",
                 borderRadius: 8, padding: "14px", color: "#e2e8f0", fontSize: 13,
                 lineHeight: 1.7, whiteSpace: "pre-wrap", fontFamily: "ui-monospace, monospace",
-              }}>{output}</div>
+              }}>{displayOutput}</div>
             )}
           </div>
         </div>
@@ -379,7 +411,7 @@ function RunPanel({ engine, onBack }: { engine: EngineDefinition; onBack: () => 
 
       {showSave && (
         <SaveToProjectModal
-          content={output}
+          content={displayOutput}
           label={`${engine.name} — ${topic.slice(0, 40)}`}
           onClose={() => setShowSave(false)}
         />
@@ -842,6 +874,200 @@ function CompliancePanel() {
   );
 }
 
+// ─── Intelligence Panel — shows platform memory, session context, rollback ─────
+function IntelligencePanel() {
+  const cs = useContextStore();
+  const s  = cs.getState();
+  const { totalRuns, enginesUsed, sessionCtx, insights, recentOutputs, rollbackStacks } = s;
+
+  const recentList = Object.values(recentOutputs)
+    .flatMap(arr => arr)
+    .sort((a, b) => b.ts - a.ts)
+    .slice(0, 8);
+
+  const timeAgo = (ts: number) => {
+    const d = Math.floor((Date.now() - ts) / 1000);
+    if (d < 60) return `${d}s ago`;
+    if (d < 3600) return `${Math.floor(d / 60)}m ago`;
+    return `${Math.floor(d / 3600)}h ago`;
+  };
+
+  return (
+    <div style={{ display: "flex", flexDirection: "column", gap: 20, padding: "8px 0" }}>
+
+      {/* ── Header ── */}
+      <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between" }}>
+        <div>
+          <div style={{ fontSize: 18, fontWeight: 700, color: "#e2e8f0", letterSpacing: "-0.02em" }}>
+            🧠 Platform Intelligence
+          </div>
+          <div style={{ fontSize: 12, color: "#64748b", marginTop: 2 }}>
+            Shared memory and learning across all engines this session
+          </div>
+        </div>
+        {totalRuns > 0 && (
+          <button
+            onClick={() => cs.clear()}
+            style={{
+              background: "rgba(255,59,48,0.1)", border: "1px solid rgba(255,59,48,0.25)",
+              borderRadius: 8, padding: "6px 12px", color: "#ff3b30",
+              cursor: "pointer", fontSize: 11, fontWeight: 600,
+            }}
+          >Clear session</button>
+        )}
+      </div>
+
+      {/* ── Stats row ── */}
+      <div style={{ display: "grid", gridTemplateColumns: "repeat(3, 1fr)", gap: 10 }}>
+        {[
+          { label: "Engine Runs", value: totalRuns, icon: "⚡" },
+          { label: "Engines Used", value: enginesUsed.length, icon: "⚙️" },
+          { label: "Insights", value: insights.length, icon: "💡" },
+        ].map(stat => (
+          <div key={stat.label} style={{
+            background: "rgba(255,255,255,0.04)", border: "1px solid rgba(255,255,255,0.08)",
+            borderRadius: 12, padding: "14px 12px", textAlign: "center",
+          }}>
+            <div style={{ fontSize: 22 }}>{stat.icon}</div>
+            <div style={{ fontSize: 24, fontWeight: 800, color: "#6366f1", marginTop: 2 }}>{stat.value}</div>
+            <div style={{ fontSize: 10, color: "#64748b", marginTop: 1, fontWeight: 600, textTransform: "uppercase", letterSpacing: "0.05em" }}>{stat.label}</div>
+          </div>
+        ))}
+      </div>
+
+      {/* ── Session Context ── */}
+      <div style={{
+        background: "rgba(99,102,241,0.06)", border: "1px solid rgba(99,102,241,0.2)",
+        borderRadius: 12, padding: "14px 16px",
+      }}>
+        <div style={{ fontSize: 11, fontWeight: 700, color: "#6366f1", textTransform: "uppercase", letterSpacing: "0.06em", marginBottom: 10 }}>
+          Session Context
+        </div>
+        <div style={{ display: "flex", flexWrap: "wrap", gap: 8 }}>
+          {sessionCtx.tone && (
+            <span style={{ fontSize: 11, background: "rgba(99,102,241,0.15)", borderRadius: 6, padding: "3px 8px", color: "#818cf8" }}>
+              Tone: {sessionCtx.tone}
+            </span>
+          )}
+          {sessionCtx.projectName && (
+            <span style={{ fontSize: 11, background: "rgba(52,199,89,0.12)", borderRadius: 6, padding: "3px 8px", color: "#34C759" }}>
+              Project: {sessionCtx.projectName}
+            </span>
+          )}
+          {sessionCtx.industry && (
+            <span style={{ fontSize: 11, background: "rgba(255,149,0,0.12)", borderRadius: 6, padding: "3px 8px", color: "#FF9500" }}>
+              Industry: {sessionCtx.industry}
+            </span>
+          )}
+          {sessionCtx.domain && (
+            <span style={{ fontSize: 11, background: "rgba(100,116,139,0.15)", borderRadius: 6, padding: "3px 8px", color: "#94a3b8" }}>
+              Domain: {sessionCtx.domain}
+            </span>
+          )}
+        </div>
+        {sessionCtx.keywords.length > 0 && (
+          <div style={{ marginTop: 10 }}>
+            <div style={{ fontSize: 10, color: "#64748b", fontWeight: 600, marginBottom: 6 }}>LEARNED KEYWORDS</div>
+            <div style={{ display: "flex", flexWrap: "wrap", gap: 5 }}>
+              {sessionCtx.keywords.map(kw => (
+                <span key={kw} style={{
+                  fontSize: 10, background: "rgba(255,255,255,0.06)", borderRadius: 4,
+                  padding: "2px 7px", color: "#94a3b8", border: "1px solid rgba(255,255,255,0.1)",
+                }}>{kw}</span>
+              ))}
+            </div>
+          </div>
+        )}
+        {!sessionCtx.tone && !sessionCtx.projectName && !sessionCtx.industry && sessionCtx.keywords.length === 0 && (
+          <div style={{ fontSize: 12, color: "#4f5a6e", fontStyle: "italic" }}>
+            Context builds automatically as you run engines and open projects.
+          </div>
+        )}
+      </div>
+
+      {/* ── Recent Activity ── */}
+      {recentList.length > 0 && (
+        <div>
+          <div style={{ fontSize: 11, fontWeight: 700, color: "#94a3b8", textTransform: "uppercase", letterSpacing: "0.06em", marginBottom: 10 }}>
+            Recent Engine Activity
+          </div>
+          <div style={{ display: "flex", flexDirection: "column", gap: 6 }}>
+            {recentList.map(r => {
+              const canRb = (rollbackStacks[r.engineId]?.length ?? 0) > 0;
+              return (
+                <div key={`${r.engineId}-${r.ts}`} style={{
+                  background: "rgba(255,255,255,0.03)", border: "1px solid rgba(255,255,255,0.07)",
+                  borderRadius: 10, padding: "10px 12px",
+                  display: "flex", alignItems: "flex-start", justifyContent: "space-between", gap: 10,
+                }}>
+                  <div style={{ flex: 1, minWidth: 0 }}>
+                    <div style={{ fontSize: 12, fontWeight: 600, color: "#e2e8f0", marginBottom: 2 }}>
+                      {r.engineName}
+                    </div>
+                    <div style={{ fontSize: 11, color: "#64748b", whiteSpace: "nowrap", overflow: "hidden", textOverflow: "ellipsis" }}>
+                      {r.topic}
+                    </div>
+                  </div>
+                  <div style={{ display: "flex", alignItems: "center", gap: 6, flexShrink: 0 }}>
+                    <span style={{ fontSize: 10, color: "#4f5a6e" }}>{timeAgo(r.ts)}</span>
+                    {canRb && (
+                      <button
+                        onClick={() => cs.rollback(r.engineId)}
+                        style={{
+                          background: "rgba(245,158,11,0.1)", border: "1px solid rgba(245,158,11,0.25)",
+                          borderRadius: 5, padding: "2px 7px", color: "#f59e0b",
+                          cursor: "pointer", fontSize: 10, fontWeight: 600,
+                        }}
+                        title="Rollback this engine's last output"
+                      >↩</button>
+                    )}
+                  </div>
+                </div>
+              );
+            })}
+          </div>
+        </div>
+      )}
+
+      {/* ── Insights ── */}
+      {insights.length > 0 && (
+        <div>
+          <div style={{ fontSize: 11, fontWeight: 700, color: "#94a3b8", textTransform: "uppercase", letterSpacing: "0.06em", marginBottom: 10 }}>
+            Platform Insights
+          </div>
+          <div style={{ display: "flex", flexDirection: "column", gap: 5 }}>
+            {insights.slice(-5).reverse().map(ins => (
+              <div key={ins.key} style={{
+                display: "flex", gap: 8, alignItems: "flex-start",
+                background: "rgba(255,255,255,0.03)", borderRadius: 8, padding: "8px 10px",
+              }}>
+                <span style={{ fontSize: 10, color: "#6366f1", fontWeight: 700, marginTop: 1 }}>{ins.key}</span>
+                <span style={{ fontSize: 11, color: "#94a3b8", flex: 1 }}>{ins.value}</span>
+                <span style={{ fontSize: 10, color: "#4f5a6e", flexShrink: 0 }}>{ins.source}</span>
+              </div>
+            ))}
+          </div>
+        </div>
+      )}
+
+      {/* ── Empty state ── */}
+      {totalRuns === 0 && (
+        <div style={{
+          background: "rgba(99,102,241,0.04)", border: "1.5px dashed rgba(99,102,241,0.2)",
+          borderRadius: 16, padding: "32px 24px", textAlign: "center",
+        }}>
+          <div style={{ fontSize: 36, marginBottom: 12 }}>🧠</div>
+          <div style={{ fontSize: 15, fontWeight: 700, color: "#e2e8f0", marginBottom: 6 }}>No data yet</div>
+          <div style={{ fontSize: 13, color: "#64748b", lineHeight: 1.6, maxWidth: 280, margin: "0 auto" }}>
+            Run any engine and the platform will start learning your context, building cross-app intelligence,
+            and enabling rollback automatically.
+          </div>
+        </div>
+      )}
+    </div>
+  );
+}
+
 // ─── Main BrainHubApp ──────────────────────────────────────────────────────────
 export function BrainHubApp() {
   const [view, setView]               = useState<HubView>("dashboard");
@@ -900,12 +1126,15 @@ export function BrainHubApp() {
     );
   }
 
-  const NAV_ITEMS: { id: HubView; label: string; icon: string }[] = [
-    { id: "dashboard",  label: "Dashboard",   icon: "📊" },
-    { id: "engines",    label: "Engines",     icon: "⚙️" },
-    { id: "agents",     label: "Meta-Agents", icon: "🤖" },
-    { id: "series",     label: "Series",      icon: "🧬" },
-    { id: "compliance", label: "Compliance",  icon: "🛡️" },
+  const { totalRuns } = useContextStore().getState();
+
+  const NAV_ITEMS: { id: HubView; label: string; icon: string; badge?: number }[] = [
+    { id: "dashboard",    label: "Dashboard",    icon: "📊" },
+    { id: "engines",      label: "Engines",      icon: "⚙️" },
+    { id: "agents",       label: "Meta-Agents",  icon: "🤖" },
+    { id: "series",       label: "Series",       icon: "🧬" },
+    { id: "compliance",   label: "Compliance",   icon: "🛡️" },
+    { id: "intelligence", label: "Intelligence", icon: "🧠", badge: totalRuns > 0 ? totalRuns : undefined },
   ];
 
   return (
@@ -925,10 +1154,16 @@ export function BrainHubApp() {
               borderRadius: "8px 8px 0 0", padding: "8px 14px",
               color: view === item.id ? "#818cf8" : "#94a3b8",
               cursor: "pointer", fontSize: 12, fontWeight: view === item.id ? 600 : 400,
-              display: "flex", alignItems: "center", gap: 5, whiteSpace: "nowrap",
+              display: "flex", alignItems: "center", gap: 5, whiteSpace: "nowrap", position: "relative",
             }}
           >
             <span>{item.icon}</span>{item.label}
+            {item.badge !== undefined && (
+              <span style={{
+                fontSize: 9, fontWeight: 700, background: "#6366f1", color: "#fff",
+                borderRadius: 8, padding: "1px 5px", marginLeft: 2,
+              }}>{item.badge}</span>
+            )}
           </button>
         ))}
         <div style={{ marginLeft: "auto", display: "flex", alignItems: "center", gap: 6, paddingBottom: 12, flexShrink: 0 }}>
@@ -1211,6 +1446,9 @@ export function BrainHubApp() {
 
         {/* ── COMPLIANCE ── */}
         {view === "compliance" && <CompliancePanel />}
+
+        {/* ── INTELLIGENCE ── */}
+        {view === "intelligence" && <IntelligencePanel />}
 
       </div>
     </div>

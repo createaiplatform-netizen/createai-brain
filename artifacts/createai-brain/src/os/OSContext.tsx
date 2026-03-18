@@ -1,6 +1,7 @@
 import React, { createContext, useContext, useState, useCallback, useEffect, useRef } from "react";
 import { PlatformStore, PlatformMode } from "@/engine/PlatformStore";
 import { loadFounderState, saveFounderState } from "@/engine/FounderTier";
+import { contextStore } from "@/controller";
 
 // ─── App Registry ──────────────────────────────────────────────────────────
 export type AppId =
@@ -921,6 +922,8 @@ export function OSProvider({ children }: { children: React.ReactNode }) {
           const merged: PreferenceBrain = { ...DEFAULT_PREFERENCES, ...data.preferences };
           setPreferences(merged);
           savePrefsToLS(merged);
+          // Seed shared intelligence layer with user preferences
+          contextStore.setSessionContext({ tone: merged.tone });
         }
         // Load unread notification count
         return fetch("/api/notifications?limit=50", { credentials: "include" });
@@ -982,6 +985,8 @@ export function OSProvider({ children }: { children: React.ReactNode }) {
           body: JSON.stringify({ preferences: next }),
         }).catch(() => {});
       }
+      // Keep shared intelligence layer in sync with preference changes
+      if (patch.tone) contextStore.setSessionContext({ tone: next.tone });
       return next;
     });
   }, []);

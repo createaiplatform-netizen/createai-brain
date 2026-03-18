@@ -2,6 +2,7 @@ import React, { useState } from "react";
 import { useLocation } from "wouter";
 import { useOS, ALL_APPS, AppId } from "./OSContext";
 import { AppBrowserModal } from "./AppBrowserModal";
+import { useContextStore } from "@/controller";
 
 // ─── Pinned app IDs shown permanently in the sidebar ─────────────────────────
 // These are the highest-value apps for daily use.
@@ -30,6 +31,7 @@ export function Sidebar({ onNav, forceCollapsed, forceExpanded }: SidebarProps) 
   const { activeApp, sidebarCollapsed, openApp, closeApp, toggleSidebar, unreadCount } = useOS();
   const [location, setLocation] = useLocation();
   const [showBrowser, setShowBrowser] = useState(false);
+  const { totalRuns } = useContextStore().getState();
 
   const collapsed = forceCollapsed ? true : forceExpanded ? false : sidebarCollapsed;
   const width = collapsed ? 64 : 220;
@@ -142,6 +144,32 @@ export function Sidebar({ onNav, forceCollapsed, forceExpanded }: SidebarProps) 
             {!collapsed && <span className="truncate flex-1 text-left">Browse all apps</span>}
           </button>
         </div>
+
+        {/* ── Platform Intelligence indicator ── */}
+        {totalRuns > 0 && (
+          <div className="px-2 pb-1">
+            <button
+              onClick={() => handleNav(() => openApp("brainhub" as AppId))}
+              className="w-full flex items-center gap-2 h-8 rounded-xl px-2 transition-all duration-150"
+              style={{ background: "rgba(99,102,241,0.07)", cursor: "pointer", border: "none" }}
+              title={collapsed ? `Platform: ${totalRuns} engine runs` : undefined}
+              onMouseEnter={e => { (e.currentTarget as HTMLElement).style.background = "rgba(99,102,241,0.14)"; }}
+              onMouseLeave={e => { (e.currentTarget as HTMLElement).style.background = "rgba(99,102,241,0.07)"; }}
+            >
+              <span className="relative flex-shrink-0 w-5 flex items-center justify-center">
+                <span style={{ fontSize: 13 }}>🧠</span>
+                <span className="absolute -top-0.5 -right-1 w-1.5 h-1.5 rounded-full"
+                  style={{ background: "#6366f1", boxShadow: "0 0 4px #6366f1" }} />
+              </span>
+              {!collapsed && (
+                <span className="text-[10px] font-semibold truncate flex-1 text-left"
+                  style={{ color: "#818cf8", letterSpacing: "-0.01em" }}>
+                  Platform · {totalRuns} run{totalRuns !== 1 ? "s" : ""}
+                </span>
+              )}
+            </button>
+          </div>
+        )}
 
         {/* ── Collapse toggle ── */}
         {!forceCollapsed && !forceExpanded && (
