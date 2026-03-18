@@ -3,7 +3,7 @@
 // Inspired by Linear / Stripe / Apple. No dark, no neon, no glow.
 // ═══════════════════════════════════════════════════════════════════════════
 
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, useMemo } from "react";
 import { useLocation } from "wouter";
 import { useOS, ALL_APPS, AppId } from "./OSContext";
 import { AppBrowserModal } from "./AppBrowserModal";
@@ -12,6 +12,7 @@ import { LocalSyncIndicator } from "@/components/LocalSyncIndicator";
 import { favGetAll } from "@/services/EngineFavoritesService";
 import { ALL_ENGINES } from "@/engine/CapabilityEngine";
 import { dispatchLaunchEngine } from "@/components/GlobalCommandPalette";
+import { getProposalStats } from "@/engine/ContinuousImprovementEngine";
 
 // ─── Pinned apps ──────────────────────────────────────────────────────────────
 const PINNED_IDS: AppId[] = [
@@ -54,6 +55,8 @@ export function Sidebar({ onNav, forceCollapsed, forceExpanded }: SidebarProps) 
   const width     = collapsed ? 60 : 224;
 
   const handleNav = (fn: () => void) => { fn(); onNav?.(); };
+
+  const evolutionStats = useMemo(() => getProposalStats(), []);
 
   const pinnedApps = PINNED_IDS
     .map(id => ALL_APPS.find(a => a.id === id))
@@ -253,6 +256,59 @@ export function Sidebar({ onNav, forceCollapsed, forceExpanded }: SidebarProps) 
           >
             <span style={{ fontSize: 13, flexShrink: 0 }}>⊞</span>
             {!collapsed && <span>All apps</span>}
+          </button>
+        </div>
+
+        {/* Evolution Pulse — platform-wide continuous improvement indicator */}
+        <div style={{ padding: "0 8px 4px" }}>
+          <button
+            onClick={() => handleNav(() => openApp("integration" as AppId))}
+            title={collapsed ? `⚡ ${evolutionStats.total} improvements identified` : undefined}
+            style={{
+              width: "100%", display: "flex", alignItems: "center",
+              gap: collapsed ? 0 : 7,
+              height: 30, borderRadius: 8,
+              padding: collapsed ? "0" : "0 8px",
+              justifyContent: collapsed ? "center" : "flex-start",
+              background: "rgba(16,185,129,0.08)",
+              border: "1px solid rgba(16,185,129,0.18)",
+              cursor: "pointer",
+              transition: "background 0.12s, border-color 0.12s",
+            }}
+            onMouseEnter={e => {
+              (e.currentTarget as HTMLElement).style.background = "rgba(16,185,129,0.14)";
+              (e.currentTarget as HTMLElement).style.borderColor = "rgba(16,185,129,0.30)";
+            }}
+            onMouseLeave={e => {
+              (e.currentTarget as HTMLElement).style.background = "rgba(16,185,129,0.08)";
+              (e.currentTarget as HTMLElement).style.borderColor = "rgba(16,185,129,0.18)";
+            }}
+          >
+            {/* Pulsing dot */}
+            <span style={{ position: "relative", flexShrink: 0, display: "flex", alignItems: "center", justifyContent: "center", width: 18 }}>
+              <span style={{
+                display: "block", width: 7, height: 7, borderRadius: "50%",
+                background: "#10b981",
+                boxShadow: "0 0 0 0 rgba(16,185,129,0.5)",
+                animation: "evolve-pulse 2s infinite",
+              }} />
+            </span>
+            {!collapsed && (
+              <span style={{
+                flex: 1, fontSize: 10.5, fontWeight: 700, color: "#047857",
+                textAlign: "left", lineHeight: 1.2,
+                overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap",
+              }}>
+                ⚡ {evolutionStats.total} improvements
+              </span>
+            )}
+            {!collapsed && evolutionStats.foundationalCount > 0 && (
+              <span style={{
+                flexShrink: 0, fontSize: 8.5, fontWeight: 800,
+                background: "#f59e0b", color: "#fff",
+                borderRadius: 9, padding: "1px 5px",
+              }}>{evolutionStats.foundationalCount} new</span>
+            )}
           </button>
         </div>
 

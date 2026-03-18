@@ -1254,3 +1254,10 @@ pre, code {
     padding: 0 !important;
   }
 }
+
+/* ── Evolution Pulse animation (Sidebar) ──────────────────────────────────── */
+@keyframes evolve-pulse {
+  0%   { box-shadow: 0 0 0 0 rgba(16,185,129,0.60); }
+  60%  { box-shadow: 0 0 0 6px rgba(16,185,129,0.00); }
+  100% { box-shadow: 0 0 0 0 rgba(16,185,129,0.00); }
+}
