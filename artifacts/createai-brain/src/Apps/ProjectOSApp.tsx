@@ -1094,6 +1094,15 @@ export function ProjectOSApp() {
   const [voiceListening, setVoiceListening] = useState(false);
   // ── Responsive breakpoint (req 7) ──
   const isMobile = useMediaQuery("(max-width: 768px)");
+  // ── Onboarding + welcome ──
+  const [showWelcomeOverlay, setShowWelcomeOverlay] = useState(false);
+  const [welcomeStep, setWelcomeStep] = useState(0);
+  // ── Accessibility ──
+  const [textScale, setTextScaleState] = useState(1.0);
+  const [reducedMotion, setReducedMotionState] = useState(false);
+  const [showAccessibilityPanel, setShowAccessibilityPanel] = useState(false);
+  // ── Contextual hints ──
+  const [dismissedHints, setDismissedHints] = useState<Set<string>>(new Set());
   const aiAbortRef     = useRef<AbortController | null>(null);
   const aiScrollRef    = useRef<HTMLDivElement>(null);
   const fileAiAbortRef = useRef<AbortController | null>(null);
@@ -1103,6 +1112,41 @@ export function ProjectOSApp() {
   const visibleProjects = projects.filter(p =>
     showArchived ? p.status === "archived" : (p.status ?? "active") === "active"
   );
+
+  // ── Onboarding + accessibility hydration ──
+  useEffect(() => {
+    const seen = localStorage.getItem("cai_welcome_seen");
+    if (!seen) setShowWelcomeOverlay(true);
+    const scale = parseFloat(localStorage.getItem("cai_text_scale") ?? "1.0");
+    if (!isNaN(scale)) setTextScaleState(scale);
+    const rm = localStorage.getItem("cai_reduced_motion");
+    if (rm === "true") setReducedMotionState(true);
+    const hints = localStorage.getItem("cai_dismissed_hints");
+    if (hints) {
+      try { setDismissedHints(new Set(JSON.parse(hints))); } catch {}
+    }
+  }, []);
+
+  const setTextScale = (v: number) => {
+    setTextScaleState(v);
+    localStorage.setItem("cai_text_scale", String(v));
+  };
+  const setReducedMotion = (v: boolean) => {
+    setReducedMotionState(v);
+    localStorage.setItem("cai_reduced_motion", String(v));
+  };
+  const dismissHint = (key: string) => {
+    setDismissedHints(prev => {
+      const next = new Set(prev);
+      next.add(key);
+      localStorage.setItem("cai_dismissed_hints", JSON.stringify([...next]));
+      return next;
+    });
+  };
+  const dismissWelcome = () => {
+    setShowWelcomeOverlay(false);
+    localStorage.setItem("cai_welcome_seen", "1");
+  };
 
   // Load projects from API on mount
   useEffect(() => {
@@ -1575,7 +1619,11 @@ export function ProjectOSApp() {
   return (
     <div
       className="flex h-full overflow-hidden"
-      style={{ background: "hsl(225,40%,5%)", color: "#e2e8f0" }}
+      style={{
+        background: "hsl(225,40%,5%)",
+        color: "#e2e8f0",
+        fontSize: `${textScale * 100}%`,
+      }}
     >
       {/* ── Left Sidebar: Project List ────────────────────────────────────── */}
       <div
@@ -1679,11 +1727,36 @@ export function ProjectOSApp() {
           <div className="px-3 pt-2 pb-1" style={{ borderTop: "1px solid rgba(255,255,255,0.06)" }}>
             <button
               onClick={() => setShowNewProject(true)}
-              className="w-full py-2.5 rounded-xl text-[12px] font-semibold flex items-center justify-center gap-2"
+              className="w-full py-2.5 rounded-xl text-[12px] font-semibold flex items-center justify-center gap-2 transition-all"
               style={{ background: "rgba(99,102,241,0.18)", border: "1px solid rgba(99,102,241,0.35)", color: "#818cf8" }}
+              onMouseEnter={e => { (e.currentTarget as HTMLElement).style.background = "rgba(99,102,241,0.28)"; }}
+              onMouseLeave={e => { (e.currentTarget as HTMLElement).style.background = "rgba(99,102,241,0.18)"; }}
             >
               <span>＋</span> New Project
             </button>
+            {/* Accessibility + Help row */}
+            <div className="flex items-center justify-between mt-2 px-0.5">
+              <button
+                onClick={() => setShowAccessibilityPanel(p => !p)}
+                className="text-[9px] flex items-center gap-1 transition-all"
+                style={{ color: "#334155" }}
+                onMouseEnter={e => { (e.currentTarget as HTMLElement).style.color = "#64748b"; }}
+                onMouseLeave={e => { (e.currentTarget as HTMLElement).style.color = "#334155"; }}
+                title="Accessibility settings"
+              >
+                ♿ Accessibility
+              </button>
+              <button
+                onClick={() => setShowWelcomeOverlay(true)}
+                className="text-[9px] flex items-center gap-1 transition-all"
+                style={{ color: "#334155" }}
+                onMouseEnter={e => { (e.currentTarget as HTMLElement).style.color = "#64748b"; }}
+                onMouseLeave={e => { (e.currentTarget as HTMLElement).style.color = "#334155"; }}
+                title="Show quick tour"
+              >
+                ? Tour
+              </button>
+            </div>
           </div>
         )}
 
@@ -1807,17 +1880,20 @@ export function ProjectOSApp() {
                 className="flex flex-col items-center justify-center rounded-2xl py-20 text-center"
                 style={{ border: "1px dashed rgba(99,102,241,0.20)", background: "rgba(99,102,241,0.03)" }}
               >
-                <div className="text-5xl mb-4">🚀</div>
-                <div className="text-[15px] font-semibold text-white mb-2">Start your first project</div>
-                <div className="text-[12px] mb-6" style={{ color: "#475569" }}>
-                  Every project gets its own workspace, AI agent, and scaffolded documents
+                <div className="text-5xl mb-5">✨</div>
+                <div className="text-[16px] font-bold text-white mb-2">What are you building?</div>
+                <div className="text-[12px] leading-relaxed mb-2 max-w-[320px]" style={{ color: "#475569" }}>
+                  Films, apps, startups, books, games, albums — every project gets its own workspace, expert AI agent, and professional documents scaffolded in seconds.
                 </div>
+                <div className="text-[11px] mb-6" style={{ color: "#334155" }}>No blank pages. Ever.</div>
                 <button
                   onClick={() => setShowNewProject(true)}
-                  className="px-6 py-2.5 rounded-xl text-[13px] font-semibold"
+                  className="px-7 py-3 rounded-2xl text-[13px] font-semibold transition-all"
                   style={{ background: "rgba(99,102,241,0.22)", border: "1px solid rgba(99,102,241,0.40)", color: "#818cf8" }}
+                  onMouseEnter={e => { (e.currentTarget as HTMLElement).style.background = "rgba(99,102,241,0.32)"; }}
+                  onMouseLeave={e => { (e.currentTarget as HTMLElement).style.background = "rgba(99,102,241,0.22)"; }}
                 >
-                  ＋ Create First Project
+                  ＋ Create your first project
                 </button>
               </div>
             ) : (
@@ -1980,22 +2056,26 @@ export function ProjectOSApp() {
                     })}
                   </div>
                 ) : (
-                  <div className="text-center py-20">
+                  <div className="text-center py-16 px-6">
                     <p className="text-4xl mb-3">📝</p>
-                    <p className="font-semibold text-white mb-1">No content yet</p>
-                    <p className="text-[13px] mb-4" style={{ color: "#6b7280" }}>
-                      Click Edit to write manually, or use the AI agent to generate content.
+                    <p className="font-bold text-white mb-1.5">This document is blank</p>
+                    <p className="text-[12px] leading-relaxed mb-5 max-w-[280px] mx-auto" style={{ color: "#6b7280" }}>
+                      Write it yourself, or let the AI agent generate complete, professional content based on your project context.
                     </p>
-                    <div className="flex gap-2 justify-center">
+                    <div className="flex gap-2.5 justify-center">
                       <button
                         onClick={() => setFileContentEditing(true)}
-                        className="text-[12px] font-semibold text-white px-4 py-2 rounded-xl"
+                        className="text-[12px] font-semibold text-white px-4 py-2.5 rounded-xl transition-all"
                         style={{ background: "linear-gradient(135deg,#6366f1,#8b5cf6)" }}
-                      >Start Writing</button>
+                        onMouseEnter={e => { (e.currentTarget as HTMLElement).style.opacity = "0.88"; }}
+                        onMouseLeave={e => { (e.currentTarget as HTMLElement).style.opacity = "1"; }}
+                      >Write it myself</button>
                       <button
-                        onClick={() => sendFileAI(`Generate complete content for the "${viewingFile.name}" document. Make it detailed and ready to use.`)}
-                        className="text-[12px] font-semibold px-4 py-2 rounded-xl"
+                        onClick={() => sendFileAI(`Generate complete, professional content for the "${viewingFile.name}" document. Make it detailed, accurate, and ready to use.`)}
+                        className="text-[12px] font-semibold px-4 py-2.5 rounded-xl transition-all"
                         style={{ background: "rgba(99,102,241,0.15)", border: "1px solid rgba(99,102,241,0.30)", color: "#a5b4fc" }}
+                        onMouseEnter={e => { (e.currentTarget as HTMLElement).style.background = "rgba(99,102,241,0.25)"; }}
+                        onMouseLeave={e => { (e.currentTarget as HTMLElement).style.background = "rgba(99,102,241,0.15)"; }}
                       >✨ Generate with AI</button>
                     </div>
                   </div>
@@ -2597,20 +2677,22 @@ export function ProjectOSApp() {
                         <div className="flex items-center gap-2.5 mb-2">
                           <div className="w-3.5 h-3.5 rounded-full border-2 border-indigo-400 border-t-transparent animate-spin flex-shrink-0" />
                           <span className="text-[11px] font-semibold" style={{ color: "#a5b4fc" }}>
-                            Building workspace — {scaffoldStatus.label}
+                            Setting up your workspace — {scaffoldStatus.label}
                           </span>
                         </div>
-                        <div className="w-full h-1 rounded-full overflow-hidden" style={{ background: "rgba(255,255,255,0.08)" }}>
+                        <div className="w-full h-1.5 rounded-full overflow-hidden" style={{ background: "rgba(255,255,255,0.08)" }}>
                           <div
-                            className="h-full rounded-full transition-all duration-500"
+                            className="h-full rounded-full"
                             style={{
                               width: `${(scaffoldStatus.current / scaffoldStatus.total) * 100}%`,
                               background: "linear-gradient(90deg,#6366f1,#818cf8)",
+                              transition: reducedMotion ? "none" : "width 0.5s ease",
                             }}
                           />
                         </div>
-                        <div className="text-[9px] mt-1" style={{ color: "#475569" }}>
-                          {scaffoldStatus.current} of {scaffoldStatus.total} documents
+                        <div className="text-[9px] mt-1.5 flex items-center justify-between" style={{ color: "#475569" }}>
+                          <span>{scaffoldStatus.current} of {scaffoldStatus.total} documents</span>
+                          <span>{Math.round((scaffoldStatus.current / scaffoldStatus.total) * 100)}%</span>
                         </div>
                       </div>
                     )}
@@ -2618,14 +2700,16 @@ export function ProjectOSApp() {
                     {/* ── Workspace ready banner ── */}
                     {!scaffoldStatus && newlyCreatedId === activeProject.id && activeFiles.length > 0 && (
                       <div
-                        className="mb-4 rounded-xl px-4 py-3 flex items-center gap-3"
+                        className="mb-4 rounded-xl px-4 py-3 flex items-start gap-3"
                         style={{ background: "rgba(16,185,129,0.08)", border: "1px solid rgba(16,185,129,0.22)" }}
                       >
-                        <span className="text-lg flex-shrink-0">✅</span>
+                        <span className="text-lg flex-shrink-0 mt-0.5">✅</span>
                         <div>
-                          <div className="text-[11px] font-semibold" style={{ color: "#34d399" }}>Workspace ready</div>
-                          <div className="text-[10px]" style={{ color: "#475569" }}>
-                            {activeFiles.length} documents scaffolded · Ask the Project Agent to start working on any of them
+                          <div className="text-[11px] font-semibold" style={{ color: "#34d399" }}>
+                            Your workspace is ready — {activeFiles.length} documents created
+                          </div>
+                          <div className="text-[10px] mt-0.5 leading-relaxed" style={{ color: "#475569" }}>
+                            Open any document to read, edit, or ask the Agent to write the full content. Click "AI" to get started.
                           </div>
                         </div>
                       </div>
@@ -2657,7 +2741,8 @@ export function ProjectOSApp() {
                         style={{ border: "1px dashed rgba(255,255,255,0.08)" }}
                       >
                         <div className="text-3xl mb-2">📄</div>
-                        <div className="text-[12px]" style={{ color: "#334155" }}>No files here yet</div>
+                        <div className="text-[12px]" style={{ color: "#475569" }}>No files in this folder yet</div>
+                        <div className="text-[10px] mt-1" style={{ color: "#334155" }}>Add a file or switch to a different folder</div>
                         <button
                           onClick={() => setShowAddFile(true)}
                           className="mt-3 text-[11px]"
@@ -2737,36 +2822,60 @@ export function ProjectOSApp() {
                 <div ref={aiScrollRef} className="flex-1 overflow-y-auto px-3 py-3 space-y-3"
                   style={{ background: "#f8fafc" }}>
                   {aiMessages.length === 0 && (
-                    <div className="flex flex-col items-center text-center pt-5 gap-3">
-                      <div className="w-12 h-12 rounded-2xl flex items-center justify-center text-2xl"
-                        style={{ background: "rgba(99,102,241,0.10)", border: "1px solid rgba(99,102,241,0.15)" }}>
-                        🤖
+                    <div className="flex flex-col items-center text-center pt-4 gap-3">
+                      {/* Agent avatar */}
+                      <div className="w-14 h-14 rounded-2xl flex items-center justify-center text-2xl flex-shrink-0"
+                        style={{
+                          background: `linear-gradient(135deg, ${INDUSTRY_COLORS[activeProject.industry] ?? "#6366f1"}22, rgba(99,102,241,0.12))`,
+                          border: `1px solid ${INDUSTRY_COLORS[activeProject.industry] ?? "#6366f1"}30`,
+                        }}>
+                        {INDUSTRY_ICONS[activeProject.industry] ?? "🤖"}
                       </div>
                       <div>
-                        <p className="text-[12px] font-semibold" style={{ color: "#0f172a" }}>
+                        <p className="text-[13px] font-bold" style={{ color: "#0f172a" }}>
                           {activeProject.industry !== "General" ? `${activeProject.industry} Agent` : "Project Agent"}
                         </p>
                         <p className="text-[10px] mt-0.5" style={{ color: "#6b7280" }}>
-                          Dedicated to <strong>{activeProject.name}</strong>
+                          Dedicated to <span className="font-semibold">{activeProject.name}</span>
                         </p>
                       </div>
-                      <p className="text-[11px] leading-relaxed max-w-[220px]" style={{ color: "#6b7280" }}>
+                      <p className="text-[11px] leading-relaxed max-w-[230px]" style={{ color: "#6b7280" }}>
                         {newlyCreatedId === activeProject.id
-                          ? `Your workspace is being built. I can start working on any document, explain what each file is for, or help you plan next steps.`
-                          : `I know everything inside this project. Ask me to write, improve, or expand any document — or plan what to work on next.`}
+                          ? `Your workspace is ready. I can write any document from scratch, walk you through the workflow, or help you plan what to tackle first.`
+                          : `I know every document, folder, and detail inside this project. Ask me to write, rewrite, improve, or plan — I produce complete content, not summaries.`}
                       </p>
+                      {/* Contextual hint */}
+                      {!dismissedHints.has("agent-tip") && (
+                        <div className="w-full flex items-start gap-2 px-3 py-2.5 rounded-xl"
+                          style={{ background: "rgba(99,102,241,0.06)", border: "1px solid rgba(99,102,241,0.14)" }}>
+                          <span className="text-[11px] flex-shrink-0 mt-0.5">💡</span>
+                          <div className="flex-1 text-left">
+                            <p className="text-[10px] leading-relaxed" style={{ color: "#64748b" }}>
+                              Tip: Ask the agent to "write the full [document name]" for complete, ready-to-use content.
+                            </p>
+                          </div>
+                          <button
+                            onClick={() => dismissHint("agent-tip")}
+                            className="text-[9px] flex-shrink-0 mt-0.5 transition-all"
+                            style={{ color: "#334155" }}
+                            onMouseEnter={e => { (e.currentTarget as HTMLElement).style.color = "#64748b"; }}
+                            onMouseLeave={e => { (e.currentTarget as HTMLElement).style.color = "#334155"; }}
+                          >✕</button>
+                        </div>
+                      )}
+                      {/* Suggested prompts */}
                       <div className="flex flex-col gap-1.5 w-full mt-1">
                         {(newlyCreatedId === activeProject.id
                           ? [
-                              `Walk me through this ${activeProject.industry !== "General" ? activeProject.industry.toLowerCase() : "project"}`,
+                              `Walk me through this ${activeProject.industry !== "General" ? activeProject.industry.toLowerCase() : "project"} step by step`,
                               `Which document should I fill in first?`,
-                              `What are the most important things to complete?`,
+                              `What does a professional ${activeProject.industry !== "General" ? activeProject.industry.toLowerCase() : "project"} workflow look like?`,
                               `Explain what each file in this workspace is for`,
                             ]
                           : [
                               `What should I work on next?`,
-                              `Give me a status review of this project`,
-                              `What's missing from this project?`,
+                              `Give me a full status review of this project`,
+                              `What's missing or incomplete?`,
                               `Help me plan the next milestone`,
                             ]
                         ).map(chip => (
@@ -2774,7 +2883,7 @@ export function ProjectOSApp() {
                             onClick={() => { setAiInput(chip); }}
                             className="text-[11px] px-3 py-2 rounded-xl text-left transition-all"
                             style={{ background: "#fff", border: "1px solid rgba(0,0,0,0.08)", color: "#374151" }}
-                            onMouseEnter={e => { (e.currentTarget as HTMLElement).style.borderColor = "rgba(99,102,241,0.30)"; (e.currentTarget as HTMLElement).style.background = "#faf5ff"; }}
+                            onMouseEnter={e => { (e.currentTarget as HTMLElement).style.borderColor = "rgba(99,102,241,0.30)"; (e.currentTarget as HTMLElement).style.background = "#f5f3ff"; }}
                             onMouseLeave={e => { (e.currentTarget as HTMLElement).style.borderColor = "rgba(0,0,0,0.08)"; (e.currentTarget as HTMLElement).style.background = "#fff"; }}
                           >
                             {chip}
@@ -2839,18 +2948,22 @@ export function ProjectOSApp() {
                     <button
                       onClick={startVoiceInput}
                       disabled={voiceListening}
-                      title="Voice input"
-                      className="w-8 h-8 rounded-xl flex items-center justify-center flex-shrink-0 transition-all"
+                      title={voiceListening ? "Listening… speak now" : "Voice input"}
+                      className="flex items-center gap-1.5 px-2 h-8 rounded-xl flex-shrink-0 transition-all"
                       style={{
-                        background: voiceListening ? "rgba(239,68,68,0.15)" : "#f1f5f9",
+                        background: voiceListening ? "rgba(239,68,68,0.12)" : "#f1f5f9",
                         color: voiceListening ? "#ef4444" : "#94a3b8",
                         border: `1px solid ${voiceListening ? "rgba(239,68,68,0.30)" : "transparent"}`,
+                        boxShadow: voiceListening ? "0 0 0 3px rgba(239,68,68,0.12)" : "none",
                       }}
                     >
                       {voiceListening ? (
-                        <svg width="11" height="11" viewBox="0 0 24 24" fill="currentColor">
-                          <rect x="6" y="4" width="4" height="16" rx="1"/><rect x="14" y="4" width="4" height="16" rx="1"/>
-                        </svg>
+                        <>
+                          <svg width="10" height="10" viewBox="0 0 24 24" fill="currentColor">
+                            <rect x="6" y="4" width="4" height="16" rx="1"/><rect x="14" y="4" width="4" height="16" rx="1"/>
+                          </svg>
+                          <span className="text-[10px] font-medium">Listening…</span>
+                        </>
                       ) : (
                         <svg width="11" height="11" viewBox="0 0 24 24" fill="currentColor">
                           <path d="M12 1a3 3 0 0 0-3 3v8a3 3 0 0 0 6 0V4a3 3 0 0 0-3-3z"/><path d="M19 10v2a7 7 0 0 1-14 0v-2H3v2a9 9 0 0 0 8 8.94V23h2v-2.06A9 9 0 0 0 21 12v-2h-2z"/>
@@ -3041,6 +3154,147 @@ export function ProjectOSApp() {
                 </button>
               </>
             )}
+          </div>
+        </div>
+      )}
+
+      {/* ── Welcome Overlay (first-time experience) ── */}
+      {showWelcomeOverlay && (() => {
+        const WELCOME_STEPS = [
+          {
+            icon: "🧠",
+            title: "Welcome to CreateAI Brain",
+            body: "Your private AI-powered OS for building real products — films, apps, startups, books, music, and more. Each project gets its own dedicated workspace and expert AI agent.",
+            cta: "Show me how →",
+          },
+          {
+            icon: "📂",
+            title: "Every project is its own world",
+            body: "When you create a project, we automatically scaffold industry-standard documents, folders, and templates. Nothing starts from a blank page.",
+            cta: "What else? →",
+          },
+          {
+            icon: "🤖",
+            title: "Your Project Agent knows everything inside",
+            body: "Each project has a dedicated AI agent that specializes in your domain — film production, SaaS growth, book editing, music releases. Ask it to write, improve, plan, or review anything.",
+            cta: "Got it, let's go →",
+          },
+        ];
+        const step = WELCOME_STEPS[welcomeStep] ?? WELCOME_STEPS[0];
+        const isLast = welcomeStep === WELCOME_STEPS.length - 1;
+        return (
+          <div
+            className="fixed inset-0 z-[100] flex items-center justify-center"
+            style={{ background: "rgba(0,0,0,0.80)" }}
+            onClick={e => { if (e.target === e.currentTarget) dismissWelcome(); }}
+          >
+            <div
+              className="w-[480px] rounded-3xl p-9 flex flex-col items-center text-center"
+              style={{
+                background: "rgba(10,14,22,0.99)",
+                border: "1px solid rgba(99,102,241,0.30)",
+                boxShadow: "0 32px 80px rgba(0,0,0,0.60)",
+              }}
+            >
+              <div className="text-5xl mb-5">{step.icon}</div>
+              <div className="text-[18px] font-bold text-white mb-3 leading-snug">{step.title}</div>
+              <div className="text-[13px] leading-relaxed mb-8 max-w-[360px]" style={{ color: "#94a3b8" }}>{step.body}</div>
+              {/* Step dots */}
+              <div className="flex items-center gap-2 mb-6">
+                {WELCOME_STEPS.map((_, i) => (
+                  <div key={i} className="rounded-full transition-all duration-300"
+                    style={{
+                      width: i === welcomeStep ? 20 : 6,
+                      height: 6,
+                      background: i === welcomeStep ? "#6366f1" : "rgba(99,102,241,0.25)",
+                    }} />
+                ))}
+              </div>
+              <button
+                onClick={() => {
+                  if (isLast) dismissWelcome();
+                  else setWelcomeStep(s => s + 1);
+                }}
+                className="w-full py-3 rounded-2xl text-[14px] font-semibold transition-all"
+                style={{ background: "#6366f1", color: "#fff" }}
+                onMouseEnter={e => { (e.currentTarget as HTMLElement).style.background = "#4f46e5"; }}
+                onMouseLeave={e => { (e.currentTarget as HTMLElement).style.background = "#6366f1"; }}
+              >
+                {step.cta}
+              </button>
+              <button
+                onClick={dismissWelcome}
+                className="mt-3 text-[11px] transition-all"
+                style={{ color: "#334155" }}
+                onMouseEnter={e => { (e.currentTarget as HTMLElement).style.color = "#64748b"; }}
+                onMouseLeave={e => { (e.currentTarget as HTMLElement).style.color = "#334155"; }}
+              >
+                Skip tour
+              </button>
+            </div>
+          </div>
+        );
+      })()}
+
+      {/* ── Accessibility Panel (floating) ── */}
+      {showAccessibilityPanel && (
+        <div
+          className="fixed bottom-24 left-4 z-50 rounded-2xl p-4 w-[220px]"
+          style={{
+            background: "rgba(10,14,22,0.98)",
+            border: "1px solid rgba(99,102,241,0.25)",
+            boxShadow: "0 16px 40px rgba(0,0,0,0.50)",
+          }}
+        >
+          <div className="flex items-center justify-between mb-3">
+            <div className="text-[11px] font-bold uppercase tracking-widest" style={{ color: "#818cf8" }}>
+              Accessibility
+            </div>
+            <button
+              onClick={() => setShowAccessibilityPanel(false)}
+              className="text-[11px] transition-all"
+              style={{ color: "#475569" }}
+              onMouseEnter={e => { (e.currentTarget as HTMLElement).style.color = "#94a3b8"; }}
+              onMouseLeave={e => { (e.currentTarget as HTMLElement).style.color = "#475569"; }}
+            >✕</button>
+          </div>
+          {/* Text size */}
+          <div className="mb-4">
+            <div className="text-[10px] mb-2" style={{ color: "#64748b" }}>Text Size</div>
+            <div className="flex gap-1.5">
+              {([0.9, 1.0, 1.1, 1.2] as const).map(s => (
+                <button
+                  key={s}
+                  onClick={() => setTextScale(s)}
+                  className="flex-1 py-1.5 rounded-lg text-[10px] font-semibold transition-all"
+                  style={{
+                    background: textScale === s ? "rgba(99,102,241,0.30)" : "rgba(255,255,255,0.05)",
+                    color: textScale === s ? "#a5b4fc" : "#475569",
+                    border: `1px solid ${textScale === s ? "rgba(99,102,241,0.40)" : "transparent"}`,
+                  }}
+                >
+                  {s === 0.9 ? "S" : s === 1.0 ? "M" : s === 1.1 ? "L" : "XL"}
+                </button>
+              ))}
+            </div>
+          </div>
+          {/* Reduce motion */}
+          <div>
+            <button
+              onClick={() => setReducedMotion(!reducedMotion)}
+              className="w-full flex items-center justify-between py-2 px-2.5 rounded-xl transition-all"
+              style={{
+                background: reducedMotion ? "rgba(99,102,241,0.12)" : "rgba(255,255,255,0.03)",
+                border: `1px solid ${reducedMotion ? "rgba(99,102,241,0.25)" : "rgba(255,255,255,0.07)"}`,
+              }}
+            >
+              <span className="text-[11px]" style={{ color: "#94a3b8" }}>Reduce motion</span>
+              <div className="w-8 h-4 rounded-full flex items-center px-0.5 transition-all"
+                style={{ background: reducedMotion ? "#6366f1" : "rgba(255,255,255,0.10)" }}>
+                <div className="w-3 h-3 rounded-full bg-white transition-all"
+                  style={{ marginLeft: reducedMotion ? "auto" : 0 }} />
+              </div>
+            </button>
           </div>
         </div>
       )}
