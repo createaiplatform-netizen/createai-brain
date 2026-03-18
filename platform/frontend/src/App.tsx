@@ -1,5 +1,6 @@
 import { useEffect, useState } from "react";
 import { Sidebar } from "./components/Sidebar";
+import { AuthForm, type AuthUser } from "./components/AuthForm";
 import { config } from "./config";
 
 // ─── Types ────────────────────────────────────────────────────────────────────
@@ -10,7 +11,6 @@ interface Project {
   type: string;
   status: string;
   createdAt: string;
-  _placeholder?: boolean;
 }
 
 interface ApiStatus {
@@ -19,64 +19,143 @@ interface ApiStatus {
 }
 
 // ─── App ──────────────────────────────────────────────────────────────────────
-// Future: Replace this with a proper router (react-router-dom).
-//   Each route maps to a page component: Dashboard, Projects, Users, etc.
-// Future: Wrap with AuthGuard — redirect to /login if no session.
-// Future: Load user + org context from /api/auth/user on mount.
+// Checks /auth/me on load to restore session from the signed cookie.
+// Shows AuthForm when not authenticated. Shows the workspace when authenticated.
+//
+// Future: Replace top-level auth state with a proper AuthContext + useAuth hook.
+// Future: Add react-router-dom so each page is its own route.
+// Future: Add a loading skeleton instead of a blank white flash on startup.
 
 export default function App() {
+  const [user, setUser] = useState<AuthUser | null>(null);
+  const [authChecked, setAuthChecked] = useState(false);
   const [projects, setProjects] = useState<Project[]>([]);
   const [apiStatus, setApiStatus] = useState<ApiStatus | null>(null);
-  const [loading, setLoading] = useState(true);
+  const [loading, setLoading] = useState(false);
+  const [newProjectName, setNewProjectName] = useState("");
+  const [creating, setCreating] = useState(false);
 
+  // ── Restore session on page load ──────────────────────────────────────────
   useEffect(() => {
-    async function load() {
-      try {
-        // Check API health
-        const healthRes = await fetch(`${config.apiBase}/health`);
-        const health: ApiStatus = await healthRes.json();
-        setApiStatus(health);
-
-        // Load projects
-        const projRes = await fetch(`${config.apiBase}/projects`);
-        const projData = await projRes.json();
-        setProjects(projData.projects ?? []);
-      } catch {
-        setApiStatus({ status: "unreachable" });
-      } finally {
-        setLoading(false);
-      }
-    }
-    load();
+    fetch(`${config.apiBase}/auth/me`, { credentials: "include" })
+      .then((r) => r.json())
+      .then((data: { user: AuthUser | null }) => {
+        setUser(data.user ?? null);
+      })
+      .catch(() => {})
+      .finally(() => setAuthChecked(true));
   }, []);
 
+  // ── Load projects + API health when user is authenticated ─────────────────
+  useEffect(() => {
+    if (!user) return;
+
+    setLoading(true);
+
+    Promise.all([
+      fetch(`${config.apiBase}/health`, { credentials: "include" })
+        .then((r) => r.json() as Promise<ApiStatus>)
+        .catch(() => ({ status: "unreachable" as const })),
+      fetch(`${config.apiBase}/projects`, { credentials: "include" })
+        .then((r) => r.json() as Promise<{ projects: Project[] }>)
+        .catch(() => ({ projects: [] })),
+    ])
+      .then(([health, proj]) => {
+        setApiStatus(health);
+        setProjects(proj.projects ?? []);
+      })
+      .finally(() => setLoading(false));
+  }, [user]);
+
+  async function handleLogout() {
+    await fetch(`${config.apiBase}/auth/logout`, {
+      method: "POST",
+      credentials: "include",
+    }).catch(() => {});
+    setUser(null);
+    setProjects([]);
+    setApiStatus(null);
+  }
+
+  async function handleCreateProject(e: React.FormEvent) {
+    e.preventDefault();
+    if (!newProjectName.trim() || creating) return;
+    setCreating(true);
+    try {
+      const res = await fetch(`${config.apiBase}/projects`, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        credentials: "include",
+        body: JSON.stringify({ name: newProjectName.trim(), type: "general" }),
+      });
+      const data = await res.json() as { project?: Project };
+      if (data.project) {
+        setProjects((prev) => [data.project!, ...prev]);
+        setNewProjectName("");
+      }
+    } finally {
+      setCreating(false);
+    }
+  }
+
+  // ── Wait for session check before showing anything ────────────────────────
+  if (!authChecked) {
+    return (
+      <div style={styles.centered}>
+        <span style={{ color: "#94a3b8", fontSize: 14 }}>Loading…</span>
+      </div>
+    );
+  }
+
+  // ── Show auth form when not logged in ─────────────────────────────────────
+  if (!user) {
+    return <AuthForm onAuth={setUser} />;
+  }
+
+  // ── Authenticated workspace ───────────────────────────────────────────────
   return (
     <div style={styles.shell}>
-      <Sidebar />
+      <Sidebar user={user} onLogout={handleLogout} />
       <main style={styles.main}>
         <header style={styles.header}>
           <div>
-            <h1 style={styles.heading}>Universal Platform</h1>
+            <h1 style={styles.heading}>Projects</h1>
             <p style={styles.subheading}>
-              Minimal, real, and ready to build on.
+              Signed in as <strong>{user.email}</strong>
+              {user.name ? ` · ${user.name}` : ""}{" "}
+              <span style={styles.roleChip}>{user.role}</span>
             </p>
           </div>
           <ApiStatusBadge status={apiStatus} />
         </header>
 
         <section style={styles.section}>
-          <div style={styles.sectionHeader}>
-            <h2 style={styles.sectionTitle}>Projects</h2>
-            <button style={styles.newButton}>
-              + New Project
-              {/* Future: onClick opens create project modal */}
+          {/* New project form */}
+          <form onSubmit={handleCreateProject} style={styles.newForm}>
+            <input
+              style={styles.newInput}
+              type="text"
+              placeholder="New project name…"
+              value={newProjectName}
+              onChange={(e) => setNewProjectName(e.target.value)}
+            />
+            <button style={styles.newButton} type="submit" disabled={creating || !newProjectName.trim()}>
+              {creating ? "Creating…" : "+ Add Project"}
             </button>
-          </div>
+          </form>
 
           {loading ? (
-            <div style={styles.emptyState}>Loading…</div>
+            <div style={styles.emptyState}>Loading projects…</div>
           ) : projects.length === 0 ? (
-            <div style={styles.emptyState}>No projects yet.</div>
+            <div style={styles.emptyState}>
+              No projects yet. Create your first one above.
+              {!user.organizationId && (
+                <div style={{ marginTop: 8, fontSize: 12, color: "#f59e0b" }}>
+                  Note: You are not assigned to an organization yet. An admin must assign you before projects can be created.
+                  {/* Future: Add org self-setup flow for the first admin user */}
+                </div>
+              )}
+            </div>
           ) : (
             <div style={styles.projectGrid}>
               {projects.map((p) => (
@@ -85,10 +164,6 @@ export default function App() {
             </div>
           )}
         </section>
-
-        {/* Future: Dashboard widgets — recent activity, compliance status, AI usage */}
-        {/* Future: Notifications panel */}
-        {/* Future: Quick-access recent files */}
       </main>
     </div>
   );
@@ -102,9 +177,9 @@ function ProjectCard({ project }: { project: Project }) {
     compliance:  "#6366f1",
     operational: "#f59e0b",
     training:    "#0ea5e9",
-    other:       "#94a3b8",
+    general:     "#64748b",
   };
-  const color = typeColors[project.type] ?? typeColors.other;
+  const color = typeColors[project.type] ?? "#94a3b8";
 
   return (
     <div style={styles.card}>
@@ -113,10 +188,7 @@ function ProjectCard({ project }: { project: Project }) {
         <div style={styles.cardType}>{project.type.replace("_", " ")}</div>
         <div style={styles.cardName}>{project.name}</div>
         <div style={styles.cardMeta}>
-          Created {new Date(project.createdAt).toLocaleDateString()}
-          {project._placeholder && (
-            <span style={styles.placeholderTag}> · placeholder</span>
-          )}
+          {new Date(project.createdAt).toLocaleDateString()}
         </div>
       </div>
     </div>
@@ -152,22 +224,41 @@ const styles: Record<string, React.CSSProperties> = {
     padding: "32px 36px",
     background: "#f8fafc",
   },
+  centered: {
+    height: "100vh",
+    display: "flex",
+    alignItems: "center",
+    justifyContent: "center",
+  },
   header: {
     display: "flex",
     alignItems: "flex-start",
     justifyContent: "space-between",
-    marginBottom: 32,
+    marginBottom: 24,
   },
   heading: {
-    fontSize: 24,
+    fontSize: 22,
     fontWeight: 700,
     color: "#0f172a",
     letterSpacing: "-0.02em",
   },
   subheading: {
-    fontSize: 14,
+    fontSize: 13,
     color: "#64748b",
     marginTop: 4,
+    display: "flex",
+    alignItems: "center",
+    gap: 6,
+  },
+  roleChip: {
+    fontSize: 10,
+    fontWeight: 700,
+    background: "#f1f5f9",
+    color: "#4f46e5",
+    borderRadius: 4,
+    padding: "2px 6px",
+    textTransform: "uppercase",
+    letterSpacing: "0.04em",
   },
   section: {
     background: "#ffffff",
@@ -175,30 +266,33 @@ const styles: Record<string, React.CSSProperties> = {
     border: "1px solid rgba(0,0,0,0.07)",
     padding: 24,
   },
-  sectionHeader: {
+  newForm: {
     display: "flex",
-    alignItems: "center",
-    justifyContent: "space-between",
+    gap: 10,
     marginBottom: 20,
   },
-  sectionTitle: {
-    fontSize: 16,
-    fontWeight: 600,
+  newInput: {
+    flex: 1,
+    border: "1px solid rgba(0,0,0,0.12)",
+    borderRadius: 7,
+    padding: "8px 12px",
+    fontSize: 14,
     color: "#0f172a",
+    outline: "none",
   },
   newButton: {
     background: "#4f46e5",
     color: "#ffffff",
     border: "none",
     borderRadius: 7,
-    padding: "7px 14px",
+    padding: "8px 16px",
     fontSize: 13,
     fontWeight: 600,
     cursor: "pointer",
   },
   projectGrid: {
     display: "grid",
-    gridTemplateColumns: "repeat(auto-fill, minmax(260px, 1fr))",
+    gridTemplateColumns: "repeat(auto-fill, minmax(240px, 1fr))",
     gap: 14,
   },
   card: {
@@ -206,8 +300,6 @@ const styles: Record<string, React.CSSProperties> = {
     borderRadius: 10,
     overflow: "hidden",
     background: "#ffffff",
-    display: "flex",
-    flexDirection: "column",
   },
   cardAccent: {
     height: 4,
@@ -234,10 +326,6 @@ const styles: Record<string, React.CSSProperties> = {
     fontSize: 12,
     color: "#94a3b8",
   },
-  placeholderTag: {
-    color: "#cbd5e1",
-    fontStyle: "italic",
-  },
   emptyState: {
     color: "#94a3b8",
     fontSize: 14,
@@ -254,6 +342,7 @@ const styles: Record<string, React.CSSProperties> = {
     borderRadius: 6,
     padding: "5px 10px",
     background: "#ffffff",
+    flexShrink: 0,
   },
   dot: {
     width: 7,

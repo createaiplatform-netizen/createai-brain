@@ -1,0 +1,60 @@
+In the /platform/backend project, remove all dependency on Replit-based authentication and implement a fully standalone email+password authentication system that is safe, conventional, and ready for production hardening.
+
+Requirements:
+
+1. Database changes:
+   - Create or update a users table with at least:
+     - id (uuid)
+     - email (unique)
+     - password_hash
+     - name (nullable)
+     - role (string, e.g. "admin", "member")
+     - organization_id (nullable, for multi-tenant support)
+     - created_at, updated_at
+   - Create a sessions table with:
+     - id (uuid)
+     - user_id (fk to users)
+     - created_at
+     - expires_at
+     - metadata (jsonb, nullable)
+
+2. Auth logic:
+   - Use bcrypt to hash passwords.
+   - Implement:
+     - POST /auth/register  (email, password, name)
+     - POST /auth/login     (email, password)
+     - POST /auth/logout
+     - GET  /auth/me        (returns current user from session)
+   - On successful login or register:
+     - Create a session row.
+     - Set a signed, HTTP-only cookie with the session id.
+   - On logout:
+     - Delete the session row.
+     - Clear the cookie.
+
+3. Middleware:
+   - Create an auth middleware that:
+     - Reads the session cookie.
+     - Loads the session and user from the database.
+     - Attaches the user to req.user if valid.
+   - Protect example routes (e.g., /projects) so they require an authenticated user.
+
+4. Environment variables:
+   - Update .env.example to include:
+     SESSION_SECRET=
+   - Use SESSION_SECRET to sign cookies.
+
+5. Frontend:
+   - Add a very simple login/register UI in the frontend:
+     - Email + password form.
+     - Buttons for Login and Register.
+     - Show the logged-in user’s email somewhere in the UI.
+   - Wire it to the new /auth/register, /auth/login, /auth/logout, /auth/me endpoints.
+
+6. Cleanup:
+   - Remove all references to Replit, REPL_ID, or replit.com/oidc from the backend.
+   - Do not introduce any third-party auth providers (no Auth0, no Clerk). This must be fully standalone.
+
+7. Output:
+   - List all files created or changed.
+   - Show the full contents

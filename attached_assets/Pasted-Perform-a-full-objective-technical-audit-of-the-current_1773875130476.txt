@@ -1,0 +1,29 @@
+Perform a full, objective, technical audit of the current platform exactly as it exists right now. I want a complete, prioritized list of all gaps, blockers, missing components, and incomplete systems that would prevent this platform from being tested or deployed in real-world use case scenarios.
+
+Your evaluation must include:
+
+1. What components are complete and production-ready.
+2. What components are partially complete and would fail in a real deployment.
+3. What components are missing entirely and would prevent the system from functioning as a standalone product.
+4. What dependencies still tie the system to Replit or any external provider.
+5. What security, authentication, or infrastructure gaps must be resolved before real users could safely use the platform.
+6. Whether the current codebase could be packaged or deployed as an executable application today, and if not, list the exact blockers.
+
+For each gap or blocker, include:
+- Why it is a blocker.
+- What part of the system it affects (backend, frontend, auth, AI layer, integrations, deployment, etc.).
+- The minimum work required to fix it.
+- The impact on real users if it is not fixed.
+
+After listing and prioritizing all gaps, propose safe, concrete fixes for each one:
+
+1. Describe the exact code changes, new files, or configuration updates needed to resolve each gap.
+2. Use only safe, legal, and secure practices (e.g., hashed passwords, no hardcoded secrets, no real PHI/PII).
+3. Use placeholders and environment variables for anything sensitive.
+4. Reference the specific files and folders in this project (e.g., /platform/backend, /platform/frontend, /platform/docker).
+5. Ensure all proposed fixes are realistic, implementable, and do not assume any unsafe or noncompliant behavior.
+
+Finally, provide a prioritized implementation plan that:
+- Orders the fixes from most critical to least critical.
+- Groups related changes into logical phases (auth, security, deployment, integrations, etc.).
+- Ends with a clear statement of what conditions must be met for the platform to be considered testable, stable, and deployable as a standalone product in real-world scenarios.

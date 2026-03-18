@@ -1,31 +1,43 @@
+import type { AuthUser } from "./AuthForm";
+
 // ─── Sidebar ──────────────────────────────────────────────────────────────────
-// Primary navigation for the platform.
+// Primary navigation. Receives the authenticated user so it can show their
+// name and a logout button.
 //
-// Future: Render navigation items dynamically based on user role.
+// Future: Render nav items dynamically based on user.role.
 //   Admins see: Users, Organizations, Audit Log, Compliance.
-//   Staff see: Projects, My Work, Messages.
-// Future: Add active route highlighting (via react-router).
-// Future: Add organization switcher at the top for multi-facility users.
-// Future: Collapse to icon-only mode on smaller screens.
+//   Members see: Projects, My Work.
+// Future: Add react-router Link components instead of plain <a> tags.
+// Future: Add active route highlighting.
+// Future: Add organization switcher for multi-facility users.
 
 interface NavItem {
   label: string;
   icon: string;
   href: string;
-  placeholder?: boolean;
+  comingSoon?: boolean;
 }
 
 const NAV_ITEMS: NavItem[] = [
-  { label: "Dashboard",     icon: "⊞", href: "/",              },
-  { label: "Projects",      icon: "📁", href: "/projects",      },
-  { label: "Users",         icon: "👤", href: "/users",         placeholder: true },
-  { label: "Organizations", icon: "🏢", href: "/organizations", placeholder: true },
-  // Future: { label: "AI Agent",   icon: "🤖", href: "/ai" }
-  // Future: { label: "Compliance", icon: "✅", href: "/compliance" }
-  // Future: { label: "Audit Log",  icon: "📋", href: "/audit" }  (admin only)
+  { label: "Dashboard",     icon: "⊞", href: "/"              },
+  { label: "Projects",      icon: "📁", href: "/projects"      },
+  { label: "Users",         icon: "👤", href: "/users",         comingSoon: true },
+  { label: "Organizations", icon: "🏢", href: "/organizations", comingSoon: true },
+  // Future: { label: "AI Agent",    icon: "🤖", href: "/ai" }
+  // Future: { label: "Compliance",  icon: "✅", href: "/compliance" }
+  // Future: { label: "Audit Log",   icon: "📋", href: "/audit" }   (admin only)
 ];
 
-export function Sidebar() {
+interface Props {
+  user: AuthUser;
+  onLogout: () => void;
+}
+
+export function Sidebar({ user, onLogout }: Props) {
+  const initials = user.name
+    ? user.name.split(" ").map((n) => n[0]).join("").slice(0, 2).toUpperCase()
+    : user.email[0].toUpperCase();
+
   return (
     <aside style={styles.sidebar}>
       <div style={styles.logo}>
@@ -38,22 +50,23 @@ export function Sidebar() {
           <a key={item.href} href={item.href} style={styles.navItem}>
             <span style={styles.navIcon}>{item.icon}</span>
             <span>{item.label}</span>
-            {item.placeholder && (
-              <span style={styles.pill}>Soon</span>
-            )}
+            {item.comingSoon && <span style={styles.pill}>Soon</span>}
           </a>
         ))}
       </nav>
 
-      {/* Future: User profile + logout button at the bottom */}
+      {/* Authenticated user + logout */}
       <div style={styles.bottomSection}>
-        <div style={styles.userPlaceholder}>
-          <span style={styles.userAvatar}>?</span>
-          <div>
-            <div style={styles.userName}>Not signed in</div>
-            <div style={styles.userRole}>Auth coming soon</div>
+        <div style={styles.userRow}>
+          <div style={styles.userAvatar}>{initials}</div>
+          <div style={styles.userInfo}>
+            <div style={styles.userName}>{user.name ?? user.email}</div>
+            {user.name && <div style={styles.userEmail}>{user.email}</div>}
           </div>
         </div>
+        <button style={styles.logoutBtn} onClick={onLogout}>
+          Sign out
+        </button>
       </div>
     </aside>
   );
@@ -68,7 +81,6 @@ const styles: Record<string, React.CSSProperties> = {
     borderRight: "1px solid rgba(0,0,0,0.07)",
     display: "flex",
     flexDirection: "column",
-    padding: "0",
     flexShrink: 0,
   },
   logo: {
@@ -105,7 +117,6 @@ const styles: Record<string, React.CSSProperties> = {
     color: "#334155",
     fontSize: 13,
     fontWeight: 500,
-    transition: "background 0.15s",
   },
   navIcon: {
     fontSize: 15,
@@ -122,33 +133,57 @@ const styles: Record<string, React.CSSProperties> = {
     padding: "1px 6px",
   },
   bottomSection: {
-    padding: "12px 14px",
+    padding: "12px 14px 14px",
     borderTop: "1px solid rgba(0,0,0,0.06)",
+    display: "flex",
+    flexDirection: "column",
+    gap: 10,
   },
-  userPlaceholder: {
+  userRow: {
     display: "flex",
     alignItems: "center",
     gap: 10,
   },
   userAvatar: {
-    width: 30,
-    height: 30,
+    width: 32,
+    height: 32,
     borderRadius: "50%",
-    background: "#e2e8f0",
+    background: "#4f46e5",
+    color: "#fff",
     display: "flex",
     alignItems: "center",
     justifyContent: "center",
-    fontSize: 14,
-    color: "#94a3b8",
+    fontSize: 13,
+    fontWeight: 700,
     flexShrink: 0,
   },
-  userName: {
-    fontSize: 12,
-    fontWeight: 600,
-    color: "#475569",
+  userInfo: {
+    minWidth: 0,
   },
-  userRole: {
+  userName: {
+    fontSize: 13,
+    fontWeight: 600,
+    color: "#0f172a",
+    overflow: "hidden",
+    textOverflow: "ellipsis",
+    whiteSpace: "nowrap",
+  },
+  userEmail: {
     fontSize: 11,
     color: "#94a3b8",
+    overflow: "hidden",
+    textOverflow: "ellipsis",
+    whiteSpace: "nowrap",
+  },
+  logoutBtn: {
+    background: "none",
+    border: "1px solid rgba(0,0,0,0.1)",
+    borderRadius: 6,
+    padding: "6px 10px",
+    fontSize: 12,
+    color: "#64748b",
+    cursor: "pointer",
+    textAlign: "left",
+    fontWeight: 500,
   },
 };
