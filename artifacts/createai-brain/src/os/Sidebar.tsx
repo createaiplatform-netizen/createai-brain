@@ -3,6 +3,7 @@ import { useLocation } from "wouter";
 import { useOS, ALL_APPS, AppId } from "./OSContext";
 import { AppBrowserModal } from "./AppBrowserModal";
 import { useContextStore } from "@/controller";
+import { LocalSyncIndicator } from "@/components/LocalSyncIndicator";
 
 // ─── Pinned app IDs shown permanently in the sidebar ─────────────────────────
 // These are the highest-value apps for daily use.
@@ -170,6 +171,11 @@ export function Sidebar({ onNav, forceCollapsed, forceExpanded }: SidebarProps) 
             </button>
           </div>
         )}
+
+        {/* ── Local storage sync indicator ── */}
+        <div className="px-2 pb-1">
+          <LocalSyncIndicator collapsed={collapsed} />
+        </div>
 
         {/* ── Collapse toggle ── */}
         {!forceCollapsed && !forceExpanded && (

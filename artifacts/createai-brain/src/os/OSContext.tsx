@@ -2,6 +2,7 @@ import React, { createContext, useContext, useState, useCallback, useEffect, use
 import { PlatformStore, PlatformMode } from "@/engine/PlatformStore";
 import { loadFounderState, saveFounderState } from "@/engine/FounderTier";
 import { contextStore } from "@/controller";
+import { LocalSettingsService } from "@/services/LocalBackendService";
 
 // ─── App Registry ──────────────────────────────────────────────────────────
 export type AppId =
@@ -985,6 +986,8 @@ export function OSProvider({ children }: { children: React.ReactNode }) {
           body: JSON.stringify({ preferences: next }),
         }).catch(() => {});
       }
+      // Mirror to local backend for session continuity across refreshes
+      LocalSettingsService.setAll(next as Record<string, unknown>).catch(() => {});
       // Keep shared intelligence layer in sync with preference changes
       if (patch.tone) contextStore.setSessionContext({ tone: next.tone });
       return next;
