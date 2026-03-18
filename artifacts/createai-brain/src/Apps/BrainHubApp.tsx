@@ -124,10 +124,8 @@ const ENGINE_HINTS: Record<string, { placeholder: string; example: string }> = {
 function StatusDot({ active }: { active: boolean }) {
   return (
     <span style={{
-      display: "inline-block", width: 8, height: 8, borderRadius: "50%",
-      background: active ? "#34C759" : "#636366",
-      boxShadow: active ? "0 0 6px #34C759" : "none",
-      marginRight: 6, flexShrink: 0,
+      display: "inline-block", width: 7, height: 7, borderRadius: "50%",
+      background: active ? "#22c55e" : "#d1d5db", flexShrink: 0,
     }} />
   );
 }
@@ -136,12 +134,13 @@ function StatusDot({ active }: { active: boolean }) {
 function StatCard({ icon, label, value, color }: { icon: string; label: string; value: number | string; color: string }) {
   return (
     <div style={{
-      background: "rgba(255,255,255,0.04)", border: "1px solid rgba(255,255,255,0.08)",
-      borderRadius: 12, padding: "16px 20px", display: "flex", flexDirection: "column", gap: 4,
+      background: "#fff", border: "1px solid rgba(0,0,0,0.07)",
+      borderRadius: 12, padding: "14px 16px", display: "flex", flexDirection: "column", gap: 3,
+      boxShadow: "0 1px 3px rgba(0,0,0,0.04)",
     }}>
-      <div style={{ fontSize: 24 }}>{icon}</div>
-      <div style={{ fontSize: 28, fontWeight: 700, color, lineHeight: 1 }}>{value}</div>
-      <div style={{ fontSize: 12, color: "#94a3b8" }}>{label}</div>
+      <div style={{ fontSize: 20 }}>{icon}</div>
+      <div style={{ fontSize: 24, fontWeight: 700, color, lineHeight: 1.1 }}>{value}</div>
+      <div style={{ fontSize: 11, color: "#6b7280", fontWeight: 500 }}>{label}</div>
     </div>
   );
 }
@@ -152,40 +151,76 @@ function EngineCard({ engine, onRun, compact }: {
   onRun: (e: EngineDefinition) => void;
   compact?: boolean;
 }) {
+  const [isFav, setIsFav] = useState(() => favIsFav(engine.id));
+  const [runs, setRuns]   = useState(() => usageGet(engine.id));
+
+  useEffect(() => {
+    const onFavChange   = () => setIsFav(favIsFav(engine.id));
+    const onUsageChange = () => setRuns(usageGet(engine.id));
+    window.addEventListener("cai:fav-changed",   onFavChange);
+    window.addEventListener("cai:usage-changed", onUsageChange);
+    return () => {
+      window.removeEventListener("cai:fav-changed",   onFavChange);
+      window.removeEventListener("cai:usage-changed", onUsageChange);
+    };
+  }, [engine.id]);
+
   return (
-    <div
-      style={{
-        background: "rgba(255,255,255,0.04)", border: "1px solid rgba(255,255,255,0.08)",
-        borderRadius: 12, padding: compact ? "12px 14px" : "16px",
-        display: "flex", flexDirection: "column", gap: 8, cursor: "pointer",
-        transition: "all 0.15s",
+    <div style={{
+      background: "#fff", border: "1px solid rgba(0,0,0,0.07)",
+      borderRadius: 12, padding: compact ? "12px 14px" : "16px",
+      display: "flex", flexDirection: "column", gap: 8,
+      transition: "box-shadow 0.15s, border-color 0.15s",
+      boxShadow: "0 1px 3px rgba(0,0,0,0.04)",
+    }}
+      onMouseEnter={e => {
+        (e.currentTarget as HTMLDivElement).style.borderColor = "rgba(0,0,0,0.12)";
+        (e.currentTarget as HTMLDivElement).style.boxShadow = "0 2px 10px rgba(0,0,0,0.08)";
       }}
-      onMouseEnter={e => { (e.currentTarget as HTMLDivElement).style.background = "rgba(99,102,241,0.08)"; (e.currentTarget as HTMLDivElement).style.borderColor = "rgba(99,102,241,0.3)"; }}
-      onMouseLeave={e => { (e.currentTarget as HTMLDivElement).style.background = "rgba(255,255,255,0.04)"; (e.currentTarget as HTMLDivElement).style.borderColor = "rgba(255,255,255,0.08)"; }}
+      onMouseLeave={e => {
+        (e.currentTarget as HTMLDivElement).style.borderColor = "rgba(0,0,0,0.07)";
+        (e.currentTarget as HTMLDivElement).style.boxShadow = "0 1px 3px rgba(0,0,0,0.04)";
+      }}
     >
       <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", gap: 8 }}>
-        <div style={{ display: "flex", alignItems: "center", gap: 8 }}>
+        <div style={{ display: "flex", alignItems: "center", gap: 8, minWidth: 0 }}>
           <span style={{
-            width: 32, height: 32, borderRadius: 8, background: `${engine.color}22`,
+            width: 32, height: 32, borderRadius: 8, background: `${engine.color}14`,
             display: "flex", alignItems: "center", justifyContent: "center", fontSize: 16,
-            border: `1px solid ${engine.color}44`,
+            border: `1px solid ${engine.color}28`, flexShrink: 0,
           }}>{engine.icon}</span>
-          <div>
-            <div style={{ fontSize: 13, fontWeight: 600, color: "#e2e8f0", lineHeight: 1.2 }}>{engine.name}</div>
-            {engine.series && <div style={{ fontSize: 10, color: engine.color, marginTop: 2 }}>{engine.series}</div>}
+          <div style={{ minWidth: 0 }}>
+            <div style={{ fontSize: 13, fontWeight: 600, color: "#0f172a", lineHeight: 1.2, overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap" }}>{engine.name}</div>
+            {engine.series && <div style={{ fontSize: 10, color: engine.color, marginTop: 2, fontWeight: 500 }}>{engine.series}</div>}
           </div>
         </div>
-        <StatusDot active={engine.status === "active"} />
+        <div style={{ display: "flex", alignItems: "center", gap: 4, flexShrink: 0 }}>
+          {runs > 0 && (
+            <span style={{ fontSize: 9, fontWeight: 600, color: "#9ca3af", background: "rgba(0,0,0,0.05)", borderRadius: 5, padding: "2px 5px" }}>
+              {runs}×
+            </span>
+          )}
+          <button
+            onClick={e => { e.stopPropagation(); favToggle(engine.id); }}
+            title={isFav ? "Unpin from sidebar" : "Pin to sidebar (max 8)"}
+            style={{
+              background: "none", border: "none", cursor: "pointer", padding: "2px",
+              fontSize: 15, lineHeight: 1, color: isFav ? "#f59e0b" : "#d1d5db",
+              transition: "color 0.15s",
+            }}
+          >{isFav ? "★" : "☆"}</button>
+          <StatusDot active={engine.status === "active"} />
+        </div>
       </div>
       {!compact && (
-        <div style={{ fontSize: 12, color: "#94a3b8", lineHeight: 1.5 }}>{engine.description}</div>
+        <div style={{ fontSize: 12, color: "#6b7280", lineHeight: 1.5 }}>{engine.description}</div>
       )}
       {!compact && (
         <div style={{ display: "flex", flexWrap: "wrap", gap: 4 }}>
           {engine.capabilities.slice(0, 3).map(cap => (
             <span key={cap} style={{
-              fontSize: 10, background: "rgba(255,255,255,0.06)", borderRadius: 4,
-              padding: "2px 6px", color: "#94a3b8",
+              fontSize: 10, background: "rgba(0,0,0,0.04)", borderRadius: 4,
+              padding: "2px 6px", color: "#6b7280", border: "1px solid rgba(0,0,0,0.06)",
             }}>{cap}</span>
           ))}
         </div>
@@ -193,12 +228,13 @@ function EngineCard({ engine, onRun, compact }: {
       <button
         onClick={() => onRun(engine)}
         style={{
-          background: `${engine.color}22`, border: `1px solid ${engine.color}44`,
+          background: `${engine.color}12`, border: `1px solid ${engine.color}28`,
           borderRadius: 8, padding: "6px 12px", fontSize: 11, fontWeight: 600,
           color: engine.color, cursor: "pointer", alignSelf: "flex-start",
+          transition: "background 0.12s",
         }}
       >
-        ▶ Run Engine
+        ▶ Run
       </button>
     </div>
   );
@@ -238,18 +274,18 @@ function RunPanel({ engine, onBack }: { engine: EngineDefinition; onBack: () => 
       {/* Header */}
       <div style={{ display: "flex", alignItems: "center", gap: 12 }}>
         <button onClick={onBack} style={{
-          background: "rgba(255,255,255,0.08)", border: "none", borderRadius: 8,
-          padding: "6px 12px", color: "#e2e8f0", cursor: "pointer", fontSize: 13,
+          background: "rgba(0,0,0,0.05)", border: "1px solid rgba(0,0,0,0.08)", borderRadius: 8,
+          padding: "6px 12px", color: "#374151", cursor: "pointer", fontSize: 13, fontWeight: 500,
         }}>← Back</button>
         <div style={{ display: "flex", alignItems: "center", gap: 10 }}>
           <span style={{
-            width: 40, height: 40, borderRadius: 10, background: `${engine.color}22`,
+            width: 40, height: 40, borderRadius: 10, background: `${engine.color}14`,
             display: "flex", alignItems: "center", justifyContent: "center", fontSize: 20,
-            border: `1px solid ${engine.color}44`,
+            border: `1px solid ${engine.color}28`,
           }}>{engine.icon}</span>
           <div>
-            <div style={{ fontSize: 17, fontWeight: 700, color: "#e2e8f0" }}>{engine.name}</div>
-            <div style={{ fontSize: 11, color: "#94a3b8" }}>
+            <div style={{ fontSize: 17, fontWeight: 700, color: "#0f172a", letterSpacing: "-0.02em" }}>{engine.name}</div>
+            <div style={{ fontSize: 11, color: "#6b7280" }}>
               {engine.category === "meta-agent" ? "Meta-Agent" : `${engine.category} engine`}
               {engine.series ? ` · ${engine.series}` : ""}
             </div>
@@ -259,8 +295,8 @@ function RunPanel({ engine, onBack }: { engine: EngineDefinition; onBack: () => 
 
       {/* Description */}
       <div style={{
-        background: `${engine.color}0d`, border: `1px solid ${engine.color}22`,
-        borderRadius: 10, padding: "12px 14px", fontSize: 13, color: "#94a3b8", lineHeight: 1.6,
+        background: `${engine.color}08`, border: `1px solid ${engine.color}20`,
+        borderRadius: 10, padding: "12px 14px", fontSize: 13, color: "#374151", lineHeight: 1.6,
       }}>
         {engine.description}
       </div>
@@ -269,19 +305,20 @@ function RunPanel({ engine, onBack }: { engine: EngineDefinition; onBack: () => 
       <div style={{ display: "flex", flexWrap: "wrap", gap: 5 }}>
         {engine.capabilities.map(cap => (
           <span key={cap} style={{
-            fontSize: 10, background: `${engine.color}15`, borderRadius: 20,
-            padding: "3px 9px", color: engine.color, border: `1px solid ${engine.color}30`,
+            fontSize: 10, background: `${engine.color}10`, borderRadius: 20,
+            padding: "3px 9px", color: engine.color, border: `1px solid ${engine.color}25`,
+            fontWeight: 500,
           }}>{cap}</span>
         ))}
       </div>
 
       {/* Topic input with engine-specific hint */}
       <div style={{ display: "flex", flexDirection: "column", gap: 6 }}>
-        <label style={{ fontSize: 12, color: "#94a3b8", fontWeight: 600 }}>
-          TOPIC / REQUEST *
+        <label style={{ fontSize: 11, color: "#6b7280", fontWeight: 600, letterSpacing: "0.04em", textTransform: "uppercase" }}>
+          Topic / Request *
         </label>
         {hint.example && (
-          <div style={{ fontSize: 11, color: "#4f5a6e", fontStyle: "italic", marginBottom: 2 }}>
+          <div style={{ fontSize: 11, color: "#9ca3af", fontStyle: "italic", marginBottom: 2 }}>
             {hint.example}
           </div>
         )}
@@ -291,9 +328,9 @@ function RunPanel({ engine, onBack }: { engine: EngineDefinition; onBack: () => 
           placeholder={hint.placeholder}
           rows={3}
           style={{
-            background: "rgba(255,255,255,0.06)", border: "1px solid rgba(255,255,255,0.12)",
-            borderRadius: 8, padding: "10px 14px", color: "#e2e8f0", fontSize: 13,
-            resize: "none", fontFamily: "inherit", lineHeight: 1.5,
+            background: "#f9fafb", border: "1px solid rgba(0,0,0,0.10)",
+            borderRadius: 8, padding: "10px 14px", color: "#0f172a", fontSize: 13,
+            resize: "none", fontFamily: "inherit", lineHeight: 1.5, outline: "none",
           }}
           onKeyDown={e => { if (e.key === "Enter" && e.metaKey) handleRun(); }}
         />
@@ -301,8 +338,8 @@ function RunPanel({ engine, onBack }: { engine: EngineDefinition; onBack: () => 
 
       {/* Context input */}
       <div style={{ display: "flex", flexDirection: "column", gap: 6 }}>
-        <label style={{ fontSize: 12, color: "#94a3b8", fontWeight: 600 }}>
-          ADDITIONAL CONTEXT <span style={{ fontWeight: 400, color: "#4f5a6e" }}>(optional)</span>
+        <label style={{ fontSize: 11, color: "#6b7280", fontWeight: 600, letterSpacing: "0.04em", textTransform: "uppercase" }}>
+          Additional Context <span style={{ fontWeight: 400, color: "#9ca3af", textTransform: "none" }}>(optional)</span>
         </label>
         <textarea
           value={context}
@@ -310,9 +347,9 @@ function RunPanel({ engine, onBack }: { engine: EngineDefinition; onBack: () => 
           placeholder="Industry, constraints, target audience, existing assets, goals…"
           rows={2}
           style={{
-            background: "rgba(255,255,255,0.06)", border: "1px solid rgba(255,255,255,0.12)",
-            borderRadius: 8, padding: "10px 14px", color: "#e2e8f0", fontSize: 13,
-            resize: "none", fontFamily: "inherit",
+            background: "#f9fafb", border: "1px solid rgba(0,0,0,0.10)",
+            borderRadius: 8, padding: "10px 14px", color: "#0f172a", fontSize: 13,
+            resize: "none", fontFamily: "inherit", outline: "none",
           }}
         />
       </div>
@@ -322,12 +359,14 @@ function RunPanel({ engine, onBack }: { engine: EngineDefinition; onBack: () => 
         onClick={handleRun}
         disabled={isRunning || !topic.trim()}
         style={{
-          background: isRunning ? "rgba(99,102,241,0.3)" : engine.color,
+          background: isRunning ? `${engine.color}90` : engine.color,
           border: "none", borderRadius: 10, padding: "12px 20px",
           color: "#fff", fontSize: 14, fontWeight: 700,
           cursor: isRunning ? "not-allowed" : "pointer",
           display: "flex", alignItems: "center", gap: 8, justifyContent: "center",
-          opacity: !topic.trim() && !isRunning ? 0.5 : 1,
+          opacity: !topic.trim() && !isRunning ? 0.45 : 1,
+          boxShadow: isRunning ? "none" : `0 2px 8px ${engine.color}30`,
+          transition: "opacity 0.15s, box-shadow 0.15s",
         }}
       >
         {isRunning
@@ -335,15 +374,15 @@ function RunPanel({ engine, onBack }: { engine: EngineDefinition; onBack: () => 
           : <><span>{engine.icon}</span> Activate {engine.name}</>
         }
       </button>
-      <div style={{ fontSize: 11, color: "#4f5a6e", textAlign: "center" }}>
+      <div style={{ fontSize: 11, color: "#9ca3af", textAlign: "center" }}>
         {engine.category === "meta-agent" ? "⌘+Enter to run" : "⌘+Enter to run · Safety filter active"}
       </div>
 
       {/* Error */}
       {runError && (
         <div style={{
-          background: "rgba(255,59,48,0.12)", border: "1px solid rgba(255,59,48,0.3)",
-          borderRadius: 8, padding: "10px 14px", color: "#ff3b30", fontSize: 13,
+          background: "#fef2f2", border: "1px solid #fecaca",
+          borderRadius: 8, padding: "10px 14px", color: "#dc2626", fontSize: 13,
         }}>⚠️ {runError}</div>
       )}
 
@@ -364,8 +403,8 @@ function RunPanel({ engine, onBack }: { engine: EngineDefinition; onBack: () => 
                       if (prev) setRollbackText(prev.text);
                     }}
                     style={{
-                      background: "rgba(245,158,11,0.12)", border: "1px solid rgba(245,158,11,0.3)",
-                      borderRadius: 6, padding: "4px 10px", color: "#f59e0b",
+                      background: "#fffbeb", border: "1px solid #fde68a",
+                      borderRadius: 6, padding: "4px 10px", color: "#d97706",
                       cursor: "pointer", fontSize: 11, fontWeight: 600,
                     }}
                     title="Restore the previous output for this engine"
@@ -375,8 +414,8 @@ function RunPanel({ engine, onBack }: { engine: EngineDefinition; onBack: () => 
                   <button
                     onClick={() => setRollbackText(null)}
                     style={{
-                      background: "rgba(255,255,255,0.06)", border: "1px solid rgba(255,255,255,0.12)",
-                      borderRadius: 6, padding: "4px 10px", color: "#94a3b8",
+                      background: "rgba(0,0,0,0.04)", border: "1px solid rgba(0,0,0,0.08)",
+                      borderRadius: 6, padding: "4px 10px", color: "#6b7280",
                       cursor: "pointer", fontSize: 11,
                     }}
                   >Show latest</button>
@@ -384,15 +423,15 @@ function RunPanel({ engine, onBack }: { engine: EngineDefinition; onBack: () => 
                 <button
                   onClick={() => navigator.clipboard.writeText(displayOutput)}
                   style={{
-                    background: "rgba(255,255,255,0.08)", border: "none", borderRadius: 6,
-                    padding: "4px 10px", color: "#94a3b8", cursor: "pointer", fontSize: 11,
+                    background: "rgba(0,0,0,0.04)", border: "1px solid rgba(0,0,0,0.08)",
+                    borderRadius: 6, padding: "4px 10px", color: "#6b7280", cursor: "pointer", fontSize: 11,
                   }}
                 >Copy</button>
                 <button
                   onClick={() => setShowSave(true)}
                   style={{
-                    background: "rgba(99,102,241,0.2)", border: "1px solid rgba(99,102,241,0.4)",
-                    borderRadius: 6, padding: "4px 10px", color: "#818cf8",
+                    background: "#eef2ff", border: "1px solid #c7d2fe",
+                    borderRadius: 6, padding: "4px 10px", color: "#4f46e5",
                     cursor: "pointer", fontSize: 11, fontWeight: 600,
                   }}
                 >💾 Save to Project</button>
@@ -404,8 +443,8 @@ function RunPanel({ engine, onBack }: { engine: EngineDefinition; onBack: () => 
               <DocumentRenderer schema={doc} compact toolbar />
             ) : (
               <div style={{
-                background: "rgba(0,0,0,0.3)", border: "1px solid rgba(255,255,255,0.08)",
-                borderRadius: 8, padding: "14px", color: "#e2e8f0", fontSize: 13,
+                background: "#f8fafc", border: "1px solid rgba(0,0,0,0.07)",
+                borderRadius: 8, padding: "14px", color: "#1e293b", fontSize: 13,
                 lineHeight: 1.7, whiteSpace: "pre-wrap", fontFamily: "ui-monospace, monospace",
               }}>{displayOutput}</div>
             )}
@@ -448,19 +487,19 @@ function SeriesRunPanel({ series, onBack }: { series: SeriesDefinition; onBack: 
       {/* Header */}
       <div style={{ display: "flex", alignItems: "center", gap: 12 }}>
         <button onClick={onBack} style={{
-          background: "rgba(255,255,255,0.08)", border: "none", borderRadius: 8,
-          padding: "6px 12px", color: "#e2e8f0", cursor: "pointer", fontSize: 13,
+          background: "rgba(0,0,0,0.05)", border: "1px solid rgba(0,0,0,0.08)", borderRadius: 8,
+          padding: "6px 12px", color: "#374151", cursor: "pointer", fontSize: 13, fontWeight: 500,
         }}>← Back</button>
         <div style={{ display: "flex", alignItems: "center", gap: 10 }}>
           <span style={{
-            width: 44, height: 44, borderRadius: 10, background: `${series.color}22`,
+            width: 44, height: 44, borderRadius: 10, background: `${series.color}14`,
             display: "flex", alignItems: "center", justifyContent: "center", fontSize: 22,
-            border: `1px solid ${series.color}44`,
+            border: `1px solid ${series.color}28`,
           }}>{series.icon}</span>
           <div>
-            <div style={{ fontSize: 17, fontWeight: 700, color: series.color }}>{series.name}</div>
-            <div style={{ fontSize: 11, color: "#94a3b8" }}>
-              {series.engines.length} engines run in sequence · {series.symbol}
+            <div style={{ fontSize: 17, fontWeight: 700, color: series.color, letterSpacing: "-0.02em" }}>{series.name}</div>
+            <div style={{ fontSize: 11, color: "#6b7280" }}>
+              {series.engines.length} engines in sequence · {series.symbol}
             </div>
           </div>
         </div>
@@ -468,15 +507,15 @@ function SeriesRunPanel({ series, onBack }: { series: SeriesDefinition; onBack: 
 
       {/* Series description */}
       <div style={{
-        background: `${series.color}0d`, border: `1px solid ${series.color}22`,
+        background: `${series.color}08`, border: `1px solid ${series.color}20`,
         borderRadius: 10, padding: "12px 14px",
       }}>
-        <div style={{ fontSize: 13, color: "#94a3b8", lineHeight: 1.6 }}>{series.description}</div>
+        <div style={{ fontSize: 13, color: "#374151", lineHeight: 1.6 }}>{series.description}</div>
         <div style={{ display: "flex", flexWrap: "wrap", gap: 4, marginTop: 10 }}>
           {series.engines.map(eid => (
             <span key={eid} style={{
-              fontSize: 10, background: `${series.color}15`, borderRadius: 4,
-              padding: "2px 7px", color: series.color, border: `1px solid ${series.color}30`,
+              fontSize: 10, background: `${series.color}10`, borderRadius: 4,
+              padding: "2px 7px", color: series.color, border: `1px solid ${series.color}25`, fontWeight: 500,
             }}>{eid}</span>
           ))}
         </div>
@@ -486,22 +525,22 @@ function SeriesRunPanel({ series, onBack }: { series: SeriesDefinition; onBack: 
       {!isRunning && !isDone && (
         <>
           <div style={{ display: "flex", flexDirection: "column", gap: 6 }}>
-            <label style={{ fontSize: 12, color: "#94a3b8", fontWeight: 600 }}>TOPIC *</label>
+            <label style={{ fontSize: 11, color: "#6b7280", fontWeight: 600, letterSpacing: "0.04em", textTransform: "uppercase" }}>Topic *</label>
             <textarea
               value={topic}
               onChange={e => setTopic(e.target.value)}
               placeholder={`What should the ${series.name} analyze or build?`}
               rows={3}
               style={{
-                background: "rgba(255,255,255,0.06)", border: "1px solid rgba(255,255,255,0.12)",
-                borderRadius: 8, padding: "10px 14px", color: "#e2e8f0", fontSize: 13,
-                resize: "none", fontFamily: "inherit",
+                background: "#f9fafb", border: "1px solid rgba(0,0,0,0.10)",
+                borderRadius: 8, padding: "10px 14px", color: "#0f172a", fontSize: 13,
+                resize: "none", fontFamily: "inherit", outline: "none",
               }}
             />
           </div>
           <div style={{ display: "flex", flexDirection: "column", gap: 6 }}>
-            <label style={{ fontSize: 12, color: "#94a3b8", fontWeight: 600 }}>
-              CONTEXT <span style={{ fontWeight: 400, color: "#4f5a6e" }}>(optional)</span>
+            <label style={{ fontSize: 11, color: "#6b7280", fontWeight: 600, letterSpacing: "0.04em", textTransform: "uppercase" }}>
+              Context <span style={{ fontWeight: 400, color: "#9ca3af", textTransform: "none" }}>(optional)</span>
             </label>
             <textarea
               value={context}
@@ -509,9 +548,9 @@ function SeriesRunPanel({ series, onBack }: { series: SeriesDefinition; onBack: 
               placeholder="Industry, goals, constraints, audience…"
               rows={2}
               style={{
-                background: "rgba(255,255,255,0.06)", border: "1px solid rgba(255,255,255,0.12)",
-                borderRadius: 8, padding: "10px 14px", color: "#e2e8f0", fontSize: 13,
-                resize: "none", fontFamily: "inherit",
+                background: "#f9fafb", border: "1px solid rgba(0,0,0,0.10)",
+                borderRadius: 8, padding: "10px 14px", color: "#0f172a", fontSize: 13,
+                resize: "none", fontFamily: "inherit", outline: "none",
               }}
             />
           </div>
@@ -521,7 +560,8 @@ function SeriesRunPanel({ series, onBack }: { series: SeriesDefinition; onBack: 
             style={{
               background: series.color, border: "none", borderRadius: 10, padding: "12px 20px",
               color: "#fff", fontSize: 14, fontWeight: 700, cursor: !topic.trim() ? "not-allowed" : "pointer",
-              opacity: !topic.trim() ? 0.5 : 1,
+              opacity: !topic.trim() ? 0.45 : 1,
+              boxShadow: topic.trim() ? `0 2px 8px ${series.color}30` : "none",
             }}
           >
             {series.icon} Activate {series.name} ({series.engines.length} engines)
@@ -541,7 +581,7 @@ function SeriesRunPanel({ series, onBack }: { series: SeriesDefinition; onBack: 
       {sections.length > 0 && (
         <div style={{ display: "flex", flexDirection: "column", gap: 14 }}>
           <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between" }}>
-            <div style={{ fontSize: 13, fontWeight: 700, color: "#e2e8f0" }}>
+            <div style={{ fontSize: 13, fontWeight: 700, color: "#0f172a" }}>
               {isRunning ? "⟳ Running series…" : "✅ Series complete"}
             </div>
             {isDone && (
@@ -549,15 +589,15 @@ function SeriesRunPanel({ series, onBack }: { series: SeriesDefinition; onBack: 
                 <button
                   onClick={() => navigator.clipboard.writeText(allOutput)}
                   style={{
-                    background: "rgba(255,255,255,0.08)", border: "none", borderRadius: 6,
-                    padding: "4px 10px", color: "#94a3b8", cursor: "pointer", fontSize: 11,
+                    background: "rgba(0,0,0,0.04)", border: "1px solid rgba(0,0,0,0.08)",
+                    borderRadius: 6, padding: "4px 10px", color: "#6b7280", cursor: "pointer", fontSize: 11,
                   }}
                 >Copy All</button>
                 <button
                   onClick={() => setShowSave(true)}
                   style={{
-                    background: "rgba(99,102,241,0.2)", border: "1px solid rgba(99,102,241,0.4)",
-                    borderRadius: 6, padding: "4px 10px", color: "#818cf8",
+                    background: "#eef2ff", border: "1px solid #c7d2fe",
+                    borderRadius: 6, padding: "4px 10px", color: "#4f46e5",
                     cursor: "pointer", fontSize: 11, fontWeight: 600,
                   }}
                 >💾 Save All</button>
@@ -567,31 +607,32 @@ function SeriesRunPanel({ series, onBack }: { series: SeriesDefinition; onBack: 
 
           {sections.map((section, i) => (
             <div key={section.engineId} style={{
-              background: "rgba(0,0,0,0.25)", border: "1px solid rgba(255,255,255,0.08)",
-              borderRadius: 10, overflow: "hidden",
+              background: "#fff", border: "1px solid rgba(0,0,0,0.07)",
+              borderRadius: 10, overflow: "hidden", boxShadow: "0 1px 3px rgba(0,0,0,0.04)",
             }}>
               <div style={{
                 display: "flex", alignItems: "center", justifyContent: "space-between",
-                padding: "10px 14px", borderBottom: "1px solid rgba(255,255,255,0.06)",
-                background: "rgba(255,255,255,0.03)",
+                padding: "10px 14px", borderBottom: "1px solid rgba(0,0,0,0.06)",
+                background: "#f8fafc",
               }}>
                 <div style={{ display: "flex", alignItems: "center", gap: 8 }}>
                   <span style={{
                     fontSize: 10, fontWeight: 700, color: series.color,
-                    background: `${series.color}22`, borderRadius: 4, padding: "2px 7px",
+                    background: `${series.color}12`, borderRadius: 4, padding: "2px 7px",
+                    border: `1px solid ${series.color}25`,
                   }}>ENGINE {i + 1}</span>
-                  <span style={{ fontSize: 12, fontWeight: 600, color: "#e2e8f0" }}>{section.engineName || section.engineId}</span>
+                  <span style={{ fontSize: 12, fontWeight: 600, color: "#0f172a" }}>{section.engineName || section.engineId}</span>
                 </div>
-                {section.status === "done" && <span style={{ fontSize: 11, color: "#34C759" }}>✓ Done</span>}
-                {section.status === "running" && <span style={{ fontSize: 11, color: "#94a3b8", animation: "pulse 1.5s infinite" }}>streaming…</span>}
-                {section.status === "pending" && <span style={{ fontSize: 11, color: "#4f5a6e" }}>pending</span>}
+                {section.status === "done" && <span style={{ fontSize: 11, color: "#16a34a", fontWeight: 600 }}>✓ Done</span>}
+                {section.status === "running" && <span style={{ fontSize: 11, color: "#6b7280", animation: "pulse 1.5s infinite" }}>streaming…</span>}
+                {section.status === "pending" && <span style={{ fontSize: 11, color: "#9ca3af" }}>pending</span>}
               </div>
               <div style={{
-                padding: "12px 14px", fontSize: 12, color: "#94a3b8", lineHeight: 1.7,
+                padding: "12px 14px", fontSize: 12, color: "#374151", lineHeight: 1.7,
                 whiteSpace: "pre-wrap", maxHeight: 320, overflowY: "auto",
                 fontFamily: "ui-monospace, monospace",
               }}>
-                {section.text || <span style={{ color: "#4f5a6e" }}>Waiting for output…</span>}
+                {section.text || <span style={{ color: "#9ca3af" }}>Waiting for output…</span>}
               </div>
             </div>
           ))}
@@ -604,8 +645,8 @@ function SeriesRunPanel({ series, onBack }: { series: SeriesDefinition; onBack: 
         <button
           onClick={() => { }}
           style={{
-            background: "rgba(255,255,255,0.06)", border: "1px solid rgba(255,255,255,0.12)",
-            borderRadius: 10, padding: "10px", color: "#94a3b8", cursor: "pointer", fontSize: 13,
+            background: "rgba(0,0,0,0.04)", border: "1px solid rgba(0,0,0,0.08)",
+            borderRadius: 10, padding: "10px", color: "#6b7280", cursor: "pointer", fontSize: 13,
           }}
         >↩ Run Again</button>
       )}
@@ -1084,6 +1125,16 @@ export function BrainHubApp() {
   const [activeEngine, setActiveEngine] = useState<EngineDefinition | null>(null);
   const [activeSeries, setActiveSeries] = useState<SeriesDefinition | null>(null);
   const [categoryFilter, setCategoryFilter] = useState<string>("all");
+  const [favOnly,  setFavOnly]        = useState(false);
+  const [showShortcuts, setShowShortcuts] = useState(false);
+  const [favIds, setFavIds]           = useState<string[]>(() => favGetAll());
+
+  // Sync fav ids when sidebar pins change
+  useEffect(() => {
+    const handler = () => setFavIds(favGetAll());
+    window.addEventListener("cai:fav-changed", handler);
+    return () => window.removeEventListener("cai:fav-changed", handler);
+  }, []);
 
   // Persist stable view changes to Universal Resume
   useEffect(() => {
@@ -1094,13 +1145,34 @@ export function BrainHubApp() {
     fetchPlatformStats().then(setStats).catch(() => {});
   }, []);
 
+  // Keyboard shortcuts: ? = shortcuts modal, 1-7 = nav tabs, Esc = close modal
+  useEffect(() => {
+    const tabViews: HubView[] = ["dashboard", "engines", "agents", "series", "compliance", "vault", "intelligence"];
+    const handler = (e: KeyboardEvent) => {
+      const tag = (document.activeElement as HTMLElement)?.tagName;
+      if (tag === "INPUT" || tag === "TEXTAREA") return;
+      if (e.key === "?")  { setShowShortcuts(v => !v); return; }
+      if (e.key === "Escape") { setShowShortcuts(false); return; }
+      const n = parseInt(e.key);
+      if (n >= 1 && n <= tabViews.length && !e.metaKey && !e.ctrlKey && !e.altKey) {
+        setView(tabViews[n - 1]);
+      }
+    };
+    window.addEventListener("keydown", handler);
+    return () => window.removeEventListener("keydown", handler);
+  }, []);
+
   const byCategory   = getEnginesByCategory();
   const metaAgents   = byCategory["meta-agent"] ?? [];
   const otherEngines = ALL_ENGINES.filter(e => e.category !== "meta-agent");
 
-  const filteredEngines = categoryFilter === "all"
-    ? otherEngines
-    : otherEngines.filter(e => e.category === categoryFilter);
+  const filteredEngines = useMemo(() => {
+    let list = categoryFilter === "all" ? otherEngines : otherEngines.filter(e => e.category === categoryFilter);
+    if (favOnly) list = list.filter(e => favIds.includes(e.id));
+    return list;
+  }, [categoryFilter, favOnly, favIds, otherEngines]);
+
+  const topUsed = useMemo(() => usageGetTop(5).map(u => ALL_ENGINES.find(e => e.id === u.id)).filter(Boolean) as EngineDefinition[], []);
 
   const categories = [
     { id: "all",          label: "All" },
@@ -1113,6 +1185,7 @@ export function BrainHubApp() {
   ];
 
   const handleRunEngine = useCallback((engine: EngineDefinition) => {
+    usageIncrement(engine.id);
     setActiveEngine(engine);
     setView("run");
   }, []);
@@ -1170,20 +1243,19 @@ export function BrainHubApp() {
   if (view === "vault") {
     return (
       <div style={{ display: "flex", flexDirection: "column", height: "100%", overflow: "hidden" }}>
-        {/* Mini nav header */}
         <div style={{
           display: "flex", alignItems: "center", gap: 12,
-          padding: "12px 24px", borderBottom: "1px solid rgba(255,255,255,0.06)",
+          padding: "12px 24px", borderBottom: "1px solid rgba(0,0,0,0.07)", background: "#fff",
         }}>
           <button
             onClick={() => setView("dashboard")}
             style={{
-              background: "rgba(255,255,255,0.06)", border: "none", borderRadius: 8,
-              padding: "5px 10px", cursor: "pointer", fontSize: 12, color: "#94a3b8",
+              background: "rgba(0,0,0,0.05)", border: "1px solid rgba(0,0,0,0.08)", borderRadius: 8,
+              padding: "5px 10px", cursor: "pointer", fontSize: 12, color: "#374151", fontWeight: 500,
             }}
           >← Back</button>
-          <span style={{ fontSize: 14, fontWeight: 700, color: "#e2e8f0" }}>Output Vault</span>
-          <span style={{ fontSize: 12, color: "#64748b" }}>· all engine outputs, auto-saved</span>
+          <span style={{ fontSize: 14, fontWeight: 700, color: "#0f172a" }}>Output Vault</span>
+          <span style={{ fontSize: 12, color: "#9ca3af" }}>· all engine outputs, auto-saved</span>
         </div>
         <OutputVaultPanel />
       </div>
@@ -1206,34 +1278,46 @@ export function BrainHubApp() {
     <div style={{ display: "flex", flexDirection: "column", height: "100%", overflow: "hidden" }}>
       {/* Nav */}
       <div style={{
-        display: "flex", gap: 2, padding: "12px 24px 0",
-        borderBottom: "1px solid rgba(255,255,255,0.08)", overflowX: "auto",
+        display: "flex", gap: 1, padding: "10px 24px 0",
+        borderBottom: "1px solid rgba(0,0,0,0.07)", overflowX: "auto",
+        background: "#fff", flexShrink: 0,
       }}>
         {NAV_ITEMS.map(item => (
           <button
             key={item.id}
             onClick={() => setView(item.id)}
             style={{
-              background: view === item.id ? "rgba(99,102,241,0.2)" : "transparent",
-              border: view === item.id ? "1px solid rgba(99,102,241,0.4)" : "1px solid transparent",
+              background: view === item.id ? "#f5f3ff" : "transparent",
+              border: view === item.id ? "1px solid #e0e7ff" : "1px solid transparent",
+              borderBottom: view === item.id ? "2px solid #4f46e5" : "2px solid transparent",
               borderRadius: "8px 8px 0 0", padding: "8px 14px",
-              color: view === item.id ? "#818cf8" : "#94a3b8",
+              color: view === item.id ? "#4f46e5" : "#6b7280",
               cursor: "pointer", fontSize: 12, fontWeight: view === item.id ? 600 : 400,
-              display: "flex", alignItems: "center", gap: 5, whiteSpace: "nowrap", position: "relative",
+              display: "flex", alignItems: "center", gap: 5, whiteSpace: "nowrap",
+              transition: "color 0.12s, background 0.12s",
             }}
           >
             <span>{item.icon}</span>{item.label}
             {item.badge !== undefined && (
               <span style={{
-                fontSize: 9, fontWeight: 700, background: "#6366f1", color: "#fff",
+                fontSize: 9, fontWeight: 700, background: "#4f46e5", color: "#fff",
                 borderRadius: 8, padding: "1px 5px", marginLeft: 2,
               }}>{item.badge}</span>
             )}
           </button>
         ))}
-        <div style={{ marginLeft: "auto", display: "flex", alignItems: "center", gap: 6, paddingBottom: 12, flexShrink: 0 }}>
+        <div style={{ marginLeft: "auto", display: "flex", alignItems: "center", gap: 10, paddingBottom: 10, flexShrink: 0 }}>
+          <button
+            onClick={() => setShowShortcuts(true)}
+            title="Keyboard shortcuts (?)"
+            style={{
+              background: "rgba(0,0,0,0.04)", border: "1px solid rgba(0,0,0,0.08)", borderRadius: 6,
+              width: 22, height: 22, display: "flex", alignItems: "center", justifyContent: "center",
+              cursor: "pointer", fontSize: 11, color: "#9ca3af", fontWeight: 700,
+            }}
+          >?</button>
           <StatusDot active={true} />
-          <span style={{ fontSize: 11, color: "#34C759", fontWeight: 600, whiteSpace: "nowrap" }}>ALL SYSTEMS ACTIVE</span>
+          <span style={{ fontSize: 11, color: "#16a34a", fontWeight: 600, whiteSpace: "nowrap" }}>All systems active</span>
         </div>
       </div>
 
@@ -1244,27 +1328,57 @@ export function BrainHubApp() {
         {view === "dashboard" && (
           <div style={{ display: "flex", flexDirection: "column", gap: 24 }}>
             <div>
-              <h2 style={{ fontSize: 22, fontWeight: 700, color: "#e2e8f0", margin: 0 }}>
-                ⚡ Brain Hub — Capability Center
+              <h2 style={{ fontSize: 22, fontWeight: 700, color: "#0f172a", margin: 0, letterSpacing: "-0.03em" }}>
+                Brain Hub — Capability Center
               </h2>
-              <p style={{ fontSize: 13, color: "#94a3b8", margin: "4px 0 0" }}>
+              <p style={{ fontSize: 13, color: "#6b7280", margin: "4px 0 0" }}>
                 {ALL_ENGINES.length} engines · 6 meta-agents · {ALL_SERIES.length} series · real AI on every activation
               </p>
             </div>
 
             {/* Stats */}
             <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fill, minmax(130px, 1fr))", gap: 10 }}>
-              <StatCard icon="⚙️" label="Active Engines"  value={stats?.engines ?? ALL_ENGINES.length} color="#6366f1" />
-              <StatCard icon="🤖" label="Meta-Agents"     value={stats?.agents ?? 6}                   color="#FF9500" />
-              <StatCard icon="🧬" label="Series"          value={stats?.series ?? ALL_SERIES.length}    color="#BF5AF2" />
-              <StatCard icon="📁" label="Projects"        value={stats?.projects ?? "—"}                color="#007AFF" />
-              <StatCard icon="📄" label="Documents"       value={stats?.documents ?? "—"}               color="#34C759" />
-              <StatCard icon="👥" label="People"          value={stats?.people ?? "—"}                  color="#FF2D55" />
+              <StatCard icon="⚙️" label="Active Engines"  value={stats?.engines ?? ALL_ENGINES.length} color="#4f46e5" />
+              <StatCard icon="🤖" label="Meta-Agents"     value={stats?.agents ?? 6}                   color="#f59e0b" />
+              <StatCard icon="🧬" label="Series"          value={stats?.series ?? ALL_SERIES.length}    color="#7c3aed" />
+              <StatCard icon="📁" label="Projects"        value={stats?.projects ?? "—"}                color="#2563eb" />
+              <StatCard icon="📄" label="Documents"       value={stats?.documents ?? "—"}               color="#059669" />
+              <StatCard icon="👥" label="People"          value={stats?.people ?? "—"}                  color="#dc2626" />
             </div>
+
+            {/* Top used engines (only shown when usage data exists) */}
+            {topUsed.length > 0 && (
+              <div>
+                <h3 style={{ fontSize: 12, fontWeight: 700, color: "#0f172a", marginBottom: 10, textTransform: "uppercase", letterSpacing: "0.05em" }}>
+                  Your Top Engines
+                </h3>
+                <div style={{ display: "flex", gap: 6, flexWrap: "wrap" }}>
+                  {topUsed.map(engine => (
+                    <button
+                      key={engine.id}
+                      onClick={() => handleRunEngine(engine)}
+                      style={{
+                        background: "#fff", border: "1px solid rgba(0,0,0,0.08)", borderRadius: 10,
+                        padding: "8px 14px", cursor: "pointer", display: "flex", alignItems: "center",
+                        gap: 7, boxShadow: "0 1px 3px rgba(0,0,0,0.04)", transition: "box-shadow 0.12s",
+                      }}
+                      onMouseEnter={e => (e.currentTarget as HTMLButtonElement).style.boxShadow = "0 2px 8px rgba(0,0,0,0.10)"}
+                      onMouseLeave={e => (e.currentTarget as HTMLButtonElement).style.boxShadow = "0 1px 3px rgba(0,0,0,0.04)"}
+                    >
+                      <span style={{ fontSize: 14 }}>{engine.icon}</span>
+                      <span style={{ fontSize: 12, fontWeight: 600, color: "#0f172a" }}>{engine.name}</span>
+                      <span style={{ fontSize: 10, color: "#9ca3af", fontWeight: 600 }}>{usageGet(engine.id)}×</span>
+                    </button>
+                  ))}
+                </div>
+              </div>
+            )}
 
             {/* Quick-launch */}
             <div>
-              <h3 style={{ fontSize: 13, fontWeight: 700, color: "#e2e8f0", marginBottom: 10 }}>🚀 Quick-Launch Engines</h3>
+              <h3 style={{ fontSize: 12, fontWeight: 700, color: "#0f172a", marginBottom: 10, textTransform: "uppercase", letterSpacing: "0.05em" }}>
+                Quick-Launch
+              </h3>
               <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fill, minmax(210px, 1fr))", gap: 8 }}>
                 {ALL_ENGINES
                   .filter(e => ["BrainGen", "InfiniteExpansionEngine", "UniversalStrategyEngine", "UniversalCreativeEngine", "ORACLE", "FORGE"].includes(e.id))
@@ -1276,24 +1390,31 @@ export function BrainHubApp() {
 
             {/* Meta-agents overview */}
             <div>
-              <h3 style={{ fontSize: 13, fontWeight: 700, color: "#e2e8f0", marginBottom: 10 }}>🤖 Meta-Agents</h3>
+              <h3 style={{ fontSize: 12, fontWeight: 700, color: "#0f172a", marginBottom: 10, textTransform: "uppercase", letterSpacing: "0.05em" }}>
+                Meta-Agents
+              </h3>
               <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fill, minmax(190px, 1fr))", gap: 8 }}>
                 {metaAgents.map(agent => (
                   <div
                     key={agent.id}
                     onClick={() => handleRunEngine(agent)}
                     style={{
-                      background: `${agent.color}11`, border: `1px solid ${agent.color}33`,
+                      background: "#fff", border: "1px solid rgba(0,0,0,0.07)",
                       borderRadius: 10, padding: "12px 14px", cursor: "pointer",
-                      display: "flex", alignItems: "center", gap: 10, transition: "all 0.15s",
+                      display: "flex", alignItems: "center", gap: 10, transition: "box-shadow 0.12s",
+                      boxShadow: "0 1px 3px rgba(0,0,0,0.04)",
                     }}
+                    onMouseEnter={e => (e.currentTarget as HTMLDivElement).style.boxShadow = "0 2px 8px rgba(0,0,0,0.09)"}
+                    onMouseLeave={e => (e.currentTarget as HTMLDivElement).style.boxShadow = "0 1px 3px rgba(0,0,0,0.04)"}
                   >
-                    <span style={{ fontSize: 20 }}>{agent.icon}</span>
+                    <span style={{
+                      width: 32, height: 32, borderRadius: 8, background: `${agent.color}12`,
+                      display: "flex", alignItems: "center", justifyContent: "center", fontSize: 17,
+                      border: `1px solid ${agent.color}25`, flexShrink: 0,
+                    }}>{agent.icon}</span>
                     <div style={{ flex: 1, minWidth: 0 }}>
-                      <div style={{ fontSize: 13, fontWeight: 700, color: agent.color }}>{agent.name}</div>
-                      <div style={{ fontSize: 10, color: "#94a3b8", marginTop: 1, overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap" }}>
-                        {agent.capabilities[0]}
-                      </div>
+                      <div style={{ fontSize: 13, fontWeight: 600, color: "#0f172a", overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap" }}>{agent.name}</div>
+                      <div style={{ fontSize: 10, color: "#6b7280", marginTop: 1 }}>{agent.capabilities[0]}</div>
                     </div>
                     <StatusDot active={true} />
                   </div>
@@ -1303,18 +1424,23 @@ export function BrainHubApp() {
 
             {/* Series overview */}
             <div>
-              <h3 style={{ fontSize: 13, fontWeight: 700, color: "#e2e8f0", marginBottom: 10 }}>🧬 Series — Click to Activate</h3>
+              <h3 style={{ fontSize: 12, fontWeight: 700, color: "#0f172a", marginBottom: 10, textTransform: "uppercase", letterSpacing: "0.05em" }}>
+                Series — Click to Activate
+              </h3>
               <div style={{ display: "flex", gap: 6, flexWrap: "wrap" }}>
                 {ALL_SERIES.map(s => (
                   <button
                     key={s.id}
                     onClick={() => handleRunSeries(s)}
                     style={{
-                      background: `${s.color}11`, border: `1px solid ${s.color}33`,
+                      background: "#fff", border: `1px solid ${s.color}28`,
                       borderRadius: 20, padding: "6px 14px", cursor: "pointer",
                       display: "flex", alignItems: "center", gap: 6, color: s.color,
-                      fontSize: 12, fontWeight: 700, transition: "all 0.15s",
+                      fontSize: 12, fontWeight: 600, boxShadow: "0 1px 3px rgba(0,0,0,0.04)",
+                      transition: "box-shadow 0.12s",
                     }}
+                    onMouseEnter={e => (e.currentTarget as HTMLButtonElement).style.boxShadow = "0 2px 6px rgba(0,0,0,0.09)"}
+                    onMouseLeave={e => (e.currentTarget as HTMLButtonElement).style.boxShadow = "0 1px 3px rgba(0,0,0,0.04)"}
                   >
                     <span>{s.icon}</span> {s.name}
                   </button>
@@ -1322,25 +1448,26 @@ export function BrainHubApp() {
               </div>
             </div>
 
-            {/* Platform declaration */}
+            {/* Platform status */}
             <div style={{
-              background: "linear-gradient(135deg, rgba(99,102,241,0.12), rgba(191,90,242,0.08))",
-              border: "1px solid rgba(99,102,241,0.25)", borderRadius: 14, padding: "18px",
+              background: "#f5f3ff", border: "1px solid #e0e7ff",
+              borderRadius: 14, padding: "18px",
             }}>
-              <div style={{ fontSize: 12, fontWeight: 700, color: "#818cf8", marginBottom: 8 }}>
-                PLATFORM STATUS — FULL CAPABILITY ACTIVE
+              <div style={{ fontSize: 11, fontWeight: 700, color: "#4f46e5", marginBottom: 8, letterSpacing: "0.04em", textTransform: "uppercase" }}>
+                Platform Status — Full Capability Active
               </div>
-              <div style={{ display: "flex", flexDirection: "column", gap: 5 }}>
+              <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: "4px 16px" }}>
                 {[
-                  `✅ ${ALL_ENGINES.length} engines connected and active`,
-                  "✅ 6 Meta-Agents (Oracle, Forge, Nexus, Sentinel, Pulse, Vector) operational",
-                  `✅ ${ALL_SERIES.length} Series implemented — each runs member engines sequentially`,
-                  "✅ Real AI generation (GPT-5.2 streaming) on every engine and agent",
-                  "✅ Content safety filter active on all AI routes",
-                  "✅ All outputs saveable to project documents",
-                  "✅ 16 database tables — real persistent data",
+                  `${ALL_ENGINES.length} engines connected and active`,
+                  "6 Meta-Agents operational",
+                  `${ALL_SERIES.length} Series — sequential multi-engine`,
+                  "Real AI (GPT-5.2 streaming) on every run",
+                  "Content safety filter active",
+                  "16 database tables — real persistent data",
                 ].map(item => (
-                  <div key={item} style={{ fontSize: 12, color: "#94a3b8" }}>{item}</div>
+                  <div key={item} style={{ fontSize: 12, color: "#4338ca", display: "flex", alignItems: "center", gap: 5 }}>
+                    <span style={{ color: "#22c55e", flexShrink: 0 }}>✓</span>{item}
+                  </div>
                 ))}
               </div>
             </div>
@@ -1351,30 +1478,48 @@ export function BrainHubApp() {
         {view === "engines" && (
           <div style={{ display: "flex", flexDirection: "column", gap: 16 }}>
             <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", flexWrap: "wrap", gap: 8 }}>
-              <h2 style={{ fontSize: 18, fontWeight: 700, color: "#e2e8f0", margin: 0 }}>
-                ⚙️ Engines ({otherEngines.length})
+              <h2 style={{ fontSize: 18, fontWeight: 700, color: "#0f172a", margin: 0, letterSpacing: "-0.02em" }}>
+                Engines ({otherEngines.length})
               </h2>
-              <div style={{ display: "flex", gap: 5, flexWrap: "wrap" }}>
+              <div style={{ display: "flex", gap: 5, flexWrap: "wrap", alignItems: "center" }}>
+                {/* Favorites-only toggle */}
+                <button
+                  onClick={() => setFavOnly(v => !v)}
+                  style={{
+                    background: favOnly ? "#fffbeb" : "rgba(0,0,0,0.04)",
+                    border: favOnly ? "1px solid #fde68a" : "1px solid rgba(0,0,0,0.08)",
+                    borderRadius: 20, padding: "4px 12px", cursor: "pointer",
+                    color: favOnly ? "#d97706" : "#6b7280",
+                    fontSize: 11, fontWeight: 600, display: "flex", alignItems: "center", gap: 4,
+                  }}
+                >★ {favOnly ? "Favorites" : "All"}</button>
+                <div style={{ width: 1, height: 18, background: "rgba(0,0,0,0.08)" }} />
                 {categories.map(cat => (
                   <button
                     key={cat.id}
                     onClick={() => setCategoryFilter(cat.id)}
                     style={{
-                      background: categoryFilter === cat.id ? "rgba(99,102,241,0.2)" : "rgba(255,255,255,0.05)",
-                      border: categoryFilter === cat.id ? "1px solid rgba(99,102,241,0.4)" : "1px solid rgba(255,255,255,0.08)",
+                      background: categoryFilter === cat.id ? "#eef2ff" : "rgba(0,0,0,0.04)",
+                      border: categoryFilter === cat.id ? "1px solid #c7d2fe" : "1px solid rgba(0,0,0,0.07)",
                       borderRadius: 20, padding: "4px 12px", cursor: "pointer",
-                      color: categoryFilter === cat.id ? "#818cf8" : "#94a3b8",
+                      color: categoryFilter === cat.id ? "#4f46e5" : "#6b7280",
                       fontSize: 11, fontWeight: 600,
                     }}
                   >{cat.label}</button>
                 ))}
               </div>
             </div>
-            <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fill, minmax(280px, 1fr))", gap: 12 }}>
-              {filteredEngines.map(engine => (
-                <EngineCard key={engine.id} engine={engine} onRun={handleRunEngine} />
-              ))}
-            </div>
+            {filteredEngines.length === 0 ? (
+              <div style={{ textAlign: "center", padding: "48px 0", color: "#9ca3af", fontSize: 14 }}>
+                {favOnly ? "No favorites yet — star ★ an engine to pin it here." : "No engines match this filter."}
+              </div>
+            ) : (
+              <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fill, minmax(280px, 1fr))", gap: 12 }}>
+                {filteredEngines.map(engine => (
+                  <EngineCard key={engine.id} engine={engine} onRun={handleRunEngine} />
+                ))}
+              </div>
+            )}
           </div>
         )}
 
@@ -1382,10 +1527,10 @@ export function BrainHubApp() {
         {view === "agents" && (
           <div style={{ display: "flex", flexDirection: "column", gap: 16 }}>
             <div>
-              <h2 style={{ fontSize: 18, fontWeight: 700, color: "#e2e8f0", margin: 0 }}>
-                🤖 Meta-Agents — 6 Specialized AI Systems
+              <h2 style={{ fontSize: 18, fontWeight: 700, color: "#0f172a", margin: 0, letterSpacing: "-0.02em" }}>
+                Meta-Agents — 6 Specialized AI Systems
               </h2>
-              <p style={{ fontSize: 13, color: "#94a3b8", margin: "4px 0 0" }}>
+              <p style={{ fontSize: 13, color: "#6b7280", margin: "4px 0 0" }}>
                 Each Meta-Agent runs on real GPT-5.2 streaming with a specialized system identity.
                 Click any agent to activate it with your own topic and context.
               </p>
@@ -1393,35 +1538,36 @@ export function BrainHubApp() {
             <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fill, minmax(310px, 1fr))", gap: 14 }}>
               {metaAgents.map(agent => (
                 <div key={agent.id} style={{
-                  background: `${agent.color}08`, border: `1px solid ${agent.color}33`,
+                  background: "#fff", border: "1px solid rgba(0,0,0,0.07)",
                   borderRadius: 14, padding: "20px", display: "flex", flexDirection: "column", gap: 12,
+                  boxShadow: "0 1px 3px rgba(0,0,0,0.04)",
                 }}>
                   <div style={{ display: "flex", alignItems: "center", gap: 12 }}>
                     <div style={{
-                      width: 48, height: 48, borderRadius: 12, background: `${agent.color}22`,
-                      border: `1px solid ${agent.color}44`, display: "flex", alignItems: "center",
+                      width: 48, height: 48, borderRadius: 12, background: `${agent.color}12`,
+                      border: `1px solid ${agent.color}25`, display: "flex", alignItems: "center",
                       justifyContent: "center", fontSize: 24,
                     }}>{agent.icon}</div>
                     <div style={{ flex: 1 }}>
-                      <div style={{ fontSize: 18, fontWeight: 700, color: agent.color }}>{agent.name}</div>
-                      <div style={{ fontSize: 11, color: "#94a3b8" }}>Meta-Agent · Always active</div>
+                      <div style={{ fontSize: 17, fontWeight: 700, color: "#0f172a", letterSpacing: "-0.02em" }}>{agent.name}</div>
+                      <div style={{ fontSize: 11, color: "#6b7280" }}>Meta-Agent · Always active</div>
                     </div>
                     <div style={{ display: "flex", flexDirection: "column", alignItems: "center", gap: 2 }}>
                       <StatusDot active={true} />
-                      <span style={{ fontSize: 9, color: "#34C759" }}>ACTIVE</span>
+                      <span style={{ fontSize: 9, color: "#16a34a", fontWeight: 700 }}>ACTIVE</span>
                     </div>
                   </div>
-                  <div style={{ fontSize: 13, color: "#94a3b8", lineHeight: 1.6 }}>{agent.description}</div>
+                  <div style={{ fontSize: 13, color: "#374151", lineHeight: 1.6 }}>{agent.description}</div>
                   <div style={{ display: "flex", flexWrap: "wrap", gap: 4 }}>
                     {agent.capabilities.map(cap => (
                       <span key={cap} style={{
-                        fontSize: 10, background: `${agent.color}15`, borderRadius: 20,
-                        padding: "3px 9px", color: agent.color,
+                        fontSize: 10, background: `${agent.color}10`, borderRadius: 20,
+                        padding: "3px 9px", color: agent.color, border: `1px solid ${agent.color}20`, fontWeight: 500,
                       }}>{cap}</span>
                     ))}
                   </div>
                   {ENGINE_HINTS[agent.id] && (
-                    <div style={{ fontSize: 11, color: "#4f5a6e", fontStyle: "italic" }}>
+                    <div style={{ fontSize: 11, color: "#9ca3af", fontStyle: "italic" }}>
                       {ENGINE_HINTS[agent.id].example}
                     </div>
                   )}
@@ -1430,7 +1576,7 @@ export function BrainHubApp() {
                     style={{
                       background: agent.color, border: "none", borderRadius: 10,
                       padding: "10px 16px", color: "#fff", fontSize: 13, fontWeight: 700,
-                      cursor: "pointer",
+                      cursor: "pointer", boxShadow: `0 2px 8px ${agent.color}30`,
                     }}
                   >▶ Activate {agent.name}</button>
                 </div>
@@ -1443,53 +1589,53 @@ export function BrainHubApp() {
         {view === "series" && (
           <div style={{ display: "flex", flexDirection: "column", gap: 16 }}>
             <div>
-              <h2 style={{ fontSize: 18, fontWeight: 700, color: "#e2e8f0", margin: 0 }}>
-                🧬 Series — {ALL_SERIES.length} Multi-Engine Workflows
+              <h2 style={{ fontSize: 18, fontWeight: 700, color: "#0f172a", margin: 0, letterSpacing: "-0.02em" }}>
+                Series — {ALL_SERIES.length} Multi-Engine Workflows
               </h2>
-              <p style={{ fontSize: 13, color: "#94a3b8", margin: "4px 0 0" }}>
+              <p style={{ fontSize: 13, color: "#6b7280", margin: "4px 0 0" }}>
                 Each series runs its member engines in sequence, producing a combined multi-perspective output.
-                Click "Activate" to run the full series against your topic.
               </p>
             </div>
             <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fill, minmax(340px, 1fr))", gap: 14 }}>
               {ALL_SERIES.map(series => (
                 <div key={series.id} style={{
-                  background: "rgba(255,255,255,0.03)", border: "1px solid rgba(255,255,255,0.08)",
+                  background: "#fff", border: "1px solid rgba(0,0,0,0.07)",
                   borderRadius: 14, padding: "18px", display: "flex", flexDirection: "column", gap: 12,
+                  boxShadow: "0 1px 3px rgba(0,0,0,0.04)",
                 }}>
                   <div style={{ display: "flex", alignItems: "center", gap: 12 }}>
                     <div style={{
-                      width: 48, height: 48, borderRadius: 12, background: `${series.color}22`,
-                      border: `1px solid ${series.color}44`, display: "flex", alignItems: "center",
+                      width: 48, height: 48, borderRadius: 12, background: `${series.color}12`,
+                      border: `1px solid ${series.color}25`, display: "flex", alignItems: "center",
                       justifyContent: "center", fontSize: 22, flexShrink: 0,
                     }}>{series.icon}</div>
                     <div style={{ flex: 1 }}>
                       <div style={{ display: "flex", alignItems: "center", gap: 8 }}>
-                        <span style={{ fontSize: 16, fontWeight: 700, color: series.color }}>{series.name}</span>
+                        <span style={{ fontSize: 16, fontWeight: 700, color: "#0f172a", letterSpacing: "-0.01em" }}>{series.name}</span>
                         <span style={{
-                          fontSize: 10, background: `${series.color}22`, color: series.color,
-                          borderRadius: 4, padding: "2px 7px", fontWeight: 700,
+                          fontSize: 9, background: `${series.color}12`, color: series.color,
+                          borderRadius: 4, padding: "2px 7px", fontWeight: 700, border: `1px solid ${series.color}25`,
                         }}>{series.symbol}</span>
                       </div>
-                      <div style={{ fontSize: 11, color: "#94a3b8", marginTop: 2 }}>
-                        {series.engines.length} engines run in sequence
+                      <div style={{ fontSize: 11, color: "#6b7280", marginTop: 2 }}>
+                        {series.engines.length} engines in sequence
                       </div>
                     </div>
                   </div>
-                  <div style={{ fontSize: 13, color: "#94a3b8", lineHeight: 1.6 }}>{series.description}</div>
+                  <div style={{ fontSize: 13, color: "#374151", lineHeight: 1.6 }}>{series.description}</div>
                   <div style={{ display: "flex", flexWrap: "wrap", gap: 4 }}>
                     {(series.capabilities ?? []).map(cap => (
                       <span key={cap} style={{
-                        fontSize: 10, background: "rgba(255,255,255,0.06)", borderRadius: 4,
-                        padding: "2px 6px", color: "#64748b",
+                        fontSize: 10, background: "rgba(0,0,0,0.04)", borderRadius: 4,
+                        padding: "2px 6px", color: "#6b7280", border: "1px solid rgba(0,0,0,0.06)",
                       }}>{cap}</span>
                     ))}
                   </div>
                   <div style={{ display: "flex", flexWrap: "wrap", gap: 4 }}>
                     {series.engines.map(eid => (
                       <span key={eid} style={{
-                        fontSize: 10, background: `${series.color}11`, borderRadius: 4,
-                        padding: "2px 6px", color: series.color, border: `1px solid ${series.color}33`,
+                        fontSize: 10, background: `${series.color}0a`, borderRadius: 4,
+                        padding: "2px 6px", color: series.color, border: `1px solid ${series.color}22`, fontWeight: 500,
                       }}>{eid}</span>
                     ))}
                   </div>
@@ -1498,7 +1644,7 @@ export function BrainHubApp() {
                     style={{
                       background: series.color, border: "none", borderRadius: 10,
                       padding: "10px 16px", color: "#fff", fontSize: 13, fontWeight: 700,
-                      cursor: "pointer",
+                      cursor: "pointer", boxShadow: `0 2px 8px ${series.color}30`,
                     }}
                   >
                     {series.icon} Activate {series.name}
@@ -1516,6 +1662,63 @@ export function BrainHubApp() {
         {view === "intelligence" && <IntelligencePanel />}
 
       </div>
+
+      {/* ── KEYBOARD SHORTCUTS MODAL ── */}
+      {showShortcuts && (
+        <div
+          onClick={() => setShowShortcuts(false)}
+          style={{
+            position: "fixed", inset: 0, background: "rgba(0,0,0,0.18)",
+            display: "flex", alignItems: "center", justifyContent: "center", zIndex: 2000,
+            backdropFilter: "blur(4px)",
+          }}
+        >
+          <div
+            onClick={e => e.stopPropagation()}
+            style={{
+              background: "#fff", borderRadius: 16, padding: "24px",
+              width: 420, maxWidth: "calc(100vw - 40px)",
+              boxShadow: "0 20px 60px rgba(0,0,0,0.15)", border: "1px solid rgba(0,0,0,0.07)",
+            }}
+          >
+            <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", marginBottom: 20 }}>
+              <div style={{ fontSize: 16, fontWeight: 700, color: "#0f172a" }}>Keyboard Shortcuts</div>
+              <button
+                onClick={() => setShowShortcuts(false)}
+                style={{
+                  background: "rgba(0,0,0,0.05)", border: "none", borderRadius: 6,
+                  width: 24, height: 24, cursor: "pointer", fontSize: 14, color: "#6b7280",
+                  display: "flex", alignItems: "center", justifyContent: "center",
+                }}
+              >×</button>
+            </div>
+            <div style={{ display: "flex", flexDirection: "column", gap: 6 }}>
+              {[
+                { key: "⌘K", desc: "Open command palette" },
+                { key: "?",  desc: "Toggle this shortcuts panel" },
+                { key: "Esc", desc: "Close modals / go back" },
+                { key: "⌘↵", desc: "Run engine (while in run panel)" },
+                { key: "1–7", desc: "Switch nav tabs (Dashboard, Engines…)" },
+              ].map(({ key, desc }) => (
+                <div key={key} style={{
+                  display: "flex", alignItems: "center", justifyContent: "space-between",
+                  padding: "8px 12px", borderRadius: 8, background: "#f8fafc",
+                }}>
+                  <span style={{ fontSize: 13, color: "#374151" }}>{desc}</span>
+                  <kbd style={{
+                    fontSize: 11, fontWeight: 700, color: "#4f46e5",
+                    background: "#eef2ff", border: "1px solid #c7d2fe",
+                    borderRadius: 5, padding: "3px 8px", fontFamily: "ui-monospace, monospace",
+                  }}>{key}</kbd>
+                </div>
+              ))}
+            </div>
+            <div style={{ marginTop: 16, fontSize: 11, color: "#9ca3af", textAlign: "center" }}>
+              Press <strong>?</strong> or <strong>Esc</strong> to close
+            </div>
+          </div>
+        </div>
+      )}
     </div>
   );
 }

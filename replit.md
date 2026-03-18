@@ -764,6 +764,38 @@ Workspace picker: scrollable dropdown with `maxHeight: min(520px, 70vh)` + style
 - AdminApp Live Mode: now actually allows activating Live Mode with informational confirmation
 - MonetizationApp: "Stage This Opportunity" now calls BrainGen to generate real email sequence + campaign plan + ad copy (3 parallel generators) before showing the green confirmation
 
+---
+
+## Session: BrainHub Full Light Theme + Platform Wiring (latest)
+
+**BrainHubApp — complete Apple/Linear light theme overhaul:**
+- `StatusDot`: simplified clean green dot (no glow)
+- `StatCard`: white card, `0f172a` value color, `6b7280` label
+- `EngineCard`: white card + soft shadow, star (★/☆) fav button, usage counter badge (Nx), hover lifts shadow
+- `RunPanel`: all inputs `#f9fafb` bg + dark text; back button light; error `#fef2f2`; save btn `#eef2ff`/indigo; output `#f8fafc` mono area
+- `SeriesRunPanel`: all matching light treatment; section cards white with `#f8fafc` headers
+- `BrainHubApp` nav: white bg, indigo underline on active tab, `?` shortcut button, green "All systems active"
+- Dashboard: `#0f172a` title; stat cards updated to clean colors; **Top Engines** section (from usageGetTop); meta-agent cards white; series buttons white; platform status indigo box
+- Engines view: fav-only toggle (★/All); empty state messages; light filter pills
+- Agents view: white cards, clean color; `ACTIVE` label green
+- Series view: white cards, crisp engine badges
+- Vault mini-nav: white bg + light back button
+
+**Items 4–8 complete:**
+- ✅ **Item 4 (Engine Favorites)**: `EngineFavoritesService.ts` + star button on every EngineCard + Sidebar strip
+- ✅ **Item 5 (Usage Counters)**: `EngineUsageService.ts` + usage badge on EngineCard + `usageIncrement` wired in `handleRunEngine` + Top Engines dashboard section
+- ✅ **Item 6 (Keyboard Shortcuts modal)**: `?` key → modal; `1-7` = nav tabs; `Esc` = close; `⌘↵` = run engine
+- ✅ **Item 7 (Favorites filter)**: ★ toggle in Engines view — filters to pinned engines only; empty state when no favorites
+- ✅ **Item 8 (Recent/Top Engines)**: Dashboard shows top-5 by run count when usage data exists
+
+**Platform tasks (T001-T006) — verified already implemented:**
+- T001: InteractionEngine prompt (line 2989 openai.ts), /api/openai/series-run (line 4359), PUT /api/user/me (user.ts)
+- T002: CompliancePanel tab + SeriesRunPanel + ENGINE_HINTS all in BrainHubApp
+- T003: ProjectOSApp team management panel — members load/add/role-change via /api/projects/:id/members
+- T004: MarketingApp analytics — real fetch from /api/documents + /api/activity
+- T005: FamilyApp documents — loads from /api/documents, creates via BrainGen + saves to DB
+- T006: AdminApp — My Profile section with PUT /api/user/me wired
+
 ### `scripts` (`@workspace/scripts`)
 
 Utility scripts package. Each script is a `.ts` file in `src/` with a corresponding npm script in `package.json`. Run scripts via `pnpm --filter @workspace/scripts run <script>`. Scripts can import any workspace package (e.g., `@workspace/db`) by adding it as a dependency in `scripts/package.json`.
