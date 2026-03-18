@@ -118,6 +118,17 @@ const ENGINE_HINTS: Record<string, { placeholder: string; example: string }> = {
   ContentStrategyEngine:     { placeholder: "What brand or product needs a complete content strategy?", example: "e.g. A B2B SaaS for construction — content mission, 3 pillars, 90-day calendar, and SEO keyword strategy" },
   SEOEngine:                 { placeholder: "What website or product needs a complete SEO strategy and technical audit?", example: "e.g. A healthcare scheduling platform — 30-keyword strategy, content gap analysis, and Core Web Vitals audit" },
   PerformanceEngine:         { placeholder: "What system needs a complete performance optimization plan?", example: "e.g. Our React + Node SaaS — frontend bundle optimization, N+1 query elimination, and load testing plan" },
+
+  // ── Universal Self-Completion Suite ──────────────────────────────────────────
+  UniversalCompletionEngine:  { placeholder: "Describe any project, idea, or instruction — complete or not.", example: "e.g. A scheduling app for home health agencies — fill in everything that's missing and produce the full architecture" },
+  IntentionResolverEngine:    { placeholder: "Describe your project or goal, however vaguely.", example: "e.g. Something to help small nonprofits track volunteers" },
+  GapDetectorEngine:          { placeholder: "Paste your project description, architecture, or spec to audit.", example: "e.g. We have a user table, a projects table, and a dashboard — what are we missing?" },
+  ArchitectureGeneratorEngine:{ placeholder: "What system, app, or platform should be fully architected?", example: "e.g. A multi-tenant B2B SaaS for construction project management with RBAC and real-time updates" },
+  RuleCompilerEngine:         { placeholder: "What system needs all its rules compiled and defined?", example: "e.g. A healthcare scheduling platform — compile all business rules, validation rules, and access control rules" },
+  WorkflowSynthesisEngine:    { placeholder: "What product or process needs all its workflows defined?", example: "e.g. A home health agency platform — generate every workflow from patient intake to invoice" },
+  DataSchemaEngine:           { placeholder: "What system needs a complete data schema designed?", example: "e.g. A multi-tenant SaaS with users, projects, tasks, documents, and billing — full schema with relationships and indexes" },
+  ConnectionMapperEngine:     { placeholder: "What system needs all its connections mapped end-to-end?", example: "e.g. A React frontend + Node API + PostgreSQL — map every connection, event, and data flow" },
+  CompletionValidatorEngine:  { placeholder: "Describe your project to receive a full completeness audit.", example: "e.g. Our MVP — validate it across all 12 dimensions and issue a completion certificate if it passes" },
 };
 
 // ─── Status Dot ─────────────────────────────────────────────────────────────────
