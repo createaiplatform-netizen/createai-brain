@@ -4,11 +4,11 @@ import { streamProjectChat, contextStore, checkBillingEligibility, publishProjec
 import { useUniversalResume } from "@/hooks/useUniversalResume";
 import { ensureIdentityForProject } from "@/engine/IdentityEngine";
 import { useMediaQuery } from "@/hooks/use-media-query";
-import { SalesModule, OpsModule, SupportModule, ComplianceModule, EnterpriseDashboard, StrategyModule, UXContentModule, PipelineView } from "./InternalModules";
+import { SalesModule, OpsModule, SupportModule, ComplianceModule, EnterpriseDashboard, StrategyModule, UXContentModule, PipelineView, MarketingModule, ProductModule, HRModule, FinanceModule } from "./InternalModules";
 
 // ─── Types ────────────────────────────────────────────────────────────────────
 
-type ViewMode = "dashboard+folders" | "dashboard" | "folders" | "simple" | "advanced" | "tasks" | "team" | "opportunities" | "sales" | "ops" | "support" | "compliance" | "enterprise" | "strategy" | "ux" | "pipeline";
+type ViewMode = "dashboard+folders" | "dashboard" | "folders" | "simple" | "advanced" | "tasks" | "team" | "opportunities" | "sales" | "ops" | "support" | "compliance" | "enterprise" | "strategy" | "ux" | "pipeline" | "marketing" | "product" | "hr" | "finance";
 
 // ─── Shared / Suggested Types ────────────────────────────────────────────────
 interface SharedProject {
@@ -1114,10 +1114,14 @@ export function ProjectOSApp() {
   const fileAiAbortRef = useRef<AbortController | null>(null);
   const fileAiScrollRef= useRef<HTMLDivElement>(null);
 
+  const [projSearch, setProjSearch] = useState("");
+
   const activeProject = projects.find(p => p.id === activeProjectId) ?? null;
-  const visibleProjects = projects.filter(p =>
-    showArchived ? p.status === "archived" : (p.status ?? "active") === "active"
-  );
+  const visibleProjects = projects.filter(p => {
+    const matchesArchive = showArchived ? p.status === "archived" : (p.status ?? "active") === "active";
+    const matchesSearch = projSearch.trim() === "" || p.name.toLowerCase().includes(projSearch.toLowerCase());
+    return matchesArchive && matchesSearch;
+  });
 
   // ── Onboarding + accessibility hydration ──
   useEffect(() => {
@@ -1634,6 +1638,10 @@ export function ProjectOSApp() {
     { id: "strategy",          label: "🎯 Strategy",     group: "teams" },
     { id: "ux",                label: "✨ UX/Content",   group: "teams" },
     { id: "enterprise",        label: "🏢 Enterprise",   group: "teams" },
+    { id: "marketing",         label: "📣 Marketing",    group: "teams" },
+    { id: "product",           label: "📦 Product",      group: "teams" },
+    { id: "hr",                label: "🤝 People/HR",    group: "teams" },
+    { id: "finance",           label: "💰 Finance",      group: "teams" },
   ];
 
   const activeFiles = activeFolderId
@@ -1682,6 +1690,25 @@ export function ProjectOSApp() {
             className="flex-1 py-1.5 text-[10px] font-semibold transition-all"
             style={showArchived ? { background: "rgba(99,102,241,0.25)", color: "#a5b4fc" } : { background: "transparent", color: "#475569" }}
           >Archived</button>
+        </div>
+
+        {/* Sidebar search */}
+        <div className="px-3 pb-2">
+          <div className="flex items-center gap-1.5 px-2.5 py-1.5 rounded-xl"
+            style={{ background: "rgba(255,255,255,0.05)", border: "1px solid rgba(255,255,255,0.08)" }}>
+            <span className="text-[10px]" style={{ color: "#475569" }}>🔍</span>
+            <input
+              type="text"
+              placeholder="Filter projects…"
+              value={projSearch}
+              onChange={e => setProjSearch(e.target.value)}
+              className="flex-1 bg-transparent outline-none text-[11px] placeholder-[#334155]"
+              style={{ color: "#e2e8f0" }}
+            />
+            {projSearch && (
+              <button onClick={() => setProjSearch("")} className="text-[9px]" style={{ color: "#475569" }}>✕</button>
+            )}
+          </div>
         </div>
 
         {/* Project List */}
@@ -2424,6 +2451,41 @@ export function ProjectOSApp() {
                       </button>
                     ))}
                   </div>
+
+                  {/* ── What's Missing? Intelligence Panel ── */}
+                  {(() => {
+                    const emptyFolders = activeProject.folders.filter(f => {
+                      const folderFiles = activeProject.files.filter(fi => fi.folderId === f.id);
+                      return folderFiles.length === 0 || folderFiles.every(fi => (fi.content ?? "").length < 60);
+                    });
+                    const totalFiles = activeProject.files.length;
+                    const filledFiles = activeProject.files.filter(f => (f.content ?? "").length > 80).length;
+                    const completionPct = totalFiles > 0 ? Math.round((filledFiles / totalFiles) * 100) : 0;
+                    if (emptyFolders.length === 0 && completionPct >= 60) return null;
+                    return (
+                      <div className="mt-3 px-3 py-3 rounded-xl"
+                        style={{ background: "rgba(245,158,11,0.06)", border: "1px solid rgba(245,158,11,0.18)" }}>
+                        <p className="text-[10px] font-bold mb-2" style={{ color: "#fbbf24" }}>
+                          ✦ What's Missing? · {completionPct}% complete
+                        </p>
+                        <div className="flex flex-wrap gap-1.5">
+                          {emptyFolders.slice(0, 6).map(f => (
+                            <button key={f.id}
+                              onClick={() => { setActiveFolderId(f.id); setViewMode("dashboard+folders"); }}
+                              className="flex items-center gap-1 px-2 py-1 rounded-lg text-[10px] transition-all"
+                              style={{ background: "rgba(245,158,11,0.10)", color: "#fbbf24", border: "1px solid rgba(245,158,11,0.22)" }}>
+                              {f.icon} {f.name}
+                            </button>
+                          ))}
+                          {emptyFolders.length > 6 && (
+                            <span className="text-[10px]" style={{ color: "#78716c" }}>
+                              +{emptyFolders.length - 6} more empty
+                            </span>
+                          )}
+                        </div>
+                      </div>
+                    );
+                  })()}
                 </div>
               )}
 
@@ -2711,8 +2773,28 @@ export function ProjectOSApp() {
                 <PipelineView projectName={activeProject.name} files={activeProject.files} />
               )}
 
+              {/* ── Marketing Module ── */}
+              {viewMode === "marketing" && activeProject && (
+                <MarketingModule projectName={activeProject.name} />
+              )}
+
+              {/* ── Product Module ── */}
+              {viewMode === "product" && activeProject && (
+                <ProductModule projectName={activeProject.name} />
+              )}
+
+              {/* ── HR / People Module ── */}
+              {viewMode === "hr" && activeProject && (
+                <HRModule projectName={activeProject.name} />
+              )}
+
+              {/* ── Finance Module ── */}
+              {viewMode === "finance" && activeProject && (
+                <FinanceModule projectName={activeProject.name} />
+              )}
+
               {/* Folder + File View */}
-              {viewMode !== "dashboard" && viewMode !== "tasks" && viewMode !== "team" && viewMode !== "opportunities" && viewMode !== "sales" && viewMode !== "ops" && viewMode !== "support" && viewMode !== "compliance" && viewMode !== "enterprise" && viewMode !== "strategy" && viewMode !== "ux" && viewMode !== "pipeline" && (
+              {viewMode !== "dashboard" && viewMode !== "tasks" && viewMode !== "team" && viewMode !== "opportunities" && viewMode !== "sales" && viewMode !== "ops" && viewMode !== "support" && viewMode !== "compliance" && viewMode !== "enterprise" && viewMode !== "strategy" && viewMode !== "ux" && viewMode !== "pipeline" && viewMode !== "marketing" && viewMode !== "product" && viewMode !== "hr" && viewMode !== "finance" && (
                 <div className="flex flex-1 overflow-hidden">
 
                   {/* Folder Tree */}

@@ -1418,3 +1418,541 @@ export function UXContentModule({ projectName }: { projectName: string }) {
     </div>
   );
 }
+
+// ══════════════════════════════════════════════════════════════════════════════
+// 8. MARKETING MODULE
+// ══════════════════════════════════════════════════════════════════════════════
+
+const CONTENT_CALENDAR_WEEK: { day: string; items: { type: string; title: string; channel: string; color: string }[] }[] = [
+  { day: "Mon", items: [{ type: "Blog", title: "How to [Topic]", channel: "Website + LinkedIn", color: "#6366f1" }] },
+  { day: "Tue", items: [{ type: "Social", title: "Behind the scenes", channel: "Instagram + TikTok", color: "#8b5cf6" }] },
+  { day: "Wed", items: [{ type: "Email", title: "Weekly value newsletter", channel: "Email list", color: "#10b981" }] },
+  { day: "Thu", items: [{ type: "Video", title: "Tutorial: [Topic]", channel: "YouTube + Shorts", color: "#f59e0b" }] },
+  { day: "Fri", items: [{ type: "Podcast", title: "Guest interview drop", channel: "Spotify + Apple", color: "#ef4444" }] },
+  { day: "Sat", items: [{ type: "Community", title: "Reddit / Discord engage", channel: "Community", color: "#06b6d4" }] },
+  { day: "Sun", items: [{ type: "Plan", title: "Next-week content plan", channel: "Internal", color: "#475569" }] },
+];
+
+const BRAND_VOICE_ARCHETYPES = [
+  { name: "The Expert", traits: ["Authoritative", "Precise", "Confident"], tone: "We explain complex ideas simply, without dumbing them down.", example: "Here's exactly what the data shows — and what to do about it." },
+  { name: "The Friend", traits: ["Warm", "Casual", "Relatable"], tone: "We talk like a knowledgeable friend, not a faceless corporation.", example: "Honestly? Most people get this wrong. Here's what actually works." },
+  { name: "The Challenger", traits: ["Bold", "Provocative", "Direct"], tone: "We challenge assumptions and say the thing others won't.", example: "The conventional advice is wrong. Here's the truth." },
+  { name: "The Guide", traits: ["Supportive", "Clear", "Patient"], tone: "We lead users step by step without making them feel lost.", example: "You've got this. Let's walk through it together." },
+];
+
+const CAMPAIGN_BRIEF = `CAMPAIGN BRIEF — [CAMPAIGN NAME]
+
+OBJECTIVE
+Goal: □ Awareness  □ Lead gen  □ Conversion  □ Retention
+Target metric: _______________  |  Target value: _______________
+
+TARGET AUDIENCE
+Primary persona: _______________
+Key pain points: 1. ___ 2. ___ 3. ___
+
+CORE MESSAGE
+"For [audience], [product] is the [category] that [differentiator] because [proof]."
+
+MESSAGING PILLARS (3 max)
+1. _______________  2. _______________  3. _______________
+
+CHANNELS + TIMELINE
+Channel 1: ___  |  Start: ___  |  End: ___
+Channel 2: ___  |  Start: ___  |  End: ___
+
+BUDGET
+Total: $___  |  Content ___% | Paid ___% | Tools ___%
+
+SUCCESS METRICS
+Primary KPI: ___  |  Target: ___
+Secondary KPI: ___  |  Target: ___
+
+ASSETS NEEDED
+□ Copy / scripts  □ Design  □ Video  □ Landing page
+□ Email sequence  □ Ad creatives  □ Social graphics`;
+
+export function MarketingModule({ projectName }: { projectName: string }) {
+  const [tab, setTab] = useState("Content Calendar");
+  const [selectedArchetype, setSelectedArchetype] = useState(BRAND_VOICE_ARCHETYPES[0]);
+  const [briefCopied, setBriefCopied] = useState(false);
+
+  return (
+    <div className="flex-1 overflow-y-auto p-5">
+      <SectionHead icon="📣" title="Marketing Module"
+        sub={`Content calendar, brand voice, and campaign planning for ${projectName}.`} />
+      <SafetyBanner label="All marketing frameworks are educational planning templates only." />
+      <TabBar tabs={["Content Calendar", "Brand Voice", "Campaign Brief"]} active={tab} onChange={setTab} />
+
+      {tab === "Content Calendar" && (
+        <div>
+          <p className="text-[11px] mb-4" style={{ color: "#64748b" }}>Weekly content cadence across channels. Adapt each slot to your schedule.</p>
+          <div className="grid grid-cols-7 gap-2">
+            {CONTENT_CALENDAR_WEEK.map(day => (
+              <div key={day.day}>
+                <p className="text-[9px] font-bold text-center mb-2" style={{ color: "#475569" }}>{day.day}</p>
+                {day.items.map(item => (
+                  <div key={item.title} className="rounded-xl p-2"
+                    style={{ background: `${item.color}10`, border: `1px solid ${item.color}22` }}>
+                    <p className="text-[8px] font-bold mb-0.5" style={{ color: item.color }}>{item.type}</p>
+                    <p className="text-[9px] text-white mb-1 leading-snug">{item.title}</p>
+                    <p className="text-[7px]" style={{ color: "#475569" }}>{item.channel}</p>
+                  </div>
+                ))}
+              </div>
+            ))}
+          </div>
+        </div>
+      )}
+
+      {tab === "Brand Voice" && (
+        <div className="grid grid-cols-2 gap-4">
+          <div className="flex flex-col gap-2">
+            {BRAND_VOICE_ARCHETYPES.map(a => (
+              <button key={a.name} onClick={() => setSelectedArchetype(a)}
+                className="text-left px-3.5 py-3 rounded-xl transition-all"
+                style={{
+                  background: selectedArchetype.name === a.name ? "rgba(99,102,241,0.14)" : "rgba(255,255,255,0.03)",
+                  border: `1px solid ${selectedArchetype.name === a.name ? "rgba(99,102,241,0.35)" : "rgba(255,255,255,0.08)"}`,
+                }}>
+                <p className="text-[12px] font-bold text-white mb-1.5">{a.name}</p>
+                <div className="flex gap-1 flex-wrap">{a.traits.map(t => <Pill key={t} label={t} color="#6366f1" />)}</div>
+              </button>
+            ))}
+          </div>
+          <Card>
+            <p className="text-[12px] font-bold text-white mb-3">{selectedArchetype.name}</p>
+            <div className="mb-3 px-3 py-2.5 rounded-xl" style={{ background: "rgba(99,102,241,0.08)", border: "1px solid rgba(99,102,241,0.15)" }}>
+              <p className="text-[9px] font-bold mb-1" style={{ color: "#818cf8" }}>Tone principle</p>
+              <p className="text-[11px] italic" style={{ color: "#94a3b8" }}>{selectedArchetype.tone}</p>
+            </div>
+            <div className="px-3 py-2.5 rounded-xl" style={{ background: "rgba(16,185,129,0.06)", border: "1px solid rgba(16,185,129,0.15)" }}>
+              <p className="text-[9px] font-bold mb-1" style={{ color: "#34d399" }}>Example line</p>
+              <p className="text-[11px] italic" style={{ color: "#94a3b8" }}>"{selectedArchetype.example}"</p>
+            </div>
+          </Card>
+        </div>
+      )}
+
+      {tab === "Campaign Brief" && (
+        <div>
+          <div className="flex items-center justify-between mb-3">
+            <p className="text-[11px]" style={{ color: "#64748b" }}>Copy the brief template and fill it in for your campaign.</p>
+            <button onClick={() => { navigator.clipboard.writeText(CAMPAIGN_BRIEF); setBriefCopied(true); setTimeout(() => setBriefCopied(false), 2000); }}
+              className="text-[10px] font-semibold px-3 py-1.5 rounded-lg"
+              style={{ background: "rgba(99,102,241,0.18)", color: "#a5b4fc", border: "1px solid rgba(99,102,241,0.30)" }}>
+              {briefCopied ? "Copied!" : "Copy Brief"}
+            </button>
+          </div>
+          <Card><pre className="text-[10px] leading-relaxed whitespace-pre-wrap" style={{ color: "#94a3b8", fontFamily: "inherit" }}>{CAMPAIGN_BRIEF}</pre></Card>
+        </div>
+      )}
+    </div>
+  );
+}
+
+// ══════════════════════════════════════════════════════════════════════════════
+// 9. PRODUCT MODULE
+// ══════════════════════════════════════════════════════════════════════════════
+
+const RICE_FEATURES = [
+  { name: "Onboarding improvements", reach: 80, impact: 3, confidence: 90, effort: 2 },
+  { name: "AI export to PDF", reach: 60, impact: 2, confidence: 70, effort: 3 },
+  { name: "Mobile responsive pass", reach: 90, impact: 2, confidence: 80, effort: 5 },
+  { name: "Real-time collaboration", reach: 40, impact: 3, confidence: 60, effort: 8 },
+  { name: "Template marketplace", reach: 55, impact: 2, confidence: 50, effort: 6 },
+  { name: "Voice-to-document draft", reach: 35, impact: 3, confidence: 65, effort: 4 },
+];
+
+const PRD_TEMPLATE = `PRODUCT REQUIREMENTS DOCUMENT — [FEATURE NAME]
+Version: 1.0  |  Author: [Name]  |  Status: □ Draft  □ Review  □ Approved
+
+PROBLEM STATEMENT
+What problem are we solving?
+Who has this problem?  |  Frequency: ___
+Current workaround: ___
+
+GOALS + METRICS
+Primary goal: ___  |  Metric: ___  |  Target: ___
+Secondary: ___  |  Metric: ___  |  Target: ___
+
+USER STORIES
+□ As a [user], I want to [action] so that [outcome].
+□ As a [user], I want to [action] so that [outcome].
+□ As a [user], I want to [action] so that [outcome].
+
+REQUIREMENTS
+MUST HAVE (P0): ___  ___  ___
+SHOULD HAVE (P1): ___  ___
+NICE TO HAVE (P2): ___
+OUT OF SCOPE: ___
+
+OPEN QUESTIONS
+□ [Question]  |  Owner: ___  |  Due: ___
+□ [Question]  |  Owner: ___  |  Due: ___`;
+
+const PRODUCT_METRICS_MAP = [
+  { category: "Acquisition", color: "#6366f1", metrics: ["Signups / week", "CAC", "Traffic → Trial conversion", "Top channel"] },
+  { category: "Activation", color: "#8b5cf6", metrics: ["Time to first value", "Onboarding completion %", "Activation milestone %", "Day 1 retention"] },
+  { category: "Retention", color: "#10b981", metrics: ["DAU / MAU", "Day 7 retention", "Day 30 retention", "Churn rate/mo"] },
+  { category: "Revenue", color: "#f59e0b", metrics: ["MRR / ARR", "ARPU", "LTV", "Expansion MRR"] },
+  { category: "Referral", color: "#ef4444", metrics: ["NPS score", "Referral rate", "Organic %", "Community size"] },
+];
+
+export function ProductModule({ projectName }: { projectName: string }) {
+  const [tab, setTab] = useState("PRD Builder");
+  const [prdCopied, setPrdCopied] = useState(false);
+
+  const riceScores = RICE_FEATURES.map(f => ({
+    ...f, score: Math.round((f.reach * f.impact * (f.confidence / 100)) / f.effort),
+  })).sort((a, b) => b.score - a.score);
+  const maxScore = riceScores[0]?.score ?? 1;
+
+  return (
+    <div className="flex-1 overflow-y-auto p-5">
+      <SectionHead icon="📦" title="Product Module"
+        sub={`PRD templates, feature prioritization, and product metrics for ${projectName}.`} />
+      <SafetyBanner label="All product frameworks are educational planning templates." />
+      <TabBar tabs={["PRD Builder", "RICE Prioritization", "Product Metrics"]} active={tab} onChange={setTab} />
+
+      {tab === "PRD Builder" && (
+        <div>
+          <div className="flex items-center justify-between mb-3">
+            <p className="text-[11px]" style={{ color: "#64748b" }}>Structured PRD template. Copy and fill in for your feature.</p>
+            <button onClick={() => { navigator.clipboard.writeText(PRD_TEMPLATE); setPrdCopied(true); setTimeout(() => setPrdCopied(false), 2000); }}
+              className="text-[10px] font-semibold px-3 py-1.5 rounded-lg"
+              style={{ background: "rgba(99,102,241,0.18)", color: "#a5b4fc", border: "1px solid rgba(99,102,241,0.30)" }}>
+              {prdCopied ? "Copied!" : "Copy PRD"}
+            </button>
+          </div>
+          <Card><pre className="text-[10px] leading-relaxed whitespace-pre-wrap" style={{ color: "#94a3b8", fontFamily: "inherit" }}>{PRD_TEMPLATE}</pre></Card>
+        </div>
+      )}
+
+      {tab === "RICE Prioritization" && (
+        <div>
+          <p className="text-[11px] mb-3" style={{ color: "#64748b" }}>
+            RICE = (Reach × Impact × Confidence%) ÷ Effort. Higher = higher priority.
+          </p>
+          <div className="flex flex-col gap-2">
+            {riceScores.map((f, i) => (
+              <div key={f.name} className="rounded-xl px-3 py-3"
+                style={{ background: "rgba(255,255,255,0.03)", border: "1px solid rgba(255,255,255,0.08)" }}>
+                <div className="flex items-center gap-3 mb-1.5">
+                  <p className="text-[11px] text-white flex-1">{f.name}</p>
+                  <p className="text-[13px] font-bold" style={{ color: i === 0 ? "#10b981" : "#6366f1" }}>{f.score}</p>
+                  <Pill label={i === 0 ? "P0" : i <= 2 ? "P1" : "P2"} color={i === 0 ? "#10b981" : i <= 2 ? "#6366f1" : "#475569"} />
+                </div>
+                <div className="h-1.5 rounded-full overflow-hidden" style={{ background: "rgba(255,255,255,0.08)" }}>
+                  <div className="h-full rounded-full" style={{ width: `${(f.score / maxScore) * 100}%`, background: i === 0 ? "#10b981" : "#6366f1" }} />
+                </div>
+              </div>
+            ))}
+          </div>
+        </div>
+      )}
+
+      {tab === "Product Metrics" && (
+        <div className="flex flex-col gap-4">
+          {PRODUCT_METRICS_MAP.map(cat => (
+            <div key={cat.category}>
+              <div className="flex items-center gap-2 mb-2">
+                <div className="w-2 h-2 rounded-full" style={{ background: cat.color }} />
+                <p className="text-[11px] font-bold" style={{ color: cat.color }}>{cat.category}</p>
+              </div>
+              <div className="grid grid-cols-2 gap-2">
+                {cat.metrics.map(m => (
+                  <div key={m} className="px-3 py-2 rounded-xl"
+                    style={{ background: `${cat.color}08`, border: `1px solid ${cat.color}18` }}>
+                    <p className="text-[11px]" style={{ color: "#94a3b8" }}>{m}</p>
+                  </div>
+                ))}
+              </div>
+            </div>
+          ))}
+        </div>
+      )}
+    </div>
+  );
+}
+
+// ══════════════════════════════════════════════════════════════════════════════
+// 10. HR / PEOPLE MODULE
+// ══════════════════════════════════════════════════════════════════════════════
+
+const JD_TEMPLATE = `JOB DESCRIPTION — [ROLE TITLE]
+[Company]  |  [Location / Remote]  |  [Full-time / Contract]
+Compensation: $[Range]  |  Equity: [Range]
+
+ABOUT THE ROLE
+[2–3 sentences: What does this person do? Why does this role exist? Impact?]
+
+WHAT YOU'LL DO
+• [Core responsibility 1]
+• [Core responsibility 2]
+• [Core responsibility 3]
+• [Core responsibility 4]
+• [Core responsibility 5]
+
+WHAT WE'RE LOOKING FOR
+Must have: [Requirement]  [Requirement]  [Requirement]
+Nice to have: [Requirement]  [Requirement]
+
+WHY JOIN US
+• [Culture / mission]
+• [Growth / learning]
+• [Team / product]
+• [Compensation / benefits]
+
+HOW TO APPLY
+[What to send, where to send it, what you're looking for in applications]`;
+
+const INTERVIEW_SECTIONS_HR = [
+  { section: "Role Fit", color: "#6366f1", questions: ["Walk me through your background and why this role?", "Most relevant project — what was your specific contribution?", "What does great work look like in this type of role?", "What would excellent performance look like in 90 days?"] },
+  { section: "Problem Solving", color: "#10b981", questions: ["Difficult problem you solved — how did you approach it?", "Competing priorities — how did you decide what to do first?", "Decision made with incomplete information — what happened?", "Time you were wrong — what did you learn?"] },
+  { section: "Collaboration", color: "#f59e0b", questions: ["Team environment where you do your best work?", "Time you disagreed with a teammate or manager?", "How do you communicate progress and blockers async?", "Time you helped someone else grow or succeed?"] },
+  { section: "Values Fit", color: "#8b5cf6", questions: ["What kind of work energizes you most?", "Something you've learned recently, inside or outside work?", "What does accountability mean to you?", "Questions you have for us?"] },
+];
+
+const PLAN_903060_HR = [
+  { horizon: "30 Days — Learn", color: "#6366f1", items: ["Meet every team member 1:1", "Shadow key workflows", "Read all internal docs", "Identify top 3 unknowns", "Deliver one small visible win"] },
+  { horizon: "60 Days — Contribute", color: "#10b981", items: ["Own first real project", "Propose process improvements", "Establish working rhythm", "Build trust with 3 key collaborators", "Share what you've learned with team"] },
+  { horizon: "90 Days — Drive", color: "#f59e0b", items: ["Own a meaningful outcome end-to-end", "Identify the most important thing to fix next quarter", "Present findings to leadership", "Have a clear picture of where to grow", "Initiate something proactively"] },
+];
+
+export function HRModule({ projectName }: { projectName: string }) {
+  const [tab, setTab] = useState("Job Description");
+  const [jdCopied, setJdCopied] = useState(false);
+  const [selectedSection, setSelectedSection] = useState(INTERVIEW_SECTIONS_HR[0]);
+
+  return (
+    <div className="flex-1 overflow-y-auto p-5">
+      <SectionHead icon="🤝" title="HR / People Module"
+        sub={`Hiring templates, interview frameworks, and onboarding plans for ${projectName}.`} />
+      <SafetyBanner label="All HR frameworks are educational templates. Actual hiring requires qualified HR practice and legal guidance." />
+      <TabBar tabs={["Job Description", "Interview Framework", "30/60/90 Plan"]} active={tab} onChange={setTab} />
+
+      {tab === "Job Description" && (
+        <div>
+          <div className="flex items-center justify-between mb-3">
+            <p className="text-[11px]" style={{ color: "#64748b" }}>Structured JD template. Copy and customise for each role.</p>
+            <button onClick={() => { navigator.clipboard.writeText(JD_TEMPLATE); setJdCopied(true); setTimeout(() => setJdCopied(false), 2000); }}
+              className="text-[10px] font-semibold px-3 py-1.5 rounded-lg"
+              style={{ background: "rgba(99,102,241,0.18)", color: "#a5b4fc", border: "1px solid rgba(99,102,241,0.30)" }}>
+              {jdCopied ? "Copied!" : "Copy JD"}
+            </button>
+          </div>
+          <Card><pre className="text-[10px] leading-relaxed whitespace-pre-wrap" style={{ color: "#94a3b8", fontFamily: "inherit" }}>{JD_TEMPLATE}</pre></Card>
+        </div>
+      )}
+
+      {tab === "Interview Framework" && (
+        <div className="grid grid-cols-2 gap-4">
+          <div className="flex flex-col gap-2">
+            {INTERVIEW_SECTIONS_HR.map(s => (
+              <button key={s.section} onClick={() => setSelectedSection(s)}
+                className="text-left px-3.5 py-3 rounded-xl transition-all"
+                style={{
+                  background: selectedSection.section === s.section ? `${s.color}14` : "rgba(255,255,255,0.03)",
+                  border: `1px solid ${selectedSection.section === s.section ? `${s.color}35` : "rgba(255,255,255,0.08)"}`,
+                }}>
+                <p className="text-[12px] font-bold mb-1" style={{ color: s.color }}>{s.section}</p>
+                <p className="text-[10px]" style={{ color: "#475569" }}>{s.questions.length} questions</p>
+              </button>
+            ))}
+          </div>
+          <Card>
+            <p className="text-[12px] font-bold mb-3" style={{ color: selectedSection.color }}>{selectedSection.section}</p>
+            <div className="flex flex-col gap-2">
+              {selectedSection.questions.map((q, i) => (
+                <div key={i} className="flex items-start gap-2 px-3 py-2.5 rounded-xl"
+                  style={{ background: `${selectedSection.color}08`, border: `1px solid ${selectedSection.color}15` }}>
+                  <span className="text-[9px] font-bold flex-shrink-0 mt-0.5" style={{ color: selectedSection.color }}>Q{i + 1}</span>
+                  <p className="text-[11px] leading-relaxed" style={{ color: "#94a3b8" }}>{q}</p>
+                </div>
+              ))}
+            </div>
+          </Card>
+        </div>
+      )}
+
+      {tab === "30/60/90 Plan" && (
+        <div className="flex flex-col gap-4">
+          {PLAN_903060_HR.map(phase => (
+            <Card key={phase.horizon}>
+              <div className="flex items-center gap-2 mb-3">
+                <div className="w-2.5 h-2.5 rounded-full" style={{ background: phase.color }} />
+                <p className="text-[12px] font-bold" style={{ color: phase.color }}>{phase.horizon}</p>
+              </div>
+              <div className="flex flex-col gap-1.5">
+                {phase.items.map(item => (
+                  <div key={item} className="flex items-center gap-2 px-3 py-2 rounded-lg" style={{ background: `${phase.color}08` }}>
+                    <span className="text-[9px] flex-shrink-0" style={{ color: phase.color }}>→</span>
+                    <p className="text-[11px]" style={{ color: "#94a3b8" }}>{item}</p>
+                  </div>
+                ))}
+              </div>
+            </Card>
+          ))}
+        </div>
+      )}
+    </div>
+  );
+}
+
+// ══════════════════════════════════════════════════════════════════════════════
+// 11. FINANCE MODULE (EDUCATIONAL ONLY — NOT FINANCIAL ADVICE)
+// ══════════════════════════════════════════════════════════════════════════════
+
+const BUDGET_CATEGORIES_FIN = [
+  { name: "Payroll & Contractors", monthly: 18000, color: "#6366f1", icon: "👥" },
+  { name: "Software & Tools", monthly: 2400, color: "#8b5cf6", icon: "🛠️" },
+  { name: "Marketing & Ads", monthly: 5000, color: "#f59e0b", icon: "📣" },
+  { name: "Infrastructure (Cloud)", monthly: 800, color: "#10b981", icon: "☁️" },
+  { name: "Office & Operations", monthly: 1200, color: "#06b6d4", icon: "🏢" },
+  { name: "Legal & Finance", monthly: 1000, color: "#ef4444", icon: "⚖️" },
+  { name: "Research & Development", monthly: 3000, color: "#a78bfa", icon: "🔬" },
+  { name: "Travel & Events", monthly: 600, color: "#f97316", icon: "✈️" },
+];
+
+const UNIT_ECONOMICS_FIN = [
+  { metric: "Customer Acquisition Cost (CAC)", formula: "Total Sales + Marketing ÷ New Customers", example: "$5,000 ÷ 20 customers = $250 CAC", color: "#f59e0b" },
+  { metric: "Customer Lifetime Value (LTV)", formula: "Avg Revenue Per User × Avg Lifespan", example: "$50/mo × 24 months = $1,200 LTV", color: "#6366f1" },
+  { metric: "LTV : CAC Ratio", formula: "LTV ÷ CAC (healthy target: ≥ 3:1)", example: "$1,200 ÷ $250 = 4.8:1 ✓", color: "#10b981" },
+  { metric: "CAC Payback Period", formula: "CAC ÷ Monthly Revenue Per Customer", example: "$250 ÷ $50/mo = 5 months", color: "#8b5cf6" },
+  { metric: "Gross Margin", formula: "(Revenue − COGS) ÷ Revenue × 100%", example: "($1,000 − $300) ÷ $1,000 = 70%", color: "#34d399" },
+  { metric: "Monthly Burn Rate", formula: "Total Cash Out − Total Cash In", example: "$28,000 out − $10,000 in = $18,000 burn", color: "#f87171" },
+];
+
+const FUNDING_CHECKLIST_FIN = [
+  { category: "Financials", color: "#6366f1", items: ["12-month P&L statement prepared", "Cash flow statement current", "Balance sheet accurate", "Cap table clean and updated", "Revenue model documented"] },
+  { category: "Legal", color: "#f87171", items: ["Incorporation documents in order", "All IP owned by the company", "Employment / contractor agreements in place", "Data privacy policy published", "No undisclosed liabilities"] },
+  { category: "Product", color: "#10b981", items: ["Core metrics dashboarded", "Customer testimonials documented", "Product roadmap 12 months out", "Competitive landscape documented", "Technical architecture overview prepared"] },
+  { category: "Team", color: "#f59e0b", items: ["Org chart up to date", "Key person risk identified", "Advisor agreements in place", "Equity vesting documented", "Open roles and hiring plan documented"] },
+];
+
+export function FinanceModule({ projectName }: { projectName: string }) {
+  const [tab, setTab] = useState("Budget Planner");
+  const [checkedItems, setCheckedItems] = useState<Record<string, Set<number>>>({});
+  const totalMonthly = BUDGET_CATEGORIES_FIN.reduce((a, c) => a + c.monthly, 0);
+
+  const toggleItem = (cat: string, i: number) => setCheckedItems(prev => {
+    const n = { ...prev };
+    const s = new Set(n[cat] ?? []);
+    s.has(i) ? s.delete(i) : s.add(i);
+    n[cat] = s;
+    return n;
+  });
+
+  return (
+    <div className="flex-1 overflow-y-auto p-5">
+      <SectionHead icon="💰" title="Finance Module"
+        sub={`Budget planning, unit economics, and funding readiness for ${projectName}.`} />
+      <div className="mb-4 px-4 py-3 rounded-xl"
+        style={{ background: "rgba(239,68,68,0.06)", border: "1px solid rgba(239,68,68,0.18)" }}>
+        <p className="text-[11px] font-bold mb-1" style={{ color: "#f87171" }}>⛔ Educational Use Only — Not Financial Advice</p>
+        <p className="text-[10px] leading-relaxed" style={{ color: "#78716c" }}>
+          All numbers, formulas, and templates here are illustrative educational tools only.
+          Nothing here constitutes financial advice, accounting, or investment guidance.
+          Consult a qualified financial professional before making real decisions.
+        </p>
+      </div>
+      <TabBar tabs={["Budget Planner", "Unit Economics", "Funding Readiness"]} active={tab} onChange={setTab} />
+
+      {tab === "Budget Planner" && (
+        <div>
+          <div className="flex gap-3 mb-4">
+            <div className="flex-1 rounded-2xl px-3.5 py-3" style={{ background: "rgba(99,102,241,0.08)", border: "1px solid rgba(99,102,241,0.18)" }}>
+              <p className="text-[20px] font-bold" style={{ color: "#818cf8" }}>${totalMonthly.toLocaleString()}</p>
+              <p className="text-[10px]" style={{ color: "#475569" }}>Monthly run rate (illustrative)</p>
+            </div>
+            <div className="flex-1 rounded-2xl px-3.5 py-3" style={{ background: "rgba(239,68,68,0.08)", border: "1px solid rgba(239,68,68,0.18)" }}>
+              <p className="text-[20px] font-bold" style={{ color: "#f87171" }}>${(totalMonthly * 12).toLocaleString()}</p>
+              <p className="text-[10px]" style={{ color: "#475569" }}>Annual projection (illustrative)</p>
+            </div>
+          </div>
+          <div className="flex flex-col gap-2">
+            {BUDGET_CATEGORIES_FIN.map(cat => {
+              const pct = Math.round((cat.monthly / totalMonthly) * 100);
+              return (
+                <div key={cat.name} className="rounded-xl px-3.5 py-2.5"
+                  style={{ background: "rgba(255,255,255,0.03)", border: "1px solid rgba(255,255,255,0.08)" }}>
+                  <div className="flex items-center gap-2 mb-1.5">
+                    <span className="text-sm">{cat.icon}</span>
+                    <p className="text-[11px] text-white flex-1">{cat.name}</p>
+                    <p className="text-[11px] font-bold" style={{ color: cat.color }}>${cat.monthly.toLocaleString()}</p>
+                    <p className="text-[9px] ml-1" style={{ color: "#475569" }}>{pct}%</p>
+                  </div>
+                  <div className="h-1.5 rounded-full overflow-hidden" style={{ background: "rgba(255,255,255,0.08)" }}>
+                    <div className="h-full rounded-full" style={{ width: `${pct * 2.5}%`, background: cat.color }} />
+                  </div>
+                </div>
+              );
+            })}
+          </div>
+        </div>
+      )}
+
+      {tab === "Unit Economics" && (
+        <div className="flex flex-col gap-3">
+          <p className="text-[11px]" style={{ color: "#64748b" }}>Core unit economics every business should understand. Replace examples with your numbers.</p>
+          {UNIT_ECONOMICS_FIN.map(u => (
+            <div key={u.metric} className="rounded-2xl p-4"
+              style={{ background: "rgba(255,255,255,0.03)", border: "1px solid rgba(255,255,255,0.08)" }}>
+              <p className="text-[12px] font-bold mb-2" style={{ color: u.color }}>{u.metric}</p>
+              <div className="grid grid-cols-2 gap-2 text-[10px]">
+                <div className="rounded-lg px-2.5 py-2" style={{ background: `${u.color}08`, border: `1px solid ${u.color}18` }}>
+                  <p className="text-[8px] font-bold uppercase mb-1" style={{ color: u.color }}>Formula</p>
+                  <p style={{ color: "#94a3b8" }}>{u.formula}</p>
+                </div>
+                <div className="rounded-lg px-2.5 py-2" style={{ background: "rgba(255,255,255,0.03)", border: "1px solid rgba(255,255,255,0.08)" }}>
+                  <p className="text-[8px] font-bold uppercase mb-1" style={{ color: "#475569" }}>Example</p>
+                  <p style={{ color: "#64748b" }}>{u.example}</p>
+                </div>
+              </div>
+            </div>
+          ))}
+        </div>
+      )}
+
+      {tab === "Funding Readiness" && (
+        <div>
+          <SafetyBanner label="Internal preparation checklist only — not legal or financial advice." />
+          <div className="flex flex-col gap-4">
+            {FUNDING_CHECKLIST_FIN.map(cat => {
+              const done = checkedItems[cat.category]?.size ?? 0;
+              return (
+                <Card key={cat.category}>
+                  <div className="flex items-center justify-between mb-3">
+                    <p className="text-[12px] font-bold" style={{ color: cat.color }}>{cat.category}</p>
+                    <span className="text-[9px]" style={{ color: "#475569" }}>{done}/{cat.items.length}</span>
+                  </div>
+                  <div className="h-1 rounded-full mb-3 overflow-hidden" style={{ background: "rgba(255,255,255,0.08)" }}>
+                    <div className="h-full rounded-full transition-all" style={{ width: `${(done / cat.items.length) * 100}%`, background: cat.color }} />
+                  </div>
+                  <div className="flex flex-col gap-1.5">
+                    {cat.items.map((item, i) => {
+                      const isDone = checkedItems[cat.category]?.has(i);
+                      return (
+                        <button key={i} onClick={() => toggleItem(cat.category, i)}
+                          className="flex items-start gap-2.5 text-left" style={{ opacity: isDone ? 0.55 : 1 }}>
+                          <div className="w-4 h-4 rounded flex items-center justify-center flex-shrink-0 mt-0.5"
+                            style={{ background: isDone ? cat.color : "rgba(255,255,255,0.06)", border: `1px solid ${isDone ? cat.color : "rgba(255,255,255,0.15)"}` }}>
+                            {isDone && <span className="text-[8px] text-white font-bold">✓</span>}
+                          </div>
+                          <span className="text-[11px] leading-relaxed"
+                            style={{ color: isDone ? "#475569" : "#94a3b8", textDecoration: isDone ? "line-through" : "none" }}>
+                            {item}
+                          </span>
+                        </button>
+                      );
+                    })}
+                  </div>
+                </Card>
+              );
+            })}
+          </div>
+        </div>
+      )}
+    </div>
+  );
+}
