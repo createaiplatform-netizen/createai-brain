@@ -1,11 +1,12 @@
 import { Router, type IRouter, type Request, type Response } from "express";
 import { logTractionEvent } from "../lib/tractionLogger";
-import { eq, desc } from "drizzle-orm";
+import { eq, desc, and, or, isNull, ne } from "drizzle-orm";
 import {
   db,
   projects,
   projectFolders,
   projectFiles,
+  projectMembers,
   activityLog,
   notifications,
 } from "@workspace/db";
@@ -200,6 +201,74 @@ router.post("/", async (req: Request, res: Response) => {
   } catch (err) {
     console.error("[projects] POST /", err);
     res.status(500).json({ error: "Failed to create project" });
+  }
+});
+
+// ─── GET /projects/shared-with-me ────────────────────────────────────────────
+// Returns projects where the authenticated user is listed as a member (but is not the owner).
+
+router.get("/shared-with-me", async (req: Request, res: Response) => {
+  const userId = requireAuth(req, res);
+  if (!userId) return;
+  try {
+    const memberRows = await db
+      .select()
+      .from(projectMembers)
+      .where(eq(projectMembers.userId, userId));
+
+    if (memberRows.length === 0) {
+      res.json({ projects: [] });
+      return;
+    }
+
+    const sharedList: object[] = [];
+    for (const m of memberRows) {
+      const pid = parseInt(m.projectId, 10);
+      const [project] = await db.select().from(projects).where(
+        and(eq(projects.id, pid), ne(projects.userId, userId), isNull(projects.deletedAt))
+      );
+      if (project) {
+        sharedList.push({
+          id: project.id.toString(),
+          name: project.name,
+          industry: project.industry,
+          icon: project.icon,
+          color: project.color,
+          status: project.status,
+          created: project.createdAt.toLocaleDateString(),
+          role: m.role,
+          ownerId: project.userId,
+        });
+      }
+    }
+    res.json({ projects: sharedList });
+  } catch (err) {
+    console.error("[projects] GET /shared-with-me", err);
+    res.status(500).json({ error: "Failed to load shared projects" });
+  }
+});
+
+// ─── POST /projects/reset-my-space ───────────────────────────────────────────
+// Archives all of the authenticated user's active projects (owner reset / clean slate).
+
+router.post("/reset-my-space", async (req: Request, res: Response) => {
+  const userId = requireAuth(req, res);
+  if (!userId) return;
+  try {
+    await db
+      .update(projects)
+      .set({ status: "archived", archivedAt: new Date() })
+      .where(
+        and(
+          eq(projects.userId, userId),
+          isNull(projects.deletedAt),
+          or(eq(projects.status, "active"), isNull(projects.status))
+        )
+      );
+    res.json({ ok: true, message: "All active projects archived. Space is clean." });
+  } catch (err) {
+    console.error("[projects] POST /reset-my-space", err);
+    res.status(500).json({ error: "Failed to reset space" });
   }
 });
 

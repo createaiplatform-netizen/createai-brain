@@ -24,6 +24,7 @@ const SECTIONS = [
   { id: "connection-layer",    label: "Connection Layer",   value: "30+ nodes", icon: "🕸️", desc: "Internal module/flow/brain fabric" },
   { id: "regulatory",          label: "Regulatory Blueprints", value: "6",   icon: "📜", desc: "HIPAA, GDPR, SOC2, CMS, ADA — blueprint only" },
   { id: "backend-blueprints",  label: "Backend Blueprints", value: "5",      icon: "🏗️", desc: "API specs, data models, security patterns" },
+  { id: "reset",               label: "Reset My Space",     value: "Owner",  icon: "🔄", desc: "Archive all active projects and start fresh" },
 ];
 
 const ENGINE_LIST = [
@@ -455,6 +456,11 @@ export function AdminApp() {
   const [profileSaving, setProfileSaving] = useState(false);
   const [profileSaved, setProfileSaved] = useState(false);
   const [profileError, setProfileError] = useState("");
+  // ── Reset My Space state ──
+  const [resetConfirm, setResetConfirm] = useState(false);
+  const [resetLoading, setResetLoading] = useState(false);
+  const [resetDone, setResetDone]       = useState(false);
+  const [resetError, setResetError]     = useState("");
 
   useEffect(() => {
     fetch("/api/projects", { credentials: "include" })
@@ -510,6 +516,28 @@ export function AdminApp() {
     setPlatformMode(m);
     setLogAdded(true);
     setTimeout(() => setLogAdded(false), 3000);
+  };
+
+  const handleResetMySpace = async () => {
+    setResetLoading(true);
+    setResetError("");
+    try {
+      const res = await fetch("/api/projects/reset-my-space", {
+        method: "POST",
+        credentials: "include",
+        headers: { "Content-Type": "application/json" },
+      });
+      if (res.ok) {
+        setResetDone(true);
+        setResetConfirm(false);
+      } else {
+        setResetError("Could not reset space. Please try again.");
+      }
+    } catch {
+      setResetError("Network error.");
+    } finally {
+      setResetLoading(false);
+    }
   };
 
   // ── Section drill-downs ──
@@ -924,6 +952,101 @@ export function AdminApp() {
             Stay in {osMode} Mode
           </button>
         </div>
+      </div>
+    );
+  }
+
+  // ── Reset My Space ──
+  if (activeSection === "reset") {
+    return (
+      <div className="p-5 space-y-5">
+        <div className="flex items-center gap-2">
+          <button onClick={() => { setActiveSection(null); setResetDone(false); setResetConfirm(false); setResetError(""); }}
+            className="text-primary text-sm font-medium">‹ Admin</button>
+          <h2 className="text-xl font-bold text-foreground flex-1">🔄 Reset My Space</h2>
+        </div>
+
+        {resetDone ? (
+          <div className="rounded-2xl p-6 text-center space-y-3" style={{ background: "rgba(16,185,129,0.08)", border: "1px solid rgba(16,185,129,0.25)" }}>
+            <div className="text-4xl">✓</div>
+            <p className="text-[16px] font-bold" style={{ color: "#34d399" }}>Space reset successfully.</p>
+            <p className="text-[13px]" style={{ color: "#64748b" }}>All active projects have been archived. Your space is now clean and ready for a fresh start.</p>
+            <button
+              onClick={() => { setResetDone(false); setActiveSection(null); }}
+              className="mt-2 px-5 py-2 rounded-xl text-[13px] font-semibold"
+              style={{ background: "rgba(16,185,129,0.15)", border: "1px solid rgba(16,185,129,0.30)", color: "#34d399" }}
+            >
+              ← Back to Admin
+            </button>
+          </div>
+        ) : (
+          <>
+            <div className="rounded-2xl p-4 space-y-2" style={{ background: "rgba(245,158,11,0.08)", border: "1px solid rgba(245,158,11,0.25)" }}>
+              <p className="text-[13px] font-bold" style={{ color: "#f59e0b" }}>⚠ Owner-only action</p>
+              <p className="text-[12px]" style={{ color: "#64748b" }}>
+                This will archive all of your currently active projects. Archived projects are not deleted —
+                they can be restored at any time from the ProjectOS Archived view.
+                This does not affect other users' projects.
+              </p>
+            </div>
+
+            <div className="rounded-2xl p-5 space-y-4" style={{ background: "rgba(255,255,255,0.03)", border: "1px solid rgba(255,255,255,0.08)" }}>
+              <p className="text-[14px] font-bold text-foreground">What happens when you reset:</p>
+              <ul className="space-y-2">
+                {[
+                  "All active projects move to your Archived folder",
+                  "Files, tasks, and content inside each project are preserved",
+                  "Projects can be restored from ProjectOS → Archived tab",
+                  "Other users' workspaces are completely unaffected",
+                  "You start fresh with a clean active project list",
+                ].map((item, i) => (
+                  <li key={i} className="flex items-start gap-2 text-[12px]" style={{ color: "#64748b" }}>
+                    <span style={{ color: "#6366f1", flexShrink: 0 }}>✓</span> {item}
+                  </li>
+                ))}
+              </ul>
+            </div>
+
+            {resetError && (
+              <div className="rounded-xl p-3" style={{ background: "rgba(239,68,68,0.10)", border: "1px solid rgba(239,68,68,0.25)" }}>
+                <p className="text-[12px]" style={{ color: "#f87171" }}>{resetError}</p>
+              </div>
+            )}
+
+            {!resetConfirm ? (
+              <button
+                onClick={() => setResetConfirm(true)}
+                className="w-full py-3 rounded-2xl text-[14px] font-bold"
+                style={{ background: "rgba(245,158,11,0.15)", border: "1px solid rgba(245,158,11,0.35)", color: "#f59e0b" }}
+              >
+                🔄 Reset My Space (Archive All Active Projects)
+              </button>
+            ) : (
+              <div className="space-y-3">
+                <p className="text-[13px] font-bold text-center" style={{ color: "#f87171" }}>
+                  Are you sure? This will archive all your active projects.
+                </p>
+                <div className="flex gap-3">
+                  <button
+                    onClick={() => setResetConfirm(false)}
+                    className="flex-1 py-2.5 rounded-xl text-[13px] font-semibold"
+                    style={{ background: "rgba(255,255,255,0.05)", color: "#94a3b8" }}
+                  >
+                    Cancel
+                  </button>
+                  <button
+                    onClick={handleResetMySpace}
+                    disabled={resetLoading}
+                    className="flex-1 py-2.5 rounded-xl text-[13px] font-bold"
+                    style={{ background: "rgba(239,68,68,0.18)", border: "1px solid rgba(239,68,68,0.35)", color: "#f87171" }}
+                  >
+                    {resetLoading ? "Archiving…" : "Confirm Reset"}
+                  </button>
+                </div>
+              </div>
+            )}
+          </>
+        )}
       </div>
     );
   }

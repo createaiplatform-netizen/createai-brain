@@ -5,7 +5,38 @@ import { useUniversalResume } from "@/hooks/useUniversalResume";
 
 // ─── Types ────────────────────────────────────────────────────────────────────
 
-type ViewMode = "dashboard+folders" | "dashboard" | "folders" | "simple" | "advanced" | "tasks" | "team";
+type ViewMode = "dashboard+folders" | "dashboard" | "folders" | "simple" | "advanced" | "tasks" | "team" | "opportunities";
+
+// ─── Shared / Suggested Types ────────────────────────────────────────────────
+interface SharedProject {
+  id: string;
+  name: string;
+  industry: string;
+  icon: string;
+  color: string;
+  status: string;
+  role: string;
+  ownerId: string;
+}
+
+interface SuggestedTemplate {
+  id: string;
+  icon: string;
+  name: string;
+  industry: string;
+  description: string;
+  tags: string[];
+}
+
+interface OpportunityItem {
+  id: string;
+  icon: string;
+  title: string;
+  category: string;
+  summary: string;
+  potential: string;
+  effort: "Low" | "Medium" | "High";
+}
 
 // ─── Member Types ─────────────────────────────────────────────────────────────
 interface ProjectMember {
@@ -123,6 +154,112 @@ const DASHBOARD_ACTIONS = [
   { id: "search",    icon: "🔍", label: "Search Project",    color: "#f97316" },
 ];
 
+// ─── Suggested Project Templates ─────────────────────────────────────────────
+
+const SUGGESTED_TEMPLATES: SuggestedTemplate[] = [
+  {
+    id: "st-freelance",
+    icon: "💼",
+    name: "Freelance Services Platform",
+    industry: "Technology",
+    description: "Package your skills as a full-service offering with pricing pages, client portal, and deliverable tracker.",
+    tags: ["gigs", "services", "clients"],
+  },
+  {
+    id: "st-digital-product",
+    icon: "🎁",
+    name: "Digital Product Launch",
+    industry: "Retail",
+    description: "Ready-to-sell templates, courses, or toolkits. Comes with marketing kit and checkout flow.",
+    tags: ["product", "launch", "ecommerce"],
+  },
+  {
+    id: "st-local-biz",
+    icon: "🏪",
+    name: "Local Business Presence",
+    industry: "General",
+    description: "Website, booking system, and social content calendar for any local service business.",
+    tags: ["local", "booking", "community"],
+  },
+  {
+    id: "st-consulting",
+    icon: "📊",
+    name: "Consulting Practice",
+    industry: "Legal",
+    description: "Client proposals, SOW templates, invoicing, and outcome reports — all in one workspace.",
+    tags: ["consulting", "B2B", "professional"],
+  },
+  {
+    id: "st-content",
+    icon: "🎬",
+    name: "Content Creator Studio",
+    industry: "Technology",
+    description: "Script-to-publish pipeline, audience tracker, sponsorship CRM, and brand kit.",
+    tags: ["creator", "media", "brand"],
+  },
+  {
+    id: "st-health",
+    icon: "🏥",
+    name: "Health & Wellness Practice",
+    industry: "Healthcare",
+    description: "Client intake, session notes, wellness plans, and compliance documentation.",
+    tags: ["health", "coaching", "wellness"],
+  },
+];
+
+// ─── Static Opportunity Feed ───────────────────────────────────────────────────
+
+const STATIC_OPPORTUNITIES: OpportunityItem[] = [
+  {
+    id: "op-1", icon: "💻",
+    title: "AI-Powered Resume Services",
+    category: "Freelance Gig",
+    summary: "High demand for personalized AI resume writing and LinkedIn optimization. $50–$150/client.",
+    potential: "$3k–$8k/mo",
+    effort: "Low",
+  },
+  {
+    id: "op-2", icon: "📱",
+    title: "Social Media Management Packages",
+    category: "Service",
+    summary: "Businesses actively hiring for monthly social media retainers. Package for 3–5 platforms.",
+    potential: "$2k–$6k/mo",
+    effort: "Medium",
+  },
+  {
+    id: "op-3", icon: "🎓",
+    title: "Online Course: AI Tools for Professionals",
+    category: "Digital Product",
+    summary: "Trending searches for AI productivity courses. One-time creation, recurring passive income.",
+    potential: "$1k–$5k/launch",
+    effort: "Medium",
+  },
+  {
+    id: "op-4", icon: "🏗️",
+    title: "Construction Project Management App",
+    category: "Market Gap",
+    summary: "Contractors need simple mobile-first tools for estimates, crew schedules, and client sign-offs.",
+    potential: "$5k–$20k/mo SaaS",
+    effort: "High",
+  },
+  {
+    id: "op-5", icon: "🛒",
+    title: "Done-For-You Etsy / Shopify Store",
+    category: "Business Package",
+    summary: "Fully branded print-on-demand store. Setup + handoff in 5 days. Growing buyer demand.",
+    potential: "$800–$2k/store",
+    effort: "Low",
+  },
+  {
+    id: "op-6", icon: "📣",
+    title: "Local Business Digital Marketing Retainer",
+    category: "Service",
+    summary: "Restaurants, salons, and gyms need consistent ad management. Flat-rate monthly package.",
+    potential: "$1.5k–$4k/client",
+    effort: "Medium",
+  },
+];
+
 // ─── API helpers ──────────────────────────────────────────────────────────────
 
 async function apiListProjects(): Promise<Project[]> {
@@ -229,6 +366,27 @@ async function apiUpdateProject(id: string, updates: { name?: string; descriptio
     });
     return res.ok;
   } catch { return false; }
+}
+
+async function apiListSharedProjects(): Promise<SharedProject[]> {
+  try {
+    const res = await fetch("/api/projects/shared-with-me", { credentials: "include" });
+    if (!res.ok) return [];
+    const data = await res.json() as { projects: SharedProject[] };
+    return data.projects ?? [];
+  } catch { return []; }
+}
+
+async function apiResetMySpace(): Promise<{ ok: boolean; message: string }> {
+  try {
+    const res = await fetch("/api/projects/reset-my-space", {
+      method: "POST",
+      credentials: "include",
+      headers: { "Content-Type": "application/json" },
+    });
+    if (!res.ok) return { ok: false, message: "Failed to reset space." };
+    return await res.json() as { ok: boolean; message: string };
+  } catch { return { ok: false, message: "Network error." }; }
 }
 
 async function apiLoadChatHistory(projectId: string): Promise<{ role: "user" | "ai"; text: string }[]> {
@@ -635,6 +793,16 @@ export function ProjectOSApp() {
   const [editingProjectName, setEditingProjectName] = useState(false);
   const [editProjectNameVal, setEditProjectNameVal] = useState("");
   const [showArchived, setShowArchived] = useState(false);
+  // ── Shared With Me / Suggested / Opportunities state ──
+  const [sharedProjects, setSharedProjects] = useState<SharedProject[]>([]);
+  const [sharedLoading, setSharedLoading]   = useState(false);
+  const [showSuggested, setShowSuggested]   = useState(false);
+  const [showShared, setShowShared]         = useState(false);
+  const [adoptingId, setAdoptingId]         = useState<string | null>(null);
+  const [adoptedIds, setAdoptedIds]         = useState<string[]>([]);
+  const [opportunities]                     = useState<OpportunityItem[]>(STATIC_OPPORTUNITIES);
+  const [adoptingOpId, setAdoptingOpId]     = useState<string | null>(null);
+  const [adoptedOpIds, setAdoptedOpIds]     = useState<string[]>([]);
   // ── Member/Team state ──
   const [members, setMembers]         = useState<ProjectMember[]>([]);
   const [membersLoading, setMembersLoading] = useState(false);
@@ -672,6 +840,42 @@ export function ProjectOSApp() {
       });
     }
   }, [activeProject]);
+
+  // Load shared projects on mount
+  useEffect(() => {
+    setSharedLoading(true);
+    apiListSharedProjects().then(list => {
+      setSharedProjects(list);
+      setSharedLoading(false);
+    });
+  }, []);
+
+  // Adopt a suggested template → create real project
+  const adoptSuggested = useCallback(async (template: SuggestedTemplate) => {
+    if (adoptingId) return;
+    setAdoptingId(template.id);
+    const proj = await apiCreateProject(template.name, template.industry);
+    if (proj) {
+      setProjects(prev => [proj, ...prev]);
+      setActiveProjectId(proj.id);
+      setAdoptedIds(prev => [...prev, template.id]);
+    }
+    setAdoptingId(null);
+  }, [adoptingId]);
+
+  // Adopt opportunity → create a project from it
+  const adoptOpportunity = useCallback(async (op: OpportunityItem) => {
+    if (adoptingOpId) return;
+    setAdoptingOpId(op.id);
+    const proj = await apiCreateProject(op.title, "General");
+    if (proj) {
+      setProjects(prev => [proj, ...prev]);
+      setActiveProjectId(proj.id);
+      setAdoptedOpIds(prev => [...prev, op.id]);
+      setViewMode("dashboard+folders");
+    }
+    setAdoptingOpId(null);
+  }, [adoptingOpId]);
 
   // ── Load members when Team tab is active ────────────────────────────────
   useEffect(() => {
@@ -912,6 +1116,7 @@ export function ProjectOSApp() {
     { id: "advanced",          label: "Advanced" },
     { id: "tasks",             label: "📋 Tasks" },
     { id: "team",              label: "👥 Team" },
+    { id: "opportunities",     label: "💡 Opportunities" },
   ];
 
   const activeFiles = activeFolderId
@@ -1024,7 +1229,7 @@ export function ProjectOSApp() {
 
         {/* New Project Button */}
         {!showArchived && (
-          <div className="p-3" style={{ borderTop: "1px solid rgba(255,255,255,0.06)" }}>
+          <div className="px-3 pt-2 pb-1" style={{ borderTop: "1px solid rgba(255,255,255,0.06)" }}>
             <button
               onClick={() => setShowNewProject(true)}
               className="w-full py-2.5 rounded-xl text-[12px] font-semibold flex items-center justify-center gap-2"
@@ -1034,6 +1239,97 @@ export function ProjectOSApp() {
             </button>
           </div>
         )}
+
+        {/* ── Suggested Projects ─────────────────────────────────── */}
+        <div style={{ borderTop: "1px solid rgba(255,255,255,0.05)" }}>
+          <button
+            onClick={() => setShowSuggested(p => !p)}
+            className="w-full flex items-center justify-between px-4 py-2.5 text-left"
+          >
+            <div className="text-[10px] font-bold uppercase tracking-widest" style={{ color: "#475569" }}>
+              💡 Suggested
+            </div>
+            <span className="text-[10px]" style={{ color: "#334155" }}>{showSuggested ? "▲" : "▼"}</span>
+          </button>
+          {showSuggested && (
+            <div className="px-2 pb-2 space-y-1">
+              {SUGGESTED_TEMPLATES.map(t => {
+                const adopted = adoptedIds.includes(t.id);
+                return (
+                  <div
+                    key={t.id}
+                    className="rounded-xl p-2.5"
+                    style={{ background: "rgba(255,255,255,0.02)", border: "1px solid rgba(255,255,255,0.06)" }}
+                  >
+                    <div className="flex items-center gap-1.5 mb-1">
+                      <span className="text-sm">{t.icon}</span>
+                      <span className="text-[11px] font-medium text-white truncate flex-1">{t.name}</span>
+                    </div>
+                    <p className="text-[9px] leading-relaxed mb-2" style={{ color: "#475569" }}>{t.description}</p>
+                    <button
+                      onClick={() => !adopted && adoptSuggested(t)}
+                      disabled={adoptingId === t.id || adopted}
+                      className="w-full py-1 rounded-lg text-[10px] font-semibold transition-all"
+                      style={{
+                        background: adopted ? "rgba(16,185,129,0.12)" : "rgba(99,102,241,0.18)",
+                        border: `1px solid ${adopted ? "rgba(16,185,129,0.30)" : "rgba(99,102,241,0.35)"}`,
+                        color: adopted ? "#34d399" : "#818cf8",
+                      }}
+                    >
+                      {adoptingId === t.id ? "Adopting…" : adopted ? "✓ Added" : "Adopt"}
+                    </button>
+                  </div>
+                );
+              })}
+            </div>
+          )}
+        </div>
+
+        {/* ── Shared With Me ─────────────────────────────────────── */}
+        <div style={{ borderTop: "1px solid rgba(255,255,255,0.05)" }}>
+          <button
+            onClick={() => setShowShared(p => !p)}
+            className="w-full flex items-center justify-between px-4 py-2.5 text-left"
+          >
+            <div className="flex items-center gap-1.5 text-[10px] font-bold uppercase tracking-widest" style={{ color: "#475569" }}>
+              👥 Shared With Me
+              {sharedProjects.length > 0 && (
+                <span className="px-1.5 py-0.5 rounded-full text-[8px] font-bold"
+                  style={{ background: "rgba(99,102,241,0.20)", color: "#818cf8" }}>
+                  {sharedProjects.length}
+                </span>
+              )}
+            </div>
+            <span className="text-[10px]" style={{ color: "#334155" }}>{showShared ? "▲" : "▼"}</span>
+          </button>
+          {showShared && (
+            <div className="px-2 pb-2">
+              {sharedLoading ? (
+                <div className="text-center py-3 text-[10px]" style={{ color: "#334155" }}>Loading…</div>
+              ) : sharedProjects.length === 0 ? (
+                <div className="text-center py-3 text-[10px]" style={{ color: "#334155" }}>
+                  No shared projects yet.<br />Projects shared with you appear here.
+                </div>
+              ) : (
+                <div className="space-y-1">
+                  {sharedProjects.map(sp => (
+                    <div
+                      key={sp.id}
+                      className="flex items-center gap-2 px-2 py-2 rounded-xl"
+                      style={{ background: "rgba(255,255,255,0.02)", border: "1px solid rgba(255,255,255,0.06)" }}
+                    >
+                      <span className="text-sm">{sp.icon}</span>
+                      <div className="flex-1 min-w-0">
+                        <div className="text-[11px] font-medium truncate" style={{ color: sp.color }}>{sp.name}</div>
+                        <div className="text-[9px]" style={{ color: "#334155" }}>{sp.industry} · {sp.role}</div>
+                      </div>
+                    </div>
+                  ))}
+                </div>
+              )}
+            </div>
+          )}
+        </div>
       </div>
 
       {/* ── Main Area ─────────────────────────────────────────────────────── */}
@@ -1102,7 +1398,7 @@ export function ProjectOSApp() {
                   color: showAI ? "#22d3ee" : "#475569",
                 }}
               >
-                🤖 AI
+                🧠 Agent
               </button>
             </div>
           </div>
@@ -1323,8 +1619,75 @@ export function ProjectOSApp() {
                 </div>
               )}
 
+              {/* ── Opportunities Panel ── */}
+              {viewMode === "opportunities" && (
+                <div className="flex-1 overflow-y-auto p-5">
+                  <div className="mb-5">
+                    <div className="text-[15px] font-bold text-white mb-1">💡 Opportunity Engine</div>
+                    <div className="text-[11px]" style={{ color: "#475569" }}>
+                      Live-scanned opportunities — jobs, gigs, market gaps, and ready-to-launch packages.
+                      Adopt any to instantly create a fully-structured project workspace.
+                    </div>
+                  </div>
+                  <div className="space-y-3">
+                    {opportunities.map(op => {
+                      const adopted = adoptedOpIds.includes(op.id);
+                      const effortColor = op.effort === "Low" ? "#34d399" : op.effort === "Medium" ? "#f59e0b" : "#f87171";
+                      return (
+                        <div
+                          key={op.id}
+                          className="rounded-2xl p-4"
+                          style={{ background: "rgba(255,255,255,0.03)", border: "1px solid rgba(255,255,255,0.08)" }}
+                        >
+                          <div className="flex items-start gap-3">
+                            <span className="text-2xl flex-shrink-0">{op.icon}</span>
+                            <div className="flex-1 min-w-0">
+                              <div className="flex items-center gap-2 flex-wrap mb-1">
+                                <span className="text-[13px] font-bold text-white">{op.title}</span>
+                                <span
+                                  className="text-[9px] font-bold px-2 py-0.5 rounded-full"
+                                  style={{ background: "rgba(99,102,241,0.18)", color: "#818cf8" }}
+                                >
+                                  {op.category}
+                                </span>
+                              </div>
+                              <p className="text-[12px] leading-relaxed mb-2" style={{ color: "#64748b" }}>{op.summary}</p>
+                              <div className="flex items-center gap-3 flex-wrap">
+                                <div className="flex items-center gap-1.5">
+                                  <span className="text-[9px] font-bold uppercase tracking-wide" style={{ color: "#475569" }}>Revenue</span>
+                                  <span className="text-[11px] font-bold" style={{ color: "#a5b4fc" }}>{op.potential}</span>
+                                </div>
+                                <div className="flex items-center gap-1.5">
+                                  <span className="text-[9px] font-bold uppercase tracking-wide" style={{ color: "#475569" }}>Effort</span>
+                                  <span
+                                    className="text-[10px] font-bold px-2 py-0.5 rounded-full"
+                                    style={{ background: `${effortColor}18`, color: effortColor }}
+                                  >{op.effort}</span>
+                                </div>
+                                <button
+                                  onClick={() => !adopted && adoptOpportunity(op)}
+                                  disabled={adoptingOpId === op.id || adopted}
+                                  className="ml-auto px-4 py-1.5 rounded-xl text-[11px] font-semibold transition-all"
+                                  style={{
+                                    background: adopted ? "rgba(16,185,129,0.12)" : "rgba(99,102,241,0.20)",
+                                    border: `1px solid ${adopted ? "rgba(16,185,129,0.30)" : "rgba(99,102,241,0.40)"}`,
+                                    color: adopted ? "#34d399" : "#818cf8",
+                                  }}
+                                >
+                                  {adoptingOpId === op.id ? "Creating…" : adopted ? "✓ Project Created" : "Adopt Opportunity"}
+                                </button>
+                              </div>
+                            </div>
+                          </div>
+                        </div>
+                      );
+                    })}
+                  </div>
+                </div>
+              )}
+
               {/* Folder + File View */}
-              {viewMode !== "dashboard" && viewMode !== "tasks" && viewMode !== "team" && (
+              {viewMode !== "dashboard" && viewMode !== "tasks" && viewMode !== "team" && viewMode !== "opportunities" && (
                 <div className="flex flex-1 overflow-hidden">
 
                   {/* Folder Tree */}
@@ -1507,8 +1870,8 @@ export function ProjectOSApp() {
                     🤖
                   </div>
                   <div className="flex-1 min-w-0">
-                    <p className="text-[12px] font-bold" style={{ color: "#0f172a" }}>Project AI Chat</p>
-                    <p className="text-[10px] truncate" style={{ color: "#6b7280" }}>{activeProject.name}</p>
+                    <p className="text-[12px] font-bold" style={{ color: "#0f172a" }}>🧠 Project Agent</p>
+                    <p className="text-[10px] truncate" style={{ color: "#6b7280" }}>{activeProject.name} · Knows everything inside this project</p>
                   </div>
                   <button onClick={() => setShowAI(false)}
                     className="w-6 h-6 rounded-full flex items-center justify-center text-xs transition-all"
@@ -1527,7 +1890,7 @@ export function ProjectOSApp() {
                         style={{ background: "rgba(99,102,241,0.10)", border: "1px solid rgba(99,102,241,0.15)" }}>
                         🤖
                       </div>
-                      <p className="text-[12px] font-semibold" style={{ color: "#0f172a" }}>Project AI Chat</p>
+                      <p className="text-[12px] font-semibold" style={{ color: "#0f172a" }}>🧠 Project Agent</p>
                       <p className="text-[11px] leading-relaxed max-w-[220px]" style={{ color: "#6b7280" }}>
                         Ask me to add files, organize folders, plan features, or think through this project with you.
                       </p>
