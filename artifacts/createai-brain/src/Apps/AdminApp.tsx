@@ -1,5 +1,6 @@
 import React, { useState, useEffect } from "react";
 import { useOS } from "@/os/OSContext";
+import { useViewResume } from "@/hooks/useUniversalResume";
 import { FormEngine } from "@/engines/FormEngine";
 import { CreationStore } from "@/standalone/creation/CreationStore";
 import { ConnectionEngine, NODE_TYPE_CFG, NodeType } from "@/engine/ConnectionEngine";
@@ -429,7 +430,15 @@ function AdminUsersSection({ onBack, onGoToPeople }: { onBack: () => void; onGoT
 export function AdminApp() {
   const { appRegistry, openApp, platformMode, setPlatformMode } = useOS();
   const osMode = platformMode;
-  const [activeSection, setActiveSection] = useState<string | null>(null);
+  // Universal Resume — restores last active section
+  const { view: _savedSection, setView: _setSavedSection } = useViewResume<string>("admin", "none");
+  const [activeSection, _setActiveSection] = useState<string | null>(
+    _savedSection === "none" ? null : _savedSection
+  );
+  const setActiveSection = (s: string | null) => {
+    _setActiveSection(s);
+    _setSavedSection(s ?? "none");
+  };
   const [confirmLive, setConfirmLive] = useState(false);
   const [logAdded, setLogAdded] = useState(false);
   const [debugData, setDebugData] = useState<Record<string, unknown>>({});

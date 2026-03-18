@@ -8,9 +8,11 @@ import { RegulatoryEngine } from "@/engine/RegulatoryEngine";
 import { SaveToProjectModal } from "@/components/SaveToProjectModal";
 import { useEngineRun, useSeriesRun, useContextStore, contextStore } from "@/controller";
 import { DocumentRenderer } from "@/engines/document";
+import { useViewResume } from "@/hooks/useUniversalResume";
+import { OutputVaultPanel } from "@/components/OutputVaultPanel";
 
 // ─── Types ─────────────────────────────────────────────────────────────────────
-type HubView = "dashboard" | "engines" | "agents" | "series" | "compliance" | "intelligence" | "run" | "series-run";
+type HubView = "dashboard" | "engines" | "agents" | "series" | "compliance" | "intelligence" | "vault" | "run" | "series-run";
 
 // Per-engine hint text shown in RunPanel (Step 4 — engine-specific hints)
 const ENGINE_HINTS: Record<string, { placeholder: string; example: string }> = {
@@ -1069,12 +1071,22 @@ function IntelligencePanel() {
 }
 
 // ─── Main BrainHubApp ──────────────────────────────────────────────────────────
+const TRANSIENT_VIEWS: HubView[] = ["run", "series-run"];
+
 export function BrainHubApp() {
-  const [view, setView]               = useState<HubView>("dashboard");
+  // Universal Resume — restores last stable view (never transient run panels)
+  const { view: _savedView, setView: _setView } = useViewResume<HubView>("brainhub", "dashboard");
+  const resolvedView: HubView = TRANSIENT_VIEWS.includes(_savedView) ? "dashboard" : _savedView;
+  const [view, setView]               = useState<HubView>(resolvedView);
   const [stats, setStats]             = useState<PlatformStats | null>(null);
   const [activeEngine, setActiveEngine] = useState<EngineDefinition | null>(null);
   const [activeSeries, setActiveSeries] = useState<SeriesDefinition | null>(null);
   const [categoryFilter, setCategoryFilter] = useState<string>("all");
+
+  // Persist stable view changes to Universal Resume
+  useEffect(() => {
+    if (!TRANSIENT_VIEWS.includes(view)) _setView(view);
+  }, [view, _setView]);
 
   useEffect(() => {
     fetchPlatformStats().then(setStats).catch(() => {});
@@ -1108,6 +1120,32 @@ export function BrainHubApp() {
     setView("series-run");
   }, []);
 
+  // ── Global command-palette event listeners ──────────────────────────────────
+  useEffect(() => {
+    const onLaunchEngine = (e: Event) => {
+      const id = (e as CustomEvent<{ engineId: string }>).detail.engineId;
+      const eng = ALL_ENGINES.find(x => x.id === id);
+      if (eng) handleRunEngine(eng);
+    };
+    const onLaunchSeries = (e: Event) => {
+      const id = (e as CustomEvent<{ seriesId: string }>).detail.seriesId;
+      const ser = ALL_SERIES.find(x => x.id === id);
+      if (ser) handleRunSeries(ser);
+    };
+    const onNav = (e: Event) => {
+      const v = (e as CustomEvent<{ view: HubView }>).detail.view;
+      if (v) setView(v);
+    };
+    window.addEventListener("cai:launch-engine", onLaunchEngine);
+    window.addEventListener("cai:launch-series", onLaunchSeries);
+    window.addEventListener("cai:nav",           onNav);
+    return () => {
+      window.removeEventListener("cai:launch-engine", onLaunchEngine);
+      window.removeEventListener("cai:launch-series", onLaunchSeries);
+      window.removeEventListener("cai:nav",           onNav);
+    };
+  }, [handleRunEngine, handleRunSeries]);
+
   // ── Run panel ──
   if (view === "run" && activeEngine) {
     return (
@@ -1126,6 +1164,30 @@ export function BrainHubApp() {
     );
   }
 
+  // ── Vault view — early return so panel owns full height ──
+  if (view === "vault") {
+    return (
+      <div style={{ display: "flex", flexDirection: "column", height: "100%", overflow: "hidden" }}>
+        {/* Mini nav header */}
+        <div style={{
+          display: "flex", alignItems: "center", gap: 12,
+          padding: "12px 24px", borderBottom: "1px solid rgba(255,255,255,0.06)",
+        }}>
+          <button
+            onClick={() => setView("dashboard")}
+            style={{
+              background: "rgba(255,255,255,0.06)", border: "none", borderRadius: 8,
+              padding: "5px 10px", cursor: "pointer", fontSize: 12, color: "#94a3b8",
+            }}
+          >← Back</button>
+          <span style={{ fontSize: 14, fontWeight: 700, color: "#e2e8f0" }}>Output Vault</span>
+          <span style={{ fontSize: 12, color: "#64748b" }}>· all engine outputs, auto-saved</span>
+        </div>
+        <OutputVaultPanel />
+      </div>
+    );
+  }
+
   const { totalRuns } = useContextStore().getState();
 
   const NAV_ITEMS: { id: HubView; label: string; icon: string; badge?: number }[] = [
@@ -1134,6 +1196,7 @@ export function BrainHubApp() {
     { id: "agents",       label: "Meta-Agents",  icon: "🤖" },
     { id: "series",       label: "Series",       icon: "🧬" },
     { id: "compliance",   label: "Compliance",   icon: "🛡️" },
+    { id: "vault",        label: "Vault",        icon: "🗄",  badge: undefined },
     { id: "intelligence", label: "Intelligence", icon: "🧠", badge: totalRuns > 0 ? totalRuns : undefined },
   ];
 

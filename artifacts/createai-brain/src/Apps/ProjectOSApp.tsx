@@ -1,6 +1,7 @@
 import React, { useState, useEffect, useRef, useCallback } from "react";
 import { MediaPlayer } from "../components/MediaPlayer";
 import { streamProjectChat, contextStore } from "@/controller";
+import { useUniversalResume } from "@/hooks/useUniversalResume";
 
 // ─── Types ────────────────────────────────────────────────────────────────────
 
@@ -597,8 +598,16 @@ function SearchModal({
 export function ProjectOSApp() {
   const [projects, setProjects] = useState<Project[]>([]);
   const [loadingProjects, setLoadingProjects] = useState(true);
-  const [activeProjectId, setActiveProjectId] = useState<string | null>(null);
-  const [viewMode, setViewMode] = useState<ViewMode>("dashboard+folders");
+
+  // Universal Resume — restore last project + view across sessions
+  const { resumeState, setEntityId: _resumeSetProject, setView: _resumeSetView } =
+    useUniversalResume("projos", { view: "dashboard+folders", entityId: null });
+
+  const [activeProjectId, _setActiveProjectId] = useState<string | null>(resumeState.entityId);
+  const [viewMode, _setViewMode] = useState<ViewMode>(resumeState.view as ViewMode ?? "dashboard+folders");
+
+  const setActiveProjectId = (id: string | null) => { _setActiveProjectId(id); _resumeSetProject(id); };
+  const setViewMode = (m: ViewMode) => { _setViewMode(m); _resumeSetView(m); };
   const [activeFolderId, setActiveFolderId] = useState<string | null>(null);
   const [showSearch, setShowSearch] = useState(false);
   const [showNewProject, setShowNewProject] = useState(false);

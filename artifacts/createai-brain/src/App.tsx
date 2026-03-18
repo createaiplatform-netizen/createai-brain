@@ -16,6 +16,7 @@ import IntegrationSuitePage from "@/pages/IntegrationSuitePage";
 
 import { OSProvider } from "@/os/OSContext";
 import { OSLayout } from "@/os/osLayout";
+import { GlobalCommandPalette } from "@/components/GlobalCommandPalette";
 import { InteractionProvider } from "@/os/InteractionContext";
 import { ConversationProvider } from "@/os/ConversationContext";
 import { PlatformProvider } from "@/controller";
@@ -411,6 +412,7 @@ function App() {
             <InteractionProvider>
               <ConversationProvider>
                 <OSProvider>
+                  <GlobalCommandPalette />
                   <WouterRouter base={base}>
                     <Router />
                   </WouterRouter>

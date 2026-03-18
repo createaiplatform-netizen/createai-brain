@@ -1,26 +1,41 @@
-import React, { useState } from "react";
+// ═══════════════════════════════════════════════════════════════════════════
+// Sidebar — Premium light design. Warm gray rail, clean indigo accents.
+// Inspired by Linear / Stripe / Apple. No dark, no neon, no glow.
+// ═══════════════════════════════════════════════════════════════════════════
+
+import React, { useState, useEffect } from "react";
 import { useLocation } from "wouter";
 import { useOS, ALL_APPS, AppId } from "./OSContext";
 import { AppBrowserModal } from "./AppBrowserModal";
 import { useContextStore } from "@/controller";
 import { LocalSyncIndicator } from "@/components/LocalSyncIndicator";
+import { favGetAll } from "@/services/EngineFavoritesService";
+import { ALL_ENGINES } from "@/engine/CapabilityEngine";
+import { dispatchLaunchEngine } from "@/components/GlobalCommandPalette";
 
-// ─── Pinned app IDs shown permanently in the sidebar ─────────────────────────
-// These are the highest-value apps for daily use.
-// Everything else is accessible via the App Browser.
+// ─── Pinned apps ──────────────────────────────────────────────────────────────
 const PINNED_IDS: AppId[] = [
-  "chat"                    as AppId,
-  "projos"                  as AppId,
-  "creator"                 as AppId,
-  "brainhub"                as AppId,
-  "integrationDashboard"    as AppId,
-  "marketing"               as AppId,
-  "documents"               as AppId,
-  "simulation"              as AppId,
-  "people"                  as AppId,
-  "commandcenter"           as AppId,
-  "admin"                   as AppId,
+  "chat"          as AppId,
+  "projos"        as AppId,
+  "creator"       as AppId,
+  "brainhub"      as AppId,
+  "marketing"     as AppId,
+  "documents"     as AppId,
+  "simulation"    as AppId,
+  "people"        as AppId,
+  "commandcenter" as AppId,
+  "admin"         as AppId,
 ];
+
+// ─── Tokens ───────────────────────────────────────────────────────────────────
+const BG         = "#F7F8FA";           // warm off-white rail
+const BG_HOVER   = "rgba(0,0,0,0.04)";
+const BORDER_COL = "rgba(0,0,0,0.07)";
+const TEXT_DIM   = "#94a3b8";
+const TEXT_BASE  = "#64748b";
+const TEXT_DARK  = "#1e293b";
+const ACCENT     = "#4f46e5";           // slightly deeper indigo for readability on white
+const ACCENT_BG  = "rgba(79,70,229,0.08)";
 
 interface SidebarProps {
   onNav?: () => void;
@@ -33,222 +48,302 @@ export function Sidebar({ onNav, forceCollapsed, forceExpanded }: SidebarProps) 
   const [location, setLocation] = useLocation();
   const [showBrowser, setShowBrowser] = useState(false);
   const { totalRuns } = useContextStore().getState();
+  const [favIds, setFavIds] = useState<string[]>(() => favGetAll());
 
   const collapsed = forceCollapsed ? true : forceExpanded ? false : sidebarCollapsed;
-  const width = collapsed ? 64 : 220;
+  const width     = collapsed ? 60 : 224;
 
   const handleNav = (fn: () => void) => { fn(); onNav?.(); };
 
-  // Build pinned apps list — preserving the order from PINNED_IDS
   const pinnedApps = PINNED_IDS
     .map(id => ALL_APPS.find(a => a.id === id))
     .filter((a): a is NonNullable<typeof a> => !!a);
 
+  // Stay in sync when user pins/unpins engines
+  useEffect(() => {
+    const sync = () => setFavIds(favGetAll());
+    window.addEventListener("cai:fav-changed", sync);
+    return () => window.removeEventListener("cai:fav-changed", sync);
+  }, []);
+
+  const favEngines = favIds
+    .map(id => ALL_ENGINES.find(e => e.id === id))
+    .filter(Boolean) as (typeof ALL_ENGINES)[number][];
+
   return (
     <>
-      <aside
-        className="flex flex-col h-full flex-shrink-0 overflow-hidden transition-all duration-300 ease-in-out"
-        style={{ width, background: "#fff", borderRight: "1px solid rgba(0,0,0,0.08)", boxShadow: "2px 0 8px rgba(0,0,0,0.03)" }}
-      >
-        {/* ── Brand ── */}
-        <div className="flex items-center h-14 px-3 gap-2.5 overflow-hidden flex-shrink-0"
-          style={{ borderBottom: "1px solid rgba(0,0,0,0.07)" }}>
+      <aside style={{
+        width, flexShrink: 0, display: "flex", flexDirection: "column",
+        height: "100%", overflow: "hidden", background: BG,
+        borderRight: `1px solid ${BORDER_COL}`,
+        transition: "width 0.22s cubic-bezier(0.4,0,0.2,1)",
+      }}>
+
+        {/* Brand */}
+        <div style={{
+          display: "flex", alignItems: "center", height: 54,
+          padding: "0 12px", gap: 10, borderBottom: `1px solid ${BORDER_COL}`, flexShrink: 0,
+        }}>
           <button
             onClick={() => { if (!forceCollapsed && !forceExpanded) toggleSidebar(); }}
-            className="w-8 h-8 rounded-xl flex items-center justify-center text-white text-sm font-bold flex-shrink-0 transition-all duration-200 hover:scale-105"
-            style={{ background: "linear-gradient(135deg,#6366f1,#8b5cf6)", boxShadow: "0 2px 8px rgba(99,102,241,0.28)" }}
+            style={{
+              width: 30, height: 30, borderRadius: 9, flexShrink: 0, border: "none",
+              background: "linear-gradient(135deg, #6366f1, #4f46e5)",
+              boxShadow: "0 1px 4px rgba(99,102,241,0.30)",
+              cursor: "pointer", display: "flex", alignItems: "center",
+              justifyContent: "center", color: "#fff", fontSize: 12, fontWeight: 800,
+              transition: "transform 0.15s",
+            }}
+            onMouseEnter={e => { (e.currentTarget as HTMLElement).style.transform = "scale(1.06)"; }}
+            onMouseLeave={e => { (e.currentTarget as HTMLElement).style.transform = "scale(1)"; }}
             title="CreateAI Brain"
           >C</button>
           {!collapsed && (
-            <span className="font-semibold text-[13px] truncate" style={{ color: "#0f172a", letterSpacing: "-0.01em" }}>
-              CreateAI Brain
-            </span>
+            <span style={{
+              fontSize: 13, fontWeight: 700, color: TEXT_DARK,
+              letterSpacing: "-0.02em", flex: 1, overflow: "hidden",
+              textOverflow: "ellipsis", whiteSpace: "nowrap",
+            }}>CreateAI Brain</span>
           )}
         </div>
 
-        {/* ── Home + Metrics ── */}
-        <div className="px-2 pt-3 pb-1 space-y-0.5">
-          <SidebarItem
-            icon="🏠" label="Home"
+        {/* Search pill */}
+        <div style={{ padding: collapsed ? "8px 10px 4px" : "8px 10px 4px" }}>
+          <button
+            onClick={() => window.dispatchEvent(new KeyboardEvent("keydown", { key: "k", metaKey: true, bubbles: true }))}
+            style={{
+              width: "100%", display: "flex", alignItems: "center",
+              justifyContent: collapsed ? "center" : "space-between",
+              background: "rgba(0,0,0,0.04)", border: "1px solid rgba(0,0,0,0.07)",
+              borderRadius: 8, padding: collapsed ? "6px" : "5px 9px",
+              cursor: "pointer", transition: "border-color 0.15s",
+            }}
+            onMouseEnter={e => { (e.currentTarget as HTMLElement).style.borderColor = "rgba(0,0,0,0.14)"; }}
+            onMouseLeave={e => { (e.currentTarget as HTMLElement).style.borderColor = "rgba(0,0,0,0.07)"; }}
+            title={collapsed ? "Search (⌘K)" : undefined}
+          >
+            {collapsed
+              ? <span style={{ fontSize: 13, color: TEXT_DIM }}>⌘</span>
+              : <>
+                  <span style={{ fontSize: 11, color: TEXT_DIM }}>Search anything…</span>
+                  <kbd style={{
+                    fontSize: 9, color: TEXT_DIM, background: "rgba(0,0,0,0.06)",
+                    borderRadius: 4, padding: "2px 5px", fontFamily: "monospace", fontWeight: 700,
+                  }}>⌘K</kbd>
+                </>
+            }
+          </button>
+        </div>
+
+        {/* Favorite engines strip */}
+        {favEngines.length > 0 && (
+          <div style={{ padding: "4px 10px 2px" }}>
+            {!collapsed && (
+              <p style={{
+                fontSize: 9, fontWeight: 700, color: TEXT_DIM, letterSpacing: "0.08em",
+                textTransform: "uppercase", margin: "0 0 4px 2px",
+              }}>Engines</p>
+            )}
+            <div style={{ display: "flex", flexDirection: "column", gap: 1 }}>
+              {favEngines.map(eng => (
+                <button
+                  key={eng.id}
+                  title={collapsed ? eng.name : undefined}
+                  onClick={() => {
+                    handleNav(() => {
+                      openApp("brainhub" as AppId);
+                      setTimeout(() => dispatchLaunchEngine(eng.id), 120);
+                    });
+                  }}
+                  style={{
+                    width: "100%", display: "flex", alignItems: "center", gap: 8,
+                    height: 30, borderRadius: 7, padding: collapsed ? "0 6px" : "0 8px",
+                    background: "transparent", border: "none", cursor: "pointer",
+                    color: TEXT_BASE, fontSize: 11, fontWeight: 500,
+                    transition: "background 0.12s, color 0.12s",
+                    justifyContent: collapsed ? "center" : "flex-start",
+                  }}
+                  onMouseEnter={e => { (e.currentTarget as HTMLElement).style.background = BG_HOVER; (e.currentTarget as HTMLElement).style.color = TEXT_DARK; }}
+                  onMouseLeave={e => { (e.currentTarget as HTMLElement).style.background = "transparent"; (e.currentTarget as HTMLElement).style.color = TEXT_BASE; }}
+                >
+                  <span style={{ fontSize: 13, flexShrink: 0 }}>{eng.icon}</span>
+                  {!collapsed && (
+                    <span style={{ overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap", flex: 1, textAlign: "left" }}>
+                      {eng.name}
+                    </span>
+                  )}
+                </button>
+              ))}
+            </div>
+          </div>
+        )}
+
+        {/* Apps section */}
+        {!collapsed && (
+          <p style={{
+            fontSize: 9, fontWeight: 700, color: TEXT_DIM, letterSpacing: "0.08em",
+            textTransform: "uppercase", margin: "8px 0 2px 12px",
+          }}>Apps</p>
+        )}
+
+        {/* Nav items */}
+        <div style={{ flex: 1, overflowY: "auto", overscrollBehavior: "contain", padding: "2px 8px" }}>
+          <NavItem icon="🏠" label="Home"
             active={activeApp === null && location === "/"}
             collapsed={collapsed}
             onClick={() => handleNav(() => { closeApp(); setLocation("/"); })}
           />
-          <SidebarItem
-            icon="📊" label="Metrics"
-            active={location === "/metrics"}
-            collapsed={collapsed}
-            onClick={() => handleNav(() => setLocation("/metrics"))}
-          />
+          <div style={{ height: 2 }} />
+          {pinnedApps.map(app => (
+            <NavItem
+              key={app.id}
+              icon={app.icon} label={app.label}
+              active={activeApp === app.id}
+              collapsed={collapsed}
+              onClick={() => handleNav(() => openApp(app.id as AppId))}
+              color={app.color}
+              badge={app.id === "notifications" && unreadCount > 0 ? unreadCount : undefined}
+            />
+          ))}
         </div>
 
-        {/* ── Divider ── */}
-        <div className="mx-3 my-1" style={{ height: 1, background: "rgba(0,0,0,0.06)" }} />
+        {/* Divider */}
+        <div style={{ height: 1, margin: "0 12px", background: BORDER_COL }} />
 
-        {/* ── Pinned Apps ── */}
-        <div className="flex-1 overflow-y-auto px-2 pb-2 overscroll-contain">
-          {!collapsed && (
-            <p className="px-2 pt-2 pb-1.5 text-[9px] font-bold uppercase tracking-widest" style={{ color: "#d1d5db" }}>
-              Apps
-            </p>
-          )}
-          <div className="space-y-0.5">
-            {pinnedApps.map(app => (
-              <SidebarItem
-                key={app.id}
-                icon={app.icon}
-                label={app.label}
-                active={activeApp === app.id}
-                collapsed={collapsed}
-                onClick={() => handleNav(() => openApp(app.id as AppId))}
-                color={app.color}
-                badge={app.id === "notifications" && unreadCount > 0 ? unreadCount : undefined}
-              />
-            ))}
-          </div>
-        </div>
-
-        {/* ── Platform Metrics ── */}
-        <div className="px-2 pb-1">
-          <SidebarItem
-            icon="📊"
-            label="Platform Metrics"
-            active={activeApp === "metricsPanel"}
-            collapsed={collapsed}
-            onClick={() => handleNav(() => openApp("metricsPanel" as AppId))}
-            color="#6366f1"
-          />
-        </div>
-        {/* ── Integration Dashboard ── */}
-        <div className="px-2 pb-1">
-          <SidebarItem
-            icon="🔗"
-            label="Integrations"
-            active={activeApp === "integrationDashboard"}
-            collapsed={collapsed}
-            onClick={() => handleNav(() => openApp("integrationDashboard" as AppId))}
-            color="#0891b2"
-          />
-        </div>
-
-        {/* ── Browse all apps ── */}
-        <div className="px-2 pb-2 pt-1" style={{ borderTop: "1px solid rgba(0,0,0,0.07)" }}>
-          <button
-            onClick={() => setShowBrowser(true)}
-            className="w-full flex items-center gap-2.5 h-9 rounded-xl px-2 text-[12px] font-semibold transition-all duration-150"
-            style={{ color: "#6366f1", background: "rgba(99,102,241,0.06)" }}
-            title={collapsed ? "Browse all apps" : undefined}
-            onMouseEnter={e => { (e.currentTarget as HTMLElement).style.background = "rgba(99,102,241,0.12)"; }}
-            onMouseLeave={e => { (e.currentTarget as HTMLElement).style.background = "rgba(99,102,241,0.06)"; }}
-          >
-            <span className="flex-shrink-0 text-[16px] text-center w-5">⊞</span>
-            {!collapsed && <span className="truncate flex-1 text-left">Browse all apps</span>}
-          </button>
-        </div>
-
-        {/* ── Platform Intelligence indicator ── */}
+        {/* Engine run count */}
         {totalRuns > 0 && (
-          <div className="px-2 pb-1">
+          <div style={{ padding: "6px 8px 0" }}>
             <button
               onClick={() => handleNav(() => openApp("brainhub" as AppId))}
-              className="w-full flex items-center gap-2 h-8 rounded-xl px-2 transition-all duration-150"
-              style={{ background: "rgba(99,102,241,0.07)", cursor: "pointer", border: "none" }}
-              title={collapsed ? `Platform: ${totalRuns} engine runs` : undefined}
-              onMouseEnter={e => { (e.currentTarget as HTMLElement).style.background = "rgba(99,102,241,0.14)"; }}
-              onMouseLeave={e => { (e.currentTarget as HTMLElement).style.background = "rgba(99,102,241,0.07)"; }}
+              style={{
+                width: "100%", display: "flex", alignItems: "center", gap: 7,
+                height: 30, borderRadius: 7, padding: "0 8px",
+                background: ACCENT_BG, border: "none", cursor: "pointer",
+                transition: "background 0.15s",
+              }}
+              onMouseEnter={e => { (e.currentTarget as HTMLElement).style.background = "rgba(79,70,229,0.13)"; }}
+              onMouseLeave={e => { (e.currentTarget as HTMLElement).style.background = ACCENT_BG; }}
+              title={collapsed ? `${totalRuns} engine runs` : undefined}
             >
-              <span className="relative flex-shrink-0 w-5 flex items-center justify-center">
-                <span style={{ fontSize: 13 }}>🧠</span>
-                <span className="absolute -top-0.5 -right-1 w-1.5 h-1.5 rounded-full"
-                  style={{ background: "#6366f1", boxShadow: "0 0 4px #6366f1" }} />
-              </span>
+              <span style={{ fontSize: 13, flexShrink: 0 }}>🧠</span>
               {!collapsed && (
-                <span className="text-[10px] font-semibold truncate flex-1 text-left"
-                  style={{ color: "#818cf8", letterSpacing: "-0.01em" }}>
-                  Platform · {totalRuns} run{totalRuns !== 1 ? "s" : ""}
+                <span style={{ fontSize: 10, fontWeight: 600, color: ACCENT, flex: 1, textAlign: "left" }}>
+                  {totalRuns} run{totalRuns !== 1 ? "s" : ""}
                 </span>
               )}
             </button>
           </div>
         )}
 
-        {/* ── Local storage sync indicator ── */}
-        <div className="px-2 pb-1">
+        {/* Browse all */}
+        <div style={{ padding: "6px 8px" }}>
+          <button
+            onClick={() => setShowBrowser(true)}
+            style={{
+              width: "100%", display: "flex", alignItems: "center", gap: 7,
+              height: 32, borderRadius: 8, padding: "0 8px",
+              background: "rgba(0,0,0,0.03)", border: "1px solid rgba(0,0,0,0.07)",
+              cursor: "pointer", fontSize: 11, fontWeight: 600, color: ACCENT,
+              transition: "background 0.12s, border-color 0.12s",
+              justifyContent: collapsed ? "center" : "flex-start",
+            }}
+            onMouseEnter={e => { (e.currentTarget as HTMLElement).style.background = ACCENT_BG; (e.currentTarget as HTMLElement).style.borderColor = "rgba(79,70,229,0.2)"; }}
+            onMouseLeave={e => { (e.currentTarget as HTMLElement).style.background = "rgba(0,0,0,0.03)"; (e.currentTarget as HTMLElement).style.borderColor = "rgba(0,0,0,0.07)"; }}
+            title={collapsed ? "Browse all apps" : undefined}
+          >
+            <span style={{ fontSize: 13, flexShrink: 0 }}>⊞</span>
+            {!collapsed && <span>All apps</span>}
+          </button>
+        </div>
+
+        {/* Local sync */}
+        <div style={{ padding: "0 8px 2px" }}>
           <LocalSyncIndicator collapsed={collapsed} />
         </div>
 
-        {/* ── Collapse toggle ── */}
+        {/* Collapse toggle */}
         {!forceCollapsed && !forceExpanded && (
-          <div className="px-2 pb-3 pt-0.5" style={{ borderTop: "1px solid rgba(0,0,0,0.06)" }}>
+          <div style={{ padding: "4px 8px 10px", borderTop: `1px solid ${BORDER_COL}` }}>
             <button
               onClick={toggleSidebar}
-              className="w-full flex items-center justify-center gap-2 h-8 rounded-xl text-xs font-medium transition-all duration-200"
-              style={{ color: "#c4c9d4" }}
-              onMouseEnter={e => { (e.currentTarget as HTMLElement).style.background = "rgba(0,0,0,0.04)"; (e.currentTarget as HTMLElement).style.color = "#6b7280"; }}
-              onMouseLeave={e => { (e.currentTarget as HTMLElement).style.background = "transparent"; (e.currentTarget as HTMLElement).style.color = "#c4c9d4"; }}
+              style={{
+                width: "100%", display: "flex", alignItems: "center", justifyContent: "center",
+                gap: 5, height: 26, borderRadius: 7, border: "none", background: "transparent",
+                cursor: "pointer", fontSize: 10, color: TEXT_DIM,
+                transition: "background 0.12s, color 0.12s",
+              }}
+              onMouseEnter={e => { (e.currentTarget as HTMLElement).style.background = BG_HOVER; (e.currentTarget as HTMLElement).style.color = TEXT_BASE; }}
+              onMouseLeave={e => { (e.currentTarget as HTMLElement).style.background = "transparent"; (e.currentTarget as HTMLElement).style.color = TEXT_DIM; }}
             >
-              <span style={{ fontSize: 10 }}>{collapsed ? "▶" : "◀"}</span>
+              <span>{collapsed ? "▶" : "◀"}</span>
               {!collapsed && <span>Collapse</span>}
             </button>
           </div>
         )}
       </aside>
 
-      {/* ── App Browser Modal ── */}
       {showBrowser && <AppBrowserModal onClose={() => setShowBrowser(false)} />}
     </>
   );
 }
 
-// ─── SidebarItem ──────────────────────────────────────────────────────────────
+// ─── NavItem ──────────────────────────────────────────────────────────────────
 
-function SidebarItem({ icon, label, active, collapsed, onClick, color, badge }: {
+function NavItem({ icon, label, active, collapsed, onClick, color, badge }: {
   icon: string; label: string; active: boolean; collapsed: boolean;
   onClick: () => void; color?: string; badge?: number;
 }) {
-  const accentColor = color ?? "#6366f1";
-
+  const accent = color ?? ACCENT;
   return (
     <button
       onClick={onClick}
       title={collapsed ? label : undefined}
-      className="w-full flex items-center gap-2.5 h-9 rounded-xl px-2 text-[13px] font-medium transition-all duration-150"
-      style={active
-        ? { background: `${accentColor}14`, color: accentColor }
-        : { color: "#6b7280" }}
+      style={{
+        width: "100%", display: "flex", alignItems: "center",
+        gap: 8, height: 32, borderRadius: 8,
+        padding: collapsed ? "0" : "0 9px",
+        justifyContent: collapsed ? "center" : "flex-start",
+        background: active ? ACCENT_BG : "transparent",
+        color: active ? ACCENT : TEXT_BASE,
+        fontWeight: active ? 600 : 400,
+        fontSize: 12.5, border: "none", cursor: "pointer",
+        transition: "background 0.1s, color 0.1s",
+      }}
       onMouseEnter={e => {
         if (!active) {
-          (e.currentTarget as HTMLElement).style.background = "rgba(0,0,0,0.04)";
-          (e.currentTarget as HTMLElement).style.color = "#0f172a";
+          (e.currentTarget as HTMLElement).style.background = BG_HOVER;
+          (e.currentTarget as HTMLElement).style.color = TEXT_DARK;
         }
       }}
       onMouseLeave={e => {
         if (!active) {
           (e.currentTarget as HTMLElement).style.background = "transparent";
-          (e.currentTarget as HTMLElement).style.color = "#6b7280";
+          (e.currentTarget as HTMLElement).style.color = TEXT_BASE;
         }
       }}
     >
-      <span className="relative flex-shrink-0 w-5 text-center leading-none">
-        <span className="text-base">{icon}</span>
+      <span style={{ position: "relative", flexShrink: 0, fontSize: 14, width: 18, textAlign: "center" }}>
+        {icon}
         {badge !== undefined && badge > 0 && (
-          <span
-            className="absolute -top-1 -right-1.5 min-w-[14px] h-[14px] rounded-full flex items-center justify-center text-white font-bold"
-            style={{ fontSize: 9, background: "#ef4444", lineHeight: 1, padding: "0 3px" }}
-          >{badge > 99 ? "99+" : badge}</span>
+          <span style={{
+            position: "absolute", top: -3, right: -4,
+            minWidth: 13, height: 13, borderRadius: 7,
+            background: "#ef4444", color: "#fff",
+            fontSize: 8, fontWeight: 800,
+            display: "flex", alignItems: "center", justifyContent: "center", padding: "0 3px",
+          }}>{badge > 99 ? "99+" : badge}</span>
         )}
       </span>
       {!collapsed && (
-        <span className="truncate flex-1 text-left" style={{ letterSpacing: "-0.01em" }}>{label}</span>
+        <span style={{
+          flex: 1, textAlign: "left", overflow: "hidden",
+          textOverflow: "ellipsis", whiteSpace: "nowrap", letterSpacing: "-0.01em",
+        }}>{label}</span>
       )}
-      {!collapsed && badge !== undefined && badge > 0 && (
-        <span className="flex-shrink-0 min-w-[18px] h-[18px] rounded-full flex items-center justify-center text-white font-bold"
-          style={{ fontSize: 10, background: "#ef4444", padding: "0 4px" }}>
-          {badge > 99 ? "99+" : badge}
-        </span>
-      )}
-      {!collapsed && active && badge === undefined && (
-        <span className="w-1 h-4 rounded-full flex-shrink-0" style={{ background: accentColor }} />
+      {!collapsed && active && (
+        <span style={{
+          width: 5, height: 5, borderRadius: "50%", background: accent, flexShrink: 0,
+        }} />
       )}
     </button>
   );

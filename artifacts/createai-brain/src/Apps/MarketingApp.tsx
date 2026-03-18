@@ -5,6 +5,7 @@
 // ═══════════════════════════════════════════════════════════════════════════
 
 import React, { useState, useEffect } from "react";
+import { useViewResume } from "@/hooks/useUniversalResume";
 import { DemoModeShell, ModeBanner } from "@/engines/DemoModeEngine";
 import { OutputFormatter } from "@/components/OutputFormatter";
 import {
@@ -692,7 +693,8 @@ function HistoryView({ history, onSelect }: { history: GenResult[]; onSelect: (r
 // ─── Main App ─────────────────────────────────────────────────────────────
 
 export function MarketingApp() {
-  const [view,      setView]      = useState<MarketingView>("home");
+  const { view: _view, setView: _setView } = useViewResume<MarketingView>("marketing", "home");
+  const [view,      setView]      = [_view, _setView];
   const [history,   setHistory]   = useState<GenResult[]>([]);
   const [activeResult, setActiveResult] = useState<GenResult | null>(null);
   const [campaigns, setCampaigns] = useState<Campaign[]>(SEED_CAMPAIGNS);

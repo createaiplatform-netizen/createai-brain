@@ -7,6 +7,7 @@
 // ═══════════════════════════════════════════════════════════════════════════
 
 import { useState, useEffect } from "react";
+import { vaultAdd } from "@/services/OutputVaultService";
 
 // ─── Types ────────────────────────────────────────────────────────────────────
 
@@ -76,6 +77,9 @@ class PlatformContextStore {
 
   recordOutput(engineId: string, engineName: string, topic: string, text: string): void {
     if (!text.trim() || text.length < 20) return;
+
+    // Auto-save to Output Vault (fire-and-forget, never throws)
+    try { vaultAdd(engineId, engineName, topic, text); } catch { /* ignore */ }
 
     const record: OutputRecord = { engineId, engineName, topic, text, ts: Date.now() };
     const prev = this.state.recentOutputs[engineId] ?? [];

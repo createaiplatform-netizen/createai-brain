@@ -165,47 +165,47 @@
   }
 }
 
-/* ── Glass utility classes ──────────────────────────────────────────────────── */
+/* ── Surface utilities — Apple / Linear style ──────────────────────────────── */
+
+/* Clean elevated surface — white card, soft lift shadow */
 .glass {
-  background: rgba(255, 255, 255, 0.92);
-  backdrop-filter: blur(24px) saturate(180%);
-  -webkit-backdrop-filter: blur(24px) saturate(180%);
+  background: #ffffff;
   border: 1px solid rgba(0, 0, 0, 0.07);
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.05), 0 4px 12px rgba(0, 0, 0, 0.04);
 }
 
+/* Sidebar rail */
 .glass-sidebar {
-  background: rgba(255, 255, 255, 0.98);
-  backdrop-filter: blur(40px) saturate(180%);
-  -webkit-backdrop-filter: blur(40px) saturate(180%);
-  border-right: 1px solid rgba(0, 0, 0, 0.08);
+  background: #F7F8FA;
+  border-right: 1px solid rgba(0, 0, 0, 0.07);
 }
 
+/* Topbar — clean white strip, hairline border */
 .glass-topbar {
-  background: rgba(255, 255, 255, 0.96);
-  backdrop-filter: blur(32px) saturate(180%);
-  -webkit-backdrop-filter: blur(32px) saturate(180%);
-  border-bottom: 1px solid rgba(0, 0, 0, 0.08);
+  background: #ffffff;
+  border-bottom: 1px solid rgba(0, 0, 0, 0.07);
 }
 
+/* Card surface */
 .glass-card {
-  background: rgba(255, 255, 255, 0.95);
-  backdrop-filter: blur(20px) saturate(160%);
-  -webkit-backdrop-filter: blur(20px) saturate(160%);
+  background: #ffffff;
   border: 1px solid rgba(0, 0, 0, 0.07);
   border-radius: var(--radius);
-  box-shadow: 0 1px 4px rgba(0, 0, 0, 0.06), 0 4px 16px rgba(0, 0, 0, 0.05);
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.05), 0 4px 12px rgba(0, 0, 0, 0.04);
 }
 
+/* Elevated panel — e.g. modals, popovers */
 .premium-shadow {
-  box-shadow: 0 8px 40px rgba(0, 0, 0, 0.45), 0 1px 0 rgba(255, 255, 255, 0.04) inset;
+  box-shadow: 0 4px 24px rgba(0, 0, 0, 0.10), 0 1px 4px rgba(0, 0, 0, 0.06);
 }
 
+/* Indigo focus ring — restrained, no glow */
 .indigo-glow {
-  box-shadow: 0 0 0 1px rgba(99, 102, 241, 0.35), 0 4px 16px rgba(99, 102, 241, 0.20);
+  box-shadow: 0 0 0 2px rgba(99, 102, 241, 0.22);
 }
 
 .indigo-glow-sm {
-  box-shadow: 0 0 0 1px rgba(99, 102, 241, 0.25), 0 2px 8px rgba(99, 102, 241, 0.15);
+  box-shadow: 0 0 0 1.5px rgba(99, 102, 241, 0.18);
 }
 
 /* ── AI Avatar Guide Animations ─────────────────────────────────────────────── */
@@ -275,8 +275,8 @@
   100% { background-position: 200% 0; }
 }
 @keyframes pulseRing {
-  0%   { box-shadow: 0 0 0 0 rgba(99,102,241,0.45); }
-  70%  { box-shadow: 0 0 0 12px rgba(99,102,241,0); }
+  0%   { box-shadow: 0 0 0 0 rgba(99,102,241,0.20); }
+  70%  { box-shadow: 0 0 0 8px rgba(99,102,241,0); }
   100% { box-shadow: 0 0 0 0 rgba(99,102,241,0); }
 }
 @keyframes floatUp {
@@ -323,13 +323,13 @@
   background-clip: text;
 }
 
-/* Interactive card hover upgrade */
+/* Interactive card hover — subtle lift, no harsh shadow */
 .card-interactive {
-  transition: all 0.2s ease;
+  transition: box-shadow 0.18s ease, border-color 0.18s ease, transform 0.18s ease;
 }
 .card-interactive:hover {
-  border-color: rgba(99,102,241,0.30) !important;
-  box-shadow: 0 6px 28px rgba(0,0,0,0.45), 0 0 0 1px rgba(99,102,241,0.18);
+  border-color: rgba(0,0,0,0.11) !important;
+  box-shadow: 0 2px 8px rgba(0,0,0,0.07), 0 6px 20px rgba(0,0,0,0.05);
   transform: translateY(-1px);
 }
 
@@ -670,4 +670,46 @@ input.premium::placeholder { color: rgba(255,255,255,0.25); }
   outline: 2px solid rgba(99,102,241,0.60);
   outline-offset: 2px;
   border-radius: 4px;
+}
+
+/* ── Sidebar scrollbar ─────────────────────────────────────────────────────── */
+aside ::-webkit-scrollbar       { width: 3px; }
+aside ::-webkit-scrollbar-track { background: transparent; }
+aside ::-webkit-scrollbar-thumb { background: rgba(0,0,0,0.10); border-radius: 2px; }
+aside ::-webkit-scrollbar-thumb:hover { background: rgba(0,0,0,0.18); }
+
+/* ── Soft badge ────────────────────────────────────────────────────────────── */
+.badge-indigo {
+  display: inline-flex; align-items: center; justify-content: center;
+  min-width: 18px; height: 18px; border-radius: 9px; padding: 0 5px;
+  background: #4f46e5; color: #fff; font-size: 9px; font-weight: 700;
+}
+
+/* ── Slide-in-from-bottom ──────────────────────────────────────────────────── */
+@keyframes slideInBottom {
+  from { opacity: 0; transform: translateY(12px); }
+  to   { opacity: 1; transform: translateY(0); }
+}
+.animate-slide-up {
+  animation: slideInBottom 0.28s cubic-bezier(0.22,0.61,0.36,1) both;
+}
+
+/* ── Apple-style card depth ────────────────────────────────────────────────── */
+.card-depth {
+  background: #ffffff;
+  border: 1px solid rgba(0,0,0,0.07);
+  border-radius: 12px;
+  box-shadow: 0 1px 3px rgba(0,0,0,0.05), 0 4px 12px rgba(0,0,0,0.04);
+  transition: box-shadow 0.18s ease, border-color 0.18s ease;
+}
+.card-depth:hover {
+  border-color: rgba(0,0,0,0.11);
+  box-shadow: 0 2px 8px rgba(0,0,0,0.07), 0 8px 24px rgba(0,0,0,0.06);
+}
+
+/* ── Subtle surface tint ───────────────────────────────────────────────────── */
+.surface-tint {
+  background: rgba(79,70,229,0.05);
+  border: 1px solid rgba(79,70,229,0.10);
+  border-radius: 10px;
 }
