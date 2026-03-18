@@ -904,6 +904,86 @@ export const INDUSTRY_MAP: Record<string, IndustryDef> = {
   },
 };
 
+// ─── Synthetic preview data generation ───────────────────────────────────────
+// Generates realistic fake rows for a capability's field map.
+// These values are 100% synthetic — derived from field name patterns only.
+// They are NEVER stored and NEVER represent real data.
+
+function syntheticSourceValue(f: FieldMapping, row: number): string {
+  const n = f.sourceField.toLowerCase();
+  if (f.type === "date") {
+    const d = new Date(Date.now() - row * 86400000 * (7 + row * 3));
+    return d.toISOString().split("T")[0];
+  }
+  if (f.type === "boolean") return row % 2 === 0 ? "true" : "false";
+  if (f.type === "array")  return `[item_${row + 1}a, item_${row + 1}b]`;
+  if (f.type === "object") return `{key: "val_${row + 1}"}`;
+  if (f.type === "number") {
+    if (n.includes("cents") || n.includes("amount") || n.includes("price") || n.includes("cost") || n.includes("revenue") || n.includes("rent") || n.includes("rate_usd"))
+      return [12500, 8900, 34750][row % 3].toString();
+    if (n.includes("pct") || n.includes("rate") || n.includes("margin") || n.includes("occupancy") || n.includes("progress"))
+      return [0.92, 0.87, 0.95][row % 3].toFixed(2);
+    if (n.includes("hours")) return [2.5, 7.0, 1.25][row % 3].toString();
+    return [100, 250, 42][row % 3].toString();
+  }
+  // String patterns
+  if (n.includes("email"))    return [`alice@example.com`, `bob@example.com`, `carol@example.com`][row % 3];
+  if (n.includes("status"))   return ["ACTIVE", "PENDING", "COMPLETED"][row % 3];
+  if (n.includes("type"))     return ["TYPE_A", "TYPE_B", "TYPE_C"][row % 3];
+  if (n.includes("name"))     return ["Acme Corp", "Beta Inc", "Gamma LLC"][row % 3];
+  if (n.includes("phone"))    return ["+1-555-0101", "+1-555-0202", "+1-555-0303"][row % 3];
+  if (n.includes("id") || n.endsWith("_id")) return `${f.sourceField.replace(/_id$/, "").toUpperCase()}-${String(row + 1).padStart(5, "0")}`;
+  if (n.includes("code"))     return [`CODE-${100 + row}`, `SKU-${200 + row}`, `REF-${300 + row}`][row % 3];
+  if (n.includes("no") || n.includes("number")) return `${f.sourceField.toUpperCase().slice(0, 3)}-${1000 + row * 7}`;
+  return `SYNTH_${row + 1}`;
+}
+
+function syntheticPlatformValue(f: FieldMapping, row: number): string {
+  const n = f.platformField.toLowerCase();
+  if (f.type === "date") {
+    const d = new Date(Date.now() - row * 86400000 * (7 + row * 3));
+    return d.toISOString().replace("T", " ").slice(0, 19) + " UTC";
+  }
+  if (f.type === "boolean") return row % 2 === 0 ? "true" : "false";
+  if (f.type === "array")  return `[{"id":"item_${row + 1}a"},{"id":"item_${row + 1}b"}]`;
+  if (f.type === "object") return `{"value":"normalised_${row + 1}"}`;
+  if (f.type === "number") {
+    if (n.includes("amount") || n.includes("price") || n.includes("cost") || n.includes("rent") || n.includes("rate"))
+      return [12500, 8900, 34750][row % 3].toString();
+    if (n.includes("pct") || n.includes("rate") || n.includes("margin") || n.includes("occupancy") || n.includes("progress"))
+      return [0.92, 0.87, 0.95][row % 3].toFixed(2);
+    return [100, 250, 42][row % 3].toString();
+  }
+  if (n.includes("email"))    return [`alice@example.com`, `bob@example.com`, `carol@example.com`][row % 3];
+  if (n.includes("status"))   return ["ACTIVE", "PENDING", "COMPLETED"][row % 3];
+  if (n.includes("id"))       return `HUB-${f.platformField.replace("hub_", "").replace(/_/g, "-").toUpperCase()}-${String(row + 1).padStart(5, "0")}`;
+  return `normalised_${row + 1}`;
+}
+
+export interface SyntheticPreviewRow {
+  rowLabel:    string;
+  fields:      Array<{
+    platformField: string;
+    sourceValue:   string;
+    mappedValue:   string;
+    transform?:    string;
+  }>;
+}
+
+// Returns 2 synthetic rows showing source → platform field mapping.
+// NEVER stored. NEVER real data.
+export function generateSyntheticPreview(cap: CapabilityDef): SyntheticPreviewRow[] {
+  return [0, 1].map(row => ({
+    rowLabel: `Synthetic Record ${row + 1}`,
+    fields:   cap.fieldMap.map(f => ({
+      platformField: f.platformField,
+      sourceValue:   syntheticSourceValue(f, row),
+      mappedValue:   syntheticPlatformValue(f, row),
+      transform:     f.transform,
+    })),
+  }));
+}
+
 // ─── Helper: get all industries as array ──────────────────────────────────────
 export function getIndustries(): IndustryDef[] {
   return Object.values(INDUSTRY_MAP);

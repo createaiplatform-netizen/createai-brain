@@ -4,9 +4,9 @@ import {
   detectActivationPhrase, ACTIVATION_PHRASES,
 } from "@/engine/IntegrationEngine";
 import {
-  getIndustries, getIndustryCapabilities, simulateIndustryPackets,
-  getComplianceSummary, getCapabilitiesForProjectType,
-  IndustryDef, CapabilityDef,
+  getIndustries, simulateIndustryPackets,
+  getComplianceSummary, generateSyntheticPreview,
+  IndustryDef, CapabilityDef, SyntheticPreviewRow,
 } from "@/engine/CapabilityHubEngine";
 
 // ─── Status config (3-tier spec) ──────────────────────────────────────────────
@@ -1117,51 +1117,135 @@ function RegistryTab() {
 }
 
 // ─── Industries Tab ───────────────────────────────────────────────────────────
+// Mode constants — the two modes the user sees
+const PREVIEW_MODE = "preview" as const;
+const ACTIVE_MODE  = "active"  as const;
+type CapMode = typeof PREVIEW_MODE | typeof ACTIVE_MODE;
+
+function PreviewDataPanel({ cap }: { cap: CapabilityDef }) {
+  const rows: SyntheticPreviewRow[] = useMemo(() => generateSyntheticPreview(cap), [cap.id]);
+  return (
+    <div className="rounded-xl overflow-hidden border border-amber-200">
+      {/* Header */}
+      <div className="flex items-center justify-between px-3 py-2 bg-amber-50 border-b border-amber-200">
+        <div className="flex items-center gap-2">
+          <span className="text-[10px] font-bold text-amber-800 uppercase tracking-wider">
+            🔍 Preview Data — Synthetic Records
+          </span>
+          <span className="text-[9px] px-1.5 py-0.5 rounded-full bg-amber-200 text-amber-800 font-bold">
+            Never stored · Never real
+          </span>
+        </div>
+        <span className="text-[9px] text-amber-600">{rows.length} rows × {cap.fieldMap.length} fields</span>
+      </div>
+
+      {/* Rows */}
+      {rows.map((row, ri) => (
+        <div key={ri} className={ri > 0 ? "border-t border-amber-100" : ""}>
+          <div className="px-3 py-1.5 bg-amber-50/60">
+            <span className="text-[9px] font-bold text-amber-700">{row.rowLabel}</span>
+          </div>
+          <div className="overflow-x-auto">
+            <table className="w-full text-[9.5px]">
+              <thead>
+                <tr className="bg-slate-50 border-b border-slate-100">
+                  <th className="text-left px-2.5 py-1.5 font-bold text-slate-500 whitespace-nowrap">Platform Field</th>
+                  <th className="text-left px-2.5 py-1.5 font-bold text-slate-500 whitespace-nowrap">Source Value</th>
+                  <th className="text-left px-2 py-1.5 text-slate-400">→</th>
+                  <th className="text-left px-2.5 py-1.5 font-bold text-indigo-600 whitespace-nowrap">Mapped Value</th>
+                  <th className="text-left px-2.5 py-1.5 font-bold text-slate-400 whitespace-nowrap hidden sm:table-cell">Transform</th>
+                </tr>
+              </thead>
+              <tbody>
+                {row.fields.map((f, fi) => (
+                  <tr key={fi} className={fi % 2 === 0 ? "bg-white" : "bg-slate-50"}>
+                    <td className="px-2.5 py-1.5 font-mono text-indigo-700 font-semibold whitespace-nowrap">{f.platformField}</td>
+                    <td className="px-2.5 py-1.5 font-mono text-slate-500 whitespace-nowrap">{f.sourceValue}</td>
+                    <td className="px-2 py-1.5 text-slate-300">→</td>
+                    <td className="px-2.5 py-1.5 font-mono text-slate-800 font-medium whitespace-nowrap">{f.mappedValue}</td>
+                    <td className="px-2.5 py-1.5 text-slate-400 hidden sm:table-cell">{f.transform ?? "—"}</td>
+                  </tr>
+                ))}
+              </tbody>
+            </table>
+          </div>
+        </div>
+      ))}
+
+      {/* Footer */}
+      <div className="px-3 py-2 bg-amber-50 border-t border-amber-100">
+        <p className="text-[9px] text-amber-600">
+          ⚠️ All values above are synthetic — generated from field name patterns only.
+          Your real data will be mapped using these same rules once you provide real API keys.
+        </p>
+      </div>
+    </div>
+  );
+}
+
 function CapabilityCard({ cap }: { cap: CapabilityDef & { simulatedAt?: string } }) {
-  const [expanded, setExpanded]   = useState(false);
-  const [showMap,  setShowMap]    = useState(false);
-  const [showMig,  setShowMig]    = useState(false);
-  const isSim = (cap as any).simulatedAt != null;
+  const [expanded, setExpanded] = useState(false);
+  const [showMap,  setShowMap]  = useState(false);
+  const [showMig,  setShowMig]  = useState(false);
+  const [showPrev, setShowPrev] = useState(false);
+
+  // Derive current display mode from status
+  const isActive  = cap.status === "real-active";
+  const isPreview = cap.status === "simulation";
+  const mode: CapMode = isActive ? ACTIVE_MODE : PREVIEW_MODE;
 
   return (
     <div className={`rounded-2xl border overflow-hidden bg-white transition-all ${
-      isSim ? "border-amber-200" : "border-slate-200"
+      isActive  ? "border-green-200" :
+      isPreview ? "border-amber-200" : "border-slate-200"
     }`}>
-      {/* Header */}
+
+      {/* ── Mode banner ─────────────────────────────────────────────────────── */}
+      <div className={`flex items-center justify-between px-3.5 py-2 text-[9.5px] font-bold ${
+        isActive  ? "bg-green-50 border-b border-green-100 text-green-800" :
+        isPreview ? "bg-amber-50 border-b border-amber-100 text-amber-800" :
+                    "bg-slate-50 border-b border-slate-100 text-slate-600"
+      }`}>
+        <div className="flex items-center gap-2">
+          <span className={`w-1.5 h-1.5 rounded-full flex-shrink-0 ${
+            isActive ? "bg-green-500" : isPreview ? "bg-amber-500 animate-pulse" : "bg-slate-400"
+          }`} />
+          {isActive
+            ? "✅ ACTIVE MODE — Real data connection live"
+            : isPreview
+              ? "🔍 PREVIEW MODE — Synthetic data only, nothing stored"
+              : "⏳ READY — Awaiting real API keys to go live"}
+        </div>
+        {cap.complianceFlags.slice(0, 2).map(f => (
+          <span key={f} className="text-[8px] px-1.5 py-0.5 rounded-full bg-indigo-50 text-indigo-600 font-bold">{f}</span>
+        ))}
+      </div>
+
+      {/* ── Header ──────────────────────────────────────────────────────────── */}
       <div className="flex items-center gap-3 p-3.5">
         <div className="w-9 h-9 rounded-xl flex items-center justify-center text-lg flex-shrink-0 bg-slate-50 border border-slate-100">
           {cap.icon}
         </div>
         <div className="flex-1 min-w-0">
-          <div className="flex items-center gap-1.5 flex-wrap">
-            <span className="font-semibold text-[12.5px] text-slate-900 truncate">{cap.systemName}</span>
-            {isSim && (
-              <span className="text-[9px] px-1.5 py-0.5 rounded-full bg-amber-100 text-amber-700 font-bold flex-shrink-0">
-                SIM
-              </span>
-            )}
-          </div>
-          <p className="text-[10px] text-slate-500 truncate">{cap.category}</p>
+          <span className="font-semibold text-[12.5px] text-slate-900 truncate block">{cap.systemName}</span>
+          <p className="text-[10px] text-slate-500">{cap.category} · {cap.fieldMap.length} fields mapped</p>
         </div>
-        <div className="flex items-center gap-1.5 flex-shrink-0">
-          {cap.complianceFlags.slice(0, 2).map(f => (
-            <span key={f} className="text-[8.5px] px-1.5 py-0.5 rounded-full bg-indigo-50 text-indigo-600 font-bold">{f}</span>
-          ))}
-          <button onClick={() => setExpanded(e => !e)}
-            className="text-slate-400 hover:text-slate-600 text-[11px] px-1">
-            {expanded ? "▲" : "▼"}
-          </button>
-        </div>
+        <button onClick={() => setExpanded(e => !e)}
+          className="text-slate-400 hover:text-slate-600 text-[11px] px-1 flex-shrink-0">
+          {expanded ? "▲" : "▼"}
+        </button>
       </div>
 
-      {/* Expanded */}
+      {/* ── Expanded ────────────────────────────────────────────────────────── */}
       {expanded && (
         <div className="px-3.5 pb-3.5 space-y-3 border-t border-slate-100 pt-3">
           <p className="text-[11.5px] text-slate-600">{cap.description}</p>
 
           {/* Project types */}
           <div>
-            <p className="text-[9px] font-bold text-slate-400 uppercase tracking-wider mb-1.5">Used by project types</p>
+            <p className="text-[9px] font-bold text-slate-400 uppercase tracking-wider mb-1.5">
+              Available to project types
+            </p>
             <div className="flex flex-wrap gap-1">
               {cap.projectTypes.map(pt => (
                 <span key={pt} className="text-[9px] px-1.5 py-0.5 rounded-full bg-slate-100 text-slate-600 font-medium">{pt}</span>
@@ -1169,7 +1253,20 @@ function CapabilityCard({ cap }: { cap: CapabilityDef & { simulatedAt?: string }
             </div>
           </div>
 
-          {/* Field mapping toggle */}
+          {/* ── Preview Data (only in preview mode) ─────────────────────────── */}
+          {(isPreview || mode === PREVIEW_MODE) && (
+            <div>
+              <button onClick={() => setShowPrev(p => !p)}
+                className="w-full flex items-center justify-between px-3 py-2 rounded-xl text-[10px] font-bold text-amber-800 border border-amber-200 bg-amber-50 hover:bg-amber-100 transition-colors"
+              >
+                <span>🔍 Preview Data — See how your data looks inside the platform</span>
+                <span>{showPrev ? "▲ Hide" : "▼ Preview"}</span>
+              </button>
+              {showPrev && <div className="mt-2"><PreviewDataPanel cap={cap} /></div>}
+            </div>
+          )}
+
+          {/* ── Field Mapping ────────────────────────────────────────────────── */}
           <div>
             <button onClick={() => setShowMap(m => !m)}
               className="w-full flex items-center justify-between px-3 py-2 rounded-xl text-[10px] font-bold text-slate-700 border border-slate-200 bg-slate-50 hover:bg-slate-100 transition-colors"
@@ -1205,7 +1302,7 @@ function CapabilityCard({ cap }: { cap: CapabilityDef & { simulatedAt?: string }
                 </table>
                 {cap.fieldMap.some(f => f.transform) && (
                   <div className="p-2.5 bg-indigo-50 border-t border-indigo-100">
-                    <p className="text-[9px] font-bold text-indigo-600 mb-1">Transforms</p>
+                    <p className="text-[9px] font-bold text-indigo-600 mb-1">Auto-transforms</p>
                     {cap.fieldMap.filter(f => f.transform).map((f, i) => (
                       <p key={i} className="text-[9px] text-indigo-700">
                         <span className="font-mono">{f.sourceField}</span> → {f.transform}
@@ -1217,7 +1314,7 @@ function CapabilityCard({ cap }: { cap: CapabilityDef & { simulatedAt?: string }
             )}
           </div>
 
-          {/* Migration pathway toggle */}
+          {/* ── Migration Pathway ────────────────────────────────────────────── */}
           <div>
             <button onClick={() => setShowMig(m => !m)}
               className="w-full flex items-center justify-between px-3 py-2 rounded-xl text-[10px] font-bold text-slate-700 border border-slate-200 bg-slate-50 hover:bg-slate-100 transition-colors"
@@ -1247,18 +1344,55 @@ function CapabilityCard({ cap }: { cap: CapabilityDef & { simulatedAt?: string }
               </div>
             )}
           </div>
+
+          {/* ── Active mode footer ───────────────────────────────────────────── */}
+          {isActive && (
+            <div className="rounded-xl p-3 bg-green-50 border border-green-200">
+              <p className="text-[10.5px] font-bold text-green-800">✅ Active Mode</p>
+              <p className="text-[9.5px] text-green-700 mt-0.5">
+                Real API keys verified. Live data is flowing through this capability.
+                Available to all platform users and all compatible projects.
+              </p>
+            </div>
+          )}
         </div>
       )}
+
+      {/* ── Action row ──────────────────────────────────────────────────────── */}
+      <div className="flex border-t border-slate-100">
+        {!isActive && (
+          <div className="flex-1 flex items-center justify-center gap-1.5 py-2 text-[10px] font-bold text-amber-700">
+            <span className="w-1.5 h-1.5 rounded-full bg-amber-500 animate-pulse" />
+            Preview Mode Active
+          </div>
+        )}
+        {isActive && (
+          <div className="flex-1 flex items-center justify-center gap-1.5 py-2 text-[10px] font-bold text-green-700">
+            <span className="w-1.5 h-1.5 rounded-full bg-green-500" />
+            Active Mode — Live
+          </div>
+        )}
+      </div>
     </div>
   );
 }
 
+// All project types (matching scaffold engine)
+const ALL_PROJECT_TYPES = [
+  "Web App/SaaS","Mobile App","Business/Company","Startup","Healthcare App",
+  "Online Course","Physical Product","Film/Movie","Documentary","Video Game",
+  "Book/Novel","Music/Album","Podcast","Real Estate App","Legal App",
+  "Non-Profit App","Construction App","Logistics App","Hospitality App","Education App",
+];
+
 function IndustriesTab() {
   const industries = useMemo(() => getIndustries(), []);
+  const [viewMode,    setViewMode]    = useState<"industry" | "project">("industry");
   const [selected,    setSelected]    = useState<string | null>(null);
   const [preparing,   setPreparing]   = useState(false);
   const [simCaps,     setSimCaps]     = useState<CapabilityDef[]>([]);
   const [projectFilter, setProjectFilter] = useState("");
+  const [projectType, setProjectType] = useState<string>("");
 
   const selectedInd = selected ? industries.find(i => i.id === selected) : null;
   const compliance  = selected ? getComplianceSummary(selected) : [];
@@ -1283,16 +1417,96 @@ function IndustriesTab() {
     ));
   }, [simCaps, projectFilter]);
 
+  // Project view — capabilities for a selected project type (all industries, simulated in memory)
+  const projectCaps = useMemo((): CapabilityDef[] => {
+    if (!projectType) return [];
+    return industries
+      .flatMap(ind => simulateIndustryPackets(ind.id))
+      .filter(c => c.projectTypes.some(
+        pt => pt.toLowerCase() === projectType.toLowerCase()
+      ));
+  }, [projectType, industries]);
+
   return (
     <div className="p-4 space-y-4">
       {/* Header */}
       <div>
         <h2 className="text-[15px] font-bold text-slate-900">Universal Capability Hub</h2>
         <p className="text-[11.5px] text-slate-500 mt-0.5 leading-relaxed">
-          Select any industry to instantly auto-prepare all systems, field maps, and migration pathways.
-          All preparation runs in simulation mode — no real data is ever moved without partner approval.
+          Auto-prepare every system, field map, and migration pathway for any industry or project.
+          Preview Mode is always safe — no real data is moved without partner approval.
         </p>
       </div>
+
+      {/* View mode toggle */}
+      <div className="flex gap-1 p-1 rounded-xl bg-slate-100">
+        <button onClick={() => setViewMode("industry")}
+          className={`flex-1 py-2 rounded-lg text-[11px] font-bold transition-colors ${
+            viewMode === "industry" ? "bg-white text-slate-900 shadow-sm" : "text-slate-500 hover:text-slate-700"
+          }`}>
+          🏭 By Industry
+        </button>
+        <button onClick={() => setViewMode("project")}
+          className={`flex-1 py-2 rounded-lg text-[11px] font-bold transition-colors ${
+            viewMode === "project" ? "bg-white text-slate-900 shadow-sm" : "text-slate-500 hover:text-slate-700"
+          }`}>
+          📂 By Project Type
+        </button>
+      </div>
+
+      {/* ── PROJECT VIEW ────────────────────────────────────────────────────── */}
+      {viewMode === "project" && (
+        <div className="space-y-3">
+          <div>
+            <label className="text-[10px] font-bold text-slate-500 uppercase tracking-wider block mb-1.5">
+              Select project type to pull relevant capabilities
+            </label>
+            <select
+              value={projectType}
+              onChange={e => setProjectType(e.target.value)}
+              className="w-full border border-slate-200 rounded-xl px-3 py-2.5 text-[12px] font-medium bg-white outline-none focus:border-indigo-400 text-slate-800"
+            >
+              <option value="">Choose a project type…</option>
+              {ALL_PROJECT_TYPES.map(pt => <option key={pt} value={pt}>{pt}</option>)}
+            </select>
+          </div>
+
+          {projectType && projectCaps.length === 0 && (
+            <div className="text-center py-8">
+              <p className="text-[13px] font-semibold text-slate-700">No capabilities mapped yet for "{projectType}"</p>
+              <p className="text-[11px] text-slate-500 mt-1">Try "Web App/SaaS", "Healthcare App", or "Startup"</p>
+            </div>
+          )}
+
+          {projectType && projectCaps.length > 0 && (
+            <>
+              <div className="rounded-xl px-3 py-2.5 bg-indigo-50 border border-indigo-100 flex items-start gap-2">
+                <span className="text-indigo-600">📂</span>
+                <p className="text-[10.5px] text-indigo-800">
+                  <strong>{projectCaps.length} capabilities</strong> from{" "}
+                  <strong>{[...new Set(projectCaps.map(c => c.industryId))].length} industries</strong>{" "}
+                  are available for <strong>{projectType}</strong> projects.
+                  All in <span className="text-amber-700 font-bold">Preview Mode</span> — activate any by providing real API keys.
+                </p>
+              </div>
+              {projectCaps.map(cap => <CapabilityCard key={cap.id} cap={cap} />)}
+            </>
+          )}
+
+          {!projectType && (
+            <div className="text-center py-10">
+              <p className="text-3xl mb-2">📂</p>
+              <p className="text-[13px] font-semibold text-slate-700">Choose a project type above</p>
+              <p className="text-[11px] text-slate-500 mt-1">
+                The hub shows every capability your project can pull — all in Preview Mode by default.
+              </p>
+            </div>
+          )}
+        </div>
+      )}
+
+      {/* ── INDUSTRY VIEW ───────────────────────────────────────────────────── */}
+      {viewMode === "industry" && (<>
 
       {/* Industry grid */}
       <div className="grid grid-cols-3 gap-2">
@@ -1421,6 +1635,7 @@ function IndustriesTab() {
           </p>
         </div>
       )}
+      </>)}
     </div>
   );
 }
