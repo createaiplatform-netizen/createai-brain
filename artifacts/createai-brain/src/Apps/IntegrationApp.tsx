@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useCallback } from "react";
+import React, { useState, useEffect, useCallback, useMemo } from "react";
 import {
   IntegrationEngine, DemoPacket, PacketStatus, SPEC_LABELS, TWELVE_ENGINES,
   detectActivationPhrase, ACTIVATION_PHRASES,
@@ -116,6 +116,50 @@ function ApiKeyModal({
   );
 }
 
+// ─── Partner Request Panel ─────────────────────────────────────────────────────
+function PartnerRequestPanel({ packet }: { packet: DemoPacket }) {
+  const [copied, setCopied] = useState(false);
+  const doc = useMemo(() => IntegrationEngine.generatePartnerRequest(packet), [packet.id]);
+
+  const handleCopy = () => {
+    navigator.clipboard.writeText(doc).then(() => {
+      setCopied(true);
+      setTimeout(() => setCopied(false), 2000);
+    });
+  };
+
+  return (
+    <div className="rounded-xl border border-indigo-100 bg-indigo-50 overflow-hidden">
+      <div className="flex items-center justify-between px-3 py-2 border-b border-indigo-100">
+        <div className="flex items-center gap-2">
+          <span className="text-[10px] font-bold text-indigo-700 uppercase tracking-wider">
+            📋 Partner Integration Request
+          </span>
+          <span className="text-[9px] px-1.5 py-0.5 rounded-full bg-indigo-100 text-indigo-600 font-bold">
+            Auto-generated
+          </span>
+        </div>
+        <button
+          onClick={handleCopy}
+          className="text-[10px] font-bold text-indigo-600 px-2.5 py-1 rounded-lg hover:bg-indigo-100 transition-colors"
+        >
+          {copied ? "✓ Copied!" : "Copy to send"}
+        </button>
+      </div>
+      <pre
+        className="text-[9.5px] font-mono text-indigo-800 leading-relaxed p-3 overflow-x-auto whitespace-pre-wrap"
+        style={{ maxHeight: "220px", overflowY: "auto" }}
+      >{doc}</pre>
+      <div className="px-3 pb-2.5">
+        <p className="text-[9px] text-indigo-500">
+          ⚠️ Internal document only. Review, add your contact details, then send to {packet.vendor} through your own channels.
+          We never send this automatically or contact external systems on your behalf.
+        </p>
+      </div>
+    </div>
+  );
+}
+
 // ─── Packet Card ──────────────────────────────────────────────────────────────
 function PacketCard({
   packet, onSimulate, onActivate, onReset, isSimRunning,
@@ -126,7 +170,8 @@ function PacketCard({
   onReset:     (id: string) => void;
   isSimRunning: boolean;
 }) {
-  const [expanded, setExpanded] = useState(false);
+  const [expanded, setExpanded]   = useState(false);
+  const [showRequest, setShowReq] = useState(false);
   const cfg = STATUS_CFG[packet.status];
 
   return (
@@ -178,27 +223,40 @@ function PacketCard({
               ))}
             </div>
           </div>
-          <div>
-            <p className="text-[9px] font-bold text-slate-400 uppercase tracking-wider mb-1">Scopes</p>
-            <div className="flex flex-wrap gap-1">
-              {packet.scope.map(s => (
-                <span key={s} className="text-[9px] px-1.5 py-0.5 rounded-full bg-indigo-50 text-indigo-600 font-mono">{s}</span>
-              ))}
+          <div className="grid grid-cols-2 gap-3">
+            <div>
+              <p className="text-[9px] font-bold text-slate-400 uppercase tracking-wider mb-1">API Scopes</p>
+              <div className="flex flex-wrap gap-1">
+                {packet.scope.map(s => (
+                  <span key={s} className="text-[9px] px-1.5 py-0.5 rounded-full bg-indigo-50 text-indigo-600 font-mono">{s}</span>
+                ))}
+              </div>
+            </div>
+            <div>
+              <p className="text-[9px] font-bold text-slate-400 uppercase tracking-wider mb-1">Endpoint</p>
+              <p className="text-[9.5px] font-mono text-slate-500 bg-slate-100 rounded-lg px-2 py-1.5 truncate">{packet.endpoint}</p>
             </div>
           </div>
-          <div>
-            <p className="text-[9px] font-bold text-slate-400 uppercase tracking-wider mb-1">Mock Endpoint</p>
-            <p className="text-[10px] font-mono text-slate-500 bg-slate-100 rounded-lg px-2 py-1.5 truncate">{packet.endpoint}</p>
-          </div>
           {packet.simulatedAt && (
-            <p className="text-[10px] text-amber-600">Last simulated: {new Date(packet.simulatedAt).toLocaleString()}</p>
+            <p className="text-[10px] text-amber-600">🧪 Last simulated: {new Date(packet.simulatedAt).toLocaleString()}</p>
           )}
           {packet.activatedAt && (
-            <p className="text-[10px] text-green-600 font-semibold">✓ Activated: {new Date(packet.activatedAt).toLocaleString()}</p>
+            <p className="text-[10px] text-green-600 font-semibold">✓ Activated + added to Integration Hub: {new Date(packet.activatedAt).toLocaleString()}</p>
           )}
-          <div className="rounded-xl px-3 py-2 bg-amber-50 border border-amber-100">
-            <p className="text-[10px] text-amber-700">⚠️ {packet.safetyNote}</p>
-          </div>
+
+          {/* Partner Request toggle */}
+          {packet.status !== "real-active" && (
+            <div>
+              <button
+                onClick={() => setShowReq(r => !r)}
+                className="w-full flex items-center justify-between px-3 py-2 rounded-xl text-[10px] font-bold text-indigo-700 border border-indigo-100 bg-indigo-50 hover:bg-indigo-100 transition-colors"
+              >
+                <span>📋 Partner Integration Request — auto-generated</span>
+                <span>{showRequest ? "▲ Hide" : "▼ View"}</span>
+              </button>
+              {showRequest && <div className="mt-2"><PartnerRequestPanel packet={packet} /></div>}
+            </div>
+          )}
         </div>
       )}
 
@@ -211,31 +269,52 @@ function PacketCard({
               disabled={isSimRunning}
               className="flex-1 py-2 text-[11px] font-bold text-amber-600 hover:bg-amber-50 transition-colors text-center disabled:opacity-40"
             >
-              🧪 Run Simulation
+              🧪 Simulate
+            </button>
+            <div className="w-px" style={{ background: cfg.border }} />
+            <button
+              onClick={() => { setExpanded(true); setShowReq(true); }}
+              className="flex-1 py-2 text-[11px] font-bold text-indigo-600 hover:bg-indigo-50 transition-colors text-center"
+            >
+              📋 Request
             </button>
             <div className="w-px" style={{ background: cfg.border }} />
             <button
               onClick={() => onActivate(packet)}
               className="flex-1 py-2 text-[11px] font-bold text-green-600 hover:bg-green-50 transition-colors text-center"
             >
-              🔑 Activate — REAL
+              🔑 Activate
             </button>
           </>
         )}
         {packet.status === "simulation" && (
-          <button
-            onClick={() => onReset(packet.id)}
-            className="flex-1 py-2 text-[11px] font-bold text-slate-500 hover:bg-slate-50 transition-colors text-center"
-          >
-            ↺ Reset to Ready
-          </button>
+          <>
+            <button
+              onClick={() => { setExpanded(true); setShowReq(true); }}
+              className="flex-1 py-2 text-[11px] font-bold text-indigo-600 hover:bg-indigo-50 transition-colors text-center"
+            >
+              📋 Request
+            </button>
+            <div className="w-px" style={{ background: cfg.border }} />
+            <button
+              onClick={() => onActivate(packet)}
+              className="flex-1 py-2 text-[11px] font-bold text-green-600 hover:bg-green-50 transition-colors text-center"
+            >
+              🔑 Activate
+            </button>
+            <div className="w-px" style={{ background: cfg.border }} />
+            <button
+              onClick={() => onReset(packet.id)}
+              className="px-3 py-2 text-[10px] text-slate-400 hover:text-slate-600 hover:bg-slate-50 transition-colors"
+            >↺</button>
+          </>
         )}
         {packet.status === "real-active" && (
           <button disabled className="flex-1 py-2 text-[11px] font-bold text-green-600 text-center">
-            ✓ REAL — ACTIVE
+            ✓ REAL — ACTIVE · In Hub
           </button>
         )}
-        {packet.status !== "real-active" && (
+        {packet.status === "ready-awaiting" && (
           <>
             <div className="w-px" style={{ background: cfg.border }} />
             <button
@@ -362,14 +441,36 @@ function EngineTab() {
     addLog(`🧪 "${result.name}" — SIMULATION MODE test packet generated (memory only)`);
   }, [addLog]);
 
-  // ── Activate with real key ────────────────────────────────────────────────
-  const handleKeyConfirm = useCallback((key: string) => {
+  // ── Activate with real key → mark REAL — ACTIVE + add to Integration Hub ──
+  const handleKeyConfirm = useCallback(async (key: string) => {
     if (!apiKeyTarget) return;
-    IntegrationEngine.activateWithKey(apiKeyTarget.id, key);
-    setSim(prev => prev.filter(p => p.id !== apiKeyTarget.id));
-    refresh();
-    addLog(`✅ REAL — ACTIVE: "${apiKeyTarget.name}" activated with user-provided API key`);
+    const target = apiKeyTarget;
     setApiKeyTarget(null);
+
+    // 1. Persist REAL — ACTIVE status (key stored as reference, never plain text)
+    IntegrationEngine.activateWithKey(target.id, key);
+    setSim(prev => prev.filter(p => p.id !== target.id));
+    refresh();
+    addLog(`✅ REAL — ACTIVE: "${target.name}" activated with user-provided API key`);
+
+    // 2. Add to Integration Hub (shared registry for all platform users)
+    try {
+      await fetch("/api/integrations", {
+        method:      "POST",
+        credentials: "include",
+        headers:     { "Content-Type": "application/json" },
+        body:        JSON.stringify({
+          name:      target.name,
+          type:      "api",
+          category:  target.category,
+          status:    "configured",
+          isEnabled: true,
+        }),
+      });
+      addLog(`🌐 "${target.name}" added to Integration Hub — available to all platform users`);
+    } catch {
+      addLog(`⚠️ "${target.name}" activated locally — Hub sync failed (retry in Registry tab)`);
+    }
   }, [apiKeyTarget, addLog, refresh]);
 
   // ── Reset a packet ────────────────────────────────────────────────────────
@@ -953,9 +1054,9 @@ function RegistryTab() {
   return (
     <div className="p-4 space-y-4">
       <div>
-        <h2 className="text-[15px] font-bold text-slate-900">My Integration Registry</h2>
+        <h2 className="text-[15px] font-bold text-slate-900">Integration Hub</h2>
         <p className="text-[12px] text-slate-500 mt-0.5">
-          All REAL — ACTIVE connections saved to your account.
+          All REAL — ACTIVE integrations — available to all platform users.
         </p>
       </div>
 
@@ -964,7 +1065,7 @@ function RegistryTab() {
           <p className="text-4xl">🔌</p>
           <p className="text-[14px] font-semibold text-slate-900">No real integrations yet</p>
           <p className="text-[12px] text-slate-500">
-            Use the Configure tab to set up a real connection, or the Engine tab to run simulations.
+            Activate any integration in the Engine tab — it will appear here instantly for all platform users.
           </p>
         </div>
       ) : (
@@ -1018,7 +1119,7 @@ export function IntegrationApp() {
 
   const TABS: { id: AppTab; icon: string; label: string }[] = [
     { id: "engine",       icon: "🔌", label: "Engine" },
-    { id: "registry",     icon: "📋", label: "Registry" },
+    { id: "registry",     icon: "🌐", label: "Hub" },
     { id: "configure",    icon: "⚙️",  label: "Configure" },
     { id: "architecture", icon: "🏛️",  label: "Architecture" },
   ];
