@@ -626,7 +626,7 @@ function PacketsScreen() {
             <span className="text-3xl">{activePacket.icon}</span>
             <div>
               <p className="text-lg font-bold text-foreground">{activePacket.name}</p>
-              <Badge label={activePacket.status} color={activePacket.status === "connected-demo" ? "green" : "blue"} />
+              <Badge label={activePacket.status} color={activePacket.status === "real-active" ? "green" : "blue"} />
             </div>
           </div>
           <div className="space-y-2 text-[12px]">
@@ -666,7 +666,7 @@ function PacketsScreen() {
               </div>
             </div>
             <div className="flex items-center gap-2">
-              <Badge label={p.status} color={p.status === "connected-demo" ? "green" : p.status === "submitted" ? "purple" : "blue"} />
+              <Badge label={p.status} color={p.status === "real-active" ? "green" : p.status === "simulation" ? "purple" : "blue"} />
               <ActionBtn label="Open Packet" onClick={() => { setPacket(p.id); dispatch("OPEN_PACKET", p.id); }} variant="primary" size="sm" />
             </div>
           </div>

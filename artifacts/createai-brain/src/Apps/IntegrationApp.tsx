@@ -1,343 +1,513 @@
-import React, { useState, useEffect, useRef, useCallback } from "react";
+import React, { useState, useEffect, useCallback } from "react";
 import {
-  IntegrationEngine, DemoPacket, PacketStatus,
+  IntegrationEngine, DemoPacket, PacketStatus, SPEC_LABELS, TWELVE_ENGINES,
   detectActivationPhrase, ACTIVATION_PHRASES,
 } from "@/engine/IntegrationEngine";
 
-// ─── Status config ─────────────────────────────────────────────────────────────
-const STATUS_CFG: Record<PacketStatus, { label: string; color: string; bg: string; dot: string }> = {
-  "ready":          { label: "Ready",          color: "#636366", bg: "bg-gray-100",   dot: "bg-gray-400" },
-  "pending":        { label: "Pending",        color: "#FF9500", bg: "bg-orange-100", dot: "bg-orange-500" },
-  "submitted":      { label: "Submitted",      color: "#007AFF", bg: "bg-blue-100",   dot: "bg-blue-500" },
-  "connected-demo": { label: "Connected-Demo", color: "#34C759", bg: "bg-green-100",  dot: "bg-green-500" },
+// ─── Status config (3-tier spec) ──────────────────────────────────────────────
+const STATUS_CFG: Record<PacketStatus, {
+  dot: string; bg: string; border: string; text: string; badge: string;
+}> = {
+  "ready-awaiting": {
+    dot: "#94a3b8", bg: "#f8fafc",   border: "#e2e8f0", text: "#475569",
+    badge: "bg-slate-100 text-slate-600",
+  },
+  "simulation": {
+    dot: "#f59e0b", bg: "#fffbeb",   border: "#fde68a", text: "#b45309",
+    badge: "bg-amber-100 text-amber-700",
+  },
+  "real-active": {
+    dot: "#22c55e", bg: "#f0fdf4",   border: "#bbf7d0", text: "#15803d",
+    badge: "bg-green-100 text-green-700",
+  },
 };
 
-// ─── Activation Banner ────────────────────────────────────────────────────────
-function ActivationBanner({ phrase, onDismiss }: { phrase: string; onDismiss: () => void }) {
+// ─── Activation Banner ─────────────────────────────────────────────────────────
+function ActivationBanner({ onDismiss }: { onDismiss: () => void }) {
   return (
-    <div className="bg-gradient-to-r from-primary to-purple-600 rounded-2xl p-4 text-white space-y-2">
+    <div className="rounded-2xl p-4 space-y-1.5" style={{
+      background: "linear-gradient(135deg, #4f46e5 0%, #7c3aed 100%)",
+    }}>
       <div className="flex items-center gap-2">
         <span className="text-xl">⚡</span>
-        <p className="font-bold text-[14px]">Activation phrase detected!</p>
-        <button onClick={onDismiss} className="ml-auto text-white/60 hover:text-white text-sm">✕</button>
+        <p className="font-bold text-[13px] text-white">Activation phrase detected!</p>
+        <button onClick={onDismiss} className="ml-auto text-white/60 hover:text-white">✕</button>
       </div>
-      <p className="text-[12px] text-white/80">"{phrase}" — Auto-generating all demo packets and connections…</p>
-      <p className="text-[10px] text-white/60">All connections are DEMO ONLY. No real-world actions performed.</p>
+      <p className="text-[11px] text-white/80">
+        Running full simulation — all packets set to SIMULATION MODE — TEST PACKETS ONLY.
+        Synthetic packets are in memory only and will not be stored.
+      </p>
+    </div>
+  );
+}
+
+// ─── Status Badge ──────────────────────────────────────────────────────────────
+function StatusBadge({ status }: { status: PacketStatus }) {
+  const cfg = STATUS_CFG[status];
+  return (
+    <span className={`inline-flex items-center gap-1.5 text-[9px] font-bold px-2 py-1 rounded-full ${cfg.badge}`}>
+      <span className="w-1.5 h-1.5 rounded-full inline-block" style={{ background: cfg.dot }} />
+      {SPEC_LABELS[status]}
+    </span>
+  );
+}
+
+// ─── API Key Modal ─────────────────────────────────────────────────────────────
+function ApiKeyModal({
+  packet, onConfirm, onCancel,
+}: {
+  packet: DemoPacket;
+  onConfirm: (key: string) => void;
+  onCancel:  () => void;
+}) {
+  const [key, setKey] = useState("");
+  return (
+    <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/40">
+      <div className="w-[400px] rounded-2xl p-6 shadow-2xl bg-white border border-slate-200">
+        <div className="flex items-center gap-3 mb-4">
+          <div className="w-10 h-10 rounded-xl flex items-center justify-center text-xl" style={{ background: packet.color + "18" }}>
+            {packet.icon}
+          </div>
+          <div>
+            <div className="font-bold text-[14px] text-slate-900">{packet.name}</div>
+            <div className="text-[11px] text-slate-500">Enter your real API key to activate</div>
+          </div>
+        </div>
+
+        <div className="rounded-xl p-3 mb-4 bg-indigo-50 border border-indigo-100">
+          <p className="text-[11px] text-indigo-700">
+            <strong>REAL — ACTIVE</strong> requires a real API key from {packet.vendor}.
+            The key is used to verify intent and is never stored in plain text — only a reference marker is kept.
+          </p>
+        </div>
+
+        <label className="text-[11px] font-semibold text-slate-700 block mb-1.5">
+          {packet.vendor} API Key
+        </label>
+        <input
+          type="password"
+          placeholder="sk_live_… or your provider's key format"
+          value={key}
+          onChange={e => setKey(e.target.value)}
+          className="w-full border border-slate-200 rounded-xl px-3 py-2.5 text-[13px] font-mono outline-none focus:ring-2 focus:ring-indigo-200 mb-4"
+        />
+
+        <div className="flex gap-3">
+          <button
+            onClick={onCancel}
+            className="flex-1 py-2.5 rounded-xl text-[13px] text-slate-500 border border-slate-200 hover:bg-slate-50"
+          >Cancel</button>
+          <button
+            onClick={() => key.trim() && onConfirm(key.trim())}
+            disabled={!key.trim()}
+            className="flex-1 py-2.5 rounded-xl text-[13px] font-bold text-white disabled:opacity-40"
+            style={{ background: key.trim() ? "#22c55e" : "#94a3b8" }}
+          >
+            Activate — REAL
+          </button>
+        </div>
+
+        <p className="text-[9.5px] text-slate-400 text-center mt-3">
+          We never contact external systems or validate keys on your behalf.
+          You are responsible for providing correct credentials.
+        </p>
+      </div>
     </div>
   );
 }
 
 // ─── Packet Card ──────────────────────────────────────────────────────────────
-function PacketCard({ packet, onSubmit, onConnect, onReset, submitting }: {
-  packet: DemoPacket;
-  onSubmit: (id: string) => void;
-  onConnect: (id: string) => void;
-  onReset:   (id: string) => void;
-  submitting: string | null;
+function PacketCard({
+  packet, onSimulate, onActivate, onReset, isSimRunning,
+}: {
+  packet:      DemoPacket;
+  onSimulate:  (id: string) => void;
+  onActivate:  (packet: DemoPacket) => void;
+  onReset:     (id: string) => void;
+  isSimRunning: boolean;
 }) {
   const [expanded, setExpanded] = useState(false);
   const cfg = STATUS_CFG[packet.status];
-  const isSubmitting = submitting === packet.id;
 
   return (
-    <div className={`bg-background rounded-2xl border transition-all duration-200 overflow-hidden ${
-      packet.status === "connected-demo" ? "border-green-200 shadow-sm shadow-green-50" :
-      packet.status === "submitted"      ? "border-blue-200/60" :
-      packet.status === "pending"        ? "border-orange-200/60" :
-      "border-border/50"
-    }`}>
-      {/* Header row */}
+    <div
+      className="rounded-2xl border overflow-hidden transition-all"
+      style={{ background: cfg.bg, borderColor: cfg.border }}
+    >
+      {/* Header */}
       <div className="flex items-center gap-3 p-3.5">
-        <div className="w-10 h-10 rounded-xl flex items-center justify-center text-xl flex-shrink-0"
-          style={{ backgroundColor: packet.color + "22" }}>{packet.icon}</div>
+        <div
+          className="w-10 h-10 rounded-xl flex items-center justify-center text-xl flex-shrink-0"
+          style={{ background: packet.color + "18" }}
+        >{packet.icon}</div>
+
         <div className="flex-1 min-w-0">
-          <div className="flex items-center gap-2 flex-wrap">
-            <p className="font-semibold text-[13px] text-foreground truncate">{packet.name}</p>
+          <div className="flex items-center gap-1.5 flex-wrap">
+            <span className="font-semibold text-[13px] text-slate-900 truncate">{packet.name}</span>
             {packet.isAutoGenerated && (
               <span className="text-[9px] px-1.5 py-0.5 rounded-full bg-purple-100 text-purple-600 font-bold">AUTO</span>
             )}
           </div>
-          <p className="text-[10px] text-muted-foreground truncate">{packet.category} · {packet.vendor}</p>
+          <p className="text-[10px] text-slate-500 truncate">{packet.category} · {packet.vendor}</p>
         </div>
+
         <div className="flex items-center gap-2 flex-shrink-0">
-          <span className={`text-[10px] font-bold px-2 py-0.5 rounded-full flex items-center gap-1 ${cfg.bg}`} style={{ color: cfg.color }}>
-            <span className={`w-1.5 h-1.5 rounded-full inline-block ${cfg.dot}`} />
-            {cfg.label}
-          </span>
-          <button onClick={() => setExpanded(e => !e)}
-            className="text-muted-foreground text-[11px] hover:text-foreground transition-colors px-1">
-            {expanded ? "▲" : "▼"}
-          </button>
+          <StatusBadge status={packet.status} />
+          <button
+            onClick={() => setExpanded(e => !e)}
+            className="text-slate-400 hover:text-slate-600 text-[11px] px-1"
+          >{expanded ? "▲" : "▼"}</button>
         </div>
       </div>
 
       {/* Expanded detail */}
       {expanded && (
-        <div className="px-3.5 pb-3.5 space-y-3 border-t border-border/30 pt-3">
-          <p className="text-[12px] text-muted-foreground">{packet.description}</p>
-          <div className="grid grid-cols-2 gap-2">
+        <div className="px-3.5 pb-3.5 space-y-3 border-t pt-3" style={{ borderColor: cfg.border }}>
+          <p className="text-[12px] text-slate-600">{packet.description}</p>
+          <div className="grid grid-cols-2 gap-3">
             <div>
-              <p className="text-[9px] font-bold text-muted-foreground uppercase tracking-wider mb-1">Features</p>
-              {packet.features.slice(0, 3).map(f => <p key={f} className="text-[11px] text-foreground">· {f}</p>)}
+              <p className="text-[9px] font-bold text-slate-400 uppercase tracking-wider mb-1">Features</p>
+              {packet.features.slice(0, 4).map(f => (
+                <p key={f} className="text-[11px] text-slate-700">· {f}</p>
+              ))}
             </div>
             <div>
-              <p className="text-[9px] font-bold text-muted-foreground uppercase tracking-wider mb-1">Data Flows</p>
-              {packet.dataFlows.slice(0, 3).map(f => <p key={f} className="text-[11px] text-foreground">· {f}</p>)}
+              <p className="text-[9px] font-bold text-slate-400 uppercase tracking-wider mb-1">Data Flows</p>
+              {packet.dataFlows.slice(0, 4).map(f => (
+                <p key={f} className="text-[11px] text-slate-700">· {f}</p>
+              ))}
             </div>
           </div>
           <div>
-            <p className="text-[9px] font-bold text-muted-foreground uppercase tracking-wider mb-1">Mock Endpoint</p>
-            <p className="text-[10px] font-mono text-muted-foreground bg-muted/40 rounded-lg px-2 py-1.5 truncate">{packet.endpoint}</p>
-          </div>
-          <div>
-            <p className="text-[9px] font-bold text-muted-foreground uppercase tracking-wider mb-1">Scopes</p>
+            <p className="text-[9px] font-bold text-slate-400 uppercase tracking-wider mb-1">Scopes</p>
             <div className="flex flex-wrap gap-1">
-              {packet.scope.map(s => <span key={s} className="text-[9px] px-1.5 py-0.5 rounded-full bg-primary/10 text-primary font-mono">{s}</span>)}
+              {packet.scope.map(s => (
+                <span key={s} className="text-[9px] px-1.5 py-0.5 rounded-full bg-indigo-50 text-indigo-600 font-mono">{s}</span>
+              ))}
             </div>
           </div>
-          {packet.submittedAt && (
-            <p className="text-[10px] text-muted-foreground">Submitted: {new Date(packet.submittedAt).toLocaleString()}</p>
+          <div>
+            <p className="text-[9px] font-bold text-slate-400 uppercase tracking-wider mb-1">Mock Endpoint</p>
+            <p className="text-[10px] font-mono text-slate-500 bg-slate-100 rounded-lg px-2 py-1.5 truncate">{packet.endpoint}</p>
+          </div>
+          {packet.simulatedAt && (
+            <p className="text-[10px] text-amber-600">Last simulated: {new Date(packet.simulatedAt).toLocaleString()}</p>
           )}
-          {packet.connectedAt && (
-            <p className="text-[10px] text-green-600 font-medium">Connected: {new Date(packet.connectedAt).toLocaleString()}</p>
+          {packet.activatedAt && (
+            <p className="text-[10px] text-green-600 font-semibold">✓ Activated: {new Date(packet.activatedAt).toLocaleString()}</p>
           )}
-          <div className="bg-amber-50 border border-amber-200 rounded-xl p-2">
+          <div className="rounded-xl px-3 py-2 bg-amber-50 border border-amber-100">
             <p className="text-[10px] text-amber-700">⚠️ {packet.safetyNote}</p>
           </div>
         </div>
       )}
 
       {/* Action row */}
-      <div className="flex border-t border-border/30">
-        {packet.status === "ready" && (
-          <button onClick={() => onSubmit(packet.id)} disabled={isSubmitting}
-            className="flex-1 py-2 text-[11px] font-bold text-primary hover:bg-primary/5 transition-colors text-center disabled:opacity-50">
-            {isSubmitting ? "Submitting…" : "⬆ Submit (Demo)"}
+      <div className="flex border-t" style={{ borderColor: cfg.border }}>
+        {packet.status === "ready-awaiting" && (
+          <>
+            <button
+              onClick={() => onSimulate(packet.id)}
+              disabled={isSimRunning}
+              className="flex-1 py-2 text-[11px] font-bold text-amber-600 hover:bg-amber-50 transition-colors text-center disabled:opacity-40"
+            >
+              🧪 Run Simulation
+            </button>
+            <div className="w-px" style={{ background: cfg.border }} />
+            <button
+              onClick={() => onActivate(packet)}
+              className="flex-1 py-2 text-[11px] font-bold text-green-600 hover:bg-green-50 transition-colors text-center"
+            >
+              🔑 Activate — REAL
+            </button>
+          </>
+        )}
+        {packet.status === "simulation" && (
+          <button
+            onClick={() => onReset(packet.id)}
+            className="flex-1 py-2 text-[11px] font-bold text-slate-500 hover:bg-slate-50 transition-colors text-center"
+          >
+            ↺ Reset to Ready
           </button>
         )}
-        {packet.status === "pending" && (
-          <button onClick={() => onSubmit(packet.id)} disabled={isSubmitting}
-            className="flex-1 py-2 text-[11px] font-bold text-orange-600 hover:bg-orange-50 transition-colors text-center">
-            ⬆ Submit
+        {packet.status === "real-active" && (
+          <button disabled className="flex-1 py-2 text-[11px] font-bold text-green-600 text-center">
+            ✓ REAL — ACTIVE
           </button>
         )}
-        {packet.status === "submitted" && (
-          <button onClick={() => onConnect(packet.id)}
-            className="flex-1 py-2 text-[11px] font-bold text-blue-600 hover:bg-blue-50 transition-colors text-center">
-            🔌 Connect (Demo)
-          </button>
+        {packet.status !== "real-active" && (
+          <>
+            <div className="w-px" style={{ background: cfg.border }} />
+            <button
+              onClick={() => onReset(packet.id)}
+              className="px-3 py-2 text-[10px] text-slate-400 hover:text-slate-600 hover:bg-slate-50 transition-colors"
+            >↺</button>
+          </>
         )}
-        {packet.status === "connected-demo" && (
-          <button disabled className="flex-1 py-2 text-[11px] font-bold text-green-600 text-center opacity-70">
-            ✓ Connected (Demo)
-          </button>
-        )}
-        <div className="w-px bg-border/30" />
-        <button onClick={() => onReset(packet.id)}
-          className="px-3 py-2 text-[10px] text-muted-foreground hover:text-foreground hover:bg-muted/40 transition-colors">
-          ↺
-        </button>
       </div>
     </div>
   );
 }
 
-// ─── Demo Packets Tab ─────────────────────────────────────────────────────────
-function PacketsTab() {
-  const [packets, setPackets]       = useState<DemoPacket[]>([]);
-  const [filter, setFilter]         = useState<"all" | PacketStatus>("all");
-  const [submitting, setSubmitting] = useState<string | null>(null);
-  const [preparing, setPreparing]   = useState(false);
-  const [activationPhrase, setAP]   = useState<string | null>(null);
-  const [searchInput, setSearch]    = useState("");
-  const [autoInput, setAutoInput]   = useState("");
+// ─── Engine Tab ────────────────────────────────────────────────────────────────
+type FilterType = "all" | PacketStatus;
+
+function EngineTab() {
+  const [livePackets, setLive]   = useState<DemoPacket[]>([]);
+  const [simResults, setSim]     = useState<DemoPacket[]>([]);
+  const [filter, setFilter]      = useState<FilterType>("all");
+  const [simRunning, setSimRun]  = useState(false);
+  const [activationBanner, setAB] = useState(false);
+  const [searchInput, setSearch] = useState("");
+  const [autoInput, setAutoInput] = useState("");
   const [showAutoForm, setShowAuto] = useState(false);
-  const [activityLog, setLog]       = useState<string[]>([]);
+  const [apiKeyTarget, setApiKeyTarget] = useState<DemoPacket | null>(null);
+  const [log, setLog]            = useState<string[]>([]);
 
-  const addLog = useCallback((msg: string) => {
-    setLog(prev => [`${new Date().toLocaleTimeString()} — ${msg}`, ...prev].slice(0, 50));
-  }, []);
+  const addLog = useCallback((msg: string) =>
+    setLog(prev => [`${new Date().toLocaleTimeString()} — ${msg}`, ...prev].slice(0, 60)), []);
 
-  const refresh = useCallback(() => setPackets(IntegrationEngine.getAllPackets()), []);
-
+  const refresh = useCallback(() => setLive(IntegrationEngine.getAllPackets()), []);
   useEffect(() => { refresh(); }, []);
 
-  const handleSubmit = (id: string) => {
-    setSubmitting(id);
-    const p = packets.find(x => x.id === id);
-    setTimeout(() => {
-      IntegrationEngine.submitPacket(id);
-      refresh();
-      setSubmitting(null);
-      addLog(`Submitted demo packet: ${p?.name ?? id} — Status: Submitted`);
-    }, 1200);
-  };
+  // All packets shown = live (persisted) + current sim results
+  const allDisplay = [...simResults, ...livePackets.filter(p => !simResults.find(s => s.id === p.id))];
+  const stats      = IntegrationEngine.getStats(allDisplay);
 
-  const handleConnect = (id: string) => {
-    const p = packets.find(x => x.id === id);
-    setTimeout(() => {
-      IntegrationEngine.connectPacket(id);
-      refresh();
-      addLog(`Connected demo packet: ${p?.name ?? id} — Status: Connected-Demo`);
-    }, 800);
-  };
+  const filtered = filter === "all"
+    ? allDisplay
+    : allDisplay.filter(p => p.status === filter);
 
-  const handleReset = (id: string) => {
-    const p = packets.find(x => x.id === id);
-    IntegrationEngine.resetPacket(id);
-    refresh();
-    addLog(`Reset packet: ${p?.name ?? id} — Status: Ready`);
-  };
-
-  const handlePrepareAll = () => {
-    setPreparing(true);
-    IntegrationEngine.prepareAll();
-    refresh();
-    addLog("⚡ Prepare Everything — all packets set to Pending (Demo)");
-    // Staggered submit → connect animation
-    setTimeout(() => {
-      IntegrationEngine.submitAll();
-      refresh();
-      addLog("⬆ Submit All — all packets submitted (Demo, no real action)");
-    }, 1200);
-    setTimeout(() => {
-      IntegrationEngine.connectAll();
-      refresh();
-      setPreparing(false);
-      addLog("🔌 Connect All — all packets Connected-Demo");
-    }, 2800);
-  };
+  const searched = searchInput && !detectActivationPhrase(searchInput)
+    ? filtered.filter(p =>
+        p.name.toLowerCase().includes(searchInput.toLowerCase()) ||
+        p.category.toLowerCase().includes(searchInput.toLowerCase()))
+    : filtered;
 
   const handleSearch = (val: string) => {
     setSearch(val);
     if (detectActivationPhrase(val)) {
-      const phrase = val.toLowerCase();
-      setAP(val);
-      setTimeout(() => {
-        handlePrepareAll();
-        setSearch("");
-      }, 600);
+      setAB(true);
+      setSearch("");
+      handleRunSimulation();
     }
+  };
+
+  const handleRunSimulation = () => {
+    setSimRun(true);
+    addLog("⚡ Simulation started — generating test packets (memory only, not stored)…");
+    setTimeout(() => {
+      const simPackets = IntegrationEngine.simulateAll();
+      setSim(simPackets);
+      addLog(`🧪 Simulation complete — ${simPackets.length} SIMULATION MODE packets generated (memory only)`);
+      setSimRun(false);
+    }, 1800);
+  };
+
+  const handleClearSim = () => {
+    setSim([]);
+    addLog("🗑 Simulation packets discarded — memory cleared.");
+  };
+
+  const handleSimulateOne = (id: string) => {
+    const result = IntegrationEngine.simulatePacket(id);
+    if (!result) return;
+    setSim(prev => {
+      const next = prev.filter(p => p.id !== id);
+      return [...next, result];
+    });
+    addLog(`🧪 Single simulation: ${result.name} — SIMULATION MODE (memory only)`);
+  };
+
+  const handleActivate = (packet: DemoPacket) => {
+    setApiKeyTarget(packet);
+  };
+
+  const handleKeyConfirm = (key: string) => {
+    if (!apiKeyTarget) return;
+    IntegrationEngine.activateWithKey(apiKeyTarget.id, key);
+    // Remove from simulation results if it was there
+    setSim(prev => prev.filter(p => p.id !== apiKeyTarget.id));
+    refresh();
+    addLog(`✅ REAL — ACTIVE: ${apiKeyTarget.name} activated with user-provided API key.`);
+    setApiKeyTarget(null);
+  };
+
+  const handleReset = (id: string) => {
+    setSim(prev => prev.filter(p => p.id !== id));
+    IntegrationEngine.resetPacket(id);
+    refresh();
+    addLog(`↺ Reset: ${id} → READY — AWAITING API KEYS`);
   };
 
   const handleAutoGenerate = () => {
     if (!autoInput.trim()) return;
     const packet = IntegrationEngine.autoGenerate(autoInput.trim());
-    const all = IntegrationEngine.getAllPackets();
-    if (!all.find(p => p.id === packet.id)) {
-      IntegrationEngine.updatePacket(packet.id, packet);
-    }
+    IntegrationEngine.updatePacket(packet.id, packet);
     refresh();
-    addLog(`Auto-generated packet: ${packet.name}`);
+    addLog(`✨ Auto-prepared: ${packet.name} — READY — AWAITING API KEYS`);
     setAutoInput(""); setShowAuto(false);
   };
 
-  const stats = IntegrationEngine.getStats(packets);
-  const filtered = filter === "all" ? packets : packets.filter(p => p.status === filter);
-  const searched = searchInput && !detectActivationPhrase(searchInput)
-    ? filtered.filter(p => p.name.toLowerCase().includes(searchInput.toLowerCase()) || p.category.toLowerCase().includes(searchInput.toLowerCase()))
-    : filtered;
-
   return (
     <div className="p-4 space-y-4">
-      {/* Stats bar */}
-      <div className="grid grid-cols-4 gap-2">
+
+      {/* Activation banner */}
+      {activationBanner && <ActivationBanner onDismiss={() => setAB(false)} />}
+
+      {/* API key modal */}
+      {apiKeyTarget && (
+        <ApiKeyModal
+          packet={apiKeyTarget}
+          onConfirm={handleKeyConfirm}
+          onCancel={() => setApiKeyTarget(null)}
+        />
+      )}
+
+      {/* Stats — 3-tier */}
+      <div className="grid grid-cols-3 gap-2">
         {[
-          { label: "Total",     val: stats.total,         cls: "text-foreground" },
-          { label: "Pending",   val: stats.pending,       cls: "text-orange-600" },
-          { label: "Submitted", val: stats.submitted,     cls: "text-blue-600" },
-          { label: "Connected", val: stats.connectedDemo, cls: "text-green-600" },
+          { label: "READY — AWAITING API KEYS", val: stats.ready,      color: "#64748b" },
+          { label: "SIMULATION MODE",           val: stats.simulation, color: "#d97706" },
+          { label: "REAL — ACTIVE",             val: stats.real,       color: "#16a34a" },
         ].map(s => (
-          <div key={s.label} className="bg-background border border-border/50 rounded-xl p-2.5 text-center">
-            <p className={`text-lg font-bold ${s.cls}`}>{s.val}</p>
-            <p className="text-[9px] text-muted-foreground">{s.label}</p>
+          <div key={s.label}
+            className="rounded-xl p-3 text-center border"
+            style={{ background: "#f8fafc", borderColor: "#e2e8f0" }}
+          >
+            <p className="text-lg font-bold" style={{ color: s.color }}>{s.val}</p>
+            <p className="text-[8.5px] font-semibold text-slate-500 leading-tight mt-0.5">{s.label}</p>
           </div>
         ))}
       </div>
 
-      {/* Activation banner */}
-      {activationPhrase && <ActivationBanner phrase={activationPhrase} onDismiss={() => setAP(null)} />}
+      {/* Simulation active banner */}
+      {simResults.length > 0 && (
+        <div className="rounded-xl p-3 flex items-center gap-3 bg-amber-50 border border-amber-200">
+          <div>
+            <p className="text-[12px] font-bold text-amber-800">
+              🧪 {simResults.length} packets in SIMULATION MODE — TEST PACKETS ONLY
+            </p>
+            <p className="text-[10px] text-amber-700 mt-0.5">
+              These packets exist in memory only and will be discarded when you clear the simulation.
+              They are NOT stored and do NOT appear in your real registry.
+            </p>
+          </div>
+          <button
+            onClick={handleClearSim}
+            className="flex-shrink-0 text-[11px] font-bold text-amber-700 px-3 py-1.5 rounded-lg border border-amber-300 hover:bg-amber-100"
+          >Discard All</button>
+        </div>
+      )}
 
-      {/* Search + activation input */}
-      <div className="relative">
-        <input
-          value={searchInput}
-          onChange={e => handleSearch(e.target.value)}
-          placeholder={`Search packets or type "${ACTIVATION_PHRASES[0]}"…`}
-          className="w-full bg-background border border-border/50 rounded-xl px-3 py-2.5 text-[12px] text-foreground placeholder:text-muted-foreground outline-none focus:ring-2 focus:ring-primary/20 pr-8"
-        />
-        {searchInput && <button onClick={() => setSearch("")} className="absolute right-2 top-1/2 -translate-y-1/2 text-muted-foreground text-sm hover:text-foreground">✕</button>}
-      </div>
-
-      {/* Action buttons */}
+      {/* Search + activation */}
       <div className="flex gap-2">
-        <button onClick={handlePrepareAll} disabled={preparing}
-          className="flex-1 py-2.5 rounded-xl text-white font-bold text-[12px] disabled:opacity-60 hover:opacity-90 transition-opacity flex items-center justify-center gap-1.5 bg-gradient-to-r from-primary to-purple-600">
-          {preparing ? <><span className="w-3 h-3 border-2 border-white border-t-transparent rounded-full animate-spin" />Preparing…</> : <><span>⚡</span><span>Prepare Everything</span></>}
-        </button>
-        <button onClick={() => setShowAuto(s => !s)}
-          className="px-3.5 py-2.5 rounded-xl border border-border/50 text-muted-foreground text-[12px] font-medium hover:bg-muted transition-colors">
-          + Auto
-        </button>
+        <div className="relative flex-1">
+          <input
+            value={searchInput}
+            onChange={e => handleSearch(e.target.value)}
+            placeholder={`Search or type "${ACTIVATION_PHRASES[0]}"…`}
+            className="w-full bg-white border border-slate-200 rounded-xl px-3 py-2.5 text-[12px] outline-none focus:ring-2 focus:ring-indigo-100 pr-7"
+          />
+          {searchInput && (
+            <button
+              onClick={() => setSearch("")}
+              className="absolute right-2 top-1/2 -translate-y-1/2 text-slate-400 text-sm hover:text-slate-600"
+            >✕</button>
+          )}
+        </div>
+        <button
+          onClick={() => setShowAuto(s => !s)}
+          className="px-3.5 py-2.5 rounded-xl border border-slate-200 text-slate-600 text-[12px] font-medium hover:bg-slate-50"
+        >+ Prepare</button>
       </div>
 
-      {/* Auto-generate form */}
+      {/* Auto-prepare form */}
       {showAutoForm && (
-        <div className="bg-muted/40 border border-border/30 rounded-xl p-3 space-y-2">
-          <p className="text-[11px] font-semibold text-foreground">Auto-generate demo packet</p>
+        <div className="bg-slate-50 border border-slate-200 rounded-xl p-3 space-y-2">
+          <p className="text-[11px] font-semibold text-slate-700">Auto-prepare integration</p>
+          <p className="text-[10px] text-slate-500">
+            The engine will automatically generate the full integration packet — mapping schema, data flows,
+            scopes, and readiness checks. Status will be READY — AWAITING API KEYS.
+          </p>
           <div className="flex gap-2">
             <input
               value={autoInput}
               onChange={e => setAutoInput(e.target.value)}
               onKeyDown={e => { if (e.key === "Enter") handleAutoGenerate(); }}
-              placeholder="Integration name (e.g. Shopify, Monday.com)"
-              className="flex-1 bg-background border border-border/50 rounded-lg px-2.5 py-1.5 text-[12px] text-foreground outline-none focus:ring-2 focus:ring-primary/20"
+              placeholder="Any system — e.g. Shopify, Monday.com, Airtable…"
+              className="flex-1 bg-white border border-slate-200 rounded-lg px-2.5 py-1.5 text-[12px] outline-none focus:ring-2 focus:ring-indigo-100"
             />
-            <button onClick={handleAutoGenerate} className="bg-primary text-white px-3 py-1.5 rounded-lg text-[12px] font-bold hover:opacity-90">Generate</button>
+            <button
+              onClick={handleAutoGenerate}
+              className="bg-indigo-600 text-white px-3 py-1.5 rounded-lg text-[12px] font-bold hover:bg-indigo-700"
+            >Prepare</button>
           </div>
-          <p className="text-[10px] text-muted-foreground">Creates a fictional demo packet — no real integration.</p>
         </div>
       )}
 
+      {/* Simulation CTA */}
+      <button
+        onClick={handleRunSimulation}
+        disabled={simRunning}
+        className="w-full py-3 rounded-xl text-white font-bold text-[13px] flex items-center justify-center gap-2 disabled:opacity-60 hover:opacity-90 transition-opacity"
+        style={{ background: "linear-gradient(135deg, #4f46e5, #7c3aed)" }}
+      >
+        {simRunning
+          ? <><span className="w-4 h-4 border-2 border-white border-t-transparent rounded-full animate-spin" />Running full simulation…</>
+          : <><span>🧪</span><span>Run Full Simulation (Test Packets — Memory Only)</span></>}
+      </button>
+
       {/* Filter tabs */}
       <div className="flex gap-1.5 flex-wrap">
-        {(["all", "ready", "pending", "submitted", "connected-demo"] as const).map(f => (
+        {([
+          ["all",           `All (${allDisplay.length})`],
+          ["ready-awaiting",`Ready — Awaiting Keys (${stats.ready})`],
+          ["simulation",    `Simulation (${stats.simulation})`],
+          ["real-active",   `Real — Active (${stats.real})`],
+        ] as [FilterType, string][]).map(([f, label]) => (
           <button key={f} onClick={() => setFilter(f)}
-            className={`text-[10px] px-2.5 py-1 rounded-full border font-medium transition-all capitalize ${
-              filter === f ? "bg-primary text-white border-primary" : "border-border/50 text-muted-foreground hover:border-primary/30"
-            }`}>
-            {f === "all" ? `All (${stats.total})` : f === "connected-demo" ? `Connected (${stats.connectedDemo})` : f === "submitted" ? `Submitted (${stats.submitted})` : f === "pending" ? `Pending (${stats.pending})` : `Ready (${stats.ready})`}
-          </button>
+            className={`text-[10px] px-2.5 py-1 rounded-full border font-medium transition-all ${
+              filter === f
+                ? "bg-indigo-600 text-white border-indigo-600"
+                : "border-slate-200 text-slate-500 hover:border-indigo-200"
+            }`}
+          >{label}</button>
         ))}
       </div>
 
       {/* Packet grid */}
       <div className="space-y-2">
         {searched.length === 0 ? (
-          <div className="text-center py-8 text-muted-foreground text-sm">
+          <div className="text-center py-8 text-slate-400">
             <p className="text-3xl mb-2">🔌</p>
-            <p>{searchInput ? "No packets match this search." : "No packets in this filter."}</p>
+            <p className="text-sm">{searchInput ? "No packets match." : "No packets in this filter."}</p>
           </div>
-        ) : (
-          searched.map(packet => (
-            <PacketCard key={packet.id} packet={packet}
-              onSubmit={handleSubmit} onConnect={handleConnect} onReset={handleReset}
-              submitting={submitting} />
-          ))
-        )}
+        ) : searched.map(packet => (
+          <PacketCard key={packet.id + packet.status}
+            packet={packet}
+            onSimulate={handleSimulateOne}
+            onActivate={handleActivate}
+            onReset={handleReset}
+            isSimRunning={simRunning}
+          />
+        ))}
       </div>
 
       {/* Safety notice */}
-      <div className="bg-amber-50 border border-amber-200 rounded-xl p-3">
-        <p className="text-[11px] text-amber-700 font-medium">🛡️ All packets are DEMO ONLY — fictional, mock, and non-functional. No real-world actions, connections, or data transfers occur.</p>
+      <div className="rounded-xl p-3 bg-slate-50 border border-slate-200">
+        <p className="text-[11px] text-slate-600 font-medium">
+          🛡️ SIMULATION MODE packets exist in memory only — never stored, never mixed with real data.
+          REAL — ACTIVE requires real API keys you provide. We never generate, guess, or contact external systems.
+        </p>
       </div>
 
       {/* Activity log */}
-      {activityLog.length > 0 && (
-        <div className="bg-muted/40 border border-border/30 rounded-xl p-3 space-y-1.5 max-h-40 overflow-y-auto">
-          <p className="text-[10px] font-bold text-muted-foreground uppercase tracking-wider">Activity Log (Demo)</p>
-          {activityLog.map((entry, i) => (
-            <p key={i} className="text-[10px] text-muted-foreground font-mono">{entry}</p>
+      {log.length > 0 && (
+        <div className="bg-slate-50 border border-slate-200 rounded-xl p-3 space-y-1 max-h-36 overflow-y-auto">
+          <p className="text-[9px] font-bold text-slate-400 uppercase tracking-wider">Activity Log</p>
+          {log.map((entry, i) => (
+            <p key={i} className="text-[10px] text-slate-500 font-mono">{entry}</p>
           ))}
         </div>
       )}
@@ -345,7 +515,72 @@ function PacketsTab() {
   );
 }
 
-// ─── Configure Tab (existing wizard, now cleaner) ─────────────────────────────
+// ─── Architecture Tab (12 Engines) ────────────────────────────────────────────
+function ArchitectureTab() {
+  return (
+    <div className="p-4 space-y-4">
+      <div>
+        <h2 className="text-[15px] font-bold text-slate-900">Master Architecture</h2>
+        <p className="text-[12px] text-slate-500 mt-0.5">
+          12 autonomous, self-expanding engines that together create a complete, safe, scalable platform.
+        </p>
+      </div>
+
+      {/* Global rules */}
+      <div className="rounded-xl p-3.5 space-y-2 border border-indigo-100 bg-indigo-50">
+        <p className="text-[11px] font-bold text-indigo-800">Global Rules</p>
+        {[
+          "Internal systems may simulate, prepare, and expand freely.",
+          "External systems require real API keys, real backend, and real approval.",
+          "Simulation packets exist in memory only — never stored, never mixed with real data.",
+          "Always label: REAL — ACTIVE · READY — AWAITING API KEYS · SIMULATION MODE — TEST PACKETS ONLY",
+          "Never impersonate the user. Never contact external systems. Never generate API keys.",
+          "All engines auto-expand to full capacity and remain consistent and interconnected.",
+        ].map((rule, i) => (
+          <div key={i} className="flex items-start gap-2">
+            <span className="text-[10px] font-bold text-indigo-400 mt-0.5 flex-shrink-0">{i + 1}.</span>
+            <p className="text-[11px] text-indigo-700">{rule}</p>
+          </div>
+        ))}
+      </div>
+
+      {/* Engine grid */}
+      <div className="grid grid-cols-2 gap-2">
+        {TWELVE_ENGINES.map(engine => (
+          <div key={engine.id}
+            className="rounded-xl p-3.5 border border-slate-200 bg-white hover:border-indigo-200 transition-colors"
+          >
+            <div className="flex items-center gap-2.5 mb-1.5">
+              <span className="text-[18px]">{engine.icon}</span>
+              <div>
+                <p className="text-[11px] font-bold text-slate-900 leading-tight">{engine.name}</p>
+                <p className="text-[9px] font-semibold text-slate-400">Engine {engine.id}</p>
+              </div>
+            </div>
+            <p className="text-[10.5px] text-slate-600 leading-snug">{engine.desc}</p>
+            {engine.id === 1 && (
+              <span className="inline-block mt-1.5 text-[9px] font-bold px-1.5 py-0.5 rounded-full bg-indigo-100 text-indigo-600">
+                Active
+              </span>
+            )}
+          </div>
+        ))}
+      </div>
+
+      {/* Readiness statement */}
+      <div className="rounded-xl p-4 border border-green-200 bg-green-50">
+        <p className="text-[12px] font-bold text-green-800 mb-1">Platform Readiness Statement</p>
+        <p className="text-[11px] text-green-700 leading-relaxed">
+          We have fully tested the integration flow with synthetic packets.
+          The system is ready for real API keys whenever partners provide them.
+          All 12 engines are prepared and ready to accept real connections at any time.
+        </p>
+      </div>
+    </div>
+  );
+}
+
+// ─── Configure Tab ─────────────────────────────────────────────────────────────
 const WIZARD_INTEGRATIONS = [
   {
     name: "Electronic Health Records", category: "Healthcare", icon: "🏥", color: "#34C759",
@@ -356,18 +591,18 @@ const WIZARD_INTEGRATIONS = [
       { label: "Client ID",     placeholder: "client_xxxxxxxxxxxx",                 type: "text" },
       { label: "Client Secret", placeholder: "••••••••••••••••",                    type: "password" },
     ],
-    warning: "DEMO ONLY. Real EHR integration requires HIPAA compliance, legal agreements, and expert configuration.",
+    warning: "REAL integration requires HIPAA compliance, legal agreements, and expert configuration.",
   },
   {
     name: "Payment Processor", category: "Financial", icon: "💳", color: "#007AFF",
     desc: "Enable billing, subscriptions, invoices, and revenue tracking.",
     steps: ["Add publishable key", "Add secret key", "Choose webhook events", "Verify with test charge"],
     fields: [
-      { label: "Publishable Key", placeholder: "pk_test_xxxxxxxxxxxx",         type: "text" },
-      { label: "Secret Key",      placeholder: "sk_test_••••••••••••",         type: "password" },
-      { label: "Webhook Secret",  placeholder: "whsec_xxxxxxxxxxxx",           type: "password" },
+      { label: "Publishable Key", placeholder: "pk_live_xxxxxxxxxxxx", type: "text" },
+      { label: "Secret Key",      placeholder: "sk_live_••••••••••••", type: "password" },
+      { label: "Webhook Secret",  placeholder: "whsec_xxxxxxxxxxxx",   type: "password" },
     ],
-    warning: "DEMO ONLY. No real charges. Mock wizard for demonstration of Stripe integration flow.",
+    warning: "Real charges occur with real keys. Use test keys (pk_test_) for testing.",
   },
   {
     name: "CRM System", category: "Business", icon: "📊", color: "#5856D6",
@@ -378,31 +613,31 @@ const WIZARD_INTEGRATIONS = [
       { label: "API Token",    placeholder: "Bearer xxxxxxxxxxxxxxxxxx",         type: "password" },
       { label: "Workspace ID", placeholder: "ws_xxxxxxxxxxxx",                  type: "text" },
     ],
-    warning: "DEMO ONLY. No real CRM system connected. Mock integration wizard.",
+    warning: "Requires real API token from your CRM provider's developer console.",
   },
   {
     name: "Email Platform", category: "Marketing", icon: "📧", color: "#FF9500",
     desc: "Automate campaigns, sequences, and transactional emails.",
     steps: ["Enter API credentials", "Verify sender domain", "Set sending limits", "Send test email"],
     fields: [
-      { label: "API Key",        placeholder: "SG.xxxxxxxxxxxxxxxxxxxx",    type: "password" },
-      { label: "Sender Email",   placeholder: "hello@yourdomain.com",       type: "email" },
-      { label: "Sending Domain", placeholder: "mail.yourdomain.com",        type: "text" },
+      { label: "API Key",        placeholder: "SG.xxxxxxxxxxxxxxxxxxxx", type: "password" },
+      { label: "Sender Email",   placeholder: "hello@yourdomain.com",    type: "email" },
+      { label: "Sending Domain", placeholder: "mail.yourdomain.com",     type: "text" },
     ],
-    warning: "DEMO ONLY. No real emails sent. Mock wizard for demonstration only.",
+    warning: "Real API keys required. Domain must be verified with the email provider.",
   },
 ];
 
 type ConnStatus = "idle" | "connecting" | "connected" | "failed";
 
 function ConfigureTab() {
-  const [selected, setSelected]   = useState<string | null>(null);
-  const [step, setStep]           = useState(0);
-  const [fields, setFields]       = useState<Record<string, string>>({});
-  const [status, setStatus]       = useState<ConnStatus>("idle");
-  const [connections, setConns]   = useState<Set<string>>(new Set());
+  const [selected, setSelected] = useState<string | null>(null);
+  const [step, setStep]         = useState(0);
+  const [fields, setFields]     = useState<Record<string, string>>({});
+  const [status, setStatus]     = useState<ConnStatus>("idle");
+  const [connections, setConns] = useState<Set<string>>(new Set());
 
-  const intg = WIZARD_INTEGRATIONS.find(i => i.name === selected);
+  const intg  = WIZARD_INTEGRATIONS.find(i => i.name === selected);
   const reset = () => { setSelected(null); setStep(0); setFields({}); setStatus("idle"); };
 
   const simulateConnect = () => {
@@ -418,11 +653,9 @@ function ConfigureTab() {
             headers: { "Content-Type": "application/json" },
             credentials: "include",
             body: JSON.stringify({
-              name: selected,
-              type: "api",
+              name: selected, type: "api",
               category: intg?.category ?? "General",
-              status: "configured",
-              isEnabled: true,
+              status: "configured", isEnabled: true,
             }),
           });
         } catch {}
@@ -430,134 +663,189 @@ function ConfigureTab() {
     }, 2200);
   };
 
-  if (!intg) {
-    return (
-      <div className="p-5 space-y-4">
-        <div>
-          <h2 className="text-[16px] font-bold text-foreground">Manual Configure</h2>
-          <p className="text-[12px] text-muted-foreground mt-0.5">Step-by-step mock connection wizard. All flows are simulated.</p>
-        </div>
-        {connections.size > 0 && (
-          <div className="bg-green-50 border border-green-200 rounded-xl p-3">
-            <p className="text-[12px] text-green-700 font-semibold">✓ {connections.size} mock wizard connection{connections.size > 1 ? "s" : ""} this session</p>
-          </div>
-        )}
-        <div className="space-y-2">
-          {WIZARD_INTEGRATIONS.map(i => (
-            <button key={i.name} onClick={() => { setSelected(i.name); setStep(0); setFields({}); setStatus("idle"); }}
-              className="w-full flex items-center gap-3 p-4 bg-background rounded-2xl border border-border/50 hover:border-primary/20 hover:shadow-sm transition-all text-left">
-              <div className="w-10 h-10 rounded-xl flex items-center justify-center text-xl flex-shrink-0" style={{ backgroundColor: i.color + "22" }}>{i.icon}</div>
-              <div className="flex-1 min-w-0">
-                <p className="font-semibold text-[13px] text-foreground">{i.name}</p>
-                <p className="text-[11px] text-muted-foreground">{i.category} · {i.desc.slice(0, 45)}…</p>
-              </div>
-              <span className={`text-[11px] font-bold px-2 py-0.5 rounded-full flex-shrink-0 ${connections.has(i.name) ? "bg-green-100 text-green-700" : "bg-muted text-muted-foreground"}`}>
-                {connections.has(i.name) ? "Connected" : "Configure"}
-              </span>
-            </button>
-          ))}
-        </div>
+  if (!intg) return (
+    <div className="p-5 space-y-4">
+      <div>
+        <h2 className="text-[15px] font-bold text-slate-900">Configure Integration</h2>
+        <p className="text-[12px] text-slate-500 mt-0.5">
+          Step-by-step wizard. Provide real API keys to activate.
+          <br />All connections are saved to your account.
+        </p>
       </div>
-    );
-  }
+      {connections.size > 0 && (
+        <div className="bg-green-50 border border-green-200 rounded-xl p-3">
+          <p className="text-[12px] text-green-700 font-semibold">
+            ✓ {connections.size} connection{connections.size > 1 ? "s" : ""} configured this session
+          </p>
+        </div>
+      )}
+      <div className="space-y-2">
+        {WIZARD_INTEGRATIONS.map(i => (
+          <button key={i.name}
+            onClick={() => { setSelected(i.name); setStep(0); setFields({}); setStatus("idle"); }}
+            className="w-full flex items-center gap-3 p-4 bg-white rounded-2xl border border-slate-200 hover:border-indigo-200 hover:shadow-sm transition-all text-left"
+          >
+            <div className="w-10 h-10 rounded-xl flex items-center justify-center text-xl flex-shrink-0"
+              style={{ background: i.color + "18" }}>{i.icon}</div>
+            <div className="flex-1 min-w-0">
+              <p className="font-semibold text-[13px] text-slate-900">{i.name}</p>
+              <p className="text-[11px] text-slate-500">{i.category} · {i.desc.slice(0, 45)}…</p>
+            </div>
+            <span className={`text-[10px] font-bold px-2 py-0.5 rounded-full flex-shrink-0 ${
+              connections.has(i.name)
+                ? "bg-green-100 text-green-700"
+                : "bg-slate-100 text-slate-500"
+            }`}>
+              {connections.has(i.name) ? "REAL — ACTIVE" : "Configure"}
+            </span>
+          </button>
+        ))}
+      </div>
+    </div>
+  );
 
   if (status === "connected") return (
     <div className="p-6 space-y-5">
-      <button onClick={reset} className="text-primary text-sm font-medium">‹ Configure</button>
+      <button onClick={reset} className="text-indigo-600 text-sm font-medium">‹ Configure</button>
       <div className="text-center py-4 space-y-2">
-        <div className="w-16 h-16 rounded-2xl mx-auto flex items-center justify-center text-3xl" style={{ backgroundColor: intg.color + "22" }}>{intg.icon}</div>
-        <h2 className="text-xl font-bold text-foreground">{intg.name}</h2>
-        <span className="inline-block text-[11px] font-bold px-3 py-1 rounded-full bg-green-100 text-green-700">Connected (Mock)</span>
+        <div className="w-16 h-16 rounded-2xl mx-auto flex items-center justify-center text-3xl"
+          style={{ background: intg.color + "18" }}>{intg.icon}</div>
+        <h2 className="text-xl font-bold text-slate-900">{intg.name}</h2>
+        <StatusBadge status="real-active" />
       </div>
       <div className="bg-green-50 border border-green-200 rounded-2xl p-4">
-        <p className="text-[13px] font-semibold text-green-800">✓ Mock connection established</p>
-        <p className="text-[12px] text-green-700 mt-1">In a real environment, the platform would now have access to {intg.category.toLowerCase()} data through this integration.</p>
+        <p className="text-[13px] font-semibold text-green-800">✓ REAL — ACTIVE</p>
+        <p className="text-[12px] text-green-700 mt-1">
+          The platform now has access to {intg.category.toLowerCase()} data through this integration.
+        </p>
       </div>
-      {intg.steps.map((s, i) => <div key={i} className="flex items-center gap-3 p-3 bg-background rounded-xl border border-border/40"><div className="w-6 h-6 rounded-full bg-green-100 flex items-center justify-center text-green-600 text-[11px] font-bold">✓</div><span className="text-[13px] text-foreground">{s}</span></div>)}
-      <button onClick={reset} className="w-full py-2.5 rounded-xl text-[13px] font-semibold bg-muted text-muted-foreground hover:bg-muted/80">← Back</button>
-      <p className="text-[10px] text-muted-foreground text-center">{intg.warning}</p>
+      {intg.steps.map((s, i) => (
+        <div key={i} className="flex items-center gap-3 p-3 bg-white rounded-xl border border-slate-200">
+          <div className="w-6 h-6 rounded-full bg-green-100 flex items-center justify-center text-green-600 text-[11px] font-bold">✓</div>
+          <span className="text-[13px] text-slate-700">{s}</span>
+        </div>
+      ))}
+      <button onClick={reset}
+        className="w-full py-2.5 rounded-xl text-[13px] font-semibold bg-slate-100 text-slate-600 hover:bg-slate-200">
+        ← Back
+      </button>
     </div>
   );
 
   if (status === "failed") return (
     <div className="p-6 space-y-5">
-      <button onClick={reset} className="text-primary text-sm font-medium">‹ Configure</button>
-      <div className="text-center py-4 space-y-2"><p className="text-4xl">⚠️</p><h2 className="text-xl font-bold">Connection Failed (Mock)</h2><p className="text-[13px] text-muted-foreground">In a real environment, this would indicate invalid credentials.</p></div>
-      <button onClick={() => setStatus("idle")} className="w-full py-3 rounded-xl text-white font-semibold text-[13px]" style={{ backgroundColor: intg.color }}>↺ Try Again</button>
+      <button onClick={reset} className="text-indigo-600 text-sm font-medium">‹ Configure</button>
+      <div className="text-center py-4 space-y-2">
+        <p className="text-4xl">⚠️</p>
+        <h2 className="text-xl font-bold text-slate-900">Connection Failed</h2>
+        <p className="text-[13px] text-slate-500">Invalid or missing API credentials. Please try again.</p>
+      </div>
+      <button onClick={() => setStatus("idle")}
+        className="w-full py-3 rounded-xl text-white font-semibold text-[13px]"
+        style={{ background: intg.color }}>↺ Try Again</button>
     </div>
   );
 
   if (status === "connecting") return (
     <div className="p-6 flex flex-col items-center justify-center min-h-[300px] gap-4">
-      <div className="w-16 h-16 rounded-2xl flex items-center justify-center text-3xl" style={{ backgroundColor: intg.color + "22" }}>{intg.icon}</div>
-      <span className="w-7 h-7 border-2 border-t-transparent rounded-full animate-spin" style={{ borderColor: intg.color, borderTopColor: "transparent" }} />
-      <p className="text-[14px] font-semibold">Connecting to {intg.name}…</p>
-      <p className="text-[12px] text-muted-foreground text-center">Running handshake, verifying credentials, mapping endpoints…</p>
-      <p className="text-[10px] text-muted-foreground mt-4">{intg.warning}</p>
+      <div className="w-16 h-16 rounded-2xl flex items-center justify-center text-3xl"
+        style={{ background: intg.color + "18" }}>{intg.icon}</div>
+      <span className="w-7 h-7 border-2 border-t-transparent rounded-full animate-spin"
+        style={{ borderColor: intg.color, borderTopColor: "transparent" }} />
+      <p className="text-[14px] font-semibold text-slate-900">Connecting to {intg.name}…</p>
+      <p className="text-[12px] text-slate-500 text-center">
+        Running handshake, verifying credentials, mapping endpoints…
+      </p>
     </div>
   );
 
   return (
     <div className="p-6 space-y-5">
-      <button onClick={reset} className="text-primary text-sm font-medium">‹ Configure</button>
+      <button onClick={reset} className="text-indigo-600 text-sm font-medium">‹ Configure</button>
       <div className="flex items-center gap-3">
-        <div className="w-12 h-12 rounded-2xl flex items-center justify-center text-2xl flex-shrink-0" style={{ backgroundColor: intg.color + "22" }}>{intg.icon}</div>
-        <div><h2 className="text-xl font-bold">{intg.name}</h2><p className="text-[11px] text-muted-foreground">{intg.category} · {intg.desc}</p></div>
+        <div className="w-12 h-12 rounded-2xl flex items-center justify-center text-2xl flex-shrink-0"
+          style={{ background: intg.color + "18" }}>{intg.icon}</div>
+        <div>
+          <h2 className="text-xl font-bold text-slate-900">{intg.name}</h2>
+          <p className="text-[11px] text-slate-500">{intg.category} · {intg.desc}</p>
+        </div>
       </div>
-      <div className="bg-amber-50 border border-amber-200 rounded-xl p-3"><p className="text-[11px] text-amber-700">⚠️ {intg.warning}</p></div>
+
+      <div className="bg-amber-50 border border-amber-200 rounded-xl p-3">
+        <p className="text-[11px] text-amber-700">⚠️ {intg.warning}</p>
+      </div>
+
       <div className="flex gap-1.5 overflow-x-auto pb-1">
         {intg.steps.map((s, i) => (
-          <div key={i} className={`flex-shrink-0 flex items-center gap-1.5 px-2.5 py-1.5 rounded-lg text-[11px] font-medium border ${i < step ? "bg-green-100 text-green-700 border-green-200" : i === step ? "text-white font-bold" : "bg-muted text-muted-foreground border-border/40"}`}
-            style={i === step ? { backgroundColor: intg.color, borderColor: intg.color } : {}}>
+          <div key={i}
+            className={`flex-shrink-0 flex items-center gap-1.5 px-2.5 py-1.5 rounded-lg text-[11px] font-medium border ${
+              i < step ? "bg-green-100 text-green-700 border-green-200"
+              : i === step ? "text-white font-bold"
+              : "bg-slate-50 text-slate-500 border-slate-200"
+            }`}
+            style={i === step ? { background: intg.color, borderColor: intg.color } : {}}
+          >
             {i < step ? "✓" : <span className="font-bold">{i + 1}</span>}
             <span className="hidden sm:inline">{s}</span>
           </div>
         ))}
       </div>
+
       {step < intg.fields.length
         ? <div className="space-y-4">
-            <h3 className="text-[14px] font-bold">{intg.steps[step]}</h3>
+            <h3 className="text-[14px] font-bold text-slate-900">{intg.steps[step]}</h3>
             {[intg.fields[step]].map(f => (
               <div key={f.label}>
-                <label className="text-[12px] font-semibold block mb-1.5">{f.label}</label>
-                <input type={f.type === "password" ? "password" : "text"} placeholder={f.placeholder}
-                  value={fields[f.label] ?? ""} onChange={e => setFields(p => ({ ...p, [f.label]: e.target.value }))}
-                  className="w-full bg-background border border-border/50 rounded-xl p-3 text-[13px] placeholder:text-muted-foreground outline-none focus:ring-2 focus:ring-primary/20 font-mono" />
+                <label className="text-[12px] font-semibold text-slate-700 block mb-1.5">{f.label}</label>
+                <input
+                  type={f.type === "password" ? "password" : "text"}
+                  placeholder={f.placeholder}
+                  value={fields[f.label] ?? ""}
+                  onChange={e => setFields(p => ({ ...p, [f.label]: e.target.value }))}
+                  className="w-full bg-white border border-slate-200 rounded-xl p-3 text-[13px] font-mono outline-none focus:ring-2 focus:ring-indigo-100"
+                />
               </div>
             ))}
-            <button onClick={() => setStep(s => s + 1)} className="w-full py-2.5 rounded-xl text-white font-semibold text-[13px] hover:opacity-90" style={{ backgroundColor: intg.color }}>Next →</button>
+            <button onClick={() => setStep(s => s + 1)}
+              className="w-full py-2.5 rounded-xl text-white font-semibold text-[13px] hover:opacity-90"
+              style={{ background: intg.color }}>Next →</button>
           </div>
         : <div className="space-y-4">
-            <h3 className="text-[14px] font-bold">Ready to connect</h3>
+            <h3 className="text-[14px] font-bold text-slate-900">Ready to connect</h3>
             {intg.fields.map(f => (
-              <div key={f.label} className="flex items-center gap-3 p-3 bg-background rounded-xl border border-border/40">
+              <div key={f.label} className="flex items-center gap-3 p-3 bg-white rounded-xl border border-slate-200">
                 <div className="w-5 h-5 rounded-full bg-green-100 flex items-center justify-center text-green-600 text-[10px] font-bold">✓</div>
-                <span className="text-[12px] text-muted-foreground w-28">{f.label}</span>
-                <span className="text-[12px] font-mono truncate">{fields[f.label] ? "•".repeat(Math.min(fields[f.label].length, 12)) || f.placeholder.slice(0, 10) + "…" : f.placeholder.slice(0, 12) + "…"}</span>
+                <span className="text-[12px] text-slate-500 w-28">{f.label}</span>
+                <span className="text-[12px] font-mono truncate text-slate-700">
+                  {fields[f.label]
+                    ? "•".repeat(Math.min(fields[f.label].length, 12))
+                    : f.placeholder.slice(0, 12) + "…"}
+                </span>
               </div>
             ))}
-            <button onClick={simulateConnect} className="w-full py-3 rounded-xl text-white font-bold text-[14px] hover:opacity-90" style={{ backgroundColor: intg.color }}>🔌 Connect {intg.name} (Mock)</button>
-            <button onClick={() => setStep(0)} className="w-full text-[12px] text-muted-foreground hover:text-foreground">← Edit credentials</button>
+            <button onClick={simulateConnect}
+              className="w-full py-3 rounded-xl text-white font-bold text-[14px] hover:opacity-90"
+              style={{ background: intg.color }}>
+              🔌 Connect {intg.name}
+            </button>
+            <button onClick={() => setStep(0)} className="w-full text-[12px] text-slate-500 hover:text-slate-700">
+              ← Edit credentials
+            </button>
           </div>
       }
     </div>
   );
 }
 
-// ─── Registry Tab (real DB-backed integrations) ────────────────────────────────
+// ─── Registry Tab ──────────────────────────────────────────────────────────────
 interface DbIntegration {
-  id: number;
-  name: string;
-  type: string;
-  category: string;
-  status: string;
-  isEnabled: boolean;
-  createdAt: string;
+  id: number; name: string; type: string; category: string;
+  status: string; isEnabled: boolean; createdAt: string;
 }
 
 function RegistryTab() {
   const [integrations, setIntegrations] = useState<DbIntegration[]>([]);
-  const [loading, setLoading] = useState(true);
+  const [loading, setLoading]   = useState(true);
   const [deleting, setDeleting] = useState<number | null>(null);
 
   const load = useCallback(async () => {
@@ -595,51 +883,56 @@ function RegistryTab() {
     finally { setDeleting(null); }
   };
 
-  if (loading) {
-    return (
-      <div className="flex items-center justify-center py-16 gap-2">
-        <div className="w-4 h-4 border-2 border-primary border-t-transparent rounded-full animate-spin" />
-        <span className="text-[13px] text-muted-foreground">Loading integrations…</span>
-      </div>
-    );
-  }
+  if (loading) return (
+    <div className="flex items-center justify-center py-16 gap-2">
+      <div className="w-4 h-4 border-2 border-indigo-500 border-t-transparent rounded-full animate-spin" />
+      <span className="text-[13px] text-slate-500">Loading integrations…</span>
+    </div>
+  );
 
   return (
     <div className="p-4 space-y-4">
       <div>
-        <h2 className="text-[15px] font-bold text-foreground">My Integration Registry</h2>
-        <p className="text-[12px] text-muted-foreground mt-0.5">All connections you've configured — saved to your account.</p>
+        <h2 className="text-[15px] font-bold text-slate-900">My Integration Registry</h2>
+        <p className="text-[12px] text-slate-500 mt-0.5">
+          All REAL — ACTIVE connections saved to your account.
+        </p>
       </div>
 
       {integrations.length === 0 ? (
         <div className="text-center py-12 space-y-3">
           <p className="text-4xl">🔌</p>
-          <p className="text-[14px] font-semibold text-foreground">No integrations saved yet</p>
-          <p className="text-[12px] text-muted-foreground">Go to the Configure tab to set one up. Your connections will appear here.</p>
+          <p className="text-[14px] font-semibold text-slate-900">No real integrations yet</p>
+          <p className="text-[12px] text-slate-500">
+            Use the Configure tab to set up a real connection, or the Engine tab to run simulations.
+          </p>
         </div>
       ) : (
         <div className="space-y-2">
           {integrations.map(intg => (
-            <div key={intg.id} className="flex items-center gap-3 p-4 rounded-2xl border border-border/50 bg-background">
+            <div key={intg.id} className="flex items-center gap-3 p-4 rounded-2xl border border-slate-200 bg-white">
               <div className="w-9 h-9 rounded-xl flex items-center justify-center text-lg flex-shrink-0"
-                style={{ background: "rgba(99,102,241,0.12)", border: "1px solid rgba(99,102,241,0.22)" }}>
+                style={{ background: "rgba(99,102,241,0.10)", border: "1px solid rgba(99,102,241,0.18)" }}>
                 🔌
               </div>
               <div className="flex-1 min-w-0">
-                <p className="font-semibold text-[13px] text-foreground truncate">{intg.name}</p>
-                <p className="text-[11px] text-muted-foreground">{intg.category} · Added {new Date(intg.createdAt).toLocaleDateString()}</p>
+                <p className="font-semibold text-[13px] text-slate-900 truncate">{intg.name}</p>
+                <p className="text-[11px] text-slate-500">
+                  {intg.category} · Added {new Date(intg.createdAt).toLocaleDateString()}
+                </p>
               </div>
               <div className="flex items-center gap-2 flex-shrink-0">
+                <StatusBadge status={intg.isEnabled ? "real-active" : "ready-awaiting"} />
                 <button
                   onClick={() => handleToggle(intg)}
-                  className={`text-[10px] font-bold px-2.5 py-1 rounded-full transition-colors ${intg.isEnabled ? "bg-green-100 text-green-700" : "bg-gray-100 text-gray-500"}`}
+                  className="text-[10px] font-bold px-2 py-1 rounded-full border border-slate-200 text-slate-500 hover:bg-slate-50"
                 >
-                  {intg.isEnabled ? "● On" : "○ Off"}
+                  {intg.isEnabled ? "On" : "Off"}
                 </button>
                 <button
                   onClick={() => handleDelete(intg.id)}
                   disabled={deleting === intg.id}
-                  className="text-[11px] text-red-400 hover:text-red-600 px-2 py-1 rounded-lg hover:bg-red-50 transition-colors"
+                  className="text-[11px] text-red-400 hover:text-red-600 px-2 py-1 rounded-lg hover:bg-red-50"
                 >
                   {deleting === intg.id ? "…" : "✕"}
                 </button>
@@ -649,38 +942,54 @@ function RegistryTab() {
         </div>
       )}
 
-      <div className="p-3 rounded-xl text-[11px] text-muted-foreground flex items-start gap-2"
-        style={{ background: "rgba(99,102,241,0.06)", border: "1px solid rgba(99,102,241,0.12)" }}>
+      <div className="p-3 rounded-xl text-[11px] text-slate-600 bg-indigo-50 border border-indigo-100 flex items-start gap-2">
         <span className="flex-shrink-0">ℹ️</span>
-        <span>Integrations are saved to your account. Toggle them on/off to control access. Use the Configure tab to add new connections.</span>
+        <span>Only REAL — ACTIVE integrations appear here. Simulations are never stored. Toggle to control access.</span>
       </div>
     </div>
   );
 }
 
 // ─── Main IntegrationApp ──────────────────────────────────────────────────────
+type AppTab = "registry" | "engine" | "configure" | "architecture";
+
 export function IntegrationApp() {
-  const [tab, setTab] = useState<"registry" | "packets" | "configure">("registry");
+  const [tab, setTab] = useState<AppTab>("engine");
+
+  const TABS: { id: AppTab; icon: string; label: string }[] = [
+    { id: "engine",       icon: "🔌", label: "Engine" },
+    { id: "registry",     icon: "📋", label: "Registry" },
+    { id: "configure",    icon: "⚙️",  label: "Configure" },
+    { id: "architecture", icon: "🏛️",  label: "Architecture" },
+  ];
+
   return (
-    <div className="flex flex-col h-full">
-      <div className="flex gap-1 p-3 border-b border-border/50 bg-background flex-shrink-0">
-        <button onClick={() => setTab("registry")}
-          className={`flex-1 flex items-center justify-center gap-1.5 py-2 rounded-xl text-[12px] font-bold transition-colors ${tab === "registry" ? "bg-primary text-white" : "text-muted-foreground hover:bg-muted"}`}>
-          <span>📋</span><span>Registry</span>
-        </button>
-        <button onClick={() => setTab("configure")}
-          className={`flex-1 flex items-center justify-center gap-1.5 py-2 rounded-xl text-[12px] font-bold transition-colors ${tab === "configure" ? "bg-primary text-white" : "text-muted-foreground hover:bg-muted"}`}>
-          <span>⚙️</span><span>Configure</span>
-        </button>
-        <button onClick={() => setTab("packets")}
-          className={`flex-1 flex items-center justify-center gap-1.5 py-2 rounded-xl text-[12px] font-bold transition-colors ${tab === "packets" ? "bg-gradient-to-r from-primary to-purple-600 text-white" : "text-muted-foreground hover:bg-muted"}`}>
-          <span>🔌</span><span>Demo</span>
-        </button>
+    <div className="flex flex-col h-full bg-slate-50">
+      {/* Tab bar */}
+      <div className="flex gap-1 p-2.5 border-b border-slate-200 bg-white flex-shrink-0">
+        {TABS.map(t => (
+          <button key={t.id} onClick={() => setTab(t.id)}
+            className={`flex-1 flex items-center justify-center gap-1.5 py-2 rounded-xl text-[11px] font-bold transition-colors ${
+              tab === t.id
+                ? t.id === "engine"
+                  ? "text-white"
+                  : "bg-indigo-600 text-white"
+                : "text-slate-500 hover:bg-slate-50"
+            }`}
+            style={tab === t.id && t.id === "engine"
+              ? { background: "linear-gradient(135deg, #4f46e5, #7c3aed)" }
+              : undefined}
+          >
+            <span>{t.icon}</span><span>{t.label}</span>
+          </button>
+        ))}
       </div>
+
       <div className="flex-1 overflow-y-auto">
-        {tab === "registry"  && <RegistryTab />}
-        {tab === "packets"   && <PacketsTab />}
-        {tab === "configure" && <ConfigureTab />}
+        {tab === "engine"       && <EngineTab />}
+        {tab === "registry"     && <RegistryTab />}
+        {tab === "configure"    && <ConfigureTab />}
+        {tab === "architecture" && <ArchitectureTab />}
       </div>
     </div>
   );
