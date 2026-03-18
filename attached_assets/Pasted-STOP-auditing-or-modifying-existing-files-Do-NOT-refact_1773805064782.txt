@@ -1,0 +1,108 @@
+STOP auditing or modifying existing files. Do NOT refactor or "fill gaps" in current code. Instead, ADD a complete tiny backend + storage + operational layer to this project, fully self-contained, zero external services, zero subscriptions.
+
+1) CREATE FOLDERS
+- Create a new folder: backend
+- Create a new folder: storage
+
+2) CREATE BACKEND FILES
+In backend/, create:
+- server.js
+- storage.js
+- routes/users.js
+- routes/projects.js
+- routes/settings.js
+- routes/documents.js
+- routes/chat.js
+- routes/images.js
+
+3) CREATE STORAGE FILES
+In storage/, create:
+- main.json
+- users.json
+- projects.json
+- settings.json
+- documents.json
+- chat.json
+- images.json
+
+Each JSON file should initialize safely if empty or missing (e.g. {} or [] as appropriate).
+
+4) IMPLEMENT STORAGE LAYER (backend/storage.js)
+- Implement helper functions:
+  - readJson(filePath)
+  - writeJson(filePath, data)
+  - ensureFile(filePath, defaultValue)
+- On startup, ensure all storage/*.json files exist and are valid JSON.
+- All file I/O must be safe, with try/catch and graceful fallbacks.
+- No external DBs. Only Node fs and path.
+
+5) IMPLEMENT EXPRESS SERVER (backend/server.js)
+- Create an Express server.
+- Use JSON body parsing.
+- Enable CORS for the front-end origin if needed.
+- Import all route modules (users, projects, settings, documents, chat, images) and mount them under /api:
+  - /api/users
+  - /api/projects
+  - /api/settings
+  - /api/documents
+  - /api/chat
+  - /api/images
+- On startup, call storage.ensureFile for all JSON files.
+- Add a simple health route: GET /api/health → { status: "ok" }.
+
+6) IMPLEMENT ROUTES (backend/routes/*.js)
+For each route file (users, projects, settings, documents, chat, images):
+- Import Express and storage.js helpers.
+- Use a dedicated JSON file per route (e.g. users.json for users, etc.).
+- Implement basic CRUD endpoints:
+  - GET / → list all
+  - GET /:id → get one (if applicable)
+  - POST / → create
+  - PUT /:id → update
+  - DELETE /:id → delete
+- Use simple ID generation (e.g. Date.now().toString()).
+- Add basic validation: reject empty payloads or missing required fields.
+- Wrap all logic in try/catch and return safe error responses (never crash the server).
+
+7) OPERATIONAL LAYER: ERROR HANDLING + VALIDATION + PERSISTENCE
+- In server.js, add a global error handler middleware that catches unexpected errors and returns a safe JSON error.
+- In storage.js, ensure corrupted JSON files are handled by resetting to defaultValue instead of crashing.
+- In each route, validate inputs (e.g. required fields like name, title, content, etc.) and return 400 on invalid data.
+- Ensure all file operations are awaited and consistent.
+
+8) FRONT-END INTEGRATION LAYER
+Without rewriting existing UI, ADD a new front-end service module (e.g. src/services/apiClient.ts or similar appropriate path based on this project’s structure):
+
+- Implement a generic apiClient with:
+  - get(path)
+  - post(path, body)
+  - put(path, body)
+  - del(path)
+- Base URL: /api
+- Add typed helper functions:
+  - fetchUsers, createUser, updateUser, deleteUser
+  - fetchProjects, createProject, updateProject, deleteProject
+  - fetchSettings, saveSettings
+  - fetchDocuments, createDocument, updateDocument, deleteDocument
+  - fetchChatHistory, addChatMessage
+  - fetchImages, saveImageReference
+
+9) EXPERIENCE LAYER HOOKS (LIGHT TOUCH)
+- Where appropriate and minimal, wire the existing front-end to:
+  - Load settings on app load from /api/settings
+  - Load active project context from /api/projects
+  - Optionally load recent chat history from /api/chat
+- Do NOT refactor major components. Only add small, safe calls to the new apiClient where it clearly fits (e.g. existing context providers or initialization flows).
+- Keep everything lightweight and non-breaking. If unsure, prefer adding new helper hooks/services over modifying core logic.
+
+10) CONSTRAINTS
+- Do NOT use Firebase, Supabase, AWS, external DBs, or any third-party storage.
+- Do NOT remove or rewrite the existing intelligence/BrainHub/OSContext logic.
+- Only ADD the backend, storage, and minimal front-end integration needed to make persistence real.
+- The result should be:
+  - fully local
+  - self-contained
+  - zero-cost
+  - no external platform dependencies.
+
+After implementing all of this, run typecheck/build and ensure there are no errors.

@@ -1,5 +1,134 @@
 # CreateAI Brain – Workspace
 
+---
+
+## ╔══ PLATFORM CONTRACT — Permanent, Self-Enforcing, Non-Negotiable ══╗
+
+> This contract is the default behavior model for every file, component, engine, series, module, hook,
+> and future addition in this codebase. It requires no per-session re-instruction.
+> Every edit, addition, and refactor must comply with every rule below or it is a violation.
+
+### Rule 1 — The Controller is the Only AI Gateway
+
+**All AI generation flows through `PlatformController.ts`. No exceptions.**
+
+- ✅ Call `streamEngine({ engineId, topic, context?, signal?, onChunk, onDone? })` from `@/controller`
+- ✅ Call `streamChat`, `streamBrainstorm`, `streamSeries`, `streamProjectChat` from `@/controller`
+- ✅ Use `useEngineRun(id)` or `useSeriesRun(id)` hooks from `@/controller` in React components
+- ❌ Never call `/api/openai/*` directly from app code
+- ❌ Never implement SSE stream readers, `getReader()`, `TextDecoder` loops, or `split("data:")` in any app, engine module, series runner, or hook outside `PlatformController.ts`
+- ❌ Never import from `@/ael/fetch` for AI — that file is REST helpers only
+
+**AbortController** is the only permitted local creation in apps — solely to produce a `signal` parameter passed into a controller function. Never used to manage a raw stream.
+
+```ts
+// ✅ Correct — AbortController as cancellation signal only
+const ctrl = new AbortController();
+streamEngine({ engineId, topic, signal: ctrl.signal, onChunk, onDone });
+
+// ❌ Violation — app manages the stream itself
+const res = await fetch("/api/openai/engine-run", { ... });
+const reader = res.body!.getReader();  // NEVER in app code
+```
+
+### Rule 2 — Shared Intelligence Layer is Always Active
+
+Every engine run automatically:
+1. **Injects** cross-app context via `contextStore.buildContextFor(engineId)` before the run
+2. **Records** the completed output via `contextStore.recordOutput(...)` after streaming ends
+3. **Learns** session keywords from every topic string
+4. **Enables rollback** to the previous output for that engine
+
+Components that change user focus must call `contextStore.setSessionContext(...)`:
+- OSContext — on server preference hydration + on every `updatePreferences()` call ✅
+- ProjectOSApp — on `activeProject` change ✅
+- Any future app that tracks an "active entity" (client, patient, case, job) must seed its domain context the same way
+
+```ts
+// Seed when focus changes — always
+import { contextStore } from "@/controller";
+useEffect(() => {
+  if (activeProject) contextStore.setSessionContext({ projectId: activeProject.id, projectName: activeProject.name });
+}, [activeProject]);
+```
+
+### Rule 3 — All REST Fetches Include Credentials
+
+Every `fetch()` call anywhere in the frontend must include `credentials: "include"`.
+The Vite proxy routes `/api/*` → `localhost:8080`. Sessions are cookie-based.
+
+```ts
+// ✅ Always
+fetch("/api/projects", { credentials: "include" })
+
+// ❌ Never — auth will silently fail
+fetch("/api/projects")
+```
+
+### Rule 4 — No Mock, Seed, or Placeholder Data
+
+All data displayed to users comes from real API calls to the backend, which reads from PostgreSQL.
+- No `const MOCK_DATA = [...]` arrays used as final data sources
+- No hardcoded "demo" users, projects, contacts, or outputs
+- Loading states while fetching are fine; fake data displayed as real is not
+
+### Rule 5 — UX: Calm, Simple, Friendly, Progressive Disclosure
+
+- Mobile-first layout. Never overcrowd a single view.
+- Reveal advanced options progressively — not all at once.
+- No wall of settings on first load; no multi-column dense tables on small viewports.
+- Indigo `#6366f1` is the only accent color. No competing accents.
+- Dark glass theme: `hsl(231,47%,6%)` background, `rgba(255,255,255,0.06–0.12)` surfaces.
+
+### Rule 6 — TypeScript: Zero Errors Always
+
+Before any commit or handoff, run:
+```bash
+cd artifacts/createai-brain && npx tsc --noEmit
+```
+Zero output = zero errors. If there are errors, fix them before finishing — no `@ts-ignore`, no `any` casts to silence real type problems.
+
+### Rule 7 — Express v5 Specifics
+
+- `req.params.X` must be cast: `req.params.X as string`
+- No `@/` alias in `api-server` — use relative imports only
+- DB imports: `import { ... } from "@workspace/db"` (not `@workspace/db/schema`)
+- `CapabilityEngine.ts` — `runEngine`/`runMetaAgent` exports are the controller's internal implementation; never modify their signatures
+
+### Rule 8 — Controller Function Signatures (Canonical)
+
+```ts
+streamEngine({ engineId, topic, context?, mode?, skipContext?, signal?, onChunk, onDone?, onError? })
+streamChat({ message, history, signal?, onChunk, onDone? })
+streamBrainstorm({ message, history, signal?, onChunk, onDone? })
+streamSeries({ seriesId, topic, context?, signal?, onSection, onDone?, onError? })
+streamProjectChat({ projectId, message, history, signal?, onChunk, onDone? })
+contextStore.setSessionContext(Partial<SessionContext>)
+contextStore.recordOutput(engineId, engineName, topic, text)
+contextStore.rollback(engineId): OutputRecord | null
+contextStore.buildContextFor(engineId): string
+```
+
+### Rule 9 — Intelligence Panel and Rollback Are Permanent UI Features
+
+- BrainHub "Intelligence" tab shows live contextStore state (runs, keywords, rollback options) — always present
+- RunPanel shows "↩ Rollback" button after every completed generation when a prior output exists
+- Sidebar shows "🧠 Platform · N runs" indicator once any engine has run
+- These are not optional — they are part of the platform's core UX contract
+
+### Rule 10 — Session Plan Before Execution
+
+For any work involving 3+ components or 2+ files:
+1. Identify all files to change
+2. Typecheck after changes
+3. Restart the affected workflow
+4. Verify no browser console errors
+
+---
+## ╚══ END PLATFORM CONTRACT ══╝
+
+---
+
 ## Unified Controller Layer (COMPLETE — All 13 Apps Wired)
 - **`src/controller/PlatformController.ts`**: Singleton controller — `streamEngine()` (module-level, no React needed, auto-routes meta-agents vs standard engines), `generateImage()`, `exportToPDF/Markdown/Text()`, `runEngine()`, `runSeries()`, `processOutput()`, `saveOutput()`. Full app→engine registry (`APP_ENGINE_REGISTRY`) and smart intent→engine routing table.
 - **`src/controller/hooks.ts`**: `usePlatform`, `useEngineRun(id)`, `useSeriesRun(id)`, `useDocumentOutput`, `useImageGenerate` — all React hooks wrapping controller

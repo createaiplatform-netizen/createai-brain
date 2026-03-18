@@ -3,6 +3,14 @@
 //
 // Import from "@/controller" to access the complete unified system controller.
 // Every engine, series, image, document, and export goes through here.
+//
+// ┌─ PLATFORM CONTRACT ─────────────────────────────────────────────────────┐
+// │ All AI generation in this codebase flows exclusively through this       │
+// │ module. No app, engine module, series, or hook may call /api/openai/*   │
+// │ directly, implement SSE stream readers, or bypass this barrel.          │
+// │                                                                         │
+// │ Full contract → artifacts/createai-brain/PLATFORM_CONTRACT.md           │
+// └─────────────────────────────────────────────────────────────────────────┘
 // ═══════════════════════════════════════════════════════════════════════════
 
 // Core controller class + module-level utilities
