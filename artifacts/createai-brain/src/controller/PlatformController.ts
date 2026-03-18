@@ -336,7 +336,9 @@ export const APP_ENGINE_REGISTRY: Record<string, AppEngineConfig> = {
   datastoryteller: { primaryEngines: ["DataModelEngine", "ContentGenerationEngine", "VECTOR"],                              primarySeries: ["delta"],  category: "research",      outputType: "document" },
 
   // ── Platform / System ─────────────────────────────────────────────────────
-  ucpx:            { primaryEngines: ["InfiniteExpansionEngine", "ORACLE", "FORGE", "NEXUS", "SENTINEL"],                   primarySeries: ["xi", "omega"], category: "universal", outputType: "document" },
+  ucpx:            { primaryEngines: ["InfiniteExpansionEngine", "ORACLE", "FORGE", "NEXUS", "SENTINEL"],                   primarySeries: ["xi", "omega"],  category: "universal",   outputType: "document" },
+  universalDemo:   { primaryEngines: ["InteractionEngine", "IntegrationEngine", "UniversalWorkflowEngine"],                  primarySeries: ["ice"],          category: "universal",   outputType: "document" },
+  genericEngine:   { primaryEngines: ["ContentGenerationEngine", "UniversalStrategyEngine", "ResearchEngine", "ORACLE"],    primarySeries: ["omega"],        category: "universal",   outputType: "document" },
   metricsPanel:    { primaryEngines: ["AnalyticsEngine", "VECTOR", "DataModelEngine"],                                      primarySeries: ["iota"],   category: "universal",     outputType: "document" },
   integrationDashboard: { primaryEngines: ["IntegrationEngine", "BackendBlueprintEngine", "NEXUS"],                        primarySeries: ["chi"],    category: "operations",    outputType: "document" },
 };

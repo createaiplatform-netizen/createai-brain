@@ -1,0 +1,79 @@
+Using the corrected audit, generate the complete set of fixes for every remaining gap. The system is structurally complete; focus only on wiring, persistence, routing, and the single missing prompt.
+
+Implement and output the full corrected code, configuration, and wiring for:
+
+1. LeadCycleEngine
+- Generate the missing system prompt in ENGINE_SYSTEM_PROMPTS.
+- Make it consistent with other growth/revenue/lead engines in tone, structure, and capability.
+
+2. APP_ENGINE_REGISTRY
+- Generate registry entries for all 107 currently unregistered apps.
+- For each app, include:
+  • primaryEngines
+  • optional primarySeries
+  • categories/tags consistent with existing entries
+- Ensure no duplicates and no invalid categories.
+
+3. OutputVault → DB Persistence
+- Update OutputVaultService so outputs are persisted to the documents table in PostgreSQL instead of (or in addition to) localStorage.
+- Implement:
+  • create/save
+  • list/fetch
+  • update
+  • soft delete (if applicable)
+- Keep the existing localStorage behavior as a cache if useful, but ensure DB is the source of truth.
+
+4. PlatformContextStore Persistence
+- Add persistence so cross-engine context, session state, and insight records survive page refresh.
+- Implement:
+  • serialization of relevant context
+  • storage in DB or browser storage (whichever is consistent with the rest of the platform)
+  • hydration on load
+- Ensure totalRuns and similar counters are restored correctly.
+
+5. Engine runCount Tracking
+- Implement logic to increment and persist runCount for each engine whenever it is executed.
+- Wire this into:
+  • engine-run API
+  • any traction/analytics logging already in place
+- Ensure BrainHub can display real run counts instead of hardcoded 0.
+
+6. MetricsPage Routing
+- Fix the dead import by:
+  • properly importing MetricsPage
+  • adding a <Route> for /metrics that actually renders MetricsPage (not OSLayout)
+- Ensure no duplicate or conflicting routes.
+
+7. AppWindow Registrations
+- Register the following apps in AppWindow (or equivalent app launcher):
+  • GenericEngineApp
+  • UniversalDemoEngine
+  • ModuleShell (if intended for user-facing or dev-facing use)
+- Provide:
+  • AppId definitions
+  • window configuration
+  • titles/icons consistent with existing apps.
+
+8. UCPXAgent Wiring
+- Wire UCPXAgent into the main OS:
+  • Add an AppId for ucpx (or equivalent)
+  • Add APP_META entry (name, icon, category, description)
+  • Add to DEFAULT_APPS if appropriate
+  • Register in AppWindow so it can be launched as a normal app
+  • Add INTENT_MAP entry in OSContext so it can be targeted by intent-based routing
+- Ensure the multi-panel UI, engine sections, and InfiniteExpansionEngine integration are reachable and functional.
+
+9. Consistency & Cleanup
+- Ensure there are:
+  • no duplicate APP_ENGINE_REGISTRY entries
+  • no duplicate AppIds
+  • no invalid categories (e.g., old “business” category if it was replaced)
+  • no dead imports or unreachable components related to these changes.
+
+Organize the output into clear sections with:
+- filenames
+- code blocks
+- exact insertion or replacement instructions
+- brief explanations for each change
+
+All output must be clean, copy-ready, and consistent with the existing code style and patterns already used in the platform.

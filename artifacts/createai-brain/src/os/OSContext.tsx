@@ -12,7 +12,8 @@ export type AppId =
   | "business" | "entity" | "bizcreator" | "bizdev" | "projbuilder" | "projos"
   | "notifications" | "brainhub" | "commandcenter"
   | "researchhub" | "learningcenter" | "personastudio" | "datastudio" | "pricingstudio"
-  | "traction" | "opportunity" | "leadCycle" | "ucpx" | "imaginationlab" | "loreforge"
+  | "traction" | "opportunity" | "leadCycle" | "ucpx" | "universalDemo" | "genericEngine"
+  | "imaginationlab" | "loreforge"
   | "narratoros" | "civilizationforge" | "ecologyforge"
   | "soundscape" | "timelineforge" | "mythweave"
   | "languageforge" | "magicsystem" | "urbanworld" | "warlore"
@@ -403,7 +404,9 @@ export const DEFAULT_APPS: AppDef[] = [
   // ── Education & Teaching ──────────────────────────────────────────────────
   { id: "lessonplanner",      label: "Lesson Planner",      icon: "📚", color: "#0369a1", description: "Lesson plans, learning objectives, activities, and teaching strategies", category: "tools" },
   { id: "curriculumdesigner", label: "Curriculum Designer", icon: "🎓", color: "#7c3aed", description: "Course design, curriculum mapping, learning pathways, and instructional frameworks", category: "tools" },
-  { id: "ucpx",                   label: "UCP-X Intelligence",     icon: "🧠", color: "#4f46e5", description: "Ultra-Capability Platform X — 21 simultaneous engine sections, ARIA intelligence, full-stack automation, revenue systems, and infinite expansion mode", category: "system" },
+  { id: "ucpx",          label: "UCP-X Intelligence",  icon: "🧠", color: "#4f46e5", description: "Ultra-Capability Platform X — 21 simultaneous engine sections, ARIA intelligence, full-stack automation, revenue systems, and infinite expansion mode", category: "system" },
+  { id: "universalDemo", label: "Universal Workspace", icon: "🌐", color: "#0891b2", description: "Multi-panel universal workspace shell — filters, guides, and workspace panels for any industry or workflow", category: "system" },
+  { id: "genericEngine", label: "Engine Launcher",     icon: "⚡", color: "#4f46e5", description: "Universal AI engine launcher — run any of the 12 most powerful cross-domain engines on any topic, any industry", category: "system" },
   { id: "metricsPanel",           label: "Platform Metrics",       icon: "📊", color: "#6366f1", description: "Executive metrics panel — engines, series, endpoints, registry, systems, and expansion paths", category: "system" },
   { id: "integrationDashboard",  label: "Integration Dashboard",  icon: "🔗", color: "#0891b2", description: "Full integration hub — REST, FHIR R4, HL7, OAuth2, webhooks, PHI safety, TLS status, and simulation mode", category: "system" },
 ];
@@ -467,6 +470,8 @@ const INTENT_MAP: { keywords: string[]; target: AppId }[] = [
   { keywords: ["opportunity", "opportunities", "opportunity engine", "opp", "pipeline", "discover opportunities", "scan opportunities", "opportunity score", "market opportunity", "revenue opportunity", "partnership opportunity"], target: "opportunity" },
   { keywords: ["lead", "leads", "lead generation", "lead cycle", "lead gen", "outreach", "cold email", "prospecting", "cold outreach", "pipeline leads", "generate leads", "find leads", "sales leads", "b2b leads", "lead qualification"], target: "leadCycle" },
   { keywords: ["ucpx", "ucp-x", "ultra capability", "aria", "platform x", "21 engines", "all engines", "full intelligence", "ucpx agent", "intelligence layer", "platform intelligence"], target: "ucpx" },
+  { keywords: ["universal workspace", "workspace shell", "universal demo", "multi-panel", "workspace", "demo mode", "platform shell", "filters panel", "guide panel"], target: "universalDemo" },
+  { keywords: ["engine launcher", "generic engine", "run engine", "launch engine", "engine runner", "engine selector", "universal engine", "all engines", "cross-domain engine", "engine chooser"], target: "genericEngine" },
   { keywords: ["metrics", "platform metrics", "engine metrics", "usage metrics", "activity metrics", "system metrics", "analytics", "platform stats", "engine usage", "execution stats", "metrics panel"], target: "metricsPanel" },
   { keywords: ["imagination", "imaginationlab", "story", "character", "worldbuilding", "creature", "superpower", "adventure", "comic", "quest", "fiction", "game idea", "creative", "storytelling", "world builder", "imagine", "dreamscape", "magic system"], target: "imaginationlab" },
   { keywords: ["loreforge", "lore", "mythology", "prophecy", "legend", "religion", "ancient history", "faction", "language engine", "curse", "prophet", "relic", "lorekeeper", "cosmology", "era", "pantheon", "deep lore"], target: "loreforge" },
@@ -645,7 +650,9 @@ const APP_META: Record<AppId, { icon: string; label: string }> = {
   lessonplanner:      { icon: "📚", label: "Lesson Planner" },
   curriculumdesigner: { icon: "🎓", label: "Curriculum Designer" },
   // Platform
-  ucpx:                   { icon: "🧠", label: "UCP-X Intelligence" },
+  ucpx:           { icon: "🧠", label: "UCP-X Intelligence"  },
+  universalDemo:  { icon: "🌐", label: "Universal Workspace" },
+  genericEngine:  { icon: "⚡", label: "Engine Launcher"     },
   metricsPanel:           { icon: "📊", label: "Platform Metrics" },
   integrationDashboard:   { icon: "🔗", label: "Integration Dashboard" },
 

@@ -1170,6 +1170,18 @@ export function BrainHubApp() {
     fetchPlatformStats().then(setStats).catch(() => {});
   }, []);
 
+  // Seed totalRuns + per-engine counts from the backend traction log on mount
+  useEffect(() => {
+    fetch("/api/traction/engine-counts", { credentials: "include" })
+      .then(r => r.ok ? r.json() : null)
+      .then((d: { counts?: Record<string, number>; total?: number } | null) => {
+        if (d?.counts !== undefined) {
+          contextStore.seedFromTraction(d.total ?? 0, d.counts);
+        }
+      })
+      .catch(() => {});
+  }, []);
+
   // Keyboard shortcuts: ? = shortcuts modal, 1-7 = nav tabs, Esc = close modal
   useEffect(() => {
     const tabViews: HubView[] = ["dashboard", "engines", "agents", "series", "compliance", "vault", "intelligence"];

@@ -4,6 +4,9 @@
 // This is the memory and learning substrate of the entire platform.
 // Every engine run writes here; every subsequent engine run reads from here.
 // This enables cross-app intelligence, context sharing, and safe rollback.
+//
+// Persistence: totalRuns, enginesUsed, sessionCtx, and insights survive page
+// refresh via localStorage. recentOutputs and rollbackStacks are session-only.
 // ═══════════════════════════════════════════════════════════════════════════
 
 import { useState, useEffect } from "react";
@@ -20,12 +23,12 @@ export interface OutputRecord {
 }
 
 export interface SessionContext {
-  projectId?:  string;
+  projectId?:   string;
   projectName?: string;
-  industry?:   string;
-  tone?:       string;
-  domain?:     string;
-  keywords:    string[];
+  industry?:    string;
+  tone?:        string;
+  domain?:      string;
+  keywords:     string[];
 }
 
 export interface InsightRecord {
@@ -42,26 +45,66 @@ export interface ContextStoreState {
   insights:       InsightRecord[];
   totalRuns:      number;
   enginesUsed:    string[];
+  engineCounts:   Record<string, number>;  // per-engine run counts
 }
 
 type Listener = () => void;
 
+// ─── Persistence helpers ──────────────────────────────────────────────────────
+
+const PERSIST_KEY = "cai_ctx_v1";
+
+interface PersistedSlice {
+  totalRuns:    number;
+  enginesUsed:  string[];
+  engineCounts: Record<string, number>;
+  sessionCtx:   SessionContext;
+  insights:     InsightRecord[];
+}
+
+function loadPersisted(): Partial<PersistedSlice> {
+  try {
+    const raw = localStorage.getItem(PERSIST_KEY);
+    return raw ? (JSON.parse(raw) as PersistedSlice) : {};
+  } catch { return {}; }
+}
+
+function savePersisted(slice: PersistedSlice): void {
+  try {
+    localStorage.setItem(PERSIST_KEY, JSON.stringify(slice));
+  } catch { /* quota exceeded — silent */ }
+}
+
 // ─── Singleton store class ────────────────────────────────────────────────────
 
 class PlatformContextStore {
-  private state: ContextStoreState = {
-    recentOutputs:  {},
-    rollbackStacks: {},
-    sessionCtx:     { keywords: [] },
-    insights:       [],
-    totalRuns:      0,
-    enginesUsed:    [],
-  };
+  private state: ContextStoreState;
+
+  constructor() {
+    const saved = loadPersisted();
+    this.state = {
+      recentOutputs:  {},
+      rollbackStacks: {},
+      sessionCtx:     saved.sessionCtx   ?? { keywords: [] },
+      insights:       saved.insights     ?? [],
+      totalRuns:      saved.totalRuns    ?? 0,
+      enginesUsed:    saved.enginesUsed  ?? [],
+      engineCounts:   saved.engineCounts ?? {},
+    };
+  }
 
   private listeners = new Set<Listener>();
 
   private notify() {
     this.listeners.forEach(l => l());
+    // Persist the durable slice on every mutation
+    savePersisted({
+      totalRuns:    this.state.totalRuns,
+      enginesUsed:  this.state.enginesUsed,
+      engineCounts: this.state.engineCounts,
+      sessionCtx:   this.state.sessionCtx,
+      insights:     this.state.insights,
+    });
   }
 
   subscribe(l: Listener): () => void {
@@ -71,6 +114,25 @@ class PlatformContextStore {
 
   getState(): ContextStoreState {
     return this.state;
+  }
+
+  // ── Seed totals from the backend traction API (called once on app boot) ──────
+
+  seedFromTraction(serverTotal: number, engineCounts: Record<string, number>): void {
+    // Only update if the server has seen more runs than our local count
+    if (serverTotal > this.state.totalRuns) {
+      this.state.totalRuns = serverTotal;
+    }
+    // Merge server engine counts (take the max of server vs local)
+    const merged: Record<string, number> = { ...this.state.engineCounts };
+    for (const [id, count] of Object.entries(engineCounts)) {
+      merged[id] = Math.max(merged[id] ?? 0, count);
+      if (count > 0 && !this.state.enginesUsed.includes(id)) {
+        this.state.enginesUsed = [...this.state.enginesUsed, id];
+      }
+    }
+    this.state.engineCounts = merged;
+    this.notify();
   }
 
   // ── Record a completed engine output ────────────────────────────────────────
@@ -92,6 +154,10 @@ class PlatformContextStore {
 
     this.state.recentOutputs[engineId] = [record, ...prev].slice(0, 5);
     this.state.totalRuns = this.state.totalRuns + 1;
+    this.state.engineCounts = {
+      ...this.state.engineCounts,
+      [engineId]: (this.state.engineCounts[engineId] ?? 0) + 1,
+    };
 
     if (!this.state.enginesUsed.includes(engineId)) {
       this.state.enginesUsed = [...this.state.enginesUsed, engineId];
@@ -118,9 +184,9 @@ class PlatformContextStore {
 
     // Session-level context
     const ctxLines: string[] = [];
-    if (sessionCtx.industry) ctxLines.push(`Industry: ${sessionCtx.industry}`);
-    if (sessionCtx.tone)     ctxLines.push(`Tone: ${sessionCtx.tone}`);
-    if (sessionCtx.domain)   ctxLines.push(`Domain: ${sessionCtx.domain}`);
+    if (sessionCtx.industry)    ctxLines.push(`Industry: ${sessionCtx.industry}`);
+    if (sessionCtx.tone)        ctxLines.push(`Tone: ${sessionCtx.tone}`);
+    if (sessionCtx.domain)      ctxLines.push(`Domain: ${sessionCtx.domain}`);
     if (sessionCtx.projectName) ctxLines.push(`Active project: ${sessionCtx.projectName}`);
     if (sessionCtx.keywords.length > 0) ctxLines.push(`Session themes: ${sessionCtx.keywords.slice(-10).join(", ")}`);
     if (ctxLines.length > 0) parts.push(`[Session context]\n${ctxLines.join(" | ")}`);
@@ -195,6 +261,10 @@ class PlatformContextStore {
     return (this.state.recentOutputs[engineId] ?? []).slice(0, limit);
   }
 
+  getEngineCount(engineId: string): number {
+    return this.state.engineCounts[engineId] ?? 0;
+  }
+
   clear(): void {
     this.state = {
       recentOutputs:  {},
@@ -203,7 +273,9 @@ class PlatformContextStore {
       insights:       [],
       totalRuns:      0,
       enginesUsed:    [],
+      engineCounts:   {},
     };
+    try { localStorage.removeItem(PERSIST_KEY); } catch { /* ignore */ }
     this.notify();
   }
 }

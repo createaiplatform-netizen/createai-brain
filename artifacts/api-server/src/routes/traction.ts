@@ -218,4 +218,26 @@ router.get("/velocity", async (_req: Request, res: Response) => {
   }
 });
 
+// ─── GET /api/traction/engine-counts — per-engine run counts (all-time) ───
+router.get("/engine-counts", async (_req: Request, res: Response) => {
+  try {
+    const { rows } = await pool.query<{ engine: string; count: string }>(`
+      SELECT sub_category AS engine, COUNT(*) AS count
+      FROM traction_events
+      WHERE event_type = 'engine_run' AND sub_category IS NOT NULL
+      GROUP BY sub_category
+    `);
+    const counts: Record<string, number> = {};
+    let total = 0;
+    for (const r of rows) {
+      counts[r.engine] = Number(r.count);
+      total += Number(r.count);
+    }
+    res.json({ counts, total });
+  } catch (err) {
+    console.error("[traction] GET /engine-counts", err);
+    res.status(500).json({ error: "Failed to fetch engine counts" });
+  }
+});
+
 export default router;
