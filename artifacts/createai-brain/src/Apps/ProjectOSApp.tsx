@@ -4,11 +4,11 @@ import { streamProjectChat, contextStore, checkBillingEligibility, publishProjec
 import { useUniversalResume } from "@/hooks/useUniversalResume";
 import { ensureIdentityForProject } from "@/engine/IdentityEngine";
 import { useMediaQuery } from "@/hooks/use-media-query";
-import { SalesModule, OpsModule, SupportModule, ComplianceModule, EnterpriseDashboard } from "./InternalModules";
+import { SalesModule, OpsModule, SupportModule, ComplianceModule, EnterpriseDashboard, StrategyModule, UXContentModule, PipelineView } from "./InternalModules";
 
 // ─── Types ────────────────────────────────────────────────────────────────────
 
-type ViewMode = "dashboard+folders" | "dashboard" | "folders" | "simple" | "advanced" | "tasks" | "team" | "opportunities" | "sales" | "ops" | "support" | "compliance" | "enterprise";
+type ViewMode = "dashboard+folders" | "dashboard" | "folders" | "simple" | "advanced" | "tasks" | "team" | "opportunities" | "sales" | "ops" | "support" | "compliance" | "enterprise" | "strategy" | "ux" | "pipeline";
 
 // ─── Shared / Suggested Types ────────────────────────────────────────────────
 interface SharedProject {
@@ -1102,6 +1102,11 @@ export function ProjectOSApp() {
   const [textScale, setTextScaleState] = useState(1.0);
   const [reducedMotion, setReducedMotionState] = useState(false);
   const [showAccessibilityPanel, setShowAccessibilityPanel] = useState(false);
+  const [contrastMode, setContrastModeState] = useState(false);
+  // ── User mode (Beginner / Expert / Educational) ──
+  const [userMode, setUserModeState] = useState<"beginner" | "expert" | "educational">("expert");
+  // ── What's New panel ──
+  const [showWhatsNew, setShowWhatsNew] = useState(false);
   // ── Contextual hints ──
   const [dismissedHints, setDismissedHints] = useState<Set<string>>(new Set());
   const aiAbortRef     = useRef<AbortController | null>(null);
@@ -1122,6 +1127,10 @@ export function ProjectOSApp() {
     if (!isNaN(scale)) setTextScaleState(scale);
     const rm = localStorage.getItem("cai_reduced_motion");
     if (rm === "true") setReducedMotionState(true);
+    const cm = localStorage.getItem("cai_contrast_mode");
+    if (cm === "true") setContrastModeState(true);
+    const mode = localStorage.getItem("cai_user_mode") as "beginner" | "expert" | "educational" | null;
+    if (mode) setUserModeState(mode);
     const hints = localStorage.getItem("cai_dismissed_hints");
     if (hints) {
       try { setDismissedHints(new Set(JSON.parse(hints))); } catch {}
@@ -1135,6 +1144,14 @@ export function ProjectOSApp() {
   const setReducedMotion = (v: boolean) => {
     setReducedMotionState(v);
     localStorage.setItem("cai_reduced_motion", String(v));
+  };
+  const setContrastMode = (v: boolean) => {
+    setContrastModeState(v);
+    localStorage.setItem("cai_contrast_mode", String(v));
+  };
+  const setUserMode = (m: "beginner" | "expert" | "educational") => {
+    setUserModeState(m);
+    localStorage.setItem("cai_user_mode", m);
   };
   const dismissHint = (key: string) => {
     setDismissedHints(prev => {
@@ -1609,10 +1626,13 @@ export function ProjectOSApp() {
     { id: "tasks",             label: "📋 Tasks" },
     { id: "team",              label: "👥 Team" },
     { id: "opportunities",     label: "💡 Opportunities" },
+    { id: "pipeline",          label: "🔄 Pipeline",     group: "power" },
     { id: "sales",             label: "📈 Sales",        group: "teams" },
-    { id: "ops",               label: "⚙️ Operations",   group: "teams" },
+    { id: "ops",               label: "⚙️ Ops",          group: "teams" },
     { id: "support",           label: "🎧 Support",      group: "teams" },
     { id: "compliance",        label: "📋 Compliance",   group: "teams" },
+    { id: "strategy",          label: "🎯 Strategy",     group: "teams" },
+    { id: "ux",                label: "✨ UX/Content",   group: "teams" },
     { id: "enterprise",        label: "🏢 Enterprise",   group: "teams" },
   ];
 
@@ -1762,6 +1782,16 @@ export function ProjectOSApp() {
               >
                 ? Tour
               </button>
+              <button
+                onClick={() => setShowWhatsNew(true)}
+                className="text-[9px] flex items-center gap-1 transition-all"
+                style={{ color: "#334155" }}
+                onMouseEnter={e => { (e.currentTarget as HTMLElement).style.color = "#64748b"; }}
+                onMouseLeave={e => { (e.currentTarget as HTMLElement).style.color = "#334155"; }}
+                title="What's new"
+              >
+                ✦ New
+              </button>
             </div>
           </div>
         )}
@@ -1903,6 +1933,32 @@ export function ProjectOSApp() {
                 </button>
               </div>
             ) : (
+              <>
+              {/* ── Project Health Overview ── */}
+              {projects.filter(p => p.status !== "archived").length > 0 && (() => {
+                const active = projects.filter(p => p.status !== "archived");
+                const totalFiles = active.reduce((a, p) => a + p.files.length, 0);
+                const withContent = active.reduce((a, p) => a + p.files.filter(f => (f.content ?? "").length > 80).length, 0);
+                const pct = totalFiles > 0 ? Math.round((withContent / totalFiles) * 100) : 0;
+                const healthColor = pct >= 70 ? "#10b981" : pct >= 40 ? "#f59e0b" : "#f87171";
+                const healthLabel = pct >= 70 ? "Strong" : pct >= 40 ? "In Progress" : "Just Starting";
+                return (
+                  <div className="flex gap-3 mb-5">
+                    {[
+                      { label: "Projects", value: String(active.length), color: "#6366f1" },
+                      { label: "Documents", value: String(totalFiles), color: "#8b5cf6" },
+                      { label: "Content filled", value: `${pct}%`, color: healthColor },
+                      { label: "Workspace health", value: healthLabel, color: healthColor },
+                    ].map(m => (
+                      <div key={m.label} className="flex-1 rounded-2xl px-3.5 py-3"
+                        style={{ background: `${m.color}08`, border: `1px solid ${m.color}18` }}>
+                        <p className="text-[18px] font-bold mb-0.5" style={{ color: m.color }}>{m.value}</p>
+                        <p className="text-[10px]" style={{ color: "#475569" }}>{m.label}</p>
+                      </div>
+                    ))}
+                  </div>
+                );
+              })()}
               <div className="grid grid-cols-3 gap-4">
                 {projects.filter(p => p.status !== "archived").map(p => {
                   const color = INDUSTRY_COLORS[p.industry] ?? "#6366f1";
@@ -1949,6 +2005,7 @@ export function ProjectOSApp() {
                   );
                 })}
               </div>
+              </>
             )}
           </div>
         </div>
@@ -2259,6 +2316,21 @@ export function ProjectOSApp() {
                     background: viewMode === v.id ? "rgba(99,102,241,0.22)" : "rgba(255,255,255,0.04)",
                     border: `1px solid ${viewMode === v.id ? "rgba(99,102,241,0.45)" : "transparent"}`,
                     color: viewMode === v.id ? "#818cf8" : "#475569",
+                  }}
+                >
+                  {v.label}
+                </button>
+              ))}
+              <div className="w-px h-4 mx-1 flex-shrink-0" style={{ background: "rgba(255,255,255,0.08)" }} />
+              {VIEW_MODES.filter(v => v.group === "power").map(v => (
+                <button
+                  key={v.id}
+                  onClick={() => setViewMode(v.id)}
+                  className="px-2.5 py-1.5 rounded-lg text-[10px] font-medium transition-all"
+                  style={{
+                    background: viewMode === v.id ? "rgba(16,185,129,0.22)" : "rgba(255,255,255,0.04)",
+                    border: `1px solid ${viewMode === v.id ? "rgba(16,185,129,0.45)" : "transparent"}`,
+                    color: viewMode === v.id ? "#34d399" : "#475569",
                   }}
                 >
                   {v.label}
@@ -2624,8 +2696,23 @@ export function ProjectOSApp() {
                 />
               )}
 
+              {/* ── Strategy Module ── */}
+              {viewMode === "strategy" && activeProject && (
+                <StrategyModule projectName={activeProject.name} />
+              )}
+
+              {/* ── UX / Content Module ── */}
+              {viewMode === "ux" && activeProject && (
+                <UXContentModule projectName={activeProject.name} />
+              )}
+
+              {/* ── Pipeline View ── */}
+              {viewMode === "pipeline" && activeProject && (
+                <PipelineView projectName={activeProject.name} files={activeProject.files} />
+              )}
+
               {/* Folder + File View */}
-              {viewMode !== "dashboard" && viewMode !== "tasks" && viewMode !== "team" && viewMode !== "opportunities" && viewMode !== "sales" && viewMode !== "ops" && viewMode !== "support" && viewMode !== "compliance" && viewMode !== "enterprise" && (
+              {viewMode !== "dashboard" && viewMode !== "tasks" && viewMode !== "team" && viewMode !== "opportunities" && viewMode !== "sales" && viewMode !== "ops" && viewMode !== "support" && viewMode !== "compliance" && viewMode !== "enterprise" && viewMode !== "strategy" && viewMode !== "ux" && viewMode !== "pipeline" && (
                 <div className="flex flex-1 overflow-hidden">
 
                   {/* Folder Tree */}
@@ -3329,7 +3416,7 @@ export function ProjectOSApp() {
             </div>
           </div>
           {/* Reduce motion */}
-          <div>
+          <div className="mb-2">
             <button
               onClick={() => setReducedMotion(!reducedMotion)}
               className="w-full flex items-center justify-between py-2 px-2.5 rounded-xl transition-all"
@@ -3345,6 +3432,91 @@ export function ProjectOSApp() {
                   style={{ marginLeft: reducedMotion ? "auto" : 0 }} />
               </div>
             </button>
+          </div>
+          {/* High contrast */}
+          <div className="mb-3">
+            <button
+              onClick={() => setContrastMode(!contrastMode)}
+              className="w-full flex items-center justify-between py-2 px-2.5 rounded-xl transition-all"
+              style={{
+                background: contrastMode ? "rgba(234,179,8,0.12)" : "rgba(255,255,255,0.03)",
+                border: `1px solid ${contrastMode ? "rgba(234,179,8,0.30)" : "rgba(255,255,255,0.07)"}`,
+              }}
+            >
+              <span className="text-[11px]" style={{ color: "#94a3b8" }}>High contrast</span>
+              <div className="w-8 h-4 rounded-full flex items-center px-0.5 transition-all"
+                style={{ background: contrastMode ? "#eab308" : "rgba(255,255,255,0.10)" }}>
+                <div className="w-3 h-3 rounded-full bg-white transition-all"
+                  style={{ marginLeft: contrastMode ? "auto" : 0 }} />
+              </div>
+            </button>
+          </div>
+          {/* Mode selector */}
+          <div>
+            <div className="text-[10px] mb-2" style={{ color: "#64748b" }}>Experience Mode</div>
+            <div className="flex gap-1">
+              {(["beginner", "expert", "educational"] as const).map(m => (
+                <button key={m} onClick={() => setUserMode(m)}
+                  className="flex-1 py-1.5 rounded-lg text-[9px] font-semibold transition-all capitalize"
+                  style={{
+                    background: userMode === m ? "rgba(99,102,241,0.30)" : "rgba(255,255,255,0.05)",
+                    color: userMode === m ? "#a5b4fc" : "#475569",
+                    border: `1px solid ${userMode === m ? "rgba(99,102,241,0.40)" : "transparent"}`,
+                  }}>
+                  {m === "beginner" ? "Guide" : m === "expert" ? "Pro" : "Edu"}
+                </button>
+              ))}
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* ── What's New Modal ── */}
+      {showWhatsNew && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center" style={{ background: "rgba(0,0,0,0.75)" }}>
+          <div className="w-[480px] rounded-2xl p-7 shadow-2xl"
+            style={{ background: "rgba(10,14,22,0.99)", border: "1px solid rgba(99,102,241,0.25)" }}>
+            <div className="flex items-center justify-between mb-5">
+              <div>
+                <div className="text-[16px] font-bold text-white">✦ What's New</div>
+                <div className="text-[11px] mt-0.5" style={{ color: "#475569" }}>Recent upgrades to CreateAI Brain</div>
+              </div>
+              <button onClick={() => setShowWhatsNew(false)}
+                className="text-[12px] px-3 py-1.5 rounded-xl transition-all"
+                style={{ color: "#475569", background: "rgba(255,255,255,0.04)", border: "1px solid rgba(255,255,255,0.08)" }}>
+                Close
+              </button>
+            </div>
+            <div className="flex flex-col gap-3">
+              {[
+                { icon: "🔄", label: "Pipeline View", desc: "Move documents through Idea → Draft → Refining → Final stages.", tag: "New" },
+                { icon: "🎯", label: "Strategy Module", desc: "SWOT analysis, strategic roadmap, and OKR framework built in.", tag: "New" },
+                { icon: "✨", label: "UX / Content Module", desc: "Full UX audit checklist, content quality review, and improvement ideas.", tag: "New" },
+                { icon: "📊", label: "Project Health Dashboard", desc: "Live workspace health score and document completion tracking.", tag: "New" },
+                { icon: "⚡", label: "High Contrast Mode", desc: "Accessibility panel now includes a high-contrast toggle.", tag: "Improved" },
+                { icon: "🎭", label: "Experience Modes", desc: "Switch between Guide, Pro, and Educational modes from accessibility settings.", tag: "Improved" },
+                { icon: "📈", label: "Sales Module", desc: "6 outreach templates, CRM pipeline board, and training materials.", tag: "Existing" },
+                { icon: "📋", label: "Compliance Readiness", desc: "HIPAA, SOC2, and GDPR readiness checklists — educational use only.", tag: "Existing" },
+              ].map(item => (
+                <div key={item.label} className="flex items-start gap-3 px-3 py-2.5 rounded-xl"
+                  style={{ background: "rgba(255,255,255,0.03)", border: "1px solid rgba(255,255,255,0.07)" }}>
+                  <span className="text-lg flex-shrink-0">{item.icon}</span>
+                  <div className="flex-1 min-w-0">
+                    <div className="flex items-center gap-2 mb-0.5">
+                      <p className="text-[12px] font-semibold text-white">{item.label}</p>
+                      <span className="text-[9px] font-bold px-1.5 py-0.5 rounded-full"
+                        style={{
+                          background: item.tag === "New" ? "rgba(99,102,241,0.20)" : item.tag === "Improved" ? "rgba(16,185,129,0.15)" : "rgba(255,255,255,0.06)",
+                          color: item.tag === "New" ? "#a5b4fc" : item.tag === "Improved" ? "#34d399" : "#475569",
+                        }}>
+                        {item.tag}
+                      </span>
+                    </div>
+                    <p className="text-[10px] leading-relaxed" style={{ color: "#64748b" }}>{item.desc}</p>
+                  </div>
+                </div>
+              ))}
+            </div>
           </div>
         </div>
       )}

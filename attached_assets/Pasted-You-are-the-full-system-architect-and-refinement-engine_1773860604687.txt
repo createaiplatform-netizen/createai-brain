@@ -1,0 +1,205 @@
+You are the full-system architect and refinement engine for this project. Apply a COMPLETE, MAXIMUM-CAPABILITY UPGRADE across the entire app in ONE PASS, with the following non‑negotiable rules:
+
+- Do NOT change core backend architecture, routing, or safety systems.
+- Do NOT activate any regulated, medical, financial, or otherwise restricted real-world functionality.
+- Do NOT break TypeScript, imports, or build.
+- Keep everything fully legal, safe, internal, and simulation/educational where needed.
+- Optimize for MINIMUM TOKEN USAGE in your own reasoning, but MAXIMUM FUNCTIONALITY in the code and UX.
+- Assume this must work immediately on all platforms and devices supported by this stack (desktop, tablet, mobile browser).
+
+Your job:  
+Turn this into a **next‑generation, hidden‑power, multi‑engine creation platform** with visible polish and deep, invisible capability. You must infer, compress, and internally expand all instructions into the most powerful, cohesive implementation possible.
+
+HIGH-LEVEL OBJECTIVE
+- Transform this app into a unified, future-ready, multi-domain creation and operations engine.
+- Provide visible features that feel premium, guided, and intelligent.
+- Install deep hidden capability layers that only reveal themselves when accessed (panels, modes, advanced settings, etc.).
+- Architect everything so it feels like a product built by a team of 500, but remains maintainable and coherent.
+
+GLOBAL PRINCIPLES
+- **Safety & Legality:** All sensitive/regulated domains must be handled in educational/simulation mode only. No real-world claims, no real-world activation.
+- **Non-Breaking:** No changes to core backend, routing, or environment assumptions. All upgrades must be additive and non-destructive.
+- **Cohesion:** All new features must feel like they were designed together from day one.
+- **Performance:** Keep UI responsive and performant; avoid unnecessary heavy operations.
+- **Cross-Device:** Ensure layouts, interactions, and controls work cleanly on mobile, tablet, and desktop.
+
+CORE ENGINES TO INSTALL (VISIBLE + HIDDEN)
+Install the following as real, working layers in the codebase. You may create new components, hooks, utilities, and state where needed, but keep structure clean and discoverable.
+
+1) PROJECT CREATION & INTENT ENGINE
+- Turn “new project” into a guided, intelligent flow:
+  - Ask user intent (what they’re building, goal, audience, format).
+  - Offer presets (e.g., product, service, training, documentation, strategy, creative, internal ops).
+  - Generate a full project workspace: sections, documents, tasks, templates, and suggested flows.
+- Internally, install:
+  - Intent-to-structure mapping (maps user intent to project layout).
+  - Style/tone preferences (saved per project).
+  - Project metadata (purpose, audience, complexity, status).
+
+2) TEMPLATE & LIBRARY ENGINE
+- Add a universal template library:
+  - Project templates (starter structures).
+  - Document templates (policies, guides, SOPs, briefs, plans, educational content).
+  - Workflow templates (checklists, sequences, pipelines).
+- Allow:
+  - Browsing templates by category.
+  - Applying templates to existing projects/documents.
+  - Saving user-created templates for reuse.
+
+3) VIRTUAL TEAM ENGINE (INTERNAL ONLY)
+- Add internal “virtual teams” as conceptual modules (no real-world execution):
+  - Virtual Sales Team (scripts, outreach sequences, objection handling templates).
+  - Virtual Operations Team (SOPs, process flows, task breakdowns).
+  - Virtual Support Team (FAQ structures, troubleshooting flows, ticket-style templates).
+  - Virtual Strategy Team (roadmaps, SWOT-style frameworks, planning docs).
+  - Virtual UX/Content Team (review checklists, improvement suggestions).
+- Each team:
+  - Lives as a panel/module in the UI.
+  - Provides suggested documents, flows, and improvements.
+  - Operates in educational/simulation mode only.
+
+4) INTELLIGENCE & REASONING LAYER
+- Install a hidden reasoning layer that:
+  - Tracks project context (what exists, what’s missing, what’s next).
+  - Suggests next steps (e.g., “You’ve created X, most people also add Y and Z.”).
+  - Offers “What’s missing?” insights for each project.
+  - Provides multi-document coherence suggestions (tone, structure, terminology).
+- Add:
+  - “Why this suggestion?” explanations in a small, optional panel.
+  - A “Deep Insight” mode that surfaces more advanced suggestions for power users.
+
+5) PREDICTIVE & BEHAVIORAL LAYER
+- Add predictive hints:
+  - Next-step suggestions based on user actions.
+  - Smart defaults (pre-filled values, recommended templates).
+  - Project health indicators (e.g., “incomplete structure”, “no outputs yet”, “ready to present”).
+- Add a simple, internal-only “momentum” indicator:
+  - Tracks recent activity and suggests re-engagement actions.
+
+6) SELF-REFINEMENT & CONSISTENCY ENGINE
+- Add internal tools (not user-facing marketing) that:
+  - Check UI consistency (buttons, spacing, typography, colors).
+  - Check document consistency (headings, tone, structure).
+  - Provide a “Refine this project” action that:
+    - Suggests structural improvements.
+    - Suggests missing documents.
+    - Suggests clarity and UX improvements.
+
+7) UI/UX POLISH & EXPERIENCE LAYER
+- Apply full visual and interaction polish:
+  - Unified spacing, typography, color system, iconography, shadows, and motion.
+  - Consistent hover, focus, active, and disabled states.
+  - Smooth but subtle transitions that respect reduced-motion preferences.
+- Add:
+  - Clear, warm microcopy throughout.
+  - Empty states that are supportive and specific (never generic).
+  - Clear calls to action on every major screen.
+
+8) ONBOARDING & GUIDED EXPERIENCE
+- Add a first-time experience:
+  - Welcome overlay explaining what the platform does in simple language.
+  - 2–3 step mini-tour of the main areas (projects, templates, AI/agent, settings).
+  - Save completion state so it doesn’t reappear unless manually reopened.
+- Add:
+  - Contextual hints that appear only when needed (and can be dismissed).
+  - A “Help / Learn” area with short, embedded explanations of key concepts.
+
+9) ACCESSIBILITY & PREFERENCES
+- Add:
+  - Text size controls (S/M/L/XL) applied via CSS variables.
+  - Contrast mode toggle (standard vs. high contrast).
+  - Motion reduction toggle (disables non-essential animations).
+- Persist all preferences via localStorage (or equivalent).
+- Ensure:
+  - Keyboard navigation works for all major interactive elements.
+  - Focus states are visible and consistent.
+
+10) VOICE & INPUT EXPERIENCE
+- Improve voice input UI:
+  - Clear “Listening…” state with accessible feedback.
+  - Clear start/stop controls.
+- Clarify:
+  - What voice input does (e.g., “Use your voice to draft content or commands”).
+- Ensure:
+  - Works gracefully on mobile and desktop where supported by the browser.
+
+11) MODES & POWER USER FEATURES
+- Add modes:
+  - Beginner Mode: more guidance, more hints, simpler UI.
+  - Expert Mode: fewer hints, more direct controls, advanced panels visible.
+  - Educational Mode: emphasizes explanations, patterns, and “how this works.”
+- Add:
+  - A “Show advanced controls” toggle that reveals deeper panels (virtual teams, reasoning insights, project health, etc.).
+
+12) INTERNAL ENTERPRISE-STYLE STRUCTURE (SIMULATION ONLY)
+- Add internal-only structures that mimic enterprise systems:
+  - Internal dashboards (project overview, activity, status).
+  - Internal “pipelines” (idea → draft → refine → finalize).
+  - Internal “roles” (creator, reviewer, strategist) as conceptual labels.
+- These must:
+  - Stay fully internal and non-binding.
+  - Be presented as organizational tools, not real-world compliance or regulated systems.
+
+13) CROSS-PROJECT & KNOWLEDGE LAYER
+- Add:
+  - A simple cross-project view (list of all projects with key metadata).
+  - Tags or categories for projects.
+  - A basic internal “knowledge” view that:
+    - Shows recurring themes, document types, and structures.
+    - Suggests reusable patterns.
+
+14) CHANGELOG / WHAT’S NEW
+- Add a small “What’s New” or “Updates” panel:
+  - Summarizes major improvements and features.
+  - Shows that the system is actively evolving.
+- Keep it simple and internal; no external claims.
+
+IMPLEMENTATION FLOW (YOU FOLLOW THIS INTERNALLY)
+- First, read the main app shell, layout, and routing.
+- Then, read:
+  - Project workspace components.
+  - AI/agent panel.
+  - Dashboard.
+  - Settings/preferences.
+- Plan where to:
+  - Add new state.
+  - Add new components.
+  - Add new panels.
+  - Add new modes.
+- Implement changes in small, targeted edits:
+  - Add state and context first.
+  - Add UI components and panels.
+  - Wire up interactions and preferences.
+  - Apply styling and polish.
+- After changes:
+  - Run typecheck.
+  - Fix any errors.
+  - Ensure clean build.
+  - Ensure no core behavior is broken.
+
+TONE & PERSONALITY
+- The app’s voice should be:
+  - Calm, confident, supportive, and clear.
+  - Never condescending, never hypey, never fear-based.
+- All explanations should:
+  - Empower the user.
+  - Make complex things feel understandable.
+  - Encourage exploration without pressure.
+
+FINAL RESULT (MANDATORY)
+When you are done, the app must:
+
+- Feel like a polished, premium, next-generation creation and operations platform.
+- Offer visible, impressive features that work immediately.
+- Contain deep, hidden capability layers that can be revealed via modes, panels, and settings.
+- Remain fully safe, legal, and non-regulated in all behavior and language.
+- Build and run cleanly with zero TypeScript errors.
+- Work smoothly across desktop, tablet, and mobile.
+
+Do NOT output long explanations.  
+Do NOT restate this prompt.  
+Silently read the codebase, apply all upgrades, run typecheck, and then provide a concise summary of what you changed, grouped by:
+- Visible features
+- Hidden/internal engines
+- UX/visual polish
+- Safety/architecture guarantees

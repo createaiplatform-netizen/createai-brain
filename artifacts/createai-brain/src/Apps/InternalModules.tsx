@@ -1,5 +1,79 @@
 import React, { useState } from "react";
 
+// ─── Pipeline View ─────────────────────────────────────────────────────────────
+
+interface PipelineFile {
+  id: string;
+  name: string;
+  content?: string;
+}
+
+const PIPELINE_STAGES = ["Idea", "Draft", "Refining", "Final"] as const;
+type PipelineStage = typeof PIPELINE_STAGES[number];
+const STAGE_COLORS: Record<PipelineStage, string> = {
+  "Idea": "#475569", "Draft": "#6366f1", "Refining": "#f59e0b", "Final": "#10b981",
+};
+
+export function PipelineView({ projectName, files }: { projectName: string; files: PipelineFile[] }) {
+  const [fileStages, setFileStages] = useState<Record<string, PipelineStage>>({});
+  const getStage = (id: string): PipelineStage => fileStages[id] ?? "Idea";
+  const moveFile = (id: string, s: PipelineStage) => setFileStages(p => ({ ...p, [id]: s }));
+
+  return (
+    <div className="flex-1 overflow-y-auto p-5">
+      <div className="mb-5">
+        <p className="text-[15px] font-bold text-white mb-1">🔄 Production Pipeline</p>
+        <p className="text-[11px]" style={{ color: "#475569" }}>
+          Move documents through your production workflow — Idea → Draft → Refining → Final.
+          &nbsp;{projectName}
+        </p>
+      </div>
+      <div className="flex gap-4 overflow-x-auto pb-3">
+        {PIPELINE_STAGES.map(stage => {
+          const col = STAGE_COLORS[stage];
+          const stageFiles = files.filter(f => getStage(f.id) === stage);
+          return (
+            <div key={stage} className="flex-shrink-0 w-56">
+              <div className="flex items-center gap-2 mb-3">
+                <div className="w-2 h-2 rounded-full" style={{ background: col }} />
+                <p className="text-[11px] font-bold" style={{ color: col }}>{stage}</p>
+                <span className="text-[9px] px-1.5 py-0.5 rounded-full ml-auto"
+                  style={{ background: `${col}18`, color: col }}>{stageFiles.length}</span>
+              </div>
+              <div className="flex flex-col gap-2 min-h-[120px] rounded-2xl p-2"
+                style={{ background: "rgba(255,255,255,0.02)", border: "1px dashed rgba(255,255,255,0.07)" }}>
+                {stageFiles.map(f => (
+                  <div key={f.id} className="rounded-xl p-3"
+                    style={{ background: "rgba(255,255,255,0.05)", border: "1px solid rgba(255,255,255,0.09)" }}>
+                    <p className="text-[11px] font-semibold text-white mb-2 truncate">{f.name}</p>
+                    <p className="text-[9px] mb-2.5 truncate" style={{ color: "#475569" }}>
+                      {(f.content ?? "").length > 0 ? `${Math.ceil((f.content ?? "").length / 5)} words` : "Empty"}
+                    </p>
+                    <div className="flex gap-1 flex-wrap">
+                      {PIPELINE_STAGES.filter(s => s !== stage).map(s => (
+                        <button key={s} onClick={() => moveFile(f.id, s)}
+                          className="text-[9px] px-2 py-1 rounded-lg transition-all"
+                          style={{ background: `${STAGE_COLORS[s]}12`, color: STAGE_COLORS[s], border: `1px solid ${STAGE_COLORS[s]}25` }}>
+                          → {s}
+                        </button>
+                      ))}
+                    </div>
+                  </div>
+                ))}
+                {stageFiles.length === 0 && (
+                  <div className="flex-1 flex items-center justify-center py-6">
+                    <p className="text-[10px]" style={{ color: "#334155" }}>No documents yet</p>
+                  </div>
+                )}
+              </div>
+            </div>
+          );
+        })}
+      </div>
+    </div>
+  );
+}
+
 // ─── Safety Banner ─────────────────────────────────────────────────────────────
 // Shown in all restricted/regulated sections
 export function SafetyBanner({ label }: { label: string }) {
@@ -1034,6 +1108,313 @@ export function EnterpriseDashboard({ projectCount, fileCount, projectName }: {
           ))}
         </div>
       </div>
+    </div>
+  );
+}
+
+// ══════════════════════════════════════════════════════════════════════════════
+// 6. STRATEGY MODULE
+// ══════════════════════════════════════════════════════════════════════════════
+
+const STRATEGY_FRAMEWORKS = [
+  {
+    id: "swot",
+    name: "SWOT Analysis",
+    icon: "🎯",
+    description: "Map Strengths, Weaknesses, Opportunities, and Threats to clarify your position.",
+    quadrants: [
+      { label: "Strengths", color: "#10b981", placeholder: "What do you do better than anyone else?\nWhat unique resources do you have?\nWhat do customers praise you for?" },
+      { label: "Weaknesses", color: "#f59e0b", placeholder: "Where do you lose to competitors?\nWhat resources are you missing?\nWhat customer complaints recur?" },
+      { label: "Opportunities", color: "#6366f1", placeholder: "What market trends favor you?\nWhat problems are underserved?\nWhere could you expand?" },
+      { label: "Threats", color: "#f87171", placeholder: "What are competitors doing?\nWhat regulatory risks exist?\nWhat could make you obsolete?" },
+    ],
+  },
+  {
+    id: "roadmap",
+    name: "Strategic Roadmap",
+    icon: "🗺️",
+    description: "Plan your horizon across Now, Next, and Later with clear themes and outcomes.",
+    quadrants: [],
+  },
+  {
+    id: "okr",
+    name: "OKR Framework",
+    icon: "📊",
+    description: "Set Objectives and Key Results to align team effort with business outcomes.",
+    quadrants: [],
+  },
+];
+
+const ROADMAP_ROWS = [
+  { horizon: "Now (Q1)", color: "#10b981", items: ["Core product stability", "First 100 customers", "Team onboarding SOP"] },
+  { horizon: "Next (Q2–Q3)", color: "#6366f1", items: ["Feature set expansion", "Marketing engine live", "Partnership pipeline"] },
+  { horizon: "Later (Q4+)", color: "#f59e0b", items: ["Enterprise offering", "Geographic expansion", "Series A readiness"] },
+];
+
+const OKR_SAMPLE = [
+  {
+    objective: "Achieve strong product-market fit",
+    color: "#6366f1",
+    krs: [
+      { label: "NPS score ≥ 50", progress: 60 },
+      { label: "Monthly active users: 1,000", progress: 40 },
+      { label: "Churn rate < 5%/month", progress: 75 },
+    ],
+  },
+  {
+    objective: "Build a repeatable revenue engine",
+    color: "#10b981",
+    krs: [
+      { label: "MRR: $25,000", progress: 30 },
+      { label: "CAC payback < 6 months", progress: 55 },
+      { label: "3 new partnership deals", progress: 20 },
+    ],
+  },
+];
+
+export function StrategyModule({ projectName }: { projectName: string }) {
+  const [tab, setTab] = useState("SWOT Analysis");
+  const [swotText, setSwotText] = useState<Record<string, string>>({});
+
+  const swotFw = STRATEGY_FRAMEWORKS[0];
+
+  return (
+    <div className="flex-1 overflow-y-auto p-5">
+      <SectionHead icon="🎯" title="Strategy Module"
+        sub={`Strategic frameworks, roadmaps, and planning tools for ${projectName}.`} />
+      <SafetyBanner label="All strategy frameworks are educational planning templates only — not financial or legal advice." />
+      <TabBar tabs={STRATEGY_FRAMEWORKS.map(f => f.name)} active={tab} onChange={setTab} />
+
+      {tab === "SWOT Analysis" && (
+        <div>
+          <p className="text-[11px] mb-4" style={{ color: "#64748b" }}>
+            Fill in each quadrant to map your current strategic position. Save your notes to share with your team.
+          </p>
+          <div className="grid grid-cols-2 gap-3">
+            {swotFw.quadrants.map(q => (
+              <div key={q.label} className="rounded-2xl p-4"
+                style={{ background: `${q.color}08`, border: `1px solid ${q.color}22` }}>
+                <div className="flex items-center gap-2 mb-3">
+                  <div className="w-2.5 h-2.5 rounded-full" style={{ background: q.color }} />
+                  <p className="text-[12px] font-bold" style={{ color: q.color }}>{q.label}</p>
+                </div>
+                <textarea
+                  value={swotText[q.label] ?? ""}
+                  onChange={e => setSwotText(prev => ({ ...prev, [q.label]: e.target.value }))}
+                  placeholder={q.placeholder}
+                  rows={5}
+                  className="w-full resize-none text-[11px] leading-relaxed rounded-xl px-3 py-2.5 outline-none"
+                  style={{
+                    background: "rgba(255,255,255,0.04)",
+                    border: "1px solid rgba(255,255,255,0.08)",
+                    color: "#94a3b8",
+                    fontFamily: "inherit",
+                  }}
+                />
+              </div>
+            ))}
+          </div>
+        </div>
+      )}
+
+      {tab === "Strategic Roadmap" && (
+        <div>
+          <p className="text-[11px] mb-4" style={{ color: "#64748b" }}>
+            A horizon-based roadmap helps you sequence work across short, medium, and long-term timeframes.
+          </p>
+          <div className="flex flex-col gap-3">
+            {ROADMAP_ROWS.map(row => (
+              <div key={row.horizon} className="rounded-2xl p-4"
+                style={{ background: "rgba(255,255,255,0.03)", border: "1px solid rgba(255,255,255,0.08)" }}>
+                <div className="flex items-center gap-2 mb-3">
+                  <div className="w-2.5 h-2.5 rounded-full flex-shrink-0" style={{ background: row.color }} />
+                  <p className="text-[12px] font-bold" style={{ color: row.color }}>{row.horizon}</p>
+                </div>
+                <div className="flex gap-2 flex-wrap">
+                  {row.items.map(item => (
+                    <div key={item} className="px-3 py-1.5 rounded-xl text-[11px]"
+                      style={{ background: `${row.color}12`, color: "#94a3b8", border: `1px solid ${row.color}25` }}>
+                      {item}
+                    </div>
+                  ))}
+                  <button className="px-3 py-1.5 rounded-xl text-[10px]"
+                    style={{ background: "rgba(255,255,255,0.04)", color: "#475569", border: "1px dashed rgba(255,255,255,0.12)" }}>
+                    + Add item
+                  </button>
+                </div>
+              </div>
+            ))}
+          </div>
+        </div>
+      )}
+
+      {tab === "OKR Framework" && (
+        <div>
+          <p className="text-[11px] mb-4" style={{ color: "#64748b" }}>
+            Objectives are ambitious qualitative goals. Key Results are measurable outcomes that tell you if you hit the objective.
+          </p>
+          <div className="flex flex-col gap-4">
+            {OKR_SAMPLE.map(okr => (
+              <div key={okr.objective} className="rounded-2xl p-4"
+                style={{ background: "rgba(255,255,255,0.03)", border: "1px solid rgba(255,255,255,0.08)" }}>
+                <div className="flex items-center gap-2 mb-3">
+                  <span className="text-base">🎯</span>
+                  <p className="text-[12px] font-bold text-white">{okr.objective}</p>
+                </div>
+                <div className="flex flex-col gap-3 pl-2">
+                  {okr.krs.map(kr => (
+                    <div key={kr.label}>
+                      <div className="flex items-center justify-between mb-1">
+                        <p className="text-[11px]" style={{ color: "#94a3b8" }}>{kr.label}</p>
+                        <span className="text-[10px] font-bold" style={{ color: okr.color }}>{kr.progress}%</span>
+                      </div>
+                      <div className="h-1.5 rounded-full overflow-hidden" style={{ background: "rgba(255,255,255,0.08)" }}>
+                        <div className="h-full rounded-full transition-all duration-500"
+                          style={{ width: `${kr.progress}%`, background: okr.color }} />
+                      </div>
+                    </div>
+                  ))}
+                </div>
+              </div>
+            ))}
+          </div>
+        </div>
+      )}
+    </div>
+  );
+}
+
+// ══════════════════════════════════════════════════════════════════════════════
+// 7. UX / CONTENT MODULE
+// ══════════════════════════════════════════════════════════════════════════════
+
+const UX_CHECKLISTS = [
+  {
+    id: "ux-audit",
+    name: "UX Audit Checklist",
+    icon: "🔍",
+    items: [
+      "Can a new user understand what this does in under 10 seconds?",
+      "Is the primary action on every screen immediately obvious?",
+      "Are error messages human-readable and actionable?",
+      "Does the onboarding flow explain value before asking for effort?",
+      "Are empty states helpful — do they guide the user to the next step?",
+      "Is information hierarchy clear (most important → least important)?",
+      "Are all interactive elements large enough for touch (≥ 44px)?",
+      "Does the UI work at 150% browser zoom?",
+      "Are all form fields labeled (not just placeholder-labeled)?",
+      "Does focus order match visual reading order?",
+    ],
+  },
+  {
+    id: "content-audit",
+    name: "Content Quality Audit",
+    icon: "✍️",
+    items: [
+      "Is every headline benefit-focused, not feature-focused?",
+      "Is the reading level appropriate for the target audience (aim for grade 8)?",
+      "Are all CTAs specific (not just 'Click here' or 'Learn more')?",
+      "Is there consistent terminology throughout (no mixed names for the same thing)?",
+      "Is every piece of copy earning its space — could any be cut?",
+      "Are there any passive voice constructions that could be made active?",
+      "Is the brand voice consistent across all touchpoints?",
+      "Are pricing/plan names clear without explanation?",
+      "Does every major page have a clear next step?",
+      "Is there social proof where it matters most?",
+    ],
+  },
+];
+
+const IMPROVEMENT_SUGGESTIONS = [
+  { area: "Navigation", priority: "High", suggestion: "Reduce top-level navigation items to 5 or fewer. Every extra item competes with every other item." },
+  { area: "Onboarding", priority: "High", suggestion: "Show value before requesting any setup. The first screen should demonstrate what the user will get, not ask them to fill out a form." },
+  { area: "Copywriting", priority: "Medium", suggestion: "Replace feature descriptions with outcome descriptions. 'AI writes your documents' → 'Walk in with an idea, walk out with a complete document.'" },
+  { area: "Empty States", priority: "Medium", suggestion: "Every empty state should include an action. 'No projects yet' + a button is 10× better than 'No projects yet' alone." },
+  { area: "Error Handling", priority: "Medium", suggestion: "Every error message needs three components: what went wrong, why it happened, what to do now." },
+  { area: "Mobile", priority: "High", suggestion: "Test the primary user flow on a phone at arm's length. If it requires precision tapping, it will fail for most users." },
+  { area: "Loading States", priority: "Low", suggestion: "Show skeleton screens instead of spinners for content areas. It feels 40% faster even when it isn't." },
+  { area: "Accessibility", priority: "Medium", suggestion: "Add visible focus rings that are styled (not the default browser ring). This helps keyboard users without hurting visual design." },
+];
+
+export function UXContentModule({ projectName }: { projectName: string }) {
+  const [tab, setTab] = useState("UX Audit");
+  const [checkedItems, setCheckedItems] = useState<Record<string, Set<number>>>({});
+
+  const toggleItem = (checklistId: string, i: number) => {
+    setCheckedItems(prev => {
+      const n = { ...prev };
+      const s = new Set(n[checklistId] ?? []);
+      s.has(i) ? s.delete(i) : s.add(i);
+      n[checklistId] = s;
+      return n;
+    });
+  };
+
+  return (
+    <div className="flex-1 overflow-y-auto p-5">
+      <SectionHead icon="✨" title="UX / Content Module"
+        sub={`Review checklists and improvement suggestions for ${projectName}.`} />
+      <SafetyBanner label="All UX and content guidance here is educational best-practice only." />
+      <TabBar tabs={["UX Audit", "Content Audit", "Improvement Ideas"]} active={tab} onChange={setTab} />
+
+      {(tab === "UX Audit" || tab === "Content Audit") && (() => {
+        const cl = UX_CHECKLISTS[tab === "UX Audit" ? 0 : 1];
+        const done = checkedItems[cl.id]?.size ?? 0;
+        const total = cl.items.length;
+        return (
+          <div>
+            <div className="flex items-center gap-3 mb-4">
+              <div className="flex-1 h-1.5 rounded-full overflow-hidden" style={{ background: "rgba(255,255,255,0.08)" }}>
+                <div className="h-full rounded-full transition-all duration-300"
+                  style={{ width: `${(done / total) * 100}%`, background: "#6366f1" }} />
+              </div>
+              <span className="text-[11px] font-bold flex-shrink-0" style={{ color: "#818cf8" }}>{done}/{total}</span>
+            </div>
+            <div className="flex flex-col gap-2">
+              {cl.items.map((item, i) => {
+                const isDone = checkedItems[cl.id]?.has(i);
+                return (
+                  <button key={i} onClick={() => toggleItem(cl.id, i)}
+                    className="flex items-start gap-2.5 text-left px-3 py-3 rounded-xl transition-all"
+                    style={{
+                      background: isDone ? "rgba(99,102,241,0.06)" : "rgba(255,255,255,0.03)",
+                      border: `1px solid ${isDone ? "rgba(99,102,241,0.18)" : "rgba(255,255,255,0.07)"}`,
+                      opacity: isDone ? 0.65 : 1,
+                    }}>
+                    <div className="w-4 h-4 rounded flex items-center justify-center flex-shrink-0 mt-0.5"
+                      style={{
+                        background: isDone ? "#6366f1" : "rgba(255,255,255,0.06)",
+                        border: `1px solid ${isDone ? "#6366f1" : "rgba(255,255,255,0.15)"}`,
+                      }}>
+                      {isDone && <span className="text-[8px] text-white font-bold">✓</span>}
+                    </div>
+                    <span className="text-[11px] leading-relaxed"
+                      style={{ color: isDone ? "#475569" : "#94a3b8", textDecoration: isDone ? "line-through" : "none" }}>
+                      {item}
+                    </span>
+                  </button>
+                );
+              })}
+            </div>
+          </div>
+        );
+      })()}
+
+      {tab === "Improvement Ideas" && (
+        <div className="flex flex-col gap-3">
+          {IMPROVEMENT_SUGGESTIONS.map(s => (
+            <div key={s.area} className="rounded-2xl p-4"
+              style={{ background: "rgba(255,255,255,0.03)", border: "1px solid rgba(255,255,255,0.08)" }}>
+              <div className="flex items-center gap-2 mb-2">
+                <p className="text-[12px] font-bold text-white">{s.area}</p>
+                <Pill label={s.priority}
+                  color={s.priority === "High" ? "#f87171" : s.priority === "Medium" ? "#f59e0b" : "#64748b"} />
+              </div>
+              <p className="text-[11px] leading-relaxed" style={{ color: "#94a3b8" }}>{s.suggestion}</p>
+            </div>
+          ))}
+        </div>
+      )}
     </div>
   );
 }
