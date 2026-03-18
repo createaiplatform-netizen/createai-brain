@@ -858,21 +858,21 @@ function DeleteConfirm({
   return (
     <div
       className="fixed inset-0 z-50 flex items-center justify-center"
-      style={{ background: "rgba(0,0,0,0.65)" }}
+      style={{ background: "rgba(15,23,42,0.55)", backdropFilter: "blur(4px)" }}
     >
       <div
         className="rounded-2xl p-6 w-80 shadow-2xl"
-        style={{ background: "rgba(15,20,30,0.97)", border: "1px solid rgba(239,68,68,0.35)" }}
+        style={{ background: "#ffffff", border: "1px solid rgba(239,68,68,0.20)" }}
       >
-        <div className="text-[15px] font-bold text-white mb-2">Delete "{label}"?</div>
-        <div className="text-[12px] mb-5" style={{ color: "#94a3b8" }}>
+        <div className="text-[15px] font-bold mb-2" style={{ color: "#0f172a" }}>Delete "{label}"?</div>
+        <div className="text-[12px] mb-5" style={{ color: "#64748b" }}>
           This action cannot be undone. Nothing else will break.
         </div>
         <div className="flex gap-3">
           <button
             onClick={onCancel}
             className="flex-1 py-2 rounded-xl text-[13px] font-medium"
-            style={{ background: "rgba(255,255,255,0.06)", color: "#94a3b8", border: "1px solid rgba(255,255,255,0.1)" }}
+            style={{ background: "#f1f5f9", color: "#64748b", border: "1px solid rgba(0,0,0,0.09)" }}
           >
             Cancel
           </button>
@@ -916,23 +916,23 @@ function SearchModal({
   return (
     <div
       className="fixed inset-0 z-50 flex items-start justify-center pt-20"
-      style={{ background: "rgba(0,0,0,0.65)" }}
+      style={{ background: "rgba(15,23,42,0.50)", backdropFilter: "blur(4px)" }}
       onClick={onClose}
     >
       <div
         className="w-[520px] rounded-2xl shadow-2xl overflow-hidden"
-        style={{ background: "rgba(12,16,24,0.98)", border: "1px solid rgba(99,102,241,0.35)" }}
+        style={{ background: "#ffffff", border: "1px solid rgba(0,0,0,0.10)" }}
         onClick={e => e.stopPropagation()}
       >
-        <div className="flex items-center gap-3 p-4" style={{ borderBottom: "1px solid rgba(255,255,255,0.08)" }}>
+        <div className="flex items-center gap-3 p-4" style={{ borderBottom: "1px solid rgba(0,0,0,0.07)" }}>
           <span className="text-lg">🔍</span>
           <input
             ref={ref}
             value={q}
             onChange={e => setQ(e.target.value)}
             placeholder="Search all projects, files, folders, sub-apps…"
-            className="flex-1 bg-transparent text-white text-[14px] outline-none"
-            style={{ color: "#e2e8f0" }}
+            className="flex-1 bg-transparent text-[14px] outline-none"
+            style={{ color: "#0f172a" }}
           />
           <button onClick={onClose} className="text-[11px]" style={{ color: "#475569" }}>ESC</button>
         </div>
@@ -949,13 +949,13 @@ function SearchModal({
             <div
               key={i}
               className="flex items-center gap-3 px-4 py-3 cursor-pointer"
-              style={{ borderBottom: "1px solid rgba(255,255,255,0.04)" }}
-              onMouseEnter={e => (e.currentTarget.style.background = "rgba(99,102,241,0.08)")}
+              style={{ borderBottom: "1px solid rgba(0,0,0,0.05)" }}
+              onMouseEnter={e => (e.currentTarget.style.background = "rgba(99,102,241,0.06)")}
               onMouseLeave={e => (e.currentTarget.style.background = "transparent")}
             >
               <span className="text-base">{r.icon}</span>
               <div className="flex-1">
-                <div className="text-[13px] text-white">{r.label}</div>
+                <div className="text-[13px]" style={{ color: "#0f172a" }}>{r.label}</div>
                 <div className="text-[10px]" style={{ color: "#475569" }}>{r.type} · {r.project}</div>
               </div>
             </div>
@@ -1844,11 +1844,11 @@ export function ProjectOSApp() {
                   <div
                     key={t.id}
                     className="rounded-xl p-2.5"
-                    style={{ background: "rgba(255,255,255,0.02)", border: "1px solid rgba(255,255,255,0.06)" }}
+                    style={{ background: "#ffffff", border: "1px solid rgba(0,0,0,0.08)" }}
                   >
                     <div className="flex items-center gap-1.5 mb-1">
                       <span className="text-sm">{t.icon}</span>
-                      <span className="text-[11px] font-medium text-white truncate flex-1">{t.name}</span>
+                      <span className="text-[11px] font-medium truncate flex-1" style={{ color: "#0f172a" }}>{t.name}</span>
                     </div>
                     <p className="text-[9px] leading-relaxed mb-2" style={{ color: "#475569" }}>{t.description}</p>
                     <button
@@ -1901,7 +1901,7 @@ export function ProjectOSApp() {
                     <div
                       key={sp.id}
                       className="flex items-center gap-2 px-2 py-2 rounded-xl"
-                      style={{ background: "rgba(255,255,255,0.02)", border: "1px solid rgba(255,255,255,0.06)" }}
+                      style={{ background: "#ffffff", border: "1px solid rgba(0,0,0,0.08)" }}
                     >
                       <span className="text-sm">{sp.icon}</span>
                       <div className="flex-1 min-w-0">
@@ -1924,7 +1924,7 @@ export function ProjectOSApp() {
           <div className="flex-1 overflow-y-auto px-8 py-8">
             <div className="flex items-center justify-between mb-6">
               <div>
-                <div className="text-[18px] font-bold text-white">Your Projects</div>
+                <div className="text-[18px] font-bold" style={{ color: "#0f172a" }}>Your Projects</div>
                 <div className="text-[12px] mt-0.5" style={{ color: "#475569" }}>
                   {projects.filter(p => p.status !== "archived").length > 0
                     ? `${projects.filter(p => p.status !== "archived").length} active workspace${projects.filter(p => p.status !== "archived").length === 1 ? "" : "s"}`
@@ -1946,7 +1946,7 @@ export function ProjectOSApp() {
                 style={{ border: "1px dashed rgba(99,102,241,0.20)", background: "rgba(99,102,241,0.03)" }}
               >
                 <div className="text-5xl mb-5">✨</div>
-                <div className="text-[16px] font-bold text-white mb-2">What are you building?</div>
+                <div className="text-[16px] font-bold mb-2" style={{ color: "#0f172a" }}>What are you building?</div>
                 <div className="text-[12px] leading-relaxed mb-2 max-w-[320px]" style={{ color: "#475569" }}>
                   Films, apps, startups, books, games, albums — every project gets its own workspace, expert AI agent, and professional documents scaffolded in seconds.
                 </div>
@@ -2020,7 +2020,7 @@ export function ProjectOSApp() {
                           {p.industry}
                         </span>
                       </div>
-                      <div className="text-[13px] font-semibold text-white mb-1 truncate">{p.name}</div>
+                      <div className="text-[13px] font-semibold mb-1 truncate" style={{ color: "#0f172a" }}>{p.name}</div>
                       <div className="text-[10px] mb-3" style={{ color: "#475569" }}>
                         {p.files.length} {p.files.length === 1 ? "file" : "files"} · {p.created}
                       </div>
@@ -2044,23 +2044,23 @@ export function ProjectOSApp() {
           {/* ── Breadcrumb Header ── */}
           <div
             className="flex items-center gap-2.5 px-5 py-2.5 flex-shrink-0"
-            style={{ borderBottom: "1px solid rgba(255,255,255,0.07)", background: "rgba(0,0,0,0.22)" }}
+            style={{ borderBottom: "1px solid rgba(0,0,0,0.07)", background: "#ffffff" }}
           >
             <button
               onClick={() => setViewingFile(null)}
               className="flex items-center gap-1.5 text-[11px] font-medium transition-colors flex-shrink-0"
               style={{ color: "#64748b" }}
-              onMouseEnter={e => (e.currentTarget.style.color = "#a5b4fc")}
+              onMouseEnter={e => (e.currentTarget.style.color = "#6366f1")}
               onMouseLeave={e => (e.currentTarget.style.color = "#64748b")}
             >
               ←&nbsp;{activeProject!.name}
             </button>
-            <span style={{ color: "#2d3748", fontSize: 13 }}>/</span>
-            <span className="text-[12px] font-semibold truncate flex-1" style={{ color: "#e2e8f0" }}>
+            <span style={{ color: "#94a3b8", fontSize: 13 }}>/</span>
+            <span className="text-[12px] font-semibold truncate flex-1" style={{ color: "#0f172a" }}>
               {viewingFile.type === "Document" ? "📄" : viewingFile.type === "Spreadsheet" ? "📊" : viewingFile.type === "Image" ? "🖼️" : viewingFile.type === "Video" ? "🎬" : viewingFile.type === "Audio" ? "🎵" : viewingFile.type === "Presentation" ? "🎯" : "📄"}&nbsp;{viewingFile.name}
             </span>
             <span className="text-[9px] font-semibold px-2 py-0.5 rounded-full flex-shrink-0"
-              style={{ background: "rgba(255,255,255,0.06)", color: "#475569" }}>
+              style={{ background: "rgba(0,0,0,0.05)", color: "#64748b" }}>
               {viewingFile.type}
             </span>
             {fileContentSaved && (
@@ -2094,7 +2094,7 @@ export function ProjectOSApp() {
                 URL.revokeObjectURL(url);
               }}
               className="text-[11px] font-semibold px-3 py-1.5 rounded-xl flex-shrink-0"
-              style={{ background: "rgba(255,255,255,0.06)", color: "rgba(255,255,255,0.55)", border: "1px solid rgba(255,255,255,0.09)" }}
+              style={{ background: "rgba(0,0,0,0.04)", color: "#64748b", border: "1px solid rgba(0,0,0,0.09)" }}
             >↓ Export</button>
           </div>
 
@@ -2107,7 +2107,7 @@ export function ProjectOSApp() {
 
                 {/* Media player placeholder */}
                 {!fileContentLoading && !fileContentEditing && (viewingFile.type === "Video" || viewingFile.type === "Audio") && (
-                  <div className="mb-4 rounded-2xl overflow-hidden" style={{ background: "rgba(0,0,0,0.40)", border: "1px solid rgba(255,255,255,0.10)" }}>
+                  <div className="mb-4 rounded-2xl overflow-hidden" style={{ background: "#f1f5f9", border: "1px solid rgba(0,0,0,0.09)" }}>
                     <MediaPlayer
                       type={viewingFile.type === "Video" ? "video" : "audio"}
                       title={viewingFile.name}
@@ -2125,8 +2125,8 @@ export function ProjectOSApp() {
                   <textarea
                     value={fileContentText}
                     onChange={e => setFileContentText(e.target.value)}
-                    className="w-full min-h-[60vh] rounded-xl p-4 text-[13px] text-white font-mono resize-none outline-none leading-relaxed"
-                    style={{ background: "rgba(255,255,255,0.04)", border: "1px solid rgba(255,255,255,0.10)" }}
+                    className="w-full min-h-[60vh] rounded-xl p-4 text-[13px] font-mono resize-none outline-none leading-relaxed"
+                    style={{ background: "#f8fafc", border: "1px solid rgba(0,0,0,0.09)", color: "#0f172a" }}
                     autoFocus
                   />
                 ) : fileContentText ? (
@@ -2138,9 +2138,9 @@ export function ProjectOSApp() {
                       const isHeading = /^#{1,3} /.test(lines[0]);
                       if (isHeading && body) {
                         return (
-                          <div key={i} className={i > 0 ? "pt-4" : ""} style={i > 0 ? { borderTop: "1px solid rgba(255,255,255,0.07)" } : {}}>
-                            <h3 className="font-bold text-[14px] text-white mb-2">{heading}</h3>
-                            <p className="text-[13px] leading-relaxed whitespace-pre-wrap" style={{ color: "#94a3b8" }}>{body}</p>
+                          <div key={i} className={i > 0 ? "pt-4" : ""} style={i > 0 ? { borderTop: "1px solid rgba(0,0,0,0.06)" } : {}}>
+                            <h3 className="font-bold text-[14px] mb-2" style={{ color: "#0f172a" }}>{heading}</h3>
+                            <p className="text-[13px] leading-relaxed whitespace-pre-wrap" style={{ color: "#475569" }}>{body}</p>
                           </div>
                         );
                       }
@@ -2317,12 +2317,12 @@ export function ProjectOSApp() {
           {/* ── Project Top Bar ──────────────────────────────────────────── */}
           <div
             className="flex items-center justify-between px-5 py-2.5 flex-shrink-0"
-            style={{ borderBottom: "1px solid rgba(255,255,255,0.07)", background: "rgba(0,0,0,0.20)" }}
+            style={{ borderBottom: "1px solid rgba(0,0,0,0.07)", background: "#ffffff" }}
           >
             <div className="flex items-center gap-3">
               <span className="text-xl">{activeProject.icon}</span>
               <div>
-                <div className="text-[14px] font-bold text-white">{activeProject.name}</div>
+                <div className="text-[14px] font-bold" style={{ color: "#0f172a" }}>{activeProject.name}</div>
                 <div className="text-[9px]" style={{ color: "#334155" }}>{activeProject.industry} · Created {activeProject.created}</div>
               </div>
               {/* Mode Badge */}
@@ -2342,24 +2342,24 @@ export function ProjectOSApp() {
                   onClick={() => setViewMode(v.id)}
                   className="px-2.5 py-1.5 rounded-lg text-[10px] font-medium transition-all"
                   style={{
-                    background: viewMode === v.id ? "rgba(99,102,241,0.22)" : "rgba(255,255,255,0.04)",
-                    border: `1px solid ${viewMode === v.id ? "rgba(99,102,241,0.45)" : "transparent"}`,
-                    color: viewMode === v.id ? "#818cf8" : "#475569",
+                    background: viewMode === v.id ? "rgba(99,102,241,0.10)" : "transparent",
+                    border: `1px solid ${viewMode === v.id ? "rgba(99,102,241,0.35)" : "rgba(0,0,0,0.07)"}`,
+                    color: viewMode === v.id ? "#6366f1" : "#64748b",
                   }}
                 >
                   {v.label}
                 </button>
               ))}
-              <div className="w-px h-4 mx-1 flex-shrink-0" style={{ background: "rgba(255,255,255,0.08)" }} />
+              <div className="w-px h-4 mx-1 flex-shrink-0" style={{ background: "rgba(0,0,0,0.09)" }} />
               {VIEW_MODES.filter(v => v.group === "power").map(v => (
                 <button
                   key={v.id}
                   onClick={() => setViewMode(v.id)}
                   className="px-2.5 py-1.5 rounded-lg text-[10px] font-medium transition-all"
                   style={{
-                    background: viewMode === v.id ? "rgba(16,185,129,0.22)" : "rgba(255,255,255,0.04)",
-                    border: `1px solid ${viewMode === v.id ? "rgba(16,185,129,0.45)" : "transparent"}`,
-                    color: viewMode === v.id ? "#34d399" : "#475569",
+                    background: viewMode === v.id ? "rgba(16,185,129,0.12)" : "transparent",
+                    border: `1px solid ${viewMode === v.id ? "rgba(16,185,129,0.40)" : "rgba(0,0,0,0.07)"}`,
+                    color: viewMode === v.id ? "#10b981" : "#64748b",
                   }}
                 >
                   {v.label}
@@ -2372,9 +2372,9 @@ export function ProjectOSApp() {
                   onClick={() => setViewMode(v.id)}
                   className="px-2.5 py-1.5 rounded-lg text-[10px] font-medium transition-all"
                   style={{
-                    background: viewMode === v.id ? "rgba(139,92,246,0.22)" : "rgba(255,255,255,0.04)",
-                    border: `1px solid ${viewMode === v.id ? "rgba(139,92,246,0.45)" : "transparent"}`,
-                    color: viewMode === v.id ? "#c4b5fd" : "#475569",
+                    background: viewMode === v.id ? "rgba(139,92,246,0.10)" : "transparent",
+                    border: `1px solid ${viewMode === v.id ? "rgba(139,92,246,0.35)" : "rgba(0,0,0,0.07)"}`,
+                    color: viewMode === v.id ? "#8b5cf6" : "#64748b",
                   }}
                 >
                   {v.label}
@@ -2384,9 +2384,9 @@ export function ProjectOSApp() {
                 onClick={() => setShowAI(p => !p)}
                 className="ml-2 px-2.5 py-1.5 rounded-lg text-[10px] font-medium transition-all"
                 style={{
-                  background: showAI ? "rgba(6,182,212,0.20)" : "rgba(255,255,255,0.04)",
-                  border: `1px solid ${showAI ? "rgba(6,182,212,0.45)" : "transparent"}`,
-                  color: showAI ? "#22d3ee" : "#475569",
+                  background: showAI ? "rgba(6,182,212,0.12)" : "transparent",
+                  border: `1px solid ${showAI ? "rgba(6,182,212,0.40)" : "rgba(0,0,0,0.07)"}`,
+                  color: showAI ? "#0ea5e9" : "#64748b",
                 }}
               >
                 🧠 Agent
@@ -3229,12 +3229,12 @@ export function ProjectOSApp() {
       {showPublishModal && activeProject && (
         <div
           className="fixed inset-0 z-50 flex items-center justify-center"
-          style={{ background: "rgba(0,0,0,0.72)" }}
+          style={{ background: "rgba(15,23,42,0.50)", backdropFilter: "blur(4px)" }}
           onClick={() => !publishLoading && setShowPublishModal(false)}
         >
           <div
             className="w-[440px] rounded-2xl p-7 shadow-2xl flex flex-col"
-            style={{ background: "rgba(12,16,24,0.99)", border: "1px solid rgba(99,102,241,0.30)" }}
+            style={{ background: "#ffffff", border: "1px solid rgba(0,0,0,0.10)" }}
             onClick={e => e.stopPropagation()}
           >
             {publishStep === "done" ? (
@@ -3243,7 +3243,7 @@ export function ProjectOSApp() {
                   <div className="w-10 h-10 rounded-xl flex items-center justify-center text-xl"
                     style={{ background: "rgba(34,197,94,0.18)", border: "1px solid rgba(34,197,94,0.35)" }}>🌐</div>
                   <div>
-                    <div className="text-[15px] font-bold text-white">Project Published</div>
+                    <div className="text-[15px] font-bold" style={{ color: "#0f172a" }}>Project Published</div>
                     <div className="text-[11px] mt-0.5" style={{ color: "#475569" }}>{activeProject.name} is now live</div>
                   </div>
                 </div>
@@ -3266,8 +3266,8 @@ export function ProjectOSApp() {
                   >Unpublish</button>
                   <button
                     onClick={() => setShowPublishModal(false)}
-                    className="flex-1 py-2.5 rounded-xl text-[12px] font-semibold text-white"
-                    style={{ background: "linear-gradient(135deg,#6366f1,#8b5cf6)" }}
+                    className="flex-1 py-2.5 rounded-xl text-[12px] font-semibold"
+                    style={{ background: "linear-gradient(135deg,#6366f1,#8b5cf6)", color: "#fff" }}
                   >Done</button>
                 </div>
               </>
@@ -3277,11 +3277,11 @@ export function ProjectOSApp() {
                   <div className="w-10 h-10 rounded-xl flex items-center justify-center text-xl"
                     style={{ background: "rgba(245,158,11,0.18)", border: "1px solid rgba(245,158,11,0.35)" }}>💳</div>
                   <div>
-                    <div className="text-[15px] font-bold text-white">Checking account</div>
+                    <div className="text-[15px] font-bold" style={{ color: "#0f172a" }}>Checking account</div>
                     <div className="text-[11px] mt-0.5" style={{ color: "#475569" }}>Verifying publishing eligibility</div>
                   </div>
                 </div>
-                <div className="rounded-xl p-4 mb-5" style={{ background: "rgba(255,255,255,0.03)", border: "1px solid rgba(255,255,255,0.07)" }}>
+                <div className="rounded-xl p-4 mb-5" style={{ background: "#f8fafc", border: "1px solid rgba(0,0,0,0.07)" }}>
                   {publishLoading ? (
                     <div className="flex items-center gap-2.5">
                       <div className="w-4 h-4 border-2 border-indigo-400 border-t-transparent rounded-full animate-spin flex-shrink-0" />
@@ -3302,8 +3302,8 @@ export function ProjectOSApp() {
                 {!publishLoading && publishBillingOk && (
                   <button
                     onClick={confirmPublish}
-                    className="w-full py-2.5 rounded-xl text-[13px] font-semibold text-white"
-                    style={{ background: "linear-gradient(135deg,#6366f1,#8b5cf6)" }}
+                    className="w-full py-2.5 rounded-xl text-[13px] font-semibold"
+                    style={{ background: "linear-gradient(135deg,#6366f1,#8b5cf6)", color: "#fff" }}
                   >
                     Confirm & Publish →
                   </button>
@@ -3317,11 +3317,11 @@ export function ProjectOSApp() {
                     {activeProject.icon}
                   </div>
                   <div>
-                    <div className="text-[15px] font-bold text-white">Ready to publish</div>
+                    <div className="text-[15px] font-bold" style={{ color: "#0f172a" }}>Ready to publish</div>
                     <div className="text-[11px] mt-0.5" style={{ color: "#475569" }}>{activeProject.name}</div>
                   </div>
                 </div>
-                <div className="rounded-xl p-4 mb-5 space-y-2" style={{ background: "rgba(255,255,255,0.03)", border: "1px solid rgba(255,255,255,0.07)" }}>
+                <div className="rounded-xl p-4 mb-5 space-y-2" style={{ background: "#f8fafc", border: "1px solid rgba(0,0,0,0.07)" }}>
                   <div className="flex items-center gap-2 text-[11px]" style={{ color: "#94a3b8" }}>
                     <span className="text-green-400">✓</span> Billing verified — Creator plan
                   </div>
@@ -3336,13 +3336,13 @@ export function ProjectOSApp() {
                   <button
                     onClick={() => setShowPublishModal(false)}
                     className="flex-1 py-2.5 rounded-xl text-[12px] font-semibold"
-                    style={{ background: "rgba(255,255,255,0.05)", border: "1px solid rgba(255,255,255,0.08)", color: "#94a3b8" }}
+                    style={{ background: "#f1f5f9", border: "1px solid rgba(0,0,0,0.08)", color: "#64748b" }}
                   >Cancel</button>
                   <button
                     onClick={confirmPublish}
                     disabled={publishLoading}
-                    className="flex-1 py-2.5 rounded-xl text-[13px] font-semibold text-white flex items-center justify-center gap-2"
-                    style={{ background: "linear-gradient(135deg,#6366f1,#8b5cf6)" }}
+                    className="flex-1 py-2.5 rounded-xl text-[13px] font-semibold flex items-center justify-center gap-2"
+                    style={{ background: "linear-gradient(135deg,#6366f1,#8b5cf6)", color: "#fff" }}
                   >
                     {publishLoading && <div className="w-3.5 h-3.5 border-2 border-white border-t-transparent rounded-full animate-spin" />}
                     {publishLoading ? "Publishing…" : "Publish Now →"}
@@ -3359,28 +3359,28 @@ export function ProjectOSApp() {
                       {activeProject.icon}
                     </div>
                     <div>
-                      <div className="text-[15px] font-bold text-white">Publish Project</div>
+                      <div className="text-[15px] font-bold" style={{ color: "#0f172a" }}>Publish Project</div>
                       <div className="text-[11px] mt-0.5" style={{ color: "#475569" }}>{activeProject.name} · {activeProject.industry}</div>
                     </div>
                   </div>
                   <button onClick={() => setShowPublishModal(false)} style={{ color: "#334155", fontSize: 16 }}>✕</button>
                 </div>
-                <div className="rounded-xl p-4 mb-5 space-y-3" style={{ background: "rgba(255,255,255,0.03)", border: "1px solid rgba(255,255,255,0.07)" }}>
-                  <div className="text-[11px] font-bold uppercase tracking-widest mb-2" style={{ color: "#475569" }}>What gets published</div>
-                  <div className="flex items-center gap-2 text-[12px]" style={{ color: "#94a3b8" }}>
+                <div className="rounded-xl p-4 mb-5 space-y-3" style={{ background: "#f8fafc", border: "1px solid rgba(0,0,0,0.07)" }}>
+                  <div className="text-[11px] font-bold uppercase tracking-widest mb-2" style={{ color: "#64748b" }}>What gets published</div>
+                  <div className="flex items-center gap-2 text-[12px]" style={{ color: "#475569" }}>
                     <span>📄</span> {activeProject.files.length} document{activeProject.files.length === 1 ? "" : "s"}
                   </div>
-                  <div className="flex items-center gap-2 text-[12px]" style={{ color: "#94a3b8" }}>
+                  <div className="flex items-center gap-2 text-[12px]" style={{ color: "#475569" }}>
                     <span>📂</span> {activeProject.folders.filter(f => !f.universal).length} project folder{activeProject.folders.filter(f => !f.universal).length === 1 ? "" : "s"}
                   </div>
-                  <div className="mt-3 pt-3 text-[11px] leading-relaxed" style={{ borderTop: "1px solid rgba(255,255,255,0.07)", color: "#475569" }}>
-                    Publishing is <strong className="text-white">always explicit</strong> — no project becomes public unless you confirm here. You can unpublish at any time.
+                  <div className="mt-3 pt-3 text-[11px] leading-relaxed" style={{ borderTop: "1px solid rgba(0,0,0,0.07)", color: "#64748b" }}>
+                    Publishing is <strong style={{ color: "#0f172a" }}>always explicit</strong> — no project becomes public unless you confirm here. You can unpublish at any time.
                   </div>
                 </div>
                 <button
                   onClick={runBillingCheck}
-                  className="w-full py-3 rounded-xl text-[13px] font-semibold text-white"
-                  style={{ background: "linear-gradient(135deg,#6366f1,#8b5cf6)" }}
+                  className="w-full py-3 rounded-xl text-[13px] font-semibold"
+                  style={{ background: "linear-gradient(135deg,#6366f1,#8b5cf6)", color: "#fff" }}
                 >
                   Continue to billing check →
                 </button>
@@ -3417,19 +3417,19 @@ export function ProjectOSApp() {
         return (
           <div
             className="fixed inset-0 z-[100] flex items-center justify-center"
-            style={{ background: "rgba(0,0,0,0.80)" }}
+            style={{ background: "rgba(15,23,42,0.55)", backdropFilter: "blur(8px)" }}
             onClick={e => { if (e.target === e.currentTarget) dismissWelcome(); }}
           >
             <div
               className="w-[480px] rounded-3xl p-9 flex flex-col items-center text-center"
               style={{
-                background: "rgba(10,14,22,0.99)",
-                border: "1px solid rgba(99,102,241,0.30)",
-                boxShadow: "0 32px 80px rgba(0,0,0,0.60)",
+                background: "#ffffff",
+                border: "1px solid rgba(0,0,0,0.10)",
+                boxShadow: "0 32px 80px rgba(0,0,0,0.20)",
               }}
             >
               <div className="text-5xl mb-5">{step.icon}</div>
-              <div className="text-[18px] font-bold text-white mb-3 leading-snug">{step.title}</div>
+              <div className="text-[18px] font-bold mb-3 leading-snug" style={{ color: "#0f172a" }}>{step.title}</div>
               <div className="text-[13px] leading-relaxed mb-8 max-w-[360px]" style={{ color: "#94a3b8" }}>{step.body}</div>
               {/* Step dots */}
               <div className="flex items-center gap-2 mb-6">
@@ -3568,17 +3568,17 @@ export function ProjectOSApp() {
 
       {/* ── What's New Modal ── */}
       {showWhatsNew && (
-        <div className="fixed inset-0 z-50 flex items-center justify-center" style={{ background: "rgba(0,0,0,0.75)" }}>
+        <div className="fixed inset-0 z-50 flex items-center justify-center" style={{ background: "rgba(15,23,42,0.50)", backdropFilter: "blur(4px)" }}>
           <div className="w-[480px] rounded-2xl p-7 shadow-2xl"
-            style={{ background: "rgba(10,14,22,0.99)", border: "1px solid rgba(99,102,241,0.25)" }}>
+            style={{ background: "#ffffff", border: "1px solid rgba(0,0,0,0.10)" }}>
             <div className="flex items-center justify-between mb-5">
               <div>
-                <div className="text-[16px] font-bold text-white">✦ What's New</div>
+                <div className="text-[16px] font-bold" style={{ color: "#0f172a" }}>✦ What's New</div>
                 <div className="text-[11px] mt-0.5" style={{ color: "#475569" }}>Recent upgrades to CreateAI Brain</div>
               </div>
               <button onClick={() => setShowWhatsNew(false)}
                 className="text-[12px] px-3 py-1.5 rounded-xl transition-all"
-                style={{ color: "#475569", background: "rgba(255,255,255,0.04)", border: "1px solid rgba(255,255,255,0.08)" }}>
+                style={{ color: "#64748b", background: "#f1f5f9", border: "1px solid rgba(0,0,0,0.08)" }}>
                 Close
               </button>
             </div>
@@ -3594,15 +3594,15 @@ export function ProjectOSApp() {
                 { icon: "📋", label: "Compliance Readiness", desc: "HIPAA, SOC2, and GDPR readiness checklists — educational use only.", tag: "Existing" },
               ].map(item => (
                 <div key={item.label} className="flex items-start gap-3 px-3 py-2.5 rounded-xl"
-                  style={{ background: "rgba(255,255,255,0.03)", border: "1px solid rgba(255,255,255,0.07)" }}>
+                  style={{ background: "#f8fafc", border: "1px solid rgba(0,0,0,0.07)" }}>
                   <span className="text-lg flex-shrink-0">{item.icon}</span>
                   <div className="flex-1 min-w-0">
                     <div className="flex items-center gap-2 mb-0.5">
-                      <p className="text-[12px] font-semibold text-white">{item.label}</p>
+                      <p className="text-[12px] font-semibold" style={{ color: "#0f172a" }}>{item.label}</p>
                       <span className="text-[9px] font-bold px-1.5 py-0.5 rounded-full"
                         style={{
-                          background: item.tag === "New" ? "rgba(99,102,241,0.20)" : item.tag === "Improved" ? "rgba(16,185,129,0.15)" : "rgba(255,255,255,0.06)",
-                          color: item.tag === "New" ? "#a5b4fc" : item.tag === "Improved" ? "#34d399" : "#475569",
+                          background: item.tag === "New" ? "rgba(99,102,241,0.12)" : item.tag === "Improved" ? "rgba(16,185,129,0.10)" : "#f1f5f9",
+                          color: item.tag === "New" ? "#6366f1" : item.tag === "Improved" ? "#10b981" : "#64748b",
                         }}>
                         {item.tag}
                       </span>
@@ -3785,12 +3785,12 @@ export function ProjectOSApp() {
 
       {/* Add File */}
       {showAddFile && (
-        <div className="fixed inset-0 z-50 flex items-center justify-center" style={{ background: "rgba(0,0,0,0.65)" }}>
+        <div className="fixed inset-0 z-50 flex items-center justify-center" style={{ background: "rgba(15,23,42,0.50)", backdropFilter: "blur(4px)" }}>
           <div
             className="w-80 rounded-2xl p-6 shadow-2xl"
-            style={{ background: "rgba(12,16,24,0.98)", border: "1px solid rgba(99,102,241,0.35)" }}
+            style={{ background: "#ffffff", border: "1px solid rgba(0,0,0,0.10)" }}
           >
-            <div className="text-[14px] font-bold text-white mb-4">Add New File</div>
+            <div className="text-[14px] font-bold mb-4" style={{ color: "#0f172a" }}>Add New File</div>
             <div className="space-y-3">
               <input
                 value={newFileName}
@@ -3798,17 +3798,17 @@ export function ProjectOSApp() {
                 onKeyDown={e => e.key === "Enter" && addFile()}
                 autoFocus
                 placeholder="File name…"
-                className="w-full text-white text-[13px] px-3 py-2.5 rounded-xl outline-none"
-                style={{ background: "rgba(99,102,241,0.08)", border: "1px solid rgba(99,102,241,0.30)" }}
+                className="w-full text-[13px] px-3 py-2.5 rounded-xl outline-none"
+                style={{ background: "#f8fafc", border: "1px solid rgba(0,0,0,0.10)", color: "#0f172a" }}
               />
               <div className="grid grid-cols-3 gap-1.5">
                 {["Document","Spreadsheet","Presentation","Image","Video","Audio","Script","Other"].map(t => (
                   <button key={t} onClick={() => setNewFileType(t)}
                     className="py-1.5 rounded-lg text-[10px] font-medium"
                     style={{
-                      background: newFileType === t ? "rgba(99,102,241,0.18)" : "rgba(255,255,255,0.04)",
-                      border: `1px solid ${newFileType === t ? "rgba(99,102,241,0.40)" : "transparent"}`,
-                      color: newFileType === t ? "#818cf8" : "#475569",
+                      background: newFileType === t ? "rgba(99,102,241,0.12)" : "#f8fafc",
+                      border: `1px solid ${newFileType === t ? "rgba(99,102,241,0.40)" : "rgba(0,0,0,0.09)"}`,
+                      color: newFileType === t ? "#6366f1" : "#64748b",
                     }}
                   >{t}</button>
                 ))}
@@ -3822,15 +3822,15 @@ export function ProjectOSApp() {
             <div className="flex gap-3 mt-4">
               <button onClick={() => setShowAddFile(false)}
                 className="flex-1 py-2 rounded-xl text-[12px]"
-                style={{ background: "rgba(255,255,255,0.05)", color: "#94a3b8" }}>
+                style={{ background: "#f1f5f9", color: "#64748b", border: "1px solid rgba(0,0,0,0.08)" }}>
                 Cancel
               </button>
               <button onClick={addFile} disabled={!newFileName.trim()}
                 className="flex-1 py-2 rounded-xl text-[12px] font-semibold"
                 style={{
-                  background: newFileName.trim() ? "rgba(99,102,241,0.22)" : "rgba(255,255,255,0.04)",
-                  color: newFileName.trim() ? "#818cf8" : "#334155",
-                  border: `1px solid ${newFileName.trim() ? "rgba(99,102,241,0.45)" : "transparent"}`,
+                  background: newFileName.trim() ? "linear-gradient(135deg,#6366f1,#8b5cf6)" : "#f1f5f9",
+                  color: newFileName.trim() ? "#fff" : "#94a3b8",
+                  border: "none",
                 }}>
                 Add File
               </button>
@@ -3841,12 +3841,12 @@ export function ProjectOSApp() {
 
       {/* Add Sub-App */}
       {showAddSubApp && (
-        <div className="fixed inset-0 z-50 flex items-center justify-center" style={{ background: "rgba(0,0,0,0.65)" }}>
+        <div className="fixed inset-0 z-50 flex items-center justify-center" style={{ background: "rgba(15,23,42,0.50)", backdropFilter: "blur(4px)" }}>
           <div
             className="w-80 rounded-2xl p-6 shadow-2xl"
-            style={{ background: "rgba(12,16,24,0.98)", border: "1px solid rgba(236,72,153,0.30)" }}
+            style={{ background: "#ffffff", border: "1px solid rgba(0,0,0,0.10)" }}
           >
-            <div className="text-[14px] font-bold text-white mb-4">Add Sub-App</div>
+            <div className="text-[14px] font-bold mb-4" style={{ color: "#0f172a" }}>Add Sub-App</div>
             <div className="space-y-3">
               <input
                 value={newSubAppName}
@@ -3854,8 +3854,8 @@ export function ProjectOSApp() {
                 onKeyDown={e => e.key === "Enter" && addSubApp()}
                 autoFocus
                 placeholder="Sub-app name…"
-                className="w-full text-white text-[13px] px-3 py-2.5 rounded-xl outline-none"
-                style={{ background: "rgba(236,72,153,0.07)", border: "1px solid rgba(236,72,153,0.25)" }}
+                className="w-full text-[13px] px-3 py-2.5 rounded-xl outline-none"
+                style={{ background: "#f8fafc", border: "1px solid rgba(0,0,0,0.10)", color: "#0f172a" }}
               />
               <div>
                 <div className="text-[9px] uppercase tracking-wide mb-1.5" style={{ color: "#475569" }}>Icon</div>
@@ -3864,8 +3864,8 @@ export function ProjectOSApp() {
                     <button key={emoji} onClick={() => setNewSubAppIcon(emoji)}
                       className="w-9 h-9 rounded-lg text-lg flex items-center justify-center"
                       style={{
-                        background: newSubAppIcon === emoji ? "rgba(236,72,153,0.18)" : "rgba(255,255,255,0.04)",
-                        border: `1px solid ${newSubAppIcon === emoji ? "rgba(236,72,153,0.40)" : "transparent"}`,
+                        background: newSubAppIcon === emoji ? "rgba(236,72,153,0.12)" : "#f8fafc",
+                        border: `1px solid ${newSubAppIcon === emoji ? "rgba(236,72,153,0.40)" : "rgba(0,0,0,0.09)"}`,
                       }}
                     >{emoji}</button>
                   ))}
@@ -3875,15 +3875,15 @@ export function ProjectOSApp() {
             <div className="flex gap-3 mt-4">
               <button onClick={() => setShowAddSubApp(false)}
                 className="flex-1 py-2 rounded-xl text-[12px]"
-                style={{ background: "rgba(255,255,255,0.05)", color: "#94a3b8" }}>
+                style={{ background: "#f1f5f9", color: "#64748b", border: "1px solid rgba(0,0,0,0.08)" }}>
                 Cancel
               </button>
               <button onClick={addSubApp} disabled={!newSubAppName.trim()}
                 className="flex-1 py-2 rounded-xl text-[12px] font-semibold"
                 style={{
-                  background: newSubAppName.trim() ? "rgba(236,72,153,0.20)" : "rgba(255,255,255,0.04)",
-                  color: newSubAppName.trim() ? "#f472b6" : "#334155",
-                  border: `1px solid ${newSubAppName.trim() ? "rgba(236,72,153,0.40)" : "transparent"}`,
+                  background: newSubAppName.trim() ? "linear-gradient(135deg,#ec4899,#db2777)" : "#f1f5f9",
+                  color: newSubAppName.trim() ? "#fff" : "#94a3b8",
+                  border: "none",
                 }}>
                 Add Sub-App
               </button>
@@ -3894,22 +3894,22 @@ export function ProjectOSApp() {
 
       {/* Mode Switcher */}
       {showModes && (
-        <div className="fixed inset-0 z-50 flex items-center justify-center" style={{ background: "rgba(0,0,0,0.65)" }}
+        <div className="fixed inset-0 z-50 flex items-center justify-center" style={{ background: "rgba(15,23,42,0.50)", backdropFilter: "blur(4px)" }}
           onClick={() => setShowModes(false)}>
           <div
             className="w-72 rounded-2xl p-5 shadow-2xl"
-            style={{ background: "rgba(12,16,24,0.98)", border: "1px solid rgba(99,102,241,0.30)" }}
+            style={{ background: "#ffffff", border: "1px solid rgba(0,0,0,0.10)" }}
             onClick={e => e.stopPropagation()}
           >
-            <div className="text-[14px] font-bold text-white mb-4">Switch Mode</div>
+            <div className="text-[14px] font-bold mb-4" style={{ color: "#0f172a" }}>Switch Mode</div>
             {(["Demo","Test","Live"] as const).map(mode => (
               <button
                 key={mode}
                 onClick={() => { setActiveMode(mode); setShowModes(false); }}
                 className="w-full flex items-center gap-3 px-4 py-3 rounded-xl mb-2 text-left"
                 style={{
-                  background: activeMode === mode ? `${MODE_COLORS[mode]}18` : "rgba(255,255,255,0.03)",
-                  border: `1px solid ${activeMode === mode ? `${MODE_COLORS[mode]}40` : "rgba(255,255,255,0.08)"}`,
+                  background: activeMode === mode ? `${MODE_COLORS[mode]}10` : "#f8fafc",
+                  border: `1px solid ${activeMode === mode ? `${MODE_COLORS[mode]}35` : "rgba(0,0,0,0.08)"}`,
                 }}
               >
                 <span className="text-xl">
@@ -3944,20 +3944,20 @@ export function ProjectOSApp() {
       {viewingFile && (
         <div
           className="fixed inset-0 z-50 flex items-end justify-center sm:items-center"
-          style={{ background: "rgba(0,0,0,0.65)", backdropFilter: "blur(8px)" }}
+          style={{ background: "rgba(15,23,42,0.55)", backdropFilter: "blur(8px)" }}
           onClick={e => { if (e.target === e.currentTarget) setViewingFile(null); }}
         >
           <div
             className="w-full max-w-2xl max-h-[90vh] flex flex-col rounded-t-3xl sm:rounded-3xl overflow-hidden"
-            style={{ background: "#0f172a", border: "1px solid rgba(255,255,255,0.10)" }}
+            style={{ background: "#ffffff", border: "1px solid rgba(0,0,0,0.10)" }}
           >
             {/* Header */}
-            <div className="flex items-center gap-3 px-5 py-4 flex-shrink-0" style={{ borderBottom: "1px solid rgba(255,255,255,0.08)" }}>
+            <div className="flex items-center gap-3 px-5 py-4 flex-shrink-0" style={{ borderBottom: "1px solid rgba(0,0,0,0.07)" }}>
               <span className="text-2xl flex-shrink-0">
                 {viewingFile.type === "Document" ? "📄" : viewingFile.type === "Spreadsheet" ? "📊" : viewingFile.type === "Image" ? "🖼️" : viewingFile.type === "Video" ? "🎬" : viewingFile.type === "Audio" ? "🎵" : viewingFile.type === "Presentation" ? "🎯" : "📄"}
               </span>
               <div className="flex-1 min-w-0">
-                <p className="text-[15px] font-bold text-white truncate">{viewingFile.name}</p>
+                <p className="text-[15px] font-bold truncate" style={{ color: "#0f172a" }}>{viewingFile.name}</p>
                 <p className="text-[11px]" style={{ color: "#6b7280" }}>{viewingFile.type} · Added {viewingFile.created} · {viewingFile.size}</p>
               </div>
               <div className="flex items-center gap-2 flex-shrink-0">
@@ -3975,8 +3975,8 @@ export function ProjectOSApp() {
                   <button
                     onClick={saveFileContent}
                     disabled={fileContentSaving}
-                    className="text-[12px] font-semibold px-3 py-1.5 rounded-xl flex items-center gap-1.5 text-white"
-                    style={{ background: "linear-gradient(135deg,#6366f1,#8b5cf6)" }}
+                    className="text-[12px] font-semibold px-3 py-1.5 rounded-xl flex items-center gap-1.5"
+                    style={{ background: "linear-gradient(135deg,#6366f1,#8b5cf6)", color: "#fff" }}
                   >
                     {fileContentSaving ? <><div className="w-3 h-3 border-2 border-white border-t-transparent rounded-full animate-spin" /> Saving…</> : "Save"}
                   </button>
@@ -4003,7 +4003,7 @@ export function ProjectOSApp() {
             <div className="flex-1 overflow-y-auto p-5">
               {/* Media player placeholder for Video/Audio file types */}
               {!fileContentLoading && !fileContentEditing && (viewingFile.type === "Video" || viewingFile.type === "Audio") && (
-                <div className="mb-4 rounded-2xl overflow-hidden" style={{ background: "rgba(0,0,0,0.40)", border: "1px solid rgba(255,255,255,0.10)" }}>
+                <div className="mb-4 rounded-2xl overflow-hidden" style={{ background: "#f1f5f9", border: "1px solid rgba(0,0,0,0.09)" }}>
                   <MediaPlayer
                     type={viewingFile.type === "Video" ? "video" : "audio"}
                     title={viewingFile.name}
@@ -4020,8 +4020,8 @@ export function ProjectOSApp() {
                 <textarea
                   value={fileContentText}
                   onChange={e => setFileContentText(e.target.value)}
-                  className="w-full h-full min-h-[50vh] rounded-xl p-4 text-[13px] text-white font-mono resize-none outline-none leading-relaxed"
-                  style={{ background: "rgba(255,255,255,0.04)", border: "1px solid rgba(255,255,255,0.10)" }}
+                  className="w-full h-full min-h-[50vh] rounded-xl p-4 text-[13px] font-mono resize-none outline-none leading-relaxed"
+                  style={{ background: "#f8fafc", border: "1px solid rgba(0,0,0,0.09)", color: "#0f172a" }}
                   autoFocus
                 />
               ) : fileContentText ? (
