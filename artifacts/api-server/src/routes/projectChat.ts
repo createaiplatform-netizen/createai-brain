@@ -95,10 +95,11 @@ router.post("/:projectId/chat", async (req: Request, res: Response) => {
   const projectId = parseInt(req.params.projectId as string, 10);
 
   try {
-    const { message, history = [], scaffoldFiles = [] } = req.body as {
+    const { message, history = [], scaffoldFiles = [], projectType: clientType } = req.body as {
       message: string;
       history?: { role: string; content: string }[];
       scaffoldFiles?: string[];
+      projectType?: string;
     };
 
     if (!message?.trim()) {
@@ -112,7 +113,7 @@ router.post("/:projectId/chat", async (req: Request, res: Response) => {
       .where(eq(projects.id, projectId));
 
     const projectName = project?.name ?? `Project #${projectId}`;
-    const projectType = project?.industry ?? "General";
+    const projectType = clientType ?? project?.industry ?? "General";
 
     await db.insert(projectChatMessages).values({
       projectId,

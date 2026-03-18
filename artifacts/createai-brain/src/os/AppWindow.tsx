@@ -56,6 +56,7 @@ const GameWorldStudioApp = React.lazy(() => import("@/Apps/GameWorldStudioApp").
 const MetricsPanelApp       = React.lazy(() => import("@/Apps/MetricsPanelApp").then(m => ({ default: m.MetricsPanelApp })));
 const IntegrationDashboard  = React.lazy(() => import("@/Apps/IntegrationDashboard").then(m => ({ default: m.IntegrationDashboard })));
 const BuilderSpaceApp       = React.lazy(() => import("@/Apps/BuilderSpaceApp").then(m => ({ default: m.BuilderSpaceApp })));
+const IdentityManagerApp    = React.lazy(() => import("@/Apps/IdentityManagerApp").then(m => ({ default: m.IdentityManagerApp })));
 const UCPXAgentApp          = React.lazy(() => import("@/ucpx/UCPXAgent").then(m => ({ default: m.UCPXAgent })));
 const UniversalDemoApp      = React.lazy(() => import("@/Apps/UniversalDemoEngine").then(m => ({ default: m.UniversalDemoEngine })));
 const GenericEngineWrapperApp = React.lazy(() => import("@/Apps/GenericEngineWrapper").then(m => ({ default: m.GenericEngineWrapper })));
@@ -719,6 +720,7 @@ const APP_COMPONENTS: Record<AppId, React.LazyExoticComponent<React.ComponentTyp
   metricsPanel:           MetricsPanelApp,
   integrationDashboard:   IntegrationDashboard,
   builder:                BuilderSpaceApp,
+  identityManager:        IdentityManagerApp,
 };
 
 // ── Loading skeleton ─────────────────────────────────────────────────────────

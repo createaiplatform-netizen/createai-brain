@@ -634,6 +634,7 @@ export async function streamProjectChat(opts: {
   message:       string;
   history:       { role: "user" | "assistant"; content: string }[];
   scaffoldFiles?: string[];
+  projectType?:  string;
   signal?:       AbortSignal;
   onChunk:       (text: string) => void;
   onDone?:       (fullText: string) => void;
@@ -646,6 +647,7 @@ export async function streamProjectChat(opts: {
       body:        JSON.stringify({
         message:       opts.message,
         history:       opts.history,
+        projectType:   opts.projectType,
         scaffoldFiles: opts.scaffoldFiles
           ? compressScaffoldContext(opts.scaffoldFiles)
           : undefined,

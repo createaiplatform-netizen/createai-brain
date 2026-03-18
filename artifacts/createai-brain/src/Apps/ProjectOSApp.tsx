@@ -2,6 +2,7 @@ import React, { useState, useEffect, useRef, useCallback } from "react";
 import { MediaPlayer } from "../components/MediaPlayer";
 import { streamProjectChat, contextStore } from "@/controller";
 import { useUniversalResume } from "@/hooks/useUniversalResume";
+import { ensureIdentityForProject } from "@/engine/IdentityEngine";
 
 // ─── Types ────────────────────────────────────────────────────────────────────
 
@@ -1170,6 +1171,8 @@ export function ProjectOSApp() {
       setNewProjName("");
       setNewProjStep(1);
       setNewProjIndustry("General");
+      // Auto-generate internal identity package for new project
+      ensureIdentityForProject({ id: proj.id, name: proj.name });
       // Scaffold in background — show progress
       await scaffoldProject(proj.id, proj.folders, newProjIndustry);
     } else {
@@ -1307,6 +1310,7 @@ export function ProjectOSApp() {
           content: m.text,
         })),
         scaffoldFiles: activeProject.files.map(f => f.name),
+        projectType:   activeProject.industry,
         signal:        ctrl.signal,
         onChunk: chunk => {
           reply += chunk;
