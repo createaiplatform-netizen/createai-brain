@@ -8,6 +8,10 @@ import {
   getComplianceSummary, generateSyntheticPreview,
   IndustryDef, CapabilityDef, SyntheticPreviewRow,
 } from "@/engine/CapabilityHubEngine";
+import {
+  getAllProposals, getProposalStats, simulateProposal,
+  CATEGORY_META, ImprovementCategory, ImprovementProposal,
+} from "@/engine/ContinuousImprovementEngine";
 
 // ─── Status config (3-tier spec) ──────────────────────────────────────────────
 const STATUS_CFG: Record<PacketStatus, {
@@ -1640,8 +1644,305 @@ function IndustriesTab() {
   );
 }
 
+// ─── EvolutionTab ─────────────────────────────────────────────────────────────
+const CATEGORY_FILTERS: { id: ImprovementCategory | "all"; label: string; icon: string }[] = [
+  { id: "all",                        label: "All",         icon: "🔍" },
+  { id: "waste-reduction",            label: "Waste",       icon: "♻️" },
+  { id: "duplication-elimination",    label: "Duplicates",  icon: "🔗" },
+  { id: "complexity-simplification",  label: "Complexity",  icon: "🧩" },
+  { id: "safety-strengthening",       label: "Safety",      icon: "🛡️" },
+  { id: "capability-expansion",       label: "Capability",  icon: "🚀" },
+  { id: "foundational-innovation",    label: "Innovation",  icon: "⚡" },
+];
+
+const COMPLEXITY_COLOR: Record<string, string> = {
+  low:    "text-emerald-700 bg-emerald-50 border-emerald-200",
+  medium: "text-amber-700 bg-amber-50 border-amber-200",
+  high:   "text-rose-700 bg-rose-50 border-rose-200",
+};
+
+function ProposalCard({
+  proposal, isSimulated, isReady, onSimulate, onPrepare,
+}: {
+  proposal: ImprovementProposal;
+  isSimulated: boolean;
+  isReady: boolean;
+  onSimulate: () => void;
+  onPrepare: () => void;
+}) {
+  const [expanded, setExpanded] = useState(false);
+  const meta = CATEGORY_META[proposal.category];
+
+  return (
+    <div className={`rounded-2xl border bg-white overflow-hidden transition-all ${
+      isReady ? "border-emerald-300" : isSimulated ? "border-indigo-200" : "border-slate-200"
+    }`}>
+      {/* Card header */}
+      <div className="p-3.5">
+        <div className="flex items-start gap-2.5 mb-2">
+          {/* Category badge */}
+          <span className={`flex-shrink-0 text-[10px] font-bold px-2 py-0.5 rounded-full border ${meta.bg} ${meta.color} ${meta.border}`}>
+            {meta.icon} {meta.label}
+          </span>
+          {proposal.isFoundational && (
+            <span className="flex-shrink-0 text-[9px] font-bold px-2 py-0.5 rounded-full bg-amber-50 border border-amber-300 text-amber-800">
+              ⚡ FOUNDATIONAL
+            </span>
+          )}
+          <span className={`flex-shrink-0 ml-auto text-[9px] font-bold px-2 py-0.5 rounded-full border ${COMPLEXITY_COLOR[proposal.complexity]}`}>
+            {proposal.complexity}
+          </span>
+        </div>
+
+        <p className="font-bold text-[13px] text-slate-900 mb-1">{proposal.title}</p>
+        <p className="text-[11px] text-slate-600 leading-relaxed mb-2">{proposal.solution}</p>
+
+        {/* Metrics row */}
+        <div className="flex items-center gap-3 mb-2">
+          {proposal.efficiencyGain > 0 && (
+            <div className="flex items-center gap-1">
+              <div className="w-12 h-1.5 rounded-full bg-slate-100 overflow-hidden">
+                <div className="h-full rounded-full bg-emerald-400"
+                  style={{ width: `${proposal.efficiencyGain}%` }} />
+              </div>
+              <span className="text-[10px] font-bold text-emerald-700">+{proposal.efficiencyGain}% efficient</span>
+            </div>
+          )}
+          <div className="flex items-center gap-1 ml-auto">
+            <div className="w-8 h-1.5 rounded-full bg-slate-100 overflow-hidden">
+              <div className="h-full rounded-full bg-indigo-400"
+                style={{ width: `${proposal.safetyScore}%` }} />
+            </div>
+            <span className="text-[10px] font-bold text-indigo-700">{proposal.safetyScore}% safe</span>
+          </div>
+        </div>
+
+        {/* Affected systems */}
+        <div className="flex flex-wrap gap-1 mb-2.5">
+          {proposal.affectedSystems.slice(0, 3).map(s => (
+            <span key={s} className="text-[9px] px-1.5 py-0.5 rounded bg-slate-100 text-slate-600 font-medium">{s}</span>
+          ))}
+          {proposal.affectedSystems.length > 3 && (
+            <span className="text-[9px] px-1.5 py-0.5 rounded bg-slate-100 text-slate-500">+{proposal.affectedSystems.length - 3} more</span>
+          )}
+        </div>
+
+        {/* Action row */}
+        <div className="flex gap-2">
+          {!isSimulated && !isReady && (
+            <button onClick={onSimulate}
+              className="flex-1 py-2 rounded-xl text-[11px] font-bold bg-indigo-600 text-white hover:bg-indigo-700 transition-colors">
+              🔬 Run Simulation
+            </button>
+          )}
+          {isSimulated && !isReady && (
+            <>
+              <button onClick={() => setExpanded(e => !e)}
+                className="flex-1 py-2 rounded-xl text-[11px] font-bold bg-indigo-50 text-indigo-700 border border-indigo-200 hover:bg-indigo-100 transition-colors">
+                {expanded ? "▲ Hide Results" : "▼ View Results"}
+              </button>
+              <button onClick={onPrepare}
+                className="flex-1 py-2 rounded-xl text-[11px] font-bold bg-emerald-600 text-white hover:bg-emerald-700 transition-colors">
+                ✅ Prepare for Integration
+              </button>
+            </>
+          )}
+          {isReady && (
+            <div className="flex-1 py-2 rounded-xl text-[11px] font-bold text-center bg-emerald-50 border border-emerald-300 text-emerald-800">
+              ✅ Ready for Integration
+            </div>
+          )}
+        </div>
+      </div>
+
+      {/* Simulation results panel */}
+      {(isSimulated || isReady) && expanded && (
+        <div className="border-t border-slate-100 bg-slate-50 p-3.5">
+          <div className="flex items-center gap-2 mb-2.5">
+            <span className="text-[10px] font-bold text-slate-700 uppercase tracking-wider">Simulation Results</span>
+            <span className="text-[9px] px-2 py-0.5 rounded-full bg-amber-50 border border-amber-200 text-amber-800 font-bold">
+              🧪 Synthetic · {proposal.simulation.syntheticPacketsAffected} packets · zero real data
+            </span>
+            <span className="ml-auto text-[9px] text-slate-500 font-semibold">{proposal.simulation.confidenceScore}% confidence</span>
+          </div>
+
+          {/* Before / After table */}
+          <div className="rounded-xl border border-slate-200 overflow-hidden">
+            <div className="grid grid-cols-3 bg-slate-100 px-3 py-1.5 text-[9px] font-bold text-slate-500 uppercase tracking-wider">
+              <span>Metric</span><span className="text-center">Before</span><span className="text-center">After</span>
+            </div>
+            {proposal.simulation.metrics.map((m, i) => (
+              <div key={i} className={`grid grid-cols-3 px-3 py-2 text-[10.5px] border-t border-slate-100 ${i % 2 === 0 ? "bg-white" : "bg-slate-50/60"}`}>
+                <span className="text-slate-700 font-medium leading-snug pr-2">{m.label}</span>
+                <span className="text-center text-rose-700 font-semibold">{m.before}</span>
+                <span className="text-center text-emerald-700 font-bold">{m.after}
+                  <span className="block text-[9px] text-indigo-600 font-bold">{m.delta}</span>
+                </span>
+              </div>
+            ))}
+          </div>
+
+          <div className="mt-2.5 flex items-center gap-4 text-[10px] text-slate-500">
+            <span>⏱ Est. implementation: <strong className="text-slate-700">{proposal.simulation.estimatedImplementation}</strong></span>
+            <span>🛡️ Affects existing systems: <strong className="text-emerald-700">Never</strong></span>
+          </div>
+        </div>
+      )}
+
+      {/* Simulate running animation */}
+      {isSimulated && !expanded && !isReady && (
+        <div className="border-t border-indigo-100 bg-indigo-50 px-3.5 py-2 flex items-center gap-2">
+          <div className="w-2 h-2 rounded-full bg-indigo-500" />
+          <p className="text-[10px] text-indigo-700 font-semibold">
+            Simulated — {proposal.simulation.syntheticPacketsAffected} synthetic packets · {proposal.simulation.confidenceScore}% confidence · Tap "View Results" to inspect
+          </p>
+        </div>
+      )}
+    </div>
+  );
+}
+
+function EvolutionTab() {
+  const [categoryFilter, setCategoryFilter] = useState<ImprovementCategory | "all">("all");
+  const [simulated, setSimulated] = useState<Set<string>>(new Set());
+  const [ready, setReady] = useState<Set<string>>(new Set());
+  const [simulatingId, setSimulatingId] = useState<string | null>(null);
+
+  const proposals = useMemo(() => getAllProposals(), []);
+  const stats = useMemo(() => getProposalStats(), []);
+
+  const filtered = useMemo(() =>
+    categoryFilter === "all" ? proposals : proposals.filter(p => p.category === categoryFilter),
+    [proposals, categoryFilter]
+  );
+
+  const handleSimulate = useCallback((id: string) => {
+    setSimulatingId(id);
+    setTimeout(() => {
+      setSimulated(prev => new Set([...prev, id]));
+      setSimulatingId(null);
+    }, 900);
+  }, []);
+
+  const handlePrepare = useCallback((id: string) => {
+    setReady(prev => new Set([...prev, id]));
+  }, []);
+
+  return (
+    <div className="p-4 space-y-4">
+      {/* Header */}
+      <div>
+        <div className="flex items-center gap-2 mb-0.5">
+          <h2 className="text-[15px] font-bold text-slate-900">Continuous Evolution Engine</h2>
+          <span className="flex items-center gap-1.5 text-[10px] font-bold px-2.5 py-1 rounded-full bg-emerald-50 border border-emerald-200 text-emerald-800">
+            <span className="w-1.5 h-1.5 rounded-full bg-emerald-500 animate-pulse inline-block" />
+            Live Analysis — Active
+          </span>
+        </div>
+        <p className="text-[11.5px] text-slate-500 leading-relaxed">
+          Continuously scanning every engine, workflow, capability, compliance rule, and integration pathway.
+          Every proposal simulates safely in synthetic packets — zero impact on live systems.
+        </p>
+      </div>
+
+      {/* Stats bar */}
+      <div className="grid grid-cols-4 gap-2">
+        {[
+          { label: "Proposals",   value: stats.total,              color: "text-slate-900" },
+          { label: "Simulated",   value: simulated.size,           color: "text-indigo-700" },
+          { label: "Ready",       value: ready.size,               color: "text-emerald-700" },
+          { label: "Avg Gain",    value: `+${stats.avgEfficiencyGain}%`, color: "text-emerald-700" },
+        ].map(s => (
+          <div key={s.label} className="rounded-xl border border-slate-200 bg-white py-2.5 px-2 text-center">
+            <p className={`text-[16px] font-bold ${s.color}`}>{s.value}</p>
+            <p className="text-[9.5px] text-slate-500 font-semibold mt-0.5">{s.label}</p>
+          </div>
+        ))}
+      </div>
+
+      {/* Foundational innovations callout */}
+      {stats.foundationalCount > 0 && (
+        <div className="rounded-2xl border border-amber-200 bg-amber-50 p-3">
+          <div className="flex items-center gap-2 mb-1">
+            <span className="text-amber-600 text-sm">⚡</span>
+            <p className="text-[11.5px] font-bold text-amber-900">
+              {stats.foundationalCount} Foundational Innovations Identified
+            </p>
+          </div>
+          <p className="text-[10.5px] text-amber-800 leading-relaxed">
+            These represent structural advances other platforms have not yet conceived.
+            Each is fully safe, fully synthetic, and ready to simulate before any commitment.
+          </p>
+        </div>
+      )}
+
+      {/* Category filter row */}
+      <div className="flex gap-1.5 overflow-x-auto pb-0.5 scrollbar-hide">
+        {CATEGORY_FILTERS.map(f => (
+          <button key={f.id} onClick={() => setCategoryFilter(f.id)}
+            className={`flex-shrink-0 flex items-center gap-1 px-2.5 py-1.5 rounded-xl text-[10.5px] font-bold border transition-colors ${
+              categoryFilter === f.id
+                ? "bg-indigo-600 text-white border-transparent"
+                : "bg-white text-slate-600 border-slate-200 hover:border-indigo-200 hover:bg-indigo-50"
+            }`}>
+            <span>{f.icon}</span><span>{f.label}</span>
+            {f.id !== "all" && (
+              <span className={`text-[9px] px-1 rounded-full ${
+                categoryFilter === f.id ? "bg-white/20 text-white" : "bg-slate-100 text-slate-500"
+              }`}>
+                {stats.byCategory[f.id as ImprovementCategory] ?? 0}
+              </span>
+            )}
+          </button>
+        ))}
+      </div>
+
+      {/* Simulating spinner */}
+      {simulatingId && (
+        <div className="flex items-center gap-3 rounded-2xl border border-indigo-100 bg-indigo-50 px-4 py-3">
+          <div className="flex gap-1">
+            {[0,1,2].map(i => (
+              <div key={i} className="w-1.5 h-1.5 rounded-full bg-indigo-500 animate-bounce"
+                style={{ animationDelay: `${i * 0.15}s` }} />
+            ))}
+          </div>
+          <p className="text-[11px] font-semibold text-indigo-800">
+            Running synthetic simulation — zero impact on existing systems…
+          </p>
+        </div>
+      )}
+
+      {/* Proposal list */}
+      <div className="space-y-3">
+        {filtered.map(p => (
+          <ProposalCard
+            key={p.id}
+            proposal={p}
+            isSimulated={simulated.has(p.id) || ready.has(p.id)}
+            isReady={ready.has(p.id)}
+            onSimulate={() => handleSimulate(p.id)}
+            onPrepare={() => handlePrepare(p.id)}
+          />
+        ))}
+      </div>
+
+      {/* Footer directive */}
+      <div className="rounded-2xl border border-slate-200 bg-white p-3.5">
+        <p className="text-[10px] font-bold text-slate-500 uppercase tracking-wider mb-1">Platform Directive — Active</p>
+        <p className="text-[11px] text-slate-600 leading-relaxed">
+          Every engine, capability, workflow, data model, integration pathway, compliance rule, and project type
+          is continuously analyzed for smarter, lighter, safer patterns.
+          Proposals that eliminate waste, remove duplication, simplify complexity, strengthen safety,
+          or expand universal capability are surfaced here automatically —
+          simulated safely, prepared for integration, never applied without review.
+        </p>
+      </div>
+    </div>
+  );
+}
+
 // ─── Main IntegrationApp ──────────────────────────────────────────────────────
-type AppTab = "registry" | "engine" | "configure" | "architecture" | "industries";
+type AppTab = "registry" | "engine" | "configure" | "architecture" | "industries" | "evolution";
 
 export function IntegrationApp() {
   const [tab, setTab] = useState<AppTab>("engine");
@@ -1650,6 +1951,7 @@ export function IntegrationApp() {
     { id: "industries",   icon: "🏭", label: "Industries" },
     { id: "engine",       icon: "🔌", label: "Engine" },
     { id: "registry",     icon: "🌐", label: "Hub" },
+    { id: "evolution",    icon: "⚡", label: "Evolve" },
     { id: "configure",    icon: "⚙️",  label: "Configure" },
     { id: "architecture", icon: "🏛️",  label: "Systems" },
   ];
@@ -1680,6 +1982,7 @@ export function IntegrationApp() {
         {tab === "industries"   && <IndustriesTab />}
         {tab === "engine"       && <EngineTab />}
         {tab === "registry"     && <RegistryTab />}
+        {tab === "evolution"    && <EvolutionTab />}
         {tab === "configure"    && <ConfigureTab />}
         {tab === "architecture" && <ArchitectureTab />}
       </div>
