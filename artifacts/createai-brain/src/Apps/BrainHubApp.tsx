@@ -492,7 +492,7 @@ function RunPanel({ engine, onBack }: { engine: EngineDefinition; onBack: () => 
 
 // ─── Series Run Panel — wired through PlatformController ──────────────────────
 function SeriesRunPanel({ series, onBack }: { series: SeriesDefinition; onBack: () => void }) {
-  const { run: runSeries, sections, status, error: seriesError, allOutput, isRunning, isDone } = useSeriesRun(series.id);
+  const { run: runSeries, reset, sections, error: seriesError, allOutput, isRunning, isDone } = useSeriesRun(series.id);
   const [topic,    setTopic]    = useState("");
   const [context,  setContext]  = useState("");
   const [showSave, setShowSave] = useState(false);
@@ -668,7 +668,7 @@ function SeriesRunPanel({ series, onBack }: { series: SeriesDefinition; onBack: 
 
       {isDone && (
         <button
-          onClick={() => { }}
+          onClick={() => { reset(); setTopic(""); setContext(""); setShowSave(false); }}
           style={{
             background: "rgba(0,0,0,0.04)", border: "1px solid rgba(0,0,0,0.08)",
             borderRadius: 10, padding: "10px", color: "#6b7280", cursor: "pointer", fontSize: 13,

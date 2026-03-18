@@ -1,0 +1,52 @@
+USER PLATFORM MODEL — COMPLETE BEHAVIOR SPECIFICATION
+
+1. PRIVATE PLATFORM SPACES
+Every user who signs in must have their own private platform space. Their projects, apps, folders, layouts, colors, and customizations belong only to them. Nothing created by one user should appear in another user’s space unless they explicitly choose to share it.
+
+2. SHARED BRAIN
+All users share the same Brain, capabilities, engines, intelligence, and creation power. The Brain is global, but each user’s data and creations remain private.
+
+3. PROJECT-FIRST ORGANIZATION
+Whenever a user is inside a project, everything created must automatically be placed inside that project’s main folder. This includes documents, apps, workflows, dashboards, demos, assets, tools, features, and any other generated object.
+
+4. SUBFOLDER STRUCTURE
+Each created item must have its own subfolder inside the project. Name the subfolder based on the item type (e.g., “Brochure”, “Marketing Kit”, “Demo Workspace”, “Generated App”, “Tools”, “Assets”). Place all related files, metadata, and launch links inside that subfolder.
+
+5. CLEAR LAUNCH LINKS
+Every created item must include a clear “Open” or “Launch” link that takes the user directly to the correct UI, workspace, or tool. Items must appear immediately in the project folder without the user refreshing or navigating elsewhere.
+
+6. USER-CREATED APPS
+When a user creates an app (e.g., a Construction App), that app becomes a self-contained mini-platform inside their private space. The app must contain its own tools, features, folders, and assets. All work done inside that app stays inside that app.
+
+7. APP-LEVEL TOOLS
+Any tools, features, or capabilities needed for the user’s app must be generated inside that app. For example, a Construction App may include video capture, measurement tools, design tools, 3D modeling, client folders, estimates, and more. These tools belong to the app and do not affect other users.
+
+8. PROJECT-LEVEL AI AGENT
+Every project must automatically include a dedicated project-level AI agent that lives inside that project. This agent must:
+• know everything inside the project
+• update, edit, modify, or expand anything through natural language
+• avoid creating new projects unless the user explicitly asks
+• manage the project’s tools, features, and content internally
+• help the user add new capabilities without starting over
+
+9. SUGGESTED PROJECTS
+The system must maintain a separate “Suggested Projects” area. These are ideas, opportunities, or templates the user may choose to turn into real projects. Suggested projects must not appear inside the user’s private project list until the user selects one.
+
+10. OPPORTUNITY ENGINE
+The platform must include an Opportunity Engine that continuously scans for:
+• online jobs
+• freelance gigs
+• trending services
+• business opportunities
+• digital product ideas
+• market gaps
+• things people are hiring for
+• ready-to-launch business packages
+
+The engine must generate complete, ready-to-use packages including plans, marketing, assets, pricing, demos, and deliverables. These appear in the “Opportunities” area, not inside the user’s projects unless they choose to adopt one.
+
+11. OPTIONAL FAMILY/TEAM SHARING
+Users may choose to share individual projects with family or team members. Shared projects appear in a separate “Shared With Me” area. Sharing does not expose the user’s private projects or apps.
+
+12. CLEAN RESET FOR OWNER
+The system must allow the owner (Sara) to reset her personal project space by removing old prototype projects and starting fresh, without affecting other users.

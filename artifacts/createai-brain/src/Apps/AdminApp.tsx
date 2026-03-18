@@ -835,10 +835,10 @@ export function AdminApp() {
                 {(editFirst[0] ?? "?").toUpperCase()}{(editLast[0] ?? "").toUpperCase()}
               </div>
               <div>
-                <div style={{ fontSize: 16, fontWeight: 700, color: "#e2e8f0" }}>
+                <div style={{ fontSize: 16, fontWeight: 700, color: "#0f172a" }}>
                   {editFirst || "—"} {editLast}
                 </div>
-                <div style={{ fontSize: 12, color: "#64748b", marginTop: 2 }}>
+                <div style={{ fontSize: 12, color: "#6b7280", marginTop: 2 }}>
                   {profile?.email ?? "No email on file"}
                 </div>
               </div>
