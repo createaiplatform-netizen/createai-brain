@@ -3,6 +3,11 @@ import {
   IntegrationEngine, DemoPacket, PacketStatus, SPEC_LABELS, TWELVE_ENGINES,
   detectActivationPhrase, ACTIVATION_PHRASES,
 } from "@/engine/IntegrationEngine";
+import {
+  getIndustries, getIndustryCapabilities, simulateIndustryPackets,
+  getComplianceSummary, getCapabilitiesForProjectType,
+  IndustryDef, CapabilityDef,
+} from "@/engine/CapabilityHubEngine";
 
 // ─── Status config (3-tier spec) ──────────────────────────────────────────────
 const STATUS_CFG: Record<PacketStatus, {
@@ -1111,17 +1116,327 @@ function RegistryTab() {
   );
 }
 
+// ─── Industries Tab ───────────────────────────────────────────────────────────
+function CapabilityCard({ cap }: { cap: CapabilityDef & { simulatedAt?: string } }) {
+  const [expanded, setExpanded]   = useState(false);
+  const [showMap,  setShowMap]    = useState(false);
+  const [showMig,  setShowMig]    = useState(false);
+  const isSim = (cap as any).simulatedAt != null;
+
+  return (
+    <div className={`rounded-2xl border overflow-hidden bg-white transition-all ${
+      isSim ? "border-amber-200" : "border-slate-200"
+    }`}>
+      {/* Header */}
+      <div className="flex items-center gap-3 p-3.5">
+        <div className="w-9 h-9 rounded-xl flex items-center justify-center text-lg flex-shrink-0 bg-slate-50 border border-slate-100">
+          {cap.icon}
+        </div>
+        <div className="flex-1 min-w-0">
+          <div className="flex items-center gap-1.5 flex-wrap">
+            <span className="font-semibold text-[12.5px] text-slate-900 truncate">{cap.systemName}</span>
+            {isSim && (
+              <span className="text-[9px] px-1.5 py-0.5 rounded-full bg-amber-100 text-amber-700 font-bold flex-shrink-0">
+                SIM
+              </span>
+            )}
+          </div>
+          <p className="text-[10px] text-slate-500 truncate">{cap.category}</p>
+        </div>
+        <div className="flex items-center gap-1.5 flex-shrink-0">
+          {cap.complianceFlags.slice(0, 2).map(f => (
+            <span key={f} className="text-[8.5px] px-1.5 py-0.5 rounded-full bg-indigo-50 text-indigo-600 font-bold">{f}</span>
+          ))}
+          <button onClick={() => setExpanded(e => !e)}
+            className="text-slate-400 hover:text-slate-600 text-[11px] px-1">
+            {expanded ? "▲" : "▼"}
+          </button>
+        </div>
+      </div>
+
+      {/* Expanded */}
+      {expanded && (
+        <div className="px-3.5 pb-3.5 space-y-3 border-t border-slate-100 pt-3">
+          <p className="text-[11.5px] text-slate-600">{cap.description}</p>
+
+          {/* Project types */}
+          <div>
+            <p className="text-[9px] font-bold text-slate-400 uppercase tracking-wider mb-1.5">Used by project types</p>
+            <div className="flex flex-wrap gap-1">
+              {cap.projectTypes.map(pt => (
+                <span key={pt} className="text-[9px] px-1.5 py-0.5 rounded-full bg-slate-100 text-slate-600 font-medium">{pt}</span>
+              ))}
+            </div>
+          </div>
+
+          {/* Field mapping toggle */}
+          <div>
+            <button onClick={() => setShowMap(m => !m)}
+              className="w-full flex items-center justify-between px-3 py-2 rounded-xl text-[10px] font-bold text-slate-700 border border-slate-200 bg-slate-50 hover:bg-slate-100 transition-colors"
+            >
+              <span>🗄️ Field Mapping — {cap.fieldMap.length} fields</span>
+              <span>{showMap ? "▲ Hide" : "▼ View"}</span>
+            </button>
+            {showMap && (
+              <div className="mt-2 rounded-xl overflow-hidden border border-slate-200">
+                <table className="w-full text-[10px]">
+                  <thead>
+                    <tr className="bg-slate-50 border-b border-slate-200">
+                      <th className="text-left px-2.5 py-2 font-bold text-slate-500">Source Field</th>
+                      <th className="text-left px-2.5 py-2 font-bold text-slate-500">Platform Field</th>
+                      <th className="text-left px-2.5 py-2 font-bold text-slate-500">Type</th>
+                      <th className="text-left px-2.5 py-2 font-bold text-slate-500">Req</th>
+                    </tr>
+                  </thead>
+                  <tbody>
+                    {cap.fieldMap.map((f, i) => (
+                      <tr key={i} className={i % 2 === 0 ? "bg-white" : "bg-slate-50"}>
+                        <td className="px-2.5 py-1.5 font-mono text-slate-600">{f.sourceField}</td>
+                        <td className="px-2.5 py-1.5 font-mono text-indigo-600 font-semibold">{f.platformField}</td>
+                        <td className="px-2.5 py-1.5 text-slate-500">{f.type}</td>
+                        <td className="px-2.5 py-1.5">
+                          {f.required
+                            ? <span className="text-[8px] font-bold text-green-600">✓</span>
+                            : <span className="text-[8px] text-slate-300">—</span>}
+                        </td>
+                      </tr>
+                    ))}
+                  </tbody>
+                </table>
+                {cap.fieldMap.some(f => f.transform) && (
+                  <div className="p-2.5 bg-indigo-50 border-t border-indigo-100">
+                    <p className="text-[9px] font-bold text-indigo-600 mb-1">Transforms</p>
+                    {cap.fieldMap.filter(f => f.transform).map((f, i) => (
+                      <p key={i} className="text-[9px] text-indigo-700">
+                        <span className="font-mono">{f.sourceField}</span> → {f.transform}
+                      </p>
+                    ))}
+                  </div>
+                )}
+              </div>
+            )}
+          </div>
+
+          {/* Migration pathway toggle */}
+          <div>
+            <button onClick={() => setShowMig(m => !m)}
+              className="w-full flex items-center justify-between px-3 py-2 rounded-xl text-[10px] font-bold text-slate-700 border border-slate-200 bg-slate-50 hover:bg-slate-100 transition-colors"
+            >
+              <span>🛤️ Migration Pathway — {cap.migrationSteps.length} steps</span>
+              <span>{showMig ? "▲ Hide" : "▼ View"}</span>
+            </button>
+            {showMig && (
+              <div className="mt-2 space-y-1.5">
+                {cap.migrationSteps.map(s => (
+                  <div key={s.step} className="flex items-start gap-2.5 p-2.5 rounded-xl bg-slate-50 border border-slate-100">
+                    <div className="w-5 h-5 rounded-full flex items-center justify-center text-[9px] font-bold flex-shrink-0 mt-0.5"
+                      style={{ background: "#4f46e515", color: "#4f46e5" }}>
+                      {s.step}
+                    </div>
+                    <div>
+                      <p className="text-[10.5px] font-bold text-slate-800">{s.label}</p>
+                      <p className="text-[9.5px] text-slate-500 mt-0.5">{s.desc}</p>
+                      {s.safe && (
+                        <span className="inline-block mt-1 text-[8.5px] font-bold px-1.5 py-0.5 rounded-full bg-green-100 text-green-700">
+                          ✓ No real data moved
+                        </span>
+                      )}
+                    </div>
+                  </div>
+                ))}
+              </div>
+            )}
+          </div>
+        </div>
+      )}
+    </div>
+  );
+}
+
+function IndustriesTab() {
+  const industries = useMemo(() => getIndustries(), []);
+  const [selected,    setSelected]    = useState<string | null>(null);
+  const [preparing,   setPreparing]   = useState(false);
+  const [simCaps,     setSimCaps]     = useState<CapabilityDef[]>([]);
+  const [projectFilter, setProjectFilter] = useState("");
+
+  const selectedInd = selected ? industries.find(i => i.id === selected) : null;
+  const compliance  = selected ? getComplianceSummary(selected) : [];
+
+  const handleSelectIndustry = useCallback((id: string) => {
+    if (id === selected) { setSelected(null); setSimCaps([]); return; }
+    setSelected(id);
+    setPreparing(true);
+    setSimCaps([]);
+    // Staggered reveal — simulate all capability packets for this industry (memory only)
+    const packets = simulateIndustryPackets(id);
+    setTimeout(() => {
+      setPreparing(false);
+      packets.forEach((p, i) => setTimeout(() => setSimCaps(prev => [...prev, p]), i * 80));
+    }, 600);
+  }, [selected]);
+
+  const filteredCaps = useMemo(() => {
+    if (!projectFilter.trim()) return simCaps;
+    return simCaps.filter(c => c.projectTypes.some(
+      pt => pt.toLowerCase().includes(projectFilter.toLowerCase())
+    ));
+  }, [simCaps, projectFilter]);
+
+  return (
+    <div className="p-4 space-y-4">
+      {/* Header */}
+      <div>
+        <h2 className="text-[15px] font-bold text-slate-900">Universal Capability Hub</h2>
+        <p className="text-[11.5px] text-slate-500 mt-0.5 leading-relaxed">
+          Select any industry to instantly auto-prepare all systems, field maps, and migration pathways.
+          All preparation runs in simulation mode — no real data is ever moved without partner approval.
+        </p>
+      </div>
+
+      {/* Industry grid */}
+      <div className="grid grid-cols-3 gap-2">
+        {industries.map(ind => (
+          <button
+            key={ind.id}
+            onClick={() => handleSelectIndustry(ind.id)}
+            className={`flex flex-col items-center gap-1.5 py-3 px-2 rounded-2xl border text-center transition-all ${
+              selected === ind.id
+                ? "text-white border-transparent shadow-sm"
+                : "bg-white border-slate-200 hover:border-indigo-200 hover:bg-indigo-50"
+            }`}
+            style={selected === ind.id ? { background: ind.color, borderColor: ind.color } : {}}
+          >
+            <span className="text-[20px]">{ind.icon}</span>
+            <span className={`text-[9.5px] font-bold leading-tight ${
+              selected === ind.id ? "text-white" : "text-slate-700"
+            }`}>{ind.name}</span>
+          </button>
+        ))}
+      </div>
+
+      {/* Selected industry detail */}
+      {selected && selectedInd && (
+        <div className="space-y-3">
+
+          {/* Industry info bar */}
+          <div className="rounded-2xl border p-3.5 bg-white" style={{ borderColor: selectedInd.color + "40" }}>
+            <div className="flex items-center gap-3 mb-2">
+              <div className="w-10 h-10 rounded-xl flex items-center justify-center text-2xl flex-shrink-0"
+                style={{ background: selectedInd.color + "18" }}>
+                {selectedInd.icon}
+              </div>
+              <div>
+                <p className="font-bold text-[14px] text-slate-900">{selectedInd.name}</p>
+                <p className="text-[11px] text-slate-500">{selectedInd.description}</p>
+              </div>
+            </div>
+            <div className="flex flex-wrap gap-1">
+              {compliance.map(f => (
+                <span key={f} className="text-[9px] px-2 py-0.5 rounded-full bg-slate-100 text-slate-600 font-bold">{f}</span>
+              ))}
+            </div>
+          </div>
+
+          {/* Preparing state */}
+          {preparing && (
+            <div className="flex items-center gap-3 py-4 px-4 rounded-2xl border border-amber-100 bg-amber-50">
+              <div className="flex gap-1">
+                {[0,1,2].map(i => (
+                  <div key={i} className="w-1.5 h-1.5 rounded-full bg-amber-500 animate-bounce"
+                    style={{ animationDelay: `${i * 0.15}s` }} />
+                ))}
+              </div>
+              <p className="text-[11px] font-semibold text-amber-800">
+                Auto-preparing all {selectedInd.name} capability packets…
+              </p>
+            </div>
+          )}
+
+          {/* Project type filter */}
+          {simCaps.length > 0 && (
+            <div className="flex items-center gap-2">
+              <input
+                type="text"
+                value={projectFilter}
+                onChange={e => setProjectFilter(e.target.value)}
+                placeholder="Filter by project type (e.g. Healthcare App, Web App)…"
+                className="flex-1 border border-slate-200 rounded-xl px-3 py-2 text-[11px] outline-none focus:border-indigo-400 bg-white"
+              />
+              {projectFilter && (
+                <button onClick={() => setProjectFilter("")}
+                  className="text-[11px] text-slate-400 hover:text-slate-600 px-2">✕</button>
+              )}
+            </div>
+          )}
+
+          {/* Simulation banner */}
+          {simCaps.length > 0 && (
+            <div className="rounded-xl px-3 py-2.5 bg-amber-50 border border-amber-200 flex items-start gap-2">
+              <span className="text-amber-600 flex-shrink-0">🧪</span>
+              <p className="text-[10.5px] text-amber-800">
+                <strong>{simCaps.length} capability packets</strong> auto-prepared in simulation mode —
+                synthetic packets exist in memory only, never stored.
+                When a partner provides real API keys, capabilities switch to REAL — ACTIVE instantly.
+              </p>
+            </div>
+          )}
+
+          {/* Capability cards */}
+          {filteredCaps.map(cap => (
+            <CapabilityCard key={cap.id} cap={cap} />
+          ))}
+
+          {/* Empty filter state */}
+          {simCaps.length > 0 && filteredCaps.length === 0 && projectFilter && (
+            <div className="text-center py-8">
+              <p className="text-[13px] font-semibold text-slate-700">No matches for "{projectFilter}"</p>
+              <p className="text-[11px] text-slate-500 mt-1">Try "Web App", "Startup", or "Business/Company"</p>
+            </div>
+          )}
+
+          {/* Readiness footer */}
+          {simCaps.length > 0 && (
+            <div className="rounded-xl p-3.5 border border-green-200 bg-green-50">
+              <p className="text-[11px] font-bold text-green-800 mb-0.5">
+                ✅ {selectedInd.name} — Fully Prepared
+              </p>
+              <p className="text-[10.5px] text-green-700 leading-relaxed">
+                All {simCaps.length} systems are mapped, simulated, and structurally ready.
+                The only missing step is partner approval and real API key delivery.
+                When keys arrive, activate in the Engine tab — capabilities go live instantly for every project.
+              </p>
+            </div>
+          )}
+        </div>
+      )}
+
+      {/* No selection state */}
+      {!selected && (
+        <div className="text-center py-10">
+          <p className="text-3xl mb-2">🏭</p>
+          <p className="text-[13px] font-semibold text-slate-700">Select an industry above</p>
+          <p className="text-[11px] text-slate-500 mt-1">
+            All systems, fields, and migration pathways prepare instantly — fully safe, fully simulated.
+          </p>
+        </div>
+      )}
+    </div>
+  );
+}
+
 // ─── Main IntegrationApp ──────────────────────────────────────────────────────
-type AppTab = "registry" | "engine" | "configure" | "architecture";
+type AppTab = "registry" | "engine" | "configure" | "architecture" | "industries";
 
 export function IntegrationApp() {
   const [tab, setTab] = useState<AppTab>("engine");
 
   const TABS: { id: AppTab; icon: string; label: string }[] = [
+    { id: "industries",   icon: "🏭", label: "Industries" },
     { id: "engine",       icon: "🔌", label: "Engine" },
     { id: "registry",     icon: "🌐", label: "Hub" },
     { id: "configure",    icon: "⚙️",  label: "Configure" },
-    { id: "architecture", icon: "🏛️",  label: "Architecture" },
+    { id: "architecture", icon: "🏛️",  label: "Systems" },
   ];
 
   return (
@@ -1147,6 +1462,7 @@ export function IntegrationApp() {
       </div>
 
       <div className="flex-1 overflow-y-auto">
+        {tab === "industries"   && <IndustriesTab />}
         {tab === "engine"       && <EngineTab />}
         {tab === "registry"     && <RegistryTab />}
         {tab === "configure"    && <ConfigureTab />}

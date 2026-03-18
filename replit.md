@@ -261,8 +261,15 @@ For any work involving 3+ components or 2+ files:
 - History panel shows past conversations, loads messages on select
 - Delete individual conversations
 
-### IntegrationApp Real Registry
-- "Registry" tab: loads real integrations from `/api/integrations`
+### Universal Capability Hub (Integration Engine v3)
+- **5 tabs**: Industries · Engine · Hub · Configure · Systems
+- **`src/engine/CapabilityHubEngine.ts`**: 12 industries × 4 capabilities = 48 capability packets; each has field mapping schema, migration pathway (5 steps), compliance flags, project type links
+- **Industries tab**: Select any industry → auto-prepares all capability packets in simulation mode (memory only, never stored); expandable field mapping table + migration pathway per system
+- **Engine tab**: Auto-simulates all 20+ DEMO_PACKET_LIBRARY packets on mount; "Prepare any integration" field handles any named system via `prepareAndSimulate()`; `PacketCard` has 📋 Request button that shows auto-generated formal partner request document
+- **Hub tab** (formerly Registry): Shows REAL — ACTIVE integrations for all platform users; populated automatically when any integration is activated
+- **On activation**: `activateWithKey()` → marks REAL — ACTIVE locally → POSTs to `/api/integrations` → appears in Hub immediately
+- **Partner request**: `IntegrationEngine.generatePartnerRequest(packet)` — auto-generates full formal request letter (scopes, data flows, legal checklist, activation process); user copies and sends manually
+- **3-tier status**: `"ready-awaiting"` (stored) | `"simulation"` (memory only, NEVER stored) | `"real-active"` (stored)
 - Toggle on/off, delete — all persisted to DB
 - Configure tab saves to DB after successful wizard flow
 
