@@ -472,6 +472,255 @@
   animation: sectionReveal 0.45s cubic-bezier(0.22, 0.61, 0.36, 1) both;
 }
 
+/* ═══════════════════════════════════════════════════════════════════════════
+   ██  MULTI-SENSORY SPATIAL ENVIRONMENT  ██
+   Atmospheric depth, emotional tone, temporal flow, cognitive clarity.
+   All in the light theme — no neon, no dark, no harsh glow.
+   ═══════════════════════════════════════════════════════════════════════════ */
+
+/* ── Atmospheric background — slow-breathing gradient field ─────────────── */
+@keyframes atmosphericBreath {
+  0%   { background-position: 0% 0%; }
+  25%  { background-position: 100% 15%; }
+  50%  { background-position: 85% 100%; }
+  75%  { background-position: 15% 85%; }
+  100% { background-position: 0% 0%; }
+}
+.atmospheric-bg {
+  background: linear-gradient(
+    145deg,
+    hsl(220, 22%, 97.5%) 0%,
+    hsl(237, 26%, 96.5%) 30%,
+    hsl(220, 18%, 97.8%) 60%,
+    hsl(209, 25%, 97.2%) 100%
+  );
+  background-size: 400% 400%;
+  animation: atmosphericBreath 52s ease-in-out infinite;
+}
+
+/* ── Gradient wash blobs (atmospheric positioning) ──────────────────────── */
+@keyframes blobDrift1 {
+  0%   { transform: translate(0,   0)   scale(1); }
+  25%  { transform: translate(3vw, 2vh) scale(1.05); }
+  50%  { transform: translate(1vw, 5vh) scale(0.96); }
+  75%  { transform: translate(-2vw,2vh) scale(1.03); }
+  100% { transform: translate(0,   0)   scale(1); }
+}
+@keyframes blobDrift2 {
+  0%   { transform: translate(0,    0)    scale(1); }
+  33%  { transform: translate(-3vw, 3vh)  scale(1.06); }
+  66%  { transform: translate(2vw, -2vh)  scale(0.94); }
+  100% { transform: translate(0,    0)    scale(1); }
+}
+@keyframes blobDrift3 {
+  0%   { transform: translate(0,   0)    scale(1); }
+  40%  { transform: translate(2vw, -3vh) scale(1.08); }
+  80%  { transform: translate(-1vw, 2vh) scale(0.97); }
+  100% { transform: translate(0,   0)    scale(1); }
+}
+
+/* ── Micro-particle ascent (ultra-low opacity, soft drift) ───────────────── */
+@keyframes particleFloat {
+  0%   { transform: translate(0, 0) scale(0.8);  opacity: 0; }
+  10%  { opacity: 1; }
+  90%  { opacity: 1; }
+  100% { transform: translate(var(--pdx, 20px), -100vh) scale(1.2);  opacity: 0; }
+}
+
+/* ── Breathing element — surface that gently expands / contracts ─────────── */
+@keyframes breatheSlow {
+  0%, 100% { transform: scale(1); }
+  50%       { transform: scale(1.004); }
+}
+@keyframes breatheMedium {
+  0%, 100% { transform: scale(1); }
+  50%       { transform: scale(1.006); }
+}
+.breathe-slow   { animation: breatheSlow   7s ease-in-out infinite; }
+.breathe-medium { animation: breatheMedium 4.5s ease-in-out infinite; }
+
+/* ── Cinematic view transition ───────────────────────────────────────────── */
+@keyframes viewEnter {
+  from {
+    opacity: 0;
+    transform: translateY(10px) scale(0.992);
+    filter: blur(0.6px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0) scale(1);
+    filter: blur(0);
+  }
+}
+@keyframes viewExit {
+  from { opacity: 1; transform: translateY(0); }
+  to   { opacity: 0; transform: translateY(-6px) scale(0.998); }
+}
+.view-enter {
+  animation: viewEnter 0.40s cubic-bezier(0.22, 1, 0.36, 1) both;
+}
+.view-exit {
+  animation: viewExit 0.22s ease both;
+}
+
+/* ── Micro-settle — card mounts with a tiny spring bounce ───────────────── */
+@keyframes microSettle {
+  0%   { transform: translateY(8px) scale(0.988); opacity: 0; }
+  55%  { transform: translateY(-1.5px) scale(1.003); opacity: 1; }
+  78%  { transform: translateY(0.8px) scale(0.9985); }
+  100% { transform: translateY(0) scale(1); opacity: 1; }
+}
+.card-settle {
+  animation: microSettle 0.52s cubic-bezier(0.34, 1.28, 0.64, 1) both;
+}
+
+/* ── Cognitive focus dimming — siblings dim when one card is hovered ─────── */
+.focus-group .focus-item {
+  transition: opacity 0.22s ease, transform 0.22s ease, box-shadow 0.22s ease;
+  will-change: transform;
+}
+.focus-group:has(.focus-item:hover) .focus-item:not(:hover) {
+  opacity: 0.55;
+}
+.focus-group .focus-item:hover {
+  opacity: 1 !important;
+  transform: translateY(-2px);
+}
+
+/* ── Staggered child entrance ────────────────────────────────────────────── */
+.stagger-grid > *   { animation: microSettle 0.5s cubic-bezier(0.34, 1.28, 0.64, 1) both; }
+.stagger-grid > *:nth-child(1)  { animation-delay:  0ms; }
+.stagger-grid > *:nth-child(2)  { animation-delay: 35ms; }
+.stagger-grid > *:nth-child(3)  { animation-delay: 70ms; }
+.stagger-grid > *:nth-child(4)  { animation-delay: 105ms; }
+.stagger-grid > *:nth-child(5)  { animation-delay: 140ms; }
+.stagger-grid > *:nth-child(6)  { animation-delay: 175ms; }
+.stagger-grid > *:nth-child(7)  { animation-delay: 210ms; }
+.stagger-grid > *:nth-child(8)  { animation-delay: 245ms; }
+.stagger-grid > *:nth-child(9)  { animation-delay: 280ms; }
+.stagger-grid > *:nth-child(10) { animation-delay: 315ms; }
+.stagger-grid > *:nth-child(11) { animation-delay: 350ms; }
+.stagger-grid > *:nth-child(12) { animation-delay: 385ms; }
+.stagger-grid > *:nth-child(n+13) { animation-delay: 400ms; }
+
+/* ── Depth layering — multi-level shadow system ──────────────────────────── */
+.depth-1 {
+  box-shadow:
+    0 1px 2px rgba(0,0,0,0.04),
+    0 2px 6px rgba(0,0,0,0.03);
+}
+.depth-2 {
+  box-shadow:
+    0 2px 4px rgba(0,0,0,0.05),
+    0 6px 18px rgba(0,0,0,0.05),
+    0 1px 2px rgba(0,0,0,0.04);
+}
+.depth-3 {
+  box-shadow:
+    0 4px 12px rgba(0,0,0,0.08),
+    0 16px 40px rgba(0,0,0,0.06),
+    0 1px 3px rgba(0,0,0,0.05);
+}
+.depth-4 {
+  box-shadow:
+    0 8px 24px rgba(0,0,0,0.10),
+    0 32px 64px rgba(0,0,0,0.08),
+    0 2px 6px rgba(0,0,0,0.06);
+}
+
+/* ── 3D tilt card — JS sets --rx / --ry on the element ──────────────────── */
+.tilt-card {
+  transition: transform 0.35s cubic-bezier(0.22, 1, 0.36, 1), box-shadow 0.35s ease;
+  transform: perspective(900px) rotateX(var(--rx, 0deg)) rotateY(var(--ry, 0deg));
+  will-change: transform;
+}
+.tilt-card:hover {
+  box-shadow:
+    0 8px 24px rgba(0,0,0,0.10),
+    0 20px 48px rgba(0,0,0,0.07);
+}
+
+/* ── Anticipatory pulse — active/focused elements ───────────────────────── */
+@keyframes softPulse {
+  0%, 100% { box-shadow: 0 0 0 0 rgba(99,102,241,0); }
+  50%       { box-shadow: 0 0 0 5px rgba(99,102,241,0.07); }
+}
+.active-pulse {
+  animation: softPulse 3.8s ease-in-out infinite;
+}
+
+/* ── Emotional color temperature utility ─────────────────────────────────── */
+.temp-warm {
+  filter: sepia(3%) saturate(104%) hue-rotate(-3deg) brightness(1.005);
+}
+.temp-cool {
+  filter: saturate(103%) hue-rotate(3deg) brightness(1.002);
+}
+
+/* ── Narrative transition — panel depth shift ───────────────────────────── */
+@keyframes panelForward {
+  from { opacity: 0; transform: translate3d(16px, 0, -20px) scale(0.995); }
+  to   { opacity: 1; transform: translate3d(0,    0,   0)   scale(1); }
+}
+@keyframes panelBack {
+  from { opacity: 0; transform: translate3d(-16px, 0, -20px) scale(0.995); }
+  to   { opacity: 1; transform: translate3d(0,     0,   0)   scale(1); }
+}
+.panel-forward { animation: panelForward 0.38s cubic-bezier(0.22, 1, 0.36, 1) both; }
+.panel-back    { animation: panelBack    0.38s cubic-bezier(0.22, 1, 0.36, 1) both; }
+
+/* ── Spatial surface — card with 3D preserve ────────────────────────────── */
+.spatial-surface {
+  transform-style: preserve-3d;
+  perspective: 900px;
+}
+
+/* ── Floating surface — gentle vertical drift ───────────────────────────── */
+@keyframes floatSurface {
+  0%, 100% { transform: translateY(0px); }
+  50%       { transform: translateY(-3px); }
+}
+.float-surface {
+  animation: floatSurface 5s ease-in-out infinite;
+}
+
+/* ── Haze overlay — atmospheric depth behind content ────────────────────── */
+.depth-haze {
+  background:
+    radial-gradient(ellipse 80% 40% at 50% 100%, rgba(220,225,240,0.22) 0%, transparent 70%);
+  pointer-events: none;
+}
+
+/* ── Scroll momentum hint ────────────────────────────────────────────────── */
+.momentum-scroll {
+  scroll-behavior: smooth;
+  overscroll-behavior: contain;
+}
+
+/* ── Motion safety — honour system preference ────────────────────────────── */
+@media (prefers-reduced-motion: reduce) {
+  .atmospheric-bg,
+  .breathe-slow, .breathe-medium,
+  .float-surface, .active-pulse,
+  .depth-ring, .animate-float {
+    animation: none !important;
+  }
+  .view-enter, .view-exit,
+  .card-settle, .panel-forward, .panel-back,
+  .animate-fade-up, .animate-scale-in,
+  .stagger-grid > * {
+    animation-duration: 0.01ms !important;
+    animation-delay: 0ms !important;
+  }
+  .tilt-card {
+    transform: none !important;
+    transition: none !important;
+  }
+  .focus-group:has(.focus-item:hover) .focus-item:not(:hover) {
+    opacity: 1;
+  }
+}
+
 /* ── Media player ──────────────────────────────────────────────────────────── */
 .media-player {
   background: rgba(6, 8, 18, 0.95);

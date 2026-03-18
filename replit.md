@@ -796,6 +796,49 @@ Workspace picker: scrollable dropdown with `maxHeight: min(520px, 70vh)` + style
 - T005: FamilyApp documents — loads from /api/documents, creates via BrainGen + saves to DB
 - T006: AdminApp — My Profile section with PUT /api/user/me wired
 
+---
+
+## Multi-Sensory Spatial Interface Expansion (latest)
+
+**Full spatial/atmospheric/multi-sensory OS upgrade** — light theme, premium elegance throughout.
+
+### New files:
+- `artifacts/createai-brain/src/os/AtmosphericLayer.tsx` — fixed full-viewport layer with:
+  - 3 animated radial gradient blobs (indigo/violet/sky at 3-6% opacity)
+  - 14 micro-particles ascending (CSS `particleFloat` animation, 22-46s cycle each, varied `--pdx` horizontal drift)
+  - Depth vignette radial gradient reinforcing spatial perspective
+  - Fully honours `prefers-reduced-motion`
+
+### CSS additions (index.css — multi-sensory block):
+- `atmosphericBreath` keyframe → `.atmospheric-bg` — 52s gradient drift on the root OS container
+- `blobDrift1/2/3` keyframes → 3D blob movement referenced by AtmosphericLayer
+- `particleFloat` keyframe → micro-particle ascent with `--pdx` custom property
+- `.breathe-slow` / `.breathe-medium` — gentle 0.4% scale pulse (6s / 4.5s)
+- `.view-enter` — cinematic page transition (fade + translateY + blur: 12px → 0 in 0.4s, spring easing)
+- `.card-settle` — spring micro-bounce on mount (52ms, cubic-bezier(0.34,1.28,0.64,1))
+- `.focus-group` / `.focus-item` — cognitive dimming: siblings dim to 0.55 opacity when one card is hovered
+- `.stagger-grid` — all direct children mount with `card-settle` at 35ms increments (up to 12 items)
+- `.tilt-card` — 3D perspective tilt using `--rx`/`--ry` CSS custom properties set by JS mouse move
+- `.depth-1/2/3/4` — four-tier shadow depth system (replacing static box-shadow values)
+- `.active-pulse` — 3.8s anticipatory glow ring on active status indicators
+- `.panel-forward` / `.panel-back` — directional narrative panel transitions (translate3d depth shift)
+- `.temp-warm` / `.temp-cool` — sepia/hue-rotate emotional color temperature modes
+- `.spatial-surface` — 3D preserve-3d perspective container
+- `.float-surface` — 5s vertical float animation for elevated panels
+- `prefers-reduced-motion` block — disables all spatial/atmospheric animations safely
+
+### BrainHubApp.tsx changes:
+- `EngineCard` — now accepts `className` prop; has `useRef` + `onMouseMove`/`onMouseLeave` handlers that compute `--rx`/`--ry` for 3D tilt (±5°); applies `tilt-card focus-item depth-2`
+- All 7 nav views wrapped in `className="view-enter"` — cinematic transition on every tab switch
+- Run / Series-run transient panels wrapped in `className="panel-forward"` — depth-direction narrative
+- Engine grid → `stagger-grid focus-group`; Meta-agents grid → `stagger-grid focus-group`; Series grid → `stagger-grid focus-group`; Quick-Launch grid → `stagger-grid focus-group`
+- "All systems active" indicator wrapped in `active-pulse breathe-slow` span
+- Meta-agent and Series cards now `focus-item tilt-card` for cognitive dimming + 3D hover
+
+### osLayout.tsx changes:
+- Root div now has `className="atmospheric-bg"` — slow 52s breathing gradient field
+- `<AtmosphericLayer />` injected as first child — fixed-position blobs + particles behind all content
+
 ### `scripts` (`@workspace/scripts`)
 
 Utility scripts package. Each script is a `.ts` file in `src/` with a corresponding npm script in `package.json`. Run scripts via `pnpm --filter @workspace/scripts run <script>`. Scripts can import any workspace package (e.g., `@workspace/db`) by adding it as a dependency in `scripts/package.json`.

@@ -8,6 +8,7 @@ import { Dashboard } from "./Dashboard";
 import { AppWindow } from "./AppWindow";
 import { ConversationOverlay } from "./ConversationOverlay";
 import { GuidedTour } from "./GuidedTour";
+import { AtmosphericLayer } from "./AtmosphericLayer";
 
 // UCPXAgent is a 963 KB file — lazy-load it so it never blocks the initial paint
 const UCPXAgent = React.lazy(() =>
@@ -50,7 +51,10 @@ export function OSLayout() {
   const closeMobileMenu = () => setMobileMenuOpen(false);
 
   return (
-    <div className="flex h-[100dvh] w-full overflow-hidden" style={{ background: "hsl(220,20%,97%)" }}>
+    <div className="atmospheric-bg flex h-[100dvh] w-full overflow-hidden" style={{ position: "relative" }}>
+      {/* ── Atmospheric environment — gradient blobs, micro-particles, haze ── */}
+      <AtmosphericLayer />
+
       {/* ── Guided Tour Overlay — triggered from Dashboard ── */}
       <GuidedTour
         open={tourOpen}

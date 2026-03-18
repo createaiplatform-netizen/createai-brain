@@ -146,13 +146,15 @@ function StatCard({ icon, label, value, color }: { icon: string; label: string; 
 }
 
 // ─── Engine Card ──────────────────────────────────────────────────────────────
-function EngineCard({ engine, onRun, compact }: {
+function EngineCard({ engine, onRun, compact, className }: {
   engine: EngineDefinition;
   onRun: (e: EngineDefinition) => void;
   compact?: boolean;
+  className?: string;
 }) {
   const [isFav, setIsFav] = useState(() => favIsFav(engine.id));
   const [runs, setRuns]   = useState(() => usageGet(engine.id));
+  const cardRef = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
     const onFavChange   = () => setIsFav(favIsFav(engine.id));
@@ -165,22 +167,34 @@ function EngineCard({ engine, onRun, compact }: {
     };
   }, [engine.id]);
 
+  const handleMouseMove = useCallback((e: React.MouseEvent<HTMLDivElement>) => {
+    const el = cardRef.current;
+    if (!el) return;
+    const { left, top, width, height } = el.getBoundingClientRect();
+    const x = (e.clientX - left) / width  - 0.5;   // -0.5 → 0.5
+    const y = (e.clientY - top)  / height - 0.5;
+    el.style.setProperty("--rx", `${(-y * 5).toFixed(2)}deg`);
+    el.style.setProperty("--ry", `${( x * 5).toFixed(2)}deg`);
+  }, []);
+
+  const handleMouseLeave3D = useCallback(() => {
+    const el = cardRef.current;
+    if (!el) return;
+    el.style.setProperty("--rx", "0deg");
+    el.style.setProperty("--ry", "0deg");
+  }, []);
+
   return (
-    <div style={{
-      background: "#fff", border: "1px solid rgba(0,0,0,0.07)",
-      borderRadius: 12, padding: compact ? "12px 14px" : "16px",
-      display: "flex", flexDirection: "column", gap: 8,
-      transition: "box-shadow 0.15s, border-color 0.15s",
-      boxShadow: "0 1px 3px rgba(0,0,0,0.04)",
-    }}
-      onMouseEnter={e => {
-        (e.currentTarget as HTMLDivElement).style.borderColor = "rgba(0,0,0,0.12)";
-        (e.currentTarget as HTMLDivElement).style.boxShadow = "0 2px 10px rgba(0,0,0,0.08)";
+    <div
+      ref={cardRef}
+      className={`tilt-card focus-item depth-2${className ? ` ${className}` : ""}`}
+      style={{
+        background: "#fff", border: "1px solid rgba(0,0,0,0.07)",
+        borderRadius: 12, padding: compact ? "12px 14px" : "16px",
+        display: "flex", flexDirection: "column", gap: 8,
       }}
-      onMouseLeave={e => {
-        (e.currentTarget as HTMLDivElement).style.borderColor = "rgba(0,0,0,0.07)";
-        (e.currentTarget as HTMLDivElement).style.boxShadow = "0 1px 3px rgba(0,0,0,0.04)";
-      }}
+      onMouseMove={handleMouseMove}
+      onMouseLeave={handleMouseLeave3D}
     >
       <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", gap: 8 }}>
         <div style={{ display: "flex", alignItems: "center", gap: 8, minWidth: 0 }}>
@@ -1224,7 +1238,7 @@ export function BrainHubApp() {
   // ── Run panel ──
   if (view === "run" && activeEngine) {
     return (
-      <div style={{ padding: "0 24px 24px", overflowY: "auto", height: "100%" }}>
+      <div className="panel-forward" style={{ padding: "0 24px 24px", overflowY: "auto", height: "100%" }}>
         <RunPanel engine={activeEngine} onBack={() => { setView("engines"); setActiveEngine(null); }} />
       </div>
     );
@@ -1233,7 +1247,7 @@ export function BrainHubApp() {
   // ── Series run panel ──
   if (view === "series-run" && activeSeries) {
     return (
-      <div style={{ padding: "0 24px 24px", overflowY: "auto", height: "100%" }}>
+      <div className="panel-forward" style={{ padding: "0 24px 24px", overflowY: "auto", height: "100%" }}>
         <SeriesRunPanel series={activeSeries} onBack={() => { setView("series"); setActiveSeries(null); }} />
       </div>
     );
@@ -1316,8 +1330,10 @@ export function BrainHubApp() {
               cursor: "pointer", fontSize: 11, color: "#9ca3af", fontWeight: 700,
             }}
           >?</button>
-          <StatusDot active={true} />
-          <span style={{ fontSize: 11, color: "#16a34a", fontWeight: 600, whiteSpace: "nowrap" }}>All systems active</span>
+          <span className="active-pulse breathe-slow" style={{ display: "flex", alignItems: "center", gap: 5, borderRadius: 20, padding: "3px 8px 3px 5px" }}>
+            <StatusDot active={true} />
+            <span style={{ fontSize: 11, color: "#16a34a", fontWeight: 600, whiteSpace: "nowrap" }}>All systems active</span>
+          </span>
         </div>
       </div>
 
@@ -1326,7 +1342,7 @@ export function BrainHubApp() {
 
         {/* ── DASHBOARD ── */}
         {view === "dashboard" && (
-          <div style={{ display: "flex", flexDirection: "column", gap: 24 }}>
+          <div className="view-enter" style={{ display: "flex", flexDirection: "column", gap: 24 }}>
             <div>
               <h2 style={{ fontSize: 22, fontWeight: 700, color: "#0f172a", margin: 0, letterSpacing: "-0.03em" }}>
                 Brain Hub — Capability Center
@@ -1379,7 +1395,7 @@ export function BrainHubApp() {
               <h3 style={{ fontSize: 12, fontWeight: 700, color: "#0f172a", marginBottom: 10, textTransform: "uppercase", letterSpacing: "0.05em" }}>
                 Quick-Launch
               </h3>
-              <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fill, minmax(210px, 1fr))", gap: 8 }}>
+              <div className="stagger-grid focus-group" style={{ display: "grid", gridTemplateColumns: "repeat(auto-fill, minmax(210px, 1fr))", gap: 8 }}>
                 {ALL_ENGINES
                   .filter(e => ["BrainGen", "InfiniteExpansionEngine", "UniversalStrategyEngine", "UniversalCreativeEngine", "ORACLE", "FORGE"].includes(e.id))
                   .map(engine => (
@@ -1476,7 +1492,7 @@ export function BrainHubApp() {
 
         {/* ── ENGINES ── */}
         {view === "engines" && (
-          <div style={{ display: "flex", flexDirection: "column", gap: 16 }}>
+          <div className="view-enter" style={{ display: "flex", flexDirection: "column", gap: 16 }}>
             <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", flexWrap: "wrap", gap: 8 }}>
               <h2 style={{ fontSize: 18, fontWeight: 700, color: "#0f172a", margin: 0, letterSpacing: "-0.02em" }}>
                 Engines ({otherEngines.length})
@@ -1514,7 +1530,7 @@ export function BrainHubApp() {
                 {favOnly ? "No favorites yet — star ★ an engine to pin it here." : "No engines match this filter."}
               </div>
             ) : (
-              <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fill, minmax(280px, 1fr))", gap: 12 }}>
+              <div className="stagger-grid focus-group" style={{ display: "grid", gridTemplateColumns: "repeat(auto-fill, minmax(280px, 1fr))", gap: 12 }}>
                 {filteredEngines.map(engine => (
                   <EngineCard key={engine.id} engine={engine} onRun={handleRunEngine} />
                 ))}
@@ -1525,7 +1541,7 @@ export function BrainHubApp() {
 
         {/* ── META-AGENTS ── */}
         {view === "agents" && (
-          <div style={{ display: "flex", flexDirection: "column", gap: 16 }}>
+          <div className="view-enter" style={{ display: "flex", flexDirection: "column", gap: 16 }}>
             <div>
               <h2 style={{ fontSize: 18, fontWeight: 700, color: "#0f172a", margin: 0, letterSpacing: "-0.02em" }}>
                 Meta-Agents — 6 Specialized AI Systems
@@ -1535,12 +1551,12 @@ export function BrainHubApp() {
                 Click any agent to activate it with your own topic and context.
               </p>
             </div>
-            <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fill, minmax(310px, 1fr))", gap: 14 }}>
+            <div className="stagger-grid focus-group" style={{ display: "grid", gridTemplateColumns: "repeat(auto-fill, minmax(310px, 1fr))", gap: 14 }}>
               {metaAgents.map(agent => (
-                <div key={agent.id} style={{
+                <div key={agent.id} className="focus-item tilt-card" style={{
                   background: "#fff", border: "1px solid rgba(0,0,0,0.07)",
                   borderRadius: 14, padding: "20px", display: "flex", flexDirection: "column", gap: 12,
-                  boxShadow: "0 1px 3px rgba(0,0,0,0.04)",
+                  boxShadow: "0 2px 6px rgba(0,0,0,0.05)", cursor: "pointer",
                 }}>
                   <div style={{ display: "flex", alignItems: "center", gap: 12 }}>
                     <div style={{
@@ -1587,7 +1603,7 @@ export function BrainHubApp() {
 
         {/* ── SERIES ── */}
         {view === "series" && (
-          <div style={{ display: "flex", flexDirection: "column", gap: 16 }}>
+          <div className="view-enter" style={{ display: "flex", flexDirection: "column", gap: 16 }}>
             <div>
               <h2 style={{ fontSize: 18, fontWeight: 700, color: "#0f172a", margin: 0, letterSpacing: "-0.02em" }}>
                 Series — {ALL_SERIES.length} Multi-Engine Workflows
@@ -1596,12 +1612,12 @@ export function BrainHubApp() {
                 Each series runs its member engines in sequence, producing a combined multi-perspective output.
               </p>
             </div>
-            <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fill, minmax(340px, 1fr))", gap: 14 }}>
+            <div className="stagger-grid focus-group" style={{ display: "grid", gridTemplateColumns: "repeat(auto-fill, minmax(340px, 1fr))", gap: 14 }}>
               {ALL_SERIES.map(series => (
-                <div key={series.id} style={{
+                <div key={series.id} className="focus-item tilt-card" style={{
                   background: "#fff", border: "1px solid rgba(0,0,0,0.07)",
                   borderRadius: 14, padding: "18px", display: "flex", flexDirection: "column", gap: 12,
-                  boxShadow: "0 1px 3px rgba(0,0,0,0.04)",
+                  boxShadow: "0 2px 6px rgba(0,0,0,0.05)",
                 }}>
                   <div style={{ display: "flex", alignItems: "center", gap: 12 }}>
                     <div style={{
@@ -1656,10 +1672,14 @@ export function BrainHubApp() {
         )}
 
         {/* ── COMPLIANCE ── */}
-        {view === "compliance" && <CompliancePanel />}
+        {view === "compliance" && (
+          <div className="view-enter"><CompliancePanel /></div>
+        )}
 
         {/* ── INTELLIGENCE ── */}
-        {view === "intelligence" && <IntelligencePanel />}
+        {view === "intelligence" && (
+          <div className="view-enter"><IntelligencePanel /></div>
+        )}
 
       </div>
 
