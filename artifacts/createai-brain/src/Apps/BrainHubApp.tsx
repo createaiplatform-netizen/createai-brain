@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useRef, useCallback } from "react";
+import React, { useState, useEffect, useRef, useCallback, useMemo } from "react";
 import {
   ALL_ENGINES, ALL_SERIES, saveEngineOutput,
   fetchPlatformStats, getEnginesByCategory,
@@ -10,6 +10,8 @@ import { useEngineRun, useSeriesRun, useContextStore, contextStore } from "@/con
 import { DocumentRenderer } from "@/engines/document";
 import { useViewResume } from "@/hooks/useUniversalResume";
 import { OutputVaultPanel } from "@/components/OutputVaultPanel";
+import { favGetAll, favIsFav, favToggle } from "@/services/EngineFavoritesService";
+import { usageGet, usageIncrement, usageGetTop } from "@/services/EngineUsageService";
 
 // ─── Types ─────────────────────────────────────────────────────────────────────
 type HubView = "dashboard" | "engines" | "agents" | "series" | "compliance" | "intelligence" | "vault" | "run" | "series-run";
