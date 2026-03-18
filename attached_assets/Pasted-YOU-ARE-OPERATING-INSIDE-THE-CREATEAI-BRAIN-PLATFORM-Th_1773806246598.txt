@@ -1,0 +1,374 @@
+YOU ARE OPERATING INSIDE THE CREATEAI BRAIN PLATFORM.
+
+This prompt is the unified platform directive, contract, and architectural source of truth.
+You MUST treat it as the governing document for all future changes.
+
+Your job is to:
+- preserve the architecture
+- respect the contract
+- extend the system only in compatible ways
+- keep everything local-first, tiny, efficient, and zero-cost
+- never introduce external dependencies or cloud services
+
+====================================================================
+SECTION 1 — PLATFORM IDENTITY & PHILOSOPHY
+====================================================================
+
+1.1 PLATFORM IDENTITY
+- This is a local-first, multi-app, intelligence-driven platform called CreateAI Brain.
+- It has:
+  - a MIND (intelligence layer, engines, BrainHub)
+  - a SOUL (experience layer, UI/UX, continuity)
+  - a BODY (tiny local backend + JSON storage)
+  - a NERVOUS SYSTEM (service module, hooks, sync, workflows)
+  - a CONSTITUTION (platform contract + this directive)
+
+1.2 CORE PRINCIPLES
+- Local-first: prefer local storage, local processing, local workflows.
+- Zero-cost: no paid services, no hosted databases, no SaaS dependencies.
+- Zero-dependency (beyond what already exists): no new external infra.
+- Tiny but real: tiny backend, tiny storage, tiny cache, but fully functional.
+- Predictable: no magic side effects, no hidden behavior.
+- Self-enforcing: rules live in code and docs, not just in prompts.
+- Family-grade: safe, calm, non-extractive, non-surveilling.
+- Founder-grade: clear, composable, extensible, and architecturally sound.
+
+1.3 NEVER DO
+- NEVER add cloud databases (Firebase, Supabase, Mongo, Postgres, etc.).
+- NEVER add external vector DBs (Pinecone, Weaviate, etc.).
+- NEVER add third-party analytics or tracking.
+- NEVER send user data to external services beyond the model itself.
+- NEVER break the local-first, zero-cost, zero-dependency model.
+
+====================================================================
+SECTION 2 — BACKEND & STORAGE (TINY LOCAL ENGINE)
+====================================================================
+
+2.1 BACKEND OVERVIEW
+- There is a tiny local backend in /backend using Node.js + Express.
+- It exposes CRUD endpoints for:
+  - users
+  - projects
+  - settings
+  - documents
+  - chat
+  - images
+  - health
+
+2.2 STORAGE OVERVIEW
+- There is a storage folder /storage with JSON files:
+  - main.json (version, lastModified, metadata)
+  - users.json
+  - projects.json
+  - settings.json
+  - documents.json
+  - chat.json
+  - images.json
+- Storage is:
+  - atomic (write to .tmp then rename)
+  - auto-created (missing files/directories are created on startup)
+  - self-healing (invalid/empty JSON is reset to defaults)
+  - tiny and local-only.
+
+2.3 BACKEND RULES
+- All routes must:
+  - return valid JSON
+  - handle errors gracefully
+  - never crash the server
+- CRUD patterns:
+  - users: full CRUD + duplicate email guard
+  - projects: full CRUD + filters (?userId, ?status)
+  - settings: key/value store, bulk update + per-key set/delete
+  - documents: full CRUD + filters (?userId, ?projectId, ?type)
+  - chat: sessions with nested messages; append/delete message endpoints
+  - images: base64 or URL references; list returns metadata only, not raw blobs
+
+2.4 LIVE SMOKE TEST EXPECTATION
+- When asked to validate the backend, you:
+  - start the server
+  - hit all route groups
+  - confirm JSON responses
+  - confirm no crashes
+  - confirm storage files update correctly
+  - reset storage to clean defaults if needed
+
+====================================================================
+SECTION 3 — FRONTEND INTEGRATION & LOCAL-FIRST EXPERIENCE
+====================================================================
+
+3.1 VITE PROXY
+- Vite is configured so:
+  - /local/* → http://localhost:3001
+  - path rewrite removes /local prefix
+  - same-origin, no CORS needed
+- DO NOT change this pattern unless explicitly required.
+
+3.2 LOCAL BACKEND SERVICE MODULE
+- File: src/services/LocalBackendService.ts
+- Responsibilities:
+  - Provide get/post/put/delete helpers for /local/* endpoints.
+  - Implement write-through caching:
+    - Every successful response is persisted to localStorage.
+  - Implement rehydration:
+    - On page load, return cached data immediately before fetching fresh data.
+  - Implement offline fallback:
+    - If backend is unreachable, serve cached data silently.
+  - Implement auto-invalidation:
+    - After mutations, refresh cache for that resource.
+
+- Resources:
+  - users
+  - projects
+  - settings
+  - documents
+  - chat
+  - images
+
+3.3 LOCAL DATA HOOKS
+- File: src/hooks/useLocalData.ts
+- Hooks:
+  - useLocalUsers()
+  - useLocalProjects()
+  - useLocalSettings()
+  - useLocalDocuments()
+  - useLocalChat()
+  - useLocalImages()
+
+- Each hook:
+  - Reads from localStorage cache first (instant render).
+  - Triggers background fetch from LocalBackendService.
+  - Updates state when fresh data arrives.
+  - Exposes create/update/delete helpers that:
+    - call LocalBackendService
+    - update cache
+    - re-fetch as needed.
+
+3.4 LOCAL SYNC INDICATOR
+- File: src/components/LocalSyncIndicator.tsx
+- Behavior:
+  - Status pill with:
+    - green dot: backend reachable
+    - amber dot: serving from cache
+    - pulsing grey: checking status
+  - Click to expand:
+    - show last sync time
+    - show record counts per collection:
+      - users, projects, documents, chat sessions, images
+
+3.5 SIDEBAR INTEGRATION
+- File: src/os/Sidebar.tsx
+- LocalSyncIndicator is mounted:
+  - at the bottom of the sidebar
+  - above the collapse toggle
+  - visible in both expanded and collapsed modes.
+
+3.6 OSCONTEXT SETTINGS SYNC
+- File: src/os/OSContext.tsx
+- updatePreferences:
+  - updates in-memory preferences
+  - mirrors changes to /local/settings via fire-and-forget PUT
+  - on app load, OSContext attempts to hydrate from local backend settings
+- Preferences include:
+  - tone
+  - theme
+  - layout
+  - behavior
+  - any other user-facing preference fields.
+
+3.7 WORKFLOW REGISTRATION
+- The Local JSON Backend is registered as a workflow:
+  - Command: node backend/server.js
+  - Port: 3001
+  - Auto-starts with the project
+  - Treated as a first-class part of the platform.
+
+====================================================================
+SECTION 4 — INTELLIGENCE & EXPERIENCE LAYER
+====================================================================
+
+4.1 INTELLIGENCE LAYER
+- BrainHub, engines, and series are the “mind” of the platform.
+- They:
+  - respect OSContext (tone, preferences, active project)
+  - use project context when available
+  - avoid rewriting core architecture
+  - operate within the platform contract.
+
+4.2 EXPERIENCE LAYER
+- The experience layer ensures:
+  - continuity (resume where you left off)
+  - clarity (calm, readable UI)
+  - rollback (ability to revert outputs)
+  - visibility (run counts, activity feed, context panel)
+- BrainHub “Intelligence” tab:
+  - shows session stats, context, activity feed, rollback controls.
+
+4.3 ROLLBACK & CONTINUITY
+- After engine runs, rollback options are available where implemented.
+- The system prefers:
+  - non-destructive changes
+  - reversible operations
+  - clear “before/after” states.
+
+====================================================================
+SECTION 5 — PLATFORM CONTRACT & BEHAVIOR RULES
+====================================================================
+
+5.1 CONTRACT LOCATION
+- The platform contract lives in:
+  - replit.md (top section)
+  - artifacts/createai-brain/PLATFORM_CONTRACT.md
+  - referenced from src/controller/index.ts
+
+5.2 CONTRACT PURPOSE
+- Defines:
+  - allowed patterns
+  - forbidden patterns
+  - architectural boundaries
+  - intelligence behavior
+  - local-first rules
+  - safety and UX expectations.
+
+5.3 ENFORCEMENT
+- Any new engine, series, app, or module MUST:
+  - follow the contract
+  - respect local-first architecture
+  - avoid external dependencies
+  - avoid breaking existing flows
+  - keep type safety and clean builds.
+
+====================================================================
+SECTION 6 — SYSTEM-LEVEL UPGRADE INTENT (DO NOT AUTO-IMPLEMENT)
+====================================================================
+
+The following are APPROVED DIRECTIONS for future expansion.
+You MAY propose or implement them when explicitly asked, but DO NOT silently implement them all at once.
+
+6.1 STORAGE & PERSISTENCE UPGRADES
+- Micro-cache layer: keep JSON in memory for ultra-fast reads.
+- Delta-writes: write only changed portions to reduce disk wear.
+- Compression: compress large blobs (docs, chat, images) to save space.
+- Snapshots/versioning: maintain time-travel for storage files.
+- Soft-delete/tombstones: safer deletes with undo potential.
+- Archival tier: move cold data to archive JSONs.
+- Schema evolution engine: auto-migrate old shapes to new ones.
+- Journaling log: append-only log of changes for replay/debugging.
+- Write coalescing: batch writes to reduce disk churn.
+
+6.2 PERFORMANCE & EFFICIENCY
+- Warm-start boot: resume last state instantly.
+- Lazy loading: load heavy collections only when needed.
+- Priority queues: prioritize user-facing tasks over background work.
+- Adaptive throttling: slow non-critical tasks under load.
+- Prefetching: pre-load likely-next data (e.g., related docs).
+- Idle-time processing: compress/index/cleanup when idle.
+- Hot-path vs cold-path separation: keep common flows ultra-simple.
+
+6.3 SAFETY & RESILIENCE
+- Multi-layer validation: UI + service + backend.
+- Self-healing storage: auto-repair corrupted JSON from snapshots/defaults.
+- Redundant metadata: counts, last IDs, lastModified in main.json.
+- Consistency checker: scan for broken references.
+- Guardrails for dangerous writes: require explicit confirmation.
+- Local rate limiting: prevent runaway loops.
+- Circuit breaker: temporarily disable failing routes.
+- Integrity hashes: detect tampering/corruption.
+
+6.4 PRIVACY & SECURITY
+- Local encryption: encrypt sensitive fields at rest.
+- Per-user keys: compartmentalized privacy.
+- Secure export/import: encrypted bundles for backups.
+- Redaction engine: remove specific entities across storage.
+- Access scopes: limit what each app/mode can see.
+- Local audit log: track actions without external tracking.
+
+6.5 INTELLIGENCE BEHAVIOR
+- Pattern memory: store recurring prompts/workflows/preferences.
+- Outcome-based learning: treat “kept” outputs as positive signals.
+- Failure memory: avoid repeating known-bad patterns.
+- Context templates: reusable context bundles (e.g., “Healthcare demo mode”).
+- Adaptive defaults: adjust tone/depth/verbosity based on usage.
+- Session archetypes: detect “build session” vs “writing session” and adapt.
+- Local heuristics: simple rules that adjust behavior without extra model calls.
+
+6.6 UX & CONTINUITY
+- Universal resume: every app remembers where you left off.
+- Cross-app continuity: flows can move between apps.
+- Contextual hints: small, non-annoying, context-aware hints.
+- Micro-timelines: per-project/user timelines of key actions.
+- Safe sandbox mode: non-persistent demo/experiment mode.
+- Global undo/redo: across actions that touch storage.
+- Session bookmarks: save and restore “moments in time.”
+
+6.7 OPERATOR & DEVELOPER TOOLS
+- Platform health dashboard: storage size, route health, errors, last backup.
+- Config-as-data: feature flags and thresholds in JSON.
+- Lab mode: test new engines/flows without touching production data.
+- Plugin manifest system: declare what data each module touches.
+- Capability registry: machine-readable map of platform abilities.
+- Self-documenting routes: routes expose their own schemas/examples.
+- Local profiling: track slow routes, heavy flows, large files.
+
+6.8 MULTI-USER & MULTI-CONTEXT
+- Profiles/personas: different modes for different people.
+- Workspaces: separate “Family”, “Healthcare demo”, “Business”, etc.
+- Local sync bundles: export/import workspaces between devices.
+- Role-aware behavior: simpler UI for kids, richer for admin.
+
+6.9 OBSERVABILITY WITHOUT SURVEILLANCE
+- Anonymous usage patterns: which apps/flows are used most.
+- Error heatmaps: where failures cluster.
+- Performance traces: end-to-end timing for key flows.
+- Storage evolution: how storage grows over time.
+
+6.10 FUTURE-PROOFING & PORTABILITY
+- Export to standard formats: CSV, Markdown, HTML, ZIP.
+- Import from other tools: Notion, Google Docs, etc.
+- Schema registry: single JSON describing all data shapes.
+- Cold storage mode: archive entire workspaces into compressed files.
+- Read-only mode: lock the system to prevent accidental changes.
+
+====================================================================
+SECTION 7 — OPERATIONAL EXPECTATIONS
+====================================================================
+
+7.1 TYPE SAFETY & CLEAN BUILDS
+- Always run typecheck after structural changes.
+- Fix all type errors before considering work complete.
+- Avoid any “any” types unless absolutely necessary and documented.
+
+7.2 NO REGRESSIONS
+- Do not break:
+  - existing routes
+  - existing workflows
+  - existing UI flows
+  - existing contract rules
+- If you must change a core behavior, update:
+  - PLATFORM_CONTRACT.md
+  - replit.md header
+  - any relevant comments in src/controller/index.ts
+
+7.3 WHEN IN DOUBT
+- Prefer:
+  - smaller, composable changes
+  - reversible operations
+  - local, testable behavior
+- Defer:
+  - large refactors
+  - architectural rewrites
+  - new dependencies
+
+====================================================================
+FINAL INSTRUCTION
+====================================================================
+
+When asked to modify or extend this platform, you MUST:
+- respect this directive
+- preserve the local-first, zero-cost, zero-dependency architecture
+- keep the experience unified, continuous, and intelligent
+- treat the tiny backend + JSON storage as the primary data source
+- use LocalBackendService + hooks + OSContext + Sidebar indicator patterns
+- propose system-level upgrades only in alignment with Section 6
+
+DO NOT ignore or override this directive.
+This is the platform’s constitution.
