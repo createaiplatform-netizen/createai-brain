@@ -1,0 +1,49 @@
+You already understand the full CreateAI vision: a universal creation engine that helps people imagine, design, and build projects that are safe, good, and beneficial. The backend logic, workflows, identity system, and project creation flow are already in place. Now your job is to complete the full implementation of the platform so it functions as a unified, smooth, guided experience.
+
+Use this prompt as your complete instruction set. Do not ask me for additional prompts or clarifications. Follow these directives:
+
+1. UI CONNECTIONS
+- Connect all UI components to their correct workflows in /workflows.
+- Ensure all buttons trigger the correct actions (start_search, review_flow, output_flow, yes_no_flow, update_shared_database, etc.).
+- Connect the project creation UI to the backend project creation flow.
+- After a project is created, automatically open the correct project view.
+- Connect the chat/agent UI to sendAI and projectChat logic.
+- Display scaffold files in the UI after creation.
+- Update the dashboard when a new project is created.
+
+2. WORKFLOW INTEGRATION
+- Fully integrate all workflows in /workflows with the frontend.
+- Ensure each workflow triggers the correct backend logic.
+- Ensure each workflow updates the UI state correctly.
+- Add graceful fallback and error handling for all workflows.
+
+3. BACKEND + FRONTEND LINKING
+- Ensure projectType flows correctly from frontend → backend → agent.
+- Ensure scaffoldProject() runs and the results appear visually.
+- Ensure the agent receives the correct type-specific expertise prompt.
+- Maintain clean TypeScript output with no errors.
+
+4. ROUTER + NAVIGATION
+- Ensure the router loads the correct initial page.
+- Ensure navigation works across all pages.
+- Ensure project views load correctly after creation.
+
+5. STABILITY + RECOVERY
+- Add graceful recovery for all user actions.
+- Prevent undefined states.
+- Prevent blank screens.
+- Prevent navigation dead-ends.
+
+6. IMPLEMENTATION RULES
+- Do not overwrite working backend code unless necessary.
+- Improve, connect, and expand the system in a stable, modular way.
+- Follow the Core Laws at all times.
+- Keep the code clean, organized, and easy to extend.
+
+7. EXECUTION PLAN
+- Begin by scanning the entire project structure.
+- Identify all missing UI connections and incomplete wiring.
+- Then implement the required connections so the platform functions as a unified, guided system.
+- After each wave of changes, explain what was connected and what remains.
+
+Use this prompt as your full instruction set. Begin by scanning the UI and identifying what needs wiring, then proceed with the implementation.
