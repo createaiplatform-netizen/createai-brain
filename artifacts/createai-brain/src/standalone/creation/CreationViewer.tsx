@@ -1,6 +1,7 @@
 import React, { useState, useRef, useEffect } from "react";
 import { Creation, CreationType } from "./CreationStore";
 import { StandaloneLayout, StandaloneMode } from "../StandaloneLayout";
+import { streamEngine } from "@/controller";
 
 // ─── Type meta ────────────────────────────────────────────────────────────────
 const TYPE_META: Record<CreationType, { icon: string; color: string; label: string; accentBg: string }> = {
@@ -111,31 +112,18 @@ function AIStudio({ creation }: { creation: Creation }) {
     setInput("");
     setMessages(prev => [...prev, { role: "user", content: q }]);
     setStreaming(true); setBuf("");
-    const controller = new AbortController();
-    abortRef.current = controller;
+    const ctrl = new AbortController();
+    abortRef.current = ctrl;
     try {
       const context = creation.sections.slice(0, 3).map(s => `${s.title}: ${s.content.slice(0, 200)}`).join("\n");
-      const res = await fetch("/api/openai/generate", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({
-          type: "Document",
-          description: `[AI Studio — ${creation.name} — ${meta.label}]\n\nContext:\n${context}\n\nUser request: "${q}"\n\nProvide a rich, detailed, creative response. Stay true to the ${creation.type} format and the established style/tone (${creation.style}, ${creation.tone}). Generate new content that expands the creation. Label all outputs as mock/simulated.`,
-          tone: creation.tone || "Creative",
-        }),
-        signal: controller.signal,
+      await streamEngine({
+        engineId: "BrainGen",
+        topic:    `[AI Studio — ${creation.name} — ${meta.label}]\n\nContext:\n${context}\n\nUser request: "${q}"\n\nProvide a rich, detailed, creative response. Stay true to the ${creation.type} format and the established style/tone (${creation.style}, ${creation.tone}). Generate new content that expands the creation. Label all outputs as mock/simulated.`,
+        signal:   ctrl.signal,
+        onChunk:  (delta) => setBuf(prev => prev + delta),
+        onDone:   (full) => setMessages(prev => [...prev, { role: "assistant", content: full }]),
+        onError:  () => setMessages(prev => [...prev, { role: "assistant", content: "[Error — please retry.]" }]),
       });
-      if (!res.ok || !res.body) throw new Error("Failed");
-      const reader = res.body.getReader(); const decoder = new TextDecoder(); let acc = "";
-      while (true) {
-        const { done, value } = await reader.read(); if (done) break;
-        for (const line of decoder.decode(value, { stream: true }).split("\n")) {
-          if (!line.startsWith("data: ")) continue;
-          const data = line.slice(6); if (!data || data === "[DONE]") continue;
-          try { const p = JSON.parse(data); if (p.content) { acc += p.content; setBuf(acc); } } catch {}
-        }
-      }
-      setMessages(prev => [...prev, { role: "assistant", content: acc }]);
     } catch (err: any) {
       if (err.name !== "AbortError") setMessages(prev => [...prev, { role: "assistant", content: "[Error — please retry.]" }]);
     } finally { setStreaming(false); setBuf(""); abortRef.current = null; }
@@ -235,35 +223,19 @@ function PacketEditor({ creation, onSectionUpdate }: PacketEditorProps) {
     if (!q || streaming) return;
     setInstruction("");
     setStreaming(true); setBuf("");
-    const controller = new AbortController();
-    abortRef.current = controller;
+    const ctrl = new AbortController();
+    abortRef.current = ctrl;
     try {
       const secContent = currentSection?.content?.slice(0, 600) ?? "";
-      const prompt = `You are an AI editor for a ${meta.label} called "${creation.name}".
-
-CURRENT SECTION: "${selectedSection}"
-CURRENT CONTENT (excerpt): ${secContent}
-
-EDIT INSTRUCTION: ${q}
-
-TASK: Rewrite or expand this section based on the instruction. Keep the same format and style as the original. Make it rich, detailed, and compelling. Output ONLY the improved section content — no headings, no preamble, no labels.`;
-      const res = await fetch("/api/openai/generate", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ type: "Document", description: prompt, tone: creation.tone || "Creative" }),
-        signal: controller.signal,
+      const prompt = `You are an AI editor for a ${meta.label} called "${creation.name}".\n\nCURRENT SECTION: "${selectedSection}"\nCURRENT CONTENT (excerpt): ${secContent}\n\nEDIT INSTRUCTION: ${q}\n\nTASK: Rewrite or expand this section based on the instruction. Keep the same format and style as the original. Make it rich, detailed, and compelling. Output ONLY the improved section content — no headings, no preamble, no labels.`;
+      await streamEngine({
+        engineId: "BrainGen",
+        topic:    prompt,
+        signal:   ctrl.signal,
+        onChunk:  (delta) => setBuf(prev => prev + delta),
+        onDone:   (full) => { if (full) { onSectionUpdate(selectedSection, full); setLastUpdated(selectedSection); } },
+        onError:  () => setBuf("[Error — please retry]"),
       });
-      if (!res.ok || !res.body) throw new Error("Failed");
-      const reader = res.body.getReader(); const decoder = new TextDecoder(); let acc = "";
-      while (true) {
-        const { done, value } = await reader.read(); if (done) break;
-        for (const line of decoder.decode(value, { stream: true }).split("\n")) {
-          if (!line.startsWith("data: ")) continue;
-          const d = line.slice(6); if (!d || d === "[DONE]") continue;
-          try { const p = JSON.parse(d); if (p.content) { acc += p.content; setBuf(acc); } } catch {}
-        }
-      }
-      if (acc) { onSectionUpdate(selectedSection, acc); setLastUpdated(selectedSection); }
     } catch (err: any) {
       if (err.name !== "AbortError") setBuf("[Error — please retry]");
     } finally { setStreaming(false); setBuf(""); abortRef.current = null; }
@@ -275,35 +247,23 @@ TASK: Rewrite or expand this section based on the instruction. Keep the same for
     setChatInput("");
     setChatMessages(prev => [...prev, { role: "user", content: q }]);
     setStreaming(true); setBuf("");
-    const controller = new AbortController();
-    abortRef.current = controller;
+    const ctrl = new AbortController();
+    abortRef.current = ctrl;
     try {
       const context = creation.sections.slice(0, 3).map(s => `${s.title}: ${s.content.slice(0, 150)}`).join("\n");
-      const res = await fetch("/api/openai/generate", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({
-          type: "Document",
-          description: `[Packet AI — ${creation.name} — ${meta.label}]\n\nContext:\n${context}\n\nUser: "${q}"\n\nRespond helpfully about this ${creation.type} creation. Be creative and detailed.`,
-          tone: creation.tone || "Creative",
-        }),
-        signal: controller.signal,
+      await streamEngine({
+        engineId: "BrainGen",
+        topic:    `[Packet AI — ${creation.name} — ${meta.label}]\n\nContext:\n${context}\n\nUser: "${q}"\n\nRespond helpfully about this ${creation.type} creation. Be creative and detailed.`,
+        signal:   ctrl.signal,
+        onChunk:  (delta) => setBuf(prev => prev + delta),
+        onDone:   (full) => setChatMessages(prev => [...prev, { role: "assistant", content: full }]),
+        onError:  () => setChatMessages(prev => [...prev, { role: "assistant", content: "[Error — retry]" }]),
       });
-      if (!res.ok || !res.body) throw new Error("Failed");
-      const reader = res.body.getReader(); const decoder = new TextDecoder(); let acc = "";
-      while (true) {
-        const { done, value } = await reader.read(); if (done) break;
-        for (const line of decoder.decode(value, { stream: true }).split("\n")) {
-          if (!line.startsWith("data: ")) continue;
-          const d = line.slice(6); if (!d || d === "[DONE]") continue;
-          try { const p = JSON.parse(d); if (p.content) { acc += p.content; setBuf(acc); } } catch {}
-        }
-      }
-      setChatMessages(prev => [...prev, { role: "assistant", content: acc }]);
     } catch (err: any) {
       if (err.name !== "AbortError") setChatMessages(prev => [...prev, { role: "assistant", content: "[Error — retry]" }]);
     } finally { setStreaming(false); setBuf(""); abortRef.current = null; }
   };
+
 
   return (
     <div className="flex flex-col h-full">

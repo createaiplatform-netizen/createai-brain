@@ -1,5 +1,6 @@
 import React, { useState, useRef, useEffect } from "react";
 import { StandaloneLayout, StandaloneMode } from "./StandaloneLayout";
+import { streamEngine } from "@/controller";
 
 // ─── Mock Data ───────────────────────────────────────────────────────────────
 const PATIENTS = [
@@ -787,41 +788,18 @@ function AIAssistantSection() {
     setStreaming(true);
     setStreamBuf("");
 
-    const controller = new AbortController();
-    abortRef.current = controller;
+    const ctrl = new AbortController();
+    abortRef.current = ctrl;
 
     try {
-      const res = await fetch("/api/openai/generate", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({
-          type: "Document",
-          description: `[ApexCare Nexus Healthcare AI Assistant — Demo Mode]\n\nUser question: "${q}"\n\nRespond as a healthcare platform AI assistant. Provide a helpful, clearly AI-labeled, mock/structural answer. Explain clinical concepts in plain language. Always clarify this is demonstration content and not real clinical advice. Keep response practical and focused.`,
-          tone: "Clinical Structural",
-        }),
-        signal: controller.signal,
+      await streamEngine({
+        engineId: "BrainGen",
+        topic:    `[ApexCare Nexus Healthcare AI Assistant — Demo Mode]\n\nUser question: "${q}"\n\nRespond as a healthcare platform AI assistant. Provide a helpful, clearly AI-labeled, mock/structural answer. Explain clinical concepts in plain language. Always clarify this is demonstration content and not real clinical advice. Keep response practical and focused.`,
+        signal:   ctrl.signal,
+        onChunk:  (t) => setStreamBuf(prev => prev + t),
+        onDone:   (full) => setMessages(prev => [...prev, { role: "assistant", content: full }]),
+        onError:  () => setMessages(prev => [...prev, { role: "assistant", content: "[Response error — please try again.]" }]),
       });
-
-      if (!res.ok || !res.body) throw new Error("Stream failed");
-      const reader = res.body.getReader();
-      const decoder = new TextDecoder();
-      let accumulated = "";
-
-      while (true) {
-        const { done, value } = await reader.read();
-        if (done) break;
-        const chunk = decoder.decode(value, { stream: true });
-        for (const line of chunk.split("\n")) {
-          if (!line.startsWith("data: ")) continue;
-          const data = line.slice(6);
-          if (!data || data === "[DONE]") continue;
-          try {
-            const parsed = JSON.parse(data);
-            if (parsed.content) { accumulated += parsed.content; setStreamBuf(accumulated); }
-          } catch {}
-        }
-      }
-      setMessages(prev => [...prev, { role: "assistant", content: accumulated }]);
     } catch (err: any) {
       if (err.name !== "AbortError") {
         setMessages(prev => [...prev, { role: "assistant", content: "[Response error — please try again.]" }]);

@@ -1,3 +1,4 @@
+import { streamEngine, streamSeries } from "@/controller";
 // ═══════════════════════════════════════════════════════════════════════════
 // LORE ENGINE — Frontend Intelligence Layer
 // Powers LoreForge with deep lore engine definitions, series defs, and
@@ -269,36 +270,8 @@ export async function runLoreEngine(opts: {
   onDone?: () => void;
   onError?: (err: string) => void;
 }): Promise<void> {
-  const { engineId, engineName, topic, context, onChunk, onDone, onError } = opts;
-  try {
-    const resp = await fetch("/api/openai/engine-run", {
-      method:      "POST",
-      credentials: "include",
-      headers:     { "Content-Type": "application/json" },
-      body:        JSON.stringify({ engineId, engineName, topic, context }),
-    });
-
-    if (!resp.ok || !resp.body) { onError?.(`Engine returned ${resp.status}`); return; }
-
-    const reader  = resp.body.getReader();
-    const decoder = new TextDecoder();
-
-    while (true) {
-      const { done, value } = await reader.read();
-      if (done) break;
-      const lines = decoder.decode(value).split("\n");
-      for (const line of lines) {
-        if (!line.startsWith("data:")) continue;
-        try {
-          const parsed = JSON.parse(line.slice(5).trim()) as { content?: string; done?: boolean };
-          if (parsed.content) onChunk(parsed.content);
-          if (parsed.done)    onDone?.();
-        } catch { /* skip malformed */ }
-      }
-    }
-  } catch (err) {
-    onError?.(String(err));
-  }
+  const { engineId, topic, context, onChunk, onDone, onError } = opts;
+  await streamEngine({ engineId, topic, context, onChunk, onDone: onDone ? () => onDone() : undefined, onError });
 }
 
 export async function runLoreSeries(opts: {
@@ -311,39 +284,5 @@ export async function runLoreSeries(opts: {
   onDone?: () => void;
   onError?: (err: string) => void;
 }): Promise<void> {
-  const { seriesId, topic, context, onSectionStart, onChunk, onSectionEnd, onDone, onError } = opts;
-  try {
-    const resp = await fetch("/api/openai/series-run", {
-      method:      "POST",
-      credentials: "include",
-      headers:     { "Content-Type": "application/json" },
-      body:        JSON.stringify({ seriesId, topic, context }),
-    });
-
-    if (!resp.ok || !resp.body) { onError?.(`Series returned ${resp.status}`); return; }
-
-    const reader  = resp.body.getReader();
-    const decoder = new TextDecoder();
-
-    while (true) {
-      const { done, value } = await reader.read();
-      if (done) break;
-      const lines = decoder.decode(value).split("\n");
-      for (const line of lines) {
-        if (!line.startsWith("data:")) continue;
-        try {
-          const parsed = JSON.parse(line.slice(5).trim()) as {
-            type?: string; content?: string; engineId?: string; sectionIndex?: number; done?: boolean;
-          };
-          if (parsed.type === "section-start" && parsed.engineId !== undefined)
-            onSectionStart(parsed.engineId, parsed.sectionIndex ?? 0);
-          if (parsed.content) onChunk(parsed.content);
-          if (parsed.type === "section-end" && parsed.engineId) onSectionEnd(parsed.engineId);
-          if (parsed.done) onDone?.();
-        } catch { /* skip malformed */ }
-      }
-    }
-  } catch (err) {
-    onError?.(String(err));
-  }
+  await streamSeries({ seriesId: opts.seriesId, topic: opts.topic, context: opts.context, onSectionStart: opts.onSectionStart, onChunk: opts.onChunk, onSectionEnd: opts.onSectionEnd, onDone: opts.onDone, onError: opts.onError });
 }

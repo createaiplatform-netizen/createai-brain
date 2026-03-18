@@ -1,5 +1,6 @@
 import React, { useState, useRef, useEffect, useCallback } from "react";
 import { ProjectGenerator, type GeneratedProject } from "./ProjectGenerator";
+import { streamBrainstorm as controllerStreamBrainstorm } from "@/controller";
 
 // ─── Types ────────────────────────────────────────────────────────────────────
 
@@ -86,47 +87,6 @@ async function createBrainstormSession(title: string): Promise<number | null> {
     const data = await res.json() as { session: { id: number } };
     return data.session.id;
   } catch { return null; }
-}
-
-interface StreamCallbacks {
-  onChunk: (t: string) => void;
-  onProjectCreated?: (p: { id: string; name: string; industry: string; icon: string; color: string }) => void;
-}
-
-async function streamBrainstorm(
-  sessionId: number,
-  message: string,
-  history: { role: string; content: string }[],
-  { onChunk, onProjectCreated }: StreamCallbacks,
-  signal: AbortSignal,
-): Promise<void> {
-  const res = await fetch(`/api/brainstorm/sessions/${sessionId}/chat`, {
-    method: "POST",
-    headers: { "Content-Type": "application/json" },
-    body: JSON.stringify({ message, history }),
-    signal,
-  });
-  if (!res.ok || !res.body) return;
-  const reader = res.body.getReader();
-  const dec = new TextDecoder();
-  let acc = "";
-  while (true) {
-    const { done, value } = await reader.read();
-    if (done) break;
-    acc += dec.decode(value, { stream: true });
-    const parts = acc.split("\n\n");
-    acc = parts.pop() ?? "";
-    for (const part of parts) {
-      if (!part.startsWith("data: ")) continue;
-      const raw = part.slice(6).trim();
-      if (raw === "[DONE]") return;
-      try {
-        const p = JSON.parse(raw) as { content?: string; projectCreated?: { id: string; name: string; industry: string; icon: string; color: string } };
-        if (p.projectCreated && onProjectCreated) onProjectCreated(p.projectCreated);
-        else if (p.content) onChunk(p.content);
-      } catch {}
-    }
-  }
 }
 
 // ─── Bubble component ─────────────────────────────────────────────────────────
@@ -224,26 +184,24 @@ export function BrainstormChat({ isOpen, onClose, onGoToProjects }: BrainstormCh
 
     try {
       if (sid) {
-        await streamBrainstorm(
-          sid,
-          text.trim(),
-          historyForApi,
-          {
-            onChunk: (chunk) => {
-              setMessages(prev => prev.map(m =>
-                m.id === aiId ? { ...m, text: m.text + chunk } : m
-              ));
-            },
-            onProjectCreated: (proj) => {
-              setCreatedProjects(prev => [...prev, {
-                name: proj.name,
-                industry: proj.industry,
-                icon: proj.icon,
-              }]);
-            },
+        await controllerStreamBrainstorm({
+          sessionId: sid,
+          message:   text.trim(),
+          history:   historyForApi,
+          signal:    ctrl.signal,
+          onChunk:   (chunk) => {
+            setMessages(prev => prev.map(m =>
+              m.id === aiId ? { ...m, text: m.text + chunk } : m
+            ));
           },
-          ctrl.signal,
-        );
+          onProjectCreated: (proj) => {
+            setCreatedProjects(prev => [...prev, {
+              name: proj.name,
+              industry: proj.industry,
+              icon: proj.icon,
+            }]);
+          },
+        });
       }
     } catch {}
 

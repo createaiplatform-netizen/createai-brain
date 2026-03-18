@@ -1,51 +1,9 @@
 import React, { useState, useRef, useEffect } from "react";
 import { getGuideResponse, type GuideContext } from "@/engine/guideEngine";
+import { streamEngine } from "@/controller";
 
 interface GuidePanelProps {
   ctx: GuideContext;
-}
-
-async function streamGuide(
-  prompt: string,
-  ctx: GuideContext,
-  onChunk: (t: string) => void,
-  signal: AbortSignal,
-) {
-  const res = await fetch("/api/openai/universal-demo", {
-    method: "POST",
-    headers: { "Content-Type": "application/json" },
-    body: JSON.stringify({
-      domain: `${ctx.filters.industry} platform`,
-      mode: ctx.mode,
-      layer: "surface",
-      action: "drill",
-      target: prompt,
-      context: {
-        region: ctx.filters.state,
-        industry: ctx.filters.industry,
-        role: ctx.filters.role || undefined,
-        orgType: ctx.filters.orgType || undefined,
-      },
-    }),
-    signal,
-  });
-  if (!res.ok || !res.body) return;
-  const reader = res.body.getReader();
-  const dec = new TextDecoder();
-  let acc = "";
-  while (true) {
-    const { done, value } = await reader.read();
-    if (done) break;
-    for (const line of dec.decode(value, { stream: true }).split("\n")) {
-      if (!line.startsWith("data: ")) continue;
-      const raw = line.slice(6);
-      if (!raw || raw === "[DONE]") continue;
-      try {
-        const d = JSON.parse(raw);
-        if (d.content) { acc += d.content; onChunk(acc); }
-      } catch { /* skip */ }
-    }
-  }
 }
 
 export function GuidePanel({ ctx }: GuidePanelProps) {
@@ -62,12 +20,19 @@ export function GuidePanel({ ctx }: GuidePanelProps) {
   const askAI = async (q: string) => {
     if (!q.trim()) return;
     abortRef.current?.abort();
-    const controller = new AbortController();
-    abortRef.current = controller;
+    const ctrl = new AbortController();
+    abortRef.current = ctrl;
     setAiStreaming(true);
     setAiText("");
     try {
-      await streamGuide(q, ctx, t => setAiText(t), controller.signal);
+      let acc = "";
+      await streamEngine({
+        engineId: "UniversalStrategyEngine",
+        topic:    `[${ctx.filters.industry} platform guide — ${ctx.mode}]\n\nContext: industry=${ctx.filters.industry}, region=${ctx.filters.state}${ctx.filters.role ? `, role=${ctx.filters.role}` : ""}${ctx.filters.orgType ? `, orgType=${ctx.filters.orgType}` : ""}\n\nQuestion: ${q}`,
+        signal:   ctrl.signal,
+        onChunk:  (t) => { acc += t; setAiText(acc); },
+        onError:  () => setAiText("[Could not reach AI guide — please try again]"),
+      });
     } catch (e: any) {
       if (e.name !== "AbortError") setAiText("[Could not reach AI guide — please try again]");
     } finally {

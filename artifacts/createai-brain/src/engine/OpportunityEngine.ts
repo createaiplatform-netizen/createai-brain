@@ -1,3 +1,4 @@
+import { streamEngine } from "@/controller";
 // ═══════════════════════════════════════════════════════════════════════════
 // OPPORTUNITY ENGINE — Frontend Intelligence Layer
 // Powers the OpportunityApp with scoring, classification, and AI integration.
@@ -258,36 +259,7 @@ export async function runOpportunityScan(opts: {
 }): Promise<void> {
   const { topic, context, onChunk, onDone, onError } = opts;
   try {
-    const resp = await fetch("/api/openai/engine-run", {
-      method:      "POST",
-      credentials: "include",
-      headers:     { "Content-Type": "application/json" },
-      body:        JSON.stringify({
-        engineId:   "OpportunityEngine",
-        engineName: "OpportunityEngine",
-        topic,
-        context,
-      }),
-    });
-
-    if (!resp.ok || !resp.body) { onError?.(`Engine returned ${resp.status}`); return; }
-
-    const reader  = resp.body.getReader();
-    const decoder = new TextDecoder();
-
-    while (true) {
-      const { done, value } = await reader.read();
-      if (done) break;
-      const lines = decoder.decode(value).split("\n");
-      for (const line of lines) {
-        if (!line.startsWith("data:")) continue;
-        try {
-          const parsed = JSON.parse(line.slice(5).trim()) as { content?: string; done?: boolean };
-          if (parsed.content) onChunk(parsed.content);
-          if (parsed.done)    onDone?.();
-        } catch { /* skip malformed */ }
-      }
-    }
+    await streamEngine({ engineId: "OpportunityEngine", topic, context, onChunk, onDone: onDone ? () => onDone() : undefined, onError });
   } catch (err) {
     onError?.(String(err));
   }

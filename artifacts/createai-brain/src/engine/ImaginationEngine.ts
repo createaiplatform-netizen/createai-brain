@@ -1,3 +1,4 @@
+import { streamEngine, streamSeries } from "@/controller";
 // ═══════════════════════════════════════════════════════════════════════════
 // IMAGINATION ENGINE — Frontend Intelligence Layer
 // Powers the ImaginationLab with creative engine definitions, colors, and

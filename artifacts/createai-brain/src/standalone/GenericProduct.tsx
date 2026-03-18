@@ -1,5 +1,6 @@
 import React, { useState, useRef, useEffect } from "react";
 import { StandaloneLayout, StandaloneMode } from "./StandaloneLayout";
+import { streamEngine } from "@/controller";
 
 interface GenericProductProps {
   projectId: string;
@@ -325,34 +326,18 @@ function GenericAI({ name, industry }: { name: string; industry: string }) {
     setInput("");
     setMessages(prev => [...prev, { role: "user", content: q }]);
     setStreaming(true); setBuf("");
-    const controller = new AbortController();
-    abortRef.current = controller;
+    const ctrl = new AbortController();
+    abortRef.current = ctrl;
     try {
-      const res = await fetch("/api/openai/generate", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({
-          type: "Document",
-          description: `[${name} AI Assistant — ${industry} — Demo Mode]\n\nUser: "${q}"\n\nRespond as a ${industry} platform assistant. Clearly label yourself as AI. Provide helpful, structural, non-operational guidance. Stay focused on ${industry.toLowerCase()} workflows and platform features. Keep it practical and concise.`,
-          tone: "Professional",
-        }),
-        signal: controller.signal,
-      });
-      if (!res.ok || !res.body) throw new Error("Failed");
-      const reader = res.body.getReader();
-      const decoder = new TextDecoder();
       let acc = "";
-      while (true) {
-        const { done, value } = await reader.read();
-        if (done) break;
-        for (const line of decoder.decode(value, { stream: true }).split("\n")) {
-          if (!line.startsWith("data: ")) continue;
-          const data = line.slice(6);
-          if (!data || data === "[DONE]") continue;
-          try { const p = JSON.parse(data); if (p.content) { acc += p.content; setBuf(acc); } } catch {}
-        }
-      }
-      setMessages(prev => [...prev, { role: "assistant", content: acc }]);
+      await streamEngine({
+        engineId: "BrainGen",
+        topic:    `[${name} AI Assistant — ${industry} — Demo Mode]\n\nUser: "${q}"\n\nRespond as a ${industry} platform assistant. Clearly label yourself as AI. Provide helpful, structural, non-operational guidance. Stay focused on ${industry.toLowerCase()} workflows and platform features. Keep it practical and concise.`,
+        signal:   ctrl.signal,
+        onChunk:  (t) => { acc += t; setBuf(acc); },
+        onDone:   (full) => setMessages(prev => [...prev, { role: "assistant", content: full }]),
+        onError:  () => setMessages(prev => [...prev, { role: "assistant", content: "[Error — please retry.]" }]),
+      });
     } catch (err: any) {
       if (err.name !== "AbortError") setMessages(prev => [...prev, { role: "assistant", content: "[Error — please retry.]" }]);
     } finally { setStreaming(false); setBuf(""); abortRef.current = null; }
