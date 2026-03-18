@@ -1,0 +1,89 @@
+Create, install, and prepare (but do not auto‑deploy) a complete Internal Identity Engine for the platform. This engine must generate, manage, route, and update identity packages for every project, workspace, client, or entity created inside the system. Build the full logic, UI, routing, and internal services inside the Builder Space.
+
+THE IDENTITY ENGINE MUST INCLUDE:
+
+1. INTERNAL DOMAIN SYSTEM
+   • Automatically generate an internal domain-style identifier:
+     {projectName}.createai
+   • This is internal only and must not rely on external DNS.
+   • Must support user editing and regeneration.
+   • Must support uniqueness, conflict resolution, and versioning.
+
+2. PUBLIC-FACING SUBDOMAIN (OPTIONAL)
+   • Prepare (but do not deploy) a public subdomain:
+     {projectName}.createai.digital
+   • This uses the global domain but must remain optional.
+   • Deployment requires explicit user approval.
+   • Provide a preview, validation, and conflict check.
+
+3. INTERNAL EMAIL SYSTEM
+   • Generate an internal email-style identity:
+     {projectName}@mail.createai
+   • This is internal only and used for:
+     - messaging
+     - notifications
+     - AI interactions
+     - routing
+   • Must support user editing and regeneration.
+   • Must include inbox, outbox, and routing logic.
+
+4. INTERNAL PHONE-STYLE MESSAGING IDENTITY
+   • Generate an internal phone-like identity:
+     +CAI-{projectID}
+   • This is NOT a real phone number.
+   • Used for:
+     - chat
+     - SMS-like notifications
+     - internal alerts
+     - project communication
+   • Must support user editing and regeneration.
+
+5. BEST OPTION SELECTOR
+   • Automatically generate the cleanest, clearest, most professional identity set.
+   • Evaluate:
+     - readability
+     - length
+     - brand consistency
+     - conflict avoidance
+   • Always allow user override.
+   • Provide suggestions and alternatives.
+
+6. ROUTING LAYER
+   • Ensure all internal identities work across:
+     - project messaging
+     - workspace communication
+     - notifications
+     - internal email
+     - internal SMS-like messaging
+     - AI interactions
+   • Build a unified routing service that resolves:
+     - internal domains
+     - internal emails
+     - internal phone IDs
+
+7. IDENTITY SETTINGS PANEL
+   • Create a full UI panel where users can:
+     - view their identity package
+     - edit internal domain
+     - edit internal email identity
+     - edit internal phone-style identity
+     - regenerate identities
+     - approve or decline public subdomain
+   • Include validation, previews, and conflict warnings.
+
+8. INTERNAL-ONLY REQUIREMENT
+   • All identity systems must remain fully inside the platform.
+   • No external DNS, email providers, or phone services.
+   • Only the optional public subdomain touches the global domain.
+
+9. BUILDER SPACE PREPARATION
+   • Generate all code, UI components, routing logic, and services.
+   • Present everything inside the Builder Space:
+     - file tree
+     - code editor
+     - preview pane
+     - before/after diffs
+   • Do NOT auto-activate or auto-deploy.
+   • Wait for my approval.
+
+Provide the full implementation inside the Builder Space for review.

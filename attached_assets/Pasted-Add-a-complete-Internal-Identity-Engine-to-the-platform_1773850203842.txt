@@ -1,0 +1,122 @@
+Add a complete Internal Identity Engine to the platform, fully managed through the existing Builder Space workflow.
+
+Goal:
+Every project, workspace, or client in CreateAI should automatically receive a full “identity package” that is internal-first, safe, and fully under our control, with optional public exposure via createai.digital.
+
+Build the following, with all changes proposed as a Builder Space proposal (no direct file writes):
+
+1. Internal Identity Model
+   • Define a ProjectIdentity type with:
+     - id
+     - projectId
+     - internalDomain (string)
+     - internalEmail (string)
+     - internalPhoneId (string)
+     - publicSubdomain (string | null)
+     - status (active / archived)
+     - createdAt, updatedAt
+   • Store identities in a dedicated engine file (e.g., IdentityEngine.ts) with local persistence (or the same persistence pattern used by BuilderSpaceEngine).
+
+2. Internal Domain System
+   • For each project, auto-generate:
+     {normalizedProjectName}.createai
+   • Normalization rules:
+     - lowercase
+     - spaces → hyphens
+     - remove special characters
+   • Ensure uniqueness (append -2, -3, etc. on conflict).
+   • Provide functions:
+     - getIdentityByProjectId(projectId)
+     - ensureIdentityForProject(project)
+     - updateInternalDomain(projectId, newDomain)
+
+3. Internal Email System
+   • For each project, auto-generate:
+     {normalizedProjectName}@mail.createai
+   • Same normalization and uniqueness rules.
+   • Provide functions:
+     - updateInternalEmail(projectId, newEmail)
+   • This is internal-only and used for:
+     - notifications
+     - AI interactions
+     - internal messaging
+
+4. Internal Phone-Style Identity
+   • For each project, auto-generate:
+     +CAI-{shortProjectId}
+   • This is NOT a real phone number.
+   • Used for:
+     - internal chat
+     - SMS-like notifications
+     - project alerts
+   • Provide functions:
+     - updateInternalPhoneId(projectId, newId)
+
+5. Optional Public Subdomain
+   • Prepare (but do not auto-deploy) a public-facing subdomain:
+     {normalizedProjectName}.createai.digital
+   • This should be stored in the identity model but marked as:
+     - status: "pending" until explicitly approved.
+   • Provide functions:
+     - proposePublicSubdomain(projectId)
+     - approvePublicSubdomain(projectId)
+     - declinePublicSubdomain(projectId)
+
+6. Best Option Selector
+   • Implement a helper that, given a project name, returns:
+     - bestInternalDomain
+     - bestInternalEmail
+     - bestInternalPhoneId
+     - bestPublicSubdomain
+   • Criteria:
+     - readability
+     - length
+     - brand consistency
+     - conflict avoidance
+   • This helper is used by ensureIdentityForProject.
+
+7. Routing Layer
+   • Add a small routing service (e.g., IdentityRouting.ts) that can resolve:
+     - from internalDomain → projectId
+     - from internalEmail → projectId
+     - from internalPhoneId → projectId
+   • This will be used by:
+     - messaging
+     - notifications
+     - AI tools
+   • For now, just implement the lookup functions and wire them into the existing project context or OS context where appropriate.
+
+8. Identity Settings UI
+   • Add a new app or panel inside the existing OS (e.g., “Identity Manager”) that:
+     - lists all projects with their identity package
+     - shows:
+       · internalDomain
+       · internalEmail
+       · internalPhoneId
+       · publicSubdomain (with status)
+     - allows:
+       · editing internalDomain
+       · editing internalEmail
+       · editing internalPhoneId
+       · triggering “Propose public subdomain”
+       · approving/declining public subdomain
+   • Use the same UI patterns as Builder Space:
+     - list view
+     - detail view
+     - clear labels and safety notes (e.g., “Internal only”, “Optional public subdomain”).
+
+9. Safety and Scope
+   • All identity systems must remain internal-only.
+   • Do NOT integrate with real DNS, external email providers, or real phone/SMS services.
+   • The publicSubdomain field is purely preparatory metadata for future integration.
+
+10. Builder Space Integration
+   • Implement all of this as a single Builder Space proposal:
+     - new engine file(s) (IdentityEngine, IdentityRouting)
+     - updates to project/OS context to ensure identities are created when projects are created
+     - new Identity Manager UI app and its registration in the OS (AppId, APP_META, DEFAULT_APPS, INTENT_MAP, AppWindow wiring).
+   • Do NOT write directly to the filesystem.
+   • Use the existing BuilderSpaceEngine pattern: all changes appear as proposed files with diffs, ready for me to review and apply.
+
+Output:
+A complete Builder Space proposal that adds the Internal Identity Engine, Identity Routing, and Identity Manager UI, fully wired into the OS, with no TypeScript errors.
