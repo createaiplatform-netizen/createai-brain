@@ -1,0 +1,77 @@
+STOP modifying existing files unless explicitly instructed. Implement the complete local-first integration layer exactly as follows:
+
+1) VITE PROXY CONFIG
+Add a proxy entry so all /local/* requests forward to the tiny backend on port 3001:
+- Path: /local/*
+- Target: http://localhost:3001
+- Rewrite: remove the /local prefix
+This must be same-origin so no CORS is required.
+
+2) CREATE A UNIFIED LOCAL BACKEND SERVICE MODULE
+Create src/services/LocalBackendService.ts with:
+- get/post/put/delete helpers that call /local/* endpoints
+- write-through caching: every successful response is saved to localStorage
+- rehydration: on page load, return cached data instantly before fetching fresh data
+- offline fallback: if backend is unreachable, serve cached data silently
+- auto-invalidation: after any mutation, refresh the cache for that resource
+
+Resources to support:
+- users
+- projects
+- settings
+- documents
+- chat
+- images
+
+3) CREATE LOCAL DATA HOOKS
+Create src/hooks/useLocalData.ts with:
+- useLocalUsers()
+- useLocalProjects()
+- useLocalSettings()
+- useLocalDocuments()
+- useLocalChat()
+- useLocalImages()
+
+Each hook:
+- returns cached data immediately
+- triggers a background fetch
+- updates state when fresh data arrives
+- exposes create/update/delete helpers that call LocalBackendService
+
+4) CREATE A LOCAL SYNC INDICATOR
+Create src/components/LocalSyncIndicator.tsx:
+- small pill UI with status dot:
+  - green = backend reachable
+  - amber = serving from cache
+  - pulsing grey = checking
+- expandable panel showing:
+  - last sync time
+  - record counts for users, projects, documents, chat, images
+- click toggles expanded view
+
+5) WIRE THE SYNC INDICATOR INTO THE SIDEBAR
+Modify the Sidebar bottom section:
+- Insert <LocalSyncIndicator /> above the collapse toggle
+- It must be visible in both expanded and collapsed modes
+
+6) OSContext SETTINGS SYNC
+Modify OSContext.updatePreferences:
+- After updating in-memory preferences, send a fire-and-forget PUT to /local/settings
+- Mirror all preference changes (tone, theme, layout, behavior) to the tiny backend
+- On app load, hydrate OSContext from local backend settings if available
+
+7) REGISTER LOCAL BACKEND WORKFLOW
+Add a workflow entry so the tiny backend starts automatically:
+- Command: node backend/server.js
+- Port: 3001
+- Mark as persistent so it restarts with the project
+
+8) TYPECHECK + CLEANUP
+After implementing everything:
+- Run a full typecheck
+- Fix any missing imports or type mismatches
+- Restart both backend and frontend
+- Confirm the proxy logs show forwarded requests
+- Confirm LocalSyncIndicator shows green when backend is reachable
+
+DO NOT use external services. DO NOT add dependencies beyond what already exists. Keep everything lightweight, local, zero-cost, and self-contained. The final experience must feel unified, continuous, and intelligent, with instant cached rendering and seamless background syncing.
