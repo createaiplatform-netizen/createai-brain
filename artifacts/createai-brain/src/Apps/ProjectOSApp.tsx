@@ -1152,6 +1152,9 @@ export function ProjectOSApp() {
           ));
         }
       } catch {}
+      // pe-001: Yield to main thread every 2 files — keeps progress bar smooth,
+      // eliminates perceived freeze during large scaffolds (8–12 files).
+      if ((i + 1) % 2 === 0) await new Promise<void>(r => setTimeout(r, 0));
     }
     setScaffoldStatus(null);
   }, []);

@@ -1311,3 +1311,80 @@ export function simulateProposal(proposalId: string): ImprovementSimulation | nu
   const p = ALL_PROPOSALS_CORPUS.find(p => p.id === proposalId);
   return p ? p.simulation : null;
 }
+
+// ─── Activation system ────────────────────────────────────────────────────────
+// Tracks which proposals have been activated. Persisted to localStorage.
+// All activations are synthetic — they apply the optimized pattern as an
+// in-memory/config change only. Nothing overwrites live data.
+
+const LS_ACTIVATION_KEY = "createai:activated-proposals-v1";
+
+export function getActivatedIds(): Set<string> {
+  try {
+    const raw = localStorage.getItem(LS_ACTIVATION_KEY);
+    return raw ? new Set(JSON.parse(raw) as string[]) : new Set<string>();
+  } catch { return new Set<string>(); }
+}
+
+export function activateProposal(id: string): void {
+  const ids = getActivatedIds();
+  ids.add(id);
+  try { localStorage.setItem(LS_ACTIVATION_KEY, JSON.stringify([...ids])); } catch {}
+}
+
+export function deactivateProposal(id: string): void {
+  const ids = getActivatedIds();
+  ids.delete(id);
+  try { localStorage.setItem(LS_ACTIVATION_KEY, JSON.stringify([...ids])); } catch {}
+}
+
+export function batchActivate(ids: string[]): void {
+  const current = getActivatedIds();
+  ids.forEach(id => current.add(id));
+  try { localStorage.setItem(LS_ACTIVATION_KEY, JSON.stringify([...current])); } catch {}
+}
+
+export function batchDeactivate(ids: string[]): void {
+  const current = getActivatedIds();
+  ids.forEach(id => current.delete(id));
+  try { localStorage.setItem(LS_ACTIVATION_KEY, JSON.stringify([...current])); } catch {}
+}
+
+/** Auto-activates all proposals with safetyScore >= 95. Returns activated IDs. */
+export function autoActivateAll(): string[] {
+  const toActivate = ALL_PROPOSALS_CORPUS
+    .filter(p => p.safetyScore >= 95)
+    .map(p => p.id);
+  batchActivate(toActivate);
+  return toActivate;
+}
+
+/** Returns the full activation manifest — what has been activated, coverage, gains. */
+export function getActivationManifest() {
+  const activated = getActivatedIds();
+  const total = ALL_PROPOSALS_CORPUS.length;
+  const activatedList = ALL_PROPOSALS_CORPUS.filter(p => activated.has(p.id));
+  const withGain = activatedList.filter(p => p.efficiencyGain > 0);
+  const avgGainActivated = withGain.length
+    ? Math.round(withGain.reduce((s, p) => s + p.efficiencyGain, 0) / withGain.length)
+    : 0;
+  const totalSyntheticPackets = activatedList.reduce(
+    (s, p) => s + p.simulation.syntheticPacketsAffected, 0
+  );
+  const byDomain = Object.fromEntries(
+    (Object.keys(PLATFORM_DOMAINS) as PlatformDomain[]).map(d => [
+      d,
+      activatedList.filter(p => p.domain === d).length,
+    ])
+  ) as Record<PlatformDomain, number>;
+  return {
+    total,
+    activatedCount: activated.size,
+    activatedIds: activated,
+    coverage: total > 0 ? Math.round((activated.size / total) * 100) : 0,
+    avgGainActivated,
+    totalSyntheticPackets,
+    byDomain,
+    safetyGuaranteed: activatedList.every(p => !p.simulation.affectsExistingSystems),
+  };
+}

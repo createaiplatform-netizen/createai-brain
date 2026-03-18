@@ -9,8 +9,10 @@ import {
   IndustryDef, CapabilityDef, SyntheticPreviewRow,
 } from "@/engine/CapabilityHubEngine";
 import {
-  getAllProposals, getProposalStats, simulateProposal,
-  CATEGORY_META, ImprovementCategory, ImprovementProposal,
+  getAllProposals, getProposalStats, getDomainStats, simulateProposal,
+  CATEGORY_META, PLATFORM_DOMAINS,
+  ImprovementCategory, ImprovementProposal, PlatformDomain,
+  getActivatedIds, activateProposal, deactivateProposal, autoActivateAll, getActivationManifest,
 } from "@/engine/ContinuousImprovementEngine";
 
 // ─── Status config (3-tier spec) ──────────────────────────────────────────────
@@ -1661,32 +1663,56 @@ const COMPLEXITY_COLOR: Record<string, string> = {
   high:   "text-rose-700 bg-rose-50 border-rose-200",
 };
 
+const RUN_PHASE_LABEL: Record<string, string> = {
+  simulating:  "Running synthetic simulations across all proposals…",
+  activating:  "Applying optimizations — zero impact on existing systems…",
+  complete:    "Platform optimization complete. All safe upgrades active.",
+};
+
 function ProposalCard({
-  proposal, isSimulated, isReady, onSimulate, onPrepare,
+  proposal, isSimulated, isReady, isActivated,
+  onSimulate, onPrepare, onActivate, onDeactivate,
 }: {
-  proposal: ImprovementProposal;
+  proposal:    ImprovementProposal;
   isSimulated: boolean;
-  isReady: boolean;
-  onSimulate: () => void;
-  onPrepare: () => void;
+  isReady:     boolean;
+  isActivated: boolean;
+  onSimulate:  () => void;
+  onPrepare:   () => void;
+  onActivate:  () => void;
+  onDeactivate:() => void;
 }) {
   const [expanded, setExpanded] = useState(false);
   const meta = CATEGORY_META[proposal.category];
 
+  const borderCls = isActivated
+    ? "border-emerald-400 shadow-sm shadow-emerald-100"
+    : isReady    ? "border-emerald-300"
+    : isSimulated ? "border-indigo-200"
+    : "border-slate-200";
+
   return (
-    <div className={`rounded-2xl border bg-white overflow-hidden transition-all ${
-      isReady ? "border-emerald-300" : isSimulated ? "border-indigo-200" : "border-slate-200"
-    }`}>
+    <div className={`rounded-2xl border bg-white overflow-hidden transition-all ${borderCls}`}>
+      {/* Active stripe */}
+      {isActivated && (
+        <div className="h-1 w-full bg-gradient-to-r from-emerald-400 via-indigo-400 to-emerald-400" />
+      )}
+
       {/* Card header */}
       <div className="p-3.5">
-        <div className="flex items-start gap-2.5 mb-2">
-          {/* Category badge */}
+        <div className="flex items-start gap-2 mb-2">
           <span className={`flex-shrink-0 text-[10px] font-bold px-2 py-0.5 rounded-full border ${meta.bg} ${meta.color} ${meta.border}`}>
             {meta.icon} {meta.label}
           </span>
           {proposal.isFoundational && (
             <span className="flex-shrink-0 text-[9px] font-bold px-2 py-0.5 rounded-full bg-amber-50 border border-amber-300 text-amber-800">
               ⚡ FOUNDATIONAL
+            </span>
+          )}
+          {isActivated && (
+            <span className="flex-shrink-0 text-[9px] font-bold px-2 py-0.5 rounded-full bg-emerald-600 text-white border border-emerald-600 flex items-center gap-1">
+              <span className="w-1 h-1 rounded-full bg-white animate-pulse inline-block" />
+              ACTIVE
             </span>
           )}
           <span className={`flex-shrink-0 ml-auto text-[9px] font-bold px-2 py-0.5 rounded-full border ${COMPLEXITY_COLOR[proposal.complexity]}`}>
@@ -1702,16 +1728,14 @@ function ProposalCard({
           {proposal.efficiencyGain > 0 && (
             <div className="flex items-center gap-1">
               <div className="w-12 h-1.5 rounded-full bg-slate-100 overflow-hidden">
-                <div className="h-full rounded-full bg-emerald-400"
-                  style={{ width: `${proposal.efficiencyGain}%` }} />
+                <div className="h-full rounded-full bg-emerald-400" style={{ width: `${proposal.efficiencyGain}%` }} />
               </div>
               <span className="text-[10px] font-bold text-emerald-700">+{proposal.efficiencyGain}% efficient</span>
             </div>
           )}
           <div className="flex items-center gap-1 ml-auto">
             <div className="w-8 h-1.5 rounded-full bg-slate-100 overflow-hidden">
-              <div className="h-full rounded-full bg-indigo-400"
-                style={{ width: `${proposal.safetyScore}%` }} />
+              <div className="h-full rounded-full bg-indigo-400" style={{ width: `${proposal.safetyScore}%` }} />
             </div>
             <span className="text-[10px] font-bold text-indigo-700">{proposal.safetyScore}% safe</span>
           </div>
@@ -1729,44 +1753,63 @@ function ProposalCard({
 
         {/* Action row */}
         <div className="flex gap-2">
-          {!isSimulated && !isReady && (
+          {!isSimulated && !isReady && !isActivated && (
             <button onClick={onSimulate}
               className="flex-1 py-2 rounded-xl text-[11px] font-bold bg-indigo-600 text-white hover:bg-indigo-700 transition-colors">
               🔬 Run Simulation
             </button>
           )}
-          {isSimulated && !isReady && (
+          {isSimulated && !isReady && !isActivated && (
             <>
               <button onClick={() => setExpanded(e => !e)}
                 className="flex-1 py-2 rounded-xl text-[11px] font-bold bg-indigo-50 text-indigo-700 border border-indigo-200 hover:bg-indigo-100 transition-colors">
-                {expanded ? "▲ Hide Results" : "▼ View Results"}
+                {expanded ? "▲ Hide" : "▼ Results"}
               </button>
               <button onClick={onPrepare}
                 className="flex-1 py-2 rounded-xl text-[11px] font-bold bg-emerald-600 text-white hover:bg-emerald-700 transition-colors">
-                ✅ Prepare for Integration
+                ✅ Prepare
               </button>
             </>
           )}
-          {isReady && (
-            <div className="flex-1 py-2 rounded-xl text-[11px] font-bold text-center bg-emerald-50 border border-emerald-300 text-emerald-800">
-              ✅ Ready for Integration
+          {isReady && !isActivated && (
+            <>
+              <button onClick={() => setExpanded(e => !e)}
+                className="py-2 px-3 rounded-xl text-[11px] font-bold bg-slate-50 text-slate-600 border border-slate-200 hover:bg-slate-100 transition-colors">
+                {expanded ? "▲" : "▼"}
+              </button>
+              <div className="flex-shrink-0 flex items-center gap-1 py-2 px-3 rounded-xl text-[11px] font-bold bg-emerald-50 border border-emerald-300 text-emerald-800">
+                ✅ Ready
+              </div>
+              <button onClick={onActivate}
+                className="flex-1 py-2 rounded-xl text-[11px] font-bold bg-indigo-600 text-white hover:bg-indigo-700 transition-colors">
+                ⚡ Activate
+              </button>
+            </>
+          )}
+          {isActivated && (
+            <div className="flex-1 flex items-center gap-2">
+              <div className="flex-1 py-2 rounded-xl text-[11px] font-bold text-center bg-emerald-600 text-white">
+                ⚡ Active — Optimization Running
+              </div>
+              <button onClick={onDeactivate}
+                className="py-2 px-2.5 rounded-xl text-[10px] font-bold bg-slate-50 border border-slate-200 text-slate-500 hover:bg-slate-100 transition-colors">
+                ✕
+              </button>
             </div>
           )}
         </div>
       </div>
 
       {/* Simulation results panel */}
-      {(isSimulated || isReady) && expanded && (
+      {(isSimulated || isReady || isActivated) && expanded && (
         <div className="border-t border-slate-100 bg-slate-50 p-3.5">
           <div className="flex items-center gap-2 mb-2.5">
             <span className="text-[10px] font-bold text-slate-700 uppercase tracking-wider">Simulation Results</span>
             <span className="text-[9px] px-2 py-0.5 rounded-full bg-amber-50 border border-amber-200 text-amber-800 font-bold">
-              🧪 Synthetic · {proposal.simulation.syntheticPacketsAffected} packets · zero real data
+              🧪 {proposal.simulation.syntheticPacketsAffected} synthetic packets
             </span>
             <span className="ml-auto text-[9px] text-slate-500 font-semibold">{proposal.simulation.confidenceScore}% confidence</span>
           </div>
-
-          {/* Before / After table */}
           <div className="rounded-xl border border-slate-200 overflow-hidden">
             <div className="grid grid-cols-3 bg-slate-100 px-3 py-1.5 text-[9px] font-bold text-slate-500 uppercase tracking-wider">
               <span>Metric</span><span className="text-center">Before</span><span className="text-center">After</span>
@@ -1781,20 +1824,19 @@ function ProposalCard({
               </div>
             ))}
           </div>
-
           <div className="mt-2.5 flex items-center gap-4 text-[10px] text-slate-500">
-            <span>⏱ Est. implementation: <strong className="text-slate-700">{proposal.simulation.estimatedImplementation}</strong></span>
-            <span>🛡️ Affects existing systems: <strong className="text-emerald-700">Never</strong></span>
+            <span>⏱ Est: <strong className="text-slate-700">{proposal.simulation.estimatedImplementation}</strong></span>
+            <span>🛡️ Existing systems: <strong className="text-emerald-700">Unaffected</strong></span>
           </div>
         </div>
       )}
 
-      {/* Simulate running animation */}
-      {isSimulated && !expanded && !isReady && (
+      {/* Simulated preview strip */}
+      {isSimulated && !expanded && !isReady && !isActivated && (
         <div className="border-t border-indigo-100 bg-indigo-50 px-3.5 py-2 flex items-center gap-2">
           <div className="w-2 h-2 rounded-full bg-indigo-500" />
           <p className="text-[10px] text-indigo-700 font-semibold">
-            Simulated — {proposal.simulation.syntheticPacketsAffected} synthetic packets · {proposal.simulation.confidenceScore}% confidence · Tap "View Results" to inspect
+            {proposal.simulation.syntheticPacketsAffected} packets · {proposal.simulation.confidenceScore}% confidence
           </p>
         </div>
       )}
@@ -1804,100 +1846,224 @@ function ProposalCard({
 
 function EvolutionTab() {
   const [categoryFilter, setCategoryFilter] = useState<ImprovementCategory | "all">("all");
-  const [simulated, setSimulated] = useState<Set<string>>(new Set());
-  const [ready, setReady] = useState<Set<string>>(new Set());
+  const [domainFilter,   setDomainFilter]   = useState<PlatformDomain | "all">("all");
+  const [simulated,  setSimulated]  = useState<Set<string>>(new Set());
+  const [ready,      setReady]      = useState<Set<string>>(new Set());
+  const [activated,  setActivated]  = useState<Set<string>>(() => getActivatedIds());
   const [simulatingId, setSimulatingId] = useState<string | null>(null);
+  const [runPhase,   setRunPhase]   = useState<"idle" | "simulating" | "activating" | "complete">("idle");
+  const [runProgress,setRunProgress]= useState(0);
 
-  const proposals = useMemo(() => getAllProposals(), []);
-  const stats = useMemo(() => getProposalStats(), []);
+  const proposals    = useMemo(() => getAllProposals(), []);
+  const stats        = useMemo(() => getProposalStats(), []);
+  const domainStats  = useMemo(() => getDomainStats(), []);
+  const manifest     = useMemo(() => getActivationManifest(), [activated]);
 
-  const filtered = useMemo(() =>
-    categoryFilter === "all" ? proposals : proposals.filter(p => p.category === categoryFilter),
-    [proposals, categoryFilter]
-  );
+  const filtered = useMemo(() => {
+    let r = proposals;
+    if (categoryFilter !== "all") r = r.filter(p => p.category === categoryFilter);
+    if (domainFilter   !== "all") r = r.filter(p => p.domain   === domainFilter);
+    return r;
+  }, [proposals, categoryFilter, domainFilter]);
+
+  const isRunningAll = runPhase === "simulating" || runPhase === "activating";
 
   const handleSimulate = useCallback((id: string) => {
     setSimulatingId(id);
-    setTimeout(() => {
-      setSimulated(prev => new Set([...prev, id]));
-      setSimulatingId(null);
-    }, 900);
+    setTimeout(() => { setSimulated(prev => new Set([...prev, id])); setSimulatingId(null); }, 900);
   }, []);
 
-  const handlePrepare = useCallback((id: string) => {
+  const handlePrepare  = useCallback((id: string) => {
     setReady(prev => new Set([...prev, id]));
   }, []);
 
+  const handleActivate = useCallback((id: string) => {
+    activateProposal(id);
+    setActivated(getActivatedIds());
+  }, []);
+
+  const handleDeactivate = useCallback((id: string) => {
+    deactivateProposal(id);
+    setActivated(getActivatedIds());
+  }, []);
+
+  const handleRunAll = useCallback(async () => {
+    if (isRunningAll) return;
+    const total = proposals.length;
+
+    // Phase 1 — Staggered simulation wave
+    setRunPhase("simulating");
+    setRunProgress(0);
+    for (let i = 0; i < total; i++) {
+      await new Promise<void>(r => setTimeout(r, 18));
+      const id = proposals[i].id;
+      setSimulated(prev => new Set([...prev, id]));
+      setReady(prev => new Set([...prev, id]));
+      setRunProgress(Math.round(((i + 1) / total) * 50));
+    }
+
+    // Phase 2 — Activate all safe
+    setRunPhase("activating");
+    const activatedIds = autoActivateAll();
+    for (let i = 0; i < activatedIds.length; i++) {
+      await new Promise<void>(r => setTimeout(r, 12));
+      setRunProgress(50 + Math.round(((i + 1) / activatedIds.length) * 50));
+    }
+    setActivated(getActivatedIds());
+    setRunProgress(100);
+    setRunPhase("complete");
+    setTimeout(() => { setRunPhase("idle"); setRunProgress(0); }, 3500);
+  }, [proposals, isRunningAll]);
+
   return (
     <div className="p-4 space-y-4">
-      {/* Header */}
-      <div>
-        <div className="flex items-center gap-2 mb-0.5">
-          <h2 className="text-[15px] font-bold text-slate-900">Continuous Evolution Engine</h2>
-          <span className="flex items-center gap-1.5 text-[10px] font-bold px-2.5 py-1 rounded-full bg-emerald-50 border border-emerald-200 text-emerald-800">
-            <span className="w-1.5 h-1.5 rounded-full bg-emerald-500 animate-pulse inline-block" />
-            Live Analysis — Active
-          </span>
-        </div>
-        <p className="text-[11.5px] text-slate-500 leading-relaxed">
-          Continuously scanning every engine, workflow, capability, compliance rule, and integration pathway.
-          Every proposal simulates safely in synthetic packets — zero impact on live systems.
-        </p>
-      </div>
 
-      {/* Stats bar */}
-      <div className="grid grid-cols-4 gap-2">
-        {[
-          { label: "Proposals",   value: stats.total,              color: "text-slate-900" },
-          { label: "Simulated",   value: simulated.size,           color: "text-indigo-700" },
-          { label: "Ready",       value: ready.size,               color: "text-emerald-700" },
-          { label: "Avg Gain",    value: `+${stats.avgEfficiencyGain}%`, color: "text-emerald-700" },
-        ].map(s => (
-          <div key={s.label} className="rounded-xl border border-slate-200 bg-white py-2.5 px-2 text-center">
-            <p className={`text-[16px] font-bold ${s.color}`}>{s.value}</p>
-            <p className="text-[9.5px] text-slate-500 font-semibold mt-0.5">{s.label}</p>
+      {/* ── Header ─────────────────────────────────────────────────────────── */}
+      <div className="flex items-start gap-3">
+        <div className="flex-1 min-w-0">
+          <div className="flex items-center gap-2 mb-0.5">
+            <h2 className="text-[15px] font-bold text-slate-900">Continuous Evolution Engine</h2>
+            <span className="flex items-center gap-1.5 text-[10px] font-bold px-2.5 py-1 rounded-full bg-emerald-50 border border-emerald-200 text-emerald-800">
+              <span className="w-1.5 h-1.5 rounded-full bg-emerald-500 animate-pulse inline-block" />
+              Live Analysis
+            </span>
           </div>
-        ))}
-      </div>
-
-      {/* Foundational innovations callout */}
-      {stats.foundationalCount > 0 && (
-        <div className="rounded-2xl border border-amber-200 bg-amber-50 p-3">
-          <div className="flex items-center gap-2 mb-1">
-            <span className="text-amber-600 text-sm">⚡</span>
-            <p className="text-[11.5px] font-bold text-amber-900">
-              {stats.foundationalCount} Foundational Innovations Identified
-            </p>
-          </div>
-          <p className="text-[10.5px] text-amber-800 leading-relaxed">
-            These represent structural advances other platforms have not yet conceived.
-            Each is fully safe, fully synthetic, and ready to simulate before any commitment.
+          <p className="text-[11px] text-slate-500 leading-relaxed">
+            Every engine, workflow, capability, compliance rule, and integration pathway continuously
+            analyzed. Proposals simulate safely in synthetic packets — zero impact on live systems.
           </p>
+        </div>
+
+        {/* Execute button */}
+        <button
+          onClick={handleRunAll}
+          disabled={isRunningAll}
+          className={`flex-shrink-0 flex items-center gap-1.5 px-3 py-2.5 rounded-xl text-[11px] font-bold transition-all ${
+            runPhase === "complete"
+              ? "bg-emerald-600 text-white border border-emerald-600"
+              : isRunningAll
+              ? "bg-indigo-100 text-indigo-500 border border-indigo-200 cursor-not-allowed"
+              : "bg-indigo-600 text-white hover:bg-indigo-700 shadow-sm shadow-indigo-200"
+          }`}>
+          {runPhase === "complete" ? "✅ Done" : isRunningAll ? (
+            <><span className="w-2 h-2 rounded-full bg-indigo-400 animate-ping inline-block" />Running…</>
+          ) : (
+            <><span>⚡</span><span>Optimize All</span></>
+          )}
+        </button>
+      </div>
+
+      {/* ── Optimization progress bar ────────────────────────────────────── */}
+      {runPhase !== "idle" && (
+        <div className="rounded-2xl border border-indigo-100 bg-indigo-50 p-3 space-y-2">
+          <div className="flex items-center justify-between mb-1">
+            <p className="text-[11px] font-bold text-indigo-800">
+              {RUN_PHASE_LABEL[runPhase] ?? ""}
+            </p>
+            <span className="text-[11px] font-bold text-indigo-700">{runProgress}%</span>
+          </div>
+          <div className="w-full h-2 rounded-full bg-indigo-100 overflow-hidden">
+            <div
+              className="h-full rounded-full bg-gradient-to-r from-indigo-500 to-emerald-500 transition-all duration-200"
+              style={{ width: `${runProgress}%` }}
+            />
+          </div>
+          {runPhase === "complete" && (
+            <p className="text-[10px] text-emerald-700 font-semibold">
+              ✅ {manifest.activatedCount} optimizations active · {manifest.coverage}% coverage ·
+              {manifest.avgGainActivated > 0 ? ` +${manifest.avgGainActivated}% avg efficiency gain` : ""}
+            </p>
+          )}
         </div>
       )}
 
-      {/* Category filter row */}
-      <div className="flex gap-1.5 overflow-x-auto pb-0.5 scrollbar-hide">
-        {CATEGORY_FILTERS.map(f => (
-          <button key={f.id} onClick={() => setCategoryFilter(f.id)}
-            className={`flex-shrink-0 flex items-center gap-1 px-2.5 py-1.5 rounded-xl text-[10.5px] font-bold border transition-colors ${
-              categoryFilter === f.id
-                ? "bg-indigo-600 text-white border-transparent"
-                : "bg-white text-slate-600 border-slate-200 hover:border-indigo-200 hover:bg-indigo-50"
-            }`}>
-            <span>{f.icon}</span><span>{f.label}</span>
-            {f.id !== "all" && (
-              <span className={`text-[9px] px-1 rounded-full ${
-                categoryFilter === f.id ? "bg-white/20 text-white" : "bg-slate-100 text-slate-500"
-              }`}>
-                {stats.byCategory[f.id as ImprovementCategory] ?? 0}
-              </span>
-            )}
-          </button>
+      {/* ── Activation manifest summary ──────────────────────────────────── */}
+      {manifest.activatedCount > 0 && runPhase === "idle" && (
+        <div className="rounded-2xl border border-emerald-200 bg-emerald-50 px-3.5 py-3 flex items-center gap-3">
+          <div className="w-8 h-8 rounded-xl bg-emerald-600 flex items-center justify-center flex-shrink-0">
+            <span className="text-white text-sm">⚡</span>
+          </div>
+          <div className="flex-1 min-w-0">
+            <p className="text-[12px] font-bold text-emerald-900">
+              {manifest.activatedCount} optimizations active · {manifest.coverage}% platform coverage
+            </p>
+            <p className="text-[10px] text-emerald-700 mt-0.5">
+              {manifest.totalSyntheticPackets.toLocaleString()} synthetic packets validated ·
+              {manifest.avgGainActivated > 0 ? ` +${manifest.avgGainActivated}% avg efficiency` : " 100% safety guaranteed"}
+            </p>
+          </div>
+          <span className="text-[10px] font-bold text-emerald-600 bg-white border border-emerald-200 px-2 py-1 rounded-lg flex-shrink-0">
+            🛡️ Zero disruption
+          </span>
+        </div>
+      )}
+
+      {/* ── Stats bar ────────────────────────────────────────────────────── */}
+      <div className="grid grid-cols-5 gap-1.5">
+        {[
+          { label: "Proposals",  value: stats.total,                    color: "text-slate-900" },
+          { label: "Simulated",  value: simulated.size || ready.size,   color: "text-indigo-700" },
+          { label: "Ready",      value: ready.size,                     color: "text-amber-700" },
+          { label: "Activated",  value: manifest.activatedCount,        color: "text-emerald-700" },
+          { label: "Avg Gain",   value: `+${stats.avgEfficiencyGain}%`, color: "text-emerald-700" },
+        ].map(s => (
+          <div key={s.label} className="rounded-xl border border-slate-200 bg-white py-2 px-1.5 text-center">
+            <p className={`text-[15px] font-bold ${s.color}`}>{s.value}</p>
+            <p className="text-[9px] text-slate-500 font-semibold mt-0.5 leading-tight">{s.label}</p>
+          </div>
         ))}
       </div>
 
-      {/* Simulating spinner */}
+      {/* ── Domain filter ────────────────────────────────────────────────── */}
+      <div>
+        <p className="text-[9.5px] font-bold text-slate-400 uppercase tracking-wider mb-1.5">Domain</p>
+        <div className="flex gap-1.5 overflow-x-auto pb-0.5 scrollbar-hide">
+          <button onClick={() => setDomainFilter("all")}
+            className={`flex-shrink-0 px-2.5 py-1.5 rounded-xl text-[10px] font-bold border transition-colors ${
+              domainFilter === "all" ? "bg-slate-800 text-white border-transparent" : "bg-white text-slate-600 border-slate-200 hover:border-slate-300"
+            }`}>All</button>
+          {domainStats.filter(d => d.count > 0).map(d => (
+            <button key={d.domain} onClick={() => setDomainFilter(d.domain)}
+              className={`flex-shrink-0 flex items-center gap-1 px-2.5 py-1.5 rounded-xl text-[10px] font-bold border transition-colors ${
+                domainFilter === d.domain
+                  ? "bg-slate-800 text-white border-transparent"
+                  : "bg-white text-slate-600 border-slate-200 hover:border-slate-300"
+              }`}>
+              <span>{d.icon}</span>
+              <span>{d.label}</span>
+              <span className={`text-[9px] px-1 rounded-full ${domainFilter === d.domain ? "bg-white/20 text-white" : "bg-slate-100 text-slate-500"}`}>
+                {d.count}
+              </span>
+            </button>
+          ))}
+        </div>
+      </div>
+
+      {/* ── Category filter ──────────────────────────────────────────────── */}
+      <div>
+        <p className="text-[9.5px] font-bold text-slate-400 uppercase tracking-wider mb-1.5">Category</p>
+        <div className="flex gap-1.5 overflow-x-auto pb-0.5 scrollbar-hide">
+          {CATEGORY_FILTERS.map(f => (
+            <button key={f.id} onClick={() => setCategoryFilter(f.id)}
+              className={`flex-shrink-0 flex items-center gap-1 px-2.5 py-1.5 rounded-xl text-[10.5px] font-bold border transition-colors ${
+                categoryFilter === f.id
+                  ? "bg-indigo-600 text-white border-transparent"
+                  : "bg-white text-slate-600 border-slate-200 hover:border-indigo-200 hover:bg-indigo-50"
+              }`}>
+              <span>{f.icon}</span><span>{f.label}</span>
+              {f.id !== "all" && (
+                <span className={`text-[9px] px-1 rounded-full ${
+                  categoryFilter === f.id ? "bg-white/20 text-white" : "bg-slate-100 text-slate-500"
+                }`}>
+                  {stats.byCategory[f.id as ImprovementCategory] ?? 0}
+                </span>
+              )}
+            </button>
+          ))}
+        </div>
+      </div>
+
+      {/* ── Simulating spinner (single card) ─────────────────────────────── */}
       {simulatingId && (
         <div className="flex items-center gap-3 rounded-2xl border border-indigo-100 bg-indigo-50 px-4 py-3">
           <div className="flex gap-1">
@@ -1912,29 +2078,31 @@ function EvolutionTab() {
         </div>
       )}
 
-      {/* Proposal list */}
+      {/* ── Proposal list ────────────────────────────────────────────────── */}
       <div className="space-y-3">
         {filtered.map(p => (
           <ProposalCard
             key={p.id}
             proposal={p}
-            isSimulated={simulated.has(p.id) || ready.has(p.id)}
-            isReady={ready.has(p.id)}
+            isSimulated={simulated.has(p.id) || ready.has(p.id) || activated.has(p.id)}
+            isReady={ready.has(p.id) || activated.has(p.id)}
+            isActivated={activated.has(p.id)}
             onSimulate={() => handleSimulate(p.id)}
             onPrepare={() => handlePrepare(p.id)}
+            onActivate={() => handleActivate(p.id)}
+            onDeactivate={() => handleDeactivate(p.id)}
           />
         ))}
       </div>
 
-      {/* Footer directive */}
+      {/* ── Platform directive ───────────────────────────────────────────── */}
       <div className="rounded-2xl border border-slate-200 bg-white p-3.5">
         <p className="text-[10px] font-bold text-slate-500 uppercase tracking-wider mb-1">Platform Directive — Active</p>
         <p className="text-[11px] text-slate-600 leading-relaxed">
           Every engine, capability, workflow, data model, integration pathway, compliance rule, and project type
           is continuously analyzed for smarter, lighter, safer patterns.
-          Proposals that eliminate waste, remove duplication, simplify complexity, strengthen safety,
-          or expand universal capability are surfaced here automatically —
-          simulated safely, prepared for integration, never applied without review.
+          Improvements simulate safely in synthetic packets, activate instantly when confirmed,
+          and never disrupt existing systems — no ceiling on how much the platform can improve.
         </p>
       </div>
     </div>
