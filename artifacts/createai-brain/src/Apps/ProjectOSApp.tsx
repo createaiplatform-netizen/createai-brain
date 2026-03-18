@@ -1159,7 +1159,7 @@ export function ProjectOSApp() {
 
               {/* ── Team / Members Panel ── */}
               {viewMode === "team" && (
-                <div className="flex-1 overflow-y-auto p-5" style={{ maxWidth: 680 }}>
+                <div className="flex-1 overflow-y-auto p-5" style={{ maxWidth: "min(100%, 680px)" }}>
                   <div style={{ display: "flex", flexDirection: "column", gap: 18 }}>
 
                     {/* Header */}

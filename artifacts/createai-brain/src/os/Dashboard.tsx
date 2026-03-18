@@ -236,7 +236,7 @@ export function Dashboard({ onHamburger, onShowTour }: DashboardProps) {
           {/* ── Live stats strip ── */}
           {sysStats && (
             <div className={`transition-opacity duration-500 delay-50 ${mounted ? "opacity-100" : "opacity-0"}`}>
-              <div className="grid grid-cols-4 gap-2">
+              <div className="grid grid-cols-2 sm:grid-cols-4 gap-2">
                 {([
                   { label: "Projects",  value: sysStats.projects,    icon: "📁", color: "#6366f1" },
                   { label: "Documents", value: sysStats.documents,   icon: "📄", color: "#10b981" },
@@ -412,7 +412,7 @@ export function Dashboard({ onHamburger, onShowTour }: DashboardProps) {
                 onMouseLeave={e => (e.currentTarget.style.opacity = "1")}
               >Browse all {ALL_APPS.length} →</button>
             </div>
-            <div className="grid grid-cols-4 gap-2">
+            <div className="grid grid-cols-4 mobile-keep-grid gap-2">
               {FEATURED.map(a => (
                 <button key={a.id} onClick={() => openApp(a.id)}
                   className="flex flex-col items-center gap-2 p-3.5 rounded-2xl text-center transition-all"

@@ -962,3 +962,295 @@ aside ::-webkit-scrollbar-thumb:hover { background: rgba(0,0,0,0.18); }
   border: 1px solid rgba(79,70,229,0.10);
   border-radius: 10px;
 }
+
+/* ═══════════════════════════════════════════════════════════════════════════
+   UNIVERSAL MOBILE RESPONSIVENESS SYSTEM
+   Every page — existing and future — inherits these rules automatically.
+   No rotation required. No horizontal scrolling. Full portrait support.
+   ═══════════════════════════════════════════════════════════════════════════ */
+
+/* ── 1. Root overflow prevention — absolute guarantee: no horizontal scroll ── */
+html {
+  overflow-x: hidden;
+  scroll-behavior: smooth;
+}
+body,
+#root {
+  overflow-x: hidden;
+  max-width: 100%;
+  position: relative;
+}
+
+/* ── 2. Universal box model ─────────────────────────────────────────────────── */
+*,
+*::before,
+*::after {
+  box-sizing: border-box;
+}
+
+/* ── 3. Text overflow protection — all text wraps safely ─────────────────── */
+p, h1, h2, h3, h4, h5, h6,
+li, label, td, th, blockquote {
+  overflow-wrap: break-word;
+  word-break: break-word;
+  min-width: 0;
+}
+
+/* ── 4. Flex children — always shrink, never blow out their container ─────── */
+.flex > *,
+[class*="flex-1"] {
+  min-width: 0;
+}
+
+/* ── 5. Media safety — never overflow ────────────────────────────────────── */
+img, video, canvas, svg {
+  max-width: 100%;
+  height: auto;
+}
+
+/* ── 6. Overflow-y scroll areas clip horizontally ─────────────────────────── */
+.overflow-y-auto,
+.overflow-y-scroll,
+[class*="overflow-y-auto"],
+[class*="overflow-y-scroll"] {
+  overflow-x: hidden;
+}
+
+/* ── 7. Table base — responsive by default ────────────────────────────────── */
+table {
+  border-collapse: collapse;
+  width: 100%;
+}
+.table-responsive {
+  overflow-x: auto;
+  -webkit-overflow-scrolling: touch;
+  width: 100%;
+}
+
+/* ── 8. Code blocks — horizontal scroll inside, not outside ──────────────── */
+pre, code {
+  overflow-x: auto;
+  white-space: pre-wrap;
+  word-break: break-word;
+  max-width: 100%;
+}
+
+/* ── 9. Horizontal scroll rows (tabs, chips) — touch-scrollable, no bar ──── */
+.cai-scroll-row {
+  display: flex;
+  gap: 6px;
+  overflow-x: auto;
+  -webkit-overflow-scrolling: touch;
+  scrollbar-width: none;
+  padding-bottom: 2px;
+  flex-shrink: 0;
+}
+.cai-scroll-row::-webkit-scrollbar { display: none; }
+
+/* ── 10. Responsive grid utilities — 1→2→3 col breakpoints ──────────────── */
+.cai-grid-3 {
+  display: grid;
+  grid-template-columns: 1fr;
+  gap: 12px;
+}
+@media (min-width: 480px) { .cai-grid-3 { grid-template-columns: repeat(2, 1fr); } }
+@media (min-width: 768px) { .cai-grid-3 { grid-template-columns: repeat(3, 1fr); } }
+
+.cai-grid-2 {
+  display: grid;
+  grid-template-columns: 1fr;
+  gap: 12px;
+}
+@media (min-width: 560px) { .cai-grid-2 { grid-template-columns: repeat(2, 1fr); } }
+
+.cai-stat-grid {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: 10px;
+}
+@media (min-width: 768px) { .cai-stat-grid { grid-template-columns: repeat(4, 1fr); } }
+
+/* ── 11. Responsive flex — wraps on mobile ────────────────────────────────── */
+.cai-flex-row {
+  display: flex;
+  gap: 12px;
+  align-items: flex-start;
+  flex-wrap: wrap;
+}
+
+/* ── 12. Content-width clamped container ─────────────────────────────────── */
+.cai-container {
+  width: 100%;
+  max-width: min(100%, 680px);
+  margin-left: auto;
+  margin-right: auto;
+}
+
+/* Mobile-safe panel padding */
+.cai-panel {
+  padding: clamp(12px, 4vw, 24px);
+}
+
+/* App content scroll area — always clips horizontally */
+.app-scroll-area {
+  overflow-y: auto;
+  overflow-x: hidden;
+  overscroll-behavior: contain;
+  -webkit-overflow-scrolling: touch;
+}
+
+/* ── 13. Mobile portrait breakpoint — ≤ 639px ────────────────────────────── */
+@media (max-width: 639px) {
+
+  /* ── Typography — fluid scaling ── */
+  h1 { font-size: clamp(1.2rem, 6vw, 1.75rem) !important; letter-spacing: -0.02em !important; }
+  h2 { font-size: clamp(1.05rem, 5vw, 1.4rem)  !important; }
+  h3 { font-size: clamp(0.95rem, 4.5vw, 1.2rem) !important; }
+
+  /* ── Responsive grids — collapse fixed-column grids ── */
+  .grid-cols-3:not(.mobile-keep-grid),
+  .grid-cols-4:not(.mobile-keep-grid),
+  .grid-cols-5:not(.mobile-keep-grid),
+  .grid-cols-6:not(.mobile-keep-grid) {
+    grid-template-columns: repeat(2, 1fr) !important;
+  }
+
+  /* ── Full collapse for specific wide grids ── */
+  .mobile-col-1 {
+    grid-template-columns: 1fr !important;
+  }
+
+  /* ── Padding reduction ── */
+  .p-6  { padding: 1rem !important; }
+  .p-5  { padding: 0.875rem !important; }
+  .p-8  { padding: 1.25rem !important; }
+  .p-10 { padding: 1.5rem !important; }
+  .px-6 { padding-left: 1rem !important; padding-right: 1rem !important; }
+  .px-8 { padding-left: 1.25rem !important; padding-right: 1.25rem !important; }
+  .py-6 { padding-top: 1rem !important; padding-bottom: 1rem !important; }
+
+  /* ── Gap reduction ── */
+  .gap-6 { gap: 0.75rem !important; }
+  .gap-8 { gap: 1rem !important; }
+
+  /* ── Space-y reduction ── */
+  .space-y-6 > * + * { margin-top: 1rem !important; }
+  .space-y-8 > * + * { margin-top: 1.25rem !important; }
+
+  /* ── Max-width container fluid clamp ── */
+  .max-w-2xl, .max-w-3xl, .max-w-4xl,
+  .max-w-5xl, .max-w-6xl, .max-w-7xl {
+    max-width: 100% !important;
+  }
+
+  /* ── Horizontal flex stacks ── */
+  .mobile-stack {
+    flex-direction: column !important;
+    align-items: stretch !important;
+  }
+
+  /* ── Full-width on mobile ── */
+  .mobile-full { width: 100% !important; }
+
+  /* ── Touch-safe tap targets ── */
+  button, [role="button"], a {
+    min-height: 36px;
+  }
+
+  /* ── Prevent iOS auto-zoom on input focus ── */
+  input[type="text"],
+  input[type="email"],
+  input[type="password"],
+  input[type="number"],
+  input[type="search"],
+  textarea,
+  select {
+    font-size: 16px !important;
+  }
+
+  /* ── Inline fixed-width style overrides — protect app containers ── */
+  /* These target the most common inline maxWidth patterns via attribute selector */
+  [style*="maxWidth: 680"],
+  [style*="maxWidth: 700"],
+  [style*="maxWidth: 720"],
+  [style*="maxWidth: 740"],
+  [style*="maxWidth: 780"],
+  [style*="maxWidth: 800"],
+  [style*="maxWidth: 900"],
+  [style*="maxWidth: 960"],
+  [style*="maxWidth: 1000"],
+  [style*="maxWidth: 1200"],
+  [style*="max-width: 680px"],
+  [style*="max-width: 700px"],
+  [style*="max-width: 800px"],
+  [style*="max-width: 900px"] {
+    max-width: 100% !important;
+    width: 100% !important;
+  }
+
+  /* ── Fixed-width side panels ── */
+  [style*="minWidth: 220"],
+  [style*="minWidth: 240"],
+  [style*="minWidth: 260"],
+  [style*="minWidth: 280"],
+  [style*="minWidth: 300"] {
+    min-width: 0 !important;
+    width: 100% !important;
+  }
+
+  /* ── Overflow clamp on all app content wrappers ── */
+  .flex-1 {
+    min-width: 0;
+    max-width: 100%;
+  }
+}
+
+/* ── 14. Tablet refinements — 640px–767px ─────────────────────────────────── */
+@media (min-width: 640px) and (max-width: 767px) {
+  .grid-cols-4:not(.mobile-keep-grid),
+  .grid-cols-5:not(.mobile-keep-grid),
+  .grid-cols-6:not(.mobile-keep-grid) {
+    grid-template-columns: repeat(2, 1fr) !important;
+  }
+}
+
+/* ── 15. Smooth scrolling + momentum on all scroll containers ─────────────── */
+.overflow-y-auto,
+.overflow-y-scroll {
+  -webkit-overflow-scrolling: touch;
+  overscroll-behavior-y: contain;
+}
+
+/* ── 16. BrainHub & panel-forward — reduce horizontal padding on mobile ────── */
+@media (max-width: 639px) {
+  .panel-forward {
+    padding-left: 14px !important;
+    padding-right: 14px !important;
+  }
+
+  /* BrainHub nav — tighter padding */
+  .panel-forward + div,
+  [style*="padding: \"10px 24px"] {
+    padding-left: 12px !important;
+    padding-right: 12px !important;
+  }
+
+  /* Stagger grid — reduce gap */
+  .stagger-grid {
+    gap: 10px !important;
+  }
+
+  /* Engine/series cards in BrainHub — single column on very narrow */
+  .engine-grid {
+    grid-template-columns: 1fr !important;
+  }
+}
+
+/* ── 17. AppBrowserModal — full-screen on mobile ─────────────────────────── */
+@media (max-width: 639px) {
+  /* Modals that use fixed inset overlay */
+  [style*="position: fixed"][style*="inset: 0"],
+  [style*="position:fixed"][style*="inset:0"] {
+    padding: 0 !important;
+  }
+}

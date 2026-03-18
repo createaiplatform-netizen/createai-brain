@@ -815,7 +815,7 @@ export function AppWindow({ onHamburger }: AppWindowProps) {
 
       {/* ── App content with Suspense boundary ── */}
       <div
-        className="flex-1 overflow-y-auto overscroll-contain"
+        className="flex-1 overflow-y-auto overflow-x-hidden overscroll-contain min-w-0"
         style={{ background: "hsl(220,20%,97%)" }}
       >
         <ErrorBoundary appName={label}>
