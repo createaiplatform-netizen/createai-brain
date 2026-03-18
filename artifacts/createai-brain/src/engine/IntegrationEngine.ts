@@ -376,6 +376,39 @@ export const IntegrationEngine = {
     };
   },
 
+  // ── Auto-expand: prepare + simulate any named system in one call ──────────
+  // Returns the prepared packet AND a memory-only simulation copy.
+  // The simulation copy is NEVER stored — caller is responsible for discarding it.
+  prepareAndSimulate(name: string): { packet: DemoPacket; simulation: DemoPacket } {
+    // Check if already in library
+    const all     = this.getAllPackets();
+    const existing = all.find(p =>
+      p.name.toLowerCase() === name.toLowerCase() ||
+      p.id === `auto-${name.toLowerCase().replace(/[^a-z0-9]/g, "-")}`
+    );
+    const packet = existing ?? this.autoGenerate(name);
+
+    // Persist the READY — AWAITING API KEYS packet
+    if (!existing) this.updatePacket(packet.id, packet);
+
+    // Return in-memory simulation — never stored
+    const simulation: DemoPacket = {
+      ...packet,
+      status:      "simulation",
+      simulatedAt: new Date().toISOString(),
+    };
+    return { packet, simulation };
+  },
+
+  // ── Auto-simulate ALL non-real packets in one pass ─────────────────────────
+  // Returns memory-only simulation copies. NEVER stored.
+  runAutoSimulation(): DemoPacket[] {
+    const ts = new Date().toISOString();
+    return this.getAllPackets()
+      .filter(p => p.status !== "real-active")
+      .map(p => ({ ...p, status: "simulation" as PacketStatus, simulatedAt: ts }));
+  },
+
   getStats(packets: DemoPacket[]) {
     return {
       total:      packets.length,

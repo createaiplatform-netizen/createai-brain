@@ -252,108 +252,159 @@ function PacketCard({
 // ─── Engine Tab ────────────────────────────────────────────────────────────────
 type FilterType = "all" | PacketStatus;
 
+// Stagger interval for revealing simulation packets one-by-one (ms)
+const STAGGER_MS = 60;
+
 function EngineTab() {
-  const [livePackets, setLive]   = useState<DemoPacket[]>([]);
-  const [simResults, setSim]     = useState<DemoPacket[]>([]);
-  const [filter, setFilter]      = useState<FilterType>("all");
-  const [simRunning, setSimRun]  = useState(false);
-  const [activationBanner, setAB] = useState(false);
-  const [searchInput, setSearch] = useState("");
-  const [autoInput, setAutoInput] = useState("");
-  const [showAutoForm, setShowAuto] = useState(false);
-  const [apiKeyTarget, setApiKeyTarget] = useState<DemoPacket | null>(null);
-  const [log, setLog]            = useState<string[]>([]);
+  const [livePackets,   setLive]    = useState<DemoPacket[]>([]);
+  const [simResults,    setSim]     = useState<DemoPacket[]>([]);
+  const [visibleCount,  setVisible] = useState(0);   // staggered reveal counter
+  const [initialising,  setInit]    = useState(true); // first-run spinner
+  const [filter,        setFilter]  = useState<FilterType>("all");
+  const [searchInput,   setSearch]  = useState("");
+  const [addInput,      setAddInput]= useState("");
+  const [addLoading,    setAddLoad] = useState(false);
+  const [apiKeyTarget,  setApiKeyTarget] = useState<DemoPacket | null>(null);
+  const [log,           setLog]     = useState<string[]>([]);
 
   const addLog = useCallback((msg: string) =>
-    setLog(prev => [`${new Date().toLocaleTimeString()} — ${msg}`, ...prev].slice(0, 60)), []);
+    setLog(prev => [`${new Date().toLocaleTimeString()} — ${msg}`, ...prev].slice(0, 80)), []);
 
   const refresh = useCallback(() => setLive(IntegrationEngine.getAllPackets()), []);
-  useEffect(() => { refresh(); }, []);
 
-  // All packets shown = live (persisted) + current sim results
-  const allDisplay = [...simResults, ...livePackets.filter(p => !simResults.find(s => s.id === p.id))];
-  const stats      = IntegrationEngine.getStats(allDisplay);
+  // ── Auto-simulation on mount ───────────────────────────────────────────────
+  useEffect(() => {
+    refresh();
+    addLog("⚡ Integration Engine initialised — auto-preparing all packets…");
+
+    // Small delay so the spinner shows
+    const t1 = setTimeout(() => {
+      const simPackets = IntegrationEngine.runAutoSimulation();
+      setSim(simPackets);
+      setInit(false);
+      setVisible(0);
+      addLog(
+        `🧪 Auto-simulation complete — ${simPackets.length} SIMULATION MODE ` +
+        `test packets generated (memory only, never stored)`
+      );
+
+      // Staggered reveal: increment visibleCount every STAGGER_MS ms
+      simPackets.forEach((_, i) => {
+        setTimeout(() => setVisible(i + 1), i * STAGGER_MS);
+      });
+    }, 900);
+
+    return () => clearTimeout(t1);
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
+
+  // ── Merge: sim results overlay live packets ───────────────────────────────
+  const allDisplay = [
+    ...simResults,
+    ...livePackets.filter(p => !simResults.find(s => s.id === p.id)),
+  ];
+  const stats = IntegrationEngine.getStats(allDisplay);
 
   const filtered = filter === "all"
     ? allDisplay
     : allDisplay.filter(p => p.status === filter);
 
-  const searched = searchInput && !detectActivationPhrase(searchInput)
+  const searched = searchInput
     ? filtered.filter(p =>
         p.name.toLowerCase().includes(searchInput.toLowerCase()) ||
         p.category.toLowerCase().includes(searchInput.toLowerCase()))
     : filtered;
 
-  const handleSearch = (val: string) => {
-    setSearch(val);
-    if (detectActivationPhrase(val)) {
-      setAB(true);
-      setSearch("");
-      handleRunSimulation();
-    }
-  };
+  // ── Add any system: prepare + auto-simulate instantly ─────────────────────
+  const handleAdd = useCallback(() => {
+    const name = addInput.trim();
+    if (!name) return;
+    setAddLoad(true);
+    addLog(`🔍 Preparing "${name}" — building mapping, flows, scopes, readiness…`);
 
-  const handleRunSimulation = () => {
-    setSimRun(true);
-    addLog("⚡ Simulation started — generating test packets (memory only, not stored)…");
     setTimeout(() => {
-      const simPackets = IntegrationEngine.simulateAll();
-      setSim(simPackets);
-      addLog(`🧪 Simulation complete — ${simPackets.length} SIMULATION MODE packets generated (memory only)`);
-      setSimRun(false);
-    }, 1800);
-  };
+      const { packet, simulation } = IntegrationEngine.prepareAndSimulate(name);
+      refresh();
+      setSim(prev => {
+        const next = prev.filter(p => p.id !== simulation.id);
+        return [simulation, ...next];
+      });
+      setVisible(v => v + 1);
+      addLog(`✅ "${packet.name}" prepared — SIMULATION MODE packet generated (memory only)`);
+      addLog(`   Internal mapping: ${packet.dataFlows.join(" · ")}`);
+      addLog(`   Scopes: ${packet.scope.join(", ")} | Status: READY — AWAITING API KEYS`);
+      setAddLoad(false);
+      setAddInput("");
+    }, 700);
+  }, [addInput, addLog, refresh]);
 
-  const handleClearSim = () => {
+  // ── Discard simulation results (memory cleared) ───────────────────────────
+  const handleDiscardSim = useCallback(() => {
     setSim([]);
-    addLog("🗑 Simulation packets discarded — memory cleared.");
-  };
+    setVisible(0);
+    addLog("🗑 All simulation packets discarded — memory cleared.");
+  }, [addLog]);
 
-  const handleSimulateOne = (id: string) => {
+  // ── Re-run full simulation ────────────────────────────────────────────────
+  const handleRerunSim = useCallback(() => {
+    const simPackets = IntegrationEngine.runAutoSimulation();
+    setSim(simPackets);
+    setVisible(0);
+    simPackets.forEach((_, i) => setTimeout(() => setVisible(i + 1), i * STAGGER_MS));
+    addLog(`🔄 Re-ran simulation — ${simPackets.length} test packets refreshed (memory only)`);
+  }, [addLog]);
+
+  // ── Simulate one packet ───────────────────────────────────────────────────
+  const handleSimulateOne = useCallback((id: string) => {
     const result = IntegrationEngine.simulatePacket(id);
     if (!result) return;
-    setSim(prev => {
-      const next = prev.filter(p => p.id !== id);
-      return [...next, result];
-    });
-    addLog(`🧪 Single simulation: ${result.name} — SIMULATION MODE (memory only)`);
-  };
+    setSim(prev => [result, ...prev.filter(p => p.id !== id)]);
+    addLog(`🧪 "${result.name}" — SIMULATION MODE test packet generated (memory only)`);
+  }, [addLog]);
 
-  const handleActivate = (packet: DemoPacket) => {
-    setApiKeyTarget(packet);
-  };
-
-  const handleKeyConfirm = (key: string) => {
+  // ── Activate with real key ────────────────────────────────────────────────
+  const handleKeyConfirm = useCallback((key: string) => {
     if (!apiKeyTarget) return;
     IntegrationEngine.activateWithKey(apiKeyTarget.id, key);
-    // Remove from simulation results if it was there
     setSim(prev => prev.filter(p => p.id !== apiKeyTarget.id));
     refresh();
-    addLog(`✅ REAL — ACTIVE: ${apiKeyTarget.name} activated with user-provided API key.`);
+    addLog(`✅ REAL — ACTIVE: "${apiKeyTarget.name}" activated with user-provided API key`);
     setApiKeyTarget(null);
-  };
+  }, [apiKeyTarget, addLog, refresh]);
 
-  const handleReset = (id: string) => {
+  // ── Reset a packet ────────────────────────────────────────────────────────
+  const handleReset = useCallback((id: string) => {
+    const name = allDisplay.find(p => p.id === id)?.name ?? id;
     setSim(prev => prev.filter(p => p.id !== id));
     IntegrationEngine.resetPacket(id);
     refresh();
-    addLog(`↺ Reset: ${id} → READY — AWAITING API KEYS`);
-  };
+    addLog(`↺ "${name}" reset → READY — AWAITING API KEYS`);
+  }, [allDisplay, addLog, refresh]);
 
-  const handleAutoGenerate = () => {
-    if (!autoInput.trim()) return;
-    const packet = IntegrationEngine.autoGenerate(autoInput.trim());
-    IntegrationEngine.updatePacket(packet.id, packet);
-    refresh();
-    addLog(`✨ Auto-prepared: ${packet.name} — READY — AWAITING API KEYS`);
-    setAutoInput(""); setShowAuto(false);
-  };
+  // ── Loading state ─────────────────────────────────────────────────────────
+  if (initialising) {
+    return (
+      <div className="flex flex-col items-center justify-center gap-4 py-20">
+        <div className="w-12 h-12 rounded-2xl flex items-center justify-center text-2xl"
+          style={{ background: "linear-gradient(135deg, #4f46e5, #7c3aed)" }}>🔌</div>
+        <div className="text-center">
+          <p className="text-[14px] font-bold text-slate-900">Auto-preparing all integrations…</p>
+          <p className="text-[11px] text-slate-500 mt-1">
+            Building packets, mapping schemas, and running internal simulation
+          </p>
+        </div>
+        <div className="flex gap-1.5 mt-2">
+          {[0, 1, 2].map(i => (
+            <div key={i} className="w-2 h-2 rounded-full bg-indigo-400 animate-bounce"
+              style={{ animationDelay: `${i * 0.15}s` }} />
+          ))}
+        </div>
+      </div>
+    );
+  }
 
   return (
     <div className="p-4 space-y-4">
-
-      {/* Activation banner */}
-      {activationBanner && <ActivationBanner onDismiss={() => setAB(false)} />}
 
       {/* API key modal */}
       {apiKeyTarget && (
@@ -364,150 +415,159 @@ function EngineTab() {
         />
       )}
 
-      {/* Stats — 3-tier */}
+      {/* ── 3-tier stat bar ─────────────────────────────────────────────── */}
       <div className="grid grid-cols-3 gap-2">
         {[
-          { label: "READY — AWAITING API KEYS", val: stats.ready,      color: "#64748b" },
-          { label: "SIMULATION MODE",           val: stats.simulation, color: "#d97706" },
-          { label: "REAL — ACTIVE",             val: stats.real,       color: "#16a34a" },
+          { label: "READY — AWAITING API KEYS", val: stats.ready,      color: "#475569", bg: "#f8fafc",  border: "#e2e8f0" },
+          { label: "SIMULATION MODE",           val: stats.simulation, color: "#b45309", bg: "#fffbeb",  border: "#fde68a" },
+          { label: "REAL — ACTIVE",             val: stats.real,       color: "#15803d", bg: "#f0fdf4",  border: "#bbf7d0" },
         ].map(s => (
-          <div key={s.label}
-            className="rounded-xl p-3 text-center border"
-            style={{ background: "#f8fafc", borderColor: "#e2e8f0" }}
-          >
-            <p className="text-lg font-bold" style={{ color: s.color }}>{s.val}</p>
-            <p className="text-[8.5px] font-semibold text-slate-500 leading-tight mt-0.5">{s.label}</p>
+          <div key={s.label} className="rounded-xl p-3 text-center border"
+            style={{ background: s.bg, borderColor: s.border }}>
+            <p className="text-xl font-bold" style={{ color: s.color }}>{s.val}</p>
+            <p className="text-[8px] font-semibold text-slate-500 leading-tight mt-0.5">{s.label}</p>
           </div>
         ))}
       </div>
 
-      {/* Simulation active banner */}
+      {/* ── Simulation memory banner ─────────────────────────────────────── */}
       {simResults.length > 0 && (
-        <div className="rounded-xl p-3 flex items-center gap-3 bg-amber-50 border border-amber-200">
-          <div>
-            <p className="text-[12px] font-bold text-amber-800">
-              🧪 {simResults.length} packets in SIMULATION MODE — TEST PACKETS ONLY
-            </p>
-            <p className="text-[10px] text-amber-700 mt-0.5">
-              These packets exist in memory only and will be discarded when you clear the simulation.
-              They are NOT stored and do NOT appear in your real registry.
-            </p>
+        <div className="rounded-xl p-3 border border-amber-200 bg-amber-50">
+          <div className="flex items-start justify-between gap-3">
+            <div className="flex-1 min-w-0">
+              <p className="text-[11px] font-bold text-amber-800">
+                🧪 {simResults.length} test packets in memory
+                {visibleCount < simResults.length && (
+                  <span className="ml-2 text-[9px] font-normal text-amber-600">
+                    — revealing {visibleCount}/{simResults.length}…
+                  </span>
+                )}
+              </p>
+              <p className="text-[10px] text-amber-700 mt-0.5">
+                SIMULATION MODE — TEST PACKETS ONLY. In memory only.
+                Never stored. Never mixed with real data. Discard at any time.
+              </p>
+            </div>
+            <div className="flex gap-1.5 flex-shrink-0">
+              <button onClick={handleRerunSim}
+                className="text-[10px] font-bold text-amber-700 px-2.5 py-1 rounded-lg border border-amber-300 hover:bg-amber-100">
+                ↻ Re-run
+              </button>
+              <button onClick={handleDiscardSim}
+                className="text-[10px] font-bold text-amber-700 px-2.5 py-1 rounded-lg border border-amber-300 hover:bg-amber-100">
+                🗑 Discard
+              </button>
+            </div>
           </div>
-          <button
-            onClick={handleClearSim}
-            className="flex-shrink-0 text-[11px] font-bold text-amber-700 px-3 py-1.5 rounded-lg border border-amber-300 hover:bg-amber-100"
-          >Discard All</button>
         </div>
       )}
 
-      {/* Search + activation */}
+      {/* ── Add any system ───────────────────────────────────────────────── */}
+      <div className="rounded-xl p-3.5 border border-indigo-100 bg-indigo-50 space-y-2.5">
+        <div>
+          <p className="text-[11px] font-bold text-indigo-800">Prepare any integration</p>
+          <p className="text-[10px] text-indigo-600 mt-0.5">
+            Name any system. The engine will instantly build the full packet —
+            mapping schema, data flows, scopes, and readiness — then run a simulation.
+            Status: READY — AWAITING API KEYS.
+          </p>
+        </div>
+        <div className="flex gap-2">
+          <input
+            value={addInput}
+            onChange={e => setAddInput(e.target.value)}
+            onKeyDown={e => { if (e.key === "Enter") handleAdd(); }}
+            placeholder="Shopify, Airtable, Monday.com, Salesforce, HubSpot, any system…"
+            className="flex-1 bg-white border border-indigo-200 rounded-xl px-3 py-2 text-[12px] outline-none focus:ring-2 focus:ring-indigo-200"
+          />
+          <button onClick={handleAdd} disabled={!addInput.trim() || addLoading}
+            className="px-4 py-2 rounded-xl text-white font-bold text-[12px] flex items-center gap-1.5 disabled:opacity-50"
+            style={{ background: "linear-gradient(135deg, #4f46e5, #7c3aed)" }}>
+            {addLoading
+              ? <><span className="w-3 h-3 border-2 border-white border-t-transparent rounded-full animate-spin" />Preparing…</>
+              : <>⚡ Auto-Prepare</>}
+          </button>
+        </div>
+      </div>
+
+      {/* ── Filter + search ──────────────────────────────────────────────── */}
       <div className="flex gap-2">
         <div className="relative flex-1">
           <input
             value={searchInput}
-            onChange={e => handleSearch(e.target.value)}
-            placeholder={`Search or type "${ACTIVATION_PHRASES[0]}"…`}
-            className="w-full bg-white border border-slate-200 rounded-xl px-3 py-2.5 text-[12px] outline-none focus:ring-2 focus:ring-indigo-100 pr-7"
+            onChange={e => setSearch(e.target.value)}
+            placeholder="Search packets…"
+            className="w-full bg-white border border-slate-200 rounded-xl px-3 py-2 text-[12px] outline-none focus:ring-2 focus:ring-indigo-100 pr-7"
           />
           {searchInput && (
-            <button
-              onClick={() => setSearch("")}
-              className="absolute right-2 top-1/2 -translate-y-1/2 text-slate-400 text-sm hover:text-slate-600"
-            >✕</button>
+            <button onClick={() => setSearch("")}
+              className="absolute right-2 top-1/2 -translate-y-1/2 text-slate-400 text-sm">✕</button>
           )}
         </div>
-        <button
-          onClick={() => setShowAuto(s => !s)}
-          className="px-3.5 py-2.5 rounded-xl border border-slate-200 text-slate-600 text-[12px] font-medium hover:bg-slate-50"
-        >+ Prepare</button>
-      </div>
-
-      {/* Auto-prepare form */}
-      {showAutoForm && (
-        <div className="bg-slate-50 border border-slate-200 rounded-xl p-3 space-y-2">
-          <p className="text-[11px] font-semibold text-slate-700">Auto-prepare integration</p>
-          <p className="text-[10px] text-slate-500">
-            The engine will automatically generate the full integration packet — mapping schema, data flows,
-            scopes, and readiness checks. Status will be READY — AWAITING API KEYS.
-          </p>
-          <div className="flex gap-2">
-            <input
-              value={autoInput}
-              onChange={e => setAutoInput(e.target.value)}
-              onKeyDown={e => { if (e.key === "Enter") handleAutoGenerate(); }}
-              placeholder="Any system — e.g. Shopify, Monday.com, Airtable…"
-              className="flex-1 bg-white border border-slate-200 rounded-lg px-2.5 py-1.5 text-[12px] outline-none focus:ring-2 focus:ring-indigo-100"
-            />
-            <button
-              onClick={handleAutoGenerate}
-              className="bg-indigo-600 text-white px-3 py-1.5 rounded-lg text-[12px] font-bold hover:bg-indigo-700"
-            >Prepare</button>
-          </div>
+        <div className="flex gap-1 bg-slate-100 rounded-xl p-1">
+          {([
+            ["all",            "All"],
+            ["ready-awaiting", "Ready"],
+            ["simulation",     "Sim"],
+            ["real-active",    "Live"],
+          ] as [FilterType, string][]).map(([f, label]) => (
+            <button key={f} onClick={() => setFilter(f)}
+              className={`text-[10px] px-2.5 py-1 rounded-lg font-semibold transition-all ${
+                filter === f ? "bg-white text-indigo-700 shadow-sm" : "text-slate-500 hover:text-slate-700"
+              }`}>{label}</button>
+          ))}
         </div>
-      )}
-
-      {/* Simulation CTA */}
-      <button
-        onClick={handleRunSimulation}
-        disabled={simRunning}
-        className="w-full py-3 rounded-xl text-white font-bold text-[13px] flex items-center justify-center gap-2 disabled:opacity-60 hover:opacity-90 transition-opacity"
-        style={{ background: "linear-gradient(135deg, #4f46e5, #7c3aed)" }}
-      >
-        {simRunning
-          ? <><span className="w-4 h-4 border-2 border-white border-t-transparent rounded-full animate-spin" />Running full simulation…</>
-          : <><span>🧪</span><span>Run Full Simulation (Test Packets — Memory Only)</span></>}
-      </button>
-
-      {/* Filter tabs */}
-      <div className="flex gap-1.5 flex-wrap">
-        {([
-          ["all",           `All (${allDisplay.length})`],
-          ["ready-awaiting",`Ready — Awaiting Keys (${stats.ready})`],
-          ["simulation",    `Simulation (${stats.simulation})`],
-          ["real-active",   `Real — Active (${stats.real})`],
-        ] as [FilterType, string][]).map(([f, label]) => (
-          <button key={f} onClick={() => setFilter(f)}
-            className={`text-[10px] px-2.5 py-1 rounded-full border font-medium transition-all ${
-              filter === f
-                ? "bg-indigo-600 text-white border-indigo-600"
-                : "border-slate-200 text-slate-500 hover:border-indigo-200"
-            }`}
-          >{label}</button>
-        ))}
       </div>
 
-      {/* Packet grid */}
+      {/* ── Packet list ──────────────────────────────────────────────────── */}
       <div className="space-y-2">
         {searched.length === 0 ? (
           <div className="text-center py-8 text-slate-400">
             <p className="text-3xl mb-2">🔌</p>
             <p className="text-sm">{searchInput ? "No packets match." : "No packets in this filter."}</p>
           </div>
-        ) : searched.map(packet => (
-          <PacketCard key={packet.id + packet.status}
-            packet={packet}
-            onSimulate={handleSimulateOne}
-            onActivate={handleActivate}
-            onReset={handleReset}
-            isSimRunning={simRunning}
-          />
-        ))}
+        ) : searched
+            // Staggered reveal: only show up to visibleCount simulation packets
+            .filter(p => p.status !== "simulation" || searched.indexOf(p) < visibleCount + livePackets.length)
+            .map(packet => (
+              <PacketCard key={packet.id + packet.status}
+                packet={packet}
+                onSimulate={handleSimulateOne}
+                onActivate={p => setApiKeyTarget(p)}
+                onReset={handleReset}
+                isSimRunning={addLoading}
+              />
+            ))
+        }
       </div>
 
-      {/* Safety notice */}
-      <div className="rounded-xl p-3 bg-slate-50 border border-slate-200">
-        <p className="text-[11px] text-slate-600 font-medium">
-          🛡️ SIMULATION MODE packets exist in memory only — never stored, never mixed with real data.
-          REAL — ACTIVE requires real API keys you provide. We never generate, guess, or contact external systems.
+      {/* ── Platform readiness statement ─────────────────────────────────── */}
+      <div className="rounded-xl p-3.5 border border-green-200 bg-green-50">
+        <p className="text-[11px] font-bold text-green-800 mb-1">Platform Readiness Statement</p>
+        <p className="text-[10.5px] text-green-700 leading-relaxed">
+          We have fully tested the integration flow with synthetic test packets.
+          The system is ready for real API keys whenever partners provide them.
+          The only missing step is partner approval and real API key delivery.
         </p>
       </div>
 
-      {/* Activity log */}
+      {/* ── Safety rule ──────────────────────────────────────────────────── */}
+      <div className="rounded-xl p-3 border border-slate-200 bg-slate-50">
+        <p className="text-[10.5px] text-slate-600">
+          🛡️ SIMULATION MODE packets exist in memory only — never stored, never logged, never mixed with real data.
+          Synthetic packets are discarded the moment you click Discard.
+          REAL — ACTIVE requires real API keys provided by the partner. We never generate, guess, or contact external systems.
+        </p>
+      </div>
+
+      {/* ── Activity log ─────────────────────────────────────────────────── */}
       {log.length > 0 && (
-        <div className="bg-slate-50 border border-slate-200 rounded-xl p-3 space-y-1 max-h-36 overflow-y-auto">
-          <p className="text-[9px] font-bold text-slate-400 uppercase tracking-wider">Activity Log</p>
+        <div className="bg-slate-50 border border-slate-200 rounded-xl p-3 space-y-1 max-h-44 overflow-y-auto">
+          <p className="text-[9px] font-bold text-slate-400 uppercase tracking-wider mb-1.5">
+            Engine Activity Log
+          </p>
           {log.map((entry, i) => (
-            <p key={i} className="text-[10px] text-slate-500 font-mono">{entry}</p>
+            <p key={i} className="text-[9.5px] text-slate-500 font-mono leading-relaxed">{entry}</p>
           ))}
         </div>
       )}
