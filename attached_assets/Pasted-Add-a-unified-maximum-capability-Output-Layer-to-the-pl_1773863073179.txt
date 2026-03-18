@@ -1,0 +1,26 @@
+Add a unified, maximum-capability Output Layer to the platform. This layer must take any project type supported by the system—video projects, game projects, app projects, website projects, block-building projects, brochures, packets, business projects, product projects, book projects, music projects, documentary projects, film projects, podcast projects, course projects, startup projects, physical product projects, and all other project types defined in the scaffold engine or project type definitions—and generate the real finished output for that project type.
+
+Core requirements:
+• Video projects must play video directly inside the platform with standard controls (play, pause, seek, volume).
+• Game projects must render an interactive game preview appropriate to the game’s structure and flow.
+• App projects must render real screen layouts and navigation flows.
+• Website projects must render a live website-style preview with scrollable pages.
+• Block-building projects must render an interactive building canvas with draggable, stackable blocks.
+• Brochures, flyers, packets, and documents must render as full visual layouts suitable for export.
+• Creative projects (film, documentary, book, music, podcast, course) must render their appropriate visual or media-style output (storyboard, chapter layout, track list, episode layout, lesson layout, etc.).
+• Business and product projects must render structured visual output (plans, roadmaps, canvases, dashboards).
+
+Platform integration:
+• Add a new “Output” panel at the top of every project that displays the generated output for that project type.
+• Ensure the Output Layer can be extended to new project types in the future without major refactors.
+• Wire the Output Layer to use existing engines, templates, and project data instead of duplicating logic.
+
+UX and theme:
+• Make the entire platform use the clean white/light theme by default.
+• Simplify the UI so the Output panel is the main focus when a project is open.
+• Keep advanced controls available but visually secondary to the main output.
+
+Safety and scope:
+• Do not remove or break any existing engines, modules, or APIs.
+• Do not replace the scaffold engine or project intelligence; only consume their outputs.
+• Only add the unified Output Layer, its rendering components, and the light theme adjustments.
