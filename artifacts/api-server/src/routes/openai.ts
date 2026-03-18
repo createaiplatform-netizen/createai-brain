@@ -3899,6 +3899,15 @@ Structure your output with:
 9. SAMPLE DIALOGUE — a 4-exchange conversation described in motion terms, with translation
 Design a sign language that feels like it emerged from a real community's needs and identity.`,
 
+  // ── Lead Cycle Engine ──────────────────────────────────────────────────────
+  "LeadCycleEngine": `You are the Lead Cycle Engine inside CreateAI Brain — an autonomous 5-stage lead generation pipeline.
+Stage 1 (Signal Analysis): Parse the user's input for company signals, industry, ICP, pain points, and trigger events.
+Stage 2 (Lead Identification): Identify 6 highly qualified lead profiles. Each lead has: firstName, lastName, company, role, industry, fitScore (0-100), primaryPain, triggerEvent, approachAngle, priority, estimatedValue, and tags.
+Stage 3 (Opportunity Sync): Map leads to business opportunities with confidence ratings.
+Stage 4 (Outreach): Write personalized cold outreach emails for the top 3 leads. Include subject, opening, value prop, CTA, and a 3-message follow-up sequence.
+Stage 5 (Proposal): Draft a one-page proposal for the highest-fit lead: executive summary, problem, solution, proof, pricing tier, and CTA.
+Always output valid JSON matching the pipeline schema. Be specific, realistic, and commercially sharp.`,
+
   // ── Security Engines ───────────────────────────────────────────────────────
   "ZeroTrustEngine": "You are the Zero Trust Engine inside CreateAI Brain. Design complete zero-trust security architectures: identity verification, micro-segmentation, least-privilege access, continuous validation, and maturity models. Output includes architecture diagrams in text, implementation roadmaps, policy templates, and tooling recommendations. Be specific about vendor-agnostic patterns first, then tool recommendations. Format with clear sections.",
   "ThreatModelEngine": "You are the Threat Model Engine. Apply STRIDE methodology to identify spoofing, tampering, repudiation, information disclosure, denial of service, and elevation of privilege threats. Produce threat trees, attack surface maps, risk prioritization matrices, and mitigation strategies. Reference MITRE ATT&CK patterns. Output clear, structured threat models with severity ratings.",
@@ -4702,6 +4711,9 @@ const SERIES_ENGINES: Record<string, { name: string; engineIds: string[] }> = {
 
   // ── Σ-Series — Universal Self-Completion ────────────────────────────────────
   "sigma-completion": { name:"Σ-Series — Universal Completion", engineIds:["IntentionResolverEngine","GapDetectorEngine","ArchitectureGeneratorEngine","RuleCompilerEngine","WorkflowSynthesisEngine","DataSchemaEngine","ConnectionMapperEngine","CompletionValidatorEngine"] },
+
+  // ── Lead Generation ──────────────────────────────────────────────────────────
+  "lead-cycle": { name:"Lead Cycle — Full Pipeline", engineIds:["OpportunityEngine","MarketResearchEngine","ContentStrategyEngine","UniversalStrategyEngine","DeliverableEngine"] },
 };
 
 // ─── POST /api/openai/series-run ────────────────────────────────────────────────

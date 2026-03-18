@@ -14,6 +14,7 @@ import LiveSimDashboard from "@/pages/LiveSimDashboard";
 import IntegrationLivePage from "@/pages/IntegrationLivePage";
 import IntegrationSuitePage from "@/pages/IntegrationSuitePage";
 
+import MetricsPage from "@/pages/MetricsPage";
 import { OSProvider } from "@/os/OSContext";
 import { OSLayout } from "@/os/osLayout";
 import { GlobalCommandPalette } from "@/components/GlobalCommandPalette";
@@ -34,7 +35,7 @@ function Router() {
     <Switch>
       <Route path="/integration-demo" component={IntegrationDemoPage} />
       <Route path="/" component={OSLayout} />
-      <Route path="/metrics" component={OSLayout} />
+      <Route path="/metrics" component={MetricsPage} />
       <Route path="/project/:projectId" component={ProjectPage} />
       <Route path="/standalone/creation/:creationId" component={CreationPage} />
       <Route path="/standalone/:projectId" component={StandalonePage} />

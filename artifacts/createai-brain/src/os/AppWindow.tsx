@@ -55,6 +55,7 @@ const CosmologyForgeApp = React.lazy(() => import("@/Apps/CosmologyForgeApp").th
 const GameWorldStudioApp = React.lazy(() => import("@/Apps/GameWorldStudioApp").then(m => ({ default: m.GameWorldStudioApp })));
 const MetricsPanelApp       = React.lazy(() => import("@/Apps/MetricsPanelApp").then(m => ({ default: m.MetricsPanelApp })));
 const IntegrationDashboard  = React.lazy(() => import("@/Apps/IntegrationDashboard").then(m => ({ default: m.IntegrationDashboard })));
+const UCPXAgentApp          = React.lazy(() => import("@/ucpx/UCPXAgent").then(m => ({ default: m.UCPXAgent })));
 
 // ── Creative Writing Suite ───────────────────────────────────────────────────
 const ScriptwriterApp    = React.lazy(() => import("@/Apps/ScriptwriterApp").then(m => ({ default: m.ScriptwriterApp })));
@@ -709,6 +710,7 @@ const APP_COMPONENTS: Record<AppId, React.LazyExoticComponent<React.ComponentTyp
   schemaBuilder: SchemaBuilderApp,
   configManager: ConfigManagerApp,
   // Platform
+  ucpx:                   UCPXAgentApp,
   metricsPanel:           MetricsPanelApp,
   integrationDashboard:   IntegrationDashboard,
 };

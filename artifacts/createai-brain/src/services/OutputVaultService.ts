@@ -39,6 +39,23 @@ function generateId(): string {
   return `v_${Date.now().toString(36)}_${Math.random().toString(36).slice(2, 7)}`;
 }
 
+// ── DB persistence (fire-and-forget) ─────────────────────────────────────────
+
+function persistToDb(entry: VaultEntry): void {
+  fetch("/api/documents", {
+    method: "POST",
+    credentials: "include",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify({
+      title:     entry.topic || entry.engineName,
+      content:   entry.text,
+      type:      entry.engineId,
+      projectId: entry.projectId ?? null,
+      tags:      entry.tags,
+    }),
+  }).catch(() => { /* silent — localStorage is primary */ });
+}
+
 // ── Write ─────────────────────────────────────────────────────────────────────
 
 export function vaultAdd(
@@ -73,6 +90,7 @@ export function vaultAdd(
   }
 
   writeAll(entries);
+  persistToDb(entry);
   return entry;
 }
 
