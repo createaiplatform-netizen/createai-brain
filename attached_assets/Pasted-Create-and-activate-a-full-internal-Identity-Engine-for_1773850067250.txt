@@ -1,0 +1,39 @@
+Create and activate a full internal Identity Engine for the platform. This engine must automatically generate a complete identity package for every new project, workspace, or client. The identity package must include:
+
+1. An internal domain-style identifier in the format:
+   {projectName}.createai
+   This is internal only and must not rely on external DNS.
+
+2. A public-facing subdomain in the format:
+   {projectName}.createai.digital
+   This must be generated automatically but only prepared, not deployed, until I approve it.
+
+3. An internal email-style identity in the format:
+   {projectName}@mail.createai
+   This is internal only and used for messaging, notifications, and routing inside the platform.
+
+4. An internal phone-style identity in the format:
+   +CAI-{projectID}
+   This is not a real phone number. It is an internal messaging identity used for chat, notifications, and SMS-like interactions inside the platform.
+
+5. A “Best Option Selector” that automatically chooses the cleanest, clearest, most professional identity set based on the project name, but always allows the user to edit or override any part of it.
+
+6. A routing layer that ensures all internal identities work across:
+   • project messaging
+   • notifications
+   • AI interactions
+   • internal email
+   • internal SMS-like messaging
+   • workspace communication
+
+7. A settings panel where users can:
+   • view their identity package
+   • edit the internal domain
+   • edit the internal email identity
+   • edit the internal phone-style identity
+   • regenerate identities
+   • approve or decline the public-facing subdomain
+
+8. All identities must remain fully inside the platform and must not rely on external DNS, external email services, or external phone services. Only the public-facing subdomain uses the global domain, and it must remain optional.
+
+Prepare all code, UI, routing, and logic inside the Builder Space. Do not activate or deploy anything automatically. Present the full implementation for my review.
