@@ -1,0 +1,39 @@
+You already understand the CreateAI platform and its architecture. I want you to finish the remaining implementation work so the platform functions as a unified, guided experience for the feature I described.
+
+Your job is to work across all required parts of the system that support this feature. This includes backend engines, controllers, routing layers, internal services, UI components, OS windows or views, and any missing infrastructure directly related to this feature.
+
+Follow these directives:
+
+1. ANALYSIS
+- Scan all relevant files, workflows, and UI surfaces connected to this feature.
+- Identify the required components, missing connections, and incomplete areas.
+- Summarize what already exists and what needs to be added or updated.
+
+2. DESIGN + BUILD
+- Design the behavior and data flow for this feature.
+- Build or update the backend logic needed for this feature.
+- Build or update the frontend/UI components needed for this feature.
+- Add or update routing so the feature loads correctly.
+- Connect the UI to the backend logic.
+- Connect the feature to the appropriate workflows.
+- Add validation and graceful error handling.
+
+3. LINKING + WIRING
+- Ensure the UI triggers the correct backend actions.
+- Ensure the backend returns the correct data to the UI.
+- Ensure the routing transitions are correct.
+- Ensure the feature integrates smoothly with the rest of the platform.
+
+4. STABILITY + SAFETY
+- Keep all changes safe, internal, and non‑breaking.
+- Preserve working behavior and improve it where needed.
+- Prevent undefined states, blank screens, or navigation dead‑ends.
+- Keep the code clean, modular, and easy to extend.
+
+5. EXECUTION PLAN
+- First, scan the project and summarize the current state of this feature.
+- Then list the specific changes you will make (files, functions, components).
+- Then generate the required code edits step by step.
+- After each set of edits, briefly explain what changed and how it supports the feature.
+
+Use this prompt as your complete instruction set. Begin by scanning the relevant parts of the project and identifying what needs to be implemented or connected for this feature.
