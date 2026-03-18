@@ -1,0 +1,48 @@
+Add a unified, maximum-capability Output System to the platform. This Output System must take any project type supported by the platform—video projects, game projects, app projects, website projects, block-building projects, brochures, packets, business projects, product projects, book projects, music projects, documentary projects, film projects, podcast projects, course projects, startup projects, physical product projects, and all other project types defined in the scaffold engine or project type definitions—and generate the final usable output for that project type.
+
+Include all Output Connectors required for full functionality:
+
+1. Video Output Connector:
+• Render and play video directly inside the platform with standard controls (play, pause, seek, volume).
+
+2. App Output Connector:
+• Render real app screens, navigation flows, and interactive UI previews.
+
+3. Game Output Connector:
+• Render interactive game previews appropriate to the game’s structure and logic.
+
+4. Website Output Connector:
+• Render a live website-style preview with scrollable pages and interactive elements.
+
+5. Document Layout Connector:
+• Render brochures, packets, documents, and multi-page layouts in a clean, export-ready visual format.
+
+6. Block-Building Output Connector:
+• Render an interactive building canvas with draggable, stackable, and editable blocks.
+
+7. Creative Output Connectors:
+• Film: Render storyboard-style visual sequences.
+• Documentary: Render structured segment layouts.
+• Book: Render chapter layouts and reading previews.
+• Music: Render track lists and audio playback interfaces.
+• Podcast: Render episode layouts and audio playback.
+• Course: Render lesson layouts, modules, and structured learning flows.
+
+8. Business/Product Output Connector:
+• Render structured visual outputs such as business plans, product specifications, roadmaps, canvases, dashboards, and strategy layouts.
+
+Platform Integration Requirements:
+• Add a unified “Output” panel at the top of every project that displays the generated output for that project type.
+• Ensure the Output System uses existing engines, templates, and project data without duplicating logic.
+• Ensure the Output System can be extended to new project types in the future without major refactors.
+
+Global Theme Requirements:
+• Apply the white/light theme globally across the entire platform.
+• Set all backgrounds to white or near-white and all text to dark, high-contrast colors.
+• Remove or override any dark backgrounds or dark theme defaults.
+• Ensure the Output panel is the primary visual focus when a project is open.
+
+Safety and Scope:
+• Do not remove or break any existing engines, modules, or APIs.
+• Do not replace the scaffold engine or project intelligence; only consume their outputs.
+• Only add the unified Output System, its rendering connectors, and the global light theme.

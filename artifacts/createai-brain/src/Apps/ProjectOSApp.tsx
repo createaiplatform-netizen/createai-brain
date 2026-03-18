@@ -5,10 +5,11 @@ import { useUniversalResume } from "@/hooks/useUniversalResume";
 import { ensureIdentityForProject } from "@/engine/IdentityEngine";
 import { useMediaQuery } from "@/hooks/use-media-query";
 import { SalesModule, OpsModule, SupportModule, ComplianceModule, EnterpriseDashboard, StrategyModule, UXContentModule, PipelineView, MarketingModule, ProductModule, HRModule, FinanceModule } from "./InternalModules";
+import { ProjectOutputLayer } from "./ProjectOutputLayer";
 
 // ─── Types ────────────────────────────────────────────────────────────────────
 
-type ViewMode = "dashboard+folders" | "dashboard" | "folders" | "simple" | "advanced" | "tasks" | "team" | "opportunities" | "sales" | "ops" | "support" | "compliance" | "enterprise" | "strategy" | "ux" | "pipeline" | "marketing" | "product" | "hr" | "finance";
+type ViewMode = "output" | "dashboard+folders" | "dashboard" | "folders" | "simple" | "advanced" | "tasks" | "team" | "opportunities" | "sales" | "ops" | "support" | "compliance" | "enterprise" | "strategy" | "ux" | "pipeline" | "marketing" | "product" | "hr" | "finance";
 
 // ─── Shared / Suggested Types ────────────────────────────────────────────────
 interface SharedProject {
@@ -1622,6 +1623,7 @@ export function ProjectOSApp() {
   };
 
   const VIEW_MODES: { id: ViewMode; label: string; group?: string }[] = [
+    { id: "output",            label: "⚡ Output" },
     { id: "dashboard+folders", label: "Dashboard + Folders" },
     { id: "dashboard",         label: "Dashboard" },
     { id: "folders",           label: "Folders" },
@@ -1654,21 +1656,21 @@ export function ProjectOSApp() {
     <div
       className="flex h-full overflow-hidden"
       style={{
-        background: "hsl(225,40%,5%)",
-        color: "#e2e8f0",
+        background: "#f8fafc",
+        color: "#1e293b",
         fontSize: `${textScale * 100}%`,
       }}
     >
       {/* ── Left Sidebar: Project List ────────────────────────────────────── */}
       <div
         className="w-56 flex-shrink-0 flex flex-col overflow-hidden"
-        style={{ borderRight: "1px solid rgba(99,102,241,0.15)", background: "rgba(0,0,0,0.25)" }}
+        style={{ borderRight: "1px solid rgba(99,102,241,0.12)", background: "#ffffff" }}
       >
         {/* Header */}
-        <div className="flex items-center justify-between px-4 py-3" style={{ borderBottom: "1px solid rgba(255,255,255,0.06)" }}>
+        <div className="flex items-center justify-between px-4 py-3" style={{ borderBottom: "1px solid rgba(0,0,0,0.06)" }}>
           <div>
-            <div className="text-[13px] font-bold text-white">ProjectOS</div>
-            <div className="text-[9px]" style={{ color: "#475569" }}>Universal Platform</div>
+            <div className="text-[13px] font-bold" style={{ color: "#1e293b" }}>ProjectOS</div>
+            <div className="text-[9px]" style={{ color: "#94a3b8" }}>Universal Platform</div>
           </div>
           <button
             onClick={() => setShowSearch(true)}
@@ -2420,10 +2422,14 @@ export function ProjectOSApp() {
               {(viewMode === "dashboard+folders" || viewMode === "dashboard" || viewMode === "advanced") && (
                 <div
                   className="flex-shrink-0 p-4"
-                  style={{ borderBottom: "1px solid rgba(255,255,255,0.06)", background: "rgba(0,0,0,0.12)" }}
+                  style={{ borderBottom: "1px solid rgba(0,0,0,0.07)", background: "#fafafa" }}
                 >
-                  <div className="text-[9px] font-bold uppercase tracking-widest mb-3" style={{ color: "#334155" }}>
-                    Dashboard
+                  {/* Compact Output Strip */}
+                  <div className="mb-4" style={{ height: 200 }}>
+                    <ProjectOutputLayer project={activeProject} compact={true} />
+                  </div>
+                  <div className="text-[9px] font-bold uppercase tracking-widest mb-3" style={{ color: "#94a3b8" }}>
+                    Quick Actions
                   </div>
                   <div className="grid grid-cols-4 gap-2">
                     {DASHBOARD_ACTIONS.map(action => (
@@ -2793,14 +2799,21 @@ export function ProjectOSApp() {
                 <FinanceModule projectName={activeProject.name} />
               )}
 
+              {/* ── Output Layer ── */}
+              {viewMode === "output" && activeProject && (
+                <div className="flex-1 overflow-auto p-4" style={{ background: "#f8fafc" }}>
+                  <ProjectOutputLayer project={activeProject} compact={false} />
+                </div>
+              )}
+
               {/* Folder + File View */}
-              {viewMode !== "dashboard" && viewMode !== "tasks" && viewMode !== "team" && viewMode !== "opportunities" && viewMode !== "sales" && viewMode !== "ops" && viewMode !== "support" && viewMode !== "compliance" && viewMode !== "enterprise" && viewMode !== "strategy" && viewMode !== "ux" && viewMode !== "pipeline" && viewMode !== "marketing" && viewMode !== "product" && viewMode !== "hr" && viewMode !== "finance" && (
+              {viewMode !== "output" && viewMode !== "dashboard" && viewMode !== "tasks" && viewMode !== "team" && viewMode !== "opportunities" && viewMode !== "sales" && viewMode !== "ops" && viewMode !== "support" && viewMode !== "compliance" && viewMode !== "enterprise" && viewMode !== "strategy" && viewMode !== "ux" && viewMode !== "pipeline" && viewMode !== "marketing" && viewMode !== "product" && viewMode !== "hr" && viewMode !== "finance" && (
                 <div className="flex flex-1 overflow-hidden">
 
                   {/* Folder Tree */}
                   <div
                     className="w-52 flex-shrink-0 overflow-y-auto py-3"
-                    style={{ borderRight: "1px solid rgba(255,255,255,0.06)" }}
+                    style={{ borderRight: "1px solid rgba(0,0,0,0.07)" }}
                   >
                     {/* Universal folders */}
                     <div className="px-3 mb-1">
@@ -3605,16 +3618,16 @@ export function ProjectOSApp() {
 
       {/* New Project — 2-step modal */}
       {showNewProject && (
-        <div className="fixed inset-0 z-50 flex items-center justify-center" style={{ background: "rgba(0,0,0,0.70)" }}>
+        <div className="fixed inset-0 z-50 flex items-center justify-center" style={{ background: "rgba(15,23,42,0.60)", backdropFilter: "blur(4px)" }}>
           {newProjStep === 1 ? (
             /* ── Step 1: Project Name ── */
             <div
-              className="w-[420px] rounded-2xl p-7 shadow-2xl flex flex-col"
-              style={{ background: "rgba(12,16,24,0.99)", border: "1px solid rgba(99,102,241,0.30)" }}
+              className="w-[440px] rounded-2xl p-7 shadow-2xl flex flex-col"
+              style={{ background: "#ffffff", border: "1px solid rgba(0,0,0,0.10)" }}
             >
-              <div className="text-[15px] font-bold text-white mb-1">New Project</div>
-              <div className="text-[11px] text-slate-500 mb-5">Give your project a name, then pick a type.</div>
-              <div className="text-[10px] text-slate-500 mb-1.5 uppercase tracking-widest">Project Name</div>
+              <div className="text-[16px] font-bold mb-1" style={{ color: "#0f172a" }}>New Project</div>
+              <div className="text-[12px] mb-5" style={{ color: "#64748b" }}>Give your project a name, then pick a type.</div>
+              <div className="text-[10px] font-semibold mb-1.5 uppercase tracking-widest" style={{ color: "#94a3b8" }}>Project Name</div>
               <input
                 value={newProjName}
                 onChange={e => setNewProjName(e.target.value)}
@@ -3626,14 +3639,14 @@ export function ProjectOSApp() {
                 }}
                 autoFocus
                 placeholder="e.g. The Last Signal, My SaaS, Album 2026…"
-                className="w-full text-white text-[13px] px-3.5 py-3 rounded-xl outline-none mb-5"
-                style={{ background: "rgba(99,102,241,0.08)", border: "1px solid rgba(99,102,241,0.28)" }}
+                className="w-full text-[13px] px-3.5 py-3 rounded-xl outline-none mb-5"
+                style={{ background: "#f8fafc", border: "1px solid rgba(99,102,241,0.30)", color: "#1e293b" }}
               />
               <div className="flex gap-3">
                 <button
                   onClick={() => { setShowNewProject(false); setNewProjName(""); setNewProjStep(1); }}
                   className="flex-1 py-2.5 rounded-xl text-[13px]"
-                  style={{ background: "rgba(255,255,255,0.04)", color: "#64748b", border: "1px solid rgba(255,255,255,0.08)" }}
+                  style={{ background: "#f8fafc", color: "#64748b", border: "1px solid rgba(0,0,0,0.10)" }}
                 >Cancel</button>
                 <button
                   onClick={() => {
@@ -3644,9 +3657,9 @@ export function ProjectOSApp() {
                   disabled={!newProjName.trim()}
                   className="flex-1 py-2.5 rounded-xl text-[13px] font-semibold"
                   style={{
-                    background: newProjName.trim() ? "rgba(99,102,241,0.22)" : "rgba(255,255,255,0.04)",
-                    border: `1px solid ${newProjName.trim() ? "rgba(99,102,241,0.45)" : "rgba(255,255,255,0.08)"}`,
-                    color: newProjName.trim() ? "#a5b4fc" : "#334155",
+                    background: newProjName.trim() ? "#6366f1" : "#f1f5f9",
+                    border: "none",
+                    color: newProjName.trim() ? "#fff" : "#94a3b8",
                   }}
                 >
                   Continue →
@@ -3656,23 +3669,24 @@ export function ProjectOSApp() {
           ) : (
             /* ── Step 2: Type Picker ── */
             <div
-              className="w-[680px] rounded-2xl p-7 shadow-2xl flex flex-col max-h-[90vh]"
-              style={{ background: "rgba(12,16,24,0.99)", border: "1px solid rgba(99,102,241,0.30)" }}
+              className="w-[720px] rounded-2xl p-7 shadow-2xl flex flex-col max-h-[90vh]"
+              style={{ background: "#ffffff", border: "1px solid rgba(0,0,0,0.10)" }}
             >
               {/* Header */}
               <div className="flex items-start justify-between mb-1">
                 <div>
-                  <div className="text-[15px] font-bold text-white">{newProjName}</div>
-                  <div className="text-[11px] text-slate-500 mt-0.5">Choose a project type — we'll scaffold the right documents for you.</div>
+                  <div className="text-[16px] font-bold" style={{ color: "#0f172a" }}>{newProjName}</div>
+                  <div className="text-[12px] mt-0.5" style={{ color: "#64748b" }}>Choose a project type — we'll scaffold the right documents for you.</div>
                 </div>
                 <button
                   onClick={() => setNewProjStep(1)}
-                  className="text-[11px] text-slate-500 hover:text-slate-300 ml-4 mt-0.5 flex-shrink-0"
+                  className="text-[11px] ml-4 mt-0.5 flex-shrink-0"
+                  style={{ color: "#94a3b8" }}
                 >← Back</button>
               </div>
 
               {/* Type grid */}
-              <div className="grid grid-cols-4 gap-2 mt-5 overflow-y-auto pr-0.5" style={{ maxHeight: "340px" }}>
+              <div className="grid grid-cols-4 gap-2 mt-5 overflow-y-auto pr-0.5" style={{ maxHeight: "360px" }}>
                 {PROJECT_TYPE_DEFINITIONS.map(type => {
                   const selected = newProjIndustry === type.id;
                   const color = INDUSTRY_COLORS[type.id] ?? "#6366f1";
@@ -3682,23 +3696,23 @@ export function ProjectOSApp() {
                       onClick={() => setNewProjIndustry(type.id)}
                       className="flex flex-col items-start text-left p-3 rounded-xl transition-all"
                       style={{
-                        background: selected ? `${color}16` : "rgba(255,255,255,0.025)",
-                        border: `1px solid ${selected ? `${color}45` : "rgba(255,255,255,0.06)"}`,
-                        outline: selected ? `2px solid ${color}30` : "none",
+                        background: selected ? `${color}12` : "#f8fafc",
+                        border: `1px solid ${selected ? color : "rgba(0,0,0,0.08)"}`,
+                        outline: "none",
                       }}
                     >
                       <div className="text-[22px] mb-1.5">{type.icon}</div>
-                      <div className="text-[11px] font-semibold mb-0.5" style={{ color: selected ? color : "#cbd5e1" }}>
+                      <div className="text-[11px] font-semibold mb-0.5" style={{ color: selected ? color : "#1e293b" }}>
                         {type.label}
                       </div>
-                      <div className="text-[9.5px] leading-tight mb-2" style={{ color: "#475569" }}>
+                      <div className="text-[9.5px] leading-tight mb-2" style={{ color: "#64748b" }}>
                         {type.desc}
                       </div>
                       <div
                         className="text-[9px] font-medium px-1.5 py-0.5 rounded-full"
                         style={{
-                          background: selected ? `${color}22` : "rgba(255,255,255,0.05)",
-                          color: selected ? color : "#475569",
+                          background: selected ? `${color}18` : "rgba(0,0,0,0.05)",
+                          color: selected ? color : "#94a3b8",
                         }}
                       >
                         {type.count} files
@@ -3712,10 +3726,10 @@ export function ProjectOSApp() {
               {newProjIndustry && INDUSTRY_SPECIFIC[newProjIndustry] && (
                 <div
                   className="rounded-xl px-3.5 py-2.5 mt-4 text-[10px]"
-                  style={{ background: "rgba(255,255,255,0.025)", border: "1px solid rgba(255,255,255,0.06)" }}
+                  style={{ background: "#f8fafc", border: "1px solid rgba(0,0,0,0.07)" }}
                 >
-                  <span className="text-slate-500">Folders: </span>
-                  <span className="text-slate-400">
+                  <span style={{ color: "#94a3b8" }}>Folders: </span>
+                  <span style={{ color: "#64748b" }}>
                     {INDUSTRY_SPECIFIC[newProjIndustry].map(f => f.icon + " " + f.name).join("  ·  ")}
                   </span>
                 </div>
@@ -3726,15 +3740,15 @@ export function ProjectOSApp() {
                 <button
                   onClick={() => { setShowNewProject(false); setNewProjName(""); setNewProjStep(1); setNewProjIndustry("General"); }}
                   className="flex-1 py-2.5 rounded-xl text-[13px]"
-                  style={{ background: "rgba(255,255,255,0.04)", color: "#64748b", border: "1px solid rgba(255,255,255,0.08)" }}
+                  style={{ background: "#f8fafc", color: "#64748b", border: "1px solid rgba(0,0,0,0.10)" }}
                 >Cancel</button>
                 <button
                   onClick={createProject}
                   className="flex-1 py-2.5 rounded-xl text-[13px] font-semibold"
                   style={{
-                    background: "rgba(99,102,241,0.22)",
-                    border: "1px solid rgba(99,102,241,0.45)",
-                    color: "#a5b4fc",
+                    background: "#6366f1",
+                    border: "none",
+                    color: "#ffffff",
                   }}
                 >
                   Create {newProjIndustry !== "General" ? `${INDUSTRY_ICONS[newProjIndustry]} ` : ""}Project
@@ -3749,12 +3763,12 @@ export function ProjectOSApp() {
       {scaffoldStatus && (
         <div
           className="fixed bottom-6 right-6 z-50 flex items-center gap-3 px-4 py-3 rounded-2xl shadow-2xl"
-          style={{ background: "rgba(12,16,24,0.97)", border: "1px solid rgba(99,102,241,0.35)", minWidth: "280px" }}
+          style={{ background: "#ffffff", border: "1px solid rgba(99,102,241,0.25)", minWidth: "280px", boxShadow: "0 8px 32px rgba(0,0,0,0.12)" }}
         >
-          <div className="flex-shrink-0 w-5 h-5 rounded-full border-2 border-indigo-400 border-t-transparent animate-spin" />
+          <div className="flex-shrink-0 w-5 h-5 rounded-full border-2 border-indigo-500 border-t-transparent animate-spin" />
           <div>
-            <div className="text-[11px] text-slate-400">Scaffolding project…</div>
-            <div className="text-[12px] font-medium text-white mt-0.5">{scaffoldStatus.label}</div>
+            <div className="text-[11px]" style={{ color: "#64748b" }}>Scaffolding project…</div>
+            <div className="text-[12px] font-medium mt-0.5" style={{ color: "#1e293b" }}>{scaffoldStatus.label}</div>
             <div className="w-full mt-1.5 h-1 rounded-full overflow-hidden" style={{ background: "rgba(255,255,255,0.08)" }}>
               <div
                 className="h-full rounded-full transition-all"
