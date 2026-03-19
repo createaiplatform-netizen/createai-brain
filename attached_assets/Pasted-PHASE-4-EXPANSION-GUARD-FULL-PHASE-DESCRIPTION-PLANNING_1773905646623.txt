@@ -1,0 +1,112 @@
+PHASE 4 — EXPANSION GUARD (FULL PHASE DESCRIPTION + PLANNING PROMPT)
+Do NOT modify any files yet.
+
+━━━━━━━━━━━━━━━━━━━━━━━
+PHASE 4 — PURPOSE
+━━━━━━━━━━━━━━━━━━━━━━━
+Phase 4 introduces a backend‑enforced safety layer called **ExpansionGuard**.
+
+Its job is to protect your AI engine system from:
+- runaway expansions
+- infinite recursion
+- engines calling engines without authorization
+- bypassing the executor layer (Phase 2)
+- unbounded or unsafe execution chains
+- silent failures that are impossible to debug
+
+This is the phase that makes your execution system **safe, traceable, and production‑grade**.
+
+━━━━━━━━━━━━━━━━━━━━━━━
+PHASE 4 — WHAT IT MUST DO
+━━━━━━━━━━━━━━━━━━━━━━━
+
+1. **Create ExpansionGuard (backend authority)**
+   File:
+   artifacts/api-server/src/core/ExpansionGuard.ts
+
+   ExpansionGuard MUST:
+   - expose: run(engineId, opts, executorFn)
+   - generate executionId (uuid)
+   - track:
+       • depth  
+       • recursion count  
+       • token usage (approximate)  
+       • execution trace (engine → engine → engine)
+   - enforce:
+       • maxDepth  
+       • maxTokens  
+       • maxRecursion  
+       • domain restrictions  
+   - return structured error objects (never raw throws)
+
+2. **Add safety metadata to APP_ENGINE_REGISTRY**
+   Each engine entry must include:
+   - safe: boolean
+   - maxDepth
+   - maxTokens
+   - allowRecursion
+
+3. **Wrap all executors**
+   Every executor created in Phase 2 must be updated so:
+   executor.execute() → ExpansionGuard.run()
+
+   No executor logic changes.
+
+4. **Update PlatformController**
+   - ALL engine execution must flow through ExpansionGuard
+   - remove any remaining direct calls to:
+       • CapabilityEngine._runEngine  
+       • CapabilityEngine._runMetaAgent  
+
+5. **Optional frontend visualization**
+   File:
+   artifacts/createai-brain/src/safety/ExpansionGuardClient.tsx
+
+   - purely UI  
+   - shows trace + safety info  
+   - NO enforcement logic  
+
+━━━━━━━━━━━━━━━━━━━━━━━
+PHASE 4 — WHAT IT MUST NOT DO
+━━━━━━━━━━━━━━━━━━━━━━━
+- Do NOT modify engine implementations
+- Do NOT modify backend integration logic
+- Do NOT modify database schema
+- Do NOT change executor signatures
+- Do NOT add new features beyond safety enforcement
+
+━━━━━━━━━━━━━━━━━━━━━━━
+PHASE 4 — SUCCESS CRITERIA
+━━━━━━━━━━━━━━━━━━━━━━━
+Phase 4 is complete when:
+- No engine can call another engine without passing through ExpansionGuard
+- Infinite loops are impossible
+- All execution paths are traceable
+- All existing features continue working
+- No regressions occur
+
+━━━━━━━━━━━━━━━━━━━━━━━
+FILES TO INSPECT BEFORE PLANNING
+━━━━━━━━━━━━━━━━━━━━━━━
+Backend (authoritative):
+- artifacts/api-server/src/core/
+- artifacts/api-server/src/services/*
+- artifacts/api-server/src/routes/*
+- artifacts/api-server/src/utils/*
+- artifacts/createai-brain/src/executors/* (to understand call flow)
+
+Frontend (optional):
+- artifacts/createai-brain/src/safety/*
+- artifacts/createai-brain/src/controller/PlatformController.ts
+
+━━━━━━━━━━━━━━━━━━━━━━━
+PHASE 4 — PLANNING INSTRUCTIONS FOR REPLIT
+━━━━━━━━━━━━━━━━━━━━━━━
+Before making ANY changes, you must:
+
+1. Identify all files that will be modified.
+2. Summarize the plan in 5–10 bullet points.
+3. Wait for my approval.
+
+STOP after planning and wait for:
+APPROVED – EXECUTE PHASE 4
