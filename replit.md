@@ -267,6 +267,40 @@ All existing free-function exports from `memoryService.ts` (`saveMemory`, `loadM
 - `done` SSE event: `frames?.length ?? 0` safe null-coalescing (no throw on undefined)
 - Both packages typecheck clean (zero errors); Vite build clean
 
+## UltraMax Meta-Platform Session (COMPLETE — PlayerRegistry + CrossSynth + Branching)
+
+### Three new platform-level features:
+
+**1. Suggested Next Renders (PlayerRegistry.detectMissingPlayers)**
+- `SuggestedNextRenders` component in `RenderEngineApp.tsx` (before `RenderEngineApp` export)
+- On mount: fetches `/api/projects/:id/files`, detects which `Render Manifest — {mode}` files exist
+- Uses `MODE_AFFINITY` table — context-aware ranking of the 3 most relevant untried modes per current mode
+- Renders "ALSO GENERATE FOR THIS PROJECT" chip strip at the bottom of the idle launch screen
+- One-click chip immediately starts a new SSE generation with `forceMode: mode`
+- `MODE_MANIFEST_NAME` map: cinematic → "Movie Production Manifest", all others → "Render Manifest — {mode}"
+
+**2. Cross-Player Synthesis (combinePlayerContent)**
+- In `generate.ts` POST handler: after loading project files, scans for existing render manifests
+- Extracts each manifest's `titleCard.tagline` + first 4 frame/scene titles as "universe context"
+- Prepends as `[Cross-universe context — {mode}: {tagline}. Key themes: {titles}]` lines to `enrichedContent`
+- SSEs a status message "Cross-universe synthesis — pulling context from N existing render(s)…"
+- All mode handlers now receive `enrichedContent` instead of raw `content`
+
+**3. Cinematic Branching Choices → Frames (BranchingEngine)**
+- In `generate.ts` `handleFilm` pipeline: `isPivotal` scenes already generate `choices: SceneChoice[]`
+- Post-generation: `manifest.frames` now populated from scenes (converts `SceneManifest[]` → `RenderFrame[]`)
+- Branch `choices[].label` values joined as pipe-separated `subContent` (e.g. "Take the dark path | Flee to safety")
+- Falls back to `cameraDir | musicCue` when no choices (non-pivotal scenes)
+- CinematicPlayer's existing branching overlay (`showChoices`, ⚡ CHOOSE PATH badge) now fires from live data
+
+**4. forceMode override in generate.ts**
+- `POST /api/generate` now accepts optional `forceMode?: string` in request body
+- Validated against `ALL_MODES` array; overrides `detectRenderMode(industry)` when valid
+- `RenderEngineApp` stores `overrideMode` state — updated by `SuggestedNextRenders.onGenerate`
+- Passed as `forceMode` in SSE fetch; `startGeneration` useCallback depends on `overrideMode`
+
+**Both packages typecheck: zero errors after all changes**
+
 ## Expansion Engine v3 (COMPLETE — Maximum-Capacity Ceiling Applied)
 - **expansionEngine.ts**: 20 expansion paths · 7 iterations · 20-layer power table
 - **openai.ts ENGINE_SYSTEM_PROMPTS**: 20 new max-capacity engines added (DeliverableEngine, AutomationEngine, ProductionEngine, ComplianceAuditEngine, SecurityEngine, ScalingEngine, MonetizationEngine, LaunchEngine, GrowthEngine, RetentionEngine, AnalyticsEngine, APIDesignEngine, UIUXEngine, AccessibilityEngine, DevOpsEngine, MobileEngine, PartnershipEngine, ContentStrategyEngine, SEOEngine, PerformanceEngine)

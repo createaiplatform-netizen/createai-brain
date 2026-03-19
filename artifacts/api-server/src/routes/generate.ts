@@ -705,7 +705,7 @@ router.post("/", async (req: Request, res: Response) => {
     return;
   }
 
-  const { projectId } = req.body as { projectId?: string | number };
+  const { projectId, forceMode } = req.body as { projectId?: string | number; forceMode?: string };
   if (!projectId) {
     res.status(400).json({ error: "projectId required" });
     return;
@@ -733,7 +733,10 @@ router.post("/", async (req: Request, res: Response) => {
       sse(res, { type: "error", message: "No project files found. Add content first." }); res.end(); return;
     }
 
-    const renderMode = detectRenderMode(project.industry ?? "General");
+    const ALL_MODES: RenderMode[] = ["cinematic","game","app","book","course","pitch","showcase","music","podcast","document"];
+    const renderMode: RenderMode = (forceMode && ALL_MODES.includes(forceMode as RenderMode))
+      ? (forceMode as RenderMode)
+      : detectRenderMode(project.industry ?? "General");
 
     // ── Check for existing checkpoint (session resume) ────────────────────────
     const checkpoint = files.find(f => f.name === `_checkpoint_${renderMode}`);
@@ -766,6 +769,38 @@ router.post("/", async (req: Request, res: Response) => {
       sse(res, { type: "error", message: "Project files have no content yet. Write your content first." }); res.end(); return;
     }
 
+    // ── Cross-player synthesis: inject existing render context ────────────────
+    // Reads up to 2 previously generated manifests and injects their theme/tagline
+    // as universe context, keeping all renders coherent with each other.
+    const crossSynthLines = files
+      .filter(f =>
+        (f.name.startsWith("Render Manifest —") || f.name === "Movie Production Manifest") &&
+        !f.name.includes(renderMode) && f.content,
+      )
+      .slice(0, 2)
+      .map(f => {
+        try {
+          const p = JSON.parse(f.content!) as {
+            titleCard?: { tagline?: string };
+            frames?: { title: string }[];
+            scenes?: { title: string }[];
+          };
+          const tagline = p.titleCard?.tagline ?? "";
+          const items   = (p.frames ?? p.scenes ?? []).slice(0, 4).map(x => x.title);
+          const src     = f.name.replace("Render Manifest — ", "").replace("Movie Production Manifest", "cinematic");
+          return `[Cross-universe context — ${src}: ${tagline}. Key themes: ${items.join(", ")}]`;
+        } catch { return ""; }
+      })
+      .filter(Boolean);
+
+    const enrichedContent = crossSynthLines.length
+      ? `${crossSynthLines.join("\n")}\n\n${content}`
+      : content;
+
+    if (crossSynthLines.length) {
+      sse(res, { type: "status", message: `Cross-universe synthesis — pulling context from ${crossSynthLines.length} existing render(s)…` });
+    }
+
     sse(res, { type: "status", message: `UltraMax pipeline — mode: ${renderMode}` });
 
     const manifest: UnifiedManifest = {
@@ -781,19 +816,33 @@ router.post("/", async (req: Request, res: Response) => {
 
     // ── Run handler ───────────────────────────────────────────────────────────
     if (renderMode === "cinematic") {
-      const scenes = await handleFilm(res, project, content, fileRefs, pid);
+      const scenes = await handleFilm(res, project, enrichedContent, fileRefs, pid);
       manifest.scenes = scenes;
+      // Convert scenes → frames so CinematicPlayer's branching overlay can consume them
+      manifest.frames = scenes.map(s => ({
+        index:      s.sceneIndex,
+        title:      s.title,
+        imageUrl:   s.imageUrl,
+        content:    s.dialogue,
+        // Pipe-separate branch choice labels; fall back to camera+music cues
+        subContent: s.choices?.length
+          ? s.choices.map(c => c.label).join(" | ")
+          : [s.cameraDir, s.musicCue].filter(Boolean).join(" | "),
+        badge:      `Scene ${s.sceneIndex + 1}`,
+        moodColor:  s.moodColor,
+        durationSec: s.durationSec,
+      }));
     } else {
       switch (renderMode) {
-        case "game":     await handleGame(res, project, content, fileRefs, pid, manifest);      break;
-        case "app":      await handleApp(res, project, content, fileRefs, pid, manifest);       break;
-        case "book":     await handleBook(res, project, content, fileRefs, pid, manifest);      break;
-        case "course":   await handleCourse(res, project, content, fileRefs, pid, manifest);   break;
-        case "pitch":    await handlePitch(res, project, content, fileRefs, pid, manifest);    break;
-        case "showcase": await handleShowcase(res, project, content, fileRefs, pid, manifest); break;
-        case "music":    await handleMusic(res, project, content, fileRefs, pid, manifest);    break;
-        case "podcast":  await handlePodcast(res, project, content, fileRefs, pid, manifest);  break;
-        default:         await handleDocument(res, project, content, fileRefs, pid, manifest); break;
+        case "game":     await handleGame(res, project, enrichedContent, fileRefs, pid, manifest);      break;
+        case "app":      await handleApp(res, project, enrichedContent, fileRefs, pid, manifest);       break;
+        case "book":     await handleBook(res, project, enrichedContent, fileRefs, pid, manifest);      break;
+        case "course":   await handleCourse(res, project, enrichedContent, fileRefs, pid, manifest);   break;
+        case "pitch":    await handlePitch(res, project, enrichedContent, fileRefs, pid, manifest);    break;
+        case "showcase": await handleShowcase(res, project, enrichedContent, fileRefs, pid, manifest); break;
+        case "music":    await handleMusic(res, project, enrichedContent, fileRefs, pid, manifest);    break;
+        case "podcast":  await handlePodcast(res, project, enrichedContent, fileRefs, pid, manifest);  break;
+        default:         await handleDocument(res, project, enrichedContent, fileRefs, pid, manifest); break;
       }
     }
 

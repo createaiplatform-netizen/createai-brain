@@ -1873,19 +1873,117 @@ function OutputViewer({ manifest, projectId }: { manifest: RenderManifest; proje
   }
 }
 
+// ─── Suggested Next Renders ───────────────────────────────────────────────────
+// Scans project files for existing manifests and surfaces up to 3 untried modes.
+
+const ALL_RENDER_MODES: RenderMode[] = [
+  "cinematic","game","app","book","course","pitch","showcase","music","podcast","document",
+];
+const MODE_MANIFEST_NAME: Record<RenderMode, string> = {
+  cinematic: "Movie Production Manifest",
+  game: "Render Manifest — game",
+  app: "Render Manifest — app",
+  book: "Render Manifest — book",
+  course: "Render Manifest — course",
+  pitch: "Render Manifest — pitch",
+  showcase: "Render Manifest — showcase",
+  music: "Render Manifest — music",
+  podcast: "Render Manifest — podcast",
+  document: "Render Manifest — document",
+};
+// Affinity map: for each mode, ranked list of modes worth suggesting next
+const MODE_AFFINITY: Record<RenderMode, RenderMode[]> = {
+  cinematic: ["book","podcast","music","course","pitch","document","app","game","showcase"],
+  game:      ["app","showcase","book","course","pitch","podcast","document","cinematic","music"],
+  app:       ["pitch","showcase","document","course","book","podcast","game","cinematic","music"],
+  book:      ["course","podcast","cinematic","music","document","pitch","app","game","showcase"],
+  course:    ["book","podcast","document","pitch","app","cinematic","music","game","showcase"],
+  pitch:     ["showcase","document","podcast","book","course","app","cinematic","music","game"],
+  showcase:  ["pitch","app","document","game","music","podcast","book","course","cinematic"],
+  music:     ["podcast","cinematic","book","course","document","pitch","app","game","showcase"],
+  podcast:   ["music","book","course","document","pitch","cinematic","app","game","showcase"],
+  document:  ["pitch","course","book","podcast","app","showcase","music","game","cinematic"],
+};
+
+function SuggestedNextRenders({
+  projectId,
+  currentMode,
+  onGenerate,
+}: {
+  projectId:  string | number;
+  currentMode: RenderMode;
+  onGenerate: (mode: RenderMode) => void;
+}) {
+  const [suggestions, setSuggestions] = useState<RenderMode[]>([]);
+
+  useEffect(() => {
+    let cancelled = false;
+    (async () => {
+      try {
+        const r = await fetch(`/api/projects/${projectId}/files`, { credentials: "include" });
+        if (!r.ok || cancelled) return;
+        const files: { name: string }[] = await r.json();
+        const doneNames = new Set(files.map(f => f.name));
+        // Filter modes that already have a manifest saved
+        const affinityList = MODE_AFFINITY[currentMode] ?? ALL_RENDER_MODES.filter(m => m !== currentMode);
+        const pending = affinityList.filter(
+          m => !doneNames.has(MODE_MANIFEST_NAME[m]) && m !== currentMode,
+        ).slice(0, 3);
+        if (!cancelled) setSuggestions(pending);
+      } catch { /* network — ignore */ }
+    })();
+    return () => { cancelled = true; };
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [projectId, currentMode]);
+
+  if (!suggestions.length) return null;
+
+  return (
+    <div style={{
+      marginTop: 24, padding: "14px 18px", borderRadius: 14,
+      background: "rgba(99,102,241,0.05)", border: "1px solid rgba(99,102,241,0.12)",
+      display: "flex", flexDirection: "column", alignItems: "center", gap: 10,
+    }}>
+      <div style={{ fontSize: 10, fontWeight: 700, color: "#94a3b8", letterSpacing: "0.08em" }}>
+        ALSO GENERATE FOR THIS PROJECT
+      </div>
+      <div style={{ display: "flex", gap: 8, flexWrap: "wrap", justifyContent: "center" }}>
+        {suggestions.map(mode => {
+          const m = MODE_META[mode];
+          return (
+            <button key={mode} onClick={() => onGenerate(mode)}
+              style={{
+                padding: "7px 16px", borderRadius: 20, border: "1.5px solid rgba(99,102,241,0.2)",
+                background: "#fff", color: "#6366f1", fontSize: 11, fontWeight: 700,
+                cursor: "pointer", display: "flex", alignItems: "center", gap: 6,
+                transition: "all 0.15s",
+              }}
+              onMouseEnter={e => { e.currentTarget.style.background = "#6366f1"; e.currentTarget.style.color = "#fff"; }}
+              onMouseLeave={e => { e.currentTarget.style.background = "#fff"; e.currentTarget.style.color = "#6366f1"; }}
+            >
+              {m.icon} {m.label}
+            </button>
+          );
+        })}
+      </div>
+    </div>
+  );
+}
+
 // ─── Main RenderEngineApp ─────────────────────────────────────────────────────
 
 export function RenderEngineApp({ projectId, projectName, projectType, onClose }: Props) {
-  const [phase, setPhase]         = useState<"idle" | "generating" | "done" | "error">("idle");
-  const [log, setLog]             = useState<LogEntry[]>([]);
-  const [frames, setFrames]       = useState<RenderFrame[]>([]);
-  const [total, setTotal]         = useState(0);
-  const [manifest, setManifest]   = useState<RenderManifest | null>(null);
-  const [view, setView]           = useState<"console" | "output">("console");
-  const [restoring, setRestoring] = useState(true);
-  const abortRef                  = useRef<AbortController | null>(null);
+  const [phase, setPhase]           = useState<"idle" | "generating" | "done" | "error">("idle");
+  const [log, setLog]               = useState<LogEntry[]>([]);
+  const [frames, setFrames]         = useState<RenderFrame[]>([]);
+  const [total, setTotal]           = useState(0);
+  const [manifest, setManifest]     = useState<RenderManifest | null>(null);
+  const [view, setView]             = useState<"console" | "output">("console");
+  const [restoring, setRestoring]   = useState(true);
+  const [overrideMode, setOverrideMode] = useState<RenderMode | null>(null);
+  const abortRef                    = useRef<AbortController | null>(null);
 
-  const renderMode = detectMode(projectType);
+  const renderMode = overrideMode ?? detectMode(projectType);
   const meta       = MODE_META[renderMode];
 
   const addLog = useCallback((entry: LogEntry) => {
@@ -1933,11 +2031,14 @@ export function RenderEngineApp({ projectId, projectName, projectType, onClose }
     abortRef.current = new AbortController();
 
     try {
+      const body: Record<string, unknown> = { projectId };
+      if (overrideMode) body.forceMode = overrideMode;
+
       const resp = await fetch("/api/generate", {
         method:      "POST",
         headers:     { "Content-Type": "application/json" },
         credentials: "include",
-        body:        JSON.stringify({ projectId }),
+        body:        JSON.stringify(body),
         signal:      abortRef.current.signal,
       });
 
@@ -1995,7 +2096,7 @@ export function RenderEngineApp({ projectId, projectName, projectType, onClose }
         addLog({ type: "error", message: (err as Error).message });
       }
     }
-  }, [projectId, addLog]);
+  }, [projectId, addLog, overrideMode]);
 
   useEffect(() => { return () => abortRef.current?.abort(); }, []);
 
@@ -2148,6 +2249,67 @@ export function RenderEngineApp({ projectId, projectName, projectType, onClose }
               }}>
               {meta.icon} {meta.action}
             </button>
+
+            <SuggestedNextRenders
+              projectId={projectId}
+              currentMode={renderMode}
+              onGenerate={mode => {
+                setOverrideMode(mode);
+                setPhase("generating");
+                setLog([]);
+                setFrames([]);
+                setTotal(0);
+                setManifest(null);
+                setView("console");
+                abortRef.current?.abort();
+                abortRef.current = new AbortController();
+                // Kick off with the chosen mode immediately
+                const ac = abortRef.current;
+                fetch("/api/generate", {
+                  method: "POST",
+                  headers: { "Content-Type": "application/json" },
+                  credentials: "include",
+                  body: JSON.stringify({ projectId, forceMode: mode }),
+                  signal: ac.signal,
+                }).then(async resp => {
+                  if (!resp.ok || !resp.body) {
+                    setPhase("error");
+                    addLog({ type: "error", message: `Server returned ${resp.status}` });
+                    return;
+                  }
+                  const reader  = resp.body.getReader();
+                  const decoder = new TextDecoder();
+                  while (true) {
+                    const { done, value } = await reader.read();
+                    if (done) break;
+                    const chunk = decoder.decode(value, { stream: true });
+                    for (const line of chunk.split("\n")) {
+                      if (!line.startsWith("data:")) continue;
+                      try {
+                        const evt = JSON.parse(line.slice(5).trim()) as {
+                          type: string; message?: string; frame?: number; total?: number; step?: string;
+                          data?: RenderFrame; manifest?: RenderManifest;
+                        };
+                        if (evt.type === "status")   addLog({ type: "status",   message: evt.message ?? "" });
+                        if (evt.type === "start")    { setTotal(evt.total ?? 5); addLog({ type: "status", message: `Starting — ${evt.total} segments` }); }
+                        if (evt.type === "progress") addLog({ type: "progress",  message: evt.message ?? "", frame: evt.frame, total: evt.total, step: evt.step });
+                        if (evt.type === "frame_done" && evt.data) setFrames(prev => [...prev, evt.data!]);
+                        if (evt.type === "error")    { setPhase("error"); addLog({ type: "error", message: evt.message ?? "Generation failed" }); }
+                        if (evt.type === "done" && evt.manifest) {
+                          setManifest(evt.manifest); setPhase("done"); setView("output");
+                          addLog({ type: "done", message: `${evt.manifest.frames?.length ?? 0} frames ready` });
+                        }
+                      } catch { /* skip */ }
+                    }
+                  }
+                }).catch(err => {
+                  if ((err as Error).name !== "AbortError") {
+                    setPhase("error");
+                    addLog({ type: "error", message: (err as Error).message });
+                  }
+                });
+              }}
+            />
           </div>
           )
         ) : view === "output" && manifest ? (
