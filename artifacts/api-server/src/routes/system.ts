@@ -28,6 +28,7 @@ import { getConfigurationStatus, runSelfHeal } from "../services/systemConfigura
 import { logAudit } from "../services/audit";
 import { db, projects, documents, people, activityLog, tractionEvents } from "@workspace/db";
 import { sql } from "drizzle-orm";
+import { getStreamStats } from "../services/telemetry";
 
 const router = Router();
 
@@ -411,6 +412,13 @@ router.get("/search", async (req: Request, res: Response) => {
     console.error("[system/search] error:", err);
     res.status(500).json({ error: "Search failed" });
   }
+});
+
+// ─── GET /api/system/telemetry/streams ────────────────────────────────────────
+// Founder-only — live concurrency telemetry for active AI SSE streams.
+
+router.get("/telemetry/streams", requireFounder, (_req: Request, res: Response) => {
+  res.json(getStreamStats());
 });
 
 // ─── POST /api/system/self-heal ───────────────────────────────────────────────

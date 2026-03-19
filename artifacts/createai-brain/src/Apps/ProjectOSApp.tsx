@@ -9,7 +9,7 @@ import { ProjectOutputLayer } from "./ProjectOutputLayer";
 
 // ─── Types ────────────────────────────────────────────────────────────────────
 
-type ViewMode = "output" | "dashboard+folders" | "dashboard" | "folders" | "simple" | "advanced" | "tasks" | "team" | "opportunities" | "portfolio" | "sales" | "ops" | "support" | "compliance" | "enterprise" | "strategy" | "ux" | "pipeline" | "marketing" | "product" | "hr" | "finance";
+type ViewMode = "output" | "dashboard+folders" | "dashboard" | "folders" | "simple" | "advanced" | "tasks" | "team" | "opportunities" | "portfolio" | "sales" | "ops" | "support" | "compliance" | "enterprise" | "strategy" | "ux" | "pipeline" | "marketing" | "product" | "hr" | "finance" | "observability";
 
 // ─── Shared / Suggested Types ────────────────────────────────────────────────
 interface SharedProject {
@@ -1255,6 +1255,204 @@ function getFileWorkflows(file: ProjectFile): { label: string; icon: string; pro
   return base;
 }
 
+// ─── Observability Dashboard ──────────────────────────────────────────────────
+// Live system health view — polls metrics, telemetry, and audit log every 5 s.
+
+interface ObservMetrics {
+  memory?: { heapUsed: number; heapTotal: number; rss: number };
+  cpu?: { user: number; system: number };
+  uptime?: number;
+  db?: Record<string, number>;
+  platform?: { totalTypes: number; totalTemplates: number; totalPersonas: number };
+}
+interface ObservStreams {
+  activeCount?: number;
+  peakConcurrency?: number;
+  totalStarted?: number;
+  avgDurationMs?: number;
+  activeStreams?: { streamId: string; projectId: string; durationMs: number }[];
+}
+interface ObservAudit {
+  activity?: { id: number; action: string; label: string; icon: string; createdAt: string }[];
+  actionCounts?: { action: string; count: number }[];
+}
+
+function ObservabilityDashboard() {
+  const [metrics, setMetrics]   = useState<ObservMetrics>({});
+  const [streams, setStreams]   = useState<ObservStreams>({});
+  const [audit,   setAudit]     = useState<ObservAudit>({});
+  const [lastAt,  setLastAt]    = useState<string>("—");
+  const [error,   setError]     = useState<string | null>(null);
+
+  const fetchAll = useCallback(async () => {
+    try {
+      const [mRes, sRes, aRes] = await Promise.all([
+        fetch("/api/system/metrics",          { credentials: "include" }),
+        fetch("/api/system/telemetry/streams", { credentials: "include" }),
+        fetch("/api/activity/query?limit=30", { credentials: "include" }),
+      ]);
+      if (mRes.ok) setMetrics(await mRes.json());
+      if (sRes.ok) setStreams(await sRes.json());
+      if (aRes.ok) setAudit(await aRes.json());
+      setLastAt(new Date().toLocaleTimeString());
+      setError(null);
+    } catch (e) {
+      setError("Fetch failed — retrying in 5 s");
+    }
+  }, []);
+
+  useEffect(() => {
+    fetchAll();
+    const id = setInterval(fetchAll, 5000);
+    return () => clearInterval(id);
+  }, [fetchAll]);
+
+  const fmt = (n: number) => n >= 1024 ? `${(n / 1024).toFixed(1)} GB` : `${n.toFixed(0)} MB`;
+  const sec = (s: number) => {
+    const h = Math.floor(s / 3600), m = Math.floor((s % 3600) / 60);
+    return h > 0 ? `${h}h ${m}m` : `${m}m ${Math.floor(s % 60)}s`;
+  };
+
+  const card = (title: string, children: React.ReactNode) => (
+    <div style={{ background: "#fff", border: "1px solid rgba(0,0,0,0.07)", borderRadius: 14, padding: "18px 20px" }}>
+      <div style={{ fontSize: 10, fontWeight: 700, letterSpacing: "0.08em", textTransform: "uppercase", color: "#94a3b8", marginBottom: 12 }}>{title}</div>
+      {children}
+    </div>
+  );
+
+  const stat = (label: string, value: string | number, sub?: string, color = "#1e293b") => (
+    <div style={{ marginBottom: 10 }}>
+      <div style={{ fontSize: 11, color: "#64748b" }}>{label}</div>
+      <div style={{ fontSize: 20, fontWeight: 700, color, lineHeight: 1.2 }}>{value}</div>
+      {sub && <div style={{ fontSize: 10, color: "#94a3b8", marginTop: 1 }}>{sub}</div>}
+    </div>
+  );
+
+  const mem   = metrics.memory;
+  const heapPct = mem ? Math.round((mem.heapUsed / mem.heapTotal) * 100) : 0;
+  const heapColor = heapPct > 80 ? "#f87171" : heapPct > 60 ? "#f59e0b" : "#10b981";
+
+  return (
+    <div style={{ flex: 1, overflowY: "auto", padding: "24px 28px", background: "#f8fafc" }}>
+      {/* Header */}
+      <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", marginBottom: 22 }}>
+        <div>
+          <div style={{ fontSize: 18, fontWeight: 700, color: "#1e293b" }}>System Observability</div>
+          <div style={{ fontSize: 11, color: "#94a3b8", marginTop: 2 }}>Auto-refreshes every 5 s · Last update: {lastAt}</div>
+        </div>
+        <button
+          onClick={fetchAll}
+          style={{ padding: "6px 14px", borderRadius: 8, background: "rgba(99,102,241,0.08)", border: "1px solid rgba(99,102,241,0.20)", color: "#6366f1", fontSize: 11, fontWeight: 600, cursor: "pointer" }}
+        >↻ Refresh</button>
+      </div>
+
+      {error && (
+        <div style={{ background: "#fef2f2", border: "1px solid #fca5a5", borderRadius: 10, padding: "10px 14px", color: "#ef4444", fontSize: 11, marginBottom: 16 }}>{error}</div>
+      )}
+
+      {/* Row 1 — Server + Streams */}
+      <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr 1fr", gap: 14, marginBottom: 14 }}>
+        {card("Server Health", <>
+          {stat("Uptime", metrics.uptime ? sec(metrics.uptime) : "—")}
+          {stat("Heap used / total",
+            mem ? `${fmt(mem.heapUsed / 1e6)} / ${fmt(mem.heapTotal / 1e6)}` : "—",
+            `${heapPct}% utilised`, heapColor)}
+          {mem && (
+            <div style={{ height: 4, borderRadius: 4, background: "rgba(0,0,0,0.06)", overflow: "hidden", marginTop: -4 }}>
+              <div style={{ height: "100%", width: `${heapPct}%`, background: heapColor, borderRadius: 4, transition: "width 0.4s" }} />
+            </div>
+          )}
+          {stat("RSS", mem ? fmt(mem.rss / 1e6) : "—", "resident set size")}
+        </>)}
+
+        {card("AI Streams", <>
+          {stat("Active now",   streams.activeCount    ?? 0, undefined, streams.activeCount ? "#6366f1" : "#10b981")}
+          {stat("Peak",         streams.peakConcurrency ?? 0)}
+          {stat("Total started", streams.totalStarted   ?? 0)}
+          {stat("Avg duration",  streams.avgDurationMs  != null ? `${(streams.avgDurationMs / 1000).toFixed(1)}s` : "—")}
+        </>)}
+
+        {card("Platform", <>
+          {stat("Project types",    metrics.platform?.totalTypes     ?? "—")}
+          {stat("Templates",        metrics.platform?.totalTemplates ?? "—")}
+          {stat("Expert personas",  metrics.platform?.totalPersonas  ?? "—")}
+        </>)}
+      </div>
+
+      {/* Row 2 — DB stats + Active streams + Action counts */}
+      <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 14, marginBottom: 14 }}>
+        {card("Database Row Counts", <>
+          {metrics.db
+            ? Object.entries(metrics.db).map(([table, count]) => (
+                <div key={table} style={{ display: "flex", justifyContent: "space-between", alignItems: "center", padding: "5px 0", borderBottom: "1px solid rgba(0,0,0,0.04)" }}>
+                  <span style={{ fontSize: 11, color: "#64748b", fontFamily: "monospace" }}>{table}</span>
+                  <span style={{ fontSize: 12, fontWeight: 600, color: "#1e293b" }}>{count.toLocaleString()}</span>
+                </div>
+              ))
+            : <div style={{ color: "#94a3b8", fontSize: 11 }}>Loading…</div>
+          }
+        </>)}
+
+        {card("Action Frequency", <>
+          {audit.actionCounts?.length
+            ? audit.actionCounts.map(({ action, count }) => {
+                const max = audit.actionCounts![0].count;
+                return (
+                  <div key={action} style={{ marginBottom: 8 }}>
+                    <div style={{ display: "flex", justifyContent: "space-between", marginBottom: 3 }}>
+                      <span style={{ fontSize: 10, color: "#64748b", fontFamily: "monospace" }}>{action}</span>
+                      <span style={{ fontSize: 10, fontWeight: 600, color: "#6366f1" }}>{count}</span>
+                    </div>
+                    <div style={{ height: 3, borderRadius: 3, background: "rgba(0,0,0,0.05)", overflow: "hidden" }}>
+                      <div style={{ height: "100%", width: `${(count / max) * 100}%`, background: "linear-gradient(90deg,#6366f1,#8b5cf6)", borderRadius: 3 }} />
+                    </div>
+                  </div>
+                );
+              })
+            : <div style={{ color: "#94a3b8", fontSize: 11 }}>No actions logged yet.</div>
+          }
+        </>)}
+      </div>
+
+      {/* Active streams detail */}
+      {(streams.activeStreams?.length ?? 0) > 0 && card("Live Streams", (
+        <div>
+          {streams.activeStreams!.map(s => (
+            <div key={s.streamId} style={{ display: "flex", justifyContent: "space-between", alignItems: "center", padding: "6px 0", borderBottom: "1px solid rgba(0,0,0,0.04)" }}>
+              <div>
+                <span style={{ fontSize: 11, color: "#6366f1", fontWeight: 600 }}>Project {s.projectId}</span>
+                <span style={{ fontSize: 10, color: "#94a3b8", marginLeft: 8, fontFamily: "monospace" }}>{s.streamId.slice(0, 8)}…</span>
+              </div>
+              <span style={{ fontSize: 11, color: "#f59e0b", fontWeight: 600 }}>{(s.durationMs / 1000).toFixed(1)}s</span>
+            </div>
+          ))}
+        </div>
+      ))}
+
+      {/* Row 3 — Recent audit feed */}
+      <div style={{ marginTop: 14 }}>
+        {card("Recent Activity Log (last 30)", <>
+          {audit.activity?.length
+            ? audit.activity.map(a => (
+                <div key={a.id} style={{ display: "flex", alignItems: "flex-start", gap: 10, padding: "7px 0", borderBottom: "1px solid rgba(0,0,0,0.04)" }}>
+                  <span style={{ fontSize: 14 }}>{a.icon}</span>
+                  <div style={{ flex: 1, minWidth: 0 }}>
+                    <div style={{ fontSize: 11, fontWeight: 500, color: "#1e293b", whiteSpace: "nowrap", overflow: "hidden", textOverflow: "ellipsis" }}>{a.label}</div>
+                    <div style={{ fontSize: 10, color: "#94a3b8", marginTop: 1, fontFamily: "monospace" }}>{a.action}</div>
+                  </div>
+                  <div style={{ fontSize: 10, color: "#cbd5e1", flexShrink: 0, whiteSpace: "nowrap" }}>
+                    {new Date(a.createdAt).toLocaleTimeString([], { hour: "2-digit", minute: "2-digit" })}
+                  </div>
+                </div>
+              ))
+            : <div style={{ color: "#94a3b8", fontSize: 11 }}>No activity yet.</div>
+          }
+        </>)}
+      </div>
+    </div>
+  );
+}
+
 export function ProjectOSApp() {
   const [projects, setProjects] = useState<Project[]>([]);
   const [loadingProjects, setLoadingProjects] = useState(true);
@@ -2347,6 +2545,7 @@ export function ProjectOSApp() {
     { id: "product",           label: "📦 Product",      group: "teams" },
     { id: "hr",                label: "🤝 People/HR",    group: "teams" },
     { id: "finance",           label: "💰 Finance",      group: "teams" },
+    { id: "observability",     label: "📡 System",       group: "power" },
   ];
 
   const activeFiles = activeFolderId
@@ -3991,6 +4190,11 @@ export function ProjectOSApp() {
                 <FinanceModule projectName={activeProject.name} />
               )}
 
+              {/* ── Observability Dashboard ── */}
+              {viewMode === "observability" && (
+                <ObservabilityDashboard />
+              )}
+
               {/* ── Output Layer ── */}
               {viewMode === "output" && activeProject && (
                 <div className="flex-1 overflow-auto p-4" style={{ background: "#f8fafc" }}>
@@ -3999,7 +4203,7 @@ export function ProjectOSApp() {
               )}
 
               {/* Folder + File View */}
-              {viewMode !== "output" && viewMode !== "dashboard" && viewMode !== "tasks" && viewMode !== "team" && viewMode !== "opportunities" && viewMode !== "portfolio" && viewMode !== "sales" && viewMode !== "ops" && viewMode !== "support" && viewMode !== "compliance" && viewMode !== "enterprise" && viewMode !== "strategy" && viewMode !== "ux" && viewMode !== "pipeline" && viewMode !== "marketing" && viewMode !== "product" && viewMode !== "hr" && viewMode !== "finance" && (
+              {viewMode !== "output" && viewMode !== "dashboard" && viewMode !== "tasks" && viewMode !== "team" && viewMode !== "opportunities" && viewMode !== "portfolio" && viewMode !== "sales" && viewMode !== "ops" && viewMode !== "support" && viewMode !== "compliance" && viewMode !== "enterprise" && viewMode !== "strategy" && viewMode !== "ux" && viewMode !== "pipeline" && viewMode !== "marketing" && viewMode !== "product" && viewMode !== "hr" && viewMode !== "finance" && viewMode !== "observability" && (
                 <div className="flex flex-1 overflow-hidden">
 
                   {/* Folder Tree */}

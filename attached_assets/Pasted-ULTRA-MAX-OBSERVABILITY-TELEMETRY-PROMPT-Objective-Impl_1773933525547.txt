@@ -1,0 +1,44 @@
+ULTRA-MAX OBSERVABILITY & TELEMETRY PROMPT:
+
+Objective: Implement the final, high-value infrastructure features in the existing AI Brain platform without touching existing functionality. Fully integrated, scalable, and production-ready.
+
+1. SYSTEM OBSERVABILITY DASHBOARD:
+   - Create a live dashboard endpoint `/dashboard` in the frontend (ProjectOSApp.tsx) showing:
+       • Server uptime and memory/CPU usage
+       • Active DB connections and row counts per table
+       • Number of active AI generation streams per project
+       • Recent project activity feed (last 50 actions)
+   - Visualize metrics with dynamic charts and tables.
+   - Auto-refresh in real-time (SSE or WebSocket).
+
+2. CONCURRENCY TELEMETRY:
+   - Add a telemetry endpoint `/telemetry/streams` exposing:
+       • Active AI streams per project (PlatformController)
+       • Historical peak concurrency
+       • Average duration per stream
+   - Ensure this telemetry integrates with the dashboard.
+
+3. ENHANCED AUDIT LOG:
+   - Expand `auditLogger.ts`:
+       • Make logs queryable by `projectId`, `projectType`, `userId`, `action`, and `outcome` (success/failure)
+       • Include timestamps and metadata for every action
+       • Expose endpoint `/audit/query` for filtered queries
+       • Integrate results into the dashboard for real-time monitoring
+
+4. PERFORMANCE & SAFETY:
+   - Ensure all telemetry endpoints are fully rate-limited, do not block AI streams, and scale dynamically.
+   - Apply existing RBAC: only admin/founder roles can access `/dashboard`, `/telemetry/*`, and `/audit/query`.
+   - No changes to current project scaffolds, types, or PlatformController logic.
+
+5. FINAL VERIFICATION:
+   - Run full typecheck; zero TypeScript errors/warnings.
+   - Test SSE/WebSocket refresh and dashboard display.
+   - Validate telemetry data accuracy against PlatformController stream counts.
+   - Confirm audit log query filters return correct results.
+
+Execution:
+- Implement all three features **simultaneously where safe**.
+- Treat the platform as fully autonomous; dashboard and logs must be live and immediately usable.
+- Log all changes internally for verification.
+
+END PROMPT

@@ -2,6 +2,7 @@ import { Router, type IRouter, type Request, type Response } from "express";
 import { audit } from "../middlewares/auditLogger";
 import { chatLimiter } from "../middlewares/rateLimiters";
 import { eq, desc } from "drizzle-orm";
+import { randomUUID } from "crypto";
 import {
   db,
   projectChatMessages,
@@ -11,6 +12,7 @@ import { openai }        from "@workspace/integrations-openai-ai-server";
 import { container }     from "../container";
 import { MEMORY_SERVICE } from "../container/tokens";
 import type { MemoryService } from "../services/memory.service";
+import { streamStart, streamEnd } from "../services/telemetry";
 
 const router: IRouter = Router();
 
@@ -211,6 +213,9 @@ router.post("/:projectId/chat", chatLimiter, audit("send_project_chat", "project
   if (!requireAuth(req, res)) return;
   const projectId = parseInt(req.params.projectId as string, 10);
 
+  // Telemetry endStream guard — assigned inside try once SSE is ready; no-op default
+  let endStream: () => void = () => {};
+
   try {
     const { message, history = [], scaffoldFiles = [], projectType: clientType } = req.body as {
       message: string;
@@ -270,9 +275,15 @@ router.post("/:projectId/chat", chatLimiter, audit("send_project_chat", "project
     res.setHeader("X-Accel-Buffering", "no");
     res.flushHeaders();
 
+    // ── Telemetry: track this SSE stream ──────────────────────────────────────
+    const streamId = randomUUID();
+    streamStart(streamId, String(projectId), userId);
+    let _streamEnded = false;
+    endStream = () => { if (!_streamEnded) { _streamEnded = true; streamEnd(streamId); } };
+
     // ── Abort on client disconnect — stops the OpenAI stream immediately ──
     const abort = new AbortController();
-    res.on("close", () => abort.abort());
+    res.on("close", () => { abort.abort(); endStream(); });
 
     const stream = await openai.chat.completions.create({
       model:      "gpt-4o-mini",
@@ -310,8 +321,10 @@ router.post("/:projectId/chat", chatLimiter, audit("send_project_chat", "project
 
     res.write("data: [DONE]\n\n");
     res.end();
+    endStream();
   } catch (err) {
     console.error("[projectChat] POST /chat", err);
+    endStream();
     if (!res.headersSent) res.status(500).json({ error: "Project chat failed" });
     else res.end();
   }
