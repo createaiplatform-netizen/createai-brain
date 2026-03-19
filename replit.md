@@ -1087,3 +1087,27 @@ Utility scripts package. Each script is a `.ts` file in `src/` with a correspond
 - 6 clickable demo chip buttons in empty project state: Indie Film, Mobile Game, AI Startup, Business Book, Music Album, Corporate Training
 - Click auto-fills + triggers `parseAndCreate()` — instant project from one click
 - Caption: "Click any example to auto-create it instantly"
+
+---
+
+## Phase ∞++ Feature Set (completed)
+
+### ✦ Smart SuggestedNextRenders (AI Prediction Engine)
+- **Backend**: `GET /api/generate/next-renders/:projectId` — GPT-4o analyzes project industry, existing manifests, and doc richness to return 3-4 AI-scored render suggestions
+- **Response**: `{ suggestions: [{ mode, icon, label, color, reason, score }] }` sorted by urgency score desc
+- **Frontend**: `SuggestedNextRenders` component placed in the Output view, below the render button
+- Each card shows: icon, label, 1-sentence AI reason, score mini-bar (colored), "Generate →" button
+- Auto-fetches on project load; cleans up on unmount; null-renders until data arrives
+- "Generate →" button opens RenderEngine or MovieProduction appropriately
+
+### 🌟 Content Enrichment Score Badge
+- Output view header now shows a color-coded enrichment badge: `🌟 {n}% enriched` 
+- Score = `(files with >80 chars content) / total files × 100`
+- Color: green ≥80%, amber ≥50%, indigo <50%
+- Inline micro-bar next to the percentage; lives in the same row as the Render Engine button
+
+### 🧠 Smart Fill — Predictive Document Enrichment
+- **Backend**: `POST /api/generate/smart-fill` — GPT-4o replaces all `[BRACKET]` placeholders in a doc with project-specific real content; auto-saves to DB
+- **Frontend**: `🧠 Smart Fill` button appears in file viewer toolbar whenever the current file has `[` characters and is not in edit mode
+- Shows "Filling…" spinner while running; on success shows `✓ Filled {n}/{total}` for 4 seconds
+- File content in the viewer updates live; project file state refreshed in memory

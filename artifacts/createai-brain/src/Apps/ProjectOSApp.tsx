@@ -1460,6 +1460,100 @@ interface ObservAudit {
   actionCounts?: { action: string; count: number }[];
 }
 
+// ─── SuggestedNextRenders — Phase ∞++ Smart Render Engine ─────────────────────
+
+interface NextRenderSuggestion {
+  mode: string; icon: string; label: string; color: string;
+  reason: string; score: number;
+}
+
+function SuggestedNextRenders({
+  projectId, onGenerate,
+}: {
+  projectId: number | string;
+  onGenerate: () => void;
+}) {
+  const [suggestions, setSuggestions] = useState<NextRenderSuggestion[]>([]);
+  const [loading,     setLoading]     = useState(false);
+  const [fetched,     setFetched]     = useState(false);
+
+  useEffect(() => {
+    let cancelled = false;
+    async function load() {
+      setLoading(true);
+      try {
+        const r = await fetch(`/api/generate/next-renders/${projectId}`, { credentials: "include" });
+        if (r.ok && !cancelled) {
+          const data = await r.json() as { suggestions: NextRenderSuggestion[] };
+          setSuggestions(data.suggestions ?? []);
+          setFetched(true);
+        }
+      } finally {
+        if (!cancelled) setLoading(false);
+      }
+    }
+    load();
+    return () => { cancelled = true; };
+  }, [projectId]);
+
+  if (loading) return (
+    <div style={{ display: "flex", gap: 8, alignItems: "center", padding: "10px 0", color: "#94a3b8", fontSize: 11 }}>
+      <div style={{ width: 10, height: 10, borderRadius: "50%", border: "2px solid #6366f1", borderTopColor: "transparent", animation: "spin 0.8s linear infinite" }} />
+      Analysing project for render suggestions…
+    </div>
+  );
+
+  if (!fetched || suggestions.length === 0) return null;
+
+  return (
+    <div style={{ marginBottom: 16 }}>
+      <div style={{ fontSize: 10, fontWeight: 700, letterSpacing: "0.08em", textTransform: "uppercase", color: "#94a3b8", marginBottom: 10 }}>
+        ✦ AI Suggests Next
+      </div>
+      <div style={{ display: "grid", gridTemplateColumns: `repeat(${Math.min(suggestions.length, 2)}, 1fr)`, gap: 8 }}>
+        {suggestions.map((s, i) => (
+          <div key={i} style={{
+            background: "#fff", border: "1px solid rgba(0,0,0,0.07)", borderRadius: 12,
+            padding: "12px 14px", position: "relative", overflow: "hidden",
+          }}>
+            {/* Score bar accent */}
+            <div style={{
+              position: "absolute", top: 0, left: 0, right: 0, height: 3,
+              background: `linear-gradient(90deg, ${s.color}, ${s.color}60)`,
+              width: `${s.score}%`,
+            }} />
+            <div style={{ display: "flex", alignItems: "flex-start", gap: 8, marginTop: 4 }}>
+              <span style={{ fontSize: 20, flexShrink: 0 }}>{s.icon}</span>
+              <div style={{ flex: 1, minWidth: 0 }}>
+                <div style={{ fontSize: 12, fontWeight: 700, color: "#0f172a", marginBottom: 2 }}>{s.label}</div>
+                <div style={{ fontSize: 10, color: "#64748b", lineHeight: 1.5, marginBottom: 8 }}>{s.reason}</div>
+                <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between" }}>
+                  <div style={{ display: "flex", alignItems: "center", gap: 4 }}>
+                    <div style={{ width: 48, height: 3, borderRadius: 99, background: "rgba(0,0,0,0.07)" }}>
+                      <div style={{ height: "100%", borderRadius: 99, background: s.color, width: `${s.score}%` }} />
+                    </div>
+                    <span style={{ fontSize: 9, fontWeight: 700, color: s.color }}>{s.score}</span>
+                  </div>
+                  <button
+                    onClick={onGenerate}
+                    style={{
+                      padding: "4px 10px", borderRadius: 6, border: "none", cursor: "pointer",
+                      background: `${s.color}18`, color: s.color,
+                      fontSize: 10, fontWeight: 700,
+                    }}
+                  >
+                    Generate →
+                  </button>
+                </div>
+              </div>
+            </div>
+          </div>
+        ))}
+      </div>
+    </div>
+  );
+}
+
 // ─── Analytics Dashboard ──────────────────────────────────────────────────────
 
 interface AnalyticsProject {
@@ -1840,6 +1934,8 @@ export function ProjectOSApp() {
   const [fileContentLoading, setFileContentLoading] = useState(false);
   const [fileContentSaving, setFileContentSaving] = useState(false);
   const [fileContentSaved, setFileContentSaved] = useState(false);
+  const [smartFillLoading, setSmartFillLoading] = useState(false);
+  const [smartFillResult, setSmartFillResult] = useState<{ filled: number; total: number } | null>(null);
   // ── File version history ──
   const [showVersionHistory, setShowVersionHistory] = useState(false);
   type VersionEntry = { id: number; versionNum: number; label: string | null; createdAt: string; content: string };
@@ -2712,6 +2808,33 @@ export function ProjectOSApp() {
     }
   }, [activeProject, viewingFile, fileContentText]);
 
+  const smartFillFile = useCallback(async () => {
+    if (!activeProject || !viewingFile) return;
+    setSmartFillLoading(true);
+    setSmartFillResult(null);
+    try {
+      const res = await fetch("/api/generate/smart-fill", {
+        method:      "POST",
+        credentials: "include",
+        headers:     { "Content-Type": "application/json" },
+        body:        JSON.stringify({ projectId: activeProject.id, fileId: viewingFile.id }),
+      });
+      const data = await res.json() as { content?: string; filled?: number; total?: number };
+      if (res.ok && data.content) {
+        setFileContentText(data.content);
+        setSmartFillResult({ filled: data.filled ?? 0, total: data.total ?? 0 });
+        setProjects(prev => prev.map(p =>
+          p.id === activeProject.id
+            ? { ...p, files: p.files.map(f => f.id === viewingFile.id ? { ...f, content: data.content ?? f.content } : f) }
+            : p
+        ));
+        setTimeout(() => setSmartFillResult(null), 4000);
+      }
+    } finally {
+      setSmartFillLoading(false);
+    }
+  }, [activeProject, viewingFile]);
+
   const loadVersionHistory = useCallback(async () => {
     if (!activeProject || !viewingFile) return;
     setVersionLoading(true);
@@ -3486,6 +3609,26 @@ export function ProjectOSApp() {
             >
               ⏱ History
             </button>
+            {/* ── Smart Fill button (Phase ∞++) ── */}
+            {viewingFile && (viewingFile.content ?? "").includes("[") && !fileContentEditing && (
+              <button
+                onClick={smartFillFile}
+                disabled={smartFillLoading}
+                title="AI fills all [PLACEHOLDER] values with project-specific content"
+                className="text-[11px] font-semibold px-2.5 py-1.5 rounded-xl flex items-center gap-1 flex-shrink-0"
+                style={{
+                  background: smartFillResult ? "rgba(16,185,129,0.15)" : "rgba(99,102,241,0.16)",
+                  color: smartFillResult ? "#34d399" : "#a5b4fc",
+                  border: `1px solid ${smartFillResult ? "rgba(52,211,153,0.30)" : "rgba(99,102,241,0.25)"}`,
+                }}
+              >
+                {smartFillLoading
+                  ? <><div className="w-2 h-2 border-2 border-indigo-400 border-t-transparent rounded-full animate-spin" />Filling…</>
+                  : smartFillResult
+                    ? `✓ Filled ${smartFillResult.filled}/${smartFillResult.total}`
+                    : "🧠 Smart Fill"}
+              </button>
+            )}
             {/* ── Instant-edit AI dropdown ── */}
             <div className="relative flex-shrink-0">
               <button
@@ -4625,8 +4768,24 @@ export function ProjectOSApp() {
                     };
                     const bm = btnMeta[ind] ?? { icon: "✦", label: "Generate Experience", color: "#6366f1" };
                     const isFilm = ["Film / Movie", "Documentary"].includes(ind);
+                    const totalF   = activeProject.files.length;
+                    const richF    = activeProject.files.filter(f => (f.content ?? "").length > 80).length;
+                    const enrichPct = totalF > 0 ? Math.round((richF / totalF) * 100) : 0;
+                    const enrichColor = enrichPct >= 80 ? "#10b981" : enrichPct >= 50 ? "#f59e0b" : "#6366f1";
                     return (
-                      <div style={{ marginBottom: 12, display: "flex", justifyContent: "flex-end", gap: 8 }}>
+                      <div style={{ marginBottom: 12, display: "flex", justifyContent: "space-between", alignItems: "center", gap: 8 }}>
+                        {/* Enrichment Score Badge */}
+                        <div style={{
+                          display: "flex", alignItems: "center", gap: 6,
+                          padding: "5px 10px", borderRadius: 99,
+                          background: `${enrichColor}10`, border: `1px solid ${enrichColor}30`,
+                          fontSize: 10, fontWeight: 700, color: enrichColor,
+                        }}>
+                          🌟 {enrichPct}% enriched
+                          <div style={{ width: 36, height: 3, borderRadius: 99, background: "rgba(0,0,0,0.08)" }}>
+                            <div style={{ height: "100%", borderRadius: 99, background: enrichColor, width: `${enrichPct}%` }} />
+                          </div>
+                        </div>
                         <button
                           onClick={() => isFilm ? setShowMovieProduction(true) : setShowRenderEngine(true)}
                           style={{
@@ -4645,6 +4804,17 @@ export function ProjectOSApp() {
                       </div>
                     );
                   })()}
+
+                  {/* ── Phase ∞++ Smart SuggestedNextRenders ── */}
+                  <SuggestedNextRenders
+                    projectId={activeProject.id}
+                    onGenerate={() => {
+                      const isFilm = ["Film / Movie", "Documentary"].includes(activeProject.industry ?? "");
+                      if (isFilm) setShowMovieProduction(true);
+                      else setShowRenderEngine(true);
+                    }}
+                  />
+
                   <ProjectOutputLayer project={activeProject} compact={false} />
                 </div>
               )}

@@ -1172,4 +1172,136 @@ ${frameHtml}
   }
 });
 
+// ─── GET /generate/next-renders/:projectId ───────────────────────────────────
+// Phase ∞++ — Smart SuggestedNextRenders with AI prediction score.
+// Returns 3-4 AI-scored suggestions for what to generate next based on project
+// type, existing manifests, and file-content richness.
+
+router.get("/next-renders/:projectId", async (req: Request, res: Response) => {
+  if (!req.isAuthenticated()) { res.status(401).json({ error: "Unauthorized" }); return; }
+
+  const pid = parseInt(String(req.params["projectId"] ?? "0"), 10);
+  if (!pid || isNaN(pid)) { res.status(400).json({ error: "Bad project ID" }); return; }
+
+  try {
+    const [project] = await db.select().from(projects).where(eq(projects.id, pid));
+    if (!project) { res.status(404).json({ error: "Project not found" }); return; }
+
+    const files = await db.select().from(projectFiles).where(eq(projectFiles.projectId, pid));
+    const industry    = project.industry ?? "General";
+    const existingManifests = files.filter(f => f.name.startsWith("Render Manifest") || f.name === "Movie Production Manifest").map(f => f.name);
+    const docCount    = files.filter(f => (f.content ?? "").length > 80).length;
+    const totalFiles  = files.length;
+
+    const RENDER_META: Record<string, { icon: string; label: string; color: string; mode: string }> = {
+      cinematic:  { icon: "🎬", label: "Cinematic Film",       color: "#dc2626", mode: "cinematic" },
+      book:       { icon: "📖", label: "Interactive Book",     color: "#6b7280", mode: "book"      },
+      course:     { icon: "📚", label: "Course Curriculum",    color: "#0891b2", mode: "course"    },
+      pitch:      { icon: "📊", label: "Investor Pitch Deck",  color: "#d97706", mode: "pitch"     },
+      showcase:   { icon: "🛍️", label: "Product Showcase",     color: "#b45309", mode: "showcase"  },
+      music:      { icon: "🎵", label: "Music Album",          color: "#db2777", mode: "music"     },
+      podcast:    { icon: "🎙️", label: "Podcast Episode",      color: "#ea580c", mode: "podcast"   },
+      game:       { icon: "🎮", label: "HTML5 Game",           color: "#7c3aed", mode: "game"      },
+      app:        { icon: "💻", label: "App Prototype",        color: "#2563eb", mode: "app"       },
+      training:   { icon: "🎓", label: "Training Program",     color: "#7c3aed", mode: "training"  },
+      document:   { icon: "📄", label: "Executive Document",   color: "#64748b", mode: "document"  },
+    };
+
+    const systemPrompt = `You are an AI render strategist for a creative project platform.
+Given a project's industry, existing renders, and document count, return 3-4 suggestions for the most valuable next renders.
+Respond ONLY with valid JSON: { suggestions: [{ mode: string, reason: string, score: number }] }
+- mode must be one of: cinematic, book, course, pitch, showcase, music, podcast, game, app, training, document
+- reason: 1 sentence why this render adds maximum value NOW (be specific to the industry)
+- score: 0-100 prediction of how much value this adds (higher = more urgent)
+- Do NOT suggest modes that already have a manifest (provided in the context)
+- Return 3-4 suggestions sorted by score descending`;
+
+    const userMsg = `Industry: ${industry}
+Project name: ${project.name}
+Existing renders: ${existingManifests.length > 0 ? existingManifests.join(", ") : "none"}
+Document count: ${docCount} enriched docs out of ${totalFiles} total files`;
+
+    const aiRes = await openai.chat.completions.create({
+      model:       "gpt-4o",
+      temperature: 0.5,
+      max_tokens:  800,
+      messages:    [{ role: "system", content: systemPrompt }, { role: "user", content: userMsg }],
+    });
+
+    const raw = (aiRes.choices[0]?.message?.content ?? "{}").replace(/```json\n?/g, "").replace(/```/g, "").trim();
+    const parsed = JSON.parse(raw) as { suggestions: { mode: string; reason: string; score: number }[] };
+
+    const suggestions = (parsed.suggestions ?? []).slice(0, 4).map(s => ({
+      ...s,
+      ...(RENDER_META[s.mode] ?? { icon: "✦", label: s.mode, color: "#6366f1" }),
+      score: Math.min(100, Math.max(0, Math.round(s.score))),
+    }));
+
+    res.json({ suggestions, industry, projectName: project.name });
+  } catch (err) {
+    console.error("[next-renders]", err);
+    res.status(500).json({ error: "Suggestion engine failed" });
+  }
+});
+
+// ─── POST /generate/smart-fill ────────────────────────────────────────────────
+// Phase ∞++ — Predictive content enrichment / Smart Fill.
+// Uses GPT to replace all [BRACKET] template placeholders in a document with
+// real, project-context-aware content.
+
+router.post("/smart-fill", async (req: Request, res: Response) => {
+  if (!req.isAuthenticated()) { res.status(401).json({ error: "Unauthorized" }); return; }
+
+  const { projectId, fileId } = req.body as { projectId?: number; fileId?: number };
+  if (!projectId || !fileId) { res.status(400).json({ error: "Missing projectId or fileId" }); return; }
+
+  try {
+    const [project] = await db.select().from(projects).where(eq(projects.id, projectId));
+    if (!project) { res.status(404).json({ error: "Project not found" }); return; }
+
+    const [file] = await db.select().from(projectFiles)
+      .where(and(eq(projectFiles.projectId, projectId), eq(projectFiles.id, fileId)));
+    if (!file) { res.status(404).json({ error: "File not found" }); return; }
+
+    const content = file.content ?? "";
+    const placeholderCount = (content.match(/\[.+?\]/g) ?? []).length;
+    if (placeholderCount === 0) {
+      res.json({ content, filled: 0, message: "No placeholders found — document is already complete." });
+      return;
+    }
+
+    const systemPrompt = `You are a professional content writer specialising in ${project.industry ?? "business"} projects.
+You will receive a document template with placeholder values in [SQUARE BRACKETS].
+Replace EVERY placeholder with specific, realistic, high-quality content appropriate for the project.
+Preserve the document structure, headings, and all non-placeholder text exactly.
+Return ONLY the completed document text — no explanation, no markdown fences.`;
+
+    const userMsg = `Project name: ${project.name}
+Industry: ${project.industry ?? "General"}
+
+DOCUMENT TO FILL:
+${content}`;
+
+    const aiRes = await openai.chat.completions.create({
+      model:       "gpt-4o",
+      temperature: 0.4,
+      max_tokens:  4000,
+      messages:    [{ role: "system", content: systemPrompt }, { role: "user", content: userMsg }],
+    });
+
+    const filled = aiRes.choices[0]?.message?.content ?? content;
+    const filledCount = placeholderCount - (filled.match(/\[.+?\]/g) ?? []).length;
+
+    // Auto-save the enriched content
+    await db.update(projectFiles)
+      .set({ content: filled, updatedAt: new Date() })
+      .where(and(eq(projectFiles.projectId, projectId), eq(projectFiles.id, fileId)));
+
+    res.json({ content: filled, filled: filledCount, total: placeholderCount });
+  } catch (err) {
+    console.error("[smart-fill]", err);
+    res.status(500).json({ error: "Smart fill failed" });
+  }
+});
+
 export default router;
