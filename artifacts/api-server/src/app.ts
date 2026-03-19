@@ -1,18 +1,46 @@
 import express, { type Express } from "express";
 import cors from "cors";
+import helmet from "helmet";
 import cookieParser from "cookie-parser";
 import { authMiddleware }  from "./middlewares/authMiddleware";
 import { scopeMiddleware } from "./middlewares/scopeMiddleware";
 import router from "./routes";
 
+export { chatLimiter, heavyLimiter, editLimiter } from "./middlewares/rateLimiters";
+
 const app: Express = express();
 
-app.use(cors({ credentials: true, origin: true }));
+// ── Security headers ─────────────────────────────────────────────────────────
+app.use(helmet({
+  contentSecurityPolicy: false,
+  crossOriginEmbedderPolicy: false,
+}));
+
+// ── CORS: explicit allowlist — never reflect arbitrary origins ───────────────
+const ALLOWED_ORIGINS = [
+  /\.replit\.app$/,
+  /\.replit\.dev$/,
+  /^http:\/\/localhost(:\d+)?$/,
+  /^http:\/\/127\.0\.0\.1(:\d+)?$/,
+  /^http:\/\/172\.\d+\.\d+\.\d+(:\d+)?$/,
+];
+
+app.use(cors({
+  credentials: true,
+  origin: (origin, callback) => {
+    if (!origin) return callback(null, true);
+    const allowed = ALLOWED_ORIGINS.some(p => p.test(origin));
+    callback(allowed ? null : new Error("CORS: origin not allowed"), allowed);
+  },
+}));
+
+// ── Body size limits ─────────────────────────────────────────────────────────
+app.use(express.json({ limit: "256kb" }));
+app.use(express.urlencoded({ extended: true, limit: "256kb" }));
 app.use(cookieParser());
-app.use(express.json());
-app.use(express.urlencoded({ extended: true }));
-app.use(authMiddleware);   // sets req.user (must run first)
-app.use(scopeMiddleware);  // attaches req.__scope with requestId-aware logger
+
+app.use(authMiddleware);
+app.use(scopeMiddleware);
 
 app.use("/api", router);
 

@@ -35,6 +35,7 @@ import { eq }     from "drizzle-orm";
 import { db, projects, projectFiles } from "@workspace/db";
 import { openai } from "@workspace/integrations-openai-ai-server";
 import { audit }  from "../middlewares/auditLogger";
+import { heavyLimiter, editLimiter } from "../middlewares/rateLimiters";
 
 const router: IRouter = Router();
 
@@ -333,6 +334,7 @@ Rules:
 
 router.post(
   "/:projectId/generate-all",
+  heavyLimiter,
   audit("ai_generate_all_documents", "ai_generation"),
   async (req: Request, res: Response) => {
     const userId = requireAuth(req, res);
@@ -365,8 +367,13 @@ router.post(
       res.setHeader("Connection", "keep-alive");
       res.flushHeaders();
 
-      const sse = (obj: Record<string, unknown>) =>
-        res.write(`data: ${JSON.stringify(obj)}\n\n`);
+      // Abort all in-flight OpenAI streams if client disconnects
+      const abort = new AbortController();
+      res.on("close", () => abort.abort());
+
+      const sse = (obj: Record<string, unknown>) => {
+        if (!res.writableEnded) res.write(`data: ${JSON.stringify(obj)}\n\n`);
+      };
 
       sse({ type: "start", totalFiles: targetFiles.length });
 
@@ -378,66 +385,67 @@ router.post(
         genome,
       );
 
-      // ── Parallel generation via Promise.allSettled ─────────────────────────
-      //
-      // Each file generator:
-      //   1. Emits file_start (with index for ordering in the UI)
-      //   2. Streams token chunks as file_chunk events
-      //   3. Saves completed content to DB
-      //   4. Emits file_done (or file_error on failure)
-      //
-      // All generators run concurrently — no await between them.
+      // ── Batched generation (4 concurrent max) ─────────────────────────────
+      // Prevents spawning 30 simultaneous OpenAI streams which would exhaust
+      // connection pool and cause unbounded memory/cost growth.
+      const BATCH_SIZE = 4;
+      let generated = 0;
 
-      const results = await Promise.allSettled(
-        targetFiles.map(async (file, index) => {
-          sse({
-            type:     "file_start",
-            fileId:   file.id.toString(),
-            fileName: file.name,
-            index:    index + 1,
-            total:    targetFiles.length,
-          });
+      for (let i = 0; i < targetFiles.length; i += BATCH_SIZE) {
+        if (abort.signal.aborted) break;
+        const batch = targetFiles.slice(i, i + BATCH_SIZE);
 
-          const userMessage =
-            `Write the complete, professional "${file.name}" document for "${project.name}". ` +
-            `This is a ${project.industry ?? "General"} project. ` +
-            (genome?.vision?.purpose ? `Project purpose: ${genome.vision.purpose}. ` : "") +
-            `Generate all sections with full, specific, substantive content. ` +
-            `No placeholders. No brackets. Write as a leading professional would for this exact project.`;
+        const batchResults = await Promise.allSettled(
+          batch.map(async (file, batchIdx) => {
+            const index = i + batchIdx;
+            sse({
+              type:     "file_start",
+              fileId:   file.id.toString(),
+              fileName: file.name,
+              index:    index + 1,
+              total:    targetFiles.length,
+            });
 
-          const stream = await openai.chat.completions.create({
-            model:    "gpt-4o-mini",
-            stream:   true,
-            system:   systemPrompt,
-            messages: [{ role: "user" as const, content: userMessage }],
-          } as Parameters<typeof openai.chat.completions.create>[0]);
+            const userMessage =
+              `Write the complete, professional "${file.name}" document for "${project.name}". ` +
+              `This is a ${project.industry ?? "General"} project. ` +
+              (genome?.vision?.purpose ? `Project purpose: ${genome.vision.purpose}. ` : "") +
+              `Generate all sections with full, specific, substantive content. ` +
+              `No placeholders. No brackets. Write as a leading professional would for this exact project.`;
 
-          let fullContent = "";
+            const stream = await openai.chat.completions.create({
+              model:      "gpt-4o-mini",
+              max_tokens: 2500,
+              stream:     true,
+              system:     systemPrompt,
+              messages:   [{ role: "user" as const, content: userMessage }],
+            } as Parameters<typeof openai.chat.completions.create>[0]);
 
-          for await (const chunk of stream as AsyncIterable<{ choices: { delta: { content?: string } }[] }>) {
-            const delta = chunk.choices[0]?.delta?.content ?? "";
-            if (delta) {
-              fullContent += delta;
-              sse({ type: "file_chunk", fileId: file.id.toString(), content: delta });
+            let fullContent = "";
+
+            for await (const chunk of stream as AsyncIterable<{ choices: { delta: { content?: string } }[] }>) {
+              if (abort.signal.aborted) break;
+              const delta = chunk.choices[0]?.delta?.content ?? "";
+              if (delta) {
+                fullContent += delta;
+                sse({ type: "file_chunk", fileId: file.id.toString(), content: delta });
+              }
             }
-          }
 
-          await db
-            .update(projectFiles)
-            .set({ content: fullContent })
-            .where(eq(projectFiles.id, file.id));
+            if (fullContent && !abort.signal.aborted) {
+              await db
+                .update(projectFiles)
+                .set({ content: fullContent })
+                .where(eq(projectFiles.id, file.id));
+            }
 
-          sse({ type: "file_done", fileId: file.id.toString(), fileName: file.name });
-          return true;
-        }).map(p =>
-          p.catch((fileErr: unknown) => {
-            console.error("[generate-all] file failed:", fileErr);
-            return false;
+            sse({ type: "file_done", fileId: file.id.toString(), fileName: file.name });
+            return true;
           }),
-        ),
-      );
+        );
 
-      const generated = results.filter(r => r.status === "fulfilled" && r.value === true).length;
+        generated += batchResults.filter(r => r.status === "fulfilled" && r.value === true).length;
+      }
 
       sse({ type: "complete", generated });
       res.end();
@@ -467,6 +475,7 @@ router.post(
 
 router.post(
   "/:projectId/instant-edit/:fileId",
+  editLimiter,
   audit("ai_instant_edit", "ai_generation"),
   async (req: Request, res: Response) => {
     const userId = requireAuth(req, res);
@@ -514,7 +523,13 @@ router.post(
       res.setHeader("X-Accel-Buffering", "no");
       res.flushHeaders?.();
 
-      const send = (data: unknown) => res.write(`data: ${JSON.stringify(data)}\n\n`);
+      // Abort stream on client disconnect
+      const abort = new AbortController();
+      res.on("close", () => abort.abort());
+
+      const send = (data: unknown) => {
+        if (!res.writableEnded) res.write(`data: ${JSON.stringify(data)}\n\n`);
+      };
 
       send({ type: "start", mode, fileName: file.name });
 
@@ -530,16 +545,21 @@ router.post(
       } as Parameters<typeof openai.chat.completions.create>[0]);
 
       let fullContent = "";
-      for await (const chunk of stream as AsyncIterable<{ choices: { delta: { content?: string } }[] }>) {
-        const delta = chunk.choices[0]?.delta?.content ?? "";
-        if (delta) {
-          fullContent += delta;
-          send({ type: "chunk", content: delta });
+      try {
+        for await (const chunk of stream as AsyncIterable<{ choices: { delta: { content?: string } }[] }>) {
+          if (abort.signal.aborted) break;
+          const delta = chunk.choices[0]?.delta?.content ?? "";
+          if (delta) {
+            fullContent += delta;
+            send({ type: "chunk", content: delta });
+          }
         }
+      } catch (streamErr: unknown) {
+        if ((streamErr as { name?: string })?.name !== "AbortError") throw streamErr;
       }
 
-      // Save to DB
-      if (fullContent.trim()) {
+      // Save to DB only if we got content and client is still connected
+      if (fullContent.trim() && !abort.signal.aborted) {
         await db.update(projectFiles).set({ content: fullContent }).where(eq(projectFiles.id, fileId));
       }
 

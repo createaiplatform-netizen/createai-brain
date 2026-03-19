@@ -457,8 +457,9 @@ router.get(
       const missingTypes = allTypes.filter(t => !existingTypes.includes(t)).slice(0, 4);
 
       const aiResponse = await openai.chat.completions.create({
-        model: "gpt-4o",
+        model:      "gpt-4o",
         temperature: 0.5,
+        max_tokens: 2000,
         messages: [
           {
             role: "system",
@@ -529,6 +530,7 @@ router.post(
       const completion = await openai.chat.completions.create({
         model:       "gpt-4o",
         temperature: 0.3,
+        max_tokens:  400,
         messages: [
           {
             role: "system",

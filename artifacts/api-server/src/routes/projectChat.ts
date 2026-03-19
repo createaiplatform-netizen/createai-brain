@@ -1,5 +1,6 @@
 import { Router, type IRouter, type Request, type Response } from "express";
 import { audit } from "../middlewares/auditLogger";
+import { chatLimiter } from "../middlewares/rateLimiters";
 import { eq, desc } from "drizzle-orm";
 import {
   db,
@@ -166,7 +167,7 @@ router.get("/:projectId/history", audit("read_chat_history", "project_chat", r =
 
 // ─── POST /project-chat/:projectId/chat  (SSE streaming) ──────────────────
 
-router.post("/:projectId/chat", audit("send_project_chat", "project_chat", r => r.params.projectId), async (req: Request, res: Response) => {
+router.post("/:projectId/chat", chatLimiter, audit("send_project_chat", "project_chat", r => r.params.projectId), async (req: Request, res: Response) => {
   if (!requireAuth(req, res)) return;
   const projectId = parseInt(req.params.projectId as string, 10);
 
@@ -216,31 +217,43 @@ router.post("/:projectId/chat", audit("send_project_chat", "project_chat", r => 
     res.setHeader("Connection", "keep-alive");
     res.flushHeaders();
 
+    // ── Abort on client disconnect — stops the OpenAI stream immediately ──
+    const abort = new AbortController();
+    res.on("close", () => abort.abort());
+
     const stream = await openai.chat.completions.create({
-      model: "gpt-4o-mini",
-      stream: true,
-      system: systemWithContext,
-      messages: apiMessages,
+      model:      "gpt-4o-mini",
+      max_tokens: 2000,
+      stream:     true,
+      system:     systemWithContext,
+      messages:   apiMessages,
     } as Parameters<typeof openai.chat.completions.create>[0]);
 
     let fullReply = "";
 
-    for await (const chunk of stream as AsyncIterable<{ choices: { delta: { content?: string } }[] }>) {
-      const delta = chunk.choices[0]?.delta?.content ?? "";
-      if (delta) {
-        fullReply += delta;
-        res.write(`data: ${JSON.stringify({ content: delta })}\n\n`);
+    try {
+      for await (const chunk of stream as AsyncIterable<{ choices: { delta: { content?: string } }[] }>) {
+        if (abort.signal.aborted) break;
+        const delta = chunk.choices[0]?.delta?.content ?? "";
+        if (delta) {
+          fullReply += delta;
+          res.write(`data: ${JSON.stringify({ content: delta })}\n\n`);
+        }
       }
+    } catch (streamErr: unknown) {
+      if ((streamErr as { name?: string })?.name !== "AbortError") throw streamErr;
     }
 
-    await db.insert(projectChatMessages).values({
-      projectId,
-      role: "ai",
-      content: fullReply,
-    });
+    if (fullReply && !abort.signal.aborted) {
+      await db.insert(projectChatMessages).values({
+        projectId,
+        role: "ai",
+        content: fullReply,
+      });
 
-    // Phase 9: persist exchange to agent memory (best-effort)
-    await saveAgentMemory(userId, projectId, message.trim(), fullReply);
+      // Phase 9: persist exchange to agent memory (best-effort)
+      await saveAgentMemory(userId, projectId, message.trim(), fullReply);
+    }
 
     res.write("data: [DONE]\n\n");
     res.end();
