@@ -718,6 +718,9 @@ router.post("/", async (req: Request, res: Response) => {
   res.setHeader("Connection",    "keep-alive");
   res.flushHeaders();
 
+  // Keepalive — prevents proxies / browser from killing an idle SSE connection
+  const _keepAlive = setInterval(() => { try { res.write(": keep-alive\n\n"); } catch {} }, 18_000);
+
   try {
     sse(res, { type: "status", message: "Loading project…" });
     const [project] = await db.select().from(projects).where(eq(projects.id, pid));
@@ -852,6 +855,8 @@ router.post("/", async (req: Request, res: Response) => {
     console.error("[generate] fatal:", err);
     sse(res, { type: "error", message: err instanceof Error ? err.message : String(err) });
     res.end();
+  } finally {
+    clearInterval(_keepAlive);
   }
 });
 

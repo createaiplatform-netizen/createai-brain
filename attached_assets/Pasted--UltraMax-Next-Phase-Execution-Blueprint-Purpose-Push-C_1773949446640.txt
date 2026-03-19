@@ -1,0 +1,152 @@
+/*
+UltraMax Next-Phase Execution Blueprint
+Purpose: Push CreateAI Brain to its absolute maximum within legal, safe, and self-contained constraints.
+This includes all layers: backend, frontend, procedural video/audio, TTS, game/app validation, inline editing, branching, checkpointing, mobile/UX, and deployable outputs.
+
+Instructions for Replit / AI Engine:
+- Execute each layer sequentially, but allow parallelization where possible.
+- Implement internal procedural substitutes for external dependencies (e.g., Web Audio, Canvas/WebGL, jsPDF, Puppeteer simulation).
+- Validate all outputs internally before presenting to user.
+- Checkpoint all manifest and session data after each scene/module.
+- Resume sessions automatically if disconnected.
+*/
+
+///////////////////////////////////////////////////////////////
+// 1. Core SSE / Generation Pipeline
+///////////////////////////////////////////////////////////////
+// - Unified /api/generate route for all project types
+// - Stream status/progress/scene_done/done/error via SSE
+// - Partial manifest checkpointing after every scene/frame
+// - GET /generate/serve/:projectId for live URLs
+// - Backend validation for HTML5 games/apps (canvas, requestAnimationFrame, collision, scoring)
+setupUnifiedSSEPipeline();
+enableCheckpointing();
+enableServeURL();
+enableBackendValidation();
+
+///////////////////////////////////////////////////////////////
+// 2. Procedural Audio / Music / Podcast
+///////////////////////////////////////////////////////////////
+// - MovieProductionApp arpeggiator fully integrated
+// - Mood-based Web Audio synthesis per scene/track
+// - Internal chord/arpeggio generator (major/minor/pentatonic/experimental)
+// - TTS multi-character voice selection, pitch/tempo modulation
+// - Scene-based cross-fade, volume, and mute control
+setupProceduralAudioEngine();
+integrateArpeggiator();
+setupMultiVoiceTTS();
+enableSceneAudioCrossfade();
+
+///////////////////////////////////////////////////////////////
+// 3. Procedural Video / Cinematic
+///////////////////////////////////////////////////////////////
+// - Canvas/WebGL frame generation per scene
+// - Combine frames + TTS + procedural audio into playable internal video
+// - Cross-fade transitions via overlay opacity
+// - Scene auto-advance with branching choice integration
+// - Internal frame capture → WebM/MP4 preview without external FFmpeg
+setupProceduralVideoEngine();
+enableCinematicCrossfade();
+autoAdvanceScenesWithTTS();
+generateInternalVideoPreview();
+
+///////////////////////////////////////////////////////////////
+// 4. Game / App Prototypes
+///////////////////////////////////////////////////////////////
+// - Full HTML5 / Canvas / WebGL game generation with validation
+// - Retry GPT if core game logic is missing
+// - Serve live, deployable URL for each generated app/game
+// - Inline debugging console for user feedback
+generateValidatedGamesAndApps();
+retryOnValidationFailure();
+serveDeployableURLs();
+addInlineDebugConsole();
+
+///////////////////////////////////////////////////////////////
+// 5. Book / Course / Pitch Deck / Product Showcase
+///////////////////////////////////////////////////////////////
+// - Full inline editing of text, images, scripts, lessons
+// - PDF / Print export via internal Puppeteer simulation or jsPDF
+// - Enhanced visual integration (typography, chapter flow, illustrations)
+enableInlineEditingBookCoursePitch();
+internalPDFExport();
+enhanceVisualIntegration();
+
+///////////////////////////////////////////////////////////////
+// 6. Branching / Choice System
+///////////////////////////////////////////////////////////////
+// - GPT scene generation outputs 2–3 choices per decision point
+// - Inline choice UI fully wired in CinematicPlayer
+// - Choices logged to checkpointed manifest
+generateSceneChoicesFromGPT();
+enableChoiceUI();
+checkpointChoiceSelection();
+
+///////////////////////////////////////////////////////////////
+// 7. Internal Innovation / Procedural Substitution
+///////////////////////////////////////////////////////////////
+// - Replace external dependencies with internal procedural equivalents:
+//     - Music: Web Audio arpeggios/sequencers
+//     - Video: Canvas/WebGL frame capture + in-browser composition
+//     - TTS: Multi-voice Web Speech with pitch/tempo/character
+// - Auto-experimentation: platform can try new combinations internally to improve outputs
+enableProceduralSubstitutions();
+enableAutoExperimentation();
+
+///////////////////////////////////////////////////////////////
+// 8. Session Management / Resume
+///////////////////////////////////////////////////////////////
+// - Save session JSON for every project
+// - Auto-resume if modal or connection interrupted
+// - Restore all edits, progress, branching, and checkpointed states
+setupSessionCheckpointing();
+enableAutoResume();
+
+///////////////////////////////////////////////////////////////
+// 9. Responsive UX / Mobile
+///////////////////////////////////////////////////////////////
+// - Scaffold picker, project tree, cinematic player, editors fully responsive
+// - Swipe gestures, full-screen modes, expandable inline editors
+// - Adaptive layout for phones and tablets
+enableResponsiveUI();
+addMobileGestures();
+enableFullscreenCinematicMode();
+
+///////////////////////////////////////////////////////////////
+// 10. Deployment / Sharing
+///////////////////////////////////////////////////////////////
+// - Serve any project type as deployable, shareable live link
+// - Internal validation ensures correctness before deployment
+// - User can share URL instantly after generation
+enableDeployableLiveURLs();
+validateBeforeDeploy();
+
+///////////////////////////////////////////////////////////////
+// 11. Maxed-Out Vision Expansion
+///////////////////////////////////////////////////////////////
+// - Creative “invent mode”: platform explores new procedural outputs
+// - Combine multiple project types: game + music + cinematic storytelling
+// - Experiment with outputs beyond traditional formats
+// - Log experiments internally for user review or re-generation
+enableInventMode();
+combineMultiProjectOutputs();
+internalExperimentLogging();
+
+///////////////////////////////////////////////////////////////
+// 12. Final Validation / Typecheck
+///////////////////////////////////////////////////////////////
+// - Run complete typecheck for frontend and backend
+// - Verify zero errors and all hooks/components function
+// - Confirm SSE, arpeggiator, inline editing, checkpointing, video/audio preview, branching, and deploy URLs all work
+runFinalTypecheck();
+verifyAllHooks();
+confirmCheckpointResume();
+confirmVideoAudioPreview();
+verifyBranchingChoices();
+verifyDeployableURLs();
+
+///////////////////////////////////////////////////////////////
+// END GOAL:
+// A fully self-contained, procedural, checkpointed, deployable, editable, interactive platform that generates movies, games, apps, books, courses, music, podcasts, pitch decks, and product showcases internally.
+// All steps parallelized where possible, no external dependencies required for core outputs, fully resume-able, fully live-previewable, mobile responsive, and innovation-ready.
+///////////////////////////////////////////////////////////////

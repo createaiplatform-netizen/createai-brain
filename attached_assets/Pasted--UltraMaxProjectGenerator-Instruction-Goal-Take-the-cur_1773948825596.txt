@@ -1,0 +1,43 @@
+/*
+UltraMaxProjectGenerator Instruction
+
+Goal:
+Take the current CreateAI Brain system (MovieProductionApp, RenderEngineApp, SSE backend, Project OS scaffolding, arpeggiator, inline editing, DALL-E / GPT pipelines) and elevate it to a fully functional, robust, production-quality system for all project types (Film, Game, App, Book, Course, Pitch, Music, Podcast, Physical Product).
+
+Instructions:
+1. Preserve everything currently implemented (unified /api/generate SSE backend, arpeggiator, inline editing, partial manifest checkpointing, serveUrl links, cinematic auto-play, branching-ready UI).
+2. Implement any missing functionality for full user experience:
+   - GPT-generated scene-level branching for Film and Story projects.
+   - Inline editing for all players (BookReader, CoursePlayer, PodcastPlayer, MusicPlayer, AppPlayer, GamePlayer).
+   - Full checkpointing for long-generation SSE streams (partial manifest saved after each scene/frame).
+   - Validation layers for Game and App HTML5 outputs (check canvas, requestAnimationFrame, draw calls; retry generation if invalid).
+   - Enhance DALL-E 3 prompts with cinematic descriptors and aspect ratios for Film, Game, and App visuals.
+   - Implement Web Audio arpeggiator and mood-matched music generation for MovieProductionApp, GamePlayer, MusicPlayer.
+   - Optional: deployable URLs for generated HTML5 games and apps.
+3. Optimize all SSE streaming to prevent data loss if browser loses focus or disconnects.
+4. Ensure all TTS (Web Speech or API) uses character-specific voices and scene timing for auto-advance.
+5. Make every generated project type fully interactive/playable/usable:
+   - Film → cinematic player with auto-advance, branching, ambient audio, cross-fades.
+   - Game → playable HTML5 canvas with score, collisions, controls, and validated logic.
+   - App → interactive HTML prototype with routing and mock data.
+   - Book → inline-editable chapters, PDF export with clean formatting.
+   - Course → lessons + quizzes + editable content.
+   - Pitch → slide deck viewer + PDF export.
+   - Music → track list with arpeggiated playback + lyrics display.
+   - Podcast → inline-editable scripts, TTS character voices.
+   - Physical Product → gallery with optional 3D viewer placeholder.
+6. Maintain all frontend styling and type-safety; ensure no TypeScript errors.
+7. Run all steps in parallel where possible to maximize efficiency.
+8. Provide a progress log during generation and a final "generation complete" status.
+9. Ensure all improvements follow safe, legal, efficient, and scalable practices.
+
+Deliverable:
+- Unified backend route /api/generate fully powering all project types.
+- Frontend updates with inline editing, arpeggiator, checkpointing, serveUrl links.
+- Fully functional outputs for all project types.
+- Streaming log and SSE stability.
+
+Execution Notes:
+- Treat this as the ultimate “go as far as possible” instruction to produce the final working system.
+- If any step cannot be implemented natively, invent legal and safe alternative approaches to achieve the closest possible functionality.
+*/

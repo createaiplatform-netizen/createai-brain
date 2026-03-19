@@ -1,0 +1,74 @@
+ULTRAMAX PROJECT GENERATOR — FULL INTERNAL TOOL CREATION PROMPT
+
+Goal:
+Build the complete UltraMax platform outputs (Film, Game, App, Book, Course, Music, Podcast, Pitch, Physical Product) entirely in-browser / server-side with internal substitutes for any external tools, producing fully playable, viewable, and interactive results.
+
+Instructions to AI:
+1. For Film / Cinematic Experience:
+   - Generate sequential frames from scene descriptions (DALL-E / Canvas / WebGL).
+   - Generate Web Audio mood-matched tracks per scene using procedural synthesis (arpeggiators, LFOs, filters, effects).
+   - Generate TTS dialogue per character, assign pitch/voice modulation for multiple characters.
+   - Combine frames, audio, and TTS into a playable video preview using Canvas/WebGL, exporting as WebM/MP4 internally without external FFmpeg.
+   - Implement cross-fade transitions, scene auto-advance, and branching choice UI.
+   - Checkpoint each scene into project manifest for resume/retry.
+
+2. For Video Games:
+   - Generate a complete HTML5 Canvas game per project design.
+   - Validate generated code automatically: check requestAnimationFrame, canvas context, player controls, collision, scoring.
+   - Retry generation if any critical elements are missing.
+   - Save validated game as a self-contained HTML + JS + assets bundle.
+   - Expose “Play in iframe” and “Standalone URL” features.
+   - Allow inline edits for assets, scripts, and level logic in the platform.
+
+3. For Apps:
+   - Generate interactive HTML/CSS/JS app prototypes from feature specifications.
+   - Auto-generate navigation, forms, dashboards, and mock data.
+   - Validate frontend functionality programmatically.
+   - Expose live preview and standalone deployment URLs.
+
+4. For Books / Courses:
+   - Generate full text content per chapter/lesson.
+   - Integrate DALL-E or procedural illustrations inline, with proper typography and layout.
+   - Provide editable content in-place (inline editing).
+   - Enable PDF export via internal server-side renderer (Puppeteer / jsPDF) for real print-quality output.
+
+5. For Music / Podcast:
+   - Generate procedural Web Audio tracks per song/scene.
+   - Combine lyrics / script with multi-character TTS voices.
+   - Apply tempo, key, arpeggiator, and effects programmatically to produce real audio.
+   - Inline editing for lyrics, script, and notes.
+   - Preview in browser and export audio tracks internally.
+
+6. For Pitch Deck / Product Showcase:
+   - Generate visuals with DALL-E or procedural image generator.
+   - Compose slides with structured copy from GPT.
+   - Inline editing for text and images.
+   - Preview and export as PDF internally.
+
+7. Internal Orchestration & Checkpoints:
+   - Every generation step writes partial manifest to project files for resume/retry.
+   - Abort/resume controllers for long-running tasks.
+   - Validate all outputs before finalizing: playable game, interactive app, video + audio sync, audio character voices.
+   - Serve all assets via internal URLs and live preview iframes.
+
+8. Innovation / Workarounds:
+   - If external API would normally be required (FFmpeg, audio synth, ElevenLabs, Runway), generate internal substitutes using JS/Node/Web APIs.
+   - Invent procedural solutions to approximate desired results (e.g., procedural music instead of real audio tracks, Canvas/WebGL video composition instead of MP4 render).
+   - Optimize for efficiency, cost-saving, and cross-browser compatibility.
+   - Make every output clickable, playable, and interactive immediately.
+   - Maintain full session state and allow live inline edits.
+
+9. Safety / Legality Constraints:
+   - All generated code and audio/video must be fully legal, safe, and non-malicious.
+   - No copyrighted content unless user provides it.
+   - Everything internal and sandboxed unless user explicitly deploys.
+
+Output:
+- Fully integrated UltraMax pipeline that produces real video previews, playable games, interactive apps, books/courses, music, podcasts, pitch decks, and product showcases.
+- Each output validated, checkpointed, editable inline, and previewable live in the browser.
+- Internal substitutes replace any previously external-only features, making platform self-contained.
+
+Notes:
+- The AI should be free to invent new ways to produce outputs internally, as long as legal and safe.
+- Every generation step must be included; nothing optional.
+- Prioritize real functionality over placeholder/simulation, wherever possible.

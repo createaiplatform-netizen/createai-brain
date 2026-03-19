@@ -142,25 +142,46 @@ function ProductionConsole({
 // ─── Cinematic Player ─────────────────────────────────────────────────────────
 
 function CinematicPlayer({ manifest }: { manifest: RenderManifest }) {
-  const [active, setActive] = useState(0);
-  const [playing, setPlaying] = useState(false);
-  const [speaking, setSpeaking] = useState(false);
+  const [active, setActive]           = useState(0);
+  const [playing, setPlaying]         = useState(false);
+  const [speaking, setSpeaking]       = useState(false);
+  const [showChoices, setShowChoices] = useState(false);
   const timerRef  = useRef<ReturnType<typeof setTimeout> | null>(null);
   const frames    = manifest.frames;
   const frame     = frames[active];
   if (!frame) return null;
 
+  // Detect branching: subContent with pipe-separated choices
+  const choices = frame.subContent
+    ? frame.subContent.split("|").map(s => s.trim()).filter(Boolean)
+    : [];
+  const hasBranching = choices.length >= 2;
+
   const clearTimer = () => { if (timerRef.current) { clearTimeout(timerRef.current); timerRef.current = null; } };
 
   useEffect(() => {
+    setShowChoices(false);
     if (playing) {
       clearTimer();
+      const dur = (frame.durationSec ?? 45) * 1000;
       timerRef.current = setTimeout(() => {
-        setActive(a => (a + 1) % frames.length);
-      }, (frame.durationSec ?? 45) * 1000);
+        if (hasBranching) {
+          setPlaying(false);
+          setShowChoices(true);
+        } else {
+          setActive(a => (a + 1) % frames.length);
+        }
+      }, dur);
     } else clearTimer();
     return clearTimer;
-  }, [playing, active, frame.durationSec, frames.length]);
+  }, [playing, active, frame.durationSec, frames.length, hasBranching]);
+
+  const handleChoice = (choiceIdx: number) => {
+    setShowChoices(false);
+    // Jump forward by choiceIdx+1 scenes (A→next, B→skip 1, C→skip 2)
+    setActive(a => Math.min(frames.length - 1, a + choiceIdx + 1));
+    setPlaying(true);
+  };
 
   const speak = () => {
     if (!frame.content || !window.speechSynthesis) return;
@@ -178,6 +199,7 @@ function CinematicPlayer({ manifest }: { manifest: RenderManifest }) {
     : [15, 23, 42];
 
   const dialogueLines = (frame.content ?? "").split("\n").filter(l => l.trim());
+  const LABELS = ["A", "B", "C", "D"];
 
   return (
     <div style={{ height: "100%", background: "#000", display: "flex", flexDirection: "column", position: "relative" }}>
@@ -207,40 +229,83 @@ function CinematicPlayer({ manifest }: { manifest: RenderManifest }) {
           }}>{frame.badge}</div>
         )}
 
-        {/* Sub-content badges */}
-        {frame.subContent && frame.subContent.replace(/\|/g, "").trim() && (
-          <div style={{ position: "absolute", top: 12, right: 16, display: "flex", gap: 6 }}>
-            {frame.subContent.split("|").map((s, i) => s.trim() && (
-              <div key={i} style={{
-                background: "rgba(0,0,0,0.65)", color: "#94a3b8",
-                fontSize: 9, padding: "3px 8px", borderRadius: 12, backdropFilter: "blur(4px)",
-              }}>{s.trim()}</div>
+        {/* Branching indicator badge */}
+        {hasBranching && !showChoices && (
+          <button onClick={() => { setPlaying(false); setShowChoices(true); }}
+            style={{
+              position: "absolute", top: 12, right: 16,
+              background: "rgba(251,191,36,0.9)", border: "none", color: "#000",
+              fontSize: 9, fontWeight: 800, padding: "4px 10px", borderRadius: 20,
+              letterSpacing: "0.06em", cursor: "pointer",
+            }}>
+            ⚡ CHOOSE PATH
+          </button>
+        )}
+
+        {/* Branching overlay */}
+        {showChoices && (
+          <div style={{
+            position: "absolute", inset: 0,
+            background: "rgba(0,0,0,0.82)", backdropFilter: "blur(8px)",
+            display: "flex", flexDirection: "column", alignItems: "center", justifyContent: "center", gap: 14,
+          }}>
+            <div style={{ color: "#fbbf24", fontSize: 11, fontWeight: 800, letterSpacing: "0.12em", marginBottom: 6 }}>
+              ⚡ STORY BRANCH — CHOOSE YOUR PATH
+            </div>
+            {choices.map((choice, ci) => (
+              <button key={ci} onClick={() => handleChoice(ci)}
+                style={{
+                  width: 260, padding: "12px 18px", borderRadius: 14, cursor: "pointer",
+                  background: "rgba(255,255,255,0.07)", border: "1.5px solid rgba(255,255,255,0.15)",
+                  color: "#fff", fontSize: 12, fontWeight: 600, textAlign: "left",
+                  display: "flex", alignItems: "center", gap: 12,
+                  transition: "background 0.2s",
+                }}
+                onMouseEnter={e => (e.currentTarget.style.background = "rgba(99,102,241,0.35)")}
+                onMouseLeave={e => (e.currentTarget.style.background = "rgba(255,255,255,0.07)")}
+              >
+                <span style={{
+                  minWidth: 26, height: 26, borderRadius: "50%", background: "#6366f1",
+                  display: "flex", alignItems: "center", justifyContent: "center",
+                  fontSize: 11, fontWeight: 800, color: "#fff",
+                }}>{LABELS[ci]}</span>
+                {choice}
+              </button>
             ))}
+            <button onClick={() => { setShowChoices(false); setActive(a => Math.min(frames.length - 1, a + 1)); setPlaying(true); }}
+              style={{
+                marginTop: 4, background: "none", border: "none", color: "#64748b",
+                fontSize: 10, cursor: "pointer", textDecoration: "underline",
+              }}>
+              Skip — continue linearly
+            </button>
           </div>
         )}
 
         {/* Dialogue */}
-        <div style={{ position: "absolute", bottom: 16, left: 20, right: 20 }}>
-          {dialogueLines.map((line, i) => {
-            const colon = line.indexOf(":");
-            const speaker = colon > 0 ? line.slice(0, colon).trim() : null;
-            const text    = colon > 0 ? line.slice(colon + 1).trim() : line;
-            return (
-              <div key={i} style={{ marginBottom: 6, textAlign: "center" }}>
-                {speaker && (
-                  <div style={{ fontSize: 10, fontWeight: 700, color: "#818cf8", marginBottom: 2, letterSpacing: "0.1em" }}>
-                    {speaker.toUpperCase()}
-                  </div>
-                )}
-                <div style={{
-                  fontSize: 14, color: "#fff", lineHeight: 1.5,
-                  textShadow: "0 2px 8px rgba(0,0,0,0.9)",
-                  fontStyle: "italic",
-                }}>{text}</div>
-              </div>
-            );
-          })}
-        </div>
+        {!showChoices && (
+          <div style={{ position: "absolute", bottom: 16, left: 20, right: 20 }}>
+            {dialogueLines.map((line, i) => {
+              const colon = line.indexOf(":");
+              const speaker = colon > 0 ? line.slice(0, colon).trim() : null;
+              const text    = colon > 0 ? line.slice(colon + 1).trim() : line;
+              return (
+                <div key={i} style={{ marginBottom: 6, textAlign: "center" }}>
+                  {speaker && (
+                    <div style={{ fontSize: 10, fontWeight: 700, color: "#818cf8", marginBottom: 2, letterSpacing: "0.1em" }}>
+                      {speaker.toUpperCase()}
+                    </div>
+                  )}
+                  <div style={{
+                    fontSize: 14, color: "#fff", lineHeight: 1.5,
+                    textShadow: "0 2px 8px rgba(0,0,0,0.9)",
+                    fontStyle: "italic",
+                  }}>{text}</div>
+                </div>
+              );
+            })}
+          </div>
+        )}
       </div>
 
       {/* Bottom bar */}
@@ -253,14 +318,14 @@ function CinematicPlayer({ manifest }: { manifest: RenderManifest }) {
         background: "rgba(0,0,0,0.7)", backdropFilter: "blur(8px)",
         borderRadius: 30, padding: "8px 16px", border: "1px solid rgba(255,255,255,0.1)",
       }}>
-        <button onClick={() => setActive(a => Math.max(0, a - 1))}
+        <button onClick={() => { clearTimer(); setActive(a => Math.max(0, a - 1)); }}
           style={{ background: "none", border: "none", color: "#fff", cursor: "pointer", fontSize: 14 }}>⏮</button>
         <button onClick={() => setPlaying(p => !p)}
           style={{ background: "#6366f1", border: "none", color: "#fff", cursor: "pointer",
             width: 32, height: 32, borderRadius: "50%", fontSize: 14, display: "flex", alignItems: "center", justifyContent: "center" }}>
           {playing ? "⏸" : "▶"}
         </button>
-        <button onClick={() => setActive(a => Math.min(frames.length - 1, a + 1))}
+        <button onClick={() => { clearTimer(); setActive(a => Math.min(frames.length - 1, a + 1)); }}
           style={{ background: "none", border: "none", color: "#fff", cursor: "pointer", fontSize: 14 }}>⏭</button>
         <div style={{ width: 1, height: 20, background: "rgba(255,255,255,0.2)", margin: "0 4px" }} />
         <button onClick={speak}
@@ -270,7 +335,7 @@ function CinematicPlayer({ manifest }: { manifest: RenderManifest }) {
         {/* Scene dots */}
         <div style={{ display: "flex", gap: 4, marginLeft: 8 }}>
           {frames.map((_, i) => (
-            <div key={i} onClick={() => { clearTimer(); setActive(i); }}
+            <div key={i} onClick={() => { clearTimer(); setActive(i); setShowChoices(false); }}
               style={{
                 width: 6, height: 6, borderRadius: "50%", cursor: "pointer",
                 background: i === active ? "#6366f1" : "rgba(255,255,255,0.25)",
@@ -285,16 +350,23 @@ function CinematicPlayer({ manifest }: { manifest: RenderManifest }) {
 // ─── Game Player ─────────────────────────────────────────────────────────────
 
 function GamePlayer({ manifest }: { manifest: RenderManifest }) {
-  const [view, setView] = useState<"art" | "game">("art");
-  const iframeRef = useRef<HTMLIFrameElement>(null);
-  const blobUrl   = useRef<string | null>(null);
-  const frames    = manifest.frames;
+  const [view, setView]           = useState<"art" | "game" | "code">("art");
+  const iframeRef                  = useRef<HTMLIFrameElement>(null);
+  const blobUrl                    = useRef<string | null>(null);
+  const frames                     = manifest.frames;
   const [activeArt, setActiveArt] = useState(0);
+  const [editCode, setEditCode]   = useState(manifest.generatedCode ?? "");
+
+  const applyCode = useCallback(() => {
+    if (blobUrl.current) URL.revokeObjectURL(blobUrl.current);
+    const blob = new Blob([editCode], { type: "text/html" });
+    blobUrl.current = URL.createObjectURL(blob);
+    setView("game");
+  }, [editCode]);
 
   useEffect(() => {
     if (manifest.generatedCode && !blobUrl.current) {
-      const blob = new Blob([manifest.generatedCode], { type: "text/html" });
-      blobUrl.current = URL.createObjectURL(blob);
+      blobUrl.current = URL.createObjectURL(new Blob([manifest.generatedCode], { type: "text/html" }));
     }
     return () => { if (blobUrl.current) URL.revokeObjectURL(blobUrl.current); };
   }, [manifest.generatedCode]);
@@ -303,21 +375,46 @@ function GamePlayer({ manifest }: { manifest: RenderManifest }) {
     return (
       <div style={{ height: "100%", display: "flex", flexDirection: "column", background: "#0c0f1a" }}>
         <div style={{
-          padding: "8px 16px", display: "flex", alignItems: "center", justifyContent: "space-between",
+          padding: "8px 16px", display: "flex", alignItems: "center", gap: 8,
           borderBottom: "1px solid rgba(255,255,255,0.07)",
         }}>
-          <div style={{ color: "#818cf8", fontSize: 11, fontWeight: 700 }}>🎮 {manifest.projectName} — LIVE GAME</div>
+          <div style={{ color: "#818cf8", fontSize: 11, fontWeight: 700, flex: 1 }}>🎮 {manifest.projectName} — LIVE GAME</div>
+          <button onClick={() => setView("code")}
+            style={{ background: "rgba(255,255,255,0.06)", border: "none", color: "#94a3b8", padding: "4px 12px", borderRadius: 8, fontSize: 10, cursor: "pointer" }}>
+            &lt;/&gt; Code
+          </button>
           <button onClick={() => setView("art")}
             style={{ background: "rgba(255,255,255,0.06)", border: "none", color: "#94a3b8", padding: "4px 12px", borderRadius: 8, fontSize: 10, cursor: "pointer" }}>
-            ← Art Gallery
+            ← Gallery
           </button>
         </div>
-        <iframe
-          ref={iframeRef}
-          src={blobUrl.current ?? ""}
-          sandbox="allow-scripts allow-same-origin"
-          style={{ flex: 1, border: "none", background: "#000" }}
-          title="Generated Game"
+        <iframe ref={iframeRef} src={blobUrl.current ?? ""} sandbox="allow-scripts allow-same-origin"
+          style={{ flex: 1, border: "none", background: "#000" }} title="Generated Game" />
+      </div>
+    );
+  }
+
+  if (view === "code") {
+    return (
+      <div style={{ height: "100%", display: "flex", flexDirection: "column", background: "#0c0f1a" }}>
+        <div style={{ padding: "8px 16px", display: "flex", alignItems: "center", gap: 8, borderBottom: "1px solid rgba(255,255,255,0.07)" }}>
+          <div style={{ color: "#818cf8", fontSize: 11, fontWeight: 700, flex: 1 }}>&lt;/&gt; {manifest.projectName} — Source Code</div>
+          <button onClick={applyCode}
+            style={{ background: "linear-gradient(135deg,#6366f1,#8b5cf6)", border: "none", color: "#fff", padding: "5px 14px", borderRadius: 8, fontSize: 10, fontWeight: 700, cursor: "pointer" }}>
+            ▶ Apply & Play
+          </button>
+          <button onClick={() => setView("art")}
+            style={{ background: "rgba(255,255,255,0.06)", border: "none", color: "#94a3b8", padding: "5px 12px", borderRadius: 8, fontSize: 10, cursor: "pointer" }}>← Gallery</button>
+        </div>
+        <textarea
+          value={editCode}
+          onChange={e => setEditCode(e.target.value)}
+          spellCheck={false}
+          style={{
+            flex: 1, padding: "16px 20px", fontFamily: "ui-monospace, monospace", fontSize: 12,
+            lineHeight: 1.65, color: "#94a3b8", background: "#08090f", border: "none",
+            outline: "none", resize: "none", boxSizing: "border-box",
+          }}
         />
       </div>
     );
@@ -388,15 +485,21 @@ function GamePlayer({ manifest }: { manifest: RenderManifest }) {
 // ─── App Player ───────────────────────────────────────────────────────────────
 
 function AppPlayer({ manifest }: { manifest: RenderManifest }) {
-  const [view, setView] = useState<"screens" | "app">("screens");
-  const blobUrl = useRef<string | null>(null);
-  const frames  = manifest.frames;
+  const [view, setView]         = useState<"screens" | "app" | "code">("screens");
+  const blobUrl                  = useRef<string | null>(null);
+  const frames                   = manifest.frames;
   const [activeScreen, setActiveScreen] = useState(0);
+  const [editCode, setEditCode] = useState(manifest.generatedCode ?? "");
+
+  const applyCode = useCallback(() => {
+    if (blobUrl.current) URL.revokeObjectURL(blobUrl.current);
+    blobUrl.current = URL.createObjectURL(new Blob([editCode], { type: "text/html" }));
+    setView("app");
+  }, [editCode]);
 
   useEffect(() => {
     if (manifest.generatedCode && !blobUrl.current) {
-      const blob = new Blob([manifest.generatedCode], { type: "text/html" });
-      blobUrl.current = URL.createObjectURL(blob);
+      blobUrl.current = URL.createObjectURL(new Blob([manifest.generatedCode], { type: "text/html" }));
     }
     return () => { if (blobUrl.current) URL.revokeObjectURL(blobUrl.current); };
   }, [manifest.generatedCode]);
@@ -405,20 +508,46 @@ function AppPlayer({ manifest }: { manifest: RenderManifest }) {
     return (
       <div style={{ height: "100%", display: "flex", flexDirection: "column" }}>
         <div style={{
-          padding: "8px 16px", display: "flex", alignItems: "center", justifyContent: "space-between",
+          padding: "8px 16px", display: "flex", alignItems: "center", gap: 8,
           background: "#f8fafc", borderBottom: "1px solid rgba(0,0,0,0.08)",
         }}>
-          <div style={{ color: "#6366f1", fontSize: 11, fontWeight: 700 }}>💻 {manifest.projectName} — Live Prototype</div>
+          <div style={{ color: "#6366f1", fontSize: 11, fontWeight: 700, flex: 1 }}>💻 {manifest.projectName} — Live Prototype</div>
+          <button onClick={() => setView("code")}
+            style={{ background: "#f1f5f9", border: "1px solid rgba(0,0,0,0.08)", color: "#64748b", padding: "4px 12px", borderRadius: 8, fontSize: 10, cursor: "pointer" }}>
+            &lt;/&gt; Code
+          </button>
           <button onClick={() => setView("screens")}
             style={{ background: "#f1f5f9", border: "none", color: "#64748b", padding: "4px 12px", borderRadius: 8, fontSize: 10, cursor: "pointer" }}>
             ← Screens
           </button>
         </div>
-        <iframe
-          src={blobUrl.current ?? ""}
-          sandbox="allow-scripts allow-same-origin"
-          style={{ flex: 1, border: "none", background: "#fff" }}
-          title="Generated App"
+        <iframe src={blobUrl.current ?? ""} sandbox="allow-scripts allow-same-origin"
+          style={{ flex: 1, border: "none", background: "#fff" }} title="Generated App" />
+      </div>
+    );
+  }
+
+  if (view === "code") {
+    return (
+      <div style={{ height: "100%", display: "flex", flexDirection: "column", background: "#fff" }}>
+        <div style={{ padding: "8px 16px", display: "flex", alignItems: "center", gap: 8, borderBottom: "1px solid rgba(0,0,0,0.08)", background: "#f8fafc" }}>
+          <div style={{ color: "#6366f1", fontSize: 11, fontWeight: 700, flex: 1 }}>&lt;/&gt; {manifest.projectName} — Source Code</div>
+          <button onClick={applyCode}
+            style={{ background: "linear-gradient(135deg,#6366f1,#8b5cf6)", border: "none", color: "#fff", padding: "5px 14px", borderRadius: 8, fontSize: 10, fontWeight: 700, cursor: "pointer" }}>
+            ▶ Apply & Launch
+          </button>
+          <button onClick={() => setView("screens")}
+            style={{ background: "#f1f5f9", border: "none", color: "#64748b", padding: "5px 12px", borderRadius: 8, fontSize: 10, cursor: "pointer" }}>← Screens</button>
+        </div>
+        <textarea
+          value={editCode}
+          onChange={e => setEditCode(e.target.value)}
+          spellCheck={false}
+          style={{
+            flex: 1, padding: "16px 20px", fontFamily: "ui-monospace, monospace", fontSize: 12,
+            lineHeight: 1.65, color: "#374151", background: "#f8fafc", border: "none",
+            outline: "none", resize: "none", boxSizing: "border-box",
+          }}
         />
       </div>
     );
@@ -445,14 +574,24 @@ function AppPlayer({ manifest }: { manifest: RenderManifest }) {
             </a>
           )}
           {manifest.generatedCode && (
-            <button onClick={() => setView("app")}
-              style={{
-                background: "linear-gradient(135deg,#6366f1,#8b5cf6)", border: "none",
-                color: "#fff", padding: "6px 16px", borderRadius: 20,
-                fontSize: 11, fontWeight: 700, cursor: "pointer",
-              }}>
-              ▶ Open Live App
-            </button>
+            <>
+              <button onClick={() => setView("code")}
+                style={{
+                  background: "#f1f5f9", border: "1px solid rgba(0,0,0,0.1)",
+                  color: "#64748b", padding: "6px 14px", borderRadius: 20,
+                  fontSize: 10, fontWeight: 700, cursor: "pointer",
+                }}>
+                &lt;/&gt; Code
+              </button>
+              <button onClick={() => setView("app")}
+                style={{
+                  background: "linear-gradient(135deg,#6366f1,#8b5cf6)", border: "none",
+                  color: "#fff", padding: "6px 16px", borderRadius: 20,
+                  fontSize: 11, fontWeight: 700, cursor: "pointer",
+                }}>
+                ▶ Open Live App
+              </button>
+            </>
           )}
         </div>
       </div>
@@ -782,72 +921,212 @@ function PitchDeckViewer({ manifest }: { manifest: RenderManifest }) {
 // ─── Product Showcase ─────────────────────────────────────────────────────────
 
 function ProductShowcase({ manifest }: { manifest: RenderManifest }) {
-  const [view, setView] = useState(0);
-  const frame = manifest.frames[view];
+  const [viewIdx, setViewIdx]   = useState(0);
+  const [show3D, setShow3D]     = useState(false);
+  const [cubeY, setCubeY]       = useState(0);
+  const frame = manifest.frames[viewIdx];
+
+  // Slowly auto-rotate the 3D cube
+  useEffect(() => {
+    if (!show3D) return;
+    const timer = setInterval(() => setCubeY(y => y + 0.4), 30);
+    return () => clearInterval(timer);
+  }, [show3D]);
+
+  const cubeSize = 160;
 
   return (
     <div style={{ height: "100%", display: "flex", flexDirection: "column", background: "#fff" }}>
-      <div style={{ flex: 1, overflow: "hidden", position: "relative" }}>
-        {frame?.imageUrl ? (
-          <img src={frame.imageUrl} alt="" style={{ width: "100%", height: "100%", objectFit: "contain", background: "#f8fafc" }} />
-        ) : (
-          <div style={{ width: "100%", height: "100%", display: "flex", alignItems: "center", justifyContent: "center" }}>
-            <span style={{ fontSize: 48, color: "#e2e8f0" }}>📦</span>
+      {/* Header */}
+      <div style={{ padding: "10px 16px", display: "flex", alignItems: "center", gap: 10, borderBottom: "1px solid rgba(0,0,0,0.07)" }}>
+        <div style={{ fontSize: 13, fontWeight: 700, color: "#0f172a", flex: 1 }}>{manifest.projectName}</div>
+        <button onClick={() => setShow3D(v => !v)}
+          style={{
+            background: show3D ? "#6366f1" : "#f1f5f9",
+            border: "none", color: show3D ? "#fff" : "#64748b",
+            padding: "5px 14px", borderRadius: 20, fontSize: 10, fontWeight: 700, cursor: "pointer",
+          }}>
+          {show3D ? "📷 Gallery" : "🧊 3D View"}
+        </button>
+      </div>
+
+      {/* 3D cube */}
+      {show3D ? (
+        <div style={{ flex: 1, display: "flex", flexDirection: "column", alignItems: "center", justifyContent: "center", background: "linear-gradient(135deg,#f8fafc,#f1f5f9)", gap: 20 }}>
+          <div style={{ perspective: 700, perspectiveOrigin: "50% 50%" }}>
+            <div style={{
+              width: cubeSize, height: cubeSize, position: "relative",
+              transformStyle: "preserve-3d",
+              transform: `rotateY(${cubeY}deg) rotateX(-12deg)`,
+            }}>
+              {[0, 90, 180, 270].map((deg, fi) => {
+                const f = manifest.frames[fi % manifest.frames.length];
+                return (
+                  <div key={fi} style={{
+                    position: "absolute", inset: 0,
+                    transform: `rotateY(${deg}deg) translateZ(${cubeSize / 2}px)`,
+                    backfaceVisibility: "hidden",
+                    borderRadius: 10, overflow: "hidden",
+                    boxShadow: "0 4px 24px rgba(0,0,0,0.18)",
+                  }}>
+                    {f?.imageUrl ? (
+                      <img src={f.imageUrl} alt="" style={{ width: "100%", height: "100%", objectFit: "cover" }} />
+                    ) : (
+                      <div style={{ width: "100%", height: "100%", background: "linear-gradient(135deg,#6366f1,#8b5cf6)", display: "flex", alignItems: "center", justifyContent: "center", fontSize: 40 }}>📦</div>
+                    )}
+                  </div>
+                );
+              })}
+              {/* Top face */}
+              <div style={{
+                position: "absolute", inset: 0,
+                transform: `rotateX(90deg) translateZ(${cubeSize / 2}px)`,
+                background: "rgba(99,102,241,0.15)", borderRadius: 10,
+                backfaceVisibility: "hidden",
+              }} />
+              {/* Bottom face */}
+              <div style={{
+                position: "absolute", inset: 0,
+                transform: `rotateX(-90deg) translateZ(${cubeSize / 2}px)`,
+                background: "rgba(0,0,0,0.08)", borderRadius: 10,
+                backfaceVisibility: "hidden",
+              }} />
+            </div>
           </div>
-        )}
-      </div>
-      <div style={{ padding: "16px 24px", borderTop: "1px solid rgba(0,0,0,0.08)" }}>
-        <div style={{ color: "#6366f1", fontSize: 10, fontWeight: 700, marginBottom: 4 }}>{frame?.badge}</div>
-        <div style={{ fontSize: 13, color: "#374151", lineHeight: 1.65, marginBottom: 12, whiteSpace: "pre-wrap" }}>
-          {frame?.content}
+          <div style={{ fontSize: 10, color: "#94a3b8", fontWeight: 600 }}>Auto-rotating 3D view</div>
         </div>
-        <div style={{ display: "flex", gap: 8 }}>
-          {manifest.frames.map((f, i) => (
-            <button key={i} onClick={() => setView(i)}
-              style={{
-                flex: 1, padding: "6px 4px", borderRadius: 8,
-                background: i === view ? "#6366f1" : "#f8fafc",
-                border: `1px solid ${i === view ? "#6366f1" : "rgba(0,0,0,0.08)"}`,
-                color: i === view ? "#fff" : "#64748b",
-                fontSize: 10, fontWeight: 600, cursor: "pointer",
-              }}>
-              {f.title}
-            </button>
-          ))}
-        </div>
-      </div>
+      ) : (
+        <>
+          <div style={{ flex: 1, overflow: "hidden", position: "relative" }}>
+            {frame?.imageUrl ? (
+              <img src={frame.imageUrl} alt="" style={{ width: "100%", height: "100%", objectFit: "contain", background: "#f8fafc" }} />
+            ) : (
+              <div style={{ width: "100%", height: "100%", display: "flex", alignItems: "center", justifyContent: "center" }}>
+                <span style={{ fontSize: 48, color: "#e2e8f0" }}>📦</span>
+              </div>
+            )}
+          </div>
+          <div style={{ padding: "16px 24px", borderTop: "1px solid rgba(0,0,0,0.08)" }}>
+            <div style={{ color: "#6366f1", fontSize: 10, fontWeight: 700, marginBottom: 4 }}>{frame?.badge}</div>
+            <div style={{ fontSize: 13, color: "#374151", lineHeight: 1.65, marginBottom: 12, whiteSpace: "pre-wrap" }}>
+              {frame?.content}
+            </div>
+            <div style={{ display: "flex", gap: 8 }}>
+              {manifest.frames.map((f, i) => (
+                <button key={i} onClick={() => setViewIdx(i)}
+                  style={{
+                    flex: 1, padding: "6px 4px", borderRadius: 8,
+                    background: i === viewIdx ? "#6366f1" : "#f8fafc",
+                    border: `1px solid ${i === viewIdx ? "#6366f1" : "rgba(0,0,0,0.08)"}`,
+                    color: i === viewIdx ? "#fff" : "#64748b",
+                    fontSize: 10, fontWeight: 600, cursor: "pointer",
+                  }}>
+                  {f.title}
+                </button>
+              ))}
+            </div>
+          </div>
+        </>
+      )}
     </div>
   );
+}
+
+// ─── Music arp params (mirrors MovieProductionApp) ────────────────────────────
+
+function getMusicArpParams(cue: string): { root: number; scale: number[]; bpm: number; vol: number } {
+  const c = cue.toLowerCase();
+  if (/uplift|joy|happy|bright|hope|victor/.test(c)) return { root: 261.63, scale: [0,2,4,7,9],  bpm: 92,  vol: 0.055 };
+  if (/sad|melan|slow|soft|tender|gentle/.test(c))   return { root: 220.00, scale: [0,3,5,7,10], bpm: 56,  vol: 0.045 };
+  if (/rock|hard|power|drive|intense|heavy/.test(c)) return { root: 233.08, scale: [0,3,5,7,10], bpm: 142, vol: 0.065 };
+  if (/jazz|blues|swing|groove|funk/.test(c))        return { root: 246.94, scale: [0,3,5,7,10], bpm: 88,  vol: 0.052 };
+  if (/dark|moody|haunt|mystery|eerie/.test(c))      return { root: 196.00, scale: [0,2,4,6,8],  bpm: 68,  vol: 0.048 };
+  if (/pop|dance|energy|upbeat/.test(c))             return { root: 261.63, scale: [0,2,4,7,9],  bpm: 110, vol: 0.058 };
+  return { root: 261.63, scale: [0,2,4,7,9], bpm: 80, vol: 0.048 };
 }
 
 // ─── Music Player ─────────────────────────────────────────────────────────────
 
 function MusicPlayer({ manifest }: { manifest: RenderManifest }) {
-  const [track, setTrack] = useState(0);
-  const [speaking, setSpeaking] = useState(false);
-  const frame = manifest.frames[track];
+  const [track, setTrack]             = useState(0);
+  const [speaking, setSpeaking]       = useState(false);
+  const [arpPlaying, setArpPlaying]   = useState(false);
+  const [editMode, setEditMode]       = useState(false);
+  const [editedLyrics, setEditedLyrics] = useState<Record<number, string>>({});
+  const frame       = manifest.frames[track];
+  const arpTimer    = useRef<ReturnType<typeof setInterval> | null>(null);
+  const arpCtx      = useRef<AudioContext | null>(null);
+  const arpIdx      = useRef(0);
+
+  useEffect(() => { setEditMode(false); }, [track]);
+
+  const stopArp = useCallback(() => {
+    if (arpTimer.current) { clearInterval(arpTimer.current); arpTimer.current = null; }
+    setArpPlaying(false);
+  }, []);
+
+  const startArp = useCallback(() => {
+    stopArp();
+    if (!arpCtx.current)
+      arpCtx.current = new (window.AudioContext ?? (window as never as { webkitAudioContext: typeof AudioContext }).webkitAudioContext)();
+    const ctx = arpCtx.current;
+    if (ctx.state === "suspended") ctx.resume();
+    const p = getMusicArpParams(`${frame?.badge ?? ""} ${frame?.title ?? ""}`);
+    arpIdx.current = 0;
+    const beatMs = (60 / p.bpm) * 1000;
+    arpTimer.current = setInterval(() => {
+      const semitone = p.scale[arpIdx.current % p.scale.length] ?? 0;
+      const freq = p.root * Math.pow(2, semitone / 12);
+      const osc = ctx.createOscillator();
+      osc.type = "triangle";
+      osc.frequency.value = freq;
+      const env = ctx.createGain();
+      const now = ctx.currentTime;
+      env.gain.setValueAtTime(0, now);
+      env.gain.linearRampToValueAtTime(p.vol, now + 0.02);
+      env.gain.exponentialRampToValueAtTime(0.001, now + 0.28);
+      osc.connect(env);
+      env.connect(ctx.destination);
+      osc.start(now);
+      osc.stop(now + 0.32);
+      arpIdx.current++;
+    }, beatMs);
+    setArpPlaying(true);
+  }, [frame, stopArp]);
+
+  useEffect(() => { stopArp(); }, [track, stopArp]);
+  useEffect(() => () => { stopArp(); arpCtx.current?.close(); }, [stopArp]);
 
   const readLyrics = () => {
-    if (!frame?.content || !window.speechSynthesis) return;
+    const content = editedLyrics[track] ?? frame?.content ?? "";
+    if (!content || !window.speechSynthesis) return;
     window.speechSynthesis.cancel();
-    const clean = frame.content.replace(/\[(.*?)\]/g, "").replace(/\n+/g, " ").trim();
-    const utt = new SpeechSynthesisUtterance(clean);
-    utt.rate = 0.85; utt.pitch = 1.05;
-    utt.onstart = () => setSpeaking(true);
-    utt.onend   = () => setSpeaking(false);
-    window.speechSynthesis.speak(utt);
+    const lines = content.split("\n").filter(l => l.trim() && !/^\[.+\]$/.test(l.trim()));
+    let i = 0;
+    const sayNext = () => {
+      if (i >= lines.length) { setSpeaking(false); return; }
+      const utt = new SpeechSynthesisUtterance(lines[i]!.trim());
+      utt.rate  = 0.85;
+      utt.pitch = 1.05;
+      utt.onend = () => { i++; sayNext(); };
+      utt.onerror = () => setSpeaking(false);
+      window.speechSynthesis.speak(utt);
+      i++;
+    };
+    setSpeaking(true);
+    sayNext();
   };
+
+  const lyrics = editedLyrics[track] ?? frame?.content ?? "";
 
   return (
     <div style={{ height: "100%", display: "flex", background: "#0c0f1a" }}>
       {/* Track list */}
-      <div style={{
-        width: 160, flexShrink: 0, borderRight: "1px solid rgba(255,255,255,0.06)",
-        padding: 12, overflowY: "auto",
-      }}>
+      <div style={{ width: 160, flexShrink: 0, borderRight: "1px solid rgba(255,255,255,0.06)", padding: 12, overflowY: "auto" }}>
         <div style={{ fontSize: 10, fontWeight: 700, color: "#475569", marginBottom: 10, letterSpacing: "0.08em" }}>TRACKS</div>
         {manifest.frames.map((f, i) => (
-          <button key={i} onClick={() => { window.speechSynthesis?.cancel(); setSpeaking(false); setTrack(i); }}
+          <button key={i}
+            onClick={() => { window.speechSynthesis?.cancel(); setSpeaking(false); stopArp(); setTrack(i); }}
             style={{
               display: "block", width: "100%", textAlign: "left",
               padding: "8px 10px", borderRadius: 8, marginBottom: 2,
@@ -856,7 +1135,7 @@ function MusicPlayer({ manifest }: { manifest: RenderManifest }) {
               color: i === track ? "#818cf8" : "#64748b",
               fontSize: 11, fontWeight: i === track ? 600 : 400, cursor: "pointer",
             }}>
-            {f.title}
+            {i === track && arpPlaying ? "🎵 " : ""}{f.title}
           </button>
         ))}
       </div>
@@ -870,37 +1149,74 @@ function MusicPlayer({ manifest }: { manifest: RenderManifest }) {
           ) : (
             <div style={{ width: 80, height: 80, borderRadius: 10, background: "linear-gradient(135deg,#6366f1,#8b5cf6)", display: "flex", alignItems: "center", justifyContent: "center", fontSize: 28 }}>🎵</div>
           )}
-          <div>
+          <div style={{ flex: 1 }}>
             <div style={{ color: "#fff", fontSize: 14, fontWeight: 700, marginBottom: 2 }}>{frame?.title}</div>
-            <div style={{ color: "#64748b", fontSize: 11, marginBottom: 8 }}>{manifest.projectName}</div>
-            <button onClick={speaking ? () => { window.speechSynthesis?.cancel(); setSpeaking(false); } : readLyrics}
-              style={{
-                background: speaking ? "rgba(99,102,241,0.2)" : "rgba(99,102,241,0.15)",
-                border: "1px solid rgba(99,102,241,0.3)", color: speaking ? "#818cf8" : "#6366f1",
-                padding: "5px 14px", borderRadius: 20, fontSize: 11, fontWeight: 600, cursor: "pointer",
-              }}>
-              {speaking ? "⏹ Stop" : "▶ Read Lyrics"}
-            </button>
+            <div style={{ color: "#64748b", fontSize: 11, marginBottom: 10 }}>{manifest.projectName}</div>
+            <div style={{ display: "flex", gap: 6, flexWrap: "wrap" }}>
+              {/* TTS */}
+              <button onClick={speaking ? () => { window.speechSynthesis?.cancel(); setSpeaking(false); } : readLyrics}
+                style={{
+                  background: speaking ? "rgba(99,102,241,0.22)" : "rgba(99,102,241,0.12)",
+                  border: "1px solid rgba(99,102,241,0.3)", color: speaking ? "#818cf8" : "#6366f1",
+                  padding: "5px 13px", borderRadius: 20, fontSize: 10, fontWeight: 600, cursor: "pointer",
+                }}>
+                {speaking ? "⏹ Stop" : "🎙 Read"}
+              </button>
+              {/* Arpeggiator */}
+              <button onClick={arpPlaying ? stopArp : startArp}
+                style={{
+                  background: arpPlaying ? "rgba(99,102,241,0.22)" : "rgba(255,255,255,0.06)",
+                  border: `1px solid ${arpPlaying ? "rgba(99,102,241,0.5)" : "rgba(255,255,255,0.12)"}`,
+                  color: arpPlaying ? "#818cf8" : "#64748b",
+                  padding: "5px 13px", borderRadius: 20, fontSize: 10, fontWeight: 600, cursor: "pointer",
+                }}>
+                {arpPlaying ? "♪ Playing" : "🎹 Play Arp"}
+              </button>
+              {/* Edit */}
+              <button onClick={() => setEditMode(m => !m)}
+                style={{
+                  background: editMode ? "rgba(99,102,241,0.18)" : "rgba(255,255,255,0.04)",
+                  border: `1px solid ${editMode ? "rgba(99,102,241,0.4)" : "rgba(255,255,255,0.08)"}`,
+                  color: editMode ? "#818cf8" : "#475569",
+                  padding: "5px 13px", borderRadius: 20, fontSize: 10, fontWeight: 600, cursor: "pointer",
+                }}>
+                {editMode ? "✓ Done" : "✏️ Edit"}
+              </button>
+            </div>
           </div>
         </div>
 
-        {/* Lyrics */}
+        {/* Lyrics / editor */}
         <div style={{ flex: 1, overflowY: "auto", padding: "16px 24px" }}>
-          {(frame?.content ?? "").split("\n").map((line, i) => {
-            const isSection = /^\[.+\]$/.test(line.trim());
-            return (
-              <div key={i} style={{
-                marginBottom: isSection ? 12 : 3,
-                color:  isSection ? "#6366f1" : line.trim() === "" ? "transparent" : "#94a3b8",
-                fontSize: isSection ? 10 : 13,
-                fontWeight: isSection ? 700 : 400,
-                letterSpacing: isSection ? "0.1em" : "normal",
-                lineHeight: 1.6,
-              }}>
-                {line || "\u00A0"}
-              </div>
-            );
-          })}
+          {editMode ? (
+            <textarea
+              value={lyrics}
+              onChange={e => setEditedLyrics(prev => ({ ...prev, [track]: e.target.value }))}
+              style={{
+                width: "100%", minHeight: 380, fontSize: 13, lineHeight: 1.7,
+                color: "#cbd5e1", fontFamily: "ui-monospace, monospace",
+                background: "rgba(255,255,255,0.04)", border: "1.5px solid rgba(99,102,241,0.4)",
+                borderRadius: 10, padding: "14px 16px", resize: "vertical",
+                boxSizing: "border-box", outline: "none",
+              }}
+            />
+          ) : (
+            lyrics.split("\n").map((line, i) => {
+              const isSection = /^\[.+\]$/.test(line.trim());
+              return (
+                <div key={i} style={{
+                  marginBottom: isSection ? 12 : 3,
+                  color:  isSection ? "#6366f1" : line.trim() === "" ? "transparent" : "#94a3b8",
+                  fontSize: isSection ? 10 : 13,
+                  fontWeight: isSection ? 700 : 400,
+                  letterSpacing: isSection ? "0.1em" : "normal",
+                  lineHeight: 1.6,
+                }}>
+                  {line || "\u00A0"}
+                </div>
+              );
+            })
+          )}
         </div>
       </div>
     </div>
@@ -919,15 +1235,51 @@ function PodcastPlayer({ manifest }: { manifest: RenderManifest }) {
   const notesFrame  = manifest.frames.find(f => f.index === 1);
   useEffect(() => { setEditMode(false); }, [activeTab]);
 
+  // Character-specific TTS voices
   const readScript = () => {
-    if (!scriptFrame?.content || !window.speechSynthesis) return;
+    const content = (editedScript ?? scriptFrame?.content ?? "").trim();
+    if (!content || !window.speechSynthesis) return;
     window.speechSynthesis.cancel();
-    const clean = scriptFrame.content.replace(/\[.*?\]/g, "").replace(/HOST:/g, "").trim();
-    const utt   = new SpeechSynthesisUtterance(clean);
-    utt.rate = 0.88; utt.pitch = 1;
-    utt.onstart = () => setSpeaking(true);
-    utt.onend   = () => setSpeaking(false);
-    window.speechSynthesis.speak(utt);
+    const voices = window.speechSynthesis.getVoices();
+    // Prefer US English voices; fallback to whatever is available
+    const enVoices = voices.filter(v => v.lang.startsWith("en"));
+    const getVoice = (idx: number) => enVoices[idx] ?? voices[idx] ?? null;
+
+    // Parse into speaker-segmented lines
+    const lines = content.split("\n")
+      .map(l => l.trim())
+      .filter(l => l && !/^\[.+\]$/.test(l));
+
+    const SPEAKERS: Record<string, number> = {};
+    let speakerIdx = 0;
+    const getSpeakerSlot = (name: string): number => {
+      if (!(name in SPEAKERS)) SPEAKERS[name] = speakerIdx++;
+      return SPEAKERS[name]!;
+    };
+
+    let i = 0;
+    const sayNext = () => {
+      if (i >= lines.length) { setSpeaking(false); return; }
+      const line = lines[i]!;
+      const colonIdx = line.indexOf(":");
+      const hasSpeaker = colonIdx > 0 && colonIdx < 18;
+      const speaker = hasSpeaker ? line.slice(0, colonIdx).trim().toUpperCase() : "NARRATOR";
+      const text    = hasSpeaker ? line.slice(colonIdx + 1).trim() : line;
+      if (!text) { i++; sayNext(); return; }
+
+      const slot = getSpeakerSlot(speaker);
+      const utt = new SpeechSynthesisUtterance(text);
+      utt.voice = getVoice(slot);
+      // HOST=normal, GUEST=slightly higher, NARRATOR=slower/lower
+      utt.rate  = speaker === "NARRATOR" ? 0.82 : 0.88;
+      utt.pitch = slot === 0 ? 1.0 : slot === 1 ? 1.18 : 0.92;
+      utt.onend   = () => { i++; sayNext(); };
+      utt.onerror = () => setSpeaking(false);
+      window.speechSynthesis.speak(utt);
+      i++;
+    };
+    setSpeaking(true);
+    sayNext();
   };
 
   return (
