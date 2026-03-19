@@ -1,0 +1,57 @@
+ULTRA-MAX AI BRAIN PLATFORM PROMPT — COMPLETE USER & ADMIN EXPERIENCE:
+
+Objective: Build a world-class, fully autonomous, scalable, and secure AI Brain platform with an ultra-professional interface, flexible monetization, rollback capability, and complete media & project generation functionality. Ensure outputs are production-ready, mobile-optimized, and visually clean for both end users and admins.
+
+1. USER EXPERIENCE & INTERFACE:
+   - Design a **light, modern, professional UI** (white/light theme) that is mobile, tablet, and desktop friendly.
+   - Maintain a **simple, clean interface** with minimal distractions but full functionality.
+   - Provide separate **admin dashboard** with more controls and metrics; end users see simplified interfaces for building projects.
+   - Include **real-time observability dashboards** for server health, AI stream activity, DB metrics, and recent actions.
+
+2. PROJECT & INDUSTRY CAPABILITIES:
+   - Support **all major industries, hyper-niches, and emerging sectors** with full scaffolds and templates.
+   - Auto-generate **project types, media pipelines, and schemas** per industry/sub-industry.
+   - Provide **AI-assisted generation** of video, audio, images, AR/VR, and interactive dashboards where possible (streaming-ready).
+   - Allow users to **build projects/apps** without access to platform source code or core AI logic.
+
+3. SUBSCRIPTION & REVENUE FLEXIBILITY:
+   - Implement **invite system**: admins can send links/codes for free or customized access.
+   - Admin can configure **per-user, per-project subscription tiers** (free, paid, custom token-based system).
+   - **Revenue share system**: default platform cut (e.g., 25%) configurable per user/project.
+   - Admin can **override revenue percentage** anytime (e.g., 10%, 0%) without affecting past revenue records.
+   - All revenue and token transactions are **secure, auditable, and logged**.
+
+4. ROLLBACK & VERSION CONTROL:
+   - Implement **one-click rollback** for any user-facing or admin change.
+   - Track **versions of projects, templates, and admin settings** automatically.
+   - Rollback restores **UI, scaffolds, project states, and revenue configs**.
+
+5. SECURITY & ENCRYPTION:
+   - Apply **multi-layered encryption** at file, project, and user level.
+   - Integrate per-project key derivation and safe startup checks.
+   - Implement **role-based access control (RBAC)**: admin, founder, standard user.
+   - Audit logging for all sensitive actions.
+
+6. PERFORMANCE & SCALABILITY:
+   - Maximize concurrency for all generate-all operations with **zero collisions**.
+   - Optimize **DB queries, indexing, caching, load balancing**, and streaming performance.
+   - Auto-scale resources dynamically within platform constraints (e.g., Replit environment).
+
+7. SELF-OPTIMIZATION & FUTURE-PROOFING:
+   - Continuously benchmark outputs against industry bests.
+   - Auto-optimize schemas, scaffolds, templates, and media pipelines.
+   - Suggest **new project types, niches, and features** autonomously.
+
+8. FINAL VERIFICATION & DEPLOYMENT:
+   - Run **full typechecks, schema validation, concurrency verification, and encryption tests**.
+   - Ensure **zero errors, zero warnings, zero runtime exceptions**.
+   - Deploy projects, scaffolds, templates, revenue/tokens, rollback system, and observability dashboard.
+   - Produce **detailed audit report** of all features, metrics, and security layers.
+
+Execution Instructions:
+- Treat platform as **fully autonomous**: all outputs must be ready for immediate user interaction and admin management.
+- Run all expansions and enhancements concurrently where safe.
+- Correct errors autonomously and escalate improvements.
+- Ensure platform is **world-class, subscription-ready, secure, visually clean, and monetization-flexible**.
+
+END ULTRA-MAX PROMPT

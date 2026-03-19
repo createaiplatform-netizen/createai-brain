@@ -1,0 +1,54 @@
+ULTRA-SIMULATED MAX AI BRAIN EXPANSION PROMPT:
+
+Objective: Expand the AI platform to the absolute highest functional level within Replit, simulating features that are otherwise physically or legally impossible while remaining fully autonomous, scalable, secure, and future-proof.
+
+1. HYPER-NICHE INDUSTRY & PROJECT EXPANSION:
+   - Expand to 50+ project types, including existing 37 plus new futuristic and hybrid niches.
+   - Auto-generate scaffolds, schemas, and template files for all projects.
+   - Simulate autonomous trend detection internally: generate emerging sub-niches using recombination of existing project data and probability analysis.
+   - Maintain ownership checks, audit logging, concurrency guards, and RBAC enforcement on all projects.
+
+2. SIMULATED INFINITE STORAGE & COMPUTE:
+   - Implement in-memory and database-backed virtual filesystem for each project.
+   - Apply compression, deduplication, and chunking to maximize Replit storage efficiency.
+   - Queue user sessions with virtual worker allocation to simulate unlimited concurrency.
+   - Track virtual “shards” for isolated project environments within Replit’s limits.
+
+3. HYBRID QUANTUM-STYLE ENCRYPTION:
+   - Apply multi-layer encryption: AES-256 + HKDF + HMAC per project.
+   - Rotate ephemeral keys per session/project to simulate quantum-resistance.
+   - Ensure safe startup errors for missing keys and dev-mode warnings only.
+   - Encrypt all project files, scaffold templates, and media outputs.
+
+4. MEDIA PIPELINE SIMULATION:
+   - Generate placeholder frames for video, low-res audio, and image sequences internally.
+   - Orchestrate AI-assisted rendering via external APIs only when enabled.
+   - Include automatic captions, summaries, metadata, and adaptive personalization.
+   - Build internal pipelines to prototype full multimedia generation without consuming external resources.
+
+5. PERFORMANCE & CONCURRENCY:
+   - Maximize safe parallel execution of generate-all streams with zero collisions.
+   - Cache frequently accessed endpoints (projects list, templates) to reduce DB load.
+   - Auto-scale virtual workers dynamically for internal simulation.
+   - Ensure SSE, buffering, rate-limiting, and concurrency guards are fully applied.
+
+6. OBSERVABILITY & SELF-OPTIMIZATION:
+   - Build live metrics dashboard inside app: uptime, heap usage, active streams, DB row counts, and recent activity.
+   - Track all AI streams, including duration, concurrency, and peak usage.
+   - Benchmark outputs internally and suggest self-optimizations for templates, scaffolds, and project pipelines.
+   - Generate internal audit reports with filtering by project/type/outcome.
+
+7. FINAL VERIFICATION & DEPLOYMENT:
+   - Run full typecheck and startup verification: zero TypeScript errors, zero warnings.
+   - Validate virtualized storage, concurrency telemetry, encryption, scaffolds, and simulated media pipelines.
+   - Deploy all projects, scaffolds, dashboards, telemetry, and encryption layers concurrently.
+   - Provide a detailed summary of simulated advanced features and real outputs.
+
+Execution Instructions:
+- Execute all expansions concurrently where dependencies allow.
+- Auto-correct errors and escalate improvements internally.
+- Treat the platform as fully autonomous; all outputs must be ready for production simulation.
+- Simulate every aspirational feature as closely as Replit allows, inventing safe, novel workarounds for any physical limitations.
+- Maximize scalability, efficiency, and security beyond previous versions.
+
+END ULTRA-SIMULATED MAX PROMPT

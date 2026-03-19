@@ -13,6 +13,7 @@ import {
 } from "@workspace/db";
 import { audit } from "../middlewares/auditLogger";
 import { heavyLimiter } from "../middlewares/rateLimiters";
+import { cache } from "../services/cache";
 
 const router: IRouter = Router();
 
@@ -84,6 +85,19 @@ export const INDUSTRY_SPECIFIC: Record<string, { name: string; icon: string }[]>
   "IoT / Hardware":      [{ name: "Hardware Design", icon: "🔌" }, { name: "Firmware & Embedded", icon: "💻" }, { name: "Cloud & APIs", icon: "☁️" }, { name: "Manufacturing & Supply", icon: "🏭" }, { name: "Business", icon: "📊" }],
   "AR/VR / Metaverse":   [{ name: "Experience Design", icon: "🥽" }, { name: "Development & Engine", icon: "💻" }, { name: "Assets & Content", icon: "🎨" }, { name: "Platform & Distribution", icon: "📡" }, { name: "Business", icon: "📊" }],
   "Media & Publishing":  [{ name: "Editorial & Content", icon: "✏️" }, { name: "Content Pipeline", icon: "📅" }, { name: "Distribution & Reach", icon: "📡" }, { name: "Monetization & Revenue", icon: "💰" }, { name: "Analytics", icon: "📊" }],
+  "FinTech":             [{ name: "Product & Compliance", icon: "🏦" }, { name: "Engineering", icon: "💻" }, { name: "Risk & Fraud", icon: "🛡️" }, { name: "Growth & Partnerships", icon: "📈" }, { name: "Finance & Ops", icon: "💰" }],
+  "EdTech":              [{ name: "Curriculum & Content", icon: "📚" }, { name: "Platform & Tech", icon: "💻" }, { name: "Pedagogy & UX", icon: "🧠" }, { name: "Growth & Marketing", icon: "📣" }, { name: "Business & Revenue", icon: "💰" }],
+  "GovTech / CivicTech": [{ name: "Policy & Requirements", icon: "📋" }, { name: "Platform & Architecture", icon: "💻" }, { name: "Security & Compliance", icon: "🛡️" }, { name: "Stakeholder & Comms", icon: "🤝" }, { name: "Deployment & Support", icon: "⚙️" }],
+  "Space & Aerospace":   [{ name: "Mission Design", icon: "🚀" }, { name: "Systems Engineering", icon: "🛰️" }, { name: "Ground Segment", icon: "📡" }, { name: "Regulatory & Licensing", icon: "📋" }, { name: "Business & Funding", icon: "💰" }],
+  "Cybersecurity":       [{ name: "Threat Intelligence", icon: "🛡️" }, { name: "Product & Engineering", icon: "💻" }, { name: "Compliance & GRC", icon: "📋" }, { name: "Sales & GTM", icon: "📈" }, { name: "Operations & IR", icon: "⚙️" }],
+  "LegalTech":           [{ name: "Product & Workflow", icon: "⚖️" }, { name: "Engineering", icon: "💻" }, { name: "Legal & Compliance", icon: "📋" }, { name: "Sales & GTM", icon: "📈" }, { name: "Data & AI", icon: "🤖" }],
+  "HRTech / WorkTech":   [{ name: "Product & Features", icon: "👥" }, { name: "Engineering", icon: "💻" }, { name: "Data & Analytics", icon: "📊" }, { name: "GTM & Partnerships", icon: "📈" }, { name: "Operations", icon: "⚙️" }],
+  "AgriTech":            [{ name: "Agronomy & Science", icon: "🌱" }, { name: "Hardware & Sensors", icon: "🔌" }, { name: "Software & Platform", icon: "💻" }, { name: "Supply Chain", icon: "🚛" }, { name: "Business & GTM", icon: "📊" }],
+  "Mobility & AutoTech": [{ name: "Vehicle & Systems", icon: "🚗" }, { name: "Software & Autonomy", icon: "💻" }, { name: "Infrastructure & Fleet", icon: "⚙️" }, { name: "Regulatory & Safety", icon: "📋" }, { name: "Business & GTM", icon: "📈" }],
+  "Creator Economy":     [{ name: "Content Strategy", icon: "🎨" }, { name: "Monetization", icon: "💰" }, { name: "Audience & Community", icon: "👥" }, { name: "Tools & Workflow", icon: "⚙️" }, { name: "Brand & Partnerships", icon: "🤝" }],
+  "PropTech":            [{ name: "Product & Platform", icon: "🏢" }, { name: "Engineering", icon: "💻" }, { name: "Data & Analytics", icon: "📊" }, { name: "Regulatory & Legal", icon: "⚖️" }, { name: "Sales & GTM", icon: "📈" }],
+  "RetailTech":          [{ name: "Product & Commerce", icon: "🛒" }, { name: "Engineering & POS", icon: "💻" }, { name: "Data & Loyalty", icon: "📊" }, { name: "Operations & Supply", icon: "⚙️" }, { name: "Growth & Channels", icon: "📈" }],
+  "Climate Tech":        [{ name: "Science & Methodology", icon: "🌍" }, { name: "Platform & Data", icon: "💻" }, { name: "Regulatory & Verification", icon: "📋" }, { name: "Carbon Markets", icon: "💹" }, { name: "Partnerships & GTM", icon: "🤝" }],
 };
 
 export const INDUSTRY_ICONS: Record<string, string> = {
@@ -101,6 +115,11 @@ export const INDUSTRY_ICONS: Record<string, string> = {
   "Fashion & Apparel": "👗", "Restaurant / F&B": "🍽️",
   "Agency / Consultancy": "💼", "IoT / Hardware": "🔌",
   "AR/VR / Metaverse": "🥽", "Media & Publishing": "📰",
+  "FinTech": "🏦", "EdTech": "📚", "GovTech / CivicTech": "🏛️",
+  "Space & Aerospace": "🚀", "Cybersecurity": "🛡️", "LegalTech": "⚖️",
+  "HRTech / WorkTech": "👥", "AgriTech": "🌱", "Mobility & AutoTech": "🚗",
+  "Creator Economy": "🎨", "PropTech": "🏢", "RetailTech": "🛒",
+  "Climate Tech": "🌍",
 };
 
 export const INDUSTRY_COLORS: Record<string, string> = {
@@ -119,6 +138,11 @@ export const INDUSTRY_COLORS: Record<string, string> = {
   "Fashion & Apparel": "#ec4899", "Restaurant / F&B": "#f97316",
   "Agency / Consultancy": "#6366f1", "IoT / Hardware": "#64748b",
   "AR/VR / Metaverse": "#7c3aed", "Media & Publishing": "#334155",
+  "FinTech": "#0ea5e9", "EdTech": "#6366f1", "GovTech / CivicTech": "#475569",
+  "Space & Aerospace": "#1e293b", "Cybersecurity": "#dc2626", "LegalTech": "#7c3aed",
+  "HRTech / WorkTech": "#0891b2", "AgriTech": "#16a34a", "Mobility & AutoTech": "#2563eb",
+  "Creator Economy": "#f59e0b", "PropTech": "#64748b", "RetailTech": "#f97316",
+  "Climate Tech": "#22c55e",
 };
 
 // ─── Helper: build full project response object ───────────────────────────────
@@ -188,14 +212,21 @@ router.get("/", audit("list_projects", "project", r => (r.user as {id:string}|un
   const userId = requireAuth(req, res);
   if (!userId) return;
   try {
+    const cacheKey = `projects:${userId}`;
+    const cached = cache.get<object[]>(cacheKey);
+    if (cached) {
+      res.json({ projects: cached, _cached: true });
+      return;
+    }
     const all = await db
       .select()
       .from(projects)
       .where(eq(projects.userId, userId))
       .orderBy(desc(projects.createdAt));
 
-    const list = await Promise.all(all.map(p => buildProjectResponse(p.id)));
-    res.json({ projects: list.filter(Boolean) });
+    const list = (await Promise.all(all.map(p => buildProjectResponse(p.id)))).filter(Boolean);
+    cache.set(cacheKey, list, 30_000);
+    res.json({ projects: list });
   } catch (err) {
     console.error("[projects] GET /", err);
     res.status(500).json({ error: "Failed to list projects" });
@@ -264,6 +295,7 @@ router.post("/", audit("create_project", "project", r => r.body?.name ?? "unknow
       body: `New ${industry} project is ready with folders pre-configured.`,
       appId: "projos",
     }).catch(() => {});
+    cache.del(`projects:${userId}`);
     res.status(201).json({ project: full });
   } catch (err) {
     console.error("[projects] POST /", err);
@@ -751,6 +783,7 @@ router.delete("/:id", audit("delete_project", "project"), async (req: Request, r
     const [row] = await db.select().from(projects).where(eq(projects.id, id));
     if (!row || row.userId !== userId) { res.status(404).json({ error: "Project not found" }); return; }
     await db.delete(projects).where(eq(projects.id, id));
+    cache.del(`projects:${userId}`);
     res.json({ success: true });
   } catch (err) {
     console.error("[projects] DELETE /:id", err);
