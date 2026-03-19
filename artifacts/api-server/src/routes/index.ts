@@ -58,6 +58,7 @@ import connectRouter from "./connect";
 import smartFhirSandboxRouter from "./smart-fhir-sandbox";
 import memoryRouter from "./memory";
 import aiRouter from "./ai";
+import projectDocumentsRouter from "./projectDocuments";
 
 const router: IRouter = Router();
 
@@ -129,6 +130,9 @@ router.use("/memory",             memoryRouter);
 
 // ── AI integration endpoints ─────────────────────────────────────────────────
 router.use("/ai",                 aiRouter);
+
+// ── Project Intelligence (lifecycle + document generation) ───────────────────
+router.use("/project-documents",  projectDocumentsRouter);
 
 // ── System Command Processor ─────────────────────────────────────────────────
 router.use("/system",             systemRouter);

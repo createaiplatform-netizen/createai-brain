@@ -1066,6 +1066,26 @@ export function ProjectOSApp() {
   const [fileAiInput, setFileAiInput]       = useState("");
   const [fileAiLoading, setFileAiLoading]   = useState(false);
   const [editingProjectName, setEditingProjectName] = useState(false);
+
+  // ── Project Intelligence: Lifecycle + Document Generation ──────────────────
+  interface LifecycleFile { id: string; name: string; status: "empty" | "started" | "complete"; }
+  interface LifecycleData {
+    score: number;
+    summary: { total: number; complete: number; started: number; empty: number };
+    files: LifecycleFile[];
+    nextAction: string;
+    projectType: string;
+  }
+  const [lifecycle, setLifecycle]       = useState<LifecycleData | null>(null);
+  const [lifecycleLoading, setLifecycleLoading] = useState(false);
+  const [genStatus, setGenStatus] = useState<{
+    running:   boolean;
+    current:   string;
+    completed: number;
+    total:     number;
+    done:      boolean;
+  } | null>(null);
+  const genAbortRef = useRef<AbortController | null>(null);
   const [editProjectNameVal, setEditProjectNameVal] = useState("");
   const [showArchived, setShowArchived] = useState(false);
   // ── Shared With Me / Suggested / Opportunities state ──
@@ -1409,6 +1429,96 @@ export function ProjectOSApp() {
       setNewProjIndustry("General");
     }
   }, [newProjName, newProjIndustry, scaffoldProject]);
+
+  // ── Lifecycle: fetch document completion scores ───────────────────────────
+  const fetchLifecycle = useCallback(async (projectId: string) => {
+    setLifecycleLoading(true);
+    try {
+      const res = await fetch(`/api/project-documents/${projectId}/lifecycle`, { credentials: "include" });
+      if (res.ok) setLifecycle(await res.json() as LifecycleData);
+    } catch { /* best-effort */ }
+    setLifecycleLoading(false);
+  }, []);
+
+  // ── Generate All: stream AI content for all empty files ──────────────────
+  const startGenerateAll = useCallback(async (projectId: string, fileIds?: string[]) => {
+    genAbortRef.current?.abort();
+    const ctrl = new AbortController();
+    genAbortRef.current = ctrl;
+    setGenStatus({ running: true, current: "Starting…", completed: 0, total: 0, done: false });
+    try {
+      const res = await fetch(`/api/project-documents/${projectId}/generate-all`, {
+        method:      "POST",
+        credentials: "include",
+        headers:     { "Content-Type": "application/json" },
+        body:        JSON.stringify({ fileIds }),
+        signal:      ctrl.signal,
+      });
+      if (!res.ok || !res.body) {
+        setGenStatus(null);
+        return;
+      }
+      const reader = res.body.getReader();
+      const dec    = new TextDecoder();
+      let buf = "";
+      while (true) {
+        const { done, value } = await reader.read();
+        if (done) break;
+        buf += dec.decode(value, { stream: true });
+        const parts = buf.split("\n\n");
+        buf = parts.pop() ?? "";
+        for (const part of parts) {
+          if (!part.startsWith("data: ")) continue;
+          try {
+            const evt = JSON.parse(part.slice(6)) as Record<string, unknown>;
+            if (evt.type === "start") {
+              setGenStatus(s => s ? { ...s, total: evt.totalFiles as number } : s);
+            } else if (evt.type === "file_start") {
+              setGenStatus(s => s ? {
+                ...s,
+                current:   evt.fileName as string,
+                completed: (evt.index as number) - 1,
+                total:     evt.total as number,
+              } : s);
+            } else if (evt.type === "file_done") {
+              setGenStatus(s => s ? { ...s, completed: s.completed + 1 } : s);
+              // Reload project files so the UI reflects generated content
+              setProjects(prev => prev.map(p => {
+                if (p.id !== projectId) return p;
+                return {
+                  ...p,
+                  files: p.files.map(f =>
+                    f.id === String(evt.fileId) ? { ...f, content: "[generated]" } : f,
+                  ),
+                };
+              }));
+            } else if (evt.type === "complete") {
+              setGenStatus(s => s ? { ...s, running: false, done: true, current: `${evt.generated as number} documents generated` } : s);
+              // Refresh lifecycle score after generation
+              await fetchLifecycle(projectId);
+              // Reload full project data so files show updated content
+              const updated = await fetch(`/api/projects/${projectId}`, { credentials: "include" });
+              if (updated.ok) {
+                const data = await updated.json() as { project: Project };
+                if (data.project) setProjects(prev => prev.map(p => p.id === projectId ? data.project : p));
+              }
+              setTimeout(() => setGenStatus(null), 4000);
+            }
+          } catch { /* parse error — skip event */ }
+        }
+      }
+    } catch (e: unknown) {
+      if ((e as Error)?.name !== "AbortError") {
+        setGenStatus(s => s ? { ...s, running: false, done: false } : null);
+      }
+    }
+  }, [fetchLifecycle]);
+
+  // Fetch lifecycle score whenever the active project changes (placed after fetchLifecycle declaration)
+  useEffect(() => {
+    if (!activeProjectId) { setLifecycle(null); return; }
+    fetchLifecycle(activeProjectId);
+  }, [activeProjectId, fetchLifecycle]);
 
   const deleteProject = useCallback(async (id: string) => {
     await apiDeleteProject(id);
@@ -2458,40 +2568,102 @@ export function ProjectOSApp() {
                     ))}
                   </div>
 
-                  {/* ── What's Missing? Intelligence Panel ── */}
-                  {(() => {
-                    const emptyFolders = activeProject.folders.filter(f => {
-                      const folderFiles = activeProject.files.filter(fi => fi.folderId === f.id);
-                      return folderFiles.length === 0 || folderFiles.every(fi => (fi.content ?? "").length < 60);
-                    });
-                    const totalFiles = activeProject.files.length;
-                    const filledFiles = activeProject.files.filter(f => (f.content ?? "").length > 80).length;
-                    const completionPct = totalFiles > 0 ? Math.round((filledFiles / totalFiles) * 100) : 0;
-                    if (emptyFolders.length === 0 && completionPct >= 60) return null;
-                    return (
-                      <div className="mt-3 px-3 py-3 rounded-xl"
-                        style={{ background: "rgba(245,158,11,0.06)", border: "1px solid rgba(245,158,11,0.18)" }}>
-                        <p className="text-[10px] font-bold mb-2" style={{ color: "#fbbf24" }}>
-                          ✦ What's Missing? · {completionPct}% complete
-                        </p>
-                        <div className="flex flex-wrap gap-1.5">
-                          {emptyFolders.slice(0, 6).map(f => (
-                            <button key={f.id}
-                              onClick={() => { setActiveFolderId(f.id); setViewMode("dashboard+folders"); }}
-                              className="flex items-center gap-1 px-2 py-1 rounded-lg text-[10px] transition-all"
-                              style={{ background: "rgba(245,158,11,0.10)", color: "#fbbf24", border: "1px solid rgba(245,158,11,0.22)" }}>
-                              {f.icon} {f.name}
-                            </button>
-                          ))}
-                          {emptyFolders.length > 6 && (
-                            <span className="text-[10px]" style={{ color: "#78716c" }}>
-                              +{emptyFolders.length - 6} more empty
-                            </span>
-                          )}
+                  {/* ── Project Intelligence Panel ──────────────────────────── */}
+                  <div className="mt-3 rounded-xl overflow-hidden"
+                    style={{ border: "1px solid rgba(99,102,241,0.18)", background: "rgba(99,102,241,0.04)" }}>
+
+                    {/* Header row */}
+                    <div className="flex items-center justify-between px-3 pt-2.5 pb-1.5">
+                      <span className="text-[10px] font-bold uppercase tracking-widest" style={{ color: "#6366f1" }}>
+                        ✦ Project Intelligence
+                      </span>
+                      {lifecycleLoading && (
+                        <span className="text-[9px]" style={{ color: "#94a3b8" }}>Scoring…</span>
+                      )}
+                      {lifecycle && !lifecycleLoading && (
+                        <span className="text-[10px] font-semibold" style={{ color: lifecycle.score >= 70 ? "#10b981" : lifecycle.score >= 35 ? "#f59e0b" : "#6366f1" }}>
+                          {lifecycle.score}% complete
+                        </span>
+                      )}
+                    </div>
+
+                    {/* Score bar */}
+                    {lifecycle && (
+                      <div className="px-3 pb-2">
+                        <div className="w-full rounded-full overflow-hidden" style={{ height: 4, background: "rgba(99,102,241,0.12)" }}>
+                          <div
+                            className="h-full rounded-full transition-all duration-700"
+                            style={{
+                              width: `${lifecycle.score}%`,
+                              background: lifecycle.score >= 70 ? "#10b981" : lifecycle.score >= 35 ? "#f59e0b" : "#6366f1",
+                            }}
+                          />
+                        </div>
+                        <div className="flex gap-3 mt-1.5">
+                          <span className="text-[9px]" style={{ color: "#10b981" }}>✓ {lifecycle.summary.complete} done</span>
+                          {lifecycle.summary.started > 0 && <span className="text-[9px]" style={{ color: "#f59e0b" }}>◐ {lifecycle.summary.started} started</span>}
+                          {lifecycle.summary.empty > 0   && <span className="text-[9px]" style={{ color: "#94a3b8" }}>○ {lifecycle.summary.empty} empty</span>}
                         </div>
                       </div>
-                    );
-                  })()}
+                    )}
+
+                    {/* Next action hint */}
+                    {lifecycle?.nextAction && !genStatus && (
+                      <div className="px-3 pb-2 text-[9.5px] leading-relaxed" style={{ color: "#64748b" }}>
+                        {lifecycle.nextAction}
+                      </div>
+                    )}
+
+                    {/* Generate progress */}
+                    {genStatus && (
+                      <div className="px-3 pb-2">
+                        <div className="flex items-center gap-2 mb-1">
+                          {genStatus.running && (
+                            <span className="text-[9px] animate-pulse" style={{ color: "#6366f1" }}>⟳ Generating…</span>
+                          )}
+                          {genStatus.done && (
+                            <span className="text-[9px]" style={{ color: "#10b981" }}>✓ Done</span>
+                          )}
+                          <span className="text-[9px] truncate" style={{ color: "#64748b", maxWidth: 140 }}>
+                            {genStatus.current}
+                          </span>
+                        </div>
+                        {genStatus.total > 0 && (
+                          <div className="w-full rounded-full overflow-hidden" style={{ height: 3, background: "rgba(99,102,241,0.12)" }}>
+                            <div
+                              className="h-full rounded-full transition-all duration-300"
+                              style={{
+                                width: `${Math.round((genStatus.completed / genStatus.total) * 100)}%`,
+                                background: "#6366f1",
+                              }}
+                            />
+                          </div>
+                        )}
+                      </div>
+                    )}
+
+                    {/* Generate button */}
+                    {lifecycle && lifecycle.summary.empty + lifecycle.summary.started > 0 && !genStatus && (
+                      <div className="px-3 pb-3">
+                        <button
+                          onClick={() => startGenerateAll(activeProject.id)}
+                          className="w-full py-2 rounded-lg text-[11px] font-semibold transition-all"
+                          style={{ background: "#6366f1", color: "#ffffff", border: "none" }}
+                          onMouseEnter={e => { (e.currentTarget as HTMLElement).style.background = "#4f46e5"; }}
+                          onMouseLeave={e => { (e.currentTarget as HTMLElement).style.background = "#6366f1"; }}
+                        >
+                          ✦ Generate {lifecycle.summary.empty + lifecycle.summary.started} Missing Documents
+                        </button>
+                      </div>
+                    )}
+
+                    {/* All complete state */}
+                    {lifecycle && lifecycle.summary.empty === 0 && lifecycle.summary.started === 0 && !genStatus && (
+                      <div className="px-3 pb-3 text-[9.5px]" style={{ color: "#10b981" }}>
+                        ✓ All {lifecycle.summary.complete} documents are complete.
+                      </div>
+                    )}
+                  </div>
                 </div>
               )}
 
