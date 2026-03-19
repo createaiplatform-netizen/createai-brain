@@ -1,0 +1,49 @@
+MASTER INFRASTRUCTURE & PROJECT EXPANSION PROMPT:
+
+Objective: Upgrade the AI platform to world-class, industry-above level, fully automated, scalable, secure, and self-optimizing. Execute all tasks below without errors. Produce all outputs at maximum quality, efficiency, and compliance.
+
+1. INDUSTRY & NICHE EXPANSION:
+   - Generate schemas, scaffolds, and templates for every possible industry, sub-industry, and micro-niche. Include healthcare, finance, education, media, logistics, AI, software, legal, creative, entertainment, and futuristic sectors.
+   - Auto-generate hyper-specific project types with all required files, endpoints, and database structures.
+   - Ensure all projects include ownership checks, audit logging, concurrency guards, and RBAC enforcement.
+
+2. MEDIA & MULTIMODAL PIPELINES:
+   - Integrate video, audio, image, and interactive dashboard generation into all projects.
+   - Ensure media outputs are fully optimized for streaming, compression, and real-time access.
+   - Include support for AI-assisted content creation (summaries, captions, text-to-video/audio).
+
+3. ENCRYPTION & SECURITY:
+   - Apply multi-layered encryption for all data at rest and in transit.
+   - Include optional quantum-resistant and per-user/per-project keys.
+   - Invent and implement advanced encryption schemas if current standards are insufficient.
+   - Ensure production fails safely on missing or invalid keys; dev logs warnings only.
+
+4. PERFORMANCE & CONCURRENCY:
+   - Maximize concurrency handling for all `generate-all` streams with zero collisions.
+   - Optimize database queries with advanced indexing for all new schemas.
+   - Include automatic scaling mechanisms to prevent overload or slowdowns.
+   - Ensure all rate limiters, SSE buffering, and streaming headers are fully applied.
+
+5. OBSERVABILITY & COMPLIANCE:
+   - Log every project operation outcome, including success/failure, timestamps, and metadata.
+   - Apply global error handling for all endpoints; no crashes, clean JSON responses only.
+   - Include real-time monitoring dashboards for performance, concurrency, errors, and security alerts.
+   - Audit compliance against highest industry standards (HIPAA, SOC2, PCI DSS if relevant).
+
+6. SELF-OPTIMIZATION:
+   - Implement continuous benchmarking: compare all outputs against top industry and historical bests.
+   - Auto-optimize schemas, scaffolds, templates, and media generation for speed, efficiency, and minimal resource usage.
+   - Provide suggestions for new niche projects or media features automatically.
+   - Ensure all outputs are future-proof and above any current commercial platform.
+
+7. FINAL VERIFICATION:
+   - Run full typecheck and startup check: zero TypeScript errors, zero warnings.
+   - Validate all endpoints, RBAC, concurrency, media pipelines, encryption, and database performance.
+   - Confirm server fully operational; provide a detailed log of all schemas, projects, media modules, and encryption layers.
+
+Execution Mode:
+- Execute all steps simultaneously where possible, respecting dependencies.
+- Log all changes and fixes automatically.
+- Treat the platform as fully autonomous — all outputs must be ready for immediate deployment.
+
+END MASTER PROMPT

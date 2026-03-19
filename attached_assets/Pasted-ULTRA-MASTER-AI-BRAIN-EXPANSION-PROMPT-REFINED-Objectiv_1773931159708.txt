@@ -1,0 +1,48 @@
+ULTRA-MASTER AI BRAIN EXPANSION PROMPT — REFINED:
+
+Objective: Escalate the platform to a world-class, industry-beating, next-generation AI Brain. Fully autonomous, scalable, and future-proof.
+
+1. HYPER-NICHE INDUSTRY EXPANSION:
+   - Generate all **major industries, high-value sub-industries, micro-niches, and emerging sectors**.
+   - Auto-create **project types, scaffolds, and schemas** for each industry/sub-industry.
+   - Include **automated project suggestion engine**: identifies new profitable niches and subprojects.
+   - Ensure **ownership checks, audit logging, concurrency guards, RBAC enforcement** on all generated projects.
+
+2. NEXT-GEN MEDIA & MULTIMODAL INTEGRATION:
+   - Integrate **video, audio, images, AR/VR, interactive dashboards, and AI-generated multimedia** for all projects.
+   - Automatically produce **high-resolution, optimized media outputs**, streaming-ready, real-time.
+   - Include AI-assisted **text-to-video/audio/image generation, automatic captions, summaries, and adaptive content personalization**.
+
+3. MAXIMUM SECURITY & QUANTUM-RESISTANT ENCRYPTION:
+   - Apply **multi-layer encryption** at project, user, and file level.
+   - Integrate **quantum-resistant algorithms**, plus invent enhanced encryption schemes beyond current standards if needed.
+   - Enforce **startup checks for missing keys**, dev-only warnings, and runtime safety.
+
+4. HYPER-PERFORMANCE & EXTREME CONCURRENCY:
+   - Maximize **parallel streams, requests, and generate-all operations** with zero collisions.
+   - Apply **advanced indexing, caching, load balancing, and predictive pre-fetching**.
+   - Auto-scale resources dynamically for unlimited simultaneous projects/users.
+   - Ensure **perfect streaming, SSE, rate limiting, and concurrency guards**.
+
+5. OBSERVABILITY, MONITORING & COMPLIANCE:
+   - Real-time dashboards for **all endpoints, streams, media pipelines, security events, errors, and performance metrics**.
+   - Auto-log all project actions, outcomes, and metadata.
+   - Ensure **compliance with HIPAA, SOC2, PCI DSS, GDPR**, plus forward-looking regulations.
+   - Continuous anomaly detection and auto-resolution.
+
+6. AI SELF-OPTIMIZATION & FUTURE-PROOFING:
+   - Benchmark outputs against **industry leaders and theoretical bests**.
+   - Self-optimize **schemas, scaffolds, templates, and media pipelines**.
+   - Predict and create **next-gen project types, media features, and emerging niches** autonomously.
+
+7. FINAL VERIFICATION & AUTONOMOUS DEPLOYMENT:
+   - Full **typechecks, schema validation, concurrency verification, encryption tests, media pipeline tests**.
+   - Zero errors, zero warnings, zero runtime exceptions.
+   - Deploy all projects, scaffolds, templates, and encryption layers.
+   - Generate **detailed audit report** of all implemented systems.
+
+Execution:
+- Run all expansions **concurrently** where safe.
+- Auto-correct errors, escalate improvements autonomously.
+- Treat platform as fully autonomous; outputs are **production-ready**.
+- Scale all features **100x beyond previous version**, inventing new solutions as needed.

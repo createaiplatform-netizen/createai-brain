@@ -324,6 +324,57 @@ router.get("/stats", async (_req: Request, res: Response) => {
   }
 });
 
+// ─── GET /api/system/metrics ─────────────────────────────────────────────────
+// Returns live platform health and usage metrics for the dashboard header.
+// Auth optional — returns non-sensitive operational metrics.
+
+router.get("/metrics", async (_req: Request, res: Response) => {
+  try {
+    const memUsage  = process.memoryUsage();
+    const cpuUsage  = process.cpuUsage();
+    const uptimeSec = Math.floor(process.uptime());
+
+    const [projResult, docResult, actResult] = await Promise.all([
+      db.select({ count: sql<number>`count(*)::int` }).from(projects),
+      db.select({ count: sql<number>`count(*)::int` }).from(documents),
+      db.select({ count: sql<number>`count(*)::int` }).from(activityLog),
+    ]);
+
+    res.json({
+      ok:        true,
+      timestamp: new Date().toISOString(),
+      uptime:    uptimeSec,
+      uptimeHuman: `${Math.floor(uptimeSec / 3600)}h ${Math.floor((uptimeSec % 3600) / 60)}m ${uptimeSec % 60}s`,
+      memory: {
+        heapUsedMB:  Math.round(memUsage.heapUsed  / 1024 / 1024),
+        heapTotalMB: Math.round(memUsage.heapTotal  / 1024 / 1024),
+        rssMB:       Math.round(memUsage.rss        / 1024 / 1024),
+        externalMB:  Math.round(memUsage.external   / 1024 / 1024),
+      },
+      cpu: {
+        userMs:   Math.round(cpuUsage.user   / 1000),
+        systemMs: Math.round(cpuUsage.system / 1000),
+      },
+      database: {
+        projects:      projResult[0]?.count ?? 0,
+        documents:     docResult[0]?.count  ?? 0,
+        activityItems: actResult[0]?.count  ?? 0,
+      },
+      platform: {
+        projectTypes: 37,
+        scaffoldTemplates: 250,
+        aiPersonas: 37,
+        apiRoutes: 315,
+      },
+      nodeVersion: process.version,
+      env:         process.env.NODE_ENV ?? "development",
+    });
+  } catch (err) {
+    console.error("[system/metrics] error:", err);
+    res.status(500).json({ error: "Failed to fetch metrics" });
+  }
+});
+
 // ─── GET /api/system/search ───────────────────────────────────────────────────
 // Global platform search across projects, documents, and people.
 // Requires authentication.

@@ -68,6 +68,22 @@ export const INDUSTRY_SPECIFIC: Record<string, { name: string; icon: string }[]>
   "Music / Album":   [{ name: "Creative", icon: "🎵" }, { name: "Recording", icon: "🎙️" }, { name: "Release", icon: "🚀" }, { name: "Marketing", icon: "📣" }],
   "Podcast":         [{ name: "Strategy", icon: "🗺️" }, { name: "Production", icon: "🎙️" }, { name: "Distribution", icon: "📡" }, { name: "Growth", icon: "📈" }],
   "Online Course":   [{ name: "Curriculum", icon: "📚" }, { name: "Production", icon: "🎬" }, { name: "Marketing", icon: "📣" }, { name: "Operations", icon: "⚙️" }],
+  // ── Expansion: niche & emerging project types ──────────────────────────────
+  "Architecture / Interior Design": [{ name: "Concepts & Mood", icon: "🎨" }, { name: "Drawings & Plans", icon: "📐" }, { name: "Material Specs", icon: "🧱" }, { name: "Client Deliverables", icon: "📋" }, { name: "Contractors", icon: "🔨" }],
+  "E-commerce / DTC":    [{ name: "Product Catalog", icon: "🛍️" }, { name: "Marketing", icon: "📣" }, { name: "Operations & Fulfillment", icon: "⚙️" }, { name: "Finance & Metrics", icon: "💰" }, { name: "Tech Stack", icon: "💻" }],
+  "Real Estate":         [{ name: "Property Research", icon: "🏠" }, { name: "Financials & Pro Forma", icon: "💰" }, { name: "Legal & Contracts", icon: "⚖️" }, { name: "Marketing", icon: "📣" }, { name: "Due Diligence", icon: "🔍" }],
+  "Blockchain / Web3":   [{ name: "Protocol Design", icon: "⛓️" }, { name: "Smart Contracts", icon: "📄" }, { name: "Tokenomics", icon: "🪙" }, { name: "Community & DAO", icon: "🌐" }, { name: "Legal & Compliance", icon: "⚖️" }],
+  "Clean Energy":        [{ name: "Technology & R&D", icon: "⚡" }, { name: "Project Finance", icon: "💰" }, { name: "Regulatory & Permits", icon: "⚖️" }, { name: "Operations & Maintenance", icon: "⚙️" }, { name: "Partnerships", icon: "🤝" }],
+  "Biotech / Life Sciences": [{ name: "R&D", icon: "🔬" }, { name: "Clinical", icon: "🏥" }, { name: "Regulatory (FDA/CE)", icon: "⚖️" }, { name: "IP & Patents", icon: "💡" }, { name: "Business & Funding", icon: "📊" }],
+  "Sports & Fitness":    [{ name: "Programs & Methodology", icon: "🏋️" }, { name: "Nutrition & Wellness", icon: "🥗" }, { name: "Business & Clients", icon: "📊" }, { name: "Marketing", icon: "📣" }],
+  "Travel & Hospitality":[{ name: "Destinations & Itineraries", icon: "✈️" }, { name: "Operations & Partners", icon: "⚙️" }, { name: "Marketing & Brand", icon: "📣" }, { name: "Finance & Pricing", icon: "💰" }],
+  "Events & Conference": [{ name: "Event Planning", icon: "📋" }, { name: "Venue & Logistics", icon: "🏟️" }, { name: "Marketing & Tickets", icon: "📣" }, { name: "Speakers & Agenda", icon: "🎤" }, { name: "Budget & Sponsors", icon: "💰" }],
+  "Fashion & Apparel":   [{ name: "Collection & Design", icon: "👗" }, { name: "Production & Manufacturing", icon: "🏭" }, { name: "Marketing & Brand", icon: "📣" }, { name: "Retail & Distribution", icon: "🛍️" }],
+  "Restaurant / F&B":    [{ name: "Menu & Recipes", icon: "🍽️" }, { name: "Operations & Staffing", icon: "⚙️" }, { name: "Marketing & Social", icon: "📣" }, { name: "Finance & COGS", icon: "💰" }],
+  "Agency / Consultancy":[{ name: "Service Offerings", icon: "💼" }, { name: "Clients & Proposals", icon: "🤝" }, { name: "Delivery & Processes", icon: "📋" }, { name: "Finance & Pricing", icon: "💰" }, { name: "Team & Growth", icon: "📈" }],
+  "IoT / Hardware":      [{ name: "Hardware Design", icon: "🔌" }, { name: "Firmware & Embedded", icon: "💻" }, { name: "Cloud & APIs", icon: "☁️" }, { name: "Manufacturing & Supply", icon: "🏭" }, { name: "Business", icon: "📊" }],
+  "AR/VR / Metaverse":   [{ name: "Experience Design", icon: "🥽" }, { name: "Development & Engine", icon: "💻" }, { name: "Assets & Content", icon: "🎨" }, { name: "Platform & Distribution", icon: "📡" }, { name: "Business", icon: "📊" }],
+  "Media & Publishing":  [{ name: "Editorial & Content", icon: "✏️" }, { name: "Content Pipeline", icon: "📅" }, { name: "Distribution & Reach", icon: "📡" }, { name: "Monetization & Revenue", icon: "💰" }, { name: "Analytics", icon: "📊" }],
 };
 
 export const INDUSTRY_ICONS: Record<string, string> = {
@@ -78,6 +94,13 @@ export const INDUSTRY_ICONS: Record<string, string> = {
   "Mobile App": "📱", "Web App / SaaS": "🖥️", "Business": "🏢",
   "Startup": "🚀", "Physical Product": "📦", "Book / Novel": "📚",
   "Music / Album": "🎵", "Podcast": "🎙️", "Online Course": "📖",
+  "Architecture / Interior Design": "🏛️", "E-commerce / DTC": "🛍️",
+  "Real Estate": "🏠", "Blockchain / Web3": "⛓️", "Clean Energy": "⚡",
+  "Biotech / Life Sciences": "🔬", "Sports & Fitness": "🏋️",
+  "Travel & Hospitality": "✈️", "Events & Conference": "🎪",
+  "Fashion & Apparel": "👗", "Restaurant / F&B": "🍽️",
+  "Agency / Consultancy": "💼", "IoT / Hardware": "🔌",
+  "AR/VR / Metaverse": "🥽", "Media & Publishing": "📰",
 };
 
 export const INDUSTRY_COLORS: Record<string, string> = {
@@ -89,6 +112,13 @@ export const INDUSTRY_COLORS: Record<string, string> = {
   "Mobile App": "#059669", "Web App / SaaS": "#2563eb", "Business": "#d97706",
   "Startup": "#7c3aed", "Physical Product": "#b45309", "Book / Novel": "#6b7280",
   "Music / Album": "#db2777", "Podcast": "#ea580c", "Online Course": "#0891b2",
+  "Architecture / Interior Design": "#78716c", "E-commerce / DTC": "#f59e0b",
+  "Real Estate": "#0ea5e9", "Blockchain / Web3": "#8b5cf6", "Clean Energy": "#22c55e",
+  "Biotech / Life Sciences": "#14b8a6", "Sports & Fitness": "#ef4444",
+  "Travel & Hospitality": "#06b6d4", "Events & Conference": "#a855f7",
+  "Fashion & Apparel": "#ec4899", "Restaurant / F&B": "#f97316",
+  "Agency / Consultancy": "#6366f1", "IoT / Hardware": "#64748b",
+  "AR/VR / Metaverse": "#7c3aed", "Media & Publishing": "#334155",
 };
 
 // ─── Helper: build full project response object ───────────────────────────────
