@@ -1460,6 +1460,171 @@ interface ObservAudit {
   actionCounts?: { action: string; count: number }[];
 }
 
+// ─── ProjectGridView — Phase ∞+++++++ Adaptive Tile Grid Dashboard ────────────
+
+const GRID_INDUSTRY_COLORS: Record<string, string> = {
+  "Film / Movie": "#dc2626", "Documentary": "#0284c7", "Video Game": "#7c3aed",
+  "Book / Novel": "#6b7280", "Music / Album": "#db2777", "Podcast": "#ea580c",
+  "Online Course": "#0891b2", "Corporate Training": "#7c3aed", "HR / L&D": "#6366f1",
+  "Startup": "#8b5cf6", "Business": "#d97706", "Mobile App": "#059669",
+  "Web App / SaaS": "#2563eb", "Physical Product": "#b45309", "Architecture": "#0f766e",
+};
+
+interface GridProject {
+  id: string; name: string; industry: string; icon: string; color: string;
+  files: { content?: string | null }[];
+  status?: string;
+}
+
+function ProjectGridView({
+  projects,
+  onSelect,
+  onGenerate,
+  onNewProject,
+}: {
+  projects: GridProject[];
+  onSelect: (id: string) => void;
+  onGenerate: (id: string) => void;
+  onNewProject: () => void;
+}) {
+  const active   = projects.filter(p => (p.status ?? "active") !== "archived");
+  const totalEnr = active.reduce((s, p) => s + p.files.filter(f => (f.content ?? "").length > 80).length, 0);
+  const totalF   = active.reduce((s, p) => s + p.files.length, 0);
+  const platformEnr = totalF > 0 ? Math.round((totalEnr / totalF) * 100) : 0;
+
+  return (
+    <div style={{ flex: 1, overflowY: "auto", padding: "28px 32px", background: "#f8fafc" }}>
+      {/* Header */}
+      <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", marginBottom: 24 }}>
+        <div>
+          <div style={{ fontSize: 20, fontWeight: 800, color: "#1e293b", letterSpacing: "-0.02em" }}>
+            Your Projects
+          </div>
+          <div style={{ fontSize: 11, color: "#94a3b8", marginTop: 2 }}>
+            {active.length} active · {platformEnr}% platform enrichment
+          </div>
+        </div>
+        <button
+          onClick={onNewProject}
+          style={{
+            padding: "8px 18px", borderRadius: 22, border: "none", cursor: "pointer",
+            background: "linear-gradient(135deg, #6366f1, #8b5cf6)", color: "#fff",
+            fontSize: 12, fontWeight: 700, boxShadow: "0 4px 14px rgba(99,102,241,0.35)",
+          }}
+        >
+          + New Project
+        </button>
+      </div>
+
+      {/* Responsive tile grid */}
+      {active.length === 0 ? (
+        <div style={{ textAlign: "center", padding: "60px 0", color: "#94a3b8" }}>
+          <div style={{ fontSize: 40, marginBottom: 12 }}>📂</div>
+          <div style={{ fontSize: 14, fontWeight: 600, color: "#64748b" }}>No projects yet</div>
+          <div style={{ fontSize: 11, marginTop: 4 }}>Click "New Project" to get started</div>
+        </div>
+      ) : (
+        <div style={{
+          display: "grid",
+          gridTemplateColumns: "repeat(auto-fill, minmax(268px, 1fr))",
+          gap: 16,
+        }}>
+          {active.map(proj => {
+            const totalFiles  = proj.files.length;
+            const richFiles   = proj.files.filter(f => (f.content ?? "").length > 80).length;
+            const enrichPct   = totalFiles > 0 ? Math.round((richFiles / totalFiles) * 100) : 0;
+            const color       = GRID_INDUSTRY_COLORS[proj.industry] ?? proj.color ?? "#6366f1";
+            const enrichColor = enrichPct >= 80 ? "#10b981" : enrichPct >= 50 ? "#f59e0b" : "#6366f1";
+
+            return (
+              <div
+                key={proj.id}
+                onClick={() => onSelect(proj.id)}
+                style={{
+                  background: "#fff", borderRadius: 18, cursor: "pointer",
+                  border: "1px solid rgba(0,0,0,0.07)",
+                  boxShadow: "0 2px 12px rgba(0,0,0,0.05)",
+                  overflow: "hidden", transition: "box-shadow 0.2s, transform 0.15s",
+                  position: "relative",
+                }}
+                onMouseEnter={e => { (e.currentTarget as HTMLElement).style.boxShadow = "0 8px 28px rgba(0,0,0,0.12)"; (e.currentTarget as HTMLElement).style.transform = "translateY(-2px)"; }}
+                onMouseLeave={e => { (e.currentTarget as HTMLElement).style.boxShadow = "0 2px 12px rgba(0,0,0,0.05)"; (e.currentTarget as HTMLElement).style.transform = "none"; }}
+              >
+                {/* Color bar */}
+                <div style={{ height: 4, background: `linear-gradient(90deg, ${color}, ${color}60)` }} />
+
+                <div style={{ padding: "16px 18px 14px" }}>
+                  {/* Icon + name */}
+                  <div style={{ display: "flex", alignItems: "flex-start", gap: 10, marginBottom: 10 }}>
+                    <span style={{ fontSize: 26, flexShrink: 0, lineHeight: 1 }}>{proj.icon}</span>
+                    <div style={{ flex: 1, minWidth: 0 }}>
+                      <div style={{ fontSize: 14, fontWeight: 700, color: "#1e293b", lineHeight: 1.3,
+                        overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap" as const }}>
+                        {proj.name}
+                      </div>
+                      <div style={{ fontSize: 10, color: "#94a3b8", marginTop: 1 }}>{proj.industry}</div>
+                    </div>
+                  </div>
+
+                  {/* Enrichment bar */}
+                  <div style={{ marginBottom: 12 }}>
+                    <div style={{ display: "flex", justifyContent: "space-between", marginBottom: 3 }}>
+                      <span style={{ fontSize: 9, color: "#94a3b8", fontWeight: 600, textTransform: "uppercase" as const, letterSpacing: "0.07em" }}>Content enrichment</span>
+                      <span style={{ fontSize: 9, fontWeight: 800, color: enrichColor }}>{enrichPct}%</span>
+                    </div>
+                    <div style={{ height: 4, borderRadius: 99, background: "rgba(0,0,0,0.06)" }}>
+                      <div style={{ height: "100%", borderRadius: 99, background: enrichColor, width: `${enrichPct}%`, transition: "width 0.5s ease" }} />
+                    </div>
+                  </div>
+
+                  {/* Stats row */}
+                  <div style={{ display: "flex", gap: 10, marginBottom: 14 }}>
+                    <div style={{ flex: 1, padding: "6px 8px", borderRadius: 8, background: "#f8fafc", textAlign: "center" as const }}>
+                      <div style={{ fontSize: 16, fontWeight: 800, color: "#1e293b" }}>{totalFiles}</div>
+                      <div style={{ fontSize: 9, color: "#94a3b8" }}>docs</div>
+                    </div>
+                    <div style={{ flex: 1, padding: "6px 8px", borderRadius: 8, background: "#f8fafc", textAlign: "center" as const }}>
+                      <div style={{ fontSize: 16, fontWeight: 800, color: enrichColor }}>{richFiles}</div>
+                      <div style={{ fontSize: 9, color: "#94a3b8" }}>enriched</div>
+                    </div>
+                    <div style={{ flex: 1, padding: "6px 8px", borderRadius: 8, background: "#f8fafc", textAlign: "center" as const }}>
+                      <div style={{ fontSize: 16, fontWeight: 800, color: color }}>AI</div>
+                      <div style={{ fontSize: 9, color: "#94a3b8" }}>ready</div>
+                    </div>
+                  </div>
+
+                  {/* Action buttons */}
+                  <div style={{ display: "flex", gap: 6 }}>
+                    <button
+                      onClick={e => { e.stopPropagation(); onSelect(proj.id); }}
+                      style={{
+                        flex: 1, padding: "7px 0", borderRadius: 10, border: "1px solid rgba(0,0,0,0.09)",
+                        background: "#fff", color: "#475569", fontSize: 11, fontWeight: 600, cursor: "pointer",
+                      }}
+                    >
+                      Open →
+                    </button>
+                    <button
+                      onClick={e => { e.stopPropagation(); onSelect(proj.id); setTimeout(() => onGenerate(proj.id), 50); }}
+                      style={{
+                        flex: 1, padding: "7px 0", borderRadius: 10, border: "none",
+                        background: `linear-gradient(135deg, ${color}, ${color}cc)`,
+                        color: "#fff", fontSize: 11, fontWeight: 700, cursor: "pointer",
+                      }}
+                    >
+                      ✦ Generate
+                    </button>
+                  </div>
+                </div>
+              </div>
+            );
+          })}
+        </div>
+      )}
+    </div>
+  );
+}
+
 // ─── SuggestedNextRenders — Phase ∞++ Smart Render Engine ─────────────────────
 
 interface NextRenderSuggestion {
@@ -2111,6 +2276,7 @@ export function ProjectOSApp() {
   const [genomeExpanded, setGenomeExpanded] = useState(false);
   const [editProjectNameVal, setEditProjectNameVal] = useState("");
   const [showArchived, setShowArchived] = useState(false);
+  const [projViewMode, setProjViewMode] = useState<"list" | "grid">("list");
   // ── Shared With Me / Suggested / Opportunities state ──
   const [sharedProjects, setSharedProjects] = useState<SharedProject[]>([]);
   const [sharedLoading, setSharedLoading]   = useState(false);
@@ -3193,6 +3359,13 @@ export function ProjectOSApp() {
             style={{ background: "rgba(99,102,241,0.14)", color: "#818cf8" }}
             title="Search all"
           >🔍</button>
+          {/* Grid / List toggle */}
+          <button
+            onClick={() => setProjViewMode(v => v === "list" ? "grid" : "list")}
+            className="w-7 h-7 rounded-lg flex items-center justify-center text-[12px]"
+            style={{ background: projViewMode === "grid" ? "rgba(99,102,241,0.30)" : "rgba(99,102,241,0.10)", color: "#818cf8" }}
+            title={projViewMode === "grid" ? "Switch to list view" : "Switch to grid view"}
+          >{projViewMode === "grid" ? "☰" : "⊞"}</button>
         </div>
 
         {/* Active / Archived toggle */}
@@ -3438,7 +3611,20 @@ export function ProjectOSApp() {
       </div>
 
       {/* ── Main Area ─────────────────────────────────────────────────────── */}
-      {!activeProject ? (
+      {!activeProject && projViewMode === "grid" ? (
+        /* ── Grid View Dashboard (Phase ∞+++++++) ── */
+        <ProjectGridView
+          projects={projects}
+          onSelect={id => { setActiveProjectId(id); setActiveFolderId(null); setProjViewMode("list"); }}
+          onGenerate={id => {
+            setActiveProjectId(id);
+            setActiveFolderId(null);
+            setProjViewMode("list");
+            setTimeout(() => setShowRenderEngine(true), 80);
+          }}
+          onNewProject={() => setShowNewProject(true)}
+        />
+      ) : !activeProject ? (
         <div className="flex-1 flex flex-col overflow-hidden">
           {/* ── Project Tiles Dashboard ── */}
           <div className="flex-1 overflow-y-auto px-8 py-8">

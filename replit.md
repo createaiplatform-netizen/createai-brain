@@ -1111,3 +1111,24 @@ Utility scripts package. Each script is a `.ts` file in `src/` with a correspond
 - **Frontend**: `🧠 Smart Fill` button appears in file viewer toolbar whenever the current file has `[` characters and is not in edit mode
 - Shows "Filling…" spinner while running; on success shows `✓ Filled {n}/{total}` for 4 seconds
 - File content in the viewer updates live; project file state refreshed in memory
+
+---
+
+## Phase ∞+++++++ Adaptive Tile Grid Dashboard (completed)
+
+### ⊞ Project Grid View
+- **Toggle**: `⊞` button in the project sidebar header switches between list and grid mode (`projViewMode: "list" | "grid"`)
+- **Grid component**: `ProjectGridView` renders a responsive `auto-fill, minmax(268px, 1fr)` CSS grid of all active projects
+- **Each tile shows**: industry color bar accent, project icon + name + industry, animated enrichment progress bar (green/amber/indigo), docs count / enriched count / AI-ready mini-stat cards, "Open →" and "✦ Generate" action buttons
+- **Generate button**: auto-selects the project and opens the Render Engine immediately, then returns to list mode
+- **Platform header**: shows total active count + platform-wide enrichment % computed from all project files
+- **Hover effect**: tile lifts with `translateY(-2px)` + heavier box shadow on hover
+- Gracefully shows empty state with dashed card when no active projects
+
+### 📊 GET /api/generate/analytics/:projectId (REST endpoint)
+- DB-backed analytics per project: `totalFiles`, `enrichedFiles`, `enrichmentPercent`, `byType` (count per fileType), `topFiles` (top 5 by char count)
+- Used by the Analytics Dashboard drill-down panel (Row 3)
+
+### Analytics Drill-Down Panel
+- Row 3 in the Analytics dashboard: left column = project selector buttons (up to 8); right column = live backend data on click
+- Shows enrichment bar, `byType` tags, top enriched files list (with char counts)
