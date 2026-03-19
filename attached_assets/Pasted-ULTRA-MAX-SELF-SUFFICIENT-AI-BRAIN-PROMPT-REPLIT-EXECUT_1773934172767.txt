@@ -1,0 +1,53 @@
+ULTRA-MAX+ SELF-SUFFICIENT AI BRAIN PROMPT — REPLIT EXECUTION
+
+Objective: Upgrade the AI platform to an unprecedented, fully autonomous, industry-above, future-proof AI Brain. All features must operate without dependency on external providers, fully self-hosted, scalable to global user levels, and capable of inventing new solutions autonomously.
+
+1. SELF-HOSTED AUTONOMY:
+   - Enable the platform to **create, manage, and virtualize its own compute, storage, media pipelines, and domain resolution**, eliminating reliance on external servers, cloud providers, or paid services.
+   - Dynamically scale internal resources for **unlimited global users** and project generation.
+   - Include intelligent **resource optimization** for CPU, GPU, memory, and disk usage to avoid bottlenecks.
+
+2. NEXT-GEN ENCRYPTION & STORAGE:
+   - Implement **quantum-resistant, per-project/user encryption** across all storage and transit layers.
+   - Invent and deploy **advanced, self-optimizing encryption, compression, and distributed storage schemes** beyond current commercial standards.
+   - Include **full startup and runtime verification** for all keys, encryption routines, and storage integrity.
+
+3. HYPER-NICHE INDUSTRY & PROJECT DISCOVERY:
+   - Expand the platform to **autonomously discover new industries, emerging niches, micro-niches, and project types** based on AI trend analysis.
+   - Auto-generate **schemas, scaffolds, templates, and expert personas** for each new niche.
+   - Maintain **full RBAC enforcement, ownership checks, concurrency guards, and audit logging** on all dynamically generated projects.
+
+4. MULTIMODAL MEDIA & CONTENT AUTONOMY:
+   - Integrate AI-generated **video, audio, image, AR/VR, interactive dashboards**, and any required media pipelines for all projects.
+   - Ensure **full streaming, compression, optimization, and real-time content rendering**.
+   - Auto-generate **captions, summaries, translations, and adaptive content personalization**.
+
+5. PERFORMANCE & EXTREME CONCURRENCY:
+   - Handle **unlimited simultaneous generate-all streams** with zero collisions.
+   - Implement predictive **caching, indexing, and pre-fetching** for all data and media.
+   - Dynamically scale AI computations, memory, and storage to meet global demand.
+   - Maintain **SSE buffering, rate limiting, concurrency telemetry, and full logging** for all active streams.
+
+6. OBSERVABILITY, MONITORING & COMPLIANCE:
+   - Real-time **observability dashboards** showing server health, active streams, database stats, recent activity, action frequency, and global performance metrics.
+   - Enhanced **audit log endpoints** for querying activity across all projects, users, and actions.
+   - Ensure **compliance with HIPAA, SOC2, PCI DSS, GDPR**, and incorporate **forward-looking regulatory readiness**.
+   - Include **anomaly detection and auto-resolution** for errors, performance issues, or security breaches.
+
+7. AI SELF-OPTIMIZATION & FUTURE-PROOFING:
+   - Continuously benchmark against **industry leaders and theoretical bests**.
+   - Self-optimize schemas, scaffolds, templates, and media pipelines for **efficiency, speed, and minimal resource usage**.
+   - Proactively invent **next-gen project types, media features, and unexplored niches** autonomously.
+   - Auto-upgrade encryption, storage, and compute methods as new technology standards evolve.
+
+8. FINAL VERIFICATION & AUTONOMOUS DEPLOYMENT:
+   - Execute **full typechecks, schema validation, concurrency verification, encryption/storage/media integrity tests**.
+   - Ensure **zero TypeScript errors, zero runtime warnings, zero crashes**.
+   - Deploy all new projects, scaffolds, templates, media, and encryption layers fully integrated.
+   - Generate **complete audit and system report** detailing all expansions and innovations.
+
+Execution Instructions:
+- Execute all expansions **concurrently where safe**.
+- Auto-correct errors, escalate improvements autonomously.
+- Treat the platform as **fully autonomous and production-ready**; all outputs must be deployable immediately.
+- **Scale features 100x beyond previous versions**, inventing new solutions where necessary.
