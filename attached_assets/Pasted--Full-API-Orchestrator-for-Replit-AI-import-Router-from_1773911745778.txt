@@ -1,0 +1,78 @@
+// === Full API Orchestrator for Replit AI ===
+
+import { Router } from 'express';
+import { container } from '../di-container'; // your DI setup
+import { ExecutionStore } from '../services/executionStore'; // DI singleton
+import { generateProject } from './projectService';
+import { runStaffingTask } from './staffingService';
+import { runLegalTask } from './legalService';
+import { runHealthTask } from './healthService';
+import { runChatTask } from './chatService';
+
+const router = Router();
+
+// Map domain keys to actual backend functions
+const domainActions: Record<string, (...args: any[]) => Promise<any>> = {
+  project: generateProject,
+  staffing: runStaffingTask,
+  legal: runLegalTask,
+  health: runHealthTask,
+  chat: runChatTask,
+};
+
+// Helper to save execution step
+async function recordExecution(workflow: string, step: string, status: 'running' | 'completed' | 'failed', details?: any) {
+  const store: ExecutionStore = container.resolve(ExecutionStore);
+  await store.save({
+    executionId: `${workflow}-${Date.now()}`,
+    workflow,
+    step,
+    status,
+    timestamp: Date.now(),
+    details,
+  });
+}
+
+// Orchestrator endpoint
+router.post('/api/ai/orchestrate', async (req, res) => {
+  const { actions, params } = req.body as { actions: string[]; params?: Record<string, any> };
+
+  if (!actions || !Array.isArray(actions) || actions.length === 0) {
+    return res.status(400).json({ error: 'No actions provided' });
+  }
+
+  const results: Record<string, any> = {};
+
+  for (const action of actions) {
+    const fn = domainActions[action];
+    if (!fn) {
+      results[action] = { error: 'Unknown action' };
+      continue;
+    }
+
+    try {
+      await recordExecution(action, 'start', 'running');
+      const result = await fn(params?.[action] || {});
+      await recordExecution(action, 'finish', 'completed', result);
+      results[action] = { status: 'completed', result };
+    } catch (err: any) {
+      await recordExecution(action, 'error', 'failed', { message: err.message });
+      results[action] = { status: 'failed', error: err.message };
+    }
+  }
+
+  res.json({ status: 'done', results });
+});
+
+// Expose Replit AI helpers
+router.get('/api/ai/dashboard', async (_req, res) => {
+  const store: ExecutionStore = container.resolve(ExecutionStore);
+  const executions = await store.list(); // newest first already implemented
+  res.json({ status: 'success', data: executions });
+});
+
+router.get('/api/ai/health', (_req, res) => {
+  res.json({ status: 'OK', timestamp: Date.now() });
+});
+
+export default router;
