@@ -15,7 +15,7 @@ const router: IRouter = Router();
 
 // ─── Industry config (mirrors frontend) ──────────────────────────────────────
 
-const UNIVERSAL_FOLDERS = [
+export const UNIVERSAL_FOLDERS = [
   { name: "Apps",              icon: "🧩", isUniversal: true },
   { name: "Demo Mode",         icon: "🎭", isUniversal: true },
   { name: "Test Mode",         icon: "🧪", isUniversal: true },
@@ -27,7 +27,7 @@ const UNIVERSAL_FOLDERS = [
   { name: "Data",              icon: "🗄️", isUniversal: true },
 ];
 
-const INDUSTRY_SPECIFIC: Record<string, { name: string; icon: string }[]> = {
+export const INDUSTRY_SPECIFIC: Record<string, { name: string; icon: string }[]> = {
   // ── Traditional industries ────────────────────────────────────────────────
   Healthcare:        [{ name: "Regulations", icon: "⚖️" }, { name: "Patient Records", icon: "🏥" }, { name: "Compliance", icon: "✅" }],
   Construction:      [{ name: "Plans & Blueprints", icon: "📐" }, { name: "Safety", icon: "🦺" }, { name: "Permits", icon: "📋" }, { name: "Equipment", icon: "🚧" }],
@@ -55,7 +55,7 @@ const INDUSTRY_SPECIFIC: Record<string, { name: string; icon: string }[]> = {
   "Online Course":   [{ name: "Curriculum", icon: "📚" }, { name: "Production", icon: "🎬" }, { name: "Marketing", icon: "📣" }, { name: "Operations", icon: "⚙️" }],
 };
 
-const INDUSTRY_ICONS: Record<string, string> = {
+export const INDUSTRY_ICONS: Record<string, string> = {
   Healthcare: "🏥", Construction: "🏗️", Hunting: "🦌", Farming: "🌾",
   Education: "📚", Logistics: "🚛", Legal: "⚖️", Technology: "💻",
   Nonprofit: "❤️", Retail: "🛒", General: "📁",
@@ -65,7 +65,7 @@ const INDUSTRY_ICONS: Record<string, string> = {
   "Music / Album": "🎵", "Podcast": "🎙️", "Online Course": "📖",
 };
 
-const INDUSTRY_COLORS: Record<string, string> = {
+export const INDUSTRY_COLORS: Record<string, string> = {
   Healthcare: "#10b981", Construction: "#f97316", Hunting: "#78716c",
   Farming: "#84cc16", Education: "#6366f1", Logistics: "#0ea5e9",
   Legal: "#8b5cf6", Technology: "#06b6d4", Nonprofit: "#ec4899",

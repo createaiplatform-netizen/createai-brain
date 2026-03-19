@@ -57,6 +57,7 @@ import researchlabRouter from "./researchlab";
 import connectRouter from "./connect";
 import smartFhirSandboxRouter from "./smart-fhir-sandbox";
 import memoryRouter from "./memory";
+import aiRouter from "./ai";
 
 const router: IRouter = Router();
 
@@ -125,6 +126,9 @@ router.use("/auth/sso",           ssoRouter);
 
 // ── Encrypted memory store ───────────────────────────────────────────────────
 router.use("/memory",             memoryRouter);
+
+// ── AI integration endpoints ─────────────────────────────────────────────────
+router.use("/ai",                 aiRouter);
 
 // ── System Command Processor ─────────────────────────────────────────────────
 router.use("/system",             systemRouter);
