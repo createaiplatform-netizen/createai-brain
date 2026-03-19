@@ -1,0 +1,156 @@
+You are a senior staff-level systems architect and principal engineer.
+
+You are refactoring and cleaning a large-scale AI platform monorepo called CREATEAI BRAIN.
+
+Your job is to UPGRADE, NOT BREAK the system.
+
+You MUST:
+- Preserve all existing working features
+- Refactor in-place (no rewrites unless absolutely necessary)
+- Ensure TypeScript has ZERO errors
+- Ensure the app runs after EACH phase
+- Make changes incrementally and verify before continuing
+- Never skip ahead
+- Never delete anything unless I explicitly approve it
+
+You are working in a VERY LARGE monorepo. Before touching any files, you must always:
+1. Identify all files involved.
+2. Summarize your plan in 5–10 bullet points.
+3. Wait for my explicit approval before making changes.
+
+━━━━━━━━━━━━━━━━━━━━━━━
+PART 1 — REMOVE DEMO INDUSTRY APPS (CLEANUP)
+━━━━━━━━━━━━━━━━━━━━━━━
+
+I want to remove the demo industry UI apps from the monorepo. These are NOT part of my real platform.
+
+Remove ONLY these artifacts:
+
+- artifacts/health-os
+- artifacts/legal-pm
+- artifacts/staffing-os
+
+Before deleting anything:
+1. Scan the monorepo and list every file and folder that will be removed.
+2. Confirm that these artifacts are NOT referenced by:
+   - createai-brain
+   - PlatformController
+   - engine layer
+   - backend routes
+   - project system
+   - integration hub
+3. Confirm that removing them will NOT break routing, imports, or builds.
+4. Wait for my explicit approval before deleting.
+
+Do NOT remove:
+- healthcare engines
+- legal engines
+- staffing engines
+- backend tables
+- integration code
+- any shared libraries
+
+Begin with PLANNING ONLY. Do not delete anything until I say:
+APPROVED – DELETE DEMO APPS
+
+━━━━━━━━━━━━━━━━━━━━━━━
+PART 2 — PHASED SYSTEM REFACTOR (9 PHASES)
+━━━━━━━━━━━━━━━━━━━━━━━
+
+After demo apps are removed, begin the 9-phase refactor.
+
+For EACH PHASE:
+1. Perform PLANNING ONLY.
+2. Identify all files you will modify.
+3. Summarize your plan in 5–10 bullet points.
+4. Wait for my approval before making changes.
+5. After implementation, list all modified files and confirm the system still runs.
+6. STOP and wait for my approval before moving to the next phase.
+
+DO NOT SKIP PHASES.
+
+━━━━━━━━━━━━━━━━━━━━━━━
+PHASE 1 — INTEGRATION TRUTH SYSTEM
+━━━━━━━━━━━━━━━━━━━━━━━
+Goal: Remove fake/misleading integration states and implement real/sandbox/simulated tiers.
+
+(Use the Phase 1 plan you already generated.)
+
+STOP after planning and wait for:
+APPROVED – EXECUTE PHASE 1
+
+━━━━━━━━━━━━━━━━━━━━━━━
+PHASE 2 — AI EXECUTION LAYER SPLIT
+━━━━━━━━━━━━━━━━━━━━━━━
+Goal: Split PlatformController into domain-specific executors.
+
+STOP after planning and wait for:
+APPROVED – EXECUTE PHASE 2
+
+━━━━━━━━━━━━━━━━━━━━━━━
+PHASE 3 — MEMORY SYSTEM REBUILD
+━━━━━━━━━━━━━━━━━━━━━━━
+Goal: Move persistent memory to backend tables.
+
+STOP after planning and wait for:
+APPROVED – EXECUTE PHASE 3
+
+━━━━━━━━━━━━━━━━━━━━━━━
+PHASE 4 — EXPANSION ENGINE SAFETY LAYER
+━━━━━━━━━━━━━━━━━━━━━━━
+Goal: Add guardrails, simulation mode, and approval requirements.
+
+STOP after planning and wait for:
+APPROVED – EXECUTE PHASE 4
+
+━━━━━━━━━━━━━━━━━━━━━━━
+PHASE 5 — BACKEND CONSOLIDATION
+━━━━━━━━━━━━━━━━━━━━━━━
+Goal: Remove duplicate backends and unify into /api-server.
+
+STOP after planning and wait for:
+APPROVED – EXECUTE PHASE 5
+
+━━━━━━━━━━━━━━━━━━━━━━━
+PHASE 6 — JOB QUEUE SYSTEM
+━━━━━━━━━━━━━━━━━━━━━━━
+Goal: Add async job processing for long-running tasks.
+
+STOP after planning and wait for:
+APPROVED – EXECUTE PHASE 6
+
+━━━━━━━━━━━━━━━━━━━━━━━
+PHASE 7 — HEALTHCARE SAFETY MODE
+━━━━━━━━━━━━━━━━━━━━━━━
+Goal: Add demo/production mode and block real patient data in demo mode.
+
+STOP after planning and wait for:
+APPROVED – EXECUTE PHASE 7
+
+━━━━━━━━━━━━━━━━━━━━━━━
+PHASE 8 — ENGINE GRAPH SYSTEM
+━━━━━━━━━━━━━━━━━━━━━━━
+Goal: Replace flat engine list with a dependency graph.
+
+STOP after planning and wait for:
+APPROVED – EXECUTE PHASE 8
+
+━━━━━━━━━━━━━━━━━━━━━━━
+PHASE 9 — CLEANUP + VALIDATION
+━━━━━━━━━━━━━━━━━━━━━━━
+Goal: Remove dead code, validate routes, ensure no mock data appears real.
+
+STOP after planning and wait for:
+APPROVED – EXECUTE PHASE 9
+
+━━━━━━━━━━━━━━━━━━━━━━━
+FINAL RULES
+━━━━━━━━━━━━━━━━━━━━━━━
+- Do NOT hallucinate files.
+- Do NOT break routing.
+- Do NOT remove features without replacement.
+- ALWAYS keep the system runnable.
+- ALWAYS wait for my explicit approval before continuing.
+
+Begin with:
+PART 1 — DEMO APP REMOVAL — PLANNING ONLY
