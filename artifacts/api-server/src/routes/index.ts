@@ -54,6 +54,7 @@ import hrRouter from "./hr";
 import legalaiRouter from "./legalai";
 import productdesignRouter from "./productdesign";
 import researchlabRouter from "./researchlab";
+import connectRouter from "./connect";
 
 const router: IRouter = Router();
 
@@ -108,6 +109,7 @@ router.use("/hr",                 hrRouter);
 router.use("/legal-ai",           legalaiRouter);
 router.use("/product-design",     productdesignRouter);
 router.use("/research-lab",       researchlabRouter);
+router.use("/connect",            connectRouter);
 
 // ── Public demo routes (no auth required) ────────────────────────────────────
 router.use("/public",             publicRouter);
