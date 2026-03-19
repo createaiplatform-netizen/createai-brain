@@ -1,4 +1,4 @@
-import { boolean, integer, pgTable, serial, text, timestamp } from "drizzle-orm/pg-core";
+import { boolean, integer, pgTable, serial, text, timestamp, index } from "drizzle-orm/pg-core";
 import { createInsertSchema } from "drizzle-zod";
 import { z } from "zod/v4";
 
@@ -14,7 +14,9 @@ export const projectFolders = pgTable("project_folders", {
   isUniversal: boolean("is_universal").notNull().default(false),
   position: integer("position").notNull().default(0),
   createdAt: timestamp("created_at", { withTimezone: true }).defaultNow().notNull(),
-});
+}, (table) => ({
+  projectIdIdx: index("project_folders_project_id_idx").on(table.projectId),
+}));
 
 export const insertProjectFolderSchema = createInsertSchema(projectFolders).omit({
   id: true,

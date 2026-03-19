@@ -22,10 +22,13 @@ const KEY_ENV   = "ENCRYPTION_KEY";
 function getKey(): Buffer | null {
   const hex = process.env[KEY_ENV];
   if (!hex || hex.length !== 64) {
-    if (process.env.NODE_ENV !== "production") {
-      // Dev fallback — log a warning, never throw
-      console.warn("[encryption] ENCRYPTION_KEY not set. Sensitive fields stored unencrypted.");
+    if (process.env.NODE_ENV === "production") {
+      throw new Error(
+        "[encryption] ENCRYPTION_KEY is required in production. " +
+        "Set a 64-character hex string (32 random bytes) in the environment secrets.",
+      );
     }
+    console.warn("[encryption] ENCRYPTION_KEY not set. Sensitive fields stored unencrypted. (dev-only)");
     return null;
   }
   return Buffer.from(hex, "hex");

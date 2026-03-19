@@ -1,4 +1,4 @@
-import express, { type Express } from "express";
+import express, { type Express, type Request, type Response, type NextFunction } from "express";
 import cors from "cors";
 import helmet from "helmet";
 import cookieParser from "cookie-parser";
@@ -48,5 +48,15 @@ app.use(authMiddleware);
 app.use(scopeMiddleware);
 
 app.use("/api", router);
+
+// ── Global error handler (M-17) ──────────────────────────────────────────────
+// Must be registered AFTER all routes. Express identifies error handlers by
+// their 4-argument signature; the unused _next is required.
+// eslint-disable-next-line @typescript-eslint/no-unused-vars
+app.use((err: Error, _req: Request, res: Response, _next: NextFunction): void => {
+  console.error("[global-error]", err.stack ?? err.message);
+  if (res.headersSent) return;
+  res.status(500).json({ error: "Internal Server Error" });
+});
 
 export default app;

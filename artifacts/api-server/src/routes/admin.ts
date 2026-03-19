@@ -28,8 +28,10 @@ const router = Router();
 /** Only founder or admin role can access admin routes */
 function requireAdmin(req: Request, res: Response, next: () => void) {
   if (!req.user) { res.status(401).json({ error: "Unauthorized" }); return; }
-  // For now, all authenticated users get admin access in single-tenant mode.
-  // Replace with: if (!["founder","admin"].includes(req.user.role)) to enforce.
+  if (!["founder", "admin"].includes((req.user as { role?: string }).role ?? "")) {
+    res.status(403).json({ error: "Forbidden: admin or founder role required" });
+    return;
+  }
   next();
 }
 

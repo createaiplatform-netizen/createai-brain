@@ -16,6 +16,18 @@ import { heavyLimiter } from "../middlewares/rateLimiters";
 
 const router: IRouter = Router();
 
+// ─── Helpers ──────────────────────────────────────────────────────────────────
+
+/** Parse an integer path/query param; sends 400 and returns null if invalid (C-05). */
+function parseIdOrReject(raw: string, field: string, res: Response): number | null {
+  const n = parseInt(raw, 10);
+  if (isNaN(n) || n <= 0) {
+    res.status(400).json({ error: `Invalid ${field}: must be a positive integer` });
+    return null;
+  }
+  return n;
+}
+
 // ─── Industry config (mirrors frontend) ──────────────────────────────────────
 
 export const UNIVERSAL_FOLDERS = [
@@ -279,6 +291,10 @@ router.get("/shared-with-me", async (req: Request, res: Response) => {
 router.post("/reset-my-space", async (req: Request, res: Response) => {
   const userId = requireAuth(req, res);
   if (!userId) return;
+  if ((req.body as { confirm?: string })?.confirm !== "DELETE_ALL") {
+    res.status(400).json({ error: 'Confirm required: pass { "confirm": "DELETE_ALL" } in request body (H-07)' });
+    return;
+  }
   try {
     await db
       .update(projects)
@@ -715,9 +731,13 @@ router.delete("/:id", audit("delete_project", "project"), async (req: Request, r
 // ─── FOLDERS ──────────────────────────────────────────────────────────────
 
 router.get("/:id/folders", async (req: Request, res: Response) => {
-  if (!requireAuth(req, res)) return;
+  const userId = requireAuth(req, res);
+  if (!userId) return;
   try {
-    const projectId = parseInt(req.params.id as string, 10);
+    const projectId = parseIdOrReject(req.params.id as string, "id", res);
+    if (projectId === null) return;
+    const [ownerCheck] = await db.select().from(projects).where(and(eq(projects.id, projectId), eq(projects.userId, userId)));
+    if (!ownerCheck) { res.status(404).json({ error: "Project not found" }); return; }
     const folders = await db
       .select()
       .from(projectFolders)
@@ -730,12 +750,15 @@ router.get("/:id/folders", async (req: Request, res: Response) => {
 });
 
 router.post("/:id/folders", async (req: Request, res: Response) => {
-  if (!requireAuth(req, res)) return;
+  const userId = requireAuth(req, res);
+  if (!userId) return;
   try {
-    const projectId = parseInt(req.params.id as string, 10);
+    const projectId = parseIdOrReject(req.params.id as string, "id", res);
+    if (projectId === null) return;
     const { name, icon = "📁" } = req.body as { name: string; icon?: string };
     if (!name?.trim()) { res.status(400).json({ error: "name required" }); return; }
-
+    const [ownerCheck] = await db.select().from(projects).where(and(eq(projects.id, projectId), eq(projects.userId, userId)));
+    if (!ownerCheck) { res.status(404).json({ error: "Project not found" }); return; }
     const existing = await db.select().from(projectFolders).where(eq(projectFolders.projectId, projectId));
 
     const [folder] = await db
@@ -792,9 +815,13 @@ router.delete("/:id/folders/:folderId", async (req: Request, res: Response) => {
 // ─── FILES ────────────────────────────────────────────────────────────────
 
 router.get("/:id/files", async (req: Request, res: Response) => {
-  if (!requireAuth(req, res)) return;
+  const userId = requireAuth(req, res);
+  if (!userId) return;
   try {
-    const projectId = parseInt(req.params.id as string, 10);
+    const projectId = parseIdOrReject(req.params.id as string, "id", res);
+    if (projectId === null) return;
+    const [ownerCheck] = await db.select().from(projects).where(and(eq(projects.id, projectId), eq(projects.userId, userId)));
+    if (!ownerCheck) { res.status(404).json({ error: "Project not found" }); return; }
     const files = await db
       .select()
       .from(projectFiles)
@@ -815,9 +842,13 @@ router.get("/:id/files", async (req: Request, res: Response) => {
 });
 
 router.post("/:id/files", audit("create_file", "project_file"), async (req: Request, res: Response) => {
-  if (!requireAuth(req, res)) return;
+  const userId = requireAuth(req, res);
+  if (!userId) return;
   try {
-    const projectId = parseInt(req.params.id as string, 10);
+    const projectId = parseIdOrReject(req.params.id as string, "id", res);
+    if (projectId === null) return;
+    const [ownerCheck] = await db.select().from(projects).where(and(eq(projects.id, projectId), eq(projects.userId, userId)));
+    if (!ownerCheck) { res.status(404).json({ error: "Project not found" }); return; }
     const { name, content = "", fileType = "document", folderId, size = "0 KB" } = req.body as {
       name: string;
       content?: string;

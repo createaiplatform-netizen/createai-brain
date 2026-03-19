@@ -1,10 +1,18 @@
-import rateLimit from "express-rate-limit";
+import rateLimit, { ipKeyGenerator, type Options } from "express-rate-limit";
+import type { Request } from "express";
+
+// All limiters key by authenticated userId when present, falling back to
+// ipKeyGenerator (handles IPv6 normalisation) for unauthenticated requests.
+const userOrIpKey: Options["keyGenerator"] = (req: Request) =>
+  (req.user as { id?: string } | undefined)?.id ??
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  ipKeyGenerator(req as unknown as any);
 
 /** Project chat: 60 req/min per authenticated user */
 export const chatLimiter = rateLimit({
   windowMs: 60_000,
   max: 60,
-  keyGenerator: (req) => (req.user as { id?: string } | undefined)?.id ?? req.ip ?? "anon",
+  keyGenerator: userOrIpKey,
   standardHeaders: true,
   legacyHeaders:  false,
   message: { error: "Too many chat requests — please slow down." },
@@ -15,7 +23,7 @@ export const chatLimiter = rateLimit({
 export const heavyLimiter = rateLimit({
   windowMs: 60_000,
   max: 10,
-  keyGenerator: (req) => (req.user as { id?: string } | undefined)?.id ?? req.ip ?? "anon",
+  keyGenerator: userOrIpKey,
   standardHeaders: true,
   legacyHeaders:  false,
   message: { error: "Too many generation requests — please wait a moment." },
@@ -26,7 +34,7 @@ export const heavyLimiter = rateLimit({
 export const editLimiter = rateLimit({
   windowMs: 60_000,
   max: 30,
-  keyGenerator: (req) => (req.user as { id?: string } | undefined)?.id ?? req.ip ?? "anon",
+  keyGenerator: userOrIpKey,
   standardHeaders: true,
   legacyHeaders:  false,
   message: { error: "Too many edit requests — please slow down." },

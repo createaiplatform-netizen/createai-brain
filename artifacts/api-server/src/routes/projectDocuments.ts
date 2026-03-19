@@ -39,6 +39,11 @@ import { heavyLimiter, editLimiter } from "../middlewares/rateLimiters";
 
 const router: IRouter = Router();
 
+// ── In-process concurrency guard (H-06) ──────────────────────────────────────
+// Prevents two simultaneous generate-all streams on the same project.
+// Single-process safe; backed by a module-level Set so it survives requests.
+const activeGenerations = new Set<number>();
+
 // ─── Auth guard ───────────────────────────────────────────────────────────────
 
 function requireAuth(req: Request, res: Response): string | null {
@@ -75,6 +80,7 @@ function recommendedAction(complete: number, started: number, empty: number, pro
 
 router.get(
   "/:projectId/lifecycle",
+  editLimiter,
   audit("read_project_lifecycle", "project_lifecycle"),
   async (req: Request, res: Response) => {
     const userId = requireAuth(req, res);
@@ -206,6 +212,7 @@ router.get(
 // POST /:projectId/genome — generate + store genome
 router.post(
   "/:projectId/genome",
+  heavyLimiter,
   audit("ai_generate_genome", "project_genome"),
   async (req: Request, res: Response) => {
     const userId = requireAuth(req, res);
@@ -361,15 +368,26 @@ router.post(
         return;
       }
 
+      // ── Concurrency guard (H-06) ───────────────────────────────────────────
+      if (activeGenerations.has(projectId)) {
+        res.status(409).json({ error: "Generation already in progress for this project. Please wait." });
+        return;
+      }
+      activeGenerations.add(projectId);
+
       // ── SSE setup ──────────────────────────────────────────────────────────
       res.setHeader("Content-Type", "text/event-stream");
       res.setHeader("Cache-Control", "no-cache");
       res.setHeader("Connection", "keep-alive");
+      res.setHeader("X-Accel-Buffering", "no");
       res.flushHeaders();
 
       // Abort all in-flight OpenAI streams if client disconnects
       const abort = new AbortController();
-      res.on("close", () => abort.abort());
+      res.on("close", () => {
+        abort.abort();
+        activeGenerations.delete(projectId);
+      });
 
       const sse = (obj: Record<string, unknown>) => {
         if (!res.writableEnded) res.write(`data: ${JSON.stringify(obj)}\n\n`);
@@ -448,9 +466,11 @@ router.post(
       }
 
       sse({ type: "complete", generated });
+      activeGenerations.delete(projectId);
       res.end();
     } catch (err) {
       console.error("[generate-all] POST", err);
+      activeGenerations.delete(projectId);
       if (!res.headersSent) res.status(500).json({ error: "Document generation failed" });
       else {
         res.write(`data: ${JSON.stringify({ type: "error", message: "Generation failed" })}\n\n`);

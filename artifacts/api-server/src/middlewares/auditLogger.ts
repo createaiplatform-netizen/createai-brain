@@ -43,11 +43,14 @@ export function audit(
   resourceType:  string,
   getResourceId: GetId = DEFAULT_GET_ID,
 ) {
-  return (req: Request, _res: Response, next: NextFunction): void => {
-    // Fire-and-forget — never block or error the main request
-    void writeAuditEntry(req, action, resourceType, getResourceId).catch(err =>
-      console.error("[audit] write failed (non-blocking):", err),
-    );
+  return (req: Request, res: Response, next: NextFunction): void => {
+    // Capture actual HTTP outcome after the response is sent — never block
+    res.on("finish", () => {
+      const outcome: "success" | "failure" = res.statusCode < 400 ? "success" : "failure";
+      void writeAuditEntry(req, action, resourceType, getResourceId, outcome).catch(err =>
+        console.error("[audit] write failed (non-blocking):", err),
+      );
+    });
     next();
   };
 }
@@ -57,6 +60,7 @@ async function writeAuditEntry(
   action:        string,
   resourceType:  string,
   getResourceId: GetId,
+  outcome:       "success" | "failure" = "success",
 ): Promise<void> {
   const user        = req.user as { id?: string; email?: string } | undefined;
   const userId      = user?.id      ?? null;
@@ -73,7 +77,7 @@ async function writeAuditEntry(
     action,
     resource:     `${resourceType}:${resourceId}`,
     resourceType,
-    outcome:      "success",
+    outcome,
     ipAddress,
     userAgent,
     metadata:     buildMeta(req),

@@ -1,4 +1,4 @@
-import { pgTable, serial, text, timestamp, jsonb } from "drizzle-orm/pg-core";
+import { pgTable, serial, text, timestamp, jsonb, index } from "drizzle-orm/pg-core";
 import { createInsertSchema } from "drizzle-zod";
 import { z } from "zod/v4";
 
@@ -26,7 +26,11 @@ export const projects = pgTable("projects", {
   // Universal Creation Engine
   genome: jsonb("genome"),  // ProjectGenome — AI-generated structured project spec
   intent: jsonb("intent"),  // Intent captured from creation modal (audience, purpose, tone)
-});
+}, (table) => ({
+  userIdIdx:   index("projects_user_id_idx").on(table.userId),
+  statusIdx:   index("projects_status_idx").on(table.status),
+  deletedAtIdx: index("projects_deleted_at_idx").on(table.deletedAt),
+}));
 
 export const insertProjectSchema = createInsertSchema(projects).omit({
   id: true,
