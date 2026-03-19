@@ -753,261 +753,162 @@ function ArchitectureTab() {
 }
 
 // ─── Configure Tab ─────────────────────────────────────────────────────────────
-const WIZARD_INTEGRATIONS = [
-  {
-    name: "Electronic Health Records", category: "Healthcare", icon: "🏥", color: "#34C759",
-    desc: "Connect EHR workflows, patient records, and clinical data pipelines.",
-    steps: ["Enter API endpoint URL", "Provide OAuth 2.0 credentials", "Select data scopes", "Run test ping"],
-    fields: [
-      { label: "API Endpoint",  placeholder: "https://ehr.yourprovider.com/api/v2", type: "url" },
-      { label: "Client ID",     placeholder: "client_xxxxxxxxxxxx",                 type: "text" },
-      { label: "Client Secret", placeholder: "••••••••••••••••",                    type: "password" },
-    ],
-    warning: "REAL integration requires HIPAA compliance, legal agreements, and expert configuration.",
-  },
-  {
-    name: "Payment Processor", category: "Financial", icon: "💳", color: "#007AFF",
-    desc: "Enable billing, subscriptions, invoices, and revenue tracking.",
-    steps: ["Add publishable key", "Add secret key", "Choose webhook events", "Verify with test charge"],
-    fields: [
-      { label: "Publishable Key", placeholder: "pk_live_xxxxxxxxxxxx", type: "text" },
-      { label: "Secret Key",      placeholder: "sk_live_••••••••••••", type: "password" },
-      { label: "Webhook Secret",  placeholder: "whsec_xxxxxxxxxxxx",   type: "password" },
-    ],
-    warning: "Real charges occur with real keys. Use test keys (pk_test_) for testing.",
-  },
-  {
-    name: "CRM System", category: "Business", icon: "📊", color: "#5856D6",
-    desc: "Sync contacts, deals, pipeline stages, and activity logs.",
-    steps: ["Select CRM provider", "Enter API token", "Map data fields", "Sync test record"],
-    fields: [
-      { label: "CRM Provider", placeholder: "HubSpot / Salesforce / Pipedrive", type: "text" },
-      { label: "API Token",    placeholder: "Bearer xxxxxxxxxxxxxxxxxx",         type: "password" },
-      { label: "Workspace ID", placeholder: "ws_xxxxxxxxxxxx",                  type: "text" },
-    ],
-    warning: "Requires real API token from your CRM provider's developer console.",
-  },
-  {
-    name: "Email Platform", category: "Marketing", icon: "📧", color: "#FF9500",
-    desc: "Automate campaigns, sequences, and transactional emails.",
-    steps: ["Enter API credentials", "Verify sender domain", "Set sending limits", "Send test email"],
-    fields: [
-      { label: "API Key",        placeholder: "SG.xxxxxxxxxxxxxxxxxxxx", type: "password" },
-      { label: "Sender Email",   placeholder: "hello@yourdomain.com",    type: "email" },
-      { label: "Sending Domain", placeholder: "mail.yourdomain.com",     type: "text" },
-    ],
-    warning: "Real API keys required. Domain must be verified with the email provider.",
-  },
-];
+interface ConnectSource {
+  sourceId: string;
+  displayName: string;
+  description?: string;
+  authType?: string;
+  testDataOnly?: boolean;
+  note?: string;
+}
 
-type ConnStatus = "idle" | "connecting" | "connected" | "failed";
+const CONNECT_CAT_LABEL: Record<string, string> = {
+  health:  "Healthcare",
+  banking: "Banking & Finance",
+  care:    "Care",
+  other:   "Business",
+};
+
+const CONNECT_CAT_ICON: Record<string, string> = {
+  health:  "🏥",
+  banking: "🏦",
+  care:    "💊",
+  other:   "🔌",
+};
+
+const CONNECT_CAT_COLOR: Record<string, string> = {
+  health:  "#059669",
+  banking: "#0891b2",
+  care:    "#7c3aed",
+  other:   "#6366f1",
+};
 
 function ConfigureTab() {
-  const [selected, setSelected] = useState<string | null>(null);
-  const [step, setStep]         = useState(0);
-  const [fields, setFields]     = useState<Record<string, string>>({});
-  const [status, setStatus]     = useState<ConnStatus>("idle");
-  const [connections, setConns] = useState<Set<string>>(new Set());
+  const [sources, setSources]   = useState<Record<string, ConnectSource[]>>({});
+  const [loading, setLoading]   = useState(true);
+  const [smartBusy, setSmartBusy] = useState(false);
 
-  const intg  = WIZARD_INTEGRATIONS.find(i => i.name === selected);
-  const reset = () => { setSelected(null); setStep(0); setFields({}); setStatus("idle"); };
+  useEffect(() => {
+    (async () => {
+      try {
+        const r = await fetch("/api/connect/sources", { credentials: "include" });
+        if (r.ok) {
+          const d = await r.json() as { ok: boolean; sources: Record<string, ConnectSource[]> };
+          setSources(d.sources ?? {});
+        }
+      } catch { /* silent */ }
+      finally { setLoading(false); }
+    })();
+  }, []);
 
-  const simulateConnect = () => {
-    setStatus("connecting");
-    setTimeout(async () => {
-      const success = Math.random() > 0.15;
-      setStatus(success ? "connected" : "failed");
-      if (success && selected) {
-        setConns(prev => new Set([...prev, selected]));
-        try {
-          await fetch("/api/integrations", {
-            method: "POST",
-            headers: { "Content-Type": "application/json" },
-            credentials: "include",
-            body: JSON.stringify({
-              name: selected, type: "api",
-              category: intg?.category ?? "General",
-              status: "configured", isEnabled: true,
-            }),
-          });
-        } catch {}
-      }
-    }, 2200);
+  const handleConnectSmart = async () => {
+    setSmartBusy(true);
+    try {
+      const base        = (import.meta.env.BASE_URL ?? "").replace(/\/$/, "");
+      const redirectUri = `${window.location.origin}${base}/connectors/SMART_FHIR_SANDBOX/callback`;
+      const res  = await fetch(
+        `/api/integrations/smart-fhir-sandbox/auth-url?redirect_uri=${encodeURIComponent(redirectUri)}`,
+        { credentials: "include" }
+      );
+      const data = await res.json() as { url?: string };
+      if (data.url) { window.location.href = data.url; }
+      else { setSmartBusy(false); }
+    } catch { setSmartBusy(false); }
   };
 
-  if (!intg) return (
-    <div className="p-5 space-y-4">
-      <div>
-        <h2 className="text-[15px] font-bold text-slate-900">Configure Integration</h2>
-        <p className="text-[12px] text-slate-500 mt-0.5">
-          Step-by-step wizard. Provide real API keys to activate.
-          <br />All connections are saved to your account.
-        </p>
-      </div>
-      {connections.size > 0 && (
-        <div className="bg-green-50 border border-green-200 rounded-xl p-3">
-          <p className="text-[12px] text-green-700 font-semibold">
-            ✓ {connections.size} connection{connections.size > 1 ? "s" : ""} configured this session
-          </p>
-        </div>
-      )}
-      <div className="space-y-2">
-        {WIZARD_INTEGRATIONS.map(i => (
-          <button key={i.name}
-            onClick={() => { setSelected(i.name); setStep(0); setFields({}); setStatus("idle"); }}
-            className="w-full flex items-center gap-3 p-4 bg-white rounded-2xl border border-slate-200 hover:border-indigo-200 hover:shadow-sm transition-all text-left"
-          >
-            <div className="w-10 h-10 rounded-xl flex items-center justify-center text-xl flex-shrink-0"
-              style={{ background: i.color + "18" }}>{i.icon}</div>
-            <div className="flex-1 min-w-0">
-              <p className="font-semibold text-[13px] text-slate-900">{i.name}</p>
-              <p className="text-[11px] text-slate-500">{i.category} · {i.desc.slice(0, 45)}…</p>
-            </div>
-            <span className={`text-[10px] font-bold px-2 py-0.5 rounded-full flex-shrink-0 ${
-              connections.has(i.name)
-                ? "bg-green-100 text-green-700"
-                : "bg-slate-100 text-slate-500"
-            }`}>
-              {connections.has(i.name) ? "REAL — ACTIVE" : "Configure"}
-            </span>
-          </button>
-        ))}
-      </div>
-    </div>
-  );
-
-  if (status === "connected") return (
-    <div className="p-6 space-y-5">
-      <button onClick={reset} className="text-indigo-600 text-sm font-medium">‹ Configure</button>
-      <div className="text-center py-4 space-y-2">
-        <div className="w-16 h-16 rounded-2xl mx-auto flex items-center justify-center text-3xl"
-          style={{ background: intg.color + "18" }}>{intg.icon}</div>
-        <h2 className="text-xl font-bold text-slate-900">{intg.name}</h2>
-        <StatusBadge status="real-active" />
-      </div>
-      <div className="bg-green-50 border border-green-200 rounded-2xl p-4">
-        <p className="text-[13px] font-semibold text-green-800">✓ REAL — ACTIVE</p>
-        <p className="text-[12px] text-green-700 mt-1">
-          The platform now has access to {intg.category.toLowerCase()} data through this integration.
-        </p>
-      </div>
-      {intg.steps.map((s, i) => (
-        <div key={i} className="flex items-center gap-3 p-3 bg-white rounded-xl border border-slate-200">
-          <div className="w-6 h-6 rounded-full bg-green-100 flex items-center justify-center text-green-600 text-[11px] font-bold">✓</div>
-          <span className="text-[13px] text-slate-700">{s}</span>
-        </div>
-      ))}
-      <button onClick={reset}
-        className="w-full py-2.5 rounded-xl text-[13px] font-semibold bg-slate-100 text-slate-600 hover:bg-slate-200">
-        ← Back
-      </button>
-    </div>
-  );
-
-  if (status === "failed") return (
-    <div className="p-6 space-y-5">
-      <button onClick={reset} className="text-indigo-600 text-sm font-medium">‹ Configure</button>
-      <div className="text-center py-4 space-y-2">
-        <p className="text-4xl">⚠️</p>
-        <h2 className="text-xl font-bold text-slate-900">Connection Failed</h2>
-        <p className="text-[13px] text-slate-500">Invalid or missing API credentials. Please try again.</p>
-      </div>
-      <button onClick={() => setStatus("idle")}
-        className="w-full py-3 rounded-xl text-white font-semibold text-[13px]"
-        style={{ background: intg.color }}>↺ Try Again</button>
-    </div>
-  );
-
-  if (status === "connecting") return (
-    <div className="p-6 flex flex-col items-center justify-center min-h-[300px] gap-4">
-      <div className="w-16 h-16 rounded-2xl flex items-center justify-center text-3xl"
-        style={{ background: intg.color + "18" }}>{intg.icon}</div>
-      <span className="w-7 h-7 border-2 border-t-transparent rounded-full animate-spin"
-        style={{ borderColor: intg.color, borderTopColor: "transparent" }} />
-      <p className="text-[14px] font-semibold text-slate-900">Connecting to {intg.name}…</p>
-      <p className="text-[12px] text-slate-500 text-center">
-        Running handshake, verifying credentials, mapping endpoints…
-      </p>
+  if (loading) return (
+    <div className="flex items-center justify-center py-16 gap-2">
+      <div className="w-4 h-4 border-2 border-indigo-500 border-t-transparent rounded-full animate-spin" />
+      <span className="text-[13px] text-slate-500">Loading integrations…</span>
     </div>
   );
 
   return (
-    <div className="p-6 space-y-5">
-      <button onClick={reset} className="text-indigo-600 text-sm font-medium">‹ Configure</button>
-      <div className="flex items-center gap-3">
-        <div className="w-12 h-12 rounded-2xl flex items-center justify-center text-2xl flex-shrink-0"
-          style={{ background: intg.color + "18" }}>{intg.icon}</div>
-        <div>
-          <h2 className="text-xl font-bold text-slate-900">{intg.name}</h2>
-          <p className="text-[11px] text-slate-500">{intg.category} · {intg.desc}</p>
+    <div className="p-5 space-y-6">
+      <div>
+        <h2 className="text-[15px] font-bold text-slate-900">Available Integrations</h2>
+        <p className="text-[12px] text-slate-500 mt-0.5">
+          Connect external systems to your CreateAI account.
+        </p>
+      </div>
+
+      {Object.keys(sources).length === 0 && (
+        <div className="text-center py-12 space-y-3">
+          <p className="text-4xl">🔌</p>
+          <p className="text-[14px] font-semibold text-slate-900">No connectors available</p>
+          <p className="text-[12px] text-slate-500">Check back soon — new integrations are added regularly.</p>
         </div>
-      </div>
+      )}
 
-      <div className="bg-amber-50 border border-amber-200 rounded-xl p-3">
-        <p className="text-[11px] text-amber-700">⚠️ {intg.warning}</p>
-      </div>
+      {Object.entries(sources).map(([cat, catSources]) => {
+        const catColor = CONNECT_CAT_COLOR[cat] ?? "#6366f1";
+        const catIcon  = CONNECT_CAT_ICON[cat]  ?? "🔌";
+        return (
+          <div key={cat} className="space-y-2">
+            <div className="flex items-center gap-2 mb-1">
+              <span className="text-[11px] font-bold uppercase tracking-wider" style={{ color: catColor }}>
+                {CONNECT_CAT_LABEL[cat] ?? cat}
+              </span>
+              <div className="flex-1 h-px" style={{ background: `${catColor}20` }} />
+              <span className="text-[10px] text-slate-400">{catSources.length}</span>
+            </div>
 
-      <div className="flex gap-1.5 overflow-x-auto pb-1">
-        {intg.steps.map((s, i) => (
-          <div key={i}
-            className={`flex-shrink-0 flex items-center gap-1.5 px-2.5 py-1.5 rounded-lg text-[11px] font-medium border ${
-              i < step ? "bg-green-100 text-green-700 border-green-200"
-              : i === step ? "text-white font-bold"
-              : "bg-slate-50 text-slate-500 border-slate-200"
-            }`}
-            style={i === step ? { background: intg.color, borderColor: intg.color } : {}}
-          >
-            {i < step ? "✓" : <span className="font-bold">{i + 1}</span>}
-            <span className="hidden sm:inline">{s}</span>
+            {catSources.map(src => {
+              const isSmart = src.sourceId === "SMART_FHIR_SANDBOX";
+              return (
+                <div key={src.sourceId}
+                  className="flex items-start gap-3 p-4 bg-white rounded-2xl border border-slate-200 hover:border-indigo-100 transition-all">
+                  <div className="w-10 h-10 rounded-xl flex items-center justify-center text-xl flex-shrink-0"
+                    style={{ background: `${catColor}12` }}>
+                    {catIcon}
+                  </div>
+                  <div className="flex-1 min-w-0">
+                    <div className="flex items-center gap-2 flex-wrap">
+                      <p className="font-semibold text-[13px] text-slate-900">{src.displayName}</p>
+                      {src.testDataOnly && (
+                        <span className="text-[9px] font-bold px-1.5 py-0.5 rounded-full bg-amber-100 text-amber-700">
+                          Test data only
+                        </span>
+                      )}
+                    </div>
+                    {src.description && (
+                      <p className="text-[11px] text-slate-500 mt-0.5 leading-snug">{src.description}</p>
+                    )}
+                    {src.note && (
+                      <p className="text-[10px] text-slate-400 mt-1 italic leading-snug">{src.note}</p>
+                    )}
+                  </div>
+                  <div className="flex-shrink-0 mt-0.5">
+                    {isSmart ? (
+                      <button
+                        onClick={handleConnectSmart}
+                        disabled={smartBusy}
+                        className="h-7 px-3 rounded-lg text-[11px] font-semibold border transition-colors whitespace-nowrap"
+                        style={{
+                          borderColor: smartBusy ? "#e2e8f0" : "#bbf7d0",
+                          color:       smartBusy ? "#94a3b8"  : "#15803d",
+                          background:  smartBusy ? "#f8fafc"  : "#f0fdf4",
+                        }}
+                        title="Redirects to SMART Health IT public sandbox — test data only, no real PHI"
+                      >
+                        {smartBusy ? "⏳ Redirecting…" : "🔐 Connect (SMART OAuth)"}
+                      </button>
+                    ) : (
+                      <span className="inline-block h-7 px-3 leading-7 rounded-lg text-[11px] font-semibold border border-slate-200 text-slate-400 bg-slate-50 whitespace-nowrap">
+                        Credentials required
+                      </span>
+                    )}
+                  </div>
+                </div>
+              );
+            })}
           </div>
-        ))}
-      </div>
-
-      {step < intg.fields.length
-        ? <div className="space-y-4">
-            <h3 className="text-[14px] font-bold text-slate-900">{intg.steps[step]}</h3>
-            {[intg.fields[step]].map(f => (
-              <div key={f.label}>
-                <label className="text-[12px] font-semibold text-slate-700 block mb-1.5">{f.label}</label>
-                <input
-                  type={f.type === "password" ? "password" : "text"}
-                  placeholder={f.placeholder}
-                  value={fields[f.label] ?? ""}
-                  onChange={e => setFields(p => ({ ...p, [f.label]: e.target.value }))}
-                  className="w-full bg-white border border-slate-200 rounded-xl p-3 text-[13px] font-mono outline-none focus:ring-2 focus:ring-indigo-100"
-                />
-              </div>
-            ))}
-            <button onClick={() => setStep(s => s + 1)}
-              className="w-full py-2.5 rounded-xl text-white font-semibold text-[13px] hover:opacity-90"
-              style={{ background: intg.color }}>Next →</button>
-          </div>
-        : <div className="space-y-4">
-            <h3 className="text-[14px] font-bold text-slate-900">Ready to connect</h3>
-            {intg.fields.map(f => (
-              <div key={f.label} className="flex items-center gap-3 p-3 bg-white rounded-xl border border-slate-200">
-                <div className="w-5 h-5 rounded-full bg-green-100 flex items-center justify-center text-green-600 text-[10px] font-bold">✓</div>
-                <span className="text-[12px] text-slate-500 w-28">{f.label}</span>
-                <span className="text-[12px] font-mono truncate text-slate-700">
-                  {fields[f.label]
-                    ? "•".repeat(Math.min(fields[f.label].length, 12))
-                    : f.placeholder.slice(0, 12) + "…"}
-                </span>
-              </div>
-            ))}
-            <button onClick={simulateConnect}
-              className="w-full py-3 rounded-xl text-white font-bold text-[14px] hover:opacity-90"
-              style={{ background: intg.color }}>
-              🔌 Connect {intg.name}
-            </button>
-            <button onClick={() => setStep(0)} className="w-full text-[12px] text-slate-500 hover:text-slate-700">
-              ← Edit credentials
-            </button>
-          </div>
-      }
+        );
+      })}
     </div>
   );
 }
+
 
 // ─── Registry Tab ──────────────────────────────────────────────────────────────
 interface DbIntegration {
@@ -1065,18 +966,18 @@ function RegistryTab() {
   return (
     <div className="p-4 space-y-4">
       <div>
-        <h2 className="text-[15px] font-bold text-slate-900">Integration Hub</h2>
+        <h2 className="text-[15px] font-bold text-slate-900">Connected Integrations</h2>
         <p className="text-[12px] text-slate-500 mt-0.5">
-          All REAL — ACTIVE integrations — available to all platform users.
+          External systems you have authorized.
         </p>
       </div>
 
       {integrations.length === 0 ? (
         <div className="text-center py-12 space-y-3">
           <p className="text-4xl">🔌</p>
-          <p className="text-[14px] font-semibold text-slate-900">No real integrations yet</p>
+          <p className="text-[14px] font-semibold text-slate-900">No connected integrations yet</p>
           <p className="text-[12px] text-slate-500">
-            Activate any integration in the Engine tab — it will appear here instantly for all platform users.
+            Go to the Configure tab to connect your first integration.
           </p>
         </div>
       ) : (
@@ -1116,7 +1017,7 @@ function RegistryTab() {
 
       <div className="p-3 rounded-xl text-[11px] text-slate-600 bg-indigo-50 border border-indigo-100 flex items-start gap-2">
         <span className="flex-shrink-0">ℹ️</span>
-        <span>Only REAL — ACTIVE integrations appear here. Simulations are never stored. Toggle to control access.</span>
+        <span>Toggle to enable or disable access. Remove to revoke a connection entirely.</span>
       </div>
     </div>
   );
