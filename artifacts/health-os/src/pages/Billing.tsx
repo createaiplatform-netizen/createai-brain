@@ -154,7 +154,7 @@ export default function Billing() {
                     </td>
                     <td className="px-6 py-4">
                       <div className="text-slate-900 font-medium">{formatCurrency(bill.amount)}</div>
-                      {bill.insuranceCoverage > 0 && <div className="text-xs text-teal-600 mt-0.5">-{formatCurrency(bill.insuranceCoverage)} Ins.</div>}
+                      {(bill.insuranceCoverage ?? 0) > 0 && <div className="text-xs text-teal-600 mt-0.5">-{formatCurrency(bill.insuranceCoverage ?? 0)} Ins.</div>}
                     </td>
                     <td className="px-6 py-4">
                       <div className="text-lg font-bold text-slate-900">{formatCurrency(bill.patientOwes)}</div>

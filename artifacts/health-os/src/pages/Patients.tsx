@@ -7,7 +7,8 @@ import {
   useListDoctors,
   useListDepartments,
   getListPatientsQueryKey,
-  CreatePatientBody
+  CreatePatientBody,
+  CreatePatientBodyGender
 } from "@workspace/api-client-react";
 import { PageHeader } from "@/components/PageHeader";
 import { StatusBadge } from "@/components/StatusBadge";
@@ -44,7 +45,7 @@ export default function Patients() {
     const body: CreatePatientBody = {
       firstName: fd.get("firstName") as string,
       lastName: fd.get("lastName") as string,
-      gender: fd.get("gender") as string,
+      gender: fd.get("gender") as CreatePatientBodyGender,
       dateOfBirth: fd.get("dateOfBirth") ? new Date(fd.get("dateOfBirth") as string).toISOString() : undefined,
       email: fd.get("email") as string || undefined,
       phone: fd.get("phone") as string || undefined,

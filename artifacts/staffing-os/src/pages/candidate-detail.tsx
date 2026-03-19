@@ -16,7 +16,7 @@ export default function CandidateDetail() {
   const queryClient = useQueryClient();
 
   const { data: candidate, isLoading, error } = useGetCandidate(id, {
-    query: { enabled: !!id }
+    query: { enabled: !!id, queryKey: getGetCandidateQueryKey(id) }
   });
 
   if (isLoading) return <div className="p-20 text-center"><div className="w-8 h-8 border-4 border-accent border-t-transparent rounded-full animate-spin mx-auto"></div></div>;

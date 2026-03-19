@@ -1,0 +1,86 @@
+You are working inside my existing full-stack project. Do NOT change the overall architecture, ports, or working routes. Do NOT delete or rename existing files. Work incrementally and keep everything compiling and running.
+
+Goal:
+Evolve the existing “sources” / connector system into the first version of a HIPAA-aware, compliance-ready connector catalog. Each connector should clearly show:
+- its current status (simulated vs. real readiness)
+- what legal/compliance items are required before it can be activated
+
+You already know this endpoint exists and works:
+- GET /api/connect/sources  → returns the list of simulated sources grouped by domain.
+
+I want you to:
+
+1) Extend the source model (backend)
+- Locate where the source objects for /api/connect/sources are defined (the data structure that includes sourceId, displayName, description, grouped under health/banking/care/other).
+- Without breaking the existing response shape, add two new fields to each source object:
+  - status: one of "simulated", "pending_legal", "approved", "active"
+  - requires: an array of strings describing what is needed to go live, e.g.:
+    - "BAA"
+    - "SecurityReview"
+    - "APIKeys"
+    - "OrgAgreement"
+- For now, set:
+  - all existing sources to status: "simulated"
+  - requires: a realistic list per connector type, e.g.:
+    - Epic/MyChart-style: ["BAA", "SecurityReview", "APIKeys", "OrgAgreement"]
+    - Banking/Payroll: ["SecurityReview", "APIKeys", "OrgAgreement"]
+    - CRM/Accounting: ["SecurityReview", "APIKeys"]
+- Ensure the existing /api/connect/sources endpoint still works and now returns these extra fields.
+
+2) Add a connector detail API route
+- Create a new backend route:
+  - GET /api/connect/source/:id
+- :id should match the existing sourceId field (e.g., "MYCHART_TEST", "BANK_TEST", etc.).
+- This route should:
+  - Look up the source by sourceId across all domains (health, banking, care, other).
+  - If found, return a JSON object like:
+    {
+      ok: true,
+      source: {
+        sourceId,
+        displayName,
+        description,
+        status,
+        requires
+      }
+    }
+  - If not found, return:
+    {
+      ok: false,
+      error: "SOURCE_NOT_FOUND"
+    }
+    with an appropriate HTTP status code (404).
+- Register this route in the same router system that currently serves /api/connect/sources, respecting the existing base path (app.use("/api", router)).
+
+3) Add a simple frontend “Connector Detail” view
+- In the frontend, add a minimal page or view that:
+  - Can be navigated to with a URL like: /connectors/:id
+  - On load, calls GET /api/connect/source/:id
+  - Displays:
+    - displayName
+    - description
+    - status (with a simple label, e.g., "Simulated", "Pending Legal", etc.)
+    - requires as a bullet list: “This connector requires: BAA, Security Review, API Keys, Org Agreement”
+- If the source is not found, show a clear “Connector not found” message.
+- Keep the UI simple and clean; no design overhaul, just a functional, readable page.
+
+4) Keep everything HIPAA- and compliance-minded in structure
+- Do NOT fake real external connections.
+- Do NOT add any real credentials or external API calls.
+- Treat this as a “compliance-aware catalog” and “pre-production mode”:
+  - The system should clearly communicate that these are simulated connectors with defined requirements to go live.
+- Make sure naming and comments reflect that this is designed for future HIPAA-grade, legal, and enterprise integrations.
+
+5) Final check and summary
+- After implementing:
+  - Confirm that:
+    - GET /api/connect/sources still works and now includes status + requires.
+    - GET /api/connect/source/:id works for valid and invalid IDs.
+    - The new frontend route /connectors/:id loads and displays the data correctly.
+  - Provide a concise summary of:
+    - Files changed
+    - New routes added
+    - New types/interfaces added or updated
+    - How to navigate to and test the new UI and API endpoints.
+
+Do all of this carefully, preserving the existing working behavior, and ensuring the project still builds and runs successfully.
