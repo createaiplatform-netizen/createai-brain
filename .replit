@@ -18,15 +18,6 @@ env = { "CI" = "true" }
 runButton = "Project"
 
 [[workflows.workflow]]
-name = "Project"
-mode = "parallel"
-author = "agent"
-
-[[workflows.workflow.tasks]]
-task = "workflow.run"
-args = "Local JSON Backend"
-
-[[workflows.workflow]]
 name = "Local JSON Backend"
 author = "agent"
 
@@ -37,6 +28,144 @@ waitForPort = 3001
 
 [workflows.workflow.metadata]
 outputType = "console"
+
+[[workflows.workflow]]
+name = "artifacts/staffing-os: web"
+author = "agent"
+mode = "sequential"
+
+[workflows.workflow.metadata]
+outputType = "webview"
+artifactId = "artifacts/staffing-os"
+
+[[workflows.workflow.tasks]]
+task = "shell.exec"
+args = "pnpm --filter @workspace/staffing-os run dev"
+cwd = "./artifacts/staffing-os"
+waitForPort = 21509
+router = "path"
+
+[workflows.workflow.tasks.env]
+PORT = "21509"
+BASE_PATH = "/staffing-os/"
+
+[[workflows.workflow]]
+name = "artifacts/health-os: web"
+author = "agent"
+mode = "sequential"
+
+[workflows.workflow.metadata]
+outputType = "webview"
+artifactId = "artifacts/health-os"
+
+[[workflows.workflow.tasks]]
+task = "shell.exec"
+args = "pnpm --filter @workspace/health-os run dev"
+cwd = "./artifacts/health-os"
+waitForPort = 23657
+router = "path"
+
+[workflows.workflow.tasks.env]
+PORT = "23657"
+BASE_PATH = "/health-os/"
+
+[[workflows.workflow]]
+name = "artifacts/legal-pm: web"
+author = "agent"
+mode = "sequential"
+
+[workflows.workflow.metadata]
+outputType = "webview"
+artifactId = "artifacts/legal-pm"
+
+[[workflows.workflow.tasks]]
+task = "shell.exec"
+args = "pnpm --filter @workspace/legal-pm run dev"
+cwd = "./artifacts/legal-pm"
+waitForPort = 22798
+router = "path"
+
+[workflows.workflow.tasks.env]
+PORT = "22798"
+BASE_PATH = "/legal-pm/"
+
+[[workflows.workflow]]
+name = "artifacts/chat-app: web"
+author = "agent"
+mode = "sequential"
+
+[workflows.workflow.metadata]
+outputType = "webview"
+artifactId = "artifacts/chat-app"
+
+[[workflows.workflow.tasks]]
+task = "shell.exec"
+args = "pnpm --filter @workspace/chat-app run dev"
+cwd = "./artifacts/chat-app"
+waitForPort = 18228
+router = "path"
+
+[workflows.workflow.tasks.env]
+PORT = "18228"
+BASE_PATH = "/chat-app/"
+
+[[workflows.workflow]]
+name = "artifacts/createai-brain: web"
+author = "agent"
+mode = "sequential"
+
+[workflows.workflow.metadata]
+outputType = "webview"
+artifactId = "artifacts/createai-brain"
+
+[[workflows.workflow.tasks]]
+task = "shell.exec"
+args = "pnpm --filter @workspace/createai-brain run dev"
+cwd = "./artifacts/createai-brain"
+waitForPort = 23568
+router = "path"
+
+[workflows.workflow.tasks.env]
+PORT = "23568"
+BASE_PATH = "/"
+
+[[workflows.workflow]]
+name = "artifacts/api-server: API Server"
+author = "agent"
+mode = "sequential"
+
+[workflows.workflow.metadata]
+outputType = "webview"
+artifactId = "3B4_FFSkEVBkAeYMFRJ2e"
+
+[[workflows.workflow.tasks]]
+task = "shell.exec"
+args = "pnpm --filter @workspace/api-server run dev"
+cwd = "./artifacts/api-server"
+waitForPort = 8080
+
+[workflows.workflow.tasks.env]
+PORT = "8080"
+
+[[workflows.workflow]]
+name = "artifacts/mockup-sandbox: Component Preview Server"
+author = "agent"
+mode = "sequential"
+
+[workflows.workflow.metadata]
+outputType = "webview"
+artifactId = "XegfDyZt7HqfW2Bb8Ghoy"
+isCanvasWorkflow = true
+
+[[workflows.workflow.tasks]]
+task = "shell.exec"
+args = "pnpm --filter @workspace/mockup-sandbox run dev"
+cwd = "./artifacts/mockup-sandbox"
+waitForPort = 8081
+
+[workflows.workflow.tasks.env]
+PORT = "8081"
+BASE_PATH = "/__mockup"
 
 [agent]
 stack = "PNPM_WORKSPACE"
