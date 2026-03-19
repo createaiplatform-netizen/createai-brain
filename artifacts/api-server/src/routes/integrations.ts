@@ -1,6 +1,7 @@
 import { Router } from "express";
 import { eq, and } from "drizzle-orm";
 import { db, integrations } from "@workspace/db";
+import { hasMemory, deleteMemory } from "../services/memoryService";
 
 // ─── In-memory event log (cleared on restart; for simulation + monitoring) ────
 interface EventLog {
@@ -36,7 +37,13 @@ router.get("/", async (req, res) => {
     const list = await db.select().from(integrations)
       .where(eq(integrations.userId, req.user.id))
       .orderBy(integrations.name);
-    res.json({ integrations: list });
+    const withCredFlags = await Promise.all(
+      list.map(async (row) => ({
+        ...row,
+        hasCredential: await hasMemory(req.user!.id, `integration:${row.id}:apikey`),
+      }))
+    );
+    res.json({ integrations: withCredFlags });
   } catch (err) {
     console.error("GET /integrations error:", err);
     res.status(500).json({ error: "Internal server error" });
@@ -99,6 +106,7 @@ router.delete("/:id", async (req, res) => {
       .where(and(eq(integrations.id, id), eq(integrations.userId, req.user.id))).limit(1);
     if (!row) { res.status(404).json({ error: "Integration not found" }); return; }
     await db.delete(integrations).where(eq(integrations.id, id));
+    await deleteMemory(req.user.id, `integration:${id}:apikey`).catch(() => {});
     res.json({ ok: true });
   } catch (err) {
     console.error("DELETE /integrations/:id error:", err);

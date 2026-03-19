@@ -56,6 +56,7 @@ import productdesignRouter from "./productdesign";
 import researchlabRouter from "./researchlab";
 import connectRouter from "./connect";
 import smartFhirSandboxRouter from "./smart-fhir-sandbox";
+import memoryRouter from "./memory";
 
 const router: IRouter = Router();
 
@@ -121,6 +122,9 @@ router.use("/adapters",           adaptersRouter);
 router.use("/admin",              adminRouter);
 router.use("/webhooks",           webhooksRouter);
 router.use("/auth/sso",           ssoRouter);
+
+// ── Encrypted memory store ───────────────────────────────────────────────────
+router.use("/memory",             memoryRouter);
 
 // ── System Command Processor ─────────────────────────────────────────────────
 router.use("/system",             systemRouter);

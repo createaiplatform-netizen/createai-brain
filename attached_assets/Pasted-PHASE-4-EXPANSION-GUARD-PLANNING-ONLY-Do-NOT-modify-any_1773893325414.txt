@@ -1,0 +1,95 @@
+PHASE 4 — EXPANSION GUARD (PLANNING ONLY)  
+Do NOT modify any files yet.
+
+Goal: Add a backend‑enforced safety layer that wraps ALL AI engine execution and prevents:
+- runaway expansions
+- infinite recursion
+- engines calling engines without authorization
+- bypassing the executor layer (Phase 2)
+- unbounded or unsafe execution chains
+
+This guard MUST run on the backend.  
+Frontend guard (optional) is visualization only.
+
+━━━━━━━━━━━━━━━━━━━━━━━
+FILES TO INSPECT
+━━━━━━━━━━━━━━━━━━━━━━━
+Backend (authoritative):
+- artifacts/api-server/src/core/
+- artifacts/api-server/src/services/*
+- artifacts/api-server/src/routes/*
+- artifacts/api-server/src/utils/*
+- artifacts/createai-brain/src/executors/* (to understand call flow)
+
+Frontend (optional visualization only):
+- artifacts/createai-brain/src/safety/*
+- artifacts/createai-brain/src/controller/PlatformController.ts
+
+━━━━━━━━━━━━━━━━━━━━━━━
+TASKS FOR PHASE 4
+━━━━━━━━━━━━━━━━━━━━━━━
+
+1. Create backend guard:
+   /artifacts/api-server/src/core/ExpansionGuard.ts
+
+   ExpansionGuard MUST provide:
+   - run(engineId, opts, executorFn)
+   - generate executionId (uuid)
+   - track:
+       depth
+       recursion count
+       token usage (approximate)
+       execution trace (engine → engine → engine)
+   - enforce:
+       maxDepth
+       maxTokens
+       maxRecursion
+       domain restrictions
+   - return structured error objects (never raw throws)
+
+2. Add safety metadata to APP_ENGINE_REGISTRY:
+   - safe: boolean
+   - maxDepth
+   - maxTokens
+   - allowRecursion
+
+3. Update executors (Phase 2 files):
+   - wrap executor.execute() with ExpansionGuard.run()
+   - no logic changes inside executors
+
+4. Update PlatformController:
+   - ensure ALL engine execution flows through ExpansionGuard
+   - remove any remaining direct calls to CapabilityEngine._runEngine or _runMetaAgent
+
+5. Optional frontend visualization:
+   /artifacts/createai-brain/src/safety/ExpansionGuardClient.tsx
+   - display trace + safety info
+   - no enforcement logic
+
+━━━━━━━━━━━━━━━━━━━━━━━
+WHAT THIS PHASE MUST NOT DO
+━━━━━━━━━━━━━━━━━━━━━━━
+- Do NOT modify engine implementations
+- Do NOT modify backend integration logic
+- Do NOT modify database schema
+- Do NOT change executor signatures
+- Do NOT add new features beyond safety enforcement
+
+━━━━━━━━━━━━━━━━━━━━━━━
+SUCCESS CRITERIA
+━━━━━━━━━━━━━━━━━━━━━━━
+- No engine can call another engine without passing through ExpansionGuard
+- Infinite loops are impossible
+- All execution paths are traceable
+- All existing features continue working
+
+━━━━━━━━━━━━━━━━━━━━━━━
+BEFORE MAKING ANY CHANGES
+━━━━━━━━━━━━━━━━━━━━━━━
+You must:
+1. Identify all files that will be modified.
+2. Summarize the plan in 5–10 bullet points.
+3. Wait for my approval.
+
+STOP after planning and wait for:
+APPROVED – EXECUTE PHASE 4

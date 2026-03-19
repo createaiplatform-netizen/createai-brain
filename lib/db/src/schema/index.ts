@@ -39,3 +39,4 @@ export * from "./legal";
 export * from "./health";
 export * from "./staffing";
 export * from "./enterprise";
+export * from "./memory_store";

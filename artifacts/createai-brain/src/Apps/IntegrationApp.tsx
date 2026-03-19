@@ -1,4 +1,5 @@
 import React, { useState, useEffect, useCallback, useMemo } from "react";
+import { memoryStore } from "@/store/memoryStore";
 import {
   IntegrationEngine, DemoPacket, PacketStatus, SPEC_LABELS, TWELVE_ENGINES,
   detectActivationPhrase, ACTIVATION_PHRASES,
@@ -457,6 +458,15 @@ function EngineTab() {
     if (!apiKeyTarget) return;
     const target = apiKeyTarget;
     setApiKeyTarget(null);
+
+    // 0. Persist encrypted credential to backend (key never touches localStorage)
+    try {
+      await memoryStore.set(`integration:${target.id}:apikey`, key);
+      addLog(`🔐 "${target.name}" API key encrypted + stored securely in backend`);
+    } catch {
+      addLog(`⚠️ "${target.name}" credential storage failed — activation blocked`);
+      return;
+    }
 
     // 1. Persist REAL — ACTIVE status (key stored as reference, never plain text)
     IntegrationEngine.activateWithKey(target.id, key);

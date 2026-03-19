@@ -148,6 +148,22 @@ For any work involving 3+ components or 2+ files:
   - `CivilizationForgeApp`, `EcologyForgeApp`, `MythweaveStudioApp`, `NarratorOSApp`, `SoundscapeStudioApp`, `TimelineForgeApp` → `streamEngine` replacing custom `runXxxEngine` calls
   - `PersonaStudioApp`, `PricingStudioApp`, `LearningCenterApp`, `DataStudioApp`, `ResearchHubApp` → `streamEngine` replacing raw fetch blocks
 
+## Memory System (COMPLETE — Phase 3 Encrypted Memory Rebuild)
+- **`lib/db/src/schema/memory_store.ts`**: New `memory_store` table — `serial` PK, `user_id`, `key`, `value_encrypted` (TEXT), timestamps. Unique constraint on `(user_id, key)` enables upsert-safe writes.
+- **`artifacts/api-server/src/services/memoryService.ts`**: Backend service wrapping existing `encryption.ts`. `saveMemory(userId, key, value)` — AES-256-GCM encrypt + upsert. `loadMemory(userId, key)` — decrypt on read, returns `null` if missing. `deleteMemory(userId, key)` — soft-safe remove. `listMemoryKeys(userId)` — key names only (no values ever returned). `hasMemory(userId, key)` — existence check without decryption.
+- **`artifacts/api-server/src/routes/memory.ts`**: 4 auth-guarded endpoints — `POST /api/memory/set`, `GET /api/memory/get?key=`, `DELETE /api/memory/delete?key=`, `GET /api/memory/keys`. Raw encrypted values never leave the server — only decrypted values returned to authenticated owner.
+- **`artifacts/createai-brain/src/store/memoryStore.ts`**: Frontend client — zero localStorage. `memoryStore.set(key, value)`, `memoryStore.get(key)`, `memoryStore.delete(key)`, `memoryStore.keys()` — all async, all `credentials: "include"`, all backend-backed.
+- **`artifacts/api-server/src/routes/integrations.ts`**: `GET /integrations` now includes `hasCredential: boolean` per integration (no key values exposed). `DELETE /integrations/:id` cleans up orphaned credential from `memory_store` automatically.
+- **`artifacts/createai-brain/src/Apps/IntegrationApp.tsx`**: `handleKeyConfirm` now calls `memoryStore.set(integration:${id}:apikey, key)` before activation — key encrypted at rest in DB. Activation is blocked if backend storage fails. API keys never touch localStorage.
+- **`ENCRYPTION_KEY`**: 64-char hex (32-byte AES key) set as shared env var. If not set, `encryption.ts` falls back to unencrypted with a console warning (dev-safe).
+- **DB**: `memory_store` table pushed to database — `drizzle-kit push` applied cleanly.
+- **TypeScript**: Both `api-server` and `createai-brain` typecheck clean (zero errors).
+
+## Scaffold Engine (COMPLETE — T001–T005 Auto-Scaffold + Type-Aware Agent)
+- **`artifacts/api-server/src/routes/projects.ts`**: `INDUSTRY_SPECIFIC`, `INDUSTRY_ICONS`, `INDUSTRY_COLORS` — 12 creative project types added: Film/Movie, Documentary, Video Game, Mobile App, Web App/SaaS, Business, Startup, Physical Product, Book/Novel, Music/Album, Podcast, Online Course.
+- **`artifacts/api-server/src/routes/projectChat.ts`**: `buildProjectAgentSystem(projectType, projectName, scaffoldFiles)` — 12 type-specific expert system prompts. Accepts `scaffoldFiles` + `projectType` from POST body.
+- **`artifacts/createai-brain/src/Apps/ProjectOSApp.tsx`**: `PROJECT_SCAFFOLD_MAP` (12 types × 8–12 template files each), `detectProjectType(name)`, `scaffoldProject()` batch-creates files with progress, 2-step New Project modal (name → type picker grid), `PlatformController.streamProjectChat` called with `projectType` + `scaffoldContext`.
+
 ## Expansion Engine v3 (COMPLETE — Maximum-Capacity Ceiling Applied)
 - **expansionEngine.ts**: 20 expansion paths · 7 iterations · 20-layer power table
 - **openai.ts ENGINE_SYSTEM_PROMPTS**: 20 new max-capacity engines added (DeliverableEngine, AutomationEngine, ProductionEngine, ComplianceAuditEngine, SecurityEngine, ScalingEngine, MonetizationEngine, LaunchEngine, GrowthEngine, RetentionEngine, AnalyticsEngine, APIDesignEngine, UIUXEngine, AccessibilityEngine, DevOpsEngine, MobileEngine, PartnershipEngine, ContentStrategyEngine, SEOEngine, PerformanceEngine)
