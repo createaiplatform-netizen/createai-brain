@@ -254,6 +254,21 @@ function CinematicPlayer({ manifest }: { manifest: RenderManifest }) {
     return clearTimer;
   }, [playing, active, frame.durationSec, frames.length, hasBranching]);
 
+  // Keyboard shortcuts: Space = play/pause, ← = prev, → = next
+  useEffect(() => {
+    const handler = (e: KeyboardEvent) => {
+      if (e.target instanceof HTMLTextAreaElement || e.target instanceof HTMLInputElement) return;
+      if (e.key === " " || e.code === "Space") {
+        e.preventDefault();
+        setPlaying(p => !p);
+      }
+      if (e.key === "ArrowLeft")  { clearTimer(); setActive(a => Math.max(0, a - 1)); }
+      if (e.key === "ArrowRight") { clearTimer(); setActive(a => Math.min(frames.length - 1, a + 1)); }
+    };
+    window.addEventListener("keydown", handler);
+    return () => window.removeEventListener("keydown", handler);
+  }, [frames.length]);
+
   const handleChoice = (choiceIdx: number) => {
     setShowChoices(false);
     // Jump forward by choiceIdx+1 scenes (A→next, B→skip 1, C→skip 2)
@@ -1010,9 +1025,40 @@ function CoursePlayer({ manifest, projectId }: { manifest: RenderManifest; proje
 
 // ─── Pitch Deck Viewer ────────────────────────────────────────────────────────
 
-function PitchDeckViewer({ manifest }: { manifest: RenderManifest }) {
-  const [slide, setSlide] = useState(0);
+function PitchDeckViewer({ manifest, projectId }: { manifest: RenderManifest; projectId: string | number }) {
+  const [slide, setSlide]               = useState(0);
+  const [editMode, setEditMode]         = useState(false);
+  const [editedSlides, setEditedSlides] = useState<Record<number, string>>({});
+  const [saving, setSaving]             = useState(false);
+  const [audioOn, setAudioOn]           = useState(false);
+  const audio = useAmbientAudio();
   const frame = manifest.frames[slide];
+
+  const toggleAudio = useCallback(() => {
+    if (!audioOn) { audio.play("uplifting"); setAudioOn(true); }
+    else          { audio.fadeOut(0.6); setAudioOn(false); }
+  }, [audioOn, audio]);
+
+  const currentContent = editedSlides[slide] ?? frame?.content ?? "";
+  const isDirty = (editedSlides[slide] ?? null) !== null && editedSlides[slide] !== (frame?.content ?? "");
+
+  // Keyboard navigation
+  useEffect(() => {
+    const handler = (e: KeyboardEvent) => {
+      if (editMode) return;
+      if (e.key === "ArrowLeft")  setSlide(s => Math.max(0, s - 1));
+      if (e.key === "ArrowRight") setSlide(s => Math.min(manifest.frames.length - 1, s + 1));
+    };
+    window.addEventListener("keydown", handler);
+    return () => window.removeEventListener("keydown", handler);
+  }, [editMode, manifest.frames.length]);
+
+  const handleSave = async () => {
+    if (!isDirty) return;
+    setSaving(true);
+    await saveToProject(projectId, `_saved_pitch_slide_${slide}`, currentContent);
+    setSaving(false);
+  };
 
   return (
     <div style={{ height: "100%", display: "flex", flexDirection: "column", background: "#f8fafc" }}>
@@ -1032,30 +1078,52 @@ function PitchDeckViewer({ manifest }: { manifest: RenderManifest }) {
             {frame?.badge?.toUpperCase()} — {manifest.projectName}
           </div>
           <h2 style={{ color: "#fff", fontSize: 20, fontWeight: 800, marginBottom: 12 }}>{frame?.title}</h2>
-          <div style={{ fontSize: 12, color: "rgba(255,255,255,0.85)", lineHeight: 1.7, whiteSpace: "pre-wrap" }}>
-            {frame?.content}
-          </div>
+          {editMode ? (
+            <textarea
+              value={currentContent}
+              onChange={e => setEditedSlides(prev => ({ ...prev, [slide]: e.target.value }))}
+              style={{
+                width: "100%", minHeight: 80, background: "rgba(255,255,255,0.15)", backdropFilter: "blur(6px)",
+                border: "1px solid rgba(255,255,255,0.3)", borderRadius: 8, color: "#fff",
+                fontSize: 12, lineHeight: 1.7, padding: "8px 10px", resize: "vertical",
+                fontFamily: "inherit",
+              }}
+            />
+          ) : (
+            <div style={{ fontSize: 12, color: "rgba(255,255,255,0.85)", lineHeight: 1.7, whiteSpace: "pre-wrap" }}>
+              {currentContent}
+            </div>
+          )}
         </div>
       </div>
 
       {/* Nav */}
       <div style={{
         padding: "10px 16px", background: "#fff", borderTop: "1px solid rgba(0,0,0,0.08)",
-        display: "flex", alignItems: "center", gap: 8,
+        display: "flex", alignItems: "center", gap: 8, flexWrap: "wrap",
       }}>
-        <button onClick={() => setSlide(s => Math.max(0, s - 1))}
+        <button onClick={() => { setSlide(s => Math.max(0, s - 1)); setEditMode(false); }}
           style={{ background: "#f8fafc", border: "1px solid rgba(0,0,0,0.1)", color: "#374151", padding: "5px 12px", borderRadius: 8, fontSize: 11, cursor: "pointer" }}>←</button>
         <div style={{ display: "flex", gap: 4, flex: 1, justifyContent: "center" }}>
           {manifest.frames.map((_, i) => (
-            <div key={i} onClick={() => setSlide(i)}
+            <div key={i} onClick={() => { setSlide(i); setEditMode(false); }}
               style={{
                 width: i === slide ? 20 : 6, height: 6, borderRadius: 3, cursor: "pointer",
                 background: i === slide ? "#6366f1" : "rgba(0,0,0,0.12)", transition: "width 0.2s",
               }} />
           ))}
         </div>
-        <button onClick={() => setSlide(s => Math.min(manifest.frames.length - 1, s + 1))}
+        <button onClick={() => { setSlide(s => Math.min(manifest.frames.length - 1, s + 1)); setEditMode(false); }}
           style={{ background: "#f8fafc", border: "1px solid rgba(0,0,0,0.1)", color: "#374151", padding: "5px 12px", borderRadius: 8, fontSize: 11, cursor: "pointer" }}>→</button>
+        <AudioBtn on={audioOn} onToggle={toggleAudio} />
+        <button onClick={() => setEditMode(v => !v)}
+          style={{
+            background: editMode ? "#6366f1" : "#f1f5f9", border: "none",
+            color: editMode ? "#fff" : "#64748b", padding: "5px 12px", borderRadius: 8, fontSize: 10, fontWeight: 700, cursor: "pointer",
+          }}>
+          {editMode ? "✓ Done" : "✏️ Edit"}
+        </button>
+        {isDirty && <SaveBtn saving={saving} onClick={handleSave} />}
         <button onClick={() => window.print()}
           style={{ background: "#6366f1", border: "none", color: "#fff", padding: "5px 12px", borderRadius: 8, fontSize: 11, fontWeight: 700, cursor: "pointer" }}>
           PDF
@@ -1067,11 +1135,14 @@ function PitchDeckViewer({ manifest }: { manifest: RenderManifest }) {
 
 // ─── Product Showcase ─────────────────────────────────────────────────────────
 
-function ProductShowcase({ manifest }: { manifest: RenderManifest }) {
-  const [viewIdx, setViewIdx]   = useState(0);
-  const [show3D, setShow3D]     = useState(false);
-  const [cubeY, setCubeY]       = useState(0);
-  const [audioOn, setAudioOn]   = useState(false);
+function ProductShowcase({ manifest, projectId }: { manifest: RenderManifest; projectId: string | number }) {
+  const [viewIdx, setViewIdx]             = useState(0);
+  const [show3D, setShow3D]               = useState(false);
+  const [cubeY, setCubeY]                 = useState(0);
+  const [audioOn, setAudioOn]             = useState(false);
+  const [editMode, setEditMode]           = useState(false);
+  const [editedDesc, setEditedDesc]       = useState<Record<number, string>>({});
+  const [saving, setSaving]               = useState(false);
   const frame = manifest.frames[viewIdx];
   const audio = useAmbientAudio();
 
@@ -1088,13 +1159,30 @@ function ProductShowcase({ manifest }: { manifest: RenderManifest }) {
   }, [show3D]);
 
   const cubeSize = 160;
+  const currentDesc = editedDesc[viewIdx] ?? frame?.content ?? "";
+  const isDirty = (editedDesc[viewIdx] ?? null) !== null && editedDesc[viewIdx] !== (frame?.content ?? "");
+
+  const handleSave = async () => {
+    if (!isDirty) return;
+    setSaving(true);
+    await saveToProject(projectId, `_saved_showcase_product_${viewIdx}`, currentDesc);
+    setSaving(false);
+  };
 
   return (
     <div style={{ height: "100%", display: "flex", flexDirection: "column", background: "#fff" }}>
       {/* Header */}
-      <div style={{ padding: "10px 16px", display: "flex", alignItems: "center", gap: 10, borderBottom: "1px solid rgba(0,0,0,0.07)" }}>
+      <div style={{ padding: "10px 16px", display: "flex", alignItems: "center", gap: 10, borderBottom: "1px solid rgba(0,0,0,0.07)", flexWrap: "wrap" }}>
         <div style={{ fontSize: 13, fontWeight: 700, color: "#0f172a", flex: 1 }}>{manifest.projectName}</div>
         <AudioBtn on={audioOn} onToggle={toggleAudio} />
+        {isDirty && <SaveBtn saving={saving} onClick={handleSave} />}
+        <button onClick={() => { setEditMode(v => !v); }}
+          style={{
+            background: editMode ? "#6366f1" : "#f1f5f9", border: "none",
+            color: editMode ? "#fff" : "#64748b", padding: "5px 12px", borderRadius: 20, fontSize: 10, fontWeight: 700, cursor: "pointer",
+          }}>
+          {editMode ? "✓ Done" : "✏️ Edit"}
+        </button>
         <button onClick={() => setShow3D(v => !v)}
           style={{
             background: show3D ? "#6366f1" : "#f1f5f9",
@@ -1163,9 +1251,22 @@ function ProductShowcase({ manifest }: { manifest: RenderManifest }) {
           </div>
           <div style={{ padding: "16px 24px", borderTop: "1px solid rgba(0,0,0,0.08)" }}>
             <div style={{ color: "#6366f1", fontSize: 10, fontWeight: 700, marginBottom: 4 }}>{frame?.badge}</div>
-            <div style={{ fontSize: 13, color: "#374151", lineHeight: 1.65, marginBottom: 12, whiteSpace: "pre-wrap" }}>
-              {frame?.content}
-            </div>
+            {editMode ? (
+              <textarea
+                value={currentDesc}
+                onChange={e => setEditedDesc(prev => ({ ...prev, [viewIdx]: e.target.value }))}
+                style={{
+                  width: "100%", minHeight: 80, border: "1px solid rgba(99,102,241,0.3)",
+                  borderRadius: 8, fontSize: 13, lineHeight: 1.65, padding: "8px 10px",
+                  resize: "vertical", fontFamily: "inherit", color: "#374151",
+                  background: "rgba(99,102,241,0.03)", marginBottom: 12,
+                }}
+              />
+            ) : (
+              <div style={{ fontSize: 13, color: "#374151", lineHeight: 1.65, marginBottom: 12, whiteSpace: "pre-wrap" }}>
+                {currentDesc}
+              </div>
+            )}
             <div style={{ display: "flex", gap: 8 }}>
               {manifest.frames.map((f, i) => (
                 <button key={i} onClick={() => setViewIdx(i)}
@@ -1559,39 +1660,86 @@ function PodcastPlayer({ manifest, projectId }: { manifest: RenderManifest; proj
 
 // ─── Document Reader ──────────────────────────────────────────────────────────
 
-function DocumentReader({ manifest }: { manifest: RenderManifest }) {
-  const [section, setSection] = useState(0);
+function DocumentReader({ manifest, projectId }: { manifest: RenderManifest; projectId: string | number }) {
+  const [section, setSection]           = useState(0);
+  const [editMode, setEditMode]         = useState(false);
+  const [editedSections, setEditedSec]  = useState<Record<number, string>>({});
+  const [saving, setSaving]             = useState(false);
+  const [audioOn, setAudioOn]           = useState(false);
+  const audio = useAmbientAudio();
   const frame = manifest.frames[section];
 
+  const toggleAudio = useCallback(() => {
+    if (!audioOn) { audio.play("focus"); setAudioOn(true); }
+    else          { audio.fadeOut(0.6); setAudioOn(false); }
+  }, [audioOn, audio]);
+
+  const currentContent = editedSections[section] ?? frame?.content ?? "";
+  const isDirty = (editedSections[section] ?? null) !== null && editedSections[section] !== (frame?.content ?? "");
+
+  const handleSave = async () => {
+    if (!isDirty) return;
+    setSaving(true);
+    await saveToProject(projectId, `_saved_doc_section_${section}`, currentContent);
+    setSaving(false);
+  };
+
   return (
-    <div style={{ height: "100%", display: "flex", background: "#faf9f7" }}>
-      <div style={{ width: 160, flexShrink: 0, background: "#fff", borderRight: "1px solid rgba(0,0,0,0.08)", padding: 12 }}>
-        <div style={{ fontSize: 10, fontWeight: 700, color: "#94a3b8", marginBottom: 10, letterSpacing: "0.08em" }}>SECTIONS</div>
-        {manifest.frames.map((f, i) => (
-          <button key={i} onClick={() => setSection(i)}
-            style={{
-              display: "block", width: "100%", textAlign: "left",
-              padding: "8px 10px", borderRadius: 8, marginBottom: 2,
-              background: i === section ? "rgba(99,102,241,0.08)" : "transparent",
-              border: "none", color: i === section ? "#6366f1" : "#374151",
-              fontSize: 11, fontWeight: i === section ? 600 : 400, cursor: "pointer",
-            }}>
-            {f.title}
-          </button>
-        ))}
-        <div style={{ borderTop: "1px solid rgba(0,0,0,0.06)", marginTop: 12, paddingTop: 12 }}>
-          <button onClick={() => window.print()}
-            style={{ display: "block", width: "100%", padding: "7px 0", background: "#6366f1", border: "none", borderRadius: 8, color: "#fff", fontSize: 10, fontWeight: 700, cursor: "pointer" }}>
-            📄 Export PDF
-          </button>
-        </div>
+    <div style={{ height: "100%", display: "flex", background: "#faf9f7", flexDirection: "column" }}>
+      {/* Doc toolbar */}
+      <div style={{ display: "flex", alignItems: "center", gap: 8, padding: "8px 16px", background: "#fff", borderBottom: "1px solid rgba(0,0,0,0.07)", flexWrap: "wrap" }}>
+        <div style={{ fontSize: 12, fontWeight: 700, color: "#0f172a", flex: 1, minWidth: 100 }}>{manifest.projectName}</div>
+        <AudioBtn on={audioOn} onToggle={toggleAudio} />
+        <button onClick={() => setEditMode(v => !v)}
+          style={{
+            background: editMode ? "#6366f1" : "#f1f5f9", border: "none",
+            color: editMode ? "#fff" : "#64748b", padding: "5px 12px", borderRadius: 8, fontSize: 10, fontWeight: 700, cursor: "pointer",
+          }}>
+          {editMode ? "✓ Done" : "✏️ Edit"}
+        </button>
+        {isDirty && <SaveBtn saving={saving} onClick={handleSave} />}
+        <button onClick={() => window.print()}
+          style={{ background: "#6366f1", border: "none", color: "#fff", padding: "5px 12px", borderRadius: 8, fontSize: 10, fontWeight: 700, cursor: "pointer" }}>
+          📄 PDF
+        </button>
       </div>
-      <div style={{ flex: 1, overflowY: "auto", padding: "32px 48px" }}>
-        {frame?.imageUrl && (
-          <img src={frame.imageUrl} alt="" style={{ width: "100%", maxHeight: 200, objectFit: "cover", borderRadius: 12, marginBottom: 24 }} />
-        )}
-        <h2 style={{ fontSize: 20, fontWeight: 700, color: "#0f172a", marginBottom: 20 }}>{frame?.title}</h2>
-        <div style={{ fontSize: 14, lineHeight: 1.8, color: "#374151", whiteSpace: "pre-wrap" }}>{frame?.content}</div>
+      {/* Body */}
+      <div style={{ flex: 1, display: "flex", overflow: "hidden" }}>
+        <div style={{ width: 160, flexShrink: 0, background: "#fff", borderRight: "1px solid rgba(0,0,0,0.08)", padding: 12, overflowY: "auto" }}>
+          <div style={{ fontSize: 10, fontWeight: 700, color: "#94a3b8", marginBottom: 10, letterSpacing: "0.08em" }}>SECTIONS</div>
+          {manifest.frames.map((f, i) => (
+            <button key={i} onClick={() => { setSection(i); setEditMode(false); }}
+              style={{
+                display: "block", width: "100%", textAlign: "left",
+                padding: "8px 10px", borderRadius: 8, marginBottom: 2,
+                background: i === section ? "rgba(99,102,241,0.08)" : "transparent",
+                border: "none", color: i === section ? "#6366f1" : "#374151",
+                fontSize: 11, fontWeight: i === section ? 600 : 400, cursor: "pointer",
+              }}>
+              {f.title}
+            </button>
+          ))}
+        </div>
+        <div style={{ flex: 1, overflowY: "auto", padding: "32px 48px" }}>
+          {frame?.imageUrl && (
+            <img src={frame.imageUrl} alt="" style={{ width: "100%", maxHeight: 200, objectFit: "cover", borderRadius: 12, marginBottom: 24 }} />
+          )}
+          <h2 style={{ fontSize: 20, fontWeight: 700, color: "#0f172a", marginBottom: 20 }}>{frame?.title}</h2>
+          {editMode ? (
+            <textarea
+              value={currentContent}
+              onChange={e => setEditedSec(prev => ({ ...prev, [section]: e.target.value }))}
+              style={{
+                width: "100%", minHeight: 320, border: "1px solid rgba(99,102,241,0.25)",
+                borderRadius: 10, fontSize: 14, lineHeight: 1.8, padding: "14px 16px",
+                resize: "vertical", fontFamily: "inherit", color: "#374151",
+                background: "#fff",
+              }}
+            />
+          ) : (
+            <div style={{ fontSize: 14, lineHeight: 1.8, color: "#374151", whiteSpace: "pre-wrap" }}>{currentContent}</div>
+          )}
+        </div>
       </div>
     </div>
   );
@@ -1601,16 +1749,16 @@ function DocumentReader({ manifest }: { manifest: RenderManifest }) {
 
 function OutputViewer({ manifest, projectId }: { manifest: RenderManifest; projectId: string | number }) {
   switch (manifest.renderMode) {
-    case "cinematic": return <CinematicPlayer manifest={manifest} />;
-    case "game":      return <GamePlayer    manifest={manifest} projectId={projectId} />;
-    case "app":       return <AppPlayer     manifest={manifest} projectId={projectId} />;
-    case "book":      return <BookReader    manifest={manifest} projectId={projectId} />;
-    case "course":    return <CoursePlayer  manifest={manifest} projectId={projectId} />;
-    case "pitch":     return <PitchDeckViewer manifest={manifest} />;
-    case "showcase":  return <ProductShowcase manifest={manifest} />;
-    case "music":     return <MusicPlayer   manifest={manifest} projectId={projectId} />;
-    case "podcast":   return <PodcastPlayer manifest={manifest} projectId={projectId} />;
-    default:          return <DocumentReader manifest={manifest} />;
+    case "cinematic": return <CinematicPlayer  manifest={manifest} />;
+    case "game":      return <GamePlayer        manifest={manifest} projectId={projectId} />;
+    case "app":       return <AppPlayer         manifest={manifest} projectId={projectId} />;
+    case "book":      return <BookReader        manifest={manifest} projectId={projectId} />;
+    case "course":    return <CoursePlayer      manifest={manifest} projectId={projectId} />;
+    case "pitch":     return <PitchDeckViewer   manifest={manifest} projectId={projectId} />;
+    case "showcase":  return <ProductShowcase   manifest={manifest} projectId={projectId} />;
+    case "music":     return <MusicPlayer       manifest={manifest} projectId={projectId} />;
+    case "podcast":   return <PodcastPlayer     manifest={manifest} projectId={projectId} />;
+    default:          return <DocumentReader    manifest={manifest} projectId={projectId} />;
   }
 }
 
@@ -1776,7 +1924,7 @@ export function RenderEngineApp({ projectId, projectName, projectType, onClose }
         </div>
 
         {phase === "done" && (
-          <div style={{ marginLeft: 12, display: "flex", gap: 6 }}>
+          <div style={{ marginLeft: 12, display: "flex", gap: 6, flexWrap: "wrap" }}>
             {(["console", "output"] as const).map(v => (
               <button key={v} onClick={() => setView(v)}
                 style={{
@@ -1788,6 +1936,22 @@ export function RenderEngineApp({ projectId, projectName, projectType, onClose }
                 {v === "console" ? "📟 Log" : `${meta.icon} Output`}
               </button>
             ))}
+            <button
+              onClick={() => {
+                setManifest(null);
+                setPhase("idle");
+                setView("console");
+                setFrames([]);
+                setLog([]);
+              }}
+              style={{
+                padding: "5px 12px", borderRadius: 20,
+                background: "#f1f5f9", border: "none", color: "#64748b",
+                fontSize: 11, fontWeight: 700, cursor: "pointer",
+              }}
+              title="Start fresh generation">
+              🔄
+            </button>
           </div>
         )}
 
