@@ -1,6 +1,6 @@
 import { Router, type IRouter, type Request, type Response } from "express";
 import { logTractionEvent } from "../lib/tractionLogger";
-import { eq, desc, and, or, isNull, ne } from "drizzle-orm";
+import { eq, desc, and, or, isNull, ne, inArray } from "drizzle-orm";
 import { openai } from "@workspace/integrations-openai-ai-server";
 import {
   db,
@@ -386,6 +386,124 @@ router.get("/files/:fileId", audit("read_file", "project_file", r => r.params.fi
     res.status(500).json({ error: "Failed to fetch file" });
   }
 });
+
+// ─── GET /portfolio-intelligence — Cross-project AI recommendations ──────────
+//
+// Analyses all active projects for the user and returns:
+//   - Portfolio stats (type distribution, avg completion)
+//   - AI-generated portfolio recommendations  
+//   - Suggested missing project types
+//   - Cross-project synergies
+
+router.get(
+  "/portfolio-intelligence",
+  async (req: Request, res: Response) => {
+    const userId = requireAuth(req, res);
+    if (!userId) return;
+
+    try {
+      const userProjects = await db.select().from(projects).where(eq(projects.userId, userId));
+      const activeProjects = userProjects.filter(p => p.status !== "archived");
+
+      if (activeProjects.length === 0) {
+        res.json({
+          stats: { total: 0, typeBreakdown: {}, avgCompletion: 0 },
+          recommendations: [],
+          missingTypes: ["Film / Movie", "Startup", "Web App / SaaS"],
+          synergies: [],
+        });
+        return;
+      }
+
+      // Compute stats
+      const typeBreakdown: Record<string, number> = {};
+      for (const p of activeProjects) {
+        const t = p.industry ?? "General";
+        typeBreakdown[t] = (typeBreakdown[t] ?? 0) + 1;
+      }
+
+      // Fetch files for all projects (completion scoring)
+      const projectIds = activeProjects.map(p => p.id);
+      const allFiles = await db.select().from(projectFiles)
+        .where(inArray(projectFiles.projectId, projectIds))
+        .catch(() => [] as typeof projectFiles.$inferSelect[]);
+
+      // Per-project completion rates
+      const projectCompletions: Array<{ name: string; industry: string; completion: number; files: number }> = [];
+      for (const p of activeProjects) {
+        const pFiles = allFiles.filter(f => f.projectId === p.id);
+        const BRACKET_RE = /\[[A-Z][A-Z\s/&'.,\-#%*0-9]{1,40}]/g;
+        const complete = pFiles.filter(f => {
+          const c = f.content ?? "";
+          if (c.length < 80) return false;
+          const bm = c.match(BRACKET_RE) ?? [];
+          return bm.length === 0;
+        }).length;
+        const completion = pFiles.length > 0 ? Math.round((complete / pFiles.length) * 100) : 0;
+        projectCompletions.push({ name: p.name, industry: p.industry ?? "General", completion, files: pFiles.length });
+      }
+      const avgCompletion = projectCompletions.length > 0
+        ? Math.round(projectCompletions.reduce((a, p) => a + p.completion, 0) / projectCompletions.length)
+        : 0;
+
+      // AI portfolio analysis
+      const portfolioSummary = projectCompletions
+        .map(p => `• "${p.name}" (${p.industry}) — ${p.completion}% complete, ${p.files} docs`)
+        .join("\n");
+
+      const existingTypes = Object.keys(typeBreakdown);
+      const allTypes = ["Film / Movie", "Documentary", "Video Game", "Mobile App", "Web App / SaaS",
+                        "Business", "Startup", "Physical Product", "Book / Novel", "Music / Album", "Podcast", "Online Course"];
+      const missingTypes = allTypes.filter(t => !existingTypes.includes(t)).slice(0, 4);
+
+      const aiResponse = await openai.chat.completions.create({
+        model: "gpt-4o",
+        temperature: 0.5,
+        messages: [
+          {
+            role: "system",
+            content: `You are a cross-project portfolio advisor. Analyse a creator's project portfolio and provide strategic recommendations. Return ONLY valid JSON with no markdown.`,
+          },
+          {
+            role: "user",
+            content: `My project portfolio:\n${portfolioSummary}\n\nReturn this exact JSON:\n{\n  "recommendations": [\n    { "title": "...", "body": "...", "priority": "high" | "medium" | "low" }\n  ],\n  "synergies": [\n    { "projects": ["...", "..."], "insight": "..." }\n  ],\n  "portfolioInsight": "One paragraph strategic overview of the portfolio"\n}\n\nProvide 3-4 recommendations and 1-2 synergies. Be specific and actionable.`,
+          },
+        ],
+      } as Parameters<typeof openai.chat.completions.create>[0]);
+
+      const raw = (aiResponse as { choices: { message: { content: string } }[] })
+        .choices[0]?.message?.content ?? "{}";
+
+      let aiResult: {
+        recommendations: Array<{ title: string; body: string; priority: string }>;
+        synergies: Array<{ projects: string[]; insight: string }>;
+        portfolioInsight: string;
+      };
+      try {
+        aiResult = JSON.parse(raw) as typeof aiResult;
+      } catch {
+        const stripped = raw.replace(/^```(?:json)?\n?/, "").replace(/\n?```$/, "").trim();
+        aiResult = JSON.parse(stripped) as typeof aiResult;
+      }
+
+      res.json({
+        stats: {
+          total: activeProjects.length,
+          typeBreakdown,
+          avgCompletion,
+          projectCompletions,
+        },
+        recommendations: aiResult.recommendations ?? [],
+        synergies:       aiResult.synergies        ?? [],
+        portfolioInsight: aiResult.portfolioInsight ?? "",
+        missingTypes,
+      });
+    } catch (err) {
+      console.error("[portfolio-intelligence] GET", err);
+      res.status(500).json({ error: "Portfolio intelligence failed" });
+    }
+  },
+);
 
 // ─── GET /projects/all-files ───────────────────────────────────────────────
 

@@ -9,7 +9,7 @@ import { ProjectOutputLayer } from "./ProjectOutputLayer";
 
 // ─── Types ────────────────────────────────────────────────────────────────────
 
-type ViewMode = "output" | "dashboard+folders" | "dashboard" | "folders" | "simple" | "advanced" | "tasks" | "team" | "opportunities" | "sales" | "ops" | "support" | "compliance" | "enterprise" | "strategy" | "ux" | "pipeline" | "marketing" | "product" | "hr" | "finance";
+type ViewMode = "output" | "dashboard+folders" | "dashboard" | "folders" | "simple" | "advanced" | "tasks" | "team" | "opportunities" | "portfolio" | "sales" | "ops" | "support" | "compliance" | "enterprise" | "strategy" | "ux" | "pipeline" | "marketing" | "product" | "hr" | "finance";
 
 // ─── Shared / Suggested Types ────────────────────────────────────────────────
 interface SharedProject {
@@ -1071,6 +1071,20 @@ export function ProjectOSApp() {
   const [fileContentLoading, setFileContentLoading] = useState(false);
   const [fileContentSaving, setFileContentSaving] = useState(false);
   const [fileContentSaved, setFileContentSaved] = useState(false);
+  // Instant-edit AI agent
+  const [instantEditLoading, setInstantEditLoading] = useState(false);
+  const [instantEditMode, setInstantEditMode] = useState<"improve" | "rewrite" | "expand" | "summarize" | "proof" | null>(null);
+  const [showInstantEditMenu, setShowInstantEditMenu] = useState(false);
+  const instantEditAbortRef = useRef<AbortController | null>(null);
+  // Portfolio intelligence
+  const [portfolioIntel, setPortfolioIntel] = useState<{
+    stats:  { total: number; typeBreakdown: Record<string, number>; avgCompletion: number; projectCompletions: Array<{ name: string; industry: string; completion: number; files: number }> };
+    recommendations: Array<{ title: string; body: string; priority: string }>;
+    synergies: Array<{ projects: string[]; insight: string }>;
+    portfolioInsight: string;
+    missingTypes: string[];
+  } | null>(null);
+  const [portfolioIntelLoading, setPortfolioIntelLoading] = useState(false);
   // ── File-level agent chat ──
   const [fileAiMessages, setFileAiMessages] = useState<{ role: "user" | "ai"; text: string }[]>([]);
   const [fileAiInput, setFileAiInput]       = useState("");
@@ -1465,6 +1479,86 @@ export function ProjectOSApp() {
     setGenomeLoading(false);
   }, []);
 
+  // ── startInstantEdit — SSE-stream AI-improved content into the active file ──
+  const startInstantEdit = useCallback(async (
+    mode: "improve" | "rewrite" | "expand" | "summarize" | "proof",
+  ) => {
+    if (!activeProject || !viewingFile || instantEditLoading) return;
+    setShowInstantEditMenu(false);
+    setInstantEditLoading(true);
+    setInstantEditMode(mode);
+    instantEditAbortRef.current?.abort();
+    const ctrl = new AbortController();
+    instantEditAbortRef.current = ctrl;
+    let newContent = "";
+    try {
+      const res = await fetch(
+        `/api/project-documents/${activeProject.id}/instant-edit/${viewingFile.id}`,
+        {
+          method:      "POST",
+          credentials: "include",
+          headers:     { "Content-Type": "application/json" },
+          body:        JSON.stringify({ mode }),
+          signal:      ctrl.signal,
+        },
+      );
+      if (!res.ok || !res.body) throw new Error("stream failed");
+      const reader = res.body.getReader();
+      const dec    = new TextDecoder();
+      let buf = "";
+      while (true) {
+        const { done, value } = await reader.read();
+        if (done) break;
+        buf += dec.decode(value, { stream: true });
+        const parts = buf.split("\n\n");
+        buf = parts.pop() ?? "";
+        for (const part of parts) {
+          if (!part.startsWith("data: ")) continue;
+          try {
+            const evt = JSON.parse(part.slice(6)) as Record<string, unknown>;
+            if (evt.type === "chunk") {
+              newContent += evt.content as string;
+              setFileContentText(newContent);
+            } else if (evt.type === "done") {
+              // DB already saved by backend; update local project file cache
+              setProjects(prev => prev.map(p =>
+                p.id !== activeProject.id ? p : {
+                  ...p,
+                  files: p.files.map(f =>
+                    f.id === viewingFile.id ? { ...f, content: newContent } : f,
+                  ),
+                },
+              ));
+              setFileContentSaved(true);
+              setTimeout(() => setFileContentSaved(false), 3000);
+            }
+          } catch { /* skip */ }
+        }
+      }
+    } catch (e: unknown) {
+      if ((e as Error)?.name !== "AbortError") {
+        console.error("[instant-edit] stream error", e);
+      }
+    }
+    setInstantEditLoading(false);
+    setInstantEditMode(null);
+  }, [activeProject, viewingFile, instantEditLoading]);
+
+  // ── fetchPortfolioIntel — load cross-project AI intelligence ─────────────
+  const fetchPortfolioIntel = useCallback(async () => {
+    if (portfolioIntelLoading) return;
+    setPortfolioIntelLoading(true);
+    setPortfolioIntel(null);
+    try {
+      const res = await fetch("/api/projects/portfolio-intelligence", { credentials: "include" });
+      if (res.ok) {
+        const data = await res.json() as typeof portfolioIntel;
+        setPortfolioIntel(data);
+      }
+    } catch { /* best-effort */ }
+    setPortfolioIntelLoading(false);
+  }, [portfolioIntelLoading]);
+
   // ── createProjectDirect — create + scaffold + genome from explicit params ────
   //    Used by "Create X" natural language flow (no modal required)
   const createProjectDirect = useCallback(async (
@@ -1858,6 +1952,7 @@ export function ProjectOSApp() {
     { id: "tasks",             label: "📋 Tasks" },
     { id: "team",              label: "👥 Team" },
     { id: "opportunities",     label: "💡 Opportunities" },
+    { id: "portfolio",         label: "🧠 Portfolio Intelligence" },
     { id: "pipeline",          label: "🔄 Pipeline",     group: "power" },
     { id: "sales",             label: "📈 Sales",        group: "teams" },
     { id: "ops",               label: "⚙️ Ops",          group: "teams" },
@@ -2376,9 +2471,47 @@ export function ProjectOSApp() {
               <span className="text-[11px] font-medium text-green-400 px-2 py-0.5 rounded-full flex-shrink-0"
                 style={{ background: "rgba(34,197,94,0.12)" }}>✓ Saved</span>
             )}
+            {/* ── Instant-edit AI dropdown ── */}
+            <div className="relative flex-shrink-0">
+              <button
+                onClick={() => setShowInstantEditMenu(v => !v)}
+                disabled={instantEditLoading}
+                className="text-[11px] font-semibold px-3 py-1.5 rounded-xl flex items-center gap-1.5 flex-shrink-0"
+                style={{
+                  background: instantEditLoading ? "rgba(99,102,241,0.10)" : "rgba(99,102,241,0.18)",
+                  border:     "1px solid rgba(99,102,241,0.30)",
+                  color:      "#a5b4fc",
+                }}
+              >
+                {instantEditLoading
+                  ? <><div className="w-2.5 h-2.5 border-2 border-indigo-400 border-t-transparent rounded-full animate-spin" />{instantEditMode ?? "Editing"}…</>
+                  : "✦ AI Improve"}
+              </button>
+              {showInstantEditMenu && !instantEditLoading && (
+                <div
+                  className="absolute right-0 top-full mt-1.5 z-50 rounded-xl overflow-hidden"
+                  style={{ background: "#1e1e2e", border: "1px solid rgba(99,102,241,0.25)", boxShadow: "0 8px 24px rgba(0,0,0,0.35)", minWidth: 160 }}
+                >
+                  {(["improve", "rewrite", "expand", "summarize", "proof"] as const).map(m => (
+                    <button
+                      key={m}
+                      onClick={() => startInstantEdit(m)}
+                      className="w-full text-left px-4 py-2.5 text-[12px] font-medium hover:bg-indigo-500/15 transition-colors capitalize"
+                      style={{ color: "#c7d2fe" }}
+                    >
+                      {m === "improve"   ? "✦ Improve"   :
+                       m === "rewrite"   ? "↺ Rewrite"   :
+                       m === "expand"    ? "↕ Expand"    :
+                       m === "summarize" ? "⊟ Summarize" :
+                                          "✓ Proofread"}
+                    </button>
+                  ))}
+                </div>
+              )}
+            </div>
             {!fileContentEditing ? (
               <button
-                onClick={() => { setFileContentEditing(true); setFileContentSaved(false); }}
+                onClick={() => { setFileContentEditing(true); setFileContentSaved(false); setShowInstantEditMenu(false); }}
                 className="text-[11px] font-semibold px-3 py-1.5 rounded-xl flex-shrink-0"
                 style={{ background: "rgba(99,102,241,0.15)", color: "#a5b4fc", border: "1px solid rgba(99,102,241,0.25)" }}
               >Edit</button>
@@ -3207,6 +3340,156 @@ export function ProjectOSApp() {
                 </div>
               )}
 
+              {/* ── Portfolio Intelligence Panel ── */}
+              {viewMode === "portfolio" && (
+                <div className="flex-1 overflow-y-auto p-5">
+                  <div className="flex items-center justify-between mb-5">
+                    <div>
+                      <div className="text-[15px] font-bold mb-1" style={{ color: "#0f172a" }}>🧠 Portfolio Intelligence</div>
+                      <div className="text-[11px]" style={{ color: "#64748b" }}>
+                        AI-powered cross-project analysis — patterns, synergies, and strategic recommendations.
+                      </div>
+                    </div>
+                    <button
+                      onClick={fetchPortfolioIntel}
+                      disabled={portfolioIntelLoading}
+                      className="px-4 py-2 rounded-xl text-[12px] font-semibold flex items-center gap-2"
+                      style={{ background: "rgba(99,102,241,0.12)", border: "1px solid rgba(99,102,241,0.25)", color: "#6366f1" }}
+                    >
+                      {portfolioIntelLoading
+                        ? <><div className="w-3 h-3 border-2 border-indigo-500 border-t-transparent rounded-full animate-spin" />Analysing…</>
+                        : "✦ Analyse Portfolio"}
+                    </button>
+                  </div>
+
+                  {/* Stats bar */}
+                  {portfolioIntel && (
+                    <div className="grid grid-cols-3 gap-3 mb-5">
+                      <div className="rounded-xl p-3.5" style={{ background: "rgba(99,102,241,0.07)", border: "1px solid rgba(99,102,241,0.15)" }}>
+                        <div className="text-[22px] font-bold" style={{ color: "#6366f1" }}>{portfolioIntel.stats.total}</div>
+                        <div className="text-[11px] font-medium mt-0.5" style={{ color: "#64748b" }}>Active Projects</div>
+                      </div>
+                      <div className="rounded-xl p-3.5" style={{ background: "rgba(16,185,129,0.07)", border: "1px solid rgba(16,185,129,0.15)" }}>
+                        <div className="text-[22px] font-bold" style={{ color: "#10b981" }}>{portfolioIntel.stats.avgCompletion}%</div>
+                        <div className="text-[11px] font-medium mt-0.5" style={{ color: "#64748b" }}>Avg Completion</div>
+                      </div>
+                      <div className="rounded-xl p-3.5" style={{ background: "rgba(245,158,11,0.07)", border: "1px solid rgba(245,158,11,0.15)" }}>
+                        <div className="text-[22px] font-bold" style={{ color: "#f59e0b" }}>{Object.keys(portfolioIntel.stats.typeBreakdown).length}</div>
+                        <div className="text-[11px] font-medium mt-0.5" style={{ color: "#64748b" }}>Project Types</div>
+                      </div>
+                    </div>
+                  )}
+
+                  {/* Project completion heatmap */}
+                  {portfolioIntel && portfolioIntel.stats.projectCompletions.length > 0 && (
+                    <div className="rounded-xl p-4 mb-4" style={{ background: "#f8fafc", border: "1px solid rgba(0,0,0,0.07)" }}>
+                      <div className="text-[12px] font-semibold mb-3" style={{ color: "#334155" }}>Completion by Project</div>
+                      <div className="space-y-2">
+                        {portfolioIntel.stats.projectCompletions.map((p, i) => {
+                          const col = INDUSTRY_COLORS[p.industry] ?? "#6366f1";
+                          return (
+                            <div key={i} className="flex items-center gap-3">
+                              <span className="text-[11px] w-[110px] truncate font-medium" style={{ color: "#475569" }} title={p.name}>{p.name}</span>
+                              <div className="flex-1 rounded-full overflow-hidden h-2" style={{ background: "rgba(0,0,0,0.06)" }}>
+                                <div
+                                  className="h-full rounded-full transition-all"
+                                  style={{ width: `${p.completion}%`, background: col }}
+                                />
+                              </div>
+                              <span className="text-[10px] font-bold w-8 text-right" style={{ color: col }}>{p.completion}%</span>
+                            </div>
+                          );
+                        })}
+                      </div>
+                    </div>
+                  )}
+
+                  {/* Portfolio insight */}
+                  {portfolioIntel?.portfolioInsight && (
+                    <div className="rounded-xl p-4 mb-4" style={{ background: "rgba(99,102,241,0.06)", border: "1px solid rgba(99,102,241,0.15)" }}>
+                      <div className="text-[11px] font-bold mb-2" style={{ color: "#6366f1" }}>PORTFOLIO OVERVIEW</div>
+                      <p className="text-[12px] leading-relaxed" style={{ color: "#334155" }}>{portfolioIntel.portfolioInsight}</p>
+                    </div>
+                  )}
+
+                  {/* AI Recommendations */}
+                  {portfolioIntel && portfolioIntel.recommendations.length > 0 && (
+                    <div className="mb-4">
+                      <div className="text-[12px] font-bold mb-2.5" style={{ color: "#334155" }}>Strategic Recommendations</div>
+                      <div className="space-y-2.5">
+                        {portfolioIntel.recommendations.map((r, i) => {
+                          const priColor = r.priority === "high" ? "#ef4444" : r.priority === "medium" ? "#f59e0b" : "#10b981";
+                          return (
+                            <div key={i} className="rounded-xl p-3.5" style={{ background: "#ffffff", border: "1px solid rgba(0,0,0,0.07)" }}>
+                              <div className="flex items-center gap-2 mb-1.5">
+                                <span className="text-[9px] font-bold px-2 py-0.5 rounded-full capitalize"
+                                  style={{ background: `${priColor}18`, color: priColor }}>{r.priority}</span>
+                                <span className="text-[12px] font-semibold" style={{ color: "#0f172a" }}>{r.title}</span>
+                              </div>
+                              <p className="text-[11px] leading-relaxed" style={{ color: "#475569" }}>{r.body}</p>
+                            </div>
+                          );
+                        })}
+                      </div>
+                    </div>
+                  )}
+
+                  {/* Synergies */}
+                  {portfolioIntel && portfolioIntel.synergies.length > 0 && (
+                    <div className="mb-4">
+                      <div className="text-[12px] font-bold mb-2.5" style={{ color: "#334155" }}>Cross-Project Synergies</div>
+                      <div className="space-y-2">
+                        {portfolioIntel.synergies.map((s, i) => (
+                          <div key={i} className="rounded-xl p-3.5" style={{ background: "rgba(99,102,241,0.06)", border: "1px solid rgba(99,102,241,0.12)" }}>
+                            <div className="flex flex-wrap gap-1.5 mb-1.5">
+                              {s.projects.map((name, j) => (
+                                <span key={j} className="text-[10px] font-semibold px-2 py-0.5 rounded-full"
+                                  style={{ background: "rgba(99,102,241,0.12)", color: "#6366f1" }}>{name}</span>
+                              ))}
+                            </div>
+                            <p className="text-[11px] leading-relaxed" style={{ color: "#475569" }}>{s.insight}</p>
+                          </div>
+                        ))}
+                      </div>
+                    </div>
+                  )}
+
+                  {/* Missing types */}
+                  {portfolioIntel && portfolioIntel.missingTypes.length > 0 && (
+                    <div>
+                      <div className="text-[12px] font-bold mb-2.5" style={{ color: "#334155" }}>Expand Your Portfolio</div>
+                      <div className="flex flex-wrap gap-2">
+                        {portfolioIntel.missingTypes.map(t => (
+                          <button
+                            key={t}
+                            onClick={() => { setNewProjIndustry(t); setShowNewProject(true); }}
+                            className="flex items-center gap-1.5 px-3 py-1.5 rounded-xl text-[11px] font-semibold"
+                            style={{ background: "rgba(0,0,0,0.04)", border: "1px dashed rgba(0,0,0,0.12)", color: "#64748b" }}
+                          >
+                            <span>{INDUSTRY_ICONS[t] ?? "📁"}</span> {t}
+                          </button>
+                        ))}
+                      </div>
+                    </div>
+                  )}
+
+                  {!portfolioIntel && !portfolioIntelLoading && (
+                    <div className="flex flex-col items-center justify-center py-20 text-center">
+                      <div className="text-4xl mb-3">🧠</div>
+                      <div className="text-[14px] font-semibold mb-1" style={{ color: "#334155" }}>Portfolio Intelligence</div>
+                      <p className="text-[12px] mb-5 max-w-[280px]" style={{ color: "#64748b" }}>
+                        Click Analyse Portfolio to get AI-powered insights across all your active projects.
+                      </p>
+                      <button
+                        onClick={fetchPortfolioIntel}
+                        className="px-5 py-2.5 rounded-xl text-[13px] font-semibold text-white"
+                        style={{ background: "linear-gradient(135deg,#6366f1,#8b5cf6)" }}
+                      >✦ Analyse my portfolio</button>
+                    </div>
+                  )}
+                </div>
+              )}
+
               {/* ── Sales Module ── */}
               {viewMode === "sales" && activeProject && (
                 <SalesModule projectName={activeProject.name} />
@@ -3279,7 +3562,7 @@ export function ProjectOSApp() {
               )}
 
               {/* Folder + File View */}
-              {viewMode !== "output" && viewMode !== "dashboard" && viewMode !== "tasks" && viewMode !== "team" && viewMode !== "opportunities" && viewMode !== "sales" && viewMode !== "ops" && viewMode !== "support" && viewMode !== "compliance" && viewMode !== "enterprise" && viewMode !== "strategy" && viewMode !== "ux" && viewMode !== "pipeline" && viewMode !== "marketing" && viewMode !== "product" && viewMode !== "hr" && viewMode !== "finance" && (
+              {viewMode !== "output" && viewMode !== "dashboard" && viewMode !== "tasks" && viewMode !== "team" && viewMode !== "opportunities" && viewMode !== "portfolio" && viewMode !== "sales" && viewMode !== "ops" && viewMode !== "support" && viewMode !== "compliance" && viewMode !== "enterprise" && viewMode !== "strategy" && viewMode !== "ux" && viewMode !== "pipeline" && viewMode !== "marketing" && viewMode !== "product" && viewMode !== "hr" && viewMode !== "finance" && (
                 <div className="flex flex-1 overflow-hidden">
 
                   {/* Folder Tree */}

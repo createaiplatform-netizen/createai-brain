@@ -452,4 +452,109 @@ router.post(
   },
 );
 
+// ─── POST /:projectId/instant-edit/:fileId  (SSE) ────────────────────────────
+//
+// Instant-edit AI agent: streams an AI-improved version of a single document
+// directly back to the frontend and saves the result to the database.
+//
+// SSE events:
+//   { type: "start",   mode, fileName }
+//   { type: "chunk",   content }
+//   { type: "done",    fileId, fileName }
+//   { type: "error",   message }
+//
+// Body: { mode: "improve" | "rewrite" | "expand" | "summarize" | "proof", context?: string }
+
+router.post(
+  "/:projectId/instant-edit/:fileId",
+  audit("ai_instant_edit", "ai_generation"),
+  async (req: Request, res: Response) => {
+    const userId = requireAuth(req, res);
+    if (!userId) return;
+
+    const projectId = parseInt(req.params.projectId as string, 10);
+    const fileId    = parseInt(req.params.fileId    as string, 10);
+
+    const { mode = "improve", context = "" } = (req.body ?? {}) as {
+      mode?: "improve" | "rewrite" | "expand" | "summarize" | "proof";
+      context?: string;
+    };
+
+    try {
+      const [project] = await db.select().from(projects).where(eq(projects.id, projectId));
+      if (!project || project.userId !== userId) {
+        res.status(404).json({ error: "Project not found" }); return;
+      }
+
+      const [file] = await db.select().from(projectFiles).where(eq(projectFiles.id, fileId));
+      if (!file || file.projectId !== projectId) {
+        res.status(404).json({ error: "File not found" }); return;
+      }
+
+      const currentContent = file.content ?? "";
+      const projectType    = project.industry ?? "General";
+
+      const modePrompts: Record<string, string> = {
+        improve:   `You are an expert ${projectType} professional. Improve the following document: enhance clarity, completeness, and professional quality. Keep the existing structure and headings. Fill in all placeholder brackets with realistic, high-quality content specific to "${project.name}". Return only the improved document, no preamble.`,
+        rewrite:   `You are an expert ${projectType} professional. Completely rewrite the following document for "${project.name}". Keep the same purpose and structure but use fresh language, deeper insight, and maximum professional quality. Fill all placeholders. Return only the rewritten document.`,
+        expand:    `You are an expert ${projectType} professional. Significantly expand the following document for "${project.name}" by adding depth, detail, and actionable specifics in every section. Double the level of detail. Fill all placeholders. Return only the expanded document.`,
+        summarize: `You are an expert ${projectType} professional. Distill the following document for "${project.name}" into its most essential points. Use bullet points where appropriate. Keep critical decisions and key data. Return only the condensed document.`,
+        proof:     `You are an expert editor. Proofread and polish the following document for "${project.name}": fix all grammar, spelling, and punctuation; improve sentence flow; remove repetition; standardise formatting. Do not change content, only quality. Return only the corrected document.`,
+      };
+
+      const systemPrompt = modePrompts[mode] ?? modePrompts.improve;
+      const userPrompt   = context
+        ? `Additional context: ${context}\n\n---\n\n${currentContent || "[Document is empty — create from scratch]"}`
+        : currentContent || `[Document is empty — create complete ${file.name} from scratch for "${project.name}"]`;
+
+      // SSE headers
+      res.setHeader("Content-Type",  "text/event-stream");
+      res.setHeader("Cache-Control", "no-cache");
+      res.setHeader("Connection",    "keep-alive");
+      res.setHeader("X-Accel-Buffering", "no");
+      res.flushHeaders?.();
+
+      const send = (data: unknown) => res.write(`data: ${JSON.stringify(data)}\n\n`);
+
+      send({ type: "start", mode, fileName: file.name });
+
+      const stream = await openai.chat.completions.create({
+        model:       "gpt-4o",
+        temperature: 0.4,
+        max_tokens:  3000,
+        stream:      true,
+        messages: [
+          { role: "system",  content: systemPrompt },
+          { role: "user",    content: userPrompt   },
+        ],
+      } as Parameters<typeof openai.chat.completions.create>[0]);
+
+      let fullContent = "";
+      for await (const chunk of stream as AsyncIterable<{ choices: { delta: { content?: string } }[] }>) {
+        const delta = chunk.choices[0]?.delta?.content ?? "";
+        if (delta) {
+          fullContent += delta;
+          send({ type: "chunk", content: delta });
+        }
+      }
+
+      // Save to DB
+      if (fullContent.trim()) {
+        await db.update(projectFiles).set({ content: fullContent }).where(eq(projectFiles.id, fileId));
+      }
+
+      send({ type: "done", fileId, fileName: file.name });
+      res.end();
+    } catch (err) {
+      console.error("[instant-edit] POST", err);
+      if (!res.headersSent) {
+        res.status(500).json({ error: "Instant edit failed" });
+      } else {
+        res.write(`data: ${JSON.stringify({ type: "error", message: "Edit failed" })}\n\n`);
+        res.end();
+      }
+    }
+  },
+);
+
 export default router;
