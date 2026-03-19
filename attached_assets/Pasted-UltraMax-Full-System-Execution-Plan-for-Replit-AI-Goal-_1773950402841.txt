@@ -1,0 +1,76 @@
+UltraMax Full-System Execution Plan for Replit AI:
+
+Goal:
+Execute all tasks to take the current CreateAI Brain platform from proof-of-concept to a fully production-ready, feature-complete AI creative studio.
+
+Step 0 – Initialize:
+1. Audit all backend files: /api/movie/generate, /api/render/generate, /api/index.ts, generate.ts.
+2. Audit all frontend players: MovieProductionApp, RenderEngineApp, BookReader, CoursePlayer, MusicPlayer, PodcastPlayer, GamePlayer, AppPlayer, ProductShowcase.
+3. Map feature gaps, dependencies, and partial modules.
+4. Log full current state for reference.
+
+Step 1 – Backend Consolidation & Enhancements:
+1. Merge /movie/generate and /render/generate → unified SSE-enabled /api/generate route.
+2. Implement partial manifest checkpointing after every generation frame.
+3. Add GET /generate/serve/:projectId for live preview URLs.
+4. Implement HTML5 game/app validation:
+   - Check for requestAnimationFrame, canvas.getContext, draw calls.
+   - Retry if validation fails.
+5. Add SSE keepalive to prevent browser disconnects.
+6. Integrate backend endpoints for:
+   - Audio generation (arpeggiator, Suno/Udio/ElevenLabs TTS)
+   - Video export (.mp4 via frame sequence + audio)
+   - PDF/document export for BookReader/CoursePlayer
+   - Product 3D viewer generation
+
+Step 2 – Frontend Enhancements:
+1. Add **inline editing** to BookReader, CoursePlayer, PodcastPlayer, MusicPlayer.
+2. Implement **branching overlay** in CinematicPlayer with auto-trigger, skip fallback, and choice detection.
+3. Add **code editor views** for GamePlayer and AppPlayer with apply & play/launch functionality.
+4. Add **arpeggiator** to MovieProductionApp and MusicPlayer (mood-mapped, pentatonic, tempo-synced).
+5. Add **character-specific TTS voices** to PodcastPlayer, with sequential chaining.
+6. Add **CSS 3D rotating cube** to ProductShowcase with auto-spin toggle.
+7. Add **serveUrl links** for all live previews.
+8. Make all frontend layouts fully **responsive** (mobile-first for all controls and grids).
+
+Step 3 – Content Fidelity Enhancements:
+1. Update all GPT / DALL-E prompts to include cinematographic metadata (lighting, lens, color grading, aspect ratio).
+2. Implement **video export pipeline** (frames + audio → .mp4).
+3. Implement Web Audio or external API-based arpeggiator for real music generation.
+4. Enhance TTS with pitch, rate, style, and multiple character voices.
+5. Auto-generate branching scenes for pivotal decisions (2–3 choices per scene).
+
+Step 4 – Integration & Automation:
+1. Connect backend SSE to all frontend players.
+2. Restore checkpointed manifests automatically on reopen.
+3. Save inline edits and code edits directly back to project files.
+4. Serve all live previews via deployable URLs.
+5. Validation logic triggers before serving output.
+
+Step 5 – Testing & QA:
+1. Run typechecks and linting across all packages.
+2. Simulate full projects:
+   - Multi-scene cinematic movie with branching, arpeggiator, TTS, and DALL-E frames.
+   - HTML5 game with editable code + live preview.
+   - Podcast episode with character voices.
+3. Retry automatically any failed generation steps.
+4. Log all module builds, enhancements, errors, and retries.
+
+Step 6 – Optional Advanced Enhancements:
+1. Real-time collaboration: multi-user editing, session conflict resolution.
+2. Long-context document handling with cross-chunk continuity.
+3. Multi-project orchestration: generate, validate, test, deploy multiple projects in parallel.
+
+Execution Instructions for Replit AI:
+1. Execute backend and frontend tasks **in parallel**, respecting dependencies.
+2. Always resume from partial checkpointed sessions if interrupted.
+3. Maximize content fidelity (images, audio, video, branching choices).
+4. Validate each output before serving.
+5. Confirm zero typecheck errors before final completion.
+6. Log detailed module and feature completion for review.
+7. Output fully integrated, production-ready, feature-complete platform.
+
+Post-Execution:
+- Verify each module (CinematicPlayer, GamePlayer, AppPlayer, BookReader, CoursePlayer, MusicPlayer, PodcastPlayer, ProductShowcase) works independently and in combination.
+- Export sample project for each type to confirm final output fidelity.
+- Provide final audit report of all enhancements applied.

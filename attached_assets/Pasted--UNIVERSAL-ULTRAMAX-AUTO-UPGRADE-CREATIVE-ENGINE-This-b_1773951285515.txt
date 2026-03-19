@@ -1,0 +1,63 @@
+// UNIVERSAL ULTRAMAX AUTO-UPGRADE & CREATIVE ENGINE
+// This blueprint applies to all projects, all assets, all players, all media.
+// Enforces full automation, self-upgrade, and maximal creative optimization.
+// No artificial limits except legal and safe constraints.
+
+async function runUniversalUltraMax(projects) {
+  for (const project of projects) {
+    // 1. FULL AUDIT
+    await auditProject(project); // scan backend, frontend, hooks, players, media, assets
+
+    // 2. IDENTIFY GAPS & ENHANCEMENTS
+    const gaps = detectGaps(project); // missing features, missing assets, missing pipelines
+    const enhancements = detectEnhancements(project); // optimizations, upgrades, innovations
+
+    // 3. APPLY ENHANCEMENTS & INVENT NEW FEATURES
+    for (const gap of gaps) {
+      if (gap.canCreateLegallySafely) {
+        await autoInventFeature(gap); // invent missing features using creative AI methods
+      }
+    }
+
+    for (const enhancement of enhancements) {
+      await applyEnhancement(enhancement); // optimize, enhance, or scale existing features
+    }
+
+    // 4. WIRE ALL UNIVERSAL SYSTEMS
+    // Ambient Audio
+    await wireAmbientAudio(project.players);
+
+    // Branching / Choices
+    await wireBranchingEngine(project.players);
+
+    // Arpeggiators / TTS / 3D Viewers / Code Editors
+    await wireAdvancedEnhancements(project.players);
+
+    // SSE Keepalive, live updates, checkpoints
+    await wireLivePipelines(project.backend);
+
+    // 5. SELF-CHECK & LIVE VALIDATION
+    await runTypeChecks(project);
+    await runLivePreview(project);
+
+    // 6. RECURSIVE OPTIMIZATION
+    // Re-scan after enhancements and iterate until no gaps remain except legal/safety limits
+    let newGaps = detectGaps(project);
+    while (newGaps.length > 0) {
+      for (const gap of newGaps) {
+        if (gap.canCreateLegallySafely) await autoInventFeature(gap);
+      }
+      await runTypeChecks(project);
+      newGaps = detectGaps(project);
+    }
+
+    // 7. LOG SESSION SUMMARY
+    logProjectStatus(project);
+  }
+
+  console.log("Universal UltraMax system applied to all projects and assets — max creativity, optimization, and full feature completion achieved.");
+}
+
+// Example call
+const allProjects = getAllProjects(); // retrieve all projects in workspace
+runUniversalUltraMax(allProjects);

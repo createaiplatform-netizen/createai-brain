@@ -22,6 +22,56 @@ function AudioBtn({ on, onToggle, dark = false }: { on: boolean; onToggle: () =>
   );
 }
 
+// ─── Save-to-project utility + button ─────────────────────────────────────────
+
+async function saveToProject(
+  pid: string | number,
+  name: string,
+  content: string,
+): Promise<boolean> {
+  try {
+    const listR = await fetch(`/api/projects/${pid}/files`, { credentials: "include" });
+    if (listR.ok) {
+      const files: { id: number; name: string }[] = await listR.json();
+      const existing = files.find(f => f.name === name);
+      if (existing) {
+        const r = await fetch(`/api/projects/${pid}/files/${existing.id}`, {
+          method: "PUT", credentials: "include",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ content }),
+        });
+        return r.ok;
+      }
+    }
+    const r = await fetch(`/api/projects/${pid}/files`, {
+      method: "POST", credentials: "include",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ name, content, fileType: "text" }),
+    });
+    return r.ok;
+  } catch { return false; }
+}
+
+function SaveBtn({
+  onClick, saving, dark = false,
+}: { onClick: () => void; saving: boolean; dark?: boolean }) {
+  return (
+    <button onClick={onClick} disabled={saving} title="Save edits to project file"
+      style={{
+        padding: "5px 12px", borderRadius: 8, border: "none",
+        background: saving
+          ? (dark ? "rgba(99,102,241,0.2)" : "rgba(99,102,241,0.1)")
+          : (dark ? "rgba(99,102,241,0.22)" : "rgba(99,102,241,0.12)"),
+        color: saving ? "#818cf8" : "#6366f1",
+        fontSize: 10, fontWeight: 700,
+        cursor: saving ? "default" : "pointer",
+        whiteSpace: "nowrap", flexShrink: 0, opacity: saving ? 0.7 : 1,
+      }}>
+      {saving ? "Saving…" : "💾 Save"}
+    </button>
+  );
+}
+
 // ─── Types ────────────────────────────────────────────────────────────────────
 
 type RenderMode =
@@ -378,7 +428,7 @@ function CinematicPlayer({ manifest }: { manifest: RenderManifest }) {
 
 // ─── Game Player ─────────────────────────────────────────────────────────────
 
-function GamePlayer({ manifest }: { manifest: RenderManifest }) {
+function GamePlayer({ manifest, projectId }: { manifest: RenderManifest; projectId: string | number }) {
   const [view, setView]           = useState<"art" | "game" | "code">("art");
   const iframeRef                  = useRef<HTMLIFrameElement>(null);
   const blobUrl                    = useRef<string | null>(null);
@@ -386,6 +436,7 @@ function GamePlayer({ manifest }: { manifest: RenderManifest }) {
   const [activeArt, setActiveArt] = useState(0);
   const [editCode, setEditCode]   = useState(manifest.generatedCode ?? "");
   const [audioOn, setAudioOn]     = useState(false);
+  const [saving, setSaving]       = useState(false);
   const audio = useAmbientAudio();
 
   const toggleAudio = useCallback(() => {
@@ -433,12 +484,17 @@ function GamePlayer({ manifest }: { manifest: RenderManifest }) {
   if (view === "code") {
     return (
       <div style={{ height: "100%", display: "flex", flexDirection: "column", background: "#0c0f1a" }}>
-        <div style={{ padding: "8px 16px", display: "flex", alignItems: "center", gap: 8, borderBottom: "1px solid rgba(255,255,255,0.07)" }}>
-          <div style={{ color: "#818cf8", fontSize: 11, fontWeight: 700, flex: 1 }}>&lt;/&gt; {manifest.projectName} — Source Code</div>
+        <div style={{ padding: "8px 16px", display: "flex", alignItems: "center", gap: 8, borderBottom: "1px solid rgba(255,255,255,0.07)", flexWrap: "wrap" }}>
+          <div style={{ color: "#818cf8", fontSize: 11, fontWeight: 700, flex: 1, minWidth: 120 }}>&lt;/&gt; {manifest.projectName} — Source Code</div>
           <button onClick={applyCode}
             style={{ background: "linear-gradient(135deg,#6366f1,#8b5cf6)", border: "none", color: "#fff", padding: "5px 14px", borderRadius: 8, fontSize: 10, fontWeight: 700, cursor: "pointer" }}>
             ▶ Apply & Play
           </button>
+          <SaveBtn dark onClick={async () => {
+            setSaving(true);
+            await saveToProject(projectId, "Generated Game — game.html", editCode);
+            setSaving(false);
+          }} saving={saving} />
           <button onClick={() => setView("art")}
             style={{ background: "rgba(255,255,255,0.06)", border: "none", color: "#94a3b8", padding: "5px 12px", borderRadius: 8, fontSize: 10, cursor: "pointer" }}>← Gallery</button>
         </div>
@@ -521,13 +577,14 @@ function GamePlayer({ manifest }: { manifest: RenderManifest }) {
 
 // ─── App Player ───────────────────────────────────────────────────────────────
 
-function AppPlayer({ manifest }: { manifest: RenderManifest }) {
+function AppPlayer({ manifest, projectId }: { manifest: RenderManifest; projectId: string | number }) {
   const [view, setView]         = useState<"screens" | "app" | "code">("screens");
   const blobUrl                  = useRef<string | null>(null);
   const frames                   = manifest.frames;
   const [activeScreen, setActiveScreen] = useState(0);
   const [editCode, setEditCode] = useState(manifest.generatedCode ?? "");
   const [audioOn, setAudioOn]   = useState(false);
+  const [saving, setSaving]     = useState(false);
   const audio = useAmbientAudio();
 
   const toggleAudio = useCallback(() => {
@@ -574,12 +631,17 @@ function AppPlayer({ manifest }: { manifest: RenderManifest }) {
   if (view === "code") {
     return (
       <div style={{ height: "100%", display: "flex", flexDirection: "column", background: "#fff" }}>
-        <div style={{ padding: "8px 16px", display: "flex", alignItems: "center", gap: 8, borderBottom: "1px solid rgba(0,0,0,0.08)", background: "#f8fafc" }}>
-          <div style={{ color: "#6366f1", fontSize: 11, fontWeight: 700, flex: 1 }}>&lt;/&gt; {manifest.projectName} — Source Code</div>
+        <div style={{ padding: "8px 16px", display: "flex", alignItems: "center", gap: 8, borderBottom: "1px solid rgba(0,0,0,0.08)", background: "#f8fafc", flexWrap: "wrap" }}>
+          <div style={{ color: "#6366f1", fontSize: 11, fontWeight: 700, flex: 1, minWidth: 120 }}>&lt;/&gt; {manifest.projectName} — Source Code</div>
           <button onClick={applyCode}
             style={{ background: "linear-gradient(135deg,#6366f1,#8b5cf6)", border: "none", color: "#fff", padding: "5px 14px", borderRadius: 8, fontSize: 10, fontWeight: 700, cursor: "pointer" }}>
             ▶ Apply & Launch
           </button>
+          <SaveBtn onClick={async () => {
+            setSaving(true);
+            await saveToProject(projectId, "Generated App — app.html", editCode);
+            setSaving(false);
+          }} saving={saving} />
           <button onClick={() => setView("screens")}
             style={{ background: "#f1f5f9", border: "none", color: "#64748b", padding: "5px 12px", borderRadius: 8, fontSize: 10, cursor: "pointer" }}>← Screens</button>
         </div>
@@ -672,11 +734,12 @@ function AppPlayer({ manifest }: { manifest: RenderManifest }) {
 
 // ─── Book Reader ──────────────────────────────────────────────────────────────
 
-function BookReader({ manifest }: { manifest: RenderManifest }) {
+function BookReader({ manifest, projectId }: { manifest: RenderManifest; projectId: string | number }) {
   const [chapter, setChapter]             = useState(0);
   const [editMode, setEditMode]           = useState(false);
   const [editedContent, setEditedContent] = useState<string | null>(null);
   const [audioOn, setAudioOn]             = useState(false);
+  const [saving, setSaving]               = useState(false);
   const frame = manifest.frames[chapter];
   const audio = useAmbientAudio();
 
@@ -724,6 +787,13 @@ function BookReader({ manifest }: { manifest: RenderManifest }) {
             }}>
             {editMode ? "✓ Done Editing" : "✏️ Edit Chapter"}
           </button>
+          {editMode && editedContent !== null && (
+            <SaveBtn onClick={async () => {
+              setSaving(true);
+              await saveToProject(projectId, `_saved_book_chapter_${chapter}`, editedContent ?? "");
+              setSaving(false);
+            }} saving={saving} />
+          )}
           <button onClick={() => window.print()}
             style={{
               display: "block", width: "100%", padding: "7px 0",
@@ -780,11 +850,12 @@ function BookReader({ manifest }: { manifest: RenderManifest }) {
 
 // ─── Course Player ────────────────────────────────────────────────────────────
 
-function CoursePlayer({ manifest }: { manifest: RenderManifest }) {
+function CoursePlayer({ manifest, projectId }: { manifest: RenderManifest; projectId: string | number }) {
   const [module, setModule]               = useState(0);
   const [editMode, setEditMode]           = useState(false);
   const [editedContent, setEditedContent] = useState<string | null>(null);
   const [audioOn, setAudioOn]             = useState(false);
+  const [saving, setSaving]               = useState(false);
   const frame = manifest.frames[module];
   const audio = useAmbientAudio();
 
@@ -845,8 +916,8 @@ function CoursePlayer({ manifest }: { manifest: RenderManifest }) {
           <img src={frame.imageUrl} alt="" style={{ width: "100%", height: 120, objectFit: "cover" }} />
         )}
         <div style={{ padding: "24px 32px" }}>
-          <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", marginBottom: 6 }}>
-            <div style={{ color: "#6366f1", fontSize: 10, fontWeight: 700, letterSpacing: "0.08em" }}>{frame?.badge}</div>
+          <div style={{ display: "flex", alignItems: "center", gap: 6, marginBottom: 6, flexWrap: "wrap" }}>
+            <div style={{ color: "#6366f1", fontSize: 10, fontWeight: 700, letterSpacing: "0.08em", flex: 1 }}>{frame?.badge}</div>
             <button onClick={() => setEditMode(m => !m)}
               style={{
                 padding: "3px 10px", borderRadius: 8, fontSize: 9, fontWeight: 700, cursor: "pointer",
@@ -856,6 +927,13 @@ function CoursePlayer({ manifest }: { manifest: RenderManifest }) {
               }}>
               {editMode ? "✓ Done" : "✏️ Edit"}
             </button>
+            {editMode && editedContent !== null && (
+              <SaveBtn onClick={async () => {
+                setSaving(true);
+                await saveToProject(projectId, `_saved_course_module_${module}`, editedContent ?? "");
+                setSaving(false);
+              }} saving={saving} />
+            )}
           </div>
           <h2 style={{ fontSize: 18, fontWeight: 700, color: "#0f172a", marginBottom: 16 }}>{frame?.title}</h2>
           {editMode ? (
@@ -1124,12 +1202,13 @@ function getMusicArpParams(cue: string): { root: number; scale: number[]; bpm: n
 
 // ─── Music Player ─────────────────────────────────────────────────────────────
 
-function MusicPlayer({ manifest }: { manifest: RenderManifest }) {
+function MusicPlayer({ manifest, projectId }: { manifest: RenderManifest; projectId: string | number }) {
   const [track, setTrack]             = useState(0);
   const [speaking, setSpeaking]       = useState(false);
   const [arpPlaying, setArpPlaying]   = useState(false);
   const [editMode, setEditMode]       = useState(false);
   const [editedLyrics, setEditedLyrics] = useState<Record<number, string>>({});
+  const [saving, setSaving]           = useState(false);
   const frame       = manifest.frames[track];
   const arpTimer    = useRef<ReturnType<typeof setInterval> | null>(null);
   const arpCtx      = useRef<AudioContext | null>(null);
@@ -1259,6 +1338,14 @@ function MusicPlayer({ manifest }: { manifest: RenderManifest }) {
                 }}>
                 {editMode ? "✓ Done" : "✏️ Edit"}
               </button>
+              {/* Save */}
+              {editMode && editedLyrics[track] !== undefined && (
+                <SaveBtn dark onClick={async () => {
+                  setSaving(true);
+                  await saveToProject(projectId, `_saved_music_track_${track}`, editedLyrics[track] ?? "");
+                  setSaving(false);
+                }} saving={saving} />
+              )}
             </div>
           </div>
         </div>
@@ -1302,13 +1389,14 @@ function MusicPlayer({ manifest }: { manifest: RenderManifest }) {
 
 // ─── Podcast Player ───────────────────────────────────────────────────────────
 
-function PodcastPlayer({ manifest }: { manifest: RenderManifest }) {
+function PodcastPlayer({ manifest, projectId }: { manifest: RenderManifest; projectId: string | number }) {
   const [speaking, setSpeaking]         = useState(false);
   const [activeTab, setActiveTab]       = useState<"script" | "notes">("script");
   const [editMode, setEditMode]         = useState(false);
   const [editedScript, setEditedScript] = useState<string | null>(null);
   const [editedNotes, setEditedNotes]   = useState<string | null>(null);
   const [audioOn, setAudioOn]           = useState(false);
+  const [saving, setSaving]             = useState(false);
   const scriptFrame = manifest.frames.find(f => f.index === 0);
   const notesFrame  = manifest.frames.find(f => f.index === 1);
   const audio = useAmbientAudio();
@@ -1411,7 +1499,7 @@ function PodcastPlayer({ manifest }: { manifest: RenderManifest }) {
         ))}
         <button onClick={() => setEditMode(m => !m)}
           style={{
-            padding: "6px 14px", margin: "0 8px",
+            padding: "6px 14px", margin: "0 4px",
             background: editMode ? "rgba(234,88,12,0.18)" : "rgba(255,255,255,0.06)",
             border: editMode ? "1px solid rgba(234,88,12,0.5)" : "1px solid rgba(255,255,255,0.1)",
             color: editMode ? "#f97316" : "#64748b",
@@ -1419,6 +1507,16 @@ function PodcastPlayer({ manifest }: { manifest: RenderManifest }) {
           }}>
           {editMode ? "✓ Done" : "✏️ Edit"}
         </button>
+        {editMode && (editedScript !== null || editedNotes !== null) && (
+          <SaveBtn dark onClick={async () => {
+            setSaving(true);
+            if (activeTab === "script" && editedScript !== null)
+              await saveToProject(projectId, "_saved_podcast_script", editedScript);
+            if (activeTab === "notes" && editedNotes !== null)
+              await saveToProject(projectId, "_saved_podcast_notes", editedNotes);
+            setSaving(false);
+          }} saving={saving} />
+        )}
       </div>
 
       {/* Content */}
@@ -1501,17 +1599,17 @@ function DocumentReader({ manifest }: { manifest: RenderManifest }) {
 
 // ─── Output Router ────────────────────────────────────────────────────────────
 
-function OutputViewer({ manifest }: { manifest: RenderManifest }) {
+function OutputViewer({ manifest, projectId }: { manifest: RenderManifest; projectId: string | number }) {
   switch (manifest.renderMode) {
     case "cinematic": return <CinematicPlayer manifest={manifest} />;
-    case "game":      return <GamePlayer manifest={manifest} />;
-    case "app":       return <AppPlayer manifest={manifest} />;
-    case "book":      return <BookReader manifest={manifest} />;
-    case "course":    return <CoursePlayer manifest={manifest} />;
+    case "game":      return <GamePlayer    manifest={manifest} projectId={projectId} />;
+    case "app":       return <AppPlayer     manifest={manifest} projectId={projectId} />;
+    case "book":      return <BookReader    manifest={manifest} projectId={projectId} />;
+    case "course":    return <CoursePlayer  manifest={manifest} projectId={projectId} />;
     case "pitch":     return <PitchDeckViewer manifest={manifest} />;
     case "showcase":  return <ProductShowcase manifest={manifest} />;
-    case "music":     return <MusicPlayer manifest={manifest} />;
-    case "podcast":   return <PodcastPlayer manifest={manifest} />;
+    case "music":     return <MusicPlayer   manifest={manifest} projectId={projectId} />;
+    case "podcast":   return <PodcastPlayer manifest={manifest} projectId={projectId} />;
     default:          return <DocumentReader manifest={manifest} />;
   }
 }
@@ -1525,6 +1623,7 @@ export function RenderEngineApp({ projectId, projectName, projectType, onClose }
   const [total, setTotal]         = useState(0);
   const [manifest, setManifest]   = useState<RenderManifest | null>(null);
   const [view, setView]           = useState<"console" | "output">("console");
+  const [restoring, setRestoring] = useState(true);
   const abortRef                  = useRef<AbortController | null>(null);
 
   const renderMode = detectMode(projectType);
@@ -1532,6 +1631,35 @@ export function RenderEngineApp({ projectId, projectName, projectType, onClose }
 
   const addLog = useCallback((entry: LogEntry) => {
     setLog(prev => [...prev, entry]);
+  }, []);
+
+  // Auto-restore: check project files for a saved manifest on mount
+  useEffect(() => {
+    if (renderMode === "cinematic") { setRestoring(false); return; }
+    let cancelled = false;
+    (async () => {
+      try {
+        const manifestName = `Render Manifest — ${renderMode}`;
+        const r = await fetch(`/api/projects/${projectId}/files`, { credentials: "include" });
+        if (!r.ok) return;
+        const files: { id: number; name: string; content: string | null }[] = await r.json();
+        const saved = files.find(f => f.name === manifestName);
+        if (saved?.content && !cancelled) {
+          try {
+            const m = JSON.parse(saved.content) as RenderManifest;
+            if ((m.frames?.length ?? 0) > 0) {
+              setManifest(m);
+              setPhase("done");
+              setView("output");
+            }
+          } catch { /* malformed — ignore */ }
+        }
+      } catch { /* network/auth — ignore */ } finally {
+        if (!cancelled) setRestoring(false);
+      }
+    })();
+    return () => { cancelled = true; };
+  // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
   const startGeneration = useCallback(async () => {
@@ -1596,7 +1724,8 @@ export function RenderEngineApp({ projectId, projectName, projectType, onClose }
               setManifest(evt.manifest);
               setPhase("done");
               setView("output");
-              addLog({ type: "done", message: `${evt.manifest.frames.length} frames ready` });
+              const count = evt.manifest.frames?.length ?? 0;
+              addLog({ type: "done", message: `${count} frames ready` });
             }
           } catch { /* skip malformed */ }
         }
@@ -1682,6 +1811,22 @@ export function RenderEngineApp({ projectId, projectName, projectType, onClose }
       {/* Body */}
       <div style={{ flex: 1, overflow: "hidden" }}>
         {phase === "idle" ? (
+          restoring ? (
+            /* ── Restoring saved manifest ── */
+            <div style={{
+              height: "100%", display: "flex", flexDirection: "column",
+              alignItems: "center", justifyContent: "center", background: "#f8fafc", gap: 14,
+            }}>
+              <div style={{
+                width: 48, height: 48, borderRadius: "50%",
+                border: `3px solid ${accent}`,
+                borderTopColor: "transparent",
+                animation: "spin 0.8s linear infinite",
+              }} />
+              <style>{`@keyframes spin { to { transform: rotate(360deg); } }`}</style>
+              <div style={{ fontSize: 13, color: "#94a3b8", fontWeight: 600 }}>Loading saved output…</div>
+            </div>
+          ) : (
           /* ── Launch screen ── */
           <div style={{
             height: "100%", display: "flex", flexDirection: "column",
@@ -1729,8 +1874,9 @@ export function RenderEngineApp({ projectId, projectName, projectType, onClose }
               {meta.icon} {meta.action}
             </button>
           </div>
+          )
         ) : view === "output" && manifest ? (
-          <OutputViewer manifest={manifest} />
+          <OutputViewer manifest={manifest} projectId={projectId} />
         ) : (
           <ProductionConsole log={log} frames={frames} total={total} renderMode={renderMode} />
         )}

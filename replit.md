@@ -254,6 +254,19 @@ All existing free-function exports from `memoryService.ts` (`saveMemory`, `loadM
 - BookReader + CoursePlayer inline chapter/module editing
 - `AudioBtn` shared component (top of RenderEngineApp.tsx, reused across all 7 players)
 
+**Session 3 additions (fully audited, all gaps closed):**
+- `saveToProject(pid, name, content)` — shared async utility; GET project files → PUT if exists, POST if new
+- `SaveBtn` component — indigo 💾 button shared across all editable players
+- **Auto-restore on reopen**: `RenderEngineApp` `useEffect` on mount fetches project files, finds `Render Manifest — {mode}`, auto-loads it → jump directly to Output view
+- **Restoring spinner**: CSS `@keyframes spin` spinner shown while auto-restore fetch is in-flight
+- **Save to project — 6 players** (GamePlayer, AppPlayer, BookReader, CoursePlayer, MusicPlayer, PodcastPlayer) — each shows 💾 Save button when editing; writes to named projectFile in DB
+  - GamePlayer: `Generated Game — game.html`; AppPlayer: `Generated App — app.html`
+  - BookReader: `_saved_book_chapter_{n}`; CoursePlayer: `_saved_course_module_{n}`
+  - MusicPlayer: `_saved_music_track_{n}`; PodcastPlayer: `_saved_podcast_script` / `_saved_podcast_notes`
+- **Responsive flex-wrap**: all code-editor toolbar rows have `flexWrap: "wrap"` + `minWidth: 120` on labels
+- `done` SSE event: `frames?.length ?? 0` safe null-coalescing (no throw on undefined)
+- Both packages typecheck clean (zero errors); Vite build clean
+
 ## Expansion Engine v3 (COMPLETE — Maximum-Capacity Ceiling Applied)
 - **expansionEngine.ts**: 20 expansion paths · 7 iterations · 20-layer power table
 - **openai.ts ENGINE_SYSTEM_PROMPTS**: 20 new max-capacity engines added (DeliverableEngine, AutomationEngine, ProductionEngine, ComplianceAuditEngine, SecurityEngine, ScalingEngine, MonetizationEngine, LaunchEngine, GrowthEngine, RetentionEngine, AnalyticsEngine, APIDesignEngine, UIUXEngine, AccessibilityEngine, DevOpsEngine, MobileEngine, PartnershipEngine, ContentStrategyEngine, SEOEngine, PerformanceEngine)

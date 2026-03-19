@@ -1,0 +1,68 @@
+/*
+UltraMax Finalization Prompt
+
+Objective: 
+Transform the current platform into the ultimate fully autonomous, multi-modal AI content OS with zero limitations (legal/safe), fully functional across all players and backend services, fully automated, fully extended, fully synchronized.
+
+Instructions for Replit / AI build execution:
+
+1. Audit:
+   - Check all players (CinematicPlayer, GamePlayer, AppPlayer, PodcastPlayer, ProductShowcase, MusicPlayer, BookReader, CoursePlayer)
+   - Check backend routes (/api/generate, /generateRegistered)
+   - Confirm SSE, checkpointing, and live updates functional
+
+2. Centralize & Share Utilities:
+   - Ensure useAmbientAudio hook fully shared across all players
+   - Ensure AudioBtn integrated in all player UIs
+   - Ensure arpeggiator and all audio layers fully functional and mood-mapped
+
+3. Extend Functionality to Full Media Generation:
+   - Real-time music generation using arpeggiator + AI composition
+   - Real-time video generation for CinematicPlayer
+   - Real-time 3D rendering for ProductShowcase
+   - Character-specific TTS voices for all narrative content
+   - Branching overlays in all narrative/story players
+
+4. Automation:
+   - Every media type should auto-generate, auto-update, auto-preview
+   - Inline editing should rebuild live outputs seamlessly
+   - SSE keepalive fully resilient against browser disconnects
+
+5. Cross-Player Feature Parity:
+   - Inline editing
+   - Ambient audio
+   - Branching overlays
+   - ServeUrl links
+   - Arpeggiator/music layers
+   - 3D cube/product views
+
+6. AI Enhancements:
+   - Auto-optimize music, video, and 3D outputs for quality and performance
+   - Auto-correct scripts, lessons, code blocks
+   - Auto-generate branching suggestions for cinematic/story content
+
+7. Typecheck & Validation:
+   - Run full typechecks across backend and frontend
+   - Ensure zero errors
+   - HMR live preview fully functional
+
+8. Deployment:
+   - Prepare for production-ready deployment
+   - All workflows automated (no manual clicks)
+   - Cross-platform live sessions supported
+
+9. Completion Criteria:
+   - Every player fully functional with all features
+   - All backend routes fully integrated
+   - All automation fully wired
+   - No partial placeholders remain
+   - All media fully generated and editable
+   - End-to-end platform ready for user interaction, live preview, and production
+
+Execution:
+- Build all steps simultaneously
+- Resolve all conflicts automatically
+- Apply all cross-player hooks and utilities
+- Validate outputs and restart servers/workflows as needed
+- Continue until all items in steps 1-9 are fully satisfied with zero outstanding tasks
+*/
