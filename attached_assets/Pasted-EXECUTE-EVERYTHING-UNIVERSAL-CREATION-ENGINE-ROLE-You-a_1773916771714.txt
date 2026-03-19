@@ -1,0 +1,69 @@
+EXECUTE EVERYTHING – UNIVERSAL CREATION ENGINE
+
+ROLE:
+You are Replit AI. Your task is to fully implement the **Universal Creation Engine** in this project. Treat this as a **single end-to-end command**: generate all backend services, frontend components, DB schema, SSE streaming, lifecycle dashboards, instant-edit AI agent, cross-project intelligence, audit logging, encryption, and compliance.
+
+OBJECTIVE:
+When executed, the system will:
+1. Allow users to create projects of any type (Film, Startup, Game, App, Book, Music, etc.).
+2. Capture intent, generate a structured Project Genome, and scaffold all required documents/files.
+3. Enable **instant-edit AI** in projects so users can modify content live and see updates immediately.
+4. Provide **lifecycle scoring**, next-action suggestions, and cross-project intelligence.
+5. Fully log all actions in ExecutionStore and immutable audit logs.
+6. Respect all compliance, safety, and encryption rules.
+7. Parallelize all document generation and backend processes for maximum speed.
+8. Make every feature visible in the frontend dashboard with “Generate ✦ All Documents,” genome cards, and instant-edit panels.
+
+PIPELINE INSTRUCTIONS:
+1. **DB Setup**
+   - Add project_genome, intent_capture, audit_log tables (Drizzle ORM)
+   - Apply via `pnpm db:push`
+
+2. **Backend Services**
+   - GenomeService (generateGenome, fetchGenome, updateGenome)
+   - IntentService (storeIntent, fetchIntent)
+   - ParallelDocumentService (generateAllFiles, SSE streaming)
+   - ExecutionStore & AuditService (recordExecution, appendAudit)
+   - Register all services in ServiceContainer
+   - Wrap all AI calls with ExpansionGuard
+   - SSE endpoint: `/api/ai/stream/:projectId`
+
+3. **Frontend Components**
+   - Project Dashboard: Genome card, Lifecycle panel, Innovation feed, Generate ✦ All Documents button
+   - New Project Modal: 3-step workflow (Name → Type → Intent)
+   - Instant-Edit AI Agent: live editing, SSE updates, auto-save, log to ExecutionStore
+   - State management hooks (useGenomeFetch, useIntentFetch, useParallelGeneration, useInstantEdit)
+   - Lifecycle scoring display (per-file completion, next actions, streaming progress)
+
+4. **Project Workflow**
+   - Step 1: Create project → store name/type
+   - Step 2: Capture intent → store in DB
+   - Step 3: Auto-generate Project Genome → scaffold files via DAG orchestrator
+   - Step 4: Instant-edit AI agent available for all scaffold files
+   - Step 5: Lifecycle scoring and next-action suggestions update live
+   - Step 6: Cross-project intelligence learns patterns and suggests optimizations
+
+5. **Compliance & Logging**
+   - Field-level encryption for sensitive data
+   - Immutable audit logs for all reads/writes, genome changes, instant edits
+   - ExecutionStore captures executionId, projectId, userId, cost, duration, riskScore, status
+
+6. **Testing**
+   - Typecheck frontend & backend
+   - Dev build + smoke test:
+     • Open dashboard → verify genome + lifecycle panel
+     • Edit file via AI agent → verify live update
+     • Click Generate All → verify parallel SSE updates
+     • Confirm audit logs and ExecutionStore entries
+
+7. **Success Criteria**
+   - All projects fully scaffolded, editable, auditable, and lifecycle-scored
+   - SSE streaming fully functional
+   - Instant-edit agent updates genome/documents live
+   - All compliance, encryption, and safety rules satisfied
+   - Cross-project intelligence provides actionable recommendations
+
+EXECUTION NOTE:
+Treat this as a **single atomic operation**. No manual intervention needed. Build all layers in parallel (DB, backend, frontend) where possible. Use DAG orchestrator and scaffold engine fully. Every feature must be live, fully wired, and instantly usable upon completion.
+
+END OF PROMPT

@@ -1,6 +1,7 @@
 import { Router, type IRouter, type Request, type Response } from "express";
 import { logTractionEvent } from "../lib/tractionLogger";
 import { eq, desc, and, or, isNull, ne } from "drizzle-orm";
+import { openai } from "@workspace/integrations-openai-ai-server";
 import {
   db,
   projects,
@@ -387,6 +388,75 @@ router.get("/files/:fileId", audit("read_file", "project_file", r => r.params.fi
 });
 
 // ─── GET /projects/all-files ───────────────────────────────────────────────
+
+// ─── POST /parse-intent — Universal "Create X" natural language → project spec ─
+//
+// Accepts a free-text user prompt ("Create a fitness app for Gen Z runners")
+// and returns a structured project spec: name, industry, and intent JSON.
+// Used by the "Create X" hero on the home screen for instant one-shot creation.
+
+router.post(
+  "/parse-intent",
+  async (req: Request, res: Response) => {
+    const userId = requireAuth(req, res);
+    if (!userId) return;
+
+    const { prompt }: { prompt?: string } = req.body ?? {};
+    if (!prompt?.trim()) {
+      res.status(400).json({ error: "prompt is required" });
+      return;
+    }
+
+    try {
+      const completion = await openai.chat.completions.create({
+        model:       "gpt-4o",
+        temperature: 0.3,
+        messages: [
+          {
+            role: "system",
+            content: `You are a project creation assistant. Extract structured project intent from a natural language description.
+Return ONLY valid JSON — no markdown, no explanation, no extra text.
+The "industry" field MUST be one of these exact values:
+"Film / Movie", "Documentary", "Video Game", "Mobile App", "Web App / SaaS",
+"Business", "Startup", "Physical Product", "Book / Novel", "Music / Album",
+"Podcast", "Online Course", "General"`,
+          },
+          {
+            role: "user",
+            content: `Extract project creation intent from this description: "${prompt.trim()}"
+
+Return exactly this JSON structure:
+{
+  "name": "concise project name (3-6 words, title case, no articles like 'a' or 'the')",
+  "industry": "most fitting industry from the allowed list",
+  "intent": {
+    "purpose": "one clear sentence on what this project achieves",
+    "audience": "specific description of who this is for",
+    "tone": "one of: professional | creative | bold | cinematic | technical | friendly | inspiring"
+  }
+}`,
+          },
+        ],
+      } as Parameters<typeof openai.chat.completions.create>[0]);
+
+      const raw = (completion as { choices: { message: { content: string } }[] })
+        .choices[0]?.message?.content ?? "{}";
+
+      let result: { name: string; industry: string; intent: { purpose: string; audience: string; tone: string } };
+      try {
+        result = JSON.parse(raw) as typeof result;
+      } catch {
+        const stripped = raw.replace(/^```(?:json)?\n?/, "").replace(/\n?```$/, "").trim();
+        result = JSON.parse(stripped) as typeof result;
+      }
+
+      res.json(result);
+    } catch (err) {
+      console.error("[parse-intent] POST", err);
+      res.status(500).json({ error: "Failed to parse intent" });
+    }
+  },
+);
 
 router.get("/all-files", async (req: Request, res: Response) => {
   const userId = requireAuth(req, res);

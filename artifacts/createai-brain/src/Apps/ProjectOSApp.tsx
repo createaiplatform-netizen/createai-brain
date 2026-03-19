@@ -1040,6 +1040,13 @@ export function ProjectOSApp() {
   const [newProjName, setNewProjName] = useState("");
   const [newProjIndustry, setNewProjIndustry] = useState("General");
   const [newProjStep, setNewProjStep] = useState<1 | 2 | 3>(1);
+  // ── "Create X" natural language entry ──────────────────────────────────
+  const [createXInput, setCreateXInput] = useState("");
+  const [createXLoading, setCreateXLoading] = useState(false);
+  const [createXParsed, setCreateXParsed] = useState<{
+    name: string; industry: string;
+    intent: { purpose: string; audience: string; tone: string };
+  } | null>(null);
   const [newProjIntent, setNewProjIntent] = useState<{ audience: string; purpose: string; tone: string; constraints: string }>({
     audience: "", purpose: "", tone: "professional", constraints: "",
   });
@@ -1457,6 +1464,56 @@ export function ProjectOSApp() {
     } catch { /* best-effort */ }
     setGenomeLoading(false);
   }, []);
+
+  // ── createProjectDirect — create + scaffold + genome from explicit params ────
+  //    Used by "Create X" natural language flow (no modal required)
+  const createProjectDirect = useCallback(async (
+    name:     string,
+    industry: string,
+    intent?:  { audience: string; purpose: string; tone: string; constraints?: string },
+  ) => {
+    const proj = await apiCreateProject(name.trim(), industry);
+    if (!proj) return null;
+    setProjects(prev => [...prev, proj]);
+    setActiveProjectId(proj.id);
+    setActiveFolderId(null);
+    setShowAI(true);
+    setAiMessages([]);
+    _setViewMode("dashboard+folders");
+    setNewlyCreatedId(proj.id);
+    ensureIdentityForProject({ id: proj.id, name: proj.name });
+    await scaffoldProject(proj.id, proj.folders, industry);
+    const fullIntent = intent ? { audience: intent.audience, purpose: intent.purpose, tone: intent.tone, constraints: intent.constraints ?? "" } : undefined;
+    generateGenome(proj.id, fullIntent).catch(() => {/* best-effort */});
+    setTimeout(() => setNewlyCreatedId(null), 4000);
+    return proj;
+  }, [scaffoldProject, generateGenome]);
+
+  // ── parseAndCreate — natural language "Create X" → parse intent → create ──
+  const parseAndCreate = useCallback(async (prompt: string) => {
+    if (!prompt.trim() || createXLoading) return;
+    setCreateXLoading(true);
+    setCreateXParsed(null);
+    try {
+      const res = await fetch("/api/projects/parse-intent", {
+        method:      "POST",
+        credentials: "include",
+        headers:     { "Content-Type": "application/json" },
+        body:        JSON.stringify({ prompt }),
+      });
+      if (!res.ok) throw new Error("parse failed");
+      const parsed = await res.json() as { name: string; industry: string; intent: { purpose: string; audience: string; tone: string } };
+      setCreateXParsed(parsed);
+      // Brief display of parsed result, then create immediately
+      await new Promise(r => setTimeout(r, 900));
+      await createProjectDirect(parsed.name, parsed.industry, parsed.intent);
+      setCreateXInput("");
+      setCreateXParsed(null);
+    } catch {
+      setCreateXParsed(null);
+    }
+    setCreateXLoading(false);
+  }, [createXLoading, createProjectDirect]);
 
   const createProject = useCallback(async () => {
     if (!newProjName.trim()) return;
@@ -2111,27 +2168,110 @@ export function ProjectOSApp() {
 
             {projects.filter(p => p.status !== "archived").length === 0 ? (
               <div
-                className="flex flex-col items-center justify-center rounded-2xl py-20 text-center"
+                className="flex flex-col items-center justify-center rounded-2xl py-16 text-center px-6"
                 style={{ border: "1px dashed rgba(99,102,241,0.20)", background: "rgba(99,102,241,0.03)" }}
               >
-                <div className="text-5xl mb-5">✨</div>
-                <div className="text-[16px] font-bold mb-2" style={{ color: "#0f172a" }}>What are you building?</div>
-                <div className="text-[12px] leading-relaxed mb-2 max-w-[320px]" style={{ color: "#475569" }}>
-                  Films, apps, startups, books, games, albums — every project gets its own workspace, expert AI agent, and professional documents scaffolded in seconds.
+                <div className="text-5xl mb-4">✨</div>
+                <div className="text-[17px] font-bold mb-1.5" style={{ color: "#0f172a" }}>What are you creating?</div>
+                <div className="text-[12px] mb-6 max-w-[360px]" style={{ color: "#64748b" }}>
+                  Describe your idea — film, app, startup, game, book, album — and we'll build it in seconds.
                 </div>
-                <div className="text-[11px] mb-6" style={{ color: "#334155" }}>No blank pages. Ever.</div>
+
+                {/* Natural language input */}
+                <div className="w-full max-w-[520px] relative">
+                  <input
+                    value={createXInput}
+                    onChange={e => setCreateXInput(e.target.value)}
+                    onKeyDown={e => { if (e.key === "Enter") parseAndCreate(createXInput); }}
+                    disabled={createXLoading}
+                    placeholder="e.g. A documentary about AI replacing artists…"
+                    className="w-full text-[13px] px-4 py-3.5 pr-32 rounded-2xl outline-none"
+                    style={{
+                      background: "#ffffff",
+                      border: "1px solid rgba(99,102,241,0.35)",
+                      color: "#1e293b",
+                      boxShadow: "0 2px 12px rgba(99,102,241,0.08)",
+                    }}
+                  />
+                  <button
+                    onClick={() => parseAndCreate(createXInput)}
+                    disabled={createXLoading || !createXInput.trim()}
+                    className="absolute right-2 top-1/2 -translate-y-1/2 px-4 py-2 rounded-xl text-[12px] font-semibold transition-all"
+                    style={{
+                      background: createXInput.trim() && !createXLoading ? "#6366f1" : "#e2e8f0",
+                      color: createXInput.trim() && !createXLoading ? "#ffffff" : "#94a3b8",
+                      border: "none",
+                    }}
+                  >
+                    {createXLoading ? "…" : "Create ✦"}
+                  </button>
+                </div>
+
+                {/* Parsed result preview */}
+                {createXParsed && (
+                  <div className="mt-3 flex items-center gap-2 px-3 py-2 rounded-xl"
+                    style={{ background: "rgba(99,102,241,0.08)", border: "1px solid rgba(99,102,241,0.20)" }}>
+                    <span className="text-sm">{(INDUSTRY_ICONS as Record<string, string>)[createXParsed.industry] ?? "📁"}</span>
+                    <span className="text-[12px] font-semibold" style={{ color: "#6366f1" }}>{createXParsed.name}</span>
+                    <span className="text-[10px]" style={{ color: "#94a3b8" }}>· {createXParsed.industry}</span>
+                    <span className="text-[10px] animate-pulse" style={{ color: "#6366f1" }}>Creating…</span>
+                  </div>
+                )}
+                {createXLoading && !createXParsed && (
+                  <div className="mt-3 text-[11px] animate-pulse" style={{ color: "#6366f1" }}>Understanding your idea…</div>
+                )}
+
+                {/* Manual fallback */}
                 <button
                   onClick={() => setShowNewProject(true)}
-                  className="px-7 py-3 rounded-2xl text-[13px] font-semibold transition-all"
-                  style={{ background: "rgba(99,102,241,0.22)", border: "1px solid rgba(99,102,241,0.40)", color: "#818cf8" }}
-                  onMouseEnter={e => { (e.currentTarget as HTMLElement).style.background = "rgba(99,102,241,0.32)"; }}
-                  onMouseLeave={e => { (e.currentTarget as HTMLElement).style.background = "rgba(99,102,241,0.22)"; }}
+                  className="mt-4 text-[11px]"
+                  style={{ color: "#94a3b8", background: "none", border: "none" }}
                 >
-                  ＋ Create your first project
+                  or pick a type manually →
                 </button>
               </div>
             ) : (
               <>
+              {/* ── Quick Create bar ── */}
+              <div className="flex items-center gap-2 mb-5">
+                <div className="flex-1 relative">
+                  <input
+                    value={createXInput}
+                    onChange={e => setCreateXInput(e.target.value)}
+                    onKeyDown={e => { if (e.key === "Enter") parseAndCreate(createXInput); }}
+                    disabled={createXLoading}
+                    placeholder="Create anything… film, app, startup, game, book, album…"
+                    className="w-full text-[12px] px-4 py-2.5 pr-[110px] rounded-xl outline-none"
+                    style={{ background: "#ffffff", border: "1px solid rgba(99,102,241,0.28)", color: "#1e293b" }}
+                  />
+                  <button
+                    onClick={() => parseAndCreate(createXInput)}
+                    disabled={createXLoading || !createXInput.trim()}
+                    className="absolute right-2 top-1/2 -translate-y-1/2 px-3 py-1.5 rounded-lg text-[11px] font-semibold"
+                    style={{
+                      background: createXInput.trim() && !createXLoading ? "#6366f1" : "#f1f5f9",
+                      color: createXInput.trim() && !createXLoading ? "#ffffff" : "#94a3b8",
+                      border: "none",
+                    }}
+                  >
+                    {createXLoading ? "…" : "Create ✦"}
+                  </button>
+                </div>
+              </div>
+              {/* Parsed preview */}
+              {createXParsed && (
+                <div className="flex items-center gap-2 px-3 py-2 rounded-xl mb-3"
+                  style={{ background: "rgba(99,102,241,0.07)", border: "1px solid rgba(99,102,241,0.18)" }}>
+                  <span className="text-sm">{(INDUSTRY_ICONS as Record<string, string>)[createXParsed.industry] ?? "📁"}</span>
+                  <span className="text-[12px] font-semibold" style={{ color: "#6366f1" }}>{createXParsed.name}</span>
+                  <span className="text-[10px]" style={{ color: "#94a3b8" }}>· {createXParsed.industry}</span>
+                  <span className="ml-auto text-[10px] animate-pulse" style={{ color: "#6366f1" }}>Creating…</span>
+                </div>
+              )}
+              {createXLoading && !createXParsed && (
+                <div className="text-[11px] animate-pulse mb-3" style={{ color: "#6366f1" }}>Understanding your idea…</div>
+              )}
+
               {/* ── Project Health Overview ── */}
               {projects.filter(p => p.status !== "archived").length > 0 && (() => {
                 const active = projects.filter(p => p.status !== "archived");
