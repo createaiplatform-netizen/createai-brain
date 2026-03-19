@@ -1734,6 +1734,16 @@ interface ProjectAnalyticsDetail {
   topFiles: { id: number; name: string; type: string; chars: number }[];
 }
 
+interface MetricsReport {
+  meta:             { reportedAt: string; platform: string; dataSource: string };
+  summary:          { totalProjects: number; activeProjects: number; archivedProjects: number; totalFiles: number; enrichedFiles: number; enrichmentPct: number; totalIndustries: number; totalFileTypes: number };
+  byIndustry:       Record<string, { projects: number; files: number; enriched: number; enrichmentPct: number }>;
+  byFileType:       Record<string, number>;
+  topFiles:         { id: number; name: string; project: string; industry: string; fileType: string; chars: number; enriched: boolean }[];
+  projectSummaries: { id: number; name: string; industry: string; status: string; totalFiles: number; enrichedFiles: number; enrichmentPct: number; byFileType: Record<string, number> }[];
+  endpointHealth:   { endpoint: string; status: string }[];
+}
+
 function AnalyticsDashboard() {
   const [projects, setProjects] = useState<AnalyticsProject[]>([]);
   const [loading,  setLoading]  = useState(true);
@@ -1743,6 +1753,10 @@ function AnalyticsDashboard() {
   const [drillId,     setDrillId]     = useState<number | null>(null);
   const [drillData,   setDrillData]   = useState<ProjectAnalyticsDetail | null>(null);
   const [drillLoading,setDrillLoading]= useState(false);
+
+  // Metrics report (uses GET /api/generate/metrics-report)
+  const [report,        setReport]        = useState<MetricsReport | null>(null);
+  const [reportLoading, setReportLoading] = useState(false);
 
   const loadDrill = useCallback(async (pid: number) => {
     setDrillId(pid);
@@ -1759,6 +1773,23 @@ function AnalyticsDashboard() {
       if (r.ok) { setProjects(await r.json()); setLastAt(new Date().toLocaleTimeString()); }
     } finally { setLoading(false); }
   }, []);
+
+  const loadReport = useCallback(async () => {
+    setReportLoading(true);
+    try {
+      const r = await fetch("/api/generate/metrics-report", { credentials: "include" });
+      if (r.ok) setReport(await r.json());
+    } finally { setReportLoading(false); }
+  }, []);
+
+  const downloadReport = useCallback(() => {
+    if (!report) return;
+    const blob = new Blob([JSON.stringify(report, null, 2)], { type: "application/json" });
+    const url  = URL.createObjectURL(blob);
+    const a    = document.createElement("a"); a.href = url;
+    a.download = `createai-metrics-${new Date().toISOString().slice(0,10)}.json`;
+    a.click(); URL.revokeObjectURL(url);
+  }, [report]);
 
   useEffect(() => { load(); const id = setInterval(load, 30_000); return () => clearInterval(id); }, [load]);
 
@@ -1961,6 +1992,128 @@ function AnalyticsDashboard() {
           ))}
         </div>
       )}
+
+      {/* Row 4 — Platform Metrics Report (GET /api/generate/metrics-report) */}
+      <div style={{ marginTop: 14 }}>
+        {card("Platform Metrics Report", (
+          <div>
+            {/* Header bar */}
+            <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", marginBottom: 16 }}>
+              <div style={{ fontSize: 11, color: "#64748b", lineHeight: 1.5 }}>
+                Full platform metrics from live DB — suitable for investor decks, QA audits, or platform monitoring.
+              </div>
+              <div style={{ display: "flex", gap: 8, flexShrink: 0, marginLeft: 16 }}>
+                {report && (
+                  <button onClick={downloadReport}
+                    style={{ padding: "6px 14px", borderRadius: 8, border: "1px solid rgba(16,185,129,0.30)", background: "rgba(16,185,129,0.08)", color: "#10b981", fontSize: 11, fontWeight: 700, cursor: "pointer" }}>
+                    ↓ Download JSON
+                  </button>
+                )}
+                <button onClick={loadReport} disabled={reportLoading}
+                  style={{ padding: "6px 14px", borderRadius: 8, border: "none", background: reportLoading ? "#f1f5f9" : "linear-gradient(135deg,#6366f1,#8b5cf6)", color: reportLoading ? "#94a3b8" : "#fff", fontSize: 11, fontWeight: 700, cursor: reportLoading ? "default" : "pointer" }}>
+                  {reportLoading ? "Running…" : report ? "↻ Refresh" : "▶ Generate Report"}
+                </button>
+              </div>
+            </div>
+
+            {/* Loading state */}
+            {reportLoading && (
+              <div style={{ display: "flex", alignItems: "center", gap: 8, padding: "20px 0", color: "#94a3b8", fontSize: 11 }}>
+                <div style={{ width: 12, height: 12, borderRadius: "50%", border: "2px solid #6366f1", borderTopColor: "transparent", animation: "spin 0.8s linear infinite" }} />
+                Querying all projects, files, and endpoints from live database…
+              </div>
+            )}
+
+            {/* Report content */}
+            {report && !reportLoading && (
+              <div>
+                {/* Metadata */}
+                <div style={{ padding: "8px 12px", borderRadius: 8, background: "rgba(99,102,241,0.06)", border: "1px solid rgba(99,102,241,0.12)", marginBottom: 16, fontSize: 10, color: "#64748b" }}>
+                  <span style={{ fontWeight: 700, color: "#6366f1" }}>📋 {report.meta.platform}</span>
+                  {" · "}{report.meta.dataSource}
+                  {" · "}Generated {new Date(report.meta.reportedAt).toLocaleString()}
+                </div>
+
+                {/* Summary KPI grid */}
+                <div style={{ display: "grid", gridTemplateColumns: "repeat(4, 1fr)", gap: 8, marginBottom: 16 }}>
+                  {[
+                    { label: "Total Projects",  value: report.summary.totalProjects,  sub: `${report.summary.activeProjects} active`, color: "#6366f1" },
+                    { label: "Total Files",      value: report.summary.totalFiles,     sub: `${report.summary.enrichedFiles} enriched`, color: "#8b5cf6" },
+                    { label: "Enrichment Rate",  value: `${report.summary.enrichmentPct}%`, sub: "platform average", color: report.summary.enrichmentPct >= 80 ? "#10b981" : report.summary.enrichmentPct >= 50 ? "#f59e0b" : "#6366f1" },
+                    { label: "Industries",       value: report.summary.totalIndustries, sub: `${report.summary.totalFileTypes} file types`, color: "#7c3aed" },
+                  ].map(kpi => (
+                    <div key={kpi.label} style={{ padding: "10px 12px", borderRadius: 10, background: `${kpi.color}08`, border: `1px solid ${kpi.color}18` }}>
+                      <div style={{ fontSize: 18, fontWeight: 800, color: kpi.color, lineHeight: 1.2 }}>{kpi.value}</div>
+                      <div style={{ fontSize: 9, color: "#64748b", marginTop: 1 }}>{kpi.label}</div>
+                      <div style={{ fontSize: 9, color: "#94a3b8" }}>{kpi.sub}</div>
+                    </div>
+                  ))}
+                </div>
+
+                {/* Two-column: industry table + endpoint health */}
+                <div style={{ display: "grid", gridTemplateColumns: "1.6fr 1fr", gap: 14, marginBottom: 16 }}>
+                  {/* Industry breakdown */}
+                  <div>
+                    <div style={{ fontSize: 10, fontWeight: 700, color: "#94a3b8", letterSpacing: "0.07em", textTransform: "uppercase" as const, marginBottom: 8 }}>By Industry</div>
+                    <table style={{ width: "100%", borderCollapse: "collapse" as const, fontSize: 10 }}>
+                      <thead>
+                        <tr style={{ color: "#94a3b8" }}>
+                          <th style={{ textAlign: "left" as const, paddingBottom: 4, fontWeight: 600 }}>Industry</th>
+                          <th style={{ textAlign: "right" as const, paddingBottom: 4, fontWeight: 600 }}>Projects</th>
+                          <th style={{ textAlign: "right" as const, paddingBottom: 4, fontWeight: 600 }}>Files</th>
+                          <th style={{ textAlign: "right" as const, paddingBottom: 4, fontWeight: 600 }}>Enriched</th>
+                        </tr>
+                      </thead>
+                      <tbody>
+                        {Object.entries(report.byIndustry)
+                          .sort((a, b) => b[1].projects - a[1].projects)
+                          .map(([ind, d]) => (
+                          <tr key={ind} style={{ borderTop: "1px solid rgba(0,0,0,0.04)" }}>
+                            <td style={{ padding: "4px 0", color: "#334155", fontWeight: 500, overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap" as const, maxWidth: 120 }}>{ind}</td>
+                            <td style={{ textAlign: "right" as const, color: "#64748b" }}>{d.projects}</td>
+                            <td style={{ textAlign: "right" as const, color: "#64748b" }}>{d.files}</td>
+                            <td style={{ textAlign: "right" as const, color: d.enrichmentPct >= 80 ? "#10b981" : d.enrichmentPct >= 50 ? "#f59e0b" : "#94a3b8", fontWeight: 700 }}>{d.enrichmentPct}%</td>
+                          </tr>
+                        ))}
+                      </tbody>
+                    </table>
+                  </div>
+
+                  {/* Endpoint health */}
+                  <div>
+                    <div style={{ fontSize: 10, fontWeight: 700, color: "#94a3b8", letterSpacing: "0.07em", textTransform: "uppercase" as const, marginBottom: 8 }}>Endpoint Health</div>
+                    <div style={{ display: "flex", flexDirection: "column", gap: 5 }}>
+                      {report.endpointHealth.map(ep => (
+                        <div key={ep.endpoint} style={{ display: "flex", alignItems: "center", justifyContent: "space-between", padding: "5px 8px", borderRadius: 6, background: "rgba(16,185,129,0.05)", border: "1px solid rgba(16,185,129,0.12)" }}>
+                          <span style={{ fontSize: 9, color: "#475569", fontFamily: "monospace", overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap" as const, maxWidth: "78%" }}>{ep.endpoint}</span>
+                          <span style={{ fontSize: 9, fontWeight: 700, color: "#10b981", flexShrink: 0 }}>{ep.status}</span>
+                        </div>
+                      ))}
+                    </div>
+                  </div>
+                </div>
+
+                {/* Top enriched files */}
+                {report.topFiles.length > 0 && (
+                  <div>
+                    <div style={{ fontSize: 10, fontWeight: 700, color: "#94a3b8", letterSpacing: "0.07em", textTransform: "uppercase" as const, marginBottom: 8 }}>Top Enriched Files (Platform-wide)</div>
+                    <div style={{ display: "flex", flexDirection: "column", gap: 4 }}>
+                      {report.topFiles.slice(0, 5).map((f, i) => (
+                        <div key={f.id} style={{ display: "flex", alignItems: "center", gap: 8, padding: "5px 8px", borderRadius: 6, background: i % 2 === 0 ? "#f8fafc" : "#fff", border: "1px solid rgba(0,0,0,0.04)" }}>
+                          <span style={{ fontSize: 9, fontWeight: 800, color: "#94a3b8", width: 14, textAlign: "right" as const, flexShrink: 0 }}>#{i + 1}</span>
+                          <span style={{ fontSize: 10, color: "#334155", fontWeight: 500, flex: 1, overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap" as const }}>{f.name}</span>
+                          <span style={{ fontSize: 9, color: "#94a3b8", flexShrink: 0 }}>{f.project}</span>
+                          <span style={{ fontSize: 9, fontWeight: 700, color: "#6366f1", flexShrink: 0 }}>{f.chars.toLocaleString()} ch</span>
+                        </div>
+                      ))}
+                    </div>
+                  </div>
+                )}
+              </div>
+            )}
+          </div>
+        ))}
+      </div>
     </div>
   );
 }
