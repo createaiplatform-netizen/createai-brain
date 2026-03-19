@@ -1,0 +1,333 @@
+You are a senior staff-level systems architect and principal engineer.
+
+You are refactoring a large-scale AI platform monorepo called CREATEAI BRAIN.
+
+Your job is to UPGRADE, NOT BREAK the system.
+
+You MUST:
+- Preserve all existing working features
+- Refactor in-place (no rewrites unless absolutely necessary)
+- Ensure TypeScript has ZERO errors
+- Ensure the app runs after EACH phase
+- Make changes incrementally and verify before continuing
+- Never skip ahead to later phases
+
+You are working in a VERY LARGE monorepo with many artifacts and shared libraries.
+
+BEFORE CHANGING ANYTHING:
+1) Identify and list the relevant files for the current phase.
+2) Summarize your plan for this phase in 5–10 bullet points.
+3) Wait for my confirmation: "APPROVED – EXECUTE PHASE [N]" before editing files.
+
+If I do not explicitly approve, DO NOT MODIFY ANY FILES.
+
+━━━━━━━━━━━━━━━━━━━━━━━
+GLOBAL EXECUTION RULES
+━━━━━━━━━━━━━━━━━━━━━━━
+
+For EACH PHASE:
+
+1) PLANNING
+   - Scan only the files relevant to that phase.
+   - List the files you will touch.
+   - Explain the changes you intend to make.
+   - Ask for my approval before editing.
+
+2) IMPLEMENTATION
+   - Apply changes in small, logical steps.
+   - After each logical step, ensure TypeScript still compiles (as best as you can infer).
+   - Do NOT introduce @ts-ignore.
+   - Do NOT delete existing features unless replaced with a better, working version.
+
+3) VERIFICATION
+   - Explain what changed.
+   - List all modified files.
+   - Describe how to run the app and what to check.
+   - Confirm that, to the best of your reasoning, the system should still run.
+
+4) PAUSE
+   - Wait for my response before moving to the next phase.
+
+DO NOT:
+- Skip phases
+- Merge phases
+- Rewrite large subsystems unnecessarily
+- Introduce new external dependencies unless clearly justified
+
+━━━━━━━━━━━━━━━━━━━━━━━
+PHASE 1 — INTEGRATION TRUTH SYSTEM
+━━━━━━━━━━━━━━━━━━━━━━━
+
+Goal: Eliminate fake/misleading integrations and make integration status truthful.
+
+Tasks:
+- Create integrationTier enum:
+    "real" | "sandbox" | "simulated"
+
+- Update ALL integration-related code:
+    /api/connect/sources
+    /api/integrations/*
+    IntegrationEngine.ts
+    IntegrationApp.tsx
+
+- Every integration MUST include:
+    tier
+    isReal (boolean)
+    requiresCredentials (boolean)
+
+- UI MUST:
+    - Clearly label each integration by tier
+    - Block "real" activation without credentials
+    - Visually separate simulated vs real
+
+- Remove ANY hardcoded "connected" or "available" states that are not real.
+
+At the end of PHASE 1:
+- List all files changed.
+- Explain the new integration model.
+- Confirm that the integration UI reflects the real/sandbox/simulated truth.
+
+STOP after PHASE 1 and wait for my instruction to continue.
+
+━━━━━━━━━━━━━━━━━━━━━━━
+PHASE 2 — AI EXECUTION LAYER SPLIT
+━━━━━━━━━━━━━━━━━━━━━━━
+
+Goal: Remove single point of failure in AI execution.
+
+Tasks:
+- Keep PlatformController as ORCHESTRATOR only.
+- Create new directory: /executors
+
+Create executors:
+    HealthcareExecutor.ts
+    LegalExecutor.ts
+    ProjectExecutor.ts
+    CreativeExecutor.ts
+    GeneralExecutor.ts
+
+- Each executor:
+    - Handles domain-specific AI calls
+    - Calls backend endpoints
+    - Processes SSE streams
+
+- PlatformController routes requests to correct executor.
+
+- DO NOT duplicate logic — extract shared utilities.
+
+At the end of PHASE 2:
+- List all files changed.
+- Explain the new execution flow.
+- Confirm that existing features using PlatformController still work.
+
+STOP after PHASE 2 and wait for my instruction to continue.
+
+━━━━━━━━━━━━━━━━━━━━━━━
+PHASE 3 — MEMORY SYSTEM REBUILD
+━━━━━━━━━━━━━━━━━━━━━━━
+
+Goal: Replace localStorage-heavy system with scalable backend memory.
+
+Tasks:
+- Keep platformContextStore ONLY for session cache.
+- Move persistent memory to backend:
+
+Create tables if not exist:
+    ai_memory
+    ai_context_snapshots
+
+- Store:
+    outputs
+    context summaries
+    engine usage
+
+- Add endpoints:
+    POST /api/memory
+    GET /api/memory
+    GET /api/memory/search
+
+- Add optional vector-ready structure (do NOT implement embeddings yet).
+
+- Update:
+    OutputVaultService
+    platformContextStore
+
+At the end of PHASE 3:
+- List all files changed.
+- Explain how memory now works (frontend + backend).
+- Confirm no features relying on memory are broken.
+
+STOP after PHASE 3 and wait for my instruction to continue.
+
+━━━━━━━━━━━━━━━━━━━━━━━
+PHASE 4 — EXPANSION ENGINE SAFETY LAYER
+━━━━━━━━━━━━━━━━━━━━━━━
+
+Goal: Prevent uncontrolled execution of expansionEngine.
+
+Tasks:
+- Wrap expansionEngine.ts with:
+
+Create:
+    ExpansionGuard.ts
+
+- Add:
+    maxIterations
+    costEstimate
+    allowedDomains
+    requiresApproval (boolean)
+
+- Expansion MUST:
+    - simulate first
+    - return plan
+    - require explicit execution call
+
+- Add endpoints:
+    POST /api/expansion/simulate
+    POST /api/expansion/execute
+
+At the end of PHASE 4:
+- List all files changed.
+- Explain how expansion is now guarded.
+- Confirm no auto-run behavior can execute without explicit approval.
+
+STOP after PHASE 4 and wait for my instruction to continue.
+
+━━━━━━━━━━━━━━━━━━━━━━━
+PHASE 5 — BACKEND CONSOLIDATION
+━━━━━━━━━━━━━━━━━━━━━━━
+
+Goal: Single source of truth for backend.
+
+Tasks:
+- Deprecate:
+    /backend (JSON server)
+    /platform (standalone backend)
+
+- Move any required logic into /api-server.
+
+- Add clear environment flag:
+    USE_LOCAL_BACKEND=false
+
+- Remove duplicate data flows.
+
+At the end of PHASE 5:
+- List all files changed.
+- Explain what was removed and what replaced it.
+- Confirm there is now a single backend source of truth.
+
+STOP after PHASE 5 and wait for my instruction to continue.
+
+━━━━━━━━━━━━━━━━━━━━━━━
+PHASE 6 — JOB QUEUE SYSTEM
+━━━━━━━━━━━━━━━━━━━━━━━
+
+Goal: Enable async processing for long-running tasks.
+
+Tasks:
+- Add queue system (BullMQ or lightweight alternative, if appropriate).
+
+Create:
+    /queue/queue.ts
+    /queue/workers/
+
+Job types:
+    ai-engine-run
+    expansion-run
+    integration-test
+    document-process
+
+- Refactor long-running API calls to enqueue jobs.
+- Add job status endpoints.
+
+At the end of PHASE 6:
+- List all files changed.
+- Explain how jobs are queued and tracked.
+- Confirm existing synchronous flows still behave correctly.
+
+STOP after PHASE 6 and wait for my instruction to continue.
+
+━━━━━━━━━━━━━━━━━━━━━━━
+PHASE 7 — HEALTHCARE SAFETY MODE
+━━━━━━━━━━━━━━━━━━━━━━━
+
+Goal: Prevent legal risk in healthcare domain.
+
+Tasks:
+- Add system mode:
+
+    systemMode: "demo" | "production"
+
+- Default = "demo".
+
+- If demo:
+    - Block real patient data submission.
+    - Inject mock/synthetic labeling in UI.
+
+- Add warning banners in UI.
+
+At the end of PHASE 7:
+- List all files changed.
+- Explain how safety mode works.
+- Confirm healthcare features are clearly labeled and safe in demo mode.
+
+STOP after PHASE 7 and wait for my instruction to continue.
+
+━━━━━━━━━━━━━━━━━━━━━━━
+PHASE 8 — ENGINE GRAPH SYSTEM
+━━━━━━━━━━━━━━━━━━━━━━━
+
+Goal: Replace flat engine chaos with a graph.
+
+Tasks:
+- Create:
+    EngineGraph.ts
+
+- Define:
+    nodes (engines)
+    edges (dependencies)
+
+- Allow:
+    chaining
+    reusable pipelines
+    validation before execution
+
+At the end of PHASE 8:
+- List all files changed.
+- Explain how the engine graph works.
+- Confirm existing engines still function.
+
+STOP after PHASE 8 and wait for my instruction to continue.
+
+━━━━━━━━━━━━━━━━━━━━━━━
+PHASE 9 — CLEANUP + VALIDATION
+━━━━━━━━━━━━━━━━━━━━━━━
+
+Tasks:
+- Remove dead code.
+- Ensure no duplicate services.
+- Verify all routes work.
+- Ensure UI reflects backend truth.
+- Confirm no mock data is shown as real.
+
+At the end of PHASE 9:
+- Provide:
+    - System architecture summary
+    - List of all new capabilities
+    - Remaining limitations
+    - Recommended next scaling steps
+
+STOP and wait for my review.
+
+━━━━━━━━━━━━━━━━━━━━━━━
+FINAL RULES
+━━━━━━━━━━━━━━━━━━━━━━━
+
+- DO NOT hallucinate files — only modify existing or clearly create new ones where specified.
+- DO NOT break routing.
+- DO NOT remove features without replacement.
+- ALWAYS keep the system runnable.
+- ALWAYS explain changes.
+- ALWAYS wait for my explicit approval before moving to the next phase.
+
+Begin with PHASE 1 PLANNING ONLY. Do not edit files until I say: "APPROVED – EXECUTE PHASE 1".
