@@ -1047,6 +1047,22 @@ export function ProjectOSApp() {
     name: string; industry: string;
     intent: { purpose: string; audience: string; tone: string };
   } | null>(null);
+  // ── Live Build Mode ──────────────────────────────────────────────────────
+  const [liveBuild, setLiveBuild] = useState<{
+    phase: "parsing" | "creating" | "scaffolding" | "genome" | "complete";
+    projectId: string | null;
+    projectName: string | null;
+    industry: string | null;
+    thinking: string[];
+    scaffoldProgress: { current: number; total: number } | null;
+  } | null>(null);
+  // ── Mobile sidebar ───────────────────────────────────────────────────────
+  const [mobileSidebarOpen, setMobileSidebarOpen] = useState(false);
+  // ── Global Rewrite Engine ─────────────────────────────────────────────
+  const [showGlobalRewrite, setShowGlobalRewrite] = useState(false);
+  const [globalRewriteInstruction, setGlobalRewriteInstruction] = useState("");
+  const [globalRewriteLoading, setGlobalRewriteLoading] = useState(false);
+  const [globalRewriteProgress, setGlobalRewriteProgress] = useState<{ current: number; total: number } | null>(null);
   const [newProjIntent, setNewProjIntent] = useState<{ audience: string; purpose: string; tone: string; constraints: string }>({
     audience: "", purpose: "", tone: "professional", constraints: "",
   });
@@ -1583,31 +1599,96 @@ export function ProjectOSApp() {
     return proj;
   }, [scaffoldProject, generateGenome]);
 
-  // ── parseAndCreate — natural language "Create X" → parse intent → create ──
+  // ── LIVE BUILD THINKING LINES — rotate during creation ───────────────────
+  const THINKING_LINES = [
+    "Analysing your industry landscape…",
+    "Defining audience and purpose…",
+    "Mapping the project lifecycle…",
+    "Identifying critical documents…",
+    "Applying industry best practices…",
+    "Structuring the workspace…",
+    "Generating scaffold architecture…",
+    "Optimising for your project type…",
+    "Building the knowledge base…",
+    "Preparing your AI agent…",
+  ];
+
+  // ── parseAndCreate — Live Build Mode ──────────────────────────────────────
   const parseAndCreate = useCallback(async (prompt: string) => {
     if (!prompt.trim() || createXLoading) return;
     setCreateXLoading(true);
-    setCreateXParsed(null);
+    setCreateXInput("");
+
+    // 1. Open the Live Build overlay immediately
+    setLiveBuild({
+      phase: "parsing",
+      projectId: null,
+      projectName: null,
+      industry: null,
+      thinking: [THINKING_LINES[0]!],
+      scaffoldProgress: null,
+    });
+
+    // Rotate thinking lines throughout the build
+    let thinkingIdx = 1;
+    const thinkingInterval = setInterval(() => {
+      setLiveBuild(prev => prev ? {
+        ...prev,
+        thinking: [...prev.thinking, THINKING_LINES[thinkingIdx++ % THINKING_LINES.length]!],
+      } : prev);
+    }, 1800);
+
     try {
+      // 2. Parse intent
       const res = await fetch("/api/projects/parse-intent", {
-        method:      "POST",
-        credentials: "include",
-        headers:     { "Content-Type": "application/json" },
-        body:        JSON.stringify({ prompt }),
+        method: "POST", credentials: "include",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ prompt }),
       });
       if (!res.ok) throw new Error("parse failed");
-      const parsed = await res.json() as { name: string; industry: string; intent: { purpose: string; audience: string; tone: string } };
-      setCreateXParsed(parsed);
-      // Brief display of parsed result, then create immediately
-      await new Promise(r => setTimeout(r, 900));
-      await createProjectDirect(parsed.name, parsed.industry, parsed.intent);
-      setCreateXInput("");
-      setCreateXParsed(null);
+      const parsed = await res.json() as {
+        name: string; industry: string;
+        intent: { purpose: string; audience: string; tone: string };
+      };
+
+      setLiveBuild(prev => prev ? {
+        ...prev, phase: "creating",
+        projectName: parsed.name, industry: parsed.industry,
+      } : prev);
+
+      // 3. Create the project record
+      const proj = await apiCreateProject(parsed.name.trim(), parsed.industry);
+      if (!proj) throw new Error("create failed");
+      setProjects(prev => [...prev, proj]);
+      setNewlyCreatedId(proj.id);
+      ensureIdentityForProject({ id: proj.id, name: proj.name });
+
+      setLiveBuild(prev => prev ? {
+        ...prev, phase: "scaffolding", projectId: proj.id,
+        scaffoldProgress: { current: 0, total: PROJECT_SCAFFOLD_MAP[parsed.industry]?.length ?? 8 },
+      } : prev);
+
+      // 4. Scaffold documents (intercepting scaffoldStatus updates)
+      await scaffoldProject(proj.id, proj.folders, parsed.industry);
+
+      setLiveBuild(prev => prev ? { ...prev, phase: "genome" } : prev);
+
+      // 5. Generate genome in background
+      const intent = { ...parsed.intent, constraints: "" };
+      generateGenome(proj.id, intent).catch(() => {/* best-effort */});
+
+      await new Promise(r => setTimeout(r, 600));
+
+      setLiveBuild(prev => prev ? { ...prev, phase: "complete" } : prev);
+      setTimeout(() => setNewlyCreatedId(null), 4000);
+
     } catch {
-      setCreateXParsed(null);
+      setLiveBuild(null);
     }
+
+    clearInterval(thinkingInterval);
     setCreateXLoading(false);
-  }, [createXLoading, createProjectDirect]);
+  }, [createXLoading, scaffoldProject, generateGenome]);
 
   const createProject = useCallback(async () => {
     if (!newProjName.trim()) return;
@@ -1638,6 +1719,70 @@ export function ProjectOSApp() {
       resetModal();
     }
   }, [newProjName, newProjIndustry, newProjIntent, scaffoldProject, generateGenome, resetModal]);
+
+  // ── Global Rewrite Engine ─────────────────────────────────────────────────
+  const globalRewriteEngine = useCallback(async (instruction: string) => {
+    if (!activeProject || !instruction.trim() || globalRewriteLoading) return;
+    const files = activeProject.files;
+    if (!files.length) return;
+    setGlobalRewriteLoading(true);
+    setGlobalRewriteProgress({ current: 0, total: files.length });
+
+    let completed = 0;
+    // Process files in parallel batches of 3
+    const BATCH = 3;
+    for (let i = 0; i < files.length; i += BATCH) {
+      const batch = files.slice(i, i + BATCH);
+      await Promise.all(batch.map(async (file) => {
+        try {
+          const res = await fetch(
+            `/api/project-documents/${activeProject.id}/instant-edit/${file.id}`,
+            {
+              method: "POST", credentials: "include",
+              headers: { "Content-Type": "application/json" },
+              body: JSON.stringify({ mode: "rewrite", instruction }),
+            }
+          );
+          if (res.ok && res.body) {
+            const reader = res.body.getReader();
+            const dec = new TextDecoder();
+            let accumulated = "";
+            while (true) {
+              const { done, value } = await reader.read();
+              if (done) break;
+              const text = dec.decode(value, { stream: true });
+              for (const line of text.split("\n")) {
+                if (line.startsWith("data: ")) {
+                  try {
+                    const d = JSON.parse(line.slice(6));
+                    if (d.chunk) accumulated += d.chunk;
+                    if (d.done && accumulated) {
+                      setProjects(prev => prev.map(p =>
+                        p.id !== activeProject.id ? p : {
+                          ...p,
+                          files: p.files.map(f =>
+                            f.id !== file.id ? f : { ...f, content: accumulated }
+                          ),
+                        }
+                      ));
+                    }
+                  } catch { /* skip */ }
+                }
+              }
+            }
+          }
+        } catch { /* best-effort */ }
+        completed++;
+        setGlobalRewriteProgress({ current: completed, total: files.length });
+      }));
+    }
+
+    setGlobalRewriteLoading(false);
+    setGlobalRewriteProgress(null);
+    setShowGlobalRewrite(false);
+    setGlobalRewriteInstruction("");
+  }, [activeProject, globalRewriteLoading]);
+
 
   // ── Lifecycle: fetch document completion scores ───────────────────────────
   const fetchLifecycle = useCallback(async (projectId: string) => {
@@ -1975,16 +2120,29 @@ export function ProjectOSApp() {
 
   return (
     <div
-      className="flex h-full overflow-hidden"
+      className="relative flex h-full max-w-full overflow-hidden"
       style={{
         background: "#f8fafc",
         color: "#1e293b",
         fontSize: `${textScale * 100}%`,
       }}
     >
+      {/* ── Mobile sidebar backdrop ──────────────────────────────────────── */}
+      {mobileSidebarOpen && (
+        <div
+          className="fixed inset-0 z-40 sm:hidden"
+          style={{ background: "rgba(0,0,0,0.45)" }}
+          onClick={() => setMobileSidebarOpen(false)}
+        />
+      )}
+
       {/* ── Left Sidebar: Project List ────────────────────────────────────── */}
       <div
-        className="w-56 flex-shrink-0 flex flex-col overflow-hidden"
+        className={`flex-shrink-0 flex flex-col overflow-hidden transition-all duration-200
+          ${mobileSidebarOpen
+            ? "fixed inset-y-0 left-0 z-50 w-64 sm:relative sm:w-56 sm:z-auto"
+            : "hidden sm:flex sm:w-56"
+          }`}
         style={{ borderRight: "1px solid rgba(99,102,241,0.12)", background: "#ffffff" }}
       >
         {/* Header */}
@@ -2244,12 +2402,24 @@ export function ProjectOSApp() {
           {/* ── Project Tiles Dashboard ── */}
           <div className="flex-1 overflow-y-auto px-8 py-8">
             <div className="flex items-center justify-between mb-6">
-              <div>
-                <div className="text-[18px] font-bold" style={{ color: "#0f172a" }}>Your Projects</div>
-                <div className="text-[12px] mt-0.5" style={{ color: "#475569" }}>
-                  {projects.filter(p => p.status !== "archived").length > 0
-                    ? `${projects.filter(p => p.status !== "archived").length} active workspace${projects.filter(p => p.status !== "archived").length === 1 ? "" : "s"}`
-                    : "No projects yet — create your first one below"}
+              <div className="flex items-center gap-3">
+                {/* Mobile hamburger */}
+                <button
+                  className="sm:hidden w-9 h-9 flex flex-col items-center justify-center gap-1.5 rounded-xl"
+                  style={{ background: "rgba(99,102,241,0.08)", border: "1px solid rgba(99,102,241,0.15)" }}
+                  onClick={() => setMobileSidebarOpen(o => !o)}
+                >
+                  <span className="block w-4 h-0.5 rounded-full" style={{ background: "#6366f1" }} />
+                  <span className="block w-4 h-0.5 rounded-full" style={{ background: "#6366f1" }} />
+                  <span className="block w-4 h-0.5 rounded-full" style={{ background: "#6366f1" }} />
+                </button>
+                <div>
+                  <div className="text-[18px] font-bold" style={{ color: "#0f172a" }}>Your Projects</div>
+                  <div className="text-[12px] mt-0.5" style={{ color: "#475569" }}>
+                    {projects.filter(p => p.status !== "archived").length > 0
+                      ? `${projects.filter(p => p.status !== "archived").length} active workspace${projects.filter(p => p.status !== "archived").length === 1 ? "" : "s"}`
+                      : "No projects yet — create your first one below"}
+                  </div>
                 </div>
               </div>
               <button
@@ -2761,20 +2931,39 @@ export function ProjectOSApp() {
             className="flex items-center justify-between px-5 py-2.5 flex-shrink-0"
             style={{ borderBottom: "1px solid rgba(0,0,0,0.07)", background: "#ffffff" }}
           >
-            <div className="flex items-center gap-3">
-              <span className="text-xl">{activeProject.icon}</span>
-              <div>
-                <div className="text-[14px] font-bold" style={{ color: "#0f172a" }}>{activeProject.name}</div>
-                <div className="text-[9px]" style={{ color: "#334155" }}>{activeProject.industry} · Created {activeProject.created}</div>
+            <div className="flex items-center gap-2 min-w-0">
+              {/* Mobile hamburger */}
+              <button
+                className="sm:hidden w-8 h-8 flex flex-col items-center justify-center gap-1 flex-shrink-0 rounded-lg"
+                style={{ background: "rgba(99,102,241,0.08)", border: "1px solid rgba(99,102,241,0.15)" }}
+                onClick={() => setMobileSidebarOpen(o => !o)}
+              >
+                <span className="block w-3.5 h-0.5 rounded-full" style={{ background: "#6366f1" }} />
+                <span className="block w-3.5 h-0.5 rounded-full" style={{ background: "#6366f1" }} />
+                <span className="block w-3.5 h-0.5 rounded-full" style={{ background: "#6366f1" }} />
+              </button>
+              <span className="text-xl flex-shrink-0">{activeProject.icon}</span>
+              <div className="min-w-0">
+                <div className="text-[14px] font-bold truncate" style={{ color: "#0f172a" }}>{activeProject.name}</div>
+                <div className="text-[9px] hidden sm:block" style={{ color: "#334155" }}>{activeProject.industry} · Created {activeProject.created}</div>
               </div>
               {/* Mode Badge */}
               <span
-                className="px-2.5 py-1 rounded-full text-[10px] font-bold cursor-pointer"
+                className="hidden sm:inline px-2.5 py-1 rounded-full text-[10px] font-bold cursor-pointer flex-shrink-0"
                 style={{ background: `${MODE_COLORS[activeMode]}18`, border: `1px solid ${MODE_COLORS[activeMode]}35`, color: MODE_COLORS[activeMode] }}
                 onClick={() => setShowModes(true)}
               >
                 {activeMode === "Live" ? "🟢" : activeMode === "Demo" ? "🎭" : "🧪"} {activeMode} Mode
               </span>
+              {/* Global Rewrite Engine */}
+              <button
+                className="hidden sm:flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-[11px] font-semibold flex-shrink-0"
+                style={{ background: "rgba(139,92,246,0.10)", border: "1px solid rgba(139,92,246,0.22)", color: "#7c3aed" }}
+                onClick={() => setShowGlobalRewrite(true)}
+                title="Global Rewrite Engine — update tone across all documents"
+              >
+                ✦ Rewrite All
+              </button>
             </div>
             {/* View Toggle */}
             <div className="flex items-center gap-1 flex-wrap">
@@ -4910,6 +5099,301 @@ export function ProjectOSApp() {
           </div>
         </div>
       )}
+
+      {/* ═══════════════════════════════════════════════════════════════════
+          LIVE BUILD MODE OVERLAY
+          Appears when user submits Create X input. Stays on the same page
+          and shows real-time AI reasoning + scaffold progress.
+      ═══════════════════════════════════════════════════════════════════ */}
+      {liveBuild && (
+        <div
+          className="fixed inset-0 z-[100] flex items-center justify-center"
+          style={{ background: "rgba(8,8,20,0.88)", backdropFilter: "blur(12px)" }}
+        >
+          <div
+            className="relative w-full max-w-[520px] mx-4 rounded-3xl overflow-hidden"
+            style={{
+              background: "linear-gradient(145deg,#0f1117 0%,#15192a 60%,#1a1030 100%)",
+              border: "1px solid rgba(99,102,241,0.25)",
+              boxShadow: "0 40px 120px rgba(99,102,241,0.35), 0 0 0 1px rgba(255,255,255,0.06)",
+            }}
+          >
+            {/* Top glow */}
+            <div className="absolute -top-20 left-1/2 -translate-x-1/2 w-72 h-32 rounded-full pointer-events-none"
+              style={{ background: "radial-gradient(ellipse,rgba(99,102,241,0.45) 0%,transparent 70%)" }} />
+
+            <div className="relative px-8 py-10">
+              {/* Header */}
+              <div className="flex items-center gap-3 mb-7">
+                <div className="w-11 h-11 rounded-2xl flex items-center justify-center text-2xl flex-shrink-0"
+                  style={{ background: "linear-gradient(135deg,#6366f1,#8b5cf6)" }}>
+                  🧠
+                </div>
+                <div>
+                  <div className="text-[15px] font-bold text-white">
+                    {liveBuild.phase === "complete" ? "Build Complete" : "Building Live"}
+                  </div>
+                  <div className="text-[11px] mt-0.5" style={{ color: "#818cf8" }}>
+                    {liveBuild.projectName
+                      ? `"${liveBuild.projectName}" · ${liveBuild.industry}`
+                      : "Analysing your idea…"
+                    }
+                  </div>
+                </div>
+              </div>
+
+              {/* Phase Steps */}
+              {(() => {
+                const STEPS = [
+                  { key: "parsing",     icon: "🔍", label: "Understanding intent" },
+                  { key: "creating",    icon: "⚙️", label: "Creating project workspace" },
+                  { key: "scaffolding", icon: "📄", label: "Scaffolding industry documents" },
+                  { key: "genome",      icon: "🧬", label: "Generating project intelligence" },
+                  { key: "complete",    icon: "✔",  label: "Ready to enter" },
+                ] as const;
+                const phaseOrder = ["parsing","creating","scaffolding","genome","complete"];
+                const currentIdx = phaseOrder.indexOf(liveBuild.phase);
+                return (
+                  <div className="space-y-3 mb-7">
+                    {STEPS.map((step, i) => {
+                      const done    = i < currentIdx;
+                      const active  = i === currentIdx;
+                      const pending = i > currentIdx;
+                      return (
+                        <div key={step.key} className={`flex items-center gap-3 transition-all duration-500 ${pending ? "opacity-30" : "opacity-100"}`}>
+                          <div
+                            className="w-7 h-7 rounded-full flex items-center justify-center text-[12px] flex-shrink-0"
+                            style={{
+                              background: done
+                                ? "rgba(16,185,129,0.20)"
+                                : active
+                                  ? "rgba(99,102,241,0.25)"
+                                  : "rgba(255,255,255,0.06)",
+                              border: done
+                                ? "1px solid rgba(16,185,129,0.40)"
+                                : active
+                                  ? "1px solid rgba(99,102,241,0.45)"
+                                  : "1px solid rgba(255,255,255,0.10)",
+                            }}
+                          >
+                            {done ? (
+                              <span style={{ color: "#34d399" }}>✓</span>
+                            ) : active ? (
+                              <span className="inline-block w-3 h-3 rounded-full border-2 border-indigo-400 border-t-transparent animate-spin" />
+                            ) : (
+                              <span style={{ color: "#4b5563" }}>{step.icon}</span>
+                            )}
+                          </div>
+                          <span
+                            className="text-[12px] font-medium"
+                            style={{ color: done ? "#34d399" : active ? "#a5b4fc" : "#4b5563" }}
+                          >
+                            {step.label}
+                          </span>
+                          {active && liveBuild.scaffoldProgress && step.key === "scaffolding" && (
+                            <span className="text-[10px] ml-auto" style={{ color: "#6366f1" }}>
+                              {liveBuild.scaffoldProgress.current} / {liveBuild.scaffoldProgress.total} files
+                            </span>
+                          )}
+                        </div>
+                      );
+                    })}
+                  </div>
+                );
+              })()}
+
+              {/* Thinking Feed */}
+              {liveBuild.phase !== "complete" && liveBuild.thinking.length > 0 && (
+                <div
+                  className="rounded-2xl px-4 py-3 mb-6"
+                  style={{ background: "rgba(99,102,241,0.08)", border: "1px solid rgba(99,102,241,0.15)" }}
+                >
+                  <div className="text-[9px] font-semibold uppercase tracking-widest mb-2" style={{ color: "#6366f1" }}>
+                    AI Thinking
+                  </div>
+                  <div className="space-y-1 max-h-24 overflow-hidden">
+                    {liveBuild.thinking.slice(-4).map((t, i) => (
+                      <div
+                        key={i}
+                        className="text-[11px] transition-all"
+                        style={{ color: i === liveBuild.thinking.slice(-4).length - 1 ? "#c7d2fe" : "#4b5563" }}
+                      >
+                        {i === liveBuild.thinking.slice(-4).length - 1 && (
+                          <span className="inline-block w-1.5 h-1.5 rounded-full mr-2 mb-0.5 animate-pulse" style={{ background: "#6366f1" }} />
+                        )}
+                        {t}
+                      </div>
+                    ))}
+                  </div>
+                </div>
+              )}
+
+              {/* Complete CTA */}
+              {liveBuild.phase === "complete" && liveBuild.projectId && (
+                <div className="text-center">
+                  <div className="text-[12px] mb-4" style={{ color: "#64748b" }}>
+                    Your project is ready with all documents scaffolded.
+                  </div>
+                  <button
+                    className="w-full py-3.5 rounded-2xl text-[13px] font-bold text-white transition-all hover:opacity-90 active:scale-[0.98]"
+                    style={{ background: "linear-gradient(135deg,#6366f1,#8b5cf6)", boxShadow: "0 8px 32px rgba(99,102,241,0.45)" }}
+                    onClick={() => {
+                      setActiveProjectId(liveBuild.projectId!);
+                      setActiveFolderId(null);
+                      _setViewMode("dashboard+folders");
+                      setShowAI(true);
+                      setAiMessages([]);
+                      setLiveBuild(null);
+                    }}
+                  >
+                    Enter Your Project →
+                  </button>
+                  <button
+                    className="mt-2 text-[11px] underline"
+                    style={{ color: "#475569" }}
+                    onClick={() => setLiveBuild(null)}
+                  >
+                    Dismiss
+                  </button>
+                </div>
+              )}
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* ═══════════════════════════════════════════════════════════════════
+          GLOBAL REWRITE ENGINE MODAL
+          Takes a single instruction and rewrites every document in the project.
+      ═══════════════════════════════════════════════════════════════════ */}
+      {showGlobalRewrite && activeProject && (
+        <div
+          className="fixed inset-0 z-[90] flex items-center justify-center p-4"
+          style={{ background: "rgba(0,0,0,0.55)", backdropFilter: "blur(8px)" }}
+          onClick={e => { if (e.target === e.currentTarget && !globalRewriteLoading) setShowGlobalRewrite(false); }}
+        >
+          <div
+            className="w-full max-w-[500px] rounded-2xl overflow-hidden"
+            style={{
+              background: "#ffffff",
+              border: "1px solid rgba(0,0,0,0.08)",
+              boxShadow: "0 24px 80px rgba(0,0,0,0.18)",
+            }}
+          >
+            {/* Header */}
+            <div className="px-6 py-5" style={{ borderBottom: "1px solid rgba(0,0,0,0.07)" }}>
+              <div className="flex items-center gap-3">
+                <div className="w-9 h-9 rounded-xl flex items-center justify-center text-lg flex-shrink-0"
+                  style={{ background: "rgba(139,92,246,0.12)", border: "1px solid rgba(139,92,246,0.20)" }}>
+                  ✦
+                </div>
+                <div>
+                  <div className="text-[14px] font-bold" style={{ color: "#0f172a" }}>Global Rewrite Engine</div>
+                  <div className="text-[11px] mt-0.5" style={{ color: "#64748b" }}>
+                    One instruction rewrites every document in "{activeProject.name}"
+                  </div>
+                </div>
+                {!globalRewriteLoading && (
+                  <button className="ml-auto text-[16px] leading-none" style={{ color: "#94a3b8" }}
+                    onClick={() => setShowGlobalRewrite(false)}>✕</button>
+                )}
+              </div>
+            </div>
+
+            <div className="px-6 py-5 space-y-4">
+              {/* Tone Presets */}
+              <div>
+                <div className="text-[10px] font-semibold uppercase tracking-wider mb-2" style={{ color: "#64748b" }}>Quick Presets</div>
+                <div className="flex flex-wrap gap-2">
+                  {[
+                    "Make this beginner-friendly",
+                    "Make this more professional",
+                    "Make this concise and direct",
+                    "Make this investor-ready",
+                    "Add more detail and depth",
+                    "Make this startup-focused",
+                  ].map(preset => (
+                    <button
+                      key={preset}
+                      onClick={() => setGlobalRewriteInstruction(preset)}
+                      className="px-3 py-1.5 rounded-lg text-[10px] font-medium transition-all"
+                      style={{
+                        background: globalRewriteInstruction === preset ? "rgba(99,102,241,0.12)" : "rgba(0,0,0,0.04)",
+                        border: `1px solid ${globalRewriteInstruction === preset ? "rgba(99,102,241,0.30)" : "rgba(0,0,0,0.08)"}`,
+                        color: globalRewriteInstruction === preset ? "#6366f1" : "#475569",
+                      }}
+                    >{preset}</button>
+                  ))}
+                </div>
+              </div>
+
+              {/* Custom instruction */}
+              <div>
+                <div className="text-[10px] font-semibold uppercase tracking-wider mb-2" style={{ color: "#64748b" }}>Custom Instruction</div>
+                <textarea
+                  value={globalRewriteInstruction}
+                  onChange={e => setGlobalRewriteInstruction(e.target.value)}
+                  disabled={globalRewriteLoading}
+                  placeholder='e.g. "Make all documents more beginner-friendly and remove jargon"'
+                  rows={3}
+                  className="w-full px-4 py-3 rounded-xl text-[12px] resize-none outline-none transition-all"
+                  style={{
+                    background: "#f8fafc",
+                    border: "1px solid rgba(0,0,0,0.10)",
+                    color: "#1e293b",
+                  }}
+                />
+              </div>
+
+              {/* Progress */}
+              {globalRewriteLoading && globalRewriteProgress && (
+                <div>
+                  <div className="flex items-center justify-between mb-2">
+                    <span className="text-[11px] font-medium" style={{ color: "#6366f1" }}>
+                      Rewriting documents…
+                    </span>
+                    <span className="text-[11px]" style={{ color: "#64748b" }}>
+                      {globalRewriteProgress.current} / {globalRewriteProgress.total}
+                    </span>
+                  </div>
+                  <div className="h-1.5 rounded-full overflow-hidden" style={{ background: "rgba(99,102,241,0.12)" }}>
+                    <div
+                      className="h-full rounded-full transition-all duration-300"
+                      style={{
+                        width: `${(globalRewriteProgress.current / globalRewriteProgress.total) * 100}%`,
+                        background: "linear-gradient(90deg,#6366f1,#8b5cf6)",
+                      }}
+                    />
+                  </div>
+                </div>
+              )}
+
+              {/* CTA */}
+              <div className="flex gap-3 pt-1">
+                <button
+                  className="flex-1 py-3 rounded-xl text-[12px] font-bold text-white transition-all hover:opacity-90 disabled:opacity-50"
+                  style={{ background: "linear-gradient(135deg,#6366f1,#8b5cf6)" }}
+                  disabled={!globalRewriteInstruction.trim() || globalRewriteLoading}
+                  onClick={() => globalRewriteEngine(globalRewriteInstruction)}
+                >
+                  {globalRewriteLoading
+                    ? `Rewriting ${globalRewriteProgress?.current ?? 0} / ${globalRewriteProgress?.total ?? "…"}…`
+                    : `✦ Rewrite All ${activeProject.files.length} Documents`
+                  }
+                </button>
+                {!globalRewriteLoading && (
+                  <button
+                    className="px-4 py-3 rounded-xl text-[12px] font-medium"
+                    style={{ background: "rgba(0,0,0,0.05)", color: "#64748b" }}
+                    onClick={() => setShowGlobalRewrite(false)}
+                  >Cancel</button>
+                )}
+              </div>
+            </div>
+          </div>
+        </div>
+      )}
+
     </div>
   );
 }

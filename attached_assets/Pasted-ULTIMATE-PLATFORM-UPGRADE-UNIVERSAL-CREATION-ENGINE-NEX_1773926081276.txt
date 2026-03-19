@@ -1,0 +1,200 @@
+ULTIMATE PLATFORM UPGRADE — UNIVERSAL CREATION ENGINE + NEXT-GEN INTELLIGENCE
+
+ROLE:
+You are upgrading this platform into a world-class, next-generation AI creation system.
+This is a NON-DESTRUCTIVE upgrade. Do not break existing features.
+
+The system must:
+- Be simple at entry
+- Extremely powerful underneath
+- Fully mobile-responsive
+- Capable of creating, editing, and evolving entire systems instantly
+
+━━━━━━━━━━━━━━━━━━━━━━━
+I. ROUTING & ENTRY EXPERIENCE
+━━━━━━━━━━━━━━━━━━━━━━━
+
+- "/" MUST load the clean CreateAI homepage
+- ProjectOS must exist at:
+  • "/projectos"
+  • OR "/projects/:id"
+- Prevent auto-navigation into ProjectOS
+
+FLOW:
+1. User lands on homepage
+2. User types idea
+3. System begins LIVE CREATION
+4. THEN user can enter ProjectOS
+
+━━━━━━━━━━━━━━━━━━━━━━━
+II. MOBILE-FIRST RESPONSIVENESS
+━━━━━━━━━━━━━━━━━━━━━━━
+
+- No horizontal scrolling anywhere
+- Fully usable in portrait mode (~375px width)
+
+IMPLEMENT:
+- max-width: 100vw
+- overflow-x: hidden
+- responsive Tailwind grids
+- sidebar → hamburger drawer on mobile
+- stack all cards vertically
+- wrap toolbars/buttons
+- scale typography down for mobile
+- touch-friendly UI (min 44px targets)
+
+━━━━━━━━━━━━━━━━━━━━━━━
+III. LIVE CREATION ENGINE (HOMEPAGE)
+━━━━━━━━━━━━━━━━━━━━━━━
+
+When user submits idea:
+
+DO NOT navigate away.
+
+Transform homepage into:
+
+🧠 LIVE BUILD MODE
+
+Display streaming:
+
+✔ Understanding intent
+✔ Defining audience
+✔ Creating structure
+
+⚙️ Generating:
+→ UI
+→ Features
+→ Systems
+
+📄 Creating:
+→ Documents
+→ Plans
+→ Flows
+
+🎨 Designing interface
+
+Use SSE streaming for real-time updates.
+
+━━━━━━━━━━━━━━━━━━━━━━━
+IV. THINKING FEED (VISIBLE INTELLIGENCE)
+━━━━━━━━━━━━━━━━━━━━━━━
+
+Add real-time AI reasoning panel:
+
+Examples:
+- “Analyzing industry…”
+- “Applying best practices…”
+- “Optimizing UX…”
+
+Must stream live alongside generation.
+
+━━━━━━━━━━━━━━━━━━━━━━━
+V. INSTANT EDIT SYSTEM (GLOBAL)
+━━━━━━━━━━━━━━━━━━━━━━━
+
+Every generated item must be editable instantly.
+
+- Add “✦ AI Improve / Edit” everywhere
+- Use SSE streaming for edits
+- Auto-save changes
+- Log to ExecutionStore + audit_log
+
+━━━━━━━━━━━━━━━━━━━━━━━
+VI. NEXT-GEN INVENTION LAYER (CRITICAL)
+━━━━━━━━━━━━━━━━━━━━━━━
+
+Implement the following new capabilities:
+
+1. INTENT-TO-REALITY ENGINE
+- System infers full project from vague input
+- Expands idea into full system automatically
+
+2. PARALLEL REALITY BUILDER
+- Generate multiple versions of a project simultaneously
+- Compare:
+  • business model
+  • UX approach
+  • monetization
+- Allow user to select → system adapts instantly
+
+3. GLOBAL REWRITE ENGINE
+- A single user change updates ALL related content
+- Example:
+  “Make this beginner-friendly”
+→ updates:
+  • UI
+  • documents
+  • tone
+  • flows
+  • strategy
+
+4. PROJECT DNA (SELF-HEALING)
+- Detect missing components
+- Auto-generate them without user asking
+- Continuously improve structure
+
+5. PREDICTIVE CREATION
+- Start building before user finishes input
+- Preload likely outputs based on behavior
+
+6. CROSS-INDUSTRY FUSION
+- Combine ideas across industries automatically
+- Suggest unique hybrid systems
+
+7. REALITY SIMULATOR
+- Simulate:
+  • user behavior
+  • growth
+  • revenue
+- Provide preview of outcomes before build
+
+8. SELF-EVOLUTION ENGINE
+- Learn from:
+  • user edits
+  • project outcomes
+- Improve future outputs automatically
+
+━━━━━━━━━━━━━━━━━━━━━━━
+VII. PROJECTOS EXPERIENCE
+━━━━━━━━━━━━━━━━━━━━━━━
+
+- Smooth transition when entering (fade/slide)
+- Add “What’s Next” panel:
+  • next actions
+  • missing components
+  • recommendations
+
+━━━━━━━━━━━━━━━━━━━━━━━
+VIII. SAFETY & STABILITY
+━━━━━━━━━━━━━━━━━━━━━━━
+
+DO NOT:
+- Break existing endpoints
+- Remove working features
+- Change DB schema unnecessarily
+
+DO:
+- Extend existing systems
+- Use DAG orchestrator
+- Use SSE streaming
+- Keep backward compatibility
+
+━━━━━━━━━━━━━━━━━━━━━━━
+IX. SUCCESS CRITERIA
+━━━━━━━━━━━━━━━━━━━━━━━
+
+✔ Clean homepage always loads first  
+✔ No mobile overflow anywhere  
+✔ Homepage becomes live build engine  
+✔ AI thinking visible in real time  
+✔ All content instantly editable  
+✔ System generates multiple versions  
+✔ One change updates entire project  
+✔ Platform improves itself over time  
+
+FINAL GOAL:
+Create a system that feels like:
+→ It thinks ahead of the user  
+→ It builds instantly  
+→ It improves itself  
+→ It makes creation effortless at the highest level
