@@ -13,6 +13,8 @@ import IntegrationDemoPage from "@/pages/IntegrationDemoPage";
 import LiveSimDashboard from "@/pages/LiveSimDashboard";
 import IntegrationLivePage from "@/pages/IntegrationLivePage";
 import IntegrationSuitePage from "@/pages/IntegrationSuitePage";
+import SmartFhirCallbackApp from "@/Apps/SmartFhirCallbackApp";
+import SmartFhirConnectedApp from "@/Apps/SmartFhirConnectedApp";
 
 import MetricsPage from "@/pages/MetricsPage";
 import { OSProvider } from "@/os/OSContext";
@@ -390,7 +392,10 @@ function App() {
     path.startsWith(`${base}/integration-demo`) ||
     path.startsWith(`${base}/live-sim`) ||
     path.startsWith(`${base}/integration-live`) ||
-    path.startsWith(`${base}/integration-suite`);
+    path.startsWith(`${base}/integration-suite`) ||
+    // SMART-on-FHIR OAuth callback/connected pages must be accessible without auth gate
+    // because the browser redirects here from the external SMART sandbox
+    path.startsWith(`${base}/connectors/`);
 
   if (isPublicRoute) {
     return (
@@ -400,6 +405,10 @@ function App() {
           <Route path="/live-sim"           component={LiveSimDashboard} />
           <Route path="/integration-live"   component={IntegrationLivePage} />
           <Route path="/integration-suite"  component={IntegrationSuitePage} />
+          {/* SMART-on-FHIR OAuth callback — receives authorization code from sandbox */}
+          <Route path="/connectors/SMART_FHIR_SANDBOX/callback"  component={SmartFhirCallbackApp} />
+          {/* SMART-on-FHIR connected confirmation + test fetch UI */}
+          <Route path="/connectors/SMART_FHIR_SANDBOX/connected" component={SmartFhirConnectedApp} />
         </WouterRouter>
       </QueryClientProvider>
     );

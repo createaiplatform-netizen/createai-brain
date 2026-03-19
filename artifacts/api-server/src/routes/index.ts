@@ -55,6 +55,7 @@ import legalaiRouter from "./legalai";
 import productdesignRouter from "./productdesign";
 import researchlabRouter from "./researchlab";
 import connectRouter from "./connect";
+import smartFhirSandboxRouter from "./smart-fhir-sandbox";
 
 const router: IRouter = Router();
 
@@ -110,6 +111,7 @@ router.use("/legal-ai",           legalaiRouter);
 router.use("/product-design",     productdesignRouter);
 router.use("/research-lab",       researchlabRouter);
 router.use("/connect",            connectRouter);
+router.use("/integrations/smart-fhir-sandbox", smartFhirSandboxRouter);
 
 // ── Public demo routes (no auth required) ────────────────────────────────────
 router.use("/public",             publicRouter);

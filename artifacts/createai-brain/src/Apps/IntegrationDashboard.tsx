@@ -201,6 +201,32 @@ export function IntegrationDashboard() {
     return () => { if (logsInterval.current) clearInterval(logsInterval.current); };
   }, [tab, fetchLogs]);
 
+  // SMART-on-FHIR Sandbox — trigger real OAuth 2.0 authorization flow
+  // This is a legal, public sandbox (SMART Health IT). No real PHI. Test data only.
+  // Architecture is identical to Epic/MyChart SMART-on-FHIR production flow.
+  const [smartConnecting, setSmartConnecting] = useState(false);
+  const handleConnectSmart = async () => {
+    setSmartConnecting(true);
+    try {
+      const base        = import.meta.env.BASE_URL.replace(/\/$/, "");
+      const redirectUri = `${window.location.origin}${base}/connectors/SMART_FHIR_SANDBOX/callback`;
+      const res  = await fetch(
+        `/api/integrations/smart-fhir-sandbox/auth-url?redirect_uri=${encodeURIComponent(redirectUri)}`,
+        { credentials: "include" }
+      );
+      const data = await res.json() as { url?: string; error?: string };
+      if (data.url) {
+        window.location.href = data.url;
+      } else {
+        console.error("[smart-fhir] auth-url error:", data.error);
+        setSmartConnecting(false);
+      }
+    } catch (err) {
+      console.error("[smart-fhir] handleConnectSmart error:", err);
+      setSmartConnecting(false);
+    }
+  };
+
   const simulate = async (type: SimType) => {
     setSimLoading(type);
     try {
@@ -374,9 +400,26 @@ export function IntegrationDashboard() {
                         </button>
                       )}
                       {item.status === "available" && (
-                        <button className="flex-1 h-7 rounded-lg text-[11px] font-semibold border border-indigo-200 text-indigo-600 hover:bg-indigo-50 transition-colors">
-                          + Connect
-                        </button>
+                        item.id === "smart-fhir-sandbox" ? (
+                          // Real OAuth 2.0 connect — redirects to SMART Health IT public sandbox
+                          <button
+                            onClick={handleConnectSmart}
+                            disabled={smartConnecting}
+                            className="flex-1 h-7 rounded-lg text-[11px] font-semibold border transition-colors"
+                            style={{
+                              borderColor: smartConnecting ? "#e2e8f0" : "#bbf7d0",
+                              color:       smartConnecting ? "#94a3b8"  : "#15803d",
+                              background:  smartConnecting ? "#f8fafc"  : "#f0fdf4",
+                            }}
+                            title="Redirects to SMART Health IT public sandbox — test data only, no real PHI"
+                          >
+                            {smartConnecting ? "⏳ Redirecting…" : "🔐 Connect (SMART OAuth)"}
+                          </button>
+                        ) : (
+                          <button className="flex-1 h-7 rounded-lg text-[11px] font-semibold border border-indigo-200 text-indigo-600 hover:bg-indigo-50 transition-colors">
+                            + Connect
+                          </button>
+                        )
                       )}
                       {item.status !== "available" && (
                         <button className="h-7 px-3 rounded-lg text-[11px] font-medium border border-gray-200 text-gray-500 hover:bg-gray-50 transition-colors">

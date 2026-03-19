@@ -138,6 +138,9 @@ router.get("/dashboard", (req, res) => {
       { id: "secure-msg",   label: "Secure Messaging",       icon: "💬", status: "available", detail: "Direct Trust-compatible adapter",             category: "healthcare"  },
       // EHR
       { id: "ehr-epic",     label: "Epic (EHR)",             icon: "🏨", status: "available", detail: "SMART on FHIR · OAuth 2.0 launch",           category: "ehr"         },
+      // Public SMART-on-FHIR sandbox — real OAuth 2.0 flow, test data only, no real PHI
+      // Architecture-identical to Epic/MyChart; swap base URL + client_id for production
+      { id: "smart-fhir-sandbox", label: "SMART-on-FHIR Sandbox", icon: "🔐", status: "available", detail: "Live OAuth 2.0 · SMART Health IT public sandbox · test data only", category: "ehr" },
       { id: "ehr-cerner",   label: "Cerner / Oracle (EHR)",  icon: "🏨", status: "available", detail: "FHIR R4 API · CDS Hooks",                   category: "ehr"         },
       { id: "ehr-athena",   label: "athenahealth (EHR)",     icon: "🏨", status: "available", detail: "REST + FHIR R4 integration",                 category: "ehr"         },
     ],

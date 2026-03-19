@@ -7,6 +7,16 @@ router.get("/sources", (_req, res) => {
     ok: true,
     sources: {
       health: [
+        {
+          sourceId:     "SMART_FHIR_SANDBOX",
+          displayName:  "SMART-on-FHIR Sandbox",
+          description:  "Public SMART Health IT sandbox with real OAuth 2.0 / SMART-on-FHIR login flow. Test data only — no real PHI. Architecture-identical to Epic/MyChart production flow.",
+          status:       "available",
+          requires:     ["UserAuthorization"],
+          authType:     "oauth2_smart",
+          note:         "Public sandbox — no credentials required for demo use. Replace client_id + base URL for Epic/MyChart once App Orchard approval is obtained.",
+          testDataOnly: true,
+        },
         { sourceId: "MYCHART_TEST",        displayName: "MyChart (Simulated)",              description: "Epic MyChart — simulated. Requires App Orchard approval in production." },
         { sourceId: "POINTCLICKCARE_TEST", displayName: "PointClickCare (Simulated)",       description: "Long-term care EHR — simulated. Requires Marketplace approval in production." },
         { sourceId: "ECP_TEST",            displayName: "ECP / Simplexis (Simulated)",      description: "Assisted living system — ingested via PDF/CSV pipeline." },
