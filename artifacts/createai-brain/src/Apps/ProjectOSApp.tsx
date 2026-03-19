@@ -7,6 +7,7 @@ import { useMediaQuery } from "@/hooks/use-media-query";
 import { SalesModule, OpsModule, SupportModule, ComplianceModule, EnterpriseDashboard, StrategyModule, UXContentModule, PipelineView, MarketingModule, ProductModule, HRModule, FinanceModule } from "./InternalModules";
 import { ProjectOutputLayer } from "./ProjectOutputLayer";
 import { MovieProductionApp } from "./MovieProductionApp";
+import { RenderEngineApp } from "./RenderEngineApp";
 
 // ─── Types ────────────────────────────────────────────────────────────────────
 
@@ -1781,6 +1782,8 @@ export function ProjectOSApp() {
   const [addingMember, setAddingMember] = useState(false);
   // ── Movie Production Suite ──
   const [showMovieProduction, setShowMovieProduction] = useState(false);
+  // ── Render Engine ──
+  const [showRenderEngine, setShowRenderEngine] = useState(false);
   // ── Publishing pipeline state (req 13 + 14) ──
   const [showPublishModal, setShowPublishModal] = useState(false);
   const [publishStep, setPublishStep] = useState<"review" | "billing" | "confirm" | "done">("review");
@@ -4428,26 +4431,60 @@ export function ProjectOSApp() {
               {/* ── Output Layer ── */}
               {viewMode === "output" && activeProject && (
                 <div className="flex-1 overflow-auto p-4" style={{ background: "#f8fafc" }}>
-                  {/* Movie Production button for creative project types */}
-                  {["Film / Movie", "Documentary", "Video Game", "Podcast", "Music / Album", "Book / Novel", "Online Course"].includes(activeProject.industry) && (
-                    <div style={{ marginBottom: 12, display: "flex", justifyContent: "flex-end" }}>
-                      <button
-                        onClick={() => setShowMovieProduction(true)}
-                        style={{
-                          display: "flex", alignItems: "center", gap: 7,
-                          padding: "8px 18px", borderRadius: 22,
-                          background: "linear-gradient(135deg,#6366f1,#8b5cf6)",
-                          border: "none", color: "#fff",
-                          fontSize: 11, fontWeight: 700, cursor: "pointer",
-                          boxShadow: "0 4px 16px rgba(99,102,241,0.35)",
-                          letterSpacing: "0.02em",
-                        }}
-                      >
-                        <span>🎬</span>
-                        Produce Movie
-                      </button>
-                    </div>
-                  )}
+                  {/* Render Engine button — type-aware, shown for all project types */}
+                  {(() => {
+                    const ind = activeProject.industry ?? "";
+                    const btnMeta: Record<string, { icon: string; label: string; color: string }> = {
+                      "Film / Movie":    { icon: "🎬", label: "Produce Film",      color: "#dc2626" },
+                      "Documentary":     { icon: "🎬", label: "Produce Film",      color: "#0284c7" },
+                      "Video Game":      { icon: "🎮", label: "Generate Game",     color: "#7c3aed" },
+                      "Mobile App":      { icon: "💻", label: "Build App Preview", color: "#059669" },
+                      "Web App / SaaS":  { icon: "💻", label: "Build App Preview", color: "#2563eb" },
+                      "Book / Novel":    { icon: "📖", label: "Generate Book",     color: "#6b7280" },
+                      "Music / Album":   { icon: "🎵", label: "Generate Album",    color: "#db2777" },
+                      "Podcast":         { icon: "🎙️", label: "Generate Episode",  color: "#ea580c" },
+                      "Online Course":   { icon: "📚", label: "Generate Course",   color: "#0891b2" },
+                      "Business":        { icon: "📊", label: "Generate Pitch",    color: "#d97706" },
+                      "Startup":         { icon: "📊", label: "Generate Pitch",    color: "#7c3aed" },
+                      "Physical Product":{ icon: "🛍️", label: "Generate Showcase", color: "#b45309" },
+                    };
+                    const bm = btnMeta[ind] ?? { icon: "✦", label: "Generate Experience", color: "#6366f1" };
+                    return (
+                      <div style={{ marginBottom: 12, display: "flex", justifyContent: "flex-end", gap: 8 }}>
+                        {/* Film types also keep the movie production option */}
+                        {["Film / Movie", "Documentary"].includes(ind) && (
+                          <button
+                            onClick={() => setShowMovieProduction(true)}
+                            style={{
+                              display: "flex", alignItems: "center", gap: 6,
+                              padding: "7px 14px", borderRadius: 20,
+                              background: "#f8fafc",
+                              border: "1px solid rgba(0,0,0,0.10)", color: "#374151",
+                              fontSize: 10, fontWeight: 600, cursor: "pointer",
+                            }}
+                          >
+                            <span>🎬</span>
+                            Quick Movie
+                          </button>
+                        )}
+                        <button
+                          onClick={() => setShowRenderEngine(true)}
+                          style={{
+                            display: "flex", alignItems: "center", gap: 7,
+                            padding: "8px 18px", borderRadius: 22,
+                            background: `linear-gradient(135deg,${bm.color},#8b5cf6)`,
+                            border: "none", color: "#fff",
+                            fontSize: 11, fontWeight: 700, cursor: "pointer",
+                            boxShadow: `0 4px 16px ${bm.color}40`,
+                            letterSpacing: "0.02em",
+                          }}
+                        >
+                          <span>{bm.icon}</span>
+                          {bm.label}
+                        </button>
+                      </div>
+                    );
+                  })()}
                   <ProjectOutputLayer project={activeProject} compact={false} />
                 </div>
               )}
@@ -6193,6 +6230,37 @@ export function ProjectOSApp() {
                 )}
               </div>
             </div>
+          </div>
+        </div>
+      )}
+
+      {/* ═══════════════════════════════════════════════════════════════════
+          RENDER ENGINE MODAL — universal output generator
+      ═══════════════════════════════════════════════════════════════════ */}
+      {showRenderEngine && activeProject && (
+        <div
+          className="fixed inset-0 z-[96] flex items-center justify-center"
+          style={{ background: "rgba(0,0,0,0.85)", backdropFilter: "blur(6px)" }}
+          onClick={e => { if (e.target === e.currentTarget) setShowRenderEngine(false); }}
+        >
+          <div
+            style={{
+              width: "min(960px, 96vw)",
+              height: "min(700px, 92vh)",
+              borderRadius: 20,
+              overflow: "hidden",
+              boxShadow: "0 40px 120px rgba(0,0,0,0.7)",
+              border: "1px solid rgba(255,255,255,0.08)",
+              display: "flex",
+              flexDirection: "column",
+            }}
+          >
+            <RenderEngineApp
+              projectId={activeProject.id}
+              projectName={activeProject.name}
+              projectType={activeProject.industry ?? "General"}
+              onClose={() => setShowRenderEngine(false)}
+            />
           </div>
         </div>
       )}
