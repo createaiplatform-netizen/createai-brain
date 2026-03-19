@@ -22,6 +22,34 @@ function AudioBtn({ on, onToggle, dark = false }: { on: boolean; onToggle: () =>
   );
 }
 
+// ─── Art regeneration utility ─────────────────────────────────────────────────
+// Calls POST /api/generate/regen-art to re-generate a single frame's DALL-E image.
+// Returns the new imageUrl string, or null on failure.
+
+async function regenArt(
+  projectId:    string | number,
+  manifestName: string,
+  frameIndex:   number,
+  title:        string,
+  content:      string,
+): Promise<string | null> {
+  try {
+    const r = await fetch("/api/generate/regen-art", {
+      method:      "POST",
+      headers:     { "Content-Type": "application/json" },
+      credentials: "include",
+      body:        JSON.stringify({ projectId, manifestName, frameIndex, dallePrompt: `${title}: ${content.slice(0, 260)}` }),
+    });
+    if (!r.ok) return null;
+    const data = await r.json() as { imageUrl?: string };
+    return data.imageUrl ?? null;
+  } catch { return null; }
+}
+
+function manifestNameFor(renderMode: RenderMode): string {
+  return renderMode === "cinematic" ? "Movie Production Manifest" : `Render Manifest — ${renderMode}`;
+}
+
 // ─── Save-to-project utility + button ─────────────────────────────────────────
 
 async function saveToProject(
@@ -242,12 +270,14 @@ function ProductionConsole({
 
 // ─── Cinematic Player ─────────────────────────────────────────────────────────
 
-function CinematicPlayer({ manifest }: { manifest: RenderManifest }) {
+function CinematicPlayer({ manifest, projectId }: { manifest: RenderManifest; projectId: string | number }) {
   const [active, setActive]           = useState(0);
   const [playing, setPlaying]         = useState(false);
   const [speaking, setSpeaking]       = useState(false);
   const [showChoices, setShowChoices] = useState(false);
   const [audioOn, setAudioOn]         = useState(false);
+  const [regenImages, setRegenImages] = useState<Record<number, string>>({});
+  const [regenLoading, setRegenLoading] = useState<number | null>(null);
   const timerRef  = useRef<ReturnType<typeof setTimeout> | null>(null);
   const audio = useAmbientAudio();
 
@@ -337,8 +367,8 @@ function CinematicPlayer({ manifest }: { manifest: RenderManifest }) {
 
       {/* Scene image */}
       <div style={{ flex: 1, position: "relative", overflow: "hidden" }}>
-        {frame.imageUrl ? (
-          <img src={frame.imageUrl} alt="" style={{ width: "100%", height: "100%", objectFit: "cover" }} />
+        {(regenImages[active] ?? frame.imageUrl) ? (
+          <img src={regenImages[active] ?? frame.imageUrl} alt="" style={{ width: "100%", height: "100%", objectFit: "cover" }} />
         ) : (
           <div style={{ width: "100%", height: "100%", background: `rgb(${r},${g},${b})` }} />
         )}
@@ -462,6 +492,25 @@ function CinematicPlayer({ manifest }: { manifest: RenderManifest }) {
           {speaking ? "🔊" : "🎙"}
         </button>
         <AudioBtn on={audioOn} onToggle={toggleAudio} dark />
+        <button
+          disabled={regenLoading === active}
+          onClick={async () => {
+            setRegenLoading(active);
+            const url = await regenArt(
+              projectId,
+              manifestNameFor(manifest.renderMode),
+              active, frame.title, frame.content,
+            );
+            if (url) setRegenImages(prev => ({ ...prev, [active]: url }));
+            setRegenLoading(null);
+          }}
+          title="Regenerate scene artwork (DALL-E 3)"
+          style={{
+            background: "none", border: "none", color: regenLoading === active ? "#818cf8" : "#64748b",
+            cursor: regenLoading === active ? "wait" : "pointer", fontSize: 13,
+          }}>
+          {regenLoading === active ? "⏳" : "🎨"}
+        </button>
         {/* Scene dots */}
         <div style={{ display: "flex", gap: 4, marginLeft: 8 }}>
           {frames.map((_, i) => (
@@ -802,6 +851,8 @@ function BookReader({ manifest, projectId }: { manifest: RenderManifest; project
   const [editedContent, setEditedContent] = useState<string | null>(null);
   const [audioOn, setAudioOn]             = useState(false);
   const [saving, setSaving]               = useState(false);
+  const [regenImages, setRegenImages]     = useState<Record<number, string>>({});
+  const [regenLoading, setRegenLoading]   = useState<number | null>(null);
   const frame = manifest.frames[chapter];
   const audio = useAmbientAudio();
 
@@ -859,6 +910,23 @@ function BookReader({ manifest, projectId }: { manifest: RenderManifest; project
             <span style={{ fontSize: 10, fontWeight: 600, color: "#94a3b8" }}>Ambient</span>
             <AudioBtn on={audioOn} onToggle={toggleAudio} />
           </div>
+          <button
+            disabled={regenLoading === chapter}
+            onClick={async () => {
+              setRegenLoading(chapter);
+              const url = await regenArt(projectId, manifestNameFor(manifest.renderMode), chapter, frame?.title, frame?.content);
+              if (url) setRegenImages(prev => ({ ...prev, [chapter]: url }));
+              setRegenLoading(null);
+            }}
+            title="Regenerate chapter artwork (DALL-E 3)"
+            style={{
+              display: "block", width: "100%", padding: "7px 0",
+              background: "#f1f5f9", border: "none", borderRadius: 8,
+              color: regenLoading === chapter ? "#818cf8" : "#64748b",
+              fontSize: 10, fontWeight: 700, cursor: regenLoading === chapter ? "wait" : "pointer",
+            }}>
+            {regenLoading === chapter ? "⏳ Generating…" : "🎨 Regen Art"}
+          </button>
           <button onClick={() => setEditMode(m => !m)}
             style={{
               display: "block", width: "100%", padding: "7px 0",
@@ -893,8 +961,8 @@ function BookReader({ manifest, projectId }: { manifest: RenderManifest; project
 
       {/* Reading pane */}
       <div style={{ flex: 1, overflowY: "auto", padding: "32px 48px" }}>
-        {frame?.imageUrl && (
-          <img src={frame.imageUrl} alt="" style={{
+        {(regenImages[chapter] ?? frame?.imageUrl) && (
+          <img src={regenImages[chapter] ?? frame?.imageUrl} alt="" style={{
             width: "100%", maxHeight: 220, objectFit: "cover",
             borderRadius: 12, marginBottom: 28,
           }} />
@@ -942,6 +1010,8 @@ function CoursePlayer({ manifest, projectId }: { manifest: RenderManifest; proje
   const [editedContent, setEditedContent] = useState<string | null>(null);
   const [audioOn, setAudioOn]             = useState(false);
   const [saving, setSaving]               = useState(false);
+  const [regenImages, setRegenImages]     = useState<Record<number, string>>({});
+  const [regenLoading, setRegenLoading]   = useState<number | null>(null);
   const frame = manifest.frames[module];
   const audio = useAmbientAudio();
 
@@ -999,16 +1069,35 @@ function CoursePlayer({ manifest, projectId }: { manifest: RenderManifest; proje
             {f.title}
           </button>
         ))}
-        <div style={{ borderTop: "1px solid rgba(0,0,0,0.06)", marginTop: 12, paddingTop: 12, display: "flex", alignItems: "center", justifyContent: "space-between" }}>
-          <span style={{ fontSize: 10, fontWeight: 600, color: "#94a3b8" }}>Ambient</span>
-          <AudioBtn on={audioOn} onToggle={toggleAudio} />
+        <div style={{ borderTop: "1px solid rgba(0,0,0,0.06)", marginTop: 12, paddingTop: 12, display: "flex", flexDirection: "column", gap: 4 }}>
+          <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between" }}>
+            <span style={{ fontSize: 10, fontWeight: 600, color: "#94a3b8" }}>Ambient</span>
+            <AudioBtn on={audioOn} onToggle={toggleAudio} />
+          </div>
+          <button
+            disabled={regenLoading === module}
+            onClick={async () => {
+              setRegenLoading(module);
+              const url = await regenArt(projectId, manifestNameFor(manifest.renderMode), module, frame?.title, frame?.content);
+              if (url) setRegenImages(prev => ({ ...prev, [module]: url }));
+              setRegenLoading(null);
+            }}
+            title="Regenerate module artwork (DALL-E 3)"
+            style={{
+              display: "block", width: "100%", padding: "7px 0",
+              background: "#f1f5f9", border: "none", borderRadius: 8,
+              color: regenLoading === module ? "#818cf8" : "#64748b",
+              fontSize: 10, fontWeight: 700, cursor: regenLoading === module ? "wait" : "pointer",
+            }}>
+            {regenLoading === module ? "⏳ Generating…" : "🎨 Regen Art"}
+          </button>
         </div>
       </div>
 
       {/* Lesson pane */}
       <div style={{ flex: 1, overflowY: "auto" }}>
-        {frame?.imageUrl && (
-          <img src={frame.imageUrl} alt="" style={{ width: "100%", height: 120, objectFit: "cover" }} />
+        {(regenImages[module] ?? frame?.imageUrl) && (
+          <img src={regenImages[module] ?? frame?.imageUrl} alt="" style={{ width: "100%", height: 120, objectFit: "cover" }} />
         )}
         <div style={{ padding: "24px 32px" }}>
           <div style={{ display: "flex", alignItems: "center", gap: 6, marginBottom: 6, flexWrap: "wrap" }}>
@@ -1114,6 +1203,8 @@ function PitchDeckViewer({ manifest, projectId }: { manifest: RenderManifest; pr
   const [editedSlides, setEditedSlides] = useState<Record<number, string>>({});
   const [saving, setSaving]             = useState(false);
   const [audioOn, setAudioOn]           = useState(false);
+  const [regenImages, setRegenImages]   = useState<Record<number, string>>({});
+  const [regenLoading, setRegenLoading] = useState<number | null>(null);
   const audio = useAmbientAudio();
   const frame = manifest.frames[slide];
 
@@ -1150,8 +1241,8 @@ function PitchDeckViewer({ manifest, projectId }: { manifest: RenderManifest; pr
     <div style={{ height: "100%", display: "flex", flexDirection: "column", background: "#f8fafc" }}>
       {/* Slide */}
       <div style={{ flex: 1, overflow: "hidden", position: "relative" }}>
-        {frame?.imageUrl ? (
-          <img src={frame.imageUrl} alt="" style={{ width: "100%", height: "100%", objectFit: "cover" }} />
+        {(regenImages[slide] ?? frame?.imageUrl) ? (
+          <img src={regenImages[slide] ?? frame?.imageUrl} alt="" style={{ width: "100%", height: "100%", objectFit: "cover" }} />
         ) : (
           <div style={{ width: "100%", height: "100%", background: "linear-gradient(135deg,#6366f1,#8b5cf6)" }} />
         )}
@@ -1202,6 +1293,22 @@ function PitchDeckViewer({ manifest, projectId }: { manifest: RenderManifest; pr
         <button onClick={() => { setSlide(s => Math.min(manifest.frames.length - 1, s + 1)); setEditMode(false); }}
           style={{ background: "#f8fafc", border: "1px solid rgba(0,0,0,0.1)", color: "#374151", padding: "5px 12px", borderRadius: 8, fontSize: 11, cursor: "pointer" }}>→</button>
         <AudioBtn on={audioOn} onToggle={toggleAudio} />
+        <button
+          disabled={regenLoading === slide}
+          onClick={async () => {
+            setRegenLoading(slide);
+            const url = await regenArt(projectId, manifestNameFor(manifest.renderMode), slide, frame?.title, frame?.content);
+            if (url) setRegenImages(prev => ({ ...prev, [slide]: url }));
+            setRegenLoading(null);
+          }}
+          title="Regenerate slide artwork (DALL-E 3)"
+          style={{
+            background: "none", border: "1px solid rgba(0,0,0,0.1)", padding: "5px 10px", borderRadius: 8,
+            color: regenLoading === slide ? "#818cf8" : "#64748b",
+            fontSize: 13, cursor: regenLoading === slide ? "wait" : "pointer",
+          }}>
+          {regenLoading === slide ? "⏳" : "🎨"}
+        </button>
         <button onClick={() => setEditMode(v => !v)}
           style={{
             background: editMode ? "#6366f1" : "#f1f5f9", border: "none",
@@ -1860,7 +1967,7 @@ function DocumentReader({ manifest, projectId }: { manifest: RenderManifest; pro
 
 function OutputViewer({ manifest, projectId }: { manifest: RenderManifest; projectId: string | number }) {
   switch (manifest.renderMode) {
-    case "cinematic": return <CinematicPlayer  manifest={manifest} />;
+    case "cinematic": return <CinematicPlayer  manifest={manifest} projectId={projectId} />;
     case "game":      return <GamePlayer        manifest={manifest} projectId={projectId} />;
     case "app":       return <AppPlayer         manifest={manifest} projectId={projectId} />;
     case "book":      return <BookReader        manifest={manifest} projectId={projectId} />;

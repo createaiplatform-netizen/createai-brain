@@ -799,6 +799,16 @@ router.post("/", async (req: Request, res: Response) => {
 
     if (crossSynthLines.length) {
       sse(res, { type: "status", message: `Cross-universe synthesis — pulling context from ${crossSynthLines.length} existing render(s)…` });
+      // ── Persist cross-player synthesis session ─────────────────────────────
+      const synthJson = JSON.stringify({ generatedAt: new Date().toISOString(), context: crossSynthLines }, null, 2);
+      const existingSynth = files.find(f => f.name === "_cross_player_session");
+      try {
+        if (existingSynth) {
+          await db.update(projectFiles).set({ content: synthJson, updatedAt: new Date() }).where(eq(projectFiles.id, existingSynth.id));
+        } else {
+          await db.insert(projectFiles).values({ projectId: pid, name: "_cross_player_session", content: synthJson, fileType: "json", size: `${Math.round(synthJson.length / 1024)} KB` });
+        }
+      } catch { /* non-fatal */ }
     }
 
     sse(res, { type: "status", message: `UltraMax pipeline — mode: ${renderMode}` });
@@ -832,6 +842,27 @@ router.post("/", async (req: Request, res: Response) => {
         moodColor:  s.moodColor,
         durationSec: s.durationSec,
       }));
+      // ── Persist branching data ─────────────────────────────────────────────
+      const pivotalScenes = scenes.filter(s => s.isPivotal && s.choices?.length);
+      if (pivotalScenes.length) {
+        const branchJson = JSON.stringify({
+          generatedAt: new Date().toISOString(),
+          projectName: project.name,
+          branches: pivotalScenes.map(s => ({
+            sceneIndex: s.sceneIndex,
+            title:      s.title,
+            choices:    s.choices,
+          })),
+        }, null, 2);
+        const existingBranch = files.find(f => f.name === "_branching");
+        try {
+          if (existingBranch) {
+            await db.update(projectFiles).set({ content: branchJson, updatedAt: new Date() }).where(eq(projectFiles.id, existingBranch.id));
+          } else {
+            await db.insert(projectFiles).values({ projectId: pid, name: "_branching", content: branchJson, fileType: "json", size: `${Math.round(branchJson.length / 1024)} KB` });
+          }
+        } catch { /* non-fatal */ }
+      }
     } else {
       switch (renderMode) {
         case "game":     await handleGame(res, project, enrichedContent, fileRefs, pid, manifest);      break;
@@ -906,6 +937,69 @@ router.post("/", async (req: Request, res: Response) => {
     res.end();
   } finally {
     clearInterval(_keepAlive);
+  }
+});
+
+// ─── POST /generate/regen-art ─────────────────────────────────────────────────
+// Re-generates a single frame's DALL-E image and patches the manifest in DB.
+// Body: { projectId, manifestName, frameIndex, dallePrompt? }
+// Response: { imageUrl }
+
+router.post("/regen-art", async (req: Request, res: Response) => {
+  if (!req.isAuthenticated()) { res.status(401).json({ error: "Unauthorized" }); return; }
+
+  const { projectId, manifestName, frameIndex, dallePrompt } = req.body as {
+    projectId?:   string | number;
+    manifestName?: string;
+    frameIndex?:  number;
+    dallePrompt?: string;
+  };
+
+  if (!projectId || !manifestName || frameIndex === undefined) {
+    res.status(400).json({ error: "projectId, manifestName and frameIndex are required" }); return;
+  }
+
+  const pid = typeof projectId === "string" ? parseInt(projectId, 10) : projectId;
+
+  try {
+    const [file] = await db.select().from(projectFiles)
+      .where(and(eq(projectFiles.projectId, pid), eq(projectFiles.name, String(manifestName))));
+
+    if (!file?.content) {
+      res.status(404).json({ error: "Manifest not found" }); return;
+    }
+
+    const manifest = JSON.parse(file.content) as UnifiedManifest;
+    const frame    = manifest.frames?.[frameIndex as number];
+    if (!frame) {
+      res.status(404).json({ error: `Frame ${frameIndex} not found in manifest` }); return;
+    }
+
+    // Build DALL-E prompt: use caller's prompt or derive from frame + cinematic style
+    const prompt = dallePrompt
+      ? dallePrompt.slice(0, 900)
+      : cinematicDallePrompt(
+          { location: frame.title, description: frame.content.slice(0, 220), moodColor: frame.moodColor },
+          manifest.projectName,
+          frameIndex as number,
+        );
+
+    const imageUrl = await dalleImage(prompt, "1792x1024");
+    if (!imageUrl) {
+      res.status(500).json({ error: "DALL-E generation failed" }); return;
+    }
+
+    // Patch frame + re-persist manifest
+    frame.imageUrl = imageUrl;
+    const updated  = JSON.stringify(manifest, null, 2);
+    await db.update(projectFiles)
+      .set({ content: updated, updatedAt: new Date() })
+      .where(eq(projectFiles.id, file.id));
+
+    res.json({ imageUrl });
+  } catch (err) {
+    console.error("[regen-art]", err);
+    res.status(500).json({ error: err instanceof Error ? err.message : "Server error" });
   }
 });
 
