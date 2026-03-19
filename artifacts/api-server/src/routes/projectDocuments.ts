@@ -1,21 +1,32 @@
-// ─── Project Intelligence: Lifecycle + Document Generation ───────────────────
+// ─── Project Intelligence: Lifecycle + Document Generation + Project Genome ───
 //
-// Two endpoints:
+// Endpoints:
 //
 //   GET  /:projectId/lifecycle
 //     Scores each project file for completion (empty / started / complete).
-//     Returns an overall score, per-file breakdown, and the next recommended action.
+//     Returns overall score, per-file breakdown, and next recommended action.
+//
+//   GET  /:projectId/genome
+//     Returns the stored ProjectGenome (AI-generated structured project spec).
+//     Returns { genome: null } if not yet generated.
+//
+//   POST /:projectId/genome
+//     Generates and stores a ProjectGenome for the project using GPT-4o.
+//     Accepts optional intent { audience, purpose, tone } in request body.
+//     Returns { genome: ProjectGenome }.
 //
 //   POST /:projectId/generate-all  (SSE)
-//     Generates content for all empty/started files in the project using the
+//     Generates content for all empty/started files IN PARALLEL using the
 //     type-aware Project Agent. Streams progress events and saves to DB.
+//
 //     SSE events:
-//       { type: "start",      totalFiles }
-//       { type: "file_start", fileId, fileName, index, total }
-//       { type: "file_chunk", fileId, content }
-//       { type: "file_done",  fileId, fileName }
-//       { type: "complete",   generated }
-//       { type: "error",      message }
+//       { type: "start",       totalFiles }
+//       { type: "file_start",  fileId, fileName, index, total }
+//       { type: "file_chunk",  fileId, content }
+//       { type: "file_done",   fileId, fileName }
+//       { type: "file_error",  fileId, fileName, message }
+//       { type: "complete",    generated }
+//       { type: "error",       message }
 //
 // ─────────────────────────────────────────────────────────────────────────────
 
@@ -38,29 +49,19 @@ function requireAuth(req: Request, res: Response): string | null {
 }
 
 // ─── Lifecycle scoring ────────────────────────────────────────────────────────
-//
-// A file is scored by how many template bracket placeholders remain.
-// Templates are generated with patterns like [PROJECT NAME], [Date], [XX].
-// If the user has written real content, these are replaced or removed.
 
 const BRACKET_RE = /\[[A-Z][A-Z\s\/&'.,\-#%*0-9]{1,40}\]/g;
 
 function scoreContent(content: string): "empty" | "started" | "complete" {
   const text = content.trim();
-  if (text.length < 80) return "empty"; // basically nothing there
+  if (text.length < 80) return "empty";
   const brackets = text.match(BRACKET_RE) ?? [];
-  if (brackets.length >= 6) return "empty";    // still mostly template
-  if (brackets.length >= 1) return "started";  // partially filled
+  if (brackets.length >= 6) return "empty";
+  if (brackets.length >= 1) return "started";
   return "complete";
 }
 
-// Next recommended action based on project state
-function recommendedAction(
-  complete: number,
-  started: number,
-  empty: number,
-  projectType: string,
-): string {
+function recommendedAction(complete: number, started: number, empty: number, projectType: string): string {
   const total = complete + started + empty;
   if (total === 0) return "Start by opening a file and working with the Project Agent.";
   if (complete === total) return "All documents complete — your project is fully documented.";
@@ -80,17 +81,13 @@ router.get(
 
     try {
       const projectId = parseInt(req.params.projectId as string, 10);
-
       const [project] = await db.select().from(projects).where(eq(projects.id, projectId));
       if (!project || project.userId !== userId) {
         res.status(404).json({ error: "Project not found" });
         return;
       }
 
-      const files = await db
-        .select()
-        .from(projectFiles)
-        .where(eq(projectFiles.projectId, projectId));
+      const files = await db.select().from(projectFiles).where(eq(projectFiles.projectId, projectId));
 
       const scored = files.map(f => ({
         id:     f.id.toString(),
@@ -113,12 +110,7 @@ router.get(
         score,
         summary: { ...summary, total },
         files: scored,
-        nextAction: recommendedAction(
-          summary.complete,
-          summary.started,
-          summary.empty,
-          project.industry ?? "General",
-        ),
+        nextAction: recommendedAction(summary.complete, summary.started, summary.empty, project.industry ?? "General"),
         projectType: project.industry ?? "General",
         projectName: project.name,
       });
@@ -129,7 +121,50 @@ router.get(
   },
 );
 
-// ─── Type-aware system prompt (mirrors projectChat.ts logic) ─────────────────
+// ─── Project Genome ───────────────────────────────────────────────────────────
+//
+// A ProjectGenome is a structured AI-generated spec capturing:
+//   vision      — purpose, audience, tone, differentiators
+//   structure   — phases, key deliverables
+//   assetPlan   — documents needed, visual style, copy themes
+//   executionPlan — timeline, risks, tools
+//   lifecycle   — current phase (IDEATION → SCOPING → PRODUCTION → POLISH),
+//                 next actions
+
+interface ProjectIntent {
+  audience?:    string;
+  purpose?:     string;
+  tone?:        string;
+  constraints?: string;
+}
+
+interface ProjectGenome {
+  vision: {
+    purpose:          string;
+    audience:         string;
+    tone:             string;
+    differentiators:  string[];
+  };
+  structure: {
+    phases:          string[];
+    keyDeliverables: string[];
+  };
+  assetPlan: {
+    documentsNeeded: string[];
+    visualStyle:     string;
+    copyThemes:      string[];
+  };
+  executionPlan: {
+    estimatedTimeline: string;
+    keyRisks:          string[];
+    suggestedTools:    string[];
+  };
+  lifecycle: {
+    currentPhase: "IDEATION" | "SCOPING" | "PRODUCTION" | "POLISH";
+    nextActions:  string[];
+  };
+  generatedAt: string;
+}
 
 const TYPE_EXPERTISE: Record<string, string> = {
   "Film / Movie":    "professional film development expert with deep knowledge of the full production pipeline: development, pre-production, production, post-production, and distribution",
@@ -146,12 +181,137 @@ const TYPE_EXPERTISE: Record<string, string> = {
   "Online Course":   "instructional designer and course launch specialist who understands curriculum design and course marketing",
 };
 
-function buildGeneratorSystem(projectName: string, projectType: string, allFileNames: string[]): string {
+// GET /:projectId/genome — return stored genome (or null)
+router.get(
+  "/:projectId/genome",
+  async (req: Request, res: Response) => {
+    const userId = requireAuth(req, res);
+    if (!userId) return;
+    try {
+      const projectId = parseInt(req.params.projectId as string, 10);
+      const [project] = await db.select().from(projects).where(eq(projects.id, projectId));
+      if (!project || project.userId !== userId) {
+        res.status(404).json({ error: "Project not found" });
+        return;
+      }
+      res.json({ genome: (project.genome as ProjectGenome) ?? null });
+    } catch (err) {
+      console.error("[genome] GET", err);
+      res.status(500).json({ error: "Failed to fetch genome" });
+    }
+  },
+);
+
+// POST /:projectId/genome — generate + store genome
+router.post(
+  "/:projectId/genome",
+  audit("ai_generate_genome", "project_genome"),
+  async (req: Request, res: Response) => {
+    const userId = requireAuth(req, res);
+    if (!userId) return;
+
+    try {
+      const projectId = parseInt(req.params.projectId as string, 10);
+      const [project] = await db.select().from(projects).where(eq(projects.id, projectId));
+      if (!project || project.userId !== userId) {
+        res.status(404).json({ error: "Project not found" });
+        return;
+      }
+
+      const { intent }: { intent?: ProjectIntent } = req.body ?? {};
+      const expertise = TYPE_EXPERTISE[project.industry ?? "General"] ?? `expert in ${project.industry} projects`;
+
+      const intentBlock = intent
+        ? `\nUser-provided intent:\n- Purpose: ${intent.purpose ?? "not specified"}\n- Audience: ${intent.audience ?? "not specified"}\n- Tone: ${intent.tone ?? "not specified"}${intent.constraints ? `\n- Constraints: ${intent.constraints}` : ""}`
+        : "";
+
+      const systemPrompt = `You are a ${expertise} and world-class project architect.
+Generate a structured ProjectGenome JSON for a new project.
+Return ONLY valid JSON — no markdown fences, no explanation, no extra text.`;
+
+      const userMessage = `Generate a ProjectGenome for:
+Project Name: "${project.name}"
+Project Type: ${project.industry ?? "General"}${intentBlock}
+
+Return exactly this JSON structure (all fields required, no extra keys):
+{
+  "vision": {
+    "purpose": "one compelling sentence on what this project achieves",
+    "audience": "specific description of who this is for",
+    "tone": "one of: professional | creative | bold | cinematic | technical | friendly | inspiring",
+    "differentiators": ["what makes this unique", "a second differentiator"]
+  },
+  "structure": {
+    "phases": ["IDEATION — description", "PRODUCTION — description", "LAUNCH — description"],
+    "keyDeliverables": ["deliverable 1", "deliverable 2", "deliverable 3", "deliverable 4"]
+  },
+  "assetPlan": {
+    "documentsNeeded": ["doc 1", "doc 2", "doc 3"],
+    "visualStyle": "description of visual direction and aesthetic",
+    "copyThemes": ["theme 1", "theme 2"]
+  },
+  "executionPlan": {
+    "estimatedTimeline": "X–Y weeks/months",
+    "keyRisks": ["risk 1", "risk 2"],
+    "suggestedTools": ["tool or resource 1", "tool or resource 2"]
+  },
+  "lifecycle": {
+    "currentPhase": "IDEATION",
+    "nextActions": ["immediate action 1", "immediate action 2", "immediate action 3"]
+  }
+}`;
+
+      const completion = await openai.chat.completions.create({
+        model:       "gpt-4o",
+        temperature: 0.7,
+        messages: [
+          { role: "system", content: systemPrompt },
+          { role: "user",   content: userMessage },
+        ],
+      } as Parameters<typeof openai.chat.completions.create>[0]);
+
+      const raw = (completion as { choices: { message: { content: string } }[] }).choices[0]?.message?.content ?? "{}";
+
+      let genome: ProjectGenome;
+      try {
+        genome = JSON.parse(raw) as ProjectGenome;
+      } catch {
+        // Try stripping markdown fences if model added them anyway
+        const stripped = raw.replace(/^```(?:json)?\n?/, "").replace(/\n?```$/, "").trim();
+        genome = JSON.parse(stripped) as ProjectGenome;
+      }
+
+      genome.generatedAt = new Date().toISOString();
+
+      // Store intent + genome in DB
+      await db
+        .update(projects)
+        .set({
+          genome: genome as unknown as Record<string, unknown>,
+          intent: (intent ?? null) as unknown as Record<string, unknown> | null,
+          updatedAt: new Date(),
+        })
+        .where(eq(projects.id, projectId));
+
+      res.json({ genome });
+    } catch (err) {
+      console.error("[genome] POST", err);
+      res.status(500).json({ error: "Failed to generate genome" });
+    }
+  },
+);
+
+// ─── Document generator system prompt ────────────────────────────────────────
+
+function buildGeneratorSystem(projectName: string, projectType: string, allFileNames: string[], genome?: ProjectGenome | null): string {
   const expertise = TYPE_EXPERTISE[projectType] ?? `expert in ${projectType} projects`;
   const fileList  = allFileNames.length > 0
     ? `\n\nFull project document set (${allFileNames.length} files):\n${allFileNames.map(n => `• ${n}`).join("\n")}`
     : "";
-  return `You are a ${expertise}. You are generating professional documents for "${projectName}" — a ${projectType} project.
+  const genomePart = genome?.vision
+    ? `\n\nProject Vision: ${genome.vision.purpose}\nAudience: ${genome.vision.audience}\nTone: ${genome.vision.tone}`
+    : "";
+  return `You are a ${expertise}. You are generating professional documents for "${projectName}" — a ${projectType} project.${genomePart}
 
 Rules:
 - Write complete, professional, immediately usable content — never leave placeholders or [BRACKETS]
@@ -161,7 +321,15 @@ Rules:
 - Write as if you are the lead expert on this specific project${fileList}`;
 }
 
-// ─── POST /:projectId/generate-all  (SSE streaming) ──────────────────────────
+// ─── POST /:projectId/generate-all  (SSE, parallel) ──────────────────────────
+//
+// Runs all file generators CONCURRENTLY via Promise.allSettled —
+// files that share no dependencies are generated in parallel, dramatically
+// reducing total generation time (N files ≈ time of 1 file).
+//
+// SSE events interleave safely because Node.js is single-threaded;
+// res.write() calls from concurrent async functions are serialised by the
+// event loop without data corruption.
 
 router.post(
   "/:projectId/generate-all",
@@ -179,12 +347,8 @@ router.post(
         return;
       }
 
-      const allFiles = await db
-        .select()
-        .from(projectFiles)
-        .where(eq(projectFiles.projectId, projectId));
+      const allFiles = await db.select().from(projectFiles).where(eq(projectFiles.projectId, projectId));
 
-      // Only generate for empty/started files — never overwrite complete user work
       const { fileIds }: { fileIds?: string[] } = req.body ?? {};
       const targetFiles = fileIds && fileIds.length > 0
         ? allFiles.filter(f => fileIds.includes(f.id.toString()))
@@ -206,29 +370,38 @@ router.post(
 
       sse({ type: "start", totalFiles: targetFiles.length });
 
+      const genome    = (project.genome as ProjectGenome | null | undefined) ?? null;
       const systemPrompt = buildGeneratorSystem(
         project.name,
         project.industry ?? "General",
         allFiles.map(f => f.name),
+        genome,
       );
 
-      let generated = 0;
+      // ── Parallel generation via Promise.allSettled ─────────────────────────
+      //
+      // Each file generator:
+      //   1. Emits file_start (with index for ordering in the UI)
+      //   2. Streams token chunks as file_chunk events
+      //   3. Saves completed content to DB
+      //   4. Emits file_done (or file_error on failure)
+      //
+      // All generators run concurrently — no await between them.
 
-      for (let i = 0; i < targetFiles.length; i++) {
-        const file = targetFiles[i]!;
+      const results = await Promise.allSettled(
+        targetFiles.map(async (file, index) => {
+          sse({
+            type:     "file_start",
+            fileId:   file.id.toString(),
+            fileName: file.name,
+            index:    index + 1,
+            total:    targetFiles.length,
+          });
 
-        sse({
-          type:     "file_start",
-          fileId:   file.id.toString(),
-          fileName: file.name,
-          index:    i + 1,
-          total:    targetFiles.length,
-        });
-
-        try {
           const userMessage =
             `Write the complete, professional "${file.name}" document for "${project.name}". ` +
             `This is a ${project.industry ?? "General"} project. ` +
+            (genome?.vision?.purpose ? `Project purpose: ${genome.vision.purpose}. ` : "") +
             `Generate all sections with full, specific, substantive content. ` +
             `No placeholders. No brackets. Write as a leading professional would for this exact project.`;
 
@@ -249,19 +422,22 @@ router.post(
             }
           }
 
-          // Save generated content to DB
           await db
             .update(projectFiles)
             .set({ content: fullContent })
             .where(eq(projectFiles.id, file.id));
 
           sse({ type: "file_done", fileId: file.id.toString(), fileName: file.name });
-          generated++;
-        } catch (fileErr) {
-          console.error(`[generate-all] file ${file.name} failed:`, fileErr);
-          sse({ type: "file_error", fileId: file.id.toString(), fileName: file.name, message: "Generation failed for this file — skipping." });
-        }
-      }
+          return true;
+        }).map(p =>
+          p.catch((fileErr: unknown) => {
+            console.error("[generate-all] file failed:", fileErr);
+            return false;
+          }),
+        ),
+      );
+
+      const generated = results.filter(r => r.status === "fulfilled" && r.value === true).length;
 
       sse({ type: "complete", generated });
       res.end();

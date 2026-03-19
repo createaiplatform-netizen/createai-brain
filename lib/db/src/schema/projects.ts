@@ -23,6 +23,9 @@ export const projects = pgTable("projects", {
   publishStatus: text("publish_status"),                         // null = private, "published" = live
   publishedAt:   timestamp("published_at", { withTimezone: true }),
   publishUrl:    text("publish_url"),
+  // Universal Creation Engine
+  genome: jsonb("genome"),  // ProjectGenome — AI-generated structured project spec
+  intent: jsonb("intent"),  // Intent captured from creation modal (audience, purpose, tone)
 });
 
 export const insertProjectSchema = createInsertSchema(projects).omit({

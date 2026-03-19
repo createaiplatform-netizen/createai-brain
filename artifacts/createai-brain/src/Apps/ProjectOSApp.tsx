@@ -1039,7 +1039,10 @@ export function ProjectOSApp() {
   const [showNewProject, setShowNewProject] = useState(false);
   const [newProjName, setNewProjName] = useState("");
   const [newProjIndustry, setNewProjIndustry] = useState("General");
-  const [newProjStep, setNewProjStep] = useState<1 | 2>(1);
+  const [newProjStep, setNewProjStep] = useState<1 | 2 | 3>(1);
+  const [newProjIntent, setNewProjIntent] = useState<{ audience: string; purpose: string; tone: string; constraints: string }>({
+    audience: "", purpose: "", tone: "professional", constraints: "",
+  });
   const [scaffoldStatus, setScaffoldStatus] = useState<{ current: number; total: number; label: string } | null>(null);
   const [newlyCreatedId, setNewlyCreatedId] = useState<string | null>(null);
   const [showAI, setShowAI] = useState(false);
@@ -1086,6 +1089,24 @@ export function ProjectOSApp() {
     done:      boolean;
   } | null>(null);
   const genAbortRef = useRef<AbortController | null>(null);
+
+  // ── Project Genome state ─────────────────────────────────────────────────
+  interface GenomeVision    { purpose: string; audience: string; tone: string; differentiators: string[] }
+  interface GenomeStructure { phases: string[]; keyDeliverables: string[] }
+  interface GenomeAssets    { documentsNeeded: string[]; visualStyle: string; copyThemes: string[] }
+  interface GenomeExecution { estimatedTimeline: string; keyRisks: string[]; suggestedTools: string[] }
+  interface GenomeLifecycle { currentPhase: "IDEATION" | "SCOPING" | "PRODUCTION" | "POLISH"; nextActions: string[] }
+  interface GenomeData {
+    vision:        GenomeVision;
+    structure:     GenomeStructure;
+    assetPlan:     GenomeAssets;
+    executionPlan: GenomeExecution;
+    lifecycle:     GenomeLifecycle;
+    generatedAt?:  string;
+  }
+  const [genome, setGenome]               = useState<GenomeData | null>(null);
+  const [genomeLoading, setGenomeLoading] = useState(false);
+  const [genomeExpanded, setGenomeExpanded] = useState(false);
   const [editProjectNameVal, setEditProjectNameVal] = useState("");
   const [showArchived, setShowArchived] = useState(false);
   // ── Shared With Me / Suggested / Opportunities state ──
@@ -1398,17 +1419,54 @@ export function ProjectOSApp() {
     setScaffoldStatus(null);
   }, []);
 
+  const resetModal = useCallback(() => {
+    setShowNewProject(false);
+    setNewProjName("");
+    setNewProjStep(1);
+    setNewProjIndustry("General");
+    setNewProjIntent({ audience: "", purpose: "", tone: "professional", constraints: "" });
+  }, []);
+
+  // ── Genome: fetch + generate (declared before createProject to avoid forward reference) ──
+  const fetchGenome = useCallback(async (projectId: string) => {
+    try {
+      const res = await fetch(`/api/project-documents/${projectId}/genome`, { credentials: "include" });
+      if (res.ok) {
+        const data = await res.json() as { genome: GenomeData | null };
+        setGenome(data.genome ?? null);
+      }
+    } catch { /* best-effort */ }
+  }, []);
+
+  const generateGenome = useCallback(async (
+    projectId: string,
+    intent?: { audience: string; purpose: string; tone: string; constraints: string },
+  ) => {
+    setGenomeLoading(true);
+    try {
+      const res = await fetch(`/api/project-documents/${projectId}/genome`, {
+        method:      "POST",
+        credentials: "include",
+        headers:     { "Content-Type": "application/json" },
+        body:        JSON.stringify({ intent }),
+      });
+      if (res.ok) {
+        const data = await res.json() as { genome: GenomeData };
+        setGenome(data.genome ?? null);
+      }
+    } catch { /* best-effort */ }
+    setGenomeLoading(false);
+  }, []);
+
   const createProject = useCallback(async () => {
     if (!newProjName.trim()) return;
+    const capturedIntent = { ...newProjIntent };
     const proj = await apiCreateProject(newProjName.trim(), newProjIndustry);
     if (proj) {
       setProjects(prev => [...prev, proj]);
       setActiveProjectId(proj.id);
       setActiveFolderId(null);
-      setShowNewProject(false);
-      setNewProjName("");
-      setNewProjStep(1);
-      setNewProjIndustry("General");
+      resetModal();
       // Open the AI agent panel automatically so the workspace feels complete
       setShowAI(true);
       setAiMessages([]);
@@ -1420,15 +1478,15 @@ export function ProjectOSApp() {
       ensureIdentityForProject({ id: proj.id, name: proj.name });
       // Scaffold all industry-standard files — workspace populates in real time
       await scaffoldProject(proj.id, proj.folders, newProjIndustry);
+      // Auto-generate Project Genome in background (fire-and-forget)
+      const hasIntent = capturedIntent.audience || capturedIntent.purpose;
+      generateGenome(proj.id, hasIntent ? capturedIntent : undefined).catch(() => {/* best-effort */});
       // Keep newlyCreatedId for a moment so the "workspace ready" message shows
       setTimeout(() => setNewlyCreatedId(null), 4000);
     } else {
-      setShowNewProject(false);
-      setNewProjName("");
-      setNewProjStep(1);
-      setNewProjIndustry("General");
+      resetModal();
     }
-  }, [newProjName, newProjIndustry, scaffoldProject]);
+  }, [newProjName, newProjIndustry, newProjIntent, scaffoldProject, generateGenome, resetModal]);
 
   // ── Lifecycle: fetch document completion scores ───────────────────────────
   const fetchLifecycle = useCallback(async (projectId: string) => {
@@ -1514,11 +1572,12 @@ export function ProjectOSApp() {
     }
   }, [fetchLifecycle]);
 
-  // Fetch lifecycle score whenever the active project changes (placed after fetchLifecycle declaration)
+  // Fetch lifecycle score + genome whenever the active project changes
   useEffect(() => {
-    if (!activeProjectId) { setLifecycle(null); return; }
+    if (!activeProjectId) { setLifecycle(null); setGenome(null); return; }
     fetchLifecycle(activeProjectId);
-  }, [activeProjectId, fetchLifecycle]);
+    fetchGenome(activeProjectId);
+  }, [activeProjectId, fetchLifecycle, fetchGenome]);
 
   const deleteProject = useCallback(async (id: string) => {
     await apiDeleteProject(id);
@@ -2664,6 +2723,107 @@ export function ProjectOSApp() {
                       </div>
                     )}
                   </div>
+
+                  {/* ── Project Genome Card ──────────────────────────────────── */}
+                  <div className="mt-3 rounded-xl overflow-hidden"
+                    style={{ border: "1px solid rgba(16,185,129,0.18)", background: "rgba(16,185,129,0.04)" }}>
+
+                    {/* Header */}
+                    <div
+                      className="flex items-center justify-between px-3 pt-2.5 pb-1.5 cursor-pointer select-none"
+                      onClick={() => setGenomeExpanded(e => !e)}
+                    >
+                      <span className="text-[10px] font-bold uppercase tracking-widest" style={{ color: "#10b981" }}>
+                        ✦ Project Genome
+                      </span>
+                      <div className="flex items-center gap-2">
+                        {genomeLoading && (
+                          <span className="text-[9px] animate-pulse" style={{ color: "#94a3b8" }}>Generating…</span>
+                        )}
+                        {genome && !genomeLoading && (
+                          <span className="text-[9px]" style={{ color: "#94a3b8" }}>
+                            {genome.lifecycle.currentPhase}
+                          </span>
+                        )}
+                        {!genome && !genomeLoading && (
+                          <button
+                            onClick={e => { e.stopPropagation(); generateGenome(activeProject.id); }}
+                            className="text-[9px] px-2 py-0.5 rounded-lg"
+                            style={{ background: "rgba(16,185,129,0.12)", color: "#10b981", border: "none" }}
+                          >Generate ✦</button>
+                        )}
+                        <span className="text-[9px]" style={{ color: "#94a3b8" }}>{genomeExpanded ? "▲" : "▼"}</span>
+                      </div>
+                    </div>
+
+                    {/* Collapsed summary — always visible */}
+                    {genome && (
+                      <div className="px-3 pb-2 text-[9.5px] leading-relaxed" style={{ color: "#374151" }}>
+                        {genome.vision.purpose}
+                      </div>
+                    )}
+
+                    {/* Expanded content */}
+                    {genome && genomeExpanded && (
+                      <div className="px-3 pb-3 space-y-3">
+                        {/* Audience + Tone */}
+                        <div className="flex gap-2">
+                          <div className="flex-1 rounded-lg px-2.5 py-2" style={{ background: "rgba(16,185,129,0.06)", border: "1px solid rgba(16,185,129,0.12)" }}>
+                            <div className="text-[8.5px] font-bold uppercase tracking-widest mb-1" style={{ color: "#94a3b8" }}>Audience</div>
+                            <div className="text-[9.5px]" style={{ color: "#374151" }}>{genome.vision.audience}</div>
+                          </div>
+                          <div className="flex-1 rounded-lg px-2.5 py-2" style={{ background: "rgba(16,185,129,0.06)", border: "1px solid rgba(16,185,129,0.12)" }}>
+                            <div className="text-[8.5px] font-bold uppercase tracking-widest mb-1" style={{ color: "#94a3b8" }}>Tone</div>
+                            <div className="text-[9.5px] capitalize" style={{ color: "#374151" }}>{genome.vision.tone}</div>
+                          </div>
+                        </div>
+
+                        {/* Phases */}
+                        <div>
+                          <div className="text-[8.5px] font-bold uppercase tracking-widest mb-1.5" style={{ color: "#94a3b8" }}>Phases</div>
+                          <div className="space-y-1">
+                            {genome.structure.phases.map((phase, i) => (
+                              <div key={i} className="text-[9.5px] flex items-start gap-1.5">
+                                <span style={{ color: "#10b981", flexShrink: 0 }}>→</span>
+                                <span style={{ color: "#374151" }}>{phase}</span>
+                              </div>
+                            ))}
+                          </div>
+                        </div>
+
+                        {/* Next Actions */}
+                        <div>
+                          <div className="text-[8.5px] font-bold uppercase tracking-widest mb-1.5" style={{ color: "#94a3b8" }}>Next Actions</div>
+                          <div className="space-y-1">
+                            {genome.lifecycle.nextActions.map((action, i) => (
+                              <div key={i} className="text-[9.5px] flex items-start gap-1.5">
+                                <span style={{ color: "#6366f1", flexShrink: 0 }}>□</span>
+                                <span style={{ color: "#374151" }}>{action}</span>
+                              </div>
+                            ))}
+                          </div>
+                        </div>
+
+                        {/* Timeline + Differentiators */}
+                        <div className="flex gap-2">
+                          <div className="flex-1 rounded-lg px-2.5 py-2" style={{ background: "rgba(16,185,129,0.06)", border: "1px solid rgba(16,185,129,0.12)" }}>
+                            <div className="text-[8.5px] font-bold uppercase tracking-widest mb-1" style={{ color: "#94a3b8" }}>Timeline</div>
+                            <div className="text-[9.5px]" style={{ color: "#374151" }}>{genome.executionPlan.estimatedTimeline}</div>
+                          </div>
+                        </div>
+
+                        {/* Regenerate */}
+                        <button
+                          onClick={() => generateGenome(activeProject.id)}
+                          disabled={genomeLoading}
+                          className="w-full py-1.5 rounded-lg text-[10px] transition-all"
+                          style={{ background: "transparent", color: "#94a3b8", border: "1px solid rgba(0,0,0,0.08)" }}
+                        >
+                          {genomeLoading ? "Regenerating…" : "↺ Regenerate Genome"}
+                        </button>
+                      </div>
+                    )}
+                  </div>
                 </div>
               )}
 
@@ -3788,7 +3948,7 @@ export function ProjectOSApp() {
         </div>
       )}
 
-      {/* New Project — 2-step modal */}
+      {/* New Project — 3-step modal */}
       {showNewProject && (
         <div className="fixed inset-0 z-50 flex items-center justify-center" style={{ background: "rgba(15,23,42,0.60)", backdropFilter: "blur(4px)" }}>
           {newProjStep === 1 ? (
@@ -3816,7 +3976,7 @@ export function ProjectOSApp() {
               />
               <div className="flex gap-3">
                 <button
-                  onClick={() => { setShowNewProject(false); setNewProjName(""); setNewProjStep(1); }}
+                  onClick={resetModal}
                   className="flex-1 py-2.5 rounded-xl text-[13px]"
                   style={{ background: "#f8fafc", color: "#64748b", border: "1px solid rgba(0,0,0,0.10)" }}
                 >Cancel</button>
@@ -3838,7 +3998,7 @@ export function ProjectOSApp() {
                 </button>
               </div>
             </div>
-          ) : (
+          ) : newProjStep === 2 ? (
             /* ── Step 2: Type Picker ── */
             <div
               className="w-[720px] rounded-2xl p-7 shadow-2xl flex flex-col max-h-[90vh]"
@@ -3910,20 +4070,115 @@ export function ProjectOSApp() {
               {/* Actions */}
               <div className="flex gap-3 mt-5">
                 <button
-                  onClick={() => { setShowNewProject(false); setNewProjName(""); setNewProjStep(1); setNewProjIndustry("General"); }}
-                  className="flex-1 py-2.5 rounded-xl text-[13px]"
+                  onClick={resetModal}
+                  className="py-2.5 rounded-xl text-[13px] px-4"
                   style={{ background: "#f8fafc", color: "#64748b", border: "1px solid rgba(0,0,0,0.10)" }}
                 >Cancel</button>
                 <button
                   onClick={createProject}
-                  className="flex-1 py-2.5 rounded-xl text-[13px] font-semibold"
-                  style={{
-                    background: "#6366f1",
-                    border: "none",
-                    color: "#ffffff",
-                  }}
+                  className="flex-1 py-2.5 rounded-xl text-[13px]"
+                  style={{ background: "#f8fafc", color: "#374151", border: "1px solid rgba(0,0,0,0.12)" }}
                 >
-                  Create {newProjIndustry !== "General" ? `${INDUSTRY_ICONS[newProjIndustry]} ` : ""}Project
+                  Create Now
+                </button>
+                <button
+                  onClick={() => setNewProjStep(3)}
+                  className="flex-1 py-2.5 rounded-xl text-[13px] font-semibold"
+                  style={{ background: "#6366f1", border: "none", color: "#ffffff" }}
+                >
+                  Add Intent ✦ →
+                </button>
+              </div>
+            </div>
+          ) : (
+            /* ── Step 3: Intent Capture ── */
+            <div
+              className="w-[500px] rounded-2xl p-7 shadow-2xl flex flex-col"
+              style={{ background: "#ffffff", border: "1px solid rgba(0,0,0,0.10)" }}
+            >
+              {/* Header */}
+              <div className="flex items-start justify-between mb-1">
+                <div>
+                  <div className="text-[16px] font-bold" style={{ color: "#0f172a" }}>Project Intent</div>
+                  <div className="text-[12px] mt-0.5" style={{ color: "#64748b" }}>
+                    Tell us about your vision — we'll generate a smart Project Genome that guides the AI agent and document generation.
+                  </div>
+                </div>
+                <button onClick={() => setNewProjStep(2)} className="text-[11px] ml-4 mt-0.5 flex-shrink-0" style={{ color: "#94a3b8" }}>← Back</button>
+              </div>
+
+              <div className="mt-5 space-y-4">
+                {/* Purpose */}
+                <div>
+                  <div className="text-[10px] font-semibold mb-1.5 uppercase tracking-widest" style={{ color: "#94a3b8" }}>Purpose</div>
+                  <input
+                    value={newProjIntent.purpose}
+                    onChange={e => setNewProjIntent(prev => ({ ...prev, purpose: e.target.value }))}
+                    placeholder="What does this project achieve? Who does it help?"
+                    className="w-full text-[12px] px-3 py-2.5 rounded-xl outline-none"
+                    style={{ background: "#f8fafc", border: "1px solid rgba(99,102,241,0.25)", color: "#1e293b" }}
+                  />
+                </div>
+
+                {/* Audience */}
+                <div>
+                  <div className="text-[10px] font-semibold mb-1.5 uppercase tracking-widest" style={{ color: "#94a3b8" }}>Target Audience</div>
+                  <input
+                    value={newProjIntent.audience}
+                    onChange={e => setNewProjIntent(prev => ({ ...prev, audience: e.target.value }))}
+                    placeholder="e.g. Independent filmmakers, B2B SaaS founders, Fiction readers 25–45"
+                    className="w-full text-[12px] px-3 py-2.5 rounded-xl outline-none"
+                    style={{ background: "#f8fafc", border: "1px solid rgba(99,102,241,0.25)", color: "#1e293b" }}
+                  />
+                </div>
+
+                {/* Tone */}
+                <div>
+                  <div className="text-[10px] font-semibold mb-1.5 uppercase tracking-widest" style={{ color: "#94a3b8" }}>Tone</div>
+                  <div className="flex flex-wrap gap-2">
+                    {["professional", "creative", "bold", "cinematic", "technical", "friendly", "inspiring"].map(t => (
+                      <button
+                        key={t}
+                        onClick={() => setNewProjIntent(prev => ({ ...prev, tone: t }))}
+                        className="px-3 py-1.5 rounded-lg text-[11px] capitalize transition-all"
+                        style={{
+                          background: newProjIntent.tone === t ? "rgba(99,102,241,0.12)" : "#f8fafc",
+                          border: `1px solid ${newProjIntent.tone === t ? "#6366f1" : "rgba(0,0,0,0.08)"}`,
+                          color: newProjIntent.tone === t ? "#6366f1" : "#64748b",
+                        }}
+                      >{t}</button>
+                    ))}
+                  </div>
+                </div>
+
+                {/* Constraints (optional) */}
+                <div>
+                  <div className="text-[10px] font-semibold mb-1.5 uppercase tracking-widest" style={{ color: "#94a3b8" }}>Constraints <span style={{ color: "#cbd5e1", fontWeight: 400 }}>— optional</span></div>
+                  <input
+                    value={newProjIntent.constraints}
+                    onChange={e => setNewProjIntent(prev => ({ ...prev, constraints: e.target.value }))}
+                    placeholder="Budget limits, timeline, platform restrictions, compliance needs…"
+                    className="w-full text-[12px] px-3 py-2.5 rounded-xl outline-none"
+                    style={{ background: "#f8fafc", border: "1px solid rgba(0,0,0,0.08)", color: "#1e293b" }}
+                  />
+                </div>
+              </div>
+
+              {/* Actions */}
+              <div className="flex gap-3 mt-6">
+                <button
+                  onClick={createProject}
+                  className="flex-1 py-2.5 rounded-xl text-[13px]"
+                  style={{ background: "#f8fafc", color: "#374151", border: "1px solid rgba(0,0,0,0.12)" }}
+                >
+                  Skip → Create
+                </button>
+                <button
+                  onClick={createProject}
+                  className="flex-1 py-2.5 rounded-xl text-[13px] font-semibold"
+                  style={{ background: "#6366f1", border: "none", color: "#ffffff" }}
+                >
+                  ✦ Create with Intelligence
                 </button>
               </div>
             </div>
