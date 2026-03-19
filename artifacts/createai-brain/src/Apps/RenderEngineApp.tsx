@@ -72,6 +72,36 @@ function SaveBtn({
   );
 }
 
+// ─── Auto-save hook ────────────────────────────────────────────────────────────
+// Debounces saves: fires saveToProject after `delay` ms of no content changes.
+// Returns `{ autoSaved }` which is true for 2 s after a successful auto-save.
+function useAutoSave(
+  value: string | null,
+  projectId: string | number,
+  fileName: string,
+  enabled: boolean,
+  delay = 2000,
+): { autoSaved: boolean } {
+  const timerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
+  const [autoSaved, setAutoSaved] = useState(false);
+
+  useEffect(() => {
+    if (!enabled || value == null) return;
+    setAutoSaved(false);
+    if (timerRef.current) clearTimeout(timerRef.current);
+    timerRef.current = setTimeout(async () => {
+      await saveToProject(projectId, fileName, value);
+      setAutoSaved(true);
+      const clear = setTimeout(() => setAutoSaved(false), 2000);
+      return () => clearTimeout(clear);
+    }, delay);
+    return () => { if (timerRef.current) clearTimeout(timerRef.current); };
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [value, enabled]);
+
+  return { autoSaved };
+}
+
 // ─── Types ────────────────────────────────────────────────────────────────────
 
 type RenderMode =
@@ -253,6 +283,12 @@ function CinematicPlayer({ manifest }: { manifest: RenderManifest }) {
     } else clearTimer();
     return clearTimer;
   }, [playing, active, frame.durationSec, frames.length, hasBranching]);
+
+  // Dynamic mood crossfade when scene changes
+  useEffect(() => {
+    if (audioOn) audio.crossfade(frame?.badge ?? (frame?.moodColor ?? "mystery"));
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [active]);
 
   // Keyboard shortcuts: Space = play/pause, ← = prev, → = next
   useEffect(() => {
@@ -481,6 +517,11 @@ function GamePlayer({ manifest, projectId }: { manifest: RenderManifest; project
           borderBottom: "1px solid rgba(255,255,255,0.07)",
         }}>
           <div style={{ color: "#818cf8", fontSize: 11, fontWeight: 700, flex: 1 }}>🎮 {manifest.projectName} — LIVE GAME</div>
+          <button onClick={() => iframeRef.current?.requestFullscreen?.()}
+            title="Fullscreen"
+            style={{ background: "rgba(255,255,255,0.06)", border: "none", color: "#94a3b8", padding: "4px 10px", borderRadius: 8, fontSize: 11, cursor: "pointer" }}>
+            ⛶
+          </button>
           <button onClick={() => setView("code")}
             style={{ background: "rgba(255,255,255,0.06)", border: "none", color: "#94a3b8", padding: "4px 12px", borderRadius: 8, fontSize: 10, cursor: "pointer" }}>
             &lt;/&gt; Code
@@ -595,6 +636,7 @@ function GamePlayer({ manifest, projectId }: { manifest: RenderManifest; project
 function AppPlayer({ manifest, projectId }: { manifest: RenderManifest; projectId: string | number }) {
   const [view, setView]         = useState<"screens" | "app" | "code">("screens");
   const blobUrl                  = useRef<string | null>(null);
+  const appIframeRef             = useRef<HTMLIFrameElement>(null);
   const frames                   = manifest.frames;
   const [activeScreen, setActiveScreen] = useState(0);
   const [editCode, setEditCode] = useState(manifest.generatedCode ?? "");
@@ -628,6 +670,11 @@ function AppPlayer({ manifest, projectId }: { manifest: RenderManifest; projectI
           background: "#f8fafc", borderBottom: "1px solid rgba(0,0,0,0.08)",
         }}>
           <div style={{ color: "#6366f1", fontSize: 11, fontWeight: 700, flex: 1 }}>💻 {manifest.projectName} — Live Prototype</div>
+          <button onClick={() => appIframeRef.current?.requestFullscreen?.()}
+            title="Fullscreen"
+            style={{ background: "#f1f5f9", border: "none", color: "#94a3b8", padding: "4px 10px", borderRadius: 8, fontSize: 11, cursor: "pointer" }}>
+            ⛶
+          </button>
           <button onClick={() => setView("code")}
             style={{ background: "#f1f5f9", border: "1px solid rgba(0,0,0,0.08)", color: "#64748b", padding: "4px 12px", borderRadius: 8, fontSize: 10, cursor: "pointer" }}>
             &lt;/&gt; Code
@@ -637,7 +684,7 @@ function AppPlayer({ manifest, projectId }: { manifest: RenderManifest; projectI
             ← Screens
           </button>
         </div>
-        <iframe src={blobUrl.current ?? ""} sandbox="allow-scripts allow-same-origin"
+        <iframe ref={appIframeRef} src={blobUrl.current ?? ""} sandbox="allow-scripts allow-same-origin"
           style={{ flex: 1, border: "none", background: "#fff" }} title="Generated App" />
       </div>
     );
@@ -760,10 +807,31 @@ function BookReader({ manifest, projectId }: { manifest: RenderManifest; project
 
   useEffect(() => { setEditedContent(null); setEditMode(false); }, [chapter]);
 
+  // Auto-crossfade ambient audio to chapter mood when chapter changes
+  useEffect(() => {
+    if (audioOn) audio.crossfade(frame?.badge ?? "romantic");
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [chapter]);
+
+  // Keyboard navigation (← →) — skip when editing text
+  useEffect(() => {
+    const handler = (e: KeyboardEvent) => {
+      if (editMode) return;
+      if (e.target instanceof HTMLTextAreaElement || e.target instanceof HTMLInputElement) return;
+      if (e.key === "ArrowLeft")  setChapter(c => Math.max(0, c - 1));
+      if (e.key === "ArrowRight") setChapter(c => Math.min(manifest.frames.length - 1, c + 1));
+    };
+    window.addEventListener("keydown", handler);
+    return () => window.removeEventListener("keydown", handler);
+  }, [editMode, manifest.frames.length]);
+
   const toggleAudio = useCallback(() => {
     if (!audioOn) { audio.play("romantic"); setAudioOn(true); }
     else          { audio.fadeOut(0.6); setAudioOn(false); }
   }, [audioOn, audio]);
+
+  // Auto-save edits 2 s after last keystroke
+  const { autoSaved: bookAutoSaved } = useAutoSave(editedContent, projectId, `_saved_book_chapter_${chapter}`, editMode && editedContent !== null);
 
   return (
     <div style={{ height: "100%", display: "flex", background: "#faf9f7" }}>
@@ -808,6 +876,9 @@ function BookReader({ manifest, projectId }: { manifest: RenderManifest; project
               await saveToProject(projectId, `_saved_book_chapter_${chapter}`, editedContent ?? "");
               setSaving(false);
             }} saving={saving} />
+          )}
+          {bookAutoSaved && (
+            <div style={{ fontSize: 9, color: "#4ade80", fontWeight: 700, textAlign: "center" }}>✓ Auto-saved</div>
           )}
           <button onClick={() => window.print()}
             style={{
@@ -876,10 +947,19 @@ function CoursePlayer({ manifest, projectId }: { manifest: RenderManifest; proje
 
   useEffect(() => { setEditedContent(null); setEditMode(false); }, [module]);
 
+  // Auto-crossfade ambient to module mood on navigation
+  useEffect(() => {
+    if (audioOn) audio.crossfade(frame?.badge ?? "uplifting");
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [module]);
+
   const toggleAudio = useCallback(() => {
     if (!audioOn) { audio.play("uplifting"); setAudioOn(true); }
     else          { audio.fadeOut(0.6); setAudioOn(false); }
   }, [audioOn, audio]);
+
+  // Auto-save edits 2 s after last keystroke
+  const { autoSaved: courseAutoSaved } = useAutoSave(editedContent, projectId, `_saved_course_module_${module}`, editMode && editedContent !== null);
 
   const parseQuiz = (text: string) => {
     const qBlocks = text.split(/Q\d+:/).filter(b => b.trim());
@@ -948,6 +1028,9 @@ function CoursePlayer({ manifest, projectId }: { manifest: RenderManifest; proje
                 await saveToProject(projectId, `_saved_course_module_${module}`, editedContent ?? "");
                 setSaving(false);
               }} saving={saving} />
+            )}
+            {courseAutoSaved && (
+              <span style={{ fontSize: 9, color: "#4ade80", fontWeight: 700 }}>✓ Auto-saved</span>
             )}
           </div>
           <h2 style={{ fontSize: 18, fontWeight: 700, color: "#0f172a", marginBottom: 16 }}>{frame?.title}</h2>
@@ -1052,6 +1135,9 @@ function PitchDeckViewer({ manifest, projectId }: { manifest: RenderManifest; pr
     window.addEventListener("keydown", handler);
     return () => window.removeEventListener("keydown", handler);
   }, [editMode, manifest.frames.length]);
+
+  // Auto-save slide edits 2 s after last keystroke
+  const { autoSaved: pitchAutoSaved } = useAutoSave(editedSlides[slide] ?? null, projectId, `_saved_pitch_slide_${slide}`, editMode && editedSlides[slide] !== undefined);
 
   const handleSave = async () => {
     if (!isDirty) return;
@@ -1161,6 +1247,9 @@ function ProductShowcase({ manifest, projectId }: { manifest: RenderManifest; pr
   const cubeSize = 160;
   const currentDesc = editedDesc[viewIdx] ?? frame?.content ?? "";
   const isDirty = (editedDesc[viewIdx] ?? null) !== null && editedDesc[viewIdx] !== (frame?.content ?? "");
+
+  // Auto-save product description edits
+  const { autoSaved: showcaseAutoSaved } = useAutoSave(editedDesc[viewIdx] ?? null, projectId, `_saved_showcase_product_${viewIdx}`, editMode && editedDesc[viewIdx] !== undefined);
 
   const handleSave = async () => {
     if (!isDirty) return;
@@ -1376,11 +1465,27 @@ function MusicPlayer({ manifest, projectId }: { manifest: RenderManifest; projec
 
   const lyrics = editedLyrics[track] ?? frame?.content ?? "";
 
+  // Auto-save lyrics 2 s after last keystroke
+  const { autoSaved: musicAutoSaved } = useAutoSave(editedLyrics[track] ?? null, projectId, `_saved_music_track_${track}`, editMode && editedLyrics[track] !== undefined);
+
   return (
     <div style={{ height: "100%", display: "flex", background: "#0c0f1a" }}>
       {/* Track list */}
       <div style={{ width: 160, flexShrink: 0, borderRight: "1px solid rgba(255,255,255,0.06)", padding: 12, overflowY: "auto" }}>
-        <div style={{ fontSize: 10, fontWeight: 700, color: "#475569", marginBottom: 10, letterSpacing: "0.08em" }}>TRACKS</div>
+        <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", marginBottom: 10 }}>
+          <div style={{ fontSize: 10, fontWeight: 700, color: "#475569", letterSpacing: "0.08em" }}>TRACKS</div>
+          <button
+            onClick={() => {
+              const text = manifest.frames
+                .map((f, i) => `${i + 1}. ${f.title}\n\n${editedLyrics[i] ?? f.content ?? ""}`)
+                .join("\n\n────────\n\n");
+              navigator.clipboard.writeText(text).catch(() => {});
+            }}
+            title="Copy all lyrics to clipboard"
+            style={{ background: "rgba(255,255,255,0.06)", border: "none", color: "#64748b", borderRadius: 6, padding: "3px 6px", fontSize: 11, cursor: "pointer" }}>
+            📋
+          </button>
+        </div>
         {manifest.frames.map((f, i) => (
           <button key={i}
             onClick={() => { window.speechSynthesis?.cancel(); setSpeaking(false); stopArp(); setTrack(i); }}
@@ -1446,6 +1551,9 @@ function MusicPlayer({ manifest, projectId }: { manifest: RenderManifest; projec
                   await saveToProject(projectId, `_saved_music_track_${track}`, editedLyrics[track] ?? "");
                   setSaving(false);
                 }} saving={saving} />
+              )}
+              {musicAutoSaved && (
+                <span style={{ fontSize: 9, color: "#4ade80", fontWeight: 700 }}>✓ Saved</span>
               )}
             </div>
           </div>
@@ -1676,6 +1784,9 @@ function DocumentReader({ manifest, projectId }: { manifest: RenderManifest; pro
 
   const currentContent = editedSections[section] ?? frame?.content ?? "";
   const isDirty = (editedSections[section] ?? null) !== null && editedSections[section] !== (frame?.content ?? "");
+
+  // Auto-save section edits
+  const { autoSaved: docAutoSaved } = useAutoSave(editedSections[section] ?? null, projectId, `_saved_doc_section_${section}`, editMode && editedSections[section] !== undefined);
 
   const handleSave = async () => {
     if (!isDirty) return;
