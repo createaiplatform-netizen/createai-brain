@@ -26,6 +26,7 @@ interface RenderManifest {
   titleCard:     { title: string; tagline: string; creditLines: string[] };
   frames:        RenderFrame[];
   generatedCode?: string;
+  serveUrl?:     string;
   generatedAt:   string;
 }
 
@@ -331,17 +332,28 @@ function GamePlayer({ manifest }: { manifest: RenderManifest }) {
       }}>
         <span style={{ fontSize: 16 }}>🎨</span>
         <div style={{ color: "#fff", fontSize: 12, fontWeight: 700 }}>{manifest.projectName} — Concept Art</div>
-        {manifest.generatedCode && (
-          <button onClick={() => setView("game")}
-            style={{
-              marginLeft: "auto",
-              background: "linear-gradient(135deg,#6366f1,#8b5cf6)", border: "none",
-              color: "#fff", padding: "6px 16px", borderRadius: 20,
-              fontSize: 11, fontWeight: 700, cursor: "pointer",
-            }}>
-            🎮 Play Game
-          </button>
-        )}
+        <div style={{ marginLeft: "auto", display: "flex", gap: 8, alignItems: "center" }}>
+          {manifest.serveUrl && (
+            <a href={manifest.serveUrl} target="_blank" rel="noopener noreferrer"
+              style={{
+                background: "rgba(255,255,255,0.08)", border: "1px solid rgba(255,255,255,0.15)",
+                color: "#94a3b8", padding: "6px 14px", borderRadius: 20,
+                fontSize: 10, fontWeight: 700, textDecoration: "none",
+              }}>
+              🔗 Standalone URL
+            </a>
+          )}
+          {manifest.generatedCode && (
+            <button onClick={() => setView("game")}
+              style={{
+                background: "linear-gradient(135deg,#6366f1,#8b5cf6)", border: "none",
+                color: "#fff", padding: "6px 16px", borderRadius: 20,
+                fontSize: 11, fontWeight: 700, cursor: "pointer",
+              }}>
+              🎮 Play Game
+            </button>
+          )}
+        </div>
       </div>
       <div style={{ flex: 1, overflow: "hidden", position: "relative" }}>
         {frame?.imageUrl ? (
@@ -421,17 +433,28 @@ function AppPlayer({ manifest }: { manifest: RenderManifest }) {
       }}>
         <span style={{ fontSize: 16 }}>🖥️</span>
         <div style={{ color: "#0f172a", fontSize: 12, fontWeight: 700 }}>UI Screen Mockups</div>
-        {manifest.generatedCode && (
-          <button onClick={() => setView("app")}
-            style={{
-              marginLeft: "auto",
-              background: "linear-gradient(135deg,#6366f1,#8b5cf6)", border: "none",
-              color: "#fff", padding: "6px 16px", borderRadius: 20,
-              fontSize: 11, fontWeight: 700, cursor: "pointer",
-            }}>
-            ▶ Open Live App
-          </button>
-        )}
+        <div style={{ marginLeft: "auto", display: "flex", gap: 8, alignItems: "center" }}>
+          {manifest.serveUrl && (
+            <a href={manifest.serveUrl} target="_blank" rel="noopener noreferrer"
+              style={{
+                background: "#f1f5f9", border: "1px solid rgba(0,0,0,0.1)",
+                color: "#64748b", padding: "6px 14px", borderRadius: 20,
+                fontSize: 10, fontWeight: 700, textDecoration: "none",
+              }}>
+              🔗 Standalone URL
+            </a>
+          )}
+          {manifest.generatedCode && (
+            <button onClick={() => setView("app")}
+              style={{
+                background: "linear-gradient(135deg,#6366f1,#8b5cf6)", border: "none",
+                color: "#fff", padding: "6px 16px", borderRadius: 20,
+                fontSize: 11, fontWeight: 700, cursor: "pointer",
+              }}>
+              ▶ Open Live App
+            </button>
+          )}
+        </div>
       </div>
       <div style={{ flex: 1, overflow: "hidden", position: "relative", background: "#f1f5f9" }}>
         {frame?.imageUrl ? (
@@ -466,8 +489,11 @@ function AppPlayer({ manifest }: { manifest: RenderManifest }) {
 // ─── Book Reader ──────────────────────────────────────────────────────────────
 
 function BookReader({ manifest }: { manifest: RenderManifest }) {
-  const [chapter, setChapter] = useState(0);
+  const [chapter, setChapter]             = useState(0);
+  const [editMode, setEditMode]           = useState(false);
+  const [editedContent, setEditedContent] = useState<string | null>(null);
   const frame = manifest.frames[chapter];
+  useEffect(() => { setEditedContent(null); setEditMode(false); }, [chapter]);
 
   return (
     <div style={{ height: "100%", display: "flex", background: "#faf9f7" }}>
@@ -490,7 +516,18 @@ function BookReader({ manifest }: { manifest: RenderManifest }) {
             {f.title}
           </button>
         ))}
-        <div style={{ borderTop: "1px solid rgba(0,0,0,0.06)", marginTop: 12, paddingTop: 12 }}>
+        <div style={{ borderTop: "1px solid rgba(0,0,0,0.06)", marginTop: 12, paddingTop: 12, display: "flex", flexDirection: "column", gap: 4 }}>
+          <button onClick={() => setEditMode(m => !m)}
+            style={{
+              display: "block", width: "100%", padding: "7px 0",
+              background: editMode ? "rgba(99,102,241,0.12)" : "#f1f5f9",
+              border: editMode ? "1px solid #6366f1" : "none",
+              borderRadius: 8,
+              color: editMode ? "#6366f1" : "#64748b",
+              fontSize: 10, fontWeight: 700, cursor: "pointer",
+            }}>
+            {editMode ? "✓ Done Editing" : "✏️ Edit Chapter"}
+          </button>
           <button onClick={() => window.print()}
             style={{
               display: "block", width: "100%", padding: "7px 0",
@@ -510,17 +547,36 @@ function BookReader({ manifest }: { manifest: RenderManifest }) {
             borderRadius: 12, marginBottom: 28,
           }} />
         )}
-        <div style={{ color: "#94a3b8", fontSize: 10, fontWeight: 700, letterSpacing: "0.1em", marginBottom: 8 }}>
-          {frame?.badge?.toUpperCase()}
+        <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", marginBottom: 8 }}>
+          <div style={{ color: "#94a3b8", fontSize: 10, fontWeight: 700, letterSpacing: "0.1em" }}>
+            {frame?.badge?.toUpperCase()}
+          </div>
+          {editMode && (
+            <div style={{ fontSize: 9, color: "#6366f1", fontWeight: 600 }}>EDITING MODE</div>
+          )}
         </div>
         <h2 style={{ fontSize: 22, fontWeight: 700, color: "#0f172a", marginBottom: 24 }}>{frame?.title}</h2>
-        <div style={{
-          fontSize: 15, lineHeight: 1.85, color: "#374151",
-          fontFamily: "Georgia, 'Times New Roman', serif",
-          whiteSpace: "pre-wrap",
-        }}>
-          {frame?.content}
-        </div>
+        {editMode ? (
+          <textarea
+            value={editedContent ?? frame?.content ?? ""}
+            onChange={e => setEditedContent(e.target.value)}
+            style={{
+              width: "100%", minHeight: 480, fontSize: 15, lineHeight: 1.85,
+              color: "#374151", fontFamily: "Georgia, 'Times New Roman', serif",
+              border: "1.5px solid #6366f1", borderRadius: 10, padding: "16px",
+              resize: "vertical", background: "#faf9f7", boxSizing: "border-box",
+              outline: "none",
+            }}
+          />
+        ) : (
+          <div style={{
+            fontSize: 15, lineHeight: 1.85, color: "#374151",
+            fontFamily: "Georgia, 'Times New Roman', serif",
+            whiteSpace: "pre-wrap",
+          }}>
+            {editedContent ?? frame?.content}
+          </div>
+        )}
       </div>
     </div>
   );
@@ -529,8 +585,11 @@ function BookReader({ manifest }: { manifest: RenderManifest }) {
 // ─── Course Player ────────────────────────────────────────────────────────────
 
 function CoursePlayer({ manifest }: { manifest: RenderManifest }) {
-  const [module, setModule] = useState(0);
+  const [module, setModule]               = useState(0);
+  const [editMode, setEditMode]           = useState(false);
+  const [editedContent, setEditedContent] = useState<string | null>(null);
   const frame = manifest.frames[module];
+  useEffect(() => { setEditedContent(null); setEditMode(false); }, [module]);
 
   const parseQuiz = (text: string) => {
     const qBlocks = text.split(/Q\d+:/).filter(b => b.trim());
@@ -578,11 +637,35 @@ function CoursePlayer({ manifest }: { manifest: RenderManifest }) {
           <img src={frame.imageUrl} alt="" style={{ width: "100%", height: 120, objectFit: "cover" }} />
         )}
         <div style={{ padding: "24px 32px" }}>
-          <div style={{ color: "#6366f1", fontSize: 10, fontWeight: 700, marginBottom: 6, letterSpacing: "0.08em" }}>{frame?.badge}</div>
-          <h2 style={{ fontSize: 18, fontWeight: 700, color: "#0f172a", marginBottom: 16 }}>{frame?.title}</h2>
-          <div style={{ fontSize: 13, lineHeight: 1.75, color: "#374151", whiteSpace: "pre-wrap", marginBottom: 24 }}>
-            {contentWithoutQuiz}
+          <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", marginBottom: 6 }}>
+            <div style={{ color: "#6366f1", fontSize: 10, fontWeight: 700, letterSpacing: "0.08em" }}>{frame?.badge}</div>
+            <button onClick={() => setEditMode(m => !m)}
+              style={{
+                padding: "3px 10px", borderRadius: 8, fontSize: 9, fontWeight: 700, cursor: "pointer",
+                background: editMode ? "rgba(99,102,241,0.12)" : "#f1f5f9",
+                border: editMode ? "1px solid #6366f1" : "1px solid transparent",
+                color: editMode ? "#6366f1" : "#94a3b8",
+              }}>
+              {editMode ? "✓ Done" : "✏️ Edit"}
+            </button>
           </div>
+          <h2 style={{ fontSize: 18, fontWeight: 700, color: "#0f172a", marginBottom: 16 }}>{frame?.title}</h2>
+          {editMode ? (
+            <textarea
+              value={editedContent ?? contentWithoutQuiz}
+              onChange={e => setEditedContent(e.target.value)}
+              style={{
+                width: "100%", minHeight: 360, fontSize: 13, lineHeight: 1.75, color: "#374151",
+                border: "1.5px solid #6366f1", borderRadius: 10, padding: 14,
+                resize: "vertical", background: "#f8fafc", boxSizing: "border-box", outline: "none",
+                marginBottom: 24,
+              }}
+            />
+          ) : (
+          <div style={{ fontSize: 13, lineHeight: 1.75, color: "#374151", whiteSpace: "pre-wrap", marginBottom: 24 }}>
+            {editedContent ?? contentWithoutQuiz}
+          </div>
+          )}
 
           {/* Quiz */}
           {quiz.length > 0 && (
@@ -827,10 +910,14 @@ function MusicPlayer({ manifest }: { manifest: RenderManifest }) {
 // ─── Podcast Player ───────────────────────────────────────────────────────────
 
 function PodcastPlayer({ manifest }: { manifest: RenderManifest }) {
-  const [speaking, setSpeaking]   = useState(false);
-  const [activeTab, setActiveTab] = useState<"script" | "notes">("script");
+  const [speaking, setSpeaking]       = useState(false);
+  const [activeTab, setActiveTab]     = useState<"script" | "notes">("script");
+  const [editMode, setEditMode]       = useState(false);
+  const [editedScript, setEditedScript] = useState<string | null>(null);
+  const [editedNotes, setEditedNotes]   = useState<string | null>(null);
   const scriptFrame = manifest.frames.find(f => f.index === 0);
   const notesFrame  = manifest.frames.find(f => f.index === 1);
+  useEffect(() => { setEditMode(false); }, [activeTab]);
 
   const readScript = () => {
     if (!scriptFrame?.content || !window.speechSynthesis) return;
@@ -871,8 +958,8 @@ function PodcastPlayer({ manifest }: { manifest: RenderManifest }) {
         </div>
       </div>
 
-      {/* Tabs */}
-      <div style={{ display: "flex", borderBottom: "1px solid rgba(255,255,255,0.06)" }}>
+      {/* Tabs + edit toggle */}
+      <div style={{ display: "flex", borderBottom: "1px solid rgba(255,255,255,0.06)", alignItems: "center" }}>
         {(["script", "notes"] as const).map(tab => (
           <button key={tab} onClick={() => setActiveTab(tab)}
             style={{
@@ -884,27 +971,51 @@ function PodcastPlayer({ manifest }: { manifest: RenderManifest }) {
             {tab.toUpperCase()}
           </button>
         ))}
+        <button onClick={() => setEditMode(m => !m)}
+          style={{
+            padding: "6px 14px", margin: "0 8px",
+            background: editMode ? "rgba(234,88,12,0.18)" : "rgba(255,255,255,0.06)",
+            border: editMode ? "1px solid rgba(234,88,12,0.5)" : "1px solid rgba(255,255,255,0.1)",
+            color: editMode ? "#f97316" : "#64748b",
+            borderRadius: 8, fontSize: 10, fontWeight: 700, cursor: "pointer", whiteSpace: "nowrap",
+          }}>
+          {editMode ? "✓ Done" : "✏️ Edit"}
+        </button>
       </div>
 
       {/* Content */}
       <div style={{ flex: 1, overflowY: "auto", padding: "16px 24px" }}>
-        {(activeTab === "script" ? scriptFrame?.content : notesFrame?.content ?? "")
-          ?.split("\n").map((line, i) => {
-            const isTag    = /^\[.*\]$/.test(line.trim());
-            const isHost   = line.trim().startsWith("HOST:");
-            return (
-              <div key={i} style={{
-                marginBottom: isTag ? 12 : 3,
-                color:   isTag  ? "#f97316" : isHost ? "#94a3b8" : "#6b7280",
-                fontSize: isTag  ? 10 : 13,
-                fontWeight: isTag  ? 700 : isHost ? 600 : 400,
-                lineHeight: 1.65,
-                letterSpacing: isTag ? "0.08em" : "normal",
-              }}>
-                {line || "\u00A0"}
-              </div>
-            );
-          })}
+        {editMode ? (
+          <textarea
+            value={(activeTab === "script" ? editedScript ?? scriptFrame?.content : editedNotes ?? notesFrame?.content) ?? ""}
+            onChange={e => activeTab === "script" ? setEditedScript(e.target.value) : setEditedNotes(e.target.value)}
+            style={{
+              width: "100%", minHeight: 420, fontSize: 13, lineHeight: 1.7,
+              color: "#cbd5e1", fontFamily: "ui-monospace, monospace",
+              background: "rgba(255,255,255,0.04)", border: "1.5px solid rgba(234,88,12,0.4)",
+              borderRadius: 10, padding: "14px 16px", resize: "vertical",
+              boxSizing: "border-box", outline: "none",
+            }}
+          />
+        ) : (
+          (activeTab === "script" ? (editedScript ?? scriptFrame?.content) : (editedNotes ?? notesFrame?.content ?? ""))
+            ?.split("\n").map((line, i) => {
+              const isTag  = /^\[.*\]$/.test(line.trim());
+              const isHost = line.trim().startsWith("HOST:");
+              return (
+                <div key={i} style={{
+                  marginBottom: isTag ? 12 : 3,
+                  color:     isTag ? "#f97316" : isHost ? "#94a3b8" : "#6b7280",
+                  fontSize:  isTag ? 10 : 13,
+                  fontWeight: isTag ? 700 : isHost ? 600 : 400,
+                  lineHeight: 1.65,
+                  letterSpacing: isTag ? "0.08em" : "normal",
+                }}>
+                  {line || "\u00A0"}
+                </div>
+              );
+            })
+        )}
       </div>
     </div>
   );
@@ -997,7 +1108,7 @@ export function RenderEngineApp({ projectId, projectName, projectType, onClose }
     abortRef.current = new AbortController();
 
     try {
-      const resp = await fetch("/api/render/generate", {
+      const resp = await fetch("/api/generate", {
         method:      "POST",
         headers:     { "Content-Type": "application/json" },
         credentials: "include",
@@ -1035,6 +1146,9 @@ export function RenderEngineApp({ projectId, projectName, projectType, onClose }
             }
             if (evt.type === "code_ready") {
               addLog({ type: "status", message: `${evt.codeType === "game" ? "🎮 Playable game" : "💻 Interactive app"} code generated` });
+            }
+            if (evt.type === "checkpoint_found") {
+              addLog({ type: "status", message: "♻️ Previous session checkpoint detected — new generation in progress" });
             }
             if (evt.type === "error") {
               setPhase("error");

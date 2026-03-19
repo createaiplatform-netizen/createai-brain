@@ -64,6 +64,7 @@ import subscriptionsRouter from "./subscriptions";
 import fileVersionsRouter  from "./fileVersions";
 import movieRouter         from "./movieGenerate";
 import renderRouter        from "./renderEngine";
+import generateRouter      from "./generate";
 
 const router: IRouter = Router();
 
@@ -145,6 +146,7 @@ router.use("/subscriptions",      subscriptionsRouter);
 router.use("/projects",           fileVersionsRouter);
 router.use("/movie",              movieRouter);
 router.use("/render",             renderRouter);
+router.use("/generate",           generateRouter);
 
 // ── System Command Processor ─────────────────────────────────────────────────
 router.use("/system",             systemRouter);

@@ -99,11 +99,32 @@ function getMoodParams(musicCue: string): MoodParams {
   return   { freq: 174.6, freq2: 220,   filterFreq: 800,  volume: 0.05, lfoRate: 0.20, waveform: "sine",     wave2: "sine",     delayTime: 0.9, feedback: 0.30 };
 }
 
+// ─── Pentatonic arpeggiator params ───────────────────────────────────────────
+
+function getArpParams(cue: string): { root: number; scale: number[]; bpm: number; vol: number } {
+  const c = cue.toLowerCase();
+  if (/uplift|triumph|hope|joy|victory|celebrat/.test(c))
+    return { root: 261.63, scale: [0, 2, 4, 7, 9],  bpm: 92,  vol: 0.055 };
+  if (/sad|melan|grief|loss|sorrow|mourn/.test(c))
+    return { root: 220.00, scale: [0, 3, 5, 7, 10], bpm: 56,  vol: 0.045 };
+  if (/tense|dark|fear|danger|threat|ominous/.test(c))
+    return { root: 196.00, scale: [0, 2, 4, 6, 8],  bpm: 112, vol: 0.060 };
+  if (/action|battle|chase|intense|epic|combat/.test(c))
+    return { root: 233.08, scale: [0, 3, 5, 7, 10], bpm: 142, vol: 0.065 };
+  if (/mystery|ethereal|dream|haunt|eerie|cosmic/.test(c))
+    return { root: 246.94, scale: [0, 3, 5, 7, 10], bpm: 50,  vol: 0.038 };
+  if (/romance|tender|gentle|love|warm/.test(c))
+    return { root: 261.63, scale: [0, 2, 4, 7, 9],  bpm: 68,  vol: 0.042 };
+  return   { root: 261.63, scale: [0, 2, 4, 7, 9],  bpm: 80,  vol: 0.048 };
+}
+
 function useAmbientAudio() {
   const ctxRef     = useRef<AudioContext | null>(null);
   const nodesRef   = useRef<AudioNode[]>([]);
   const masterRef  = useRef<GainNode | null>(null);
   const enabledRef = useRef(true);
+  const arpTimerRef = useRef<ReturnType<typeof setInterval> | null>(null);
+  const arpIndexRef = useRef(0);
 
   const ensureCtx = useCallback((): AudioContext => {
     if (!ctxRef.current) {
@@ -117,11 +138,40 @@ function useAmbientAudio() {
   }, []);
 
   const stopCurrent = useCallback(() => {
+    if (arpTimerRef.current) { clearInterval(arpTimerRef.current); arpTimerRef.current = null; }
     nodesRef.current.forEach(n => {
       try { (n as OscillatorNode).stop?.(); } catch {}
       try { n.disconnect(); } catch {}
     });
     nodesRef.current = [];
+  }, []);
+
+  // ── Pentatonic arpeggiator — declared first so play() can reference it ──────
+  const startArpeggiator = useCallback((musicCue: string) => {
+    if (arpTimerRef.current) { clearInterval(arpTimerRef.current); arpTimerRef.current = null; }
+    if (!enabledRef.current) return;
+    const p = getArpParams(musicCue);
+    arpIndexRef.current = 0;
+    const beatMs = (60 / p.bpm) * 1000;
+    arpTimerRef.current = setInterval(() => {
+      const ctx = ctxRef.current;
+      if (!ctx || !masterRef.current) return;
+      const semitone = p.scale[arpIndexRef.current % p.scale.length] ?? 0;
+      const freq = p.root * Math.pow(2, semitone / 12);
+      const osc  = ctx.createOscillator();
+      osc.type = "triangle";
+      osc.frequency.value = freq;
+      const env = ctx.createGain();
+      const now = ctx.currentTime;
+      env.gain.setValueAtTime(0, now);
+      env.gain.linearRampToValueAtTime(p.vol, now + 0.02);
+      env.gain.exponentialRampToValueAtTime(0.001, now + 0.22);
+      osc.connect(env);
+      env.connect(masterRef.current!);
+      osc.start(now);
+      osc.stop(now + 0.28);
+      arpIndexRef.current++;
+    }, beatMs);
   }, []);
 
   const play = useCallback((musicCue: string) => {
@@ -182,7 +232,10 @@ function useAmbientAudio() {
     lfo.start(now);
 
     nodesRef.current = [osc1, osc2, lfo, lfoGain, padGain, filter, delay, fbGain];
-  }, [ensureCtx, stopCurrent]);
+
+    // Start pentatonic arpeggiator melody layered over the ambient pads
+    startArpeggiator(musicCue);
+  }, [ensureCtx, stopCurrent, startArpeggiator]);
 
   const fadeOut = useCallback((durationSec = 1.2) => {
     if (!masterRef.current || !ctxRef.current) return;
@@ -211,9 +264,13 @@ function useAmbientAudio() {
     else fadeIn(0.8);
   }, [fadeOut, fadeIn]);
 
-  useEffect(() => () => { stopCurrent(); ctxRef.current?.close(); }, [stopCurrent]);
+  useEffect(() => () => {
+    if (arpTimerRef.current) clearInterval(arpTimerRef.current);
+    stopCurrent();
+    ctxRef.current?.close();
+  }, [stopCurrent]);
 
-  return { play, crossfade, fadeOut, fadeIn, setEnabled };
+  return { play, crossfade, fadeOut, fadeIn, setEnabled, startArpeggiator };
 }
 
 // ─── Cinematic Player ─────────────────────────────────────────────────────────
@@ -819,7 +876,7 @@ function ProductionConsole({
     abortRef.current = new AbortController();
 
     try {
-      const resp = await fetch("/api/movie/generate", {
+      const resp = await fetch("/api/generate", {
         method:      "POST",
         credentials: "include",
         headers:     { "Content-Type": "application/json" },
