@@ -1562,10 +1562,31 @@ interface AnalyticsProject {
   createdAt?: string;
 }
 
+interface ProjectAnalyticsDetail {
+  projectId: number; projectName: string; industry: string;
+  totalFiles: number; enrichedFiles: number; enrichmentPercent: number;
+  byType: Record<string, number>;
+  topFiles: { id: number; name: string; type: string; chars: number }[];
+}
+
 function AnalyticsDashboard() {
   const [projects, setProjects] = useState<AnalyticsProject[]>([]);
   const [loading,  setLoading]  = useState(true);
   const [lastAt,   setLastAt]   = useState("—");
+
+  // Per-project drill-down (uses new backend analytics endpoint)
+  const [drillId,     setDrillId]     = useState<number | null>(null);
+  const [drillData,   setDrillData]   = useState<ProjectAnalyticsDetail | null>(null);
+  const [drillLoading,setDrillLoading]= useState(false);
+
+  const loadDrill = useCallback(async (pid: number) => {
+    setDrillId(pid);
+    setDrillLoading(true);
+    try {
+      const r = await fetch(`/api/generate/analytics/${pid}`, { credentials: "include" });
+      if (r.ok) setDrillData(await r.json());
+    } finally { setDrillLoading(false); }
+  }, []);
 
   const load = useCallback(async () => {
     try {
@@ -1686,6 +1707,95 @@ function AnalyticsDashboard() {
           </>
         ))}
       </div>
+
+      {/* Row 3 — Project Drill-Down (powered by GET /api/generate/analytics/:id) */}
+      {active.length > 0 && (
+        <div style={{ marginTop: 14 }}>
+          {card("Project Enrichment Drill-Down", (
+            <div style={{ display: "grid", gridTemplateColumns: "1fr 1.5fr", gap: 20 }}>
+              {/* Left: project selector */}
+              <div>
+                <div style={{ fontSize: 10, color: "#94a3b8", marginBottom: 8 }}>Select a project</div>
+                <div style={{ display: "flex", flexDirection: "column", gap: 4 }}>
+                  {active.slice(0, 8).map(p => (
+                    <button key={p.id} onClick={() => loadDrill(p.id)}
+                      style={{
+                        textAlign: "left", padding: "6px 10px", borderRadius: 8, border: "1px solid",
+                        borderColor: drillId === p.id ? "#6366f1" : "rgba(0,0,0,0.07)",
+                        background: drillId === p.id ? "rgba(99,102,241,0.08)" : "#fff",
+                        color: drillId === p.id ? "#6366f1" : "#334155",
+                        fontSize: 11, fontWeight: drillId === p.id ? 700 : 500, cursor: "pointer",
+                      }}>
+                      {p.name}
+                    </button>
+                  ))}
+                </div>
+              </div>
+
+              {/* Right: drill-down data from backend */}
+              <div>
+                {!drillId && (
+                  <div style={{ fontSize: 11, color: "#94a3b8", paddingTop: 24, textAlign: "center" }}>
+                    ← Pick a project to see its AI enrichment breakdown
+                  </div>
+                )}
+                {drillLoading && (
+                  <div style={{ display: "flex", alignItems: "center", gap: 6, fontSize: 11, color: "#94a3b8" }}>
+                    <div style={{ width: 10, height: 10, borderRadius: "50%", border: "2px solid #6366f1", borderTopColor: "transparent", animation: "spin 0.8s linear infinite" }} />
+                    Loading project analytics…
+                  </div>
+                )}
+                {drillData && !drillLoading && (
+                  <div>
+                    {/* Enrichment bar */}
+                    <div style={{ marginBottom: 14 }}>
+                      <div style={{ display: "flex", justifyContent: "space-between", marginBottom: 4 }}>
+                        <span style={{ fontSize: 11, fontWeight: 600, color: "#334155" }}>{drillData.projectName}</span>
+                        <span style={{ fontSize: 11, fontWeight: 700, color: drillData.enrichmentPercent >= 80 ? "#10b981" : drillData.enrichmentPercent >= 50 ? "#f59e0b" : "#6366f1" }}>
+                          {drillData.enrichmentPercent}% enriched
+                        </span>
+                      </div>
+                      <div style={{ height: 6, borderRadius: 99, background: "rgba(0,0,0,0.06)" }}>
+                        <div style={{ height: "100%", borderRadius: 99, transition: "width 0.6s ease",
+                          background: drillData.enrichmentPercent >= 80 ? "#10b981" : drillData.enrichmentPercent >= 50 ? "#f59e0b" : "#6366f1",
+                          width: `${drillData.enrichmentPercent}%` }} />
+                      </div>
+                      <div style={{ fontSize: 10, color: "#94a3b8", marginTop: 3 }}>
+                        {drillData.enrichedFiles} of {drillData.totalFiles} files AI-enriched · {drillData.industry}
+                      </div>
+                    </div>
+                    {/* By type */}
+                    {Object.keys(drillData.byType).length > 0 && (
+                      <div style={{ marginBottom: 14 }}>
+                        <div style={{ fontSize: 10, color: "#94a3b8", marginBottom: 6 }}>File types</div>
+                        <div style={{ display: "flex", flexWrap: "wrap" as const, gap: 5 }}>
+                          {Object.entries(drillData.byType).map(([type, count]) => (
+                            <span key={type} style={{ padding: "3px 8px", borderRadius: 99, background: "rgba(99,102,241,0.08)", color: "#6366f1", fontSize: 10, fontWeight: 700 }}>
+                              {type} ×{count}
+                            </span>
+                          ))}
+                        </div>
+                      </div>
+                    )}
+                    {/* Top files */}
+                    {drillData.topFiles.length > 0 && (
+                      <div>
+                        <div style={{ fontSize: 10, color: "#94a3b8", marginBottom: 6 }}>Most enriched files</div>
+                        {drillData.topFiles.map(f => (
+                          <div key={f.id} style={{ display: "flex", justifyContent: "space-between", padding: "4px 0", borderBottom: "1px solid rgba(0,0,0,0.05)" }}>
+                            <span style={{ fontSize: 10, color: "#334155", overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap" as const, maxWidth: "70%" }}>{f.name}</span>
+                            <span style={{ fontSize: 10, color: "#94a3b8", flexShrink: 0 }}>{f.chars.toLocaleString()} chars</span>
+                          </div>
+                        ))}
+                      </div>
+                    )}
+                  </div>
+                )}
+              </div>
+            </div>
+          ))}
+        </div>
+      )}
     </div>
   );
 }

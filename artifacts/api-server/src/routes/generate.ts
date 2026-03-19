@@ -1304,4 +1304,52 @@ ${content}`;
   }
 });
 
+// ─── GET /generate/analytics/:projectId ──────────────────────────────────────
+// Returns enrichment stats for a project — total files, enriched count,
+// enrichment percent, industry, and a per-type file breakdown.
+
+router.get("/analytics/:projectId", async (req: Request, res: Response) => {
+  const rawId    = Array.isArray(req.params.projectId) ? req.params.projectId[0] : req.params.projectId;
+  const projectId = parseInt(rawId, 10);
+  if (isNaN(projectId)) return void res.status(400).json({ error: "Invalid projectId" });
+
+  try {
+    const [project] = await db.select().from(projects).where(eq(projects.id, projectId)).limit(1);
+    if (!project) return void res.status(404).json({ error: "Project not found" });
+
+    const files = await db.select().from(projectFiles).where(eq(projectFiles.projectId, projectId));
+
+    const totalFiles   = files.length;
+    const enrichedFiles = files.filter(f => (f.content ?? "").length > 80).length;
+    const enrichmentPercent = totalFiles > 0 ? Math.round((enrichedFiles / totalFiles) * 100) : 0;
+
+    // Per-type breakdown
+    const byType: Record<string, number> = {};
+    for (const f of files) {
+      const t = f.fileType ?? "document";
+      byType[t] = (byType[t] ?? 0) + 1;
+    }
+
+    // Largest files (most enriched)
+    const topFiles = [...files]
+      .sort((a, b) => (b.content ?? "").length - (a.content ?? "").length)
+      .slice(0, 5)
+      .map(f => ({ id: f.id, name: f.name, type: f.fileType, chars: (f.content ?? "").length }));
+
+    return void res.json({
+      projectId,
+      projectName:       project.name,
+      industry:          project.industry,
+      totalFiles,
+      enrichedFiles,
+      enrichmentPercent,
+      byType,
+      topFiles,
+    });
+  } catch (err) {
+    console.error("[analytics]", err);
+    return void res.status(500).json({ error: "Analytics query failed" });
+  }
+});
+
 export default router;
