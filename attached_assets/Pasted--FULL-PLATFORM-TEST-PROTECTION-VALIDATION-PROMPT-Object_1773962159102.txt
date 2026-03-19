@@ -1,0 +1,216 @@
+=== FULL PLATFORM TEST + PROTECTION + VALIDATION PROMPT ===
+
+Objective:
+Execute a complete, system-wide validation, stress test, and verification of the AI platform while simultaneously protecting system stability, data integrity, and performance. Identify all gaps, inconsistencies, and failures, attempt safe auto-fixes, and produce a complete metrics report.
+
+-----------------------------------
+0. PRE-RUN SAFETY SETUP (MANDATORY)
+-----------------------------------
+- Create full backup of:
+  • Database (projects, files, analytics)
+  • Generated content
+  • System state
+
+- Initialize safety guardrails:
+  • Max projects (soft cap, do not exceed system stability)
+  • Max files per project
+  • Max concurrent API requests
+  • Max retry attempts per operation (3)
+  • Max test cycles (3 full passes)
+
+- Enable system protections:
+  • Rate limiting on all API routes
+  • Timeout protection for long-running operations
+  • Queue system for heavy operations
+  • Logging enabled for all actions
+  • Kill switch initialized (can halt all testing if instability detected)
+
+-----------------------------------
+1. BACKEND API VALIDATION
+-----------------------------------
+Test all endpoints with:
+  • Valid inputs
+  • Invalid inputs
+  • Edge cases (empty, large payloads, unusual data)
+
+Endpoints:
+  POST /api/generate
+  POST /api/generate/smart-fill
+  GET /api/generate/next-renders/:id
+  POST /api/generate/regen-art
+  GET /api/generate/export-pdf/:id
+  GET /api/generate/analytics/:id
+
+For each:
+  • Record latency
+  • Record success/failure
+  • Retry failures (max 3x)
+  • Log all responses
+
+-----------------------------------
+2. DATABASE & METRIC VERIFICATION
+-----------------------------------
+- Cross-check:
+  • Total projects
+  • Total files
+  • Enriched files
+  • AI-ready files
+
+- Validate:
+  • Content Enrichment Score accuracy
+  • SuggestedNextRenders correctness
+  • Analytics endpoint data matches DB
+
+- Reject:
+  • Mock data
+  • Placeholder data
+  • Null or corrupted values
+
+-----------------------------------
+3. FRONTEND VALIDATION
+-----------------------------------
+Test all UI components:
+
+- Project Grid / List toggle
+- Project tiles (stats, enrichment bars, actions)
+- SuggestedNextRenders cards
+- Smart Fill button + behavior
+- Analytics dashboard + drill-down
+- PDF export functionality
+
+Validate:
+  • Rendering on mobile, tablet, desktop
+  • Responsive layout
+  • Animations and interactions
+  • No broken UI or missing elements
+
+-----------------------------------
+4. END-TO-END USER SIMULATION
+-----------------------------------
+Simulate real user flows:
+
+- Create projects (multiple industries)
+- Add files
+- Run Smart Fill
+- Generate content
+- Trigger SuggestedNextRenders
+- View analytics drill-down
+- Export PDFs
+
+Include edge cases:
+  • Empty projects
+  • Large projects
+  • Rapid repeated actions
+
+-----------------------------------
+5. STRESS TESTING (CONTROLLED)
+-----------------------------------
+- Simulate high load (many users/projects)
+- Queue heavy operations to prevent crashes
+- Monitor:
+  • CPU/memory usage
+  • API latency
+  • Failure rates
+
+- If instability detected:
+  • Trigger kill switch
+  • Pause execution
+  • Log issue
+
+-----------------------------------
+6. GAP DETECTION
+-----------------------------------
+Identify:
+  • Broken flows
+  • Missing connections
+  • Inconsistent data
+  • Unresponsive UI elements
+  • Missing features/components
+
+-----------------------------------
+7. SAFE AUTO-FIX SYSTEM
+-----------------------------------
+For each issue:
+  • Attempt safe retry
+  • Refresh state/cache
+  • Re-run operation
+
+If still failing:
+  • Log exact issue
+  • Suggest code-level fix
+  • Do NOT apply destructive changes
+
+-----------------------------------
+8. REAL-TIME MONITORING
+-----------------------------------
+Track:
+  • API performance
+  • Error rates
+  • Enrichment distribution
+  • Project/file counts
+  • SuggestedNextRenders performance
+
+Log everything with timestamps.
+
+-----------------------------------
+9. UX & ACCESSIBILITY VALIDATION
+-----------------------------------
+- Confirm:
+  • Smooth interactions
+  • Working buttons
+  • Proper navigation
+  • Readable UI
+  • Device adaptability
+
+-----------------------------------
+10. CONTINUOUS VALIDATION LOOP
+-----------------------------------
+- Run full test cycle 3 times
+- Compare results across runs
+- Ensure consistency
+
+-----------------------------------
+11. FINAL METRICS OUTPUT
+-----------------------------------
+Return real system numbers:
+
+- Active projects
+- Total projects
+- Total files
+- Enriched files
+- AI-ready files
+- Avg enrichment %
+- SuggestedNextRenders count
+- PDF exports completed
+- API success rate
+- Avg latency
+- Stress limits reached
+
+-----------------------------------
+12. FINAL REPORT
+-----------------------------------
+Output structured JSON:
+
+{
+  backend_validation,
+  frontend_validation,
+  e2e_results,
+  stress_test_metrics,
+  gap_analysis,
+  auto_fix_results,
+  ux_validation,
+  final_metrics
+}
+
+-----------------------------------
+EXECUTION RULES
+-----------------------------------
+- Use only real data (no mocks/placeholders)
+- Do not exceed safe system limits
+- Maintain system stability at all times
+- Log every action
+- Protect data integrity
+- Prioritize accuracy over speed
+
+Goal:
+Deliver a fully validated, fully tested, stable, and production-ready platform with complete visibility into performance, functionality, and system health.

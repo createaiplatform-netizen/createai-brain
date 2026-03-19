@@ -1,0 +1,51 @@
+/*
+PHASE ∞+++++ SIMULATION + SCENARIO TEST PROMPT
+Purpose: Full platform simulation with a realistic user scenario (nursing home resident) and global-scale capability audit. No actual files or AI renders executed — report-only mode.
+
+Instructions:
+
+1. Full System Capability Scan
+   - Analyze all backend endpoints: /api/generate/*, /api/analytics/:projectId
+   - Validate param types, schema mapping, auth
+   - Enumerate engines, modules, meta-agents, AI pipelines, Render engines
+   - Analyze all frontend components:
+     - ProjectOSApp.tsx (sidebar, grid/list toggle, analytics)
+     - RenderEngineApp.tsx (all RenderModes, SuggestedNextRenders, Smart Fill button, Enrichment Score badge)
+     - ProjectGridView (tiles, metrics, action buttons)
+     - AnalyticsDashboard (rows, drill-down, top files)
+   - Count active engines/modules/functions
+   - Identify gaps in endpoints, UI hooks, enrichment calculations, wiring conflicts
+
+2. Scenario Simulation: Nursing Home Resident
+   - Resident receives a **new diagnosis** (e.g., diabetes)
+   - New **medications, dietary restrictions, and physician orders**
+   - Track workflow:
+     - Which staff roles are notified
+     - Training or certification gaps in staff
+     - Automatic routing to dietary, care aides, and nurses
+     - Analytics logging: enrichment scoring, Smart Fill readiness, suggested actions
+   - Report **all decision points**, alerts, and coverage percentages
+   - Simulate AI suggestions for care tasks, reminders, and project generation
+   - Include theoretical multi-device support (mobile, desktop, consoles)
+
+3. Metrics and Reporting
+   - Total projects, engines, modules, AI-enabled functions
+   - Coverage % for enrichment, Smart Fill, suggested renders, analytics drill-down
+   - Gaps or missing hooks identified
+   - Workflow analysis for the nursing home scenario: which steps fully supported, which partially, which gaps exist
+   - Platform-wide stats (active projects, AI readiness, enrichment %, by industry)
+
+4. Maxed-out Evaluation
+   - Assume **unlimited scale**
+   - Include **adaptive layouts, responsive behavior**
+   - Evaluate **automation coverage**: auto project creation, AI-suggested renders, Smart Fill, analytics aggregation
+   - Include **theoretical maximum extensions**: all engines, meta-agents, integrations
+
+Output:
+- Structured report including counts, coverage percentages, gaps, and scenario analysis
+- Recommendations for completion or optimization
+- No actual file creation or live renders
+
+Goal:
+- Deliver **full system insight** plus **realistic workflow simulation** in one run, with accurate numbers and metrics for top-tier company evaluation
+*/

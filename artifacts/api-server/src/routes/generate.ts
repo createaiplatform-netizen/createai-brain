@@ -1309,6 +1309,7 @@ ${content}`;
 // enrichment percent, industry, and a per-type file breakdown.
 
 router.get("/analytics/:projectId", async (req: Request, res: Response) => {
+  if (!req.isAuthenticated()) { res.status(401).json({ error: "Unauthorized" }); return; }
   const rawId    = Array.isArray(req.params.projectId) ? req.params.projectId[0] : req.params.projectId;
   const projectId = parseInt(rawId, 10);
   if (isNaN(projectId)) return void res.status(400).json({ error: "Invalid projectId" });
@@ -1357,6 +1358,7 @@ router.get("/analytics/:projectId", async (req: Request, res: Response) => {
 // Returns JSON suitable for investor decks, QA validation, or export.
 
 router.get("/metrics-report", async (req: Request, res: Response) => {
+  if (!req.isAuthenticated()) { res.status(401).json({ error: "Unauthorized" }); return; }
   const reportedAt = new Date().toISOString();
   try {
     const allProjects = await db.select().from(projects);
