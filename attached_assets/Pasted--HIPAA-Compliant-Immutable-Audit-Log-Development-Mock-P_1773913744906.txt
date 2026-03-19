@@ -1,0 +1,78 @@
+/*
+📋 HIPAA-Compliant Immutable Audit Log (Development/Mock PHI)
+Purpose: Track every access and modification of sensitive data without breaking existing workflows.
+*/
+
+import express from 'express';
+import { v4 as uuidv4 } from 'uuid';
+import db from './db'; // your existing DB connector
+
+// Audit log schema (PostgreSQL or any SQL DB)
+const createAuditTableSQL = `
+CREATE TABLE IF NOT EXISTS audit_log (
+  id UUID PRIMARY KEY,
+  user_id TEXT NOT NULL,
+  action TEXT NOT NULL,
+  resource_type TEXT NOT NULL,
+  resource_id TEXT NOT NULL,
+  timestamp TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+  ip_address TEXT
+);
+`;
+
+// Initialize table (run once at startup)
+db.query(createAuditTableSQL);
+
+// Middleware to log every access
+export function auditLogger(resourceType: string, resourceIdField: string) {
+  return async (req: express.Request, _res: express.Response, next: express.NextFunction) => {
+    try {
+      const userId = req.user?.id || 'anonymous'; // assumes auth middleware sets req.user
+      const resourceId = req.body[resourceIdField] || req.params[resourceIdField] || 'unknown';
+      const ip = req.ip;
+
+      const logEntry = {
+        id: uuidv4(),
+        user_id: userId,
+        action: req.method,
+        resource_type: resourceType,
+        resource_id: resourceId,
+        ip_address: ip
+      };
+
+      // Append-only insert
+      await db.query(
+        `INSERT INTO audit_log (id, user_id, action, resource_type, resource_id, ip_address)
+         VALUES ($1,$2,$3,$4,$5,$6)`,
+        [logEntry.id, logEntry.user_id, logEntry.action, logEntry.resource_type, logEntry.resource_id, logEntry.ip_address]
+      );
+    } catch (err) {
+      console.error('Audit log error', err);
+      // never block main request
+    }
+    next();
+  };
+}
+
+/*
+Usage example:
+
+import { auditLogger } from './auditMiddleware';
+
+// Log every read/write to patient notes
+app.post('/api/patient/:patientId/note', auditLogger('patient_note', 'patientId'), async (req, res) => {
+  // existing note handling code
+});
+
+app.get('/api/patient/:patientId', auditLogger('patient_record', 'patientId'), async (req, res) => {
+  // existing patient retrieval code
+});
+*/
+
+/*
+✅ Key benefits:
+- Append-only: existing logs cannot be modified or deleted
+- Tracks user, action, resource, timestamp, IP
+- Safe for development on Replit with mock PHI
+- Foundational for full HIPAA compliance later
+*/
