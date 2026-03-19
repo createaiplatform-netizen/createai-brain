@@ -5,9 +5,84 @@ import {
   projectChatMessages,
   projects,
 } from "@workspace/db";
-import { openai } from "@workspace/integrations-openai-ai-server";
+import { openai }        from "@workspace/integrations-openai-ai-server";
+import { container }     from "../container";
+import { MEMORY_SERVICE } from "../container/tokens";
+import type { MemoryService } from "../services/memory.service";
 
 const router: IRouter = Router();
+
+// ─── Phase 9: Agent memory persistence ───────────────────────────────────────
+
+interface AgentExchange {
+  user: string;    // truncated user message
+  ai:   string;    // truncated agent reply
+  ts:   number;    // unix ms
+}
+
+interface ProjectAgentMemory {
+  exchanges:  AgentExchange[];
+  updatedAt:  number;
+}
+
+const MAX_EXCHANGES = 5;
+const EXCERPT_LEN   = 220;
+
+function memoryKey(projectId: number): string {
+  return `projectAgent:${projectId}`;
+}
+
+async function loadAgentMemory(userId: string, projectId: number): Promise<ProjectAgentMemory | null> {
+  try {
+    const svc = container.get<MemoryService>(MEMORY_SERVICE);
+    const raw = await svc.load(userId, memoryKey(projectId));
+    if (!raw) return null;
+    return JSON.parse(raw) as ProjectAgentMemory;
+  } catch {
+    return null;
+  }
+}
+
+async function saveAgentMemory(
+  userId:    string,
+  projectId: number,
+  userMsg:   string,
+  aiReply:   string,
+): Promise<void> {
+  try {
+    const svc      = container.get<MemoryService>(MEMORY_SERVICE);
+    const key      = memoryKey(projectId);
+    const existing = await loadAgentMemory(userId, projectId);
+
+    const exchanges = existing?.exchanges ?? [];
+    exchanges.push({
+      user: userMsg.slice(0, EXCERPT_LEN),
+      ai:   aiReply.slice(0, EXCERPT_LEN),
+      ts:   Date.now(),
+    });
+
+    // Keep only the most recent MAX_EXCHANGES
+    const trimmed: ProjectAgentMemory = {
+      exchanges: exchanges.slice(-MAX_EXCHANGES),
+      updatedAt: Date.now(),
+    };
+
+    await svc.save(userId, key, JSON.stringify(trimmed));
+  } catch {
+    // Memory save is best-effort — never fail the main response
+  }
+}
+
+function buildMemorySection(memory: ProjectAgentMemory | null): string {
+  if (!memory || memory.exchanges.length === 0) return "";
+
+  const lines = memory.exchanges.map((e, i) => {
+    const date = new Date(e.ts).toLocaleDateString("en-US", { month: "short", day: "numeric" });
+    return `[${date}, exchange ${i + 1}]\nUser: "${e.user}"\nYou replied: "${e.ai}"`;
+  });
+
+  return `\n\nMEMORY FROM PREVIOUS SESSIONS (${memory.exchanges.length} exchange${memory.exchanges.length > 1 ? "s" : ""}):\n${lines.join("\n\n")}\nUse this context to maintain continuity — reference prior decisions when relevant.`;
+}
 
 // ─── Type-specific expert context ────────────────────────────────────────────
 
@@ -121,7 +196,11 @@ router.post("/:projectId/chat", async (req: Request, res: Response) => {
       content: message.trim(),
     });
 
-    const systemWithContext = buildProjectAgentSystem(projectType, projectName, scaffoldFiles);
+    const userId  = req.user!.id;
+    const memory  = await loadAgentMemory(userId, projectId);
+    const systemWithContext =
+      buildProjectAgentSystem(projectType, projectName, scaffoldFiles) +
+      buildMemorySection(memory);
 
     const apiMessages = [
       ...history.map(h => ({
@@ -158,6 +237,9 @@ router.post("/:projectId/chat", async (req: Request, res: Response) => {
       role: "ai",
       content: fullReply,
     });
+
+    // Phase 9: persist exchange to agent memory (best-effort)
+    await saveAgentMemory(userId, projectId, message.trim(), fullReply);
 
     res.write("data: [DONE]\n\n");
     res.end();

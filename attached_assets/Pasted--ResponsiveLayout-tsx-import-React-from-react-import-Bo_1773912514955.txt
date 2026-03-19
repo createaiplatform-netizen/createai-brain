@@ -1,0 +1,100 @@
+// === ResponsiveLayout.tsx ===
+import React from "react";
+import { Box, Flex, Text, Button } from "@chakra-ui/react"; // optional: install Chakra UI for responsive helpers
+
+export default function ResponsiveLayout() {
+  return (
+    <Flex
+      direction={{ base: "column", md: "row" }}
+      wrap="wrap"
+      width="100%"
+      minHeight="100vh"
+      p={{ base: 2, md: 6 }}
+      boxSizing="border-box"
+      bg="gray.50"
+    >
+      {/* Sidebar / Navigation */}
+      <Box
+        width={{ base: "100%", md: "250px" }}
+        mb={{ base: 4, md: 0 }}
+        mr={{ base: 0, md: 4 }}
+        bg="white"
+        p={4}
+        borderRadius="md"
+        shadow="md"
+      >
+        <Text fontSize={{ base: "md", md: "lg" }} fontWeight="bold">
+          Menu
+        </Text>
+        <Button mt={2} width="100%">Dashboard</Button>
+        <Button mt={2} width="100%">Projects</Button>
+        <Button mt={2} width="100%">Settings</Button>
+      </Box>
+
+      {/* Main Content Area */}
+      <Flex
+        direction="column"
+        flex="1"
+        bg="white"
+        p={4}
+        borderRadius="md"
+        shadow="md"
+        minHeight="400px"
+      >
+        <Text fontSize={{ base: "lg", md: "2xl" }} fontWeight="bold" mb={4}>
+          Project Viewer
+        </Text>
+
+        {/* Example Project Cards */}
+        <Flex wrap="wrap" gap={4}>
+          <Box
+            width={{ base: "100%", sm: "48%", md: "30%" }}
+            p={4}
+            bg="gray.100"
+            borderRadius="md"
+            shadow="sm"
+          >
+            <Text fontWeight="bold">Project A</Text>
+            <Text fontSize="sm">Description of Project A...</Text>
+            <Button mt={2} size="sm" width="100%">Open</Button>
+          </Box>
+
+          <Box
+            width={{ base: "100%", sm: "48%", md: "30%" }}
+            p={4}
+            bg="gray.100"
+            borderRadius="md"
+            shadow="sm"
+          >
+            <Text fontWeight="bold">Project B</Text>
+            <Text fontSize="sm">Description of Project B...</Text>
+            <Button mt={2} size="sm" width="100%">Open</Button>
+          </Box>
+
+          <Box
+            width={{ base: "100%", sm: "48%", md: "30%" }}
+            p={4}
+            bg="gray.100"
+            borderRadius="md"
+            shadow="sm"
+          >
+            <Text fontWeight="bold">Project C</Text>
+            <Text fontSize="sm">Description of Project C...</Text>
+            <Button mt={2} size="sm" width="100%">Open</Button>
+          </Box>
+        </Flex>
+      </Flex>
+    </Flex>
+  );
+}
+
+// === Usage ===
+// Import ResponsiveLayout in your createai-brain entry point:
+// import ResponsiveLayout from './ResponsiveLayout';
+// <ResponsiveLayout />
+//
+// Features:
+// - Automatically switches from column (mobile) to row (desktop)
+// - Sidebar collapses under main content on small screens
+// - Project cards resize and wrap responsively
+// - Uses Chakra UI responsive props, but can be adapted to plain CSS/flexbox

@@ -4,6 +4,7 @@ import { db, projects, projectFolders } from "@workspace/db";
 import { container }        from "../container";
 import { EXECUTION_STORE }  from "../container/tokens";
 import type { ExecutionStore, ExecutionRecord } from "../observability/ExecutionStore";
+import { GraphResolver, type OrchestrateGraph } from "../orchestration/GraphResolver";
 import {
   UNIVERSAL_FOLDERS,
   INDUSTRY_SPECIFIC,
@@ -53,30 +54,12 @@ router.post("/generate-project", async (req: Request, res: Response): Promise<vo
 
     const [project] = await db
       .insert(projects)
-      .values({
-        name:        projectName.trim(),
-        industry:    projectType,
-        description: "",
-        icon,
-        color,
-        userId,
-      })
+      .values({ name: projectName.trim(), industry: projectType, description: "", icon, color, userId })
       .returning();
 
-    const universalRows = UNIVERSAL_FOLDERS.map((f) => ({
-      projectId: project.id,
-      name:      f.name,
-      icon:      f.icon,
-      userId,
-    }));
-
+    const universalRows = UNIVERSAL_FOLDERS.map((f) => ({ projectId: project.id, name: f.name, icon: f.icon, userId }));
     const specificDefs  = INDUSTRY_SPECIFIC[projectType] ?? INDUSTRY_SPECIFIC["General"];
-    const specificRows  = specificDefs.map((f) => ({
-      projectId: project.id,
-      name:      f.name,
-      icon:      f.icon,
-      userId,
-    }));
+    const specificRows  = specificDefs.map((f) => ({ projectId: project.id, name: f.name, icon: f.icon, userId }));
 
     await db.insert(projectFolders).values([...universalRows, ...specificRows]);
 
@@ -87,10 +70,7 @@ router.post("/generate-project", async (req: Request, res: Response): Promise<vo
 });
 
 // ─── Domain action registry ───────────────────────────────────────────────────
-//
-// Each action receives the calling userId and a free-form params object.
-// Add new actions here as platform capabilities are defined.
-//
+
 type ActionFn = (userId: string, params: Record<string, unknown>) => Promise<unknown>;
 
 async function actionProject(userId: string, params: Record<string, unknown>): Promise<unknown> {
@@ -117,7 +97,10 @@ async function actionProject(userId: string, params: Record<string, unknown>): P
 
 function notImplemented(action: string): ActionFn {
   return async () => {
-    throw new Error(`Action '${action}' is registered but not yet implemented. Define its handler in ai.ts → domainActions.`);
+    throw new Error(
+      `Action '${action}' is registered but not yet implemented. ` +
+      `Define its handler in ai.ts → domainActions.`,
+    );
   };
 }
 
@@ -129,14 +112,65 @@ const domainActions: Record<string, ActionFn> = {
   chat:     notImplemented("chat"),
 };
 
-// ─── POST /api/ai/orchestrate ─────────────────────────────────────────────────
-//
-// Accepts:
-//   { actions: string[], params?: { [action]: { ...actionParams } } }
-//
-// Returns:
-//   { status: "done", results: { [action]: { status, result? | error? } } }
-//
+// ─── Shared: run one action + record it ───────────────────────────────────────
+
+interface ActionResult {
+  status:     "completed" | "failed";
+  result?:    unknown;
+  error?:     string;
+  durationMs: number;
+}
+
+async function runAction(
+  action:    string,
+  userId:    string,
+  params:    Record<string, unknown>,
+  requestId: string,
+  store:     ExecutionStore,
+): Promise<ActionResult> {
+  const fn = domainActions[action];
+  const executionId = crypto.randomUUID();
+  const startedAt   = Date.now();
+
+  if (!fn) {
+    const durationMs = Date.now() - startedAt;
+    store.save({
+      executionId, requestId, userId,
+      engineId: action, trace: [action], depth: 1, tokenUsage: 0,
+      startedAt, endedAt: Date.now(), durationMs, status: "error",
+      errorCode: `Unknown action '${action}'`,
+    });
+    return { status: "failed", error: `Unknown action '${action}'. Valid actions: ${Object.keys(domainActions).join(", ")}`, durationMs };
+  }
+
+  try {
+    const result    = await fn(userId, params);
+    const endedAt   = Date.now();
+    const durationMs = endedAt - startedAt;
+
+    const record: ExecutionRecord = {
+      executionId, requestId, userId,
+      engineId: action, trace: [action], depth: 1, tokenUsage: 0,
+      startedAt, endedAt, durationMs, status: "success",
+    };
+    store.save(record);
+    return { status: "completed", result, durationMs };
+  } catch (err) {
+    const endedAt   = Date.now();
+    const durationMs = endedAt - startedAt;
+
+    const record: ExecutionRecord = {
+      executionId, requestId, userId,
+      engineId: action, trace: [action], depth: 1, tokenUsage: 0,
+      startedAt, endedAt, durationMs, status: "error",
+      errorCode: (err as Error).message,
+    };
+    store.save(record);
+    return { status: "failed", error: (err as Error).message, durationMs };
+  }
+}
+
+// ─── POST /api/ai/orchestrate — flat sequential ───────────────────────────────
 router.post("/orchestrate", async (req: Request, res: Response): Promise<void> => {
   const userId = req.user?.id;
   if (!userId) {
@@ -158,63 +192,163 @@ router.post("/orchestrate", async (req: Request, res: Response): Promise<void> =
   const requestId = crypto.randomUUID();
   const results: Record<string, unknown> = {};
 
-  // Run actions sequentially — preserves predictable order and avoids race
-  // conditions on shared DB resources. Switch to Promise.all if you need parallelism.
   for (const action of actions) {
-    const fn = domainActions[action];
-
-    if (!fn) {
-      results[action] = { status: "unknown-action", error: `No handler registered for '${action}'. Valid actions: ${Object.keys(domainActions).join(", ")}` };
-      continue;
-    }
-
-    const executionId = crypto.randomUUID();
-    const startedAt   = Date.now();
-
-    try {
-      const result = await fn(userId, params[action] ?? {});
-      const endedAt = Date.now();
-
-      const record: ExecutionRecord = {
-        executionId,
-        requestId,
-        userId,
-        engineId:   action,
-        trace:      [action],
-        depth:      1,
-        tokenUsage: 0,
-        startedAt,
-        endedAt,
-        durationMs: endedAt - startedAt,
-        status:     "success",
-      };
-      store.save(record);
-
-      results[action] = { status: "completed", result };
-    } catch (err) {
-      const endedAt = Date.now();
-
-      const record: ExecutionRecord = {
-        executionId,
-        requestId,
-        userId,
-        engineId:   action,
-        trace:      [action],
-        depth:      1,
-        tokenUsage: 0,
-        startedAt,
-        endedAt,
-        durationMs: endedAt - startedAt,
-        status:     "error",
-        errorCode:  (err as Error).message,
-      };
-      store.save(record);
-
-      results[action] = { status: "failed", error: (err as Error).message };
-    }
+    results[action] = await runAction(action, userId, params[action] ?? {}, requestId, store);
   }
 
   res.json({ status: "done", results });
+});
+
+// ─── POST /api/ai/orchestrate/graph — DAG parallel (Phase 7) ─────────────────
+//
+// Accepts: { graph: OrchestrateGraph }
+//
+// graph format:
+//   {
+//     "nodeA": { "action": "project", "params": { "projectName": "X" } },
+//     "nodeB": { "action": "project", "params": { "projectName": "Y" }, "deps": ["nodeA"] }
+//   }
+//
+// nodeB runs after nodeA and receives its output at params.$deps.nodeA
+//
+router.post("/orchestrate/graph", async (req: Request, res: Response): Promise<void> => {
+  const userId = req.user?.id;
+  if (!userId) {
+    res.status(401).json({ status: "error", message: "Unauthorized" });
+    return;
+  }
+
+  const { graph } = req.body as { graph?: OrchestrateGraph };
+
+  if (!graph || typeof graph !== "object" || Object.keys(graph).length === 0) {
+    res.status(400).json({ status: "error", message: "graph must be a non-empty object" });
+    return;
+  }
+
+  try {
+    GraphResolver.validate(graph);
+  } catch (err) {
+    res.status(400).json({ status: "error", message: (err as Error).message });
+    return;
+  }
+
+  const levels    = GraphResolver.levels(graph);
+  const store     = container.get<ExecutionStore>(EXECUTION_STORE);
+  const requestId = crypto.randomUUID();
+  const outputs   = new Map<string, unknown>();
+  const results: Record<string, unknown> = {};
+
+  for (const level of levels) {
+    await Promise.all(
+      level.names.map(async (name) => {
+        const node   = graph[name];
+        const params = GraphResolver.buildParams(node, outputs);
+        const result = await runAction(node.action, userId, params, requestId, store);
+        outputs.set(name, result.result ?? null);
+        results[name] = result;
+      }),
+    );
+  }
+
+  res.json({ status: "done", results, levelCount: levels.length });
+});
+
+// ─── POST /api/ai/orchestrate/stream — SSE streaming (Phase 8) ───────────────
+//
+// Accepts EITHER:
+//   { actions: string[], params?: {...} }        — flat sequential
+//   { graph: OrchestrateGraph }                  — DAG parallel
+//
+// SSE event shapes:
+//   { type: "start",    node, action, level? }
+//   { type: "done",     node, action, status, durationMs, result?, error? }
+//   { type: "complete", totalDurationMs, nodeCount }
+//
+router.post("/orchestrate/stream", async (req: Request, res: Response): Promise<void> => {
+  const userId = req.user?.id;
+  if (!userId) {
+    res.status(401).json({ status: "error", message: "Unauthorized" });
+    return;
+  }
+
+  const body = req.body as {
+    actions?: string[];
+    params?:  Record<string, Record<string, unknown>>;
+    graph?:   OrchestrateGraph;
+  };
+
+  const isGraph = !!body.graph && typeof body.graph === "object";
+
+  if (!isGraph && (!Array.isArray(body.actions) || body.actions.length === 0)) {
+    res.status(400).json({ status: "error", message: "Provide either actions[] or graph" });
+    return;
+  }
+
+  if (isGraph) {
+    try {
+      GraphResolver.validate(body.graph!);
+    } catch (err) {
+      res.status(400).json({ status: "error", message: (err as Error).message });
+      return;
+    }
+  }
+
+  res.writeHead(200, {
+    "Content-Type":  "text/event-stream",
+    "Cache-Control": "no-cache",
+    "Connection":    "keep-alive",
+  });
+
+  const emit = (data: Record<string, unknown>) => {
+    res.write(`data: ${JSON.stringify(data)}\n\n`);
+  };
+
+  const store     = container.get<ExecutionStore>(EXECUTION_STORE);
+  const requestId = crypto.randomUUID();
+  const startedAt = Date.now();
+  let   nodeCount = 0;
+
+  try {
+    if (isGraph) {
+      const graph   = body.graph!;
+      const levels  = GraphResolver.levels(graph);
+      const outputs = new Map<string, unknown>();
+
+      for (let li = 0; li < levels.length; li++) {
+        const level = levels[li];
+
+        await Promise.all(
+          level.names.map(async (name) => {
+            const node   = graph[name];
+            const params = GraphResolver.buildParams(node, outputs);
+
+            emit({ type: "start", node: name, action: node.action, level: li });
+            const result = await runAction(node.action, userId, params, requestId, store);
+            outputs.set(name, result.result ?? null);
+            nodeCount++;
+
+            emit({ type: "done", node: name, action: node.action, ...result });
+          }),
+        );
+      }
+    } else {
+      const params = body.params ?? {};
+
+      for (const action of body.actions!) {
+        emit({ type: "start", node: action, action });
+        const result = await runAction(action, userId, params[action] ?? {}, requestId, store);
+        nodeCount++;
+        emit({ type: "done", node: action, action, ...result });
+      }
+    }
+
+    emit({ type: "complete", totalDurationMs: Date.now() - startedAt, nodeCount });
+  } catch (err) {
+    emit({ type: "error", message: (err as Error).message });
+  } finally {
+    res.write("data: [DONE]\n\n");
+    res.end();
+  }
 });
 
 export default router;
