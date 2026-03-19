@@ -15,6 +15,7 @@ import organizationsRouter from "./routes/organizations";
 import projectsRouter      from "./routes/projects";
 import auditRouter         from "./routes/audit";
 import integrationsRouter  from "./routes/integrations";
+import udcRouter           from "./routes/udc";
 
 const app = express();
 const PORT           = parseInt(process.env.PORT ?? "4000", 10);
@@ -107,6 +108,7 @@ app.use("/organizations", organizationsRouter);
 app.use("/projects",      projectsRouter);
 app.use("/audit",         auditRouter);
 app.use("/integrations",  integrationsRouter);
+app.use("/udc",           udcRouter);
 
 // ─── 404 ──────────────────────────────────────────────────────────────────────
 

@@ -1,0 +1,113 @@
+You are my senior backend + integration engineer.
+
+Goal:
+Implement the first version of a **Universal Data Capsule (UDC)** system inside my existing Universal Integration Hub. Do NOT touch any real PHI. Use only synthetic test data and clearly mark everything as TEST / FAKE.
+
+High-level concept:
+A UDC is a single, portable, encrypted JSON bundle that:
+- Is generated from exported files (PDF, CSV, XML, CCD, etc.)
+- Contains structured clinical/operational data + original artifacts
+- Is user-authorized and vendor-independent
+- Can be ingested by my platform without needing any vendor API or partnership
+
+You are NOT connecting to any external system. You are ONLY:
+- Defining the UDC format
+- Building a generator endpoint that accepts uploaded files and outputs a UDC
+- Building an ingestor endpoint that accepts a UDC and writes to my existing schema
+- Wiring a simple test flow with synthetic data
+
+Constraints:
+- No real PHI. Use only synthetic test data.
+- Everything must be legal, user-authorized, and vendor-independent.
+- Do NOT add any scraping, auto-login, or direct access to third-party systems.
+
+My existing platform (from previous work):
+- Node.js + Express backend
+- Caddy TLS proxy
+- REST API with JSON
+- FHIR R4 + HL7 v2 integration layer
+- Clinical schema tables: patients, patient_identifiers, encounters, medications, medication_orders, observations, clinical_notes, audit_log
+- Document/PDF ingestion pipeline already exists
+- SFTP/file ingestion pipeline already exists
+
+Part 1 — Define the UDC format:
+Create a clear JSON schema for a Universal Data Capsule, including:
+- metadata: capsuleId, createdAt, createdBy (userId or facilityId), sourceSystem (string), version
+- patientContext: MRN or externalId, name, DOB, sex
+- payload: structured clinical data (meds, allergies, diagnoses, vitals, ADLs, notes, etc.)
+- artifacts: array of original file references (filename, type, hash)
+- signature: simple HMAC or placeholder for now (we’ll upgrade later)
+
+Represent this as:
+- A TypeScript interface (if applicable)
+- A JSON Schema object (for validation)
+
+Part 2 — Capsule Generator endpoint:
+Create a new endpoint:
+
+POST /udc/generate
+
+Behavior:
+- Accepts multipart/form-data with one or more uploaded files (PDF, CSV, XML, JSON)
+- For now, simulate extraction using synthetic data (hard-coded or simple parsers)
+- Build a UDC object from the extracted data + metadata
+- Return the UDC as JSON in the response
+- Also log an entry in audit_log: action = 'UDC_GENERATED', sourceSystem = 'TEST', details = capsuleId
+
+Important:
+- Make it easy to later plug in the real PDF/CSV extraction pipeline.
+- For now, you can stub the extraction with fake resident data:
+  - Name: "Test Resident"
+  - MRN: "UDC-TEST-001"
+  - Meds: Lisinopril 10mg PO Daily, Metformin 500mg PO BID
+  - Allergy: Penicillin (Rash, Moderate)
+  - Diagnosis: Type 2 Diabetes (E11.9)
+  - Fall risk score: 45
+
+Part 3 — Capsule Ingestor endpoint:
+Create a new endpoint:
+
+POST /udc/ingest
+
+Behavior:
+- Accepts a UDC JSON payload in the request body
+- Validates it against the UDC schema
+- Maps the UDC contents into my existing schema:
+  - patients
+  - patient_identifiers
+  - medications
+  - medication_orders
+  - observations (for allergy + fall risk)
+  - clinical_notes (optional)
+- Creates or updates the patient record based on MRN/externalId
+- Logs an audit_log entry: action = 'UDC_INGESTED', sourceSystem = udc.metadata.sourceSystem, details = capsuleId
+
+Part 4 — Simple test route:
+Create a GET /udc/test route that:
+- Generates a synthetic UDC in memory (no file upload)
+- Immediately calls the ingest logic internally
+- Returns:
+  - the UDC
+  - the created/updated patient record
+  - any medications/observations created
+
+This is just to prove the full UDC flow works end-to-end with fake data.
+
+Part 5 — Safety and clarity:
+- Clearly comment in the code that this is a TEST implementation using synthetic data only.
+- Do NOT include any code that connects to MyChart, ECP, or any external system.
+- Do NOT include any scraping, browser automation, or credential handling.
+- This is a legal, user-authorized, vendor-independent data portability mechanism.
+
+Deliverables:
+- New UDC type/JSON schema definition
+- /udc/generate endpoint
+- /udc/ingest endpoint
+- /udc/test endpoint
+- Any necessary wiring into existing Express app and audit_log
+- Brief README-style explanation in comments at the top of the main UDC file explaining what the Universal Data Capsule is and how it fits into the integration hub.
+
+Now:
+1. Show me the updated code files.
+2. Explain how to call each endpoint (example curl or HTTP requests).
+3. Confirm that everything uses only synthetic data and is safe to run in a dev environment.
