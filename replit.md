@@ -159,6 +159,50 @@ For any work involving 3+ components or 2+ files:
 - **DB**: `memory_store` table pushed to database — `drizzle-kit push` applied cleanly.
 - **TypeScript**: Both `api-server` and `createai-brain` typecheck clean (zero errors).
 
+## Service Container (COMPLETE — Phase 5 Constructor DI)
+
+**Problem solved:** `memoryService.ts` imported `encryption.ts` directly (service-to-service violation). No request context. No lazy singleton access.
+
+### New files
+
+| File | Role |
+|---|---|
+| `src/container/tokens.ts` | `ENCRYPTION_SERVICE` / `MEMORY_SERVICE` Symbol tokens |
+| `src/container/logger.ts` | `RequestLogger` class — `info/warn/error` with `[requestId uid:X]` prefix |
+| `src/container/types.ts` | `RequestScope` interface — `requestId`, `userId?`, `logger`, `get<T>(token)` |
+| `src/container/index.ts` | `ServiceContainer` class — `register(token, factory)`, lazy `get<T>(token)`, `createRequestScope()` |
+| `src/container/bootstrap.ts` | Registers `EncryptionService` + `MemoryService` once. Called from `index.ts` before `app.listen`. |
+| `src/services/encryption.service.ts` | `EncryptionService` class — wraps `encrypt/decrypt/isEncrypted` from `encryption.ts`. No container import. |
+| `src/services/memory.service.ts` | `MemoryService` class — constructor takes `EncryptionService`. No direct encryption import. |
+| `src/middlewares/scopeMiddleware.ts` | Attaches `req.__scope: RequestScope` after `authMiddleware`. Augments `Express.Request`. |
+
+### Modified files
+
+| File | Change |
+|---|---|
+| `src/services/memoryService.ts` | Shims now call `container.get<MemoryService>(MEMORY_SERVICE)` — routes unchanged |
+| `src/app.ts` | Added `scopeMiddleware` after `authMiddleware` |
+| `src/index.ts` | Calls `bootstrapServices()` before `app.listen` |
+
+### Rules enforced
+1. **Singleton vs request-scoped** — singletons registered in `bootstrap.ts`, `createRequestScope()` produces per-request `RequestScope`. Singleton instances are shared; logger is per-request.
+2. **Context-aware logger** — every request gets `req.__scope.logger` with `requestId` (UUID) and `userId` pre-bound.
+3. **Constructor DI** — no service imports another service directly. `MemoryService` receives `EncryptionService` through its constructor, wired in `bootstrap.ts`.
+4. **Lazy access** — `container.get(token)` creates instances on first call only. `bootstrapServices()` only registers factories (no constructors run at startup).
+
+### Dependency graph (no circular deps)
+```
+bootstrap.ts → container/index + EncryptionService + MemoryService
+memory.service.ts → encryption.service.ts (type only) + @workspace/db
+encryption.service.ts → encryption.ts (free functions)
+memoryService.ts (shims) → container/index + tokens
+container/index.ts → logger.ts + types.ts (zero service imports)
+scopeMiddleware.ts → container/index + types
+```
+
+### Backward compatibility
+All existing free-function exports from `memoryService.ts` (`saveMemory`, `loadMemory`, `deleteMemory`, `listMemoryKeys`, `hasMemory`) remain unchanged. The 60+ route files require zero modification.
+
 ## ExpansionGuard (COMPLETE — Phase 4 Engine Safety Layer)
 
 **Call chain (enforced):**

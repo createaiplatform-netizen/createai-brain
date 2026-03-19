@@ -1,6 +1,11 @@
 import app from "./app";
-import { expandPlatform } from "./services/expansionEngine";
+import { bootstrapServices }     from "./container/bootstrap";
+import { expandPlatform }        from "./services/expansionEngine";
 import { finalizeConfiguration } from "./services/systemConfigurator";
+
+// Wire all DI services before the server binds. All factories are lazy —
+// nothing is instantiated here, just registered.
+bootstrapServices();
 
 const rawPort = process.env["PORT"];
 
