@@ -144,6 +144,15 @@ router.get("/:projectId/history", audit("read_chat_history", "project_chat", r =
   if (!requireAuth(req, res)) return;
   try {
     const projectId = parseInt(req.params.projectId as string, 10);
+    const userId    = req.user!.id;
+
+    // L-07: Verify the project belongs to this user before returning its history
+    const [project] = await db.select().from(projects).where(eq(projects.id, projectId));
+    if (!project || project.userId !== userId) {
+      res.status(404).json({ error: "Project not found" });
+      return;
+    }
+
     const msgs = await db
       .select()
       .from(projectChatMessages)
@@ -184,13 +193,21 @@ router.post("/:projectId/chat", chatLimiter, audit("send_project_chat", "project
       return;
     }
 
+    const userId = req.user!.id;
+
     const [project] = await db
       .select()
       .from(projects)
       .where(eq(projects.id, projectId));
 
-    const projectName = project?.name ?? `Project #${projectId}`;
-    const projectType = clientType ?? project?.industry ?? "General";
+    // Verify project ownership before accepting AI requests
+    if (!project || project.userId !== userId) {
+      res.status(404).json({ error: "Project not found" });
+      return;
+    }
+
+    const projectName = project.name;
+    const projectType = clientType ?? project.industry ?? "General";
 
     await db.insert(projectChatMessages).values({
       projectId,
@@ -198,14 +215,17 @@ router.post("/:projectId/chat", chatLimiter, audit("send_project_chat", "project
       content: message.trim(),
     });
 
-    const userId  = req.user!.id;
     const memory  = await loadAgentMemory(userId, projectId);
     const systemWithContext =
       buildProjectAgentSystem(projectType, projectName, scaffoldFiles) +
       buildMemorySection(memory);
 
+    // C-04: Cap client-sent history to last 10 exchanges to prevent token exhaustion
+    const HISTORY_WINDOW = 10;
+    const safeHistory = (history ?? []).slice(-HISTORY_WINDOW);
+
     const apiMessages = [
-      ...history.map(h => ({
+      ...safeHistory.map(h => ({
         role: h.role === "ai" ? ("assistant" as const) : ("user" as const),
         content: h.content,
       })),
@@ -215,6 +235,8 @@ router.post("/:projectId/chat", chatLimiter, audit("send_project_chat", "project
     res.setHeader("Content-Type", "text/event-stream");
     res.setHeader("Cache-Control", "no-cache");
     res.setHeader("Connection", "keep-alive");
+    // H-03: Prevent nginx/Replit proxy from buffering SSE — ensures tokens stream in real time
+    res.setHeader("X-Accel-Buffering", "no");
     res.flushHeaders();
 
     // ── Abort on client disconnect — stops the OpenAI stream immediately ──
@@ -270,6 +292,15 @@ router.delete("/:projectId/history", audit("delete_chat_history", "project_chat"
   if (!requireAuth(req, res)) return;
   try {
     const projectId = parseInt(req.params.projectId as string, 10);
+    const userId    = req.user!.id;
+
+    // H-02: Verify project ownership before deleting its chat history
+    const [project] = await db.select().from(projects).where(eq(projects.id, projectId));
+    if (!project || project.userId !== userId) {
+      res.status(404).json({ error: "Project not found" });
+      return;
+    }
+
     await db.delete(projectChatMessages).where(eq(projectChatMessages.projectId, projectId));
     res.json({ success: true });
   } catch (err) {

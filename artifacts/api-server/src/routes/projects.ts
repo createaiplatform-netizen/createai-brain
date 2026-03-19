@@ -12,6 +12,7 @@ import {
   notifications,
 } from "@workspace/db";
 import { audit } from "../middlewares/auditLogger";
+import { heavyLimiter } from "../middlewares/rateLimiters";
 
 const router: IRouter = Router();
 
@@ -397,6 +398,7 @@ router.get("/files/:fileId", audit("read_file", "project_file", r => r.params.fi
 
 router.get(
   "/portfolio-intelligence",
+  heavyLimiter,
   async (req: Request, res: Response) => {
     const userId = requireAuth(req, res);
     if (!userId) return;
@@ -516,6 +518,7 @@ router.get(
 
 router.post(
   "/parse-intent",
+  heavyLimiter,
   async (req: Request, res: Response) => {
     const userId = requireAuth(req, res);
     if (!userId) return;
@@ -747,14 +750,21 @@ router.post("/:id/folders", async (req: Request, res: Response) => {
 });
 
 router.put("/:id/folders/:folderId", async (req: Request, res: Response) => {
-  if (!requireAuth(req, res)) return;
+  const userId = requireAuth(req, res);
+  if (!userId) return;
   try {
-    const folderId = parseInt(req.params.folderId as string, 10);
+    const projectId = parseInt(req.params.id as string, 10);
+    const folderId  = parseInt(req.params.folderId as string, 10);
+
+    // H-01: Verify the folder belongs to a project owned by this user
+    const [ownerCheck] = await db.select().from(projects).where(and(eq(projects.id, projectId), eq(projects.userId, userId)));
+    if (!ownerCheck) { res.status(404).json({ error: "Project not found" }); return; }
+
     const { name, icon } = req.body as { name?: string; icon?: string };
     const updates: Record<string, string> = {};
     if (name) updates.name = name.trim();
     if (icon) updates.icon = icon;
-    await db.update(projectFolders).set(updates).where(eq(projectFolders.id, folderId));
+    await db.update(projectFolders).set(updates).where(and(eq(projectFolders.id, folderId), eq(projectFolders.projectId, projectId)));
     res.json({ success: true });
   } catch (err) {
     res.status(500).json({ error: "Failed to update folder" });
@@ -762,10 +772,17 @@ router.put("/:id/folders/:folderId", async (req: Request, res: Response) => {
 });
 
 router.delete("/:id/folders/:folderId", async (req: Request, res: Response) => {
-  if (!requireAuth(req, res)) return;
+  const userId = requireAuth(req, res);
+  if (!userId) return;
   try {
-    const folderId = parseInt(req.params.folderId as string, 10);
-    await db.delete(projectFolders).where(eq(projectFolders.id, folderId));
+    const projectId = parseInt(req.params.id as string, 10);
+    const folderId  = parseInt(req.params.folderId as string, 10);
+
+    // H-01: Verify the folder belongs to a project owned by this user
+    const [ownerCheck] = await db.select().from(projects).where(and(eq(projects.id, projectId), eq(projects.userId, userId)));
+    if (!ownerCheck) { res.status(404).json({ error: "Project not found" }); return; }
+
+    await db.delete(projectFolders).where(and(eq(projectFolders.id, folderId), eq(projectFolders.projectId, projectId)));
     res.json({ success: true });
   } catch (err) {
     res.status(500).json({ error: "Failed to delete folder" });
@@ -837,9 +854,16 @@ router.post("/:id/files", audit("create_file", "project_file"), async (req: Requ
 });
 
 router.put("/:id/files/:fileId", audit("update_file", "project_file", r => r.params.fileId), async (req: Request, res: Response) => {
-  if (!requireAuth(req, res)) return;
+  const userId = requireAuth(req, res);
+  if (!userId) return;
   try {
-    const fileId = parseInt(req.params.fileId as string, 10);
+    const projectId = parseInt(req.params.id as string, 10);
+    const fileId    = parseInt(req.params.fileId as string, 10);
+
+    // H-01: Verify the file belongs to a project owned by this user
+    const [ownerCheck] = await db.select().from(projects).where(and(eq(projects.id, projectId), eq(projects.userId, userId)));
+    if (!ownerCheck) { res.status(404).json({ error: "Project not found" }); return; }
+
     const { name, content, fileType, size } = req.body as {
       name?: string;
       content?: string;
@@ -851,7 +875,7 @@ router.put("/:id/files/:fileId", audit("update_file", "project_file", r => r.par
     if (content !== undefined) updates.content  = content;
     if (fileType !== undefined) updates.fileType = fileType;
     if (size    !== undefined) updates.size     = size;
-    await db.update(projectFiles).set(updates).where(eq(projectFiles.id, fileId));
+    await db.update(projectFiles).set(updates).where(and(eq(projectFiles.id, fileId), eq(projectFiles.projectId, projectId)));
     res.json({ success: true });
   } catch (err) {
     res.status(500).json({ error: "Failed to update file" });
@@ -859,10 +883,17 @@ router.put("/:id/files/:fileId", audit("update_file", "project_file", r => r.par
 });
 
 router.delete("/:id/files/:fileId", audit("delete_file", "project_file", r => r.params.fileId), async (req: Request, res: Response) => {
-  if (!requireAuth(req, res)) return;
+  const userId = requireAuth(req, res);
+  if (!userId) return;
   try {
-    const fileId = parseInt(req.params.fileId as string, 10);
-    await db.delete(projectFiles).where(eq(projectFiles.id, fileId));
+    const projectId = parseInt(req.params.id as string, 10);
+    const fileId    = parseInt(req.params.fileId as string, 10);
+
+    // H-01: Verify the file belongs to a project owned by this user
+    const [ownerCheck] = await db.select().from(projects).where(and(eq(projects.id, projectId), eq(projects.userId, userId)));
+    if (!ownerCheck) { res.status(404).json({ error: "Project not found" }); return; }
+
+    await db.delete(projectFiles).where(and(eq(projectFiles.id, fileId), eq(projectFiles.projectId, projectId)));
     res.json({ success: true });
   } catch (err) {
     res.status(500).json({ error: "Failed to delete file" });

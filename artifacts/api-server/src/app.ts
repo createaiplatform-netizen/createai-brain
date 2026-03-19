@@ -10,6 +10,11 @@ export { chatLimiter, heavyLimiter, editLimiter } from "./middlewares/rateLimite
 
 const app: Express = express();
 
+// ── Trust Replit's reverse proxy so req.ip is the real client IP ─────────────
+// Required for rate limiters to key correctly on real IPs for unauthenticated
+// requests (authenticated requests already key by userId, but defence in depth).
+app.set("trust proxy", 1);
+
 // ── Security headers ─────────────────────────────────────────────────────────
 app.use(helmet({
   contentSecurityPolicy: false,

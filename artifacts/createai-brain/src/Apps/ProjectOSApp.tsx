@@ -165,6 +165,20 @@ const INDUSTRY_COLORS: Record<string, string> = {
   "Music / Album": "#db2777", "Podcast": "#ea580c", "Online Course": "#0891b2",
 };
 
+// M-01: Module-scope constant — avoids re-creation on every render inside parseAndCreate
+const THINKING_LINES = [
+  "Analysing your industry landscape…",
+  "Defining audience and purpose…",
+  "Mapping the project lifecycle…",
+  "Identifying critical documents…",
+  "Applying industry best practices…",
+  "Structuring the workspace…",
+  "Generating scaffold architecture…",
+  "Optimising for your project type…",
+  "Building the knowledge base…",
+  "Preparing your AI agent…",
+];
+
 // ─── Project Type Definitions (for the type picker modal) ─────────────────────
 
 interface ProjectTypeDef {
@@ -1063,6 +1077,8 @@ export function ProjectOSApp() {
   const [globalRewriteInstruction, setGlobalRewriteInstruction] = useState("");
   const [globalRewriteLoading, setGlobalRewriteLoading] = useState(false);
   const [globalRewriteProgress, setGlobalRewriteProgress] = useState<{ current: number; total: number } | null>(null);
+  // H-04: AbortController ref — lets us cancel in-flight rewrite requests when the modal closes
+  const globalRewriteAbortRef = useRef<AbortController | null>(null);
   const [newProjIntent, setNewProjIntent] = useState<{ audience: string; purpose: string; tone: string; constraints: string }>({
     audience: "", purpose: "", tone: "professional", constraints: "",
   });
@@ -1599,20 +1615,6 @@ export function ProjectOSApp() {
     return proj;
   }, [scaffoldProject, generateGenome]);
 
-  // ── LIVE BUILD THINKING LINES — rotate during creation ───────────────────
-  const THINKING_LINES = [
-    "Analysing your industry landscape…",
-    "Defining audience and purpose…",
-    "Mapping the project lifecycle…",
-    "Identifying critical documents…",
-    "Applying industry best practices…",
-    "Structuring the workspace…",
-    "Generating scaffold architecture…",
-    "Optimising for your project type…",
-    "Building the knowledge base…",
-    "Preparing your AI agent…",
-  ];
-
   // ── parseAndCreate — Live Build Mode ──────────────────────────────────────
   const parseAndCreate = useCallback(async (prompt: string) => {
     if (!prompt.trim() || createXLoading) return;
@@ -1725,6 +1727,12 @@ export function ProjectOSApp() {
     if (!activeProject || !instruction.trim() || globalRewriteLoading) return;
     const files = activeProject.files;
     if (!files.length) return;
+
+    // H-04: Cancel any prior rewrite and create a fresh controller for this run
+    globalRewriteAbortRef.current?.abort();
+    const ctrl = new AbortController();
+    globalRewriteAbortRef.current = ctrl;
+
     setGlobalRewriteLoading(true);
     setGlobalRewriteProgress({ current: 0, total: files.length });
 
@@ -1732,8 +1740,10 @@ export function ProjectOSApp() {
     // Process files in parallel batches of 3
     const BATCH = 3;
     for (let i = 0; i < files.length; i += BATCH) {
+      if (ctrl.signal.aborted) break;
       const batch = files.slice(i, i + BATCH);
       await Promise.all(batch.map(async (file) => {
+        if (ctrl.signal.aborted) return;
         try {
           const res = await fetch(
             `/api/project-documents/${activeProject.id}/instant-edit/${file.id}`,
@@ -1741,6 +1751,7 @@ export function ProjectOSApp() {
               method: "POST", credentials: "include",
               headers: { "Content-Type": "application/json" },
               body: JSON.stringify({ mode: "rewrite", instruction }),
+              signal: ctrl.signal,
             }
           );
           if (res.ok && res.body) {
@@ -1748,6 +1759,7 @@ export function ProjectOSApp() {
             const dec = new TextDecoder();
             let accumulated = "";
             while (true) {
+              if (ctrl.signal.aborted) { reader.cancel(); break; }
               const { done, value } = await reader.read();
               if (done) break;
               const text = dec.decode(value, { stream: true });
@@ -1771,16 +1783,21 @@ export function ProjectOSApp() {
               }
             }
           }
-        } catch { /* best-effort */ }
+        } catch (err: unknown) {
+          // DOMException name "AbortError" is expected when the user cancels
+          if ((err as { name?: string })?.name !== "AbortError") { /* best-effort */ }
+        }
         completed++;
         setGlobalRewriteProgress({ current: completed, total: files.length });
       }));
     }
 
-    setGlobalRewriteLoading(false);
-    setGlobalRewriteProgress(null);
-    setShowGlobalRewrite(false);
-    setGlobalRewriteInstruction("");
+    if (!ctrl.signal.aborted) {
+      setGlobalRewriteLoading(false);
+      setGlobalRewriteProgress(null);
+      setShowGlobalRewrite(false);
+      setGlobalRewriteInstruction("");
+    }
   }, [activeProject, globalRewriteLoading]);
 
 
@@ -2217,13 +2234,18 @@ export function ProjectOSApp() {
                   : "transparent",
                 border: `1px solid ${activeProjectId === proj.id ? `${proj.color}35` : "transparent"}`,
               }}
+              role="button"
+              tabIndex={0}
+              aria-label={`Open project: ${proj.name}`}
+              aria-current={activeProjectId === proj.id ? "page" : undefined}
               onClick={() => { if (!showArchived) { setActiveProjectId(proj.id); setActiveFolderId(null); } }}
+              onKeyDown={e => { if ((e.key === "Enter" || e.key === " ") && !showArchived) { e.preventDefault(); setActiveProjectId(proj.id); setActiveFolderId(null); } }}
             >
               <span className="text-base flex-shrink-0" style={{ opacity: showArchived ? 0.5 : 1 }}>{proj.icon}</span>
               <div className="flex-1 min-w-0">
                 <div
                   className="text-[12px] font-medium truncate"
-                  style={{ color: activeProjectId === proj.id ? proj.color : showArchived ? "#475569" : "#94a3b8" }}
+                  style={{ color: activeProjectId === proj.id ? proj.color : showArchived ? "#475569" : "#64748b" }}
                 >
                   {proj.name}
                 </div>
@@ -2403,10 +2425,13 @@ export function ProjectOSApp() {
           <div className="flex-1 overflow-y-auto px-8 py-8">
             <div className="flex items-center justify-between mb-6">
               <div className="flex items-center gap-3">
-                {/* Mobile hamburger */}
+                {/* Mobile hamburger — M-03: aria-label for screen readers */}
                 <button
                   className="sm:hidden w-9 h-9 flex flex-col items-center justify-center gap-1.5 rounded-xl"
                   style={{ background: "rgba(99,102,241,0.08)", border: "1px solid rgba(99,102,241,0.15)" }}
+                  aria-label={mobileSidebarOpen ? "Close navigation" : "Open navigation"}
+                  aria-expanded={mobileSidebarOpen}
+                  aria-controls="mobile-sidebar"
                   onClick={() => setMobileSidebarOpen(o => !o)}
                 >
                   <span className="block w-4 h-0.5 rounded-full" style={{ background: "#6366f1" }} />
@@ -2932,10 +2957,13 @@ export function ProjectOSApp() {
             style={{ borderBottom: "1px solid rgba(0,0,0,0.07)", background: "#ffffff" }}
           >
             <div className="flex items-center gap-2 min-w-0">
-              {/* Mobile hamburger */}
+              {/* Mobile hamburger — M-03: aria-label for screen readers */}
               <button
                 className="sm:hidden w-8 h-8 flex flex-col items-center justify-center gap-1 flex-shrink-0 rounded-lg"
                 style={{ background: "rgba(99,102,241,0.08)", border: "1px solid rgba(99,102,241,0.15)" }}
+                aria-label={mobileSidebarOpen ? "Close navigation" : "Open navigation"}
+                aria-expanded={mobileSidebarOpen}
+                aria-controls="mobile-sidebar"
                 onClick={() => setMobileSidebarOpen(o => !o)}
               >
                 <span className="block w-3.5 h-0.5 rounded-full" style={{ background: "#6366f1" }} />
@@ -5109,9 +5137,16 @@ export function ProjectOSApp() {
         <div
           className="fixed inset-0 z-[100] flex items-center justify-center"
           style={{ background: "rgba(8,8,20,0.88)", backdropFilter: "blur(12px)" }}
+          role="presentation"
         >
+          {/* M-02: role="dialog" + aria-modal + aria-live so screen readers announce build progress */}
           <div
             className="relative w-full max-w-[520px] mx-4 rounded-3xl overflow-hidden"
+            role="dialog"
+            aria-modal="true"
+            aria-label="Building your project"
+            aria-live="polite"
+            aria-busy={liveBuild.phase !== "complete"}
             style={{
               background: "linear-gradient(145deg,#0f1117 0%,#15192a 60%,#1a1030 100%)",
               border: "1px solid rgba(99,102,241,0.25)",
@@ -5270,7 +5305,7 @@ export function ProjectOSApp() {
         <div
           className="fixed inset-0 z-[90] flex items-center justify-center p-4"
           style={{ background: "rgba(0,0,0,0.55)", backdropFilter: "blur(8px)" }}
-          onClick={e => { if (e.target === e.currentTarget && !globalRewriteLoading) setShowGlobalRewrite(false); }}
+          onClick={e => { if (e.target === e.currentTarget && !globalRewriteLoading) { globalRewriteAbortRef.current?.abort(); setShowGlobalRewrite(false); } }}
         >
           <div
             className="w-full max-w-[500px] rounded-2xl overflow-hidden"
@@ -5294,8 +5329,9 @@ export function ProjectOSApp() {
                   </div>
                 </div>
                 {!globalRewriteLoading && (
-                  <button className="ml-auto text-[16px] leading-none" style={{ color: "#94a3b8" }}
-                    onClick={() => setShowGlobalRewrite(false)}>✕</button>
+                  <button className="ml-auto text-[16px] leading-none" style={{ color: "#64748b" }}
+                    aria-label="Close rewrite engine"
+                    onClick={() => { globalRewriteAbortRef.current?.abort(); setShowGlobalRewrite(false); }}>✕</button>
                 )}
               </div>
             </div>
@@ -5385,7 +5421,7 @@ export function ProjectOSApp() {
                   <button
                     className="px-4 py-3 rounded-xl text-[12px] font-medium"
                     style={{ background: "rgba(0,0,0,0.05)", color: "#64748b" }}
-                    onClick={() => setShowGlobalRewrite(false)}
+                    onClick={() => { globalRewriteAbortRef.current?.abort(); setShowGlobalRewrite(false); }}
                   >Cancel</button>
                 )}
               </div>

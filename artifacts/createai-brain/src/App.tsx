@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useState, Component, type ReactNode, type ErrorInfo } from "react";
 import { Switch, Route, Router as WouterRouter } from "wouter";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { Toaster } from "@/components/ui/toaster";
@@ -29,6 +29,46 @@ const queryClient = new QueryClient({
     queries: { retry: false, refetchOnWindowFocus: false },
   },
 });
+
+// L-03: React ErrorBoundary — prevents a runtime error in any subtree from
+// crashing the whole OS shell. Logs to console; shows a minimal recovery UI.
+interface EBState { hasError: boolean; message: string }
+class ErrorBoundary extends Component<{ children: ReactNode }, EBState> {
+  state: EBState = { hasError: false, message: "" };
+  static getDerivedStateFromError(err: Error): EBState {
+    return { hasError: true, message: err.message };
+  }
+  componentDidCatch(err: Error, info: ErrorInfo) {
+    console.error("[ErrorBoundary] Uncaught error:", err, info.componentStack);
+  }
+  render() {
+    if (!this.state.hasError) return this.props.children;
+    return (
+      <div className="fixed inset-0 flex items-center justify-center bg-slate-50">
+        <div className="flex flex-col items-center gap-5 max-w-sm text-center px-6">
+          <div className="w-14 h-14 rounded-2xl flex items-center justify-center text-3xl"
+            style={{ background: "linear-gradient(135deg,#6366f1 0%,#8b5cf6 100%)" }}>
+            🧠
+          </div>
+          <div>
+            <p className="text-[18px] font-bold text-slate-900">Something went wrong</p>
+            <p className="text-[13px] mt-1.5 text-slate-500">An unexpected error occurred. Reloading usually fixes it.</p>
+          </div>
+          <button
+            onClick={() => window.location.reload()}
+            className="px-6 py-3 rounded-xl text-white font-semibold text-[14px]"
+            style={{ background: "linear-gradient(135deg,#6366f1 0%,#8b5cf6 100%)" }}>
+            Reload app
+          </button>
+          <details className="text-left w-full">
+            <summary className="text-[11px] text-slate-400 cursor-pointer">Error details</summary>
+            <pre className="mt-1 text-[10px] text-slate-400 whitespace-pre-wrap break-all">{this.state.message}</pre>
+          </details>
+        </div>
+      </div>
+    );
+  }
+}
 
 // ─── App Router ────────────────────────────────────────────────────────────
 
@@ -337,7 +377,7 @@ function NDAScreen({ userName, onSign }: NDAScreenProps) {
             {signing ? "Signing…" : "Sign & Unlock Full Access"}
           </button>
 
-          <p className="text-center text-[11px]" style={{ color: "#94a3b8" }}>
+          <p className="text-center text-[11px]" style={{ color: "#64748b" }}>
             Signed digitally on {new Date().toLocaleDateString("en-US", { month: "long", day: "numeric", year: "numeric" })} · Stored securely
           </p>
         </div>
@@ -417,20 +457,22 @@ function App() {
   return (
     <QueryClientProvider client={queryClient}>
       <TooltipProvider>
-        <AuthGate>
-          <PlatformProvider>
-            <InteractionProvider>
-              <ConversationProvider>
-                <OSProvider>
-                  <GlobalCommandPalette />
-                  <WouterRouter base={base}>
-                    <Router />
-                  </WouterRouter>
-                </OSProvider>
-              </ConversationProvider>
-            </InteractionProvider>
-          </PlatformProvider>
-        </AuthGate>
+        <ErrorBoundary>
+          <AuthGate>
+            <PlatformProvider>
+              <InteractionProvider>
+                <ConversationProvider>
+                  <OSProvider>
+                    <GlobalCommandPalette />
+                    <WouterRouter base={base}>
+                      <Router />
+                    </WouterRouter>
+                  </OSProvider>
+                </ConversationProvider>
+              </InteractionProvider>
+            </PlatformProvider>
+          </AuthGate>
+        </ErrorBoundary>
         <Toaster />
       </TooltipProvider>
     </QueryClientProvider>
