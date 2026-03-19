@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, useRef } from "react";
 import { useOS } from "@/os/OSContext";
 import { useViewResume } from "@/hooks/useUniversalResume";
 import { FormEngine } from "@/engines/FormEngine";
@@ -26,6 +26,7 @@ const SECTIONS = [
   { id: "backend-blueprints",  label: "Backend Blueprints", value: "5",      icon: "🏗️", desc: "API specs, data models, security patterns" },
   { id: "invites",             label: "Invite Manager",     value: "Live",   icon: "🎟️", desc: "Generate access invite codes — controls platform entry and tier" },
   { id: "subscriptions",       label: "Revenue & Tiers",    value: "Live",   icon: "💳", desc: "Manage user subscription tiers and revenue share (platform cut %)" },
+  { id: "observability",       label: "Observability",      value: "Live",   icon: "📊", desc: "Live server health, memory, AI streams, telemetry — auto-refreshes every 5s" },
   { id: "reset",               label: "Reset My Space",     value: "Owner",  icon: "🔄", desc: "Archive all active projects and start fresh" },
 ];
 
@@ -484,6 +485,36 @@ export function AdminApp() {
   const [redeemBusy, setRedeemBusy]   = useState(false);
   const [redeemMsg, setRedeemMsg]     = useState("");
   const [redeemError, setRedeemError] = useState("");
+  // ── Observability state ──
+  type ObsMetrics = {
+    ok: boolean; uptime: number; uptimeHuman: string;
+    memory: { heapUsedMB: number; heapTotalMB: number; rssMB: number };
+    cpu: { userMs: number; systemMs: number };
+    database: { projects: number; documents: number; activityItems: number };
+    platform: { projectTypes: number; scaffoldTemplates: number; aiPersonas: number; apiRoutes: number };
+    nodeVersion: string; env: string; timestamp: string;
+  };
+  type ObsHealth = {
+    status: string; uptime: number; registrySize: number; activeItems: number;
+    configComplete: boolean; locked: boolean; selfHealApplied: number;
+  };
+  type ObsTelemetry = {
+    activeCount: number; peakConcurrency: number; totalStarted: number;
+    completedCount: number; avgDurationMs: number;
+    activeStreams: Array<{ streamId: string; projectId: string; userId: string; durationMs: number }>;
+    recentCompleted: Array<{ durationMs: number; completedAt: string }>;
+  };
+  const [obsMetrics, setObsMetrics]       = useState<ObsMetrics | null>(null);
+  const [obsHealth, setObsHealth]         = useState<ObsHealth | null>(null);
+  const [obsTelemetry, setObsTelemetry]   = useState<ObsTelemetry | null>(null);
+  const [obsLoading, setObsLoading]       = useState(false);
+  const [obsSelfHealing, setObsSelfHealing] = useState(false);
+  const obsIntervalRef = useRef<ReturnType<typeof setInterval> | null>(null);
+  // ── Revenue Events (audit trail) state ──
+  type AuditLogRow = { id: number; userId: string; action: string; resource: string; resourceType: string; outcome: string; metadata: unknown; createdAt: string };
+  const [revenueEvents, setRevenueEvents]             = useState<AuditLogRow[]>([]);
+  const [revenueEventsLoading, setRevenueEventsLoading] = useState(false);
+  const [revenueTab, setRevenueTab]                   = useState<"subscribers" | "events">("subscribers");
 
   useEffect(() => {
     fetch("/api/projects", { credentials: "include" })
@@ -533,6 +564,34 @@ export function AdminApp() {
       });
     }
   }, [activeSection]);
+
+  // ── Observability: live-poll every 5s while section is active ──
+  useEffect(() => {
+    if (activeSection !== "observability") {
+      if (obsIntervalRef.current) { clearInterval(obsIntervalRef.current); obsIntervalRef.current = null; }
+      return;
+    }
+    let mounted = true;
+    const fetchObs = async () => {
+      try {
+        const [mRes, hRes, tRes] = await Promise.all([
+          fetch("/api/system/metrics",           { credentials: "include" }),
+          fetch("/api/system/health",            { credentials: "include" }),
+          fetch("/api/system/telemetry/streams", { credentials: "include" }),
+        ]);
+        if (mounted && mRes.ok) setObsMetrics(await mRes.json());
+        if (mounted && hRes.ok) setObsHealth(await hRes.json());
+        if (mounted && tRes.ok) setObsTelemetry(await tRes.json());
+      } catch { /* non-fatal */ } finally { if (mounted) setObsLoading(false); }
+    };
+    setObsLoading(true);
+    fetchObs();
+    obsIntervalRef.current = setInterval(fetchObs, 5000);
+    return () => {
+      mounted = false;
+      if (obsIntervalRef.current) { clearInterval(obsIntervalRef.current); obsIntervalRef.current = null; }
+    };
+  }, [activeSection]); // eslint-disable-line react-hooks/exhaustive-deps
 
   const handleModeSwitch = (m: OsMode) => {
     if (m === "LIVE") { setConfirmLive(true); return; }
@@ -885,6 +944,178 @@ export function AdminApp() {
     );
   }
 
+  // ── Observability section ──
+  if (activeSection === "observability") {
+    const memPct = obsMetrics
+      ? Math.round((obsMetrics.memory.heapUsedMB / obsMetrics.memory.heapTotalMB) * 100)
+      : 0;
+
+    const triggerSelfHeal = async () => {
+      setObsSelfHealing(true);
+      try { await fetch("/api/system/self-heal", { method: "POST", credentials: "include" }); }
+      catch { /* non-fatal */ } finally { setObsSelfHealing(false); }
+    };
+
+    const Stat = ({ icon, label, value, sub }: { icon: string; label: string; value: string | number; sub?: string }) => (
+      <div className="bg-background border border-border/50 rounded-2xl p-4 flex flex-col gap-1">
+        <div className="flex items-center gap-1.5 text-muted-foreground text-[11px]">{icon} {label}</div>
+        <div className="text-[22px] font-bold text-foreground leading-tight">{value}</div>
+        {sub && <div className="text-[10px] text-muted-foreground">{sub}</div>}
+      </div>
+    );
+
+    return (
+      <div className="p-5 space-y-5 overflow-y-auto">
+        <div className="flex items-center gap-2">
+          <button onClick={() => setActiveSection(null)} className="text-primary text-sm font-medium">‹ Admin</button>
+          <h2 className="text-xl font-bold text-foreground flex-1">📊 Observability</h2>
+          <div className="flex items-center gap-1.5">
+            <div className={`w-2 h-2 rounded-full ${obsHealth?.status === "online" ? "bg-green-500 animate-pulse" : "bg-red-500"}`} />
+            <span className="text-[11px] font-semibold text-muted-foreground">
+              {obsLoading && !obsMetrics ? "Loading…" : obsHealth?.status === "online" ? "Online" : "Checking…"}
+            </span>
+          </div>
+        </div>
+
+        {/* Health banner */}
+        {obsHealth && (
+          <div className={`rounded-2xl p-3.5 border flex items-center gap-3 ${obsHealth.status === "online" ? "bg-green-50 border-green-200" : "bg-red-50 border-red-200"}`}>
+            <span className="text-xl">{obsHealth.status === "online" ? "✅" : "❌"}</span>
+            <div className="flex-1">
+              <p className={`text-[12px] font-bold ${obsHealth.status === "online" ? "text-green-700" : "text-red-700"}`}>
+                {obsHealth.status === "online" ? "All systems operational" : `Status: ${obsHealth.status}`}
+              </p>
+              <p className="text-[10px] text-muted-foreground">
+                {obsHealth.registrySize} registry items · {obsHealth.activeItems} active · config {obsHealth.configComplete ? "locked ✓" : "pending"} · {obsHealth.selfHealApplied} self-heal(s) applied
+              </p>
+            </div>
+            <button
+              onClick={triggerSelfHeal}
+              disabled={obsSelfHealing}
+              className="px-3 py-1.5 rounded-xl text-[11px] font-bold bg-white border border-green-300 text-green-700 hover:bg-green-50 transition-all flex-shrink-0 flex items-center gap-1"
+            >
+              {obsSelfHealing ? <><div className="w-3 h-3 border-2 border-green-500 border-t-transparent rounded-full animate-spin" />Healing…</> : "⚡ Self-Heal"}
+            </button>
+          </div>
+        )}
+
+        {/* Key stat grid */}
+        {obsMetrics && (
+          <div className="grid grid-cols-2 gap-3">
+            <Stat icon="⏱" label="Uptime" value={obsMetrics.uptimeHuman} />
+            <Stat icon="🧠" label="Heap Used" value={`${obsMetrics.memory.heapUsedMB} MB`} sub={`of ${obsMetrics.memory.heapTotalMB} MB total · RSS ${obsMetrics.memory.rssMB} MB`} />
+            <Stat icon="⚡" label="CPU User" value={`${obsMetrics.cpu.userMs} ms`} sub={`system: ${obsMetrics.cpu.systemMs} ms`} />
+            <Stat icon="🌐" label="Node" value={obsMetrics.nodeVersion} sub={obsMetrics.env} />
+          </div>
+        )}
+
+        {/* Memory bar */}
+        {obsMetrics && (
+          <div className="bg-background border border-border/50 rounded-2xl p-4 space-y-2">
+            <div className="flex items-center justify-between">
+              <p className="text-[12px] font-semibold text-foreground">Memory — Heap</p>
+              <p className="text-[11px] text-muted-foreground">{obsMetrics.memory.heapUsedMB} / {obsMetrics.memory.heapTotalMB} MB ({memPct}%)</p>
+            </div>
+            <div className="h-2.5 rounded-full overflow-hidden" style={{ background: "rgba(0,0,0,0.07)" }}>
+              <div
+                className="h-full rounded-full transition-all duration-700"
+                style={{
+                  width: `${Math.min(memPct, 100)}%`,
+                  background: memPct > 80 ? "linear-gradient(90deg,#f87171,#ef4444)" : memPct > 60 ? "linear-gradient(90deg,#fb923c,#f59e0b)" : "linear-gradient(90deg,#6366f1,#8b5cf6)",
+                }}
+              />
+            </div>
+          </div>
+        )}
+
+        {/* AI Streams telemetry */}
+        {obsTelemetry && (
+          <div className="bg-background border border-border/50 rounded-2xl p-4 space-y-3">
+            <div className="flex items-center justify-between">
+              <p className="text-[13px] font-bold text-foreground">AI Streams</p>
+              <div className="flex items-center gap-1.5">
+                <div className={`w-1.5 h-1.5 rounded-full ${obsTelemetry.activeCount > 0 ? "bg-green-500 animate-pulse" : "bg-gray-300"}`} />
+                <span className="text-[11px] text-muted-foreground">{obsTelemetry.activeCount} active</span>
+              </div>
+            </div>
+            <div className="grid grid-cols-3 gap-2">
+              {[
+                { label: "Peak Concurrent", val: obsTelemetry.peakConcurrency },
+                { label: "Total Started",   val: obsTelemetry.totalStarted },
+                { label: "Avg Duration",    val: obsTelemetry.avgDurationMs > 0 ? `${(obsTelemetry.avgDurationMs / 1000).toFixed(1)}s` : "—" },
+              ].map(s => (
+                <div key={s.label} className="rounded-xl p-2.5 text-center" style={{ background: "rgba(99,102,241,0.07)", border: "1px solid rgba(99,102,241,0.15)" }}>
+                  <p className="text-[16px] font-bold text-foreground">{s.val}</p>
+                  <p className="text-[9px] text-muted-foreground mt-0.5 leading-tight">{s.label}</p>
+                </div>
+              ))}
+            </div>
+            {obsTelemetry.activeCount > 0 ? (
+              <div className="space-y-1.5">
+                <p className="text-[10px] font-bold text-muted-foreground uppercase tracking-wider">Active Now</p>
+                {obsTelemetry.activeStreams.map(s => (
+                  <div key={s.streamId} className="flex items-center gap-2 px-3 py-2 rounded-xl" style={{ background: "rgba(34,197,94,0.07)", border: "1px solid rgba(34,197,94,0.20)" }}>
+                    <div className="w-1.5 h-1.5 bg-green-500 rounded-full animate-pulse flex-shrink-0" />
+                    <span className="text-[11px] font-mono text-foreground truncate flex-1">{s.streamId.slice(0, 8)}…</span>
+                    <span className="text-[10px] text-muted-foreground flex-shrink-0">{(s.durationMs / 1000).toFixed(1)}s</span>
+                  </div>
+                ))}
+              </div>
+            ) : (
+              <p className="text-[11px] text-muted-foreground text-center py-2">No active AI streams right now</p>
+            )}
+            {obsTelemetry.recentCompleted.length > 0 && (
+              <div className="space-y-1">
+                <p className="text-[10px] font-bold text-muted-foreground uppercase tracking-wider">Recent Completed</p>
+                {obsTelemetry.recentCompleted.slice(0, 5).map((c, i) => (
+                  <div key={i} className="flex items-center justify-between px-2 py-1">
+                    <span className="text-[10px] text-muted-foreground">{new Date(c.completedAt).toLocaleTimeString([], { hour: "2-digit", minute: "2-digit", second: "2-digit" })}</span>
+                    <span className="text-[10px] font-mono text-foreground">{(c.durationMs / 1000).toFixed(2)}s</span>
+                  </div>
+                ))}
+              </div>
+            )}
+          </div>
+        )}
+
+        {/* DB + Platform stats */}
+        {obsMetrics && (
+          <div className="grid grid-cols-2 gap-3">
+            <div className="bg-background border border-border/50 rounded-2xl p-4 space-y-2">
+              <p className="text-[11px] font-bold text-muted-foreground uppercase tracking-wider">Database</p>
+              {[
+                ["Projects", obsMetrics.database.projects],
+                ["Documents", obsMetrics.database.documents],
+                ["Activity Items", obsMetrics.database.activityItems],
+              ].map(([k, v]) => (
+                <div key={String(k)} className="flex justify-between items-center">
+                  <span className="text-[11px] text-muted-foreground">{k}</span>
+                  <span className="text-[12px] font-bold text-foreground">{v}</span>
+                </div>
+              ))}
+            </div>
+            <div className="bg-background border border-border/50 rounded-2xl p-4 space-y-2">
+              <p className="text-[11px] font-bold text-muted-foreground uppercase tracking-wider">Platform</p>
+              {[
+                ["Project Types",       obsMetrics.platform.projectTypes],
+                ["Scaffold Templates",  obsMetrics.platform.scaffoldTemplates],
+                ["AI Personas",         obsMetrics.platform.aiPersonas],
+                ["API Routes",          obsMetrics.platform.apiRoutes],
+              ].map(([k, v]) => (
+                <div key={String(k)} className="flex justify-between items-center">
+                  <span className="text-[11px] text-muted-foreground">{k}</span>
+                  <span className="text-[12px] font-bold text-foreground">{v}</span>
+                </div>
+              ))}
+            </div>
+          </div>
+        )}
+
+        <p className="text-[10px] text-muted-foreground text-center">Auto-refreshes every 5 seconds · {obsMetrics?.timestamp ? new Date(obsMetrics.timestamp).toLocaleTimeString() : "—"}</p>
+      </div>
+    );
+  }
+
   // ── Invite Manager section ──
   if (activeSection === "invites") {
     const loadInvites = () => {
@@ -1067,14 +1298,87 @@ export function AdminApp() {
       custom: "bg-orange-100 text-orange-700",
     };
 
+    const loadRevenueEvents = () => {
+      if (revenueEventsLoading) return;
+      setRevenueEventsLoading(true);
+      fetch("/api/admin/audit-logs?limit=100", { credentials: "include" })
+        .then(r => r.ok ? r.json() : { logs: [] })
+        .then((d: { logs?: AuditLogRow[] }) => {
+          const REVENUE_ACTIONS = ["subscription.update", "subscription.token-adjust", "invites.redeem", "invite.revoke"];
+          const filtered = (d.logs ?? []).filter(l =>
+            REVENUE_ACTIONS.some(a => l.action?.startsWith(a))
+          );
+          setRevenueEvents(filtered);
+        })
+        .catch(() => {})
+        .finally(() => setRevenueEventsLoading(false));
+    };
+
     return (
       <div className="p-5 space-y-5 overflow-y-auto h-full">
         <div className="flex items-center gap-2">
           <button onClick={() => setActiveSection(null)} className="text-primary text-sm font-medium">‹ Admin</button>
           <h2 className="text-xl font-bold text-foreground flex-1">💳 Revenue & Tiers</h2>
-          <button onClick={loadSubs} className="text-[11px] text-primary font-medium">Refresh</button>
+          <button onClick={revenueTab === "subscribers" ? loadSubs : loadRevenueEvents} className="text-[11px] text-primary font-medium">Refresh</button>
         </div>
 
+        {/* Tab toggle */}
+        <div className="flex gap-1 p-1 rounded-xl" style={{ background: "rgba(0,0,0,0.05)" }}>
+          {(["subscribers", "events"] as const).map(tab => (
+            <button
+              key={tab}
+              onClick={() => { setRevenueTab(tab); if (tab === "events" && revenueEvents.length === 0) loadRevenueEvents(); if (tab === "subscribers" && subList.length === 0) loadSubs(); }}
+              className="flex-1 py-2 rounded-lg text-[12px] font-semibold transition-all"
+              style={revenueTab === tab ? { background: "#ffffff", color: "#0f172a", boxShadow: "0 1px 3px rgba(0,0,0,0.10)" } : { color: "#64748b" }}
+            >
+              {tab === "subscribers" ? "👥 Subscribers" : "📋 Revenue Events"}
+            </button>
+          ))}
+        </div>
+
+        {revenueTab === "events" ? (
+          <>
+            <div className="bg-indigo-50 border border-indigo-200 rounded-xl p-3">
+              <p className="text-[11px] text-indigo-700 font-medium">Immutable audit trail of all revenue-affecting actions: tier overrides, token adjustments, and invite redemptions.</p>
+            </div>
+            {revenueEventsLoading ? (
+              <div className="flex items-center justify-center py-12 gap-3">
+                <div className="w-5 h-5 border-2 border-primary border-t-transparent rounded-full animate-spin" />
+                <span className="text-[12px] text-muted-foreground">Loading events…</span>
+              </div>
+            ) : revenueEvents.length === 0 ? (
+              <div className="text-center py-12">
+                <p className="text-3xl mb-2">📋</p>
+                <p className="text-[13px] font-semibold text-foreground">No revenue events yet</p>
+                <p className="text-[11px] text-muted-foreground mt-1">Subscription changes, token adjustments, and invite redemptions will appear here.</p>
+              </div>
+            ) : (
+              <div className="rounded-2xl border border-border/50 divide-y divide-border/30 overflow-hidden">
+                {revenueEvents.map((ev, i) => {
+                  const actionColor = ev.outcome === "success" ? "text-green-600" : "text-red-600";
+                  return (
+                    <div key={i} className="px-4 py-3 flex items-start gap-3 bg-background">
+                      <span className={`text-[10px] font-bold mt-0.5 flex-shrink-0 ${actionColor}`}>
+                        {ev.outcome === "success" ? "✓" : "✗"}
+                      </span>
+                      <div className="flex-1 min-w-0">
+                        <div className="flex items-center gap-2">
+                          <p className="text-[12px] font-semibold text-foreground">{ev.action}</p>
+                          <span className="text-[9px] px-1.5 py-0.5 rounded-full font-bold bg-muted text-muted-foreground">{ev.resourceType}</span>
+                        </div>
+                        <p className="text-[10px] text-muted-foreground font-mono mt-0.5 truncate">user: {ev.userId} · {ev.resource}</p>
+                      </div>
+                      <span className="text-[10px] text-muted-foreground flex-shrink-0 mt-0.5">
+                        {new Date(ev.createdAt).toLocaleTimeString([], { hour: "2-digit", minute: "2-digit" })}
+                      </span>
+                    </div>
+                  );
+                })}
+              </div>
+            )}
+          </>
+        ) : (
+        <>
         <div className="bg-blue-50 border border-blue-200 rounded-xl p-3">
           <p className="text-[11px] text-blue-700 font-medium">Platform cut % applies to revenue generated by each user. Default: 25%. Override per-user anytime — all changes are logged in the audit trail.</p>
         </div>
@@ -1161,6 +1465,8 @@ export function AdminApp() {
             <p className="text-[12px] text-muted-foreground text-center py-6">No subscriptions found. Users appear here after redeeming an invite.</p>
           )}
         </div>
+        </>
+        )}
       </div>
     );
   }

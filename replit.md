@@ -934,3 +934,40 @@ Workspace picker: scrollable dropdown with `maxHeight: min(520px, 70vh)` + style
 ### `scripts` (`@workspace/scripts`)
 
 Utility scripts package. Each script is a `.ts` file in `src/` with a corresponding npm script in `package.json`. Run scripts via `pnpm --filter @workspace/scripts run <script>`. Scripts can import any workspace package (e.g., `@workspace/db`) by adding it as a dependency in `scripts/package.json`.
+
+---
+
+## ULTRA-MAX Feature Phase (completed)
+
+### New DB Tables (lib/db/src/schema/index.ts)
+- `invites` — real invite codes with tier, platformCutPct, maxUses, expiresAt, notes, email lock
+- `userSubscriptions` — per-user tier (free/starter/pro/enterprise/custom), tokenBalance, monthlyLimit, platformCutPct override, isActive
+- `fileVersions` — content snapshots per project file, versionNum (auto-increment), max 30/file (auto-pruned), label optional
+
+### New API Routes (artifacts/api-server/src/routes/)
+- `invites.ts` — POST (create), GET (list), DELETE /:id (revoke), POST /redeem (user-facing code redemption)
+- `subscriptions.ts` — GET /me (self), GET (admin list), PUT /:userId (admin tier/cut/limit override), POST /:userId/token-adjust
+- `fileVersions.ts` — GET /:projectId/files/:fileId/versions (list), POST /:projectId/files/:fileId/versions/:versionId/rollback (auto-snapshots current before restore)
+- All mounted in `routes/index.ts`
+
+### Auto-Versioning
+- `projects.ts` PUT `/:id/files/:fileId` — auto-snapshots content on change (non-fatal, fire-and-forget)
+
+### AdminApp.tsx — New Sections
+- **🎟️ Invite Manager** — create codes with tier/cut/maxUses/expiry, list with use counts, revoke buttons
+- **💳 Revenue & Tiers** — tabs: Subscribers (live tier/cut editing per user) + Revenue Events (immutable audit trail of subscription.update, invites.redeem, token-adjust events from `/api/admin/audit-logs`)
+- **📊 Observability** — live-polls every 5s: server health banner + self-heal trigger, uptime, heap memory bar (color-coded), CPU, DB counts, AI stream telemetry (active count, peak concurrency, total started, avg duration, recent completed), platform stats grid
+- **Security section enhanced** — Redeem Access Code form (calls `/api/invites/redeem`); updated status list to include File Versioning + Revenue Auditing as Active
+
+### ProjectOSApp.tsx — Version History
+- `⏱ History` button in file toolbar → opens Version History modal
+- Modal lists all saved snapshots: version badge, timestamp, content preview, `↺ Restore` button
+- Restore auto-snapshots current content first; spinner per-row while restoring
+- State: `showVersionHistory`, `versionList`, `versionLoading`, `versionRestoring`
+
+### Observability Backend (existing routes enhanced)
+- `/api/system/metrics` — heap/CPU/uptime/DB counts/platform stats
+- `/api/system/health` — registry status, config lock, self-heal count
+- `/api/system/telemetry/streams` — live SSE stream tracker (activeCount, peakConcurrency, totalStarted, avgDurationMs, recentCompleted)
+- `/api/system/self-heal` — founder-gated manual trigger
+- `/api/admin/audit-logs` — filterable by userId, action, outcome, from, to
