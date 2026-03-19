@@ -1,0 +1,38 @@
+🚨 FULL PLATFORM SENTINEL AUDIT — NON-DESTRUCTIVE MODE 🚨
+
+Task: Perform a complete, multi-layer audit of the entire AI Brain platform (all servers, frontend, backend, middleware, endpoints, modals, scaffolds, AI agents, and UI/UX). DO NOT overwrite any existing code. Focus purely on inspection, detection, and recommendations.
+
+Audit Objectives:
+1. **Feature Gaps:** Identify any missing functionality vs. a fully universal AI Brain platform. Include:
+   - Core AI capabilities (parallel project variations, predictive/project pre-warming, self-evolution/feedback loops, cross-industry intelligence)
+   - UX/UI flows (mobile responsiveness, overlays, modals, transitions, keyboard & accessibility support)
+   - Backend functionality (SSE, batching, rate limits, token caps, API endpoints, project scaffolding completeness)
+   - Data management (GDPR, HIPAA, project deletion cascades, data export, cookie consent)
+2. **Risk Detection:** Highlight any potential:
+   - Security risks (SSE leaks, CORS, CSRF, XSS, injection, unbounded API usage)
+   - Performance risks (unbatched AI calls, memory leaks, slow operations, circular imports)
+   - Compliance gaps (WCAG, GDPR, HIPAA, institutional standards)
+3. **Edge Cases:** Check for hidden or overlooked issues such as:
+   - Multi-industry integration inconsistencies
+   - Accessibility oversights in modals, overlays, or dynamic content
+   - AI context overflow or prompt injection risks
+   - Any UI/UX flows that could break under rare conditions
+4. **Completeness Validation:** Compare existing platform to a conceptual “fully universal AI Brain”:
+   - Map completed vs. missing modules
+   - Highlight features that exist but are partially implemented
+   - Suggest any enhancements that could push the platform beyond just “functional” into fully autonomous, multi-industry ready
+
+Output Format:
+- **Gap Flags:** Categorized by severity (Critical / High / Medium / Low) with a concise description
+- **Risk Flags:** Highlight all security, performance, and compliance risks
+- **Compliance Flags:** Indicate WCAG, GDPR, HIPAA, and other regulatory gaps
+- **Recommendations:** Detailed, actionable steps to close each gap, including auto-fixable vs. manual tasks
+- **Summary:** Clear statement of whether the platform is past skeleton stage, fully functional, or missing major components
+
+Constraints:
+- DO NOT modify any code.
+- Use all available server logs, API definitions, frontend components, middleware, and current project state.
+- Assume infinite possibilities — do not limit analysis to realistic or expected constraints.
+
+End Result:
+Provide a **complete, non-destructive map of the platform’s status**, identifying every potential missing feature, risk, or gap, and give step-by-step guidance on how to fix or implement each one.
