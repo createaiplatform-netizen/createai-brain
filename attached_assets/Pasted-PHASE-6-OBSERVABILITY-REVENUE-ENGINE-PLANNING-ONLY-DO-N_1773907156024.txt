@@ -1,0 +1,207 @@
+PHASE 6 — OBSERVABILITY + REVENUE ENGINE  
+PLANNING ONLY — DO NOT MODIFY FILES YET
+
+━━━━━━━━━━━━━━━━━━━━━━━
+PHASE 6 — PURPOSE
+━━━━━━━━━━━━━━━━━━━━━━━
+Introduce a unified execution intelligence layer that tracks, measures, and evaluates every execution across frontend and backend.
+
+This phase enables:
+- full execution tracking (executionId ↔ requestId)
+- cost and usage calculation
+- anomaly detection and risk scoring
+- persistent structured logging (in-memory for now)
+- future monetization and billing
+
+No behavior changes. No schema changes. No regressions.
+
+━━━━━━━━━━━━━━━━━━━━━━━
+FILES TO INSPECT
+━━━━━━━━━━━━━━━━━━━━━━━
+Backend:
+- artifacts/api-server/src/core/*
+- artifacts/api-server/src/services/*
+- artifacts/api-server/src/routes/*
+- artifacts/api-server/src/middlewares/*
+- artifacts/api-server/src/index.ts
+
+Frontend:
+- artifacts/createai-brain/src/core/ExpansionGuard.ts
+- artifacts/createai-brain/src/controller/PlatformController.ts
+
+━━━━━━━━━━━━━━━━━━━━━━━
+FILES TO CREATE (4)
+━━━━━━━━━━━━━━━━━━━━━━━
+
+1. artifacts/api-server/src/observability/ExecutionLogger.ts
+   - Handles lifecycle events:
+       • start
+       • success
+       • error
+       • blocked
+   - Produces structured execution records
+   - Accepts executionId, requestId, engineId, trace, tokenUsage, timestamps
+
+2. artifacts/api-server/src/observability/CostCalculator.ts
+   - Calculates cost using:
+       • token usage
+       • execution duration
+       • optional engine multipliers
+   - Configurable rates
+   - Returns costEstimate
+
+3. artifacts/api-server/src/observability/AnomalyDetector.ts
+   - Detects:
+       • recursion patterns
+       • abnormal token spikes
+       • repeated failures
+   - Returns:
+       {
+         riskScore: number,
+         flags: string[]
+       }
+
+4. artifacts/api-server/src/observability/ExecutionStore.ts
+   - In-memory store for execution records
+   - Supports:
+       • save(record)
+       • list()
+       • getByExecutionId()
+   - No database integration yet
+
+━━━━━━━━━━━━━━━━━━━━━━━
+FILES TO MODIFY
+━━━━━━━━━━━━━━━━━━━━━━━
+
+1. artifacts/api-server/src/core/requestContext.ts
+   - Extend context:
+       req.context.executionId (from header "x-execution-id")
+       req.context.startedAt (timestamp)
+   - Ensure safe optional handling if header is missing
+
+2. artifacts/api-server/src/core/ServiceContainer.ts
+   - Register new services:
+       • executionLogger
+       • costCalculator
+       • anomalyDetector
+       • executionStore
+   - Maintain lazy initialization and no circular dependencies
+
+3. artifacts/createai-brain/src/core/ExpansionGuard.ts
+   - Emit lifecycle events:
+       • onStart
+       • onSuccess
+       • onError
+       • onBlocked
+   - Each event must include:
+       executionId
+       engineId
+       depth
+       tokenUsage
+       trace
+       timestamps
+
+4. artifacts/createai-brain/src/controller/PlatformController.ts
+   - Attach executionId to all API requests:
+       headers: { "x-execution-id": executionId }
+
+━━━━━━━━━━━━━━━━━━━━━━━
+EXECUTION FLOW AFTER PHASE 6
+━━━━━━━━━━━━━━━━━━━━━━━
+
+User Action
+   ↓
+ExpansionGuard (emit start event)
+   ↓
+PlatformController → API (with x-execution-id)
+   ↓
+requestContext middleware
+   ↓
+ExecutionLogger.start()
+
+   ↓
+Service execution
+
+   ↓
+ExecutionLogger.complete()
+   ↓
+CostCalculator
+   ↓
+AnomalyDetector
+   ↓
+ExecutionStore.save()
+
+━━━━━━━━━━━━━━━━━━━━━━━
+EXECUTION RECORD STRUCTURE
+━━━━━━━━━━━━━━━━━━━━━━━
+
+ExecutionRecord {
+  executionId: string
+  requestId: string
+  userId?: string
+
+  engineId: string
+  trace: string[]
+
+  depth: number
+  tokenUsage: number
+
+  startedAt: number
+  endedAt: number
+  durationMs: number
+
+  status: "success" | "error" | "blocked"
+  errorCode?: string
+
+  costEstimate?: number
+  efficiencyScore?: number
+  riskScore?: number
+}
+
+━━━━━━━━━━━━━━━━━━━━━━━
+WHAT PHASE 6 MUST DO
+━━━━━━━━━━━━━━━━━━━━━━━
+
+1. Track every execution end-to-end
+2. Link executionId ↔ requestId
+3. Calculate cost per execution
+4. Generate anomaly/risk signals
+5. Store structured execution records (in-memory)
+6. Maintain zero regressions
+
+━━━━━━━━━━━━━━━━━━━━━━━
+WHAT PHASE 6 MUST NOT DO
+━━━━━━━━━━━━━━━━━━━━━━━
+
+- Do NOT modify engine logic
+- Do NOT modify executors
+- Do NOT change database schema
+- Do NOT introduce breaking API changes
+- Do NOT add UI beyond minimal hooks
+- Do NOT impact performance significantly
+
+━━━━━━━━━━━━━━━━━━━━━━━
+SUCCESS CRITERIA
+━━━━━━━━━━━━━━━━━━━━━━━
+
+Phase 6 is complete when:
+- Every execution produces a structured record
+- executionId is propagated from frontend to backend
+- requestId is linked to executionId
+- cost is calculated per execution
+- anomaly/risk scoring is generated
+- logs are structured and accessible
+- TypeScript passes with zero errors
+- No regressions occur
+
+━━━━━━━━━━━━━━━━━━━━━━━
+BEFORE MAKING ANY CHANGES
+━━━━━━━━━━━━━━━━━━━━━━━
+
+You must:
+1. Identify all files that will be modified.
+2. Summarize the plan in 5–10 bullet points.
+3. Wait for approval.
+
+STOP after planning and wait for:
+APPROVED – EXECUTE PHASE 6
