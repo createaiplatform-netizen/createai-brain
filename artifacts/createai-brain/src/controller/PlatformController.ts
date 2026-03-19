@@ -6,8 +6,6 @@
 import {
   ALL_ENGINES,
   ALL_SERIES,
-  runEngine    as _runEngine,
-  runMetaAgent as _runMetaAgent,
   saveEngineOutput,
   getEngine,
   getSeries,
@@ -18,6 +16,7 @@ import {
 } from "@/engine/CapabilityEngine";
 import { parseBodyToSchema, documentToPlainText, type DocumentSchema } from "@/engines";
 import { contextStore } from "@/store/platformContextStore";
+import { selectExecutor, ProjectExecutor } from "@/executors";
 
 // ─── Session-level prompt deduplication cache (ac-001) ────────────────────────
 // Prevents redundant AI calls for identical engine + topic + context within 60 s.
@@ -380,8 +379,14 @@ export const APP_ENGINE_REGISTRY: Record<string, AppEngineConfig> = {
   integrationDashboard: { primaryEngines: ["IntegrationEngine", "BackendBlueprintEngine", "NEXUS"],                        primarySeries: ["chi"],    category: "operations",    outputType: "document" },
 };
 
+// ─── Module-level project executor singleton ─────────────────────────────────
+const _projectExecutor = new ProjectExecutor();
+
 // ─── Module-level streaming function (usable outside React) ──────────────────
 // Every app, module, and engine that needs to run AI should call this.
+// Routes to the appropriate domain executor (Healthcare / Legal / Creative /
+// General) which applies domain-specific context and dispatches to the
+// canonical SSE readers in CapabilityEngine.
 
 export async function streamEngine(opts: {
   engineId:       string;
@@ -395,11 +400,10 @@ export async function streamEngine(opts: {
   onDone?:        (fullText: string) => void;
   onError?:       (err: string) => void;
 }): Promise<void> {
-  const engine = getEngine(opts.engineId);
+  const engine     = getEngine(opts.engineId);
   const engineName = engine?.name ?? opts.engineId;
-  let accumulated = "";
 
-  // ── Shared-context injection ─────────────────────────────────────────────
+  // ── Shared-context injection (PlatformController responsibility) ─────────
   let enrichedContext = opts.context ?? "";
   if (!opts.skipContext) {
     const sharedCtx = contextStore.buildContextFor(opts.engineId);
@@ -413,87 +417,56 @@ export async function streamEngine(opts: {
   // ── Session-level dedup cache (ac-001) ───────────────────────────────────
   if (!opts.skipCache) {
     const cacheKey = _cacheKey(opts.engineId, opts.topic, enrichedContext);
-    const cached = _cacheGet(cacheKey);
+    const cached   = _cacheGet(cacheKey);
     if (cached) {
       opts.onChunk(cached);
-      if (accumulated === "") accumulated = cached;
       contextStore.recordOutput(opts.engineId, engineName, opts.topic, cached);
       opts.onDone?.(cached);
       return;
     }
-    // We need to cache after completion — store the key for closure below
-    const _finalCacheKey = cacheKey;
-    return new Promise<void>((resolve) => {
-      const handleChunk = (t: string) => { accumulated += t; opts.onChunk(t); };
-      const handleDone  = () => {
-        if (accumulated) {
-          contextStore.recordOutput(opts.engineId, engineName, opts.topic, accumulated);
-          _cacheSet(_finalCacheKey, accumulated);
-        }
-        opts.onDone?.(accumulated);
-        resolve();
-      };
-      const handleError = (e: string) => { opts.onError?.(e); resolve(); };
 
-      if (engine?.category === "meta-agent") {
-        _runMetaAgent({
-          agentId: opts.engineId,
-          task:    opts.topic,
-          context: enrichedContext || undefined,
-          onChunk: handleChunk,
-          onDone:  handleDone,
-          onError: handleError,
-        });
-      } else {
-        _runEngine({
-          engineId:   opts.engineId,
-          engineName,
-          topic:      opts.topic,
-          context:    enrichedContext || undefined,
-          mode:       opts.mode,
-          signal:     opts.signal,
-          onChunk:    handleChunk,
-          onDone:     handleDone,
-          onError:    handleError,
-        });
-      }
+    return new Promise<void>((resolve) => {
+      let accumulated = "";
+      const executor  = selectExecutor(opts.engineId);
+      executor.execute({
+        engineId: opts.engineId,
+        topic:    opts.topic,
+        context:  enrichedContext || undefined,
+        mode:     opts.mode,
+        signal:   opts.signal,
+        onChunk:  (t) => { accumulated += t; opts.onChunk(t); },
+        onDone:   () => {
+          if (accumulated) {
+            contextStore.recordOutput(opts.engineId, engineName, opts.topic, accumulated);
+            _cacheSet(cacheKey, accumulated);
+          }
+          opts.onDone?.(accumulated);
+          resolve();
+        },
+        onError: (e) => { opts.onError?.(e); resolve(); },
+      });
     });
   }
 
   return new Promise<void>((resolve) => {
-    const handleChunk = (t: string) => { accumulated += t; opts.onChunk(t); };
-    const handleDone  = () => {
-      // ── Record output in shared context store ────────────────────────────
-      if (accumulated) {
-        contextStore.recordOutput(opts.engineId, engineName, opts.topic, accumulated);
-      }
-      opts.onDone?.(accumulated);
-      resolve();
-    };
-    const handleError = (e: string) => { opts.onError?.(e); resolve(); };
-
-    if (engine?.category === "meta-agent") {
-      _runMetaAgent({
-        agentId: opts.engineId,
-        task:    opts.topic,
-        context: enrichedContext || undefined,
-        onChunk: handleChunk,
-        onDone:  handleDone,
-        onError: handleError,
-      });
-    } else {
-      _runEngine({
-        engineId:   opts.engineId,
-        engineName,
-        topic:      opts.topic,
-        context:    enrichedContext || undefined,
-        mode:       opts.mode,
-        signal:     opts.signal,
-        onChunk:    handleChunk,
-        onDone:     handleDone,
-        onError:    handleError,
-      });
-    }
+    let accumulated = "";
+    const executor  = selectExecutor(opts.engineId);
+    executor.execute({
+      engineId: opts.engineId,
+      topic:    opts.topic,
+      context:  enrichedContext || undefined,
+      mode:     opts.mode,
+      signal:   opts.signal,
+      onChunk:  (t) => { accumulated += t; opts.onChunk(t); },
+      onDone:   () => {
+        if (accumulated) {
+          contextStore.recordOutput(opts.engineId, engineName, opts.topic, accumulated);
+        }
+        opts.onDone?.(accumulated);
+        resolve();
+      },
+      onError: (e) => { opts.onError?.(e); resolve(); },
+    });
   });
 }
 
@@ -627,58 +600,30 @@ export async function streamBrainstorm(opts: {
   }
 }
 
-// ─── Project-specific chat (session-aware, routes to dedicated endpoint) ─────
+// ─── Project-specific chat (session-aware, routes to ProjectExecutor) ────────
 
 export async function streamProjectChat(opts: {
-  projectId:     string;
-  message:       string;
-  history:       { role: "user" | "assistant"; content: string }[];
+  projectId:      string;
+  message:        string;
+  history:        { role: "user" | "assistant"; content: string }[];
   scaffoldFiles?: string[];
-  projectType?:  string;
-  signal?:       AbortSignal;
-  onChunk:       (text: string) => void;
-  onDone?:       (fullText: string) => void;
+  projectType?:   string;
+  signal?:        AbortSignal;
+  onChunk:        (text: string) => void;
+  onDone?:        (fullText: string) => void;
 }): Promise<void> {
-  try {
-    const res = await fetch(`/api/project-chat/${opts.projectId}/chat`, {
-      method:      "POST",
-      credentials: "include",
-      headers:     { "Content-Type": "application/json" },
-      body:        JSON.stringify({
-        message:       opts.message,
-        history:       opts.history,
-        projectType:   opts.projectType,
-        scaffoldFiles: opts.scaffoldFiles
-          ? compressScaffoldContext(opts.scaffoldFiles)
-          : undefined,
-      }),
-      signal:      opts.signal,
-    });
-    if (!res.ok || !res.body) return;
-    const reader = res.body.getReader();
-    const dec    = new TextDecoder();
-    let acc    = "";
-    let full   = "";
-    while (true) {
-      const { done, value } = await reader.read();
-      if (done) break;
-      acc += dec.decode(value, { stream: true });
-      const parts = acc.split("\n\n");
-      acc = parts.pop() ?? "";
-      for (const part of parts) {
-        if (!part.startsWith("data: ")) continue;
-        const raw = part.slice(6).trim();
-        if (raw === "[DONE]") { opts.onDone?.(full); return; }
-        try {
-          const p = JSON.parse(raw) as { content?: string };
-          if (p.content) { full += p.content; opts.onChunk(p.content); }
-        } catch { /* skip malformed */ }
-      }
-    }
-    opts.onDone?.(full);
-  } catch (err) {
-    if ((err as Error).name !== "AbortError") throw err;
-  }
+  return _projectExecutor.executeProjectChat({
+    projectId:     opts.projectId,
+    message:       opts.message,
+    history:       opts.history,
+    projectType:   opts.projectType,
+    signal:        opts.signal,
+    onChunk:       opts.onChunk,
+    onDone:        opts.onDone,
+    scaffoldFiles: opts.scaffoldFiles
+      ? compressScaffoldContext(opts.scaffoldFiles)
+      : undefined,
+  });
 }
 
 // ─── Export utilities (usable anywhere) ──────────────────────────────────────
@@ -783,49 +728,34 @@ export class PlatformController {
   }
 
   // ─── Engine Run ───────────────────────────────────────────────────────────
-  // Routes to meta-agent or standard engine automatically.
+  // Routes to the correct domain executor via selectExecutor().
 
   runEngine(opts: EngineRunRequest): EngineRunHandle {
     let aborted     = false;
     let accumulated = "";
     const engine    = getEngine(opts.engineId);
+    const executor  = selectExecutor(opts.engineId);
 
-    const handleChunk = (text: string) => {
-      if (aborted) return;
-      accumulated += text;
-      opts.onChunk(text);
-    };
-    const handleDone = () => {
-      if (aborted) return;
-      this._history = [
-        { engineId: opts.engineId, engineName: engine?.name ?? opts.engineId, topic: opts.topic, timestamp: Date.now(), outputLength: accumulated.length },
-        ...this._history,
-      ].slice(0, 100);
-      opts.onDone?.(accumulated);
-    };
-
-    if (engine?.category === "meta-agent") {
-      _runMetaAgent({
-        agentId: opts.engineId,
-        task:    opts.topic,
-        context: opts.context,
-        onChunk: handleChunk,
-        onDone:  handleDone,
-        onError: opts.onError,
-      });
-    } else {
-      _runEngine({
-        engineId:   opts.engineId,
-        engineName: engine?.name ?? opts.engineId,
-        topic:      opts.topic,
-        context:    opts.context,
-        mode:       opts.mode,
-        agentId:    opts.agentId,
-        onChunk:    handleChunk,
-        onDone:     handleDone,
-        onError:    opts.onError,
-      });
-    }
+    executor.execute({
+      engineId: opts.engineId,
+      topic:    opts.topic,
+      context:  opts.context,
+      mode:     opts.mode,
+      onChunk: (text) => {
+        if (aborted) return;
+        accumulated += text;
+        opts.onChunk(text);
+      },
+      onDone: () => {
+        if (aborted) return;
+        this._history = [
+          { engineId: opts.engineId, engineName: engine?.name ?? opts.engineId, topic: opts.topic, timestamp: Date.now(), outputLength: accumulated.length },
+          ...this._history,
+        ].slice(0, 100);
+        opts.onDone?.(accumulated);
+      },
+      onError: opts.onError ?? (() => { /* no-op */ }),
+    });
 
     return { abort: () => { aborted = true; } };
   }

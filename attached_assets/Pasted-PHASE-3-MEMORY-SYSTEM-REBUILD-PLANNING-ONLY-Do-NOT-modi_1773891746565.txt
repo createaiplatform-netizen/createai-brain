@@ -1,0 +1,95 @@
+PHASE 3 — MEMORY SYSTEM REBUILD — PLANNING ONLY  
+Do NOT modify any files yet.
+
+Goal: Replace the current LocalStorage + ad‑hoc memory with a real backend memory system that supports:
+- encrypted credential storage (required for Stripe, Plaid, etc.)
+- persistent long-term memory
+- per-user and per-project memory
+- integration credential storage
+- secure retrieval for backend services
+
+This phase MUST be completed before any real integrations (Stripe, Plaid, etc.) are implemented.
+
+━━━━━━━━━━━━━━━━━━━━━━━
+FILES TO INSPECT
+━━━━━━━━━━━━━━━━━━━━━━━
+Backend:
+- artifacts/api-server/src/routes/memory.ts
+- artifacts/api-server/src/routes/integrations.ts
+- artifacts/api-server/src/services/*
+- lib/db/src/schema/*
+- lib/db/src/index.ts
+
+Frontend:
+- artifacts/createai-brain/src/store/memoryStore.ts
+- artifacts/createai-brain/src/controller/PlatformController.ts
+- artifacts/createai-brain/src/Apps/IntegrationApp.tsx
+
+━━━━━━━━━━━━━━━━━━━━━━━
+TASKS FOR PHASE 3
+━━━━━━━━━━━━━━━━━━━━━━━
+
+1. Create new backend service:
+   /artifacts/api-server/src/services/memoryService.ts
+   Responsibilities:
+   - encrypt(value)
+   - decrypt(value)
+   - saveMemory(userId, key, value)
+   - loadMemory(userId, key)
+   - deleteMemory(userId, key)
+
+2. Add new database table:
+   memory_store
+   Columns:
+   - id (uuid)
+   - userId (text)
+   - key (text)
+   - valueEncrypted (text)
+   - createdAt
+   - updatedAt
+
+3. Update integrations.ts:
+   - Store encrypted API keys using memoryService
+   - Load keys dynamically for real integrations
+   - Remove any LocalStorage usage
+
+4. Update memory routes:
+   - POST /api/memory/set
+   - GET /api/memory/get
+   - DELETE /api/memory/delete
+   All must use memoryService + database.
+
+5. Update frontend memoryStore:
+   - Remove LocalStorage usage
+   - Replace with backend calls
+   - Keep same API for callers (backward compatible)
+
+6. Update IntegrationApp.tsx:
+   - When connecting a real integration (Stripe, Plaid, etc.)
+     → send API key to backend
+     → backend encrypts + stores it
+     → frontend never stores keys locally
+
+7. Update PlatformController:
+   - Replace any memory lookups with backend calls
+   - Keep all existing behavior identical
+
+━━━━━━━━━━━━━━━━━━━━━━━
+WHAT THIS PHASE MUST NOT DO
+━━━━━━━━━━━━━━━━━━━━━━━
+- Do NOT modify any engine files
+- Do NOT modify any backend integration logic except credential storage
+- Do NOT modify UI beyond memory wiring
+- Do NOT add new integrations yet
+- Do NOT simulate encryption — use real crypto library
+
+━━━━━━━━━━━━━━━━━━━━━━━
+BEFORE MAKING ANY CHANGES
+━━━━━━━━━━━━━━━━━━━━━━━
+You must:
+1. Identify all files that will be modified.
+2. Summarize the plan in 5–10 bullet points.
+3. Wait for my approval.
+
+STOP after planning and wait for:
+APPROVED – EXECUTE PHASE 3

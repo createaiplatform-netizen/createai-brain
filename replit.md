@@ -129,8 +129,15 @@ For any work involving 3+ components or 2+ files:
 
 ---
 
-## Unified Controller Layer (COMPLETE — All 13 Apps Wired)
-- **`src/controller/PlatformController.ts`**: Singleton controller — `streamEngine()` (module-level, no React needed, auto-routes meta-agents vs standard engines), `generateImage()`, `exportToPDF/Markdown/Text()`, `runEngine()`, `runSeries()`, `processOutput()`, `saveOutput()`. Full app→engine registry (`APP_ENGINE_REGISTRY`) and smart intent→engine routing table.
+## Unified Controller Layer (COMPLETE — Phase 2 Executor Split Applied)
+- **`src/controller/PlatformController.ts`**: Orchestrator only — `streamEngine()` does context enrichment + cache check then delegates to `selectExecutor()`. `streamProjectChat()` delegates to `ProjectExecutor`. `runEngine()` class method delegates to `selectExecutor()`. No SSE readers in PlatformController itself — all stream processing is in CapabilityEngine's `_runEngine`/`_runMetaAgent` (called by executors via `dispatchEngineStream`). Full `APP_ENGINE_REGISTRY`, `INTENT_ROUTE_MAP`, `streamSeries`, `streamChat`, `streamBrainstorm`, export utils, billing stubs — all unchanged.
+- **`src/executors/shared.ts`**: `DomainExecutor` interface + `ExecutorRunOpts` type + `dispatchEngineStream()` — the single dispatch point to CapabilityEngine's canonical SSE readers
+- **`src/executors/HealthcareExecutor.ts`**: Handles `category === "healthcare"` + 18 specific healthcare engine IDs. Prepends HIPAA-aware context prefix.
+- **`src/executors/LegalExecutor.ts`**: Handles `category === "legal"` + 13 specific legal engine IDs. Prepends legal-precision context prefix.
+- **`src/executors/CreativeExecutor.ts`**: Handles `category === "creative"` | `"imagination"`. Prepends vivid narrative mode prefix.
+- **`src/executors/ProjectExecutor.ts`**: Owns the `/api/project-chat/:id/chat` SSE endpoint. Called by `streamProjectChat()` only — not part of the `streamEngine()` chain.
+- **`src/executors/GeneralExecutor.ts`**: Catch-all for all other domains (operations, finance, hr, education, security, sustainability, research, universal, meta-agent, intelligence, data, platform, workflow, integration, product). Must be last in priority chain.
+- **`src/executors/index.ts`**: Barrel export + `selectExecutor(engineId)` router (priority order: Healthcare → Legal → Creative → General)
 - **`src/controller/hooks.ts`**: `usePlatform`, `useEngineRun(id)`, `useSeriesRun(id)`, `useDocumentOutput`, `useImageGenerate` — all React hooks wrapping controller
 - **`src/controller/ControllerContext.tsx`**: `PlatformProvider` wraps entire app in App.tsx
 - **`src/controller/index.ts`**: Barrel export — import everything from `@/controller`
