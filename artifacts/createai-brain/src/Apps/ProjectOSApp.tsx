@@ -6,6 +6,7 @@ import { ensureIdentityForProject } from "@/engine/IdentityEngine";
 import { useMediaQuery } from "@/hooks/use-media-query";
 import { SalesModule, OpsModule, SupportModule, ComplianceModule, EnterpriseDashboard, StrategyModule, UXContentModule, PipelineView, MarketingModule, ProductModule, HRModule, FinanceModule } from "./InternalModules";
 import { ProjectOutputLayer } from "./ProjectOutputLayer";
+import { MovieProductionApp } from "./MovieProductionApp";
 
 // ─── Types ────────────────────────────────────────────────────────────────────
 
@@ -1778,6 +1779,8 @@ export function ProjectOSApp() {
   const [addMemberId, setAddMemberId] = useState("");
   const [addMemberRole, setAddMemberRole] = useState<"viewer" | "editor" | "owner">("viewer");
   const [addingMember, setAddingMember] = useState(false);
+  // ── Movie Production Suite ──
+  const [showMovieProduction, setShowMovieProduction] = useState(false);
   // ── Publishing pipeline state (req 13 + 14) ──
   const [showPublishModal, setShowPublishModal] = useState(false);
   const [publishStep, setPublishStep] = useState<"review" | "billing" | "confirm" | "done">("review");
@@ -4425,6 +4428,26 @@ export function ProjectOSApp() {
               {/* ── Output Layer ── */}
               {viewMode === "output" && activeProject && (
                 <div className="flex-1 overflow-auto p-4" style={{ background: "#f8fafc" }}>
+                  {/* Movie Production button for creative project types */}
+                  {["Film / Movie", "Documentary", "Video Game", "Podcast", "Music / Album", "Book / Novel", "Online Course"].includes(activeProject.industry) && (
+                    <div style={{ marginBottom: 12, display: "flex", justifyContent: "flex-end" }}>
+                      <button
+                        onClick={() => setShowMovieProduction(true)}
+                        style={{
+                          display: "flex", alignItems: "center", gap: 7,
+                          padding: "8px 18px", borderRadius: 22,
+                          background: "linear-gradient(135deg,#6366f1,#8b5cf6)",
+                          border: "none", color: "#fff",
+                          fontSize: 11, fontWeight: 700, cursor: "pointer",
+                          boxShadow: "0 4px 16px rgba(99,102,241,0.35)",
+                          letterSpacing: "0.02em",
+                        }}
+                      >
+                        <span>🎬</span>
+                        Produce Movie
+                      </button>
+                    </div>
+                  )}
                   <ProjectOutputLayer project={activeProject} compact={false} />
                 </div>
               )}
@@ -6170,6 +6193,37 @@ export function ProjectOSApp() {
                 )}
               </div>
             </div>
+          </div>
+        </div>
+      )}
+
+      {/* ═══════════════════════════════════════════════════════════════════
+          MOVIE PRODUCTION SUITE MODAL
+      ═══════════════════════════════════════════════════════════════════ */}
+      {showMovieProduction && activeProject && (
+        <div
+          className="fixed inset-0 z-[95] flex items-center justify-center"
+          style={{ background: "rgba(0,0,0,0.85)", backdropFilter: "blur(6px)" }}
+          onClick={e => { if (e.target === e.currentTarget) setShowMovieProduction(false); }}
+        >
+          <div
+            style={{
+              width: "min(900px, 96vw)",
+              height: "min(680px, 90vh)",
+              borderRadius: 20,
+              overflow: "hidden",
+              boxShadow: "0 40px 120px rgba(0,0,0,0.7)",
+              border: "1px solid rgba(255,255,255,0.08)",
+              display: "flex",
+              flexDirection: "column",
+            }}
+          >
+            <MovieProductionApp
+              projectId={activeProject.id}
+              projectName={activeProject.name}
+              projectType={activeProject.industry}
+              onClose={() => setShowMovieProduction(false)}
+            />
           </div>
         </div>
       )}

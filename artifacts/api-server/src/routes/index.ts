@@ -62,6 +62,7 @@ import projectDocumentsRouter from "./projectDocuments";
 import invitesRouter       from "./invites";
 import subscriptionsRouter from "./subscriptions";
 import fileVersionsRouter  from "./fileVersions";
+import movieRouter         from "./movieGenerate";
 
 const router: IRouter = Router();
 
@@ -141,6 +142,7 @@ router.use("/project-documents",  projectDocumentsRouter);
 router.use("/invites",            invitesRouter);
 router.use("/subscriptions",      subscriptionsRouter);
 router.use("/projects",           fileVersionsRouter);
+router.use("/movie",              movieRouter);
 
 // ── System Command Processor ─────────────────────────────────────────────────
 router.use("/system",             systemRouter);
