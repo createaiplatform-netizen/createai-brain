@@ -3,7 +3,7 @@
 //
 // Position in the call chain:
 //   PlatformController → Executor.execute() → ExpansionGuard.run()
-//                      → Executor Logic (safeOpts) → dispatchEngineStream()
+//                      → Executor Logic (safeOpts + __guard) → dispatchEngineStream()
 //
 // Guards against:
 //   • Runaway call depth    (GUARD_MAX_DEPTH)
@@ -11,13 +11,15 @@
 //   • Token budget overrun  (GUARD_TOKEN_BUDGET)
 //
 // Contract:
+//   • Runtime-agnostic — zero frontend/UI imports, no DOM or React coupling
+//   • Works in browser (Vite/ESM) and Node.js (≥14.17) without modification
 //   • Never throws — all limit breaches surface through opts.onError()
-//   • Returns safeOpts with patched callbacks that release guard state
-//   • Session-scoped (resets on page reload, or call expansionGuard.reset())
+//   • Injects __guard context into safeOpts for downstream traceability
+//   • Session-scoped state (resets on page reload or expansionGuard.reset())
 //   • Zero external dependencies
 // ═══════════════════════════════════════════════════════════════════════════
 
-import type { ExecutorRunOpts } from "@/executors/shared";
+import type { ExecutorRunOpts, GuardContext } from "@/executors/shared";
 
 // ─── Guard limits ─────────────────────────────────────────────────────────────
 
@@ -63,14 +65,25 @@ function _emit(): void {
 // ─── Guard session state ──────────────────────────────────────────────────────
 
 let _depth = 0;
-const _recursionMap = new Map<string, number>();   // engineId → active call count
-const _trace: TraceEntry[] = [];                   // rolling log, capped at 50
+const _recursionMap    = new Map<string, number>();  // engineId → active call count
+const _executionStack  = new Array<string>();         // executionId stack (top = current)
+const _trace: TraceEntry[] = [];                      // rolling log, capped at 50
 
-// ─── Helpers ──────────────────────────────────────────────────────────────────
+// ─── Generic token estimator ─────────────────────────────────────────────────
+// Serialises any JSON-compatible payload to a string and applies the standard
+// 4-chars-per-token approximation. Handles primitives, objects, and arrays.
+// Safe: never throws — returns 0 on JSON.stringify failure.
 
-function _estimateTokens(opts: ExecutorRunOpts): number {
-  return Math.ceil((opts.topic.length + (opts.context?.length ?? 0)) / 4);
+function _estimateTokens(payload: unknown): number {
+  try {
+    const str = typeof payload === "string" ? payload : JSON.stringify(payload) ?? "";
+    return Math.ceil(str.length / 4);
+  } catch {
+    return 0;
+  }
 }
+
+// ─── Internal helpers ─────────────────────────────────────────────────────────
 
 function _pushTrace(entry: TraceEntry): void {
   _trace.unshift(entry);
@@ -83,6 +96,7 @@ function _release(engineId: string, entry: TraceEntry): void {
   const count = _recursionMap.get(engineId) ?? 1;
   if (count <= 1) _recursionMap.delete(engineId);
   else            _recursionMap.set(engineId, count - 1);
+  _executionStack.pop();
   entry.status = "done";
   _emit();
 }
@@ -96,13 +110,14 @@ export const expansionGuard = {
    *
    * Checks all safety limits. If any limit is breached, calls opts.onError()
    * with a structured message and returns immediately — executorLogic is
-   * never called. If all checks pass, calls executorLogic(safeOpts) where
-   * safeOpts has patched onDone/onError that release guard state on completion.
+   * never called. If all checks pass, injects a __guard context into safeOpts
+   * and calls executorLogic(safeOpts). safeOpts.onDone / onError are patched
+   * to release guard state when execution completes.
    *
-   * @param engineId     Engine being executed (for recursion tracking)
-   * @param opts         Original ExecutorRunOpts from the executor
-   * @param executorLogic  The actual executor body — receives safeOpts
-   * @param limits       Optional per-engine limit overrides
+   * @param engineId       Engine being executed (for recursion tracking)
+   * @param opts           Original ExecutorRunOpts from the executor
+   * @param executorLogic  The actual executor body — receives safeOpts + __guard
+   * @param limits         Optional per-engine limit overrides
    */
   run(
     engineId:      string,
@@ -110,10 +125,10 @@ export const expansionGuard = {
     executorLogic: (safeOpts: ExecutorRunOpts) => void,
     limits:        Partial<GuardLimits> = {},
   ): void {
-    const L             = { ...DEFAULT_LIMITS, ...limits };
-    const executionId   = crypto.randomUUID();
-    const tokenEst      = _estimateTokens(opts);
-    const currentDepth  = _depth;
+    const L            = { ...DEFAULT_LIMITS, ...limits };
+    const executionId  = crypto.randomUUID();
+    const tokenEst     = _estimateTokens({ topic: opts.topic, context: opts.context });
+    const currentDepth = _depth;
 
     // ── Depth check ─────────────────────────────────────────────────────────
     if (currentDepth >= L.maxDepth) {
@@ -171,7 +186,9 @@ export const expansionGuard = {
       return;
     }
 
-    // ── All checks passed — register and execute ─────────────────────────────
+    // ── All checks passed — register execution ───────────────────────────────
+    const parentExecutionId = _executionStack.at(-1);
+
     const entry: TraceEntry = {
       executionId, engineId, depth: currentDepth, startedAt: Date.now(),
       tokenEst, status: "running",
@@ -180,9 +197,26 @@ export const expansionGuard = {
 
     _depth++;
     _recursionMap.set(engineId, recursionCount + 1);
+    _executionStack.push(executionId);
 
+    // ── Build __guard context — injected into safeOpts ───────────────────────
+    const guardCtx: GuardContext = {
+      executionId,
+      depth:              currentDepth,
+      trace:              _trace.slice(0, 10).map(t => ({
+        engineId:  t.engineId,
+        depth:     t.depth,
+        status:    t.status,
+        startedAt: t.startedAt,
+      })),
+      tokenUsage:         tokenEst,
+      parentExecutionId,
+    };
+
+    // ── Build safeOpts — patched callbacks + injected __guard ────────────────
     const safeOpts: ExecutorRunOpts = {
       ...opts,
+      __guard: guardCtx,
       onDone: () => {
         _release(engineId, entry);
         opts.onDone();
@@ -222,6 +256,7 @@ export const expansionGuard = {
   reset(): void {
     _depth = 0;
     _recursionMap.clear();
+    _executionStack.length = 0;
     _trace.length = 0;
     _emit();
   },

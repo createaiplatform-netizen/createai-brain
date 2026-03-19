@@ -15,6 +15,18 @@ import {
   type EngineCategory,
 } from "@/engine/CapabilityEngine";
 
+// ─── Guard context (injected by ExpansionGuard, read by downstream) ──────────
+// Defined here (not in ExpansionGuard.ts) to keep import direction clean:
+//   ExpansionGuard → shared  (guard depends on executor types, not vice versa)
+
+export interface GuardContext {
+  executionId:        string;
+  depth:              number;
+  trace:              Array<{ engineId: string; depth: number; status: string; startedAt: number }>;
+  tokenUsage:         number;
+  parentExecutionId?: string;
+}
+
 // ─── Executor contract ───────────────────────────────────────────────────────
 
 export interface ExecutorRunOpts {
@@ -26,6 +38,8 @@ export interface ExecutorRunOpts {
   onChunk:  (text: string) => void;
   onDone:   () => void;
   onError:  (err: string) => void;
+  // Injected by ExpansionGuard — available to executor logic + downstream
+  __guard?: GuardContext;
 }
 
 export interface DomainExecutor {
