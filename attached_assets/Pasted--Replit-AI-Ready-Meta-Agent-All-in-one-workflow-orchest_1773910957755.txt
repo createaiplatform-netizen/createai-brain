@@ -1,0 +1,84 @@
+// === Replit AI-Ready Meta-Agent ===
+// All-in-one: workflow orchestration, universal project generation,
+// AI memory/context, event bus, observability, automated testing.
+
+import express from 'express';
+import fetch from 'node-fetch';
+import fs from 'fs';
+import path from 'path';
+import { spawnSync } from 'child_process';
+
+// ---------------- AI Memory / Context ----------------
+const MEMORY_FILE = path.resolve('./ai_memory.json');
+let aiMemory = { projects: [], scaffoldHistory: [], userPreferences: {} };
+if (fs.existsSync(MEMORY_FILE)) {
+  aiMemory = JSON.parse(fs.readFileSync(MEMORY_FILE, 'utf-8'));
+}
+
+// ---------------- Meta-Agent Server ----------------
+const app = express();
+app.use(express.json());
+
+// --- Universal Project Generation & Memory ---
+app.post('/generate-project', async (req, res) => {
+  const { projectType, projectName, scaffoldFiles } = req.body;
+
+  aiMemory.projects.push({ projectType, projectName, timestamp: Date.now() });
+  aiMemory.scaffoldHistory.push({ projectType, scaffoldFiles });
+  fs.writeFileSync(MEMORY_FILE, JSON.stringify(aiMemory, null, 2));
+
+  // Broadcast event to all workflows
+  await broadcastEvent('newProjectCreated', { projectType, projectName });
+
+  res.json({ status: 'Project generated', projectType, projectName });
+});
+
+// --- Event Bus to all workflows ---
+async function broadcastEvent(eventType: string, payload: any) {
+  const workflows = [
+    'http://localhost:23568', // createai-brain
+    'http://localhost:23569', // staffing-os
+    'http://localhost:23570', // health-os
+    'http://localhost:23571', // legal-pm
+    'http://localhost:23572', // chat-app
+    'http://localhost:23573', // api-server
+    // add more workflow URLs if needed
+  ];
+
+  for (const url of workflows) {
+    try {
+      await fetch(`${url}/event`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ eventType, payload }),
+      });
+    } catch {
+      // Ignore offline workflows
+    }
+  }
+}
+
+// --- Observability Dashboard ---
+app.get('/dashboard', (_req, res) => {
+  res.json({
+    workflows: aiMemory.projects.map((p) => ({ name: p.projectType, lastUpdated: p.timestamp })),
+    totalProjects: aiMemory.projects.length,
+    totalScaffolds: aiMemory.scaffoldHistory.length,
+  });
+});
+
+// --- Automated Testing Endpoint ---
+app.get('/run-tests', (_req, res) => {
+  const result = spawnSync('tsc --noEmit', { shell: true });
+  res.json({ stdout: result.stdout.toString(), stderr: result.stderr.toString() });
+});
+
+// --- Health Endpoint for Replit AI integration ---
+app.get('/health', (_req, res) => res.send('OK'));
+
+// ---------------- Start Server ----------------
+const PORT = process.env.PORT || 23600;
+app.listen(PORT, () => {
+  console.log(`✅ Meta-Agent running on port ${PORT}`);
+  console.log(`✅ Replit AI can now interact via /generate-project, /dashboard, /run-tests, /health`);
+});
