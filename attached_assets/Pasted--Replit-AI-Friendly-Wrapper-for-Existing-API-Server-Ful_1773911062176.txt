@@ -1,0 +1,62 @@
+// === Replit AI-Friendly Wrapper for Existing API Server ===
+// Fully additive, uses existing scaffoldProject(), buildProjectAgentSystem(), and ExecutionStore.
+// Exposes AI-friendly endpoints for Replit AI interaction.
+
+import express from 'express';
+import { scaffoldProject } from './ProjectOSApp'; // your existing function
+import { buildProjectAgentSystem } from './projectChat'; // your existing function
+import { getExecutionStats } from './api-server/executionStore'; // hypothetical existing accessor
+
+const app = express();
+app.use(express.json());
+
+// === 1️⃣ Generate Project ===
+app.post('/ai/generate-project', async (req, res) => {
+  try {
+    const { projectType, projectName, scaffoldFiles } = req.body;
+
+    // Use existing functions
+    await scaffoldProject(projectType, projectName, scaffoldFiles);
+    await buildProjectAgentSystem(projectType, projectName, scaffoldFiles);
+
+    res.json({
+      status: 'success',
+      message: `Project '${projectName}' of type '${projectType}' created successfully.`,
+    });
+  } catch (err) {
+    console.error(err);
+    res.status(500).json({ status: 'error', message: err.message });
+  }
+});
+
+// === 2️⃣ Dashboard / Observability ===
+app.get('/ai/dashboard', (_req, res) => {
+  // Use existing ExecutionStore stats
+  const stats = getExecutionStats(); // returns workflow/project status
+  res.json({ status: 'success', data: stats });
+});
+
+// === 3️⃣ Health Endpoint ===
+app.get('/ai/health', (_req, res) => {
+  res.json({ status: 'OK', timestamp: Date.now() });
+});
+
+// === 4️⃣ Optional Test Trigger Endpoint (non-blocking) ===
+app.get('/ai/run-tests', async (_req, res) => {
+  try {
+    // Use existing test runner functions in your codebase
+    const result = await import('./api-server/testRunner'); // example: async safe test function
+    const output = await result.runAllTests(); // returns JSON
+    res.json({ status: 'success', output });
+  } catch (err) {
+    console.error(err);
+    res.status(500).json({ status: 'error', message: err.message });
+  }
+});
+
+// === Start Server for Replit AI ===
+const PORT = process.env.PORT || 23601;
+app.listen(PORT, () => {
+  console.log(`✅ Replit AI wrapper running on port ${PORT}`);
+  console.log(`✅ Endpoints available: /ai/generate-project, /ai/dashboard, /ai/health, /ai/run-tests`);
+});
