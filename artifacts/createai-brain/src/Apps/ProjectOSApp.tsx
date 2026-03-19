@@ -6,7 +6,7 @@ import { ensureIdentityForProject } from "@/engine/IdentityEngine";
 import { useMediaQuery } from "@/hooks/use-media-query";
 import { SalesModule, OpsModule, SupportModule, ComplianceModule, EnterpriseDashboard, StrategyModule, UXContentModule, PipelineView, MarketingModule, ProductModule, HRModule, FinanceModule } from "./InternalModules";
 import { ProjectOutputLayer } from "./ProjectOutputLayer";
-import { MovieProductionApp } from "./MovieProductionApp";
+import MovieProductionApp from "./MovieProductionApp";
 import { RenderEngineApp } from "./RenderEngineApp";
 
 // ─── Types ────────────────────────────────────────────────────────────────────

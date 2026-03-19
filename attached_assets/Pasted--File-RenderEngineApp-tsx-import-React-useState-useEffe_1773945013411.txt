@@ -1,0 +1,57 @@
+// File: RenderEngineApp.tsx
+import React, { useState, useEffect } from "react";
+import { generateProjectAssets } from "./RenderEngineBackend";
+import { ProjectType } from "./ProjectTypes";
+
+interface RenderEngineAppProps {
+  projectId: string;
+  projectName: string;
+  projectType: ProjectType;
+  onClose: () => void;
+}
+
+export const RenderEngineApp: React.FC<RenderEngineAppProps> = ({
+  projectId,
+  projectName,
+  projectType,
+  onClose,
+}) => {
+  const [progress, setProgress] = useState<string[]>([]);
+  const [outputURL, setOutputURL] = useState<string | null>(null);
+  const [isGenerating, setIsGenerating] = useState(false);
+
+  const startGeneration = async () => {
+    setIsGenerating(true);
+    const streamCallback = (msg: string) => setProgress(prev => [...prev, msg]);
+    const resultURL = await generateProjectAssets(projectId, projectType, streamCallback);
+    setOutputURL(resultURL);
+    setIsGenerating(false);
+  };
+
+  useEffect(() => {
+    startGeneration();
+  }, []);
+
+  return (
+    <div className="render-overlay">
+      <button className="close-btn" onClick={onClose}>×</button>
+      <h2>Generating: {projectName}</h2>
+      <div className="progress-log">
+        {progress.map((p, i) => <div key={i}>{p}</div>)}
+      </div>
+      {outputURL && (
+        <div className="output-container">
+          {projectType === "Film" && <video src={outputURL} controls autoPlay />}
+          {projectType === "Game" && <iframe src={outputURL} sandbox="allow-scripts" />}
+          {projectType === "App" && <iframe src={outputURL} sandbox="allow-scripts" />}
+          {projectType === "Book" && <iframe src={outputURL} />}
+          {projectType === "Course" && <iframe src={outputURL} />}
+          {projectType === "Pitch" && <iframe src={outputURL} />}
+          {projectType === "Music" && <audio src={outputURL} controls autoPlay />}
+          {projectType === "Podcast" && <audio src={outputURL} controls autoPlay />}
+          {projectType === "PhysicalProduct" && <iframe src={outputURL} />}
+        </div>
+      )}
+    </div>
+  );
+};
