@@ -1,4 +1,5 @@
 import React, { useState, useEffect, useRef, useCallback, useMemo } from "react";
+import type { ProjectType } from "./ProjectTypes";
 
 // ─── Types ────────────────────────────────────────────────────────────────────
 
@@ -37,7 +38,7 @@ interface LogEntry {
 interface Props {
   projectId:   string | number;
   projectName: string;
-  projectType: string;
+  projectType: ProjectType | string;
   onClose?:    () => void;
 }
 
@@ -885,37 +886,19 @@ function ProductionConsole({
     }
   }, [projectId, appendLog, onComplete]);
 
+  // Auto-start generation as soon as the component mounts
+  useEffect(() => { void startProduction(); }, []); // eslint-disable-line react-hooks/exhaustive-deps
+
   const pct = scenesTotal > 0 ? Math.round((scenesDone / scenesTotal) * 100) : 0;
 
   return (
     <div style={{ display: "flex", flexDirection: "column", height: "100%", background: "#050508", color: "#e2e8f0", fontFamily: "'Inter', system-ui" }}>
 
-      {/* Launch screen */}
+      {/* Initialising spinner — visible only for the first instant before SSE starts */}
       {!producing && !log.length && !error && (
-        <div style={{ flex: 1, display: "flex", flexDirection: "column", alignItems: "center", justifyContent: "center", gap: 14, padding: 36, textAlign: "center" }}>
-          <div style={{ fontSize: 44 }}>🎬</div>
-          <div style={{ fontSize: 16, fontWeight: 700, color: "#f1f5f9" }}>{projectName}</div>
-          <div style={{ fontSize: 12, color: "#475569", maxWidth: 380, lineHeight: 1.7 }}>
-            The engine reads your scripts and project files, generates DALL-E 3 keyframes per scene, composes mood-matched ambient soundscapes, speaks dialogue via browser TTS, and assembles a fully watchable cinematic experience — no FFmpeg, no external rendering.
-          </div>
-          <div style={{ display: "flex", gap: 8, flexWrap: "wrap", justifyContent: "center", marginTop: 4 }}>
-            {[
-              ["🖼 DALL-E 3 Keyframes", "#6366f1"],
-              ["♪ Ambient Audio Engine", "#8b5cf6"],
-              ["🎙 TTS Auto-Play", "#0ea5e9"],
-              ["🔀 Scene Branching", "#10b981"],
-            ].map(([label, color]) => (
-              <div key={label as string} style={{ fontSize: 10, padding: "4px 11px", borderRadius: 20, background: `${color}18`, border: `1px solid ${color}30`, color: color as string, fontWeight: 600 }}>
-                {label}
-              </div>
-            ))}
-          </div>
-          <button
-            onClick={startProduction}
-            style={{ marginTop: 10, padding: "13px 38px", borderRadius: 28, border: "none", background: "linear-gradient(135deg,#6366f1,#8b5cf6)", color: "#fff", fontSize: 13, fontWeight: 700, cursor: "pointer", boxShadow: "0 8px 32px rgba(99,102,241,0.45)", letterSpacing: "0.03em" }}>
-            Begin Production
-          </button>
-          <div style={{ fontSize: 9, color: "#1e293b" }}>Reads project files · Generates up to 6 scenes · ~2–4 min</div>
+        <div style={{ flex: 1, display: "flex", flexDirection: "column", alignItems: "center", justifyContent: "center", gap: 12 }}>
+          <div style={{ fontSize: 32 }}>🎬</div>
+          <div style={{ fontSize: 13, color: "#475569" }}>Starting cinematic engine…</div>
         </div>
       )}
 
@@ -999,3 +982,6 @@ function MovieProductionApp({ projectId, projectName, projectType, onClose }: Pr
 }
 
 export default MovieProductionApp;
+
+// Named alias used by RenderEngineApp and any consumer that imports by name
+export const UltimateRenderEngineApp = MovieProductionApp;

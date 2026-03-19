@@ -4449,26 +4449,11 @@ export function ProjectOSApp() {
                       "Physical Product":{ icon: "🛍️", label: "Generate Showcase", color: "#b45309" },
                     };
                     const bm = btnMeta[ind] ?? { icon: "✦", label: "Generate Experience", color: "#6366f1" };
+                    const isFilm = ["Film / Movie", "Documentary"].includes(ind);
                     return (
                       <div style={{ marginBottom: 12, display: "flex", justifyContent: "flex-end", gap: 8 }}>
-                        {/* Film types also keep the movie production option */}
-                        {["Film / Movie", "Documentary"].includes(ind) && (
-                          <button
-                            onClick={() => setShowMovieProduction(true)}
-                            style={{
-                              display: "flex", alignItems: "center", gap: 6,
-                              padding: "7px 14px", borderRadius: 20,
-                              background: "#f8fafc",
-                              border: "1px solid rgba(0,0,0,0.10)", color: "#374151",
-                              fontSize: 10, fontWeight: 600, cursor: "pointer",
-                            }}
-                          >
-                            <span>🎬</span>
-                            Quick Movie
-                          </button>
-                        )}
                         <button
-                          onClick={() => setShowRenderEngine(true)}
+                          onClick={() => isFilm ? setShowMovieProduction(true) : setShowRenderEngine(true)}
                           style={{
                             display: "flex", alignItems: "center", gap: 7,
                             padding: "8px 18px", borderRadius: 22,

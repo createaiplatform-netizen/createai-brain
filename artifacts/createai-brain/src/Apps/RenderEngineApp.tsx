@@ -1,4 +1,5 @@
 import React, { useState, useRef, useCallback, useEffect } from "react";
+import { UltimateRenderEngineApp } from "./MovieProductionApp";
 
 // ─── Types ────────────────────────────────────────────────────────────────────
 
@@ -1066,6 +1067,19 @@ export function RenderEngineApp({ projectId, projectName, projectType, onClose }
   };
   const accent = typeColor[renderMode];
 
+  // Film projects: delegate to the full UltimateRenderEngineApp cinematic engine
+  // (hooks are already declared above — this conditional return is safe)
+  if (renderMode === "cinematic") {
+    return (
+      <UltimateRenderEngineApp
+        projectId={projectId}
+        projectName={projectName}
+        projectType="Film"
+        onClose={onClose}
+      />
+    );
+  }
+
   return (
     <div style={{ display: "flex", flexDirection: "column", height: "100%", background: "#fff" }}>
       {/* Header */}
@@ -1149,8 +1163,6 @@ export function RenderEngineApp({ projectId, projectName, projectType, onClose }
                 ? "GPT will write a complete episode script with cues and transitions. Hit Play to hear it via browser voice."
                 : renderMode === "showcase"
                 ? "DALL-E 3 will render 4 professional product views — hero, lifestyle, detail, packaging — with marketing copy."
-                : renderMode === "cinematic"
-                ? "DALL-E 3 generates cinematic keyframes from your script. Web Speech reads dialogue. Auto-advance through all scenes."
                 : "GPT will generate a complete, well-structured document from your project files. Export to PDF."
               }
             </div>
