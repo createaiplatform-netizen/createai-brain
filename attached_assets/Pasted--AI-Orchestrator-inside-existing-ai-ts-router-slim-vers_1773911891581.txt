@@ -1,0 +1,63 @@
+// === AI Orchestrator inside existing ai.ts router (slim version) ===
+import { Router } from 'express';
+import { ExecutionStore } from '../services/executionStore'; // DI singleton
+import { generateProject } from './projectService'; // real backend logic
+
+const router = Router();
+
+// Only keep real or planned domain actions
+const domainActions: Record<string, (...args: any[]) => Promise<any>> = {
+  project: async (params) => generateProject(params),
+  staffing: async () => ({ status: 'not implemented', message: 'Staffing action stub' }),
+};
+
+// Helper to record execution steps
+function recordExecution(store: ExecutionStore, workflow: string, step: string, status: 'running' | 'completed' | 'failed', details?: any) {
+  store.save({
+    executionId: `${workflow}-${Date.now()}`,
+    workflow,
+    step,
+    status,
+    timestamp: Date.now(),
+    details,
+  });
+}
+
+// Orchestrator endpoint
+router.post('/api/ai/orchestrate', (req, res) => {
+  const { actions, params } = req.body as { actions: string[]; params?: Record<string, any> };
+  if (!actions || !Array.isArray(actions) || actions.length === 0) {
+    return res.status(400).json({ error: 'No actions provided' });
+  }
+
+  const store = ExecutionStore.getInstance();
+  const results: Record<string, any> = {};
+
+  actions.forEach(async (action) => {
+    const fn = domainActions[action];
+    if (!fn) {
+      results[action] = { error: 'Unknown action' };
+      return;
+    }
+
+    try {
+      recordExecution(store, action, 'start', 'running');
+      const result = await fn(params?.[action] || {});
+      recordExecution(store, action, 'finish', 'completed', result);
+      results[action] = { status: 'completed', result };
+    } catch (err: any) {
+      recordExecution(store, action, 'error', 'failed', { message: err.message });
+      results[action] = { status: 'failed', error: err.message };
+    }
+  });
+
+  res.json({ status: 'done', results });
+});
+
+// Keep only the project/staffing dashboard
+router.get('/api/ai/dashboard', (_req, res) => {
+  const store = ExecutionStore.getInstance();
+  res.json({ status: 'success', data: store.list() }); // synchronous
+});
+
+export default router;
