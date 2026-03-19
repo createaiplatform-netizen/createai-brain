@@ -1,4 +1,5 @@
 import { Router, type IRouter, type Request, type Response } from "express";
+import { audit } from "../middlewares/auditLogger";
 import { eq, desc } from "drizzle-orm";
 import {
   db,
@@ -138,7 +139,7 @@ function requireAuth(req: Request, res: Response): boolean {
 
 // ─── GET /project-chat/:projectId/history ─────────────────────────────────
 
-router.get("/:projectId/history", async (req: Request, res: Response) => {
+router.get("/:projectId/history", audit("read_chat_history", "project_chat", r => r.params.projectId), async (req: Request, res: Response) => {
   if (!requireAuth(req, res)) return;
   try {
     const projectId = parseInt(req.params.projectId as string, 10);
@@ -165,7 +166,7 @@ router.get("/:projectId/history", async (req: Request, res: Response) => {
 
 // ─── POST /project-chat/:projectId/chat  (SSE streaming) ──────────────────
 
-router.post("/:projectId/chat", async (req: Request, res: Response) => {
+router.post("/:projectId/chat", audit("send_project_chat", "project_chat", r => r.params.projectId), async (req: Request, res: Response) => {
   if (!requireAuth(req, res)) return;
   const projectId = parseInt(req.params.projectId as string, 10);
 
@@ -252,7 +253,7 @@ router.post("/:projectId/chat", async (req: Request, res: Response) => {
 
 // ─── DELETE /project-chat/:projectId/history ──────────────────────────────
 
-router.delete("/:projectId/history", async (req: Request, res: Response) => {
+router.delete("/:projectId/history", audit("delete_chat_history", "project_chat", r => r.params.projectId), async (req: Request, res: Response) => {
   if (!requireAuth(req, res)) return;
   try {
     const projectId = parseInt(req.params.projectId as string, 10);

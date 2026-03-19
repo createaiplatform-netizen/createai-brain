@@ -1,4 +1,5 @@
 import { Router, type IRouter, type Request, type Response } from "express";
+import { audit } from "../middlewares/auditLogger";
 import crypto from "crypto";
 import { db, projects, projectFolders } from "@workspace/db";
 import { container }        from "../container";
@@ -31,7 +32,7 @@ router.get("/dashboard", (_req: Request, res: Response) => {
 });
 
 // ─── POST /api/ai/generate-project ───────────────────────────────────────────
-router.post("/generate-project", async (req: Request, res: Response): Promise<void> => {
+router.post("/generate-project", audit("ai_generate_project", "ai_execution", r => r.body?.projectName ?? "unknown"), async (req: Request, res: Response): Promise<void> => {
   try {
     const userId = req.user?.id;
     if (!userId) {
@@ -171,7 +172,7 @@ async function runAction(
 }
 
 // ─── POST /api/ai/orchestrate — flat sequential ───────────────────────────────
-router.post("/orchestrate", async (req: Request, res: Response): Promise<void> => {
+router.post("/orchestrate", audit("ai_orchestrate", "ai_execution", r => r.body?.executionId ?? "unknown"), async (req: Request, res: Response): Promise<void> => {
   const userId = req.user?.id;
   if (!userId) {
     res.status(401).json({ status: "error", message: "Unauthorized" });
@@ -211,7 +212,7 @@ router.post("/orchestrate", async (req: Request, res: Response): Promise<void> =
 //
 // nodeB runs after nodeA and receives its output at params.$deps.nodeA
 //
-router.post("/orchestrate/graph", async (req: Request, res: Response): Promise<void> => {
+router.post("/orchestrate/graph", audit("ai_orchestrate_graph", "ai_execution", r => r.body?.executionId ?? "unknown"), async (req: Request, res: Response): Promise<void> => {
   const userId = req.user?.id;
   if (!userId) {
     res.status(401).json({ status: "error", message: "Unauthorized" });
@@ -264,7 +265,7 @@ router.post("/orchestrate/graph", async (req: Request, res: Response): Promise<v
 //   { type: "done",     node, action, status, durationMs, result?, error? }
 //   { type: "complete", totalDurationMs, nodeCount }
 //
-router.post("/orchestrate/stream", async (req: Request, res: Response): Promise<void> => {
+router.post("/orchestrate/stream", audit("ai_orchestrate_stream", "ai_execution", r => r.body?.executionId ?? "unknown"), async (req: Request, res: Response): Promise<void> => {
   const userId = req.user?.id;
   if (!userId) {
     res.status(401).json({ status: "error", message: "Unauthorized" });

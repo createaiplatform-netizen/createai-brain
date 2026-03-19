@@ -10,6 +10,7 @@ import {
   activityLog,
   notifications,
 } from "@workspace/db";
+import { audit } from "../middlewares/auditLogger";
 
 const router: IRouter = Router();
 
@@ -139,7 +140,7 @@ function requireAuth(req: Request, res: Response): string | null {
 
 // ─── GET /projects ─────────────────────────────────────────────────────────
 
-router.get("/", async (req: Request, res: Response) => {
+router.get("/", audit("list_projects", "project", r => (r.user as {id:string}|undefined)?.id ?? "unknown"), async (req: Request, res: Response) => {
   const userId = requireAuth(req, res);
   if (!userId) return;
   try {
@@ -159,7 +160,7 @@ router.get("/", async (req: Request, res: Response) => {
 
 // ─── POST /projects ────────────────────────────────────────────────────────
 
-router.post("/", async (req: Request, res: Response) => {
+router.post("/", audit("create_project", "project", r => r.body?.name ?? "unknown"), async (req: Request, res: Response) => {
   const userId = requireAuth(req, res);
   if (!userId) return;
   try {
@@ -365,7 +366,7 @@ router.delete("/:id/members/:memberId", async (req: Request, res: Response) => {
 
 // ─── GET /projects/files/:fileId ──────────────────────────────────────────
 
-router.get("/files/:fileId", async (req: Request, res: Response) => {
+router.get("/files/:fileId", audit("read_file", "project_file", r => r.params.fileId), async (req: Request, res: Response) => {
   if (!requireAuth(req, res)) return;
   try {
     const fileId = parseInt(req.params.fileId as string, 10);
@@ -425,7 +426,7 @@ router.get("/all-files", async (req: Request, res: Response) => {
 
 // ─── GET /projects/:id ─────────────────────────────────────────────────────
 
-router.get("/:id", async (req: Request, res: Response) => {
+router.get("/:id", audit("read_project", "project"), async (req: Request, res: Response) => {
   const userId = requireAuth(req, res);
   if (!userId) return;
   try {
@@ -443,7 +444,7 @@ router.get("/:id", async (req: Request, res: Response) => {
 
 // ─── PUT /projects/:id ─────────────────────────────────────────────────────
 
-router.put("/:id", async (req: Request, res: Response) => {
+router.put("/:id", audit("update_project", "project"), async (req: Request, res: Response) => {
   const userId = requireAuth(req, res);
   if (!userId) return;
   try {
@@ -503,7 +504,7 @@ router.put("/:id/status", async (req: Request, res: Response) => {
 
 // ─── DELETE /projects/:id ──────────────────────────────────────────────────
 
-router.delete("/:id", async (req: Request, res: Response) => {
+router.delete("/:id", audit("delete_project", "project"), async (req: Request, res: Response) => {
   const userId = requireAuth(req, res);
   if (!userId) return;
   try {
@@ -606,7 +607,7 @@ router.get("/:id/files", async (req: Request, res: Response) => {
   }
 });
 
-router.post("/:id/files", async (req: Request, res: Response) => {
+router.post("/:id/files", audit("create_file", "project_file"), async (req: Request, res: Response) => {
   if (!requireAuth(req, res)) return;
   try {
     const projectId = parseInt(req.params.id as string, 10);
@@ -645,7 +646,7 @@ router.post("/:id/files", async (req: Request, res: Response) => {
   }
 });
 
-router.put("/:id/files/:fileId", async (req: Request, res: Response) => {
+router.put("/:id/files/:fileId", audit("update_file", "project_file", r => r.params.fileId), async (req: Request, res: Response) => {
   if (!requireAuth(req, res)) return;
   try {
     const fileId = parseInt(req.params.fileId as string, 10);
@@ -667,7 +668,7 @@ router.put("/:id/files/:fileId", async (req: Request, res: Response) => {
   }
 });
 
-router.delete("/:id/files/:fileId", async (req: Request, res: Response) => {
+router.delete("/:id/files/:fileId", audit("delete_file", "project_file", r => r.params.fileId), async (req: Request, res: Response) => {
   if (!requireAuth(req, res)) return;
   try {
     const fileId = parseInt(req.params.fileId as string, 10);
