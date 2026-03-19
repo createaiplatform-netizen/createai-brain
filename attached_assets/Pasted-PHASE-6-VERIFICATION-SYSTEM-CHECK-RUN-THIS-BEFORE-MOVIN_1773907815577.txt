@@ -1,0 +1,147 @@
+PHASE 6 — VERIFICATION + SYSTEM CHECK
+RUN THIS BEFORE MOVING TO PHASE 7
+
+━━━━━━━━━━━━━━━━━━━━━━━
+1. EXECUTION ID FLOW (CRITICAL)
+━━━━━━━━━━━━━━━━━━━━━━━
+
+Confirm executionId matches across:
+
+Frontend:
+- executionId from ExpansionGuard
+
+Backend:
+- req.context.executionId
+
+Stored Record:
+- ExecutionRecord.executionId
+
+RESULT:
+All three MUST match exactly.
+If not → traceability is broken.
+
+━━━━━━━━━━━━━━━━━━━━━━━
+2. EXECUTION RECORD COMPLETENESS
+━━━━━━━━━━━━━━━━━━━━━━━
+
+Verify each record contains:
+
+{
+  executionId,
+  requestId,
+  userId?,
+  engineId,
+  trace,
+  tokenUsage,
+  durationMs,
+  status,
+  costEstimate,
+  riskScore
+}
+
+RESULT:
+No missing fields.
+If fields are missing → fix before scaling.
+
+━━━━━━━━━━━━━━━━━━━━━━━
+3. COST CALCULATION VALIDATION
+━━━━━━━━━━━━━━━━━━━━━━━
+
+Run:
+- small request
+- large request
+
+Verify:
+costEstimate changes proportionally
+
+RESULT:
+If cost stays the same → CostCalculator not wired correctly.
+
+━━━━━━━━━━━━━━━━━━━━━━━
+4. BLOCKED EXECUTION LOGGING
+━━━━━━━━━━━━━━━━━━━━━━━
+
+Trigger guard violation:
+- exceed maxDepth OR
+- trigger recursion limit
+
+Verify stored record:
+
+status: "blocked"
+
+RESULT:
+If missing → system cannot detect abuse or failures.
+
+━━━━━━━━━━━━━━━━━━━━━━━
+5. ANOMALY DETECTION CHECK
+━━━━━━━━━━━━━━━━━━━━━━━
+
+Simulate:
+- repeated failures
+- large token usage
+
+Verify:
+
+riskScore > 0
+flags: [ ... ]
+
+RESULT:
+If always 0 → anomaly detection not functioning.
+
+━━━━━━━━━━━━━━━━━━━━━━━
+6. STORE BEHAVIOR (MEMORY SAFETY)
+━━━━━━━━━━━━━━━━━━━━━━━
+
+Verify:
+- max 1000 records enforced
+- oldest records removed (FIFO)
+
+RESULT:
+No memory growth over time.
+
+━━━━━━━━━━━━━━━━━━━━━━━
+SYSTEM STATUS (EXPECTED)
+━━━━━━━━━━━━━━━━━━━━━━━
+
+After passing all checks, system should have:
+
+✔ Full execution traceability
+✔ Cost tracking per execution
+✔ Risk detection
+✔ Structured logging
+✔ No regressions
+✔ Zero TypeScript errors
+
+━━━━━━━━━━━━━━━━━━━━━━━
+IMPORTANT LIMITATION
+━━━━━━━━━━━━━━━━━━━━━━━
+
+ExecutionStore is currently:
+- in-memory only
+- resets on server restart
+- not persistent
+
+This is expected for Phase 6.
+
+━━━━━━━━━━━━━━━━━━━━━━━
+NEXT PHASE OPTIONS
+━━━━━━━━━━━━━━━━━━━━━━━
+
+PHASE 7 — SELF-HEALING ENGINE
+- auto-retry failed executions
+- dynamic engine fallback
+- cost optimization
+- intelligent routing
+
+OR
+
+STRESS TEST SYSTEM
+- simulate heavy execution chains
+- attempt recursion + token abuse
+- validate guard + observability under load
+
+━━━━━━━━━━━━━━━━━━━━━━━
+DO NOT PROCEED UNTIL:
+━━━━━━━━━━━━━━━━━━━━━━━
+
+All 6 verification sections pass successfully.

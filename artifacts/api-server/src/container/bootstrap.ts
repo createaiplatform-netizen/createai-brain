@@ -12,12 +12,19 @@
 // ═══════════════════════════════════════════════════════════════════════════
 
 import { container }          from "./index";
-import { ENCRYPTION_SERVICE, MEMORY_SERVICE } from "./tokens";
+import {
+  ENCRYPTION_SERVICE, MEMORY_SERVICE,
+  EXECUTION_STORE, COST_CALCULATOR, ANOMALY_DETECTOR, EXECUTION_LOGGER,
+} from "./tokens";
 import { EncryptionService }  from "../services/encryption.service";
 import { MemoryService }      from "../services/memory.service";
+import { ExecutionStore }     from "../observability/ExecutionStore";
+import { CostCalculator }     from "../observability/CostCalculator";
+import { AnomalyDetector }    from "../observability/AnomalyDetector";
+import { ExecutionLogger }    from "../observability/ExecutionLogger";
 
 export function bootstrapServices(): void {
-  // ── Singletons (instantiation order does not matter — all lazy) ───────────
+  // ── Core services ─────────────────────────────────────────────────────────
 
   container.register(
     ENCRYPTION_SERVICE,
@@ -26,7 +33,32 @@ export function bootstrapServices(): void {
 
   container.register(
     MEMORY_SERVICE,
-    // MemoryService receives EncryptionService via constructor — no direct import
     () => new MemoryService(container.get(ENCRYPTION_SERVICE)),
+  );
+
+  // ── Observability services (dependency order: Store → Calculator → Detector → Logger) ──
+
+  container.register(
+    EXECUTION_STORE,
+    () => new ExecutionStore(),
+  );
+
+  container.register(
+    COST_CALCULATOR,
+    () => new CostCalculator(),   // default pricing model; pass Partial<PricingModel> to override
+  );
+
+  container.register(
+    ANOMALY_DETECTOR,
+    () => new AnomalyDetector(container.get(EXECUTION_STORE)),
+  );
+
+  container.register(
+    EXECUTION_LOGGER,
+    () => new ExecutionLogger(
+      container.get(EXECUTION_STORE),
+      container.get(COST_CALCULATOR),
+      container.get(ANOMALY_DETECTOR),
+    ),
   );
 }

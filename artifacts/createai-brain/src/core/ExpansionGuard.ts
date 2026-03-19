@@ -15,6 +15,7 @@
 //   • Works in browser (Vite/ESM) and Node.js (≥14.17) without modification
 //   • Never throws — all limit breaches surface through opts.onError()
 //   • Injects __guard context into safeOpts for downstream traceability
+//   • Emits optional lifecycle hooks (onStart/onSuccess/onError/onBlocked)
 //   • Session-scoped state (resets on page reload or expansionGuard.reset())
 //   • Zero external dependencies
 // ═══════════════════════════════════════════════════════════════════════════
@@ -49,6 +50,32 @@ export interface TraceEntry {
   blockReason?: string;
 }
 
+// ─── Lifecycle hooks ──────────────────────────────────────────────────────────
+// Optional callbacks fired at each lifecycle stage of an execution.
+// All hooks receive a GuardEvent — never throw from a hook (errors are swallowed).
+
+export interface GuardEvent {
+  executionId:        string;
+  engineId:           string;
+  depth:              number;
+  tokenUsage:         number;
+  trace:              Array<{ engineId: string; depth: number; status: string; startedAt: number }>;
+  timestamp:          number;
+  blockReason?:       string;
+  parentExecutionId?: string;
+}
+
+export interface GuardHooks {
+  /** Fired immediately before executorLogic is called (all checks passed). */
+  onStart?:   (event: GuardEvent) => void;
+  /** Fired when the execution completes successfully (onDone callback). */
+  onSuccess?: (event: GuardEvent) => void;
+  /** Fired when the execution produces an error (onError callback). */
+  onError?:   (event: GuardEvent) => void;
+  /** Fired when any safety limit blocks execution (before onError is called). */
+  onBlocked?: (event: GuardEvent) => void;
+}
+
 // ─── Event emitter (zero external deps) ─────────────────────────────────────
 
 type TraceListener = (trace: TraceEntry[]) => void;
@@ -70,9 +97,6 @@ const _executionStack  = new Array<string>();         // executionId stack (top 
 const _trace: TraceEntry[] = [];                      // rolling log, capped at 50
 
 // ─── Generic token estimator ─────────────────────────────────────────────────
-// Serialises any JSON-compatible payload to a string and applies the standard
-// 4-chars-per-token approximation. Handles primitives, objects, and arrays.
-// Safe: never throws — returns 0 on JSON.stringify failure.
 
 function _estimateTokens(payload: unknown): number {
   try {
@@ -101,6 +125,39 @@ function _release(engineId: string, entry: TraceEntry): void {
   _emit();
 }
 
+function _fireHook(
+  fn:    ((event: GuardEvent) => void) | undefined,
+  event: GuardEvent,
+): void {
+  if (!fn) return;
+  try { fn(event); } catch { /* hook errors must never surface */ }
+}
+
+function _buildEvent(
+  executionId:        string,
+  engineId:           string,
+  depth:              number,
+  tokenUsage:         number,
+  parentExecutionId?: string,
+  blockReason?:       string,
+): GuardEvent {
+  return {
+    executionId,
+    engineId,
+    depth,
+    tokenUsage,
+    trace: _trace.slice(0, 10).map(t => ({
+      engineId:  t.engineId,
+      depth:     t.depth,
+      status:    t.status,
+      startedAt: t.startedAt,
+    })),
+    timestamp:  Date.now(),
+    ...(parentExecutionId ? { parentExecutionId } : {}),
+    ...(blockReason       ? { blockReason }       : {}),
+  };
+}
+
 // ─── Expansion Guard singleton ────────────────────────────────────────────────
 
 export const expansionGuard = {
@@ -108,35 +165,39 @@ export const expansionGuard = {
   /**
    * run — The single gated entry point for all domain executor logic.
    *
-   * Checks all safety limits. If any limit is breached, calls opts.onError()
-   * with a structured message and returns immediately — executorLogic is
-   * never called. If all checks pass, injects a __guard context into safeOpts
-   * and calls executorLogic(safeOpts). safeOpts.onDone / onError are patched
-   * to release guard state when execution completes.
+   * Checks all safety limits. If any limit is breached, fires hooks.onBlocked()
+   * then calls opts.onError() — executorLogic is never invoked. If all checks
+   * pass, fires hooks.onStart(), injects __guard into safeOpts, calls
+   * executorLogic(safeOpts), and fires hooks.onSuccess / hooks.onError on
+   * completion.
    *
    * @param engineId       Engine being executed (for recursion tracking)
    * @param opts           Original ExecutorRunOpts from the executor
    * @param executorLogic  The actual executor body — receives safeOpts + __guard
    * @param limits         Optional per-engine limit overrides
+   * @param hooks          Optional lifecycle callbacks (never throw from them)
    */
   run(
     engineId:      string,
     opts:          ExecutorRunOpts,
     executorLogic: (safeOpts: ExecutorRunOpts) => void,
     limits:        Partial<GuardLimits> = {},
+    hooks:         GuardHooks          = {},
   ): void {
     const L            = { ...DEFAULT_LIMITS, ...limits };
     const executionId  = crypto.randomUUID();
     const tokenEst     = _estimateTokens({ topic: opts.topic, context: opts.context });
     const currentDepth = _depth;
+    const parentExecutionId = _executionStack.at(-1);
 
     // ── Depth check ─────────────────────────────────────────────────────────
     if (currentDepth >= L.maxDepth) {
+      const blockReason = `GUARD_MAX_DEPTH: depth=${currentDepth} ≥ limit=${L.maxDepth}`;
       _pushTrace({
         executionId, engineId, depth: currentDepth, startedAt: Date.now(),
-        tokenEst, status: "blocked",
-        blockReason: `GUARD_MAX_DEPTH: depth=${currentDepth} ≥ limit=${L.maxDepth}`,
+        tokenEst, status: "blocked", blockReason,
       });
+      _fireHook(hooks.onBlocked, _buildEvent(executionId, engineId, currentDepth, tokenEst, parentExecutionId, blockReason));
       opts.onError(
         `[ExpansionGuard] GUARD_MAX_DEPTH — "${engineId}" blocked: ` +
         `call depth ${currentDepth} reached limit ${L.maxDepth}. ` +
@@ -148,11 +209,12 @@ export const expansionGuard = {
     // ── Recursion check ──────────────────────────────────────────────────────
     const recursionCount = _recursionMap.get(engineId) ?? 0;
     if (!L.allowRecursion && recursionCount > 0) {
+      const blockReason = `GUARD_MAX_RECURSION: "${engineId}" already active, allowRecursion=false`;
       _pushTrace({
         executionId, engineId, depth: currentDepth, startedAt: Date.now(),
-        tokenEst, status: "blocked",
-        blockReason: `GUARD_MAX_RECURSION: "${engineId}" already active, allowRecursion=false`,
+        tokenEst, status: "blocked", blockReason,
       });
+      _fireHook(hooks.onBlocked, _buildEvent(executionId, engineId, currentDepth, tokenEst, parentExecutionId, blockReason));
       opts.onError(
         `[ExpansionGuard] GUARD_MAX_RECURSION — "${engineId}" is already active in ` +
         `the call stack and recursion is disabled for this engine.`
@@ -160,11 +222,12 @@ export const expansionGuard = {
       return;
     }
     if (L.allowRecursion && recursionCount >= L.maxRecursion) {
+      const blockReason = `GUARD_MAX_RECURSION: count=${recursionCount} ≥ maxRecursion=${L.maxRecursion}`;
       _pushTrace({
         executionId, engineId, depth: currentDepth, startedAt: Date.now(),
-        tokenEst, status: "blocked",
-        blockReason: `GUARD_MAX_RECURSION: count=${recursionCount} ≥ maxRecursion=${L.maxRecursion}`,
+        tokenEst, status: "blocked", blockReason,
       });
+      _fireHook(hooks.onBlocked, _buildEvent(executionId, engineId, currentDepth, tokenEst, parentExecutionId, blockReason));
       opts.onError(
         `[ExpansionGuard] GUARD_MAX_RECURSION — "${engineId}" has recursed ` +
         `${recursionCount} times, exceeding limit ${L.maxRecursion}.`
@@ -174,11 +237,12 @@ export const expansionGuard = {
 
     // ── Token budget check ───────────────────────────────────────────────────
     if (tokenEst > L.maxTokens) {
+      const blockReason = `GUARD_TOKEN_BUDGET: ~${tokenEst} tokens > limit=${L.maxTokens}`;
       _pushTrace({
         executionId, engineId, depth: currentDepth, startedAt: Date.now(),
-        tokenEst, status: "blocked",
-        blockReason: `GUARD_TOKEN_BUDGET: ~${tokenEst} tokens > limit=${L.maxTokens}`,
+        tokenEst, status: "blocked", blockReason,
       });
+      _fireHook(hooks.onBlocked, _buildEvent(executionId, engineId, currentDepth, tokenEst, parentExecutionId, blockReason));
       opts.onError(
         `[ExpansionGuard] GUARD_TOKEN_BUDGET — "${engineId}" input estimated ~${tokenEst} ` +
         `tokens exceeds limit ${L.maxTokens}. Reduce topic or context length.`
@@ -187,8 +251,6 @@ export const expansionGuard = {
     }
 
     // ── All checks passed — register execution ───────────────────────────────
-    const parentExecutionId = _executionStack.at(-1);
-
     const entry: TraceEntry = {
       executionId, engineId, depth: currentDepth, startedAt: Date.now(),
       tokenEst, status: "running",
@@ -202,16 +264,19 @@ export const expansionGuard = {
     // ── Build __guard context — injected into safeOpts ───────────────────────
     const guardCtx: GuardContext = {
       executionId,
-      depth:              currentDepth,
-      trace:              _trace.slice(0, 10).map(t => ({
+      depth:        currentDepth,
+      trace:        _trace.slice(0, 10).map(t => ({
         engineId:  t.engineId,
         depth:     t.depth,
         status:    t.status,
         startedAt: t.startedAt,
       })),
-      tokenUsage:         tokenEst,
+      tokenUsage:   tokenEst,
       parentExecutionId,
     };
+
+    // ── Fire onStart hook ────────────────────────────────────────────────────
+    _fireHook(hooks.onStart, _buildEvent(executionId, engineId, currentDepth, tokenEst, parentExecutionId));
 
     // ── Build safeOpts — patched callbacks + injected __guard ────────────────
     const safeOpts: ExecutorRunOpts = {
@@ -219,10 +284,12 @@ export const expansionGuard = {
       __guard: guardCtx,
       onDone: () => {
         _release(engineId, entry);
+        _fireHook(hooks.onSuccess, _buildEvent(executionId, engineId, currentDepth, tokenEst, parentExecutionId));
         opts.onDone();
       },
       onError: (err: string) => {
         _release(engineId, entry);
+        _fireHook(hooks.onError, _buildEvent(executionId, engineId, currentDepth, tokenEst, parentExecutionId));
         opts.onError(err);
       },
     };
@@ -231,6 +298,7 @@ export const expansionGuard = {
       executorLogic(safeOpts);
     } catch (err) {
       _release(engineId, entry);
+      _fireHook(hooks.onError, _buildEvent(executionId, engineId, currentDepth, tokenEst, parentExecutionId));
       opts.onError(`[ExpansionGuard] Uncaught executor error in "${engineId}": ${String(err)}`);
     }
   },

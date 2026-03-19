@@ -67,14 +67,26 @@ class ServiceContainer {
    * createRequestScope — produce a per-request scope.
    * Each call returns a fresh RequestScope with a unique logger context.
    * Singletons are shared — the scope's get() delegates here.
+   *
+   * @param requestId    Server-generated UUID for this HTTP request
+   * @param userId       Authenticated user ID (undefined if unauthenticated)
+   * @param executionId  Optional — propagated from "x-execution-id" header
+   * @param startedAt    Optional — defaults to Date.now() at call time
    */
-  createRequestScope(requestId: string, userId?: string): RequestScope {
+  createRequestScope(
+    requestId:    string,
+    userId?:      string,
+    executionId?: string,
+    startedAt?:   number,
+  ): RequestScope {
     const logger = new RequestLogger({ requestId, userId });
     // eslint-disable-next-line @typescript-eslint/no-this-alias
     const self   = this;
     const scope: RequestScope = {
       requestId,
-      userId,
+      ...(userId      ? { userId }      : {}),
+      ...(executionId ? { executionId } : {}),
+      startedAt: startedAt ?? Date.now(),
       logger,
       get<T>(token: symbol): T { return self.get<T>(token); },
     };

@@ -492,7 +492,7 @@ export async function streamSeries(opts: {
     const resp = await fetch("/api/openai/series-run", {
       method:      "POST",
       credentials: "include",
-      headers:     { "Content-Type": "application/json" },
+      headers:     { "Content-Type": "application/json", "x-execution-id": crypto.randomUUID() },
       body:        JSON.stringify({ seriesId: opts.seriesId, topic: opts.topic, context: opts.context }),
       signal:      opts.signal,
     });
@@ -532,7 +532,7 @@ export async function streamChat(opts: {
   try {
     const response = await fetch("/api/openai/chat", {
       method:      "POST",
-      headers:     { "Content-Type": "application/json" },
+      headers:     { "Content-Type": "application/json", "x-execution-id": crypto.randomUUID() },
       credentials: "include",
       body:        JSON.stringify({ messages: opts.messages, model: "gpt-5.2", workspace: opts.workspace ?? "Main Brain" }),
       signal:      opts.signal,
@@ -663,7 +663,7 @@ export async function generateImage(
   const resp = await fetch("/api/openai/image-generate", {
     method:      "POST",
     credentials: "include",
-    headers:     { "Content-Type": "application/json" },
+    headers:     { "Content-Type": "application/json", "x-execution-id": crypto.randomUUID() },
     body:        JSON.stringify({ prompt, quality: opts?.quality ?? "standard", size: opts?.size ?? "1024x1024" }),
   });
   if (!resp.ok) {

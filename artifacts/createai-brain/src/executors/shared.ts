@@ -53,8 +53,10 @@ export interface DomainExecutor {
 // Selects _runEngine or _runMetaAgent based on engine category.
 
 export function dispatchEngineStream(opts: ExecutorRunOpts): void {
-  const engine     = getEngine(opts.engineId);
-  const engineName = engine?.name ?? opts.engineId;
+  const engine      = getEngine(opts.engineId);
+  const engineName  = engine?.name ?? opts.engineId;
+  // Propagate executionId from __guard so the backend can correlate the request
+  const executionId = opts.__guard?.executionId;
 
   if (engine?.category === "meta-agent") {
     _runMetaAgent({
@@ -67,15 +69,16 @@ export function dispatchEngineStream(opts: ExecutorRunOpts): void {
     });
   } else {
     _runEngine({
-      engineId:   opts.engineId,
+      engineId:    opts.engineId,
       engineName,
-      topic:      opts.topic,
-      context:    opts.context || undefined,
-      mode:       opts.mode,
-      signal:     opts.signal,
-      onChunk:    opts.onChunk,
-      onDone:     opts.onDone,
-      onError:    opts.onError,
+      topic:       opts.topic,
+      context:     opts.context || undefined,
+      mode:        opts.mode,
+      signal:      opts.signal,
+      executionId,    // ← links guard-assigned executionId to backend via "x-execution-id"
+      onChunk:     opts.onChunk,
+      onDone:      opts.onDone,
+      onError:     opts.onError,
     });
   }
 }

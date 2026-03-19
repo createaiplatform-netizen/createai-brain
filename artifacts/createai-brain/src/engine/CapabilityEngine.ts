@@ -40,16 +40,18 @@ export interface SeriesDefinition {
 }
 
 export interface CapabilityRunOptions {
-  engineId: string;
-  engineName?: string;
-  topic: string;
-  context?: string;
-  mode?: string;
-  agentId?: string;
-  signal?: AbortSignal;
-  onChunk: (text: string) => void;
-  onDone?: () => void;
-  onError?: (err: string) => void;
+  engineId:     string;
+  engineName?:  string;
+  topic:        string;
+  context?:     string;
+  mode?:        string;
+  agentId?:     string;
+  signal?:      AbortSignal;
+  /** Propagated from ExpansionGuard.__guard.executionId — sent as "x-execution-id" header. */
+  executionId?: string;
+  onChunk:      (text: string) => void;
+  onDone?:      () => void;
+  onError?:     (err: string) => void;
 }
 
 export interface MetaAgentRunOptions {
@@ -1738,13 +1740,16 @@ export const ALL_SERIES: SeriesDefinition[] = [
 // ─── Engine Run ───────────────────────────────────────────────────────────────
 
 export async function runEngine(opts: CapabilityRunOptions): Promise<void> {
-  const { engineId, engineName, topic, context, mode, agentId, signal, onChunk, onDone, onError } = opts;
+  const { engineId, engineName, topic, context, mode, agentId, signal, executionId, onChunk, onDone, onError } = opts;
 
   try {
     const resp = await fetch("/api/openai/engine-run", {
       method: "POST",
       credentials: "include",
-      headers: { "Content-Type": "application/json" },
+      headers: {
+        "Content-Type":    "application/json",
+        ...(executionId ? { "x-execution-id": executionId } : {}),
+      },
       body: JSON.stringify({ engineId, engineName: engineName ?? engineId, topic, context, mode, agentId }),
       signal,
     });
@@ -1787,6 +1792,7 @@ export async function runMetaAgent(opts: MetaAgentRunOptions): Promise<void> {
       credentials: "include",
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify({ agentId, task, context, domain }),
+      // Note: meta-agent calls do not carry __guard context (they run outside executor scope)
     });
 
     if (!resp.ok || !resp.body) {

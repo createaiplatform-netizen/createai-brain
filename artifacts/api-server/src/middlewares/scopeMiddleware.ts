@@ -3,10 +3,12 @@
 //
 // Must run AFTER authMiddleware so req.user is already populated.
 // Each request receives:
-//   • req.__scope.requestId — UUID for end-to-end tracing
-//   • req.__scope.userId    — from req.user?.id (undefined if unauthenticated)
-//   • req.__scope.logger    — RequestLogger pre-bound with requestId + userId
-//   • req.__scope.get(tok)  — lazy access to any container-registered singleton
+//   • req.__scope.requestId    — server-generated UUID for tracing
+//   • req.__scope.userId       — from req.user?.id (undefined if unauthenticated)
+//   • req.__scope.executionId  — propagated from "x-execution-id" header (optional)
+//   • req.__scope.startedAt    — unix ms timestamp at scope creation
+//   • req.__scope.logger       — RequestLogger pre-bound with requestId + userId
+//   • req.__scope.get(tok)     — lazy access to any container-registered singleton
 //
 // Mount order in app.ts:
 //   app.use(authMiddleware);
@@ -36,7 +38,15 @@ export function scopeMiddleware(
   _res: Response,
   next: NextFunction,
 ): void {
-  const requestId = crypto.randomUUID();
-  req.__scope     = container.createRequestScope(requestId, req.user?.id);
+  const requestId  = crypto.randomUUID();
+  const startedAt  = Date.now();
+
+  // Propagate executionId from the frontend if present — safe optional handling
+  const rawExecId  = req.headers["x-execution-id"];
+  const executionId = typeof rawExecId === "string" && rawExecId.trim()
+    ? rawExecId.trim()
+    : undefined;
+
+  req.__scope = container.createRequestScope(requestId, req.user?.id, executionId, startedAt);
   next();
 }

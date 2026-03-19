@@ -11,8 +11,12 @@
 import type { RequestLogger } from "./logger";
 
 export interface RequestScope {
-  readonly requestId: string;
-  readonly userId?:   string;
-  readonly logger:    RequestLogger;
+  readonly requestId:    string;
+  readonly userId?:      string;
+  /** Propagated from the "x-execution-id" request header — undefined if absent. */
+  readonly executionId?: string;
+  /** Unix ms timestamp captured when the scope was created. */
+  readonly startedAt:    number;
+  readonly logger:       RequestLogger;
   get<T>(token: symbol): T;
 }
