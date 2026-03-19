@@ -1,0 +1,105 @@
+ULTRA-MAX FULL PLATFORM BUILD PROMPT - REPLIT AI READY
+
+Objective:
+Build a fully autonomous creation platform allowing users to generate ANY content (movies, games, apps, websites, AR/VR, blockchain, AI agents, simulations) and immediately interact with it or watch/play it live. Include admin controls, subscriptions, revenue, versioning, observability, asset management, security, and responsive UI. Optimize for efficiency, storage, compute, legal compliance, scalability, and usability.
+
+Constraints:
+- Entirely built within Replit AI environment
+- Legal methods only
+- Optimize storage, compute, and asset usage
+- All generated content must be immediately playable/watchable
+
+Step 1: Database & Schema
+- Create tables: Projects, Users, Tiers, Revenue, InviteCodes, FileVersions, AuditLogs, Telemetry, AssetStorage
+- Include: metadata, timestamps, ownership, encryption keys, tier info, revenue %, max uses, optional email lock
+
+Step 2: Scaffold Engine
+- Include 50+ project types with full templates for web, apps, games, movies, AR/VR, blockchain
+- Include type-aware Project Agent for each project type to assist generation
+
+Step 3: File Versioning & Rollback
+- Auto-versioning on every save, cap 30 versions/file
+- Restore snapshots automatically, snapshot current state before restore
+- Silent background versioning, zero risk of data loss
+
+Step 4: Invite System
+- Generate invite codes: configurable tier, revenue %, max uses, expiry, optional email lock
+- Admin panel to list, revoke, track usage
+- Users can redeem invites to upgrade tiers instantly
+
+Step 5: Subscription Tiers & Revenue
+- Multi-tier subscriptions with token-based payment
+- Configurable platform cut % per project/user
+- Admin override per user/project
+- Track all transactions in immutable audit log
+
+Step 6: Observability Dashboard
+- Live metrics: server health, active streams, projects, storage usage
+- Poll every 5s for real-time updates
+- Show memory, CPU, AI stream telemetry, DB counts, project types, templates
+- Include self-heal trigger button
+
+Step 7: Telemetry & Streams
+- Track every AI stream: concurrency, duration, completion
+- Provide live and historical stats to founder/admin
+
+Step 8: Asset Management & Deduplication
+- Efficient asset storage: deduplication, compression for video/audio/image/game
+- Fast retrieval for live playback
+
+Step 9: Live Playable Output
+- All generated content must be immediately playable/watchable in-browser
+- Auto-load media assets into preview/player environment
+- Preload scripts/assets for instant interaction
+- Adaptive streaming/quality for large outputs (movies, 3D games)
+
+Step 10: Security & Encryption
+- Per-project encryption keys
+- RBAC enforcement for all endpoints
+- Secure invite codes and subscription upgrades
+- Founder-only telemetry/revenue view
+
+Step 11: Media & AI Generation
+- Integrate text-to-image, text-to-video, text-to-audio
+- AI agents assemble assets into playable movies, games, AR/VR experiences
+- Predictive pre-assembly to pre-generate parts for faster creation
+- Optimize compute and storage usage
+
+Step 12: Frontend & UI
+- Clean white/light UI for public, advanced admin panel for founders
+- Fully responsive: mobile, tablet, web
+- Include rollback UI and full player/viewer for generated content
+- Smooth navigation, minimal visual clutter
+
+Step 13: Admin Tools & User Control
+- Real-time project monitoring
+- Per-user revenue adjustments, tier upgrades, free access
+- Secure invitation for family/specific users with custom tiers
+- Redeem Access Code form
+
+Step 14: Testing & Validation
+- Typecheck backend and frontend
+- Zero TypeScript errors, all live endpoints functional
+- Verify playback/interaction for all content types
+- Auto-generate replit.md documenting full build
+
+Step 15: Scaling & Efficiency
+- Minimize storage via deduplication and compression
+- Preload/stream content for instant play
+- Auto-clean versions beyond 30 snapshots
+- Efficient polling for telemetry
+- Optimize DB queries, SSE streams, frontend rendering
+
+Step 16: Completion
+- Verify: playable content, rollback, invites, subscriptions, revenue, observability, asset storage
+- Generate final summary of everything live
+- Platform ready for user generation of any project type with live interaction
+
+Deliverable:
+- Fully wired platform capable of generating ANY content type, immediately playable/watchable
+- Full admin, invites, revenue, versioning, telemetry, observability
+- Optimized for storage, compute, efficiency, compliance
+- Responsive across devices
+- No steps left out — ULTRA-MAX complete
+
+END PROMPT

@@ -181,12 +181,178 @@ Response rules:
 - Match length to the request: short question = short answer, "write the full X" = full X.
 - Always reference the specific project name and its components when relevant.`;
 
+// ─── Lifecycle phase map: industry → ordered phases with canonical document names ──
+
+interface LifecyclePhase {
+  name: string;
+  docs: string[];
+}
+
+const TYPE_LIFECYCLE: Record<string, LifecyclePhase[]> = {
+  "Film / Movie": [
+    { name: "Development",      docs: ["Logline", "Script Treatment", "Character Breakdown"] },
+    { name: "Pre-Production",   docs: ["Budget Overview", "Shoot Schedule", "Shot List Template", "Daily Call Sheet Template"] },
+    { name: "Post-Production",  docs: ["Post-Production Plan"] },
+    { name: "Distribution",     docs: ["Festival Strategy", "Press Kit", "Pitch Deck Outline"] },
+    { name: "Legal / Business", docs: ["Rights & Legal Checklist"] },
+  ],
+  "Documentary": [
+    { name: "Development",      docs: ["Pitch Document", "Subject Research", "Interview Subject List", "Story Arc Outline"] },
+    { name: "Pre-Production",   docs: ["Shoot Schedule", "Interview Question Guide", "B-Roll Shot List"] },
+    { name: "Post-Production",  docs: ["Edit Roadmap"] },
+    { name: "Distribution",     docs: ["Festival & Distribution Strategy", "Archive & Rights Tracker"] },
+  ],
+  "Video Game": [
+    { name: "Concept",          docs: ["Game Design Document (GDD)", "Story & World Bible", "Core Mechanics Doc"] },
+    { name: "Pre-Production",   docs: ["Art Style Guide", "Level Design Doc", "Technical Architecture", "Audio Design Brief"] },
+    { name: "Production",       docs: ["Sprint Plan — Pre-Alpha", "QA Testing Plan"] },
+    { name: "Launch",           docs: ["Monetization Strategy", "Marketing & Launch Plan"] },
+  ],
+  "Mobile App": [
+    { name: "Discovery",        docs: ["Product Requirements Doc (PRD)", "User Personas", "User Journey Map"] },
+    { name: "Design",           docs: ["Design System Guide"] },
+    { name: "Engineering",      docs: ["Technical Architecture", "Sprint Roadmap"] },
+    { name: "Launch",           docs: ["App Store Optimization (ASO)", "Launch Plan"] },
+    { name: "Growth",           docs: ["Operations Plan"] },
+  ],
+  "Web App / SaaS": [
+    { name: "Discovery",        docs: ["Product Vision & Goals", "User Research & Personas", "Feature Specification"] },
+    { name: "Design",           docs: ["Design System & Brand"] },
+    { name: "Engineering",      docs: ["System Architecture", "API Documentation", "Development Roadmap"] },
+    { name: "Growth",           docs: ["Pricing & Conversion Strategy", "SEO & Content Strategy"] },
+  ],
+  "Business": [
+    { name: "Strategy",         docs: ["Business Plan", "Mission, Vision & Values", "Revenue Model"] },
+    { name: "Finance",          docs: ["Financial Projections (12-Month)"] },
+    { name: "Brand & Marketing",docs: ["Brand Guide", "Marketing Plan"] },
+    { name: "Operations",       docs: ["Standard Operating Procedures", "Hiring Plan"] },
+    { name: "Legal / Funding",  docs: ["Legal Checklist", "Investor Pitch Outline"] },
+  ],
+  "Startup": [
+    { name: "Ideation",         docs: ["Problem Statement", "Solution & Value Proposition", "Target Market & TAM"] },
+    { name: "Product",          docs: ["MVP Specification", "Pitch Deck"] },
+    { name: "Go-to-Market",     docs: ["GTM Strategy"] },
+    { name: "Fundraising",      docs: ["Investor CRM Template"] },
+    { name: "Legal / Finance",  docs: ["Legal Checklist", "Unit Economics"] },
+  ],
+  "Physical Product": [
+    { name: "Research",         docs: ["Problem & Opportunity", "Product Specification"] },
+    { name: "Manufacturing",    docs: ["Manufacturing Requirements", "Supplier & Vendor List", "Unit Cost Model"] },
+    { name: "Launch",           docs: ["Marketing Strategy", "Launch Timeline"] },
+    { name: "Operations",       docs: ["Operations & Fulfillment Plan"] },
+  ],
+  "Book / Novel": [
+    { name: "Concept",          docs: ["Story Premise & Logline", "Story Outline (3-Act Structure)", "Character Profiles"] },
+    { name: "World & Structure",docs: ["World-Building Bible", "Chapter-by-Chapter Outline"] },
+    { name: "Writing",          docs: ["Writing Tracker"] },
+    { name: "Publishing",       docs: ["Query Letter Template", "Author Platform Strategy"] },
+  ],
+  "Music / Album": [
+    { name: "Concept",          docs: ["Album Concept & Vision", "Track List & Descriptions"] },
+    { name: "Recording",        docs: ["Recording Session Plan", "Mixing & Mastering Notes"] },
+    { name: "Release",          docs: ["Distribution & Release Plan", "Social Media Launch Plan"] },
+    { name: "Business",         docs: ["Monetization Roadmap", "Press Kit"] },
+  ],
+  "Podcast": [
+    { name: "Format",           docs: ["Show Bible & Format", "Episode Calendar (12 Weeks)"] },
+    { name: "Production",       docs: ["Guest Research Template", "Interview Question Framework", "Episode Production Checklist"] },
+    { name: "Distribution",     docs: ["Podcast Distribution Plan"] },
+    { name: "Growth",           docs: ["Audience Growth Strategy"] },
+  ],
+  "Online Course": [
+    { name: "Curriculum",       docs: ["Course Overview & Outcomes", "Module & Lesson Outline"] },
+    { name: "Production",       docs: ["Script Template per Lesson", "Recording & Production Guide"] },
+    { name: "Launch",           docs: ["Launch Strategy", "Sales Page & Enrollment Copy"] },
+    { name: "Operations",       docs: ["Student Onboarding Flow", "Course Pricing & Tiers"] },
+  ],
+};
+
+// ─── Detect current lifecycle phase from existing file list ──────────────────
+
+interface PhaseContext {
+  currentPhase:   string;
+  missingInPhase: string[];
+  nextPhase:      string | null;
+  nextPhaseDocs:  string[];
+  completedPhases: string[];
+}
+
+function detectProjectPhase(industry: string, fileNames: string[]): PhaseContext | null {
+  const lifecycle = TYPE_LIFECYCLE[industry];
+  if (!lifecycle || fileNames.length === 0) return null;
+
+  const lower = fileNames.map(f => f.toLowerCase());
+  const hasDoc = (doc: string) => lower.some(f => f.includes(doc.toLowerCase()));
+
+  let lastActiveIdx = 0;
+  lifecycle.forEach((phase, idx) => {
+    if (phase.docs.some(hasDoc)) lastActiveIdx = idx;
+  });
+
+  const currentPhase   = lifecycle[lastActiveIdx];
+  const nextPhaseEntry = lifecycle[lastActiveIdx + 1] ?? null;
+
+  return {
+    currentPhase:    currentPhase.name,
+    missingInPhase:  currentPhase.docs.filter(d => !hasDoc(d)),
+    nextPhase:       nextPhaseEntry?.name ?? null,
+    nextPhaseDocs:   nextPhaseEntry?.docs.slice(0, 3) ?? [],
+    completedPhases: lifecycle.slice(0, lastActiveIdx).map(p => p.name),
+  };
+}
+
+// ─── Proactive guidance section injected into every system prompt ─────────────
+
+function buildProactiveSection(ctx: PhaseContext | null, fileCount: number): string {
+  if (!ctx) return "";
+
+  const lines: string[] = [];
+  lines.push(`\nPROJECT PHASE CONTEXT:`);
+
+  if (ctx.completedPhases.length > 0) {
+    lines.push(`✓ Completed phases: ${ctx.completedPhases.join(", ")}`);
+  }
+  lines.push(`→ Current phase: ${ctx.currentPhase}`);
+
+  if (ctx.missingInPhase.length > 0) {
+    lines.push(`  Missing from this phase: ${ctx.missingInPhase.join(", ")}`);
+  } else {
+    lines.push(`  All core documents for ${ctx.currentPhase} are in place.`);
+  }
+
+  if (ctx.nextPhase) {
+    lines.push(`→ Next phase: ${ctx.nextPhase} (key documents: ${ctx.nextPhaseDocs.join(", ")})`);
+  }
+
+  lines.push(`\nPROACTIVE AGENT DIRECTIVES:`);
+  lines.push(`- When the user asks "what should we work on?" or "what's next?", recommend completing any missing ${ctx.currentPhase} documents first, then advancing to ${ctx.nextPhase ?? "final delivery"}.`);
+  lines.push(`- When writing any document, produce the FULL professional-quality content — not a summary or skeleton. Use the project name throughout.`);
+  lines.push(`- If the user hasn't told you the specifics (e.g., cast, budget, target audience), make confident, realistic placeholder assumptions and clearly flag them with [PLACEHOLDER: description] so they know what to fill in.`);
+  lines.push(`- Proactively identify risks or gaps for this phase if the user asks for a project review.`);
+
+  return lines.join("\n");
+}
+
+// ─── Build the full agent system prompt ──────────────────────────────────────
+
 function buildProjectAgentSystem(industry: string, projectName: string, projectFiles: string[]): string {
-  const typeExpertise = TYPE_EXPERTISE[industry] ?? `You are an expert in ${industry} projects with deep domain knowledge and practical experience.`;
+  const typeExpertise = TYPE_EXPERTISE[industry]
+    ?? `You are an expert in ${industry} projects with deep domain knowledge and practical experience.`;
+
   const filesSection = projectFiles.length > 0
-    ? `\n\nPROJECT COMPONENTS (${projectFiles.length} documents ready):\n${projectFiles.map(f => `• ${f}`).join("\n")}\nYou know the content and purpose of every one of these documents. When the user references any of them, you understand exactly what they mean.`
+    ? `\n\nPROJECT COMPONENTS (${projectFiles.length} documents):\n${projectFiles.map(f => `• ${f}`).join("\n")}\nYou know the content and purpose of every one of these documents. When the user references any of them, you understand exactly what they mean.`
     : "";
-  return `${BASE_AGENT_IDENTITY}\n\nPROJECT: "${projectName}" | TYPE: ${industry}\n\nDOMAIN EXPERTISE:\n${typeExpertise}${filesSection}`;
+
+  const phaseCtx       = detectProjectPhase(industry, projectFiles);
+  const proactiveSection = buildProactiveSection(phaseCtx, projectFiles.length);
+
+  return [
+    BASE_AGENT_IDENTITY,
+    `\nPROJECT: "${projectName}" | TYPE: ${industry}`,
+    `\nDOMAIN EXPERTISE:\n${typeExpertise}`,
+    filesSection,
+    proactiveSection,
+  ].join("");
 }
 
 function requireAuth(req: Request, res: Response): boolean {

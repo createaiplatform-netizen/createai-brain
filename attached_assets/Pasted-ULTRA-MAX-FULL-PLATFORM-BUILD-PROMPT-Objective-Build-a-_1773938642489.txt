@@ -1,0 +1,110 @@
+ULTRA-MAX FULL PLATFORM BUILD PROMPT:
+
+Objective: Build a fully autonomous, multi-purpose creation platform that allows users to generate any type of content (apps, websites, games, videos, AR/VR experiences, blockchain applications, movies, music, AI agents, simulations, etc.) and immediately interact with it or watch/play it live, with full administrative, security, subscription, revenue, versioning, and observability capabilities. The platform should be highly optimized for efficiency, legal compliance, safety, scalability, and usability across web, tablet, and mobile devices.
+
+Constraints:  
+- Must be entirely built within Replit’s environment.  
+- Must use only legal methods; no illegal bypasses or unauthorized external services.  
+- Must optimize storage, compute, and asset management to minimize resource usage.  
+- Must ensure all generated content is fully interactive or playable immediately upon generation.  
+
+**Step 1: Database and Schema Initialization**  
+- Build DB tables for: Projects, Users, Tiers, Revenue Records, Invite Codes, File Versions, Audit Logs, Telemetry, Asset Storage.  
+- Include fields for metadata, timestamps, ownership, encryption keys, subscription tiers, revenue share %, max uses, and optional email locks.
+
+**Step 2: Scaffold Engine**  
+- Include 50+ project types, fully templated for web, apps, games, videos, AR/VR, and blockchain projects.  
+- Include type-aware Project Agent for each project type to assist in building content.
+
+**Step 3: File Versioning and Rollback**  
+- Add auto-versioning on every save, capped at 30 versions per file.  
+- Include restore functionality that snapshots the current state before restoring.  
+- Ensure silent background versioning with zero risk of data loss.
+
+**Step 4: Invite System**  
+- Enable generating invite codes with configurable tier, revenue cut %, max uses, expiry, and optional email lock.  
+- Admin panel to list, revoke, and track usage of invites.  
+- Users can redeem invites to upgrade tiers instantly.
+
+**Step 5: Subscription Tiers & Revenue Management**  
+- Implement multiple tiers with token-based payment or subscription.  
+- Include configurable platform cut % per project and per user.  
+- Admin override capability per user/project.  
+- Track all transactions in an immutable audit log.
+
+**Step 6: Observability Dashboard**  
+- Live metrics: server health, active streams, projects, storage usage.  
+- Poll every 5 seconds for real-time updates.  
+- Display memory/CPU usage, AI stream telemetry, DB counts, project types, templates.  
+- Include self-heal trigger buttons.
+
+**Step 7: Telemetry & SSE Tracking**  
+- Track every AI stream for concurrency, duration, completion.  
+- Provide live and historical stream stats via founder-gated endpoint.
+
+**Step 8: Asset Management & Deduplication**  
+- Store assets efficiently using deduplication methods.  
+- Compress video/audio/image/game assets for minimal storage footprint.  
+- Ensure fast retrieval for live playback.
+
+**Step 9: Live Playable Output Integration**  
+- Ensure all generated content (videos, games, apps, AR/VR experiences) is immediately playable or watchable.  
+- Implement live preview/player for each project type in-browser without downloading.  
+- Auto-load media assets into the preview environment on generation.  
+- Preload all necessary scripts/assets for instant interaction.  
+- Include adaptive quality/streaming for large outputs (e.g., two-hour movies, 3D games) to prevent lag.
+
+**Step 10: Security & Encryption**  
+- Per-project encryption keys for sensitive content.  
+- RBAC enforcement for all API endpoints and admin routes.  
+- Ensure invite codes and subscription upgrades are secure.  
+- Enable optional founder-only view of telemetry and revenue data.
+
+**Step 11: Media & AI Generation**  
+- Integrate text-to-image, text-to-video, and text-to-audio generation directly into projects.  
+- Enable AI agents to assemble assets into playable movies, games, or AR/VR experiences.  
+- Predictive pre-assembly to pre-generate parts of projects for faster creation.  
+- Optimize for minimal compute and storage.
+
+**Step 12: Frontend Integration & Responsive Design**  
+- Use clean, white/light interface for all public views.  
+- Separate admin interface for founders with advanced metrics.  
+- Fully responsive: mobile, tablet, web.  
+- Include rollback UI for projects/files.  
+- Include full player/viewer for any content generated.  
+- Provide smooth navigation and minimal busy-work visuals.
+
+**Step 13: Admin Tools & User Control**  
+- Provide real-time project monitoring for founder/admins.  
+- Enable per-user revenue adjustments, tier upgrades, or free access.  
+- Allow secure invitation of family or specific users with custom tiers.  
+- Include "Redeem Access Code" UI.
+
+**Step 14: Testing & Validation**  
+- Typecheck backend and frontend.  
+- Ensure zero TypeScript errors and functional live endpoints.  
+- Verify all previews/playback for every content type.  
+- Auto-generate replit.md with current build summary.
+
+**Step 15: Scaling & Efficiency Optimization**  
+- Minimize storage by compressing and deduplicating assets.  
+- Preload or stream content for instant playability.  
+- Auto-clean old versions beyond 30 snapshots.  
+- Efficient polling for live telemetry and observability.  
+- Optimize all DB queries, SSE streams, and frontend rendering.
+
+**Step 16: Completion**  
+- Verify all functionality: playable content, rollback, invites, revenue tiers, observability, asset storage.  
+- Generate final build summary of everything live.  
+- Ensure platform is fully ready for user generation of any project type with live interaction.
+
+**Deliverable:**  
+A fully wired platform capable of:  
+- Generating any type of content (movie, game, app, AR/VR, website, blockchain project)  
+- Immediately playable/watchable/live in-browser  
+- Full administrative controls, revenue management, invites, versioning  
+- Optimized for storage, compute, efficiency, and compliance  
+- Responsive design across all devices  
+- No steps left out — this is the ULTRA-MAX build ready to execute in Replit.
+
+END PROMPT

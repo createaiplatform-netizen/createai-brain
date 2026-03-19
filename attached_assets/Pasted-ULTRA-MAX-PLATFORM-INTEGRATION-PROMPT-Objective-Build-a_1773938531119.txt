@@ -1,0 +1,59 @@
+ULTRA-MAX PLATFORM INTEGRATION PROMPT:
+
+Objective: Build a fully automated, user-facing universal creation platform that allows any user to generate **playable movies, interactive games, websites, apps, AR/VR experiences, blockchain projects, and media content**, instantly and seamlessly, on their device or via the platform, without requiring external infrastructure beyond what the platform already provides.
+
+Constraints:
+- Must be fully compliant with Replit’s environment capabilities and legally executable.
+- No user or external system can replicate or copy the core engine.
+- Must work cross-device: mobile, tablet, desktop, web.
+- All generated content must be **immediately playable, viewable, or interactive**, not just scripts or descriptions.
+- Deduplicate storage where possible to maximize efficiency and reduce space.
+- Include full versioning and rollback for any user-created content (capped and pruned as needed).
+- Admin retains full control over tiers, invites, revenue share %, and access.
+- Family/friend users can have free or custom-tiered access.
+
+Build Instructions (execute in one pass):
+1. Read the current DB schema, admin routes, project scaffolds, and ProjectOSApp frontend.
+2. Implement a **unified creation engine** that supports:
+   - Movies → generate full-length, playable videos from user prompts.
+   - Games → generate fully interactive, playable games (console-like or web).
+   - Apps & Websites → generate live, interactive, fully functional applications.
+   - AR/VR Experiences → generate and render immersive content for compatible devices.
+   - Blockchain apps → generate functioning smart contracts and associated frontends.
+   - Media Assets → generate images, audio, video automatically per project.
+3. Hook all creation outputs into the **frontend preview/playback interface** for instant user access.
+4. Integrate **auto-versioning** for every generated file/project:
+   - Track up to 30 versions per file, prune older versions automatically.
+   - Allow rollback via modal with snapshot previews and restore buttons.
+5. Implement **Invite Manager**:
+   - Create, list, revoke invite codes with configurable tier, usage, and expiry.
+   - Optional email lock per code.
+6. Implement **Subscription Tiers & Revenue Share**:
+   - Display and edit each user’s tier, token balance, monthly limit, platform cut %.
+   - Admin can override percentages per project or per user.
+7. Implement **Redeem Access Code** form for end users to upgrade access instantly.
+8. Implement **Observability Dashboard**:
+   - Auto-refresh live every 5 seconds.
+   - Show server health, CPU/memory usage, active streams, project stats.
+   - Include AI stream telemetry (active, peak concurrency, recent completions, avg duration).
+   - Include Revenue Event Log filtered to subscription changes, token adjustments, invite redemptions.
+9. Ensure **all outputs are playable**:
+   - Videos are immediately watchable.
+   - Games are immediately playable within the platform.
+   - Apps/websites are fully interactive.
+   - AR/VR experiences are launchable on compatible devices.
+   - Blockchain projects are executable in safe test mode first.
+10. Deduplicate assets to minimize storage.
+11. Preload predicted content to allow instant viewing/playability.
+12. Perform typechecks and validate all endpoints.
+13. Restart API and frontend servers and verify live functionality.
+14. Update documentation (`replit.md`) with all new features and interfaces.
+
+Deliverables:
+- Fully functional platform where **any user can create, view, play, or interact with their projects immediately**.
+- Admin panel with tier control, invite management, revenue oversight, and version rollback.
+- Platform-safe, legal, and fully self-contained.
+
+Execution: Start building all features **in parallel** using all existing Replit resources, scaffolds, and engines. Confirm no errors, zero typecheck failures, and full operational capability on frontend and backend.
+
+End Prompt.

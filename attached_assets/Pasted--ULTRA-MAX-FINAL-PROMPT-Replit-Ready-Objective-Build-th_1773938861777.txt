@@ -1,0 +1,105 @@
+## ULTRA-MAX FINAL PROMPT (Replit-Ready)
+
+Objective: Build the ultimate universal AI platform capable of generating any project type, fully functional and playable/watchable, with user-friendly subscription management, versioning, observability, and revenue tracking. Use all legal methods and invent new ways for efficiency, safety, and self-sufficiency. Ensure Replit AI fully understands each step.
+
+---
+
+Step 1: Audit & Map
+- Read all existing DB schema, frontend components, backend routes, and project templates.
+- Identify gaps between ULTRA-MAX spec and current implementation.
+- Map dependencies between ProjectOSApp, AdminApp, InviteManager, Revenue & Tiers, Observability, and telemetry.
+
+Step 2: Scaffold & Extend Projects
+- Expand from 50 project types to include all plausible creative industries (apps, movies, games, web, blockchain, AI-driven workflows).
+- Generate all scaffolds, templates, and file structures per project type.
+- Make scaffolds type-aware, ensuring agents know data types and dependencies for every project type.
+
+Step 3: File Versioning & Rollback
+- Implement auto-versioning on all file saves (non-fatal, capped at 30 versions per file).
+- Create History panel in ProjectOSApp with restore functionality, timestamp, version badges, and live content preview.
+- Ensure rollback snapshots current content before restoring to avoid data loss.
+
+Step 4: Invite System
+- Build a full-featured invite engine with:
+  - Configurable tier, revenue cut %, max uses, expiry, and optional email lock.
+  - Active invite list with use counts, revoke button, and database persistence.
+  - Redeem Access Code form wired to /api/invites/redeem endpoint with success/error feedback.
+
+Step 5: Subscription Tiers & Revenue Share
+- Create tier management in AdminApp:
+  - Show all user subscription records, token balances, monthly limits, platform cut %.
+  - Allow founder/admin to override any row in real-time.
+  - Support dynamic percentage customization (0–100%) per user/project.
+
+Step 6: Observability Dashboard
+- Auto-poll metrics every 5 seconds:
+  - Server health (uptime, memory, CPU usage).
+  - Active streams, peak concurrency, total started, avg duration.
+  - Database counts, project types, API routes, scaffold templates.
+- Include Health banner with ⚡ Self-Heal button.
+
+Step 7: Revenue Event Log
+- Second tab inside Revenue & Tiers section.
+- Pull immutable audit log filtered to subscription changes, token adjustments, and invite redemptions.
+- Display action, user, resource, outcome, timestamp.
+
+Step 8: Project Agent Intelligence
+- Ensure type-aware AI agents understand project dependencies.
+- Provide predictive pre-assembly suggestions for assets, modules, and templates.
+- Enable auto-completion of project files intelligently.
+
+Step 9: Media Generation Integration
+- Wire image, video, and audio generation engines to projects.
+- Deduplicate assets and store efficiently with object storage abstraction.
+- Ensure outputs are playable/previewable directly within platform.
+
+Step 10: Encryption & Security
+- Implement per-project encryption keys (HKDF-SHA256).
+- Ensure all DB and media assets are encrypted in storage and transit.
+- Audit all user actions and maintain compliance logs.
+
+Step 11: UI/UX Top-Level Polishing
+- Separate admin interface from user interface.
+- White/light clean theme for universal readability.
+- Responsive design for mobile, tablet, and desktop.
+- Minimize busy elements; focus on functional clarity.
+
+Step 12: Predictive Asset Management
+- Pre-fetch assets for active projects using AI-predicted usage patterns.
+- Cache frequently accessed assets for performance.
+- Provide rollback and history for all predictive changes.
+
+Step 13: Observability & Debug Integration
+- Wire all backend telemetry into Admin UI.
+- Enable founder-only debug toggles with audit logging.
+- Live stream of system events for monitoring.
+
+Step 14: User Revenue Flexibility
+- Allow configurable percentage revenue cut for each project or user.
+- Enable free access toggles for family/friends without affecting system integrity.
+- Ensure dynamic, real-time update of subscriptions, tokens, and cuts.
+
+Step 15: Audit & Compliance
+- Track all API calls, file changes, media generation requests.
+- Include automated pruning of old logs while maintaining compliance.
+- Provide full admin reporting and immutable audit history.
+
+Step 16: Testing & Verification
+- Typecheck all packages and components.
+- Validate API server health.
+- Confirm all frontend sections render correctly with zero errors.
+- Verify versioning, rollback, invites, subscriptions, observability, and revenue logs.
+
+Step 17: Auto-Generate & Wire All Files
+- For any new project requested by a user, auto-generate scaffolds, templates, media assets, and code files.
+- Ensure all outputs are playable, viewable, and functional (movies watchable, games playable, apps deployable).
+- Auto-wire files to ProjectOSApp and AdminApp.
+- Maintain rollback history and audit logging for each user project.
+
+---
+
+Instructions for Replit AI:
+- Execute all steps in parallel when possible.
+- Invent new methods for efficiency, storage optimization, and media streaming/playback.
+- Ensure everything is self-contained on platform servers without external dependencies unless required for legal reasons.
+- Provide success confirmation, summary of implemented features, and any remaining gaps.
