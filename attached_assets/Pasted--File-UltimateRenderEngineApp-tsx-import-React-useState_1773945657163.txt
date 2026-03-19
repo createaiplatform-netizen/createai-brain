@@ -1,0 +1,102 @@
+// File: UltimateRenderEngineApp.tsx
+import React, { useState, useEffect } from "react";
+import { generateProjectAssets } from "./RenderEngineBackend";
+import { ProjectType } from "./ProjectTypes";
+
+interface UltimateRenderEngineAppProps {
+  projectId: string;
+  projectName: string;
+  projectType: ProjectType;
+  onClose: () => void;
+}
+
+export const UltimateRenderEngineApp: React.FC<UltimateRenderEngineAppProps> = ({
+  projectId,
+  projectName,
+  projectType,
+  onClose,
+}) => {
+  const [progress, setProgress] = useState<string[]>([]);
+  const [outputURL, setOutputURL] = useState<string | null>(null);
+  const [isGenerating, setIsGenerating] = useState(false);
+
+  const startGeneration = async () => {
+    setIsGenerating(true);
+    const streamCallback = (msg: string) => setProgress(prev => [...prev, msg]);
+
+    // Backend generates all types: Film, Game, App, Book, Course, Pitch, Music, Podcast, PhysicalProduct
+    const resultURL = await generateProjectAssets(projectId, projectType, streamCallback);
+
+    setOutputURL(resultURL);
+    setIsGenerating(false);
+  };
+
+  useEffect(() => {
+    startGeneration();
+  }, []);
+
+  const renderOutput = () => {
+    if (!outputURL) return null;
+    switch (projectType) {
+      case "Film":
+        return <video src={outputURL} controls autoPlay style={{ width: "100%" }} />;
+      case "Game":
+        return <iframe src={outputURL} sandbox="allow-scripts" style={{ width: "100%", height: "80vh" }} />;
+      case "App":
+        return <iframe src={outputURL} sandbox="allow-scripts" style={{ width: "100%", height: "80vh" }} />;
+      case "Book":
+        return <iframe src={outputURL} style={{ width: "100%", height: "80vh" }} />;
+      case "Course":
+        return <iframe src={outputURL} style={{ width: "100%", height: "80vh" }} />;
+      case "Pitch":
+        return <iframe src={outputURL} style={{ width: "100%", height: "80vh" }} />;
+      case "Music":
+      case "Podcast":
+        return <audio src={outputURL} controls autoPlay style={{ width: "100%" }} />;
+      case "PhysicalProduct":
+        return <iframe src={outputURL} style={{ width: "100%", height: "80vh" }} />;
+      default:
+        return <div>Unsupported project type</div>;
+    }
+  };
+
+  return (
+    <div className="render-overlay">
+      <button className="close-btn" onClick={onClose} style={{ float: "right", fontSize: "1.5rem" }}>×</button>
+      <h2>Generating: {projectName}</h2>
+      <div className="progress-log" style={{ maxHeight: "300px", overflowY: "auto", border: "1px solid #ccc", padding: "1rem", marginBottom: "1rem" }}>
+        {progress.map((p, i) => <div key={i}>{p}</div>)}
+      </div>
+      <div className="output-container">
+        {renderOutput()}
+      </div>
+    </div>
+  );
+};
+
+// ---------- Backend placeholder ----------
+// File: RenderEngineBackend.ts
+// Function to generate all project types. Integrate actual AI asset generation per type.
+export const generateProjectAssets = async (
+  projectId: string,
+  projectType: string,
+  onProgress: (msg: string) => void
+): Promise<string> => {
+  onProgress(`Starting generation for ${projectType}...`);
+
+  // Example steps
+  onProgress("Parsing project files...");
+  await new Promise(r => setTimeout(r, 500));
+
+  onProgress("Generating assets...");
+  await new Promise(r => setTimeout(r, 1000));
+
+  onProgress("Packaging output...");
+  await new Promise(r => setTimeout(r, 500));
+
+  // Placeholder URL; replace with actual generated asset URL
+  const fakeOutputURL = `/projects/${projectId}/${projectType.toLowerCase()}/output.html`;
+  onProgress(`Generation complete. Output ready at ${fakeOutputURL}`);
+
+  return fakeOutputURL;
+};
