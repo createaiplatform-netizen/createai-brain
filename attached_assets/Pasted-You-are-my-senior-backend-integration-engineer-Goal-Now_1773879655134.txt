@@ -1,0 +1,185 @@
+You are my senior backend + integration engineer.
+
+Goal:
+Now that the Universal Data Capsule (UDC) system is fully built and mounted at /udc, extend the backend with a **Universal “Connect My…” Hub**. This hub will let any app (health, banking, care facility, payroll, etc.) use ONE flow to connect a data source.
+
+We are still using ONLY synthetic data. No real PHI, no real banking data, no external connections.
+
+Create a new module at:
+platform/backend/src/routes/connect.ts
+
+And wire it into index.ts under /connect and /persons.
+
+===========================
+PART 1 — SOURCE REGISTRY
+===========================
+
+Create an in-memory registry of connectable sources:
+
+Each source:
+- sourceId: string (e.g., 'MYCHART_TEST', 'BANK_TEST')
+- displayName: string
+- domain: 'health' | 'banking' | 'care' | 'other'
+- description: string
+
+Route:
+GET /connect/sources
+Return all sources grouped by domain:
+{
+  health: [...],
+  banking: [...],
+  care: [...],
+  other: [...]
+}
+
+===========================
+PART 2 — CONNECT SESSION ENGINE
+===========================
+
+Create an in-memory connect session store.
+
+Fields:
+- sessionId (uuid)
+- personId (string)
+- appId (string)
+- sourceId (string)
+- domain (string)
+- status: 'PENDING' | 'COMPLETED' | 'FAILED'
+- createdAt
+- completedAt (nullable)
+- lastError (nullable)
+
+Route:
+POST /connect/start
+body: { personId, appId, sourceId }
+
+Behavior:
+- Validate sourceId exists
+- Create session with status = 'PENDING'
+- Return:
+  {
+    sessionId,
+    sourceId,
+    domain,
+    simulatedAuthUrl: "https://example.com/connect/simulated?sessionId=..."
+  }
+
+Audit log:
+action = 'CONNECT_SESSION_STARTED'
+sourceSystem = sourceId
+metadata = { sessionId, personId, appId, domain }
+
+===========================
+PART 3 — SIMULATED HEALTH CONNECTOR
+===========================
+
+Route:
+POST /connect/simulated/health
+body: { sessionId }
+
+Behavior:
+- Look up session
+- Ensure domain = 'health'
+- Generate a synthetic UDC in memory:
+  - metadata.sourceSystem = session.sourceId
+  - patientContext.externalId = "HEALTH-" + session.personId
+  - payload: 2 fake meds, 1 fake allergy, 1 fake diagnosis, fall risk score
+- Call the existing UDC ingest logic internally (reuse the same function)
+- Mark session.status = 'COMPLETED'
+- Write audit_log:
+  action = 'CONNECT_COMPLETED'
+  sourceSystem = session.sourceId
+  metadata = { sessionId, capsuleId }
+
+Return:
+- session
+- udc
+- created/updated patient row
+
+===========================
+PART 4 — SIMULATED BANKING CONNECTOR
+===========================
+
+Route:
+POST /connect/simulated/banking
+body: { sessionId }
+
+Behavior:
+- Look up session
+- Ensure domain = 'banking'
+- Create a synthetic FinancialCapsule:
+  {
+    capsuleId,
+    metadata: { sourceSystem: session.sourceId, testData: true },
+    personId: session.personId,
+    accounts: [{ type: 'CHECKING', last4: '1234', balance: 1234.56 }],
+    transactions: [
+      { id: 't1', amount: -25.00, description: 'Coffee Shop' },
+      { id: 't2', amount: 1200.00, description: 'Paycheck' }
+    ]
+  }
+- Store this in an in-memory map keyed by personId
+- Mark session.status = 'COMPLETED'
+- Write audit_log:
+  action = 'CONNECT_COMPLETED'
+  sourceSystem = session.sourceId
+  metadata = { sessionId, capsuleId }
+
+Return:
+- session
+- financialCapsule
+- financial summary
+
+===========================
+PART 5 — UNIFIED PERSON SUMMARY
+===========================
+
+Route:
+GET /persons/:personId/summary
+
+Behavior:
+- For health:
+  - Look up patient by externalId = "HEALTH-" + personId
+  - If found, include demographics, meds, allergies, diagnoses
+- For banking:
+  - Look up any stored FinancialCapsule for that personId
+Return:
+{
+  personId,
+  health: { ... } | null,
+  banking: { ... } | null
+}
+
+===========================
+PART 6 — WIRING + COMMENTS
+===========================
+
+- Mount the new router in index.ts:
+  app.use('/connect', connectRouter)
+  app.use('/persons', connectRouter)
+
+- Add a comment block at the top of connect.ts:
+
+  /**
+   * UNIVERSAL CONNECT HUB
+   * One flow for connecting any external source (health, banking, care, etc.)
+   * Currently uses ONLY simulated connectors and synthetic data.
+   * Health connector reuses the UDC ingest pipeline.
+   * No real external systems, PHI, or banking data are accessed.
+   */
+
+===========================
+AFTER BUILDING:
+===========================
+
+Show me:
+1. The new connect.ts file
+2. The updated index.ts
+3. Example calls for:
+   - GET /connect/sources
+   - POST /connect/start (health)
+   - POST /connect/simulated/health
+   - POST /connect/start (banking)
+   - POST /connect/simulated/banking
+   - GET /persons/:personId/summary
+4. Confirmation that everything is synthetic-only and safe.

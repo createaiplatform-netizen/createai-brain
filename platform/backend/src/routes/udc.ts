@@ -76,7 +76,7 @@ function validateCapsule(obj: unknown): string | null {
 }
 
 /** Write one row to audit_log. Fire-and-forget — never throws. */
-async function writeAudit(params: {
+export async function writeAudit(params: {
   action:      string;
   resource:    string;
   resourceId?: string;
@@ -151,7 +151,7 @@ function extractFromFiles(
 }
 
 /** Build a complete UDC from extracted data + file list. */
-function buildCapsule(
+export function buildCapsule(
   extracted: { patientContext: UDCPatientContext; payload: UDCPayload },
   artifacts: UDCArtifact[],
   createdBy: string,
@@ -173,9 +173,9 @@ function buildCapsule(
   return { metadata, patientContext: extracted.patientContext, payload: extracted.payload, artifacts, signature };
 }
 
-// ─── Ingest Logic (shared by /ingest and /test) ────────────────────────────────
+// ─── Ingest Logic (shared by /ingest, /test, and connect hub) ─────────────────
 
-async function ingestCapsule(
+export async function ingestCapsule(
   capsule: UniversalDataCapsule,
   orgId:   string,
   ip?:     string
@@ -307,7 +307,7 @@ async function ingestCapsule(
 
 // ─── Helper: resolve a valid org_id to use for system-level operations ─────────
 
-async function resolveOrgId(req: Request): Promise<string | null> {
+export async function resolveOrgId(req: Request): Promise<string | null> {
   // Use authenticated user's org if available
   const user = (req as Request & { user?: { organizationId?: string } }).user;
   if (user?.organizationId) return user.organizationId;
