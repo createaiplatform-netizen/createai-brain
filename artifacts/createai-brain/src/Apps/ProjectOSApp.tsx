@@ -11,7 +11,7 @@ import { RenderEngineApp } from "./RenderEngineApp";
 
 // ─── Types ────────────────────────────────────────────────────────────────────
 
-type ViewMode = "output" | "dashboard+folders" | "dashboard" | "folders" | "simple" | "advanced" | "tasks" | "team" | "opportunities" | "portfolio" | "sales" | "ops" | "support" | "compliance" | "enterprise" | "strategy" | "ux" | "pipeline" | "marketing" | "product" | "hr" | "finance" | "observability";
+type ViewMode = "output" | "dashboard+folders" | "dashboard" | "folders" | "simple" | "advanced" | "tasks" | "team" | "opportunities" | "portfolio" | "sales" | "ops" | "support" | "compliance" | "enterprise" | "strategy" | "ux" | "pipeline" | "marketing" | "product" | "hr" | "finance" | "observability" | "analytics";
 
 // ─── Shared / Suggested Types ────────────────────────────────────────────────
 interface SharedProject {
@@ -171,6 +171,8 @@ const INDUSTRY_SPECIFIC: Record<string, { name: string; icon: string }[]> = {
   "PropTech":            [{ name: "Product & Platform", icon: "🏢" }, { name: "Engineering", icon: "💻" }, { name: "Data & Analytics", icon: "📊" }, { name: "Regulatory & Legal", icon: "⚖️" }, { name: "Sales & GTM", icon: "📈" }],
   "RetailTech":          [{ name: "Product & Commerce", icon: "🛒" }, { name: "Engineering & POS", icon: "💻" }, { name: "Data & Loyalty", icon: "📊" }, { name: "Operations & Supply", icon: "⚙️" }, { name: "Growth & Channels", icon: "📈" }],
   "Climate Tech":        [{ name: "Science & Methodology", icon: "🌍" }, { name: "Platform & Data", icon: "💻" }, { name: "Regulatory & Verification", icon: "📋" }, { name: "Carbon Markets", icon: "💹" }, { name: "Partnerships & GTM", icon: "🤝" }],
+  "Corporate Training":  [{ name: "Onboarding", icon: "🎓" }, { name: "SkillBoost", icon: "⚡" }, { name: "ScenarioSim", icon: "🎮" }, { name: "Assessment", icon: "📝" }, { name: "Analytics", icon: "📊" }],
+  "HR / L&D":            [{ name: "Learning Design", icon: "🧠" }, { name: "Content Library", icon: "📚" }, { name: "Assessment", icon: "📝" }, { name: "LMS & Delivery", icon: "💻" }, { name: "Analytics", icon: "📊" }],
 };
 
 const INDUSTRIES = Object.keys(INDUSTRY_SPECIFIC);
@@ -195,6 +197,7 @@ const INDUSTRY_ICONS: Record<string, string> = {
   "HRTech / WorkTech": "👥", "AgriTech": "🌱", "Mobility & AutoTech": "🚗",
   "Creator Economy": "🎨", "PropTech": "🏢", "RetailTech": "🛒",
   "Climate Tech": "🌍",
+  "Corporate Training": "🎓", "HR / L&D": "👩‍🏫",
 };
 
 const INDUSTRY_COLORS: Record<string, string> = {
@@ -218,6 +221,7 @@ const INDUSTRY_COLORS: Record<string, string> = {
   "HRTech / WorkTech": "#0891b2", "AgriTech": "#16a34a", "Mobility & AutoTech": "#2563eb",
   "Creator Economy": "#f59e0b", "PropTech": "#64748b", "RetailTech": "#f97316",
   "Climate Tech": "#22c55e",
+  "Corporate Training": "#7c3aed", "HR / L&D": "#6366f1",
 };
 
 // M-01: Module-scope constant — avoids re-creation on every render inside parseAndCreate
@@ -257,7 +261,9 @@ const PROJECT_TYPE_DEFINITIONS: ProjectTypeDef[] = [
   { id: "Book / Novel",    icon: "📚", label: "Book / Novel",    desc: "Fiction, nonfiction, or memoir",  count: 10, keywords: ["book","novel","memoir","nonfiction","story","manuscript","author","write","writing"] },
   { id: "Music / Album",   icon: "🎵", label: "Music / Album",   desc: "Album, EP, or single",            count: 8,  keywords: ["music","album","song","ep","single","artist","band","record","rap","pop","producer"] },
   { id: "Podcast",         icon: "🎙️", label: "Podcast",         desc: "Interview, narrative, or solo",   count: 8,  keywords: ["podcast","show","episode","audio","interview","radio","cast"] },
-  { id: "Online Course",   icon: "📖", label: "Online Course",   desc: "Educational course or cohort",    count: 8,  keywords: ["course","online course","cohort","training","bootcamp","learn","teach","education","masterclass"] },
+  { id: "Online Course",      icon: "📖", label: "Online Course",      desc: "Educational course or cohort",    count: 8,  keywords: ["course","online course","cohort","bootcamp","learn","teach","education","masterclass"] },
+  { id: "Corporate Training", icon: "🎓", label: "Corporate Training", desc: "Onboarding, L&D, scenario training",count: 8,  keywords: ["corporate training","employee training","onboarding","l&d","hr training","learning & development","skill training","workplace learning"] },
+  { id: "HR / L&D",           icon: "👩‍🏫", label: "HR / L&D",           desc: "HR learning & development program", count: 8,  keywords: ["hr","l&d","learning and development","human resources","talent development","people ops","workforce training","instructional design"] },
   { id: "Architecture / Interior Design", icon: "🏛️", label: "Architecture / Interior Design", desc: "Residential, commercial, or interior", count: 9,  keywords: ["architecture","interior design","architect","interior","renovation","design build","space","studio","residential","commercial"] },
   { id: "E-commerce / DTC", icon: "🛍️", label: "E-commerce / DTC",   desc: "Online store, brand, or marketplace",  count: 9,  keywords: ["ecommerce","e-commerce","dtc","direct to consumer","shopify","amazon","store","shop","brand","dropship","merch"] },
   { id: "Real Estate",      icon: "🏠", label: "Real Estate",      desc: "Residential, commercial, or investing",  count: 9,  keywords: ["real estate","property","rental","investment","flip","apartment","condo","reits","commercial real estate","proptech","landlord"] },
@@ -1452,6 +1458,142 @@ interface ObservStreams {
 interface ObservAudit {
   activity?: { id: number; action: string; label: string; icon: string; createdAt: string }[];
   actionCounts?: { action: string; count: number }[];
+}
+
+// ─── Analytics Dashboard ──────────────────────────────────────────────────────
+
+interface AnalyticsProject {
+  id: number; name: string; industry: string; status: string;
+  files: { content?: string | null }[];
+  createdAt?: string;
+}
+
+function AnalyticsDashboard() {
+  const [projects, setProjects] = useState<AnalyticsProject[]>([]);
+  const [loading,  setLoading]  = useState(true);
+  const [lastAt,   setLastAt]   = useState("—");
+
+  const load = useCallback(async () => {
+    try {
+      const r = await fetch("/api/projects", { credentials: "include" });
+      if (r.ok) { setProjects(await r.json()); setLastAt(new Date().toLocaleTimeString()); }
+    } finally { setLoading(false); }
+  }, []);
+
+  useEffect(() => { load(); const id = setInterval(load, 30_000); return () => clearInterval(id); }, [load]);
+
+  const active   = projects.filter(p => p.status !== "archived");
+  const archived = projects.filter(p => p.status === "archived");
+  const totalFiles = active.reduce((s, p) => s + p.files.length, 0);
+  const aiDocs     = active.reduce((s, p) => s + p.files.filter(f => (f.content ?? "").length > 80).length, 0);
+
+  const byIndustry = active.reduce<Record<string, number>>((m, p) => {
+    m[p.industry ?? "General"] = (m[p.industry ?? "General"] ?? 0) + 1;
+    return m;
+  }, {});
+  const topIndustries = Object.entries(byIndustry).sort((a, b) => b[1] - a[1]).slice(0, 6);
+  const maxCount = topIndustries[0]?.[1] ?? 1;
+
+  const INDUSTRY_COLORS_LOCAL: Record<string, string> = {
+    "Film / Movie": "#dc2626", "Documentary": "#0284c7", "Video Game": "#7c3aed",
+    "Book / Novel": "#6b7280", "Music / Album": "#db2777", "Podcast": "#ea580c",
+    "Online Course": "#0891b2", "Corporate Training": "#7c3aed", "HR / L&D": "#6366f1",
+    "Startup": "#8b5cf6", "Business": "#d97706", "Mobile App": "#059669",
+    "Web App / SaaS": "#2563eb", "Physical Product": "#b45309",
+  };
+
+  const card = (title: string, children: React.ReactNode) => (
+    <div style={{ background: "#fff", border: "1px solid rgba(0,0,0,0.07)", borderRadius: 14, padding: "18px 20px" }}>
+      <div style={{ fontSize: 10, fontWeight: 700, letterSpacing: "0.08em", textTransform: "uppercase" as const, color: "#94a3b8", marginBottom: 12 }}>{title}</div>
+      {children}
+    </div>
+  );
+
+  const stat = (label: string, value: string | number, sub?: string, color = "#1e293b") => (
+    <div style={{ marginBottom: 10 }}>
+      <div style={{ fontSize: 11, color: "#64748b" }}>{label}</div>
+      <div style={{ fontSize: 22, fontWeight: 700, color, lineHeight: 1.2 }}>{value}</div>
+      {sub && <div style={{ fontSize: 10, color: "#94a3b8", marginTop: 1 }}>{sub}</div>}
+    </div>
+  );
+
+  if (loading) return (
+    <div style={{ flex: 1, display: "flex", alignItems: "center", justifyContent: "center", background: "#f8fafc" }}>
+      <div style={{ textAlign: "center" }}>
+        <div style={{ fontSize: 32, marginBottom: 8, animation: "pulse 1s infinite" }}>📊</div>
+        <div style={{ fontSize: 12, color: "#94a3b8" }}>Loading analytics…</div>
+      </div>
+    </div>
+  );
+
+  return (
+    <div style={{ flex: 1, overflowY: "auto", padding: "24px 28px", background: "#f8fafc" }}>
+      {/* Header */}
+      <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", marginBottom: 22 }}>
+        <div>
+          <div style={{ fontSize: 18, fontWeight: 700, color: "#1e293b" }}>AI Impact Analytics</div>
+          <div style={{ fontSize: 11, color: "#94a3b8", marginTop: 2 }}>Platform-wide insights · Last update: {lastAt}</div>
+        </div>
+        <button onClick={load}
+          style={{ padding: "6px 14px", borderRadius: 8, background: "rgba(99,102,241,0.08)", border: "1px solid rgba(99,102,241,0.20)", color: "#6366f1", fontSize: 11, fontWeight: 600, cursor: "pointer" }}>
+          ↻ Refresh
+        </button>
+      </div>
+
+      {/* Row 1 — KPI strip */}
+      <div style={{ display: "grid", gridTemplateColumns: "repeat(4, 1fr)", gap: 12, marginBottom: 14 }}>
+        {card("Total Projects", stat("Active", active.length, `${archived.length} archived`))}
+        {card("Documents Created", stat("Files", totalFiles, `${aiDocs} AI-enriched`))}
+        {card("AI Enrichment Rate", stat("Coverage", totalFiles > 0 ? `${Math.round((aiDocs / totalFiles) * 100)}%` : "—", "docs with AI content", "#6366f1"))}
+        {card("Industry Diversity", stat("Types", topIndustries.length, "unique project types", "#7c3aed"))}
+      </div>
+
+      {/* Row 2 — Industry breakdown + recent */}
+      <div style={{ display: "grid", gridTemplateColumns: "1.5fr 1fr", gap: 14 }}>
+        {card("Projects by Industry", (
+          <div>
+            {topIndustries.length === 0 && (
+              <div style={{ fontSize: 11, color: "#94a3b8" }}>No active projects yet.</div>
+            )}
+            {topIndustries.map(([ind, count]) => {
+              const color = INDUSTRY_COLORS_LOCAL[ind] ?? "#6366f1";
+              return (
+                <div key={ind} style={{ marginBottom: 10 }}>
+                  <div style={{ display: "flex", justifyContent: "space-between", marginBottom: 3 }}>
+                    <span style={{ fontSize: 11, fontWeight: 600, color: "#334155" }}>{ind}</span>
+                    <span style={{ fontSize: 11, fontWeight: 700, color }}>{count}</span>
+                  </div>
+                  <div style={{ height: 5, borderRadius: 99, background: "rgba(0,0,0,0.06)", overflow: "hidden" }}>
+                    <div style={{ height: "100%", borderRadius: 99, background: `linear-gradient(90deg,${color},${color}80)`, width: `${(count / maxCount) * 100}%`, transition: "width 0.5s ease" }} />
+                  </div>
+                </div>
+              );
+            })}
+          </div>
+        ))}
+        {card("Platform Snapshot", (
+          <>
+            {stat("Total workspaces", active.length + archived.length)}
+            {stat("Active projects", active.length, undefined, "#10b981")}
+            {stat("Archived", archived.length, undefined, "#f59e0b")}
+            <div style={{ marginTop: 8, padding: "8px 10px", borderRadius: 8, background: "rgba(99,102,241,0.06)", border: "1px solid rgba(99,102,241,0.15)" }}>
+              <div style={{ fontSize: 10, fontWeight: 700, color: "#6366f1", marginBottom: 2 }}>💡 AI Insight</div>
+              <div style={{ fontSize: 10, color: "#475569", lineHeight: 1.5 }}>
+                {active.length === 0
+                  ? "Create your first project to start generating AI insights."
+                  : aiDocs >= totalFiles * 0.8
+                    ? "Excellent AI adoption — most docs are AI-enriched."
+                    : aiDocs >= totalFiles * 0.5
+                      ? "Good momentum — keep generating content to boost coverage."
+                      : "Run the Render Engine on more projects to enrich your content."
+                }
+              </div>
+            </div>
+          </>
+        ))}
+      </div>
+    </div>
+  );
 }
 
 function ObservabilityDashboard() {
@@ -2770,6 +2912,7 @@ export function ProjectOSApp() {
     { id: "hr",                label: "🤝 People/HR",    group: "teams" },
     { id: "finance",           label: "💰 Finance",      group: "teams" },
     { id: "observability",     label: "📡 System",       group: "power" },
+    { id: "analytics",         label: "📊 Analytics",    group: "power" },
   ];
 
   const activeFiles = activeFolderId
@@ -3153,6 +3296,31 @@ export function ProjectOSApp() {
                 {createXLoading && !createXParsed && (
                   <div className="mt-3 text-[11px] animate-pulse" style={{ color: "#6366f1" }}>Understanding your idea…</div>
                 )}
+
+                {/* ── Quick Start demo chips ── */}
+                <div style={{ marginTop: 20, display: "flex", flexWrap: "wrap", gap: 8, justifyContent: "center" }}>
+                  {[
+                    { label: "🎬 Indie Film",         idea: "An indie sci-fi short film about a lone astronaut who discovers a mysterious signal on Europa" },
+                    { label: "🎮 Mobile Game",         idea: "A casual mobile puzzle game where players must rebuild a broken city using falling blocks" },
+                    { label: "🚀 AI Startup",          idea: "A B2B SaaS startup that uses AI to automate financial due diligence for venture capital firms" },
+                    { label: "📖 Business Book",       idea: "A non-fiction book about how founders can build resilient companies in volatile markets" },
+                    { label: "🎵 Music Album",         idea: "An ambient electronic album inspired by the sounds of space exploration and cosmic vastness" },
+                    { label: "🎓 Corporate Training",  idea: "A corporate training program on inclusive leadership for managers at a Fortune 500 company" },
+                  ].map(chip => (
+                    <button
+                      key={chip.label}
+                      onClick={() => { setCreateXInput(chip.idea); parseAndCreate(chip.idea); }}
+                      style={{
+                        padding: "6px 14px", borderRadius: 99, fontSize: 11, fontWeight: 600,
+                        background: "rgba(99,102,241,0.07)", border: "1px solid rgba(99,102,241,0.20)",
+                        color: "#6366f1", cursor: "pointer", transition: "all 0.15s",
+                      }}
+                    >
+                      {chip.label}
+                    </button>
+                  ))}
+                </div>
+                <div style={{ marginTop: 8, fontSize: 10, color: "#94a3b8" }}>Click any example to auto-create it instantly</div>
 
                 {/* Manual fallback */}
                 <button
@@ -4428,6 +4596,11 @@ export function ProjectOSApp() {
                 <ObservabilityDashboard />
               )}
 
+              {/* ── Analytics Dashboard ── */}
+              {viewMode === "analytics" && (
+                <AnalyticsDashboard />
+              )}
+
               {/* ── Output Layer ── */}
               {viewMode === "output" && activeProject && (
                 <div className="flex-1 overflow-auto p-4" style={{ background: "#f8fafc" }}>
@@ -4443,10 +4616,12 @@ export function ProjectOSApp() {
                       "Book / Novel":    { icon: "📖", label: "Generate Book",     color: "#6b7280" },
                       "Music / Album":   { icon: "🎵", label: "Generate Album",    color: "#db2777" },
                       "Podcast":         { icon: "🎙️", label: "Generate Episode",  color: "#ea580c" },
-                      "Online Course":   { icon: "📚", label: "Generate Course",   color: "#0891b2" },
-                      "Business":        { icon: "📊", label: "Generate Pitch",    color: "#d97706" },
-                      "Startup":         { icon: "📊", label: "Generate Pitch",    color: "#7c3aed" },
-                      "Physical Product":{ icon: "🛍️", label: "Generate Showcase", color: "#b45309" },
+                      "Online Course":      { icon: "📚", label: "Generate Course",    color: "#0891b2" },
+                      "Corporate Training":{ icon: "🎓", label: "Generate Training",  color: "#7c3aed" },
+                      "HR / L&D":          { icon: "👩‍🏫", label: "Generate L&D Program", color: "#6366f1" },
+                      "Business":          { icon: "📊", label: "Generate Pitch",     color: "#d97706" },
+                      "Startup":           { icon: "📊", label: "Generate Pitch",     color: "#7c3aed" },
+                      "Physical Product":  { icon: "🛍️", label: "Generate Showcase",  color: "#b45309" },
                     };
                     const bm = btnMeta[ind] ?? { icon: "✦", label: "Generate Experience", color: "#6366f1" };
                     const isFilm = ["Film / Movie", "Documentary"].includes(ind);
@@ -4475,7 +4650,7 @@ export function ProjectOSApp() {
               )}
 
               {/* Folder + File View */}
-              {viewMode !== "output" && viewMode !== "dashboard" && viewMode !== "tasks" && viewMode !== "team" && viewMode !== "opportunities" && viewMode !== "portfolio" && viewMode !== "sales" && viewMode !== "ops" && viewMode !== "support" && viewMode !== "compliance" && viewMode !== "enterprise" && viewMode !== "strategy" && viewMode !== "ux" && viewMode !== "pipeline" && viewMode !== "marketing" && viewMode !== "product" && viewMode !== "hr" && viewMode !== "finance" && viewMode !== "observability" && (
+              {viewMode !== "output" && viewMode !== "dashboard" && viewMode !== "tasks" && viewMode !== "team" && viewMode !== "opportunities" && viewMode !== "portfolio" && viewMode !== "sales" && viewMode !== "ops" && viewMode !== "support" && viewMode !== "compliance" && viewMode !== "enterprise" && viewMode !== "strategy" && viewMode !== "ux" && viewMode !== "pipeline" && viewMode !== "marketing" && viewMode !== "product" && viewMode !== "hr" && viewMode !== "finance" && viewMode !== "observability" && viewMode !== "analytics" && (
                 <div className="flex flex-1 overflow-hidden">
 
                   {/* Folder Tree */}

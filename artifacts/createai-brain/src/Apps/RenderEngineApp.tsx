@@ -133,9 +133,10 @@ function useAutoSave(
 // ─── Types ────────────────────────────────────────────────────────────────────
 
 type RenderMode =
-  | "cinematic" | "game" | "app" | "book"
-  | "course"    | "pitch" | "showcase"
-  | "music"     | "podcast" | "document";
+  | "cinematic" | "game"    | "app"     | "book"
+  | "course"    | "pitch"   | "showcase"
+  | "music"     | "podcast" | "document"
+  | "training";
 
 interface RenderFrame {
   index:       number;
@@ -187,6 +188,7 @@ const MODE_META: Record<RenderMode, { label: string; icon: string; action: strin
   music:     { label: "Album & Lyrics",    icon: "🎵", action: "Writing Tracks"          },
   podcast:   { label: "Episode Script",    icon: "🎙️", action: "Writing Episode"         },
   document:  { label: "Full Document",     icon: "📄", action: "Generating Document"     },
+  training:  { label: "Training Module",   icon: "🧠", action: "Building Training Suite" },
 };
 
 function detectMode(industry: string): RenderMode {
@@ -199,6 +201,7 @@ function detectMode(industry: string): RenderMode {
   if (industry === "Physical Product")                      return "showcase";
   if (industry === "Music / Album")                         return "music";
   if (industry === "Podcast")                               return "podcast";
+  if (["Corporate Training", "HR / L&D", "Education"].includes(industry)) return "training";
   return "document";
 }
 
@@ -948,7 +951,7 @@ function BookReader({ manifest, projectId }: { manifest: RenderManifest; project
           {bookAutoSaved && (
             <div style={{ fontSize: 9, color: "#4ade80", fontWeight: 700, textAlign: "center" }}>✓ Auto-saved</div>
           )}
-          <button onClick={() => window.print()}
+          <button onClick={() => window.open(`/api/generate/export-pdf/${projectId}?mode=book`, "_blank")}
             style={{
               display: "block", width: "100%", padding: "7px 0",
               background: "#6366f1", border: "none", borderRadius: 8,
@@ -1317,9 +1320,9 @@ function PitchDeckViewer({ manifest, projectId }: { manifest: RenderManifest; pr
           {editMode ? "✓ Done" : "✏️ Edit"}
         </button>
         {isDirty && <SaveBtn saving={saving} onClick={handleSave} />}
-        <button onClick={() => window.print()}
+        <button onClick={() => window.open(`/api/generate/export-pdf/${projectId}?mode=course`, "_blank")}
           style={{ background: "#6366f1", border: "none", color: "#fff", padding: "5px 12px", borderRadius: 8, fontSize: 11, fontWeight: 700, cursor: "pointer" }}>
-          PDF
+          📄 PDF
         </button>
       </div>
     </div>
@@ -1916,7 +1919,7 @@ function DocumentReader({ manifest, projectId }: { manifest: RenderManifest; pro
           {editMode ? "✓ Done" : "✏️ Edit"}
         </button>
         {isDirty && <SaveBtn saving={saving} onClick={handleSave} />}
-        <button onClick={() => window.print()}
+        <button onClick={() => window.open(`/api/generate/export-pdf/${projectId}?mode=pitch`, "_blank")}
           style={{ background: "#6366f1", border: "none", color: "#fff", padding: "5px 12px", borderRadius: 8, fontSize: 10, fontWeight: 700, cursor: "pointer" }}>
           📄 PDF
         </button>
@@ -1963,6 +1966,306 @@ function DocumentReader({ manifest, projectId }: { manifest: RenderManifest; pro
   );
 }
 
+// ─── Training Player ──────────────────────────────────────────────────────────
+
+const TRAINING_TABS = [
+  { key: "Onboarding",  emoji: "🎓", color: "#10b981" },
+  { key: "SkillBoost",  emoji: "⚡", color: "#f59e0b" },
+  { key: "ScenarioSim", emoji: "🎮", color: "#6366f1" },
+] as const;
+
+function TrainingPlayer({ manifest, projectId }: { manifest: RenderManifest; projectId: string | number }) {
+  const [activeTab, setActiveTab]       = useState(0);
+  const [progress, setProgress]         = useState<Record<number, number>>({});
+  const [completed, setCompleted]       = useState<Record<number, boolean>>({});
+  const [simStep, setSimStep]           = useState(0);
+  const [simChoice, setSimChoice]       = useState<string | null>(null);
+  const [editMode, setEditMode]         = useState(false);
+  const [editedContent, setEditedContent] = useState<string | null>(null);
+  const [saving, setSaving]             = useState(false);
+  const [audioOn, setAudioOn]           = useState(false);
+  const [regenImages, setRegenImages]   = useState<Record<number, string>>({});
+  const [regenLoading, setRegenLoading] = useState<number | null>(null);
+  const audio = useAmbientAudio();
+
+  const frame = manifest.frames[activeTab];
+  const tab   = TRAINING_TABS[activeTab];
+
+  useEffect(() => { setEditedContent(null); setEditMode(false); setSimStep(0); setSimChoice(null); }, [activeTab]);
+
+  const toggleAudio = useCallback(() => {
+    if (!audioOn) { audio.play("uplifting"); setAudioOn(true); }
+    else          { audio.fadeOut(0.6); setAudioOn(false); }
+  }, [audioOn, audio]);
+
+  const { autoSaved: trainingAutoSaved } = useAutoSave(
+    editedContent, projectId, `_saved_training_${activeTab}`, editMode && editedContent !== null,
+  );
+
+  // Parse scenario simulation steps from ScenarioSim content
+  const parseSimSteps = (text: string) => {
+    const blocks = text.split(/DECISION POINT [AB]:/i).filter(b => b.trim());
+    return blocks.map(block => {
+      const lines  = block.trim().split("\n").filter(l => l.trim());
+      const prompt = lines[0] ?? "";
+      const choices = lines.filter(l => /→ Choice \d:/.test(l)).map(l =>
+        l.replace(/→ Choice \d:\s*/, "").trim()
+      );
+      return { prompt, choices };
+    });
+  };
+
+  const simSteps = activeTab === 2 && frame ? parseSimSteps(frame.content) : [];
+  const currentStep = simSteps[simStep];
+
+  const markProgress = (pct: number) => {
+    setProgress(p => ({ ...p, [activeTab]: Math.max(p[activeTab] ?? 0, pct) }));
+    if (pct >= 100) setCompleted(c => ({ ...c, [activeTab]: true }));
+  };
+
+  return (
+    <div style={{ height: "100%", display: "flex", flexDirection: "column", background: "#f8fafc" }}>
+
+      {/* Header */}
+      <div style={{
+        padding: "14px 20px", background: "#fff", borderBottom: "1px solid rgba(0,0,0,0.08)",
+        display: "flex", alignItems: "center", gap: 12,
+      }}>
+        <div style={{ fontSize: 18 }}>🧠</div>
+        <div style={{ flex: 1 }}>
+          <div style={{ fontSize: 14, fontWeight: 700, color: "#0f172a" }}>{manifest.projectName}</div>
+          <div style={{ fontSize: 10, color: "#94a3b8", fontWeight: 600 }}>TRAINING MODULE — PHASE ∞+</div>
+        </div>
+        <div style={{ display: "flex", gap: 4 }}>
+          {TRAINING_TABS.map((t, i) => (
+            <button key={t.key} onClick={() => setActiveTab(i)}
+              style={{
+                padding: "6px 12px", borderRadius: 10, fontSize: 11, fontWeight: 700,
+                border: `1.5px solid ${i === activeTab ? t.color : "rgba(0,0,0,0.08)"}`,
+                background: i === activeTab ? t.color : "#f8fafc",
+                color: i === activeTab ? "#fff" : "#64748b",
+                cursor: "pointer", position: "relative",
+              }}>
+              {t.emoji} {t.key}
+              {completed[i] && (
+                <span style={{
+                  position: "absolute", top: -4, right: -4, fontSize: 9,
+                  background: "#4ade80", color: "#fff", borderRadius: "50%",
+                  width: 14, height: 14, display: "flex", alignItems: "center", justifyContent: "center",
+                }}>✓</span>
+              )}
+            </button>
+          ))}
+        </div>
+        <AudioBtn on={audioOn} onToggle={toggleAudio} />
+      </div>
+
+      {/* Hero image */}
+      {(regenImages[activeTab] ?? frame?.imageUrl) && (
+        <div style={{ height: 160, position: "relative", overflow: "hidden", flexShrink: 0 }}>
+          <img
+            src={regenImages[activeTab] ?? frame?.imageUrl}
+            alt=""
+            style={{ width: "100%", height: "100%", objectFit: "cover" }}
+          />
+          <div style={{
+            position: "absolute", inset: 0,
+            background: `linear-gradient(to bottom, transparent 30%, ${tab?.color ?? "#6366f1"}33 100%)`,
+          }} />
+          <button
+            disabled={regenLoading === activeTab}
+            onClick={async () => {
+              setRegenLoading(activeTab);
+              const url = await regenArt(projectId, manifestNameFor(manifest.renderMode), activeTab, frame?.title, frame?.content);
+              if (url) setRegenImages(prev => ({ ...prev, [activeTab]: url }));
+              setRegenLoading(null);
+            }}
+            title="Regenerate artwork (DALL-E 3)"
+            style={{
+              position: "absolute", top: 8, right: 8,
+              background: "rgba(0,0,0,0.5)", border: "none", borderRadius: 8,
+              color: "#fff", fontSize: 14, padding: "4px 8px", cursor: "pointer",
+            }}>
+            {regenLoading === activeTab ? "⏳" : "🎨"}
+          </button>
+        </div>
+      )}
+
+      {/* Progress bar */}
+      <div style={{ padding: "8px 20px", background: "#fff", borderBottom: "1px solid rgba(0,0,0,0.06)" }}>
+        <div style={{ display: "flex", alignItems: "center", gap: 8 }}>
+          <div style={{ flex: 1, height: 4, background: "#f1f5f9", borderRadius: 2, overflow: "hidden" }}>
+            <div style={{
+              height: "100%", borderRadius: 2,
+              background: tab?.color ?? "#6366f1",
+              width: `${progress[activeTab] ?? 0}%`,
+              transition: "width 0.5s ease",
+            }} />
+          </div>
+          <div style={{ fontSize: 10, fontWeight: 700, color: "#94a3b8", minWidth: 32 }}>
+            {progress[activeTab] ?? 0}%
+          </div>
+        </div>
+      </div>
+
+      {/* Content */}
+      <div style={{ flex: 1, overflowY: "auto", padding: "24px 32px" }}>
+
+        {/* Scenario Sim — interactive mode */}
+        {activeTab === 2 && simSteps.length > 0 ? (
+          <div>
+            <div style={{ fontSize: 13, fontWeight: 700, color: tab?.color, marginBottom: 16 }}>
+              DECISION POINT {simStep + 1} / {simSteps.length}
+            </div>
+            <div style={{
+              background: "#fff", borderRadius: 14, padding: 24,
+              border: `1.5px solid ${tab?.color ?? "#6366f1"}33`, marginBottom: 20,
+            }}>
+              <div style={{ fontSize: 15, fontWeight: 600, color: "#0f172a", marginBottom: 16, lineHeight: 1.5 }}>
+                {currentStep?.prompt}
+              </div>
+              {simChoice ? (
+                <div>
+                  <div style={{ fontSize: 13, color: "#4ade80", fontWeight: 600, marginBottom: 12 }}>
+                    ✓ You chose: {simChoice}
+                  </div>
+                  <button
+                    onClick={() => {
+                      if (simStep < simSteps.length - 1) {
+                        setSimStep(s => s + 1);
+                        setSimChoice(null);
+                        const pct = Math.round(((simStep + 1) / simSteps.length) * 100);
+                        markProgress(pct);
+                      } else {
+                        markProgress(100);
+                      }
+                    }}
+                    style={{
+                      padding: "8px 20px", borderRadius: 10, background: tab?.color ?? "#6366f1",
+                      border: "none", color: "#fff", fontSize: 13, fontWeight: 700, cursor: "pointer",
+                    }}>
+                    {simStep < simSteps.length - 1 ? "Next Decision →" : "Complete Simulation ✓"}
+                  </button>
+                </div>
+              ) : (
+                <div style={{ display: "flex", flexDirection: "column", gap: 8 }}>
+                  {(currentStep?.choices ?? []).map((choice, ci) => (
+                    <button key={ci} onClick={() => { setSimChoice(choice); markProgress(Math.round(((simStep + 0.5) / simSteps.length) * 100)); }}
+                      style={{
+                        textAlign: "left", padding: "10px 16px", borderRadius: 10,
+                        background: "#f8fafc", border: "1.5px solid rgba(0,0,0,0.08)",
+                        color: "#374151", fontSize: 13, cursor: "pointer", lineHeight: 1.5,
+                        transition: "border-color 0.15s",
+                      }}
+                      onMouseOver={e => (e.currentTarget.style.borderColor = tab?.color ?? "#6366f1")}
+                      onMouseOut={e => (e.currentTarget.style.borderColor = "rgba(0,0,0,0.08)")}>
+                      {["A", "B", "C"][ci]}. {choice}
+                    </button>
+                  ))}
+                </div>
+              )}
+            </div>
+            {/* Full text for reference */}
+            <details style={{ marginTop: 8 }}>
+              <summary style={{ fontSize: 11, color: "#94a3b8", cursor: "pointer", fontWeight: 600 }}>
+                View full scenario text
+              </summary>
+              <div style={{ marginTop: 12, fontSize: 13, lineHeight: 1.75, color: "#64748b", whiteSpace: "pre-wrap" }}>
+                {frame?.content}
+              </div>
+            </details>
+          </div>
+        ) : (
+          /* Standard read/edit mode for Onboarding + SkillBoost */
+          <div>
+            <div style={{ display: "flex", alignItems: "center", gap: 8, marginBottom: 16, flexWrap: "wrap" }}>
+              <div style={{ fontSize: 12, fontWeight: 700, color: tab?.color, flex: 1 }}>{frame?.badge}</div>
+              <button onClick={() => setEditMode(m => !m)}
+                style={{
+                  padding: "4px 12px", borderRadius: 8, fontSize: 10, fontWeight: 700, cursor: "pointer",
+                  background: editMode ? `${tab?.color}22` : "#f1f5f9",
+                  border: editMode ? `1px solid ${tab?.color}` : "1px solid transparent",
+                  color: editMode ? tab?.color : "#94a3b8",
+                }}>
+                {editMode ? "✓ Done" : "✏️ Edit"}
+              </button>
+              {editMode && editedContent !== null && (
+                <SaveBtn onClick={async () => {
+                  setSaving(true);
+                  await saveToProject(projectId, `_saved_training_${activeTab}`, editedContent ?? "");
+                  setSaving(false);
+                }} saving={saving} />
+              )}
+              {trainingAutoSaved && <span style={{ fontSize: 9, color: "#4ade80", fontWeight: 700 }}>✓ Auto-saved</span>}
+              {!completed[activeTab] && (
+                <button onClick={() => markProgress(100)}
+                  style={{
+                    padding: "4px 12px", borderRadius: 8, fontSize: 10, fontWeight: 700, cursor: "pointer",
+                    background: tab?.color, border: "none", color: "#fff",
+                  }}>
+                  Mark Complete ✓
+                </button>
+              )}
+            </div>
+            <h2 style={{ fontSize: 20, fontWeight: 700, color: "#0f172a", marginBottom: 20 }}>{frame?.title}</h2>
+            {editMode ? (
+              <textarea
+                value={editedContent ?? frame?.content ?? ""}
+                onChange={e => { setEditedContent(e.target.value); markProgress(50); }}
+                style={{
+                  width: "100%", minHeight: 400, fontSize: 14, lineHeight: 1.8, color: "#374151",
+                  border: `1.5px solid ${tab?.color ?? "#6366f1"}`, borderRadius: 10, padding: 16,
+                  resize: "vertical", background: "#f8fafc", boxSizing: "border-box", outline: "none",
+                  fontFamily: "inherit",
+                }}
+              />
+            ) : (
+              <div
+                style={{ fontSize: 14, lineHeight: 1.8, color: "#374151", whiteSpace: "pre-wrap" }}
+                onScroll={e => {
+                  const el = e.currentTarget;
+                  const pct = Math.round((el.scrollTop / (el.scrollHeight - el.clientHeight || 1)) * 100);
+                  markProgress(pct);
+                }}>
+                {editedContent ?? frame?.content}
+              </div>
+            )}
+          </div>
+        )}
+      </div>
+
+      {/* Footer nav */}
+      <div style={{
+        padding: "10px 20px", background: "#fff", borderTop: "1px solid rgba(0,0,0,0.08)",
+        display: "flex", alignItems: "center", gap: 8,
+      }}>
+        <button onClick={() => setActiveTab(t => Math.max(0, t - 1))}
+          style={{ background: "#f8fafc", border: "1px solid rgba(0,0,0,0.1)", color: "#374151",
+            padding: "5px 12px", borderRadius: 8, fontSize: 11, cursor: "pointer" }}>←</button>
+        <div style={{ flex: 1, display: "flex", gap: 6, justifyContent: "center" }}>
+          {TRAINING_TABS.map((t, i) => (
+            <div key={t.key} onClick={() => setActiveTab(i)}
+              style={{
+                width: i === activeTab ? 24 : 6, height: 6, borderRadius: 3, cursor: "pointer",
+                background: completed[i] ? "#4ade80" : i === activeTab ? t.color : "rgba(0,0,0,0.12)",
+                transition: "all 0.2s",
+              }} />
+          ))}
+        </div>
+        <button onClick={() => setActiveTab(t => Math.min(TRAINING_TABS.length - 1, t + 1))}
+          style={{ background: "#f8fafc", border: "1px solid rgba(0,0,0,0.1)", color: "#374151",
+            padding: "5px 12px", borderRadius: 8, fontSize: 11, cursor: "pointer" }}>→</button>
+        <button
+          onClick={() => window.open(`/api/generate/export-pdf/${projectId}?mode=training`, "_blank")}
+          style={{ background: "#6366f1", border: "none", color: "#fff",
+            padding: "5px 12px", borderRadius: 8, fontSize: 11, fontWeight: 700, cursor: "pointer" }}>
+          📄 Export PDF
+        </button>
+      </div>
+    </div>
+  );
+}
+
 // ─── Output Router ────────────────────────────────────────────────────────────
 
 function OutputViewer({ manifest, projectId }: { manifest: RenderManifest; projectId: string | number }) {
@@ -1976,6 +2279,7 @@ function OutputViewer({ manifest, projectId }: { manifest: RenderManifest; proje
     case "showcase":  return <ProductShowcase   manifest={manifest} projectId={projectId} />;
     case "music":     return <MusicPlayer       manifest={manifest} projectId={projectId} />;
     case "podcast":   return <PodcastPlayer     manifest={manifest} projectId={projectId} />;
+    case "training":  return <TrainingPlayer    manifest={manifest} projectId={projectId} />;
     default:          return <DocumentReader    manifest={manifest} projectId={projectId} />;
   }
 }
@@ -1984,32 +2288,34 @@ function OutputViewer({ manifest, projectId }: { manifest: RenderManifest; proje
 // Scans project files for existing manifests and surfaces up to 3 untried modes.
 
 const ALL_RENDER_MODES: RenderMode[] = [
-  "cinematic","game","app","book","course","pitch","showcase","music","podcast","document",
+  "cinematic","game","app","book","course","pitch","showcase","music","podcast","document","training",
 ];
 const MODE_MANIFEST_NAME: Record<RenderMode, string> = {
   cinematic: "Movie Production Manifest",
-  game: "Render Manifest — game",
-  app: "Render Manifest — app",
-  book: "Render Manifest — book",
-  course: "Render Manifest — course",
-  pitch: "Render Manifest — pitch",
-  showcase: "Render Manifest — showcase",
-  music: "Render Manifest — music",
-  podcast: "Render Manifest — podcast",
-  document: "Render Manifest — document",
+  game:      "Render Manifest — game",
+  app:       "Render Manifest — app",
+  book:      "Render Manifest — book",
+  course:    "Render Manifest — course",
+  pitch:     "Render Manifest — pitch",
+  showcase:  "Render Manifest — showcase",
+  music:     "Render Manifest — music",
+  podcast:   "Render Manifest — podcast",
+  document:  "Render Manifest — document",
+  training:  "Render Manifest — training",
 };
 // Affinity map: for each mode, ranked list of modes worth suggesting next
 const MODE_AFFINITY: Record<RenderMode, RenderMode[]> = {
-  cinematic: ["book","podcast","music","course","pitch","document","app","game","showcase"],
-  game:      ["app","showcase","book","course","pitch","podcast","document","cinematic","music"],
-  app:       ["pitch","showcase","document","course","book","podcast","game","cinematic","music"],
-  book:      ["course","podcast","cinematic","music","document","pitch","app","game","showcase"],
-  course:    ["book","podcast","document","pitch","app","cinematic","music","game","showcase"],
-  pitch:     ["showcase","document","podcast","book","course","app","cinematic","music","game"],
-  showcase:  ["pitch","app","document","game","music","podcast","book","course","cinematic"],
-  music:     ["podcast","cinematic","book","course","document","pitch","app","game","showcase"],
-  podcast:   ["music","book","course","document","pitch","cinematic","app","game","showcase"],
-  document:  ["pitch","course","book","podcast","app","showcase","music","game","cinematic"],
+  cinematic: ["book","podcast","music","course","pitch","document","app","game","showcase","training"],
+  game:      ["app","showcase","book","course","pitch","podcast","document","cinematic","music","training"],
+  app:       ["pitch","showcase","document","course","book","podcast","game","cinematic","music","training"],
+  book:      ["course","training","podcast","cinematic","music","document","pitch","app","game","showcase"],
+  course:    ["training","book","podcast","document","pitch","app","cinematic","music","game","showcase"],
+  pitch:     ["showcase","document","podcast","book","course","app","cinematic","music","game","training"],
+  showcase:  ["pitch","app","document","game","music","podcast","book","course","cinematic","training"],
+  music:     ["podcast","cinematic","book","course","document","pitch","app","game","showcase","training"],
+  podcast:   ["music","book","course","document","pitch","cinematic","app","game","showcase","training"],
+  document:  ["pitch","course","training","book","podcast","app","showcase","music","game","cinematic"],
+  training:  ["course","book","document","podcast","pitch","app","showcase","cinematic","music","game"],
 };
 
 function SuggestedNextRenders({
@@ -2211,7 +2517,7 @@ export function RenderEngineApp({ projectId, projectName, projectType, onClose }
     cinematic: "#dc2626", game: "#7c3aed", app: "#2563eb",
     book: "#6b7280", course: "#0891b2", pitch: "#d97706",
     showcase: "#b45309", music: "#db2777", podcast: "#ea580c",
-    document: "#475569",
+    document: "#475569", training: "#10b981",
   };
   const accent = typeColor[renderMode];
 

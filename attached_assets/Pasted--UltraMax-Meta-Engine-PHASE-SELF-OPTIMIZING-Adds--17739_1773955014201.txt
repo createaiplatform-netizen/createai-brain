@@ -1,0 +1,115 @@
+// ================= UltraMax Meta-Engine — PHASE ∞² SELF-OPTIMIZING =================
+// Adds: 
+// 1. Usage analysis engine
+// 2. Auto-discovery of new workflows/modules
+// 3. AI-driven generation of entirely new project types
+// 4. Dynamic adaptive optimization for all players/modules
+
+import { createServer } from "vite";
+import fs from "fs";
+import path from "path";
+import { ModuleRegistry } from "./meta/ModuleRegistry";
+import { PlayerRegistry } from "./meta/PlayerRegistry";
+import { BranchingEngine } from "./meta/BranchingEngine";
+import { MediaSynthEngine } from "./meta/MediaSynthEngine";
+import { PDFEngine } from "./meta/PDFEngine";
+import { TrainingEngine } from "./meta/TrainingEngine";
+import { FormEngine } from "./meta/FormEngine";
+import { AdEngine } from "./meta/AdEngine";
+import { useAmbientAudio } from "./hooks/useAmbientAudio";
+import { useAutoSave } from "./hooks/useAutoSave";
+import { SelfAnalysisEngine } from "./meta/SelfAnalysisEngine";
+
+const PORT = 23568;
+const PROJECTS_DIR = "./projects";
+const AUTO_GEN_INTERVAL_MS = 5000;
+
+// ------------------------ PHASE ∞² CORE ------------------------
+async function ultraMaxPhaseInfinity2() {
+    const projects = fs.readdirSync(PROJECTS_DIR);
+
+    for (const projectId of projects) {
+        const manifestPath = path.join(PROJECTS_DIR, projectId, "renderManifest.json");
+        const manifest = fs.existsSync(manifestPath)
+            ? JSON.parse(fs.readFileSync(manifestPath, "utf-8"))
+            : { modules: [], players: [], generatedContent: [], branching: [] };
+
+        // 1. Auto-register missing modules & players
+        const missingEntities = ModuleRegistry.detectMissing(manifest);
+        for (const entityType of missingEntities) {
+            const newEntity = await ModuleRegistry.create(entityType, projectId);
+            manifest.modules.push(newEntity.id);
+            saveProjectFile(projectId, `${newEntity.id}.json`, newEntity);
+        }
+
+        // 2. Cross-module & cross-player synthesis
+        const combinedContent = ModuleRegistry.combineContent(manifest.modules);
+        saveProjectFile(projectId, "_cross_module_session.json", combinedContent);
+
+        // 3. Branching + SuggestedNextRenders
+        const newBranches = BranchingEngine.autoGenerateBranches(manifest.modules);
+        manifest.branching.push(...newBranches);
+        saveProjectFile(projectId, "_branching.json", newBranches);
+
+        // 4. AI synthesis for media/PDF/forms/training/ads
+        for (const moduleId of manifest.modules) {
+            const media = await MediaSynthEngine.generateForModule(moduleId, projectId);
+            const pdf = await PDFEngine.generateForModule(moduleId, projectId);
+            const training = await TrainingEngine.generateForModule(moduleId, projectId);
+            const form = await FormEngine.generateForModule(moduleId, projectId);
+            const ad = await AdEngine.generateForModule(moduleId, projectId);
+
+            saveProjectFile(projectId, `_media_${moduleId}.json`, media);
+            saveProjectFile(projectId, `_pdf_${moduleId}.json`, pdf);
+            saveProjectFile(projectId, `_training_${moduleId}.json`, training);
+            saveProjectFile(projectId, `_form_${moduleId}.json`, form);
+            saveProjectFile(projectId, `_ad_${moduleId}.json`, ad);
+        }
+
+        // 5. Adaptive hooks
+        manifest.modules.forEach(mid => {
+            useAmbientAudio({ projectId, moduleId: mid });
+            useAutoSave({ projectId, moduleId: mid });
+        });
+
+        // 6. Full persistence
+        manifest.generatedContent.forEach(item => {
+            saveProjectFile(projectId, `_checkpoint_${item.id}.json`, item);
+        });
+
+        // 7. Self-Analysis + Auto-Expansion (Phase ∞² core feature)
+        const insights = await SelfAnalysisEngine.analyzeProject(projectId, manifest);
+        for (const suggestedModule of insights.newModules) {
+            const newModule = await ModuleRegistry.create(suggestedModule.type, projectId);
+            manifest.modules.push(newModule.id);
+            saveProjectFile(projectId, `${newModule.id}.json`, newModule);
+        }
+
+        for (const suggestedPlayer of insights.newPlayers) {
+            const newPlayer = await PlayerRegistry.createPlayer(suggestedPlayer.type, projectId);
+            manifest.players.push(newPlayer.id);
+            saveProjectFile(projectId, `${newPlayer.id}.json`, newPlayer);
+        }
+
+        fs.writeFileSync(manifestPath, JSON.stringify(manifest, null, 2));
+    }
+}
+
+// ------------------------ HELPER ------------------------
+function saveProjectFile(projectId: string, fileId: string, content: any) {
+    const projectPath = path.join(PROJECTS_DIR, projectId);
+    if (!fs.existsSync(projectPath)) fs.mkdirSync(projectPath, { recursive: true });
+    fs.writeFileSync(path.join(projectPath, fileId), JSON.stringify(content, null, 2));
+}
+
+// ------------------------ AUTO-EXPANSION LOOP ------------------------
+setInterval(ultraMaxPhaseInfinity2, AUTO_GEN_INTERVAL_MS);
+
+// ------------------------ SERVER INIT ------------------------
+createServer({
+    root: ".",
+    server: { port: PORT, strictPort: true },
+}).then(server => {
+    console.log(`UltraMax Meta-Engine PHASE ∞² running on port ${PORT}`);
+    server.listen();
+});

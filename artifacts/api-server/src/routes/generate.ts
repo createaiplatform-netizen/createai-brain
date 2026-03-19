@@ -21,9 +21,10 @@ const router = Router();
 // ─── Types ───────────────────────────────────────────────────────────────────
 
 export type RenderMode =
-  | "cinematic" | "game" | "app" | "book"
-  | "course"    | "pitch" | "showcase"
-  | "music"     | "podcast" | "document";
+  | "cinematic" | "game"     | "app"     | "book"
+  | "course"    | "pitch"    | "showcase"
+  | "music"     | "podcast"  | "document"
+  | "training";
 
 export interface SceneChoice { label: string; targetIndex: number; }
 
@@ -72,15 +73,16 @@ function sse(res: Response, data: object): void {
 // ─── Mode detection ───────────────────────────────────────────────────────────
 
 function detectRenderMode(industry: string): RenderMode {
-  if (["Film / Movie", "Documentary"].includes(industry))   return "cinematic";
-  if (industry === "Video Game")                             return "game";
-  if (["Mobile App", "Web App / SaaS"].includes(industry))  return "app";
-  if (industry === "Book / Novel")                           return "book";
-  if (industry === "Online Course")                          return "course";
-  if (["Business", "Startup"].includes(industry))            return "pitch";
-  if (industry === "Physical Product")                       return "showcase";
-  if (industry === "Music / Album")                          return "music";
-  if (industry === "Podcast")                                return "podcast";
+  if (["Film / Movie", "Documentary"].includes(industry))        return "cinematic";
+  if (industry === "Video Game")                                  return "game";
+  if (["Mobile App", "Web App / SaaS"].includes(industry))       return "app";
+  if (industry === "Book / Novel")                                return "book";
+  if (industry === "Online Course")                               return "course";
+  if (["Business", "Startup"].includes(industry))                 return "pitch";
+  if (industry === "Physical Product")                            return "showcase";
+  if (industry === "Music / Album")                               return "music";
+  if (industry === "Podcast")                                     return "podcast";
+  if (["Corporate Training", "HR / L&D", "Education"].includes(industry)) return "training";
   return "document";
 }
 
@@ -239,7 +241,7 @@ async function makeTitleCard(
   const label: Record<RenderMode, string> = {
     cinematic: "film", game: "video game", app: "app", book: "book",
     course: "online course", pitch: "pitch deck", showcase: "product showcase",
-    music: "album", podcast: "podcast", document: "document",
+    music: "album", podcast: "podcast", document: "document", training: "training module",
   };
   const tc = await gptJSON<{ tagline?: string; creditLines?: string[] }>(
     "Generate title cards for creative projects. Return only valid JSON.",
@@ -662,6 +664,55 @@ async function handlePodcast(
   sse(res, { type: "frame_done", frame: 3, total: 3, data: frame2 });
 }
 
+// TRAINING ─ Onboarding + SkillBoost + ScenarioSim modules with DALL-E visuals
+async function handleTraining(
+  res: Response,
+  project: { name: string; industry: string },
+  content: string,
+  files: { id: number; name: string }[],
+  pid: number,
+  manifest: UnifiedManifest,
+): Promise<void> {
+  const modules = ["Onboarding", "SkillBoost", "ScenarioSim"] as const;
+  sse(res, { type: "start", total: modules.length * 2 });
+
+  for (let i = 0; i < modules.length; i++) {
+    const mod = modules[i]!;
+
+    sse(res, { type: "progress", frame: i * 2 + 1, total: modules.length * 2, step: "visual", message: `Generating ${mod} artwork…` });
+    const imagePrompt = {
+      Onboarding:  `Corporate training illustration, warm and welcoming, diverse team in onboarding session, modern office environment, flat design meets photorealism, professional yet approachable, ${project.name} brand`,
+      SkillBoost:  `Professional skill development illustration, person at workstation mastering new skill, data visualisations in background, motion lines indicating progress, inspiring atmosphere, ${project.name}`,
+      ScenarioSim: `Interactive scenario simulation interface, split-screen showing decision trees, futuristic yet approachable UI, holographic flowchart, soft neon accents on dark background, ${project.name}`,
+    }[mod];
+    const imageUrl = await dalleImage(imagePrompt, "1792x1024");
+
+    sse(res, { type: "progress", frame: i * 2 + 2, total: modules.length * 2, step: "text", message: `Writing ${mod} content…` });
+
+    const systemPrompt: Record<typeof mod, string> = {
+      Onboarding:  `You are a seasoned L&D specialist. Write engaging onboarding materials that welcome new employees warmly and make them productive fast.`,
+      SkillBoost:  `You are an expert learning designer. Create concise, practical skill-building content with clear steps, examples, and practice exercises.`,
+      ScenarioSim: `You are an instructional designer specialising in immersive scenario simulations. Write branching decision scenarios with consequences, debrief notes, and key learning outcomes.`,
+    };
+    const userPrompt: Record<typeof mod, string> = {
+      Onboarding:  `Write an Onboarding module for "${project.name}" (${project.industry}).\nContext: ${content.slice(0, 1500)}\n\nInclude: Welcome message (2 sentences), Company mission & values (3 bullets), First-week agenda (5 steps), Key contacts (3 roles), Quick-win task for day 1, FAQ (3 Q&As), Next steps.`,
+      SkillBoost:  `Write a SkillBoost module for "${project.name}" (${project.industry}).\nContext: ${content.slice(0, 1500)}\n\nInclude: Skill overview & why it matters, 5 practical techniques (numbered), 2 real-world examples, Mini exercise, Common mistakes to avoid, Mastery checklist (5 items), Further reading.`,
+      ScenarioSim: `Write a ScenarioSim module for "${project.name}" (${project.industry}).\nContext: ${content.slice(0, 1500)}\n\nFormat:\nSCENARIO: [2-sentence situation]\nDECISION POINT A: [action choice]\n  → Choice 1: [outcome + lesson]\n  → Choice 2: [outcome + lesson]\n  → Choice 3: [outcome + lesson]\nDECISION POINT B: [follow-up]\n  → Choice 1 / 2 / 3: [outcomes]\nDEBRIEF: [3 key learning points]\nKEY TAKEAWAY: [1 sentence]`,
+    };
+
+    const text = await gptText(systemPrompt[mod], userPrompt[mod], 1400);
+
+    const frame: RenderFrame = {
+      index: i, title: mod, imageUrl,
+      content: text,
+      badge: ["🎓 Onboarding", "⚡ SkillBoost", "🎮 ScenarioSim"][i],
+    };
+    manifest.frames!.push(frame);
+    sse(res, { type: "frame_done", frame: i * 2 + 2, total: modules.length * 2, data: frame });
+    await saveCheckpoint(pid, files, manifest, "training");
+  }
+}
+
 // DOCUMENT ─ hero image + executive summary + analysis + recommendations
 async function handleDocument(
   res: Response,
@@ -733,7 +784,7 @@ router.post("/", async (req: Request, res: Response) => {
       sse(res, { type: "error", message: "No project files found. Add content first." }); res.end(); return;
     }
 
-    const ALL_MODES: RenderMode[] = ["cinematic","game","app","book","course","pitch","showcase","music","podcast","document"];
+    const ALL_MODES: RenderMode[] = ["cinematic","game","app","book","course","pitch","showcase","music","podcast","document","training"];
     const renderMode: RenderMode = (forceMode && ALL_MODES.includes(forceMode as RenderMode))
       ? (forceMode as RenderMode)
       : detectRenderMode(project.industry ?? "General");
@@ -762,6 +813,7 @@ router.post("/", async (req: Request, res: Response) => {
       music:     ["concept", "track", "album", "lyric", "song", "creative"],
       podcast:   ["concept", "episode", "script", "format", "guest", "topic"],
       document:  ["summary", "overview", "plan", "report", "brief"],
+      training:  ["onboarding", "training", "scenario", "skill", "learn", "simulate"],
     };
 
     const content = prioritiseFiles(files, priorityKeywords[renderMode]);
@@ -871,9 +923,10 @@ router.post("/", async (req: Request, res: Response) => {
         case "course":   await handleCourse(res, project, enrichedContent, fileRefs, pid, manifest);   break;
         case "pitch":    await handlePitch(res, project, enrichedContent, fileRefs, pid, manifest);    break;
         case "showcase": await handleShowcase(res, project, enrichedContent, fileRefs, pid, manifest); break;
-        case "music":    await handleMusic(res, project, enrichedContent, fileRefs, pid, manifest);    break;
-        case "podcast":  await handlePodcast(res, project, enrichedContent, fileRefs, pid, manifest);  break;
-        default:         await handleDocument(res, project, enrichedContent, fileRefs, pid, manifest); break;
+        case "music":    await handleMusic(res, project, enrichedContent, fileRefs, pid, manifest);     break;
+        case "podcast":  await handlePodcast(res, project, enrichedContent, fileRefs, pid, manifest);   break;
+        case "training": await handleTraining(res, project, enrichedContent, fileRefs, pid, manifest);  break;
+        default:         await handleDocument(res, project, enrichedContent, fileRefs, pid, manifest);  break;
       }
     }
 
@@ -1033,6 +1086,89 @@ router.get("/serve/:projectId", async (req: Request, res: Response) => {
     res.send(file.content);
   } catch (err) {
     res.status(500).send("Server error");
+  }
+});
+
+// ─── GET /generate/export-pdf/:projectId ────────────────────────────────────
+// Renders all manifest frames into a print-optimised HTML page the browser
+// can save as a PDF.  Opens in a new tab; user presses Cmd/Ctrl+P to save.
+
+router.get("/export-pdf/:projectId", async (req: Request, res: Response) => {
+  if (!req.isAuthenticated()) { res.status(401).send("Unauthorized"); return; }
+
+  const pid   = parseInt(String(req.params["projectId"] ?? "0"), 10);
+  const mode  = (req.query.mode as string) ?? "";
+
+  try {
+    const files = await db.select().from(projectFiles).where(eq(projectFiles.projectId, pid));
+
+    // Find the right manifest file
+    const manifestFile = mode
+      ? files.find(f => f.name === `Render Manifest — ${mode}` || f.name === "Movie Production Manifest")
+      : files.find(f => f.name.startsWith("Render Manifest —") || f.name === "Movie Production Manifest");
+
+    if (!manifestFile?.content) {
+      res.status(404).send("No manifest found — generate content first."); return;
+    }
+
+    const manifest = JSON.parse(manifestFile.content) as UnifiedManifest;
+    const frames = manifest.frames ?? [];
+
+    const frameHtml = frames.map((f, i) => `
+      <div class="frame" style="page-break-before:${i > 0 ? "always" : "auto"}">
+        ${f.imageUrl ? `<img src="${f.imageUrl}" class="frame-img" alt="" />` : ""}
+        <div class="badge">${f.badge ?? `Section ${i + 1}`}</div>
+        <h2>${f.title ?? ""}</h2>
+        <div class="content">${(f.content ?? "").replace(/\n/g, "<br>")}</div>
+        ${f.subContent ? `<div class="sub-content">${f.subContent.replace(/\n/g, "<br>")}</div>` : ""}
+      </div>
+    `).join("");
+
+    const html = `<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<title>${manifest.projectName} — ${manifest.renderMode}</title>
+<style>
+  *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+  @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700;900&display=swap');
+  body { font-family: Inter, system-ui, sans-serif; background: #fff; color: #0f172a; }
+  .cover { display: flex; flex-direction: column; align-items: center; justify-content: center;
+    min-height: 100vh; background: linear-gradient(135deg, #6366f1, #8b5cf6);
+    color: #fff; text-align: center; padding: 60px; page-break-after: always; }
+  .cover h1 { font-size: 48px; font-weight: 900; margin-bottom: 16px; }
+  .cover .tagline { font-size: 20px; opacity: 0.85; margin-bottom: 24px; }
+  .cover .meta { font-size: 13px; opacity: 0.6; }
+  .frame { padding: 60px; max-width: 860px; margin: 0 auto; }
+  .frame-img { width: 100%; max-height: 340px; object-fit: cover; border-radius: 12px; margin-bottom: 24px; }
+  .badge { font-size: 11px; font-weight: 700; color: #6366f1; letter-spacing: 0.1em; text-transform: uppercase; margin-bottom: 10px; }
+  h2 { font-size: 28px; font-weight: 800; color: #0f172a; margin-bottom: 20px; line-height: 1.2; }
+  .content { font-size: 15px; line-height: 1.85; color: #374151; white-space: pre-wrap; }
+  .sub-content { margin-top: 20px; padding: 16px; background: #f8fafc; border-radius: 10px;
+    font-size: 13px; color: #64748b; border-left: 3px solid #6366f1; }
+  @media print {
+    .cover { -webkit-print-color-adjust: exact; print-color-adjust: exact; }
+    .frame-img { -webkit-print-color-adjust: exact; print-color-adjust: exact; }
+  }
+</style>
+</head>
+<body>
+<div class="cover">
+  <div class="meta">${manifest.renderMode.toUpperCase()} EXPORT</div>
+  <h1>${manifest.projectName}</h1>
+  <div class="tagline">${manifest.titleCard?.tagline ?? ""}</div>
+  <div class="meta">${manifest.titleCard?.creditLines?.join(" · ") ?? ""}</div>
+</div>
+${frameHtml}
+<script>window.onload = () => window.print();</script>
+</body>
+</html>`;
+
+    res.setHeader("Content-Type", "text/html; charset=utf-8");
+    res.setHeader("Cache-Control", "no-cache");
+    res.send(html);
+  } catch (err) {
+    res.status(500).send("PDF export failed");
   }
 });
 

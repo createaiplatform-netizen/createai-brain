@@ -1046,3 +1046,44 @@ Utility scripts package. Each script is a `.ts` file in `src/` with a correspond
 - `/api/system/telemetry/streams` — live SSE stream tracker (activeCount, peakConcurrency, totalStarted, avgDurationMs, recentCompleted)
 - `/api/system/self-heal` — founder-gated manual trigger
 - `/api/admin/audit-logs` — filterable by userId, action, outcome, from, to
+
+---
+
+## Phase ∞+ Feature Set (completed)
+
+### 🎨 Per-Frame Art Regeneration
+- All 4 players (CinematicPlayer, BookReader, CoursePlayer, PitchDeckViewer) have `regenImages` + `regenLoading` state
+- Image srcs use `regenImages[index] ?? frame.imageUrl` for fallback-safe regeneration
+- 🎨 buttons call `POST /api/generate/regen-art` with `{ projectId, manifestName, frameIndex, dallePrompt }`
+- CinematicPlayer received `projectId` prop for regen
+
+### 🏗️ Training Render Mode
+- `"training"` added to `RenderMode` type in both `generate.ts` and `renderEngine.ts`
+- `detectRenderMode` recognizes "Corporate Training", "HR / L&D", "Education"
+- `handleTraining()` generates 3 track types: Onboarding, SkillBoost, ScenarioSim (each with DALL-E + GPT)
+- TrainingPlayer component: 3-tab UI, interactive scenario branching, progress bars, completion badges
+- Art regen, edit mode, auto-save, PDF export (using `/api/generate/export-pdf/:projectId?mode=training`)
+
+### 📄 PDF Export Engine
+- `GET /api/generate/export-pdf/:projectId?mode=` — server-rendered print-optimized HTML
+- BookReader, CoursePlayer, PitchDeckViewer PDF buttons upgraded from `window.print()` to use this endpoint
+- TrainingPlayer already uses the endpoint with `mode=training`
+
+### 📊 Analytics Dashboard
+- New `"analytics"` ViewMode added to ProjectOSApp
+- `AnalyticsDashboard` component: fetches `/api/projects`, derives KPIs (active/archived, docs, AI enrichment rate, industry diversity)
+- Shows 4-stat KPI strip + industry breakdown bar chart + platform snapshot + AI insight blurb
+- Auto-refreshes every 30s; "📊 Analytics" tab in nav (group: "power")
+- Exclusion condition for folder/file view updated to include `analytics`
+
+### 🎓 Corporate Training / HR & L&D Industries
+- Added "Corporate Training" and "HR / L&D" to all industry maps in both:
+  - `artifacts/createai-brain/src/Apps/ProjectOSApp.tsx`: `INDUSTRY_SPECIFIC`, `INDUSTRY_ICONS`, `INDUSTRY_COLORS`, `PROJECT_TYPES`
+  - `artifacts/api-server/src/routes/projects.ts`: `INDUSTRY_SPECIFIC`, `INDUSTRY_ICONS`, `INDUSTRY_COLORS`, inline lists
+- Render engine button map updated: Corporate Training → "Generate Training", HR/L&D → "Generate L&D Program"
+- Folder structure: Onboarding, SkillBoost, ScenarioSim, Assessment, Analytics
+
+### ✨ Quick Start Demo (empty state)
+- 6 clickable demo chip buttons in empty project state: Indie Film, Mobile Game, AI Startup, Business Book, Music Album, Corporate Training
+- Click auto-fills + triggers `parseAndCreate()` — instant project from one click
+- Caption: "Click any example to auto-create it instantly"

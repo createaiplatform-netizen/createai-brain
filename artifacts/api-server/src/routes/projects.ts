@@ -99,6 +99,8 @@ export const INDUSTRY_SPECIFIC: Record<string, { name: string; icon: string }[]>
   "PropTech":            [{ name: "Product & Platform", icon: "🏢" }, { name: "Engineering", icon: "💻" }, { name: "Data & Analytics", icon: "📊" }, { name: "Regulatory & Legal", icon: "⚖️" }, { name: "Sales & GTM", icon: "📈" }],
   "RetailTech":          [{ name: "Product & Commerce", icon: "🛒" }, { name: "Engineering & POS", icon: "💻" }, { name: "Data & Loyalty", icon: "📊" }, { name: "Operations & Supply", icon: "⚙️" }, { name: "Growth & Channels", icon: "📈" }],
   "Climate Tech":        [{ name: "Science & Methodology", icon: "🌍" }, { name: "Platform & Data", icon: "💻" }, { name: "Regulatory & Verification", icon: "📋" }, { name: "Carbon Markets", icon: "💹" }, { name: "Partnerships & GTM", icon: "🤝" }],
+  "Corporate Training":  [{ name: "Onboarding", icon: "🎓" }, { name: "SkillBoost", icon: "⚡" }, { name: "ScenarioSim", icon: "🎮" }, { name: "Assessment", icon: "📝" }, { name: "Analytics", icon: "📊" }],
+  "HR / L&D":            [{ name: "Learning Design", icon: "🧠" }, { name: "Content Library", icon: "📚" }, { name: "Assessment", icon: "📝" }, { name: "LMS & Delivery", icon: "💻" }, { name: "Analytics", icon: "📊" }],
 };
 
 export const INDUSTRY_ICONS: Record<string, string> = {
@@ -121,6 +123,7 @@ export const INDUSTRY_ICONS: Record<string, string> = {
   "HRTech / WorkTech": "👥", "AgriTech": "🌱", "Mobility & AutoTech": "🚗",
   "Creator Economy": "🎨", "PropTech": "🏢", "RetailTech": "🛒",
   "Climate Tech": "🌍",
+  "Corporate Training": "🎓", "HR / L&D": "👩‍🏫",
 };
 
 export const INDUSTRY_COLORS: Record<string, string> = {
@@ -144,6 +147,7 @@ export const INDUSTRY_COLORS: Record<string, string> = {
   "HRTech / WorkTech": "#0891b2", "AgriTech": "#16a34a", "Mobility & AutoTech": "#2563eb",
   "Creator Economy": "#f59e0b", "PropTech": "#64748b", "RetailTech": "#f97316",
   "Climate Tech": "#22c55e",
+  "Corporate Training": "#7c3aed", "HR / L&D": "#6366f1",
 };
 
 // ─── Helper: build full project response object ───────────────────────────────
@@ -534,7 +538,8 @@ router.get(
 
       const existingTypes = Object.keys(typeBreakdown);
       const allTypes = ["Film / Movie", "Documentary", "Video Game", "Mobile App", "Web App / SaaS",
-                        "Business", "Startup", "Physical Product", "Book / Novel", "Music / Album", "Podcast", "Online Course"];
+                        "Business", "Startup", "Physical Product", "Book / Novel", "Music / Album",
+                        "Podcast", "Online Course", "Corporate Training", "HR / L&D"];
       const missingTypes = allTypes.filter(t => !existingTypes.includes(t)).slice(0, 4);
 
       const aiResponse = await openai.chat.completions.create({
@@ -621,7 +626,7 @@ Return ONLY valid JSON — no markdown, no explanation, no extra text.
 The "industry" field MUST be one of these exact values:
 "Film / Movie", "Documentary", "Video Game", "Mobile App", "Web App / SaaS",
 "Business", "Startup", "Physical Product", "Book / Novel", "Music / Album",
-"Podcast", "Online Course", "General"`,
+"Podcast", "Online Course", "Corporate Training", "HR / L&D", "General"`,
           },
           {
             role: "user",
