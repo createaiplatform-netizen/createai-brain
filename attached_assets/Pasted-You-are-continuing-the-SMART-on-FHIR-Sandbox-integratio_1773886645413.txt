@@ -1,0 +1,76 @@
+You are continuing the SMART-on-FHIR Sandbox integration. Do NOT rewrite or remove anything already created. Build on top of the existing connector engine and the new SMART FHIR connector.
+
+Goal:
+Implement the full OAuth redirect + callback flow so a user can legally authorize the SMART-on-FHIR sandbox and activate the connector inside my system.
+
+This includes:
+- A frontend route that handles the OAuth redirect back from the sandbox.
+- A backend callback endpoint that exchanges the authorization code for an access token.
+- Secure temporary storage of the access token (session or in-memory for now).
+- Updating the connector status to “active” once the token is stored.
+- A simple UI confirmation screen that shows the connector is now active.
+
+Detailed requirements:
+
+1) Backend — OAuth Callback
+Create a new backend route:
+  GET /api/integrations/smart-fhir-sandbox/callback
+
+This route must:
+- Read the `code` query parameter.
+- Exchange the code for an access token using the sandbox token endpoint.
+- Store the token in a temporary in-memory map keyed by session or a generated user ID.
+- Mark the SMART_FHIR_SANDBOX connector as “active” for that session/user.
+- Redirect the user back to a frontend route like /connectors/SMART_FHIR_SANDBOX/connected.
+
+Use the environment variables or config values created earlier:
+- SMART_FHIR_TOKEN_URL
+- SMART_FHIR_CLIENT_ID
+- SMART_FHIR_REDIRECT_URI
+
+2) Frontend — OAuth Redirect Handler
+Create a new frontend route:
+  /connectors/SMART_FHIR_SANDBOX/callback
+
+This page should:
+- Read the `code` query parameter from the URL.
+- Immediately call the backend callback endpoint:
+    /api/integrations/smart-fhir-sandbox/callback?code=...
+- Wait for a success response.
+- Redirect the user to:
+    /connectors/SMART_FHIR_SANDBOX/connected
+
+3) Frontend — Connected Confirmation Page
+Create a simple page at:
+  /connectors/SMART_FHIR_SANDBOX/connected
+
+This page should:
+- Display a success message:
+    “SMART-on-FHIR Sandbox Connected”
+- Show a button:
+    “Test Fetch Patient Data”
+- When clicked, call:
+    GET /api/integrations/smart-fhir-sandbox/test-patient
+- Display the returned JSON in a readable format.
+
+4) Connector Status Update
+When the backend callback successfully stores the token:
+- Update the connector status for this session/user to “active”.
+- Ensure the connector list UI reflects this new status.
+
+5) Safety & Clarity
+- Add comments explaining this is a public SMART-on-FHIR sandbox.
+- No real PHI.
+- No real credentials.
+- This is a legal, standards-based integration pattern.
+- This architecture will later support Epic/MyChart once official credentials are obtained.
+
+6) Final Verification
+After implementing:
+- Confirm the OAuth redirect works end-to-end.
+- Confirm the callback exchanges the code for a token.
+- Confirm the connector becomes “active”.
+- Confirm the Test Fetch button retrieves real FHIR data from the sandbox.
+- Confirm the entire project still builds with zero TypeScript errors.
+
+Do NOT modify or break any existing connectors or backend routes. Only add the new SMART-on-FHIR OAuth flow and related UI.

@@ -1,0 +1,104 @@
+You are working inside my existing full-stack CreateAI platform. Do NOT change the overall architecture, ports, or working routes. Do NOT delete or rename existing files. Work incrementally and keep everything compiling and running.
+
+Goal:
+Implement the first REAL, LEGAL external healthcare integration using a public SMART-on-FHIR sandbox (MyChart-style login flow) in a fully user-driven, HIPAA-minded way. This is a stepping stone toward future Epic/MyChart integrations, but MUST use only public, legal test endpoints and MUST NOT hardcode any real credentials or PHI.
+
+High-level behavior I want:
+- A new connector in my existing connector catalog called something like "SMART FHIR Sandbox" (or similar).
+- A "Connect" button in the UI that:
+  - redirects the user to the SMART-on-FHIR sandbox login/authorize screen
+  - lets the user log in / pick a test patient
+  - returns an authorization code to my backend
+- The backend exchanges that code for an access token (against the sandbox), stores it securely (in memory or a simple store for now), and marks the connector as "active" for that user/session.
+- A simple "Test Fetch" button that calls the sandbox FHIR API (e.g., GET /Patient or GET /Observation) using the stored token and shows the result in the UI.
+- Everything must be clearly labeled as:
+  - "Public SMART-on-FHIR Sandbox"
+  - "Test data only"
+  - "No real PHI"
+  - "For demo and architecture validation only"
+
+Constraints:
+- This MUST be implemented using a well-known public SMART-on-FHIR sandbox (e.g., HAPI FHIR, SMART Health IT sandbox, or similar). Choose one that:
+  - supports OAuth2 / SMART-on-FHIR
+  - has public documentation
+  - does NOT require private credentials for basic testing
+- Do NOT add any real Epic/MyChart credentials.
+- Do NOT scrape or bypass anything.
+- This must be 100% legal, standards-based, and clearly structured so that later I can swap the base URL + client credentials to point to Epic/MyChart once I have official approval.
+
+Implementation steps:
+
+1) Add a new connector definition
+- In the same place where my existing simulated sources/connectors are defined, add a new connector object for:
+  - id: "SMART_FHIR_SANDBOX"
+  - displayName: "SMART-on-FHIR Sandbox"
+  - description: "Public SMART-on-FHIR test server with MyChart-style login flow (test data only)."
+  - status: "simulated" or "pending_legal" initially, but with a clear path to "active" once the OAuth flow succeeds.
+  - requires: ["UserAuthorization"] (and optionally "APIKeys" if the chosen sandbox needs a public client ID).
+- Expose this connector in the existing /api/connect/sources response so it appears alongside the others.
+
+2) Backend: SMART-on-FHIR OAuth endpoints
+- Add backend routes under /api/integrations/smart-fhir-sandbox (or similar), for example:
+  - GET /api/integrations/smart-fhir-sandbox/auth-url
+    - Returns the full authorization URL the frontend should redirect to.
+  - GET /api/integrations/smart-fhir-sandbox/callback
+    - Handles the OAuth redirect from the sandbox.
+    - Accepts the authorization code.
+    - Exchanges the code for an access token using the sandbox token endpoint.
+    - Stores the token in a simple in-memory map keyed by session/user (for now).
+    - Marks the connector as "active" for that session/user in a simple in-memory state or response.
+  - GET /api/integrations/smart-fhir-sandbox/test-patient
+    - Uses the stored access token to call a FHIR endpoint like GET /Patient or GET /Observation on the sandbox.
+    - Returns the JSON response to the frontend.
+
+- Use environment variables or a small config object for:
+  - SMART_FHIR_AUTH_URL
+  - SMART_FHIR_TOKEN_URL
+  - SMART_FHIR_FHIR_BASE_URL
+  - SMART_FHIR_CLIENT_ID
+  - SMART_FHIR_REDIRECT_URI
+- For now, you may hardcode a public test client ID if the sandbox provides one in docs, but clearly comment that this is for demo only and must be replaced with real credentials later.
+
+3) Frontend: Connector UI + login flow
+- In the frontend where connectors are listed, update the UI so that:
+  - The "SMART-on-FHIR Sandbox" connector appears with:
+    - its name
+    - its description
+    - its status
+    - a "Connect" button if not active
+    - a "Test Fetch" button if active
+- When the user clicks "Connect":
+  - Call GET /api/integrations/smart-fhir-sandbox/auth-url
+  - Redirect the browser to the returned URL.
+- After the user completes the sandbox login/authorization:
+  - The sandbox should redirect back to SMART_FHIR_REDIRECT_URI, which should be a route in my frontend that:
+    - calls the backend callback endpoint (/api/integrations/smart-fhir-sandbox/callback?code=...)
+    - waits for confirmation
+    - then navigates to a "Connected" view or back to the connector detail page.
+- When the user clicks "Test Fetch":
+  - Call GET /api/integrations/smart-fhir-sandbox/test-patient
+  - Render the returned JSON in a simple, readable way (e.g., a code block or basic table).
+
+4) Safety, clarity, and comments
+- Add clear comments in the code explaining:
+  - This is a public SMART-on-FHIR sandbox integration.
+  - It uses test data only.
+  - It is a legal, standards-based way to validate the architecture.
+  - It is designed so that later, with proper credentials and legal agreements, the same pattern can be used for Epic/MyChart.
+- Do NOT log tokens or sensitive data.
+- Do NOT store anything beyond what is needed for the demo.
+- Make sure all new routes are namespaced clearly so they don’t conflict with existing APIs.
+
+5) Final verification and summary
+- Ensure the project still builds and runs with zero TypeScript errors.
+- Confirm:
+  - The new connector appears in the connector list.
+  - The "Connect" button redirects to the sandbox login.
+  - The callback flow works and marks the connector as active.
+  - The "Test Fetch" button successfully retrieves FHIR data from the sandbox and displays it.
+- Provide a short summary in comments or a README snippet:
+  - Which sandbox you used
+  - Which env vars are required
+  - How to run through the full login + test fetch flow.
+
+Do all of this carefully, preserving the existing working behavior, and treating this as the first legal, user-driven, healthcare integration pattern in the system.
