@@ -1,5 +1,26 @@
 import React, { useState, useRef, useCallback, useEffect } from "react";
 import { UltimateRenderEngineApp } from "./MovieProductionApp";
+import { useAmbientAudio } from "../hooks/useAmbientAudio";
+
+// ─── Shared audio toggle button ────────────────────────────────────────────────
+function AudioBtn({ on, onToggle, dark = false }: { on: boolean; onToggle: () => void; dark?: boolean }) {
+  return (
+    <button
+      onClick={onToggle}
+      title={on ? "Mute ambient audio" : "Play ambient audio"}
+      style={{
+        background: on ? (dark ? "rgba(99,102,241,0.25)" : "rgba(99,102,241,0.12)") : (dark ? "rgba(255,255,255,0.07)" : "#f1f5f9"),
+        border: `1px solid ${on ? "rgba(99,102,241,0.4)" : (dark ? "rgba(255,255,255,0.12)" : "rgba(0,0,0,0.08)")}`,
+        color:  on ? "#818cf8" : (dark ? "#64748b" : "#94a3b8"),
+        width: 28, height: 28, borderRadius: "50%", cursor: "pointer",
+        fontSize: 13, display: "flex", alignItems: "center", justifyContent: "center",
+        flexShrink: 0,
+      }}
+    >
+      {on ? "🎵" : "🔇"}
+    </button>
+  );
+}
 
 // ─── Types ────────────────────────────────────────────────────────────────────
 
@@ -146,7 +167,14 @@ function CinematicPlayer({ manifest }: { manifest: RenderManifest }) {
   const [playing, setPlaying]         = useState(false);
   const [speaking, setSpeaking]       = useState(false);
   const [showChoices, setShowChoices] = useState(false);
+  const [audioOn, setAudioOn]         = useState(false);
   const timerRef  = useRef<ReturnType<typeof setTimeout> | null>(null);
+  const audio = useAmbientAudio();
+
+  const toggleAudio = useCallback(() => {
+    if (!audioOn) { audio.play("mystery"); setAudioOn(true); }
+    else          { audio.fadeOut(0.6); setAudioOn(false); }
+  }, [audioOn, audio]);
   const frames    = manifest.frames;
   const frame     = frames[active];
   if (!frame) return null;
@@ -332,6 +360,7 @@ function CinematicPlayer({ manifest }: { manifest: RenderManifest }) {
           style={{ background: "none", border: "none", color: speaking ? "#818cf8" : "#94a3b8", cursor: "pointer", fontSize: 12 }}>
           {speaking ? "🔊" : "🎙"}
         </button>
+        <AudioBtn on={audioOn} onToggle={toggleAudio} dark />
         {/* Scene dots */}
         <div style={{ display: "flex", gap: 4, marginLeft: 8 }}>
           {frames.map((_, i) => (
@@ -356,6 +385,13 @@ function GamePlayer({ manifest }: { manifest: RenderManifest }) {
   const frames                     = manifest.frames;
   const [activeArt, setActiveArt] = useState(0);
   const [editCode, setEditCode]   = useState(manifest.generatedCode ?? "");
+  const [audioOn, setAudioOn]     = useState(false);
+  const audio = useAmbientAudio();
+
+  const toggleAudio = useCallback(() => {
+    if (!audioOn) { audio.play("action"); setAudioOn(true); }
+    else          { audio.fadeOut(0.6); setAudioOn(false); }
+  }, [audioOn, audio]);
 
   const applyCode = useCallback(() => {
     if (blobUrl.current) URL.revokeObjectURL(blobUrl.current);
@@ -450,6 +486,7 @@ function GamePlayer({ manifest }: { manifest: RenderManifest }) {
               🎮 Play Game
             </button>
           )}
+          <AudioBtn on={audioOn} onToggle={toggleAudio} dark />
         </div>
       </div>
       <div style={{ flex: 1, overflow: "hidden", position: "relative" }}>
@@ -490,6 +527,13 @@ function AppPlayer({ manifest }: { manifest: RenderManifest }) {
   const frames                   = manifest.frames;
   const [activeScreen, setActiveScreen] = useState(0);
   const [editCode, setEditCode] = useState(manifest.generatedCode ?? "");
+  const [audioOn, setAudioOn]   = useState(false);
+  const audio = useAmbientAudio();
+
+  const toggleAudio = useCallback(() => {
+    if (!audioOn) { audio.play("uplifting"); setAudioOn(true); }
+    else          { audio.fadeOut(0.6); setAudioOn(false); }
+  }, [audioOn, audio]);
 
   const applyCode = useCallback(() => {
     if (blobUrl.current) URL.revokeObjectURL(blobUrl.current);
@@ -563,6 +607,7 @@ function AppPlayer({ manifest }: { manifest: RenderManifest }) {
         <span style={{ fontSize: 16 }}>🖥️</span>
         <div style={{ color: "#0f172a", fontSize: 12, fontWeight: 700 }}>UI Screen Mockups</div>
         <div style={{ marginLeft: "auto", display: "flex", gap: 8, alignItems: "center" }}>
+          <AudioBtn on={audioOn} onToggle={toggleAudio} />
           {manifest.serveUrl && (
             <a href={manifest.serveUrl} target="_blank" rel="noopener noreferrer"
               style={{
@@ -631,8 +676,16 @@ function BookReader({ manifest }: { manifest: RenderManifest }) {
   const [chapter, setChapter]             = useState(0);
   const [editMode, setEditMode]           = useState(false);
   const [editedContent, setEditedContent] = useState<string | null>(null);
+  const [audioOn, setAudioOn]             = useState(false);
   const frame = manifest.frames[chapter];
+  const audio = useAmbientAudio();
+
   useEffect(() => { setEditedContent(null); setEditMode(false); }, [chapter]);
+
+  const toggleAudio = useCallback(() => {
+    if (!audioOn) { audio.play("romantic"); setAudioOn(true); }
+    else          { audio.fadeOut(0.6); setAudioOn(false); }
+  }, [audioOn, audio]);
 
   return (
     <div style={{ height: "100%", display: "flex", background: "#faf9f7" }}>
@@ -656,6 +709,10 @@ function BookReader({ manifest }: { manifest: RenderManifest }) {
           </button>
         ))}
         <div style={{ borderTop: "1px solid rgba(0,0,0,0.06)", marginTop: 12, paddingTop: 12, display: "flex", flexDirection: "column", gap: 4 }}>
+          <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", marginBottom: 2 }}>
+            <span style={{ fontSize: 10, fontWeight: 600, color: "#94a3b8" }}>Ambient</span>
+            <AudioBtn on={audioOn} onToggle={toggleAudio} />
+          </div>
           <button onClick={() => setEditMode(m => !m)}
             style={{
               display: "block", width: "100%", padding: "7px 0",
@@ -727,8 +784,16 @@ function CoursePlayer({ manifest }: { manifest: RenderManifest }) {
   const [module, setModule]               = useState(0);
   const [editMode, setEditMode]           = useState(false);
   const [editedContent, setEditedContent] = useState<string | null>(null);
+  const [audioOn, setAudioOn]             = useState(false);
   const frame = manifest.frames[module];
+  const audio = useAmbientAudio();
+
   useEffect(() => { setEditedContent(null); setEditMode(false); }, [module]);
+
+  const toggleAudio = useCallback(() => {
+    if (!audioOn) { audio.play("uplifting"); setAudioOn(true); }
+    else          { audio.fadeOut(0.6); setAudioOn(false); }
+  }, [audioOn, audio]);
 
   const parseQuiz = (text: string) => {
     const qBlocks = text.split(/Q\d+:/).filter(b => b.trim());
@@ -768,6 +833,10 @@ function CoursePlayer({ manifest }: { manifest: RenderManifest }) {
             {f.title}
           </button>
         ))}
+        <div style={{ borderTop: "1px solid rgba(0,0,0,0.06)", marginTop: 12, paddingTop: 12, display: "flex", alignItems: "center", justifyContent: "space-between" }}>
+          <span style={{ fontSize: 10, fontWeight: 600, color: "#94a3b8" }}>Ambient</span>
+          <AudioBtn on={audioOn} onToggle={toggleAudio} />
+        </div>
       </div>
 
       {/* Lesson pane */}
@@ -924,7 +993,14 @@ function ProductShowcase({ manifest }: { manifest: RenderManifest }) {
   const [viewIdx, setViewIdx]   = useState(0);
   const [show3D, setShow3D]     = useState(false);
   const [cubeY, setCubeY]       = useState(0);
+  const [audioOn, setAudioOn]   = useState(false);
   const frame = manifest.frames[viewIdx];
+  const audio = useAmbientAudio();
+
+  const toggleAudio = useCallback(() => {
+    if (!audioOn) { audio.play("uplifting"); setAudioOn(true); }
+    else          { audio.fadeOut(0.6); setAudioOn(false); }
+  }, [audioOn, audio]);
 
   // Slowly auto-rotate the 3D cube
   useEffect(() => {
@@ -940,6 +1016,7 @@ function ProductShowcase({ manifest }: { manifest: RenderManifest }) {
       {/* Header */}
       <div style={{ padding: "10px 16px", display: "flex", alignItems: "center", gap: 10, borderBottom: "1px solid rgba(0,0,0,0.07)" }}>
         <div style={{ fontSize: 13, fontWeight: 700, color: "#0f172a", flex: 1 }}>{manifest.projectName}</div>
+        <AudioBtn on={audioOn} onToggle={toggleAudio} />
         <button onClick={() => setShow3D(v => !v)}
           style={{
             background: show3D ? "#6366f1" : "#f1f5f9",
@@ -1226,14 +1303,22 @@ function MusicPlayer({ manifest }: { manifest: RenderManifest }) {
 // ─── Podcast Player ───────────────────────────────────────────────────────────
 
 function PodcastPlayer({ manifest }: { manifest: RenderManifest }) {
-  const [speaking, setSpeaking]       = useState(false);
-  const [activeTab, setActiveTab]     = useState<"script" | "notes">("script");
-  const [editMode, setEditMode]       = useState(false);
+  const [speaking, setSpeaking]         = useState(false);
+  const [activeTab, setActiveTab]       = useState<"script" | "notes">("script");
+  const [editMode, setEditMode]         = useState(false);
   const [editedScript, setEditedScript] = useState<string | null>(null);
   const [editedNotes, setEditedNotes]   = useState<string | null>(null);
+  const [audioOn, setAudioOn]           = useState(false);
   const scriptFrame = manifest.frames.find(f => f.index === 0);
   const notesFrame  = manifest.frames.find(f => f.index === 1);
+  const audio = useAmbientAudio();
+
   useEffect(() => { setEditMode(false); }, [activeTab]);
+
+  const toggleAudio = useCallback(() => {
+    if (!audioOn) { audio.play("romantic"); setAudioOn(true); }
+    else          { audio.fadeOut(0.6); setAudioOn(false); }
+  }, [audioOn, audio]);
 
   // Character-specific TTS voices
   const readScript = () => {
@@ -1297,7 +1382,7 @@ function PodcastPlayer({ manifest }: { manifest: RenderManifest }) {
         <div>
           <div style={{ color: "#fff", fontSize: 14, fontWeight: 700, marginBottom: 2 }}>Episode 1</div>
           <div style={{ color: "#64748b", fontSize: 11, marginBottom: 8 }}>{manifest.projectName}</div>
-          <div style={{ display: "flex", gap: 6 }}>
+          <div style={{ display: "flex", gap: 6, alignItems: "center" }}>
             <button onClick={speaking ? () => { window.speechSynthesis?.cancel(); setSpeaking(false); } : readScript}
               style={{
                 background: speaking ? "rgba(234,88,12,0.2)" : "rgba(234,88,12,0.15)",
@@ -1306,6 +1391,7 @@ function PodcastPlayer({ manifest }: { manifest: RenderManifest }) {
               }}>
               {speaking ? "⏹ Stop Playback" : "🔊 Play Episode"}
             </button>
+            <AudioBtn on={audioOn} onToggle={toggleAudio} dark />
           </div>
         </div>
       </div>

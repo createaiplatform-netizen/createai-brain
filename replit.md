@@ -226,6 +226,34 @@ All existing free-function exports from `memoryService.ts` (`saveMemory`, `loadM
 - **`artifacts/api-server/src/routes/projectChat.ts`**: `buildProjectAgentSystem(projectType, projectName, scaffoldFiles)` — 12 type-specific expert system prompts. Accepts `scaffoldFiles` + `projectType` from POST body.
 - **`artifacts/createai-brain/src/Apps/ProjectOSApp.tsx`**: `PROJECT_SCAFFOLD_MAP` (12 types × 8–12 template files each), `detectProjectType(name)`, `scaffoldProject()` batch-creates files with progress, 2-step New Project modal (name → type picker grid), `PlatformController.streamProjectChat` called with `projectType` + `scaffoldContext`.
 
+## UltraMax Pipeline — All 10 Enhancements (COMPLETE)
+
+**Shared hook**: `artifacts/createai-brain/src/hooks/useAmbientAudio.ts`
+- Exports `getMoodParams`, `getArpParams`, `useAmbientAudio`
+- Full mood-matched ambient Web Audio pad + pentatonic arpeggiator engine
+- `play(cue)`, `crossfade(cue)`, `fadeIn`, `fadeOut`, `setEnabled`, `startArpeggiator`
+- MovieProductionApp.tsx now imports from this shared hook (inline duplicate removed)
+
+**All 9 Universal Render Engine players now have full ambient audio (`🎵/🔇` toggle):**
+- CinematicPlayer → "mystery" cue + `AudioBtn dark` in controls
+- BookReader → "romantic" cue + `AudioBtn` in sidebar
+- CoursePlayer → "uplifting" cue + `AudioBtn` in sidebar
+- PodcastPlayer → "romantic" cue + `AudioBtn dark` in play row (alongside TTS)
+- GamePlayer → "action" cue + `AudioBtn dark` in art gallery header
+- AppPlayer → "uplifting" cue + `AudioBtn` in screens header
+- ProductShowcase → "uplifting" cue + `AudioBtn` in product header (next to 3D View)
+- MusicPlayer → own arpeggiator system (separate, not replaced)
+
+**Other enhancements (previously completed):**
+- `generate.ts` unified SSE route with keepalive (`': keep-alive\n\n'` every 18s)
+- MusicPlayer arpeggiator + inline lyrics editor (per-track `editedLyrics` state)
+- GamePlayer + AppPlayer code editor views (`</> Code` → editable textarea → Apply & Play/Launch)
+- PodcastPlayer character-specific TTS voices (parses `SPEAKER: dialogue` format, assigns voice slot per character)
+- ProductShowcase CSS 3D cube (`🧊 3D View` toggle — 4-face `preserve-3d` + 30ms rotation timer)
+- CinematicPlayer (RenderEngineApp) branching overlay (pipe-separated `subContent` → A/B/C/D choice buttons)
+- BookReader + CoursePlayer inline chapter/module editing
+- `AudioBtn` shared component (top of RenderEngineApp.tsx, reused across all 7 players)
+
 ## Expansion Engine v3 (COMPLETE — Maximum-Capacity Ceiling Applied)
 - **expansionEngine.ts**: 20 expansion paths · 7 iterations · 20-layer power table
 - **openai.ts ENGINE_SYSTEM_PROMPTS**: 20 new max-capacity engines added (DeliverableEngine, AutomationEngine, ProductionEngine, ComplianceAuditEngine, SecurityEngine, ScalingEngine, MonetizationEngine, LaunchEngine, GrowthEngine, RetentionEngine, AnalyticsEngine, APIDesignEngine, UIUXEngine, AccessibilityEngine, DevOpsEngine, MobileEngine, PartnershipEngine, ContentStrategyEngine, SEOEngine, PerformanceEngine)
