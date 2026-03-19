@@ -59,6 +59,9 @@ import smartFhirSandboxRouter from "./smart-fhir-sandbox";
 import memoryRouter from "./memory";
 import aiRouter from "./ai";
 import projectDocumentsRouter from "./projectDocuments";
+import invitesRouter       from "./invites";
+import subscriptionsRouter from "./subscriptions";
+import fileVersionsRouter  from "./fileVersions";
 
 const router: IRouter = Router();
 
@@ -133,6 +136,11 @@ router.use("/ai",                 aiRouter);
 
 // ── Project Intelligence (lifecycle + document generation) ───────────────────
 router.use("/project-documents",  projectDocumentsRouter);
+
+// ── Invite system + subscriptions + file versioning ──────────────────────────
+router.use("/invites",            invitesRouter);
+router.use("/subscriptions",      subscriptionsRouter);
+router.use("/projects",           fileVersionsRouter);
 
 // ── System Command Processor ─────────────────────────────────────────────────
 router.use("/system",             systemRouter);

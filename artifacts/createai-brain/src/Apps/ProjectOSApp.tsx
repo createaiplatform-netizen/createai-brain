@@ -1695,6 +1695,12 @@ export function ProjectOSApp() {
   const [fileContentLoading, setFileContentLoading] = useState(false);
   const [fileContentSaving, setFileContentSaving] = useState(false);
   const [fileContentSaved, setFileContentSaved] = useState(false);
+  // ── File version history ──
+  const [showVersionHistory, setShowVersionHistory] = useState(false);
+  type VersionEntry = { id: number; versionNum: number; label: string | null; createdAt: string; content: string };
+  const [versionList, setVersionList]       = useState<VersionEntry[]>([]);
+  const [versionLoading, setVersionLoading] = useState(false);
+  const [versionRestoring, setVersionRestoring] = useState<number | null>(null);
   // Instant-edit AI agent
   const [instantEditLoading, setInstantEditLoading] = useState(false);
   const [instantEditMode, setInstantEditMode] = useState<"improve" | "rewrite" | "expand" | "summarize" | "proof" | null>(null);
@@ -2557,6 +2563,43 @@ export function ProjectOSApp() {
     }
   }, [activeProject, viewingFile, fileContentText]);
 
+  const loadVersionHistory = useCallback(async () => {
+    if (!activeProject || !viewingFile) return;
+    setVersionLoading(true);
+    setShowVersionHistory(true);
+    try {
+      const res = await fetch(`/api/projects/${activeProject.id}/files/${viewingFile.id}/versions`, { credentials: "include" });
+      const data = await res.json() as { versions?: VersionEntry[] };
+      setVersionList(data.versions ?? []);
+    } catch { setVersionList([]); }
+    finally { setVersionLoading(false); }
+  }, [activeProject, viewingFile]);
+
+  const rollbackToVersion = useCallback(async (versionId: number) => {
+    if (!activeProject || !viewingFile) return;
+    setVersionRestoring(versionId);
+    try {
+      const res = await fetch(
+        `/api/projects/${activeProject.id}/files/${viewingFile.id}/versions/${versionId}/rollback`,
+        { method: "POST", credentials: "include" }
+      );
+      const data = await res.json() as { success?: boolean; content?: string };
+      if (data.success && data.content !== undefined) {
+        setFileContentText(data.content);
+        setProjects(prev => prev.map(p =>
+          p.id === activeProject.id
+            ? { ...p, files: p.files.map(f => f.id === viewingFile.id ? { ...f, content: data.content! } : f) }
+            : p
+        ));
+        setFileContentSaved(true);
+        setTimeout(() => setFileContentSaved(false), 2000);
+        setShowVersionHistory(false);
+        await loadVersionHistory();
+      }
+    } catch { /* silent */ }
+    finally { setVersionRestoring(null); }
+  }, [activeProject, viewingFile, loadVersionHistory]);
+
   const renameProject = useCallback(async () => {
     if (!activeProject || !editProjectNameVal.trim()) return;
     const ok = await apiUpdateProject(activeProject.id, { name: editProjectNameVal.trim() });
@@ -3259,6 +3302,15 @@ export function ProjectOSApp() {
               <span className="text-[11px] font-medium text-green-400 px-2 py-0.5 rounded-full flex-shrink-0"
                 style={{ background: "rgba(34,197,94,0.12)" }}>✓ Saved</span>
             )}
+            {/* ── Version History button ── */}
+            <button
+              onClick={loadVersionHistory}
+              title="View version history and rollback"
+              className="text-[11px] font-semibold px-2.5 py-1.5 rounded-xl flex items-center gap-1 flex-shrink-0"
+              style={{ background: "rgba(99,102,241,0.10)", color: "#a5b4fc", border: "1px solid rgba(99,102,241,0.20)" }}
+            >
+              ⏱ History
+            </button>
             {/* ── Instant-edit AI dropdown ── */}
             <div className="relative flex-shrink-0">
               <button
@@ -4794,6 +4846,99 @@ export function ProjectOSApp() {
       )}
 
       {/* ── Modals ────────────────────────────────────────────────────────── */}
+
+      {/* Version History Modal */}
+      {showVersionHistory && viewingFile && (
+        <div
+          className="fixed inset-0 z-50 flex items-center justify-center"
+          style={{ background: "rgba(15,23,42,0.55)", backdropFilter: "blur(4px)" }}
+          onClick={() => setShowVersionHistory(false)}
+        >
+          <div
+            className="w-[480px] max-h-[80vh] rounded-2xl shadow-2xl flex flex-col overflow-hidden"
+            style={{ background: "#ffffff", border: "1px solid rgba(0,0,0,0.10)" }}
+            onClick={e => e.stopPropagation()}
+          >
+            {/* Header */}
+            <div className="flex items-center gap-3 px-5 py-4 border-b border-black/6">
+              <div className="w-8 h-8 rounded-xl flex items-center justify-center text-base flex-shrink-0"
+                style={{ background: "rgba(99,102,241,0.12)", border: "1px solid rgba(99,102,241,0.25)" }}>⏱</div>
+              <div className="flex-1 min-w-0">
+                <p className="text-[14px] font-bold" style={{ color: "#0f172a" }}>Version History</p>
+                <p className="text-[11px] truncate" style={{ color: "#64748b" }}>{viewingFile.name}</p>
+              </div>
+              <button onClick={() => setShowVersionHistory(false)}
+                className="w-7 h-7 rounded-lg flex items-center justify-center hover:bg-black/5 transition-colors text-[16px]"
+                style={{ color: "#94a3b8" }}>✕</button>
+            </div>
+
+            {/* Version list */}
+            <div className="flex-1 overflow-y-auto p-4 space-y-2">
+              {versionLoading && (
+                <div className="flex items-center justify-center py-12 gap-3">
+                  <div className="w-5 h-5 border-2 border-indigo-500 border-t-transparent rounded-full animate-spin" />
+                  <span className="text-[13px]" style={{ color: "#6b7280" }}>Loading history…</span>
+                </div>
+              )}
+              {!versionLoading && versionList.length === 0 && (
+                <div className="text-center py-12">
+                  <p className="text-3xl mb-3">📄</p>
+                  <p className="text-[13px] font-semibold" style={{ color: "#0f172a" }}>No saved versions yet</p>
+                  <p className="text-[11px] mt-1" style={{ color: "#6b7280" }}>Versions are saved automatically each time you save the file with changes.</p>
+                </div>
+              )}
+              {versionList.map(v => (
+                <div key={v.id}
+                  className="flex items-center gap-3 p-3 rounded-xl border"
+                  style={{ background: "#f8fafc", border: "1px solid rgba(0,0,0,0.06)" }}
+                >
+                  <div className="flex-1 min-w-0">
+                    <div className="flex items-center gap-2">
+                      <span className="text-[11px] font-bold px-2 py-0.5 rounded-full flex-shrink-0"
+                        style={{ background: "rgba(99,102,241,0.10)", color: "#6366f1", border: "1px solid rgba(99,102,241,0.20)" }}>
+                        v{v.versionNum}
+                      </span>
+                      <span className="text-[11px] text-foreground truncate" style={{ color: "#0f172a" }}>
+                        {v.label ?? `Saved ${new Date(v.createdAt).toLocaleString(undefined, { month: "short", day: "numeric", hour: "2-digit", minute: "2-digit" })}`}
+                      </span>
+                    </div>
+                    {v.label && (
+                      <p className="text-[10px] mt-0.5 truncate" style={{ color: "#94a3b8" }}>
+                        {new Date(v.createdAt).toLocaleString(undefined, { month: "short", day: "numeric", hour: "2-digit", minute: "2-digit" })}
+                      </p>
+                    )}
+                    <p className="text-[10px] mt-1 truncate" style={{ color: "#94a3b8" }}>
+                      {v.content.slice(0, 80)}{v.content.length > 80 ? "…" : ""}
+                    </p>
+                  </div>
+                  <button
+                    onClick={() => rollbackToVersion(v.id)}
+                    disabled={versionRestoring === v.id}
+                    className="px-3 py-1.5 rounded-lg text-[11px] font-bold flex-shrink-0 flex items-center gap-1.5 transition-all"
+                    style={{
+                      background: versionRestoring === v.id ? "rgba(99,102,241,0.10)" : "linear-gradient(135deg,#6366f1,#8b5cf6)",
+                      color: versionRestoring === v.id ? "#6366f1" : "#ffffff",
+                      border: "1px solid rgba(99,102,241,0.30)",
+                    }}
+                  >
+                    {versionRestoring === v.id
+                      ? <><div className="w-3 h-3 border-2 border-indigo-400 border-t-transparent rounded-full animate-spin" />Restoring…</>
+                      : "↺ Restore"}
+                  </button>
+                </div>
+              ))}
+            </div>
+
+            {!versionLoading && versionList.length > 0 && (
+              <div className="px-5 py-3 border-t border-black/6">
+                <p className="text-[10px]" style={{ color: "#94a3b8" }}>
+                  Restoring a version saves the current content as a new version first, so nothing is lost.
+                </p>
+              </div>
+            )}
+          </div>
+        </div>
+      )}
 
       {/* Publish Pipeline Modal (req 13 + 14) */}
       {showPublishModal && activeProject && (

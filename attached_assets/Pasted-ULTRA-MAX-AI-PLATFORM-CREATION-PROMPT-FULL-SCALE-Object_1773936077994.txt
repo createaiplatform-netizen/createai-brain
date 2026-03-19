@@ -1,0 +1,51 @@
+ULTRA-MAX AI PLATFORM CREATION PROMPT — FULL SCALE
+
+Objective: Build a fully autonomous, professional, scalable AI platform capable of creating movies, games, apps, websites, blockchain projects, and any digital media or product, optimized for user-friendly interaction, efficiency, storage, and subscriptions.
+
+Requirements:
+
+1. CORE ENGINE
+- Implement a progressive, modular content generation system: generate scenes, levels, or segments dynamically for movies, games, websites.
+- Include predictive pre-assembly: AI predicts required assets before user interaction to reduce wait times.
+- Deduplicated storage: shared assets (audio, video, code, images, textures) stored once and assembled dynamically.
+- Incremental optimization: platform learns usage patterns to pre-cache and accelerate future generation.
+- Ensure full rollback capabilities to revert any project to previous state with one click.
+
+2. MEDIA & PROJECT TYPES
+- Support all major types: movies, games (console or browser-based), apps, websites, blockchain assets, AI-generated content.
+- Integrate text-to-video, audio, images, interactive dashboards, and code scaffolds.
+- Ensure outputs are playable/viewable directly in the platform, streaming-ready.
+
+3. USER EXPERIENCE
+- Professional, clean UI: minimal, light theme, mobile-first, tablet and desktop responsive.
+- Separate admin view with full project monitoring, metrics, and rollback management.
+- Users can subscribe via tokenized system; subscription tiers configurable per user/project.
+- Invite system: ability to grant free or discounted access to select users (e.g., family).
+
+4. SUBSCRIPTION & REVENUE CONTROL
+- Allow full customization of platform revenue: per-project, per-user, per-output adjustable percentages.
+- Track all project-generated revenue; allow overrides for free/discounted users.
+- Audit and log all transactions with founder-gated visibility.
+
+5. SECURITY & COMPLIANCE
+- Per-project encryption keys, secure asset storage, and RBAC for user/project access.
+- Ensure platform follows best practices for privacy, tokenized payments, and content protection.
+
+6. OBSERVABILITY & MONITORING
+- Live metrics dashboard: server health, active streams, projects, storage usage.
+- Real-time logging of all user actions, project creation, media generation, and revenue events.
+- Telemetry on active media streams and concurrent project builds.
+
+7. EXECUTION
+- Run all core engine modules, media pipelines, and subscription systems concurrently where safe.
+- Auto-correct any errors and escalate improvements autonomously.
+- Produce fully deployable, production-ready outputs without manual intervention.
+- Ensure platform is ready to scale for massive outputs; progressive generation makes huge movies, games, or apps viewable/playable immediately.
+
+Instructions:
+- Build the platform scaffolds, core engine, frontend, backend, API endpoints, project types, and templates.
+- Integrate all features listed above with proper orchestration and dependency management.
+- Maintain clean, professional, production-ready code with zero TypeScript errors or runtime exceptions.
+- Prepare the system to seamlessly connect to future compute/render servers to enable one-click full outputs.
+
+End Prompt

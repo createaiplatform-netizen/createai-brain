@@ -40,3 +40,6 @@ export * from "./health";
 export * from "./staffing";
 export * from "./enterprise";
 export * from "./memory_store";
+export * from "./invites";
+export * from "./subscriptions";
+export * from "./file_versions";

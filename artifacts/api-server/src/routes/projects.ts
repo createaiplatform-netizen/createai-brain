@@ -10,6 +10,7 @@ import {
   projectMembers,
   activityLog,
   notifications,
+  fileVersions,
 } from "@workspace/db";
 import { audit } from "../middlewares/auditLogger";
 import { heavyLimiter } from "../middlewares/rateLimiters";
@@ -969,6 +970,26 @@ router.put("/:id/files/:fileId", audit("update_file", "project_file", r => r.par
     if (content !== undefined) updates.content  = content;
     if (fileType !== undefined) updates.fileType = fileType;
     if (size    !== undefined) updates.size     = size;
+
+    // Auto-save a version snapshot when content changes (for rollback history)
+    if (content !== undefined) {
+      try {
+        const [cur] = await db.select({ content: projectFiles.content })
+          .from(projectFiles).where(eq(projectFiles.id, fileId));
+        if (cur && cur.content !== content) {
+          const [last] = await db.select({ versionNum: fileVersions.versionNum })
+            .from(fileVersions).where(eq(fileVersions.fileId, fileId))
+            .orderBy(desc(fileVersions.versionNum)).limit(1);
+          const nextNum = (last?.versionNum ?? 0) + 1;
+          await db.insert(fileVersions).values({
+            fileId, projectId, userId, content, versionNum: nextNum,
+          });
+        }
+      } catch (verr) {
+        console.warn("[projects] version snapshot failed (non-fatal):", verr);
+      }
+    }
+
     await db.update(projectFiles).set(updates).where(and(eq(projectFiles.id, fileId), eq(projectFiles.projectId, projectId)));
     res.json({ success: true });
   } catch (err) {

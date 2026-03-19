@@ -24,6 +24,8 @@ const SECTIONS = [
   { id: "connection-layer",    label: "Connection Layer",   value: "30+ nodes", icon: "🕸️", desc: "Internal module/flow/brain fabric" },
   { id: "regulatory",          label: "Regulatory Blueprints", value: "6",   icon: "📜", desc: "HIPAA, GDPR, SOC2, CMS, ADA — blueprint only" },
   { id: "backend-blueprints",  label: "Backend Blueprints", value: "5",      icon: "🏗️", desc: "API specs, data models, security patterns" },
+  { id: "invites",             label: "Invite Manager",     value: "Live",   icon: "🎟️", desc: "Generate access invite codes — controls platform entry and tier" },
+  { id: "subscriptions",       label: "Revenue & Tiers",    value: "Live",   icon: "💳", desc: "Manage user subscription tiers and revenue share (platform cut %)" },
   { id: "reset",               label: "Reset My Space",     value: "Owner",  icon: "🔄", desc: "Archive all active projects and start fresh" },
 ];
 
@@ -461,6 +463,27 @@ export function AdminApp() {
   const [resetLoading, setResetLoading] = useState(false);
   const [resetDone, setResetDone]       = useState(false);
   const [resetError, setResetError]     = useState("");
+  // ── Invite Manager state ──
+  type InviteRow = { id: number; code: string; email: string | null; tier: string; platformCutPct: number; maxUses: number; usesCount: number; isRevoked: boolean; createdAt: string; expiresAt: string | null; notes: string | null };
+  const [inviteList, setInviteList]         = useState<InviteRow[]>([]);
+  const [inviteLoading, setInviteLoading]   = useState(false);
+  const [inviteCreating, setInviteCreating] = useState(false);
+  const [inviteError, setInviteError]       = useState("");
+  const [inviteSuccess, setInviteSuccess]   = useState("");
+  const [inviteForm, setInviteForm]         = useState({ email: "", tier: "starter", platformCutPct: 25, maxUses: 1, notes: "", expiresAt: "" });
+  // ── Revenue & Tiers state ──
+  type SubRow = { id: number; userId: string; tier: string; tokenBalance: number; monthlyLimit: number; platformCutPct: number; isActive: boolean; email: string | null; firstName: string | null; lastName: string | null; overriddenBy: string | null };
+  const [subList, setSubList]           = useState<SubRow[]>([]);
+  const [subLoading, setSubLoading]     = useState(false);
+  const [subEditing, setSubEditing]     = useState<string | null>(null);
+  const [subSaving, setSubSaving]       = useState(false);
+  const [subError, setSubError]         = useState("");
+  const [subEditForm, setSubEditForm]   = useState({ tier: "free", platformCutPct: 25, monthlyLimit: 50, notes: "" });
+  // ── Redeem Access Code state (Security section) ──
+  const [redeemCode, setRedeemCode]   = useState("");
+  const [redeemBusy, setRedeemBusy]   = useState(false);
+  const [redeemMsg, setRedeemMsg]     = useState("");
+  const [redeemError, setRedeemError] = useState("");
 
   useEffect(() => {
     fetch("/api/projects", { credentials: "include" })
@@ -794,17 +817,37 @@ export function AdminApp() {
   }
 
   if (activeSection === "security") {
+    const redeemInvite = async () => {
+      if (!redeemCode.trim()) return;
+      setRedeemBusy(true); setRedeemMsg(""); setRedeemError("");
+      try {
+        const res = await fetch("/api/invites/redeem", {
+          method: "POST", credentials: "include",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ code: redeemCode.trim() }),
+        });
+        const data = await res.json() as { success?: boolean; message?: string; tier?: string; error?: string };
+        if (res.ok && data.success) {
+          setRedeemMsg(data.message ?? `Access upgraded to ${data.tier}!`);
+          setRedeemCode("");
+        } else { setRedeemError(data.error ?? "Invalid code"); }
+      } catch { setRedeemError("Network error"); }
+      finally { setRedeemBusy(false); }
+    };
+
     return (
       <div className="p-6 space-y-4">
         <button onClick={() => setActiveSection(null)} className="text-primary text-sm font-medium">‹ Admin</button>
         <h2 className="text-xl font-bold text-foreground">Security</h2>
         {[
-          { label: "Access Model", value: "RBAC (Role-Based Access Control)", status: "Active" },
-          { label: "Invite System", value: "Invite-only — no public registration", status: "Active" },
-          { label: "Session Engine", value: "Session-scoped state management", status: "Active" },
-          { label: "Fail-Safe Engine", value: "Global error prevention + recovery", status: "Active" },
-          { label: "Self-Check Engine", value: "Validates outputs before display", status: "Active" },
-          { label: "Audit Logging", value: "All actions logged with timestamps", status: "Mock" },
+          { label: "Access Model",     value: "RBAC (Role-Based Access Control)",   status: "Active" },
+          { label: "Invite System",    value: "Invite-only access with real codes",  status: "Active" },
+          { label: "Session Engine",   value: "Session-scoped state management",     status: "Active" },
+          { label: "Fail-Safe Engine", value: "Global error prevention + recovery",  status: "Active" },
+          { label: "Self-Check Engine",value: "Validates outputs before display",    status: "Active" },
+          { label: "Audit Logging",    value: "All sensitive actions logged to DB",  status: "Active" },
+          { label: "File Versioning",  value: "30-version history + one-click rollback", status: "Active" },
+          { label: "Revenue Auditing", value: "Platform cut overrides logged immutably", status: "Active" },
         ].map(item => (
           <div key={item.label} className="flex items-center gap-3 p-4 bg-background rounded-2xl border border-border/50">
             <div>
@@ -814,6 +857,310 @@ export function AdminApp() {
             <span className={`ml-auto text-[10px] font-bold px-2 py-0.5 rounded-full flex-shrink-0 ${item.status === "Active" ? "bg-green-100 text-green-700" : "bg-orange-100 text-orange-700"}`}>{item.status}</span>
           </div>
         ))}
+
+        {/* Redeem Access Code */}
+        <div className="bg-background border border-border/50 rounded-2xl p-4 space-y-3">
+          <p className="text-[12px] font-bold text-foreground">Redeem Access Code</p>
+          <p className="text-[11px] text-muted-foreground">Have an invite code? Enter it here to upgrade your subscription tier.</p>
+          <div className="flex gap-2">
+            <input
+              value={redeemCode}
+              onChange={e => setRedeemCode(e.target.value)}
+              onKeyDown={e => { if (e.key === "Enter") redeemInvite(); }}
+              placeholder="Paste your invite code…"
+              className="flex-1 px-3 py-2 text-[12px] border border-border/50 rounded-xl bg-muted/30 text-foreground placeholder:text-muted-foreground focus:outline-none focus:border-primary/40"
+            />
+            <button
+              onClick={redeemInvite}
+              disabled={redeemBusy || !redeemCode.trim()}
+              className="px-4 py-2 rounded-xl text-[12px] font-bold bg-primary text-white hover:bg-primary/90 disabled:opacity-50 transition-all flex-shrink-0"
+            >
+              {redeemBusy ? "…" : "Redeem"}
+            </button>
+          </div>
+          {redeemMsg && <p className="text-[11px] text-green-600 font-medium">{redeemMsg}</p>}
+          {redeemError && <p className="text-[11px] text-red-600">{redeemError}</p>}
+        </div>
+      </div>
+    );
+  }
+
+  // ── Invite Manager section ──
+  if (activeSection === "invites") {
+    const loadInvites = () => {
+      setInviteLoading(true);
+      fetch("/api/invites", { credentials: "include" })
+        .then(r => r.ok ? r.json() : { invites: [] })
+        .then(d => setInviteList(d.invites ?? []))
+        .catch(() => {})
+        .finally(() => setInviteLoading(false));
+    };
+
+    const createInvite = async () => {
+      setInviteCreating(true); setInviteError(""); setInviteSuccess("");
+      try {
+        const res = await fetch("/api/invites", {
+          method: "POST", credentials: "include",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({
+            email: inviteForm.email || undefined,
+            tier: inviteForm.tier,
+            platformCutPct: inviteForm.platformCutPct,
+            maxUses: inviteForm.maxUses,
+            notes: inviteForm.notes || undefined,
+            expiresAt: inviteForm.expiresAt || undefined,
+          }),
+        });
+        const data = await res.json() as { invite?: InviteRow; error?: string };
+        if (res.ok && data.invite) {
+          setInviteSuccess(`Code: ${data.invite.code}`);
+          setInviteList(prev => [data.invite!, ...prev]);
+          setInviteForm({ email: "", tier: "starter", platformCutPct: 25, maxUses: 1, notes: "", expiresAt: "" });
+        } else { setInviteError(data.error ?? "Failed"); }
+      } catch { setInviteError("Network error"); }
+      finally { setInviteCreating(false); }
+    };
+
+    const revokeInvite = async (id: number) => {
+      await fetch(`/api/invites/${id}`, { method: "DELETE", credentials: "include" });
+      setInviteList(prev => prev.map(i => i.id === id ? { ...i, isRevoked: true } : i));
+    };
+
+    const TIER_COLORS: Record<string, string> = {
+      free: "bg-gray-100 text-gray-600", starter: "bg-blue-100 text-blue-700",
+      pro: "bg-indigo-100 text-indigo-700", enterprise: "bg-purple-100 text-purple-700",
+      custom: "bg-orange-100 text-orange-700",
+    };
+
+    return (
+      <div className="p-5 space-y-5 overflow-y-auto h-full">
+        <div className="flex items-center gap-2">
+          <button onClick={() => setActiveSection(null)} className="text-primary text-sm font-medium">‹ Admin</button>
+          <h2 className="text-xl font-bold text-foreground flex-1">🎟️ Invite Manager</h2>
+          <button onClick={loadInvites} className="text-[11px] text-primary font-medium">Refresh</button>
+        </div>
+
+        {/* Create invite form */}
+        <div className="bg-background border border-border/50 rounded-2xl p-4 space-y-3">
+          <p className="text-[12px] font-bold text-foreground">Create New Invite</p>
+          <div className="grid grid-cols-2 gap-2">
+            <div className="col-span-2">
+              <label className="text-[10px] text-muted-foreground font-medium">Email (optional — leave blank for open invite)</label>
+              <input value={inviteForm.email} onChange={e => setInviteForm(f => ({ ...f, email: e.target.value }))}
+                placeholder="user@company.com"
+                className="w-full mt-0.5 px-3 py-2 text-[12px] border border-border/50 rounded-xl bg-background text-foreground focus:outline-none focus:border-primary/40" />
+            </div>
+            <div>
+              <label className="text-[10px] text-muted-foreground font-medium">Tier</label>
+              <select value={inviteForm.tier} onChange={e => setInviteForm(f => ({ ...f, tier: e.target.value }))}
+                className="w-full mt-0.5 px-3 py-2 text-[12px] border border-border/50 rounded-xl bg-background text-foreground focus:outline-none focus:border-primary/40">
+                {["free", "starter", "pro", "enterprise", "custom"].map(t => (
+                  <option key={t} value={t}>{t.charAt(0).toUpperCase() + t.slice(1)}</option>
+                ))}
+              </select>
+            </div>
+            <div>
+              <label className="text-[10px] text-muted-foreground font-medium">Platform cut %</label>
+              <input type="number" min={0} max={100} value={inviteForm.platformCutPct}
+                onChange={e => setInviteForm(f => ({ ...f, platformCutPct: Number(e.target.value) }))}
+                className="w-full mt-0.5 px-3 py-2 text-[12px] border border-border/50 rounded-xl bg-background text-foreground focus:outline-none focus:border-primary/40" />
+            </div>
+            <div>
+              <label className="text-[10px] text-muted-foreground font-medium">Max uses</label>
+              <input type="number" min={1} max={100} value={inviteForm.maxUses}
+                onChange={e => setInviteForm(f => ({ ...f, maxUses: Number(e.target.value) }))}
+                className="w-full mt-0.5 px-3 py-2 text-[12px] border border-border/50 rounded-xl bg-background text-foreground focus:outline-none focus:border-primary/40" />
+            </div>
+            <div>
+              <label className="text-[10px] text-muted-foreground font-medium">Expires (optional)</label>
+              <input type="date" value={inviteForm.expiresAt}
+                onChange={e => setInviteForm(f => ({ ...f, expiresAt: e.target.value }))}
+                className="w-full mt-0.5 px-3 py-2 text-[12px] border border-border/50 rounded-xl bg-background text-foreground focus:outline-none focus:border-primary/40" />
+            </div>
+            <div className="col-span-2">
+              <label className="text-[10px] text-muted-foreground font-medium">Notes</label>
+              <input value={inviteForm.notes} onChange={e => setInviteForm(f => ({ ...f, notes: e.target.value }))}
+                placeholder="Optional internal note"
+                className="w-full mt-0.5 px-3 py-2 text-[12px] border border-border/50 rounded-xl bg-background text-foreground focus:outline-none focus:border-primary/40" />
+            </div>
+          </div>
+          {inviteError && <p className="text-[11px] text-red-600">{inviteError}</p>}
+          {inviteSuccess && (
+            <div className="bg-green-50 border border-green-200 rounded-xl p-3">
+              <p className="text-[10px] font-bold text-green-700">Invite created!</p>
+              <p className="text-[12px] font-mono text-green-800 mt-1 break-all">{inviteSuccess}</p>
+              <p className="text-[10px] text-green-600 mt-1">Share this code with the user — they paste it in the redeem box to upgrade their tier.</p>
+            </div>
+          )}
+          <button onClick={createInvite} disabled={inviteCreating}
+            className="w-full py-2.5 rounded-xl text-[12px] font-bold bg-primary text-white hover:bg-primary/90 disabled:opacity-50 transition-all">
+            {inviteCreating ? "Generating…" : "Generate Invite Code"}
+          </button>
+        </div>
+
+        {/* Invite list */}
+        <div className="space-y-2">
+          <div className="flex items-center justify-between">
+            <p className="text-[10px] font-bold text-muted-foreground uppercase tracking-wider">All Invites</p>
+            {inviteList.length === 0 && !inviteLoading && (
+              <button onClick={loadInvites} className="text-[10px] text-primary">Load</button>
+            )}
+          </div>
+          {inviteLoading && <p className="text-[12px] text-muted-foreground py-2">Loading…</p>}
+          {inviteList.map(inv => (
+            <div key={inv.id} className={`p-3 rounded-xl border ${inv.isRevoked ? "border-border/30 opacity-40" : "border-border/50 bg-background"} space-y-1.5`}>
+              <div className="flex items-center gap-2">
+                <span className="text-[11px] font-mono text-foreground flex-1 truncate">{inv.code}</span>
+                <span className={`text-[9px] font-bold px-2 py-0.5 rounded-full flex-shrink-0 ${TIER_COLORS[inv.tier] ?? "bg-muted"}`}>{inv.tier}</span>
+                {inv.isRevoked
+                  ? <span className="text-[9px] font-bold px-2 py-0.5 rounded-full bg-red-100 text-red-600">Revoked</span>
+                  : <button onClick={() => revokeInvite(inv.id)} className="text-[9px] font-bold px-2 py-0.5 rounded-full bg-red-50 text-red-600 hover:bg-red-100 transition-colors">Revoke</button>}
+              </div>
+              <div className="flex flex-wrap gap-2 text-[10px] text-muted-foreground">
+                {inv.email && <span>📧 {inv.email}</span>}
+                <span>Uses: {inv.usesCount}/{inv.maxUses}</span>
+                <span>Cut: {inv.platformCutPct}%</span>
+                {inv.expiresAt && <span>Expires: {new Date(inv.expiresAt).toLocaleDateString()}</span>}
+              </div>
+              {inv.notes && <p className="text-[10px] text-muted-foreground italic">{inv.notes}</p>}
+            </div>
+          ))}
+          {!inviteLoading && inviteList.length === 0 && (
+            <p className="text-[12px] text-muted-foreground text-center py-4">No invites yet. Create one above.</p>
+          )}
+        </div>
+      </div>
+    );
+  }
+
+  // ── Revenue & Tiers section ──
+  if (activeSection === "subscriptions") {
+    const loadSubs = () => {
+      setSubLoading(true);
+      fetch("/api/subscriptions", { credentials: "include" })
+        .then(r => r.ok ? r.json() : { subscriptions: [] })
+        .then(d => setSubList(d.subscriptions ?? []))
+        .catch(() => {})
+        .finally(() => setSubLoading(false));
+    };
+
+    const saveSub = async (userId: string) => {
+      setSubSaving(true); setSubError("");
+      try {
+        const res = await fetch(`/api/subscriptions/${userId}`, {
+          method: "PUT", credentials: "include",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify(subEditForm),
+        });
+        const data = await res.json() as { subscription?: SubRow; error?: string };
+        if (res.ok && data.subscription) {
+          setSubList(prev => prev.map(s => s.userId === userId ? { ...s, ...data.subscription } : s));
+          setSubEditing(null);
+        } else { setSubError(data.error ?? "Failed to save"); }
+      } catch { setSubError("Network error"); }
+      finally { setSubSaving(false); }
+    };
+
+    const TIER_COLORS: Record<string, string> = {
+      free: "bg-gray-100 text-gray-600", starter: "bg-blue-100 text-blue-700",
+      pro: "bg-indigo-100 text-indigo-700", enterprise: "bg-purple-100 text-purple-700",
+      custom: "bg-orange-100 text-orange-700",
+    };
+
+    return (
+      <div className="p-5 space-y-5 overflow-y-auto h-full">
+        <div className="flex items-center gap-2">
+          <button onClick={() => setActiveSection(null)} className="text-primary text-sm font-medium">‹ Admin</button>
+          <h2 className="text-xl font-bold text-foreground flex-1">💳 Revenue & Tiers</h2>
+          <button onClick={loadSubs} className="text-[11px] text-primary font-medium">Refresh</button>
+        </div>
+
+        <div className="bg-blue-50 border border-blue-200 rounded-xl p-3">
+          <p className="text-[11px] text-blue-700 font-medium">Platform cut % applies to revenue generated by each user. Default: 25%. Override per-user anytime — all changes are logged in the audit trail.</p>
+        </div>
+
+        {subList.length === 0 && !subLoading && (
+          <button onClick={loadSubs}
+            className="w-full py-3 rounded-2xl border border-border/50 text-[12px] text-primary font-medium hover:bg-muted/30 transition-all">
+            Load Subscriptions
+          </button>
+        )}
+        {subLoading && <p className="text-[12px] text-muted-foreground py-2">Loading…</p>}
+        {subError && <p className="text-[11px] text-red-600">{subError}</p>}
+
+        <div className="space-y-2">
+          {subList.map(sub => (
+            <div key={sub.userId} className="bg-background border border-border/50 rounded-2xl p-4 space-y-3">
+              <div className="flex items-center gap-2">
+                <div className="w-8 h-8 rounded-full bg-primary/10 flex items-center justify-center text-primary font-bold text-[12px] flex-shrink-0">
+                  {(sub.firstName?.[0] ?? sub.email?.[0] ?? "?").toUpperCase()}
+                </div>
+                <div className="flex-1 min-w-0">
+                  <p className="text-[12px] font-semibold text-foreground truncate">
+                    {sub.firstName || sub.lastName ? `${sub.firstName ?? ""} ${sub.lastName ?? ""}`.trim() : sub.email ?? sub.userId}
+                  </p>
+                  {sub.email && <p className="text-[10px] text-muted-foreground truncate">{sub.email}</p>}
+                </div>
+                <span className={`text-[9px] font-bold px-2 py-0.5 rounded-full flex-shrink-0 ${TIER_COLORS[sub.tier] ?? "bg-muted"}`}>{sub.tier}</span>
+                {subEditing === sub.userId
+                  ? <button onClick={() => setSubEditing(null)} className="text-[10px] text-muted-foreground">Cancel</button>
+                  : <button onClick={() => { setSubEditing(sub.userId); setSubEditForm({ tier: sub.tier, platformCutPct: sub.platformCutPct, monthlyLimit: sub.monthlyLimit, notes: "" }); }} className="text-[10px] text-primary font-medium">Edit</button>}
+              </div>
+
+              <div className="grid grid-cols-3 gap-1.5 text-center">
+                {[["Tokens", sub.tokenBalance], ["Limit/mo", sub.monthlyLimit], ["Platform cut", `${sub.platformCutPct}%`]].map(([l, v]) => (
+                  <div key={String(l)} className="bg-muted/40 rounded-lg py-1.5">
+                    <p className="text-[12px] font-bold text-foreground">{String(v)}</p>
+                    <p className="text-[9px] text-muted-foreground">{String(l)}</p>
+                  </div>
+                ))}
+              </div>
+
+              {sub.overriddenBy && <p className="text-[9px] text-orange-600">⚡ Cut overridden by admin</p>}
+
+              {subEditing === sub.userId && (
+                <div className="space-y-2 pt-1">
+                  <div className="grid grid-cols-2 gap-2">
+                    <div>
+                      <label className="text-[10px] text-muted-foreground">Tier</label>
+                      <select value={subEditForm.tier} onChange={e => setSubEditForm(f => ({ ...f, tier: e.target.value }))}
+                        className="w-full mt-0.5 px-2 py-1.5 text-[11px] border border-border/50 rounded-lg bg-background text-foreground focus:outline-none focus:border-primary/40">
+                        {["free", "starter", "pro", "enterprise", "custom"].map(t => (
+                          <option key={t} value={t}>{t.charAt(0).toUpperCase() + t.slice(1)}</option>
+                        ))}
+                      </select>
+                    </div>
+                    <div>
+                      <label className="text-[10px] text-muted-foreground">Platform cut %</label>
+                      <input type="number" min={0} max={100} value={subEditForm.platformCutPct}
+                        onChange={e => setSubEditForm(f => ({ ...f, platformCutPct: Number(e.target.value) }))}
+                        className="w-full mt-0.5 px-2 py-1.5 text-[11px] border border-border/50 rounded-lg bg-background text-foreground focus:outline-none focus:border-primary/40" />
+                    </div>
+                    <div>
+                      <label className="text-[10px] text-muted-foreground">Monthly limit</label>
+                      <input type="number" min={0} value={subEditForm.monthlyLimit}
+                        onChange={e => setSubEditForm(f => ({ ...f, monthlyLimit: Number(e.target.value) }))}
+                        className="w-full mt-0.5 px-2 py-1.5 text-[11px] border border-border/50 rounded-lg bg-background text-foreground focus:outline-none focus:border-primary/40" />
+                    </div>
+                    <div>
+                      <label className="text-[10px] text-muted-foreground">Notes</label>
+                      <input value={subEditForm.notes} onChange={e => setSubEditForm(f => ({ ...f, notes: e.target.value }))}
+                        placeholder="Optional"
+                        className="w-full mt-0.5 px-2 py-1.5 text-[11px] border border-border/50 rounded-lg bg-background text-foreground focus:outline-none focus:border-primary/40" />
+                    </div>
+                  </div>
+                  <button onClick={() => saveSub(sub.userId)} disabled={subSaving}
+                    className="w-full py-2 rounded-xl text-[11px] font-bold bg-primary text-white hover:bg-primary/90 disabled:opacity-50 transition-all">
+                    {subSaving ? "Saving…" : "Save Changes"}
+                  </button>
+                </div>
+              )}
+            </div>
+          ))}
+          {!subLoading && subList.length === 0 && (
+            <p className="text-[12px] text-muted-foreground text-center py-6">No subscriptions found. Users appear here after redeeming an invite.</p>
+          )}
+        </div>
       </div>
     );
   }
