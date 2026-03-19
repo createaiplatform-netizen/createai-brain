@@ -9,6 +9,7 @@
 import type { EngineCategory } from "@/engine/CapabilityEngine";
 import type { DomainExecutor, ExecutorRunOpts } from "./shared";
 import { dispatchEngineStream } from "./shared";
+import { expansionGuard } from "@/core/ExpansionGuard";
 
 export class GeneralExecutor implements DomainExecutor {
   readonly domain = "general";
@@ -18,6 +19,8 @@ export class GeneralExecutor implements DomainExecutor {
   }
 
   execute(opts: ExecutorRunOpts): void {
-    dispatchEngineStream(opts);
+    expansionGuard.run(opts.engineId, opts, (safeOpts) => {
+      dispatchEngineStream(safeOpts);
+    });
   }
 }

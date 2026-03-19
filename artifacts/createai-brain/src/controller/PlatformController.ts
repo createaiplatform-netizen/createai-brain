@@ -210,14 +210,19 @@ export interface AppEngineConfig {
   primarySeries?:  string[];
   category:        EngineCategory;
   outputType:      "document" | "form" | "stream" | "structured" | "image" | "code";
+  // ── Phase 4 — ExpansionGuard safety metadata ──────────────────────────────
+  safe?:           boolean;  // false = extra caution mode (default true)
+  maxDepth?:       number;   // override guard default of 4
+  maxTokens?:      number;   // override guard default of 12 000 approx tokens
+  allowRecursion?: boolean;  // override guard default of false
 }
 
 export const APP_ENGINE_REGISTRY: Record<string, AppEngineConfig> = {
-  braingen:       { primaryEngines: ["UniversalCreativeEngine", "ContentGenerationEngine", "UniversalStoryEngine"],         primarySeries: ["QuantumCreativity"],       category: "creative",      outputType: "document" },
-  brainhub:       { primaryEngines: ["InfiniteExpansionEngine", "NEXUS", "SENTINEL"],                                       primarySeries: ["Ω-Series", "ICE-Series"],  category: "universal",     outputType: "document" },
-  strategist:     { primaryEngines: ["UniversalStrategyEngine", "CompetitiveIntelEngine", "MarketOpportunityEngine"],       primarySeries: ["Ω-Series"],               category: "intelligence",  outputType: "document" },
+  braingen:       { primaryEngines: ["UniversalCreativeEngine", "ContentGenerationEngine", "UniversalStoryEngine"],         primarySeries: ["QuantumCreativity"],       category: "creative",      outputType: "document", safe: true,  maxTokens: 16_000 },
+  brainhub:       { primaryEngines: ["InfiniteExpansionEngine", "NEXUS", "SENTINEL"],                                       primarySeries: ["Ω-Series", "ICE-Series"],  category: "universal",     outputType: "document", safe: true,  maxDepth: 6, maxTokens: 20_000, allowRecursion: false },
+  strategist:     { primaryEngines: ["UniversalStrategyEngine", "CompetitiveIntelEngine", "MarketOpportunityEngine"],       primarySeries: ["Ω-Series"],               category: "intelligence",  outputType: "document", safe: true },
   marketing:      { primaryEngines: ["MarketingEngine", "ContentGenerationEngine", "BrandStrategyEngine"],                  category: "creative",      outputType: "document" },
-  legal:          { primaryEngines: ["LegalAIEngine", "ComplianceAuditEngine", "RegulatoryEngine"],                         category: "legal",         outputType: "document" },
+  legal:          { primaryEngines: ["LegalAIEngine", "ComplianceAuditEngine", "RegulatoryEngine"],                         category: "legal",         outputType: "document", safe: true },
   documents:      { primaryEngines: ["UniversalCreativeEngine", "ContentGenerationEngine"],                                 category: "universal",     outputType: "document" },
   family:         { primaryEngines: ["UniversalStoryEngine", "UniversalCreativeEngine"],                                    category: "creative",      outputType: "document" },
   research:       { primaryEngines: ["ResearchEngine", "DataEngine", "TrendsAnalysisEngine"],                               primarySeries: ["InsightDeliverySeries"],   category: "research",      outputType: "document" },
@@ -225,7 +230,7 @@ export const APP_ENGINE_REGISTRY: Record<string, AppEngineConfig> = {
   hr:             { primaryEngines: ["HRPolicyEngine", "RecruitmentEngine", "PerformanceMgmtEngine"],                       category: "hr",            outputType: "document" },
   admin:          { primaryEngines: ["UniversalWorkflowEngine", "ComplianceAuditEngine"],                                   category: "operations",    outputType: "document" },
   creator:        { primaryEngines: ["UniversalCreativeEngine", "ContentGenerationEngine"],                                 primarySeries: ["QuantumCreativity"],       category: "creative",      outputType: "document" },
-  healthcare:     { primaryEngines: ["HealthcareEngine", "RegulatoryEngine", "ComplianceAuditEngine"],                      category: "healthcare",    outputType: "document" },
+  healthcare:     { primaryEngines: ["HealthcareEngine", "RegulatoryEngine", "ComplianceAuditEngine"],                      category: "healthcare",    outputType: "document", safe: true },
   education:      { primaryEngines: ["CourseDesignEngine", "VirtualClassroomEngine", "TeacherToolsEngine"],                 primarySeries: ["StudentSuccessSeries"],    category: "education",     outputType: "document" },
   security:       { primaryEngines: ["SENTINEL", "ComplianceAuditEngine"],                                                  category: "security",      outputType: "document" },
   sustainability: { primaryEngines: ["SustainabilityEngine"],                                                               category: "sustainability", outputType: "document" },
@@ -240,8 +245,8 @@ export const APP_ENGINE_REGISTRY: Record<string, AppEngineConfig> = {
   notifications:   { primaryEngines: ["InteractionEngine", "PULSE", "ConversationEngine"],                                  category: "universal",     outputType: "document" },
   integration:     { primaryEngines: ["IntegrationEngine", "BackendBlueprintEngine", "NEXUS"],                              primarySeries: ["chi"],    category: "operations",    outputType: "document" },
   monetization:    { primaryEngines: ["MonetizationEngine", "PricingEngine", "GrowthEngine"],                               primarySeries: ["rho"],    category: "finance",       outputType: "document" },
-  simulation:      { primaryEngines: ["InfiniteExpansionEngine", "ORACLE", "UniversalStrategyEngine"],                      primarySeries: ["xi"],     category: "universal",     outputType: "document" },
-  universal:       { primaryEngines: ["InfiniteExpansionEngine", "ORACLE", "FORGE", "NEXUS"],                               primarySeries: ["omega"],  category: "universal",     outputType: "document" },
+  simulation:      { primaryEngines: ["InfiniteExpansionEngine", "ORACLE", "UniversalStrategyEngine"],                      primarySeries: ["xi"],     category: "universal",     outputType: "document", safe: true, maxDepth: 6, maxTokens: 20_000 },
+  universal:       { primaryEngines: ["InfiniteExpansionEngine", "ORACLE", "FORGE", "NEXUS"],                               primarySeries: ["omega"],  category: "universal",     outputType: "document", safe: true, maxDepth: 6, maxTokens: 20_000 },
 
   // ── Business & Strategy ───────────────────────────────────────────────────
   business:        { primaryEngines: ["UniversalStrategyEngine", "MarketResearchEngine", "FinancialModelEngine"],           primarySeries: ["omega"],  category: "operations",    outputType: "document" },

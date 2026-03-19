@@ -159,6 +159,24 @@ For any work involving 3+ components or 2+ files:
 - **DB**: `memory_store` table pushed to database — `drizzle-kit push` applied cleanly.
 - **TypeScript**: Both `api-server` and `createai-brain` typecheck clean (zero errors).
 
+## ExpansionGuard (COMPLETE — Phase 4 Engine Safety Layer)
+
+**Call chain (enforced):**
+`PlatformController → Executor.execute() → ExpansionGuard.run() → Executor Logic (safeOpts) → dispatchEngineStream()`
+
+- **`src/core/ExpansionGuard.ts`**: Module-scoped singleton. `expansionGuard.run(engineId, opts, executorLogic, limits?)` — checks all 3 safety limits before calling `executorLogic(safeOpts)`. Never throws — errors surface through `opts.onError()`. `safeOpts` has patched `onDone`/`onError` that release guard state in a `finally`-equivalent pattern.
+  - **GUARD_MAX_DEPTH**: `_depth >= maxDepth` (default 4). Prevents runaway call chains.
+  - **GUARD_MAX_RECURSION**: same `engineId` in stack when `allowRecursion=false` (default). Prevents infinite loops.
+  - **GUARD_TOKEN_BUDGET**: `Math.ceil((topic.length + context.length) / 4) > maxTokens` (default 12 000). Prevents context explosion.
+  - **Trace**: Rolling log of 50 `TraceEntry` objects (executionId, engineId, depth, tokenEst, status, blockReason). `expansionGuard.getTrace()` + `expansionGuard.subscribe(fn)` event emitter.
+  - **`expansionGuard.reset()`**: Clears session state — depth=0, recursionMap cleared, trace cleared.
+- **`src/safety/ExpansionGuardClient.tsx`**: Read-only React component. Live execution trace, depth gauge bar, running/done/blocked stats. Zero enforcement — purely observational. Subscribe/unsubscribe on mount/unmount.
+- **All 4 domain executors updated** — each `execute()` now calls `expansionGuard.run()` first, passes `safeOpts` with released callbacks to executor logic:
+  - `HealthcareExecutor.ts`, `LegalExecutor.ts`, `CreativeExecutor.ts`, `GeneralExecutor.ts`
+- **`AppEngineConfig`** (PlatformController) — 4 new optional safety fields: `safe?`, `maxDepth?`, `maxTokens?`, `allowRecursion?`. Key registry entries annotated: `brainhub` (maxDepth:6, maxTokens:20k), `simulation`/`universal` (maxDepth:6, maxTokens:20k), `healthcare`/`legal`/`braingen`/`strategist` (safe:true).
+- **Not modified**: `ProjectExecutor.ts`, `shared.ts`, `CapabilityEngine.ts`, all backend files, DB schema.
+- **TypeScript**: zero errors. All 8 workflows running.
+
 ## Scaffold Engine (COMPLETE — T001–T005 Auto-Scaffold + Type-Aware Agent)
 - **`artifacts/api-server/src/routes/projects.ts`**: `INDUSTRY_SPECIFIC`, `INDUSTRY_ICONS`, `INDUSTRY_COLORS` — 12 creative project types added: Film/Movie, Documentary, Video Game, Mobile App, Web App/SaaS, Business, Startup, Physical Product, Book/Novel, Music/Album, Podcast, Online Course.
 - **`artifacts/api-server/src/routes/projectChat.ts`**: `buildProjectAgentSystem(projectType, projectName, scaffoldFiles)` — 12 type-specific expert system prompts. Accepts `scaffoldFiles` + `projectType` from POST body.

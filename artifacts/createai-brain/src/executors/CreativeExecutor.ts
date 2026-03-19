@@ -7,6 +7,7 @@
 import type { EngineCategory } from "@/engine/CapabilityEngine";
 import type { DomainExecutor, ExecutorRunOpts } from "./shared";
 import { dispatchEngineStream } from "./shared";
+import { expansionGuard } from "@/core/ExpansionGuard";
 
 const DOMAIN_PREFIX =
   "Domain: Creative. Embrace imaginative, vivid, and world-building language. " +
@@ -21,9 +22,11 @@ export class CreativeExecutor implements DomainExecutor {
   }
 
   execute(opts: ExecutorRunOpts): void {
-    const context = opts.context
-      ? `${DOMAIN_PREFIX}\n\n${opts.context}`
-      : DOMAIN_PREFIX;
-    dispatchEngineStream({ ...opts, context });
+    expansionGuard.run(opts.engineId, opts, (safeOpts) => {
+      const context = safeOpts.context
+        ? `${DOMAIN_PREFIX}\n\n${safeOpts.context}`
+        : DOMAIN_PREFIX;
+      dispatchEngineStream({ ...safeOpts, context });
+    });
   }
 }
