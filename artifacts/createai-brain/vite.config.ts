@@ -9,12 +9,22 @@ const port = rawPort ? Number(rawPort) : 3000;
 
 const basePath = process.env.BASE_PATH ?? "/";
 
+const healthPlugin = {
+  name: "health-endpoint",
+  configureServer(server: { middlewares: { use: (path: string, fn: (req: unknown, res: { end: (s: string) => void }) => void) => void } }) {
+    server.middlewares.use("/health", (_req, res) => {
+      res.end("OK");
+    });
+  },
+};
+
 export default defineConfig({
   base: basePath,
   plugins: [
     react(),
     tailwindcss(),
     runtimeErrorOverlay(),
+    healthPlugin,
     ...(process.env.NODE_ENV !== "production" &&
     process.env.REPL_ID !== undefined
       ? [
