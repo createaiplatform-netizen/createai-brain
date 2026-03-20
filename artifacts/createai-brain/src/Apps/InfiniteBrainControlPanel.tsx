@@ -1,5 +1,6 @@
 import React, { useEffect, useState, useCallback } from "react";
 import { InfiniteBrainLiveBanner } from "@/components/InfiniteBrainLiveBanner";
+import { InfiniteBrainVerificationPanel } from "@/Apps/InfiniteBrainVerificationPanel";
 import {
   SectionHeader, Card, CardHeader, CardContent,
   Table, TableHead, TableRow, TableCell,
@@ -7,8 +8,7 @@ import {
 } from "@/components/StyledComponents";
 import {
   fetchSystemStats, triggerWorkflow, notifyFamily, runSimulation,
-  fetchVerificationReport,
-  type SystemStats, type SimulationResult, type VerificationReport,
+  type SystemStats, type SimulationResult,
 } from "@/services/systemServices";
 
 // ─── Design tokens (mirrored from StyledComponents) ──────────────────────────
@@ -82,15 +82,13 @@ function Btn({
 // ─── Component ────────────────────────────────────────────────────────────────
 
 export function InfiniteBrainControlPanel() {
-  const [stats, setStats]                 = useState<SystemStats | null>(null);
-  const [logs, setLogs]                   = useState<{ message: string; level: "OK" | "Warn" | "Blocked" }[]>([]);
-  const [simResult, setSimResult]         = useState<SimulationResult | null>(null);
-  const [simScale, setSimScale]           = useState(1);
-  const [loading, setLoading]             = useState(true);
-  const [actionBusy, setActionBusy]       = useState(false);
-  const [verifying, setVerifying]         = useState(false);
-  const [verifyReport, setVerifyReport]   = useState<VerificationReport | null>(null);
-  const [lastUpdated, setLastUpdated]     = useState<string>("");
+  const [stats, setStats]             = useState<SystemStats | null>(null);
+  const [logs, setLogs]               = useState<{ message: string; level: "OK" | "Warn" | "Blocked" }[]>([]);
+  const [simResult, setSimResult]     = useState<SimulationResult | null>(null);
+  const [simScale, setSimScale]       = useState(1);
+  const [loading, setLoading]         = useState(true);
+  const [actionBusy, setActionBusy]   = useState(false);
+  const [lastUpdated, setLastUpdated] = useState<string>("");
 
   const addLog = useCallback((message: string, level: "OK" | "Warn" | "Blocked" = "OK") => {
     setLogs(prev => [
@@ -163,26 +161,6 @@ export function InfiniteBrainControlPanel() {
     }
   };
 
-  const handleVerify = async () => {
-    setVerifying(true);
-    setVerifyReport(null);
-    addLog("Starting full 6-step Brain verification…");
-    try {
-      const report = await fetchVerificationReport();
-      setVerifyReport(report);
-      addLog(
-        report.allPassed
-          ? `Verification complete — all 6 steps PASSED in ${report.totalMs}ms`
-          : `Verification done — ${report.steps.filter(s => s.status === "FAIL").length} step(s) failed`,
-        report.allPassed ? "OK" : "Warn",
-      );
-    } catch (e) {
-      addLog(`Verification error: ${(e as Error).message}`, "Warn");
-    } finally {
-      setVerifying(false);
-    }
-  };
-
   return (
     <div style={{
       padding: "24px 24px 40px",
@@ -194,6 +172,9 @@ export function InfiniteBrainControlPanel() {
 
       {/* ── Live Banner ────────────────────────────────────────────────────── */}
       <InfiniteBrainLiveBanner />
+
+      {/* ── Verification Panel ─────────────────────────────────────────────── */}
+      <InfiniteBrainVerificationPanel />
 
       {/* ── Page Header ────────────────────────────────────────────────────── */}
       <div style={{
@@ -239,14 +220,11 @@ export function InfiniteBrainControlPanel() {
         <CardHeader title="Command Center" subtitle="Trigger workflows and notify all family members" />
         <CardContent>
           <div style={{ display: "flex", gap: 12, flexWrap: "wrap", marginBottom: 14 }}>
-            <Btn onClick={handleLaunchAll} disabled={actionBusy || verifying} variant="primary">
+            <Btn onClick={handleLaunchAll} disabled={actionBusy} variant="primary">
               🚀 Launch All Workflows (100% Mode)
             </Btn>
-            <Btn onClick={handleNotifyFamily} disabled={actionBusy || verifying} variant="success">
+            <Btn onClick={handleNotifyFamily} disabled={actionBusy} variant="success">
               🔔 Notify Family Now
-            </Btn>
-            <Btn onClick={handleVerify} disabled={actionBusy || verifying} variant="blue">
-              {verifying ? "⏳ Verifying…" : "✅ Run Full Verification"}
             </Btn>
           </div>
           <p style={{ fontSize: 12, color: T.text3, margin: 0 }}>
@@ -369,102 +347,6 @@ export function InfiniteBrainControlPanel() {
       {/* ── Audit Log ──────────────────────────────────────────────────────── */}
       <SectionHeader title="Real-Time Audit Log" />
       <AuditLog logs={logs} maxEntries={20} />
-
-      {/* ── Verification Report ────────────────────────────────────────────── */}
-      {(verifying || verifyReport) && (
-        <>
-          <SectionHeader title="Full Verification Report" />
-          <Card>
-            {verifying && !verifyReport && (
-              <CardContent>
-                <div style={{ display: "flex", alignItems: "center", gap: 12, padding: "8px 0" }}>
-                  <div style={{
-                    width: 18, height: 18, border: `3px solid ${T.accent}`,
-                    borderTopColor: "transparent", borderRadius: "50%",
-                    animation: "spin 0.8s linear infinite",
-                  }} />
-                  <span style={{ fontSize: 13, color: T.text2, fontWeight: 600 }}>
-                    Running 6-step verification — this may take a few seconds…
-                  </span>
-                </div>
-                <style>{`@keyframes spin { to { transform: rotate(360deg); } }`}</style>
-              </CardContent>
-            )}
-
-            {verifyReport && (
-              <>
-                <CardHeader
-                  title={verifyReport.allPassed ? "✅ All Systems Verified — Brain 100% Complete" : "⚠ Verification Completed With Issues"}
-                  subtitle={`Run ID: ${verifyReport.runId} · ${verifyReport.totalMs}ms total`}
-                />
-                <CardContent>
-                  {/* System stats summary grid */}
-                  <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fit, minmax(120px, 1fr))", gap: 10, marginBottom: 20 }}>
-                    {[
-                      { label: "Industries",   val: verifyReport.systemStats.industries },
-                      { label: "Render Modes", val: verifyReport.systemStats.renderModes },
-                      { label: "Endpoints",    val: verifyReport.systemStats.endpoints },
-                      { label: "Compliance",   val: verifyReport.systemStats.compliance },
-                      { label: "Players",      val: verifyReport.systemStats.players },
-                      { label: "Coverage",     val: `${verifyReport.systemStats.coverage}%` },
-                      { label: "Loop Tick",    val: `#${verifyReport.systemStats.loopTick}` },
-                      { label: "Opt. Avg",     val: `${verifyReport.systemStats.optimizationAvg}%` },
-                    ].map(m => (
-                      <div key={m.label} style={{
-                        background: "#f8fafc", border: `1px solid ${T.border}`,
-                        borderRadius: 8, padding: "10px 12px", textAlign: "center",
-                      }}>
-                        <div style={{ fontSize: 10, color: T.text3, fontWeight: 700, textTransform: "uppercase", letterSpacing: "0.4px" }}>{m.label}</div>
-                        <div style={{ fontSize: 18, fontWeight: 780, color: T.accent, marginTop: 2 }}>{m.val}</div>
-                      </div>
-                    ))}
-                  </div>
-
-                  {/* Step-by-step results */}
-                  <Table>
-                    <TableHead>
-                      <TableRow>
-                        <TableCell style={{ fontWeight: 700, fontSize: 11, color: T.text3, textTransform: "uppercase", letterSpacing: "0.4px" }}>#</TableCell>
-                        <TableCell style={{ fontWeight: 700, fontSize: 11, color: T.text3, textTransform: "uppercase", letterSpacing: "0.4px" }}>Step</TableCell>
-                        <TableCell style={{ fontWeight: 700, fontSize: 11, color: T.text3, textTransform: "uppercase", letterSpacing: "0.4px" }}>Result</TableCell>
-                        <TableCell style={{ fontWeight: 700, fontSize: 11, color: T.text3, textTransform: "uppercase", letterSpacing: "0.4px" }}>Detail</TableCell>
-                        <TableCell style={{ fontWeight: 700, fontSize: 11, color: T.text3, textTransform: "uppercase", letterSpacing: "0.4px" }}>Time</TableCell>
-                      </TableRow>
-                    </TableHead>
-                    <tbody>
-                      {verifyReport.steps.map(step => (
-                        <TableRow key={step.step}>
-                          <TableCell style={{ fontWeight: 700, color: T.text3 }}>{step.step}</TableCell>
-                          <TableCell style={{ fontWeight: 650 }}>{step.label}</TableCell>
-                          <TableCell>
-                            <StatusPill
-                              label={step.status}
-                              variant={step.status === "PASS" ? "ok" : step.status === "FAIL" ? "danger" : "neutral"}
-                            />
-                          </TableCell>
-                          <TableCell style={{ color: T.text2, fontSize: 12, maxWidth: 300 }}>{step.detail}</TableCell>
-                          <TableCell style={{ color: T.text3, fontSize: 12 }}>{step.durationMs}ms</TableCell>
-                        </TableRow>
-                      ))}
-                    </tbody>
-                  </Table>
-
-                  {verifyReport.allPassed && (
-                    <div style={{
-                      marginTop: 14, padding: "12px 16px", borderRadius: 10,
-                      background: "linear-gradient(135deg, #f0fdf4, #dcfce7)",
-                      border: "1px solid rgba(34,197,94,0.25)",
-                      fontSize: 13, fontWeight: 700, color: "#166534",
-                    }}>
-                      💎 ALL SYSTEMS 100% LIVE · INFINITE EXECUTION VERIFIED · BRAIN COMPLETE
-                    </div>
-                  )}
-                </CardContent>
-              </>
-            )}
-          </Card>
-        </>
-      )}
 
     </div>
   );

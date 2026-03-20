@@ -68,6 +68,11 @@ export async function triggerWorkflow(_options?: { enforce100PercentMode?: boole
 
 // ─── Family notification ──────────────────────────────────────────────────────
 
+/** notifyFamilyEvent — convenience alias used by verification panel (string-only API) */
+export async function notifyFamilyEvent(message: string): Promise<{ sent: boolean }> {
+  return notifyFamily({ subject: "Brain Event", message });
+}
+
 export async function notifyFamily(options?: {
   subject?: string;
   message?: string;
