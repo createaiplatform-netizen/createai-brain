@@ -4,6 +4,7 @@ import { expandPlatform }        from "./services/expansionEngine";
 import { finalizeConfiguration } from "./services/systemConfigurator";
 import { brainEngine }           from "./engine/BrainEnforcementEngine.js";
 import { notifyFamily }          from "./utils/notifications.js";
+import { startupAutoExecutor }   from "./BrainAutoExecutor.js";
 
 // Wire all DI services before the server binds. All factories are lazy —
 // nothing is instantiated here, just registered.
@@ -27,10 +28,11 @@ app.listen(port, () => {
   console.log(`Server listening on port ${port}`);
 
   // Boot sequence — runs in the background, non-blocking:
-  //   1. expandPlatform()       — 13 paths × 5 iterations, populates registry, persists run to DB
-  //   2. finalizeConfiguration() — self-heal, verify, lock, persist to organizations table
-  //   3. brainEngine.start()    — continuous 60-second self-audit loop
-  //   4. notifyFamily()         — email + SMS to all family members (if BRAIN_NOTIFY_ON_START=true)
+  //   1. expandPlatform()         — populates registry, persists run to DB
+  //   2. finalizeConfiguration()  — self-heal, verify, lock, persist to organizations table
+  //   3. brainEngine.start()      — continuous 60-second self-audit loop
+  //   4. notifyFamily()           — email + SMS to all family members (if BRAIN_NOTIFY_ON_START=true)
+  //   5. startupAutoExecutor()    — infinite task execution sequence (if BRAIN_AUTO_START=true)
   void (async () => {
     await expandPlatform();
     await finalizeConfiguration();
@@ -40,6 +42,15 @@ app.listen(port, () => {
       await notifyFamily();
     } else {
       console.log("[Brain:notify] Startup notifications skipped (set BRAIN_NOTIFY_ON_START=true to enable)");
+    }
+
+    if (process.env.BRAIN_AUTO_START === "true") {
+      console.log("[AutoExecutor] BRAIN_AUTO_START=true — launching auto-execution sequence…");
+      startupAutoExecutor().catch(err => {
+        console.error("[AutoExecutor] Fatal error during auto-execution:", err);
+      });
+    } else {
+      console.log("[AutoExecutor] Auto-execution skipped (set BRAIN_AUTO_START=true to enable)");
     }
   })();
 });
