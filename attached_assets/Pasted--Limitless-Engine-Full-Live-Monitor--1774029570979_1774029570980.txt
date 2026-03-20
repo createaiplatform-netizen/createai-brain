@@ -1,0 +1,126 @@
+// =====================================
+// Limitless Engine Full Live Monitor
+// =====================================
+
+import { engineState } from './engine';
+import { payoutToMembers } from './autoPayout';
+import React, { useState, useEffect } from 'react';
+import ReactDOM from 'react-dom';
+
+interface IncomeProjection {
+  user: string;
+  daily: number;
+  monthly: number;
+  cumulative: number;
+  stripeId: string;
+  bankLinked: boolean;
+  aiActive: boolean;
+}
+
+const REFRESH_INTERVAL = 2000;
+
+const FullLiveDashboard = () => {
+  const [members, setMembers] = useState<IncomeProjection[]>([]);
+  const [metrics, setMetrics] = useState<any>({});
+  const [system, setSystem] = useState<any>({});
+
+  // Cycle-end hook to update all live data
+  useEffect(() => {
+    engineState.onCycleEnd(() => {
+      const newMembers = engineState.members.map((m: any) => ({
+        user: m.name,
+        daily: m.dailyIncome,
+        monthly: m.monthlyIncome,
+        cumulative: m.cumulativeIncome,
+        stripeId: m.stripeCustomerId,
+        bankLinked: m.bankAccountLinked,
+        aiActive: m.aiAgentActive,
+      }));
+
+      setMembers(newMembers);
+
+      setMetrics({
+        score: engineState.score,
+        impact: engineState.impact,
+        compliance: engineState.compliance,
+        autonomy: engineState.autonomy,
+        emergentModules: engineState.emergentModules,
+        upgrades: engineState.upgrades.length,
+        dynamicAction: engineState.dynamicAction,
+      });
+
+      setSystem({
+        serverStatus: engineState.serverStatus,
+        stripeStatus: engineState.stripeStatus,
+        firewall: engineState.firewallCheck,
+        sandbox: engineState.sandboxLimit,
+        gapsFixed: engineState.gapsFixed,
+        errorsFixed: engineState.errorsFixed,
+      });
+
+      // Trigger automatic Stripe payouts immediately
+      payoutToMembers(engineState.members).catch(err => console.error("[StripePayout]", err));
+    });
+  }, []);
+
+  if (!members.length) return <div>Loading full live system dashboard...</div>;
+
+  return (
+    <div style={{ padding: 20, fontFamily: "sans-serif", background: "#111", color: "#eee" }}>
+      <h1 style={{ color: "#0ff" }}>🌌 Limitless Live Full Dashboard + Income + Payouts</h1>
+
+      <section>
+        <h2>Core Metrics (%)</h2>
+        <div style={{ display: "flex", gap: "20px" }}>
+          {Object.entries(metrics).map(([k, v]) => (
+            <div key={k} style={{ padding: 10, border: "1px solid #0ff", borderRadius: 6 }}>
+              <strong>{k.toUpperCase()}</strong>: {v}
+            </div>
+          ))}
+        </div>
+      </section>
+
+      <section>
+        <h2>Family Members Income</h2>
+        <table style={{ width: "100%", borderCollapse: "collapse", marginTop: 10 }}>
+          <thead>
+            <tr style={{ borderBottom: "1px solid #0ff" }}>
+              <th>User</th>
+              <th>Daily ($)</th>
+              <th>Monthly ($)</th>
+              <th>Cumulative ($)</th>
+              <th>Stripe ID</th>
+              <th>Bank Linked</th>
+              <th>AI Active</th>
+            </tr>
+          </thead>
+          <tbody>
+            {members.map(m => (
+              <tr key={m.user} style={{ borderBottom: "1px solid #222" }}>
+                <td>{m.user}</td>
+                <td>{m.daily.toLocaleString()}</td>
+                <td>{m.monthly.toLocaleString()}</td>
+                <td>{m.cumulative.toLocaleString()}</td>
+                <td style={{ color: "#0f0" }}>{m.stripeId}</td>
+                <td>{m.bankLinked ? "✓" : "✗"}</td>
+                <td>{m.aiActive ? "✓" : "✗"}</td>
+              </tr>
+            ))}
+          </tbody>
+        </table>
+      </section>
+
+      <section>
+        <h2>System Health & Status</h2>
+        <p>Server: {system.serverStatus}</p>
+        <p>Stripe: {system.stripeStatus}</p>
+        <p>Firewall Passed: {system.firewall ? "Yes" : "No"}</p>
+        <p>Sandbox Limit: {system.sandbox ? "Yes" : "No"}</p>
+        <p>Gaps Fixed Automatically: {system.gapsFixed ? "Yes" : "No"}</p>
+        <p>Errors Fixed Automatically: {system.errorsFixed ? "Yes" : "No"}</p>
+      </section>
+    </div>
+  );
+};
+
+ReactDOM.render(<FullLiveDashboard />, document.getElementById("root"));

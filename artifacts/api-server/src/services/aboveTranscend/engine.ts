@@ -295,9 +295,11 @@ export interface EvolutionCycle {
 let cycleCount   = 0;
 let stallStreak  = 0;
 let latestCycle: EvolutionCycle | null = null;
-const cycleHistory:  EvolutionCycle[]  = [];
-const actionHistory: ExecutionRecord[] = [];
-const trendHistory:  PerformanceTrend[] = [];
+const cycleHistory:    EvolutionCycle[]  = [];
+const actionHistory:   ExecutionRecord[] = [];
+const trendHistory:    PerformanceTrend[] = [];
+// onCycleEnd registry — spec: autoPayoutSetup.ts engineState.onCycleEnd()
+const cycleEndCallbacks: Array<() => void> = [];
 
 // ─── TranscendentEngine global registries ─────────────────────────────────────
 const unitRegistry:     EngineUnit[]       = [];
@@ -1008,6 +1010,13 @@ async function runCycle(): Promise<EvolutionCycle> {
     console.error("[StripePayout] Unhandled payout error:", (err as Error).message)
   );
 
+  // autoPayoutSetup.ts spec: fire all onCycleEnd callbacks non-blocking
+  for (const cb of cycleEndCallbacks) {
+    try { cb(); } catch (cbErr) {
+      console.error("[onCycleEnd] Callback error:", (cbErr as Error).message);
+    }
+  }
+
   return cycle;
 }
 
@@ -1074,6 +1083,9 @@ export const engineState = {
 
   // --- Family Members (spec: autoPayout.ts engineState.members) ---
   get members() { return getFamilyMembers(); },
+
+  // --- onCycleEnd event hook (spec: autoPayoutSetup.ts) ---
+  onCycleEnd(cb: () => void): void { cycleEndCallbacks.push(cb); },
 
   // --- Universe (flat, spec: limitlessFamilyAIFull.ts engineState.universe.*) ---
   get universe(): { units: number; metaPhases: number; expansionIdeas: number } {
