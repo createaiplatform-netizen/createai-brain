@@ -29,6 +29,50 @@ import {
 
 const router = Router();
 
+// ─── Product + Price cache (spec: realStripeSetup.ts) ─────────────────────────
+// Created once at first checkout, reused for every subsequent session.
+// Avoids creating duplicate Products/Prices in the Stripe dashboard.
+const PRODUCT_NAME  = "CreateAI Digital Tools Access";
+const PRODUCT_PRICE = 1999; // $19.99 default — overridden per-request if amount is passed
+
+let _cachedProductId: string | null = null;
+let _cachedPriceId:   string | null = null;
+
+async function ensureStripeProduct(stripe: Awaited<ReturnType<typeof getUncachableStripeClient>>, unitAmount: number): Promise<string> {
+  // Return cached price if same amount, otherwise create fresh
+  if (_cachedPriceId && unitAmount === PRODUCT_PRICE) return _cachedPriceId;
+
+  // Find or create the product
+  if (!_cachedProductId) {
+    const existing = await stripe.products.list({ limit: 100, active: true });
+    const found = existing.data.find(p => p.name === PRODUCT_NAME);
+    if (found) {
+      _cachedProductId = found.id;
+    } else {
+      const created = await stripe.products.create({ name: PRODUCT_NAME });
+      _cachedProductId = created.id;
+      console.log(`[Checkout] Product created: ${PRODUCT_NAME} · ${_cachedProductId}`);
+    }
+  }
+
+  // Find or create a price for this product at the requested unit amount
+  const prices = await stripe.prices.list({ product: _cachedProductId, active: true });
+  const match  = prices.data.find(p => p.unit_amount === unitAmount && p.currency === "usd");
+  if (match) {
+    if (unitAmount === PRODUCT_PRICE) _cachedPriceId = match.id;
+    return match.id;
+  }
+
+  const price = await stripe.prices.create({
+    unit_amount: unitAmount,
+    currency:    "usd",
+    product:     _cachedProductId,
+  });
+  if (unitAmount === PRODUCT_PRICE) _cachedPriceId = price.id;
+  console.log(`[Checkout] Price created: $${(unitAmount / 100).toFixed(2)} · ${price.id}`);
+  return price.id;
+}
+
 // ─── GET /status ──────────────────────────────────────────────────────────────
 router.get("/status", async (req: Request, res: Response) => {
   if (!req.user) { res.status(401).json({ error: "Unauthorized" }); return; }
@@ -145,18 +189,15 @@ router.post("/checkout", async (req: Request, res: Response) => {
       ? `https://${process.env["REPLIT_DEV_DOMAIN"]}`
       : "https://createai.repl.co";
 
+    // Resolve a real Stripe Product + Price (spec: realStripeSetup.ts)
+    const unitAmount = Math.max(50, Math.floor(Number(amount)));
+    const priceId    = await ensureStripeProduct(stripe, unitAmount);
+
     const session = await stripe.checkout.sessions.create({
       mode:                 "payment",
       customer:             member.stripeCustomerId,
       payment_method_types: ["card", "us_bank_account"],
-      line_items: [{
-        price_data: {
-          currency:     "usd",
-          product_data: { name: productName },
-          unit_amount:  Math.max(50, Math.floor(Number(amount))), // Stripe minimum 50 cents
-        },
-        quantity: 1,
-      }],
+      line_items: [{ price: priceId, quantity: 1 }],
       success_url: `${domain}/createai-brain/createai-digital?checkout=success`,
       cancel_url:  `${domain}/createai-brain/createai-digital?checkout=cancel`,
       metadata: {

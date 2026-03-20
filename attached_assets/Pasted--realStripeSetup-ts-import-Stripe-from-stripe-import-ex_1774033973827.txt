@@ -1,0 +1,83 @@
+// realStripeSetup.ts
+import Stripe from "stripe";
+import express from "express";
+
+const app = express();
+app.use(express.json());
+
+// ⚠️ Replace this with your **live secret key** only
+const stripe = new Stripe("sk_live_XXXXXXXXXXXXXXXXXXXXXXXX", { apiVersion: "2022-11-15" });
+
+// Example digital product
+const PRODUCT_NAME = "CreateAI Digital Tools Access";
+const PRODUCT_PRICE = 1999; // price in cents ($19.99)
+
+async function createProductIfNotExists() {
+  // Check if product exists
+  const existing = await stripe.products.list({ limit: 1, active: true, name: PRODUCT_NAME });
+  if (existing.data.length > 0) return existing.data[0];
+
+  // Create a real product
+  return await stripe.products.create({ name: PRODUCT_NAME });
+}
+
+async function createPriceForProduct(productId: string) {
+  // Create price if not exists
+  const prices = await stripe.prices.list({ product: productId, active: true });
+  if (prices.data.length > 0) return prices.data[0];
+
+  return await stripe.prices.create({
+    unit_amount: PRODUCT_PRICE,
+    currency: "usd",
+    product: productId,
+  });
+}
+
+// Create a real Stripe Checkout Session endpoint
+app.post("/create-checkout-session", async (req, res) => {
+  try {
+    const product = await createProductIfNotExists();
+    const price = await createPriceForProduct(product.id);
+
+    const session = await stripe.checkout.sessions.create({
+      payment_method_types: ["card", "us_bank_account"],
+      mode: "payment",
+      line_items: [{ price: price.id, quantity: 1 }],
+      success_url: "https://yourdomain.com/success",
+      cancel_url: "https://yourdomain.com/cancel",
+    });
+
+    res.json({ url: session.url });
+  } catch (err) {
+    console.error("Stripe error:", err);
+    res.status(500).json({ error: "Failed to create session" });
+  }
+});
+
+// Poll Stripe for succeeded PaymentIntents and auto-payout to your bank
+async function allocateSucceededPayments() {
+  const intents = await stripe.paymentIntents.list({ limit: 100 });
+  for (const intent of intents.data) {
+    if (intent.status === "succeeded" && !intent.metadata.allocated) {
+      // Mark as allocated to avoid double counting
+      await stripe.paymentIntents.update(intent.id, { metadata: { allocated: "true" } });
+
+      // Payout logic: send funds to your connected bank
+      if (intent.amount_received > 0) {
+        await stripe.transfers.create({
+          amount: intent.amount_received,
+          currency: intent.currency,
+          destination: "YOUR_STRIPE_ACCOUNT_ID", // your connected account or main account
+          source_transaction: intent.id,
+        });
+        console.log(`Allocated $${intent.amount_received / 100} from ${intent.id}`);
+      }
+    }
+  }
+}
+
+// Run allocation every 2 minutes
+setInterval(allocateSucceededPayments, 120000);
+
+const PORT = process.env.PORT || 3000;
+app.listen(PORT, () => console.log(`Live Stripe server running on port ${PORT}`));
