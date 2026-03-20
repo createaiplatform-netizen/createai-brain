@@ -995,6 +995,9 @@ async function runCycle(): Promise<EvolutionCycle> {
   if (failsafe.criticalAlert) console.error(`[AboveTranscend] ⚠️  ${failsafe.alertMessage}`);
   if (metaAnalysis.infiniteLoopDetected) console.warn(`[AboveTranscend] 🔁 ${metaAnalysis.loopWarning}`);
 
+  // coldStart.ts spec: displayFullStats() called every cycle
+  displayFullStats();
+
   return cycle;
 }
 
@@ -1024,5 +1027,34 @@ export function getCycleHistory():  EvolutionCycle[]        { return [...cycleHi
 export function getCycleCount():    number                  { return cycleCount; }
 export function getNextMoves():     NextMove[]              { return latestCycle?.nextMoves ?? []; }
 export function getActionHistory(): ExecutionRecord[]       { return [...actionHistory]; }
+
+// ─── engineState — live engine descriptor (spec: coldStart.ts) ────────────────
+export const engineState = {
+  get activeEngines():   number   { return 9; },   // 9 layer singletons always active
+  get layers():          string[] {
+    return [
+      "IntegrationsLayer", "DataLayer",      "EvolutionLayer", "FrontendLayer",
+      "AutonomyLayer",     "MetaLayer",       "FinanceLayer",   "SafetyLayer",
+      "LoopOrchestrator",
+    ];
+  },
+  get series():          string[] { return buildUniverseReport().metaPhases; },
+  get cyclesCompleted(): number   { return cycleCount; },
+};
+
+// ─── displayFullStats — full console status reporter (spec: coldStart.ts) ─────
+export function displayFullStats(): void {
+  if (!latestCycle) return;
+  const r = latestCycle.limitlessReport;
+  const u = latestCycle.universeReport;
+  console.log(
+    `[EngineStatus] 🌌 Cycle #${latestCycle.cycleNumber}` +
+    `\n  Core Metrics  — score:${r.score} · impact:${r.impact} · compliance:${r.compliance}% · autonomy:${r.autonomy}%` +
+    `\n  Emergent      — modules:${r.totalEmergentModules} · upgrades:${r.upgrades.length} · dynamicAction:${r.dynamicAction.slice(0, 32)}` +
+    `\n  Marketplace   — ${r.marketplaceUsers.map(u2 => `${u2.name}:$${Math.round(u2.earnings).toLocaleString()}`).join(" · ")} · total:$${Math.round(r.marketplaceDemo.scaledTotal).toLocaleString()}` +
+    `\n  Universe      — units:${u.unitCount} · metaPhases:${u.metaPhaseCount} · ideas:${u.expansionIdeaCount}` +
+    `\n  Engine        — activeEngines:9 · layers:9 · series:${u.metaPhaseCount} · cyclesCompleted:${cycleCount}`
+  );
+}
 export function getTrendHistory():  PerformanceTrend[]      { return [...trendHistory]; }
 export function runCycleNow():      Promise<EvolutionCycle> { return runCycle(); }

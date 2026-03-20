@@ -1,0 +1,47 @@
+// coldStart.ts — Fully autonomous engine boot & stats display
+import { runCycle, engineState, finalSnapshot } from './engine';
+import { LimitlessPanelData } from './frontend/types';
+
+// Start the engine automatically
+console.log("🚀 Booting Limitless Engine + Universe Connector + MarketplaceEngine...");
+runCycle(); // This triggers autonomous cycles continuously
+
+// Helper: Print full status at any time
+function displayFullStats() {
+  const snapshot = finalSnapshot(); // Full LimitlessReport & universe stats
+  console.clear();
+  console.log("🌌 LIMITLESS ENGINE STATUS 🌌");
+  
+  console.log("\n--- Core Metrics ---");
+  console.log(`Score: ${snapshot.score}`);
+  console.log(`Impact: ${snapshot.impact}`);
+  console.log(`Compliance: ${snapshot.compliance}`);
+  console.log(`Autonomy: ${snapshot.autonomy}`);
+  
+  console.log("\n--- Emergent Modules & Upgrades ---");
+  console.log(`Emergent Modules: ${snapshot.emergentModules}`);
+  console.log(`Upgrades Generated: ${snapshot.upgrades.length}`);
+  console.log(`Dynamic Actions this Cycle: ${snapshot.dynamicAction}`);
+  
+  console.log("\n--- Marketplace Stats ---");
+  snapshot.marketplaceUsers.forEach(u => {
+    console.log(`${u.name}: $${u.earnings.toLocaleString()}`);
+  });
+  console.log(`Total Demo Accumulated: $${snapshot.marketplaceTotal.toLocaleString()}`);
+  
+  console.log("\n--- Universe Stats ---");
+  console.log(`Units Registered: ${snapshot.universe.units}`);
+  console.log(`Meta-Phases Registered: ${snapshot.universe.metaPhases}`);
+  console.log(`Expansion Ideas: ${snapshot.universe.expansionIdeas}`);
+  
+  console.log("\n--- Engine Energy / Numbers ---");
+  console.log(`Active Engines: ${engineState.activeEngines}`);
+  console.log(`Engine Layers: ${engineState.layers.length}`);
+  console.log(`Engine Series: ${engineState.series.length}`);
+  console.log(`Cycles Completed: ${engineState.cyclesCompleted}`);
+  
+  console.log("\n✅ Status snapshot complete. Engine fully autonomous.");
+}
+
+// Auto-display every cycle (or set interval)
+setInterval(displayFullStats, 2000); // every 2 seconds shows latest full report

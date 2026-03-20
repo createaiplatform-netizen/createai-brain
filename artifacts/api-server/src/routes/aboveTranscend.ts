@@ -21,6 +21,7 @@ import {
   getActionHistory,
   getTrendHistory,
   runCycleNow,
+  engineState,
 } from "../services/aboveTranscend/engine.js";
 
 const router = Router();
@@ -92,25 +93,47 @@ router.get("/history", (req: Request, res: Response) => {
   res.json({ ok: true, cycles: lightweight, total: full.length });
 });
 
-// finalSnapshot() — last cycle's full report (spec: AboveTranscendLimitlessEngine.finalSnapshot())
+// finalSnapshot() — exact spec shape from coldStart.ts displayFullStats()
 router.get("/snapshot", (req: Request, res: Response) => {
   if (!req.user) { res.status(401).json({ error: "Unauthorized" }); return; }
   const latest = getLatestCycle();
   if (!latest) { res.status(404).json({ ok: false, error: "No cycle completed yet" }); return; }
+  const r = latest.limitlessReport;
+  const u = latest.universeReport;
   res.json({
-    ok:              true,
-    snapshot:        {
+    ok:       true,
+    snapshot: {
+      // --- Core Metrics ---
+      score:            r.score,
+      impact:           r.impact,
+      compliance:       r.compliance,
+      autonomy:         r.autonomy,
+      // --- Emergent Modules & Upgrades ---
+      emergentModules:  r.totalEmergentModules,
+      upgrades:         r.upgrades,
+      dynamicAction:    r.dynamicAction,
+      // --- Marketplace Stats ---
+      marketplaceUsers: r.marketplaceUsers.map((mu: { name: string; earnings: number }) => ({
+        name:     mu.name,
+        earnings: mu.earnings,
+      })),
+      marketplaceTotal: r.marketplaceDemo.scaledTotal,
+      // --- Universe Stats ---
+      universe: {
+        units:          u.unitCount,
+        metaPhases:     u.metaPhaseCount,
+        expansionIdeas: u.expansionIdeaCount,
+      },
+      // --- Engine State ---
+      engine: {
+        activeEngines:   engineState.activeEngines,
+        layers:          engineState.layers.length,
+        series:          engineState.series.length,
+        cyclesCompleted: engineState.cyclesCompleted,
+      },
+      // --- Raw (for deeper inspection) ---
+      limitlessReport: r,
       timestamp:       latest.completedAt,
-      score:           latest.summary.cycleScore,
-      impact:          latest.summary.realImpactScore,
-      compliance:      latest.summary.complianceScore,
-      autonomy:        latest.summary.autonomyScore,
-      actions:         latest.executedActions.map(a => a.title),
-      emergentModules: latest.summary.totalEmergentModules,
-      universeStats:   latest.universeReport,
-      marketplaceStats: latest.limitlessReport.marketplaceStats,
-      limitlessReport: latest.limitlessReport,
-      finance:         { potentialRevenue: latest.limitlessReport.marketplaceDemo.scaledTotal },
     },
   });
 });
