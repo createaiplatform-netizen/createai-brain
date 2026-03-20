@@ -77,13 +77,14 @@ export const CardContent = ({ children }: { children: React.ReactNode }) => (
 
 export const StatusPill = ({
   label, variant = "ok",
-}: { label: string; variant?: "ok" | "warn" | "danger" | "blue" | "neutral" }) => {
+}: { label: string; variant?: "ok" | "warn" | "danger" | "blue" | "neutral" | "beyond-infinity" }) => {
   const styles: Record<string, { color: string; bg: string; border: string }> = {
-    ok:      { color: T.ok,     bg: T.okBg,     border: "rgba(34,197,94,0.25)" },
-    warn:    { color: T.warn,   bg: T.warnBg,   border: "rgba(245,158,11,0.25)" },
-    danger:  { color: T.danger, bg: T.dangerBg, border: "rgba(239,68,68,0.25)" },
-    blue:    { color: T.blue,   bg: T.blueBg,   border: "rgba(59,130,246,0.25)" },
-    neutral: { color: T.text2,  bg: "#f1f5f9",  border: T.border },
+    ok:               { color: T.ok,      bg: T.okBg,     border: "rgba(34,197,94,0.25)" },
+    warn:             { color: T.warn,    bg: T.warnBg,   border: "rgba(245,158,11,0.25)" },
+    danger:           { color: T.danger,  bg: T.dangerBg, border: "rgba(239,68,68,0.25)" },
+    blue:             { color: T.blue,    bg: T.blueBg,   border: "rgba(59,130,246,0.25)" },
+    neutral:          { color: T.text2,   bg: "#f1f5f9",  border: T.border },
+    "beyond-infinity":{ color: "#7c3aed", bg: "#ede9fe",  border: "rgba(124,58,237,0.30)" },
   };
   const s = styles[variant] ?? styles.neutral;
   return (

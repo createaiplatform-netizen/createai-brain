@@ -1,6 +1,7 @@
 import React, { useEffect, useState, useCallback } from "react";
 import { InfiniteBrainLiveBanner } from "@/components/InfiniteBrainLiveBanner";
 import { InfiniteBrainVerificationPanel } from "@/Apps/InfiniteBrainVerificationPanel";
+import { BeyondInfinityConfig } from "@/config/BeyondInfinity";
 import {
   SectionHeader, Card, CardHeader, CardContent,
   Table, TableHead, TableRow, TableCell,
@@ -184,11 +185,27 @@ export function InfiniteBrainControlPanel() {
       }}>
         <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", flexWrap: "wrap", gap: 12 }}>
           <div>
-            <div style={{ fontSize: 22, fontWeight: 780, color: "#fff", letterSpacing: "-0.4px" }}>
-              Infinite Brain Control Panel
+            <div style={{ display: "flex", alignItems: "center", gap: 10, flexWrap: "wrap" }}>
+              <div style={{ fontSize: 22, fontWeight: 780, color: "#fff", letterSpacing: "-0.4px" }}>
+                Infinite Brain Control Panel
+              </div>
+              <span
+                title={BeyondInfinityConfig.frontend.tooltips}
+                style={{
+                  display:       "inline-flex", alignItems: "center",
+                  padding:       "2px 10px", borderRadius: 20,
+                  fontSize:      11, fontWeight: 700, letterSpacing: "0.1px",
+                  background:    "rgba(255,255,255,0.18)", color: "#fff",
+                  border:        "1px solid rgba(255,255,255,0.35)",
+                  backdropFilter:"blur(4px)",
+                  cursor:        "default",
+                }}
+              >
+                {BeyondInfinityConfig.frontend.panelHeader}
+              </span>
             </div>
             <div style={{ fontSize: 13, color: "rgba(255,255,255,0.65)", marginTop: 4 }}>
-              Real-time monitoring · enforcement · family notifications · infinite expansion
+              {BeyondInfinityConfig.labels.coreConcept} · {BeyondInfinityConfig.behavior.branding}
             </div>
           </div>
           <div style={{ display: "flex", alignItems: "center", gap: 8 }}>

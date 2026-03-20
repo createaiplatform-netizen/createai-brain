@@ -10,6 +10,7 @@ import { brainEngine }         from "../engine/BrainEnforcementEngine.js";
 import { MISSION_CONFIG }      from "../engine/MissionConfig.js";
 import { notifyFamilyEvent }   from "../utils/notifications.js";
 import { expandPlatform }      from "./expansionEngine.js";
+import { BeyondInfinityConfig } from "../config/BeyondInfinity.js";
 
 // ─── Types ────────────────────────────────────────────────────────────────────
 
@@ -70,24 +71,24 @@ export async function runVerification(): Promise<VerificationReport> {
     }
   }
 
-  // ── Step 1: UI Theme Verification ─────────────────────────────────────────
-  await runStep(1, "UI Upgrade", async () => {
+  // ── Step 1: UI Upgrade Check ──────────────────────────────────────────────
+  await runStep(1, BeyondInfinityConfig.backend.verifySteps[0], async () => {
     // Theme is compiled into the frontend — always verified at runtime
     const panelCount = KNOWN_PANELS.length;
     if (panelCount < 10) throw new Error("Insufficient panels registered");
     return `World-class light theme applied · ${panelCount} panels registered`;
   });
 
-  // ── Step 2: Trigger All Workflows ─────────────────────────────────────────
-  await runStep(2, "All Workflows Infinite", async () => {
+  // ── Step 2: All Workflows Infinite ────────────────────────────────────────
+  await runStep(2, BeyondInfinityConfig.backend.verifySteps[1], async () => {
     brainEngine.triggerAudit();
     await expandPlatform();
     const state = brainEngine.getState();
     return `Audit triggered · tick #${state.loopTick} · coverage ${state.coverage}% · ${Object.keys(state.auditSummary).length} workflow domains active`;
   });
 
-  // ── Step 3: Mission Config Verification ───────────────────────────────────
-  await runStep(3, "Mission Verification", async () => {
+  // ── Step 3: Mission Verification ──────────────────────────────────────────
+  await runStep(3, BeyondInfinityConfig.backend.verifySteps[2], async () => {
     const validStatuses = ["enforced", "active", "standby"];
     const invalid = MISSION_CONFIG.phases.filter(p => !validStatuses.includes(p.status));
     if (invalid.length > 0) {
@@ -98,8 +99,8 @@ export async function runVerification(): Promise<VerificationReport> {
     return `Mission v${MISSION_CONFIG.version} verified · ${enforced} enforced · ${active} active · ${MISSION_CONFIG.phases.length} total phases`;
   });
 
-  // ── Step 4: UI Panel Verification ─────────────────────────────────────────
-  await runStep(4, "UI Verification", async () => {
+  // ── Step 4: UI Verification ────────────────────────────────────────────────
+  await runStep(4, BeyondInfinityConfig.backend.verifySteps[3], async () => {
     // All panels are always active (compiled into the app at build time)
     const panels = KNOWN_PANELS.map(id => ({ id, status: "ACTIVE" as const }));
     const inactive = panels.filter(p => p.status !== "ACTIVE");
@@ -107,8 +108,8 @@ export async function runVerification(): Promise<VerificationReport> {
     return `${panels.length}/${panels.length} UI panels ACTIVE`;
   });
 
-  // ── Step 5: Family Notifications ──────────────────────────────────────────
-  await runStep(5, "Notify Family", async () => {
+  // ── Step 5: Notify Family ──────────────────────────────────────────────────
+  await runStep(5, BeyondInfinityConfig.backend.verifySteps[4], async () => {
     await notifyFamilyEvent({
       subject: "Infinite Brain Fully Live",
       message: [
@@ -125,7 +126,7 @@ export async function runVerification(): Promise<VerificationReport> {
   });
 
   // ── Step 6: System Stats Verification ─────────────────────────────────────
-  await runStep(6, "System Stats Verification", async () => {
+  await runStep(6, BeyondInfinityConfig.backend.verifySteps[5], async () => {
     const state = brainEngine.getState();
     if (!state.coverage || state.coverage < 100) throw new Error("Coverage below 100%");
     if (!state.loopTick) throw new Error("Engine loop not running");
@@ -158,16 +159,16 @@ export async function runVerification(): Promise<VerificationReport> {
     },
   };
 
-  // Console summary (mirrors the spec's output format)
-  console.log("\n🎯 INFINITE BRAIN STARTUP COMPLETE");
-  console.log(`• UI Panels & Dashboard: ${steps[0]?.status === "PASS" ? "✅" : "❌"}`);
-  console.log(`• All Workflows:         ${steps[1]?.status === "PASS" ? "✅" : "❌"}`);
-  console.log(`• Mission Config:        ${steps[2]?.status === "PASS" ? "✅" : "❌"}`);
-  console.log(`• UI Panels Active:      ${steps[3]?.status === "PASS" ? "✅" : "❌"}`);
-  console.log(`• Notifications Sent:    ${steps[4]?.status === "PASS" ? "✅" : "❌"}`);
-  console.log(`• System Stats:          ${steps[5]?.status === "PASS" ? "✅" : "❌"}`);
+  // Console summary
+  console.log(`\n💠 BEYOND INFINITY — ${BeyondInfinityConfig.backend.missionLabel.toUpperCase()}`);
+  console.log(`• ${BeyondInfinityConfig.backend.verifySteps[0].padEnd(28)} ${steps[0]?.status === "PASS" ? "✅" : "❌"}`);
+  console.log(`• ${BeyondInfinityConfig.backend.verifySteps[1].padEnd(28)} ${steps[1]?.status === "PASS" ? "✅" : "❌"}`);
+  console.log(`• ${BeyondInfinityConfig.backend.verifySteps[2].padEnd(28)} ${steps[2]?.status === "PASS" ? "✅" : "❌"}`);
+  console.log(`• ${BeyondInfinityConfig.backend.verifySteps[3].padEnd(28)} ${steps[3]?.status === "PASS" ? "✅" : "❌"}`);
+  console.log(`• ${BeyondInfinityConfig.backend.verifySteps[4].padEnd(28)} ${steps[4]?.status === "PASS" ? "✅" : "❌"}`);
+  console.log(`• ${BeyondInfinityConfig.backend.verifySteps[5].padEnd(28)} ${steps[5]?.status === "PASS" ? "✅" : "❌"}`);
   if (allPassed) {
-    console.log("💎 ALL SYSTEMS 100% LIVE, INFINITE EXECUTION VERIFIED, BRAIN COMPLETE\n");
+    console.log(`💎 ALL SYSTEMS 100% LIVE · ${BeyondInfinityConfig.labels.coreConcept.toUpperCase()} · INFINITE EXECUTION VERIFIED\n`);
   } else {
     const failed = steps.filter(s => s.status === "FAIL").map(s => s.label).join(", ");
     console.warn(`⚠️  Verification completed with failures: ${failed}\n`);

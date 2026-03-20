@@ -15,6 +15,8 @@ import { notifyFamilyEvent }   from "./utils/notifications.js";
 import { createDocumentary }   from "./tasks/createDocumentary.js";
 import { generateReport }      from "./tasks/generateReport.js";
 import { runVerification }     from "./services/verificationRunner.js";
+import { expandPlatform }      from "./services/expansionEngine.js";
+import { BeyondInfinityConfig } from "./config/BeyondInfinity.js";
 
 // ─── Task wrapper ─────────────────────────────────────────────────────────────
 
@@ -75,6 +77,21 @@ export async function startupAutoExecutor(): Promise<void> {
   await autoExecuteTask(
     () => generateReport("infinite-learning-summary"),
     "Infinite Learning Summary Report",
+  );
+
+  // ── Beyond Infinity / Absolute Transcendence auto-run ─────────────────
+  await autoExecuteTask(
+    async () => {
+      await expandPlatform();
+      return {
+        complete:    true,
+        completedAt: new Date().toISOString(),
+        taskType:    BeyondInfinityConfig.labels.coreConcept,
+        branding:    BeyondInfinityConfig.behavior.branding,
+        scope:       BeyondInfinityConfig.scope.simulations,
+      };
+    },
+    BeyondInfinityConfig.labels.coreConcept,
   );
 
   // ── 6-step verification after all tasks complete ───────────────────────

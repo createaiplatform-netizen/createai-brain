@@ -13,6 +13,7 @@ import { brainEngine } from "../engine/BrainEnforcementEngine.js";
 import { MISSION_CONFIG } from "../engine/MissionConfig.js";
 import { notifyFamilyEvent } from "../utils/notifications.js";
 import { runVerification } from "../services/verificationRunner.js";
+import { BeyondInfinityConfig } from "../config/BeyondInfinity.js";
 
 const router = Router();
 
@@ -89,17 +90,49 @@ router.get("/predictions", (_req: Request, res: Response) => {
 });
 
 // POST /api/brain/notify — trigger a family event notification from the frontend
+// Supports ?mode=no-limits for Beyond Infinity / Absolute Transcendence branding.
 router.post("/notify", async (req: Request, res: Response) => {
   const { subject, message } = req.body as { subject?: string; message?: string };
+  const noLimits = req.query.mode === "no-limits";
+
+  const finalSubject = noLimits
+    ? `💠 ${BeyondInfinityConfig.backend.missionLabel}: ${subject ?? "Brain Notification"}`
+    : subject ?? "Brain Notification";
+
+  const finalMessage = noLimits
+    ? [
+        `[${BeyondInfinityConfig.labels.coreConcept} — ${BeyondInfinityConfig.behavior.branding}]`,
+        "",
+        message ?? "Your CreateAI Brain is live and active.",
+        "",
+        `Scope: ${BeyondInfinityConfig.scope.simulations} · Retries: ${BeyondInfinityConfig.behavior.infiniteRetries.toLocaleString()}`,
+      ].join("\n")
+    : message ?? "Your CreateAI Brain is live and active.";
+
   try {
-    await notifyFamilyEvent({
-      subject: subject ?? "Brain Notification",
-      message: message ?? "Your CreateAI Brain is live and active.",
+    await notifyFamilyEvent({ subject: finalSubject, message: finalMessage });
+    res.json({
+      sent:      true,
+      timestamp: new Date().toISOString(),
+      mode:      noLimits ? "no-limits" : "standard",
     });
-    res.json({ sent: true, timestamp: new Date().toISOString() });
   } catch (err) {
     res.status(500).json({ sent: false, error: (err as Error).message });
   }
+});
+
+// GET /api/brain/beyond-infinity — full BeyondInfinityConfig + live engine state
+router.get("/beyond-infinity", (_req: Request, res: Response) => {
+  const state = brainEngine.getState();
+  res.json({
+    config:      BeyondInfinityConfig,
+    liveMetrics: {
+      coverage:        state.coverage,
+      loopTick:        state.loopTick,
+      optimizationAvg: +(state.optimization.reduce((s, o) => s + o.score, 0) / (state.optimization.length || 1)).toFixed(1),
+    },
+    retrievedAt: new Date().toISOString(),
+  });
 });
 
 // POST /api/brain/verify — run the full 6-step Infinite Brain verification sequence
