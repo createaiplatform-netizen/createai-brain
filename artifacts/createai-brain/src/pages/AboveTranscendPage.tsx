@@ -46,7 +46,10 @@ interface IndustryBenchmarks    { avgSaasMrr:number;topDecileArr:number;avgConve
 interface FinanceReport         { currentRevenue:number;revenueMode:string;revenueGap:number;monthlyPotential:number;annualPotential:number;industryBenchmarks:IndustryBenchmarks;aboveIndustryScenario:{description:string;projectedMrr:number;projectedArr:number;requiredActions:string[];timeToAchieve:string;vsIndustryAvg:string};revenueBlockers:string[];automationPotential:string;activationCost:string; }
 interface SafetyStatus          { allRulesEnforced:boolean;totalRules:number;passedRules:number;violations:Array<{rule:string;severity:string;detail:string}>;autoUpdatedRules:string[];complianceScore:number; }
 interface OrchestratorReport    { layersRan:number;feedbackValid:boolean;feedbackIssues:string[];selfUpgradeCycle:boolean;upgradeApplied:string;infiniteScaleMode:boolean;loopIteration:number; }
-interface CycleSummary          { realIntegrations:number;detectedLimits:number;proposedBreakers:number;expansionIdeas:number;topScore:number;systemIntelligence:number;actionsExecuted:number;systemStatus:EvolutionStatus;evolutionRate:number;realImpactScore:number;cycleScore:number;complianceScore:number;autonomyScore:number;financeRevenue:number;futureModuleCount:number; }
+interface EngineUnit            { id:string;name:string;description:string;category:"phase"|"layer"|"universe"|"sub";source:string;endpoint?:string;lastResult?:{success:boolean;impact:number;outcome:string;probeMs:number};subUnits?:EngineUnit[]; }
+interface DiscoveredModule      { name:string;status:"live"|"degraded"|"pending"|"future";source:string;endpoint?:string;description:string;lastChecked?:string; }
+interface UniverseReport        { connected:boolean;connectedAt?:string;unitCount:number;metaPhaseCount:number;expansionIdeaCount:number;discoveredModuleCount:number;units:EngineUnit[];metaPhases:string[];expansionIdeas:string[];modules:DiscoveredModule[];lastScanMs:number; }
+interface CycleSummary          { realIntegrations:number;detectedLimits:number;proposedBreakers:number;expansionIdeas:number;topScore:number;systemIntelligence:number;actionsExecuted:number;systemStatus:EvolutionStatus;evolutionRate:number;realImpactScore:number;cycleScore:number;complianceScore:number;autonomyScore:number;financeRevenue:number;futureModuleCount:number;universeUnits:number;universeMeta:number;discoveredModules:number;totalExpansionIdeas:number; }
 
 interface EvolutionCycle {
   cycleId:string;cycleNumber:number;startedAt:string;completedAt:string;durationMs:number;
@@ -62,6 +65,8 @@ interface EvolutionCycle {
   evolutionLayerReport:EvolutionLayerReport;frontendReport:FrontendLayerReport;
   autonomyReport:AutonomyReport;metaAnalysis:MetaAnalysis;financeReport:FinanceReport;
   safetyStatus:SafetyStatus;orchestratorReport:OrchestratorReport;futureModules:FutureModule[];
+  // Universe Connector
+  universeReport:UniverseReport;
   summary:CycleSummary;
 }
 
@@ -719,6 +724,174 @@ function OrchestratorPanel({ report }: { report:OrchestratorReport }) {
   );
 }
 
+// ─── Universe Connector Panel ─────────────────────────────────────────────────
+function UniversePanel({ report }: { report:UniverseReport }) {
+  const [tab, setTab] = useState<"modules"|"units"|"ideas"|"phases">("modules");
+
+  const bySource = (src:string) => report.modules.filter(m => m.source === src);
+  const seedMods  = bySource("seed");
+  const univMods  = bySource("infinite-universe-scanner");
+
+  const byCategory = (cat:string) => report.units.filter(u => u.category === cat);
+
+  const statusColor = (s:string) => s==="live"?GREEN:s==="degraded"?ORANGE:s==="pending"?DIM:PURPLE;
+  const sourceColor = (s:string) => s==="infinite-universe-scanner"?PURPLE:s==="auto-discovered"?TEAL:ACCENT;
+  const catColor    = (c:string) => c==="universe"?PURPLE:c==="layer"?ACCENT:c==="phase"?GREEN:TEAL;
+
+  return (
+    <Card style={{ background:`linear-gradient(135deg, ${PURPLE}07, ${TEAL}07)`, border:`1px solid ${PURPLE}30` }}>
+      <div style={{ display:"flex", alignItems:"center", gap:12, marginBottom:18 }}>
+        <div style={{ width:36, height:36, borderRadius:10, background:`linear-gradient(135deg,${PURPLE},${TEAL})`, display:"flex", alignItems:"center", justifyContent:"center", fontSize:18 }}>🌐</div>
+        <div style={{ flex:1 }}>
+          <div style={{ fontSize:14, fontWeight:800, color:TEXT }}>Infinite Universe Connector</div>
+          <div style={{ fontSize:11, color:DIM, marginTop:2 }}>
+            {report.connected ? `Connected ${report.connectedAt ? new Date(report.connectedAt).toLocaleTimeString() : ""} · ${report.lastScanMs.toLocaleString()}ms scan · auto-discovers legal, safe, real APIs` : "Not yet connected"}
+          </div>
+        </div>
+        <div style={{ display:"flex", gap:6, alignItems:"center" }}>
+          {report.connected && <div style={{ display:"flex", alignItems:"center", gap:5, background:GREEN+"12", border:`1px solid ${GREEN}30`, borderRadius:20, padding:"4px 12px" }}>
+            <span style={{ width:7, height:7, borderRadius:"50%", background:GREEN, display:"inline-block", animation:"pulse 2s infinite" }} />
+            <span style={{ fontSize:11, fontWeight:700, color:GREEN }}>CONNECTED</span>
+          </div>}
+        </div>
+      </div>
+
+      {/* Stats */}
+      <div style={{ display:"grid", gridTemplateColumns:"repeat(4,1fr)", gap:10, marginBottom:18 }}>
+        <StatTile label="Engine Units"       value={report.unitCount}          color={ACCENT}  sub="registered" />
+        <StatTile label="Discovered Modules" value={report.discoveredModuleCount} color={PURPLE} sub="all sources" />
+        <StatTile label="Meta-Phases"        value={report.metaPhaseCount}     color={TEAL}    sub="dynamic" />
+        <StatTile label="Expansion Ideas"    value={report.expansionIdeaCount} color={GREEN}   sub="generated" />
+      </div>
+
+      {/* Tabs */}
+      <div style={{ display:"flex", gap:6, marginBottom:16 }}>
+        {(["modules","units","ideas","phases"] as const).map(t => (
+          <button key={t} onClick={() => setTab(t)} style={{ fontSize:11, fontWeight:700, padding:"5px 14px", borderRadius:8, border:"none", cursor:"pointer", letterSpacing:"0.04em", textTransform:"uppercase" as const, background:tab===t?PURPLE:"rgba(0,0,0,0.05)", color:tab===t?"#fff":DIM, transition:"all 0.15s" }}>
+            {t==="modules"?`Modules (${report.discoveredModuleCount})`:t==="units"?`Units (${report.unitCount})`:t==="ideas"?`Ideas (${report.expansionIdeaCount})`:`Phases (${report.metaPhaseCount})`}
+          </button>
+        ))}
+      </div>
+
+      {/* Modules tab */}
+      {tab==="modules" && (
+        <div>
+          {univMods.length>0 && (
+            <>
+              <div style={{ fontSize:10, fontWeight:700, color:PURPLE, letterSpacing:"0.06em", textTransform:"uppercase" as const, marginBottom:10 }}>
+                🌐 Universe-Discovered ({univMods.length})
+              </div>
+              <div style={{ display:"grid", gridTemplateColumns:"1fr 1fr", gap:10, marginBottom:16 }}>
+                {univMods.map(m => (
+                  <div key={m.name} style={{ border:`1px solid ${statusColor(m.status)}30`, borderRadius:10, padding:"12px 14px", background:statusColor(m.status)+"05" }}>
+                    <div style={{ display:"flex", alignItems:"center", gap:7, marginBottom:6 }}>
+                      <div style={{ width:8, height:8, borderRadius:"50%", background:statusColor(m.status), flexShrink:0 }} />
+                      <span style={{ fontSize:13, fontWeight:700, color:TEXT, flex:1 }}>{m.name}</span>
+                      <Badge label={m.status} color={statusColor(m.status)} />
+                    </div>
+                    <div style={{ fontSize:11, color:DIM, lineHeight:1.5, marginBottom:6 }}>{m.description}</div>
+                    {m.endpoint && <div style={{ fontSize:10, color:PURPLE, background:PURPLE+"08", borderRadius:5, padding:"3px 8px", fontFamily:"monospace", overflow:"hidden", textOverflow:"ellipsis", whiteSpace:"nowrap" as const }}>{m.endpoint}</div>}
+                    {m.lastChecked && <div style={{ fontSize:9.5, color:DIM, marginTop:4 }}>Checked: {new Date(m.lastChecked).toLocaleTimeString()}</div>}
+                  </div>
+                ))}
+              </div>
+            </>
+          )}
+          <div style={{ fontSize:10, fontWeight:700, color:DIM, letterSpacing:"0.06em", textTransform:"uppercase" as const, marginBottom:10 }}>
+            Seed Modules ({seedMods.length})
+          </div>
+          <div style={{ display:"grid", gridTemplateColumns:"repeat(3,1fr)", gap:8 }}>
+            {seedMods.map(m => (
+              <div key={m.name} style={{ border:`1px solid ${GREEN}20`, borderRadius:9, padding:"10px 12px", background:GREEN+"04" }}>
+                <div style={{ display:"flex", alignItems:"center", gap:6, marginBottom:4 }}>
+                  <div style={{ width:7, height:7, borderRadius:"50%", background:GREEN, flexShrink:0 }} />
+                  <span style={{ fontSize:12, fontWeight:700, color:TEXT }}>{m.name}</span>
+                </div>
+                <div style={{ fontSize:10.5, color:DIM }}>{m.description}</div>
+                <div style={{ fontSize:9.5, color:ACCENT, marginTop:4 }}>{m.source}</div>
+              </div>
+            ))}
+          </div>
+        </div>
+      )}
+
+      {/* Units tab */}
+      {tab==="units" && (
+        <div>
+          {(["universe","layer","phase"] as const).map(cat => {
+            const catUnits = byCategory(cat);
+            if (catUnits.length===0) return null;
+            return (
+              <div key={cat} style={{ marginBottom:16 }}>
+                <div style={{ fontSize:10, fontWeight:700, color:catColor(cat), letterSpacing:"0.06em", textTransform:"uppercase" as const, marginBottom:10 }}>
+                  {cat==="universe"?"🌐":cat==="layer"?"⚡":"⚙️"} {cat.charAt(0).toUpperCase()+cat.slice(1)} Units ({catUnits.length})
+                </div>
+                <div style={{ display:"flex", flexDirection:"column", gap:7 }}>
+                  {catUnits.map(u => (
+                    <div key={u.id} style={{ border:`1px solid ${catColor(cat)}20`, borderRadius:9, padding:"10px 14px", background:catColor(cat)+"04" }}>
+                      <div style={{ display:"flex", alignItems:"center", gap:8, marginBottom:u.lastResult?6:0 }}>
+                        <Badge label={u.source} color={sourceColor(u.source)} />
+                        <span style={{ fontSize:12, fontWeight:700, color:TEXT, flex:1 }}>{u.name}</span>
+                        {u.lastResult && <span style={{ fontSize:10, color:u.lastResult.success?GREEN:RED }}>{u.lastResult.success?"✓":"✗"} {u.lastResult.probeMs}ms</span>}
+                      </div>
+                      {u.lastResult && (
+                        <div style={{ fontSize:10.5, color:DIM, lineHeight:1.5 }}>
+                          {u.lastResult.outcome.slice(0, 120)}{u.lastResult.outcome.length>120?"…":""}
+                        </div>
+                      )}
+                      {!u.lastResult && <div style={{ fontSize:10.5, color:DIM }}>{u.description}</div>}
+                    </div>
+                  ))}
+                </div>
+              </div>
+            );
+          })}
+        </div>
+      )}
+
+      {/* Expansion Ideas tab */}
+      {tab==="ideas" && (
+        <div>
+          <div style={{ fontSize:11, color:DIM, marginBottom:12, lineHeight:1.6 }}>
+            {report.expansionIdeaCount} expansion ideas generated by the engine — any legal, safe, real API or capability can be integrated. Ideas are generated automatically when evolution drops below 100% or when universe modules are discovered.
+          </div>
+          <div style={{ display:"flex", flexDirection:"column", gap:8 }}>
+            {report.expansionIdeas.map((idea, i) => (
+              <div key={i} style={{ display:"flex", gap:10, padding:"10px 14px", background:i<3?GREEN+"06":ACCENT+"06", border:`1px solid ${i<3?GREEN:ACCENT}20`, borderRadius:9 }}>
+                <div style={{ flexShrink:0, width:22, height:22, borderRadius:7, background:i<3?GREEN:ACCENT, display:"flex", alignItems:"center", justifyContent:"center", fontSize:10, fontWeight:800, color:"#fff" }}>{i+1}</div>
+                <div style={{ fontSize:12, color:TEXT, lineHeight:1.6, flex:1 }}>{idea}</div>
+                {i<3 && <Badge label="top" color={GREEN} />}
+              </div>
+            ))}
+          </div>
+        </div>
+      )}
+
+      {/* Meta-Phases tab */}
+      {tab==="phases" && (
+        <div>
+          <div style={{ fontSize:11, color:DIM, marginBottom:12 }}>
+            {report.metaPhaseCount} meta-phases registered — each represents a functional layer, phase, or universe module tracked by the engine.
+          </div>
+          <div style={{ display:"grid", gridTemplateColumns:"1fr 1fr 1fr", gap:7 }}>
+            {report.metaPhases.map((phase, i) => {
+              const isUniverse = phase.startsWith("UniversePhase");
+              const isLayer    = phase.startsWith("Layer");
+              const c = isUniverse?PURPLE:isLayer?ACCENT:GREEN;
+              return (
+                <div key={i} style={{ border:`1px solid ${c}20`, borderRadius:8, padding:"8px 10px", background:c+"05" }}>
+                  <div style={{ fontSize:10, fontWeight:700, color:c, letterSpacing:"0.04em", marginBottom:3 }}>{isUniverse?"UNIVERSE":isLayer?"LAYER":"PHASE"}</div>
+                  <div style={{ fontSize:11, color:TEXT, lineHeight:1.4 }}>{phase.replace(/^(Phase-|Layer-|UniversePhase-)/,"")}</div>
+                </div>
+              );
+            })}
+          </div>
+        </div>
+      )}
+    </Card>
+  );
+}
+
 // ─── Main Page ─────────────────────────────────────────────────────────────────
 export default function AboveTranscendPage() {
   const qc = useQueryClient();
@@ -792,11 +965,17 @@ export default function AboveTranscendPage() {
               <StatTile label="Compliance Score"   value={`${cycle.summary.complianceScore}%`} color={cycle.summary.complianceScore>=80?GREEN:ORANGE} />
               <StatTile label="Autonomy Score"     value={`${cycle.summary.autonomyScore}%`}   color={TEAL} />
             </div>
-            <div style={{ display:"grid", gridTemplateColumns:"repeat(4,1fr)", gap:10, marginBottom:24 }}>
+            <div style={{ display:"grid", gridTemplateColumns:"repeat(4,1fr)", gap:10, marginBottom:8 }}>
               <StatTile label="Actions Executed"  value={cycle.summary.actionsExecuted} color={GREEN} sub="this cycle" />
               <StatTile label="Real Impact Score" value={cycle.summary.realImpactScore} color={ACCENT} sub="/100" />
               <StatTile label="Real Integrations" value={cycle.summary.realIntegrations} color={GREEN} />
               <StatTile label="Future Modules"    value={cycle.summary.futureModuleCount} color={PURPLE} sub="simulated" />
+            </div>
+            <div style={{ display:"grid", gridTemplateColumns:"repeat(4,1fr)", gap:10, marginBottom:24 }}>
+              <StatTile label="Universe Units"     value={cycle.summary.universeUnits}       color={PURPLE} sub="registered" />
+              <StatTile label="Discovered Modules" value={cycle.summary.discoveredModules}   color={TEAL}   sub="all sources" />
+              <StatTile label="Meta-Phases"        value={cycle.summary.universeMeta}        color={ACCENT} sub="dynamic" />
+              <StatTile label="Expansion Ideas"    value={cycle.summary.totalExpansionIdeas} color={GREEN}  sub="generated" />
             </div>
 
             {/* 8 Phase panels */}
@@ -815,8 +994,11 @@ export default function AboveTranscendPage() {
             <div style={{ display:"flex", alignItems:"center", gap:12, marginBottom:16, padding:"12px 18px", background:ACCENT+"08", border:`1px solid ${ACCENT}20`, borderRadius:12 }}>
               <span style={{ fontSize:18 }}>⚡</span>
               <div>
-                <div style={{ fontSize:13, fontWeight:800, color:ACCENT }}>No Limits Edition — 9 Active Layers</div>
-                <div style={{ fontSize:11, color:DIM }}>All layers ran in parallel this cycle · autoSelfRewrite:true · infiniteScaling:true · feedbackCycle:true</div>
+                <div style={{ fontSize:13, fontWeight:800, color:ACCENT }}>No Limits Edition — 9 Active Layers + Infinite Universe Connector</div>
+                <div style={{ fontSize:11, color:DIM }}>
+                  All layers ran in parallel · autoSelfRewrite:true · infiniteScaling:true · feedbackCycle:true · universeConnected:{cycle.universeReport.connected?"true":"false"}
+                  {" "}· {cycle.universeReport.unitCount} units · {cycle.universeReport.discoveredModuleCount} modules · {cycle.universeReport.expansionIdeaCount} ideas
+                </div>
               </div>
               <div style={{ marginLeft:"auto", textAlign:"right" as const }}>
                 <div style={{ fontSize:11, color:DIM }}>Loop #{cycle.orchestratorReport.loopIteration}</div>
@@ -834,6 +1016,7 @@ export default function AboveTranscendPage() {
               <FinancePanel      report={cycle.financeReport} />
               <SafetyPanel       safety={cycle.safetyStatus} />
               <OrchestratorPanel report={cycle.orchestratorReport} />
+              <UniversePanel     report={cycle.universeReport} />
             </div>
 
             {/* Footer */}

@@ -159,6 +159,42 @@ export interface FailsafeState {
   alertMessage: string; restorationSteps: string[];
 }
 
+// ─── TranscendentEngine types ─────────────────────────────────────────────────
+
+export interface EngineUnit {
+  id:          string;
+  name:        string;
+  description: string;
+  category:    "phase" | "layer" | "universe" | "sub";
+  source:      "seed" | "auto-discovered" | "infinite-universe-scanner";
+  endpoint?:   string;
+  lastResult?: { success: boolean; impact: number; outcome: string; probeMs: number };
+  subUnits?:   EngineUnit[];
+}
+
+export interface DiscoveredModule {
+  name:        string;
+  status:      "live" | "degraded" | "pending" | "future";
+  source:      "seed" | "auto-discovered" | "infinite-universe-scanner";
+  endpoint?:   string;
+  description: string;
+  lastChecked?: string;
+}
+
+export interface UniverseReport {
+  connected:          boolean;
+  connectedAt?:       string;
+  unitCount:          number;
+  metaPhaseCount:     number;
+  expansionIdeaCount: number;
+  discoveredModuleCount: number;
+  units:              EngineUnit[];
+  metaPhases:         string[];
+  expansionIdeas:     string[];
+  modules:            DiscoveredModule[];
+  lastScanMs:         number;
+}
+
 // ─── Full cycle output (Phase 8) ─────────────────────────────────────────────
 export interface EvolutionCycle {
   cycleId: string; cycleNumber: number;
@@ -201,6 +237,9 @@ export interface EvolutionCycle {
   orchestratorReport: OrchestratorReport;
   futureModules:      FutureModule[];
 
+  // ── TranscendentEngine: Universe Connector ───────────────────────────────────
+  universeReport: UniverseReport;
+
   summary: {
     realIntegrations: number; detectedLimits: number; proposedBreakers: number;
     expansionIdeas: number; topScore: number; systemIntelligence: number;
@@ -208,6 +247,9 @@ export interface EvolutionCycle {
     evolutionRate: number; realImpactScore: number;
     cycleScore: number; complianceScore: number; autonomyScore: number;
     financeRevenue: number; futureModuleCount: number;
+    // Universe
+    universeUnits: number; universeMeta: number; discoveredModules: number;
+    totalExpansionIdeas: number;
   };
 }
 
@@ -218,6 +260,174 @@ let latestCycle: EvolutionCycle | null = null;
 const cycleHistory:  EvolutionCycle[]  = [];
 const actionHistory: ExecutionRecord[] = [];
 const trendHistory:  PerformanceTrend[] = [];
+
+// ─── TranscendentEngine global registries ─────────────────────────────────────
+const unitRegistry:     EngineUnit[]       = [];
+const moduleRegistry:   DiscoveredModule[] = [];
+const metaPhases:       string[]           = [];
+const expansionIdeas:   string[]           = [];
+let   universeConnected                    = false;
+let   universeConnectedAt: string | undefined;
+let   lastUniverseScanMs                   = 0;
+
+function registerUnit(unit: EngineUnit): void {
+  if (!unitRegistry.find(u => u.name === unit.name)) unitRegistry.push(unit);
+}
+
+function registerMetaPhase(name: string): void {
+  if (!metaPhases.includes(name)) metaPhases.push(name);
+}
+
+function generateExpansionIdea(context?: string): void {
+  const templates = [
+    "Integrate ANY legal, safe, real AI endpoint from the public universe",
+    "Auto-discover and probe all zero-auth public data APIs in a 30-second scan",
+    "Build a self-healing retry layer for every external probe with exponential backoff",
+    "Add a real-time event stream (SSE) for live cycle progress in the frontend",
+    "Create a public API health leaderboard — ranked by reliability over 30 days",
+    "Generate weekly GPT-4o summaries of the universe module performance",
+    "Auto-register any new real API discovered by the universe scanner as a live module",
+    "Build a cross-module correlation engine — detect when two modules affect each other",
+    "Add anomaly detection: if any probe degrades >30%, trigger immediate escalation",
+    "Create a self-documenting API registry — every discovered module writes its own schema",
+  ];
+  const idea = context
+    ? `Universe Expansion: ${context}`
+    : templates[expansionIdeas.length % templates.length]!;
+  expansionIdeas.push(idea);
+}
+
+async function probeUniverseEndpoint(
+  name: string, endpoint: string, description: string,
+  category: EngineUnit["category"] = "universe"
+): Promise<void> {
+  const t0 = Date.now();
+  let status: DiscoveredModule["status"] = "pending";
+  let outcome = "Probe pending";
+  let success = false;
+  let impact  = 0;
+
+  try {
+    const r = await fetch(endpoint, { signal: AbortSignal.timeout(6000), headers: { "User-Agent": "CreateAI-Brain/3.0" } });
+    if (r.ok) {
+      status  = "live";
+      success = true;
+      impact  = 60;
+      const body = await r.text().catch(() => "");
+      const preview = body.slice(0, 80).replace(/\s+/g, " ");
+      outcome = `HTTP ${r.status} · ${r.headers.get("content-type")?.split(";")[0] ?? "unknown"} · ${preview}…`;
+    } else {
+      status  = "degraded";
+      outcome = `HTTP ${r.status}`;
+      impact  = 20;
+    }
+  } catch (e) {
+    status  = "degraded";
+    outcome = `Probe failed: ${(e as Error).message.slice(0, 60)}`;
+    impact  = 10;
+  }
+
+  const probeMs = Date.now() - t0;
+
+  // Update or add to module registry
+  const existing = moduleRegistry.find(m => m.name === name);
+  if (existing) {
+    existing.status      = status;
+    existing.lastChecked = new Date().toISOString();
+  } else {
+    moduleRegistry.push({ name, status, source: "infinite-universe-scanner", endpoint, description, lastChecked: new Date().toISOString() });
+  }
+
+  // Update or register engine unit
+  const unit = unitRegistry.find(u => u.name === `Universe: ${name}`);
+  const result = { success, impact, outcome, probeMs };
+  if (unit) {
+    unit.lastResult = result;
+  } else {
+    registerUnit({ id: `universe-${name.toLowerCase().replace(/\s/g, "-")}`, name: `Universe: ${name}`, description, category, source: "infinite-universe-scanner", endpoint, lastResult: result });
+    registerMetaPhase(`UniversePhase-${name}`);
+    generateExpansionIdea(`${name} discovered — endpoint: ${endpoint}`);
+  }
+}
+
+async function connectUniverse(): Promise<void> {
+  if (universeConnected) {
+    // Re-probe all universe modules each cycle to keep data fresh
+    const universeMods = moduleRegistry.filter(m => m.source === "infinite-universe-scanner" && m.endpoint);
+    await Promise.all(universeMods.map(m => probeUniverseEndpoint(m.name.replace("Universe: ",""), m.endpoint!, m.description)));
+    return;
+  }
+
+  universeConnected   = true;
+  universeConnectedAt = new Date().toISOString();
+  console.log("[AboveTranscend] 🌐 Connecting to Infinite Universe — scanning public endpoints…");
+
+  const t0 = Date.now();
+
+  // Real free public APIs — zero auth, legal, safe, data-producing
+  await Promise.all([
+    probeUniverseEndpoint("Exchange Rates",   "https://open.er-api.com/v6/latest/USD",                                          "Live forex exchange rates for 170+ currencies — no auth required"),
+    probeUniverseEndpoint("World Bank Data",  "https://api.worldbank.org/v2/country?format=json&per_page=5",                    "World Bank development indicators — 200+ countries, real GDP/population data"),
+    probeUniverseEndpoint("REST Countries",   "https://restcountries.com/v3.1/name/sweden?fields=name,capital,population",      "Country metadata: capital, population, languages, currencies — all real"),
+    probeUniverseEndpoint("Public Holidays",  "https://date.nager.at/api/v3/publicholidays/2025/US",                           "US public holidays 2025 — real calendar data, no auth required"),
+    probeUniverseEndpoint("Aviation Tracker", "https://opensky-network.org/api/states/all?lamin=55&lomin=14&lamax=60&lomax=25", "Live aircraft positions over Scandinavia — OpenSky Network"),
+    probeUniverseEndpoint("Open Library",     "https://openlibrary.org/search.json?q=artificial+intelligence&limit=3",          "Open Library search — 20M+ book records, real bibliographic data"),
+    probeUniverseEndpoint("IP Intelligence",  "https://ipapi.co/json/",                                                         "Server IP geolocation, ASN, org — live network intelligence"),
+    probeUniverseEndpoint("Crypto Ping",      "https://api.coingecko.com/api/v3/ping",                                          "CoinGecko API health — gateway to 10,000+ crypto prices"),
+  ]);
+
+  lastUniverseScanMs = Date.now() - t0;
+
+  // Seed the 8 phase units and 9 layer units
+  const phaseSeeds = ["Activity Enforcement","Execution Layer","Feedback Loop","Expansion Guarantee","Reality Priority","Self-Scoring Model","Failsafe Enforcement","Structured Output"];
+  const layerSeeds = ["IntegrationsLayer","DataLayer","EvolutionLayer","FrontendLayer","AutonomyLayer","MetaLayer","FinanceLayer","SafetyLayer","LoopOrchestrator"];
+
+  phaseSeeds.forEach((name, i) => registerUnit({ id: `phase-${i+1}`, name: `Phase ${i+1}: ${name}`, description: `Core engine enforcement phase — runs every cycle`, category: "phase", source: "seed" }));
+  layerSeeds.forEach((name, i) => registerUnit({ id: `layer-${i+1}`, name: `L${i+1}: ${name}`,      description: `No Limits Edition layer — runs in parallel`, category: "layer", source: "seed" }));
+
+  // Seed known modules that were there before universe discovery
+  const seedModules: DiscoveredModule[] = [
+    { name: "stripe",          status: "live", source: "seed", description: "Stripe payment connector", endpoint: "https://status.stripe.com" },
+    { name: "twilio",          status: "live", source: "seed", description: "Twilio SMS API" },
+    { name: "resend",          status: "live", source: "seed", description: "Resend email API" },
+    { name: "postgresql",      status: "live", source: "seed", description: "PostgreSQL database" },
+    { name: "openMeteo",       status: "live", source: "seed", description: "Open-Meteo weather API", endpoint: "https://api.open-meteo.com" },
+    { name: "hapiFHIR",        status: "live", source: "seed", description: "HAPI FHIR R4 sandbox" },
+    { name: "openaq",          status: "live", source: "seed", description: "OpenAQ air quality API" },
+    { name: "openStreetMap",   status: "live", source: "seed", description: "Nominatim geocoding API" },
+    { name: "nodeMetrics",     status: "live", source: "seed", description: "Node.js system metrics" },
+  ];
+  seedModules.forEach(m => { if (!moduleRegistry.find(r => r.name === m.name)) moduleRegistry.push(m); });
+
+  // Register meta-phases for seeded items
+  phaseSeeds.forEach(name => registerMetaPhase(`Phase-${name}`));
+  layerSeeds.forEach(name  => registerMetaPhase(`Layer-${name}`));
+
+  // Generate initial expansion ideas
+  for (let i = 0; i < 5; i++) generateExpansionIdea();
+
+  console.log(
+    `[AboveTranscend] 🌐 Universe connected — ` +
+    `${unitRegistry.length} units · ${moduleRegistry.length} modules · ` +
+    `${metaPhases.length} meta-phases · ${expansionIdeas.length} ideas · ${lastUniverseScanMs}ms`
+  );
+}
+
+function buildUniverseReport(): UniverseReport {
+  return {
+    connected:             universeConnected,
+    connectedAt:           universeConnectedAt,
+    unitCount:             unitRegistry.length,
+    metaPhaseCount:        metaPhases.length,
+    expansionIdeaCount:    expansionIdeas.length,
+    discoveredModuleCount: moduleRegistry.length,
+    units:                 [...unitRegistry],
+    metaPhases:            [...metaPhases],
+    expansionIdeas:        [...expansionIdeas],
+    modules:               [...moduleRegistry],
+    lastScanMs:            lastUniverseScanMs,
+  };
+}
 
 // ─── SAFE_AUTO executors ──────────────────────────────────────────────────────
 
@@ -589,6 +799,10 @@ async function runCycle(): Promise<EvolutionCycle> {
     Promise.resolve(safetyLayer.run(layerInput)),
   ]);
 
+  // ── Universe Connector — re-probe all universe modules ──────────────────
+  await connectUniverse();
+  const universeReport = buildUniverseReport();
+
   // ── Layer 9 — LoopOrchestrator ───────────────────────────────────────────
   const orchestratorReport = loopOrchestrator.run({
     integrations: integrationsReport,
@@ -621,6 +835,9 @@ async function runCycle(): Promise<EvolutionCycle> {
     safetyStatus, orchestratorReport,
     futureModules: evolutionLayerReport.futureModules,
 
+    // Universe Connector
+    universeReport,
+
     summary: {
       realIntegrations:  awareness.realCount,
       detectedLimits:    limits.length,
@@ -637,6 +854,11 @@ async function runCycle(): Promise<EvolutionCycle> {
       autonomyScore:     autonomyReport.autonomyScore,
       financeRevenue:    financeReport.currentRevenue,
       futureModuleCount: evolutionLayerReport.futureModules.length,
+      // Universe
+      universeUnits:        universeReport.unitCount,
+      universeMeta:         universeReport.metaPhaseCount,
+      discoveredModules:    universeReport.discoveredModuleCount,
+      totalExpansionIdeas:  universeReport.expansionIdeaCount,
     },
   };
 
