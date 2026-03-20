@@ -34,7 +34,8 @@
 import os from "os";
 import { credentialStatus } from "../../utils/notifications.js";
 import { probeStripeConnection } from "../integrations/stripeClient.js";
-import { updateMemberIncomes } from "../familyAgents.js";
+import { updateMemberIncomes, getFamilyMembers } from "../familyAgents.js";
+import { payoutToMembers }                       from "./autoPayout.js";
 import { db } from "@workspace/db";
 import { sql } from "drizzle-orm";
 
@@ -1002,6 +1003,11 @@ async function runCycle(): Promise<EvolutionCycle> {
   // fullProduction.ts spec: per-cycle income allocation for all family members
   updateMemberIncomes(limitlessDemo.scaledTotal);
 
+  // autoPayout.ts spec: send daily income to each member via Stripe paymentIntents
+  payoutToMembers(getFamilyMembers()).catch(err =>
+    console.error("[StripePayout] Unhandled payout error:", (err as Error).message)
+  );
+
   return cycle;
 }
 
@@ -1065,6 +1071,9 @@ export const engineState = {
   get marketplaceTotal(): number {
     return latestCycle?.limitlessReport.marketplaceDemo.scaledTotal ?? 0;
   },
+
+  // --- Family Members (spec: autoPayout.ts engineState.members) ---
+  get members() { return getFamilyMembers(); },
 
   // --- Universe (flat, spec: limitlessFamilyAIFull.ts engineState.universe.*) ---
   get universe(): { units: number; metaPhases: number; expansionIdeas: number } {

@@ -26,6 +26,7 @@ export interface FamilyMember {
   aiAgentActive:        boolean;
   bankAccountLinked:    boolean;
   stripeCustomerId?:    string;
+  stripeAccountId?:     string;   // Stripe Connect destination account (autoPayout.ts spec)
   dailyIncome:          number;
   monthlyIncome:        number;
   cumulativeIncome:     number;
