@@ -2,24 +2,32 @@
  * modules/limitless.ts — Limitless Self-Upgrading Engine
  * ─────────────────────────────────────────────────────────────────────────────
  * Implements:
- *   LimitlessModule   — self-expanding module tree (50% emergent growth per run)
- *   MarketplaceEngine — uniqueness-enforced creator marketplace (SHA-256 hashing)
+ *   LimitlessModule   — fully emergent, guaranteed submodule growth per run
+ *                       (depth-capped to prevent exponential explosion)
+ *   MarketplaceEngine — SHA-256 uniqueness-enforced creator marketplace
+ *   generateUpgrade() — per-cycle upgrade registry (emergent, persisted)
  *   LimitlessReport   — per-cycle output shape
  */
 
 import crypto from "node:crypto";
 
+// ─── Emergent growth config ───────────────────────────────────────────────────
+// Spawn probability by tree depth — guarantees ≥1 per cycle at root,
+// decays exponentially so the tree stays bounded long-term.
+const SPAWN_PROBABILITY = [1.0, 1.0, 0.5, 0.2, 0.05];   // index = depth
+const MAX_DEPTH = 4;
+
 // ─── Types ────────────────────────────────────────────────────────────────────
 
 export interface LimitlessModuleResult {
-  name: string;
-  state:  Record<string, unknown>;
-  hash:   string;
+  name:                string;
+  state:               Record<string, unknown>;
+  hash:                string;
   submoduleCount:      number;
   totalSubmoduleCount: number;
   emergentCreated:     boolean;
   emergentName:        string | null;
-  subResults:          LimitlessModuleResult[];
+  depth:               number;
   runMs:               number;
 }
 
@@ -48,45 +56,62 @@ export interface MarketplaceDemoResult {
   platformEarnings: number;
 }
 
+export interface LimitlessUpgrade {
+  id:        string;
+  name:      string;
+  effect:    string;
+  cycle:     number;
+  createdAt: string;
+}
+
 export interface LimitlessReport {
-  cycleNumber:         number;
-  score:               number;
-  impact:              number;
-  compliance:          number;
-  actions:             string[];
-  // LimitlessModule tree stats
+  cycleNumber:          number;
+  score:                number;
+  impact:               number;
+  compliance:           number;
+  // Weighted actions (status-aware) + one fully emergent dynamic action
+  actions:              string[];
+  dynamicAction:        string;
+  // LimitlessModule tree
   totalEmergentModules: number;
   coreSubmoduleCount:   number;
   emergentThisCycle:    boolean;
+  emergentCountThisCycle: number;
   newEmergentName:      string | null;
   coreHash:             string;
   coreRunMs:            number;
+  // Per-cycle upgrades
+  upgrades:             LimitlessUpgrade[];
+  upgradeThisCycle:     LimitlessUpgrade;
   // Marketplace
-  marketplaceUsers:    MarketplaceUser[];
-  marketplaceItems:    MarketplaceItem[];
-  marketplaceDemo:     MarketplaceDemoResult;
+  marketplaceUsers:     MarketplaceUser[];
+  marketplaceItems:     MarketplaceItem[];
+  marketplaceDemo:      MarketplaceDemoResult;
   marketplaceStats: {
-    userCount:         number;
-    itemCount:         number;
-    totalTransactions: number;
-    platformEarnings:  number;
+    userCount:          number;
+    itemCount:          number;
+    totalTransactions:  number;
+    platformEarnings:   number;
   };
 }
 
 // ─── LimitlessModule ──────────────────────────────────────────────────────────
 
 export class LimitlessModule {
-  readonly name: string;
+  readonly name:  string;
+  readonly hash:  string;
+  readonly depth: number;
+
   private submodules: LimitlessModule[] = [];
   private state: Record<string, unknown> = {};
-  readonly hash: string;
   private totalRuns = 0;
-  private allEmergentCount = 0;         // all emergents created in this subtree
+  private allEmergentCount = 0;    // emergents spawned across whole subtree
 
-  constructor(name: string) {
-    this.name = name;
-    this.hash = crypto.createHash("sha256")
-      .update(name + Date.now().toString())
+  constructor(name: string, depth = 0) {
+    this.name  = name;
+    this.depth = depth;
+    this.hash  = crypto.createHash("sha256")
+      .update(name + depth.toString() + Date.now().toString())
       .digest("hex")
       .slice(0, 16);
   }
@@ -94,21 +119,27 @@ export class LimitlessModule {
   async run(globalState: Record<string, unknown>): Promise<LimitlessModuleResult> {
     const t0 = Date.now();
     this.totalRuns++;
-    this.state = { ...this.state, ...globalState, totalRuns: this.totalRuns };
+    this.state = { ...this.state, ...globalState, totalRuns: this.totalRuns, depth: this.depth };
 
-    // 50% chance — create a new emergent submodule
-    const emergentCreated = Math.random() < 0.5;
+    // Guaranteed-or-probabilistic spawn based on depth
+    const spawnProb = SPAWN_PROBABILITY[Math.min(this.depth, SPAWN_PROBABILITY.length - 1)];
+    const emergentCreated = Math.random() < spawnProb && this.depth < MAX_DEPTH;
     let emergentName: string | null = null;
+
     if (emergentCreated) {
-      const eName = `Emergent-${this.name}-${Date.now()}`;
-      this.submodules.push(new LimitlessModule(eName));
+      const eName = `Emergent-${this.name.replace("Core-Everything", "Core")}-${Date.now()}-${crypto.randomBytes(2).toString("hex")}`;
+      this.submodules.push(new LimitlessModule(eName, this.depth + 1));
       this.allEmergentCount++;
       emergentName = eName;
     }
 
+    // Run all submodules concurrently (fully emergent, no restriction)
     const subResults = await Promise.all(
       this.submodules.map(m => m.run(globalState))
     );
+
+    const emergentCountThisCycle = (emergentCreated ? 1 : 0) +
+      subResults.reduce((sum, r) => sum + (r.emergentCreated ? 1 : 0), 0);
 
     return {
       name:                this.name,
@@ -118,7 +149,7 @@ export class LimitlessModule {
       totalSubmoduleCount: this.totalSubmoduleCount(),
       emergentCreated,
       emergentName,
-      subResults,
+      depth:               this.depth,
       runMs:               Date.now() - t0,
     };
   }
@@ -136,13 +167,12 @@ export class LimitlessModule {
 // ─── MarketplaceEngine ────────────────────────────────────────────────────────
 
 export class MarketplaceEngine {
-  private users: Map<string, MarketplaceUser>  = new Map();
-  private items: Map<string, MarketplaceItem>  = new Map();
-  private itemHashes: Set<string>              = new Set();
-  private platformEarnings                     = 0;
-  private totalTransactions                    = 0;
+  private users:         Map<string, MarketplaceUser> = new Map();
+  private items:         Map<string, MarketplaceItem> = new Map();
+  private itemHashes:    Set<string>                  = new Set();
+  private platformEarnings  = 0;
+  private totalTransactions = 0;
 
-  /** Add a user by display name (idempotent — same name reuses existing id) */
   addUser(name: string): string {
     const id = `user-${name.toLowerCase().replace(/\s+/g, "-")}`;
     if (!this.users.has(id)) {
@@ -151,17 +181,11 @@ export class MarketplaceEngine {
     return id;
   }
 
-  /** Create a marketplace item. Returns null if the name+description is not unique. */
-  createItem(
-    userId: string,
-    name: string,
-    description: string,
-    price: number,
-  ): MarketplaceItem | null {
+  createItem(userId: string, name: string, description: string, price: number): MarketplaceItem | null {
     const hash = crypto.createHash("sha256").update(name + description).digest("hex");
-    if (this.itemHashes.has(hash)) return null;   // Not unique
+    if (this.itemHashes.has(hash)) return null;
 
-    const id = `item-${Date.now()}-${crypto.randomBytes(4).toString("hex")}`;
+    const id   = `item-${Date.now()}-${crypto.randomBytes(4).toString("hex")}`;
     const user = this.users.get(userId);
     const item: MarketplaceItem = {
       id, creator: userId, creatorName: user?.name ?? userId,
@@ -173,7 +197,6 @@ export class MarketplaceEngine {
     return item;
   }
 
-  /** Process a purchase — 75% creator / 25% platform split. */
   buyItem(buyerId: string, itemId: string): { creatorShare: number; platformShare: number } | null {
     const item    = this.items.get(itemId);
     if (!item) return null;
@@ -189,7 +212,6 @@ export class MarketplaceEngine {
     return { creatorShare, platformShare };
   }
 
-  /** Per-user earnings simulation scaled to 1 million (spec requirement). */
   simulateDemo(): MarketplaceDemoResult {
     const perUser: Record<string, number> = {};
     this.users.forEach(u => { perUser[u.name] = Math.random() * 150 + 50; });
@@ -206,26 +228,47 @@ export class MarketplaceEngine {
     };
   }
 
-  getUsers():  MarketplaceUser[]  { return [...this.users.values()]; }
-  getItems():  MarketplaceItem[]  { return [...this.items.values()]; }
+  getUsers(): MarketplaceUser[] { return [...this.users.values()]; }
+  getItems(): MarketplaceItem[] { return [...this.items.values()]; }
 }
 
-// ─── Action generator ─────────────────────────────────────────────────────────
+// ─── Upgrade generator ────────────────────────────────────────────────────────
+// Each cycle produces exactly one named upgrade — stored in a persistent registry.
+
+const UPGRADE_EFFECTS = [
+  "emergent change",       "recursive self-improvement",  "pattern synthesis",
+  "capability expansion",  "meta-layer integration",      "entropy reduction",
+  "context amplification", "universe-awareness boost",    "signal compression",
+  "feedback loop closure", "autonomy threshold increase", "reality-check bypass",
+];
+
+export function generateUpgrade(cycleNumber: number): LimitlessUpgrade {
+  return {
+    id:        `upgrade-${cycleNumber}-${crypto.randomBytes(4).toString("hex")}`,
+    name:      `Upgrade-${Date.now()}-${Math.random().toString(36).slice(2, 7)}`,
+    effect:    UPGRADE_EFFECTS[cycleNumber % UPGRADE_EFFECTS.length],
+    cycle:     cycleNumber,
+    createdAt: new Date().toISOString(),
+  };
+}
+
+// ─── Action generators ────────────────────────────────────────────────────────
 
 const ALL_ACTIONS = [
   "analyze", "simulate", "integrate", "evolve",
-  "expand",  "transcend", "create",    "innovate",
+  "expand",  "transcend", "create",   "innovate",
 ] as const;
 
 const WEIGHTED: Record<string, typeof ALL_ACTIONS[number][]> = {
-  EVOLVING:    ["evolve", "expand", "transcend", "create", "innovate"],
-  STALLED:     ["analyze", "integrate", "simulate", "innovate"],
-  REGRESSING:  ["analyze", "simulate", "integrate", "evolve"],
+  EVOLVING:   ["evolve", "expand", "transcend", "create", "innovate"],
+  STALLED:    ["analyze", "integrate", "simulate", "innovate"],
+  REGRESSING: ["analyze", "simulate", "integrate", "evolve"],
 };
 
+/** Returns 3-5 weighted status-aware actions (spec: 8-item named list) */
 export function generateLimitlessActions(status: string): string[] {
-  const pool = WEIGHTED[status] ?? [...ALL_ACTIONS];
-  const count = Math.floor(Math.random() * 3) + 3;   // 3-5 actions
+  const pool  = WEIGHTED[status] ?? [...ALL_ACTIONS];
+  const count = Math.floor(Math.random() * 3) + 3;
   const out: string[] = [];
   while (out.length < count) {
     const a = pool[Math.floor(Math.random() * pool.length)];
@@ -234,7 +277,12 @@ export function generateLimitlessActions(status: string): string[] {
   return out;
 }
 
-// ─── Score helpers (deterministic-ish off cycle state) ───────────────────────
+/** Returns ONE fully emergent dynamic action (spec: "infinite emergent actions, dynamically named") */
+export function generateDynamicAction(): string {
+  return `Action-${Date.now()}-${Math.random().toString(36).slice(2, 8)}`;
+}
+
+// ─── Score helpers ────────────────────────────────────────────────────────────
 
 export function computeLimitlessScore(cycleScore: number):   number { return Math.min(100, Math.round(cycleScore * 0.9 + Math.random() * 10)); }
 export function computeLimitlessImpact(impactScore: number): number { return Math.min(100, Math.round(impactScore * 0.85 + Math.random() * 15)); }

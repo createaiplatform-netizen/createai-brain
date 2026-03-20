@@ -66,12 +66,14 @@ import {
   LimitlessModule,
   MarketplaceEngine,
   generateLimitlessActions,
+  generateDynamicAction,
+  generateUpgrade,
   computeLimitlessScore,
   computeLimitlessImpact,
   computeLimitlessCompliance,
 } from "./modules/limitless.js";
 
-import type { LimitlessReport } from "./modules/limitless.js";
+import type { LimitlessReport, LimitlessUpgrade } from "./modules/limitless.js";
 
 // Re-export layer types so routes can reference them
 export type {
@@ -112,6 +114,9 @@ marketplaceEngine.addUser("FamilyMember1");
 marketplaceEngine.addUser("FamilyMember2");
 marketplaceEngine.addUser("DemoUser1");
 marketplaceEngine.addUser("Sara Stadler");    // platform owner
+
+// Persistent upgrade registry — one upgrade generated every cycle
+const limitlessUpgrades: LimitlessUpgrade[] = [];
 
 // ─── Evolution Status ────────────────────────────────────────────────────────
 export type EvolutionStatus = "EVOLVING" | "STALLED" | "REGRESSING";
@@ -837,9 +842,9 @@ async function runCycle(): Promise<EvolutionCycle> {
     cycleNumber: cycleCount,
     status,
     realImpactScore,
-    cycleScore: metaAnalysis.cycleScore,
+    cycleScore:    metaAnalysis.cycleScore,
     universeUnits: universeReport.unitCount,
-    timestamp: new Date().toISOString(),
+    timestamp:     new Date().toISOString(),
   };
   const coreResult     = await limitlessCore.run(limitlessGlobalState);
   const limitlessDemo  = marketplaceEngine.simulateDemo();
@@ -848,30 +853,51 @@ async function runCycle(): Promise<EvolutionCycle> {
   const limitlessImpact     = computeLimitlessImpact(realImpactScore);
   const limitlessCompliance = computeLimitlessCompliance(safetyStatus.complianceScore);
   const limitlessActions    = generateLimitlessActions(status);
+  const dynamicAction       = generateDynamicAction();          // spec: "infinite emergent actions"
+  const upgradeThisCycle    = generateUpgrade(cycleCount);      // spec: one named upgrade per cycle
+  limitlessUpgrades.push(upgradeThisCycle);
   const totalEmergent       = limitlessCore.getTotalEmergentCreated();
 
+  // ── Per-cycle dynamic universe growth (spec: connectUniverse adds new entries every cycle)
+  registerUnit({
+    id:          `dynamic-unit-${cycleCount}`,
+    name:        `DynamicUnit-Cycle${cycleCount}`,
+    description: `Auto-generated universe unit for cycle ${cycleCount} — ${dynamicAction}`,
+    category:    "universe",
+    source:      "dynamic-cycle-growth",
+  });
+  registerMetaPhase(`DynamicPhase-Cycle${cycleCount}`);
+  generateExpansionIdea(
+    `Cycle ${cycleCount} emergent opportunity: integrate ${upgradeThisCycle.effect} across all layers`
+  );
+
   const limitlessReport: LimitlessReport = {
-    cycleNumber:          cycleCount,
-    score:                limitlessScore,
-    impact:               limitlessImpact,
-    compliance:           limitlessCompliance,
-    actions:              limitlessActions,
-    totalEmergentModules: totalEmergent,
-    coreSubmoduleCount:   coreResult.totalSubmoduleCount,
-    emergentThisCycle:    coreResult.emergentCreated,
-    newEmergentName:      coreResult.emergentName,
-    coreHash:             coreResult.hash,
-    coreRunMs:            coreResult.runMs,
-    marketplaceUsers:     marketplaceEngine.getUsers(),
-    marketplaceItems:     marketplaceEngine.getItems(),
-    marketplaceDemo:      limitlessDemo,
-    marketplaceStats:     limitlessStats,
+    cycleNumber:            cycleCount,
+    score:                  limitlessScore,
+    impact:                 limitlessImpact,
+    compliance:             limitlessCompliance,
+    actions:                limitlessActions,
+    dynamicAction,
+    totalEmergentModules:   totalEmergent,
+    coreSubmoduleCount:     coreResult.totalSubmoduleCount,
+    emergentThisCycle:      coreResult.emergentCreated,
+    emergentCountThisCycle: (coreResult.emergentCreated ? 1 : 0),
+    newEmergentName:        coreResult.emergentName,
+    coreHash:               coreResult.hash,
+    coreRunMs:              coreResult.runMs,
+    upgrades:               [...limitlessUpgrades],
+    upgradeThisCycle,
+    marketplaceUsers:       marketplaceEngine.getUsers(),
+    marketplaceItems:       marketplaceEngine.getItems(),
+    marketplaceDemo:        limitlessDemo,
+    marketplaceStats:       limitlessStats,
   };
 
   console.log(
     `[Limitless] Cycle ${cycleCount} ⚡ score:${limitlessScore} · impact:${limitlessImpact} · ` +
     `compliance:${limitlessCompliance}% · actions:[${limitlessActions.join(",")}] · ` +
-    `emergent:${totalEmergent} · demoTotal:$${Math.round(limitlessDemo.scaledTotal).toLocaleString()}`
+    `emergent:${totalEmergent} · upgrade:${upgradeThisCycle.name.slice(0, 20)} · ` +
+    `demoTotal:$${Math.round(limitlessDemo.scaledTotal).toLocaleString()}`
   );
 
   // ── Layer 9 — LoopOrchestrator ───────────────────────────────────────────

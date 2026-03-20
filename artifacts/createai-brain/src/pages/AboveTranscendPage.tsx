@@ -52,7 +52,8 @@ interface UniverseReport        { connected:boolean;connectedAt?:string;unitCoun
 interface MarketplaceUser       { id:string;name:string;earnings:number;joinedAt:string; }
 interface MarketplaceItem       { id:string;creator:string;creatorName:string;name:string;description:string;price:number;hash:string;createdAt:string;purchases:number; }
 interface MarketplaceDemoResult { perUser:Record<string,number>;scaledTotal:number;platformEarnings:number; }
-interface LimitlessReport       { cycleNumber:number;score:number;impact:number;compliance:number;actions:string[];totalEmergentModules:number;coreSubmoduleCount:number;emergentThisCycle:boolean;newEmergentName:string|null;coreHash:string;coreRunMs:number;marketplaceUsers:MarketplaceUser[];marketplaceItems:MarketplaceItem[];marketplaceDemo:MarketplaceDemoResult;marketplaceStats:{userCount:number;itemCount:number;totalTransactions:number;platformEarnings:number}; }
+interface LimitlessUpgrade       { id:string;name:string;effect:string;cycle:number;createdAt:string; }
+interface LimitlessReport       { cycleNumber:number;score:number;impact:number;compliance:number;actions:string[];dynamicAction:string;totalEmergentModules:number;coreSubmoduleCount:number;emergentThisCycle:boolean;emergentCountThisCycle:number;newEmergentName:string|null;coreHash:string;coreRunMs:number;upgrades:LimitlessUpgrade[];upgradeThisCycle:LimitlessUpgrade;marketplaceUsers:MarketplaceUser[];marketplaceItems:MarketplaceItem[];marketplaceDemo:MarketplaceDemoResult;marketplaceStats:{userCount:number;itemCount:number;totalTransactions:number;platformEarnings:number}; }
 interface CycleSummary          { realIntegrations:number;detectedLimits:number;proposedBreakers:number;expansionIdeas:number;topScore:number;systemIntelligence:number;actionsExecuted:number;systemStatus:EvolutionStatus;evolutionRate:number;realImpactScore:number;cycleScore:number;complianceScore:number;autonomyScore:number;financeRevenue:number;futureModuleCount:number;universeUnits:number;universeMeta:number;discoveredModules:number;totalExpansionIdeas:number;limitlessScore:number;limitlessImpact:number;limitlessCompliance:number;totalEmergentModules:number;marketplaceUsers:number;marketplaceItems:number;marketplaceDemoTotal:number; }
 
 interface EvolutionCycle {
@@ -737,7 +738,7 @@ const ACTION_ICONS: Record<string, string> = {
 };
 
 function LimitlessPanel({ report }: { report: LimitlessReport }) {
-  const [tab, setTab] = useState<"overview"|"modules"|"marketplace"|"demo">("overview");
+  const [tab, setTab] = useState<"overview"|"modules"|"marketplace"|"demo"|"upgrades">("overview");
 
   const fmt = (n: number) => `$${Math.round(n).toLocaleString()}`;
 
@@ -772,6 +773,18 @@ function LimitlessPanel({ report }: { report: LimitlessReport }) {
         <StatTile label="Emergent Modules"  value={report.totalEmergentModules} color={PURPLE} sub="created total" />
       </div>
 
+      {/* Dynamic action + upgrade banner */}
+      <div style={{ display:"grid", gridTemplateColumns:"1fr 1fr", gap:8, marginBottom:16 }}>
+        <div style={{ padding:"9px 14px", borderRadius:9, background:PURPLE+"0A", border:`1px solid ${PURPLE}25` }}>
+          <div style={{ fontSize:9.5, fontWeight:700, color:PURPLE, letterSpacing:"0.06em", textTransform:"uppercase" as const, marginBottom:4 }}>⚡ Emergent Action (this cycle)</div>
+          <div style={{ fontSize:10.5, color:TEXT, fontFamily:"monospace", overflow:"hidden", textOverflow:"ellipsis", whiteSpace:"nowrap" as const }}>{report.dynamicAction}</div>
+        </div>
+        <div style={{ padding:"9px 14px", borderRadius:9, background:GREEN+"0A", border:`1px solid ${GREEN}25` }}>
+          <div style={{ fontSize:9.5, fontWeight:700, color:GREEN, letterSpacing:"0.06em", textTransform:"uppercase" as const, marginBottom:4 }}>🔧 Upgrade (this cycle)</div>
+          <div style={{ fontSize:10.5, color:TEXT, overflow:"hidden", textOverflow:"ellipsis", whiteSpace:"nowrap" as const }}>{report.upgradeThisCycle.effect}</div>
+        </div>
+      </div>
+
       {/* Actions this cycle */}
       <div style={{ display:"flex", flexWrap:"wrap" as const, gap:8, marginBottom:18 }}>
         <div style={{ fontSize:10, fontWeight:700, color:DIM, letterSpacing:"0.06em", textTransform:"uppercase" as const, width:"100%", marginBottom:2 }}>Actions this cycle</div>
@@ -783,10 +796,10 @@ function LimitlessPanel({ report }: { report: LimitlessReport }) {
       </div>
 
       {/* Tabs */}
-      <div style={{ display:"flex", gap:6, marginBottom:16 }}>
-        {(["overview","modules","marketplace","demo"] as const).map(t => (
-          <button key={t} onClick={() => setTab(t)} style={{ fontSize:11, fontWeight:700, padding:"5px 14px", borderRadius:8, border:"none", cursor:"pointer", letterSpacing:"0.04em", textTransform:"uppercase" as const, background:tab===t?ACCENT:"rgba(0,0,0,0.05)", color:tab===t?"#fff":DIM, transition:"all 0.15s" }}>
-            {t==="overview"?"Overview":t==="modules"?`Submodule Tree (${report.coreSubmoduleCount})`:t==="marketplace"?`Marketplace (${report.marketplaceStats.userCount} users)`:"Demo Simulation"}
+      <div style={{ display:"flex", gap:6, marginBottom:16, flexWrap:"wrap" as const }}>
+        {(["overview","modules","marketplace","demo","upgrades"] as const).map(t => (
+          <button key={t} onClick={() => setTab(t as typeof tab)} style={{ fontSize:11, fontWeight:700, padding:"5px 14px", borderRadius:8, border:"none", cursor:"pointer", letterSpacing:"0.04em", textTransform:"uppercase" as const, background:tab===t?ACCENT:"rgba(0,0,0,0.05)", color:tab===t?"#fff":DIM, transition:"all 0.15s" }}>
+            {t==="overview"?"Overview":t==="modules"?`Submodule Tree (${report.coreSubmoduleCount})`:t==="marketplace"?`Marketplace (${report.marketplaceStats.userCount} users)`:t==="demo"?"Demo Simulation":`Upgrades (${report.upgrades.length})`}
           </button>
         ))}
       </div>
@@ -932,6 +945,47 @@ function LimitlessPanel({ report }: { report: LimitlessReport }) {
           </div>
           <div style={{ fontSize:10, color:DIM, borderTop:`1px solid rgba(0,0,0,0.06)`, paddingTop:12 }}>
             Platform earnings (real): <strong style={{ color:ACCENT }}>{fmt(report.marketplaceDemo.platformEarnings)}</strong> · Simulation re-runs every cycle automatically
+          </div>
+        </div>
+      )}
+
+      {/* Upgrades tab */}
+      {tab==="upgrades" && (
+        <div>
+          <div style={{ fontSize:11, color:DIM, marginBottom:14, lineHeight:1.6 }}>
+            One named upgrade is generated every 2-minute cycle — stored permanently in the upgrade registry. Upgrades represent emergent self-improvement events applied to the engine. <strong style={{ color:ACCENT }}>{report.upgrades.length} total</strong> since boot.
+          </div>
+
+          {/* Upgrade this cycle — highlighted */}
+          <div style={{ border:`2px solid ${GREEN}35`, borderRadius:12, padding:"14px 18px", background:GREEN+"07", marginBottom:16 }}>
+            <div style={{ fontSize:10, fontWeight:700, color:GREEN, letterSpacing:"0.06em", textTransform:"uppercase" as const, marginBottom:8 }}>🔧 This cycle — Cycle #{report.upgradeThisCycle.cycle}</div>
+            <div style={{ fontSize:15, fontWeight:800, color:TEXT, marginBottom:4 }}>{report.upgradeThisCycle.name}</div>
+            <div style={{ display:"flex", alignItems:"center", gap:8 }}>
+              <Badge label={report.upgradeThisCycle.effect} color={ACCENT} />
+              <span style={{ fontSize:10, color:DIM }}>{new Date(report.upgradeThisCycle.createdAt).toLocaleTimeString()}</span>
+            </div>
+          </div>
+
+          {/* All upgrades list */}
+          <div style={{ display:"flex", flexDirection:"column", gap:7, maxHeight:360, overflowY:"auto" as const }}>
+            {[...report.upgrades].reverse().map((u, i) => {
+              const isCurrent = u.id === report.upgradeThisCycle.id;
+              return (
+                <div key={u.id} style={{ display:"flex", alignItems:"center", gap:10, padding:"10px 14px", border:`1px solid ${isCurrent?GREEN:ACCENT}20`, borderRadius:9, background:isCurrent?GREEN+"06":ACCENT+"04" }}>
+                  <div style={{ width:28, height:28, borderRadius:8, background:isCurrent?GREEN:ACCENT, display:"flex", alignItems:"center", justifyContent:"center", fontSize:10, fontWeight:800, color:"#fff", flexShrink:0 }}>
+                    {report.upgrades.length - i}
+                  </div>
+                  <div style={{ flex:1, minWidth:0 }}>
+                    <div style={{ fontSize:11.5, fontWeight:700, color:TEXT, overflow:"hidden", textOverflow:"ellipsis", whiteSpace:"nowrap" as const }}>{u.name}</div>
+                    <div style={{ fontSize:10.5, color:DIM }}>{u.effect}</div>
+                  </div>
+                  <div style={{ textAlign:"right" as const, flexShrink:0 }}>
+                    <div style={{ fontSize:10, color:DIM }}>Cycle #{u.cycle}</div>
+                    <div style={{ fontSize:9.5, color:DIM }}>{new Date(u.createdAt).toLocaleTimeString()}</div>
+                  </div>
+                </div>
+              );
+            })}
           </div>
         </div>
       )}
