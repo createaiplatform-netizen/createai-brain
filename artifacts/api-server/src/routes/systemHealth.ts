@@ -25,65 +25,6 @@ import { sql } from "drizzle-orm";
 
 const router = Router();
 
-// ── TEMP: live notify test ────────────────────────────────────────────────────
-router.get("/test-notify", async (_req: Request, res: Response) => {
-  const sid       = process.env["TWILIO_SID"]        ?? "";
-  const token     = process.env["TWILIO_AUTH_TOKEN"]  ?? "";
-  const fromPhone = process.env["TWILIO_PHONE"]       ?? "";
-  const resendKey = process.env["RESEND_API_KEY"]     ?? "";
-  const fromAddr  = process.env["RESEND_FROM_EMAIL"]  ?? "onboarding@resend.dev";
-
-  const creds = {
-    twilio_sid:   { length: sid.length,       prefix: sid.slice(0,2), valid: sid.startsWith("AC") && sid.length === 34 },
-    twilio_token: { length: token.length,     valid: token.length === 32 },
-    twilio_phone: { value: fromPhone },
-    resend_key:   { length: resendKey.length, valid: resendKey.startsWith("re_") && resendKey.length > 10 },
-    resend_from:  { value: fromAddr },
-  };
-
-  const results: Record<string, unknown> = { creds };
-
-  // SMS ────────────────────────────────────────────────────────────────────────
-  if (creds.twilio_sid.valid && creds.twilio_token.valid && fromPhone) {
-    try {
-      const twilio = (await import("twilio")).default;
-      const client = twilio(sid, token);
-      const msg = await client.messages.create({
-        body: "✅ CreateAI Brain — Live SMS test confirmed.",
-        from: fromPhone,
-        to:   "+17157914957",
-      });
-      results.sms = { sent: true, sid: msg.sid, status: msg.status, from: msg.from, to: msg.to };
-    } catch(e: unknown) {
-      const err = e as { message?: string; code?: number; moreInfo?: string };
-      results.sms = { sent: false, error: err.message, code: err.code, info: err.moreInfo };
-    }
-  } else {
-    results.sms = { sent: false, reason: "TWILIO credentials invalid" };
-  }
-
-  // EMAIL ──────────────────────────────────────────────────────────────────────
-  if (creds.resend_key.valid) {
-    try {
-      const { Resend } = await import("resend");
-      const resend = new Resend(resendKey);
-      const { data, error } = await resend.emails.send({
-        from:    fromAddr,
-        to:      ["SIVH@mail.com"],
-        subject: "✅ CreateAI Brain — Email Confirmed",
-        html:    "<h2>Email is live!</h2><p>Resend is fully working in your CreateAI Brain platform.</p>",
-      });
-      if (error) throw new Error(JSON.stringify(error));
-      results.email = { sent: true, to: "SIVH@mail.com", from: fromAddr, id: (data as Record<string,unknown>)?.id };
-    } catch(e: unknown) {
-      results.email = { sent: false, error: (e as Error).message };
-    }
-  } else {
-    results.email = { sent: false, reason: "RESEND_API_KEY missing or invalid" };
-  }
-
-  res.json({ ok: true, ...results });
-});
 
 interface IntegrationCheck {
   name:   string;
