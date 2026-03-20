@@ -12,6 +12,7 @@ import { Router, type Request, type Response } from "express";
 import { brainEngine } from "../engine/BrainEnforcementEngine.js";
 import { MISSION_CONFIG } from "../engine/MissionConfig.js";
 import { notifyFamilyEvent } from "../utils/notifications.js";
+import { runVerification } from "../services/verificationRunner.js";
 
 const router = Router();
 
@@ -98,6 +99,17 @@ router.post("/notify", async (req: Request, res: Response) => {
     res.json({ sent: true, timestamp: new Date().toISOString() });
   } catch (err) {
     res.status(500).json({ sent: false, error: (err as Error).message });
+  }
+});
+
+// POST /api/brain/verify — run the full 6-step Infinite Brain verification sequence
+router.post("/verify", async (_req: Request, res: Response) => {
+  try {
+    console.log("[Brain:verify] Starting full verification run…");
+    const report = await runVerification();
+    res.json(report);
+  } catch (err) {
+    res.status(500).json({ error: (err as Error).message });
   }
 });
 

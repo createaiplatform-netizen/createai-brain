@@ -81,6 +81,45 @@ export async function notifyFamily(options?: {
   return res.ok ? res.json() : { sent: false };
 }
 
+// ─── Verification report ──────────────────────────────────────────────────────
+
+export interface VerificationStep {
+  step:       number;
+  label:      string;
+  status:     "PASS" | "FAIL" | "SKIP";
+  detail:     string;
+  durationMs: number;
+}
+
+export interface VerificationReport {
+  runId:       string;
+  startedAt:   string;
+  completedAt: string;
+  totalMs:     number;
+  allPassed:   boolean;
+  steps:       VerificationStep[];
+  systemStats: {
+    industries:      number;
+    renderModes:     number;
+    endpoints:       number;
+    compliance:      number;
+    players:         number;
+    coverage:        number;
+    loopTick:        number;
+    optimizationAvg: number;
+  };
+}
+
+export async function fetchVerificationReport(): Promise<VerificationReport> {
+  const res = await fetch(`${API}/api/brain/verify`, {
+    method:      "POST",
+    credentials: "include",
+    headers:     { "Content-Type": "application/json" },
+  });
+  if (!res.ok) throw new Error(`Verification failed: ${res.statusText}`);
+  return res.json();
+}
+
 // ─── Simulation ───────────────────────────────────────────────────────────────
 
 export interface SimulationResult {

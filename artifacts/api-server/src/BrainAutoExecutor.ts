@@ -14,6 +14,7 @@ import { executeInfinitely }   from "./engine/InfinityExecutor.js";
 import { notifyFamilyEvent }   from "./utils/notifications.js";
 import { createDocumentary }   from "./tasks/createDocumentary.js";
 import { generateReport }      from "./tasks/generateReport.js";
+import { runVerification }     from "./services/verificationRunner.js";
 
 // ─── Task wrapper ─────────────────────────────────────────────────────────────
 
@@ -75,6 +76,11 @@ export async function startupAutoExecutor(): Promise<void> {
     () => generateReport("infinite-learning-summary"),
     "Infinite Learning Summary Report",
   );
+
+  // ── 6-step verification after all tasks complete ───────────────────────
+  console.log("[AutoExecutor] Running full verification sequence…");
+  const report = await runVerification();
+  console.log(`[AutoExecutor] Verification complete — allPassed:${report.allPassed} · ${report.totalMs}ms`);
 
   console.log("[AutoExecutor] ✓ All tasks executed successfully.");
 }

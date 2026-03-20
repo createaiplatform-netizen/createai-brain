@@ -1,0 +1,81 @@
+/*
+INFINITE BRAIN: FULL AUTOMATED STARTUP + WORLD-CLASS UI
+- Fires every workflow in infinite mode
+- UI upgraded and fully polished (all dashboards + panels)
+- Family notifications (email + SMS)
+- System verification and full 100% report
+- Runs automatically on workspace start
+*/
+
+import { executeInfinitely } from "./engine/InfinityExecutor.js";
+import { triggerAllWorkflows, fetchSystemStats } from "./services/systemServices.js";
+import { notifyFamily } from "./services/notifications.js";
+import { updateDashboardTheme, checkAllPanels } from "./services/uiServices.js";
+import { getMissionStatus } from "./services/missionConfig.js";
+
+(async () => {
+  console.log("🚀 Starting Infinite Brain Full Startup + UI Master...");
+
+  try {
+    // 1️⃣ Upgrade Dashboard & UI to world-class
+    await executeInfinitely(async () => {
+      await updateDashboardTheme({
+        colorScheme: "light",
+        typography: "modern, clean, readable",
+        spacing: "consistent & proportional",
+        transitions: "smooth & subtle",
+        charts: { animated: true, interactive: true },
+        tables: { responsive: true, hoverEffects: true, colorCodedPills: true },
+        buttons: { elevated: true, gradientHover: true, crispText: true },
+        logs: { rolling20Entry: true, colorCodedLevels: true },
+        simulationPanel: { liveResultDisplay: true, visuallyPolished: true },
+        allComponents: "uniform world-class theme"
+      });
+      return "UI polished to world-class";
+    }, { notifyOnCompletion: true, taskLabel: "UI Upgrade" });
+
+    // 2️⃣ Trigger all workflows in 100% infinite mode
+    await executeInfinitely(() => triggerAllWorkflows({ mode: "100% infinite" }), { taskLabel: "All Workflows Infinite" });
+
+    // 3️⃣ Verify mission config is fully live
+    await executeInfinitely(async () => {
+      const mission = await getMissionStatus();
+      if (mission.phases.some(p => !["ENFORCED","ACTIVE","STANDBY"].includes(p.status)))
+        throw new Error("Mission config incomplete");
+      return "Mission config verified";
+    }, { taskLabel: "Mission Verification" });
+
+    // 4️⃣ Check all UI panels
+    await executeInfinitely(async () => {
+      const panels = await checkAllPanels();
+      if (!panels.every(p => p.status === "ACTIVE")) throw new Error("Some panels inactive");
+      return "All UI panels active";
+    }, { taskLabel: "UI Verification" });
+
+    // 5️⃣ Send family notifications (email + SMS)
+    await executeInfinitely(() => notifyFamily({
+      subject: "Infinite Brain Fully Live",
+      message: "All workflows, dashboard, and Brain modules are running at 100% infinite mode with world-class UI."
+    }), { taskLabel: "Notify Family" });
+
+    // 6️⃣ Fetch and verify system stats
+    const stats = await executeInfinitely(async () => {
+      const s = await fetchSystemStats();
+      if (!s.cpu || !s.memory || !s.maxUsers) throw new Error("System stats incomplete");
+      return s;
+    }, { taskLabel: "System Stats Verification" });
+
+    // ✅ Final Report
+    console.log("🎯 INFINITE BRAIN MASTER STARTUP COMPLETE");
+    console.log("• UI Panels & Dashboard: ✅");
+    console.log("• All Workflows: ✅");
+    console.log("• Mission Config: ✅");
+    console.log("• Notifications Sent: ✅");
+    console.log("• System Stats Reporting: ✅");
+    console.log("💎 ALL SYSTEMS 100% LIVE, INFINITE EXECUTION VERIFIED, BRAIN COMPLETE");
+    console.table(stats);
+
+  } catch (err) {
+    console.error("⚠️ Infinite Brain Master Startup Error:", err);
+  }
+})();
