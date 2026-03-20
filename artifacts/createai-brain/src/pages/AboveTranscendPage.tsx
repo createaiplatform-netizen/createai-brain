@@ -49,7 +49,11 @@ interface OrchestratorReport    { layersRan:number;feedbackValid:boolean;feedbac
 interface EngineUnit            { id:string;name:string;description:string;category:"phase"|"layer"|"universe"|"sub";source:string;endpoint?:string;lastResult?:{success:boolean;impact:number;outcome:string;probeMs:number};subUnits?:EngineUnit[]; }
 interface DiscoveredModule      { name:string;status:"live"|"degraded"|"pending"|"future";source:string;endpoint?:string;description:string;lastChecked?:string; }
 interface UniverseReport        { connected:boolean;connectedAt?:string;unitCount:number;metaPhaseCount:number;expansionIdeaCount:number;discoveredModuleCount:number;units:EngineUnit[];metaPhases:string[];expansionIdeas:string[];modules:DiscoveredModule[];lastScanMs:number; }
-interface CycleSummary          { realIntegrations:number;detectedLimits:number;proposedBreakers:number;expansionIdeas:number;topScore:number;systemIntelligence:number;actionsExecuted:number;systemStatus:EvolutionStatus;evolutionRate:number;realImpactScore:number;cycleScore:number;complianceScore:number;autonomyScore:number;financeRevenue:number;futureModuleCount:number;universeUnits:number;universeMeta:number;discoveredModules:number;totalExpansionIdeas:number; }
+interface MarketplaceUser       { id:string;name:string;earnings:number;joinedAt:string; }
+interface MarketplaceItem       { id:string;creator:string;creatorName:string;name:string;description:string;price:number;hash:string;createdAt:string;purchases:number; }
+interface MarketplaceDemoResult { perUser:Record<string,number>;scaledTotal:number;platformEarnings:number; }
+interface LimitlessReport       { cycleNumber:number;score:number;impact:number;compliance:number;actions:string[];totalEmergentModules:number;coreSubmoduleCount:number;emergentThisCycle:boolean;newEmergentName:string|null;coreHash:string;coreRunMs:number;marketplaceUsers:MarketplaceUser[];marketplaceItems:MarketplaceItem[];marketplaceDemo:MarketplaceDemoResult;marketplaceStats:{userCount:number;itemCount:number;totalTransactions:number;platformEarnings:number}; }
+interface CycleSummary          { realIntegrations:number;detectedLimits:number;proposedBreakers:number;expansionIdeas:number;topScore:number;systemIntelligence:number;actionsExecuted:number;systemStatus:EvolutionStatus;evolutionRate:number;realImpactScore:number;cycleScore:number;complianceScore:number;autonomyScore:number;financeRevenue:number;futureModuleCount:number;universeUnits:number;universeMeta:number;discoveredModules:number;totalExpansionIdeas:number;limitlessScore:number;limitlessImpact:number;limitlessCompliance:number;totalEmergentModules:number;marketplaceUsers:number;marketplaceItems:number;marketplaceDemoTotal:number; }
 
 interface EvolutionCycle {
   cycleId:string;cycleNumber:number;startedAt:string;completedAt:string;durationMs:number;
@@ -67,6 +71,8 @@ interface EvolutionCycle {
   safetyStatus:SafetyStatus;orchestratorReport:OrchestratorReport;futureModules:FutureModule[];
   // Universe Connector
   universeReport:UniverseReport;
+  // Limitless Engine
+  limitlessReport:LimitlessReport;
   summary:CycleSummary;
 }
 
@@ -724,6 +730,215 @@ function OrchestratorPanel({ report }: { report:OrchestratorReport }) {
   );
 }
 
+// ─── Limitless Engine Panel ───────────────────────────────────────────────────
+const ACTION_ICONS: Record<string, string> = {
+  analyze:"🔍", simulate:"🔬", integrate:"🔗", evolve:"🧬",
+  expand:"🌱", transcend:"🚀", create:"✨", innovate:"💡",
+};
+
+function LimitlessPanel({ report }: { report: LimitlessReport }) {
+  const [tab, setTab] = useState<"overview"|"modules"|"marketplace"|"demo">("overview");
+
+  const fmt = (n: number) => `$${Math.round(n).toLocaleString()}`;
+
+  return (
+    <Card style={{ background:`linear-gradient(135deg, rgba(99,102,241,0.05), rgba(16,185,129,0.05))`, border:`1.5px solid rgba(99,102,241,0.25)` }}>
+      {/* Header */}
+      <div style={{ display:"flex", alignItems:"center", gap:12, marginBottom:18 }}>
+        <div style={{ width:40, height:40, borderRadius:12, background:`linear-gradient(135deg,${ACCENT},${PURPLE})`, display:"flex", alignItems:"center", justifyContent:"center", fontSize:20 }}>🚀</div>
+        <div style={{ flex:1 }}>
+          <div style={{ fontSize:14, fontWeight:800, color:TEXT }}>Limitless Self-Upgrading Engine</div>
+          <div style={{ fontSize:11, color:DIM, marginTop:2 }}>
+            Core-Everything · SHA-256 uniqueness enforced · emergent submodule growth · cycle #{report.cycleNumber} · {report.coreRunMs}ms
+          </div>
+        </div>
+        <div style={{ display:"flex", gap:6 }}>
+          {report.emergentThisCycle && (
+            <div style={{ display:"flex", alignItems:"center", gap:5, background:GREEN+"12", border:`1px solid ${GREEN}30`, borderRadius:20, padding:"4px 12px" }}>
+              <span style={{ fontSize:11, fontWeight:700, color:GREEN }}>+EMERGENT</span>
+            </div>
+          )}
+          <div style={{ background:ACCENT+"10", border:`1px solid ${ACCENT}25`, borderRadius:20, padding:"4px 12px", fontSize:11, fontWeight:700, color:ACCENT }}>
+            LIMITLESS
+          </div>
+        </div>
+      </div>
+
+      {/* Score tiles */}
+      <div style={{ display:"grid", gridTemplateColumns:"repeat(4,1fr)", gap:10, marginBottom:18 }}>
+        <StatTile label="Limitless Score"   value={report.score}      color={report.score>=70?GREEN:ORANGE} sub="/100" />
+        <StatTile label="Limitless Impact"  value={report.impact}     color={ACCENT}  sub="/100" />
+        <StatTile label="Compliance"        value={`${report.compliance}%`} color={report.compliance>=80?GREEN:ORANGE} />
+        <StatTile label="Emergent Modules"  value={report.totalEmergentModules} color={PURPLE} sub="created total" />
+      </div>
+
+      {/* Actions this cycle */}
+      <div style={{ display:"flex", flexWrap:"wrap" as const, gap:8, marginBottom:18 }}>
+        <div style={{ fontSize:10, fontWeight:700, color:DIM, letterSpacing:"0.06em", textTransform:"uppercase" as const, width:"100%", marginBottom:2 }}>Actions this cycle</div>
+        {report.actions.map(a => (
+          <div key={a} style={{ display:"flex", alignItems:"center", gap:5, padding:"5px 14px", borderRadius:20, background:ACCENT+"0D", border:`1px solid ${ACCENT}30`, fontSize:12, fontWeight:700, color:ACCENT }}>
+            <span>{ACTION_ICONS[a] ?? "⚡"}</span> {a}
+          </div>
+        ))}
+      </div>
+
+      {/* Tabs */}
+      <div style={{ display:"flex", gap:6, marginBottom:16 }}>
+        {(["overview","modules","marketplace","demo"] as const).map(t => (
+          <button key={t} onClick={() => setTab(t)} style={{ fontSize:11, fontWeight:700, padding:"5px 14px", borderRadius:8, border:"none", cursor:"pointer", letterSpacing:"0.04em", textTransform:"uppercase" as const, background:tab===t?ACCENT:"rgba(0,0,0,0.05)", color:tab===t?"#fff":DIM, transition:"all 0.15s" }}>
+            {t==="overview"?"Overview":t==="modules"?`Submodule Tree (${report.coreSubmoduleCount})`:t==="marketplace"?`Marketplace (${report.marketplaceStats.userCount} users)`:"Demo Simulation"}
+          </button>
+        ))}
+      </div>
+
+      {/* Overview */}
+      {tab==="overview" && (
+        <div style={{ display:"grid", gridTemplateColumns:"1fr 1fr", gap:12 }}>
+          <div style={{ border:`1px solid ${ACCENT}20`, borderRadius:10, padding:"14px 16px", background:ACCENT+"04" }}>
+            <div style={{ fontSize:11, fontWeight:700, color:ACCENT, marginBottom:8, letterSpacing:"0.04em" }}>🧠 CORE MODULE</div>
+            <div style={{ fontSize:12, color:TEXT, marginBottom:4 }}><strong>Core-Everything</strong></div>
+            <div style={{ fontSize:11, color:DIM, marginBottom:4 }}>Hash: <code style={{ fontFamily:"monospace", background:"rgba(0,0,0,0.05)", padding:"1px 5px", borderRadius:4 }}>{report.coreHash}</code></div>
+            <div style={{ fontSize:11, color:DIM, marginBottom:4 }}>Submodule tree depth: {report.coreSubmoduleCount} nodes</div>
+            <div style={{ fontSize:11, color:DIM, marginBottom:4 }}>Total emergent created: <strong style={{ color:PURPLE }}>{report.totalEmergentModules}</strong></div>
+            {report.emergentThisCycle && report.newEmergentName && (
+              <div style={{ fontSize:10.5, color:GREEN, marginTop:6, background:GREEN+"08", borderRadius:6, padding:"4px 8px" }}>
+                ✨ New this cycle: {report.newEmergentName.replace("Emergent-","").slice(0,40)}
+              </div>
+            )}
+          </div>
+          <div style={{ border:`1px solid ${GREEN}20`, borderRadius:10, padding:"14px 16px", background:GREEN+"04" }}>
+            <div style={{ fontSize:11, fontWeight:700, color:GREEN, marginBottom:8, letterSpacing:"0.04em" }}>🏪 MARKETPLACE SNAPSHOT</div>
+            <div style={{ fontSize:12, color:TEXT, marginBottom:4 }}>{report.marketplaceStats.userCount} users · {report.marketplaceStats.itemCount} items</div>
+            <div style={{ fontSize:11, color:DIM, marginBottom:4 }}>Total transactions: {report.marketplaceStats.totalTransactions}</div>
+            <div style={{ fontSize:11, color:DIM, marginBottom:4 }}>Platform earnings: <strong style={{ color:GREEN }}>{fmt(report.marketplaceStats.platformEarnings)}</strong></div>
+            <div style={{ fontSize:10, color:DIM, marginTop:6 }}>75% creator / 25% platform on each purchase</div>
+          </div>
+        </div>
+      )}
+
+      {/* Submodule tree */}
+      {tab==="modules" && (
+        <div>
+          <div style={{ fontSize:11, color:DIM, marginBottom:12, lineHeight:1.6 }}>
+            The <strong>Core-Everything</strong> module creates an emergent submodule on each run with 50% probability. Submodules also spawn their own children. The tree grows organically each 2-min cycle. <strong style={{ color:PURPLE }}>{report.totalEmergentModules} emergent modules</strong> have been created since boot.
+          </div>
+          <div style={{ display:"flex", flexDirection:"column", gap:8 }}>
+            <div style={{ border:`1px solid ${ACCENT}30`, borderRadius:10, padding:"12px 16px", background:ACCENT+"06" }}>
+              <div style={{ display:"flex", alignItems:"center", gap:8, marginBottom:6 }}>
+                <div style={{ width:10, height:10, borderRadius:3, background:ACCENT, flexShrink:0 }} />
+                <span style={{ fontSize:13, fontWeight:800, color:TEXT }}>Core-Everything</span>
+                <Badge label="root" color={ACCENT} />
+              </div>
+              <div style={{ fontSize:11, color:DIM }}>Hash: <code style={{ fontFamily:"monospace" }}>{report.coreHash}</code></div>
+              <div style={{ fontSize:11, color:DIM, marginTop:4 }}>Children: <strong>{report.coreSubmoduleCount}</strong> nodes in tree · Total emergent: <strong style={{ color:PURPLE }}>{report.totalEmergentModules}</strong></div>
+              {report.emergentThisCycle && (
+                <div style={{ marginTop:8, padding:"6px 10px", borderRadius:7, background:GREEN+"0A", border:`1px solid ${GREEN}25`, fontSize:11, color:GREEN }}>
+                  ✨ New emergent spawned this cycle{report.newEmergentName ? `: ${report.newEmergentName.replace("Emergent-Core-Everything-","#")}` : ""}
+                </div>
+              )}
+            </div>
+            {report.totalEmergentModules===0 && (
+              <div style={{ fontSize:11, color:DIM, textAlign:"center" as const, padding:16 }}>No emergent submodules yet. First run in progress — 50% chance on next cycle.</div>
+            )}
+            {report.totalEmergentModules>0 && (
+              <div style={{ padding:"10px 16px", background:"rgba(0,0,0,0.03)", borderRadius:9, border:"1px solid rgba(0,0,0,0.06)" }}>
+                <div style={{ fontSize:10, color:DIM, marginBottom:6, fontWeight:600 }}>EMERGENT GROWTH CHART</div>
+                <div style={{ display:"flex", alignItems:"flex-end", gap:4, height:60 }}>
+                  {Array.from({ length: Math.min(report.totalEmergentModules, 20) }, (_, i) => {
+                    const h = Math.max(8, Math.round((i + 1) / report.totalEmergentModules * 50));
+                    return <div key={i} style={{ flex:1, background:`linear-gradient(to top, ${PURPLE}, ${ACCENT})`, borderRadius:3, height:h, opacity:0.6 + 0.4 * ((i+1)/report.totalEmergentModules) }} />;
+                  })}
+                </div>
+                <div style={{ fontSize:10, color:DIM, marginTop:4 }}>{report.totalEmergentModules} modules · growing every cycle</div>
+              </div>
+            )}
+          </div>
+        </div>
+      )}
+
+      {/* Marketplace */}
+      {tab==="marketplace" && (
+        <div>
+          <div style={{ fontSize:11, color:DIM, marginBottom:12, lineHeight:1.6 }}>
+            Creator marketplace with <strong>SHA-256 uniqueness enforcement</strong> — every item must be semantically unique. 75% of purchase revenue goes to the creator, 25% to the platform. {report.marketplaceStats.itemCount} items listed.
+          </div>
+          <div style={{ marginBottom:14 }}>
+            <div style={{ fontSize:10, fontWeight:700, color:DIM, letterSpacing:"0.06em", textTransform:"uppercase" as const, marginBottom:8 }}>Users ({report.marketplaceUsers.length})</div>
+            <div style={{ display:"flex", flexDirection:"column", gap:6 }}>
+              {report.marketplaceUsers.map(u => (
+                <div key={u.id} style={{ display:"flex", alignItems:"center", gap:10, padding:"10px 14px", border:`1px solid ${ACCENT}20`, borderRadius:9, background:ACCENT+"04" }}>
+                  <div style={{ width:32, height:32, borderRadius:9, background:`linear-gradient(135deg,${ACCENT},${PURPLE})`, display:"flex", alignItems:"center", justifyContent:"center", color:"#fff", fontWeight:800, fontSize:13, flexShrink:0 }}>{u.name.charAt(0).toUpperCase()}</div>
+                  <div style={{ flex:1 }}>
+                    <div style={{ fontSize:12, fontWeight:700, color:TEXT }}>{u.name}</div>
+                    <div style={{ fontSize:10.5, color:DIM }}>Joined {new Date(u.joinedAt).toLocaleDateString()}</div>
+                  </div>
+                  <div style={{ textAlign:"right" as const }}>
+                    <div style={{ fontSize:13, fontWeight:800, color:GREEN }}>{fmt(u.earnings)}</div>
+                    <div style={{ fontSize:10, color:DIM }}>creator earnings</div>
+                  </div>
+                </div>
+              ))}
+            </div>
+          </div>
+          {report.marketplaceItems.length > 0 && (
+            <div>
+              <div style={{ fontSize:10, fontWeight:700, color:DIM, letterSpacing:"0.06em", textTransform:"uppercase" as const, marginBottom:8 }}>Items ({report.marketplaceItems.length})</div>
+              <div style={{ display:"grid", gridTemplateColumns:"1fr 1fr", gap:8 }}>
+                {report.marketplaceItems.map(item => (
+                  <div key={item.id} style={{ border:`1px solid ${GREEN}20`, borderRadius:9, padding:"10px 12px", background:GREEN+"04" }}>
+                    <div style={{ fontSize:12, fontWeight:700, color:TEXT, marginBottom:4 }}>{item.name}</div>
+                    <div style={{ fontSize:10.5, color:DIM, marginBottom:6 }}>{item.description}</div>
+                    <div style={{ display:"flex", alignItems:"center", justifyContent:"space-between" as const }}>
+                      <span style={{ fontSize:11, color:GREEN, fontWeight:700 }}>{fmt(item.price)}</span>
+                      <span style={{ fontSize:10, color:DIM }}>{item.purchases} purchases</span>
+                    </div>
+                  </div>
+                ))}
+              </div>
+            </div>
+          )}
+          {report.marketplaceItems.length === 0 && (
+            <div style={{ textAlign:"center" as const, padding:16, fontSize:11, color:DIM }}>No items listed yet. Items can be created with uniqueness enforcement via the engine.</div>
+          )}
+        </div>
+      )}
+
+      {/* Demo simulation */}
+      {tab==="demo" && (
+        <div>
+          <div style={{ fontSize:11, color:DIM, marginBottom:14, lineHeight:1.6 }}>
+            Per-cycle simulation of earnings scaled to 1,000,000× — as specified by the Limitless Engine. This runs automatically every 2-minute cycle.
+          </div>
+          <div style={{ border:`2px solid ${GREEN}30`, borderRadius:12, padding:"18px 20px", background:GREEN+"06", marginBottom:16 }}>
+            <div style={{ fontSize:11, color:DIM, marginBottom:4 }}>Simulated Scaled Total</div>
+            <div style={{ fontSize:32, fontWeight:900, color:GREEN, letterSpacing:"-0.02em" }}>
+              {fmt(report.marketplaceDemo.scaledTotal)}
+            </div>
+            <div style={{ fontSize:11, color:DIM, marginTop:4 }}>per-user base × 1,000,000 scaling factor</div>
+          </div>
+          <div style={{ marginBottom:16 }}>
+            <div style={{ fontSize:10, fontWeight:700, color:DIM, letterSpacing:"0.06em", textTransform:"uppercase" as const, marginBottom:10 }}>Per-User Simulation</div>
+            <div style={{ display:"flex", flexDirection:"column", gap:8 }}>
+              {Object.entries(report.marketplaceDemo.perUser).map(([name, val]) => (
+                <div key={name} style={{ display:"flex", alignItems:"center", gap:10 }}>
+                  <div style={{ fontSize:12, color:TEXT, width:140, flexShrink:0 }}>{name}</div>
+                  <div style={{ flex:1, height:8, background:"rgba(0,0,0,0.06)", borderRadius:4, overflow:"hidden" }}>
+                    <div style={{ height:"100%", borderRadius:4, background:`linear-gradient(90deg,${GREEN},${TEAL})`, width:`${Math.min(100,(val/200)*100)}%` }} />
+                  </div>
+                  <div style={{ fontSize:12, fontWeight:700, color:GREEN, width:60, textAlign:"right" as const }}>{fmt(val)}</div>
+                </div>
+              ))}
+            </div>
+          </div>
+          <div style={{ fontSize:10, color:DIM, borderTop:`1px solid rgba(0,0,0,0.06)`, paddingTop:12 }}>
+            Platform earnings (real): <strong style={{ color:ACCENT }}>{fmt(report.marketplaceDemo.platformEarnings)}</strong> · Simulation re-runs every cycle automatically
+          </div>
+        </div>
+      )}
+    </Card>
+  );
+}
+
 // ─── Universe Connector Panel ─────────────────────────────────────────────────
 function UniversePanel({ report }: { report:UniverseReport }) {
   const [tab, setTab] = useState<"modules"|"units"|"ideas"|"phases">("modules");
@@ -971,11 +1186,17 @@ export default function AboveTranscendPage() {
               <StatTile label="Real Integrations" value={cycle.summary.realIntegrations} color={GREEN} />
               <StatTile label="Future Modules"    value={cycle.summary.futureModuleCount} color={PURPLE} sub="simulated" />
             </div>
-            <div style={{ display:"grid", gridTemplateColumns:"repeat(4,1fr)", gap:10, marginBottom:24 }}>
+            <div style={{ display:"grid", gridTemplateColumns:"repeat(4,1fr)", gap:10, marginBottom:8 }}>
               <StatTile label="Universe Units"     value={cycle.summary.universeUnits}       color={PURPLE} sub="registered" />
               <StatTile label="Discovered Modules" value={cycle.summary.discoveredModules}   color={TEAL}   sub="all sources" />
               <StatTile label="Meta-Phases"        value={cycle.summary.universeMeta}        color={ACCENT} sub="dynamic" />
               <StatTile label="Expansion Ideas"    value={cycle.summary.totalExpansionIdeas} color={GREEN}  sub="generated" />
+            </div>
+            <div style={{ display:"grid", gridTemplateColumns:"repeat(4,1fr)", gap:10, marginBottom:24 }}>
+              <StatTile label="Limitless Score"    value={cycle.summary.limitlessScore}      color={cycle.summary.limitlessScore>=70?GREEN:ORANGE} sub="/100" />
+              <StatTile label="Emergent Modules"   value={cycle.summary.totalEmergentModules} color={PURPLE} sub="auto-created" />
+              <StatTile label="Marketplace Users"  value={cycle.summary.marketplaceUsers}    color={ACCENT} sub="creators" />
+              <StatTile label="Demo Sim Total"     value={`$${Math.round(cycle.summary.marketplaceDemoTotal/1_000_000)}M`} color={GREEN} sub="scaled 1M×" />
             </div>
 
             {/* 8 Phase panels */}
@@ -1016,6 +1237,7 @@ export default function AboveTranscendPage() {
               <FinancePanel      report={cycle.financeReport} />
               <SafetyPanel       safety={cycle.safetyStatus} />
               <OrchestratorPanel report={cycle.orchestratorReport} />
+              <LimitlessPanel    report={cycle.limitlessReport} />
               <UniversePanel     report={cycle.universeReport} />
             </div>
 

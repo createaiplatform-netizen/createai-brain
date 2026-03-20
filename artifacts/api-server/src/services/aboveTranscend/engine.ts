@@ -62,6 +62,17 @@ import type {
   FutureModule,
 } from "./modules/layers.js";
 
+import {
+  LimitlessModule,
+  MarketplaceEngine,
+  generateLimitlessActions,
+  computeLimitlessScore,
+  computeLimitlessImpact,
+  computeLimitlessCompliance,
+} from "./modules/limitless.js";
+
+import type { LimitlessReport } from "./modules/limitless.js";
+
 // Re-export layer types so routes can reference them
 export type {
   IntegrationsReport,
@@ -74,6 +85,7 @@ export type {
   SafetyStatus,
   OrchestratorReport,
   FutureModule,
+  LimitlessReport,
 };
 
 // ─── Tunables ────────────────────────────────────────────────────────────────
@@ -90,6 +102,16 @@ const metaLayer          = new MetaLayer();
 const financeLayer       = new FinanceLayer();
 const safetyLayer        = new SafetyLayer();
 const loopOrchestrator   = new LoopOrchestrator();
+
+// ─── Limitless Engine singletons (persist submodule tree across cycles) ───────
+const limitlessCore      = new LimitlessModule("Core-Everything");
+const marketplaceEngine  = new MarketplaceEngine();
+
+// Seed marketplace with family members (spec requirement)
+marketplaceEngine.addUser("FamilyMember1");
+marketplaceEngine.addUser("FamilyMember2");
+marketplaceEngine.addUser("DemoUser1");
+marketplaceEngine.addUser("Sara Stadler");    // platform owner
 
 // ─── Evolution Status ────────────────────────────────────────────────────────
 export type EvolutionStatus = "EVOLVING" | "STALLED" | "REGRESSING";
@@ -240,6 +262,9 @@ export interface EvolutionCycle {
   // ── TranscendentEngine: Universe Connector ───────────────────────────────────
   universeReport: UniverseReport;
 
+  // ── Limitless Self-Upgrading Engine ──────────────────────────────────────────
+  limitlessReport: LimitlessReport;
+
   summary: {
     realIntegrations: number; detectedLimits: number; proposedBreakers: number;
     expansionIdeas: number; topScore: number; systemIntelligence: number;
@@ -250,6 +275,10 @@ export interface EvolutionCycle {
     // Universe
     universeUnits: number; universeMeta: number; discoveredModules: number;
     totalExpansionIdeas: number;
+    // Limitless
+    limitlessScore: number; limitlessImpact: number; limitlessCompliance: number;
+    totalEmergentModules: number; marketplaceUsers: number; marketplaceItems: number;
+    marketplaceDemoTotal: number;
   };
 }
 
@@ -803,6 +832,48 @@ async function runCycle(): Promise<EvolutionCycle> {
   await connectUniverse();
   const universeReport = buildUniverseReport();
 
+  // ── Limitless Engine — run core module + marketplace simulation ──────────
+  const limitlessGlobalState: Record<string, unknown> = {
+    cycleNumber: cycleCount,
+    status,
+    realImpactScore,
+    cycleScore: metaAnalysis.cycleScore,
+    universeUnits: universeReport.unitCount,
+    timestamp: new Date().toISOString(),
+  };
+  const coreResult     = await limitlessCore.run(limitlessGlobalState);
+  const limitlessDemo  = marketplaceEngine.simulateDemo();
+  const limitlessStats = marketplaceEngine.getStats();
+  const limitlessScore      = computeLimitlessScore(metaAnalysis.cycleScore);
+  const limitlessImpact     = computeLimitlessImpact(realImpactScore);
+  const limitlessCompliance = computeLimitlessCompliance(safetyStatus.complianceScore);
+  const limitlessActions    = generateLimitlessActions(status);
+  const totalEmergent       = limitlessCore.getTotalEmergentCreated();
+
+  const limitlessReport: LimitlessReport = {
+    cycleNumber:          cycleCount,
+    score:                limitlessScore,
+    impact:               limitlessImpact,
+    compliance:           limitlessCompliance,
+    actions:              limitlessActions,
+    totalEmergentModules: totalEmergent,
+    coreSubmoduleCount:   coreResult.totalSubmoduleCount,
+    emergentThisCycle:    coreResult.emergentCreated,
+    newEmergentName:      coreResult.emergentName,
+    coreHash:             coreResult.hash,
+    coreRunMs:            coreResult.runMs,
+    marketplaceUsers:     marketplaceEngine.getUsers(),
+    marketplaceItems:     marketplaceEngine.getItems(),
+    marketplaceDemo:      limitlessDemo,
+    marketplaceStats:     limitlessStats,
+  };
+
+  console.log(
+    `[Limitless] Cycle ${cycleCount} ⚡ score:${limitlessScore} · impact:${limitlessImpact} · ` +
+    `compliance:${limitlessCompliance}% · actions:[${limitlessActions.join(",")}] · ` +
+    `emergent:${totalEmergent} · demoTotal:$${Math.round(limitlessDemo.scaledTotal).toLocaleString()}`
+  );
+
   // ── Layer 9 — LoopOrchestrator ───────────────────────────────────────────
   const orchestratorReport = loopOrchestrator.run({
     integrations: integrationsReport,
@@ -838,6 +909,9 @@ async function runCycle(): Promise<EvolutionCycle> {
     // Universe Connector
     universeReport,
 
+    // Limitless Engine
+    limitlessReport,
+
     summary: {
       realIntegrations:  awareness.realCount,
       detectedLimits:    limits.length,
@@ -859,6 +933,14 @@ async function runCycle(): Promise<EvolutionCycle> {
       universeMeta:         universeReport.metaPhaseCount,
       discoveredModules:    universeReport.discoveredModuleCount,
       totalExpansionIdeas:  universeReport.expansionIdeaCount,
+      // Limitless
+      limitlessScore,
+      limitlessImpact,
+      limitlessCompliance,
+      totalEmergentModules: totalEmergent,
+      marketplaceUsers:     limitlessStats.userCount,
+      marketplaceItems:     limitlessStats.itemCount,
+      marketplaceDemoTotal: limitlessDemo.scaledTotal,
     },
   };
 
