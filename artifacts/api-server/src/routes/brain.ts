@@ -121,15 +121,31 @@ router.post("/notify", async (req: Request, res: Response) => {
   }
 });
 
-// GET /api/brain/notify — health check (returns config without sending notifications)
+// GET /api/brain/notify — real credential status (no values exposed)
 router.get("/notify", (_req: Request, res: Response) => {
+  const resendKey    = !!process.env["RESEND_API_KEY"];
+  const resendFrom   = !!process.env["RESEND_FROM_EMAIL"];
+  const twilioSid    = !!process.env["TWILIO_SID"];
+  const twilioToken  = !!process.env["TWILIO_AUTH_TOKEN"];
+  const twilioPhone  = !!process.env["TWILIO_PHONE"];
+  const emailReady   = resendKey && resendFrom;
+  const smsReady     = twilioSid && twilioToken && twilioPhone;
+  const missing: string[] = [];
+  if (!resendKey)   missing.push("RESEND_API_KEY");
+  if (!resendFrom)  missing.push("RESEND_FROM_EMAIL");
+  if (!twilioSid)   missing.push("TWILIO_SID");
+  if (!twilioToken) missing.push("TWILIO_AUTH_TOKEN");
+  if (!twilioPhone) missing.push("TWILIO_PHONE");
   res.json({
-    status:     "ok",
-    endpoint:   "POST /api/brain/notify",
-    mode:       "no-limits",
-    branding:   BeyondInfinityConfig.behavior.branding,
-    note:       "Use POST /api/brain/notify with {subject,body} to trigger a real family notification",
-    checkedAt:  new Date().toISOString(),
+    status:      missing.length === 0 ? "fully_configured" : "partial",
+    emailReady,
+    smsReady,
+    missingSecrets: missing,
+    instructions: missing.length > 0
+      ? `Add ${missing.join(", ")} to Replit Secrets to enable real notifications`
+      : "All notification credentials configured — POST /api/brain/notify to send",
+    branding:  BeyondInfinityConfig.behavior.branding,
+    checkedAt: new Date().toISOString(),
   });
 });
 

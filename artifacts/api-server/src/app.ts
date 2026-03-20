@@ -44,6 +44,16 @@ app.use(express.json({ limit: "256kb" }));
 app.use(express.urlencoded({ extended: true, limit: "256kb" }));
 app.use(cookieParser());
 
+// ── Public health check (no auth) ────────────────────────────────────────────
+app.get("/healthz", (_req: Request, res: Response) => {
+  res.json({
+    status:    "ok",
+    service:   "api-server",
+    uptime_s:  Math.round(process.uptime()),
+    timestamp: new Date().toISOString(),
+  });
+});
+
 app.use(authMiddleware);
 app.use(scopeMiddleware);
 
