@@ -163,6 +163,40 @@ export class MarketplaceEngine {
   }
 }
 
+// ─── runMarketplaceDemo — named export matching spec ─────────────────────────
+
+export interface MarketplaceDemoResult {
+  perUser:     { name: string; earnings: number }[];
+  scaledTotal: number;   // scaled to 1 M users
+  totalItems:  number;
+  totalSold:   number;
+  platformTotal: number;
+}
+
+/**
+ * Run the full spec demoSession on a fresh engine and return
+ * the shape the spec expects: { perUser, scaledTotal }.
+ */
+export async function runMarketplaceDemo(): Promise<MarketplaceDemoResult> {
+  const fresh = new MarketplaceEngine([
+    { id: 1, name: "FamilyMember1", earnings: 0 },
+    { id: 2, name: "FamilyMember2", earnings: 0 },
+    { id: 3, name: "DemoUser1",     earnings: 0 },
+  ]);
+  const result = runDemoSession(fresh);
+
+  // Scale to 1 M users: avgEarnings × 1_000_000
+  const avg = result.finalEarnings.reduce((a, u) => a + u.earnings, 0) / result.finalEarnings.length;
+
+  return {
+    perUser:      result.finalEarnings,
+    scaledTotal:  parseFloat((avg * 1_000_000).toFixed(2)),
+    totalItems:   result.totalItems,
+    totalSold:    result.totalSold,
+    platformTotal: result.platformTotal,
+  };
+}
+
 // ─── Singleton engine (shared across API requests) ───────────────────────────
 
 export const engine = new MarketplaceEngine([

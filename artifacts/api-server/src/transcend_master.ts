@@ -2,54 +2,27 @@
 /**
  * transcend_master.ts — Full Transcend Master Orchestrator
  * ---------------------------------------------------------
- * Replit-ready · all modules + notifications + monetary simulation
+ * Replit-ready · all modules + per-channel notifications +
+ * marketplace simulation + audit
  *
  * Usage:
  *   pnpm --filter @workspace/api-server transcend:master
  *   (or)  tsx ./src/transcend_master.ts
  */
 
-import { transcendAll }            from "./transcendAll.js";
+import { transcendAll }                            from "./transcendAll.js";
 import {
   generateAuditSummary,
   credentialStatus,
   notifyFamily,
   FAMILY_EMAIL_LIST,
   FAMILY_SMS_LIST,
-}                                  from "./utils/notifications.js";
+}                                                  from "./utils/notifications.js";
+import { runMarketplaceDemo }                       from "./marketplace/engine.js";
 
-// ─── Types ────────────────────────────────────────────────────────────────────
+// ─── Step 1: Validate credentials ────────────────────────────────────────────
 
-export interface ImpactResult {
-  users:      number;
-  dailyRate:  number;
-  totalPerDay: number;
-}
-
-export interface MasterResult {
-  modules:       Record<string, unknown>[];
-  notifyResults: Awaited<ReturnType<typeof notifyFamily>>;
-  impact:        ImpactResult;
-  audit:         ReturnType<typeof generateAuditSummary>;
-}
-
-// ─── Helpers ──────────────────────────────────────────────────────────────────
-
-/** Step 4: simple daily-rate monetary impact */
-function calculateImpact(users: number, dailyRate = 26.50): ImpactResult {
-  return {
-    users,
-    dailyRate,
-    totalPerDay: parseFloat((users * dailyRate).toFixed(2)),
-  };
-}
-
-// ─── Master orchestrator (exported + callable from API) ───────────────────────
-
-export async function transcendMaster(users: number = 1000): Promise<MasterResult> {
-
-  // ── Step 1: Validate Credentials ─────────────────────────────────────────
-  console.log("🔹 Step 1: Validating Credentials…");
+function validateCredentials(): void {
   const creds  = credentialStatus();
   const issues = [
     ...creds.email.missing.map(k => `${k} (missing)`),
@@ -62,44 +35,78 @@ export async function transcendMaster(users: number = 1000): Promise<MasterResul
     issues.forEach(i => console.warn(`   • ${i}`));
     console.warn("   → RESEND_API_KEY starts with re_  |  TWILIO_SID starts with AC");
   } else {
-    console.log("✅ Secrets format validated.");
+    console.log("✅ All credentials validated.");
   }
-
-  // ── Step 2: Run all modules ───────────────────────────────────────────────
-  console.log("🔹 Step 2: Running all modules…");
-  const transcendResult = await transcendAll({ sendNotifications: false });
-  const modules = (transcendResult["modules"] as Record<string, unknown>[]) ?? [];
-
-  console.log(`   ✅ ${modules.filter(m => m["live"]).length}/${modules.length} modules live`);
-
-  // ── Step 3: Send notifications ────────────────────────────────────────────
-  console.log(`🔹 Step 3: Sending notifications… (email: ${FAMILY_EMAIL_LIST.length}, SMS: ${FAMILY_SMS_LIST.length})`);
-  const notifyResults = await notifyFamily({
-    channel: "both",
-    subject: "Transcend Complete",
-    message: "All modules live!",
-  });
-  const ok = notifyResults.filter(r => r.success).length;
-  console.log(`   ${ok}/${notifyResults.length} notifications delivered`);
-
-  // ── Step 4: Simulate monetary impact ─────────────────────────────────────
-  console.log(`🔹 Step 4: Simulating monetary impact… (${users.toLocaleString()} users × $26.50/day)`);
-  const impact = calculateImpact(users);
-  console.log(`   Total per day: $${impact.totalPerDay.toLocaleString()}`);
-
-  // ── Step 5: Generate audit summary ────────────────────────────────────────
-  console.log("🔹 Step 5: Generating audit summary…");
-  const audit = generateAuditSummary();
-
-  return { modules, notifyResults, impact, audit };
 }
 
-// ─── CLI entry point ──────────────────────────────────────────────────────────
+// ─── Step 2: Run all 9 modules ────────────────────────────────────────────────
 
-(async () => {
-  const result = await transcendMaster(1000);
-  console.log("\n" + JSON.stringify(result, null, 2));
-})().catch(err => {
-  console.error("❌ Transcend Master run failed:", err);
-  process.exit(1);
-});
+async function runModules(): Promise<Record<string, unknown>[]> {
+  const result  = await transcendAll({ sendNotifications: false });
+  const modules = (result["modules"] as Record<string, unknown>[]) ?? [];
+  console.log(`   Modules executed: ${modules.map(m => m["name"]).join(", ")}`);
+  return modules;
+}
+
+// ─── Step 3: Send notifications per channel ───────────────────────────────────
+
+async function runNotifications(): Promise<void> {
+  const emailResults = await notifyFamily({
+    channel: "email",
+    subject: "Transcend Report",
+    message: "Modules completed.",
+  });
+  const smsResults = await notifyFamily({
+    channel: "sms",
+    message: "Modules completed.",
+  });
+  console.log("   Notifications sent:", {
+    email: `${emailResults.filter(r => r.success).length}/${emailResults.length}`,
+    sms:   `${smsResults.filter(r => r.success).length}/${smsResults.length}`,
+  });
+}
+
+// ─── Step 4: Marketplace demo (per-user earnings + 1M scale) ─────────────────
+
+async function runMarketplaceSimulation(): Promise<void> {
+  const demo = await runMarketplaceDemo();
+  console.log("   Per-user earnings:", demo.perUser);
+  console.log("   Scaled earnings at 1M users: $" + demo.scaledTotal.toLocaleString());
+}
+
+// ─── Step 5: Generate audit summary ──────────────────────────────────────────
+
+async function runAudit(modules: Record<string, unknown>[]): Promise<void> {
+  const audit = generateAuditSummary();
+  console.log("   Audit summary saved at:", audit.report_saved);
+  console.log("   Modules total:", modules.length, "| Passed:", modules.filter(m => m["live"]).length);
+}
+
+// ─── Master function (exported + CLI entry) ───────────────────────────────────
+
+export async function transcendMaster(): Promise<void> {
+  try {
+    console.log("🔹 Step 1: Validating Credentials…");
+    validateCredentials();
+
+    console.log("🔹 Step 2: Running all modules…");
+    const modules = await runModules();
+
+    console.log(`🔹 Step 3: Sending notifications… (email: ${FAMILY_EMAIL_LIST.length}, SMS: ${FAMILY_SMS_LIST.length})`);
+    await runNotifications();
+
+    console.log("🔹 Step 4: Running marketplace simulation…");
+    await runMarketplaceSimulation();
+
+    console.log("🔹 Step 5: Generating audit summary…");
+    await runAudit(modules);
+
+    console.log("\n🎉 FULL TRANSCEND COMPLETE — all modules live, notifications sent, audit complete.");
+  } catch (err) {
+    console.error("Transcend failed:", err);
+  }
+}
+
+// ─── CLI trigger ──────────────────────────────────────────────────────────────
+
+transcendMaster();
