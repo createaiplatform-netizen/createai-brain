@@ -11,6 +11,7 @@
 import { Router, type Request, type Response } from "express";
 import { brainEngine } from "../engine/BrainEnforcementEngine.js";
 import { MISSION_CONFIG } from "../engine/MissionConfig.js";
+import { notifyFamilyEvent } from "../utils/notifications.js";
 
 const router = Router();
 
@@ -84,6 +85,20 @@ router.get("/predictions", (_req: Request, res: Response) => {
     predictions: brainEngine.getPredictions(),
     generatedAt: new Date().toISOString(),
   });
+});
+
+// POST /api/brain/notify — trigger a family event notification from the frontend
+router.post("/notify", async (req: Request, res: Response) => {
+  const { subject, message } = req.body as { subject?: string; message?: string };
+  try {
+    await notifyFamilyEvent({
+      subject: subject ?? "Brain Notification",
+      message: message ?? "Your CreateAI Brain is live and active.",
+    });
+    res.json({ sent: true, timestamp: new Date().toISOString() });
+  } catch (err) {
+    res.status(500).json({ sent: false, error: (err as Error).message });
+  }
 });
 
 // GET /api/brain/mission — authoritative universe-scale mission config

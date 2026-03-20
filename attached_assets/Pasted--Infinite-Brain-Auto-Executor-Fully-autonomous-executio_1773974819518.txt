@@ -1,0 +1,66 @@
+/**
+ * Infinite Brain Auto-Executor
+ * Fully autonomous execution + notifications
+ */
+
+import { executeInfinitely } from "./engine/InfinityExecutor.js";
+import { notifyFamily } from "./notifications.js";
+import { CoreEngine } from "./engine/CoreEngine.js";
+
+// Example tasks you might want the Brain to run automatically
+import { createDocumentary } from "./tasks/createDocumentary.js";
+import { generateReport } from "./tasks/generateReport.js";
+
+// Auto-execution wrapper
+async function autoExecuteTask(taskFn: () => Promise<any>, taskLabel: string) {
+  console.log(`[AutoExecutor] Starting task: ${taskLabel}`);
+
+  // Execute task infinitely until CoreEngine rules are satisfied
+  const result = await executeInfinitely(taskFn, {
+    notifyOnCompletion: false, // we handle custom notifications
+    taskLabel,
+  });
+
+  console.log(`[AutoExecutor] Task "${taskLabel}" completed.`);
+
+  // Send full notifications to family (email + SMS) with secure dashboard link
+  const familyList = [
+    { name: "Sara", email: "SIVH@mail.com", phone: "+1XXX" },
+    { name: "Nolan", email: "nolan@mail.com", phone: "+1XXX" },
+    // ...all other family members
+  ];
+
+  for (const member of familyList) {
+    await notifyFamily(member, {
+      subject: `Brain Task Complete: ${taskLabel}`,
+      message: `Hello ${member.name},\n\nThe task "${taskLabel}" has completed successfully.\nYou can view it here: <SECURE_BRAIN_DASHBOARD_LINK>\n\n- Your Brain`,
+    });
+  }
+
+  return result;
+}
+
+// Startup sequence: all tasks run automatically
+async function startupAutoExecutor() {
+  console.log("[AutoExecutor] Starting full Brain auto-execution sequence...");
+
+  // Example tasks (replace/add any task here)
+  await autoExecuteTask(
+    () => createDocumentary("15h", "movie-style", "full-universe knowledge"),
+    "15h Documentary"
+  );
+
+  await autoExecuteTask(
+    () => generateReport("infinite-learning-summary"),
+    "Infinite Learning Summary Report"
+  );
+
+  console.log("[AutoExecutor] All tasks executed successfully.");
+}
+
+// Trigger at startup if flag is set
+if (process.env.BRAIN_AUTO_START === "true") {
+  startupAutoExecutor().catch(err => {
+    console.error("[AutoExecutor] Error during auto-execution:", err);
+  });
+}

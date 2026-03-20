@@ -57,7 +57,8 @@ const MetricsPanelApp       = React.lazy(() => import("@/Apps/MetricsPanelApp").
 const IntegrationDashboard  = React.lazy(() => import("@/Apps/IntegrationDashboard").then(m => ({ default: m.IntegrationDashboard })));
 const BuilderSpaceApp       = React.lazy(() => import("@/Apps/BuilderSpaceApp").then(m => ({ default: m.BuilderSpaceApp })));
 const IdentityManagerApp    = React.lazy(() => import("@/Apps/IdentityManagerApp").then(m => ({ default: m.IdentityManagerApp })));
-const CreateAIDashboardApp  = React.lazy(() => import("@/Apps/CreateAIDashboardApp"));
+const CreateAIDashboardApp       = React.lazy(() => import("@/Apps/CreateAIDashboardApp"));
+const InfiniteBrainControlPanel  = React.lazy(() => import("@/Apps/InfiniteBrainControlPanel").then(m => ({ default: m.InfiniteBrainControlPanel })));
 const UCPXAgentApp          = React.lazy(() => import("@/ucpx/UCPXAgent").then(m => ({ default: m.UCPXAgent })));
 const UniversalDemoApp      = React.lazy(() => import("@/Apps/UniversalDemoEngine").then(m => ({ default: m.UniversalDemoEngine })));
 const GenericEngineWrapperApp = React.lazy(() => import("@/Apps/GenericEngineWrapper").then(m => ({ default: m.GenericEngineWrapper })));
@@ -723,6 +724,7 @@ const APP_COMPONENTS: Record<AppId, React.LazyExoticComponent<React.ComponentTyp
   builder:                BuilderSpaceApp,
   identityManager:        IdentityManagerApp,
   createaiDashboard:      CreateAIDashboardApp,
+  infiniteBrainControl:  InfiniteBrainControlPanel,
 };
 
 // ── Loading skeleton ─────────────────────────────────────────────────────────

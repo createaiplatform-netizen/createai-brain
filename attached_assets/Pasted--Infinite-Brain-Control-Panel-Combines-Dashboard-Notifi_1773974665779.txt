@@ -1,0 +1,104 @@
+/**
+ * Infinite Brain Control Panel
+ * 
+ * Combines Dashboard + Notifications + Infinite Meta-Learning Control
+ * Provides real-time monitoring, triggering, and enforcement
+ */
+
+import React, { useEffect, useState } from "react";
+import { fetchSystemStats, triggerWorkflow, notifyFamily } from "./systemServices";
+import StyledComponents from "./StyledComponents";
+const { Card, CardHeader, CardContent, Table, TableRow, TableCell, BarChart, PieChart, AuditLog, SectionHeader, SimulationInput } = StyledComponents;
+
+export const InfiniteBrainControlPanel: React.FC = () => {
+  const [stats, setStats] = useState<any>(null);
+  const [logs, setLogs] = useState<any[]>([]);
+  const [simulationResult, setSimulationResult] = useState<any>(null);
+
+  // Fetch system stats every 5 seconds
+  useEffect(() => {
+    const interval = setInterval(async () => {
+      const data = await fetchSystemStats();
+      setStats(data);
+      setLogs(data.auditLog || []);
+    }, 5000);
+    return () => clearInterval(interval);
+  }, []);
+
+  // Trigger all workflows in 100% mode
+  const handleLaunchAll = async () => {
+    await triggerWorkflow({ enforce100PercentMode: true });
+    setLogs(prev => [...prev, { message: "All workflows triggered.", level: "INFO" }]);
+  };
+
+  // Notify family instantly
+  const handleNotifyFamily = async () => {
+    if (!stats?.familyList) return;
+    for (const member of stats.familyList) {
+      await notifyFamily(member, {
+        subject: "Brain Dashboard Activated",
+        message: `Hello ${member.name}, your Brain dashboard is live: <SECURE_LINK>`,
+      });
+      setLogs(prev => [...prev, { message: `Notified ${member.name}`, level: "INFO" }]);
+    }
+  };
+
+  // Run a what-if simulation for infinite expansion
+  const handleSimulation = async (scaleFactor: number) => {
+    // pseudo-code: calculates new knowledge expansion + ROI
+    const result = await SimulationInput.runSimulation(scaleFactor);
+    setSimulationResult(result);
+    setLogs(prev => [...prev, { message: `Simulation run with scale factor ${scaleFactor}`, level: "INFO" }]);
+  };
+
+  return (
+    <div style={{ padding: 20 }}>
+      <SectionHeader>Infinite Brain Control Panel</SectionHeader>
+
+      <Card>
+        <CardHeader>System Stats & Health</CardHeader>
+        <CardContent>
+          {stats ? (
+            <Table>
+              <TableRow><TableCell>CPU Usage</TableCell><TableCell>{stats.cpu}%</TableCell></TableRow>
+              <TableRow><TableCell>Memory</TableCell><TableCell>{stats.memory} GB</TableCell></TableRow>
+              <TableRow><TableCell>Max Users</TableCell><TableCell>{stats.maxUsers}</TableCell></TableRow>
+              <TableRow><TableCell>Active Workflows</TableCell><TableCell>{stats.activeWorkflows}</TableCell></TableRow>
+            </Table>
+          ) : "Loading..."}
+        </CardContent>
+      </Card>
+
+      <Card>
+        <CardHeader>Launch & Notifications</CardHeader>
+        <CardContent>
+          <button onClick={handleLaunchAll}>Launch All Workflows (100% Mode)</button>
+          <button onClick={handleNotifyFamily}>Notify Family</button>
+        </CardContent>
+      </Card>
+
+      <Card>
+        <CardHeader>Meta-Learning & Infinite Expansion</CardHeader>
+        <CardContent>
+          <SimulationInput onRun={handleSimulation} />
+          {simulationResult && <div>Simulation Result: {JSON.stringify(simulationResult)}</div>}
+        </CardContent>
+      </Card>
+
+      <Card>
+        <CardHeader>Audit Log</CardHeader>
+        <CardContent>
+          <AuditLog entries={logs} />
+        </CardContent>
+      </Card>
+
+      <Card>
+        <CardHeader>Compute & Environmental Impact</CardHeader>
+        <CardContent>
+          <BarChart data={stats?.computeSavings} title="Compute Savings"/>
+          <PieChart data={stats?.environmentalImpact} title="Environmental Impact"/>
+        </CardContent>
+      </Card>
+    </div>
+  );
+};
