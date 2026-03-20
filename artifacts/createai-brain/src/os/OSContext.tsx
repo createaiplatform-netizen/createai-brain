@@ -259,7 +259,8 @@ export type AppId =
   | "metricsPanel" | "integrationDashboard"
   // ── Builder ──────────────────────────────────────────────────────────────
   | "builder"
-  | "identityManager";
+  | "identityManager"
+  | "createaiDashboard";
 
 export interface AppDef {
   id: AppId;
@@ -414,6 +415,7 @@ export const DEFAULT_APPS: AppDef[] = [
   { id: "integrationDashboard",  label: "Integration Dashboard",  icon: "🔗", color: "#0891b2", description: "Full integration hub — REST, FHIR R4, HL7, OAuth2, webhooks, PHI safety, TLS status, and simulation mode", category: "system" },
   { id: "builder",               label: "Builder Space",          icon: "🔧", color: "#4f46e5", description: "In-platform code review IDE — every proposed change is shown here for review before anything applies", category: "system" },
   { id: "identityManager",       label: "Identity Manager",       icon: "🪪", color: "#4f46e5", description: "View and manage internal identity packages — internal domain, email, and phone ID for every project", category: "system" },
+  { id: "createaiDashboard",     label: "Coverage Dashboard",      icon: "📊", color: "#6366f1", description: "Global 100% industry coverage dashboard — AI personas, savings, compliance, capacity, environmental impact, and ROI simulation", category: "system" },
 ];
 
 export const ALL_APPS = DEFAULT_APPS;
@@ -503,6 +505,7 @@ const INTENT_MAP: { keywords: string[]; target: AppId }[] = [
   { keywords: ["integration dashboard", "fhir", "hl7", "webhook", "rest api", "phi", "hipaa", "healthcare integration", "tls", "encrypt", "compliance", "simulate", "event log"], target: "integrationDashboard" },
   { keywords: ["builder", "builder space", "code review", "review change", "apply proposal", "diff", "file tree", "preview change", "pending proposal", "code proposal"], target: "builder" },
   { keywords: ["identity", "identity manager", "internal domain", "internal email", "phone id", "project identity", "cai domain", "mail createai", "createai domain", "+cai", "routing"], target: "identityManager" },
+  { keywords: ["coverage dashboard", "global coverage", "industry coverage", "roi simulation", "impact dashboard", "createai dashboard", "ai dashboard", "savings dashboard", "compliance dashboard", "enforcement dashboard"], target: "createaiDashboard" },
   { keywords: ["business", "bizengine", "biz engine", "business plan", "business model", "startup", "venture", "monetization model", "operations design", "expansion", "opportunity"],  target: "business" },
   { keywords: ["entity", "entitygen", "entity engine", "brand", "branding", "positioning", "product idea", "platform idea", "business entity", "build entity", "brand strategy", "ecosystem", "compliance", "growth strategy"], target: "entity" },
   { keywords: ["universe", "bizcreator", "biz universe", "concept", "concept expansion", "idea", "visualize", "visualization", "digital twin", "vr", "ar", "knowledge context", "business system", "expand idea", "expand concept", "multi-layer"], target: "bizcreator" },
@@ -664,6 +667,7 @@ const APP_META: Record<AppId, { icon: string; label: string }> = {
   integrationDashboard:   { icon: "🔗", label: "Integration Dashboard" },
   builder:                { icon: "🔧", label: "Builder Space" },
   identityManager:        { icon: "🪪", label: "Identity Manager" },
+  createaiDashboard:      { icon: "📊", label: "Coverage Dashboard" },
 
   // ── Enterprise Suite Apps ──────────────────────────────────────────────────
   zeroTrust: { icon: "🔐", label: "Zero Trust" },

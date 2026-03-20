@@ -1,0 +1,193 @@
+import React, { useState } from 'react';
+import { BarChart, Bar, PieChart, Pie, Tooltip, Legend } from 'recharts';
+import { useSystemStats } from './systemHooks'; // custom hook to fetch live stats
+
+export default function CreateAIDashboard() {
+  const {
+    industries,
+    endpoints,
+    savings,
+    workflows,
+    personas,
+    compliance,
+    capacity,
+    environmental,
+    auditLogs,
+  } = useSystemStats();
+
+  const [simulation, setSimulation] = useState({ industry: '', scale: 1 });
+
+  const handleSimulationChange = (field, value) => {
+    setSimulation(prev => ({ ...prev, [field]: value }));
+  };
+
+  const calculateSimulationROI = () => {
+    const selected = industries.find(i => i.name === simulation.industry);
+    return selected ? selected.savings * simulation.scale : 0;
+  };
+
+  return (
+    <div className="dashboard" style={{ padding: 20, fontFamily: 'sans-serif' }}>
+      <h1>CreateAI Brain — Global 100% Coverage & Impact</h1>
+
+      {/* Industry Coverage Table */}
+      <section>
+        <h2>Industry Coverage & AI Personas</h2>
+        <table border={1} cellPadding={8} style={{ width: '100%', borderCollapse: 'collapse' }}>
+          <thead>
+            <tr>
+              <th>Industry</th>
+              <th>Render Mode</th>
+              <th>AI Persona</th>
+              <th>Endpoints</th>
+              <th>Workflows</th>
+              <th>Annual Savings ($M)</th>
+            </tr>
+          </thead>
+          <tbody>
+            {industries.map(i => (
+              <tr key={i.name}>
+                <td>{i.name}</td>
+                <td>{i.renderMode}</td>
+                <td>{personas[i.name]}</td>
+                <td>{i.endpointCount}</td>
+                <td>{i.workflowCount}</td>
+                <td>{i.savings.toLocaleString()}</td>
+              </tr>
+            ))}
+          </tbody>
+        </table>
+      </section>
+
+      {/* Endpoint & Workflow Health */}
+      <section>
+        <h2>Endpoints & Workflow Health</h2>
+        <table border={1} cellPadding={8} style={{ width: '100%', borderCollapse: 'collapse' }}>
+          <thead>
+            <tr>
+              <th>Endpoint</th>
+              <th>Auth</th>
+              <th>Rate Limit</th>
+              <th>SSE Guard</th>
+              <th>Status</th>
+            </tr>
+          </thead>
+          <tbody>
+            {endpoints.map(e => (
+              <tr key={e.route}>
+                <td>{e.route}</td>
+                <td>{e.auth ? '✅' : '❌'}</td>
+                <td>{e.rateLimit}</td>
+                <td>{e.sse ? '✅' : '❌'}</td>
+                <td>{e.status}</td>
+              </tr>
+            ))}
+          </tbody>
+        </table>
+      </section>
+
+      {/* Data Center & Compute Savings */}
+      <section>
+        <h2>Data Center & Compute Savings</h2>
+        <BarChart width={700} height={300} data={savings.data}>
+          <Bar dataKey="storage" fill="#6366f1" name="Storage Savings (%)" />
+          <Bar dataKey="compute" fill="#10b981" name="Compute Savings (%)" />
+          <Bar dataKey="bandwidth" fill="#f59e0b" name="Bandwidth Savings (%)" />
+        </BarChart>
+      </section>
+
+      {/* Compliance & Risk */}
+      <section>
+        <h2>Compliance & Risk</h2>
+        <ul>
+          {compliance.map(c => (
+            <li key={c.name}>
+              {c.name}: {c.status ? '✅ Compliant' : '❌ Missing'}
+            </li>
+          ))}
+        </ul>
+      </section>
+
+      {/* Capacity & Scalability */}
+      <section>
+        <h2>System Capacity & Scalability</h2>
+        <ul>
+          <li>Concurrent SSE Streams: {capacity.sseStreams}</li>
+          <li>Max Users: {capacity.maxUsers}</li>
+          <li>CPU Utilization: {capacity.cpu}%</li>
+          <li>Memory Usage: {capacity.memory} GB</li>
+        </ul>
+      </section>
+
+      {/* Environmental Impact */}
+      <section>
+        <h2>Environmental Impact</h2>
+        <PieChart width={400} height={300}>
+          <Pie
+            data={environmental.data}
+            dataKey="value"
+            nameKey="metric"
+            cx="50%"
+            cy="50%"
+            outerRadius={100}
+            fill="#6366f1"
+            label
+          />
+          <Tooltip />
+          <Legend />
+        </PieChart>
+      </section>
+
+      {/* Audit Logs */}
+      <section>
+        <h2>Audit & Enforcement Logs</h2>
+        <table border={1} cellPadding={8} style={{ width: '100%', borderCollapse: 'collapse' }}>
+          <thead>
+            <tr>
+              <th>Timestamp</th>
+              <th>Action</th>
+              <th>Status</th>
+            </tr>
+          </thead>
+          <tbody>
+            {auditLogs.map((log, idx) => (
+              <tr key={idx}>
+                <td>{log.timestamp}</td>
+                <td>{log.action}</td>
+                <td>{log.status}</td>
+              </tr>
+            ))}
+          </tbody>
+        </table>
+      </section>
+
+      {/* What-If Simulation */}
+      <section>
+        <h2>“What-If” Simulation Tool</h2>
+        <label>
+          Select Industry:
+          <select onChange={e => handleSimulationChange('industry', e.target.value)}>
+            <option value="">--Select--</option>
+            {industries.map(i => (
+              <option key={i.name} value={i.name}>
+                {i.name}
+              </option>
+            ))}
+          </select>
+        </label>
+        <label>
+          Scale Factor:
+          <input
+            type="number"
+            min={1}
+            value={simulation.scale}
+            onChange={e => handleSimulationChange('scale', parseInt(e.target.value))}
+          />
+        </label>
+        <p>
+          Estimated Annual Savings: ${calculateSimulationROI().toLocaleString()}M
+        </p>
+      </section>
+    </div>
+  );
+}
