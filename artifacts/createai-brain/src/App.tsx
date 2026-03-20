@@ -13,6 +13,7 @@ import IntegrationDemoPage from "@/pages/IntegrationDemoPage";
 import LiveSimDashboard from "@/pages/LiveSimDashboard";
 import IntegrationLivePage from "@/pages/IntegrationLivePage";
 import IntegrationSuitePage from "@/pages/IntegrationSuitePage";
+import StripeIntegrationPage from "@/pages/StripeIntegrationPage";
 import SmartFhirCallbackApp from "@/Apps/SmartFhirCallbackApp";
 import SmartFhirConnectedApp from "@/Apps/SmartFhirConnectedApp";
 
@@ -443,8 +444,9 @@ function App() {
         <WouterRouter base={base}>
           <Route path="/integration-demo"   component={IntegrationDemoPage} />
           <Route path="/live-sim"           component={LiveSimDashboard} />
-          <Route path="/integration-live"   component={IntegrationLivePage} />
+          <Route path="/integration-live"    component={IntegrationLivePage} />
           <Route path="/integration-suite"  component={IntegrationSuitePage} />
+          <Route path="/stripe-integration" component={StripeIntegrationPage} />
           {/* SMART-on-FHIR OAuth callback — receives authorization code from sandbox */}
           <Route path="/connectors/SMART_FHIR_SANDBOX/callback"  component={SmartFhirCallbackApp} />
           {/* SMART-on-FHIR connected confirmation + test fetch UI */}

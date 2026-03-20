@@ -1,0 +1,115 @@
+You are a senior backend + full-stack engineer.
+
+Your task is to convert the existing Stripe adapter into a FULLY WORKING real integration.
+
+DO NOT simulate anything. This must execute real API calls.
+
+━━━━━━━━━━━━━━━━━━━━━━━
+GOAL
+━━━━━━━━━━━━━━━━━━━━━━━
+
+Implement a complete Stripe integration that allows:
+
+1. Secure API key storage
+2. Creating a customer
+3. Creating a payment intent
+4. Listing transactions
+
+This must be production-structured (even if using test keys).
+
+━━━━━━━━━━━━━━━━━━━━━━━
+STEP 1 — BACKEND (api-server)
+━━━━━━━━━━━━━━━━━━━━━━━
+
+1. Create file:
+   /artifacts/api-server/src/services/integrations/stripeService.ts
+
+2. Use official Stripe SDK
+
+3. Implement functions:
+   - createCustomer(name, email)
+   - createPaymentIntent(amount, currency)
+   - listPayments()
+
+4. Use environment variable:
+   STRIPE_SECRET_KEY
+
+5. DO NOT hardcode keys
+
+━━━━━━━━━━━━━━━━━━━━━━━
+STEP 2 — DATABASE
+━━━━━━━━━━━━━━━━━━━━━━━
+
+Update integrations table usage:
+
+- Store:
+    provider = "stripe"
+    apiKeyEncrypted
+    status = "connected"
+
+- Encrypt API key before storing
+
+━━━━━━━━━━━━━━━━━━━━━━━
+STEP 3 — API ROUTES
+━━━━━━━━━━━━━━━━━━━━━━━
+
+Create routes:
+
+POST /api/integrations/stripe/connect
+- Accept API key
+- Validate by making test call to Stripe
+- Store encrypted key
+
+POST /api/integrations/stripe/customer
+POST /api/integrations/stripe/payment-intent
+GET  /api/integrations/stripe/payments
+
+All routes MUST:
+- Load stored key
+- Initialize Stripe client dynamically
+
+━━━━━━━━━━━━━━━━━━━━━━━
+STEP 4 — FRONTEND
+━━━━━━━━━━━━━━━━━━━━━━━
+
+Update IntegrationApp.tsx:
+
+- Add Stripe card
+- If not connected:
+    show "Connect Stripe"
+- Prompt user for API key
+
+- If connected:
+    show:
+        - Create Customer button
+        - Create Payment button
+        - View Payments
+
+━━━━━━━━━━━━━━━━━━━━━━━
+STEP 5 — TRUTH SYSTEM
+━━━━━━━━━━━━━━━━━━━━━━━
+
+- Stripe MUST be marked:
+    tier = "real"
+    isReal = true
+
+- DO NOT show as connected unless API key is verified
+
+━━━━━━━━━━━━━━━━━━━━━━━
+STEP 6 — VERIFICATION
+━━━━━━━━━━━━━━━━━━━━━━━
+
+At the end:
+
+- List all files created/modified
+- Explain how to test:
+    - where to put Stripe test key
+    - how to create a payment
+
+- Confirm:
+    - real API calls are being made
+    - no simulation is used
+
+DO NOT STOP UNTIL:
+- Backend works
+- Frontend can trigger real Stripe actions

@@ -62,6 +62,7 @@ import dashboardRouter from "./dashboard";
 import brainRouter       from "./brain";
 import modulesRouter     from "./modules";
 import marketplaceRouter from "./marketplace";
+import stripeRouter      from "./stripe";
 import { accessMiddleware } from "../security/FullLockdown.js";
 import projectDocumentsRouter from "./projectDocuments";
 import invitesRouter       from "./invites";
@@ -156,6 +157,7 @@ router.use("/dashboard",          accessMiddleware, dashboardRouter);
 router.use("/brain",              accessMiddleware, brainRouter);
 router.use("/modules",            modulesRouter);
 router.use("/marketplace",        marketplaceRouter);
+router.use("/integrations/stripe", stripeRouter);
 
 // ── System Command Processor ─────────────────────────────────────────────────
 router.use("/system",             systemRouter);

@@ -192,7 +192,7 @@ const PROJECT_CONFIGS: Record<string, ProjectConfig> = {
     ],
     faq: [
       { q: "Are the revenue figures real?", a: "No. All revenue figures are fictional mock data for demonstration purposes only. No real financial transactions occur." },
-      { q: "Can this connect to Stripe?", a: "Not in demo mode. Real payment integration requires real Stripe accounts, PCI compliance, and proper technical implementation." },
+      { q: "Can this connect to Stripe?", a: "Yes — navigate to /stripe-integration to connect your Stripe key, create customers, create PaymentIntents, and view live payment history. All calls go directly to Stripe's API." },
       { q: "Is this suitable for investor demos?", a: "Yes — as a structural mockup showing your revenue model. Always clearly communicate that figures are illustrative." },
     ],
     roadmap: [
