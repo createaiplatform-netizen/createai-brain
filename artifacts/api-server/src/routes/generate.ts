@@ -15,8 +15,37 @@ import { Router, type Request, type Response } from "express";
 import { eq, and } from "drizzle-orm";
 import { db, projects, projectFiles } from "@workspace/db";
 import { openai } from "@workspace/integrations-openai-ai-server";
+import rateLimit from "express-rate-limit";
 
 const router = Router();
+
+// ─── Rate Limiters ────────────────────────────────────────────────────────────
+// Heavy SSE generation: max 10 renders/min per IP
+const generateLimiter = rateLimit({
+  windowMs: 60_000,
+  max: 10,
+  standardHeaders: true,
+  legacyHeaders: false,
+  message: { error: "Too many generation requests — please wait a moment." },
+});
+
+// Medium operations (smart-fill, regen-art, export-pdf): 30/min
+const mediumLimiter = rateLimit({
+  windowMs: 60_000,
+  max: 30,
+  standardHeaders: true,
+  legacyHeaders: false,
+  message: { error: "Too many requests — please slow down." },
+});
+
+// Light reads (analytics, metrics, next-renders, serve): 120/min
+const readLimiter = rateLimit({
+  windowMs: 60_000,
+  max: 120,
+  standardHeaders: true,
+  legacyHeaders: false,
+  message: { error: "Too many requests." },
+});
 
 // ─── Types ───────────────────────────────────────────────────────────────────
 
@@ -750,7 +779,7 @@ async function handleDocument(
 
 // ─── POST /generate ───────────────────────────────────────────────────────────
 
-router.post("/", async (req: Request, res: Response) => {
+router.post("/", generateLimiter, async (req: Request, res: Response) => {
   if (!req.isAuthenticated()) {
     res.status(401).json({ error: "Unauthorized" });
     return;
@@ -998,7 +1027,7 @@ router.post("/", async (req: Request, res: Response) => {
 // Body: { projectId, manifestName, frameIndex, dallePrompt? }
 // Response: { imageUrl }
 
-router.post("/regen-art", async (req: Request, res: Response) => {
+router.post("/regen-art", mediumLimiter, async (req: Request, res: Response) => {
   if (!req.isAuthenticated()) { res.status(401).json({ error: "Unauthorized" }); return; }
 
   const { projectId, manifestName, frameIndex, dallePrompt } = req.body as {
@@ -1059,7 +1088,7 @@ router.post("/regen-art", async (req: Request, res: Response) => {
 // ─── GET /generate/serve/:projectId ──────────────────────────────────────────
 // Serves the stored HTML5 game or app prototype as a standalone page
 
-router.get("/serve/:projectId", async (req: Request, res: Response) => {
+router.get("/serve/:projectId", readLimiter, async (req: Request, res: Response) => {
   const pid  = parseInt(String(req.params["projectId"] ?? "0"), 10);
   const type = (req.query.type as string) ?? "game";
 
@@ -1093,7 +1122,7 @@ router.get("/serve/:projectId", async (req: Request, res: Response) => {
 // Renders all manifest frames into a print-optimised HTML page the browser
 // can save as a PDF.  Opens in a new tab; user presses Cmd/Ctrl+P to save.
 
-router.get("/export-pdf/:projectId", async (req: Request, res: Response) => {
+router.get("/export-pdf/:projectId", mediumLimiter, async (req: Request, res: Response) => {
   if (!req.isAuthenticated()) { res.status(401).send("Unauthorized"); return; }
 
   const pid   = parseInt(String(req.params["projectId"] ?? "0"), 10);
@@ -1177,7 +1206,7 @@ ${frameHtml}
 // Returns 3-4 AI-scored suggestions for what to generate next based on project
 // type, existing manifests, and file-content richness.
 
-router.get("/next-renders/:projectId", async (req: Request, res: Response) => {
+router.get("/next-renders/:projectId", readLimiter, async (req: Request, res: Response) => {
   if (!req.isAuthenticated()) { res.status(401).json({ error: "Unauthorized" }); return; }
 
   const pid = parseInt(String(req.params["projectId"] ?? "0"), 10);
@@ -1249,7 +1278,7 @@ Document count: ${docCount} enriched docs out of ${totalFiles} total files`;
 // Uses GPT to replace all [BRACKET] template placeholders in a document with
 // real, project-context-aware content.
 
-router.post("/smart-fill", async (req: Request, res: Response) => {
+router.post("/smart-fill", mediumLimiter, async (req: Request, res: Response) => {
   if (!req.isAuthenticated()) { res.status(401).json({ error: "Unauthorized" }); return; }
 
   const { projectId, fileId } = req.body as { projectId?: number; fileId?: number };
@@ -1308,7 +1337,7 @@ ${content}`;
 // Returns enrichment stats for a project — total files, enriched count,
 // enrichment percent, industry, and a per-type file breakdown.
 
-router.get("/analytics/:projectId", async (req: Request, res: Response) => {
+router.get("/analytics/:projectId", readLimiter, async (req: Request, res: Response) => {
   if (!req.isAuthenticated()) { res.status(401).json({ error: "Unauthorized" }); return; }
   const rawId    = Array.isArray(req.params.projectId) ? req.params.projectId[0] : req.params.projectId;
   const projectId = parseInt(rawId, 10);
@@ -1357,7 +1386,7 @@ router.get("/analytics/:projectId", async (req: Request, res: Response) => {
 // Full platform metrics report — real DB data, no mocks.
 // Returns JSON suitable for investor decks, QA validation, or export.
 
-router.get("/metrics-report", async (req: Request, res: Response) => {
+router.get("/metrics-report", readLimiter, async (req: Request, res: Response) => {
   if (!req.isAuthenticated()) { res.status(401).json({ error: "Unauthorized" }); return; }
   const reportedAt = new Date().toISOString();
   try {

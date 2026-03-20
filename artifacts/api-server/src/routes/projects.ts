@@ -46,7 +46,7 @@ export const UNIVERSAL_FOLDERS = [
 
 export const INDUSTRY_SPECIFIC: Record<string, { name: string; icon: string }[]> = {
   // ── Traditional industries ────────────────────────────────────────────────
-  Healthcare:        [{ name: "Regulations", icon: "⚖️" }, { name: "Patient Records", icon: "🏥" }, { name: "Compliance", icon: "✅" }],
+  Healthcare:        [{ name: "Care Plans", icon: "📋" }, { name: "Clinical Documentation", icon: "🏥" }, { name: "Compliance & Regulatory", icon: "⚖️" }, { name: "Staff & Training", icon: "👩‍⚕️" }, { name: "Quality & Safety", icon: "✅" }, { name: "Administration & Operations", icon: "⚙️" }],
   Construction:      [{ name: "Plans & Blueprints", icon: "📐" }, { name: "Safety", icon: "🦺" }, { name: "Permits", icon: "📋" }, { name: "Equipment", icon: "🚧" }],
   Hunting:           [{ name: "Maps", icon: "🗺️" }, { name: "Gear Lists", icon: "🎒" }, { name: "Safety", icon: "🦺" }, { name: "Seasons & Regulations", icon: "📅" }],
   Farming:           [{ name: "Crop Plans", icon: "🌱" }, { name: "Equipment", icon: "🚜" }, { name: "Soil Data", icon: "🌍" }, { name: "Harvest Logs", icon: "📊" }],
