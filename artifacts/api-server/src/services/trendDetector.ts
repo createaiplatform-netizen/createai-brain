@@ -50,7 +50,11 @@ function weightedShuffle(pool: string[], count: number, seed: number): string[] 
   return shuffled.slice(0, count);
 }
 
-export async function detectTrendingCategories(count = 5): Promise<string[]> {
+/**
+ * Returns a ranked list of trending AI product categories.
+ * Synchronous — safe to call without await in tight loops.
+ */
+export function detectTrendingCategories(count = 5): string[] {
   _cycleOffset++;
   return weightedShuffle(NICHE_POOL, count, _cycleOffset);
 }

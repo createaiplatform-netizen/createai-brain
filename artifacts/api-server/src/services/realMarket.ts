@@ -304,7 +304,7 @@ export const realMarketFlow = {
     // Auto-fetch trending categories if none supplied (spec: ultimateLaunch)
     const categories = (opts?.categories && opts.categories.length > 0)
       ? opts.categories
-      : await detectTrendingCategories(5);
+      : detectTrendingCategories(5);
     const formats = opts?.formats;
     // Resolve digital formats — use provided list or flow-option default
     const digitalFormats: string[] = formats ??
@@ -361,3 +361,38 @@ export const realMarketFlow = {
     return _dynamicPrice(product);
   },
 };
+
+// ─── globalTranscend ─────────────────────────────────────────────────────────
+// Spec: ultimateZeroTouchLaunch — Step 4c
+// Triggers an immediate full-scale batch: trending categories → all formats → all marketplaces.
+// Callable from anywhere: `await globalTranscend()` or via `global.transcend()`.
+export async function globalTranscend(opts?: {
+  categories?: string[];
+  batchSize?:  number;
+}): Promise<void> {
+  const categories = opts?.categories ?? detectTrendingCategories(5);
+  console.log(
+    `[Transcend] ⚡ Full-scale launch initiated — ${categories.length} categories · batchSize:${opts?.batchSize ?? "auto"}`
+  );
+  const batch = await realMarketFlow.generateNextBatch({ categories });
+  publishToMarketplaces(batch);
+  console.log(
+    `[Transcend] ✅ ${batch.length} products pushed — all marketplaces updated, visual assets live`
+  );
+}
+
+// ─── getMarketStats ───────────────────────────────────────────────────────────
+// Spec: ultimateZeroTouchLaunch — Step 4d (console.table-friendly)
+export async function getMarketStats(): Promise<Record<string, string | number>> {
+  const top = getTopProduct();
+  return {
+    "Total Products":     products.length,
+    "Total Sales":        salesCount,
+    "Generation Speed":   generationSpeed,
+    "Cycle Count":        cycleCount,
+    "Engine Running":     engineRunning ? "✅ Yes" : "⏸ No",
+    "Top Product":        top?.name ?? "—",
+    "Top Product Sales":  top?.sales ?? 0,
+    "Marketplaces":       MARKETPLACES.map(m => m.name).join(", "),
+  };
+}

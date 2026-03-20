@@ -14,7 +14,7 @@
  * This file is the ONLY place that creates per-product Stripe Products and Prices.
  */
 
-import { realMarketFlow, publishToMarketplaces } from "./realMarket.js";
+import { realMarketFlow, publishToMarketplaces, globalTranscend } from "./realMarket.js";
 import type { MarketProduct }                    from "./realMarket.js";
 import { engineState }                           from "./aboveTranscend/engine.js";
 import { detectTrendingCategories }              from "./trendDetector.js";
@@ -124,7 +124,7 @@ async function enrichAndPublish(
 
 export async function generateOptimizedProducts(familyStripeId: string): Promise<void> {
   console.log("[Transcend] Generating optimized products — all categories × all formats…");
-  const trendingCategories = await detectTrendingCategories(5);
+  const trendingCategories = detectTrendingCategories(5);
 
   // Generate one product per category × format (matches spec's nested loops)
   const batch = await realMarketFlow.generateNextBatch({
@@ -185,7 +185,7 @@ export async function zeroTouchSuperLaunch(familyStripeId: string): Promise<void
 
     try {
       // a. Detect trending categories (5 per cycle)
-      const trendingCategories = await detectTrendingCategories(5);
+      const trendingCategories = detectTrendingCategories(5);
 
       // b. Generate products — category × format grid (allDigital=true)
       const batch = await realMarketFlow.generateNextBatch({
@@ -207,12 +207,9 @@ export async function zeroTouchSuperLaunch(familyStripeId: string): Promise<void
   });
 
   // 3. Register global.transcend() (spec: ultimateZeroTouchTranscend — Step 5)
-  //    Calling transcend() anywhere in the process triggers a full max-scale push immediately.
-  (globalThis as Record<string, unknown>).transcend = async () => {
-    console.log("[Transcend] Full-scale AI product launch initiated…");
-    await generateOptimizedProducts(familyStripeId);
-    console.log("[Transcend] All products pushed, marketplaces updated, visual assets live!");
-  };
+  //    Delegates to the named `globalTranscend` export from realMarket.ts so both
+  //    entry points (`await globalTranscend()` and `global.transcend()`) run the same code.
+  (globalThis as Record<string, unknown>).transcend = () => globalTranscend();
 
   console.log(
     "[ZeroTouchAI] SYSTEM LIVE — fully autonomous, zero-touch, continuously scaling and optimizing\n" +
