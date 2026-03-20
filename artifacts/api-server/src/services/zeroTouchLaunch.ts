@@ -16,6 +16,7 @@
 
 import { realMarketFlow, publishToMarketplaces, globalTranscend } from "./realMarket.js";
 import type { MarketProduct }                    from "./realMarket.js";
+import { publishToExternalChannels }             from "./externalMarketTools.js";
 import { engineState }                           from "./aboveTranscend/engine.js";
 import { detectTrendingCategories }              from "./trendDetector.js";
 import { generateProductAssets }                from "./assetGenerator.js";
@@ -102,8 +103,10 @@ async function enrichAndPublish(
     );
   }
 
-  // 5. Publish across all marketplaces
-  publishToMarketplaces(product);
+  // 5. Publish to internal marketplaces (Shopify, Etsy, WooCommerce).
+  //    External channels (Amazon, eBay, CreativeMarket) are handled at the
+  //    batch level via publishToExternalChannels() in the cycle step below.
+  publishToMarketplaces(product, ["Shopify", "Etsy", "WooCommerce"]);
 
   // 6. Log enriched asset summary
   console.log(
@@ -132,12 +135,16 @@ export async function generateOptimizedProducts(familyStripeId: string): Promise
     formats:    [...DIGITAL_FORMATS],
   });
 
+  // Internal: Shopify, Etsy, WooCommerce
   await parallelPublishManager(batch, product =>
     enrichAndPublish(product, familyStripeId)
   );
 
+  // External: Amazon, eBay, CreativeMarket
+  await publishToExternalChannels(batch);
+
   console.log(
-    `[Transcend] Done — ${batch.length} products published ` +
+    `[Transcend] Done — ${batch.length} products · internal + external channels · ` +
     `(${trendingCategories.length} categories × ${DIGITAL_FORMATS.length} formats)`
   );
 }
@@ -193,13 +200,18 @@ export async function zeroTouchSuperLaunch(familyStripeId: string): Promise<void
         formats:    [...DIGITAL_FORMATS],
       });
 
-      // c. Parallel publish: visual assets + dynamic price + Stripe + 6 marketplaces
+      // c. Internal: visual assets + dynamic price + Stripe + Shopify/Etsy/WooCommerce
       await parallelPublishManager(batch, product =>
         enrichAndPublish(product, familyStripeId)
       );
+      console.log("[ZeroTouchAI] Internal batch published — Shopify · Etsy · WooCommerce");
+
+      // d. External: Amazon + eBay + CreativeMarket (spec: unifiedZeroTouchTranscend — Step 4)
+      await publishToExternalChannels(batch);
+      console.log("[ZeroTouchAI] External batch complete — Amazon · eBay · CreativeMarket");
 
       console.log(
-        "[ZeroTouchAI] Batch fully published with all assets, marketplaces, and Stripe integration live"
+        "[ZeroTouchAI] Batch fully published — all assets, all channels, Stripe integration live"
       );
     } catch (err) {
       console.error("[ZeroTouchAI] Cycle error:", (err as Error).message);

@@ -12,6 +12,9 @@ import {
   hybridMessage,
   getHybridStats,
 }                          from "../services/hybridEngine.js";
+import {
+  getExternalChannelStatus,
+}                          from "../services/externalMarketTools.js";
 
 const router = Router();
 
@@ -51,7 +54,10 @@ router.post("/message", async (req, res) => {
 
 // GET /api/hybrid/stats
 router.get("/stats", (_req, res) => {
-  res.json(getHybridStats());
+  res.json({
+    ...getHybridStats(),
+    externalChannels: getExternalChannelStatus(),
+  });
 });
 
 export default router;
