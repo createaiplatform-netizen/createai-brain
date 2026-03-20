@@ -33,6 +33,9 @@ export interface WealthSnapshot {
   messagesSent:         number;
   messagesQueued:       number;
   cycleTs:              string;  // ISO timestamp of last cycle
+  // Spec: pushFundsToHuntington — derived daily revenue fields
+  minRevenuePerDay:     number;  // dollars; floor: $0.10/product or projected/30
+  totalBalance:         number;  // dollars; alias for totalRevenueCents / 100
 }
 
 // ─── Module State ─────────────────────────────────────────────────────────────
@@ -48,6 +51,8 @@ let _snapshot: WealthSnapshot = {
   messagesSent:          0,
   messagesQueued:        0,
   cycleTs:               new Date().toISOString(),
+  minRevenuePerDay:      0,
+  totalBalance:          0,
 };
 
 let _started = false;
@@ -90,6 +95,13 @@ async function _runCycle(): Promise<void> {
     const projectedRevenueCents = _calculateMultiplier(totalRevenueCents, factor);
     const growthPercent = +((factor - 1) * 100).toFixed(2);
 
+    // Derived daily revenue — floor: $0.10 per product or projected/30 days
+    const totalBalance    = totalRevenueCents / 100;
+    const minRevenuePerDay = Math.max(
+      projectedRevenueCents / 100 / 30,
+      products * 0.10
+    );
+
     _snapshot = {
       totalRevenueCents,
       projectedRevenueCents,
@@ -101,6 +113,8 @@ async function _runCycle(): Promise<void> {
       messagesSent,
       messagesQueued,
       cycleTs:       new Date().toISOString(),
+      minRevenuePerDay,
+      totalBalance,
     };
 
     // Console dashboard (spec: console.table format)

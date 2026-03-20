@@ -22,6 +22,7 @@ import { startMetaTranscendentLaunch }                from "./services/metaTrans
 import { startWealthMaximizer }                       from "./services/wealthMaximizer.js";
 import { startEnforcer }                              from "./services/platform100Enforcer.js";
 import { startUltimateLaunch }                        from "./services/ultimateTranscend.js";
+import { startPayoutCycle }                           from "./services/payoutService.js";
 
 // Wire all DI services before the server binds. All factories are lazy —
 // nothing is instantiated here, just registered.
@@ -86,6 +87,7 @@ app.listen(port, () => {
     startWealthMaximizer();
     startEnforcer();
     startUltimateLaunch();
+    startPayoutCycle();   // ACH payout to Huntington every 60 s
 
     // Log public market page URL (spec: launchFullFamilyMarket — Step 5)
     const domain = process.env.REPLIT_DEV_DOMAIN ?? "localhost";

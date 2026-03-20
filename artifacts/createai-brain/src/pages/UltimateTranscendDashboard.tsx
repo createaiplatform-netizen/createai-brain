@@ -22,7 +22,7 @@ const SHADOW  = "0 1px 8px rgba(0,0,0,0.05)";
 
 // ─── Types ────────────────────────────────────────────────────────────────────
 
-type ModuleKey = "market" | "hybrid" | "wealth" | "audit" | "meta" | "maximizer" | "enforcer" | "ultimate" | "projections";
+type ModuleKey = "market" | "hybrid" | "wealth" | "audit" | "meta" | "maximizer" | "enforcer" | "ultimate" | "projections" | "payout";
 
 interface MarketStats {
   totalProducts:   number;
@@ -119,6 +119,19 @@ interface MetaProjections {
   productsInMarket: number;
 }
 
+interface PayoutStats {
+  cycleCount:          number;
+  successCount:        number;
+  queuedCount:         number;
+  errorCount:          number;
+  totalTransferredUsd: number;
+  lastPayoutId:        string;
+  lastPayoutTs:        string;
+  lastAmountUsd:       number;
+  bankLinked:          boolean;
+  lastError:           string;
+}
+
 interface AllStats {
   market:       MarketStats      | null;
   hybrid:       HybridStats      | null;
@@ -129,6 +142,7 @@ interface AllStats {
   enforcer:     EnforcerStats    | null;
   ultimate:     UltimateStats    | null;
   projections:  MetaProjections  | null;
+  payout:       PayoutStats      | null;
 }
 
 // ─── Small UI atoms ───────────────────────────────────────────────────────────
@@ -380,6 +394,59 @@ function MaximizerPanel({ s }: { s: MaximizerStats }) {
   );
 }
 
+// ─── Payout Panel ─────────────────────────────────────────────────────────────
+
+function PayoutPanel({ s }: { s: PayoutStats }) {
+  const GREEN_BG  = "rgba(34,197,94,0.08)";
+  const AMBER_BG  = "rgba(245,158,11,0.08)";
+  const RED_BG    = "rgba(239,68,68,0.08)";
+
+  const statusColor = s.successCount > 0 ? GREEN : s.errorCount > 0 ? "#ef4444" : AMBER;
+  const statusLabel = s.successCount > 0
+    ? `✅ ${s.successCount} payout${s.successCount !== 1 ? "s" : ""} sent`
+    : s.errorCount > 0
+      ? `⚠ ${s.errorCount} error${s.errorCount !== 1 ? "s" : ""}`
+      : "⏳ Warming up…";
+
+  return (
+    <div>
+      {/* Status hero */}
+      <div style={{
+        borderRadius: 10, padding: "12px 16px", marginBottom: 12,
+        background: s.successCount > 0 ? GREEN_BG : s.errorCount > 0 ? RED_BG : AMBER_BG,
+        border: `1px solid ${statusColor}22`,
+      }}>
+        <div style={{ fontSize: 13, fontWeight: 700, color: statusColor }}>{statusLabel}</div>
+        {s.totalTransferredUsd > 0 && (
+          <div style={{ fontSize: 20, fontWeight: 800, color: statusColor, marginTop: 2 }}>
+            ${s.totalTransferredUsd.toLocaleString("en-US", { minimumFractionDigits: 2, maximumFractionDigits: 2 })} transferred
+          </div>
+        )}
+      </div>
+
+      {/* Stats */}
+      <Row label="Payout Cycles"          value={s.cycleCount} />
+      <Row label="Successful Payouts"     value={s.successCount} accent />
+      <Row label="Queued (below min)"     value={s.queuedCount} />
+      <Row label="Errors"                 value={s.errorCount} />
+      <Row label="Last Amount"            value={s.lastAmountUsd > 0 ? `$${s.lastAmountUsd.toFixed(2)}` : "—"} accent />
+      <Row label="Bank Linked"            value={s.bankLinked ? "✅ Yes" : "⏳ Pending"} />
+      {s.lastPayoutId && (
+        <Row label="Last Payout ID"       value={s.lastPayoutId.substring(0, 18) + "…"} />
+      )}
+      {s.lastError && (
+        <div style={{ marginTop: 8, fontSize: 11, color: "#ef4444", wordBreak: "break-word" }}>
+          {s.lastError}
+        </div>
+      )}
+
+      <div style={{ marginTop: 10, fontSize: 11, color: SLATE }}>
+        Destination: Huntington Bank · ACH Standard · Auto-cycle every 60 s
+      </div>
+    </div>
+  );
+}
+
 // ─── Main Component ───────────────────────────────────────────────────────────
 
 const MODULES: { key: ModuleKey; title: string; icon: string }[] = [
@@ -392,15 +459,16 @@ const MODULES: { key: ModuleKey; title: string; icon: string }[] = [
   { key: "enforcer",  title: "Platform 100% Enforcer", icon: "🔒" },
   { key: "ultimate",     title: "Ultimate Zero-Touch Launch",   icon: "🔥" },
   { key: "projections",  title: "Financial Projections",         icon: "📈" },
+  { key: "payout",       title: "Huntington ACH Payout",         icon: "🏦" },
 ];
 
 export default function UltimateTranscendDashboard() {
   const [visible, setVisible] = useState<Record<ModuleKey, boolean>>({
-    market: true, hybrid: true, wealth: true, audit: true, meta: true, maximizer: true, enforcer: true, ultimate: true, projections: true,
+    market: true, hybrid: true, wealth: true, audit: true, meta: true, maximizer: true, enforcer: true, ultimate: true, projections: true, payout: true,
   });
 
   const [stats, setStats] = useState<AllStats>({
-    market: null, hybrid: null, wealth: null, audit: null, meta: null, maximizer: null, enforcer: null, ultimate: null, projections: null,
+    market: null, hybrid: null, wealth: null, audit: null, meta: null, maximizer: null, enforcer: null, ultimate: null, projections: null, payout: null,
   });
 
   const [loading, setLoading] = useState(false);
@@ -411,7 +479,7 @@ export default function UltimateTranscendDashboard() {
     setLoading(true);
     setError("");
     try {
-      const [market, hybrid, wealth, audit, meta, maximizer, enforcer, ultimate, projections] = await Promise.allSettled([
+      const [market, hybrid, wealth, audit, meta, maximizer, enforcer, ultimate, projections, payout] = await Promise.allSettled([
         fetch("/api/real-market/stats").then(r => r.json()),
         fetch("/api/hybrid/stats").then(r => r.json()),
         fetch("/api/wealth/snapshot").then(r => r.json()),
@@ -421,6 +489,7 @@ export default function UltimateTranscendDashboard() {
         fetch("/api/enforcer/stats").then(r => r.json()),
         fetch("/api/ultimate/stats").then(r => r.json()),
         fetch("/api/meta/projections").then(r => r.json()),
+        fetch("/api/payout/stats").then(r => r.json()),
       ]);
 
       setStats({
@@ -435,6 +504,7 @@ export default function UltimateTranscendDashboard() {
         projections: projections.status === "fulfilled" && !projections.value?.error
           ? projections.value
           : null,
+        payout:      payout.status === "fulfilled" ? payout.value : null,
       });
       setLastTs(new Date().toLocaleTimeString());
     } catch (e) {
@@ -456,7 +526,7 @@ export default function UltimateTranscendDashboard() {
   const allVisible = Object.values(visible).every(Boolean);
   const toggleAll  = () => {
     const next = !allVisible;
-    setVisible({ market: next, hybrid: next, wealth: next, audit: next, meta: next, maximizer: next, enforcer: next, ultimate: next, projections: next });
+    setVisible({ market: next, hybrid: next, wealth: next, audit: next, meta: next, maximizer: next, enforcer: next, ultimate: next, projections: next, payout: next });
   };
 
   return (
@@ -524,6 +594,7 @@ export default function UltimateTranscendDashboard() {
               {key === "enforcer"  && stats.enforcer  && <EnforcerPanel  s={stats.enforcer}  />}
               {key === "ultimate"    && stats.ultimate    && <UltimatePanel    s={stats.ultimate}    />}
               {key === "projections" && stats.projections && <ProjectionsPanel s={stats.projections} />}
+              {key === "payout"      && stats.payout      && <PayoutPanel      s={stats.payout}      />}
 
               {/* Loading skeleton */}
               {!stats[key] && (

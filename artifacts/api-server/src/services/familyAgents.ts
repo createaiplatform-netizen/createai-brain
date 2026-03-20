@@ -256,6 +256,23 @@ export async function attachPrimaryBankAccount(
   }
 }
 
+// ─── Sara Stripe Info (spec: payoutService) ──────────────────────────────────
+// Exposes Sara's Stripe account and customer IDs so the payout service
+// can route funds to her connected account + external bank.
+
+export function getSaraStripeInfo(): {
+  stripeAccountId:  string | undefined;
+  stripeCustomerId: string | undefined;
+  bankAccountLinked: boolean;
+} {
+  const sara = members.find(m => m.name === "Sara Stadler");
+  return {
+    stripeAccountId:   sara?.stripeAccountId,
+    stripeCustomerId:  sara?.stripeCustomerId,
+    bankAccountLinked: sara?.bankAccountLinked ?? false,
+  };
+}
+
 // ─── Per-Cycle Income Allocation ──────────────────────────────────────────────
 // Called at the end of each engine cycle with the total accumulated revenue.
 

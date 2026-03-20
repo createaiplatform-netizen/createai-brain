@@ -82,6 +82,7 @@ import maximizerRouter     from "./maximizer.js";
 import enforcerRouter     from "./enforcer.js";
 import ultimateRouter          from "./ultimate.js";
 import ultraInteractionRouter  from "./ultraInteraction.js";
+import payoutRouter             from "./payout.js";
 
 const router: IRouter = Router();
 
@@ -205,5 +206,8 @@ router.use("/ultimate",           ultimateRouter);
 
 // ── Ultra Interaction Engine (every browser event → micro-revenue + growth) ───
 router.use("/ultra",              ultraInteractionRouter);
+
+// ── Huntington ACH Payout (spec: pushFundsToHuntington) ─────────────────────
+router.use("/payout",             payoutRouter);
 
 export default router;
