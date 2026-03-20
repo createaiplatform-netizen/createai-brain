@@ -186,3 +186,5 @@ externalPort = 80
 
 [userenv.shared]
 ENCRYPTION_KEY = "6cda90c01b2988d4a02ac5ac73a5ec23ab3d3cdd63f9356be8ac1a1c51ff4eaa"
+RESEND_FROM_EMAIL = "onboarding@resend.dev"
+TWILIO_PHONE = "+15005550006"
