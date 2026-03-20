@@ -1,0 +1,75 @@
+// src/security/FullLockdown.ts
+import { getCurrentUserId } from './userSession'; // Replace with your session/user lookup
+import { logEvent } from './utils/logging';       // Optional: logging utility
+
+// -------------------------
+// CONFIG: Family list
+// -------------------------
+const FAMILY_LIST = [
+  'user1@example.com',
+  'user2@example.com',
+  'user3@example.com',
+  // Add all trusted emails/accounts here
+];
+
+// -------------------------
+// Workspace / Clone Lock
+// -------------------------
+const AUTHORIZED_WORKSPACE_ID = 'your_workspace_id_here'; // Replace with your Replit workspace ID
+
+// -------------------------
+// Check full access
+// -------------------------
+export function hasFullAccess(): boolean {
+  const userId = getCurrentUserId();
+  if (!userId) {
+    logEvent('ACCESS_DENIED', 'Unknown user attempted access');
+    return false;
+  }
+
+  if (!FAMILY_LIST.includes(userId)) {
+    logEvent('ACCESS_DENIED', `${userId} is not authorized`);
+    return false;
+  }
+
+  const workspaceId = process.env.REPLIT_WORKSPACE_ID || '';
+  if (workspaceId !== AUTHORIZED_WORKSPACE_ID) {
+    logEvent('ACCESS_DENIED', `Unauthorized workspace: ${workspaceId}`);
+    return false;
+  }
+
+  logEvent('ACCESS_GRANTED', `${userId} accessed Brain on authorized workspace`);
+  return true;
+}
+
+// -------------------------
+// Middleware for API routes
+// -------------------------
+export function accessMiddleware(req: any, res: any, next: any) {
+  if (!hasFullAccess()) {
+    res.status(403).json({ error: 'Access denied: unauthorized user or workspace' });
+    return;
+  }
+  next();
+}
+
+// -------------------------
+// SPA / Frontend Guard
+// -------------------------
+export function enforceFrontendAccess() {
+  if (!hasFullAccess()) {
+    alert('Access denied: you are not authorized to use this Brain.');
+    window.location.href = '/unauthorized';
+  }
+}
+
+// -------------------------
+// Clone / Export Prevention
+// -------------------------
+export function preventCloneAttempt() {
+  const workspaceId = process.env.REPLIT_WORKSPACE_ID || '';
+  if (workspaceId !== AUTHORIZED_WORKSPACE_ID) {
+    logEvent('CLONE_ATTEMPT_BLOCKED', `Attempted clone in workspace: ${workspaceId}`);
+    throw new Error('Clone or export blocked: unauthorized workspace');
+  }
+}
