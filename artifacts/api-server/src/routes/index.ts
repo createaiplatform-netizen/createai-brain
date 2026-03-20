@@ -75,6 +75,7 @@ import renderRouter        from "./renderEngine";
 import generateRouter      from "./generate";
 import realMarketRouter    from "./realMarket.js";
 import hybridRouter        from "./hybrid.js";
+import wealthRouter        from "./wealth.js";
 
 const router: IRouter = Router();
 
@@ -177,5 +178,8 @@ router.use("/real-market",        realMarketRouter);
 
 // ── Hybrid Multi-Rail Engine (Stripe + Resend + Twilio + internal queue) ──────
 router.use("/hybrid",             hybridRouter);
+
+// ── Wealth Multiplier Add-On (2-min autonomous cycle, growth projections) ─────
+router.use("/wealth",             wealthRouter);
 
 export default router;

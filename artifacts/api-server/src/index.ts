@@ -16,6 +16,7 @@ import { initRealStripeIntegration }   from "./services/aboveTranscend/realStrip
 import { startAdaptiveEngine }         from "./services/realMarket.js";
 import { zeroTouchSuperLaunch, resolveFamilyStripeId } from "./services/zeroTouchLaunch.js";
 import { startHybridEngine }                           from "./services/hybridEngine.js";
+import { startWealthMultiplier }                       from "./services/wealthMultiplier.js";
 
 // Wire all DI services before the server binds. All factories are lazy —
 // nothing is instantiated here, just registered.
@@ -74,6 +75,7 @@ app.listen(port, () => {
       console.error("[ZeroTouchAI] Launch error:", (err as Error).message)
     );
     startHybridEngine();
+    startWealthMultiplier();
 
     // Log public market page URL (spec: launchFullFamilyMarket — Step 5)
     const domain = process.env.REPLIT_DEV_DOMAIN ?? "localhost";
