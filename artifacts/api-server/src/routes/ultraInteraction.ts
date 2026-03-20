@@ -7,12 +7,18 @@
  *   Applies micro-revenue, throttled meta cycle, max-growth enforcement,
  *   and returns full platform stats + projections.
  *
+ * Security:
+ *   - authMiddleware enforces authentication globally (app.ts)
+ *   - interactionLimiter bounds per-user call rate (60/min)
+ *   - All input fields are validated and sanitized before use
+ *   - Errors never expose internal messages to the client
+ *
  * Throttling: meta cycle and transcend fire at most once per 60 s
  * regardless of how many interactions arrive, so heavy traffic never
  * floods the engine but every call still registers revenue.
  */
 
-import { Router }            from "express";
+import { Router, type Request, type Response }      from "express";
 import { applyGrowthMultiplier, getWealthSnapshot } from "../services/wealthMultiplier.js";
 import { enforceMaxGrowth, getMaximizerStats }      from "../services/wealthMaximizer.js";
 import { triggerMetaCycle, getMetaStats, getMetaProjections } from "../services/metaTranscend.js";
@@ -20,6 +26,7 @@ import { getMarketStats, globalTranscend }           from "../services/realMarke
 import { getHybridStats }                            from "../services/hybridEngine.js";
 import { getAuditSnapshot }                          from "../services/platformAudit.js";
 import { UltraInteractionEngine }                    from "../services/ultraInteractionEngine.js";
+import { interactionLimiter }                        from "../middlewares/rateLimiters.js";
 
 const router = Router();
 
@@ -28,9 +35,47 @@ let _lastMetaCycleTs = 0;
 let _lastTranscendTs = 0;
 const THROTTLE_MS = 60_000; // 1 min
 
+// ─── Input sanitization helpers ───────────────────────────────────────────────
+
+const MAX_TYPE_LEN   = 64;
+const MAX_USERID_LEN = 64;
+const MAX_TARGET_LEN = 128;
+
+/**
+ * Strip control characters and limit length.
+ * Prevents log injection and excessively large field values.
+ */
+function sanitizeField(value: unknown, maxLen: number): string {
+  if (typeof value !== "string") return "";
+  return value
+    .replace(/[\x00-\x1F\x7F]/g, "")   // remove control chars
+    .slice(0, maxLen)
+    .trim();
+}
+
+/**
+ * Validate that a userId is safe to propagate:
+ * alphanumeric, hyphens, underscores, dots — no injection vectors.
+ */
+function isValidUserId(uid: string): boolean {
+  return uid === "" || /^[\w\-\.]+$/.test(uid);
+}
+
 // ─── POST /api/ultra/interaction ─────────────────────────────────────────────
-router.post("/interaction", async (req, res) => {
-  const { type = "unknown", userId, target } = req.body ?? {};
+router.post("/interaction", interactionLimiter, async (req: Request, res: Response): Promise<void> => {
+  // ── Input validation + sanitization ────────────────────────────────────────
+  const rawType   = sanitizeField((req.body as Record<string, unknown>)?.type,   MAX_TYPE_LEN)   || "unknown";
+  const rawUserId = sanitizeField((req.body as Record<string, unknown>)?.userId, MAX_USERID_LEN);
+  const rawTarget = sanitizeField((req.body as Record<string, unknown>)?.target, MAX_TARGET_LEN);
+
+  if (!isValidUserId(rawUserId)) {
+    res.status(400).json({ error: "Invalid userId format" });
+    return;
+  }
+
+  const type   = rawType;
+  const userId = rawUserId || undefined;
+  const target = rawTarget || undefined;
 
   try {
     // 1. Micro-revenue: $5–$15 per interaction, applied as growth multiplier
@@ -41,7 +86,7 @@ router.post("/interaction", async (req, res) => {
     UltraInteractionEngine.fireMicroRevenue({
       amount:  microRevenue,
       type,
-      userId:  userId ?? undefined,
+      userId,
       ts:      new Date().toISOString(),
     });
 
@@ -100,7 +145,9 @@ router.post("/interaction", async (req, res) => {
 
     res.json(stats);
   } catch (err) {
-    res.status(500).json({ error: (err as Error).message });
+    // Log internally — never expose internal error details to the client
+    console.error("[ultra/interaction] error:", (err as Error).message);
+    res.status(500).json({ error: "Interaction processing failed." });
   }
 });
 

@@ -40,3 +40,45 @@ export const editLimiter = rateLimit({
   message: { error: "Too many edit requests — please slow down." },
   skip: (req) => req.method === "OPTIONS",
 });
+
+/**
+ * Payout stats read: 30 req/min per user.
+ * Stats are non-destructive but still sensitive — bounded to prevent scraping.
+ */
+export const payoutStatsLimiter = rateLimit({
+  windowMs: 60_000,
+  max: 30,
+  keyGenerator: userOrIpKey,
+  standardHeaders: true,
+  legacyHeaders:  false,
+  message: { error: "Too many payout stat requests." },
+  skip: (req) => req.method === "OPTIONS",
+});
+
+/**
+ * Payout trigger: 3 req per 5 min per user.
+ * Triggering a real financial transfer is high-stakes — very conservative limit.
+ */
+export const payoutTriggerLimiter = rateLimit({
+  windowMs: 5 * 60_000,
+  max: 3,
+  keyGenerator: userOrIpKey,
+  standardHeaders: true,
+  legacyHeaders:  false,
+  message: { error: "Payout trigger rate limit reached — please wait before retrying." },
+  skip: (req) => req.method === "OPTIONS",
+});
+
+/**
+ * Ultra interaction: 60 req/min per user.
+ * Each call runs multiple engine ops — bounded to prevent amplification abuse.
+ */
+export const interactionLimiter = rateLimit({
+  windowMs: 60_000,
+  max: 60,
+  keyGenerator: userOrIpKey,
+  standardHeaders: true,
+  legacyHeaders:  false,
+  message: { error: "Too many interaction requests — please slow down." },
+  skip: (req) => req.method === "OPTIONS",
+});
