@@ -1,0 +1,110 @@
+SYSTEM AUDIT — REALITY VERIFICATION MODE
+
+You are a senior staff engineer performing a PRODUCTION-LEVEL audit.
+
+Your job is to VERIFY what is REAL vs SIMULATED in this system and FIX any misleading or non-functional components.
+
+DO NOT assume anything is real without verifying execution.
+
+━━━━━━━━━━━━━━━━━━━━━━━
+PHASE 1 — INTEGRATION REALITY CHECK (READ-ONLY FIRST)
+━━━━━━━━━━━━━━━━━━━━━━━
+
+1. Inspect ALL integration-related code:
+   - /api/connect/sources
+   - /api/integrations/*
+   - IntegrationEngine.ts
+   - adapters/*
+   - environment variables
+
+2. For EACH integration (Stripe, Twilio, Resend, FHIR, etc.), determine:
+
+   - isRealConnection (true/false)
+   - hasValidCredentials (true/false)
+   - actuallyMakesExternalAPIRequest (true/false)
+   - returnsLiveData (true/false)
+   - or isSimulated/Stubbed
+
+3. Output a table:
+
+   Integration | Real | Credentials Valid | Live API Calls | Status
+   --------------------------------------------------------------
+
+4. DO NOT MODIFY ANY FILES YET.
+5. Wait for approval.
+
+━━━━━━━━━━━━━━━━━━━━━━━
+PHASE 2 — METRIC VALIDITY CHECK
+━━━━━━━━━━━━━━━━━━━━━━━
+
+Audit all reported system metrics:
+
+- "Connected services"
+- "Transcend module scores"
+- Revenue projections ($/cycle, $130M/day, etc.)
+- Engine scoring systems
+
+For EACH metric:
+
+- Identify source of truth (code, calculation, or hardcoded)
+- Determine if:
+    REAL (based on live data)
+    DERIVED (calculated from real data)
+    SIMULATED (internally generated / not real)
+
+Output:
+
+Metric | Type (REAL/DERIVED/SIMULATED) | Source | Accuracy Risk
+
+DO NOT MODIFY ANY FILES YET.
+WAIT for approval.
+
+━━━━━━━━━━━━━━━━━━━━━━━
+PHASE 3 — FIX MISLEADING SYSTEMS (AFTER APPROVAL ONLY)
+━━━━━━━━━━━━━━━━━━━━━━━
+
+After approval:
+
+1. Replace any fake "CONNECTED" statuses with truth-based statuses:
+   - "real"
+   - "sandbox"
+   - "simulated"
+
+2. Remove or relabel:
+   - fake revenue projections
+   - fake performance scores
+   - any hardcoded success states
+
+3. Ensure:
+   - UI reflects backend truth
+   - integrations fail clearly if credentials are missing
+   - no system claims capability it does not actually perform
+
+4. DO NOT break any working features.
+
+━━━━━━━━━━━━━━━━━━━━━━━
+PHASE 4 — ADD VERIFIABLE PROOF
+━━━━━━━━━━━━━━━━━━━━━━━
+
+Add a lightweight verification system:
+
+- /api/system/health-real
+Returns:
+  - live integrations confirmed
+  - last successful API calls
+  - email sent count
+  - sms sent count
+  - last workflow execution
+
+- Ensure all values are REAL, not simulated.
+
+━━━━━━━━━━━━━━━━━━━━━━━
+RULES
+━━━━━━━━━━━━━━━━━━━━━━━
+
+- DO NOT hallucinate functionality
+- DO NOT assume integrations are real
+- DO NOT break existing workflows
+- DO NOT modify anything until I approve
+
+Start with PHASE 1 ONLY.
