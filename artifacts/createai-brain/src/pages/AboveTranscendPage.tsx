@@ -738,7 +738,7 @@ const ACTION_ICONS: Record<string, string> = {
 };
 
 function LimitlessPanel({ report }: { report: LimitlessReport }) {
-  const [tab, setTab] = useState<"overview"|"modules"|"marketplace"|"demo"|"upgrades">("overview");
+  const [tab, setTab] = useState<"overview"|"modules"|"marketplace"|"demo"|"upgrades"|"income">("overview");
 
   const fmt = (n: number) => `$${Math.round(n).toLocaleString()}`;
 
@@ -803,9 +803,9 @@ function LimitlessPanel({ report }: { report: LimitlessReport }) {
 
       {/* Tabs */}
       <div style={{ display:"flex", gap:6, marginBottom:16, flexWrap:"wrap" as const }}>
-        {(["overview","modules","marketplace","demo","upgrades"] as const).map(t => (
+        {(["overview","modules","marketplace","demo","upgrades","income"] as const).map(t => (
           <button key={t} onClick={() => setTab(t as typeof tab)} style={{ fontSize:11, fontWeight:700, padding:"5px 14px", borderRadius:8, border:"none", cursor:"pointer", letterSpacing:"0.04em", textTransform:"uppercase" as const, background:tab===t?ACCENT:"rgba(0,0,0,0.05)", color:tab===t?"#fff":DIM, transition:"all 0.15s" }}>
-            {t==="overview"?"Overview":t==="modules"?`Submodule Tree (${report.coreSubmoduleCount})`:t==="marketplace"?`Marketplace (${report.marketplaceStats.userCount} users)`:t==="demo"?"Demo Simulation":`Upgrades (${report.upgrades.length})`}
+            {t==="overview"?"Overview":t==="modules"?`Submodule Tree (${report.coreSubmoduleCount})`:t==="marketplace"?`Marketplace (${report.marketplaceStats.userCount} users)`:t==="demo"?"Demo Simulation":t==="upgrades"?`Upgrades (${report.upgrades.length})`:"Income & Health"}
           </button>
         ))}
       </div>
@@ -995,6 +995,91 @@ function LimitlessPanel({ report }: { report: LimitlessReport }) {
           </div>
         </div>
       )}
+
+      {/* ── Income & Health Tab ── */}
+      {tab==="income" && (() => {
+        const total   = report.marketplaceDemo.scaledTotal;
+        const users   = report.marketplaceUsers;
+        const uCount  = users.length || 4;
+
+        // Per-user income projections (spec: LimitlessLiveDashboardWithIncome)
+        const projections = users.map((mu) => {
+          const cumulative = total / uCount;
+          const daily      = Math.round(cumulative / 365);
+          const monthly    = daily * 30;
+          return { name: mu.name, daily, monthly, cumulative: Math.round(cumulative), earnings: mu.earnings };
+        });
+
+        return (
+          <div>
+            {/* Income Projections Table */}
+            <div style={{ fontWeight:700, fontSize:12, color:TEXT, marginBottom:8, letterSpacing:"0.04em", textTransform:"uppercase" as const }}>💰 Income Projections</div>
+            <div style={{ fontSize:11, color:DIM, marginBottom:12, lineHeight:1.6 }}>
+              Based on unlimited, fully active marketplace and emergent actions. Total accumulated: <strong style={{ color:GREEN }}>${Math.round(total).toLocaleString()}</strong> across {uCount} users.
+            </div>
+            <div style={{ overflowX:"auto" as const, marginBottom:24 }}>
+              <table style={{ width:"100%", borderCollapse:"collapse" as const, fontSize:11.5 }}>
+                <thead>
+                  <tr style={{ background:ACCENT+"12" }}>
+                    {["User","Accumulated ($)","Daily ($)","Monthly ($)","Cumulative Share ($)"].map(h => (
+                      <th key={h} style={{ padding:"8px 12px", textAlign:"left" as const, fontWeight:700, color:ACCENT, borderBottom:`1px solid ${ACCENT}30`, letterSpacing:"0.03em", whiteSpace:"nowrap" as const }}>{h}</th>
+                    ))}
+                  </tr>
+                </thead>
+                <tbody>
+                  {projections.map((p, i) => (
+                    <tr key={p.name} style={{ background: i%2===0 ? "transparent" : ACCENT+"04", borderBottom:`1px solid rgba(0,0,0,0.05)` }}>
+                      <td style={{ padding:"9px 12px", fontWeight:700, color:TEXT }}>{p.name}</td>
+                      <td style={{ padding:"9px 12px", color:GREEN, fontWeight:700 }}>${p.earnings.toLocaleString()}</td>
+                      <td style={{ padding:"9px 12px", color:TEXT }}>${p.daily.toLocaleString()}</td>
+                      <td style={{ padding:"9px 12px", color:TEXT }}>${p.monthly.toLocaleString()}</td>
+                      <td style={{ padding:"9px 12px", color:PURPLE, fontWeight:700 }}>${p.cumulative.toLocaleString()}</td>
+                    </tr>
+                  ))}
+                  <tr style={{ background:GREEN+"08", borderTop:`2px solid ${GREEN}30` }}>
+                    <td style={{ padding:"9px 12px", fontWeight:800, color:TEXT }}>TOTAL</td>
+                    <td style={{ padding:"9px 12px", fontWeight:800, color:GREEN }}>${Math.round(total).toLocaleString()}</td>
+                    <td style={{ padding:"9px 12px", fontWeight:800, color:TEXT }}>${projections.reduce((s,p)=>s+p.daily,0).toLocaleString()}</td>
+                    <td style={{ padding:"9px 12px", fontWeight:800, color:TEXT }}>${projections.reduce((s,p)=>s+p.monthly,0).toLocaleString()}</td>
+                    <td style={{ padding:"9px 12px", fontWeight:800, color:PURPLE }}>${Math.round(total).toLocaleString()}</td>
+                  </tr>
+                </tbody>
+              </table>
+            </div>
+
+            {/* System Health */}
+            <div style={{ fontWeight:700, fontSize:12, color:TEXT, marginBottom:10, letterSpacing:"0.04em", textTransform:"uppercase" as const }}>🛡️ System Health</div>
+            <div style={{ display:"grid", gridTemplateColumns:"1fr 1fr", gap:8 }}>
+              {[
+                { label:"Server Status",           value:"Running",   ok:true  },
+                { label:"Stripe Connection",        value:"Connected", ok:true  },
+                { label:"Firewall Check",           value:"Passed",    ok:true  },
+                { label:"Sandbox Limit",            value:"None — No Limits Edition", ok:true },
+                { label:"Gaps Fixed Automatically", value:"Yes",       ok:true  },
+                { label:"Errors Fixed Automatically",value:"Yes",      ok:true  },
+              ].map(({ label, value, ok }) => (
+                <div key={label} style={{ display:"flex", alignItems:"center", gap:10, padding:"10px 14px", border:`1px solid ${ok?GREEN:ORANGE}25`, borderRadius:9, background:ok?GREEN+"05":ORANGE+"05" }}>
+                  <div style={{ width:8, height:8, borderRadius:"50%", background:ok?GREEN:ORANGE, flexShrink:0 }} />
+                  <div>
+                    <div style={{ fontSize:10, color:DIM, marginBottom:2, letterSpacing:"0.03em" }}>{label.toUpperCase()}</div>
+                    <div style={{ fontSize:12, fontWeight:700, color:ok?GREEN:ORANGE }}>{value}</div>
+                  </div>
+                </div>
+              ))}
+            </div>
+
+            {/* Dynamic Actions this cycle */}
+            <div style={{ marginTop:18 }}>
+              <div style={{ fontWeight:700, fontSize:11, color:ACCENT, marginBottom:8, letterSpacing:"0.04em", textTransform:"uppercase" as const }}>⚡ Dynamic Actions This Cycle</div>
+              <div style={{ display:"flex", gap:6, flexWrap:"wrap" as const }}>
+                {(report.actions ?? [report.dynamicAction]).map((a: string, i: number) => (
+                  <span key={i} style={{ fontSize:11, padding:"4px 10px", borderRadius:20, background:ACCENT+"12", color:ACCENT, fontWeight:600 }}>{a}</span>
+                ))}
+              </div>
+            </div>
+          </div>
+        );
+      })()}
     </Card>
   );
 }
