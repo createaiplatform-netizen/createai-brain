@@ -60,6 +60,7 @@ const IdentityManagerApp    = React.lazy(() => import("@/Apps/IdentityManagerApp
 const CreateAIDashboardApp       = React.lazy(() => import("@/Apps/CreateAIDashboardApp"));
 const InfiniteBrainControlPanel  = React.lazy(() => import("@/Apps/InfiniteBrainControlPanel").then(m => ({ default: m.InfiniteBrainControlPanel })));
 const InfiniteBrainPortalFull    = React.lazy(() => import("@/Apps/InfiniteBrainPortalFull").then(m => ({ default: m.InfiniteBrainPortalFull })));
+const InfiniteBrainDashboard     = React.lazy(() => import("@/Apps/InfiniteBrainDashboard").then(m => ({ default: m.InfiniteBrainDashboard })));
 const UCPXAgentApp          = React.lazy(() => import("@/ucpx/UCPXAgent").then(m => ({ default: m.UCPXAgent })));
 const UniversalDemoApp      = React.lazy(() => import("@/Apps/UniversalDemoEngine").then(m => ({ default: m.UniversalDemoEngine })));
 const GenericEngineWrapperApp = React.lazy(() => import("@/Apps/GenericEngineWrapper").then(m => ({ default: m.GenericEngineWrapper })));
@@ -727,6 +728,7 @@ const APP_COMPONENTS: Record<AppId, React.LazyExoticComponent<React.ComponentTyp
   createaiDashboard:      CreateAIDashboardApp,
   infiniteBrainControl:  InfiniteBrainControlPanel,
   infiniteBrainPortal:   InfiniteBrainPortalFull,
+  infiniteBrainDashboard: InfiniteBrainDashboard,
 };
 
 // ── Loading skeleton ─────────────────────────────────────────────────────────

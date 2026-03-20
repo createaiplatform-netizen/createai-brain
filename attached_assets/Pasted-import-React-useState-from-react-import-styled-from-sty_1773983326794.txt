@@ -1,0 +1,116 @@
+import React, { useState } from "react";
+import styled from "styled-components";
+
+const Container = styled.div`
+  font-family: 'Inter', sans-serif;
+  background: #f9f9f9;
+  padding: 1.5rem;
+`;
+
+const Header = styled.div`
+  background: linear-gradient(90deg, #7c3aed, #ede9fe);
+  color: #fff;
+  border-radius: 12px;
+  padding: 1rem 2rem;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 1.5rem;
+`;
+
+const Badge = styled.span`
+  background: #ede9fe;
+  color: #7c3aed;
+  padding: 0.3rem 0.7rem;
+  border-radius: 8px;
+  font-weight: bold;
+  font-size: 0.9rem;
+`;
+
+const Button = styled.button<{ loading?: boolean }>`
+  background: linear-gradient(90deg, #7c3aed, #ede9fe);
+  color: #fff;
+  border: none;
+  border-radius: 10px;
+  padding: 0.8rem 1.5rem;
+  font-weight: bold;
+  cursor: pointer;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  margin-bottom: 1rem;
+  &:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 4px 12px rgba(0,0,0,0.15);
+  }
+  opacity: ${({ loading }) => (loading ? 0.8 : 1)};
+`;
+
+const Grid = styled.div`
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+  gap: 1rem;
+`;
+
+const Card = styled.div<{ status?: 'ok' | 'warn' | 'fail' }>`
+  background: #fff;
+  padding: 1rem;
+  border-radius: 10px;
+  box-shadow: 0 2px 6px rgba(0,0,0,0.1);
+  border-left: 5px solid ${({ status }) => status === 'ok' ? '#10b981' : status === 'warn' ? '#f59e0b' : '#ef4444'};
+`;
+
+const LogPanel = styled.pre`
+  background: #111;
+  color: #fff;
+  padding: 1rem;
+  border-radius: 8px;
+  max-height: 400px;
+  overflow-y: scroll;
+  font-size: 0.85rem;
+`;
+
+export const InfiniteBrainDashboard: React.FC = () => {
+  const [data, setData] = useState<any>(null);
+  const [loading, setLoading] = useState(false);
+
+  const runTranscendAll = async () => {
+    setLoading(true);
+    const res = await fetch("/api/brain/transcend-all");
+    const result = await res.json();
+    setData(result);
+    setLoading(false);
+  };
+
+  return (
+    <Container>
+      <Header>
+        <div>💠 Sara's Infinite Brain Portal</div>
+        <Badge>No Limits Mode</Badge>
+      </Header>
+
+      <Button loading={loading} onClick={runTranscendAll}>
+        {loading ? '🚀 Running Transcend All...' : '💠 Transcend All / Absolute Infinity'}
+      </Button>
+
+      {data && (
+        <>
+          <h2>Modules</h2>
+          <Grid>
+            {Object.entries(data.modules).map(([key, val]: any) => (
+              <Card key={key} status={val.overachievement > 100 ? 'ok' : 'warn'}>
+                <strong>{key}</strong>
+                <p>Score: {val.score}</p>
+                <p>Industry Avg: {val.industry_average}</p>
+                <p>Overachievement: {val.overachievement.toFixed(1)}%</p>
+              </Card>
+            ))}
+          </Grid>
+
+          <h2>System Logs</h2>
+          <LogPanel>{JSON.stringify(data, null, 2)}</LogPanel>
+        </>
+      )}
+    </Container>
+  );
+};
