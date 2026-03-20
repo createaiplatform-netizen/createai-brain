@@ -1,12 +1,13 @@
 /**
  * routes/aboveTranscend.ts
  * ─────────────────────────────────────────────────────────────────────────────
- * REST surface for the Above-Transcend Engine.
+ * REST surface for the Above-Transcend Engine v2 — MINIMUM 100% SELF-EVOLUTION
  *
- * GET  /api/above-transcend/status       — latest cycle summary
- * GET  /api/above-transcend/latest       — full latest cycle (all 6 phases)
- * GET  /api/above-transcend/next-moves   — phase 5 top-5 next moves
+ * GET  /api/above-transcend/status       — latest cycle summary + evolution status
+ * GET  /api/above-transcend/latest       — full latest cycle (all 8 phases)
+ * GET  /api/above-transcend/next-moves   — top-5 next moves
  * GET  /api/above-transcend/history      — last N cycles (lightweight)
+ * GET  /api/above-transcend/actions      — full executed-action history
  * POST /api/above-transcend/run          — trigger a cycle immediately
  */
 
@@ -16,6 +17,8 @@ import {
   getCycleHistory,
   getCycleCount,
   getNextMoves,
+  getActionHistory,
+  getTrendHistory,
   runCycleNow,
 } from "../services/aboveTranscend/engine.js";
 
@@ -24,8 +27,8 @@ const router = Router();
 router.get("/status", (req: Request, res: Response) => {
   if (!req.user) { res.status(401).json({ error: "Unauthorized" }); return; }
 
-  const cycle   = getLatestCycle();
-  const count   = getCycleCount();
+  const cycle = getLatestCycle();
+  const count = getCycleCount();
 
   if (!cycle) {
     res.json({ ok: true, ready: false, cycleCount: count, message: "First cycle in progress…" });
@@ -33,13 +36,19 @@ router.get("/status", (req: Request, res: Response) => {
   }
 
   res.json({
-    ok:              true,
-    ready:           true,
-    cycleCount:      count,
-    lastRunAt:       cycle.completedAt,
-    durationMs:      cycle.durationMs,
-    summary:         cycle.summary,
-    topNextMove:     cycle.phase5[0] ?? null,
+    ok:             true,
+    ready:          true,
+    cycleCount:     count,
+    lastRunAt:      cycle.completedAt,
+    durationMs:     cycle.durationMs,
+    summary:        cycle.summary,
+    systemStatus:   cycle.systemStatus,
+    evolutionRate:  cycle.evolutionRate,
+    realImpactScore: cycle.realImpactScore,
+    criticalFailure: cycle.criticalFailure,
+    criticalReason:  cycle.criticalReason,
+    failsafe:        cycle.failsafe,
+    topNextMove:    cycle.nextMoves[0] ?? null,
   });
 });
 
@@ -64,16 +73,27 @@ router.get("/history", (req: Request, res: Response) => {
 
   const full = getCycleHistory();
   const lightweight = full.map(c => ({
-    cycleId:     c.cycleId,
-    cycleNumber: c.cycleNumber,
-    startedAt:   c.startedAt,
-    completedAt: c.completedAt,
-    durationMs:  c.durationMs,
-    summary:     c.summary,
-    topMove:     c.phase5[0]?.title ?? null,
+    cycleId:         c.cycleId,
+    cycleNumber:     c.cycleNumber,
+    startedAt:       c.startedAt,
+    completedAt:     c.completedAt,
+    durationMs:      c.durationMs,
+    systemStatus:    c.systemStatus,
+    evolutionRate:   c.evolutionRate,
+    realImpactScore: c.realImpactScore,
+    actionsExecuted: c.executedActions.length,
+    criticalFailure: c.criticalFailure,
+    stallCount:      c.failsafe.stallCount,
+    topMove:         c.nextMoves[0]?.title ?? null,
+    summary:         c.summary,
   }));
 
   res.json({ ok: true, cycles: lightweight, total: full.length });
+});
+
+router.get("/actions", (req: Request, res: Response) => {
+  if (!req.user) { res.status(401).json({ error: "Unauthorized" }); return; }
+  res.json({ ok: true, actions: getActionHistory(), trends: getTrendHistory() });
 });
 
 router.post("/run", async (req: Request, res: Response) => {
@@ -81,7 +101,17 @@ router.post("/run", async (req: Request, res: Response) => {
 
   try {
     const cycle = await runCycleNow();
-    res.json({ ok: true, message: "Cycle complete", cycleNumber: cycle.cycleNumber, summary: cycle.summary });
+    res.json({
+      ok:             true,
+      message:        "Cycle complete",
+      cycleNumber:    cycle.cycleNumber,
+      systemStatus:   cycle.systemStatus,
+      evolutionRate:  cycle.evolutionRate,
+      realImpactScore: cycle.realImpactScore,
+      actionsExecuted: cycle.executedActions.length,
+      criticalFailure: cycle.criticalFailure,
+      summary:        cycle.summary,
+    });
   } catch (err: unknown) {
     res.status(500).json({ ok: false, error: (err as Error).message });
   }

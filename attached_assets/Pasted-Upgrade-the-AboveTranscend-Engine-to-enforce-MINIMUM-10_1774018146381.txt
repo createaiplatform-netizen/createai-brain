@@ -1,0 +1,109 @@
+Upgrade the AboveTranscend Engine to enforce MINIMUM 100% SELF-EVOLUTION.
+
+CORE DEFINITION:
+"100%" is NOT a static score.
+"100%" = the system is actively improving, executing, or learning at all times.
+
+If no improvement is occurring, the system is BELOW 100%.
+
+━━━━━━━━━━━━━━━━━━━━━━━
+PHASE 1 — CONTINUOUS ACTIVITY ENFORCEMENT
+━━━━━━━━━━━━━━━━━━━━━━━
+- The engine must NEVER idle.
+- Every cycle must produce at least ONE of:
+  1. A system improvement
+  2. A new capability
+  3. A real-world action (API call, notification, workflow execution)
+  4. A measurable optimization
+
+If none occur:
+→ Flag as CRITICAL FAILURE: "System below 100% evolution"
+
+━━━━━━━━━━━━━━━━━━━━━━━
+PHASE 2 — EXECUTION LAYER (CONTROLLED)
+━━━━━━━━━━━━━━━━━━━━━━━
+- Take the TOP ranked "Next Move" from each cycle
+- Classify it as:
+   SAFE_AUTO (can run automatically)
+   REQUIRES_APPROVAL (needs user confirmation)
+
+- SAFE_AUTO actions should execute immediately
+- Track:
+   success / failure
+   impact score
+   time to complete
+
+━━━━━━━━━━━━━━━━━━━━━━━
+PHASE 3 — FEEDBACK LOOP
+━━━━━━━━━━━━━━━━━━━━━━━
+- Every executed action must:
+   - update system state
+   - adjust future scoring
+   - improve decision-making
+
+- Store:
+   action history
+   outcomes
+   performance trends
+
+━━━━━━━━━━━━━━━━━━━━━━━
+PHASE 4 — EXPANSION GUARANTEE
+━━━━━━━━━━━━━━━━━━━━━━━
+Each cycle must generate:
+- at least 1 new improvement idea
+- at least 1 system optimization
+- at least 1 expansion opportunity (module, integration, or workflow)
+
+━━━━━━━━━━━━━━━━━━━━━━━
+PHASE 5 — REALITY PRIORITY
+━━━━━━━━━━━━━━━━━━━━━━━
+Prioritize:
+1. Real integrations over simulated
+2. Real revenue over projected
+3. Real user interaction over internal loops
+
+If simulated data is detected:
+→ Generate conversion plan to make it real
+
+━━━━━━━━━━━━━━━━━━━━━━━
+PHASE 6 — SELF-SCORING MODEL
+━━━━━━━━━━━━━━━━━━━━━━━
+Replace traditional scoring with:
+
+SYSTEM STATUS:
+- EVOLVING (≥100%) → active improvement detected
+- STALLED (<100%) → no real progress
+- REGRESSING → failures increasing
+
+Also track:
+- Evolution Rate (actions per cycle)
+- Real Impact Score (based on actual outcomes)
+
+━━━━━━━━━━━━━━━━━━━━━━━
+PHASE 7 — FAILSAFE ENFORCEMENT
+━━━━━━━━━━━━━━━━━━━━━━━
+If system is STALLED for 2 consecutive cycles:
+- escalate priority tasks
+- force execution of highest-impact safe action
+
+If STALLED for 3+ cycles:
+- raise CRITICAL alert
+- output exact steps to restore evolution
+
+━━━━━━━━━━━━━━━━━━━━━━━
+PHASE 8 — OUTPUT
+━━━━━━━━━━━━━━━━━━━━━━━
+Return each cycle:
+
+- System Status (EVOLVING / STALLED / REGRESSING)
+- Evolution Rate
+- Actions executed this cycle
+- Top next moves
+- Detected limits
+- Real vs simulated breakdown
+
+GOAL:
+The system must ALWAYS be improving, expanding, or executing.
+
+There is no completion state.
+Only continuous evolution.
