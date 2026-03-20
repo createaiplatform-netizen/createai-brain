@@ -1,0 +1,138 @@
+// InfiniteBrainTranscendButton.tsx
+import { useState, useEffect } from "react";
+
+type ModuleResult = {
+  name: string;
+  overachievement_pct: number;
+  contribution: number;
+};
+
+const MODULES: ModuleResult[] = [
+  { name: "Energy", overachievement_pct: 0, contribution: 0 },
+  { name: "Internet", overachievement_pct: 0, contribution: 0 },
+  { name: "Telecom", overachievement_pct: 0, contribution: 0 },
+  { name: "Finance", overachievement_pct: 0, contribution: 0 },
+  { name: "Media", overachievement_pct: 0, contribution: 0 },
+  { name: "Water", overachievement_pct: 0, contribution: 0 },
+  { name: "Healthcare", overachievement_pct: 0, contribution: 0 },
+  { name: "Transport", overachievement_pct: 0, contribution: 0 },
+  { name: "Custom", overachievement_pct: 0, contribution: 0 },
+];
+
+export default function InfiniteBrainTranscendButton() {
+  const [clickCount, setClickCount] = useState(0);
+  const [feedback, setFeedback] = useState<string | null>(null);
+  const [lastClickTime, setLastClickTime] = useState<number | null>(null);
+
+  const canClick = () => {
+    if (!lastClickTime) return true;
+    const now = Date.now();
+    return now - lastClickTime > 60 * 60 * 1000; // 1 hour
+  };
+
+  const handleTranscend = () => {
+    if (!canClick()) {
+      setFeedback("You can only transcend once per hour. ⏳");
+      return;
+    }
+
+    const updatedModules = MODULES.map((m) => {
+      const randomBoost = Math.floor(Math.random() * 10) + 140; // 140–149%
+      const contribution = +(Math.random() * 1.5 + 0.5).toFixed(2); // 0.5–2 units per module
+      return { ...m, overachievement_pct: randomBoost, contribution };
+    });
+
+    const totalContribution = updatedModules.reduce(
+      (acc, m) => acc + m.contribution,
+      0
+    );
+    const avgOverachievement =
+      updatedModules.reduce((acc, m) => acc + m.overachievement_pct, 0) /
+      updatedModules.length;
+
+    setClickCount(clickCount + 1);
+    setFeedback(
+      `✅ You transcended all modules!\n` +
+        `Global average overachievement: ${avgOverachievement.toFixed(1)}%\n` +
+        `Your contribution: ${totalContribution.toFixed(2)} units\n` +
+        `Next transcend available in 1 hour.`
+    );
+
+    setLastClickTime(Date.now());
+
+    // Optional: send POST to your backend
+    fetch("/api/brain/transcend-all", { method: "POST" });
+  };
+
+  return (
+    <div style={{ maxWidth: 500, margin: "auto", fontFamily: "sans-serif" }}>
+      <h2 style={{ textAlign: "center", color: "#4b0082" }}>
+        💠 Infinite Brain Transcend Portal
+      </h2>
+      <button
+        onClick={handleTranscend}
+        style={{
+          display: "block",
+          width: "100%",
+          padding: "1em",
+          fontSize: "1.2em",
+          background:
+            "linear-gradient(90deg, #4b0082, #8a2be2, #00ffff)",
+          color: "white",
+          border: "none",
+          borderRadius: 12,
+          cursor: "pointer",
+          marginBottom: 12,
+        }}
+      >
+        🚀 Transcend All Modules
+      </button>
+
+      {feedback && (
+        <pre
+          style={{
+            background: "#111",
+            color: "#0f0",
+            padding: 12,
+            borderRadius: 8,
+            whiteSpace: "pre-wrap",
+          }}
+        >
+          {feedback}
+        </pre>
+      )}
+
+      <div
+        style={{
+          marginTop: 12,
+          padding: 12,
+          background: "#f0f0f0",
+          borderRadius: 8,
+        }}
+      >
+        <strong>How it works:</strong>
+        <ul>
+          <li>
+            Each click simulates global module optimization (Energy,
+            Internet, Finance, Healthcare, etc.)
+          </li>
+          <li>Overachievement % is calculated per module and averaged globally</li>
+          <li>
+            Your personal contribution is computed in "efficiency units" per
+            click
+          </li>
+          <li>
+            Click once per hour — next available time is automatically enforced
+          </li>
+          <li>
+            No personal or family information is exposed — fully public safe
+            simulation
+          </li>
+          <li>
+            Optional backend call updates transcend_report.json for global stats
+          </li>
+        </ul>
+      </div>
+    </div>
+  );
+}

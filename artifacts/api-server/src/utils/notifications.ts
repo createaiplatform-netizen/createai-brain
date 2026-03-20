@@ -37,35 +37,65 @@ function getResend(): InstanceType<typeof Resend> | null {
 }
 
 function getTwilioClient(): ReturnType<typeof twilio> | null {
-  const sid   = process.env["TWILIO_SID"];
-  const token = process.env["TWILIO_AUTH_TOKEN"];
-  return sid && token ? twilio(sid, token) : null;
+  const sid   = process.env["TWILIO_SID"]        ?? "";
+  const token = process.env["TWILIO_AUTH_TOKEN"]  ?? "";
+  if (!sid || !token) return null;
+  if (!sid.startsWith("AC")) {
+    console.warn(`[Notify:sms] ⚠️  TWILIO_SID must start with "AC" — current value is not a valid Account SID`);
+    return null;
+  }
+  try {
+    return twilio(sid, token);
+  } catch (err) {
+    console.warn(`[Notify:sms] ⚠️  Twilio client init failed: ${(err as Error).message}`);
+    return null;
+  }
 }
 
 /** Real-time credential status — never exposes secret values. */
 export function credentialStatus(): {
-  email: { configured: boolean; missing: string[] };
-  sms:   { configured: boolean; missing: string[] };
+  email: { configured: boolean; missing: string[]; invalid: string[] };
+  sms:   { configured: boolean; missing: string[]; invalid: string[] };
   summary: string;
 } {
   const emailMissing: string[] = [];
+  const emailInvalid: string[] = [];
   const smsMissing:   string[] = [];
+  const smsInvalid:   string[] = [];
 
-  if (!process.env["RESEND_API_KEY"])    emailMissing.push("RESEND_API_KEY");
-  if (!process.env["RESEND_FROM_EMAIL"]) emailMissing.push("RESEND_FROM_EMAIL");
-  if (!process.env["TWILIO_SID"])        smsMissing.push("TWILIO_SID");
-  if (!process.env["TWILIO_AUTH_TOKEN"]) smsMissing.push("TWILIO_AUTH_TOKEN");
-  if (!process.env["TWILIO_PHONE"])      smsMissing.push("TWILIO_PHONE");
+  const resendKey   = process.env["RESEND_API_KEY"]    ?? "";
+  const resendFrom  = process.env["RESEND_FROM_EMAIL"] ?? "";
+  const twilioSid   = process.env["TWILIO_SID"]        ?? "";
+  const twilioToken = process.env["TWILIO_AUTH_TOKEN"] ?? "";
+  const twilioPhone = process.env["TWILIO_PHONE"]      ?? "";
 
-  const emailOk = emailMissing.length === 0;
-  const smsOk   = smsMissing.length === 0;
+  if (!resendKey)   emailMissing.push("RESEND_API_KEY");
+  else if (!resendKey.startsWith("re_")) emailInvalid.push("RESEND_API_KEY (must start with re_)");
+
+  if (!resendFrom)  emailMissing.push("RESEND_FROM_EMAIL");
+
+  if (!twilioSid)   smsMissing.push("TWILIO_SID");
+  else if (!twilioSid.startsWith("AC")) smsInvalid.push("TWILIO_SID (must start with AC)");
+
+  if (!twilioToken) smsMissing.push("TWILIO_AUTH_TOKEN");
+  if (!twilioPhone) smsMissing.push("TWILIO_PHONE");
+
+  const emailOk = emailMissing.length === 0 && emailInvalid.length === 0;
+  const smsOk   = smsMissing.length === 0   && smsInvalid.length === 0;
+
+  const allIssues = [
+    ...emailMissing.map(k => `${k} missing`),
+    ...emailInvalid,
+    ...smsMissing.map(k => `${k} missing`),
+    ...smsInvalid,
+  ];
 
   return {
-    email:   { configured: emailOk, missing: emailMissing },
-    sms:     { configured: smsOk,   missing: smsMissing },
+    email:   { configured: emailOk, missing: emailMissing, invalid: emailInvalid },
+    sms:     { configured: smsOk,   missing: smsMissing,   invalid: smsInvalid },
     summary: emailOk && smsOk
-      ? "✅ All notification credentials configured"
-      : `⚠️  Missing: ${[...emailMissing, ...smsMissing].join(", ")} — add to Replit Secrets`,
+      ? "✅ All notification credentials configured and valid"
+      : `⚠️  Issues: ${allIssues.join("; ")}`,
   };
 }
 

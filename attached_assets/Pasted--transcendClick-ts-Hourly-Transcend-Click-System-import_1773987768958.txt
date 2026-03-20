@@ -1,0 +1,72 @@
+// transcendClick.ts — Hourly Transcend Click System
+
+import fs from "fs";
+import path from "path";
+
+// CONFIG
+const DATA_FILE = path.resolve("./transcend_click_data.json");
+const BASE_CLICK_VALUE = 25; // base $25 per click
+const MAX_MULTIPLIER = 2; // beyond infinity multiplier
+const CLICK_INTERVAL_MS = 60 * 60 * 1000; // 1 hour
+
+// Load or initialize data
+let data: {
+  users: Record<string, { lastClick: number }>;
+  totalSavings: number;
+} = { users: {}, totalSavings: 0 };
+
+if (fs.existsSync(DATA_FILE)) {
+  data = JSON.parse(fs.readFileSync(DATA_FILE, "utf-8"));
+}
+
+// Helper: random multiplier for transcend effect
+function getMultiplier() {
+  return 1 + Math.random() * (MAX_MULTIPLIER - 1);
+}
+
+// Main function: attempt a transcend click
+export function transcendClick(userId: string) {
+  const now = Date.now();
+  const user = data.users[userId] || { lastClick: 0 };
+  const timeSinceLast = now - user.lastClick;
+
+  if (timeSinceLast < CLICK_INTERVAL_MS) {
+    const waitMs = CLICK_INTERVAL_MS - timeSinceLast;
+    const waitMin = Math.floor(waitMs / 60000);
+    const waitSec = Math.floor((waitMs % 60000) / 1000);
+    return {
+      success: false,
+      message: `Next transcend available in ${waitMin}m ${waitSec}s`,
+      totalSavings: data.totalSavings,
+    };
+  }
+
+  const multiplier = getMultiplier();
+  const clickValue = BASE_CLICK_VALUE * multiplier;
+
+  // Update user and global savings
+  user.lastClick = now;
+  data.users[userId] = user;
+  data.totalSavings += clickValue;
+
+  // Save to file
+  fs.writeFileSync(DATA_FILE, JSON.stringify(data, null, 2));
+
+  return {
+    success: true,
+    clickValue: parseFloat(clickValue.toFixed(2)),
+    multiplier: parseFloat(multiplier.toFixed(2)),
+    totalSavings: parseFloat(data.totalSavings.toFixed(2)),
+    message: `Transcended $${clickValue.toFixed(
+      2
+    )}! Total savings: $${data.totalSavings.toFixed(2)}`,
+  };
+}
+
+// Utility: get current user countdown
+export function getNextClickTime(userId: string) {
+  const user = data.users[userId] || { lastClick: 0 };
+  const timeSinceLast = Date.now() - user.lastClick;
+  if (timeSinceLast >= CLICK_INTERVAL_MS) return 0;
+  return CLICK_INTERVAL_MS - timeSinceLast;
+}
