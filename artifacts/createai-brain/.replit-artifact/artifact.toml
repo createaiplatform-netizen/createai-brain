@@ -1,5 +1,5 @@
 kind = "web"
-previewPath = "/"
+previewPath = "/createai-brain/"
 title = "CreateAI Brain"
 version = "1.0.0"
 id = "artifacts/createai-brain"
@@ -12,14 +12,14 @@ version = "1.0.0"
 [[services]]
 localPort = 23568
 name = "web"
-paths = ["/"]
+paths = ["/createai-brain/"]
 
 [services.development]
 run = "pnpm --filter @workspace/createai-brain run dev"
 
 [services.env]
 PORT = "23568"
-BASE_PATH = "/"
+BASE_PATH = "/createai-brain/"
 
 [services.production]
 build = ["pnpm", "--filter", "@workspace/createai-brain", "run", "build"]

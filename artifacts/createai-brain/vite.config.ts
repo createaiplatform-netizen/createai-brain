@@ -7,13 +7,27 @@ import runtimeErrorOverlay from "@replit/vite-plugin-runtime-error-modal";
 const rawPort = process.env.PORT;
 const port = rawPort ? Number(rawPort) : 3000;
 
-const basePath = process.env.BASE_PATH ?? "/";
+// Use || not ?? — guards against BASE_PATH="" (empty string) which breaks Vite base config
+const basePath = process.env.BASE_PATH || "/";
 
+// Replit's port probe sends HTTP GET / and expects 200 (does NOT follow redirects).
+// Registering middleware WITHOUT a return-wrapper runs BEFORE Vite's own middleware,
+// intercepting "/" before Vite's base-path redirect (302) fires.
 const healthPlugin = {
   name: "health-endpoint",
-  configureServer(server: { middlewares: { use: (path: string, fn: (req: unknown, res: { end: (s: string) => void }) => void) => void } }) {
-    server.middlewares.use("/health", (_req, res) => {
-      res.end("OK");
+  configureServer(server: {
+    middlewares: {
+      use: (fn: (req: { url?: string }, res: { writeHead(code: number, h: Record<string, string>): void; end(s: string): void }, next: () => void) => void) => void;
+    };
+  }) {
+    server.middlewares.use((req, res, next) => {
+      const url = req.url ?? "/";
+      if (url === "/" || url === "/health" || url === `${basePath}health` || url === basePath) {
+        res.writeHead(200, { "Content-Type": "text/plain", "Cache-Control": "no-cache" });
+        res.end("OK");
+        return;
+      }
+      next();
     });
   },
 };
