@@ -76,6 +76,7 @@ import generateRouter      from "./generate";
 import realMarketRouter    from "./realMarket.js";
 import hybridRouter        from "./hybrid.js";
 import wealthRouter        from "./wealth.js";
+import auditRouter         from "./audit.js";
 
 const router: IRouter = Router();
 
@@ -181,5 +182,8 @@ router.use("/hybrid",             hybridRouter);
 
 // ── Wealth Multiplier Add-On (2-min autonomous cycle, growth projections) ─────
 router.use("/wealth",             wealthRouter);
+
+// ── Full Platform Audit (zero-touch snapshot across all engines) ──────────────
+router.use("/audit",              auditRouter);
 
 export default router;

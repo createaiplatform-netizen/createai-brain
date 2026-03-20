@@ -1,0 +1,68 @@
+/**
+ * 🔍 FULL PLATFORM AUDIT — ZERO-TOUCH SNAPSHOT
+ * Aggregates live stats from all engines (Market, Hybrid, Wealth Multiplier)
+ * Reports: products, batches, marketplaces, queued payments, messages, revenue, errors
+ * Computes completion percentages for any failing modules
+ * Safe, fully autonomous, zero-touch
+ */
+
+import { getMarketStats, globalTranscend } from "./realMarketEngine";
+import { getHybridStats } from "./services/hybridEngine";
+import { getWealthSnapshot } from "./services/wealthMultiplier";
+
+async function fullAudit() {
+  try {
+    console.log("🌐 Running FULL PLATFORM AUDIT...");
+
+    // 1️⃣ Market Engine stats
+    const marketStats = await getMarketStats();
+
+    // 2️⃣ Hybrid Engine stats
+    const hybridStats = await getHybridStats();
+
+    // 3️⃣ Wealth Multiplier stats
+    const wealthStats = await getWealthSnapshot();
+
+    // 4️⃣ Compute error/failure percentages for engines
+    const marketCompletion = marketStats.products > 0 ? "✅ 100%" : "⚠ 0%";
+    const hybridCompletion = hybridStats.paymentsQueued === 0 && hybridStats.messagesQueued === 0 ? "✅ 100%" : "⚠ Partial";
+    const wealthCompletion = wealthStats.growthPercent ? "✅ 100%" : "⚠ 0%";
+
+    // 5️⃣ Aggregate totals
+    const totalProducts = marketStats.products;
+    const totalBatches = marketStats.batches;
+    const totalMarketplaces = marketStats.marketplaces;
+    const totalRevenue = hybridStats.liveRevenue || "$0.00";
+    const totalQueuedPayments = hybridStats.paymentsQueued;
+    const totalMessagesSent = hybridStats.messagesSent;
+    const totalMessagesQueued = hybridStats.messagesQueued;
+    const projectedRevenue = wealthStats.projectedRevenue;
+    const growthPercent = wealthStats.growthPercent;
+
+    // 6️⃣ Print full dashboard
+    console.table({
+      "Products (total)": totalProducts,
+      "Batches (total)": totalBatches,
+      "Marketplaces (total)": totalMarketplaces,
+      "Revenue (live)": totalRevenue,
+      "Queued Payments": totalQueuedPayments,
+      "Messages Sent": totalMessagesSent,
+      "Messages Queued": totalMessagesQueued,
+      "Projected Revenue": projectedRevenue,
+      "Growth %": growthPercent,
+      "Market Engine Status": marketCompletion,
+      "Hybrid Engine Status": hybridCompletion,
+      "Wealth Engine Status": wealthCompletion
+    });
+
+    // 7️⃣ Optional: trigger a max-scale test without touching live orders
+    // await globalTranscend({ categories: ["audit-test"], batchSize: 0 });
+    console.log("✅ FULL AUDIT COMPLETE — all engines reported");
+
+  } catch (err) {
+    console.error("❌ FULL AUDIT ERROR:", err);
+  }
+}
+
+// Execute immediately
+fullAudit();
