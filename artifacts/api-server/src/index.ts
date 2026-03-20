@@ -21,6 +21,7 @@ import { startPlatformAudit }                         from "./services/platformA
 import { startMetaTranscendentLaunch }                from "./services/metaTranscend.js";
 import { startWealthMaximizer }                       from "./services/wealthMaximizer.js";
 import { startEnforcer }                              from "./services/platform100Enforcer.js";
+import { startUltimateLaunch }                        from "./services/ultimateTranscend.js";
 
 // Wire all DI services before the server binds. All factories are lazy —
 // nothing is instantiated here, just registered.
@@ -84,6 +85,7 @@ app.listen(port, () => {
     startMetaTranscendentLaunch();
     startWealthMaximizer();
     startEnforcer();
+    startUltimateLaunch();
 
     // Log public market page URL (spec: launchFullFamilyMarket — Step 5)
     const domain = process.env.REPLIT_DEV_DOMAIN ?? "localhost";

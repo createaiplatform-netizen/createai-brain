@@ -141,3 +141,13 @@ export function startMetaTranscendentLaunch(): void {
 export function getMetaCycleStats(): MetaCycleStats {
   return { ...stats };
 }
+
+// ─── Spec aliases (ULTIMATE-ZERO-TOUCH-TRANSCENDENT-LAUNCH) ───────────────────
+
+/** Alias for getMetaCycleStats() — spec import name */
+export const getMetaStats = getMetaCycleStats;
+
+/** Makes the internal runMetaCycle function callable from the ultimate cycle */
+export async function triggerMetaCycle(): Promise<void> {
+  return runMetaCycle();
+}

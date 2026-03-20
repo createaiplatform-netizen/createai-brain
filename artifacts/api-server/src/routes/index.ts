@@ -80,6 +80,7 @@ import auditRouter         from "./audit.js";
 import metaRouter          from "./meta.js";
 import maximizerRouter     from "./maximizer.js";
 import enforcerRouter     from "./enforcer.js";
+import ultimateRouter     from "./ultimate.js";
 
 const router: IRouter = Router();
 
@@ -197,5 +198,8 @@ router.use("/maximizer",          maximizerRouter);
 
 // ── Full Platform 100% Enforcer (2-min all-metric enforcement cycle) ──────────
 router.use("/enforcer",           enforcerRouter);
+
+// ── Ultimate Zero-Touch Transcendent Launch (1-min, 11 formats × all niches) ──
+router.use("/ultimate",           ultimateRouter);
 
 export default router;

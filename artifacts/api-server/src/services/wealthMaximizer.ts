@@ -47,7 +47,7 @@ const stats: MaximizerStats = {
 
 // ─── enforceMaxGrowth ─────────────────────────────────────────────────────────
 
-async function enforceMaxGrowth(): Promise<void> {
+export async function enforceMaxGrowth(): Promise<void> {
   stats.cycleCount++;
   stats.lastCycleTs = new Date().toISOString();
 
