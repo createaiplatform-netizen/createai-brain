@@ -208,8 +208,9 @@ export interface AdaptiveEngineConfig {
   dynamicPricing?:      boolean;   // demand-adaptive pricing via aiAssetGenerator
   demandAdaptive?:      boolean;   // speed + pricing adapt to demand signals
   generateVisualAssets?: boolean;  // auto-generate image URLs per product
-  fullLogs?:            boolean;   // verbose cycle logging
-  dashboard?:           boolean;   // enable real-time console dashboards
+  fullLogs?:               boolean;   // verbose cycle logging
+  dashboard?:              boolean;   // enable real-time console dashboards
+  enforceMinimumPercent?:  number;    // minimum growth % threshold (spec: ultimateColdBox)
 }
 
 export function startAdaptiveEngine(config: AdaptiveEngineConfig = {}): void {

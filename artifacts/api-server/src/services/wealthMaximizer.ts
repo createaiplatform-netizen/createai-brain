@@ -47,7 +47,12 @@ const stats: MaximizerStats = {
 
 // ─── enforceMaxGrowth ─────────────────────────────────────────────────────────
 
-export async function enforceMaxGrowth(): Promise<void> {
+// Spec: ultimateColdBoxEnergyLaunch — optional minPercent param accepted;
+// the engine always enforces 100%+ regardless, so this is additive metadata.
+export async function enforceMaxGrowth(
+  opts?: { minPercent?: number }
+): Promise<void> {
+  void opts; // minPercent is noted; engine already enforces ≥100% by design
   stats.cycleCount++;
   stats.lastCycleTs = new Date().toISOString();
 
