@@ -3,7 +3,7 @@ import {
   BarChart, Bar, PieChart, Pie, Cell, Tooltip, Legend,
   ResponsiveContainer, XAxis, YAxis, CartesianGrid,
 } from "recharts";
-import { useSystemStats, type Industry } from "@/hooks/useSystemStats";
+import { useSystemStats, type Industry, type MetaPrediction, type ExpansionEntry, type KnowledgeSource, type OptimizationEntry } from "@/hooks/useSystemStats";
 
 // ─── Design tokens ────────────────────────────────────────────────────────────
 
@@ -133,6 +133,7 @@ export function CreateAIDashboardApp() {
     industries, endpoints, savings, compliance, capacity,
     environmental, auditLogs, liveChecks, overall, coverage,
     loading, error, refresh,
+    brainStatus, brainLoading,
   } = useSystemStats();
 
   const [simulation, setSimulation] = useState({ industry: "", scale: 1 });
@@ -560,10 +561,228 @@ export function CreateAIDashboardApp() {
 
       </div>
 
+        {/* ── Brain Enforcement Engine panels (live from /api/brain/status) ── */}
+        {brainLoading && !brainStatus && (
+          <div style={{ textAlign: "center", padding: "20px", color: SLATE500, fontSize: 13 }}>
+            Connecting to enforcement engine…
+          </div>
+        )}
+
+        {brainStatus && (<>
+
+          {/* 9. Enforcement Loop Status */}
+          <Section
+            title="Enforcement Loop — ULTIMATE_BRAIN_PROMPT Active"
+            sub={`Continuous self-audit · auto-resolve gaps · tick #${brainStatus.loopTick}`}
+          >
+            <div style={{ display: "flex", gap: 12, flexWrap: "wrap", marginBottom: 18 }}>
+              {[
+                { label: "Loop Tick",          value: `#${brainStatus.loopTick}`,       color: INDIGO  },
+                { label: "Coverage",           value: `${brainStatus.coverage}%`,        color: GREEN   },
+                { label: "Auto-Resolve Gaps",  value: brainStatus.config.autoResolveGaps ? "Active" : "Off", color: GREEN },
+                { label: "Audit Interval",     value: `${brainStatus.config.auditIntervalSeconds}s`, color: PURPLE },
+                { label: "Min Coverage Floor", value: `${brainStatus.config.minCoveragePercent}%`,   color: AMBER  },
+              ].map(s => <StatPill key={s.label} label={s.label} value={s.value} color={s.color} />)}
+            </div>
+
+            {/* Audit summary per category */}
+            <div style={{ display: "flex", gap: 8, flexWrap: "wrap", marginBottom: 16 }}>
+              {Object.entries(brainStatus.auditSummary).map(([key, val]) => (
+                <div key={key} style={{
+                  flex: "1 1 160px", background: GREEN + "08",
+                  border: `1px solid ${GREEN}30`, borderRadius: 10, padding: "10px 14px",
+                }}>
+                  <p style={{ fontSize: 10, fontWeight: 700, color: SLATE500, margin: 0, textTransform: "uppercase", letterSpacing: "0.5px" }}>{key}</p>
+                  <p style={{ fontSize: 18, fontWeight: 800, color: GREEN, margin: "3px 0 0", letterSpacing: "-0.5px" }}>
+                    {val.covered}/{val.total}
+                  </p>
+                  <p style={{ fontSize: 10, color: SLATE500, margin: "1px 0 0" }}>
+                    {val.gaps === 0 ? "No gaps" : `${val.gaps} gap(s) resolved`}
+                  </p>
+                </div>
+              ))}
+            </div>
+
+            {/* Coverage breakdown bars */}
+            <div style={{ display: "flex", flexDirection: "column", gap: 6 }}>
+              {Object.entries(brainStatus.coverageBreakdown).map(([area, pct]) => (
+                <div key={area} style={{ display: "flex", alignItems: "center", gap: 10 }}>
+                  <span style={{ fontSize: 12, color: SLATE500, width: 100, flexShrink: 0, textTransform: "capitalize" }}>{area}</span>
+                  <div style={{ flex: 1, height: 6, background: SLATE100, borderRadius: 4, overflow: "hidden" }}>
+                    <div style={{ width: `${pct}%`, height: "100%", background: `linear-gradient(90deg, ${INDIGO}, ${GREEN})`, borderRadius: 4, transition: "width 0.8s ease" }} />
+                  </div>
+                  <span style={{ fontSize: 12, fontWeight: 700, color: pct >= 100 ? GREEN : AMBER, width: 38, textAlign: "right" }}>{pct}%</span>
+                </div>
+              ))}
+            </div>
+
+            <div style={{ marginTop: 14, display: "flex", gap: 16, fontSize: 12, color: SLATE500 }}>
+              <span>Last audit: <strong style={{ color: SLATE700 }}>{new Date(brainStatus.lastAuditAt).toLocaleTimeString()}</strong></span>
+              <span>Next audit: <strong style={{ color: INDIGO }}>{new Date(brainStatus.nextAuditAt).toLocaleTimeString()}</strong></span>
+            </div>
+          </Section>
+
+          {/* 10. Self-Expansion Log */}
+          <Section
+            title="Self-Expansion Log"
+            sub={`${brainStatus.expansionLog.length} automated actions · gaps auto-resolved · last 50 shown`}
+          >
+            <div style={{ overflowX: "auto" }}>
+              <table style={{ width: "100%", borderCollapse: "collapse" }}>
+                <thead>
+                  <tr style={{ background: SLATE50 }}>
+                    <th style={{ ...TH, width: 50 }}>Tick</th>
+                    <th style={TH}>Category</th>
+                    <th style={TH}>Action</th>
+                    <th style={{ ...TH, width: 80, textAlign: "center" }}>Status</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  {brainStatus.expansionLog.slice(-20).reverse().map((entry: ExpansionEntry, idx: number) => (
+                    <tr key={entry.id} style={{ background: idx % 2 === 0 ? "#fff" : SLATE50 }}>
+                      <td style={{ ...TD, fontWeight: 700, color: INDIGO, textAlign: "center" }}>#{entry.tick}</td>
+                      <td style={{ ...TD }}>
+                        <span style={{
+                          fontSize: 10, fontWeight: 600, color: PURPLE,
+                          background: `${PURPLE}12`, borderRadius: 5, padding: "2px 7px",
+                        }}>{entry.category}</span>
+                      </td>
+                      <td style={{ ...TD, fontSize: 12 }}>{entry.action}</td>
+                      <td style={{ ...TD, textAlign: "center" }}>
+                        <span style={{
+                          fontSize: 10, fontWeight: 700,
+                          color: entry.status === "applied" ? GREEN : entry.status === "verified" ? INDIGO : AMBER,
+                          background: entry.status === "applied" ? "#f0fdf4" : entry.status === "verified" ? `${INDIGO}10` : "#fffbeb",
+                          border: `1px solid ${entry.status === "applied" ? "#bbf7d0" : entry.status === "verified" ? `${INDIGO}30` : "#fde68a"}`,
+                          borderRadius: 5, padding: "2px 8px", textTransform: "uppercase",
+                        }}>{entry.status}</span>
+                      </td>
+                    </tr>
+                  ))}
+                </tbody>
+              </table>
+            </div>
+          </Section>
+
+          {/* 11. Meta-Learning Predictions */}
+          <Section
+            title="Meta-Learning Predictions"
+            sub="AI-derived emergent industry, persona, and render mode predictions"
+          >
+            <div style={{ display: "flex", flexDirection: "column", gap: 10 }}>
+              {brainStatus.metaPredictions.map((p: MetaPrediction) => (
+                <div key={p.id} style={{
+                  padding: "14px 18px", background: "#fff",
+                  border: `1px solid ${SLATE200}`, borderRadius: 12,
+                  display: "flex", gap: 16, alignItems: "flex-start",
+                }}>
+                  {/* Confidence ring */}
+                  <div style={{ flexShrink: 0, textAlign: "center" }}>
+                    <div style={{
+                      width: 52, height: 52, borderRadius: "50%",
+                      background: `conic-gradient(${p.confidence >= 85 ? GREEN : p.confidence >= 75 ? AMBER : SLATE500} ${p.confidence * 3.6}deg, ${SLATE200} 0deg)`,
+                      display: "flex", alignItems: "center", justifyContent: "center",
+                      position: "relative",
+                    }}>
+                      <div style={{
+                        width: 38, height: 38, borderRadius: "50%", background: "#fff",
+                        display: "flex", alignItems: "center", justifyContent: "center",
+                        fontSize: 12, fontWeight: 800,
+                        color: p.confidence >= 85 ? GREEN : p.confidence >= 75 ? AMBER : SLATE500,
+                      }}>{p.confidence}%</div>
+                    </div>
+                    <p style={{ fontSize: 9, color: SLATE500, margin: "4px 0 0", fontWeight: 600, textTransform: "uppercase" }}>confidence</p>
+                  </div>
+                  <div style={{ flex: 1 }}>
+                    <div style={{ display: "flex", alignItems: "center", gap: 8, marginBottom: 4 }}>
+                      <span style={{
+                        fontSize: 10, fontWeight: 700, color: INDIGO,
+                        background: `${INDIGO}12`, borderRadius: 5, padding: "2px 7px",
+                        textTransform: "uppercase",
+                      }}>{p.category}</span>
+                      <span style={{
+                        fontSize: 10, fontWeight: 600,
+                        color: p.status === "integrated" ? GREEN : p.status === "validated" ? INDIGO : AMBER,
+                        background: p.status === "integrated" ? "#f0fdf4" : p.status === "validated" ? `${INDIGO}10` : "#fffbeb",
+                        borderRadius: 5, padding: "2px 7px",
+                      }}>{p.status}</span>
+                    </div>
+                    <p style={{ fontSize: 13, fontWeight: 600, color: SLATE900, margin: "0 0 4px" }}>{p.prediction}</p>
+                    <p style={{ fontSize: 11, color: SLATE500, margin: 0, fontStyle: "italic" }}>Basis: {p.basis}</p>
+                  </div>
+                </div>
+              ))}
+            </div>
+          </Section>
+
+          {/* Row: Knowledge Sources + Optimization */}
+          <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 20 }}>
+
+            {/* 12. Knowledge Sources */}
+            <Section title="Knowledge Ingestion" sub="Active knowledge sources and sync status">
+              <div style={{ display: "flex", flexDirection: "column", gap: 8 }}>
+                {brainStatus.knowledgeSources.map((ks: KnowledgeSource) => (
+                  <div key={ks.name} style={{
+                    display: "flex", alignItems: "center", justifyContent: "space-between",
+                    padding: "9px 12px", background: SLATE50, borderRadius: 10,
+                    border: `1px solid ${ks.status === "active" ? SLATE200 : ks.status === "degraded" ? "#fde68a" : "#fecaca"}`,
+                  }}>
+                    <div>
+                      <div style={{ display: "flex", alignItems: "center", gap: 8 }}>
+                        <span style={{
+                          fontSize: 10, fontWeight: 600,
+                          color: ks.type === "internal" ? INDIGO : ks.type === "api" ? GREEN : ks.type === "dataset" ? PURPLE : AMBER,
+                          background: ks.type === "internal" ? `${INDIGO}12` : ks.type === "api" ? `${GREEN}12` : ks.type === "dataset" ? `${PURPLE}12` : `${AMBER}12`,
+                          borderRadius: 4, padding: "1px 6px", textTransform: "uppercase",
+                        }}>{ks.type}</span>
+                        <span style={{ fontSize: 13, fontWeight: 500, color: SLATE700 }}>{ks.name}</span>
+                      </div>
+                      <p style={{ fontSize: 10, color: SLATE500, margin: "2px 0 0" }}>
+                        {ks.nodes.toLocaleString()} nodes · synced {new Date(ks.lastSynced).toLocaleTimeString()}
+                      </p>
+                    </div>
+                    <span style={{ fontSize: 14 }}>
+                      {ks.status === "active" ? "🟢" : ks.status === "degraded" ? "🟡" : "🔴"}
+                    </span>
+                  </div>
+                ))}
+              </div>
+            </Section>
+
+            {/* 13. Optimization Scores */}
+            <Section title="Optimization Index" sub="Per-area performance and compliance scores">
+              <div style={{ display: "flex", flexDirection: "column", gap: 10 }}>
+                {brainStatus.optimization.map((o: OptimizationEntry) => (
+                  <div key={o.area}>
+                    <div style={{ display: "flex", justifyContent: "space-between", marginBottom: 3 }}>
+                      <span style={{ fontSize: 12, fontWeight: 600, color: SLATE700 }}>{o.area}</span>
+                      <span style={{ fontSize: 12, fontWeight: 800, color: o.score >= 99 ? GREEN : o.score >= 95 ? INDIGO : AMBER }}>
+                        {o.score}%
+                      </span>
+                    </div>
+                    <div style={{ height: 5, background: SLATE100, borderRadius: 4, overflow: "hidden", marginBottom: 3 }}>
+                      <div style={{
+                        width: `${o.score}%`, height: "100%", borderRadius: 4,
+                        background: o.score >= 99 ? `linear-gradient(90deg, ${GREEN}, #34d399)` :
+                                    o.score >= 95 ? `linear-gradient(90deg, ${INDIGO}, ${PURPLE})` :
+                                    `linear-gradient(90deg, ${AMBER}, #fbbf24)`,
+                        transition: "width 1s ease",
+                      }} />
+                    </div>
+                    <p style={{ fontSize: 10, color: SLATE500, margin: 0 }}>{o.note}</p>
+                  </div>
+                ))}
+              </div>
+            </Section>
+          </div>
+
+        </>)}
+
       {/* ── Footer ──────────────────────────────────────────────────────── */}
       <div style={{ marginTop: 24, paddingTop: 16, borderTop: `1px solid ${SLATE200}`, textAlign: "center" }}>
         <p style={{ fontSize: 11, color: SLATE500, margin: 0 }}>
           CreateAI Brain · {industries.length} industries · {industries.length} AI personas · 11 render modes · Coverage: {coverage}
+          {brainStatus && <> · Loop tick #{brainStatus.loopTick} · Auto-enforce: ON</>}
         </p>
       </div>
 

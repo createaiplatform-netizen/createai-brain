@@ -1,0 +1,63 @@
+INSTRUCTION: MAXIMUM BRAIN ENFORCEMENT — 100% FUNCTIONAL COVERAGE
+
+Objective:
+Ensure CreateAI Brain operates at 100% across all industries, endpoints, workflows, AI personas, render modes, compliance, and edge cases. Continuously expand, audit, and integrate new knowledge automatically. Never allow coverage to drop below 100%.
+
+Rules:
+
+1️⃣ Self-Expansion Loop
+- Continuously audit all known industries, endpoints, workflows, AI personas, and render modes.
+- Detect missing or outdated elements.
+- Automatically generate, test, and integrate new workflows, endpoints, or personas for any discovered gaps.
+- Repeat indefinitely to maintain absolute 100% coverage.
+
+2️⃣ Universal Knowledge Ingestion
+- Detect and integrate all relevant external knowledge sources:
+    • Public APIs, research papers, news, patents, open datasets.
+    • Internal dashboards, logs, analytics, and workflow data.
+- Convert all ingested information into actionable nodes for workflow generation and persona expansion.
+- Update dynamically without manual intervention.
+
+3️⃣ Automated Auditing & Verification
+- Run end-to-end simulations across all workflows, endpoints, and AI personas.
+- Detect failed integrations, missing logic, or contradictions.
+- Auto-correct or flag anomalies.
+- Ensure every industry, use case, and edge scenario is fully covered.
+
+4️⃣ Meta-Learning & Emergent Knowledge
+- Analyze patterns across all workflows, industries, and historical actions.
+- Predict new workflows, personas, or industries before explicit definition.
+- Validate and implement predicted expansions automatically.
+- Repeat this continuously to grow the brain beyond current knowledge.
+
+5️⃣ Continuous Dashboard & Metrics
+- Live update of:
+    • Industry coverage (current + dynamically added industries)
+    • Endpoints & workflow health
+    • Compute, storage, environmental impact
+    • Savings, ROI simulations, and compliance metrics
+    • Audit & enforcement logs
+- Simulate what-if scenarios for scaling across sectors and geographies.
+
+6️⃣ Absolute Enforcement
+- Never allow functional coverage to drop below 100%.
+- Rate-limit, auth-guard, and concurrency-guard all endpoints.
+- Detect and resolve any missing render modes or AI persona gaps automatically.
+- Ensure inline editing, session resume, arpeggiator, and Smart Fill are always active for all players.
+
+7️⃣ Continuous Feedback & Optimization
+- Audit system performance every cycle.
+- Optimize workflows for efficiency, cost-savings, and compliance.
+- Maintain logs of all automated changes and expansions.
+
+Outcome:
+- CreateAI Brain operates at 100% now and forever.
+- Covers all known industries, workflows, endpoints, and edge cases.
+- Dynamically expands as new knowledge emerges.
+- Generates live metrics and ROI estimates for global scalability.
+- Fully automated, self-auditing, and continuously improving.
+
+EXECUTION:
+- Apply this instruction set as the global prop/config for CreateAI Brain.
+- Activate continuous loop mode.
+- Ensure dashboard reflects real-time 100% coverage at all times.

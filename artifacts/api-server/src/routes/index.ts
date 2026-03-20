@@ -59,6 +59,7 @@ import smartFhirSandboxRouter from "./smart-fhir-sandbox";
 import memoryRouter from "./memory";
 import aiRouter from "./ai";
 import dashboardRouter from "./dashboard";
+import brainRouter      from "./brain";
 import projectDocumentsRouter from "./projectDocuments";
 import invitesRouter       from "./invites";
 import subscriptionsRouter from "./subscriptions";
@@ -149,6 +150,7 @@ router.use("/movie",              movieRouter);
 router.use("/render",             renderRouter);
 router.use("/generate",           generateRouter);
 router.use("/dashboard",          dashboardRouter);
+router.use("/brain",              brainRouter);
 
 // ── System Command Processor ─────────────────────────────────────────────────
 router.use("/system",             systemRouter);

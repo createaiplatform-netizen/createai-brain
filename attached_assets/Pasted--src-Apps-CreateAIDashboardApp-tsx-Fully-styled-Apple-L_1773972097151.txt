@@ -1,0 +1,127 @@
+// === src/Apps/CreateAIDashboardApp.tsx ===
+// Fully styled Apple/Linear inspired dashboard for CreateAI Brain
+
+import React, { useEffect, useState } from "react";
+import { useSystemStats } from "../hooks/useSystemStats";
+import {
+  Table, TableRow, TableCell, TableHead,
+  Card, CardHeader, CardContent, PieChart, BarChart,
+  SectionHeader, AuditLog, SimulationInput
+} from "../components/StyledComponents"; // prebuilt, polished components
+
+const CreateAIDashboardApp = () => {
+  const stats = useSystemStats("/api/dashboard/status"); // live-fetch every 30s
+  const [activeIndustry, setActiveIndustry] = useState(stats.industries[0] || null);
+  
+  // Auto-refresh live data
+  useEffect(() => {
+    const interval = setInterval(() => stats.refresh(), 30000);
+    return () => clearInterval(interval);
+  }, [stats]);
+
+  return (
+    <div style={{ padding: "20px", fontFamily: "SF Pro, Helvetica, sans-serif", backgroundColor: "#f5f5f7", color: "#111" }}>
+      <h1 style={{ marginBottom: "20px" }}>CreateAI Brain — Coverage Dashboard</h1>
+
+      {/* 1. Industry Coverage & AI Personas */}
+      <SectionHeader title="Industry Coverage & AI Personas" />
+      <Table>
+        <TableHead>
+          <TableRow>
+            <TableCell>Industry</TableCell>
+            <TableCell>AI Persona</TableCell>
+            <TableCell>Endpoints</TableCell>
+            <TableCell>Workflows</TableCell>
+            <TableCell>Annual Savings</TableCell>
+          </TableRow>
+        </TableHead>
+        <tbody>
+          {stats.industries.map(ind => (
+            <TableRow key={ind.id} onClick={() => setActiveIndustry(ind)}>
+              <TableCell>{ind.name}</TableCell>
+              <TableCell>{ind.aiPersona}</TableCell>
+              <TableCell>{ind.endpoints}</TableCell>
+              <TableCell>{ind.workflows}</TableCell>
+              <TableCell>${ind.annualSavings.toLocaleString()}</TableCell>
+            </TableRow>
+          ))}
+        </tbody>
+      </Table>
+
+      {/* 2. Endpoints & Workflow Health */}
+      <SectionHeader title="Endpoints & Workflow Health" />
+      <BarChart
+        data={stats.endpoints}
+        xKey="name"
+        yKey="status"
+        height={200}
+        colorScheme={["#0a84ff", "#ff375f", "#34c759"]}
+      />
+
+      {/* 3. Compute & Infrastructure Savings */}
+      <SectionHeader title="Compute & Infrastructure Savings" />
+      <BarChart
+        data={stats.computeSavings}
+        xKey="sector"
+        yKey="value"
+        height={200}
+        colorScheme={["#5ac8fa"]}
+      />
+
+      {/* 4. Compliance & Risk */}
+      <SectionHeader title="Compliance & Risk" />
+      <Table>
+        <TableHead>
+          <TableRow>
+            <TableCell>Standard</TableCell>
+            <TableCell>Status</TableCell>
+          </TableRow>
+        </TableHead>
+        <tbody>
+          {stats.compliance.map(c => (
+            <TableRow key={c.name}>
+              <TableCell>{c.name}</TableCell>
+              <TableCell style={{ color: c.status === "OK" ? "#34c759" : "#ff3b30" }}>{c.status}</TableCell>
+            </TableRow>
+          ))}
+        </tbody>
+      </Table>
+
+      {/* 5. System Capacity & Scalability */}
+      <SectionHeader title="System Capacity & Scalability" />
+      <Card>
+        <CardHeader title="Max Users / SSE Streams" />
+        <CardContent>
+          Users: {stats.maxUsers} | SSE Streams: {stats.sseStreams} | CPU: {stats.cpu}% | Memory: {stats.memory}%
+        </CardContent>
+      </Card>
+
+      {/* 6. Environmental Impact */}
+      <SectionHeader title="Environmental Impact" />
+      <PieChart
+        data={stats.environment}
+        valueKey="value"
+        labelKey="type"
+        colors={["#0a84ff", "#ffcc00", "#34c759", "#ff375f"]}
+        height={250}
+      />
+
+      {/* 7. Audit & Enforcement Logs */}
+      <SectionHeader title="Audit & Enforcement Logs" />
+      <AuditLog logs={stats.auditLogs} maxEntries={10} />
+
+      {/* 8. What-If ROI Simulation */}
+      <SectionHeader title="What-If ROI Simulation" />
+      <SimulationInput
+        industries={stats.industries}
+        onSimulate={scale => stats.simulateSavings(activeIndustry.id, scale)}
+      />
+
+      <div style={{ marginTop: "30px", textAlign: "right", fontSize: "12px", color: "#888" }}>
+        CreateAI Brain v100 — Fully integrated, safe, and infinite knowledge operational.
+      </div>
+    </div>
+  );
+};
+
+export default CreateAIDashboardApp;

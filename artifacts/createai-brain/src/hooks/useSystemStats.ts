@@ -1,5 +1,49 @@
 import { useState, useEffect, useCallback } from "react";
 
+// ─── Brain enforcement types ─────────────────────────────────────────────────
+
+export interface ExpansionEntry {
+  id: string; tick: number; timestamp: string;
+  action: string; category: string;
+  status: "applied" | "pending" | "verified";
+}
+
+export interface MetaPrediction {
+  id: string; prediction: string; confidence: number;
+  category: string; basis: string; generatedAt: string;
+  status: "pending" | "validated" | "integrated";
+}
+
+export interface KnowledgeSource {
+  name: string; type: "internal" | "api" | "dataset" | "log";
+  status: "active" | "degraded" | "offline";
+  lastSynced: string; nodes: number;
+}
+
+export interface OptimizationEntry {
+  area: string; score: number; note: string;
+}
+
+export interface BrainStatus {
+  loopTick:      number;
+  lastAuditAt:   string;
+  nextAuditAt:   string;
+  coverage:      number;
+  coverageBreakdown: Record<string, number>;
+  expansionLog:  ExpansionEntry[];
+  metaPredictions: MetaPrediction[];
+  knowledgeSources: KnowledgeSource[];
+  optimization:  OptimizationEntry[];
+  auditSummary: {
+    industries:  { total: number; covered: number; gaps: number };
+    renderModes: { total: number; covered: number; gaps: number };
+    endpoints:   { total: number; covered: number; gaps: number };
+    compliance:  { total: number; covered: number; gaps: number };
+    players:     { total: number; covered: number; gaps: number };
+  };
+  config: { auditIntervalSeconds: number; autoResolveGaps: boolean; minCoveragePercent: number };
+}
+
 // ─── Types ──────────────────────────────────────────────────────────────────
 
 export interface Industry {
@@ -66,6 +110,9 @@ export interface SystemStats {
   loading: boolean;
   error: string | null;
   refresh: () => void;
+  // Brain enforcement
+  brainStatus: BrainStatus | null;
+  brainLoading: boolean;
 }
 
 // ─── Static data ─────────────────────────────────────────────────────────────
@@ -203,6 +250,8 @@ export function useSystemStats(): SystemStats {
   const [loading, setLoading]       = useState(true);
   const [error, setError]           = useState<string | null>(null);
   const [auditLogs, setAuditLogs]   = useState<AuditLog[]>(generateAuditLogs());
+  const [brainStatus, setBrainStatus] = useState<BrainStatus | null>(null);
+  const [brainLoading, setBrainLoading] = useState(true);
 
   const fetchStatus = useCallback(async () => {
     try {
@@ -220,14 +269,29 @@ export function useSystemStats(): SystemStats {
     }
   }, []);
 
+  const fetchBrainStatus = useCallback(async () => {
+    try {
+      const res = await fetch("/api/brain/status", { credentials: "include" });
+      if (!res.ok) return;
+      const data: BrainStatus = await res.json();
+      setBrainStatus(data);
+    } catch {
+      // non-blocking — enforcement engine may not be warmed up yet
+    } finally {
+      setBrainLoading(false);
+    }
+  }, []);
+
   useEffect(() => {
     fetchStatus();
+    fetchBrainStatus();
     const interval = setInterval(() => {
       fetchStatus();
+      fetchBrainStatus();
       setAuditLogs(generateAuditLogs());
     }, 30_000);
     return () => clearInterval(interval);
-  }, [fetchStatus]);
+  }, [fetchStatus, fetchBrainStatus]);
 
   return {
     industries:   INDUSTRIES,
@@ -242,6 +306,8 @@ export function useSystemStats(): SystemStats {
     coverage,
     loading,
     error,
-    refresh: fetchStatus,
+    refresh: () => { fetchStatus(); fetchBrainStatus(); },
+    brainStatus,
+    brainLoading,
   };
 }

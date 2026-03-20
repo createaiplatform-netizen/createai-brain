@@ -2,6 +2,7 @@ import app from "./app";
 import { bootstrapServices }     from "./container/bootstrap";
 import { expandPlatform }        from "./services/expansionEngine";
 import { finalizeConfiguration } from "./services/systemConfigurator";
+import { brainEngine }           from "./engine/BrainEnforcementEngine.js";
 
 // Wire all DI services before the server binds. All factories are lazy —
 // nothing is instantiated here, just registered.
@@ -30,5 +31,6 @@ app.listen(port, () => {
   void (async () => {
     await expandPlatform();
     await finalizeConfiguration();
+    brainEngine.start(); // continuous 60-second self-audit loop
   })();
 });
