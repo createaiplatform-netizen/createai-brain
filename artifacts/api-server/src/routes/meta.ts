@@ -2,12 +2,14 @@
  * meta.ts — Meta-Transcendent Launch Routes
  * Spec: META-ZERO-TOUCH-TRANSCENDENT-LAUNCH
  *
- * GET  /api/meta/stats  — cumulative meta-cycle statistics
+ * GET  /api/meta/stats  — cumulative real meta-cycle statistics
  * POST /api/meta/cycle  — trigger a single meta-cycle on demand
+ *
+ * No projections endpoint. No simulated financial estimates.
  */
 
 import { Router }                                          from "express";
-import { getMetaCycleStats, getMetaProjections }           from "../services/metaTranscend.js";
+import { getMetaCycleStats }                               from "../services/metaTranscend.js";
 import { generatePremiumProducts, autoAdCampaign, optimizeRevenue } from "../services/wealthTools.js";
 import { globalTranscend }                                 from "../services/realMarket.js";
 
@@ -18,37 +20,23 @@ router.get("/stats", (_req, res) => {
   res.json(getMetaCycleStats());
 });
 
-// POST /api/meta/cycle
-// Triggers a single on-demand meta-cycle and returns the results.
+// POST /api/meta/cycle — on-demand meta-cycle trigger
 router.post("/cycle", async (_req, res) => {
   try {
     const premiumBatch = await generatePremiumProducts({ batchSize: 25 });
-    const campaign     = await autoAdCampaign(premiumBatch, { channels: "all", budgetScale: "maxROI" });
-    const optimized    = await optimizeRevenue(premiumBatch);
     const categories   = [...new Set(premiumBatch.map(p => p.category))];
+    await autoAdCampaign(premiumBatch, { channels: "all", budgetScale: "maxROI" });
+    await optimizeRevenue(premiumBatch);
     await globalTranscend({ categories, batchSize: premiumBatch.length });
 
     res.json({
       products:       premiumBatch.length,
-      reach:          campaign.reach,
-      impressions:    campaign.impressions,
-      avgPriceCents:  optimized.avgPriceCents,
-      avgPrice:       `$${(optimized.avgPriceCents / 100).toFixed(2)}`,
       categories,
       transcendFired: true,
     });
   } catch (err) {
-    res.status(500).json({ error: (err as Error).message });
-  }
-});
-
-// GET /api/meta/projections
-// Spec: ULTIMATE-ZERO-TOUCH-TRANSCENDENT-FINANCIAL-DASHBOARD
-router.get("/projections", async (_req, res) => {
-  try {
-    res.json(await getMetaProjections());
-  } catch (err) {
-    res.status(500).json({ error: (err as Error).message });
+    console.error("[meta] /cycle error:", (err as Error).message);
+    res.status(500).json({ error: "Meta cycle failed." });
   }
 });
 

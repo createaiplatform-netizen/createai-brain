@@ -28,9 +28,6 @@ export interface MetaCycleStats {
   cycleCount:           number;
   lastCycleTs:          string;
   totalPremiumProducts: number;
-  totalCampaignReach:   number;
-  totalImpressions:     number;
-  avgOptimizedCents:    number;
   transcendFires:       number;
   errors:               number;
 }
@@ -39,9 +36,6 @@ const stats: MetaCycleStats = {
   cycleCount:           0,
   lastCycleTs:          "",
   totalPremiumProducts: 0,
-  totalCampaignReach:   0,
-  totalImpressions:     0,
-  avgOptimizedCents:    0,
   transcendFires:       0,
   errors:               0,
 };
@@ -65,8 +59,6 @@ async function runMetaCycle(): Promise<void> {
     console.table({
       // Wealth snapshot fields (numbers → formatted)
       "Total Revenue":      `$${(snapshot.totalRevenueCents / 100).toFixed(2)}`,
-      "Projected Revenue":  `$${(snapshot.projectedRevenueCents / 100).toFixed(2)}`,
-      "Growth %":           `${snapshot.growthPercent.toFixed(2)}%`,
       "Batches":            snapshot.batches,
       "Products":           snapshot.products,
       "Marketplaces":       snapshot.marketplaces,
@@ -84,16 +76,13 @@ async function runMetaCycle(): Promise<void> {
     stats.totalPremiumProducts += premiumBatch.length;
 
     // 3. Multi-channel ad campaign
-    const campaign = await autoAdCampaign(premiumBatch, {
+    await autoAdCampaign(premiumBatch, {
       channels:    "all",
       budgetScale: "maxROI",
     });
-    stats.totalCampaignReach  += campaign.reach;
-    stats.totalImpressions    += campaign.impressions;
 
     // 4. Dynamic revenue optimization
-    const optimized = await optimizeRevenue(premiumBatch);
-    stats.avgOptimizedCents = optimized.avgPriceCents;
+    await optimizeRevenue(premiumBatch);
 
     // 5. Global transcend — max-scale push for this batch
     const categories = [...new Set(premiumBatch.map(p => p.category))];
@@ -102,8 +91,7 @@ async function runMetaCycle(): Promise<void> {
 
     console.log(
       `[MetaTranscend] ⚡ Meta cycle #${stats.cycleCount} complete — ` +
-      `max-scale deployment fired · products:${premiumBatch.length} · ` +
-      `reach:${campaign.reach.toLocaleString()} · transcendFires:${stats.transcendFires}`
+      `max-scale deployment fired · products:${premiumBatch.length} · transcendFires:${stats.transcendFires}`
     );
 
   } catch (err) {
@@ -152,50 +140,5 @@ export async function triggerMetaCycle(): Promise<void> {
   return runMetaCycle();
 }
 
-// ─── getMetaProjections ───────────────────────────────────────────────────────
-// Spec: ULTIMATE-ZERO-TOUCH-TRANSCENDENT-FINANCIAL-DASHBOARD
-//
-// Financial projections derived from cumulative meta-cycle stats:
-//   totalClicks         → reach × 3% CTR (industry benchmark for premium digital)
-//   totalImpressions    → pass-through from stats
-//   estimatedOrders     → clicks × 1% conversion
-//   minRevenuePerDay    → estimatedOrders × avgPrice (floor: $1/day per active product)
-//   projectedMonthly    → minRevenuePerDay × 30
-
-export interface MetaProjections {
-  totalClicks:          number;
-  totalImpressions:     number;
-  estimatedOrders:      number;
-  minRevenuePerDay:     number;  // dollars
-  projectedMonthly:     number;  // dollars
-  avgProductPrice:      string;  // "$X.XX"
-  cyclesRunning:        number;
-  productsInMarket:     number;
-}
-
-export async function getMetaProjections(): Promise<MetaProjections> {
-  const s = getMetaCycleStats();
-
-  // Reach → clicks at 3% CTR; clicks → orders at 1% conversion
-  const totalClicks      = Math.round(s.totalCampaignReach * 0.03);
-  const estimatedOrders  = Math.round(totalClicks * 0.01);
-  const avgProductPrice  = s.avgOptimizedCents > 0
-    ? s.avgOptimizedCents / 100
-    : 19;  // fallback to base price $19
-
-  // Daily minimum: at least $1/product in market, boosted by conversion estimate
-  const conversionRevenue  = estimatedOrders * avgProductPrice;
-  const minRevenuePerDay   = Math.max(conversionRevenue, s.totalPremiumProducts * 0.10);
-  const projectedMonthly   = minRevenuePerDay * 30;
-
-  return {
-    totalClicks,
-    totalImpressions:  s.totalImpressions,
-    estimatedOrders,
-    minRevenuePerDay:  parseFloat(minRevenuePerDay.toFixed(2)),
-    projectedMonthly:  parseFloat(projectedMonthly.toFixed(2)),
-    avgProductPrice:   `$${avgProductPrice.toFixed(2)}`,
-    cyclesRunning:     s.cycleCount,
-    productsInMarket:  s.totalPremiumProducts,
-  };
-}
+// getMetaProjections removed — no projections in this system.
+// Only real operational stats are exposed. See getMetaCycleStats().

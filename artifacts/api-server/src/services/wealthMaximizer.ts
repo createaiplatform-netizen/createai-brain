@@ -1,72 +1,56 @@
 /**
- * wealthMaximizer.ts — Full Auto Wealth Maximizer
- * Spec: FULL-AUTO-WEALTH-MAXIMIZER (Pasted--FULL-AUTO-WEALTH-MAXIMIZER...)
+ * wealthMaximizer.ts — Platform Cycle Enforcer
+ * Spec: FULL-AUTO-WEALTH-MAXIMIZER
  *
- * Enforces minimum 100% growthPercent every 2 minutes:
- *   1. Gather live stats from all three engines
- *   2. If growthPercent < 100, inject boost via applyGrowthMultiplier()
- *   3. Trigger globalTranscend for max-scale deployment
- *   4. Run full platform audit to confirm
+ * Runs a 2-minute cycle that:
+ *   1. Gathers live operational stats from all engines
+ *   2. Triggers globalTranscend for max-scale deployment
+ *   3. Runs a full audit and logs the result
  *
- * Field-name mapping (spec → actual):
- *   marketStats.totalProducts     → marketStats["Total Products"]
- *   marketStats.batches           → marketStats["Cycle Count"]
- *   hybridStats.paymentsQueued    → hybridStats["Payments Queued"]
- *   hybridStats.messagesQueued    → hybridStats["Messages Queued"]
- *   wealthStats.totalRevenue      → wealthStats.totalRevenueCents / 100
- *   wealthStats.growthPercent     → wealthStats.growthPercent (number)
- *   runAudit                      → runFullAudit
+ * No simulated growth boosts. No fake revenue injection.
+ * Cycle counts and audit results reflect real operational activity.
  */
 
 import { getMarketStats, globalTranscend }  from "./realMarket.js";
 import { getHybridStats }                   from "./hybridEngine.js";
-import { getWealthSnapshot, applyGrowthMultiplier } from "./wealthMultiplier.js";
+import { getWealthSnapshot }                from "./wealthMultiplier.js";
 import { runFullAudit }                     from "./platformAudit.js";
 
 // ─── Maximizer Stats ──────────────────────────────────────────────────────────
 
 export interface MaximizerStats {
-  cycleCount:    number;
-  lastCycleTs:   string;
-  boostsApplied: number;
-  totalBoostPct: number;   // cumulative pp added across all cycles
+  cycleCount:     number;
+  lastCycleTs:    string;
   transcendFires: number;
-  errors:        number;
-  lastGrowthPct: number;
+  errors:         number;
 }
 
 const stats: MaximizerStats = {
-  cycleCount:    0,
-  lastCycleTs:   "",
-  boostsApplied: 0,
-  totalBoostPct: 0,
+  cycleCount:     0,
+  lastCycleTs:    "",
   transcendFires: 0,
-  errors:        0,
-  lastGrowthPct: 0,
+  errors:         0,
 };
 
 // ─── enforceMaxGrowth ─────────────────────────────────────────────────────────
 
-// Spec: ultimateColdBoxEnergyLaunch — optional minPercent param accepted;
-// the engine always enforces 100%+ regardless, so this is additive metadata.
 export async function enforceMaxGrowth(
   opts?: { minPercent?: number }
 ): Promise<void> {
-  void opts; // minPercent is noted; engine already enforces ≥100% by design
+  void opts;
   stats.cycleCount++;
   stats.lastCycleTs = new Date().toISOString();
 
   console.log(`[WealthMaximizer] 🔄 Enforcement cycle #${stats.cycleCount}`);
 
   try {
-    // 1. Gather live stats (spec: Step 1)
+    // 1. Gather live operational stats
     const [marketStats, hybridStats, wealthStats] = await Promise.all([
       getMarketStats(),
       Promise.resolve(getHybridStats()),
       Promise.resolve(getWealthSnapshot()),
     ]);
 
-    // 2. Aggregate into unified audit view (spec: Step 2)
     const audit = {
       products:       (marketStats["Total Products"] as number) ?? 0,
       batches:        (marketStats["Cycle Count"]    as number) ?? 0,
@@ -74,41 +58,21 @@ export async function enforceMaxGrowth(
       paymentsQueued: (hybridStats["Payments Queued"] as number) ?? 0,
       messagesQueued: (hybridStats["Messages Queued"] as number) ?? 0,
       liveRevenue:    `$${(wealthStats.totalRevenueCents / 100).toFixed(2)}`,
-      growthPercent:  wealthStats.growthPercent,
       marketEngine:   marketStats["Engine Running"] as string,
-      hybridRailStripe: hybridStats["Rail: Stripe"]  as string,
     };
 
-    console.log("[WealthMaximizer] 📊 Live audit snapshot:");
+    console.log("[WealthMaximizer] 📊 Live operational snapshot:");
     console.table(audit);
 
-    stats.lastGrowthPct = audit.growthPercent;
-
-    // 3. Enforce 100% minimum growth (spec: Step 3)
-    if (audit.growthPercent < 100) {
-      const boost = +(100 - audit.growthPercent).toFixed(4);
-      applyGrowthMultiplier(boost);
-      stats.boostsApplied++;
-      stats.totalBoostPct = +(stats.totalBoostPct + boost).toFixed(4);
-      console.log(
-        `[WealthMaximizer] ⚡ Growth multiplier applied: +${boost.toFixed(2)}% → target 100% achieved`
-      );
-    } else {
-      console.log(
-        `[WealthMaximizer] ✅ Growth already ≥ 100% (${audit.growthPercent.toFixed(2)}%) — no boost needed`
-      );
-    }
-
-    // 4. Trigger globalTranscend for max-scale deployment (spec: Step 4)
+    // 2. Trigger globalTranscend for max-scale deployment
     await globalTranscend({ categories: [], batchSize: audit.products });
     stats.transcendFires++;
-    console.log("[WealthMaximizer] 🚀 Global transcend executed — max-scale deployment active");
+    console.log("[WealthMaximizer] 🚀 Global transcend executed");
 
-    // 5. Run full audit to confirm (spec: Step 5)
+    // 3. Run full audit to confirm
     const finalAudit = await runFullAudit();
-    console.log("[WealthMaximizer] ✅ Final audit after enforcement:");
+    console.log("[WealthMaximizer] ✅ Final audit:");
     console.table({
-      "Growth %":       finalAudit.growthPercent,
       "Products":       finalAudit.products,
       "Batches":        finalAudit.batches,
       "Revenue (live)": finalAudit.liveRevenue,
@@ -130,15 +94,10 @@ export async function enforceMaxGrowth(
 
 let _started = false;
 
-/**
- * Starts the 2-minute wealth maximizer loop.
- * Runs immediately, then every 2 minutes (aligned with wealthMultiplier cycle).
- */
 export function startWealthMaximizer(): void {
   if (_started) return;
   _started = true;
 
-  // Small stagger so it fires after wealthMultiplier's first cycle completes
   setTimeout(() => void enforceMaxGrowth(), 8000);
   setInterval(() => void enforceMaxGrowth(), 2 * 60_000);
 
@@ -147,7 +106,6 @@ export function startWealthMaximizer(): void {
   );
 }
 
-/** Returns cumulative maximizer statistics for the API route. */
 export function getMaximizerStats(): MaximizerStats {
   return { ...stats };
 }

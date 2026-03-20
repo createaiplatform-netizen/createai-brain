@@ -80,8 +80,8 @@ export async function pushFundsToHuntington(): Promise<void> {
     const saraInfo      = getSaraStripeInfo();
     _stats.bankLinked   = saraInfo.bankAccountLinked;
 
-    // Use minRevenuePerDay as the payout amount (spec field)
-    const availableAmount = snapshot.minRevenuePerDay ?? snapshot.totalBalance ?? 0;
+    // Use real Stripe balance (totalBalance) as the payout amount
+    const availableAmount = snapshot.totalBalance ?? 0;
 
     if (availableAmount < MIN_PAYOUT_USD) {
       _stats.queuedCount++;

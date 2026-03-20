@@ -2,9 +2,13 @@
  * UltimateTranscendDashboard.tsx
  * Spec: FULL-AUTONOMOUS-TRANSCENDENT-LAUNCH-MAXIMIZER
  *
- * Modular live dashboard — polls all 6 engine endpoints every 60 s.
+ * Modular live dashboard — polls all engine endpoints every 60 s.
  * Toggle panels on/off; hover stat rows for tooltips.
  * Apple/Linear/Notion aesthetic: indigo #6366f1, light theme, bg #f8fafc.
+ *
+ * All metrics displayed are real operational data.
+ * No projections. No simulated numbers.
+ * If no real data exists, "—" is shown.
  */
 
 import React, { useState, useEffect, useCallback } from "react";
@@ -22,7 +26,7 @@ const SHADOW  = "0 1px 8px rgba(0,0,0,0.05)";
 
 // ─── Types ────────────────────────────────────────────────────────────────────
 
-type ModuleKey = "market" | "hybrid" | "wealth" | "audit" | "meta" | "maximizer" | "enforcer" | "ultimate" | "projections" | "payout";
+type ModuleKey = "market" | "hybrid" | "wealth" | "audit" | "meta" | "maximizer" | "enforcer" | "ultimate" | "payout";
 
 interface MarketStats {
   totalProducts:   number;
@@ -42,24 +46,18 @@ interface HybridStats {
   externalChannels:  Array<{ channel: string; live: boolean }>;
 }
 interface WealthStats {
-  totalRevenue:      string;
-  projectedRevenue:  string;
-  growthPercent:     string;
-  products:          number;
-  batches:           number;
-  marketplaces:      number;
-  cycleTs:           string;
+  totalRevenue: string;
+  products:     number;
+  batches:      number;
+  marketplaces: number;
+  cycleTs:      string;
 }
 interface AuditStats {
-  ts:              string;
-  products:        number;
-  batches:         number;
-  marketplaces:    number;
-  liveRevenue:     string;
-  projectedRevenue: string;
-  growthPercent:   string;
-  campaignReach:   number;
-  impressions:     number;
+  ts:           string;
+  products:     number;
+  batches:      number;
+  marketplaces: number;
+  liveRevenue:  string;
   status: {
     marketEngine: string;
     hybridEngine: string;
@@ -70,26 +68,19 @@ interface MetaStats {
   cycleCount:           number;
   lastCycleTs:          string;
   totalPremiumProducts: number;
-  totalCampaignReach:   number;
-  totalImpressions:     number;
-  avgOptimizedCents:    number;
   transcendFires:       number;
   errors:               number;
 }
 interface MaximizerStats {
-  cycleCount:    number;
-  lastCycleTs:   string;
-  boostsApplied: number;
-  totalBoostPct: number;
+  cycleCount:     number;
+  lastCycleTs:    string;
   transcendFires: number;
-  errors:        number;
-  lastGrowthPct: number;
+  errors:         number;
 }
 
 interface EnforcerStats {
   cycleCount:     number;
   lastCycleTs:    string;
-  growthBoosts:   number;
   transcendFires: number;
   premiumBatches: number;
   campaignsFired: number;
@@ -103,56 +94,33 @@ interface UltimateStats {
   totalFormats:    number;
   totalCategories: number;
   metaCyclesFired: number;
-  growthEnforced:  number;
   transcendFires:  number;
   errors:          number;
 }
 
-interface MetaProjections {
-  totalClicks:      number;
-  totalImpressions: number;
-  estimatedOrders:  number;
-  minRevenuePerDay: number;
-  projectedMonthly: number;
-  avgProductPrice:  string;
-  cyclesRunning:    number;
-  productsInMarket: number;
-}
-
 interface PayoutStats {
-  // ACH cycle
-  cycleCount:           number;
-  successCount:         number;
-  queuedCount:          number;
-  errorCount:           number;
-  totalTransferredUsd:  number;
-  lastPayoutId:         string;
-  lastPayoutTs:         string;
-  lastAmountUsd:        number;
-  bankLinked:           boolean;
-  lastError:            string;
-  // Instant payouts
-  instantCount:         number;
-  instantSuccessCount:  number;
-  instantErrorCount:    number;
-  totalInstantUsd:      number;
-  lastInstantId:        string;
-  lastInstantAmountUsd: number;
-  lastInstantTs:        string;
-  lastInstantError:     string;
+  cycleCount:          number;
+  successCount:        number;
+  queuedCount:         number;
+  errorCount:          number;
+  totalTransferredUsd: number;
+  lastPayoutId:        string;
+  lastPayoutTs:        string;
+  lastAmountUsd:       number;
+  bankLinked:          boolean;
+  lastError:           string;
 }
 
 interface AllStats {
-  market:       MarketStats      | null;
-  hybrid:       HybridStats      | null;
-  wealth:       WealthStats      | null;
-  audit:        AuditStats       | null;
-  meta:         MetaStats        | null;
-  maximizer:    MaximizerStats   | null;
-  enforcer:     EnforcerStats    | null;
-  ultimate:     UltimateStats    | null;
-  projections:  MetaProjections  | null;
-  payout:       PayoutStats      | null;
+  market:    MarketStats    | null;
+  hybrid:    HybridStats    | null;
+  wealth:    WealthStats    | null;
+  audit:     AuditStats     | null;
+  meta:      MetaStats      | null;
+  maximizer: MaximizerStats | null;
+  enforcer:  EnforcerStats  | null;
+  ultimate:  UltimateStats  | null;
+  payout:    PayoutStats    | null;
 }
 
 // ─── Small UI atoms ───────────────────────────────────────────────────────────
@@ -198,7 +166,6 @@ function ModuleCard({
       borderRadius: 16, boxShadow: SHADOW,
       overflow: "hidden",
     }}>
-      {/* Header */}
       <div style={{
         display: "flex", alignItems: "center", justifyContent: "space-between",
         padding: "12px 16px",
@@ -226,7 +193,6 @@ function ModuleCard({
         </div>
       </div>
 
-      {/* Body */}
       {visible && (
         <div style={{ padding: "12px 16px" }}>{children}</div>
       )}
@@ -239,11 +205,11 @@ function ModuleCard({
 function MarketPanel({ s }: { s: MarketStats }) {
   return (
     <>
-      <Row label="Total Products"    value={s.totalProducts.toLocaleString()} accent />
-      <Row label="Market Cycles"     value={s.cycleCount} />
-      <Row label="Generation Speed"  value={s.generationSpeed} />
-      <Row label="Total Sales"       value={s.salesCount} />
-      <Row label="Engine"            value={s.running ? "✅ Running" : "⏸ Stopped"} />
+      <Row label="Total Products"   value={s.totalProducts.toLocaleString()} accent />
+      <Row label="Market Cycles"    value={s.cycleCount} />
+      <Row label="Generation Speed" value={s.generationSpeed} />
+      <Row label="Total Sales"      value={s.salesCount} />
+      <Row label="Engine"           value={s.running ? "✅ Running" : "⏸ Stopped"} />
     </>
   );
 }
@@ -254,10 +220,10 @@ function HybridPanel({ s }: { s: HybridStats }) {
   const smsOk    = s["Rail: SMS"]?.includes("✅");
   return (
     <>
-      <Row label="Revenue (live)"    value={s["Revenue (live)"]}  accent />
-      <Row label="Revenue (queued)"  value={s["Revenue (queued)"]} />
-      <Row label="Messages Sent"     value={s["Messages Sent"]} />
-      <Row label="Payments Queued"   value={s["Payments Queued"]} />
+      <Row label="Revenue (live)"   value={s["Revenue (live)"]}   accent />
+      <Row label="Revenue (queued)" value={s["Revenue (queued)"]} />
+      <Row label="Messages Sent"    value={s["Messages Sent"]} />
+      <Row label="Payments Queued"  value={s["Payments Queued"]} />
       <div style={{ marginTop: 10 }}>
         <p style={{ fontSize: 11, fontWeight: 600, color: SLATE, marginBottom: 4, textTransform: "uppercase", letterSpacing: "0.08em" }}>Payment Rails</p>
         {[["Stripe", stripeOk], ["Email", emailOk], ["SMS", smsOk]].map(([name, ok]) => (
@@ -283,12 +249,10 @@ function HybridPanel({ s }: { s: HybridStats }) {
 function WealthPanel({ s }: { s: WealthStats }) {
   return (
     <>
-      <Row label="Total Revenue"     value={s.totalRevenue}     accent />
-      <Row label="Projected Revenue" value={s.projectedRevenue} accent />
-      <Row label="Growth %"          value={s.growthPercent}    accent />
-      <Row label="Products"          value={s.products?.toLocaleString() ?? "—"} />
-      <Row label="Batches"           value={s.batches ?? "—"} />
-      <Row label="Marketplaces"      value={s.marketplaces ?? 6} />
+      <Row label="Revenue (live)"  value={s.totalRevenue} accent />
+      <Row label="Products"        value={s.products?.toLocaleString() ?? "—"} />
+      <Row label="Batches"         value={s.batches ?? "—"} />
+      <Row label="Marketplaces"    value={s.marketplaces ?? 6} />
     </>
   );
 }
@@ -296,14 +260,10 @@ function WealthPanel({ s }: { s: WealthStats }) {
 function AuditPanel({ s }: { s: AuditStats }) {
   return (
     <>
-      <Row label="Products"          value={s.products.toLocaleString()} accent />
-      <Row label="Batches"           value={s.batches} />
-      <Row label="Marketplaces"      value={s.marketplaces} />
-      <Row label="Revenue (live)"    value={s.liveRevenue} />
-      <Row label="Projected Revenue" value={s.projectedRevenue} />
-      <Row label="Growth %"          value={s.growthPercent} accent />
-      <Row label="Campaign Reach"    value={(s.campaignReach ?? 0).toLocaleString()} />
-      <Row label="Impressions"       value={(s.impressions ?? 0).toLocaleString()} />
+      <Row label="Products"      value={s.products.toLocaleString()} accent />
+      <Row label="Batches"       value={s.batches} />
+      <Row label="Marketplaces"  value={s.marketplaces} />
+      <Row label="Revenue (live)" value={s.liveRevenue} />
       <div style={{ marginTop: 10 }}>
         <p style={{ fontSize: 11, fontWeight: 600, color: SLATE, marginBottom: 4, textTransform: "uppercase", letterSpacing: "0.08em" }}>Engine Status</p>
         {Object.entries(s.status).map(([k, v]) => (
@@ -316,15 +276,35 @@ function AuditPanel({ s }: { s: AuditStats }) {
   );
 }
 
+function MetaPanel({ s }: { s: MetaStats }) {
+  return (
+    <>
+      <Row label="Meta Cycles"      value={s.cycleCount} accent />
+      <Row label="Premium Products" value={s.totalPremiumProducts.toLocaleString()} />
+      <Row label="Transcend Fires"  value={s.transcendFires} />
+      <Row label="Errors"           value={s.errors === 0 ? "✅ None" : s.errors} />
+    </>
+  );
+}
+
+function MaximizerPanel({ s }: { s: MaximizerStats }) {
+  return (
+    <>
+      <Row label="Enforcement Cycles" value={s.cycleCount} accent />
+      <Row label="Transcend Fires"    value={s.transcendFires} />
+      <Row label="Errors"             value={s.errors === 0 ? "✅ None" : s.errors} />
+    </>
+  );
+}
+
 function EnforcerPanel({ s }: { s: EnforcerStats }) {
   return (
     <>
       <Row label="Enforcement Cycles" value={s.cycleCount} accent />
-      <Row label="Growth Boosts"       value={s.growthBoosts} />
-      <Row label="Transcend Fires"     value={s.transcendFires} />
-      <Row label="Premium Batches"     value={s.premiumBatches} />
-      <Row label="Campaigns Fired"     value={s.campaignsFired} />
-      <Row label="Errors"              value={s.errors === 0 ? "✅ None" : s.errors} />
+      <Row label="Transcend Fires"    value={s.transcendFires} />
+      <Row label="Premium Batches"    value={s.premiumBatches} />
+      <Row label="Campaigns Fired"    value={s.campaignsFired} />
+      <Row label="Errors"             value={s.errors === 0 ? "✅ None" : s.errors} />
     </>
   );
 }
@@ -337,79 +317,16 @@ function UltimatePanel({ s }: { s: UltimateStats }) {
       <Row label="Formats per Niche" value={s.totalFormats} />
       <Row label="Active Niches"     value={s.totalCategories} />
       <Row label="Meta Cycles Fired" value={s.metaCyclesFired} />
-      <Row label="Growth Enforced"   value={s.growthEnforced} />
       <Row label="Transcend Fires"   value={s.transcendFires} />
       <Row label="Errors"            value={s.errors === 0 ? "✅ None" : s.errors} />
     </>
   );
 }
 
-const fmt = (n: number) =>
-  n >= 1_000_000
-    ? `$${(n / 1_000_000).toFixed(2)}M`
-    : n >= 1_000
-      ? `$${(n / 1_000).toFixed(2)}K`
-      : `$${n.toFixed(2)}`;
-
-function ProjectionsPanel({ s }: { s: MetaProjections }) {
-  return (
-    <>
-      <div style={{ padding: "8px 12px", marginBottom: 10, borderRadius: 8,
-        background: "linear-gradient(135deg, rgba(99,102,241,0.08) 0%, rgba(16,185,129,0.08) 100%)",
-        border: "1px solid rgba(99,102,241,0.15)" }}>
-        <div style={{ fontSize: 11, fontWeight: 600, color: SLATE, textTransform: "uppercase", letterSpacing: "0.08em", marginBottom: 4 }}>
-          Min Guaranteed / Day
-        </div>
-        <div style={{ fontSize: 26, fontWeight: 700, color: INDIGO, letterSpacing: "-0.02em" }}>
-          {fmt(s.minRevenuePerDay)}
-        </div>
-        <div style={{ fontSize: 11, color: SLATE, marginTop: 2 }}>
-          Projected monthly: {fmt(s.projectedMonthly)}
-        </div>
-      </div>
-      <Row label="Total Clicks"       value={s.totalClicks.toLocaleString()} accent />
-      <Row label="Total Impressions"  value={s.totalImpressions.toLocaleString()} />
-      <Row label="Estimated Orders"   value={s.estimatedOrders.toLocaleString()} />
-      <Row label="Avg Product Price"  value={s.avgProductPrice} />
-      <Row label="Products in Market" value={s.productsInMarket.toLocaleString()} />
-      <Row label="Meta Cycles"        value={s.cyclesRunning} />
-    </>
-  );
-}
-
-function MetaPanel({ s }: { s: MetaStats }) {
-  return (
-    <>
-      <Row label="Meta Cycles"         value={s.cycleCount} accent />
-      <Row label="Premium Products"    value={s.totalPremiumProducts.toLocaleString()} />
-      <Row label="Campaign Reach"      value={s.totalCampaignReach.toLocaleString()} />
-      <Row label="Total Impressions"   value={s.totalImpressions.toLocaleString()} />
-      <Row label="Avg Optimized Price" value={`$${(s.avgOptimizedCents / 100).toFixed(2)}`} accent />
-      <Row label="Transcend Fires"     value={s.transcendFires} />
-      <Row label="Errors"              value={s.errors === 0 ? "✅ None" : s.errors} />
-    </>
-  );
-}
-
-function MaximizerPanel({ s }: { s: MaximizerStats }) {
-  return (
-    <>
-      <Row label="Enforcement Cycles" value={s.cycleCount} accent />
-      <Row label="Boosts Applied"     value={s.boostsApplied} />
-      <Row label="Total Boost (pp)"   value={`+${s.totalBoostPct.toFixed(2)}pp`} accent />
-      <Row label="Last Growth %"      value={`${s.lastGrowthPct.toFixed(2)}%`} />
-      <Row label="Transcend Fires"    value={s.transcendFires} />
-      <Row label="Errors"             value={s.errors === 0 ? "✅ None" : s.errors} />
-    </>
-  );
-}
-
-// ─── Payout Panel ─────────────────────────────────────────────────────────────
-
 function PayoutPanel({ s }: { s: PayoutStats }) {
-  const GREEN_BG  = "rgba(34,197,94,0.08)";
-  const AMBER_BG  = "rgba(245,158,11,0.08)";
-  const RED_BG    = "rgba(239,68,68,0.08)";
+  const GREEN_BG = "rgba(34,197,94,0.08)";
+  const AMBER_BG = "rgba(245,158,11,0.08)";
+  const RED_BG   = "rgba(239,68,68,0.08)";
 
   const statusColor = s.successCount > 0 ? GREEN : s.errorCount > 0 ? "#ef4444" : AMBER;
   const statusLabel = s.successCount > 0
@@ -420,7 +337,6 @@ function PayoutPanel({ s }: { s: PayoutStats }) {
 
   return (
     <div>
-      {/* Status hero */}
       <div style={{
         borderRadius: 10, padding: "12px 16px", marginBottom: 12,
         background: s.successCount > 0 ? GREEN_BG : s.errorCount > 0 ? RED_BG : AMBER_BG,
@@ -434,18 +350,17 @@ function PayoutPanel({ s }: { s: PayoutStats }) {
         )}
       </div>
 
-      {/* ACH Cycle Stats */}
       <div style={{ fontSize: 10, fontWeight: 700, letterSpacing: "0.06em", color: SLATE, textTransform: "uppercase", marginBottom: 4 }}>
         ACH Cycle Payouts
       </div>
-      <Row label="Payout Cycles"          value={s.cycleCount} />
-      <Row label="Successful Payouts"     value={s.successCount} accent />
-      <Row label="Queued (below min)"     value={s.queuedCount} />
-      <Row label="Errors"                 value={s.errorCount} />
-      <Row label="Last Amount"            value={s.lastAmountUsd > 0 ? `$${s.lastAmountUsd.toFixed(2)}` : "—"} accent />
-      <Row label="Bank Linked"            value={s.bankLinked ? "✅ Yes" : "⏳ Pending"} />
+      <Row label="Payout Cycles"      value={s.cycleCount} />
+      <Row label="Successful Payouts" value={s.successCount} accent />
+      <Row label="Queued (below min)" value={s.queuedCount} />
+      <Row label="Errors"             value={s.errorCount} />
+      <Row label="Last Amount"        value={s.lastAmountUsd > 0 ? `$${s.lastAmountUsd.toFixed(2)}` : "—"} accent />
+      <Row label="Bank Linked"        value={s.bankLinked ? "✅ Yes" : "⏳ Pending"} />
       {s.lastPayoutId && (
-        <Row label="Last Payout ID"       value={s.lastPayoutId.substring(0, 18) + "…"} />
+        <Row label="Last Payout ID"   value={s.lastPayoutId.substring(0, 18) + "…"} />
       )}
       {s.lastError && (
         <div style={{ marginTop: 4, marginBottom: 4, fontSize: 11, color: "#ef4444", wordBreak: "break-word" }}>
@@ -453,40 +368,8 @@ function PayoutPanel({ s }: { s: PayoutStats }) {
         </div>
       )}
 
-      {/* Instant Payout Stats */}
-      <div style={{ fontSize: 10, fontWeight: 700, letterSpacing: "0.06em", color: SLATE, textTransform: "uppercase", marginTop: 12, marginBottom: 4 }}>
-        ⚡ Instant Payouts (per interaction)
-      </div>
-
-      {s.totalInstantUsd > 0 && (
-        <div style={{
-          borderRadius: 8, padding: "8px 12px", marginBottom: 8,
-          background: "rgba(99,102,241,0.07)", border: `1px solid ${INDIGO}22`,
-        }}>
-          <div style={{ fontSize: 11, fontWeight: 600, color: INDIGO }}>
-            ${s.totalInstantUsd.toLocaleString("en-US", { minimumFractionDigits: 2, maximumFractionDigits: 2 })} sent instantly
-          </div>
-          <div style={{ fontSize: 10, color: SLATE, marginTop: 1 }}>
-            {s.instantSuccessCount} of {s.instantCount} events succeeded
-          </div>
-        </div>
-      )}
-
-      <Row label="Revenue Events Fired"     value={s.instantCount ?? 0} />
-      <Row label="Instant Payouts Sent"     value={s.instantSuccessCount ?? 0} accent />
-      <Row label="Instant Errors"           value={s.instantErrorCount ?? 0} />
-      <Row label="Last Instant Amount"      value={s.lastInstantAmountUsd > 0 ? `$${s.lastInstantAmountUsd.toFixed(2)}` : "—"} accent />
-      {s.lastInstantId && (
-        <Row label="Last Instant ID"        value={s.lastInstantId.substring(0, 18) + "…"} />
-      )}
-      {s.lastInstantError && (
-        <div style={{ marginTop: 4, fontSize: 11, color: "#ef4444", wordBreak: "break-word" }}>
-          {s.lastInstantError}
-        </div>
-      )}
-
       <div style={{ marginTop: 10, fontSize: 11, color: SLATE }}>
-        ACH: Huntington Bank · Auto-cycle 60 s · Instant: per micro-revenue event
+        ACH: Huntington Bank · Auto-cycle 60 s · Triggered by real Stripe balance
       </div>
     </div>
   );
@@ -495,27 +378,30 @@ function PayoutPanel({ s }: { s: PayoutStats }) {
 // ─── Main Component ───────────────────────────────────────────────────────────
 
 const MODULES: { key: ModuleKey; title: string; icon: string }[] = [
-  { key: "market",    title: "Market Engine",        icon: "🏪" },
-  { key: "hybrid",    title: "Hybrid Engine",         icon: "⚡" },
-  { key: "wealth",    title: "Wealth Multiplier",     icon: "💹" },
-  { key: "audit",     title: "Platform Audit",        icon: "🔍" },
-  { key: "meta",      title: "Meta Transcend",        icon: "🌌" },
-  { key: "maximizer", title: "Wealth Maximizer",      icon: "💪" },
-  { key: "enforcer",  title: "Platform 100% Enforcer", icon: "🔒" },
-  { key: "ultimate",     title: "Ultimate Zero-Touch Launch",   icon: "🔥" },
-  { key: "projections",  title: "Financial Projections",         icon: "📈" },
-  { key: "payout",       title: "Huntington ACH Payout",         icon: "🏦" },
+  { key: "market",    title: "Market Engine",             icon: "🏪" },
+  { key: "hybrid",    title: "Hybrid Engine",              icon: "⚡" },
+  { key: "wealth",    title: "Wealth Tracker",             icon: "💹" },
+  { key: "audit",     title: "Platform Audit",             icon: "🔍" },
+  { key: "meta",      title: "Meta Transcend",             icon: "🌌" },
+  { key: "maximizer", title: "Wealth Maximizer",           icon: "💪" },
+  { key: "enforcer",  title: "Platform Enforcer",          icon: "🔒" },
+  { key: "ultimate",  title: "Ultimate Zero-Touch Launch", icon: "🔥" },
+  { key: "payout",    title: "Huntington ACH Payout",      icon: "🏦" },
 ];
 
+const emptyVisible = (): Record<ModuleKey, boolean> => ({
+  market: true, hybrid: true, wealth: true, audit: true, meta: true,
+  maximizer: true, enforcer: true, ultimate: true, payout: true,
+});
+
+const emptyStats = (): AllStats => ({
+  market: null, hybrid: null, wealth: null, audit: null, meta: null,
+  maximizer: null, enforcer: null, ultimate: null, payout: null,
+});
+
 export default function UltimateTranscendDashboard() {
-  const [visible, setVisible] = useState<Record<ModuleKey, boolean>>({
-    market: true, hybrid: true, wealth: true, audit: true, meta: true, maximizer: true, enforcer: true, ultimate: true, projections: true, payout: true,
-  });
-
-  const [stats, setStats] = useState<AllStats>({
-    market: null, hybrid: null, wealth: null, audit: null, meta: null, maximizer: null, enforcer: null, ultimate: null, projections: null, payout: null,
-  });
-
+  const [visible, setVisible] = useState<Record<ModuleKey, boolean>>(emptyVisible());
+  const [stats,   setStats]   = useState<AllStats>(emptyStats());
   const [loading, setLoading] = useState(false);
   const [lastTs,  setLastTs]  = useState<string>("");
   const [error,   setError]   = useState<string>("");
@@ -524,7 +410,7 @@ export default function UltimateTranscendDashboard() {
     setLoading(true);
     setError("");
     try {
-      const [market, hybrid, wealth, audit, meta, maximizer, enforcer, ultimate, projections, payout] = await Promise.allSettled([
+      const [market, hybrid, wealth, audit, meta, maximizer, enforcer, ultimate, payout] = await Promise.allSettled([
         fetch("/api/real-market/stats").then(r => r.json()),
         fetch("/api/hybrid/stats").then(r => r.json()),
         fetch("/api/wealth/snapshot").then(r => r.json()),
@@ -533,26 +419,22 @@ export default function UltimateTranscendDashboard() {
         fetch("/api/maximizer/stats").then(r => r.json()),
         fetch("/api/enforcer/stats").then(r => r.json()),
         fetch("/api/ultimate/stats").then(r => r.json()),
-        fetch("/api/meta/projections").then(r => r.json()),
         fetch("/api/payout/stats").then(r => r.json()),
       ]);
 
       setStats({
-        market:      market.status      === "fulfilled" ? market.value      : null,
-        hybrid:      hybrid.status      === "fulfilled" ? hybrid.value      : null,
-        wealth:      wealth.status      === "fulfilled" ? wealth.value      : null,
-        audit:       audit.status       === "fulfilled" && !audit.value?.message ? audit.value : null,
-        meta:        meta.status        === "fulfilled" ? meta.value        : null,
-        maximizer:   maximizer.status   === "fulfilled" ? maximizer.value   : null,
-        enforcer:    enforcer.status    === "fulfilled" ? enforcer.value     : null,
-        ultimate:    ultimate.status    === "fulfilled" ? ultimate.value     : null,
-        projections: projections.status === "fulfilled" && !projections.value?.error
-          ? projections.value
-          : null,
-        payout:      payout.status === "fulfilled" ? payout.value : null,
+        market:    market.status    === "fulfilled" ? market.value    : null,
+        hybrid:    hybrid.status    === "fulfilled" ? hybrid.value    : null,
+        wealth:    wealth.status    === "fulfilled" ? wealth.value    : null,
+        audit:     audit.status     === "fulfilled" && !audit.value?.message ? audit.value : null,
+        meta:      meta.status      === "fulfilled" ? meta.value      : null,
+        maximizer: maximizer.status === "fulfilled" ? maximizer.value : null,
+        enforcer:  enforcer.status  === "fulfilled" ? enforcer.value  : null,
+        ultimate:  ultimate.status  === "fulfilled" ? ultimate.value  : null,
+        payout:    payout.status    === "fulfilled" ? payout.value    : null,
       });
       setLastTs(new Date().toLocaleTimeString());
-    } catch (e) {
+    } catch {
       setError("Fetch failed — retrying next cycle");
     } finally {
       setLoading(false);
@@ -565,34 +447,31 @@ export default function UltimateTranscendDashboard() {
     return () => clearInterval(id);
   }, [fetchAll]);
 
-  const toggle = (k: ModuleKey) =>
-    setVisible(prev => ({ ...prev, [k]: !prev[k] }));
-
+  const toggle    = (k: ModuleKey) => setVisible(prev => ({ ...prev, [k]: !prev[k] }));
   const allVisible = Object.values(visible).every(Boolean);
   const toggleAll  = () => {
     const next = !allVisible;
-    setVisible({ market: next, hybrid: next, wealth: next, audit: next, meta: next, maximizer: next, enforcer: next, ultimate: next, projections: next, payout: next });
+    setVisible({ market: next, hybrid: next, wealth: next, audit: next, meta: next,
+                 maximizer: next, enforcer: next, ultimate: next, payout: next });
   };
 
   return (
     <div style={{ minHeight: "100vh", background: BG, padding: "32px 24px", fontFamily: "-apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif" }}>
 
-      {/* ── Header ── */}
       <div style={{ maxWidth: 1100, margin: "0 auto" }}>
+        {/* ── Header ── */}
         <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", marginBottom: 24, flexWrap: "wrap", gap: 12 }}>
           <div>
             <h1 style={{ margin: 0, fontSize: 22, fontWeight: 700, color: "#0f172a", letterSpacing: "-0.02em" }}>
               🌌 Ultimate Transcend Engine
             </h1>
             <p style={{ margin: "4px 0 0", fontSize: 13, color: SLATE }}>
-              Live platform dashboard — all 9 engines · auto-refresh 60 s
+              Live operational dashboard — 9 engines · auto-refresh 60 s · real data only
             </p>
           </div>
           <div style={{ display: "flex", gap: 10, alignItems: "center" }}>
             {lastTs && (
-              <span style={{ fontSize: 12, color: SLATE }}>
-                Updated {lastTs}
-              </span>
+              <span style={{ fontSize: 12, color: SLATE }}>Updated {lastTs}</span>
             )}
             <button onClick={toggleAll} style={{
               fontSize: 12, fontWeight: 600, padding: "6px 14px",
@@ -637,14 +516,12 @@ export default function UltimateTranscendDashboard() {
               {key === "meta"      && stats.meta      && <MetaPanel      s={stats.meta}      />}
               {key === "maximizer" && stats.maximizer && <MaximizerPanel s={stats.maximizer} />}
               {key === "enforcer"  && stats.enforcer  && <EnforcerPanel  s={stats.enforcer}  />}
-              {key === "ultimate"    && stats.ultimate    && <UltimatePanel    s={stats.ultimate}    />}
-              {key === "projections" && stats.projections && <ProjectionsPanel s={stats.projections} />}
-              {key === "payout"      && stats.payout      && <PayoutPanel      s={stats.payout}      />}
+              {key === "ultimate"  && stats.ultimate  && <UltimatePanel  s={stats.ultimate}  />}
+              {key === "payout"    && stats.payout    && <PayoutPanel    s={stats.payout}    />}
 
-              {/* Loading skeleton */}
               {!stats[key] && (
                 <div style={{ display: "flex", flexDirection: "column", gap: 8 }}>
-                  {[1,2,3,4].map(i => (
+                  {[1, 2, 3, 4].map(i => (
                     <div key={i} style={{
                       height: 14, borderRadius: 6,
                       background: "rgba(99,102,241,0.07)",
@@ -659,7 +536,7 @@ export default function UltimateTranscendDashboard() {
 
         {/* ── Footer ── */}
         <div style={{ marginTop: 32, textAlign: "center", fontSize: 12, color: SLATE }}>
-          CreateAI Brain · Ultimate Transcendent Stack · All engines running · Growth enforced to 100%
+          CreateAI Brain · Ultimate Transcendent Stack · All engines running · Real data only
         </div>
       </div>
     </div>

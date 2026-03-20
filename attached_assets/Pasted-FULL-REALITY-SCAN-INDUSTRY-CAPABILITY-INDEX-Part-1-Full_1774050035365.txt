@@ -1,0 +1,57 @@
+FULL REALITY SCAN + INDUSTRY CAPABILITY INDEX
+
+Part 1 — Full Reality Scan  
+Give me a complete, literal, file-by-file, function-by-function, engine-by-engine
+inventory of everything that actually exists in this codebase RIGHT NOW.
+
+Rules:
+- Only report what is truly present in the real files.
+- No projections, no simulations, no assumptions, no invented details.
+- Do not summarize; list every file, every function, every class, every engine,
+  every service, every route, every listener, every loop, every scheduler, every
+  integration, every internal system, and every unconventional or expanded system.
+- Include all internal messaging, internal email, internal SMS, internal engines,
+  internal cycles, internal automation, and any “inside/outside” systems I built.
+- Include all real integrations and all simulated integrations, clearly labeled.
+- Include all transcendent, meta, or expanded engines exactly as they exist.
+
+Part 2 — Industry Capability Index  
+Based ONLY on what actually exists in the real codebase, evaluate this platform’s
+current capability level across EVERY industry and profession.
+
+For each industry:
+- Give a percentage score that reflects real capability based on the actual code.
+- Percentages may exceed 100% if the system surpasses typical industry standards.
+- No projections, no guesses, no hypotheticals — only real capability based on
+  what is actually implemented.
+- Include a brief explanation of why each industry received its score.
+
+Industries to include (not exhaustive — include all relevant ones):
+- Healthcare
+- Finance
+- Legal
+- Education
+- Logistics
+- Retail
+- Hospitality
+- Manufacturing
+- Government
+- Construction
+- Real estate
+- Creative industries
+- Technology
+- Marketing
+- Customer service
+- Nonprofits
+- International organizations
+- And any other industries the system touches based on real code.
+
+Part 3 — No Limits Rule  
+Do not cap percentages at 100%.  
+If the system exceeds typical industry capability, allow scores above 100%.
+
+Part 4 — Accuracy Rule  
+This report must be 100% factual, based ONLY on what is truly present in the
+codebase. No projections, no simulations, no placeholders, no invented features.
+
+Begin when ready.

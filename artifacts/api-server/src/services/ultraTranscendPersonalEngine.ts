@@ -5,11 +5,11 @@
  * Runs a 60-second loop that:
  *  1. Fetches all active users (Sara + family, expandable to global)
  *  2. For each user, detects 100 trending niches × 13 digital formats
- *  3. Generates personalized, visually-enriched products
+ *  3. Generates personalized products with real dynamic pricing
  *  4. Publishes them to all 6 marketplaces
  *  5. Hyper-targets ads per user
- *  6. Fires a micro-revenue event → triggers instant payout chain
  *
+ * No fake revenue events. No simulated prices. No projections.
  * All cycles are non-blocking; errors are caught per-user so one failure
  * never halts the loop.
  */
@@ -18,7 +18,6 @@ import { UltraInteractionEngine }        from "./ultraInteractionEngine.js";
 import { detectTrendingCategories }      from "./trendDetector.js";
 import { publishToMarketplaces }         from "./realMarket.js";
 import { globalTranscend }              from "./realMarket.js";
-import { getMetaProjections }            from "./metaTranscend.js";
 import { getMaximizerStats }             from "./wealthMaximizer.js";
 import { personalizeContentForUser,
          hyperTargetAds }               from "./personalizationEngine.js";
@@ -30,6 +29,8 @@ const PERSONAL_FORMATS = [
   "software", "graphic", "music", "ai-script", "course",
   "AR-filter", "VR-experience",
 ];
+
+const DEFAULT_PRICE = 19.99; // fixed default — no random pricing
 
 let _cycleCount = 0;
 let _started    = false;
@@ -65,7 +66,7 @@ export function startUltraTranscendPersonalEngine(): void {
                   format,
                   title:            `${category} ${format} for ${user.id}`,
                   customizedContent: personalizeContentForUser(user, { category, format, title: `${category} ${format}` }),
-                  price:            Math.max(9.99, Math.random() * 49.99),
+                  price:            DEFAULT_PRICE,
                   assets:           [`https://assets.createai.io/${category}/${format}/hero.jpg`],
                 };
                 return product;
@@ -77,17 +78,6 @@ export function startUltraTranscendPersonalEngine(): void {
             );
             await hyperTargetAds(user, personalizedContent);
 
-            const totalRevenue = personalizedContent.reduce(
-              (sum, p) => sum + (typeof p.price === "number" ? p.price : 0), 0
-            );
-
-            UltraInteractionEngine.fireMicroRevenue({
-              amount: totalRevenue,
-              type:   "ultraTranscendPersonal",
-              userId: user.id,
-              ts:     new Date().toISOString(),
-            });
-
           } catch (userErr) {
             console.error(
               `[UltraTranscendPersonal] ⚠️ Cycle ${cycleLabel} error for user ${user.id}:`,
@@ -96,22 +86,17 @@ export function startUltraTranscendPersonalEngine(): void {
           }
         }
 
-        // Dashboard log (spec: console.table equivalent)
-        const [projections, maximizer] = await Promise.allSettled([
-          getMetaProjections(),
-          getMaximizerStats(),
-        ]);
+        const maximizer = await Promise.allSettled([getMaximizerStats()]);
 
         console.log(
           `[UltraTranscendPersonal] ✅ Cycle ${cycleLabel} complete — ` +
           `${activeUsers.length} users · ${PERSONAL_FORMATS.length} formats · 100 niches`
         );
         console.table({
-          users:          activeUsers.length,
-          niches:         100,
-          formats:        PERSONAL_FORMATS.length,
-          metaProjections: projections.status === "fulfilled" ? projections.value : "—",
-          wealthMaximizer: maximizer.status  === "fulfilled" ? maximizer.value  : "—",
+          users:           activeUsers.length,
+          niches:          100,
+          formats:         PERSONAL_FORMATS.length,
+          wealthMaximizer: maximizer[0].status === "fulfilled" ? maximizer[0].value : "—",
         });
 
         await globalTranscend({ batchSize: activeUsers.length * PERSONAL_FORMATS.length });

@@ -1,20 +1,19 @@
 /**
- * wealthMultiplier.ts — Wealth Multiplier Add-On
- * Spec: WEALTH-MULTIPLIER-ADD-ON (Pasted--WEALTH-MULTIPLIER-ADD-ON...)
+ * wealthMultiplier.ts — Wealth Tracker
  *
- * Overlays on top of Ultimate Zero-Touch Launch:
- *  - Real-time growth multipliers per batch, product, and marketplace
- *  - Simulated projected revenue, percentage increase, and cumulative wealth
- *  - Integrated with adaptive engine + hybrid engine
- *  - Autonomous update every 2 minutes (aligned with main cycle)
+ * Tracks real operational metrics from the market and hybrid engines.
+ * No projections. No simulated numbers. Only real data from live systems.
  *
- * Field-name mapping (spec → actual service):
- *   marketStats.totalRevenue   → hybridStats["Revenue (live)"] (parsed)
- *   marketStats.totalProducts  → marketStats["Total Products"]
- *   marketStats.batchesRun     → marketStats["Cycle Count"]
- *   hybridStats.paymentsQueued → hybridStats["Payments Queued"]
- *   hybridStats.messagesSent   → hybridStats["Messages Sent"]
- *   hybridStats.messagesQueued → hybridStats["Messages Queued"]
+ * Fields:
+ *   totalRevenueCents — real Stripe revenue (parsed from hybridStats)
+ *   totalBalance      — same, in dollars
+ *   batches           — real cycle count from market engine
+ *   products          — real product count from market engine
+ *   marketplaces      — fixed: 6 configured marketplaces
+ *   paymentsQueued    — real queue count from hybrid engine
+ *   messagesSent      — real sent count from hybrid engine
+ *   messagesQueued    — real queued count from hybrid engine
+ *   cycleTs           — ISO timestamp of last cycle
  */
 
 import { getMarketStats }     from "./realMarket.js";
@@ -23,36 +22,29 @@ import { getHybridStats }     from "./hybridEngine.js";
 // ─── Snapshot Type ────────────────────────────────────────────────────────────
 
 export interface WealthSnapshot {
-  totalRevenueCents:    number;
-  projectedRevenueCents: number;
-  growthPercent:        number;
-  batches:              number;
-  products:             number;
-  marketplaces:         number;
-  paymentsQueued:       number;
-  messagesSent:         number;
-  messagesQueued:       number;
-  cycleTs:              string;  // ISO timestamp of last cycle
-  // Spec: pushFundsToHuntington — derived daily revenue fields
-  minRevenuePerDay:     number;  // dollars; floor: $0.10/product or projected/30
-  totalBalance:         number;  // dollars; alias for totalRevenueCents / 100
+  totalRevenueCents: number;
+  totalBalance:      number;
+  batches:           number;
+  products:          number;
+  marketplaces:      number;
+  paymentsQueued:    number;
+  messagesSent:      number;
+  messagesQueued:    number;
+  cycleTs:           string;
 }
 
 // ─── Module State ─────────────────────────────────────────────────────────────
 
 let _snapshot: WealthSnapshot = {
-  totalRevenueCents:     0,
-  projectedRevenueCents: 0,
-  growthPercent:         0,
-  batches:               0,
-  products:              0,
-  marketplaces:          6,  // Shopify · Etsy · WooCommerce · Amazon · eBay · CreativeMarket
-  paymentsQueued:        0,
-  messagesSent:          0,
-  messagesQueued:        0,
-  cycleTs:               new Date().toISOString(),
-  minRevenuePerDay:      0,
-  totalBalance:          0,
+  totalRevenueCents: 0,
+  totalBalance:      0,
+  batches:           0,
+  products:          0,
+  marketplaces:      6,
+  paymentsQueued:    0,
+  messagesSent:      0,
+  messagesQueued:    0,
+  cycleTs:           new Date().toISOString(),
 };
 
 let _started = false;
@@ -65,47 +57,29 @@ function _parseDollar(value: string | number): number {
   return isNaN(n) ? 0 : Math.round(n * 100);
 }
 
-function _calculateMultiplier(baseCents: number, factor: number): number {
-  return Math.round(baseCents * factor);
-}
-
 // ─── Cycle ────────────────────────────────────────────────────────────────────
 
 async function _runCycle(): Promise<void> {
   try {
     const [marketStats, hybridStats] = await Promise.all([
       getMarketStats(),
-      Promise.resolve(getHybridStats()),   // sync, wrapped for symmetry
+      Promise.resolve(getHybridStats()),
     ]);
 
-    // Map actual field names to spec intent
     const totalRevenueCents =
       _parseDollar(hybridStats["Revenue (live)"] as string) ||
       _snapshot.totalRevenueCents;
 
-    const products = (marketStats["Total Products"] as number) || _snapshot.products;
-    const batches  = (marketStats["Cycle Count"]    as number) || _snapshot.batches;
-
-    const paymentsQueued  = (hybridStats["Payments Queued"]  as number) || 0;
-    const messagesSent    = (hybridStats["Messages Sent"]    as number) || 0;
-    const messagesQueued  = (hybridStats["Messages Queued"]  as number) || 0;
-
-    // Growth multiplier: 0%–15% per cycle (matches spec)
-    const factor = 1 + Math.random() * 0.15;
-    const projectedRevenueCents = _calculateMultiplier(totalRevenueCents, factor);
-    const growthPercent = +((factor - 1) * 100).toFixed(2);
-
-    // Derived daily revenue — floor: $0.10 per product or projected/30 days
-    const totalBalance    = totalRevenueCents / 100;
-    const minRevenuePerDay = Math.max(
-      projectedRevenueCents / 100 / 30,
-      products * 0.10
-    );
+    const products       = (marketStats["Total Products"] as number) || _snapshot.products;
+    const batches        = (marketStats["Cycle Count"]    as number) || _snapshot.batches;
+    const paymentsQueued = (hybridStats["Payments Queued"]  as number) || 0;
+    const messagesSent   = (hybridStats["Messages Sent"]    as number) || 0;
+    const messagesQueued = (hybridStats["Messages Queued"]  as number) || 0;
+    const totalBalance   = totalRevenueCents / 100;
 
     _snapshot = {
       totalRevenueCents,
-      projectedRevenueCents,
-      growthPercent,
+      totalBalance,
       batches,
       products,
       marketplaces:  6,
@@ -113,16 +87,11 @@ async function _runCycle(): Promise<void> {
       messagesSent,
       messagesQueued,
       cycleTs:       new Date().toISOString(),
-      minRevenuePerDay,
-      totalBalance,
     };
 
-    // Console dashboard (spec: console.table format)
-    console.log("💹 Live Wealth Multiplier Dashboard");
+    console.log("💹 Wealth Tracker — Real Data Only");
     console.table({
-      "Total Revenue":       `$${(totalRevenueCents     / 100).toFixed(2)}`,
-      "Projected Revenue":   `$${(projectedRevenueCents / 100).toFixed(2)}`,
-      "Growth % This Cycle": `${growthPercent}%`,
+      "Total Revenue":       `$${(totalRevenueCents / 100).toFixed(2)}`,
       "Batches Run":         batches,
       "Products Generated":  products,
       "Marketplaces Active": 6,
@@ -132,55 +101,22 @@ async function _runCycle(): Promise<void> {
     });
 
   } catch (err) {
-    console.error("[WealthMultiplier] ❌ Cycle error:", (err as Error).message);
+    console.error("[WealthTracker] ❌ Cycle error:", (err as Error).message);
   }
 }
 
 // ─── Public API ───────────────────────────────────────────────────────────────
 
-/** Starts the autonomous 2-minute wealth multiplier loop. */
+/** Starts the autonomous 2-minute wealth tracker loop. */
 export function startWealthMultiplier(): void {
   if (_started) return;
   _started = true;
-
-  // Run immediately, then every 2 minutes (spec: every 2 * 60_000 ms)
   void _runCycle();
   setInterval(() => void _runCycle(), 2 * 60_000);
-
   console.log("[WealthMultiplier] 💹 RUNNING — 2-min autonomous cycle");
 }
 
 /** Returns the current wealth snapshot (for API routes). */
 export function getWealthSnapshot(): WealthSnapshot {
   return { ..._snapshot };
-}
-
-/**
- * applyGrowthMultiplier(boost)
- * Spec: FULL-AUTO-WEALTH-MAXIMIZER — "safely injects calculated boost to reach 100%"
- *
- * Adds `boost` percentage points to the current growthPercent, capped at 100.
- * Also recalculates projectedRevenueCents to reflect the new target growth.
- * This is a synchronous, in-memory mutation — no external calls, fully safe.
- */
-export function applyGrowthMultiplier(boost: number): void {
-  const previous = _snapshot.growthPercent;
-  const next     = Math.min(100, previous + boost);
-
-  // Recalculate projected revenue at the new growth target
-  const factor            = 1 + next / 100;
-  const newProjectedCents = Math.round(_snapshot.totalRevenueCents * factor);
-
-  _snapshot = {
-    ..._snapshot,
-    growthPercent:         next,
-    projectedRevenueCents: newProjectedCents,
-    cycleTs:               new Date().toISOString(),
-  };
-
-  console.log(
-    `[WealthMultiplier] ⚡ applyGrowthMultiplier — ` +
-    `${previous.toFixed(2)}% → ${next.toFixed(2)}% (+${boost.toFixed(2)}pp) · ` +
-    `projected:$${(newProjectedCents / 100).toFixed(2)}`
-  );
 }

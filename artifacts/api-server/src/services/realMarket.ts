@@ -137,7 +137,7 @@ export function getMarketplaceNames(): string[] {
 
 export async function createProductFromTrend(): Promise<MarketProduct> {
   const niche = fetchTrendingNiche();
-  const price = Math.floor(Math.random() * 30) + 10; // $10–$39
+  const price = 19; // fixed default price
 
   const product: MarketProduct = {
     id:          randomUUID(),
@@ -324,7 +324,7 @@ export const realMarketFlow = {
 
     for (const niche of categories) {
       for (const format of digitalFormats) {
-        const basePrice = Math.floor(Math.random() * 30) + 10;
+        const basePrice = 19; // fixed default price
         const formatLabel = format ? ` (${format})` : "";
         const p: MarketProduct = {
           id:          randomUUID(),
