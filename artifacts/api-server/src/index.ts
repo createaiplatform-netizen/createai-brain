@@ -5,8 +5,9 @@ import { finalizeConfiguration } from "./services/systemConfigurator";
 import { brainEngine }           from "./engine/BrainEnforcementEngine.js";
 import { notifyFamily }          from "./utils/notifications.js";
 import { startupAutoExecutor }   from "./BrainAutoExecutor.js";
-import { startAboveTranscendEngine } from "./services/aboveTranscend/engine.js";
+import { startAboveTranscendEngine }    from "./services/aboveTranscend/engine.js";
 import { initFamilyAgents, ensureStripeCustomers } from "./services/familyAgents.js";
+import { initRealStripeIntegration }   from "./services/aboveTranscend/realStripeIntegration.js";
 
 // Wire all DI services before the server binds. All factories are lazy —
 // nothing is instantiated here, just registered.
@@ -49,6 +50,7 @@ app.listen(port, () => {
     await ensureStripeCustomers();
     initFamilyAgents();
     startAboveTranscendEngine();
+    initRealStripeIntegration();
 
     if (process.env.BRAIN_AUTO_START === "true") {
       console.log("[AutoExecutor] BRAIN_AUTO_START=true — launching auto-execution sequence…");
