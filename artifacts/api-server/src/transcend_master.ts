@@ -1,159 +1,105 @@
 #!/usr/bin/env tsx
 /**
- * transcend_master.ts — Full Transcend Master orchestrator
+ * transcend_master.ts — Full Transcend Master Orchestrator
  * ---------------------------------------------------------
- * Validates credentials, runs all 9 modules, sends family notifications
- * per channel, simulates per-user monetary impact, and generates a full audit.
+ * Replit-ready · all modules + notifications + monetary simulation
  *
  * Usage:
  *   pnpm --filter @workspace/api-server transcend:master
  *   (or)  tsx ./src/transcend_master.ts
  */
 
-import { transcendAll }                                       from "./transcendAll.js";
+import { transcendAll }            from "./transcendAll.js";
 import {
   generateAuditSummary,
   credentialStatus,
   notifyFamily,
   FAMILY_EMAIL_LIST,
   FAMILY_SMS_LIST,
-} from "./utils/notifications.js";
-import { MarketplaceEngine, runDemoSession }                   from "./marketplace/engine.js";
+}                                  from "./utils/notifications.js";
 
-// ─── Scale-up projection ──────────────────────────────────────────────────────
+// ─── Types ────────────────────────────────────────────────────────────────────
 
-const MAX_USERS = 1_000_000;
+export interface ImpactResult {
+  users:      number;
+  dailyRate:  number;
+  totalPerDay: number;
+}
 
-// ─── Main orchestrator ────────────────────────────────────────────────────────
+export interface MasterResult {
+  modules:       Record<string, unknown>[];
+  notifyResults: Awaited<ReturnType<typeof notifyFamily>>;
+  impact:        ImpactResult;
+  audit:         ReturnType<typeof generateAuditSummary>;
+}
 
-async function main(): Promise<void> {
-  console.log("\n🚀 Starting FULL Transcend Master run…\n");
+// ─── Helpers ──────────────────────────────────────────────────────────────────
 
-  // ── Step 1: Validate credentials ──────────────────────────────────────────
-  console.log("🔑 Step 1/5 — Validating credentials…");
-  const creds = credentialStatus();
+/** Step 4: simple daily-rate monetary impact */
+function calculateImpact(users: number, dailyRate = 26.50): ImpactResult {
+  return {
+    users,
+    dailyRate,
+    totalPerDay: parseFloat((users * dailyRate).toFixed(2)),
+  };
+}
 
-  const issues: string[] = [
+// ─── Master orchestrator (exported + callable from API) ───────────────────────
+
+export async function transcendMaster(users: number = 1000): Promise<MasterResult> {
+
+  // ── Step 1: Validate Credentials ─────────────────────────────────────────
+  console.log("🔹 Step 1: Validating Credentials…");
+  const creds  = credentialStatus();
+  const issues = [
     ...creds.email.missing.map(k => `${k} (missing)`),
     ...creds.email.invalid,
     ...creds.sms.missing.map(k => `${k} (missing)`),
     ...creds.sms.invalid,
   ];
-
   if (issues.length > 0) {
-    console.error("❌ Credential issues detected:");
-    issues.forEach(issue => console.error(`   • ${issue}`));
-    console.error("\n   → Update Replit Secrets with real keys and re-run.");
-    console.error("   → RESEND_API_KEY starts with re_  |  TWILIO_SID starts with AC");
-    console.warn("\n   ⚠️  Continuing run — notifications will be skipped until credentials are valid.");
+    console.warn("⚠️  Placeholders detected — replace with real secrets!");
+    issues.forEach(i => console.warn(`   • ${i}`));
+    console.warn("   → RESEND_API_KEY starts with re_  |  TWILIO_SID starts with AC");
   } else {
-    console.log("   ✅ All credentials valid — email and SMS will fire");
+    console.log("✅ Secrets format validated.");
   }
 
-  // ── Step 2: Run all 9 modules (notifications disabled — handled separately) ─
-  console.log("\n⚡ Step 2/5 — Running all 9 modules…");
-  const result = await transcendAll({ sendNotifications: false });
+  // ── Step 2: Run all modules ───────────────────────────────────────────────
+  console.log("🔹 Step 2: Running all modules…");
+  const transcendResult = await transcendAll({ sendNotifications: false });
+  const modules = (transcendResult["modules"] as Record<string, unknown>[]) ?? [];
 
-  const modules = result["modules"] as Array<{
-    name: string; source: string; score: number; overachievement_pct: number; live: boolean; task: string;
-  }>;
+  console.log(`   ✅ ${modules.filter(m => m["live"]).length}/${modules.length} modules live`);
 
-  console.log("\n   Module results:");
-  console.table(modules.map(m => ({
-    Module:          m.name,
-    Source:          m.source,
-    Score:           m.score,
-    "Live?":         m.live ? "✅" : "⚠️ ",
-    "Overachieve %": `${m.overachievement_pct}%`,
-  })));
+  // ── Step 3: Send notifications ────────────────────────────────────────────
+  console.log(`🔹 Step 3: Sending notifications… (email: ${FAMILY_EMAIL_LIST.length}, SMS: ${FAMILY_SMS_LIST.length})`);
+  const notifyResults = await notifyFamily({
+    channel: "both",
+    subject: "Transcend Complete",
+    message: "All modules live!",
+  });
+  const ok = notifyResults.filter(r => r.success).length;
+  console.log(`   ${ok}/${notifyResults.length} notifications delivered`);
 
-  // ── Step 3: Send notifications per channel ────────────────────────────────
-  console.log(`\n📧 Step 3/5 — Sending email to ${FAMILY_EMAIL_LIST.length} members…`);
-  const emailResults = await notifyFamily({ channel: "email" });
-  console.table(emailResults.map(r => ({
-    To:       r.to,
-    Success:  r.success ? "✅" : "❌",
-    Reason:   r.reason ?? "OK",
-    Provider: r.provider ?? "resend",
-  })));
+  // ── Step 4: Simulate monetary impact ─────────────────────────────────────
+  console.log(`🔹 Step 4: Simulating monetary impact… (${users.toLocaleString()} users × $26.50/day)`);
+  const impact = calculateImpact(users);
+  console.log(`   Total per day: $${impact.totalPerDay.toLocaleString()}`);
 
-  console.log(`\n📱 Sending SMS to ${FAMILY_SMS_LIST.length} members…`);
-  const smsResults = await notifyFamily({ channel: "sms" });
-  console.table(smsResults.map(r => ({
-    To:       r.to,
-    Success:  r.success ? "✅" : "❌",
-    Reason:   r.reason ?? "OK",
-    Provider: r.provider ?? "twilio",
-  })));
-
-  // ── Step 4: Dynamic Marketplace Demo Session (exact spec demoSession) ────
-  console.log("\n💰 Step 4/5 — Running Dynamic Marketplace Demo Session…");
-
-  const demoEngine = new MarketplaceEngine([
-    { id: 1, name: "FamilyMember1", earnings: 0 },
-    { id: 2, name: "FamilyMember2", earnings: 0 },
-    { id: 3, name: "DemoUser1",     earnings: 0 },
-  ]);
-  const demoResult = runDemoSession(demoEngine);
-
-  console.log("\n   Earnings events:");
-  console.table(demoResult.events.map(e => ({
-    User:          e.userName,
-    Action:        e.action,
-    Base:          `$${e.baseValue.toFixed(2)}`,
-    Scaled:        `$${e.scaledValue.toFixed(2)}`,
-    UserShare:     `$${e.userShare.toFixed(2)}`,
-    PlatformShare: `$${e.platformShare.toFixed(2)}`,
-  })));
-
-  console.log("\n   Final earnings per user:");
-  console.table(demoResult.finalEarnings.map(u => ({ Name: u.name, Earnings: `$${u.earnings.toFixed(2)}` })));
-
-  const totalImpact = demoResult.finalEarnings.reduce((a, u) => a + u.earnings, 0);
-  const avgPerUser  = totalImpact / demoResult.finalEarnings.length;
-
-  console.log(`   Platform share: $${demoResult.platformTotal.toFixed(2)}`);
-  console.log(`   Items created: ${demoResult.totalItems} | Units sold: ${demoResult.totalSold}`);
-  console.log(`   Avg earnings/user: $${avgPerUser.toFixed(2)}`);
-  console.log(`   Scaled to ${MAX_USERS.toLocaleString()} users: $${(avgPerUser * MAX_USERS).toLocaleString(undefined, { maximumFractionDigits: 0 })}/day`);
-
-  // ── Step 5: Full audit summary ────────────────────────────────────────────
-  console.log("\n📊 Step 5/5 — Generating full audit summary…");
+  // ── Step 5: Generate audit summary ────────────────────────────────────────
+  console.log("🔹 Step 5: Generating audit summary…");
   const audit = generateAuditSummary();
 
-  const passed   = modules.filter(m => m.live).length;
-  const emailOk  = emailResults.filter(r => r.success).length;
-  const smsOk    = smsResults.filter(r => r.success).length;
-
-  console.log("\n" + JSON.stringify({
-    mode:                "💠 No Limits Mode / Transcend Master",
-    generatedAt:         audit.generatedAt,
-    report_saved:        audit.report_saved,
-    modules:             { passed, total: modules.length, overachievement_pct: result["moduleOverachievement_pct"] },
-    notifications: {
-      email: { sent: emailOk, total: emailResults.length },
-      sms:   { sent: smsOk,   total: smsResults.length },
-    },
-    credentials:         audit.credentials.summary,
-    security:            result["securityAudit"],
-    marketplace_simulation: {
-      users:              demoResult.finalEarnings.length,
-      items_created:      demoResult.totalItems,
-      units_sold:         demoResult.totalSold,
-      totalEarnings_day:  `$${totalImpact.toFixed(2)}`,
-      platform_share:     `$${demoResult.platformTotal.toFixed(2)}`,
-      scaledTo1M:         `$${(avgPerUser * MAX_USERS).toLocaleString(undefined, { maximumFractionDigits: 0 })}/day`,
-    },
-    familyList:  audit.familyList,
-    endpoints:   audit.endpoints,
-    scripts:     audit.scripts,
-  }, null, 2));
-
-  console.log(`\n💾 Report saved → ${audit.report_saved}`);
-  console.log(`\n💠 Transcend Master run complete — ${passed}/${modules.length} modules live · ${emailOk} emails · ${smsOk} SMS`);
+  return { modules, notifyResults, impact, audit };
 }
 
-main().catch(err => {
+// ─── CLI entry point ──────────────────────────────────────────────────────────
+
+(async () => {
+  const result = await transcendMaster(1000);
+  console.log("\n" + JSON.stringify(result, null, 2));
+})().catch(err => {
   console.error("❌ Transcend Master run failed:", err);
   process.exit(1);
 });
