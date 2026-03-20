@@ -18,26 +18,11 @@ import {
   FAMILY_EMAIL_LIST,
   FAMILY_SMS_LIST,
 } from "./utils/notifications.js";
+import { MarketplaceEngine, runDemoSession }                   from "./marketplace/engine.js";
 
-// ─── Monetary / impact simulation ─────────────────────────────────────────────
+// ─── Scale-up projection ──────────────────────────────────────────────────────
 
-const IMPACT_CONFIG = {
-  baseDailyUSD:    25,        // starting daily "earnings" per person
-  perClickIncrement: 1.5,    // increase per click
-  dailyLimit:      1,         // max clicks counted per person per day
-  maxUsers:        1_000_000, // scaling cap for simulation
-};
-
-const userStats: Record<string, { clicksToday: number }> = {};
-
-function calculateImpact(userId: string): number {
-  if (!userStats[userId]) userStats[userId] = { clicksToday: 0 };
-  const user = userStats[userId];
-  if (user.clicksToday >= IMPACT_CONFIG.dailyLimit) return 0;
-  user.clicksToday += 1;
-  const impact = IMPACT_CONFIG.baseDailyUSD + (IMPACT_CONFIG.perClickIncrement * user.clicksToday);
-  return Math.min(impact, IMPACT_CONFIG.baseDailyUSD * 2); // cap per user at 2× base
-}
+const MAX_USERS = 1_000_000;
 
 // ─── Main orchestrator ────────────────────────────────────────────────────────
 
@@ -101,21 +86,36 @@ async function main(): Promise<void> {
     Provider: r.provider ?? "twilio",
   })));
 
-  // ── Step 4: Simulate per-user monetary impact ─────────────────────────────
-  console.log("\n💰 Step 4/5 — Simulating daily impact per user…");
-  const simulatedUsers = ["user1", "user2", "user3", "user4", "user5"];
-  const earnings: Record<string, string> = {};
-  let totalImpact = 0;
+  // ── Step 4: Dynamic Marketplace Demo Session (exact spec demoSession) ────
+  console.log("\n💰 Step 4/5 — Running Dynamic Marketplace Demo Session…");
 
-  simulatedUsers.forEach(uid => {
-    const impact   = calculateImpact(uid);
-    earnings[uid]  = `$${impact.toFixed(2)}/day`;
-    totalImpact   += impact;
-  });
+  const demoEngine = new MarketplaceEngine([
+    { id: 1, name: "FamilyMember1", earnings: 0 },
+    { id: 2, name: "FamilyMember2", earnings: 0 },
+    { id: 3, name: "DemoUser1",     earnings: 0 },
+  ]);
+  const demoResult = runDemoSession(demoEngine);
 
-  console.table(earnings);
-  console.log(`   Total simulated impact: $${totalImpact.toFixed(2)}/day across ${simulatedUsers.length} users`);
-  console.log(`   Scaled to ${IMPACT_CONFIG.maxUsers.toLocaleString()} users: $${(totalImpact / simulatedUsers.length * IMPACT_CONFIG.maxUsers).toLocaleString(undefined, { maximumFractionDigits: 0 })}/day`);
+  console.log("\n   Earnings events:");
+  console.table(demoResult.events.map(e => ({
+    User:          e.userName,
+    Action:        e.action,
+    Base:          `$${e.baseValue.toFixed(2)}`,
+    Scaled:        `$${e.scaledValue.toFixed(2)}`,
+    UserShare:     `$${e.userShare.toFixed(2)}`,
+    PlatformShare: `$${e.platformShare.toFixed(2)}`,
+  })));
+
+  console.log("\n   Final earnings per user:");
+  console.table(demoResult.finalEarnings.map(u => ({ Name: u.name, Earnings: `$${u.earnings.toFixed(2)}` })));
+
+  const totalImpact = demoResult.finalEarnings.reduce((a, u) => a + u.earnings, 0);
+  const avgPerUser  = totalImpact / demoResult.finalEarnings.length;
+
+  console.log(`   Platform share: $${demoResult.platformTotal.toFixed(2)}`);
+  console.log(`   Items created: ${demoResult.totalItems} | Units sold: ${demoResult.totalSold}`);
+  console.log(`   Avg earnings/user: $${avgPerUser.toFixed(2)}`);
+  console.log(`   Scaled to ${MAX_USERS.toLocaleString()} users: $${(avgPerUser * MAX_USERS).toLocaleString(undefined, { maximumFractionDigits: 0 })}/day`);
 
   // ── Step 5: Full audit summary ────────────────────────────────────────────
   console.log("\n📊 Step 5/5 — Generating full audit summary…");
@@ -136,10 +136,13 @@ async function main(): Promise<void> {
     },
     credentials:         audit.credentials.summary,
     security:            result["securityAudit"],
-    impact_simulation: {
-      users:         simulatedUsers.length,
-      totalUSD_day:  `$${totalImpact.toFixed(2)}`,
-      scaledTo1M:    `$${(totalImpact / simulatedUsers.length * IMPACT_CONFIG.maxUsers).toLocaleString(undefined, { maximumFractionDigits: 0 })}/day`,
+    marketplace_simulation: {
+      users:              demoResult.finalEarnings.length,
+      items_created:      demoResult.totalItems,
+      units_sold:         demoResult.totalSold,
+      totalEarnings_day:  `$${totalImpact.toFixed(2)}`,
+      platform_share:     `$${demoResult.platformTotal.toFixed(2)}`,
+      scaledTo1M:         `$${(avgPerUser * MAX_USERS).toLocaleString(undefined, { maximumFractionDigits: 0 })}/day`,
     },
     familyList:  audit.familyList,
     endpoints:   audit.endpoints,

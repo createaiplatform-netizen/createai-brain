@@ -1,0 +1,128 @@
+// ---------------------------
+// Replit Full Transcend + Marketplace Dynamic Scaling Demo
+// ---------------------------
+
+// CONFIGURATION (safe demo values)
+const CONFIG = {
+  SESSION_SECRET: "/1ifxz7VLXkwkf3XnKE5os0hm7CUXMrJRwigCOShTm1N4X/JG7vsCV7dP9DOPq0MLgXhUXrCfOZyxxxBlByZPQ==",
+  AI_BASE_URL: "http://localhost:1106/modelfarm/openai",
+  AI_API_KEY: "_DUMMY_API_KEY_",
+  RESEND_API_KEY: "demo@resend.dev",
+  TWILIO_SID: "+15005550006",
+  TWILIO_AUTH_TOKEN: "demo@resend.dev",
+};
+
+// USERS (demo)
+let users = [
+  { id: 1, name: "FamilyMember1", earnings: 0 },
+  { id: 2, name: "FamilyMember2", earnings: 0 },
+  { id: 3, name: "DemoUser1", earnings: 0 },
+];
+
+// MODULES (full transcend modules)
+const modules = [
+  { name: "Energy", score: 75, overachievement_pct: 150 },
+  { name: "Internet", score: 98, overachievement_pct: 170 },
+  { name: "Telecom", score: 92, overachievement_pct: 160 },
+  { name: "Finance", score: 97, overachievement_pct: 165 },
+  { name: "Media", score: 95, overachievement_pct: 155 },
+  { name: "Water", score: 90, overachievement_pct: 148 },
+  { name: "Healthcare", score: 97, overachievement_pct: 162 },
+  { name: "Transport", score: 93, overachievement_pct: 158 },
+  { name: "Custom", score: 91, overachievement_pct: 151 },
+];
+
+// MARKETPLACE ITEMS
+let marketplace = [];
+
+// NOTIFICATIONS (demo)
+const notifications = { email: { sent_to: 10, success: 10 }, sms: { sent_to: 8, success: 8 } };
+
+// ---------------------------
+// HELPER: DYNAMIC EARNINGS CALCULATION
+// ---------------------------
+function updateEarnings(userId, baseValue) {
+  const user = users.find(u => u.id === userId);
+  if (!user) return;
+
+  // Scaling factor: increases as more users and items participate
+  const activeUsersFactor = 1 + users.length * 0.02; // +2% per user
+  const itemsSoldFactor = 1 + marketplace.reduce((acc, i) => acc + i.sold, 0) * 0.01; // +1% per item sold
+
+  const scaledValue = baseValue * activeUsersFactor * itemsSoldFactor;
+
+  const userShare = scaledValue * 0.75;
+  const platformShare = scaledValue * 0.25;
+
+  user.earnings += userShare;
+
+  console.log(
+    `User ${user.name} earned $${userShare.toFixed(2)} | Platform earned $${platformShare.toFixed(2)} (Scaled)`
+  );
+}
+
+// ---------------------------
+// USER ACTIONS
+// ---------------------------
+function clickTranscend(userId) {
+  const baseValue = 1;
+  updateEarnings(userId, baseValue);
+  console.log(`Transcend clicked by ${users.find(u => u.id === userId).name}`);
+}
+
+function completeModule(userId, moduleName) {
+  const module = modules.find(m => m.name === moduleName);
+  if (!module) return;
+  const baseValue = module.score * module.overachievement_pct / 100;
+  updateEarnings(userId, baseValue);
+  console.log(`Module ${moduleName} completed by ${users.find(u => u.id === userId).name}`);
+}
+
+// ---------------------------
+// MARKETPLACE
+// ---------------------------
+function createItem(userId, title, price) {
+  const id = marketplace.length + 1;
+  marketplace.push({ id, creatorId: userId, title, price, sold: 0 });
+  console.log(`Item "${title}" created by ${users.find(u => u.id === userId).name} | Price: $${price}`);
+}
+
+function buyItem(buyerId, itemId) {
+  const item = marketplace.find(i => i.id === itemId);
+  if (!item) return;
+  item.sold += 1;
+  updateEarnings(item.creatorId, item.price);
+  console.log(`${users.find(u => u.id === buyerId).name} bought "${item.title}" | Price: $${item.price}`);
+}
+
+// ---------------------------
+// DEMO SESSION
+// ---------------------------
+function demoSession() {
+  console.log("\n=== Demo Transcend + Dynamic Marketplace Session ===");
+
+  // Clicks
+  clickTranscend(1);
+  clickTranscend(2);
+
+  // Module completions
+  completeModule(3, "Finance");
+  completeModule(1, "Media");
+  completeModule(2, "Healthcare");
+
+  // Marketplace creation & sales
+  createItem(1, "AI Workflow Template", 10);
+  createItem(2, "Home Care Automation Script", 15);
+
+  buyItem(3, 1);
+  buyItem(3, 2);
+
+  console.log("\n=== Current User Earnings ===");
+  users.forEach(u => console.log(`${u.name}: $${u.earnings.toFixed(2)}`));
+}
+
+// RUN IMMEDIATELY
+demoSession();
+
+// OPTIONAL: repeat session dynamically every hour
+setInterval(demoSession, 60 * 60 * 1000); 

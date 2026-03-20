@@ -59,8 +59,9 @@ import smartFhirSandboxRouter from "./smart-fhir-sandbox";
 import memoryRouter from "./memory";
 import aiRouter from "./ai";
 import dashboardRouter from "./dashboard";
-import brainRouter      from "./brain";
-import modulesRouter    from "./modules";
+import brainRouter       from "./brain";
+import modulesRouter     from "./modules";
+import marketplaceRouter from "./marketplace";
 import { accessMiddleware } from "../security/FullLockdown.js";
 import projectDocumentsRouter from "./projectDocuments";
 import invitesRouter       from "./invites";
@@ -154,6 +155,7 @@ router.use("/generate",           accessMiddleware, generateRouter);
 router.use("/dashboard",          accessMiddleware, dashboardRouter);
 router.use("/brain",              accessMiddleware, brainRouter);
 router.use("/modules",            modulesRouter);
+router.use("/marketplace",        marketplaceRouter);
 
 // ── System Command Processor ─────────────────────────────────────────────────
 router.use("/system",             systemRouter);
