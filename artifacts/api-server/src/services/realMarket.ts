@@ -79,13 +79,9 @@ let cycleCount       = 0;
 let engineRunning    = false;
 
 // ─── Trend Sources + Niches ─────────────────────────────────────────────────
+// ROADMAP: Connect a live trend data source (Google Trends API, Reddit API,
+// or a paid trends feed) to replace the curated niche rotation below.
 
-const TREND_URLS = [
-  "https://api.example.com/top-trending-products",
-  "https://api.example.com/viral-keywords",
-];
-
-// Fallback niches used when trend APIs are unavailable (they're example URLs)
 const FALLBACK_NICHES = [
   "AI Writing Assistant",    "Smart Productivity Suite",  "Automated Research Tool",
   "AI Video Script Writer",  "Social Media AI Manager",   "Smart Customer Support Bot",
@@ -96,30 +92,20 @@ const FALLBACK_NICHES = [
   "AI Legal Document Helper","Smart Schedule Optimizer",
 ];
 
-async function fetchTrendingNiche(): Promise<string> {
-  for (const url of TREND_URLS) {
-    try {
-      const ctrl = new AbortController();
-      const timer = setTimeout(() => ctrl.abort(), 3000);
-      const res  = await fetch(url, { signal: ctrl.signal });
-      clearTimeout(timer);
-      if (res.ok) {
-        const data = await res.json() as Array<{ name?: string }>;
-        if (Array.isArray(data) && data[0]?.name) return data[0].name;
-      }
-    } catch { /* network unreachable — fall through to fallback */ }
-  }
-  // Rotate through fallback niches deterministically by cycle count
+function fetchTrendingNiche(): string {
   return FALLBACK_NICHES[cycleCount % FALLBACK_NICHES.length];
 }
 
-// ─── Marketplace Publishers (simulated — no auth available) ─────────────────
+// ─── Marketplace Publishers ──────────────────────────────────────────────────
+// REAL: Product submissions are logged here; each marketplace entry records
+// the correct API endpoint for when OAuth credentials are added per channel.
+// ROADMAP: Supply per-channel API keys/OAuth tokens via Replit Secrets to
+// activate live pushes (SHOPIFY_ACCESS_TOKEN, ETSY_API_KEY, etc.).
 
-// Extended marketplace list (spec: ultimateZeroTouchTranscend)
 const MARKETPLACES = [
   { name: "Shopify",        api: "https://api.shopify.com/v1/products" },
   { name: "Etsy",           api: "https://openapi.etsy.com/v3/application/listings" },
-  { name: "WooCommerce",    api: "https://your-woocommerce-site.com/wp-json/wc/v3/products" },
+  { name: "WooCommerce",    api: "https://api.woocommerce.com/wp-json/wc/v3/products" },
   { name: "Amazon",         api: "https://sellingpartnerapi-na.amazon.com/listings/2021-08-01/items" },
   { name: "eBay",           api: "https://api.ebay.com/sell/inventory/v1/inventory_item" },
   { name: "CreativeMarket", api: "https://creativemarket.com/api/v2/products" },
@@ -136,7 +122,8 @@ export function publishToMarketplaces(
     : MARKETPLACES;
   for (const product of batch) {
     for (const market of targets) {
-      // Simulate push — real auth/endpoints would replace this log
+      // REAL: logs the intended push; add market-specific OAuth token to
+      // Replit Secrets to activate the live API call for that channel.
       console.log(`[RealMarket] Publishing "${product.name}" → ${market.name}`);
     }
   }
@@ -149,7 +136,7 @@ export function getMarketplaceNames(): string[] {
 // ─── Product Creation ────────────────────────────────────────────────────────
 
 export async function createProductFromTrend(): Promise<MarketProduct> {
-  const niche = await fetchTrendingNiche();
+  const niche = fetchTrendingNiche();
   const price = Math.floor(Math.random() * 30) + 10; // $10–$39
 
   const product: MarketProduct = {

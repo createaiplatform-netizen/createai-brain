@@ -1,0 +1,326 @@
+SYSTEM INTEGRITY SWEEP
+Full “no fake stuff, no placeholders, no silent errors” pass
+Designed for: your current platform, real-world readiness, founder-level confidence
+
+==================================================
+0. MINDSET + GOAL
+==================================================
+Goal: Prove to yourself that your system is:
+- Real (no fake/demo/placeholder logic in production paths)
+- Coherent (no dead ends, no orphaned flows)
+- Honest (no features pretending to exist that don’t)
+- Stable (no obvious breakpoints under normal use)
+- Ready (minimum 100% integrity for what you claim it does)
+
+Language for what you’re doing:
+- “Full system integrity audit”
+- “Placeholder and mock artifact sweep”
+- “Dead code and orphaned route cleanup”
+- “Production-readiness verification”
+- “End-to-end functional pass”
+
+==================================================
+1. PLACEHOLDER + MOCK SWEEP
+==================================================
+Purpose: Find anything that is fake, temporary, or demo-only.
+
+1.1. SEARCH TERMS (run across entire repo)
+Search your codebase for these strings:
+
+- TODO
+- FIXME
+- placeholder
+- mock
+- stub
+- demo
+- sample
+- example
+- fake
+- test-only
+- sandbox
+- lorem
+- temp
+- boilerplate
+- WIP
+- not implemented
+- coming soon
+- dummy
+- hardcoded
+
+For each hit:
+- Ask: “Is this reachable in production?”
+  - If NO → mark as dev-only, consider deleting or isolating.
+  - If YES → replace with real logic, real copy, or remove the feature.
+
+1.2. UI COPY SWEEP
+Search your UI text for:
+- “Coming soon”
+- “Demo”
+- “Prototype”
+- “Test”
+- “Mock”
+- “Beta only”
+- “Not wired yet”
+
+If any appear in user-facing flows:
+- Either:
+  - Wire them for real, OR
+  - Hide/remove them from the current release.
+
+==================================================
+2. DEAD CODE + ORPHANED ROUTES
+==================================================
+Purpose: Remove things that exist but are never used, which make the system feel fake or bloated.
+
+2.1. DEAD CODE CATEGORIES
+Look for:
+- Components never imported anywhere.
+- Functions never called.
+- Hooks never used.
+- Pages never linked to.
+- Routes never hit by any client.
+- API handlers that have no caller.
+
+2.2. PRACTICAL CHECK
+- Scan your routes file(s) and navigation:
+  - For each route:
+    - Is there a real way to reach it from the UI?
+    - Is it still part of the current product story?
+- If not:
+  - Either remove it, or move it into a clearly labeled “archive” or “labs” area.
+
+2.3. NAMING RED FLAGS
+Search for:
+- old_
+- legacy_
+- v2, v3, v4 (with older versions still hanging around)
+- backup_
+- copy_
+- _old
+- _unused
+
+Decide:
+- Keep and integrate?
+- Or delete to reduce noise and risk?
+
+==================================================
+3. FAKE / MOCK INTEGRATIONS
+==================================================
+Purpose: Ensure every integration you claim is real is actually real.
+
+3.1. STRIPE
+Check:
+- Are you using live or test keys?
+- Are you calling real Stripe endpoints, or mock URLs?
+- Are there any “fake payment” flows?
+
+You want:
+- Real Stripe keys in secrets (test is fine for now, but honest).
+- No UI that pretends to charge real money if it doesn’t.
+
+3.2. TWILIO
+Check:
+- TWILIO_SID is correct.
+- TWILIO_AUTH_TOKEN is correct.
+- TWILIO_PHONE is set (test number is okay, but honest).
+- No “pretend SMS sent” logic in production paths.
+
+3.3. EMAIL (Resend / others)
+Check:
+- Real API key in secrets.
+- Real from-address (even if test domain).
+- No “console.log instead of send” in production flows.
+
+3.4. OTHER INTEGRATIONS
+For each integration you mention anywhere (UI, docs, pitch):
+- Is there real code behind it?
+- Does it hit a real API?
+- Does it handle errors?
+- Or is it just a stub?
+
+If it’s not real yet:
+- Remove it from the UI, or clearly mark it as “not live yet” in a non-embarrassing way.
+
+==================================================
+4. WORKFLOW + FLOW INTEGRITY
+==================================================
+Purpose: Make sure every major flow works end-to-end with no silent breaks.
+
+4.1. DEFINE YOUR CORE FLOWS
+Write down your real, promised flows, for example:
+- User signup / login / logout
+- Create a project / workspace
+- Add data / configure settings
+- Run a workflow / generate something
+- View results / download / share
+- Notifications (email/SMS) if claimed
+- Billing (if claimed)
+- Admin / staff views (if claimed)
+
+4.2. MANUAL WALKTHROUGH
+For each flow:
+- Start from the first screen a user sees.
+- Click through as if you are a brand new user.
+- Confirm:
+  - No 404s
+  - No obvious console errors
+  - No “this doesn’t do anything” buttons
+  - No dead ends
+  - No “feature coming soon” where you promised something real.
+
+4.3. ERROR HANDLING
+Intentionally:
+- Enter bad data.
+- Leave required fields empty.
+- Trigger edge cases.
+
+Check:
+- Do you get a clear, friendly error?
+- Or does it crash / hang / silently fail?
+
+==================================================
+5. ENVIRONMENT + SECRETS SANITY
+==================================================
+Purpose: Make sure your system isn’t secretly broken by bad env values.
+
+5.1. SECRETS PANEL REVIEW
+For each secret:
+- SESSION_SECRET
+- STRIPE keys
+- TWILIO_SID
+- TWILIO_AUTH_TOKEN
+- TWILIO_PHONE
+- RESEND_FROM
+- ENCRYPTION_KEY
+- Any AI keys
+Ask:
+- Is this value:
+  - Real?
+  - Current?
+  - Not a random placeholder?
+  - Not a leftover from an old project?
+
+5.2. DUPLICATES + CONFLICTS
+Look for:
+- Duplicate keys (like two TWILIO_SID entries).
+- Old keys that should be deleted.
+- Misnamed keys (e.g., TWILIO_SID vs TWILIO_ACCOUNT_SID).
+
+Clean them:
+- One key per purpose.
+- No stale duplicates.
+
+==================================================
+6. LOGS + ERROR SURVEY
+==================================================
+Purpose: Find silent failures you’re not seeing in the UI.
+
+6.1. SERVER LOGS
+Check:
+- Startup logs: any warnings or errors?
+- Runtime logs: repeated errors?
+- Any stack traces that keep appearing?
+
+6.2. CLIENT (BROWSER) CONSOLE
+Open your app in the browser:
+- Open DevTools → Console.
+- Click through your main flows.
+- Watch for:
+  - Red errors.
+  - Failed network requests.
+  - Warnings about missing props, keys, etc.
+
+Fix:
+- Anything that appears consistently during normal use.
+
+==================================================
+7. CLAIMS VS REALITY CHECK
+==================================================
+Purpose: Align what you SAY it does with what it ACTUALLY does.
+
+7.1. MARKETING / UI CLAIMS
+Look at:
+- Landing page
+- Dashboard labels
+- Menu items
+- Tooltips
+- Onboarding copy
+
+For each claim:
+- “We do X”
+- “You can Y”
+- “This integrates with Z”
+
+Ask:
+- Is this 100% real today?
+- Or is this aspirational / future / partial?
+
+If it’s not fully real:
+- Soften the language, or
+- Hide it until it’s real.
+
+7.2. INTERNAL PROMISES
+Anything you’ve told:
+- Yourself
+- A reviewer
+- A potential partner
+
+Check:
+- Can the system actually do that today?
+- If not, either:
+  - Build it now, or
+  - Reframe it as roadmap, not current reality.
+
+==================================================
+8. MINIMUM 100% INTEGRITY STANDARD
+==================================================
+Your bar:
+- “If I say it exists, it works.”
+- “If it’s visible, it’s real.”
+- “If it’s not ready, it’s not pretending to be.”
+
+Practical rule:
+- No fake buttons.
+- No fake pages.
+- No fake integrations.
+- No fake metrics.
+- No fake dashboards.
+
+Everything visible to a user:
+- Either fully works,
+- Or is clearly framed as “not live yet” in a way that doesn’t embarrass you.
+
+==================================================
+9. OPTIONAL: TAGGING WHAT’S REAL
+==================================================
+If you want internal clarity, you can tag things in comments:
+
+- // REAL: production path
+- // LABS: experimental, not exposed to users
+- // ROADMAP: not wired yet, hidden from UI
+
+This gives you:
+- A clean mental map.
+- A way to know what’s safe to show.
+
+==================================================
+10. WHEN YOU’RE DONE
+==================================================
+You should be able to say, with a straight face:
+
+- “There are no hidden placeholders in my core flows.”
+- “Every integration I claim is wired and tested.”
+- “There is no demo junk pretending to be real.”
+- “If someone clicks it, it does something real.”
+- “My system is honest, coherent, and stable at the level I’m presenting.”
+
+That’s your minimum 100%.
+
+==================================================
+HOW I CAN CONTINUE WITH YOU
+==================================================
+If you want, next passes we can:
+- Turn this into a repeatable checklist per release.
+- Map it to your actual file structure.
+- Prioritize fixes by risk (what would be most embarrassing or breaking).
+- Draft a “System Integrity Statement” you can keep for yourself or future reviewers.

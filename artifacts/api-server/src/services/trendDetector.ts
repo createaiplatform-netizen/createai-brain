@@ -3,15 +3,12 @@
  * Spec: zeroTouchSuperLaunch (Pasted--ZERO-TOUCH...)
  *
  * Returns a ranked list of trending AI product categories.
- * Primary: attempts to hit live trend APIs.
- * Fallback: rotates through a curated list weighted by cycle-based scoring,
- *           ensuring variety without repetition each cycle.
+ * Rotates through a curated niche pool weighted by cycle-based scoring,
+ * ensuring variety without repetition each cycle.
+ *
+ * ROADMAP: Connect a live trend data source (Google Trends API, Reddit API,
+ * or a paid trends feed) and replace the weighted shuffle with live rankings.
  */
-
-const TREND_APIS = [
-  "https://api.example.com/trending/categories",
-  "https://api.example.com/viral/niches",
-];
 
 // Weighted niche pool — all categories Sara's AI market engine can target
 const NICHE_POOL: string[] = [
@@ -54,25 +51,6 @@ function weightedShuffle(pool: string[], count: number, seed: number): string[] 
 }
 
 export async function detectTrendingCategories(count = 5): Promise<string[]> {
-  // Attempt live trend APIs
-  for (const url of TREND_APIS) {
-    try {
-      const ctrl  = new AbortController();
-      const timer = setTimeout(() => ctrl.abort(), 3000);
-      const res   = await fetch(url, { signal: ctrl.signal });
-      clearTimeout(timer);
-      if (res.ok) {
-        const data = await res.json() as Array<{ name?: string; category?: string }>;
-        const names = data
-          .map(d => d.name ?? d.category ?? "")
-          .filter(Boolean)
-          .slice(0, count);
-        if (names.length >= count) return names;
-      }
-    } catch { /* unreachable — fall through */ }
-  }
-
-  // Fallback: rotate through niche pool
   _cycleOffset++;
   return weightedShuffle(NICHE_POOL, count, _cycleOffset);
 }

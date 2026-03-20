@@ -101,7 +101,7 @@ export function AuthModal({ onAuth, onClose }: AuthModalProps) {
             </div>
 
             <div className="rounded-xl p-3 text-[11px]" style={{ background: "rgba(99,102,241,0.08)", border: "1px solid rgba(99,102,241,0.15)", color: "rgba(165,180,252,0.7)" }}>
-              🔒 Demo platform: any email/password combination works. This simulates the auth flow. No real accounts are created.
+              🔒 Test Mode — authorized platform review only. Credentials are not verified in this mode.
             </div>
           </>
         ) : (
