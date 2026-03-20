@@ -74,6 +74,7 @@ import movieRouter         from "./movieGenerate";
 import renderRouter        from "./renderEngine";
 import generateRouter      from "./generate";
 import realMarketRouter    from "./realMarket.js";
+import hybridRouter        from "./hybrid.js";
 
 const router: IRouter = Router();
 
@@ -173,5 +174,8 @@ router.use("/above-transcend",    aboveTranscendRouter);
 
 // ── Real Market AI Store (spec: realStripeSetup.ts) ───────────────────────────
 router.use("/real-market",        realMarketRouter);
+
+// ── Hybrid Multi-Rail Engine (Stripe + Resend + Twilio + internal queue) ──────
+router.use("/hybrid",             hybridRouter);
 
 export default router;
