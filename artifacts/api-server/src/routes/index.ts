@@ -60,6 +60,7 @@ import memoryRouter from "./memory";
 import aiRouter from "./ai";
 import dashboardRouter from "./dashboard";
 import brainRouter      from "./brain";
+import modulesRouter    from "./modules";
 import { accessMiddleware } from "../security/FullLockdown.js";
 import projectDocumentsRouter from "./projectDocuments";
 import invitesRouter       from "./invites";
@@ -152,6 +153,7 @@ router.use("/render",             renderRouter);
 router.use("/generate",           accessMiddleware, generateRouter);
 router.use("/dashboard",          accessMiddleware, dashboardRouter);
 router.use("/brain",              accessMiddleware, brainRouter);
+router.use("/modules",            modulesRouter);
 
 // ── System Command Processor ─────────────────────────────────────────────────
 router.use("/system",             systemRouter);

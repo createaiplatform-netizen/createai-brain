@@ -261,7 +261,8 @@ export type AppId =
   | "builder"
   | "identityManager"
   | "createaiDashboard"
-  | "infiniteBrainControl";
+  | "infiniteBrainControl"
+  | "infiniteBrainPortal";
 
 export interface AppDef {
   id: AppId;
@@ -418,6 +419,7 @@ export const DEFAULT_APPS: AppDef[] = [
   { id: "identityManager",       label: "Identity Manager",       icon: "🪪", color: "#4f46e5", description: "View and manage internal identity packages — internal domain, email, and phone ID for every project", category: "system" },
   { id: "createaiDashboard",     label: "Coverage Dashboard",      icon: "📊", color: "#6366f1", description: "Global 100% industry coverage dashboard — AI personas, savings, compliance, capacity, environmental impact, and ROI simulation", category: "system" },
   { id: "infiniteBrainControl",  label: "Infinite Brain Control",  icon: "🚀", color: "#6366f1", description: "Live control panel — launch all workflows, notify family, run infinite expansion simulations, view real-time audit log", category: "system" },
+  { id: "infiniteBrainPortal",   label: "Infinite Brain Portal",   icon: "💠", color: "#6366f1", description: "Ultimate Live Full Deployment — 9 modules × 5 tasks, Beyond Infinity mode, real-time audit log, all APIs wired", category: "system" },
 ];
 
 export const ALL_APPS = DEFAULT_APPS;
@@ -509,6 +511,7 @@ const INTENT_MAP: { keywords: string[]; target: AppId }[] = [
   { keywords: ["identity", "identity manager", "internal domain", "internal email", "phone id", "project identity", "cai domain", "mail createai", "createai domain", "+cai", "routing"], target: "identityManager" },
   { keywords: ["coverage dashboard", "global coverage", "industry coverage", "roi simulation", "impact dashboard", "createai dashboard", "ai dashboard", "savings dashboard", "compliance dashboard", "enforcement dashboard"], target: "createaiDashboard" },
   { keywords: ["infinite brain", "brain control", "control panel", "launch workflows", "notify family", "brain panel", "system control", "infinite control", "simulation panel", "brain simulator", "expansion sim"], target: "infiniteBrainControl" },
+  { keywords: ["infinite brain portal", "portal", "ultimate deployment", "beyond infinity portal", "9 modules", "energy module", "telecom module", "finance module", "healthcare module", "transport module", "water module", "custom ops", "run ultimate", "no limits portal", "full deployment"], target: "infiniteBrainPortal" },
   { keywords: ["business", "bizengine", "biz engine", "business plan", "business model", "startup", "venture", "monetization model", "operations design", "expansion", "opportunity"],  target: "business" },
   { keywords: ["entity", "entitygen", "entity engine", "brand", "branding", "positioning", "product idea", "platform idea", "business entity", "build entity", "brand strategy", "ecosystem", "compliance", "growth strategy"], target: "entity" },
   { keywords: ["universe", "bizcreator", "biz universe", "concept", "concept expansion", "idea", "visualize", "visualization", "digital twin", "vr", "ar", "knowledge context", "business system", "expand idea", "expand concept", "multi-layer"], target: "bizcreator" },
@@ -672,6 +675,7 @@ const APP_META: Record<AppId, { icon: string; label: string }> = {
   identityManager:        { icon: "🪪", label: "Identity Manager" },
   createaiDashboard:      { icon: "📊", label: "Coverage Dashboard" },
   infiniteBrainControl:  { icon: "🚀", label: "Infinite Brain Control" },
+  infiniteBrainPortal:   { icon: "💠", label: "Infinite Brain Portal" },
 
   // ── Enterprise Suite Apps ──────────────────────────────────────────────────
   zeroTrust: { icon: "🔐", label: "Zero Trust" },
