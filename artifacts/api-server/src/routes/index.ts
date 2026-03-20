@@ -73,6 +73,7 @@ import fileVersionsRouter  from "./fileVersions";
 import movieRouter         from "./movieGenerate";
 import renderRouter        from "./renderEngine";
 import generateRouter      from "./generate";
+import realMarketRouter    from "./realMarket.js";
 
 const router: IRouter = Router();
 
@@ -169,5 +170,8 @@ router.use("/system",             systemHealthRouter);
 
 // ── Above-Transcend Engine ────────────────────────────────────────────────────
 router.use("/above-transcend",    aboveTranscendRouter);
+
+// ── Real Market AI Store (spec: realStripeSetup.ts) ───────────────────────────
+router.use("/real-market",        realMarketRouter);
 
 export default router;

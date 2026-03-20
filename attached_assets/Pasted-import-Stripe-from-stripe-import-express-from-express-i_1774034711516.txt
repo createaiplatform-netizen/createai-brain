@@ -1,0 +1,126 @@
+import Stripe from "stripe";
+import express from "express";
+import { v4 as uuidv4 } from "uuid";
+import fetch from "node-fetch";
+
+const app = express();
+app.use(express.json());
+
+const stripe = new Stripe(process.env.STRIPE_SECRET_KEY!, { apiVersion: "2022-11-15" });
+const PUBLIC_URL = process.env.PUBLIC_URL || "https://your-replit-url.repl.co";
+
+// --- SYSTEM STATE ---
+let products: any[] = [];
+let salesCount = 0;
+let generationSpeed = 1;
+
+// --- MARKETPLACES ---
+const marketplaces = [
+  { name: "Shopify", api: "https://api.shopify.com/v1/products" },
+  { name: "Etsy", api: "https://openapi.etsy.com/v3/application/listings" },
+  { name: "WooCommerce", api: "https://your-woocommerce-site.com/wp-json/wc/v3/products" }
+  // Add more marketplace APIs here
+];
+
+// --- TREND SOURCES ---
+const trendSources = [
+  "https://api.example.com/top-trending-products",
+  "https://api.example.com/viral-keywords"
+];
+
+// --- CREATE PRODUCT ---
+async function createProductFromTrend() {
+  let niche = "AI Tool";
+
+  try {
+    const trend = trendSources[Math.floor(Math.random() * trendSources.length)];
+    const res = await fetch(trend);
+    const data = await res.json();
+    if (data && data[0] && data[0].name) niche = data[0].name;
+  } catch { /* ignore errors */ }
+
+  const id = uuidv4();
+  const name = `AI Solution: ${niche}`;
+  const description = `Automated AI solution for ${niche}.`;
+  const price = Math.floor(Math.random() * 30) + 10;
+
+  const product = { id, name, description, price, views: 0, sales: 0, published: false };
+  products.push(product);
+
+  // product page
+  app.get(`/product/${id}`, (req, res) => {
+    product.views++;
+    res.send(`
+      <h1>${name}</h1>
+      <p>${description}</p>
+      <form action="/checkout/${id}" method="POST">
+        <button type="submit">Buy - $${price}</button>
+      </form>
+    `);
+  });
+
+  // checkout
+  app.post(`/checkout/${id}`, async (req, res) => {
+    const session = await stripe.checkout.sessions.create({
+      mode: "payment",
+      payment_method_types: ["card"],
+      line_items: [{
+        price_data: { currency: "usd", product_data: { name }, unit_amount: price * 100 },
+        quantity: 1,
+      }],
+      success_url: `${PUBLIC_URL}/success/${id}`,
+      cancel_url: `${PUBLIC_URL}/cancel`,
+    });
+    res.redirect(303, session.url!);
+  });
+
+  // success
+  app.get(`/success/${id}`, (req, res) => {
+    const p = products.find(p => p.id === id);
+    if (p) { p.sales++; salesCount++; }
+    res.send("<h1>✅ Purchase Successful</h1>");
+  });
+
+  // --- AUTO-PUBLISH TO MARKETPLACES ---
+  if (!product.published) {
+    marketplaces.forEach(async (market) => {
+      try {
+        // simulate API push (replace with real auth and endpoints)
+        console.log(`Publishing ${name} to ${market.name}`);
+        // await fetch(market.api, { method: "POST", body: JSON.stringify(product), headers: { Authorization: "Bearer XXX" } });
+      } catch (err) {
+        console.log(`Failed to publish to ${market.name}`, err);
+      }
+    });
+    product.published = true;
+  }
+}
+
+// --- ADAPTIVE ENGINE ---
+setInterval(async () => {
+  console.log("🔄 Adaptive cycle running...");
+
+  for (let i = 0; i < generationSpeed; i++) await createProductFromTrend();
+
+  const best = products
+    .filter(p => p.views > 0)
+    .sort((a, b) => (b.sales / (b.views || 1)) - (a.sales / (a.views || 1)));
+
+  if (best.length > 0) console.log("🔥 Top product:", best[0].name);
+
+  // adapt speed
+  if (salesCount > 0) generationSpeed = Math.min(generationSpeed + 1, 50);
+  else generationSpeed = Math.max(1, generationSpeed - 0.5);
+
+  console.log(`⚡ Speed: ${generationSpeed}, 💰 Sales: ${salesCount}, 📦 Products: ${products.length}`);
+}, 10000);
+
+// --- HOME PAGE ---
+app.get("/", (req, res) => {
+  const list = products.slice(-20).map(p => `<li><a href="/product/${p.id}">${p.name}</a></li>`).join("");
+  res.send(`<h1>CreateAI Real Market Store</h1><ul>${list}</ul>`);
+});
+
+// --- START SERVER ---
+const PORT = process.env.PORT || 3000;
+app.listen(PORT, () => console.log("🚀 Real Market AI system live with marketplace auto-publishing"));

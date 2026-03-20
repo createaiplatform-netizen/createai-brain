@@ -20,6 +20,7 @@ import SmartFhirConnectedApp from "@/Apps/SmartFhirConnectedApp";
 import MetricsPage from "@/pages/MetricsPage";
 import AboveTranscendPage from "@/pages/AboveTranscendPage";
 import CreateAIDigitalPage from "@/pages/CreateAIDigitalPage";
+import RealMarketPage     from "@/pages/RealMarketPage";
 import { OSProvider } from "@/os/OSContext";
 import { OSLayout } from "@/os/osLayout";
 import { GlobalCommandPalette } from "@/components/GlobalCommandPalette";
@@ -438,6 +439,7 @@ function App() {
     path.startsWith(`${base}/integration-live`) ||
     path.startsWith(`${base}/integration-suite`) ||
     path.startsWith(`${base}/createai-digital`) ||
+    path.startsWith(`${base}/real-market`) ||
     // SMART-on-FHIR OAuth callback/connected pages must be accessible without auth gate
     // because the browser redirects here from the external SMART sandbox
     path.startsWith(`${base}/connectors/`);
@@ -452,6 +454,7 @@ function App() {
           <Route path="/integration-suite"  component={IntegrationSuitePage} />
           <Route path="/stripe-integration" component={StripeIntegrationPage} />
           <Route path="/createai-digital"   component={CreateAIDigitalPage} />
+          <Route path="/real-market"        component={RealMarketPage} />
           {/* SMART-on-FHIR OAuth callback — receives authorization code from sandbox */}
           <Route path="/connectors/SMART_FHIR_SANDBOX/callback"  component={SmartFhirCallbackApp} />
           {/* SMART-on-FHIR connected confirmation + test fetch UI */}
