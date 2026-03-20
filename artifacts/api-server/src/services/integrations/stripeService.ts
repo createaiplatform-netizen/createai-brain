@@ -1,15 +1,14 @@
 /**
  * services/integrations/stripeService.ts
- * ---------------------------------------
- * Real Stripe integration — official SDK, real API calls, no simulation.
+ * ----------------------------------------
+ * Real Stripe operations — uses Replit connector for credentials.
+ * No API key parameters. No caching. Every call gets a fresh client.
  *
- * All functions accept an apiKey parameter so the caller controls which
- * stored/env key is used. No keys are hardcoded here.
+ * Integration: Stripe connector (ccfg_stripe_01K611P4YQR0SZM11XFRQJC44Y)
  */
 
-import Stripe from "stripe";
-
-// ─── Truth-system metadata ────────────────────────────────────────────────────
+import type Stripe from "stripe";
+import { getUncachableStripeClient } from "./stripeClient.js";
 
 export const STRIPE_META = {
   provider: "stripe",
@@ -17,60 +16,26 @@ export const STRIPE_META = {
   isReal:   true,
 } as const;
 
-// ─── Client factory ───────────────────────────────────────────────────────────
+// ─── Customers ────────────────────────────────────────────────────────────────
 
-export function createStripeClient(apiKey: string): Stripe {
-  return new Stripe(apiKey, {
-    apiVersion: "2025-01-27.acacia",
-    typescript: true,
-  });
-}
-
-// ─── Validation ───────────────────────────────────────────────────────────────
-
-/**
- * Makes a real call to GET /v1/balance with the supplied key.
- * Returns true only when Stripe accepts the key (200 OK).
- */
-export async function validateStripeKey(apiKey: string): Promise<{ ok: boolean; error?: string }> {
-  if (!apiKey.startsWith("sk_")) {
-    return { ok: false, error: "Key must start with sk_test_ or sk_live_" };
-  }
-  try {
-    const stripe = createStripeClient(apiKey);
-    await stripe.balance.retrieve();
-    return { ok: true };
-  } catch (err: unknown) {
-    return { ok: false, error: (err as Error).message };
-  }
-}
-
-// ─── Core operations ──────────────────────────────────────────────────────────
-
-/**
- * Create a Stripe Customer.
- * Real API call → POST https://api.stripe.com/v1/customers
- */
-export async function createCustomer(
-  apiKey: string,
-  name:   string,
-  email:  string,
-): Promise<Stripe.Customer> {
-  const stripe = createStripeClient(apiKey);
+export async function createCustomer(name: string, email: string): Promise<Stripe.Customer> {
+  const stripe = await getUncachableStripeClient();
   return stripe.customers.create({ name, email });
 }
 
-/**
- * Create a PaymentIntent.
- * amount is in the smallest currency unit (cents for USD).
- * Real API call → POST https://api.stripe.com/v1/payment_intents
- */
+export async function listCustomers(): Promise<Stripe.Customer[]> {
+  const stripe = await getUncachableStripeClient();
+  const result = await stripe.customers.list({ limit: 20 });
+  return result.data as Stripe.Customer[];
+}
+
+// ─── PaymentIntents ───────────────────────────────────────────────────────────
+
 export async function createPaymentIntent(
-  apiKey:   string,
   amount:   number,
   currency: string = "usd",
 ): Promise<Stripe.PaymentIntent> {
-  const stripe = createStripeClient(apiKey);
+  const stripe = await getUncachableStripeClient();
   return stripe.paymentIntents.create({
     amount,
     currency,
@@ -78,22 +43,15 @@ export async function createPaymentIntent(
   });
 }
 
-/**
- * List recent PaymentIntents (up to 20).
- * Real API call → GET https://api.stripe.com/v1/payment_intents
- */
-export async function listPayments(apiKey: string): Promise<Stripe.PaymentIntent[]> {
-  const stripe = createStripeClient(apiKey);
+export async function listPayments(): Promise<Stripe.PaymentIntent[]> {
+  const stripe = await getUncachableStripeClient();
   const result = await stripe.paymentIntents.list({ limit: 20 });
   return result.data;
 }
 
-/**
- * List recent Customers (up to 20).
- * Real API call → GET https://api.stripe.com/v1/customers
- */
-export async function listCustomers(apiKey: string): Promise<Stripe.Customer[]> {
-  const stripe = createStripeClient(apiKey);
-  const result = await stripe.customers.list({ limit: 20 });
-  return result.data as Stripe.Customer[];
+// ─── Balance ──────────────────────────────────────────────────────────────────
+
+export async function getBalance(): Promise<Stripe.Balance> {
+  const stripe = await getUncachableStripeClient();
+  return stripe.balance.retrieve();
 }
