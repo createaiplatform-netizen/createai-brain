@@ -17,9 +17,9 @@
  *  - Minimum payout threshold: $1.00 (avoids Stripe micro-payout fees)
  */
 
-import { getUncachableStripeClient }      from "./integrations/stripeClient.js";
-import { getWealthSnapshot }               from "./wealthMultiplier.js";
-import { getSaraStripeInfo }               from "./familyAgents.js";
+import { getWealthSnapshot }  from "./wealthMultiplier.js";
+import { getSaraStripeInfo }  from "./familyAgents.js";
+import { bridge }             from "../bridge/universalBridgeEngine.js";
 
 // ─── Payout Stats ─────────────────────────────────────────────────────────────
 
@@ -92,40 +92,39 @@ export async function pushFundsToHuntington(): Promise<void> {
       return;
     }
 
-    const amountCents = Math.floor(availableAmount * 100);
-
-    // 2. Create Stripe payout
-    const stripe = await getUncachableStripeClient();
-
-    const payoutParams: Parameters<typeof stripe.payouts.create>[0] = {
-      amount:               amountCents,
-      currency:             "usd",
-      method:               "standard",    // "instant" available for eligible accounts
-      statement_descriptor: "AI Platform Earnings",
-      metadata: {
-        platform:  "CreateAI Brain",
-        recipient: "Sara Stadler",
-        cycle:     String(_stats.cycleCount),
+    // 2. Route payout through Universal Bridge Engine → Stripe connector
+    const resp = await bridge.route({
+      type:    "PAYMENT_TRIGGER_PAYOUT",
+      payload: {
+        amountUsd:     availableAmount,
+        method:        "standard",
+        stripeAccount: saraInfo.stripeAccountId ?? "",
+        description:   "CreateAI Brain ACH payout — Sara Stadler → Huntington",
+        metadata: {
+          platform:  "CreateAI Brain",
+          recipient: "Sara Stadler",
+          cycle:     String(_stats.cycleCount),
+        },
       },
-    };
+      metadata: { source: "payoutService:pushFundsToHuntington", ts: new Date().toISOString() },
+    });
 
-    // Route through Sara's connected account if available
-    const requestOptions: Parameters<typeof stripe.payouts.create>[1] = saraInfo.stripeAccountId
-      ? { stripeAccount: saraInfo.stripeAccountId }
-      : {};
+    if (resp.status !== "SUCCESS") {
+      throw new Error(resp.error ?? `Bridge payout returned ${resp.status}`);
+    }
 
-    const payout = await stripe.payouts.create(payoutParams, requestOptions);
+    const payoutId = String(resp.data?.["payoutId"] ?? "");
 
     _stats.successCount++;
     _stats.totalTransferredUsd += availableAmount;
-    _stats.lastPayoutId        = payout.id;
+    _stats.lastPayoutId        = payoutId;
     _stats.lastPayoutTs        = new Date().toISOString();
     _stats.lastAmountUsd       = availableAmount;
     _stats.lastError           = "";
 
     console.log(
-      `[PayoutService] ✅ Payout #${_stats.successCount} created — ` +
-      `$${availableAmount.toFixed(2)} → Huntington ACH · ID: ${payout.id}`
+      `[PayoutService] ✅ Payout #${_stats.successCount} via bridge — ` +
+      `$${availableAmount.toFixed(2)} → Huntington ACH · ID: ${payoutId}`
     );
 
   } catch (err) {
@@ -179,48 +178,50 @@ export async function pushRevenueToBankImmediately(amount: number): Promise<void
   }
 
   try {
-    const stripe       = await getUncachableStripeClient();
-    const saraInfo     = getSaraStripeInfo();
-    _stats.bankLinked  = saraInfo.bankAccountLinked;
+    const saraInfo    = getSaraStripeInfo();
+    _stats.bankLinked = saraInfo.bankAccountLinked;
 
-    const bankAccountId = process.env.SARA_BANK_ACCOUNT_ID ?? saraInfo.bankAccountId ?? "";
+    const bankAccountId = process.env["SARA_BANK_ACCOUNT_ID"] ?? saraInfo.bankAccountId ?? "";
     if (!bankAccountId) {
       throw new Error("Bank account not configured — set SARA_BANK_ACCOUNT_ID env var");
     }
 
-    const amountCents = Math.round(amount * 100);
-
-    const payoutParams: Parameters<typeof stripe.payouts.create>[0] = {
-      amount:      amountCents,
-      currency:    "usd",
-      destination: bankAccountId,
-      method:      "instant",
-      description: `CreateAI Brain instant revenue · $${amount.toFixed(2)} · Sara Stadler`,
-      metadata: {
-        platform:     "CreateAI Brain",
-        event:        "microRevenue",
-        amountUsd:    amount.toFixed(2),
-        instantIndex: String(_stats.instantCount),
-        recipient:    "Sara Stadler",
+    // Route through Universal Bridge Engine → Stripe connector
+    const resp = await bridge.route({
+      type:    "PAYMENT_TRIGGER_PAYOUT",
+      payload: {
+        amountUsd:     amount,
+        method:        "instant",
+        destination:   bankAccountId,
+        stripeAccount: saraInfo.stripeAccountId ?? "",
+        description:   `CreateAI Brain instant revenue · $${amount.toFixed(2)} · Sara Stadler`,
+        metadata: {
+          platform:     "CreateAI Brain",
+          event:        "microRevenue",
+          amountUsd:    amount.toFixed(2),
+          instantIndex: String(_stats.instantCount),
+          recipient:    "Sara Stadler",
+        },
       },
-    };
+      metadata: { source: "payoutService:pushRevenueToBankImmediately", ts: new Date().toISOString() },
+    });
 
-    const requestOptions: Parameters<typeof stripe.payouts.create>[1] = saraInfo.stripeAccountId
-      ? { stripeAccount: saraInfo.stripeAccountId }
-      : {};
+    if (resp.status !== "SUCCESS") {
+      throw new Error(resp.error ?? `Bridge instant payout returned ${resp.status}`);
+    }
 
-    const payout = await stripe.payouts.create(payoutParams, requestOptions);
+    const payoutId = String(resp.data?.["payoutId"] ?? "");
 
     _stats.instantSuccessCount++;
     _stats.totalInstantUsd     += amount;
-    _stats.lastInstantId        = payout.id;
+    _stats.lastInstantId        = payoutId;
     _stats.lastInstantAmountUsd = amount;
     _stats.lastInstantTs        = new Date().toISOString();
     _stats.lastInstantError     = "";
 
     console.log(
-      `[PayoutService] ⚡✅ Instant payout #${_stats.instantSuccessCount} — ` +
-      `$${amount.toFixed(2)} → Huntington (instant) · ID: ${payout.id}`
+      `[PayoutService] ⚡✅ Instant payout #${_stats.instantSuccessCount} via bridge — ` +
+      `$${amount.toFixed(2)} → Huntington (instant) · ID: ${payoutId}`
     );
 
   } catch (err) {

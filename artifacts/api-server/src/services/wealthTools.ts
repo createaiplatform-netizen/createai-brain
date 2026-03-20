@@ -16,6 +16,7 @@ import type { MarketProduct }    from "./realMarket.js";
 import { detectTrendingCategories } from "./trendDetector.js";
 import { dynamicPrice }          from "./aiAssetGenerator.js";
 import { hybridMessage }         from "./hybridEngine.js";
+import { bridge }                from "../bridge/universalBridgeEngine.js";
 
 // ─── Types ────────────────────────────────────────────────────────────────────
 
@@ -96,18 +97,35 @@ export async function autoAdCampaign(
       ? config.channels
       : [config.channels];
 
-  channels.forEach(ch => {
-    console.log(
-      `[WealthTools] 📢 Ad campaign triggered → ${ch} · ` +
-      `${batch.length} products · scale:${config.budgetScale}`
-    );
+  // Route through Universal Bridge Engine — real ad platforms when credentials set
+  const bridgeResponse = await bridge.route({
+    type:    "ADS_CREATE_CAMPAIGN",
+    payload: {
+      channels,
+      budgetScale:  config.budgetScale,
+      productCount: batch.length,
+      productNames: batch.slice(0, 5).map(p => p.name),
+    },
+    metadata: { source: "wealthTools:autoAdCampaign", ts: new Date().toISOString() },
   });
+
+  if (bridgeResponse.status === "NOT_CONFIGURED") {
+    console.log(
+      `[WealthTools] 📢 Ad campaign intended (${channels.length} channels · ` +
+      `${batch.length} products · scale:${config.budgetScale}) — ` +
+      `bridge:NOT_CONFIGURED — no external ad call made`
+    );
+  } else if (bridgeResponse.status === "SUCCESS") {
+    console.log(`[WealthTools] ✅ Ad campaign created via bridge — ${channels.length} channels`);
+  } else {
+    console.warn(`[WealthTools] ⚠️ Ad campaign bridge failure — ${bridgeResponse.error ?? ""}`);
+  }
 
   void hybridMessage(
     "email",
     "sivh@mail.com",
-    `Meta Transcend: Ad campaign running on ${channels.length} channels for ${batch.length} premium products.`,
-    "Meta Transcend — Ad Campaign Fired",
+    `Meta Transcend: Ad campaign submitted on ${channels.length} channels for ${batch.length} premium products. Bridge status: ${bridgeResponse.status}.`,
+    "Meta Transcend — Ad Campaign Submitted",
   );
 
   return {

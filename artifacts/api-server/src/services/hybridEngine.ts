@@ -11,9 +11,9 @@
  * so this file stays in sync with the rest of the notification layer automatically.
  */
 
-import { randomUUID }           from "crypto";
-import { getUncachableStripeClient, probeStripeConnection } from "./integrations/stripeClient.js";
-import { sendEmailNotification, sendSMSNotification, credentialStatus } from "../utils/notifications.js";
+import { randomUUID }  from "crypto";
+import { credentialStatus } from "../utils/notifications.js";
+import { bridge }           from "../bridge/universalBridgeEngine.js";
 
 // ─── Internal State ──────────────────────────────────────────────────────────
 
@@ -91,45 +91,38 @@ export async function hybridCheckout(
   const amount   = Math.round(product.price);     // already in cents
   const currency = product.currency ?? "usd";
 
-  const providers = detectProviders();
+  // 🟢 Primary: Route through Universal Bridge Engine → Stripe connector
+  const bridgeResp = await bridge.route({
+    type:    "PAYMENT_CREATE_CHECKOUT",
+    payload: {
+      amount,
+      currency,
+      productName: product.name,
+      productId:   product.id ?? "",
+      userId:      user,
+    },
+    metadata: { source: "hybridEngine", ts: new Date().toISOString() },
+  });
 
-  // 🟢 Primary: Stripe PaymentIntent
-  if (providers.stripe) {
-    try {
-      const stripe = await getUncachableStripeClient();
-      const intent = await stripe.paymentIntents.create({
-        amount,
-        currency,
-        metadata: {
-          productId:   product.id ?? "",
-          productName: product.name,
-          user,
-          source:      "hybridEngine",
-        },
-        automatic_payment_methods: { enabled: true },
-      });
+  if (bridgeResp.status === "SUCCESS" && bridgeResp.data) {
+    stats.revenue += amount;
+    console.log(
+      `[HybridEngine] 💳 Stripe PaymentIntent via bridge — ` +
+      `${String(bridgeResp.data["intentId"])} · $${(amount / 100).toFixed(2)} ${currency.toUpperCase()} · user:${user}`
+    );
+    return {
+      id,
+      status:        "live",
+      rail:          "stripe",
+      paymentIntent: String(bridgeResp.data["intentId"] ?? ""),
+      clientSecret:  String(bridgeResp.data["clientSecret"] ?? ""),
+    };
+  }
 
-      stats.revenue += amount;
-
-      console.log(
-        `[HybridEngine] 💳 Stripe PaymentIntent created — ${intent.id} · ${(amount / 100).toFixed(2)} ${currency.toUpperCase()} · user:${user}`
-      );
-
-      return {
-        id,
-        status:       "live",
-        rail:         "stripe",
-        paymentIntent: intent.id,
-        clientSecret:  intent.client_secret ?? undefined,
-      };
-    } catch (err) {
-      // Stripe call failed — fall through to internal queue
-      console.warn(
-        `[HybridEngine] ⚠️ Stripe unavailable (${(err as Error).message}) — capturing internally`
-      );
-    }
+  if (bridgeResp.status === "FAILURE") {
+    console.warn(`[HybridEngine] ⚠️ Bridge payment failed (${bridgeResp.error ?? ""}) — capturing internally`);
   } else {
-    console.log("[HybridEngine] ⚠️ No Stripe rail — capturing internally");
+    console.log("[HybridEngine] ⚠️ No Stripe rail via bridge — capturing internally");
   }
 
   // 🟡 Secondary: internal queue
@@ -162,35 +155,27 @@ export async function hybridMessage(
   content: string,
   subject?: string,
 ): Promise<HybridMessageResult> {
-  const id        = randomUUID();
-  const providers = detectProviders();
+  const id = randomUUID();
 
-  if (type === "email" && providers.email) {
-    const batch = await sendEmailNotification(
-      [to],
-      subject ?? "CreateAI Brain Notification",
-      content,
-    );
-    if (batch.successCount > 0) {
-      stats.messagesSent++;
-      console.log(`[HybridEngine] 📧 Email sent → ${to}`);
-      return { id, status: "sent", rail: "email" };
-    }
+  // Route through Universal Bridge Engine → Email or SMS connector
+  const bridgeType = type === "email" ? "EMAIL_SEND" : "SMS_SEND";
+  const msgResp    = await bridge.route({
+    type:    bridgeType,
+    payload: { to, content, subject: subject ?? "CreateAI Brain Notification" },
+    metadata: { source: "hybridEngine", ts: new Date().toISOString() },
+  });
+
+  if (msgResp.status === "SUCCESS") {
+    stats.messagesSent++;
+    console.log(`[HybridEngine] ${type === "email" ? "📧" : "📱"} ${type} sent via bridge → ${to}`);
+    return { id, status: "sent", rail: type };
   }
 
-  if (type === "sms" && providers.sms) {
-    const batch = await sendSMSNotification([to], content);
-    if (batch.successCount > 0) {
-      stats.messagesSent++;
-      console.log(`[HybridEngine] 📱 SMS sent → ${to}`);
-      return { id, status: "sent", rail: "sms" };
-    }
-  }
-
-  // Queue internally
+  // Queue internally (NOT_CONFIGURED or FAILURE)
   queues.messages.push({ id, type, to, content, queuedAt: new Date().toISOString() });
   stats.messagesQueued++;
-  console.log(`[HybridEngine] 📬 ${type} queued for ${to} — provider not available`);
+  const reason = msgResp.status === "NOT_CONFIGURED" ? "connector not configured" : (msgResp.error ?? "failure");
+  console.log(`[HybridEngine] 📬 ${type} queued for ${to} — bridge:${reason}`);
   return { id, status: "queued", rail: "internal" };
 }
 
@@ -200,30 +185,33 @@ export async function hybridMessage(
 async function recover(): Promise<void> {
   const providers = detectProviders();
 
-  // Release queued payments via Stripe
+  // Release queued payments via bridge → Stripe connector
   if (providers.stripe && queues.payments.length > 0) {
-    console.log(`[HybridEngine] 🚀 Processing ${queues.payments.length} queued payment(s) via Stripe…`);
+    console.log(`[HybridEngine] 🚀 Processing ${queues.payments.length} queued payment(s) via bridge…`);
     const toProcess = [...queues.payments];
     queues.payments = [];
 
     for (const entry of toProcess) {
-      try {
-        const stripe = await getUncachableStripeClient();
-        const intent = await stripe.paymentIntents.create({
-          amount:   entry.amount,
-          currency: entry.currency,
-          metadata: { productId: entry.productId, productName: entry.name, user: entry.user, source: "hybridEngine:recovery" },
-          automatic_payment_methods: { enabled: true },
-        });
+      const resp = await bridge.route({
+        type:    "PAYMENT_CREATE_CHECKOUT",
+        payload: {
+          amount:      entry.amount,
+          currency:    entry.currency,
+          productName: entry.name,
+          productId:   entry.productId,
+          userId:      entry.user,
+        },
+        metadata: { source: "hybridEngine:recovery", ts: new Date().toISOString() },
+      });
+      if (resp.status === "SUCCESS") {
         stats.revenue       += entry.amount;
         stats.queuedRevenue -= entry.amount;
-        console.log(`[HybridEngine] ✅ Recovered payment — ${intent.id} · ${entry.name}`);
-      } catch (err) {
-        // Re-queue on failure
+        console.log(`[HybridEngine] ✅ Recovered payment via bridge — ${String(resp.data?.["intentId"] ?? "")} · ${entry.name}`);
+      } else {
         queues.payments.push(entry);
-        stats.queuedRevenue += entry.amount; // re-add since we subtracted above
-        console.warn(`[HybridEngine] ⚠️ Recovery failed for ${entry.id} — ${(err as Error).message}`);
-        break; // don't hammer a broken connection
+        stats.queuedRevenue += entry.amount;
+        console.warn(`[HybridEngine] ⚠️ Recovery bridge failure for ${entry.id} — ${resp.error ?? ""}`);
+        break;
       }
     }
   }

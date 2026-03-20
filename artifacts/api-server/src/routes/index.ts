@@ -83,6 +83,7 @@ import enforcerRouter     from "./enforcer.js";
 import ultimateRouter          from "./ultimate.js";
 import ultraInteractionRouter  from "./ultraInteraction.js";
 import payoutRouter             from "./payout.js";
+import bridgeRouter            from "./bridge.js";
 
 const router: IRouter = Router();
 
@@ -209,5 +210,8 @@ router.use("/ultra",              ultraInteractionRouter);
 
 // ── Huntington ACH Payout (spec: pushFundsToHuntington) ─────────────────────
 router.use("/payout",             payoutRouter);
+
+// ── Universal Bridge Engine — connector status + action history ───────────────
+router.use("/bridge",             bridgeRouter);
 
 export default router;

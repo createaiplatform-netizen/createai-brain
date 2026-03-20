@@ -26,7 +26,7 @@ const SHADOW  = "0 1px 8px rgba(0,0,0,0.05)";
 
 // ─── Types ────────────────────────────────────────────────────────────────────
 
-type ModuleKey = "market" | "hybrid" | "wealth" | "audit" | "meta" | "maximizer" | "enforcer" | "ultimate" | "payout";
+type ModuleKey = "market" | "hybrid" | "wealth" | "audit" | "meta" | "maximizer" | "enforcer" | "ultimate" | "payout" | "bridge";
 
 interface MarketStats {
   totalProducts:   number;
@@ -111,6 +111,23 @@ interface PayoutStats {
   lastError:           string;
 }
 
+interface BridgeConnector {
+  key:          string;
+  label:        string;
+  status:       "ACTIVE" | "NOT_CONFIGURED";
+  note?:        string;
+  activateWith: string[];
+}
+interface BridgeStats {
+  ts:         string;
+  connectors: BridgeConnector[];
+  summary: {
+    active:         number;
+    not_configured: number;
+    total:          number;
+  };
+}
+
 interface AllStats {
   market:    MarketStats    | null;
   hybrid:    HybridStats    | null;
@@ -121,6 +138,7 @@ interface AllStats {
   enforcer:  EnforcerStats  | null;
   ultimate:  UltimateStats  | null;
   payout:    PayoutStats    | null;
+  bridge:    BridgeStats    | null;
 }
 
 // ─── Small UI atoms ───────────────────────────────────────────────────────────
@@ -375,6 +393,62 @@ function PayoutPanel({ s }: { s: PayoutStats }) {
   );
 }
 
+// ─── Bridge Panel ─────────────────────────────────────────────────────────────
+
+function BridgePanel({ s }: { s: BridgeStats }) {
+  return (
+    <div>
+      <div style={{ display: "flex", gap: 8, marginBottom: 10, flexWrap: "wrap" }}>
+        <span style={{
+          fontSize: 11, fontWeight: 600, padding: "3px 10px",
+          borderRadius: 99, background: "rgba(34,197,94,0.12)", color: "#15803d",
+        }}>
+          {s.summary.active} ACTIVE
+        </span>
+        <span style={{
+          fontSize: 11, fontWeight: 600, padding: "3px 10px",
+          borderRadius: 99, background: "rgba(245,158,11,0.10)", color: "#b45309",
+        }}>
+          {s.summary.not_configured} NOT CONFIGURED
+        </span>
+      </div>
+
+      {s.connectors.map(c => (
+        <div key={c.key} style={{
+          padding: "8px 10px", marginBottom: 6, borderRadius: 10,
+          background: c.status === "ACTIVE"
+            ? "rgba(34,197,94,0.06)"
+            : "rgba(245,158,11,0.06)",
+          border: `1px solid ${c.status === "ACTIVE" ? "rgba(34,197,94,0.2)" : "rgba(245,158,11,0.2)"}`,
+        }}>
+          <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center" }}>
+            <span style={{ fontSize: 12, fontWeight: 600, color: "#1e293b" }}>{c.label}</span>
+            <span style={{
+              fontSize: 10, fontWeight: 700, padding: "1px 7px", borderRadius: 99,
+              background: c.status === "ACTIVE" ? "#22c55e" : AMBER,
+              color: c.status === "ACTIVE" ? "#fff" : "#78350f",
+            }}>
+              {c.status === "ACTIVE" ? "ACTIVE" : "NOT CONFIGURED"}
+            </span>
+          </div>
+          {c.note && (
+            <div style={{ fontSize: 10, color: SLATE, marginTop: 3, lineHeight: 1.4 }}>{c.note}</div>
+          )}
+          {c.status === "NOT_CONFIGURED" && c.activateWith.length > 0 && (
+            <div style={{ fontSize: 10, color: SLATE, marginTop: 4 }}>
+              <strong>Activate:</strong> {c.activateWith.slice(0, 2).join(" · ")}
+            </div>
+          )}
+        </div>
+      ))}
+
+      <div style={{ marginTop: 8, fontSize: 11, color: SLATE }}>
+        Universal Bridge Engine · all external calls route through here
+      </div>
+    </div>
+  );
+}
+
 // ─── Main Component ───────────────────────────────────────────────────────────
 
 const MODULES: { key: ModuleKey; title: string; icon: string }[] = [
@@ -387,16 +461,17 @@ const MODULES: { key: ModuleKey; title: string; icon: string }[] = [
   { key: "enforcer",  title: "Platform Enforcer",          icon: "🔒" },
   { key: "ultimate",  title: "Ultimate Zero-Touch Launch", icon: "🔥" },
   { key: "payout",    title: "Huntington ACH Payout",      icon: "🏦" },
+  { key: "bridge",    title: "Universal Bridge Engine",    icon: "🌉" },
 ];
 
 const emptyVisible = (): Record<ModuleKey, boolean> => ({
   market: true, hybrid: true, wealth: true, audit: true, meta: true,
-  maximizer: true, enforcer: true, ultimate: true, payout: true,
+  maximizer: true, enforcer: true, ultimate: true, payout: true, bridge: true,
 });
 
 const emptyStats = (): AllStats => ({
   market: null, hybrid: null, wealth: null, audit: null, meta: null,
-  maximizer: null, enforcer: null, ultimate: null, payout: null,
+  maximizer: null, enforcer: null, ultimate: null, payout: null, bridge: null,
 });
 
 export default function UltimateTranscendDashboard() {
@@ -410,7 +485,7 @@ export default function UltimateTranscendDashboard() {
     setLoading(true);
     setError("");
     try {
-      const [market, hybrid, wealth, audit, meta, maximizer, enforcer, ultimate, payout] = await Promise.allSettled([
+      const [market, hybrid, wealth, audit, meta, maximizer, enforcer, ultimate, payout, bridge] = await Promise.allSettled([
         fetch("/api/real-market/stats").then(r => r.json()),
         fetch("/api/hybrid/stats").then(r => r.json()),
         fetch("/api/wealth/snapshot").then(r => r.json()),
@@ -420,6 +495,7 @@ export default function UltimateTranscendDashboard() {
         fetch("/api/enforcer/stats").then(r => r.json()),
         fetch("/api/ultimate/stats").then(r => r.json()),
         fetch("/api/payout/stats").then(r => r.json()),
+        fetch("/api/bridge/status").then(r => r.json()),
       ]);
 
       setStats({
@@ -432,6 +508,7 @@ export default function UltimateTranscendDashboard() {
         enforcer:  enforcer.status  === "fulfilled" ? enforcer.value  : null,
         ultimate:  ultimate.status  === "fulfilled" ? ultimate.value  : null,
         payout:    payout.status    === "fulfilled" ? payout.value    : null,
+        bridge:    bridge.status    === "fulfilled" ? bridge.value    : null,
       });
       setLastTs(new Date().toLocaleTimeString());
     } catch {
@@ -452,7 +529,7 @@ export default function UltimateTranscendDashboard() {
   const toggleAll  = () => {
     const next = !allVisible;
     setVisible({ market: next, hybrid: next, wealth: next, audit: next, meta: next,
-                 maximizer: next, enforcer: next, ultimate: next, payout: next });
+                 maximizer: next, enforcer: next, ultimate: next, payout: next, bridge: next });
   };
 
   return (
@@ -518,6 +595,7 @@ export default function UltimateTranscendDashboard() {
               {key === "enforcer"  && stats.enforcer  && <EnforcerPanel  s={stats.enforcer}  />}
               {key === "ultimate"  && stats.ultimate  && <UltimatePanel  s={stats.ultimate}  />}
               {key === "payout"    && stats.payout    && <PayoutPanel    s={stats.payout}    />}
+              {key === "bridge"    && stats.bridge    && <BridgePanel    s={stats.bridge}    />}
 
               {!stats[key] && (
                 <div style={{ display: "flex", flexDirection: "column", gap: 8 }}>
@@ -536,7 +614,7 @@ export default function UltimateTranscendDashboard() {
 
         {/* ── Footer ── */}
         <div style={{ marginTop: 32, textAlign: "center", fontSize: 12, color: SLATE }}>
-          CreateAI Brain · Ultimate Transcendent Stack · All engines running · Real data only
+          CreateAI Brain · Ultimate Transcendent Stack · 10 engines · Universal Bridge Engine active · Real data only
         </div>
       </div>
     </div>

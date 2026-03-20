@@ -11,6 +11,7 @@
  */
 
 import { randomUUID } from "crypto";
+import { bridge }     from "../bridge/universalBridgeEngine.js";
 
 // ─── Types ──────────────────────────────────────────────────────────────────
 
@@ -120,11 +121,31 @@ export function publishToMarketplaces(
   const targets = channels
     ? MARKETPLACES.filter(m => channels.includes(m.name))
     : MARKETPLACES;
+
   for (const product of batch) {
     for (const market of targets) {
-      // REAL: logs the intended push; add market-specific OAuth token to
-      // Replit Secrets to activate the live API call for that channel.
-      console.log(`[RealMarket] Publishing "${product.name}" → ${market.name}`);
+      // Route through Universal Bridge Engine — real publishing when OAuth tokens are set
+      void bridge.route({
+        type:    "MARKETPLACE_PUBLISH_PRODUCT",
+        payload: {
+          productId:       product.id,
+          productName:     product.name,
+          description:     product.description,
+          priceUsd:        product.price,
+          priceCents:      product.priceCents ?? product.price * 100,
+          format:          product.format ?? "digital",
+          marketplace:     market.name,
+          marketplaceApi:  market.api,
+          niche:           product.niche,
+        },
+        metadata: { source: "realMarket:publishToMarketplaces", ts: new Date().toISOString() },
+      }).then(resp => {
+        if (resp.status === "NOT_CONFIGURED") {
+          // Expected — product recorded locally until OAuth token is added
+        } else if (resp.status === "SUCCESS") {
+          console.log(`[RealMarket] ✅ Published "${product.name}" → ${market.name} via bridge`);
+        }
+      }).catch(() => { /* bridge errors are logged inside the engine */ });
     }
   }
 }
