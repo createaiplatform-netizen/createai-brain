@@ -79,6 +79,7 @@ import wealthRouter        from "./wealth.js";
 import auditRouter         from "./audit.js";
 import metaRouter          from "./meta.js";
 import maximizerRouter     from "./maximizer.js";
+import enforcerRouter     from "./enforcer.js";
 
 const router: IRouter = Router();
 
@@ -193,5 +194,8 @@ router.use("/meta",               metaRouter);
 
 // ── Full Auto Wealth Maximizer (2-min enforcement, min 100% growth) ───────────
 router.use("/maximizer",          maximizerRouter);
+
+// ── Full Platform 100% Enforcer (2-min all-metric enforcement cycle) ──────────
+router.use("/enforcer",           enforcerRouter);
 
 export default router;

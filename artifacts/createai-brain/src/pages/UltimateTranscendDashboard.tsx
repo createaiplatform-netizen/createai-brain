@@ -22,7 +22,7 @@ const SHADOW  = "0 1px 8px rgba(0,0,0,0.05)";
 
 // ─── Types ────────────────────────────────────────────────────────────────────
 
-type ModuleKey = "market" | "hybrid" | "wealth" | "audit" | "meta" | "maximizer";
+type ModuleKey = "market" | "hybrid" | "wealth" | "audit" | "meta" | "maximizer" | "enforcer";
 
 interface MarketStats {
   totalProducts:   number;
@@ -58,6 +58,8 @@ interface AuditStats {
   liveRevenue:     string;
   projectedRevenue: string;
   growthPercent:   string;
+  campaignReach:   number;
+  impressions:     number;
   status: {
     marketEngine: string;
     hybridEngine: string;
@@ -84,6 +86,16 @@ interface MaximizerStats {
   lastGrowthPct: number;
 }
 
+interface EnforcerStats {
+  cycleCount:     number;
+  lastCycleTs:    string;
+  growthBoosts:   number;
+  transcendFires: number;
+  premiumBatches: number;
+  campaignsFired: number;
+  errors:         number;
+}
+
 interface AllStats {
   market:    MarketStats    | null;
   hybrid:    HybridStats    | null;
@@ -91,6 +103,7 @@ interface AllStats {
   audit:     AuditStats     | null;
   meta:      MetaStats      | null;
   maximizer: MaximizerStats | null;
+  enforcer:  EnforcerStats  | null;
 }
 
 // ─── Small UI atoms ───────────────────────────────────────────────────────────
@@ -240,6 +253,8 @@ function AuditPanel({ s }: { s: AuditStats }) {
       <Row label="Revenue (live)"    value={s.liveRevenue} />
       <Row label="Projected Revenue" value={s.projectedRevenue} />
       <Row label="Growth %"          value={s.growthPercent} accent />
+      <Row label="Campaign Reach"    value={(s.campaignReach ?? 0).toLocaleString()} />
+      <Row label="Impressions"       value={(s.impressions ?? 0).toLocaleString()} />
       <div style={{ marginTop: 10 }}>
         <p style={{ fontSize: 11, fontWeight: 600, color: SLATE, marginBottom: 4, textTransform: "uppercase", letterSpacing: "0.08em" }}>Engine Status</p>
         {Object.entries(s.status).map(([k, v]) => (
@@ -248,6 +263,19 @@ function AuditPanel({ s }: { s: AuditStats }) {
           </div>
         ))}
       </div>
+    </>
+  );
+}
+
+function EnforcerPanel({ s }: { s: EnforcerStats }) {
+  return (
+    <>
+      <Row label="Enforcement Cycles" value={s.cycleCount} accent />
+      <Row label="Growth Boosts"       value={s.growthBoosts} />
+      <Row label="Transcend Fires"     value={s.transcendFires} />
+      <Row label="Premium Batches"     value={s.premiumBatches} />
+      <Row label="Campaigns Fired"     value={s.campaignsFired} />
+      <Row label="Errors"              value={s.errors === 0 ? "✅ None" : s.errors} />
     </>
   );
 }
@@ -288,15 +316,16 @@ const MODULES: { key: ModuleKey; title: string; icon: string }[] = [
   { key: "audit",     title: "Platform Audit",        icon: "🔍" },
   { key: "meta",      title: "Meta Transcend",        icon: "🌌" },
   { key: "maximizer", title: "Wealth Maximizer",      icon: "💪" },
+  { key: "enforcer",  title: "Platform 100% Enforcer", icon: "🔒" },
 ];
 
 export default function UltimateTranscendDashboard() {
   const [visible, setVisible] = useState<Record<ModuleKey, boolean>>({
-    market: true, hybrid: true, wealth: true, audit: true, meta: true, maximizer: true,
+    market: true, hybrid: true, wealth: true, audit: true, meta: true, maximizer: true, enforcer: true,
   });
 
   const [stats, setStats] = useState<AllStats>({
-    market: null, hybrid: null, wealth: null, audit: null, meta: null, maximizer: null,
+    market: null, hybrid: null, wealth: null, audit: null, meta: null, maximizer: null, enforcer: null,
   });
 
   const [loading, setLoading] = useState(false);
@@ -307,13 +336,14 @@ export default function UltimateTranscendDashboard() {
     setLoading(true);
     setError("");
     try {
-      const [market, hybrid, wealth, audit, meta, maximizer] = await Promise.allSettled([
+      const [market, hybrid, wealth, audit, meta, maximizer, enforcer] = await Promise.allSettled([
         fetch("/api/real-market/stats").then(r => r.json()),
         fetch("/api/hybrid/stats").then(r => r.json()),
         fetch("/api/wealth/snapshot").then(r => r.json()),
         fetch("/api/audit/snapshot").then(r => r.json()),
         fetch("/api/meta/stats").then(r => r.json()),
         fetch("/api/maximizer/stats").then(r => r.json()),
+        fetch("/api/enforcer/stats").then(r => r.json()),
       ]);
 
       setStats({
@@ -323,6 +353,7 @@ export default function UltimateTranscendDashboard() {
         audit:     audit.status     === "fulfilled" && !audit.value?.message ? audit.value : null,
         meta:      meta.status      === "fulfilled" ? meta.value      : null,
         maximizer: maximizer.status === "fulfilled" ? maximizer.value : null,
+        enforcer:  enforcer.status  === "fulfilled" ? enforcer.value  : null,
       });
       setLastTs(new Date().toLocaleTimeString());
     } catch (e) {
@@ -344,7 +375,7 @@ export default function UltimateTranscendDashboard() {
   const allVisible = Object.values(visible).every(Boolean);
   const toggleAll  = () => {
     const next = !allVisible;
-    setVisible({ market: next, hybrid: next, wealth: next, audit: next, meta: next, maximizer: next });
+    setVisible({ market: next, hybrid: next, wealth: next, audit: next, meta: next, maximizer: next, enforcer: next });
   };
 
   return (
@@ -358,7 +389,7 @@ export default function UltimateTranscendDashboard() {
               🌌 Ultimate Transcend Engine
             </h1>
             <p style={{ margin: "4px 0 0", fontSize: 13, color: SLATE }}>
-              Live platform dashboard — all 6 engines · auto-refresh 60 s
+              Live platform dashboard — all 7 engines · auto-refresh 60 s
             </p>
           </div>
           <div style={{ display: "flex", gap: 10, alignItems: "center" }}>
@@ -409,6 +440,7 @@ export default function UltimateTranscendDashboard() {
               {key === "audit"     && stats.audit     && <AuditPanel     s={stats.audit}     />}
               {key === "meta"      && stats.meta      && <MetaPanel      s={stats.meta}      />}
               {key === "maximizer" && stats.maximizer && <MaximizerPanel s={stats.maximizer} />}
+              {key === "enforcer"  && stats.enforcer  && <EnforcerPanel  s={stats.enforcer}  />}
 
               {/* Loading skeleton */}
               {!stats[key] && (

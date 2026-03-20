@@ -22,6 +22,7 @@
 import { getMarketStats }    from "./realMarket.js";
 import { getHybridStats }    from "./hybridEngine.js";
 import { getWealthSnapshot } from "./wealthMultiplier.js";
+import { getMetaCycleStats } from "./metaTranscend.js";
 
 // ─── Result Types ─────────────────────────────────────────────────────────────
 
@@ -42,6 +43,8 @@ export interface PlatformAuditResult {
   messagesQueued:    number;
   projectedRevenue:  string;   // "$X.XX"
   growthPercent:     string;   // "X.XX%"
+  campaignReach:     number;   // from metaTranscend cumulative reach
+  impressions:       number;   // from metaTranscend cumulative impressions
   status:            AuditEngineStatus;
 }
 
@@ -85,7 +88,12 @@ export async function runFullAudit(): Promise<PlatformAuditResult> {
       ? "✅ 100%"
       : "⚠ 0%";
 
-    // 4. Build result
+    // 4. Pull meta-cycle stats for campaign reach / impressions (spec: FULL-PLATFORM-100-ENFORCEMENT)
+    const metaStats    = getMetaCycleStats();
+    const campaignReach = metaStats.totalCampaignReach;
+    const impressions   = metaStats.totalImpressions;
+
+    // 5. Build result
     const result: PlatformAuditResult = {
       ts:               new Date().toISOString(),
       products,
@@ -97,6 +105,8 @@ export async function runFullAudit(): Promise<PlatformAuditResult> {
       messagesQueued,
       projectedRevenue,
       growthPercent,
+      campaignReach,
+      impressions,
       status: {
         marketEngine: marketCompletion,
         hybridEngine: hybridCompletion,
@@ -136,6 +146,15 @@ export async function runFullAudit(): Promise<PlatformAuditResult> {
 export function getLastAuditResult(): PlatformAuditResult | null {
   return _lastResult;
 }
+
+// ─── Spec aliases ─────────────────────────────────────────────────────────────
+// These names are used in later specs; they delegate to the canonical functions.
+
+/** Alias for runFullAudit() — spec: FULL-PLATFORM-100-ENFORCEMENT */
+export const runLiveAudit = runFullAudit;
+
+/** Alias for getLastAuditResult() — spec: FULL-AUTONOMOUS-TRANSCENDENT-LAUNCH */
+export const getAuditSnapshot = getLastAuditResult;
 
 // ─── startPlatformAudit ───────────────────────────────────────────────────────
 // Runs once at boot (after all engines have started) to capture the initial
