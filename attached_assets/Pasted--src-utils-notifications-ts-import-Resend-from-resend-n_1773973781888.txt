@@ -1,0 +1,63 @@
+// src/utils/notifications.ts
+import Resend from "resend"; // npm i resend
+import Twilio from "twilio";
+
+const resendClient = new Resend(process.env.RESEND_API_KEY!); // your Resend API key here
+const twilioClient = new Twilio(process.env.TWILIO_SID!, process.env.TWILIO_AUTH_TOKEN!); // your Twilio credentials
+const twilioFrom = process.env.TWILIO_PHONE!; // Twilio verified sending number
+
+// Define your family list
+const FAMILY_LIST = [
+  { name: "Sara", email: "SIVH@mail.com", phone: "+1xxxxxxxxxx" },
+  { name: "Husband", email: "husband@mail.com", phone: "+1xxxxxxxxxx" },
+  { name: "Child1", email: "child1@mail.com", phone: "+1xxxxxxxxxx" },
+  { name: "Child2", email: "child2@mail.com", phone: "+1xxxxxxxxxx" },
+  // add others here
+];
+
+// Generates a secure link for login or dashboard access
+function generateSecureLink(userEmail: string) {
+  const token = encodeURIComponent(
+    Buffer.from(`${userEmail}:${Date.now()}`).toString("base64")
+  );
+  return `https://your-brain-url.com/signin?token=${token}`;
+}
+
+// Sends email + SMS to a single user
+async function notifyUser(user: { name: string; email: string; phone: string }) {
+  const link = generateSecureLink(user.email);
+
+  // Email
+  await resendClient.emails.send({
+    from: "Sara <no-reply@yourdomain.com>",
+    to: [user.email],
+    subject: "CreateAI Brain Access",
+    html: `<p>Hello ${user.name},</p>
+           <p>Access your personalized CreateAI Brain dashboard now:</p>
+           <a href="${link}">${link}</a>
+           <p>Welcome to your full family Brain interface!</p>`,
+  });
+
+  // SMS
+  await twilioClient.messages.create({
+    body: `Hello ${user.name}, access your CreateAI Brain: ${link}`,
+    from: twilioFrom,
+    to: user.phone,
+  });
+
+  console.log(`Notification sent to ${user.name} (${user.email}, ${user.phone})`);
+}
+
+// Sends notifications to all family members
+export async function notifyFamily() {
+  for (const member of FAMILY_LIST) {
+    try {
+      await notifyUser(member);
+    } catch (err) {
+      console.error(`Failed to notify ${member.name}:`, err);
+    }
+  }
+}
+
+// Trigger this once on Brain startup
+notifyFamily().then(() => console.log("All family notifications sent."));

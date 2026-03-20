@@ -3,6 +3,7 @@ import { bootstrapServices }     from "./container/bootstrap";
 import { expandPlatform }        from "./services/expansionEngine";
 import { finalizeConfiguration } from "./services/systemConfigurator";
 import { brainEngine }           from "./engine/BrainEnforcementEngine.js";
+import { notifyFamily }          from "./utils/notifications.js";
 
 // Wire all DI services before the server binds. All factories are lazy —
 // nothing is instantiated here, just registered.
@@ -28,9 +29,17 @@ app.listen(port, () => {
   // Boot sequence — runs in the background, non-blocking:
   //   1. expandPlatform()       — 13 paths × 5 iterations, populates registry, persists run to DB
   //   2. finalizeConfiguration() — self-heal, verify, lock, persist to organizations table
+  //   3. brainEngine.start()    — continuous 60-second self-audit loop
+  //   4. notifyFamily()         — email + SMS to all family members (if BRAIN_NOTIFY_ON_START=true)
   void (async () => {
     await expandPlatform();
     await finalizeConfiguration();
-    brainEngine.start(); // continuous 60-second self-audit loop
+    brainEngine.start();
+
+    if (process.env.BRAIN_NOTIFY_ON_START === "true") {
+      await notifyFamily();
+    } else {
+      console.log("[Brain:notify] Startup notifications skipped (set BRAIN_NOTIFY_ON_START=true to enable)");
+    }
   })();
 });
