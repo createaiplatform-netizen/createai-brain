@@ -22,7 +22,7 @@ const healthPlugin = {
   }) {
     server.middlewares.use((req, res, next) => {
       const url = req.url ?? "/";
-      if (url === "/" || url === "/health" || url === `${basePath}health` || url === basePath) {
+      if (url === "/" || url === "/health") {
         res.writeHead(200, { "Content-Type": "text/plain", "Cache-Control": "no-cache" });
         res.end("OK");
         return;
