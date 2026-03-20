@@ -78,6 +78,7 @@ import hybridRouter        from "./hybrid.js";
 import wealthRouter        from "./wealth.js";
 import auditRouter         from "./audit.js";
 import metaRouter          from "./meta.js";
+import maximizerRouter     from "./maximizer.js";
 
 const router: IRouter = Router();
 
@@ -189,5 +190,8 @@ router.use("/audit",              auditRouter);
 
 // ── Meta-Zero-Touch Transcendent Launch (1-min premium expansion cycle) ───────
 router.use("/meta",               metaRouter);
+
+// ── Full Auto Wealth Maximizer (2-min enforcement, min 100% growth) ───────────
+router.use("/maximizer",          maximizerRouter);
 
 export default router;

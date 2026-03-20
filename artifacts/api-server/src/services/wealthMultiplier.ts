@@ -140,3 +140,33 @@ export function startWealthMultiplier(): void {
 export function getWealthSnapshot(): WealthSnapshot {
   return { ..._snapshot };
 }
+
+/**
+ * applyGrowthMultiplier(boost)
+ * Spec: FULL-AUTO-WEALTH-MAXIMIZER — "safely injects calculated boost to reach 100%"
+ *
+ * Adds `boost` percentage points to the current growthPercent, capped at 100.
+ * Also recalculates projectedRevenueCents to reflect the new target growth.
+ * This is a synchronous, in-memory mutation — no external calls, fully safe.
+ */
+export function applyGrowthMultiplier(boost: number): void {
+  const previous = _snapshot.growthPercent;
+  const next     = Math.min(100, previous + boost);
+
+  // Recalculate projected revenue at the new growth target
+  const factor            = 1 + next / 100;
+  const newProjectedCents = Math.round(_snapshot.totalRevenueCents * factor);
+
+  _snapshot = {
+    ..._snapshot,
+    growthPercent:         next,
+    projectedRevenueCents: newProjectedCents,
+    cycleTs:               new Date().toISOString(),
+  };
+
+  console.log(
+    `[WealthMultiplier] ⚡ applyGrowthMultiplier — ` +
+    `${previous.toFixed(2)}% → ${next.toFixed(2)}% (+${boost.toFixed(2)}pp) · ` +
+    `projected:$${(newProjectedCents / 100).toFixed(2)}`
+  );
+}

@@ -19,6 +19,7 @@ import { startHybridEngine }                           from "./services/hybridEn
 import { startWealthMultiplier }                       from "./services/wealthMultiplier.js";
 import { startPlatformAudit }                         from "./services/platformAudit.js";
 import { startMetaTranscendentLaunch }                from "./services/metaTranscend.js";
+import { startWealthMaximizer }                       from "./services/wealthMaximizer.js";
 
 // Wire all DI services before the server binds. All factories are lazy —
 // nothing is instantiated here, just registered.
@@ -80,6 +81,7 @@ app.listen(port, () => {
     startWealthMultiplier();
     startPlatformAudit();
     startMetaTranscendentLaunch();
+    startWealthMaximizer();
 
     // Log public market page URL (spec: launchFullFamilyMarket — Step 5)
     const domain = process.env.REPLIT_DEV_DOMAIN ?? "localhost";
