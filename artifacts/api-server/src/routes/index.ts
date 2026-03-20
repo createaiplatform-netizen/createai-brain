@@ -60,6 +60,7 @@ import memoryRouter from "./memory";
 import aiRouter from "./ai";
 import dashboardRouter from "./dashboard";
 import brainRouter      from "./brain";
+import { accessMiddleware } from "../security/FullLockdown.js";
 import projectDocumentsRouter from "./projectDocuments";
 import invitesRouter       from "./invites";
 import subscriptionsRouter from "./subscriptions";
@@ -148,9 +149,9 @@ router.use("/subscriptions",      subscriptionsRouter);
 router.use("/projects",           fileVersionsRouter);
 router.use("/movie",              movieRouter);
 router.use("/render",             renderRouter);
-router.use("/generate",           generateRouter);
-router.use("/dashboard",          dashboardRouter);
-router.use("/brain",              brainRouter);
+router.use("/generate",           accessMiddleware, generateRouter);
+router.use("/dashboard",          accessMiddleware, dashboardRouter);
+router.use("/brain",              accessMiddleware, brainRouter);
 
 // ── System Command Processor ─────────────────────────────────────────────────
 router.use("/system",             systemRouter);
