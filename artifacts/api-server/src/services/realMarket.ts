@@ -15,7 +15,8 @@ import { randomUUID } from "crypto";
 // ─── Types ──────────────────────────────────────────────────────────────────
 
 import type { ProductAssets } from "./assetGenerator.js";
-import { dynamicPrice as _dynamicPrice } from "./aiAssetGenerator.js";
+import { dynamicPrice as _dynamicPrice }   from "./aiAssetGenerator.js";
+import { detectTrendingCategories }         from "./trendDetector.js";
 
 export interface MarketProduct {
   id:          string;
@@ -124,13 +125,20 @@ const MARKETPLACES = [
   { name: "CreativeMarket", api: "https://creativemarket.com/api/v2/products" },
 ];
 
-export function publishToMarketplaces(product: MarketProduct, channels?: string[]): void {
+// Accepts a single product OR an array of products (spec: ultimateLaunch — Step 6)
+export function publishToMarketplaces(
+  productOrBatch: MarketProduct | MarketProduct[],
+  channels?: string[]
+): void {
+  const batch  = Array.isArray(productOrBatch) ? productOrBatch : [productOrBatch];
   const targets = channels
     ? MARKETPLACES.filter(m => channels.includes(m.name))
     : MARKETPLACES;
-  for (const market of targets) {
-    // Simulate push — real auth/endpoints would replace this log
-    console.log(`[RealMarket] Publishing "${product.name}" → ${market.name}`);
+  for (const product of batch) {
+    for (const market of targets) {
+      // Simulate push — real auth/endpoints would replace this log
+      console.log(`[RealMarket] Publishing "${product.name}" → ${market.name}`);
+    }
   }
 }
 
@@ -200,22 +208,24 @@ async function runAdaptiveCycle(): Promise<void> {
 // Config shape matching the launchFullFamilyMarket spec (all fields optional —
 // the engine is fully self-contained and these are used for logging / validation).
 export interface AdaptiveEngineConfig {
-  cycleInterval?:  number;      // ms between cycles (default 10 000)
-  maxSpeed?:       number;      // maximum products-per-cycle multiplier (default 50)
-  autoPublish?:    boolean;     // auto-publish to marketplaces (always true)
-  marketplaces?:   string[];    // target marketplace names
-  realProducts?:   boolean;     // use real Stripe Products (always true)
-  autoAllocate?:   boolean;     // auto-allocate payments to family (always true)
-  businessName?:   string;      // Stripe business display name
+  cycleInterval?:   number;      // ms between cycles (default 10 000)
+  maxSpeed?:        number;      // maximum products-per-cycle multiplier (default 50)
+  autoPublish?:     boolean;     // auto-publish to marketplaces (always true)
+  marketplaces?:    string[];    // target marketplace names
+  realProducts?:    boolean;     // use real Stripe Products (always true)
+  autoAllocate?:    boolean;     // auto-allocate payments to family (always true)
+  businessName?:    string;      // Stripe business display name
+  businessIdentity?: string;     // alias for businessName (spec: ultimateLaunch)
 }
 
 export function startAdaptiveEngine(config: AdaptiveEngineConfig = {}): void {
   if (engineRunning) return;
   engineRunning = true;
 
-  const interval    = config.cycleInterval ?? 10_000;
-  const marketplaces = config.marketplaces ?? ["Shopify", "Etsy", "WooCommerce"];
-  const business     = config.businessName ?? "Lakeside Trinity Care and Wellness LLC";
+  const interval     = config.cycleInterval ?? 10_000;
+  const marketplaces = config.marketplaces  ?? ["Shopify", "Etsy", "WooCommerce"];
+  // businessIdentity is an alias for businessName (spec: ultimateLaunch)
+  const business     = config.businessIdentity ?? config.businessName ?? "Lakeside Trinity Care and Wellness LLC";
 
   // Run first cycle immediately, then on interval
   runAdaptiveCycle().catch(err =>
@@ -295,17 +305,20 @@ export const realMarketFlow = {
 
   /**
    * Generate products per trending category.
+   * When called with no arguments, auto-fetches trending categories (spec: ultimateLaunch — Step 6).
    * When `allDigital` is set in flow options, generates one product per
    * category × format combination (spec: ultimateZeroTouchTranscend).
    * When `dynamicPricing` is set, applies demand-adaptive pricing.
    */
-  async generateNextBatch({
-    categories,
-    formats,
-  }: {
-    categories: string[];
+  async generateNextBatch(opts?: {
+    categories?: string[];
     formats?: string[];
   }): Promise<MarketProduct[]> {
+    // Auto-fetch trending categories if none supplied (spec: ultimateLaunch)
+    const categories = (opts?.categories && opts.categories.length > 0)
+      ? opts.categories
+      : await detectTrendingCategories(5);
+    const formats = opts?.formats;
     // Resolve digital formats — use provided list or flow-option default
     const digitalFormats: string[] = formats ??
       (_flowOptions.allDigital

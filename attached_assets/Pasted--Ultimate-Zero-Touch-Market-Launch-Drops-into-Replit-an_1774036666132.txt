@@ -1,0 +1,72 @@
+/**
+ * Ultimate Zero-Touch Market Launch
+ * Drops into Replit and automates:
+ * - Stripe Connected Accounts (family members)
+ * - Bank account attachment from secure secrets
+ * - Real product creation with Stripe Prices
+ * - AI trend-based product generation
+ * - Auto-publishing to Shopify, Etsy, WooCommerce
+ * - Zero-touch scaling and auto allocation
+ */
+
+import { startAdaptiveEngine } from "./aboveTranscend";
+import { realMarketFlow, publishToMarketplaces } from "./realMarket";
+import { ensureStripeCustomers, ensureStripeConnectedAccounts, attachPrimaryBankAccount } from "./realStripeIntegration";
+import { config } from "dotenv";
+
+// Load Replit environment secrets
+config();
+
+// Core async launcher
+async function ultimateLaunch() {
+  console.log("🚀 Starting Ultimate Zero-Touch Market Launch...");
+
+  // 1️⃣ Ensure Stripe customers exist for family members
+  await ensureStripeCustomers();
+
+  // 2️⃣ Attempt to create Connected Accounts for each family member
+  //    Will auto-use your active Stripe account
+  await ensureStripeConnectedAccounts();
+
+  // 3️⃣ Attach your primary bank account automatically from Replit secrets
+  //    Make sure SARA_BANK_ACCOUNT_NUMBER and SARA_BANK_ROUTING_NUMBER exist in secrets
+  if (process.env.SARA_BANK_ACCOUNT_NUMBER && process.env.SARA_BANK_ROUTING_NUMBER) {
+    await attachPrimaryBankAccount({
+      accountNumber: process.env.SARA_BANK_ACCOUNT_NUMBER,
+      routingNumber: process.env.SARA_BANK_ROUTING_NUMBER,
+      customerId: process.env.SARA_STRIPE_CUSTOMER_ID // optional: pre-filled
+    });
+    console.log("✅ Bank account attached successfully.");
+  } else {
+    console.warn("⚠️ Bank account secrets missing. Payouts will not trigger until added.");
+  }
+
+  // 4️⃣ Start the Zero-Touch Adaptive Market Engine
+  startAdaptiveEngine({
+    cycleInterval: 10_000,       // 10s per cycle
+    maxSpeed: 50,                // Auto-scale to max
+    autoPublish: true,
+    marketplaces: ["Shopify", "Etsy", "WooCommerce"],
+    realProducts: true,
+    autoAllocate: true,
+    businessIdentity: "Lakeside Trinity Care and Wellness LLC"
+  });
+  console.log("✅ Adaptive engine started.");
+
+  // 5️⃣ Start Real Market Flow
+  realMarketFlow.start({ autonomous: true, maxScale: true, noLimits: true });
+  console.log("✅ Real Market Flow started. Zero-touch publishing live.");
+
+  // 6️⃣ Fire initial product batch and publish to marketplaces
+  const batch = await realMarketFlow.generateNextBatch();
+  await publishToMarketplaces(batch);
+  console.log(`✅ Initial batch of ${batch.length} products published.`);
+
+  // 7️⃣ Log public market page
+  console.log("🌐 Live market page URL: https://44188f34-4d14-4eae-98ea-004db7fcc80e-00-3l2995pze1zvs.worf.replit.dev/createai-brain/real-market");
+
+  console.log("🔥 Ultimate Zero-Touch Launch complete. Engine is running and auto-scaling.");
+}
+
+// Run the launcher
+ultimateLaunch().catch(err => console.error("❌ Launch failed:", err));

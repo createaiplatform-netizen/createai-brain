@@ -156,16 +156,29 @@ export async function ensureStripeConnectedAccounts(): Promise<void> {
 // Real bank details are supplied via SARA_BANK_ACCOUNT_NUMBER and
 // SARA_BANK_ROUTING_NUMBER env vars; function is a no-op when placeholders detected.
 
-export async function attachPrimaryBankAccount(): Promise<void> {
-  const accountNumber = process.env.SARA_BANK_ACCOUNT_NUMBER;
-  const routingNumber = process.env.SARA_BANK_ROUTING_NUMBER;
+// Explicit-param shape (spec: ultimateLaunch — Step 3)
+export interface BankAccountParams {
+  accountNumber?: string;
+  routingNumber?:  string;
+  customerId?:     string;   // optional pre-filled Stripe customer ID
+}
 
-  if (!accountNumber || !routingNumber ||
-      accountNumber === "YOUR_ACCOUNT_NUMBER" ||
-      routingNumber  === "YOUR_ROUTING_NUMBER") {
-    console.log(
-      "[FamilyAgents] Bank account setup skipped — set SARA_BANK_ACCOUNT_NUMBER + " +
-      "SARA_BANK_ROUTING_NUMBER env vars with real values to enable ACH payouts."
+export async function attachPrimaryBankAccount(
+  params: BankAccountParams = {}
+): Promise<void> {
+  // Explicit params take priority over env vars (spec: ultimateLaunch)
+  const accountNumber = params.accountNumber
+    ?? process.env.SARA_BANK_ACCOUNT_NUMBER;
+  const routingNumber = params.routingNumber
+    ?? process.env.SARA_BANK_ROUTING_NUMBER;
+
+  const isPlaceholder = (v?: string) =>
+    !v || v === "YOUR_ACCOUNT_NUMBER" || v === "YOUR_ROUTING_NUMBER";
+
+  if (isPlaceholder(accountNumber) || isPlaceholder(routingNumber)) {
+    console.warn(
+      "⚠️ Bank account secrets missing. Payouts will not trigger until added. " +
+      "Set SARA_BANK_ACCOUNT_NUMBER + SARA_BANK_ROUTING_NUMBER in Replit secrets."
     );
     return;
   }
@@ -173,13 +186,17 @@ export async function attachPrimaryBankAccount(): Promise<void> {
   try {
     const stripe = await getUncachableStripeClient();
     const sara   = members.find(m => m.name === "Sara Stadler");
-    if (!sara?.stripeCustomerId) {
+
+    // Use explicit customerId if provided, otherwise fall back to member lookup
+    const customerId = params.customerId ?? sara?.stripeCustomerId;
+    if (!customerId) {
       console.warn("[FamilyAgents] Bank attach skipped — Sara's Stripe customer not yet created.");
       return;
     }
+    if (sara) sara.stripeCustomerId = customerId;
 
     // Attach as ACH debit source on Customer
-    const bankSource = await stripe.customers.createSource(sara.stripeCustomerId, {
+    const bankSource = await stripe.customers.createSource(customerId, {
       source: {
         object:               "bank_account",
         account_number:       accountNumber,
@@ -193,10 +210,10 @@ export async function attachPrimaryBankAccount(): Promise<void> {
     console.log(
       `[FamilyAgents] Bank account attached to Sara's customer → ${(bankSource as { id: string }).id}`
     );
-    sara.bankAccountLinked = true;
+    if (sara) sara.bankAccountLinked = true;
 
     // Also attach as payout external account on her connected account
-    if (sara.stripeAccountId) {
+    if (sara?.stripeAccountId) {
       const extBank = await stripe.accounts.createExternalAccount(sara.stripeAccountId, {
         external_account: {
           object:               "bank_account",
