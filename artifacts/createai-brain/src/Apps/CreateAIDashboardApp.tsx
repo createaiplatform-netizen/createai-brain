@@ -1,10 +1,33 @@
 import React, { useEffect, useMemo, useState } from "react";
-import { useSystemStats, type ExpansionEntry, type MetaPrediction, type KnowledgeSource, type OptimizationEntry, type MissionPhase } from "@/hooks/useSystemStats";
+import {
+  useSystemStats,
+  type ExpansionEntry,
+  type MetaPrediction,
+  type KnowledgeSource,
+  type OptimizationEntry,
+  type MissionPhase,
+} from "@/hooks/useSystemStats";
 import {
   SectionHeader, Card, CardHeader, CardContent,
   Table, TableHead, TableRow, TableCell,
   PieChart, BarChart, AuditLog, SimulationInput,
+  MetricCard, StatusPill, ProgressBar,
 } from "@/components/StyledComponents";
+
+// ─── Design tokens ────────────────────────────────────────────────────────────
+
+const T = {
+  accent:  "#6366f1",
+  ok:      "#22c55e",
+  warn:    "#f59e0b",
+  danger:  "#ef4444",
+  blue:    "#3b82f6",
+  text1:   "#0f172a",
+  text2:   "#475569",
+  text3:   "#94a3b8",
+  border:  "rgba(15,23,42,0.07)",
+  font:    '-apple-system, BlinkMacSystemFont, "SF Pro Display", "Segoe UI", Helvetica, Arial, sans-serif',
+};
 
 // ─── Helpers ──────────────────────────────────────────────────────────────────
 
@@ -14,7 +37,11 @@ function statusLevel(s: string): "OK" | "Warn" | "Blocked" {
   return "Blocked";
 }
 
-// ─── Component ───────────────────────────────────────────────────────────────
+function pillVariant(ok: boolean): "ok" | "danger" {
+  return ok ? "ok" : "danger";
+}
+
+// ─── Component ────────────────────────────────────────────────────────────────
 
 const CreateAIDashboardApp = () => {
   const stats = useSystemStats();
@@ -28,41 +55,35 @@ const CreateAIDashboardApp = () => {
     }
   }, [stats.industries, activeIndustry]);
 
-  // Auto-refresh every 30 s (hook already handles it; this keeps UI-level state fresh)
   useEffect(() => {
     const interval = setInterval(() => stats.refresh(), 30_000);
     return () => clearInterval(interval);
   }, [stats]);
 
-  // ── Derived data for charts ───────────────────────────────────────────────
+  // ── Derived data ──────────────────────────────────────────────────────────
 
-  // Endpoint health → numeric status for BarChart
   const endpointChartData = useMemo(() =>
     stats.endpoints.map(ep => ({
       name: ep.route.replace(/^(GET|POST)\s+/, "").replace("/api/generate", ""),
       status: ep.status === "Live" ? 2 : ep.status === "Degraded" ? 1 : 0,
     })), [stats.endpoints]);
 
-  // Compute savings → flat array from savings.data
   const computeSavingsData = useMemo(() =>
     stats.savings.data.map(d => ({
       sector: d.category,
       value: d.storage + d.compute + d.bandwidth,
     })), [stats.savings.data]);
 
-  // Env data renamed for PieChart
   const envData = useMemo(() =>
     stats.environmental.data.map(d => ({ type: d.metric, value: d.value })),
     [stats.environmental.data]);
 
-  // Audit logs mapped to AuditLog component format
   const auditLogEntries = useMemo(() =>
     stats.auditLogs.map(l => ({
       message: `${l.timestamp}  ${l.action}`,
       level: statusLevel(l.status),
     })), [stats.auditLogs]);
 
-  // What-If simulation handler
   const handleSimulate = (scale: number) => {
     if (!activeIndustry) return;
     const projected = (activeIndustry.savings * scale).toFixed(1);
@@ -72,128 +93,175 @@ const CreateAIDashboardApp = () => {
   // ── Render ────────────────────────────────────────────────────────────────
 
   return (
-    <div style={{ padding: "20px", fontFamily: "SF Pro, Helvetica, sans-serif", backgroundColor: "#f5f5f7", color: "#111", minHeight: "100%", overflowY: "auto" }}>
-      <h1 style={{ marginBottom: "20px" }}>CreateAI Brain — Coverage Dashboard</h1>
+    <div style={{
+      padding: "24px 24px 48px",
+      fontFamily: T.font,
+      background: "#f8fafc",
+      color: T.text1,
+      minHeight: "100%",
+      overflowY: "auto",
+    }}>
 
-      {stats.loading && <p style={{ color: "#888", fontSize: 13 }}>Loading live data…</p>}
-      {stats.error  && <p style={{ color: "#ff3b30", fontSize: 13 }}>⚠ {stats.error}</p>}
+      {/* ── Page Header ──────────────────────────────────────────────────── */}
+      <div style={{
+        background: "linear-gradient(135deg, #6366f1 0%, #4f46e5 100%)",
+        borderRadius: 16, padding: "22px 28px", marginBottom: 28,
+        boxShadow: "0 8px 32px rgba(99,102,241,0.30)",
+        display: "flex", alignItems: "center", justifyContent: "space-between", flexWrap: "wrap", gap: 12,
+      }}>
+        <div>
+          <div style={{ fontSize: 22, fontWeight: 780, color: "#fff", letterSpacing: "-0.4px" }}>
+            CreateAI Brain — Coverage Dashboard
+          </div>
+          <div style={{ fontSize: 13, color: "rgba(255,255,255,0.65)", marginTop: 4 }}>
+            {stats.industries.length} industries · {stats.coverage} coverage
+            {stats.brainStatus && ` · Loop tick #${stats.brainStatus.loopTick}`}
+            {stats.missionConfig && ` · Mission v${stats.missionConfig.version} active`}
+          </div>
+        </div>
+        <div style={{ display: "flex", gap: 8, flexWrap: "wrap" }}>
+          {stats.loading && (
+            <span style={{ fontSize: 12, color: "rgba(255,255,255,0.65)", fontWeight: 600 }}>Refreshing…</span>
+          )}
+          {stats.error && (
+            <span style={{ fontSize: 12, color: "#fca5a5", fontWeight: 600 }}>⚠ {stats.error}</span>
+          )}
+        </div>
+      </div>
 
-      {/* 1. Industry Coverage & AI Personas */}
+      {/* ── 1. Industry Coverage & AI Personas ───────────────────────────── */}
       <SectionHeader title="Industry Coverage & AI Personas" />
       <Table>
         <TableHead>
           <TableRow>
-            <TableCell>Industry</TableCell>
-            <TableCell>AI Persona</TableCell>
-            <TableCell>Render Mode</TableCell>
-            <TableCell>Endpoints</TableCell>
-            <TableCell>Workflows</TableCell>
-            <TableCell>Annual Savings</TableCell>
+            <TableCell style={{ fontWeight: 700, fontSize: 12, color: T.text3, letterSpacing: "0.4px", textTransform: "uppercase" }}>Industry</TableCell>
+            <TableCell style={{ fontWeight: 700, fontSize: 12, color: T.text3, letterSpacing: "0.4px", textTransform: "uppercase" }}>AI Persona</TableCell>
+            <TableCell style={{ fontWeight: 700, fontSize: 12, color: T.text3, letterSpacing: "0.4px", textTransform: "uppercase" }}>Render Mode</TableCell>
+            <TableCell style={{ fontWeight: 700, fontSize: 12, color: T.text3, letterSpacing: "0.4px", textTransform: "uppercase" }}>Endpoints</TableCell>
+            <TableCell style={{ fontWeight: 700, fontSize: 12, color: T.text3, letterSpacing: "0.4px", textTransform: "uppercase" }}>Workflows</TableCell>
+            <TableCell style={{ fontWeight: 700, fontSize: 12, color: T.text3, letterSpacing: "0.4px", textTransform: "uppercase" }}>Savings / yr</TableCell>
           </TableRow>
         </TableHead>
         <tbody>
           {stats.industries.map(ind => (
             <TableRow key={ind.name} onClick={() => setActiveIndustry(ind)}>
-              <TableCell style={{ fontWeight: activeIndustry?.name === ind.name ? 600 : undefined }}>{ind.name}</TableCell>
-              <TableCell>{ind.aiPersona}</TableCell>
-              <TableCell>{ind.renderMode}</TableCell>
-              <TableCell>{ind.endpointCount}</TableCell>
-              <TableCell>{ind.workflowCount}</TableCell>
-              <TableCell>${ind.savings}M</TableCell>
+              <TableCell style={{
+                fontWeight: activeIndustry?.name === ind.name ? 700 : 500,
+                color: activeIndustry?.name === ind.name ? T.accent : T.text1,
+              }}>
+                {ind.name}
+              </TableCell>
+              <TableCell style={{ color: T.text2 }}>{ind.aiPersona}</TableCell>
+              <TableCell>
+                <span style={{
+                  fontSize: 11, fontWeight: 600, padding: "2px 8px", borderRadius: 6,
+                  background: "rgba(99,102,241,0.08)", color: T.accent,
+                }}>
+                  {ind.renderMode}
+                </span>
+              </TableCell>
+              <TableCell style={{ fontWeight: 600 }}>{ind.endpointCount}</TableCell>
+              <TableCell style={{ fontWeight: 600 }}>{ind.workflowCount}</TableCell>
+              <TableCell style={{ fontWeight: 700, color: "#16a34a" }}>${ind.savings}M</TableCell>
             </TableRow>
           ))}
         </tbody>
       </Table>
 
-      {/* 2. Endpoints & Workflow Health */}
+      {/* ── 2. Endpoints & Workflow Health ───────────────────────────────── */}
       <SectionHeader title="Endpoints & Workflow Health" />
-      <BarChart
-        data={endpointChartData}
-        xKey="name"
-        yKey="status"
-        height={200}
-        colorScheme={["#0a84ff"]}
-      />
+      <Card>
+        <CardContent>
+          <BarChart data={endpointChartData} xKey="name" yKey="status" height={220} colorScheme={[T.blue]} />
+        </CardContent>
+      </Card>
 
-      {/* 3. Compute & Infrastructure Savings */}
+      {/* ── 3. Compute & Infrastructure Savings ──────────────────────────── */}
       <SectionHeader title="Compute & Infrastructure Savings" />
-      <BarChart
-        data={computeSavingsData}
-        xKey="sector"
-        yKey="value"
-        height={200}
-        colorScheme={["#5ac8fa"]}
-      />
+      <Card>
+        <CardContent>
+          <BarChart data={computeSavingsData} xKey="sector" yKey="value" height={220} colorScheme={[T.accent]} />
+        </CardContent>
+      </Card>
 
-      {/* 4. Compliance & Risk */}
+      {/* ── 4. Compliance & Risk ─────────────────────────────────────────── */}
       <SectionHeader title="Compliance & Risk" />
       <Table>
         <TableHead>
           <TableRow>
-            <TableCell>Standard</TableCell>
-            <TableCell>Status</TableCell>
-            <TableCell>Detail</TableCell>
+            <TableCell style={{ fontWeight: 700, fontSize: 12, color: T.text3, textTransform: "uppercase", letterSpacing: "0.4px" }}>Standard</TableCell>
+            <TableCell style={{ fontWeight: 700, fontSize: 12, color: T.text3, textTransform: "uppercase", letterSpacing: "0.4px" }}>Status</TableCell>
+            <TableCell style={{ fontWeight: 700, fontSize: 12, color: T.text3, textTransform: "uppercase", letterSpacing: "0.4px" }}>Detail</TableCell>
           </TableRow>
         </TableHead>
         <tbody>
           {stats.compliance.map(c => (
             <TableRow key={c.name}>
-              <TableCell>{c.name}</TableCell>
-              <TableCell style={{ color: c.status ? "#34c759" : "#ff3b30" }}>
-                {c.status ? "Certified" : "Non-compliant"}
+              <TableCell style={{ fontWeight: 600 }}>{c.name}</TableCell>
+              <TableCell>
+                <StatusPill
+                  label={c.status ? "Certified" : "Non-compliant"}
+                  variant={pillVariant(c.status)}
+                />
               </TableCell>
-              <TableCell>{c.detail}</TableCell>
+              <TableCell style={{ color: T.text2 }}>{c.detail}</TableCell>
             </TableRow>
           ))}
         </tbody>
       </Table>
 
-      {/* 5. System Capacity & Scalability */}
+      {/* ── 5. System Capacity & Scalability ─────────────────────────────── */}
       <SectionHeader title="System Capacity & Scalability" />
+      <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fit, minmax(150px, 1fr))", gap: 14, marginBottom: 16 }}>
+        <MetricCard label="Max Users"   value={stats.capacity.maxUsers.toLocaleString()} sub="Concurrent" />
+        <MetricCard label="SSE Streams" value={stats.capacity.sseStreams.toLocaleString()} sub="Live streams" />
+        <MetricCard label="CPU"         value={`${stats.capacity.cpu}%`} sub="Utilization" accent />
+        <MetricCard label="Memory"      value={`${stats.capacity.memory}%`} sub="Utilization" />
+        <MetricCard label="Uptime"      value={stats.capacity.uptime} sub="Current session" />
+      </div>
+
+      {/* ── 6. Environmental Impact ───────────────────────────────────────── */}
+      <SectionHeader title="Environmental Impact" />
       <Card>
-        <CardHeader title="Max Users / SSE Streams" />
         <CardContent>
-          Users: {stats.capacity.maxUsers.toLocaleString()} &nbsp;|&nbsp;
-          SSE Streams: {stats.capacity.sseStreams.toLocaleString()} &nbsp;|&nbsp;
-          CPU: {stats.capacity.cpu}% &nbsp;|&nbsp;
-          Memory: {stats.capacity.memory}% &nbsp;|&nbsp;
-          Uptime: {stats.capacity.uptime}
+          <PieChart
+            data={envData}
+            valueKey="value"
+            labelKey="type"
+            colors={[T.blue, "#f59e0b", T.ok, T.danger]}
+            height={260}
+          />
         </CardContent>
       </Card>
 
-      {/* 6. Environmental Impact */}
-      <SectionHeader title="Environmental Impact" />
-      <PieChart
-        data={envData}
-        valueKey="value"
-        labelKey="type"
-        colors={["#0a84ff", "#ffcc00", "#34c759", "#ff375f"]}
-        height={250}
-      />
-
-      {/* 7. Audit & Enforcement Logs */}
+      {/* ── 7. Audit & Enforcement Logs ──────────────────────────────────── */}
       <SectionHeader title="Audit & Enforcement Logs" />
       <AuditLog logs={auditLogEntries} maxEntries={10} />
 
-      {/* 8. What-If ROI Simulation */}
+      {/* ── 8. What-If ROI Simulation ─────────────────────────────────────── */}
       <SectionHeader title="What-If ROI Simulation" />
       {activeIndustry && (
         <Card>
-          <CardHeader title={`Simulating: ${activeIndustry.name}`} />
+          <CardHeader title={`Simulating: ${activeIndustry.name}`} subtitle={`Base: $${activeIndustry.savings}M/yr — click a row above to switch industry`} />
           <CardContent>
-            Base savings: ${activeIndustry.savings}M/yr · Select a scale multiplier and hit Simulate.
             <SimulationInput industries={stats.industries} onSimulate={handleSimulate} />
             {simResult && (
-              <p style={{ marginTop: 10, fontWeight: 600, color: "#0a84ff" }}>{simResult}</p>
+              <div style={{
+                marginTop: 16, padding: "12px 16px", borderRadius: 10,
+                background: "linear-gradient(135deg, rgba(99,102,241,0.07), rgba(79,70,229,0.04))",
+                border: `1px solid rgba(99,102,241,0.18)`,
+              }}>
+                <span style={{ fontWeight: 700, color: T.accent, fontSize: 14 }}>{simResult}</span>
+              </div>
             )}
           </CardContent>
         </Card>
       )}
 
-      {/* ── Brain Enforcement Engine (live from /api/brain/status) ─────────── */}
+      {/* ── Brain Enforcement Engine ──────────────────────────────────────── */}
 
       {stats.brainLoading && !stats.brainStatus && (
-        <p style={{ marginTop: 20, color: "#888", fontSize: 13 }}>Connecting to enforcement engine…</p>
+        <p style={{ marginTop: 24, color: T.text3, fontSize: 13 }}>Connecting to enforcement engine…</p>
       )}
 
       {stats.brainStatus && (() => {
@@ -203,29 +271,36 @@ const CreateAIDashboardApp = () => {
           {/* 9. Enforcement Loop */}
           <SectionHeader title="Enforcement Loop — ULTIMATE_BRAIN_PROMPT Active" />
           <Card>
-            <CardHeader title={`Tick #${bs.loopTick} · Coverage ${bs.coverage}% · Auto-resolve: ${bs.config.autoResolveGaps ? "ON" : "OFF"}`} />
+            <CardHeader
+              title={`Tick #${bs.loopTick} · Coverage ${bs.coverage}%`}
+              subtitle={`Auto-resolve: ${bs.config.autoResolveGaps ? "ON" : "OFF"} · Next audit: ${new Date(bs.nextAuditAt).toLocaleTimeString()}`}
+            />
             <CardContent>
-              <div style={{ display: "flex", gap: 24, flexWrap: "wrap", marginBottom: 12 }}>
+              <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fit, minmax(120px, 1fr))", gap: 14, marginBottom: 20 }}>
                 {Object.entries(bs.auditSummary).map(([key, val]) => (
-                  <div key={key}>
-                    <div style={{ fontSize: 11, fontWeight: 700, color: "#888", textTransform: "uppercase", letterSpacing: "0.4px" }}>{key}</div>
-                    <div style={{ fontSize: 20, fontWeight: 800, color: "#34c759" }}>{val.covered}/{val.total}</div>
-                    <div style={{ fontSize: 11, color: "#888" }}>{val.gaps === 0 ? "No gaps" : `${val.gaps} resolved`}</div>
+                  <div key={key} style={{
+                    background: "#f8fafc", border: `1px solid ${T.border}`,
+                    borderRadius: 10, padding: "12px 14px", textAlign: "center",
+                  }}>
+                    <div style={{ fontSize: 10, fontWeight: 700, color: T.text3, textTransform: "uppercase", letterSpacing: "0.5px", marginBottom: 4 }}>{key}</div>
+                    <div style={{ fontSize: 22, fontWeight: 780, color: T.ok }}>{val.covered}<span style={{ fontSize: 14, color: T.text3 }}>/{val.total}</span></div>
+                    <div style={{ fontSize: 11, color: val.gaps === 0 ? T.ok : T.warn, marginTop: 2 }}>
+                      {val.gaps === 0 ? "No gaps" : `${val.gaps} resolved`}
+                    </div>
                   </div>
                 ))}
               </div>
-              {Object.entries(bs.coverageBreakdown).map(([area, pct]) => (
-                <div key={area} style={{ display: "flex", alignItems: "center", gap: 10, marginBottom: 4 }}>
-                  <span style={{ fontSize: 12, color: "#555", width: 100, flexShrink: 0, textTransform: "capitalize" }}>{area}</span>
-                  <div style={{ flex: 1, height: 6, background: "#e5e5ea", borderRadius: 4, overflow: "hidden" }}>
-                    <div style={{ width: `${pct}%`, height: "100%", background: pct >= 100 ? "#34c759" : "#0a84ff", borderRadius: 4 }} />
-                  </div>
-                  <span style={{ fontSize: 12, fontWeight: 700, color: pct >= 100 ? "#34c759" : "#ff9500", width: 38, textAlign: "right" }}>{pct}%</span>
-                </div>
-              ))}
-              <div style={{ marginTop: 10, fontSize: 12, color: "#888" }}>
-                Last audit: {new Date(bs.lastAuditAt).toLocaleTimeString()} &nbsp;·&nbsp;
-                Next: {new Date(bs.nextAuditAt).toLocaleTimeString()}
+              <div style={{ display: "flex", flexDirection: "column", gap: 0 }}>
+                {Object.entries(bs.coverageBreakdown).map(([area, pct]) => (
+                  <ProgressBar
+                    key={area}
+                    label={area.charAt(0).toUpperCase() + area.slice(1)}
+                    value={pct as number}
+                  />
+                ))}
+              </div>
+              <div style={{ marginTop: 8, fontSize: 12, color: T.text3 }}>
+                Last audit: {new Date(bs.lastAuditAt).toLocaleTimeString()}
               </div>
             </CardContent>
           </Card>
@@ -235,56 +310,64 @@ const CreateAIDashboardApp = () => {
           <AuditLog
             logs={bs.expansionLog.slice(-20).reverse().map((e: ExpansionEntry) => ({
               message: `[Tick #${e.tick}] [${e.category}] ${e.action}`,
-              level: e.status === "applied" ? "OK" : e.status === "verified" ? "OK" : "Warn",
+              level: (e.status === "applied" || e.status === "verified") ? "OK" : "Warn",
             }))}
             maxEntries={20}
           />
 
           {/* 11. Meta-Learning Predictions */}
           <SectionHeader title="Meta-Learning Predictions" />
-          {bs.metaPredictions.map((p: MetaPrediction) => (
-            <Card key={p.id}>
-              <CardHeader title={`[${p.category}] ${p.confidence}% confidence · ${p.status}`} />
-              <CardContent>
-                <div style={{ fontWeight: 600, marginBottom: 4 }}>{p.prediction}</div>
-                <div style={{ fontSize: 12, color: "#888", fontStyle: "italic" }}>Basis: {p.basis}</div>
-              </CardContent>
-            </Card>
-          ))}
+          <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fill, minmax(280px, 1fr))", gap: 14 }}>
+            {bs.metaPredictions.map((p: MetaPrediction) => (
+              <Card key={p.id} style={{ marginBottom: 0 }}>
+                <CardContent>
+                  <div style={{ display: "flex", alignItems: "center", gap: 8, marginBottom: 8 }}>
+                    <StatusPill
+                      label={`${p.confidence}%`}
+                      variant={p.confidence >= 90 ? "ok" : p.confidence >= 75 ? "blue" : "warn"}
+                    />
+                    <StatusPill
+                      label={p.status}
+                      variant={p.status === "validated" ? "ok" : p.status === "integrated" ? "blue" : "neutral"}
+                    />
+                    <span style={{ fontSize: 11, color: T.text3, fontWeight: 600 }}>{p.category}</span>
+                  </div>
+                  <div style={{ fontWeight: 650, color: T.text1, fontSize: 13, marginBottom: 4 }}>{p.prediction}</div>
+                  <div style={{ fontSize: 12, color: T.text3, fontStyle: "italic" }}>Basis: {p.basis}</div>
+                </CardContent>
+              </Card>
+            ))}
+          </div>
 
           {/* 12 + 13. Knowledge Sources & Optimization */}
-          <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 20 }}>
+          <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 20, marginTop: 8 }}>
             <div>
               <SectionHeader title="Knowledge Ingestion" />
-              {bs.knowledgeSources.map((ks: KnowledgeSource) => (
-                <Card key={ks.name}>
-                  <CardContent>
-                    <span style={{ fontSize: 12, fontWeight: 700, marginRight: 6 }}>
-                      {ks.status === "active" ? "🟢" : ks.status === "degraded" ? "🟡" : "🔴"}
-                    </span>
-                    <strong>{ks.name}</strong>
-                    <span style={{ fontSize: 12, color: "#888", marginLeft: 8 }}>
-                      [{ks.type}] · {ks.nodes.toLocaleString()} nodes · {new Date(ks.lastSynced).toLocaleTimeString()}
-                    </span>
-                  </CardContent>
-                </Card>
-              ))}
+              <div style={{ display: "flex", flexDirection: "column", gap: 10 }}>
+                {bs.knowledgeSources.map((ks: KnowledgeSource) => (
+                  <Card key={ks.name} style={{ marginBottom: 0 }}>
+                    <CardContent>
+                      <div style={{ display: "flex", alignItems: "center", gap: 10 }}>
+                        <StatusPill
+                          label={ks.status}
+                          variant={ks.status === "active" ? "ok" : ks.status === "degraded" ? "warn" : "danger"}
+                        />
+                        <span style={{ fontSize: 13, fontWeight: 650, color: T.text1 }}>{ks.name}</span>
+                      </div>
+                      <div style={{ fontSize: 12, color: T.text3, marginTop: 6 }}>
+                        [{ks.type}] · {ks.nodes.toLocaleString()} nodes · synced {new Date(ks.lastSynced).toLocaleTimeString()}
+                      </div>
+                    </CardContent>
+                  </Card>
+                ))}
+              </div>
             </div>
             <div>
               <SectionHeader title="Optimization Index" />
               <Card>
                 <CardContent>
                   {bs.optimization.map((o: OptimizationEntry) => (
-                    <div key={o.area} style={{ marginBottom: 10 }}>
-                      <div style={{ display: "flex", justifyContent: "space-between", marginBottom: 3 }}>
-                        <span style={{ fontSize: 13, fontWeight: 600 }}>{o.area}</span>
-                        <span style={{ fontSize: 13, fontWeight: 800, color: o.score >= 99 ? "#34c759" : o.score >= 95 ? "#0a84ff" : "#ff9500" }}>{o.score}%</span>
-                      </div>
-                      <div style={{ height: 5, background: "#e5e5ea", borderRadius: 4, overflow: "hidden", marginBottom: 2 }}>
-                        <div style={{ width: `${o.score}%`, height: "100%", background: o.score >= 99 ? "#34c759" : "#0a84ff", borderRadius: 4 }} />
-                      </div>
-                      <div style={{ fontSize: 11, color: "#888" }}>{o.note}</div>
-                    </div>
+                    <ProgressBar key={o.area} label={o.area} value={o.score} />
                   ))}
                 </CardContent>
               </Card>
@@ -298,47 +381,46 @@ const CreateAIDashboardApp = () => {
       {stats.missionConfig && (() => {
         const mc = stats.missionConfig!;
         const statusColor = (s: MissionPhase["status"]) =>
-          s === "enforced" ? "#34c759" : s === "active" ? "#0a84ff" : "#ffcc00";
+          s === "enforced" ? T.ok : s === "active" ? T.blue : T.warn;
         const statusLabel = (s: MissionPhase["status"]) =>
           s === "enforced" ? "ENFORCED" : s === "active" ? "ACTIVE" : "STANDBY";
+        const statusVariant = (s: MissionPhase["status"]): "ok" | "blue" | "warn" =>
+          s === "enforced" ? "ok" : s === "active" ? "blue" : "warn";
 
         return (<>
           <SectionHeader title="Universe-Scale Deployment Mission" />
           <Card>
-            <CardHeader title={`v${mc.version} · Deployed for ${mc.deployedFor} · Enforced by ${mc.enforcedBy} · Tick #${mc.loopTick}`} />
+            <CardHeader
+              title={`v${mc.version} · Deployed for ${mc.deployedFor}`}
+              subtitle={`Enforced by ${mc.enforcedBy} · Tick #${mc.loopTick}`}
+            />
             <CardContent>
-              <p style={{ fontStyle: "italic", color: "#555", marginBottom: 16 }}>{mc.goal}</p>
-              <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fill, minmax(280px, 1fr))", gap: 12 }}>
+              <p style={{ fontStyle: "italic", color: T.text2, marginBottom: 20, fontSize: 13 }}>{mc.goal}</p>
+              <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fill, minmax(280px, 1fr))", gap: 14 }}>
                 {mc.phases.map((phase: MissionPhase) => (
                   <div key={phase.id} style={{
-                    border: `1.5px solid ${statusColor(phase.status)}40`,
-                    borderRadius: 10, padding: "12px 14px",
-                    background: `${statusColor(phase.status)}08`,
+                    border: `1.5px solid ${statusColor(phase.status)}30`,
+                    borderRadius: 12, padding: "14px 16px",
+                    background: `${statusColor(phase.status)}06`,
                   }}>
-                    <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: 6 }}>
-                      <span style={{ fontSize: 13, fontWeight: 700, color: "#111" }}>{phase.label}</span>
-                      <span style={{
-                        fontSize: 10, fontWeight: 800, letterSpacing: "0.5px",
-                        color: statusColor(phase.status),
-                        background: `${statusColor(phase.status)}18`,
-                        borderRadius: 5, padding: "2px 7px",
-                      }}>{statusLabel(phase.status)}</span>
+                    <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: 8 }}>
+                      <span style={{ fontSize: 13, fontWeight: 700, color: T.text1 }}>{phase.label}</span>
+                      <StatusPill label={statusLabel(phase.status)} variant={statusVariant(phase.status)} />
                     </div>
-                    <p style={{ fontSize: 12, color: "#666", margin: "0 0 8px", lineHeight: 1.4 }}>{phase.description}</p>
+                    <p style={{ fontSize: 12, color: T.text2, margin: "0 0 10px", lineHeight: 1.5 }}>{phase.description}</p>
                     <div style={{ display: "flex", flexWrap: "wrap", gap: 5 }}>
                       {Object.entries(phase.settings).map(([key, val]) => (
                         <span key={key} style={{
-                          fontSize: 10, padding: "2px 7px", borderRadius: 4,
+                          fontSize: 10, padding: "2px 7px", borderRadius: 5, fontWeight: 600,
                           background: val === true ? "#f0fdf4" : val === false ? "#fff1f2" : "#f0f4ff",
                           color:       val === true ? "#166534" : val === false ? "#991b1b" : "#3730a3",
                           border:      `1px solid ${val === true ? "#bbf7d0" : val === false ? "#fecaca" : "#c7d2fe"}`,
-                          fontWeight: 600,
                         }}>
                           {key}: {Array.isArray(val) ? val.join(", ") : String(val)}
                         </span>
                       ))}
                     </div>
-                    <p style={{ fontSize: 10, color: "#999", margin: "8px 0 0" }}>
+                    <p style={{ fontSize: 10, color: T.text3, margin: "8px 0 0" }}>
                       {phase.enabledSettingCount}/{phase.activeSettingCount} settings active
                     </p>
                   </div>
@@ -349,11 +431,22 @@ const CreateAIDashboardApp = () => {
         </>);
       })()}
 
-      <div style={{ marginTop: "30px", textAlign: "right", fontSize: "12px", color: "#888" }}>
-        CreateAI Brain v100 — {stats.industries.length} industries · {stats.coverage} coverage
-        {stats.brainStatus && ` · Loop tick #${stats.brainStatus.loopTick} · Auto-enforce: ON`}
-        {stats.missionConfig && ` · Mission v${stats.missionConfig.version} active`}
+      {/* ── Footer ───────────────────────────────────────────────────────── */}
+      <div style={{
+        marginTop: 36, paddingTop: 16,
+        borderTop: `1px solid ${T.border}`,
+        display: "flex", justifyContent: "space-between", alignItems: "center",
+        fontSize: 12, color: T.text3, fontFamily: T.font, flexWrap: "wrap", gap: 8,
+      }}>
+        <span>CreateAI Brain v100 · {stats.industries.length} industries · {stats.coverage} coverage</span>
+        {stats.brainStatus && (
+          <span style={{ display: "flex", alignItems: "center", gap: 6 }}>
+            <span style={{ width: 7, height: 7, borderRadius: "50%", background: T.ok, display: "inline-block" }} />
+            Loop tick #{stats.brainStatus.loopTick} · Auto-enforce: ON
+          </span>
+        )}
       </div>
+
     </div>
   );
 };

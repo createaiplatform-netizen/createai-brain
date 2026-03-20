@@ -1,0 +1,69 @@
+/*
+ULTIMATE BRAIN VERIFICATION SCRIPT
+Purpose: Confirms that every Brain module and external integration is active and firing.
+Rules Applied:
+- Safe, legal, compliant, user-friendly
+- 100% completion enforced
+- Infinite execution verified
+- Dashboard & notifications confirmed
+*/
+
+import { executeInfinitely } from "./engine/InfinityExecutor.js";
+import { triggerAllWorkflows, fetchSystemStats } from "./services/systemServices.js";
+import { notifyFamily } from "./services/notifications.js";
+import { updateDashboardTheme, checkAllPanels } from "./services/uiServices.js";
+import { getMissionStatus } from "./services/missionConfig.js";
+
+(async () => {
+  try {
+    console.log("🔹 Starting Ultimate Brain Verification...");
+
+    // 1️⃣ Check Dashboard & UI Panels
+    const uiCheck = await executeInfinitely(async () => {
+      const allPanels = await checkAllPanels();
+      if (!allPanels.every(p => p.status === "ACTIVE")) throw new Error("Some panels inactive");
+      return "All UI panels active and styled";
+    }, { taskLabel: "UI Verification" });
+
+    // 2️⃣ Verify all Workflows
+    const workflowsCheck = await executeInfinitely(async () => {
+      const results = await triggerAllWorkflows({ dryRun: true });
+      if (!results.every(r => r.success)) throw new Error("Some workflows failed dry-run check");
+      return "All workflows ready and validated";
+    }, { taskLabel: "Workflow Verification" });
+
+    // 3️⃣ Verify Mission Config
+    const missionCheck = await executeInfinitely(async () => {
+      const mission = await getMissionStatus();
+      if (mission.phases.some(p => !["ENFORCED","ACTIVE","STANDBY"].includes(p.status)))
+        throw new Error("Mission config incomplete");
+      return "Mission config verified";
+    }, { taskLabel: "Mission Verification" });
+
+    // 4️⃣ Verify Notifications
+    const notificationCheck = await executeInfinitely(async () => {
+      const sent = await notifyFamily({ subject: "Brain Verification Test", message: "This is a verification check." });
+      if (!sent) throw new Error("Family notifications failed");
+      return "Notifications sent successfully";
+    }, { taskLabel: "Notification Verification" });
+
+    // 5️⃣ Verify System Stats
+    const statsCheck = await executeInfinitely(async () => {
+      const stats = await fetchSystemStats();
+      if (!stats.cpu || !stats.memory || !stats.maxUsers) throw new Error("System stats incomplete");
+      return "System stats live and reporting";
+    }, { taskLabel: "System Stats Verification" });
+
+    // ✅ Final Report
+    console.log("🎯 ULTIMATE BRAIN VERIFICATION COMPLETE");
+    console.log("• UI Panels:", uiCheck);
+    console.log("• Workflows:", workflowsCheck);
+    console.log("• Mission Config:", missionCheck);
+    console.log("• Notifications:", notificationCheck);
+    console.log("• System Stats:", statsCheck);
+    console.log("💎 ALL SYSTEMS 100% LIVE, INFINITE EXECUTION VERIFIED, BRAIN COMPLETE");
+
+  } catch (err) {
+    console.error("⚠️ Brain verification error:", err);
+  }
+})();
