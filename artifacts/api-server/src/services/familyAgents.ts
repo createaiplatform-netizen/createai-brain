@@ -112,8 +112,9 @@ export async function ensureStripeConnectedAccounts(): Promise<void> {
       const [firstName, ...rest] = member.name.split(" ");
       const lastName = rest.length > 0 ? rest.join(" ") : "Member";
       const account = await stripe.accounts.create({
-        type: "custom",
+        type: "express",
         country: "US",
+        email: member.email,
         business_type: "individual",
         individual: {
           first_name: firstName,
@@ -127,7 +128,8 @@ export async function ensureStripeConnectedAccounts(): Promise<void> {
           mcc: "7372", // software / AI products
         },
         capabilities: {
-          transfers: { requested: true },
+          transfers:     { requested: true },
+          card_payments: { requested: true },
         },
         metadata: {
           memberId:       member.id,

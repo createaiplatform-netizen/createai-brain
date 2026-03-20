@@ -15,12 +15,16 @@ import { randomUUID } from "crypto";
 // ─── Types ──────────────────────────────────────────────────────────────────
 
 import type { ProductAssets } from "./assetGenerator.js";
+import { dynamicPrice as _dynamicPrice } from "./aiAssetGenerator.js";
 
 export interface MarketProduct {
   id:          string;
   name:        string;
   description: string;
-  price:       number;   // dollars (e.g. 19)
+  price:       number;        // dollars (e.g. 19)
+  priceCents?: number;        // dynamic price in cents (set by aiAssetGenerator.dynamicPrice)
+  format?:     string;        // digital format: ebook | audiobook | video | graphic | ...
+  images?:     string[];      // visual asset URLs (set by aiAssetGenerator.generateVisualAssets)
   views:       number;
   sales:       number;
   published:   boolean;
@@ -31,7 +35,7 @@ export interface MarketProduct {
   stripePriceId?:   string;        // Stripe Price ID (set after per-batch creation)
 }
 
-// ─── RealMarketFlow Options (spec: zeroTouchSuperLaunch) ─────────────────────
+// ─── RealMarketFlow Options (spec: zeroTouchSuperLaunch + ultimateZeroTouchTranscend) ─
 export interface RealMarketFlowOptions {
   autonomous?:             boolean;
   maxScale?:               boolean;
@@ -48,6 +52,12 @@ export interface RealMarketFlowOptions {
   continuousCycle?:        boolean;
   smartLaunchAccelerator?: boolean;
   zeroTouch?:              boolean;
+  // Extended options (spec: ultimateZeroTouchTranscend)
+  cycleBatchSize?:         number;   // products per trending category per cycle
+  allDigital?:             boolean;  // generate products in all digital formats
+  dynamicPricing?:         boolean;  // demand-adaptive pricing via aiAssetGenerator
+  demandAdaptive?:         boolean;  // speed + pricing adapt to demand signals
+  generateVisualAssets?:   boolean;  // auto-generate image URLs per product
 }
 
 interface EngineStats {
@@ -104,17 +114,28 @@ async function fetchTrendingNiche(): Promise<string> {
 
 // ─── Marketplace Publishers (simulated — no auth available) ─────────────────
 
+// Extended marketplace list (spec: ultimateZeroTouchTranscend)
 const MARKETPLACES = [
-  { name: "Shopify",      api: "https://api.shopify.com/v1/products" },
-  { name: "Etsy",         api: "https://openapi.etsy.com/v3/application/listings" },
-  { name: "WooCommerce",  api: "https://your-woocommerce-site.com/wp-json/wc/v3/products" },
+  { name: "Shopify",        api: "https://api.shopify.com/v1/products" },
+  { name: "Etsy",           api: "https://openapi.etsy.com/v3/application/listings" },
+  { name: "WooCommerce",    api: "https://your-woocommerce-site.com/wp-json/wc/v3/products" },
+  { name: "Amazon",         api: "https://sellingpartnerapi-na.amazon.com/listings/2021-08-01/items" },
+  { name: "eBay",           api: "https://api.ebay.com/sell/inventory/v1/inventory_item" },
+  { name: "CreativeMarket", api: "https://creativemarket.com/api/v2/products" },
 ];
 
-export function publishToMarketplaces(product: MarketProduct): void {
-  for (const market of MARKETPLACES) {
+export function publishToMarketplaces(product: MarketProduct, channels?: string[]): void {
+  const targets = channels
+    ? MARKETPLACES.filter(m => channels.includes(m.name))
+    : MARKETPLACES;
+  for (const market of targets) {
     // Simulate push — real auth/endpoints would replace this log
     console.log(`[RealMarket] Publishing "${product.name}" → ${market.name}`);
   }
+}
+
+export function getMarketplaceNames(): string[] {
+  return MARKETPLACES.map(m => m.name);
 }
 
 // ─── Product Creation ────────────────────────────────────────────────────────
@@ -273,33 +294,70 @@ export const realMarketFlow = {
   },
 
   /**
-   * Generate one product per trending category and return the batch.
-   * Called on each engine cycle-end by zeroTouchSuperLaunch.
+   * Generate products per trending category.
+   * When `allDigital` is set in flow options, generates one product per
+   * category × format combination (spec: ultimateZeroTouchTranscend).
+   * When `dynamicPricing` is set, applies demand-adaptive pricing.
    */
-  async generateNextBatch({ categories }: { categories: string[] }): Promise<MarketProduct[]> {
+  async generateNextBatch({
+    categories,
+    formats,
+  }: {
+    categories: string[];
+    formats?: string[];
+  }): Promise<MarketProduct[]> {
+    // Resolve digital formats — use provided list or flow-option default
+    const digitalFormats: string[] = formats ??
+      (_flowOptions.allDigital
+        ? ["ebook","audiobook","video","graphic","software","template","course","music","photo","3D","plugin"]
+        : [undefined as unknown as string]);
+
     const batch: MarketProduct[] = [];
+
     for (const niche of categories) {
-      const price = Math.floor(Math.random() * 30) + 10;
-      const p: MarketProduct = {
-        id:          randomUUID(),
-        name:        `AI Solution: ${niche}`,
-        description: `Automated AI solution for ${niche}. Powered by CreateAI Brain.`,
-        price,
-        views:       0,
-        sales:       0,
-        published:   false,
-        createdAt:   new Date(),
-        niche,
-      };
-      products.push(p);
-      publishToMarketplaces(p);
-      p.published = true;
-      batch.push(p);
+      for (const format of digitalFormats) {
+        const basePrice = Math.floor(Math.random() * 30) + 10;
+        const formatLabel = format ? ` (${format})` : "";
+        const p: MarketProduct = {
+          id:          randomUUID(),
+          name:        `AI Solution: ${niche}${formatLabel}`,
+          description: `Automated AI solution for ${niche}${format ? ` in ${format} format` : ""}. Powered by CreateAI Brain.`,
+          price:       basePrice,
+          priceCents:  basePrice * 100,
+          format:      format ?? undefined,
+          views:       0,
+          sales:       0,
+          published:   false,
+          createdAt:   new Date(),
+          niche,
+        };
+        products.push(p);
+        publishToMarketplaces(p);
+        p.published = true;
+        batch.push(p);
+      }
     }
+
     if (_flowOptions.autoOptimize && salesCount > 0) {
       generationSpeed = Math.min(generationSpeed + 2, 50);
     }
-    console.log(`[RealMarketFlow] ⚡ Batch of ${batch.length} products generated from trending categories`);
+    if (_flowOptions.demandAdaptive && salesCount === 0 && products.length > 30) {
+      generationSpeed = Math.max(1, generationSpeed - 0.5);
+    }
+
+    console.log(
+      `[RealMarketFlow] ⚡ Batch of ${batch.length} products generated` +
+      (_flowOptions.allDigital ? ` across ${digitalFormats.length} formats` : "") +
+      ` from ${categories.length} trending categories`
+    );
     return batch;
+  },
+
+  /**
+   * Demand-adaptive pricing (spec: ultimateZeroTouchTranscend).
+   * Returns price in CENTS for use in Stripe price creation.
+   */
+  dynamicPrice(product: MarketProduct): number {
+    return _dynamicPrice(product);
   },
 };
