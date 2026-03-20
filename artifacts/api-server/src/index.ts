@@ -18,8 +18,8 @@ import { zeroTouchSuperLaunch, resolveFamilyStripeId } from "./services/zeroTouc
 import { startHybridEngine }                           from "./services/hybridEngine.js";
 import { startWealthMultiplier }                       from "./services/wealthMultiplier.js";
 import { startPlatformAudit }                         from "./services/platformAudit.js";
-import { startMetaTranscendentLaunch }                from "./services/metaTranscend.js";
-import { startWealthMaximizer }                       from "./services/wealthMaximizer.js";
+import { startMetaTranscendentLaunch, triggerMetaCycle } from "./services/metaTranscend.js";
+import { startWealthMaximizer, enforceMaxGrowth }       from "./services/wealthMaximizer.js";
 import { startEnforcer }                              from "./services/platform100Enforcer.js";
 import { startUltimateLaunch }                        from "./services/ultimateTranscend.js";
 import { startPayoutCycle, pushRevenueToBankImmediately } from "./services/payoutService.js";
@@ -70,13 +70,18 @@ app.listen(port, () => {
     startAboveTranscendEngine();
     initRealStripeIntegration();
     startAdaptiveEngine({
-      cycleInterval:  10_000,
-      maxSpeed:       50,
-      autoPublish:    true,
-      marketplaces:   ["Shopify", "Etsy", "WooCommerce"],
-      realProducts:   true,
-      autoAllocate:   true,
-      businessName:   "Lakeside Trinity Care and Wellness LLC",
+      cycleInterval:         10_000,
+      maxSpeed:              100,            // spec: full-throttle
+      autoPublish:           true,
+      marketplaces:          ["Shopify", "Etsy", "WooCommerce", "Amazon", "eBay", "CreativeMarket"],
+      realProducts:          true,
+      autoAllocate:          true,
+      businessName:          "Lakeside Trinity Care and Wellness LLC",
+      allDigital:            true,           // all digital formats per product
+      dynamicPricing:        true,           // demand-adaptive pricing
+      demandAdaptive:        true,           // speed adapts to demand signals
+      generateVisualAssets:  true,           // auto-generate image URLs per product
+      enforceMinimumPercent: 100,            // 100%+ growth enforced per cycle
     });
     zeroTouchSuperLaunch(resolveFamilyStripeId()).catch(err =>
       console.error("[ZeroTouchAI] Launch error:", (err as Error).message)
@@ -90,11 +95,16 @@ app.listen(port, () => {
     startUltimateLaunch();
     startPayoutCycle();   // ACH payout to Huntington every 60 s
 
-    // Instant payout — triggered on every micro-revenue event from the ultra engine
+    // Instant payout — triggered on every micro-revenue event from the ultra engine.
+    // Spec: pushRevenueToBankImmediately → enforceMaxGrowth → triggerMetaCycle
     UltraInteractionEngine.on("microRevenue", (event) => {
-      void pushRevenueToBankImmediately(event.amount);
+      void (async () => {
+        await pushRevenueToBankImmediately(event.amount);
+        await enforceMaxGrowth({ minPercent: 100 });
+        triggerMetaCycle().catch(() => {});
+      })();
     });
-    console.log("[PayoutService] ⚡ Instant payout listener active — every micro-revenue event → Huntington (instant)");
+    console.log("[PayoutService] ⚡ Instant payout listener active — every micro-revenue event → Huntington (instant) → enforceMaxGrowth → triggerMetaCycle");
 
     // Log public market page URL (spec: launchFullFamilyMarket — Step 5)
     const domain = process.env.REPLIT_DEV_DOMAIN ?? "localhost";
