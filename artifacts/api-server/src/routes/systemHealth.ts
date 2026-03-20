@@ -25,6 +25,7 @@ import { sql } from "drizzle-orm";
 
 const router = Router();
 
+
 interface IntegrationCheck {
   name:   string;
   status: "real" | "sandbox" | "simulated" | "not_configured" | "invalid_credentials";
