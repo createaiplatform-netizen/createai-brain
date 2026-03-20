@@ -11,7 +11,15 @@
 import { Router, type Request, type Response } from "express";
 import { brainEngine } from "../engine/BrainEnforcementEngine.js";
 import { MISSION_CONFIG } from "../engine/MissionConfig.js";
-import { notifyFamilyEvent } from "../utils/notifications.js";
+import {
+  notifyFamilyEvent,
+  sendEmailNotification,
+  sendSMSNotification,
+  credentialStatus,
+  generateAuditSummary,
+  FAMILY_EMAIL_LIST,
+  FAMILY_SMS_LIST,
+} from "../utils/notifications.js";
 import { runVerification } from "../services/verificationRunner.js";
 import { BeyondInfinityConfig } from "../config/BeyondInfinity.js";
 
@@ -89,64 +97,60 @@ router.get("/predictions", (_req: Request, res: Response) => {
   });
 });
 
-// POST /api/brain/notify — trigger a family event notification from the frontend
-// Supports ?mode=no-limits for Beyond Infinity / Absolute Transcendence branding.
+// POST /api/brain/notify — send email + optional SMS to all family members
+// Body: { subject?, message?, sms?: boolean }
+// Query: ?mode=no-limits → Beyond Infinity branding on subject/body
 router.post("/notify", async (req: Request, res: Response) => {
-  const { subject, message } = req.body as { subject?: string; message?: string };
+  const { subject, message, sms = false } = req.body as {
+    subject?: string;
+    message?: string;
+    sms?:     boolean;
+  };
   const noLimits = req.query.mode === "no-limits";
 
   const finalSubject = noLimits
     ? `💠 ${BeyondInfinityConfig.backend.missionLabel}: ${subject ?? "Brain Notification"}`
     : subject ?? "Brain Notification";
 
-  const finalMessage = noLimits
-    ? [
-        `[${BeyondInfinityConfig.labels.coreConcept} — ${BeyondInfinityConfig.behavior.branding}]`,
-        "",
-        message ?? "Your CreateAI Brain is live and active.",
-        "",
-        `Scope: ${BeyondInfinityConfig.scope.simulations} · Retries: ${BeyondInfinityConfig.behavior.infiniteRetries.toLocaleString()}`,
-      ].join("\n")
-    : message ?? "Your CreateAI Brain is live and active.";
+  const finalBody = `
+    <p>${
+      noLimits
+        ? `<strong>[${BeyondInfinityConfig.labels.coreConcept} — ${BeyondInfinityConfig.behavior.branding}]</strong><br/><br/>` +
+          (message ?? "Your CreateAI Brain is live and active.") +
+          `<br/><br/><em>Scope: ${BeyondInfinityConfig.scope.simulations} · Retries: ${BeyondInfinityConfig.behavior.infiniteRetries.toLocaleString()}</em>`
+        : message ?? "Your CreateAI Brain is live and active."
+    }</p>
+  `;
+
+  const emailAddresses = FAMILY_EMAIL_LIST.map(m => m.email);
+  const smsPhones      = FAMILY_SMS_LIST.map(m => m.phone);
 
   try {
-    await notifyFamilyEvent({ subject: finalSubject, message: finalMessage });
+    const emailBatch = await sendEmailNotification(emailAddresses, finalSubject, finalBody);
+
+    let smsBatch = null;
+    if (sms || noLimits) {
+      smsBatch = await sendSMSNotification(
+        smsPhones,
+        `${noLimits ? "💠 " : ""}${finalSubject.replace(/<[^>]+>/g, "")} — Check your Brain dashboard.`,
+      );
+    }
+
     res.json({
-      sent:      true,
+      success:   true,
       timestamp: new Date().toISOString(),
       mode:      noLimits ? "no-limits" : "standard",
+      email:     emailBatch,
+      sms:       smsBatch,
     });
   } catch (err) {
-    res.status(500).json({ sent: false, error: (err as Error).message });
+    res.status(500).json({ success: false, error: (err as Error).message });
   }
 });
 
-// GET /api/brain/notify — real credential status (no values exposed)
+// GET /api/brain/notify — full credential status + audit summary (no secret values exposed)
 router.get("/notify", (_req: Request, res: Response) => {
-  const resendKey    = !!process.env["RESEND_API_KEY"];
-  const resendFrom   = !!process.env["RESEND_FROM_EMAIL"];
-  const twilioSid    = !!process.env["TWILIO_SID"];
-  const twilioToken  = !!process.env["TWILIO_AUTH_TOKEN"];
-  const twilioPhone  = !!process.env["TWILIO_PHONE"];
-  const emailReady   = resendKey && resendFrom;
-  const smsReady     = twilioSid && twilioToken && twilioPhone;
-  const missing: string[] = [];
-  if (!resendKey)   missing.push("RESEND_API_KEY");
-  if (!resendFrom)  missing.push("RESEND_FROM_EMAIL");
-  if (!twilioSid)   missing.push("TWILIO_SID");
-  if (!twilioToken) missing.push("TWILIO_AUTH_TOKEN");
-  if (!twilioPhone) missing.push("TWILIO_PHONE");
-  res.json({
-    status:      missing.length === 0 ? "fully_configured" : "partial",
-    emailReady,
-    smsReady,
-    missingSecrets: missing,
-    instructions: missing.length > 0
-      ? `Add ${missing.join(", ")} to Replit Secrets to enable real notifications`
-      : "All notification credentials configured — POST /api/brain/notify to send",
-    branding:  BeyondInfinityConfig.behavior.branding,
-    checkedAt: new Date().toISOString(),
-  });
+  res.json(generateAuditSummary());
 });
 
 // GET /api/brain/beyond-infinity — full BeyondInfinityConfig + live engine state
