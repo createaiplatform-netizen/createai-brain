@@ -192,16 +192,45 @@ const MODE_META: Record<RenderMode, { label: string; icon: string; action: strin
 };
 
 function detectMode(industry: string): RenderMode {
+  // ── Creative / Media ─────────────────────────────────────────────────────
   if (["Film / Movie", "Documentary"].includes(industry))   return "cinematic";
   if (industry === "Video Game")                            return "game";
-  if (["Mobile App", "Web App / SaaS"].includes(industry)) return "app";
-  if (industry === "Book / Novel")                          return "book";
-  if (industry === "Online Course")                         return "course";
-  if (["Business", "Startup"].includes(industry))           return "pitch";
-  if (industry === "Physical Product")                      return "showcase";
   if (industry === "Music / Album")                         return "music";
   if (industry === "Podcast")                               return "podcast";
-  if (["Corporate Training", "HR / L&D", "Education"].includes(industry)) return "training";
+  if (industry === "Book / Novel")                          return "book";
+  if (industry === "Creator Economy")                       return "showcase";
+  if (industry === "Media & Publishing")                    return "document";
+  // ── Tech / Product ───────────────────────────────────────────────────────
+  if (["Mobile App", "Web App / SaaS"].includes(industry)) return "app";
+  if (industry === "Technology")                            return "app";
+  if (industry === "IoT / Hardware")                        return "showcase";
+  if (industry === "AR/VR / Metaverse")                     return "app";
+  if (industry === "Blockchain / Web3")                     return "pitch";
+  if (industry === "Cybersecurity")                         return "document";
+  // ── Business / Finance ───────────────────────────────────────────────────
+  if (["Business", "Startup"].includes(industry))           return "pitch";
+  if (["FinTech", "Space & Aerospace",
+       "Mobility & AutoTech", "Nonprofit",
+       "Climate Tech", "Clean Energy"].includes(industry))  return "pitch";
+  if (industry === "Physical Product")                      return "showcase";
+  if (["Retail", "E-commerce / DTC", "RetailTech",
+       "Fashion & Apparel",
+       "Restaurant / F&B"].includes(industry))              return "showcase";
+  if (["Travel & Hospitality", "Events & Conference",
+       "Sports & Fitness"].includes(industry))              return "showcase";
+  if (["Agency / Consultancy", "Legal", "LegalTech",
+       "GovTech / CivicTech", "Real Estate",
+       "PropTech", "Cybersecurity",
+       "Logistics", "Construction",
+       "Farming"].includes(industry))                       return "document";
+  // ── Education / Training ─────────────────────────────────────────────────
+  if (["Corporate Training", "HR / L&D", "Education",
+       "EdTech", "HRTech / WorkTech",
+       "AgriTech"].includes(industry))                      return "training";
+  // ── Health / Life Sciences ───────────────────────────────────────────────
+  if (["Healthcare", "Biotech / Life Sciences"].includes(industry)) return "training";
+  // ── Online Course ────────────────────────────────────────────────────────
+  if (industry === "Online Course")                         return "course";
   return "document";
 }
 

@@ -93,6 +93,24 @@ export interface UnifiedManifest {
   generatedAt:   string;
 }
 
+// ─── SSE Concurrency Guard ────────────────────────────────────────────────────
+// One active SSE stream per authenticated user. If a second request arrives
+// from the same user, the previous stream is cleanly terminated first.
+
+const activeStreams = new Map<string, { res: Response; keepAlive: ReturnType<typeof setInterval> }>();
+
+function terminateStream(userId: string): void {
+  const existing = activeStreams.get(userId);
+  if (existing) {
+    try {
+      clearInterval(existing.keepAlive);
+      existing.res.write(`data: ${JSON.stringify({ type: "status", message: "Stream replaced by newer request." })}\n\n`);
+      existing.res.end();
+    } catch { /* already closed */ }
+    activeStreams.delete(userId);
+  }
+}
+
 // ─── SSE helper ───────────────────────────────────────────────────────────────
 
 function sse(res: Response, data: object): void {
@@ -102,16 +120,43 @@ function sse(res: Response, data: object): void {
 // ─── Mode detection ───────────────────────────────────────────────────────────
 
 function detectRenderMode(industry: string): RenderMode {
+  // ── Creative / Media ────────────────────────────────────────────────────────
   if (["Film / Movie", "Documentary"].includes(industry))        return "cinematic";
   if (industry === "Video Game")                                  return "game";
-  if (["Mobile App", "Web App / SaaS"].includes(industry))       return "app";
-  if (industry === "Book / Novel")                                return "book";
-  if (industry === "Online Course")                               return "course";
-  if (["Business", "Startup"].includes(industry))                 return "pitch";
-  if (industry === "Physical Product")                            return "showcase";
   if (industry === "Music / Album")                               return "music";
   if (industry === "Podcast")                                     return "podcast";
-  if (["Corporate Training", "HR / L&D", "Education"].includes(industry)) return "training";
+  if (industry === "Book / Novel")                                return "book";
+  if (industry === "Creator Economy")                             return "showcase";
+  if (industry === "Media & Publishing")                          return "document";
+  // ── Tech / Product ──────────────────────────────────────────────────────────
+  if (["Mobile App", "Web App / SaaS"].includes(industry))       return "app";
+  if (industry === "Technology")                                  return "app";
+  if (industry === "IoT / Hardware")                              return "showcase";
+  if (["AR/VR / Metaverse"].includes(industry))                  return "app";
+  if (["Blockchain / Web3"].includes(industry))                   return "pitch";
+  if (industry === "Cybersecurity")                               return "document";
+  // ── Business / Finance ──────────────────────────────────────────────────────
+  if (["Business", "Startup"].includes(industry))                 return "pitch";
+  if (["FinTech", "Biotech / Life Sciences", "Space & Aerospace",
+       "Mobility & AutoTech", "Nonprofit"].includes(industry))    return "pitch";
+  if (industry === "Physical Product")                            return "showcase";
+  if (["Retail", "E-commerce / DTC", "RetailTech",
+       "Fashion & Apparel", "Restaurant / F&B"].includes(industry)) return "showcase";
+  if (["Agency / Consultancy", "Legal", "LegalTech",
+       "GovTech / CivicTech", "Real Estate",
+       "PropTech"].includes(industry))                            return "document";
+  // ── Education / Training ────────────────────────────────────────────────────
+  if (["Corporate Training", "HR / L&D", "Education",
+       "EdTech", "HRTech / WorkTech", "AgriTech"].includes(industry)) return "training";
+  // ── Health / Life Sciences ──────────────────────────────────────────────────
+  if (["Healthcare", "Biotech / Life Sciences"].includes(industry)) return "training";
+  // ── Sector industries ───────────────────────────────────────────────────────
+  if (["Online Course"].includes(industry))                       return "course";
+  if (["Travel & Hospitality", "Events & Conference",
+       "Sports & Fitness"].includes(industry))                    return "showcase";
+  if (["Climate Tech", "Clean Energy"].includes(industry))        return "pitch";
+  if (["Logistics", "Construction", "Farming", "Hunting",
+       "Architecture / Interior Design"].includes(industry))      return "document";
   return "document";
 }
 
@@ -793,6 +838,10 @@ router.post("/", generateLimiter, async (req: Request, res: Response) => {
 
   const pid = typeof projectId === "string" ? parseInt(projectId, 10) : projectId;
 
+  // ── SSE concurrency guard — one stream per user ───────────────────────────
+  const userId = String((req.user as { id?: string | number })?.id ?? "anon");
+  terminateStream(userId);
+
   res.setHeader("Content-Type",  "text/event-stream");
   res.setHeader("Cache-Control", "no-cache");
   res.setHeader("Connection",    "keep-alive");
@@ -800,6 +849,10 @@ router.post("/", generateLimiter, async (req: Request, res: Response) => {
 
   // Keepalive — prevents proxies / browser from killing an idle SSE connection
   const _keepAlive = setInterval(() => { try { res.write(": keep-alive\n\n"); } catch {} }, 18_000);
+
+  // Register this stream so a future request can replace it cleanly
+  activeStreams.set(userId, { res, keepAlive: _keepAlive });
+  res.on("close", () => { clearInterval(_keepAlive); activeStreams.delete(userId); });
 
   try {
     sse(res, { type: "status", message: "Loading project…" });
@@ -1089,6 +1142,8 @@ router.post("/regen-art", mediumLimiter, async (req: Request, res: Response) => 
 // Serves the stored HTML5 game or app prototype as a standalone page
 
 router.get("/serve/:projectId", readLimiter, async (req: Request, res: Response) => {
+  if (!req.isAuthenticated()) { res.status(401).send("Unauthorized"); return; }
+
   const pid  = parseInt(String(req.params["projectId"] ?? "0"), 10);
   const type = (req.query.type as string) ?? "game";
 
