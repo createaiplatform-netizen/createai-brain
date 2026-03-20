@@ -1,0 +1,56 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>CreateAI Digital - AI Family System</title>
+  <style>
+    body { font-family: Arial, sans-serif; background: #111; color: #eee; margin: 0; padding: 0; }
+    header { background: #0ff; color: #111; padding: 20px; text-align: center; }
+    h1 { margin: 0; font-size: 2rem; }
+    section { padding: 20px; max-width: 800px; margin: auto; }
+    a { color: #0ff; text-decoration: none; }
+    .card { background: #222; padding: 15px; border-radius: 10px; margin: 10px 0; }
+    .footer { text-align: center; padding: 20px; font-size: 0.9rem; color: #888; }
+  </style>
+</head>
+<body>
+
+<header>
+  <h1>CreateAI Digital</h1>
+  <p>Professional AI Family & Personal Automation System</p>
+</header>
+
+<section>
+  <h2>About</h2>
+  <p>CreateAI Digital provides a fully autonomous AI platform that manages family AI agents, income tracking, personal automation, and internal banking systems. Our platform ensures secure, private, and real-time control for each family member.</p>
+</section>
+
+<section>
+  <h2>What We Offer</h2>
+  <div class="card">
+    <strong>Family AI Agents:</strong> Personalized AI for each member, with full account, phone, and financial integration.
+  </div>
+  <div class="card">
+    <strong>Internal Banking & Stripe Integration:</strong> Real-time income projections and secure payouts.
+  </div>
+  <div class="card">
+    <strong>Automation & Communication:</strong> Fully voice-enabled AI interactions with wake words and commands.
+  </div>
+  <div class="card">
+    <strong>Privacy & Security:</strong> Everything stays private within your family unless explicitly shared.
+  </div>
+</section>
+
+<section>
+  <h2>Contact</h2>
+  <p>Email: <a href="mailto:admin@lakesidetrinity.com">admin@lakesidetrinity.com</a></p>
+  <p>Website: <a href="https://createai.repl.co">https://createai.repl.co</a></p>
+</section>
+
+<div class="footer">
+  &copy; 2026 CreateAI Digital. All rights reserved.
+</div>
+
+</body>
+</html>
