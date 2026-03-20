@@ -7,7 +7,7 @@
  */
 
 import { Router }                                          from "express";
-import { getMetaCycleStats }                               from "../services/metaTranscend.js";
+import { getMetaCycleStats, getMetaProjections }           from "../services/metaTranscend.js";
 import { generatePremiumProducts, autoAdCampaign, optimizeRevenue } from "../services/wealthTools.js";
 import { globalTranscend }                                 from "../services/realMarket.js";
 
@@ -37,6 +37,16 @@ router.post("/cycle", async (_req, res) => {
       categories,
       transcendFired: true,
     });
+  } catch (err) {
+    res.status(500).json({ error: (err as Error).message });
+  }
+});
+
+// GET /api/meta/projections
+// Spec: ULTIMATE-ZERO-TOUCH-TRANSCENDENT-FINANCIAL-DASHBOARD
+router.get("/projections", async (_req, res) => {
+  try {
+    res.json(await getMetaProjections());
   } catch (err) {
     res.status(500).json({ error: (err as Error).message });
   }

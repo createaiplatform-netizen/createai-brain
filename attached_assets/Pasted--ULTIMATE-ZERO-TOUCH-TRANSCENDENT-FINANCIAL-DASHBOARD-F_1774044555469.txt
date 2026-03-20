@@ -1,0 +1,96 @@
+/**
+ * ULTIMATE ZERO-TOUCH TRANSCENDENT FINANCIAL DASHBOARD
+ * - Full platform: 7 engines + meta-cycle + ads + marketplaces
+ * - Live financial projections, clicks, impressions
+ * - Enforces minimum 100% growth across all engines
+ * - AI-generated premium products per trending niches
+ * - Instant multi-channel ad campaigns
+ * - Zero-touch publishing & revenue collection
+ * - Global transcend & optimization every 1 min
+ */
+
+import {
+  startAdaptiveEngine,
+  zeroTouchSuperLaunch,
+  getMarketStats,
+  globalTranscend
+} from "./realMarketEngine";
+import { startHybridEngine, getHybridStats } from "./services/hybridEngine";
+import { startWealthMultiplier, applyGrowthMultiplier, getWealthSnapshot } from "./services/wealthMultiplier";
+import { startWealthMaximizer, enforceMaxGrowth, getMaximizerStats } from "./services/wealthMaximizer";
+import { startPlatformAudit, getAuditSnapshot } from "./services/platformAudit";
+import { startMetaTranscendentLaunch, triggerMetaCycle, getMetaStats, getMetaProjections } from "./services/metaTranscend";
+import { generateVisualAssets, detectTrendingCategories, dynamicPrice, publishToMarketplaces } from "./aiMarketTools";
+
+async function ultimateFinancialDashboard() {
+  try {
+    // 1️⃣ Start all engines
+    startAdaptiveEngine({ cycleInterval: 10_000, autoPublish: true });
+    zeroTouchSuperLaunch();
+    startHybridEngine();
+    startWealthMultiplier();
+    startWealthMaximizer();
+    startPlatformAudit();
+    startMetaTranscendentLaunch();
+
+    // 2️⃣ Detect trends, generate premium products & visual assets
+    const categories = detectTrendingCategories();
+    const batch = await Promise.all(categories.flatMap(category => {
+      const formats = ["ebook","audiobook","video","pdf","slides","templates","software","graphic","music","ai-script","course"];
+      return formats.map(async format => {
+        const product = { category, format, title: `${category} ${format} Solution` };
+        product.assets = await generateVisualAssets(product);
+        product.price = await dynamicPrice(product);
+        return product;
+      });
+    }));
+
+    // 3️⃣ Publish to all marketplaces & trigger instant ad campaigns
+    await publishToMarketplaces(batch);
+    await triggerMetaCycle();
+
+    // 4️⃣ Enforce 100% growth & apply maximum boost
+    await enforceMaxGrowth();
+    await applyGrowthMultiplier(100); // ensures no engine < 100%
+    await globalTranscend({ categories, batchSize: batch.length });
+
+    // 5️⃣ Collect full stats
+    const stats = {
+      productsGenerated: batch.length,
+      categoriesDetected: categories.length,
+      market: await getMarketStats(),
+      hybrid: await getHybridStats(),
+      wealth: await getWealthSnapshot(),
+      maximizer: await getMaximizerStats(),
+      meta: await getMetaStats(),
+      audit: await getAuditSnapshot()
+    };
+
+    // 6️⃣ Generate financial projections & minimum guaranteed daily revenue
+    const projections = await getMetaProjections();
+    const liveRevenue = parseFloat(stats.wealth.totalRevenue.replace("$","")) || 0;
+    const projectedRevenue = liveRevenue + projections.minRevenuePerDay;
+    const minGuaranteedRevenue = projections.minRevenuePerDay;
+
+    console.log("✅ FULL PLATFORM DASHBOARD:");
+    console.table({ ...stats, projectedRevenue, minGuaranteedRevenue, totalClicks: projections.totalClicks, totalImpressions: projections.totalImpressions });
+
+    // 7️⃣ Ask Replit AI for system feedback
+    if (typeof ReplitAI !== "undefined") {
+      const feedback = await ReplitAI.requestSummary({
+        title: "Ultimate Transcendent Financial Dashboard",
+        stats,
+        projections
+      });
+      console.log("🤖 Replit AI Feedback:", feedback);
+    }
+
+    return { stats, projections, projectedRevenue, minGuaranteedRevenue };
+
+  } catch (err) {
+    console.error("❌ Ultimate financial dashboard failed:", err);
+  }
+}
+
+// Execute immediately
+ultimateFinancialDashboard();
