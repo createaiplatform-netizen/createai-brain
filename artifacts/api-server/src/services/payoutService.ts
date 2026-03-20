@@ -24,29 +24,47 @@ import { getSaraStripeInfo }               from "./familyAgents.js";
 // ─── Payout Stats ─────────────────────────────────────────────────────────────
 
 export interface PayoutStats {
-  cycleCount:        number;
-  successCount:      number;
-  queuedCount:       number;       // cycles where balance was $0
-  errorCount:        number;
+  // ── ACH Cycle payouts (pushFundsToHuntington) ────────────────────────────
+  cycleCount:          number;
+  successCount:        number;
+  queuedCount:         number;       // cycles where balance was $0
+  errorCount:          number;
   totalTransferredUsd: number;
-  lastPayoutId:      string;
-  lastPayoutTs:      string;
-  lastAmountUsd:     number;
-  bankLinked:        boolean;
-  lastError:         string;
+  lastPayoutId:        string;
+  lastPayoutTs:        string;
+  lastAmountUsd:       number;
+  bankLinked:          boolean;
+  lastError:           string;
+  // ── Instant payouts (pushRevenueToBankImmediately) ───────────────────────
+  instantCount:        number;       // micro-revenue events → instant payout
+  instantSuccessCount: number;
+  instantErrorCount:   number;
+  totalInstantUsd:     number;
+  lastInstantId:       string;
+  lastInstantAmountUsd: number;
+  lastInstantTs:       string;
+  lastInstantError:    string;
 }
 
 const _stats: PayoutStats = {
-  cycleCount:          0,
-  successCount:        0,
-  queuedCount:         0,
-  errorCount:          0,
-  totalTransferredUsd: 0,
-  lastPayoutId:        "",
-  lastPayoutTs:        "",
-  lastAmountUsd:       0,
-  bankLinked:          false,
-  lastError:           "",
+  cycleCount:           0,
+  successCount:         0,
+  queuedCount:          0,
+  errorCount:           0,
+  totalTransferredUsd:  0,
+  lastPayoutId:         "",
+  lastPayoutTs:         "",
+  lastAmountUsd:        0,
+  bankLinked:           false,
+  lastError:            "",
+  instantCount:         0,
+  instantSuccessCount:  0,
+  instantErrorCount:    0,
+  totalInstantUsd:      0,
+  lastInstantId:        "",
+  lastInstantAmountUsd: 0,
+  lastInstantTs:        "",
+  lastInstantError:     "",
 };
 
 const MIN_PAYOUT_USD = 1.00;  // Stripe minimum to avoid micro-fee overhead
@@ -138,6 +156,81 @@ export function startPayoutCycle(intervalMs = 60_000): void {
     void pushFundsToHuntington();
     setInterval(() => void pushFundsToHuntington(), intervalMs);
   }, 20_000);
+}
+
+// ─── Instant Payout (per micro-revenue event) ─────────────────────────────────
+//
+// Called by the UltraInteractionEngine "microRevenue" listener in index.ts.
+// Uses method:"instant" so funds arrive in seconds rather than the standard
+// ACH 1-3 business-day window.  Stripe requires the destination account
+// to support instant payouts (eligible debit card or verified bank).
+
+const INSTANT_MIN_USD = 0.50;  // Stripe instant payout floor
+
+export async function pushRevenueToBankImmediately(amount: number): Promise<void> {
+  _stats.instantCount++;
+
+  if (amount < INSTANT_MIN_USD) {
+    console.log(
+      `[PayoutService] ⚡ Instant #${_stats.instantCount} — ` +
+      `$${amount.toFixed(2)} below floor $${INSTANT_MIN_USD}, skipped`
+    );
+    return;
+  }
+
+  try {
+    const stripe       = await getUncachableStripeClient();
+    const saraInfo     = getSaraStripeInfo();
+    _stats.bankLinked  = saraInfo.bankAccountLinked;
+
+    const bankAccountId = process.env.SARA_BANK_ACCOUNT_ID ?? saraInfo.bankAccountId ?? "";
+    if (!bankAccountId) {
+      throw new Error("Bank account not configured — set SARA_BANK_ACCOUNT_ID env var");
+    }
+
+    const amountCents = Math.round(amount * 100);
+
+    const payoutParams: Parameters<typeof stripe.payouts.create>[0] = {
+      amount:      amountCents,
+      currency:    "usd",
+      destination: bankAccountId,
+      method:      "instant",
+      description: `CreateAI Brain instant revenue · $${amount.toFixed(2)} · Sara Stadler`,
+      metadata: {
+        platform:     "CreateAI Brain",
+        event:        "microRevenue",
+        amountUsd:    amount.toFixed(2),
+        instantIndex: String(_stats.instantCount),
+        recipient:    "Sara Stadler",
+      },
+    };
+
+    const requestOptions: Parameters<typeof stripe.payouts.create>[1] = saraInfo.stripeAccountId
+      ? { stripeAccount: saraInfo.stripeAccountId }
+      : {};
+
+    const payout = await stripe.payouts.create(payoutParams, requestOptions);
+
+    _stats.instantSuccessCount++;
+    _stats.totalInstantUsd     += amount;
+    _stats.lastInstantId        = payout.id;
+    _stats.lastInstantAmountUsd = amount;
+    _stats.lastInstantTs        = new Date().toISOString();
+    _stats.lastInstantError     = "";
+
+    console.log(
+      `[PayoutService] ⚡✅ Instant payout #${_stats.instantSuccessCount} — ` +
+      `$${amount.toFixed(2)} → Huntington (instant) · ID: ${payout.id}`
+    );
+
+  } catch (err) {
+    _stats.instantErrorCount++;
+    _stats.lastInstantError = (err as Error).message;
+    console.warn(
+      `[PayoutService] ⚡⚠️ Instant payout #${_stats.instantCount} failed ` +
+      `(${_stats.instantErrorCount} total errors): ${_stats.lastInstantError}`
+    );
+  }
 }
 
 // ─── Stats Accessor ───────────────────────────────────────────────────────────

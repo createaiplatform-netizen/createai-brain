@@ -120,16 +120,26 @@ interface MetaProjections {
 }
 
 interface PayoutStats {
-  cycleCount:          number;
-  successCount:        number;
-  queuedCount:         number;
-  errorCount:          number;
-  totalTransferredUsd: number;
-  lastPayoutId:        string;
-  lastPayoutTs:        string;
-  lastAmountUsd:       number;
-  bankLinked:          boolean;
-  lastError:           string;
+  // ACH cycle
+  cycleCount:           number;
+  successCount:         number;
+  queuedCount:          number;
+  errorCount:           number;
+  totalTransferredUsd:  number;
+  lastPayoutId:         string;
+  lastPayoutTs:         string;
+  lastAmountUsd:        number;
+  bankLinked:           boolean;
+  lastError:            string;
+  // Instant payouts
+  instantCount:         number;
+  instantSuccessCount:  number;
+  instantErrorCount:    number;
+  totalInstantUsd:      number;
+  lastInstantId:        string;
+  lastInstantAmountUsd: number;
+  lastInstantTs:        string;
+  lastInstantError:     string;
 }
 
 interface AllStats {
@@ -424,7 +434,10 @@ function PayoutPanel({ s }: { s: PayoutStats }) {
         )}
       </div>
 
-      {/* Stats */}
+      {/* ACH Cycle Stats */}
+      <div style={{ fontSize: 10, fontWeight: 700, letterSpacing: "0.06em", color: SLATE, textTransform: "uppercase", marginBottom: 4 }}>
+        ACH Cycle Payouts
+      </div>
       <Row label="Payout Cycles"          value={s.cycleCount} />
       <Row label="Successful Payouts"     value={s.successCount} accent />
       <Row label="Queued (below min)"     value={s.queuedCount} />
@@ -435,13 +448,45 @@ function PayoutPanel({ s }: { s: PayoutStats }) {
         <Row label="Last Payout ID"       value={s.lastPayoutId.substring(0, 18) + "…"} />
       )}
       {s.lastError && (
-        <div style={{ marginTop: 8, fontSize: 11, color: "#ef4444", wordBreak: "break-word" }}>
+        <div style={{ marginTop: 4, marginBottom: 4, fontSize: 11, color: "#ef4444", wordBreak: "break-word" }}>
           {s.lastError}
         </div>
       )}
 
+      {/* Instant Payout Stats */}
+      <div style={{ fontSize: 10, fontWeight: 700, letterSpacing: "0.06em", color: SLATE, textTransform: "uppercase", marginTop: 12, marginBottom: 4 }}>
+        ⚡ Instant Payouts (per interaction)
+      </div>
+
+      {s.totalInstantUsd > 0 && (
+        <div style={{
+          borderRadius: 8, padding: "8px 12px", marginBottom: 8,
+          background: "rgba(99,102,241,0.07)", border: `1px solid ${INDIGO}22`,
+        }}>
+          <div style={{ fontSize: 11, fontWeight: 600, color: INDIGO }}>
+            ${s.totalInstantUsd.toLocaleString("en-US", { minimumFractionDigits: 2, maximumFractionDigits: 2 })} sent instantly
+          </div>
+          <div style={{ fontSize: 10, color: SLATE, marginTop: 1 }}>
+            {s.instantSuccessCount} of {s.instantCount} events succeeded
+          </div>
+        </div>
+      )}
+
+      <Row label="Revenue Events Fired"     value={s.instantCount ?? 0} />
+      <Row label="Instant Payouts Sent"     value={s.instantSuccessCount ?? 0} accent />
+      <Row label="Instant Errors"           value={s.instantErrorCount ?? 0} />
+      <Row label="Last Instant Amount"      value={s.lastInstantAmountUsd > 0 ? `$${s.lastInstantAmountUsd.toFixed(2)}` : "—"} accent />
+      {s.lastInstantId && (
+        <Row label="Last Instant ID"        value={s.lastInstantId.substring(0, 18) + "…"} />
+      )}
+      {s.lastInstantError && (
+        <div style={{ marginTop: 4, fontSize: 11, color: "#ef4444", wordBreak: "break-word" }}>
+          {s.lastInstantError}
+        </div>
+      )}
+
       <div style={{ marginTop: 10, fontSize: 11, color: SLATE }}>
-        Destination: Huntington Bank · ACH Standard · Auto-cycle every 60 s
+        ACH: Huntington Bank · Auto-cycle 60 s · Instant: per micro-revenue event
       </div>
     </div>
   );

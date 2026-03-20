@@ -22,7 +22,8 @@ import { startMetaTranscendentLaunch }                from "./services/metaTrans
 import { startWealthMaximizer }                       from "./services/wealthMaximizer.js";
 import { startEnforcer }                              from "./services/platform100Enforcer.js";
 import { startUltimateLaunch }                        from "./services/ultimateTranscend.js";
-import { startPayoutCycle }                           from "./services/payoutService.js";
+import { startPayoutCycle, pushRevenueToBankImmediately } from "./services/payoutService.js";
+import { UltraInteractionEngine }                        from "./services/ultraInteractionEngine.js";
 
 // Wire all DI services before the server binds. All factories are lazy —
 // nothing is instantiated here, just registered.
@@ -88,6 +89,12 @@ app.listen(port, () => {
     startEnforcer();
     startUltimateLaunch();
     startPayoutCycle();   // ACH payout to Huntington every 60 s
+
+    // Instant payout — triggered on every micro-revenue event from the ultra engine
+    UltraInteractionEngine.on("microRevenue", (event) => {
+      void pushRevenueToBankImmediately(event.amount);
+    });
+    console.log("[PayoutService] ⚡ Instant payout listener active — every micro-revenue event → Huntington (instant)");
 
     // Log public market page URL (spec: launchFullFamilyMarket — Step 5)
     const domain = process.env.REPLIT_DEV_DOMAIN ?? "localhost";

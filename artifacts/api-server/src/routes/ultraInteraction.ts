@@ -19,6 +19,7 @@ import { triggerMetaCycle, getMetaStats, getMetaProjections } from "../services/
 import { getMarketStats, globalTranscend }           from "../services/realMarket.js";
 import { getHybridStats }                            from "../services/hybridEngine.js";
 import { getAuditSnapshot }                          from "../services/platformAudit.js";
+import { UltraInteractionEngine }                    from "../services/ultraInteractionEngine.js";
 
 const router = Router();
 
@@ -35,6 +36,14 @@ router.post("/interaction", async (req, res) => {
     // 1. Micro-revenue: $5–$15 per interaction, applied as growth multiplier
     const microRevenue = Math.max(5, Math.random() * 15);
     applyGrowthMultiplier(microRevenue);
+
+    // Fire micro-revenue event → triggers instant payout to Huntington
+    UltraInteractionEngine.fireMicroRevenue({
+      amount:  microRevenue,
+      type,
+      userId:  userId ?? undefined,
+      ts:      new Date().toISOString(),
+    });
 
     // 2. Energy credit (logged server-side, returned to client)
     const energyKwh = Math.random() * 0.2;
