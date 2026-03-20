@@ -1,0 +1,119 @@
+PHASE 4 — TRUTH ENFORCEMENT SYSTEM (CRITICAL)
+
+Do NOT modify existing functionality. Add enforcement layers only.
+
+GOAL:
+Ensure the system can NEVER display false, simulated, or misleading data without explicit labeling.
+
+━━━━━━━━━━━━━━━━━━━━━━━
+TASKS
+━━━━━━━━━━━━━━━━━━━━━━━
+
+1. Create new file:
+artifacts/api-server/src/core/truthGuard.ts
+
+truthGuard must export:
+
+- assertReal(condition, message)
+    → throws error if condition is false
+
+- markSimulated(data)
+    → attaches:
+        _dataType: "simulated"
+        _verified: false
+
+- markReal(data)
+    → attaches:
+        _dataType: "real"
+        _verified: true
+        _timestamp: new Date().toISOString()
+
+- requireCredentials(serviceName, credentials)
+    → throws error if missing/invalid
+
+━━━━━━━━━━━━━━━━━━━━━━━
+2. ENFORCE IN ROUTES
+━━━━━━━━━━━━━━━━━━━━━━━
+
+Update ALL routes that return metrics or integration data:
+
+- marketplace.ts
+- integrations.ts
+- systemHealth.ts
+- connect.ts
+
+Rules:
+- If data is computed from real API calls → use markReal()
+- If data is hardcoded or estimated → use markSimulated()
+- NEVER return unlabeled data
+
+━━━━━━━━━━━━━━━━━━━━━━━
+3. BLOCK FALSE SUCCESS
+━━━━━━━━━━━━━━━━━━━━━━━
+
+Update notifications.ts:
+
+- If email or SMS fails:
+    → THROW error (do NOT return success: false silently)
+
+- Only increment counters on confirmed success
+
+━━━━━━━━━━━━━━━━━━━━━━━
+4. ADD SYSTEM ASSERTION ENDPOINT
+━━━━━━━━━━━━━━━━━━━━━━━
+
+Create:
+
+GET /api/system/assert-truth
+
+This endpoint must:
+
+- Scan:
+    integrations
+    notifications
+    marketplace data
+
+- Return:
+{
+  allVerified: boolean,
+  violations: string[],
+  checkedAt: timestamp
+}
+
+If ANY simulated data is unlabeled → add violation.
+
+━━━━━━━━━━━━━━━━━━━━━━━
+5. FRONTEND VISUAL ENFORCEMENT
+━━━━━━━━━━━━━━━━━━━━━━━
+
+Update IntegrationApp.tsx + metrics UI:
+
+- If _dataType === "simulated":
+    show badge: "SIMULATED DATA"
+
+- If _dataType === "real":
+    show badge: "LIVE DATA"
+
+- If _verified === false:
+    show warning icon
+
+━━━━━━━━━━━━━━━━━━━━━━━
+RULES
+━━━━━━━━━━━━━━━━━━━━━━━
+
+- DO NOT break existing routes
+- DO NOT remove features
+- ONLY enforce truth and labeling
+- NO silent failures allowed anywhere
+
+━━━━━━━━━━━━━━━━━━━━━━━
+BEFORE MAKING CHANGES
+━━━━━━━━━━━━━━━━━━━━━━━
+
+1. List all files to modify
+2. Provide plan (5–10 bullets)
+3. WAIT for approval
+
+DO NOT EXECUTE UNTIL I SAY:
+
+APPROVED – EXECUTE PHASE 4
