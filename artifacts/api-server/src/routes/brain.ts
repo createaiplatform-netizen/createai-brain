@@ -121,6 +121,18 @@ router.post("/notify", async (req: Request, res: Response) => {
   }
 });
 
+// GET /api/brain/notify — health check (returns config without sending notifications)
+router.get("/notify", (_req: Request, res: Response) => {
+  res.json({
+    status:     "ok",
+    endpoint:   "POST /api/brain/notify",
+    mode:       "no-limits",
+    branding:   BeyondInfinityConfig.behavior.branding,
+    note:       "Use POST /api/brain/notify with {subject,body} to trigger a real family notification",
+    checkedAt:  new Date().toISOString(),
+  });
+});
+
 // GET /api/brain/beyond-infinity — full BeyondInfinityConfig + live engine state
 router.get("/beyond-infinity", (_req: Request, res: Response) => {
   const state = brainEngine.getState();
@@ -160,6 +172,17 @@ router.get("/mission", (_req: Request, res: Response) => {
     enforcedBy: "BrainEnforcementEngine",
     loopTick: brainEngine.getState().loopTick,
   });
+});
+
+// GET /api/brain/audit-run — execute the full Beyond Infinity audit and return the JSON report
+router.get("/audit-run", async (_req: Request, res: Response) => {
+  try {
+    const { runAudit } = await import("../runFullAudit.js");
+    const report = await runAudit();
+    res.json(report);
+  } catch (err) {
+    res.status(500).json({ error: (err as Error).message });
+  }
 });
 
 export default router;
