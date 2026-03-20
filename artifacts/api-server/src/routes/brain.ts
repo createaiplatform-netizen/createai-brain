@@ -254,6 +254,17 @@ router.get("/transcend-all", async (_req: Request, res: Response) => {
   });
 });
 
+// POST /api/brain/transcend-all — full sequence: all modules + notifications + security audit + save report
+router.post("/transcend-all", async (_req: Request, res: Response) => {
+  try {
+    const { transcendAll } = await import("../transcendAll.js");
+    const report = await transcendAll();
+    res.json(report);
+  } catch (err) {
+    res.status(500).json({ error: (err as Error).message });
+  }
+});
+
 // GET /api/brain/audit-run — execute the full Beyond Infinity audit and return the JSON report
 router.get("/audit-run", async (_req: Request, res: Response) => {
   try {

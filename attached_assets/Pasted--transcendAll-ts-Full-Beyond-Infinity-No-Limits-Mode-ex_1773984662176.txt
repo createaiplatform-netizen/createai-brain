@@ -1,0 +1,121 @@
+/**
+ * transcendAll.ts
+ * Full Beyond Infinity / No Limits Mode executor
+ * Runs all modules, triggers notifications, executes audit, updates dashboard
+ */
+
+import fetch from "node-fetch";
+import { exec } from "child_process";
+import { readFileSync, writeFileSync } from "fs";
+import { join } from "path";
+
+// Config for API keys & endpoints
+const REPLIT_DOMAIN = process.env.REPLIT_DOMAIN || "your-replit-domain.repl.co";
+const RESEND_API_KEY = process.env.RESEND_API_KEY || "";
+const RESEND_FROM_EMAIL = process.env.RESEND_FROM_EMAIL || "";
+const TWILIO_SID = process.env.TWILIO_SID || "";
+const TWILIO_AUTH_TOKEN = process.env.TWILIO_AUTH_TOKEN || "";
+const TWILIO_PHONE = process.env.TWILIO_PHONE || "";
+
+// Modules list
+const MODULES = [
+  { name: "energy", task: "activateSolar" },
+  { name: "internet", task: "checkCloudflare" },
+  { name: "telecom", task: "checkTwilio" },
+  { name: "finance", task: "checkStripe" },
+  { name: "media", task: "checkTwitch" },
+  { name: "water", task: "checkOpenAQ" },
+  { name: "healthcare", task: "checkFHIR" },
+  { name: "transport", task: "checkOSM" },
+  { name: "custom", task: "systemMetrics" },
+];
+
+// Helper to run all modules
+async function runModules() {
+  const results: any[] = [];
+  for (const m of MODULES) {
+    try {
+      const res = await fetch(`https://${REPLIT_DOMAIN}/api/modules/${m.name}`, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ task: m.task }),
+      });
+      const data = await res.json();
+      results.push(data);
+    } catch (err) {
+      results.push({ module: m.name, error: err.message });
+    }
+  }
+  return results;
+}
+
+// Helper to send email notification via Resend
+async function sendEmail(subject: string, body: string) {
+  if (!RESEND_API_KEY || !RESEND_FROM_EMAIL) return { status: "skipped", reason: "email keys not set" };
+  try {
+    const res = await fetch("https://api.resend.com/send", {
+      method: "POST",
+      headers: { "Authorization": `Bearer ${RESEND_API_KEY}`, "Content-Type": "application/json" },
+      body: JSON.stringify({ from: RESEND_FROM_EMAIL, to: RESEND_FROM_EMAIL, subject, html: body }),
+    });
+    return await res.json();
+  } catch (err) {
+    return { status: "failed", error: err.message };
+  }
+}
+
+// Helper to send SMS via Twilio
+async function sendSMS(message: string, toPhone: string) {
+  if (!TWILIO_SID || !TWILIO_AUTH_TOKEN || !TWILIO_PHONE) return { status: "skipped", reason: "twilio keys not set" };
+  const auth = Buffer.from(`${TWILIO_SID}:${TWILIO_AUTH_TOKEN}`).toString("base64");
+  try {
+    const res = await fetch(`https://api.twilio.com/2010-04-01/Accounts/${TWILIO_SID}/Messages.json`, {
+      method: "POST",
+      headers: { "Authorization": `Basic ${auth}`, "Content-Type": "application/x-www-form-urlencoded" },
+      body: new URLSearchParams({ To: toPhone, From: TWILIO_PHONE, Body: message }),
+    });
+    return await res.json();
+  } catch (err) {
+    return { status: "failed", error: err.message };
+  }
+}
+
+// Run npm audit
+function runSecurityAudit(): Promise<any> {
+  return new Promise((resolve) => {
+    exec("npm audit --json", (err, stdout) => {
+      if (err) resolve({ error: err.message });
+      else resolve(JSON.parse(stdout));
+    });
+  });
+}
+
+// Run full transcend
+export async function transcendAll() {
+  console.log("💠 Starting Beyond Infinity / No Limits Mode transcend...");
+
+  // 1. Run modules
+  const moduleResults = await runModules();
+  console.log("✅ Modules executed:", moduleResults);
+
+  // 2. Run audit
+  const auditResults = await runSecurityAudit();
+  console.log("✅ Security audit complete:", auditResults);
+
+  // 3. Send notifications
+  const emailRes = await sendEmail("💠 Transcend All Complete", `<pre>${JSON.stringify(moduleResults, null, 2)}</pre>`);
+  const smsRes = await sendSMS("💠 Transcend All complete. Check dashboard for details.", RESEND_FROM_EMAIL || "+10000000000");
+  console.log("✅ Notifications sent:", { emailRes, smsRes });
+
+  // 4. Save full report
+  const report = { timestamp: new Date().toISOString(), moduleResults, auditResults, emailRes, smsRes, mode: "💠 No Limits Mode / Beyond Infinity" };
+  writeFileSync(join(__dirname, "transcend_report.json"), JSON.stringify(report, null, 2));
+  console.log("💎 Full transcend report saved — all metrics live.");
+
+  return report;
+}
+
+// Optional: auto-run if executed directly
+if (require.main === module) {
+  transcendAll().then(r => console.log("💠 Transcend completed:", r));
+}

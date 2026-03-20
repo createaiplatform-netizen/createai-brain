@@ -37,14 +37,14 @@ async function safeFetch(url: string, opts?: RequestInit, timeoutMs = 6000): Pro
 
 const MODULE_TASKS: Record<string, string[]> = {
   energy:     ["activateSolar", "activateWind", "activateBatteryGrid", "distributeEnergy", "selfOptimizeGrid"],
-  telecom:    ["portNumbers", "activatePhoneService", "activateEmailService", "optimizeBandwidth", "verifyNetwork"],
-  internet:   ["deployNodes", "activateService", "optimizeNetwork", "autoScaleConnections", "monitorLatency"],
-  media:      ["broadcastLive", "streamingSetup", "uploadContent", "autoContentSchedule", "liveAnalytics"],
-  finance:    ["activateWallet", "syncAccounts", "processTransactions", "legalComplianceCheck", "auditReport"],
-  water:      ["activateWater", "checkPressure", "distributeWater", "optimizeFlow", "emergencyAlert"],
-  healthcare: ["scheduleCare", "activateMonitoring", "medicationReminder", "emergencyAlert", "complianceCheck"],
-  transport:  ["activateNetwork", "routeOptimize", "fleetMonitor", "dynamicRouting", "safetyCheck"],
-  custom:     ["userEnergy", "userFinance", "userTelecom", "userMedia", "userCustomAutomation"],
+  telecom:    ["portNumbers", "activatePhoneService", "activateEmailService", "optimizeBandwidth", "verifyNetwork", "checkTwilio"],
+  internet:   ["deployNodes", "activateService", "optimizeNetwork", "autoScaleConnections", "monitorLatency", "checkCloudflare"],
+  media:      ["broadcastLive", "streamingSetup", "uploadContent", "autoContentSchedule", "liveAnalytics", "checkTwitch"],
+  finance:    ["activateWallet", "syncAccounts", "processTransactions", "legalComplianceCheck", "auditReport", "checkStripe"],
+  water:      ["activateWater", "checkPressure", "distributeWater", "optimizeFlow", "emergencyAlert", "checkOpenAQ"],
+  healthcare: ["scheduleCare", "activateMonitoring", "medicationReminder", "emergencyAlert", "complianceCheck", "checkFHIR"],
+  transport:  ["activateNetwork", "routeOptimize", "fleetMonitor", "dynamicRouting", "safetyCheck", "checkOSM"],
+  custom:     ["userEnergy", "userFinance", "userTelecom", "userMedia", "userCustomAutomation", "systemMetrics"],
 };
 
 const MODULE_META: Record<string, { label: string; apiProvider: string; compliance: string }> = {
