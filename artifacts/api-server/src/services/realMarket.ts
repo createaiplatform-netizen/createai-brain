@@ -176,11 +176,27 @@ async function runAdaptiveCycle(): Promise<void> {
   console.log(`[RealMarket] ⚡ Speed:${generationSpeed} · 💰 Sales:${salesCount} · 📦 Products:${products.length}`);
 }
 
-export function startAdaptiveEngine(): void {
+// Config shape matching the launchFullFamilyMarket spec (all fields optional —
+// the engine is fully self-contained and these are used for logging / validation).
+export interface AdaptiveEngineConfig {
+  cycleInterval?:  number;      // ms between cycles (default 10 000)
+  maxSpeed?:       number;      // maximum products-per-cycle multiplier (default 50)
+  autoPublish?:    boolean;     // auto-publish to marketplaces (always true)
+  marketplaces?:   string[];    // target marketplace names
+  realProducts?:   boolean;     // use real Stripe Products (always true)
+  autoAllocate?:   boolean;     // auto-allocate payments to family (always true)
+  businessName?:   string;      // Stripe business display name
+}
+
+export function startAdaptiveEngine(config: AdaptiveEngineConfig = {}): void {
   if (engineRunning) return;
   engineRunning = true;
 
-  // Run first cycle immediately, then every 10 seconds
+  const interval    = config.cycleInterval ?? 10_000;
+  const marketplaces = config.marketplaces ?? ["Shopify", "Etsy", "WooCommerce"];
+  const business     = config.businessName ?? "Lakeside Trinity Care and Wellness LLC";
+
+  // Run first cycle immediately, then on interval
   runAdaptiveCycle().catch(err =>
     console.error("[RealMarket] Cycle error:", (err as Error).message)
   );
@@ -189,9 +205,17 @@ export function startAdaptiveEngine(): void {
     runAdaptiveCycle().catch(err =>
       console.error("[RealMarket] Cycle error:", (err as Error).message)
     );
-  }, 10_000);
+  }, interval);
 
-  console.log("[RealMarket] 🚀 Real Market AI system live with marketplace auto-publishing");
+  console.log(
+    `[RealMarket] 🚀 Real Market AI system live — ` +
+    `business:${business} · ` +
+    `marketplaces:${marketplaces.join("+")} · ` +
+    `interval:${interval / 1000}s · ` +
+    `maxSpeed:${config.maxSpeed ?? 50} · ` +
+    `realProducts:${config.realProducts ?? true} · ` +
+    `autoAllocate:${config.autoAllocate ?? true}`
+  );
 }
 
 // ─── Public Accessors ────────────────────────────────────────────────────────

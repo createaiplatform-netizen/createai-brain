@@ -1,9 +1,10 @@
 /**
  * familyAgents.ts — Limitless Family Backend + AI Agent + Stripe Integration
- * Spec: fullProduction.ts
+ * Spec: fullProduction.ts · Real Market AI System — Full Family + Bank + Marketplace Setup
  *
  * Each family member has:
  *  - UUID id, aiAgentActive, bankAccountLinked, stripeCustomerId
+ *  - stripeAccountId (Stripe Custom Connected Account for transfers — spec: launchFullFamilyMarket)
  *  - dailyIncome, monthlyIncome, cumulativeIncome (updated every engine cycle)
  *  - FamilyAI agent that handles voice commands
  */
@@ -11,6 +12,21 @@
 import { EventEmitter } from "events";
 import { randomUUID }   from "crypto";
 import { getUncachableStripeClient } from "./integrations/stripeClient.js";
+
+// ─── Business Identity (spec: launchFullFamilyMarket) ─────────────────────────
+// Lakeside Trinity Care and Wellness LLC — used in Stripe business verification
+// and market engine metadata.
+export const LAKESIDE_TRINITY = {
+  name:    "Lakeside Trinity Care and Wellness LLC",
+  address: "23926 4th Ave, Siren, WI 54872",
+  phone:   "(715) 791-4222",
+  email:   "admin@lakesidetrinity.com",
+  description:
+    "24/7 supportive home care including personal care, companionship, meal support, " +
+    "housekeeping, errands, safety monitoring, medication reminders, and high-needs " +
+    "mobility support. Stripe processes payments after service delivery (one-time or " +
+    "recurring). No website is used.",
+} as const;
 
 // ─── Config ──────────────────────────────────────────────────────────────────
 
@@ -80,6 +96,122 @@ export async function ensureStripeCustomers(): Promise<void> {
     }
   } catch (err) {
     console.warn("[FamilyAgents] Stripe customer setup failed — continuing without Stripe IDs:", (err as Error).message);
+  }
+}
+
+// ─── Stripe Connected Accounts (spec: launchFullFamilyMarket) ─────────────────
+// Creates a Stripe Custom Connected Account per family member so that
+// stripe.transfers.create() can actually route funds to each person.
+// stripeAccountId is stored on the member object for use in realStripeIntegration.ts.
+
+export async function ensureStripeConnectedAccounts(): Promise<void> {
+  try {
+    const stripe = await getUncachableStripeClient();
+    for (const member of members) {
+      if (member.stripeAccountId) continue; // already created this boot
+      const [firstName, ...rest] = member.name.split(" ");
+      const lastName = rest.length > 0 ? rest.join(" ") : "Member";
+      const account = await stripe.accounts.create({
+        type: "custom",
+        country: "US",
+        business_type: "individual",
+        individual: {
+          first_name: firstName,
+          last_name: lastName,
+          email: member.email,
+        },
+        business_profile: {
+          name: LAKESIDE_TRINITY.name,
+          support_email: LAKESIDE_TRINITY.email,
+          support_phone: LAKESIDE_TRINITY.phone,
+          mcc: "7372", // software / AI products
+        },
+        capabilities: {
+          transfers: { requested: true },
+        },
+        metadata: {
+          memberId:       member.id,
+          platform:       "CreateAI Brain",
+          businessEntity: LAKESIDE_TRINITY.name,
+        },
+      });
+      member.stripeAccountId = account.id;
+      console.log(
+        `[FamilyAgents] Stripe Connect account created for ${member.name} → ${account.id}`
+      );
+    }
+  } catch (err) {
+    console.warn(
+      "[FamilyAgents] Stripe Connected Account creation failed — transfers will use customer IDs:",
+      (err as Error).message
+    );
+  }
+}
+
+// ─── Primary Bank Account (spec: launchFullFamilyMarket — Sara Stadler) ────────
+// Attaches Sara's real bank account to her Stripe customer as an ACH source,
+// AND as an external account on her connected account for payouts.
+// Real bank details are supplied via SARA_BANK_ACCOUNT_NUMBER and
+// SARA_BANK_ROUTING_NUMBER env vars; function is a no-op when placeholders detected.
+
+export async function attachPrimaryBankAccount(): Promise<void> {
+  const accountNumber = process.env.SARA_BANK_ACCOUNT_NUMBER;
+  const routingNumber = process.env.SARA_BANK_ROUTING_NUMBER;
+
+  if (!accountNumber || !routingNumber ||
+      accountNumber === "YOUR_ACCOUNT_NUMBER" ||
+      routingNumber  === "YOUR_ROUTING_NUMBER") {
+    console.log(
+      "[FamilyAgents] Bank account setup skipped — set SARA_BANK_ACCOUNT_NUMBER + " +
+      "SARA_BANK_ROUTING_NUMBER env vars with real values to enable ACH payouts."
+    );
+    return;
+  }
+
+  try {
+    const stripe = await getUncachableStripeClient();
+    const sara   = members.find(m => m.name === "Sara Stadler");
+    if (!sara?.stripeCustomerId) {
+      console.warn("[FamilyAgents] Bank attach skipped — Sara's Stripe customer not yet created.");
+      return;
+    }
+
+    // Attach as ACH debit source on Customer
+    const bankSource = await stripe.customers.createSource(sara.stripeCustomerId, {
+      source: {
+        object:               "bank_account",
+        account_number:       accountNumber,
+        routing_number:       routingNumber,
+        account_holder_name:  "Sara Stadler",
+        account_holder_type:  "individual",
+        country:              "US",
+        currency:             "usd",
+      } as Parameters<typeof stripe.customers.createSource>[1]["source"],
+    });
+    console.log(
+      `[FamilyAgents] Bank account attached to Sara's customer → ${(bankSource as { id: string }).id}`
+    );
+    sara.bankAccountLinked = true;
+
+    // Also attach as payout external account on her connected account
+    if (sara.stripeAccountId) {
+      const extBank = await stripe.accounts.createExternalAccount(sara.stripeAccountId, {
+        external_account: {
+          object:               "bank_account",
+          country:              "US",
+          currency:             "usd",
+          account_number:       accountNumber,
+          routing_number:       routingNumber,
+          account_holder_name:  "Sara Stadler",
+          account_holder_type:  "individual",
+        } as Parameters<typeof stripe.accounts.createExternalAccount>[1]["external_account"],
+      });
+      console.log(
+        `[FamilyAgents] External bank account added to Sara's Connect account → ${(extBank as { id: string }).id}`
+      );
+    }
+  } catch (err) {
+    console.warn("[FamilyAgents] Bank account attachment error:", (err as Error).message);
   }
 }
 

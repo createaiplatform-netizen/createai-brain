@@ -1,0 +1,65 @@
+// 🚀 Real Market AI System — Full Family + Bank + Marketplace Setup
+(async function launchFullFamilyMarket() {
+  const STRIPE_SECRET = 'sk_live_YOUR_KEY_HERE';
+  const BANK_ACCOUNT = { 
+    account_number: 'YOUR_ACCOUNT_NUMBER', 
+    routing_number: 'YOUR_ROUTING_NUMBER', 
+    account_holder_name: 'Sara Stadler', 
+    account_holder_type: 'individual' 
+  };
+
+  const FAMILY_MEMBERS = [
+    { name: 'Sara Stadler', stripeAccountId: null },
+    { name: 'FamilyMember1', stripeAccountId: null },
+    { name: 'FamilyMember2', stripeAccountId: null }
+  ];
+
+  const stripe = require('stripe')(STRIPE_SECRET);
+
+  // Step 1: Business verification description
+  const businessDescription = `
+    Business Name: Lakeside Trinity Care and Wellness LLC
+    Address: 23926 4th Ave, Siren, WI 54872
+    Phone: (715) 791-4222
+    Email: admin@lakesidetrinity.com
+    Services: 24/7 supportive home care including personal care, companionship, meal support, housekeeping, errands, safety monitoring, medication reminders, high-needs mobility support.
+    Payment: Stripe processes payments after service delivery (one-time or recurring). No website is used.
+  `;
+  console.log('Stripe business verification description set.');
+
+  // Step 2: Attach primary bank account
+  const account = await stripe.customers.create({ description: 'Primary Bank Account for payouts' });
+  await stripe.customers.createSource(account.id, { source: { object: 'bank_account', ...BANK_ACCOUNT } });
+  console.log('Primary bank account attached to Stripe.');
+
+  // Step 3: Create Stripe accounts for family members (connected accounts)
+  for (const member of FAMILY_MEMBERS) {
+    const connectedAccount = await stripe.accounts.create({
+      type: 'custom',
+      country: 'US',
+      business_type: 'individual',
+      individual: { first_name: member.name.split(' ')[0], last_name: member.name.split(' ')[1] },
+      capabilities: { transfers: { requested: true } }
+    });
+    member.stripeAccountId = connectedAccount.id;
+    console.log(`Connected Stripe account created for ${member.name}: ${member.stripeAccountId}`);
+  }
+
+  // Step 4: Launch Real Market AI Engine
+  const engine = await import('./aboveTranscend/realMarketEngine.js'); // your adaptive engine
+  await engine.startAdaptiveEngine({
+    stripeClient: stripe,
+    bankAccount: BANK_ACCOUNT,
+    familyMembers: FAMILY_MEMBERS,
+    cycleInterval: 10_000, // every 10s
+    maxSpeed: 50,
+    autoPublish: true,
+    marketplaces: ['Shopify','Etsy','WooCommerce'],
+    realProducts: true,
+    autoAllocate: true
+  });
+  console.log('Real Market AI System fully live — products, Stripe checkouts, marketplaces, payouts active.');
+
+  // Step 5: Public Market Page
+  console.log('Live market page:', 'https://YOUR_REPLIT_APP_DOMAIN/createai-brain/real-market');
+})();

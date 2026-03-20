@@ -6,7 +6,12 @@ import { brainEngine }           from "./engine/BrainEnforcementEngine.js";
 import { notifyFamily }          from "./utils/notifications.js";
 import { startupAutoExecutor }   from "./BrainAutoExecutor.js";
 import { startAboveTranscendEngine }    from "./services/aboveTranscend/engine.js";
-import { initFamilyAgents, ensureStripeCustomers } from "./services/familyAgents.js";
+import {
+  initFamilyAgents,
+  ensureStripeCustomers,
+  ensureStripeConnectedAccounts,
+  attachPrimaryBankAccount,
+} from "./services/familyAgents.js";
 import { initRealStripeIntegration }   from "./services/aboveTranscend/realStripeIntegration.js";
 import { startAdaptiveEngine }         from "./services/realMarket.js";
 import { zeroTouchSuperLaunch, resolveFamilyStripeId } from "./services/zeroTouchLaunch.js";
@@ -50,12 +55,28 @@ app.listen(port, () => {
     }
 
     await ensureStripeCustomers();
+    await ensureStripeConnectedAccounts();
+    await attachPrimaryBankAccount();
     initFamilyAgents();
     startAboveTranscendEngine();
     initRealStripeIntegration();
-    startAdaptiveEngine();
+    startAdaptiveEngine({
+      cycleInterval:  10_000,
+      maxSpeed:       50,
+      autoPublish:    true,
+      marketplaces:   ["Shopify", "Etsy", "WooCommerce"],
+      realProducts:   true,
+      autoAllocate:   true,
+      businessName:   "Lakeside Trinity Care and Wellness LLC",
+    });
     zeroTouchSuperLaunch(resolveFamilyStripeId()).catch(err =>
       console.error("[ZeroTouchAI] Launch error:", (err as Error).message)
+    );
+
+    // Log public market page URL (spec: launchFullFamilyMarket — Step 5)
+    const domain = process.env.REPLIT_DEV_DOMAIN ?? "localhost";
+    console.log(
+      `[RealMarket] 🌐 Live market page: https://${domain}/createai-brain/real-market`
     );
 
     if (process.env.BRAIN_AUTO_START === "true") {
