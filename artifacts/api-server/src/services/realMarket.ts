@@ -195,14 +195,21 @@ async function runAdaptiveCycle(): Promise<void> {
 // Config shape matching the launchFullFamilyMarket spec (all fields optional —
 // the engine is fully self-contained and these are used for logging / validation).
 export interface AdaptiveEngineConfig {
-  cycleInterval?:   number;      // ms between cycles (default 10 000)
-  maxSpeed?:        number;      // maximum products-per-cycle multiplier (default 50)
-  autoPublish?:     boolean;     // auto-publish to marketplaces (always true)
-  marketplaces?:    string[];    // target marketplace names
-  realProducts?:    boolean;     // use real Stripe Products (always true)
-  autoAllocate?:    boolean;     // auto-allocate payments to family (always true)
-  businessName?:    string;      // Stripe business display name
-  businessIdentity?: string;     // alias for businessName (spec: ultimateLaunch)
+  cycleInterval?:       number;    // ms between cycles (default 10 000)
+  maxSpeed?:            number;    // maximum products-per-cycle multiplier (default 50)
+  autoPublish?:         boolean;   // auto-publish to marketplaces (always true)
+  marketplaces?:        string[];  // target marketplace names
+  realProducts?:        boolean;   // use real Stripe Products (always true)
+  autoAllocate?:        boolean;   // auto-allocate payments to family (always true)
+  businessName?:        string;    // Stripe business display name
+  businessIdentity?:    string;    // alias for businessName (spec: ultimateLaunch)
+  // Extended options (spec: ultimateGlobalScaler)
+  allDigital?:          boolean;   // generate products in all digital formats
+  dynamicPricing?:      boolean;   // demand-adaptive pricing via aiAssetGenerator
+  demandAdaptive?:      boolean;   // speed + pricing adapt to demand signals
+  generateVisualAssets?: boolean;  // auto-generate image URLs per product
+  fullLogs?:            boolean;   // verbose cycle logging
+  dashboard?:           boolean;   // enable real-time console dashboards
 }
 
 export function startAdaptiveEngine(config: AdaptiveEngineConfig = {}): void {

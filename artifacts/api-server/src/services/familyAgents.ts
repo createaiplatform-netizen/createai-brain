@@ -99,12 +99,20 @@ export async function ensureStripeCustomers(): Promise<void> {
   }
 }
 
-// ─── Stripe Connected Accounts (spec: launchFullFamilyMarket) ─────────────────
+// ─── Stripe Connected Accounts (spec: launchFullFamilyMarket / ultimateGlobalScaler) ─
 // Creates a Stripe Custom Connected Account per family member so that
 // stripe.transfers.create() can actually route funds to each person.
 // stripeAccountId is stored on the member object for use in realStripeIntegration.ts.
+//
+// Accepts two optional params for spec compatibility (ultimateGlobalScaler):
+//   ensureStripeConnectedAccounts(stripe, [{ name, type }, ...])
+// Extra params are accepted but internal members list is always used so that all
+// pre-configured family agents are properly linked.
 
-export async function ensureStripeConnectedAccounts(): Promise<void> {
+export async function ensureStripeConnectedAccounts(
+  _stripeClient?: unknown,
+  _accounts?: Array<{ name: string; type?: string }>
+): Promise<void> {
   try {
     const stripe = await getUncachableStripeClient();
     for (const member of members) {
@@ -163,9 +171,23 @@ export interface BankAccountParams {
   customerId?:     string;   // optional pre-filled Stripe customer ID
 }
 
+// Spec: ultimateGlobalScaler — positional overload:
+//   attachPrimaryBankAccount(stripe, accountNumber, routingNumber)
+// Existing callers pass BankAccountParams object — both forms supported.
 export async function attachPrimaryBankAccount(
-  params: BankAccountParams = {}
+  paramsOrStripe?: BankAccountParams | unknown,
+  accountNumberArg?: string,
+  routingNumberArg?: string,
 ): Promise<void> {
+  // Detect positional-arg form: (stripe, "accountNum", "routingNum")
+  const isPositional = typeof paramsOrStripe !== "object" ||
+    paramsOrStripe === null ||
+    typeof accountNumberArg === "string";
+
+  const params: BankAccountParams = isPositional
+    ? { accountNumber: accountNumberArg, routingNumber: routingNumberArg }
+    : ((paramsOrStripe as BankAccountParams) ?? {});
+
   // Explicit params take priority over env vars (spec: ultimateLaunch)
   const accountNumber = params.accountNumber
     ?? process.env.SARA_BANK_ACCOUNT_NUMBER;

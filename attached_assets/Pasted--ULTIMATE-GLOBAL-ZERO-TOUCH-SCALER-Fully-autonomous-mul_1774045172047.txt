@@ -1,0 +1,160 @@
+/**
+ * ULTIMATE GLOBAL ZERO-TOUCH SCALER
+ * Fully autonomous, multi-market, multi-format, AI-driven, instant revenue & ad campaigns
+ * Max legal & safe potential, continuously optimized
+ * Includes:
+ *  - 11 product formats × 20+ trending niches (expandable)
+ *  - Zero-touch publishing: Shopify, Etsy, WooCommerce, Amazon, eBay, CreativeMarket, Alibaba, Udemy, Fiverr, Patreon, YouTube Paid Products
+ *  - Hybrid Engine: Stripe Express + ACH + Venmo payouts, auto-captured revenue
+ *  - Wealth Multiplier + Maximizer enforcing 100% growth
+ *  - Meta-cycle orchestrator firing every 1 min
+ *  - Real-time audits, projections, dashboards
+ *  - Automatic campaign creation & optimization across 6+ ad channels
+ */
+
+import Stripe from "stripe";
+import {
+  startAdaptiveEngine,
+  zeroTouchSuperLaunch,
+  globalTranscend,
+  getMarketStats,
+} from "./realMarketEngine";
+import {
+  ensureStripeConnectedAccounts,
+  attachPrimaryBankAccount,
+} from "./familyAgents";
+import {
+  generateVisualAssets,
+  detectTrendingCategories,
+  dynamicPrice,
+  publishToMarketplaces,
+} from "./aiMarketTools";
+import {
+  startHybridEngine,
+  getHybridStats,
+} from "./services/hybridEngine";
+import {
+  startWealthMultiplier,
+  applyGrowthMultiplier,
+  getWealthSnapshot,
+} from "./services/wealthMultiplier";
+import { startPlatformAudit, getAuditSnapshot } from "./services/platformAudit";
+import {
+  startMetaTranscendentLaunch,
+  getMetaStats,
+  triggerMetaCycle,
+  getMetaProjections
+} from "./services/metaTranscend";
+import {
+  startWealthMaximizer,
+  getMaximizerStats,
+  enforceMaxGrowth,
+} from "./services/wealthMaximizer";
+
+async function ultimateGlobalScaler() {
+  try {
+    // Load secrets
+    const stripeSecret = process.env.STRIPE_SECRET_KEY!;
+    const stripePublishable = process.env.STRIPE_PUBLISHABLE_KEY!;
+    const bankAccount = process.env.SARA_BANK_ACCOUNT_NUMBER!;
+    const bankRouting = process.env.SARA_BANK_ROUTING_NUMBER!;
+
+    const stripe = new Stripe(stripeSecret, { apiVersion: "2026-08-01" });
+
+    // Setup family Express accounts & attach bank
+    await ensureStripeConnectedAccounts(stripe, [
+      { name: "Sara Stadler", type: "express" },
+      { name: "FamilyMember1", type: "express" },
+      { name: "FamilyMember2", type: "express" }
+    ]);
+    await attachPrimaryBankAccount(stripe, bankAccount, bankRouting);
+
+    // Start all engines
+    startAdaptiveEngine({
+      cycleInterval: 10_000,
+      maxSpeed: 100,
+      autoPublish: true,
+      marketplaces: ["Shopify","Etsy","WooCommerce","Amazon","eBay","CreativeMarket","Alibaba","Udemy","Fiverr","Patreon","YouTubePaid"],
+      allDigital: true,
+      dynamicPricing: true,
+      demandAdaptive: true,
+      generateVisualAssets: true,
+      fullLogs: true,
+      dashboard: true
+    });
+    zeroTouchSuperLaunch();
+    startHybridEngine();
+    startWealthMultiplier();
+    startWealthMaximizer();
+    startPlatformAudit();
+    startMetaTranscendentLaunch();
+
+    // 1-min Ultimate Meta-Cycle
+    setInterval(async () => {
+      try {
+        const categories = detectTrendingCategories({ topN: 20 });
+
+        // Generate premium products
+        const batch = await Promise.all(categories.flatMap(category => {
+          const formats = ["ebook","audiobook","video","pdf","slides","templates","software","graphic","music","ai-script","course"];
+          return formats.map(async format => {
+            const product = { category, format, title:`${category} ${format} Solution` };
+            product.assets = await generateVisualAssets(product);
+            product.price = await dynamicPrice(product);
+            return product;
+          });
+        }));
+
+        // Publish instantly to all marketplaces
+        await publishToMarketplaces(batch);
+
+        // Trigger auto-ad campaigns & revenue optimization
+        await triggerMetaCycle();
+
+        // Enforce 100% growth
+        await enforceMaxGrowth();
+
+        // Global transcend push
+        await globalTranscend({ categories, batchSize: batch.length });
+
+        // Live dashboards + projections
+        console.table({
+          market: await getMarketStats(),
+          hybrid: await getHybridStats(),
+          wealth: await getWealthSnapshot(),
+          audit: await getAuditSnapshot(),
+          meta: await getMetaStats(),
+          projections: await getMetaProjections(),
+          maximizer: await getMaximizerStats()
+        });
+
+      } catch (err) {
+        console.error("❌ Ultimate cycle error:", err);
+      }
+    }, 60_000); // every 1 min
+
+    console.log("✅ Ultimate Global Scaler live — fully autonomous, zero-touch, multi-market, multi-channel, maximum legal potential");
+
+  } catch (err) {
+    console.error("❌ Launch failed:", err);
+  }
+}
+
+// Execute immediately
+ultimateGlobalScaler();
+
+// Optional: Ask Replit for feedback (log engine & projection stats)
+async function feedbackRequest() {
+  const stats = {
+    market: await getMarketStats(),
+    hybrid: await getHybridStats(),
+    wealth: await getWealthSnapshot(),
+    audit: await getAuditSnapshot(),
+    meta: await getMetaStats(),
+    projections: await getMetaProjections(),
+    maximizer: await getMaximizerStats()
+  };
+  console.log("📊 Replit Feedback Request — Full System Snapshot:");
+  console.table(stats);
+}
+feedbackRequest();

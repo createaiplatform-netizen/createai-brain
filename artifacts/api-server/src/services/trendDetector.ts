@@ -52,9 +52,11 @@ function weightedShuffle(pool: string[], count: number, seed: number): string[] 
 
 /**
  * Returns a ranked list of trending AI product categories.
+ * Accepts either a plain count number OR an options object { topN }.
  * Synchronous — safe to call without await in tight loops.
  */
-export function detectTrendingCategories(count = 5): string[] {
+export function detectTrendingCategories(opts: number | { topN?: number } = 5): string[] {
+  const count = typeof opts === "number" ? opts : (opts.topN ?? 5);
   _cycleOffset++;
   return weightedShuffle(NICHE_POOL, count, _cycleOffset);
 }
