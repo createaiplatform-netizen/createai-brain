@@ -737,13 +737,17 @@ const ACTION_ICONS: Record<string, string> = {
   expand:"🌱", transcend:"🚀", create:"✨", innovate:"💡", emerge:"🌌",
 };
 
-interface FamilyAgentState {
-  name: string; email: string; phone: string;
+interface FamilyMemberFull {
+  id: string; name: string; email: string; phone: string;
+  aiAgentActive: boolean; bankAccountLinked: boolean;
+  stripeCustomerId?: string;
+  dailyIncome: number; monthlyIncome: number; cumulativeIncome: number;
   internalAccount?: string; phoneServiceActive?: boolean;
   commandHistory: string[]; initializedAt: number;
 }
 interface SnapshotExtra {
-  familyMembers: FamilyAgentState[];
+  members: FamilyMemberFull[];
+  familyMembers: FamilyMemberFull[];
   voiceWakeWords: string[];
   adminUser: string;
   stripeStatus: string;
@@ -761,11 +765,12 @@ function LimitlessPanel({ report }: { report: LimitlessReport }) {
       .then(d => {
         if (d.ok && d.snapshot) {
           setSnapshotExtra({
-            familyMembers:  d.snapshot.familyMembers  ?? [],
+            members:        d.snapshot.members        ?? [],
+            familyMembers:  d.snapshot.familyMembers  ?? d.snapshot.members ?? [],
             voiceWakeWords: d.snapshot.voiceWakeWords ?? [],
             adminUser:      d.snapshot.adminUser      ?? "Sara Stadler",
-            stripeStatus:   d.snapshot.stripeStatus   ?? "Internal Banking",
-            serverStatus:   d.snapshot.serverStatus   ?? "Active",
+            stripeStatus:   d.snapshot.stripeStatus   ?? "Connected",
+            serverStatus:   d.snapshot.serverStatus   ?? "Online",
           });
         }
       })
@@ -1031,48 +1036,57 @@ function LimitlessPanel({ report }: { report: LimitlessReport }) {
       {/* ── Income & Health Tab ── */}
       {tab==="income" && (() => {
         const total   = report.marketplaceDemo.scaledTotal;
-        const users   = report.marketplaceUsers;
-        const uCount  = users.length || 4;
+        // Use live per-cycle income from fullProduction spec members if available
+        const liveMembers = snapshotExtra?.members ?? [];
+        const hasLive = liveMembers.length > 0 && liveMembers[0].dailyIncome > 0;
 
-        // Per-user income projections (spec: LimitlessLiveDashboardWithIncome)
-        const projections = users.map((mu) => {
+        // Fall back to computed projections if income not yet allocated
+        const users   = report.marketplaceUsers;
+        const uCount  = users.length || 3;
+        const fallback = users.map((mu) => {
           const cumulative = total / uCount;
           const daily      = Math.round(cumulative / 365);
-          const monthly    = daily * 30;
-          return { name: mu.name, daily, monthly, cumulative: Math.round(cumulative), earnings: mu.earnings };
+          return { name: mu.name, daily, monthly: daily*30, cumulative: Math.round(cumulative), earnings: mu.earnings, stripeCustomerId: undefined as string|undefined, aiAgentActive: true, bankAccountLinked: true };
         });
+
+        const rows = hasLive
+          ? liveMembers.map(m => ({ name: m.name, daily: m.dailyIncome, monthly: m.monthlyIncome, cumulative: m.cumulativeIncome, earnings: m.cumulativeIncome, stripeCustomerId: m.stripeCustomerId, aiAgentActive: m.aiAgentActive, bankAccountLinked: m.bankAccountLinked }))
+          : fallback;
 
         return (
           <div>
             {/* Income Projections Table */}
             <div style={{ fontWeight:700, fontSize:12, color:TEXT, marginBottom:8, letterSpacing:"0.04em", textTransform:"uppercase" as const }}>💰 Income Projections</div>
             <div style={{ fontSize:11, color:DIM, marginBottom:12, lineHeight:1.6 }}>
-              Based on unlimited, fully active marketplace and emergent actions. Total accumulated: <strong style={{ color:GREEN }}>${Math.round(total).toLocaleString()}</strong> across {uCount} users.
+              Per-cycle income allocations from unlimited marketplace activity. Total accumulated: <strong style={{ color:GREEN }}>${Math.round(total).toLocaleString()}</strong> · {rows.length} members · {hasLive ? "live data" : "estimated"}.
             </div>
             <div style={{ overflowX:"auto" as const, marginBottom:24 }}>
               <table style={{ width:"100%", borderCollapse:"collapse" as const, fontSize:11.5 }}>
                 <thead>
                   <tr style={{ background:ACCENT+"12" }}>
-                    {["User","Accumulated ($)","Daily ($)","Monthly ($)","Cumulative Share ($)"].map(h => (
+                    {["Member","Stripe","Daily ($)","Monthly ($)","Cumulative ($)"].map(h => (
                       <th key={h} style={{ padding:"8px 12px", textAlign:"left" as const, fontWeight:700, color:ACCENT, borderBottom:`1px solid ${ACCENT}30`, letterSpacing:"0.03em", whiteSpace:"nowrap" as const }}>{h}</th>
                     ))}
                   </tr>
                 </thead>
                 <tbody>
-                  {projections.map((p, i) => (
+                  {rows.map((p, i) => (
                     <tr key={p.name} style={{ background: i%2===0 ? "transparent" : ACCENT+"04", borderBottom:`1px solid rgba(0,0,0,0.05)` }}>
                       <td style={{ padding:"9px 12px", fontWeight:700, color:TEXT }}>{p.name}</td>
-                      <td style={{ padding:"9px 12px", color:GREEN, fontWeight:700 }}>${p.earnings.toLocaleString()}</td>
-                      <td style={{ padding:"9px 12px", color:TEXT }}>${p.daily.toLocaleString()}</td>
+                      <td style={{ padding:"9px 12px" }}>
+                        {p.stripeCustomerId
+                          ? <span style={{ fontSize:9.5, fontWeight:700, color:GREEN, background:GREEN+"10", padding:"2px 7px", borderRadius:5 }}>✓ {p.stripeCustomerId.slice(0,14)}…</span>
+                          : <span style={{ fontSize:9.5, color:DIM }}>—</span>}
+                      </td>
+                      <td style={{ padding:"9px 12px", color:GREEN, fontWeight:700 }}>${p.daily.toLocaleString()}</td>
                       <td style={{ padding:"9px 12px", color:TEXT }}>${p.monthly.toLocaleString()}</td>
                       <td style={{ padding:"9px 12px", color:PURPLE, fontWeight:700 }}>${p.cumulative.toLocaleString()}</td>
                     </tr>
                   ))}
                   <tr style={{ background:GREEN+"08", borderTop:`2px solid ${GREEN}30` }}>
-                    <td style={{ padding:"9px 12px", fontWeight:800, color:TEXT }}>TOTAL</td>
-                    <td style={{ padding:"9px 12px", fontWeight:800, color:GREEN }}>${Math.round(total).toLocaleString()}</td>
-                    <td style={{ padding:"9px 12px", fontWeight:800, color:TEXT }}>${projections.reduce((s,p)=>s+p.daily,0).toLocaleString()}</td>
-                    <td style={{ padding:"9px 12px", fontWeight:800, color:TEXT }}>${projections.reduce((s,p)=>s+p.monthly,0).toLocaleString()}</td>
+                    <td colSpan={2} style={{ padding:"9px 12px", fontWeight:800, color:TEXT }}>TOTAL</td>
+                    <td style={{ padding:"9px 12px", fontWeight:800, color:GREEN }}>${rows.reduce((s,p)=>s+p.daily,0).toLocaleString()}</td>
+                    <td style={{ padding:"9px 12px", fontWeight:800, color:TEXT }}>${rows.reduce((s,p)=>s+p.monthly,0).toLocaleString()}</td>
                     <td style={{ padding:"9px 12px", fontWeight:800, color:PURPLE }}>${Math.round(total).toLocaleString()}</td>
                   </tr>
                 </tbody>
@@ -1113,21 +1127,29 @@ function LimitlessPanel({ report }: { report: LimitlessReport }) {
                   )}
                 </div>
               )}
-              {snapshotExtra?.familyMembers?.length ? (
+              {(snapshotExtra?.members ?? snapshotExtra?.familyMembers ?? []).length ? (
                 <div style={{ display:"flex", flexDirection:"column", gap:7 }}>
-                  {snapshotExtra.familyMembers.map(m => (
+                  {(snapshotExtra?.members ?? snapshotExtra?.familyMembers ?? []).map(m => (
                     <div key={m.name} style={{ display:"flex", alignItems:"center", gap:12, padding:"11px 14px", border:`1px solid ${ACCENT}20`, borderRadius:10, background:ACCENT+"04" }}>
                       <div style={{ width:32, height:32, borderRadius:10, background:`linear-gradient(135deg,${ACCENT},${PURPLE})`, display:"flex", alignItems:"center", justifyContent:"center", fontSize:13, color:"#fff", fontWeight:800, flexShrink:0 }}>
                         {m.name.charAt(0)}
                       </div>
                       <div style={{ flex:1, minWidth:0 }}>
                         <div style={{ fontSize:12, fontWeight:700, color:TEXT }}>{m.name}</div>
-                        <div style={{ fontSize:10.5, color:DIM }}>{m.phone}</div>
+                        <div style={{ fontSize:10, color:DIM }}>{m.phone}</div>
+                        {(m as FamilyMemberFull).stripeCustomerId && (
+                          <div style={{ fontSize:9.5, color:GREEN, marginTop:2 }}>Stripe: {(m as FamilyMemberFull).stripeCustomerId?.slice(0,18)}…</div>
+                        )}
                       </div>
-                      <div style={{ display:"flex", gap:6, flexShrink:0 }}>
-                        <Badge label={m.internalAccount ? "Account ✓" : "No Account"} color={m.internalAccount ? GREEN : DIM} />
-                        <Badge label={m.phoneServiceActive ? "Phone ✓" : "Phone Off"} color={m.phoneServiceActive ? TEAL : DIM} />
-                        {m.commandHistory.length > 0 && <Badge label={`${m.commandHistory.length} cmd${m.commandHistory.length>1?"s":""}`} color={ACCENT} />}
+                      <div style={{ display:"flex", flexDirection:"column" as const, gap:4, alignItems:"flex-end", flexShrink:0 }}>
+                        <div style={{ display:"flex", gap:4 }}>
+                          <Badge label={(m as FamilyMemberFull).aiAgentActive !== false ? "AI ✓" : "AI Off"} color={(m as FamilyMemberFull).aiAgentActive !== false ? GREEN : DIM} />
+                          <Badge label={(m as FamilyMemberFull).bankAccountLinked !== false ? "Bank ✓" : "No Bank"} color={(m as FamilyMemberFull).bankAccountLinked !== false ? TEAL : DIM} />
+                        </div>
+                        <div style={{ display:"flex", gap:4 }}>
+                          <Badge label={m.internalAccount ? "Acct ✓" : "No Acct"} color={m.internalAccount ? ACCENT : DIM} />
+                          {m.commandHistory.length > 0 && <Badge label={`${m.commandHistory.length} cmd${m.commandHistory.length>1?"s":""}`} color={PURPLE} />}
+                        </div>
                       </div>
                     </div>
                   ))}

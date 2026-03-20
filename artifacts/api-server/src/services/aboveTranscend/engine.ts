@@ -34,6 +34,7 @@
 import os from "os";
 import { credentialStatus } from "../../utils/notifications.js";
 import { probeStripeConnection } from "../integrations/stripeClient.js";
+import { updateMemberIncomes } from "../familyAgents.js";
 import { db } from "@workspace/db";
 import { sql } from "drizzle-orm";
 
@@ -997,6 +998,9 @@ async function runCycle(): Promise<EvolutionCycle> {
 
   // coldStart.ts spec: displayFullStats() called every cycle
   displayFullStats();
+
+  // fullProduction.ts spec: per-cycle income allocation for all family members
+  updateMemberIncomes(limitlessDemo.scaledTotal);
 
   return cycle;
 }

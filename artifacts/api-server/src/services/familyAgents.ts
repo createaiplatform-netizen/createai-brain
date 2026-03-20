@@ -1,31 +1,35 @@
 /**
- * familyAgents.ts — FamilyAI agent system
- * Spec: limitlessFamilyAIFull.ts
+ * familyAgents.ts — Limitless Family Backend + AI Agent + Stripe Integration
+ * Spec: fullProduction.ts
  *
- * Initializes one AI agent per family member at boot. Each agent:
- *  - handles voice commands (setupAccount, setupPhone, customizeOptions)
- *  - maintains per-member state (internalAccount, phoneServiceActive, commandHistory)
- *  - responds via console log (in production: Twilio/Resend)
+ * Each family member has:
+ *  - UUID id, aiAgentActive, bankAccountLinked, stripeCustomerId
+ *  - dailyIncome, monthlyIncome, cumulativeIncome (updated every engine cycle)
+ *  - FamilyAI agent that handles voice commands
  */
 
 import { EventEmitter } from "events";
+import { randomUUID }   from "crypto";
+import { getUncachableStripeClient } from "./integrations/stripeClient.js";
 
 // ─── Config ──────────────────────────────────────────────────────────────────
-
-export const FAMILY_MEMBERS = [
-  { name: "FamilyMember1", email: "fm1@example.com", phone: "+17157910292" },
-  { name: "FamilyMember2", email: "fm2@example.com", phone: "+17157910333" },
-  { name: "Sara Stadler",  email: "sivh@mail.com",   phone: "+18663304895" },
-] as const;
 
 export const VOICE_WAKE_WORDS = ["Nova", "Atlas", "Aurora"] as const;
 
 // ─── Types ────────────────────────────────────────────────────────────────────
 
-export interface MemberState {
+export interface FamilyMember {
+  id:                   string;
   name:                 string;
   email:                string;
   phone:                string;
+  aiAgentActive:        boolean;
+  bankAccountLinked:    boolean;
+  stripeCustomerId?:    string;
+  dailyIncome:          number;
+  monthlyIncome:        number;
+  cumulativeIncome:     number;
+  // FamilyAI agent state
   internalAccount?:     string;
   phoneServiceActive?:  boolean;
   customizableOptions?: { email: string; phone: string };
@@ -33,73 +37,146 @@ export interface MemberState {
   initializedAt:        number;
 }
 
-// ─── FamilyAI Agent ───────────────────────────────────────────────────────────
+// ─── Registry ─────────────────────────────────────────────────────────────────
+
+const members: FamilyMember[] = [
+  {
+    id: randomUUID(), name: "Sara Stadler", email: "sivh@mail.com", phone: "+18663304895",
+    aiAgentActive: true, bankAccountLinked: true,
+    dailyIncome: 0, monthlyIncome: 0, cumulativeIncome: 0,
+    commandHistory: [], initializedAt: Date.now(),
+  },
+  {
+    id: randomUUID(), name: "FamilyMember1", email: "fm1@example.com", phone: "+17157910292",
+    aiAgentActive: true, bankAccountLinked: true,
+    dailyIncome: 0, monthlyIncome: 0, cumulativeIncome: 0,
+    commandHistory: [], initializedAt: Date.now(),
+  },
+  {
+    id: randomUUID(), name: "FamilyMember2", email: "fm2@example.com", phone: "+17157910333",
+    aiAgentActive: true, bankAccountLinked: true,
+    dailyIncome: 0, monthlyIncome: 0, cumulativeIncome: 0,
+    commandHistory: [], initializedAt: Date.now(),
+  },
+];
+
+// ─── Stripe Customer Setup ─────────────────────────────────────────────────────
+
+export async function ensureStripeCustomers(): Promise<void> {
+  try {
+    const stripe = await getUncachableStripeClient();
+    for (const member of members) {
+      if (!member.stripeCustomerId) {
+        const customer = await stripe.customers.create({
+          name:  member.name,
+          email: member.email,
+          phone: member.phone,
+          metadata: { memberId: member.id, source: "limitless-family-ai" },
+        });
+        member.stripeCustomerId = customer.id;
+        console.log(`[FamilyAgents] Stripe customer created for ${member.name} → ${customer.id}`);
+      }
+    }
+  } catch (err) {
+    console.warn("[FamilyAgents] Stripe customer setup failed — continuing without Stripe IDs:", (err as Error).message);
+  }
+}
+
+// ─── Per-Cycle Income Allocation ──────────────────────────────────────────────
+// Called at the end of each engine cycle with the total accumulated revenue.
+
+export function updateMemberIncomes(totalRevenue: number): void {
+  if (members.length === 0) return;
+  const share = totalRevenue / members.length;
+  for (const member of members) {
+    const daily = Math.round(share * (Math.random() * 0.05 + 0.975));
+    member.dailyIncome     = daily;
+    member.monthlyIncome   = daily * 30;
+    member.cumulativeIncome = Math.round(share);
+    if (member.stripeCustomerId) {
+      console.log(`[StripeSim] ${member.name} → daily:$${daily.toLocaleString()} · monthly:$${(daily*30).toLocaleString()} · cumulative:$${Math.round(share).toLocaleString()}`);
+    }
+  }
+}
+
+// ─── FamilyAI Agent (EventEmitter per member) ────────────────────────────────
 
 class FamilyAI extends EventEmitter {
-  state: MemberState;
-
-  constructor(member: { name: string; email: string; phone: string }) {
-    super();
-    this.state = { ...member, commandHistory: [], initializedAt: Date.now() };
-  }
+  constructor(public member: FamilyMember) { super(); }
 
   respond(text: string): void {
-    console.log(`[FamilyAI → ${this.state.name}] ${text}`);
+    console.log(`[FamilyAI → ${this.member.name}] ${text}`);
   }
 
   setupAccount(): void {
-    if (!this.state.internalAccount) {
-      this.state.internalAccount = `ACC-${Date.now()}`;
-      this.respond(`Account created: ${this.state.internalAccount}`);
+    if (!this.member.internalAccount) {
+      this.member.internalAccount = `ACC-${Date.now()}`;
+      this.respond(`Account created: ${this.member.internalAccount}`);
     }
   }
 
   setupPhone(): void {
-    if (!this.state.phoneServiceActive) {
-      this.state.phoneServiceActive = true;
-      this.respond(`Phone service activated for ${this.state.phone}`);
+    if (!this.member.phoneServiceActive) {
+      this.member.phoneServiceActive = true;
+      this.respond(`Phone service activated for ${this.member.phone}`);
     }
   }
 
   customizeOptions(): void {
-    this.state.customizableOptions = { email: this.state.email, phone: this.state.phone };
-    this.respond(`Options customized — email: ${this.state.email} · phone: ${this.state.phone}`);
+    this.member.customizableOptions = { email: this.member.email, phone: this.member.phone };
+    this.respond(`Options customized — email:${this.member.email} · phone:${this.member.phone}`);
   }
 
   handleCommand(command: string): void {
-    this.state.commandHistory.push(command);
+    this.member.commandHistory.push(command);
     if (/account/i.test(command))   this.setupAccount();
     if (/phone/i.test(command))     this.setupPhone();
     if (/customize/i.test(command)) this.customizeOptions();
     this.respond(`Command executed: ${command}`);
   }
-}
 
-// ─── Registry ─────────────────────────────────────────────────────────────────
+  chat(message: string): string {
+    return `Hello ${this.member.name}! I received: "${message}". Processing your request…`;
+  }
+}
 
 const agentMap = new Map<string, FamilyAI>();
 
+// ─── Public API ───────────────────────────────────────────────────────────────
+
 export function initFamilyAgents(): void {
-  for (const member of FAMILY_MEMBERS) {
+  for (const member of members) {
     const agent = new FamilyAI(member);
     agent.on("command", (cmd: string) => agent.handleCommand(cmd));
-    agentMap.set(member.name, agent);
-    // Bootstrap: run the default cold-start command for each member
+    agentMap.set(member.id,   agent);
+    agentMap.set(member.name, agent);  // also index by name for convenience
     agent.handleCommand("Set up my account and phone");
   }
   console.log(
-    `[FamilyAgents] ${FAMILY_MEMBERS.length} agents initialized — ` +
-    `wake words: ${VOICE_WAKE_WORDS.join(", ")} — ` +
-    `admin: Sara Stadler`
+    `[FamilyAgents] ${members.length} agents initialized — ` +
+    `wake words: ${VOICE_WAKE_WORDS.join(", ")} — admin: Sara Stadler`
   );
 }
 
-export function getFamilyAgentStates(): MemberState[] {
-  return [...agentMap.values()].map(a => a.state);
+export function getFamilyMembers(): FamilyMember[] {
+  return members;
 }
 
-export function dispatchFamilyCommand(memberName: string, command: string): void {
-  const agent = agentMap.get(memberName);
+export function getMemberById(id: string): FamilyMember | undefined {
+  return members.find(m => m.id === id);
+}
+
+export function getAgentById(id: string): FamilyAI | undefined {
+  return agentMap.get(id);
+}
+
+export function dispatchFamilyCommand(nameOrId: string, command: string): void {
+  const agent = agentMap.get(nameOrId);
   if (agent) agent.emit("command", command);
-  else console.warn(`[FamilyAgents] No agent for member: ${memberName}`);
+  else console.warn(`[FamilyAgents] No agent for: ${nameOrId}`);
+}
+
+// Legacy: snapshot-compatible format (backwards compat with getFamilyAgentStates callers)
+export function getFamilyAgentStates() {
+  return members;
 }

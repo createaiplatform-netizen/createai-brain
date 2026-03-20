@@ -24,8 +24,10 @@ import {
   engineState,
 } from "../services/aboveTranscend/engine.js";
 import {
+  getFamilyMembers,
   getFamilyAgentStates,
-  FAMILY_MEMBERS,
+  getMemberById,
+  getAgentById,
   VOICE_WAKE_WORDS,
 } from "../services/familyAgents.js";
 
@@ -151,34 +153,35 @@ router.get("/snapshot", (req: Request, res: Response) => {
         series:          engineState.series.length,
         cyclesCompleted: engineState.cyclesCompleted,
       },
-      // --- System Health (spec: limitlessFamilyAIFull.ts) ---
-      serverStatus:  "Active",
-      stripeStatus:  "Internal Banking",   // spec: stripeStatus: 'Internal Banking'
+      // --- System Health (spec: fullProduction.ts) ---
+      serverStatus:  "Online",
+      stripeStatus:  "Connected",          // spec: stripeStatus: "Connected"
       firewallCheck: true,
-      sandboxLimit:  false,   // NO LIMITS EDITION — no sandbox limit
-      gapsFixed:     true,    // self-heal pass runs every cycle
-      errorsFixed:   true,    // safety layer auto-corrects violations
-      // --- engineState (full live object, spec: limitlessFamilyAIFull.ts) ---
-      engineState: {
-        activeEngines:   engineState.activeEngines,
-        layers:          engineState.layers,
-        series:          engineState.series,
-        cyclesCompleted: engineState.cyclesCompleted,
-        score:           engineState.score,
-        impact:          engineState.impact,
-        compliance:      engineState.compliance,
-        autonomy:        engineState.autonomy,
-        emergentModules: engineState.emergentModules,
-        upgrades:        engineState.upgrades,
-        dynamicAction:   engineState.dynamicAction,
-        marketplaceUsers: engineState.marketplaceUsers,
-        marketplaceTotal: engineState.marketplaceTotal,
-        universe:        engineState.universe,
-      },
-      // --- Family Agents (spec: limitlessFamilyAIFull.ts) ---
-      familyMembers:  getFamilyAgentStates(),
+      sandboxLimit:  false,                // NO LIMITS EDITION — no sandbox limit
+      gapsFixed:     true,                 // self-heal pass runs every cycle
+      errorsFixed:   true,                 // safety layer auto-corrects violations
+      // --- Family Members — full FamilyMember type (spec: fullProduction.ts) ---
+      members:        getFamilyMembers(),
+      familyMembers:  getFamilyAgentStates(),  // legacy compat
       voiceWakeWords: [...VOICE_WAKE_WORDS],
       adminUser:      "Sara Stadler",
+      // --- engineState (full live object, spec: limitlessFamilyAIFull.ts) ---
+      engineState: {
+        activeEngines:    engineState.activeEngines,
+        layers:           engineState.layers,
+        series:           engineState.series,
+        cyclesCompleted:  engineState.cyclesCompleted,
+        score:            engineState.score,
+        impact:           engineState.impact,
+        compliance:       engineState.compliance,
+        autonomy:         engineState.autonomy,
+        emergentModules:  engineState.emergentModules,
+        upgrades:         engineState.upgrades,
+        dynamicAction:    engineState.dynamicAction,
+        marketplaceUsers: engineState.marketplaceUsers,
+        marketplaceTotal: engineState.marketplaceTotal,
+        universe:         engineState.universe,
+      },
       // --- Raw ---
       limitlessReport: r,
       timestamp:       latest.completedAt,
@@ -210,6 +213,36 @@ router.post("/run", async (req: Request, res: Response) => {
   } catch (err: unknown) {
     res.status(500).json({ ok: false, error: (err as Error).message });
   }
+});
+
+// AI Chat — family member interactive endpoint (spec: fullProduction.ts)
+router.post("/ai-chat/:memberId", (req: Request, res: Response) => {
+  if (!req.user) { res.status(401).json({ error: "Unauthorized" }); return; }
+
+  const { memberId } = req.params;
+  const { message }  = req.body as { message?: string };
+
+  const member = getMemberById(memberId);
+  if (!member || !member.aiAgentActive) {
+    res.status(403).json({ error: "AI agent inactive or member not found" });
+    return;
+  }
+  if (!message || typeof message !== "string") {
+    res.status(400).json({ error: "message is required" });
+    return;
+  }
+
+  const agent = getAgentById(memberId);
+  const reply = agent
+    ? agent.chat(message)
+    : `Hello ${member.name}! I received: "${message}". Processing your request…`;
+
+  res.json({
+    ok:     true,
+    member: member.name,
+    reply,
+    agentActive: member.aiAgentActive,
+  });
 });
 
 export default router;

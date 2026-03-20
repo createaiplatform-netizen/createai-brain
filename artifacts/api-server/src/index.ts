@@ -6,7 +6,7 @@ import { brainEngine }           from "./engine/BrainEnforcementEngine.js";
 import { notifyFamily }          from "./utils/notifications.js";
 import { startupAutoExecutor }   from "./BrainAutoExecutor.js";
 import { startAboveTranscendEngine } from "./services/aboveTranscend/engine.js";
-import { initFamilyAgents }          from "./services/familyAgents.js";
+import { initFamilyAgents, ensureStripeCustomers } from "./services/familyAgents.js";
 
 // Wire all DI services before the server binds. All factories are lazy —
 // nothing is instantiated here, just registered.
@@ -46,6 +46,7 @@ app.listen(port, () => {
       console.log("[Brain:notify] Startup notifications skipped (set BRAIN_NOTIFY_ON_START=true to enable)");
     }
 
+    await ensureStripeCustomers();
     initFamilyAgents();
     startAboveTranscendEngine();
 
