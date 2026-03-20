@@ -317,7 +317,7 @@ export const realMarketFlow = {
     // Resolve digital formats — use provided list or flow-option default
     const digitalFormats: string[] = formats ??
       (_flowOptions.allDigital
-        ? ["ebook","audiobook","video","graphic","software","template","course","music","photo","3D","plugin"]
+        ? ["ebook","audiobook","video","graphic","software","template","course","music","photo","3D","plugin","AR-filter","VR-experience"]
         : [undefined as unknown as string]);
 
     const batch: MarketProduct[] = [];

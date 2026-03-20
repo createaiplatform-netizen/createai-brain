@@ -13,7 +13,8 @@ import {
   attachPrimaryBankAccount,
 } from "./services/familyAgents.js";
 import { initRealStripeIntegration }   from "./services/aboveTranscend/realStripeIntegration.js";
-import { startAdaptiveEngine }         from "./services/realMarket.js";
+import { startAdaptiveEngine, globalTranscend } from "./services/realMarket.js";
+import { startUltraTranscendPersonalEngine }   from "./services/ultraTranscendPersonalEngine.js";
 import { zeroTouchSuperLaunch, resolveFamilyStripeId } from "./services/zeroTouchLaunch.js";
 import { startHybridEngine }                           from "./services/hybridEngine.js";
 import { startWealthMultiplier }                       from "./services/wealthMultiplier.js";
@@ -95,16 +96,18 @@ app.listen(port, () => {
     startUltimateLaunch();
     startPayoutCycle();   // ACH payout to Huntington every 60 s
 
-    // Instant payout — triggered on every micro-revenue event from the ultra engine.
-    // Spec: pushRevenueToBankImmediately → enforceMaxGrowth → triggerMetaCycle
+    // Spec chain per micro-revenue event: instant payout → enforceMaxGrowth → triggerMetaCycle → globalTranscend
     UltraInteractionEngine.on("microRevenue", (event) => {
       void (async () => {
         await pushRevenueToBankImmediately(event.amount);
         await enforceMaxGrowth({ minPercent: 100 });
         triggerMetaCycle().catch(() => {});
+        globalTranscend({ event: { userId: event.userId, eventAmount: event.amount } }).catch(() => {});
       })();
     });
-    console.log("[PayoutService] ⚡ Instant payout listener active — every micro-revenue event → Huntington (instant) → enforceMaxGrowth → triggerMetaCycle");
+    console.log("[PayoutService] ⚡ Instant payout listener active — microRevenue → Huntington instant → enforceMaxGrowth → triggerMetaCycle → globalTranscend");
+
+    startUltraTranscendPersonalEngine(); // per-user hyper-personalization loop
 
     // Log public market page URL (spec: launchFullFamilyMarket — Step 5)
     const domain = process.env.REPLIT_DEV_DOMAIN ?? "localhost";
