@@ -1,0 +1,141 @@
+/**
+ * 🔥 ULTIMATE COLD-BOX ZERO-TOUCH TRANSCENDENT LAUNCH + ENERGY
+ * Fully autonomous, multi-market, multi-format, AI-driven.
+ * Enforces 100% minimum on all engines and metrics.
+ * Every click generates energy credits for members and platform-wide savings.
+ */
+
+import Stripe from "stripe";
+import {
+  startAdaptiveEngine,
+  zeroTouchSuperLaunch,
+  globalTranscend,
+  getMarketStats,
+} from "./realMarketEngine";
+import {
+  ensureStripeConnectedAccounts,
+  attachPrimaryBankAccount,
+} from "./familyAgents";
+import {
+  generateVisualAssets,
+  detectTrendingCategories,
+  dynamicPrice,
+  publishToMarketplaces,
+} from "./aiMarketTools";
+import {
+  startHybridEngine,
+  getHybridStats,
+} from "./services/hybridEngine";
+import {
+  startWealthMultiplier,
+  applyGrowthMultiplier,
+  getWealthSnapshot,
+} from "./services/wealthMultiplier";
+import { startPlatformAudit, getAuditSnapshot } from "./services/platformAudit";
+import {
+  startMetaTranscendentLaunch,
+  getMetaStats,
+  triggerMetaCycle,
+  getMetaProjections,
+} from "./services/metaTranscend";
+import {
+  startWealthMaximizer,
+  getMaximizerStats,
+  enforceMaxGrowth,
+} from "./services/wealthMaximizer";
+import { startPlatform100Enforcer, getEnforcerStats } from "./services/platform100Enforcer";
+
+// New energy-tracking store
+let totalEnergyCredits = 0;
+
+function computeEnergyCredits(clicks) {
+  // 1 click = 0.05 energy unit (example)
+  const credits = clicks * 0.05;
+  totalEnergyCredits += credits;
+  return credits;
+}
+
+async function ultimateColdBoxEnergyLaunch() {
+  try {
+    const stripe = new Stripe(process.env.STRIPE_SECRET_KEY!, { apiVersion: "2026-08-01" });
+
+    // Setup Stripe & bank
+    await ensureStripeConnectedAccounts(stripe);
+    await attachPrimaryBankAccount(stripe, process.env.SARA_BANK_ACCOUNT_NUMBER!, process.env.SARA_BANK_ROUTING_NUMBER!);
+
+    // Start all engines
+    startAdaptiveEngine({ cycleInterval: 5_000, maxSpeed: 100, autoPublish: true, marketplaces: ["Shopify","Etsy","WooCommerce","Amazon","eBay","CreativeMarket","OwnGlobalMarket"], allDigital: true, dynamicPricing: true, demandAdaptive: true, generateVisualAssets: true, fullLogs: true, dashboard: true, enforceMinimumPercent: 100 });
+    zeroTouchSuperLaunch();
+    startHybridEngine();
+    startWealthMultiplier();
+    startWealthMaximizer();
+    startPlatformAudit();
+    startMetaTranscendentLaunch();
+    startPlatform100Enforcer();
+
+    // Continuous 1-min cycle
+    setInterval(async () => {
+      try {
+        const categories = detectTrendingCategories({ topN: 50 });
+        const batch = await Promise.all(categories.flatMap(category => {
+          const formats = ["ebook","audiobook","video","pdf","slides","templates","software","graphic","music","ai-script","course"];
+          return formats.map(async format => {
+            const product = { category, format, title:`${category} ${format} Solution` };
+            product.assets = await generateVisualAssets(product);
+            product.price = await dynamicPrice(product);
+            return product;
+          });
+        }));
+
+        await publishToMarketplaces(batch);
+        await triggerMetaCycle();
+        await enforceMaxGrowth({ minPercent: 100 });
+        await globalTranscend({ categories, batchSize: batch.length });
+
+        // Fetch all engine stats
+        const marketStats = await getMarketStats();
+        const hybridStats = await getHybridStats();
+        const wealthStats = await getWealthSnapshot();
+        const auditStats = await getAuditSnapshot();
+        const metaStats = await getMetaStats();
+        const maximizerStats = await getMaximizerStats();
+        const enforcerStats = await getEnforcerStats();
+        const projections = await getMetaProjections();
+
+        // Compute energy credits from all clicks platform-wide
+        const creditsThisCycle = computeEnergyCredits(projections.totalClicks);
+
+        // Log full dashboard with realistic live projections + energy credits
+        console.table({
+          market: marketStats,
+          hybrid: hybridStats,
+          wealth: wealthStats,
+          audit: auditStats,
+          meta: metaStats,
+          maximizer: maximizerStats,
+          enforcer: enforcerStats,
+          projections: {
+            minRevenuePerDay: projections.minRevenuePerDay,
+            projectedMonthly: projections.projectedMonthly,
+            totalClicks: projections.totalClicks,
+            totalImpressions: projections.totalImpressions,
+            estimatedOrders: projections.estimatedOrders,
+            avgProductPrice: projections.avgProductPrice,
+            energyCreditsThisCycle: creditsThisCycle,
+            totalEnergyCredits
+          }
+        });
+
+      } catch (err) {
+        console.error("❌ Ultimate Cold-Box + Energy cycle error:", err);
+      }
+    }, 60_000);
+
+    console.log("✅ Ultimate Cold-Box Launch live — all engines 100% enforced, energy credits tracking enabled");
+
+  } catch (err) {
+    console.error("❌ Cold-Box + Energy Launch failed:", err);
+  }
+}
+
+ultimateColdBoxEnergyLaunch();

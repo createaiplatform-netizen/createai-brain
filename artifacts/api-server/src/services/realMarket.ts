@@ -376,6 +376,7 @@ export const realMarketFlow = {
 export async function globalTranscend(opts?: {
   categories?: string[];
   batchSize?:  number;
+  event?:      Record<string, unknown>;  // spec: ultraInteractionEngine
 }): Promise<void> {
   const categories = opts?.categories ?? detectTrendingCategories(5);
   console.log(

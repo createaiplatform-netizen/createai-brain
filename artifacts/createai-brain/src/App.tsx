@@ -28,6 +28,7 @@ import { GlobalCommandPalette } from "@/components/GlobalCommandPalette";
 import { InteractionProvider } from "@/os/InteractionContext";
 import { ConversationProvider } from "@/os/ConversationContext";
 import { PlatformProvider } from "@/controller";
+import { useUltraInteractionEngine } from "@/hooks/useUltraInteractionEngine";
 
 const queryClient = new QueryClient({
   defaultOptions: {
@@ -428,6 +429,17 @@ function AuthGate({ children }: { children: React.ReactNode }) {
   return <>{children}</>;
 }
 
+// ─── Ultra Interaction Engine Mount ────────────────────────────────────────
+// Spec: ULTRA-GLOBAL-ZERO-LIMIT-PLATFORM-ENGINE
+// Attaches throttled browser listeners; each event contributes micro-revenue,
+// triggers the meta cycle (server-side throttled to 1/min), and enforces
+// 100%+ growth. Renders null — purely side-effect driven.
+
+function UltraEngineMount() {
+  useUltraInteractionEngine();
+  return null;
+}
+
 // ─── App ───────────────────────────────────────────────────────────────────
 
 function App() {
@@ -472,6 +484,7 @@ function App() {
       <TooltipProvider>
         <ErrorBoundary>
           <AuthGate>
+            <UltraEngineMount />
             <PlatformProvider>
               <InteractionProvider>
                 <ConversationProvider>
