@@ -77,6 +77,7 @@ import realMarketRouter    from "./realMarket.js";
 import hybridRouter        from "./hybrid.js";
 import wealthRouter        from "./wealth.js";
 import auditRouter         from "./audit.js";
+import metaRouter          from "./meta.js";
 
 const router: IRouter = Router();
 
@@ -185,5 +186,8 @@ router.use("/wealth",             wealthRouter);
 
 // ── Full Platform Audit (zero-touch snapshot across all engines) ──────────────
 router.use("/audit",              auditRouter);
+
+// ── Meta-Zero-Touch Transcendent Launch (1-min premium expansion cycle) ───────
+router.use("/meta",               metaRouter);
 
 export default router;

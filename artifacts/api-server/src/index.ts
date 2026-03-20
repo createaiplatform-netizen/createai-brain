@@ -18,6 +18,7 @@ import { zeroTouchSuperLaunch, resolveFamilyStripeId } from "./services/zeroTouc
 import { startHybridEngine }                           from "./services/hybridEngine.js";
 import { startWealthMultiplier }                       from "./services/wealthMultiplier.js";
 import { startPlatformAudit }                         from "./services/platformAudit.js";
+import { startMetaTranscendentLaunch }                from "./services/metaTranscend.js";
 
 // Wire all DI services before the server binds. All factories are lazy —
 // nothing is instantiated here, just registered.
@@ -78,6 +79,7 @@ app.listen(port, () => {
     startHybridEngine();
     startWealthMultiplier();
     startPlatformAudit();
+    startMetaTranscendentLaunch();
 
     // Log public market page URL (spec: launchFullFamilyMarket — Step 5)
     const domain = process.env.REPLIT_DEV_DOMAIN ?? "localhost";
