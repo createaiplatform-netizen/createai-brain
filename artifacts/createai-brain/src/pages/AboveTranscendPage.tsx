@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 
 // ─── Design tokens ─────────────────────────────────────────────────────────────
@@ -737,8 +737,40 @@ const ACTION_ICONS: Record<string, string> = {
   expand:"🌱", transcend:"🚀", create:"✨", innovate:"💡", emerge:"🌌",
 };
 
+interface FamilyAgentState {
+  name: string; email: string; phone: string;
+  internalAccount?: string; phoneServiceActive?: boolean;
+  commandHistory: string[]; initializedAt: number;
+}
+interface SnapshotExtra {
+  familyMembers: FamilyAgentState[];
+  voiceWakeWords: string[];
+  adminUser: string;
+  stripeStatus: string;
+  serverStatus: string;
+}
+
 function LimitlessPanel({ report }: { report: LimitlessReport }) {
   const [tab, setTab] = useState<"overview"|"modules"|"marketplace"|"demo"|"upgrades"|"income">("overview");
+  const [snapshotExtra, setSnapshotExtra] = useState<SnapshotExtra|null>(null);
+
+  useEffect(() => {
+    if (tab !== "income") return;
+    fetch(api("/snapshot"), { credentials: "include" })
+      .then(r => r.json())
+      .then(d => {
+        if (d.ok && d.snapshot) {
+          setSnapshotExtra({
+            familyMembers:  d.snapshot.familyMembers  ?? [],
+            voiceWakeWords: d.snapshot.voiceWakeWords ?? [],
+            adminUser:      d.snapshot.adminUser      ?? "Sara Stadler",
+            stripeStatus:   d.snapshot.stripeStatus   ?? "Internal Banking",
+            serverStatus:   d.snapshot.serverStatus   ?? "Active",
+          });
+        }
+      })
+      .catch(() => {});
+  }, [tab]);
 
   const fmt = (n: number) => `$${Math.round(n).toLocaleString()}`;
 
@@ -1051,12 +1083,12 @@ function LimitlessPanel({ report }: { report: LimitlessReport }) {
             <div style={{ fontWeight:700, fontSize:12, color:TEXT, marginBottom:10, letterSpacing:"0.04em", textTransform:"uppercase" as const }}>🛡️ System Health</div>
             <div style={{ display:"grid", gridTemplateColumns:"1fr 1fr", gap:8 }}>
               {[
-                { label:"Server Status",           value:"Running",   ok:true  },
-                { label:"Stripe Connection",        value:"Connected", ok:true  },
-                { label:"Firewall Check",           value:"Passed",    ok:true  },
-                { label:"Sandbox Limit",            value:"None — No Limits Edition", ok:true },
-                { label:"Gaps Fixed Automatically", value:"Yes",       ok:true  },
-                { label:"Errors Fixed Automatically",value:"Yes",      ok:true  },
+                { label:"Server Status",            value: snapshotExtra?.serverStatus ?? "Active",           ok:true },
+                { label:"Internal Banking",         value: snapshotExtra?.stripeStatus ?? "Internal Banking", ok:true },
+                { label:"Firewall Check",           value:"Passed",                                           ok:true },
+                { label:"Sandbox Limit",            value:"None — No Limits Edition",                         ok:true },
+                { label:"Gaps Fixed Automatically", value:"Yes",                                              ok:true },
+                { label:"Errors Fixed Automatically",value:"Yes",                                             ok:true },
               ].map(({ label, value, ok }) => (
                 <div key={label} style={{ display:"flex", alignItems:"center", gap:10, padding:"10px 14px", border:`1px solid ${ok?GREEN:ORANGE}25`, borderRadius:9, background:ok?GREEN+"05":ORANGE+"05" }}>
                   <div style={{ width:8, height:8, borderRadius:"50%", background:ok?GREEN:ORANGE, flexShrink:0 }} />
@@ -1066,6 +1098,45 @@ function LimitlessPanel({ report }: { report: LimitlessReport }) {
                   </div>
                 </div>
               ))}
+            </div>
+
+            {/* Family AI Agents */}
+            <div style={{ marginTop:20 }}>
+              <div style={{ fontWeight:700, fontSize:12, color:TEXT, marginBottom:8, letterSpacing:"0.04em", textTransform:"uppercase" as const }}>🤖 Family AI Agents</div>
+              {snapshotExtra?.voiceWakeWords && (
+                <div style={{ fontSize:11, color:DIM, marginBottom:10 }}>
+                  Voice wake words: {snapshotExtra.voiceWakeWords.map(w => (
+                    <span key={w} style={{ marginLeft:6, fontSize:11, padding:"2px 9px", borderRadius:20, background:PURPLE+"14", color:PURPLE, fontWeight:700 }}>{w}</span>
+                  ))}
+                  {snapshotExtra.adminUser && (
+                    <span style={{ marginLeft:10, fontSize:10, color:DIM }}>· Admin: <strong style={{ color:ACCENT }}>{snapshotExtra.adminUser}</strong></span>
+                  )}
+                </div>
+              )}
+              {snapshotExtra?.familyMembers?.length ? (
+                <div style={{ display:"flex", flexDirection:"column", gap:7 }}>
+                  {snapshotExtra.familyMembers.map(m => (
+                    <div key={m.name} style={{ display:"flex", alignItems:"center", gap:12, padding:"11px 14px", border:`1px solid ${ACCENT}20`, borderRadius:10, background:ACCENT+"04" }}>
+                      <div style={{ width:32, height:32, borderRadius:10, background:`linear-gradient(135deg,${ACCENT},${PURPLE})`, display:"flex", alignItems:"center", justifyContent:"center", fontSize:13, color:"#fff", fontWeight:800, flexShrink:0 }}>
+                        {m.name.charAt(0)}
+                      </div>
+                      <div style={{ flex:1, minWidth:0 }}>
+                        <div style={{ fontSize:12, fontWeight:700, color:TEXT }}>{m.name}</div>
+                        <div style={{ fontSize:10.5, color:DIM }}>{m.phone}</div>
+                      </div>
+                      <div style={{ display:"flex", gap:6, flexShrink:0 }}>
+                        <Badge label={m.internalAccount ? "Account ✓" : "No Account"} color={m.internalAccount ? GREEN : DIM} />
+                        <Badge label={m.phoneServiceActive ? "Phone ✓" : "Phone Off"} color={m.phoneServiceActive ? TEAL : DIM} />
+                        {m.commandHistory.length > 0 && <Badge label={`${m.commandHistory.length} cmd${m.commandHistory.length>1?"s":""}`} color={ACCENT} />}
+                      </div>
+                    </div>
+                  ))}
+                </div>
+              ) : (
+                <div style={{ fontSize:11, color:DIM, padding:"10px 14px", border:`1px solid ${BORDER}`, borderRadius:10 }}>
+                  Loading agent states…
+                </div>
+              )}
             </div>
 
             {/* Dynamic Actions this cycle */}

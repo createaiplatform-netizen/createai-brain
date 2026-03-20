@@ -23,6 +23,11 @@ import {
   runCycleNow,
   engineState,
 } from "../services/aboveTranscend/engine.js";
+import {
+  getFamilyAgentStates,
+  FAMILY_MEMBERS,
+  VOICE_WAKE_WORDS,
+} from "../services/familyAgents.js";
 
 const router = Router();
 
@@ -146,13 +151,34 @@ router.get("/snapshot", (req: Request, res: Response) => {
         series:          engineState.series.length,
         cyclesCompleted: engineState.cyclesCompleted,
       },
-      // --- System Health (spec: LimitlessLiveDashboard) ---
-      serverStatus:  "running",
-      stripeStatus:  "connected",
+      // --- System Health (spec: limitlessFamilyAIFull.ts) ---
+      serverStatus:  "Active",
+      stripeStatus:  "Internal Banking",   // spec: stripeStatus: 'Internal Banking'
       firewallCheck: true,
       sandboxLimit:  false,   // NO LIMITS EDITION — no sandbox limit
       gapsFixed:     true,    // self-heal pass runs every cycle
       errorsFixed:   true,    // safety layer auto-corrects violations
+      // --- engineState (full live object, spec: limitlessFamilyAIFull.ts) ---
+      engineState: {
+        activeEngines:   engineState.activeEngines,
+        layers:          engineState.layers,
+        series:          engineState.series,
+        cyclesCompleted: engineState.cyclesCompleted,
+        score:           engineState.score,
+        impact:          engineState.impact,
+        compliance:      engineState.compliance,
+        autonomy:        engineState.autonomy,
+        emergentModules: engineState.emergentModules,
+        upgrades:        engineState.upgrades,
+        dynamicAction:   engineState.dynamicAction,
+        marketplaceUsers: engineState.marketplaceUsers,
+        marketplaceTotal: engineState.marketplaceTotal,
+        universe:        engineState.universe,
+      },
+      // --- Family Agents (spec: limitlessFamilyAIFull.ts) ---
+      familyMembers:  getFamilyAgentStates(),
+      voiceWakeWords: [...VOICE_WAKE_WORDS],
+      adminUser:      "Sara Stadler",
       // --- Raw ---
       limitlessReport: r,
       timestamp:       latest.completedAt,

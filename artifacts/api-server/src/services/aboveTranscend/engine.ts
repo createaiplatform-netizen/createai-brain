@@ -1028,18 +1028,49 @@ export function getCycleCount():    number                  { return cycleCount;
 export function getNextMoves():     NextMove[]              { return latestCycle?.nextMoves ?? []; }
 export function getActionHistory(): ExecutionRecord[]       { return [...actionHistory]; }
 
-// ─── engineState — live engine descriptor (spec: coldStart.ts) ────────────────
+// ─── engineState — live engine descriptor (specs: coldStart.ts + limitlessFamilyAIFull.ts) ───
+// All properties are getters so they always reflect the latest completed cycle.
 export const engineState = {
-  get activeEngines():   number   { return 9; },   // 9 layer singletons always active
-  get layers():          string[] {
+  // --- Engine Identity ---
+  get activeEngines():    number    { return 9; },
+  get layers():           string[]  {
     return [
       "IntegrationsLayer", "DataLayer",      "EvolutionLayer", "FrontendLayer",
       "AutonomyLayer",     "MetaLayer",       "FinanceLayer",   "SafetyLayer",
       "LoopOrchestrator",
     ];
   },
-  get series():          string[] { return buildUniverseReport().metaPhases; },
-  get cyclesCompleted(): number   { return cycleCount; },
+  get series():           string[]  { return buildUniverseReport().metaPhases; },
+  get cyclesCompleted():  number    { return cycleCount; },
+
+  // --- Core Metrics (from latest cycle's limitlessReport) ---
+  get score():            number    { return latestCycle?.limitlessReport.score            ?? 0; },
+  get impact():           number    { return latestCycle?.limitlessReport.impact           ?? 0; },
+  get compliance():       number    { return latestCycle?.limitlessReport.compliance       ?? 0; },
+  get autonomy():         number    { return latestCycle?.limitlessReport.autonomy         ?? 0; },
+
+  // --- Emergent & Upgrades ---
+  get emergentModules():  number    { return latestCycle?.limitlessReport.totalEmergentModules ?? 0; },
+  get upgrades():         unknown[] { return latestCycle?.limitlessReport.upgrades         ?? []; },
+  get dynamicAction():    string    { return latestCycle?.limitlessReport.dynamicAction    ?? ""; },
+
+  // --- Marketplace ---
+  get marketplaceUsers(): { name: string; earnings: number }[] {
+    return latestCycle?.limitlessReport.marketplaceUsers ?? [];
+  },
+  get marketplaceTotal(): number {
+    return latestCycle?.limitlessReport.marketplaceDemo.scaledTotal ?? 0;
+  },
+
+  // --- Universe (flat, spec: limitlessFamilyAIFull.ts engineState.universe.*) ---
+  get universe(): { units: number; metaPhases: number; expansionIdeas: number } {
+    const u = latestCycle?.universeReport;
+    return {
+      units:          u?.unitCount         ?? 0,
+      metaPhases:     u?.metaPhaseCount    ?? 0,
+      expansionIdeas: u?.expansionIdeaCount ?? 0,
+    };
+  },
 };
 
 // ─── displayFullStats — full console status reporter (spec: coldStart.ts) ─────
