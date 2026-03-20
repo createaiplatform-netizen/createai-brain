@@ -10,6 +10,7 @@
 
 import { Router, type Request, type Response } from "express";
 import { brainEngine } from "../engine/BrainEnforcementEngine.js";
+import { MISSION_CONFIG } from "../engine/MissionConfig.js";
 
 const router = Router();
 
@@ -82,6 +83,22 @@ router.get("/predictions", (_req: Request, res: Response) => {
   res.json({
     predictions: brainEngine.getPredictions(),
     generatedAt: new Date().toISOString(),
+  });
+});
+
+// GET /api/brain/mission — authoritative universe-scale mission config
+router.get("/mission", (_req: Request, res: Response) => {
+  const phaseStatuses = MISSION_CONFIG.phases.map(p => ({
+    ...p,
+    activeSettingCount:  Object.keys(p.settings).length,
+    enabledSettingCount: Object.values(p.settings).filter(v => v === true).length,
+  }));
+  res.json({
+    ...MISSION_CONFIG,
+    phases: phaseStatuses,
+    retrievedAt: new Date().toISOString(),
+    enforcedBy: "BrainEnforcementEngine",
+    loopTick: brainEngine.getState().loopTick,
   });
 });
 

@@ -1,5 +1,5 @@
 import React, { useEffect, useMemo, useState } from "react";
-import { useSystemStats, type ExpansionEntry, type MetaPrediction, type KnowledgeSource, type OptimizationEntry } from "@/hooks/useSystemStats";
+import { useSystemStats, type ExpansionEntry, type MetaPrediction, type KnowledgeSource, type OptimizationEntry, type MissionPhase } from "@/hooks/useSystemStats";
 import {
   SectionHeader, Card, CardHeader, CardContent,
   Table, TableHead, TableRow, TableCell,
@@ -294,9 +294,65 @@ const CreateAIDashboardApp = () => {
         </>);
       })()}
 
+      {/* ── Mission Config ────────────────────────────────────────────────── */}
+      {stats.missionConfig && (() => {
+        const mc = stats.missionConfig!;
+        const statusColor = (s: MissionPhase["status"]) =>
+          s === "enforced" ? "#34c759" : s === "active" ? "#0a84ff" : "#ffcc00";
+        const statusLabel = (s: MissionPhase["status"]) =>
+          s === "enforced" ? "ENFORCED" : s === "active" ? "ACTIVE" : "STANDBY";
+
+        return (<>
+          <SectionHeader title="Universe-Scale Deployment Mission" />
+          <Card>
+            <CardHeader title={`v${mc.version} · Deployed for ${mc.deployedFor} · Enforced by ${mc.enforcedBy} · Tick #${mc.loopTick}`} />
+            <CardContent>
+              <p style={{ fontStyle: "italic", color: "#555", marginBottom: 16 }}>{mc.goal}</p>
+              <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fill, minmax(280px, 1fr))", gap: 12 }}>
+                {mc.phases.map((phase: MissionPhase) => (
+                  <div key={phase.id} style={{
+                    border: `1.5px solid ${statusColor(phase.status)}40`,
+                    borderRadius: 10, padding: "12px 14px",
+                    background: `${statusColor(phase.status)}08`,
+                  }}>
+                    <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: 6 }}>
+                      <span style={{ fontSize: 13, fontWeight: 700, color: "#111" }}>{phase.label}</span>
+                      <span style={{
+                        fontSize: 10, fontWeight: 800, letterSpacing: "0.5px",
+                        color: statusColor(phase.status),
+                        background: `${statusColor(phase.status)}18`,
+                        borderRadius: 5, padding: "2px 7px",
+                      }}>{statusLabel(phase.status)}</span>
+                    </div>
+                    <p style={{ fontSize: 12, color: "#666", margin: "0 0 8px", lineHeight: 1.4 }}>{phase.description}</p>
+                    <div style={{ display: "flex", flexWrap: "wrap", gap: 5 }}>
+                      {Object.entries(phase.settings).map(([key, val]) => (
+                        <span key={key} style={{
+                          fontSize: 10, padding: "2px 7px", borderRadius: 4,
+                          background: val === true ? "#f0fdf4" : val === false ? "#fff1f2" : "#f0f4ff",
+                          color:       val === true ? "#166534" : val === false ? "#991b1b" : "#3730a3",
+                          border:      `1px solid ${val === true ? "#bbf7d0" : val === false ? "#fecaca" : "#c7d2fe"}`,
+                          fontWeight: 600,
+                        }}>
+                          {key}: {Array.isArray(val) ? val.join(", ") : String(val)}
+                        </span>
+                      ))}
+                    </div>
+                    <p style={{ fontSize: 10, color: "#999", margin: "8px 0 0" }}>
+                      {phase.enabledSettingCount}/{phase.activeSettingCount} settings active
+                    </p>
+                  </div>
+                ))}
+              </div>
+            </CardContent>
+          </Card>
+        </>);
+      })()}
+
       <div style={{ marginTop: "30px", textAlign: "right", fontSize: "12px", color: "#888" }}>
         CreateAI Brain v100 — {stats.industries.length} industries · {stats.coverage} coverage
         {stats.brainStatus && ` · Loop tick #${stats.brainStatus.loopTick} · Auto-enforce: ON`}
+        {stats.missionConfig && ` · Mission v${stats.missionConfig.version} active`}
       </div>
     </div>
   );

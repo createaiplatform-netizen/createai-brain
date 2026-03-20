@@ -1,5 +1,28 @@
 import { useState, useEffect, useCallback } from "react";
 
+// ─── Mission config types ─────────────────────────────────────────────────────
+
+export interface MissionPhase {
+  id:                  string;
+  label:               string;
+  description:         string;
+  settings:            Record<string, boolean | string | string[]>;
+  status:              "active" | "standby" | "enforced";
+  activeSettingCount:  number;
+  enabledSettingCount: number;
+}
+
+export interface MissionConfig {
+  version:     string;
+  deployedFor: string;
+  goal:        string;
+  phases:      MissionPhase[];
+  activeAt:    string;
+  retrievedAt: string;
+  enforcedBy:  string;
+  loopTick:    number;
+}
+
 // ─── Brain enforcement types ─────────────────────────────────────────────────
 
 export interface ExpansionEntry {
@@ -113,6 +136,8 @@ export interface SystemStats {
   // Brain enforcement
   brainStatus: BrainStatus | null;
   brainLoading: boolean;
+  // Mission config
+  missionConfig: MissionConfig | null;
 }
 
 // ─── Static data ─────────────────────────────────────────────────────────────
@@ -252,6 +277,7 @@ export function useSystemStats(): SystemStats {
   const [auditLogs, setAuditLogs]   = useState<AuditLog[]>(generateAuditLogs());
   const [brainStatus, setBrainStatus] = useState<BrainStatus | null>(null);
   const [brainLoading, setBrainLoading] = useState(true);
+  const [missionConfig, setMissionConfig] = useState<MissionConfig | null>(null);
 
   const fetchStatus = useCallback(async () => {
     try {
@@ -282,16 +308,29 @@ export function useSystemStats(): SystemStats {
     }
   }, []);
 
+  const fetchMission = useCallback(async () => {
+    try {
+      const res = await fetch("/api/brain/mission", { credentials: "include" });
+      if (!res.ok) return;
+      const data: MissionConfig = await res.json();
+      setMissionConfig(data);
+    } catch {
+      // non-blocking
+    }
+  }, []);
+
   useEffect(() => {
     fetchStatus();
     fetchBrainStatus();
+    fetchMission();
     const interval = setInterval(() => {
       fetchStatus();
       fetchBrainStatus();
+      fetchMission();
       setAuditLogs(generateAuditLogs());
     }, 30_000);
     return () => clearInterval(interval);
-  }, [fetchStatus, fetchBrainStatus]);
+  }, [fetchStatus, fetchBrainStatus, fetchMission]);
 
   return {
     industries:   INDUSTRIES,
@@ -306,8 +345,9 @@ export function useSystemStats(): SystemStats {
     coverage,
     loading,
     error,
-    refresh: () => { fetchStatus(); fetchBrainStatus(); },
+    refresh: () => { fetchStatus(); fetchBrainStatus(); fetchMission(); },
     brainStatus,
     brainLoading,
+    missionConfig,
   };
 }
