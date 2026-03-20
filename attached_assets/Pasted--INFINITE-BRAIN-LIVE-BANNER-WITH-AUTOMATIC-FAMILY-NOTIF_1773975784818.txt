@@ -1,0 +1,121 @@
+/*
+INFINITE BRAIN LIVE BANNER WITH AUTOMATIC FAMILY NOTIFICATIONS
+- Shows top-of-dashboard status
+- Animates pulse
+- Shows workflow dots
+- Sends notification emails/SMS to family when any workflow goes green
+- Updates every 5 seconds
+*/
+
+import React, { useEffect, useState, useRef } from "react";
+import styled, { keyframes } from "styled-components";
+
+// === STYLED COMPONENTS ===
+const pulse = keyframes`
+  0% { box-shadow: 0 0 0 0 rgba(99,102,241, 0.4); }
+  70% { box-shadow: 0 0 0 10px rgba(99,102,241, 0); }
+  100% { box-shadow: 0 0 0 0 rgba(99,102,241, 0); }
+`;
+
+const Banner = styled.div<{ healthy: boolean }>`
+  background: ${({ healthy }) => (healthy ? "#6366f1" : "#f87171")};
+  color: #ffffff;
+  font-weight: 700;
+  font-size: 1.2rem;
+  text-align: center;
+  padding: 1rem;
+  border-radius: 0.5rem;
+  margin-bottom: 1rem;
+  animation: ${pulse} 2s infinite;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+`;
+
+const Dot = styled.div<{ active: boolean }>`
+  width: 12px;
+  height: 12px;
+  border-radius: 50%;
+  margin-left: 6px;
+  background-color: ${({ active }) => (active ? "#22c55e" : "#facc15")};
+  animation: ${({ active }) => (active ? pulse : "none")} 1.5s infinite;
+`;
+
+const DotContainer = styled.div`
+  display: flex;
+  align-items: center;
+`;
+
+// === DUMMY BACKEND FUNCTIONS ===
+// Replace with your real services
+const fetchSystemStats = async () => ({
+  cpu: 90,
+  memory: 85,
+  maxUsers: 100,
+  activeWorkflows: 8,
+});
+
+const notifyFamily = async (message: string) => {
+  // Call your /api/brain/notify endpoint or internal notification system
+  console.log("Notify family:", message);
+};
+
+// === MAIN COMPONENT ===
+export const InfiniteBrainLiveBanner = () => {
+  const [healthy, setHealthy] = useState(true);
+  const [statusText, setStatusText] = useState("100% Brain Live – Infinite Mode");
+  const [workflowStates, setWorkflowStates] = useState<boolean[]>([]);
+  const previousStatesRef = useRef<boolean[]>([]);
+
+  useEffect(() => {
+    const updateStatus = async () => {
+      try {
+        const stats = await fetchSystemStats();
+        const allGood = stats.cpu > 0 && stats.memory > 0 && stats.maxUsers > 0;
+        setHealthy(allGood);
+        setStatusText(allGood ? "✅ 100% Brain Live – Infinite Mode" : "⚠️ Brain Warning – Check Workflows");
+
+        const workflowsCount = stats.activeWorkflows || 8;
+        const newStates = Array(workflowsCount).fill(allGood);
+        setWorkflowStates(newStates);
+
+        // === TRIGGER NOTIFICATIONS WHEN A DOT TURNS GREEN ===
+        previousStatesRef.current.forEach((prev, i) => {
+          if (!prev && newStates[i]) {
+            notifyFamily(`Workflow #${i + 1} is now ACTIVE ✅`);
+          }
+        });
+        previousStatesRef.current = newStates;
+      } catch (err) {
+        setHealthy(false);
+        setStatusText("⚠️ Brain Offline – Check System");
+        setWorkflowStates(Array(8).fill(false));
+      }
+    };
+
+    updateStatus();
+    const interval = setInterval(updateStatus, 5000);
+    return () => clearInterval(interval);
+  }, []);
+
+  return (
+    <Banner healthy={healthy}>
+      <span>{statusText}</span>
+      <DotContainer>
+        {workflowStates.map((active, i) => (
+          <Dot key={i} active={active} />
+        ))}
+      </DotContainer>
+    </Banner>
+  );
+};
+
+/*
+USAGE:
+import { InfiniteBrainLiveBanner } from "./InfiniteBrainLiveBanner";
+
+<InfiniteBrainControlPanel>
+  <InfiniteBrainLiveBanner />
+  {...rest of dashboard...}
+</InfiniteBrainControlPanel>
+*/

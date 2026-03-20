@@ -1,0 +1,109 @@
+/*
+INFINITE BRAIN FULL AUTO-VERIFICATION PANEL
+- Runs all 6 verification steps automatically
+- Displays results live in the dashboard
+- Fires family notifications when ALL steps PASS
+- Integrates directly with BrainAutoExecutor + CoreEngine
+*/
+
+import React, { useState } from "react";
+import styled from "styled-components";
+import { fetchVerificationReport, notifyFamilyEvent } from "../services/systemServices";
+import { executeInfinitely } from "../engine/InfinityExecutor";
+
+// === STYLED COMPONENTS ===
+const Panel = styled.div`
+  background: #f8fafc;
+  padding: 1rem;
+  border-radius: 0.5rem;
+  box-shadow: 0 2px 8px rgba(15,23,42,0.07);
+  margin-top: 1rem;
+`;
+
+const Button = styled.button`
+  background: #6366f1;
+  color: #ffffff;
+  font-weight: 700;
+  padding: 0.75rem 1rem;
+  border-radius: 0.375rem;
+  border: none;
+  cursor: pointer;
+  transition: all 0.2s;
+  &:hover { background: #4f46e5; }
+  &:disabled { opacity: 0.5; cursor: not-allowed; }
+`;
+
+const StepRow = styled.div<{ pass: boolean }>`
+  display: flex;
+  justify-content: space-between;
+  padding: 0.5rem;
+  background-color: ${({ pass }) => (pass ? "#dcfce7" : "#fee2e2")};
+  border-radius: 0.375rem;
+  margin-bottom: 0.25rem;
+`;
+
+const Banner = styled.div`
+  background: #22c55e;
+  color: #ffffff;
+  font-weight: 700;
+  padding: 1rem;
+  border-radius: 0.5rem;
+  text-align: center;
+  margin-bottom: 1rem;
+`;
+
+// === COMPONENT ===
+export const InfiniteBrainVerificationPanel = () => {
+  const [loading, setLoading] = useState(false);
+  const [report, setReport] = useState<any>(null);
+  const [allPassed, setAllPassed] = useState(false);
+
+  const runVerification = async () => {
+    setLoading(true);
+    const fullReport = await executeInfinitely(
+      async () => await fetchVerificationReport(),
+      { taskLabel: "Full Brain Verification", notifyOnCompletion: false }
+    );
+
+    setReport(fullReport);
+    const passed = fullReport?.steps.every((s: any) => s.pass);
+    setAllPassed(passed);
+
+    if (passed) {
+      // Notify family that everything is 100%
+      notifyFamilyEvent(`💎 ALL SYSTEMS 100% LIVE\nRun ID: ${fullReport.runId}`);
+    }
+    setLoading(false);
+  };
+
+  return (
+    <Panel>
+      {allPassed && <Banner>💎 ALL SYSTEMS 100% LIVE</Banner>}
+      <Button onClick={runVerification} disabled={loading}>
+        {loading ? "Running Verification..." : "✅ Run Full Verification"}
+      </Button>
+      {report?.steps?.map((step: any, i: number) => (
+        <StepRow key={i} pass={step.pass}>
+          <span>{step.label}</span>
+          <span>{step.pass ? "PASS ✅" : "FAIL ❌"}</span>
+        </StepRow>
+      ))}
+    </Panel>
+  );
+};
+
+/*
+USAGE:
+import { InfiniteBrainVerificationPanel } from "./InfiniteBrainVerificationPanel";
+
+<InfiniteBrainControlPanel>
+  <InfiniteBrainVerificationPanel />
+  {...rest of dashboard...}
+</InfiniteBrainControlPanel>
+
+NOTES:
+- Runs 6-step verification (UI, Workflows, Mission, UI Panels, Notify Family, System Stats)
+- Uses executeInfinitely() to ensure retries until each step passes
+- Fires notifyFamilyEvent() automatically when all steps pass
+- Works with BrainAutoExecutor startup sequence if BRAIN_AUTO_START=true
+*/

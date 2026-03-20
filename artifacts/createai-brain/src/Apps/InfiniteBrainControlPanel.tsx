@@ -1,4 +1,5 @@
 import React, { useEffect, useState, useCallback } from "react";
+import { InfiniteBrainLiveBanner } from "@/components/InfiniteBrainLiveBanner";
 import {
   SectionHeader, Card, CardHeader, CardContent,
   Table, TableHead, TableRow, TableCell,
@@ -190,6 +191,9 @@ export function InfiniteBrainControlPanel() {
       minHeight: "100%",
       overflowY: "auto",
     }}>
+
+      {/* ── Live Banner ────────────────────────────────────────────────────── */}
+      <InfiniteBrainLiveBanner />
 
       {/* ── Page Header ────────────────────────────────────────────────────── */}
       <div style={{

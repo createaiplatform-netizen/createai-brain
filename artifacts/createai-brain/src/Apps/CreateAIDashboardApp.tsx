@@ -1,4 +1,5 @@
 import React, { useEffect, useMemo, useState } from "react";
+import { InfiniteBrainLiveBanner } from "@/components/InfiniteBrainLiveBanner";
 import {
   useSystemStats,
   type ExpansionEntry,
@@ -101,6 +102,9 @@ const CreateAIDashboardApp = () => {
       minHeight: "100%",
       overflowY: "auto",
     }}>
+
+      {/* ── Live Banner ──────────────────────────────────────────────────── */}
+      <InfiniteBrainLiveBanner />
 
       {/* ── Page Header ──────────────────────────────────────────────────── */}
       <div style={{
