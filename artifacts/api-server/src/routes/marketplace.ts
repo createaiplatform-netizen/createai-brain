@@ -39,14 +39,23 @@ router.get("/items", (_req: Request, res: Response) => {
 });
 
 // ── GET /modules ──────────────────────────────────────────────────────────────
+// NOTE: scores and overachievement_pct are HARDCODED constants, not live data.
+// Use POST /api/modules/:name for real live API measurements.
 router.get("/modules", (_req: Request, res: Response) => {
   const mods = Object.entries(MODULE_SCORES).map(([name, v]) => ({
     name,
-    score:              v.score,
+    score:               v.score,
     overachievement_pct: v.overachievement_pct,
-    baseEarnings:       parseFloat(((v.score * v.overachievement_pct) / 100).toFixed(2)),
+    baseEarnings:        parseFloat(((v.score * v.overachievement_pct) / 100).toFixed(2)),
+    _dataType:           "simulated",
+    _note:               "Hardcoded reference values — not computed from live API data. POST /api/modules/:name for live measurements.",
   }));
-  res.json({ ok: true, modules: mods });
+  res.json({
+    ok: true,
+    modules: mods,
+    _dataType: "simulated",
+    _note: "Module scores and revenue figures are hardcoded reference constants. They do not represent real transactions or live measurements.",
+  });
 });
 
 // ── POST /click ───────────────────────────────────────────────────────────────

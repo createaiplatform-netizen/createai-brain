@@ -29,25 +29,49 @@ const INDUSTRY_BASELINE = {
   smsDeliveryRate:   55,   // % — industry average SMS delivery
 };
 
+// ─── Real send counters ───────────────────────────────────────────────────────
+// Incremented ONLY when an external API confirms delivery. Never on failure.
+// Exported so /api/system/health-real can read live values.
+
+export let emailsSentCount    = 0;
+export let smsSentCount       = 0;
+export let lastSuccessfulEmail: string | null = null;
+export let lastSuccessfulSMS:   string | null = null;
+
 // ─── Credential detection ─────────────────────────────────────────────────────
 
 function getResend(): InstanceType<typeof Resend> | null {
-  const key = process.env["RESEND_API_KEY"];
-  return key ? new Resend(key) : null;
+  const key = process.env["RESEND_API_KEY"] ?? "";
+  if (!key) {
+    console.error("[EMAIL NOT SENT] RESEND_API_KEY is not set — add a valid re_... key to Replit Secrets → Resend dashboard: resend.com/api-keys");
+    return null;
+  }
+  if (!key.startsWith("re_")) {
+    console.error(`[EMAIL NOT SENT] INVALID RESEND_API_KEY — value does not start with "re_" (current length: ${key.length}). Replace with a real key from resend.com/api-keys`);
+    return null;
+  }
+  return new Resend(key);
 }
 
 function getTwilioClient(): ReturnType<typeof twilio> | null {
   const sid   = process.env["TWILIO_SID"]        ?? "";
   const token = process.env["TWILIO_AUTH_TOKEN"]  ?? "";
-  if (!sid || !token) return null;
-  if (!sid.startsWith("AC")) {
-    console.warn(`[Notify:sms] ⚠️  TWILIO_SID must start with "AC" — current value is not a valid Account SID`);
+  if (!sid || !token) {
+    console.error("[SMS NOT SENT] INVALID TWILIO_CREDENTIALS — TWILIO_SID and TWILIO_AUTH_TOKEN are both required. Get them from console.twilio.com");
+    return null;
+  }
+  if (!sid.startsWith("AC") || sid.length !== 34) {
+    console.error(`[SMS NOT SENT] INVALID TWILIO_CREDENTIALS — TWILIO_SID must start with "AC" and be exactly 34 characters (current: "${sid.slice(0,4)}..." length=${sid.length}). Get the real SID from console.twilio.com`);
+    return null;
+  }
+  if (token.length !== 32) {
+    console.error(`[SMS NOT SENT] INVALID TWILIO_CREDENTIALS — TWILIO_AUTH_TOKEN must be exactly 32 hex characters (current length: ${token.length}). Get the real token from console.twilio.com`);
     return null;
   }
   try {
     return twilio(sid, token);
   } catch (err) {
-    console.warn(`[Notify:sms] ⚠️  Twilio client init failed: ${(err as Error).message}`);
+    console.error(`[SMS NOT SENT] INVALID TWILIO_CREDENTIALS — Twilio client init failed: ${(err as Error).message}`);
     return null;
   }
 }
@@ -163,11 +187,11 @@ export async function sendEmailNotification(
   const now    = new Date().toISOString();
 
   if (!resend) {
-    console.warn(`[Notify:email] ⚠️  ${creds.summary}`);
+    // getResend() already logged the specific error — no duplicate logging needed
     const results: NotifyResult[] = to.map(addr => ({
       to:         addr,
       success:    false,
-      reason:     `Missing secrets: ${creds.email.missing.join(", ")} — add to Replit Secrets`,
+      reason:     `EMAIL NOT SENT — RESEND_API_KEY missing or invalid. Add a valid re_... key to Replit Secrets.`,
       provider:   "resend",
       executedAt: now,
     }));
@@ -195,7 +219,10 @@ export async function sendEmailNotification(
           `,
         });
         if (error) throw new Error(error.message ?? String(error));
-        console.log(`[Notify:email] ✅ Sent → ${addr}`);
+        // ✅ REAL delivery confirmed — increment counter
+        emailsSentCount++;
+        lastSuccessfulEmail = now;
+        console.log(`[Notify:email] ✅ Sent → ${addr} (total confirmed: ${emailsSentCount})`);
         return { to: addr, success: true, provider: "resend", executedAt: now };
       } catch (err) {
         console.error(`[Notify:email] ❌ Failed → ${addr}:`, (err as Error).message);
@@ -213,7 +240,7 @@ export async function sendEmailNotification(
   } satisfies NotifyResult);
 
   const batch = makeBatch(flat, INDUSTRY_BASELINE.emailDeliveryRate, true);
-  console.log(`[Notify:email] Done — ${batch.successCount}/${batch.total} sent · overachievement: ${batch.overachievement_pct}%`);
+  console.log(`[Notify:email] Done — ${batch.successCount}/${batch.total} sent`);
   return batch;
 }
 
@@ -233,14 +260,27 @@ export async function sendSMSNotification(
   const from    = process.env["TWILIO_PHONE"] ?? "";
   const now     = new Date().toISOString();
 
-  if (!client || !from) {
-    console.warn(`[Notify:sms] ⚠️  ${creds.summary}`);
+  if (!client) {
+    // getTwilioClient() already logged the specific error — no duplicate needed
+    if (!from) {
+      console.error("[SMS NOT SENT] INVALID TWILIO_CREDENTIALS — TWILIO_PHONE is not set. Add your Twilio sending number (e.g. +15551234567) to Replit Secrets.");
+    }
     const results: NotifyResult[] = to.map(phone => ({
       to:         phone,
       success:    false,
-      reason:     `Missing secrets: ${creds.sms.missing.join(", ")} — add to Replit Secrets`,
+      reason:     "SMS NOT SENT — TWILIO_CREDENTIALS invalid or missing. TWILIO_SID must start with AC (34 chars), TWILIO_AUTH_TOKEN must be 32 hex chars, TWILIO_PHONE must be set.",
       provider:   "twilio",
       executedAt: now,
+    }));
+    return makeBatch(results, INDUSTRY_BASELINE.smsDeliveryRate, false);
+  }
+
+  if (!from) {
+    console.error("[SMS NOT SENT] INVALID TWILIO_CREDENTIALS — TWILIO_PHONE is not set. Add your Twilio sending number to Replit Secrets.");
+    const results: NotifyResult[] = to.map(phone => ({
+      to: phone, success: false,
+      reason: "SMS NOT SENT — TWILIO_PHONE not configured",
+      provider: "twilio", executedAt: now,
     }));
     return makeBatch(results, INDUSTRY_BASELINE.smsDeliveryRate, false);
   }
@@ -251,7 +291,10 @@ export async function sendSMSNotification(
     to.map(async (phone): Promise<NotifyResult> => {
       try {
         await client.messages.create({ body: message, from, to: phone });
-        console.log(`[Notify:sms] ✅ Sent → ${phone}`);
+        // ✅ REAL delivery confirmed — increment counter
+        smsSentCount++;
+        lastSuccessfulSMS = now;
+        console.log(`[Notify:sms] ✅ Sent → ${phone} (total confirmed: ${smsSentCount})`);
         return { to: phone, success: true, provider: "twilio", executedAt: now };
       } catch (err) {
         console.error(`[Notify:sms] ❌ Failed → ${phone}:`, (err as Error).message);
@@ -269,7 +312,7 @@ export async function sendSMSNotification(
   } satisfies NotifyResult);
 
   const batch = makeBatch(flat, INDUSTRY_BASELINE.smsDeliveryRate, true);
-  console.log(`[Notify:sms] Done — ${batch.successCount}/${batch.total} sent · overachievement: ${batch.overachievement_pct}%`);
+  console.log(`[Notify:sms] Done — ${batch.successCount}/${batch.total} sent`);
   return batch;
 }
 

@@ -63,6 +63,7 @@ import brainRouter       from "./brain";
 import modulesRouter     from "./modules";
 import marketplaceRouter from "./marketplace";
 import stripeRouter      from "./stripe";
+import systemHealthRouter from "./systemHealth";
 import { accessMiddleware } from "../security/FullLockdown.js";
 import projectDocumentsRouter from "./projectDocuments";
 import invitesRouter       from "./invites";
@@ -161,5 +162,8 @@ router.use("/integrations/stripe", stripeRouter);
 
 // ── System Command Processor ─────────────────────────────────────────────────
 router.use("/system",             systemRouter);
+
+// ── Real health metrics (truth-only — no simulated values) ───────────────────
+router.use("/system",             systemHealthRouter);
 
 export default router;
