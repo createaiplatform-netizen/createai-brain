@@ -69,6 +69,7 @@ export interface LimitlessReport {
   score:                number;
   impact:               number;
   compliance:           number;
+  autonomy:             number;   // 4th standalone metric (spec: CycleReport.autonomy)
   // Weighted actions (status-aware) + one fully emergent dynamic action
   actions:              string[];
   dynamicAction:        string;
@@ -212,9 +213,19 @@ export class MarketplaceEngine {
     return { creatorShare, platformShare };
   }
 
+  /**
+   * Per-cycle simulation that ACCUMULATES earnings persistently.
+   * Each run adds 75% of a random draw to the creator's running total
+   * and 25% to platform earnings — earnings grow indefinitely over cycles.
+   */
   simulateDemo(): MarketplaceDemoResult {
     const perUser: Record<string, number> = {};
-    this.users.forEach(u => { perUser[u.name] = Math.random() * 150 + 50; });
+    this.users.forEach(u => {
+      const draw = Math.random() * 150 + 50;
+      u.earnings        += draw * 0.75;      // accumulate creator share
+      this.platformEarnings += draw * 0.25;  // accumulate platform share
+      perUser[u.name]   = u.earnings;        // expose running total
+    });
     const scaledTotal = Object.values(perUser).reduce((a, b) => a + b, 0) * 1_000_000;
     return { perUser, scaledTotal, platformEarnings: this.platformEarnings };
   }
@@ -255,13 +266,13 @@ export function generateUpgrade(cycleNumber: number): LimitlessUpgrade {
 // ─── Action generators ────────────────────────────────────────────────────────
 
 const ALL_ACTIONS = [
-  "analyze", "simulate", "integrate", "evolve",
-  "expand",  "transcend", "create",   "innovate",
+  "analyze",  "simulate", "integrate", "evolve",
+  "expand",   "transcend", "create",   "innovate", "emerge",
 ] as const;
 
 const WEIGHTED: Record<string, typeof ALL_ACTIONS[number][]> = {
-  EVOLVING:   ["evolve", "expand", "transcend", "create", "innovate"],
-  STALLED:    ["analyze", "integrate", "simulate", "innovate"],
+  EVOLVING:   ["evolve", "expand", "transcend", "create", "innovate", "emerge"],
+  STALLED:    ["analyze", "integrate", "simulate", "innovate", "emerge"],
   REGRESSING: ["analyze", "simulate", "integrate", "evolve"],
 };
 
@@ -287,3 +298,10 @@ export function generateDynamicAction(): string {
 export function computeLimitlessScore(cycleScore: number):   number { return Math.min(100, Math.round(cycleScore * 0.9 + Math.random() * 10)); }
 export function computeLimitlessImpact(impactScore: number): number { return Math.min(100, Math.round(impactScore * 0.85 + Math.random() * 15)); }
 export function computeLimitlessCompliance(comp: number):   number { return Math.min(100, Math.round(comp * 0.95 + Math.random() * 5)); }
+export function computeLimitlessAutonomy(autonomyScore: number): number { return Math.min(100, Math.round(autonomyScore * 0.9 + Math.random() * 10)); }
+
+// ─── Batch universe probe ─────────────────────────────────────────────────────
+// Spec: UniverseConnector.probe() discovers 1–5 new modules per cycle.
+export function countBatchProbeModules(): number {
+  return Math.floor(Math.random() * 5) + 1;   // 1–5
+}

@@ -7,6 +7,7 @@
  * GET  /api/above-transcend/latest       — full latest cycle (all 8 phases)
  * GET  /api/above-transcend/next-moves   — top-5 next moves
  * GET  /api/above-transcend/history      — last N cycles (lightweight)
+ * GET  /api/above-transcend/snapshot     — finalSnapshot() of last cycle (spec requirement)
  * GET  /api/above-transcend/actions      — full executed-action history
  * POST /api/above-transcend/run          — trigger a cycle immediately
  */
@@ -89,6 +90,29 @@ router.get("/history", (req: Request, res: Response) => {
   }));
 
   res.json({ ok: true, cycles: lightweight, total: full.length });
+});
+
+// finalSnapshot() — last cycle's full report (spec: AboveTranscendLimitlessEngine.finalSnapshot())
+router.get("/snapshot", (req: Request, res: Response) => {
+  if (!req.user) { res.status(401).json({ error: "Unauthorized" }); return; }
+  const latest = getLatestCycle();
+  if (!latest) { res.status(404).json({ ok: false, error: "No cycle completed yet" }); return; }
+  res.json({
+    ok:              true,
+    snapshot:        {
+      timestamp:       latest.completedAt,
+      score:           latest.summary.cycleScore,
+      impact:          latest.summary.realImpactScore,
+      compliance:      latest.summary.complianceScore,
+      autonomy:        latest.summary.autonomyScore,
+      actions:         latest.executedActions.map(a => a.title),
+      emergentModules: latest.summary.totalEmergentModules,
+      universeStats:   latest.universeReport,
+      marketplaceStats: latest.limitlessReport.marketplaceStats,
+      limitlessReport: latest.limitlessReport,
+      finance:         { potentialRevenue: latest.limitlessReport.marketplaceDemo.scaledTotal },
+    },
+  });
 });
 
 router.get("/actions", (req: Request, res: Response) => {

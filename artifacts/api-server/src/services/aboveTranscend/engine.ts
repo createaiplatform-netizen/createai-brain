@@ -71,6 +71,8 @@ import {
   computeLimitlessScore,
   computeLimitlessImpact,
   computeLimitlessCompliance,
+  computeLimitlessAutonomy,
+  countBatchProbeModules,
 } from "./modules/limitless.js";
 
 import type { LimitlessReport, LimitlessUpgrade } from "./modules/limitless.js";
@@ -852,23 +854,28 @@ async function runCycle(): Promise<EvolutionCycle> {
   const limitlessScore      = computeLimitlessScore(metaAnalysis.cycleScore);
   const limitlessImpact     = computeLimitlessImpact(realImpactScore);
   const limitlessCompliance = computeLimitlessCompliance(safetyStatus.complianceScore);
+  const limitlessAutonomy   = computeLimitlessAutonomy(autonomyReport.autonomyScore);
   const limitlessActions    = generateLimitlessActions(status);
   const dynamicAction       = generateDynamicAction();          // spec: "infinite emergent actions"
   const upgradeThisCycle    = generateUpgrade(cycleCount);      // spec: one named upgrade per cycle
   limitlessUpgrades.push(upgradeThisCycle);
   const totalEmergent       = limitlessCore.getTotalEmergentCreated();
 
-  // ── Per-cycle dynamic universe growth (spec: connectUniverse adds new entries every cycle)
-  registerUnit({
-    id:          `dynamic-unit-${cycleCount}`,
-    name:        `DynamicUnit-Cycle${cycleCount}`,
-    description: `Auto-generated universe unit for cycle ${cycleCount} — ${dynamicAction}`,
-    category:    "universe",
-    source:      "dynamic-cycle-growth",
-  });
-  registerMetaPhase(`DynamicPhase-Cycle${cycleCount}`);
+  // ── Per-cycle dynamic universe growth (spec: UniverseConnector.probe() discovers 1-5 modules)
+  const batchCount = countBatchProbeModules();                  // 1-5 new modules this cycle
+  for (let b = 0; b < batchCount; b++) {
+    const batchLabel = `${cycleCount}.${b + 1}`;
+    registerUnit({
+      id:          `dynamic-unit-${batchLabel}`,
+      name:        `ProbeModule-Cycle${batchLabel}`,
+      description: `Batch-discovered unit ${b + 1}/${batchCount} for cycle ${cycleCount} — ${upgradeThisCycle.effect}`,
+      category:    "universe",
+      source:      "batch-cycle-probe",
+    });
+    registerMetaPhase(`ProbePhase-Cycle${batchLabel}`);
+  }
   generateExpansionIdea(
-    `Cycle ${cycleCount} emergent opportunity: integrate ${upgradeThisCycle.effect} across all layers`
+    `Cycle ${cycleCount} emergent opportunity: integrate ${upgradeThisCycle.effect} across all layers (${batchCount} new probes)`
   );
 
   const limitlessReport: LimitlessReport = {
@@ -876,6 +883,7 @@ async function runCycle(): Promise<EvolutionCycle> {
     score:                  limitlessScore,
     impact:                 limitlessImpact,
     compliance:             limitlessCompliance,
+    autonomy:               limitlessAutonomy,
     actions:                limitlessActions,
     dynamicAction,
     totalEmergentModules:   totalEmergent,
@@ -895,9 +903,10 @@ async function runCycle(): Promise<EvolutionCycle> {
 
   console.log(
     `[Limitless] Cycle ${cycleCount} ⚡ score:${limitlessScore} · impact:${limitlessImpact} · ` +
-    `compliance:${limitlessCompliance}% · actions:[${limitlessActions.join(",")}] · ` +
-    `emergent:${totalEmergent} · upgrade:${upgradeThisCycle.name.slice(0, 20)} · ` +
-    `demoTotal:$${Math.round(limitlessDemo.scaledTotal).toLocaleString()}`
+    `compliance:${limitlessCompliance}% · autonomy:${limitlessAutonomy}% · ` +
+    `actions:[${limitlessActions.join(",")}] · ` +
+    `emergent:${totalEmergent} · batchProbe:${batchCount} · upgrade:${upgradeThisCycle.name.slice(0, 20)} · ` +
+    `demoAccum:$${Math.round(limitlessDemo.scaledTotal).toLocaleString()}`
   );
 
   // ── Layer 9 — LoopOrchestrator ───────────────────────────────────────────

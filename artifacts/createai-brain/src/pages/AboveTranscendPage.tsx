@@ -53,7 +53,7 @@ interface MarketplaceUser       { id:string;name:string;earnings:number;joinedAt
 interface MarketplaceItem       { id:string;creator:string;creatorName:string;name:string;description:string;price:number;hash:string;createdAt:string;purchases:number; }
 interface MarketplaceDemoResult { perUser:Record<string,number>;scaledTotal:number;platformEarnings:number; }
 interface LimitlessUpgrade       { id:string;name:string;effect:string;cycle:number;createdAt:string; }
-interface LimitlessReport       { cycleNumber:number;score:number;impact:number;compliance:number;actions:string[];dynamicAction:string;totalEmergentModules:number;coreSubmoduleCount:number;emergentThisCycle:boolean;emergentCountThisCycle:number;newEmergentName:string|null;coreHash:string;coreRunMs:number;upgrades:LimitlessUpgrade[];upgradeThisCycle:LimitlessUpgrade;marketplaceUsers:MarketplaceUser[];marketplaceItems:MarketplaceItem[];marketplaceDemo:MarketplaceDemoResult;marketplaceStats:{userCount:number;itemCount:number;totalTransactions:number;platformEarnings:number}; }
+interface LimitlessReport       { cycleNumber:number;score:number;impact:number;compliance:number;autonomy:number;actions:string[];dynamicAction:string;totalEmergentModules:number;coreSubmoduleCount:number;emergentThisCycle:boolean;emergentCountThisCycle:number;newEmergentName:string|null;coreHash:string;coreRunMs:number;upgrades:LimitlessUpgrade[];upgradeThisCycle:LimitlessUpgrade;marketplaceUsers:MarketplaceUser[];marketplaceItems:MarketplaceItem[];marketplaceDemo:MarketplaceDemoResult;marketplaceStats:{userCount:number;itemCount:number;totalTransactions:number;platformEarnings:number}; }
 interface CycleSummary          { realIntegrations:number;detectedLimits:number;proposedBreakers:number;expansionIdeas:number;topScore:number;systemIntelligence:number;actionsExecuted:number;systemStatus:EvolutionStatus;evolutionRate:number;realImpactScore:number;cycleScore:number;complianceScore:number;autonomyScore:number;financeRevenue:number;futureModuleCount:number;universeUnits:number;universeMeta:number;discoveredModules:number;totalExpansionIdeas:number;limitlessScore:number;limitlessImpact:number;limitlessCompliance:number;totalEmergentModules:number;marketplaceUsers:number;marketplaceItems:number;marketplaceDemoTotal:number; }
 
 interface EvolutionCycle {
@@ -734,7 +734,7 @@ function OrchestratorPanel({ report }: { report:OrchestratorReport }) {
 // ─── Limitless Engine Panel ───────────────────────────────────────────────────
 const ACTION_ICONS: Record<string, string> = {
   analyze:"🔍", simulate:"🔬", integrate:"🔗", evolve:"🧬",
-  expand:"🌱", transcend:"🚀", create:"✨", innovate:"💡",
+  expand:"🌱", transcend:"🚀", create:"✨", innovate:"💡", emerge:"🌌",
 };
 
 function LimitlessPanel({ report }: { report: LimitlessReport }) {
@@ -765,12 +765,18 @@ function LimitlessPanel({ report }: { report: LimitlessReport }) {
         </div>
       </div>
 
-      {/* Score tiles */}
+      {/* Score tiles — all 4 standalone metrics from spec CycleReport */}
       <div style={{ display:"grid", gridTemplateColumns:"repeat(4,1fr)", gap:10, marginBottom:18 }}>
-        <StatTile label="Limitless Score"   value={report.score}      color={report.score>=70?GREEN:ORANGE} sub="/100" />
-        <StatTile label="Limitless Impact"  value={report.impact}     color={ACCENT}  sub="/100" />
-        <StatTile label="Compliance"        value={`${report.compliance}%`} color={report.compliance>=80?GREEN:ORANGE} />
-        <StatTile label="Emergent Modules"  value={report.totalEmergentModules} color={PURPLE} sub="created total" />
+        <StatTile label="Score"      value={report.score}             color={report.score>=70?GREEN:ORANGE}    sub="/100" />
+        <StatTile label="Impact"     value={report.impact}            color={ACCENT}                           sub="/100" />
+        <StatTile label="Compliance" value={`${report.compliance}%`}  color={report.compliance>=80?GREEN:ORANGE} />
+        <StatTile label="Autonomy"   value={`${report.autonomy}%`}    color={TEAL} />
+      </div>
+      {/* Secondary row */}
+      <div style={{ display:"grid", gridTemplateColumns:"repeat(3,1fr)", gap:10, marginBottom:16 }}>
+        <StatTile label="Emergent Modules" value={report.totalEmergentModules} color={PURPLE} sub="total created" />
+        <StatTile label="Upgrades"         value={report.upgrades.length}      color={ACCENT} sub="in registry" />
+        <StatTile label="Actions"          value={report.actions.length + 1}   color={GREEN}  sub="this cycle" />
       </div>
 
       {/* Dynamic action + upgrade banner */}
