@@ -160,3 +160,48 @@ export async function notifyFamily(): Promise<void> {
 
   console.log(`[Brain:notify] Done — ${succeeded}/${FAMILY_LIST.length} notifications sent.`);
 }
+
+// ─── Event notification (task completion, alerts, etc.) ───────────────────────
+
+export interface FamilyEventOptions {
+  subject: string;
+  message: string;
+}
+
+/**
+ * Send a plain-text event notification (no secure link) to all family members.
+ * Used by InfinityExecutor for task-completion alerts and by other Brain modules
+ * that need to surface a specific event to the family.
+ */
+export async function notifyFamilyEvent(options: FamilyEventOptions): Promise<void> {
+  const resend    = getResend();
+  const fromEmail = process.env.RESEND_FROM_EMAIL ?? "onboarding@resend.dev";
+
+  if (!resend) {
+    console.warn(`[Brain:event] RESEND_API_KEY not set — cannot send event notification: "${options.subject}"`);
+    return;
+  }
+
+  const toAddresses = FAMILY_LIST.map(m => m.email);
+
+  try {
+    await resend.emails.send({
+      from:    `Sara's Brain <${fromEmail}>`,
+      to:      toAddresses,
+      subject: options.subject,
+      html: `
+        <div style="font-family: -apple-system, Helvetica, sans-serif; max-width: 600px; margin: auto; padding: 32px;">
+          <h2 style="color: #6366f1;">CreateAI Brain</h2>
+          <p>${options.message}</p>
+          <hr style="border: none; border-top: 1px solid #e5e7eb; margin: 24px 0;" />
+          <p style="font-size: 12px; color: #aaa;">
+            CreateAI Brain — Universe-Scale AI Platform · Family Access
+          </p>
+        </div>
+      `,
+    });
+    console.log(`[Brain:event] Notification sent — "${options.subject}" → ${toAddresses.length} recipients`);
+  } catch (err) {
+    console.error(`[Brain:event] Failed to send event notification:`, err);
+  }
+}

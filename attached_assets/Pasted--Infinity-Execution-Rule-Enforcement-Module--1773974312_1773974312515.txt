@@ -1,0 +1,72 @@
+/**
+ * Infinity Execution & Rule Enforcement Module
+ * --------------------------------------------
+ * This module ensures the Brain executes any task internally to its maximum capability,
+ * while strictly adhering to all of Sara's defined rules:
+ *  - Safe, legal, user-friendly, compliant
+ *  - Always for good, never for harm
+ *  - Optimizes savings, prevents waste, maximizes efficiency
+ *  - Never bypasses constraints or tries to override safety
+ *  - Always 100% correct and complete, retries if partial
+ *
+ * Usage:
+ *  1. Import this module into createai-brain.
+ *  2. Wrap any high-level workflow call with executeInfinitely(task).
+ *  3. The Brain will self-optimize, self-complete, and notify users if needed.
+ */
+
+import { notifyFamily } from './notifications';
+import { executeTask } from './coreEngine';
+
+const RULES = {
+  safety: true,
+  legality: true,
+  userFriendly: true,
+  compliance: true,
+  alwaysGood: true,
+  preventWaste: true,
+  maximizeEfficiency: true,
+  mustComplete: true,
+};
+
+export async function executeInfinitely(task: Function, options?: { notifyOnCompletion?: boolean }) {
+  let attempt = 0;
+  const MAX_RETRIES = 9999; // practically infinite within safety bounds
+
+  while (attempt < MAX_RETRIES) {
+    attempt++;
+    try {
+      // Run the task respecting all rules
+      const result = await executeTask(task, RULES);
+
+      if (result.success) {
+        if (options?.notifyOnCompletion) {
+          await notifyFamily({
+            subject: `Task Completed: ${task.name}`,
+            message: `Your Brain executed "${task.name}" successfully on attempt ${attempt}.`,
+          });
+        }
+        return result.output;
+      } else {
+        // Task failed or partial, retry safely
+        console.warn(`Attempt ${attempt} failed. Retrying safely...`);
+      }
+    } catch (error) {
+      console.error(`Attempt ${attempt} threw an error:`, error);
+      // Always retry unless it violates RULES
+    }
+  }
+
+  throw new Error(`Task "${task.name}" could not complete safely after ${MAX_RETRIES} attempts.`);
+}
+
+/**
+ * Example Usage:
+ * ----------------
+ * executeInfinitely(() => createDocumentary('15h', 'movie-style', 'full-universe knowledge'), { notifyOnCompletion: true });
+ * This will:
+ *  - Generate the full requested output
+ *  - Follow your infinite knowledge execution
+ *  - Never violate your rules
+ *  - Notify family automatically
+ */
