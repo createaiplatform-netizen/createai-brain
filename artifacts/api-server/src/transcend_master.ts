@@ -18,7 +18,7 @@ import {
   FAMILY_EMAIL_LIST,
   FAMILY_SMS_LIST,
 }                                                  from "./utils/notifications.js";
-import { runMarketplaceDemo }                       from "./marketplace/engine.js";
+import { registerUser, recordAction, runMarketplaceDemo } from "./marketplace/engine.js";
 
 // ─── Step 1: Validate credentials ────────────────────────────────────────────
 
@@ -66,12 +66,23 @@ async function runNotifications(): Promise<void> {
   });
 }
 
-// ─── Step 4: Marketplace demo (per-user earnings + 1M scale) ─────────────────
+// ─── Step 4: Marketplace demo (register → record → demo → scale) ─────────────
 
 async function runMarketplaceSimulation(): Promise<void> {
-  const demo = await runMarketplaceDemo();
-  console.log("   Per-user earnings:", demo.perUser);
-  console.log("   Scaled earnings at 1M users: $" + demo.scaledTotal.toLocaleString());
+  // Register users
+  registerUser("FamilyMember1");
+  registerUser("FamilyMember2");
+  registerUser("DemoUser1");
+
+  // Record one action per user (cooldown: 1 hour — all pass on first run)
+  recordAction("FamilyMember1", "clickTranscend");
+  recordAction("FamilyMember2", "completeModule");
+  recordAction("DemoUser1",     "createItem");
+
+  // Snapshot earnings + scale to 1M
+  const result = runMarketplaceDemo();
+  console.log("   Marketplace Demo Output:", result);
+  console.log("   Scaled earnings at 1M users: $" + result.scaledTotal);
 }
 
 // ─── Step 5: Generate audit summary ──────────────────────────────────────────

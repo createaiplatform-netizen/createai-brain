@@ -163,34 +163,101 @@ export class MarketplaceEngine {
   }
 }
 
-// ─── runMarketplaceDemo — named export matching spec ─────────────────────────
+// ─── State-based marketplace (registerUser / recordAction) ───────────────────
+// Matches the spec that uses string userIds and a global state object.
 
-export interface MarketplaceDemoResult {
-  perUser:     { name: string; earnings: number }[];
-  scaledTotal: number;   // scaled to 1 M users
-  totalItems:  number;
-  totalSold:   number;
-  platformTotal: number;
+export interface UserEarnings {
+  userId:     string;
+  earnings:   number;
+  lastAction: Date;
+}
+
+export interface MarketplaceState {
+  users:        Record<string, UserEarnings>;
+  totalUsers:   number;
+  totalActions: number;
+}
+
+export const marketplaceState: MarketplaceState = {
+  users:        {},
+  totalUsers:   0,
+  totalActions: 0,
+};
+
+const BASE_EARNING      = 0.75;
+const USER_SHARE_RATE   = 0.75;
+const ACTION_COOLDOWN   = 1000 * 60 * 60; // 1 hour in ms
+
+/** Register a new user into the global state (idempotent). */
+export function registerUser(userId: string): void {
+  if (!marketplaceState.users[userId]) {
+    marketplaceState.users[userId] = { userId, earnings: 0, lastAction: new Date(0) };
+    marketplaceState.totalUsers++;
+  }
 }
 
 /**
- * Run the full spec demoSession on a fresh engine and return
- * the shape the spec expects: { perUser, scaledTotal }.
+ * Record an action for a user. Applies 1-hour cooldown.
+ * Returns the userEarning for this action (0 if on cooldown).
  */
-export async function runMarketplaceDemo(): Promise<MarketplaceDemoResult> {
+export function recordAction(userId: string, _actionType: string): number {
+  const user = marketplaceState.users[userId];
+  if (!user) throw new Error(`User not registered: ${userId}`);
+
+  const now     = new Date();
+  const elapsed = now.getTime() - user.lastAction.getTime();
+  if (elapsed < ACTION_COOLDOWN) return 0;
+
+  const activeUsersFactor  = 1 + marketplaceState.totalUsers  * 0.02;
+  const totalActionsFactor = 1 + marketplaceState.totalActions * 0.01;
+  const scaledEarning      = BASE_EARNING * activeUsersFactor * totalActionsFactor;
+  const userEarning        = scaledEarning * USER_SHARE_RATE;
+
+  user.earnings            += userEarning;
+  user.lastAction           = now;
+  marketplaceState.totalActions++;
+
+  return userEarning;
+}
+
+// ─── runMarketplaceDemo — named export matching spec ─────────────────────────
+
+export interface MarketplaceDemoResult {
+  perUser:      { userId?: string; name?: string; earnings: string }[];
+  scaledTotal:  string;
+  totalItems?:  number;
+  totalSold?:   number;
+  platformTotal?: number;
+}
+
+/**
+ * Returns per-user earnings from the global marketplaceState (when populated via
+ * registerUser + recordAction) or falls back to a fresh demoSession engine.
+ */
+export function runMarketplaceDemo(): MarketplaceDemoResult {
+  const stateUsers = Object.values(marketplaceState.users);
+
+  if (stateUsers.length > 0) {
+    // Use the state populated by registerUser / recordAction
+    const perUser = stateUsers.map(u => ({
+      userId:   u.userId,
+      earnings: u.earnings.toFixed(2),
+    }));
+    const avg = perUser.reduce((sum, u) => sum + parseFloat(u.earnings), 0) / perUser.length || 0;
+    return { perUser, scaledTotal: (avg * 1_000_000).toFixed(2) };
+  }
+
+  // Fallback: run the full demoSession on a fresh engine
   const fresh = new MarketplaceEngine([
     { id: 1, name: "FamilyMember1", earnings: 0 },
     { id: 2, name: "FamilyMember2", earnings: 0 },
     { id: 3, name: "DemoUser1",     earnings: 0 },
   ]);
   const result = runDemoSession(fresh);
-
-  // Scale to 1 M users: avgEarnings × 1_000_000
-  const avg = result.finalEarnings.reduce((a, u) => a + u.earnings, 0) / result.finalEarnings.length;
-
+  const avg    = result.finalEarnings.reduce((a, u) => a + u.earnings, 0) / result.finalEarnings.length;
   return {
-    perUser:      result.finalEarnings,
-    scaledTotal:  parseFloat((avg * 1_000_000).toFixed(2)),
+    perUser:      result.finalEarnings.map(u => ({ name: u.name, earnings: u.earnings.toFixed(2) })),
+    scaledTotal:  (avg * 1_000_000).toFixed(2),
     totalItems:   result.totalItems,
     totalSold:    result.totalSold,
     platformTotal: result.platformTotal,
