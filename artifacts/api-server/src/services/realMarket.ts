@@ -14,6 +14,8 @@ import { randomUUID } from "crypto";
 
 // ─── Types ──────────────────────────────────────────────────────────────────
 
+import type { ProductAssets } from "./assetGenerator.js";
+
 export interface MarketProduct {
   id:          string;
   name:        string;
@@ -24,6 +26,28 @@ export interface MarketProduct {
   published:   boolean;
   createdAt:   Date;
   niche:       string;
+  assets?:     ProductAssets;      // enriched by zeroTouchSuperLaunch
+  stripeProductId?: string;        // Stripe Product ID (set after per-batch creation)
+  stripePriceId?:   string;        // Stripe Price ID (set after per-batch creation)
+}
+
+// ─── RealMarketFlow Options (spec: zeroTouchSuperLaunch) ─────────────────────
+export interface RealMarketFlowOptions {
+  autonomous?:             boolean;
+  maxScale?:               boolean;
+  trendOptimized?:         boolean;
+  marketReady?:            boolean;
+  liveTransactions?:       boolean;
+  distributeToAllMarkets?: boolean;
+  stripeAccountId?:        string;
+  autoOptimize?:           boolean;
+  fullAutonomy?:           boolean;
+  noLimits?:               boolean;
+  multiChannel?:           boolean;
+  autoCategoryExpansion?:  boolean;
+  continuousCycle?:        boolean;
+  smartLaunchAccelerator?: boolean;
+  zeroTouch?:              boolean;
 }
 
 interface EngineStats {
@@ -86,7 +110,7 @@ const MARKETPLACES = [
   { name: "WooCommerce",  api: "https://your-woocommerce-site.com/wp-json/wc/v3/products" },
 ];
 
-function publishToMarketplaces(product: MarketProduct): void {
+export function publishToMarketplaces(product: MarketProduct): void {
   for (const market of MARKETPLACES) {
     // Simulate push — real auth/endpoints would replace this log
     console.log(`[RealMarket] Publishing "${product.name}" → ${market.name}`);
@@ -200,3 +224,58 @@ export function getEngineStats(): EngineStats {
     running:       engineRunning,
   };
 }
+
+// ─── realMarketFlow (spec: zeroTouchSuperLaunch) ─────────────────────────────
+// High-level flow controller used by the zero-touch orchestrator.
+// `start()` logs the autonomous configuration and ensures the engine is running.
+// `generateNextBatch()` creates N products from the supplied category list.
+
+let _flowOptions: RealMarketFlowOptions = {};
+
+export const realMarketFlow = {
+  /**
+   * Configure and start the flow with autonomous options.
+   * Called once by zeroTouchSuperLaunch at boot.
+   */
+  start(options: RealMarketFlowOptions): void {
+    _flowOptions = options;
+    const flags = Object.entries(options)
+      .filter(([, v]) => v === true)
+      .map(([k]) => k)
+      .join(" · ");
+    console.log(`[RealMarketFlow] ✅ Started — ${flags}`);
+    if (options.maxScale) generationSpeed = Math.min(generationSpeed + 5, 50);
+    if (!engineRunning) startAdaptiveEngine();
+  },
+
+  /**
+   * Generate one product per trending category and return the batch.
+   * Called on each engine cycle-end by zeroTouchSuperLaunch.
+   */
+  async generateNextBatch({ categories }: { categories: string[] }): Promise<MarketProduct[]> {
+    const batch: MarketProduct[] = [];
+    for (const niche of categories) {
+      const price = Math.floor(Math.random() * 30) + 10;
+      const p: MarketProduct = {
+        id:          randomUUID(),
+        name:        `AI Solution: ${niche}`,
+        description: `Automated AI solution for ${niche}. Powered by CreateAI Brain.`,
+        price,
+        views:       0,
+        sales:       0,
+        published:   false,
+        createdAt:   new Date(),
+        niche,
+      };
+      products.push(p);
+      publishToMarketplaces(p);
+      p.published = true;
+      batch.push(p);
+    }
+    if (_flowOptions.autoOptimize && salesCount > 0) {
+      generationSpeed = Math.min(generationSpeed + 2, 50);
+    }
+    console.log(`[RealMarketFlow] ⚡ Batch of ${batch.length} products generated from trending categories`);
+    return batch;
+  },
+};

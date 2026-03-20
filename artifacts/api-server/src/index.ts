@@ -9,6 +9,7 @@ import { startAboveTranscendEngine }    from "./services/aboveTranscend/engine.j
 import { initFamilyAgents, ensureStripeCustomers } from "./services/familyAgents.js";
 import { initRealStripeIntegration }   from "./services/aboveTranscend/realStripeIntegration.js";
 import { startAdaptiveEngine }         from "./services/realMarket.js";
+import { zeroTouchSuperLaunch, resolveFamilyStripeId } from "./services/zeroTouchLaunch.js";
 
 // Wire all DI services before the server binds. All factories are lazy —
 // nothing is instantiated here, just registered.
@@ -53,6 +54,9 @@ app.listen(port, () => {
     startAboveTranscendEngine();
     initRealStripeIntegration();
     startAdaptiveEngine();
+    zeroTouchSuperLaunch(resolveFamilyStripeId()).catch(err =>
+      console.error("[ZeroTouchAI] Launch error:", (err as Error).message)
+    );
 
     if (process.env.BRAIN_AUTO_START === "true") {
       console.log("[AutoExecutor] BRAIN_AUTO_START=true — launching auto-execution sequence…");
