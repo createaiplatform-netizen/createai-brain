@@ -8,7 +8,8 @@
     "build": "tsx ./build.ts",
     "typecheck": "tsc -p tsconfig.json --noEmit",
     "audit:run": "tsx ./src/runFullAudit.ts",
-    "transcend": "tsx ./src/transcendAll.ts"
+    "transcend": "tsx ./src/transcendAll.ts",
+    "transcend:master": "tsx ./src/transcend_master.ts"
   },
   "dependencies": {
     "@workspace/api-zod": "workspace:*",

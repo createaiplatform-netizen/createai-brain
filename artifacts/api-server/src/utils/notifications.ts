@@ -315,37 +315,59 @@ function generateSecureLink(email: string): string {
 
 // ─── notifyFamily — startup blast (10 email + 8 SMS) ─────────────────────────
 
-export async function notifyFamily(): Promise<void> {
+export interface NotifyFamilyOptions {
+  /** Which channel(s) to send on. Default: "both" */
+  channel?: "email" | "sms" | "both";
+  /** Override subject for email channel. Default: "Your CreateAI Brain access is live ✨" */
+  subject?: string;
+  /** Override body/message. Defaults to the standard Brain launch message. */
+  message?: string;
+}
+
+/**
+ * Send notifications to the full authorized family list.
+ * Returns a flat array of per-recipient NotifyResult objects.
+ * Backward compatible — can be called with no arguments.
+ */
+export async function notifyFamily(options?: NotifyFamilyOptions): Promise<NotifyResult[]> {
   const brainUrl = getBrainUrl();
-  console.log(`[Brain:notify] Sending startup notifications to ${FAMILY_EMAIL_LIST.length} family members…`);
+  const channel  = options?.channel ?? "both";
+  const allResults: NotifyResult[] = [];
 
-  const emailAddresses = FAMILY_EMAIL_LIST.map(m => m.email);
-  const smsPhones      = FAMILY_SMS_LIST.map(m => m.phone);
+  const subject = options?.subject ?? "Your CreateAI Brain access is live ✨";
+  const body    = options?.message
+    ? `<p>${options.message}</p>`
+    : `
+        <p>Sara's CreateAI Brain is live and your personalized access is ready.</p>
+        <p style="margin:24px 0;">
+          <a href="${brainUrl}"
+             style="background:#6366f1;color:#fff;padding:12px 24px;border-radius:8px;
+                    text-decoration:none;font-weight:600;">
+            Open My Brain Dashboard →
+          </a>
+        </p>
+        <p style="font-size:13px;color:#888;">
+          Your personal link · ${brainUrl}
+        </p>
+      `;
 
-  const emailBatch = await sendEmailNotification(
-    emailAddresses,
-    "Your CreateAI Brain access is live ✨",
-    `
-      <p>Sara's CreateAI Brain is live and your personalized access is ready.</p>
-      <p style="margin:24px 0;">
-        <a href="${brainUrl}"
-           style="background:#6366f1;color:#fff;padding:12px 24px;border-radius:8px;
-                  text-decoration:none;font-weight:600;">
-          Open My Brain Dashboard →
-        </a>
-      </p>
-      <p style="font-size:13px;color:#888;">
-        This is your personal secure link · ${brainUrl}
-      </p>
-    `,
-  );
+  if (channel === "email" || channel === "both") {
+    console.log(`[Brain:notify] Sending email to ${FAMILY_EMAIL_LIST.length} family members…`);
+    const emailAddresses = FAMILY_EMAIL_LIST.map(m => m.email);
+    const emailBatch     = await sendEmailNotification(emailAddresses, subject, body);
+    allResults.push(...emailBatch.results);
+    console.log(`[Brain:notify] Email: ${emailBatch.successCount}/${emailBatch.total} · overachievement: ${emailBatch.overachievement_pct}%`);
+  }
 
-  const smsBatch = await sendSMSNotification(
-    smsPhones,
-    `Hi! Sara's Brain is live. Open your dashboard: ${brainUrl}`,
-  );
+  if (channel === "sms" || channel === "both") {
+    console.log(`[Brain:notify] Sending SMS to ${FAMILY_SMS_LIST.length} family members…`);
+    const smsPhones  = FAMILY_SMS_LIST.map(m => m.phone);
+    const smsBatch   = await sendSMSNotification(smsPhones, options?.message ?? `Hi! Sara's Brain is live. Open your dashboard: ${brainUrl}`);
+    allResults.push(...smsBatch.results);
+    console.log(`[Brain:notify] SMS: ${smsBatch.successCount}/${smsBatch.total} · overachievement: ${smsBatch.overachievement_pct}%`);
+  }
 
-  console.log(`[Brain:notify] Complete — Email: ${emailBatch.successCount}/${emailBatch.total} · SMS: ${smsBatch.successCount}/${smsBatch.total}`);
+  return allResults;
 }
 
 // ─── notifyFamilyEvent — event alert (email only) ────────────────────────────
@@ -365,6 +387,7 @@ export async function notifyFamilyEvent(options: FamilyEventOptions): Promise<vo
 
 export interface NotificationAuditSummary {
   generatedAt:    string;
+  report_saved:   string;
   credentials:    ReturnType<typeof credentialStatus>;
   familyList: {
     emailRecipients: { name: string; email: string }[];
@@ -400,6 +423,7 @@ export function generateAuditSummary(): NotificationAuditSummary {
 
   return {
     generatedAt:  new Date().toISOString(),
+    report_saved: "artifacts/api-server/transcend_report.json",
     credentials:  creds,
     familyList: {
       emailRecipients: FAMILY_EMAIL_LIST,
@@ -415,8 +439,9 @@ export function generateAuditSummary(): NotificationAuditSummary {
       { path: "GET  /api/brain/audit-run",      method: "GET",  description: "Full system audit: workflows + modules + security scan", wired: true },
     ],
     scripts: [
-      { command: "pnpm --filter @workspace/api-server transcend",  description: "Full transcend — all modules + notifications + audit + report" },
-      { command: "pnpm --filter @workspace/api-server audit:run",  description: "System-wide audit — workflows, modules, security, credentials" },
+      { command: "pnpm --filter @workspace/api-server transcend",        description: "Full transcend — all modules + notifications + audit + report" },
+      { command: "pnpm --filter @workspace/api-server transcend:master", description: "Transcend Master — 5-step orchestration with impact simulation + per-channel notifications" },
+      { command: "pnpm --filter @workspace/api-server audit:run",        description: "System-wide audit — workflows, modules, security, credentials" },
     ],
     placeholders,
     industryBaseline: INDUSTRY_BASELINE,

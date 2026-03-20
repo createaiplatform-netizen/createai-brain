@@ -187,13 +187,51 @@ function parseAuditOutput(stdout: string, fallbackError?: string): Record<string
 
 // ─── Main executor (exported + CLI) ──────────────────────────────────────────
 
-export async function transcendAll(): Promise<Record<string, unknown>> {
+export interface TranscendOptions {
+  /** When false, skip email + SMS notifications (run modules and audit only). Default: true */
+  sendNotifications?: boolean;
+}
+
+export interface ModuleSummary {
+  name:               string;
+  source:             string;
+  score:              number;
+  overachievement_pct: number;
+  live:               boolean;
+  task:               string;
+}
+
+export async function transcendAll(options: TranscendOptions = {}): Promise<Record<string, unknown>> {
+  const { sendNotifications = true } = options;
   const startedAt = new Date().toISOString();
   console.log(`\n💠 Starting Beyond Infinity / No Limits Mode transcend… (${startedAt})`);
+  if (!sendNotifications) console.log("   [notifications disabled via options]");
 
   const moduleResults  = await runModules();
-  const emailResult    = await notifyByEmail(moduleResults);
-  const smsResult      = await notifyBySMS(moduleResults);
+
+  // Build structured modules summary for external consumers (transcend_master etc.)
+  const industryBase    = 65;
+  const modulesSummary: ModuleSummary[] = MODULES.map((m, i) => {
+    const r = moduleResults[i] ?? {};
+    const score = (r["score"] as number) ?? 0;
+    return {
+      name:               m.name,
+      source:             (r["dataSource"] as string) ?? (r["apiProvider"] as string) ?? "unknown",
+      score,
+      overachievement_pct: parseFloat(((score / industryBase) * 100).toFixed(1)),
+      live:               (r["live"] as boolean) ?? false,
+      task:               m.task,
+    };
+  });
+
+  let emailResult: Record<string, unknown> = { status: "skipped", reason: "sendNotifications=false" };
+  let smsResult:   Record<string, unknown> = { status: "skipped", reason: "sendNotifications=false" };
+
+  if (sendNotifications) {
+    emailResult = await notifyByEmail(moduleResults);
+    smsResult   = await notifyBySMS(moduleResults);
+  }
+
   const auditResult    = runSecurityAudit();
   const auditSummary   = generateAuditSummary();
 
@@ -214,7 +252,8 @@ export async function transcendAll(): Promise<Record<string, unknown>> {
     total:       MODULES.length,
     moduleOverachievement_pct: moduleOverachievement,
 
-    moduleResults,
+    modules:      modulesSummary,   // structured summary for transcend_master + dashboards
+    moduleResults,                  // raw full API response data
 
     notifications: {
       email: {
@@ -249,10 +288,17 @@ export async function transcendAll(): Promise<Record<string, unknown>> {
   // Save report
   const reportPath = join(__dirname, "..", "transcend_report.json");
   writeFileSync(reportPath, JSON.stringify(report, null, 2));
+  const emailSummary = sendNotifications
+    ? `${emailResult["successCount"] ?? 0}/${emailResult["total"] ?? 0} · overachievement: ${emailResult["overachievement_pct"] ?? 0}%`
+    : "skipped (sendNotifications=false)";
+  const smsSummary = sendNotifications
+    ? `${smsResult["successCount"] ?? 0}/${smsResult["total"] ?? 0} · overachievement: ${smsResult["overachievement_pct"] ?? 0}%`
+    : "skipped (sendNotifications=false)";
+
   console.log(`\n💎 Full transcend report saved → ${reportPath}`);
   console.log(`   ${allPass ? "✅" : "⚠️"} ${passed}/${MODULES.length} modules LIVE · overachievement: ${moduleOverachievement}%`);
-  console.log(`   📧 Email: ${emailResult.successCount}/${emailResult.total} · overachievement: ${emailResult.overachievement_pct}%`);
-  console.log(`   📱 SMS:   ${smsResult.successCount}/${smsResult.total} · overachievement: ${smsResult.overachievement_pct}%`);
+  console.log(`   📧 Email: ${emailSummary}`);
+  console.log(`   📱 SMS:   ${smsSummary}`);
   console.log(`   🔒 Vulns: ${(auditResult["total"] as number) ?? "?"} (crit: ${(auditResult["critical"] as number) ?? "?"})`);
 
   return report;

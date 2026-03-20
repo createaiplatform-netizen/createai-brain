@@ -1,0 +1,74 @@
+// transcend_master.ts
+import { transcendAll } from './transcendAll';
+import { generateAuditSummary, credentialStatus, notifyFamily, FAMILY_EMAIL_LIST, FAMILY_SMS_LIST } from './utils/notifications';
+
+// Monetary / impact simulation
+const IMPACT_CONFIG = {
+  baseDailyUSD: 25,        // starting daily “earnings” per person
+  perClickIncrement: 1.5,  // increase per click
+  dailyLimit: 1,            // limit clicks per person per day
+  maxUsers: 1000000         // cap for simulation scaling
+};
+
+// Track user interactions (in-memory for now)
+const userStats: Record<string, { clicksToday: number }> = {};
+
+function calculateImpact(userId: string) {
+  if (!userStats[userId]) userStats[userId] = { clicksToday: 0 };
+  const user = userStats[userId];
+  if (user.clicksToday >= IMPACT_CONFIG.dailyLimit) return 0;
+  user.clicksToday += 1;
+  const impact = IMPACT_CONFIG.baseDailyUSD + (IMPACT_CONFIG.perClickIncrement * user.clicksToday);
+  return Math.min(impact, IMPACT_CONFIG.baseDailyUSD * 2); // cap per user
+}
+
+async function main() {
+  console.log('🚀 Starting FULL Transcend Master run...');
+
+  // Step 1: Validate credentials
+  const creds = credentialStatus();
+  const missing = Object.entries(creds).filter(([key, value]) => !value || value.includes('REPLACE'));
+  if (missing.length) {
+    console.error('❌ Missing or invalid credentials:', missing.map(([k]) => k).join(', '));
+    console.error('Please update Replit Secrets with real keys before running.');
+    return;
+  }
+
+  // Step 2: Run all modules
+  console.log('⚡ Running all 9 modules...');
+  const result = await transcendAll({ sendNotifications: false });
+  console.log('✅ Modules executed:');
+  console.table(result.modules.map(m => ({
+    Module: m.name,
+    Source: m.source,
+    Score: m.score,
+    Overachievement: `${m.overachievement_pct}%`
+  })));
+
+  // Step 3: Send notifications
+  console.log(`📧 Sending email to ${FAMILY_EMAIL_LIST.length} members...`);
+  const emailResults = await notifyFamily({ channel: 'email' });
+  console.table(emailResults.map(r => ({ To: r.to, Success: r.success, Reason: r.reason || 'OK', Provider: r.provider })));
+
+  console.log(`📱 Sending SMS to ${FAMILY_SMS_LIST.length} members...`);
+  const smsResults = await notifyFamily({ channel: 'sms' });
+  console.table(smsResults.map(r => ({ To: r.to, Success: r.success, Reason: r.reason || 'OK', Provider: r.provider })));
+
+  // Step 4: Calculate per-user impact (simulate “earnings”)
+  const simulatedUsers = ['user1', 'user2']; // demo — replace with real user IDs
+  const earnings: Record<string, number> = {};
+  simulatedUsers.forEach(uid => {
+    earnings[uid] = calculateImpact(uid);
+  });
+  console.log('💰 Simulated daily impact per user:');
+  console.table(earnings);
+
+  // Step 5: Generate full audit summary
+  const audit = generateAuditSummary();
+  console.log('📊 Full Audit Summary:');
+  console.log(JSON.stringify(audit, null, 2));
+
+  console.log(`💾 Saving full report to: ${audit.report_saved}`);
+}
+
+main().catch(err => console.error('❌ Transcend Master run failed:', err));
