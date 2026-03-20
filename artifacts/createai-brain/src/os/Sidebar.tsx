@@ -213,6 +213,35 @@ export function Sidebar({ onNav, forceCollapsed, forceExpanded }: SidebarProps) 
         {/* Divider */}
         <div style={{ height: 1, margin: "0 12px", background: BORDER_COL }} />
 
+        {/* Above-Transcend Engine */}
+        <div style={{ padding: "6px 8px 0" }}>
+          <button
+            onClick={() => handleNav(() => setLocation("/above-transcend"))}
+            title={collapsed ? "▲ Above-Transcend Engine" : undefined}
+            style={{
+              width: "100%", display: "flex", alignItems: "center",
+              gap: collapsed ? 0 : 7, height: 30, borderRadius: 8,
+              padding: collapsed ? "0" : "0 8px",
+              justifyContent: collapsed ? "center" : "flex-start",
+              background: location === "/above-transcend" ? "rgba(99,102,241,0.12)" : "rgba(99,102,241,0.06)",
+              border: "1px solid rgba(99,102,241,0.18)",
+              cursor: "pointer", transition: "background 0.12s, border-color 0.12s",
+            }}
+            onMouseEnter={e => { (e.currentTarget as HTMLElement).style.background = "rgba(99,102,241,0.14)"; }}
+            onMouseLeave={e => {
+              (e.currentTarget as HTMLElement).style.background =
+                location === "/above-transcend" ? "rgba(99,102,241,0.12)" : "rgba(99,102,241,0.06)";
+            }}
+          >
+            <span style={{ fontSize: 13, flexShrink: 0 }}>▲</span>
+            {!collapsed && (
+              <span style={{ fontSize: 10.5, fontWeight: 700, color: "#6366f1", flex: 1, textAlign: "left" }}>
+                AboveTranscend
+              </span>
+            )}
+          </button>
+        </div>
+
         {/* Engine run count */}
         {totalRuns > 0 && (
           <div style={{ padding: "6px 8px 0" }}>

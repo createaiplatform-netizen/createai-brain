@@ -18,6 +18,7 @@ import SmartFhirCallbackApp from "@/Apps/SmartFhirCallbackApp";
 import SmartFhirConnectedApp from "@/Apps/SmartFhirConnectedApp";
 
 import MetricsPage from "@/pages/MetricsPage";
+import AboveTranscendPage from "@/pages/AboveTranscendPage";
 import { OSProvider } from "@/os/OSContext";
 import { OSLayout } from "@/os/osLayout";
 import { GlobalCommandPalette } from "@/components/GlobalCommandPalette";
@@ -79,6 +80,7 @@ function Router() {
       <Route path="/integration-demo" component={IntegrationDemoPage} />
       <Route path="/" component={OSLayout} />
       <Route path="/metrics" component={MetricsPage} />
+      <Route path="/above-transcend" component={AboveTranscendPage} />
       <Route path="/project/:projectId" component={ProjectPage} />
       <Route path="/standalone/creation/:creationId" component={CreationPage} />
       <Route path="/standalone/:projectId" component={StandalonePage} />
