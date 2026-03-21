@@ -595,10 +595,48 @@ export default function CommandCenterPage() {
       {/* ── Hero header ── */}
       <div style={{
         background:     "linear-gradient(135deg, #0f172a 0%, #1e1b4b 60%, #312e81 100%)",
-        padding:        "32px 24px 28px",
+        padding:        "20px 24px 28px",
         position:       "sticky", top: 0, zIndex: 10,
       }}>
         <div style={{ maxWidth: 960, margin: "0 auto" }}>
+          {/* Nav row */}
+          <div style={{ display: "flex", alignItems: "center", gap: 8, marginBottom: 16 }}>
+            <a
+              href="../transcend-dashboard"
+              onClick={e => { e.preventDefault(); window.location.href = window.location.pathname.replace(/\/command-center.*$/, "/transcend-dashboard"); }}
+              style={{
+                display: "inline-flex", alignItems: "center", gap: 6,
+                fontSize: 12, fontWeight: 600, color: "rgba(255,255,255,0.65)",
+                textDecoration: "none", background: "rgba(255,255,255,0.08)",
+                border: "1px solid rgba(255,255,255,0.12)", borderRadius: 8,
+                padding: "5px 12px", cursor: "pointer",
+                transition: "background 0.15s",
+              }}
+              onMouseEnter={e => { (e.currentTarget as HTMLElement).style.background = "rgba(255,255,255,0.14)"; }}
+              onMouseLeave={e => { (e.currentTarget as HTMLElement).style.background = "rgba(255,255,255,0.08)"; }}
+            >
+              ← Transcend Dashboard
+            </a>
+            <span style={{ fontSize: 11, color: "rgba(255,255,255,0.25)" }}>·</span>
+            <span style={{ fontSize: 11, color: "rgba(255,255,255,0.35)", fontWeight: 600 }}>Command Center</span>
+            <span style={{ fontSize: 11, color: "rgba(255,255,255,0.25)" }}>·</span>
+            <a
+              href="#platform-status"
+              onClick={e => {
+                e.preventDefault();
+                window.location.href = window.location.pathname.replace(/\/command-center.*$/, "/platform-status");
+              }}
+              style={{
+                display: "inline-flex", alignItems: "center", gap: 6,
+                fontSize: 12, fontWeight: 600, color: "rgba(255,255,255,0.65)",
+                textDecoration: "none", background: "rgba(255,255,255,0.08)",
+                border: "1px solid rgba(255,255,255,0.12)", borderRadius: 8,
+                padding: "5px 12px",
+              }}
+            >
+              Platform Status
+            </a>
+          </div>
           <div style={{ display: "flex", alignItems: "center", gap: 12, marginBottom: 6 }}>
             <span style={{ fontSize: 28 }}>🎯</span>
             <div>

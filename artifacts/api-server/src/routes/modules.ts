@@ -22,8 +22,10 @@ import { BeyondInfinityConfig } from "../config/BeyondInfinity.js";
 const router = Router();
 
 // ─── Timeout-safe fetch ───────────────────────────────────────────────────────
+// Use a distinct alias so TypeScript doesn't confuse Fetch's Response with Express's Response.
+type FetchRes = Awaited<ReturnType<typeof fetch>>;
 
-async function safeFetch(url: string, opts?: RequestInit, timeoutMs = 6000): Promise<Response> {
+async function safeFetch(url: string, opts?: RequestInit, timeoutMs = 6000): Promise<FetchRes> {
   const controller = new AbortController();
   const timer      = setTimeout(() => controller.abort(), timeoutMs);
   try {
@@ -330,7 +332,7 @@ const MODULE_RUNNERS: Record<string, ModuleRunner> = {
 // ─── Route handler ────────────────────────────────────────────────────────────
 
 router.post("/:module", async (req: Request, res: Response) => {
-  const module = req.params.module.toLowerCase();
+  const module = String(req.params["module"] ?? "").toLowerCase();
   const { task } = req.body as { task?: string };
 
   const validTasks = MODULE_TASKS[module];

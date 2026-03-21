@@ -74,7 +74,7 @@ export function startUltraTranscendPersonalEngine(): void {
             );
 
             await publishToMarketplaces(
-              personalizedContent.slice(0, 55) as Parameters<typeof publishToMarketplaces>[0]
+              personalizedContent.slice(0, 55) as unknown as Parameters<typeof publishToMarketplaces>[0]
             );
             await hyperTargetAds(user, personalizedContent);
 

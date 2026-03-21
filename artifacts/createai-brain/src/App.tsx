@@ -23,6 +23,7 @@ import CreateAIDigitalPage from "@/pages/CreateAIDigitalPage";
 import RealMarketPage          from "@/pages/RealMarketPage";
 import UltimateTranscendDashboard from "@/pages/UltimateTranscendDashboard";
 import CommandCenterPage           from "@/pages/CommandCenterPage";
+import PlatformStatusPage          from "@/pages/PlatformStatusPage";
 import { OSProvider } from "@/os/OSContext";
 import { OSLayout } from "@/os/osLayout";
 import { GlobalCommandPalette } from "@/components/GlobalCommandPalette";
@@ -456,6 +457,7 @@ function App() {
     path.startsWith(`${base}/real-market`) ||
     path.startsWith(`${base}/transcend-dashboard`) ||
     path.startsWith(`${base}/command-center`) ||
+    path.startsWith(`${base}/platform-status`) ||
     // SMART-on-FHIR OAuth callback/connected pages must be accessible without auth gate
     // because the browser redirects here from the external SMART sandbox
     path.startsWith(`${base}/connectors/`);
@@ -473,6 +475,7 @@ function App() {
           <Route path="/real-market"           component={RealMarketPage} />
           <Route path="/transcend-dashboard"  component={UltimateTranscendDashboard} />
           <Route path="/command-center"       component={CommandCenterPage} />
+          <Route path="/platform-status"     component={PlatformStatusPage} />
           {/* SMART-on-FHIR OAuth callback — receives authorization code from sandbox */}
           <Route path="/connectors/SMART_FHIR_SANDBOX/callback"  component={SmartFhirCallbackApp} />
           {/* SMART-on-FHIR connected confirmation + test fetch UI */}

@@ -151,6 +151,24 @@ function _initRegistry(): void {
 // Initialize on module load — happens once, before any request
 _initRegistry();
 
+// ─── Not-Configured Rate Limiter ──────────────────────────────────────────────
+// Prevents log flooding when high-frequency callers (e.g. realMarket cycles) hit
+// connectors that are intentionally NOT_CONFIGURED (e.g. marketplace OAuth).
+// Once a NOT_CONFIGURED result is seen, all logs for that action type are suppressed
+// for 5 minutes. After 5 min the next occurrence is logged again as a reminder.
+
+const NOT_CONFIGURED_SILENCE_MS = 5 * 60 * 1000; // 5 minutes
+const _ncSuppressedUntil = new Map<string, number>(); // actionType → suppressUntil ms
+
+function _isNcSuppressed(actionType: string): boolean {
+  const until = _ncSuppressedUntil.get(actionType) ?? 0;
+  return Date.now() < until;
+}
+
+function _suppressNc(actionType: string): void {
+  _ncSuppressedUntil.set(actionType, Date.now() + NOT_CONFIGURED_SILENCE_MS);
+}
+
 // ─── History ──────────────────────────────────────────────────────────────────
 
 const MAX_HISTORY = 100;
@@ -181,9 +199,14 @@ async function route(req: BridgeRequest): Promise<BridgeResponse> {
     };
   }
 
-  console.log(
-    `[UniversalBridge] → ${req.type} · source:${req.metadata?.source ?? "unknown"} · requestId:${requestId}`
-  );
+  // Skip verbose logging when this action type is in the NOT_CONFIGURED suppression window
+  const suppressed = _isNcSuppressed(req.type);
+
+  if (!suppressed) {
+    console.log(
+      `[UniversalBridge] → ${req.type} · source:${req.metadata?.source ?? "unknown"} · requestId:${requestId}`
+    );
+  }
 
   let response: BridgeResponse;
 
@@ -205,10 +228,23 @@ async function route(req: BridgeRequest): Promise<BridgeResponse> {
 
   response.requestId = response.requestId || requestId;
 
-  console.log(
-    `[UniversalBridge] ← ${response.status} · ${req.type} · ` +
-    `${response.error ? `error:${response.error.slice(0, 80)}` : "ok"}`
-  );
+  if (response.status === "NOT_CONFIGURED") {
+    if (!suppressed) {
+      // First occurrence in this window — log and start suppression
+      console.warn(
+        `[UniversalBridge] ← NOT_CONFIGURED · ${req.type} · ` +
+        `error:${(response.error ?? "").slice(0, 80)} ` +
+        `(suppressing repeat logs for 5 min)`
+      );
+      _suppressNc(req.type);
+    }
+    // Else: silently swallow — product recorded locally, credentials needed for external publish
+  } else {
+    console.log(
+      `[UniversalBridge] ← ${response.status} · ${req.type} · ` +
+      `${response.error ? `error:${response.error.slice(0, 80)}` : "ok"}`
+    );
+  }
 
   _addToHistory({ ...response, request: req });
   return response;

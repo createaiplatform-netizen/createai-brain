@@ -52,7 +52,7 @@ export async function sendEmail(req: BridgeRequest): Promise<BridgeResponse> {
 
     console.log(
       `[Bridge:Email] ✅ Email sent — to:${recipients.join(",")} · ` +
-      `success:${result.successCount} failure:${result.failureCount}`
+      `success:${result.successCount} failure:${result.failCount}`
     );
 
     return {
@@ -62,7 +62,7 @@ export async function sendEmail(req: BridgeRequest): Promise<BridgeResponse> {
       status:       result.successCount > 0 ? "SUCCESS" : "FAILURE",
       data: {
         successCount: result.successCount,
-        failureCount: result.failureCount,
+        failureCount: result.failCount,
         recipients,
         subject:      subject ?? "CreateAI Brain Notification",
       },

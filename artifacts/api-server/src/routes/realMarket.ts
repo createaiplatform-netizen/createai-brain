@@ -31,7 +31,7 @@ router.get("/stats", (_req: Request, res: Response) => {
 
 // ─── GET /product/:id ────────────────────────────────────────────────────────
 router.get("/product/:id", (req: Request, res: Response) => {
-  const product = getProduct(req.params["id"] ?? "");
+  const product = getProduct(String(req.params["id"] ?? ""));
   if (!product) { res.status(404).json({ error: "Product not found" }); return; }
   recordView(product.id);
   res.json(product);
@@ -42,7 +42,7 @@ router.get("/product/:id", (req: Request, res: Response) => {
 // On success, Stripe redirects to /createai-digital?checkout=success.
 // On cancel, redirects to /createai-digital?checkout=cancel.
 router.post("/checkout/:id", async (req: Request, res: Response) => {
-  const product = getProduct(req.params["id"] ?? "");
+  const product = getProduct(String(req.params["id"] ?? ""));
   if (!product) { res.status(404).json({ ok: false, error: "Product not found" }); return; }
 
   try {
@@ -92,7 +92,7 @@ router.post("/checkout/:id", async (req: Request, res: Response) => {
 // ─── POST /sale/:id ──────────────────────────────────────────────────────────
 // Called by a Stripe webhook or from the success redirect to record a sale.
 router.post("/sale/:id", (req: Request, res: Response) => {
-  const product = getProduct(req.params["id"] ?? "");
+  const product = getProduct(String(req.params["id"] ?? ""));
   if (!product) { res.status(404).json({ error: "Product not found" }); return; }
   recordSale(product.id);
   res.json({ ok: true, sales: product.sales });

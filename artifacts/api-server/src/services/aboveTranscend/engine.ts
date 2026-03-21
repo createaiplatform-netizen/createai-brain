@@ -197,7 +197,7 @@ export interface EngineUnit {
   name:        string;
   description: string;
   category:    "phase" | "layer" | "universe" | "sub";
-  source:      "seed" | "auto-discovered" | "infinite-universe-scanner";
+  source:      "seed" | "auto-discovered" | "infinite-universe-scanner" | "batch-cycle-probe";
   endpoint?:   string;
   lastResult?: { success: boolean; impact: number; outcome: string; probeMs: number };
   subUnits?:   EngineUnit[];
@@ -206,7 +206,7 @@ export interface EngineUnit {
 export interface DiscoveredModule {
   name:        string;
   status:      "live" | "degraded" | "pending" | "future";
-  source:      "seed" | "auto-discovered" | "infinite-universe-scanner";
+  source:      "seed" | "auto-discovered" | "infinite-universe-scanner" | "batch-cycle-probe";
   endpoint?:   string;
   description: string;
   lastChecked?: string;

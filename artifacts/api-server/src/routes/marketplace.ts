@@ -61,21 +61,22 @@ router.get("/modules", (_req: Request, res: Response) => {
 // ── POST /click ───────────────────────────────────────────────────────────────
 router.post("/click", (req: Request, res: Response) => {
   const { userId } = req.body as { userId?: number };
-  if (!userId) return res.status(400).json({ ok: false, error: "userId required" });
+  if (!userId) { res.status(400).json({ ok: false, error: "userId required" }); return; }
   const event = engine.clickTranscend(Number(userId));
-  if (!event) return res.status(404).json({ ok: false, error: "User not found" });
+  if (!event) { res.status(404).json({ ok: false, error: "User not found" }); return; }
   res.json({ ok: true, event, snapshot: engine.snapshot() });
 });
 
 // ── POST /complete-module ─────────────────────────────────────────────────────
 router.post("/complete-module", (req: Request, res: Response) => {
   const { userId, moduleName } = req.body as { userId?: number; moduleName?: string };
-  if (!userId || !moduleName) return res.status(400).json({ ok: false, error: "userId and moduleName required" });
+  if (!userId || !moduleName) { res.status(400).json({ ok: false, error: "userId and moduleName required" }); return; }
   if (!MODULE_SCORES[moduleName]) {
-    return res.status(400).json({ ok: false, error: `Unknown module "${moduleName}"`, validModules: Object.keys(MODULE_SCORES) });
+    res.status(400).json({ ok: false, error: `Unknown module "${moduleName}"`, validModules: Object.keys(MODULE_SCORES) });
+    return;
   }
   const event = engine.completeModule(Number(userId), moduleName);
-  if (!event) return res.status(404).json({ ok: false, error: "User not found" });
+  if (!event) { res.status(404).json({ ok: false, error: "User not found" }); return; }
   res.json({ ok: true, event, snapshot: engine.snapshot() });
 });
 
@@ -83,26 +84,27 @@ router.post("/complete-module", (req: Request, res: Response) => {
 router.post("/items", (req: Request, res: Response) => {
   const { userId, title, price } = req.body as { userId?: number; title?: string; price?: number };
   if (!userId || !title || price === undefined) {
-    return res.status(400).json({ ok: false, error: "userId, title, and price required" });
+    res.status(400).json({ ok: false, error: "userId, title, and price required" });
+    return;
   }
   const item = engine.createItem(Number(userId), title, Number(price));
-  if (!item) return res.status(404).json({ ok: false, error: "User not found" });
+  if (!item) { res.status(404).json({ ok: false, error: "User not found" }); return; }
   res.json({ ok: true, item, snapshot: engine.snapshot() });
 });
 
 // ── POST /buy ─────────────────────────────────────────────────────────────────
 router.post("/buy", (req: Request, res: Response) => {
   const { buyerId, itemId } = req.body as { buyerId?: number; itemId?: number };
-  if (!buyerId || !itemId) return res.status(400).json({ ok: false, error: "buyerId and itemId required" });
+  if (!buyerId || !itemId) { res.status(400).json({ ok: false, error: "buyerId and itemId required" }); return; }
   const event = engine.buyItem(Number(buyerId), Number(itemId));
-  if (!event) return res.status(404).json({ ok: false, error: "Item not found" });
+  if (!event) { res.status(404).json({ ok: false, error: "Item not found" }); return; }
   res.json({ ok: true, event, snapshot: engine.snapshot() });
 });
 
 // ── POST /add-user ────────────────────────────────────────────────────────────
 router.post("/add-user", (req: Request, res: Response) => {
   const { id, name } = req.body as { id?: number; name?: string };
-  if (!id || !name) return res.status(400).json({ ok: false, error: "id and name required" });
+  if (!id || !name) { res.status(400).json({ ok: false, error: "id and name required" }); return; }
   engine.addUser({ id: Number(id), name, earnings: 0 });
   res.json({ ok: true, users: engine.snapshot().users });
 });

@@ -38,7 +38,7 @@ router.get("/active", (_req: Request, res: Response) => {
 });
 
 router.get("/layer/:layer", (req: Request, res: Response) => {
-  const layer = (req.params["layer"] ?? "").toUpperCase() as ModeLayer;
+  const layer = String(req.params["layer"] ?? "").toUpperCase() as ModeLayer;
   if (!VALID_LAYERS.includes(layer)) {
     res.status(400).json({ ok: false, error: `Unknown layer. Valid: ${VALID_LAYERS.join(", ")}` });
     return;

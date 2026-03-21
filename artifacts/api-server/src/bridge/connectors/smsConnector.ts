@@ -40,7 +40,7 @@ export async function sendSMS(req: BridgeRequest): Promise<BridgeResponse> {
 
     console.log(
       `[Bridge:SMS] ✅ SMS sent — to:${recipients.join(",")} · ` +
-      `success:${result.successCount} failure:${result.failureCount}`
+      `success:${result.successCount} failure:${result.failCount}`
     );
 
     return {
@@ -50,7 +50,7 @@ export async function sendSMS(req: BridgeRequest): Promise<BridgeResponse> {
       status:       result.successCount > 0 ? "SUCCESS" : "FAILURE",
       data: {
         successCount: result.successCount,
-        failureCount: result.failureCount,
+        failureCount: result.failCount,
         recipients,
       },
       error:        result.successCount === 0 ? "All SMS sends failed" : undefined,

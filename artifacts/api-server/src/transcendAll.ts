@@ -228,8 +228,8 @@ export async function transcendAll(options: TranscendOptions = {}): Promise<Reco
   let smsResult:   Record<string, unknown> = { status: "skipped", reason: "sendNotifications=false" };
 
   if (sendNotifications) {
-    emailResult = await notifyByEmail(moduleResults);
-    smsResult   = await notifyBySMS(moduleResults);
+    emailResult = await notifyByEmail(moduleResults) as unknown as Record<string, unknown>;
+    smsResult   = await notifyBySMS(moduleResults) as unknown as Record<string, unknown>;
   }
 
   const auditResult    = runSecurityAudit();

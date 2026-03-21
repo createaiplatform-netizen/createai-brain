@@ -73,11 +73,19 @@ interface EngineStats {
 
 // ─── State ──────────────────────────────────────────────────────────────────
 
+// Caps in-memory product store. When marketplace credentials are added, the engine
+// will begin publishing externally and this cap can be raised or removed.
+const MAX_LOCAL_PRODUCTS = 500;
+
 const products: MarketProduct[] = [];
 let salesCount       = 0;
 let generationSpeed  = 1;
 let cycleCount       = 0;
 let engineRunning    = false;
+
+// Track consecutive marketplace NOT_CONFIGURED cycles to pause creation gracefully
+let _ncCycles = 0;        // cycles with no external publish
+let _paused   = false;    // true when at cap with no external channel
 
 // ─── Trend Sources + Niches ─────────────────────────────────────────────────
 // ROADMAP: Connect a live trend data source (Google Trends API, Reddit API,
@@ -193,10 +201,29 @@ function getTopProduct(): MarketProduct | null {
 
 async function runAdaptiveCycle(): Promise<void> {
   cycleCount++;
-  console.log(`[RealMarket] 🔄 Adaptive cycle #${cycleCount} running… speed:${generationSpeed}`);
 
-  // Generate `generationSpeed` products this cycle
-  const count = Math.ceil(generationSpeed);
+  // If at the product cap with no external channel active, pause creation silently
+  if (products.length >= MAX_LOCAL_PRODUCTS) {
+    _ncCycles++;
+    if (!_paused) {
+      _paused = true;
+      console.log(
+        `[RealMarket] ⏸ Paused product creation — local cap (${MAX_LOCAL_PRODUCTS}) reached with no external marketplace configured. ` +
+        `Add SHOPIFY_ACCESS_TOKEN, ETSY_API_KEY, or other marketplace credentials to resume.`
+      );
+    }
+    return; // skip this cycle — no point generating more un-publishable products
+  }
+
+  _paused = false;
+
+  // Only log cycle header every 10 cycles to reduce noise
+  if (cycleCount % 10 === 1) {
+    console.log(`[RealMarket] 🔄 Adaptive cycle #${cycleCount} running… speed:${generationSpeed} · products:${products.length}`);
+  }
+
+  // Generate `generationSpeed` products this cycle (capped to not exceed MAX_LOCAL_PRODUCTS)
+  const count = Math.min(Math.ceil(generationSpeed), MAX_LOCAL_PRODUCTS - products.length);
   for (let i = 0; i < count; i++) {
     await createProductFromTrend();
   }
@@ -208,9 +235,12 @@ async function runAdaptiveCycle(): Promise<void> {
     generationSpeed = Math.max(1, generationSpeed - 0.5);
   }
 
-  const top = getTopProduct();
-  if (top) console.log(`[RealMarket] 🔥 Top product: ${top.name} (conv:${((top.sales / (top.views || 1)) * 100).toFixed(1)}%)`);
-  console.log(`[RealMarket] ⚡ Speed:${generationSpeed} · 💰 Sales:${salesCount} · 📦 Products:${products.length}`);
+  // Only log status every 10 cycles or when there are sales
+  if (cycleCount % 10 === 0 || salesCount > 0) {
+    const top = getTopProduct();
+    if (top) console.log(`[RealMarket] 🔥 Top: ${top.name} (conv:${((top.sales / (top.views || 1)) * 100).toFixed(1)}%)`);
+    console.log(`[RealMarket] ⚡ Speed:${generationSpeed} · 💰 Sales:${salesCount} · 📦 Products:${products.length}`);
+  }
 }
 
 // Config shape matching the launchFullFamilyMarket spec (all fields optional —

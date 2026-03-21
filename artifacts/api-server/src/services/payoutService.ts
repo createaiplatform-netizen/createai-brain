@@ -181,7 +181,7 @@ export async function pushRevenueToBankImmediately(amount: number): Promise<void
     const saraInfo    = getSaraStripeInfo();
     _stats.bankLinked = saraInfo.bankAccountLinked;
 
-    const bankAccountId = process.env["SARA_BANK_ACCOUNT_ID"] ?? saraInfo.bankAccountId ?? "";
+    const bankAccountId = process.env["SARA_BANK_ACCOUNT_ID"] ?? "";
     if (!bankAccountId) {
       throw new Error("Bank account not configured — set SARA_BANK_ACCOUNT_ID env var");
     }

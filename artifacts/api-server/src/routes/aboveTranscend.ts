@@ -219,7 +219,7 @@ router.post("/run", async (req: Request, res: Response) => {
 router.post("/ai-chat/:memberId", (req: Request, res: Response) => {
   if (!req.user) { res.status(401).json({ error: "Unauthorized" }); return; }
 
-  const { memberId } = req.params;
+  const memberId = String(req.params["memberId"] ?? "");
   const { message }  = req.body as { message?: string };
 
   const member = getMemberById(memberId);

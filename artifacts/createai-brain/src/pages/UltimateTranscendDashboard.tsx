@@ -645,10 +645,40 @@ export default function UltimateTranscendDashboard() {
               Live operational dashboard — 9 engines · auto-refresh 60 s · real data only
             </p>
           </div>
-          <div style={{ display: "flex", gap: 10, alignItems: "center" }}>
+          <div style={{ display: "flex", gap: 10, alignItems: "center", flexWrap: "wrap" }}>
             {lastTs && (
               <span style={{ fontSize: 12, color: SLATE }}>Updated {lastTs}</span>
             )}
+            <a
+              href="#command-center"
+              onClick={e => {
+                e.preventDefault();
+                window.location.href = window.location.pathname.replace(/\/transcend-dashboard.*$/, "/command-center");
+              }}
+              style={{
+                fontSize: 12, fontWeight: 600, padding: "6px 14px",
+                borderRadius: 99, border: "none", cursor: "pointer",
+                background: "rgba(99,102,241,0.1)", color: INDIGO,
+                textDecoration: "none", display: "inline-block",
+              }}
+            >
+              Command Center →
+            </a>
+            <a
+              href="#platform-status"
+              onClick={e => {
+                e.preventDefault();
+                window.location.href = window.location.pathname.replace(/\/transcend-dashboard.*$/, "/platform-status");
+              }}
+              style={{
+                fontSize: 12, fontWeight: 600, padding: "6px 14px",
+                borderRadius: 99, border: "none", cursor: "pointer",
+                background: "rgba(99,102,241,0.1)", color: INDIGO,
+                textDecoration: "none", display: "inline-block",
+              }}
+            >
+              Platform Status →
+            </a>
             <button onClick={toggleAll} style={{
               fontSize: 12, fontWeight: 600, padding: "6px 14px",
               borderRadius: 99, border: "none", cursor: "pointer",

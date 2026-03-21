@@ -1,19 +1,57 @@
 /**
  * hybridEngine.ts — Hybrid Multi-Rail Engine
- * Spec: HYBRID-MULTI-RAIL-ENGINE (Pasted--HYBRID-MULTI-RAIL...)
+ * Spec: HYBRID-MULTI-RAIL-ENGINE
  *
  * External + Internal unified system:
  *   - hybridCheckout → Stripe PaymentIntent when live; internal queue otherwise
  *   - hybridMessage  → Resend (email) / Twilio (SMS) when live; internal queue otherwise
  *   - startHybridEngine → 15s recovery loop that drains queues when providers come online
  *
- * Provider detection uses the existing credential helpers from notifications.ts
- * so this file stays in sync with the rest of the notification layer automatically.
+ * Circuit Breaker: after 3 consecutive send failures on a provider, the rail is
+ * marked "open" for 30 minutes — no retries during that window. The rail auto-resets
+ * after the window expires. This prevents retry storms when credentials are invalid
+ * or have domain restrictions (e.g. Resend test-mode sender restrictions).
  */
 
-import { randomUUID }  from "crypto";
+import { randomUUID }       from "crypto";
 import { credentialStatus } from "../utils/notifications.js";
 import { bridge }           from "../bridge/universalBridgeEngine.js";
+
+// ─── Circuit Breaker ─────────────────────────────────────────────────────────
+
+const CIRCUIT_FAILURE_THRESHOLD = 3;          // consecutive failures before open
+const CIRCUIT_RESET_MS          = 30 * 60 * 1000; // 30 minutes before auto-reset
+
+interface Circuit {
+  failures:  number;
+  openUntil: number;  // ms timestamp — 0 means closed
+}
+
+const circuits: Record<"email" | "sms", Circuit> = {
+  email: { failures: 0, openUntil: 0 },
+  sms:   { failures: 0, openUntil: 0 },
+};
+
+function isCircuitOpen(rail: "email" | "sms"): boolean {
+  return Date.now() < circuits[rail].openUntil;
+}
+
+function recordSuccess(rail: "email" | "sms"): void {
+  circuits[rail].failures  = 0;
+  circuits[rail].openUntil = 0;
+}
+
+function recordFailure(rail: "email" | "sms"): void {
+  circuits[rail].failures++;
+  if (circuits[rail].failures >= CIRCUIT_FAILURE_THRESHOLD) {
+    circuits[rail].openUntil = Date.now() + CIRCUIT_RESET_MS;
+    console.warn(
+      `[HybridEngine] ⚡ CIRCUIT OPEN — ${rail} rail tripped after ` +
+      `${circuits[rail].failures} consecutive failures. ` +
+      `Pausing retries for 30 min. Credentials need verification.`
+    );
+  }
+}
 
 // ─── Internal State ──────────────────────────────────────────────────────────
 
@@ -33,14 +71,17 @@ interface MessageEntry {
   to:       string;
   content:  string;
   queuedAt: string;
+  attempts: number;
 }
 
 interface SystemStats {
-  revenue:       number;   // live-processed revenue (cents)
-  queuedRevenue: number;   // revenue captured but not yet processed
-  messagesSent:  number;
+  revenue:        number;   // live-processed revenue (cents)
+  queuedRevenue:  number;   // revenue captured but not yet processed
+  messagesSent:   number;
   messagesQueued: number;
 }
+
+const MAX_QUEUE_MESSAGES = 50;  // cap — discard oldest when exceeded
 
 const queues: { payments: PaymentEntry[]; messages: MessageEntry[] } = {
   payments: [],
@@ -66,8 +107,8 @@ function detectProviders(): Providers {
   const creds = credentialStatus();
   return {
     stripe: !!(process.env["STRIPE_SECRET_KEY"] || process.env["REPLIT_CONNECTORS_HOSTNAME"]),
-    email:  creds.email.ready,
-    sms:    creds.sms.ready,
+    email:  creds.email.configured,   // was incorrectly `creds.email.ready` (undefined)
+    sms:    creds.sms.configured,     // was incorrectly `creds.sms.ready` (undefined)
   };
 }
 
@@ -142,10 +183,11 @@ export async function hybridCheckout(
 
 // ─── hybridMessage ────────────────────────────────────────────────────────────
 // Routes to Resend (email) or Twilio (SMS) when live; internal queue otherwise.
+// Circuit breaker prevents retry storms on permanently-failing sends.
 
 export interface HybridMessageResult {
   id:     string;
-  status: "sent" | "queued";
+  status: "sent" | "queued" | "dropped";
   rail:   "email" | "sms" | "internal";
 }
 
@@ -157,6 +199,11 @@ export async function hybridMessage(
 ): Promise<HybridMessageResult> {
   const id = randomUUID();
 
+  // Check circuit breaker — skip bridge call entirely when rail is open
+  if (isCircuitOpen(type)) {
+    return { id, status: "queued", rail: "internal" };
+  }
+
   // Route through Universal Bridge Engine → Email or SMS connector
   const bridgeType = type === "email" ? "EMAIL_SEND" : "SMS_SEND";
   const msgResp    = await bridge.route({
@@ -166,21 +213,38 @@ export async function hybridMessage(
   });
 
   if (msgResp.status === "SUCCESS") {
+    recordSuccess(type);
     stats.messagesSent++;
     console.log(`[HybridEngine] ${type === "email" ? "📧" : "📱"} ${type} sent via bridge → ${to}`);
     return { id, status: "sent", rail: type };
   }
 
-  // Queue internally (NOT_CONFIGURED or FAILURE)
-  queues.messages.push({ id, type, to, content, queuedAt: new Date().toISOString() });
+  // FAILURE or NOT_CONFIGURED — record towards circuit breaker
+  if (msgResp.status === "FAILURE") {
+    recordFailure(type);
+  }
+
+  // Queue internally — but cap to MAX_QUEUE_MESSAGES
+  if (queues.messages.length >= MAX_QUEUE_MESSAGES) {
+    // Drop oldest to make room (FIFO eviction)
+    queues.messages.shift();
+    stats.messagesQueued = Math.max(0, stats.messagesQueued - 1);
+  }
+
+  const reason = msgResp.status === "NOT_CONFIGURED"
+    ? "connector not configured"
+    : (msgResp.error ?? "failure");
+
+  queues.messages.push({ id, type, to, content, queuedAt: new Date().toISOString(), attempts: 1 });
   stats.messagesQueued++;
-  const reason = msgResp.status === "NOT_CONFIGURED" ? "connector not configured" : (msgResp.error ?? "failure");
-  console.log(`[HybridEngine] 📬 ${type} queued for ${to} — bridge:${reason}`);
+  console.log(`[HybridEngine] 📬 ${type} queued for ${to} — ${reason}`);
   return { id, status: "queued", rail: "internal" };
 }
 
 // ─── Recovery ─────────────────────────────────────────────────────────────────
-// Drains internal queues when providers become available.
+// Drains internal queues when providers come back online.
+
+let _lastStatusKey = "";  // used to suppress duplicate status log lines
 
 async function recover(): Promise<void> {
   const providers = detectProviders();
@@ -216,18 +280,28 @@ async function recover(): Promise<void> {
     }
   }
 
-  // Release queued messages
+  // Release queued messages — only if circuit is closed
   if ((providers.email || providers.sms) && queues.messages.length > 0) {
-    console.log(`[HybridEngine] 📤 Sending ${queues.messages.length} queued message(s)…`);
-    const toSend = [...queues.messages];
-    queues.messages = [];
+    const toSend = queues.messages.filter(e =>
+      (e.type === "email" && providers.email && !isCircuitOpen("email")) ||
+      (e.type === "sms"   && providers.sms   && !isCircuitOpen("sms"))
+    );
 
-    for (const entry of toSend) {
-      const result = await hybridMessage(entry.type, entry.to, entry.content);
-      if (result.status !== "sent") {
-        queues.messages.push(entry); // re-queue
-      } else {
-        stats.messagesQueued = Math.max(0, stats.messagesQueued - 1);
+    if (toSend.length > 0) {
+      console.log(`[HybridEngine] 📤 Attempting ${toSend.length} queued message(s)…`);
+      queues.messages = queues.messages.filter(e => !toSend.includes(e));
+
+      for (const entry of toSend) {
+        const result = await hybridMessage(entry.type, entry.to, entry.content);
+        if (result.status !== "sent") {
+          if (queues.messages.length < MAX_QUEUE_MESSAGES) {
+            queues.messages.push({ ...entry, attempts: (entry.attempts ?? 0) + 1 });
+          }
+          // If circuit opened during this drain, stop sending
+          if (isCircuitOpen(entry.type)) break;
+        } else {
+          stats.messagesQueued = Math.max(0, stats.messagesQueued - 1);
+        }
       }
     }
   }
@@ -237,16 +311,33 @@ async function recover(): Promise<void> {
 
 export function getHybridStats(): Record<string, string | number> {
   const providers = detectProviders();
+  const emailStatus = isCircuitOpen("email") ? "⚡ Circuit Open" : (providers.email ? "✅ Live" : "⏸ Offline");
+  const smsStatus   = isCircuitOpen("sms")   ? "⚡ Circuit Open" : (providers.sms   ? "✅ Live" : "⏸ Offline");
   return {
     "Rail: Stripe":         providers.stripe ? "✅ Live" : "⏸ Offline",
-    "Rail: Email":          providers.email  ? "✅ Live" : "⏸ Offline",
-    "Rail: SMS":            providers.sms    ? "✅ Live" : "⏸ Offline",
+    "Rail: Email":          emailStatus,
+    "Rail: SMS":            smsStatus,
     "Revenue (live)":       `$${(stats.revenue / 100).toFixed(2)}`,
     "Revenue (queued)":     `$${(stats.queuedRevenue / 100).toFixed(2)}`,
     "Messages Sent":        stats.messagesSent,
     "Messages Queued":      stats.messagesQueued,
     "Payments Queued":      queues.payments.length,
   };
+}
+
+// ─── clearMessageQueue ────────────────────────────────────────────────────────
+// Allows the owner or admin to flush the stuck message queue via API.
+
+export function clearMessageQueue(): { cleared: number } {
+  const cleared = queues.messages.length;
+  queues.messages = [];
+  stats.messagesQueued = 0;
+  circuits.email.failures  = 0;
+  circuits.email.openUntil = 0;
+  circuits.sms.failures    = 0;
+  circuits.sms.openUntil   = 0;
+  console.log(`[HybridEngine] 🧹 Message queue cleared — ${cleared} entries removed · circuits reset`);
+  return { cleared };
 }
 
 // ─── startHybridEngine ────────────────────────────────────────────────────────
@@ -258,7 +349,7 @@ export function startHybridEngine(): void {
   if (_engineStarted) return;
   _engineStarted = true;
 
-  console.log("[HybridEngine] 🧠 HYBRID ENGINE RUNNING — Stripe · Resend · Twilio · internal queue");
+  console.log("[HybridEngine] 🧠 HYBRID ENGINE RUNNING — Stripe · Resend · Twilio · internal queue · circuit breaker ON");
 
   setInterval(async () => {
     try {
@@ -267,10 +358,14 @@ export function startHybridEngine(): void {
       console.error("[HybridEngine] Recovery error:", (err as Error).message);
     }
 
-    const s = getHybridStats();
+    // Only log STATUS when something is queued AND the state has changed
     if (queues.payments.length > 0 || queues.messages.length > 0) {
-      // Only log table when there's something worth watching
-      console.log("[HybridEngine] 📊 STATUS:", s);
+      const s = getHybridStats();
+      const key = JSON.stringify(s);
+      if (key !== _lastStatusKey) {
+        console.log("[HybridEngine] 📊 STATUS:", s);
+        _lastStatusKey = key;
+      }
     }
   }, 15_000);
 }

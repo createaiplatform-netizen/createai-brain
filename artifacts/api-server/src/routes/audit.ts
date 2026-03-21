@@ -16,9 +16,10 @@ const router = Router();
 router.get("/snapshot", (_req, res) => {
   const result = getLastAuditResult();
   if (!result) {
-    return res.status(202).json({
+    res.status(202).json({
       message: "Audit not yet complete — boot audit fires 3 s after startup. Try again shortly.",
     });
+    return;
   }
   res.json(result);
 });

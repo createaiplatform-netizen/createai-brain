@@ -203,8 +203,8 @@ export async function runAudit(): Promise<typeof auditReport> {
     auditReport.brain_state     = state as unknown as Record<string, unknown>;
     auditReport.config_snapshot = BeyondInfinityConfig as unknown as Record<string, unknown>;
     auditReport.mission_snapshot = {
-      missionId:     MISSION_CONFIG.missionId,
-      missionName:   MISSION_CONFIG.missionName,
+      missionId:     (MISSION_CONFIG as unknown as Record<string, unknown>)["missionId"] ?? "createai-brain-mission-v1",
+      missionName:   (MISSION_CONFIG as unknown as Record<string, unknown>)["missionName"] ?? "CreateAI Brain Zero-Touch Launch",
       phaseCount:    MISSION_CONFIG.phases.length,
       totalSettings: MISSION_CONFIG.phases.reduce(
         (acc: number, p: { settings: Record<string, unknown> }) => acc + Object.keys(p.settings).length, 0

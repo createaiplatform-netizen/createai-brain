@@ -227,7 +227,7 @@ export async function attachPrimaryBankAccount(
         account_holder_type:  "individual",
         country:              "US",
         currency:             "usd",
-      } as Parameters<typeof stripe.customers.createSource>[1]["source"],
+      } as unknown as string,
     });
     console.log(
       `[FamilyAgents] Bank account attached to Sara's customer → ${(bankSource as { id: string }).id}`

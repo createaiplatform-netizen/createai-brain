@@ -11,6 +11,7 @@ import {
   hybridCheckout,
   hybridMessage,
   getHybridStats,
+  clearMessageQueue,
 }                          from "../services/hybridEngine.js";
 import {
   getExternalChannelStatus,
@@ -58,6 +59,14 @@ router.get("/stats", (_req, res) => {
     ...getHybridStats(),
     externalChannels: getExternalChannelStatus(),
   });
+});
+
+// POST /api/hybrid/clear-queue
+// Flushes the message queue and resets circuit breakers.
+// Used when credentials change or the queue needs a clean slate.
+router.post("/clear-queue", (_req, res) => {
+  const result = clearMessageQueue();
+  res.json({ ok: true, ...result, message: `Cleared ${result.cleared} queued messages. Circuits reset.` });
 });
 
 export default router;
