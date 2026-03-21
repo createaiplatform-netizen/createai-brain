@@ -31,6 +31,7 @@ import BillingPage                 from "@/pages/BillingPage";
 import DataPage                    from "@/pages/DataPage";
 import GlobalPage                  from "@/pages/GlobalPage";
 import EvolutionPage               from "@/pages/EvolutionPage";
+import SemanticStorePage           from "@/pages/SemanticStorePage";
 import { OSProvider } from "@/os/OSContext";
 import { OSLayout } from "@/os/osLayout";
 import { GlobalCommandPalette } from "@/components/GlobalCommandPalette";
@@ -94,6 +95,7 @@ function Router() {
       <Route path="/" component={OSLayout} />
       <Route path="/metrics" component={MetricsPage} />
       <Route path="/above-transcend" component={AboveTranscendPage} />
+      <Route path="/semantic-store" component={SemanticStorePage} />
       <Route path="/project/:projectId" component={ProjectPage} />
       <Route path="/standalone/creation/:creationId" component={CreationPage} />
       <Route path="/standalone/:projectId" component={StandalonePage} />
@@ -472,6 +474,7 @@ function App() {
     path.startsWith(`${base}/data`) ||
     path.startsWith(`${base}/global-expansion`) ||
     path.startsWith(`${base}/evolution`) ||
+    path.startsWith(`${base}/semantic-store`) ||
     // SMART-on-FHIR OAuth callback/connected pages must be accessible without auth gate
     // because the browser redirects here from the external SMART sandbox
     path.startsWith(`${base}/connectors/`);
@@ -497,6 +500,7 @@ function App() {
           <Route path="/data"                component={DataPage} />
           <Route path="/global-expansion"    component={GlobalPage} />
           <Route path="/evolution"           component={EvolutionPage} />
+          <Route path="/semantic-store"      component={SemanticStorePage} />
           {/* SMART-on-FHIR OAuth callback — receives authorization code from sandbox */}
           <Route path="/connectors/SMART_FHIR_SANDBOX/callback"  component={SmartFhirCallbackApp} />
           {/* SMART-on-FHIR connected confirmation + test fetch UI */}

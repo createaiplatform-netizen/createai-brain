@@ -134,3 +134,33 @@ The CreateAI Brain platform is built as a pnpm workspace monorepo using Node.js 
 - **Health Score** — 97/100 · 75/77 systems active · 6/7 dimensions fully active (OUTSIDE is partial: ads + marketplace not yet configured)
 - **Live Mode** — TEST in dev; auto-switches to LIVE when `REPLIT_DEPLOYMENT=1`
 
+
+## Semantic Product Layer (Model 4) — Core Architecture
+
+The foundational distribution architecture. Products are channel-agnostic objects; every marketplace is an equal-weight output transform.
+
+- **Core Files**:
+  - `artifacts/api-server/src/semantic/types.ts` — `SemanticProduct` interface, `ChannelStatus`, `DemandSignal`
+  - `artifacts/api-server/src/semantic/transforms.ts` — Pure transform functions: `toShopifyCSV`, `toWooCommerceCSV`, `toGoogleShoppingXML`, `toAmazonFeed`, `toHostedPageHTML`, `toStoreIndexHTML`, `deriveDemandSignals`
+  - `artifacts/api-server/src/semantic/registry.ts` — Stripe-backed in-memory registry, 5-min TTL, auto-refreshes from live Stripe products
+  - `artifacts/api-server/src/routes/semanticStore.ts` — All semantic API routes
+
+- **API Routes** (all under `/api/semantic/`):
+  - `GET /status` — registry health check
+  - `GET /products` — list all 100+ products as SemanticProduct objects
+  - `GET /products/:id` — single product lookup
+  - `POST /products/refresh` — force Stripe re-sync
+  - `GET /signals` — demand intelligence: top formats, tags, categories, catalog maturity
+  - `GET /store` — hosted store index (HTML, publicly accessible)
+  - `GET /store/:id` — individual product page (HTML, Stripe checkout button)
+  - `GET /checkout/:id` — creates Stripe checkout session → redirects
+  - `GET /export/shopify.csv` — Shopify import CSV (all products)
+  - `GET /export/woocommerce.csv` — WooCommerce CSV
+  - `GET /export/google-shopping.xml` — Google Merchant Center RSS 2.0 feed
+  - `GET /export/amazon.txt` — Amazon flat file feed
+  - `GET /export/catalog.json` — Platform-native JSON catalog
+
+- **Frontend**: `artifacts/createai-brain/src/pages/SemanticStorePage.tsx` at `/semantic-store` — shows catalog intelligence, export panel, product registry grid with channel readiness indicators
+- **Navigation**: "Semantic Store" link added to all 7 OS nav bars (Analytics, Billing, Data, Evolution, Global, Settings, Team pages)
+- **Live State**: 100 products indexed, $1,938 catalog value, 6 active channels, maturity: "scaling"
+

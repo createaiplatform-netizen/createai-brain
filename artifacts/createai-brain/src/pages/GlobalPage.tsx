@@ -44,6 +44,7 @@ const NAV_LINKS = [
   { label: "Data",            href: "/data" },
   { label: "Global",          href: "/global-expansion",  active: true },
   { label: "Evolution",       href: "/evolution" },
+  { label: "Semantic Store",  href: "/semantic-store" },
   { label: "Settings",        href: "/settings" },
   { label: "Platform Status", href: "/platform-status" },
 ];

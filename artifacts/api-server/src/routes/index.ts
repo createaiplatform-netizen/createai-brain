@@ -86,6 +86,7 @@ import payoutRouter             from "./payout.js";
 import bridgeRouter             from "./bridge.js";
 import modesRouter              from "./modes.js";
 import creationEnginesRouter    from "./creationEngines.js";
+import semanticStoreRouter      from "./semanticStore.js";
 import omniBridgeRouter         from "./omniBridge.js";
 import orchestratorRouter       from "./orchestrator.js";
 
@@ -229,5 +230,10 @@ router.use("/omni-bridge",        omniBridgeRouter);
 
 // ── All-Systems Execution Orchestrator ───────────────────────────────────────
 router.use("/orchestrator",       orchestratorRouter);
+
+// ── Semantic Product Layer (Model 4) — channel-agnostic product objects ───────
+// Products → Shopify CSV, WooCommerce CSV, Google Shopping XML, Amazon feed,
+// Stripe checkout, hosted product page — all from one source of truth.
+router.use("/semantic",           semanticStoreRouter);
 
 export default router;
