@@ -14,7 +14,8 @@
  *   AMAZON_SP_ACCESS_TOKEN, EBAY_OAUTH_TOKEN, CREATIVEMARKET_API_KEY
  */
 
-import type { MarketProduct } from "./realMarket.js";
+import type { MarketProduct }  from "./realMarket.js";
+import { getCredential }       from "./credentialsBridge.js";
 
 // ─── External Channel Definitions ────────────────────────────────────────────
 
@@ -66,7 +67,7 @@ export async function publishToExternalChannels(
 
   const results = await Promise.all(
     targets.map(async (channel): Promise<ExternalPublishResult> => {
-      const token = process.env[channel.envKey];
+      const token = getCredential(channel.envKey);
 
       if (token) {
         // REAL: live API push when credentials are set
@@ -176,7 +177,7 @@ export function getExternalChannelStatus(): Array<{
 }> {
   return EXTERNAL_CHANNELS.map(c => ({
     channel: c.name,
-    live:    !!process.env[c.envKey],
+    live:    !!getCredential(c.envKey),
     envKey:  c.envKey,
   }));
 }

@@ -103,6 +103,7 @@ import invoicePaymentsRouter    from "./invoicePayments.js";
 import studioExtendedRouter     from "./studioExtended.js";
 import percentageEngineRouter   from "./percentageEngine.js";
 import maxActivationRouter      from "./maxActivation.js";
+import credentialsBridgeRouter  from "./credentialsBridge.js";
 
 const router: IRouter = Router();
 
@@ -309,5 +310,8 @@ router.use("/payments",                  invoicePaymentsRouter);
 
 // ── Maximum Potential Activation Orchestrator ─────────────────────────────────
 router.use("/activate",                  maxActivationRouter);
+
+// ── Credentials Bridge — in-OS token manager + Resend DNS wizard ──────────────
+router.use("/credentials",               credentialsBridgeRouter);
 
 export default router;

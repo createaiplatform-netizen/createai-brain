@@ -442,9 +442,11 @@ router.post("/create", (req: Request, res: Response) => {
   res.json({
     ok: true,
     invoice: { id, invoiceNumber: invoice.invoiceNumber, status: invoice.status, total, currency: invoice.currency },
-    htmlUrl: "/api/payments/invoice/" + id + "/html",
+    htmlUrl:   "/api/payments/invoice/" + id + "/html",
+    clientUrl: "/api/payments/invoice/" + id + "/html",
     paymentMethods: ["$CreateAIDigital (Cash App)", "@CreateAIDigital (Venmo)"],
-    message: "Invoice " + invoice.invoiceNumber + " created. Both Cash App and Venmo payment instructions are printed automatically."
+    shareNote: "Share the clientUrl link directly with your client — no email required. They see the full invoice with Cash App + Venmo payment instructions.",
+    message:   "Invoice " + invoice.invoiceNumber + " created. Share the clientUrl link with your client to collect payment instantly."
   });
 });
 

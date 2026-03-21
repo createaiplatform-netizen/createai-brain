@@ -378,6 +378,7 @@ const PayGateApp       = React.lazy(() => import("@/Apps/PayGateApp"));
 const InventionLayerApp    = React.lazy(() => import("@/Apps/InventionLayerApp"));
 const PercentageEngineApp      = React.lazy(() => import("@/Apps/PercentageEngineApp"));
 const ActivationCommandApp     = React.lazy(() => import("@/Apps/ActivationCommandApp"));
+const CredentialsHubApp        = React.lazy(() => import("@/Apps/CredentialsHubApp"));
 const SchemaBuilderApp = React.lazy(() => import("@/Apps/SchemaBuilderApp").then(m => ({ default: m.SchemaBuilderApp })));
 const ConfigManagerApp = React.lazy(() => import("@/Apps/ConfigManagerApp").then(m => ({ default: m.ConfigManagerApp })));
 
@@ -749,6 +750,7 @@ const APP_COMPONENTS: Record<AppId, React.LazyExoticComponent<React.ComponentTyp
   inventionLayer:    InventionLayerApp,
   percentageEngine:  PercentageEngineApp,
   activation:        ActivationCommandApp,
+  credentialsHub:    CredentialsHubApp,
 };
 
 // ── Loading skeleton ─────────────────────────────────────────────────────────

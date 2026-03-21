@@ -268,7 +268,7 @@ export type AppId =
   | "healthos" | "legalpm" | "staffingos"
   // ── New Platform Capabilities ─────────────────────────────────────────────
   | "adshub" | "authlab" | "paygate" | "inventionLayer"
-  | "percentageEngine" | "activation";
+  | "percentageEngine" | "activation" | "credentialsHub";
 
 export interface AppDef {
   id: AppId;
@@ -436,7 +436,8 @@ export const DEFAULT_APPS: AppDef[] = [
   { id: "paygate",       label: "PayGate",           icon: "💳", color: "#10b981", description: "Multi-rail payment system — professional invoice generation, email delivery, and payment tracking via bank, wire, Zelle, Venmo, crypto, and check", category: "business" },
   { id: "inventionLayer",    label: "Invention Layer",    icon: "🔬", color: "#f59e0b", description: "12 AI invention tools that bypass $500K+ in software licenses — clinical scribe, legal research, fleet intelligence, risk underwriting, agronomist, and more", category: "tools" },
   { id: "percentageEngine", label: "Percentage Engine",  icon: "📊", color: "#6366f1", description: "Real-time platform capability engine — unified score, subsystem breakdowns, industry coverage, over-100% expansion tracking, and financial capacity model", category: "system" },
-  { id: "activation",       label: "Activation Center",  icon: "⚡", color: "#6366f1", description: "Maximum potential command center — fire all engines simultaneously, view real-time status of every system, see active bypasses for every blocker, and track the live execution sequence", category: "system" },
+  { id: "activation",       label: "Activation Center",   icon: "⚡", color: "#6366f1", description: "Maximum potential command center — fire all engines simultaneously, view real-time status of every system, see active bypasses for every blocker, and track the live execution sequence", category: "system" },
+  { id: "credentialsHub",   label: "Credentials Hub",     icon: "🔗", color: "#6366f1", description: "Enter marketplace API tokens directly in the OS — no Replit Secrets navigation required. Tokens activate instantly, persist across restarts, and unlock Shopify, Etsy, Amazon, eBay, and Creative Market publishing automatically.", category: "system" },
 ];
 
 export const ALL_APPS = DEFAULT_APPS;
@@ -543,6 +544,7 @@ const INTENT_MAP: { keywords: string[]; target: AppId }[] = [
   { keywords: ["invention layer", "inventionlayer", "invention tools", "12 tools", "ai clinical scribe", "ai fleet", "ai energy", "ai property", "ai risk underwriter", "ai legal research", "ai production", "ai grant writer", "ai compliance", "ai email sequence", "ai financial intelligence", "ai agronomist", "bypass software", "replace software", "no hardware", "no license"], target: "inventionLayer" },
   { keywords: ["percentage engine", "percentages", "percentage", "system readiness", "how high are we", "how high are we now", "capability score", "platform score", "readiness score", "completeness", "what percent", "system percentage", "subsystem score", "over 100", "over 1000", "expansion score", "platform capability", "daily income", "revenue capacity", "financial capacity", "how complete", "platform health score", "unified score", "score engine"], target: "percentageEngine" },
   { keywords: ["activate", "activation", "activate all", "fire all", "fire all engines", "maximum potential", "activate systems", "all systems", "activate revenue", "activate platform", "launch all", "go live", "full activation", "command center", "engine status", "system status", "blockers", "bypass blockers", "execution sequence", "what fires next", "engines running", "what's running", "platform running", "revenue engines", "autonomous engines", "all revenue systems", "full auto", "max activation", "turn everything on", "start all systems"], target: "activation" },
+  { keywords: ["credentials", "credentials hub", "api token", "api key", "marketplace token", "connect shopify", "connect etsy", "connect amazon", "connect ebay", "creative market", "shopify token", "etsy api", "amazon sp", "ebay oauth", "marketplace connect", "add token", "enter token", "activate marketplace", "external marketplace", "dns records", "resend dns", "domain verification", "email verification", "verify domain", "dns setup", "client link", "share invoice", "invoice link", "shareable link", "client payment page", "no email needed"], target: "credentialsHub" },
 ];
 
 function routeIntentFn(intent: string): AppId | null {
@@ -712,6 +714,7 @@ const APP_META: Record<AppId, { icon: string; label: string }> = {
   inventionLayer:    { icon: "🔬", label: "Invention Layer" },
   percentageEngine:  { icon: "📊", label: "Percentage Engine" },
   activation:        { icon: "⚡", label: "Activation Center" },
+  credentialsHub:    { icon: "🔗", label: "Credentials Hub" },
 
   // ── Enterprise Suite Apps ──────────────────────────────────────────────────
   zeroTrust: { icon: "🔐", label: "Zero Trust" },
