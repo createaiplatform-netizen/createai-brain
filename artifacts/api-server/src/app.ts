@@ -11,6 +11,8 @@ import { getRegistry } from "./semantic/registry.js";
 import { IDENTITY } from "./config/identity.js";
 import { getPublicBaseUrl } from "./utils/publicUrl.js";
 import { bootstrapSchema } from "./lib/db.js";
+import { initSelfHostEngine } from "./engines/selfHostEngine.js";
+import { generatePlatformProof } from "./engines/verificationEngine.js";
 
 // ── Route imports ────────────────────────────────────────────────────────────
 import platformHubRouter    from "./routes/platformHub.js";
@@ -255,6 +257,15 @@ app.get("/.well-known/npa-resolve.json", (_req: Request, res: Response) => {
   });
 });
 
+// ── NEXUS Platform Proof Token — cryptographic identity substitute for DNS TXT ─
+// Replaces "add a TXT record to your DNS" with a signed JSON proof hosted at:
+// /.well-known/platform-proof.json
+app.get("/.well-known/platform-proof.json", (_req: Request, res: Response) => {
+  res.setHeader("Content-Type", "application/json");
+  res.setHeader("Cache-Control", "public, max-age=3600");
+  res.json(generatePlatformProof());
+});
+
 // Google Search Console — verification file (pre-placed so 1 click verifies ownership)
 // Sara: go to search.google.com/search-console → Add Property → paste your domain
 // → choose "HTML file" method → the file is already here. Click "Verify".
@@ -382,6 +393,9 @@ app.use("/",          platformHubRouter);
 app.use(authMiddleware);
 app.use(scopeMiddleware);
 app.use("/api", router);
+
+// ── Self-Host Engine — mounts built frontend if dist/ exists, starts watchdog ──
+initSelfHostEngine(app);
 
 // ── Global error handler ──────────────────────────────────────────────────────
 // eslint-disable-next-line @typescript-eslint/no-unused-vars

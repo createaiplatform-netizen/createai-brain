@@ -109,6 +109,7 @@ import referralRouter           from "./referral.js";
 import leadsRouter              from "./leads.js";
 import growthAnalyticsRouter    from "./growthAnalytics.js";
 import platformIdentityRouter   from "./platformIdentity.js";
+import selfHostRouter           from "./selfHost.js";
 
 const router: IRouter = Router();
 
@@ -333,5 +334,8 @@ router.use("/analytics",                  growthAnalyticsRouter);
 
 // ── NEXUS Platform Address — internal identity, routing, NPA resolution ───────
 router.use(platformIdentityRouter);
+
+// ── Self-Host Engine — internal hosting, createai:// routing, verification ────
+router.use(selfHostRouter);
 
 export default router;
