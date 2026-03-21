@@ -6,14 +6,20 @@ import { authMiddleware }  from "./middlewares/authMiddleware";
 import { scopeMiddleware } from "./middlewares/scopeMiddleware";
 import router from "./routes";
 import { getRegistry } from "./semantic/registry.js";
+import { getPublicBaseUrl } from "./utils/publicUrl.js";
+
+// ── Clean-URL sub-routers (mounted before auth — all public surfaces) ────────
+import platformHubRouter      from "./routes/platformHub.js";
+import semanticStoreRouter    from "./routes/semanticStore.js";
+import semanticLaunchRouter   from "./routes/semanticLaunch.js";
+import semanticPortalRouter   from "./routes/semanticPortal.js";
+import semanticSubRouter      from "./routes/semanticSubscription.js";
 
 export { chatLimiter, heavyLimiter, editLimiter } from "./middlewares/rateLimiters";
 
 const app: Express = express();
 
 // ── Trust Replit's reverse proxy so req.ip is the real client IP ─────────────
-// Required for rate limiters to key correctly on real IPs for unauthenticated
-// requests (authenticated requests already key by userId, but defence in depth).
 app.set("trust proxy", 1);
 
 // ── Security headers ─────────────────────────────────────────────────────────
@@ -22,14 +28,21 @@ app.use(helmet({
   crossOriginEmbedderPolicy: false,
 }));
 
-// ── CORS: explicit allowlist — never reflect arbitrary origins ───────────────
-const ALLOWED_ORIGINS = [
+// ── CORS allowlist ────────────────────────────────────────────────────────────
+// Covers: Replit dev/prod domains + localhost + any configured custom domain.
+const customDomain = process.env["PUBLIC_DOMAIN"]?.replace(/^https?:\/\//, "").replace(/\/$/, "") ?? "";
+const ALLOWED_ORIGINS: RegExp[] = [
   /\.replit\.app$/,
   /\.replit\.dev$/,
   /^http:\/\/localhost(:\d+)?$/,
   /^http:\/\/127\.0\.0\.1(:\d+)?$/,
   /^http:\/\/172\.\d+\.\d+\.\d+(:\d+)?$/,
 ];
+if (customDomain) {
+  // Add the exact custom domain (both http and https just in case)
+  const escaped = customDomain.replace(/\./g, "\\.");
+  ALLOWED_ORIGINS.push(new RegExp(`^https?://(www\\.)?${escaped}$`));
+}
 
 app.use(cors({
   credentials: true,
@@ -40,34 +53,31 @@ app.use(cors({
   },
 }));
 
-// ── Body size limits ─────────────────────────────────────────────────────────
+// ── Body parsers ──────────────────────────────────────────────────────────────
 app.use(express.json({ limit: "256kb" }));
 app.use(express.urlencoded({ extended: true, limit: "256kb" }));
 app.use(cookieParser());
 
-// ── Public health check (no auth) ────────────────────────────────────────────
+// ── Health check (no auth) ────────────────────────────────────────────────────
 app.get("/healthz", (_req: Request, res: Response) => {
   res.json({
     status:    "ok",
     service:   "api-server",
     uptime_s:  Math.round(process.uptime()),
     timestamp: new Date().toISOString(),
+    domain:    getPublicBaseUrl(),
   });
 });
 
-// ── Root-level SEO: sitemap.xml + robots.txt ─────────────────────────────────
-// Must be at domain root (not /api/) for Google to discover them.
-const STORE_URL = process.env.REPLIT_DEV_DOMAIN
-  ? `https://${process.env.REPLIT_DEV_DOMAIN}`
-  : "http://localhost:8080";
-
+// ── SEO: sitemap + robots (must be at domain root, before auth) ───────────────
 app.get("/sitemap.xml", async (_req: Request, res: Response) => {
   try {
+    const BASE     = getPublicBaseUrl();
     const products = await getRegistry();
-    const now = new Date().toISOString().split("T")[0];
+    const now      = new Date().toISOString().split("T")[0];
     const urls = products.map(p => `
   <url>
-    <loc>${STORE_URL}/api/semantic/store/${p.id}</loc>
+    <loc>${BASE}/store/${p.id}</loc>
     <lastmod>${now}</lastmod>
     <changefreq>weekly</changefreq>
     <priority>${p.priceCents >= 1500 ? "0.9" : "0.7"}</priority>
@@ -76,38 +86,73 @@ app.get("/sitemap.xml", async (_req: Request, res: Response) => {
     res.setHeader("Cache-Control", "public, max-age=3600");
     res.send(`<?xml version="1.0" encoding="UTF-8"?>
 <urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">
-  <url>
-    <loc>${STORE_URL}/api/semantic/store</loc>
-    <lastmod>${now}</lastmod>
-    <changefreq>daily</changefreq>
-    <priority>1.0</priority>
-  </url>${urls}
+  <url><loc>${BASE}/</loc><lastmod>${now}</lastmod><changefreq>daily</changefreq><priority>1.0</priority></url>
+  <url><loc>${BASE}/store</loc><lastmod>${now}</lastmod><changefreq>daily</changefreq><priority>0.95</priority></url>
+  <url><loc>${BASE}/join/landing</loc><lastmod>${now}</lastmod><changefreq>weekly</changefreq><priority>0.8</priority></url>${urls}
 </urlset>`);
   } catch { res.status(500).send("<?xml version='1.0'?><error>Registry unavailable</error>"); }
 });
 
 app.get("/robots.txt", (_req: Request, res: Response) => {
+  const BASE = getPublicBaseUrl();
   res.setHeader("Content-Type", "text/plain; charset=utf-8");
   res.setHeader("Cache-Control", "public, max-age=86400");
   res.send(`User-agent: *
-Allow: /api/semantic/store
-Disallow: /api/semantic/checkout/
+Allow: /
+Allow: /store
+Allow: /store/
+Allow: /join/landing
+Allow: /p/
+Allow: /share/
+Disallow: /buy/
+Disallow: /checkout/
+Disallow: /launch/
+Disallow: /hub
 Disallow: /api/semantic/webhooks/
 Disallow: /api/semantic/export/
+Disallow: /api/semantic/checkout/
 Disallow: /api/
 
-Sitemap: ${STORE_URL}/sitemap.xml
+Sitemap: ${BASE}/sitemap.xml
 `);
 });
 
+// ── Clean public URL layer (mounted BEFORE auth) ──────────────────────────────
+// These are the canonical professional URLs for every platform surface.
+// They work at the dev domain, at <project>.replit.app, and at any custom domain.
+//
+// URL Map:
+//   /               → Platform homepage
+//   /hub            → Admin directory
+//   /p/:id          → Product page alias  (→ 301 /store/:id)
+//   /buy/:id        → Direct checkout     (→ 302 /checkout/:id)
+//   /share/:id      → Social share card   (→ 301 /launch/share/:id)
+//   /store          → Product catalog
+//   /store/:id      → Individual product page
+//   /checkout/:id   → Stripe checkout
+//   /export/...     → CSV / XML / JSON feeds
+//   /launch/        → Revenue Launch Console
+//   /launch/payments → Live payment feed
+//   /launch/share/:id → OG-optimized share card
+//   /launch/deliver → POST: manual delivery trigger
+//   /launch/quick-links → All checkout URLs
+//   /portal/me      → Customer self-service portal
+//   /portal/lookup  → POST: email-gated purchase lookup
+//   /join/landing   → Membership landing page
+//   /join/plans     → Subscription plans JSON
+//   /join/checkout/:priceId → Subscription checkout
+app.use("/",       platformHubRouter);
+app.use("/",       semanticStoreRouter);     // /store, /store/:id, /checkout/:id, /export/...
+app.use("/launch", semanticLaunchRouter);    // /launch/, /launch/payments, /launch/share/:id
+app.use("/portal", semanticPortalRouter);    // /portal/me, /portal/lookup
+app.use("/join",   semanticSubRouter);       // /join/landing, /join/plans, /join/checkout/:priceId
+
+// ── Auth + private API ────────────────────────────────────────────────────────
 app.use(authMiddleware);
 app.use(scopeMiddleware);
-
 app.use("/api", router);
 
-// ── Global error handler (M-17) ──────────────────────────────────────────────
-// Must be registered AFTER all routes. Express identifies error handlers by
-// their 4-argument signature; the unused _next is required.
+// ── Global error handler ──────────────────────────────────────────────────────
 // eslint-disable-next-line @typescript-eslint/no-unused-vars
 app.use((err: Error, _req: Request, res: Response, _next: NextFunction): void => {
   console.error("[global-error]", err.stack ?? err.message);
