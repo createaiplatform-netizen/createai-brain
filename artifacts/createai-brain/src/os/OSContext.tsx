@@ -268,7 +268,7 @@ export type AppId =
   | "healthos" | "legalpm" | "staffingos"
   // ── New Platform Capabilities ─────────────────────────────────────────────
   | "adshub" | "adsOrchestrator" | "authlab" | "paygate" | "inventionLayer"
-  | "percentageEngine" | "activation" | "credentialsHub" | "referral" | "growthEngine" | "npaSettings" | "selfHost" | "handleProtocol";
+  | "percentageEngine" | "activation" | "credentialsHub" | "referral" | "growthEngine" | "npaSettings" | "selfHost" | "handleProtocol" | "platformReport";
 
 export interface AppDef {
   id: AppId;
@@ -444,6 +444,7 @@ export const DEFAULT_APPS: AppDef[] = [
   { id: "npaSettings",      label: "Platform Identity",     icon: "🪪", color: "#6366f1", description: "NEXUS Platform Address — internal identity system that unifies the platform without a purchased domain. See your live URL, NPA handle, email identity, resolution chain, and machine-readable identity endpoints.", category: "system" },
   { id: "selfHost",         label: "Self-Host Engine",       icon: "🏠", color: "#6366f1", description: "Internal self-hosting system — build the frontend, serve it from the API server, browse the createai:// routing table, inspect the platform proof token, and publish portable snapshots. No external hosting required.", category: "system" },
   { id: "handleProtocol",   label: "Handle Protocol",        icon: "🔗", color: "#6366f1", description: "NEXUS Handle Protocol System — register web+npa://CreateAIDigital as a browser-native URL scheme, download a self-resolving portable card (host it free on GitHub Pages or Netlify for a professional URL), and use the permanent handle redirect. No domain purchase required.", category: "system" },
+  { id: "platformReport",   label: "Platform Analytics Report", icon: "📊", color: "#6366f1", description: "Full internal platform analytics report — system health, percentage scores for all subsystems, engine inventory, product pipeline, revenue status, ad engine metrics, traction velocity, identity completeness, handle protocol status, and capacity projections. Real data only, zero simulated numbers.", category: "system" },
 ];
 
 export const ALL_APPS = DEFAULT_APPS;
@@ -557,6 +558,7 @@ const INTENT_MAP: { keywords: string[]; target: AppId }[] = [
   { keywords: ["platform identity", "npa", "nexus platform address", "identity", "domain", "live url", "internal domain", "no domain", "brand domain", "domain settings", "platform address", "npa settings", "handle", "createaidigital", "my url", "platform url", "identity system", "domain system", "internal identity", "email identity", "verification substitute", "internal routing", "well-known", "platform-id", "npa resolve", "identity resolution", "domain free"], target: "npaSettings" },
   { keywords: ["self host", "self-host", "hosting", "internal hosting", "build frontend", "serve frontend", "createai url", "internal routing", "url map", "createai://", "proof token", "platform proof", "verification", "publish", "snapshot", "internal publish", "build", "compile", "dist", "frontend build", "watchdog", "service loop", "self contained", "no vercel", "no netlify", "no replit deploy", "single server", "one port", "port 8080", "serve everything"], target: "selfHost" },
   { keywords: ["handle protocol", "web+npa", "protocol handler", "register protocol", "npa protocol", "handle url", "professional url", "no domain", "free url", "portable card", "platform card", "redirect card", "handle redirect", "npa gateway", "protocol link", "browser protocol", "custom protocol", "web+ scheme", "protocol registration", "pwa protocol", "install app", "add to home screen", "github pages redirect", "free hosting card", "self resolving", "portable html", "url without domain"], target: "handleProtocol" },
+  { keywords: ["platform report", "analytics report", "full report", "system report", "internal analytics", "platform analytics", "readiness score", "engine report", "capability score", "platform score", "subsystem scores", "product pipeline report", "revenue status", "ad engine report", "traction report", "identity completeness", "capacity projection", "platform metrics", "internal metrics", "all systems", "platform health", "complete report", "dashboard report", "analytics dashboard", "report card", "platform audit"], target: "platformReport" },
 ];
 
 function routeIntentFn(intent: string): AppId | null {
@@ -733,6 +735,7 @@ const APP_META: Record<AppId, { icon: string; label: string }> = {
   npaSettings:       { icon: "🪪", label: "Platform Identity" },
   selfHost:          { icon: "🏠", label: "Self-Host Engine" },
   handleProtocol:    { icon: "🔗", label: "Handle Protocol" },
+  platformReport:    { icon: "📊", label: "Platform Analytics Report" },
 
   // ── Enterprise Suite Apps ──────────────────────────────────────────────────
   zeroTrust: { icon: "🔐", label: "Zero Trust" },

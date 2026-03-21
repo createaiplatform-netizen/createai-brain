@@ -110,6 +110,7 @@ import leadsRouter              from "./leads.js";
 import growthAnalyticsRouter    from "./growthAnalytics.js";
 import platformIdentityRouter   from "./platformIdentity.js";
 import selfHostRouter           from "./selfHost.js";
+import platformReportRouter     from "./platformReport.js";
 
 const router: IRouter = Router();
 
@@ -337,5 +338,8 @@ router.use(platformIdentityRouter);
 
 // ── Self-Host Engine — internal hosting, createai:// routing, verification ────
 router.use(selfHostRouter);
+
+// ── Unified Platform Analytics Report ────────────────────────────────────────
+router.use("/platform/report", platformReportRouter);
 
 export default router;

@@ -380,6 +380,7 @@ const GrowthEngineApp      = React.lazy(() => import("@/Apps/GrowthEngineApp"));
 const NPASettingsApp       = React.lazy(() => import("@/Apps/NPASettingsApp"));
 const SelfHostApp          = React.lazy(() => import("@/Apps/SelfHostApp"));
 const HandleProtocolApp    = React.lazy(() => import("@/Apps/HandleProtocolApp"));
+const PlatformReportApp    = React.lazy(() => import("@/Apps/PlatformReportApp"));
 const AuthLabApp       = React.lazy(() => import("@/Apps/AuthLabApp"));
 const PayGateApp       = React.lazy(() => import("@/Apps/PayGateApp"));
 const InventionLayerApp    = React.lazy(() => import("@/Apps/InventionLayerApp"));
@@ -758,6 +759,7 @@ const APP_COMPONENTS: Record<AppId, React.LazyExoticComponent<React.ComponentTyp
   npaSettings:     NPASettingsApp,
   selfHost:        SelfHostApp,
   handleProtocol:  HandleProtocolApp,
+  platformReport:  PlatformReportApp,
   authlab:        AuthLabApp,
   paygate:        PayGateApp,
   inventionLayer:    InventionLayerApp,
