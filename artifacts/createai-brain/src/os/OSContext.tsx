@@ -274,7 +274,10 @@ export type AppId =
   | "domainKPI" | "domainAgreements" | "domainGrowthPath" | "domainAssets" | "domainEngagement"
   | "domainValueExchange" | "domainRiskCoverage" | "domainPropertyFlow" | "domainWorkforce"
   | "domainPerfReview" | "domainCampaigns" | "domainRegulatory" | "domainFiscal" | "domainRecurring"
-  | "domainHub";
+  | "domainHub"
+  // ── Extended Domain Engine Suite v2.0 — 10 new engines ─────────────────────
+  | "projectsCmd" | "partnerNet" | "eventBooking" | "educationHub" | "socialCmd"
+  | "supplyChainOps" | "franchiseOps" | "brandVault" | "revenueIntel" | "aiStrategy";
 
 export interface AppDef {
   id: AppId;
@@ -472,6 +475,17 @@ export const DEFAULT_APPS: AppDef[] = [
   { id: "domainRegulatory",  label: "Regulatory Map",           icon: "⚖️", color: "#6366f1", description: "Internal compliance management engine — regulatory status registry (GDPR, PCI-DSS, CCPA, HIPAA, SOC 2 pre-loaded), action-required tracking, and audit trail. Internal name: Regulatory Map Engine.", category: "system" },
   { id: "domainFiscal",      label: "Fiscal Intelligence",      icon: "💹", color: "#10b981", description: "Internal FP&A engine — budget, forecast, and actuals planning with revenue, expenses, margin, and category breakdown. Replaces Adaptive Planning and Anaplan. Internal name: Fiscal Intelligence Engine.", category: "business" },
   { id: "domainRecurring",   label: "Recurring Revenue",        icon: "🔄", color: "#6366f1", description: "Internal subscription billing engine — 4 pre-built plans ($97–$2,997/mo), MRR/ARR calculation, and billing cycle management (monthly/quarterly/annual). Replaces Chargebee and Recurly. Internal name: Recurring Revenue Engine.", category: "business" },
+  // ── Extended Domain Engine Suite v2.0 ──────────────────────────────────────
+  { id: "projectsCmd",   label: "Project Command",     icon: "🎯", color: "#6366f1", description: "Full project management system — projects, tasks, sprints, milestones, time tracking, budget vs. actuals, and team assignments. Replaces Asana, Jira, and Monday.com. Real-time project health dashboard.", category: "business" },
+  { id: "partnerNet",    label: "Partner Network",     icon: "🤝", color: "#6366f1", description: "Affiliate, reseller, and referral partner management — commission tracking, partner tiers (Bronze→Elite), referral conversion, and revenue attribution. Replaces Impact, PartnerStack, and Tapfiliate.", category: "business" },
+  { id: "eventBooking",  label: "Events & Bookings",   icon: "📅", color: "#6366f1", description: "Event creation, ticketing, and attendee management — webinars, workshops, conferences, VIP events, waitlisting, check-in, and revenue reporting. Replaces Eventbrite and Hopin.", category: "business" },
+  { id: "educationHub",  label: "Education Hub",       icon: "🎓", color: "#6366f1", description: "Course creation, enrollment management, and progress tracking — multi-level courses, module structure, completion certificates, and learner analytics. Replaces Teachable, Kajabi, and Thinkific.", category: "business" },
+  { id: "socialCmd",     label: "Social Command",      icon: "📣", color: "#6366f1", description: "Cross-platform social media command center — schedule posts across Instagram, TikTok, LinkedIn, YouTube, Twitter; track impressions, reach, and engagement per post. Replaces Hootsuite and Buffer.", category: "business" },
+  { id: "supplyChainOps",label: "Supply Chain",        icon: "🚚", color: "#6366f1", description: "Vendor management, purchase orders, and fulfillment tracking — vendor reliability scores, PO lifecycle (draft→received), spend analytics, and reorder intelligence. Replaces NetSuite and TradeGecko.", category: "business" },
+  { id: "franchiseOps",  label: "Franchise Hub",       icon: "🏪", color: "#6366f1", description: "Multi-location franchise operations — operator management, royalty tracking (6% default), compliance scoring, revenue reporting, and territory management. Replaces FranConnect and Revel.", category: "business" },
+  { id: "brandVault",    label: "Brand Vault",         icon: "💎", color: "#6366f1", description: "Brand asset management and guidelines library — logos, color palettes, templates, fonts, usage rights, version control, and brand compliance enforcement. Replaces Bynder and Brandfolder.", category: "system" },
+  { id: "revenueIntel",  label: "Revenue Intelligence",icon: "📈", color: "#10b981", description: "Advanced revenue analytics — cohort analysis, LTV modeling, churn prediction, MRR/ARR trends, net revenue retention, and ARPU tracking. Replaces ChartMogul and Baremetrics.", category: "business" },
+  { id: "aiStrategy",    label: "AI Strategy Engine",  icon: "🧠", color: "#6366f1", description: "GPT-4o powered strategic intelligence — analyze business positions, generate 90-day action plans, map competitive landscapes, identify growth levers, and evaluate pivot options. Full strategic advisor.", category: "ai" },
 ];
 
 export const ALL_APPS = DEFAULT_APPS;
@@ -607,6 +621,17 @@ const INTENT_MAP: { keywords: string[]; target: AppId }[] = [
   { keywords: ["regulatory", "compliance", "regulatory map", "gdpr", "pci", "ccpa", "hipaa", "soc 2", "compliance tracking", "regulatory status", "audit compliance", "compliance management"], target: "domainRegulatory" },
   { keywords: ["fiscal intelligence", "fpa", "fp&a", "budget", "forecast", "actuals", "adaptive planning", "anaplan", "financial planning", "budgeting", "revenue planning", "expense planning"], target: "domainFiscal" },
   { keywords: ["recurring revenue", "subscriptions", "subscription billing", "mrr", "arr", "chargebee", "recurly", "subscription management", "monthly recurring", "billing cycles", "annual revenue"], target: "domainRecurring" },
+  // ── Extended Domain Suite v2.0 NEXUS keywords ────────────────────────────
+  { keywords: ["project command", "projects cmd", "project management", "tasks", "sprints", "milestones", "jira", "asana", "monday", "project tracking", "task management", "project dashboard", "team projects", "project health"], target: "projectsCmd" },
+  { keywords: ["partner network", "partners", "affiliate", "affiliates", "reseller", "referral program", "commissions", "partner tiers", "partner revenue", "partnerstack", "impact", "tapfiliate", "affiliate marketing", "referral tracking"], target: "partnerNet" },
+  { keywords: ["events", "event booking", "bookings", "tickets", "webinar", "workshop", "conference", "attendees", "eventbrite", "hopin", "event management", "event calendar", "check-in", "capacity management"], target: "eventBooking" },
+  { keywords: ["education hub", "courses", "learning", "lms", "e-learning", "course management", "enrollments", "certificates", "teachable", "kajabi", "thinkific", "student progress", "training programs", "course creation"], target: "educationHub" },
+  { keywords: ["social command", "social media", "instagram", "tiktok", "linkedin", "youtube", "social posts", "hootsuite", "buffer", "social scheduling", "content calendar", "social analytics", "post scheduling", "social management"], target: "socialCmd" },
+  { keywords: ["supply chain", "vendors", "purchase orders", "pos", "procurement", "fulfillment", "netsuite", "inventory management", "vendor management", "purchase management", "supply management", "vendor reliability"], target: "supplyChainOps" },
+  { keywords: ["franchise", "franchise hub", "locations", "operators", "royalties", "franchise management", "franconnect", "compliance score", "territory management", "franchise operations", "multi-location", "franchise revenue"], target: "franchiseOps" },
+  { keywords: ["brand vault", "brand assets", "brand guidelines", "brand management", "bynder", "brandfolder", "logo assets", "brand colors", "brand templates", "brand compliance", "asset management", "brand system"], target: "brandVault" },
+  { keywords: ["revenue intelligence", "revenue analytics", "cohort analysis", "ltv", "customer lifetime value", "churn", "churn rate", "chartmogul", "baremetrics", "arr", "mrr trends", "nrr", "arpu", "revenue metrics", "retention analytics"], target: "revenueIntel" },
+  { keywords: ["ai strategy", "strategy engine", "strategic intelligence", "business strategy", "competitive analysis", "growth strategy", "strategic planning", "90-day plan", "strategic advisor", "strategy generation", "competitive landscape", "pivot analysis", "market strategy"], target: "aiStrategy" },
 ];
 
 function routeIntentFn(intent: string): AppId | null {
@@ -805,6 +830,17 @@ const APP_META: Record<AppId, { icon: string; label: string }> = {
   domainRegulatory:   { icon: "⚖️", label: "Regulatory Map" },
   domainFiscal:       { icon: "💹", label: "Fiscal Intelligence" },
   domainRecurring:    { icon: "🔄", label: "Recurring Revenue" },
+  // Extended Domain Suite v2.0
+  projectsCmd:    { icon: "🎯", label: "Project Command" },
+  partnerNet:     { icon: "🤝", label: "Partner Network" },
+  eventBooking:   { icon: "📅", label: "Events & Bookings" },
+  educationHub:   { icon: "🎓", label: "Education Hub" },
+  socialCmd:      { icon: "📣", label: "Social Command" },
+  supplyChainOps: { icon: "🚚", label: "Supply Chain" },
+  franchiseOps:   { icon: "🏪", label: "Franchise Hub" },
+  brandVault:     { icon: "💎", label: "Brand Vault" },
+  revenueIntel:   { icon: "📈", label: "Revenue Intelligence" },
+  aiStrategy:     { icon: "🧠", label: "AI Strategy Engine" },
 
   // ── Enterprise Suite Apps ──────────────────────────────────────────────────
   zeroTrust: { icon: "🔐", label: "Zero Trust" },

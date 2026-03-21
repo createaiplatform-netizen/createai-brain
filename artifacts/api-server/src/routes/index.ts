@@ -125,6 +125,16 @@ import assetFlowRouter            from "./assetFlow.js";
 import engagementMapRouter        from "./engagementMap.js";
 import domainCompleteRouter       from "./domainComplete.js";
 import globalUnifierRouter        from "./globalUnifier.js";
+import projectCommandRouter       from "./projectCommand.js";
+import partnerNetworkRouter       from "./partnerNetwork.js";
+import eventBookingRouter         from "./eventBooking.js";
+import educationEngineRouter      from "./educationEngine.js";
+import socialCommandRouter        from "./socialCommand.js";
+import supplyChainRouter          from "./supplyChain.js";
+import franchiseHubRouter         from "./franchiseHub.js";
+import brandVaultRouter           from "./brandVault.js";
+import revenueIntelRouter         from "./revenueIntel.js";
+import aiStrategyRouter           from "./aiStrategy.js";
 
 const router: IRouter = Router();
 
@@ -375,5 +385,17 @@ router.use("/assets",      assetFlowRouter);
 router.use("/engagement",  engagementMapRouter);
 router.use("/domains",     domainCompleteRouter);
 router.use("/global",      globalUnifierRouter);
+
+// ── Extended Domain Engine Suite v2.0 — 10 new industry-equivalent domains ───
+router.use("/projects-cmd",  projectCommandRouter);
+router.use("/partners",      partnerNetworkRouter);
+router.use("/events",        eventBookingRouter);
+router.use("/education-hub", educationEngineRouter);
+router.use("/social",        socialCommandRouter);
+router.use("/supply-chain",  supplyChainRouter);
+router.use("/franchise",     franchiseHubRouter);
+router.use("/brand",         brandVaultRouter);
+router.use("/revenue-intel", revenueIntelRouter);
+router.use("/ai-strategy",   aiStrategyRouter);
 
 export default router;

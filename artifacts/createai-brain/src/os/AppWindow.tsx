@@ -409,6 +409,17 @@ const DomainCampaignsApp     = React.lazy(() => import("@/Apps/DomainAppsBundle"
 const DomainRegulatoryApp    = React.lazy(() => import("@/Apps/DomainAppsBundle").then(m => ({ default: m.DomainRegulatoryApp })));
 const DomainFiscalApp        = React.lazy(() => import("@/Apps/DomainAppsBundle").then(m => ({ default: m.DomainFiscalApp })));
 const DomainRecurringApp     = React.lazy(() => import("@/Apps/DomainAppsBundle").then(m => ({ default: m.DomainRecurringApp })));
+// Extended Domain Engine Suite v2.0
+const ProjectsCmdApp    = React.lazy(() => import("@/Apps/DomainAppsBundle2").then(m => ({ default: m.ProjectsCmdApp })));
+const PartnerNetApp     = React.lazy(() => import("@/Apps/DomainAppsBundle2").then(m => ({ default: m.PartnerNetApp })));
+const EventBookingApp   = React.lazy(() => import("@/Apps/DomainAppsBundle2").then(m => ({ default: m.EventBookingApp })));
+const EducationHubApp   = React.lazy(() => import("@/Apps/DomainAppsBundle2").then(m => ({ default: m.EducationHubApp })));
+const SocialCmdApp      = React.lazy(() => import("@/Apps/DomainAppsBundle2").then(m => ({ default: m.SocialCmdApp })));
+const SupplyChainOpsApp = React.lazy(() => import("@/Apps/DomainAppsBundle2").then(m => ({ default: m.SupplyChainOpsApp })));
+const FranchiseOpsApp   = React.lazy(() => import("@/Apps/DomainAppsBundle2").then(m => ({ default: m.FranchiseOpsApp })));
+const BrandVaultApp     = React.lazy(() => import("@/Apps/DomainAppsBundle2").then(m => ({ default: m.BrandVaultApp })));
+const RevenueIntelApp   = React.lazy(() => import("@/Apps/DomainAppsBundle2").then(m => ({ default: m.RevenueIntelApp })));
+const AIStrategyApp     = React.lazy(() => import("@/Apps/DomainAppsBundle2").then(m => ({ default: m.AIStrategyApp })));
 const ConfigManagerApp = React.lazy(() => import("@/Apps/ConfigManagerApp").then(m => ({ default: m.ConfigManagerApp })));
 
 // ── App registry ─────────────────────────────────────────────────────────────
@@ -808,6 +819,17 @@ const APP_COMPONENTS: Record<AppId, React.LazyExoticComponent<React.ComponentTyp
   domainRegulatory:    DomainRegulatoryApp,
   domainFiscal:        DomainFiscalApp,
   domainRecurring:     DomainRecurringApp,
+  // Extended Domain Engine Suite v2.0
+  projectsCmd:    ProjectsCmdApp,
+  partnerNet:     PartnerNetApp,
+  eventBooking:   EventBookingApp,
+  educationHub:   EducationHubApp,
+  socialCmd:      SocialCmdApp,
+  supplyChainOps: SupplyChainOpsApp,
+  franchiseOps:   FranchiseOpsApp,
+  brandVault:     BrandVaultApp,
+  revenueIntel:   RevenueIntelApp,
+  aiStrategy:     AIStrategyApp,
 };
 
 // ── Loading skeleton ─────────────────────────────────────────────────────────
