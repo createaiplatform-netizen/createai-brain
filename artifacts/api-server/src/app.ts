@@ -12,6 +12,7 @@ import { IDENTITY } from "./config/identity.js";
 import { getPublicBaseUrl } from "./utils/publicUrl.js";
 import { bootstrapSchema } from "./lib/db.js";
 import { initSelfHostEngine } from "./engines/selfHostEngine.js";
+import { startHealthMonitor } from "./services/healthMonitorEngine.js";
 import { generatePlatformProof } from "./engines/verificationEngine.js";
 
 // ── Route imports ────────────────────────────────────────────────────────────
@@ -412,6 +413,9 @@ app.use("/api", router);
 
 // ── Self-Host Engine — mounts built frontend if dist/ exists, starts watchdog ──
 initSelfHostEngine(app);
+
+// ── Automated Health Monitor — 16-endpoint polling, 60s interval ─────────────
+startHealthMonitor();
 
 // ── Global error handler ──────────────────────────────────────────────────────
 // eslint-disable-next-line @typescript-eslint/no-unused-vars

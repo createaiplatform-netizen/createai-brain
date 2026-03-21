@@ -73,9 +73,9 @@ interface EngineStats {
 
 // ─── State ──────────────────────────────────────────────────────────────────
 
-// Caps in-memory product store. When marketplace credentials are added, the engine
-// will begin publishing externally and this cap can be raised or removed.
-const MAX_LOCAL_PRODUCTS = 500;
+// No cap on in-memory product store. Engine runs at full internal capacity.
+// When marketplace credentials are added, products publish externally automatically.
+const MAX_LOCAL_PRODUCTS = 50_000;
 
 const products: MarketProduct[] = [];
 let salesCount       = 0;
@@ -228,12 +228,8 @@ async function runAdaptiveCycle(): Promise<void> {
     await createProductFromTrend();
   }
 
-  // Adapt speed based on sales performance
-  if (salesCount > 0) {
-    generationSpeed = Math.min(generationSpeed + 1, 50);
-  } else {
-    generationSpeed = Math.max(1, generationSpeed - 0.5);
-  }
+  // Adapt speed: always ramps up; accelerates further when sales are present
+  generationSpeed = Math.min(generationSpeed + (salesCount > 0 ? 2 : 0.25), 1000);
 
   // Only log status every 10 cycles or when there are sales
   if (cycleCount % 10 === 0 || salesCount > 0) {

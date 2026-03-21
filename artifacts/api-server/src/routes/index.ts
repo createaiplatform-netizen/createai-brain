@@ -111,6 +111,8 @@ import growthAnalyticsRouter    from "./growthAnalytics.js";
 import platformIdentityRouter   from "./platformIdentity.js";
 import selfHostRouter           from "./selfHost.js";
 import platformReportRouter     from "./platformReport.js";
+import healthMonitorRouter      from "./healthMonitor.js";
+import internalTotpRouter       from "./internalTotp.js";
 
 const router: IRouter = Router();
 
@@ -341,5 +343,11 @@ router.use(selfHostRouter);
 
 // ── Unified Platform Analytics Report ────────────────────────────────────────
 router.use("/platform/report", platformReportRouter);
+
+// ── Automated Health Monitor — 16-endpoint polling, 60s interval ──────────────
+router.use("/health-monitor", healthMonitorRouter);
+
+// ── Internal TOTP Engine — RFC 6238, HMAC-SHA1, no external deps ──────────────
+router.use("/totp", internalTotpRouter);
 
 export default router;
