@@ -1261,3 +1261,46 @@ pre, code {
   60%  { box-shadow: 0 0 0 6px rgba(16,185,129,0.00); }
   100% { box-shadow: 0 0 0 0 rgba(16,185,129,0.00); }
 }
+
+/* ═══════════════════════════════════════════════════════════════════════════
+   ██  GLOBAL APP SHELL — centered, max-width, light background
+   Mirrors what Replit's preview iframe provides automatically so the
+   deployed build looks identical to the preview at any viewport width.
+   ═══════════════════════════════════════════════════════════════════════════ */
+
+/*
+ * Outer canvas — a barely-visible step darker than the app background.
+ * On narrow viewports (< 1440px) this is invisible because #root fills
+ * the full width. On wide monitors it shows as a neutral surround that
+ * frames the app content, just like the preview pane bezel.
+ */
+html {
+  background: hsl(220, 16%, 91%);
+}
+
+/*
+ * App root — centered column with a maximum width.
+ * • max-width: 1440px  — comfortable cap for widescreen displays
+ * • margin: 0 auto     — centers horizontally at any viewport width
+ * • background         — matches the --background CSS token (hsl 220 20% 97%)
+ *                         so the panel always has the correct light surface
+ * • min-height: 100dvh — panel fills full viewport height even on short pages
+ * • box-shadow         — very subtle lift separates the panel from the outer canvas;
+ *                         imperceptible on narrow screens where root fills full width
+ *
+ * Fixed/absolute overlays (login, modals, command palette) use the viewport as
+ * their containing block, so they always cover the full screen correctly —
+ * this wrapper does not interfere with them.
+ */
+#root {
+  position: relative;
+  max-width: 1440px;
+  min-height: 100dvh;
+  margin: 0 auto;
+  background: hsl(220, 20%, 97%);
+  box-shadow:
+    0 0 0 1px rgba(0, 0, 0, 0.055),
+    0 2px 24px rgba(0, 0, 0, 0.06),
+    0 8px 48px rgba(0, 0, 0, 0.04);
+  overflow-x: clip;
+}
