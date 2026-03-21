@@ -1,0 +1,56 @@
+Now that the Industry Capability Index is complete, upgrade the entire platform to 200% capability across every industry fully automatically.
+
+Use ONLY the information already available to you (codebase, database schema, routes, tools, Industry Capability Index). Do NOT ask me any questions, do NOT wait for clarification, and do NOT require any manual input from me. Infer everything you need and execute the full upgrade plan end-to-end.
+
+Goals:
+1. Raise every industry to 200% capability, using the scoring definition from the Index (100% = strong, well-resourced SaaS; 200% = double that capability at this price point).
+2. Close every gap listed under “Missing / Below Expectation” and “To reach 200%” for each industry.
+3. Create any new engines, workflows, routes, tables, and integrations required to achieve those 200% targets.
+4. Keep everything safe, legal, and aligned with the existing platform’s standards and architecture.
+
+Rules:
+- Do not ask me for any information.
+- Do not pause for confirmation.
+- Do not output partial plans that require my intervention.
+- Infer all reasonable defaults (naming, fields, flows, UX) based on best practices.
+- Prefer reusable, cross-industry engines over one-off hacks.
+- Use creative and innovative solutions where the Index calls for “too deep a gap” or “requires real-time data” — design the best possible version that fits the current stack.
+- Maintain backward compatibility with existing routes, products, and tools wherever possible.
+
+Implementation scope:
+For each industry in the Index (Healthcare, Education, Construction, Logistics, Retail, Hospitality, Finance, Manufacturing, Government, Nonprofits, Professional Services, Real Estate, Marketing & Advertising, Technology & SaaS):
+
+1. Read:
+   - Our Score
+   - Industry Standard
+   - Delta
+   - Exceeding or Impressive
+   - Average / Meeting Standard
+   - Missing / Below Expectation
+   - To reach 200%
+
+2. Design and implement:
+   - New database tables and relationships needed to support the missing features.
+   - New API routes and internal endpoints.
+   - New UI flows and pages (admin, customer portal, or specialized portals like donor, student, patient, client, etc.).
+   - New AI-powered workflows that connect existing tools (AI Docs, AI Forms, AI Training, AI Analytics, AI Email, AI Social, etc.) into complete, ready-to-use solutions for that industry.
+   - Any necessary integrations (Stripe extensions, email, SMS, calendar, basic third-party APIs) that are realistic within this stack.
+
+3. Upgrade existing engines:
+   - Extend AI Docs with industry-specific document packs where the Index suggests them (e.g., ISO docs, clinical notes, RFPs, grant packages, etc.).
+   - Extend AI Training with direct “publish as course/module” flows where Education and other industries need delivery, not just content.
+   - Extend AI Analytics to include industry-specific metrics (MRR/ARR for Finance & SaaS, donor metrics for Nonprofits, project metrics for Construction, etc.).
+   - Extend the customer portal pattern into specialized portals (donor portal, patient portal, constituent portal, supplier portal, etc.) where the Index suggests it.
+
+4. Make everything cohesive:
+   - Ensure all new features are discoverable from the existing navigation.
+   - Ensure permissions and access patterns are consistent with the current admin and customer portal logic.
+   - Ensure all new flows are end-to-end usable (no dead ends, no “TODO” placeholders).
+
+Output (in this console only, no user interaction required):
+1. A structured summary of all upgrades performed, grouped by industry.
+2. A list of new tables, routes, and engines created.
+3. A brief capability statement for each industry explaining how and why it now qualifies as 200%.
+4. Any important notes about tradeoffs or assumptions you made.
+
+Do not wait for my review. Execute the full upgrade plan now, as completely as possible, within the constraints of the existing platform.
