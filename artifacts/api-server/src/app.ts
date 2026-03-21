@@ -10,6 +10,7 @@ import { getPublicBaseUrl } from "./utils/publicUrl.js";
 
 // ── Clean-URL sub-routers (mounted before auth — all public surfaces) ────────
 import platformHubRouter      from "./routes/platformHub.js";
+import moneyHubRouter         from "./routes/moneyHub.js";
 import semanticStoreRouter    from "./routes/semanticStore.js";
 import semanticLaunchRouter   from "./routes/semanticLaunch.js";
 import semanticPortalRouter   from "./routes/semanticPortal.js";
@@ -142,6 +143,7 @@ Sitemap: ${BASE}/sitemap.xml
 //   /join/plans     → Subscription plans JSON
 //   /join/checkout/:priceId → Subscription checkout
 app.use("/",       platformHubRouter);
+app.use("/vault",  moneyHubRouter);          // /vault (dashboard) · /vault/data (JSON)
 app.use("/",       semanticStoreRouter);     // /store, /store/:id, /checkout/:id, /export/...
 app.use("/launch", semanticLaunchRouter);    // /launch/, /launch/payments, /launch/share/:id
 app.use("/portal", semanticPortalRouter);    // /portal/me, /portal/lookup

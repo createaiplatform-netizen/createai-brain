@@ -212,6 +212,7 @@ router.get("/hub", async (_req: Request, res: Response) => {
     {
       section: "Revenue",
       items: [
+        { label: "Vault — Money Hub", url: `${BASE}/vault`, desc: "Balance, payouts, revenue timeline, Move Money action", icon: "🏦", badge: "Admin" },
         { label: "Launch Console", url: `${BASE}/launch/`, desc: "Live payments, one-click delivery, product catalog", icon: "🚀", badge: "Admin" },
         { label: "Store", url: `${BASE}/store`, desc: `${totalProducts} live products with Stripe checkout`, icon: "🛍️", badge: "Public" },
         { label: "Membership Plans", url: `${BASE}/join/landing`, desc: "Subscription tiers: $29 / $79 / $299/mo", icon: "👑", badge: "Public" },
