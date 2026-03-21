@@ -7,6 +7,7 @@
  */
 
 import postgres from "postgres";
+import crypto from "crypto";
 
 let _sql: ReturnType<typeof postgres> | null = null;
 
@@ -115,6 +116,36 @@ export async function bootstrapSchema(): Promise<void> {
         created_at  TIMESTAMPTZ NOT NULL DEFAULT NOW()
       )
     `;
+
+    await sql`
+      CREATE TABLE IF NOT EXISTS platform_ai_generations (
+        id           TEXT PRIMARY KEY,
+        tool         TEXT NOT NULL,
+        input_json   JSONB NOT NULL DEFAULT '{}',
+        output_text  TEXT NOT NULL DEFAULT '',
+        tokens_used  INTEGER NOT NULL DEFAULT 0,
+        created_at   TIMESTAMPTZ NOT NULL DEFAULT NOW()
+      )
+    `;
+
+    await sql`
+      CREATE TABLE IF NOT EXISTS platform_form_submissions (
+        id           TEXT PRIMARY KEY,
+        form_id      TEXT NOT NULL,
+        form_title   TEXT NOT NULL DEFAULT '',
+        data_json    JSONB NOT NULL DEFAULT '{}',
+        ip_hash      TEXT NOT NULL DEFAULT '',
+        created_at   TIMESTAMPTZ NOT NULL DEFAULT NOW()
+      )
+    `;
+
+    // ── Indexes for query performance ─────────────────────────────────────────
+    await sql`CREATE INDEX IF NOT EXISTS idx_customers_email      ON platform_customers(LOWER(email))`;
+    await sql`CREATE INDEX IF NOT EXISTS idx_customers_created    ON platform_customers(created_at DESC)`;
+    await sql`CREATE INDEX IF NOT EXISTS idx_customers_stripe_cid ON platform_customers(stripe_customer_id)`;
+    await sql`CREATE INDEX IF NOT EXISTS idx_webhook_events_type  ON platform_webhook_events(event_type)`;
+    await sql`CREATE INDEX IF NOT EXISTS idx_ai_gen_tool          ON platform_ai_generations(tool, created_at DESC)`;
+    await sql`CREATE INDEX IF NOT EXISTS idx_form_subs_form_id    ON platform_form_submissions(form_id, created_at DESC)`;
 
     console.log("[DB] Schema bootstrap complete");
   } catch (err) {
@@ -304,6 +335,37 @@ export async function getRevenueTimeline(): Promise<Array<{ date: string; revenu
     revenue: Number(r["revenue"] ?? 0),
     orders:  Number(r["orders"] ?? 0),
   }));
+}
+
+export async function saveAiGeneration(tool: string, input: unknown, output: string, tokensUsed = 0): Promise<void> {
+  const sql = getSql();
+  const id = crypto.randomUUID();
+  await sql`
+    INSERT INTO platform_ai_generations (id, tool, input_json, output_text, tokens_used)
+    VALUES (${id}, ${tool}, ${JSON.stringify(input)}, ${output}, ${tokensUsed})
+  `.catch(e => console.warn("[DB] saveAiGeneration failed:", e instanceof Error ? e.message : String(e)));
+}
+
+export async function getRecentAiGenerations(tool?: string, limit = 20): Promise<Array<{ id: string; tool: string; outputText: string; createdAt: string }>> {
+  const sql = getSql();
+  const rows = tool
+    ? await sql`SELECT id, tool, output_text, created_at FROM platform_ai_generations WHERE tool = ${tool} ORDER BY created_at DESC LIMIT ${limit}`
+    : await sql`SELECT id, tool, output_text, created_at FROM platform_ai_generations ORDER BY created_at DESC LIMIT ${limit}`;
+  return rows.map(r => ({
+    id:         String(r["id"] ?? ""),
+    tool:       String(r["tool"] ?? ""),
+    outputText: String(r["output_text"] ?? ""),
+    createdAt:  String(r["created_at"] ?? ""),
+  }));
+}
+
+export async function saveFormSubmission(formId: string, formTitle: string, data: unknown, ipHash = ""): Promise<void> {
+  const sql = getSql();
+  const id = crypto.randomUUID();
+  await sql`
+    INSERT INTO platform_form_submissions (id, form_id, form_title, data_json, ip_hash)
+    VALUES (${id}, ${formId}, ${formTitle}, ${JSON.stringify(data)}, ${ipHash})
+  `.catch(e => console.warn("[DB] saveFormSubmission failed:", e instanceof Error ? e.message : String(e)));
 }
 
 export async function getRecentWebhookEvents(limit = 10): Promise<Array<{ id: string; eventType: string; processedAt: string | null; createdAt: string }>> {

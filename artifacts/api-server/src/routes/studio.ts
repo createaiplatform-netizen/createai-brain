@@ -21,6 +21,7 @@ import {
   getRecentCustomers,
   getRevenueTimeline,
   findCustomersByEmail,
+  saveAiGeneration,
 } from "../lib/db.js";
 
 const router = Router();
@@ -111,10 +112,10 @@ const TOOLS = [
   { id: "crm",       icon: "👥", name: "AI CRM & Follow-up",      desc: "View customers from your live DB. Generate personalized AI follow-up emails for any customer with one click.",        live: true },
   { id: "social",    icon: "📱", name: "AI Social Scheduler",     desc: "Generate 30 days of social media posts from your live product catalog. Includes captions, hashtags, and CTAs.",       live: true },
   { id: "content",   icon: "✍",  name: "AI Content Engine",       desc: "Product descriptions, landing page copy, SEO meta tags, and sales emails from a single brief.",                       live: true },
-  { id: "schedule",  icon: "📅", name: "AI Scheduling Layer",     desc: "Booking links, appointment reminders, and calendar management — AI-driven, no Calendly.",                             live: false },
-  { id: "training",  icon: "🎓", name: "AI Training System",      desc: "Turn any document into a full training module with quiz and certificate. No LMS required.",                           live: false },
-  { id: "forms",     icon: "📋", name: "AI Form Builder",         desc: "Describe any form in natural language. Platform generates it as a hosted page and collects responses natively.",        live: false },
-  { id: "helpdesk",  icon: "🎧", name: "AI Helpdesk",             desc: "FAQ generation, draft email responses, and knowledge base creation from your product and service data.",               live: false },
+  { id: "schedule",  icon: "📅", name: "AI Scheduling Layer",     desc: "Generate structured meeting agendas, action items, and follow-up schedules for any meeting type in seconds.",       live: true },
+  { id: "training",  icon: "🎓", name: "AI Training System",      desc: "Turn any topic into a full training module with learning objectives, structured sections, and quiz questions.",         live: true },
+  { id: "forms",     icon: "📋", name: "AI Form Builder",         desc: "Describe any form in plain language. Platform generates the complete HTML form code, ready to embed anywhere.",         live: true },
+  { id: "helpdesk",  icon: "🎧", name: "AI Helpdesk",             desc: "Draft customer replies, generate FAQ entries, and build KB articles from your product and customer data.",              live: true },
 ];
 
 // ── GET /studio ──────────────────────────────────────────────────────────────
@@ -1095,6 +1096,654 @@ router.post("/content/generate", async (req: Request, res: Response) => {
 
     const content = completion.choices[0]?.message?.content?.trim() ?? "";
     res.json({ ok: true, content });
+  } catch (err: unknown) {
+    const msg = err instanceof Error ? err.message : String(err);
+    res.status(500).json({ ok: false, error: msg });
+  }
+});
+
+// ═══════════════════════════════════════════════════════════════════════════
+// AI SCHEDULING LAYER
+// ═══════════════════════════════════════════════════════════════════════════
+
+router.get("/schedule", (_req: Request, res: Response) => {
+  res.setHeader("Content-Type", "text/html; charset=utf-8");
+  res.setHeader("Cache-Control", "no-cache");
+  res.send(header("AI Scheduling Layer", "Scheduling") + `
+    <h1>📅 <em>AI Scheduling Layer</em></h1>
+    <p class="sub">Generate structured meeting agendas, action items, and follow-up schedules for any meeting type. No Calendly required.</p>
+    <div class="row">
+      <div class="col">
+        <div class="panel">
+          <div id="status-bar" style="display:none;" class="status-bar"></div>
+          <div class="form-row">
+            <label>Meeting Type</label>
+            <select id="meeting-type">
+              <option value="kickoff">Project Kickoff</option>
+              <option value="1on1">1:1 Check-in</option>
+              <option value="client-review">Client Review</option>
+              <option value="standup">Team Standup</option>
+              <option value="retrospective">Sprint Retrospective</option>
+              <option value="sales-call">Sales Discovery Call</option>
+              <option value="onboarding">Onboarding Session</option>
+              <option value="strategy">Quarterly Strategy</option>
+            </select>
+          </div>
+          <div class="form-row"><label>Attendees (roles or names)</label><input id="attendees" type="text" placeholder="e.g. CEO, Head of Marketing, Dev Lead"></div>
+          <div class="form-row"><label>Duration (minutes)</label><select id="duration"><option>30</option><option selected>60</option><option>90</option><option>120</option></select></div>
+          <div class="form-row"><label>Key Topics / Goals</label><textarea id="topics" rows="3" placeholder="What needs to be covered or decided? e.g. Q2 roadmap, pricing strategy, launch blockers"></textarea></div>
+          <div class="form-row"><label>Follow-up Period</label><select id="followup"><option value="1week">1 Week</option><option value="2weeks" selected>2 Weeks</option><option value="1month">1 Month</option><option value="none">No follow-up schedule</option></select></div>
+          <button class="btn" onclick="generateSchedule()" id="gen-btn">📅 Generate Agenda</button>
+        </div>
+      </div>
+      <div class="col">
+        <div class="panel" style="height:100%;">
+          <div style="font-size:0.68rem;font-weight:800;text-transform:uppercase;letter-spacing:.08em;color:var(--t4);margin-bottom:10px;">Generated Agenda & Action Plan</div>
+          <div id="output" class="output-box" style="min-height:380px;"><span class="output-empty">Agenda will appear here...</span></div>
+          <div id="copy-row" style="display:none;margin-top:10px;"><button class="btn-out" onclick="copyOut()" style="font-size:0.75rem;padding:7px 14px;">Copy Agenda</button></div>
+        </div>
+      </div>
+    </div>
+    <script>
+    var out = '';
+    async function generateSchedule() {
+      var t = document.getElementById('meeting-type').value;
+      var a = document.getElementById('attendees').value.trim();
+      var d = document.getElementById('duration').value;
+      var topics = document.getElementById('topics').value.trim();
+      var fu = document.getElementById('followup').value;
+      var btn = document.getElementById('gen-btn'); btn.disabled=true; btn.textContent='Generating...';
+      showStatus('GPT-4o is building your agenda...', null);
+      try {
+        var r = await fetch('/studio/schedule/generate', {method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({meetingType:t,attendees:a,duration:d,topics,followupPeriod:fu})});
+        var data = await r.json();
+        if (!data.ok) { showStatus('Error: '+data.error, false); return; }
+        out = data.agenda;
+        document.getElementById('output').textContent = out;
+        document.getElementById('copy-row').style.display='';
+        showStatus('Agenda ready. Copy or adjust as needed.', true);
+      } catch(e) { showStatus('Network error: '+e.message, false); }
+      finally { btn.disabled=false; btn.textContent='📅 Generate Agenda'; }
+    }
+    function copyOut() { navigator.clipboard.writeText(out).then(function(){var b=document.querySelector('#copy-row button');b.textContent='Copied!';setTimeout(function(){b.textContent='Copy Agenda';},1800);}); }
+    function showStatus(msg, ok) { var b=document.getElementById('status-bar');b.style.display='';b.className='status-bar '+(ok===true?'ok':ok===false?'err-bar':'');b.textContent=msg; }
+    </script>
+  </div></body></html>`);
+});
+
+router.post("/schedule/generate", async (req: Request, res: Response) => {
+  try {
+    const { meetingType, attendees, duration, topics, followupPeriod } = req.body as {
+      meetingType?: string; attendees?: string; duration?: string; topics?: string; followupPeriod?: string;
+    };
+
+    const typeLabels: Record<string, string> = {
+      kickoff: "Project Kickoff", "1on1": "1:1 Check-in", "client-review": "Client Review",
+      standup: "Team Standup", retrospective: "Sprint Retrospective",
+      "sales-call": "Sales Discovery Call", onboarding: "Onboarding Session",
+      strategy: "Quarterly Strategy Review",
+    };
+    const typeLabel = typeLabels[meetingType ?? "kickoff"] ?? "Business Meeting";
+
+    const completion = await openai.chat.completions.create({
+      model: "gpt-4o",
+      messages: [
+        {
+          role: "system",
+          content: `You are an expert meeting facilitator and operations consultant. Write structured, actionable meeting agendas in plain text only (no markdown, no asterisks, no hash symbols). Use ALL CAPS for section headers. Be concise and practical.`,
+        },
+        {
+          role: "user",
+          content: `Create a complete ${typeLabel} agenda for a ${duration ?? "60"}-minute meeting.
+Attendees: ${attendees || "Team members"}
+Key Topics/Goals: ${topics || "General alignment and planning"}
+Follow-up schedule: ${followupPeriod === "none" ? "Not required" : followupPeriod ?? "2 weeks"}
+
+Include:
+1. Meeting header (type, duration, objective)
+2. Pre-meeting prep (1-2 items attendees should review)
+3. Timed agenda items with owner and expected output for each
+4. Decision log template (3 rows)
+5. Action items table (who, what, by when)
+6. Follow-up schedule (if requested) — specific dates or intervals for check-ins
+Keep each section clearly labeled. Total output under 600 words.`,
+        },
+      ],
+      max_tokens: 1000,
+      temperature: 0.6,
+    });
+
+    const agenda = completion.choices[0]?.message?.content?.trim() ?? "";
+    const tokensUsed = completion.usage?.total_tokens ?? 0;
+    await saveAiGeneration("schedule", { meetingType, attendees, duration, topics }, agenda, tokensUsed);
+    res.json({ ok: true, agenda, tokensUsed });
+  } catch (err: unknown) {
+    const msg = err instanceof Error ? err.message : String(err);
+    res.status(500).json({ ok: false, error: msg });
+  }
+});
+
+// ═══════════════════════════════════════════════════════════════════════════
+// AI TRAINING SYSTEM
+// ═══════════════════════════════════════════════════════════════════════════
+
+router.get("/training", (_req: Request, res: Response) => {
+  res.setHeader("Content-Type", "text/html; charset=utf-8");
+  res.setHeader("Cache-Control", "no-cache");
+  res.send(header("AI Training System", "Training") + `
+    <h1>🎓 <em>AI Training System</em></h1>
+    <p class="sub">Turn any topic or document into a complete training module with learning objectives, structured content, and a knowledge quiz. No LMS required.</p>
+    <div class="row">
+      <div class="col">
+        <div class="panel">
+          <div id="status-bar" style="display:none;" class="status-bar"></div>
+          <div class="form-row"><label>Training Subject / Topic</label><input id="subject" type="text" placeholder="e.g. AI Prompt Engineering, Customer Service Excellence, GDPR Compliance"></div>
+          <div class="form-row"><label>Content Brief or Outline</label><textarea id="brief" rows="4" placeholder="Paste key points, an existing document, or describe what learners need to know. The richer the input, the more targeted the module."></textarea></div>
+          <div class="form-row">
+            <label>Audience Level</label>
+            <select id="level"><option value="beginner">Beginner — no prior knowledge</option><option value="intermediate" selected>Intermediate — some familiarity</option><option value="expert">Expert — deep dive, advanced detail</option></select>
+          </div>
+          <div class="form-row">
+            <label>Number of Sections</label>
+            <select id="sections"><option value="3">3 sections</option><option value="5" selected>5 sections</option><option value="7">7 sections</option></select>
+          </div>
+          <div class="form-row">
+            <label>Include Knowledge Quiz?</label>
+            <select id="quiz"><option value="yes" selected>Yes — 5 quiz questions</option><option value="no">No quiz</option></select>
+          </div>
+          <button class="btn" onclick="generateModule()" id="gen-btn">🎓 Generate Training Module</button>
+        </div>
+      </div>
+      <div class="col">
+        <div class="panel" style="height:100%;">
+          <div style="font-size:0.68rem;font-weight:800;text-transform:uppercase;letter-spacing:.08em;color:var(--t4);margin-bottom:10px;">Generated Training Module</div>
+          <div id="output" class="output-box" style="min-height:400px;"><span class="output-empty">Training module will appear here...</span></div>
+          <div id="copy-row" style="display:none;margin-top:10px;"><button class="btn-out" onclick="copyOut()" style="font-size:0.75rem;padding:7px 14px;">Copy Module</button></div>
+        </div>
+      </div>
+    </div>
+    <script>
+    var out = '';
+    async function generateModule() {
+      var sub = document.getElementById('subject').value.trim();
+      var brief = document.getElementById('brief').value.trim();
+      var level = document.getElementById('level').value;
+      var sections = document.getElementById('sections').value;
+      var quiz = document.getElementById('quiz').value;
+      if (!sub) { showStatus('Enter a training subject first.', false); return; }
+      var btn = document.getElementById('gen-btn'); btn.disabled=true; btn.textContent='Building module...';
+      showStatus('GPT-4o is building your training module...', null);
+      try {
+        var r = await fetch('/studio/training/generate', {method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({subject:sub,brief,level,sections:parseInt(sections),includeQuiz:quiz==='yes'})});
+        var data = await r.json();
+        if (!data.ok) { showStatus('Error: '+data.error, false); return; }
+        out = data.module;
+        document.getElementById('output').textContent = out;
+        document.getElementById('copy-row').style.display='';
+        showStatus('Module ready. Copy or use as-is.', true);
+      } catch(e) { showStatus('Network error: '+e.message, false); }
+      finally { btn.disabled=false; btn.textContent='🎓 Generate Training Module'; }
+    }
+    function copyOut() { navigator.clipboard.writeText(out).then(function(){var b=document.querySelector('#copy-row button');b.textContent='Copied!';setTimeout(function(){b.textContent='Copy Module';},1800);}); }
+    function showStatus(msg, ok) { var b=document.getElementById('status-bar');b.style.display='';b.className='status-bar '+(ok===true?'ok':ok===false?'err-bar':'');b.textContent=msg; }
+    </script>
+  </div></body></html>`);
+});
+
+router.post("/training/generate", async (req: Request, res: Response) => {
+  try {
+    const { subject, brief, level, sections, includeQuiz } = req.body as {
+      subject?: string; brief?: string; level?: string; sections?: number; includeQuiz?: boolean;
+    };
+    if (!subject) { res.status(400).json({ ok: false, error: "subject is required" }); return; }
+
+    const levelMap: Record<string, string> = {
+      beginner: "beginner level — define all terms, use simple analogies, no jargon",
+      intermediate: "intermediate level — assume some baseline knowledge, go deeper on application",
+      expert: "expert level — assume strong prior knowledge, focus on nuance, edge cases, and advanced application",
+    };
+
+    const completion = await openai.chat.completions.create({
+      model: "gpt-4o",
+      messages: [
+        {
+          role: "system",
+          content: `You are an expert instructional designer and L&D consultant. Write training modules in plain text only (no markdown, no asterisks). Use ALL CAPS for section headers and numbered lists for content. Be precise, educational, and practically focused.`,
+        },
+        {
+          role: "user",
+          content: `Create a complete training module on: "${subject}"
+Level: ${levelMap[level ?? "intermediate"] ?? levelMap["intermediate"]}
+Additional context: ${brief || "No additional context provided"}
+
+Structure the module as follows:
+1. MODULE OVERVIEW — title, learning duration estimate, 3-5 learning objectives
+2. PRE-REQUISITES — what learners should know beforehand
+3-${(sections ?? 5) + 2}. SECTION [N]: [TITLE] — each section has: key concept, explanation (150-200 words), 2-3 practical examples or exercises
+${includeQuiz ? `KNOWLEDGE CHECK — 5 multiple choice questions with 4 options each and the correct answer marked with [CORRECT]
+ANSWER KEY — list all correct answers` : ""}
+NEXT STEPS — 3 recommended actions to apply this training immediately
+
+Total output: 700-900 words. Plain text only.`,
+        },
+      ],
+      max_tokens: 1800,
+      temperature: 0.6,
+    });
+
+    const module = completion.choices[0]?.message?.content?.trim() ?? "";
+    const tokensUsed = completion.usage?.total_tokens ?? 0;
+    await saveAiGeneration("training", { subject, level, sections, includeQuiz }, module, tokensUsed);
+    res.json({ ok: true, module, tokensUsed });
+  } catch (err: unknown) {
+    const msg = err instanceof Error ? err.message : String(err);
+    res.status(500).json({ ok: false, error: msg });
+  }
+});
+
+// ═══════════════════════════════════════════════════════════════════════════
+// AI FORM BUILDER
+// ═══════════════════════════════════════════════════════════════════════════
+
+router.get("/forms", (_req: Request, res: Response) => {
+  res.setHeader("Content-Type", "text/html; charset=utf-8");
+  res.setHeader("Cache-Control", "no-cache");
+  res.send(header("AI Form Builder", "Form Builder") + `
+    <h1>📋 <em>AI Form Builder</em></h1>
+    <p class="sub">Describe any form in plain language. GPT-4o generates complete, ready-to-embed HTML with validation, styling, and field logic.</p>
+    <div class="row">
+      <div class="col">
+        <div class="panel">
+          <div id="status-bar" style="display:none;" class="status-bar"></div>
+          <div class="form-row"><label>What does this form do? (describe plainly)</label><textarea id="purpose" rows="3" placeholder="e.g. Client intake form for a marketing agency — collects name, company, goals, budget range, and best time to contact. Professional style."></textarea></div>
+          <div class="form-row">
+            <label>Form Style</label>
+            <select id="style">
+              <option value="minimal">Minimal (clean white, sharp borders)</option>
+              <option value="branded" selected>Branded (indigo accent, professional)</option>
+              <option value="dark">Dark (dark background, light fields)</option>
+              <option value="friendly">Friendly (rounded, warm, conversational)</option>
+            </select>
+          </div>
+          <div class="form-row">
+            <label>Submit Button Action</label>
+            <select id="action">
+              <option value="alert">Show thank-you message</option>
+              <option value="redirect">Redirect to URL</option>
+              <option value="api" selected>POST to API endpoint</option>
+            </select>
+          </div>
+          <div class="form-row"><label>Additional Notes</label><input id="notes" type="text" placeholder="e.g. All fields required, add GDPR consent checkbox, max 6 fields"></div>
+          <button class="btn" onclick="generateForm()" id="gen-btn">📋 Generate Form Code</button>
+        </div>
+      </div>
+      <div class="col">
+        <div class="panel" style="height:100%;">
+          <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:10px;">
+            <span style="font-size:0.68rem;font-weight:800;text-transform:uppercase;letter-spacing:.08em;color:var(--t4);">Generated HTML Form</span>
+            <div id="copy-row" style="display:none;gap:8px;display:none;">
+              <button class="btn-out" onclick="copyCode()" style="font-size:0.75rem;padding:7px 14px;">Copy HTML</button>
+              <button class="btn-out" onclick="previewForm()" style="font-size:0.75rem;padding:7px 14px;">Preview</button>
+            </div>
+          </div>
+          <div id="output" class="output-box" style="min-height:400px;font-size:0.78rem;"><span class="output-empty">HTML form code will appear here. Copy and embed anywhere.</span></div>
+        </div>
+      </div>
+    </div>
+    <script>
+    var out = '';
+    async function generateForm() {
+      var purpose = document.getElementById('purpose').value.trim();
+      var style = document.getElementById('style').value;
+      var action = document.getElementById('action').value;
+      var notes = document.getElementById('notes').value.trim();
+      if (!purpose) { showStatus('Describe what this form should do first.', false); return; }
+      var btn = document.getElementById('gen-btn'); btn.disabled=true; btn.textContent='Generating form...';
+      showStatus('GPT-4o is writing your form code...', null);
+      try {
+        var r = await fetch('/studio/forms/generate', {method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({purpose,style,action,notes})});
+        var data = await r.json();
+        if (!data.ok) { showStatus('Error: '+data.error, false); return; }
+        out = data.html;
+        document.getElementById('output').textContent = out;
+        document.getElementById('copy-row').style.display='flex';
+        showStatus('Form code ready. Copy and paste into any webpage.', true);
+      } catch(e) { showStatus('Network error: '+e.message, false); }
+      finally { btn.disabled=false; btn.textContent='📋 Generate Form Code'; }
+    }
+    function copyCode() { navigator.clipboard.writeText(out).then(function(){var b=document.querySelector('#copy-row button');b.textContent='Copied!';setTimeout(function(){b.textContent='Copy HTML';},1800);}); }
+    function previewForm() { var w=window.open('','_blank'); w.document.write(out); w.document.close(); }
+    function showStatus(msg, ok) { var b=document.getElementById('status-bar');b.style.display='';b.className='status-bar '+(ok===true?'ok':ok===false?'err-bar':'');b.textContent=msg; }
+    </script>
+  </div></body></html>`);
+});
+
+router.post("/forms/generate", async (req: Request, res: Response) => {
+  try {
+    const { purpose, style, action, notes } = req.body as {
+      purpose?: string; style?: string; action?: string; notes?: string;
+    };
+    if (!purpose) { res.status(400).json({ ok: false, error: "purpose is required" }); return; }
+
+    const styleGuide: Record<string, string> = {
+      minimal:  "white background, 1px #e5e7eb borders, no box-shadow, clean sans-serif",
+      branded:  "white background, indigo (#6366f1) accent for labels/focus/button, subtle box-shadow",
+      dark:     "#0f172a background, #1e293b fields, #e2e8f0 text, indigo accent",
+      friendly: "white background, 20px border-radius on fields, soft purple accent, conversational spacing",
+    };
+
+    const actionCode: Record<string, string> = {
+      alert:    "show a styled thank-you message inside the form on submit (no page reload)",
+      redirect: "redirect to a configurable URL after submit (use a data-action or placeholder URL)",
+      api:      "POST form data as JSON to the form's action attribute URL (default '/api/form-submit'), show loading state and success/error message",
+    };
+
+    const completion = await openai.chat.completions.create({
+      model: "gpt-4o",
+      messages: [
+        {
+          role: "system",
+          content: `You are an expert front-end developer specializing in HTML forms. Generate complete, self-contained HTML form code with inline CSS and vanilla JavaScript. Output ONLY the HTML code — no explanation, no markdown fences, no backtick wrappers. The code must be directly pasteable into a web page and work immediately.`,
+        },
+        {
+          role: "user",
+          content: `Generate a complete HTML form for: ${purpose}
+
+Style requirements: ${styleGuide[style ?? "branded"] ?? styleGuide["branded"]}
+Submit action: ${actionCode[action ?? "api"] ?? actionCode["api"]}
+Additional requirements: ${notes || "None — use best judgment"}
+
+Requirements:
+- Complete self-contained HTML with DOCTYPE, head, and body
+- Inline CSS only (no external stylesheets or CDN links)
+- Vanilla JavaScript only (no libraries)
+- Client-side validation with helpful error messages
+- Accessible labels and ARIA attributes
+- Mobile responsive (max-width: 480px centered container)
+- All interactive states (focus, hover, disabled during submit, success, error)
+Output the raw HTML code only. No explanation. No markdown.`,
+        },
+      ],
+      max_tokens: 2000,
+      temperature: 0.4,
+    });
+
+    let html = completion.choices[0]?.message?.content?.trim() ?? "";
+    // Strip any markdown code fences if GPT wrapped them
+    html = html.replace(/^```[a-z]*\n?/i, "").replace(/\n?```$/i, "").trim();
+    const tokensUsed = completion.usage?.total_tokens ?? 0;
+    await saveAiGeneration("forms", { purpose, style, action }, html, tokensUsed);
+    res.json({ ok: true, html, tokensUsed });
+  } catch (err: unknown) {
+    const msg = err instanceof Error ? err.message : String(err);
+    res.status(500).json({ ok: false, error: msg });
+  }
+});
+
+// ═══════════════════════════════════════════════════════════════════════════
+// AI HELPDESK
+// ═══════════════════════════════════════════════════════════════════════════
+
+router.get("/helpdesk", async (_req: Request, res: Response) => {
+  const catalog = await getRegistry().catch(() => []);
+  const sampleProducts = catalog.slice(0, 8).map(p => p.title).join(", ");
+
+  res.setHeader("Content-Type", "text/html; charset=utf-8");
+  res.setHeader("Cache-Control", "no-cache");
+  res.send(header("AI Helpdesk", "Helpdesk") + `
+    <h1>🎧 <em>AI Helpdesk</em></h1>
+    <p class="sub">Draft customer replies, generate FAQ entries, and create knowledge base articles from your product data. One input, three outputs.</p>
+    <div style="display:flex;gap:10px;margin-bottom:18px;border-bottom:1px solid var(--line);padding-bottom:12px;">
+      <button class="btn" id="tab-reply" onclick="switchTab('reply')" style="font-size:0.78rem;padding:8px 16px;">Reply Drafter</button>
+      <button class="btn-out" id="tab-faq" onclick="switchTab('faq')" style="font-size:0.78rem;padding:8px 16px;">FAQ Generator</button>
+      <button class="btn-out" id="tab-kb" onclick="switchTab('kb')" style="font-size:0.78rem;padding:8px 16px;">KB Article</button>
+    </div>
+
+    <div id="pane-reply">
+      <div class="row">
+        <div class="col">
+          <div class="panel">
+            <div id="status-reply" style="display:none;" class="status-bar"></div>
+            <div class="form-row"><label>Customer Message</label><textarea id="customer-msg" rows="5" placeholder="Paste the customer's email or support message here. Include all context."></textarea></div>
+            <div class="form-row"><label>Product Context (optional)</label><input id="product-ctx" type="text" placeholder="e.g. AI Writing Assistant (ebook)" value="${sampleProducts.split(",")[0] ?? ""}"></div>
+            <div class="form-row"><label>Response Tone</label><select id="reply-tone"><option value="empathetic" selected>Empathetic & Helpful</option><option value="professional">Professional & Direct</option><option value="concise">Concise (under 100 words)</option><option value="detailed">Detailed & Thorough</option></select></div>
+            <button class="btn" onclick="draftReply()" id="reply-btn">🎧 Draft Reply</button>
+          </div>
+        </div>
+        <div class="col">
+          <div class="panel" style="height:100%;">
+            <div style="font-size:0.68rem;font-weight:800;text-transform:uppercase;letter-spacing:.08em;color:var(--t4);margin-bottom:10px;">Drafted Response</div>
+            <div id="reply-output" class="output-box" style="min-height:300px;"><span class="output-empty">Your drafted reply will appear here...</span></div>
+            <div id="reply-copy" style="display:none;margin-top:10px;"><button class="btn-out" onclick="copyEl('reply-output','reply-copy')" style="font-size:0.75rem;padding:7px 14px;">Copy Reply</button></div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div id="pane-faq" style="display:none;">
+      <div class="row">
+        <div class="col">
+          <div class="panel">
+            <div id="status-faq" style="display:none;" class="status-bar"></div>
+            <div class="form-row"><label>Product or Service to Write FAQs For</label><input id="faq-product" type="text" placeholder="e.g. AI Writing Assistant (ebook, $22.80)" value="${sampleProducts.split(",")[0] ?? ""}"></div>
+            <div class="form-row"><label>Common Concern Areas</label><textarea id="faq-concerns" rows="3" placeholder="e.g. refund policy, how to download, what software is needed, will this work on Mac..."></textarea></div>
+            <div class="form-row"><label>Number of FAQ Entries</label><select id="faq-count"><option value="5" selected>5 entries</option><option value="8">8 entries</option><option value="12">12 entries</option></select></div>
+            <button class="btn" onclick="generateFaq()" id="faq-btn">📋 Generate FAQ</button>
+          </div>
+        </div>
+        <div class="col">
+          <div class="panel" style="height:100%;">
+            <div style="font-size:0.68rem;font-weight:800;text-transform:uppercase;letter-spacing:.08em;color:var(--t4);margin-bottom:10px;">Generated FAQ</div>
+            <div id="faq-output" class="output-box" style="min-height:300px;"><span class="output-empty">FAQ entries will appear here...</span></div>
+            <div id="faq-copy" style="display:none;margin-top:10px;"><button class="btn-out" onclick="copyEl('faq-output','faq-copy')" style="font-size:0.75rem;padding:7px 14px;">Copy FAQ</button></div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div id="pane-kb" style="display:none;">
+      <div class="row">
+        <div class="col">
+          <div class="panel">
+            <div id="status-kb" style="display:none;" class="status-bar"></div>
+            <div class="form-row"><label>Article Topic</label><input id="kb-topic" type="text" placeholder="e.g. How to download and access your digital product"></div>
+            <div class="form-row"><label>Key Points to Cover</label><textarea id="kb-points" rows="4" placeholder="List the main steps, concepts, or information this article should cover."></textarea></div>
+            <div class="form-row"><label>Target Reader</label><select id="kb-reader"><option value="customer" selected>End Customer (non-technical)</option><option value="technical">Technical User</option><option value="reseller">Reseller / Partner</option></select></div>
+            <button class="btn" onclick="generateKb()" id="kb-btn">📖 Write KB Article</button>
+          </div>
+        </div>
+        <div class="col">
+          <div class="panel" style="height:100%;">
+            <div style="font-size:0.68rem;font-weight:800;text-transform:uppercase;letter-spacing:.08em;color:var(--t4);margin-bottom:10px;">Knowledge Base Article</div>
+            <div id="kb-output" class="output-box" style="min-height:300px;"><span class="output-empty">KB article will appear here...</span></div>
+            <div id="kb-copy" style="display:none;margin-top:10px;"><button class="btn-out" onclick="copyEl('kb-output','kb-copy')" style="font-size:0.75rem;padding:7px 14px;">Copy Article</button></div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <script>
+    function switchTab(t) {
+      ['reply','faq','kb'].forEach(function(id){ document.getElementById('pane-'+id).style.display = id===t?'':'none'; document.getElementById('tab-'+id).className = id===t?'btn':'btn-out'; });
+    }
+    async function draftReply() {
+      var msg = document.getElementById('customer-msg').value.trim();
+      var ctx = document.getElementById('product-ctx').value.trim();
+      var tone = document.getElementById('reply-tone').value;
+      if (!msg) { showS('status-reply','Enter the customer message first.',false); return; }
+      var btn = document.getElementById('reply-btn'); btn.disabled=true; btn.textContent='Drafting...';
+      showS('status-reply','GPT-4o is drafting your reply...', null);
+      try {
+        var r = await fetch('/studio/helpdesk/draft', {method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({customerMessage:msg,productContext:ctx,tone})});
+        var d = await r.json();
+        if (!d.ok) { showS('status-reply','Error: '+d.error,false); return; }
+        document.getElementById('reply-output').textContent = d.reply;
+        document.getElementById('reply-copy').style.display='';
+        showS('status-reply','Reply drafted. Edit as needed before sending.', true);
+      } catch(e) { showS('status-reply','Network error: '+e.message,false); }
+      finally { btn.disabled=false; btn.textContent='🎧 Draft Reply'; }
+    }
+    async function generateFaq() {
+      var product = document.getElementById('faq-product').value.trim();
+      var concerns = document.getElementById('faq-concerns').value.trim();
+      var count = document.getElementById('faq-count').value;
+      if (!product) { showS('status-faq','Enter a product name first.',false); return; }
+      var btn = document.getElementById('faq-btn'); btn.disabled=true; btn.textContent='Generating...';
+      showS('status-faq','GPT-4o is writing your FAQ...', null);
+      try {
+        var r = await fetch('/studio/helpdesk/faq', {method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({product,concerns,count:parseInt(count)})});
+        var d = await r.json();
+        if (!d.ok) { showS('status-faq','Error: '+d.error,false); return; }
+        document.getElementById('faq-output').textContent = d.faq;
+        document.getElementById('faq-copy').style.display='';
+        showS('status-faq','FAQ ready.', true);
+      } catch(e) { showS('status-faq','Network error: '+e.message,false); }
+      finally { btn.disabled=false; btn.textContent='📋 Generate FAQ'; }
+    }
+    async function generateKb() {
+      var topic = document.getElementById('kb-topic').value.trim();
+      var points = document.getElementById('kb-points').value.trim();
+      var reader = document.getElementById('kb-reader').value;
+      if (!topic) { showS('status-kb','Enter the article topic first.',false); return; }
+      var btn = document.getElementById('kb-btn'); btn.disabled=true; btn.textContent='Writing...';
+      showS('status-kb','GPT-4o is writing your KB article...', null);
+      try {
+        var r = await fetch('/studio/helpdesk/kb', {method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({topic,keyPoints:points,targetReader:reader})});
+        var d = await r.json();
+        if (!d.ok) { showS('status-kb','Error: '+d.error,false); return; }
+        document.getElementById('kb-output').textContent = d.article;
+        document.getElementById('kb-copy').style.display='';
+        showS('status-kb','Article ready.', true);
+      } catch(e) { showS('status-kb','Network error: '+e.message,false); }
+      finally { btn.disabled=false; btn.textContent='📖 Write KB Article'; }
+    }
+    function copyEl(elId, rowId) {
+      var text = document.getElementById(elId).textContent;
+      navigator.clipboard.writeText(text).then(function(){ var b=document.querySelector('#'+rowId+' button'); b.textContent='Copied!'; setTimeout(function(){b.textContent=b.textContent.includes('FAQ')?'Copy FAQ':b.textContent.includes('Article')?'Copy Article':'Copy Reply';},1800); });
+    }
+    function showS(barId, msg, ok) { var b=document.getElementById(barId);b.style.display='';b.className='status-bar '+(ok===true?'ok':ok===false?'err-bar':'');b.textContent=msg; }
+    </script>
+  </div></body></html>`);
+});
+
+router.post("/helpdesk/draft", async (req: Request, res: Response) => {
+  try {
+    const { customerMessage, productContext, tone } = req.body as {
+      customerMessage?: string; productContext?: string; tone?: string;
+    };
+    if (!customerMessage) { res.status(400).json({ ok: false, error: "customerMessage is required" }); return; }
+
+    const toneMap: Record<string, string> = {
+      empathetic:   "empathetic, warm, and genuinely helpful — acknowledge the customer's situation first",
+      professional: "professional, direct, and solution-focused",
+      concise:      "very concise — under 100 words — polite but efficient",
+      detailed:     "thorough and detailed — walk through every step clearly",
+    };
+
+    const completion = await openai.chat.completions.create({
+      model: "gpt-4o",
+      messages: [
+        {
+          role: "system",
+          content: `You are an expert customer support specialist for a digital products platform (CreateAI Brain). Write support replies in plain text only — no markdown, no asterisks. Be ${toneMap[tone ?? "empathetic"] ?? toneMap["empathetic"]}. Always end with a clear next step or offer to help further.`,
+        },
+        {
+          role: "user",
+          content: `Draft a customer support reply to this message:\n\n"${customerMessage}"${productContext ? `\n\nProduct context: ${productContext}` : ""}`,
+        },
+      ],
+      max_tokens: 400,
+      temperature: 0.5,
+    });
+
+    const reply = completion.choices[0]?.message?.content?.trim() ?? "";
+    const tokensUsed = completion.usage?.total_tokens ?? 0;
+    await saveAiGeneration("helpdesk-reply", { tone, productContext }, reply, tokensUsed);
+    res.json({ ok: true, reply, tokensUsed });
+  } catch (err: unknown) {
+    const msg = err instanceof Error ? err.message : String(err);
+    res.status(500).json({ ok: false, error: msg });
+  }
+});
+
+router.post("/helpdesk/faq", async (req: Request, res: Response) => {
+  try {
+    const { product, concerns, count } = req.body as {
+      product?: string; concerns?: string; count?: number;
+    };
+    if (!product) { res.status(400).json({ ok: false, error: "product is required" }); return; }
+
+    const completion = await openai.chat.completions.create({
+      model: "gpt-4o",
+      messages: [
+        {
+          role: "system",
+          content: `You are an expert customer success writer. Write FAQ entries in plain text only (no markdown). Format each entry as: Q: [question] / A: [answer]. Number each entry. Answers should be 2-4 sentences — reassuring, clear, and action-oriented.`,
+        },
+        {
+          role: "user",
+          content: `Write ${count ?? 5} FAQ entries for: "${product}"${concerns ? `\n\nFocus on these concern areas: ${concerns}` : ""}
+
+Cover the most common buyer questions: how to access/download, format compatibility, refund policy, licensing, what's included, how to use it, and support options. Make answers confident and reassuring.`,
+        },
+      ],
+      max_tokens: 900,
+      temperature: 0.5,
+    });
+
+    const faq = completion.choices[0]?.message?.content?.trim() ?? "";
+    const tokensUsed = completion.usage?.total_tokens ?? 0;
+    await saveAiGeneration("helpdesk-faq", { product, count }, faq, tokensUsed);
+    res.json({ ok: true, faq, tokensUsed });
+  } catch (err: unknown) {
+    const msg = err instanceof Error ? err.message : String(err);
+    res.status(500).json({ ok: false, error: msg });
+  }
+});
+
+router.post("/helpdesk/kb", async (req: Request, res: Response) => {
+  try {
+    const { topic, keyPoints, targetReader } = req.body as {
+      topic?: string; keyPoints?: string; targetReader?: string;
+    };
+    if (!topic) { res.status(400).json({ ok: false, error: "topic is required" }); return; }
+
+    const readerMap: Record<string, string> = {
+      customer:  "non-technical end customer — use simple language, step-by-step instructions, no jargon",
+      technical: "technical user who is comfortable with software and web concepts",
+      reseller:  "reseller or affiliate partner who needs to understand the product to sell it",
+    };
+
+    const completion = await openai.chat.completions.create({
+      model: "gpt-4o",
+      messages: [
+        {
+          role: "system",
+          content: `You are an expert technical writer for a digital products platform. Write knowledge base articles in plain text only (no markdown). Use ALL CAPS for section headers. Write for: ${readerMap[targetReader ?? "customer"] ?? readerMap["customer"]}. Be clear, complete, and scannable.`,
+        },
+        {
+          role: "user",
+          content: `Write a knowledge base article about: "${topic}"${keyPoints ? `\n\nKey points to cover: ${keyPoints}` : ""}
+
+Structure:
+OVERVIEW — 2-sentence summary of what this article covers
+WHO THIS IS FOR — target audience and prerequisites
+STEP BY STEP (if procedural) or KEY CONCEPTS (if informational) — the main content
+COMMON ISSUES — 2-3 troubleshooting scenarios with solutions
+RELATED RESOURCES — 2-3 suggested next steps or related topics
+NEED MORE HELP — brief support CTA
+
+Total: 350-500 words. Plain text only.`,
+        },
+      ],
+      max_tokens: 900,
+      temperature: 0.5,
+    });
+
+    const article = completion.choices[0]?.message?.content?.trim() ?? "";
+    const tokensUsed = completion.usage?.total_tokens ?? 0;
+    await saveAiGeneration("helpdesk-kb", { topic, targetReader }, article, tokensUsed);
+    res.json({ ok: true, article, tokensUsed });
   } catch (err: unknown) {
     const msg = err instanceof Error ? err.message : String(err);
     res.status(500).json({ ok: false, error: msg });

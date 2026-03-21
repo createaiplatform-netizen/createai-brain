@@ -25,6 +25,53 @@ function slugify(str: string): string {
     .slice(0, 80);
 }
 
+// ── Format-based value pricing (display-only "retail" tier vs member price) ──
+const FORMAT_VALUE_CENTS: Record<string, number> = {
+  software:  4900,
+  plugin:    4400,
+  course:    4900,
+  "3D":      3400,
+  video:     2900,
+  audiobook: 2400,
+  ebook:     1900,
+  template:  1700,
+  graphic:   1400,
+  photo:     1200,
+  music:      900,
+  digital:   2200,
+};
+
+// ── Category mapping from product name keywords ───────────────────────────────
+const CATEGORY_KEYWORDS: Array<[string[], string]> = [
+  [["writing", "writer", "copy", "blog", "content", "script", "story"], "Writing & Content"],
+  [["study", "learn", "training", "education", "course", "tutor", "quiz"], "Education & Training"],
+  [["productivity", "organizer", "planner", "schedule", "task", "time", "workflow"], "Productivity"],
+  [["business", "finance", "invoice", "budget", "accounting", "sales", "revenue"], "Business & Finance"],
+  [["marketing", "social", "brand", "seo", "email", "campaign", "funnel"], "Marketing"],
+  [["interview", "resume", "career", "job", "hire", "portfolio"], "Career & HR"],
+  [["health", "fitness", "wellness", "meditation", "mental", "diet", "exercise"], "Health & Wellness"],
+  [["research", "data", "analysis", "report", "insight", "survey"], "Research & Analytics"],
+  [["design", "graphic", "visual", "art", "creative", "photo", "image", "3d"], "Creative & Design"],
+  [["music", "audio", "sound", "podcast", "voice", "video", "media"], "Media & Audio"],
+  [["code", "software", "plugin", "app", "tool", "tech", "automation", "ai"], "AI & Technology"],
+];
+
+function extractCategory(title: string, meta: Record<string, string>): string {
+  if (meta["category"] && meta["category"] !== "Digital Products") return meta["category"];
+  const lower = title.toLowerCase();
+  for (const [keywords, category] of CATEGORY_KEYWORDS) {
+    if (keywords.some(k => lower.includes(k))) return category;
+  }
+  return "Digital Products";
+}
+
+function extractProductFamily(title: string): string {
+  // "AI Solution: Smart Life Organizer (ebook)" → "smart-life-organizer"
+  const colonPart = title.includes(":") ? title.split(":").slice(1).join(":").trim() : title;
+  const withoutFormat = colonPart.replace(/\s*\([^)]+\)\s*$/, "").trim();
+  return slugify(withoutFormat);
+}
+
 function extractFormat(name: string, meta: Record<string, string>): string {
   if (meta["format"]) return meta["format"];
   const match = name.match(/\(([^)]+)\)$/);
@@ -32,10 +79,32 @@ function extractFormat(name: string, meta: Record<string, string>): string {
   return "digital";
 }
 
-function extractTags(meta: Record<string, string>, title: string): string[] {
+function extractTags(meta: Record<string, string>, title: string, format: string, category: string): string[] {
   if (meta["tags"]) return meta["tags"].split(",").map(t => t.trim()).filter(Boolean);
-  const words = title.toLowerCase().split(/\s+/);
-  return words.filter(w => w.length > 3).slice(0, 5);
+  const family = extractProductFamily(title);
+  const lower = title.toLowerCase();
+  const tags: string[] = [];
+  // product family slug
+  if (family && family.length > 2) tags.push(family);
+  // format
+  if (format && format !== "digital") tags.push(format);
+  // category-derived tag
+  const catSlug = category.toLowerCase().replace(/[^a-z0-9]+/g, "-").replace(/^-|-$/g, "");
+  if (catSlug && catSlug !== "digital-products") tags.push(catSlug);
+  // keyword-derived tags
+  const keywordMap: Record<string, string> = {
+    "ai": "ai-powered", "automation": "automation", "productivity": "productivity",
+    "writing": "writing", "business": "business", "marketing": "marketing",
+    "social": "social-media", "finance": "finance", "career": "career",
+    "design": "design", "health": "health", "research": "research",
+    "training": "training", "music": "music", "video": "video",
+  };
+  for (const [kw, tag] of Object.entries(keywordMap)) {
+    if (lower.includes(kw) && !tags.includes(tag)) { tags.push(tag); if (tags.length >= 6) break; }
+  }
+  // always include brand
+  if (!tags.includes("createai")) tags.push("createai");
+  return tags.slice(0, 6);
 }
 
 function mapStripeToSemantic(
@@ -47,6 +116,12 @@ function mapStripeToSemantic(
   const title = product.name;
   const slug = slugify(title);
   const priceCents = price?.unit_amount ?? 1900;
+  const category = extractCategory(title, meta);
+  const tags = extractTags(meta, title, format, category);
+
+  // Value price: what this format would retail for normally (display-only)
+  const valuePriceCents = FORMAT_VALUE_CENTS[format] ?? FORMAT_VALUE_CENTS["digital"] ?? 2200;
+
   const description = product.description ||
     `${title} — professionally crafted AI-generated digital product for immediate download and use.`;
   const shortDescription = description.length > 120
@@ -62,8 +137,8 @@ function mapStripeToSemantic(
     priceCents,
     currency: "usd",
     format,
-    tags: extractTags(meta, title),
-    category: meta["category"] || "Digital Products",
+    tags,
+    category,
     coverImageUrl: product.images?.[0] || "",
     stripeProductId: product.id,
     stripePriceId: price?.id || "",
@@ -81,6 +156,8 @@ function mapStripeToSemantic(
     revenueCents: 0,
     createdAt: new Date(product.created * 1000).toISOString(),
     updatedAt: new Date(product.updated * 1000).toISOString(),
+    // @ts-ignore — extended field for display value pricing
+    valuePriceCents,
   };
 }
 
