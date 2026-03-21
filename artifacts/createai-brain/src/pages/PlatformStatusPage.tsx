@@ -229,39 +229,35 @@ export default function PlatformStatusPage() {
         padding: "20px 24px 28px",
       }}>
         <div style={{ maxWidth: 960, margin: "0 auto" }}>
-          <div style={{ display: "flex", alignItems: "center", gap: 8, marginBottom: 16 }}>
-            <a
-              href="#dashboard"
-              onClick={e => {
-                e.preventDefault();
-                window.location.href = window.location.pathname.replace(/\/platform-status.*$/, "/transcend-dashboard");
-              }}
-              style={{
-                display: "inline-flex", alignItems: "center", gap: 6,
-                fontSize: 12, fontWeight: 600, color: "rgba(255,255,255,0.65)",
-                textDecoration: "none", background: "rgba(255,255,255,0.08)",
-                border: "1px solid rgba(255,255,255,0.12)", borderRadius: 8,
-                padding: "5px 12px",
-              }}
-            >
-              ← Dashboard
-            </a>
-            <a
-              href="#command-center"
-              onClick={e => {
-                e.preventDefault();
-                window.location.href = window.location.pathname.replace(/\/platform-status.*$/, "/command-center");
-              }}
-              style={{
-                display: "inline-flex", alignItems: "center", gap: 6,
-                fontSize: 12, fontWeight: 600, color: "rgba(255,255,255,0.65)",
-                textDecoration: "none", background: "rgba(255,255,255,0.08)",
-                border: "1px solid rgba(255,255,255,0.12)", borderRadius: 8,
-                padding: "5px 12px",
-              }}
-            >
-              Command Center
-            </a>
+          <div style={{ display: "flex", alignItems: "center", gap: 6, marginBottom: 16, flexWrap: "wrap" }}>
+            {[
+              { label: "← Dashboard",     slug: "transcend-dashboard" },
+              { label: "Command Center",  slug: "command-center"      },
+              { label: "Analytics",       slug: "analytics"           },
+              { label: "Team",            slug: "team"                },
+              { label: "Billing",         slug: "billing"             },
+              { label: "Data",            slug: "data"                },
+              { label: "Global",          slug: "global-expansion"    },
+              { label: "Evolution",       slug: "evolution"           },
+              { label: "Settings",        slug: "settings"            },
+            ].map(({ label, slug }) => (
+              <a key={slug}
+                href={`#${slug}`}
+                onClick={e => {
+                  e.preventDefault();
+                  window.location.href = window.location.pathname.replace(/\/platform-status.*$/, `/${slug}`);
+                }}
+                style={{
+                  display: "inline-flex", alignItems: "center",
+                  fontSize: 11, fontWeight: 600, color: "rgba(255,255,255,0.65)",
+                  textDecoration: "none", background: "rgba(255,255,255,0.08)",
+                  border: "1px solid rgba(255,255,255,0.12)", borderRadius: 8,
+                  padding: "4px 10px", cursor: "pointer", whiteSpace: "nowrap",
+                }}
+              >
+                {label}
+              </a>
+            ))}
           </div>
           <div style={{ display: "flex", alignItems: "center", gap: 12 }}>
             <span style={{ fontSize: 28 }}>🔬</span>

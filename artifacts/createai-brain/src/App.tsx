@@ -24,6 +24,13 @@ import RealMarketPage          from "@/pages/RealMarketPage";
 import UltimateTranscendDashboard from "@/pages/UltimateTranscendDashboard";
 import CommandCenterPage           from "@/pages/CommandCenterPage";
 import PlatformStatusPage          from "@/pages/PlatformStatusPage";
+import AnalyticsPage               from "@/pages/AnalyticsPage";
+import TeamPage                    from "@/pages/TeamPage";
+import SettingsPage                from "@/pages/SettingsPage";
+import BillingPage                 from "@/pages/BillingPage";
+import DataPage                    from "@/pages/DataPage";
+import GlobalPage                  from "@/pages/GlobalPage";
+import EvolutionPage               from "@/pages/EvolutionPage";
 import { OSProvider } from "@/os/OSContext";
 import { OSLayout } from "@/os/osLayout";
 import { GlobalCommandPalette } from "@/components/GlobalCommandPalette";
@@ -458,6 +465,13 @@ function App() {
     path.startsWith(`${base}/transcend-dashboard`) ||
     path.startsWith(`${base}/command-center`) ||
     path.startsWith(`${base}/platform-status`) ||
+    path.startsWith(`${base}/analytics`) ||
+    path.startsWith(`${base}/team`) ||
+    path.startsWith(`${base}/settings`) ||
+    path.startsWith(`${base}/billing`) ||
+    path.startsWith(`${base}/data`) ||
+    path.startsWith(`${base}/global-expansion`) ||
+    path.startsWith(`${base}/evolution`) ||
     // SMART-on-FHIR OAuth callback/connected pages must be accessible without auth gate
     // because the browser redirects here from the external SMART sandbox
     path.startsWith(`${base}/connectors/`);
@@ -476,6 +490,13 @@ function App() {
           <Route path="/transcend-dashboard"  component={UltimateTranscendDashboard} />
           <Route path="/command-center"       component={CommandCenterPage} />
           <Route path="/platform-status"     component={PlatformStatusPage} />
+          <Route path="/analytics"           component={AnalyticsPage} />
+          <Route path="/team"                component={TeamPage} />
+          <Route path="/settings"            component={SettingsPage} />
+          <Route path="/billing"             component={BillingPage} />
+          <Route path="/data"                component={DataPage} />
+          <Route path="/global-expansion"    component={GlobalPage} />
+          <Route path="/evolution"           component={EvolutionPage} />
           {/* SMART-on-FHIR OAuth callback — receives authorization code from sandbox */}
           <Route path="/connectors/SMART_FHIR_SANDBOX/callback"  component={SmartFhirCallbackApp} />
           {/* SMART-on-FHIR connected confirmation + test fetch UI */}
