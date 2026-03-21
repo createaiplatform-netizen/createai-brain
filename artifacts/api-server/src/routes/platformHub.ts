@@ -222,19 +222,23 @@ router.get("/hub", async (_req: Request, res: Response) => {
     {
       section: "AI Studio",
       items: [
-        { label: "AI Studio Hub", url: `${BASE}/studio`, desc: "All 10 AI-native capabilities in one place. 2 live now, 8 in development.", icon: "✦", badge: "Live" },
+        { label: "AI Studio Hub", url: `${BASE}/studio`, desc: "All 10 AI-native capabilities. 6 live now — Email, Docs, Analytics, CRM, Social, Content.", icon: "✦", badge: "Live" },
         { label: "AI Email Engine", url: `${BASE}/studio/email`, desc: "Write and send AI-generated newsletters, campaigns, or one-off emails. GPT-4o drafts. Resend delivers.", icon: "✉", badge: "Live" },
         { label: "AI Document Generator", url: `${BASE}/studio/docs`, desc: "Generate contracts, proposals, SOPs, intake forms, or any document from a brief in seconds.", icon: "📄", badge: "Live" },
+        { label: "AI Analytics Reports", url: `${BASE}/studio/analytics`, desc: "One-click weekly business intelligence report. GPT-4o reads your live DB stats and writes a plain-English summary.", icon: "📊", badge: "Live" },
+        { label: "AI CRM & Follow-up", url: `${BASE}/studio/crm`, desc: "View customers from your live DB. Generate personalized AI follow-up emails for any customer.", icon: "👥", badge: "Live" },
+        { label: "AI Social Scheduler", url: `${BASE}/studio/social`, desc: "Generate 30 days of social posts from your product catalog. Captions, hashtags, and CTAs included.", icon: "📱", badge: "Live" },
+        { label: "AI Content Engine", url: `${BASE}/studio/content`, desc: "Product descriptions, landing page copy, SEO meta tags, and sales emails from a single brief.", icon: "✍", badge: "Live" },
         { label: "AI Scheduling (coming)", url: `#`, desc: "Booking links, reminders, calendar management — no Calendly needed.", icon: "📅", badge: "Soon" },
-        { label: "AI CRM (coming)", url: `#`, desc: "AI-generated follow-up sequences, churn prediction, customer intelligence.", icon: "👥", badge: "Soon" },
         { label: "AI Training System (coming)", url: `#`, desc: "Turn any document into a training module with quiz and certificate.", icon: "🎓", badge: "Soon" },
       ],
     },
     {
       section: "Operations",
       items: [
-        { label: "Platform Status", url: `${BASE}/status`, desc: "Live diagnostics — DB, Stripe, email, webhook, auth, OpenAI, deployment mode. Auto-refreshes every 30s.", icon: "🟢", badge: "Admin" },
-        { label: "NEXUS Platform OS", url: `${BASE}/nexus`, desc: "Unified OS — identity (Presence), 5-format addressing, role-adaptive surfaces, session context. Supersedes CORE + SignalSpace.", icon: "◉", badge: "Admin" },
+        { label: "PULSE — Platform Awareness", url: `${BASE}/pulse`, desc: "Real-time business intelligence: revenue, customers, catalog, webhooks, and system health in one live dashboard.", icon: "◉", badge: "Live" },
+        { label: "Platform Status", url: `${BASE}/status`, desc: "Infrastructure diagnostics — DB, Stripe, email, webhook, auth, OpenAI, deployment mode. Auto-refreshes every 30s.", icon: "🟢", badge: "Admin" },
+        { label: "NEXUS Platform OS", url: `${BASE}/nexus`, desc: "Unified OS — identity (Presence), 5-format addressing, role-adaptive surfaces, session context. Supersedes CORE + SignalSpace.", icon: "◈", badge: "Admin" },
         { label: "Business OS Bundle", url: `${BASE}/bundle`, desc: "20-industry analysis: 140+ tools replaced, 13 AI-native capabilities, unified $29–$299/mo pricing model.", icon: "📦", badge: "Admin" },
         { label: "Live Payment Feed", url: `${BASE}/launch/payments`, desc: "Real-time Stripe sessions with delivery status", icon: "💳", badge: "Admin" },
         { label: "CRM Stats", url: `${BASE}/portal/stats`, desc: "Total customers, revenue, top products", icon: "📊", badge: "Admin" },
@@ -267,7 +271,14 @@ router.get("/hub", async (_req: Request, res: Response) => {
   ];
 
   const badgeColors: Record<string, string> = {
-    Admin: "#6366f1", Public: "#059669", Export: "#0891b2", SEO: "#7c3aed", System: "#94a3b8",
+    Admin:  "#6366f1",
+    Public: "#059669",
+    Export: "#0891b2",
+    SEO:    "#7c3aed",
+    System: "#94a3b8",
+    Live:   "#10b981",
+    Soon:   "#64748b",
+    Legacy: "#475569",
   };
 
   const systemStatus = [
@@ -325,9 +336,13 @@ router.get("/hub", async (_req: Request, res: Response) => {
     <div class="hdr-logo">CreateAI <span>Brain</span> · Admin Hub</div>
     <div class="hdr-links">
       <a href="${BASE}/">Home</a>
-      <a href="${BASE}/launch/">Launch Console</a>
+      <a href="${BASE}/pulse">PULSE</a>
+      <a href="${BASE}/studio">Studio</a>
+      <a href="${BASE}/status">Status</a>
+      <a href="${BASE}/launch/">Launch</a>
       <a href="${BASE}/store">Store</a>
       <a href="https://dashboard.stripe.com" target="_blank">Stripe ↗</a>
+      <a href="${BASE}/admin/logout" style="color:rgba(255,255,255,.4);">Logout</a>
     </div>
   </div>
 </div>

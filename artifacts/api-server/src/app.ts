@@ -26,6 +26,7 @@ import semanticSubRouter    from "./routes/semanticSubscription.js";
 import adminAuthRouter      from "./routes/adminAuth.js";
 import studioRouter         from "./routes/studio.js";
 import platformStatusRouter from "./routes/platformStatus.js";
+import pulseRouter          from "./routes/pulse.js";
 
 export { chatLimiter, heavyLimiter, editLimiter } from "./middlewares/rateLimiters";
 
@@ -172,6 +173,9 @@ app.use("/studio", adminAuth, studioRouter);
 // ── Platform Status (protected by admin auth) ─────────────────────────────────
 app.use("/status", adminAuth, platformStatusRouter);
 
+// ── PULSE — Real-Time Platform Awareness (protected by admin auth) ────────────
+app.use("/pulse", adminAuth, pulseRouter);
+
 // ── Path-level admin guards ───────────────────────────────────────────────────
 // These intercept specific admin-only pages before the public router layer.
 // We use path-specific guards (not prefix mounts) to avoid Express stripping the
@@ -188,7 +192,7 @@ function guardPath(...paths: string[]) {
 }
 
 // Protect specific admin-only pages
-app.use(guardPath("/hub", "/vault", "/bundle", "/valuation", "/launch/payments", "/launch/deliver", "/launch/quick-links"));
+app.use(guardPath("/hub", "/vault", "/bundle", "/valuation", "/launch/payments", "/launch/deliver", "/launch/quick-links", "/pulse"));
 
 // ── Clean public URL layer (mounted BEFORE API auth) ──────────────────────────
 // URL Map:

@@ -268,3 +268,55 @@ export async function markDeliveryEmailSent(sessionId: string): Promise<void> {
     WHERE stripe_session_id = ${sessionId}
   `;
 }
+
+export async function findCustomersByEmail(email: string): Promise<DBCustomer[]> {
+  const sql = getSql();
+  const rows = await sql`
+    SELECT * FROM platform_customers
+    WHERE LOWER(email) = LOWER(${email})
+    ORDER BY created_at DESC
+  `;
+  return rows.map(mapCustomer);
+}
+
+export async function getRecentCustomers(limit = 20): Promise<DBCustomer[]> {
+  const sql = getSql();
+  const rows = await sql`
+    SELECT * FROM platform_customers ORDER BY created_at DESC LIMIT ${limit}
+  `;
+  return rows.map(mapCustomer);
+}
+
+export async function getRevenueTimeline(): Promise<Array<{ date: string; revenue: number; orders: number }>> {
+  const sql = getSql();
+  const rows = await sql`
+    SELECT
+      DATE(created_at)::text   AS date,
+      SUM(price_cents)::int    AS revenue,
+      COUNT(*)::int            AS orders
+    FROM platform_customers
+    WHERE created_at >= NOW() - INTERVAL '30 days'
+    GROUP BY DATE(created_at)
+    ORDER BY DATE(created_at) ASC
+  `;
+  return rows.map(r => ({
+    date:    String(r["date"] ?? ""),
+    revenue: Number(r["revenue"] ?? 0),
+    orders:  Number(r["orders"] ?? 0),
+  }));
+}
+
+export async function getRecentWebhookEvents(limit = 10): Promise<Array<{ id: string; eventType: string; processedAt: string | null; createdAt: string }>> {
+  const sql = getSql();
+  const rows = await sql`
+    SELECT id, event_type, processed_at, created_at
+    FROM platform_webhook_events
+    ORDER BY created_at DESC LIMIT ${limit}
+  `;
+  return rows.map(r => ({
+    id:          String(r["id"] ?? ""),
+    eventType:   String(r["event_type"] ?? ""),
+    processedAt: r["processed_at"] ? String(r["processed_at"]) : null,
+    createdAt:   String(r["created_at"] ?? ""),
+  }));
+}

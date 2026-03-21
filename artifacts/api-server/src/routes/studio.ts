@@ -12,9 +12,16 @@
  */
 
 import { Router, type Request, type Response } from "express";
-import { openai }          from "@workspace/integrations-openai-ai-server";
-import { sendEmailNotification } from "../utils/notifications.js";
-import { getPublicBaseUrl } from "../utils/publicUrl.js";
+import { openai }              from "@workspace/integrations-openai-ai-server";
+import { sendEmailNotification }  from "../utils/notifications.js";
+import { getPublicBaseUrl }       from "../utils/publicUrl.js";
+import { getRegistry }            from "../semantic/registry.js";
+import {
+  getCustomerStats,
+  getRecentCustomers,
+  getRevenueTimeline,
+  findCustomersByEmail,
+} from "../lib/db.js";
 
 const router = Router();
 const BASE   = getPublicBaseUrl();
@@ -98,16 +105,16 @@ function header(title: string, breadcrumb?: string): string {
 }
 
 const TOOLS = [
-  { id: "email",    icon: "✉",  name: "AI Email Engine",         desc: "Write and send newsletters, campaigns, or one-off emails using GPT-4o. Resend delivers. No Mailchimp required.",        live: true },
-  { id: "docs",     icon: "📄", name: "AI Document Generator",   desc: "Generate contracts, proposals, SOPs, intake forms, or any structured document from a brief in seconds.",              live: true },
-  { id: "schedule", icon: "📅", name: "AI Scheduling Layer",     desc: "Booking links, appointment reminders, and calendar management — AI-driven, no Calendly.",                             live: false },
-  { id: "training", icon: "🎓", name: "AI Training System",      desc: "Turn any document into a full training module with quiz and certificate. No LMS required.",                           live: false },
-  { id: "crm",      icon: "👥", name: "AI CRM & Follow-up",      desc: "AI-generated follow-up sequences, churn prediction, and customer intelligence. Powered by your purchase data.",       live: false },
-  { id: "analytics",icon: "📊", name: "AI Analytics Summaries",  desc: "Zero-config weekly business intelligence reports in plain English. The platform writes the summary automatically.",    live: false },
-  { id: "social",   icon: "📱", name: "AI Social Scheduler",     desc: "Generate a month of social posts from your product catalog. Queue and publish with one action.",                       live: false },
-  { id: "forms",    icon: "📋", name: "AI Form Builder",         desc: "Describe any form in natural language. Platform generates it as a hosted page and collects responses natively.",        live: false },
-  { id: "helpdesk", icon: "🎧", name: "AI Helpdesk",             desc: "FAQ generation, draft email responses, and knowledge base creation from your product and service data.",               live: false },
-  { id: "content",  icon: "✍",  name: "AI Content Engine",       desc: "Product descriptions, social captions, SEO copy, and sales emails from a single brief.",                              live: false },
+  { id: "email",     icon: "✉",  name: "AI Email Engine",         desc: "Write and send newsletters, campaigns, or one-off emails using GPT-4o. Resend delivers. No Mailchimp required.",        live: true },
+  { id: "docs",      icon: "📄", name: "AI Document Generator",   desc: "Generate contracts, proposals, SOPs, intake forms, or any structured document from a brief in seconds.",              live: true },
+  { id: "analytics", icon: "📊", name: "AI Analytics Reports",    desc: "One-click weekly business intelligence report. GPT-4o reads your live DB stats and writes a plain-English summary.",  live: true },
+  { id: "crm",       icon: "👥", name: "AI CRM & Follow-up",      desc: "View customers from your live DB. Generate personalized AI follow-up emails for any customer with one click.",        live: true },
+  { id: "social",    icon: "📱", name: "AI Social Scheduler",     desc: "Generate 30 days of social media posts from your live product catalog. Includes captions, hashtags, and CTAs.",       live: true },
+  { id: "content",   icon: "✍",  name: "AI Content Engine",       desc: "Product descriptions, landing page copy, SEO meta tags, and sales emails from a single brief.",                       live: true },
+  { id: "schedule",  icon: "📅", name: "AI Scheduling Layer",     desc: "Booking links, appointment reminders, and calendar management — AI-driven, no Calendly.",                             live: false },
+  { id: "training",  icon: "🎓", name: "AI Training System",      desc: "Turn any document into a full training module with quiz and certificate. No LMS required.",                           live: false },
+  { id: "forms",     icon: "📋", name: "AI Form Builder",         desc: "Describe any form in natural language. Platform generates it as a hosted page and collects responses natively.",        live: false },
+  { id: "helpdesk",  icon: "🎧", name: "AI Helpdesk",             desc: "FAQ generation, draft email responses, and knowledge base creation from your product and service data.",               live: false },
 ];
 
 // ── GET /studio ──────────────────────────────────────────────────────────────
@@ -490,6 +497,604 @@ Instructions:
 
     const document = completion.choices[0]?.message?.content?.trim() ?? "";
     res.json({ ok: true, document, wordCount: document.split(/\s+/).length });
+  } catch (err: unknown) {
+    const msg = err instanceof Error ? err.message : String(err);
+    res.status(500).json({ ok: false, error: msg });
+  }
+});
+
+// ══════════════════════════════════════════════════════════════════════════════
+// AI ANALYTICS REPORTS
+// ══════════════════════════════════════════════════════════════════════════════
+
+router.get("/analytics", (_req: Request, res: Response) => {
+  res.setHeader("Content-Type", "text/html; charset=utf-8");
+  res.setHeader("Cache-Control", "no-cache");
+  res.send(header("AI Analytics Reports", "Analytics") + `
+    <h1>&#x1F4CA; <em>AI Analytics Reports</em></h1>
+    <p class="sub">GPT-4o reads your live platform data and writes a comprehensive business intelligence summary in plain English.</p>
+    <div class="row">
+      <div class="col" style="max-width:380px;">
+        <div class="panel">
+          <div id="status-bar" style="display:none;" class="status-bar"></div>
+          <div class="form-row">
+            <label>Report Period</label>
+            <select id="period">
+              <option value="7">Last 7 days</option>
+              <option value="14">Last 14 days</option>
+              <option value="30" selected>Last 30 days</option>
+              <option value="90">Last 90 days</option>
+              <option value="all">All time</option>
+            </select>
+          </div>
+          <div class="form-row">
+            <label>Focus Area</label>
+            <select id="focus">
+              <option value="revenue">Revenue &amp; Growth</option>
+              <option value="customers">Customer Insights</option>
+              <option value="products">Product Performance</option>
+              <option value="full" selected>Full Platform Overview</option>
+            </select>
+          </div>
+          <div class="form-row">
+            <label>Additional Context (optional)</label>
+            <textarea id="context" rows="3" placeholder="E.g. 'We launched a new email campaign last week' or 'Black Friday sale ended 3 days ago'"></textarea>
+          </div>
+          <div style="display:flex;gap:10px;flex-wrap:wrap;">
+            <button class="btn" onclick="generateReport()" id="gen-btn">&#x2726; Generate Report</button>
+            <button class="btn-out" onclick="copyReport()" id="copy-btn" style="display:none;">Copy Report</button>
+          </div>
+        </div>
+      </div>
+      <div class="col">
+        <div class="panel" style="min-height:400px;">
+          <div style="font-size:.68rem;font-weight:800;text-transform:uppercase;letter-spacing:.08em;color:var(--t4);margin-bottom:10px;">Generated Report</div>
+          <div id="output" class="output-box" style="min-height:360px;"><span class="output-empty">Click Generate to produce your AI business intelligence report...</span></div>
+        </div>
+      </div>
+    </div>
+    <script>
+    var currentReport = '';
+    async function generateReport() {
+      var period = document.getElementById('period').value;
+      var focus  = document.getElementById('focus').value;
+      var ctx    = document.getElementById('context').value.trim();
+      var btn    = document.getElementById('gen-btn');
+      btn.disabled = true; btn.textContent = '...Analyzing';
+      showStatus('Loading platform data and generating report...', null);
+      try {
+        var resp = await fetch('/studio/analytics/generate', {
+          method:'POST', headers:{'Content-Type':'application/json'},
+          body: JSON.stringify({ period, focus, context: ctx })
+        });
+        var data = await resp.json();
+        if (!data.ok) { showStatus('Error: ' + data.error, false); return; }
+        currentReport = data.report;
+        document.getElementById('output').textContent = data.report;
+        document.getElementById('copy-btn').style.display = '';
+        showStatus('Report generated from live platform data.', true);
+      } catch(e) { showStatus('Network error: ' + e.message, false); }
+      finally { btn.disabled = false; btn.textContent = '&#x2726; Generate Report'; }
+    }
+    function copyReport() {
+      navigator.clipboard.writeText(currentReport).then(function() {
+        var btn = document.getElementById('copy-btn');
+        btn.textContent = 'Copied!';
+        setTimeout(function(){ btn.textContent = 'Copy Report'; }, 1800);
+      });
+    }
+    function showStatus(msg, ok) {
+      var bar = document.getElementById('status-bar');
+      bar.style.display = '';
+      bar.className = 'status-bar ' + (ok === true ? 'ok' : ok === false ? 'err-bar' : '');
+      bar.textContent = msg;
+    }
+    </script>
+  </div></body></html>`);
+});
+
+router.post("/analytics/generate", async (req: Request, res: Response) => {
+  try {
+    const { period, focus, context } = req.body as { period?: string; focus?: string; context?: string };
+    const [stats, timeline, products] = await Promise.all([
+      getCustomerStats(),
+      getRevenueTimeline(),
+      getRegistry(),
+    ]);
+
+    const daysLimit = period === "all" ? 9999 : parseInt(period ?? "30", 10);
+    const filteredTimeline = daysLimit >= 9999 ? timeline : timeline.slice(-daysLimit);
+    const totalRevenue = filteredTimeline.reduce((s, d) => s + d.revenue, 0);
+    const totalOrders  = filteredTimeline.reduce((s, d) => s + d.orders, 0);
+    const growthDays   = filteredTimeline.filter(d => d.revenue > 0).length;
+    const avgDaily     = growthDays > 0 ? totalRevenue / growthDays : 0;
+
+    const platformData = [
+      "PLATFORM DATA SNAPSHOT:",
+      "Period: " + (period === "all" ? "All time" : "Last " + period + " days"),
+      "Total Revenue: $" + (totalRevenue / 100).toFixed(2),
+      "Total Orders: " + totalOrders,
+      "Active Revenue Days: " + growthDays,
+      "Avg Daily Revenue: $" + (avgDaily / 100).toFixed(2),
+      "All-Time Total Customers: " + stats.totalCustomers,
+      "All-Time Unique Emails: " + stats.uniqueEmails,
+      "Average Order Value: $" + (stats.averageOrderCents / 100).toFixed(2),
+      "Top Products: " + stats.topProducts.slice(0, 3).map(p => p.productTitle + " (" + p.count + " sold)").join(", "),
+      "Top Formats: " + stats.topFormats.slice(0, 3).map(f => f.format + " (" + f.count + ")").join(", "),
+      "Catalog Size: " + products.length + " active products",
+      "Catalog Value: $" + (products.reduce((s, p) => s + p.priceCents, 0) / 100).toFixed(2),
+      context ? "\nAdditional context from operator: " + context : "",
+    ].join("\n");
+
+    const focusMap: Record<string, string> = {
+      revenue:   "Focus your analysis on revenue trends, growth rate, and financial performance.",
+      customers: "Focus your analysis on customer behavior, retention, repeat buyers, and LTV.",
+      products:  "Focus your analysis on which products are selling, format performance, and catalog optimization.",
+      full:      "Provide a full platform overview covering revenue, customers, products, and strategic recommendations.",
+    };
+    const focusInstruction = focusMap[focus ?? "full"] ?? focusMap["full"];
+
+    const completion = await openai.chat.completions.create({
+      model: "gpt-4o",
+      messages: [
+        {
+          role: "system",
+          content: "You are a senior business analyst and growth strategist. Write clear, actionable business intelligence reports based on real platform data. Be specific, cite the numbers directly, and always end with 3 concrete next steps. Use plain text with section headers in ALL CAPS. Avoid generic advice — everything should be grounded in the actual data provided.",
+        },
+        {
+          role: "user",
+          content: platformData + "\n\n" + focusInstruction + "\n\nWrite the report now.",
+        },
+      ],
+      max_tokens: 1500,
+      temperature: 0.4,
+    });
+
+    const report = completion.choices[0]?.message?.content?.trim() ?? "";
+    res.json({ ok: true, report, dataPoints: { totalRevenue, totalOrders, customers: stats.totalCustomers } });
+  } catch (err: unknown) {
+    const msg = err instanceof Error ? err.message : String(err);
+    res.status(500).json({ ok: false, error: msg });
+  }
+});
+
+// ══════════════════════════════════════════════════════════════════════════════
+// AI CRM & FOLLOW-UP
+// ══════════════════════════════════════════════════════════════════════════════
+
+router.get("/crm", async (_req: Request, res: Response) => {
+  let customers: Array<{ email: string; productTitle: string; priceCents: number; createdAt: string }> = [];
+  try {
+    const raw = await getRecentCustomers(50);
+    customers = raw.map(c => ({
+      email:        c.email,
+      productTitle: c.productTitle,
+      priceCents:   c.priceCents,
+      createdAt:    c.createdAt,
+    }));
+  } catch { /* DB not ready */ }
+
+  const rows = customers.length === 0
+    ? "<tr><td colspan='4' style='text-align:center;color:var(--t4);padding:24px;'>No customers yet. Purchase data will appear here automatically.</td></tr>"
+    : customers.map((c, i) => {
+        const date = c.createdAt ? new Date(c.createdAt).toLocaleDateString("en-US", { month: "short", day: "numeric" }) : "—";
+        const masked = c.email.replace(/(?<=.{2}).(?=.*@)/g, "*");
+        return "<tr>" +
+          "<td style='padding:10px 12px;font-size:.78rem;color:var(--t1);'>" + masked + "</td>" +
+          "<td style='padding:10px 12px;font-size:.75rem;color:var(--t2);'>" + c.productTitle.slice(0, 45) + (c.productTitle.length > 45 ? "…" : "") + "</td>" +
+          "<td style='padding:10px 12px;font-size:.78rem;color:#34d399;font-weight:700;'>$" + (c.priceCents / 100).toFixed(2) + "</td>" +
+          "<td style='padding:10px 12px;font-size:.72rem;color:var(--t4);'>" + date + "</td>" +
+          "<td style='padding:10px 12px;'><button class='btn-out' style='font-size:.7rem;padding:4px 10px;' onclick='followUp(" + JSON.stringify(c.email) + "," + JSON.stringify(c.productTitle) + ")'>AI Follow-up</button></td>" +
+          "</tr>";
+      }).join("");
+
+  res.setHeader("Content-Type", "text/html; charset=utf-8");
+  res.setHeader("Cache-Control", "no-cache");
+  res.send(header("AI CRM & Follow-up", "CRM") + `
+    <h1>&#x1F465; <em>AI CRM</em> &amp; Follow-up</h1>
+    <p class="sub">Your customer database, live from PostgreSQL. Click "AI Follow-up" to generate a personalized follow-up email for any customer.</p>
+    <div class="panel" style="margin-bottom:20px;">
+      <div style="font-size:.68rem;font-weight:800;text-transform:uppercase;letter-spacing:.08em;color:var(--t4);margin-bottom:14px;">Recent Customers (last 50)</div>
+      <div style="overflow-x:auto;">
+        <table style="width:100%;border-collapse:collapse;">
+          <thead>
+            <tr style="border-bottom:1px solid var(--line);">
+              <th style="padding:8px 12px;font-size:.65rem;font-weight:800;text-transform:uppercase;letter-spacing:.07em;color:var(--t4);text-align:left;">Email</th>
+              <th style="padding:8px 12px;font-size:.65rem;font-weight:800;text-transform:uppercase;letter-spacing:.07em;color:var(--t4);text-align:left;">Product</th>
+              <th style="padding:8px 12px;font-size:.65rem;font-weight:800;text-transform:uppercase;letter-spacing:.07em;color:var(--t4);text-align:left;">Paid</th>
+              <th style="padding:8px 12px;font-size:.65rem;font-weight:800;text-transform:uppercase;letter-spacing:.07em;color:var(--t4);text-align:left;">Date</th>
+              <th style="padding:8px 12px;font-size:.65rem;font-weight:800;text-transform:uppercase;letter-spacing:.07em;color:var(--t4);text-align:left;">Action</th>
+            </tr>
+          </thead>
+          <tbody id="cust-rows">` + rows + `</tbody>
+        </table>
+      </div>
+    </div>
+    <div id="followup-panel" style="display:none;" class="panel">
+      <div style="font-size:.68rem;font-weight:800;text-transform:uppercase;letter-spacing:.08em;color:var(--t4);margin-bottom:10px;">Generated Follow-up Email</div>
+      <div id="status-bar" style="display:none;" class="status-bar"></div>
+      <div id="followup-output" class="output-box" style="min-height:200px;"></div>
+      <div style="margin-top:10px;display:flex;gap:8px;">
+        <button class="btn-out" onclick="copyFollowup()" id="copy-fu-btn" style="font-size:.75rem;padding:7px 14px;">Copy Email</button>
+        <button class="btn-out" onclick="closeFollowup()" style="font-size:.75rem;padding:7px 14px;">Close</button>
+      </div>
+    </div>
+    <script>
+    var currentFollowup = '';
+    async function followUp(email, product) {
+      document.getElementById('followup-panel').style.display = '';
+      var out = document.getElementById('followup-output');
+      out.innerHTML = '<span class="output-empty">Generating personalized follow-up for ' + email.replace(/(?<=.{2}).(?=.*@)/g,'*') + '...</span>';
+      showStatus('GPT-4o is writing a personalized follow-up...', null);
+      try {
+        var resp = await fetch('/studio/crm/followup', {
+          method:'POST', headers:{'Content-Type':'application/json'},
+          body: JSON.stringify({ email, productTitle: product })
+        });
+        var data = await resp.json();
+        if (!data.ok) { showStatus('Error: ' + data.error, false); return; }
+        currentFollowup = data.email;
+        out.textContent = data.email;
+        showStatus('Follow-up ready. Review before sending.', true);
+      } catch(e) { showStatus('Network error: ' + e.message, false); }
+    }
+    function copyFollowup() {
+      navigator.clipboard.writeText(currentFollowup).then(function(){
+        var b = document.getElementById('copy-fu-btn');
+        b.textContent='Copied!';
+        setTimeout(function(){b.textContent='Copy Email';},1800);
+      });
+    }
+    function closeFollowup() { document.getElementById('followup-panel').style.display='none'; }
+    function showStatus(msg, ok) {
+      var bar = document.getElementById('status-bar');
+      bar.style.display = '';
+      bar.className = 'status-bar ' + (ok===true?'ok':ok===false?'err-bar':'');
+      bar.textContent = msg;
+    }
+    </script>
+  </div></body></html>`);
+});
+
+router.post("/crm/followup", async (req: Request, res: Response) => {
+  try {
+    const { email, productTitle } = req.body as { email?: string; productTitle?: string };
+    if (!email) { res.status(400).json({ ok: false, error: "email is required" }); return; }
+
+    let purchaseHistory = "1 purchase: " + (productTitle ?? "a digital product");
+    try {
+      const history = await findCustomersByEmail(email);
+      if (history.length > 0) {
+        purchaseHistory = history.length + " purchase(s): " + history.map(c => c.productTitle).join(", ");
+      }
+    } catch { /* DB unavailable */ }
+
+    const completion = await openai.chat.completions.create({
+      model: "gpt-4o",
+      messages: [
+        {
+          role: "system",
+          content: "You are a thoughtful customer success manager for CreateAI Brain, a platform selling AI-generated digital products. Write warm, helpful follow-up emails that feel personal, not automated. Reference the customer's actual purchase(s). No markdown. Start with Subject: on the first line.",
+        },
+        {
+          role: "user",
+          content: "Write a follow-up email for a customer with purchase history: " + purchaseHistory + ". Goals: thank them, check satisfaction, offer 1 complementary recommendation from our catalog, mention our membership plans. Keep it under 200 words.",
+        },
+      ],
+      max_tokens: 600,
+      temperature: 0.7,
+    });
+
+    const raw = completion.choices[0]?.message?.content?.trim() ?? "";
+    res.json({ ok: true, email: raw });
+  } catch (err: unknown) {
+    const msg = err instanceof Error ? err.message : String(err);
+    res.status(500).json({ ok: false, error: msg });
+  }
+});
+
+// ══════════════════════════════════════════════════════════════════════════════
+// AI SOCIAL SCHEDULER
+// ══════════════════════════════════════════════════════════════════════════════
+
+router.get("/social", (_req: Request, res: Response) => {
+  res.setHeader("Content-Type", "text/html; charset=utf-8");
+  res.setHeader("Cache-Control", "no-cache");
+  res.send(header("AI Social Scheduler", "Social") + `
+    <h1>&#x1F4F1; <em>AI Social Scheduler</em></h1>
+    <p class="sub">Generate 30 days of social media content from your product catalog. One click — a month of posts.</p>
+    <div class="row">
+      <div class="col" style="max-width:380px;">
+        <div class="panel">
+          <div id="status-bar" style="display:none;" class="status-bar"></div>
+          <div class="form-row">
+            <label>Platform</label>
+            <select id="platform">
+              <option value="twitter">Twitter / X</option>
+              <option value="linkedin" selected>LinkedIn</option>
+              <option value="instagram">Instagram</option>
+              <option value="facebook">Facebook</option>
+              <option value="all">All Platforms (one per day)</option>
+            </select>
+          </div>
+          <div class="form-row">
+            <label>Number of Posts</label>
+            <select id="count">
+              <option value="7">7 posts (1 week)</option>
+              <option value="14">14 posts (2 weeks)</option>
+              <option value="30" selected>30 posts (1 month)</option>
+            </select>
+          </div>
+          <div class="form-row">
+            <label>Tone / Style</label>
+            <select id="tone">
+              <option value="professional" selected>Professional &amp; Thought-leadership</option>
+              <option value="casual">Casual &amp; Conversational</option>
+              <option value="educational">Educational &amp; Value-first</option>
+              <option value="promotional">Promotional &amp; Sales-focused</option>
+            </select>
+          </div>
+          <div class="form-row">
+            <label>Brand Name / Handle</label>
+            <input id="brand" type="text" value="CreateAI Brain" placeholder="Your brand or handle">
+          </div>
+          <div style="display:flex;gap:10px;">
+            <button class="btn" onclick="generatePosts()" id="gen-btn">&#x2726; Generate Posts</button>
+            <button class="btn-out" onclick="copyPosts()" id="copy-btn" style="display:none;">Copy All</button>
+          </div>
+        </div>
+      </div>
+      <div class="col">
+        <div class="panel" style="min-height:500px;">
+          <div style="font-size:.68rem;font-weight:800;text-transform:uppercase;letter-spacing:.08em;color:var(--t4);margin-bottom:10px;">Generated Posts</div>
+          <div id="output" class="output-box" style="min-height:460px;"><span class="output-empty">Posts will appear here after generation...</span></div>
+        </div>
+      </div>
+    </div>
+    <script>
+    var currentPosts = '';
+    async function generatePosts() {
+      var platform = document.getElementById('platform').value;
+      var count    = document.getElementById('count').value;
+      var tone     = document.getElementById('tone').value;
+      var brand    = document.getElementById('brand').value.trim() || 'CreateAI Brain';
+      var btn      = document.getElementById('gen-btn');
+      btn.disabled = true; btn.textContent = '...Generating';
+      showStatus('Fetching your product catalog and generating ' + count + ' posts...', null);
+      try {
+        var resp = await fetch('/studio/social/generate', {
+          method:'POST', headers:{'Content-Type':'application/json'},
+          body: JSON.stringify({ platform, count: parseInt(count), tone, brand })
+        });
+        var data = await resp.json();
+        if (!data.ok) { showStatus('Error: ' + data.error, false); return; }
+        currentPosts = data.posts;
+        document.getElementById('output').textContent = data.posts;
+        document.getElementById('copy-btn').style.display = '';
+        showStatus(data.postCount + ' posts generated from ' + data.productsUsed + ' products.', true);
+      } catch(e) { showStatus('Network error: ' + e.message, false); }
+      finally { btn.disabled = false; btn.textContent = '&#x2726; Generate Posts'; }
+    }
+    function copyPosts() {
+      navigator.clipboard.writeText(currentPosts).then(function(){
+        var b = document.getElementById('copy-btn');
+        b.textContent='Copied!';
+        setTimeout(function(){b.textContent='Copy All';},1800);
+      });
+    }
+    function showStatus(msg, ok) {
+      var bar = document.getElementById('status-bar');
+      bar.style.display = '';
+      bar.className = 'status-bar ' + (ok===true?'ok':ok===false?'err-bar':'');
+      bar.textContent = msg;
+    }
+    </script>
+  </div></body></html>`);
+});
+
+router.post("/social/generate", async (req: Request, res: Response) => {
+  try {
+    const { platform, count, tone, brand } = req.body as {
+      platform?: string; count?: number; tone?: string; brand?: string;
+    };
+    const postCount = Math.min(Math.max(parseInt(String(count ?? 30)), 7), 30);
+
+    const products = await getRegistry();
+    const sample = products
+      .sort(() => Math.random() - 0.5)
+      .slice(0, Math.min(15, products.length));
+    const productList = sample.map(p =>
+      `- "${p.title}" (${p.format}, $${(p.priceCents / 100).toFixed(2)})`
+    ).join("\n");
+
+    const platformGuide: Record<string, string> = {
+      twitter:   "Twitter/X (under 280 chars each, conversational, use hashtags)",
+      linkedin:  "LinkedIn (professional, 150-300 chars, include insights and value, relevant hashtags)",
+      instagram: "Instagram (visual, emotional, 150-200 chars, use emojis sparingly, 5-8 hashtags at end)",
+      facebook:  "Facebook (friendly, 100-200 chars, ask questions to drive engagement)",
+      all:       "mix of platforms — label each with [Twitter], [LinkedIn], [Instagram], or [Facebook]",
+    };
+    const platformNote = platformGuide[platform ?? "linkedin"] ?? platformGuide["linkedin"];
+
+    const toneNote: Record<string, string> = {
+      professional: "thought-leadership and authority positioning",
+      casual:       "casual, approachable, relatable",
+      educational:  "educational, value-first, teaching moments",
+      promotional:  "promotional, benefit-focused, clear CTAs",
+    };
+
+    const completion = await openai.chat.completions.create({
+      model: "gpt-4o",
+      messages: [
+        {
+          role: "system",
+          content: "You are a social media strategist who specializes in content for digital product creators. Write engaging posts that drive traffic and sales without feeling spammy. Each post should feel unique.",
+        },
+        {
+          role: "user",
+          content: "Create " + postCount + " social media posts for " + (brand ?? "CreateAI Brain") + ".\n\nPlatform: " + platformNote + "\nTone: " + (toneNote[tone ?? "professional"] ?? toneNote["professional"]) + "\n\nProduct catalog (use these for inspiration, mix it up):\n" + productList + "\n\nFormat: number each post (1., 2., etc.) with a blank line between them. Vary the angle — some product spotlights, some tips, some behind-the-scenes, some testimonial-style. Always include a store link or CTA.",
+        },
+      ],
+      max_tokens: 3000,
+      temperature: 0.8,
+    });
+
+    const posts = completion.choices[0]?.message?.content?.trim() ?? "";
+    res.json({ ok: true, posts, postCount, productsUsed: sample.length });
+  } catch (err: unknown) {
+    const msg = err instanceof Error ? err.message : String(err);
+    res.status(500).json({ ok: false, error: msg });
+  }
+});
+
+// ══════════════════════════════════════════════════════════════════════════════
+// AI CONTENT ENGINE
+// ══════════════════════════════════════════════════════════════════════════════
+
+router.get("/content", (_req: Request, res: Response) => {
+  res.setHeader("Content-Type", "text/html; charset=utf-8");
+  res.setHeader("Cache-Control", "no-cache");
+  res.send(header("AI Content Engine", "Content Engine") + `
+    <h1>&#x270D; <em>AI Content Engine</em></h1>
+    <p class="sub">Generate product descriptions, landing page copy, SEO meta tags, and sales emails from a single brief. GPT-4o writes it all.</p>
+    <div class="row">
+      <div class="col" style="max-width:380px;">
+        <div class="panel">
+          <div id="status-bar" style="display:none;" class="status-bar"></div>
+          <div class="form-row">
+            <label>Content Type</label>
+            <select id="content-type">
+              <option value="product-description">Product Description</option>
+              <option value="landing-page">Landing Page Copy</option>
+              <option value="seo-meta">SEO Meta Title + Description</option>
+              <option value="sales-email">Sales / Promotional Email</option>
+              <option value="social-bio">Brand Bio / About Section</option>
+              <option value="faq">FAQ Section (5 Q&amp;As)</option>
+              <option value="testimonial-request">Testimonial Request Email</option>
+              <option value="upsell">Upsell / Cross-sell Copy</option>
+            </select>
+          </div>
+          <div class="form-row">
+            <label>Product or Topic</label>
+            <input id="topic" type="text" placeholder="e.g. AI Business Starter Kit (ebook, $29)">
+          </div>
+          <div class="form-row">
+            <label>Target Audience</label>
+            <input id="audience" type="text" placeholder="e.g. solopreneurs, small business owners, coaches">
+          </div>
+          <div class="form-row">
+            <label>Key Benefits / Unique Angle</label>
+            <textarea id="brief" rows="4" placeholder="What makes this product special? What problem does it solve? What transformation does the buyer experience?"></textarea>
+          </div>
+          <div class="form-row">
+            <label>Tone</label>
+            <select id="tone">
+              <option value="professional" selected>Professional</option>
+              <option value="friendly">Friendly &amp; Warm</option>
+              <option value="bold">Bold &amp; Direct</option>
+              <option value="educational">Educational</option>
+            </select>
+          </div>
+          <div style="display:flex;gap:10px;">
+            <button class="btn" onclick="generateContent()" id="gen-btn">&#x2726; Generate Content</button>
+            <button class="btn-out" onclick="copyContent()" id="copy-btn" style="display:none;">Copy</button>
+          </div>
+        </div>
+      </div>
+      <div class="col">
+        <div class="panel" style="min-height:400px;">
+          <div style="font-size:.68rem;font-weight:800;text-transform:uppercase;letter-spacing:.08em;color:var(--t4);margin-bottom:10px;">Generated Content</div>
+          <div id="output" class="output-box" style="min-height:360px;"><span class="output-empty">Content will appear here after generation...</span></div>
+        </div>
+      </div>
+    </div>
+    <script>
+    var currentContent = '';
+    async function generateContent() {
+      var type     = document.getElementById('content-type').value;
+      var topic    = document.getElementById('topic').value.trim();
+      var audience = document.getElementById('audience').value.trim();
+      var brief    = document.getElementById('brief').value.trim();
+      var tone     = document.getElementById('tone').value;
+      if (!topic && !brief) { showStatus('Enter a product or topic first.', false); return; }
+      var btn = document.getElementById('gen-btn');
+      btn.disabled = true; btn.textContent = '...Generating';
+      showStatus('GPT-4o is writing your content...', null);
+      try {
+        var resp = await fetch('/studio/content/generate', {
+          method:'POST', headers:{'Content-Type':'application/json'},
+          body: JSON.stringify({ contentType: type, topic, audience, brief, tone })
+        });
+        var data = await resp.json();
+        if (!data.ok) { showStatus('Error: ' + data.error, false); return; }
+        currentContent = data.content;
+        document.getElementById('output').textContent = data.content;
+        document.getElementById('copy-btn').style.display = '';
+        showStatus('Content generated. Ready to use.', true);
+      } catch(e) { showStatus('Network error: ' + e.message, false); }
+      finally { btn.disabled = false; btn.textContent = '&#x2726; Generate Content'; }
+    }
+    function copyContent() {
+      navigator.clipboard.writeText(currentContent).then(function(){
+        var b = document.getElementById('copy-btn');
+        b.textContent='Copied!';
+        setTimeout(function(){b.textContent='Copy';},1800);
+      });
+    }
+    function showStatus(msg, ok) {
+      var bar = document.getElementById('status-bar');
+      bar.style.display = '';
+      bar.className = 'status-bar ' + (ok===true?'ok':ok===false?'err-bar':'');
+      bar.textContent = msg;
+    }
+    </script>
+  </div></body></html>`);
+});
+
+router.post("/content/generate", async (req: Request, res: Response) => {
+  try {
+    const { contentType, topic, audience, brief, tone } = req.body as {
+      contentType?: string; topic?: string; audience?: string; brief?: string; tone?: string;
+    };
+    if (!topic && !brief) { res.status(400).json({ ok: false, error: "topic or brief is required" }); return; }
+
+    const typeInstructions: Record<string, string> = {
+      "product-description": "Write a compelling product description (200-300 words) with a hook, bullet point benefits, and a CTA.",
+      "landing-page":        "Write a complete landing page copy structure: Hero headline, sub-headline, 3 key benefits, social proof placeholder, and CTA section.",
+      "seo-meta":            "Write: (1) SEO title tag (max 60 chars), (2) Meta description (max 160 chars), (3) 5 target keywords. Label each clearly.",
+      "sales-email":         "Write a complete sales email: Subject line, personalized opening, problem agitation, solution reveal, key benefits, social proof placeholder, CTA. Under 300 words.",
+      "social-bio":          "Write 3 variations of a brand bio for different contexts: (1) Twitter/X bio (160 chars max), (2) LinkedIn About (300 chars), (3) Instagram bio (150 chars).",
+      "faq":                 "Write 5 FAQ entries (Q&A format) that address common buyer hesitations, objections, and questions. Make answers concise and reassuring.",
+      "testimonial-request": "Write a polite, effective testimonial request email. Subject line first, then body. Under 150 words.",
+      "upsell":              "Write an upsell/cross-sell message (100-150 words) that appears after purchase. Warm, not pushy. Suggest a complementary product.",
+    };
+    const instruction = typeInstructions[contentType ?? "product-description"] ?? typeInstructions["product-description"];
+
+    const toneMap: Record<string, string> = {
+      professional: "professional and authoritative",
+      friendly:     "friendly, warm, and approachable",
+      bold:         "bold, direct, and confident",
+      educational:  "educational and value-first",
+    };
+
+    const completion = await openai.chat.completions.create({
+      model: "gpt-4o",
+      messages: [
+        {
+          role: "system",
+          content: "You are an expert conversion copywriter for digital products. Write in a " + (toneMap[tone ?? "professional"] ?? "professional") + " tone. Use plain text only — no markdown, no asterisks, no hash symbols. Use ALL CAPS for headers and section labels.",
+        },
+        {
+          role: "user",
+          content: instruction + "\n\nProduct/Topic: " + (topic ?? "") + (audience ? "\nTarget Audience: " + audience : "") + (brief ? "\nKey Details: " + brief : ""),
+        },
+      ],
+      max_tokens: 1200,
+      temperature: 0.65,
+    });
+
+    const content = completion.choices[0]?.message?.content?.trim() ?? "";
+    res.json({ ok: true, content });
   } catch (err: unknown) {
     const msg = err instanceof Error ? err.message : String(err);
     res.status(500).json({ ok: false, error: msg });

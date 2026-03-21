@@ -179,8 +179,47 @@ All studio routes protected by admin auth.
 - Output: Complete contract/proposal/SOP in plain text with numbered sections
 - Disclaimer: AI-generated; legal review recommended
 
-### More capabilities (8 coming soon)
-- AI Scheduling Layer, AI Training System, AI CRM, AI Analytics, AI Social Scheduler, AI Form Builder, AI Helpdesk, AI Content Engine
+### AI Analytics Reports (`/studio/analytics`)
+- UI: Select report period (7/14/30/90 days, all time) + focus area (revenue, customers, products, full)
+- Backend: `POST /studio/analytics/generate` → fetches live DB stats + catalog, sends to GPT-4o for BI report
+- Output: 300-500 word plain-English business intelligence report citing real numbers
+- Data sources: `getCustomerStats()`, `getRevenueTimeline()`, `getRegistry()` — all live
+
+### AI CRM & Follow-up (`/studio/crm`)
+- UI: Live customer table from PostgreSQL (last 50), one-click "AI Follow-up" per customer
+- Backend: `POST /studio/crm/followup` → reads customer's purchase history, GPT-4o writes personalized email
+- Data source: `getRecentCustomers()` from DB (not in-memory)
+
+### AI Social Scheduler (`/studio/social`)
+- UI: Platform selector (Twitter/LinkedIn/Instagram/Facebook/All), count (7/14/30), tone, brand name
+- Backend: `POST /studio/social/generate` → samples up to 15 products from catalog, GPT-4o writes posts
+- Output: 7-30 posts with captions, hashtags, and CTAs
+
+### AI Content Engine (`/studio/content`)
+- UI: 8 content types (product description, landing page, SEO meta, sales email, bio, FAQ, testimonial request, upsell), audience, brief, tone
+- Backend: `POST /studio/content/generate` → type-specific instructions + GPT-4o
+- Output: Ready-to-use copy in plain text format
+
+### Coming soon (4 remaining stubs)
+- AI Scheduling Layer, AI Training System, AI Form Builder, AI Helpdesk
+
+## PULSE — Real-Time Platform Awareness Engine (`/pulse`)
+
+- **Purpose**: Live business intelligence dashboard — the operational heartbeat of the platform
+- **Data sources**: PostgreSQL (customers, revenue, webhooks), Stripe balance API, Semantic Product Registry
+- **Auto-refreshes**: Every 15 seconds via client-side polling to `/pulse/json`
+- **KPIs shown**: All-time revenue, this week, today, total customers, avg order, catalog size, Stripe balance, uptime
+- **Panels**: Revenue bar chart (14 days), recent customers table, top products, catalog by format, webhook events, system health
+- **Auth**: Protected by admin auth cookie (same as Hub, Studio, Status)
+- **Key files**: `src/routes/pulse.ts` (HTML + JSON API)
+- **JSON endpoint**: `GET /pulse/json` — all data in one response, suitable for external monitoring
+
+## Portal Fix — PostgreSQL Source
+
+- **Bug fixed**: `semanticPortal.ts` was using in-memory `customerStore.js` instead of PostgreSQL DB
+- **Impact**: New customers (from Stripe webhooks → `insertCustomer()`) were invisible in the portal
+- **Fix**: Portal now uses `findCustomersByEmail()` from `lib/db.ts` — reads PostgreSQL directly
+- **Key files**: `src/routes/semanticPortal.ts` (rewritten), `src/lib/db.ts` (new `findCustomersByEmail()`, `getRecentCustomers()`, `getRevenueTimeline()`, `getRecentWebhookEvents()`)
 
 ## Platform Status Dashboard (`/status`)
 
