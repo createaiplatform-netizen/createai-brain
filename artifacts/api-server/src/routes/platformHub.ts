@@ -223,6 +223,7 @@ router.get("/hub", async (_req: Request, res: Response) => {
       section: "Operations",
       items: [
         { label: "NEXUS Platform OS", url: `${BASE}/nexus`, desc: "Unified OS — identity (Presence), 5-format addressing, role-adaptive surfaces, session context. Supersedes CORE + SignalSpace.", icon: "◉", badge: "Admin" },
+        { label: "Business OS Bundle", url: `${BASE}/bundle`, desc: "20-industry analysis: 140+ tools replaced, 13 AI-native capabilities, unified $29–$299/mo pricing model.", icon: "📦", badge: "Admin" },
         { label: "CORE Console (legacy)", url: `${BASE}/core`, desc: "Legacy CORE OS — Presence tokens, intent navigation. Superseded by NEXUS.", icon: "◎", badge: "Admin" },
         { label: "SignalSpace (legacy)", url: `${BASE}/ss`, desc: "Legacy SSAP semantic addressing layer. Superseded by NEXUS unified resolver.", icon: "⬡", badge: "Admin" },
         { label: "Live Payment Feed", url: `${BASE}/launch/payments`, desc: "Real-time Stripe sessions with delivery status", icon: "💳", badge: "Admin" },
