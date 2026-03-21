@@ -372,7 +372,8 @@ const MappingStudioApp = React.lazy(() => import("@/Apps/MappingStudioApp").then
 const HealthOSApp      = React.lazy(() => import("@/projects/HealthOSApp").then(m => ({ default: m.HealthOSApp })));
 const LegalPMApp       = React.lazy(() => import("@/projects/LegalPMApp").then(m => ({ default: m.LegalPMApp })));
 const StaffingOSApp    = React.lazy(() => import("@/projects/StaffingOSApp").then(m => ({ default: m.StaffingOSApp })));
-const AdsHubApp        = React.lazy(() => import("@/Apps/AdsHubApp"));
+const AdsHubApp           = React.lazy(() => import("@/Apps/AdsHubApp"));
+const AdsOrchestratorApp  = React.lazy(() => import("@/Apps/AdsOrchestratorApp"));
 const AuthLabApp       = React.lazy(() => import("@/Apps/AuthLabApp"));
 const PayGateApp       = React.lazy(() => import("@/Apps/PayGateApp"));
 const InventionLayerApp    = React.lazy(() => import("@/Apps/InventionLayerApp"));
@@ -744,7 +745,8 @@ const APP_COMPONENTS: Record<AppId, React.LazyExoticComponent<React.ComponentTyp
   legalpm:        LegalPMApp,
   staffingos:     StaffingOSApp,
   // ── New Platform Capabilities ─────────────────────────────────────────────
-  adshub:         AdsHubApp,
+  adshub:          AdsHubApp,
+  adsOrchestrator: AdsOrchestratorApp,
   authlab:        AuthLabApp,
   paygate:        PayGateApp,
   inventionLayer:    InventionLayerApp,

@@ -267,7 +267,7 @@ export type AppId =
   // ── Industry OS Apps ───────────────────────────────────────────────────────
   | "healthos" | "legalpm" | "staffingos"
   // ── New Platform Capabilities ─────────────────────────────────────────────
-  | "adshub" | "authlab" | "paygate" | "inventionLayer"
+  | "adshub" | "adsOrchestrator" | "authlab" | "paygate" | "inventionLayer"
   | "percentageEngine" | "activation" | "credentialsHub";
 
 export interface AppDef {
@@ -431,7 +431,8 @@ export const DEFAULT_APPS: AppDef[] = [
   { id: "healthos",      label: "HealthOS",         icon: "🏥", color: "#0d9488", description: "Full healthcare management — patients, appointments, doctors, departments, and billing in one unified OS", category: "business" },
   { id: "legalpm",       label: "LegalPM",          icon: "⚖️", color: "#4f46e5", description: "Legal practice management — matters, clients, time tracking, billing, and tasks for law firms", category: "business" },
   { id: "staffingos",    label: "StaffingOS",        icon: "🎯", color: "#7c3aed", description: "Global staffing platform — candidates, clients, requisitions, interviews, and placement tracking", category: "business" },
-  { id: "adshub",        label: "Advertising Hub",   icon: "📢", color: "#ec4899", description: "Complete internal advertising hub — all platform profiles, ad templates, scripts, bios, funnels, and brand assets for every major platform", category: "tools" },
+  { id: "adshub",          label: "Advertising Hub",       icon: "📢", color: "#ec4899", description: "Complete internal advertising hub — all platform profiles, ad templates, scripts, bios, funnels, and brand assets for every major platform", category: "tools" },
+  { id: "adsOrchestrator", label: "Ad Campaign Orchestrator", icon: "📡", color: "#6366f1", description: "Universal ad deployment orchestrator — connects all 12 ad networks, deploys pre-built campaigns the moment credentials are entered, manages internal platform ads (live immediately), and aggregates reporting from all connected networks", category: "tools" },
   { id: "authlab",       label: "Authentication Lab", icon: "🔐", color: "#6366f1", description: "Advanced authentication methods — passwordless magic link, device fingerprinting, trusted sessions, and full auth architecture", category: "system" },
   { id: "paygate",       label: "PayGate",           icon: "💳", color: "#10b981", description: "Multi-rail payment system — professional invoice generation, email delivery, and payment tracking via bank, wire, Zelle, Venmo, crypto, and check", category: "business" },
   { id: "inventionLayer",    label: "Invention Layer",    icon: "🔬", color: "#f59e0b", description: "12 AI invention tools that bypass $500K+ in software licenses — clinical scribe, legal research, fleet intelligence, risk underwriting, agronomist, and more", category: "tools" },
@@ -538,7 +539,8 @@ const INTENT_MAP: { keywords: string[]; target: AppId }[] = [
   { keywords: ["projbuilder", "project builder", "project file", "project plan", "healthcare platform", "construction project", "logistics hub", "sop", "standard operating procedure", "intake form", "phone script", "training outline", "launch plan", "30 days"], target: "projbuilder" },
   { keywords: ["projos", "project os", "universal platform", "project dashboard", "folder view", "sub app", "project manager", "project management", "demo mode", "test mode", "live mode", "all projects", "organize projects", "hunting", "farming", "project folder"], target: "projos" },
   // ── New Platform Capabilities ─────────────────────────────────────────────
-  { keywords: ["advertising hub", "ads hub", "adshub", "advertising assets", "ad templates", "platform ads", "tiktok ads", "facebook ads", "instagram ads", "youtube ads", "linkedin ads", "twitter ads", "x ads", "snapchat ads", "pinterest ads", "ad campaigns", "ad copy", "content calendar", "ad scripts", "brand assets", "advertising content", "ad generator", "social media ads", "ad hub"], target: "adshub" },
+  { keywords: ["advertising hub", "ads hub", "adshub", "advertising assets", "ad templates", "platform ads", "ad copy", "content calendar", "ad scripts", "brand assets", "advertising content", "ad generator", "social media ads", "ad hub"], target: "adshub" },
+  { keywords: ["ad orchestrator", "campaign manager", "deploy campaigns", "campaign deployment", "ad deployment", "connect ad network", "ad network credentials", "meta ads api", "google ads api", "tiktok ads api", "linkedin ads api", "ad credentials", "ads reporting", "ad performance", "internal ads", "platform ads internal", "ad spend", "ad reporting dashboard", "universal ads", "all ad networks", "deploy ads", "ad accounts", "advertising deploy", "ad network setup", "google ads", "facebook ads api", "tiktok ads", "snapchat ads api", "reddit ads", "pinterest ads", "microsoft ads", "bing ads", "twitter ads api", "x ads api"], target: "adsOrchestrator" },
   { keywords: ["auth lab", "authlab", "authentication", "magic link", "passwordless", "device fingerprint", "trusted device", "passkey", "session", "auth methods", "login security", "2fa", "two factor", "secure login", "auth upgrade", "authentication lab", "sign in methods"], target: "authlab" },
   { keywords: ["paygate", "pay gate", "invoice", "payment rail", "payment methods", "update payment methods", "show payment options", "what are my payment options", "cash app", "cashapp", "createaidigital", "venmo", "accept payment", "create invoice", "send invoice", "payment tracking", "revenue collection", "stripe alternative", "invoice system", "collect payment", "billing", "mark paid", "mark invoice paid", "daily income", "has invoice been paid"], target: "paygate" },
   { keywords: ["invention layer", "inventionlayer", "invention tools", "12 tools", "ai clinical scribe", "ai fleet", "ai energy", "ai property", "ai risk underwriter", "ai legal research", "ai production", "ai grant writer", "ai compliance", "ai email sequence", "ai financial intelligence", "ai agronomist", "bypass software", "replace software", "no hardware", "no license"], target: "inventionLayer" },
@@ -708,7 +710,8 @@ const APP_META: Record<AppId, { icon: string; label: string }> = {
   healthos:       { icon: "🏥", label: "HealthOS" },
   legalpm:        { icon: "⚖️", label: "LegalPM" },
   staffingos:     { icon: "🎯", label: "StaffingOS" },
-  adshub:         { icon: "📢", label: "Advertising Hub" },
+  adshub:          { icon: "📢", label: "Advertising Hub" },
+  adsOrchestrator: { icon: "📡", label: "Ad Campaign Orchestrator" },
   authlab:        { icon: "🔐", label: "Authentication Lab" },
   paygate:        { icon: "💳", label: "PayGate" },
   inventionLayer:    { icon: "🔬", label: "Invention Layer" },

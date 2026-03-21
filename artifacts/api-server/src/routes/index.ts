@@ -104,6 +104,7 @@ import studioExtendedRouter     from "./studioExtended.js";
 import percentageEngineRouter   from "./percentageEngine.js";
 import maxActivationRouter      from "./maxActivation.js";
 import credentialsBridgeRouter  from "./credentialsBridge.js";
+import campaignManagerRouter    from "./campaignManager.js";
 
 const router: IRouter = Router();
 
@@ -313,5 +314,8 @@ router.use("/activate",                  maxActivationRouter);
 
 // ── Credentials Bridge — in-OS token manager + Resend DNS wizard ──────────────
 router.use("/credentials",               credentialsBridgeRouter);
+
+// ── Ad Campaign Orchestrator — 12 networks, pre-built campaigns, internal ads ──
+router.use("/ads",                        campaignManagerRouter);
 
 export default router;
