@@ -20,6 +20,8 @@ import {
   getAggregateReport, logDeployment,
 } from "../services/adsOrchestrator.js";
 import { launchNetwork, launchAllConnectedNetworks, getAllCampaignStatuses } from "../services/networkApiClients.js";
+import { generateCreative, generateAllCreatives, getCreative, getAllCreatives, getCreativesForNetwork } from "../services/adCreativeEngine.js";
+import { generateAllTrackingLinks, getTrackingLinksForNetwork, getOfferCatalog } from "../services/adTrackingLinks.js";
 
 const router = Router();
 
@@ -349,6 +351,81 @@ router.post("/deploy/:networkId", (req: Request, res: Response) => {
     nextStep:       "Campaigns are queued. Use the ad network's dashboard or the Ads Manager API to push these campaign objects. All creative specs and targeting are pre-configured.",
     note:           "Full programmatic push via API client activates when you confirm billing in each network's dashboard. All campaign objects are ready.",
   });
+});
+
+// ─── GET /api/ads/creatives ───────────────────────────────────────────────────
+// All pre-generated ad creatives across every campaign
+
+router.get("/creatives", (_req: Request, res: Response) => {
+  const creatives = getAllCreatives();
+  res.json({ ok: true, total: creatives.length, creatives });
+});
+
+// ─── GET /api/ads/creatives/:networkId ────────────────────────────────────────
+
+router.get("/creatives/:networkId", (req: Request, res: Response) => {
+  const networkId = String(req.params["networkId"] ?? "");
+  const creatives = getCreativesForNetwork(networkId);
+  res.json({ ok: true, networkId, total: creatives.length, creatives });
+});
+
+// ─── POST /api/ads/creatives/generate ────────────────────────────────────────
+// Trigger AI generation for one or all campaigns
+
+router.post("/creatives/generate", async (req: Request, res: Response) => {
+  const { campaignId, networkId, forceRegenerate } = req.body as { campaignId?: string; networkId?: string; forceRegenerate?: boolean };
+
+  if (campaignId) {
+    const allCampaigns = AD_NETWORKS.flatMap(n => n.campaigns);
+    const campaign = allCampaigns.find(c => c.id === campaignId);
+    if (!campaign) { res.status(404).json({ ok: false, error: `Campaign '${campaignId}' not found` }); return; }
+    try {
+      const creative = await generateCreative(campaign);
+      res.json({ ok: true, creative });
+    } catch (err) {
+      res.status(500).json({ ok: false, error: String(err).slice(0, 200) });
+    }
+    return;
+  }
+
+  if (networkId) {
+    const net = AD_NETWORKS.find(n => n.id === networkId);
+    if (!net) { res.status(404).json({ ok: false, error: `Network '${networkId}' not found` }); return; }
+    const results: { campaignId: string; ok: boolean; error?: string }[] = [];
+    for (const campaign of net.campaigns) {
+      if (!forceRegenerate && getCreative(campaign.id)) { results.push({ campaignId: campaign.id, ok: true }); continue; }
+      try { await generateCreative(campaign); results.push({ campaignId: campaign.id, ok: true }); }
+      catch (err) { results.push({ campaignId: campaign.id, ok: false, error: String(err).slice(0, 100) }); }
+      await new Promise(r => setTimeout(r, 400));
+    }
+    res.json({ ok: true, networkId, results });
+    return;
+  }
+
+  // Generate all
+  try {
+    const result = await generateAllCreatives(!!forceRegenerate);
+    res.json({ ok: true, ...result });
+  } catch (err) {
+    res.status(500).json({ ok: false, error: String(err).slice(0, 200) });
+  }
+});
+
+// ─── GET /api/ads/tracking-links ─────────────────────────────────────────────
+// All UTM-tagged tracking links for every campaign + offer
+
+router.get("/tracking-links", (_req: Request, res: Response) => {
+  const links = generateAllTrackingLinks();
+  const offers = getOfferCatalog();
+  res.json({ ok: true, total: links.length, links, offers });
+});
+
+// ─── GET /api/ads/tracking-links/:networkId ───────────────────────────────────
+
+router.get("/tracking-links/:networkId", (req: Request, res: Response) => {
+  const networkId = String(req.params["networkId"] ?? "");
+  const links = getTrackingLinksForNetwork(networkId);
+  res.json({ ok: true, networkId, total: links.length, links });
 });
 
 export default router;

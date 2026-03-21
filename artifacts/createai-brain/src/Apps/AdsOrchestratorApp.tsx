@@ -2,7 +2,7 @@ import React, { useState, useEffect, useCallback } from "react";
 
 const API = "/api";
 
-type Tab = "overview" | "networks" | "campaigns" | "internal" | "reporting" | "guide";
+type Tab = "overview" | "networks" | "campaigns" | "internal" | "reporting" | "guide" | "creatives" | "tracking";
 
 interface NetworkSummary {
   id: string; name: string; platforms: string[]; icon: string; color: string;
@@ -31,6 +31,19 @@ interface AdStatus {
   campaignsQueued: number; campaignsTotal: number; internalAdsLive: number;
   summary: string; requiredActions: { category: string; timeRequired: string; actions: { network: string; setupTime: string; setupUrl: string; steps: { item: string; note: string }[] }[] }[];
 }
+interface CreativeSet {
+  campaignId: string; networkId: string; campaignName: string; generatedAt: string;
+  headlines: string[]; bodies: string[]; hooks: string[]; ctas: string[];
+  hashtags: string[]; keywords: string[]; longFormCopy: string;
+  primaryHeadline: string; primaryBody: string; primaryCta: string;
+}
+interface TrackingLink {
+  networkId: string; networkName: string; campaignId: string; campaignName: string;
+  offerId: string; offerName: string; offerPrice: string; url: string; shortParams: string;
+}
+interface Offer {
+  id: string; name: string; price: string; baseUrl: string; category: string; paymentNote: string;
+}
 
 export default function AdsOrchestratorApp() {
   const [tab, setTab]               = useState<Tab>("overview");
@@ -48,22 +61,32 @@ export default function AdsOrchestratorApp() {
   const [launching, setLaunching]   = useState<Record<string, boolean>>({});
   const [launchResults, setLaunchResults] = useState<Record<string, { ok: boolean; launched: number; activateUrl: string; nextStep: string; error?: string }>>({});
   const [launchingAll, setLaunchingAll] = useState(false);
+  const [creatives, setCreatives]   = useState<CreativeSet[]>([]);
+  const [trackingLinks, setTrackingLinks] = useState<TrackingLink[]>([]);
+  const [offers, setOffers]         = useState<Offer[]>([]);
+  const [generating, setGenerating] = useState(false);
+  const [genResult, setGenResult]   = useState<{ generated: number; skipped: number; errors: string[] } | null>(null);
+  const [expandedCreative, setExpandedCreative] = useState<string | null>(null);
 
   const load = useCallback(async () => {
     setLoading(true);
     try {
-      const [st, nw, cp, ia, rp] = await Promise.all([
+      const [st, nw, cp, ia, rp, cr, tl] = await Promise.all([
         fetch(`${API}/ads/status`).then(r => r.json()).catch(() => null),
         fetch(`${API}/ads/networks`).then(r => r.json()).catch(() => null),
         fetch(`${API}/ads/campaigns`).then(r => r.json()).catch(() => null),
         fetch(`${API}/ads/internal`).then(r => r.json()).catch(() => null),
         fetch(`${API}/ads/reporting`).then(r => r.json()).catch(() => null),
+        fetch(`${API}/ads/creatives`).then(r => r.json()).catch(() => null),
+        fetch(`${API}/ads/tracking-links`).then(r => r.json()).catch(() => null),
       ]);
       if (st?.ok)  setStatus(st);
       if (nw?.ok)  setNetworks(nw.networks ?? []);
       if (cp?.ok)  setCampaigns(cp.campaigns ?? []);
       if (ia?.ok)  setInternal(ia.ads ?? []);
       if (rp?.ok)  setReport(rp.byNetwork ?? []);
+      if (cr?.ok)  setCreatives(cr.creatives ?? []);
+      if (tl?.ok)  { setTrackingLinks(tl.links ?? []); setOffers(tl.offers ?? []); }
     } finally { setLoading(false); }
   }, []);
 
@@ -165,7 +188,7 @@ export default function AdsOrchestratorApp() {
 
         {/* Tabs */}
         <div style={{ display: "flex", gap: 4, background: "#0f172a", borderRadius: 10, padding: 4, width: "fit-content" }}>
-          {([["overview","📊 Overview"],["networks","🌐 Networks"],["campaigns","🚀 Campaigns"],["internal","📢 Internal Ads"],["reporting","📈 Reporting"],["guide","📋 Setup Guide"]] as [Tab,string][]).map(([t,l]) => (
+          {([["overview","📊 Overview"],["networks","🌐 Networks"],["campaigns","🚀 Campaigns"],["internal","📢 Internal Ads"],["reporting","📈 Reporting"],["guide","📋 Setup Guide"],["creatives","✍️ Creatives"],["tracking","🔗 Tracking"]] as [Tab,string][]).map(([t,l]) => (
             <button key={t} onClick={() => setTab(t)} style={{ background: tab === t ? "#6366f1" : "transparent", color: tab === t ? "#fff" : "#94a3b8", border: "none", borderRadius: 8, padding: "7px 14px", fontSize: 12, fontWeight: 600, cursor: "pointer" }}>
               {l}
             </button>
@@ -575,6 +598,228 @@ export default function AdsOrchestratorApp() {
             )}
           </div>
         )}
+
+        {/* ── CREATIVES ─────────────────────────────────────────────────────────── */}
+        {tab === "creatives" && (
+          <div>
+            {/* Header + Generate button */}
+            <div style={{ background: "#0a1628", border: "1px solid #1e3a5f", borderRadius: 12, padding: "16px 20px", marginBottom: 20, display: "flex", alignItems: "center", justifyContent: "space-between" }}>
+              <div>
+                <div style={{ fontSize: 14, fontWeight: 700, color: "#f1f5f9", marginBottom: 4 }}>AI-Generated Ad Creatives</div>
+                <div style={{ fontSize: 12, color: "#64748b" }}>
+                  {creatives.length > 0
+                    ? `${creatives.length}/15 campaigns have generated creatives — headlines, copy variants, hooks, CTAs, hashtags, and keywords`
+                    : "No creatives generated yet. Click Generate All to use GPT-4o to write platform-optimized copy for all 15 campaigns."
+                  }
+                </div>
+              </div>
+              <button
+                onClick={async () => {
+                  setGenerating(true); setGenResult(null);
+                  try {
+                    const r = await fetch(`${API}/ads/creatives/generate`, { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify({}) });
+                    const d = await r.json();
+                    setGenResult(d);
+                    await load();
+                  } catch { /* ignore */ }
+                  finally { setGenerating(false); }
+                }}
+                disabled={generating}
+                style={{ background: "#6366f1", color: "#fff", border: "none", padding: "10px 20px", borderRadius: 10, fontSize: 13, fontWeight: 700, cursor: generating ? "not-allowed" : "pointer", opacity: generating ? 0.6 : 1, whiteSpace: "nowrap" }}>
+                {generating ? "Generating…" : "✍️ Generate All Creatives"}
+              </button>
+            </div>
+
+            {genResult && (
+              <div style={{ background: genResult.errors.length > 0 ? "#1c0a0a" : "#052e16", border: `1px solid ${genResult.errors.length > 0 ? "#450a0a" : "#166534"}`, borderRadius: 10, padding: "12px 16px", marginBottom: 16 }}>
+                <div style={{ fontSize: 13, fontWeight: 700, color: genResult.errors.length > 0 ? "#f87171" : "#4ade80" }}>
+                  {genResult.generated} generated · {genResult.skipped} already cached · {genResult.errors.length} errors
+                </div>
+                {genResult.errors.length > 0 && <div style={{ fontSize: 11, color: "#fca5a5", marginTop: 4 }}>{genResult.errors.join(", ")}</div>}
+              </div>
+            )}
+
+            {creatives.length === 0 && !generating && (
+              <div style={{ textAlign: "center", padding: "60px 20px", color: "#475569" }}>
+                <div style={{ fontSize: 40, marginBottom: 12 }}>✍️</div>
+                <div style={{ fontSize: 15, fontWeight: 600, color: "#64748b" }}>No creatives generated yet</div>
+                <div style={{ fontSize: 13, marginTop: 4 }}>Click Generate All to write GPT-4o ad copy for all 15 campaigns</div>
+              </div>
+            )}
+
+            {creatives.map(c => {
+              const network = networks.find(n => n.id === c.networkId);
+              const isExpanded = expandedCreative === c.campaignId;
+              return (
+                <div key={c.campaignId} style={{ background: "#0f172a", border: "1px solid #1e293b", borderRadius: 14, padding: "18px 22px", marginBottom: 12 }}>
+                  <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", marginBottom: isExpanded ? 16 : 0, cursor: "pointer" }} onClick={() => setExpandedCreative(isExpanded ? null : c.campaignId)}>
+                    <div style={{ display: "flex", alignItems: "center", gap: 10 }}>
+                      <span style={{ fontSize: 18 }}>{network?.icon ?? "📡"}</span>
+                      <div>
+                        <div style={{ fontSize: 13, fontWeight: 700, color: "#f1f5f9" }}>{c.campaignName}</div>
+                        <div style={{ fontSize: 11, color: "#475569" }}>{c.networkName ?? c.networkId} · Generated {new Date(c.generatedAt).toLocaleDateString()}</div>
+                      </div>
+                    </div>
+                    <div style={{ display: "flex", gap: 8, alignItems: "center" }}>
+                      <div style={{ background: "#1e293b", padding: "3px 10px", borderRadius: 6, fontSize: 11, color: "#94a3b8" }}>{c.headlines.length} headlines</div>
+                      <span style={{ color: "#475569" }}>{isExpanded ? "▲" : "▼"}</span>
+                    </div>
+                  </div>
+
+                  {isExpanded && (
+                    <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 14 }}>
+                      {/* Headlines */}
+                      <div style={{ background: "#020617", borderRadius: 10, padding: "14px 16px" }}>
+                        <div style={{ fontSize: 11, fontWeight: 700, color: "#6366f1", marginBottom: 10, textTransform: "uppercase", letterSpacing: 1 }}>Headlines</div>
+                        {c.headlines.map((h, i) => (
+                          <div key={i} style={{ display: "flex", alignItems: "center", gap: 8, marginBottom: 8 }}>
+                            <div style={{ flex: 1, fontSize: 12, color: "#e2e8f0", lineHeight: 1.4 }}>{h}</div>
+                            <button onClick={() => { navigator.clipboard.writeText(h); copy(h, `h-${c.campaignId}-${i}`); }} style={{ background: "none", border: "1px solid #334155", borderRadius: 6, color: "#64748b", fontSize: 10, padding: "2px 8px", cursor: "pointer" }}>
+                              {copied === `h-${c.campaignId}-${i}` ? "✓" : "Copy"}
+                            </button>
+                          </div>
+                        ))}
+                      </div>
+
+                      {/* Hooks / Scroll-Stoppers */}
+                      <div style={{ background: "#020617", borderRadius: 10, padding: "14px 16px" }}>
+                        <div style={{ fontSize: 11, fontWeight: 700, color: "#f59e0b", marginBottom: 10, textTransform: "uppercase", letterSpacing: 1 }}>Scroll-Stop Hooks</div>
+                        {c.hooks.map((h, i) => (
+                          <div key={i} style={{ display: "flex", alignItems: "center", gap: 8, marginBottom: 8 }}>
+                            <div style={{ flex: 1, fontSize: 12, color: "#e2e8f0", lineHeight: 1.4 }}>{h}</div>
+                            <button onClick={() => { navigator.clipboard.writeText(h); copy(h, `hook-${c.campaignId}-${i}`); }} style={{ background: "none", border: "1px solid #334155", borderRadius: 6, color: "#64748b", fontSize: 10, padding: "2px 8px", cursor: "pointer" }}>
+                              {copied === `hook-${c.campaignId}-${i}` ? "✓" : "Copy"}
+                            </button>
+                          </div>
+                        ))}
+                      </div>
+
+                      {/* Body copy */}
+                      <div style={{ background: "#020617", borderRadius: 10, padding: "14px 16px" }}>
+                        <div style={{ fontSize: 11, fontWeight: 700, color: "#10b981", marginBottom: 10, textTransform: "uppercase", letterSpacing: 1 }}>Body Copy Variants</div>
+                        {c.bodies.map((b, i) => (
+                          <div key={i} style={{ background: "#0f172a", borderRadius: 8, padding: "8px 10px", marginBottom: 8, display: "flex", gap: 8 }}>
+                            <div style={{ flex: 1, fontSize: 12, color: "#cbd5e1", lineHeight: 1.5 }}>{b}</div>
+                            <button onClick={() => { navigator.clipboard.writeText(b); copy(b, `body-${c.campaignId}-${i}`); }} style={{ background: "none", border: "1px solid #334155", borderRadius: 6, color: "#64748b", fontSize: 10, padding: "2px 8px", cursor: "pointer", alignSelf: "flex-start" }}>
+                              {copied === `body-${c.campaignId}-${i}` ? "✓" : "Copy"}
+                            </button>
+                          </div>
+                        ))}
+                      </div>
+
+                      {/* CTAs + Keywords/Hashtags */}
+                      <div style={{ display: "flex", flexDirection: "column", gap: 14 }}>
+                        <div style={{ background: "#020617", borderRadius: 10, padding: "14px 16px" }}>
+                          <div style={{ fontSize: 11, fontWeight: 700, color: "#8b5cf6", marginBottom: 10, textTransform: "uppercase", letterSpacing: 1 }}>CTA Variants</div>
+                          <div style={{ display: "flex", flexWrap: "wrap", gap: 8 }}>
+                            {c.ctas.map((cta, i) => (
+                              <button key={i} onClick={() => { navigator.clipboard.writeText(cta); copy(cta, `cta-${c.campaignId}-${i}`); }}
+                                style={{ background: copied === `cta-${c.campaignId}-${i}` ? "#10b981" : "#6366f1", color: "#fff", border: "none", borderRadius: 8, padding: "6px 14px", fontSize: 12, fontWeight: 700, cursor: "pointer" }}>
+                                {cta}
+                              </button>
+                            ))}
+                          </div>
+                        </div>
+                        {(c.keywords.length > 0 || c.hashtags.length > 0) && (
+                          <div style={{ background: "#020617", borderRadius: 10, padding: "14px 16px" }}>
+                            <div style={{ fontSize: 11, fontWeight: 700, color: "#06b6d4", marginBottom: 10, textTransform: "uppercase", letterSpacing: 1 }}>
+                              {c.keywords.length > 0 ? "Keywords" : "Hashtags"}
+                            </div>
+                            <div style={{ display: "flex", flexWrap: "wrap", gap: 6 }}>
+                              {(c.keywords.length > 0 ? c.keywords : c.hashtags).map((kw, i) => (
+                                <span key={i} onClick={() => { navigator.clipboard.writeText(kw); }}
+                                  style={{ background: "#0f172a", border: "1px solid #1e293b", borderRadius: 6, padding: "3px 8px", fontSize: 11, color: "#94a3b8", cursor: "pointer" }}>
+                                  {kw}
+                                </span>
+                              ))}
+                            </div>
+                          </div>
+                        )}
+                      </div>
+
+                      {/* Long-form copy */}
+                      {c.longFormCopy && (
+                        <div style={{ gridColumn: "1 / -1", background: "#020617", borderRadius: 10, padding: "14px 16px" }}>
+                          <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: 10 }}>
+                            <div style={{ fontSize: 11, fontWeight: 700, color: "#f472b6", textTransform: "uppercase", letterSpacing: 1 }}>Long-Form / Video Script</div>
+                            <button onClick={() => { navigator.clipboard.writeText(c.longFormCopy); copy(c.longFormCopy, `lf-${c.campaignId}`); }} style={{ background: "none", border: "1px solid #334155", borderRadius: 6, color: "#64748b", fontSize: 10, padding: "2px 8px", cursor: "pointer" }}>
+                              {copied === `lf-${c.campaignId}` ? "✓ Copied" : "Copy All"}
+                            </button>
+                          </div>
+                          <div style={{ fontSize: 12, color: "#94a3b8", lineHeight: 1.7, whiteSpace: "pre-wrap" }}>{c.longFormCopy}</div>
+                        </div>
+                      )}
+                    </div>
+                  )}
+                </div>
+              );
+            })}
+          </div>
+        )}
+
+        {/* ── TRACKING LINKS ────────────────────────────────────────────────────── */}
+        {tab === "tracking" && (
+          <div>
+            {/* Offer catalog */}
+            <div style={{ marginBottom: 20 }}>
+              <div style={{ fontSize: 14, fontWeight: 700, color: "#f1f5f9", marginBottom: 12 }}>Offer Catalog — {offers.length} Monetizable Products</div>
+              <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fit, minmax(240px, 1fr))", gap: 10 }}>
+                {offers.map(offer => (
+                  <div key={offer.id} style={{ background: "#0f172a", border: "1px solid #1e293b", borderRadius: 12, padding: "14px 16px" }}>
+                    <div style={{ fontSize: 13, fontWeight: 700, color: "#f1f5f9", marginBottom: 4 }}>{offer.name}</div>
+                    <div style={{ fontSize: 18, fontWeight: 800, color: "#6366f1", marginBottom: 6 }}>{offer.price}</div>
+                    <div style={{ fontSize: 11, color: "#475569" }}>{offer.paymentNote}</div>
+                  </div>
+                ))}
+              </div>
+            </div>
+
+            {/* Tracking links by network */}
+            <div style={{ fontSize: 14, fontWeight: 700, color: "#f1f5f9", marginBottom: 12 }}>
+              UTM Tracking Links — {trackingLinks.length} total ({networks.length} networks × campaigns)
+            </div>
+            {networks.map(net => {
+              const netLinks = trackingLinks.filter(l => l.networkId === net.id);
+              if (!netLinks.length) return null;
+              return (
+                <div key={net.id} style={{ background: "#0f172a", border: "1px solid #1e293b", borderRadius: 14, padding: "18px 22px", marginBottom: 12 }}>
+                  <div style={{ display: "flex", alignItems: "center", gap: 10, marginBottom: 14 }}>
+                    <span style={{ fontSize: 18 }}>{net.icon}</span>
+                    <div style={{ fontSize: 13, fontWeight: 700, color: "#f1f5f9" }}>{net.name}</div>
+                    <div style={{ marginLeft: "auto", fontSize: 11, color: "#475569" }}>{netLinks.length} links</div>
+                  </div>
+                  {netLinks.map(link => (
+                    <div key={link.campaignId} style={{ background: "#020617", borderRadius: 10, padding: "12px 14px", marginBottom: 10 }}>
+                      <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", marginBottom: 6 }}>
+                        <div>
+                          <div style={{ fontSize: 12, fontWeight: 600, color: "#e2e8f0" }}>{link.campaignName}</div>
+                          <div style={{ fontSize: 11, color: "#6366f1", marginTop: 2 }}>{link.offerName} · {link.offerPrice}</div>
+                        </div>
+                        <button
+                          onClick={() => { navigator.clipboard.writeText(link.url); copy(link.url, `tl-${link.campaignId}`); }}
+                          style={{ background: copied === `tl-${link.campaignId}` ? "#10b981" : "#1e293b", color: "#fff", border: "none", borderRadius: 8, padding: "6px 14px", fontSize: 11, fontWeight: 700, cursor: "pointer", whiteSpace: "nowrap" }}>
+                          {copied === `tl-${link.campaignId}` ? "✓ Copied" : "Copy URL"}
+                        </button>
+                      </div>
+                      <div style={{ background: "#0f172a", borderRadius: 6, padding: "6px 10px", fontSize: 11, color: "#475569", fontFamily: "monospace", wordBreak: "break-all" }}>
+                        {link.url}
+                      </div>
+                    </div>
+                  ))}
+                </div>
+              );
+            })}
+
+            {trackingLinks.length === 0 && (
+              <div style={{ textAlign: "center", padding: "60px 20px", color: "#475569" }}>
+                <div style={{ fontSize: 40, marginBottom: 12 }}>🔗</div>
+                <div style={{ fontSize: 15, fontWeight: 600, color: "#64748b" }}>Tracking links are being generated…</div>
+                <div style={{ fontSize: 13, marginTop: 4 }}>Reload the page if this persists</div>
+              </div>
+            )}
+          </div>
+        )}
+
       </div>
     </div>
   );

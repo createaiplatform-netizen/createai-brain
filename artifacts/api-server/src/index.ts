@@ -25,6 +25,7 @@ import { startEnforcer }                              from "./services/platform1
 import { startUltimateLaunch }                        from "./services/ultimateTranscend.js";
 import { startPayoutCycle, pushRevenueToBankImmediately } from "./services/payoutService.js";
 import { UltraInteractionEngine }                        from "./services/ultraInteractionEngine.js";
+import { generateAllCreatives }                          from "./services/adCreativeEngine.js";
 
 // Wire all DI services before the server binds. All factories are lazy —
 // nothing is instantiated here, just registered.
@@ -108,6 +109,12 @@ app.listen(port, () => {
     console.log("[PayoutService] ⚡ Instant payout listener active — microRevenue → Huntington instant → enforceMaxGrowth → triggerMetaCycle → globalTranscend");
 
     startUltraTranscendPersonalEngine(); // per-user hyper-personalization loop
+
+    // Auto-generate GPT-4o ad creatives for all 15 campaigns on first boot (cached; skips if already generated)
+    generateAllCreatives(false).then(r => {
+      if (r.generated > 0) console.log(`[AdCreatives] ✅ Auto-generated ${r.generated} campaign creatives (${r.skipped} cached, ${r.errors.length} errors)`);
+      else console.log(`[AdCreatives] ✓ All ${r.skipped} creatives already cached`);
+    }).catch(err => console.error("[AdCreatives] Creative generation error:", (err as Error).message));
 
     // Log public market page URL (spec: launchFullFamilyMarket — Step 5)
     const domain = process.env.REPLIT_DEV_DOMAIN ?? "localhost";

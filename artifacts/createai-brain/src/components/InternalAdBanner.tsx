@@ -16,7 +16,12 @@ const CTA_APP_MAP: Record<string, AppId> = {
   "Get Referral Link":    "adsOrchestrator" as AppId,
 };
 
-export function InternalAdBanner({ placement = "all" }: { placement?: string }) {
+interface InternalAdBannerProps {
+  placement?: string;
+  compact?: boolean;
+}
+
+export function InternalAdBanner({ placement = "all", compact = false }: InternalAdBannerProps) {
   const { openApp } = useOS();
   const [ads, setAds]       = useState<InternalAd[]>([]);
   const [idx, setIdx]       = useState(0);
@@ -37,15 +42,15 @@ export function InternalAdBanner({ placement = "all" }: { placement?: string }) 
       .catch(() => {});
   }, [placement]);
 
-  // Rotate every 8 seconds
   useEffect(() => {
     if (ads.length <= 1) return;
+    const interval = compact ? 6000 : 8000;
     const t = setInterval(() => {
       setVisible(false);
       setTimeout(() => { setIdx(i => (i + 1) % ads.length); setVisible(true); }, 300);
-    }, 8000);
+    }, interval);
     return () => clearInterval(t);
-  }, [ads.length]);
+  }, [ads.length, compact]);
 
   const activeAds = ads.filter(a => !dismissed.has(a.id));
   if (!activeAds.length) return null;
@@ -58,6 +63,39 @@ export function InternalAdBanner({ placement = "all" }: { placement?: string }) 
     if (appId) { openApp(appId); }
     else { window.open(ad.ctaLink, "_blank"); }
   };
+
+  if (compact) {
+    return (
+      <div
+        style={{
+          background: `linear-gradient(90deg, ${ad.color}12, ${ad.color}06)`,
+          borderBottom: `1px solid ${ad.color}25`,
+          borderLeft: `2px solid ${ad.color}`,
+          padding: "6px 12px",
+          display: "flex",
+          alignItems: "center",
+          gap: 10,
+          opacity: visible ? 1 : 0,
+          transition: "opacity 0.3s ease",
+          cursor: "pointer",
+          flexShrink: 0,
+        }}
+        onClick={handleCta}
+      >
+        <div style={{ fontSize: 10, fontWeight: 700, color: ad.color, whiteSpace: "nowrap", overflow: "hidden", textOverflow: "ellipsis", flex: 1 }}>
+          {ad.headline}
+        </div>
+        <div style={{ background: ad.color, color: "#fff", padding: "2px 8px", borderRadius: 4, fontSize: 9, fontWeight: 700, whiteSpace: "nowrap", flexShrink: 0 }}>
+          {ad.cta}
+        </div>
+        <button
+          onClick={e => { e.stopPropagation(); setDismissed(d => new Set([...d, ad.id])); }}
+          style={{ background: "none", border: "none", color: "#94a3b8", fontSize: 12, cursor: "pointer", padding: "0 2px", lineHeight: 1, flexShrink: 0 }}
+          title="Dismiss"
+        >×</button>
+      </div>
+    );
+  }
 
   return (
     <div
