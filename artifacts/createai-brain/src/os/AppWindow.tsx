@@ -420,6 +420,7 @@ const FranchiseOpsApp   = React.lazy(() => import("@/Apps/DomainAppsBundle2").th
 const BrandVaultApp     = React.lazy(() => import("@/Apps/DomainAppsBundle2").then(m => ({ default: m.BrandVaultApp })));
 const RevenueIntelApp   = React.lazy(() => import("@/Apps/DomainAppsBundle2").then(m => ({ default: m.RevenueIntelApp })));
 const AIStrategyApp     = React.lazy(() => import("@/Apps/DomainAppsBundle2").then(m => ({ default: m.AIStrategyApp })));
+const DistributionHubApp = React.lazy(() => import("@/Apps/DistributionHub"));
 const ConfigManagerApp = React.lazy(() => import("@/Apps/ConfigManagerApp").then(m => ({ default: m.ConfigManagerApp })));
 
 // ── App registry ─────────────────────────────────────────────────────────────
@@ -830,6 +831,7 @@ const APP_COMPONENTS: Record<AppId, React.LazyExoticComponent<React.ComponentTyp
   brandVault:     BrandVaultApp,
   revenueIntel:   RevenueIntelApp,
   aiStrategy:     AIStrategyApp,
+  distributionHub: DistributionHubApp,
 };
 
 // ── Loading skeleton ─────────────────────────────────────────────────────────

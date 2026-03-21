@@ -277,7 +277,8 @@ export type AppId =
   | "domainHub"
   // ── Extended Domain Engine Suite v2.0 — 10 new engines ─────────────────────
   | "projectsCmd" | "partnerNet" | "eventBooking" | "educationHub" | "socialCmd"
-  | "supplyChainOps" | "franchiseOps" | "brandVault" | "revenueIntel" | "aiStrategy";
+  | "supplyChainOps" | "franchiseOps" | "brandVault" | "revenueIntel" | "aiStrategy"
+  | "distributionHub";
 
 export interface AppDef {
   id: AppId;
@@ -486,6 +487,7 @@ export const DEFAULT_APPS: AppDef[] = [
   { id: "brandVault",    label: "Brand Vault",         icon: "💎", color: "#6366f1", description: "Brand asset management and guidelines library — logos, color palettes, templates, fonts, usage rights, version control, and brand compliance enforcement. Replaces Bynder and Brandfolder.", category: "system" },
   { id: "revenueIntel",  label: "Revenue Intelligence",icon: "📈", color: "#10b981", description: "Advanced revenue analytics — cohort analysis, LTV modeling, churn prediction, MRR/ARR trends, net revenue retention, and ARPU tracking. Replaces ChartMogul and Baremetrics.", category: "business" },
   { id: "aiStrategy",    label: "AI Strategy Engine",  icon: "🧠", color: "#6366f1", description: "GPT-4o powered strategic intelligence — analyze business positions, generate 90-day action plans, map competitive landscapes, identify growth levers, and evaluate pivot options. Full strategic advisor.", category: "ai" },
+  { id: "distributionHub", label: "Distribution Hub", icon: "🚀", color: "#6366f1", description: "App store submission engine — manage PWA installation, Chrome Web Store, Apple App Store, Google Play, Samsung Galaxy Store, Amazon Appstore, and Microsoft Store. 100/100 PWA audit score. Full automation pipeline with GitHub Actions + Fastlane.", category: "system" },
 ];
 
 export const ALL_APPS = DEFAULT_APPS;
@@ -632,6 +634,7 @@ const INTENT_MAP: { keywords: string[]; target: AppId }[] = [
   { keywords: ["brand vault", "brand assets", "brand guidelines", "brand management", "bynder", "brandfolder", "logo assets", "brand colors", "brand templates", "brand compliance", "asset management", "brand system"], target: "brandVault" },
   { keywords: ["revenue intelligence", "revenue analytics", "cohort analysis", "ltv", "customer lifetime value", "churn", "churn rate", "chartmogul", "baremetrics", "arr", "mrr trends", "nrr", "arpu", "revenue metrics", "retention analytics"], target: "revenueIntel" },
   { keywords: ["ai strategy", "strategy engine", "strategic intelligence", "business strategy", "competitive analysis", "growth strategy", "strategic planning", "90-day plan", "strategic advisor", "strategy generation", "competitive landscape", "pivot analysis", "market strategy"], target: "aiStrategy" },
+  { keywords: ["distribution hub", "app store", "deploy app", "publish app", "mobile app", "pwa install", "chrome extension", "google play", "apple store", "app submission", "distribution channels", "store submission", "ios app", "android app", "mobile distribution", "samsung galaxy store", "amazon appstore", "microsoft store", "install app"], target: "distributionHub" },
 ];
 
 function routeIntentFn(intent: string): AppId | null {

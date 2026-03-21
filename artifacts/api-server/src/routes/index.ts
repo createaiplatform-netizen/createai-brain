@@ -135,6 +135,7 @@ import franchiseHubRouter         from "./franchiseHub.js";
 import brandVaultRouter           from "./brandVault.js";
 import revenueIntelRouter         from "./revenueIntel.js";
 import aiStrategyRouter           from "./aiStrategy.js";
+import { storeSubmissionRouter }  from "./storeSubmission.js";
 
 const router: IRouter = Router();
 
@@ -397,5 +398,8 @@ router.use("/franchise",     franchiseHubRouter);
 router.use("/brand",         brandVaultRouter);
 router.use("/revenue-intel", revenueIntelRouter);
 router.use("/ai-strategy",   aiStrategyRouter);
+
+// ── App Distribution & Store Submission Engine ─────────────────────────────
+router.use("/store",         storeSubmissionRouter);
 
 export default router;

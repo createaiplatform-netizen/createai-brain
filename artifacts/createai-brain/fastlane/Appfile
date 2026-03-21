@@ -1,0 +1,8 @@
+app_identifier("com.lakesidetrinity.createaibrain")
+apple_id(ENV["APPLE_ID"])
+team_id(ENV["APPLE_TEAM_ID"])
+itc_team_id(ENV["APPLE_TEAM_ID"])
+
+for_lane(:android) do
+  package_name("com.lakesidetrinity.createaibrain")
+end
