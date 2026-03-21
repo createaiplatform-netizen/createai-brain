@@ -10,6 +10,8 @@ import StandalonePage from "@/pages/StandalonePage";
 import CreationPage from "@/pages/CreationPage";
 import ProjectPage from "@/pages/ProjectPage";
 import IntegrationDemoPage from "@/pages/IntegrationDemoPage";
+import SEOLandingPage from "@/pages/SEOLandingPage";
+import JoinPage from "@/pages/JoinPage";
 import LiveSimDashboard from "@/pages/LiveSimDashboard";
 import IntegrationLivePage from "@/pages/IntegrationLivePage";
 import IntegrationSuitePage from "@/pages/IntegrationSuitePage";
@@ -477,6 +479,8 @@ function App() {
     path.startsWith(`${base}/global-expansion`) ||
     path.startsWith(`${base}/evolution`) ||
     path.startsWith(`${base}/semantic-store`) ||
+    path.startsWith(`${base}/for/`) ||
+    path.startsWith(`${base}/join/`) ||
     // SMART-on-FHIR OAuth callback/connected pages must be accessible without auth gate
     // because the browser redirects here from the external SMART sandbox
     path.startsWith(`${base}/connectors/`);
@@ -503,6 +507,10 @@ function App() {
           <Route path="/global-expansion"    component={GlobalPage} />
           <Route path="/evolution"           component={EvolutionPage} />
           <Route path="/semantic-store"      component={SemanticStorePage} />
+          {/* SEO Industry Landing Pages — fully public, no auth required */}
+          <Route path="/for/:industry">{(params: { industry: string }) => <SEOLandingPage industry={params.industry} />}</Route>
+          {/* Viral Referral Landing Page */}
+          <Route path="/join/:code" component={JoinPage} />
           {/* SMART-on-FHIR OAuth callback — receives authorization code from sandbox */}
           <Route path="/connectors/SMART_FHIR_SANDBOX/callback"  component={SmartFhirCallbackApp} />
           {/* SMART-on-FHIR connected confirmation + test fetch UI */}

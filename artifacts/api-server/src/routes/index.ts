@@ -105,6 +105,7 @@ import percentageEngineRouter   from "./percentageEngine.js";
 import maxActivationRouter      from "./maxActivation.js";
 import credentialsBridgeRouter  from "./credentialsBridge.js";
 import campaignManagerRouter    from "./campaignManager.js";
+import referralRouter           from "./referral.js";
 
 const router: IRouter = Router();
 
@@ -317,5 +318,8 @@ router.use("/credentials",               credentialsBridgeRouter);
 
 // ── Ad Campaign Orchestrator — 12 networks, pre-built campaigns, internal ads ──
 router.use("/ads",                        campaignManagerRouter);
+
+// ── Viral Referral Loop — referral codes, clicks, conversions, leaderboard ──
+router.use("/referral",                   referralRouter);
 
 export default router;
