@@ -32,6 +32,7 @@ import DataPage                    from "@/pages/DataPage";
 import GlobalPage                  from "@/pages/GlobalPage";
 import EvolutionPage               from "@/pages/EvolutionPage";
 import SemanticStorePage           from "@/pages/SemanticStorePage";
+import PlatformScorePage           from "@/pages/PlatformScorePage";
 import { OSProvider } from "@/os/OSContext";
 import { OSLayout } from "@/os/osLayout";
 import { GlobalCommandPalette } from "@/components/GlobalCommandPalette";
@@ -96,6 +97,7 @@ function Router() {
       <Route path="/metrics" component={MetricsPage} />
       <Route path="/above-transcend" component={AboveTranscendPage} />
       <Route path="/semantic-store" component={SemanticStorePage} />
+      <Route path="/platform-score" component={PlatformScorePage} />
       <Route path="/project/:projectId" component={ProjectPage} />
       <Route path="/standalone/creation/:creationId" component={CreationPage} />
       <Route path="/standalone/:projectId" component={StandalonePage} />

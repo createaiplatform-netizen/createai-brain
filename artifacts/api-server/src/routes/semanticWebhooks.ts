@@ -99,12 +99,31 @@ function buildDeliveryEmailHTML(opts: {
 // Stripe webhook: checkout.session.completed
 router.post("/checkout-complete", async (req: Request, res: Response) => {
   try {
-    // ── Signature verification (enable in production) ──────────────────────
-    // const webhookSecret = process.env["STRIPE_WEBHOOK_SECRET"];
-    // if (webhookSecret) {
-    //   const sig = req.headers["stripe-signature"] as string;
-    //   stripe.webhooks.constructEvent(req.body, sig, webhookSecret);
-    // }
+    // ── Signature verification — auto-enabled when STRIPE_WEBHOOK_SECRET is set ─
+    const webhookSecret = process.env["STRIPE_WEBHOOK_SECRET"];
+    if (webhookSecret) {
+      const sig = req.headers["stripe-signature"] as string | undefined;
+      if (!sig) {
+        console.warn("[SemanticWebhook] Webhook signature missing — rejecting");
+        res.status(400).json({ ok: false, error: "Missing stripe-signature header" });
+        return;
+      }
+      try {
+        const { getUncachableStripeClient } = await import("../services/integrations/stripeClient.js");
+        const stripeClient = await getUncachableStripeClient();
+        stripeClient.webhooks.constructEvent(
+          req.body as Buffer,
+          sig,
+          webhookSecret
+        );
+        console.log("[SemanticWebhook] ✅ Webhook signature verified");
+      } catch (sigErr: unknown) {
+        const msg = sigErr instanceof Error ? sigErr.message : String(sigErr);
+        console.error("[SemanticWebhook] ❌ Webhook signature verification failed:", msg);
+        res.status(400).json({ ok: false, error: `Webhook signature invalid: ${msg}` });
+        return;
+      }
+    }
 
     const body = req.body as {
       type?: string;
@@ -174,6 +193,18 @@ router.post("/checkout-complete", async (req: Request, res: Response) => {
       deliveryEmailSent: false,
       purchasedAt: new Date().toISOString(),
     });
+
+    // ── Affiliate conversion attribution ───────────────────────────────────
+    const refCode = session.metadata?.["refCode"];
+    if (refCode) {
+      try {
+        const { recordAffiliateConversion } = await import("./semanticAffiliate.js");
+        recordAffiliateConversion(refCode, priceCents);
+        console.log(`[SemanticWebhook] Affiliate conversion recorded — code: ${refCode} · $${(priceCents/100).toFixed(2)}`);
+      } catch (affErr) {
+        console.warn(`[SemanticWebhook] Affiliate conversion record failed: ${String(affErr)}`);
+      }
+    }
 
     // ── Schedule T+3 follow-up + T+7 upsell email sequence ────────────────
     scheduleFollowups({

@@ -169,17 +169,20 @@ router.get("/checkout/:id", async (req: Request, res: Response) => {
       return;
     }
 
+    const refCode = String((req.query as Record<string, string>)["ref"] ?? "").trim();
     const stripe = await getUncachableStripeClient();
     const session = await stripe.checkout.sessions.create({
       mode: "payment",
       line_items: [{ price: product.stripePriceId, quantity: 1 }],
-      success_url: `${STORE_URL}/api/semantic/store/${product.id}?success=1`,
-      cancel_url: `${STORE_URL}/api/semantic/store/${product.id}`,
+      allow_promotion_codes: true,
+      success_url: `${STORE_URL}/api/semantic/store/${product.id}?success=1${refCode ? `&ref=${refCode}` : ""}`,
+      cancel_url:  `${STORE_URL}/api/semantic/store/${product.id}`,
       metadata: {
         semanticProductId: product.id,
-        productTitle: product.title,
-        format: product.format,
-        channel: "hosted-page",
+        productTitle:      product.title,
+        format:            product.format,
+        channel:           "hosted-page",
+        ...(refCode ? { refCode } : {}),
       },
     });
 

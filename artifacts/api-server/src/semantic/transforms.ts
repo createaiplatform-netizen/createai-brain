@@ -217,7 +217,28 @@ export function toHostedPageHTML(p: SemanticProduct, checkoutUrl: string, succes
     <div class="tags">${p.tags.map(t => `<span class="tag">${t}</span>`).join("")}</div>
     <p class="desc">${p.description}</p>
     <a href="${checkoutUrl}" class="btn">Get Instant Access — $${price}</a>
-    <p class="guarantee">🔒 Secure payment via Stripe · Instant delivery · No subscriptions</p>
+    <p class="guarantee">🔒 Secure payment via Stripe · Instant delivery · 30-day guarantee</p>
+    <div style="margin-top:20px;display:flex;gap:10px;flex-wrap:wrap;">
+      <a href="/api/semantic/content/${p.id}/html"
+         target="_blank"
+         style="display:inline-flex;align-items:center;gap:6px;padding:10px 18px;background:#f8fafc;border:1px solid #e2e8f0;border-radius:10px;font-size:0.82rem;font-weight:600;color:#374151;text-decoration:none;transition:all 0.2s;"
+         onmouseover="this.style.borderColor='#c7d2fe';this.style.background='#ede9fe';this.style.color='#6366f1'"
+         onmouseout="this.style.borderColor='#e2e8f0';this.style.background='#f8fafc';this.style.color='#374151'">
+        👁 Preview Content
+      </a>
+      <a href="/api/semantic/content/${p.id}/text"
+         style="display:inline-flex;align-items:center;gap:6px;padding:10px 18px;background:#f8fafc;border:1px solid #e2e8f0;border-radius:10px;font-size:0.82rem;font-weight:600;color:#374151;text-decoration:none;transition:all 0.2s;"
+         onmouseover="this.style.borderColor='#c7d2fe';this.style.background='#ede9fe';this.style.color='#6366f1'"
+         onmouseout="this.style.borderColor='#e2e8f0';this.style.background='#f8fafc';this.style.color='#374151'">
+        ↓ Download Sample
+      </a>
+      <a href="/api/semantic/portal/me"
+         style="display:inline-flex;align-items:center;gap:6px;padding:10px 18px;background:#f8fafc;border:1px solid #e2e8f0;border-radius:10px;font-size:0.82rem;font-weight:600;color:#374151;text-decoration:none;transition:all 0.2s;"
+         onmouseover="this.style.borderColor='#c7d2fe';this.style.background='#ede9fe';this.style.color='#6366f1'"
+         onmouseout="this.style.borderColor='#e2e8f0';this.style.background='#f8fafc';this.style.color='#374151'">
+        📦 My Purchases
+      </a>
+    </div>
   </div>
 ${related.length > 0 ? `
   <div style="max-width:800px;margin:0 auto 64px;padding:0 24px;">

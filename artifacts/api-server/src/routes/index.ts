@@ -86,11 +86,14 @@ import payoutRouter             from "./payout.js";
 import bridgeRouter             from "./bridge.js";
 import modesRouter              from "./modes.js";
 import creationEnginesRouter    from "./creationEngines.js";
-import semanticStoreRouter      from "./semanticStore.js";
-import semanticWebhooksRouter   from "./semanticWebhooks.js";
-import semanticAnalyticsRouter  from "./semanticAnalytics.js";
-import semanticAffiliateRouter  from "./semanticAffiliate.js";
-import semanticSEORouter        from "./semanticSEO.js";
+import semanticStoreRouter        from "./semanticStore.js";
+import semanticWebhooksRouter     from "./semanticWebhooks.js";
+import semanticAnalyticsRouter    from "./semanticAnalytics.js";
+import semanticAffiliateRouter    from "./semanticAffiliate.js";
+import semanticSEORouter          from "./semanticSEO.js";
+import semanticContentRouter      from "./semanticContent.js";
+import semanticPortalRouter       from "./semanticPortal.js";
+import semanticSubscriptionRouter from "./semanticSubscription.js";
 import omniBridgeRouter         from "./omniBridge.js";
 import orchestratorRouter       from "./orchestrator.js";
 
@@ -251,5 +254,26 @@ router.use("/semantic/affiliate",       semanticAffiliateRouter);
 // SEO: bundle detection at /api/semantic/bundles
 // (sitemap.xml + robots.txt are served at domain root via app.ts)
 router.use("/semantic",                 semanticSEORouter);
+
+// AI Content Generation Engine — per-product AI-generated content previews + downloads
+// GET  /api/semantic/content/:productId        — generate + return full content (JSON)
+// GET  /api/semantic/content/:productId/html   — styled HTML preview
+// GET  /api/semantic/content/:productId/text   — plain text download
+// GET  /api/semantic/content/status            — cache stats
+// POST /api/semantic/content/batch             — pre-generate content for N products
+router.use("/semantic/content",          semanticContentRouter);
+
+// Customer Self-Service Portal — purchase history lookup by email
+// POST /api/semantic/portal/lookup  — returns all purchases + re-download links
+// GET  /api/semantic/portal/me      — portal HTML page (email gated)
+// GET  /api/semantic/portal/stats   — CRM aggregate stats
+router.use("/semantic/portal",           semanticPortalRouter);
+
+// Subscription & Recurring Revenue tier
+// GET /api/semantic/subscriptions          — list recurring products
+// GET /api/semantic/subscriptions/plans    — membership plan definitions
+// GET /api/semantic/subscriptions/landing  — membership landing page (HTML)
+// GET /api/semantic/subscriptions/checkout/:priceId — Stripe subscription checkout
+router.use("/semantic/subscriptions",    semanticSubscriptionRouter);
 
 export default router;
