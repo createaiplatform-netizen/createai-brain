@@ -17,74 +17,95 @@ import { enforce100Percent,
 import { getWealthSnapshot }               from "../services/wealthMultiplier.js";
 import { getMaximizerStats }               from "../services/wealthMaximizer.js";
 import { getInvoiceSummary }               from "./invoicePayments.js";
+import { getCredentialStatus, CREDENTIAL_DEFS } from "../services/credentialsBridge.js";
 
 const router = Router();
 
 // ─── Known Blockers (external dependencies — cannot be bypassed in code) ───────
 
-const BLOCKERS = [
-  {
-    id:                    "stripe-charges",
-    system:                "Stripe Card Charges",
-    status:                "blocked",
-    reason:                "charges_enabled: false — Stripe account requires identity verification",
-    bypass:                "PayGate is fully active. Cash App ($CreateAIDigital) and Venmo (@CreateAIDigital) collect all revenue without Stripe.",
-    bypassActive:          true,
-    requiresExternalAction: true,
-    externalSteps: [
-      "Log in to Stripe Dashboard → Account Settings",
-      "Complete identity and business verification",
-      "Enable charges on the account",
-    ],
-  },
-  {
-    id:                    "resend-domain",
-    system:                "Resend Email Delivery (LakesideTrinity.com)",
-    status:                "partial",
-    reason:                "Domain not verified — email currently delivers only to sivh@mail.com",
-    bypass:                "Invoices are shared as direct PayGate links. Clients pay via Cash App or Venmo without email.",
-    bypassActive:          true,
-    requiresExternalAction: true,
-    externalSteps: [
-      "Log in to resend.com/domains",
-      "Add the provided DNS TXT record to LakesideTrinity.com",
-      "Click Verify — full email delivery activates immediately",
-    ],
-  },
-  {
-    id:                    "marketplace-tokens",
-    system:                "External Marketplace Publishing (Shopify / Etsy / Amazon)",
-    status:                "pending",
-    reason:                "No marketplace API tokens are connected — sync queue is built but not executing",
-    bypass:                "Semantic Store serves all products on platform-hosted URLs. All 100+ products are live for direct sale right now.",
-    bypassActive:          true,
-    requiresExternalAction: true,
-    externalSteps: [
-      "Connect Shopify / Etsy store API token in the Advertising Hub",
-      "Run /api/semantic/export to generate Shopify CSV / Google Shopping XML feeds",
-    ],
-  },
-  {
-    id:                    "cashapp-venmo-api",
-    system:                "Automated Cash App / Venmo Collection",
-    status:                "manual-collection",
-    reason:                "Cash App and Venmo are consumer apps — no automated payment API exists for either platform",
-    bypass:                "Mark-paid workflow in PayGate: client sends payment, you tap Mark Paid in the OS. Revenue logs instantly.",
-    bypassActive:          true,
-    requiresExternalAction: false,
-    externalSteps:         [],
-  },
-  {
-    id:                    "ach-payout",
-    system:                "ACH Auto-Payout (Huntington Bank)",
-    status:                "requires-auth",
-    reason:                "Payout route requires founder authentication — protected endpoint",
-    bypass:                "Manually transfer from Cash App or Venmo to your bank account at any time. No automation required.",
-    bypassActive:          true,
-    requiresExternalAction: false,
-    externalSteps:         [],
-  },
-];
+// ─── Blocker factory — includes live credential state from CredentialsBridge ───
+
+function buildBlockers() {
+  const credStatus = getCredentialStatus();
+  const liveCount  = credStatus.filter(c => c.set).length;
+  const totalCreds = credStatus.length;
+  const allLive    = liveCount === totalCreds;
+  const liveNames  = credStatus.filter(c => c.set).map(c => c.channel).join(", ") || "none";
+
+  return [
+    {
+      id:                    "stripe-charges",
+      system:                "Stripe Card Charges",
+      status:                "blocked",
+      reason:                "charges_enabled: false — Stripe account requires identity verification",
+      bypass:                "PayGate is fully active. Cash App ($CreateAIDigital) and Venmo (@CreateAIDigital) collect all revenue without Stripe.",
+      bypassActive:          true,
+      requiresExternalAction: true,
+      externalSteps: [
+        "Log in to Stripe Dashboard → Account Settings",
+        "Complete identity and business verification",
+        "Enable charges on the account",
+      ],
+    },
+    {
+      id:                    "resend-domain",
+      system:                "Resend Email Delivery (LakesideTrinity.com)",
+      status:                "partial",
+      reason:                "Domain not verified — email currently delivers only to sivh@mail.com",
+      bypass:                "Invoices are shared as direct PayGate links. Clients pay via Cash App or Venmo without email.",
+      bypassActive:          true,
+      requiresExternalAction: true,
+      externalSteps: [
+        "Log in to resend.com/domains",
+        "Add LakesideTrinity.com, copy DNS records from Credentials Hub (DNS tab) → paste into registrar",
+        "Click Verify — full email delivery activates immediately",
+      ],
+    },
+    {
+      id:                    "marketplace-tokens",
+      system:                "External Marketplace Publishing (Shopify / Etsy / Amazon / eBay / Creative Market)",
+      status:                allLive ? "live" : liveCount > 0 ? "partial" : "pending",
+      live:                  liveCount,
+      total:                 totalCreds,
+      liveChannels:          liveNames,
+      pendingChannels:       credStatus.filter(c => !c.set).map(c => c.channel).join(", "),
+      reason:                allLive
+        ? `All ${totalCreds} marketplace channels connected — product sync executing on all platforms.`
+        : liveCount > 0
+          ? `${liveCount}/${totalCreds} marketplace tokens connected (${liveNames}). Enter remaining tokens in Credentials Hub.`
+          : "No marketplace API tokens connected — product sync queue built but not executing.",
+      bypass:                "Semantic Store serves all products on platform-hosted URLs. All products are live for direct sale right now. Credentials Hub (open with: 'credentials') lets you enter tokens in-OS — activates instantly.",
+      bypassActive:          true,
+      requiresExternalAction: !allLive,
+      externalSteps:         allLive ? [] : [
+        "Open Credentials Hub in NEXUS (say 'credentials' or 'connect shopify')",
+        "Enter each marketplace token — it activates publishing immediately, no restart needed",
+        credStatus.filter(c => !c.set).map(c => `${c.channel}: ${c.helpUrl}`).join(" | "),
+      ],
+      credentialStatus:      credStatus,
+    },
+    {
+      id:                    "cashapp-venmo-api",
+      system:                "Automated Cash App / Venmo Collection",
+      status:                "manual-collection",
+      reason:                "Cash App and Venmo are consumer apps — no automated payment API exists for either platform",
+      bypass:                "Mark-paid workflow in PayGate: client sends payment, you tap Mark Paid in the OS. Revenue logs instantly.",
+      bypassActive:          true,
+      requiresExternalAction: false,
+      externalSteps:         [],
+    },
+    {
+      id:                    "ach-payout",
+      system:                "ACH Auto-Payout (Huntington Bank)",
+      status:                "requires-auth",
+      reason:                "Payout route requires founder authentication — protected endpoint",
+      bypass:                "Manually transfer from Cash App or Venmo to your bank account at any time. No automation required.",
+      bypassActive:          true,
+      requiresExternalAction: false,
+      externalSteps:         [],
+    },
+  ];
+}
 
 // ─── Execution Sequence ────────────────────────────────────────────────────────
 
@@ -132,7 +153,11 @@ router.post("/all", async (_req, res) => {
     { engine: "creation-engines",label: "Creation Engines (8 BASE)",  schedule: "continuous"  },
     { engine: "advertising",     label: "Advertising Hub (12 platforms)", schedule: "on-demand" },
     { engine: "paygate",         label: "PayGate (Cash App + Venmo)", schedule: "always-live" },
+    { engine: "credentials-hub", label: "Credentials Hub (marketplace bridge)", schedule: "reactive — activates when token is entered" },
   ];
+
+  const blockers = buildBlockers();
+  const credentialStatus = getCredentialStatus();
 
   res.json({
     ok:              true,
@@ -141,11 +166,20 @@ router.post("/all", async (_req, res) => {
     fired,
     failed,
     alwaysRunning,
-    blockers:        BLOCKERS.filter(b => !b.bypassActive),
-    bypassesActive:  BLOCKERS.filter(b => b.bypassActive).length,
+    blockers:        blockers.filter(b => !b.bypassActive),
+    bypassesActive:  blockers.filter(b => b.bypassActive).length,
+    credentialStatus: {
+      marketplaces:    credentialStatus,
+      live:            credentialStatus.filter(c => c.set).length,
+      total:           credentialStatus.length,
+      allLive:         credentialStatus.every(c => c.set),
+      summary:         credentialStatus.filter(c => c.set).length === 0
+        ? "No marketplace tokens connected — enter in Credentials Hub to activate external publishing"
+        : `${credentialStatus.filter(c => c.set).length}/${credentialStatus.length} marketplace channels live`,
+    },
     executionSequence: EXECUTION_SEQUENCE,
     confirmation:    fired.length > 0
-      ? `ACTIVATED — ${fired.length} engines fired simultaneously. ${alwaysRunning.length} systems already running continuously. ${BLOCKERS.filter(b => b.bypassActive).length}/${BLOCKERS.length} blockers have active bypasses.`
+      ? `ACTIVATED — ${fired.length} engines fired simultaneously. ${alwaysRunning.length} systems already running continuously. ${blockers.filter(b => b.bypassActive).length}/${blockers.length} blockers have active bypasses.`
       : "Engines already cycling — no additional trigger needed.",
     paymentRail: {
       cashapp: "$CreateAIDigital",
@@ -159,14 +193,16 @@ router.post("/all", async (_req, res) => {
 // ─── GET /api/activate/status ─────────────────────────────────────────────────
 
 router.get("/status", (_req, res) => {
-  const invoice       = getInvoiceSummary();
-  const ultimateStats = getUltimateStats();
-  const enforcerStats = getEnforcerStats();
-  const maximizerStats= getMaximizerStats();
-  const metaStats     = getMetaCycleStats();
-  const wealthSnap    = getWealthSnapshot();
-  const aboveCycles   = getCycleCount();
-  const latestCycle   = getLatestCycle();
+  const invoice        = getInvoiceSummary();
+  const ultimateStats  = getUltimateStats();
+  const enforcerStats  = getEnforcerStats();
+  const maximizerStats = getMaximizerStats();
+  const metaStats      = getMetaCycleStats();
+  const wealthSnap     = getWealthSnapshot();
+  const aboveCycles    = getCycleCount();
+  const latestCycle    = getLatestCycle();
+  const credStatus     = getCredentialStatus();
+  const liveMarkets    = credStatus.filter(c => c.set).length;
 
   res.json({
     ok:         true,
@@ -241,8 +277,29 @@ router.get("/status", (_req, res) => {
         schedule: "on-demand",
         note:     "Campaigns generated via /api/advertising/*",
       },
+      {
+        id:       "credentials-hub",
+        label:    "Credentials Hub — Marketplace Bridge",
+        status:   liveMarkets > 0 ? "partial" : "standby",
+        schedule: "reactive — activates on token entry",
+        live:     liveMarkets,
+        total:    credStatus.length,
+        channels: credStatus.map(c => ({ channel: c.channel, live: c.set, source: c.source })),
+        note:     liveMarkets === 0
+          ? "No marketplace tokens entered — open 'credentials' in NEXUS to activate"
+          : `${liveMarkets}/${credStatus.length} marketplace channels publishing`,
+      },
     ],
-    blockers:       BLOCKERS,
+    blockers:       buildBlockers(),
+    credentialStatus: {
+      marketplaces: credStatus,
+      live:         liveMarkets,
+      total:        credStatus.length,
+      allLive:      liveMarkets === credStatus.length,
+      summary:      liveMarkets === 0
+        ? "No marketplace tokens — open Credentials Hub to activate external publishing"
+        : `${liveMarkets}/${credStatus.length} marketplace channels live`,
+    },
     liveRevenue: {
       paidTotal:      invoice.paidTotal,
       paidToday:      invoice.paidTodayTotal,
@@ -258,13 +315,15 @@ router.get("/status", (_req, res) => {
 // ─── GET /api/activate/blockers ───────────────────────────────────────────────
 
 router.get("/blockers", (_req, res) => {
+  const blockers = buildBlockers();
   res.json({
     ok:           true,
-    total:        BLOCKERS.length,
-    active:       BLOCKERS.filter(b => b.bypassActive).length,
-    unresolvable: BLOCKERS.filter(b => !b.bypassActive).length,
-    blockers:     BLOCKERS,
-    summary:      `${BLOCKERS.filter(b => b.bypassActive).length} of ${BLOCKERS.length} blockers have active bypasses. Zero revenue is lost — all gaps are covered by alternative methods.`,
+    total:        blockers.length,
+    active:       blockers.filter(b => b.bypassActive).length,
+    unresolvable: blockers.filter(b => !b.bypassActive).length,
+    blockers,
+    credentialStatus: getCredentialStatus(),
+    summary:      `${blockers.filter(b => b.bypassActive).length} of ${blockers.length} blockers have active bypasses. Zero revenue is lost — all gaps are covered by alternative methods.`,
   });
 });
 

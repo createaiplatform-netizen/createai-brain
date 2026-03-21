@@ -21,6 +21,7 @@ import { scheduleFollowups }                     from "../semantic/emailSchedule
 import { sendEmailNotification }                 from "../utils/notifications.js";
 import { getUncachableStripeClient }             from "../services/integrations/stripeClient.js";
 import { getPublicBaseUrl }                       from "../utils/publicUrl.js";
+import { getCredentialStatus }                    from "../services/credentialsBridge.js";
 
 const router = Router();
 
@@ -39,6 +40,10 @@ router.get("/status", async (_req: Request, res: Response) => {
     const hasWebhook = !!process.env["STRIPE_WEBHOOK_SECRET"];
     const withPrice  = products.filter(p => p.stripePriceId).length;
 
+    const creds       = getCredentialStatus();
+    const liveMarkets = creds.filter(c => c.set).length;
+    const totalMarkets = creds.length;
+
     res.json({
       ok: true, revenueReady: true,
       mode: IS_PROD ? "production" : "test",
@@ -48,10 +53,15 @@ router.get("/status", async (_req: Request, res: Response) => {
         { item: "Store live",             ready: true,          note: `${STORE_URL}/api/semantic/store` },
         { item: "Product pages live",     ready: true,          note: "Each product has a hosted page + Stripe checkout" },
         { item: "Manual delivery bridge", ready: true,          note: "Deliver to any customer from the Launch Console" },
-        { item: "Email delivery (auto)",  ready: hasResend,     note: hasResend ? "RESEND_API_KEY active" : "Add RESEND_API_KEY to Replit Secrets" },
+        { item: "PayGate (Cash App + Venmo)", ready: true,      note: "$CreateAIDigital + @CreateAIDigital — live for all clients right now" },
+        { item: "Invoice client links",   ready: true,          note: "Every invoice has a shareable link — share by text, WhatsApp, or DM (no email needed)" },
+        { item: "Email delivery (auto)",  ready: hasResend,     note: hasResend ? "RESEND_API_KEY active" : "DNS records available in Credentials Hub → DNS tab" },
         { item: "Webhook (auto-capture)", ready: hasWebhook,    note: hasWebhook ? "STRIPE_WEBHOOK_SECRET active" : "Configure in Stripe Dashboard then add to Replit Secrets" },
+        { item: "Marketplace publishing", ready: liveMarkets > 0, note: liveMarkets === 0 ? `0/${totalMarkets} tokens — enter in Credentials Hub to activate external publishing` : `${liveMarkets}/${totalMarkets} marketplace(s) live — ${creds.filter(c => c.set).map(c => c.channel).join(", ")}` },
         { item: "Bank payout",            ready: true,          note: "Stripe auto-pays connected bank (2–7 business days)" },
       ],
+      marketplaceChannels: { live: liveMarkets, total: totalMarkets, channels: creds },
+      paymentRail: { cashapp: "$CreateAIDigital", venmo: "@CreateAIDigital", status: "live" },
       storeUrl: `${STORE_URL}/api/semantic/store`,
     });
   } catch (e) { res.status(500).json({ ok: false, error: (e as Error).message }); }

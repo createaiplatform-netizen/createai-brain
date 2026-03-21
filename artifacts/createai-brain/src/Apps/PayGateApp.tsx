@@ -75,7 +75,8 @@ function PaymentMethodBanner() {
 }
 
 export default function PayGateApp() {
-  const [tab, setTab] = useState<"dashboard" | "invoices" | "create" | "methods" | "markpaid">("dashboard");
+  const [tab, setTab]       = useState<"dashboard" | "invoices" | "create" | "methods" | "markpaid">("dashboard");
+  const [copiedLink, setCopiedLink] = useState<string | null>(null);
   const [invoices, setInvoices] = useState<Invoice[]>([]);
   const [summary, setSummary] = useState<Summary | null>(null);
   const [daily, setDaily] = useState<DailyIncome | null>(null);
@@ -368,6 +369,17 @@ export default function PayGateApp() {
                         style={{ padding: "6px 12px", background: "#1e293b", borderRadius: 6, fontSize: 12, fontWeight: 700, color: "#94a3b8", textDecoration: "none" }}>
                         🖨️ View / Print
                       </a>
+                      <button
+                        onClick={() => {
+                          const url = window.location.origin + API + "/payments/invoice/" + inv.id + "/html";
+                          navigator.clipboard.writeText(url).then(() => {
+                            setCopiedLink(inv.id);
+                            setTimeout(() => setCopiedLink(null), 2500);
+                          });
+                        }}
+                        style={{ padding: "6px 12px", background: copiedLink === inv.id ? "#052e16" : "#1e293b", border: "none", borderRadius: 6, fontSize: 12, fontWeight: 700, color: copiedLink === inv.id ? "#4ade80" : "#818cf8", cursor: "pointer" }}>
+                        {copiedLink === inv.id ? "✓ Link Copied!" : "📋 Copy Client Link"}
+                      </button>
                       {inv.status === "draft" && (
                         <button onClick={() => sendInvoice(inv.id)} disabled={sending === inv.id}
                           style={{ ...S.btn, fontSize: 12, padding: "6px 12px", opacity: sending === inv.id ? 0.5 : 1 }}>

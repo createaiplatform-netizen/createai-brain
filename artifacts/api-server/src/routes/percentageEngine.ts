@@ -1,5 +1,6 @@
 import { Router } from "express";
 import { getInvoiceSummary } from "./invoicePayments.js";
+import { getCredentialStatus } from "../services/credentialsBridge.js";
 
 const router = Router();
 
@@ -259,9 +260,20 @@ const PRICE_TIERS = [
 ];
 
 function computeFinancialCapacity(unifiedScore: number) {
-  // Capacity scales with platform capability score
-  // Higher % = more systems live = higher capacity ceiling
   const capabilityFactor = unifiedScore / 100;
+  const creds            = getCredentialStatus();
+  const liveMarkets      = creds.filter(c => c.set).length;
+  const totalMarkets     = creds.length;
+  const marketLabel      = liveMarkets === 0
+    ? "❌ not connected"
+    : liveMarkets < totalMarkets
+      ? `⚡ ${liveMarkets}/${totalMarkets} channels live`
+      : `✅ all ${totalMarkets} channels live`;
+  const marketImpact     = liveMarkets === 0
+    ? "External product distribution blocked — enter tokens in Credentials Hub to activate"
+    : liveMarkets < totalMarkets
+      ? `${liveMarkets} marketplace(s) publishing — ${totalMarkets - liveMarkets} channel(s) still pending`
+      : "All marketplace channels live — products syncing externally";
 
   return {
     note: "Architectural capacity only — reflects what the platform can process, not current earnings. Live revenue is $0.00 (no active charges yet).",
@@ -279,11 +291,12 @@ function computeFinancialCapacity(unifiedScore: number) {
       totalIfAllTiers: Math.round((97 + 297 + 997 + 2997) * capabilityFactor * 30),
     },
     blockers: [
-      { item: "Stripe charges_enabled", status: "❌ pending", impact: "Card payment ceiling blocked" },
-      { item: "Resend domain verified", status: "❌ pending", impact: "Email delivery to clients blocked" },
-      { item: "Marketplace API tokens", status: "❌ not connected", impact: "External product distribution blocked" },
+      { item: "Stripe charges_enabled", status: "❌ pending",  impact: "Card payment ceiling blocked" },
+      { item: "Resend domain verified", status: "❌ pending",  impact: "Email delivery to clients blocked — bypassed via shareable invoice links" },
+      { item: "Marketplace API tokens", status: marketLabel,  impact: marketImpact, liveChannels: liveMarkets, totalChannels: totalMarkets, channelDetail: creds.map(c => ({ channel: c.channel, live: c.set })) },
       { item: "Active customer traffic", status: "⏳ not started", impact: "Revenue = $0 until first customer" },
     ],
+    marketplaceChannels: { live: liveMarkets, total: totalMarkets, channels: creds },
     unlockPotential: "Resolving all 4 blockers unlocks the full capacity ceiling.",
   };
 }
