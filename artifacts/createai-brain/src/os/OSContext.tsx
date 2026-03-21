@@ -268,7 +268,7 @@ export type AppId =
   | "healthos" | "legalpm" | "staffingos"
   // ── New Platform Capabilities ─────────────────────────────────────────────
   | "adshub" | "authlab" | "paygate" | "inventionLayer"
-  | "percentageEngine";
+  | "percentageEngine" | "activation";
 
 export interface AppDef {
   id: AppId;
@@ -436,6 +436,7 @@ export const DEFAULT_APPS: AppDef[] = [
   { id: "paygate",       label: "PayGate",           icon: "💳", color: "#10b981", description: "Multi-rail payment system — professional invoice generation, email delivery, and payment tracking via bank, wire, Zelle, Venmo, crypto, and check", category: "business" },
   { id: "inventionLayer",    label: "Invention Layer",    icon: "🔬", color: "#f59e0b", description: "12 AI invention tools that bypass $500K+ in software licenses — clinical scribe, legal research, fleet intelligence, risk underwriting, agronomist, and more", category: "tools" },
   { id: "percentageEngine", label: "Percentage Engine",  icon: "📊", color: "#6366f1", description: "Real-time platform capability engine — unified score, subsystem breakdowns, industry coverage, over-100% expansion tracking, and financial capacity model", category: "system" },
+  { id: "activation",       label: "Activation Center",  icon: "⚡", color: "#6366f1", description: "Maximum potential command center — fire all engines simultaneously, view real-time status of every system, see active bypasses for every blocker, and track the live execution sequence", category: "system" },
 ];
 
 export const ALL_APPS = DEFAULT_APPS;
@@ -541,6 +542,7 @@ const INTENT_MAP: { keywords: string[]; target: AppId }[] = [
   { keywords: ["paygate", "pay gate", "invoice", "payment rail", "payment methods", "update payment methods", "show payment options", "what are my payment options", "cash app", "cashapp", "createaidigital", "venmo", "accept payment", "create invoice", "send invoice", "payment tracking", "revenue collection", "stripe alternative", "invoice system", "collect payment", "billing", "mark paid", "mark invoice paid", "daily income", "has invoice been paid"], target: "paygate" },
   { keywords: ["invention layer", "inventionlayer", "invention tools", "12 tools", "ai clinical scribe", "ai fleet", "ai energy", "ai property", "ai risk underwriter", "ai legal research", "ai production", "ai grant writer", "ai compliance", "ai email sequence", "ai financial intelligence", "ai agronomist", "bypass software", "replace software", "no hardware", "no license"], target: "inventionLayer" },
   { keywords: ["percentage engine", "percentages", "percentage", "system readiness", "how high are we", "how high are we now", "capability score", "platform score", "readiness score", "completeness", "what percent", "system percentage", "subsystem score", "over 100", "over 1000", "expansion score", "platform capability", "daily income", "revenue capacity", "financial capacity", "how complete", "platform health score", "unified score", "score engine"], target: "percentageEngine" },
+  { keywords: ["activate", "activation", "activate all", "fire all", "fire all engines", "maximum potential", "activate systems", "all systems", "activate revenue", "activate platform", "launch all", "go live", "full activation", "command center", "engine status", "system status", "blockers", "bypass blockers", "execution sequence", "what fires next", "engines running", "what's running", "platform running", "revenue engines", "autonomous engines", "all revenue systems", "full auto", "max activation", "turn everything on", "start all systems"], target: "activation" },
 ];
 
 function routeIntentFn(intent: string): AppId | null {
@@ -709,6 +711,7 @@ const APP_META: Record<AppId, { icon: string; label: string }> = {
   paygate:        { icon: "💳", label: "PayGate" },
   inventionLayer:    { icon: "🔬", label: "Invention Layer" },
   percentageEngine:  { icon: "📊", label: "Percentage Engine" },
+  activation:        { icon: "⚡", label: "Activation Center" },
 
   // ── Enterprise Suite Apps ──────────────────────────────────────────────────
   zeroTrust: { icon: "🔐", label: "Zero Trust" },
