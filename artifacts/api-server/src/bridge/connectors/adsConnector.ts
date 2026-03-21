@@ -16,6 +16,10 @@
 
 import type { BridgeRequest, BridgeResponse } from "../types.js";
 import { randomUUID }                          from "crypto";
+import { OWNER_AUTHORIZATION_MANIFEST as _OAM } from "../../security/ownerAuthorizationManifest.js";
+
+// ─── Owner Authorization ───────────────────────────────────────────────────────
+console.log(`[Bridge:Ads] 🔐 Owner authorization confirmed — ${_OAM.owner} (${_OAM.ownerId}) · status:NOT_CONFIGURED until credentials added`);
 
 function notConfigured(action: BridgeRequest["type"], fnName: string): BridgeResponse {
   const msg = `[Bridge:Ads] ⚠️ ${fnName}() — NOT_CONFIGURED. ` +

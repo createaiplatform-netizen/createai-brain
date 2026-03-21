@@ -1,6 +1,7 @@
 import { Router } from "express";
 import { db, documents, activityLog } from "@workspace/db";
 import { eq, desc, and } from "drizzle-orm";
+import { OWNER_AUTHORIZATION_MANIFEST } from "../security/ownerAuthorizationManifest.js";
 
 const router = Router();
 
@@ -86,6 +87,29 @@ router.get("/stats", async (req, res) => {
   } catch {
     res.status(500).json({ error: "Database error" });
   }
+});
+
+// ── GET /api/security/owner-auth ─────────────────────────────────────────────
+// Public read — returns owner authorization status (no credentials stored here)
+
+router.get("/owner-auth", (_req, res) => {
+  const m = OWNER_AUTHORIZATION_MANIFEST;
+  res.json({
+    ts:     new Date().toISOString(),
+    status: m.approvesUniversalBridgeEngine ? "ACTIVE" : "INACTIVE",
+    manifest: {
+      owner:                              m.owner,
+      ownerId:                            m.ownerId,
+      approvedAt:                         m.approvedAt,
+      approvesUniversalBridgeEngine:      m.approvesUniversalBridgeEngine,
+      approvesAllConnectors:              m.approvesAllConnectors,
+      approvesAllAutomationFlows:         m.approvesAllAutomationFlows,
+      approvesAllMonetizationFlows:       m.approvesAllMonetizationFlows,
+      approvesAllCurrentAndFutureEngines: m.approvesAllCurrentAndFutureEngines,
+      scope:                              m.scope,
+      notes:                              m.notes,
+    },
+  });
 });
 
 export default router;

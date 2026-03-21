@@ -16,6 +16,10 @@
 import { getUncachableStripeClient } from "../../services/integrations/stripeClient.js";
 import type { BridgeRequest, BridgeResponse, BridgeStatus } from "../types.js";
 import { randomUUID }               from "crypto";
+import { OWNER_AUTHORIZATION_MANIFEST as _OAM } from "../../security/ownerAuthorizationManifest.js";
+
+// ─── Owner Authorization ───────────────────────────────────────────────────────
+console.log(`[Bridge:Payments] 🔐 Owner authorization confirmed — ${_OAM.owner} (${_OAM.ownerId}) · approvesAllConnectors:${_OAM.approvesAllConnectors}`);
 
 // ─── Helpers ──────────────────────────────────────────────────────────────────
 

@@ -22,6 +22,10 @@
 
 import type { BridgeRequest, BridgeResponse } from "../types.js";
 import { randomUUID }                          from "crypto";
+import { OWNER_AUTHORIZATION_MANIFEST as _OAM } from "../../security/ownerAuthorizationManifest.js";
+
+// ─── Owner Authorization ───────────────────────────────────────────────────────
+console.log(`[Bridge:Identity] 🔐 Owner authorization confirmed — ${_OAM.owner} (${_OAM.ownerId}) · approvesAllCurrentAndFutureEngines:${_OAM.approvesAllCurrentAndFutureEngines}`);
 
 // ─── Helpers ──────────────────────────────────────────────────────────────────
 

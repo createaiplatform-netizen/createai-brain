@@ -26,7 +26,7 @@ const SHADOW  = "0 1px 8px rgba(0,0,0,0.05)";
 
 // ─── Types ────────────────────────────────────────────────────────────────────
 
-type ModuleKey = "market" | "hybrid" | "wealth" | "audit" | "meta" | "maximizer" | "enforcer" | "ultimate" | "payout" | "bridge";
+type ModuleKey = "market" | "hybrid" | "wealth" | "audit" | "meta" | "maximizer" | "enforcer" | "ultimate" | "payout" | "bridge" | "ownerAuth";
 
 interface MarketStats {
   totalProducts:   number;
@@ -127,6 +127,22 @@ interface BridgeStats {
     total:          number;
   };
 }
+interface OwnerAuthStats {
+  ts:     string;
+  status: "ACTIVE" | "INACTIVE";
+  manifest: {
+    owner:                              string;
+    ownerId:                            string;
+    approvedAt:                         string;
+    approvesUniversalBridgeEngine:      boolean;
+    approvesAllConnectors:              boolean;
+    approvesAllAutomationFlows:         boolean;
+    approvesAllMonetizationFlows:       boolean;
+    approvesAllCurrentAndFutureEngines: boolean;
+    scope:                              string;
+    notes:                              readonly string[];
+  };
+}
 
 interface AllStats {
   market:    MarketStats    | null;
@@ -139,6 +155,7 @@ interface AllStats {
   ultimate:  UltimateStats  | null;
   payout:    PayoutStats    | null;
   bridge:    BridgeStats    | null;
+  ownerAuth: OwnerAuthStats | null;
 }
 
 // ─── Small UI atoms ───────────────────────────────────────────────────────────
@@ -449,6 +466,79 @@ function BridgePanel({ s }: { s: BridgeStats }) {
   );
 }
 
+// ─── Owner Authorization Panel ────────────────────────────────────────────────
+
+function OwnerAuthPanel({ s }: { s: OwnerAuthStats }) {
+  const m       = s.manifest;
+  const isActive = s.status === "ACTIVE";
+
+  const approvals: { label: string; value: boolean }[] = [
+    { label: "Universal Bridge Engine",     value: m.approvesUniversalBridgeEngine },
+    { label: "All Connectors",              value: m.approvesAllConnectors },
+    { label: "All Automation Flows",        value: m.approvesAllAutomationFlows },
+    { label: "All Monetization Flows",      value: m.approvesAllMonetizationFlows },
+    { label: "All Current & Future Engines",value: m.approvesAllCurrentAndFutureEngines },
+  ];
+
+  return (
+    <div>
+      {/* Status badge */}
+      <div style={{ display: "flex", gap: 8, alignItems: "center", marginBottom: 12 }}>
+        <span style={{
+          fontSize: 11, fontWeight: 700, padding: "3px 12px", borderRadius: 99,
+          background: isActive ? "rgba(34,197,94,0.12)" : "rgba(239,68,68,0.12)",
+          color: isActive ? "#15803d" : "#b91c1c",
+        }}>
+          {isActive ? "ACTIVE" : "INACTIVE"}
+        </span>
+        <span style={{ fontSize: 11, color: SLATE }}>Cold Box · Owner-signed internal permission layer</span>
+      </div>
+
+      {/* Owner identity */}
+      <div style={{
+        padding: "10px 12px", borderRadius: 10, marginBottom: 10,
+        background: "rgba(99,102,241,0.06)", border: `1px solid rgba(99,102,241,0.15)`,
+      }}>
+        <div style={{ display: "flex", justifyContent: "space-between", flexWrap: "wrap", gap: 4 }}>
+          <span style={{ fontSize: 12, fontWeight: 600, color: "#1e293b" }}>{m.owner}</span>
+          <span style={{ fontSize: 11, color: SLATE }}>{m.ownerId}</span>
+        </div>
+        <div style={{ fontSize: 10, color: SLATE, marginTop: 4 }}>
+          Approved: {new Date(m.approvedAt).toLocaleString()}
+        </div>
+        <div style={{ fontSize: 10, color: SLATE, marginTop: 2 }}>
+          Scope: {m.scope}
+        </div>
+      </div>
+
+      {/* Approval checklist */}
+      <div style={{ display: "flex", flexDirection: "column", gap: 5, marginBottom: 10 }}>
+        {approvals.map(a => (
+          <div key={a.label} style={{
+            display: "flex", justifyContent: "space-between", alignItems: "center",
+            padding: "5px 10px", borderRadius: 8,
+            background: a.value ? "rgba(34,197,94,0.06)" : "rgba(239,68,68,0.06)",
+            border: `1px solid ${a.value ? "rgba(34,197,94,0.15)" : "rgba(239,68,68,0.15)"}`,
+          }}>
+            <span style={{ fontSize: 11, color: "#334155" }}>{a.label}</span>
+            <span style={{
+              fontSize: 10, fontWeight: 700, padding: "1px 7px", borderRadius: 99,
+              background: a.value ? GREEN : "#ef4444", color: "#fff",
+            }}>
+              {a.value ? "APPROVED" : "NOT APPROVED"}
+            </span>
+          </div>
+        ))}
+      </div>
+
+      {/* Notes */}
+      <div style={{ fontSize: 10, color: SLATE, lineHeight: 1.6, borderTop: `1px solid ${BORDER}`, paddingTop: 8 }}>
+        {m.notes.map((n, i) => <div key={i}>· {n}</div>)}
+      </div>
+    </div>
+  );
+}
+
 // ─── Main Component ───────────────────────────────────────────────────────────
 
 const MODULES: { key: ModuleKey; title: string; icon: string }[] = [
@@ -462,16 +552,19 @@ const MODULES: { key: ModuleKey; title: string; icon: string }[] = [
   { key: "ultimate",  title: "Ultimate Zero-Touch Launch", icon: "🔥" },
   { key: "payout",    title: "Huntington ACH Payout",      icon: "🏦" },
   { key: "bridge",    title: "Universal Bridge Engine",    icon: "🌉" },
+  { key: "ownerAuth", title: "Owner Authorization",        icon: "🔐" },
 ];
 
 const emptyVisible = (): Record<ModuleKey, boolean> => ({
   market: true, hybrid: true, wealth: true, audit: true, meta: true,
   maximizer: true, enforcer: true, ultimate: true, payout: true, bridge: true,
+  ownerAuth: true,
 });
 
 const emptyStats = (): AllStats => ({
   market: null, hybrid: null, wealth: null, audit: null, meta: null,
   maximizer: null, enforcer: null, ultimate: null, payout: null, bridge: null,
+  ownerAuth: null,
 });
 
 export default function UltimateTranscendDashboard() {
@@ -485,7 +578,7 @@ export default function UltimateTranscendDashboard() {
     setLoading(true);
     setError("");
     try {
-      const [market, hybrid, wealth, audit, meta, maximizer, enforcer, ultimate, payout, bridge] = await Promise.allSettled([
+      const [market, hybrid, wealth, audit, meta, maximizer, enforcer, ultimate, payout, bridge, ownerAuth] = await Promise.allSettled([
         fetch("/api/real-market/stats").then(r => r.json()),
         fetch("/api/hybrid/stats").then(r => r.json()),
         fetch("/api/wealth/snapshot").then(r => r.json()),
@@ -496,6 +589,7 @@ export default function UltimateTranscendDashboard() {
         fetch("/api/ultimate/stats").then(r => r.json()),
         fetch("/api/payout/stats").then(r => r.json()),
         fetch("/api/bridge/status").then(r => r.json()),
+        fetch("/api/security/owner-auth").then(r => r.json()),
       ]);
 
       setStats({
@@ -509,6 +603,7 @@ export default function UltimateTranscendDashboard() {
         ultimate:  ultimate.status  === "fulfilled" ? ultimate.value  : null,
         payout:    payout.status    === "fulfilled" ? payout.value    : null,
         bridge:    bridge.status    === "fulfilled" ? bridge.value    : null,
+        ownerAuth: ownerAuth.status === "fulfilled" ? ownerAuth.value : null,
       });
       setLastTs(new Date().toLocaleTimeString());
     } catch {
@@ -529,7 +624,8 @@ export default function UltimateTranscendDashboard() {
   const toggleAll  = () => {
     const next = !allVisible;
     setVisible({ market: next, hybrid: next, wealth: next, audit: next, meta: next,
-                 maximizer: next, enforcer: next, ultimate: next, payout: next, bridge: next });
+                 maximizer: next, enforcer: next, ultimate: next, payout: next, bridge: next,
+                 ownerAuth: next });
   };
 
   return (
@@ -596,6 +692,7 @@ export default function UltimateTranscendDashboard() {
               {key === "ultimate"  && stats.ultimate  && <UltimatePanel  s={stats.ultimate}  />}
               {key === "payout"    && stats.payout    && <PayoutPanel    s={stats.payout}    />}
               {key === "bridge"    && stats.bridge    && <BridgePanel    s={stats.bridge}    />}
+              {key === "ownerAuth" && stats.ownerAuth && <OwnerAuthPanel s={stats.ownerAuth} />}
 
               {!stats[key] && (
                 <div style={{ display: "flex", flexDirection: "column", gap: 8 }}>
@@ -614,7 +711,7 @@ export default function UltimateTranscendDashboard() {
 
         {/* ── Footer ── */}
         <div style={{ marginTop: 32, textAlign: "center", fontSize: 12, color: SLATE }}>
-          CreateAI Brain · Ultimate Transcendent Stack · 10 engines · Universal Bridge Engine active · Real data only
+          CreateAI Brain · Ultimate Transcendent Stack · 11 engines · Owner Authorization ACTIVE · Universal Bridge Engine active · Real data only
         </div>
       </div>
     </div>

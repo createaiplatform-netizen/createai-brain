@@ -33,6 +33,7 @@ import type {
 }                               from "./types.js";
 import { bridgeRegistry }       from "./bridgeRegistry.js";
 import { BRIDGE_CONFIG }        from "./bridgeConfig.js";
+import { OWNER_AUTHORIZATION_MANIFEST } from "../security/ownerAuthorizationManifest.js";
 
 // ── Connector imports ─────────────────────────────────────────────────────────
 import * as Payments    from "./connectors/paymentsConnector.js";
@@ -165,6 +166,20 @@ function _addToHistory(entry: BridgeHistoryEntry): void {
 async function route(req: BridgeRequest): Promise<BridgeResponse> {
   const requestId = randomUUID();
   const ts        = new Date().toISOString();
+
+  // ── Owner Authorization Gate ────────────────────────────────────────────────
+  if (!OWNER_AUTHORIZATION_MANIFEST.approvesUniversalBridgeEngine) {
+    console.error("[UniversalBridge] ❌ OWNER_AUTHORIZATION_REQUIRED — bridge is disabled.");
+    const connKey = bridgeRegistry.resolveKey(req.type);
+    return {
+      requestId,
+      connectorKey: (connKey === "unknown" ? "payments" : connKey) as BridgeConnectorKey,
+      action:       req.type,
+      status:       "FAILURE",
+      error:        "OWNER_AUTHORIZATION_REQUIRED — the owner must approve the bridge before it can route.",
+      ts,
+    };
+  }
 
   console.log(
     `[UniversalBridge] → ${req.type} · source:${req.metadata?.source ?? "unknown"} · requestId:${requestId}`
