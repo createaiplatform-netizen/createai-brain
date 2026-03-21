@@ -19,6 +19,7 @@ import {
   getAllNetworkStatuses, getNetworkStatus, getLiveCount,
   getAggregateReport, logDeployment,
 } from "../services/adsOrchestrator.js";
+import { launchNetwork, launchAllConnectedNetworks, getAllCampaignStatuses } from "../services/networkApiClients.js";
 
 const router = Router();
 
@@ -206,9 +207,9 @@ router.get("/reporting", (_req: Request, res: Response) => {
   });
 });
 
-// ─── POST /api/ads/credentials/set ───────────────────────────────────────────
+// ─── POST /api/ads/credentials/set  (auto-launches when network becomes connected)
 
-router.post("/credentials/set", (req: Request, res: Response) => {
+router.post("/credentials/set", async (req: Request, res: Response) => {
   const { key, value } = req.body ?? {};
   if (!key || !value) { res.status(400).json({ ok: false, error: "key and value required" }); return; }
 
@@ -218,25 +219,97 @@ router.post("/credentials/set", (req: Request, res: Response) => {
 
   setAdCredential(key, value.trim());
 
-  // Check if the network it belongs to is now primary-connected
+  // Check if the network is now fully connected
   const net = AD_NETWORKS.find(n => n.credentials.some(c => c.key === key));
   let networkNowConnected = false;
+  let launchResult: Awaited<ReturnType<typeof launchNetwork>> | null = null;
+
   if (net) {
     const st = getNetworkStatus(net);
     networkNowConnected = st.connected;
     if (networkNowConnected) {
-      logDeployment(net.id, "credentials_set", `Primary credentials connected — campaigns are ready to deploy`);
+      logDeployment(net.id, "credentials_set", "Primary credentials connected — auto-launching campaigns");
+      // AUTO-LAUNCH: fire campaigns immediately without waiting for user input
+      launchResult = await launchNetwork(net.id);
+      const logMsg = launchResult.ok
+        ? `Auto-launch: ${launchResult.launched} campaigns created (PAUSED) — activate at ${launchResult.activateUrl}`
+        : `Auto-launch attempted but API returned error: ${launchResult.error ?? "unknown"}`;
+      logDeployment(net.id, launchResult.ok ? "launched" : "launch_error", logMsg);
     }
   }
 
   res.json({
-    ok:      true,
-    message: networkNowConnected
-      ? `${credDef.label} saved. ${net!.name} is now connected — campaigns are queued and ready to deploy.`
-      : `${credDef.label} saved and active. Enter remaining credentials for full ${net?.name ?? ""} connectivity.`,
-    networkId:         net?.id,
-    networkConnected:  networkNowConnected,
-    networkName:       net?.name,
+    ok:                true,
+    message:           networkNowConnected && launchResult?.ok
+      ? `${credDef.label} saved. ${net!.name} is CONNECTED — ${launchResult.launched} campaigns auto-created and PAUSED. Go to ${launchResult.activateUrl} and click Activate to begin ad spend.`
+      : networkNowConnected
+        ? `${credDef.label} saved. ${net!.name} connected — campaign launch attempted (${launchResult?.error ?? "check launch status"}).`
+        : `${credDef.label} saved. Enter remaining credentials for full ${net?.name ?? ""} connectivity.`,
+    networkId:          net?.id,
+    networkConnected:   networkNowConnected,
+    networkName:        net?.name,
+    autoLaunched:       launchResult?.ok ?? false,
+    launchResult:       launchResult ?? null,
+  });
+});
+
+// ─── POST /api/ads/launch/:networkId  (manual launch trigger) ─────────────────
+
+router.post("/launch/:networkId", async (req: Request, res: Response) => {
+  const networkId = String(req.params["networkId"] ?? "");
+  const net = AD_NETWORKS.find(n => n.id === networkId);
+  if (!net) { res.status(404).json({ ok: false, error: `Network '${networkId}' not found` }); return; }
+
+  const st = getNetworkStatus(net);
+  if (!st.connected) {
+    res.status(400).json({
+      ok:    false,
+      error: `${net.name} not connected. Enter primary credentials first.`,
+      credentialFields: net.credentials.map(c => ({ key: c.key, label: c.label, set: !!(getAdCredential(c.key)) })),
+    });
+    return;
+  }
+
+  logDeployment(networkId, "manual_launch", `Manual launch triggered for ${net.campaigns.length} campaigns`);
+  const result = await launchNetwork(networkId);
+  logDeployment(networkId, result.ok ? "launched" : "launch_error", result.ok ? `${result.launched} campaigns created` : (result.error ?? "unknown error"));
+
+  res.json({ ok: result.ok, ...result });
+});
+
+// ─── POST /api/ads/launch/all  (launch all connected networks at once) ─────────
+
+router.post("/launch/all", async (req: Request, res: Response) => {
+  const results = await launchAllConnectedNetworks();
+  const launched = results.filter(r => r.ok).length;
+  const totalCampaigns = results.reduce((s, r) => s + r.launched, 0);
+
+  res.json({
+    ok:              launched > 0,
+    networksLaunched: launched,
+    networksTotal:   results.length,
+    totalCampaigns,
+    results,
+    nextStep:        launched > 0
+      ? `${totalCampaigns} campaigns created across ${launched} networks. Visit each network dashboard to activate spend. Links provided per network in the results array.`
+      : "No networks are fully connected yet. Enter credentials in the Networks tab.",
+  });
+});
+
+// ─── GET /api/ads/campaigns/deployed  (deployment status of all campaigns) ────
+
+router.get("/campaigns/deployed", (_req: Request, res: Response) => {
+  const statuses  = getAllCampaignStatuses();
+  const created   = statuses.filter(s => s.status === "created").length;
+  const errored   = statuses.filter(s => s.status === "error").length;
+  const queued    = AD_NETWORKS.reduce((s, n) => s + n.campaigns.length, 0) - statuses.length;
+
+  res.json({
+    ok:       true,
+    created,
+    errored,
+    queued,
+    campaigns: statuses,
   });
 });
 

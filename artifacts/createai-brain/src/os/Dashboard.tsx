@@ -6,6 +6,7 @@ import { AppBrowserModal } from "./AppBrowserModal";
 import { useAuth } from "@workspace/replit-auth-web";
 import { IntelligenceRibbon } from "@/components/IntelligenceRibbon";
 import { SmartRecommendations } from "@/components/SmartRecommendations";
+import { InternalAdBanner } from "@/components/InternalAdBanner";
 
 // ─── Constants ────────────────────────────────────────────────────────────────
 
@@ -545,6 +546,9 @@ export function Dashboard({ onHamburger, onShowTour }: DashboardProps) {
               </div>
             </section>
           )}
+
+          {/* ── Internal Promotional Ad ── */}
+          <InternalAdBanner placement="all" />
 
           <div className="h-6" />
         </div>

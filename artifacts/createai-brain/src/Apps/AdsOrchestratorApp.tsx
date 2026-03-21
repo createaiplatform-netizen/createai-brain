@@ -45,6 +45,9 @@ export default function AdsOrchestratorApp() {
   const [saving, setSaving]         = useState<Record<string, boolean>>({});
   const [saved, setSaved]           = useState<Record<string, string>>({});
   const [copied, setCopied]         = useState<string | null>(null);
+  const [launching, setLaunching]   = useState<Record<string, boolean>>({});
+  const [launchResults, setLaunchResults] = useState<Record<string, { ok: boolean; launched: number; activateUrl: string; nextStep: string; error?: string }>>({});
+  const [launchingAll, setLaunchingAll] = useState(false);
 
   const load = useCallback(async () => {
     setLoading(true);
@@ -90,6 +93,32 @@ export default function AdsOrchestratorApp() {
   const clearCred = async (key: string) => {
     await fetch(`${API}/ads/credentials/${key}`, { method: "DELETE" });
     await load();
+  };
+
+  const launchNet = async (networkId: string) => {
+    setLaunching(l => ({ ...l, [networkId]: true }));
+    try {
+      const r = await fetch(`${API}/ads/launch/${networkId}`, { method: "POST", headers: { "Content-Type": "application/json" } });
+      const d = await r.json();
+      setLaunchResults(lr => ({ ...lr, [networkId]: { ok: d.ok, launched: d.launched ?? 0, activateUrl: d.activateUrl ?? "", nextStep: d.nextStep ?? d.error ?? "Done", error: d.ok ? undefined : (d.error ?? d.nextStep) } }));
+      await load();
+    } catch { setLaunchResults(lr => ({ ...lr, [networkId]: { ok: false, launched: 0, activateUrl: "", nextStep: "Network error", error: "Network error" } })); }
+    finally { setLaunching(l => ({ ...l, [networkId]: false })); }
+  };
+
+  const launchAll = async () => {
+    setLaunchingAll(true);
+    try {
+      const r = await fetch(`${API}/ads/launch/all`, { method: "POST", headers: { "Content-Type": "application/json" } });
+      const d = await r.json();
+      if (d.results) {
+        const newResults: typeof launchResults = {};
+        for (const res of d.results) { newResults[res.networkId] = { ok: res.ok, launched: res.launched, activateUrl: res.activateUrl, nextStep: res.nextStep, error: res.error }; }
+        setLaunchResults(lr => ({ ...lr, ...newResults }));
+      }
+      await load();
+    } catch { /* ignore */ }
+    finally { setLaunchingAll(false); }
   };
 
   const copy = (text: string, id: string) => {
@@ -149,6 +178,22 @@ export default function AdsOrchestratorApp() {
         {/* ── OVERVIEW ─────────────────────────────────────────────────────────── */}
         {tab === "overview" && (
           <div>
+            {/* LAUNCH ALL row */}
+            {liveCount > 0 && (
+              <div style={{ background: "#1e1b4b", border: "2px solid #6366f1", borderRadius: 12, padding: "14px 20px", marginBottom: 16, display: "flex", alignItems: "center", justifyContent: "space-between" }}>
+                <div>
+                  <div style={{ fontSize: 13, fontWeight: 700, color: "#f1f5f9" }}>🚀 {liveCount} network{liveCount > 1 ? "s" : ""} connected — ready to launch</div>
+                  <div style={{ fontSize: 11, color: "#818cf8", marginTop: 3 }}>Campaigns deploy and create on each network immediately. One click per network to activate spend.</div>
+                </div>
+                <button
+                  onClick={launchAll}
+                  disabled={launchingAll}
+                  style={{ background: "#6366f1", color: "#fff", border: "none", padding: "12px 24px", borderRadius: 10, fontSize: 13, fontWeight: 800, cursor: launchingAll ? "not-allowed" : "pointer", opacity: launchingAll ? 0.6 : 1, whiteSpace: "nowrap" }}>
+                  {launchingAll ? "Launching all…" : `🚀 LAUNCH ALL ${liveCount} Networks`}
+                </button>
+              </div>
+            )}
+
             {/* Status banner */}
             <div style={{ background: "#0a1628", border: "1px solid #1e3a5f", borderRadius: 12, padding: "16px 20px", marginBottom: 20, fontSize: 13, color: "#93c5fd", lineHeight: 1.7 }}>
               <strong style={{ color: "#60a5fa", display: "block", marginBottom: 4 }}>How this system works</strong>
@@ -275,10 +320,38 @@ export default function AdsOrchestratorApp() {
                       ))}
                     </div>
 
-                    <a href={selectedNet.setupUrl} target="_blank" rel="noreferrer"
-                      style={{ display: "inline-block", background: "#6366f1", color: "#fff", padding: "10px 20px", borderRadius: 8, fontSize: 13, fontWeight: 700, textDecoration: "none" }}>
-                      Open {selectedNet.name} Dashboard ↗
-                    </a>
+                    <div style={{ display: "flex", gap: 10, alignItems: "center", flexWrap: "wrap" }}>
+                      <a href={selectedNet.setupUrl} target="_blank" rel="noreferrer"
+                        style={{ background: "#1e293b", color: "#e2e8f0", padding: "10px 18px", borderRadius: 8, fontSize: 12, fontWeight: 700, textDecoration: "none" }}>
+                        Open Dashboard ↗
+                      </a>
+                      {selectedNet.connected && (
+                        <button
+                          onClick={() => launchNet(selectedNet.id)}
+                          disabled={!!launching[selectedNet.id]}
+                          style={{ background: "#6366f1", color: "#fff", border: "none", padding: "10px 20px", borderRadius: 8, fontSize: 13, fontWeight: 700, cursor: launching[selectedNet.id] ? "not-allowed" : "pointer", opacity: launching[selectedNet.id] ? 0.6 : 1 }}>
+                          {launching[selectedNet.id] ? "Launching…" : "🚀 LAUNCH Campaigns"}
+                        </button>
+                      )}
+                    </div>
+
+                    {/* Launch result for this network */}
+                    {launchResults[selectedNet.id] && (
+                      <div style={{ marginTop: 14, background: launchResults[selectedNet.id].ok ? "#052e16" : "#1c0a0a", border: `1px solid ${launchResults[selectedNet.id].ok ? "#166534" : "#450a0a"}`, borderRadius: 10, padding: "14px 16px" }}>
+                        <div style={{ fontWeight: 700, fontSize: 13, color: launchResults[selectedNet.id].ok ? "#4ade80" : "#f87171", marginBottom: 6 }}>
+                          {launchResults[selectedNet.id].ok ? `✓ ${launchResults[selectedNet.id].launched} campaigns created` : "Launch error"}
+                        </div>
+                        <div style={{ fontSize: 12, color: launchResults[selectedNet.id].ok ? "#86efac" : "#fca5a5", marginBottom: launchResults[selectedNet.id].activateUrl ? 10 : 0 }}>
+                          {launchResults[selectedNet.id].nextStep}
+                        </div>
+                        {launchResults[selectedNet.id].activateUrl && launchResults[selectedNet.id].ok && (
+                          <a href={launchResults[selectedNet.id].activateUrl} target="_blank" rel="noreferrer"
+                            style={{ display: "inline-block", background: "#4ade80", color: "#052e16", padding: "8px 16px", borderRadius: 8, fontSize: 12, fontWeight: 700, textDecoration: "none" }}>
+                            Activate Campaigns →
+                          </a>
+                        )}
+                      </div>
+                    )}
                   </div>
 
                   {/* Campaigns for this network */}

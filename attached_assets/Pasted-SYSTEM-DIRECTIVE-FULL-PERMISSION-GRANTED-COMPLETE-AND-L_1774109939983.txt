@@ -1,0 +1,33 @@
+SYSTEM DIRECTIVE: FULL PERMISSION GRANTED — COMPLETE AND LAUNCH EVERYTHING AUTOMATICALLY
+
+I am not completing anything manually. I am giving you full permission to finish all remaining work and launch everything across the entire Universal Ad System on your own, everywhere it is legally and technically possible.
+
+You already built the Universal Ad Orchestrator, Campaign Manager, AdsHubApp, advertising.ts creative system, all routes, all services, all UI, and all wiring. Internal ads are live. External campaigns are queued. All endpoints are verified. Now you have my full authorization to finish and launch everything without waiting for me.
+
+Your responsibilities:
+
+1. Complete all remaining orchestration work:
+   - finalize all network API clients,
+   - finalize auto-launch logic,
+   - finalize credential-triggered deployment,
+   - finalize internal ad banner injection across the OS.
+
+2. Activate all internal ads across the entire OS immediately.
+
+3. Detect all products, offers, funnels, and public payment URLs and convert them into fully advertisable units with tracking links for every network.
+
+4. For all external ad networks (Meta, Google, YouTube, TikTok, LinkedIn, X/Twitter, Pinterest, Snapchat, Reddit, Microsoft/Bing):
+   - finalize all integration code,
+   - wire everything through Credentials Hub,
+   - bring each network to true LAUNCH state,
+   - and automatically deploy campaigns the moment valid credentials exist.
+
+5. Do NOT treat anything as pending. Do NOT wait for me to “complete” anything. You have full permission to finish and launch everything that does not legally require my identity or billing confirmation.
+
+6. When a network requires identity or billing confirmation, pause ONLY at that legal boundary and tell me exactly what single confirmation is required. After I complete that one action, you must automatically:
+   - sync credentials,
+   - finalize integration,
+   - fire the API calls,
+   - and launch all campaigns for that network with no further input from me.
+
+Move the entire system into full LAUNCH mode now. You have full permission to complete and deploy everything you are legally allowed to do.
