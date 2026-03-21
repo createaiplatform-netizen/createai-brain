@@ -1,4 +1,5 @@
 import { Router } from "express";
+import { getInvoiceSummary } from "./invoicePayments.js";
 
 const router = Router();
 
@@ -315,6 +316,7 @@ router.get("/", (_req, res) => {
   }));
 
   const financialCapacity = computeFinancialCapacity(unified);
+  const liveRevenue = getInvoiceSummary();
 
   res.json({
     ok:              true,
@@ -330,6 +332,24 @@ router.get("/", (_req, res) => {
     subsystems:       subsystemScores,
     industryBreakdown,
     financialCapacity,
+    liveRevenue: {
+      allTimePaidTotal:      liveRevenue.paidTotal,
+      allTimePaidFormatted:  "$" + liveRevenue.paidTotal.toFixed(2),
+      paidTodayTotal:        liveRevenue.paidTodayTotal,
+      paidTodayFormatted:    "$" + liveRevenue.paidTodayTotal.toFixed(2),
+      paidInvoices:          liveRevenue.paidCount,
+      paidTodayCount:        liveRevenue.paidToday,
+      pendingTotal:          liveRevenue.pendingTotal,
+      overdueTotal:          liveRevenue.overdueTotal,
+      byMethod: {
+        cashapp: "$" + (liveRevenue.byMethod?.cashapp ?? 0).toFixed(2),
+        venmo:   "$" + (liveRevenue.byMethod?.venmo ?? 0).toFixed(2),
+      },
+      paymentMethods: ["$CreateAIDigital (Cash App)", "@CreateAIDigital (Venmo)"],
+      note: liveRevenue.paidTotal === 0
+        ? "No payments received yet. Both payment rails ($CreateAIDigital / @CreateAIDigital) are live and ready."
+        : "Live revenue collected via Cash App or Venmo.",
+    },
     meta: {
       totalSubsystems:  SUBSYSTEMS.length,
       totalFeatures:    SUBSYSTEMS.reduce((acc, s) => acc + s.features.length, 0),

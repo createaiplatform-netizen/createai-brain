@@ -1,4 +1,4 @@
-import { useState, useEffect } from "react";
+import { useState, useEffect, useCallback } from "react";
 
 const API = "/api";
 
@@ -7,50 +7,103 @@ type Invoice = {
   clientName: string; clientEmail: string;
   total: number; currency: string;
   issueDate: string; dueDate: string; createdAt: number;
+  paidVia?: string; paymentDate?: string;
 };
 
 type Summary = {
   totalInvoices: number; paidCount: number; paidTotal: number;
-  pendingCount: number; pendingTotal: number; overdueCount: number; overdueTotal: number;
-  draftCount: number;
+  pendingCount: number; pendingTotal: number; overdueCount: number;
+  overdueTotal: number; draftCount: number;
+  paidToday?: number; paidTodayTotal?: number;
+  byMethod?: { cashapp: number; venmo: number };
 };
 
-type PayMethod = { id: string; name: string; instructions: string; processingTime: string; fees: string; limit?: string };
-
-const STATUS_COLORS: Record<string, string> = {
-  draft: "text-slate-400 bg-slate-700", sent: "text-indigo-400 bg-indigo-500/20",
-  viewed: "text-purple-400 bg-purple-500/20", paid: "text-green-400 bg-green-500/20",
-  overdue: "text-red-400 bg-red-500/20", cancelled: "text-slate-500 bg-slate-800"
+type DailyIncome = {
+  date: string; paidToday: number; dailyTotal: number;
+  dailyTotalFormatted: string; allTimeTotal: string;
+  allTimePaidCount: number; note: string;
 };
+
+const STATUS_COLORS: Record<string, { bg: string; text: string; border: string }> = {
+  draft:     { bg: "rgba(148,163,184,0.10)", text: "#94a3b8", border: "rgba(148,163,184,0.20)" },
+  sent:      { bg: "rgba(99,102,241,0.12)",  text: "#818cf8", border: "rgba(99,102,241,0.25)"  },
+  viewed:    { bg: "rgba(167,139,250,0.12)", text: "#c4b5fd", border: "rgba(167,139,250,0.25)" },
+  paid:      { bg: "rgba(34,197,94,0.12)",   text: "#4ade80", border: "rgba(34,197,94,0.25)"   },
+  overdue:   { bg: "rgba(239,68,68,0.12)",   text: "#f87171", border: "rgba(239,68,68,0.25)"   },
+  cancelled: { bg: "rgba(71,85,105,0.12)",   text: "#64748b", border: "rgba(71,85,105,0.20)"   },
+};
+
+function fmt(n: number, cur = "USD") {
+  return new Intl.NumberFormat("en-US", { style: "currency", currency: cur }).format(n);
+}
+
+function StatusBadge({ status }: { status: string }) {
+  const c = STATUS_COLORS[status] ?? STATUS_COLORS.draft;
+  return (
+    <span style={{ background: c.bg, color: c.text, border: "1px solid " + c.border, padding: "2px 10px", borderRadius: 99, fontSize: 11, fontWeight: 700, letterSpacing: "0.05em" }}>
+      {status.toUpperCase()}
+    </span>
+  );
+}
+
+// ── Payment Method Cards ──────────────────────────────────────────────────────
+function PaymentMethodBanner() {
+  return (
+    <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 12, marginBottom: 16 }}>
+      {/* Cash App */}
+      <div style={{ background: "#001a08", border: "1.5px solid rgba(0,214,50,0.30)", borderRadius: 14, padding: "18px 20px" }}>
+        <div style={{ display: "flex", alignItems: "center", gap: 8, marginBottom: 10 }}>
+          <span style={{ fontSize: 20 }}>💚</span>
+          <span style={{ fontWeight: 800, color: "#86efac", fontSize: 14 }}>Cash App</span>
+          <span style={{ marginLeft: "auto", fontSize: 11, color: "#4ade80", background: "rgba(34,197,94,0.15)", padding: "2px 8px", borderRadius: 99, fontWeight: 700 }}>INSTANT · FREE</span>
+        </div>
+        <div style={{ fontSize: 26, fontWeight: 900, color: "#00d632", letterSpacing: "-0.03em", marginBottom: 4 }}>$CreateAIDigital</div>
+        <div style={{ fontSize: 12, color: "#86efac", lineHeight: 1.5 }}>Clients send to this handle on Cash App and include the invoice number in the note.</div>
+      </div>
+      {/* Venmo */}
+      <div style={{ background: "#001220", border: "1.5px solid rgba(61,149,206,0.30)", borderRadius: 14, padding: "18px 20px" }}>
+        <div style={{ display: "flex", alignItems: "center", gap: 8, marginBottom: 10 }}>
+          <span style={{ fontSize: 20 }}>💙</span>
+          <span style={{ fontWeight: 800, color: "#93c5fd", fontSize: 14 }}>Venmo</span>
+          <span style={{ marginLeft: "auto", fontSize: 11, color: "#60a5fa", background: "rgba(59,130,246,0.15)", padding: "2px 8px", borderRadius: 99, fontWeight: 700 }}>INSTANT</span>
+        </div>
+        <div style={{ fontSize: 26, fontWeight: 900, color: "#3d95ce", letterSpacing: "-0.03em", marginBottom: 4 }}>@CreateAIDigital</div>
+        <div style={{ fontSize: 12, color: "#93c5fd", lineHeight: 1.5 }}>Clients send to this handle on Venmo and include the invoice number in the note.</div>
+      </div>
+    </div>
+  );
+}
 
 export default function PayGateApp() {
-  const [tab, setTab] = useState<"dashboard"|"invoices"|"create"|"methods">("dashboard");
+  const [tab, setTab] = useState<"dashboard" | "invoices" | "create" | "methods" | "markpaid">("dashboard");
   const [invoices, setInvoices] = useState<Invoice[]>([]);
   const [summary, setSummary] = useState<Summary | null>(null);
-  const [methods, setMethods] = useState<PayMethod[]>([]);
+  const [daily, setDaily] = useState<DailyIncome | null>(null);
   const [loading, setLoading] = useState(true);
   const [msg, setMsg] = useState<{ text: string; ok: boolean } | null>(null);
   const [sending, setSending] = useState<string | null>(null);
+  const [markPaid, setMarkPaid] = useState<{ inv: Invoice; via: string; ref: string } | null>(null);
+  const [statusUpdate, setStatusUpdate] = useState<{ id: string; status: string; ref: string; via: string } | null>(null);
+
   const [newInvoice, setNewInvoice] = useState({
     clientName: "", clientEmail: "", clientCompany: "", clientAddress: "",
-    currency: "USD", taxRate: "0", netDays: "30", paymentMethod: "bank-transfer", notes: "",
-    lineItems: [{ description: "CreateAI Brain Pro — Monthly Subscription", quantity: "1", unitPrice: "97" }]
+    currency: "USD", taxRate: "0", netDays: "30", notes: "",
+    lineItems: [{ description: "CreateAI Brain — Professional Plan", quantity: "1", unitPrice: "297" }]
   });
-  const [statusUpdate, setStatusUpdate] = useState<{ id: string; status: string; ref: string } | null>(null);
 
-  function loadAll() {
+  const loadAll = useCallback(() => {
     return Promise.all([
-      fetch(`${API}/payments/invoice/list`, { credentials: "include" }).then(r => r.json()),
-      fetch(`${API}/payments/summary`, { credentials: "include" }).then(r => r.json()),
-      fetch(`${API}/payments/methods`, { credentials: "include" }).then(r => r.json()),
-    ]).then(([inv, sum, meth]) => {
+      fetch(API + "/payments/invoice/list", { credentials: "include" }).then(r => r.json()).catch(() => ({ ok: false })),
+      fetch(API + "/payments/summary", { credentials: "include" }).then(r => r.json()).catch(() => ({ ok: false })),
+      fetch(API + "/payments/daily-income", { credentials: "include" }).then(r => r.json()).catch(() => ({ ok: false })),
+    ]).then(([inv, sum, daily]) => {
       if (inv.ok) setInvoices(inv.invoices);
       if (sum.ok) setSummary(sum.summary);
-      if (meth.ok) setMethods(meth.methods);
+      if (daily.ok) setDaily(daily);
     });
-  }
+  }, []);
 
-  useEffect(() => { loadAll().finally(() => setLoading(false)); }, []);
+  useEffect(() => { loadAll().finally(() => setLoading(false)); }, [loadAll]);
 
   function addLineItem() {
     setNewInvoice(f => ({ ...f, lineItems: [...f.lineItems, { description: "", quantity: "1", unitPrice: "0" }] }));
@@ -76,19 +129,19 @@ export default function PayGateApp() {
       description: i.description, quantity: Number(i.quantity), unitPrice: Number(i.unitPrice),
       total: Number(i.quantity) * Number(i.unitPrice)
     }));
-    const r = await fetch(`${API}/payments/invoice/create`, {
+    const r = await fetch(API + "/payments/invoice/create", {
       method: "POST", credentials: "include",
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify({ ...newInvoice, taxRate: Number(newInvoice.taxRate), netDays: Number(newInvoice.netDays), lineItems })
     });
     const d = await r.json();
-    setMsg({ text: d.ok ? `Invoice ${d.invoice.invoiceNumber} created (${fmt(d.invoice.total)}).` : d.error, ok: d.ok });
+    setMsg({ text: d.ok ? "Invoice " + d.invoice.invoiceNumber + " created (" + fmt(d.invoice.total) + "). Cash App + Venmo printed automatically." : d.error, ok: d.ok });
     if (d.ok) { loadAll(); setTab("invoices"); }
   }
 
   async function sendInvoice(id: string) {
     setSending(id);
-    const r = await fetch(`${API}/payments/invoice/send`, {
+    const r = await fetch(API + "/payments/invoice/send", {
       method: "POST", credentials: "include",
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify({ id })
@@ -98,184 +151,237 @@ export default function PayGateApp() {
     setSending(null); loadAll();
   }
 
+  async function submitMarkPaid() {
+    if (!markPaid) return;
+    const r = await fetch(API + "/payments/invoice/" + markPaid.inv.id + "/mark-paid", {
+      method: "POST", credentials: "include",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ paidVia: markPaid.via, paymentReference: markPaid.ref })
+    });
+    const d = await r.json();
+    setMsg({ text: d.ok ? d.message : d.error, ok: d.ok });
+    setMarkPaid(null); loadAll();
+  }
+
   async function updateStatus() {
     if (!statusUpdate) return;
-    const r = await fetch(`${API}/payments/invoice/${statusUpdate.id}/status`, {
+    const r = await fetch(API + "/payments/invoice/" + statusUpdate.id + "/status", {
       method: "PATCH", credentials: "include",
       headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ status: statusUpdate.status, paymentReference: statusUpdate.ref })
+      body: JSON.stringify({ status: statusUpdate.status, paymentReference: statusUpdate.ref, paidVia: statusUpdate.via })
     });
     const d = await r.json();
     setMsg({ text: d.ok ? d.message : d.error, ok: d.ok });
     setStatusUpdate(null); loadAll();
   }
 
-  function fmt(n: number, cur = "USD") {
-    return new Intl.NumberFormat("en-US", { style: "currency", currency: cur }).format(n);
-  }
-
-  const T = {
-    tab: "px-4 py-2 rounded-lg text-sm font-semibold transition-all",
-    active: "bg-indigo-600 text-white",
-    inactive: "text-slate-400 hover:text-white hover:bg-slate-800",
-    card: "bg-slate-900 border border-slate-800 rounded-xl p-5",
-    label: "text-xs text-slate-500 uppercase tracking-wider mb-1",
-    input: "w-full bg-slate-800 border border-slate-700 rounded-lg px-3 py-2 text-sm text-white focus:border-indigo-500 outline-none",
-    btn: "px-4 py-2 bg-indigo-600 hover:bg-indigo-700 rounded-lg text-sm font-bold text-white transition-colors disabled:opacity-50",
-    h2: "text-lg font-bold text-white mb-4",
+  const S = {
+    card: { background: "#0f172a", border: "1px solid rgba(30,41,59,1)", borderRadius: 14, padding: "18px 20px" } as React.CSSProperties,
+    label: { fontSize: 11, color: "#475569", textTransform: "uppercase" as const, letterSpacing: "0.07em", marginBottom: 4 } as React.CSSProperties,
+    input: { width: "100%", background: "#020617", border: "1px solid rgba(30,41,59,1)", borderRadius: 8, padding: "8px 12px", fontSize: 13, color: "#f1f5f9", outline: "none" } as React.CSSProperties,
+    btn: { padding: "8px 18px", background: "#6366f1", color: "#fff", border: "none", borderRadius: 8, fontSize: 13, fontWeight: 700, cursor: "pointer" } as React.CSSProperties,
   };
 
   if (loading) return (
-    <div className="flex items-center justify-center h-full">
-      <div className="text-center"><div className="text-4xl mb-4">💳</div><div className="text-slate-400 text-sm">Loading PayGate…</div></div>
+    <div style={{ display: "flex", justifyContent: "center", alignItems: "center", height: "100%", background: "#020617" }}>
+      <div style={{ textAlign: "center", color: "#94a3b8" }}>
+        <div style={{ fontSize: 40, marginBottom: 12 }}>💳</div>
+        <div style={{ fontSize: 14 }}>Loading PayGate…</div>
+      </div>
     </div>
   );
 
   const TABS = [
     { id: "dashboard", label: "📊 Dashboard" },
-    { id: "invoices", label: "📄 Invoices" },
-    { id: "create", label: "➕ New Invoice" },
-    { id: "methods", label: "💳 Payment Methods" },
+    { id: "invoices",  label: "📄 Invoices" },
+    { id: "create",    label: "➕ Create Invoice" },
+    { id: "methods",   label: "💚💙 Payment Methods" },
   ] as const;
 
   const { total: newTotal, subtotal: newSub, tax: newTax } = calcTotal();
 
   return (
-    <div className="h-full flex flex-col bg-slate-950 text-white overflow-hidden">
-      <div className="px-6 py-4 border-b border-slate-800 flex-shrink-0">
-        <div className="flex items-center justify-between mb-3">
+    <div style={{ height: "100%", display: "flex", flexDirection: "column", background: "#020617", color: "#f1f5f9", fontFamily: "'Inter', sans-serif" }}>
+
+      {/* ── Header ── */}
+      <div style={{ padding: "16px 20px 0", borderBottom: "1px solid rgba(30,41,59,1)", flexShrink: 0 }}>
+        <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", marginBottom: 12 }}>
           <div>
-            <h1 className="text-xl font-black text-white tracking-tight">PayGate — Multi-Rail Payments</h1>
-            <p className="text-xs text-slate-500 mt-0.5">Invoice generation, email delivery, payment tracking — bank, wire, Zelle, Venmo, check, crypto</p>
+            <h1 style={{ margin: 0, fontSize: 18, fontWeight: 900, letterSpacing: "-0.03em" }}>PayGate — Payment Rail</h1>
+            <div style={{ fontSize: 12, color: "#475569", marginTop: 3 }}>$CreateAIDigital (Cash App) · @CreateAIDigital (Venmo) · Both on every invoice</div>
           </div>
-          <div className="flex items-center gap-2">
-            <span className="px-2 py-1 bg-green-500/20 text-green-400 text-xs font-bold rounded border border-green-500/30">STRIPE-INDEPENDENT</span>
-          </div>
+          <span style={{ fontSize: 11, fontWeight: 700, color: "#4ade80", background: "rgba(34,197,94,0.12)", border: "1px solid rgba(34,197,94,0.25)", padding: "4px 10px", borderRadius: 99 }}>
+            STRIPE-INDEPENDENT
+          </span>
         </div>
-        <div className="flex gap-1">
+        <div style={{ display: "flex", gap: 4 }}>
           {TABS.map(t => (
-            <button key={t.id} onClick={() => setTab(t.id as any)}
-              className={`${T.tab} ${tab === t.id ? T.active : T.inactive}`}>
+            <button key={t.id} onClick={() => setTab(t.id)}
+              style={{ padding: "8px 14px", background: "none", border: "none", borderBottom: tab === t.id ? "2.5px solid #6366f1" : "2.5px solid transparent", color: tab === t.id ? "#818cf8" : "#64748b", fontWeight: tab === t.id ? 700 : 500, fontSize: 13, cursor: "pointer", whiteSpace: "nowrap" as const }}>
               {t.label}
             </button>
           ))}
         </div>
       </div>
 
-      <div className="flex-1 overflow-y-auto p-6 space-y-5">
+      {/* ── Content ── */}
+      <div style={{ flex: 1, overflowY: "auto", padding: "20px 20px 40px" }}>
         {msg && (
-          <div className={`px-4 py-3 rounded-lg text-sm font-medium border ${msg.ok ? "bg-green-500/10 text-green-400 border-green-500/30" : "bg-red-500/10 text-red-400 border-red-500/30"}`}>
+          <div style={{ padding: "12px 16px", borderRadius: 10, marginBottom: 16, fontSize: 13, fontWeight: 600, background: msg.ok ? "rgba(34,197,94,0.10)" : "rgba(239,68,68,0.10)", color: msg.ok ? "#4ade80" : "#f87171", border: "1px solid " + (msg.ok ? "rgba(34,197,94,0.25)" : "rgba(239,68,68,0.25)") }}>
             {msg.text}
+            <button onClick={() => setMsg(null)} style={{ marginLeft: 10, background: "none", border: "none", color: "inherit", cursor: "pointer", fontSize: 12 }}>✕</button>
           </div>
         )}
 
-        {tab === "dashboard" && summary && (
-          <div className="space-y-5">
-            <div className="grid grid-cols-2 gap-4">
-              <div className={T.card}>
-                <div className={T.label}>Total Collected</div>
-                <div className="text-3xl font-black text-green-400">{fmt(summary.paidTotal)}</div>
-                <div className="text-xs text-slate-500 mt-1">{summary.paidCount} paid invoice{summary.paidCount !== 1 ? "s" : ""}</div>
-              </div>
-              <div className={T.card}>
-                <div className={T.label}>Outstanding</div>
-                <div className="text-3xl font-black text-amber-400">{fmt(summary.pendingTotal)}</div>
-                <div className="text-xs text-slate-500 mt-1">{summary.pendingCount} pending invoice{summary.pendingCount !== 1 ? "s" : ""}</div>
-              </div>
-              <div className={T.card}>
-                <div className={T.label}>Overdue</div>
-                <div className={`text-3xl font-black ${summary.overdueTotal > 0 ? "text-red-400" : "text-slate-600"}`}>{fmt(summary.overdueTotal)}</div>
-                <div className="text-xs text-slate-500 mt-1">{summary.overdueCount} overdue</div>
-              </div>
-              <div className={T.card}>
-                <div className={T.label}>Total Invoices</div>
-                <div className="text-3xl font-black text-indigo-400">{summary.totalInvoices}</div>
-                <div className="text-xs text-slate-500 mt-1">{summary.draftCount} draft</div>
+        {/* ── DASHBOARD ── */}
+        {tab === "dashboard" && (
+          <div style={{ display: "flex", flexDirection: "column", gap: 16 }}>
+            <PaymentMethodBanner />
+
+            {/* Revenue stats */}
+            <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 12 }}>
+              {[
+                { label: "Today's Income", value: daily ? daily.dailyTotalFormatted : "$0.00", sub: daily ? daily.note : "", color: "#4ade80" },
+                { label: "All-Time Collected", value: summary ? fmt(summary.paidTotal) : "$0.00", sub: summary ? summary.paidCount + " paid invoice" + (summary.paidCount !== 1 ? "s" : "") : "", color: "#818cf8" },
+                { label: "Outstanding", value: summary ? fmt(summary.pendingTotal) : "$0.00", sub: summary ? summary.pendingCount + " pending" : "", color: "#fbbf24" },
+                { label: "Total Invoices", value: String(summary?.totalInvoices ?? 0), sub: summary ? summary.draftCount + " draft · " + summary.overdueCount + " overdue" : "", color: "#38bdf8" },
+              ].map(s => (
+                <div key={s.label} style={S.card}>
+                  <div style={S.label}>{s.label}</div>
+                  <div style={{ fontSize: 28, fontWeight: 900, color: s.color, letterSpacing: "-0.03em", margin: "4px 0" }}>{s.value}</div>
+                  <div style={{ fontSize: 11, color: "#475569" }}>{s.sub}</div>
+                </div>
+              ))}
+            </div>
+
+            {/* Quick info */}
+            <div style={{ ...S.card, background: "rgba(99,102,241,0.06)", border: "1.5px solid rgba(99,102,241,0.15)" }}>
+              <div style={{ fontSize: 13, fontWeight: 700, color: "#818cf8", marginBottom: 10 }}>💡 How it works</div>
+              <div style={{ fontSize: 12, color: "#94a3b8", lineHeight: 1.7 }}>
+                Every invoice you create automatically includes instructions for both <strong style={{ color: "#00d632" }}>$CreateAIDigital (Cash App)</strong> and <strong style={{ color: "#3d95ce" }}>@CreateAIDigital (Venmo)</strong>. Clients pay by sending to either handle and adding the invoice number in the note. Once confirmed, mark the invoice as paid here — it logs instantly to your revenue tracker.
               </div>
             </div>
-            <div className={T.card}>
-              <div className={T.h2}>Payment Rails Available</div>
-              <div className="grid grid-cols-2 gap-3">
-                {methods.slice(0, 4).map(m => (
-                  <div key={m.id} className="bg-slate-800 rounded-lg p-3">
-                    <div className="font-semibold text-white text-sm mb-1">{m.name}</div>
-                    <div className="text-xs text-slate-400">{m.processingTime} · {m.fees}</div>
-                  </div>
-                ))}
-              </div>
-              <div className="mt-3 text-xs text-slate-500">+ {methods.length - 4} more methods. All bypass Stripe requirements.</div>
-            </div>
-            <div className={T.card}>
-              <div className={T.h2}>Quick Actions</div>
-              <div className="flex gap-3">
-                <button onClick={() => setTab("create")} className={T.btn}>➕ New Invoice</button>
-                <button onClick={() => setTab("invoices")} className="px-4 py-2 bg-slate-800 hover:bg-slate-700 rounded-lg text-sm font-bold text-slate-300">📄 View All</button>
-              </div>
+
+            <div style={{ display: "flex", gap: 10 }}>
+              <button onClick={() => setTab("create")} style={S.btn}>➕ Create Invoice</button>
+              <button onClick={() => setTab("invoices")} style={{ ...S.btn, background: "#1e293b" }}>📄 View All Invoices</button>
             </div>
           </div>
         )}
 
+        {/* ── INVOICES ── */}
         {tab === "invoices" && (
-          <div className="space-y-4">
+          <div style={{ display: "flex", flexDirection: "column", gap: 12 }}>
             {invoices.length === 0 ? (
-              <div className={`${T.card} text-center py-12`}>
-                <div className="text-4xl mb-3">📄</div>
-                <div className="text-slate-400">No invoices yet. Create your first one.</div>
-                <button onClick={() => setTab("create")} className={`${T.btn} mt-4`}>Create Invoice</button>
+              <div style={{ ...S.card, textAlign: "center", padding: "40px 20px" }}>
+                <div style={{ fontSize: 36, marginBottom: 12 }}>📄</div>
+                <div style={{ color: "#64748b", marginBottom: 16 }}>No invoices yet. Create your first one to start collecting payments.</div>
+                <button onClick={() => setTab("create")} style={S.btn}>Create First Invoice</button>
               </div>
             ) : (
               <>
+                {/* Mark paid modal */}
+                {markPaid && (
+                  <div style={{ ...S.card, border: "1.5px solid rgba(34,197,94,0.30)", background: "rgba(0,20,10,0.8)" }}>
+                    <div style={{ fontWeight: 700, fontSize: 15, marginBottom: 12 }}>✅ Mark Invoice as Paid — {markPaid.inv.invoiceNumber}</div>
+                    <div style={{ marginBottom: 12 }}>
+                      <div style={S.label}>Paid via</div>
+                      <div style={{ display: "flex", gap: 8, marginTop: 6 }}>
+                        {[{ id: "cashapp", label: "💚 Cash App ($CreateAIDigital)", color: "#00d632" }, { id: "venmo", label: "💙 Venmo (@CreateAIDigital)", color: "#3d95ce" }].map(m => (
+                          <button key={m.id} onClick={() => setMarkPaid(p => p ? { ...p, via: m.id } : null)}
+                            style={{ flex: 1, padding: "10px 12px", borderRadius: 8, border: "1.5px solid " + (markPaid.via === m.id ? m.color : "rgba(30,41,59,1)"), background: markPaid.via === m.id ? m.color + "22" : "#020617", color: markPaid.via === m.id ? m.color : "#64748b", fontWeight: 700, fontSize: 13, cursor: "pointer" }}>
+                            {m.label}
+                          </button>
+                        ))}
+                      </div>
+                    </div>
+                    <div style={{ marginBottom: 14 }}>
+                      <div style={S.label}>Payment Reference (optional)</div>
+                      <input value={markPaid.ref} onChange={e => setMarkPaid(p => p ? { ...p, ref: e.target.value } : null)}
+                        placeholder="Transaction ID, note, or confirmation" style={{ ...S.input, marginTop: 4 }} />
+                    </div>
+                    <div style={{ display: "flex", gap: 8 }}>
+                      <button onClick={submitMarkPaid} style={{ ...S.btn, background: "#16a34a" }}>✅ Confirm Paid</button>
+                      <button onClick={() => setMarkPaid(null)} style={{ ...S.btn, background: "#1e293b" }}>Cancel</button>
+                    </div>
+                  </div>
+                )}
+
+                {/* Status update panel */}
                 {statusUpdate && (
-                  <div className={T.card}>
-                    <div className={T.h2}>Update Invoice Status</div>
-                    <div className="grid grid-cols-2 gap-4 mb-4">
+                  <div style={{ ...S.card, border: "1.5px solid rgba(99,102,241,0.25)" }}>
+                    <div style={{ fontWeight: 700, fontSize: 14, marginBottom: 12 }}>Update Invoice Status</div>
+                    <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 12, marginBottom: 12 }}>
                       <div>
-                        <div className={T.label}>New Status</div>
+                        <div style={S.label}>Status</div>
                         <select value={statusUpdate.status} onChange={e => setStatusUpdate(s => s ? { ...s, status: e.target.value } : null)}
-                          className={`${T.input} mt-1`}>
+                          style={{ ...S.input, marginTop: 4 }}>
                           {["draft", "sent", "viewed", "paid", "overdue", "cancelled"].map(s => <option key={s} value={s}>{s}</option>)}
                         </select>
                       </div>
                       <div>
-                        <div className={T.label}>Payment Reference (optional)</div>
+                        <div style={S.label}>Reference (optional)</div>
                         <input value={statusUpdate.ref} onChange={e => setStatusUpdate(s => s ? { ...s, ref: e.target.value } : null)}
-                          placeholder="Check #, wire ref, Zelle txn" className={`${T.input} mt-1`} />
+                          placeholder="Transaction ID or ref" style={{ ...S.input, marginTop: 4 }} />
                       </div>
                     </div>
-                    <div className="flex gap-3">
-                      <button onClick={updateStatus} className={T.btn}>Update Status</button>
-                      <button onClick={() => setStatusUpdate(null)} className="px-4 py-2 bg-slate-800 rounded-lg text-sm font-bold text-slate-400">Cancel</button>
+                    {statusUpdate.status === "paid" && (
+                      <div style={{ marginBottom: 12 }}>
+                        <div style={S.label}>Paid via</div>
+                        <select value={statusUpdate.via} onChange={e => setStatusUpdate(s => s ? { ...s, via: e.target.value } : null)}
+                          style={{ ...S.input, marginTop: 4 }}>
+                          <option value="cashapp">Cash App ($CreateAIDigital)</option>
+                          <option value="venmo">Venmo (@CreateAIDigital)</option>
+                        </select>
+                      </div>
+                    )}
+                    <div style={{ display: "flex", gap: 8 }}>
+                      <button onClick={updateStatus} style={S.btn}>Update</button>
+                      <button onClick={() => setStatusUpdate(null)} style={{ ...S.btn, background: "#1e293b" }}>Cancel</button>
                     </div>
                   </div>
                 )}
+
                 {invoices.map(inv => (
-                  <div key={inv.id} className={T.card}>
-                    <div className="flex items-center justify-between mb-3">
+                  <div key={inv.id} style={S.card}>
+                    <div style={{ display: "flex", justifyContent: "space-between", alignItems: "flex-start", marginBottom: 12 }}>
                       <div>
-                        <div className="flex items-center gap-2">
-                          <span className="font-black text-white">{inv.invoiceNumber}</span>
-                          <span className={`px-2 py-0.5 rounded text-xs font-bold ${STATUS_COLORS[inv.status] ?? "text-slate-400"}`}>{inv.status.toUpperCase()}</span>
+                        <div style={{ display: "flex", alignItems: "center", gap: 8, marginBottom: 4 }}>
+                          <span style={{ fontWeight: 900, fontSize: 15 }}>{inv.invoiceNumber}</span>
+                          <StatusBadge status={inv.status} />
+                          {inv.paidVia && (
+                            <span style={{ fontSize: 11, color: inv.paidVia === "cashapp" ? "#00d632" : "#3d95ce" }}>
+                              {inv.paidVia === "cashapp" ? "💚 $CreateAIDigital" : "💙 @CreateAIDigital"}
+                            </span>
+                          )}
                         </div>
-                        <div className="text-sm text-slate-400 mt-0.5">{inv.clientName} · {inv.clientEmail}</div>
+                        <div style={{ fontSize: 13, color: "#94a3b8" }}>{inv.clientName} · {inv.clientEmail}</div>
+                        {inv.paymentDate && <div style={{ fontSize: 11, color: "#4ade80", marginTop: 2 }}>Paid {inv.paymentDate}</div>}
                       </div>
-                      <div className="text-right">
-                        <div className="text-xl font-black text-indigo-400">{fmt(inv.total, inv.currency)}</div>
-                        <div className="text-xs text-slate-500">Due {inv.dueDate}</div>
+                      <div style={{ textAlign: "right" }}>
+                        <div style={{ fontSize: 22, fontWeight: 900, color: inv.status === "paid" ? "#4ade80" : "#818cf8", letterSpacing: "-0.03em" }}>{fmt(inv.total, inv.currency)}</div>
+                        <div style={{ fontSize: 11, color: "#475569" }}>Due {inv.dueDate}</div>
                       </div>
                     </div>
-                    <div className="flex gap-2 flex-wrap">
-                      <a href={`${API}/payments/invoice/${inv.id}/html`} target="_blank" rel="noreferrer"
-                        className="px-3 py-1.5 bg-slate-800 hover:bg-slate-700 rounded text-xs font-bold text-slate-300 transition-colors">
+                    <div style={{ display: "flex", gap: 8, flexWrap: "wrap" as const }}>
+                      <a href={API + "/payments/invoice/" + inv.id + "/html"} target="_blank" rel="noreferrer"
+                        style={{ padding: "6px 12px", background: "#1e293b", borderRadius: 6, fontSize: 12, fontWeight: 700, color: "#94a3b8", textDecoration: "none" }}>
                         🖨️ View / Print
                       </a>
                       {inv.status === "draft" && (
                         <button onClick={() => sendInvoice(inv.id)} disabled={sending === inv.id}
-                          className="px-3 py-1.5 bg-indigo-600 hover:bg-indigo-700 rounded text-xs font-bold text-white transition-colors disabled:opacity-50">
-                          {sending === inv.id ? "Sending…" : "📧 Send to Client"}
+                          style={{ ...S.btn, fontSize: 12, padding: "6px 12px", opacity: sending === inv.id ? 0.5 : 1 }}>
+                          {sending === inv.id ? "Sending…" : "📧 Email to Client"}
                         </button>
                       )}
-                      <button onClick={() => setStatusUpdate({ id: inv.id, status: inv.status, ref: "" })}
-                        className="px-3 py-1.5 bg-emerald-600 hover:bg-emerald-700 rounded text-xs font-bold text-white transition-colors">
+                      {inv.status !== "paid" && inv.status !== "cancelled" && (
+                        <button onClick={() => setMarkPaid({ inv, via: "cashapp", ref: "" })}
+                          style={{ ...S.btn, fontSize: 12, padding: "6px 12px", background: "#16a34a" }}>
+                          ✅ Mark Paid
+                        </button>
+                      )}
+                      <button onClick={() => setStatusUpdate({ id: inv.id, status: inv.status, ref: "", via: "cashapp" })}
+                        style={{ ...S.btn, fontSize: 12, padding: "6px 12px", background: "#1e293b", color: "#94a3b8" }}>
                         ✏️ Update Status
                       </button>
                     </div>
@@ -286,121 +392,159 @@ export default function PayGateApp() {
           </div>
         )}
 
+        {/* ── CREATE INVOICE ── */}
         {tab === "create" && (
-          <div className="space-y-5">
-            <div className={T.card}>
-              <div className={T.h2}>Client Information</div>
-              <div className="grid grid-cols-2 gap-4">
+          <div style={{ display: "flex", flexDirection: "column", gap: 16 }}>
+            {/* Always-on payment notice */}
+            <div style={{ background: "rgba(0,214,50,0.06)", border: "1.5px solid rgba(0,214,50,0.20)", borderRadius: 12, padding: "12px 16px" }}>
+              <div style={{ fontSize: 12, fontWeight: 700, color: "#86efac", marginBottom: 4 }}>💚💙 Both payment methods print automatically</div>
+              <div style={{ fontSize: 12, color: "#4ade80" }}>Cash App ($CreateAIDigital) and Venmo (@CreateAIDigital) instructions appear on every invoice — no configuration needed.</div>
+            </div>
+
+            {/* Client info */}
+            <div style={S.card}>
+              <div style={{ fontWeight: 700, fontSize: 14, marginBottom: 14 }}>Client Information</div>
+              <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 12 }}>
                 {[
-                  ["Client Name*", "clientName", "Sara Johnson"],
-                  ["Client Email*", "clientEmail", "client@company.com"],
+                  ["Client Name *", "clientName", "Sara Johnson"],
+                  ["Client Email *", "clientEmail", "client@company.com"],
                   ["Company (optional)", "clientCompany", "Acme Corp LLC"],
                   ["Address (optional)", "clientAddress", "123 Main St, City, ST 12345"],
                 ].map(([l, k, ph]) => (
                   <div key={k}>
-                    <div className={T.label}>{l}</div>
+                    <div style={S.label}>{l}</div>
                     <input value={(newInvoice as any)[k]} onChange={e => setNewInvoice(f => ({ ...f, [k]: e.target.value }))}
-                      placeholder={ph} className={`${T.input} mt-1`} />
+                      placeholder={ph} style={{ ...S.input, marginTop: 4 }} />
                   </div>
                 ))}
               </div>
             </div>
-            <div className={T.card}>
-              <div className={T.h2}>Invoice Settings</div>
-              <div className="grid grid-cols-3 gap-4">
-                {[
-                  { label: "Currency", key: "currency", type: "select", options: ["USD", "EUR", "GBP", "CAD", "AUD"] },
-                  { label: "Net Days", key: "netDays", type: "select", options: ["7", "14", "21", "30", "45", "60"] },
-                  { label: "Payment Method", key: "paymentMethod", type: "select", options: methods.map(m => ({ value: m.id, label: m.name })) },
-                ].map(f => (
-                  <div key={f.key}>
-                    <div className={T.label}>{f.label}</div>
-                    <select value={(newInvoice as any)[f.key]} onChange={e => setNewInvoice(fi => ({ ...fi, [f.key]: e.target.value }))}
-                      className={`${T.input} mt-1`}>
-                      {f.options.map((o: any) => typeof o === "string"
-                        ? <option key={o} value={o}>{o}</option>
-                        : <option key={o.value} value={o.value}>{o.label}</option>
-                      )}
-                    </select>
-                  </div>
-                ))}
+
+            {/* Settings */}
+            <div style={S.card}>
+              <div style={{ fontWeight: 700, fontSize: 14, marginBottom: 14 }}>Invoice Settings</div>
+              <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr 1fr", gap: 12 }}>
                 <div>
-                  <div className={T.label}>Tax Rate (%)</div>
+                  <div style={S.label}>Currency</div>
+                  <select value={newInvoice.currency} onChange={e => setNewInvoice(f => ({ ...f, currency: e.target.value }))} style={{ ...S.input, marginTop: 4 }}>
+                    {["USD", "EUR", "GBP", "CAD", "AUD"].map(c => <option key={c} value={c}>{c}</option>)}
+                  </select>
+                </div>
+                <div>
+                  <div style={S.label}>Net Days</div>
+                  <select value={newInvoice.netDays} onChange={e => setNewInvoice(f => ({ ...f, netDays: e.target.value }))} style={{ ...S.input, marginTop: 4 }}>
+                    {["7", "14", "21", "30", "45", "60"].map(d => <option key={d} value={d}>Net {d}</option>)}
+                  </select>
+                </div>
+                <div>
+                  <div style={S.label}>Tax Rate (%)</div>
                   <input type="number" value={newInvoice.taxRate} onChange={e => setNewInvoice(f => ({ ...f, taxRate: e.target.value }))}
-                    min="0" max="50" step="0.1" className={`${T.input} mt-1`} />
+                    min="0" max="50" step="0.1" style={{ ...S.input, marginTop: 4 }} />
                 </div>
               </div>
             </div>
-            <div className={T.card}>
-              <div className="flex items-center justify-between mb-4">
-                <div className={T.h2} style={{ marginBottom: 0 }}>Line Items</div>
-                <button onClick={addLineItem} className="px-3 py-1.5 bg-slate-800 hover:bg-slate-700 rounded text-xs font-bold text-slate-300">+ Add Item</button>
+
+            {/* Line items */}
+            <div style={S.card}>
+              <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: 14 }}>
+                <div style={{ fontWeight: 700, fontSize: 14 }}>Line Items</div>
+                <button onClick={addLineItem} style={{ ...S.btn, background: "#1e293b", color: "#94a3b8", fontSize: 12, padding: "6px 12px" }}>+ Add Item</button>
               </div>
-              <div className="space-y-3">
-                {newInvoice.lineItems.map((item, i) => (
-                  <div key={i} className="bg-slate-800 rounded-lg p-3 grid grid-cols-5 gap-2 items-center">
-                    <div className="col-span-2">
-                      <input value={item.description} onChange={e => updateLineItem(i, "description", e.target.value)}
-                        placeholder="Description" className="w-full bg-slate-700 border border-slate-600 rounded px-2 py-1.5 text-xs text-white focus:border-indigo-500 outline-none" />
-                    </div>
-                    <div>
-                      <input type="number" value={item.quantity} onChange={e => updateLineItem(i, "quantity", e.target.value)}
-                        placeholder="Qty" min="1" className="w-full bg-slate-700 border border-slate-600 rounded px-2 py-1.5 text-xs text-white focus:border-indigo-500 outline-none" />
-                    </div>
-                    <div>
-                      <input type="number" value={item.unitPrice} onChange={e => updateLineItem(i, "unitPrice", e.target.value)}
-                        placeholder="Price" min="0" step="0.01" className="w-full bg-slate-700 border border-slate-600 rounded px-2 py-1.5 text-xs text-white focus:border-indigo-500 outline-none" />
-                    </div>
-                    <div className="flex items-center justify-between">
-                      <span className="text-xs font-bold text-indigo-400">{fmt(Number(item.quantity) * Number(item.unitPrice))}</span>
-                      {newInvoice.lineItems.length > 1 && (
-                        <button onClick={() => removeLineItem(i)} className="text-red-400 text-xs ml-2">✕</button>
-                      )}
-                    </div>
-                  </div>
-                ))}
-              </div>
-              <div className="mt-4 bg-slate-800 rounded-lg p-4 flex justify-end">
-                <div className="text-right space-y-1">
-                  <div className="flex gap-12 text-sm text-slate-400"><span>Subtotal</span><span>{fmt(newSub)}</span></div>
-                  {Number(newInvoice.taxRate) > 0 && <div className="flex gap-12 text-sm text-slate-400"><span>Tax ({newInvoice.taxRate}%)</span><span>{fmt(newTax)}</span></div>}
-                  <div className="flex gap-12 text-base font-black"><span className="text-slate-300">Total</span><span className="text-indigo-400">{fmt(newTotal)}</span></div>
+              {newInvoice.lineItems.map((item, i) => (
+                <div key={i} style={{ display: "grid", gridTemplateColumns: "3fr 1fr 1fr auto auto", gap: 8, marginBottom: 8, alignItems: "center" }}>
+                  <input value={item.description} onChange={e => updateLineItem(i, "description", e.target.value)}
+                    placeholder="Description" style={{ ...S.input, fontSize: 12 }} />
+                  <input type="number" value={item.quantity} onChange={e => updateLineItem(i, "quantity", e.target.value)}
+                    placeholder="Qty" min="1" style={{ ...S.input, fontSize: 12 }} />
+                  <input type="number" value={item.unitPrice} onChange={e => updateLineItem(i, "unitPrice", e.target.value)}
+                    placeholder="Price" min="0" step="0.01" style={{ ...S.input, fontSize: 12 }} />
+                  <span style={{ fontSize: 13, fontWeight: 700, color: "#818cf8", whiteSpace: "nowrap" as const }}>{fmt(Number(item.quantity) * Number(item.unitPrice))}</span>
+                  {newInvoice.lineItems.length > 1 && (
+                    <button onClick={() => removeLineItem(i)} style={{ background: "none", border: "none", color: "#ef4444", cursor: "pointer", fontSize: 14 }}>✕</button>
+                  )}
                 </div>
+              ))}
+              <div style={{ marginTop: 12, background: "#020617", borderRadius: 8, padding: "12px 14px", display: "flex", flexDirection: "column" as const, alignItems: "flex-end", gap: 4 }}>
+                <div style={{ display: "flex", gap: 20, fontSize: 13, color: "#64748b" }}><span>Subtotal</span><span>{fmt(newSub)}</span></div>
+                {Number(newInvoice.taxRate) > 0 && <div style={{ display: "flex", gap: 20, fontSize: 13, color: "#64748b" }}><span>Tax ({newInvoice.taxRate}%)</span><span>{fmt(newTax)}</span></div>}
+                <div style={{ display: "flex", gap: 20, fontSize: 16, fontWeight: 900 }}><span style={{ color: "#94a3b8" }}>Total</span><span style={{ color: "#818cf8" }}>{fmt(newTotal)}</span></div>
               </div>
             </div>
-            <div className={T.card}>
-              <div className={T.label}>Notes (optional)</div>
+
+            <div style={S.card}>
+              <div style={S.label}>Notes (optional)</div>
               <textarea value={newInvoice.notes} onChange={e => setNewInvoice(f => ({ ...f, notes: e.target.value }))}
-                rows={3} placeholder="Payment terms, late fee policy, project details..."
-                className={`${T.input} mt-1 resize-none`} />
+                rows={3} placeholder="Payment terms, project details, late fee policy…"
+                style={{ ...S.input, marginTop: 4, resize: "none" as const }} />
             </div>
+
             <button onClick={createInvoice}
-              className="w-full py-3 bg-indigo-600 hover:bg-indigo-700 rounded-xl text-sm font-bold text-white transition-colors">
+              style={{ ...S.btn, width: "100%", padding: "14px", fontSize: 15, borderRadius: 12 }}>
               ✅ Create Invoice — {fmt(newTotal)}
             </button>
           </div>
         )}
 
+        {/* ── PAYMENT METHODS ── */}
         {tab === "methods" && (
-          <div className="space-y-4">
-            <div className={`${T.card} bg-indigo-950 border-indigo-800`}>
-              <div className="text-sm font-bold text-indigo-300 mb-2">Why Multi-Rail Payments?</div>
-              <div className="text-xs text-indigo-400">CreateAI Brain operates independent of Stripe's charges_enabled status. All payment methods below work immediately — no platform approval required. Revenue starts now.</div>
-            </div>
-            {methods.map(m => (
-              <div key={m.id} className={T.card}>
-                <div className="flex items-center justify-between mb-3">
-                  <div className="font-bold text-white">{m.name}</div>
-                  <div className="flex gap-2">
-                    <span className="text-xs text-emerald-400 bg-emerald-500/10 px-2 py-0.5 rounded">{m.processingTime}</span>
-                    <span className="text-xs text-slate-400 bg-slate-800 px-2 py-0.5 rounded">Fees: {m.fees}</span>
-                  </div>
-                </div>
-                <div className="text-sm text-slate-300">{m.instructions}</div>
-                {m.limit && <div className="text-xs text-amber-400 mt-2">Limit: {m.limit}</div>}
-                {(m as any).note && <div className="text-xs text-slate-500 mt-2">{(m as any).note}</div>}
+          <div style={{ display: "flex", flexDirection: "column", gap: 14 }}>
+            <div style={{ ...S.card, background: "rgba(99,102,241,0.06)", border: "1.5px solid rgba(99,102,241,0.18)" }}>
+              <div style={{ fontWeight: 700, color: "#818cf8", marginBottom: 6 }}>Payment Methods — CreateAI Brain</div>
+              <div style={{ fontSize: 12, color: "#94a3b8", lineHeight: 1.6 }}>
+                Two payment methods are configured and appear automatically on every invoice. No phone numbers or personal data are ever exposed — only the handles below are shared with clients.
               </div>
-            ))}
+            </div>
+
+            {/* Cash App card */}
+            <div style={{ background: "#001a08", border: "1.5px solid rgba(0,214,50,0.30)", borderRadius: 16, padding: "24px" }}>
+              <div style={{ display: "flex", alignItems: "center", gap: 10, marginBottom: 16 }}>
+                <span style={{ fontSize: 28 }}>💚</span>
+                <div>
+                  <div style={{ fontWeight: 900, color: "#86efac", fontSize: 16 }}>Cash App</div>
+                  <div style={{ fontSize: 12, color: "#4ade80" }}>Instant · No fees · Up to $7,500/week</div>
+                </div>
+                <span style={{ marginLeft: "auto", fontSize: 24, fontWeight: 900, color: "#00d632" }}>$CreateAIDigital</span>
+              </div>
+              <div style={{ background: "rgba(0,214,50,0.06)", borderRadius: 10, padding: "14px 16px", marginBottom: 14 }}>
+                <div style={{ fontSize: 12, color: "#86efac", fontWeight: 700, marginBottom: 8 }}>Step-by-step for your clients:</div>
+                {["Open Cash App → tap the $ Pay icon", "Search for $CreateAIDigital", "Enter the exact invoice amount", "Add the invoice number in the note field", "Tap Pay — you receive the funds instantly"].map((step, i) => (
+                  <div key={i} style={{ display: "flex", gap: 8, marginBottom: 5, fontSize: 12, color: "#86efac" }}>
+                    <span style={{ color: "#00d632", fontWeight: 700, flexShrink: 0 }}>{i + 1}.</span>
+                    <span>{step}</span>
+                  </div>
+                ))}
+              </div>
+              <div style={{ fontSize: 11, color: "#475569" }}>Privacy: Only the $CreateAIDigital handle is shared. No phone numbers or personal information exposed.</div>
+            </div>
+
+            {/* Venmo card */}
+            <div style={{ background: "#001220", border: "1.5px solid rgba(61,149,206,0.30)", borderRadius: 16, padding: "24px" }}>
+              <div style={{ display: "flex", alignItems: "center", gap: 10, marginBottom: 16 }}>
+                <span style={{ fontSize: 28 }}>💙</span>
+                <div>
+                  <div style={{ fontWeight: 900, color: "#93c5fd", fontSize: 16 }}>Venmo</div>
+                  <div style={{ fontSize: 12, color: "#60a5fa" }}>Instant · Up to $4,999.99/week</div>
+                </div>
+                <span style={{ marginLeft: "auto", fontSize: 24, fontWeight: 900, color: "#3d95ce" }}>@CreateAIDigital</span>
+              </div>
+              <div style={{ background: "rgba(61,149,206,0.06)", borderRadius: 10, padding: "14px 16px", marginBottom: 14 }}>
+                <div style={{ fontSize: 12, color: "#93c5fd", fontWeight: 700, marginBottom: 8 }}>Step-by-step for your clients:</div>
+                {["Open Venmo → tap Pay or Request", "Search for @CreateAIDigital", "Enter the exact invoice amount", "Add the invoice number in the note field", "Tap Pay — funds transfer instantly"].map((step, i) => (
+                  <div key={i} style={{ display: "flex", gap: 8, marginBottom: 5, fontSize: 12, color: "#93c5fd" }}>
+                    <span style={{ color: "#3d95ce", fontWeight: 700, flexShrink: 0 }}>{i + 1}.</span>
+                    <span>{step}</span>
+                  </div>
+                ))}
+              </div>
+              <div style={{ fontSize: 11, color: "#475569" }}>Privacy: Only the @CreateAIDigital handle is shared. No phone numbers or personal information exposed.</div>
+            </div>
+
+            {/* Privacy notice */}
+            <div style={{ background: "rgba(15,23,42,0.8)", border: "1px solid rgba(30,41,59,1)", borderRadius: 12, padding: "14px 16px" }}>
+              <div style={{ fontSize: 12, color: "#64748b", lineHeight: 1.6 }}>
+                🔒 <strong style={{ color: "#94a3b8" }}>Privacy Protected:</strong> No personal phone numbers, email addresses, or sensitive account details are exposed to clients. Only the public business handles ($CreateAIDigital and @CreateAIDigital) appear on invoices.
+              </div>
+            </div>
           </div>
         )}
       </div>
