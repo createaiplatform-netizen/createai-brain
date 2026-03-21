@@ -3,6 +3,7 @@ import { assetFlow } from "../services/domainEngines.js";
 
 const router = Router();
 
+router.get("/",         (_req, res) => res.json({ ok: true, ...assetFlow.stats(), assets: assetFlow.reorderQueue() }));
 router.get("/stats",    (_req, res) => res.json(assetFlow.stats()));
 router.get("/reorder",  (_req, res) => res.json({ ok: true, reorderQueue: assetFlow.reorderQueue() }));
 

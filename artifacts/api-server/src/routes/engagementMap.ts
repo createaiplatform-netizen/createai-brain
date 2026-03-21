@@ -3,6 +3,7 @@ import { engagementMap, type TouchpointType } from "../services/domainEngines.js
 
 const router = Router();
 
+router.get("/",                (_req, res) => res.json({ ok: true, ...engagementMap.stats(), events: engagementMap.events?.() ?? [], funnelStats: engagementMap.funnelView() }));
 router.get("/stats",           (_req, res) => res.json(engagementMap.stats()));
 router.get("/funnel",          (_req, res) => res.json({ ok: true, funnel: engagementMap.funnelView() }));
 router.get("/journey/:contactId", (req: Request, res: Response) => res.json({ ok: true, journey: engagementMap.journey(String(req.params["contactId"] ?? "")) }));

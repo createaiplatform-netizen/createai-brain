@@ -388,6 +388,27 @@ const PercentageEngineApp      = React.lazy(() => import("@/Apps/PercentageEngin
 const ActivationCommandApp     = React.lazy(() => import("@/Apps/ActivationCommandApp"));
 const CredentialsHubApp        = React.lazy(() => import("@/Apps/CredentialsHubApp"));
 const SchemaBuilderApp = React.lazy(() => import("@/Apps/SchemaBuilderApp").then(m => ({ default: m.SchemaBuilderApp })));
+// ── Domain Gap Engines ────────────────────────────────────────────────────────
+const DomainHubApp         = React.lazy(() => import("@/Apps/DomainAppsBundle").then(m => ({ default: m.DomainHubApp })));
+const DomainCRMApp         = React.lazy(() => import("@/Apps/DomainAppsBundle").then(m => ({ default: m.DomainCRMApp })));
+const DomainLedgerApp      = React.lazy(() => import("@/Apps/DomainAppsBundle").then(m => ({ default: m.DomainLedgerApp })));
+const DomainOrdersApp      = React.lazy(() => import("@/Apps/DomainAppsBundle").then(m => ({ default: m.DomainOrdersApp })));
+const DomainCasesApp       = React.lazy(() => import("@/Apps/DomainAppsBundle").then(m => ({ default: m.DomainCasesApp })));
+const DomainContentApp     = React.lazy(() => import("@/Apps/DomainAppsBundle").then(m => ({ default: m.DomainContentApp })));
+const DomainKPIApp         = React.lazy(() => import("@/Apps/DomainAppsBundle").then(m => ({ default: m.DomainKPIApp })));
+const DomainAgreementsApp  = React.lazy(() => import("@/Apps/DomainAppsBundle").then(m => ({ default: m.DomainAgreementsApp })));
+const DomainGrowthPathApp  = React.lazy(() => import("@/Apps/DomainAppsBundle").then(m => ({ default: m.DomainGrowthPathApp })));
+const DomainAssetsApp      = React.lazy(() => import("@/Apps/DomainAppsBundle").then(m => ({ default: m.DomainAssetsApp })));
+const DomainEngagementApp  = React.lazy(() => import("@/Apps/DomainAppsBundle").then(m => ({ default: m.DomainEngagementApp })));
+const DomainValueExchangeApp = React.lazy(() => import("@/Apps/DomainAppsBundle").then(m => ({ default: m.DomainValueExchangeApp })));
+const DomainRiskCoverageApp  = React.lazy(() => import("@/Apps/DomainAppsBundle").then(m => ({ default: m.DomainRiskCoverageApp })));
+const DomainPropertyFlowApp  = React.lazy(() => import("@/Apps/DomainAppsBundle").then(m => ({ default: m.DomainPropertyFlowApp })));
+const DomainWorkforceApp     = React.lazy(() => import("@/Apps/DomainAppsBundle").then(m => ({ default: m.DomainWorkforceApp })));
+const DomainPerfReviewApp    = React.lazy(() => import("@/Apps/DomainAppsBundle").then(m => ({ default: m.DomainPerfReviewApp })));
+const DomainCampaignsApp     = React.lazy(() => import("@/Apps/DomainAppsBundle").then(m => ({ default: m.DomainCampaignsApp })));
+const DomainRegulatoryApp    = React.lazy(() => import("@/Apps/DomainAppsBundle").then(m => ({ default: m.DomainRegulatoryApp })));
+const DomainFiscalApp        = React.lazy(() => import("@/Apps/DomainAppsBundle").then(m => ({ default: m.DomainFiscalApp })));
+const DomainRecurringApp     = React.lazy(() => import("@/Apps/DomainAppsBundle").then(m => ({ default: m.DomainRecurringApp })));
 const ConfigManagerApp = React.lazy(() => import("@/Apps/ConfigManagerApp").then(m => ({ default: m.ConfigManagerApp })));
 
 // ── App registry ─────────────────────────────────────────────────────────────
@@ -766,6 +787,27 @@ const APP_COMPONENTS: Record<AppId, React.LazyExoticComponent<React.ComponentTyp
   percentageEngine:  PercentageEngineApp,
   activation:        ActivationCommandApp,
   credentialsHub:    CredentialsHubApp,
+  // ── Domain Gap Engines ────────────────────────────────────────────────────
+  domainHub:          DomainHubApp,
+  domainCRM:          DomainCRMApp,
+  domainLedger:       DomainLedgerApp,
+  domainOrders:       DomainOrdersApp,
+  domainCases:        DomainCasesApp,
+  domainContent:      DomainContentApp,
+  domainKPI:          DomainKPIApp,
+  domainAgreements:   DomainAgreementsApp,
+  domainGrowthPath:   DomainGrowthPathApp,
+  domainAssets:       DomainAssetsApp,
+  domainEngagement:   DomainEngagementApp,
+  domainValueExchange: DomainValueExchangeApp,
+  domainRiskCoverage:  DomainRiskCoverageApp,
+  domainPropertyFlow:  DomainPropertyFlowApp,
+  domainWorkforce:     DomainWorkforceApp,
+  domainPerfReview:    DomainPerfReviewApp,
+  domainCampaigns:     DomainCampaignsApp,
+  domainRegulatory:    DomainRegulatoryApp,
+  domainFiscal:        DomainFiscalApp,
+  domainRecurring:     DomainRecurringApp,
 };
 
 // ── Loading skeleton ─────────────────────────────────────────────────────────

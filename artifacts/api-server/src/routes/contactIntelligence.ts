@@ -3,6 +3,7 @@ import { contactIntelligence } from "../services/domainEngines.js";
 
 const router = Router();
 
+router.get("/",         (_req, res) => res.json({ ok: true, ...contactIntelligence.stats(), contacts: contactIntelligence.list(), pipeline: contactIntelligence.pipeline() }));
 router.get("/stats",    (_req, res) => res.json(contactIntelligence.stats()));
 router.get("/list",     (_req, res) => res.json({ ok: true, contacts: contactIntelligence.list() }));
 router.get("/pipeline", (_req, res) => res.json({ ok: true, pipeline: contactIntelligence.pipeline() }));

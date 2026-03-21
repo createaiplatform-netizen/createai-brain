@@ -3,6 +3,7 @@ import { transactionLedger } from "../services/domainEngines.js";
 
 const router = Router();
 
+router.get("/",             (_req, res) => res.json({ ok: true, ...transactionLedger.stats(), entries: transactionLedger.list?.() ?? [], ...transactionLedger.cashFlow() }));
 router.get("/stats",         (_req, res) => res.json(transactionLedger.stats()));
 router.get("/balance-sheet", (_req, res) => res.json({ ok: true, balanceSheet: transactionLedger.balanceSheet() }));
 router.get("/trial-balance", (_req, res) => res.json({ ok: true, ...transactionLedger.trialBalance() }));

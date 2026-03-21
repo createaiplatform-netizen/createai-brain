@@ -3,6 +3,7 @@ import { contentPipeline } from "../services/domainEngines.js";
 
 const router = Router();
 
+router.get("/",         (_req, res) => res.json({ ok: true, ...contentPipeline.stats(), items: contentPipeline.calendar() }));
 router.get("/stats",    (_req, res) => res.json(contentPipeline.stats()));
 router.get("/calendar", (_req, res) => res.json({ ok: true, calendar: contentPipeline.calendar() }));
 router.get("/list",     (_req, res) => res.json({ ok: true, content: contentPipeline.calendar() }));

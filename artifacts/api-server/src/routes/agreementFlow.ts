@@ -3,6 +3,7 @@ import { agreementFlow } from "../services/domainEngines.js";
 
 const router = Router();
 
+router.get("/",       (_req, res) => res.json({ ok: true, ...agreementFlow.stats(), agreements: agreementFlow.list() }));
 router.get("/stats",  (_req, res) => res.json(agreementFlow.stats()));
 router.get("/list",   (req: Request, res: Response) => res.json({ ok: true, agreements: agreementFlow.list(String(req.query["status"] ?? "")) }));
 router.get("/active", (_req, res) => res.json({ ok: true, agreements: agreementFlow.list("active") }));

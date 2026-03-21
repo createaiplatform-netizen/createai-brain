@@ -268,7 +268,13 @@ export type AppId =
   | "healthos" | "legalpm" | "staffingos"
   // ── New Platform Capabilities ─────────────────────────────────────────────
   | "adshub" | "adsOrchestrator" | "authlab" | "paygate" | "inventionLayer"
-  | "percentageEngine" | "activation" | "credentialsHub" | "referral" | "growthEngine" | "npaSettings" | "selfHost" | "handleProtocol" | "platformReport";
+  | "percentageEngine" | "activation" | "credentialsHub" | "referral" | "growthEngine" | "npaSettings" | "selfHost" | "handleProtocol" | "platformReport"
+  // ── Domain Gap Engines — 19 industry-equivalent internal engines ───────────
+  | "domainCRM" | "domainLedger" | "domainOrders" | "domainCases" | "domainContent"
+  | "domainKPI" | "domainAgreements" | "domainGrowthPath" | "domainAssets" | "domainEngagement"
+  | "domainValueExchange" | "domainRiskCoverage" | "domainPropertyFlow" | "domainWorkforce"
+  | "domainPerfReview" | "domainCampaigns" | "domainRegulatory" | "domainFiscal" | "domainRecurring"
+  | "domainHub";
 
 export interface AppDef {
   id: AppId;
@@ -445,6 +451,27 @@ export const DEFAULT_APPS: AppDef[] = [
   { id: "selfHost",         label: "Self-Host Engine",       icon: "🏠", color: "#6366f1", description: "Internal self-hosting system — build the frontend, serve it from the API server, browse the createai:// routing table, inspect the platform proof token, and publish portable snapshots. No external hosting required.", category: "system" },
   { id: "handleProtocol",   label: "Handle Protocol",        icon: "🔗", color: "#6366f1", description: "NEXUS Handle Protocol System — register web+npa://CreateAIDigital as a browser-native URL scheme, download a self-resolving portable card (host it free on GitHub Pages or Netlify for a professional URL), and use the permanent handle redirect. No domain purchase required.", category: "system" },
   { id: "platformReport",   label: "Platform Analytics Report", icon: "📊", color: "#6366f1", description: "Full internal platform analytics report — system health, percentage scores for all subsystems, engine inventory, product pipeline, revenue status, ad engine metrics, traction velocity, identity completeness, handle protocol status, and capacity projections. Real data only, zero simulated numbers.", category: "system" },
+  // ── Domain Gap Engines — 19 industry-equivalent internal engines ────────────
+  { id: "domainHub",         label: "Domain Hub",               icon: "🌐", color: "#6366f1", description: "Unified view of all 25 industry-equivalent domain engines — CRM, accounting, orders, support, content, BI/KPI, contracts, L&D, inventory, customer journey, value exchange, risk, property, workforce, performance, marketing automation, compliance, FP&A, and recurring revenue. 25/25 complete, zero gaps.", category: "business" },
+  { id: "domainCRM",         label: "Contact Intelligence",     icon: "👥", color: "#6366f1", description: "Internal CRM engine — manage contacts, pipeline stages, deal values, and relationship tracking. Replaces Salesforce and HubSpot. Internal name: Contact Intelligence Engine.", category: "business" },
+  { id: "domainLedger",      label: "Transaction Ledger",       icon: "📒", color: "#10b981", description: "Internal accounting engine — double-entry journal, balance sheet, trial balance, and cash flow tracking. Replaces QuickBooks and Xero. Internal name: Transaction Ledger Engine.", category: "business" },
+  { id: "domainOrders",      label: "Order Flow",               icon: "📦", color: "#f59e0b", description: "Internal order management engine — full order lifecycle from pending to delivered, revenue tracking, and status management. Replaces Shopify's order system. Internal name: Order Flow Engine.", category: "business" },
+  { id: "domainCases",       label: "Case Resolution",          icon: "🎫", color: "#ef4444", description: "Internal support engine — case creation, SLA tracking, priority management, and resolution workflows. Replaces Zendesk and Freshdesk. Internal name: Case Resolution Engine.", category: "business" },
+  { id: "domainContent",     label: "Content Pipeline",         icon: "📝", color: "#8b5cf6", description: "Internal content management engine — content calendar, publishing workflows, SEO scoring, and 10 content type templates. Replaces WordPress and Contentful. Internal name: Content Pipeline Engine.", category: "tools" },
+  { id: "domainKPI",         label: "Insight Engine",           icon: "📊", color: "#06b6d4", description: "Internal BI/KPI engine — live KPI dashboard, target vs actual tracking, trend direction, and category grouping. Replaces Tableau and Power BI. Internal name: Insight Engine.", category: "business" },
+  { id: "domainAgreements",  label: "Agreement Flow",           icon: "📄", color: "#6366f1", description: "Internal contract lifecycle engine — 10 agreement types, full draft-to-active workflow, auto-renewal tracking, and total contract value reporting. Replaces DocuSign and Ironclad. Internal name: Agreement Flow Engine.", category: "business" },
+  { id: "domainGrowthPath",  label: "Growth Path",              icon: "🎓", color: "#10b981", description: "Internal L&D engine — 5 pre-built learning tracks (AI Tools, Platform Ops, Monetization, Healthcare AI, Legal AI), enrollment tracking, and completion management. Replaces Workday Learning and Docebo. Internal name: Growth Path Engine.", category: "tools" },
+  { id: "domainAssets",      label: "Asset Flow",               icon: "🏭", color: "#f59e0b", description: "Internal inventory and supply chain engine — asset registry, stock tracking, automatic reorder queue, and supplier management. Replaces NetSuite and TradeGecko. Internal name: Asset Flow Engine.", category: "business" },
+  { id: "domainEngagement",  label: "Engagement Map",           icon: "🗺️", color: "#ec4899", description: "Internal customer journey engine — 7-stage touchpoint tracking (discovery through advocacy), funnel conversion rates, and multi-channel attribution. Replaces Salesforce Journey Builder. Internal name: Engagement Map Engine.", category: "business" },
+  { id: "domainValueExchange",label: "Value Exchange",          icon: "🏦", color: "#10b981", description: "Internal financial services engine — account management, internal transfers, balance tracking across platform-operating, reserve, escrow, and revenue-pool accounts. Internal name: Value Exchange Engine.", category: "business" },
+  { id: "domainRiskCoverage", label: "Risk Coverage",           icon: "🛡️", color: "#6366f1", description: "Internal risk assessment engine — factor-based risk scoring (0-100), coverage level classification, premium-equivalent calculation, and recommendation generation. Internal name: Risk Coverage Engine.", category: "business" },
+  { id: "domainPropertyFlow", label: "Property Flow",           icon: "🏠", color: "#f59e0b", description: "Internal real estate management engine — property listings, portfolio value tracking, status management, and deal pipeline. Internal name: Property Flow Engine.", category: "business" },
+  { id: "domainWorkforce",   label: "Workforce Pipeline",       icon: "🎯", color: "#8b5cf6", description: "Internal talent acquisition engine — 7-stage candidate pipeline (applied through hired), stage advancement, and pipeline analytics. Replaces Greenhouse and Lever. Internal name: Workforce Pipeline Engine.", category: "business" },
+  { id: "domainPerfReview",  label: "Performance Review",       icon: "⭐", color: "#f59e0b", description: "Internal performance management engine — weighted goal scoring, automatic rating labels (Exceptional through Needs Improvement), and approval workflow. Internal name: Performance Review Engine.", category: "business" },
+  { id: "domainCampaigns",   label: "Campaign Intelligence",    icon: "📡", color: "#ec4899", description: "Internal marketing automation engine — multi-type campaign registry, trigger/sequence configuration, and enrolled/opens/clicks/conversions tracking. Replaces Marketo and HubSpot Marketing. Internal name: Campaign Intelligence Engine.", category: "tools" },
+  { id: "domainRegulatory",  label: "Regulatory Map",           icon: "⚖️", color: "#6366f1", description: "Internal compliance management engine — regulatory status registry (GDPR, PCI-DSS, CCPA, HIPAA, SOC 2 pre-loaded), action-required tracking, and audit trail. Internal name: Regulatory Map Engine.", category: "system" },
+  { id: "domainFiscal",      label: "Fiscal Intelligence",      icon: "💹", color: "#10b981", description: "Internal FP&A engine — budget, forecast, and actuals planning with revenue, expenses, margin, and category breakdown. Replaces Adaptive Planning and Anaplan. Internal name: Fiscal Intelligence Engine.", category: "business" },
+  { id: "domainRecurring",   label: "Recurring Revenue",        icon: "🔄", color: "#6366f1", description: "Internal subscription billing engine — 4 pre-built plans ($97–$2,997/mo), MRR/ARR calculation, and billing cycle management (monthly/quarterly/annual). Replaces Chargebee and Recurly. Internal name: Recurring Revenue Engine.", category: "business" },
 ];
 
 export const ALL_APPS = DEFAULT_APPS;
@@ -559,6 +586,27 @@ const INTENT_MAP: { keywords: string[]; target: AppId }[] = [
   { keywords: ["self host", "self-host", "hosting", "internal hosting", "build frontend", "serve frontend", "createai url", "internal routing", "url map", "createai://", "proof token", "platform proof", "verification", "publish", "snapshot", "internal publish", "build", "compile", "dist", "frontend build", "watchdog", "service loop", "self contained", "no vercel", "no netlify", "no replit deploy", "single server", "one port", "port 8080", "serve everything"], target: "selfHost" },
   { keywords: ["handle protocol", "web+npa", "protocol handler", "register protocol", "npa protocol", "handle url", "professional url", "no domain", "free url", "portable card", "platform card", "redirect card", "handle redirect", "npa gateway", "protocol link", "browser protocol", "custom protocol", "web+ scheme", "protocol registration", "pwa protocol", "install app", "add to home screen", "github pages redirect", "free hosting card", "self resolving", "portable html", "url without domain"], target: "handleProtocol" },
   { keywords: ["platform report", "analytics report", "full report", "system report", "internal analytics", "platform analytics", "readiness score", "engine report", "capability score", "platform score", "subsystem scores", "product pipeline report", "revenue status", "ad engine report", "traction report", "identity completeness", "capacity projection", "platform metrics", "internal metrics", "all systems", "platform health", "complete report", "dashboard report", "analytics dashboard", "report card", "platform audit"], target: "platformReport" },
+  // ── Domain Gap Engines ────────────────────────────────────────────────────
+  { keywords: ["domain hub", "all domains", "25 domains", "domain engines", "domain coverage", "enterprise gaps", "industry gaps", "all 19", "domain overview", "platform domains", "domain complete", "zero gaps"], target: "domainHub" },
+  { keywords: ["crm", "contact intelligence", "contacts", "pipeline", "deals", "salesforce", "hubspot", "leads", "accounts", "opportunities", "contact management", "sales pipeline", "deal value", "relationship tracking"], target: "domainCRM" },
+  { keywords: ["ledger", "accounting", "transaction ledger", "journal", "balance sheet", "trial balance", "quickbooks", "xero", "bookkeeping", "double entry", "debit", "credit", "cash flow accounting", "financial records"], target: "domainLedger" },
+  { keywords: ["order flow", "orders", "order management", "fulfillment", "oms", "shopify orders", "order status", "order tracking", "purchase orders", "order lifecycle", "revenue tracking"], target: "domainOrders" },
+  { keywords: ["cases", "case resolution", "support", "helpdesk", "tickets", "zendesk", "freshdesk", "sla", "customer support", "support cases", "support tickets", "issue tracker", "ticket resolution"], target: "domainCases" },
+  { keywords: ["content pipeline", "cms", "content management", "blog", "editorial calendar", "content calendar", "wordpress", "contentful", "publish content", "content workflow", "blog posts", "content types"], target: "domainContent" },
+  { keywords: ["kpi", "insight engine", "bi", "business intelligence", "dashboard kpi", "tableau", "power bi", "key performance", "metrics dashboard", "kpi tracking", "data insights", "analytics kpi", "goals tracking"], target: "domainKPI" },
+  { keywords: ["agreements", "agreement flow", "contracts", "clm", "docusign", "ironclad", "contract lifecycle", "contract management", "saas agreement", "service agreement", "ndas", "msa", "contract value", "auto renew"], target: "domainAgreements" },
+  { keywords: ["growth path", "learning", "l&d", "learning development", "courses", "training", "workday learning", "docebo", "learning tracks", "ai tools training", "platform training", "learning management"], target: "domainGrowthPath" },
+  { keywords: ["asset flow", "inventory", "stock", "supply chain", "netsuite", "tradegecko", "assets", "asset registry", "reorder", "sku", "warehouse", "stock levels", "supplier"], target: "domainAssets" },
+  { keywords: ["engagement map", "customer journey", "journey builder", "touchpoints", "funnel", "conversion funnel", "discovery stage", "advocacy", "customer stages", "marketing funnel", "attribution"], target: "domainEngagement" },
+  { keywords: ["value exchange", "banking", "internal banking", "accounts", "transfers", "financial accounts", "platform banking", "escrow", "reserve account", "revenue pool"], target: "domainValueExchange" },
+  { keywords: ["risk coverage", "risk assessment", "insurance", "risk scoring", "coverage level", "underwriting", "risk factors", "risk management", "platform risk"], target: "domainRiskCoverage" },
+  { keywords: ["property flow", "real estate", "properties", "listings", "portfolio", "property management", "deals real estate", "property value"], target: "domainPropertyFlow" },
+  { keywords: ["workforce pipeline", "ats", "applicant tracking", "candidates", "recruiting", "hiring pipeline", "greenhouse", "lever", "talent acquisition", "job applicants", "candidate stages"], target: "domainWorkforce" },
+  { keywords: ["performance review", "perf review", "reviews", "goals", "performance goals", "okr", "performance management", "employee review", "rating", "performance score"], target: "domainPerfReview" },
+  { keywords: ["campaigns", "campaign intelligence", "marketing automation", "marketo", "hubspot marketing", "email campaigns", "drip", "nurture", "campaign management", "automated marketing"], target: "domainCampaigns" },
+  { keywords: ["regulatory", "compliance", "regulatory map", "gdpr", "pci", "ccpa", "hipaa", "soc 2", "compliance tracking", "regulatory status", "audit compliance", "compliance management"], target: "domainRegulatory" },
+  { keywords: ["fiscal intelligence", "fpa", "fp&a", "budget", "forecast", "actuals", "adaptive planning", "anaplan", "financial planning", "budgeting", "revenue planning", "expense planning"], target: "domainFiscal" },
+  { keywords: ["recurring revenue", "subscriptions", "subscription billing", "mrr", "arr", "chargebee", "recurly", "subscription management", "monthly recurring", "billing cycles", "annual revenue"], target: "domainRecurring" },
 ];
 
 function routeIntentFn(intent: string): AppId | null {
@@ -736,6 +784,27 @@ const APP_META: Record<AppId, { icon: string; label: string }> = {
   selfHost:          { icon: "🏠", label: "Self-Host Engine" },
   handleProtocol:    { icon: "🔗", label: "Handle Protocol" },
   platformReport:    { icon: "📊", label: "Platform Analytics Report" },
+  // ── Domain Gap Engines ────────────────────────────────────────────────────
+  domainHub:          { icon: "🌐", label: "Domain Hub" },
+  domainCRM:          { icon: "👥", label: "Contact Intelligence" },
+  domainLedger:       { icon: "📒", label: "Transaction Ledger" },
+  domainOrders:       { icon: "📦", label: "Order Flow" },
+  domainCases:        { icon: "🎫", label: "Case Resolution" },
+  domainContent:      { icon: "📝", label: "Content Pipeline" },
+  domainKPI:          { icon: "📊", label: "Insight Engine" },
+  domainAgreements:   { icon: "📄", label: "Agreement Flow" },
+  domainGrowthPath:   { icon: "🎓", label: "Growth Path" },
+  domainAssets:       { icon: "🏭", label: "Asset Flow" },
+  domainEngagement:   { icon: "🗺️", label: "Engagement Map" },
+  domainValueExchange:{ icon: "🏦", label: "Value Exchange" },
+  domainRiskCoverage: { icon: "🛡️", label: "Risk Coverage" },
+  domainPropertyFlow: { icon: "🏠", label: "Property Flow" },
+  domainWorkforce:    { icon: "🎯", label: "Workforce Pipeline" },
+  domainPerfReview:   { icon: "⭐", label: "Performance Review" },
+  domainCampaigns:    { icon: "📡", label: "Campaign Intelligence" },
+  domainRegulatory:   { icon: "⚖️", label: "Regulatory Map" },
+  domainFiscal:       { icon: "💹", label: "Fiscal Intelligence" },
+  domainRecurring:    { icon: "🔄", label: "Recurring Revenue" },
 
   // ── Enterprise Suite Apps ──────────────────────────────────────────────────
   zeroTrust: { icon: "🔐", label: "Zero Trust" },

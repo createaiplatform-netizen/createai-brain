@@ -3,6 +3,7 @@ import { orderFlow } from "../services/domainEngines.js";
 
 const router = Router();
 
+router.get("/",         (_req, res) => res.json({ ok: true, ...orderFlow.stats(), orders: orderFlow.list() }));
 router.get("/stats",    (_req, res) => res.json(orderFlow.stats()));
 router.get("/list",     (_req, res) => res.json({ ok: true, orders: orderFlow.list() }));
 router.get("/by-status",(_req, res) => res.json({ ok: true, byStatus: orderFlow.byStatus() }));

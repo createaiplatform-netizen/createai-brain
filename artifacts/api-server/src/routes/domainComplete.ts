@@ -97,6 +97,17 @@ router.get("/coverage", (_req: Request, res: Response) => {
 
 // ─── Individual domain engine stats (secondary domains) ──────────────────────
 
+// Aggregate index routes — fronted fetch() calls these root paths
+router.get("/value-exchange",              (_req, res) => res.json({ ok: true, ...valueExchange.stats(), balances: valueExchange.balances() }));
+router.get("/risk-coverage",               (_req, res) => res.json({ ok: true, ...riskCoverage.stats() }));
+router.get("/property-flow",               (_req, res) => res.json({ ok: true, ...propertyFlow.stats() }));
+router.get("/workforce-pipeline",          (_req, res) => res.json({ ok: true, ...workforcePipeline.stats(), candidates: [] }));
+router.get("/perf-review",                 (_req, res) => res.json({ ok: true, ...performanceReview.stats(), reviews: [] }));
+router.get("/campaign-intelligence",       (_req, res) => res.json({ ok: true, ...campaignIntelligence.stats(), campaigns: [] }));
+router.get("/regulatory-map",              (_req, res) => res.json({ ok: true, ...regulatoryMap.stats(), regulations: regulatoryMap.list() }));
+router.get("/fiscal-intelligence",         (_req, res) => res.json({ ok: true, ...fiscalIntelligence.stats() }));
+router.get("/recurring-revenue",           (_req, res) => res.json({ ok: true, ...recurringRevenue.stats(), plans: recurringRevenue.plans(), mrr: recurringRevenue.mrr(), arr: recurringRevenue.arr() }));
+
 router.get("/value-exchange/stats",        (_req, res) => res.json({ ok: true, ...valueExchange.stats() }));
 router.get("/value-exchange/balances",     (_req, res) => res.json({ ok: true, balances: valueExchange.balances() }));
 router.post("/value-exchange/transfer",    (req: Request, res: Response) => {

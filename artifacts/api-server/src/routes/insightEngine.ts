@@ -3,6 +3,7 @@ import { insightEngine } from "../services/domainEngines.js";
 
 const router = Router();
 
+router.get("/",          (_req, res) => res.json({ ok: true, ...insightEngine.stats(), ...insightEngine.dashboard() }));
 router.get("/stats",     (_req, res) => res.json(insightEngine.stats()));
 router.get("/dashboard", (_req, res) => res.json({ ok: true, ...insightEngine.dashboard() }));
 router.get("/kpis",      (_req, res) => res.json({ ok: true, kpis: insightEngine.dashboard().kpis }));

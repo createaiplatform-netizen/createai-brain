@@ -3,6 +3,7 @@ import { caseResolution } from "../services/domainEngines.js";
 
 const router = Router();
 
+router.get("/",         (_req, res) => res.json({ ok: true, ...caseResolution.stats(), cases: caseResolution.list() }));
 router.get("/stats",    (_req, res) => res.json(caseResolution.stats()));
 router.get("/list",     (req: Request, res: Response) => res.json({ ok: true, cases: caseResolution.list(String(req.query["status"] ?? "")) || caseResolution.list() }));
 router.get("/sla",      (_req, res) => res.json({ ok: true, ...caseResolution.slaStatus() }));
