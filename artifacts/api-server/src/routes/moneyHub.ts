@@ -450,6 +450,64 @@ router.get("/", (_req: Request, res: Response) => {
       <div id="customers-list"><div class="empty">Loading customers…</div></div>
     </div>
 
+    <!-- Stripe Access Portal -->
+    <div class="card" style="border:2px solid #ede9fe;">
+      <div class="card-hdr" style="background:linear-gradient(135deg,#f5f3ff,#ede9fe);border-bottom:1px solid #ddd6fe;">
+        <div>
+          <div class="card-title" style="color:#4c1d95;">Stripe Access Portal</div>
+          <div class="card-meta" style="margin-top:2px;">Direct links — no searching, no guessing</div>
+        </div>
+        <div style="background:${IS_PROD ? "#d1fae5" : "#fef3c7"};color:${IS_PROD ? "#065f46" : "#92400e"};border-radius:999px;padding:3px 10px;font-size:0.65rem;font-weight:800;text-transform:uppercase;letter-spacing:0.06em;white-space:nowrap;">
+          ${IS_PROD ? "⚡ Live Account" : "🧪 Test Account"}
+        </div>
+      </div>
+      <div style="padding:16px;display:flex;flex-direction:column;gap:10px;">
+
+        <!-- View Balance -->
+        <a href="${STRIPE_DASH}/balance/overview" target="_blank"
+           style="display:flex;align-items:center;gap:14px;background:#6366f1;color:white;text-decoration:none;border-radius:12px;padding:14px 18px;transition:all 0.15s;border:none;"
+           onmouseover="this.style.background='#4f46e5';this.style.transform='translateY(-1px)';this.style.boxShadow='0 4px 14px rgba(99,102,241,0.35)'"
+           onmouseout="this.style.background='#6366f1';this.style.transform='';this.style.boxShadow=''">
+          <div style="width:38px;height:38px;background:rgba(255,255,255,0.18);border-radius:9px;display:flex;align-items:center;justify-content:center;font-size:1.1rem;flex-shrink:0;">💰</div>
+          <div style="flex:1;">
+            <div style="font-size:0.9rem;font-weight:800;letter-spacing:-0.01em;">View Balance</div>
+            <div style="font-size:0.72rem;opacity:0.8;margin-top:1px;">Available · Pending · Payout overview</div>
+          </div>
+          <div style="font-size:0.8rem;opacity:0.7;">↗</div>
+        </a>
+
+        <!-- View Payouts -->
+        <a href="${STRIPE_DASH}/payouts" target="_blank"
+           style="display:flex;align-items:center;gap:14px;background:#f5f3ff;color:#4c1d95;text-decoration:none;border-radius:12px;padding:14px 18px;transition:all 0.15s;border:2px solid #ddd6fe;"
+           onmouseover="this.style.background='#ede9fe';this.style.borderColor='#a78bfa';this.style.transform='translateY(-1px)'"
+           onmouseout="this.style.background='#f5f3ff';this.style.borderColor='#ddd6fe';this.style.transform=''">
+          <div style="width:38px;height:38px;background:#ede9fe;border-radius:9px;display:flex;align-items:center;justify-content:center;font-size:1.1rem;flex-shrink:0;">🏦</div>
+          <div style="flex:1;">
+            <div style="font-size:0.9rem;font-weight:800;letter-spacing:-0.01em;">View Payouts</div>
+            <div style="font-size:0.72rem;color:#7c3aed;margin-top:1px;">History · Status · Bank transfers</div>
+          </div>
+          <div style="font-size:0.8rem;color:#a78bfa;">↗</div>
+        </a>
+
+        <!-- Recover Stripe Login -->
+        <a href="https://dashboard.stripe.com/forgot-password" target="_blank"
+           style="display:flex;align-items:center;gap:14px;background:#fafafa;color:#334155;text-decoration:none;border-radius:12px;padding:14px 18px;transition:all 0.15s;border:1.5px solid #e2e8f0;"
+           onmouseover="this.style.background='#f1f5f9';this.style.borderColor='#94a3b8';this.style.transform='translateY(-1px)'"
+           onmouseout="this.style.background='#fafafa';this.style.borderColor='#e2e8f0';this.style.transform=''">
+          <div style="width:38px;height:38px;background:#f1f5f9;border-radius:9px;display:flex;align-items:center;justify-content:center;font-size:1.1rem;flex-shrink:0;">🔑</div>
+          <div style="flex:1;">
+            <div style="font-size:0.9rem;font-weight:800;letter-spacing:-0.01em;">Recover Stripe Login</div>
+            <div style="font-size:0.72rem;color:#64748b;margin-top:1px;">Reset password · Regain account access</div>
+          </div>
+          <div style="font-size:0.8rem;color:#94a3b8;">↗</div>
+        </a>
+
+        <div style="font-size:0.7rem;color:#94a3b8;text-align:center;padding-top:4px;">
+          Opens stripe.com in a new tab · Your account: <strong style="color:#64748b;">admin@LakesideTrinity.com</strong>
+        </div>
+      </div>
+    </div>
+
     <!-- Quick Actions -->
     <div class="card">
       <div class="card-hdr">
