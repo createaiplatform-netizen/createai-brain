@@ -14,6 +14,7 @@
 import React, { useState, useEffect, useCallback } from "react";
 import { ModeSpectrumPanel }          from "@/components/ModeSpectrumPanel";
 import { CreationEngineStatusPanel }  from "@/components/CreationEngineStatusPanel";
+import { OmniBridgePanel }            from "@/components/OmniBridgePanel";
 
 // ─── Constants ────────────────────────────────────────────────────────────────
 
@@ -711,6 +712,9 @@ export default function UltimateTranscendDashboard() {
           ))}
         </div>
 
+        {/* ── Omni-Bridge Architecture (7-dimension unified integration layer) ── */}
+        <OmniBridgePanel />
+
         {/* ── Core Creation Engines (8 unified BASE-layer engines) ── */}
         <CreationEngineStatusPanel />
 
@@ -719,7 +723,7 @@ export default function UltimateTranscendDashboard() {
 
         {/* ── Footer ── */}
         <div style={{ marginTop: 32, textAlign: "center", fontSize: 12, color: SLATE }}>
-          CreateAI Brain · Ultimate Transcendent Stack · 11 engines · 8 creation engines unified · 25 modes active · Owner Authorization ACTIVE · Universal Bridge Engine active · Real data only
+          CreateAI Brain · Omni-Bridge Architecture active · 7 dimensions unified · 75+ systems · 11 engines · 8 creation engines · 25 modes · Owner Authorization ACTIVE · Real data only
         </div>
       </div>
     </div>

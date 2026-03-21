@@ -86,6 +86,7 @@ import payoutRouter             from "./payout.js";
 import bridgeRouter             from "./bridge.js";
 import modesRouter              from "./modes.js";
 import creationEnginesRouter    from "./creationEngines.js";
+import omniBridgeRouter         from "./omniBridge.js";
 
 const router: IRouter = Router();
 
@@ -221,5 +222,8 @@ router.use("/modes",              modesRouter);
 
 // ── Unified Creation Engine Registry (8 BASE-layer engines) ──────────────────
 router.use("/engines/creation",   creationEnginesRouter);
+
+// ── Omni-Bridge Architecture (7-dimension unified integration layer) ──────────
+router.use("/omni-bridge",        omniBridgeRouter);
 
 export default router;

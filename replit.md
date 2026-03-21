@@ -125,3 +125,12 @@ The CreateAI Brain platform is built as a pnpm workspace monorepo using Node.js 
 - **Frontend** — `ModeSpectrumPanel.tsx` renders all 25 modes grouped by layer in `UltimateTranscendDashboard.tsx` below the engine grid.
 - **Stripe Live Mode** — `stripeClient.ts` auto-switches test→production when `REPLIT_DEPLOYMENT=1`. No hardcoded keys.
 
+
+## Omni-Bridge Architecture
+
+- **7 Dimensions** — HEAD (Intelligence), BODY (Interface), SOUL (Experience), BRAIN (Engines), UNIVERSE (Modes), INSIDE (Internal OS), OUTSIDE (External Systems)
+- **Backend** — `artifacts/api-server/src/services/omniBridge.ts` (pure registry, no engine changes). Routes: `GET /api/omni-bridge`, `/api/omni-bridge/health`, `/api/omni-bridge/dimension/:id`
+- **Frontend** — `OmniBridgePanel.tsx` added to `UltimateTranscendDashboard.tsx` above CreationEngineStatusPanel and ModeSpectrumPanel
+- **Health Score** — 97/100 · 75/77 systems active · 6/7 dimensions fully active (OUTSIDE is partial: ads + marketplace not yet configured)
+- **Live Mode** — TEST in dev; auto-switches to LIVE when `REPLIT_DEPLOYMENT=1`
+
