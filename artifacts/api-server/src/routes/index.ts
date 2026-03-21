@@ -85,6 +85,7 @@ import ultraInteractionRouter  from "./ultraInteraction.js";
 import payoutRouter             from "./payout.js";
 import bridgeRouter             from "./bridge.js";
 import modesRouter              from "./modes.js";
+import creationEnginesRouter    from "./creationEngines.js";
 
 const router: IRouter = Router();
 
@@ -217,5 +218,8 @@ router.use("/bridge",             bridgeRouter);
 
 // ── Platform Mode Spectrum Registry (all 25 modes, 5 layers) ─────────────────
 router.use("/modes",              modesRouter);
+
+// ── Unified Creation Engine Registry (8 BASE-layer engines) ──────────────────
+router.use("/engines/creation",   creationEnginesRouter);
 
 export default router;
