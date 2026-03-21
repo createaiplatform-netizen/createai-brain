@@ -87,6 +87,7 @@ import bridgeRouter             from "./bridge.js";
 import modesRouter              from "./modes.js";
 import creationEnginesRouter    from "./creationEngines.js";
 import omniBridgeRouter         from "./omniBridge.js";
+import orchestratorRouter       from "./orchestrator.js";
 
 const router: IRouter = Router();
 
@@ -225,5 +226,8 @@ router.use("/engines/creation",   creationEnginesRouter);
 
 // ── Omni-Bridge Architecture (7-dimension unified integration layer) ──────────
 router.use("/omni-bridge",        omniBridgeRouter);
+
+// ── All-Systems Execution Orchestrator ───────────────────────────────────────
+router.use("/orchestrator",       orchestratorRouter);
 
 export default router;
