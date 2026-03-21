@@ -94,6 +94,7 @@ import semanticSEORouter          from "./semanticSEO.js";
 import semanticContentRouter      from "./semanticContent.js";
 import semanticPortalRouter       from "./semanticPortal.js";
 import semanticSubscriptionRouter from "./semanticSubscription.js";
+import semanticLaunchRouter       from "./semanticLaunch.js";
 import omniBridgeRouter         from "./omniBridge.js";
 import orchestratorRouter       from "./orchestrator.js";
 
@@ -275,5 +276,13 @@ router.use("/semantic/portal",           semanticPortalRouter);
 // GET /api/semantic/subscriptions/landing  — membership landing page (HTML)
 // GET /api/semantic/subscriptions/checkout/:priceId — Stripe subscription checkout
 router.use("/semantic/subscriptions",    semanticSubscriptionRouter);
+
+// Revenue Launch Console — fastest path from code-ready to money-in-bank
+// GET  /api/semantic/launch                — Admin console (HTML): share links, checklist, delivery form
+// GET  /api/semantic/launch/status         — Launch readiness (JSON)
+// POST /api/semantic/launch/deliver        — Manual delivery: email + productId → CRM + content links
+// GET  /api/semantic/launch/share/:id      — Clean shareable product card (OG-ready)
+// GET  /api/semantic/launch/quick-links    — All 100 checkout URLs (JSON)
+router.use("/semantic/launch",           semanticLaunchRouter);
 
 export default router;
