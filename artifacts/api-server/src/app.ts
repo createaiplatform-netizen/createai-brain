@@ -25,8 +25,11 @@ import semanticPortalRouter from "./routes/semanticPortal.js";
 import semanticSubRouter    from "./routes/semanticSubscription.js";
 import adminAuthRouter      from "./routes/adminAuth.js";
 import studioRouter         from "./routes/studio.js";
+import studioExtendedRouter from "./routes/studioExtended.js";
 import platformStatusRouter from "./routes/platformStatus.js";
 import pulseRouter          from "./routes/pulse.js";
+import opsRouter            from "./routes/ops.js";
+import portalsExtendedRouter from "./routes/portalsExtended.js";
 
 export { chatLimiter, heavyLimiter, editLimiter } from "./middlewares/rateLimiters";
 
@@ -168,7 +171,11 @@ Sitemap: ${BASE}/sitemap.xml
 app.use("/admin", adminAuthRouter);
 
 // ── AI Studio (protected by admin auth) ──────────────────────────────────────
-app.use("/studio", adminAuth, studioRouter);
+app.use("/studio", adminAuth, studioExtendedRouter); // Invention Layer (11 new tools)
+app.use("/studio", adminAuth, studioRouter);         // Original 10 tools
+
+// ── Operations Hub (protected by admin auth) ──────────────────────────────────
+app.use("/ops", adminAuth, opsRouter);
 
 // ── Platform Status (protected by admin auth) ─────────────────────────────────
 app.use("/status", adminAuth, platformStatusRouter);
@@ -221,7 +228,8 @@ app.use("/bundle",    bundleOSRouter);
 app.use("/valuation", valuationRouter);
 app.use("/vault",     moneyHubRouter);
 app.use("/launch",    semanticLaunchRouter);
-app.use("/portal",    semanticPortalRouter);
+app.use("/portal",    portalsExtendedRouter);  // Extended portals (book, donor, student, client, review, consult)
+app.use("/portal",    semanticPortalRouter);   // Existing portal (/me, /lookup)
 app.use("/join",      semanticSubRouter);
 app.use("/",          semanticStoreRouter);
 app.use("/",          platformHubRouter);

@@ -229,6 +229,18 @@ router.post("/checkout-complete", async (req: Request, res: Response) => {
       createdAt: new Date().toISOString(),
     }).catch(e => console.error("[SemanticWebhook] DB persist failed:", e instanceof Error ? e.message : String(e)));
 
+    // ── Auto-award loyalty points (1 point per $1 spent) ───────────────────
+    if (priceCents > 0 && email) {
+      const pointsToAward = Math.floor(priceCents / 100);
+      try {
+        const { awardLoyaltyPoints } = await import("../lib/db.js");
+        await awardLoyaltyPoints(email, pointsToAward, "purchase", sessionId, "Auto-awarded: " + productTitle);
+        console.log("[SemanticWebhook] Loyalty points awarded:", pointsToAward, "pts to", email);
+      } catch (loyErr) {
+        console.warn("[SemanticWebhook] Loyalty award failed (non-fatal):", String(loyErr));
+      }
+    }
+
     // ── Affiliate conversion attribution ───────────────────────────────────
     const refCode = session.metadata?.["refCode"];
     if (refCode) {

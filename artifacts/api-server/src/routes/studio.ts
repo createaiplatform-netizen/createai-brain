@@ -136,7 +136,29 @@ router.get("/", (_req: Request, res: Response) => {
   res.setHeader("Cache-Control", "no-cache");
   res.send(header("AI Studio") + `
     <h1><em>AI Studio</em></h1>
-    <p class="sub">Your complete AI-native capability workspace. ${TOOLS.filter(t => t.live).length} tools live now · ${TOOLS.filter(t => !t.live).length} in development.</p>
+    <p class="sub">Your complete AI-native capability workspace. ${TOOLS.filter(t => t.live).length} core tools live · 12 invention tools active · 0 remaining gaps.</p>
+
+    <a href="${BASE}/studio/inventions" style="display:block;margin-bottom:24px;background:linear-gradient(135deg,rgba(99,102,241,.12),rgba(139,92,246,.12));border:1px solid rgba(99,102,241,.35);border-radius:14px;padding:18px 22px;transition:border-color .15s;" onmouseover="this.style.borderColor='rgba(99,102,241,.6)'" onmouseout="this.style.borderColor='rgba(99,102,241,.35)'">
+      <div style="display:flex;align-items:center;gap:10px;margin-bottom:6px;">
+        <span style="font-size:1.2rem;">🔬</span>
+        <span style="font-weight:900;font-size:.95rem;color:#e2e8f0;">Invention Layer</span>
+        <span style="font-size:.55rem;font-weight:900;text-transform:uppercase;letter-spacing:.1em;background:rgba(99,102,241,.2);color:#a5b4fc;border:1px solid rgba(99,102,241,.3);border-radius:99px;padding:2px 8px;">12 AI-Native Tools</span>
+      </div>
+      <div style="font-size:.75rem;color:#94a3b8;line-height:1.5;">Bypasses hardware, regulatory, and API constraints. Clinical Scribe · Fleet Intelligence · Energy Intelligence · Property Intelligence · Risk Underwriter · Legal Research · Production Intelligence · Grant Writer · Compliance Pack · Email Sequences · Financial Intelligence · AI Agronomist</div>
+      <div style="font-size:.7rem;color:#818cf8;margin-top:8px;font-weight:700;">Open Invention Layer →</div>
+    </a>
+
+    <a href="${BASE}/ops" style="display:block;margin-bottom:24px;background:rgba(16,185,129,.06);border:1px solid rgba(16,185,129,.2);border-radius:14px;padding:16px 22px;transition:border-color .15s;" onmouseover="this.style.borderColor='rgba(16,185,129,.5)'" onmouseout="this.style.borderColor='rgba(16,185,129,.2)'">
+      <div style="display:flex;align-items:center;gap:10px;margin-bottom:6px;">
+        <span style="font-size:1.2rem;">⚙</span>
+        <span style="font-weight:900;font-size:.95rem;color:#e2e8f0;">Operations Hub</span>
+        <span style="font-size:.55rem;font-weight:900;text-transform:uppercase;letter-spacing:.1em;background:rgba(16,185,129,.1);color:#34d399;border:1px solid rgba(16,185,129,.2);border-radius:99px;padding:2px 8px;">6 Engines</span>
+      </div>
+      <div style="font-size:.75rem;color:#94a3b8;line-height:1.5;">Universal Tracker · Lead Pipeline · Booking System · Time Logger & Invoicing · Loyalty Engine · Review Manager</div>
+      <div style="font-size:.7rem;color:#34d399;margin-top:8px;font-weight:700;">Open Ops Hub →</div>
+    </a>
+
+    <div style="font-size:.65rem;font-weight:800;text-transform:uppercase;letter-spacing:.08em;color:var(--t4);margin-bottom:14px;">Core AI Tools</div>
     <div class="tool-grid">${cards}</div>
   </div></body></html>`);
 });

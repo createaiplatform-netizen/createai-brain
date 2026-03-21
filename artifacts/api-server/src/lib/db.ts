@@ -15,8 +15,6 @@ export function getSql(): ReturnType<typeof postgres> {
   if (!_sql) {
     const url = process.env["DATABASE_URL"];
     if (!url) throw new Error("DATABASE_URL environment variable is not set");
-    // Replit's internal PostgreSQL runs on the same network — no TLS needed.
-    // Strip sslmode from the URL so the driver doesn't try to negotiate TLS.
     const cleanUrl = url.replace(/[?&]sslmode=[^&]*/g, "").replace(/[?&]ssl=[^&]*/g, "");
     _sql = postgres(cleanUrl, {
       max: 10,
@@ -29,7 +27,6 @@ export function getSql(): ReturnType<typeof postgres> {
 }
 
 // ── Schema bootstrap ─────────────────────────────────────────────────────────
-// Called once at startup. All tables use IF NOT EXISTS — safe to re-run.
 
 export async function bootstrapSchema(): Promise<void> {
   const sql = getSql();
@@ -139,13 +136,130 @@ export async function bootstrapSchema(): Promise<void> {
       )
     `;
 
-    // ── Indexes for query performance ─────────────────────────────────────────
+    // ── NEW TABLES FOR 200% INDUSTRY UPGRADE ─────────────────────────────────
+
+    await sql`
+      CREATE TABLE IF NOT EXISTS platform_trackers (
+        id           TEXT PRIMARY KEY,
+        type         TEXT NOT NULL DEFAULT 'project',
+        title        TEXT NOT NULL,
+        description  TEXT NOT NULL DEFAULT '',
+        owner_email  TEXT NOT NULL DEFAULT '',
+        status       TEXT NOT NULL DEFAULT 'active',
+        priority     TEXT NOT NULL DEFAULT 'medium',
+        due_date     DATE,
+        metadata     JSONB NOT NULL DEFAULT '{}',
+        created_at   TIMESTAMPTZ NOT NULL DEFAULT NOW(),
+        updated_at   TIMESTAMPTZ NOT NULL DEFAULT NOW()
+      )
+    `;
+
+    await sql`
+      CREATE TABLE IF NOT EXISTS platform_tracker_items (
+        id           TEXT PRIMARY KEY,
+        tracker_id   TEXT NOT NULL,
+        title        TEXT NOT NULL,
+        description  TEXT NOT NULL DEFAULT '',
+        status       TEXT NOT NULL DEFAULT 'open',
+        assignee     TEXT NOT NULL DEFAULT '',
+        due_date     DATE,
+        notes        TEXT NOT NULL DEFAULT '',
+        completed_at TIMESTAMPTZ,
+        created_at   TIMESTAMPTZ NOT NULL DEFAULT NOW()
+      )
+    `;
+
+    await sql`
+      CREATE TABLE IF NOT EXISTS platform_leads (
+        id             TEXT PRIMARY KEY,
+        name           TEXT NOT NULL,
+        email          TEXT NOT NULL DEFAULT '',
+        phone          TEXT NOT NULL DEFAULT '',
+        company        TEXT NOT NULL DEFAULT '',
+        source         TEXT NOT NULL DEFAULT 'manual',
+        stage          TEXT NOT NULL DEFAULT 'new',
+        value_cents    INTEGER NOT NULL DEFAULT 0,
+        notes          TEXT NOT NULL DEFAULT '',
+        follow_up_date DATE,
+        assigned_to    TEXT NOT NULL DEFAULT '',
+        ai_score       INTEGER,
+        ai_summary     TEXT NOT NULL DEFAULT '',
+        created_at     TIMESTAMPTZ NOT NULL DEFAULT NOW(),
+        updated_at     TIMESTAMPTZ NOT NULL DEFAULT NOW()
+      )
+    `;
+
+    await sql`
+      CREATE TABLE IF NOT EXISTS platform_appointments (
+        id             TEXT PRIMARY KEY,
+        type           TEXT NOT NULL DEFAULT 'consultation',
+        name           TEXT NOT NULL,
+        email          TEXT NOT NULL,
+        phone          TEXT NOT NULL DEFAULT '',
+        preferred_date TEXT NOT NULL DEFAULT '',
+        notes          TEXT NOT NULL DEFAULT '',
+        status         TEXT NOT NULL DEFAULT 'pending',
+        confirmed_at   TIMESTAMPTZ,
+        created_at     TIMESTAMPTZ NOT NULL DEFAULT NOW()
+      )
+    `;
+
+    await sql`
+      CREATE TABLE IF NOT EXISTS platform_time_entries (
+        id             TEXT PRIMARY KEY,
+        professional_email TEXT NOT NULL DEFAULT '',
+        project        TEXT NOT NULL DEFAULT '',
+        client_name    TEXT NOT NULL DEFAULT '',
+        description    TEXT NOT NULL,
+        hours_decimal  NUMERIC(6,2) NOT NULL DEFAULT 0,
+        rate_cents     INTEGER NOT NULL DEFAULT 0,
+        work_date      DATE NOT NULL DEFAULT CURRENT_DATE,
+        billable       BOOLEAN NOT NULL DEFAULT TRUE,
+        invoiced       BOOLEAN NOT NULL DEFAULT FALSE,
+        created_at     TIMESTAMPTZ NOT NULL DEFAULT NOW()
+      )
+    `;
+
+    await sql`
+      CREATE TABLE IF NOT EXISTS platform_loyalty_ledger (
+        id               TEXT PRIMARY KEY,
+        customer_email   TEXT NOT NULL,
+        points           INTEGER NOT NULL DEFAULT 0,
+        transaction_type TEXT NOT NULL DEFAULT 'earn',
+        reference_id     TEXT NOT NULL DEFAULT '',
+        notes            TEXT NOT NULL DEFAULT '',
+        created_at       TIMESTAMPTZ NOT NULL DEFAULT NOW()
+      )
+    `;
+
+    await sql`
+      CREATE TABLE IF NOT EXISTS platform_reviews (
+        id             TEXT PRIMARY KEY,
+        product_id     TEXT NOT NULL,
+        product_title  TEXT NOT NULL DEFAULT '',
+        customer_email TEXT NOT NULL,
+        customer_name  TEXT NOT NULL DEFAULT '',
+        rating         INTEGER NOT NULL DEFAULT 5,
+        review_text    TEXT NOT NULL DEFAULT '',
+        status         TEXT NOT NULL DEFAULT 'pending',
+        created_at     TIMESTAMPTZ NOT NULL DEFAULT NOW()
+      )
+    `;
+
+    // ── Indexes ───────────────────────────────────────────────────────────────
     await sql`CREATE INDEX IF NOT EXISTS idx_customers_email      ON platform_customers(LOWER(email))`;
     await sql`CREATE INDEX IF NOT EXISTS idx_customers_created    ON platform_customers(created_at DESC)`;
     await sql`CREATE INDEX IF NOT EXISTS idx_customers_stripe_cid ON platform_customers(stripe_customer_id)`;
     await sql`CREATE INDEX IF NOT EXISTS idx_webhook_events_type  ON platform_webhook_events(event_type)`;
     await sql`CREATE INDEX IF NOT EXISTS idx_ai_gen_tool          ON platform_ai_generations(tool, created_at DESC)`;
     await sql`CREATE INDEX IF NOT EXISTS idx_form_subs_form_id    ON platform_form_submissions(form_id, created_at DESC)`;
+    await sql`CREATE INDEX IF NOT EXISTS idx_trackers_type_status ON platform_trackers(type, status)`;
+    await sql`CREATE INDEX IF NOT EXISTS idx_tracker_items_tid    ON platform_tracker_items(tracker_id, created_at DESC)`;
+    await sql`CREATE INDEX IF NOT EXISTS idx_leads_stage          ON platform_leads(stage, created_at DESC)`;
+    await sql`CREATE INDEX IF NOT EXISTS idx_appointments_status  ON platform_appointments(status, created_at DESC)`;
+    await sql`CREATE INDEX IF NOT EXISTS idx_time_entries_project ON platform_time_entries(project, work_date DESC)`;
+    await sql`CREATE INDEX IF NOT EXISTS idx_loyalty_email        ON platform_loyalty_ledger(customer_email, created_at DESC)`;
+    await sql`CREATE INDEX IF NOT EXISTS idx_reviews_product      ON platform_reviews(product_id, status)`;
 
     console.log("[DB] Schema bootstrap complete");
   } catch (err) {
@@ -222,38 +336,36 @@ export async function getCustomerStats() {
     ORDER BY cnt DESC LIMIT 5
   `;
   return {
-    totalCustomers:   stats?.["total_customers"]  ?? 0,
-    uniqueEmails:     stats?.["unique_emails"]     ?? 0,
-    totalRevenueCents: stats?.["total_revenue"]   ?? 0,
-    averageOrderCents: stats?.["avg_order"]        ?? 0,
-    topProducts:      topProducts.map(r => ({ productId: String(r["product_id"]), productTitle: String(r["product_title"]), count: Number(r["cnt"]) })),
-    topFormats:       topFormats.map(r => ({ format: String(r["product_format"]), count: Number(r["cnt"]) })),
+    totalCustomers:    stats?.["total_customers"]  ?? 0,
+    uniqueEmails:      stats?.["unique_emails"]     ?? 0,
+    totalRevenueCents: stats?.["total_revenue"]    ?? 0,
+    averageOrderCents: stats?.["avg_order"]         ?? 0,
+    topProducts:       topProducts.map(r => ({ productId: String(r["product_id"]), productTitle: String(r["product_title"]), count: Number(r["cnt"]) })),
+    topFormats:        topFormats.map(r => ({ format: String(r["product_format"]), count: Number(r["cnt"]) })),
   };
 }
 
 function mapCustomer(r: Record<string, unknown>): DBCustomer {
   return {
-    id:                 String(r["id"] ?? ""),
-    email:              String(r["email"] ?? ""),
-    name:               String(r["name"] ?? ""),
-    stripeSessionId:    String(r["stripe_session_id"] ?? ""),
+    id:                  String(r["id"] ?? ""),
+    email:               String(r["email"] ?? ""),
+    name:                String(r["name"] ?? ""),
+    stripeSessionId:     String(r["stripe_session_id"] ?? ""),
     stripePaymentIntent: String(r["stripe_payment_intent"] ?? ""),
-    stripeCustomerId:   String(r["stripe_customer_id"] ?? ""),
-    productId:          String(r["product_id"] ?? ""),
-    productTitle:       String(r["product_title"] ?? ""),
-    productFormat:      String(r["product_format"] ?? ""),
-    priceCents:         Number(r["price_cents"] ?? 0),
-    currency:           String(r["currency"] ?? "usd"),
-    channel:            String(r["channel"] ?? ""),
-    isSubscription:     Boolean(r["is_subscription"]),
-    subscriptionTier:   r["subscription_tier"] ? String(r["subscription_tier"]) : undefined,
-    deliveryEmailSent:  Boolean(r["delivery_email_sent"]),
-    deliverySentAt:     r["delivery_sent_at"] ? String(r["delivery_sent_at"]) : undefined,
-    createdAt:          String(r["created_at"] ?? ""),
+    stripeCustomerId:    String(r["stripe_customer_id"] ?? ""),
+    productId:           String(r["product_id"] ?? ""),
+    productTitle:        String(r["product_title"] ?? ""),
+    productFormat:       String(r["product_format"] ?? ""),
+    priceCents:          Number(r["price_cents"] ?? 0),
+    currency:            String(r["currency"] ?? "usd"),
+    channel:             String(r["channel"] ?? ""),
+    isSubscription:      Boolean(r["is_subscription"]),
+    subscriptionTier:    r["subscription_tier"] ? String(r["subscription_tier"]) : undefined,
+    deliveryEmailSent:   Boolean(r["delivery_email_sent"]),
+    deliverySentAt:      r["delivery_sent_at"] ? String(r["delivery_sent_at"]) : undefined,
+    createdAt:           String(r["created_at"] ?? ""),
   };
 }
-
-// ── Webhook event deduplication ───────────────────────────────────────────────
 
 export async function markWebhookProcessed(eventId: string, eventType: string, payload: unknown): Promise<boolean> {
   const sql = getSql();
@@ -265,8 +377,6 @@ export async function markWebhookProcessed(eventId: string, eventType: string, p
   `;
   return !!row;
 }
-
-// ── Stripe price registry ─────────────────────────────────────────────────────
 
 export async function saveStripePrice(tier: string, priceId: string, productId: string, amount: number): Promise<void> {
   const sql = getSql();
@@ -381,4 +491,222 @@ export async function getRecentWebhookEvents(limit = 10): Promise<Array<{ id: st
     processedAt: r["processed_at"] ? String(r["processed_at"]) : null,
     createdAt:   String(r["created_at"] ?? ""),
   }));
+}
+
+// ── Tracker operations ────────────────────────────────────────────────────────
+
+export async function createTracker(type: string, title: string, description: string, ownerEmail: string, priority: string, dueDate?: string): Promise<string> {
+  const sql = getSql();
+  const id = "trk_" + crypto.randomUUID().replace(/-/g, "").slice(0, 16);
+  await sql`
+    INSERT INTO platform_trackers (id, type, title, description, owner_email, priority, due_date)
+    VALUES (${id}, ${type}, ${title}, ${description}, ${ownerEmail}, ${priority}, ${dueDate ?? null})
+  `;
+  return id;
+}
+
+export async function getTrackers(type?: string): Promise<Array<Record<string, unknown>>> {
+  const sql = getSql();
+  const rows = type
+    ? await sql`SELECT * FROM platform_trackers WHERE type = ${type} ORDER BY created_at DESC LIMIT 200`
+    : await sql`SELECT * FROM platform_trackers ORDER BY created_at DESC LIMIT 200`;
+  return rows as unknown as Array<Record<string, unknown>>;
+}
+
+export async function getTrackerById(id: string): Promise<Record<string, unknown> | null> {
+  const sql = getSql();
+  const [row] = await sql`SELECT * FROM platform_trackers WHERE id = ${id}`;
+  return row ?? null;
+}
+
+export async function updateTrackerStatus(id: string, status: string): Promise<void> {
+  const sql = getSql();
+  await sql`UPDATE platform_trackers SET status = ${status}, updated_at = NOW() WHERE id = ${id}`;
+}
+
+export async function addTrackerItem(trackerId: string, title: string, description: string, assignee: string, dueDate?: string): Promise<string> {
+  const sql = getSql();
+  const id = "ti_" + crypto.randomUUID().replace(/-/g, "").slice(0, 16);
+  await sql`
+    INSERT INTO platform_tracker_items (id, tracker_id, title, description, assignee, due_date)
+    VALUES (${id}, ${trackerId}, ${title}, ${description}, ${assignee}, ${dueDate ?? null})
+  `;
+  return id;
+}
+
+export async function getTrackerItems(trackerId: string): Promise<Array<Record<string, unknown>>> {
+  const sql = getSql();
+  const rows = await sql`SELECT * FROM platform_tracker_items WHERE tracker_id = ${trackerId} ORDER BY created_at ASC`;
+  return rows as unknown as Array<Record<string, unknown>>;
+}
+
+export async function updateTrackerItemStatus(itemId: string, status: string): Promise<void> {
+  const sql = getSql();
+  const completedAt = status === "done" ? "NOW()" : null;
+  if (status === "done") {
+    await sql`UPDATE platform_tracker_items SET status = ${status}, completed_at = NOW() WHERE id = ${itemId}`;
+  } else {
+    await sql`UPDATE platform_tracker_items SET status = ${status}, completed_at = NULL WHERE id = ${itemId}`;
+  }
+}
+
+// ── Lead operations ───────────────────────────────────────────────────────────
+
+export async function createLead(data: { name: string; email: string; phone: string; company: string; source: string; valueCents: number; notes: string; followUpDate?: string }): Promise<string> {
+  const sql = getSql();
+  const id = "ld_" + crypto.randomUUID().replace(/-/g, "").slice(0, 16);
+  await sql`
+    INSERT INTO platform_leads (id, name, email, phone, company, source, value_cents, notes, follow_up_date)
+    VALUES (${id}, ${data.name}, ${data.email}, ${data.phone}, ${data.company}, ${data.source}, ${data.valueCents}, ${data.notes}, ${data.followUpDate ?? null})
+  `;
+  return id;
+}
+
+export async function getLeads(stage?: string): Promise<Array<Record<string, unknown>>> {
+  const sql = getSql();
+  const rows = stage
+    ? await sql`SELECT * FROM platform_leads WHERE stage = ${stage} ORDER BY created_at DESC LIMIT 200`
+    : await sql`SELECT * FROM platform_leads ORDER BY created_at DESC LIMIT 200`;
+  return rows as unknown as Array<Record<string, unknown>>;
+}
+
+export async function updateLeadStage(id: string, stage: string): Promise<void> {
+  const sql = getSql();
+  await sql`UPDATE platform_leads SET stage = ${stage}, updated_at = NOW() WHERE id = ${id}`;
+}
+
+export async function updateLeadAiScore(id: string, score: number, summary: string): Promise<void> {
+  const sql = getSql();
+  await sql`UPDATE platform_leads SET ai_score = ${score}, ai_summary = ${summary}, updated_at = NOW() WHERE id = ${id}`;
+}
+
+// ── Appointment operations ────────────────────────────────────────────────────
+
+export async function createAppointment(data: { type: string; name: string; email: string; phone: string; preferredDate: string; notes: string }): Promise<string> {
+  const sql = getSql();
+  const id = "apt_" + crypto.randomUUID().replace(/-/g, "").slice(0, 16);
+  await sql`
+    INSERT INTO platform_appointments (id, type, name, email, phone, preferred_date, notes)
+    VALUES (${id}, ${data.type}, ${data.name}, ${data.email}, ${data.phone}, ${data.preferredDate}, ${data.notes})
+  `;
+  return id;
+}
+
+export async function getAppointments(status?: string): Promise<Array<Record<string, unknown>>> {
+  const sql = getSql();
+  const rows = status
+    ? await sql`SELECT * FROM platform_appointments WHERE status = ${status} ORDER BY created_at DESC LIMIT 200`
+    : await sql`SELECT * FROM platform_appointments ORDER BY created_at DESC LIMIT 200`;
+  return rows as unknown as Array<Record<string, unknown>>;
+}
+
+export async function updateAppointmentStatus(id: string, status: string): Promise<void> {
+  const sql = getSql();
+  if (status === "confirmed") {
+    await sql`UPDATE platform_appointments SET status = ${status}, confirmed_at = NOW() WHERE id = ${id}`;
+  } else {
+    await sql`UPDATE platform_appointments SET status = ${status} WHERE id = ${id}`;
+  }
+}
+
+// ── Time entry operations ─────────────────────────────────────────────────────
+
+export async function logTimeEntry(data: { professionalEmail: string; project: string; clientName: string; description: string; hoursDecimal: number; rateCents: number; workDate: string; billable: boolean }): Promise<string> {
+  const sql = getSql();
+  const id = "te_" + crypto.randomUUID().replace(/-/g, "").slice(0, 16);
+  await sql`
+    INSERT INTO platform_time_entries (id, professional_email, project, client_name, description, hours_decimal, rate_cents, work_date, billable)
+    VALUES (${id}, ${data.professionalEmail}, ${data.project}, ${data.clientName}, ${data.description}, ${data.hoursDecimal}, ${data.rateCents}, ${data.workDate}, ${data.billable})
+  `;
+  return id;
+}
+
+export async function getTimeEntries(project?: string): Promise<Array<Record<string, unknown>>> {
+  const sql = getSql();
+  const rows = project
+    ? await sql`SELECT * FROM platform_time_entries WHERE project = ${project} ORDER BY work_date DESC LIMIT 200`
+    : await sql`SELECT * FROM platform_time_entries ORDER BY work_date DESC LIMIT 200`;
+  return rows as unknown as Array<Record<string, unknown>>;
+}
+
+export async function getTimeSummary(): Promise<{ totalHours: number; billableHours: number; totalValueCents: number }> {
+  const sql = getSql();
+  const [row] = await sql`
+    SELECT
+      COALESCE(SUM(hours_decimal), 0)::float                                        AS total_hours,
+      COALESCE(SUM(CASE WHEN billable THEN hours_decimal ELSE 0 END), 0)::float     AS billable_hours,
+      COALESCE(SUM(CASE WHEN billable THEN hours_decimal * rate_cents ELSE 0 END), 0)::int AS total_value
+    FROM platform_time_entries
+  `;
+  return {
+    totalHours:      Number(row?.["total_hours"] ?? 0),
+    billableHours:   Number(row?.["billable_hours"] ?? 0),
+    totalValueCents: Number(row?.["total_value"] ?? 0),
+  };
+}
+
+// ── Loyalty operations ────────────────────────────────────────────────────────
+
+export async function awardLoyaltyPoints(email: string, points: number, transactionType: string, referenceId: string, notes: string): Promise<void> {
+  const sql = getSql();
+  const id = "loy_" + crypto.randomUUID().replace(/-/g, "").slice(0, 16);
+  await sql`
+    INSERT INTO platform_loyalty_ledger (id, customer_email, points, transaction_type, reference_id, notes)
+    VALUES (${id}, ${email.toLowerCase()}, ${points}, ${transactionType}, ${referenceId}, ${notes})
+  `.catch(e => console.warn("[DB] awardLoyaltyPoints failed:", e instanceof Error ? e.message : String(e)));
+}
+
+export async function getLoyaltyBalance(email: string): Promise<number> {
+  const sql = getSql();
+  const [row] = await sql`
+    SELECT COALESCE(SUM(CASE WHEN transaction_type = 'redeem' THEN -points ELSE points END), 0)::int AS balance
+    FROM platform_loyalty_ledger WHERE LOWER(customer_email) = LOWER(${email})
+  `;
+  return Number(row?.["balance"] ?? 0);
+}
+
+export async function getLoyaltyLeaderboard(limit = 20): Promise<Array<{ email: string; balance: number }>> {
+  const sql = getSql();
+  const rows = await sql`
+    SELECT customer_email AS email,
+      SUM(CASE WHEN transaction_type = 'redeem' THEN -points ELSE points END)::int AS balance
+    FROM platform_loyalty_ledger
+    GROUP BY customer_email
+    ORDER BY balance DESC
+    LIMIT ${limit}
+  `;
+  return rows.map(r => ({ email: String(r["email"] ?? ""), balance: Number(r["balance"] ?? 0) }));
+}
+
+// ── Review operations ─────────────────────────────────────────────────────────
+
+export async function submitReview(data: { productId: string; productTitle: string; customerEmail: string; customerName: string; rating: number; reviewText: string }): Promise<string> {
+  const sql = getSql();
+  const id = "rev_" + crypto.randomUUID().replace(/-/g, "").slice(0, 16);
+  await sql`
+    INSERT INTO platform_reviews (id, product_id, product_title, customer_email, customer_name, rating, review_text)
+    VALUES (${id}, ${data.productId}, ${data.productTitle}, ${data.customerEmail}, ${data.customerName}, ${data.rating}, ${data.reviewText})
+  `;
+  return id;
+}
+
+export async function getReviews(status?: string): Promise<Array<Record<string, unknown>>> {
+  const sql = getSql();
+  const rows = status
+    ? await sql`SELECT * FROM platform_reviews WHERE status = ${status} ORDER BY created_at DESC LIMIT 200`
+    : await sql`SELECT * FROM platform_reviews ORDER BY created_at DESC LIMIT 200`;
+  return rows as unknown as Array<Record<string, unknown>>;
+}
+
+export async function updateReviewStatus(id: string, status: string): Promise<void> {
+  const sql = getSql();
+  await sql`UPDATE platform_reviews SET status = ${status} WHERE id = ${id}`;
+}
+
+export async function getApprovedReviews(productId?: string): Promise<Array<Record<string, unknown>>> {
+  const sql = getSql();
+  const rows = productId
+    ? await sql`SELECT * FROM platform_reviews WHERE status = 'approved' AND product_id = ${productId} ORDER BY created_at DESC LIMIT 20`
+    : await sql`SELECT * FROM platform_reviews WHERE status = 'approved' ORDER BY created_at DESC LIMIT 50`;
+  return rows as unknown as Array<Record<string, unknown>>;
 }
