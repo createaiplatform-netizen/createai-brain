@@ -533,11 +533,13 @@ router.get("/", (req: Request, res: Response) => {
             </div>`;
           }).join("")}
         </div>
-        <div id="pf-pass" style="display:none;"><input class="auth-inp" type="password" id="pf-pass-val" placeholder="Passphrase"></div>
-        <div id="pf-email" style="display:none;"><input class="auth-inp" type="email"    id="pf-email-val" placeholder="your@email.com"></div>
-        <div id="pf-vis" style="font-size:.68rem;color:var(--t4);margin-bottom:8px;">Auto-issued — no proof required. Public surfaces only.</div>
-        <button class="btn-pres" id="pres-btn" onclick="doEstablish()">Establish Visitor Presence</button>
-        <div id="pres-msg"></div>
+        <form onsubmit="event.preventDefault();doEstablish();" autocomplete="on">
+          <div id="pf-pass" style="display:none;"><input class="auth-inp" type="password" id="pf-pass-val" name="passphrase" autocomplete="current-password" placeholder="Passphrase"></div>
+          <div id="pf-email" style="display:none;"><input class="auth-inp" type="email" id="pf-email-val" name="email" autocomplete="email" placeholder="your@email.com"></div>
+          <div id="pf-vis" style="font-size:.68rem;color:var(--t4);margin-bottom:8px;">Auto-issued — no proof required. Public surfaces only.</div>
+          <button class="btn-pres" id="pres-btn" type="submit">Establish Visitor Presence</button>
+          <div id="pres-msg"></div>
+        </form>
       </div>
     </div>
 

@@ -961,6 +961,321 @@ router.get("/scripts", (_req: Request, res: Response) => {
   res.json({ ok: true, count: scripts.length, scripts });
 });
 
+// ── GET /hub — Advertising Hub Dashboard (HTML) ───────────────────────────────
+router.get("/hub", (_req: Request, res: Response) => {
+  const totalAdFormats = PLATFORMS.reduce((sum, p) => sum + p.adFormats.length, 0);
+  const totalTemplates = PLATFORMS.reduce((sum, p) => sum + p.contentTemplates.length, 0);
+  const totalFunnels   = FUNNELS.length;
+  const totalHashtags  = Object.values(HASHTAG_SETS).flat().length;
+
+  const platformCards = PLATFORMS.map(p => `
+    <a href="/api/advertising/platform/${p.id}" class="plat-card">
+      <div class="plat-name">${p.name}</div>
+      <div class="plat-meta">${p.adFormats.length} formats · ${p.contentTemplates.length} templates</div>
+      <div class="plat-formats">${p.adFormats.slice(0,3).map((f: {name:string}) => f.name).join(" · ")}${p.adFormats.length > 3 ? ` +${p.adFormats.length-3}` : ""}</div>
+    </a>`).join("");
+
+  const funnelRows = FUNNELS.map(f => `
+    <div class="funnel-row">
+      <span class="funnel-plat">${f.name.split(" ")[0]}</span>
+      <span class="funnel-type">${f.stages?.length ?? 0} stages</span>
+      <span class="funnel-desc">${f.name}</span>
+    </div>`).join("");
+
+  const resourceLinks = [
+    { label: "Brand Identity",     url: "/api/advertising/brand",     badge: "JSON", desc: "Voice, colors, value props" },
+    { label: "All Platforms",       url: "/api/advertising/platforms", badge: "JSON", desc: `${PLATFORMS.length} platform profiles` },
+    { label: "All Ad Assets",       url: "/api/advertising/assets",    badge: "JSON", desc: `${totalAdFormats} formats ready` },
+    { label: "Content Calendar",    url: "/api/advertising/calendar",  badge: "30d",  desc: "30-day posting schedule" },
+    { label: "Sales Funnels",       url: "/api/advertising/funnels",   badge: "JSON", desc: `${totalFunnels} funnels` },
+    { label: "Video Scripts",       url: "/api/advertising/scripts",   badge: "JSON", desc: "Short + long-form scripts" },
+    { label: "Platform Bios",       url: "/api/advertising/bios",      badge: "JSON", desc: "All platform bio copy" },
+    { label: "Banner Specs",        url: "/api/advertising/banners",   badge: "JSON", desc: "7 banner formats" },
+    { label: "Hashtag Sets",        url: "/api/advertising/hashtags",  badge: "JSON", desc: `${Object.keys(HASHTAG_SETS).length} sets · ${totalHashtags} tags` },
+    { label: "AI Generator",        url: "#generator",                 badge: "LIVE", desc: "Generate custom ad copy" },
+    { label: "Hub Status",          url: "/api/advertising/status",    badge: "JSON", desc: "Full readiness report" },
+  ].map(l => `
+    <a href="${l.url}" class="res-link${l.url === "#generator" ? ' res-cta' : ''}">
+      <span class="res-label">${l.label}</span>
+      <span class="res-badge ${l.badge === 'LIVE' ? 'badge-live' : ''}">${l.badge}</span>
+      <span class="res-desc">${l.desc}</span>
+    </a>`).join("");
+
+  const html = `<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+  <title>Advertising Hub — CreateAI Brain</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&display=swap" rel="stylesheet">
+  <style>
+    *,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+    :root{--bg:#020617;--s1:#0d1526;--s2:#111827;--s3:#1e293b;--s4:#243044;
+          --line:#1e293b;--line2:#2d3748;
+          --t1:#e2e8f0;--t2:#94a3b8;--t3:#64748b;--t4:#475569;
+          --ind:#6366f1;--ind2:#818cf8;--em:#10b981;--am:#f59e0b;}
+    html,body{background:var(--bg);color:var(--t1);font-family:'Inter',-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;font-size:14px;min-height:100vh;-webkit-font-smoothing:antialiased}
+    a{color:inherit;text-decoration:none}
+    .skip-link{position:absolute;top:-100px;left:1rem;background:var(--ind);color:#fff;padding:.5rem 1rem;border-radius:6px;font-weight:700;z-index:999;transition:top .2s}
+    .skip-link:focus{top:1rem}
+    .hdr{border-bottom:1px solid var(--line);padding:0 24px;background:rgba(2,6,23,.97);position:sticky;top:0;z-index:100;backdrop-filter:blur(12px)}
+    .hdr-inner{max-width:1280px;margin:0 auto;height:52px;display:flex;align-items:center;gap:14px}
+    .logo{font-size:.95rem;font-weight:900;letter-spacing:-.03em;color:var(--t1)}
+    .logo span{color:var(--ind2)}
+    .hdr-badge{font-size:.58rem;font-weight:800;text-transform:uppercase;letter-spacing:.08em;background:rgba(99,102,241,.15);color:var(--ind2);border:1px solid rgba(99,102,241,.3);border-radius:99px;padding:3px 10px}
+    .hdr-links{margin-left:auto;display:flex;gap:16px}
+    .hdr-links a{color:var(--t3);font-size:.78rem;font-weight:600;transition:color .15s}
+    .hdr-links a:hover{color:var(--t1)}
+    .wrap{max-width:1280px;margin:0 auto;padding:32px 24px}
+    .page-hero{margin-bottom:32px}
+    .page-title{font-size:1.6rem;font-weight:900;letter-spacing:-.04em;color:var(--t1);margin-bottom:6px}
+    .page-title span{color:var(--ind2)}
+    .page-sub{font-size:.88rem;color:var(--t3);max-width:520px;line-height:1.55}
+    .kpi-row{display:grid;grid-template-columns:repeat(auto-fill,minmax(160px,1fr));gap:12px;margin-bottom:36px}
+    .kpi{background:var(--s2);border:1px solid var(--line);border-radius:14px;padding:16px 20px}
+    .kpi-lbl{font-size:.62rem;font-weight:800;text-transform:uppercase;letter-spacing:.09em;color:var(--t4);margin-bottom:6px}
+    .kpi-val{font-size:1.7rem;font-weight:900;letter-spacing:-.04em;color:var(--ind2)}
+    .kpi-sub{font-size:.68rem;color:var(--t3);margin-top:3px}
+    .section-title{font-size:.7rem;font-weight:800;text-transform:uppercase;letter-spacing:.1em;color:var(--t4);margin-bottom:14px;padding-bottom:8px;border-bottom:1px solid var(--line)}
+    .plat-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(220px,1fr));gap:10px;margin-bottom:36px}
+    .plat-card{background:var(--s2);border:1px solid var(--line);border-radius:12px;padding:14px 16px;display:block;transition:all .15s;cursor:pointer}
+    .plat-card:hover{border-color:var(--ind);box-shadow:0 4px 16px rgba(99,102,241,.15);transform:translateY(-1px)}
+    .plat-name{font-size:.9rem;font-weight:800;color:var(--t1);margin-bottom:4px}
+    .plat-meta{font-size:.7rem;color:var(--ind2);font-weight:600;margin-bottom:6px}
+    .plat-formats{font-size:.68rem;color:var(--t3);line-height:1.5}
+    .two-col{display:grid;grid-template-columns:1fr 1fr;gap:20px;margin-bottom:36px}
+    .panel{background:var(--s2);border:1px solid var(--line);border-radius:14px;padding:20px}
+    .funnel-row{display:flex;align-items:center;gap:10px;padding:8px 0;border-bottom:1px solid var(--line);font-size:.78rem}
+    .funnel-row:last-child{border-bottom:none}
+    .funnel-plat{font-weight:700;color:var(--t1);width:90px;flex-shrink:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+    .funnel-type{font-size:.65rem;font-weight:800;text-transform:uppercase;letter-spacing:.06em;background:rgba(99,102,241,.15);color:var(--ind2);border-radius:6px;padding:2px 7px;flex-shrink:0}
+    .funnel-desc{font-size:.72rem;color:var(--t3);overflow:hidden;text-overflow:ellipsis;white-space:nowrap;flex:1}
+    .res-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(240px,1fr));gap:10px;margin-bottom:36px}
+    .res-link{background:var(--s2);border:1px solid var(--line);border-radius:12px;padding:14px 16px;display:flex;align-items:center;gap:10px;transition:all .15s}
+    .res-link:hover{border-color:var(--ind);box-shadow:0 2px 12px rgba(99,102,241,.12)}
+    .res-label{font-size:.85rem;font-weight:700;color:var(--t1);flex:1}
+    .res-badge{font-size:.6rem;font-weight:800;text-transform:uppercase;letter-spacing:.07em;background:var(--s3);color:var(--t2);border-radius:6px;padding:2px 7px;flex-shrink:0}
+    .badge-live{background:rgba(16,185,129,.15);color:#6ee7b7;border:1px solid rgba(16,185,129,.25)}
+    .res-desc{display:none}
+    .res-cta{border-color:rgba(99,102,241,.4);background:rgba(99,102,241,.07)}
+    .res-cta:hover{border-color:var(--ind);background:rgba(99,102,241,.12)}
+    .generator-panel{background:var(--s2);border:1px solid var(--line);border-radius:16px;padding:28px;margin-bottom:36px}
+    .gen-title{font-size:.95rem;font-weight:800;color:var(--t1);margin-bottom:4px}
+    .gen-sub{font-size:.78rem;color:var(--t3);margin-bottom:20px}
+    .gen-form{display:grid;grid-template-columns:1fr 1fr;gap:12px}
+    .form-field{display:flex;flex-direction:column;gap:6px}
+    .form-field.full{grid-column:1/-1}
+    .form-label{font-size:.65rem;font-weight:800;text-transform:uppercase;letter-spacing:.08em;color:var(--t4)}
+    .form-input,.form-select,.form-textarea{background:var(--s3);border:1px solid var(--line2);border-radius:8px;color:var(--t1);font-family:inherit;font-size:.82rem;padding:10px 12px;outline:none;transition:border-color .15s}
+    .form-input:focus,.form-select:focus,.form-textarea:focus{border-color:var(--ind)}
+    .form-textarea{resize:vertical;min-height:80px}
+    .gen-btn{grid-column:1/-1;background:var(--ind);color:#fff;border:none;border-radius:10px;padding:12px 24px;font-weight:800;font-size:.9rem;cursor:pointer;transition:background .15s;font-family:inherit}
+    .gen-btn:hover{background:#4f46e5}
+    .gen-btn:disabled{opacity:.5;cursor:not-allowed}
+    .gen-output{grid-column:1/-1;background:var(--s3);border:1px solid var(--line2);border-radius:10px;padding:16px;min-height:120px;font-size:.82rem;color:var(--t2);line-height:1.7;white-space:pre-wrap;display:none}
+    .gen-output.visible{display:block}
+    .gen-spinner{display:none;font-size:.78rem;color:var(--t3);grid-column:1/-1;text-align:center;padding:8px}
+    .gen-spinner.visible{display:block}
+    .brand-row{display:grid;grid-template-columns:repeat(auto-fill,minmax(220px,1fr));gap:10px;margin-bottom:36px}
+    .brand-card{background:var(--s2);border:1px solid var(--line);border-radius:12px;padding:16px}
+    .brand-card-label{font-size:.62rem;font-weight:800;text-transform:uppercase;letter-spacing:.08em;color:var(--t4);margin-bottom:8px}
+    .brand-card-val{font-size:.9rem;font-weight:700;color:var(--t1)}
+    .brand-card-sub{font-size:.75rem;color:var(--t3);margin-top:4px;line-height:1.5}
+    .footer{border-top:1px solid var(--line);padding:24px;text-align:center;font-size:.72rem;color:var(--t4);margin-top:12px}
+    @media(max-width:768px){.two-col{grid-template-columns:1fr}.gen-form{grid-template-columns:1fr}.kpi-row{grid-template-columns:repeat(2,1fr)}.wrap{padding:20px 16px}}
+  </style>
+</head>
+<body>
+<a class="skip-link" href="#main-content">Skip to content</a>
+<header class="hdr" role="banner">
+  <div class="hdr-inner">
+    <a class="logo" href="/hub">CreateAI <span>Brain</span></a>
+    <span class="hdr-badge">Advertising Hub</span>
+    <nav class="hdr-links" aria-label="Admin navigation">
+      <a href="/hub">Hub</a>
+      <a href="/pulse">PULSE</a>
+      <a href="/store">Store</a>
+      <a href="/api/advertising/status">Status</a>
+    </nav>
+  </div>
+</header>
+
+<main id="main-content" class="wrap">
+  <div class="page-hero">
+    <h1 class="page-title">Advertising <span>Hub</span></h1>
+    <p class="page-sub">All brand assets, platform profiles, content templates, ad formats, funnels, and creative resources — internal-only, never published automatically.</p>
+  </div>
+
+  <div class="kpi-row" role="list" aria-label="Advertising metrics">
+    <div class="kpi" role="listitem">
+      <div class="kpi-lbl">Platforms</div>
+      <div class="kpi-val">${PLATFORMS.length}</div>
+      <div class="kpi-sub">Active profiles</div>
+    </div>
+    <div class="kpi" role="listitem">
+      <div class="kpi-lbl">Ad Formats</div>
+      <div class="kpi-val">${totalAdFormats}</div>
+      <div class="kpi-sub">Across all platforms</div>
+    </div>
+    <div class="kpi" role="listitem">
+      <div class="kpi-lbl">Templates</div>
+      <div class="kpi-val">${totalTemplates}</div>
+      <div class="kpi-sub">Content templates</div>
+    </div>
+    <div class="kpi" role="listitem">
+      <div class="kpi-lbl">Funnels</div>
+      <div class="kpi-val">${totalFunnels}</div>
+      <div class="kpi-sub">Sales funnels</div>
+    </div>
+    <div class="kpi" role="listitem">
+      <div class="kpi-lbl">Hashtags</div>
+      <div class="kpi-val">${totalHashtags}</div>
+      <div class="kpi-sub">Across ${Object.keys(HASHTAG_SETS).length} sets</div>
+    </div>
+    <div class="kpi" role="listitem">
+      <div class="kpi-lbl">Status</div>
+      <div class="kpi-val" style="font-size:1rem;color:#34d399">READY</div>
+      <div class="kpi-sub">Instant activation</div>
+    </div>
+  </div>
+
+  <section aria-labelledby="brand-heading">
+    <h2 class="section-title" id="brand-heading">Brand Identity</h2>
+    <div class="brand-row">
+      <div class="brand-card">
+        <div class="brand-card-label">Tagline</div>
+        <div class="brand-card-val">${BRAND.tagline}</div>
+        <div class="brand-card-sub">${BRAND.taglineAlt}</div>
+      </div>
+      <div class="brand-card">
+        <div class="brand-card-label">Voice</div>
+        <div class="brand-card-val">${BRAND.voice.tone}</div>
+        <div class="brand-card-sub">Avoid: ${BRAND.voice.avoid}</div>
+      </div>
+      <div class="brand-card">
+        <div class="brand-card-label">Primary Color</div>
+        <div class="brand-card-val" style="color:#818cf8">${BRAND.colors.primary}</div>
+        <div class="brand-card-sub">Dark: ${BRAND.colors.dark} · Mid: ${BRAND.colors.mid}</div>
+      </div>
+      <div class="brand-card">
+        <div class="brand-card-label">Mission</div>
+        <div class="brand-card-val" style="font-size:.78rem;font-weight:600;line-height:1.5">${BRAND.mission.slice(0,120)}…</div>
+      </div>
+    </div>
+  </section>
+
+  <section aria-labelledby="platforms-heading">
+    <h2 class="section-title" id="platforms-heading">Platform Profiles</h2>
+    <div class="plat-grid">
+      ${platformCards}
+    </div>
+  </section>
+
+  <div class="two-col">
+    <section class="panel" aria-labelledby="funnels-heading">
+      <h2 class="section-title" id="funnels-heading">Sales Funnels <span style="color:var(--ind2);font-size:.65rem;text-transform:none;letter-spacing:0">${totalFunnels} active</span></h2>
+      <div role="list">
+        ${funnelRows || '<div style="color:var(--t4);font-size:.78rem;padding:12px 0">No funnels configured</div>'}
+      </div>
+    </section>
+    <section class="panel" aria-labelledby="resources-heading">
+      <h2 class="section-title" id="resources-heading">Quick Resources</h2>
+      <div class="res-grid" style="grid-template-columns:1fr;gap:8px">
+        ${resourceLinks}
+      </div>
+    </section>
+  </div>
+
+  <section id="generator" aria-labelledby="gen-heading">
+    <div class="generator-panel">
+      <div class="gen-title">AI Ad Copy Generator</div>
+      <div class="gen-sub">Generate platform-specific ad copy, headlines, and CTAs using GPT-4o.</div>
+      <div class="gen-form">
+        <div class="form-field">
+          <label class="form-label" for="gen-platform">Platform</label>
+          <select class="form-select" id="gen-platform">
+            ${PLATFORMS.map(p => `<option value="${p.id}">${p.name}</option>`).join("")}
+          </select>
+        </div>
+        <div class="form-field">
+          <label class="form-label" for="gen-format">Ad Format</label>
+          <select class="form-select" id="gen-format">
+            <option value="carousel post">Carousel Post</option>
+            <option value="short video script">Short Video Script</option>
+            <option value="story ad">Story Ad</option>
+            <option value="headline + subhead">Headline + Subhead</option>
+            <option value="email subject line">Email Subject Line</option>
+            <option value="banner ad copy">Banner Ad Copy</option>
+          </select>
+        </div>
+        <div class="form-field full">
+          <label class="form-label" for="gen-context">Context (optional)</label>
+          <textarea class="form-textarea" id="gen-context" placeholder="e.g. Targeting healthcare operators, focus on EHR cost savings"></textarea>
+        </div>
+        <div class="form-field">
+          <label class="form-label" for="gen-industry">Industry</label>
+          <input class="form-input" id="gen-industry" type="text" placeholder="e.g. Healthcare, Legal, Finance">
+        </div>
+        <div class="form-field">
+          <label class="form-label" for="gen-tone">Tone</label>
+          <select class="form-select" id="gen-tone">
+            <option value="confident and authoritative">Confident &amp; Authoritative</option>
+            <option value="educational and clear">Educational &amp; Clear</option>
+            <option value="urgent and direct">Urgent &amp; Direct</option>
+            <option value="professional and warm">Professional &amp; Warm</option>
+          </select>
+        </div>
+        <button class="gen-btn" id="gen-btn" type="button">Generate Ad Copy →</button>
+        <div class="gen-spinner" id="gen-spinner" aria-live="polite" aria-label="Generating ad copy">Generating…</div>
+        <div class="gen-output" id="gen-output" aria-live="polite"></div>
+      </div>
+    </div>
+  </section>
+</main>
+
+<footer class="footer" role="contentinfo">
+  CreateAI Brain · Advertising Hub · Internal Use Only · Lakeside Trinity LLC
+</footer>
+
+<script>
+  document.getElementById('gen-btn').addEventListener('click', async function() {
+    const btn = document.getElementById('gen-btn');
+    const spinner = document.getElementById('gen-spinner');
+    const output = document.getElementById('gen-output');
+    const platform = document.getElementById('gen-platform').value;
+    const format   = document.getElementById('gen-format').value;
+    const context  = document.getElementById('gen-context').value;
+    const industry = document.getElementById('gen-industry').value;
+    const tone     = document.getElementById('gen-tone').value;
+    btn.disabled = true;
+    spinner.classList.add('visible');
+    output.classList.remove('visible');
+    try {
+      const r = await fetch('/api/advertising/generate', {
+        method: 'POST',
+        headers: {'Content-Type':'application/json'},
+        body: JSON.stringify({platform, format, context, industry, tone})
+      });
+      const data = await r.json();
+      output.textContent = data.generated ?? data.error ?? 'No output';
+      output.classList.add('visible');
+    } catch(e) {
+      output.textContent = 'Error: ' + e.message;
+      output.classList.add('visible');
+    } finally {
+      btn.disabled = false;
+      spinner.classList.remove('visible');
+    }
+  });
+</script>
+</body>
+</html>`;
+  res.setHeader("Content-Type", "text/html; charset=utf-8");
+  res.setHeader("Cache-Control", "no-cache");
+  res.send(html);
+});
+
 router.get("/status", (_req: Request, res: Response) => {
   const totalAdFormats = PLATFORMS.reduce((sum, p) => sum + p.adFormats.length, 0);
   const totalTemplates = PLATFORMS.reduce((sum, p) => sum + p.contentTemplates.length, 0);

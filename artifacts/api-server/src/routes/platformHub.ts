@@ -618,6 +618,8 @@ router.get("/hub", async (_req: Request, res: Response) => {
         { label: "Live Payment Feed", url: `${BASE}/launch/payments`, desc: "Real-time Stripe sessions with delivery status", icon: "💳", badge: "Admin" },
         { label: "CRM Stats", url: `${BASE}/portal/stats`, desc: "Total customers, revenue, top products", icon: "📊", badge: "Admin" },
         { label: "Affiliate Stats", url: `${BASE}/api/semantic/affiliate/stats`, desc: "Link performance + click tracking", icon: "🔗", badge: "Admin" },
+        { label: "Advertising Hub", url: `${BASE}/api/advertising/hub`, desc: "Brand assets, 12 platform profiles, 26 ad formats, funnels, hashtags, AI copy generator — all internal assets.", icon: "📣", badge: "Admin" },
+        { label: "Analytics Dashboard", url: `${BASE}/api/analytics/dashboard`, desc: "Platform growth intelligence — pageviews, leads, referrals, and UTM source tracking. All data from your own DB.", icon: "📈", badge: "Admin" },
         { label: "CORE Console (legacy)", url: `${BASE}/core`, desc: "Legacy CORE OS — superseded by NEXUS.", icon: "◎", badge: "Legacy" },
       ],
     },

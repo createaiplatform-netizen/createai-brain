@@ -107,25 +107,104 @@ function extractTags(meta: Record<string, string>, title: string, format: string
   return tags.slice(0, 6);
 }
 
+// ── Display title cleaner ──────────────────────────────────────────────────────
+// Converts "AI Solution: Smart Life Organizer (music)" → "Smart Life Organizer"
+function cleanDisplayTitle(rawName: string): string {
+  // Strip known prefixes (case-insensitive)
+  let t = rawName.replace(/^(AI Solution|AI Tool|Digital Product|CreateAI):\s*/i, "").trim();
+  // Strip trailing format parenthetical: " (music)" / " (3D)" etc.
+  t = t.replace(/\s*\([^)]+\)\s*$/, "").trim();
+  // Title case if all caps or all lower
+  if (t === t.toUpperCase() || t === t.toLowerCase()) {
+    t = t.replace(/\w\S*/g, w => w.charAt(0).toUpperCase() + w.slice(1).toLowerCase());
+  }
+  return t || rawName;
+}
+
+// ── Rich format-specific description generator ─────────────────────────────────
+function generateFormatDescription(displayTitle: string, format: string, _category: string): string {
+  const descriptors: Record<string, string[]> = {
+    ebook: [
+      `${displayTitle} is a comprehensive AI-authored guide packed with actionable frameworks, step-by-step processes, and real-world strategies you can apply immediately.`,
+      `Download ${displayTitle} and unlock a structured, expert-level reference — instantly readable on any device, no subscription required.`,
+    ],
+    audiobook: [
+      `${displayTitle} delivers expert knowledge in high-quality AI-narrated audio — learn on your commute, at the gym, or anywhere your day takes you.`,
+      `Stream or download ${displayTitle} for an immersive audio learning experience crafted for busy professionals who want results without sitting at a desk.`,
+    ],
+    course: [
+      `${displayTitle} is a complete self-paced learning system: structured modules, exercises, and milestone checkpoints that take you from zero to confident in your domain.`,
+      `Master the skills in ${displayTitle} at your own pace — curated lessons, practical assignments, and a clear outcome built for real-world application.`,
+    ],
+    video: [
+      `${displayTitle} is a professionally produced AI-generated video resource — visually compelling, concise, and built for immediate practical use.`,
+      `Watch, rewatch, and implement with ${displayTitle}: a high-production video asset that condenses complex knowledge into clear, engaging visual content.`,
+    ],
+    template: [
+      `${displayTitle} is a plug-and-play professional template — editable, well-structured, and ready to use the moment you download it.`,
+      `Save hours of setup with ${displayTitle}: a polished, production-ready template built for immediate deployment in your workflow or business.`,
+    ],
+    software: [
+      `${displayTitle} is a ready-to-deploy AI-powered software asset — functional, documented, and built to integrate seamlessly into your tech stack.`,
+      `Get a head start with ${displayTitle}: fully functional software code, clean architecture, and clear documentation included.`,
+    ],
+    plugin: [
+      `${displayTitle} extends your existing tools with AI-powered capability — install, configure, and immediately unlock new functionality in your stack.`,
+      `Supercharge your workflow with ${displayTitle}: a precision-built plugin that adds intelligent automation where you need it most.`,
+    ],
+    graphic: [
+      `${displayTitle} is a high-resolution, professionally designed graphic asset — ready to customize, brand, and publish across any channel.`,
+      `Elevate your visual presence with ${displayTitle}: crisp, versatile graphic assets built for web, print, and social media at any scale.`,
+    ],
+    photo: [
+      `${displayTitle} is a curated collection of AI-generated photography — commercially usable, visually striking, and instantly downloadable.`,
+      `Use ${displayTitle} to elevate your brand visuals: unique, high-resolution images that stand out from overused stock photo libraries.`,
+    ],
+    music: [
+      `${displayTitle} is a royalty-free AI-composed music track — ready for your videos, presentations, podcasts, and commercial projects without licensing headaches.`,
+      `Set the perfect tone with ${displayTitle}: original AI-generated music crafted for professional use, available for unlimited commercial application.`,
+    ],
+    "3D": [
+      `${displayTitle} is a production-ready 3D asset — fully textured, rigged where applicable, and optimized for real-time rendering engines and creative pipelines.`,
+      `Integrate ${displayTitle} directly into your 3D projects: clean geometry, production-quality materials, and compatibility with leading 3D platforms.`,
+    ],
+    digital: [
+      `${displayTitle} is a premium AI-generated digital resource — meticulously crafted for immediate download, professional use, and maximum practical value.`,
+    ],
+  };
+  const fmtKey = format in descriptors ? format : "digital";
+  const options = descriptors[fmtKey] ?? descriptors["digital"]!;
+  // Deterministic selection based on title length (no random)
+  const idx = displayTitle.length % options.length;
+  return options[idx] ?? options[0] ?? `${displayTitle} — a premium AI-generated digital product ready for immediate download and use.`;
+}
+
 function mapStripeToSemantic(
   product: { id: string; name: string; description: string | null; metadata: Record<string, string>; images: string[]; created: number; updated: number },
   price: { id: string; unit_amount: number | null } | null
 ): SemanticProduct {
   const meta = product.metadata || {};
   const format = extractFormat(product.name, meta);
-  const title = product.name;
-  const slug = slugify(title);
+  const displayTitle = cleanDisplayTitle(product.name);
+  const title = displayTitle;
+  const slug = slugify(product.name);
   const priceCents = price?.unit_amount ?? 1900;
-  const category = extractCategory(title, meta);
-  const tags = extractTags(meta, title, format, category);
+  const category = extractCategory(displayTitle, meta);
+  const tags = extractTags(meta, displayTitle, format, category);
 
   // Value price: what this format would retail for normally (display-only)
   const valuePriceCents = FORMAT_VALUE_CENTS[format] ?? FORMAT_VALUE_CENTS["digital"] ?? 2200;
 
-  const description = product.description ||
-    `${title} — professionally crafted AI-generated digital product for immediate download and use.`;
-  const shortDescription = description.length > 120
-    ? description.slice(0, 117) + "…"
+  // Use Stripe description only if it's a clean, human-written one.
+  // Auto-generated descriptions (containing old "AI Solution:" format patterns) are replaced.
+  const OLD_FORMAT_PATTERN = /AI Solution:|AI Tool:|Digital Product:|\([a-z0-9A-Z]+\)\s*(uses|is built|provides|enables)/i;
+  const stripeDesc = product.description ?? "";
+  const useGenerated = !stripeDesc || OLD_FORMAT_PATTERN.test(stripeDesc);
+  const description = useGenerated
+    ? generateFormatDescription(displayTitle, format, category)
+    : stripeDesc;
+  const shortDescription = description.length > 140
+    ? description.slice(0, 137) + "…"
     : description;
 
   return {
