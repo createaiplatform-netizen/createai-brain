@@ -35,12 +35,19 @@ import {
   deriveDemandSignals,
 } from "../semantic/transforms.js";
 import { getUncachableStripeClient } from "../services/integrations/stripeClient.js";
+import { getCustomerStats } from "../semantic/customerStore.js";
 
 const router = Router();
 
 const STORE_URL = process.env.REPLIT_DEV_DOMAIN
   ? `https://${process.env.REPLIT_DEV_DOMAIN}`
   : "http://localhost:8080";
+
+// ── View counter (in-memory, per product) ─────────────────────────────────────
+const viewCounts = new Map<string, number>();
+function trackView(productId: string): void {
+  viewCounts.set(productId, (viewCounts.get(productId) ?? 0) + 1);
+}
 
 // ── GET /status ───────────────────────────────────────────────────────────────
 router.get("/status", (_req: Request, res: Response) => {
@@ -52,7 +59,19 @@ router.get("/status", (_req: Request, res: Response) => {
 router.get("/products", async (_req: Request, res: Response) => {
   try {
     const products = await getRegistry();
-    res.json({ ok: true, count: products.length, products });
+    const crmStats = getCustomerStats();
+    const views = Object.fromEntries(viewCounts);
+    const productsWithViews = products.map(p => ({
+      ...p,
+      views: viewCounts.get(p.id) ?? 0,
+    }));
+    res.json({
+      ok: true,
+      count: products.length,
+      crmStats,
+      views,
+      products: productsWithViews,
+    });
   } catch (err: unknown) {
     const msg = err instanceof Error ? err.message : String(err);
     res.status(500).json({ ok: false, error: msg });
@@ -115,6 +134,7 @@ router.get("/store/:id", async (req: Request, res: Response) => {
     await getRegistry();
     const product = getFromRegistry(String(req.params["id"] ?? ""));
     if (!product) { res.status(404).send("<h1>Product not found</h1>"); return; }
+    trackView(product.id);
     const success = req.query["success"] === "1";
     const checkoutUrl = `${STORE_URL}/api/semantic/checkout/${product.id}`;
     const html = toHostedPageHTML(product, checkoutUrl, success);

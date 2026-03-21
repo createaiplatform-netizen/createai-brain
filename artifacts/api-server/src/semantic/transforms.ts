@@ -138,6 +138,23 @@ export function toHostedPageHTML(p: SemanticProduct, checkoutUrl: string, succes
       </div>`
     : "";
 
+  const jsonLd = JSON.stringify({
+    "@context": "https://schema.org/",
+    "@type": "Product",
+    "name": p.title,
+    "description": p.description,
+    "brand": { "@type": "Brand", "name": "CreateAI Brain" },
+    "category": p.category,
+    "offers": {
+      "@type": "Offer",
+      "price": (p.priceCents / 100).toFixed(2),
+      "priceCurrency": p.currency.toUpperCase(),
+      "availability": "https://schema.org/InStock",
+      "seller": { "@type": "Organization", "name": "CreateAI Brain" },
+    },
+    "keywords": p.tags.join(", "),
+  });
+
   return `<!DOCTYPE html>
 <html lang="en">
 <head>
@@ -145,6 +162,16 @@ export function toHostedPageHTML(p: SemanticProduct, checkoutUrl: string, succes
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>${p.title} — CreateAI Brain</title>
   <meta name="description" content="${p.shortDescription}">
+  <meta property="og:type" content="product">
+  <meta property="og:title" content="${p.title}">
+  <meta property="og:description" content="${p.shortDescription}">
+  <meta property="og:image" content="${p.coverImageUrl || ""}">
+  <meta property="product:price:amount" content="${(p.priceCents / 100).toFixed(2)}">
+  <meta property="product:price:currency" content="${p.currency.toUpperCase()}">
+  <meta name="twitter:card" content="summary_large_image">
+  <meta name="twitter:title" content="${p.title}">
+  <meta name="twitter:description" content="${p.shortDescription}">
+  <script type="application/ld+json">${jsonLd}</script>
   <style>
     * { box-sizing: border-box; margin: 0; padding: 0; }
     body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif; background: #f8fafc; color: #1e293b; }
@@ -199,12 +226,16 @@ export function toHostedPageHTML(p: SemanticProduct, checkoutUrl: string, succes
 
 // ── Store Index HTML ───────────────────────────────────────────────────────────
 export function toStoreIndexHTML(products: SemanticProduct[], storeUrl: string): string {
-  const productCards = products.slice(0, 48).map(p => `    <a href="${storeUrl}/api/semantic/store/${p.id}" class="card" style="text-decoration:none;color:inherit;">
+  const productCards = products.slice(0, 48).map(p => {
+    const tagStr = p.tags.join(" ").replace(/"/g, "&quot;");
+    const titleStr = p.title.replace(/"/g, "&quot;");
+    return `    <a href="${storeUrl}/api/semantic/store/${p.id}" class="card" style="text-decoration:none;color:inherit;" data-title="${titleStr}" data-format="${p.format}" data-tags="${tagStr}">
       <div class="format">${p.format}</div>
       <h3>${p.title}</h3>
       <p>${p.shortDescription.slice(0, 100)}${p.shortDescription.length > 100 ? "…" : ""}</p>
       <div class="price">$${(p.priceCents / 100).toFixed(2)}</div>
-    </a>`).join("\n");
+    </a>`;
+  }).join("\n");
 
   return `<!DOCTYPE html>
 <html lang="en">
@@ -222,13 +253,20 @@ export function toStoreIndexHTML(products: SemanticProduct[], storeUrl: string):
     .stat { background: rgba(255,255,255,0.15); border-radius: 12px; padding: 12px 24px; text-align: center; }
     .stat-num { font-size: 1.75rem; font-weight: 800; }
     .stat-label { font-size: 0.8rem; opacity: 0.8; margin-top: 2px; }
-    .grid { max-width: 1280px; margin: 48px auto; padding: 0 24px; display: grid; grid-template-columns: repeat(auto-fill, minmax(270px, 1fr)); gap: 24px; }
+    .controls { max-width: 1280px; margin: 0 auto; padding: 28px 24px 0; display: flex; gap: 12px; flex-wrap: wrap; align-items: center; }
+    .search-input { flex: 1; min-width: 200px; padding: 12px 16px; border: 1px solid #e2e8f0; border-radius: 10px; font-size: 14px; outline: none; background: white; transition: border 0.2s; }
+    .search-input:focus { border-color: #6366f1; box-shadow: 0 0 0 3px rgba(99,102,241,0.1); }
+    .format-select { padding: 12px 16px; border: 1px solid #e2e8f0; border-radius: 10px; font-size: 14px; background: white; outline: none; cursor: pointer; }
+    .result-count { font-size: 13px; color: #94a3b8; padding: 12px 0; }
+    .grid { max-width: 1280px; margin: 24px auto 48px; padding: 0 24px; display: grid; grid-template-columns: repeat(auto-fill, minmax(270px, 1fr)); gap: 24px; }
     .card { background: white; border-radius: 16px; padding: 28px; box-shadow: 0 2px 12px rgba(0,0,0,0.06); border: 1px solid #f1f5f9; transition: transform 0.2s, box-shadow 0.2s; }
     .card:hover { transform: translateY(-4px); box-shadow: 0 8px 28px rgba(99,102,241,0.12); border-color: #c7d2fe; }
+    .card.hidden { display: none; }
     .format { display: inline-block; background: #ede9fe; color: #6366f1; border-radius: 999px; padding: 4px 12px; font-size: 0.75rem; font-weight: 700; text-transform: uppercase; letter-spacing: 0.05em; margin-bottom: 14px; }
     h3 { font-size: 0.95rem; font-weight: 700; margin-bottom: 8px; line-height: 1.4; color: #1e293b; }
     p { font-size: 0.85rem; color: #64748b; line-height: 1.5; }
     .price { margin-top: 18px; font-size: 1.35rem; font-weight: 800; color: #6366f1; }
+    .empty { display: none; grid-column: 1/-1; text-align: center; padding: 60px 24px; color: #94a3b8; font-size: 15px; }
     footer { text-align: center; padding: 40px 24px; color: #94a3b8; font-size: 0.85rem; border-top: 1px solid #f1f5f9; }
   </style>
 </head>
@@ -237,15 +275,53 @@ export function toStoreIndexHTML(products: SemanticProduct[], storeUrl: string):
     <h1>CreateAI Brain</h1>
     <p>AI-generated digital products — instant delivery worldwide</p>
     <div class="stats">
-      <div class="stat"><div class="stat-num">${products.length}</div><div class="stat-label">Products Available</div></div>
+      <div class="stat"><div class="stat-num" id="visible-count">${products.length}</div><div class="stat-label">Products Available</div></div>
       <div class="stat"><div class="stat-num">6</div><div class="stat-label">Active Channels</div></div>
       <div class="stat"><div class="stat-num">Instant</div><div class="stat-label">Delivery</div></div>
     </div>
   </header>
-  <div class="grid">
+
+  <div class="controls">
+    <input class="search-input" id="search" type="search" placeholder="Search products…" autocomplete="off" />
+    <select class="format-select" id="format-filter">
+      <option value="">All formats</option>
+      ${Array.from(new Set(products.map(p => p.format))).sort().map(f => `<option value="${f}">${f}</option>`).join("")}
+    </select>
+    <span class="result-count" id="result-count"></span>
+  </div>
+
+  <div class="grid" id="grid">
 ${productCards}
+    <div class="empty" id="empty-state">No products match your search. Try a different term or format.</div>
   </div>
   <footer>Powered by CreateAI Brain · All products AI-generated · Secure checkout via Stripe</footer>
+  <script>
+    const cards = document.querySelectorAll('.card[data-title]');
+    const searchEl = document.getElementById('search');
+    const formatEl = document.getElementById('format-filter');
+    const countEl = document.getElementById('result-count');
+    const visibleCountEl = document.getElementById('visible-count');
+    const emptyEl = document.getElementById('empty-state');
+    function filterCards() {
+      const q = searchEl.value.toLowerCase().trim();
+      const fmt = formatEl.value.toLowerCase();
+      let shown = 0;
+      cards.forEach(card => {
+        const title = (card.dataset.title || '').toLowerCase();
+        const format = (card.dataset.format || '').toLowerCase();
+        const tags = (card.dataset.tags || '').toLowerCase();
+        const matchQ = !q || title.includes(q) || tags.includes(q);
+        const matchFmt = !fmt || format === fmt;
+        if (matchQ && matchFmt) { card.classList.remove('hidden'); shown++; }
+        else card.classList.add('hidden');
+      });
+      countEl.textContent = shown < cards.length ? shown + ' of ' + cards.length + ' products' : '';
+      visibleCountEl.textContent = shown;
+      emptyEl.style.display = shown === 0 ? 'block' : 'none';
+    }
+    searchEl.addEventListener('input', filterCards);
+    formatEl.addEventListener('change', filterCards);
+  </script>
 </body>
 </html>`;
 }

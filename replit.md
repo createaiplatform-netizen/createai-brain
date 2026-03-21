@@ -145,14 +145,18 @@ The foundational distribution architecture. Products are channel-agnostic object
   - `artifacts/api-server/src/semantic/registry.ts` — Stripe-backed in-memory registry, 5-min TTL, auto-refreshes from live Stripe products
   - `artifacts/api-server/src/routes/semanticStore.ts` — All semantic API routes
 
+- **Core Files**:
+  - `artifacts/api-server/src/semantic/customerStore.ts` — In-memory CRM: customer capture, LTV tracking, top products/formats analytics
+  - `artifacts/api-server/src/routes/semanticWebhooks.ts` — Stripe checkout webhook handler → delivery email via Resend + CRM record
+
 - **API Routes** (all under `/api/semantic/`):
   - `GET /status` — registry health check
-  - `GET /products` — list all 100+ products as SemanticProduct objects
+  - `GET /products` — list all 100+ products as SemanticProduct objects, includes per-product view counts + CRM stats
   - `GET /products/:id` — single product lookup
   - `POST /products/refresh` — force Stripe re-sync
   - `GET /signals` — demand intelligence: top formats, tags, categories, catalog maturity
-  - `GET /store` — hosted store index (HTML, publicly accessible)
-  - `GET /store/:id` — individual product page (HTML, Stripe checkout button)
+  - `GET /store` — hosted store index (HTML) with **live search + format filter**
+  - `GET /store/:id` — individual product page (HTML) with **JSON-LD schema.org + OpenGraph + Twitter Card + view tracking**
   - `GET /checkout/:id` — creates Stripe checkout session → redirects
   - `GET /export/shopify.csv` — Shopify import CSV (all products)
   - `GET /export/woocommerce.csv` — WooCommerce CSV
@@ -160,7 +164,12 @@ The foundational distribution architecture. Products are channel-agnostic object
   - `GET /export/amazon.txt` — Amazon flat file feed
   - `GET /export/catalog.json` — Platform-native JSON catalog
 
+- **Webhook Routes** (under `/api/semantic/webhooks/`):
+  - `POST /checkout-complete` — Stripe `checkout.session.completed` → captures customer to CRM + sends Resend delivery email
+  - `GET /customers` — full customer list with CRM stats (revenue, LTV, top products)
+
 - **Frontend**: `artifacts/createai-brain/src/pages/SemanticStorePage.tsx` at `/semantic-store` — shows catalog intelligence, export panel, product registry grid with channel readiness indicators
 - **Navigation**: "Semantic Store" link added to all 7 OS nav bars (Analytics, Billing, Data, Evolution, Global, Settings, Team pages)
 - **Live State**: 100 products indexed, $1,938 catalog value, 6 active channels, maturity: "scaling"
+- **Delivery email**: Set `RESEND_API_KEY` in Replit Secrets to activate automated delivery on every purchase
 

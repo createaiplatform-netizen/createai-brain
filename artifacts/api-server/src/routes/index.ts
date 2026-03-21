@@ -87,6 +87,7 @@ import bridgeRouter             from "./bridge.js";
 import modesRouter              from "./modes.js";
 import creationEnginesRouter    from "./creationEngines.js";
 import semanticStoreRouter      from "./semanticStore.js";
+import semanticWebhooksRouter   from "./semanticWebhooks.js";
 import omniBridgeRouter         from "./omniBridge.js";
 import orchestratorRouter       from "./orchestrator.js";
 
@@ -235,5 +236,7 @@ router.use("/orchestrator",       orchestratorRouter);
 // Products → Shopify CSV, WooCommerce CSV, Google Shopping XML, Amazon feed,
 // Stripe checkout, hosted product page — all from one source of truth.
 router.use("/semantic",           semanticStoreRouter);
+// Semantic webhooks: checkout.session.completed → delivery email + CRM capture
+router.use("/semantic/webhooks",  semanticWebhooksRouter);
 
 export default router;
