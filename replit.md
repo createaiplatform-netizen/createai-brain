@@ -358,6 +358,30 @@ Three-layer system for reaching the platform via a handle rather than a raw URL:
 **System app category** includes: `npaSettings`, `selfHost`, `handleProtocol`, `growthEngine`, `activation`, `credentialsHub`, `authlab`, `paygate`, `inventionLayer`, `percentageEngine`.
 
 
+## Accessibility & Store Page Upgrade (March 2026)
+
+### Accessibility Layer (WCAG 2.1 AA)
+- **index.html**: Skip navigation link (`<a class="skip-link" href="#main-content">`), SR live regions (`#sr-announcer`, `#sr-alert`), keyboard/mouse detection script (adds `using-mouse` to `body`)
+- **index.css**: `.skip-link`, `.sr-only`, enhanced `:focus-visible` (44px touch targets), ARIA live regions, skeleton animations, high-contrast mode (`forced-colors`), reduced motion, print styles
+- **osLayout.tsx**: `id="main-content"` + `role="main"` on workspace div
+- **App.tsx**: Login/Loading screens have `role="main"`, `aria-live`, `aria-hidden` on decorative elements; all buttons have `type` and `aria-label`; app grid has `role="list"` and `role="listitem"`; focus-visible outline on login buttons
+- **AppShell.tsx**: Card + Row components now have `role="button"`, `tabIndex={0}`, `onKeyDown` Enter/Space activation, focus/blur handlers; Input component uses `useId()` to properly associate `<label htmlFor>` with `<input id>`
+
+### Store Homepage Upgrade (`GET /` — platformHub.ts)
+**New Sections**:
+- **Skip link** (`<a class="skip-link" href="#main-store">`)
+- **Trust bar**: Instant Delivery, Lifetime Access, Stripe secure, 30-Day Guarantee, AI-Generated
+- **Stats bar**: Live product count, 11 formats, $12 starting price, ∞ lifetime access, 30-day guarantee
+- **Live search**: JS-powered input filters featured product cards in real-time with no-results state
+- **Format chips**: Per-format product count, color-coded icons, hover to fill
+- **Featured products**: Top 8 by price, with badge, short description, tags, price, and hover CTA
+- **How It Works**: 3-step section (Browse → Checkout → Access)
+- **Payment Methods**: Stripe (cards/Apple Pay/Google Pay), Cash App ($CreateAIDigital), Venmo (@CreateAIDigital)
+- **30-Day Guarantee Banner**: Green banner with shield icon
+- **4-column Rich Footer**: Brand, Products, Account, Platform columns + legal links
+- **Mobile hamburger menu**: `aria-expanded` toggle, click-outside to close
+**Technical**: Semantic HTML5 (`<header>`, `<nav>`, `<main>`, `<section>`, `<footer>`), full ARIA labels, `Cache-Control: public, max-age=60`, `X-Content-Type-Options: nosniff`
+
 ## Platform Launch State (March 2026)
 
 **Fully active, no pending states**:

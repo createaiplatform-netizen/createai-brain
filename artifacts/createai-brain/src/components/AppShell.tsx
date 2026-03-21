@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useState, useId } from "react";
 
 const INDIGO = "#6366f1";
 const INDIGO_BG = "rgba(99,102,241,0.08)";
@@ -230,8 +230,13 @@ function Card({ children, onClick, style, accent, padding = 18 }: CardProps) {
     <div
       style={base}
       onClick={onClick}
+      role={onClick ? "button" : undefined}
+      tabIndex={onClick ? 0 : undefined}
+      onKeyDown={onClick ? (e) => { if (e.key === "Enter" || e.key === " ") { e.preventDefault(); onClick(); } } : undefined}
       onMouseEnter={() => setHov(true)}
       onMouseLeave={() => setHov(false)}
+      onFocus={() => setHov(true)}
+      onBlur={() => setHov(false)}
     >
       {children}
     </div>
@@ -431,6 +436,7 @@ interface InputProps {
 
 function Input({ value, onChange, placeholder, label, type = "text", disabled, multiline, rows = 4, icon }: InputProps) {
   const [focused, setFocused] = useState(false);
+  const inputId = useId();
   const border = focused ? `1.5px solid ${INDIGO}` : "1.5px solid rgba(0,0,0,0.11)";
   const shadow = focused ? "0 0 0 3px rgba(99,102,241,0.12)" : "none";
   const common: React.CSSProperties = {
@@ -444,7 +450,7 @@ function Input({ value, onChange, placeholder, label, type = "text", disabled, m
   return (
     <div style={{ display: "flex", flexDirection: "column", gap: 6 }}>
       {label && (
-        <label style={{ fontSize: 12.5, fontWeight: 600, color: "#374151", letterSpacing: "-0.01em" }}>
+        <label htmlFor={inputId} style={{ fontSize: 12.5, fontWeight: 600, color: "#374151", letterSpacing: "-0.01em" }}>
           {label}
         </label>
       )}
@@ -453,10 +459,11 @@ function Input({ value, onChange, placeholder, label, type = "text", disabled, m
           <span style={{
             position: "absolute", left: 11, top: "50%", transform: "translateY(-50%)",
             color: "#94a3b8", display: "flex", pointerEvents: "none", fontSize: 15,
-          }}>{icon}</span>
+          }} aria-hidden="true">{icon}</span>
         )}
         {multiline ? (
           <textarea
+            id={inputId}
             value={value}
             onChange={e => onChange(e.target.value)}
             placeholder={placeholder}
@@ -468,6 +475,7 @@ function Input({ value, onChange, placeholder, label, type = "text", disabled, m
           />
         ) : (
           <input
+            id={inputId}
             type={type}
             value={value}
             onChange={e => onChange(e.target.value)}
@@ -498,8 +506,13 @@ function Row({ icon, label, sub, right, onClick }: RowProps) {
   return (
     <div
       onClick={onClick}
+      role={onClick ? "button" : undefined}
+      tabIndex={onClick ? 0 : undefined}
+      onKeyDown={onClick ? (e) => { if (e.key === "Enter" || e.key === " ") { e.preventDefault(); onClick(); } } : undefined}
       onMouseEnter={() => setHov(true)}
       onMouseLeave={() => setHov(false)}
+      onFocus={() => setHov(true)}
+      onBlur={() => setHov(false)}
       style={{
         display: "flex", alignItems: "center", gap: 12,
         padding: "11px 14px", borderRadius: 10,

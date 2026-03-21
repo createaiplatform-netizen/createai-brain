@@ -81,7 +81,33 @@
     </script>
   </head>
   <body>
-    <div id="root"></div>
+    <!-- Skip Navigation — WCAG 2.4.1 Bypass Blocks -->
+    <a class="skip-link" href="#main-content">Skip to main content</a>
+
+    <!-- Root app mount -->
+    <div id="root" role="application" aria-label="CreateAI Brain platform"></div>
+
+    <!-- Hidden live regions for screen reader announcements -->
+    <div id="sr-announcer" aria-live="polite" aria-atomic="true" class="sr-only"></div>
+    <div id="sr-alert" aria-live="assertive" aria-atomic="true" class="sr-only"></div>
+
+    <!-- Keyboard vs Mouse detection — adds/removes 'using-mouse' on body -->
+    <script>
+      (function() {
+        var usingMouse = false;
+        document.addEventListener('mousedown', function() {
+          if (!usingMouse) { usingMouse = true; document.body.classList.add('using-mouse'); }
+        }, true);
+        document.addEventListener('keydown', function(e) {
+          if (e.key === 'Tab' || e.key === 'ArrowDown' || e.key === 'ArrowUp') {
+            if (usingMouse) { usingMouse = false; document.body.classList.remove('using-mouse'); }
+          }
+        }, true);
+        // Set initial ARIA attributes
+        document.documentElement.setAttribute('lang', 'en');
+      })();
+    </script>
+
     <script type="module" src="/src/main.tsx"></script>
   </body>
 </html>

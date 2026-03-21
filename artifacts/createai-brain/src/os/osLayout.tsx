@@ -93,7 +93,7 @@ export function OSLayout() {
       )}
 
       {/* ── Main area ── */}
-      <div className="flex-1 flex flex-col overflow-hidden min-w-0">
+      <div id="main-content" className="flex-1 flex flex-col overflow-hidden min-w-0" role="main" aria-label="Application workspace">
         {isMetrics ? (
           <div className="flex-1 flex flex-col overflow-hidden min-w-0 animate-fade-up" style={{ animationDuration: "0.32s" }}>
             {/* Top bar — matches AppWindow exactly */}

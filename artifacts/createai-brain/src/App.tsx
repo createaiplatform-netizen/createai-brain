@@ -136,13 +136,17 @@ const EXTRA_APP_COUNT = 110; // shown as "+110 more"
 
 function LoadingScreen() {
   return (
-    <div className="fixed inset-0 flex items-center justify-center" style={{ background: "#f0f0f5" }}>
+    <div className="fixed inset-0 flex items-center justify-center" style={{ background: "#f0f0f5" }}
+      role="status" aria-label="Loading CreateAI Brain" aria-live="polite">
       <div className="flex flex-col items-center gap-4">
         <div className="w-14 h-14 rounded-2xl flex items-center justify-center text-3xl"
+          aria-hidden="true"
           style={{ background: `linear-gradient(135deg, ${INDIGO} 0%, ${PURPLE} 100%)` }}>
           🧠
         </div>
-        <div className="w-6 h-6 border-2 border-indigo-500 border-t-transparent rounded-full animate-spin" />
+        <div className="w-6 h-6 border-2 border-indigo-500 border-t-transparent rounded-full animate-spin"
+          aria-hidden="true" />
+        <span className="sr-only">Loading, please wait…</span>
       </div>
     </div>
   );
@@ -152,9 +156,10 @@ function LoadingScreen() {
 
 function LoginScreen({ onLogin }: { onLogin: () => void }) {
   return (
-    <div className="fixed inset-0 overflow-y-auto" style={{ background: DARK_BG }}>
+    <div className="fixed inset-0 overflow-y-auto" style={{ background: DARK_BG }}
+      role="main" aria-label="CreateAI Brain login">
       {/* Glow */}
-      <div className="absolute inset-0 pointer-events-none"
+      <div className="absolute inset-0 pointer-events-none" aria-hidden="true"
         style={{ background: "radial-gradient(ellipse 70% 40% at 50% 20%, rgba(99,102,241,0.13) 0%, transparent 70%)" }} />
 
       <div className="relative z-10 flex flex-col items-center gap-12 px-6 py-16 max-w-lg mx-auto">
@@ -162,6 +167,7 @@ function LoginScreen({ onLogin }: { onLogin: () => void }) {
         {/* Hero */}
         <div className="flex flex-col items-center gap-5 text-center">
           <div className="w-20 h-20 rounded-3xl flex items-center justify-center text-4xl shadow-2xl"
+            aria-hidden="true"
             style={{ background: `linear-gradient(135deg, ${INDIGO} 0%, ${PURPLE} 100%)`,
               boxShadow: "0 0 48px rgba(99,102,241,0.35), 0 20px 60px rgba(0,0,0,0.5)" }}>
             🧠
@@ -174,7 +180,9 @@ function LoginScreen({ onLogin }: { onLogin: () => void }) {
           </div>
 
           <button onClick={onLogin}
-            className="mt-2 px-8 py-4 rounded-2xl font-bold text-[15px] text-white transition-all active:scale-95"
+            type="button"
+            aria-label="Log in to CreateAI Brain to get started"
+            className="mt-2 px-8 py-4 rounded-2xl font-bold text-[15px] text-white transition-all active:scale-95 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-indigo-500"
             style={{ background: `linear-gradient(135deg, ${INDIGO} 0%, ${PURPLE} 100%)`,
               boxShadow: "0 8px 32px rgba(99,102,241,0.40)" }}
             onMouseEnter={e => (e.currentTarget.style.boxShadow = "0 12px 40px rgba(99,102,241,0.55)")}
@@ -192,18 +200,19 @@ function LoginScreen({ onLogin }: { onLogin: () => void }) {
             style={{ color: "rgba(148,163,184,0.40)" }}>
             A few of the 122+ apps inside
           </p>
-          <div className="grid grid-cols-4 gap-2.5">
+          <div className="grid grid-cols-4 gap-2.5" role="list" aria-label="Sample apps inside CreateAI Brain">
             {APP_PREVIEW.map(({ icon, label }) => (
-              <div key={label}
+              <div key={label} role="listitem"
                 className="flex flex-col items-center gap-1.5 py-3 px-2 rounded-2xl"
                 style={{ background: "rgba(255,255,255,0.05)", border: "1px solid rgba(255,255,255,0.07)" }}>
-                <span className="text-[22px]">{icon}</span>
+                <span className="text-[22px]" aria-hidden="true">{icon}</span>
                 <span className="text-[9px] font-medium text-center leading-tight"
                   style={{ color: "rgba(203,213,225,0.65)" }}>{label}</span>
               </div>
             ))}
             {/* "+more" tile */}
             <div className="flex flex-col items-center justify-center gap-1 py-3 px-2 rounded-2xl"
+              role="listitem" aria-label={`Plus ${EXTRA_APP_COUNT} more apps`}
               style={{ background: "rgba(99,102,241,0.10)", border: "1px solid rgba(99,102,241,0.18)" }}>
               <span className="text-[13px] font-bold" style={{ color: "rgba(165,167,255,0.85)" }}>
                 +{EXTRA_APP_COUNT}
@@ -224,7 +233,7 @@ function LoginScreen({ onLogin }: { onLogin: () => void }) {
           ].map(({ icon, head, body }) => (
             <div key={head} className="flex items-start gap-4 p-4 rounded-2xl"
               style={{ background: "rgba(255,255,255,0.05)", border: "1px solid rgba(255,255,255,0.08)" }}>
-              <span className="text-2xl flex-shrink-0 mt-0.5">{icon}</span>
+              <span className="text-2xl flex-shrink-0 mt-0.5" aria-hidden="true">{icon}</span>
               <div>
                 <p className="font-semibold text-[13px] text-white">{head}</p>
                 <p className="text-[12px] mt-0.5" style={{ color: "rgba(203,213,225,0.65)" }}>{body}</p>
@@ -234,7 +243,9 @@ function LoginScreen({ onLogin }: { onLogin: () => void }) {
         </div>
 
         <button onClick={onLogin}
-          className="w-full py-4 rounded-2xl font-bold text-[16px] text-white transition-all active:scale-95"
+          type="button"
+          aria-label="Log in with Replit to access CreateAI Brain"
+          className="w-full py-4 rounded-2xl font-bold text-[16px] text-white transition-all active:scale-95 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-indigo-500"
           style={{ background: `linear-gradient(135deg, ${INDIGO} 0%, ${PURPLE} 100%)`,
             boxShadow: "0 8px 32px rgba(99,102,241,0.40)" }}>
           Log in with Replit
