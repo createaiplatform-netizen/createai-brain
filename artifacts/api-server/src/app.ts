@@ -64,8 +64,21 @@ app.use(globalLimiter);
 // ── CORS allowlist ────────────────────────────────────────────────────────────
 const customDomain = process.env["PUBLIC_DOMAIN"]?.replace(/^https?:\/\//, "").replace(/\/$/, "") ?? "";
 const ALLOWED_ORIGINS: RegExp[] = [
+  // Replit hosting
   /\.replit\.app$/,
   /\.replit\.dev$/,
+  // Cloudflare free tiers
+  /\.pages\.dev$/,
+  /\.workers\.dev$/,
+  // Developer identity subdomains
+  /\.is-a\.dev$/,
+  /\.is-a\.software$/,
+  /\.eu\.org$/,
+  /\.github\.io$/,
+  // Netlify / Vercel free tiers
+  /\.netlify\.app$/,
+  /\.vercel\.app$/,
+  // Local dev
   /^http:\/\/localhost(:\d+)?$/,
   /^http:\/\/127\.0\.0\.1(:\d+)?$/,
   /^http:\/\/172\.\d+\.\d+\.\d+(:\d+)?$/,
