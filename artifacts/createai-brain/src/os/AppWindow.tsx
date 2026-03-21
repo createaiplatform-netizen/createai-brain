@@ -376,6 +376,7 @@ const StaffingOSApp    = React.lazy(() => import("@/projects/StaffingOSApp").the
 const AdsHubApp           = React.lazy(() => import("@/Apps/AdsHubApp"));
 const AdsOrchestratorApp  = React.lazy(() => import("@/Apps/AdsOrchestratorApp"));
 const ReferralApp          = React.lazy(() => import("@/Apps/ReferralApp"));
+const GrowthEngineApp      = React.lazy(() => import("@/Apps/GrowthEngineApp"));
 const AuthLabApp       = React.lazy(() => import("@/Apps/AuthLabApp"));
 const PayGateApp       = React.lazy(() => import("@/Apps/PayGateApp"));
 const InventionLayerApp    = React.lazy(() => import("@/Apps/InventionLayerApp"));
@@ -750,6 +751,7 @@ const APP_COMPONENTS: Record<AppId, React.LazyExoticComponent<React.ComponentTyp
   adshub:          AdsHubApp,
   adsOrchestrator: AdsOrchestratorApp,
   referral:        ReferralApp,
+  growthEngine:    GrowthEngineApp,
   authlab:        AuthLabApp,
   paygate:        PayGateApp,
   inventionLayer:    InventionLayerApp,

@@ -44,3 +44,5 @@ export * from "./invites";
 export * from "./subscriptions";
 export * from "./file_versions";
 export * from "./referrals";
+export * from "./leads";
+export * from "./page_views";

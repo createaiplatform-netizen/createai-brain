@@ -106,6 +106,8 @@ import maxActivationRouter      from "./maxActivation.js";
 import credentialsBridgeRouter  from "./credentialsBridge.js";
 import campaignManagerRouter    from "./campaignManager.js";
 import referralRouter           from "./referral.js";
+import leadsRouter              from "./leads.js";
+import growthAnalyticsRouter    from "./growthAnalytics.js";
 
 const router: IRouter = Router();
 
@@ -321,5 +323,11 @@ router.use("/ads",                        campaignManagerRouter);
 
 // ── Viral Referral Loop — referral codes, clicks, conversions, leaderboard ──
 router.use("/referral",                   referralRouter);
+
+// ── Internal Lead Capture (replaces Mailchimp) ────────────────────────────────
+router.use("/leads",                      leadsRouter);
+
+// ── Internal Analytics (replaces Google Analytics) ───────────────────────────
+router.use("/analytics",                  growthAnalyticsRouter);
 
 export default router;

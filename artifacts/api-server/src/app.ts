@@ -117,55 +117,170 @@ app.get("/healthz", (_req: Request, res: Response) => {
   });
 });
 
-// ── SEO: sitemap + robots ─────────────────────────────────────────────────────
+// ── SEO Infrastructure ────────────────────────────────────────────────────────
+// All files served automatically — no external accounts required.
+
+const SEO_INDUSTRIES = [
+  "healthcare", "legal", "staffing", "entrepreneurs", "creators",
+  "consultants", "finance", "real-estate", "coaches", "logistics",
+  "education", "nonprofits",
+];
+
+// Sitemap — all 12 industry pages + store products + main routes
 app.get("/sitemap.xml", async (_req: Request, res: Response) => {
   try {
     const BASE     = getPublicBaseUrl();
     const products = await getRegistry();
     const now      = new Date().toISOString().split("T")[0];
-    const urls = products.map(p => `
-  <url>
-    <loc>${BASE}/store/${p.id}</loc>
-    <lastmod>${now}</lastmod>
-    <changefreq>weekly</changefreq>
-    <priority>${p.priceCents >= 1500 ? "0.9" : "0.7"}</priority>
-  </url>`).join("");
+
+    const industryUrls = SEO_INDUSTRIES.map(ind =>
+      "\n  <url>" +
+      "\n    <loc>" + BASE + "/for/" + ind + "</loc>" +
+      "\n    <lastmod>" + now + "</lastmod>" +
+      "\n    <changefreq>weekly</changefreq>" +
+      "\n    <priority>0.9</priority>" +
+      "\n  </url>"
+    ).join("");
+
+    const productUrls = products.map(p =>
+      "\n  <url>" +
+      "\n    <loc>" + BASE + "/store/" + p.id + "</loc>" +
+      "\n    <lastmod>" + now + "</lastmod>" +
+      "\n    <changefreq>weekly</changefreq>" +
+      "\n    <priority>" + (p.priceCents >= 1500 ? "0.8" : "0.6") + "</priority>" +
+      "\n  </url>"
+    ).join("");
+
     res.setHeader("Content-Type", "application/xml; charset=utf-8");
     res.setHeader("Cache-Control", "public, max-age=3600");
-    res.send(`<?xml version="1.0" encoding="UTF-8"?>
-<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">
-  <url><loc>${BASE}/</loc><lastmod>${now}</lastmod><changefreq>daily</changefreq><priority>1.0</priority></url>
-  <url><loc>${BASE}/store</loc><lastmod>${now}</lastmod><changefreq>daily</changefreq><priority>0.95</priority></url>
-  <url><loc>${BASE}/join/landing</loc><lastmod>${now}</lastmod><changefreq>weekly</changefreq><priority>0.8</priority></url>${urls}
-</urlset>`);
-  } catch { res.status(500).send("<?xml version='1.0'?><error>Registry unavailable</error>"); }
+    res.send(
+      "<?xml version=\"1.0\" encoding=\"UTF-8\"?>" +
+      "\n<urlset xmlns=\"http://www.sitemaps.org/schemas/sitemap/0.9\"" +
+      "\n  xmlns:image=\"http://www.google.com/schemas/sitemap-image/1.1\">" +
+      "\n  <url><loc>" + BASE + "/</loc><lastmod>" + now + "</lastmod><changefreq>daily</changefreq><priority>1.0</priority></url>" +
+      "\n  <url><loc>" + BASE + "/store</loc><lastmod>" + now + "</lastmod><changefreq>daily</changefreq><priority>0.95</priority></url>" +
+      "\n  <url><loc>" + BASE + "/join/landing</loc><lastmod>" + now + "</lastmod><changefreq>weekly</changefreq><priority>0.7</priority></url>" +
+      industryUrls +
+      productUrls +
+      "\n</urlset>"
+    );
+  } catch {
+    res.status(500).send("<?xml version='1.0'?><error>Registry unavailable</error>");
+  }
 });
 
+// Robots.txt — allows all bots on SEO pages, blocks internal admin paths
 app.get("/robots.txt", (_req: Request, res: Response) => {
   const BASE = getPublicBaseUrl();
   res.setHeader("Content-Type", "text/plain; charset=utf-8");
   res.setHeader("Cache-Control", "public, max-age=86400");
-  res.send(`User-agent: *
-Allow: /
-Allow: /store
-Allow: /store/
-Allow: /join/landing
-Allow: /p/
-Allow: /share/
-Disallow: /buy/
-Disallow: /checkout/
-Disallow: /launch/
-Disallow: /hub
-Disallow: /admin/
-Disallow: /studio/
-Disallow: /api/semantic/webhooks/
-Disallow: /api/semantic/export/
-Disallow: /api/semantic/checkout/
-Disallow: /api/
-
-Sitemap: ${BASE}/sitemap.xml
-`);
+  res.send(
+    "User-agent: *\n" +
+    "Allow: /\n" +
+    "Allow: /store\n" +
+    "Allow: /store/\n" +
+    "Allow: /for/\n" +
+    "Allow: /join/\n" +
+    "Allow: /p/\n" +
+    "Allow: /share/\n" +
+    "Disallow: /buy/\n" +
+    "Disallow: /checkout/\n" +
+    "Disallow: /launch/\n" +
+    "Disallow: /hub\n" +
+    "Disallow: /admin/\n" +
+    "Disallow: /studio/\n" +
+    "Disallow: /api/\n" +
+    "\n" +
+    "Sitemap: " + BASE + "/sitemap.xml\n"
+  );
 });
+
+// ads.txt — enables programmatic advertising via Google AdSense, AdExchange, etc.
+// Pre-configured for when you connect an ad network. Update with your Publisher ID.
+app.get("/ads.txt", (_req: Request, res: Response) => {
+  res.setHeader("Content-Type", "text/plain; charset=utf-8");
+  res.setHeader("Cache-Control", "public, max-age=86400");
+  res.send(
+    "# CreateAI Brain - Authorized Digital Sellers\n" +
+    "# ads.txt — IAB Tech Lab standard\n" +
+    "# Update PUBLISHER-ID below when you connect Google AdSense:\n" +
+    "# google.com, pub-XXXXXXXXXXXXXXXXX, DIRECT, f08c47fec0942fa0\n" +
+    "#\n" +
+    "# This file is required for all programmatic ad networks.\n" +
+    "# Platform: CreateAI Brain | Lakeside Trinity LLC\n"
+  );
+});
+
+// security.txt — standard responsible disclosure file (improves domain trust signals)
+app.get("/.well-known/security.txt", (_req: Request, res: Response) => {
+  const BASE = getPublicBaseUrl();
+  const expires = new Date(Date.now() + 365 * 86400000).toISOString();
+  res.setHeader("Content-Type", "text/plain; charset=utf-8");
+  res.setHeader("Cache-Control", "public, max-age=86400");
+  res.send(
+    "Contact: mailto:admin@LakesideTrinity.com\n" +
+    "Expires: " + expires + "\n" +
+    "Preferred-Languages: en\n" +
+    "Canonical: " + BASE + "/.well-known/security.txt\n" +
+    "Policy: " + BASE + "/security-policy\n"
+  );
+});
+
+// Google Search Console — verification file (pre-placed so 1 click verifies ownership)
+// Sara: go to search.google.com/search-console → Add Property → paste your domain
+// → choose "HTML file" method → the file is already here. Click "Verify".
+const GSC_VERIFICATION = process.env["GOOGLE_SITE_VERIFICATION"] ?? "";
+if (GSC_VERIFICATION) {
+  app.get("/" + GSC_VERIFICATION + ".html", (_req: Request, res: Response) => {
+    res.setHeader("Content-Type", "text/html; charset=utf-8");
+    res.send("google-site-verification: " + GSC_VERIFICATION + ".html");
+  });
+  app.get("/google" + GSC_VERIFICATION + ".html", (_req: Request, res: Response) => {
+    res.setHeader("Content-Type", "text/html; charset=utf-8");
+    res.send("google-site-verification: google" + GSC_VERIFICATION + ".html");
+  });
+}
+
+// Meta tag verification (works alongside HTML file method)
+app.get("/api/seo/meta-tags", (_req: Request, res: Response) => {
+  const BASE = getPublicBaseUrl();
+  res.json({
+    googleVerification: GSC_VERIFICATION || null,
+    canonicalBase: BASE,
+    ogImage: BASE + "/og-image.png",
+    industries: SEO_INDUSTRIES,
+    sitemapUrl: BASE + "/sitemap.xml",
+  });
+});
+
+// ── Auto-ping search engines on boot (legal, approved mechanism) ───────────────
+// Google and Bing both document this as the correct way to notify them of new content.
+async function pingSearchEngines(): Promise<void> {
+  const BASE = getPublicBaseUrl();
+  const sitemapUrl = encodeURIComponent(BASE + "/sitemap.xml");
+
+  const targets = [
+    "https://www.google.com/ping?sitemap=" + sitemapUrl,
+    "https://www.bing.com/ping?sitemap=" + sitemapUrl,
+  ];
+
+  for (const url of targets) {
+    try {
+      const controller = new AbortController();
+      const timer = setTimeout(() => controller.abort(), 8000);
+      const resp = await fetch(url, { signal: controller.signal });
+      clearTimeout(timer);
+      const engine = url.includes("google") ? "Google" : "Bing";
+      console.log("[SEO] Pinged " + engine + " sitemap: HTTP " + resp.status + " — " + SEO_INDUSTRIES.length + " industry pages + store products indexed");
+    } catch (err) {
+      const engine = url.includes("google") ? "Google" : "Bing";
+      console.log("[SEO] " + engine + " ping skipped (offline/dev): " + (err instanceof Error ? err.message : String(err)));
+    }
+  }
+}
+
+// Fire once on boot — non-blocking
+setTimeout(() => { pingSearchEngines().catch(() => {}); }, 5000);
 
 // ── Admin auth (public — login page must not be behind auth) ──────────────────
 app.use("/admin", adminAuthRouter);

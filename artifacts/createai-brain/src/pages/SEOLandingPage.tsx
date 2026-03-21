@@ -1,5 +1,6 @@
-import React, { useEffect } from "react";
+import React, { useEffect, useRef } from "react";
 import { useLocation, Link } from "wouter";
+import LeadCaptureForm from "@/components/LeadCaptureForm";
 
 const INDIGO = "#6366f1";
 const PURPLE = "#8b5cf6";
@@ -422,6 +423,89 @@ const INDUSTRIES: Record<string, IndustryConfig> = {
 
 const ALL_INDUSTRIES = Object.values(INDUSTRIES);
 
+const API = "/api";
+
+function makeSessionId(): string {
+  const key = "createai_session_id";
+  let id = sessionStorage.getItem(key);
+  if (!id) { id = Math.random().toString(36).slice(2) + Date.now().toString(36); sessionStorage.setItem(key, id); }
+  return id;
+}
+
+function useAnalyticsTracking(path: string, industry: string) {
+  const fired = useRef(false);
+  useEffect(() => {
+    if (fired.current) return;
+    fired.current = true;
+    const p = new URLSearchParams(window.location.search);
+    fetch(`${API}/analytics/pageview`, {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({
+        path,
+        industry,
+        refCode:     p.get("ref") ?? localStorage.getItem("createai_ref_code") ?? null,
+        utmSource:   p.get("utm_source") ?? null,
+        utmMedium:   p.get("utm_medium") ?? null,
+        utmCampaign: p.get("utm_campaign") ?? null,
+        sessionId:   makeSessionId(),
+        referrer:    document.referrer || null,
+      }),
+    }).catch(() => {});
+  }, [path, industry]);
+}
+
+function useJsonLd(config: IndustryConfig) {
+  useEffect(() => {
+    const origin = window.location.origin;
+    const schema = {
+      "@context": "https://schema.org",
+      "@graph": [
+        {
+          "@type": "Organization",
+          "@id": origin + "/#organization",
+          "name": "CreateAI Brain",
+          "url": origin,
+          "description": "122-app AI Operating System for businesses across every industry.",
+          "foundingOrganization": { "@type": "Organization", "name": "Lakeside Trinity LLC" },
+          "contactPoint": { "@type": "ContactPoint", "contactType": "customer service", "email": "admin@LakesideTrinity.com" },
+        },
+        {
+          "@type": "SoftwareApplication",
+          "name": "CreateAI Brain — " + config.title,
+          "url": origin + "/for/" + config.slug,
+          "description": config.metaDesc,
+          "applicationCategory": "BusinessApplication",
+          "operatingSystem": "Web",
+          "offers": { "@type": "Offer", "price": "97", "priceCurrency": "USD", "priceSpecification": { "@type": "UnitPriceSpecification", "priceType": "PerMonth" } },
+          "provider": { "@type": "Organization", "name": "Lakeside Trinity LLC" },
+          "featureList": config.features.map(f => f.title),
+          "screenshot": origin + "/og-image.png",
+        },
+        {
+          "@type": "FAQPage",
+          "mainEntity": [
+            { "@type": "Question", "name": "How much does CreateAI Brain cost?", "acceptedAnswer": { "@type": "Answer", "text": "CreateAI Brain starts at $97/month for full access to all 122 AI apps." } },
+            { "@type": "Question", "name": "Do I need separate software for " + config.title + "?", "acceptedAnswer": { "@type": "Answer", "text": "No. " + config.solution } },
+            { "@type": "Question", "name": "How do I pay?", "acceptedAnswer": { "@type": "Answer", "text": "Payment via Cash App ($CreateAIDigital) or Venmo (@CreateAIDigital). No credit card processors required." } },
+          ],
+        },
+      ],
+    };
+
+    const existing = document.getElementById("jsonld-schema");
+    if (existing) existing.remove();
+
+    const script = document.createElement("script");
+    script.id = "jsonld-schema";
+    script.type = "application/ld+json";
+    script.textContent = JSON.stringify(schema);
+    document.head.appendChild(script);
+
+    return () => { document.getElementById("jsonld-schema")?.remove(); };
+  }, [config]);
+}
+
 function useMetaTags(title: string, description: string, keywords: string) {
   useEffect(() => {
     document.title = title;
@@ -474,6 +558,9 @@ export default function SEOLandingPage({ industry }: SEOLandingPageProps) {
     config?.metaDesc ?? "122 AI apps for every industry. One platform. $97/mo.",
     config?.keywords ?? "AI platform, AI tools, AI software",
   );
+
+  useJsonLd(config ?? INDUSTRIES.healthcare);
+  useAnalyticsTracking("/for/" + industry, industry);
 
   if (!config) {
     return (
@@ -532,6 +619,24 @@ export default function SEOLandingPage({ industry }: SEOLandingPageProps) {
               <div style={{ fontSize: 13, color: "#64748b", marginTop: 6 }}>{p.label}</div>
             </div>
           ))}
+        </div>
+      </div>
+
+      {/* Lead Capture Form */}
+      <div style={{ background: "linear-gradient(135deg, #0f172a, #1e1b4b)", padding: "48px 24px" }}>
+        <div style={{ maxWidth: 520, margin: "0 auto" }}>
+          <div style={{ textAlign: "center", marginBottom: 24 }}>
+            <div style={{ display: "inline-block", background: "rgba(99,102,241,0.2)", border: "1px solid rgba(99,102,241,0.3)", borderRadius: 20, padding: "4px 14px", fontSize: 11, fontWeight: 700, color: "#a5b4fc", letterSpacing: 0.5, marginBottom: 12, textTransform: "uppercase" }}>
+              Early Access
+            </div>
+            <h2 style={{ fontSize: "clamp(18px, 2.5vw, 24px)", fontWeight: 800, color: "#f1f5f9", margin: 0, marginBottom: 8 }}>
+              Get notified when {config.title} launches
+            </h2>
+            <p style={{ fontSize: 13, color: "rgba(148,163,184,0.8)", margin: 0 }}>
+              Join the waitlist. We'll send you early access and a special founding member price.
+            </p>
+          </div>
+          <LeadCaptureForm industry={industry} />
         </div>
       </div>
 

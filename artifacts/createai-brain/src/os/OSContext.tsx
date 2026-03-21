@@ -268,7 +268,7 @@ export type AppId =
   | "healthos" | "legalpm" | "staffingos"
   // ── New Platform Capabilities ─────────────────────────────────────────────
   | "adshub" | "adsOrchestrator" | "authlab" | "paygate" | "inventionLayer"
-  | "percentageEngine" | "activation" | "credentialsHub" | "referral";
+  | "percentageEngine" | "activation" | "credentialsHub" | "referral" | "growthEngine";
 
 export interface AppDef {
   id: AppId;
@@ -440,6 +440,7 @@ export const DEFAULT_APPS: AppDef[] = [
   { id: "activation",       label: "Activation Center",   icon: "⚡", color: "#6366f1", description: "Maximum potential command center — fire all engines simultaneously, view real-time status of every system, see active bypasses for every blocker, and track the live execution sequence", category: "system" },
   { id: "credentialsHub",   label: "Credentials Hub",     icon: "🔗", color: "#6366f1", description: "Enter marketplace API tokens directly in the OS — no Replit Secrets navigation required. Tokens activate instantly, persist across restarts, and unlock Shopify, Etsy, Amazon, eBay, and Creative Market publishing automatically.", category: "system" },
   { id: "referral",         label: "Referral Program",    icon: "🎁", color: "#10b981", description: "Viral referral loop — get your unique link, share on any channel, track clicks and conversions in real time, see your rank on the leaderboard, and copy industry-specific links for healthcare, legal, and staffing contacts", category: "tools" },
+  { id: "growthEngine",     label: "Growth Engine",        icon: "📈", color: "#6366f1", description: "Internal analytics dashboard — page views by industry, lead captures, referral funnel, daily traffic trends, top sources, and exact step-by-step guide for the 3 manual setup steps that unlock Google Search Console, Resend email, and Stripe payments", category: "system" },
 ];
 
 export const ALL_APPS = DEFAULT_APPS;
@@ -549,6 +550,7 @@ const INTENT_MAP: { keywords: string[]; target: AppId }[] = [
   { keywords: ["activate", "activation", "activate all", "fire all", "fire all engines", "maximum potential", "activate systems", "all systems", "activate revenue", "activate platform", "launch all", "go live", "full activation", "command center", "engine status", "system status", "blockers", "bypass blockers", "execution sequence", "what fires next", "engines running", "what's running", "platform running", "revenue engines", "autonomous engines", "all revenue systems", "full auto", "max activation", "turn everything on", "start all systems"], target: "activation" },
   { keywords: ["credentials", "credentials hub", "api token", "api key", "marketplace token", "connect shopify", "connect etsy", "connect amazon", "connect ebay", "creative market", "shopify token", "etsy api", "amazon sp", "ebay oauth", "marketplace connect", "add token", "enter token", "activate marketplace", "external marketplace", "dns records", "resend dns", "domain verification", "email verification", "verify domain", "dns setup", "client link", "share invoice", "invoice link", "shareable link", "client payment page", "no email needed"], target: "credentialsHub" },
   { keywords: ["referral", "referral program", "refer a friend", "invite link", "share link", "my referral link", "referral code", "referral stats", "clicks", "conversions", "leaderboard", "top referrers", "viral loop", "share createai", "invite someone", "grow platform", "earn referral", "referral tracking", "unique code", "share on twitter", "share on linkedin", "whatsapp invite"], target: "referral" },
+  { keywords: ["growth", "growth engine", "analytics", "page views", "traffic", "leads", "lead capture", "lead database", "seo traffic", "email list", "mailchimp alternative", "google analytics alternative", "visitors", "industry traffic", "conversion funnel", "growth dashboard", "traffic sources", "top pages", "next steps", "setup guide", "google search console", "resend email", "stripe verification", "3 manual steps", "search engine", "sitemap"], target: "growthEngine" },
 ];
 
 function routeIntentFn(intent: string): AppId | null {
