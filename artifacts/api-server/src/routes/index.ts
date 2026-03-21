@@ -83,7 +83,8 @@ import enforcerRouter     from "./enforcer.js";
 import ultimateRouter          from "./ultimate.js";
 import ultraInteractionRouter  from "./ultraInteraction.js";
 import payoutRouter             from "./payout.js";
-import bridgeRouter            from "./bridge.js";
+import bridgeRouter             from "./bridge.js";
+import modesRouter              from "./modes.js";
 
 const router: IRouter = Router();
 
@@ -213,5 +214,8 @@ router.use("/payout",             payoutRouter);
 
 // ── Universal Bridge Engine — connector status + action history ───────────────
 router.use("/bridge",             bridgeRouter);
+
+// ── Platform Mode Spectrum Registry (all 25 modes, 5 layers) ─────────────────
+router.use("/modes",              modesRouter);
 
 export default router;

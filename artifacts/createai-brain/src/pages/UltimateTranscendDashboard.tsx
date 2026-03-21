@@ -12,6 +12,7 @@
  */
 
 import React, { useState, useEffect, useCallback } from "react";
+import { ModeSpectrumPanel } from "@/components/ModeSpectrumPanel";
 
 // ─── Constants ────────────────────────────────────────────────────────────────
 
@@ -709,9 +710,12 @@ export default function UltimateTranscendDashboard() {
           ))}
         </div>
 
+        {/* ── Mode Spectrum ── */}
+        <ModeSpectrumPanel />
+
         {/* ── Footer ── */}
         <div style={{ marginTop: 32, textAlign: "center", fontSize: 12, color: SLATE }}>
-          CreateAI Brain · Ultimate Transcendent Stack · 11 engines · Owner Authorization ACTIVE · Universal Bridge Engine active · Real data only
+          CreateAI Brain · Ultimate Transcendent Stack · 11 engines · 25 modes active · Owner Authorization ACTIVE · Universal Bridge Engine active · Real data only
         </div>
       </div>
     </div>

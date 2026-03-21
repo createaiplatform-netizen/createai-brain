@@ -118,3 +118,10 @@ The CreateAI Brain platform is built as a pnpm workspace monorepo using Node.js 
     - **Analytics**: Google Analytics
     - **Communication**: Zoom
     - **SSO Providers**: Google, Microsoft, Okta, GitHub (scaffold)
+## Platform Mode Spectrum Registry
+
+- **25-Mode Spectrum** — 5 layers (BASE/PLATFORM/TRANSCENDENT/INFINITE/BEYOND), all active at boot.
+- **Backend** — `artifacts/api-server/src/services/modeRegistry.ts` defines all 25 modes. Routes at `GET /api/modes`, `/api/modes/stats`, `/api/modes/active`, `/api/modes/layer/:layer`.
+- **Frontend** — `ModeSpectrumPanel.tsx` renders all 25 modes grouped by layer in `UltimateTranscendDashboard.tsx` below the engine grid.
+- **Stripe Live Mode** — `stripeClient.ts` auto-switches test→production when `REPLIT_DEPLOYMENT=1`. No hardcoded keys.
+
