@@ -227,6 +227,34 @@ app.get("/.well-known/security.txt", (_req: Request, res: Response) => {
   );
 });
 
+// ── NEXUS Platform Address — well-known identity endpoints ───────────────────
+// These MUST live at root (not under /api) per RFC 8615 (.well-known convention).
+app.get("/.well-known/platform-id.json", (_req: Request, res: Response) => {
+  const id = IDENTITY;
+  res.setHeader("Content-Type", "application/json");
+  res.setHeader("Cache-Control", "public, max-age=300");
+  res.json({
+    "@context": "npa://schema/v1",
+    npa:          id.npa,
+    platformName: id.platformName,
+    legalEntity:  id.legalEntity,
+    contact:      id.contactEmail,
+    liveUrl:      id.platformUrl,
+    payments: { cashApp: id.cashApp, venmo: id.venmo },
+  });
+});
+
+app.get("/.well-known/npa-resolve.json", (_req: Request, res: Response) => {
+  const id = IDENTITY;
+  res.setHeader("Content-Type", "application/json");
+  res.setHeader("Cache-Control", "public, max-age=300");
+  res.json({
+    npa:      id.npa,
+    resolution: { web: id.platformUrl, email: id.fromEmail, cashApp: id.cashApp, venmo: id.venmo },
+    note: "NEXUS Platform Address — no external domain registration required.",
+  });
+});
+
 // Google Search Console — verification file (pre-placed so 1 click verifies ownership)
 // Sara: go to search.google.com/search-console → Add Property → paste your domain
 // → choose "HTML file" method → the file is already here. Click "Verify".

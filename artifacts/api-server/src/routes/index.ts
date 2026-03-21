@@ -108,6 +108,7 @@ import campaignManagerRouter    from "./campaignManager.js";
 import referralRouter           from "./referral.js";
 import leadsRouter              from "./leads.js";
 import growthAnalyticsRouter    from "./growthAnalytics.js";
+import platformIdentityRouter   from "./platformIdentity.js";
 
 const router: IRouter = Router();
 
@@ -329,5 +330,8 @@ router.use("/leads",                      leadsRouter);
 
 // ── Internal Analytics (replaces Google Analytics) ───────────────────────────
 router.use("/analytics",                  growthAnalyticsRouter);
+
+// ── NEXUS Platform Address — internal identity, routing, NPA resolution ───────
+router.use(platformIdentityRouter);
 
 export default router;
