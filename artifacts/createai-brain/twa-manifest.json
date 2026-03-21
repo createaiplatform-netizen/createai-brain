@@ -1,0 +1,55 @@
+{
+  "_comment": "Trusted Web Activity (TWA) manifest for Google Play Store submission via Bubblewrap CLI",
+  "_instructions": "Run: npx @bubblewrap/cli init --manifest=https://YOUR_DOMAIN/manifest.json",
+
+  "packageId": "com.lakesidetrinity.createaibrain",
+  "host": "createaibrain.app",
+  "name": "CreateAI Brain",
+  "launcherName": "CreateAI",
+  "themeColor": "#6366f1",
+  "navigationColor": "#0f172a",
+  "navigationColorDark": "#0f172a",
+  "navigationDividerColor": "#1e293b",
+  "navigationDividerColorDark": "#1e293b",
+  "backgroundColor": "#020617",
+  "enableNotifications": true,
+  "startUrl": "/",
+  "iconUrl": "https://createaibrain.app/icons/icon-512.png",
+  "maskableIconUrl": "https://createaibrain.app/icons/icon-maskable-512.png",
+  "monochromeIconUrl": "https://createaibrain.app/icons/icon-192.png",
+  "splashScreenFadeOutDuration": 300,
+  "signingKey": {
+    "path": "android.keystore",
+    "alias": "createai"
+  },
+  "appVersionCode": 1,
+  "appVersionName": "1.0.0",
+  "shortcuts": [
+    {
+      "name": "NEXUS AI",
+      "short_name": "NEXUS",
+      "url": "/?nexus=open",
+      "icons": [{ "src": "/icons/icon-96.png", "sizes": "96x96" }]
+    },
+    {
+      "name": "Revenue Intelligence",
+      "short_name": "Revenue",
+      "url": "/?app=revenueIntel",
+      "icons": [{ "src": "/icons/icon-96.png", "sizes": "96x96" }]
+    }
+  ],
+  "generatorApp": "bubblewrap-cli",
+  "webManifestUrl": "https://createaibrain.app/manifest.json",
+  "isChromeOSOnly": false,
+  "isMetaQuest": false,
+  "fullScopeUrl": "https://createaibrain.app/",
+  "minSdkVersion": 23,
+  "orientation": "default",
+  "fingerprints": [
+    {
+      "_comment": "REPLACE with your actual SHA-256 fingerprint from Google Play Console after uploading your app",
+      "type": "sha256_cert",
+      "value": "REPLACE_WITH_YOUR_PLAY_STORE_SHA256_FINGERPRINT"
+    }
+  ]
+}

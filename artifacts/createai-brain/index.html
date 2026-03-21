@@ -2,18 +2,83 @@
 <html lang="en">
   <head>
     <meta charset="UTF-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1" />
-    <meta name="theme-color" content="#08091c" />
-    <meta name="description" content="CreateAI Brain — Premium AI Platform by Sara Stadler" />
-    <title>CreateAI Brain</title>
-    <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
-    <link rel="manifest" href="/manifest.json" />
+
+    <!-- ── Viewport & Core ──────────────────────────────────────────────────── -->
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1, viewport-fit=cover" />
+    <meta name="theme-color" content="#6366f1" />
+    <meta name="description" content="CreateAI Brain — The complete AI-powered OS for your business. 45+ intelligent tools by Lakeside Trinity LLC." />
+    <meta name="keywords" content="AI platform, business OS, CRM, revenue intelligence, strategy AI, Lakeside Trinity, CreateAI" />
+    <meta name="author" content="Lakeside Trinity LLC" />
+
+    <!-- ── Apple / iOS PWA ──────────────────────────────────────────────────── -->
+    <meta name="apple-mobile-web-app-capable" content="yes" />
+    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent" />
+    <meta name="apple-mobile-web-app-title" content="CreateAI" />
+    <meta name="mobile-web-app-capable" content="yes" />
+    <meta name="format-detection" content="telephone=no" />
+
+    <!-- ── Apple Touch Icons ─────────────────────────────────────────────────── -->
+    <link rel="apple-touch-icon" href="/icons/icon-192.png" />
+    <link rel="apple-touch-icon" sizes="72x72"   href="/icons/icon-72.png" />
+    <link rel="apple-touch-icon" sizes="96x96"   href="/icons/icon-96.png" />
+    <link rel="apple-touch-icon" sizes="128x128" href="/icons/icon-128.png" />
+    <link rel="apple-touch-icon" sizes="144x144" href="/icons/icon-144.png" />
+    <link rel="apple-touch-icon" sizes="152x152" href="/icons/icon-152.png" />
+    <link rel="apple-touch-icon" sizes="167x167" href="/icons/icon-167.png" />
+    <link rel="apple-touch-icon" sizes="180x180" href="/icons/icon-180.png" />
+    <link rel="apple-touch-icon" sizes="192x192" href="/icons/icon-192.png" />
+
+    <!-- ── Apple Splash Screens ─────────────────────────────────────────────── -->
+    <link rel="apple-touch-startup-image" media="(device-width:390px) and (device-height:844px) and (-webkit-device-pixel-ratio:3) and (orientation:portrait)" href="/splash/splash-1170x2532.png" />
+    <link rel="apple-touch-startup-image" media="(device-width:393px) and (device-height:852px) and (-webkit-device-pixel-ratio:3) and (orientation:portrait)" href="/splash/splash-1179x2556.png" />
+    <link rel="apple-touch-startup-image" media="(device-width:430px) and (device-height:932px) and (-webkit-device-pixel-ratio:3) and (orientation:portrait)" href="/splash/splash-1290x2796.png" />
+    <link rel="apple-touch-startup-image" media="(device-width:428px) and (device-height:926px) and (-webkit-device-pixel-ratio:3) and (orientation:portrait)" href="/splash/splash-1284x2778.png" />
+    <link rel="apple-touch-startup-image" media="(device-width:375px) and (device-height:812px) and (-webkit-device-pixel-ratio:3) and (orientation:portrait)" href="/splash/splash-1125x2436.png" />
+    <link rel="apple-touch-startup-image" media="(device-width:414px) and (device-height:896px) and (-webkit-device-pixel-ratio:2) and (orientation:portrait)" href="/splash/splash-828x1792.png" />
+    <link rel="apple-touch-startup-image" media="(device-width:375px) and (device-height:667px) and (-webkit-device-pixel-ratio:2) and (orientation:portrait)" href="/splash/splash-750x1334.png" />
+    <link rel="apple-touch-startup-image" media="(device-width:768px) and (device-height:1024px) and (-webkit-device-pixel-ratio:2) and (orientation:portrait)" href="/splash/splash-1536x2048.png" />
+    <link rel="apple-touch-startup-image" media="(device-width:834px) and (device-height:1194px) and (-webkit-device-pixel-ratio:2) and (orientation:portrait)" href="/splash/splash-1668x2388.png" />
+    <link rel="apple-touch-startup-image" media="(device-width:1024px) and (device-height:1366px) and (-webkit-device-pixel-ratio:2) and (orientation:portrait)" href="/splash/splash-2048x2732.png" />
+
+    <!-- ── Open Graph / Social ──────────────────────────────────────────────── -->
+    <meta property="og:type"        content="website" />
+    <meta property="og:title"       content="CreateAI Brain — AI-Powered Business OS" />
+    <meta property="og:description" content="45+ intelligent business tools in one OS. CRM, revenue analytics, AI strategy, social command, and more." />
+    <meta property="og:image"       content="/opengraph.jpg" />
+    <meta property="og:url"         content="https://createaibrain.app" />
+    <meta property="og:site_name"   content="CreateAI Brain" />
+    <meta name="twitter:card"       content="summary_large_image" />
+    <meta name="twitter:title"      content="CreateAI Brain — AI-Powered Business OS" />
+    <meta name="twitter:image"      content="/opengraph.jpg" />
+
+    <!-- ── Microsoft Tiles ──────────────────────────────────────────────────── -->
+    <meta name="msapplication-TileColor" content="#6366f1" />
+    <meta name="msapplication-TileImage" content="/icons/icon-144.png" />
+    <meta name="msapplication-tap-highlight" content="no" />
+
+    <!-- ── Manifest & Icons ─────────────────────────────────────────────────── -->
+    <link rel="manifest"      href="/manifest.json" />
+    <link rel="icon"          type="image/svg+xml"  href="/favicon.svg" />
+    <link rel="icon"          type="image/png" sizes="192x192" href="/icons/icon-192.png" />
+    <link rel="shortcut icon" href="/icons/icon-192.png" />
+
+    <!-- ── Fonts ────────────────────────────────────────────────────────────── -->
     <link rel="preconnect" href="https://fonts.googleapis.com" />
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
-    <link
-      href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&display=swap"
-      rel="stylesheet"
-    />
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&display=swap" rel="stylesheet" />
+
+    <title>CreateAI Brain</title>
+
+    <!-- ── Service Worker ───────────────────────────────────────────────────── -->
+    <script>
+      if ('serviceWorker' in navigator) {
+        window.addEventListener('load', function() {
+          navigator.serviceWorker.register('/sw.js', { scope: '/' })
+            .then(reg => console.log('[CreateAI] SW registered, scope:', reg.scope))
+            .catch(err => console.warn('[CreateAI] SW error:', err));
+        });
+      }
+    </script>
   </head>
   <body>
     <div id="root"></div>
