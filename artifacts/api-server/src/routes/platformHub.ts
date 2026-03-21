@@ -222,8 +222,9 @@ router.get("/hub", async (_req: Request, res: Response) => {
     {
       section: "Operations",
       items: [
-        { label: "CORE Console", url: `${BASE}/core`, desc: "Internal identity, intent navigation, and surface adaptation — no external auth", icon: "◎", badge: "Admin" },
-        { label: "SignalSpace Console", url: `${BASE}/ss`, desc: "AI-native addressing layer — navigate by @signal, #concept, ?query, ~code", icon: "⬡", badge: "Admin" },
+        { label: "NEXUS Platform OS", url: `${BASE}/nexus`, desc: "Unified OS — identity (Presence), 5-format addressing, role-adaptive surfaces, session context. Supersedes CORE + SignalSpace.", icon: "◉", badge: "Admin" },
+        { label: "CORE Console (legacy)", url: `${BASE}/core`, desc: "Legacy CORE OS — Presence tokens, intent navigation. Superseded by NEXUS.", icon: "◎", badge: "Admin" },
+        { label: "SignalSpace (legacy)", url: `${BASE}/ss`, desc: "Legacy SSAP semantic addressing layer. Superseded by NEXUS unified resolver.", icon: "⬡", badge: "Admin" },
         { label: "Live Payment Feed", url: `${BASE}/launch/payments`, desc: "Real-time Stripe sessions with delivery status", icon: "💳", badge: "Admin" },
         { label: "CRM Stats", url: `${BASE}/portal/stats`, desc: "Total customers, revenue, top products", icon: "📊", badge: "Admin" },
         { label: "Platform Score", url: `${BASE}/api/semantic/analytics/`, desc: "17/20 domain capability dashboard", icon: "📈", badge: "Admin" },
