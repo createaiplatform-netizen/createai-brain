@@ -36,18 +36,13 @@ import {
 } from "../semantic/transforms.js";
 import { getUncachableStripeClient } from "../services/integrations/stripeClient.js";
 import { getCustomerStats } from "../semantic/customerStore.js";
+import { trackView, getViewCount, getAllViewCounts } from "../semantic/viewStore.js";
 
 const router = Router();
 
 const STORE_URL = process.env.REPLIT_DEV_DOMAIN
   ? `https://${process.env.REPLIT_DEV_DOMAIN}`
   : "http://localhost:8080";
-
-// ── View counter (in-memory, per product) ─────────────────────────────────────
-const viewCounts = new Map<string, number>();
-function trackView(productId: string): void {
-  viewCounts.set(productId, (viewCounts.get(productId) ?? 0) + 1);
-}
 
 // ── GET /status ───────────────────────────────────────────────────────────────
 router.get("/status", (_req: Request, res: Response) => {
@@ -60,16 +55,16 @@ router.get("/products", async (_req: Request, res: Response) => {
   try {
     const products = await getRegistry();
     const crmStats = getCustomerStats();
-    const views = Object.fromEntries(viewCounts);
+    const allViews = getAllViewCounts();
     const productsWithViews = products.map(p => ({
       ...p,
-      views: viewCounts.get(p.id) ?? 0,
+      views: getViewCount(p.id),
     }));
     res.json({
       ok: true,
       count: products.length,
       crmStats,
-      views,
+      views: Object.fromEntries(allViews),
       products: productsWithViews,
     });
   } catch (err: unknown) {
@@ -137,7 +132,24 @@ router.get("/store/:id", async (req: Request, res: Response) => {
     trackView(product.id);
     const success = req.query["success"] === "1";
     const checkoutUrl = `${STORE_URL}/api/semantic/checkout/${product.id}`;
-    const html = toHostedPageHTML(product, checkoutUrl, success);
+
+    // ── Compute related products (tag similarity scoring) ──────────────────
+    const allProducts = await getRegistry();
+    const productTags = new Set(product.tags);
+    const related = allProducts
+      .filter(r => r.id !== product.id)
+      .map(r => ({
+        product: r,
+        score: r.tags.filter(t => productTags.has(t)).length
+          + (r.format === product.format ? 0.5 : 0)
+          + (r.category === product.category ? 1 : 0),
+      }))
+      .filter(r => r.score >= 1)
+      .sort((a, b) => b.score - a.score)
+      .slice(0, 4)
+      .map(r => r.product);
+
+    const html = toHostedPageHTML(product, checkoutUrl, success, related);
     res.setHeader("Content-Type", "text/html; charset=utf-8");
     res.send(html);
   } catch (err: unknown) {

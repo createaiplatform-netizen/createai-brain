@@ -130,7 +130,7 @@ export function toAmazonFeed(products: SemanticProduct[]): string {
 }
 
 // ── Hosted Product Page HTML ───────────────────────────────────────────────────
-export function toHostedPageHTML(p: SemanticProduct, checkoutUrl: string, success = false): string {
+export function toHostedPageHTML(p: SemanticProduct, checkoutUrl: string, success = false, related: SemanticProduct[] = []): string {
   const price = (p.priceCents / 100).toFixed(2);
   const successBanner = success
     ? `<div style="background:#dcfce7;border:1px solid #86efac;border-radius:12px;padding:16px 24px;margin-bottom:24px;color:#15803d;font-weight:600;">
@@ -219,7 +219,21 @@ export function toHostedPageHTML(p: SemanticProduct, checkoutUrl: string, succes
     <a href="${checkoutUrl}" class="btn">Get Instant Access — $${price}</a>
     <p class="guarantee">🔒 Secure payment via Stripe · Instant delivery · No subscriptions</p>
   </div>
-  <footer>Powered by CreateAI Brain · AI-generated digital products</footer>
+${related.length > 0 ? `
+  <div style="max-width:800px;margin:0 auto 64px;padding:0 24px;">
+    <h2 style="font-size:1.1rem;font-weight:800;color:#1e293b;margin-bottom:20px;display:flex;align-items:center;gap:10px;">
+      <span style="background:#ede9fe;color:#6366f1;border-radius:8px;padding:4px 10px;font-size:0.75rem;font-weight:700;text-transform:uppercase;letter-spacing:0.05em;">You Might Also Like</span>
+    </h2>
+    <div style="display:grid;grid-template-columns:repeat(auto-fill,minmax(200px,1fr));gap:16px;">
+      ${related.map(r => `
+      <a href="/api/semantic/store/${r.id}" style="display:block;background:white;border:1px solid #f1f5f9;border-radius:12px;padding:20px;text-decoration:none;color:inherit;transition:border-color 0.2s,box-shadow 0.2s;" onmouseover="this.style.borderColor='#c7d2fe';this.style.boxShadow='0 4px 16px rgba(99,102,241,0.1)'" onmouseout="this.style.borderColor='#f1f5f9';this.style.boxShadow='none'">
+        <div style="display:inline-block;background:#ede9fe;color:#6366f1;border-radius:999px;padding:3px 10px;font-size:0.7rem;font-weight:700;text-transform:uppercase;letter-spacing:0.05em;margin-bottom:10px;">${r.format}</div>
+        <div style="font-size:0.85rem;font-weight:700;color:#1e293b;line-height:1.4;margin-bottom:10px;">${r.title.slice(0, 55)}${r.title.length > 55 ? "…" : ""}</div>
+        <div style="font-size:1rem;font-weight:800;color:#6366f1;">$${(r.priceCents / 100).toFixed(2)}</div>
+      </a>`).join("")}
+    </div>
+  </div>` : ""}
+  <footer>Powered by CreateAI Brain · AI-generated digital products · <a href="/api/semantic/store" style="color:#94a3b8;">Browse all products</a></footer>
 </body>
 </html>`;
 }

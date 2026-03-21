@@ -21,6 +21,7 @@ import crypto from "crypto";
 import { addCustomer } from "../semantic/customerStore.js";
 import { getFromRegistry, getRegistry } from "../semantic/registry.js";
 import { sendEmailNotification } from "../utils/notifications.js";
+import { scheduleFollowups } from "../semantic/emailScheduler.js";
 
 const router = Router();
 
@@ -172,6 +173,16 @@ router.post("/checkout-complete", async (req: Request, res: Response) => {
       channel: session.metadata?.["channel"] || "stripe-checkout",
       deliveryEmailSent: false,
       purchasedAt: new Date().toISOString(),
+    });
+
+    // ── Schedule T+3 follow-up + T+7 upsell email sequence ────────────────
+    scheduleFollowups({
+      customerEmail:  email,
+      customerName:   name,
+      productId,
+      productTitle,
+      productFormat,
+      storeUrl:       STORE_URL,
     });
 
     // ── Send delivery email ────────────────────────────────────────────────

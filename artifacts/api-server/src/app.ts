@@ -5,6 +5,7 @@ import cookieParser from "cookie-parser";
 import { authMiddleware }  from "./middlewares/authMiddleware";
 import { scopeMiddleware } from "./middlewares/scopeMiddleware";
 import router from "./routes";
+import { getRegistry } from "./semantic/registry.js";
 
 export { chatLimiter, heavyLimiter, editLimiter } from "./middlewares/rateLimiters";
 
@@ -52,6 +53,51 @@ app.get("/healthz", (_req: Request, res: Response) => {
     uptime_s:  Math.round(process.uptime()),
     timestamp: new Date().toISOString(),
   });
+});
+
+// ── Root-level SEO: sitemap.xml + robots.txt ─────────────────────────────────
+// Must be at domain root (not /api/) for Google to discover them.
+const STORE_URL = process.env.REPLIT_DEV_DOMAIN
+  ? `https://${process.env.REPLIT_DEV_DOMAIN}`
+  : "http://localhost:8080";
+
+app.get("/sitemap.xml", async (_req: Request, res: Response) => {
+  try {
+    const products = await getRegistry();
+    const now = new Date().toISOString().split("T")[0];
+    const urls = products.map(p => `
+  <url>
+    <loc>${STORE_URL}/api/semantic/store/${p.id}</loc>
+    <lastmod>${now}</lastmod>
+    <changefreq>weekly</changefreq>
+    <priority>${p.priceCents >= 1500 ? "0.9" : "0.7"}</priority>
+  </url>`).join("");
+    res.setHeader("Content-Type", "application/xml; charset=utf-8");
+    res.setHeader("Cache-Control", "public, max-age=3600");
+    res.send(`<?xml version="1.0" encoding="UTF-8"?>
+<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">
+  <url>
+    <loc>${STORE_URL}/api/semantic/store</loc>
+    <lastmod>${now}</lastmod>
+    <changefreq>daily</changefreq>
+    <priority>1.0</priority>
+  </url>${urls}
+</urlset>`);
+  } catch { res.status(500).send("<?xml version='1.0'?><error>Registry unavailable</error>"); }
+});
+
+app.get("/robots.txt", (_req: Request, res: Response) => {
+  res.setHeader("Content-Type", "text/plain; charset=utf-8");
+  res.setHeader("Cache-Control", "public, max-age=86400");
+  res.send(`User-agent: *
+Allow: /api/semantic/store
+Disallow: /api/semantic/checkout/
+Disallow: /api/semantic/webhooks/
+Disallow: /api/semantic/export/
+Disallow: /api/
+
+Sitemap: ${STORE_URL}/sitemap.xml
+`);
 });
 
 app.use(authMiddleware);

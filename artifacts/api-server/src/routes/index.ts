@@ -88,6 +88,9 @@ import modesRouter              from "./modes.js";
 import creationEnginesRouter    from "./creationEngines.js";
 import semanticStoreRouter      from "./semanticStore.js";
 import semanticWebhooksRouter   from "./semanticWebhooks.js";
+import semanticAnalyticsRouter  from "./semanticAnalytics.js";
+import semanticAffiliateRouter  from "./semanticAffiliate.js";
+import semanticSEORouter        from "./semanticSEO.js";
 import omniBridgeRouter         from "./omniBridge.js";
 import orchestratorRouter       from "./orchestrator.js";
 
@@ -235,8 +238,18 @@ router.use("/orchestrator",       orchestratorRouter);
 // ── Semantic Product Layer (Model 4) — channel-agnostic product objects ───────
 // Products → Shopify CSV, WooCommerce CSV, Google Shopping XML, Amazon feed,
 // Stripe checkout, hosted product page — all from one source of truth.
-router.use("/semantic",           semanticStoreRouter);
+router.use("/semantic",                 semanticStoreRouter);
 // Semantic webhooks: checkout.session.completed → delivery email + CRM capture
-router.use("/semantic/webhooks",  semanticWebhooksRouter);
+router.use("/semantic/webhooks",        semanticWebhooksRouter);
+// Semantic analytics: views, revenue, funnel, platform score, search
+// All endpoints: /api/semantic/analytics/, /api/semantic/analytics/search,
+//                /api/semantic/analytics/formats, /api/semantic/analytics/top-products
+//                /api/semantic/analytics/platform-score
+router.use("/semantic/analytics",       semanticAnalyticsRouter);
+// Affiliate / referral link system
+router.use("/semantic/affiliate",       semanticAffiliateRouter);
+// SEO: bundle detection at /api/semantic/bundles
+// (sitemap.xml + robots.txt are served at domain root via app.ts)
+router.use("/semantic",                 semanticSEORouter);
 
 export default router;
