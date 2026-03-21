@@ -100,8 +100,9 @@ export function buildLoginPage(error?: string, returnTo?: string): string {
     ${error ? `<div class="err">${error}</div>` : ""}
     <form method="POST" action="/admin/login">
       <input type="hidden" name="returnTo" value="${rt}">
-      <label>Password</label>
-      <input type="password" name="password" placeholder="Enter admin password" autofocus autocomplete="current-password">
+      <input type="text" name="username" id="username" value="admin" autocomplete="username" style="position:absolute;width:1px;height:1px;overflow:hidden;clip:rect(0,0,0,0);white-space:nowrap;border:0;padding:0;" aria-hidden="true" tabindex="-1">
+      <label for="adminPassword">Password</label>
+      <input type="password" name="password" id="adminPassword" placeholder="Enter admin password" autofocus autocomplete="current-password" aria-label="Admin password">
       <button type="submit">Sign In →</button>
     </form>
     <div class="hint">Session expires after 24 hours</div>

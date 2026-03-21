@@ -83,7 +83,13 @@ export async function ensureStripeCustomers(): Promise<void> {
   try {
     const stripe = await getUncachableStripeClient();
     for (const member of members) {
-      if (!member.stripeCustomerId) {
+      if (member.stripeCustomerId) continue;
+      // Search for an existing customer by email before creating a new one
+      const existing = await stripe.customers.list({ email: member.email, limit: 1 });
+      if (existing.data.length > 0) {
+        member.stripeCustomerId = existing.data[0]!.id;
+        console.log(`[FamilyAgents] Stripe customer resolved for ${member.name} → ${member.stripeCustomerId}`);
+      } else {
         const customer = await stripe.customers.create({
           name:  member.name,
           email: member.email,

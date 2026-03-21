@@ -32,27 +32,38 @@ const BASE   = getPublicBaseUrl();
 const CSS = `
   *,*::before,*::after{box-sizing:border-box;margin:0;padding:0;}
   :root{--bg:#020617;--s1:#0d1526;--s2:#111827;--s3:#1e293b;--line:#1e293b;--line2:#2d3748;--t1:#e2e8f0;--t2:#94a3b8;--t3:#64748b;--t4:#475569;--ind:#6366f1;--em:#10b981;--am:#f59e0b;--re:#f87171;}
-  html,body{background:var(--bg);color:var(--t1);font-family:'Inter',-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;font-size:14px;min-height:100vh;-webkit-font-smoothing:antialiased;}
+  html{scroll-behavior:smooth;}
+  html,body{background:var(--bg);color:var(--t1);font-family:'Inter',-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;font-size:14px;min-height:100vh;-webkit-font-smoothing:antialiased;line-height:1.5;}
   a{color:var(--ind);}
-  .hdr{border-bottom:1px solid var(--line);padding:0 24px;background:rgba(2,6,23,.97);}
-  .hdr-inner{max-width:680px;margin:0 auto;height:52px;display:flex;align-items:center;}
-  .logo{font-size:1rem;font-weight:900;letter-spacing:-.03em;color:var(--t1);}
+  .skip-link{position:absolute;top:-100%;left:8px;z-index:9999;background:var(--ind);color:#fff;padding:10px 18px;border-radius:0 0 10px 10px;font-size:13px;font-weight:700;text-decoration:none;transition:top .15s;}
+  .skip-link:focus{top:0;}
+  .sr-only{position:absolute;width:1px;height:1px;overflow:hidden;clip:rect(0,0,0,0);white-space:nowrap;}
+  .hdr{border-bottom:1px solid var(--line);padding:0 24px;background:rgba(2,6,23,.97);position:sticky;top:0;z-index:40;}
+  .hdr-inner{max-width:680px;margin:0 auto;height:56px;display:flex;align-items:center;gap:16px;}
+  .logo{font-size:1rem;font-weight:900;letter-spacing:-.03em;color:var(--t1);text-decoration:none;}
   .logo span{color:var(--ind);}
-  .wrap{max-width:680px;margin:0 auto;padding:36px 24px;}
+  .hdr-nav{display:flex;gap:16px;margin-left:auto;align-items:center;}
+  .hdr-link{font-size:.78rem;font-weight:600;color:var(--t3);text-decoration:none;transition:color .15s;}
+  .hdr-link:hover,.hdr-link:focus-visible{color:var(--t1);}
+  .hdr-link:focus-visible{outline:2px solid var(--ind);outline-offset:2px;border-radius:4px;}
+  .wrap{max-width:680px;margin:0 auto;padding:36px 24px 64px;}
   h1{font-size:1.6rem;font-weight:900;letter-spacing:-.04em;margin-bottom:6px;}
   h1 em{color:#818cf8;font-style:normal;}
   .sub{font-size:.82rem;color:var(--t3);margin-bottom:28px;line-height:1.5;}
   .card{background:var(--s2);border:1px solid var(--line);border-radius:14px;padding:24px;margin-bottom:18px;}
-  .form-row{display:flex;flex-direction:column;gap:5px;margin-bottom:14px;}
+  .form-row{display:flex;flex-direction:column;gap:6px;margin-bottom:16px;}
   .form-row label{font-size:.65rem;font-weight:800;text-transform:uppercase;letter-spacing:.08em;color:var(--t4);}
-  input,textarea,select{background:var(--s1);border:1.5px solid var(--line);border-radius:8px;padding:10px 12px;color:var(--t1);font-size:.9rem;font-family:inherit;width:100%;outline:none;transition:border-color .15s;resize:vertical;}
-  input:focus,textarea:focus,select:focus{border-color:var(--ind);}
+  input,textarea,select{background:var(--s1);border:1.5px solid var(--line);border-radius:8px;padding:10px 12px;color:var(--t1);font-size:.9rem;font-family:inherit;width:100%;outline:none;transition:border-color .15s,box-shadow .15s;resize:vertical;}
+  input:focus,textarea:focus,select:focus{border-color:var(--ind);box-shadow:0 0 0 3px rgba(99,102,241,.15);}
+  input:focus-visible,textarea:focus-visible,select:focus-visible{border-color:var(--ind);box-shadow:0 0 0 3px rgba(99,102,241,.15);}
   input::placeholder,textarea::placeholder{color:var(--t4);}
-  .btn{background:var(--ind);color:#fff;border:none;border-radius:10px;padding:13px 24px;font-size:.9rem;font-weight:800;cursor:pointer;transition:opacity .15s;width:100%;}
+  .btn{background:var(--ind);color:#fff;border:none;border-radius:10px;padding:13px 24px;font-size:.9rem;font-weight:800;cursor:pointer;transition:opacity .15s,box-shadow .15s;width:100%;}
   .btn:hover{opacity:.85;}
+  .btn:focus-visible{opacity:.85;outline:2px solid #818cf8;outline-offset:2px;}
   .btn:disabled{opacity:.4;cursor:not-allowed;}
   .btn-out{background:transparent;color:var(--t2);border:1px solid var(--line2);border-radius:9px;padding:10px 20px;font-size:.85rem;font-weight:700;cursor:pointer;transition:all .15s;margin-top:8px;width:100%;}
   .btn-out:hover{border-color:var(--ind);color:var(--t1);}
+  .btn-out:focus-visible{border-color:var(--ind);color:var(--t1);outline:2px solid var(--ind);outline-offset:2px;}
   .status-bar{font-size:.78rem;padding:10px 14px;border-radius:8px;margin-bottom:14px;line-height:1.5;}
   .ok{background:rgba(16,185,129,.08);border:1px solid rgba(16,185,129,.2);color:var(--em);}
   .err-bar{background:rgba(248,113,113,.08);border:1px solid rgba(248,113,113,.2);color:var(--re);}
@@ -75,10 +86,58 @@ const CSS = `
   .badge{display:inline-block;font-size:.6rem;font-weight:800;text-transform:uppercase;letter-spacing:.07em;padding:3px 8px;border-radius:99px;}
   .badge-green{background:rgba(16,185,129,.1);color:#34d399;border:1px solid rgba(16,185,129,.2);}
   .badge-blue{background:rgba(56,189,248,.1);color:#7dd3fc;border:1px solid rgba(56,189,248,.2);}
+  .portal-footer{border-top:1px solid var(--line);padding:24px;text-align:center;font-size:.72rem;color:var(--t4);margin-top:32px;}
+  .portal-footer a{color:var(--t3);text-decoration:none;margin:0 8px;}
+  .portal-footer a:hover{color:var(--t1);}
+  @media(max-width:600px){.hdr{padding:0 16px;}.wrap{padding:24px 16px 48px;}}
+  @media(prefers-reduced-motion:reduce){*,*::before,*::after{transition-duration:.01ms!important;}}
 `;
 
 function portalPage(title: string, bodyHtml: string, footerNote = ""): string {
-  return "<!DOCTYPE html>\n<html lang=\"en\">\n<head>\n<meta charset=\"UTF-8\"><meta name=\"viewport\" content=\"width=device-width,initial-scale=1\">\n<title>" + title + "</title>\n<link rel=\"preconnect\" href=\"https://fonts.googleapis.com\"><link rel=\"preconnect\" href=\"https://fonts.gstatic.com\" crossorigin><link href=\"https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&display=swap\" rel=\"stylesheet\">\n<style>" + CSS + "</style>\n</head>\n<body>\n<header class=\"hdr\"><div class=\"hdr-inner\"><a class=\"logo\" href=\"" + BASE + "\">Create<span>AI</span> Brain</a></div></header>\n<div class=\"wrap\">" + bodyHtml + (footerNote ? "<p style=\"font-size:.68rem;color:var(--t4);margin-top:24px;text-align:center;line-height:1.5;\">" + footerNote + "</p>" : "") + "</div>\n</body>\n</html>";
+  const yr = new Date().getFullYear();
+  return `<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<meta name="robots" content="noindex,nofollow">
+<title>${title} — CreateAI Brain</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&display=swap" rel="stylesheet">
+<style>${CSS}</style>
+</head>
+<body>
+<a class="skip-link" href="#portal-main">Skip to main content</a>
+<header>
+  <nav class="hdr" aria-label="Portal navigation">
+    <div class="hdr-inner">
+      <a class="logo" href="${BASE}" aria-label="CreateAI Brain home">Create<span>AI</span> Brain</a>
+      <div class="hdr-nav" role="navigation" aria-label="Portal links">
+        <a class="hdr-link" href="${BASE}/api/semantic/store">Store</a>
+        <a class="hdr-link" href="${BASE}/api/semantic/portal/me">My Downloads</a>
+        <a class="hdr-link" href="${BASE}">Home</a>
+      </div>
+    </div>
+  </nav>
+</header>
+<main id="portal-main">
+  <div class="wrap">
+    ${bodyHtml}
+    ${footerNote ? `<p style="font-size:.68rem;color:var(--t4);margin-top:24px;text-align:center;line-height:1.5;">${footerNote}</p>` : ""}
+  </div>
+</main>
+<footer class="portal-footer">
+  <div>
+    <a href="${BASE}/api/semantic/store">Store</a>
+    <a href="${BASE}/api/semantic/portal/me">My Downloads</a>
+    <a href="${BASE}/portal/book">Book Appointment</a>
+    <a href="${BASE}/portal/review">Leave Review</a>
+  </div>
+  <div style="margin-top:8px;">© ${yr} CreateAI Brain · Lakeside Trinity LLC</div>
+</footer>
+</body>
+</html>`;
 }
 
 // ── GET /portal/book — Public Booking Page ────────────────────────────────────

@@ -382,6 +382,20 @@ Three-layer system for reaching the platform via a handle rather than a raw URL:
 - **Mobile hamburger menu**: `aria-expanded` toggle, click-outside to close
 **Technical**: Semantic HTML5 (`<header>`, `<nav>`, `<main>`, `<section>`, `<footer>`), full ARIA labels, `Cache-Control: public, max-age=60`, `X-Content-Type-Options: nosniff`
 
+## HTML Page Quality Upgrades (March 2026 — Cycle 2)
+
+### Customer-Facing Pages
+- **Portal template** (`portalsExtended.ts` `portalPage()`): Skip link, sticky frosted nav with logo + Store/My Downloads/Home links, dark footer with all portal links + copyright, `noindex,nofollow` meta
+- **My Downloads** (`semanticPortal.ts` GET `/api/semantic/portal/me`): Complete rebuild — dark gradient hero, floating lookup card with "ACCESS YOUR LIBRARY" label, properly associated `<label for>` on email input, `aria-live` polite result region, summary bar (purchases/total/lifetime), purchase article cards with action group buttons, dark footer + `no-store` cache header
+- **Membership Landing** (`semanticSubscription.ts` GET `/api/semantic/subscriptions/landing`): Rebuilt from inline-styles to full semantic HTML — dark hero with "MEMBERSHIP PLANS" chip, 4-stat bar (100+ products/11 formats/∞ downloads/30 day guarantee), 3 plan cards with "Most Popular" badge on Pro, green savings highlight, dark sticky nav, dark footer
+
+### Admin / System
+- **Admin Login** (`middlewares/adminAuth.ts`): Added hidden username field (`<input type="text" tabindex="-1" aria-hidden="true">`) to silence browser accessibility warning about password-only forms; `<label for>` added to password field
+
+### Infrastructure Fixes
+- **Marketplace Bridge** (`bridge/connectors/marketplaceConnector.ts`): Removed per-call `console.log()` from `notConfigured()` — was flooding logs with 100+ identical warnings on every startup (one per product). Now silent; UniversalBridge deduplicates and summarizes.
+- **FamilyAgents Stripe** (`services/familyAgents.ts`): `ensureStripeCustomers()` now calls `stripe.customers.list({ email })` to check for existing customer before `stripe.customers.create()` — prevents accumulating duplicate test Stripe customers on every server restart.
+
 ## Platform Launch State (March 2026)
 
 **Fully active, no pending states**:

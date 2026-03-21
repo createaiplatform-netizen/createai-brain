@@ -29,13 +29,7 @@ console.log(`[Bridge:Marketplace] 🔐 Owner authorization confirmed — ${_OAM.
 
 // ─── Helper ───────────────────────────────────────────────────────────────────
 
-function notConfigured(action: BridgeRequest["type"], fnName: string): BridgeResponse {
-  const msg =
-    `[Bridge:Marketplace] ⚠️ ${fnName}() — NOT_CONFIGURED. ` +
-    "No marketplace OAuth tokens found. Product has been recorded locally only. " +
-    "Add SHOPIFY_ACCESS_TOKEN, ETSY_API_KEY, AMAZON_MWS_AUTH_TOKEN, " +
-    "EBAY_OAUTH_TOKEN, WOO_CONSUMER_KEY, or CREATIVE_MARKET_API_TOKEN to publish externally.";
-  console.log(msg);
+function notConfigured(action: BridgeRequest["type"], _fnName: string): BridgeResponse {
   return {
     requestId:    randomUUID(),
     connectorKey: "marketplace",
