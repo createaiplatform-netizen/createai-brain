@@ -18,9 +18,10 @@
  */
 
 import { Router, type Request, type Response } from "express";
-import { getRegistry }               from "../semantic/registry.js";
-import { getUncachableStripeClient } from "../services/integrations/stripeClient.js";
-import { getPublicBaseUrl }          from "../utils/publicUrl.js";
+import { getRegistry }                      from "../semantic/registry.js";
+import { getUncachableStripeClient }        from "../services/integrations/stripeClient.js";
+import { getPublicBaseUrl }                 from "../utils/publicUrl.js";
+import { getOrCreateSubscriptionPrices }   from "../services/subscriptionPrices.js";
 
 const router = Router();
 
@@ -80,16 +81,32 @@ const MEMBERSHIP_PLANS = [
 ];
 
 // ── GET /plans ────────────────────────────────────────────────────────────────
-router.get("/plans", (_req: Request, res: Response) => {
+router.get("/plans", async (_req: Request, res: Response) => {
+  let prices: Record<string, { priceId: string; productId: string; amount: number }> = {};
+  try {
+    prices = await getOrCreateSubscriptionPrices();
+  } catch {
+    // Non-fatal — plans still show without checkout links
+  }
+
+  const tierId: Record<string, string> = { starter: "solo", pro: "business", premium: "enterprise" };
+
   res.json({
-    ok:      true,
-    plans:   MEMBERSHIP_PLANS.map(p => ({
-      ...p,
-      monthlyUSD: `$${(p.priceMonthly / 100).toFixed(0)}/mo`,
-      annualUSD:  `$${(p.priceAnnual  / 100).toFixed(0)}/yr`,
-      annualSavings: `Save $${((p.priceMonthly * 12 - p.priceAnnual) / 100).toFixed(0)}/yr`,
-    })),
-    note: "To activate Stripe subscriptions: create recurring prices in Stripe Dashboard and the registry will auto-detect them.",
+    ok:    true,
+    plans: MEMBERSHIP_PLANS.map(p => {
+      const tierKey = tierId[p.id] ?? p.id;
+      const price = prices[tierKey];
+      return {
+        ...p,
+        monthlyUSD:   `$${(p.priceMonthly / 100).toFixed(0)}/mo`,
+        annualUSD:    `$${(p.priceAnnual  / 100).toFixed(0)}/yr`,
+        annualSavings:`Save $${((p.priceMonthly * 12 - p.priceAnnual) / 100).toFixed(0)}/yr`,
+        priceId:      price?.priceId ?? null,
+        checkoutUrl:  price?.priceId ? `${STORE_URL}/join/checkout/${price.priceId}` : null,
+        stripeReady:  !!price?.priceId,
+      };
+    }),
+    stripeReady: Object.keys(prices).length >= 3,
   });
 });
 

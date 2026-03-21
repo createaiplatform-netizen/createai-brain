@@ -220,16 +220,26 @@ router.get("/hub", async (_req: Request, res: Response) => {
       ],
     },
     {
+      section: "AI Studio",
+      items: [
+        { label: "AI Studio Hub", url: `${BASE}/studio`, desc: "All 10 AI-native capabilities in one place. 2 live now, 8 in development.", icon: "✦", badge: "Live" },
+        { label: "AI Email Engine", url: `${BASE}/studio/email`, desc: "Write and send AI-generated newsletters, campaigns, or one-off emails. GPT-4o drafts. Resend delivers.", icon: "✉", badge: "Live" },
+        { label: "AI Document Generator", url: `${BASE}/studio/docs`, desc: "Generate contracts, proposals, SOPs, intake forms, or any document from a brief in seconds.", icon: "📄", badge: "Live" },
+        { label: "AI Scheduling (coming)", url: `#`, desc: "Booking links, reminders, calendar management — no Calendly needed.", icon: "📅", badge: "Soon" },
+        { label: "AI CRM (coming)", url: `#`, desc: "AI-generated follow-up sequences, churn prediction, customer intelligence.", icon: "👥", badge: "Soon" },
+        { label: "AI Training System (coming)", url: `#`, desc: "Turn any document into a training module with quiz and certificate.", icon: "🎓", badge: "Soon" },
+      ],
+    },
+    {
       section: "Operations",
       items: [
+        { label: "Platform Status", url: `${BASE}/status`, desc: "Live diagnostics — DB, Stripe, email, webhook, auth, OpenAI, deployment mode. Auto-refreshes every 30s.", icon: "🟢", badge: "Admin" },
         { label: "NEXUS Platform OS", url: `${BASE}/nexus`, desc: "Unified OS — identity (Presence), 5-format addressing, role-adaptive surfaces, session context. Supersedes CORE + SignalSpace.", icon: "◉", badge: "Admin" },
         { label: "Business OS Bundle", url: `${BASE}/bundle`, desc: "20-industry analysis: 140+ tools replaced, 13 AI-native capabilities, unified $29–$299/mo pricing model.", icon: "📦", badge: "Admin" },
-        { label: "CORE Console (legacy)", url: `${BASE}/core`, desc: "Legacy CORE OS — Presence tokens, intent navigation. Superseded by NEXUS.", icon: "◎", badge: "Admin" },
-        { label: "SignalSpace (legacy)", url: `${BASE}/ss`, desc: "Legacy SSAP semantic addressing layer. Superseded by NEXUS unified resolver.", icon: "⬡", badge: "Admin" },
         { label: "Live Payment Feed", url: `${BASE}/launch/payments`, desc: "Real-time Stripe sessions with delivery status", icon: "💳", badge: "Admin" },
         { label: "CRM Stats", url: `${BASE}/portal/stats`, desc: "Total customers, revenue, top products", icon: "📊", badge: "Admin" },
-        { label: "Platform Score", url: `${BASE}/api/semantic/analytics/`, desc: "17/20 domain capability dashboard", icon: "📈", badge: "Admin" },
         { label: "Affiliate Stats", url: `${BASE}/api/semantic/affiliate/stats`, desc: "Link performance + click tracking", icon: "🔗", badge: "Admin" },
+        { label: "CORE Console (legacy)", url: `${BASE}/core`, desc: "Legacy CORE OS — superseded by NEXUS.", icon: "◎", badge: "Legacy" },
       ],
     },
     {

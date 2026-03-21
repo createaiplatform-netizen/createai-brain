@@ -135,6 +135,67 @@ The CreateAI Brain platform is built as a pnpm workspace monorepo using Node.js 
 - **Live Mode** — TEST in dev; auto-switches to LIVE when `REPLIT_DEPLOYMENT=1`
 
 
+## Admin Auth System
+
+- **Cookie-based session auth** for all platform admin surfaces
+- Login page: `GET /admin/login` · Submit: `POST /admin/login`
+- Logout: `GET /admin/logout`
+- Password: `CORE_OWNER_PASS` env var (defaults to `createai2024`)
+- Session cookie: `ADMIN_SESSION` — HMAC-SHA256 signed, 24-hour TTL
+- Protected routes: `/hub`, `/vault`, `/bundle`, `/valuation`, `/studio/*`, `/status/*`, `/launch/payments`
+- Public routes stay unprotected: `/store`, `/nexus`, `/portal`, `/join`, `/`
+- Key files: `src/middlewares/adminAuth.ts`, `src/routes/adminAuth.ts`
+
+## Platform Database (PostgreSQL)
+
+- **Package**: `postgres` (lightweight, Replit-compatible with `ssl: false`)
+- **Schema bootstrap**: Idempotent `bootstrapSchema()` called at server startup
+- **Tables**: `platform_customers`, `platform_subscriptions`, `platform_webhook_events`, `platform_email_jobs`, `platform_stripe_prices`
+- **Key file**: `src/lib/db.ts`
+- **Webhook deduplication**: `markWebhookProcessed()` prevents replay attacks
+- **Customer persistence**: `insertCustomer()` saves on every successful Stripe webhook
+- **Stats**: `getCustomerStats()` for real revenue/customer counts
+
+## Stripe Subscription Pricing (Auto-Created)
+
+- Three tiers auto-created in Stripe on first startup: Solo ($29/mo), Business ($79/mo), Enterprise ($299/mo)
+- Price IDs persisted in `platform_stripe_prices` DB table
+- Checkout URLs auto-generated at `/join/checkout/:priceId`
+- Key file: `src/services/subscriptionPrices.ts`
+
+## AI Studio (2 Live Capabilities)
+
+All studio routes protected by admin auth.
+
+### AI Email Engine (`/studio/email`)
+- UI: Write email brief, tone selection, send to comma-separated list
+- Backend: `POST /studio/email/draft` → GPT-4o generates subject + body
+- Backend: `POST /studio/email/send` → Resend API delivers to recipients
+- No Mailchimp, no SendGrid needed
+
+### AI Document Generator (`/studio/docs`)
+- UI: Dropdown of 12 document types, custom type override, party names, key terms, jurisdiction
+- Backend: `POST /studio/docs/draft` → GPT-4o generates 500-900 word professional document
+- Output: Complete contract/proposal/SOP in plain text with numbered sections
+- Disclaimer: AI-generated; legal review recommended
+
+### More capabilities (8 coming soon)
+- AI Scheduling Layer, AI Training System, AI CRM, AI Analytics, AI Social Scheduler, AI Form Builder, AI Helpdesk, AI Content Engine
+
+## Platform Status Dashboard (`/status`)
+
+- Real-time self-diagnostics auto-refreshing every 30s
+- Checks: PostgreSQL, Stripe, Resend, Twilio, Webhook Secret, Admin Auth, OpenAI, Deployment Mode
+- Shows real customer/revenue counts, top products
+- JSON API at `/status/json`
+- Key file: `src/routes/platformStatus.ts`
+
+## Rate Limiting
+
+- Global rate limiter: 300 requests per minute (skips /healthz)
+- Express-rate-limit via `express-rate-limit` package already in deps
+- Applied at the Express app level in `src/app.ts`
+
 ## Semantic Product Layer (Model 4) — Core Architecture
 
 The foundational distribution architecture. Products are channel-agnostic objects; every marketplace is an equal-weight output transform.

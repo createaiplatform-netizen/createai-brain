@@ -23,6 +23,7 @@ import { getFromRegistry, getRegistry } from "../semantic/registry.js";
 import { sendEmailNotification } from "../utils/notifications.js";
 import { scheduleFollowups } from "../semantic/emailScheduler.js";
 import { getPublicBaseUrl } from "../utils/publicUrl.js";
+import { insertCustomer, markWebhookProcessed } from "../lib/db.js";
 
 const router = Router();
 
@@ -110,8 +111,11 @@ router.post("/checkout-complete", async (req: Request, res: Response) => {
       try {
         const { getUncachableStripeClient } = await import("../services/integrations/stripeClient.js");
         const stripeClient = await getUncachableStripeClient();
+        // Use rawBody (Buffer) if available; fall back to re-serialized JSON
+        const rawBody = (req as typeof req & { rawBody?: Buffer }).rawBody
+          ?? Buffer.from(JSON.stringify(req.body), "utf8");
         stripeClient.webhooks.constructEvent(
-          req.body as Buffer,
+          rawBody,
           sig,
           webhookSecret
         );
@@ -175,8 +179,20 @@ router.post("/checkout-complete", async (req: Request, res: Response) => {
       ? `${STORE_URL}/api/semantic/store/${productId}?success=1`
       : `${STORE_URL}/api/semantic/store`;
 
-    // ── Capture customer ───────────────────────────────────────────────────
+    // ── Idempotency check via DB ────────────────────────────────────────────
+    const eventId = (req.body as { id?: string }).id ?? sessionId;
+    const eventType2 = eventType ?? "checkout.session.completed";
+    const isNew = await markWebhookProcessed(eventId, eventType2, body).catch(() => true);
+    if (!isNew) {
+      console.log("[SemanticWebhook] Duplicate event — already processed:", eventId);
+      res.json({ ok: true, duplicate: true });
+      return;
+    }
+
+    // ── Capture customer (in-memory + persistent DB) ───────────────────────
     const customerId = crypto.randomUUID();
+    const channelVal = session.metadata?.["channel"] || "stripe-checkout";
+
     addCustomer({
       id: customerId,
       email,
@@ -188,10 +204,30 @@ router.post("/checkout-complete", async (req: Request, res: Response) => {
       currency,
       stripeSessionId: sessionId,
       stripePaymentIntentId: paymentIntentId,
-      channel: session.metadata?.["channel"] || "stripe-checkout",
+      channel: channelVal,
       deliveryEmailSent: false,
       purchasedAt: new Date().toISOString(),
     });
+
+    // Persist to PostgreSQL (non-blocking — don't fail webhook on DB error)
+    insertCustomer({
+      id: customerId,
+      email,
+      name,
+      stripeSessionId: sessionId,
+      stripePaymentIntent: paymentIntentId,
+      stripeCustomerId: String(session.metadata?.["customerId"] ?? ""),
+      productId,
+      productTitle,
+      productFormat,
+      priceCents,
+      currency,
+      channel: channelVal,
+      isSubscription: session.metadata?.["type"] === "subscription",
+      subscriptionTier: session.metadata?.["tier"],
+      deliveryEmailSent: false,
+      createdAt: new Date().toISOString(),
+    }).catch(e => console.error("[SemanticWebhook] DB persist failed:", e instanceof Error ? e.message : String(e)));
 
     // ── Affiliate conversion attribution ───────────────────────────────────
     const refCode = session.metadata?.["refCode"];
