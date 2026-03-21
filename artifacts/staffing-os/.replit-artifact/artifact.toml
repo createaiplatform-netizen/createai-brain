@@ -15,7 +15,7 @@ name = "web"
 paths = ["/staffing-os/"]
 
 [services.development]
-run = "pnpm --filter @workspace/staffing-os run dev"
+run = "echo 'StaffingOS is now integrated into CreateAI Brain. Access it from the main platform.'"
 
 [services.env]
 PORT = "21509"

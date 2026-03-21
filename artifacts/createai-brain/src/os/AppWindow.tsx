@@ -369,6 +369,9 @@ const JobManagerApp = React.lazy(() => import("@/Apps/JobManagerApp").then(m => 
 const BatchProcessorApp = React.lazy(() => import("@/Apps/BatchProcessorApp").then(m => ({ default: m.BatchProcessorApp })));
 const DataTransformerApp = React.lazy(() => import("@/Apps/DataTransformerApp").then(m => ({ default: m.DataTransformerApp })));
 const MappingStudioApp = React.lazy(() => import("@/Apps/MappingStudioApp").then(m => ({ default: m.MappingStudioApp })));
+const HealthOSApp      = React.lazy(() => import("@/projects/HealthOSApp").then(m => ({ default: m.HealthOSApp })));
+const LegalPMApp       = React.lazy(() => import("@/projects/LegalPMApp").then(m => ({ default: m.LegalPMApp })));
+const StaffingOSApp    = React.lazy(() => import("@/projects/StaffingOSApp").then(m => ({ default: m.StaffingOSApp })));
 const SchemaBuilderApp = React.lazy(() => import("@/Apps/SchemaBuilderApp").then(m => ({ default: m.SchemaBuilderApp })));
 const ConfigManagerApp = React.lazy(() => import("@/Apps/ConfigManagerApp").then(m => ({ default: m.ConfigManagerApp })));
 
@@ -729,6 +732,10 @@ const APP_COMPONENTS: Record<AppId, React.LazyExoticComponent<React.ComponentTyp
   infiniteBrainControl:  InfiniteBrainControlPanel,
   infiniteBrainPortal:   InfiniteBrainPortalFull,
   infiniteBrainDashboard: InfiniteBrainDashboard,
+  // ── Industry OS ──────────────────────────────────────────────────────────
+  healthos:   HealthOSApp,
+  legalpm:    LegalPMApp,
+  staffingos: StaffingOSApp,
 };
 
 // ── Loading skeleton ─────────────────────────────────────────────────────────

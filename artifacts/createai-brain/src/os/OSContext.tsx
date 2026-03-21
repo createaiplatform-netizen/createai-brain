@@ -263,7 +263,9 @@ export type AppId =
   | "createaiDashboard"
   | "infiniteBrainControl"
   | "infiniteBrainPortal"
-  | "infiniteBrainDashboard";
+  | "infiniteBrainDashboard"
+  // ── Industry OS Apps ───────────────────────────────────────────────────────
+  | "healthos" | "legalpm" | "staffingos";
 
 export interface AppDef {
   id: AppId;
@@ -422,6 +424,10 @@ export const DEFAULT_APPS: AppDef[] = [
   { id: "infiniteBrainControl",  label: "Infinite Brain Control",  icon: "🚀", color: "#6366f1", description: "Live control panel — launch all workflows, notify family, run infinite expansion simulations, view real-time audit log", category: "system" },
   { id: "infiniteBrainPortal",   label: "Infinite Brain Portal",   icon: "💠", color: "#6366f1", description: "Ultimate Live Full Deployment — 9 modules × 5 tasks, Beyond Infinity mode, real-time audit log, all APIs wired", category: "system" },
   { id: "infiniteBrainDashboard", label: "Infinite Brain Dashboard", icon: "📊", color: "#7c3aed", description: "Transcend All — real-time module scores, industry overachievement metrics, system log, Absolute Infinity mode", category: "system" },
+  // ── Industry OS Apps ─────────────────────────────────────────────────────
+  { id: "healthos",   label: "HealthOS",    icon: "🏥", color: "#0d9488", description: "Full healthcare management — patients, appointments, doctors, departments, and billing in one unified OS", category: "business" },
+  { id: "legalpm",    label: "LegalPM",     icon: "⚖️", color: "#4f46e5", description: "Legal practice management — matters, clients, time tracking, billing, and tasks for law firms", category: "business" },
+  { id: "staffingos", label: "StaffingOS",  icon: "🎯", color: "#7c3aed", description: "Global staffing platform — candidates, clients, requisitions, interviews, and placement tracking", category: "business" },
 ];
 
 export const ALL_APPS = DEFAULT_APPS;
@@ -680,6 +686,10 @@ const APP_META: Record<AppId, { icon: string; label: string }> = {
   infiniteBrainControl:  { icon: "🚀", label: "Infinite Brain Control" },
   infiniteBrainPortal:    { icon: "💠", label: "Infinite Brain Portal" },
   infiniteBrainDashboard: { icon: "📊", label: "Infinite Brain Dashboard" },
+  // ── Industry OS ──────────────────────────────────────────────────────────
+  healthos:   { icon: "🏥", label: "HealthOS" },
+  legalpm:    { icon: "⚖️", label: "LegalPM" },
+  staffingos: { icon: "🎯", label: "StaffingOS" },
 
   // ── Enterprise Suite Apps ──────────────────────────────────────────────────
   zeroTrust: { icon: "🔐", label: "Zero Trust" },

@@ -15,7 +15,7 @@ name = "web"
 paths = ["/legal-pm/"]
 
 [services.development]
-run = "pnpm --filter @workspace/legal-pm run dev"
+run = "echo 'Legal PM is now integrated into CreateAI Brain. Access it from the main platform.'"
 
 [services.env]
 PORT = "22798"

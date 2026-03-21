@@ -1,5 +1,5 @@
 kind = "web"
-previewPath = "/createai-brain/"
+previewPath = "/"
 title = "CreateAI Brain"
 version = "1.0.0"
 id = "artifacts/createai-brain"
@@ -10,16 +10,16 @@ name = "react-vite"
 version = "1.0.0"
 
 [[services]]
-localPort = 23568
+localPort = 5173
 name = "web"
-paths = ["/createai-brain/"]
+paths = ["/"]
 
 [services.development]
 run = "pnpm --filter @workspace/createai-brain run dev"
 
 [services.env]
-PORT = "23568"
-BASE_PATH = "/createai-brain/"
+PORT = "5173"
+BASE_PATH = "/"
 
 [services.production]
 build = ["pnpm", "--filter", "@workspace/createai-brain", "run", "build"]

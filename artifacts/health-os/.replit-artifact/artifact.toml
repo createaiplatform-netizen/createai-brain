@@ -15,7 +15,7 @@ name = "web"
 paths = ["/health-os/"]
 
 [services.development]
-run = "pnpm --filter @workspace/health-os run dev"
+run = "echo 'HealthOS is now integrated into CreateAI Brain. Access it from the main platform.'"
 
 [services.env]
 PORT = "23657"

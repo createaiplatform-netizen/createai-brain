@@ -15,7 +15,7 @@ name = "web"
 paths = ["/chat-app/"]
 
 [services.development]
-run = "pnpm --filter @workspace/chat-app run dev"
+run = "echo 'Chat App is now integrated into CreateAI Brain. Access it from the main platform.'"
 
 [services.env]
 PORT = "18228"
