@@ -6,21 +6,23 @@ const router: IRouter = Router();
 
 // ─── Registry snapshot (current known state) ──────────────────────────────
 const REGISTRY_SNAPSHOT = {
-  engines:          47,
-  metaAgents:       18,
-  totalEngines:     65,
-  series:           19,
-  apps:             150,
-  registryVersion:  "5.0",
+  engines:          66,
+  metaAgents:       37,
+  totalEngines:     103,
+  series:           24,
+  apps:             200,
+  registryVersion:  "6.0",
   engineCategories: [
     "Creative", "Strategy", "Workflow", "Connectivity", "Intelligence",
     "Research", "Communication", "Data", "Growth", "Compliance",
     "Identity", "Protocol",
+    "Commerce", "Operations", "Governance", "Workforce", "Revenue",
   ],
   seriesLayers: [
     "omega","phi","uq","ice","ael","ucpx","gi","se","de","ab",
     "alpha","sigma","kappa","lambda","delta",
     "nexus","platform","identity","analytics",
+    "domain","commerce","governance","workforce","engagement",
   ],
   platformEngines: [
     "NPA Identity Engine",

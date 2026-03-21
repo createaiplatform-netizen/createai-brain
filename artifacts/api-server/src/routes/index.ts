@@ -113,6 +113,18 @@ import selfHostRouter           from "./selfHost.js";
 import platformReportRouter     from "./platformReport.js";
 import healthMonitorRouter      from "./healthMonitor.js";
 import internalTotpRouter       from "./internalTotp.js";
+import contactIntelligenceRouter  from "./contactIntelligence.js";
+import transactionLedgerRouter    from "./transactionLedger.js";
+import orderFlowRouter            from "./orderFlow.js";
+import caseResolutionRouter       from "./caseResolution.js";
+import contentPipelineRouter      from "./contentPipeline.js";
+import insightEngineRouter        from "./insightEngine.js";
+import agreementFlowRouter        from "./agreementFlow.js";
+import growthPathRouter           from "./growthPath.js";
+import assetFlowRouter            from "./assetFlow.js";
+import engagementMapRouter        from "./engagementMap.js";
+import domainCompleteRouter       from "./domainComplete.js";
+import globalUnifierRouter        from "./globalUnifier.js";
 
 const router: IRouter = Router();
 
@@ -349,5 +361,19 @@ router.use("/health-monitor", healthMonitorRouter);
 
 // ── Internal TOTP Engine — RFC 6238, HMAC-SHA1, no external deps ──────────────
 router.use("/totp", internalTotpRouter);
+
+// ── Domain Gap Engines — 12 new industry-equivalent domain implementations ────
+router.use("/crm",         contactIntelligenceRouter);
+router.use("/ledger",      transactionLedgerRouter);
+router.use("/orders",      orderFlowRouter);
+router.use("/cases",       caseResolutionRouter);
+router.use("/content",     contentPipelineRouter);
+router.use("/kpi",         insightEngineRouter);
+router.use("/agreements",  agreementFlowRouter);
+router.use("/growth-path", growthPathRouter);
+router.use("/assets",      assetFlowRouter);
+router.use("/engagement",  engagementMapRouter);
+router.use("/domains",     domainCompleteRouter);
+router.use("/global",      globalUnifierRouter);
 
 export default router;
