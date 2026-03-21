@@ -97,6 +97,10 @@ import semanticSubscriptionRouter from "./semanticSubscription.js";
 import semanticLaunchRouter       from "./semanticLaunch.js";
 import omniBridgeRouter         from "./omniBridge.js";
 import orchestratorRouter       from "./orchestrator.js";
+import advertisingRouter        from "./advertising.js";
+import magiclinkRouter          from "./magiclink.js";
+import invoicePaymentsRouter    from "./invoicePayments.js";
+import studioExtendedRouter     from "./studioExtended.js";
 
 const router: IRouter = Router();
 
@@ -284,5 +288,18 @@ router.use("/semantic/subscriptions",    semanticSubscriptionRouter);
 // GET  /api/semantic/launch/share/:id      — Clean shareable product card (OG-ready)
 // GET  /api/semantic/launch/quick-links    — All 100 checkout URLs (JSON)
 router.use("/semantic/launch",           semanticLaunchRouter);
+
+// ── Invention Layer — 12 AI bypass tools ─────────────────────────────────────
+router.use("/studio",                    studioExtendedRouter);
+
+// ── Advertising Hub — all platform assets, ad templates, brand materials ──────
+router.use("/advertising",               advertisingRouter);
+
+// ── Magic Link Auth — passwordless email authentication ───────────────────────
+router.use("/auth/magic-link",           magiclinkRouter);
+
+// ── Invoice Payments — multi-rail payment collection (bank, wire, Zelle, etc.)
+router.use("/payments/invoice",          invoicePaymentsRouter);
+router.use("/payments",                  invoicePaymentsRouter);
 
 export default router;

@@ -372,6 +372,10 @@ const MappingStudioApp = React.lazy(() => import("@/Apps/MappingStudioApp").then
 const HealthOSApp      = React.lazy(() => import("@/projects/HealthOSApp").then(m => ({ default: m.HealthOSApp })));
 const LegalPMApp       = React.lazy(() => import("@/projects/LegalPMApp").then(m => ({ default: m.LegalPMApp })));
 const StaffingOSApp    = React.lazy(() => import("@/projects/StaffingOSApp").then(m => ({ default: m.StaffingOSApp })));
+const AdsHubApp        = React.lazy(() => import("@/Apps/AdsHubApp"));
+const AuthLabApp       = React.lazy(() => import("@/Apps/AuthLabApp"));
+const PayGateApp       = React.lazy(() => import("@/Apps/PayGateApp"));
+const InventionLayerApp = React.lazy(() => import("@/Apps/InventionLayerApp"));
 const SchemaBuilderApp = React.lazy(() => import("@/Apps/SchemaBuilderApp").then(m => ({ default: m.SchemaBuilderApp })));
 const ConfigManagerApp = React.lazy(() => import("@/Apps/ConfigManagerApp").then(m => ({ default: m.ConfigManagerApp })));
 
@@ -733,9 +737,14 @@ const APP_COMPONENTS: Record<AppId, React.LazyExoticComponent<React.ComponentTyp
   infiniteBrainPortal:   InfiniteBrainPortalFull,
   infiniteBrainDashboard: InfiniteBrainDashboard,
   // ── Industry OS ──────────────────────────────────────────────────────────
-  healthos:   HealthOSApp,
-  legalpm:    LegalPMApp,
-  staffingos: StaffingOSApp,
+  healthos:       HealthOSApp,
+  legalpm:        LegalPMApp,
+  staffingos:     StaffingOSApp,
+  // ── New Platform Capabilities ─────────────────────────────────────────────
+  adshub:         AdsHubApp,
+  authlab:        AuthLabApp,
+  paygate:        PayGateApp,
+  inventionLayer: InventionLayerApp,
 };
 
 // ── Loading skeleton ─────────────────────────────────────────────────────────

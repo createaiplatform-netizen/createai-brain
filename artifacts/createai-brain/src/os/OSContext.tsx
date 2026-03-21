@@ -265,7 +265,9 @@ export type AppId =
   | "infiniteBrainPortal"
   | "infiniteBrainDashboard"
   // ── Industry OS Apps ───────────────────────────────────────────────────────
-  | "healthos" | "legalpm" | "staffingos";
+  | "healthos" | "legalpm" | "staffingos"
+  // ── New Platform Capabilities ─────────────────────────────────────────────
+  | "adshub" | "authlab" | "paygate" | "inventionLayer";
 
 export interface AppDef {
   id: AppId;
@@ -425,9 +427,13 @@ export const DEFAULT_APPS: AppDef[] = [
   { id: "infiniteBrainPortal",   label: "Infinite Brain Portal",   icon: "💠", color: "#6366f1", description: "Ultimate Live Full Deployment — 9 modules × 5 tasks, Beyond Infinity mode, real-time audit log, all APIs wired", category: "system" },
   { id: "infiniteBrainDashboard", label: "Infinite Brain Dashboard", icon: "📊", color: "#7c3aed", description: "Transcend All — real-time module scores, industry overachievement metrics, system log, Absolute Infinity mode", category: "system" },
   // ── Industry OS Apps ─────────────────────────────────────────────────────
-  { id: "healthos",   label: "HealthOS",    icon: "🏥", color: "#0d9488", description: "Full healthcare management — patients, appointments, doctors, departments, and billing in one unified OS", category: "business" },
-  { id: "legalpm",    label: "LegalPM",     icon: "⚖️", color: "#4f46e5", description: "Legal practice management — matters, clients, time tracking, billing, and tasks for law firms", category: "business" },
-  { id: "staffingos", label: "StaffingOS",  icon: "🎯", color: "#7c3aed", description: "Global staffing platform — candidates, clients, requisitions, interviews, and placement tracking", category: "business" },
+  { id: "healthos",      label: "HealthOS",         icon: "🏥", color: "#0d9488", description: "Full healthcare management — patients, appointments, doctors, departments, and billing in one unified OS", category: "business" },
+  { id: "legalpm",       label: "LegalPM",          icon: "⚖️", color: "#4f46e5", description: "Legal practice management — matters, clients, time tracking, billing, and tasks for law firms", category: "business" },
+  { id: "staffingos",    label: "StaffingOS",        icon: "🎯", color: "#7c3aed", description: "Global staffing platform — candidates, clients, requisitions, interviews, and placement tracking", category: "business" },
+  { id: "adshub",        label: "Advertising Hub",   icon: "📢", color: "#ec4899", description: "Complete internal advertising hub — all platform profiles, ad templates, scripts, bios, funnels, and brand assets for every major platform", category: "tools" },
+  { id: "authlab",       label: "Authentication Lab", icon: "🔐", color: "#6366f1", description: "Advanced authentication methods — passwordless magic link, device fingerprinting, trusted sessions, and full auth architecture", category: "system" },
+  { id: "paygate",       label: "PayGate",           icon: "💳", color: "#10b981", description: "Multi-rail payment system — professional invoice generation, email delivery, and payment tracking via bank, wire, Zelle, Venmo, crypto, and check", category: "business" },
+  { id: "inventionLayer", label: "Invention Layer",  icon: "🔬", color: "#f59e0b", description: "12 AI invention tools that bypass $500K+ in software licenses — clinical scribe, legal research, fleet intelligence, risk underwriting, agronomist, and more", category: "tools" },
 ];
 
 export const ALL_APPS = DEFAULT_APPS;
@@ -527,6 +533,11 @@ const INTENT_MAP: { keywords: string[]; target: AppId }[] = [
   { keywords: ["bizdev", "bizplanner", "biz planner", "biz dev", "business plan", "execution plan", "real world plan", "executable", "business development", "go to market", "gtm", "acquisition strategy", "legal risk", "tools systems", "target customers"], target: "bizdev" },
   { keywords: ["projbuilder", "project builder", "project file", "project plan", "healthcare platform", "construction project", "logistics hub", "sop", "standard operating procedure", "intake form", "phone script", "training outline", "launch plan", "30 days"], target: "projbuilder" },
   { keywords: ["projos", "project os", "universal platform", "project dashboard", "folder view", "sub app", "project manager", "project management", "demo mode", "test mode", "live mode", "all projects", "organize projects", "hunting", "farming", "project folder"], target: "projos" },
+  // ── New Platform Capabilities ─────────────────────────────────────────────
+  { keywords: ["advertising hub", "ads hub", "adshub", "advertising assets", "ad templates", "platform ads", "tiktok ads", "facebook ads", "instagram ads", "youtube ads", "linkedin ads", "twitter ads", "x ads", "snapchat ads", "pinterest ads", "ad campaigns", "ad copy", "content calendar", "ad scripts", "brand assets", "advertising content", "ad generator", "social media ads", "ad hub"], target: "adshub" },
+  { keywords: ["auth lab", "authlab", "authentication", "magic link", "passwordless", "device fingerprint", "trusted device", "passkey", "session", "auth methods", "login security", "2fa", "two factor", "secure login", "auth upgrade", "authentication lab", "sign in methods"], target: "authlab" },
+  { keywords: ["paygate", "pay gate", "invoice", "payment rail", "multi rail payment", "bank transfer", "wire transfer", "zelle payment", "venmo payment", "accept payment", "create invoice", "send invoice", "payment tracking", "revenue collection", "stripe alternative", "invoice system", "collect payment", "billing"], target: "paygate" },
+  { keywords: ["invention layer", "inventionlayer", "invention tools", "12 tools", "ai clinical scribe", "ai fleet", "ai energy", "ai property", "ai risk underwriter", "ai legal research", "ai production", "ai grant writer", "ai compliance", "ai email sequence", "ai financial intelligence", "ai agronomist", "bypass software", "replace software", "no hardware", "no license"], target: "inventionLayer" },
 ];
 
 function routeIntentFn(intent: string): AppId | null {
@@ -687,9 +698,13 @@ const APP_META: Record<AppId, { icon: string; label: string }> = {
   infiniteBrainPortal:    { icon: "💠", label: "Infinite Brain Portal" },
   infiniteBrainDashboard: { icon: "📊", label: "Infinite Brain Dashboard" },
   // ── Industry OS ──────────────────────────────────────────────────────────
-  healthos:   { icon: "🏥", label: "HealthOS" },
-  legalpm:    { icon: "⚖️", label: "LegalPM" },
-  staffingos: { icon: "🎯", label: "StaffingOS" },
+  healthos:       { icon: "🏥", label: "HealthOS" },
+  legalpm:        { icon: "⚖️", label: "LegalPM" },
+  staffingos:     { icon: "🎯", label: "StaffingOS" },
+  adshub:         { icon: "📢", label: "Advertising Hub" },
+  authlab:        { icon: "🔐", label: "Authentication Lab" },
+  paygate:        { icon: "💳", label: "PayGate" },
+  inventionLayer: { icon: "🔬", label: "Invention Layer" },
 
   // ── Enterprise Suite Apps ──────────────────────────────────────────────────
   zeroTrust: { icon: "🔐", label: "Zero Trust" },
