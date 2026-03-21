@@ -15,6 +15,7 @@ import signalSpaceRouter      from "./routes/signalSpace.js";
 import coreOSRouter           from "./routes/coreOS.js";
 import nexusRouter             from "./routes/nexus.js";
 import bundleOSRouter          from "./routes/bundleOS.js";
+import valuationRouter         from "./routes/valuation.js";
 import semanticStoreRouter    from "./routes/semanticStore.js";
 import semanticLaunchRouter   from "./routes/semanticLaunch.js";
 import semanticPortalRouter   from "./routes/semanticPortal.js";
@@ -150,7 +151,8 @@ app.use("/",       platformHubRouter);
 app.use("/vault",  moneyHubRouter);
 app.use("/ss",     signalSpaceRouter);   // /ss (console) · /ss/resolve · /ss/nodes · /ss/goto/:signal
 app.use("/nexus",  nexusRouter);         // /nexus (console) · /nexus/resolve · /nexus/navigate · /nexus/presence · /nexus/whoami
-app.use("/bundle", bundleOSRouter);     // /bundle (industry analysis) · /bundle/data (JSON)
+app.use("/bundle",    bundleOSRouter);    // /bundle (industry analysis) · /bundle/data (JSON)
+app.use("/valuation", valuationRouter);  // /valuation (full platform valuation) · /valuation/data (JSON)
 app.use("/core",   coreOSRouter);        // /core (console) · legacy CORE OS — superseded by NEXUS
 app.use("/",       semanticStoreRouter);     // /store, /store/:id, /checkout/:id, /export/...
 app.use("/launch", semanticLaunchRouter);    // /launch/, /launch/payments, /launch/share/:id
