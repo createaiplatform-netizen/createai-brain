@@ -102,6 +102,7 @@ import magiclinkRouter          from "./magiclink.js";
 import invoicePaymentsRouter    from "./invoicePayments.js";
 import studioExtendedRouter     from "./studioExtended.js";
 import percentageEngineRouter   from "./percentageEngine.js";
+import maxActivationRouter      from "./maxActivation.js";
 
 const router: IRouter = Router();
 
@@ -305,5 +306,8 @@ router.use("/auth/magic-link",           magiclinkRouter);
 // ── Invoice Payments — multi-rail payment collection (bank, wire, Zelle, etc.)
 router.use("/payments/invoice",          invoicePaymentsRouter);
 router.use("/payments",                  invoicePaymentsRouter);
+
+// ── Maximum Potential Activation Orchestrator ─────────────────────────────────
+router.use("/activate",                  maxActivationRouter);
 
 export default router;
