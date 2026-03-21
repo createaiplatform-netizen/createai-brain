@@ -63,7 +63,7 @@ class _UltraInteractionEngine extends EventEmitter {
       `geoScope:${opts?.geoScope ?? "global"}`
     );
     return [
-      { id: "sara",    name: "Sara Stadler",    email: "admin@LakesideTrinity.com", geo: "US" },
+      { id: "sara",    name: "Sara Stadler",    email: "admin@createaiplatform.com", geo: "US" },
       { id: "family1", name: "Family Member 1", email: undefined,                geo: "global" },
       { id: "family2", name: "Family Member 2", email: undefined,                geo: "global" },
     ];

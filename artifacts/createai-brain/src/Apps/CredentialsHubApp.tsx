@@ -198,7 +198,7 @@ export default function CredentialsHubApp() {
         {tab === "dns" && (
           <div>
             <div style={{ background: "#0a1628", border: "1px solid #1e3a5f", borderRadius: 12, padding: "14px 18px", marginBottom: 20, fontSize: 13, color: "#93c5fd", lineHeight: 1.6 }}>
-              <strong style={{ color: "#60a5fa" }}>Email activation:</strong> Adding these DNS records to your domain registrar verifies LakesideTrinity.com with Resend and unlocks full email delivery to any client address. This is a one-time action.
+              <strong style={{ color: "#60a5fa" }}>Email activation:</strong> Adding these DNS records to your domain registrar verifies createaiplatform.com with Resend and unlocks full email delivery to any client address. This is a one-time action.
             </div>
 
             {dnsLoading && <div style={{ color: "#475569", padding: 40, textAlign: "center" }}>Fetching DNS records from Resend…</div>}

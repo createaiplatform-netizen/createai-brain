@@ -133,7 +133,7 @@ export default function TeamPage() {
     {
       id: "sara-40688297",
       name: "Sara Stadler",
-      email: "admin@LakesideTrinity.com",
+      email: "admin@createaiplatform.com",
       role: "Owner",
       status: "active",
       aiAgent: true,

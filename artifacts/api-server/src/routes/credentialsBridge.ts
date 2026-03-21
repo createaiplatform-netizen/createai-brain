@@ -92,7 +92,7 @@ router.delete("/clear/:key", (req: Request, res: Response) => {
 
 router.get("/dns-records", async (_req: Request, res: Response) => {
   const apiKey = process.env["RESEND_API_KEY"];
-  const domain = "LakesideTrinity.com";
+  const domain = "createaiplatform.com";
 
   if (!apiKey) {
     res.json({

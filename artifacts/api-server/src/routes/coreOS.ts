@@ -341,7 +341,7 @@ router.post("/presence", async (req: Request, res: Response) => {
       res.status(401).json({ ok: false, error: "Invalid owner passphrase" });
       return;
     }
-    const p = issuePresence("owner", "admin@LakesideTrinity.com", "Sara Stadler");
+    const p = issuePresence("owner", "admin@createaiplatform.com", "Sara Stadler");
     res.cookie(CORE_COOKIE, p.token, { httpOnly: true, maxAge: COOKIE_MAX * 1000, sameSite: "lax" });
     res.json({ ok: true, presence: { role: p.role, name: p.name, token: p.token, expiresAt: p.expiresAt } });
 

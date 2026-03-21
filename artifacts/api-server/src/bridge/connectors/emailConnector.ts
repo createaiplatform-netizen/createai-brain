@@ -7,7 +7,7 @@
  * No fake open rates. No fake click rates. No simulated responses.
  *
  * Domain restriction: Until a custom domain is verified in Resend,
- * FROM is onboarding@resend.dev and TO must be admin@LakesideTrinity.com.
+ * FROM is onboarding@resend.dev and TO must be admin@createaiplatform.com.
  */
 
 import { sendEmailNotification }      from "../../utils/notifications.js";

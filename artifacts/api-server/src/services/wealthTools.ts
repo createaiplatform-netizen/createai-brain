@@ -123,7 +123,7 @@ export async function autoAdCampaign(
 
   void hybridMessage(
     "email",
-    "admin@LakesideTrinity.com",
+    "admin@createaiplatform.com",
     `Meta Transcend: Ad campaign submitted on ${channels.length} channels for ${batch.length} premium products. Bridge status: ${bridgeResponse.status}.`,
     "Meta Transcend — Ad Campaign Submitted",
   );

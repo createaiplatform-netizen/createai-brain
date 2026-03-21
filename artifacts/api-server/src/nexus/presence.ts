@@ -21,6 +21,7 @@
 import { createHmac, createHash }  from "crypto";
 import { type Request, type Response } from "express";
 import { type SpaceLevel, type RoleName, ROLE_LEVEL, LEVEL_ROLE } from "./spaces.js";
+import { IDENTITY } from "../config/identity.js";
 
 // ─────────────────────────────────────────────────────────────────────────────
 // Constants
@@ -31,8 +32,8 @@ export const COOKIE_MAX_SEC   = 60 * 60 * 24 * 7;  // 7 days
 const        EXPIRY_MIN       = 60 * 24 * 7;        // 7 days in minutes
 const        NONCE_CHARS      = "abcdefghjkmnpqrstuvwxyz23456789"; // no ambiguous chars
 const        IS_PROD          = process.env["REPLIT_DEPLOYMENT"] === "1";
-const        OWNER_EMAIL      = "admin@LakesideTrinity.com";
-const        OWNER_NAME       = "Sara Stadler";
+const        OWNER_EMAIL      = IDENTITY.contactEmail;
+const        OWNER_NAME       = IDENTITY.ownerName;
 
 export type  PresenceLevel    = SpaceLevel;
 export type  PresenceRole     = RoleName;

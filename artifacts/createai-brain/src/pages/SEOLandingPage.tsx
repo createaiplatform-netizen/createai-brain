@@ -468,7 +468,7 @@ function useJsonLd(config: IndustryConfig) {
           "url": origin,
           "description": "122-app AI Operating System for businesses across every industry.",
           "foundingOrganization": { "@type": "Organization", "name": "Lakeside Trinity LLC" },
-          "contactPoint": { "@type": "ContactPoint", "contactType": "customer service", "email": "admin@LakesideTrinity.com" },
+          "contactPoint": { "@type": "ContactPoint", "contactType": "customer service", "email": "admin@createaiplatform.com" },
         },
         {
           "@type": "SoftwareApplication",

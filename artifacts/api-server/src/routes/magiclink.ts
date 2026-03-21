@@ -3,6 +3,7 @@
  * ─────────────────────────────────────────────────────────────
  * Email-based passwordless auth using one-time tokens + device fingerprinting.
  * Uses Resend to deliver secure login links. No password stored or required.
+ * Email identity is driven by IDENTITY config → change BRAND_DOMAIN env var to update everywhere.
  *
  * POST /api/auth/magic-link/send       — request a magic link to email
  * GET  /api/auth/magic-link/verify     — verify token + establish session
@@ -14,6 +15,7 @@
 
 import { Router, type Request, type Response } from "express";
 import crypto from "crypto";
+import { IDENTITY } from "../config/identity.js";
 
 const router = Router();
 
@@ -101,7 +103,7 @@ async function sendMagicLinkEmail(email: string, magicUrl: string, deviceLabel: 
     <hr style="border:none;border-top:1px solid #1e293b;margin:24px 0;">
     <p style="color:#334155;font-size:12px;margin:0;">Or copy this URL: <span style="color:#6366f1;word-break:break-all;">${magicUrl}</span></p>
   </div>
-  <p style="text-align:center;color:#475569;font-size:12px;margin-top:24px;">Sara Stadler · Lakeside Trinity LLC · admin@LakesideTrinity.com</p>
+  <p style="text-align:center;color:#475569;font-size:12px;margin-top:24px;">${IDENTITY.ownerName} · ${IDENTITY.legalEntity} · ${IDENTITY.contactEmail}</p>
 </body>
 </html>`;
 
@@ -110,7 +112,7 @@ async function sendMagicLinkEmail(email: string, magicUrl: string, deviceLabel: 
       method: "POST",
       headers: { "Authorization": `Bearer ${apiKey}`, "Content-Type": "application/json" },
       body: JSON.stringify({
-        from: "CreateAI Brain <admin@LakesideTrinity.com>",
+        from: IDENTITY.fromHeader,
         to: [email],
         subject: "Your magic sign-in link — CreateAI Brain",
         html

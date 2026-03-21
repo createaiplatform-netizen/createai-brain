@@ -8,6 +8,7 @@ import { scopeMiddleware } from "./middlewares/scopeMiddleware";
 import { adminAuth, verifyAdminCookie } from "./middlewares/adminAuth.js";
 import router from "./routes";
 import { getRegistry } from "./semantic/registry.js";
+import { IDENTITY } from "./config/identity.js";
 import { getPublicBaseUrl } from "./utils/publicUrl.js";
 import { bootstrapSchema } from "./lib/db.js";
 
@@ -218,7 +219,7 @@ app.get("/.well-known/security.txt", (_req: Request, res: Response) => {
   res.setHeader("Content-Type", "text/plain; charset=utf-8");
   res.setHeader("Cache-Control", "public, max-age=86400");
   res.send(
-    "Contact: mailto:admin@LakesideTrinity.com\n" +
+    "Contact: mailto:" + IDENTITY.contactEmail + "\n" +
     "Expires: " + expires + "\n" +
     "Preferred-Languages: en\n" +
     "Canonical: " + BASE + "/.well-known/security.txt\n" +

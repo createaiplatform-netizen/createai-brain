@@ -27,7 +27,7 @@ export const OWNER_AUTHORIZATION_MANIFEST = {
   owner:        "Sara Stadler",
   ownerId:      "FOUNDER",
   userId:       "40688297",
-  email:        "admin@LakesideTrinity.com",
+  email:        "admin@createaiplatform.com",
   phone:        "715-791-0292",
   address:      "23926 4th Ave, Siren, WI 54872",
   businessType: "Individual / Sole Owner",

@@ -4,6 +4,7 @@
  * Payment methods: Cash App ($CreateAIDigital) + Venmo (@CreateAIDigital)
  * No personal phone numbers or sensitive data exposed anywhere.
  * Both methods appear automatically on every generated invoice.
+ * Invoice identity is driven by IDENTITY config → change BRAND_DOMAIN env var to update everywhere.
  *
  * POST  /api/payments/invoice/create    — create a professional invoice
  * GET   /api/payments/invoice/list      — list all invoices (owner only)
@@ -19,6 +20,7 @@
 
 import { Router, type Request, type Response } from "express";
 import crypto from "crypto";
+import { IDENTITY } from "../config/identity.js";
 
 const router = Router();
 
@@ -226,12 +228,12 @@ function renderInvoiceHTML(inv: Invoice): string {
   "</div>" +
   "<div class='wrap'>" +
   "<div class='hdr'>" +
-  "<div><div class='brand'>CreateAI Brain</div><div class='brand-sub'>Lakeside Trinity LLC</div><div class='brand-sub'>createaibrain.app</div></div>" +
+  "<div><div class='brand'>" + IDENTITY.platformName + "</div><div class='brand-sub'>" + IDENTITY.legalEntity + "</div><div class='brand-sub'>" + IDENTITY.brandDomain + "</div></div>" +
   "<div><div class='inv-num'>INVOICE " + inv.invoiceNumber + "</div><div class='badge'>" + inv.status.toUpperCase() + "</div></div>" +
   "</div>" +
   "<div class='parties'>" +
   "<div class='party'><div class='plabel'>Bill To</div><div class='pname'>" + inv.clientName + "</div>" + clientCompanyLine + "<div style='color:#94a3b8;font-size:13px;'>" + inv.clientEmail + "</div>" + clientAddressLine + "</div>" +
-  "<div class='party'><div class='plabel'>From</div><div class='pname'>CreateAI Brain</div><div style='color:#94a3b8;font-size:13px;'>Lakeside Trinity LLC</div><div style='color:#94a3b8;font-size:13px;'>createaibrain.app</div></div>" +
+  "<div class='party'><div class='plabel'>From</div><div class='pname'>" + IDENTITY.platformName + "</div><div style='color:#94a3b8;font-size:13px;'>" + IDENTITY.legalEntity + "</div><div style='color:#94a3b8;font-size:13px;'>" + IDENTITY.brandDomain + "</div></div>" +
   "</div>" +
   "<div class='dates'>" +
   "<div class='dblock'><div class='dlabel'>Invoice Date</div><div class='dvalue'>" + inv.issueDate + "</div></div>" +
@@ -277,7 +279,7 @@ function renderInvoiceHTML(inv: Invoice): string {
   "</div>" +
   "</div>" +
   notesSection +
-  "<div class='footer'>Thank you for your business! Questions? Email admin@LakesideTrinity.com<br>Lakeside Trinity LLC · CreateAI Brain · createaibrain.app<br>" + inv.invoiceNumber + " · Generated " + new Date().toLocaleDateString() + "</div>" +
+  "<div class='footer'>Thank you for your business! Questions? Email " + IDENTITY.contactEmail + "<br>" + IDENTITY.legalEntity + " · " + IDENTITY.platformName + " · " + IDENTITY.brandDomain + "<br>" + inv.invoiceNumber + " · Generated " + new Date().toLocaleDateString() + "</div>" +
   "</div>" +
   "</body></html>";
 }
@@ -320,9 +322,9 @@ async function emailInvoice(inv: Invoice): Promise<boolean> {
     "</div>",
     "</div>",
     "</div>",
-    "<p style='color:#64748b;font-size:13px;margin:0;line-height:1.6;'>Questions? Reply to this email or contact admin@LakesideTrinity.com</p>",
+    "<p style='color:#64748b;font-size:13px;margin:0;line-height:1.6;'>Questions? Reply to this email or contact " + IDENTITY.contactEmail + "</p>",
     "</div>",
-    "<p style='text-align:center;color:#334155;font-size:12px;margin-top:24px;'>Lakeside Trinity LLC · CreateAI Brain · createaibrain.app</p>",
+    "<p style='text-align:center;color:#334155;font-size:12px;margin-top:24px;'>" + IDENTITY.legalEntity + " · " + IDENTITY.platformName + " · " + IDENTITY.brandDomain + "</p>",
     "</body></html>"
   ].join("");
 
@@ -331,7 +333,7 @@ async function emailInvoice(inv: Invoice): Promise<boolean> {
       method: "POST",
       headers: { "Authorization": "Bearer " + apiKey, "Content-Type": "application/json" },
       body: JSON.stringify({
-        from: "CreateAI Brain <admin@LakesideTrinity.com>",
+        from: IDENTITY.fromHeader,
         to: [inv.clientEmail],
         subject: "Invoice " + inv.invoiceNumber + " — " + formatCurrency(inv.total, inv.currency) + " due " + inv.dueDate,
         html

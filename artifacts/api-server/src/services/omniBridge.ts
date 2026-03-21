@@ -228,7 +228,7 @@ function buildDimensions(
       },
       { id: "huntington-ach",     name: "Huntington ACH Payout",      status: "active",         route: "/api/payout",  meta: "60-second auto-cycle · real Stripe balance" },
       { id: "twilio-sms",         name: "Twilio SMS",                 status: twilioStatus,                            meta: twilioStatus === "active" ? "+18883304895 · active" : "Credentials pending" },
-      { id: "resend-email",       name: "Resend Email",               status: resendStatus,                            meta: resendStatus === "active" ? "admin@LakesideTrinity.com · active" : "API key pending" },
+      { id: "resend-email",       name: "Resend Email",               status: resendStatus,                            meta: resendStatus === "active" ? "admin@createaiplatform.com · active" : "API key pending" },
       { id: "universal-bridge",   name: "Universal Bridge Engine",    status: "active",         route: "/api/bridge",  meta: "5 active · 2 pending · all calls route here" },
       { id: "marketplace-amazon", name: "Amazon Marketplace",         status: "pending",                               meta: "SHOPIFY_ACCESS_TOKEN + ETSY_API_KEY required" },
       { id: "ad-networks",        name: "Ad Networks (Meta/Google)",  status: "not_configured",                        meta: "META_ACCESS_TOKEN + GOOGLE_ADS_DEVELOPER_TOKEN required" },

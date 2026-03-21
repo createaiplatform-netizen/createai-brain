@@ -31,8 +31,8 @@ const BRAND = {
   taglineAlt: "Replace $100K+ in Software. Run on Intelligence.",
   owner: "Sara Stadler",
   company: "Lakeside Trinity LLC",
-  email: "admin@LakesideTrinity.com",
-  website: "https://createaibrain.app",
+  email: "admin@createaiplatform.com",
+  website: "https://createaiplatform.com",
   category: "AI Platform / Business Operating System",
   mission: "Empower entrepreneurs and enterprises with AI-native tools that replace expensive software, licensed APIs, hardware sensors, and professional consultants — at a fraction of the cost.",
   voice: {
@@ -87,7 +87,7 @@ const PLATFORMS = [
       bio: "AI OS that replaces $100K in software 🤖⚡ | 12 AI invention tools | No limits | Sara Stadler",
       bioCharLimit: 80,
       description: "We build AI tools that replace hardware sensors, clinical software, legal databases, and expensive consultants — with pure intelligence. No limits. Full capability.",
-      linkInBio: "createaibrain.app",
+      linkInBio: "createaiplatform.com",
       category: "Technology",
       cta: "Try Free"
     },
@@ -97,7 +97,7 @@ const PLATFORMS = [
         name: "In-Feed Ad",
         specs: "9:16, 1080×1920px, 15–60s video",
         duration: "15-60s",
-        copy: "POV: You just replaced your entire software stack with one AI 🤯\n\nCreateAI Brain runs:\n✅ Clinical notes (no EHR)\n✅ Legal research (no Westlaw)\n✅ Fleet management (no GPS hardware)\n✅ Risk underwriting (no actuarial databases)\n\nOne platform. Zero limits. 12 AI invention tools.\n\nLink in bio → createaibrain.app",
+        copy: "POV: You just replaced your entire software stack with one AI 🤯\n\nCreateAI Brain runs:\n✅ Clinical notes (no EHR)\n✅ Legal research (no Westlaw)\n✅ Fleet management (no GPS hardware)\n✅ Risk underwriting (no actuarial databases)\n\nOne platform. Zero limits. 12 AI invention tools.\n\nLink in bio → createaiplatform.com",
         cta: "Learn More",
         objective: "Awareness + Traffic",
         hashtags: ["#AItools", "#automation", "#entrepreneur", "#futureofwork", "#AI", "#saas", "#businessOS", "#createaibrain"]
@@ -124,7 +124,7 @@ const PLATFORMS = [
       }
     ],
     contentTemplates: [
-      { type: "hook-reveal", title: "The Software You're Overpaying For", caption: "You're paying $500+/mo for tools AI can replace right now. Here's what we killed off with CreateAI Brain 👇 [LIST TOOLS]. Full breakdown at createaibrain.app", hooks: ["I cancelled $4,800 in software this month. Here's what replaced it all 👇", "This single platform replaced 11 different SaaS tools. No joke.", "POV: You discover an AI OS that does everything your software stack does, for $97/mo."] },
+      { type: "hook-reveal", title: "The Software You're Overpaying For", caption: "You're paying $500+/mo for tools AI can replace right now. Here's what we killed off with CreateAI Brain 👇 [LIST TOOLS]. Full breakdown at createaiplatform.com", hooks: ["I cancelled $4,800 in software this month. Here's what replaced it all 👇", "This single platform replaced 11 different SaaS tools. No joke.", "POV: You discover an AI OS that does everything your software stack does, for $97/mo."] },
       { type: "demo-reveal", title: "Live Demo: AI Clinical Scribe", caption: "Watch AI write a full SOAP note from scratch with zero EHR access. No license. No database. Just intelligence. #healthcare #AItools #medtech", hooks: ["Doctors pay $800/month for this. We built the AI version.", "SOAP notes in 30 seconds. No EHR needed. Watch this.", "This is replacing clinical documentation software 🏥🤖"] },
       { type: "before-after", title: "Before vs After CreateAI Brain", caption: "Before: 14 different tools, $3,200/month, 40 hours/week managing software. After: One AI OS, $97/month, runs itself. Link in bio.", hooks: ["My software bill before vs after AI. The difference is wild.", "Before CreateAI Brain / After CreateAI Brain. Let that sink in.", "I don't manage software anymore. My AI OS does."] },
       { type: "education", title: "12 AI Tools That Replace $500K in Licenses", caption: "Thread 🧵 Each of these AI tools replaces a $30K–$100K system. No hardware. No API access. No specialist required. Just AI.", hooks: ["This AI replaces Westlaw. ($500+/mo saved)", "No SCADA sensors needed. This AI reads your energy data.", "MLS access is $500+/yr. This AI does comps for free."] }
@@ -150,7 +150,7 @@ const PLATFORMS = [
       bio: "The AI Operating System for Entrepreneurs, Healthcare Operators, Legal Professionals & Enterprise Teams. 12 AI invention tools. One platform. No limits.",
       bioCharLimit: 255,
       description: "CreateAI Brain is a full AI Operating System built by Sara Stadler and Lakeside Trinity LLC. Our 12 AI invention tools replace expensive hardware sensors, licensed databases, and professional consultants with pure AI intelligence. HealthOS, LegalPM, StaffingOS, and more — all in one platform. Try free. Scale without limits.",
-      website: "https://createaibrain.app",
+      website: "https://createaiplatform.com",
       category: "Software",
       cta: "Get Started"
     },
@@ -159,7 +159,7 @@ const PLATFORMS = [
         id: "carousel",
         name: "Carousel Ad",
         specs: "Up to 10 cards, 1:1 or 4:5, 1080×1080px or 1080×1350px",
-        copy: "Card 1: The AI OS That Does Everything (Headline) | Card 2: ✅ AI Clinical Scribe — No EHR needed | Card 3: ✅ AI Legal Research — No Westlaw | Card 4: ✅ AI Fleet Intelligence — No GPS hardware | Card 5: ✅ AI Risk Underwriter — No actuarial DB | Card 6: Try CreateAI Brain Free → createaibrain.app",
+        copy: "Card 1: The AI OS That Does Everything (Headline) | Card 2: ✅ AI Clinical Scribe — No EHR needed | Card 3: ✅ AI Legal Research — No Westlaw | Card 4: ✅ AI Fleet Intelligence — No GPS hardware | Card 5: ✅ AI Risk Underwriter — No actuarial DB | Card 6: Try CreateAI Brain Free → createaiplatform.com",
         cta: "Learn More",
         objective: "Awareness + Consideration",
         hashtags: ["#AI", "#entrepreneur", "#businessOS"]
@@ -193,8 +193,8 @@ const PLATFORMS = [
       }
     ],
     contentTemplates: [
-      { type: "educational-post", title: "12 AI Tools That Are Replacing Entire Industries", caption: "We built 12 AI invention tools that each replace a $30K–$100K specialized system. Here's the list:\n\n🩺 AI Clinical Scribe → replaces EHR clinical notes\n🚛 AI Fleet Intelligence → replaces GPS + ELD hardware\n⚡ AI Energy Intelligence → replaces SCADA + IoT sensors\n🏠 AI Property Intelligence → replaces MLS access\n🛡 AI Risk Underwriter → replaces actuarial databases\n⚖ AI Legal Research Engine → replaces Westlaw/LexisNexis\n🏭 AI Production Intelligence → replaces MES + IoT\n🎁 AI Grant Writer → replaces grant writing consultants\n✅ AI Compliance Pack → replaces compliance consultants\n📬 AI Email Sequence Builder → replaces marketing automation\n📈 AI Financial Intelligence → replaces Bloomberg\n🌾 AI Agronomist → replaces $50K in soil sensors\n\nAll of this in ONE platform. $97/mo. No hardware. No licenses.\n\n→ createaibrain.app" },
-      { type: "case-study-post", title: "How a Healthcare Practice Saved $84,000/Year", caption: "A 3-provider medical practice was spending:\n• $18,000/yr on EHR clinical note software\n• $12,000/yr on compliance consulting\n• $8,400/yr on billing coding software\n• $6,000/yr on documentation tools\n\nTotal: $44,400/year. With CreateAI Brain HealthOS + AI Clinical Scribe + AI Compliance Pack:\n\nNew cost: $1,164/year (Pro plan).\nSavings: $43,236/year.\n\nThis is real. This is what AI displacement looks like when it's working for you.\n\n→ Try CreateAI Brain free at createaibrain.app" }
+      { type: "educational-post", title: "12 AI Tools That Are Replacing Entire Industries", caption: "We built 12 AI invention tools that each replace a $30K–$100K specialized system. Here's the list:\n\n🩺 AI Clinical Scribe → replaces EHR clinical notes\n🚛 AI Fleet Intelligence → replaces GPS + ELD hardware\n⚡ AI Energy Intelligence → replaces SCADA + IoT sensors\n🏠 AI Property Intelligence → replaces MLS access\n🛡 AI Risk Underwriter → replaces actuarial databases\n⚖ AI Legal Research Engine → replaces Westlaw/LexisNexis\n🏭 AI Production Intelligence → replaces MES + IoT\n🎁 AI Grant Writer → replaces grant writing consultants\n✅ AI Compliance Pack → replaces compliance consultants\n📬 AI Email Sequence Builder → replaces marketing automation\n📈 AI Financial Intelligence → replaces Bloomberg\n🌾 AI Agronomist → replaces $50K in soil sensors\n\nAll of this in ONE platform. $97/mo. No hardware. No licenses.\n\n→ createaiplatform.com" },
+      { type: "case-study-post", title: "How a Healthcare Practice Saved $84,000/Year", caption: "A 3-provider medical practice was spending:\n• $18,000/yr on EHR clinical note software\n• $12,000/yr on compliance consulting\n• $8,400/yr on billing coding software\n• $6,000/yr on documentation tools\n\nTotal: $44,400/year. With CreateAI Brain HealthOS + AI Clinical Scribe + AI Compliance Pack:\n\nNew cost: $1,164/year (Pro plan).\nSavings: $43,236/year.\n\nThis is real. This is what AI displacement looks like when it's working for you.\n\n→ Try CreateAI Brain free at createaiplatform.com" }
     ],
     strategy: {
       objective: "Lead generation + retargeting",
@@ -217,7 +217,7 @@ const PLATFORMS = [
       bio: "🤖 The AI OS for Everything\n⚡ 12 AI tools. No limits. No hardware.\n💼 HealthOS · LegalPM · StaffingOS\n👇 Replace your software stack",
       bioCharLimit: 150,
       description: "AI Operating System for entrepreneurs, healthcare operators, legal professionals, and enterprise teams. Built by Sara Stadler / Lakeside Trinity LLC.",
-      website: "createaibrain.app",
+      website: "createaiplatform.com",
       category: "Science & Technology",
       cta: "Book Now"
     },
@@ -226,7 +226,7 @@ const PLATFORMS = [
         id: "reels-ad",
         name: "Reels Ad",
         specs: "9:16, 1080×1920px, up to 90s, full audio recommended",
-        copy: "HOOK: 'I replaced my $3,200/month software stack with this one AI platform.'\nSOFT DEMO: Quick cuts showing HealthOS → LegalPM → StaffingOS → Invention Layer\nCTA: 'createaibrain.app — link in bio'\nCaption: This AI OS does everything. 12 invention tools. No hardware needed. Zero limits.",
+        copy: "HOOK: 'I replaced my $3,200/month software stack with this one AI platform.'\nSOFT DEMO: Quick cuts showing HealthOS → LegalPM → StaffingOS → Invention Layer\nCTA: 'createaiplatform.com — link in bio'\nCaption: This AI OS does everything. 12 invention tools. No hardware needed. Zero limits.",
         cta: "Learn More",
         objective: "Awareness + Reach",
         hashtags: ["#AItools", "#entrepreneur", "#businessOS", "#automation", "#saas", "#createaibrain", "#futureofwork", "#AI"]
@@ -251,9 +251,9 @@ const PLATFORMS = [
       }
     ],
     contentTemplates: [
-      { type: "carousel-edu", title: "12 AI Tools Explained", caption: "Swipe to see every invention tool and what $$$$ it replaces 👉\n\nSlide 1: CreateAI Brain — The AI OS | Slide 2-13: Each tool + what it replaces | Slide 14: Try free → createaibrain.app\n\n#AItools #entrepreneur #businessOS #automation" },
-      { type: "reel-demo", title: "60-Second AI OS Tour", caption: "Everything your business needs. In one platform. In under 60 seconds. 🤯\n\n→ createaibrain.app (link in bio)\n\n#createaibrain #AI #AIbusiness #entrepreneur #saas #businessOS" },
-      { type: "quote-graphic", title: "AI Replaces Your Most Expensive Tools", caption: "'We cancelled 9 subscriptions after switching to CreateAI Brain. The ROI was immediate.'\n\nThis is the future. And it's available now.\n→ createaibrain.app" }
+      { type: "carousel-edu", title: "12 AI Tools Explained", caption: "Swipe to see every invention tool and what $$$$ it replaces 👉\n\nSlide 1: CreateAI Brain — The AI OS | Slide 2-13: Each tool + what it replaces | Slide 14: Try free → createaiplatform.com\n\n#AItools #entrepreneur #businessOS #automation" },
+      { type: "reel-demo", title: "60-Second AI OS Tour", caption: "Everything your business needs. In one platform. In under 60 seconds. 🤯\n\n→ createaiplatform.com (link in bio)\n\n#createaibrain #AI #AIbusiness #entrepreneur #saas #businessOS" },
+      { type: "quote-graphic", title: "AI Replaces Your Most Expensive Tools", caption: "'We cancelled 9 subscriptions after switching to CreateAI Brain. The ROI was immediate.'\n\nThis is the future. And it's available now.\n→ createaiplatform.com" }
     ],
     strategy: {
       objective: "Brand awareness + Reels reach",
@@ -276,7 +276,7 @@ const PLATFORMS = [
       bio: "AI OS for everything 🤖⚡ 12 invention tools. Zero limits. Sara Stadler / Lakeside Trinity",
       bioCharLimit: 100,
       description: "AI Operating System: Replace your entire software stack with intelligence.",
-      website: "createaibrain.app",
+      website: "createaiplatform.com",
       category: "Technology",
       cta: "Try Free"
     },
@@ -285,7 +285,7 @@ const PLATFORMS = [
         id: "snap-ad",
         name: "Single Snap Ad",
         specs: "9:16, 1080×1920px, 3–180s, top-snap with attachment",
-        copy: "TOP SNAP: Fast-cut video — 'This AI just made your software obsolete.' | Text overlay: 'CreateAI Brain. 12 tools. $97/mo.'\nATTACHMENT: Web view → createaibrain.app landing page\nCTA Button: 'Tap to See More'",
+        copy: "TOP SNAP: Fast-cut video — 'This AI just made your software obsolete.' | Text overlay: 'CreateAI Brain. 12 tools. $97/mo.'\nATTACHMENT: Web view → createaiplatform.com landing page\nCTA Button: 'Tap to See More'",
         cta: "Swipe Up",
         objective: "Awareness + Traffic",
         hashtags: []
@@ -321,9 +321,9 @@ const PLATFORMS = [
     profile: {
       displayName: "CreateAI Brain",
       handle: "@CreateAIBrain",
-      bio: "CreateAI Brain is the AI Operating System built for entrepreneurs, healthcare operators, legal professionals, and enterprise teams.\n\nWe built 12 AI invention tools that replace $500K+ in software licenses — no hardware, no external APIs, no specialist credentials required.\n\n✅ AI Clinical Scribe\n✅ AI Legal Research Engine\n✅ AI Fleet Intelligence\n✅ AI Risk Underwriter\n✅ AI Agronomist\n+ 7 more invention tools\n\nAll inside a full AI OS: HealthOS, LegalPM, StaffingOS, NEXUS Semantic OS.\n\nSubscribe for AI breakdowns, tool demos, business automation, and revenue strategies.\n\nStart free: createaibrain.app\nContact: admin@LakesideTrinity.com",
+      bio: "CreateAI Brain is the AI Operating System built for entrepreneurs, healthcare operators, legal professionals, and enterprise teams.\n\nWe built 12 AI invention tools that replace $500K+ in software licenses — no hardware, no external APIs, no specialist credentials required.\n\n✅ AI Clinical Scribe\n✅ AI Legal Research Engine\n✅ AI Fleet Intelligence\n✅ AI Risk Underwriter\n✅ AI Agronomist\n+ 7 more invention tools\n\nAll inside a full AI OS: HealthOS, LegalPM, StaffingOS, NEXUS Semantic OS.\n\nSubscribe for AI breakdowns, tool demos, business automation, and revenue strategies.\n\nStart free: createaiplatform.com\nContact: admin@createaiplatform.com",
       bioCharLimit: 1000,
-      website: "createaibrain.app",
+      website: "createaiplatform.com",
       category: "Science & Technology",
       cta: "Subscribe"
     },
@@ -332,7 +332,7 @@ const PLATFORMS = [
         id: "skippable-in-stream",
         name: "Skippable In-Stream Ad",
         specs: "16:9, 1920×1080px, 12s+ (skip at 5s), CPV bidding",
-        copy: "0-5s (MUST HOOK): 'I just replaced my entire $4,800/month software stack — with one AI platform. Here's proof.'\n5-30s (STORY): 'CreateAI Brain is an AI Operating System. It runs 12 AI invention tools that replace clinical software, legal databases, fleet GPS, insurance actuarial models, and more. No hardware. No specialist license. Just AI.'\n30-60s (PROOF + CTA): 'Our Healthcare module writes SOAP clinical notes. Our Legal tool does case research. Our Fleet tool manages logistics. All for $97/month. Try it free at createaibrain.app — link below.'",
+        copy: "0-5s (MUST HOOK): 'I just replaced my entire $4,800/month software stack — with one AI platform. Here's proof.'\n5-30s (STORY): 'CreateAI Brain is an AI Operating System. It runs 12 AI invention tools that replace clinical software, legal databases, fleet GPS, insurance actuarial models, and more. No hardware. No specialist license. Just AI.'\n30-60s (PROOF + CTA): 'Our Healthcare module writes SOAP clinical notes. Our Legal tool does case research. Our Fleet tool manages logistics. All for $97/month. Try it free at createaiplatform.com — link below.'",
         cta: "Visit Website",
         objective: "Awareness + Consideration",
         hashtags: []
@@ -341,8 +341,8 @@ const PLATFORMS = [
         id: "non-skippable",
         name: "Non-Skippable In-Stream (15s)",
         specs: "16:9, 1920×1080px, exactly 15s",
-        copy: "0-3s: 'One AI platform. 12 tools. Replaces $100K in software.'\n3-12s: Fast-cut montage: HealthOS → LegalPM → StaffingOS → Invention tools\n12-15s: 'CreateAI Brain. Try free at createaibrain.app'",
-        cta: "createaibrain.app",
+        copy: "0-3s: 'One AI platform. 12 tools. Replaces $100K in software.'\n3-12s: Fast-cut montage: HealthOS → LegalPM → StaffingOS → Invention tools\n12-15s: 'CreateAI Brain. Try free at createaiplatform.com'",
+        cta: "createaiplatform.com",
         objective: "Brand recall",
         hashtags: []
       },
@@ -350,8 +350,8 @@ const PLATFORMS = [
         id: "bumper",
         name: "Bumper Ad (6s)",
         specs: "16:9, 1920×1080px, exactly 6s",
-        copy: "'The AI OS that replaces your entire software stack. createaibrain.app'",
-        cta: "createaibrain.app",
+        copy: "'The AI OS that replaces your entire software stack. createaiplatform.com'",
+        cta: "createaiplatform.com",
         objective: "Frequency + recall",
         hashtags: []
       }
@@ -371,7 +371,7 @@ LIVE DEMO (5:00-9:00): "Let me show you the AI Clinical Scribe live. [DEMO] Now 
 
 PROOF + BUSINESS MODEL (9:00-10:30): "HealthOS handles the full healthcare operations layer. LegalPM runs legal practice management. StaffingOS handles recruitment and compliance. All inside one AI OS."
 
-CTA (10:30-12:00): "We have a free trial at createaibrain.app — link in the description. Subscribe for weekly AI tool breakdowns. If you're running a business and paying for software you don't need, this platform will change everything."`,
+CTA (10:30-12:00): "We have a free trial at createaiplatform.com — link in the description. Subscribe for weekly AI tool breakdowns. If you're running a business and paying for software you don't need, this platform will change everything."`,
         thumbnailCopy: "I Replaced $4,800/Month in Software With 1 AI Platform"
       },
       {
@@ -405,7 +405,7 @@ CTA (10:30-12:00): "We have a free trial at createaibrain.app — link in the de
       handle: "createaibrain",
       bio: "AI Operating System for entrepreneurs, healthcare, legal & enterprise teams. 12 AI invention tools. Replace expensive software with intelligence. Sara Stadler / Lakeside Trinity LLC.",
       bioCharLimit: 160,
-      website: "createaibrain.app",
+      website: "createaiplatform.com",
       category: "Technology",
       cta: "Visit"
     },
@@ -414,7 +414,7 @@ CTA (10:30-12:00): "We have a free trial at createaibrain.app — link in the de
         id: "standard-pin",
         name: "Standard Pin Ad",
         specs: "2:3, 1000×1500px, static image",
-        copy: "Title: '12 AI Tools That Replace $500K in Business Software'\nDescription: 'From clinical notes to legal research to fleet management — these AI invention tools bypass every expensive system. No hardware. No licenses. Full capability. createaibrain.app'\nText overlay on image: 'The AI OS That Does Everything'",
+        copy: "Title: '12 AI Tools That Replace $500K in Business Software'\nDescription: 'From clinical notes to legal research to fleet management — these AI invention tools bypass every expensive system. No hardware. No licenses. Full capability. createaiplatform.com'\nText overlay on image: 'The AI OS That Does Everything'",
         cta: "Learn More",
         objective: "Traffic",
         hashtags: ["#AItools", "#entrepreneur", "#businessautomation", "#saas", "#AI"]
@@ -462,10 +462,10 @@ CTA (10:30-12:00): "We have a free trial at createaibrain.app — link in the de
       bioCharLimit: 220,
       about: "Sara Stadler is the founder of CreateAI Brain, the first AI Operating System designed to replace expensive business software, hardware sensors, and professional consultants with pure AI intelligence.\n\nCreateAI Brain's 12 AI invention tools serve healthcare operators, legal professionals, staffing agencies, fleet operators, financial advisors, insurance underwriters, agricultural businesses, and more — all from a single platform.\n\nPreviously: [Enterprise background]\nNow: Building the AI OS that has no limits and no ceilings.\n\nConnect to discuss: AI platform architecture, enterprise AI adoption, healthcare AI, legal tech, and autonomous business systems.",
       headline: "Founder, CreateAI Brain | AI OS That Replaces $500K in Software | 12 AI Invention Tools | Healthcare · Legal · Staffing · Finance",
-      website: "createaibrain.app",
+      website: "createaiplatform.com",
       industry: "Technology / SaaS / AI",
       companySize: "1-10 employees",
-      companyAbout: "CreateAI Brain is the AI Operating System for entrepreneurs, healthcare operators, legal professionals, and enterprise teams.\n\nOur 12 AI invention tools bypass expensive external systems:\n• AI Clinical Scribe (replaces EHR clinical notes)\n• AI Legal Research Engine (replaces Westlaw/LexisNexis)\n• AI Fleet Intelligence (replaces GPS hardware + ELD devices)\n• AI Energy Intelligence (replaces SCADA + IoT sensors)\n• AI Risk Underwriter (replaces actuarial databases)\n• AI Property Intelligence (replaces MLS access)\n• AI Production Intelligence (replaces MES + IoT)\n• AI Grant Writer (replaces grant writing consultants)\n• AI Compliance Pack (replaces compliance consultants)\n• AI Email Sequence Builder (replaces marketing automation)\n• AI Financial Intelligence (replaces Bloomberg)\n• AI Agronomist (replaces $50K in soil sensors)\n\nAll inside a full AI OS: HealthOS, LegalPM, StaffingOS, NEXUS Semantic OS.\n\nFounded by Sara Stadler | Lakeside Trinity LLC | createaibrain.app",
+      companyAbout: "CreateAI Brain is the AI Operating System for entrepreneurs, healthcare operators, legal professionals, and enterprise teams.\n\nOur 12 AI invention tools bypass expensive external systems:\n• AI Clinical Scribe (replaces EHR clinical notes)\n• AI Legal Research Engine (replaces Westlaw/LexisNexis)\n• AI Fleet Intelligence (replaces GPS hardware + ELD devices)\n• AI Energy Intelligence (replaces SCADA + IoT sensors)\n• AI Risk Underwriter (replaces actuarial databases)\n• AI Property Intelligence (replaces MLS access)\n• AI Production Intelligence (replaces MES + IoT)\n• AI Grant Writer (replaces grant writing consultants)\n• AI Compliance Pack (replaces compliance consultants)\n• AI Email Sequence Builder (replaces marketing automation)\n• AI Financial Intelligence (replaces Bloomberg)\n• AI Agronomist (replaces $50K in soil sensors)\n\nAll inside a full AI OS: HealthOS, LegalPM, StaffingOS, NEXUS Semantic OS.\n\nFounded by Sara Stadler | Lakeside Trinity LLC | createaiplatform.com",
       cta: "Contact Us"
     },
     adFormats: [
@@ -473,7 +473,7 @@ CTA (10:30-12:00): "We have a free trial at createaibrain.app — link in the de
         id: "single-image",
         name: "Single Image Ad",
         specs: "1.91:1, 1200×628px",
-        copy: "Headline: 'This AI Just Made Your Software License Obsolete'\nIntro text: 'Healthcare operators are using CreateAI Brain to generate clinical SOAP notes without EHR access. Legal firms are replacing Westlaw with our AI Research Engine. Fleet companies are managing logistics without GPS hardware. These are 3 of our 12 AI invention tools. The AI OS has no limits.\n\n→ Get a free demo: createaibrain.app'\nCTA: Learn More",
+        copy: "Headline: 'This AI Just Made Your Software License Obsolete'\nIntro text: 'Healthcare operators are using CreateAI Brain to generate clinical SOAP notes without EHR access. Legal firms are replacing Westlaw with our AI Research Engine. Fleet companies are managing logistics without GPS hardware. These are 3 of our 12 AI invention tools. The AI OS has no limits.\n\n→ Get a free demo: createaiplatform.com'\nCTA: Learn More",
         cta: "Learn More",
         objective: "Awareness + Consideration",
         hashtags: ["#AI", "#enterpriseAI", "#healthcareIT", "#legaltech", "#SaaS"]
@@ -482,7 +482,7 @@ CTA (10:30-12:00): "We have a free trial at createaibrain.app — link in the de
         id: "message-ad",
         name: "Message Ad (InMail)",
         specs: "Direct message to target audience",
-        copy: "Subject: Your industry's most expensive software has an AI replacement\n\nHi [First Name],\n\nI'm Sara Stadler, founder of CreateAI Brain.\n\nWe built 12 AI invention tools specifically for [their industry] operators. Each one replaces a $30,000–$100,000+ annual software cost — with zero hardware, zero licenses, and zero specialist credentials required.\n\nFor [healthcare/legal/staffing] operators specifically:\n[Industry-specific tool and value proposition]\n\nI'd love to show you a 15-minute demo. Would [Day/Date] at [Time] work?\n\n→ Or start free immediately: createaibrain.app\n\nBest,\nSara Stadler\nFounder, CreateAI Brain | Lakeside Trinity LLC",
+        copy: "Subject: Your industry's most expensive software has an AI replacement\n\nHi [First Name],\n\nI'm Sara Stadler, founder of CreateAI Brain.\n\nWe built 12 AI invention tools specifically for [their industry] operators. Each one replaces a $30,000–$100,000+ annual software cost — with zero hardware, zero licenses, and zero specialist credentials required.\n\nFor [healthcare/legal/staffing] operators specifically:\n[Industry-specific tool and value proposition]\n\nI'd love to show you a 15-minute demo. Would [Day/Date] at [Time] work?\n\n→ Or start free immediately: createaiplatform.com\n\nBest,\nSara Stadler\nFounder, CreateAI Brain | Lakeside Trinity LLC",
         cta: "Reply",
         objective: "Direct outreach + demo booking",
         hashtags: []
@@ -498,8 +498,8 @@ CTA (10:30-12:00): "We have a free trial at createaibrain.app — link in the de
       }
     ],
     contentTemplates: [
-      { type: "thought-leadership-post", title: "The End of the Software License Era", caption: "The enterprise software industry built a $600 billion business on one idea: you need their access to do your job.\n\nWe disagreed.\n\nCreateAI Brain's 12 AI invention tools replace:\n• Westlaw ($500+/month) → AI Legal Research Engine\n• Clinical EHR notes ($800/month) → AI Clinical Scribe\n• Bloomberg Terminal ($2,000/month) → AI Financial Intelligence\n• SCADA + IoT sensors ($50,000+) → AI Energy Intelligence\n• Soil sensors + precision ag systems ($50,000/farm) → AI Agronomist\n\nNo hardware. No licenses. No specialist credentials.\n\nJust AI.\n\nThe software license era is ending. The AI OS era is here.\n\n→ createaibrain.app" },
-      { type: "industry-post", title: "To Every Healthcare Operator Paying for EHR Clinical Notes", caption: "You're paying $800–$2,000/month for clinical note software.\n\nOur AI Clinical Scribe generates structured SOAP notes, care plans, and patient education summaries from symptom input and consultation notes.\n\nNo EHR access required. No clinical integration. No setup.\n\nJust: input → AI → structured clinical output.\n\nThe ROI is instant. The tool is live. Try it inside CreateAI Brain.\n\n→ createaibrain.app/demo" }
+      { type: "thought-leadership-post", title: "The End of the Software License Era", caption: "The enterprise software industry built a $600 billion business on one idea: you need their access to do your job.\n\nWe disagreed.\n\nCreateAI Brain's 12 AI invention tools replace:\n• Westlaw ($500+/month) → AI Legal Research Engine\n• Clinical EHR notes ($800/month) → AI Clinical Scribe\n• Bloomberg Terminal ($2,000/month) → AI Financial Intelligence\n• SCADA + IoT sensors ($50,000+) → AI Energy Intelligence\n• Soil sensors + precision ag systems ($50,000/farm) → AI Agronomist\n\nNo hardware. No licenses. No specialist credentials.\n\nJust AI.\n\nThe software license era is ending. The AI OS era is here.\n\n→ createaiplatform.com" },
+      { type: "industry-post", title: "To Every Healthcare Operator Paying for EHR Clinical Notes", caption: "You're paying $800–$2,000/month for clinical note software.\n\nOur AI Clinical Scribe generates structured SOAP notes, care plans, and patient education summaries from symptom input and consultation notes.\n\nNo EHR access required. No clinical integration. No setup.\n\nJust: input → AI → structured clinical output.\n\nThe ROI is instant. The tool is live. Try it inside CreateAI Brain.\n\n→ createaiplatform.com/demo" }
     ],
     strategy: {
       objective: "B2B lead generation + thought leadership + enterprise deals",
@@ -519,10 +519,10 @@ CTA (10:30-12:00): "We have a free trial at createaibrain.app — link in the de
     profile: {
       displayName: "CreateAI Brain",
       handle: "@CreateAIBrain",
-      bio: "AI OS replacing $500K in software. 12 invention tools. No hardware. No limits. | Sara Stadler @SaraSStadler | createaibrain.app",
+      bio: "AI OS replacing $500K in software. 12 invention tools. No hardware. No limits. | Sara Stadler @SaraSStadler | createaiplatform.com",
       bioCharLimit: 160,
       description: "The AI Operating System for entrepreneurs, healthcare, legal, and enterprise. Built by Sara Stadler / Lakeside Trinity LLC.",
-      website: "createaibrain.app",
+      website: "createaiplatform.com",
       category: "Technology",
       cta: "Follow"
     },
@@ -531,7 +531,7 @@ CTA (10:30-12:00): "We have a free trial at createaibrain.app — link in the de
         id: "promoted-tweet",
         name: "Promoted Post",
         specs: "280 chars text + optional 16:9 image/video",
-        copy: "The software license era is over.\n\nCreateAI Brain built 12 AI invention tools that bypass:\n• Westlaw ($500/mo) → AI Legal Research\n• EHR clinical notes ($800/mo) → AI Scribe\n• GPS hardware ($50K) → AI Fleet\n• Soil sensors ($50K/farm) → AI Agronomist\n\nOne platform. No hardware. No licenses.\n\n→ createaibrain.app",
+        copy: "The software license era is over.\n\nCreateAI Brain built 12 AI invention tools that bypass:\n• Westlaw ($500/mo) → AI Legal Research\n• EHR clinical notes ($800/mo) → AI Scribe\n• GPS hardware ($50K) → AI Fleet\n• Soil sensors ($50K/farm) → AI Agronomist\n\nOne platform. No hardware. No licenses.\n\n→ createaiplatform.com",
         cta: "Learn More",
         objective: "Awareness",
         hashtags: ["#AI", "#entrepreneur", "#legaltech", "#healthtech", "#automation"]
@@ -563,12 +563,12 @@ CTA (10:30-12:00): "We have a free trial at createaibrain.app — link in the de
           "10/ AI Email Sequence Builder: Campaign goal → full multi-email drip sequence with copy, subject lines, timing, personalization.",
           "11/ AI Financial Intelligence: Client data → portfolio analysis, risk profiling, financial planning narratives. Replaces Bloomberg ($2K/mo).",
           "12/ AI Agronomist: Visual observations → crop diagnosis, treatment plans, yield forecasts. Replaces $50K precision ag sensors.",
-          "All 12 tools live inside CreateAI Brain OS. $97/mo. No hardware. No licenses. Try free → createaibrain.app"
+          "All 12 tools live inside CreateAI Brain OS. $97/mo. No hardware. No licenses. Try free → createaiplatform.com"
         ]
       }
     ],
     contentTemplates: [
-      { type: "single-tweet", title: "Software Killer Series", caption: "Today's software we replaced:\n\nWestlaw ($6,000/yr) → AI Legal Research Engine\n\nNo login. No subscription. No specialist.\nJust: facts in → legal analysis out.\n\nThis is what AI OS looks like.\n\ncreateaibrain.app" }
+      { type: "single-tweet", title: "Software Killer Series", caption: "Today's software we replaced:\n\nWestlaw ($6,000/yr) → AI Legal Research Engine\n\nNo login. No subscription. No specialist.\nJust: facts in → legal analysis out.\n\nThis is what AI OS looks like.\n\ncreateaiplatform.com" }
     ],
     strategy: {
       objective: "Thought leadership + viral reach + founder brand",
@@ -590,7 +590,7 @@ CTA (10:30-12:00): "We have a free trial at createaibrain.app — link in the de
       handle: "N/A (Search Ads)",
       bio: "N/A",
       bioCharLimit: 0,
-      website: "createaibrain.app",
+      website: "createaiplatform.com",
       category: "Search + Display + YouTube"
     },
     adFormats: [
@@ -611,7 +611,7 @@ CTA (10:30-12:00): "We have a free trial at createaibrain.app — link in the de
             "Full AI Platform. One Price."
           ],
           descriptions: [
-            "CreateAI Brain: 12 AI tools that replace clinical software, legal databases, fleet GPS & more. Try free at createaibrain.app.",
+            "CreateAI Brain: 12 AI tools that replace clinical software, legal databases, fleet GPS & more. Try free at createaiplatform.com.",
             "Replace Westlaw, EHR systems, SCADA sensors & actuarial databases with AI. No hardware needed. Full capability from day one.",
             "The AI OS for healthcare operators, legal professionals, staffing agencies & entrepreneurs. 12 invention tools. $97/mo.",
             "Autonomous AI platform: HealthOS, LegalPM, StaffingOS + 12 invention tools. Start free. No setup. No limits."
@@ -656,9 +656,9 @@ CTA (10:30-12:00): "We have a free trial at createaibrain.app — link in the de
     profile: {
       displayName: "u/CreateAIBrain",
       handle: "CreateAIBrain",
-      bio: "Building the AI OS that replaces $500K in software. Sara Stadler / Lakeside Trinity. createaibrain.app",
+      bio: "Building the AI OS that replaces $500K in software. Sara Stadler / Lakeside Trinity. createaiplatform.com",
       bioCharLimit: 200,
-      website: "createaibrain.app",
+      website: "createaiplatform.com",
       category: "Technology"
     },
     adFormats: [
@@ -673,7 +673,7 @@ CTA (10:30-12:00): "We have a free trial at createaibrain.app — link in the de
       }
     ],
     contentTemplates: [
-      { type: "ama", title: "AMA: Built an AI OS That Replaces $500K in Software", caption: "I'm Sara Stadler, founder of CreateAI Brain. We built 12 AI invention tools that replace clinical software, legal databases, fleet GPS, insurance actuarial systems, and precision agriculture sensors — with pure AI inference.\n\nAsk me anything about how it works, what it replaces, or the business behind it.\n\nProof: admin@LakesideTrinity.com / createaibrain.app" }
+      { type: "ama", title: "AMA: Built an AI OS That Replaces $500K in Software", caption: "I'm Sara Stadler, founder of CreateAI Brain. We built 12 AI invention tools that replace clinical software, legal databases, fleet GPS, insurance actuarial systems, and precision agriculture sensors — with pure AI inference.\n\nAsk me anything about how it works, what it replaces, or the business behind it.\n\nProof: admin@createaiplatform.com / createaiplatform.com" }
     ],
     strategy: {
       objective: "Community trust + authentic engagement",
@@ -693,14 +693,14 @@ CTA (10:30-12:00): "We have a free trial at createaibrain.app — link in the de
     profile: {
       displayName: "CreateAI Brain",
       handle: "@createaibrain",
-      bio: "AI OS replacing $500K in software. 12 AI tools. Sara Stadler. createaibrain.app",
+      bio: "AI OS replacing $500K in software. 12 AI tools. Sara Stadler. createaiplatform.com",
       bioCharLimit: 150,
-      website: "createaibrain.app",
+      website: "createaiplatform.com",
       category: "Technology"
     },
     adFormats: [],
     contentTemplates: [
-      { type: "daily-drop", title: "Daily AI Tool Drop", caption: "Today's tool: AI Clinical Scribe.\n\nConverts symptom input → full SOAP note.\nNo EHR. No login. No license.\n\nJust: describe → AI → structured clinical output.\n\nOne of 12 invention tools inside CreateAI Brain.\n\ncreateaibrain.app" },
+      { type: "daily-drop", title: "Daily AI Tool Drop", caption: "Today's tool: AI Clinical Scribe.\n\nConverts symptom input → full SOAP note.\nNo EHR. No login. No license.\n\nJust: describe → AI → structured clinical output.\n\nOne of 12 invention tools inside CreateAI Brain.\n\ncreateaiplatform.com" },
       { type: "conversation-starter", title: "What software are you overpaying for?", caption: "Name your most expensive software.\n\nI'll tell you if our AI already replaced it.\n\n(We've replaced 12 categories so far. Working on more.)" }
     ],
     strategy: {
@@ -720,10 +720,10 @@ CTA (10:30-12:00): "We have a free trial at createaibrain.app — link in the de
     accentColor: "#6366f1",
     profile: {
       displayName: "Sara Stadler @ CreateAI Brain",
-      handle: "admin@LakesideTrinity.com",
+      handle: "admin@createaiplatform.com",
       bio: "From Sara Stadler, Founder of CreateAI Brain",
       bioCharLimit: 0,
-      website: "createaibrain.app",
+      website: "createaiplatform.com",
       category: "Email / Newsletter"
     },
     adFormats: [
@@ -814,7 +814,7 @@ const FUNNELS = [
     name: "Social → Free Trial Funnel",
     stages: [
       { stage: "Awareness", channel: "TikTok / Instagram Reels / YouTube Shorts", content: "Hook video: 'I replaced my software stack'", cta: "Link in bio" },
-      { stage: "Interest", channel: "Landing Page (createaibrain.app)", content: "Headline: 'The AI OS That Does Everything' + feature breakdown + social proof", cta: "Start Free Trial" },
+      { stage: "Interest", channel: "Landing Page (createaiplatform.com)", content: "Headline: 'The AI OS That Does Everything' + feature breakdown + social proof", cta: "Start Free Trial" },
       { stage: "Trial", channel: "In-App Onboarding", content: "Welcome sequence + first tool tutorial + quick win", cta: "Activate Pro" },
       { stage: "Conversion", channel: "Email + In-App", content: "Day 3 upgrade prompt + ROI calculator + limited offer", cta: "Upgrade to Pro — $97/mo" },
       { stage: "Retention", channel: "Email + In-App", content: "Weekly digest + new tool announcements + feature unlocks", cta: "Stay Active" }
@@ -920,10 +920,10 @@ router.get("/bios", (_req: Request, res: Response) => {
 
 router.get("/banners", (_req: Request, res: Response) => {
   const banners = [
-    { platform: "YouTube", type: "Channel Art", specs: "2560×1440px", safeZone: "1546×423px center", copy: "CreateAI Brain — The AI OS for Everything You Do | createaibrain.app", elements: ["Logo center", "Tagline below", "Social handles right", "Platform badges bottom"] },
+    { platform: "YouTube", type: "Channel Art", specs: "2560×1440px", safeZone: "1546×423px center", copy: "CreateAI Brain — The AI OS for Everything You Do | createaiplatform.com", elements: ["Logo center", "Tagline below", "Social handles right", "Platform badges bottom"] },
     { platform: "LinkedIn", type: "Company Banner", specs: "1128×191px", copy: "CreateAI Brain | The AI OS Replacing $500K in Software | 12 AI Invention Tools", elements: ["Logo left", "Tagline center", "Website URL right"] },
-    { platform: "LinkedIn", type: "Personal Banner (Sara)", specs: "1584×396px", copy: "Sara Stadler | Founder, CreateAI Brain | AI OS That Has No Limits | createaibrain.app", elements: ["Headshot left", "Name + title", "Company logo", "Tagline"] },
-    { platform: "Facebook", type: "Page Cover", specs: "820×312px (desktop), 640×360px (mobile)", copy: "CreateAI Brain | The AI OS for Everything | 12 Invention Tools | createaibrain.app", elements: ["Logo top-left", "Tagline center", "CTA button: Get Started"] },
+    { platform: "LinkedIn", type: "Personal Banner (Sara)", specs: "1584×396px", copy: "Sara Stadler | Founder, CreateAI Brain | AI OS That Has No Limits | createaiplatform.com", elements: ["Headshot left", "Name + title", "Company logo", "Tagline"] },
+    { platform: "Facebook", type: "Page Cover", specs: "820×312px (desktop), 640×360px (mobile)", copy: "CreateAI Brain | The AI OS for Everything | 12 Invention Tools | createaiplatform.com", elements: ["Logo top-left", "Tagline center", "CTA button: Get Started"] },
     { platform: "Twitter/X", type: "Header Image", specs: "1500×500px", copy: "CreateAI Brain | AI OS | 12 Invention Tools | No Hardware. No Limits.", elements: ["Dark background", "Logo left", "Tagline right", "Indigo accent bar"] },
     { platform: "TikTok", type: "Profile Background", specs: "1080×1920px", copy: "CreateAI Brain | @createaibrain", elements: ["Minimal, dark background", "Logo center", "Handle overlay"] },
     { platform: "All", type: "Ad Banner Set", specs: "728×90 / 300×250 / 160×600 / 320×50 / 300×600", copy: "Headline: 'The AI OS Replacing $500K in Software' | Body: '12 AI tools. No hardware. Try free.' | CTA: 'Start Free'", elements: ["Logo", "Headline", "Body", "CTA button", "Dark background with indigo accent"] }
@@ -939,21 +939,21 @@ router.get("/scripts", (_req: Request, res: Response) => {
       title: "TikTok / Reels — 60-Second Hook",
       duration: "60s",
       type: "Short-form",
-      script: "HOOK (0-3s): [On screen: '$4,800/month → $97/month'] 'I cancelled 11 software subscriptions this month. Here's what I use now.'\n\nMIDDLE (3-45s): [Screen recording of CreateAI Brain OS]\n'This is CreateAI Brain. It's an AI Operating System with 12 tools built in.'\n[Flash each tool quickly]\n'Clinical notes — done. Legal research — done. Fleet tracking — done. No hardware. No licenses.'\n\nCTA (45-60s): 'Try it free. Link in bio. createaibrain.app'",
+      script: "HOOK (0-3s): [On screen: '$4,800/month → $97/month'] 'I cancelled 11 software subscriptions this month. Here's what I use now.'\n\nMIDDLE (3-45s): [Screen recording of CreateAI Brain OS]\n'This is CreateAI Brain. It's an AI Operating System with 12 tools built in.'\n[Flash each tool quickly]\n'Clinical notes — done. Legal research — done. Fleet tracking — done. No hardware. No licenses.'\n\nCTA (45-60s): 'Try it free. Link in bio. createaiplatform.com'",
       thumbnailCopy: "Cancelled $4,800/mo in Software 🤯"
     },
     {
       title: "YouTube Shorts — Tool Demo Format",
       duration: "30-59s",
       type: "Short-form educational",
-      script: "HOOK: 'Watch AI write a full SOAP clinical note in 30 seconds — with no EHR access.'\nDEMO: [Screen recording of AI Clinical Scribe]\nSOCIAL PROOF: 'This replaced a $800/month clinical note platform.'\nCTA: 'See all 12 tools at createaibrain.app'",
+      script: "HOOK: 'Watch AI write a full SOAP clinical note in 30 seconds — with no EHR access.'\nDEMO: [Screen recording of AI Clinical Scribe]\nSOCIAL PROOF: 'This replaced a $800/month clinical note platform.'\nCTA: 'See all 12 tools at createaiplatform.com'",
       thumbnailCopy: "AI Writes Clinical Notes in 30 Seconds 🏥"
     },
     {
       title: "LinkedIn Video — Thought Leadership",
       duration: "90-120s",
       type: "Professional short-form",
-      script: "OPEN: [Professional framing, Sara to camera]\n'I want to talk about something that's making $600 billion in enterprise software licenses irrelevant.'\n\nBUILD: 'We built 12 AI tools. Each one replaces a system that costs $30K to $100K per year. No hardware. No license. No specialist credentials.'\n\nPROOF: 'Here's one: our AI Legal Research Engine. You input case facts. AI outputs legal analysis, precedent frameworks, argument structures. No Westlaw subscription needed.'\n\nCTA: 'The era of the software license is ending. CreateAI Brain is what comes next. Try it at createaibrain.app.'"
+      script: "OPEN: [Professional framing, Sara to camera]\n'I want to talk about something that's making $600 billion in enterprise software licenses irrelevant.'\n\nBUILD: 'We built 12 AI tools. Each one replaces a system that costs $30K to $100K per year. No hardware. No license. No specialist credentials.'\n\nPROOF: 'Here's one: our AI Legal Research Engine. You input case facts. AI outputs legal analysis, precedent frameworks, argument structures. No Westlaw subscription needed.'\n\nCTA: 'The era of the software license is ending. CreateAI Brain is what comes next. Try it at createaiplatform.com.'"
       ,
       thumbnailCopy: "The $600B Industry We're Making Obsolete"
     }
@@ -995,7 +995,7 @@ router.post("/generate", async (req: Request, res: Response) => {
   const platformData = PLATFORMS.find(p => p.id === platform);
   const platformName = platformData?.name ?? platform;
   const systemPrompt = `You are a world-class advertising copywriter and brand strategist for CreateAI Brain — an AI Operating System built by Sara Stadler / Lakeside Trinity LLC. The platform has 12 AI invention tools that replace expensive software licenses, hardware sensors, and professional consultants with pure AI intelligence. Brand voice: confident, authoritative, forward-thinking, practical. Accent color: indigo. Never use hype or empty promises. Always be specific about what AI replaces and the cost savings.`;
-  const userPrompt = `Generate ${format} advertising content for ${platformName}.\n${context ? "Additional context: " + context : ""}\n${industry ? "Target industry: " + industry : "Target: entrepreneurs and business operators"}\n${tone ? "Tone: " + tone : "Tone: confident and authoritative"}\n\nBrand: CreateAI Brain | Tagline: 'The AI OS for Everything You Do' | Website: createaibrain.app\n\nProvide: headline, body copy, CTA, and relevant hashtags (if applicable for platform). Format clearly with labels.`;
+  const userPrompt = `Generate ${format} advertising content for ${platformName}.\n${context ? "Additional context: " + context : ""}\n${industry ? "Target industry: " + industry : "Target: entrepreneurs and business operators"}\n${tone ? "Tone: " + tone : "Tone: confident and authoritative"}\n\nBrand: CreateAI Brain | Tagline: 'The AI OS for Everything You Do' | Website: createaiplatform.com\n\nProvide: headline, body copy, CTA, and relevant hashtags (if applicable for platform). Format clearly with labels.`;
   try {
     const completion = await openai.chat.completions.create({
       model: "gpt-4o",

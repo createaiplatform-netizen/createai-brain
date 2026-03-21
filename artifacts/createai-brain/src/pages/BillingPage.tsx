@@ -298,7 +298,7 @@ export default function BillingPage() {
               { label: "Business name",    value: "Lakeside Trinity" },
               { label: "Business type",    value: "Individual / Sole Owner" },
               { label: "Tax ID",           value: "On file" },
-              { label: "Billing email",    value: "admin@LakesideTrinity.com" },
+              { label: "Billing email",    value: "admin@createaiplatform.com" },
               { label: "Billing address",  value: "23926 4th Ave, Siren, WI 54872" },
               { label: "Payment method",   value: "Stripe — connected" },
             ].map(item => (

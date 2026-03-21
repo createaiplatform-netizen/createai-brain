@@ -49,7 +49,7 @@ function buildBlockers() {
     },
     {
       id:                    "resend-domain",
-      system:                "Resend Email Delivery (LakesideTrinity.com)",
+      system:                "Resend Email Delivery (createaiplatform.com)",
       status:                "partial",
       reason:                "Domain not verified — email currently delivers only to sivh@mail.com",
       bypass:                "Invoices are shared as direct PayGate links. Clients pay via Cash App or Venmo without email.",
@@ -57,7 +57,7 @@ function buildBlockers() {
       requiresExternalAction: true,
       externalSteps: [
         "Log in to resend.com/domains",
-        "Add LakesideTrinity.com, copy DNS records from Credentials Hub (DNS tab) → paste into registrar",
+        "Add createaiplatform.com, copy DNS records from Credentials Hub (DNS tab) → paste into registrar",
         "Click Verify — full email delivery activates immediately",
       ],
     },

@@ -503,7 +503,7 @@ router.get("/", (_req: Request, res: Response) => {
         </a>
 
         <div style="font-size:0.7rem;color:#94a3b8;text-align:center;padding-top:4px;">
-          Opens stripe.com in a new tab · Your account: <strong style="color:#64748b;">admin@LakesideTrinity.com</strong>
+          Opens stripe.com in a new tab · Your account: <strong style="color:#64748b;">admin@createaiplatform.com</strong>
         </div>
       </div>
     </div>
