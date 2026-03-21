@@ -728,6 +728,11 @@ const APP_META: Record<AppId, { icon: string; label: string }> = {
   percentageEngine:  { icon: "📊", label: "Percentage Engine" },
   activation:        { icon: "⚡", label: "Activation Center" },
   credentialsHub:    { icon: "🔗", label: "Credentials Hub" },
+  referral:          { icon: "🎁", label: "Referral Program" },
+  growthEngine:      { icon: "📈", label: "Growth Engine" },
+  npaSettings:       { icon: "🪪", label: "Platform Identity" },
+  selfHost:          { icon: "🏠", label: "Self-Host Engine" },
+  handleProtocol:    { icon: "🔗", label: "Handle Protocol" },
 
   // ── Enterprise Suite Apps ──────────────────────────────────────────────────
   zeroTrust: { icon: "🔐", label: "Zero Trust" },

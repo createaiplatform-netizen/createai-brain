@@ -657,7 +657,7 @@ export default function AdsOrchestratorApp() {
                       <span style={{ fontSize: 18 }}>{network?.icon ?? "📡"}</span>
                       <div>
                         <div style={{ fontSize: 13, fontWeight: 700, color: "#f1f5f9" }}>{c.campaignName}</div>
-                        <div style={{ fontSize: 11, color: "#475569" }}>{c.networkName ?? c.networkId} · Generated {new Date(c.generatedAt).toLocaleDateString()}</div>
+                        <div style={{ fontSize: 11, color: "#475569" }}>{c.networkId} · Generated {new Date(c.generatedAt).toLocaleDateString()}</div>
                       </div>
                     </div>
                     <div style={{ display: "flex", gap: 8, alignItems: "center" }}>

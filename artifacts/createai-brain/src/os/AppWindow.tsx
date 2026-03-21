@@ -868,8 +868,8 @@ export function AppWindow({ onHamburger }: AppWindowProps) {
         <span className="text-[10px] font-medium" style={{ color: "#6366f1" }}>{label}</span>
       </div>
 
-      {/* ── Contextual ad strip (non-ad apps only) ── */}
-      {appId !== "ads" && (
+      {/* ── Contextual ad strip (non-ad/orchestrator apps only) ── */}
+      {activeApp !== "adshub" && activeApp !== "adsOrchestrator" && (
         <InternalAdBanner placement="all" compact />
       )}
 

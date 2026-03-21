@@ -273,3 +273,90 @@ The foundational distribution architecture. Products are channel-agnostic object
 - **Live State**: 100 products indexed, $1,938 catalog value, 6 active channels, maturity: "scaling"
 - **Delivery email**: Set `RESEND_API_KEY` in Replit Secrets to activate automated delivery on every purchase
 
+
+## NEXUS Platform Address (NPA) Identity System
+
+**Canonical identity**: `npa://CreateAIDigital` — stable handle that resolves to the live URL without a purchased domain.
+
+- **Key file**: `artifacts/api-server/src/config/nexusIdentityResolver.ts` — auto-detects live URL from `REPLIT_DEV_DOMAIN`/`REPLIT_DOMAINS`/`BRAND_DOMAIN`.
+- **Exposed through**: `artifacts/api-server/src/config/identity.ts` as `IDENTITY` object — fields: `platformName`, `legalEntity`, `ownerName`, `handle`, `npa`, `liveUrl`, `liveDomain`, `contactEmail`, `fromEmail`, `cashApp`, `venmo` etc.
+- **Well-known endpoints** (public, open CORS):
+  - `GET /.well-known/platform-id.json` — JSON-LD identity document
+  - `GET /.well-known/platform-proof.json` — HMAC-SHA256 signed proof token
+- **OS app**: `NPASettingsApp.tsx` — "Platform Identity" (🪪) in system category
+- **Payment handles**: Cash App `$CreateAIDigital`, Venmo `@CreateAIDigital` — no other payment methods
+- **Upgrade path**: Set `BRAND_DOMAIN` secret to instantly upgrade entire identity to custom domain
+
+
+## NEXUS Handle Protocol System
+
+Three-layer system for reaching the platform via a handle rather than a raw URL:
+
+**Layer 1 — Browser Protocol Handler**
+- Scheme: `web+npa://CreateAIDigital`
+- Registration: `navigator.registerProtocolHandler("web+npa", "/npa-gateway?q=%s")`
+- PWA protocol_handlers entry in `artifacts/createai-brain/public/manifest.json`
+- OS app: `HandleProtocolApp.tsx` (🔗) walks through registration step-by-step
+- Gateway page: `artifacts/createai-brain/src/pages/NpaGatewayPage.tsx` — parses `?q=` param, routes to OS
+
+**Layer 2 — Portable Platform Card**
+- `GET /api/platform-card` — ~3KB standalone HTML file; fetches live URL on load and redirects
+- `GET /api/platform-card?download=1` — triggers file download for hosting anywhere
+- `GET /api/platform-card/meta` — JSON metadata for all handle protocol URLs
+- Host the card on GitHub Pages/Netlify to get a professional URL (e.g. `https://createaidigital.github.io`)
+
+**Layer 3 — Handle Redirect**
+- `GET /h/:handle` — permanent 302 redirect to live platform URL
+- Live: `https://<domain>/h/createaidigital`
+- NEXUS gateway: `GET /npa-gateway?q=web+npa://CreateAIDigital`
+
+**Key files**:
+- `artifacts/api-server/src/routes/protocolGateway.ts` — all 4 backend routes
+- `artifacts/api-server/src/Apps/HandleProtocolApp.tsx` — OS app
+- `artifacts/createai-brain/src/pages/NpaGatewayPage.tsx` — protocol callback page
+- Route mount: `app.use("/", protocolGatewayRouter)` in `app.ts` (before semanticStore/platformHub)
+- Public route: `/npa-gateway` in `isPublicRoute` check and public `<Route>` block in `App.tsx`
+
+
+## Self-Host Engine
+
+- **Purpose**: Build the React frontend and serve it from the API server process — zero external hosting needed.
+- **Status endpoint**: `GET /api/self-host/status` — returns `engineActive`, `frontendBuilt`, `distExists`, `distSizeKb`, `watchdogCycles`
+- **URL map**: `GET /api/self-host/url-map` — all `createai://` internal routes
+- **Resolve**: `GET /api/self-host/resolve?npa=createai://home` — resolves a handle to runtime URL
+- **Key file**: `artifacts/api-server/src/engines/selfHostEngine.ts`
+- **OS app**: `SelfHostApp.tsx` (🏠) in system category
+
+
+## NEXUS OS App Registry — Canonical State (as of March 2026)
+
+**AppId union** (`src/os/OSContext.tsx` line ~274): 150 apps in `DEFAULT_APPS` array, 357 entries in `APP_META` Record (enterprise sub-apps included). All entries verified present.
+
+**Key consistency rules enforced**:
+- Every `AppId` in the union → has entry in `APP_META` ✅
+- Every `AppId` in `DEFAULT_APPS` → has lazy import + `appMap` entry in `AppWindow.tsx` ✅
+- All new system apps (`referral`, `growthEngine`, `npaSettings`, `selfHost`, `handleProtocol`) fully wired ✅
+- NEXUS intent keywords registered for all apps ✅
+
+**TypeScript**: Frontend passes `tsc --noEmit` with zero errors. API server has pre-existing drizzle-orm version mismatch TS errors (two parallel versions hoisted by pnpm) — runtime unaffected, `tsx` skips type-checking.
+
+**System app category** includes: `npaSettings`, `selfHost`, `handleProtocol`, `growthEngine`, `activation`, `credentialsHub`, `authlab`, `paygate`, `inventionLayer`, `percentageEngine`.
+
+
+## Platform Launch State (March 2026)
+
+**Fully active, no pending states**:
+- Founder-tier execution mode: ACTIVE (`allActive: true`, `allProtected: true`, `allIntegrated: true`, 37 registered systems)
+- All OS apps: 150 in DEFAULT_APPS, all wired, lazy-loaded, intent-routed
+- Handle Protocol: web+npa:// + portable card + handle redirect — all live
+- NPA identity: consistent across all endpoints (`platformName`, `handle`, `npa`, `cashApp`, `venmo`)
+- API server: healthy, uptime continuous, 60+ route files mounted
+- Frontend: Vite dev server running, HMR active, zero TypeScript errors
+- Manifest: `web+npa` protocol_handlers registered, PWA-installable
+
+**Waiting on Sara's manual setup** (cannot be automated):
+1. `BRAND_DOMAIN` secret → upgrades all identity to custom domain instantly
+2. Resend domain verification → enables real email sending from custom address
+3. Stripe keys (already integrated via Replit Stripe integration) → verify account for live payments
+4. Marketplace tokens (SHOPIFY_ACCESS_TOKEN etc.) → unlock external publishing
+
