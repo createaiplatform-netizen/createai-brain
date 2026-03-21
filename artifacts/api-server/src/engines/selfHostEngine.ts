@@ -31,8 +31,28 @@ import type { Express } from "express";
 import express from "express";
 import { resolveNexusIdentity } from "../config/nexusIdentityResolver.js";
 
-const FRONTEND_ROOT = path.resolve(process.cwd(), "../../artifacts/createai-brain");
-const DIST_DIR      = path.join(FRONTEND_ROOT, "dist");
+// Resolve the frontend root from multiple possible working directory contexts:
+// 1. FRONTEND_DIR env var (explicit override, most reliable)
+// 2. Running from artifacts/api-server/ (dev mode: cwd = .../artifacts/api-server)
+// 3. Running from workspace root (prod mode: cwd = workspace root, e.g. `node artifacts/api-server/dist/index.cjs`)
+function resolveFrontendRoot(): string {
+  if (process.env["FRONTEND_DIR"]) {
+    return path.resolve(process.env["FRONTEND_DIR"]);
+  }
+  // From artifacts/api-server → ../../artifacts/createai-brain → workspace/artifacts/createai-brain
+  const fromApiServerCwd = path.resolve(process.cwd(), "../../artifacts/createai-brain");
+  if (fs.existsSync(fromApiServerCwd)) return fromApiServerCwd;
+  // From workspace root → artifacts/createai-brain
+  const fromWorkspaceRoot = path.resolve(process.cwd(), "artifacts/createai-brain");
+  if (fs.existsSync(fromWorkspaceRoot)) return fromWorkspaceRoot;
+  // Fallback: try both with /public suffix
+  const fromApiServerDist = path.resolve(process.cwd(), "../../artifacts/createai-brain");
+  return fromApiServerDist;
+}
+
+const FRONTEND_ROOT = resolveFrontendRoot();
+// Vite builds to dist/public/ (configured via outDir in vite.config.ts)
+const DIST_DIR      = path.join(FRONTEND_ROOT, "dist", "public");
 const PUBLISH_DIR   = path.resolve(process.cwd(), "published");
 
 export interface SelfHostStatus {
