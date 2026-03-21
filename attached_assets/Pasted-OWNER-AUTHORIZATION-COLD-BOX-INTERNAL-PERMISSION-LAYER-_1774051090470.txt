@@ -1,0 +1,81 @@
+OWNER AUTHORIZATION COLD BOX — INTERNAL PERMISSION LAYER
+
+Goal:
+Create an explicit, owner-signed internal authorization layer that:
+- Declares that I (the owner) approve the Universal Bridge Engine
+- Authorizes all current and future connectors to be used
+- Authorizes all automation and monetization flows
+- Does NOT create external credentials
+- Prepares the system to immediately use any real credentials I add later
+
+Part 1 — Create the Cold Box Manifest
+Create a new file: src/security/ownerAuthorizationManifest.ts
+
+Export a constant object like:
+
+export const OWNER_AUTHORIZATION_MANIFEST = {
+  owner: "Sara",
+  ownerId: "FOUNDER",
+  approvedAt: "<use new Date().toISOString()>",
+  approvesUniversalBridgeEngine: true,
+  approvesAllConnectors: true,
+  approvesAllAutomationFlows: true,
+  approvesAllMonetizationFlows: true,
+  approvesAllCurrentAndFutureEngines: true,
+  notes: [
+    "This manifest represents explicit internal authorization by the owner.",
+    "It does NOT create or replace external credentials.",
+    "It authorizes the system to use any valid credentials I provide later."
+  ]
+};
+
+Part 2 — Wire It Into the Universal Bridge Engine
+In services/universalBridgeEngine.ts:
+
+- Import OWNER_AUTHORIZATION_MANIFEST.
+- Before processing any BridgeRequest, check:
+  - If approvesUniversalBridgeEngine is true → allow internal routing.
+  - If false → return an error: "OWNER_AUTHORIZATION_REQUIRED".
+
+This ensures:
+- The bridge only runs because I explicitly approved it.
+- The system knows it is operating under owner authorization.
+
+Part 3 — Wire It Into Connectors (Read-Only)
+In each connector (paymentsConnector, adsConnector, smsConnector, emailConnector, marketplaceConnector, identityConnector):
+
+- Import OWNER_AUTHORIZATION_MANIFEST.
+- Log (internally only) that actions are being taken under owner authorization.
+- Do NOT bypass NOT_CONFIGURED.
+- Do NOT simulate credentials.
+- Only use real credentials if present in environment variables.
+
+Part 4 — Add a Simple “Owner Authorization” Status to the Dashboard
+In the main dashboard (UltimateTranscendDashboard or Universal/Control panel):
+
+- Add a small panel: "Owner Authorization"
+- Show:
+  - Owner: Sara
+  - Status: ACTIVE (if approvesUniversalBridgeEngine === true)
+  - Approved At: OWNER_AUTHORIZATION_MANIFEST.approvedAt
+  - Scope: "All engines, all connectors, all automation, all monetization flows"
+
+Part 5 — How I Add Real Credentials Later
+Make sure the system is ready to read:
+
+- STRIPE_SECRET_KEY
+- RESEND_API_KEY
+- TWILIO_SID / TWILIO_AUTH_TOKEN
+- MARKETPLACE_OAUTH_* (future)
+- ADS_OAUTH_* (future)
+
+But:
+- Do NOT invent any keys.
+- Do NOT simulate external access.
+- Only mark connectors ACTIVE when real credentials exist.
+
+Final:
+- Implement this manifest and wiring without changing any existing engine names or behavior.
+- Confirm in logs and dashboard that:
+  - Owner authorization is ACTIVE.
+  - Connectors still show NOT_CONFIGURED until real credentials are added.
