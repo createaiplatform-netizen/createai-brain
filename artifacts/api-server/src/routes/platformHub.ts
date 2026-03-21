@@ -222,6 +222,7 @@ router.get("/hub", async (_req: Request, res: Response) => {
     {
       section: "Operations",
       items: [
+        { label: "SignalSpace Console", url: `${BASE}/ss`, desc: "AI-native addressing layer — navigate by @signal, #concept, ?query, ~code", icon: "⬡", badge: "Admin" },
         { label: "Live Payment Feed", url: `${BASE}/launch/payments`, desc: "Real-time Stripe sessions with delivery status", icon: "💳", badge: "Admin" },
         { label: "CRM Stats", url: `${BASE}/portal/stats`, desc: "Total customers, revenue, top products", icon: "📊", badge: "Admin" },
         { label: "Platform Score", url: `${BASE}/api/semantic/analytics/`, desc: "17/20 domain capability dashboard", icon: "📈", badge: "Admin" },
