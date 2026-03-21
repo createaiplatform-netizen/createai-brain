@@ -27,7 +27,7 @@ const T = {
   text2:   "#475569",
   text3:   "#94a3b8",
   border:  "rgba(15,23,42,0.07)",
-  font:    '-apple-system, BlinkMacSystemFont, "SF Pro Display", "Segoe UI", Helvetica, Arial, sans-serif',
+  font:    '"Inter", -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif',
 };
 
 // ─── Helpers ──────────────────────────────────────────────────────────────────

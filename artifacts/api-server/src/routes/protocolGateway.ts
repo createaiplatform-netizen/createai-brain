@@ -41,9 +41,12 @@ function generateCard(liveUrl: string): string {
 <meta property="og:title" content="${name}">
 <meta property="og:description" content="${tagline} by ${legal}">
 <meta name="theme-color" content="#6366f1">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&display=swap" rel="stylesheet">
 <style>
 *{margin:0;padding:0;box-sizing:border-box}
-html,body{height:100%;font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',system-ui,sans-serif;background:#020617;color:#f1f5f9}
+html,body{height:100%;font-family:'Inter',-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;background:#020617;color:#f1f5f9;-webkit-font-smoothing:antialiased}
 body{display:flex;align-items:center;justify-content:center;min-height:100vh;padding:20px}
 .card{max-width:440px;width:100%;text-align:center}
 .logo{width:64px;height:64px;background:linear-gradient(135deg,#6366f1,#8b5cf6);border-radius:16px;display:flex;align-items:center;justify-content:center;font-size:28px;margin:0 auto 24px;box-shadow:0 0 40px rgba(99,102,241,.35)}

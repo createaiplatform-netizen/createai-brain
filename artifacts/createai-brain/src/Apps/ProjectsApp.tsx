@@ -702,7 +702,7 @@ export function ProjectsApp() {
                     <p className="font-bold text-[14px] text-foreground">{proj.name}</p>
                     <span className={`text-[10px] font-bold px-2 py-0.5 rounded-full flex-shrink-0 ${
                       proj.mode === "LIVE"     ? "bg-green-100 text-green-700" :
-                      proj.mode === "DEMO"     ? "bg-teal-100 text-teal-700" :
+                      proj.mode === "DEMO"     ? "bg-indigo-100 text-indigo-700" :
                       "bg-orange-100 text-orange-700"
                     }`}>
                       {proj.mode === "BUILDING" ? "🔨 Building" : proj.mode === "DEMO" ? "✓ Live Demo" : "✓ Live"}

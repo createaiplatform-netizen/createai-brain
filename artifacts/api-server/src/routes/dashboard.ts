@@ -183,11 +183,15 @@ router.get("/", (_req: Request, res: Response) => {
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>CreateAI Brain — 100% Enforcement Dashboard</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&display=swap" rel="stylesheet">
   <style>
     *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
     body {
-      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+      font-family: 'Inter', -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
       background: #f8fafc; color: #0f172a; min-height: 100vh; padding: 2rem;
+      -webkit-font-smoothing: antialiased;
     }
     header {
       display: flex; align-items: center; gap: 1rem; margin-bottom: 2rem;

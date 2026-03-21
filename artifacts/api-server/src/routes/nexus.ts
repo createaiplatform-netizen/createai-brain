@@ -317,6 +317,9 @@ router.get("/", (req: Request, res: Response) => {
 <head>
   <meta charset="UTF-8"><meta name="viewport" content="width=device-width,initial-scale=1">
   <title>NEXUS — Platform OS</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&display=swap" rel="stylesheet">
   <style>
     *, *::before, *::after { box-sizing:border-box; margin:0; padding:0; }
     :root {
@@ -326,7 +329,7 @@ router.get("/", (req: Request, res: Response) => {
       --ind:#6366f1; --ind-d:#4f46e5; --ind-g:rgba(99,102,241,0.18);
       --cyan:#06b6d4; --em:#10b981; --am:#f59e0b; --re:#f87171;
     }
-    html, body { height:100%; background:var(--bg); color:var(--t1); font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,sans-serif; font-size:14px; }
+    html, body { height:100%; background:var(--bg); color:var(--t1); font-family:'Inter',-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif; font-size:14px; -webkit-font-smoothing:antialiased; }
     a { color:inherit; text-decoration:none; }
 
     /* ── Header ────────────────────────────────────────── */

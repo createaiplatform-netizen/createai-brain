@@ -33,7 +33,7 @@ const CSS = `
     --t1:#e2e8f0;--t2:#94a3b8;--t3:#64748b;--t4:#475569;
     --ind:#6366f1;--em:#10b981;--am:#f59e0b;--re:#f87171;--bl:#38bdf8;
   }
-  html,body{background:var(--bg);color:var(--t1);font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,sans-serif;font-size:14px;min-height:100vh;}
+  html,body{background:var(--bg);color:var(--t1);font-family:'Inter',-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;font-size:14px;min-height:100vh;-webkit-font-smoothing:antialiased;}
   a{color:inherit;text-decoration:none;}
   .hdr{border-bottom:1px solid var(--line);padding:0 24px;background:rgba(2,6,23,.97);position:sticky;top:0;z-index:100;}
   .hdr-inner{max-width:1200px;margin:0 auto;height:48px;display:flex;align-items:center;gap:14px;}
@@ -121,7 +121,7 @@ function header(title: string, bc: string, active: string): string {
   const nav = links.map(l =>
     '<a class="nav-link' + (l.label === active ? " active" : "") + '" href="' + BASE + l.href + '">' + l.label + "</a>"
   ).join("");
-  return "<!DOCTYPE html>\n<html lang=\"en\">\n<head>\n<meta charset=\"UTF-8\"><meta name=\"viewport\" content=\"width=device-width,initial-scale=1\">\n<title>" + title + " — Ops Hub</title>\n<style>" + CSS + "</style>\n</head>\n<body>\n<header class=\"hdr\">\n<div class=\"hdr-inner\">\n<a class=\"logo\" href=\"" + BASE + "\">Create<span>AI</span> Brain</a>\n<span class=\"bc\">/ <a href=\"" + BASE + "/ops\">Ops</a>" + (bc ? " / " + bc : "") + "</span>\n<nav class=\"nav-links\">" + nav + "</nav>\n</div>\n</header>\n<div class=\"wrap\">";
+  return "<!DOCTYPE html>\n<html lang=\"en\">\n<head>\n<meta charset=\"UTF-8\"><meta name=\"viewport\" content=\"width=device-width,initial-scale=1\">\n<title>" + title + " — Ops Hub</title>\n<link rel=\"preconnect\" href=\"https://fonts.googleapis.com\"><link rel=\"preconnect\" href=\"https://fonts.gstatic.com\" crossorigin><link href=\"https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&display=swap\" rel=\"stylesheet\">\n<style>" + CSS + "</style>\n</head>\n<body>\n<header class=\"hdr\">\n<div class=\"hdr-inner\">\n<a class=\"logo\" href=\"" + BASE + "\">Create<span>AI</span> Brain</a>\n<span class=\"bc\">/ <a href=\"" + BASE + "/ops\">Ops</a>" + (bc ? " / " + bc : "") + "</span>\n<nav class=\"nav-links\">" + nav + "</nav>\n</div>\n</header>\n<div class=\"wrap\">";
 }
 
 function badgeFor(status: string): string {

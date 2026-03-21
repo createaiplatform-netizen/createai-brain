@@ -172,9 +172,12 @@ export function toHostedPageHTML(p: SemanticProduct, checkoutUrl: string, succes
   <meta name="twitter:title" content="${p.title}">
   <meta name="twitter:description" content="${p.shortDescription}">
   <script type="application/ld+json">${jsonLd}</script>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&display=swap" rel="stylesheet">
   <style>
     * { box-sizing: border-box; margin: 0; padding: 0; }
-    body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif; background: #f8fafc; color: #1e293b; }
+    body { font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif; background: #f8fafc; color: #1e293b; -webkit-font-smoothing: antialiased; }
     .hero { background: linear-gradient(135deg, #6366f1 0%, #818cf8 100%); padding: 72px 24px 100px; text-align: center; color: white; }
     .badge { display: inline-block; background: rgba(255,255,255,0.2); backdrop-filter: blur(8px); border: 1px solid rgba(255,255,255,0.3); border-radius: 999px; padding: 6px 18px; font-size: 0.8rem; font-weight: 600; letter-spacing: 0.05em; text-transform: uppercase; margin-bottom: 20px; }
     .hero h1 { font-size: clamp(1.75rem, 4vw, 3rem); font-weight: 800; line-height: 1.2; margin-bottom: 16px; max-width: 700px; margin-left: auto; margin-right: auto; }
@@ -278,9 +281,12 @@ export function toStoreIndexHTML(products: SemanticProduct[], storeUrl: string):
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>CreateAI Brain — Digital Product Store</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&display=swap" rel="stylesheet">
   <style>
     * { box-sizing: border-box; margin: 0; padding: 0; }
-    body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif; background: #f8fafc; }
+    body { font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif; background: #f8fafc; -webkit-font-smoothing: antialiased; }
     header { background: linear-gradient(135deg, #6366f1, #818cf8); color: white; padding: 56px 24px; text-align: center; }
     header h1 { font-size: 2.75rem; font-weight: 800; }
     header p { margin-top: 12px; opacity: 0.9; font-size: 1.1rem; }

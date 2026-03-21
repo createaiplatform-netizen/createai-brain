@@ -172,8 +172,12 @@ router.get("/landing", (_req: Request, res: Response) => {
   <meta name="viewport" content="width=device-width,initial-scale=1">
   <title>CreateAI Brain Membership — Unlimited AI Product Access</title>
   <meta name="description" content="Get unlimited access to all AI-generated digital products in the CreateAI Brain catalog. Ebooks, courses, templates, software, and more.">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&display=swap" rel="stylesheet">
+  <style>*,*::before,*::after{box-sizing:border-box;margin:0;padding:0}</style>
 </head>
-<body style="font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;background:#f8fafc;color:#1e293b;margin:0;">
+<body style="font-family:'Inter',-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;background:#f8fafc;color:#1e293b;margin:0;-webkit-font-smoothing:antialiased;">
   <div style="background:linear-gradient(135deg,#1e293b,#334155);padding:80px 24px;text-align:center;color:white;">
     <div style="display:inline-block;background:rgba(99,102,241,0.3);color:#a5b4fc;border-radius:999px;padding:6px 18px;font-size:0.8rem;font-weight:700;text-transform:uppercase;letter-spacing:0.1em;margin-bottom:20px;">Membership Plans</div>
     <h1 style="font-size:clamp(2rem,4vw,3.5rem);font-weight:900;line-height:1.2;margin-bottom:16px;">Unlimited AI Product Access</h1>

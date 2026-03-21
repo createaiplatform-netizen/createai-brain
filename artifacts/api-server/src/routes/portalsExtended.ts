@@ -32,7 +32,7 @@ const BASE   = getPublicBaseUrl();
 const CSS = `
   *,*::before,*::after{box-sizing:border-box;margin:0;padding:0;}
   :root{--bg:#020617;--s1:#0d1526;--s2:#111827;--s3:#1e293b;--line:#1e293b;--line2:#2d3748;--t1:#e2e8f0;--t2:#94a3b8;--t3:#64748b;--t4:#475569;--ind:#6366f1;--em:#10b981;--am:#f59e0b;--re:#f87171;}
-  html,body{background:var(--bg);color:var(--t1);font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,sans-serif;font-size:14px;min-height:100vh;}
+  html,body{background:var(--bg);color:var(--t1);font-family:'Inter',-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;font-size:14px;min-height:100vh;-webkit-font-smoothing:antialiased;}
   a{color:var(--ind);}
   .hdr{border-bottom:1px solid var(--line);padding:0 24px;background:rgba(2,6,23,.97);}
   .hdr-inner{max-width:680px;margin:0 auto;height:52px;display:flex;align-items:center;}
@@ -78,7 +78,7 @@ const CSS = `
 `;
 
 function portalPage(title: string, bodyHtml: string, footerNote = ""): string {
-  return "<!DOCTYPE html>\n<html lang=\"en\">\n<head>\n<meta charset=\"UTF-8\"><meta name=\"viewport\" content=\"width=device-width,initial-scale=1\">\n<title>" + title + "</title>\n<style>" + CSS + "</style>\n</head>\n<body>\n<header class=\"hdr\"><div class=\"hdr-inner\"><a class=\"logo\" href=\"" + BASE + "\">Create<span>AI</span> Brain</a></div></header>\n<div class=\"wrap\">" + bodyHtml + (footerNote ? "<p style=\"font-size:.68rem;color:var(--t4);margin-top:24px;text-align:center;line-height:1.5;\">" + footerNote + "</p>" : "") + "</div>\n</body>\n</html>";
+  return "<!DOCTYPE html>\n<html lang=\"en\">\n<head>\n<meta charset=\"UTF-8\"><meta name=\"viewport\" content=\"width=device-width,initial-scale=1\">\n<title>" + title + "</title>\n<link rel=\"preconnect\" href=\"https://fonts.googleapis.com\"><link rel=\"preconnect\" href=\"https://fonts.gstatic.com\" crossorigin><link href=\"https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&display=swap\" rel=\"stylesheet\">\n<style>" + CSS + "</style>\n</head>\n<body>\n<header class=\"hdr\"><div class=\"hdr-inner\"><a class=\"logo\" href=\"" + BASE + "\">Create<span>AI</span> Brain</a></div></header>\n<div class=\"wrap\">" + bodyHtml + (footerNote ? "<p style=\"font-size:.68rem;color:var(--t4);margin-top:24px;text-align:center;line-height:1.5;\">" + footerNote + "</p>" : "") + "</div>\n</body>\n</html>";
 }
 
 // ── GET /portal/book — Public Booking Page ────────────────────────────────────

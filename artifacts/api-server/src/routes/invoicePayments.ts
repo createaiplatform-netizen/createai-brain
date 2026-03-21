@@ -185,10 +185,13 @@ function renderInvoiceHTML(inv: Invoice): string {
   "<html><head>" +
   "<meta charset='utf-8'>" +
   "<title>Invoice " + inv.invoiceNumber + " — CreateAI Brain</title>" +
+  "<link rel='preconnect' href='https://fonts.googleapis.com'>" +
+  "<link rel='preconnect' href='https://fonts.gstatic.com' crossorigin>" +
+  "<link href='https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&display=swap' rel='stylesheet'>" +
   "<style>" +
   "@media print { body { -webkit-print-color-adjust: exact; print-color-adjust: exact; } .no-print { display: none; } }" +
   "* { box-sizing: border-box; }" +
-  "body { background: #020617; color: #f1f5f9; font-family: system-ui, -apple-system, sans-serif; margin: 0; padding: 40px; }" +
+  "body { background: #020617; color: #f1f5f9; font-family: 'Inter', system-ui, -apple-system, sans-serif; margin: 0; padding: 40px; -webkit-font-smoothing: antialiased; }" +
   ".wrap { max-width: 820px; margin: 0 auto; background: #0f172a; border: 1px solid #1e293b; border-radius: 16px; padding: 48px; }" +
   ".hdr { display: flex; justify-content: space-between; align-items: flex-start; margin-bottom: 48px; }" +
   ".brand { font-size: 28px; font-weight: 900; color: #a5b4fc; letter-spacing: -1px; }" +
@@ -290,8 +293,8 @@ async function emailInvoice(inv: Invoice): Promise<boolean> {
   if (!apiKey) return false;
 
   const html = [
-    "<!DOCTYPE html><html><head><meta charset='utf-8'></head>",
-    "<body style='background:#020617;color:#f1f5f9;font-family:system-ui,sans-serif;padding:40px;max-width:600px;margin:0 auto;'>",
+    "<!DOCTYPE html><html><head><meta charset='utf-8'><link rel='preconnect' href='https://fonts.googleapis.com'><link href='https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&display=swap' rel='stylesheet'></head>",
+    "<body style='background:#020617;color:#f1f5f9;font-family:Inter,system-ui,-apple-system,sans-serif;padding:40px;max-width:600px;margin:0 auto;-webkit-font-smoothing:antialiased;'>",
     "<div style='text-align:center;margin-bottom:32px;'>",
     "<div style='font-size:28px;font-weight:900;color:#a5b4fc;'>CreateAI Brain</div>",
     "<div style='color:#64748b;font-size:13px;'>Lakeside Trinity LLC</div>",

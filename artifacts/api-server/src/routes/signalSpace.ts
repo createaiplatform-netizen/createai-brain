@@ -418,6 +418,9 @@ router.get("/", (req: Request, res: Response) => {
 <head>
   <meta charset="UTF-8"><meta name="viewport" content="width=device-width,initial-scale=1">
   <title>SignalSpace — CreateAI Brain</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&display=swap" rel="stylesheet">
   <style>
     *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
     :root {
@@ -428,7 +431,7 @@ router.get("/", (req: Request, res: Response) => {
       --bg: #020617; --surface: #0f172a; --card: #111827;
       --text: #e2e8f0; --text2: #94a3b8; --text3: #475569;
     }
-    html, body { height: 100%; background: var(--bg); color: var(--text); font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif; overflow-x: hidden; }
+    html, body { height: 100%; background: var(--bg); color: var(--text); font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif; overflow-x: hidden; -webkit-font-smoothing: antialiased; }
 
     /* ── Header ── */
     .hdr { border-bottom: 1px solid var(--line); padding: 0 28px; background: rgba(2,6,23,0.8); backdrop-filter: blur(12px); position: sticky; top: 0; z-index: 100; }

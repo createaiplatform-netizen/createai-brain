@@ -56,56 +56,64 @@ router.get("/", async (_req: Request, res: Response) => {
 <head>
   <meta charset="UTF-8"><meta name="viewport" content="width=device-width,initial-scale=1">
   <title>CreateAI Brain — AI-Powered Digital Products</title>
-  <meta name="description" content="100 AI-generated digital products: ebooks, courses, templates, software, and more. Instant delivery, lifetime access.">
+  <meta name="description" content="${totalProducts > 0 ? totalProducts : "100"}+ AI-generated digital products: ebooks, courses, templates, software, and more. Instant delivery, lifetime access.">
   <meta property="og:title" content="CreateAI Brain — AI-Powered Digital Products">
-  <meta property="og:description" content="Discover 100 AI-generated digital products. Instant delivery.">
+  <meta property="og:description" content="Discover ${totalProducts > 0 ? totalProducts : "100"}+ AI-generated digital products. Instant delivery, yours for life.">
   <meta property="og:type" content="website">
   <meta property="og:url" content="${BASE}/">
   <link rel="canonical" href="${BASE}/">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&display=swap" rel="stylesheet">
   <style>
     *,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
-    body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,sans-serif;background:#f8fafc;color:#0f172a}
+    body{font-family:'Inter',-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;background:#f8fafc;color:#0f172a;-webkit-font-smoothing:antialiased}
     a{color:inherit}
-    .nav{background:white;border-bottom:1px solid #e2e8f0;padding:0 32px;position:sticky;top:0;z-index:50}
-    .nav-inner{max-width:1100px;margin:0 auto;display:flex;align-items:center;height:60px;gap:24px}
-    .logo{font-size:1.05rem;font-weight:900;letter-spacing:-0.02em;text-decoration:none;color:#0f172a}
+    .nav{background:rgba(255,255,255,0.95);backdrop-filter:blur(12px);-webkit-backdrop-filter:blur(12px);border-bottom:1px solid rgba(226,232,240,0.8);padding:0 32px;position:sticky;top:0;z-index:50;box-shadow:0 1px 3px rgba(0,0,0,0.04)}
+    .nav-inner{max-width:1100px;margin:0 auto;display:flex;align-items:center;height:64px;gap:24px}
+    .logo{font-size:1.1rem;font-weight:900;letter-spacing:-0.03em;text-decoration:none;color:#0f172a}
     .logo span{color:#6366f1}
-    .nav-links{display:flex;gap:24px;margin-left:auto}
-    .nav-links a{font-size:0.85rem;font-weight:600;color:#475569;text-decoration:none;transition:color 0.15s}
+    .nav-links{display:flex;gap:28px;margin-left:auto;align-items:center}
+    .nav-links a{font-size:0.875rem;font-weight:600;color:#475569;text-decoration:none;transition:color 0.15s}
     .nav-links a:hover{color:#6366f1}
-    .nav-cta{background:#6366f1;color:white!important;border-radius:8px;padding:7px 18px}
-    .nav-cta:hover{background:#4f46e5!important}
-    .hero{background:linear-gradient(135deg,#0f172a 0%,#1e1b4b 50%,#0f172a 100%);padding:80px 32px;text-align:center}
-    .hero-inner{max-width:800px;margin:0 auto}
-    .hero-badge{display:inline-block;background:rgba(99,102,241,0.3);color:#a5b4fc;border:1px solid rgba(99,102,241,0.4);border-radius:999px;padding:5px 18px;font-size:0.75rem;font-weight:700;text-transform:uppercase;letter-spacing:0.08em;margin-bottom:24px}
-    .hero h1{font-size:clamp(2rem,5vw,3.5rem);font-weight:900;color:white;line-height:1.1;margin-bottom:20px;letter-spacing:-0.03em}
-    .hero h1 span{color:#818cf8}
-    .hero p{font-size:1.1rem;color:rgba(255,255,255,0.7);line-height:1.7;margin-bottom:36px;max-width:580px;margin-left:auto;margin-right:auto}
+    .nav-cta{background:linear-gradient(135deg,#6366f1,#8b5cf6);color:white!important;border-radius:10px;padding:8px 20px;box-shadow:0 2px 8px rgba(99,102,241,0.3);transition:all 0.15s!important}
+    .nav-cta:hover{transform:translateY(-1px);box-shadow:0 4px 16px rgba(99,102,241,0.4)!important}
+    .hero{background:linear-gradient(135deg,#0f172a 0%,#1e1b4b 55%,#0c1030 100%);padding:96px 32px 80px;text-align:center;position:relative;overflow:hidden}
+    .hero::before{content:'';position:absolute;inset:0;background:radial-gradient(ellipse 80% 50% at 50% 0%,rgba(99,102,241,0.18) 0%,transparent 70%);pointer-events:none}
+    .hero-inner{max-width:800px;margin:0 auto;position:relative}
+    .hero-badge{display:inline-flex;align-items:center;gap:8px;background:rgba(99,102,241,0.18);color:#a5b4fc;border:1px solid rgba(99,102,241,0.35);border-radius:999px;padding:6px 18px;font-size:0.72rem;font-weight:700;text-transform:uppercase;letter-spacing:0.1em;margin-bottom:28px}
+    .hero-badge-dot{width:7px;height:7px;border-radius:50%;background:#4ade80;animation:badgePulse 2s ease-in-out infinite}
+    @keyframes badgePulse{0%,100%{opacity:1}50%{opacity:0.5}}
+    .hero h1{font-size:clamp(2.2rem,5.5vw,3.8rem);font-weight:900;color:white;line-height:1.08;margin-bottom:22px;letter-spacing:-0.04em}
+    .hero h1 span{color:#818cf8;background:linear-gradient(90deg,#818cf8,#c4b5fd);-webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text}
+    .hero p{font-size:1.1rem;color:rgba(203,213,225,0.85);line-height:1.75;margin-bottom:40px;max-width:560px;margin-left:auto;margin-right:auto}
     .hero-actions{display:flex;gap:14px;justify-content:center;flex-wrap:wrap}
-    .btn-hero{display:inline-flex;align-items:center;gap:8px;padding:14px 28px;border-radius:12px;font-size:1rem;font-weight:700;text-decoration:none;transition:all 0.15s}
-    .btn-primary{background:#6366f1;color:white}
-    .btn-primary:hover{background:#4f46e5;transform:translateY(-1px)}
-    .btn-secondary{background:rgba(255,255,255,0.1);color:white;border:1px solid rgba(255,255,255,0.2)}
-    .btn-secondary:hover{background:rgba(255,255,255,0.2)}
-    .stats-bar{background:white;border-bottom:1px solid #e2e8f0;padding:20px 32px}
-    .stats-inner{max-width:1100px;margin:0 auto;display:flex;justify-content:center;gap:48px;flex-wrap:wrap}
+    .btn-hero{display:inline-flex;align-items:center;gap:8px;padding:15px 30px;border-radius:14px;font-size:1rem;font-weight:700;text-decoration:none;transition:all 0.15s;letter-spacing:-0.01em}
+    .btn-primary{background:linear-gradient(135deg,#6366f1,#8b5cf6);color:white;box-shadow:0 4px 20px rgba(99,102,241,0.4)}
+    .btn-primary:hover{transform:translateY(-2px);box-shadow:0 8px 32px rgba(99,102,241,0.5)}
+    .btn-secondary{background:rgba(255,255,255,0.09);color:rgba(241,245,249,0.9);border:1px solid rgba(255,255,255,0.18)}
+    .btn-secondary:hover{background:rgba(255,255,255,0.16)}
+    .stats-bar{background:white;border-bottom:1px solid #e2e8f0;padding:24px 32px;box-shadow:0 1px 6px rgba(0,0,0,0.03)}
+    .stats-inner{max-width:1100px;margin:0 auto;display:flex;justify-content:center;gap:56px;flex-wrap:wrap}
     .stat{text-align:center}
-    .stat-num{font-size:1.6rem;font-weight:900;color:#6366f1}
-    .stat-lbl{font-size:0.75rem;font-weight:600;color:#94a3b8;text-transform:uppercase;letter-spacing:0.06em;margin-top:2px}
-    .section{padding:64px 32px}
+    .stat-num{font-size:1.75rem;font-weight:900;color:#6366f1;letter-spacing:-0.03em}
+    .stat-lbl{font-size:0.72rem;font-weight:700;color:#94a3b8;text-transform:uppercase;letter-spacing:0.08em;margin-top:3px}
+    .section{padding:72px 32px}
     .section-inner{max-width:1100px;margin:0 auto}
-    .section-title{font-size:1.6rem;font-weight:900;color:#0f172a;margin-bottom:6px}
-    .section-sub{font-size:0.95rem;color:#64748b;margin-bottom:32px}
-    .products-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(280px,1fr));gap:16px;margin-bottom:32px}
-    .cta-block{background:linear-gradient(135deg,#6366f1,#818cf8);border-radius:24px;padding:48px 40px;text-align:center;margin-top:48px}
-    .cta-block h2{font-size:1.8rem;font-weight:900;color:white;margin-bottom:12px}
-    .cta-block p{font-size:1rem;color:rgba(255,255,255,0.85);margin-bottom:28px}
-    .formats-row{display:flex;flex-wrap:wrap;gap:10px;margin-bottom:40px}
-    .fmt-chip{display:inline-flex;align-items:center;gap:6px;border-radius:999px;padding:6px 16px;font-size:0.8rem;font-weight:700;text-decoration:none;border:2px solid;transition:all 0.15s}
-    footer{background:#0f172a;color:rgba(255,255,255,0.5);padding:32px;text-align:center;font-size:0.82rem}
-    footer a{color:rgba(255,255,255,0.6);text-decoration:none;margin:0 12px}
+    .section-title{font-size:1.75rem;font-weight:900;color:#0f172a;margin-bottom:8px;letter-spacing:-0.03em}
+    .section-sub{font-size:0.95rem;color:#64748b;margin-bottom:36px;line-height:1.6}
+    .products-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(280px,1fr));gap:16px;margin-bottom:36px}
+    .cta-block{background:linear-gradient(135deg,#4f46e5 0%,#7c3aed 100%);border-radius:28px;padding:56px 40px;text-align:center;margin-top:48px;box-shadow:0 20px 60px rgba(99,102,241,0.25);position:relative;overflow:hidden}
+    .cta-block::before{content:'';position:absolute;inset:0;background:radial-gradient(ellipse 70% 60% at 50% 0%,rgba(255,255,255,0.08) 0%,transparent 70%);pointer-events:none}
+    .cta-block h2{font-size:2rem;font-weight:900;color:white;margin-bottom:14px;position:relative;letter-spacing:-0.03em}
+    .cta-block p{font-size:1rem;color:rgba(255,255,255,0.82);margin-bottom:32px;max-width:480px;margin-left:auto;margin-right:auto;line-height:1.65;position:relative}
+    .formats-row{display:flex;flex-wrap:wrap;gap:10px;margin-bottom:48px}
+    .fmt-chip{display:inline-flex;align-items:center;gap:6px;border-radius:999px;padding:7px 18px;font-size:0.8rem;font-weight:700;text-decoration:none;border:2px solid;transition:all 0.15s;letter-spacing:-0.01em}
+    footer{background:#0f172a;color:rgba(255,255,255,0.4);padding:36px 32px;text-align:center;font-size:0.82rem}
+    footer a{color:rgba(255,255,255,0.55);text-decoration:none;margin:0 14px;transition:color 0.15s}
     footer a:hover{color:white}
-    @media(max-width:640px){.stats-inner{gap:24px}.hero{padding:56px 20px}.section{padding:40px 20px}}
+    .footer-links{margin-bottom:14px}
+    @media(max-width:640px){.stats-inner{gap:28px}.hero{padding:64px 20px 56px}.section{padding:48px 20px}.nav{padding:0 20px}.nav-links{gap:16px}.btn-hero{padding:13px 22px;font-size:0.95rem}}
   </style>
 </head>
 <body>
@@ -124,7 +132,7 @@ router.get("/", async (_req: Request, res: Response) => {
 
 <div class="hero">
   <div class="hero-inner">
-    <div class="hero-badge">${IS_PROD ? "⚡ Live Platform" : "🧪 Preview Mode"} · ${totalProducts} Products Ready</div>
+    <div class="hero-badge"><span class="hero-badge-dot"></span>${IS_PROD ? "Live Platform" : "Available Now"} · ${totalProducts > 0 ? totalProducts : "100"}+ Products</div>
     <h1>AI-Powered Digital Products<br><span>Built to Sell. Built to Scale.</span></h1>
     <p>Ebooks, courses, templates, software, audiobooks, and more — all AI-generated, instantly delivered, yours for life. Prices starting at $12.</p>
     <div class="hero-actions">
@@ -294,9 +302,12 @@ router.get("/hub", async (_req: Request, res: Response) => {
 <head>
   <meta charset="UTF-8"><meta name="viewport" content="width=device-width,initial-scale=1">
   <title>Admin Hub — CreateAI Brain</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&display=swap" rel="stylesheet">
   <style>
     *,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
-    body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,sans-serif;background:#f8fafc;color:#0f172a;font-size:14px}
+    body{font-family:'Inter',-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;background:#f8fafc;color:#0f172a;font-size:14px;-webkit-font-smoothing:antialiased}
     .hdr{background:linear-gradient(135deg,#0f172a,#1e293b);color:white;padding:0 28px;position:sticky;top:0;z-index:50}
     .hdr-inner{max-width:1200px;margin:0 auto;display:flex;align-items:center;height:56px;gap:16px}
     .hdr-logo{font-size:0.95rem;font-weight:900;letter-spacing:-0.02em}
