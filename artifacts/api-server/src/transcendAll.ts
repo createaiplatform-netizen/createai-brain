@@ -19,8 +19,7 @@
 
 import { execSync }      from "child_process";
 import { writeFileSync } from "fs";
-import { fileURLToPath } from "url";
-import { dirname, join } from "path";
+import { join } from "path";
 import {
   sendEmailNotification,
   sendSMSNotification,
@@ -28,11 +27,7 @@ import {
   FAMILY_EMAIL_LIST,
   FAMILY_SMS_LIST,
 } from "./utils/notifications.js";
-
-// ─── ESM-safe __dirname ───────────────────────────────────────────────────────
-
-const __filename = fileURLToPath(import.meta.url);
-const __dirname  = dirname(__filename);
+import { serverPath } from "./utils/serverPaths.js";
 
 // ─── Config ───────────────────────────────────────────────────────────────────
 
@@ -286,7 +281,7 @@ export async function transcendAll(options: TranscendOptions = {}): Promise<Reco
   };
 
   // Save report
-  const reportPath = join(__dirname, "..", "transcend_report.json");
+  const reportPath = serverPath("transcend_report.json");
   writeFileSync(reportPath, JSON.stringify(report, null, 2));
   const emailSummary = sendNotifications
     ? `${emailResult["successCount"] ?? 0}/${emailResult["total"] ?? 0} · overachievement: ${emailResult["overachievement_pct"] ?? 0}%`

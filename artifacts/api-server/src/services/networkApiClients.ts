@@ -25,11 +25,10 @@ import { getAdCredential } from "./adsOrchestrator.js";
 import { AD_NETWORKS, type AdNetworkDef, type PreBuiltCampaign } from "./adsOrchestrator.js";
 import { readFileSync, writeFileSync, existsSync } from "fs";
 import path from "path";
-import { fileURLToPath } from "url";
 import crypto from "crypto";
+import { serverPath } from "../utils/serverPaths.js";
 
-const __dirname = path.dirname(fileURLToPath(import.meta.url));
-const STATUS_PATH = path.resolve(__dirname, "../../campaignStatus.store.json");
+const STATUS_PATH = serverPath("campaignStatus.store.json");
 
 // ─── Campaign Status Store ────────────────────────────────────────────────────
 

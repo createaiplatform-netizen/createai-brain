@@ -14,11 +14,10 @@
 import { openai } from "@workspace/integrations-openai-ai-server";
 import { readFileSync, writeFileSync, existsSync } from "fs";
 import path from "path";
-import { fileURLToPath } from "url";
 import { AD_NETWORKS, type PreBuiltCampaign } from "./adsOrchestrator.js";
+import { serverPath } from "../utils/serverPaths.js";
 
-const __dirname = path.dirname(fileURLToPath(import.meta.url));
-const STORE_PATH = path.resolve(__dirname, "../../adCreatives.store.json");
+const STORE_PATH = serverPath("adCreatives.store.json");
 
 // ── Types ─────────────────────────────────────────────────────────────────────
 

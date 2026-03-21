@@ -6,15 +6,15 @@
 
 import { Router, Request, Response } from "express";
 import { createReadStream, existsSync, readdirSync, statSync, mkdirSync, writeFileSync } from "fs";
-import { join, dirname } from "path";
-import { fileURLToPath } from "url";
+import { join } from "path";
 import { exec } from "child_process";
 import { promisify } from "util";
+import { workspaceRoot } from "../utils/serverPaths.js";
 
 const execAsync = promisify(exec);
 const router = Router();
 
-const BASE_DIR = join(dirname(fileURLToPath(import.meta.url)), "..", "..", "..", "..", "artifacts", "createai-brain");
+const BASE_DIR = join(workspaceRoot(), "artifacts", "createai-brain");
 const EXT_DIR = join(BASE_DIR, "chrome-extension");
 const ICONS_DIR = join(BASE_DIR, "public", "icons");
 const DIST_DIR = join(BASE_DIR, "dist", "public");

@@ -11,6 +11,14 @@ The CreateAI Brain is a full-stack AI OS platform (NEXUS Semantic OS), developed
 - Dev server: port 23568 (workflow: "CreateAI Brain: Start Dev Server")
 - API server: port 8080 (workflow: "artifacts/api-server: API Server")
 
+**Deployment Configuration (api-server artifact)**
+- Build: `pnpm install --frozen-lockfile && pnpm --filter @workspace/createai-brain run build && pnpm --filter @workspace/api-server run build`
+- Run: `node artifacts/api-server/dist/index.cjs` (from workspace root)
+- Health: `GET /api/healthz` → `{"status":"ok"}`
+- Frontend served via selfHostEngine from `artifacts/createai-brain/dist/public/`
+- `src/utils/serverPaths.ts` — resolves api-server root from any CWD context (dev or production)
+- CRITICAL: Never use `import.meta.url` in api-server source — esbuild CJS bundle sets it to undefined. Use `serverPath()` from serverPaths.ts instead.
+
 Key capabilities include:
 - A unified controller layer for all AI generation, ensuring consistent context injection and output recording.
 - An encrypted memory system for secure storage of user data and API keys.

@@ -13,12 +13,11 @@
  */
 
 import { readFileSync, writeFileSync, existsSync } from "fs";
-import { join, dirname }                           from "path";
-import { fileURLToPath }                           from "url";
+import { join }                                    from "path";
 import { encrypt, decrypt }                        from "./encryption.js";
+import { serverPath }                              from "../utils/serverPaths.js";
 
-const __dir       = dirname(fileURLToPath(import.meta.url));
-const STORE_PATH  = join(__dir, "../../credentials.store.json");
+const STORE_PATH  = serverPath("credentials.store.json");
 
 // ─── Credential Definitions ───────────────────────────────────────────────────
 

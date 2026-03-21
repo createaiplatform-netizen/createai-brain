@@ -12,10 +12,9 @@
 import { createCipheriv, createDecipheriv, randomBytes, scryptSync } from "crypto";
 import { readFileSync, writeFileSync, existsSync } from "fs";
 import path from "path";
-import { fileURLToPath } from "url";
+import { serverPath } from "../utils/serverPaths.js";
 
-const __dirname = path.dirname(fileURLToPath(import.meta.url));
-const STORE_PATH = path.resolve(__dirname, "../../adCredentials.store.json");
+const STORE_PATH = serverPath("adCredentials.store.json");
 const STORE_KEY  = scryptSync("ad-creds-bridge-v1", "ad-salt-lakeside", 32);
 
 // ─── Encrypted Ad Credential Store ────────────────────────────────────────────
