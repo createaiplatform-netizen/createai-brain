@@ -267,7 +267,8 @@ export type AppId =
   // ── Industry OS Apps ───────────────────────────────────────────────────────
   | "healthos" | "legalpm" | "staffingos"
   // ── New Platform Capabilities ─────────────────────────────────────────────
-  | "adshub" | "authlab" | "paygate" | "inventionLayer";
+  | "adshub" | "authlab" | "paygate" | "inventionLayer"
+  | "percentageEngine";
 
 export interface AppDef {
   id: AppId;
@@ -433,7 +434,8 @@ export const DEFAULT_APPS: AppDef[] = [
   { id: "adshub",        label: "Advertising Hub",   icon: "📢", color: "#ec4899", description: "Complete internal advertising hub — all platform profiles, ad templates, scripts, bios, funnels, and brand assets for every major platform", category: "tools" },
   { id: "authlab",       label: "Authentication Lab", icon: "🔐", color: "#6366f1", description: "Advanced authentication methods — passwordless magic link, device fingerprinting, trusted sessions, and full auth architecture", category: "system" },
   { id: "paygate",       label: "PayGate",           icon: "💳", color: "#10b981", description: "Multi-rail payment system — professional invoice generation, email delivery, and payment tracking via bank, wire, Zelle, Venmo, crypto, and check", category: "business" },
-  { id: "inventionLayer", label: "Invention Layer",  icon: "🔬", color: "#f59e0b", description: "12 AI invention tools that bypass $500K+ in software licenses — clinical scribe, legal research, fleet intelligence, risk underwriting, agronomist, and more", category: "tools" },
+  { id: "inventionLayer",    label: "Invention Layer",    icon: "🔬", color: "#f59e0b", description: "12 AI invention tools that bypass $500K+ in software licenses — clinical scribe, legal research, fleet intelligence, risk underwriting, agronomist, and more", category: "tools" },
+  { id: "percentageEngine", label: "Percentage Engine",  icon: "📊", color: "#6366f1", description: "Real-time platform capability engine — unified score, subsystem breakdowns, industry coverage, over-100% expansion tracking, and financial capacity model", category: "system" },
 ];
 
 export const ALL_APPS = DEFAULT_APPS;
@@ -538,6 +540,7 @@ const INTENT_MAP: { keywords: string[]; target: AppId }[] = [
   { keywords: ["auth lab", "authlab", "authentication", "magic link", "passwordless", "device fingerprint", "trusted device", "passkey", "session", "auth methods", "login security", "2fa", "two factor", "secure login", "auth upgrade", "authentication lab", "sign in methods"], target: "authlab" },
   { keywords: ["paygate", "pay gate", "invoice", "payment rail", "multi rail payment", "bank transfer", "wire transfer", "zelle payment", "venmo payment", "accept payment", "create invoice", "send invoice", "payment tracking", "revenue collection", "stripe alternative", "invoice system", "collect payment", "billing"], target: "paygate" },
   { keywords: ["invention layer", "inventionlayer", "invention tools", "12 tools", "ai clinical scribe", "ai fleet", "ai energy", "ai property", "ai risk underwriter", "ai legal research", "ai production", "ai grant writer", "ai compliance", "ai email sequence", "ai financial intelligence", "ai agronomist", "bypass software", "replace software", "no hardware", "no license"], target: "inventionLayer" },
+  { keywords: ["percentage engine", "percentages", "percentage", "system readiness", "how high are we", "how high are we now", "capability score", "platform score", "readiness score", "completeness", "what percent", "system percentage", "subsystem score", "over 100", "over 1000", "expansion score", "platform capability", "daily income", "revenue capacity", "financial capacity", "how complete", "platform health score", "unified score", "score engine"], target: "percentageEngine" },
 ];
 
 function routeIntentFn(intent: string): AppId | null {
@@ -704,7 +707,8 @@ const APP_META: Record<AppId, { icon: string; label: string }> = {
   adshub:         { icon: "📢", label: "Advertising Hub" },
   authlab:        { icon: "🔐", label: "Authentication Lab" },
   paygate:        { icon: "💳", label: "PayGate" },
-  inventionLayer: { icon: "🔬", label: "Invention Layer" },
+  inventionLayer:    { icon: "🔬", label: "Invention Layer" },
+  percentageEngine:  { icon: "📊", label: "Percentage Engine" },
 
   // ── Enterprise Suite Apps ──────────────────────────────────────────────────
   zeroTrust: { icon: "🔐", label: "Zero Trust" },

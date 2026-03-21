@@ -101,6 +101,7 @@ import advertisingRouter        from "./advertising.js";
 import magiclinkRouter          from "./magiclink.js";
 import invoicePaymentsRouter    from "./invoicePayments.js";
 import studioExtendedRouter     from "./studioExtended.js";
+import percentageEngineRouter   from "./percentageEngine.js";
 
 const router: IRouter = Router();
 
@@ -288,6 +289,9 @@ router.use("/semantic/subscriptions",    semanticSubscriptionRouter);
 // GET  /api/semantic/launch/share/:id      — Clean shareable product card (OG-ready)
 // GET  /api/semantic/launch/quick-links    — All 100 checkout URLs (JSON)
 router.use("/semantic/launch",           semanticLaunchRouter);
+
+// ── Percentage Engine — unified capability + financial capacity model ─────────
+router.use("/system/percentages",        percentageEngineRouter);
 
 // ── Invention Layer — 12 AI bypass tools ─────────────────────────────────────
 router.use("/studio",                    studioExtendedRouter);

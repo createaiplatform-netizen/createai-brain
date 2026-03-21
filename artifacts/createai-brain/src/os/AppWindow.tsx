@@ -375,7 +375,8 @@ const StaffingOSApp    = React.lazy(() => import("@/projects/StaffingOSApp").the
 const AdsHubApp        = React.lazy(() => import("@/Apps/AdsHubApp"));
 const AuthLabApp       = React.lazy(() => import("@/Apps/AuthLabApp"));
 const PayGateApp       = React.lazy(() => import("@/Apps/PayGateApp"));
-const InventionLayerApp = React.lazy(() => import("@/Apps/InventionLayerApp"));
+const InventionLayerApp    = React.lazy(() => import("@/Apps/InventionLayerApp"));
+const PercentageEngineApp  = React.lazy(() => import("@/Apps/PercentageEngineApp"));
 const SchemaBuilderApp = React.lazy(() => import("@/Apps/SchemaBuilderApp").then(m => ({ default: m.SchemaBuilderApp })));
 const ConfigManagerApp = React.lazy(() => import("@/Apps/ConfigManagerApp").then(m => ({ default: m.ConfigManagerApp })));
 
@@ -744,7 +745,8 @@ const APP_COMPONENTS: Record<AppId, React.LazyExoticComponent<React.ComponentTyp
   adshub:         AdsHubApp,
   authlab:        AuthLabApp,
   paygate:        PayGateApp,
-  inventionLayer: InventionLayerApp,
+  inventionLayer:    InventionLayerApp,
+  percentageEngine:  PercentageEngineApp,
 };
 
 // ── Loading skeleton ─────────────────────────────────────────────────────────
