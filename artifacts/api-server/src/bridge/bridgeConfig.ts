@@ -61,7 +61,7 @@ export const BRIDGE_CONFIG: Record<BridgeConnectorKey, ConnectorConfig> = {
     label:        "Email (Resend)",
     status:       _hasResendCredentials() ? "ACTIVE" : "NOT_CONFIGURED",
     note:         _hasResendCredentials()
-                    ? "Resend API key present. Domain verification needed to send beyond sivh@mail.com."
+                    ? "Resend API key present. Domain verification needed to send beyond admin@LakesideTrinity.com."
                     : "Set RESEND_API_KEY to activate.",
     activateWith: ["RESEND_API_KEY"],
   },

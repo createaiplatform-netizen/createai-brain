@@ -24,11 +24,14 @@
 export const OWNER_AUTHORIZATION_MANIFEST = {
 
   // ── Identity ────────────────────────────────────────────────────────────────
-  owner:    "Sara Stadler",
-  ownerId:  "FOUNDER",
-  userId:   "40688297",
-  email:    "SIVH@mail.com",
-  platform: "CreateAI Brain",
+  owner:        "Sara Stadler",
+  ownerId:      "FOUNDER",
+  userId:       "40688297",
+  email:        "admin@LakesideTrinity.com",
+  phone:        "715-791-0292",
+  address:      "23926 4th Ave, Siren, WI 54872",
+  businessType: "Individual / Sole Owner",
+  platform:     "CreateAI Brain",
 
   // ── Timestamp ───────────────────────────────────────────────────────────────
   approvedAt: new Date().toISOString(),

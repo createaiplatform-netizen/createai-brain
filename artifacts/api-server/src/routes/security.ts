@@ -100,6 +100,10 @@ router.get("/owner-auth", (_req, res) => {
     manifest: {
       owner:                              m.owner,
       ownerId:                            m.ownerId,
+      email:                              m.email,
+      phone:                              m.phone,
+      address:                            m.address,
+      businessType:                       m.businessType,
       approvedAt:                         m.approvedAt,
       approvesUniversalBridgeEngine:      m.approvesUniversalBridgeEngine,
       approvesAllConnectors:              m.approvesAllConnectors,

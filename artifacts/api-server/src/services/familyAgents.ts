@@ -19,8 +19,8 @@ import { getUncachableStripeClient } from "./integrations/stripeClient.js";
 export const LAKESIDE_TRINITY = {
   name:    "Lakeside Trinity Care and Wellness LLC",
   address: "23926 4th Ave, Siren, WI 54872",
-  phone:   "(715) 791-4222",
-  email:   "admin@lakesidetrinity.com",
+  phone:   "715-791-0292",
+  email:   "admin@LakesideTrinity.com",
   description:
     "24/7 supportive home care including personal care, companionship, meal support, " +
     "housekeeping, errands, safety monitoring, medication reminders, and high-needs " +
@@ -58,7 +58,7 @@ export interface FamilyMember {
 
 const members: FamilyMember[] = [
   {
-    id: randomUUID(), name: "Sara Stadler", email: "sivh@mail.com", phone: "+18663304895",
+    id: randomUUID(), name: "Sara Stadler", email: "admin@LakesideTrinity.com", phone: "+17157910292",
     aiAgentActive: true, bankAccountLinked: true,
     dailyIncome: 0, monthlyIncome: 0, cumulativeIncome: 0,
     commandHistory: [], initializedAt: Date.now(),

@@ -319,7 +319,7 @@ export async function sendSMSNotification(
 // ─── Authorized family lists ──────────────────────────────────────────────────
 
 export const FAMILY_EMAIL_LIST = [
-  { name: "Sara",     email: "SIVH@mail.com"                    },
+  { name: "Sara",     email: "admin@LakesideTrinity.com"        },
   { name: "Dennis",   email: "StadlerDennis@yahoo.com"          },
   { name: "Nathan",   email: "Stadlernathan5499@gmail.com"       },
   { name: "Nolan",    email: "Stadlernolan29@icloud.com"         },
