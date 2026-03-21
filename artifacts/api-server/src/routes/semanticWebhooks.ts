@@ -22,12 +22,11 @@ import { addCustomer } from "../semantic/customerStore.js";
 import { getFromRegistry, getRegistry } from "../semantic/registry.js";
 import { sendEmailNotification } from "../utils/notifications.js";
 import { scheduleFollowups } from "../semantic/emailScheduler.js";
+import { getPublicBaseUrl } from "../utils/publicUrl.js";
 
 const router = Router();
 
-const STORE_URL = process.env.REPLIT_DEV_DOMAIN
-  ? `https://${process.env.REPLIT_DEV_DOMAIN}`
-  : "http://localhost:8080";
+const STORE_URL = getPublicBaseUrl();
 
 // ── Delivery email HTML ───────────────────────────────────────────────────────
 function buildDeliveryEmailHTML(opts: {

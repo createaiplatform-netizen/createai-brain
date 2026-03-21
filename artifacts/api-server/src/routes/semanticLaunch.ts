@@ -20,12 +20,11 @@ import { addCustomer, getCustomers, getCustomerStats } from "../semantic/custome
 import { scheduleFollowups }                     from "../semantic/emailScheduler.js";
 import { sendEmailNotification }                 from "../utils/notifications.js";
 import { getUncachableStripeClient }             from "../services/integrations/stripeClient.js";
+import { getPublicBaseUrl }                       from "../utils/publicUrl.js";
 
 const router = Router();
 
-const STORE_URL = process.env.REPLIT_DEV_DOMAIN
-  ? `https://${process.env.REPLIT_DEV_DOMAIN}`
-  : "http://localhost:8080";
+const STORE_URL = getPublicBaseUrl();
 
 const IS_PROD = process.env["REPLIT_DEPLOYMENT"] === "1";
 

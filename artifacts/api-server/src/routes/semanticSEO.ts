@@ -11,12 +11,11 @@
 
 import { Router, type Request, type Response } from "express";
 import { getRegistry } from "../semantic/registry.js";
+import { getPublicBaseUrl } from "../utils/publicUrl.js";
 
 const router = Router();
 
-const STORE_URL = process.env.REPLIT_DEV_DOMAIN
-  ? `https://${process.env.REPLIT_DEV_DOMAIN}`
-  : "http://localhost:8080";
+const STORE_URL = getPublicBaseUrl();
 
 // ── GET /bundles — product bundle groupings ──────────────────────────────────
 // Groups products that share the same base name across formats.

@@ -20,12 +20,11 @@
 import { Router, type Request, type Response } from "express";
 import { getRegistry }               from "../semantic/registry.js";
 import { getUncachableStripeClient } from "../services/integrations/stripeClient.js";
+import { getPublicBaseUrl }          from "../utils/publicUrl.js";
 
 const router = Router();
 
-const STORE_URL = process.env.REPLIT_DEV_DOMAIN
-  ? `https://${process.env.REPLIT_DEV_DOMAIN}`
-  : "http://localhost:8080";
+const STORE_URL = getPublicBaseUrl();
 
 // ── Membership plan definitions ───────────────────────────────────────────────
 const MEMBERSHIP_PLANS = [

@@ -17,6 +17,7 @@
 
 import { Router, type Request, type Response } from "express";
 import { probeStripeConnection, getStripePublishableKey, getUncachableStripeClient } from "../services/integrations/stripeClient.js";
+import { getPublicBaseUrl } from "../utils/publicUrl.js";
 import { getFamilyMembers } from "../services/familyAgents.js";
 import {
   createCustomer,
@@ -184,10 +185,7 @@ router.post("/checkout", async (req: Request, res: Response) => {
       return;
     }
 
-    // Build success/cancel URLs using the live Replit dev domain
-    const domain = process.env["REPLIT_DEV_DOMAIN"]
-      ? `https://${process.env["REPLIT_DEV_DOMAIN"]}`
-      : "https://createai.repl.co";
+    const domain = getPublicBaseUrl();
 
     // Resolve a real Stripe Product + Price (spec: realStripeSetup.ts)
     const unitAmount = Math.max(50, Math.floor(Number(amount)));

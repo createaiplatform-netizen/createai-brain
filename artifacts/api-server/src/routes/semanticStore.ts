@@ -37,12 +37,11 @@ import {
 import { getUncachableStripeClient } from "../services/integrations/stripeClient.js";
 import { getCustomerStats } from "../semantic/customerStore.js";
 import { trackView, getViewCount, getAllViewCounts } from "../semantic/viewStore.js";
+import { getPublicBaseUrl } from "../utils/publicUrl.js";
 
 const router = Router();
 
-const STORE_URL = process.env.REPLIT_DEV_DOMAIN
-  ? `https://${process.env.REPLIT_DEV_DOMAIN}`
-  : "http://localhost:8080";
+const STORE_URL = getPublicBaseUrl();
 
 // ── GET /status ───────────────────────────────────────────────────────────────
 router.get("/status", (_req: Request, res: Response) => {

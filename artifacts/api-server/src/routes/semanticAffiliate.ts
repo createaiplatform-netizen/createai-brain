@@ -18,6 +18,7 @@
 import { Router, type Request, type Response } from "express";
 import crypto from "crypto";
 import { getRegistry, getFromRegistry } from "../semantic/registry.js";
+import { getPublicBaseUrl } from "../utils/publicUrl.js";
 
 const router = Router();
 
@@ -49,9 +50,7 @@ interface ClickEvent {
 const _links: AffiliateLink[] = [];
 const _clicks: ClickEvent[]   = [];
 
-const STORE_URL = process.env.REPLIT_DEV_DOMAIN
-  ? `https://${process.env.REPLIT_DEV_DOMAIN}`
-  : "http://localhost:8080";
+const STORE_URL = getPublicBaseUrl();
 
 function generateCode(): string {
   return "SARA-" + crypto.randomBytes(4).toString("hex").toUpperCase();

@@ -15,12 +15,11 @@
 import { Router, type Request, type Response } from "express";
 import { findCustomerByEmail, getCustomers, getCustomerStats, type SemanticCustomer } from "../semantic/customerStore.js";
 import { getFromRegistry }  from "../semantic/registry.js";
+import { getPublicBaseUrl } from "../utils/publicUrl.js";
 
 const router = Router();
 
-const STORE_URL = process.env.REPLIT_DEV_DOMAIN
-  ? `https://${process.env.REPLIT_DEV_DOMAIN}`
-  : "http://localhost:8080";
+const STORE_URL = getPublicBaseUrl();
 
 // ── POST /lookup — return purchase history for an email ───────────────────────
 router.post("/lookup", (req: Request, res: Response) => {

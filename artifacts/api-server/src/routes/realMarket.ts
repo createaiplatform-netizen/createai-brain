@@ -16,6 +16,7 @@ import {
   recordSale,
 } from "../services/realMarket.js";
 import { getUncachableStripeClient } from "../services/integrations/stripeClient.js";
+import { getPublicBaseUrl } from "../utils/publicUrl.js";
 
 const router = Router();
 
@@ -50,9 +51,7 @@ router.post("/checkout/:id", async (req: Request, res: Response) => {
 
     const stripe = await getUncachableStripeClient();
 
-    const domain = process.env["REPLIT_DEV_DOMAIN"]
-      ? `https://${process.env["REPLIT_DEV_DOMAIN"]}`
-      : "https://createai.repl.co";
+    const domain = getPublicBaseUrl();
 
     const session = await stripe.checkout.sessions.create({
       mode:                 "payment",
