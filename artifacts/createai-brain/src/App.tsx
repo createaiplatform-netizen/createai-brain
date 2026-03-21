@@ -18,6 +18,7 @@ import IntegrationSuitePage from "@/pages/IntegrationSuitePage";
 import StripeIntegrationPage from "@/pages/StripeIntegrationPage";
 import SmartFhirCallbackApp from "@/Apps/SmartFhirCallbackApp";
 import SmartFhirConnectedApp from "@/Apps/SmartFhirConnectedApp";
+import NpaGatewayPage from "@/pages/NpaGatewayPage";
 
 import MetricsPage from "@/pages/MetricsPage";
 import AboveTranscendPage from "@/pages/AboveTranscendPage";
@@ -483,7 +484,8 @@ function App() {
     path.startsWith(`${base}/join/`) ||
     // SMART-on-FHIR OAuth callback/connected pages must be accessible without auth gate
     // because the browser redirects here from the external SMART sandbox
-    path.startsWith(`${base}/connectors/`);
+    path.startsWith(`${base}/connectors/`) ||
+    path.startsWith(`${base}/npa-gateway`);
 
   if (isPublicRoute) {
     return (
@@ -511,6 +513,8 @@ function App() {
           <Route path="/for/:industry">{(params: { industry: string }) => <SEOLandingPage industry={params.industry} />}</Route>
           {/* Viral Referral Landing Page */}
           <Route path="/join/:code" component={JoinPage} />
+          {/* web+npa:// protocol handler — receives protocol callbacks from browser */}
+          <Route path="/npa-gateway" component={NpaGatewayPage} />
           {/* SMART-on-FHIR OAuth callback — receives authorization code from sandbox */}
           <Route path="/connectors/SMART_FHIR_SANDBOX/callback"  component={SmartFhirCallbackApp} />
           {/* SMART-on-FHIR connected confirmation + test fetch UI */}

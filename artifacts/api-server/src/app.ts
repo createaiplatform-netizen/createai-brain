@@ -33,6 +33,7 @@ import platformStatusRouter from "./routes/platformStatus.js";
 import pulseRouter          from "./routes/pulse.js";
 import opsRouter            from "./routes/ops.js";
 import portalsExtendedRouter from "./routes/portalsExtended.js";
+import protocolGatewayRouter from "./routes/protocolGateway.js";
 
 export { chatLimiter, heavyLimiter, editLimiter } from "./middlewares/rateLimiters";
 
@@ -399,6 +400,8 @@ app.use("/launch",    semanticLaunchRouter);
 app.use("/portal",    portalsExtendedRouter);  // Extended portals (book, donor, student, client, review, consult)
 app.use("/portal",    semanticPortalRouter);   // Existing portal (/me, /lookup)
 app.use("/join",      semanticSubRouter);
+// ── Protocol Gateway — handle redirects, web+npa:// callbacks, portable cards ──
+app.use("/",          protocolGatewayRouter);
 app.use("/",          semanticStoreRouter);
 app.use("/",          platformHubRouter);
 

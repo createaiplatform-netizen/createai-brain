@@ -37,4 +37,5 @@ export const IDENTITY = {
   linkedInBio:   id.linkedInBio,
   founderBio:    id.founderBio,
   npa:           id.npa,
+  handle:        id.handle,
 } as const;
