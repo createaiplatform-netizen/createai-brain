@@ -46,7 +46,7 @@ interface AppResult {
 interface Creation {
   id: string;
   title: string;
-  type: "video" | "game" | "app" | "story" | "art" | "idea";
+  type: "video" | "game" | "app" | "story" | "art" | "idea" | "other";
   creator: string;
   description: string;
   image: string;
@@ -150,8 +150,19 @@ const SOCIAL_ICONS: Record<string, string> = {
   instagram: "📸", tiktok: "🎵", youtube: "▶️", snapchat: "👻",
 };
 
+const DEFAULT_PROFILES: Profile[] = [
+  { id: "default-mom",   name: "Mom",         bio: "Family organizer, heart of the home 💛",        avatar: "", instagram: "", tiktok: "", youtube: "", snapchat: "" },
+  { id: "default-dad",   name: "Dad",         bio: "Problem solver, adventure planner 🏕️",          avatar: "", instagram: "", tiktok: "", youtube: "", snapchat: "" },
+  { id: "default-sara",  name: "Sara",        bio: "Creator, founder, and brain behind this hub ✨", avatar: "", instagram: "", tiktok: "", youtube: "", snapchat: "" },
+  { id: "default-kids",  name: "Kids",        bio: "The next generation of creators 🚀",            avatar: "", instagram: "", tiktok: "", youtube: "", snapchat: "" },
+  { id: "default-aunt",  name: "Aunt / Uncle",bio: "Family support crew, always there ❤️",          avatar: "", instagram: "", tiktok: "", youtube: "", snapchat: "" },
+];
+
 function ProfilesSection() {
-  const [profiles, setProfiles]       = useState<Profile[]>(() => loadLS("fh_profiles", []));
+  const [profiles, setProfiles]       = useState<Profile[]>(() => {
+    const saved = loadLS<Profile[] | null>("fh_profiles", null);
+    return (saved && saved.length > 0) ? saved : DEFAULT_PROFILES;
+  });
   const [showForm, setShowForm]       = useState(false);
   const [editId, setEditId]           = useState<string | null>(null);
   const [form, setForm]               = useState({ name: "", bio: "", avatar: "", instagram: "", tiktok: "", youtube: "", snapchat: "" });
@@ -623,9 +634,9 @@ function AppBuilderSection() {
 
 // ─── Section 6: Shared Family Gallery ───────────────────────────────────────
 
-const CREATION_TYPES = ["video", "game", "app", "story", "art", "idea"] as const;
+const CREATION_TYPES = ["video", "game", "app", "story", "art", "idea", "other"] as const;
 const TYPE_ICONS: Record<string, string> = {
-  video: "🎬", game: "🎮", app: "📱", story: "📖", art: "🎨", idea: "💡",
+  video: "🎬", game: "🎮", app: "📱", story: "📖", art: "🎨", idea: "💡", other: "⭐",
 };
 
 function GallerySection() {
@@ -844,6 +855,116 @@ function FamilyBankSection() {
   );
 }
 
+// ─── Section 8: Invite Family Members ───────────────────────────────────────
+
+function InviteSection() {
+  const [inviteLink, setInviteLink] = useState("");
+  const [copied, setCopied]         = useState(false);
+
+  function generateToken(): string {
+    const chars = "ABCDEFGHJKMNPQRSTUVWXYZabcdefghjkmnpqrstuvwxyz23456789";
+    return Array.from({ length: 12 }, () => chars[Math.floor(Math.random() * chars.length)]).join("");
+  }
+
+  function handleGenerate() {
+    const base = window.location.origin + (import.meta.env.BASE_URL ?? "").replace(/\/$/, "");
+    const token = generateToken();
+    setInviteLink(`${base}/family-hub?invite=${token}`);
+    setCopied(false);
+  }
+
+  async function handleCopy() {
+    try {
+      await navigator.clipboard.writeText(inviteLink);
+      setCopied(true);
+      setTimeout(() => setCopied(false), 2500);
+    } catch {
+      const el = document.createElement("textarea");
+      el.value = inviteLink;
+      document.body.appendChild(el);
+      el.select();
+      document.execCommand("copy");
+      document.body.removeChild(el);
+      setCopied(true);
+      setTimeout(() => setCopied(false), 2500);
+    }
+  }
+
+  return (
+    <Section id="invite" icon="🔗" title="Invite Family Members">
+      <Card className="space-y-4">
+        <p className="text-[13px]" style={{ color: "#64748b" }}>
+          Generate a private invite link to share with family — your sister, her children, or anyone you choose.
+          Anyone with the link can land directly on the Family Hub and start creating their profile.
+        </p>
+
+        {/* Who can you invite */}
+        <div className="rounded-xl p-4 space-y-2" style={{ background: "#f8fafc", border: "1px solid rgba(99,102,241,0.12)" }}>
+          <p className="text-[11px] font-bold uppercase tracking-wide" style={{ color: "#6366f1" }}>Share this link with</p>
+          <div className="grid grid-cols-2 gap-2">
+            {["Your sister", "Her child", "Her child's kids", "Any family member you choose"].map(who => (
+              <div key={who} className="flex items-center gap-2 text-[12px]" style={{ color: "#334155" }}>
+                <span style={{ color: "#6366f1" }}>✓</span>{who}
+              </div>
+            ))}
+          </div>
+        </div>
+
+        {/* Generate button */}
+        <Btn onClick={handleGenerate} className="flex items-center gap-2">
+          🔗 Generate Invite Link
+        </Btn>
+
+        {/* Generated link */}
+        {inviteLink && (
+          <div className="space-y-2">
+            <label className="text-[11px] font-semibold uppercase tracking-wide" style={{ color: "#64748b" }}>Your Invite Link</label>
+            <div className="flex gap-2">
+              <input
+                type="text"
+                readOnly
+                value={inviteLink}
+                onClick={e => (e.target as HTMLInputElement).select()}
+                className="flex-1 rounded-xl border text-[12px] px-3 py-2.5 outline-none font-mono cursor-text"
+                style={{ border: "1px solid rgba(99,102,241,0.25)", background: "#f8fafc", color: "#4338ca" }} />
+              <button
+                onClick={handleCopy}
+                className="px-4 py-2.5 rounded-xl text-[13px] font-bold transition-all flex-shrink-0"
+                style={copied
+                  ? { background: "#f0fdf4", color: "#16a34a", border: "1.5px solid #bbf7d0" }
+                  : { background: "#6366f1", color: "#fff" }}>
+                {copied ? "✓ Copied!" : "Copy Link"}
+              </button>
+            </div>
+            <p className="text-[11px]" style={{ color: "#94a3b8" }}>
+              Share this link via text, email, or any messaging app. Anyone who opens it will land on the Family Hub.
+            </p>
+          </div>
+        )}
+
+        {/* How it works */}
+        <div className="rounded-xl p-4 space-y-3" style={{ background: "rgba(99,102,241,0.04)", border: "1px solid rgba(99,102,241,0.1)" }}>
+          <p className="text-[11px] font-bold uppercase tracking-wide" style={{ color: "#6366f1" }}>How it works</p>
+          <ol className="space-y-2">
+            {[
+              "You click Generate Invite Link above",
+              "Copy and send the link via text, email, iMessage, etc.",
+              "Family member opens the link and lands on this hub",
+              "They create or edit their profile and start using all the tools",
+            ].map((step, i) => (
+              <li key={i} className="flex gap-2.5 text-[12px]" style={{ color: "#475569" }}>
+                <span className="w-5 h-5 rounded-full flex items-center justify-center text-[10px] font-bold flex-shrink-0 mt-0.5"
+                  style={{ background: "#eef2ff", color: "#6366f1" }}>{i + 1}</span>
+                {step}
+              </li>
+            ))}
+          </ol>
+        </div>
+      </Card>
+    </Section>
+  );
+}
+
 // ─── Nav bar ─────────────────────────────────────────────────────────────────
 
 const NAV_LINKS = [
@@ -854,6 +975,7 @@ const NAV_LINKS = [
   { href: "#appbuilder", label: "App" },
   { href: "#gallery",  label: "Gallery" },
   { href: "#bank",     label: "Bank" },
+  { href: "#invite",   label: "Invite" },
 ];
 
 // ─── Main Page ───────────────────────────────────────────────────────────────
@@ -916,6 +1038,8 @@ export default function FamilyHubPage() {
         <GallerySection />
         <div style={{ borderTop: "1px solid rgba(0,0,0,0.07)" }} />
         <FamilyBankSection />
+        <div style={{ borderTop: "1px solid rgba(0,0,0,0.07)" }} />
+        <InviteSection />
       </main>
     </div>
   );

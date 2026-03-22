@@ -1,0 +1,179 @@
+Create a new private page in this app called “Family Creation Hub” and integrate it into the existing navigation.
+
+GOALS:
+- This is a private family-only dashboard, not a storefront page.
+- It should live at /family-hub.
+- Add a “Family Dashboard” button to the homepage that links to /family-hub.
+- Do NOT list /family-hub in any public product or storefront areas.
+- This page will be the main “family link” I share with my family.
+
+PAGE STRUCTURE (all on one page, scrollable):
+
+-----------------------------------------
+SECTION 1: FAMILY PROFILES (PRE-BUILT + EDITABLE)
+-----------------------------------------
+VISUAL STYLE:
+- Grid of profile cards.
+- Each card includes:
+  - avatar image placeholder (circle)
+  - name
+  - short bio
+  - social media icons/links (Instagram, TikTok, YouTube, Snapchat, etc.)
+- “Add Profile” button opens a simple form.
+- “Edit” button on each profile.
+
+FUNCTIONALITY:
+- Pre-create a few example profiles (these can be edited later), e.g.:
+  - “Mom”
+  - “Dad”
+  - “Sara”
+  - “Kids”
+  - “Aunt / Uncle”
+- Add Profile form:
+  - name
+  - avatar upload
+  - bio
+  - social media links (Instagram, TikTok, YouTube, Snapchat, etc.)
+- Profiles should be:
+  - creatable
+  - editable
+  - removable
+- Store data in a simple in-memory structure or the app’s existing state system.
+
+-----------------------------------------
+SECTION 2: AI CHAT
+-----------------------------------------
+VISUAL STYLE:
+- Chat bubble layout (AI on left, family on right).
+- Header: “Family AI Chat”
+- Input box at bottom with “Send” button.
+
+FUNCTIONALITY:
+- Shared chat history for the whole family.
+- Calls existing AI backend or a placeholder function.
+- Keep everything on the same page (no redirect).
+
+-----------------------------------------
+SECTION 3: VIDEO CREATOR
+-----------------------------------------
+VISUAL STYLE:
+- Card with:
+  - text box: “Describe the video you want”
+  - optional image upload
+  - “Generate Video Idea” button
+  - result card with:
+    - title
+    - description
+    - thumbnail placeholder
+
+FUNCTIONALITY:
+- Use existing AI call or placeholder to generate video ideas.
+- Display results below the form.
+
+-----------------------------------------
+SECTION 4: GAME BUILDER
+-----------------------------------------
+VISUAL STYLE:
+- Card with:
+  - text box: “Describe your game”
+  - “Generate Game Concept” button
+  - result card with:
+    - game title
+    - description
+    - characters
+    - rules
+    - world idea
+
+FUNCTIONALITY:
+- Use AI or placeholder to generate the concept.
+- Show results in a structured layout.
+
+-----------------------------------------
+SECTION 5: APP BUILDER
+-----------------------------------------
+VISUAL STYLE:
+- Card with:
+  - text box: “Describe your app”
+  - “Generate App Blueprint” button
+  - result card with:
+    - app name
+    - main screens (list)
+    - core features (list)
+    - simple flow diagram (text-based)
+
+FUNCTIONALITY:
+- Use AI or placeholder to generate the blueprint.
+
+-----------------------------------------
+SECTION 6: SHARED FAMILY GALLERY
+-----------------------------------------
+VISUAL STYLE:
+- Grid of creation cards.
+- Each card includes:
+  - thumbnail placeholder
+  - title
+  - type (video, game, app, story, art, idea, other)
+  - creator
+  - date
+
+FUNCTIONALITY:
+- “Add Creation” form:
+  - title
+  - type dropdown
+  - creator
+  - description
+  - optional image upload
+- Append new creations to an in-memory list or existing app state.
+
+-----------------------------------------
+SECTION 7: FAMILY BANK (CREATIVE ECONOMY)
+-----------------------------------------
+VISUAL STYLE:
+- Large “Family Balance” number at top.
+- List of transactions:
+  - date
+  - description
+  - amount (+/-)
+- Green styling for positive amounts, red for negative.
+
+FUNCTIONALITY:
+- “Add Transaction” form:
+  - amount
+  - description
+  - type (earning, reward, goal, expense)
+- Balance updates automatically based on the sum of all transactions.
+
+-----------------------------------------
+SECTION 8: INVITE FAMILY MEMBERS (INVITE SYSTEM)
+-----------------------------------------
+VISUAL STYLE:
+- Card titled: “Invite Family Members”
+- Text explaining: “Generate a private invite link to share with family.”
+
+FUNCTIONALITY:
+- A button: “Generate Invite Link”
+- When clicked, generate a unique invite URL that points to /family-hub with a simple token or code (implementation can be placeholder if needed).
+- Show the generated link in a read-only text field.
+- Add a “Copy Link” button that copies the link to clipboard.
+- This link is intended to be shared privately (text, email, etc.) with:
+  - my sister
+  - her child
+  - her child’s kids
+  - any other family members I choose.
+- When someone visits via this link, they should:
+  - land directly on /family-hub
+  - be able to create or edit their profile
+  - start using the Family Creation Hub immediately.
+
+(If full auth is not implemented yet, treat the invite link as a simple way to share the /family-hub URL and focus on the UX and layout. The actual auth system can be wired later.)
+
+-----------------------------------------
+GENERAL RULES:
+-----------------------------------------
+- Match existing app styling so it feels native.
+- Keep everything on one page (/family-hub), scrollable sections.
+- No full authentication wiring required yet; focus on layout, structure, and basic state.
+- Do NOT expose /family-hub in any public product/storefront listing.
+- When finished, show me:
+  - the updated navigation with “Family Dashboard”
+  - the full /family-hub layout in the preview.
