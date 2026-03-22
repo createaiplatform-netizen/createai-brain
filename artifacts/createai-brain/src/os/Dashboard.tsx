@@ -1,4 +1,5 @@
 import React, { useState, useEffect, useCallback } from "react";
+import { useLocation } from "wouter";
 import { useOS, AppId, ALL_APPS } from "./OSContext";
 import { PlatformStore, PlatformMode } from "@/engine/PlatformStore";
 import { BrainstormChat } from "./BrainstormChat";
@@ -69,6 +70,7 @@ interface DashboardProps {
 
 export function Dashboard({ onHamburger, onShowTour }: DashboardProps) {
   const { openApp, routeIntent, platformMode, setPlatformMode, activeApp } = useOS();
+  const [, navigate] = useLocation();
   const { user } = useAuth();
   const displayName = user?.firstName || user?.email?.split("@")[0] || "";
 
@@ -445,6 +447,23 @@ export function Dashboard({ onHamburger, onShowTour }: DashboardProps) {
               ))}
             </div>
           </section>
+
+          {/* ── Family Dashboard ── */}
+          <button
+            onClick={() => navigate("/family-hub")}
+            className={`w-full flex items-center gap-4 p-4 rounded-2xl text-left transition-all duration-200 ${mounted ? "opacity-100" : "opacity-0"}`}
+            style={{ background: "linear-gradient(135deg,#fdf4ff 0%,#fce7f3 100%)", border: "1px solid rgba(244,114,182,0.25)", boxShadow: "0 1px 4px rgba(244,114,182,0.08)" }}
+            onMouseEnter={e => { (e.currentTarget as HTMLElement).style.boxShadow = "0 4px 16px rgba(244,114,182,0.18)"; (e.currentTarget as HTMLElement).style.borderColor = "rgba(244,114,182,0.45)"; (e.currentTarget as HTMLElement).style.transform = "translateY(-1px)"; }}
+            onMouseLeave={e => { (e.currentTarget as HTMLElement).style.boxShadow = "0 1px 4px rgba(244,114,182,0.08)"; (e.currentTarget as HTMLElement).style.borderColor = "rgba(244,114,182,0.25)"; (e.currentTarget as HTMLElement).style.transform = ""; }}
+          >
+            <div className="w-11 h-11 rounded-2xl flex items-center justify-center text-2xl flex-shrink-0"
+              style={{ background: "rgba(244,114,182,0.15)" }}>🏡</div>
+            <div className="flex-1 min-w-0">
+              <p className="font-bold text-[14px]" style={{ color: "#9d174d" }}>Family Dashboard</p>
+              <p className="text-[11px] mt-0.5" style={{ color: "#be185d" }}>Profiles · AI Chat · Create · Gallery · Family Bank</p>
+            </div>
+            <span className="text-[12px] font-semibold flex-shrink-0" style={{ color: "#ec4899" }}>Open →</span>
+          </button>
 
           {/* ── Smart Recommendations ── */}
           <div className={`transition-opacity duration-500 delay-140 ${mounted ? "opacity-100" : "opacity-0"} -mx-4`}>

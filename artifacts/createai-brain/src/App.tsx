@@ -19,6 +19,7 @@ import StripeIntegrationPage from "@/pages/StripeIntegrationPage";
 import SmartFhirCallbackApp from "@/Apps/SmartFhirCallbackApp";
 import SmartFhirConnectedApp from "@/Apps/SmartFhirConnectedApp";
 import NpaGatewayPage from "@/pages/NpaGatewayPage";
+import FamilyHubPage from "@/pages/FamilyHubPage";
 
 import MetricsPage from "@/pages/MetricsPage";
 import AboveTranscendPage from "@/pages/AboveTranscendPage";
@@ -103,6 +104,7 @@ function Router() {
       <Route path="/semantic-store" component={SemanticStorePage} />
       <Route path="/platform-score" component={PlatformScorePage} />
       <Route path="/project/:projectId" component={ProjectPage} />
+      <Route path="/family-hub" component={FamilyHubPage} />
       <Route path="/standalone/creation/:creationId" component={CreationPage} />
       <Route path="/standalone/:projectId" component={StandalonePage} />
       <Route component={NotFound} />

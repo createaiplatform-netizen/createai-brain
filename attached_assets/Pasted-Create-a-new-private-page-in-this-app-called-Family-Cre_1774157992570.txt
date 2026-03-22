@@ -1,0 +1,131 @@
+Create a new private page in this app called “Family Creation Hub” and integrate it into the existing navigation.
+
+GOALS:
+- This is a private family-only dashboard, not a storefront page.
+- It should live at /family-hub.
+- Add a “Family Dashboard” button to the homepage that links to /family-hub.
+- Do NOT list /family-hub in any public product or storefront areas.
+
+PAGE STRUCTURE (all on one page, scrollable):
+
+-----------------------------------------
+SECTION 1: FAMILY PROFILES
+-----------------------------------------
+VISUAL STYLE:
+- Use a grid of profile cards.
+- Each card should include:
+  - avatar image placeholder (circle)
+  - name
+  - short bio
+  - social media icons (Instagram, TikTok, YouTube, Snapchat, etc.)
+- Include an “Add Profile” button that opens a simple form.
+
+FUNCTIONALITY:
+- Add Profile form:
+  - name
+  - avatar upload
+  - bio
+  - social media links (text fields)
+- Profiles should be editable.
+
+-----------------------------------------
+SECTION 2: AI CHAT
+-----------------------------------------
+VISUAL STYLE:
+- Chat bubble layout (left = AI, right = family member).
+- Header: “Family AI Chat”
+- Input box at bottom with “Send” button.
+
+FUNCTIONALITY:
+- Single shared chat history.
+- Calls the existing AI backend or placeholder function.
+
+-----------------------------------------
+SECTION 3: VIDEO CREATOR
+-----------------------------------------
+VISUAL STYLE:
+- Card with:
+  - text box: “Describe the video you want”
+  - optional image upload area
+  - “Generate Video Idea” button
+  - result card below with:
+    - title
+    - description
+    - thumbnail placeholder
+
+FUNCTIONALITY:
+- Use existing AI call or placeholder to generate video ideas.
+
+-----------------------------------------
+SECTION 4: GAME BUILDER
+-----------------------------------------
+VISUAL STYLE:
+- Card with:
+  - text box: “Describe your game”
+  - “Generate Game Concept” button
+  - result card with:
+    - game title
+    - description
+    - characters list
+    - rules list
+    - world idea
+
+-----------------------------------------
+SECTION 5: APP BUILDER
+-----------------------------------------
+VISUAL STYLE:
+- Card with:
+  - text box: “Describe your app”
+  - “Generate App Blueprint” button
+  - result card with:
+    - app name
+    - main screens (list)
+    - core features (list)
+    - simple flow diagram (text-based)
+
+-----------------------------------------
+SECTION 6: SHARED FAMILY GALLERY
+-----------------------------------------
+VISUAL STYLE:
+- Grid of creation cards.
+- Each card includes:
+  - thumbnail placeholder
+  - title
+  - type (video, game, app, story, art, idea)
+  - creator name
+  - date
+
+FUNCTIONALITY:
+- “Add Creation” form:
+  - title
+  - type dropdown
+  - creator
+  - description
+  - optional image upload
+
+-----------------------------------------
+SECTION 7: FAMILY BANK (CREATIVE ECONOMY)
+-----------------------------------------
+VISUAL STYLE:
+- Large “Family Balance” number at top.
+- Below: list of transactions.
+  - date
+  - description
+  - amount (+/-)
+- Use green for positive, red for negative.
+
+FUNCTIONALITY:
+- “Add Transaction” form:
+  - amount
+  - description
+  - type (earning, reward, goal, expense)
+- Balance updates automatically based on transactions.
+
+-----------------------------------------
+GENERAL RULES:
+-----------------------------------------
+- Keep everything styled to match the existing app.
+- Keep everything on one page.
+- No authentication yet — just the page and navigation.
+- Do NOT expose this page publicly.
+- When finished, show me the updated navigation and the /family-hub layout in the preview.

@@ -1,0 +1,71 @@
+Here’s your next move, copy–paste this EXACTLY into Replit’s AI inside your **CreateAI Brain** project:
+
+Build a new private page in this app called “Family Creation Hub” and wire it into the existing navigation.
+
+Requirements:
+- Add a “Family Dashboard” button to the main homepage that links to /family-hub
+- Create a new route /family-hub that is NOT public-facing in any storefront list
+- On /family-hub, build a clean dashboard layout with these sections (stacked or in cards):
+
+1) Family Profiles
+   - Simple list/grid of profiles with:
+     - name
+     - avatar/image
+     - short bio
+     - links (Instagram, TikTok, YouTube, etc.)
+   - Make it easy to add/edit/remove profiles (simple form UI)
+
+2) AI Chat
+   - One shared chat area where the family can talk to the AI
+   - Text input + chat history
+   - Keep it on the page (no redirect)
+
+3) Video Creator
+   - Text box: “Describe the video you want”
+   - Optional file upload for an image
+   - A “Generate Video Idea” button that calls the existing AI backend (or a placeholder function) and shows the result in a card
+
+4) Game Builder
+   - Text box: “Describe your game”
+   - A “Generate Game Concept” button that calls AI and returns:
+     - title
+     - short description
+     - characters
+     - basic rules
+
+5) App Builder
+   - Text box: “Describe your app”
+   - A “Generate App Blueprint” button that returns:
+     - app name
+     - main screens
+     - core features
+     - simple flow
+
+6) Shared Family Gallery
+   - A simple grid/list of “creations”
+   - Each creation has:
+     - title
+     - type (video, game, app, idea, other)
+     - who created it
+     - date
+   - Add a simple “Add Creation” form to append new items to this list (in memory or basic storage)
+
+7) Family Bank (Creative Economy)
+   - A “Family Balance” number at the top
+   - A list of “transactions” with:
+     - date
+     - description
+     - amount (positive or negative)
+   - A small form:
+     - amount
+     - description
+     - type: earning / goal / reward / expense
+   - Updating the balance based on the list
+
+General rules:
+- Keep everything on one page (/family-hub) in sections
+- No authentication wiring yet, just the page and navigation
+- Use the existing styling system of this app so it looks native
+- Do NOT expose /family-hub on any public product/storefront listing
+
+When you’re done, show me the updated navigation and the /family-hub layout in the preview.
