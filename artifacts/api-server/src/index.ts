@@ -26,6 +26,7 @@ import { startUltimateLaunch }                        from "./services/ultimateT
 import { startPayoutCycle, pushRevenueToBankImmediately } from "./services/payoutService.js";
 import { UltraInteractionEngine }                        from "./services/ultraInteractionEngine.js";
 import { generateAllCreatives }                          from "./services/adCreativeEngine.js";
+import { openFloodgates }                                from "./floodgates.js";
 
 // Wire all DI services before the server binds. All factories are lazy —
 // nothing is instantiated here, just registered.
@@ -130,5 +131,8 @@ app.listen(port, () => {
     } else {
       console.log("[AutoExecutor] Auto-execution skipped (set BRAIN_AUTO_START=true to enable)");
     }
+
+    // ── System fully bootstrapped and ready ───────────────────────────────
+    openFloodgates();
   })();
 });
