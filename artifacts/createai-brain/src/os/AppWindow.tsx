@@ -421,7 +421,14 @@ const BrandVaultApp     = React.lazy(() => import("@/Apps/DomainAppsBundle2").th
 const RevenueIntelApp   = React.lazy(() => import("@/Apps/DomainAppsBundle2").then(m => ({ default: m.RevenueIntelApp })));
 const AIStrategyApp     = React.lazy(() => import("@/Apps/DomainAppsBundle2").then(m => ({ default: m.AIStrategyApp })));
 const DistributionHubApp = React.lazy(() => import("@/Apps/DistributionHub"));
-const ConfigManagerApp = React.lazy(() => import("@/Apps/ConfigManagerApp").then(m => ({ default: m.ConfigManagerApp })));
+const ConfigManagerApp      = React.lazy(() => import("@/Apps/ConfigManagerApp").then(m => ({ default: m.ConfigManagerApp })));
+// ── Evolutionary Intelligence Systems ────────────────────────────────────────
+const IntelligenceOracleApp   = React.lazy(() => import("@/Apps/IntelligenceOracleApp").then(m => ({ default: m.IntelligenceOracleApp })));
+const TemporalAnalyticsApp    = React.lazy(() => import("@/Apps/TemporalAnalyticsApp").then(m => ({ default: m.TemporalAnalyticsApp })));
+const PlatformDNAApp          = React.lazy(() => import("@/Apps/PlatformDNAApp").then(m => ({ default: m.PlatformDNAApp })));
+const FeatureFlagsApp         = React.lazy(() => import("@/Apps/FeatureFlagsApp").then(m => ({ default: m.FeatureFlagsApp })));
+const CrossDomainInsightsApp  = React.lazy(() => import("@/Apps/CrossDomainInsightsApp").then(m => ({ default: m.CrossDomainInsightsApp })));
+const PlatformEvolutionTrackerApp = React.lazy(() => import("@/Apps/PlatformEvolutionTrackerApp").then(m => ({ default: m.PlatformEvolutionTrackerApp })));
 
 // ── App registry ─────────────────────────────────────────────────────────────
 const APP_COMPONENTS: Record<AppId, React.LazyExoticComponent<React.ComponentType<any>>> = {
@@ -767,7 +774,14 @@ const APP_COMPONENTS: Record<AppId, React.LazyExoticComponent<React.ComponentTyp
   dataTransformer: DataTransformerApp,
   mappingStudio: MappingStudioApp,
   schemaBuilder: SchemaBuilderApp,
-  configManager: ConfigManagerApp,
+  configManager:      ConfigManagerApp,
+  // Evolutionary Intelligence Systems
+  intelligenceOracle:  IntelligenceOracleApp,
+  temporalAnalytics:   TemporalAnalyticsApp,
+  platformDNA:         PlatformDNAApp,
+  featureFlags:        FeatureFlagsApp,
+  crossDomainInsights: CrossDomainInsightsApp,
+  evolutionTracker:    PlatformEvolutionTrackerApp,
   // Platform
   ucpx:                   UCPXAgentApp,
   universalDemo:          UniversalDemoApp,

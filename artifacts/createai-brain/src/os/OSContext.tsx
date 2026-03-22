@@ -255,6 +255,13 @@ export type AppId =
   | "mappingStudio"
   | "schemaBuilder"
   | "configManager"
+  // ── Evolutionary Intelligence Systems ────────────────────────────────────
+  | "intelligenceOracle"
+  | "temporalAnalytics"
+  | "platformDNA"
+  | "featureFlags"
+  | "crossDomainInsights"
+  | "evolutionTracker"
   // ── Platform ─────────────────────────────────────────────────────────────
   | "metricsPanel" | "integrationDashboard"
   // ── Builder ──────────────────────────────────────────────────────────────
@@ -437,6 +444,13 @@ export const DEFAULT_APPS: AppDef[] = [
   { id: "infiniteBrainControl",  label: "Infinite Brain Control",  icon: "🚀", color: "#6366f1", description: "Live control panel — launch all workflows, notify family, run infinite expansion simulations, view real-time audit log", category: "system" },
   { id: "infiniteBrainPortal",   label: "Infinite Brain Portal",   icon: "💠", color: "#6366f1", description: "Ultimate Live Full Deployment — 9 modules × 5 tasks, Beyond Infinity mode, real-time audit log, all APIs wired", category: "system" },
   { id: "infiniteBrainDashboard", label: "Infinite Brain Dashboard", icon: "📊", color: "#7c3aed", description: "Transcend All — real-time module scores, industry overachievement metrics, system log, Absolute Infinity mode", category: "system" },
+  // ── Evolutionary Intelligence Systems ────────────────────────────────────
+  { id: "intelligenceOracle",  label: "Intelligence Oracle",   icon: "🔮", color: "#6366f1", description: "GPT-4o cross-domain intelligence — ask any question across all platform data simultaneously, get synthesized insights and full reports", category: "system" },
+  { id: "temporalAnalytics",   label: "Temporal Analytics",    icon: "⏱",  color: "#8b5cf6", description: "Time-series intelligence — trend detection, growth velocity, anomaly monitoring, and forecasting across all platform domains", category: "system" },
+  { id: "platformDNA",         label: "Platform DNA",          icon: "🧬", color: "#a855f7", description: "Capability genome — 17 platform dimensions scored and tracked, gap detection, evolution timeline, and heartbeat recording", category: "system" },
+  { id: "featureFlags",        label: "Feature Flags",         icon: "🚩", color: "#6366f1", description: "Runtime feature toggles — create, toggle, and monitor feature flags with rollout percentages and environment scoping", category: "system" },
+  { id: "crossDomainInsights", label: "Cross-Domain Insights",  icon: "🌐", color: "#06b6d4", description: "AI-synthesized intelligence across all platform domains — health, legal, staffing, projects, leads — with domain activity matrix and instant full-platform reports", category: "system" },
+  { id: "evolutionTracker",    label: "Evolution Tracker",       icon: "🚀", color: "#8b5cf6", description: "Platform evolution timeline — capability genome, milestone history, growth velocity, gap analysis, and heartbeat recording across all 17 platform dimensions", category: "system" },
   // ── Industry OS Apps ─────────────────────────────────────────────────────
   { id: "healthos",      label: "HealthOS",         icon: "🏥", color: "#0d9488", description: "Full healthcare management — patients, appointments, doctors, departments, and billing in one unified OS", category: "business" },
   { id: "legalpm",       label: "LegalPM",          icon: "⚖️", color: "#4f46e5", description: "Legal practice management — matters, clients, time tracking, billing, and tasks for law firms", category: "business" },
@@ -1051,7 +1065,13 @@ const APP_META: Record<AppId, { icon: string; label: string }> = {
   dataTransformer: { icon: "⚙️", label: "Data Transformer" },
   mappingStudio: { icon: "⚙️", label: "Mapping Studio" },
   schemaBuilder: { icon: "⚙️", label: "Schema Builder" },
-  configManager: { icon: "⚙️", label: "Config Manager" },
+  configManager:       { icon: "⚙️", label: "Config Manager" },
+  intelligenceOracle:  { icon: "🔮", label: "Intel Oracle" },
+  temporalAnalytics:   { icon: "⏱", label: "Temporal Analytics" },
+  platformDNA:         { icon: "🧬", label: "Platform DNA" },
+  featureFlags:        { icon: "🚩", label: "Feature Flags" },
+  crossDomainInsights: { icon: "🌐", label: "Cross-Domain" },
+  evolutionTracker:    { icon: "🚀", label: "Evolution Tracker" },
 
 };
 

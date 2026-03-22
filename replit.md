@@ -6,7 +6,7 @@ The CreateAI Brain is a full-stack AI OS platform (NEXUS Semantic OS), developed
 
 **Platform Scale (March 2026)**
 - 35+ HTML dashboard surfaces — all returning 200
-- 365 App screens lazy-loaded in the OS shell (AppWindow.tsx)
+- 373 App screens lazy-loaded in the OS shell (AppWindow.tsx) — including 8 new evolution system apps
 - Extended Domain Suite v2.0 (10 new engines): Project Command, Partner Network, Events & Bookings, Education Hub, Social Command, Supply Chain, Franchise Hub, Brand Vault, Revenue Intelligence, AI Strategy Engine (GPT-4o)
 - Dev server: port 23568 (workflow: "CreateAI Brain: Start Dev Server")
 - API server: port 8080 (workflow: "artifacts/api-server: API Server")
@@ -14,6 +14,45 @@ The CreateAI Brain is a full-stack AI OS platform (NEXUS Semantic OS), developed
 - **Database**: 56 performance indexes applied directly via SQL (health/legal/staffing schemas)
 - **Email**: Resend integration wired; sandbox sends to sivh@mail.com; set CONTACT_EMAIL for production
 - **Marketplace**: /api/marketplace-hub dashboard + credential status for Shopify/Etsy/Amazon/eBay/CreativeMarket
+
+**Evolution Layer API Endpoints (8 New Systems)**
+- `GET  /api/search?q=&domains[]=&limit=` — Universal cross-domain full-text search (projects/leads/patients/legal/staffing/docs/people)
+- `GET  /api/automation/status` — Automation engine status (triggers, actions, rule counts)
+- `CRUD /api/automation/rules` — Automation rule CRUD + `POST /:id/run` (trigger) + `POST /:id/toggle` (enable/disable)
+- `GET  /api/automation/executions` — Execution history (last 100)
+- `CRUD /api/flags` — Feature flag CRUD + `POST /:key/toggle` + `GET /:key/evaluate`
+- `GET  /api/events/stream` — Server-Sent Events live stream (real-time platform events)
+- `GET  /api/events/recent?limit=` — Recent events buffer
+- `POST /api/events/emit` — Publish a platform event
+- `POST /api/oracle/query` — GPT-4o cross-domain intelligence query
+- `GET  /api/oracle/report` — Full platform intelligence report
+- `GET  /api/oracle/snapshots` — Recent oracle snapshots
+- `GET  /api/temporal/trends?metric=&days=` — Time-series trend analysis
+- `GET  /api/temporal/velocity` — Domain growth velocity (last 30d)
+- `GET  /api/temporal/anomalies` — Statistical anomaly detection (3σ z-score)
+- `GET  /api/platform-dna/genome` — Full 17-dimension capability genome
+- `GET  /api/platform-dna/score` — Platform maturity score (currently 91/100, "Elite")
+- `GET  /api/platform-dna/gaps` — Identified capability gaps
+- `POST /api/platform-dna/pulse` — Record capability heartbeat
+- `CRUD /api/webhook-mgr/endpoints` — Outbound webhook endpoint management (HMAC-SHA256 signed)
+- `GET  /api/webhook-mgr/deliveries` — Delivery log
+- `POST /api/webhook-mgr/endpoints/:id/test` — Test delivery
+
+**New Frontend Apps (8 New + 4 Upgraded)**
+- **Upgraded** `AutomationCenterApp` — Real rule builder, execution monitor, wired to `/api/automation`
+- **Upgraded** `EventStreamApp` — Live SSE feed, topic filters, emit buttons, wired to `/api/events`
+- **Upgraded** `SearchStudioApp` — Full-text search with domain filters, wired to `/api/search`
+- **Upgraded** `WebhookManagerApp` — Endpoint CRUD + test delivery, wired to `/api/webhook-mgr`
+- **NEW** `IntelligenceOracleApp` — GPT-4o natural language queries across all domains
+- **NEW** `TemporalAnalyticsApp` — Sparkline charts, velocity, anomaly detection
+- **NEW** `PlatformDNAApp` — 17-dimension genome, gap analysis, heartbeat recording
+- **NEW** `FeatureFlagsApp` — Flag CRUD, toggle, rollout %, environment scoping
+- **NEW** `hooks/useFeatureFlag.ts` — React hook + evaluateFlag() for runtime flag evaluation
+
+**DB Package Upgrade**
+- Added `sql` tagged template literal export to `lib/db/src/index.ts`
+- Pattern: `const rows = await sql\`SELECT ... WHERE id = ${id}\``
+- Returns `Record<string, unknown>[]` (parameterized, safe from SQL injection)
 
 **Key API Endpoints Added (Session March 2026)**
 - `GET /api/email/dashboard` — HTML email verification + transactional email dashboard

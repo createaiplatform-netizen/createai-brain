@@ -422,6 +422,25 @@ router.use("/email",         emailDashboardRouter);
 import marketplaceActivationRouter from "./marketplaceActivation.js";
 router.use("/marketplace-hub", marketplaceActivationRouter);
 
+// ── Platform Evolution Layer — 8 new intelligence systems ────────────────────
+import universalSearchRouter   from "./universalSearch.js";
+import automationEngineRouter  from "./automationEngine.js";
+import featureFlagsRouter      from "./featureFlags.js";
+import eventsStreamRouter      from "./eventsStream.js";
+import intelligenceOracleRouter from "./intelligenceOracle.js";
+import temporalIntelRouter     from "./temporalIntel.js";
+import platformDNARouter       from "./platformDNA.js";
+import outboundWebhooksRouter  from "./outboundWebhooks.js";
+
+router.use("/search",          universalSearchRouter);
+router.use("/automation",      automationEngineRouter);
+router.use("/flags",           featureFlagsRouter);
+router.use("/events",          eventsStreamRouter);
+router.use("/oracle",          intelligenceOracleRouter);
+router.use("/temporal",        temporalIntelRouter);
+router.use("/platform-dna",    platformDNARouter);
+router.use("/webhook-mgr",     outboundWebhooksRouter);
+
 // ── Financial Hub Backward-Compat Redirects — T006 ───────────────────────────
 // Wealth, ledger, and revenue-intel are also reachable under /finance/*
 // using 301 redirects for any client still hitting the legacy paths.
