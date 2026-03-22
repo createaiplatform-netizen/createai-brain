@@ -1,0 +1,141 @@
+Rewrite the habits backend and add the guardian approval UI.
+
+Context:
+- The DB changes for platform_habit_completions are already done:
+  - approval_status TEXT DEFAULT 'approved'
+  - parent_note TEXT
+  - reviewed_at TIMESTAMP
+  - reviewed_by UUID
+
+Tasks:
+
+1) Rewrite artifacts/api-server/src/routes/habits.ts
+
+Goals:
+- Add guardian approval for kids’ habits
+- Use outboundEngine for in-app notifications
+- Keep the file clean and self-contained
+
+Requirements:
+
+Imports:
+- Keep existing imports (express, auth, db, etc.)
+- Ensure outboundEngine and getSql are imported
+
+Endpoints:
+
+A. GET /api/habits
+- Return all habits for the current user/family
+- For each habit, include:
+  - pending_approvals: number of pending completions for that habit
+  - has_pending_today: boolean, true if there is a pending completion for this habit created today
+- total/streak logic must only count completions where approval_status = 'approved'
+
+B. POST /api/habits/:id/complete
+- Look up the current user’s family role (e.g., family_child, family_adult, founder)
+- If role = 'family_child':
+  - Insert a completion row with:
+    - approval_status = 'pending'
+    - reviewed_at = NULL
+    - reviewed_by = NULL
+  - Do NOT update streaks
+  - Use outboundEngine to send in-app notifications to all adults:
+    - channel: "in-app"
+    - title: "Habit completion pending review"
+    - body: "<childName> completed <habitName>. Review required."
+- If role is adult/founder:
+  - Insert completion with approval_status = 'approved'
+  - Recalculate and update streaks as currently implemented
+- All streak calculations must filter by approval_status = 'approved'
+
+C. GET /api/habits/approvals
+- Auth required
+- Only allow adults/founder roles; return 403 for children
+- Return a list of pending completions:
+  - completion_id
+  - habit_id
+  - habit_name
+  - habit_emoji (if available)
+  - child_name
+  - created_at (submission time)
+
+D. POST /api/habits/approvals/:completionId/approve
+- Auth required, adults/founder only
+- Set:
+  - approval_status = 'approved'
+  - reviewed_at = NOW()
+  - reviewed_by = current user id
+- Recalculate streaks for that habit and update as needed
+- Notify the child via outboundEngine:
+  - channel: "in-app"
+  - title: "Habit approved"
+  - body: "Your habit '<habitName>' was approved!"
+
+E. POST /api/habits/approvals/:completionId/reject
+- Auth required, adults/founder only
+- Set:
+  - approval_status = 'rejected'
+  - reviewed_at = NOW()
+  - reviewed_by = current user id
+- Notify the child via outboundEngine:
+  - channel: "in-app"
+  - title: "Habit needs another try"
+  - body: "Your habit '<habitName>' needs another try."
+
+General rules:
+- Children can create completions but never approve/reject.
+- Only approved completions count toward streaks, rewards, and any bank logic.
+- Pending and rejected completions do not affect streaks.
+
+2) Create artifacts/createai-brain/src/components/GuardianApprovalPanel.tsx
+
+Requirements:
+- React + TypeScript functional component
+- Fetch from /api/habits/approvals on mount
+- Handle:
+  - loading state
+  - empty state
+  - 403 (non-adult) → show a friendly message like “Approvals are only available for adults.”
+- Render a list of pending approvals:
+  - Habit emoji + name
+  - Child name
+  - Submitted time
+  - Approve and Reject buttons
+- On Approve:
+  - Call POST /api/habits/approvals/:id/approve
+  - Refresh the list
+- On Reject:
+  - Call POST /api/habits/approvals/:id/reject
+  - Refresh the list
+- Accept a prop like onPendingCountChange?(count: number) to report the current pending count up to the parent.
+
+3) Update artifacts/createai-brain/src/components/HabitsGoals.tsx
+
+Requirements:
+- Extend the habit type to include:
+  - pending_approvals: number
+  - has_pending_today: boolean
+- In the UI:
+  - If has_pending_today is true:
+    - Show a small “Awaiting approval” badge on the habit card
+  - Keep existing streak/goal UI for approved completions
+- Do not break existing behavior for adults.
+
+4) Update artifacts/createai-brain/src/pages/universe/FamilyUniversePage.tsx
+
+Requirements:
+- Import GuardianApprovalPanel
+- In the Habits tab:
+  - Render GuardianApprovalPanel for adults/founder users
+  - Pass a callback to onPendingCountChange to track pending approvals
+- On the Habits tab button (or header), show a badge with the pending count for adults:
+  - e.g., “Habits (3)” or a small dot/badge with the number
+- For child users:
+  - Do not show the approval panel
+  - They only see their own habits and “Awaiting approval” on pending ones
+
+Global rules:
+- Keep code style consistent with the existing project.
+- Do not remove unrelated logic.
+- Implement all of the above in a single pass.
+- Output only code for the modified and new files, no explanations.

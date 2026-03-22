@@ -20,6 +20,8 @@ interface Habit {
   last_done_at: string | null;
   paused: boolean;
   total_completions: number;
+  pending_approvals: number;
+  has_pending_today: boolean;
 }
 
 const FREQ_LABELS: Record<string, string> = {
