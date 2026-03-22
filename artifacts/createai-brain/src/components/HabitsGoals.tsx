@@ -204,12 +204,18 @@ export function HabitsGoals() {
                 </button>
 
                 <div className="flex-1 min-w-0">
-                  <div className="flex items-center gap-2">
+                  <div className="flex items-center gap-2 flex-wrap">
                     <p className="text-[14px] font-bold truncate" style={{ color: TEXT }}>{h.name}</p>
-                    {h.current_streak > 0 && (
+                    {h.current_streak > 0 && !h.has_pending_today && (
                       <span className="text-[11px] font-bold px-2 py-0.5 rounded-full"
                         style={{ background: `${SAGE}18`, color: SAGE }}>
                         🔥 {h.current_streak}
+                      </span>
+                    )}
+                    {h.has_pending_today && (
+                      <span className="text-[10px] font-bold px-2 py-0.5 rounded-full"
+                        style={{ background: "rgba(196,169,122,0.18)", color: "#9a7a3a" }}>
+                        ⏳ Awaiting approval
                       </span>
                     )}
                   </div>

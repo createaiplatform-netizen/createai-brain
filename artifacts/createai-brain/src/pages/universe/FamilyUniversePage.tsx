@@ -4,6 +4,7 @@
 
 import { useState, useEffect } from "react";
 import { FamilyInviteModal } from "@/components/FamilyInviteModal";
+import { GuardianApprovalPanel } from "@/components/GuardianApprovalPanel";
 import { BillPay } from "@/components/BillPay";
 import { FamilyBank } from "@/components/FamilyBank";
 import { FamilyMessages } from "@/components/FamilyMessages";
@@ -52,6 +53,7 @@ export default function FamilyUniversePage() {
   const [identity, setIdentity] = useState<FamilyIdentity | null>(null);
   const [members, setMembers] = useState<FamilyMember[]>([]);
   const [showInvite, setShowInvite] = useState(false);
+  const [pendingHabits, setPendingHabits] = useState(0);
 
   useEffect(() => {
     void loadIdentity();
@@ -110,7 +112,7 @@ export default function FamilyUniversePage() {
           { key: "bank",     label: "Bank",      icon: "🏛️" },
           { key: "messages", label: "Messages",  icon: "💌" },
           { key: "life",     label: "Life OS",   icon: "🗓️" },
-          { key: "habits",   label: "Habits",    icon: "🔥" },
+          { key: "habits",   label: pendingHabits > 0 ? `Habits (${pendingHabits})` : "Habits", icon: "🔥" },
           { key: "journal",  label: "Journal",   icon: "📖" },
           { key: "create",   label: "Create",    icon: "✨" },
         ] as { key: Tab; label: string; icon: string }[]).map(t => (
@@ -262,7 +264,12 @@ export default function FamilyUniversePage() {
         {tab === "life" && <LifeOSPanel />}
 
         {/* ── Habits Tab ── */}
-        {tab === "habits" && <HabitsGoals />}
+        {tab === "habits" && (
+          <div className="flex flex-col gap-4">
+            <GuardianApprovalPanel onCountChange={setPendingHabits} />
+            <HabitsGoals />
+          </div>
+        )}
 
         {/* ── Journal Tab ── */}
         {tab === "journal" && <PrivateJournal />}
