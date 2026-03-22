@@ -327,6 +327,153 @@ export async function bootstrapSchema(): Promise<void> {
     await sql`CREATE INDEX IF NOT EXISTS idx_bills_user ON platform_bills(user_id, due_date ASC)`;
     await sql`CREATE INDEX IF NOT EXISTS idx_bills_status ON platform_bills(status)`;
 
+    // ── Life OS Extension Tables ─────────────────────────────────────────────
+
+    await sql`
+      CREATE TABLE IF NOT EXISTS platform_audit_logs (
+        id          TEXT PRIMARY KEY DEFAULT gen_random_uuid()::TEXT,
+        actor_id    TEXT NOT NULL,
+        event_type  TEXT NOT NULL,
+        target_id   TEXT,
+        target_type TEXT,
+        details     JSONB NOT NULL DEFAULT '{}',
+        ip_address  TEXT,
+        created_at  TIMESTAMPTZ NOT NULL DEFAULT NOW()
+      )
+    `;
+    await sql`CREATE INDEX IF NOT EXISTS idx_audit_actor   ON platform_audit_logs(actor_id, created_at DESC)`;
+    await sql`CREATE INDEX IF NOT EXISTS idx_audit_type    ON platform_audit_logs(event_type, created_at DESC)`;
+
+    await sql`
+      CREATE TABLE IF NOT EXISTS platform_family_bank_accounts (
+        id           TEXT PRIMARY KEY DEFAULT gen_random_uuid()::TEXT,
+        user_id      TEXT NOT NULL UNIQUE,
+        display_name TEXT NOT NULL DEFAULT 'My Account',
+        balance_cents INTEGER NOT NULL DEFAULT 0,
+        currency     TEXT NOT NULL DEFAULT 'USD',
+        created_at   TIMESTAMPTZ NOT NULL DEFAULT NOW(),
+        updated_at   TIMESTAMPTZ NOT NULL DEFAULT NOW()
+      )
+    `;
+    await sql`CREATE INDEX IF NOT EXISTS idx_fbank_user ON platform_family_bank_accounts(user_id)`;
+
+    await sql`
+      CREATE TABLE IF NOT EXISTS platform_family_bank_transactions (
+        id           TEXT PRIMARY KEY DEFAULT gen_random_uuid()::TEXT,
+        account_id   TEXT NOT NULL,
+        user_id      TEXT NOT NULL,
+        type         TEXT NOT NULL DEFAULT 'earn',
+        amount_cents INTEGER NOT NULL,
+        reason       TEXT NOT NULL DEFAULT '',
+        notes        TEXT,
+        approved_by  TEXT,
+        created_at   TIMESTAMPTZ NOT NULL DEFAULT NOW()
+      )
+    `;
+    await sql`CREATE INDEX IF NOT EXISTS idx_fbank_txn_acct ON platform_family_bank_transactions(account_id, created_at DESC)`;
+
+    await sql`
+      CREATE TABLE IF NOT EXISTS platform_family_bank_goals (
+        id            TEXT PRIMARY KEY DEFAULT gen_random_uuid()::TEXT,
+        user_id       TEXT NOT NULL,
+        name          TEXT NOT NULL,
+        emoji         TEXT NOT NULL DEFAULT '🎯',
+        target_cents  INTEGER NOT NULL DEFAULT 0,
+        current_cents INTEGER NOT NULL DEFAULT 0,
+        deadline      DATE,
+        completed     BOOLEAN NOT NULL DEFAULT FALSE,
+        created_at    TIMESTAMPTZ NOT NULL DEFAULT NOW(),
+        updated_at    TIMESTAMPTZ NOT NULL DEFAULT NOW()
+      )
+    `;
+    await sql`CREATE INDEX IF NOT EXISTS idx_fbank_goals_user ON platform_family_bank_goals(user_id)`;
+
+    await sql`
+      CREATE TABLE IF NOT EXISTS platform_family_conversations (
+        id           TEXT PRIMARY KEY DEFAULT gen_random_uuid()::TEXT,
+        name         TEXT,
+        type         TEXT NOT NULL DEFAULT 'direct',
+        participant_ids TEXT[] NOT NULL DEFAULT '{}',
+        created_by   TEXT NOT NULL,
+        created_at   TIMESTAMPTZ NOT NULL DEFAULT NOW(),
+        updated_at   TIMESTAMPTZ NOT NULL DEFAULT NOW()
+      )
+    `;
+
+    await sql`
+      CREATE TABLE IF NOT EXISTS platform_family_messages (
+        id              TEXT PRIMARY KEY DEFAULT gen_random_uuid()::TEXT,
+        conversation_id TEXT NOT NULL,
+        sender_id       TEXT NOT NULL,
+        content         TEXT NOT NULL,
+        content_type    TEXT NOT NULL DEFAULT 'text',
+        read_by         TEXT[] NOT NULL DEFAULT '{}',
+        created_at      TIMESTAMPTZ NOT NULL DEFAULT NOW()
+      )
+    `;
+    await sql`CREATE INDEX IF NOT EXISTS idx_fmsg_conv ON platform_family_messages(conversation_id, created_at DESC)`;
+
+    await sql`
+      CREATE TABLE IF NOT EXISTS platform_life_events (
+        id          TEXT PRIMARY KEY DEFAULT gen_random_uuid()::TEXT,
+        user_id     TEXT NOT NULL,
+        category    TEXT NOT NULL DEFAULT 'civic',
+        title       TEXT NOT NULL,
+        description TEXT,
+        event_date  DATE,
+        reminder_at TIMESTAMPTZ,
+        official_url TEXT,
+        completed   BOOLEAN NOT NULL DEFAULT FALSE,
+        notes       TEXT,
+        created_at  TIMESTAMPTZ NOT NULL DEFAULT NOW(),
+        updated_at  TIMESTAMPTZ NOT NULL DEFAULT NOW()
+      )
+    `;
+    await sql`CREATE INDEX IF NOT EXISTS idx_life_events_user ON platform_life_events(user_id, event_date ASC NULLS LAST)`;
+
+    await sql`
+      CREATE TABLE IF NOT EXISTS platform_habits (
+        id             TEXT PRIMARY KEY DEFAULT gen_random_uuid()::TEXT,
+        user_id        TEXT NOT NULL,
+        name           TEXT NOT NULL,
+        emoji          TEXT NOT NULL DEFAULT '🌱',
+        frequency      TEXT NOT NULL DEFAULT 'daily',
+        current_streak INTEGER NOT NULL DEFAULT 0,
+        longest_streak INTEGER NOT NULL DEFAULT 0,
+        last_done_at   DATE,
+        paused         BOOLEAN NOT NULL DEFAULT FALSE,
+        created_at     TIMESTAMPTZ NOT NULL DEFAULT NOW(),
+        updated_at     TIMESTAMPTZ NOT NULL DEFAULT NOW()
+      )
+    `;
+    await sql`CREATE INDEX IF NOT EXISTS idx_habits_user ON platform_habits(user_id)`;
+
+    await sql`
+      CREATE TABLE IF NOT EXISTS platform_habit_completions (
+        id         TEXT PRIMARY KEY DEFAULT gen_random_uuid()::TEXT,
+        habit_id   TEXT NOT NULL,
+        user_id    TEXT NOT NULL,
+        done_on    DATE NOT NULL,
+        note       TEXT,
+        created_at TIMESTAMPTZ NOT NULL DEFAULT NOW(),
+        UNIQUE(habit_id, done_on)
+      )
+    `;
+    await sql`CREATE INDEX IF NOT EXISTS idx_habit_comp_habit ON platform_habit_completions(habit_id, done_on DESC)`;
+
+    await sql`
+      CREATE TABLE IF NOT EXISTS platform_contributions (
+        id          TEXT PRIMARY KEY DEFAULT gen_random_uuid()::TEXT,
+        user_id     TEXT NOT NULL,
+        type        TEXT NOT NULL DEFAULT 'participation',
+        points      INTEGER NOT NULL DEFAULT 1,
+        reason      TEXT NOT NULL DEFAULT '',
+        awarded_by  TEXT,
+        created_at  TIMESTAMPTZ NOT NULL DEFAULT NOW()
+      )
+    `;
+    await sql`CREATE INDEX IF NOT EXISTS idx_contrib_user ON platform_contributions(user_id, created_at DESC)`;
+
     console.log("[DB] Schema bootstrap complete");
   } catch (err) {
     console.error("[DB] Schema bootstrap failed:", err instanceof Error ? err.message : String(err));

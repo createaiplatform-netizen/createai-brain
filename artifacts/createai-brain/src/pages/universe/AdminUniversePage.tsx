@@ -2,7 +2,7 @@
 // Full platform control center for admin/founder roles.
 // Real data only — no simulated metrics.
 
-import { useState, useEffect } from "react";
+import { useState, useEffect, useCallback } from "react";
 
 const SAGE = "#7a9068";
 const CREAM = "#faf9f6";
@@ -22,7 +22,7 @@ const ROLE_BADGE: Record<string, { color: string; bg: string; label: string }> =
   customer:      { label: "Customer",      color: "#6aab8a", bg: "rgba(106,171,138,0.12)" },
 };
 
-type Tab = "users" | "devices" | "overview";
+type Tab = "overview" | "users" | "devices" | "audit";
 
 interface UserRow {
   id: string;
@@ -54,6 +54,28 @@ export default function AdminUniversePage() {
   const [userDevices, setUserDevices] = useState<DeviceRow[]>([]);
   const [updatingRole, setUpdatingRole] = useState<string | null>(null);
 
+  // ── Audit Log State ──────────────────────────────────────────────────────────
+  const [auditEvents, setAuditEvents] = useState<{ id: string; event_type: string; actor_email: string | null; actor_first_name: string | null; details: Record<string, unknown>; target_type: string | null; created_at: string }[]>([]);
+  const [auditLoading, setAuditLoading] = useState(false);
+  const [auditTotal, setAuditTotal] = useState(0);
+  const [auditType, setAuditType] = useState("");
+
+  const loadAudit = useCallback(async () => {
+    setAuditLoading(true);
+    try {
+      const params = new URLSearchParams({ limit: "50" });
+      if (auditType) params.set("type", auditType);
+      const res = await fetch(`/api/audit/events?${params}`, { credentials: "include" });
+      if (res.ok) {
+        const data = (await res.json()) as { events: typeof auditEvents; total: number };
+        setAuditEvents(data.events);
+        setAuditTotal(data.total);
+      }
+    } finally {
+      setAuditLoading(false);
+    }
+  }, [auditType]);
+
   async function loadUsers() {
     setLoadingUsers(true);
     try {
@@ -77,7 +99,8 @@ export default function AdminUniversePage() {
 
   useEffect(() => {
     if (tab === "users" || tab === "overview") void loadUsers();
-  }, [tab]);
+    if (tab === "audit") void loadAudit();
+  }, [tab, loadAudit]);
 
   useEffect(() => {
     if (selectedUserId) void loadDevicesForUser(selectedUserId);
@@ -138,18 +161,23 @@ export default function AdminUniversePage() {
       </div>
 
       {/* Tabs */}
-      <div className="px-6 flex gap-1 mb-6">
-        {(["overview", "users", "devices"] as Tab[]).map(t => (
+      <div className="px-6 flex gap-1 mb-6 overflow-x-auto scrollbar-hide">
+        {([
+          { key: "overview", label: "Overview" },
+          { key: "users",    label: "Users" },
+          { key: "devices",  label: "Devices" },
+          { key: "audit",    label: "Audit Log" },
+        ] as { key: Tab; label: string }[]).map(t => (
           <button
-            key={t}
-            onClick={() => setTab(t)}
-            className="px-4 py-2 rounded-xl text-[13px] font-bold capitalize transition-all"
+            key={t.key}
+            onClick={() => setTab(t.key)}
+            className="px-4 py-2 rounded-xl text-[13px] font-bold whitespace-nowrap transition-all"
             style={{
-              background: tab === t ? SAGE : "transparent",
-              color: tab === t ? "white" : MUTED,
+              background: tab === t.key ? SAGE : "transparent",
+              color: tab === t.key ? "white" : MUTED,
             }}
           >
-            {t}
+            {t.label}
           </button>
         ))}
       </div>
@@ -359,6 +387,102 @@ export default function AdminUniversePage() {
                 )}
               </div>
             )}
+          </div>
+        )}
+
+        {/* ── Audit Log Tab ── */}
+        {tab === "audit" && (
+          <div className="flex flex-col gap-4">
+            <div className="p-3 rounded-xl text-[11px] leading-snug"
+              style={{ background: `${SAGE}08`, border: `1px solid ${SAGE}18`, color: MUTED }}>
+              🔒 <strong>Safety, not surveillance.</strong> Only key platform events are logged.
+              This view is admin-only and is used for debugging and security review.
+            </div>
+
+            {/* Filter + refresh */}
+            <div className="flex items-center gap-2">
+              <select
+                value={auditType}
+                onChange={e => setAuditType(e.target.value)}
+                className="flex-1 px-3 py-2 rounded-xl text-[13px] outline-none"
+                style={{ background: "white", border: `1px solid ${BORDER}`, color: TEXT }}
+              >
+                <option value="">All events</option>
+                {["login","logout","device_trusted","device_removed","biometric_registered","phone_verified",
+                  "role_changed","user_suspended","user_restored","payment_approved","payment_triggered",
+                  "bill_created","bill_approved","bill_paid","bank_transaction","nda_signed","admin_action"].map(t => (
+                  <option key={t} value={t}>{t.replace(/_/g, " ")}</option>
+                ))}
+              </select>
+              <button
+                onClick={() => void loadAudit()}
+                className="px-4 py-2 rounded-xl text-[13px] font-bold text-white"
+                style={{ background: SAGE }}
+              >
+                Refresh
+              </button>
+            </div>
+
+            <p className="text-[11px]" style={{ color: MUTED }}>
+              Showing up to 50 of {auditTotal} events
+            </p>
+
+            {auditLoading && (
+              <p className="text-[13px] text-center py-6" style={{ color: MUTED }}>Loading…</p>
+            )}
+
+            {!auditLoading && auditEvents.length === 0 && (
+              <div className="py-8 text-center">
+                <div className="text-3xl mb-2">📋</div>
+                <p className="text-[14px] font-semibold" style={{ color: TEXT }}>No events yet</p>
+                <p className="text-[12px] mt-1" style={{ color: MUTED }}>Key platform actions will appear here as they happen</p>
+              </div>
+            )}
+
+            <div className="flex flex-col gap-2">
+              {auditEvents.map(ev => {
+                const typeColors: Record<string, string> = {
+                  login: "#4a7a5a", logout: "#6b6660",
+                  device_trusted: "#6a8db5", device_removed: "#c53030", biometric_registered: "#6a8db5",
+                  role_changed: "#9a7ab5", user_suspended: "#c53030", user_restored: "#4a7a5a",
+                  payment_approved: SAGE, payment_triggered: SAGE,
+                  bill_created: "#6aab8a", bill_approved: "#4a7a5a", bill_paid: "#4a7a5a",
+                  admin_action: "#c4a97a", nda_signed: "#6a8db5",
+                };
+                const color = typeColors[ev.event_type] ?? MUTED;
+                return (
+                  <div key={ev.id} className="px-4 py-3 rounded-2xl"
+                    style={{ background: "white", border: `1px solid ${BORDER}` }}>
+                    <div className="flex items-start justify-between gap-3">
+                      <div className="flex-1 min-w-0">
+                        <div className="flex items-center gap-2 flex-wrap">
+                          <span className="px-2 py-0.5 rounded-full text-[10px] font-bold"
+                            style={{ background: `${color}15`, color }}>
+                            {ev.event_type.replace(/_/g, " ")}
+                          </span>
+                          {ev.target_type && (
+                            <span className="text-[10px]" style={{ color: MUTED }}>→ {ev.target_type}</span>
+                          )}
+                        </div>
+                        <p className="text-[12px] mt-1" style={{ color: MUTED }}>
+                          by <span style={{ color: TEXT, fontWeight: 600 }}>{ev.actor_first_name ?? ev.actor_email ?? ev.event_type}</span>
+                        </p>
+                        {Object.keys(ev.details ?? {}).length > 0 && (
+                          <p className="text-[11px] mt-0.5 font-mono truncate" style={{ color: MUTED }}>
+                            {JSON.stringify(ev.details)}
+                          </p>
+                        )}
+                      </div>
+                      <span className="text-[10px] flex-shrink-0" style={{ color: MUTED }}>
+                        {new Date(ev.created_at).toLocaleString("en-US", {
+                          month: "short", day: "numeric", hour: "numeric", minute: "2-digit",
+                        })}
+                      </span>
+                    </div>
+                  </div>
+                );
+              })}
+            </div>
           </div>
         )}
       </div>

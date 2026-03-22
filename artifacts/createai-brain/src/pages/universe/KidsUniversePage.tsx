@@ -3,7 +3,7 @@
 // No comparisons. No embarrassment. Big text. Bright but warm tones.
 // Family Universe Standing Law always active.
 
-import { useState, useEffect } from "react";
+import { useState, useEffect, useCallback } from "react";
 import { generateIdentity } from "@/lib/identityEngine";
 
 const SAGE = "#7a9068";
@@ -40,15 +40,47 @@ const FEELINGS = [
   { emoji: "😂", label: "Silly" },
 ];
 
+interface KidsHabit {
+  id: string;
+  name: string;
+  emoji: string;
+  current_streak: number;
+  last_done_at: string | null;
+}
+
+const KIDS_HABIT_SUGGESTIONS = [
+  { emoji: "🦷", name: "Brush my teeth" },
+  { emoji: "📖", name: "Read something" },
+  { emoji: "💧", name: "Drink water" },
+  { emoji: "🛏️", name: "Make my bed" },
+  { emoji: "🌿", name: "Go outside" },
+  { emoji: "💌", name: "Say something kind" },
+];
+
 export default function KidsUniversePage() {
   const [identity, setIdentity] = useState<FamilyIdentity | null>(null);
   const [selectedFeeling, setSelectedFeeling] = useState<string | null>(null);
   const [showFeelings, setShowFeelings] = useState(false);
   const [spark, setSpark] = useState<(typeof ACTIVITIES)[number] | null>(null);
 
+  // Kids habits state
+  const [habits, setHabits] = useState<KidsHabit[]>([]);
+  const [completingHabit, setCompletingHabit] = useState<string | null>(null);
+  const [showAddHabit, setShowAddHabit] = useState(false);
+  const [habitPick, setHabitPick] = useState<{ name: string; emoji: string } | null>(null);
+
+  const loadHabits = useCallback(async () => {
+    const res = await fetch("/api/habits", { credentials: "include" });
+    if (res.ok) {
+      const d = (await res.json()) as { habits: KidsHabit[] };
+      setHabits(d.habits.filter(h => !("paused" in h && (h as KidsHabit & { paused: boolean }).paused)));
+    }
+  }, []);
+
   useEffect(() => {
     void loadIdentity();
-  }, []);
+    void loadHabits();
+  }, [loadHabits]);
 
   async function loadIdentity() {
     const res = await fetch("/api/family-identity/me", { credentials: "include" });
@@ -61,6 +93,38 @@ export default function KidsUniversePage() {
   function drawSpark() {
     const random = ACTIVITIES[Math.floor(Math.random() * ACTIVITIES.length)];
     setSpark(random);
+  }
+
+  async function addHabit(name: string, emoji: string) {
+    await fetch("/api/habits", {
+      method: "POST",
+      credentials: "include",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ name, emoji, frequency: "daily" }),
+    });
+    setShowAddHabit(false);
+    setHabitPick(null);
+    await loadHabits();
+  }
+
+  async function completeHabit(id: string) {
+    setCompletingHabit(id);
+    try {
+      await fetch(`/api/habits/${id}/complete`, {
+        method: "POST",
+        credentials: "include",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({}),
+      });
+      await loadHabits();
+    } finally {
+      setCompletingHabit(null);
+    }
+  }
+
+  function isDoneToday(habit: KidsHabit) {
+    if (!habit.last_done_at) return false;
+    return String(habit.last_done_at).slice(0, 10) === new Date().toISOString().slice(0, 10);
   }
 
   const localId = identity
@@ -196,6 +260,70 @@ export default function KidsUniversePage() {
           </div>
         </div>
 
+        {/* ── My routines (age-appropriate habits) ── */}
+        <div>
+          <h2 className="text-[20px] font-black mb-3" style={{ color: TEXT }}>
+            My routines
+          </h2>
+          <p className="text-[13px] mb-4" style={{ color: MUTED }}>
+            Little things done each day add up to something wonderful.
+            No pressure — just notice what you did! ✨
+          </p>
+
+          {habits.length > 0 && (
+            <div className="flex flex-col gap-2.5 mb-3">
+              {habits.map(h => {
+                const done = isDoneToday(h);
+                return (
+                  <button
+                    key={h.id}
+                    onClick={() => !done && void completeHabit(h.id)}
+                    disabled={done || completingHabit === h.id}
+                    className="w-full p-4 rounded-2xl flex items-center gap-4 text-left transition-all active:scale-98"
+                    style={{
+                      background: done ? `${SAGE}15` : "white",
+                      border: `2px solid ${done ? `${SAGE}40` : BORDER}`,
+                      cursor: done ? "default" : "pointer",
+                    }}
+                  >
+                    <div
+                      className="w-14 h-14 rounded-2xl flex items-center justify-center text-3xl flex-shrink-0"
+                      style={{ background: done ? `${SAGE}20` : `${SAGE}08` }}
+                    >
+                      {completingHabit === h.id ? "⏳" : done ? "✅" : h.emoji}
+                    </div>
+                    <div className="flex-1">
+                      <p className="text-[17px] font-black" style={{ color: TEXT }}>{h.name}</p>
+                      {done ? (
+                        <p className="text-[13px] font-semibold mt-0.5" style={{ color: SAGE }}>
+                          Done today! You did it! 🌟
+                        </p>
+                      ) : (
+                        <p className="text-[13px] mt-0.5" style={{ color: MUTED }}>
+                          Tap to check it off
+                        </p>
+                      )}
+                      {h.current_streak > 1 && (
+                        <p className="text-[12px] mt-0.5 font-bold" style={{ color: SAGE }}>
+                          🔥 {h.current_streak} days in a row!
+                        </p>
+                      )}
+                    </div>
+                  </button>
+                );
+              })}
+            </div>
+          )}
+
+          <button
+            onClick={() => setShowAddHabit(true)}
+            className="w-full py-3 rounded-2xl text-[16px] font-bold text-white"
+            style={{ background: SAGE }}
+          >
+            + Add something to my routine
+          </button>
+        </div>
+
         {/* ── Safe space note ── */}
         <div
           className="p-4 rounded-2xl text-center"
@@ -207,6 +335,52 @@ export default function KidsUniversePage() {
           </p>
         </div>
       </div>
+
+      {/* Add routine modal */}
+      {showAddHabit && (
+        <div className="fixed inset-0 z-50 flex items-end justify-center p-4"
+          style={{ background: "rgba(26,25,22,0.40)", backdropFilter: "blur(6px)" }}>
+          <div className="w-full max-w-sm rounded-3xl pb-6"
+            style={{ background: CREAM, boxShadow: "0 -8px 40px rgba(0,0,0,0.15)" }}>
+            <div className="p-6">
+              <div className="flex items-center justify-between mb-4">
+                <h3 className="text-[22px] font-black" style={{ color: TEXT }}>What do you want to do?</h3>
+                <button onClick={() => { setShowAddHabit(false); setHabitPick(null); }}
+                  className="w-9 h-9 rounded-full flex items-center justify-center text-[18px]"
+                  style={{ background: `${SAGE}12`, color: MUTED }}>×</button>
+              </div>
+              <p className="text-[14px] mb-4" style={{ color: MUTED }}>
+                Pick something you'd like to remember each day. You can change it whenever you want!
+              </p>
+              <div className="grid grid-cols-2 gap-2.5 mb-4">
+                {KIDS_HABIT_SUGGESTIONS.map(s => (
+                  <button
+                    key={s.name}
+                    onClick={() => setHabitPick(s)}
+                    className="p-3.5 rounded-2xl flex items-center gap-2.5 transition-all text-left"
+                    style={{
+                      background: habitPick?.name === s.name ? `${SAGE}20` : "white",
+                      border: `2px solid ${habitPick?.name === s.name ? SAGE : BORDER}`,
+                    }}
+                  >
+                    <span className="text-2xl">{s.emoji}</span>
+                    <span className="text-[13px] font-bold" style={{ color: TEXT }}>{s.name}</span>
+                  </button>
+                ))}
+              </div>
+              {habitPick && (
+                <button
+                  onClick={() => void addHabit(habitPick.name, habitPick.emoji)}
+                  className="w-full py-3.5 rounded-2xl text-[17px] font-black text-white"
+                  style={{ background: SAGE }}
+                >
+                  {habitPick.emoji} Add "{habitPick.name}"!
+                </button>
+              )}
+            </div>
+          </div>
+        </div>
+      )}
     </div>
   );
 }

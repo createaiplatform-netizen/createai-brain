@@ -4,6 +4,10 @@
 
 import { useState, useEffect } from "react";
 import { BillPay } from "@/components/BillPay";
+import { FamilyBank } from "@/components/FamilyBank";
+import { FamilyMessages } from "@/components/FamilyMessages";
+import { LifeOSPanel } from "@/components/LifeOSPanel";
+import { HabitsGoals } from "@/components/HabitsGoals";
 import { generateIdentity, avatarStyle } from "@/lib/identityEngine";
 
 const SAGE = "#7a9068";
@@ -12,7 +16,7 @@ const TEXT = "#1a1916";
 const MUTED = "#6b6660";
 const BORDER = "rgba(122,144,104,0.13)";
 
-type Tab = "home" | "bills" | "family" | "create";
+type Tab = "home" | "family" | "bills" | "bank" | "messages" | "life" | "habits" | "create";
 
 interface FamilyIdentity {
   display_name: string;
@@ -94,12 +98,16 @@ export default function FamilyUniversePage() {
       </div>
 
       {/* Tabs */}
-      <div className="px-6 flex gap-1 mb-6 overflow-x-auto">
+      <div className="px-6 flex gap-1 mb-6 overflow-x-auto scrollbar-hide">
         {([
-          { key: "home",   label: "Home",    icon: "🏡" },
-          { key: "family", label: "Family",  icon: "🌿" },
-          { key: "bills",  label: "Bills",   icon: "📋" },
-          { key: "create", label: "Create",  icon: "✨" },
+          { key: "home",     label: "Home",      icon: "🏡" },
+          { key: "family",   label: "Family",    icon: "🌿" },
+          { key: "bills",    label: "Bills",     icon: "📋" },
+          { key: "bank",     label: "Bank",      icon: "🏛️" },
+          { key: "messages", label: "Messages",  icon: "💌" },
+          { key: "life",     label: "Life OS",   icon: "🗓️" },
+          { key: "habits",   label: "Habits",    icon: "🔥" },
+          { key: "create",   label: "Create",    icon: "✨" },
         ] as { key: Tab; label: string; icon: string }[]).map(t => (
           <button
             key={t.key}
@@ -140,10 +148,14 @@ export default function FamilyUniversePage() {
             {/* Quick actions */}
             <div className="grid grid-cols-2 gap-3">
               {[
-                { icon: "👨‍👩‍👧‍👦", title: "Family circle", action: () => setTab("family") },
-                { icon: "📋", title: "Bill tracker", action: () => setTab("bills") },
-                { icon: "✨", title: "Create together", action: () => setTab("create") },
-                { icon: "📖", title: "Family stories", action: () => {} },
+                { icon: "👨‍👩‍👧‍👦", title: "Family circle",  action: () => setTab("family") },
+                { icon: "📋",         title: "Bill tracker",   action: () => setTab("bills") },
+                { icon: "🏛️",         title: "Family bank",   action: () => setTab("bank") },
+                { icon: "💌",         title: "Messages",       action: () => setTab("messages") },
+                { icon: "🗓️",         title: "Life OS",        action: () => setTab("life") },
+                { icon: "🔥",         title: "Habits",         action: () => setTab("habits") },
+                { icon: "✨",         title: "Create together",action: () => setTab("create") },
+                { icon: "📖",         title: "Family stories", action: () => {} },
               ].map((a, i) => (
                 <button
                   key={i}
@@ -224,6 +236,18 @@ export default function FamilyUniversePage() {
 
         {/* ── Bills Tab ── */}
         {tab === "bills" && <BillPay />}
+
+        {/* ── Bank Tab ── */}
+        {tab === "bank" && <FamilyBank />}
+
+        {/* ── Messages Tab ── */}
+        {tab === "messages" && <FamilyMessages />}
+
+        {/* ── Life OS Tab ── */}
+        {tab === "life" && <LifeOSPanel />}
+
+        {/* ── Habits Tab ── */}
+        {tab === "habits" && <HabitsGoals />}
 
         {/* ── Create Tab ── */}
         {tab === "create" && (

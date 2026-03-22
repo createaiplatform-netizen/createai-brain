@@ -1,0 +1,52 @@
+/** FINAL ADD-ON: Missing Core Layers (No Duplicates) **/
+
+Universe Boundaries:
+• Each universe (Admin, Adult Family, Kids, Customer) must remain fully isolated in data, UI, and navigation.
+• Cross-universe access is never allowed; redirects must be silent and safe.
+
+Role Evolution:
+• Support future roles (e.g., teacher, coach, caregiver, collaborator) without redesign.
+• Each new role must inherit the same safety, clarity, and emotional protections.
+
+Creation Tools:
+• Support future creative modules (apps, games, videos, stories, art) with a unified creation framework.
+• Kids’ creation tools must be simplified, safe, and non-comparative.
+
+System Intelligence:
+• Provide gentle suggestions, summaries, and next steps across all universes.
+• Never override user autonomy; suggestions must be optional and dismissible.
+
+Memory & Continuity:
+• Preserve user context (trusted devices, preferences, identity colors, avatars) across sessions.
+• Allow users to reset or clear personal data without breaking the system.
+
+Family Dynamics:
+• Support shared projects, shared goals, and shared memories.
+• Ensure no member can delete another member’s creations without explicit permission.
+
+Admin Powers:
+• Admin can manage roles, devices, users, and universes but cannot view private family content.
+• Sensitive admin actions require fresh biometric confirmation.
+
+Customer Universe Expansion:
+• Support future modules like subscriptions, orders, appointments, or service requests.
+• Keep customer data isolated from family and admin data.
+
+Notifications Layer:
+• Support scheduled reminders, event triggers, and system alerts.
+• All notifications must be calm, clear, and never fear-based.
+
+Offline & Low-Signal Behavior:
+• Provide graceful fallback screens when offline.
+• Allow viewing cached non-sensitive data; block sensitive actions until reconnected.
+
+Future Integrations:
+• Design all modules to accept future providers (identity, payments, IoT, calendars) without structural changes.
+• Never hard-code a single provider as the only option.
+
+System Tone:
+• Maintain warmth, clarity, and emotional safety in all text, prompts, and flows.
+• Avoid pressure, shame, or urgency except for true safety-critical alerts.
+
+Goal (Final Layer):
+Ensure the platform remains expandable, emotionally safe, role-isolated, future-proof, and capable of supporting every digital aspect of life while respecting real-world boundaries and user autonomy.
