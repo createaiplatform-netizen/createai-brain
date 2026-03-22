@@ -585,4 +585,130 @@ router.get("/score", (_req, res) => {
   });
 });
 
+// ─── GET /api/system/percentages/dashboard — HTML platform readiness surface ──
+router.get("/dashboard", (_req, res) => {
+  const unified    = computeUnified(SUBSYSTEMS);
+  const label      = unifiedLabel(unified);
+
+  const subsystemScores = SUBSYSTEMS.map(s => {
+    const deployed = s.features.filter((f: { deployed: boolean }) => f.deployed).length;
+    const base     = Math.round((deployed / s.specCount) * 100);
+    const score    = Math.min(base + s.overSpecBonus, 999);
+    return { ...s, deployed, score };
+  });
+
+  // Ring arc path helper (SVG)
+  const pct  = Math.min(unified / 200, 1); // normalize for visual ring (cap visual at 200%)
+  const dash = Math.round(pct * 251.2); // circumference of r=40 circle = 2π*40 ≈ 251.2
+
+  const subsHtml = subsystemScores.map(s => {
+    const barW  = Math.min(Math.round((s.score / 200) * 100), 100); // visual cap at 200%
+    const color = s.score >= 150 ? "#34d399" : s.score >= 100 ? "#818cf8" : "#fbbf24";
+    const deployedFeats = s.features
+      .filter((f: { deployed: boolean }) => f.deployed)
+      .map((f: { name: string }) => f.name)
+      .slice(0, 4);
+    return `<div class="sub-card">
+      <div class="sub-top">
+        <span class="sub-icon">${s.icon}</span>
+        <div class="sub-name">${s.name}</div>
+        <div class="sub-score" style="color:${color}">${s.score}%</div>
+      </div>
+      <div class="bar-wrap" aria-label="${s.name}: ${s.score}% readiness">
+        <div class="bar-fill" style="width:${barW}%;background:${color}"></div>
+      </div>
+      <div class="sub-meta">${s.deployed}/${s.specCount} spec features · +${s.overSpecBonus}% over-spec bonus · weight ${s.weight}</div>
+      <div class="sub-feats">${deployedFeats.map((f: string) => `<span class="feat">${f}</span>`).join("")}${s.features.length > 4 ? `<span class="feat more">+${s.features.length - 4} more</span>` : ""}</div>
+    </div>`;
+  }).join("");
+
+  const html = `<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+  <title>Platform Readiness — CreateAI Brain</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&display=swap" rel="stylesheet">
+  <style>
+    *,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+    :root{--bg:#020617;--s2:#111827;--s3:#1e293b;--line:#1e293b;
+          --t1:#e2e8f0;--t2:#94a3b8;--t3:#64748b;--t4:#475569;--ind:#6366f1;--ind2:#818cf8;--g:#34d399;}
+    html,body{background:var(--bg);color:var(--t1);font-family:'Inter',-apple-system,sans-serif;font-size:14px;min-height:100vh;-webkit-font-smoothing:antialiased}
+    a{color:inherit;text-decoration:none}
+    .skip-link{position:absolute;top:-100px;left:1rem;background:var(--ind);color:#fff;padding:.4rem 1rem;border-radius:6px;font-weight:700;z-index:999;transition:top .2s}.skip-link:focus{top:1rem}
+    .hdr{border-bottom:1px solid var(--line);padding:0 24px;background:rgba(2,6,23,.97);position:sticky;top:0;z-index:100;backdrop-filter:blur(12px)}
+    .hdr-inner{max-width:1240px;margin:0 auto;height:52px;display:flex;align-items:center;gap:14px}
+    .logo{font-size:.95rem;font-weight:900;letter-spacing:-.03em}.logo span{color:var(--ind2)}
+    .bdg{font-size:.58rem;font-weight:800;text-transform:uppercase;letter-spacing:.08em;background:rgba(99,102,241,.15);color:var(--ind2);border:1px solid rgba(99,102,241,.3);border-radius:99px;padding:3px 10px}
+    .hdr-links{margin-left:auto;display:flex;gap:16px}.hdr-links a{color:var(--t3);font-size:.78rem;font-weight:600;transition:color .15s}.hdr-links a:hover{color:var(--t1)}
+    .wrap{max-width:1240px;margin:0 auto;padding:32px 24px}
+    .hero-section{display:flex;align-items:center;gap:40px;margin-bottom:36px;flex-wrap:wrap}
+    .ring-wrap{position:relative;width:120px;height:120px;flex-shrink:0}
+    .ring-wrap svg{transform:rotate(-90deg)}
+    .ring-center{position:absolute;inset:0;display:flex;flex-direction:column;align-items:center;justify-content:center;text-align:center}
+    .ring-pct{font-size:1.4rem;font-weight:900;color:var(--g);letter-spacing:-.04em}
+    .ring-lbl{font-size:.55rem;font-weight:800;text-transform:uppercase;letter-spacing:.08em;color:var(--t4)}
+    .hero-text h1{font-size:1.6rem;font-weight:900;letter-spacing:-.04em;margin-bottom:4px}.hero-text h1 span{color:var(--ind2)}
+    .hero-label{font-size:1.1rem;font-weight:800;color:var(--g);margin-bottom:6px}
+    .hero-sub{font-size:.82rem;color:var(--t3)}
+    .subs-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(320px,1fr));gap:14px}
+    .sub-card{background:var(--s2);border:1px solid var(--line);border-radius:14px;padding:18px;transition:border-color .2s}.sub-card:hover{border-color:rgba(99,102,241,.35)}
+    .sub-top{display:flex;align-items:center;gap:10px;margin-bottom:10px}
+    .sub-icon{font-size:1.2rem;flex-shrink:0}
+    .sub-name{font-size:.88rem;font-weight:800;flex:1}
+    .sub-score{font-size:1.1rem;font-weight:900;letter-spacing:-.03em}
+    .bar-wrap{height:5px;background:var(--s3);border-radius:3px;margin-bottom:8px;overflow:hidden}
+    .bar-fill{height:100%;border-radius:3px;transition:width .8s ease}
+    .sub-meta{font-size:.65rem;color:var(--t4);margin-bottom:8px}
+    .sub-feats{display:flex;flex-wrap:wrap;gap:4px}
+    .feat{background:var(--s3);border-radius:5px;padding:2px 8px;font-size:.62rem;color:var(--t3);font-weight:600}
+    .feat.more{color:var(--ind2);background:rgba(99,102,241,.1)}
+    footer{border-top:1px solid var(--line);padding:20px 24px;text-align:center;font-size:.68rem;color:var(--t4);margin-top:24px}
+    @media(max-width:640px){.hero-section{gap:20px}.subs-grid{grid-template-columns:1fr}.wrap{padding:20px 16px}}
+  </style>
+</head>
+<body>
+<a class="skip-link" href="#main">Skip to content</a>
+<header class="hdr" role="banner">
+  <div class="hdr-inner">
+    <a class="logo" href="/hub">CreateAI <span>Brain</span></a>
+    <span class="bdg">Platform Readiness</span>
+    <nav class="hdr-links" aria-label="Navigation">
+      <a href="/hub">Hub</a>
+      <a href="/api/activate/dashboard">Activation</a>
+      <a href="/api/system/percentages">JSON</a>
+    </nav>
+  </div>
+</header>
+<main id="main" class="wrap">
+  <div class="hero-section">
+    <div class="ring-wrap" role="img" aria-label="Platform readiness: ${unified}%">
+      <svg width="120" height="120" viewBox="0 0 100 100">
+        <circle cx="50" cy="50" r="40" fill="none" stroke="#1e293b" stroke-width="8"/>
+        <circle cx="50" cy="50" r="40" fill="none" stroke="#34d399" stroke-width="8"
+          stroke-dasharray="${dash} 251" stroke-linecap="round"/>
+      </svg>
+      <div class="ring-center">
+        <div class="ring-pct">${unified}%</div>
+        <div class="ring-lbl">Ready</div>
+      </div>
+    </div>
+    <div class="hero-text">
+      <h1>Platform <span>Readiness</span></h1>
+      <div class="hero-label">${label}</div>
+      <div class="hero-sub">${subsystemScores.length} subsystems · ${subsystemScores.reduce((s: number, x: { deployed: number }) => s + x.deployed, 0)} features deployed · ${subsystemScores.filter((s: { score: number }) => s.score >= 100).length} subsystems at or above spec</div>
+    </div>
+  </div>
+  <div class="subs-grid" role="list" aria-label="Subsystem readiness">${subsHtml}</div>
+</main>
+<footer role="contentinfo">CreateAI Brain · Platform Percentage Engine v2.0 · Lakeside Trinity LLC</footer>
+</body>
+</html>`;
+
+  res.setHeader("Content-Type", "text/html; charset=utf-8");
+  res.setHeader("Cache-Control", "no-cache, no-store");
+  res.send(html);
+});
+
 export default router;

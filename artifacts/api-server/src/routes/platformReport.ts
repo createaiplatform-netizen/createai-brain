@@ -375,4 +375,256 @@ router.get("/", async (_req: Request, res: Response) => {
   res.json(report);
 });
 
+// ─── GET /api/platform/report/dashboard ──────────────────────────────────────
+// HTML command center — fetches /api/platform/report JSON and renders it live
+
+router.get("/dashboard", (_req: Request, res: Response) => {
+  const html = `<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+  <title>Platform Command Center — CreateAI Brain</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&display=swap" rel="stylesheet">
+  <style>
+    *,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+    :root{--bg:#020617;--s2:#111827;--s3:#1e293b;--line:#1e293b;--line2:#2d3748;
+          --t1:#e2e8f0;--t2:#94a3b8;--t3:#64748b;--t4:#475569;
+          --ind:#6366f1;--ind2:#818cf8;--em:#10b981;--am:#f59e0b;--re:#f87171;}
+    html,body{background:var(--bg);color:var(--t1);font-family:'Inter',-apple-system,sans-serif;font-size:14px;min-height:100vh;-webkit-font-smoothing:antialiased}
+    a{color:inherit;text-decoration:none}
+    .skip-link{position:absolute;top:-100px;left:1rem;background:var(--ind);color:#fff;padding:.4rem 1rem;border-radius:6px;font-weight:700;z-index:999;transition:top .2s}
+    .skip-link:focus{top:1rem}
+    .hdr{border-bottom:1px solid var(--line);padding:0 24px;background:rgba(2,6,23,.97);position:sticky;top:0;z-index:100;backdrop-filter:blur(12px)}
+    .hdr-inner{max-width:1280px;margin:0 auto;height:52px;display:flex;align-items:center;gap:14px}
+    .logo{font-size:.95rem;font-weight:900;letter-spacing:-.03em}
+    .logo span{color:var(--ind2)}
+    .hdr-badge{font-size:.58rem;font-weight:800;text-transform:uppercase;letter-spacing:.08em;background:rgba(99,102,241,.15);color:var(--ind2);border:1px solid rgba(99,102,241,.3);border-radius:99px;padding:3px 10px}
+    .hdr-links{margin-left:auto;display:flex;gap:16px;align-items:center}
+    .hdr-links a{color:var(--t3);font-size:.78rem;font-weight:600;transition:color .15s}
+    .hdr-links a:hover{color:var(--t1)}
+    .lv-dot{width:7px;height:7px;background:var(--em);border-radius:50%;animation:pulse 2s infinite}
+    @keyframes pulse{0%,100%{opacity:1}50%{opacity:.4}}
+    .lv-txt{font-size:.65rem;color:var(--t4)}
+    .wrap{max-width:1280px;margin:0 auto;padding:32px 24px}
+    .hero{margin-bottom:32px}
+    .hero h1{font-size:1.6rem;font-weight:900;letter-spacing:-.04em;margin-bottom:4px}
+    .hero h1 span{color:var(--ind2)}
+    .hero p{font-size:.85rem;color:var(--t3)}
+    .loading{text-align:center;padding:64px;color:var(--t4)}
+    .spinner{display:inline-block;width:20px;height:20px;border:2px solid var(--s3);border-top-color:var(--ind);border-radius:50%;animation:spin .8s linear infinite;vertical-align:middle;margin-right:8px}
+    @keyframes spin{to{transform:rotate(360deg)}}
+    .error-state{background:rgba(248,113,113,.08);border:1px solid rgba(248,113,113,.25);border-radius:14px;padding:16px 20px;color:var(--re);font-size:.82rem;margin-bottom:24px}
+    .sec{margin-bottom:28px}
+    .sec-hdr{font-size:.62rem;font-weight:800;text-transform:uppercase;letter-spacing:.12em;color:var(--t4);margin-bottom:14px;display:flex;align-items:center;gap:8px}
+    .sec-hdr::after{content:'';flex:1;height:1px;background:var(--line)}
+    .grid-3{display:grid;grid-template-columns:repeat(auto-fill,minmax(160px,1fr));gap:12px}
+    .grid-2{display:grid;grid-template-columns:1fr 1fr;gap:16px}
+    .kpi{background:var(--s2);border:1px solid var(--line);border-radius:14px;padding:18px 20px;transition:border-color .2s}
+    .kpi:hover{border-color:rgba(99,102,241,.35)}
+    .kpi-lbl{font-size:.6rem;font-weight:800;text-transform:uppercase;letter-spacing:.1em;color:var(--t4);margin-bottom:8px}
+    .kpi-val{font-size:1.55rem;font-weight:900;letter-spacing:-.04em;color:var(--ind2)}
+    .kpi-val.green{color:#34d399}
+    .kpi-val.amber{color:#fbbf24}
+    .kpi-val.red{color:var(--re)}
+    .kpi-val.white{color:var(--t1)}
+    .kpi-sub{font-size:.66rem;color:var(--t4);margin-top:4px}
+    .panel{background:var(--s2);border:1px solid var(--line);border-radius:14px;padding:22px}
+    .panel-title{font-size:.62rem;font-weight:800;text-transform:uppercase;letter-spacing:.1em;color:var(--t4);margin-bottom:16px}
+    .rail-row{display:flex;align-items:center;gap:12px;padding:10px 0;border-bottom:1px solid var(--line)}
+    .rail-row:last-child{border-bottom:none}
+    .rail-name{font-size:.8rem;font-weight:700;flex:1}
+    .rail-val{font-size:.78rem;color:var(--t2);text-align:right}
+    .rail-badge{font-size:.6rem;font-weight:800;text-transform:uppercase;padding:2px 8px;border-radius:99px;white-space:nowrap}
+    .b-live{background:rgba(16,185,129,.15);color:#34d399;border:1px solid rgba(16,185,129,.3)}
+    .b-warn{background:rgba(245,158,11,.12);color:#fbbf24;border:1px solid rgba(245,158,11,.3)}
+    .b-off{background:rgba(255,255,255,.06);color:var(--t4);border:1px solid var(--line2)}
+    .readiness-ring{width:100px;height:100px;position:relative;margin:0 auto 12px}
+    .ring-bg{fill:none;stroke:var(--s3);stroke-width:10}
+    .ring-fill{fill:none;stroke:var(--ind2);stroke-width:10;stroke-linecap:round;stroke-dasharray:283;transform:rotate(-90deg);transform-origin:50% 50%;transition:stroke-dashoffset 1s ease}
+    .ring-text{font-size:.75rem;font-weight:900;fill:var(--t1);text-anchor:middle;dominant-baseline:middle}
+    .coverage-wrap{text-align:center;padding:20px}
+    .next-row{display:flex;align-items:flex-start;gap:12px;padding:10px 0;border-bottom:1px solid var(--line)}
+    .next-row:last-child{border-bottom:none}
+    .next-icon{font-size:1.2rem;flex-shrink:0;margin-top:2px}
+    .next-title{font-size:.82rem;font-weight:700;margin-bottom:3px}
+    .next-effect{font-size:.72rem;color:var(--t3);line-height:1.4}
+    .identity-grid{display:grid;grid-template-columns:1fr 1fr;gap:10px}
+    .id-row{background:var(--s3);border-radius:8px;padding:10px 14px}
+    .id-lbl{font-size:.58rem;font-weight:700;text-transform:uppercase;letter-spacing:.09em;color:var(--t4);margin-bottom:4px}
+    .id-val{font-size:.78rem;font-weight:600;color:var(--t2);overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+    .last-up{font-size:.65rem;color:var(--t4);text-align:right;margin-top:14px}
+    footer{border-top:1px solid var(--line);padding:20px 24px;text-align:center;font-size:.68rem;color:var(--t4);margin-top:24px}
+    @media(max-width:768px){.grid-2{grid-template-columns:1fr}.grid-3{grid-template-columns:repeat(2,1fr)}.wrap{padding:20px 16px}}
+  </style>
+</head>
+<body>
+<a class="skip-link" href="#main">Skip to content</a>
+<header class="hdr" role="banner">
+  <div class="hdr-inner">
+    <a class="logo" href="/hub">CreateAI <span>Brain</span></a>
+    <span class="hdr-badge">Command Center</span>
+    <nav class="hdr-links" aria-label="Navigation">
+      <a href="/hub">Hub</a>
+      <a href="/nexus">NEXUS</a>
+      <a href="/api/revenue-intel/dashboard">Revenue Intel</a>
+      <a href="/api/analytics/dashboard">Analytics</a>
+      <a href="/api/domains/hub">Domains</a>
+      <a href="/api/platform/report">JSON</a>
+    </nav>
+    <div style="display:flex;align-items:center;gap:5px;margin-left:12px">
+      <div class="lv-dot" id="lv-dot"></div>
+      <span class="lv-txt" id="lv-txt">Loading…</span>
+    </div>
+  </div>
+</header>
+
+<main id="main" class="wrap">
+  <div class="hero">
+    <h1>Platform <span>Command Center</span></h1>
+    <p>Full-stack snapshot — engine readiness, revenue rails, app coverage, traction, next unlocks. Live data only.</p>
+  </div>
+
+  <div id="error-banner" class="error-state" style="display:none" role="alert" aria-live="assertive"></div>
+  <div id="loading" class="loading"><span class="spinner"></span> Loading platform report…</div>
+
+  <div id="content" style="display:none">
+
+    <div class="sec">
+      <div class="sec-hdr">Platform Overview</div>
+      <div class="grid-3" id="overview-kpis" role="list" aria-label="Platform overview metrics"></div>
+    </div>
+
+    <div class="grid-2 sec">
+      <div class="panel">
+        <div class="panel-title">Engine Readiness</div>
+        <div class="coverage-wrap">
+          <div class="readiness-ring">
+            <svg viewBox="0 0 100 100">
+              <circle class="ring-bg" cx="50" cy="50" r="45"/>
+              <circle class="ring-fill" id="ring-fill" cx="50" cy="50" r="45" stroke-dashoffset="283"/>
+              <text class="ring-text" id="ring-text" x="50" y="50">0%</text>
+            </svg>
+          </div>
+          <div id="readiness-detail" style="font-size:.75rem;color:var(--t3)">—</div>
+        </div>
+      </div>
+      <div class="panel">
+        <div class="panel-title">Revenue Rails</div>
+        <div id="rails-list"></div>
+      </div>
+    </div>
+
+    <div class="grid-2 sec">
+      <div class="panel">
+        <div class="panel-title">Platform Identity</div>
+        <div class="identity-grid" id="identity-grid"></div>
+      </div>
+      <div class="panel">
+        <div class="panel-title">Next Unlocks</div>
+        <div id="next-unlocks"></div>
+      </div>
+    </div>
+
+    <div class="last-up" id="last-up"></div>
+  </div>
+</main>
+<footer role="contentinfo">CreateAI Brain · Platform Command Center · Internal Use Only</footer>
+
+<script>
+function kpi(label,val,cls,sub){
+  return \`<div class="kpi" role="listitem"><div class="kpi-lbl">\${label}</div><div class="kpi-val \${cls}">\${val??'—'}</div><div class="kpi-sub">\${sub||''}</div></div>\`;
+}
+function badge(v){
+  if(!v||v==='—')return '<span class="rail-badge b-off">—</span>';
+  const s=String(v).toLowerCase();
+  if(s.includes('live')||s.includes('✅'))return \`<span class="rail-badge b-live">\${v}</span>\`;
+  if(s.includes('warn')||s.includes('⚡')||s.includes('⚠'))return \`<span class="rail-badge b-warn">\${v}</span>\`;
+  return \`<span class="rail-badge b-off">\${v}</span>\`;
+}
+async function load(){
+  try{
+    const r=await fetch('/api/platform/report');
+    if(!r.ok)throw new Error('HTTP '+r.status);
+    const d=await r.json();
+
+    document.getElementById('loading').style.display='none';
+    document.getElementById('content').style.display='block';
+    document.getElementById('lv-dot').style.background='#34d399';
+    document.getElementById('lv-txt').textContent='Live · '+new Date().toLocaleTimeString();
+
+    const cov=d.appCoverage||{};
+    const rails=d.operations?.rails||{};
+    const traction=d.traction||{};
+    const readiness=parseInt(d.engineReadinessScore||'0');
+
+    // Overview KPIs
+    document.getElementById('overview-kpis').innerHTML=[
+      kpi('Engine Readiness',d.engineReadinessScore||'—','','Launch score'),
+      kpi('Apps Registered',cov.registered||0,'white','Artifacts live'),
+      kpi('Domain Engines',cov.engines||0,'white','AI engines'),
+      kpi('Total Products',d.catalog?.totalInternalProducts||0,'amber','In catalog'),
+      kpi('Live Revenue',rails.liveRevenue||'$0.00','green','Stripe actuals'),
+      kpi('Queued Revenue',rails.queuedRevenue||'$0.00','amber','Awaiting rail'),
+      kpi('Pageviews Today',traction.pageViewsToday||0,'','Analytics'),
+      kpi('Total Leads',traction.totalLeads||0,'green','CRM'),
+    ].join('');
+
+    // Readiness ring
+    const pct=Math.min(100,readiness);
+    const offset=283-(283*pct/100);
+    const fill=document.getElementById('ring-fill');
+    const txt=document.getElementById('ring-text');
+    fill.style.strokeDashoffset=offset;
+    fill.style.stroke=pct>=80?'#34d399':pct>=50?'#fbbf24':'#f87171';
+    txt.textContent=pct+'%';
+    document.getElementById('readiness-detail').textContent=d.engineReadinessNote||'Score based on active subsystems, identity, and production cycles';
+
+    // Revenue rails
+    document.getElementById('rails-list').innerHTML=[
+      ['Stripe',rails.stripe],
+      ['Cash App',rails.cashApp||'$CreateAIDigital'],
+      ['Venmo',rails.venmo||'@CreateAIDigital'],
+      ['Email',rails.email],
+      ['SMS',rails.sms],
+    ].map(([name,val])=>\`<div class="rail-row"><span class="rail-name">\${name}</span>\${badge(val)}</div>\`).join('');
+
+    // Identity grid
+    const id=d.identity||{};
+    document.getElementById('identity-grid').innerHTML=[
+      ['Platform',id.name||'CreateAI Brain'],
+      ['Legal Entity',id.legalEntity||'Lakeside Trinity LLC'],
+      ['Owner',id.owner||'Sara Stadler'],
+      ['Handle',id.handle||'@CreateAIDigital'],
+      ['NPA',id.npa||'NPA-CREATEAI'],
+      ['Domain',id.domain||'—'],
+    ].map(([l,v])=>\`<div class="id-row"><div class="id-lbl">\${l}</div><div class="id-val" title="\${v}">\${v}</div></div>\`).join('');
+
+    // Next unlocks
+    const unlocks=d.nextUnlocks||[];
+    document.getElementById('next-unlocks').innerHTML=unlocks.length
+      ?unlocks.map(u=>\`<div class="next-row"><div class="next-icon">\${u.icon||'🔒'}</div><div><div class="next-title">\${u.action}</div><div class="next-effect">\${u.effect}</div></div></div>\`).join('')
+      :'<div style="color:var(--t4);font-size:.78rem;text-align:center;padding:16px;">No unlock steps defined</div>';
+
+    document.getElementById('last-up').textContent='Last updated: '+new Date().toLocaleString();
+  }catch(e){
+    document.getElementById('loading').style.display='none';
+    const eb=document.getElementById('error-banner');
+    eb.textContent='Could not load platform report: '+e.message;
+    eb.style.display='block';
+    document.getElementById('lv-dot').style.background='#f87171';
+    document.getElementById('lv-txt').textContent='Error';
+  }
+}
+load();
+setInterval(load,90000);
+</script>
+</body>
+</html>`;
+  res.setHeader("Content-Type", "text/html; charset=utf-8");
+  res.setHeader("Cache-Control", "no-cache, no-store");
+  res.send(html);
+});
+
 export default router;

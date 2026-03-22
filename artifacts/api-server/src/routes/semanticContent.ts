@@ -319,19 +319,19 @@ router.get("/:productId/html", async (req: Request, res: Response) => {
     const content = await generateContent(product);
 
     const sectionsHtml = content.sections.map((s, i) => `
-      <div style="margin-bottom:28px;">
-        <h3 style="font-size:0.95rem;font-weight:800;color:#6366f1;margin:0 0 10px;display:flex;align-items:center;gap:8px;">
-          <span style="background:#6366f1;color:white;border-radius:50%;width:24px;height:24px;display:inline-flex;align-items:center;justify-content:center;font-size:0.75rem;flex-shrink:0;">${i+1}</span>
+      <div class="section-block">
+        <h3 class="section-heading">
+          <span class="section-num">${i+1}</span>
           ${s.heading}
         </h3>
-        <p style="margin:0;color:#374151;font-size:0.9rem;line-height:1.7;padding-left:32px;">${s.body.replace(/\n/g, "<br>")}</p>
+        <p class="section-body">${s.body.replace(/\n/g, "<br>")}</p>
       </div>`).join("");
 
     const takeawaysHtml = content.keyTakeaways.length > 0
-      ? `<div style="background:#ede9fe;border-radius:16px;padding:24px;margin-bottom:28px;">
-          <h3 style="font-size:0.95rem;font-weight:800;color:#5b21b6;margin:0 0 16px;">Key Takeaways</h3>
-          <ul style="margin:0;padding:0;list-style:none;">
-            ${content.keyTakeaways.map(t => `<li style="display:flex;align-items:flex-start;gap:8px;margin-bottom:10px;color:#374151;font-size:0.9rem;line-height:1.5;"><span style="color:#6366f1;font-weight:700;flex-shrink:0;">✓</span>${t}</li>`).join("")}
+      ? `<div class="takeaways-box">
+          <h3 class="takeaways-title">Key Takeaways</h3>
+          <ul class="takeaways-list">
+            ${content.keyTakeaways.map(t => `<li class="takeaway-item"><span class="check-icon">✓</span>${t}</li>`).join("")}
           </ul>
         </div>` : "";
 
@@ -341,38 +341,64 @@ router.get("/:productId/html", async (req: Request, res: Response) => {
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width,initial-scale=1">
   <title>${content.productTitle} — Content Preview</title>
-  <style>* { box-sizing: border-box; margin: 0; padding: 0; }</style>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&display=swap" rel="stylesheet">
+  <style>
+    *,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+    html,body{background:#f8fafc;color:#1e293b;font-family:'Inter',-apple-system,BlinkMacSystemFont,sans-serif;font-size:15px;line-height:1.6;-webkit-font-smoothing:antialiased}
+    a{color:#6366f1;text-decoration:none}
+    .skip-link{position:absolute;top:-100px;left:1rem;background:#6366f1;color:#fff;padding:.4rem 1rem;border-radius:6px;font-weight:700;z-index:999;transition:top .2s}
+    .skip-link:focus{top:1rem}
+    .hero-banner{background:linear-gradient(135deg,#6366f1 0%,#818cf8 100%);padding:48px 32px 52px;text-align:center;color:white;position:relative}
+    .hero-banner::after{content:'';position:absolute;bottom:-1px;left:0;right:0;height:40px;background:#f8fafc;clip-path:ellipse(55% 100% at 50% 100%)}
+    .format-pill{display:inline-block;background:rgba(255,255,255,.22);border-radius:99px;padding:4px 16px;font-size:.72rem;font-weight:800;text-transform:uppercase;letter-spacing:.09em;margin-bottom:18px}
+    .hero-title{font-size:1.85rem;font-weight:900;line-height:1.2;margin-bottom:14px;letter-spacing:-.03em}
+    .hero-tagline{font-size:1.05rem;opacity:.88;max-width:540px;margin:0 auto;line-height:1.5}
+    .wrap{max-width:740px;margin:0 auto;padding:48px 24px 64px}
+    .intro-card{background:white;border-radius:18px;padding:28px 32px;margin-bottom:28px;border:1px solid #f1f5f9;box-shadow:0 2px 16px rgba(0,0,0,.06);font-size:1rem;line-height:1.85;color:#374151}
+    .section-block{margin-bottom:32px}
+    .section-heading{font-size:.95rem;font-weight:800;color:#6366f1;margin-bottom:12px;display:flex;align-items:center;gap:10px}
+    .section-num{background:#6366f1;color:white;border-radius:50%;width:26px;height:26px;display:inline-flex;align-items:center;justify-content:center;font-size:.72rem;font-weight:800;flex-shrink:0}
+    .section-body{color:#374151;font-size:.92rem;line-height:1.75;padding-left:36px}
+    .takeaways-box{background:#ede9fe;border-radius:18px;padding:26px 28px;margin-bottom:28px}
+    .takeaways-title{font-size:.95rem;font-weight:800;color:#5b21b6;margin-bottom:16px}
+    .takeaways-list{list-style:none}
+    .takeaway-item{display:flex;align-items:flex-start;gap:10px;margin-bottom:12px;color:#374151;font-size:.9rem;line-height:1.55}
+    .takeaway-item:last-child{margin-bottom:0}
+    .check-icon{color:#6366f1;font-weight:800;flex-shrink:0;margin-top:1px}
+    .audience-box{background:#f8fafc;border:1px solid #e2e8f0;border-radius:14px;padding:22px 24px;font-size:.88rem;color:#64748b;line-height:1.7;margin-bottom:28px}
+    .audience-box strong{color:#1e293b;font-weight:700}
+    .cta-row{display:flex;gap:12px;justify-content:center;flex-wrap:wrap;margin-bottom:20px}
+    .btn-primary{display:inline-flex;align-items:center;gap:6px;background:#6366f1;color:white;border-radius:12px;padding:13px 28px;font-size:.92rem;font-weight:700;transition:all .15s;border:2px solid transparent}
+    .btn-primary:hover{background:#4f46e5;transform:translateY(-1px);box-shadow:0 6px 20px rgba(99,102,241,.3)}
+    .btn-outline{display:inline-flex;align-items:center;gap:6px;background:white;color:#6366f1;border:2px solid #6366f1;border-radius:12px;padding:13px 28px;font-size:.92rem;font-weight:700;transition:all .15s}
+    .btn-outline:hover{background:#ede9fe;transform:translateY(-1px)}
+    .meta-line{text-align:center;font-size:.72rem;color:#94a3b8}
+    @media(max-width:640px){.hero-banner{padding:36px 20px 48px}.hero-title{font-size:1.5rem}.wrap{padding:32px 18px 48px}.cta-row{flex-direction:column;align-items:center}}
+  </style>
 </head>
-<body style="font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;background:#f8fafc;color:#1e293b;padding:0;">
-  <div style="background:linear-gradient(135deg,#6366f1,#818cf8);padding:40px 32px;text-align:center;color:white;">
-    <div style="display:inline-block;background:rgba(255,255,255,0.2);border-radius:999px;padding:4px 14px;font-size:0.75rem;font-weight:700;text-transform:uppercase;letter-spacing:0.05em;margin-bottom:16px;">${content.format} Preview</div>
-    <h1 style="font-size:1.6rem;font-weight:800;line-height:1.3;margin-bottom:12px;">${content.productTitle}</h1>
-    <p style="font-size:1rem;opacity:0.9;max-width:560px;margin:0 auto;">${content.tagline}</p>
+<body>
+<a class="skip-link" href="#main">Skip to content</a>
+<div class="hero-banner" role="banner">
+  <div class="format-pill">${content.format} Preview</div>
+  <h1 class="hero-title">${content.productTitle}</h1>
+  <p class="hero-tagline">${content.tagline}</p>
+</div>
+<main id="main" class="wrap">
+  <div class="intro-card">${content.intro}</div>
+  ${sectionsHtml}
+  ${takeawaysHtml}
+  <div class="audience-box">
+    <strong>Who this is for:</strong> ${content.targetAudience}<br><br>
+    <strong>Value:</strong> ${content.estimatedValue}
   </div>
-  <div style="max-width:720px;margin:0 auto;padding:40px 24px;">
-    <div style="background:white;border-radius:16px;padding:28px;margin-bottom:24px;border:1px solid #f1f5f9;box-shadow:0 2px 12px rgba(0,0,0,0.06);">
-      <p style="font-size:1rem;line-height:1.8;color:#374151;">${content.intro}</p>
-    </div>
-    ${sectionsHtml}
-    ${takeawaysHtml}
-    <div style="background:#f8fafc;border:1px solid #e2e8f0;border-radius:12px;padding:20px;font-size:0.85rem;color:#64748b;">
-      <strong style="color:#1e293b;">Who this is for:</strong> ${content.targetAudience}<br><br>
-      <strong style="color:#1e293b;">Value:</strong> ${content.estimatedValue}
-    </div>
-    <div style="text-align:center;margin-top:28px;">
-      <a href="/api/semantic/content/${content.productId}/text"
-         style="display:inline-block;background:#6366f1;color:white;text-decoration:none;border-radius:10px;padding:12px 28px;font-size:0.9rem;font-weight:700;margin-right:12px;">
-        ↓ Download Text Version
-      </a>
-      <a href="/api/semantic/store/${content.productId}"
-         style="display:inline-block;background:white;color:#6366f1;border:2px solid #6366f1;text-decoration:none;border-radius:10px;padding:12px 28px;font-size:0.9rem;font-weight:700;">
-        ← Back to Product Page
-      </a>
-    </div>
-    <p style="text-align:center;font-size:0.75rem;color:#94a3b8;margin-top:20px;">
-      AI-generated preview · ${content.wordCount} words · ${content.readTime} · CreateAI Brain
-    </p>
+  <div class="cta-row">
+    <a class="btn-primary" href="/api/semantic/content/${content.productId}/text">↓ Download Text Version</a>
+    <a class="btn-outline" href="/api/semantic/store/${content.productId}">← Back to Product</a>
   </div>
+  <p class="meta-line">AI-generated preview · ${content.wordCount} words · ${content.readTime} · CreateAI Brain</p>
+</main>
 </body>
 </html>`;
 

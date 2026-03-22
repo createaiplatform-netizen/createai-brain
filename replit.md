@@ -5,7 +5,7 @@
 The CreateAI Brain is a full-stack AI OS platform (NEXUS Semantic OS), developed as a pnpm monorepo using TypeScript. It provides 45+ domain engine apps within a unified spatial interface. The platform supports autonomous revenue generation, 300+ AI invention tools, cross-industry operations (HealthOS, LegalPM, StaffingOS), and a complete business management suite.
 
 **Platform Scale (March 2026)**
-- 29 domain engine routes — all returning 200
+- 35+ HTML dashboard surfaces — all returning 200
 - 45 total app screens registered in the OS (incl. Extended Suite v2.0)
 - Extended Domain Suite v2.0 (10 new engines): Project Command, Partner Network, Events & Bookings, Education Hub, Social Command, Supply Chain, Franchise Hub, Brand Vault, Revenue Intelligence, AI Strategy Engine (GPT-4o)
 - Dev server: port 23568 (workflow: "CreateAI Brain: Start Dev Server")

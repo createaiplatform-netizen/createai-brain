@@ -337,4 +337,134 @@ router.get("/sequence", (_req, res) => {
   });
 });
 
+// ─── GET /api/activate/dashboard — HTML activation status command surface ─────
+router.get("/dashboard", (_req, res) => {
+  const blockers = buildBlockers();
+  const bypassOk  = blockers.filter(b => b.bypassActive).length;
+  const bypassNA  = blockers.filter(b => !b.bypassActive).length;
+
+  const blockersHtml = blockers.map(b => {
+    const statusColor = b.status === "live" ? "#34d399" : b.status === "partial" ? "#fbbf24" : "#f87171";
+    const bypassHtml = b.bypassActive
+      ? `<div class="bypass-ok">✓ Bypass Active — ${b.bypass}</div>`
+      : `<div class="bypass-none">No bypass — action required</div>`;
+    const stepsHtml = (b.externalSteps || []).map((s: string) => `<li>${s}</li>`).join("");
+    return `<div class="blocker-card ${b.bypassActive ? 'has-bypass' : 'no-bypass'}">
+      <div class="bl-top">
+        <div>
+          <div class="bl-system">${b.system}</div>
+          <span class="bl-status" style="color:${statusColor};background:${statusColor}15;border:1px solid ${statusColor}30">${b.status}</span>
+        </div>
+        <div class="bl-id">${b.id}</div>
+      </div>
+      <div class="bl-reason">${b.reason}</div>
+      ${bypassHtml}
+      ${stepsHtml ? `<ol class="bl-steps">${stepsHtml}</ol>` : ""}
+    </div>`;
+  }).join("");
+
+  const seqHtml = EXECUTION_SEQUENCE.map((s: { phase: string; t: string; action: string; autonomous: boolean }, i: number) => `
+    <div class="seq-row">
+      <div class="seq-num">${i + 1}</div>
+      <div class="seq-body">
+        <div class="seq-phase">${s.phase}</div>
+        <div class="seq-action">${s.action}</div>
+      </div>
+      <div class="seq-t">${s.t}</div>
+      ${s.autonomous ? '<span class="seq-auto">AUTO</span>' : '<span class="seq-manual">MANUAL</span>'}
+    </div>`).join("");
+
+  const html = `<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+  <title>Max Activation — CreateAI Brain</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&display=swap" rel="stylesheet">
+  <style>
+    *,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+    :root{--bg:#020617;--s2:#111827;--s3:#1e293b;--line:#1e293b;
+          --t1:#e2e8f0;--t2:#94a3b8;--t3:#64748b;--t4:#475569;--ind:#6366f1;--ind2:#818cf8;--g:#10b981;--w:#fbbf24;--r:#f87171;}
+    html,body{background:var(--bg);color:var(--t1);font-family:'Inter',-apple-system,sans-serif;font-size:14px;min-height:100vh;-webkit-font-smoothing:antialiased}
+    a{color:inherit;text-decoration:none}
+    .skip-link{position:absolute;top:-100px;left:1rem;background:var(--ind);color:#fff;padding:.4rem 1rem;border-radius:6px;font-weight:700;z-index:999;transition:top .2s}.skip-link:focus{top:1rem}
+    .hdr{border-bottom:1px solid var(--line);padding:0 24px;background:rgba(2,6,23,.97);position:sticky;top:0;z-index:100;backdrop-filter:blur(12px)}
+    .hdr-inner{max-width:1200px;margin:0 auto;height:52px;display:flex;align-items:center;gap:14px}
+    .logo{font-size:.95rem;font-weight:900;letter-spacing:-.03em}.logo span{color:var(--ind2)}
+    .bdg{font-size:.58rem;font-weight:800;text-transform:uppercase;letter-spacing:.08em;background:rgba(99,102,241,.15);color:var(--ind2);border:1px solid rgba(99,102,241,.3);border-radius:99px;padding:3px 10px}
+    .hdr-links{margin-left:auto;display:flex;gap:16px}.hdr-links a{color:var(--t3);font-size:.78rem;font-weight:600;transition:color .15s}.hdr-links a:hover{color:var(--t1)}
+    .wrap{max-width:1200px;margin:0 auto;padding:32px 24px}
+    .hero{margin-bottom:28px}.hero h1{font-size:1.6rem;font-weight:900;letter-spacing:-.04em;margin-bottom:4px}.hero h1 span{color:var(--ind2)}.hero p{font-size:.85rem;color:var(--t3)}
+    .kpi-row{display:grid;grid-template-columns:repeat(auto-fill,minmax(150px,1fr));gap:12px;margin-bottom:28px}
+    .kpi{background:var(--s2);border:1px solid var(--line);border-radius:14px;padding:16px 20px}
+    .kpi-lbl{font-size:.58rem;font-weight:800;text-transform:uppercase;letter-spacing:.1em;color:var(--t4);margin-bottom:6px}
+    .kpi-val{font-size:1.5rem;font-weight:900;color:var(--ind2);letter-spacing:-.04em}
+    .kpi.green .kpi-val{color:var(--g)}.kpi.yellow .kpi-val{color:var(--w)}.kpi.red .kpi-val{color:var(--r)}
+    .section-title{font-size:.62rem;font-weight:800;text-transform:uppercase;letter-spacing:.1em;color:var(--t4);margin-bottom:14px}
+    .blockers-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(340px,1fr));gap:14px;margin-bottom:28px}
+    .blocker-card{background:var(--s2);border:1px solid var(--line);border-radius:14px;padding:20px;transition:border-color .2s}
+    .blocker-card.has-bypass{border-left:3px solid var(--g)}.blocker-card.no-bypass{border-left:3px solid var(--r)}
+    .bl-top{display:flex;justify-content:space-between;align-items:flex-start;gap:10px;margin-bottom:10px}
+    .bl-system{font-size:.88rem;font-weight:800;margin-bottom:5px}
+    .bl-status{font-size:.58rem;font-weight:800;text-transform:uppercase;letter-spacing:.08em;border-radius:99px;padding:2px 9px}
+    .bl-id{font-size:.62rem;color:var(--t4);font-family:monospace;white-space:nowrap}
+    .bl-reason{font-size:.75rem;color:var(--t3);margin-bottom:10px;line-height:1.5}
+    .bypass-ok{font-size:.75rem;color:var(--g);background:rgba(16,185,129,.08);border:1px solid rgba(16,185,129,.2);border-radius:8px;padding:8px 12px;margin-bottom:8px}
+    .bypass-none{font-size:.75rem;color:var(--r);background:rgba(248,113,113,.08);border:1px solid rgba(248,113,113,.2);border-radius:8px;padding:8px 12px;margin-bottom:8px}
+    .bl-steps{padding-left:16px;font-size:.72rem;color:var(--t3);line-height:1.8}
+    .seq-panel{background:var(--s2);border:1px solid var(--line);border-radius:14px;padding:22px;margin-bottom:24px}
+    .seq-row{display:flex;align-items:center;gap:12px;padding:10px 0;border-bottom:1px solid var(--line)}.seq-row:last-child{border-bottom:none}
+    .seq-num{width:26px;height:26px;border-radius:50%;background:rgba(99,102,241,.15);color:var(--ind2);font-size:.72rem;font-weight:800;display:flex;align-items:center;justify-content:center;flex-shrink:0}
+    .seq-phase{font-size:.6rem;font-weight:800;text-transform:uppercase;letter-spacing:.08em;color:var(--t4);margin-bottom:2px}
+    .seq-action{font-size:.82rem;font-weight:600}
+    .seq-t{font-size:.68rem;color:var(--t4);font-family:monospace;white-space:nowrap;margin-left:auto}
+    .seq-auto{font-size:.6rem;font-weight:800;text-transform:uppercase;background:rgba(16,185,129,.12);color:var(--g);border:1px solid rgba(16,185,129,.2);border-radius:99px;padding:2px 8px;white-space:nowrap}
+    .seq-manual{font-size:.6rem;font-weight:800;text-transform:uppercase;background:rgba(248,113,113,.1);color:var(--r);border:1px solid rgba(248,113,113,.2);border-radius:99px;padding:2px 8px;white-space:nowrap}
+    footer{border-top:1px solid var(--line);padding:20px 24px;text-align:center;font-size:.68rem;color:var(--t4);margin-top:4px}
+    @media(max-width:768px){.blockers-grid{grid-template-columns:1fr}.wrap{padding:20px 16px}}
+  </style>
+</head>
+<body>
+<a class="skip-link" href="#main">Skip to content</a>
+<header class="hdr" role="banner">
+  <div class="hdr-inner">
+    <a class="logo" href="/hub">CreateAI <span>Brain</span></a>
+    <span class="bdg">Max Activation</span>
+    <nav class="hdr-links" aria-label="Navigation">
+      <a href="/hub">Hub</a>
+      <a href="/api/system/percentages/dashboard">Platform %</a>
+      <a href="/api/activate/status">JSON</a>
+    </nav>
+  </div>
+</header>
+<main id="main" class="wrap">
+  <div class="hero">
+    <h1>Max <span>Activation</span></h1>
+    <p>Full-platform activation orchestrator — blockers, bypass status, execution sequence, and revenue rail health.</p>
+  </div>
+
+  <div class="kpi-row" role="list" aria-label="Activation metrics">
+    <div class="kpi green" role="listitem"><div class="kpi-lbl">Bypasses Active</div><div class="kpi-val">${bypassOk}</div></div>
+    <div class="kpi ${bypassNA > 0 ? 'yellow' : 'green'}" role="listitem"><div class="kpi-lbl">Needs Action</div><div class="kpi-val">${bypassNA}</div></div>
+    <div class="kpi" role="listitem"><div class="kpi-lbl">Total Blockers</div><div class="kpi-val">${blockers.length}</div></div>
+    <div class="kpi green" role="listitem"><div class="kpi-lbl">Revenue Rail</div><div class="kpi-val">LIVE</div></div>
+    <div class="kpi" role="listitem"><div class="kpi-lbl">Payment Methods</div><div class="kpi-val">2</div></div>
+  </div>
+
+  <div class="section-title">External Blockers &amp; Bypass Status</div>
+  <div class="blockers-grid" role="list" aria-label="Platform blockers">${blockersHtml}</div>
+
+  <div class="section-title">Execution Sequence (${EXECUTION_SEQUENCE.length} steps)</div>
+  <div class="seq-panel" role="list" aria-label="Execution sequence">${seqHtml}</div>
+</main>
+<footer role="contentinfo">CreateAI Brain · Maximum Activation Orchestrator · Cash App $CreateAIDigital · Venmo @CreateAIDigital</footer>
+</body>
+</html>`;
+
+  res.setHeader("Content-Type", "text/html; charset=utf-8");
+  res.setHeader("Cache-Control", "no-cache, no-store");
+  res.send(html);
+});
+
 export default router;
