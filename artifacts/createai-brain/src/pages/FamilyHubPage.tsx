@@ -148,21 +148,23 @@ function memberColor(index: number): string {
   return MEMBER_COLORS[index % MEMBER_COLORS.length];
 }
 
-// ─── Warm shared UI primitives ───────────────────────────────────────────────
+// ─── CreateAI Family Universe — Design System ────────────────────────────────
+// Primary: #2563eb (CreateAI blue) | Accent gold: #f5c97a | Clean light neutrals
 
-const WARM_BG     = "#fffbf5";
-const WARM_PRIMARY = "#f59e0b";
-const WARM_TEXT   = "#1c1412";
-const WARM_MUTED  = "#78716c";
-const WARM_BORDER = "rgba(245,158,11,0.18)";
+const WARM_BG      = "#f8fafc";
+const WARM_PRIMARY  = "#2563eb";
+const WARM_GOLD     = "#f5c97a";
+const WARM_TEXT     = "#0f172a";
+const WARM_MUTED    = "#64748b";
+const WARM_BORDER   = "rgba(37,99,235,0.10)";
 
 function WarmCard({ children, className = "", style = {} }: {
   children: React.ReactNode; className?: string; style?: React.CSSProperties;
 }) {
   return (
     <div className={className}
-      style={{ background: "#fff", borderRadius: 20, padding: 20,
-        boxShadow: "0 2px 16px rgba(245,158,11,0.09), 0 1px 3px rgba(0,0,0,0.04)",
+      style={{ background: "#fff", borderRadius: 16, padding: 20,
+        boxShadow: "0 2px 12px rgba(37,99,235,0.07), 0 1px 3px rgba(0,0,0,0.04)",
         border: `1px solid ${WARM_BORDER}`, ...style }}>
       {children}
     </div>
@@ -176,13 +178,13 @@ function WarmBtn({ children, onClick, disabled, variant = "primary", color, smal
   const c = color ?? WARM_PRIMARY;
   const base = small ? "px-3 py-1.5 text-[12px]" : "px-5 py-2.5 text-[13px]";
   const styles: Record<string, React.CSSProperties> = {
-    primary: { background: c, color: "#fff", boxShadow: `0 4px 14px ${c}44` },
-    soft:    { background: c + "1a", color: c, border: `1.5px solid ${c}33` },
+    primary: { background: c, color: "#fff", boxShadow: `0 4px 14px ${c}40` },
+    soft:    { background: WARM_GOLD + "33", color: "#78350f", border: `1.5px solid ${WARM_GOLD}66` },
     ghost:   { background: "transparent", color: WARM_MUTED },
   };
   return (
     <button onClick={onClick} disabled={disabled}
-      className={`rounded-2xl font-semibold transition-all ${base} ${className}`}
+      className={`rounded-xl font-semibold transition-all ${base} ${className}`}
       style={{ ...styles[variant], opacity: disabled ? 0.5 : 1, fontFamily: "'Inter',sans-serif" }}>
       {children}
     </button>
@@ -196,10 +198,10 @@ function WarmInput({ label, value, onChange, placeholder, type = "text" }: {
     <div className="space-y-1">
       {label && <label className="block text-[11px] font-semibold uppercase tracking-wide" style={{ color: WARM_MUTED }}>{label}</label>}
       <input type={type} value={value} onChange={e => onChange(e.target.value)} placeholder={placeholder}
-        className="w-full rounded-2xl px-4 py-3 text-[13px] outline-none transition-all"
-        style={{ border: `1.5px solid rgba(245,158,11,0.2)`, background: "#fffdf9", color: WARM_TEXT, fontFamily: "'Inter',sans-serif" }}
+        className="w-full rounded-xl px-4 py-3 text-[13px] outline-none transition-all"
+        style={{ border: `1.5px solid rgba(37,99,235,0.15)`, background: "#f8fafc", color: WARM_TEXT, fontFamily: "'Inter',sans-serif" }}
         onFocus={e => (e.currentTarget.style.border = `1.5px solid ${WARM_PRIMARY}`)}
-        onBlur={e  => (e.currentTarget.style.border = `1.5px solid rgba(245,158,11,0.2)`)} />
+        onBlur={e  => (e.currentTarget.style.border = `1.5px solid rgba(37,99,235,0.15)`)} />
     </div>
   );
 }
@@ -211,16 +213,16 @@ function WarmTextarea({ label, value, onChange, placeholder, rows = 3 }: {
     <div className="space-y-1">
       {label && <label className="block text-[11px] font-semibold uppercase tracking-wide" style={{ color: WARM_MUTED }}>{label}</label>}
       <textarea value={value} onChange={e => onChange(e.target.value)} placeholder={placeholder} rows={rows}
-        className="w-full rounded-2xl px-4 py-3 text-[13px] outline-none resize-none transition-all"
-        style={{ border: `1.5px solid rgba(245,158,11,0.2)`, background: "#fffdf9", color: WARM_TEXT, fontFamily: "'Inter',sans-serif" }}
+        className="w-full rounded-xl px-4 py-3 text-[13px] outline-none resize-none transition-all"
+        style={{ border: `1.5px solid rgba(37,99,235,0.15)`, background: "#f8fafc", color: WARM_TEXT, fontFamily: "'Inter',sans-serif" }}
         onFocus={e => (e.currentTarget.style.border = `1.5px solid ${WARM_PRIMARY}`)}
-        onBlur={e  => (e.currentTarget.style.border = `1.5px solid rgba(245,158,11,0.2)`)} />
+        onBlur={e  => (e.currentTarget.style.border = `1.5px solid rgba(37,99,235,0.15)`)} />
     </div>
   );
 }
 
 function WarmSpinner() {
-  return <span className="inline-block w-4 h-4 border-2 border-amber-400 border-t-transparent rounded-full animate-spin flex-shrink-0" />;
+  return <span className="inline-block w-4 h-4 border-2 border-blue-500 border-t-transparent rounded-full animate-spin flex-shrink-0" />;
 }
 
 // ─── Welcome Screen ──────────────────────────────────────────────────────────
@@ -1727,18 +1729,18 @@ export default function FamilyHubPage() {
 
   const seo = (
     <SEOMeta
-      title="Family Creation Universe — CreateAI Brain"
-      description="A warm, creative space for family to share, create, and connect. Videos, stories, memories, and AI tools — built with love by Sara & Family."
-      ogTitle="Family Creation Universe"
-      ogDescription="Enter the Family Universe — a creative space for family stories, videos, memories, and AI-powered creations by Lakeside Trinity LLC."
+      title="CreateAI • Family Universe"
+      description="A clean, modern creative space where our family can build, explore, and create together."
+      ogTitle="CreateAI • Family Universe"
+      ogDescription="A clean, modern creative space where our family can build, explore, and create together."
       canonical="https://createai.digital/family-hub"
       ogType="website"
       structuredData={{
         "@context": "https://schema.org",
         "@type": "WebPage",
-        "name": "Family Creation Universe",
+        "name": "CreateAI Family Universe",
         "url": "https://createai.digital/family-hub",
-        "description": "A warm creative space for family stories, videos, memories, and AI tools.",
+        "description": "A clean, modern creative space where our family can build, explore, and create together.",
         "publisher": { "@type": "Organization", "name": "CreateAI Brain", "url": "https://createai.digital" }
       }}
     />

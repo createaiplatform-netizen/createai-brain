@@ -1,0 +1,47 @@
+Update my entire CreateAI Family Creation Universe so that every page, every tool, every route, and every external-facing preview uses one unified identity.
+
+Overall identity:
+- Clean, modern CreateAI design
+- Primary color: CreateAI blue (#2563eb or similar)
+- Accent color: soft warm gold (#f5c97a or similar)
+- No magical or cosmic visuals
+- Subtle, minimal glow only where it improves clarity
+- Tone: warm, welcoming, family-centered, but professional and calm
+
+Apply this identity to:
+- /family-hub (Family Creation Universe home)
+- All sub-pages inside the Family Hub (creation tools, gallery, profiles, settings, etc.)
+- All family-facing routes
+- All external-facing pages connected to the family experience
+- All link previews and metadata
+- All UI components (buttons, cards, headers, icons, navigation)
+
+UI rules:
+- Clean, minimal layout with generous spacing
+- Rounded corners on cards and buttons (subtle, not bubbly)
+- Typography: modern, readable, friendly (e.g., Inter, SF Pro, or similar)
+- Primary buttons: CreateAI blue with white text
+- Secondary buttons: warm gold with dark text
+- Backgrounds: light neutrals with soft blue or warm accents
+- Cards: white or very light neutral with subtle shadow
+- Icons: simple, minimal, line-based
+- Microcopy: short, friendly, clear. Examples:
+  - “Welcome to the Family Creation Universe.”
+  - “Choose what you want to create today.”
+  - “Create together, at your own pace.”
+
+Metadata and link previews:
+For /family-hub and all major family routes, add OpenGraph + meta tags that match this identity.
+
+Use this for /family-hub:
+- og:title: "CreateAI • Family Universe"
+- og:description: "A clean, modern creative space where our family can build, explore, and create together."
+- og:image: Use a clean, modern dashboard-style preview image with CreateAI blue + warm gold accents (no stars, no galaxies).
+
+Important:
+- Do NOT change routing or core logic.
+- Do NOT remove any features.
+- Only update styling, layout, microcopy, and metadata.
+- Ensure mobile, tablet, and desktop all look consistent and polished.
+
+Now update the entire codebase to implement this identity across all pages, components, and previews.
