@@ -3,6 +3,7 @@
 // Family Universe Standing Law always active.
 
 import { useState, useEffect } from "react";
+import { FamilyInviteModal } from "@/components/FamilyInviteModal";
 import { BillPay } from "@/components/BillPay";
 import { FamilyBank } from "@/components/FamilyBank";
 import { FamilyMessages } from "@/components/FamilyMessages";
@@ -50,6 +51,7 @@ export default function FamilyUniversePage() {
   const [tab, setTab] = useState<Tab>("home");
   const [identity, setIdentity] = useState<FamilyIdentity | null>(null);
   const [members, setMembers] = useState<FamilyMember[]>([]);
+  const [showInvite, setShowInvite] = useState(false);
 
   useEffect(() => {
     void loadIdentity();
@@ -203,9 +205,18 @@ export default function FamilyUniversePage() {
         {/* ── Family Tab ── */}
         {tab === "family" && (
           <div className="flex flex-col gap-3">
-            <p className="text-[13px]" style={{ color: MUTED }}>
-              These are the people in your family space. Each person has their own identity — no rankings, no comparisons.
-            </p>
+            <div className="flex items-center justify-between">
+              <p className="text-[13px]" style={{ color: MUTED }}>
+                Each person has their own identity — no rankings, no comparisons.
+              </p>
+              <button
+                onClick={() => setShowInvite(true)}
+                className="px-4 py-2 rounded-xl text-[12px] font-bold flex-shrink-0 ml-3"
+                style={{ background: SAGE, color: "white" }}
+              >
+                + Invite
+              </button>
+            </div>
             {members.map(m => (
               <div
                 key={m.user_id}
@@ -285,6 +296,8 @@ export default function FamilyUniversePage() {
           </div>
         )}
       </div>
+
+      {showInvite && <FamilyInviteModal onClose={() => setShowInvite(false)} />}
     </div>
   );
 }

@@ -308,6 +308,23 @@ export async function bootstrapSchema(): Promise<void> {
     `;
 
     await sql`
+      CREATE TABLE IF NOT EXISTS platform_family_invites (
+        id          TEXT PRIMARY KEY DEFAULT gen_random_uuid()::TEXT,
+        email       TEXT NOT NULL,
+        role        TEXT NOT NULL DEFAULT 'family_adult',
+        token       TEXT NOT NULL UNIQUE,
+        invited_by  TEXT NOT NULL,
+        accepted_by TEXT,
+        expires_at  TIMESTAMPTZ NOT NULL,
+        accepted_at TIMESTAMPTZ,
+        created_at  TIMESTAMPTZ NOT NULL DEFAULT NOW()
+      )
+    `;
+    await sql`CREATE INDEX IF NOT EXISTS idx_family_invites_token ON platform_family_invites(token)`;
+    await sql`CREATE INDEX IF NOT EXISTS idx_family_invites_email ON platform_family_invites(email)`;
+    await sql`CREATE INDEX IF NOT EXISTS idx_family_invites_by   ON platform_family_invites(invited_by)`;
+
+    await sql`
       CREATE TABLE IF NOT EXISTS platform_bills (
         id              TEXT PRIMARY KEY DEFAULT gen_random_uuid()::TEXT,
         user_id         TEXT NOT NULL,
