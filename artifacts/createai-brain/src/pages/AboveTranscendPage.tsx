@@ -6,7 +6,7 @@ import { SEOMeta } from "@/components/SEOMeta";
 const BG     = "#f8fafc";
 const CARD   = "#ffffff";
 const BORDER = "rgba(0,0,0,0.07)";
-const ACCENT = "#6366f1";
+const ACCENT = "#7a9068";
 const GREEN  = "#10b981";
 const ORANGE = "#f59e0b";
 const RED    = "#ef4444";

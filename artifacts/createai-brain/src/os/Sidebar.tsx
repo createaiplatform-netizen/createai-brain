@@ -35,8 +35,8 @@ const BORDER_COL = "rgba(0,0,0,0.07)";
 const TEXT_DIM   = "#94a3b8";
 const TEXT_BASE  = "#64748b";
 const TEXT_DARK  = "#1e293b";
-const ACCENT     = "#4f46e5";           // slightly deeper indigo for readability on white
-const ACCENT_BG  = "rgba(79,70,229,0.08)";
+const ACCENT     = "#7a9068";           // sage green — calm, family-centered, grounded
+const ACCENT_BG  = "rgba(122,144,104,0.10)";
 
 interface SidebarProps {
   onNav?: () => void;
@@ -91,8 +91,8 @@ export function Sidebar({ onNav, forceCollapsed, forceExpanded }: SidebarProps) 
             onClick={() => { if (!forceCollapsed && !forceExpanded) toggleSidebar(); }}
             style={{
               width: 30, height: 30, borderRadius: 9, flexShrink: 0, border: "none",
-              background: "linear-gradient(135deg, #6366f1, #4f46e5)",
-              boxShadow: "0 1px 4px rgba(99,102,241,0.30)",
+              background: "linear-gradient(135deg, #7a9068, #5d7a52)",
+              boxShadow: "0 1px 4px rgba(122,144,104,0.30)",
               cursor: "pointer", display: "flex", alignItems: "center",
               justifyContent: "center", color: "#fff", fontSize: 12, fontWeight: 800,
               transition: "transform 0.15s",
@@ -257,19 +257,19 @@ export function Sidebar({ onNav, forceCollapsed, forceExpanded }: SidebarProps) 
               gap: collapsed ? 0 : 7, height: 30, borderRadius: 8,
               padding: collapsed ? "0" : "0 8px",
               justifyContent: collapsed ? "center" : "flex-start",
-              background: location === "/above-transcend" ? "rgba(99,102,241,0.12)" : "rgba(99,102,241,0.06)",
-              border: "1px solid rgba(99,102,241,0.18)",
+              background: location === "/above-transcend" ? "rgba(122,144,104,0.10)" : "rgba(122,144,104,0.05)",
+              border: "1px solid rgba(122,144,104,0.15)",
               cursor: "pointer", transition: "background 0.12s, border-color 0.12s",
             }}
-            onMouseEnter={e => { (e.currentTarget as HTMLElement).style.background = "rgba(99,102,241,0.14)"; }}
+            onMouseEnter={e => { (e.currentTarget as HTMLElement).style.background = "rgba(122,144,104,0.13)"; }}
             onMouseLeave={e => {
               (e.currentTarget as HTMLElement).style.background =
-                location === "/above-transcend" ? "rgba(99,102,241,0.12)" : "rgba(99,102,241,0.06)";
+                location === "/above-transcend" ? "rgba(122,144,104,0.10)" : "rgba(122,144,104,0.05)";
             }}
           >
             <span style={{ fontSize: 13, flexShrink: 0 }}>▲</span>
             {!collapsed && (
-              <span style={{ fontSize: 10.5, fontWeight: 700, color: "#6366f1", flex: 1, textAlign: "left" }}>
+              <span style={{ fontSize: 10.5, fontWeight: 700, color: "#7a9068", flex: 1, textAlign: "left" }}>
                 AboveTranscend
               </span>
             )}
@@ -287,7 +287,7 @@ export function Sidebar({ onNav, forceCollapsed, forceExpanded }: SidebarProps) 
                 background: ACCENT_BG, border: "none", cursor: "pointer",
                 transition: "background 0.15s",
               }}
-              onMouseEnter={e => { (e.currentTarget as HTMLElement).style.background = "rgba(79,70,229,0.13)"; }}
+              onMouseEnter={e => { (e.currentTarget as HTMLElement).style.background = "rgba(122,144,104,0.10)"; }}
               onMouseLeave={e => { (e.currentTarget as HTMLElement).style.background = ACCENT_BG; }}
               title={collapsed ? `${totalRuns} engine runs` : undefined}
             >
@@ -313,7 +313,7 @@ export function Sidebar({ onNav, forceCollapsed, forceExpanded }: SidebarProps) 
               transition: "background 0.12s, border-color 0.12s",
               justifyContent: collapsed ? "center" : "flex-start",
             }}
-            onMouseEnter={e => { (e.currentTarget as HTMLElement).style.background = ACCENT_BG; (e.currentTarget as HTMLElement).style.borderColor = "rgba(79,70,229,0.2)"; }}
+            onMouseEnter={e => { (e.currentTarget as HTMLElement).style.background = ACCENT_BG; (e.currentTarget as HTMLElement).style.borderColor = "rgba(122,144,104,0.18)"; }}
             onMouseLeave={e => { (e.currentTarget as HTMLElement).style.background = "rgba(0,0,0,0.03)"; (e.currentTarget as HTMLElement).style.borderColor = "rgba(0,0,0,0.07)"; }}
             title={collapsed ? "Browse all apps" : undefined}
           >
