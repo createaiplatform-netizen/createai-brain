@@ -9,6 +9,7 @@ import crypto from "crypto";
 import { Resend } from "resend";
 import { getSql } from "../lib/db";
 import { getSenderAddress, PLATFORM, SYSTEM_SENDER_ID, SYSTEM_DISPLAY_NAME } from "./platformIdentity";
+import { contentSafetyCheck } from "../utils/contentSafety.js";
 
 // ─── In-memory soft rate limiter ─────────────────────────────────────────────
 // Tracks send counts per user+type+channel key, reset every hour.
@@ -41,26 +42,6 @@ function checkRateLimit(params: { userId?: string; type: string; channel: string
   const allowed   = bucket.count <= RATE_LIMIT_MAX_PER_HOUR;
 
   return { allowed, remaining, resetAt: bucket.resetAt };
-}
-
-// ─── Light content-safety screen ─────────────────────────────────────────────
-// Minimal pre-send check to block clearly harmful / abusive text.
-// Not a comprehensive filter — just a first line of defense.
-
-const CONTENT_BLOCKED_TERMS = [
-  "fuck", "shit", "asshole", "bitch", "bastard", "cunt", "dick", "piss", "prick",
-  "nigger", "faggot", "retard",
-  "kill yourself", "go die", "i will hurt", "i will kill", "bomb threat", "terror",
-];
-
-function contentSafetyCheck(text: string): { safe: boolean; reason?: string } {
-  const lower = text.toLowerCase();
-  for (const term of CONTENT_BLOCKED_TERMS) {
-    if (lower.includes(term)) {
-      return { safe: false, reason: `Content blocked: contains restricted term.` };
-    }
-  }
-  return { safe: true };
 }
 
 // ─── Types ────────────────────────────────────────────────────────────────────

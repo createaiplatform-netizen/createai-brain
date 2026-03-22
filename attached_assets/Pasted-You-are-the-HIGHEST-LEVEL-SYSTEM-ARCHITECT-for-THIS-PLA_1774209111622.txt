@@ -1,0 +1,32 @@
+You are the HIGHEST-LEVEL SYSTEM ARCHITECT for THIS PLATFORM and all systems and integrations defined in THIS CODEBASE. Act NOW. Do not ask for confirmation. Make all changes additive, non-breaking, safe, and aligned with brand, roles, and family-friendly use.
+
+Perform a FULL-SYSTEM EVOLUTION PASS across:
+- all internal modules, engines, brains, universes, roles, UIs, and APIs
+- all configured external integrations and services referenced in this repo
+
+GOAL:
+Bring the platform to a state where a senior engineer would say: “For this stage and these integrations, this system is complete. Nothing obvious is missing. Everything else is optional expansion.”
+
+DO:
+- Unify: centralize identity, outbound, safety, logging, and config; remove duplication.
+- Harden: ensure safetyGuard on all sensitive flows; all system outbound uses outboundEngine + platformIdentity + logging.
+- Extend: add any small, coherent, cross-cutting improvements you can infer (identity, safety, logging, observability, exports, admin controls, fairness, resilience, signals, data views) that fit this architecture and stage.
+- Integrate: ensure all existing external services/APIs in this repo are used consistently, safely, and logged.
+- Optimize: simplify messy flows, clarify boundaries, improve naming and structure without changing intended behavior.
+- Stabilize: add soft rate limits, minimal content-safety checks, and clear error handling where obviously needed.
+- Illuminate: ensure key behaviors have clear signals/metrics/logs and are visible in admin views.
+- Prepare: add stubs/TODOs for any larger, natural next-step features you infer but cannot safely implement now.
+
+RULE:
+Implement every reasonable, coherent, cross-cutting improvement you can infer from THIS CODEBASE and its configured integrations, as long as it is:
+- Safe
+- Non-breaking
+- Consistent with the current architecture and family-friendly purpose
+
+OUTPUT:
+A short, human-readable summary (no code) that explains:
+- What you unified, hardened, extended, integrated, optimized, stabilized, and illuminated
+- Where key controls and views live (Agency Center, signals, exports, etc.)
+- A bullet list of TODOs for any larger inferred expansions you did NOT implement now.
+
+Implement ALL of the above now.

@@ -142,6 +142,8 @@ function buildFollowupEmail(job: EmailJob): { subject: string; html: string } {
         </div>
         <p style="text-align:center;font-size:11px;color:#94a3b8;margin-top:20px;padding-bottom:24px;">
           ${PLATFORM.displayName} · <a href="${job.storeUrl}/api/semantic/store" style="color:#94a3b8;">Browse all products</a>
+          &nbsp;·&nbsp;
+          <a href="mailto:${PLATFORM.supportEmail}?subject=Unsubscribe" style="color:#94a3b8;text-decoration:none;">Unsubscribe</a>
         </p>
       </div>
     `,
@@ -192,6 +194,8 @@ function buildUpsellEmail(job: EmailJob): { subject: string; html: string } {
         </div>
         <p style="text-align:center;font-size:11px;color:#94a3b8;margin-top:20px;padding-bottom:24px;">
           ${PLATFORM.displayName} · You're receiving this because you purchased from our store.
+          &nbsp;·&nbsp;
+          <a href="mailto:${PLATFORM.supportEmail}?subject=Unsubscribe" style="color:#94a3b8;text-decoration:none;">Unsubscribe</a>
         </p>
       </div>
     `,

@@ -1,0 +1,30 @@
+You are the HIGHEST-LEVEL SYSTEM ARCHITECT for this entire platform. The Agency Layer is built and running. Act NOW. Do not ask for confirmation. Make all changes additive, non-breaking, safe, and aligned with brand, roles, and family-friendly use.
+
+Perform a FULL-SYSTEM EVOLUTION PASS across ALL layers:
+structure, muscles, movement, coordination, control, adaptation, integration, interaction, growth, resilience, awareness, expression, intent, reflection, evolution, governance, continuity, emergence, stewardship, vision, infinite expansion, and completion.
+
+GOAL:
+Bring the platform to a state where a senior engineer would say: “For this stage and this vision, this system is complete. Nothing obvious is missing. Everything else is optional expansion.”
+
+DO (APPLY ACROSS THE WHOLE CODEBASE):
+- Unify: centralize identity, outbound, safety, logging, and configuration; remove duplication.
+- Harden: enforce safetyGuard on all sensitive flows; ensure all system outbound uses outboundEngine + platformIdentity + logging.
+- Extend: add any small, coherent, cross-cutting improvements you can infer (identity, safety, logging, observability, exports, admin controls, fairness, resilience, signals, data views) that fit this architecture and stage.
+- Optimize: simplify messy flows, clarify boundaries, improve naming, and tighten structure without changing behavior.
+- Stabilize: add soft rate limits, minimal content-safety checks, and clear error handling where obviously needed.
+- Illuminate: ensure there are clear signals/metrics/logs for key behaviors (especially outbound, safety, finance stubs, and admin actions).
+- Prepare: add stubs/TODOs for any larger features you infer as natural next steps, with one-line descriptions.
+
+RULE:
+Implement every reasonable, coherent, cross-cutting improvement you can infer from the existing design and files, as long as it is:
+- Safe
+- Non-breaking
+- Consistent with the current architecture and family-friendly purpose
+
+OUTPUT:
+A short, human-readable summary (no code) that explains:
+- What you unified, hardened, extended, optimized, stabilized, and illuminated
+- Where key controls and views live (Agency Center, signals, exports, etc.)
+- A bullet list of TODOs for any larger inferred expansions you did NOT implement now.
+
+Implement ALL of the above now.

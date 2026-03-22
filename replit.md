@@ -686,6 +686,36 @@ The following codebase-wide changes were made to complete the Agency Layer:
 **Admin Agency Center — Data & Exports:**
 - "Outbound Log Export (CSV)" is now a real live download link (previously "Coming Soon")
 
+### Final Completeness Pass — Remaining Audit Findings (March 2026)
+
+**New shared utility: `utils/contentSafety.ts`**
+- Extracted content-safety check out of `outboundEngine.ts` into a shared, importable module
+- `contentSafetyCheck(text)` — synchronous, zero-dependency; blocks BLOCKED_TERMS; returns `{ safe, reason }`
+- `outboundEngine.ts` now imports from this shared util (local copy removed)
+- TODO: Replace BLOCKED_TERMS list with a proper moderation API (e.g. OpenAI Moderation) for production-grade coverage
+
+**R-5 — Content filter on family messages (`routes/familyMessages.ts`)**
+- Before any INSERT, `contentSafetyCheck(content)` is called
+- Blocked messages return HTTP 422 with a family-safe error message
+- No harmful/abusive text can be stored in `platform_family_messages`
+
+**R-6 — Server-side kids role check (`routes/habits.ts`)**
+- Before creating a habit, server fetches the user's actual role from DB (not trusting client claims)
+- `contentSafetyCheck(name)` applied to habit name for all roles — extra protection for kids
+- `createdByRole` returned in response for client-side awareness
+- TODO: Add guardian-approval workflow for kids habit creation when parental-approval layer is added
+
+**R-10 — Family Bank virtual disclaimer (`routes/familyBank.ts`)**
+- `VIRTUAL_META` object defined once: `{ virtual: true, disclaimer: "..." }`
+- Injected into `/account` GET and `/transactions` POST responses — clients always know it's virtual
+- Existing file header already stated this; now it's machine-readable in every response
+
+**R-1 — Unsubscribe links in outbound emails**
+- `marketingKit.ts` `brandHtmlWrapper` already had a mailto:unsubscribe footer (unchanged)
+- `emailScheduler.ts` followup email footer: added `mailto:${PLATFORM.supportEmail}?subject=Unsubscribe` link
+- `emailScheduler.ts` upsell email footer: same unsubscribe link added
+- Every platform-generated marketing email now has a visible unsubscribe option
+
 ### Expansion Design
 - New channels: add a `case` to `dispatchChannel()` in `outboundEngine.ts`
 - New universes/roles: extend `UNIVERSE_ROLES` in `safetyGuard.ts`

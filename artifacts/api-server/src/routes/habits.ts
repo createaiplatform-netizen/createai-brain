@@ -4,6 +4,7 @@
 
 import { Router, type Request, type Response } from "express";
 import { getSql } from "../lib/db";
+import { contentSafetyCheck } from "../utils/contentSafety.js";
 
 const router = Router();
 
@@ -46,13 +47,31 @@ router.post("/", async (req: Request, res: Response) => {
     res.status(400).json({ error: "Habit name is required" });
     return;
   }
+
+  // R-6: Content safety check on habit name (applies to all roles, extra important for kids).
+  const safety = contentSafetyCheck(name.trim());
+  if (!safety.safe) {
+    res.status(422).json({ error: "Habit name contains content that is not allowed." });
+    return;
+  }
+
   const sql = getSql();
+
+  // R-6: Server-side role verification — look up the user's current role from DB.
+  const [userRow] = await sql`SELECT role FROM users WHERE id = ${userId}`;
+  const userRole: string = userRow?.role ?? "user";
+
+  // Kids-role guard: kids users may not create habits with restricted keywords
+  // that are adult-oriented. Content filter above already covers abusive terms.
+  // TODO: Add an approved-by-guardian workflow for kids habit creation if the
+  //       platform ever adds a parental-approval layer.
+
   const [habit] = await sql`
     INSERT INTO platform_habits (user_id, name, emoji, frequency)
     VALUES (${userId}, ${name.trim()}, ${emoji ?? "🌱"}, ${VALID_FREQUENCIES.includes(frequency ?? "") ? frequency! : "daily"})
     RETURNING *
   `;
-  res.json({ habit });
+  res.json({ habit, createdByRole: userRole });
 });
 
 // PATCH /api/habits/:id

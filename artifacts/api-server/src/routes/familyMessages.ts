@@ -3,6 +3,7 @@
 // No external messaging. Notifications are kind and non-alarming.
 
 import { Router, type Request, type Response } from "express";
+import { contentSafetyCheck } from "../utils/contentSafety.js";
 import { getSql } from "../lib/db";
 
 const router = Router();
@@ -135,6 +136,13 @@ router.post("/:conversationId/messages", async (req: Request, res: Response) => 
 
   if (!content?.trim() || content.trim().length > 2000) {
     res.status(400).json({ error: "Message must be between 1 and 2000 characters" });
+    return;
+  }
+
+  // R-5: Content safety check before storing any family message.
+  const safety = contentSafetyCheck(content.trim());
+  if (!safety.safe) {
+    res.status(422).json({ error: "Message contains content that is not allowed in family spaces." });
     return;
   }
 

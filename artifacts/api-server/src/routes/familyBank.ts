@@ -25,6 +25,12 @@ async function getOrCreateAccount(userId: string) {
   return account;
 }
 
+// R-10: Shared virtual disclaimer injected into all account/transaction responses.
+const VIRTUAL_META = {
+  virtual: true,
+  disclaimer: "Family Bank is a virtual points tracker. No real money moves here. Actual payments always require explicit approval through external payment providers.",
+};
+
 // GET /api/family-bank/account
 router.get("/account", async (req: Request, res: Response) => {
   if (!req.isAuthenticated()) {
@@ -33,7 +39,7 @@ router.get("/account", async (req: Request, res: Response) => {
   }
   const userId = (req.user as { id: string }).id;
   const account = await getOrCreateAccount(userId);
-  res.json({ account });
+  res.json({ account, ...VIRTUAL_META });
 });
 
 // GET /api/family-bank/accounts — admin: all family accounts with owner info
@@ -130,7 +136,7 @@ router.post("/transactions", async (req: Request, res: Response) => {
     WHERE id = ${account.id as string}
   `;
 
-  res.json({ transaction: txn });
+  res.json({ transaction: txn, ...VIRTUAL_META });
 });
 
 // GET /api/family-bank/goals
