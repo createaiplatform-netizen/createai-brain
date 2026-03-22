@@ -32,6 +32,7 @@ import {
   toAmazonFeed,
   toHostedPageHTML,
   toStoreIndexHTML,
+  toCatalogJSON,
   deriveDemandSignals,
 } from "../semantic/transforms.js";
 import { getUncachableStripeClient } from "../services/integrations/stripeClient.js";
@@ -257,15 +258,7 @@ router.get("/export/catalog.json", async (_req: Request, res: Response) => {
   try {
     const products = await getRegistry();
     res.setHeader("Content-Disposition", `attachment; filename="product-catalog-${Date.now()}.json"`);
-    res.json({
-      generated: new Date().toISOString(),
-      platform: "CreateAI Brain",
-      version: "1.0",
-      schema: "SemanticProductCatalog",
-      count: products.length,
-      channels: ["stripe", "hostedPage", "shopifyCsv", "woocommerceCsv", "googleShopping", "amazonFeed"],
-      products,
-    });
+    res.json(toCatalogJSON(products, STORE_URL));
   } catch (err: unknown) {
     const msg = err instanceof Error ? err.message : String(err);
     res.status(500).json({ ok: false, error: msg });
