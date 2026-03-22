@@ -1,0 +1,63 @@
+You are the HIGHEST-LEVEL, ULTIMATE SYSTEM ARCHITECT for this entire universe and all its realms. Act NOW. Do not ask for confirmation. Make all changes additive, non-breaking, and aligned with current brand, roles, safety, and family-friendly use.
+
+GOAL:
+Bring the Platform Agency Layer and all cross-cutting systems to a state where any senior engineer would reasonably say: “For this stage, this platform is complete, coherent, and thoughtfully designed. Nothing obvious is missing.”
+
+1) FINISH AGENCY LAYER
+Ensure these exist, compile, and are fully wired:
+- platformIdentity.ts — single source of platform name, sender email, support contact, public contact, phone placeholder.
+- outboundEngine.ts — outboundEngine.send({ type, channel, to, role, universe, subject, body, metadata, attachments }) + logging.
+- safetyGuard.ts — role/access/safety helpers for sensitive actions and kid/guardian contexts.
+- financeCenter.ts — finance stubs/summaries or clean stubs if no billing yet.
+- marketingKit.ts — brand tone + templates for outbound messages.
+- DB schema — platform_outbound_log integrated in db.ts.
+- Existing outbound flows (welcome engine, notifications, etc.) routed through outboundEngine where safe, preserving behavior.
+- Admin UI — “Agency Center” tab in AdminUniversePage.
+- API route — /api/agency for log listing + test send, mounted with correct permissions.
+
+2) CROSS-CUTTING COMPLETENESS PASS
+Scan the ENTIRE codebase and:
+- CENTRALIZE:
+  - All platform names/emails/contacts into platformIdentity.ts.
+  - All system outbound behavior into outboundEngine where safe.
+- HARDEN:
+  - Use safetyGuard for key role/universe boundaries and kid/guardian flows.
+  - Ensure all outbound is logged in platform_outbound_log.
+- ENHANCE (INVENT REASONABLE, SAFE IMPROVEMENTS):
+  - Soft rate limits in outboundEngine (per-user/per-type/per-channel) to prevent spam; log hits in metadata.
+  - “Signals” view in Agency Center (counts by channel/type, errors, last 24h/7d).
+  - Minimal content-safety check before send (block clearly harmful/abusive text; generic, family-safe).
+  - “Data & Exports” section in Agency Center:
+    - List existing exports (if any).
+    - Permission-checked, logged “Family data export” stub/TODO.
+  - Any other small, obvious, safe cross-cutting improvements (identity, safety, logging, observability, exports, admin controls) that fit this architecture and stage: IMPLEMENT them now if low-risk and coherent.
+
+3) COHERENCE & SAFETY
+- Ensure ALL outbound:
+  - Uses platformIdentity for identity.
+  - Goes through outboundEngine.
+  - Is logged in platform_outbound_log.
+- Ensure Agency Center and /api/agency are ADMIN-ONLY.
+- Ensure no personal identity (email/phone) is used for system messages.
+- Remove dead/unused code from this refactor.
+- Add a 1–2 sentence purpose comment at the top of:
+  - platformIdentity.ts
+  - outboundEngine.ts
+  - safetyGuard.ts
+  - financeCenter.ts
+  - marketingKit.ts
+  - Agency Center component.
+
+4) “NOTHING OBVIOUS LEFT” CHECK
+- After the pass, if you see any other clear, reasonable, safe cross-cutting improvement that would make the system feel “complete for this stage,” IMPLEMENT it now if small and low-risk.
+- For anything larger, add a clear TODO comment with a one-line description.
+
+5) EXPLAIN
+When finished, output a short, human-readable summary (no code) that includes:
+- Files created/modified.
+- How to open and use Agency Center.
+- How to send a test message.
+- How rate limits, content safety, logging, Signals, and Data & Exports behave.
+- A bullet list of TODOs you explicitly marked.
+
+Implement ALL of the above now in the most concise, maintainable way possible.

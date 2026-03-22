@@ -1,6 +1,8 @@
 // ─── Admin Universe ───────────────────────────────────────────────────────────
 // Full platform control center for admin/founder roles.
-// Real data only — no simulated metrics.
+// Includes Overview, Users, Devices, Audit Log, and Agency Center tabs.
+// Agency Center: inspect platform identity, outbound signals, test sends,
+// and manage data exports — all admin-only, all real data.
 
 import { useState, useEffect, useCallback } from "react";
 
@@ -72,10 +74,15 @@ export default function AdminUniversePage() {
     subject: string | null; recipient: string | null; metadata: Record<string, unknown>;
     error_message: string | null; user_email?: string | null; user_first_name?: string | null;
   }
+  interface SignalRow { channel: string; count: number; errors: number }
+  interface RecentError { id: string; type: string; channel: string; error_message: string; timestamp: string }
   interface OutboundStats {
     totals: { total: number; succeeded: number; failed: number; viaEmail: number; viaInApp: number; viaNotification: number };
     last24h: number;
     byType: { type: string; count: number; last_sent: string }[];
+    signals24h: SignalRow[];
+    signals7d:  SignalRow[];
+    recentErrors: RecentError[];
   }
   const [agencyIdentity, setAgencyIdentity] = useState<PlatformIdentity | null>(null);
   const [agencyLog, setAgencyLog] = useState<OutboundLogRow[]>([]);
@@ -642,6 +649,128 @@ export default function AdminUniversePage() {
                 )}
               </div>
             )}
+
+            {/* Signals View — 24h / 7d by channel */}
+            {agencyStats && (
+              <div className="rounded-2xl p-5" style={{ background: "white", border: `1px solid ${BORDER}` }}>
+                <p className="text-[15px] font-black mb-1" style={{ color: TEXT }}>📡 Signals</p>
+                <p className="text-[11px] mb-4" style={{ color: MUTED }}>Outbound volume by channel — last 24 h and last 7 days</p>
+
+                <div className="grid grid-cols-2 gap-3 mb-4">
+                  {/* 24h */}
+                  <div className="rounded-xl p-3" style={{ background: `${SAGE}08`, border: `1px solid ${BORDER}` }}>
+                    <p className="text-[11px] font-bold mb-2" style={{ color: MUTED }}>Last 24 h</p>
+                    {agencyStats.signals24h.length === 0 ? (
+                      <p className="text-[11px]" style={{ color: MUTED }}>No sends yet.</p>
+                    ) : agencyStats.signals24h.map(s => (
+                      <div key={s.channel} className="flex items-center justify-between py-1">
+                        <span className="text-[11px] capitalize" style={{ color: TEXT }}>{s.channel}</span>
+                        <div className="flex items-center gap-2">
+                          <span className="text-[12px] font-bold" style={{ color: SAGE }}>{s.count}</span>
+                          {s.errors > 0 && (
+                            <span className="text-[10px] px-1.5 py-0.5 rounded-full font-bold"
+                              style={{ background: "rgba(197,48,48,0.10)", color: "#c53030" }}>
+                              {s.errors} err
+                            </span>
+                          )}
+                        </div>
+                      </div>
+                    ))}
+                  </div>
+                  {/* 7d */}
+                  <div className="rounded-xl p-3" style={{ background: `${SAGE}08`, border: `1px solid ${BORDER}` }}>
+                    <p className="text-[11px] font-bold mb-2" style={{ color: MUTED }}>Last 7 days</p>
+                    {agencyStats.signals7d.length === 0 ? (
+                      <p className="text-[11px]" style={{ color: MUTED }}>No sends yet.</p>
+                    ) : agencyStats.signals7d.map(s => (
+                      <div key={s.channel} className="flex items-center justify-between py-1">
+                        <span className="text-[11px] capitalize" style={{ color: TEXT }}>{s.channel}</span>
+                        <div className="flex items-center gap-2">
+                          <span className="text-[12px] font-bold" style={{ color: SAGE }}>{s.count}</span>
+                          {s.errors > 0 && (
+                            <span className="text-[10px] px-1.5 py-0.5 rounded-full font-bold"
+                              style={{ background: "rgba(197,48,48,0.10)", color: "#c53030" }}>
+                              {s.errors} err
+                            </span>
+                          )}
+                        </div>
+                      </div>
+                    ))}
+                  </div>
+                </div>
+
+                {/* Recent errors */}
+                {agencyStats.recentErrors.length > 0 && (
+                  <div>
+                    <p className="text-[11px] font-bold mb-2" style={{ color: "#c53030" }}>Recent Failures</p>
+                    <div className="flex flex-col gap-1">
+                      {agencyStats.recentErrors.slice(0, 5).map(e => (
+                        <div key={e.id} className="flex items-start justify-between gap-2 px-3 py-2 rounded-lg"
+                          style={{ background: "rgba(197,48,48,0.06)", border: "1px solid rgba(197,48,48,0.12)" }}>
+                          <div className="flex-1 min-w-0">
+                            <span className="text-[11px] font-mono font-bold" style={{ color: "#c53030" }}>{e.channel}</span>
+                            <span className="text-[11px] ml-1.5" style={{ color: MUTED }}>{e.type}</span>
+                            <p className="text-[10px] truncate mt-0.5" style={{ color: MUTED }}>{e.error_message}</p>
+                          </div>
+                          <span className="text-[10px] flex-shrink-0" style={{ color: MUTED }}>
+                            {new Date(e.timestamp).toLocaleDateString("en-US", { month: "short", day: "numeric" })}
+                          </span>
+                        </div>
+                      ))}
+                    </div>
+                  </div>
+                )}
+              </div>
+            )}
+
+            {/* Data & Exports */}
+            <div className="rounded-2xl p-5" style={{ background: "white", border: `1px solid ${BORDER}` }}>
+              <div className="flex items-center gap-2 mb-4">
+                <span className="text-xl">📦</span>
+                <div>
+                  <p className="text-[15px] font-black" style={{ color: TEXT }}>Data & Exports</p>
+                  <p className="text-[12px]" style={{ color: MUTED }}>Permission-checked data exports — admin-only, all exports logged</p>
+                </div>
+              </div>
+
+              <div className="flex flex-col gap-3">
+                {/* Family data export stub */}
+                <div className="px-4 py-4 rounded-xl flex items-center justify-between gap-4"
+                  style={{ background: `${SAGE}08`, border: `1px dashed ${SAGE}40` }}>
+                  <div>
+                    <p className="text-[13px] font-bold" style={{ color: TEXT }}>Family Data Export</p>
+                    <p className="text-[11px] mt-0.5" style={{ color: MUTED }}>
+                      Export full family account data (users, journals excluded, bills, habits, life events).
+                      Journals are always private and never included.
+                    </p>
+                  </div>
+                  <div className="flex-shrink-0 px-3 py-2 rounded-xl text-[11px] font-bold cursor-not-allowed"
+                    style={{ background: `${SAGE}18`, color: MUTED }}>
+                    Coming Soon
+                  </div>
+                </div>
+
+                {/* Outbound log export stub */}
+                <div className="px-4 py-4 rounded-xl flex items-center justify-between gap-4"
+                  style={{ background: `${SAGE}08`, border: `1px dashed ${SAGE}40` }}>
+                  <div>
+                    <p className="text-[13px] font-bold" style={{ color: TEXT }}>Outbound Log Export (CSV)</p>
+                    <p className="text-[11px] mt-0.5" style={{ color: MUTED }}>
+                      Download platform_outbound_log as CSV for compliance, auditing, or external analysis.
+                    </p>
+                  </div>
+                  <div className="flex-shrink-0 px-3 py-2 rounded-xl text-[11px] font-bold cursor-not-allowed"
+                    style={{ background: `${SAGE}18`, color: MUTED }}>
+                    Coming Soon
+                  </div>
+                </div>
+
+                <p className="text-[10px]" style={{ color: MUTED }}>
+                  All exports will require admin or founder role, will be logged to the audit trail,
+                  and will never include private journal entries.
+                </p>
+              </div>
+            </div>
 
             {/* Test Send */}
             <div className="rounded-2xl p-5" style={{ background: "white", border: `1px solid ${BORDER}` }}>

@@ -1,28 +1,67 @@
 // ─── Universal Outbound Engine ────────────────────────────────────────────────
-// Central dispatcher for all platform-generated outbound communications.
-// Every email, in-app message, and notification sent by the platform flows
-// through here — never directly through Resend/messaging/notifications calls.
-//
-// Channels (implemented):
-//   • email       — Resend transactional email using platform identity
-//   • in-app      — platform_family_messages / platform_notifications
-//   • notification — platform_notifications table
-//   • export      — stub; future PDF/file attachment delivery
-//
-// Expansion rules:
-//   • Add a new channel by adding a case to dispatchChannel() below
-//   • Add a new type by adding a value to OutboundType — no other change needed
-//   • All sends are logged to platform_outbound_log (idempotency optional)
-//
-// Rules:
-//   • NEVER throws to the caller — all errors are caught and logged
-//   • All sends are fire-and-return-status (no awaiting external confirmations)
-//   • Uses platformIdentity for sender address — never a personal identity
+// Central dispatcher for ALL platform-generated outbound communications.
+// Every email, in-app message, and notification flows through here — never
+// directly through Resend, messaging, or notifications calls.
+// Includes: soft per-user/per-type rate limits, light content-safety screening,
+// and full audit logging in platform_outbound_log for every attempted send.
 
 import crypto from "crypto";
 import { Resend } from "resend";
 import { getSql } from "../lib/db";
 import { getSenderAddress, PLATFORM, SYSTEM_SENDER_ID, SYSTEM_DISPLAY_NAME } from "./platformIdentity";
+
+// ─── In-memory soft rate limiter ─────────────────────────────────────────────
+// Tracks send counts per user+type+channel key, reset every hour.
+// Blocks sends that exceed MAX_PER_HOUR; hit is logged to metadata.
+// NOTE: Resets on server restart — this is a soft anti-spam guard, not a hard limit.
+
+const RATE_LIMIT_MAX_PER_HOUR = 20;
+const RATE_LIMIT_WINDOW_MS    = 60 * 60 * 1000; // 1 hour
+
+interface RateBucket { count: number; resetAt: number }
+const rateBuckets = new Map<string, RateBucket>();
+
+function checkRateLimit(params: { userId?: string; type: string; channel: string }): {
+  allowed: boolean;
+  remaining: number;
+  resetAt: number;
+} {
+  // Use userId if available; fall back to type+channel (anonymous sends are less restricted)
+  const key = `${params.userId ?? "anon"}::${params.type}::${params.channel}`;
+  const now  = Date.now();
+
+  let bucket = rateBuckets.get(key);
+  if (!bucket || now >= bucket.resetAt) {
+    bucket = { count: 0, resetAt: now + RATE_LIMIT_WINDOW_MS };
+    rateBuckets.set(key, bucket);
+  }
+
+  bucket.count++;
+  const remaining = Math.max(0, RATE_LIMIT_MAX_PER_HOUR - bucket.count);
+  const allowed   = bucket.count <= RATE_LIMIT_MAX_PER_HOUR;
+
+  return { allowed, remaining, resetAt: bucket.resetAt };
+}
+
+// ─── Light content-safety screen ─────────────────────────────────────────────
+// Minimal pre-send check to block clearly harmful / abusive text.
+// Not a comprehensive filter — just a first line of defense.
+
+const CONTENT_BLOCKED_TERMS = [
+  "fuck", "shit", "asshole", "bitch", "bastard", "cunt", "dick", "piss", "prick",
+  "nigger", "faggot", "retard",
+  "kill yourself", "go die", "i will hurt", "i will kill", "bomb threat", "terror",
+];
+
+function contentSafetyCheck(text: string): { safe: boolean; reason?: string } {
+  const lower = text.toLowerCase();
+  for (const term of CONTENT_BLOCKED_TERMS) {
+    if (lower.includes(term)) {
+      return { safe: false, reason: `Content blocked: contains restricted term.` };
+    }
+  }
+  return { safe: true };
+}
 
 // ─── Types ────────────────────────────────────────────────────────────────────
 
@@ -82,21 +121,45 @@ class OutboundEngine {
     const logId = "out_" + crypto.randomUUID().replace(/-/g, "").slice(0, 20);
     let success = false;
     let errorMsg: string | undefined;
+    let extraMeta: Record<string, unknown> = {};
 
     try {
-      // 1. Dispatch to channel
-      const channelResult = await this.dispatchChannel(payload);
-      success  = channelResult.success;
-      errorMsg = channelResult.error;
+      // 1. Soft rate limit check (admin/test bypasses limit)
+      const isAdmin = payload.role === "admin" || payload.role === "founder";
+      if (!isAdmin) {
+        const rl = checkRateLimit({ userId: payload.userId, type: payload.type, channel: payload.channel });
+        if (!rl.allowed) {
+          errorMsg = `Rate limit reached — max ${RATE_LIMIT_MAX_PER_HOUR} per hour per user/type/channel.`;
+          extraMeta = { rateLimited: true, resetAt: rl.resetAt };
+          console.warn(`[OutboundEngine] Rate limit hit — user:${payload.userId ?? "anon"} type:${payload.type}`);
+        }
+      }
+
+      // 2. Light content-safety screen
+      if (!errorMsg) {
+        const safety = contentSafetyCheck(payload.body);
+        if (!safety.safe) {
+          errorMsg = safety.reason ?? "Content blocked by safety filter.";
+          extraMeta = { ...extraMeta, contentBlocked: true };
+          console.warn(`[OutboundEngine] Content blocked — type:${payload.type} reason:${errorMsg}`);
+        }
+      }
+
+      // 3. Dispatch to channel (only if not blocked above)
+      if (!errorMsg) {
+        const channelResult = await this.dispatchChannel(payload);
+        success  = channelResult.success;
+        errorMsg = channelResult.error;
+      }
     } catch (err) {
       errorMsg = err instanceof Error ? err.message : String(err);
       console.warn(`[OutboundEngine] Unhandled error — type:${payload.type} channel:${payload.channel}`, errorMsg);
     }
 
-    // 2. Log the attempt (non-blocking, non-throwing)
+    // 4. Log the attempt (non-blocking, non-throwing)
     void this.writeLog({
       logId,
-      payload,
+      payload: { ...payload, metadata: { ...(payload.metadata ?? {}), ...extraMeta } },
       success,
       errorMsg,
     });

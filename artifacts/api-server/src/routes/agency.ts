@@ -94,6 +94,35 @@ router.get("/stats", async (req: Request, res: Response) => {
     GROUP BY type ORDER BY count DESC LIMIT 20
   `;
 
+  // Signals: counts by channel for last 24h and last 7d
+  const signals24h = await sql`
+    SELECT
+      channel,
+      COUNT(*)::int AS count,
+      COUNT(*) FILTER (WHERE status = 'failed')::int AS errors
+    FROM platform_outbound_log
+    WHERE timestamp > NOW() - INTERVAL '24 hours'
+    GROUP BY channel ORDER BY count DESC
+  `;
+
+  const signals7d = await sql`
+    SELECT
+      channel,
+      COUNT(*)::int AS count,
+      COUNT(*) FILTER (WHERE status = 'failed')::int AS errors
+    FROM platform_outbound_log
+    WHERE timestamp > NOW() - INTERVAL '7 days'
+    GROUP BY channel ORDER BY count DESC
+  `;
+
+  // Recent errors with context
+  const recentErrors = await sql`
+    SELECT id, type, channel, error_message, timestamp
+    FROM platform_outbound_log
+    WHERE status = 'failed'
+    ORDER BY timestamp DESC LIMIT 10
+  `;
+
   const recent24h = await sql`
     SELECT COUNT(*)::int AS count FROM platform_outbound_log
     WHERE timestamp > NOW() - INTERVAL '24 hours'
@@ -108,8 +137,11 @@ router.get("/stats", async (req: Request, res: Response) => {
       viaInApp:        totals?.["via_in_app"]       ?? 0,
       viaNotification: totals?.["via_notification"] ?? 0,
     },
-    last24h:  recent24h[0]?.["count"] ?? 0,
+    last24h:     recent24h[0]?.["count"] ?? 0,
     byType,
+    signals24h,
+    signals7d,
+    recentErrors,
   });
 });
 
