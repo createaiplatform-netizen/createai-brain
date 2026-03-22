@@ -230,56 +230,56 @@ function WarmSpinner() {
 function WelcomeScreen({ onEnter }: { onEnter: () => void }) {
   return (
     <div className="fixed inset-0 flex flex-col items-center justify-center overflow-hidden"
-      style={{ background: "linear-gradient(145deg, #fde68a 0%, #fca5a5 40%, #c4b5fd 80%, #86efac 100%)", fontFamily: "'Inter',sans-serif" }}>
+      style={{ background: "linear-gradient(160deg, #eff6ff 0%, #f0f9ff 55%, #f8fafc 100%)", fontFamily: "'Inter',sans-serif" }}>
 
-      {/* Soft blobs */}
-      <div className="absolute top-[-80px] left-[-80px] w-64 h-64 rounded-full opacity-25 blur-3xl"
-        style={{ background: "#fbbf24" }} />
-      <div className="absolute bottom-[-60px] right-[-60px] w-56 h-56 rounded-full opacity-20 blur-3xl"
-        style={{ background: "#a78bfa" }} />
+      {/* Subtle tinted blobs */}
+      <div className="absolute top-[-60px] left-[-60px] w-56 h-56 rounded-full opacity-25 blur-3xl"
+        style={{ background: "#93c5fd" }} />
+      <div className="absolute bottom-[-40px] right-[-40px] w-48 h-48 rounded-full opacity-20 blur-3xl"
+        style={{ background: "#f5c97a" }} />
 
       <div className="relative z-10 flex flex-col items-center gap-8 px-8 text-center max-w-sm">
 
-        {/* Emblem */}
-        <div className="w-24 h-24 rounded-3xl flex items-center justify-center text-5xl shadow-2xl"
-          style={{ background: "rgba(255,255,255,0.85)", boxShadow: "0 12px 48px rgba(0,0,0,0.12)" }}>
-          🌟
+        {/* CreateAI logo mark */}
+        <div className="w-20 h-20 rounded-2xl flex items-center justify-center shadow-lg"
+          style={{ background: "#2563eb" }}>
+          <span className="text-white font-black text-[22px]" style={{ letterSpacing: "-1px" }}>CA</span>
         </div>
 
         {/* Headline */}
         <div className="space-y-3">
-          <h1 className="text-[30px] font-black leading-tight" style={{ color: "#1c1412", letterSpacing: "-0.5px" }}>
-            Welcome to Our<br />Family Universe
+          <h1 className="text-[28px] font-black leading-tight" style={{ color: "#0f172a", letterSpacing: "-0.5px" }}>
+            Welcome to the<br />Family Creation Universe.
           </h1>
-          <p className="text-[15px] leading-relaxed" style={{ color: "#44403c" }}>
-            A place to create, share,<br />and grow together.
+          <p className="text-[15px] leading-relaxed" style={{ color: "#475569" }}>
+            A clean, modern creative space<br />for our family to build together.
           </p>
         </div>
 
         {/* Values */}
         <div className="grid grid-cols-2 gap-2.5 w-full">
           {[
-            { icon: "💛", text: "We care for others" },
-            { icon: "🤝", text: "We help each other" },
-            { icon: "🎨", text: "We love to create" },
-            { icon: "🌱", text: "We grow together" },
+            { icon: "🤝", text: "We care for each other" },
+            { icon: "✏️", text: "We create together" },
+            { icon: "📚", text: "We share our stories" },
+            { icon: "🌱", text: "We grow as a family" },
           ].map(({ icon, text }) => (
-            <div key={text} className="flex items-center gap-2 rounded-2xl px-3 py-2.5"
-              style={{ background: "rgba(255,255,255,0.65)", backdropFilter: "blur(8px)" }}>
-              <span className="text-lg flex-shrink-0">{icon}</span>
-              <span className="text-[11px] font-semibold" style={{ color: "#44403c" }}>{text}</span>
+            <div key={text} className="flex items-center gap-2 rounded-xl px-3 py-2.5"
+              style={{ background: "rgba(255,255,255,0.85)", border: "1px solid rgba(37,99,235,0.10)" }}>
+              <span className="text-base flex-shrink-0">{icon}</span>
+              <span className="text-[11px] font-semibold" style={{ color: "#334155" }}>{text}</span>
             </div>
           ))}
         </div>
 
         {/* Enter button */}
         <button onClick={onEnter}
-          className="w-full py-4 rounded-2xl font-bold text-[16px] text-white transition-all active:scale-95"
-          style={{ background: "linear-gradient(135deg, #f59e0b 0%, #fb7185 100%)", boxShadow: "0 8px 32px rgba(245,158,11,0.45)" }}>
-          Enter Our Universe ✨
+          className="w-full py-4 rounded-xl font-bold text-[16px] text-white transition-all active:scale-95"
+          style={{ background: "#2563eb", boxShadow: "0 8px 28px rgba(37,99,235,0.30)" }}>
+          Enter the Family Universe
         </button>
 
-        <p className="text-[11px]" style={{ color: "rgba(68,64,60,0.55)" }}>
+        <p className="text-[11px]" style={{ color: "rgba(71,85,105,0.60)" }}>
           Private · Family only · Always safe
         </p>
       </div>
@@ -311,14 +311,14 @@ function HomeTab({ profiles, creations, messages, onTabSwitch }:
   return (
     <div className="space-y-6">
 
-      {/* Hero collage header */}
-      <div className="rounded-3xl overflow-hidden relative"
-        style={{ background: "linear-gradient(135deg, #fde68a 0%, #fca5a5 60%, #c4b5fd 100%)", minHeight: 160 }}>
+      {/* Hero header */}
+      <div className="rounded-2xl overflow-hidden relative"
+        style={{ background: "linear-gradient(135deg, #dbeafe 0%, #eff6ff 60%, #f0f9ff 100%)", minHeight: 160 }}>
 
         {/* Family photo grid */}
-        <div className="absolute inset-0 grid grid-cols-4 gap-1 p-2 opacity-50">
+        <div className="absolute inset-0 grid grid-cols-4 gap-1 p-2 opacity-35">
           {profiles.slice(0, 4).map((p, i) => (
-            <div key={p.id} className="rounded-2xl overflow-hidden"
+            <div key={p.id} className="rounded-xl overflow-hidden"
               style={{ background: memberColor(i) + "44" }}>
               {p.avatar
                 ? <img src={p.avatar} alt={p.name} className="w-full h-full object-cover" />
@@ -332,11 +332,11 @@ function HomeTab({ profiles, creations, messages, onTabSwitch }:
 
         {/* Overlay text */}
         <div className="relative z-10 px-6 py-8 flex flex-col gap-1">
-          <p className="text-[13px] font-semibold" style={{ color: "rgba(28,20,18,0.65)" }}>{greeting} 💛</p>
-          <h2 className="text-[22px] font-black" style={{ color: "#1c1412", letterSpacing: "-0.3px" }}>
+          <p className="text-[13px] font-semibold" style={{ color: "rgba(37,99,235,0.70)" }}>{greeting}</p>
+          <h2 className="text-[22px] font-black" style={{ color: "#0f172a", letterSpacing: "-0.3px" }}>
             Our Family Universe
           </h2>
-          <p className="text-[13px]" style={{ color: "rgba(28,20,18,0.60)" }}>
+          <p className="text-[13px]" style={{ color: "#475569" }}>
             {profiles.length} family member{profiles.length !== 1 ? "s" : ""} · {creations.length} creation{creations.length !== 1 ? "s" : ""}
           </p>
         </div>
@@ -344,16 +344,16 @@ function HomeTab({ profiles, creations, messages, onTabSwitch }:
 
       {/* Quick create shortcuts */}
       <div>
-        <p className="text-[12px] font-bold uppercase tracking-widest mb-3" style={{ color: WARM_MUTED }}>Make something today</p>
+        <p className="text-[12px] font-bold uppercase tracking-widest mb-3" style={{ color: WARM_MUTED }}>Choose what you want to create today</p>
         <div className="grid grid-cols-3 gap-3">
           {[
-            { icon: "📖", label: "Story Maker",    color: "#fb7185", tab: "create" as Tab },
-            { icon: "🎨", label: "Art Studio",     color: "#f59e0b", tab: "create" as Tab },
-            { icon: "🎬", label: "Video Moments",  color: "#a78bfa", tab: "create" as Tab },
+            { icon: "📖", label: "Story Maker",   color: "#2563eb" },
+            { icon: "🎨", label: "Art Studio",    color: "#d97706" },
+            { icon: "🎬", label: "Video Moments", color: "#7c3aed" },
           ].map(({ icon, label, color }) => (
             <button key={label} onClick={() => onTabSwitch("create")}
-              className="flex flex-col items-center gap-2 py-4 rounded-2xl transition-all active:scale-95"
-              style={{ background: color + "15", border: `1.5px solid ${color}25` }}>
+              className="flex flex-col items-center gap-2 py-4 rounded-xl transition-all active:scale-95"
+              style={{ background: color + "10", border: `1.5px solid ${color}20` }}>
               <span className="text-2xl">{icon}</span>
               <span className="text-[11px] font-semibold text-center" style={{ color: color }}>{label}</span>
             </button>
@@ -376,8 +376,8 @@ function HomeTab({ profiles, creations, messages, onTabSwitch }:
                   {c.image
                     ? <img src={c.image} alt={c.title} className="w-12 h-12 rounded-xl object-cover flex-shrink-0" />
                     : <div className="w-12 h-12 rounded-xl flex items-center justify-center text-2xl flex-shrink-0"
-                        style={{ background: "#fef3c7" }}>
-                        {c.type === "story" ? "📖" : c.type === "art" ? "🎨" : c.type === "video" ? "🎬" : "✨"}
+                        style={{ background: "#dbeafe" }}>
+                        {c.type === "story" ? "📖" : c.type === "art" ? "🎨" : c.type === "video" ? "🎬" : "✦"}
                       </div>}
                   <div className="min-w-0">
                     <p className="font-bold text-[13px] truncate" style={{ color: WARM_TEXT }}>{c.title}</p>
@@ -400,7 +400,7 @@ function HomeTab({ profiles, creations, messages, onTabSwitch }:
                 <div className="max-w-[80%] px-3 py-2 rounded-2xl text-[12px]"
                   style={m.role === "user"
                     ? { background: WARM_PRIMARY, color: "#fff" }
-                    : { background: "#fef3c7", color: WARM_TEXT }}>
+                    : { background: "#eff6ff", color: WARM_TEXT }}>
                   {m.text.slice(0, 80)}{m.text.length > 80 ? "…" : ""}
                 </div>
               </div>
@@ -413,9 +413,9 @@ function HomeTab({ profiles, creations, messages, onTabSwitch }:
       {creations.length === 0 && messages.length === 0 && (
         <WarmCard style={{ textAlign: "center", padding: 32 }}>
           <div className="text-4xl mb-3">🌱</div>
-          <p className="font-bold text-[15px]" style={{ color: WARM_TEXT }}>Your universe is ready!</p>
-          <p className="text-[13px] mt-1 mb-4" style={{ color: WARM_MUTED }}>Start by creating something or adding a memory.</p>
-          <WarmBtn onClick={() => onTabSwitch("create")}>✨ Create Something</WarmBtn>
+          <p className="font-bold text-[15px]" style={{ color: WARM_TEXT }}>Your universe is ready.</p>
+          <p className="text-[13px] mt-1 mb-4" style={{ color: WARM_MUTED }}>Create together, at your own pace.</p>
+          <WarmBtn onClick={() => onTabSwitch("create")}>Create Something</WarmBtn>
         </WarmCard>
       )}
     </div>
@@ -452,7 +452,7 @@ function StoryMakerTool({ onSave }: { onSave: (title: string, desc: string) => v
       </WarmBtn>
       {error && <p className="text-[13px]" style={{ color: "#ef4444" }}>{error}</p>}
       {result && (
-        <WarmCard style={{ background: "#fffbf0", borderColor: "rgba(245,158,11,0.25)" }}>
+        <WarmCard style={{ background: "#eff6ff", borderColor: "rgba(37,99,235,0.12)" }}>
           <p className="font-black text-[17px] mb-4" style={{ color: WARM_TEXT }}>{result.title}</p>
           {[
             { label: "Beginning", text: result.opening },
@@ -465,8 +465,8 @@ function StoryMakerTool({ onSave }: { onSave: (title: string, desc: string) => v
             </div>
           ))}
           {result.moral && (
-            <div className="rounded-2xl p-3 mt-2" style={{ background: "#fef3c7" }}>
-              <p className="text-[12px] font-semibold" style={{ color: "#92400e" }}>💛 {result.moral}</p>
+            <div className="rounded-xl p-3 mt-2" style={{ background: "#dbeafe" }}>
+              <p className="text-[12px] font-semibold" style={{ color: "#1e40af" }}>📖 {result.moral}</p>
             </div>
           )}
           <div className="mt-4">
@@ -503,19 +503,19 @@ function ArtStudioTool({ onSave }: { onSave: (title: string, desc: string) => vo
     <div className="space-y-4">
       <WarmTextarea label="What would you like to create?" value={prompt} onChange={setPrompt}
         placeholder="e.g. A painting of our home, a family portrait using watercolors, a collage of our favorite memories…" rows={3} />
-      <WarmBtn onClick={handleGenerate} disabled={!prompt.trim() || loading} color="#f59e0b" className="flex items-center gap-2">
+      <WarmBtn onClick={handleGenerate} disabled={!prompt.trim() || loading} className="flex items-center gap-2">
         {loading && <WarmSpinner />}🎨 Create Art Idea
       </WarmBtn>
       {error && <p className="text-[13px]" style={{ color: "#ef4444" }}>{error}</p>}
       {result && (
-        <WarmCard style={{ background: "#fffbf0" }}>
+        <WarmCard style={{ background: "#eff6ff", borderColor: "rgba(37,99,235,0.12)" }}>
           <p className="font-black text-[17px] mb-1" style={{ color: WARM_TEXT }}>{result.title}</p>
           <p className="text-[12px] mb-3" style={{ color: WARM_MUTED }}>{result.style}</p>
           {result.colors.length > 0 && (
             <div className="flex flex-wrap gap-1.5 mb-3">
               {result.colors.map(c => (
                 <span key={c} className="px-3 py-1 rounded-full text-[11px] font-semibold"
-                  style={{ background: "#fef3c7", color: "#92400e" }}>{c}</span>
+                  style={{ background: "#dbeafe", color: "#1e40af" }}>{c}</span>
               ))}
             </div>
           )}
@@ -777,12 +777,12 @@ function InventionIdeasTool({ onSave }: { onSave: (title: string, desc: string) 
 type Tool = "story" | "art" | "video" | "memory" | "challenge" | "invention" | null;
 
 const TOOLS: { id: Tool & string; icon: string; label: string; subtitle: string; color: string }[] = [
-  { id: "story",     icon: "📖", label: "Story Maker",      subtitle: "Write a family story",         color: "#fb7185" },
-  { id: "art",       icon: "🎨", label: "Art Studio",       subtitle: "Create an art idea",            color: "#f59e0b" },
-  { id: "video",     icon: "🎬", label: "Video Moments",    subtitle: "Plan a family video",           color: "#a78bfa" },
-  { id: "memory",    icon: "💌", label: "Memory Cards",     subtitle: "Capture a special moment",      color: "#fb7185" },
-  { id: "challenge", icon: "🌟", label: "Family Challenges",subtitle: "Create a family activity",      color: "#34d399" },
-  { id: "invention", icon: "💡", label: "Invention Ideas",  subtitle: "Dream up something new",        color: "#38bdf8" },
+  { id: "story",     icon: "📖", label: "Story Maker",       subtitle: "Write a family story",        color: "#2563eb" },
+  { id: "art",       icon: "🎨", label: "Art Studio",        subtitle: "Create an art idea",           color: "#d97706" },
+  { id: "video",     icon: "🎬", label: "Video Moments",     subtitle: "Plan a family video",          color: "#7c3aed" },
+  { id: "memory",    icon: "💌", label: "Memory Cards",      subtitle: "Capture a special moment",     color: "#0891b2" },
+  { id: "challenge", icon: "🎯", label: "Family Challenges", subtitle: "Create a family activity",     color: "#059669" },
+  { id: "invention", icon: "💡", label: "Invention Ideas",   subtitle: "Dream up something new",       color: "#0ea5e9" },
 ];
 
 function CreateTab({ onSaveToGallery }: { onSaveToGallery: (title: string, type: Creation["type"], desc: string) => void }) {
@@ -828,9 +828,9 @@ function CreateTab({ onSaveToGallery }: { onSaveToGallery: (title: string, type:
   return (
     <div className="space-y-5">
       <div>
-        <h2 className="font-black text-[22px] mb-1" style={{ color: WARM_TEXT }}>Create Something</h2>
+        <h2 className="font-black text-[22px] mb-1" style={{ color: WARM_TEXT }}>Create Together</h2>
         <p className="text-[13px]" style={{ color: WARM_MUTED }}>
-          Pick a tool and let your imagination lead the way.
+          Choose what you want to create today.
         </p>
       </div>
       <div className="grid grid-cols-2 gap-3">
@@ -848,11 +848,11 @@ function CreateTab({ onSaveToGallery }: { onSaveToGallery: (title: string, type:
       </div>
 
       {/* Gentle helper hint */}
-      <WarmCard style={{ background: "#fef9f0", borderColor: "rgba(245,158,11,0.2)", padding: "14px 16px" }}>
+      <WarmCard style={{ background: "#eff6ff", borderColor: "rgba(37,99,235,0.12)", padding: "14px 16px" }}>
         <div className="flex gap-3 items-start">
-          <span className="text-xl flex-shrink-0">🌸</span>
-          <p className="text-[13px]" style={{ color: "#78716c" }}>
-            Not sure where to start? Try the Story Maker — just describe any moment or idea and we'll turn it into something beautiful.
+          <span className="text-xl flex-shrink-0">💡</span>
+          <p className="text-[13px]" style={{ color: WARM_MUTED }}>
+            Not sure where to start? Try the Story Maker — just describe any moment or idea and we'll create something together.
           </p>
         </div>
       </WarmCard>
@@ -914,8 +914,8 @@ function GalleryTab({ creations, onAdd, onDelete }: {
             <div className="space-y-1">
               <label className="block text-[11px] font-semibold uppercase tracking-wide" style={{ color: WARM_MUTED }}>Type</label>
               <select value={form.type} onChange={e => setForm(f => ({ ...f, type: e.target.value as Creation["type"] }))}
-                className="w-full rounded-2xl px-4 py-3 text-[13px] outline-none"
-                style={{ border: `1.5px solid rgba(245,158,11,0.2)`, background: "#fffdf9", color: WARM_TEXT, fontFamily: "'Inter',sans-serif" }}>
+                className="w-full rounded-xl px-4 py-3 text-[13px] outline-none"
+                style={{ border: `1.5px solid rgba(37,99,235,0.15)`, background: "#f8fafc", color: WARM_TEXT, fontFamily: "'Inter',sans-serif" }}>
                 {CREATION_TYPES.map(t => <option key={t} value={t}>{TYPE_ICONS[t]} {TYPE_LABELS[t]}</option>)}
               </select>
             </div>
@@ -925,9 +925,9 @@ function GalleryTab({ creations, onAdd, onDelete }: {
               <label className="block text-[11px] font-semibold uppercase tracking-wide mb-1.5" style={{ color: WARM_MUTED }}>Photo (optional)</label>
               <div className="flex items-center gap-3">
                 {form.image
-                  ? <img src={form.image} alt="" className="w-14 h-14 rounded-2xl object-cover" />
-                  : <div className="w-14 h-14 rounded-2xl flex items-center justify-center text-2xl"
-                      style={{ background: "#fef3c7" }}>{TYPE_ICONS[form.type]}</div>}
+                  ? <img src={form.image} alt="" className="w-14 h-14 rounded-xl object-cover" />
+                  : <div className="w-14 h-14 rounded-xl flex items-center justify-center text-2xl"
+                      style={{ background: "#dbeafe" }}>{TYPE_ICONS[form.type]}</div>}
                 <WarmBtn variant="soft" small onClick={() => imgRef.current?.click()}>Upload Photo</WarmBtn>
                 <input ref={imgRef} type="file" accept="image/*" className="hidden" onChange={handleImageUpload} />
               </div>
@@ -953,7 +953,7 @@ function GalleryTab({ creations, onAdd, onDelete }: {
               {c.image
                 ? <img src={c.image} alt={c.title} className="w-full h-28 object-cover" />
                 : <div className="w-full h-28 flex items-center justify-center text-4xl"
-                    style={{ background: "linear-gradient(135deg, #fef3c7, #fde68a)" }}>
+                    style={{ background: "linear-gradient(135deg, #dbeafe, #bfdbfe)" }}>
                     {TYPE_ICONS[c.type]}
                   </div>}
               <div className="p-3">
@@ -1009,8 +1009,8 @@ function MemberPage({ profile, index, onBack }: { profile: Profile; index: numbe
       </WarmCard>
 
       {/* Kindness highlights */}
-      <WarmCard style={{ background: "#fffbf0", marginBottom: 16 }}>
-        <p className="text-[11px] font-bold uppercase tracking-widest mb-3" style={{ color: WARM_PRIMARY }}>Kindness highlights 💛</p>
+      <WarmCard style={{ background: "#eff6ff", marginBottom: 16 }}>
+        <p className="text-[11px] font-bold uppercase tracking-widest mb-3" style={{ color: WARM_PRIMARY }}>Kindness highlights</p>
         <div className="space-y-2">
           {["Shows up for family", "Brings creativity and joy", "Cares deeply about others"].map(h => (
             <div key={h} className="flex items-center gap-2 text-[13px]" style={{ color: WARM_TEXT }}>
@@ -1124,14 +1124,14 @@ function FamilyTab() {
       {/* Profile form */}
       {showForm && (
         <WarmCard>
-          <p className="font-bold text-[15px] mb-4" style={{ color: WARM_TEXT }}>{editId ? "Edit Profile" : "Add a Family Member"} 💛</p>
+          <p className="font-bold text-[15px] mb-4" style={{ color: WARM_TEXT }}>{editId ? "Edit Profile" : "Add a Family Member"}</p>
           <div className="space-y-3">
             {/* Avatar */}
             <div className="flex items-center gap-4">
               {form.avatar
                 ? <img src={form.avatar} alt="" className="w-16 h-16 rounded-full object-cover" />
                 : <div className="w-16 h-16 rounded-full flex items-center justify-center text-2xl font-bold"
-                    style={{ background: "#fef3c7", color: WARM_PRIMARY }}>
+                    style={{ background: "#dbeafe", color: WARM_PRIMARY }}>
                     {form.name.charAt(0) || "?"}
                   </div>}
               <WarmBtn variant="soft" small onClick={() => avatarRef.current?.click()}>📷 Upload Photo</WarmBtn>
@@ -1184,10 +1184,10 @@ function FamilyTab() {
       </div>
 
       {/* Invite section */}
-      <WarmCard style={{ background: "#fffbf0" }}>
+      <WarmCard style={{ background: "#eff6ff", borderColor: "rgba(37,99,235,0.12)" }}>
         <div className="flex items-center justify-between mb-3">
           <div>
-            <p className="font-bold text-[14px]" style={{ color: WARM_TEXT }}>🔗 Invite Family Members</p>
+            <p className="font-bold text-[14px]" style={{ color: WARM_TEXT }}>Invite Family Members</p>
             <p className="text-[12px] mt-0.5" style={{ color: WARM_MUTED }}>Share your universe privately</p>
           </div>
           <WarmBtn variant="soft" small onClick={() => setShowInvite(v => !v)}>
@@ -1200,7 +1200,7 @@ function FamilyTab() {
             <div className="flex flex-wrap gap-2">
               {["Your sister", "Her children", "Her grandchildren", "Any family member"].map(who => (
                 <span key={who} className="flex items-center gap-1 text-[11px] font-semibold px-2.5 py-1 rounded-full"
-                  style={{ background: "#fef3c7", color: "#92400e" }}>
+                  style={{ background: "#dbeafe", color: "#1e40af" }}>
                   ✓ {who}
                 </span>
               ))}
@@ -1211,8 +1211,8 @@ function FamilyTab() {
                 <div className="flex gap-2">
                   <input type="text" readOnly value={inviteLink}
                     onClick={e => (e.target as HTMLInputElement).select()}
-                    className="flex-1 rounded-2xl px-3 py-2.5 text-[11px] outline-none font-mono cursor-text"
-                    style={{ border: `1.5px solid rgba(245,158,11,0.25)`, background: "#fffdf9", color: "#92400e" }} />
+                    className="flex-1 rounded-xl px-3 py-2.5 text-[11px] outline-none font-mono cursor-text"
+                    style={{ border: `1.5px solid rgba(37,99,235,0.15)`, background: "#f8fafc", color: WARM_TEXT }} />
                   <WarmBtn onClick={handleCopy} small color={copied ? "#34d399" : WARM_PRIMARY}>
                     {copied ? "✓ Copied!" : "Copy"}
                   </WarmBtn>
@@ -1257,19 +1257,19 @@ function RewardsTab() {
   return (
     <div className="space-y-5">
       {/* Balance */}
-      <div className="rounded-3xl p-6 text-center"
-        style={{ background: "linear-gradient(135deg, #fde68a 0%, #fca5a5 100%)" }}>
-        <p className="text-[13px] font-semibold mb-1" style={{ color: "rgba(28,20,18,0.65)" }}>Family Balance</p>
+      <div className="rounded-2xl p-6 text-center"
+        style={{ background: "linear-gradient(135deg, #dbeafe 0%, #eff6ff 100%)", border: "1px solid rgba(37,99,235,0.12)" }}>
+        <p className="text-[13px] font-semibold mb-1" style={{ color: "rgba(37,99,235,0.65)" }}>Family Balance</p>
         <p className="font-black text-[44px] leading-none" style={{ color: WARM_TEXT, letterSpacing: "-1px" }}>
           ${balance.toFixed(2)}
         </p>
-        <p className="text-[12px] mt-2" style={{ color: "rgba(28,20,18,0.55)" }}>
+        <p className="text-[12px] mt-2" style={{ color: WARM_MUTED }}>
           {transactions.length} transaction{transactions.length !== 1 ? "s" : ""}
         </p>
       </div>
 
       <div className="flex items-center justify-between">
-        <p className="font-bold text-[15px]" style={{ color: WARM_TEXT }}>Rewards & Earnings 🌟</p>
+        <p className="font-bold text-[15px]" style={{ color: WARM_TEXT }}>Rewards & Earnings</p>
         <WarmBtn onClick={() => setShowForm(v => !v)} variant="soft" small>+ Add</WarmBtn>
       </div>
 
@@ -1283,7 +1283,7 @@ function RewardsTab() {
                   className="flex items-center gap-2 p-3 rounded-2xl text-[12px] font-semibold transition-all"
                   style={form.type === t
                     ? { background: WARM_PRIMARY, color: "#fff" }
-                    : { background: "#fef3c7", color: "#78716c" }}>
+                    : { background: "#f0f9ff", color: WARM_MUTED }}>
                   <span>{REWARD_ICONS[t]}</span>{REWARD_LABELS[t]}
                 </button>
               ))}
@@ -1313,7 +1313,7 @@ function RewardsTab() {
                 <div className="flex items-center justify-between">
                   <div className="flex items-center gap-3">
                     <div className="w-10 h-10 rounded-2xl flex items-center justify-center text-lg flex-shrink-0"
-                      style={{ background: isExpense ? "#fee2e2" : "#fef3c7" }}>
+                      style={{ background: isExpense ? "#fee2e2" : "#dbeafe" }}>
                       {REWARD_ICONS[t.type]}
                     </div>
                     <div>
@@ -1424,7 +1424,7 @@ function StoreTab() {
               </WarmCard>
             ))}
 
-            <WarmCard style={{ background: "#fffbf0" }}>
+            <WarmCard style={{ background: "#eff6ff", borderColor: "rgba(37,99,235,0.12)" }}>
               <div className="flex items-center justify-between">
                 <p className="font-bold text-[15px]" style={{ color: WARM_TEXT }}>Total</p>
                 <p className="font-black text-[20px]" style={{ color: WARM_PRIMARY }}>${cartTotal.toFixed(2)}</p>
@@ -1432,7 +1432,7 @@ function StoreTab() {
             </WarmCard>
 
             <WarmBtn onClick={() => setCheckoutDone(true)} className="w-full text-center">
-              Place Order 💛
+              Place Order
             </WarmBtn>
 
             <WarmCard style={{ background: "#f0fdf4", borderColor: "rgba(52,211,153,0.25)", padding: "12px 16px" }}>
@@ -1452,15 +1452,15 @@ function StoreTab() {
   return (
     <div className="space-y-6">
       {/* Hero */}
-      <div className="rounded-3xl p-6 relative overflow-hidden"
-        style={{ background: "linear-gradient(135deg, #fde68a 0%, #fca5a5 60%, #c4b5fd 100%)" }}>
-        <div className="absolute -top-8 -right-8 w-32 h-32 rounded-full opacity-20"
-          style={{ background: "#fff" }} />
-        <p className="text-[12px] font-bold uppercase tracking-widest mb-1" style={{ color: "rgba(28,20,18,0.55)" }}>Family Store</p>
-        <h2 className="font-black text-[22px] mb-1" style={{ color: "#1c1412", letterSpacing: "-0.3px" }}>
+      <div className="rounded-2xl p-6 relative overflow-hidden"
+        style={{ background: "linear-gradient(135deg, #dbeafe 0%, #eff6ff 60%, #f0f9ff 100%)", border: "1px solid rgba(37,99,235,0.12)" }}>
+        <div className="absolute -top-8 -right-8 w-32 h-32 rounded-full opacity-10"
+          style={{ background: "#2563eb" }} />
+        <p className="text-[12px] font-bold uppercase tracking-widest mb-1" style={{ color: "rgba(37,99,235,0.65)" }}>Family Store</p>
+        <h2 className="font-black text-[22px] mb-1" style={{ color: "#0f172a", letterSpacing: "-0.3px" }}>
           Explore Our Family Store
         </h2>
-        <p className="text-[13px] mb-4" style={{ color: "rgba(28,20,18,0.65)" }}>
+        <p className="text-[13px] mb-4" style={{ color: "#475569" }}>
           Thoughtfully made things for families who love to create and connect.
         </p>
         <div className="flex gap-2 flex-wrap">
@@ -1488,7 +1488,7 @@ function StoreTab() {
           ))}
         </div>
         {selectedCategory && (
-          <WarmCard style={{ marginTop: 12, background: "#fffbf0", padding: "12px 16px" }}>
+          <WarmCard style={{ marginTop: 12, background: "#eff6ff", borderColor: "rgba(37,99,235,0.12)", padding: "12px 16px" }}>
             <p className="text-[13px]" style={{ color: WARM_TEXT }}>
               {STORE_CATEGORIES.find(c => c.label === selectedCategory)?.desc}
             </p>
@@ -1531,7 +1531,7 @@ function StoreTab() {
       {cartItems.length > 0 && (
         <button onClick={() => setShowCart(true)}
           className="w-full py-4 rounded-2xl font-bold text-[14px] text-white transition-all active:scale-95"
-          style={{ background: "linear-gradient(135deg, #f59e0b 0%, #fb7185 100%)", boxShadow: "0 6px 24px rgba(245,158,11,0.35)" }}>
+          style={{ background: "#2563eb", boxShadow: "0 6px 20px rgba(37,99,235,0.30)" }}>
           View Basket · {cartItems.length} item{cartItems.length !== 1 ? "s" : ""} · ${cartTotal.toFixed(2)} →
         </button>
       )}
@@ -1604,12 +1604,12 @@ function FamilyChatPanel({ onClose }: { onClose: () => void }) {
             <div key={m.id} className={`flex gap-2 ${m.role === "user" ? "justify-end" : "justify-start"}`}>
               {m.role === "ai" && (
                 <div className="w-8 h-8 rounded-full flex items-center justify-center text-sm flex-shrink-0 mt-0.5"
-                  style={{ background: "#fef3c7" }}>🌸</div>
+                  style={{ background: "#dbeafe" }}>💬</div>
               )}
               <div className={`max-w-[75%] px-4 py-2.5 rounded-2xl text-[13px] leading-relaxed ${m.role === "user" ? "rounded-br-sm" : "rounded-bl-sm"}`}
                 style={m.role === "user"
                   ? { background: WARM_PRIMARY, color: "#fff" }
-                  : { background: "#fef9f0", color: WARM_TEXT }}>
+                  : { background: "#eff6ff", color: WARM_TEXT }}>
                 {m.text}
                 <div className="text-[10px] mt-1" style={{ color: m.role === "user" ? "rgba(255,255,255,0.65)" : WARM_MUTED }}>{m.ts}</div>
               </div>
@@ -1618,9 +1618,9 @@ function FamilyChatPanel({ onClose }: { onClose: () => void }) {
           {loading && (
             <div className="flex gap-2 justify-start">
               <div className="w-8 h-8 rounded-full flex items-center justify-center text-sm flex-shrink-0"
-                style={{ background: "#fef3c7" }}>🌸</div>
+                style={{ background: "#dbeafe" }}>💬</div>
               <div className="px-4 py-3 rounded-2xl rounded-bl-sm flex items-center gap-2"
-                style={{ background: "#fef9f0" }}>
+                style={{ background: "#eff6ff" }}>
                 <WarmSpinner /><span className="text-[12px]" style={{ color: WARM_MUTED }}>Thinking…</span>
               </div>
             </div>
@@ -1634,7 +1634,7 @@ function FamilyChatPanel({ onClose }: { onClose: () => void }) {
             onKeyDown={e => e.key === "Enter" && !e.shiftKey && handleSend()}
             placeholder="Ask anything…" disabled={loading}
             className="flex-1 rounded-2xl px-4 py-3 text-[13px] outline-none"
-            style={{ border: `1.5px solid rgba(245,158,11,0.2)`, background: "#fffdf9", color: WARM_TEXT, fontFamily: "'Inter',sans-serif" }} />
+            style={{ border: `1.5px solid rgba(37,99,235,0.15)`, background: "#f8fafc", color: WARM_TEXT, fontFamily: "'Inter',sans-serif" }} />
           <WarmBtn onClick={handleSend} disabled={!input.trim() || loading} small>Send</WarmBtn>
         </div>
       </div>
@@ -1666,11 +1666,14 @@ function FamilyUniverseApp() {
 
       {/* Top bar */}
       <div className="sticky top-0 z-40 flex items-center justify-between px-5 py-3"
-        style={{ background: "rgba(255,251,245,0.95)", backdropFilter: "blur(10px)", borderBottom: `1px solid ${WARM_BORDER}` }}>
+        style={{ background: "rgba(248,250,252,0.97)", backdropFilter: "blur(10px)", borderBottom: `1px solid ${WARM_BORDER}` }}>
         <button onClick={() => navigate("/")}
           className="text-[13px] font-semibold" style={{ color: WARM_MUTED }}>← Back</button>
         <div className="flex items-center gap-2">
-          <span className="text-lg">🌟</span>
+          <div className="w-6 h-6 rounded-md flex items-center justify-center"
+            style={{ background: "#2563eb" }}>
+            <span className="text-white font-black text-[10px]">CA</span>
+          </div>
           <span className="font-black text-[15px]" style={{ color: WARM_TEXT }}>Family Universe</span>
         </div>
         <div className="w-12" />
@@ -1691,7 +1694,7 @@ function FamilyUniverseApp() {
 
       {/* Bottom nav */}
       <div className="fixed bottom-0 left-0 right-0 z-40"
-        style={{ background: "rgba(255,251,245,0.97)", backdropFilter: "blur(10px)", borderTop: `1px solid ${WARM_BORDER}` }}>
+        style={{ background: "rgba(248,250,252,0.97)", backdropFilter: "blur(10px)", borderTop: `1px solid ${WARM_BORDER}` }}>
         <div className="max-w-lg mx-auto flex">
           {TABS.map(tab => {
             const active = activeTab === tab.id;
@@ -1710,10 +1713,10 @@ function FamilyUniverseApp() {
 
       {/* Floating helper button */}
       <button onClick={() => setShowChat(true)}
-        className="fixed bottom-20 right-5 z-40 w-14 h-14 rounded-full flex items-center justify-center text-2xl shadow-2xl transition-all active:scale-95"
-        style={{ background: "linear-gradient(135deg, #f59e0b, #fb7185)", boxShadow: "0 8px 28px rgba(245,158,11,0.45)" }}
+        className="fixed bottom-20 right-5 z-40 w-14 h-14 rounded-full flex items-center justify-center text-2xl shadow-xl transition-all active:scale-95"
+        style={{ background: "#2563eb", boxShadow: "0 8px 24px rgba(37,99,235,0.35)" }}
         aria-label="Open family helper">
-        🌸
+        💬
       </button>
 
       {/* Chat panel */}
