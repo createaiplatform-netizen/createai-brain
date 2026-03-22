@@ -1,16 +1,25 @@
 import { useState, useEffect, useCallback } from "react";
 
-type Project = { id: number; name: string; address: string; type: string; status: string; budget: number; spent: number; manager: string; start_date: string; end_date: string };
-type Stats   = { projects: Record<string,number>; pendingBids: number; activeContracts: number; pendingInspections: number; openPunchItems: number };
+type Project    = { id: number; name: string; address: string; type: string; status: string; budget: number; spent: number; manager: string; start_date: string; end_date: string };
+type Bid        = { id: number; project_name: string; bidder: string; bidder_email: string; amount: number; status: string; valid_until: string; notes: string };
+type Inspection = { id: number; project_name: string; type: string; inspector: string; agency: string; result: string; scheduled_at: string; completed_at: string };
+type Stats      = { projects: Record<string,number>; pendingBids: number; activeContracts: number; pendingInspections: number; openPunchItems: number };
 
 const statusColor = (s: string) => ({ planning: "#64748b", bidding: "#6366f1", active: "#22c55e", on_hold: "#f59e0b", completed: "#94a3b8", cancelled: "#ef4444" }[s] ?? "#94a3b8");
+const bidColor    = (s: string) => ({ submitted: "#6366f1", awarded: "#22c55e", rejected: "#ef4444", withdrawn: "#64748b" }[s] ?? "#94a3b8");
+const inspColor   = (s: string) => ({ passed: "#22c55e", failed: "#ef4444", conditional: "#f59e0b", pending: "#6366f1" }[s] ?? "#94a3b8");
 
 export default function ConstructionApp() {
-  const [tab, setTab]     = useState<"projects"|"bids"|"inspections">("projects");
-  const [projects, setP]  = useState<Project[]>([]);
-  const [stats, setStats] = useState<Stats | null>(null);
-  const [form, setForm]   = useState({ name: "", address: "", city: "", type: "commercial", owner_name: "", budget: "", manager: "" });
-  const [msg, setMsg]     = useState("");
+  const [tab, setTab]       = useState<"projects"|"bids"|"inspections">("projects");
+  const [projects, setP]    = useState<Project[]>([]);
+  const [bids, setBids]     = useState<Bid[]>([]);
+  const [inspections, setIn] = useState<Inspection[]>([]);
+  const [stats, setStats]   = useState<Stats | null>(null);
+  const [projForm, setProjForm] = useState({ name: "", address: "", city: "", type: "commercial", owner_name: "", budget: "", manager: "" });
+  const [bidForm, setBidForm]   = useState({ project_id: "", bidder: "", bidder_email: "", amount: "", valid_until: "", notes: "" });
+  const [inpForm, setInpForm]   = useState({ project_id: "", type: "", inspector: "", agency: "", scheduled_at: "" });
+  const [resultForm, setResultForm] = useState<{ id: number | null; result: string; notes: string }>({ id: null, result: "passed", notes: "" });
+  const [msg, setMsg]       = useState("");
   const [loading, setLoading] = useState(false);
 
   const notify = (m: string) => { setMsg(m); setTimeout(() => setMsg(""), 4000); };
@@ -18,12 +27,16 @@ export default function ConstructionApp() {
   const load = useCallback(async () => {
     setLoading(true);
     try {
-      const [p, s] = await Promise.all([
-        fetch("/api/construction/projects",   { credentials: "include" }).then(r => r.json()),
-        fetch("/api/construction/stats",      { credentials: "include" }).then(r => r.json()),
+      const [p, s, b, i] = await Promise.all([
+        fetch("/api/construction/projects",    { credentials: "include" }).then(r => r.json()),
+        fetch("/api/construction/stats",       { credentials: "include" }).then(r => r.json()),
+        fetch("/api/construction/bids",        { credentials: "include" }).then(r => r.json()),
+        fetch("/api/construction/inspections", { credentials: "include" }).then(r => r.json()),
       ]);
       setP(p.projects ?? []);
       setStats(s);
+      setBids(b.bids ?? []);
+      setIn(i.inspections ?? []);
     } catch { notify("Failed to load data"); } finally { setLoading(false); }
   }, []);
 
@@ -31,11 +44,11 @@ export default function ConstructionApp() {
 
   const addProject = async (e: React.FormEvent) => {
     e.preventDefault();
-    if (!form.name) { notify("Project name required"); return; }
+    if (!projForm.name) { notify("Project name required"); return; }
     const r = await fetch("/api/construction/projects", { method: "POST", credentials: "include",
       headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ ...form, budget: form.budget ? parseFloat(form.budget) : undefined }) });
-    if (r.ok) { notify("✓ Project created"); setForm({ name: "", address: "", city: "", type: "commercial", owner_name: "", budget: "", manager: "" }); load(); }
+      body: JSON.stringify({ ...projForm, budget: projForm.budget ? parseFloat(projForm.budget) : undefined }) });
+    if (r.ok) { notify("✓ Project created"); setProjForm({ name: "", address: "", city: "", type: "commercial", owner_name: "", budget: "", manager: "" }); load(); }
     else { notify("Error creating project"); }
   };
 
@@ -44,7 +57,44 @@ export default function ConstructionApp() {
     notify("Project removed"); load();
   };
 
+  const addBid = async (e: React.FormEvent) => {
+    e.preventDefault();
+    if (!bidForm.project_id || !bidForm.bidder || !bidForm.amount) { notify("Project, bidder, and amount required"); return; }
+    const r = await fetch("/api/construction/bids", { method: "POST", credentials: "include",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ ...bidForm, project_id: parseInt(bidForm.project_id), amount: parseFloat(bidForm.amount) }) });
+    if (r.ok) { notify("✓ Bid submitted"); setBidForm({ project_id: "", bidder: "", bidder_email: "", amount: "", valid_until: "", notes: "" }); load(); }
+    else { notify("Error submitting bid"); }
+  };
+
+  const awardBid = async (id: number) => {
+    const r = await fetch(`/api/construction/bids/${id}/award`, { method: "PUT", credentials: "include" });
+    if (r.ok) { notify("✓ Bid awarded"); load(); } else { notify("Error awarding bid"); }
+  };
+
+  const scheduleInspection = async (e: React.FormEvent) => {
+    e.preventDefault();
+    if (!inpForm.project_id || !inpForm.type) { notify("Project and inspection type required"); return; }
+    const r = await fetch("/api/construction/inspections", { method: "POST", credentials: "include",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ ...inpForm, project_id: parseInt(inpForm.project_id) }) });
+    if (r.ok) { notify("✓ Inspection scheduled"); setInpForm({ project_id: "", type: "", inspector: "", agency: "", scheduled_at: "" }); load(); }
+    else { notify("Error scheduling inspection"); }
+  };
+
+  const logResult = async (e: React.FormEvent) => {
+    e.preventDefault();
+    if (!resultForm.id) { notify("Select an inspection"); return; }
+    const r = await fetch(`/api/construction/inspections/${resultForm.id}/result`, { method: "PUT", credentials: "include",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ result: resultForm.result, notes: resultForm.notes }) });
+    if (r.ok) { notify("✓ Result logged"); setResultForm({ id: null, result: "passed", notes: "" }); load(); }
+    else { notify("Error logging result"); }
+  };
+
   const budgetUsed = (p: Project) => p.budget ? Math.round(Number(p.spent ?? 0) / Number(p.budget) * 100) : null;
+
+  const inp = { background: "#020617", border: "1px solid #334155", borderRadius: 6, padding: "8px 10px", color: "#f1f5f9", fontSize: 14, width: "100%" } as const;
 
   return (
     <div style={{ background: "#020617", minHeight: "100vh", color: "#f1f5f9", fontFamily: "Inter,sans-serif", padding: "24px" }}>
@@ -89,18 +139,15 @@ export default function ConstructionApp() {
           {tab === "projects" && (
             <>
               <form onSubmit={addProject} style={{ background: "#0f172a", border: "1px solid #1e293b", borderRadius: 12, padding: 20, marginBottom: 20, display: "flex", gap: 10, flexWrap: "wrap", alignItems: "flex-end" }}>
-                {[["name","Project Name *"], ["address","Address"], ["city","City"], ["owner_name","Owner"], ["budget","Budget ($)"], ["manager","Manager"]].map(([k, lbl]) => (
+                {([["name","Project Name *"], ["address","Address"], ["city","City"], ["owner_name","Owner"], ["budget","Budget ($)"], ["manager","Manager"]] as [string,string][]).map(([k, lbl]) => (
                   <div key={k} style={{ flex: k === "name" ? 3 : 1, minWidth: 130 }}>
                     <label style={{ fontSize: 12, color: "#64748b", display: "block", marginBottom: 4 }}>{lbl}</label>
-                    <input value={(form as Record<string,string>)[k]} onChange={e => setForm(f => ({ ...f, [k]: e.target.value }))}
-                      type={k === "budget" ? "number" : "text"}
-                      style={{ width: "100%", background: "#020617", border: "1px solid #334155", borderRadius: 6, padding: "8px 10px", color: "#f1f5f9", fontSize: 14 }} />
+                    <input value={(projForm as Record<string,string>)[k]} onChange={e => setProjForm(f => ({ ...f, [k]: e.target.value }))} type={k === "budget" ? "number" : "text"} style={inp} />
                   </div>
                 ))}
                 <div style={{ flex: 1, minWidth: 130 }}>
                   <label style={{ fontSize: 12, color: "#64748b", display: "block", marginBottom: 4 }}>Type</label>
-                  <select value={form.type} onChange={e => setForm(f => ({ ...f, type: e.target.value }))}
-                    style={{ width: "100%", background: "#020617", border: "1px solid #334155", borderRadius: 6, padding: "8px 10px", color: "#f1f5f9", fontSize: 14 }}>
+                  <select value={projForm.type} onChange={e => setProjForm(f => ({ ...f, type: e.target.value }))} style={inp}>
                     {["commercial","residential","industrial","infrastructure","renovation"].map(t => <option key={t} value={t}>{t}</option>)}
                   </select>
                 </div>
@@ -140,19 +187,126 @@ export default function ConstructionApp() {
               </div>
             </>
           )}
+
           {tab === "bids" && (
-            <div style={{ background: "#0f172a", border: "1px solid #1e293b", borderRadius: 12, padding: 32, textAlign: "center", color: "#64748b" }}>
-              <div style={{ fontSize: 40, marginBottom: 12 }}>📋</div>
-              <div style={{ fontSize: 16 }}>Bid Management System</div>
-              <div style={{ fontSize: 13, marginTop: 8 }}>POST /api/construction/bids · PUT /api/construction/bids/:id/award</div>
-            </div>
+            <>
+              <form onSubmit={addBid} style={{ background: "#0f172a", border: "1px solid #1e293b", borderRadius: 12, padding: 20, marginBottom: 20, display: "flex", gap: 10, flexWrap: "wrap", alignItems: "flex-end" }}>
+                <div style={{ flex: 2, minWidth: 180 }}>
+                  <label style={{ fontSize: 12, color: "#64748b", display: "block", marginBottom: 4 }}>Project *</label>
+                  <select value={bidForm.project_id} onChange={e => setBidForm(f => ({ ...f, project_id: e.target.value }))} style={inp}>
+                    <option value="">Select project…</option>
+                    {projects.map(p => <option key={p.id} value={p.id}>{p.name}</option>)}
+                  </select>
+                </div>
+                {([["bidder","Bidder *"], ["bidder_email","Email"], ["amount","Amount ($) *"], ["valid_until","Valid Until"]] as [string,string][]).map(([k, lbl]) => (
+                  <div key={k} style={{ flex: 1, minWidth: 120 }}>
+                    <label style={{ fontSize: 12, color: "#64748b", display: "block", marginBottom: 4 }}>{lbl}</label>
+                    <input value={(bidForm as Record<string,string>)[k]} onChange={e => setBidForm(f => ({ ...f, [k]: e.target.value }))} type={k === "amount" ? "number" : k === "valid_until" ? "date" : "text"} step={k === "amount" ? "0.01" : undefined} style={inp} />
+                  </div>
+                ))}
+                <button type="submit" style={{ padding: "8px 20px", background: "#6366f1", border: "none", borderRadius: 8, color: "#fff", fontWeight: 600, cursor: "pointer" }}>Submit Bid</button>
+              </form>
+              <div style={{ background: "#0f172a", border: "1px solid #1e293b", borderRadius: 12, overflow: "hidden" }}>
+                <table style={{ width: "100%", borderCollapse: "collapse", fontSize: 14 }}>
+                  <thead><tr style={{ borderBottom: "1px solid #1e293b" }}>{["Project","Bidder","Amount","Valid Until","Status",""].map(h => <th key={h} style={{ padding: "12px 16px", textAlign: "left", color: "#64748b", fontSize: 12 }}>{h}</th>)}</tr></thead>
+                  <tbody>
+                    {loading ? <tr><td colSpan={6} style={{ padding: 24, textAlign: "center", color: "#64748b" }}>Loading...</td></tr>
+                    : bids.length === 0 ? <tr><td colSpan={6} style={{ padding: 24, textAlign: "center", color: "#64748b" }}>No bids yet</td></tr>
+                    : bids.map(b => (
+                      <tr key={b.id} style={{ borderBottom: "1px solid #0f172a" }}>
+                        <td style={{ padding: "12px 16px", fontWeight: 600 }}>{b.project_name || "—"}</td>
+                        <td style={{ padding: "12px 16px" }}>{b.bidder}</td>
+                        <td style={{ padding: "12px 16px", color: "#22c55e", fontWeight: 600 }}>${Number(b.amount).toLocaleString()}</td>
+                        <td style={{ padding: "12px 16px", color: "#94a3b8", fontSize: 12 }}>{b.valid_until ? new Date(b.valid_until).toLocaleDateString() : "—"}</td>
+                        <td style={{ padding: "12px 16px" }}><span style={{ background: bidColor(b.status) + "22", color: bidColor(b.status), padding: "3px 10px", borderRadius: 20, fontSize: 12 }}>{b.status}</span></td>
+                        <td style={{ padding: "12px 16px" }}>
+                          {b.status === "submitted" && <button onClick={() => awardBid(b.id)} style={{ background: "#22c55e22", border: "1px solid #22c55e", color: "#22c55e", borderRadius: 6, padding: "4px 10px", cursor: "pointer", fontSize: 12 }}>Award</button>}
+                        </td>
+                      </tr>
+                    ))}
+                  </tbody>
+                </table>
+              </div>
+            </>
           )}
+
           {tab === "inspections" && (
-            <div style={{ background: "#0f172a", border: "1px solid #1e293b", borderRadius: 12, padding: 32, textAlign: "center", color: "#64748b" }}>
-              <div style={{ fontSize: 40, marginBottom: 12 }}>🔍</div>
-              <div style={{ fontSize: 16 }}>Inspection Scheduling & Results</div>
-              <div style={{ fontSize: 13, marginTop: 8 }}>POST /api/construction/inspections · PUT /api/construction/inspections/:id/result</div>
-            </div>
+            <>
+              <div style={{ display: "flex", gap: 16, marginBottom: 20, flexWrap: "wrap" }}>
+                <form onSubmit={scheduleInspection} style={{ flex: 1, minWidth: 320, background: "#0f172a", border: "1px solid #1e293b", borderRadius: 12, padding: 20 }}>
+                  <div style={{ fontSize: 13, fontWeight: 600, color: "#94a3b8", marginBottom: 12 }}>Schedule Inspection</div>
+                  <div style={{ display: "flex", flexDirection: "column", gap: 10 }}>
+                    <div>
+                      <label style={{ fontSize: 12, color: "#64748b", display: "block", marginBottom: 4 }}>Project *</label>
+                      <select value={inpForm.project_id} onChange={e => setInpForm(f => ({ ...f, project_id: e.target.value }))} style={inp}>
+                        <option value="">Select project…</option>
+                        {projects.map(p => <option key={p.id} value={p.id}>{p.name}</option>)}
+                      </select>
+                    </div>
+                    <div>
+                      <label style={{ fontSize: 12, color: "#64748b", display: "block", marginBottom: 4 }}>Type *</label>
+                      <select value={inpForm.type} onChange={e => setInpForm(f => ({ ...f, type: e.target.value }))} style={inp}>
+                        <option value="">Select type…</option>
+                        {["foundation","framing","electrical","plumbing","mechanical","final","fire_safety","structural"].map(t => <option key={t} value={t}>{t.replace(/_/g," ")}</option>)}
+                      </select>
+                    </div>
+                    {([["inspector","Inspector"], ["agency","Agency"]] as [string,string][]).map(([k, lbl]) => (
+                      <div key={k}>
+                        <label style={{ fontSize: 12, color: "#64748b", display: "block", marginBottom: 4 }}>{lbl}</label>
+                        <input value={(inpForm as Record<string,string>)[k]} onChange={e => setInpForm(f => ({ ...f, [k]: e.target.value }))} style={inp} />
+                      </div>
+                    ))}
+                    <div>
+                      <label style={{ fontSize: 12, color: "#64748b", display: "block", marginBottom: 4 }}>Scheduled At</label>
+                      <input type="datetime-local" value={inpForm.scheduled_at} onChange={e => setInpForm(f => ({ ...f, scheduled_at: e.target.value }))} style={inp} />
+                    </div>
+                    <button type="submit" style={{ padding: "8px 20px", background: "#6366f1", border: "none", borderRadius: 8, color: "#fff", fontWeight: 600, cursor: "pointer" }}>Schedule</button>
+                  </div>
+                </form>
+                <form onSubmit={logResult} style={{ flex: 1, minWidth: 280, background: "#0f172a", border: "1px solid #1e293b", borderRadius: 12, padding: 20 }}>
+                  <div style={{ fontSize: 13, fontWeight: 600, color: "#94a3b8", marginBottom: 12 }}>Log Inspection Result</div>
+                  <div style={{ display: "flex", flexDirection: "column", gap: 10 }}>
+                    <div>
+                      <label style={{ fontSize: 12, color: "#64748b", display: "block", marginBottom: 4 }}>Inspection *</label>
+                      <select value={resultForm.id ?? ""} onChange={e => setResultForm(f => ({ ...f, id: e.target.value ? parseInt(e.target.value) : null }))} style={inp}>
+                        <option value="">Select inspection…</option>
+                        {inspections.filter(i => i.result === "pending").map(i => <option key={i.id} value={i.id}>{i.project_name} — {i.type}</option>)}
+                      </select>
+                    </div>
+                    <div>
+                      <label style={{ fontSize: 12, color: "#64748b", display: "block", marginBottom: 4 }}>Result *</label>
+                      <select value={resultForm.result} onChange={e => setResultForm(f => ({ ...f, result: e.target.value }))} style={inp}>
+                        {["passed","failed","conditional"].map(r => <option key={r} value={r}>{r}</option>)}
+                      </select>
+                    </div>
+                    <div>
+                      <label style={{ fontSize: 12, color: "#64748b", display: "block", marginBottom: 4 }}>Notes</label>
+                      <input value={resultForm.notes} onChange={e => setResultForm(f => ({ ...f, notes: e.target.value }))} style={inp} />
+                    </div>
+                    <button type="submit" style={{ padding: "8px 20px", background: "#22c55e", border: "none", borderRadius: 8, color: "#fff", fontWeight: 600, cursor: "pointer" }}>Log Result</button>
+                  </div>
+                </form>
+              </div>
+              <div style={{ background: "#0f172a", border: "1px solid #1e293b", borderRadius: 12, overflow: "hidden" }}>
+                <table style={{ width: "100%", borderCollapse: "collapse", fontSize: 14 }}>
+                  <thead><tr style={{ borderBottom: "1px solid #1e293b" }}>{["Project","Type","Inspector","Agency","Scheduled","Result"].map(h => <th key={h} style={{ padding: "12px 16px", textAlign: "left", color: "#64748b", fontSize: 12 }}>{h}</th>)}</tr></thead>
+                  <tbody>
+                    {loading ? <tr><td colSpan={6} style={{ padding: 24, textAlign: "center", color: "#64748b" }}>Loading...</td></tr>
+                    : inspections.length === 0 ? <tr><td colSpan={6} style={{ padding: 24, textAlign: "center", color: "#64748b" }}>No inspections yet</td></tr>
+                    : inspections.map(i => (
+                      <tr key={i.id} style={{ borderBottom: "1px solid #0f172a" }}>
+                        <td style={{ padding: "12px 16px", fontWeight: 600 }}>{i.project_name || "—"}</td>
+                        <td style={{ padding: "12px 16px" }}>{(i.type ?? "").replace(/_/g," ")}</td>
+                        <td style={{ padding: "12px 16px", color: "#94a3b8" }}>{i.inspector || "—"}</td>
+                        <td style={{ padding: "12px 16px", color: "#64748b" }}>{i.agency || "—"}</td>
+                        <td style={{ padding: "12px 16px", color: "#94a3b8", fontSize: 12 }}>{i.scheduled_at ? new Date(i.scheduled_at).toLocaleString() : "—"}</td>
+                        <td style={{ padding: "12px 16px" }}><span style={{ background: inspColor(i.result) + "22", color: inspColor(i.result), padding: "3px 10px", borderRadius: 20, fontSize: 12 }}>{i.result}</span></td>
+                      </tr>
+                    ))}
+                  </tbody>
+                </table>
+              </div>
+            </>
           )}
         </main>
       </div>

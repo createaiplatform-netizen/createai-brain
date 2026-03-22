@@ -1,18 +1,23 @@
 import { useState, useEffect, useCallback } from "react";
 
-type Site  = { id: number; name: string; address: string; city: string; type: string; status: string; meter_count: number };
-type Alert = { id: number; site_name: string; type: string; severity: string; message: string; resolved: boolean; created_at: string };
-type Stats = { activeSites: number; activeMeters: number; unresolvedAlerts: number; consumptionKwh: number; billedLast30d: number };
+type Site    = { id: number; name: string; address: string; city: string; type: string; status: string; meter_count: number };
+type Meter   = { id: number; meter_no: string; type: string; unit: string; site_name: string; status: string };
+type Reading = { id: number; meter_no: string; unit: string; reading: number; consumption: number; source: string; read_at: string };
+type Alert   = { id: number; site_name: string; type: string; severity: string; message: string; resolved: boolean; created_at: string };
+type Stats   = { activeSites: number; activeMeters: number; unresolvedAlerts: number; consumptionKwh: number; billedLast30d: number };
 
 const sevColor = (s: string) => ({ info: "#6366f1", warning: "#f59e0b", critical: "#ef4444", emergency: "#dc2626" }[s] ?? "#94a3b8");
 
 export default function EnergyApp() {
-  const [tab, setTab]     = useState<"sites"|"alerts"|"readings">("sites");
-  const [sites, setSites] = useState<Site[]>([]);
-  const [alerts, setAl]   = useState<Alert[]>([]);
-  const [stats, setStats] = useState<Stats | null>(null);
-  const [form, setForm]   = useState({ name: "", address: "", city: "", type: "commercial", tariff: "" });
-  const [msg, setMsg]     = useState("");
+  const [tab, setTab]       = useState<"sites"|"alerts"|"readings">("sites");
+  const [sites, setSites]   = useState<Site[]>([]);
+  const [meters, setMeters] = useState<Meter[]>([]);
+  const [readings, setRead] = useState<Reading[]>([]);
+  const [alerts, setAl]     = useState<Alert[]>([]);
+  const [stats, setStats]   = useState<Stats | null>(null);
+  const [siteForm, setSiteForm]   = useState({ name: "", address: "", city: "", type: "commercial", tariff: "" });
+  const [readForm, setReadForm]   = useState({ meter_id: "", reading: "", read_at: "" });
+  const [msg, setMsg]       = useState("");
   const [loading, setLoading] = useState(false);
 
   const notify = (m: string) => { setMsg(m); setTimeout(() => setMsg(""), 4000); };
@@ -20,14 +25,18 @@ export default function EnergyApp() {
   const load = useCallback(async () => {
     setLoading(true);
     try {
-      const [s, a, st] = await Promise.all([
-        fetch("/api/energy/sites",  { credentials: "include" }).then(r => r.json()),
+      const [s, a, st, m, r] = await Promise.all([
+        fetch("/api/energy/sites",               { credentials: "include" }).then(r => r.json()),
         fetch("/api/energy/alerts?resolved=false", { credentials: "include" }).then(r => r.json()),
-        fetch("/api/energy/stats",  { credentials: "include" }).then(r => r.json()),
+        fetch("/api/energy/stats",               { credentials: "include" }).then(r => r.json()),
+        fetch("/api/energy/meters",              { credentials: "include" }).then(r => r.json()),
+        fetch("/api/energy/readings",            { credentials: "include" }).then(r => r.json()),
       ]);
       setSites(s.sites ?? []);
       setAl(a.alerts ?? []);
       setStats(st);
+      setMeters(m.meters ?? []);
+      setRead(r.readings ?? []);
     } catch { notify("Failed to load data"); } finally { setLoading(false); }
   }, []);
 
@@ -35,10 +44,10 @@ export default function EnergyApp() {
 
   const addSite = async (e: React.FormEvent) => {
     e.preventDefault();
-    if (!form.name) { notify("Site name required"); return; }
+    if (!siteForm.name) { notify("Site name required"); return; }
     const r = await fetch("/api/energy/sites", { method: "POST", credentials: "include",
-      headers: { "Content-Type": "application/json" }, body: JSON.stringify(form) });
-    if (r.ok) { notify("✓ Site added"); setForm({ name: "", address: "", city: "", type: "commercial", tariff: "" }); load(); }
+      headers: { "Content-Type": "application/json" }, body: JSON.stringify(siteForm) });
+    if (r.ok) { notify("✓ Site added"); setSiteForm({ name: "", address: "", city: "", type: "commercial", tariff: "" }); load(); }
     else { notify("Error adding site"); }
   };
 
@@ -46,6 +55,18 @@ export default function EnergyApp() {
     await fetch(`/api/energy/alerts/${id}/resolve`, { method: "PUT", credentials: "include" });
     notify("Alert resolved"); load();
   };
+
+  const submitReading = async (e: React.FormEvent) => {
+    e.preventDefault();
+    if (!readForm.meter_id || !readForm.reading) { notify("Meter and reading required"); return; }
+    const r = await fetch("/api/energy/readings", { method: "POST", credentials: "include",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ meter_id: parseInt(readForm.meter_id), reading: parseFloat(readForm.reading), read_at: readForm.read_at || undefined, source: "manual" }) });
+    if (r.ok) { notify("✓ Reading submitted"); setReadForm({ meter_id: "", reading: "", read_at: "" }); load(); }
+    else { notify("Error submitting reading"); }
+  };
+
+  const inp = { background: "#020617", border: "1px solid #334155", borderRadius: 6, padding: "8px 10px", color: "#f1f5f9", fontSize: 14, width: "100%" } as const;
 
   return (
     <div style={{ background: "#020617", minHeight: "100vh", color: "#f1f5f9", fontFamily: "Inter,sans-serif", padding: "24px" }}>
@@ -81,7 +102,7 @@ export default function EnergyApp() {
         <div style={{ display: "flex", gap: 8, marginBottom: 20 }}>
           {(["sites","alerts","readings"] as const).map(t => (
             <button key={t} onClick={() => setTab(t)} style={{ padding: "8px 18px", borderRadius: 8, border: "none", cursor: "pointer", fontSize: 14, fontWeight: 600, background: tab === t ? "#6366f1" : "#1e293b", color: tab === t ? "#fff" : "#94a3b8" }}>
-              {t.charAt(0).toUpperCase() + t.slice(1)}{t === "alerts" && (alerts.length > 0) ? ` (${alerts.length})` : ""}
+              {t.charAt(0).toUpperCase() + t.slice(1)}{t === "alerts" && alerts.length > 0 ? ` (${alerts.length})` : ""}
             </button>
           ))}
         </div>
@@ -90,17 +111,15 @@ export default function EnergyApp() {
           {tab === "sites" && (
             <>
               <form onSubmit={addSite} style={{ background: "#0f172a", border: "1px solid #1e293b", borderRadius: 12, padding: 20, marginBottom: 20, display: "flex", gap: 10, flexWrap: "wrap", alignItems: "flex-end" }}>
-                {[["name","Site Name *"], ["address","Address"], ["city","City"], ["tariff","Tariff Plan"]].map(([k, lbl]) => (
+                {([["name","Site Name *"], ["address","Address"], ["city","City"], ["tariff","Tariff Plan"]] as [string,string][]).map(([k, lbl]) => (
                   <div key={k} style={{ flex: 1, minWidth: 140 }}>
                     <label style={{ fontSize: 12, color: "#64748b", display: "block", marginBottom: 4 }}>{lbl}</label>
-                    <input value={(form as Record<string,string>)[k]} onChange={e => setForm(f => ({ ...f, [k]: e.target.value }))}
-                      style={{ width: "100%", background: "#020617", border: "1px solid #334155", borderRadius: 6, padding: "8px 10px", color: "#f1f5f9", fontSize: 14 }} />
+                    <input value={(siteForm as Record<string,string>)[k]} onChange={e => setSiteForm(f => ({ ...f, [k]: e.target.value }))} style={inp} />
                   </div>
                 ))}
                 <div style={{ flex: 1, minWidth: 120 }}>
                   <label style={{ fontSize: 12, color: "#64748b", display: "block", marginBottom: 4 }}>Type</label>
-                  <select value={form.type} onChange={e => setForm(f => ({ ...f, type: e.target.value }))}
-                    style={{ width: "100%", background: "#020617", border: "1px solid #334155", borderRadius: 6, padding: "8px 10px", color: "#f1f5f9", fontSize: 14 }}>
+                  <select value={siteForm.type} onChange={e => setSiteForm(f => ({ ...f, type: e.target.value }))} style={inp}>
                     {["commercial","residential","industrial","municipal"].map(t => <option key={t} value={t}>{t}</option>)}
                   </select>
                 </div>
@@ -126,6 +145,7 @@ export default function EnergyApp() {
               </div>
             </>
           )}
+
           {tab === "alerts" && (
             <div style={{ display: "flex", flexDirection: "column", gap: 10 }}>
               {alerts.length === 0 ? (
@@ -148,12 +168,47 @@ export default function EnergyApp() {
               ))}
             </div>
           )}
+
           {tab === "readings" && (
-            <div style={{ background: "#0f172a", border: "1px solid #1e293b", borderRadius: 12, padding: 32, textAlign: "center", color: "#64748b" }}>
-              <div style={{ fontSize: 40, marginBottom: 12 }}>📊</div>
-              <div style={{ fontSize: 16 }}>Meter Readings & Analytics</div>
-              <div style={{ fontSize: 13, marginTop: 8 }}>POST /api/energy/readings · GET /api/energy/readings?meter_id=X&days=30</div>
-            </div>
+            <>
+              <form onSubmit={submitReading} style={{ background: "#0f172a", border: "1px solid #1e293b", borderRadius: 12, padding: 20, marginBottom: 20, display: "flex", gap: 10, flexWrap: "wrap", alignItems: "flex-end" }}>
+                <div style={{ flex: 2, minWidth: 200 }}>
+                  <label style={{ fontSize: 12, color: "#64748b", display: "block", marginBottom: 4 }}>Meter *</label>
+                  <select value={readForm.meter_id} onChange={e => setReadForm(f => ({ ...f, meter_id: e.target.value }))} style={inp}>
+                    <option value="">Select meter…</option>
+                    {meters.map(m => <option key={m.id} value={m.id}>{m.meter_no} — {m.site_name} ({m.unit})</option>)}
+                  </select>
+                </div>
+                <div style={{ flex: 1, minWidth: 120 }}>
+                  <label style={{ fontSize: 12, color: "#64748b", display: "block", marginBottom: 4 }}>Reading *</label>
+                  <input type="number" step="0.01" value={readForm.reading} onChange={e => setReadForm(f => ({ ...f, reading: e.target.value }))} style={inp} />
+                </div>
+                <div style={{ flex: 1, minWidth: 150 }}>
+                  <label style={{ fontSize: 12, color: "#64748b", display: "block", marginBottom: 4 }}>Read At</label>
+                  <input type="datetime-local" value={readForm.read_at} onChange={e => setReadForm(f => ({ ...f, read_at: e.target.value }))} style={inp} />
+                </div>
+                <button type="submit" style={{ padding: "8px 20px", background: "#6366f1", border: "none", borderRadius: 8, color: "#fff", fontWeight: 600, cursor: "pointer" }}>Submit Reading</button>
+              </form>
+              <div style={{ background: "#0f172a", border: "1px solid #1e293b", borderRadius: 12, overflow: "hidden" }}>
+                <table style={{ width: "100%", borderCollapse: "collapse", fontSize: 14 }}>
+                  <thead><tr style={{ borderBottom: "1px solid #1e293b" }}>{["Meter #","Reading","Consumption","Unit","Source","Read At"].map(h => <th key={h} style={{ padding: "12px 16px", textAlign: "left", color: "#64748b", fontSize: 12 }}>{h}</th>)}</tr></thead>
+                  <tbody>
+                    {loading ? <tr><td colSpan={6} style={{ padding: 24, textAlign: "center", color: "#64748b" }}>Loading...</td></tr>
+                    : readings.length === 0 ? <tr><td colSpan={6} style={{ padding: 24, textAlign: "center", color: "#64748b" }}>No readings yet — submit one above</td></tr>
+                    : readings.map(r => (
+                      <tr key={r.id} style={{ borderBottom: "1px solid #0f172a" }}>
+                        <td style={{ padding: "12px 16px", color: "#6366f1", fontWeight: 600 }}>{r.meter_no || "—"}</td>
+                        <td style={{ padding: "12px 16px", fontWeight: 600 }}>{Number(r.reading).toFixed(2)}</td>
+                        <td style={{ padding: "12px 16px", color: r.consumption != null ? "#22c55e" : "#64748b" }}>{r.consumption != null ? `+${Number(r.consumption).toFixed(2)}` : "—"}</td>
+                        <td style={{ padding: "12px 16px", color: "#94a3b8" }}>{r.unit || "—"}</td>
+                        <td style={{ padding: "12px 16px" }}><span style={{ background: "#6366f122", color: "#6366f1", padding: "3px 10px", borderRadius: 20, fontSize: 12 }}>{r.source}</span></td>
+                        <td style={{ padding: "12px 16px", color: "#64748b", fontSize: 12 }}>{r.read_at ? new Date(r.read_at).toLocaleString() : "—"}</td>
+                      </tr>
+                    ))}
+                  </tbody>
+                </table>
+              </div>
+            </>
           )}
         </main>
       </div>
