@@ -388,9 +388,9 @@ router.use("/domains",     domainCompleteRouter);
 router.use("/global",      globalUnifierRouter);
 
 // ── Extended Domain Engine Suite v2.0 — 10 new industry-equivalent domains ───
-router.use("/projects-cmd",  projectCommandRouter);
-router.use("/partners",      partnerNetworkRouter);
-router.use("/events",        eventBookingRouter);
+router.use("/projects-cmd",   projectCommandRouter);
+router.use("/partners",       partnerNetworkRouter);
+router.use("/event-bookings", eventBookingRouter);
 router.use("/education-hub", educationEngineRouter);
 router.use("/social",        socialCommandRouter);
 router.use("/supply-chain",  supplyChainRouter);

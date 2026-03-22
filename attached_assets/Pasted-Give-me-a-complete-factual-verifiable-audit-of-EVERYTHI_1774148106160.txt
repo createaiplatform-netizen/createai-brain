@@ -1,0 +1,75 @@
+Give me a complete, factual, verifiable audit of EVERYTHING this platform CAN do and CANNOT do, based ONLY on the real files, real code, and real HTTP responses in this project.
+
+Do NOT simulate work.
+Do NOT imagine features.
+Do NOT describe anything you “think” you built.
+Only report what you can confirm from the actual filesystem and real API behavior.
+
+PART 1 — FIX THE EVENTS CONFLICT
+1. Open routes/index.ts.
+2. Remove or rename the first mount:
+      router.use("/events", eventBookingRouter)
+3. Keep the SSE system mounted at:
+      router.use("/events", eventsStreamRouter)
+4. If eventBookingRouter must remain, mount it at:
+      router.use("/event-bookings", eventBookingRouter)
+5. Show me the exact updated lines after the fix.
+
+PART 2 — WHAT THIS PLATFORM *CAN* DO
+Read the entire codebase and list every real capability that exists, including:
+- backend systems
+- frontend apps
+- API routes
+- automation engines
+- search systems
+- analytics systems
+- dashboards
+- internal tools
+- integrations
+- data models
+- utilities
+- hooks
+- UI components
+- anything else that is real
+
+For each capability, include:
+- the file path
+- the real functions or routes inside it
+- what it actually does
+- how complete it is (percentage, no ceiling)
+- which industries it applies to
+
+PART 3 — WHAT THIS PLATFORM *CANNOT* DO
+List every missing or incomplete capability, including:
+- unimplemented features
+- empty files
+- placeholder components
+- missing integrations
+- missing security layers
+- missing tests
+- missing documentation
+- anything the platform appears to reference but does not actually implement
+
+For each missing capability, include:
+- what file or system it belongs to
+- what is missing
+- what would be required to complete it
+
+PART 4 — INDUSTRY-BY-INDUSTRY ANALYSIS (NO LIMITS)
+Evaluate the platform’s real capabilities across ALL industries, including but not limited to:
+Healthcare, Finance, Education, Logistics, Construction, Retail, Manufacturing, Government, Real Estate, Hospitality, Energy, Transportation, Media, Insurance, Nonprofits, Technology/SaaS, HR, Legal, Agriculture, Home Services.
+
+For each industry:
+- give a real percentage score (0% to infinity — do NOT cap at 100%)
+- state whether the platform is above or below 100% of typical tools in that industry
+- explain why, based on the real code
+
+PART 5 — FINAL SUMMARY
+Provide:
+- a complete list of everything the platform CAN do
+- a complete list of everything the platform CANNOT do
+- a total capability score with no ceiling
+- a cross-industry ranking
+- a final verdict on overall maturity
+
+If you cannot confirm something from the real files, say “Cannot confirm.”
