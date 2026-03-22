@@ -22,6 +22,11 @@ import NpaGatewayPage from "@/pages/NpaGatewayPage";
 import FamilyHubPage from "@/pages/FamilyHubPage";
 import PublicBridgePage from "@/pages/PublicBridgePage";
 import PublicFamilyPage from "@/pages/PublicFamilyPage";
+import AdminDashboardPage from "@/pages/AdminDashboardPage";
+import CustomerDashboardPage from "@/pages/CustomerDashboardPage";
+import KidsHubPage from "@/pages/KidsHubPage";
+import { SmartRoleRouter } from "@/components/SmartRoleRouter";
+import { RoleGate } from "@/components/RoleGate";
 
 import MetricsPage from "@/pages/MetricsPage";
 import AboveTranscendPage from "@/pages/AboveTranscendPage";
@@ -100,15 +105,44 @@ function Router() {
   return (
     <Switch>
       <Route path="/integration-demo" component={IntegrationDemoPage} />
-      <Route path="/" component={OSLayout} />
       <Route path="/metrics" component={MetricsPage} />
       <Route path="/above-transcend" component={AboveTranscendPage} />
       <Route path="/semantic-store" component={SemanticStorePage} />
       <Route path="/platform-score" component={PlatformScorePage} />
       <Route path="/project/:projectId" component={ProjectPage} />
+      {/* Legacy path kept for backwards compat */}
       <Route path="/family-hub" component={FamilyHubPage} />
       <Route path="/standalone/creation/:creationId" component={CreationPage} />
       <Route path="/standalone/:projectId" component={StandalonePage} />
+
+      {/* ── Role-based destination routes ──────────────────────────── */}
+      {/* Admin landing — admin and founder only */}
+      <Route path="/admin">
+        <RoleGate allowed={["admin", "founder"]}>
+          <AdminDashboardPage />
+        </RoleGate>
+      </Route>
+      {/* Kids hub — must come before /family so wouter matches /family/kids first */}
+      <Route path="/family/kids">
+        <RoleGate allowed={["family_child", "family_adult", "admin", "founder"]}>
+          <KidsHubPage />
+        </RoleGate>
+      </Route>
+      {/* Family hub — family adults (and admins/founders for oversight) */}
+      <Route path="/family">
+        <RoleGate allowed={["family_adult", "family_child", "admin", "founder"]}>
+          <FamilyHubPage />
+        </RoleGate>
+      </Route>
+      {/* Customer dashboard — customers (and admins/founders for oversight) */}
+      <Route path="/dashboard">
+        <RoleGate allowed={["customer", "admin", "founder"]}>
+          <CustomerDashboardPage />
+        </RoleGate>
+      </Route>
+
+      {/* Full OS — default for admin/founder/user/viewer */}
+      <Route path="/" component={OSLayout} />
       <Route component={NotFound} />
     </Switch>
   );
@@ -559,6 +593,8 @@ function App() {
                   <OSProvider>
                     <GlobalCommandPalette />
                     <WouterRouter base={base}>
+                      {/* SmartRoleRouter: fires after login+NDA, redirects to role home */}
+                      <SmartRoleRouter />
                       <Router />
                     </WouterRouter>
                   </OSProvider>

@@ -40,6 +40,39 @@ The CreateAI Brain is a full-stack AI OS platform (NEXUS Semantic OS), developed
 
 ---
 
+## Smart Safe Login System (BUILT — March 2026)
+
+Single login page for all users. After Replit OIDC auth + NDA, role is fetched from DB and user is auto-routed:
+
+| Role | Home Route | Blocked From |
+|---|---|---|
+| `admin` | `/admin` | `/dashboard`, `/family`, `/semantic-store`, `/checkout` |
+| `founder` | `/` | Nothing (full access) |
+| `family_adult` | `/family` | `/admin`, `/dashboard`, `/semantic-store`, billing, data, analytics, workflows |
+| `family_child` | `/family/kids` | Same as family_adult |
+| `customer` | `/dashboard` | `/admin`, `/family`, `/semantic-store`, billing, data |
+| `user` / `viewer` | `/` | Nothing (existing OS behavior) |
+
+**Infrastructure files:**
+- `src/lib/roles.ts` — `AppRole` type, `ROLE_HOME`, `ROLE_BLOCKED_PREFIXES`, `getRoleHome()`, `needsRoleRedirect()`, `isRoleBlocked()`
+- `src/hooks/useUserRole.ts` — Fetches role from `/api/auth/role` with module-level 10-min cache
+- `src/components/SmartRoleRouter.tsx` — Renders null; fires after login+NDA; redirects based on role; blocks blocked paths
+- `src/components/RoleGate.tsx` — Wraps routes; checks `allowed` prop; redirects if unauthorized
+- `src/pages/AdminDashboardPage.tsx` — Admin landing at `/admin` (links to full OS)
+- `src/pages/CustomerDashboardPage.tsx` — Customer portal at `/dashboard`
+- `src/pages/KidsHubPage.tsx` — Kids hub at `/family/kids` (Family Universe Standing Law: warm, safe, no rankings)
+- `artifacts/api-server/src/routes/auth.ts` — `GET /api/auth/role` endpoint (reads from DB fresh)
+
+**Assigning roles:** Update the `role` column in the `users` table via SQL:
+```sql
+UPDATE users SET role = 'family_adult' WHERE email = 'parent@example.com';
+UPDATE users SET role = 'family_child' WHERE email = 'child@example.com';
+UPDATE users SET role = 'customer' WHERE email = 'customer@example.com';
+```
+Default for new signups: `user` (→ full OS). Admin panel for role assignment is a future addition.
+
+---
+
 **Platform Scale (March 2026)**
 - 35+ HTML dashboard surfaces — all returning 200
 - 386 App screens lazy-loaded in the OS shell (AppWindow.tsx) — including 8 evolution systems + 13 industry sectors

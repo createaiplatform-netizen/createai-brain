@@ -95,6 +95,28 @@ router.get("/auth/user", (req: Request, res: Response) => {
   );
 });
 
+// Returns the authenticated user's role from DB.
+// Used by the frontend SmartRoleRouter to redirect after login.
+// Roles: founder | admin | user | viewer | family_adult | family_child | customer
+router.get("/auth/role", async (req: Request, res: Response) => {
+  if (!req.isAuthenticated() || !req.user) {
+    res.json({ role: null });
+    return;
+  }
+
+  try {
+    const userId = (req.user as { id: string }).id;
+    const [row] = await db
+      .select({ role: usersTable.role })
+      .from(usersTable)
+      .where(eq(usersTable.id, userId));
+    res.json({ role: row?.role ?? "user" });
+  } catch (err) {
+    console.error("[auth] GET /auth/role", err);
+    res.json({ role: "user" });
+  }
+});
+
 router.post("/auth/nda", async (req: Request, res: Response) => {
   if (!req.isAuthenticated()) {
     res.status(401).json({ error: "Unauthorized" });

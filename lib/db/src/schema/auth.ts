@@ -1,7 +1,8 @@
 import { sql } from "drizzle-orm";
 import { boolean, index, jsonb, pgTable, timestamp, varchar } from "drizzle-orm/pg-core";
 
-// role values: "founder" | "admin" | "user" | "viewer"
+// role values: "founder" | "admin" | "user" | "viewer" | "family_adult" | "family_child" | "customer"
+// founder/admin/user/viewer → full OS; family_adult → /family; family_child → /family/kids; customer → /dashboard
 // tenantId: null = default single-tenant org
 
 // (IMPORTANT) This table is mandatory for Replit Auth, don't drop it.
@@ -27,7 +28,7 @@ export const usersTable = pgTable("users", {
   // User preference brain — persisted per-user, synced from OSContext
   preferences: jsonb("preferences"),
   // Enterprise additions
-  role: varchar("role").notNull().default("user"),              // founder | admin | user | viewer
+  role: varchar("role").notNull().default("user"),              // founder | admin | user | viewer | family_adult | family_child | customer
   tenantId: varchar("tenant_id").default("default"),            // multi-tenant support
   deletedAt: timestamp("deleted_at", { withTimezone: true }),   // soft-delete (null = active)
   createdAt: timestamp("created_at", { withTimezone: true }).notNull().defaultNow(),
