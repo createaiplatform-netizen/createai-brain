@@ -1,10 +1,11 @@
 // ─── Agency Center API ────────────────────────────────────────────────────────
 // Admin-only API for the Platform Agency Layer.
 // Provides:
-//   GET  /api/agency/identity   — current platform identity
-//   GET  /api/agency/log        — platform_outbound_log entries
-//   GET  /api/agency/stats      — aggregate outbound stats
-//   POST /api/agency/test-send  — send a safe test message
+//   GET  /api/agency/identity     — current platform identity
+//   GET  /api/agency/log          — platform_outbound_log entries
+//   GET  /api/agency/stats        — aggregate outbound stats + 24h/7d signals
+//   GET  /api/agency/export-log   — download outbound log as CSV (admin-only)
+//   POST /api/agency/test-send    — send a safe test message
 //
 // All routes require admin or founder role.
 
@@ -143,6 +144,60 @@ router.get("/stats", async (req: Request, res: Response) => {
     signals7d,
     recentErrors,
   });
+});
+
+// ── GET /api/agency/export-log ────────────────────────────────────────────────
+// Downloads platform_outbound_log as CSV. Admin-only. Logged to audit trail.
+// Query params: limit (default 1000, max 5000), channel, status
+router.get("/export-log", async (req: Request, res: Response) => {
+  if (!(await requireAdminOrFounder(req, res))) return;
+
+  const sql    = getSql();
+  const limit  = Math.min(Number(req.query.limit ?? 1000), 5000);
+  const { channel, status } = req.query as Record<string, string | undefined>;
+  const actor  = req.user as { id: string };
+
+  const rows = await sql`
+    SELECT
+      l.id, l.timestamp, l.type, l.channel, l.status,
+      l.subject, l.recipient, l.user_id, l.role, l.universe,
+      l.error_message, l.metadata
+    FROM platform_outbound_log l
+    WHERE TRUE
+      ${channel ? sql`AND l.channel = ${channel}` : sql``}
+      ${status  ? sql`AND l.status  = ${status}`  : sql``}
+    ORDER BY l.timestamp DESC
+    LIMIT ${limit}
+  `;
+
+  // Log this export to audit trail
+  try {
+    const auditId = "audit_" + Date.now().toString(36);
+    await sql`
+      INSERT INTO platform_audit_logs (id, actor_id, event_type, details)
+      VALUES (${auditId}, ${actor.id}, ${"outbound_log_export"},
+              ${JSON.stringify({ rows: rows.length, channel: channel ?? "all", status: status ?? "all" })})
+    `;
+  } catch { /* non-critical */ }
+
+  // Build CSV
+  const header = ["id","timestamp","type","channel","status","subject","recipient","user_id","role","universe","error_message"].join(",");
+  const csvRows = rows.map(r => [
+    r["id"], r["timestamp"], r["type"], r["channel"], r["status"],
+    `"${(r["subject"] ?? "").toString().replace(/"/g, '""')}"`,
+    `"${(r["recipient"] ?? "").toString().replace(/"/g, '""')}"`,
+    r["user_id"] ?? "",
+    r["role"]    ?? "",
+    r["universe"] ?? "",
+    `"${(r["error_message"] ?? "").toString().replace(/"/g, '""')}"`,
+  ].join(","));
+
+  const csv = [header, ...csvRows].join("\n");
+  const filename = `outbound-log-${new Date().toISOString().slice(0,10)}.csv`;
+
+  res.setHeader("Content-Type", "text/csv");
+  res.setHeader("Content-Disposition", `attachment; filename="${filename}"`);
+  res.send(csv);
 });
 
 // ── POST /api/agency/test-send ────────────────────────────────────────────────

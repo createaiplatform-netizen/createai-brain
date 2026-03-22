@@ -1,7 +1,11 @@
 /**
- * notifications.ts — CreateAI Brain Notification Service
- * -------------------------------------------------------
- * Fully ESM-compatible, TypeScript-typed, zero silent failures.
+ * notifications.ts — Platform Notification Utility
+ * -------------------------------------------------
+ * Low-level email/SMS delivery via Resend + Twilio. Used for startup family
+ * blast and family-event alerts. All branding uses PLATFORM identity (sage).
+ *
+ * TODO: Gradually consolidate calls here into outboundEngine.send() so that
+ *       all platform sends are logged in platform_outbound_log.
  *
  * Public API:
  *   sendEmailNotification(to, subject, body)   → per-recipient {to, success, reason?}[]
@@ -19,6 +23,7 @@
  */
 
 import { Resend } from "resend";
+import { PLATFORM, getSenderFull } from "../services/platformIdentity";
 import twilio     from "twilio";
 
 // ─── Beyond Infinity industry baselines ──────────────────────────────────────
@@ -183,7 +188,6 @@ export async function sendEmailNotification(
 ): Promise<NotifyBatchResult> {
   const creds  = credentialStatus();
   const resend = getResend();
-  const from   = process.env["RESEND_FROM_EMAIL"] ?? "onboarding@resend.dev";
   const now    = new Date().toISOString();
 
   if (!resend) {
@@ -204,16 +208,16 @@ export async function sendEmailNotification(
     to.map(async (addr): Promise<NotifyResult> => {
       try {
         const { error } = await resend.emails.send({
-          from,
+          from:    getSenderFull(),
           to:      [addr],
           subject,
           html:    `
             <div style="font-family:-apple-system,Helvetica,sans-serif;max-width:620px;margin:auto;padding:32px;">
-              <h2 style="color:#6366f1;">💠 CreateAI Brain</h2>
+              <h2 style="color:${PLATFORM.brandColor};">${PLATFORM.displayName}</h2>
               ${body}
               <hr style="border:none;border-top:1px solid #e5e7eb;margin:24px 0;"/>
               <p style="font-size:12px;color:#aaa;">
-                Beyond Infinity — No Limits Mode · Sara's System · ${now}
+                ${PLATFORM.legalNotice} · ${now}
               </p>
             </div>
           `,

@@ -660,6 +660,32 @@ The platform now acts as its own communications, marketing, legal/safety, financ
 - In-app: `outboundEngine.send({ channel: "in-app", ... })` — routes to family messages or notifications per role
 - All welcome sends now appear in `platform_outbound_log`
 
+### Cross-Cutting Completeness Pass (March 2026)
+The following codebase-wide changes were made to complete the Agency Layer:
+
+**`notifications.ts` (Platform Notification Utility):**
+- Purple `#6366f1` brand color → sage `#7a9068` via `PLATFORM.brandColor`
+- Email sender: `from` field now uses `getSenderFull()` from platformIdentity (never a personal address)
+- Personal footer "Beyond Infinity — Sara's System" → `PLATFORM.legalNotice`
+- Added import for `PLATFORM` and `getSenderFull` from platformIdentity
+- Added TODO: consolidate into outboundEngine.send() for full logging coverage
+- Removed unused `from` local variable
+
+**`semantic/emailScheduler.ts` (Post-Purchase Email Sequences):**
+- All purple/indigo colors (`#6366f1`, `#818cf8`, `#ede9fe`, `#5b21b6`) → sage palette via `PLATFORM.brandColor` / `PLATFORM.brandColorLight`
+- Personal subject line "Sara's pick for you..." → neutral platform subject
+- Personal footer "Sara reads every response" → "our team is here to help"
+- All `CreateAI Brain` text references now use `PLATFORM.displayName`
+- Added import for `PLATFORM` from platformIdentity
+
+**`agency.ts` — New `/api/agency/export-log` endpoint:**
+- GET — downloads `platform_outbound_log` as CSV (admin-only)
+- Filterable by channel and status, up to 5,000 rows
+- Every download is logged to `platform_audit_logs` with row count + filters
+
+**Admin Agency Center — Data & Exports:**
+- "Outbound Log Export (CSV)" is now a real live download link (previously "Coming Soon")
+
 ### Expansion Design
 - New channels: add a `case` to `dispatchChannel()` in `outboundEngine.ts`
 - New universes/roles: extend `UNIVERSE_ROLES` in `safetyGuard.ts`

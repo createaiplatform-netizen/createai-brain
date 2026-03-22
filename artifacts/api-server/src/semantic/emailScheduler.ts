@@ -17,6 +17,7 @@
  */
 
 import { sendEmailNotification } from "../utils/notifications.js";
+import { PLATFORM } from "../services/platformIdentity.js";
 
 export type JobStatus = "pending" | "sent" | "failed" | "skipped";
 export type JobType   = "followup_3d" | "upsell_7d";
@@ -116,30 +117,31 @@ function buildFollowupEmail(job: EmailJob): { subject: string; html: string } {
   };
   const tip = tips[job.productFormat] ?? tips["template_default"]!;
 
+  const SAGE = PLATFORM.brandColor;
   return {
     subject: `Quick tip for getting the most from "${job.productTitle}"`,
     html: `
       <div style="font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;max-width:600px;margin:0 auto;background:#ffffff;">
-        <div style="background:linear-gradient(135deg,#6366f1,#818cf8);padding:40px;border-radius:16px 16px 0 0;">
+        <div style="background:${SAGE};padding:40px;border-radius:16px 16px 0 0;">
           <h1 style="color:white;font-size:22px;font-weight:800;margin:0;">Hey${name} — 3 days in 👋</h1>
         </div>
         <div style="padding:36px;border:1px solid #e5e7eb;border-top:none;border-radius:0 0 16px 16px;">
           <p style="color:#374151;font-size:15px;line-height:1.7;margin:0 0 24px;">
             You purchased <strong>${job.productTitle}</strong> a few days ago. Here's one thing most people miss about getting the best results from a ${job.productFormat} like this:
           </p>
-          <div style="background:#ede9fe;border-left:4px solid #6366f1;border-radius:0 12px 12px 0;padding:20px 24px;margin-bottom:28px;">
-            <p style="margin:0;font-size:15px;color:#5b21b6;font-weight:600;line-height:1.6;">💡 ${tip}</p>
+          <div style="background:${PLATFORM.brandColorLight};border-left:4px solid ${SAGE};border-radius:0 12px 12px 0;padding:20px 24px;margin-bottom:28px;">
+            <p style="margin:0;font-size:15px;color:${PLATFORM.textColor};font-weight:600;line-height:1.6;">💡 ${tip}</p>
           </div>
           <p style="color:#64748b;font-size:14px;line-height:1.7;margin:0 0 28px;">
-            Any questions? Reply to this email directly — Sara reads every response.
+            Any questions? Reply to this email directly — our team is here to help.
           </p>
           <a href="${job.storeUrl}/api/semantic/store/${job.productId}"
-             style="display:inline-block;background:#6366f1;color:white;text-decoration:none;border-radius:10px;padding:14px 28px;font-size:14px;font-weight:700;">
+             style="display:inline-block;background:${SAGE};color:white;text-decoration:none;border-radius:10px;padding:14px 28px;font-size:14px;font-weight:700;">
             Access Your Product →
           </a>
         </div>
         <p style="text-align:center;font-size:11px;color:#94a3b8;margin-top:20px;padding-bottom:24px;">
-          CreateAI Brain · <a href="${job.storeUrl}/api/semantic/store" style="color:#94a3b8;">Browse all products</a>
+          ${PLATFORM.displayName} · <a href="${job.storeUrl}/api/semantic/store" style="color:#94a3b8;">Browse all products</a>
         </p>
       </div>
     `,
@@ -163,12 +165,13 @@ function buildUpsellEmail(job: EmailJob): { subject: string; html: string } {
   };
   const companionFormat = companions[job.productFormat] ?? "template";
 
+  const SAGE = PLATFORM.brandColor;
   return {
-    subject: `Sara's pick for you after "${job.productTitle}"`,
+    subject: `What to stack on top of "${job.productTitle}"`,
     html: `
       <div style="font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;max-width:600px;margin:0 auto;background:#ffffff;">
         <div style="background:linear-gradient(135deg,#1e293b,#334155);padding:40px;border-radius:16px 16px 0 0;">
-          <div style="color:#818cf8;font-size:12px;font-weight:700;text-transform:uppercase;letter-spacing:0.1em;margin-bottom:12px;">Week 1 Complete</div>
+          <div style="color:${SAGE};font-size:12px;font-weight:700;text-transform:uppercase;letter-spacing:0.1em;margin-bottom:12px;">Week 1 Complete</div>
           <h1 style="color:white;font-size:22px;font-weight:800;margin:0;line-height:1.4;">What to stack on top of "${job.productTitle}"</h1>
         </div>
         <div style="padding:36px;border:1px solid #e5e7eb;border-top:none;border-radius:0 0 16px 16px;">
@@ -183,12 +186,12 @@ function buildUpsellEmail(job: EmailJob): { subject: string; html: string } {
             <p style="margin:0;font-size:14px;color:#64748b;line-height:1.6;">Filter by "${companionFormat}" to see everything that pairs with what you already own.</p>
           </div>
           <a href="${job.storeUrl}/api/semantic/store?format=${encodeURIComponent(companionFormat)}"
-             style="display:inline-block;background:#6366f1;color:white;text-decoration:none;border-radius:10px;padding:14px 28px;font-size:14px;font-weight:700;">
+             style="display:inline-block;background:${SAGE};color:white;text-decoration:none;border-radius:10px;padding:14px 28px;font-size:14px;font-weight:700;">
             Browse ${companionFormat} products →
           </a>
         </div>
         <p style="text-align:center;font-size:11px;color:#94a3b8;margin-top:20px;padding-bottom:24px;">
-          CreateAI Brain · You're receiving this because you purchased from our store.
+          ${PLATFORM.displayName} · You're receiving this because you purchased from our store.
         </p>
       </div>
     `,

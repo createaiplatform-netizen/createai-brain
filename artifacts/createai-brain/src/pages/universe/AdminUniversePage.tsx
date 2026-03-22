@@ -750,19 +750,23 @@ export default function AdminUniversePage() {
                   </div>
                 </div>
 
-                {/* Outbound log export stub */}
+                {/* Outbound log export — real CSV download */}
                 <div className="px-4 py-4 rounded-xl flex items-center justify-between gap-4"
-                  style={{ background: `${SAGE}08`, border: `1px dashed ${SAGE}40` }}>
+                  style={{ background: `${SAGE}08`, border: `1px solid ${SAGE}30` }}>
                   <div>
                     <p className="text-[13px] font-bold" style={{ color: TEXT }}>Outbound Log Export (CSV)</p>
                     <p className="text-[11px] mt-0.5" style={{ color: MUTED }}>
-                      Download platform_outbound_log as CSV for compliance, auditing, or external analysis.
+                      Download platform_outbound_log as CSV. Logged to audit trail. Journals never included.
                     </p>
                   </div>
-                  <div className="flex-shrink-0 px-3 py-2 rounded-xl text-[11px] font-bold cursor-not-allowed"
-                    style={{ background: `${SAGE}18`, color: MUTED }}>
-                    Coming Soon
-                  </div>
+                  <a
+                    href="/api/agency/export-log"
+                    download
+                    className="flex-shrink-0 px-3 py-2 rounded-xl text-[11px] font-bold text-white"
+                    style={{ background: SAGE, textDecoration: "none" }}
+                  >
+                    Download CSV
+                  </a>
                 </div>
 
                 <p className="text-[10px]" style={{ color: MUTED }}>
