@@ -1,5 +1,6 @@
 import * as oidc from "openid-client";
 import { Router, type IRouter, type Request, type Response } from "express";
+import { sendWelcomeIfFirstLogin } from "../services/welcomeEngine";
 import {
   GetCurrentAuthUserResponse,
   ExchangeMobileAuthorizationCodeBody,
@@ -242,6 +243,14 @@ router.get("/callback", async (req: Request, res: Response) => {
     claims as unknown as Record<string, unknown>,
   );
 
+  // Fire-and-forget first-login welcome (email + in-app message).
+  // Never awaited — must not block the auth redirect under any circumstances.
+  void sendWelcomeIfFirstLogin({
+    id:        dbUser.id,
+    email:     dbUser.email,
+    firstName: dbUser.firstName,
+  });
+
   const now = Math.floor(Date.now() / 1000);
   const sessionData: SessionData = {
     user: {
@@ -312,6 +321,13 @@ router.post(
       const dbUser = await upsertUser(
         claims as unknown as Record<string, unknown>,
       );
+
+      // Fire-and-forget first-login welcome — same as web flow, never blocks response.
+      void sendWelcomeIfFirstLogin({
+        id:        dbUser.id,
+        email:     dbUser.email,
+        firstName: dbUser.firstName,
+      });
 
       const now = Math.floor(Date.now() / 1000);
       const sessionData: SessionData = {

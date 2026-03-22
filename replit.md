@@ -627,6 +627,35 @@ Three-layer system for reaching the platform via a handle rather than a raw URL:
 - **CustomerUniversePage** — Fully expanded: 6 tabs (home/bills/life/habits/journal/account). Added GentleSuggestions on home, Life OS + Habits + Journal tabs fully mounted, "Export my data" button in account tab.
 - **App.tsx** — OfflineBanner mounted globally above all content.
 
+## Auto-Welcome Layer (March 2026)
+
+### New DB Table
+- **`platform_welcome_log`** — tracks per-user welcome send status (user_id UNIQUE, role_at_time, email_sent, message_sent, sent_at). Prevents duplicate welcomes across server restarts.
+
+### New Service
+- **`services/welcomeEngine.ts`** — `sendWelcomeIfFirstLogin({ id, email, firstName })` — checks log, resolves role from DB, sends welcome email (Resend) + in-app message (platform_family_messages), updates log.
+
+### Wiring
+- `routes/auth.ts` — `void sendWelcomeIfFirstLogin(...)` fires after `upsertUser()` in both:
+  - Web OIDC callback (`GET /callback`)  
+  - Mobile token exchange (`POST /mobile-auth/token-exchange`)
+
+### Templates (role-keyed)
+| Role | Email Subject | In-app Message |
+|---|---|---|
+| `founder` / `admin` | "Admin access granted — CreateAI Brain" | "Admin access granted. Your tools, logs, and controls are active." |
+| `family_adult` | "Welcome to Our Family Universe" | Family universe welcome (personalized name) |
+| `family_child` | "Your space is ready! 🌟" | Kids welcome — safe, simple, made for them |
+| `customer` | "Welcome to your Customer Dashboard" | Bills and account tools ready |
+| `default` | "Welcome to CreateAI Brain" | Generic warm welcome |
+
+### Safety Rules
+- Never awaited — always `void` — never blocks auth redirect
+- Idempotent — runs exactly once per user lifetime (UNIQUE user_id in log)
+- Email uses Resend directly with sage/warm HTML (no purple corporate wrapper)
+- In-app message uses `platform_family_messages` via system sender — no external SMS ever
+- Fails silently with a warn log — never crashes auth flow
+
 ### Standing Laws Enforced
 - Journal entries are ALWAYS `is_private = true` by default; admin cannot read other users' journals (user_id scope enforced server-side on every query)
 - Smart suggestions derive from real data only — no AI calls, no simulated metrics, no fake counts
