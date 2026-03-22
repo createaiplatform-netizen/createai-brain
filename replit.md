@@ -601,6 +601,39 @@ Three-layer system for reaching the platform via a handle rather than a raw URL:
 - **Marketplace Bridge** (`bridge/connectors/marketplaceConnector.ts`): Removed per-call `console.log()` from `notConfigured()` — was flooding logs with 100+ identical warnings on every startup (one per product). Now silent; UniversalBridge deduplicates and summarizes.
 - **FamilyAgents Stripe** (`services/familyAgents.ts`): `ensureStripeCustomers()` now calls `stripe.customers.list({ email })` to check for existing customer before `stripe.customers.create()` — prevents accumulating duplicate test Stripe customers on every server restart.
 
+## UNIFIED ADD-ON — Life OS Final Layer (March 2026)
+
+### New DB Tables
+- **`platform_journal_entries`** — private journal entries (user_id, title, content, mood, entry_date, is_private). Never exposed to other users without explicit consent. No comparisons, no sharing pressure.
+- **`platform_notifications`** — system/reminder notifications (type, title, body, link_path, read_at, dismissed_at, scheduled_at). Calm, non-alarming, all dismissible.
+
+### New API Routes (mounted under `/api/`)
+| Route | Description |
+|---|---|
+| `GET/POST/PATCH/DELETE /journal` | Private journal CRUD — user sees only their own entries, always |
+| `GET /export/my-data` | Portable JSON export of all user data (bills, habits, life, bank, journal) |
+| `GET /export/audit-logs` | Admin-only export of audit event log |
+| `GET /smart-suggestions` | Rule-based gentle suggestions from real user data (overdue events, bills, habits, goals) — no AI, no pressure |
+
+### New Frontend Components
+| Component | Description |
+|---|---|
+| `PrivateJournal.tsx` | Full journal UI with mood picker (7 moods), date picker, write/read/edit/delete, lock notice. Private by default. |
+| `OfflineBanner.tsx` | Global offline/reconnect detection banner. Calm language, never alarming. Exported `useIsOnline()` hook for blocking sensitive actions when offline. |
+| `GentleSuggestions.tsx` | Rule-based suggestion cards fetched from `/api/smart-suggestions`. Dismissible, never forced. Calls `onNavigate(action)` to deep-link into tabs. |
+
+### Updated Universe Pages
+- **FamilyUniversePage** — Added Journal tab (📖), GentleSuggestions on home tab. Now 9 tabs total.
+- **CustomerUniversePage** — Fully expanded: 6 tabs (home/bills/life/habits/journal/account). Added GentleSuggestions on home, Life OS + Habits + Journal tabs fully mounted, "Export my data" button in account tab.
+- **App.tsx** — OfflineBanner mounted globally above all content.
+
+### Standing Laws Enforced
+- Journal entries are ALWAYS `is_private = true` by default; admin cannot read other users' journals (user_id scope enforced server-side on every query)
+- Smart suggestions derive from real data only — no AI calls, no simulated metrics, no fake counts
+- Export produces portable JSON with no hard-coded host/provider lock (exportVersion field for future migration)
+- Offline detection only blocks writes; cached viewing remains available
+- All suggestion cards are dismissible; platform suggests, user decides
+
 ## Platform Launch State (March 2026)
 
 **Fully active, no pending states**:

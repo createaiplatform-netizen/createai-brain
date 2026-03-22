@@ -26,6 +26,7 @@ import AdminDashboardPage from "@/pages/AdminDashboardPage";
 import CustomerDashboardPage from "@/pages/CustomerDashboardPage";
 import KidsHubPage from "@/pages/KidsHubPage";
 import { SmartRoleRouter } from "@/components/SmartRoleRouter";
+import { OfflineBanner } from "@/components/OfflineBanner";
 import { RoleGate } from "@/components/RoleGate";
 import { SecureAuthLayer } from "@/components/auth/SecureAuthLayer";
 import AdminUniversePage from "@/pages/universe/AdminUniversePage";
@@ -605,6 +606,7 @@ function App() {
               <InteractionProvider>
                 <ConversationProvider>
                   <OSProvider>
+                    <OfflineBanner />
                     <GlobalCommandPalette />
                     <WouterRouter base={base}>
                       {/* SmartRoleRouter: fires after login+NDA, redirects to role home */}

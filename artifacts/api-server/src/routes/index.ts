@@ -457,6 +457,9 @@ import familyMessagesRouter    from "./familyMessages.js";
 import lifeEventsRouter        from "./lifeEvents.js";
 import habitsRouter            from "./habits.js";
 import contributionsRouter     from "./contributions.js";
+import journalRouter           from "./journal.js";
+import exportDataRouter        from "./exportData.js";
+import smartSuggestionsRouter  from "./smartSuggestions.js";
 
 router.use("/search",          universalSearchRouter);
 router.use("/automation",      automationEngineRouter);
@@ -486,12 +489,15 @@ router.use("/trusted-devices", trustedDevicesRouter);
 router.use("/family-identity", familyIdentityRouter);
 router.use("/bills",           billsRouter);
 router.use("/user-admin",      userAdminRouter);
-router.use("/audit",           auditLogRouter);
-router.use("/family-bank",     familyBankRouter);
-router.use("/family-messages", familyMessagesRouter);
-router.use("/life-events",     lifeEventsRouter);
-router.use("/habits",          habitsRouter);
-router.use("/contributions",   contributionsRouter);
+router.use("/audit",             auditLogRouter);
+router.use("/family-bank",       familyBankRouter);
+router.use("/family-messages",   familyMessagesRouter);
+router.use("/life-events",       lifeEventsRouter);
+router.use("/habits",            habitsRouter);
+router.use("/contributions",     contributionsRouter);
+router.use("/journal",           journalRouter);
+router.use("/export",            exportDataRouter);
+router.use("/smart-suggestions", smartSuggestionsRouter);
 
 // ── Financial Hub Backward-Compat Redirects — T006 ───────────────────────────
 // Wealth, ledger, and revenue-intel are also reachable under /finance/*

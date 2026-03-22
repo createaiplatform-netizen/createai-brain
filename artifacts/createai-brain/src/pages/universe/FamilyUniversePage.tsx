@@ -8,6 +8,8 @@ import { FamilyBank } from "@/components/FamilyBank";
 import { FamilyMessages } from "@/components/FamilyMessages";
 import { LifeOSPanel } from "@/components/LifeOSPanel";
 import { HabitsGoals } from "@/components/HabitsGoals";
+import { PrivateJournal } from "@/components/PrivateJournal";
+import { GentleSuggestions } from "@/components/GentleSuggestions";
 import { generateIdentity, avatarStyle } from "@/lib/identityEngine";
 
 const SAGE = "#7a9068";
@@ -16,7 +18,7 @@ const TEXT = "#1a1916";
 const MUTED = "#6b6660";
 const BORDER = "rgba(122,144,104,0.13)";
 
-type Tab = "home" | "family" | "bills" | "bank" | "messages" | "life" | "habits" | "create";
+type Tab = "home" | "family" | "bills" | "bank" | "messages" | "life" | "habits" | "journal" | "create";
 
 interface FamilyIdentity {
   display_name: string;
@@ -107,6 +109,7 @@ export default function FamilyUniversePage() {
           { key: "messages", label: "Messages",  icon: "💌" },
           { key: "life",     label: "Life OS",   icon: "🗓️" },
           { key: "habits",   label: "Habits",    icon: "🔥" },
+          { key: "journal",  label: "Journal",   icon: "📖" },
           { key: "create",   label: "Create",    icon: "✨" },
         ] as { key: Tab; label: string; icon: string }[]).map(t => (
           <button
@@ -128,6 +131,7 @@ export default function FamilyUniversePage() {
         {/* ── Home ── */}
         {tab === "home" && (
           <div className="flex flex-col gap-4">
+            <GentleSuggestions onNavigate={action => setTab(action as Tab)} />
             {/* Greeting card */}
             <div
               className="p-5 rounded-3xl"
@@ -248,6 +252,9 @@ export default function FamilyUniversePage() {
 
         {/* ── Habits Tab ── */}
         {tab === "habits" && <HabitsGoals />}
+
+        {/* ── Journal Tab ── */}
+        {tab === "journal" && <PrivateJournal />}
 
         {/* ── Create Tab ── */}
         {tab === "create" && (

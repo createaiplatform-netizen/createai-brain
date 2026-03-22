@@ -474,6 +474,37 @@ export async function bootstrapSchema(): Promise<void> {
     `;
     await sql`CREATE INDEX IF NOT EXISTS idx_contrib_user ON platform_contributions(user_id, created_at DESC)`;
 
+    await sql`
+      CREATE TABLE IF NOT EXISTS platform_journal_entries (
+        id           TEXT PRIMARY KEY DEFAULT gen_random_uuid()::TEXT,
+        user_id      TEXT NOT NULL,
+        title        TEXT NOT NULL DEFAULT '',
+        content      TEXT NOT NULL DEFAULT '',
+        mood         TEXT,
+        entry_date   DATE NOT NULL DEFAULT CURRENT_DATE,
+        is_private   BOOLEAN NOT NULL DEFAULT TRUE,
+        created_at   TIMESTAMPTZ NOT NULL DEFAULT NOW(),
+        updated_at   TIMESTAMPTZ NOT NULL DEFAULT NOW()
+      )
+    `;
+    await sql`CREATE INDEX IF NOT EXISTS idx_journal_user ON platform_journal_entries(user_id, entry_date DESC)`;
+
+    await sql`
+      CREATE TABLE IF NOT EXISTS platform_notifications (
+        id           TEXT PRIMARY KEY DEFAULT gen_random_uuid()::TEXT,
+        user_id      TEXT NOT NULL,
+        type         TEXT NOT NULL DEFAULT 'reminder',
+        title        TEXT NOT NULL,
+        body         TEXT,
+        link_path    TEXT,
+        read_at      TIMESTAMPTZ,
+        dismissed_at TIMESTAMPTZ,
+        scheduled_at TIMESTAMPTZ,
+        created_at   TIMESTAMPTZ NOT NULL DEFAULT NOW()
+      )
+    `;
+    await sql`CREATE INDEX IF NOT EXISTS idx_notifs_user ON platform_notifications(user_id, created_at DESC)`;
+
     console.log("[DB] Schema bootstrap complete");
   } catch (err) {
     console.error("[DB] Schema bootstrap failed:", err instanceof Error ? err.message : String(err));

@@ -1,0 +1,118 @@
+/// UNIFIED ADD-ON: Life OS, Fairness, Safety, Trust, Stability, Final Layers
+
+Fairness:
+• Track contributions (time, effort, participation, creativity) privately; use only for rewards/unlocks, never rankings or shame.
+• Founder can adjust/override rules anytime.
+
+Family Bank:
+• Virtual balances/goals/rewards per member; real money only via external providers with explicit (ideally biometric) approval.
+• Simple history: what was earned/spent, why, and for whom.
+
+Messaging:
+• Private family-only messaging + system invites/notifications.
+• Kids only message in approved family spaces; no external messaging.
+• Notifications must be calm, clear, non-alarming.
+
+Views & Content Safety:
+• Kids see age-appropriate, simplified, warm views; hide admin/financial/heavy content.
+• No raw errors; always gentle, guided screens.
+
+Customization & Identity:
+• Safe customization of colors/avatars/names; keep unified warm, modern-minimal identity across universes.
+
+Observability & Audit:
+• Log key events only: logins, device trust changes, role changes, payments triggered, admin actions.
+• Logs for safety/debugging, not surveillance; Admin-only.
+
+Backups & Export:
+• Data (creations, balances, logs, settings) must be exportable/migratable; no hard-coded host/provider locks.
+
+Consent & Critical Actions:
+• NDA/consent before sensitive tools/admin areas.
+• All critical actions (roles, device trust, payments, external integrations) require explicit confirmation, preferably biometric.
+
+Life OS Scope:
+• Platform is a personal/family OS for identity, time, money, projects, learning, habits, decisions.
+• Platform is the brain/hub; banks, governments, healthcare, schools, employers, devices remain authorities.
+
+Civic & Official Processes:
+• Track elections, registrations, renewals, licenses, taxes, school/work deadlines, appointments.
+• Provide neutral, plain-language summaries/checklists; always link to official sites for submissions.
+• Never impersonate/replace government, legal, or voting systems.
+
+Health, School, Work (Organization Only):
+• Organize appointments, questions, tasks, goals with calendars, notes, to-dos.
+• No medical, therapeutic, or employment decisions—only organize, remind, reflect user input.
+
+Habits, Goals, Daily Life:
+• Support routines, habits, savings, chores, reading, learning with gentle, non-shaming language.
+• Users can pause/change/delete trackers anytime.
+
+Creative & Emotional Spaces:
+• Private journals/reflections; shared family stories, memories, creations.
+• Never expose private reflections without explicit consent; no public comparisons/leaderboards.
+
+Physical World Integrations:
+• Use trusted bridges only (IoT hubs, payment providers, calendars, identity providers).
+• Platform may trigger actions (“pay bill,” “start routine,” “night mode”), but real-world effects always via secure external services + explicit approval.
+• Never directly control hardware, bypass security, or move money without confirmation.
+
+Information, News, Trust:
+• Present info neutrally and calmly; avoid sensationalism/pressure.
+• Encourage verification with trusted/official/expert sources.
+• Allow users to mute/hide/reduce overwhelming streams.
+
+Respect for Autonomy:
+• Platform suggests/organizes/clarifies; users always choose.
+• Treat every user with dignity regardless of background/beliefs.
+
+Universe Boundaries:
+• Admin, Adult Family, Kids, Customer universes fully isolated in data, UI, navigation.
+• No cross-universe access; redirects must be silent and safe.
+
+Role Evolution:
+• Support future roles (teacher, coach, caregiver, collaborator, etc.) without redesign.
+• All roles inherit safety, clarity, emotional protections.
+
+Creation Tools:
+• Support future creative modules (apps, games, videos, stories, art) via unified creation framework.
+• Kids’ tools must be simplified, safe, non-comparative.
+
+System Intelligence:
+• Provide gentle suggestions, summaries, next steps across universes.
+• Suggestions are optional/dismissible; never override autonomy.
+
+Memory & Continuity:
+• Preserve context (trusted devices, preferences, identity colors, avatars) across sessions.
+• Allow users to reset/clear personal data without breaking system.
+
+Family Dynamics:
+• Support shared projects/goals/memories.
+• No member can delete another’s creations without explicit permission.
+
+Admin Powers:
+• Admin manages roles/devices/users/universes but cannot view private family content.
+• Sensitive admin actions require fresh biometric confirmation.
+
+Customer Universe Expansion:
+• Support future modules (subscriptions, orders, appointments, service requests).
+• Keep customer data isolated from family/admin data.
+
+Notifications Layer:
+• Support scheduled reminders, event triggers, system alerts.
+• All notifications calm, clear, never fear-based.
+
+Offline & Low-Signal:
+• Graceful offline screens; allow cached non-sensitive viewing.
+• Block sensitive actions until reconnected.
+
+Future Integrations:
+• All modules must accept future providers (identity, payments, IoT, calendars) without structural changes.
+• Never hard-code a single provider as the only option.
+
+System Tone:
+• Maintain warmth, clarity, emotional safety in all text/prompts/flows.
+• Avoid pressure/shame/false urgency except true safety-critical alerts.
+
+Goal (Unified Final Layer):
+Make the platform a gentle, powerful, future-proof Life OS—role-isolated, emotionally safe, revenue-ready, and capable of supporting every digital aspect of life while respecting real-world limits and human freedom, with no extra setup required after publish.
