@@ -1,3 +1,4 @@
+import { requireAuth } from "../middlewares/requireAuth.js";
 import { Router, type IRouter, type Request, type Response } from "express";
 import { eq, desc, and, sql, ilike, or } from "drizzle-orm";
 import {
@@ -81,7 +82,7 @@ router.get("/candidates", async (req: Request, res: Response) => {
   } catch (err) { res.status(500).json({ error: "Failed" }); }
 });
 
-router.post("/candidates", async (req: Request, res: Response) => {
+router.post("/candidates", requireAuth, async (req: Request, res: Response) => {
   try {
     const { firstName, lastName, email, phone, title, location, skills, experience, availability, status = "active", source, resumeUrl, notes } = req.body;
     const [row] = await db.insert(staffingCandidates).values({ firstName, lastName, email, phone: phone || null, title: title || null, location: location || null, skills: skills || null, experience: experience || null, availability: availability || null, status, source: source || null, resumeUrl: resumeUrl || null, notes: notes || null }).returning();
@@ -124,7 +125,7 @@ router.get("/candidates/:id", async (req: Request, res: Response) => {
   } catch (err) { res.status(500).json({ error: "Failed" }); }
 });
 
-router.put("/candidates/:id", async (req: Request, res: Response) => {
+router.put("/candidates/:id", requireAuth, async (req: Request, res: Response) => {
   try {
     const id = Number(req.params.id as string);
     const updates: Record<string, unknown> = {};
@@ -140,7 +141,7 @@ router.put("/candidates/:id", async (req: Request, res: Response) => {
   } catch (err) { res.status(500).json({ error: "Failed" }); }
 });
 
-router.delete("/candidates/:id", async (req: Request, res: Response) => {
+router.delete("/candidates/:id", requireAuth, async (req: Request, res: Response) => {
   try { await db.delete(staffingCandidates).where(eq(staffingCandidates.id, Number(req.params.id as string))); res.status(204).send(); }
   catch (err) { res.status(500).json({ error: "Failed" }); }
 });
@@ -159,7 +160,7 @@ router.get("/clients", async (_req: Request, res: Response) => {
   } catch (err) { res.status(500).json({ error: "Failed" }); }
 });
 
-router.post("/clients", async (req: Request, res: Response) => {
+router.post("/clients", requireAuth, async (req: Request, res: Response) => {
   try {
     const { companyName, industry, contactName, contactEmail, contactPhone, address, website, status = "active", notes } = req.body;
     const [row] = await db.insert(staffingClients).values({ companyName, industry: industry || null, contactName: contactName || null, contactEmail: contactEmail || null, contactPhone: contactPhone || null, address: address || null, website: website || null, status, notes: notes || null }).returning();
@@ -176,7 +177,7 @@ router.get("/clients/:id", async (req: Request, res: Response) => {
   } catch (err) { res.status(500).json({ error: "Failed" }); }
 });
 
-router.put("/clients/:id", async (req: Request, res: Response) => {
+router.put("/clients/:id", requireAuth, async (req: Request, res: Response) => {
   try {
     const id = Number(req.params.id as string);
     const updates: Record<string, unknown> = {};
@@ -196,7 +197,7 @@ router.put("/clients/:id", async (req: Request, res: Response) => {
   } catch (err) { res.status(500).json({ error: "Failed" }); }
 });
 
-router.delete("/clients/:id", async (req: Request, res: Response) => {
+router.delete("/clients/:id", requireAuth, async (req: Request, res: Response) => {
   try { await db.delete(staffingClients).where(eq(staffingClients.id, Number(req.params.id as string))); res.status(204).send(); }
   catch (err) { res.status(500).json({ error: "Failed" }); }
 });
@@ -223,7 +224,7 @@ router.get("/requisitions", async (req: Request, res: Response) => {
   } catch (err) { res.status(500).json({ error: "Failed" }); }
 });
 
-router.post("/requisitions", async (req: Request, res: Response) => {
+router.post("/requisitions", requireAuth, async (req: Request, res: Response) => {
   try {
     const { clientId, title, department, location, type = "full-time", salaryMin, salaryMax, description, requirements, status = "open", priority = "medium", targetDate } = req.body;
     const [row] = await db.insert(staffingRequisitions).values({ clientId, title, department: department || null, location: location || null, type, salaryMin: salaryMin ? String(salaryMin) : null, salaryMax: salaryMax ? String(salaryMax) : null, description: description || null, requirements: requirements || null, status, priority, targetDate: targetDate ? new Date(targetDate) : null }).returning();
@@ -240,7 +241,7 @@ router.get("/requisitions/:id", async (req: Request, res: Response) => {
   } catch (err) { res.status(500).json({ error: "Failed" }); }
 });
 
-router.put("/requisitions/:id", async (req: Request, res: Response) => {
+router.put("/requisitions/:id", requireAuth, async (req: Request, res: Response) => {
   try {
     const id = Number(req.params.id as string);
     const updates: Record<string, unknown> = {};
@@ -262,7 +263,7 @@ router.put("/requisitions/:id", async (req: Request, res: Response) => {
   } catch (err) { res.status(500).json({ error: "Failed" }); }
 });
 
-router.delete("/requisitions/:id", async (req: Request, res: Response) => {
+router.delete("/requisitions/:id", requireAuth, async (req: Request, res: Response) => {
   try { await db.delete(staffingRequisitions).where(eq(staffingRequisitions.id, Number(req.params.id as string))); res.status(204).send(); }
   catch (err) { res.status(500).json({ error: "Failed" }); }
 });
@@ -288,7 +289,7 @@ router.get("/submissions", async (req: Request, res: Response) => {
   } catch (err) { res.status(500).json({ error: "Failed" }); }
 });
 
-router.post("/submissions", async (req: Request, res: Response) => {
+router.post("/submissions", requireAuth, async (req: Request, res: Response) => {
   try {
     const { candidateId, requisitionId, status = "submitted", notes, recruiterFeedback, clientFeedback } = req.body;
     const [row] = await db.insert(staffingSubmissions).values({ candidateId, requisitionId, status, submittedAt: new Date(), notes: notes || null, recruiterFeedback: recruiterFeedback || null, clientFeedback: clientFeedback || null }).returning();
@@ -296,7 +297,7 @@ router.post("/submissions", async (req: Request, res: Response) => {
   } catch (err) { res.status(500).json({ error: "Failed" }); }
 });
 
-router.put("/submissions/:id", async (req: Request, res: Response) => {
+router.put("/submissions/:id", requireAuth, async (req: Request, res: Response) => {
   try {
     const id = Number(req.params.id as string);
     const updates: Record<string, unknown> = {};
@@ -311,7 +312,7 @@ router.put("/submissions/:id", async (req: Request, res: Response) => {
   } catch (err) { res.status(500).json({ error: "Failed" }); }
 });
 
-router.delete("/submissions/:id", async (req: Request, res: Response) => {
+router.delete("/submissions/:id", requireAuth, async (req: Request, res: Response) => {
   try { await db.delete(staffingSubmissions).where(eq(staffingSubmissions.id, Number(req.params.id as string))); res.status(204).send(); }
   catch (err) { res.status(500).json({ error: "Failed" }); }
 });
@@ -337,7 +338,7 @@ router.get("/interviews", async (req: Request, res: Response) => {
   } catch (err) { res.status(500).json({ error: "Failed" }); }
 });
 
-router.post("/interviews", async (req: Request, res: Response) => {
+router.post("/interviews", requireAuth, async (req: Request, res: Response) => {
   try {
     const { submissionId, candidateId, requisitionId, scheduledAt, durationMinutes = 60, type = "phone", status = "scheduled", interviewerName, location, notes, feedback, outcome } = req.body;
     const [row] = await db.insert(staffingInterviews).values({ submissionId, candidateId, requisitionId, scheduledAt: new Date(scheduledAt), durationMinutes, type, status, interviewerName: interviewerName || null, location: location || null, notes: notes || null, feedback: feedback || null, outcome: outcome || null }).returning();
@@ -345,7 +346,7 @@ router.post("/interviews", async (req: Request, res: Response) => {
   } catch (err) { res.status(500).json({ error: "Failed" }); }
 });
 
-router.put("/interviews/:id", async (req: Request, res: Response) => {
+router.put("/interviews/:id", requireAuth, async (req: Request, res: Response) => {
   try {
     const id = Number(req.params.id as string);
     const updates: Record<string, unknown> = {};
@@ -365,7 +366,7 @@ router.put("/interviews/:id", async (req: Request, res: Response) => {
   } catch (err) { res.status(500).json({ error: "Failed" }); }
 });
 
-router.delete("/interviews/:id", async (req: Request, res: Response) => {
+router.delete("/interviews/:id", requireAuth, async (req: Request, res: Response) => {
   try { await db.delete(staffingInterviews).where(eq(staffingInterviews.id, Number(req.params.id as string))); res.status(204).send(); }
   catch (err) { res.status(500).json({ error: "Failed" }); }
 });
@@ -386,7 +387,7 @@ router.get("/placements", async (_req: Request, res: Response) => {
   } catch (err) { res.status(500).json({ error: "Failed" }); }
 });
 
-router.post("/placements", async (req: Request, res: Response) => {
+router.post("/placements", requireAuth, async (req: Request, res: Response) => {
   try {
     const { candidateId, requisitionId, clientId, startDate, endDate, type = "permanent", salary, fee, status = "active", notes } = req.body;
     const [row] = await db.insert(staffingPlacements).values({ candidateId, requisitionId, clientId, startDate: new Date(startDate), endDate: endDate ? new Date(endDate) : null, type, salary: salary ? String(salary) : null, fee: fee ? String(fee) : null, status, notes: notes || null }).returning();
@@ -394,7 +395,7 @@ router.post("/placements", async (req: Request, res: Response) => {
   } catch (err) { res.status(500).json({ error: "Failed" }); }
 });
 
-router.put("/placements/:id", async (req: Request, res: Response) => {
+router.put("/placements/:id", requireAuth, async (req: Request, res: Response) => {
   try {
     const id = Number(req.params.id as string);
     const updates: Record<string, unknown> = {};
@@ -412,7 +413,7 @@ router.put("/placements/:id", async (req: Request, res: Response) => {
   } catch (err) { res.status(500).json({ error: "Failed" }); }
 });
 
-router.delete("/placements/:id", async (req: Request, res: Response) => {
+router.delete("/placements/:id", requireAuth, async (req: Request, res: Response) => {
   try { await db.delete(staffingPlacements).where(eq(staffingPlacements.id, Number(req.params.id as string))); res.status(204).send(); }
   catch (err) { res.status(500).json({ error: "Failed" }); }
 });

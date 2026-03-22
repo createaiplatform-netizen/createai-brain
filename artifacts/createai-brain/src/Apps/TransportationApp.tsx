@@ -29,7 +29,7 @@ export default function TransportationApp() {
       setTrips(t.trips ?? []);
       setDrv(d.drivers ?? []);
       setStats(s);
-    } finally { setLoading(false); }
+    } catch { notify("Failed to load data"); } finally { setLoading(false); }
   }, []);
 
   useEffect(() => { load(); }, [load]);

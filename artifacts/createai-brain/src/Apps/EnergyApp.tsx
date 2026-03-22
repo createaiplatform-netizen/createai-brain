@@ -28,7 +28,7 @@ export default function EnergyApp() {
       setSites(s.sites ?? []);
       setAl(a.alerts ?? []);
       setStats(st);
-    } finally { setLoading(false); }
+    } catch { notify("Failed to load data"); } finally { setLoading(false); }
   }, []);
 
   useEffect(() => { load(); }, [load]);

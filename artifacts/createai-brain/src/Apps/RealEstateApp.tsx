@@ -24,7 +24,7 @@ export default function RealEstateApp() {
       ]);
       setL(l.listings ?? []);
       setStats(s);
-    } finally { setLoading(false); }
+    } catch { notify("Failed to load data"); } finally { setLoading(false); }
   }, []);
 
   useEffect(() => { load(); }, [load]);

@@ -24,7 +24,7 @@ export default function ConstructionApp() {
       ]);
       setP(p.projects ?? []);
       setStats(s);
-    } finally { setLoading(false); }
+    } catch { notify("Failed to load data"); } finally { setLoading(false); }
   }, []);
 
   useEffect(() => { load(); }, [load]);

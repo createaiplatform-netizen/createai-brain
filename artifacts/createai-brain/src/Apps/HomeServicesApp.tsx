@@ -30,7 +30,7 @@ export default function HomeServicesApp() {
       setJobs(j.jobs ?? []);
       setTechs(t.technicians ?? []);
       setStats(s);
-    } finally { setLoading(false); }
+    } catch { notify("Failed to load data"); } finally { setLoading(false); }
   }, []);
 
   useEffect(() => { load(); }, [load]);

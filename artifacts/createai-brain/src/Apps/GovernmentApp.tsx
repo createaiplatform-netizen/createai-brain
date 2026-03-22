@@ -32,7 +32,7 @@ export default function GovernmentApp() {
       setP(p.permits ?? []);
       setR(r.requests ?? []);
       setStats(s);
-    } finally { setLoading(false); }
+    } catch { notify("Failed to load data"); } finally { setLoading(false); }
   }, []);
 
   useEffect(() => { load(); }, [load]);

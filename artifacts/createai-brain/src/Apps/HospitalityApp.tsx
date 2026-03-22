@@ -25,10 +25,10 @@ export default function HospitalityApp() {
         fetch("/api/hospitality/reservations", { credentials: "include" }).then(r => r.json()),
         fetch("/api/hospitality/stats",        { credentials: "include" }).then(r => r.json()),
       ]);
-      setR(rv_rooms => r.rooms ?? []);
+      setR(r.rooms ?? []);
       setRes(rv.reservations ?? []);
       setS(s);
-    } finally { setLoading(false); }
+    } catch { notify("Failed to load data"); } finally { setLoading(false); }
   }, []);
 
   useEffect(() => { load(); }, [load]);

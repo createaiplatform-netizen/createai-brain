@@ -22,7 +22,7 @@ export default function RetailEngineApp() {
       ]);
       setProds(p.products ?? []);
       setStats(s);
-    } finally { setLoading(false); }
+    } catch { notify("Failed to load data"); } finally { setLoading(false); }
   }, []);
 
   useEffect(() => { load(); }, [load]);

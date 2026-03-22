@@ -30,7 +30,7 @@ export default function ManufacturingApp() {
       setOrders(wo.workOrders ?? []);
       setMach(m.machines ?? []);
       setStats(s);
-    } finally { setLoading(false); }
+    } catch { notify("Failed to load data"); } finally { setLoading(false); }
   }, []);
 
   useEffect(() => { load(); }, [load]);

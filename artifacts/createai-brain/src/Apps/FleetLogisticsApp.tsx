@@ -27,7 +27,7 @@ export default function FleetLogisticsApp() {
       setV(vs.vehicles ?? []);
       setD(ds.drivers  ?? []);
       setStats(st);
-    } finally { setLoading(false); }
+    } catch { notify("Failed to load data"); } finally { setLoading(false); }
   }, []);
 
   useEffect(() => { load(); }, [load]);

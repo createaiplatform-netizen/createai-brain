@@ -34,7 +34,7 @@ export default function AgricultureApp() {
       setCrops(c.crops ?? []);
       setHarv(h.harvests ?? []);
       setStats(s);
-    } finally { setLoading(false); }
+    } catch { notify("Failed to load data"); } finally { setLoading(false); }
   }, []);
 
   useEffect(() => { load(); }, [load]);

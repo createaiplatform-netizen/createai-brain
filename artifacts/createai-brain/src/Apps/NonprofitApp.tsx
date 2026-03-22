@@ -31,7 +31,7 @@ export default function NonprofitApp() {
       setD(d.donors ?? []);
       setG(g.grants ?? []);
       setStats(s);
-    } finally { setLoading(false); }
+    } catch { notify("Failed to load data"); } finally { setLoading(false); }
   }, []);
 
   useEffect(() => { load(); }, [load]);
