@@ -478,6 +478,12 @@ export async function bootstrapSchema(): Promise<void> {
     `;
     await sql`CREATE INDEX IF NOT EXISTS idx_habit_comp_habit ON platform_habit_completions(habit_id, done_on DESC)`;
 
+    // Guardian approval columns — safe to run repeatedly (IF NOT EXISTS)
+    await sql`ALTER TABLE platform_habit_completions ADD COLUMN IF NOT EXISTS approval_status TEXT NOT NULL DEFAULT 'approved'`;
+    await sql`ALTER TABLE platform_habit_completions ADD COLUMN IF NOT EXISTS parent_note    TEXT`;
+    await sql`ALTER TABLE platform_habit_completions ADD COLUMN IF NOT EXISTS reviewed_at    TIMESTAMPTZ`;
+    await sql`ALTER TABLE platform_habit_completions ADD COLUMN IF NOT EXISTS reviewed_by    TEXT`;
+
     await sql`
       CREATE TABLE IF NOT EXISTS platform_contributions (
         id          TEXT PRIMARY KEY DEFAULT gen_random_uuid()::TEXT,
