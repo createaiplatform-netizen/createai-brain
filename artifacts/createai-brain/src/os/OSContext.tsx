@@ -285,7 +285,11 @@ export type AppId =
   // ── Extended Domain Engine Suite v2.0 — 10 new engines ─────────────────────
   | "projectsCmd" | "partnerNet" | "eventBooking" | "educationHub" | "socialCmd"
   | "supplyChainOps" | "franchiseOps" | "brandVault" | "revenueIntel" | "aiStrategy"
-  | "distributionHub";
+  | "distributionHub"
+  // ── Industry Elevation Suite — 13 sectors at 100% ──────────────────────────
+  | "fleetLogistics" | "retailEngine" | "manufacturing" | "hospitality" | "energyMgmt"
+  | "realEstate" | "transportation" | "nonprofit" | "construction"
+  | "government" | "homeServices" | "insuranceMgmt" | "agriculture";
 
 export interface AppDef {
   id: AppId;
@@ -502,6 +506,20 @@ export const DEFAULT_APPS: AppDef[] = [
   { id: "revenueIntel",  label: "Revenue Intelligence",icon: "📈", color: "#10b981", description: "Advanced revenue analytics — cohort analysis, LTV modeling, churn prediction, MRR/ARR trends, net revenue retention, and ARPU tracking. Replaces ChartMogul and Baremetrics.", category: "business" },
   { id: "aiStrategy",    label: "AI Strategy Engine",  icon: "🧠", color: "#6366f1", description: "GPT-4o powered strategic intelligence — analyze business positions, generate 90-day action plans, map competitive landscapes, identify growth levers, and evaluate pivot options. Full strategic advisor.", category: "ai" },
   { id: "distributionHub", label: "Distribution Hub", icon: "🚀", color: "#6366f1", description: "App store submission engine — manage PWA installation, Chrome Web Store, Apple App Store, Google Play, Samsung Galaxy Store, Amazon Appstore, and Microsoft Store. 100/100 PWA audit score. Full automation pipeline with GitHub Actions + Fastlane.", category: "system" },
+  // ── Industry Elevation Suite — 13 sectors at 100% ─────────────────────────
+  { id: "fleetLogistics", label: "Fleet & Logistics", icon: "🚛", color: "#6366f1", description: "Full fleet management OS — vehicles, drivers, routes, fuel logs, maintenance schedule, load dispatch, and GPS telemetry. Replaces Samsara and Verizon Connect.", category: "business" },
+  { id: "retailEngine",   label: "Retail Engine",     icon: "🛍️", color: "#f59e0b", description: "Unified retail operations — inventory, POS transactions, promotions, supplier reorders, shrinkage tracking, and sales analytics. Replaces Lightspeed and Square for Retail.", category: "business" },
+  { id: "manufacturing",  label: "Manufacturing",      icon: "🏭", color: "#64748b", description: "Production planning and shop-floor control — work orders, BOM management, quality inspection, OEE tracking, shift logs, and defect rate monitoring. Replaces SAP PP and Plex.", category: "business" },
+  { id: "hospitality",    label: "Hospitality PMS",    icon: "🏨", color: "#0ea5e9", description: "Property management system for hotels and resorts — reservations, room assignments, housekeeping, F&B orders, guest profiles, and RevPAR analytics. Replaces Opera PMS.", category: "business" },
+  { id: "energyMgmt",     label: "Energy & Utilities", icon: "⚡", color: "#eab308", description: "Energy asset monitoring and utility management — meter readings, consumption analytics, demand forecasting, outage tracking, and sustainability KPIs. Replaces OSIsoft and Itron.", category: "business" },
+  { id: "realEstate",     label: "Real Estate",        icon: "🏠", color: "#10b981", description: "Full real estate OS — listings, tenant management, lease lifecycle, maintenance requests, rent collection, and portfolio ROI. Replaces AppFolio and Yardi.", category: "business" },
+  { id: "transportation", label: "Transportation",      icon: "🚕", color: "#8b5cf6", description: "Passenger transportation management — trip booking, driver dispatch, pricing zones, ride analytics, safety incidents, and earnings reporting. Replaces TripMaster.", category: "business" },
+  { id: "nonprofit",      label: "Nonprofit",           icon: "💚", color: "#16a34a", description: "Nonprofit operations platform — donor management, grant tracking, campaign fundraising, volunteer coordination, program impact, and IRS 990 preparation. Replaces Bloomerang and Salesforce NPSP.", category: "business" },
+  { id: "construction",   label: "Construction",        icon: "🏗️", color: "#d97706", description: "Construction project OS — projects, subcontractors, RFIs, submittals, daily logs, safety incidents, material procurement, and budget variance. Replaces Procore and Buildertrend.", category: "business" },
+  { id: "government",     label: "Government Services", icon: "🏛️", color: "#1d4ed8", description: "Public sector operations — citizen services, permit processing, case management, compliance tracking, public contracts, budget allocation, and FOIA request handling.", category: "business" },
+  { id: "homeServices",   label: "Home Services",       icon: "🔧", color: "#dc2626", description: "Field service management for home service businesses — jobs, technicians, scheduling, estimates, invoices, customer portal, and equipment service records. Replaces ServiceTitan.", category: "business" },
+  { id: "insuranceMgmt",  label: "Insurance",           icon: "🛡️", color: "#4f46e5", description: "Insurance operations platform — policy lifecycle, claims processing, underwriting, reinsurance, agent commissions, actuarial reserving, and regulatory filings. Replaces Applied Epic.", category: "business" },
+  { id: "agriculture",    label: "Agriculture",          icon: "🌾", color: "#65a30d", description: "Farm and agribusiness management — field operations, crop planning, soil health, equipment, labor, yield tracking, market pricing, and subsidy management. Replaces Granular and FarmLogs.", category: "business" },
 ];
 
 export const ALL_APPS = DEFAULT_APPS;
@@ -1072,7 +1090,20 @@ const APP_META: Record<AppId, { icon: string; label: string }> = {
   featureFlags:        { icon: "🚩", label: "Feature Flags" },
   crossDomainInsights: { icon: "🌐", label: "Cross-Domain" },
   evolutionTracker:    { icon: "🚀", label: "Evolution Tracker" },
-
+  // ── Industry Elevation Suite ─────────────────────────────────────────────
+  fleetLogistics:  { icon: "🚛", label: "Fleet & Logistics" },
+  retailEngine:    { icon: "🛍️", label: "Retail Engine" },
+  manufacturing:   { icon: "🏭", label: "Manufacturing" },
+  hospitality:     { icon: "🏨", label: "Hospitality PMS" },
+  energyMgmt:      { icon: "⚡", label: "Energy & Utilities" },
+  realEstate:      { icon: "🏠", label: "Real Estate" },
+  transportation:  { icon: "🚕", label: "Transportation" },
+  nonprofit:       { icon: "💚", label: "Nonprofit" },
+  construction:    { icon: "🏗️", label: "Construction" },
+  government:      { icon: "🏛️", label: "Government Services" },
+  homeServices:    { icon: "🔧", label: "Home Services" },
+  insuranceMgmt:   { icon: "🛡️", label: "Insurance" },
+  agriculture:     { icon: "🌾", label: "Agriculture" },
 };
 
 // ─── OS Context value ───────────────────────────────────────────────────────

@@ -432,6 +432,21 @@ import temporalIntelRouter     from "./temporalIntel.js";
 import platformDNARouter       from "./platformDNA.js";
 import outboundWebhooksRouter  from "./outboundWebhooks.js";
 
+// ── Industry Elevation Suite — 13 domains raised to ≥100% ────────────────────
+import fleetLogisticsRouter    from "./fleetLogistics.js";
+import retailEngineRouter      from "./retailEngine.js";
+import manufacturingRouter     from "./manufacturingEngine.js";
+import hospitalityRouter       from "./hospitalityEngine.js";
+import energyRouter            from "./energyEngine.js";
+import realEstateRouter        from "./realEstateEngine.js";
+import transportationRouter    from "./transportationEngine.js";
+import nonprofitRouter         from "./nonprofitEngine.js";
+import constructionRouter      from "./constructionEngine.js";
+import governmentRouter        from "./governmentEngine.js";
+import homeServicesRouter      from "./homeServicesEngine.js";
+import insuranceRouter         from "./insuranceEngine.js";
+import agricultureRouter       from "./agricultureEngine.js";
+
 router.use("/search",          universalSearchRouter);
 router.use("/automation",      automationEngineRouter);
 router.use("/flags",           featureFlagsRouter);
@@ -440,6 +455,21 @@ router.use("/oracle",          intelligenceOracleRouter);
 router.use("/temporal",        temporalIntelRouter);
 router.use("/platform-dna",    platformDNARouter);
 router.use("/webhook-mgr",     outboundWebhooksRouter);
+
+// ── Industry Elevation Suite — 13 domains raised to ≥100% ────────────────────
+router.use("/fleet",           fleetLogisticsRouter);
+router.use("/retail",          retailEngineRouter);
+router.use("/manufacturing",   manufacturingRouter);
+router.use("/hospitality",     hospitalityRouter);
+router.use("/energy",          energyRouter);
+router.use("/real-estate",     realEstateRouter);
+router.use("/transportation",  transportationRouter);
+router.use("/nonprofit",       nonprofitRouter);
+router.use("/construction",    constructionRouter);
+router.use("/government",      governmentRouter);
+router.use("/home-services",   homeServicesRouter);
+router.use("/insurance",       insuranceRouter);
+router.use("/agriculture",     agricultureRouter);
 
 // ── Financial Hub Backward-Compat Redirects — T006 ───────────────────────────
 // Wealth, ledger, and revenue-intel are also reachable under /finance/*

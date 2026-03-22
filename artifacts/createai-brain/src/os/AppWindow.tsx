@@ -430,6 +430,21 @@ const FeatureFlagsApp         = React.lazy(() => import("@/Apps/FeatureFlagsApp"
 const CrossDomainInsightsApp  = React.lazy(() => import("@/Apps/CrossDomainInsightsApp").then(m => ({ default: m.CrossDomainInsightsApp })));
 const PlatformEvolutionTrackerApp = React.lazy(() => import("@/Apps/PlatformEvolutionTrackerApp").then(m => ({ default: m.PlatformEvolutionTrackerApp })));
 
+// ── Industry Elevation Suite — 13 sectors ────────────────────────────────────
+const FleetLogisticsApp  = React.lazy(() => import("@/Apps/FleetLogisticsApp"));
+const RetailEngineApp    = React.lazy(() => import("@/Apps/RetailEngineApp"));
+const ManufacturingApp   = React.lazy(() => import("@/Apps/ManufacturingApp"));
+const HospitalityApp     = React.lazy(() => import("@/Apps/HospitalityApp"));
+const EnergyApp          = React.lazy(() => import("@/Apps/EnergyApp"));
+const RealEstateApp      = React.lazy(() => import("@/Apps/RealEstateApp"));
+const TransportationApp  = React.lazy(() => import("@/Apps/TransportationApp"));
+const NonprofitApp       = React.lazy(() => import("@/Apps/NonprofitApp"));
+const ConstructionApp    = React.lazy(() => import("@/Apps/ConstructionApp"));
+const GovernmentApp      = React.lazy(() => import("@/Apps/GovernmentApp"));
+const HomeServicesApp    = React.lazy(() => import("@/Apps/HomeServicesApp"));
+const InsuranceApp       = React.lazy(() => import("@/Apps/InsuranceApp"));
+const AgricultureApp     = React.lazy(() => import("@/Apps/AgricultureApp"));
+
 // ── App registry ─────────────────────────────────────────────────────────────
 const APP_COMPONENTS: Record<AppId, React.LazyExoticComponent<React.ComponentType<any>>> = {
   // Core
@@ -846,6 +861,20 @@ const APP_COMPONENTS: Record<AppId, React.LazyExoticComponent<React.ComponentTyp
   revenueIntel:   RevenueIntelApp,
   aiStrategy:     AIStrategyApp,
   distributionHub: DistributionHubApp,
+  // ── Industry Elevation Suite — 13 sectors at 100% ────────────────────────
+  fleetLogistics:  FleetLogisticsApp,
+  retailEngine:    RetailEngineApp,
+  manufacturing:   ManufacturingApp,
+  hospitality:     HospitalityApp,
+  energyMgmt:      EnergyApp,
+  realEstate:      RealEstateApp,
+  transportation:  TransportationApp,
+  nonprofit:       NonprofitApp,
+  construction:    ConstructionApp,
+  government:      GovernmentApp,
+  homeServices:    HomeServicesApp,
+  insuranceMgmt:   InsuranceApp,
+  agriculture:     AgricultureApp,
 };
 
 // ── Loading skeleton ─────────────────────────────────────────────────────────
