@@ -286,7 +286,7 @@ function WelcomeScreen({ onEnter }: { onEnter: () => void }) {
 
 // ─── Tab types ───────────────────────────────────────────────────────────────
 
-type Tab = "home" | "create" | "gallery" | "family" | "rewards";
+type Tab = "home" | "create" | "gallery" | "family" | "rewards" | "store";
 
 const TABS: { id: Tab; icon: string; label: string }[] = [
   { id: "home",    icon: "🏡", label: "Home"    },
@@ -294,6 +294,7 @@ const TABS: { id: Tab; icon: string; label: string }[] = [
   { id: "gallery", icon: "🖼️", label: "Gallery" },
   { id: "family",  icon: "💛", label: "Family"  },
   { id: "rewards", icon: "🌟", label: "Rewards" },
+  { id: "store",   icon: "🛍️", label: "Store"   },
 ];
 
 // ─── Home Tab ─────────────────────────────────────────────────────────────────
@@ -1333,6 +1334,217 @@ function RewardsTab() {
   );
 }
 
+// ─── Store Tab ────────────────────────────────────────────────────────────────
+
+interface StoreProduct {
+  id: string;
+  name: string;
+  description: string;
+  price: string;
+  emoji: string;
+  color: string;
+  tag: string;
+}
+
+const STORE_CATEGORIES = [
+  { icon: "🎨", label: "Creativity",   color: "#f59e0b", desc: "Art kits, journals, and creative tools for the whole family" },
+  { icon: "📖", label: "Stories",      color: "#fb7185", desc: "Storybooks, memory journals, and family scrapbooks" },
+  { icon: "💛", label: "Wellness",     color: "#34d399", desc: "Family wellness guides and kindness challenge kits" },
+  { icon: "🎮", label: "Play",         color: "#a78bfa", desc: "Family games, activity cards, and challenge sets" },
+  { icon: "🌱", label: "Learning",     color: "#38bdf8", desc: "Learning kits and curiosity packs for young minds" },
+  { icon: "🎁", label: "Gifts",        color: "#f472b6", desc: "Thoughtful gifts for every family member" },
+];
+
+const FEATURED_PRODUCTS: StoreProduct[] = [
+  { id: "p1", name: "Family Story Kit",       description: "Everything you need to write and illustrate your family's first book together.",       price: "$24.99", emoji: "📖", color: "#fb7185", tag: "Most Loved" },
+  { id: "p2", name: "Kindness Challenge Pack", description: "30 days of simple, heartwarming challenges to bring your family closer.",               price: "$14.99", emoji: "💛", color: "#f59e0b", tag: "Bestseller" },
+  { id: "p3", name: "Memory Card Set",         description: "Beautiful cards to capture, write, and share your most cherished family moments.",     price: "$19.99", emoji: "💌", color: "#a78bfa", tag: "New" },
+  { id: "p4", name: "Family Art Studio Box",  description: "Curated art supplies and guided projects for a full weekend of creative fun.",          price: "$34.99", emoji: "🎨", color: "#34d399", tag: "Fan Favorite" },
+];
+
+function StoreTab() {
+  const [selectedCategory, setSelectedCategory] = useState<string | null>(null);
+  const [cartItems, setCartItems] = useState<StoreProduct[]>([]);
+  const [showCart, setShowCart]   = useState(false);
+  const [checkoutDone, setCheckoutDone] = useState(false);
+
+  function addToCart(p: StoreProduct) {
+    setCartItems(c => [...c, p]);
+  }
+  function removeFromCart(id: string) {
+    setCartItems(c => c.filter(x => x.id !== id));
+  }
+  const cartTotal = cartItems.reduce((s, p) => s + parseFloat(p.price.replace("$", "")), 0);
+
+  if (checkoutDone) {
+    return (
+      <div className="flex flex-col items-center text-center py-16 gap-4">
+        <div className="text-5xl">🎉</div>
+        <h2 className="font-black text-[22px]" style={{ color: WARM_TEXT }}>Thank you!</h2>
+        <p className="text-[14px]" style={{ color: WARM_MUTED }}>Your order is on its way to our team. We'll reach out shortly.</p>
+        <WarmBtn onClick={() => { setCheckoutDone(false); setCartItems([]); }}>Continue Shopping</WarmBtn>
+      </div>
+    );
+  }
+
+  if (showCart) {
+    return (
+      <div>
+        <button onClick={() => setShowCart(false)}
+          className="flex items-center gap-2 mb-5 text-[13px] font-semibold" style={{ color: WARM_MUTED }}>
+          ← Back to Store
+        </button>
+        <h2 className="font-black text-[22px] mb-5" style={{ color: WARM_TEXT }}>Your Basket 🛍️</h2>
+
+        {cartItems.length === 0 ? (
+          <WarmCard style={{ textAlign: "center", padding: 32 }}>
+            <div className="text-4xl mb-3">🛍️</div>
+            <p className="font-bold text-[15px]" style={{ color: WARM_TEXT }}>Your basket is empty</p>
+            <p className="text-[13px] mt-1 mb-4" style={{ color: WARM_MUTED }}>Add something you love!</p>
+            <WarmBtn onClick={() => setShowCart(false)} variant="soft">Browse Store</WarmBtn>
+          </WarmCard>
+        ) : (
+          <div className="space-y-4">
+            {cartItems.map((item, i) => (
+              <WarmCard key={`${item.id}-${i}`} style={{ padding: "14px 16px" }}>
+                <div className="flex items-center gap-3">
+                  <div className="w-12 h-12 rounded-2xl flex items-center justify-center text-2xl flex-shrink-0"
+                    style={{ background: item.color + "20" }}>{item.emoji}</div>
+                  <div className="flex-1 min-w-0">
+                    <p className="font-bold text-[13px]" style={{ color: WARM_TEXT }}>{item.name}</p>
+                    <p className="text-[12px] font-semibold mt-0.5" style={{ color: WARM_PRIMARY }}>{item.price}</p>
+                  </div>
+                  <button onClick={() => removeFromCart(item.id)}
+                    className="text-[11px] font-semibold px-2.5 py-1 rounded-full"
+                    style={{ background: "#fee2e2", color: "#ef4444" }}>Remove</button>
+                </div>
+              </WarmCard>
+            ))}
+
+            <WarmCard style={{ background: "#fffbf0" }}>
+              <div className="flex items-center justify-between">
+                <p className="font-bold text-[15px]" style={{ color: WARM_TEXT }}>Total</p>
+                <p className="font-black text-[20px]" style={{ color: WARM_PRIMARY }}>${cartTotal.toFixed(2)}</p>
+              </div>
+            </WarmCard>
+
+            <WarmBtn onClick={() => setCheckoutDone(true)} className="w-full text-center">
+              Place Order 💛
+            </WarmBtn>
+
+            <WarmCard style={{ background: "#f0fdf4", borderColor: "rgba(52,211,153,0.25)", padding: "12px 16px" }}>
+              <div className="flex gap-2 items-start">
+                <span className="text-lg flex-shrink-0">🔒</span>
+                <p className="text-[12px]" style={{ color: "#15803d" }}>
+                  Safe & secure. We'll contact you to confirm your order and arrange payment through Cash App ($CreateAIDigital) or Venmo (@CreateAIDigital).
+                </p>
+              </div>
+            </WarmCard>
+          </div>
+        )}
+      </div>
+    );
+  }
+
+  return (
+    <div className="space-y-6">
+      {/* Hero */}
+      <div className="rounded-3xl p-6 relative overflow-hidden"
+        style={{ background: "linear-gradient(135deg, #fde68a 0%, #fca5a5 60%, #c4b5fd 100%)" }}>
+        <div className="absolute -top-8 -right-8 w-32 h-32 rounded-full opacity-20"
+          style={{ background: "#fff" }} />
+        <p className="text-[12px] font-bold uppercase tracking-widest mb-1" style={{ color: "rgba(28,20,18,0.55)" }}>Family Store</p>
+        <h2 className="font-black text-[22px] mb-1" style={{ color: "#1c1412", letterSpacing: "-0.3px" }}>
+          Explore Our Family Store
+        </h2>
+        <p className="text-[13px] mb-4" style={{ color: "rgba(28,20,18,0.65)" }}>
+          Thoughtfully made things for families who love to create and connect.
+        </p>
+        <div className="flex gap-2 flex-wrap">
+          <WarmBtn onClick={() => setShowCart(true)} variant="soft" small color="#1c1412">
+            🛍️ View Basket {cartItems.length > 0 && `(${cartItems.length})`}
+          </WarmBtn>
+        </div>
+      </div>
+
+      {/* Categories */}
+      <div>
+        <p className="text-[12px] font-bold uppercase tracking-widest mb-3" style={{ color: WARM_MUTED }}>Browse by category</p>
+        <div className="grid grid-cols-3 gap-2.5">
+          {STORE_CATEGORIES.map(cat => (
+            <button key={cat.label}
+              onClick={() => setSelectedCategory(selectedCategory === cat.label ? null : cat.label)}
+              className="flex flex-col items-center gap-1.5 py-3 rounded-2xl transition-all active:scale-95"
+              style={{
+                background: selectedCategory === cat.label ? cat.color + "25" : cat.color + "12",
+                border: `1.5px solid ${selectedCategory === cat.label ? cat.color + "60" : cat.color + "20"}`,
+              }}>
+              <span className="text-2xl">{cat.icon}</span>
+              <span className="text-[10px] font-bold" style={{ color: cat.color }}>{cat.label}</span>
+            </button>
+          ))}
+        </div>
+        {selectedCategory && (
+          <WarmCard style={{ marginTop: 12, background: "#fffbf0", padding: "12px 16px" }}>
+            <p className="text-[13px]" style={{ color: WARM_TEXT }}>
+              {STORE_CATEGORIES.find(c => c.label === selectedCategory)?.desc}
+            </p>
+          </WarmCard>
+        )}
+      </div>
+
+      {/* Featured products */}
+      <div>
+        <p className="text-[12px] font-bold uppercase tracking-widest mb-3" style={{ color: WARM_MUTED }}>Featured items</p>
+        <div className="space-y-3">
+          {FEATURED_PRODUCTS.map(product => (
+            <WarmCard key={product.id}>
+              <div className="flex gap-4 items-start">
+                <div className="w-16 h-16 rounded-2xl flex items-center justify-center text-3xl flex-shrink-0"
+                  style={{ background: `linear-gradient(135deg, ${product.color}20, ${product.color}10)` }}>
+                  {product.emoji}
+                </div>
+                <div className="flex-1 min-w-0">
+                  <div className="flex items-center gap-2 flex-wrap mb-1">
+                    <p className="font-bold text-[14px]" style={{ color: WARM_TEXT }}>{product.name}</p>
+                    <span className="text-[10px] font-bold px-2 py-0.5 rounded-full"
+                      style={{ background: product.color + "20", color: product.color }}>{product.tag}</span>
+                  </div>
+                  <p className="text-[12px] leading-relaxed mb-2" style={{ color: WARM_MUTED }}>{product.description}</p>
+                  <div className="flex items-center justify-between">
+                    <p className="font-black text-[16px]" style={{ color: WARM_TEXT }}>{product.price}</p>
+                    <WarmBtn onClick={() => addToCart(product)} small color={product.color}>
+                      Add to Basket
+                    </WarmBtn>
+                  </div>
+                </div>
+              </div>
+            </WarmCard>
+          ))}
+        </div>
+      </div>
+
+      {/* Cart CTA */}
+      {cartItems.length > 0 && (
+        <button onClick={() => setShowCart(true)}
+          className="w-full py-4 rounded-2xl font-bold text-[14px] text-white transition-all active:scale-95"
+          style={{ background: "linear-gradient(135deg, #f59e0b 0%, #fb7185 100%)", boxShadow: "0 6px 24px rgba(245,158,11,0.35)" }}>
+          View Basket · {cartItems.length} item{cartItems.length !== 1 ? "s" : ""} · ${cartTotal.toFixed(2)} →
+        </button>
+      )}
+
+      {/* Payment info */}
+      <WarmCard style={{ background: "#f0fdf4", borderColor: "rgba(52,211,153,0.2)", padding: "14px 16px" }}>
+        <p className="font-bold text-[12px] mb-2" style={{ color: "#15803d" }}>💚 Easy & Trusted Payment</p>
+        <p className="text-[12px] leading-relaxed" style={{ color: "#166534" }}>
+          We accept Cash App <strong>$CreateAIDigital</strong> and Venmo <strong>@CreateAIDigital</strong>.
+          Place your order and we'll reach out to confirm.
+        </p>
+      </WarmCard>
+    </div>
+  );
+}
+
 // ─── Family Chat (floating panel) ─────────────────────────────────────────────
 
 function FamilyChatPanel({ onClose }: { onClose: () => void }) {
@@ -1471,6 +1683,7 @@ function FamilyUniverseApp() {
           onDelete={id => setCreations(cs => cs.filter(x => x.id !== id))} />}
         {activeTab === "family"  && <FamilyTab />}
         {activeTab === "rewards" && <RewardsTab />}
+        {activeTab === "store"   && <StoreTab />}
       </div>
 
       {/* Bottom nav */}
@@ -1481,11 +1694,11 @@ function FamilyUniverseApp() {
             const active = activeTab === tab.id;
             return (
               <button key={tab.id} onClick={() => setActiveTab(tab.id)}
-                className="flex-1 flex flex-col items-center gap-1 py-3 transition-all"
+                className="flex-1 flex flex-col items-center gap-0.5 py-2.5 transition-all"
                 style={{ color: active ? WARM_PRIMARY : WARM_MUTED }}>
-                <span className="text-[20px]">{tab.icon}</span>
-                <span className="text-[10px] font-semibold">{tab.label}</span>
-                {active && <div className="w-1 h-1 rounded-full" style={{ background: WARM_PRIMARY }} />}
+                <span className="text-[18px]">{tab.icon}</span>
+                <span className="text-[9px] font-semibold leading-none">{tab.label}</span>
+                {active && <div className="w-1 h-1 rounded-full mt-0.5" style={{ background: WARM_PRIMARY }} />}
               </button>
             );
           })}
