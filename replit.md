@@ -2,7 +2,7 @@
 
 ## Overview
 
-The CreateAI Brain is a full-stack AI OS platform (NEXUS Semantic OS), developed as a pnpm monorepo using TypeScript. It provides 45+ domain engine apps within a unified spatial interface. The platform supports autonomous revenue generation, 300+ AI invention tools, cross-industry operations (HealthOS, LegalPM, StaffingOS), and a complete business management suite.
+The CreateAI Brain is a full-stack AI OS platform (NEXUS Semantic OS), developed as a pnpm monorepo using TypeScript. It provides 365+ domain engine apps within a unified spatial interface. The platform supports autonomous revenue generation, AI tools for every industry, cross-domain operations (HealthOS, LegalPM, StaffingOS), and a complete business management suite. Live domain: `createai.digital`. Platform owner: Sara Stadler (Lakeside Trinity LLC). Payment rails: Cash App `$CreateAIDigital`, Venmo `@CreateAIDigital`.
 
 **Platform Scale (March 2026)**
 - 35+ HTML dashboard surfaces — all returning 200

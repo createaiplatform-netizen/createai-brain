@@ -9,6 +9,7 @@ import { AppWindow } from "./AppWindow";
 import { ConversationOverlay } from "./ConversationOverlay";
 import { GuidedTour } from "./GuidedTour";
 import { AtmosphericLayer } from "./AtmosphericLayer";
+import { SEOMeta } from "@/components/SEOMeta";
 
 // UCPXAgent is a 963 KB file — lazy-load it so it never blocks the initial paint
 const UCPXAgent = React.lazy(() =>
@@ -52,6 +53,13 @@ export function OSLayout() {
 
   return (
     <div className="atmospheric-bg flex h-[100dvh] w-full overflow-hidden" style={{ position: "relative" }}>
+      <SEOMeta
+        title="CreateAI Brain — The AI OS for Everything You Do"
+        description="CreateAI Brain is the complete AI-powered business OS. 365+ intelligent tools, autonomous revenue generation, and industry-specific AI for healthcare, legal, staffing, finance, and more."
+        canonical="https://createai.digital"
+        ogTitle="CreateAI Brain — The AI OS for Everything You Do"
+        ogDescription="365+ intelligent business tools in one OS. Healthcare, Legal, Staffing, Finance, Marketing AI — replace $100K+ in software. By Lakeside Trinity LLC."
+      />
       {/* ── Atmospheric environment — gradient blobs, micro-particles, haze ── */}
       <AtmosphericLayer />
 

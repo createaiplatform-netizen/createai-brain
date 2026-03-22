@@ -1,5 +1,6 @@
 import React, { useState, useEffect, useRef, useCallback } from "react";
 import { useLocation } from "wouter";
+import { SEOMeta } from "@/components/SEOMeta";
 
 // ─── Types ──────────────────────────────────────────────────────────────────
 
@@ -1724,14 +1725,41 @@ function FamilyUniverseApp() {
 export default function FamilyHubPage() {
   const [entered, setEntered] = useState(() => sessionStorage.getItem("fhu_v2_entered") === "1");
 
+  const seo = (
+    <SEOMeta
+      title="Family Creation Universe — CreateAI Brain"
+      description="A warm, creative space for family to share, create, and connect. Videos, stories, memories, and AI tools — built with love by Sara & Family."
+      ogTitle="Family Creation Universe"
+      ogDescription="Enter the Family Universe — a creative space for family stories, videos, memories, and AI-powered creations by Lakeside Trinity LLC."
+      canonical="https://createai.digital/family-hub"
+      ogType="website"
+      structuredData={{
+        "@context": "https://schema.org",
+        "@type": "WebPage",
+        "name": "Family Creation Universe",
+        "url": "https://createai.digital/family-hub",
+        "description": "A warm creative space for family stories, videos, memories, and AI tools.",
+        "publisher": { "@type": "Organization", "name": "CreateAI Brain", "url": "https://createai.digital" }
+      }}
+    />
+  );
+
   if (!entered) {
     return (
-      <WelcomeScreen onEnter={() => {
-        sessionStorage.setItem("fhu_v2_entered", "1");
-        setEntered(true);
-      }} />
+      <>
+        {seo}
+        <WelcomeScreen onEnter={() => {
+          sessionStorage.setItem("fhu_v2_entered", "1");
+          setEntered(true);
+        }} />
+      </>
     );
   }
 
-  return <FamilyUniverseApp />;
+  return (
+    <>
+      {seo}
+      <FamilyUniverseApp />
+    </>
+  );
 }

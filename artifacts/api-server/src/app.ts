@@ -9,7 +9,7 @@ import { adminAuth, verifyAdminCookie } from "./middlewares/adminAuth.js";
 import router from "./routes";
 import { getRegistry } from "./semantic/registry.js";
 import { IDENTITY } from "./config/identity.js";
-import { getPublicBaseUrl } from "./utils/publicUrl.js";
+import { getPublicBaseUrl, getCanonicalBaseUrl } from "./utils/publicUrl.js";
 import { bootstrapSchema } from "./lib/db.js";
 import { initSelfHostEngine } from "./engines/selfHostEngine.js";
 import { startHealthMonitor } from "./services/healthMonitorEngine.js";
@@ -34,7 +34,8 @@ import platformStatusRouter from "./routes/platformStatus.js";
 import pulseRouter          from "./routes/pulse.js";
 import opsRouter            from "./routes/ops.js";
 import portalsExtendedRouter from "./routes/portalsExtended.js";
-import protocolGatewayRouter from "./routes/protocolGateway.js";
+import protocolGatewayRouter    from "./routes/protocolGateway.js";
+import adNetworkCatalogsRouter  from "./routes/adNetworkCatalogs.js";
 
 export { chatLimiter, heavyLimiter, editLimiter } from "./middlewares/rateLimiters";
 
@@ -144,28 +145,49 @@ const SEO_INDUSTRIES = [
   "education", "nonprofits",
 ];
 
-// Sitemap — all 12 industry pages + store products + main routes
+// Sitemap — comprehensive: all routes, industries, products, family hub, above-transcend
 app.get("/sitemap.xml", async (_req: Request, res: Response) => {
   try {
-    const BASE     = getPublicBaseUrl();
+    const BASE     = getCanonicalBaseUrl();
     const products = await getRegistry();
     const now      = new Date().toISOString().split("T")[0];
+
+    const coreUrls =
+      "\n  <url><loc>" + BASE + "/</loc><lastmod>" + now + "</lastmod><changefreq>daily</changefreq><priority>1.0</priority></url>" +
+      "\n  <url><loc>" + BASE + "/store</loc><lastmod>" + now + "</lastmod><changefreq>daily</changefreq><priority>0.95</priority></url>" +
+      "\n  <url><loc>" + BASE + "/family-hub</loc><lastmod>" + now + "</lastmod><changefreq>weekly</changefreq><priority>0.90</priority></url>" +
+      "\n  <url><loc>" + BASE + "/above-transcend</loc><lastmod>" + now + "</lastmod><changefreq>daily</changefreq><priority>0.85</priority></url>" +
+      "\n  <url><loc>" + BASE + "/join/landing</loc><lastmod>" + now + "</lastmod><changefreq>weekly</changefreq><priority>0.80</priority></url>" +
+      "\n  <url><loc>" + BASE + "/join/plans</loc><lastmod>" + now + "</lastmod><changefreq>weekly</changefreq><priority>0.75</priority></url>" +
+      "\n  <url><loc>" + BASE + "/semantic-store</loc><lastmod>" + now + "</lastmod><changefreq>daily</changefreq><priority>0.70</priority></url>" +
+      "\n  <url><loc>" + BASE + "/platform-score</loc><lastmod>" + now + "</lastmod><changefreq>daily</changefreq><priority>0.65</priority></url>" +
+      "\n  <url><loc>" + BASE + "/metrics</loc><lastmod>" + now + "</lastmod><changefreq>daily</changefreq><priority>0.60</priority></url>";
 
     const industryUrls = SEO_INDUSTRIES.map(ind =>
       "\n  <url>" +
       "\n    <loc>" + BASE + "/for/" + ind + "</loc>" +
       "\n    <lastmod>" + now + "</lastmod>" +
       "\n    <changefreq>weekly</changefreq>" +
-      "\n    <priority>0.9</priority>" +
+      "\n    <priority>0.90</priority>" +
       "\n  </url>"
     ).join("");
 
-    const productUrls = products.map(p =>
+    const productStoreUrls = products.map(p =>
       "\n  <url>" +
       "\n    <loc>" + BASE + "/store/" + p.id + "</loc>" +
       "\n    <lastmod>" + now + "</lastmod>" +
       "\n    <changefreq>weekly</changefreq>" +
-      "\n    <priority>" + (p.priceCents >= 1500 ? "0.8" : "0.6") + "</priority>" +
+      "\n    <priority>" + (p.priceCents >= 2000 ? "0.80" : "0.70") + "</priority>" +
+      (p.thumbnailUrl ? "\n    <image:image><image:loc>" + p.thumbnailUrl + "</image:loc><image:title>" + p.title.replace(/&/g, "&amp;") + "</image:title><image:caption>" + (p.shortDescription ?? "").replace(/&/g, "&amp;").slice(0, 200) + "</image:caption></image:image>" : "") +
+      "\n  </url>"
+    ).join("");
+
+    const productPageUrls = products.map(p =>
+      "\n  <url>" +
+      "\n    <loc>" + BASE + "/api/semantic/store/" + p.id + "</loc>" +
+      "\n    <lastmod>" + now + "</lastmod>" +
+      "\n    <changefreq>monthly</changefreq>" +
+      "\n    <priority>0.65</priority>" +
       "\n  </url>"
     ).join("");
 
@@ -175,11 +197,10 @@ app.get("/sitemap.xml", async (_req: Request, res: Response) => {
       "<?xml version=\"1.0\" encoding=\"UTF-8\"?>" +
       "\n<urlset xmlns=\"http://www.sitemaps.org/schemas/sitemap/0.9\"" +
       "\n  xmlns:image=\"http://www.google.com/schemas/sitemap-image/1.1\">" +
-      "\n  <url><loc>" + BASE + "/</loc><lastmod>" + now + "</lastmod><changefreq>daily</changefreq><priority>1.0</priority></url>" +
-      "\n  <url><loc>" + BASE + "/store</loc><lastmod>" + now + "</lastmod><changefreq>daily</changefreq><priority>0.95</priority></url>" +
-      "\n  <url><loc>" + BASE + "/join/landing</loc><lastmod>" + now + "</lastmod><changefreq>weekly</changefreq><priority>0.7</priority></url>" +
+      coreUrls +
       industryUrls +
-      productUrls +
+      productStoreUrls +
+      productPageUrls +
       "\n</urlset>"
     );
   } catch {
@@ -187,29 +208,61 @@ app.get("/sitemap.xml", async (_req: Request, res: Response) => {
   }
 });
 
-// Robots.txt — allows all bots on SEO pages, blocks internal admin paths
+// Robots.txt — allows all crawlable public pages; blocks admin/internal paths
 app.get("/robots.txt", (_req: Request, res: Response) => {
-  const BASE = getPublicBaseUrl();
+  const CANON = getCanonicalBaseUrl();
   res.setHeader("Content-Type", "text/plain; charset=utf-8");
   res.setHeader("Cache-Control", "public, max-age=86400");
   res.send(
+    "# CreateAI Brain — robots.txt\n" +
+    "# Platform by Lakeside Trinity LLC | createai.digital\n\n" +
     "User-agent: *\n" +
     "Allow: /\n" +
     "Allow: /store\n" +
     "Allow: /store/\n" +
+    "Allow: /family-hub\n" +
+    "Allow: /above-transcend\n" +
     "Allow: /for/\n" +
     "Allow: /join/\n" +
+    "Allow: /join/landing\n" +
+    "Allow: /join/plans\n" +
+    "Allow: /api/semantic/store/\n" +
+    "Allow: /api/semantic/export/\n" +
+    "Allow: /api/ads/\n" +
     "Allow: /p/\n" +
     "Allow: /share/\n" +
+    "Allow: /portal/me\n" +
+    "Allow: /.well-known/\n" +
+    "Allow: /sitemap.xml\n" +
+    "Allow: /ads.txt\n" +
     "Disallow: /buy/\n" +
     "Disallow: /checkout/\n" +
     "Disallow: /launch/\n" +
-    "Disallow: /hub\n" +
     "Disallow: /admin/\n" +
     "Disallow: /studio/\n" +
+    "Disallow: /ops/\n" +
+    "Disallow: /status/\n" +
+    "Disallow: /pulse/\n" +
+    "Disallow: /hub\n" +
+    "Disallow: /vault\n" +
+    "Disallow: /bundle\n" +
+    "Disallow: /ss/\n" +
     "Disallow: /api/\n" +
     "\n" +
-    "Sitemap: " + BASE + "/sitemap.xml\n"
+    "# Google AdsBot — allow product and landing pages\n" +
+    "User-agent: AdsBot-Google\n" +
+    "Allow: /\n" +
+    "Allow: /store\n" +
+    "Allow: /store/\n" +
+    "Allow: /family-hub\n" +
+    "Allow: /for/\n" +
+    "Allow: /join/landing\n" +
+    "Allow: /api/semantic/store/\n" +
+    "Disallow: /admin/\n" +
+    "Disallow: /api/\n" +
+    "\n" +
+    "# Sitemap\n" +
+    "Sitemap: " + CANON + "/sitemap.xml\n"
   );
 });
 
@@ -405,6 +458,7 @@ app.use("/join",      semanticSubRouter);
 app.use("/",          protocolGatewayRouter);
 app.use("/",          semanticStoreRouter);
 app.use("/",          platformHubRouter);
+app.use("/api/ads",   adNetworkCatalogsRouter);
 
 // ── API (private — Replit auth + scope) ──────────────────────────────────────
 app.use(authMiddleware);

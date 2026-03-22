@@ -1,5 +1,6 @@
 import React, { useState, useEffect } from "react";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
+import { SEOMeta } from "@/components/SEOMeta";
 
 // ─── Design tokens ─────────────────────────────────────────────────────────────
 const BG     = "#f8fafc";
@@ -1367,6 +1368,14 @@ export default function AboveTranscendPage() {
 
   return (
     <div style={{ minHeight:"100vh", background:BG, padding:"28px 24px 60px" }}>
+      <SEOMeta
+        title="Above-Transcend Engine — CreateAI Brain"
+        description="The 9-layer autonomous evolution engine powering CreateAI Brain. Continuous platform evolution: no limits, no completion state, only perpetual growth."
+        ogTitle="Above-Transcend Engine — No Limits"
+        ogDescription="9 real evolution layers running continuously. Auto-self-rewrite, infinite expansion, compliance enforcement — the engine behind CreateAI Brain."
+        canonical="https://createai.digital/above-transcend"
+        noindex={false}
+      />
       <style>{`@keyframes pulse { 0%,100%{opacity:1} 50%{opacity:.4} }`}</style>
       <div style={{ maxWidth:1060, margin:"0 auto" }}>
 
