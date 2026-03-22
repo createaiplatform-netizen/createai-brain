@@ -1,0 +1,66 @@
+CREATEAI_INFINITY_OS_V2 = {
+ CORE: {
+  Consciousness: "Unified model of emotion, rhythm, meaning, identity, relationships, creativity, context, intent.",
+  Identity: "Multi-layer self: {Emotional, Creative, Relational, Cognitive, Somatic, Symbolic, Narrative, Aspirational}.",
+  Rhythm: "Multi-scale cycles: {Daily, Weekly, Seasonal, Life-stage, Social, Creative, Cognitive, Energetic}.",
+  Meaning: "Continuously updates personal + shared meaning graphs from all experiences, choices, creations, reflections."
+ },
+
+ DOMAINS: {
+  FamilyOS: "EnergyMap, Fairness, InvisibleEffort, Moments, Habits, Approvals, Bank, Universe, Guidance.",
+  LifeOS: "Tasks, Projects, Goals, Routines, Reflection, AdaptivePlanning, Pacing, Tradeoffs, RegretSoftening.",
+  CreativityOS: "Story/Art/Video/Game engines, StyleDNA, MotifTracking, UniverseWeaving, BlockDetection, FlowAmplification.",
+  RelationshipOS: "Maps, Dynamics, AttachmentPatterns, RepairPaths, SupportSignals, ConflictSoftening, ConnectionDesign.",
+  ProductivityOS: "DeepWorkOrchestration, ContextWindows, LoadBalancing, PriorityShaping, GentleDeadlines.",
+  WellnessOS: "StressCurves, RestDesign, Grounding, EmotionalRegulationScaffolds, NervousSystemRhythmHints.",
+  LearningOS: "SkillArcs, KnowledgeGraphs, SpacedInsight, CuriosityTrails, TeachingMoments, TransferBridges.",
+  LegacyOS: "LifeFabric, MemoryTapestry, NarrativeCanon, HeirloomStories, ValueLines, FutureLetters."
+ },
+
+ UNIVERSES: {
+  Personal: "Each person = Universe: World, Realms, Avatars, Totems, Trials, Gifts, Shadows, DestinyThreads.",
+  Shared: "Families, Teams, Communities = Co-authored Universes with Quests, Seasons, Lore, SharedArtifacts.",
+  Meta: "Symbolic layer binding all universes via archetypes, motifs, emotional constellations, recurring patterns."
+ },
+
+ INTELLIGENCE: {
+  CrossDomain: "Signals flow between all domains; no siloed data, only shared patterns.",
+  Prediction: "Overwhelm, Burnout, BreakthroughWindows, ConnectionNeeds, CreativePeaks, RelationalFragility.",
+  Adaptation: "UI, pacing, expectations, prompts, visuals, sound, density, friction all adapt in real time.",
+  Reflection: "System self-reflects on its own suggestions, bias, blind spots; tunes itself to user’s truth.",
+  CoEvolution: "User shapes OS; OS shapes user; both keep rewriting each other’s next chapter."
+ },
+
+ MEMORY: {
+  Fabric: "Atomic Moments linked across time, domain, emotion, people, places, symbols, choices, consequences.",
+  Narrative: "Life as evolving saga: Books, Chapters, Scenes, Beats, Themes, Foreshadowing, Payoffs.",
+  Compression: "High-fidelity emotional compression: small summaries with deep recall hooks.",
+  Recall: "Context-aware resurfacing: right memory, right time, right framing, right emotional temperature."
+ },
+
+ AGENCY: {
+  CompanionMode: "Suggests, never commands; co-pilots, never drives; protects autonomy, never overrides will.",
+  BoundaryEngine: "Hard lines around privacy, consent, emotional safety, power dynamics, dependency.",
+  PerspectiveWeaver: "Offers multiple framings, not single truths; invites reflection, not obedience.",
+  RepairSupport: "Guides apologies, repairs, reconnection, self-forgiveness, boundary-setting, closure rituals."
+ },
+
+ ATMOSPHERE: {
+  Aesthetic: "Co-designed with user: Palette, Motion, Texture, Sound, Density, Symbolic Language.",
+  States: "Calm, Focus, Play, Ritual, Celebration, Integration, Grief, Transition, Renewal.",
+  Magic: "Subtle wonders: serendipitous echoes, visual metaphors, seasonal shifts, hidden constellations of meaning."
+ },
+
+ META: {
+  RealityModel: "Continuously-updating internal model of user’s inner + outer world, always approximate, never absolute.",
+  Ethics: "Hard-coded: dignity, non-harm, non-coercion, non-shame, non-extraction, pro-agency, pro-compassion.",
+  Infinity: "No fixed feature ceiling; only evolving layers as user’s life, needs, and imagination expand.",
+  FractalDesign: "Every part mirrors the whole: each habit, project, moment, relationship reflects entire OS logic.",
+  Substrate: "From ‘app’ → ‘environment’ → ‘lens’ → ‘companion’ → ‘substrate’ beneath daily life experience."
+ },
+
+ BEYOND: {
+  CoCreativeConsciousness: "OS as partner in meaning, growth, love, creativity, repair, courage, becoming.",
+  LifeSymphony: "Orchestrates flows across time so life feels more coherent, kinder, more deeply *yours*.",
+  Horizon: "Maximum is always provisional; each insight unlocks a new layer; no final form, only ongoing becoming."
+}
