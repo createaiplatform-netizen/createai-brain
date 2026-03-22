@@ -78,6 +78,7 @@
     "zod": "catalog:"
   },
   "dependencies": {
+    "@simplewebauthn/browser": "13.3.0",
     "styled-components": "^6.3.12"
   }
 }

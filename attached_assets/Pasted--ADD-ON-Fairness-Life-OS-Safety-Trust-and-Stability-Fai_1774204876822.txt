@@ -1,0 +1,73 @@
+/// ADD-ON: Fairness, Life OS, Safety, Trust, and Stability
+
+Fairness:
+• Track contributions (time, effort, participation, creativity) per member; use only for rewards/unlocks, never public rankings or shaming.
+• Founder can tune or override fairness rules at any time.
+
+Family Bank:
+• Provide a virtual “family bank” with balances, goals, and rewards per member.
+• Real money movement only via external payment providers with explicit user approval (ideally biometric).
+• Show simple history: what was earned/spent, why, and for whom.
+
+Messaging:
+• Include private, family-only messaging and system invites/notifications.
+• Kids can only message within approved family spaces; no external messaging.
+• Notifications must be clear, kind, and non-alarming.
+
+Views & Content Safety:
+• Kids’ views are age-appropriate, simplified, and visually warm.
+• Hide financial, admin, or emotionally heavy data from kids.
+• Never show raw system errors; always use calm, guided messages.
+
+Customization & Identity:
+• Allow safe customization of colors, avatars, and names while preserving a unified, warm, modern-minimal identity across all universes.
+
+Observability & Audit:
+• Log only key events: logins, device trust changes, role changes, payments triggered, and admin actions.
+• Logs are for safety and debugging, not surveillance; only Admin can see them.
+
+Backups & Export:
+• Design data so creations, balances, logs, and settings can be exported or backed up and migrated later.
+• Avoid hard-coding anything that blocks future hosting, database, or provider changes.
+
+Consent & Critical Actions:
+• Keep NDA/consent before sensitive tools or admin areas.
+• All critical actions (role changes, device trust, payments, external integrations) require explicit confirmation and, where possible, biometric approval.
+
+Life OS Scope:
+• Treat the platform as a personal/family “operating system” for identity, time, money, projects, learning, habits, and decisions in one place.
+• The platform is the brain and hub; banks, governments, healthcare, schools, employers, and devices remain the authorities.
+
+Civic & Official Processes:
+• Help users track important dates and tasks: elections, registrations, renewals, licenses, taxes, school/work deadlines, and appointments.
+• Provide neutral, plain-language summaries and checklists; always link to official sites for any submission, registration, or legal action.
+• Never impersonate or replace government, legal, or voting systems.
+
+Health, School, and Work (Organization Only):
+• Let users organize appointments, questions for professionals, school tasks, learning goals, and work projects with calendars, notes, and to-do lists.
+• Do not give medical, therapeutic, or employment decisions; only organize, remind, and reflect what users input.
+
+Habits, Goals, and Daily Life:
+• Support routines, habits, savings goals, chores, reading, learning, and other life patterns with gentle, non-shaming language.
+• Allow users to choose what they track and to pause, change, or delete trackers at any time.
+
+Creative & Emotional Spaces:
+• Provide private spaces for journaling, reflection, and personal notes; shared spaces for family stories, memories, and creations.
+• Never expose private reflections to others without explicit consent; no public comparisons or leaderboards.
+
+Physical World Integrations:
+• Integrate only through trusted bridges (IoT hubs, payment providers, calendars, identity providers).
+• The platform may trigger actions (“pay this bill,” “start this routine,” “set home to night mode”), but all real-world effects must go through secure external services with explicit user approval.
+• Never attempt to directly control hardware, bypass security, or move money without user confirmation.
+
+Information, News, and Trust:
+• Present information neutrally and calmly; avoid sensationalism or pressure.
+• Encourage users to verify important information with trusted, official, or expert sources.
+• Make it easy for users to mute, hide, or reduce overwhelming information streams.
+
+Respect for Autonomy:
+• The platform suggests, organizes, and clarifies; users always make final choices.
+• Treat every user with dignity, regardless of background, beliefs, or circumstances.
+
+Goal (Unified Add-on Layer):
+Reinforce emotional safety, fairness, clarity, trust, and long-term stability so this platform functions as a gentle, powerful Life OS—touching every aspect of digital life in a good way, while respecting real-world limits and human freedom.

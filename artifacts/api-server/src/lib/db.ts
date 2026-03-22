@@ -261,6 +261,72 @@ export async function bootstrapSchema(): Promise<void> {
     await sql`CREATE INDEX IF NOT EXISTS idx_loyalty_email        ON platform_loyalty_ledger(customer_email, created_at DESC)`;
     await sql`CREATE INDEX IF NOT EXISTS idx_reviews_product      ON platform_reviews(product_id, status)`;
 
+    // ── Identity & Auth Extension Tables ────────────────────────────────────
+    await sql`
+      CREATE TABLE IF NOT EXISTS platform_trusted_devices (
+        id            TEXT PRIMARY KEY DEFAULT gen_random_uuid()::TEXT,
+        user_id       TEXT NOT NULL,
+        device_name   TEXT NOT NULL DEFAULT 'Unknown Device',
+        device_token  TEXT NOT NULL UNIQUE,
+        webauthn_credential_id TEXT,
+        webauthn_public_key    TEXT,
+        webauthn_counter       BIGINT DEFAULT 0,
+        phone_verified BOOLEAN NOT NULL DEFAULT FALSE,
+        last_used_at  TIMESTAMPTZ,
+        created_at    TIMESTAMPTZ NOT NULL DEFAULT NOW()
+      )
+    `;
+    await sql`CREATE INDEX IF NOT EXISTS idx_trusted_devices_user ON platform_trusted_devices(user_id)`;
+    await sql`CREATE INDEX IF NOT EXISTS idx_trusted_devices_token ON platform_trusted_devices(device_token)`;
+
+    await sql`
+      CREATE TABLE IF NOT EXISTS platform_phone_verifications (
+        id           TEXT PRIMARY KEY DEFAULT gen_random_uuid()::TEXT,
+        user_id      TEXT NOT NULL,
+        phone        TEXT NOT NULL,
+        otp_hash     TEXT NOT NULL,
+        expires_at   TIMESTAMPTZ NOT NULL,
+        verified_at  TIMESTAMPTZ,
+        attempt_count INTEGER NOT NULL DEFAULT 0,
+        created_at   TIMESTAMPTZ NOT NULL DEFAULT NOW()
+      )
+    `;
+    await sql`CREATE INDEX IF NOT EXISTS idx_phone_verif_user ON platform_phone_verifications(user_id, created_at DESC)`;
+
+    await sql`
+      CREATE TABLE IF NOT EXISTS platform_family_identities (
+        id            TEXT PRIMARY KEY DEFAULT gen_random_uuid()::TEXT,
+        user_id       TEXT NOT NULL UNIQUE,
+        display_name  TEXT NOT NULL,
+        avatar_emoji  TEXT NOT NULL DEFAULT '🌱',
+        avatar_color  TEXT NOT NULL DEFAULT '#7a9068',
+        member_type   TEXT NOT NULL DEFAULT 'adult',
+        bio           TEXT,
+        created_at    TIMESTAMPTZ NOT NULL DEFAULT NOW(),
+        updated_at    TIMESTAMPTZ NOT NULL DEFAULT NOW()
+      )
+    `;
+
+    await sql`
+      CREATE TABLE IF NOT EXISTS platform_bills (
+        id              TEXT PRIMARY KEY DEFAULT gen_random_uuid()::TEXT,
+        user_id         TEXT NOT NULL,
+        name            TEXT NOT NULL,
+        payee           TEXT NOT NULL DEFAULT '',
+        amount_cents    INTEGER NOT NULL DEFAULT 0,
+        due_date        DATE,
+        payment_method  TEXT NOT NULL DEFAULT 'manual',
+        status          TEXT NOT NULL DEFAULT 'pending',
+        notes           TEXT,
+        approved_at     TIMESTAMPTZ,
+        paid_at         TIMESTAMPTZ,
+        created_at      TIMESTAMPTZ NOT NULL DEFAULT NOW(),
+        updated_at      TIMESTAMPTZ NOT NULL DEFAULT NOW()
+      )
+    `;
+    await sql`CREATE INDEX IF NOT EXISTS idx_bills_user ON platform_bills(user_id, due_date ASC)`;
+    await sql`CREATE INDEX IF NOT EXISTS idx_bills_status ON platform_bills(status)`;
+
     console.log("[DB] Schema bootstrap complete");
   } catch (err) {
     console.error("[DB] Schema bootstrap failed:", err instanceof Error ? err.message : String(err));

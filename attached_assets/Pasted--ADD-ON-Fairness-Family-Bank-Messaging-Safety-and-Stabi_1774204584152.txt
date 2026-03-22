@@ -1,0 +1,40 @@
+/// ADD-ON: Fairness, Family Bank, Messaging, Safety, and Stability
+
+Fairness Engine:
+• Track contributions (time, effort, participation, creativity) for each family member without showing “scores” that could hurt feelings.
+• Use the fairness engine only to inform rewards, unlocks, or gentle nudges—never public rankings or comparisons.
+• Allow the founder to adjust or override fairness rules at any time.
+
+Family Bank:
+• Provide a virtual “family bank” where balances, goals, and rewards are tracked per member.
+• The family bank is symbolic/virtual by default; any real money movement must go through external payment methods with explicit user approval.
+• Show clear, simple history for each member: what they earned, why, and where it went.
+
+Messaging:
+• Include private, family-only messaging and system-sent invites/notifications.
+• Kids can only message within approved family spaces; no external messaging.
+• System notifications (invites, reminders, approvals) must be clear, kind, and non-alarming.
+
+Content Safety:
+• All kids’ views must be age-appropriate, simplified, and visually warm.
+• Hide any financial, admin, or emotionally heavy data from kids.
+• Never show raw system errors; always use calm, guided messages.
+
+Customization & Identity:
+• Allow the family to customize colors, avatars, and names within safe bounds, while keeping structure consistent.
+• Preserve a unified, warm, modern-minimal identity across all universes.
+
+Observability & Audit:
+• Log key events only: logins, device trust changes, role changes, payments triggered, and admin actions.
+• Logs are for safety and debugging, not surveillance; only Admin can see them.
+
+Backups & Export:
+• Design data structures so user data (family creations, balances, logs) can be exported or backed up later without redesign.
+• Avoid hard-coding anything that would block future migration to another host or database.
+
+Consent & Agreements:
+• Keep the NDA / consent layer in place before accessing sensitive tools or admin areas.
+• Make all critical actions (role changes, device trust, payments) explicitly confirmed by the user.
+
+Goal (Add-on Layer):
+Reinforce emotional safety, fairness, clarity, and long-term stability across the entire platform, so the system not only works but feels safe, kind, and sustainable for your family and anyone who ever uses it.

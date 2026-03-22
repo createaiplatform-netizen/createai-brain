@@ -17,6 +17,7 @@
     "test:ci": "vitest run --reporter=junit --outputFile=test-results.xml"
   },
   "dependencies": {
+    "@simplewebauthn/server": "13.3.0",
     "@types/swagger-jsdoc": "^6.0.4",
     "@types/swagger-ui-express": "^4.1.8",
     "@workspace/api-zod": "workspace:*",

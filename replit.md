@@ -69,7 +69,75 @@ UPDATE users SET role = 'family_adult' WHERE email = 'parent@example.com';
 UPDATE users SET role = 'family_child' WHERE email = 'child@example.com';
 UPDATE users SET role = 'customer' WHERE email = 'customer@example.com';
 ```
-Default for new signups: `user` (→ full OS). Admin panel for role assignment is a future addition.
+Default for new signups: `user` (→ full OS). Admin panel for role assignment is at `/admin` (Devices tab).
+
+---
+
+## Multi-Role Platform Auth System (BUILT — March 2026)
+
+### Auth Flow
+Replit OIDC → NDA → SmartRoleRouter → (family/customer only) SecureAuthLayer → Universe page
+
+**SecureAuthLayer state machine:**
+- `checking` → validates localStorage device token with API
+- `authorized` → renders universe immediately (admin/founder/user/viewer bypass entirely)
+- `phone_otp` → `PhoneOTPScreen` (Twilio SMS, 6-digit code, rate-limited 3/10min)
+- `trust_prompt` → `TrustedDevicePrompt` (offer to register Face ID/Touch ID)
+- `biometric_gate` → `BiometricGate` (WebAuthn passkey verify on return visits)
+
+### API Routes (all under `/api/` on port 8080)
+| Route | Purpose |
+|---|---|
+| `POST /phone-auth/send-otp` | Send Twilio OTP to phone |
+| `POST /phone-auth/verify-otp` | Verify OTP → returns deviceToken |
+| `GET  /phone-auth/status` | Check if user has a verified phone |
+| `POST /trusted-devices/validate` | Validate a stored device token |
+| `GET  /trusted-devices` | List current user's trusted devices |
+| `DELETE /trusted-devices/:id` | Remove a trusted device |
+| `GET  /trusted-devices/webauthn/registration-options` | WebAuthn registration start |
+| `POST /trusted-devices/webauthn/register` | WebAuthn registration finish |
+| `GET  /trusted-devices/webauthn/auth-options` | WebAuthn auth start |
+| `POST /trusted-devices/webauthn/verify` | WebAuthn auth finish |
+| `GET  /family-identity/me` | Get/auto-create family identity |
+| `PUT  /family-identity/me` | Update identity (name, emoji, bio) |
+| `GET  /family-identity/members` | All family members |
+| `GET  /bills` | List bills (sorted: overdue first) |
+| `POST /bills` | Create bill |
+| `PATCH /bills/:id` | Update status/fields; approve/mark paid |
+| `DELETE /bills/:id` | Delete bill |
+| `GET  /bills/summary` | Pending count + total due |
+| `GET  /user-admin/users` | All users with stats (admin only) |
+| `PATCH /user-admin/users/:id/role` | Change user role (admin only) |
+| `GET  /user-admin/users/:id/devices` | User's trusted devices |
+| `DELETE /user-admin/users/:id/devices` | Remove all devices |
+| `POST /user-admin/users/:id/suspend` | Soft-suspend user |
+| `POST /user-admin/users/:id/restore` | Restore suspended user |
+
+### DB Tables (in `artifacts/api-server/src/lib/db.ts`)
+- `platform_trusted_devices` — device tokens, WebAuthn credentials, phone verification status
+- `platform_phone_verifications` — OTP records with hash, expiry, attempt count
+- `platform_family_identities` — auto-generated names, emojis, colors per family member
+- `platform_bills` — full bill tracker with status, payment method, approval/payment timestamps
+
+### Frontend Components
+- `src/lib/identityEngine.ts` — Deterministic identity generation (same userId → same name/emoji/color)
+- `src/lib/deviceAuth.ts` — localStorage token management + WebAuthn browser wrapper
+- `src/components/auth/PhoneOTPScreen.tsx` — Full OTP flow with 6-box input, resend cooldown
+- `src/components/auth/TrustedDevicePrompt.tsx` — Trust device + optionally register biometric
+- `src/components/auth/BiometricGate.tsx` — WebAuthn passkey auth with phone fallback
+- `src/components/auth/SecureAuthLayer.tsx` — State machine orchestrator (wraps universe pages)
+- `src/components/BillPay.tsx` — Full bill tracker UI with approve/mark-paid flow
+
+### Universe Pages
+- `src/pages/universe/AdminUniversePage.tsx` — Overview, Users (role change/suspend), Devices tabs
+- `src/pages/universe/FamilyUniversePage.tsx` — Identity welcome, family circle, bills, create tabs
+- `src/pages/universe/KidsUniversePage.tsx` — Wonder spark, feelings check-in, activity grid
+- `src/pages/universe/CustomerUniversePage.tsx` — Home (bill summary), bills, account tabs
+
+### WebAuthn Config
+- `WEBAUTHN_RP_ID` env var (default: `localhost`; production: `createai.digital`)
+- `WEBAUTHN_ORIGIN` env var (default: `https://{RP_ID}`)
+- Biometrics never leave the device. Only credential IDs + public keys stored server-side.
 
 ---
 

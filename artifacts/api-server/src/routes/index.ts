@@ -446,6 +446,11 @@ import governmentRouter        from "./governmentEngine.js";
 import homeServicesRouter      from "./homeServicesEngine.js";
 import insuranceRouter         from "./insuranceEngine.js";
 import agricultureRouter       from "./agricultureEngine.js";
+import phoneAuthRouter         from "./phoneAuth.js";
+import trustedDevicesRouter    from "./trustedDevices.js";
+import familyIdentityRouter    from "./familyIdentity.js";
+import billsRouter             from "./bills.js";
+import userAdminRouter         from "./userAdmin.js";
 
 router.use("/search",          universalSearchRouter);
 router.use("/automation",      automationEngineRouter);
@@ -470,6 +475,11 @@ router.use("/government",      governmentRouter);
 router.use("/home-services",   homeServicesRouter);
 router.use("/insurance",       insuranceRouter);
 router.use("/agriculture",     agricultureRouter);
+router.use("/phone-auth",      phoneAuthRouter);
+router.use("/trusted-devices", trustedDevicesRouter);
+router.use("/family-identity", familyIdentityRouter);
+router.use("/bills",           billsRouter);
+router.use("/user-admin",      userAdminRouter);
 
 // ── Financial Hub Backward-Compat Redirects — T006 ───────────────────────────
 // Wealth, ledger, and revenue-intel are also reachable under /finance/*

@@ -27,6 +27,12 @@ import CustomerDashboardPage from "@/pages/CustomerDashboardPage";
 import KidsHubPage from "@/pages/KidsHubPage";
 import { SmartRoleRouter } from "@/components/SmartRoleRouter";
 import { RoleGate } from "@/components/RoleGate";
+import { SecureAuthLayer } from "@/components/auth/SecureAuthLayer";
+import AdminUniversePage from "@/pages/universe/AdminUniversePage";
+import FamilyUniversePage from "@/pages/universe/FamilyUniversePage";
+import KidsUniversePage from "@/pages/universe/KidsUniversePage";
+import CustomerUniversePage from "@/pages/universe/CustomerUniversePage";
+import { useUserRole } from "@/hooks/useUserRole";
 
 import MetricsPage from "@/pages/MetricsPage";
 import AboveTranscendPage from "@/pages/AboveTranscendPage";
@@ -102,6 +108,8 @@ class ErrorBoundary extends Component<{ children: ReactNode }, EBState> {
 // ─── App Router ────────────────────────────────────────────────────────────
 
 function Router() {
+  const { role } = useUserRole();
+
   return (
     <Switch>
       <Route path="/integration-demo" component={IntegrationDemoPage} />
@@ -115,29 +123,35 @@ function Router() {
       <Route path="/standalone/creation/:creationId" component={CreationPage} />
       <Route path="/standalone/:projectId" component={StandalonePage} />
 
-      {/* ── Role-based destination routes ──────────────────────────── */}
-      {/* Admin landing — admin and founder only */}
+      {/* ── Role-based Universe routes ──────────────────────────────────── */}
+      {/* Admin Universe — admin/founder full control center */}
       <Route path="/admin">
         <RoleGate allowed={["admin", "founder"]}>
-          <AdminDashboardPage />
+          <AdminUniversePage />
         </RoleGate>
       </Route>
-      {/* Kids hub — must come before /family so wouter matches /family/kids first */}
+      {/* Kids Universe — must come before /family so wouter matches first */}
       <Route path="/family/kids">
         <RoleGate allowed={["family_child", "family_adult", "admin", "founder"]}>
-          <KidsHubPage />
+          <SecureAuthLayer role={role}>
+            <KidsUniversePage />
+          </SecureAuthLayer>
         </RoleGate>
       </Route>
-      {/* Family hub — family adults (and admins/founders for oversight) */}
+      {/* Family Universe — family adults with secure auth layer */}
       <Route path="/family">
         <RoleGate allowed={["family_adult", "family_child", "admin", "founder"]}>
-          <FamilyHubPage />
+          <SecureAuthLayer role={role}>
+            <FamilyUniversePage />
+          </SecureAuthLayer>
         </RoleGate>
       </Route>
-      {/* Customer dashboard — customers (and admins/founders for oversight) */}
+      {/* Customer Universe — customers with secure auth layer */}
       <Route path="/dashboard">
         <RoleGate allowed={["customer", "admin", "founder"]}>
-          <CustomerDashboardPage />
+          <SecureAuthLayer role={role}>
+            <CustomerUniversePage />
+          </SecureAuthLayer>
         </RoleGate>
       </Route>
 

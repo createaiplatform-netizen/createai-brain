@@ -1,0 +1,65 @@
+Build a unified, multi-role platform with four fully isolated universes: Admin, Adult Family, Kids, and Customers. Each universe has its own tools, pages, permissions, and experiences. No universe can ever see or access another.
+
+Authentication:
+• First login uses phone-number onboarding with OTP. After verification, allow user to mark device as “trusted.”
+• Trusted devices skip login and use OS biometrics (Face ID, Touch ID, fingerprint) to confirm identity.
+• Never store biometrics or passwords; rely on device/OS for verification only.
+• Phone number alone must never auto-login; identity requires trusted device + biometric check.
+• Allow multiple trusted devices per user; each must be verified individually.
+• Provide a way to remove trusted devices and reset login if a device is lost.
+• Authentication must be modular so future biometric methods can be added without redesign.
+• Passwords exist only as fallback for unsupported devices.
+
+Routing:
+• After authentication, route users automatically to their correct universe:
+  - Admin → Admin Dashboard
+  - Adult Family → Family Universe
+  - Kids → Kids Universe
+  - Customers → Customer Portal
+• No cross-access between universes under any circumstances.
+• If verification fails, show a safe re-auth screen, never raw errors or blank pages.
+
+Role Isolation:
+• Admin can manage everything but cannot see family personal content.
+• Adults can access family tools but not admin or customer tools.
+• Kids have restricted, safe, simplified access with no deletion or settings.
+• Customers only see storefront and customer tools.
+• All data, tools, and spaces are isolated per role and per user.
+
+Identity Engine:
+• Auto-generate internal identities, avatars, colors, and naming conventions for family members.
+• Auto-generate project names, app names, and content names (TikTok/YouTube-ready).
+• Internal email-like identities (e.g., system@createai.digital) may be used for notifications.
+• Do not create real external email accounts; use domain-based sender identities only.
+
+Family Universe:
+• Warm, safe, creative environment with shared gallery, family bank, creation tools, and messaging.
+• Kids cannot access adult content or settings.
+• Adults cannot access admin tools.
+• Emotional safety is prioritized: no comparisons, no exposure to sensitive data.
+
+Admin Universe:
+• Full control panel for managing users, roles, devices, routing, content, and system settings.
+• Sensitive actions require fresh biometric verification.
+• Admin can reset any account, remove trusted devices, and fix login issues.
+
+Customer Universe:
+• Clean storefront and customer dashboard.
+• No access to family or admin content.
+
+Bill Pay:
+• The platform may organize bills, prepare payments, and route them through user-selected payment methods (Zelle, Cash App, Venmo, PayPal, Stripe, or bank transfer).
+• The platform cannot withdraw money directly from a bank account; all payments require explicit user approval via biometric verification.
+• Users may authorize one-tap payments on trusted devices, but no automatic withdrawals are allowed.
+• The system logs all payments, due dates, and confirmations for user reference.
+
+Error Handling:
+• Never show raw errors.
+• Always show friendly, guided screens for re-auth, missing permissions, or routing issues.
+
+Future-Proofing:
+• All authentication, identity, routing, and payment logic must be modular and replaceable.
+• Support future biometrics, future identity providers, and future device types without redesign.
+
+Goal:
+Create a seamless, biometric-first, role-isolated platform where users rarely use passwords, trusted devices auto-login, bills can be organized and paid with user approval, and each universe remains completely separate, safe, and emotionally protected.
