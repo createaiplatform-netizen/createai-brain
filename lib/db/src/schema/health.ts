@@ -1,4 +1,4 @@
-import { boolean, integer, numeric, pgTable, serial, text, timestamp } from "drizzle-orm/pg-core";
+import { boolean, index, integer, numeric, pgTable, serial, text, timestamp } from "drizzle-orm/pg-core";
 
 export const healthDepartments = pgTable("health_departments", {
   id:            serial("id").primaryKey(),
@@ -21,7 +21,10 @@ export const healthDoctors = pgTable("health_doctors", {
   licenseNumber: text("license_number"),
   status:        text("status").notNull().default("active"),
   createdAt:     timestamp("created_at", { withTimezone: true }).defaultNow().notNull(),
-});
+}, (table) => ({
+  departmentIdx: index("health_doctors_department_idx").on(table.departmentId),
+  statusIdx:     index("health_doctors_status_idx").on(table.status),
+}));
 
 export const healthPatients = pgTable("health_patients", {
   id:              serial("id").primaryKey(),
@@ -38,7 +41,12 @@ export const healthPatients = pgTable("health_patients", {
   primaryDoctorId: integer("primary_doctor_id").references(() => healthDoctors.id),
   departmentId:    integer("department_id").references(() => healthDepartments.id),
   createdAt:       timestamp("created_at", { withTimezone: true }).defaultNow().notNull(),
-});
+}, (table) => ({
+  primaryDoctorIdx: index("health_patients_primary_doctor_idx").on(table.primaryDoctorId),
+  departmentIdx:    index("health_patients_department_idx").on(table.departmentId),
+  statusIdx:        index("health_patients_status_idx").on(table.status),
+  createdAtIdx:     index("health_patients_created_at_idx").on(table.createdAt),
+}));
 
 export const healthAppointments = pgTable("health_appointments", {
   id:              serial("id").primaryKey(),
@@ -51,7 +59,12 @@ export const healthAppointments = pgTable("health_appointments", {
   status:          text("status").notNull().default("scheduled"),
   notes:           text("notes"),
   createdAt:       timestamp("created_at", { withTimezone: true }).defaultNow().notNull(),
-});
+}, (table) => ({
+  patientIdx:     index("health_appointments_patient_idx").on(table.patientId),
+  doctorIdx:      index("health_appointments_doctor_idx").on(table.doctorId),
+  scheduledAtIdx: index("health_appointments_scheduled_at_idx").on(table.scheduledAt),
+  statusIdx:      index("health_appointments_status_idx").on(table.status),
+}));
 
 export const healthMedicalRecords = pgTable("health_medical_records", {
   id:             serial("id").primaryKey(),
@@ -64,7 +77,11 @@ export const healthMedicalRecords = pgTable("health_medical_records", {
   notes:          text("notes"),
   followUpDate:   timestamp("follow_up_date", { withTimezone: true }),
   createdAt:      timestamp("created_at", { withTimezone: true }).defaultNow().notNull(),
-});
+}, (table) => ({
+  patientIdx:   index("health_medical_records_patient_idx").on(table.patientId),
+  doctorIdx:    index("health_medical_records_doctor_idx").on(table.doctorId),
+  visitDateIdx: index("health_medical_records_visit_date_idx").on(table.visitDate),
+}));
 
 export const healthPrescriptions = pgTable("health_prescriptions", {
   id:         serial("id").primaryKey(),
@@ -79,7 +96,11 @@ export const healthPrescriptions = pgTable("health_prescriptions", {
   status:     text("status").notNull().default("active"),
   notes:      text("notes"),
   createdAt:  timestamp("created_at", { withTimezone: true }).defaultNow().notNull(),
-});
+}, (table) => ({
+  patientIdx: index("health_prescriptions_patient_idx").on(table.patientId),
+  doctorIdx:  index("health_prescriptions_doctor_idx").on(table.doctorId),
+  statusIdx:  index("health_prescriptions_status_idx").on(table.status),
+}));
 
 export const healthBilling = pgTable("health_billing", {
   id:                serial("id").primaryKey(),
@@ -93,7 +114,11 @@ export const healthBilling = pgTable("health_billing", {
   dueDate:           timestamp("due_date", { withTimezone: true }),
   paidDate:          timestamp("paid_date", { withTimezone: true }),
   createdAt:         timestamp("created_at", { withTimezone: true }).defaultNow().notNull(),
-});
+}, (table) => ({
+  patientIdx:      index("health_billing_patient_idx").on(table.patientId),
+  appointmentIdx:  index("health_billing_appointment_idx").on(table.appointmentId),
+  statusIdx:       index("health_billing_status_idx").on(table.status),
+}));
 
 export type HealthDepartment  = typeof healthDepartments.$inferSelect;
 export type HealthDoctor      = typeof healthDoctors.$inferSelect;

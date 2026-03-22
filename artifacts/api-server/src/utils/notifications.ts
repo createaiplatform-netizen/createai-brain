@@ -318,8 +318,11 @@ export async function sendSMSNotification(
 
 // ─── Authorized family lists ──────────────────────────────────────────────────
 
+// NOTE: Resend sandbox mode only delivers to the API-key owner's email (sivh@mail.com).
+// To enable full family delivery, verify createaiplatform.com at resend.com/domains
+// then set CONTACT_EMAIL=admin@LakesideTrinity.com in Replit Secrets.
 export const FAMILY_EMAIL_LIST = [
-  { name: "Sara",     email: process.env["CONTACT_EMAIL"] ?? "admin@createaiplatform.com" },
+  { name: "Sara",     email: process.env["CONTACT_EMAIL"] ?? "sivh@mail.com" },
   { name: "Dennis",   email: "StadlerDennis@yahoo.com"          },
   { name: "Nathan",   email: "Stadlernathan5499@gmail.com"       },
   { name: "Nolan",    email: "Stadlernolan29@icloud.com"         },

@@ -1,0 +1,53 @@
+Using the full existing platform as the foundation, design and implement a complete, production-ready system that legally and safely recreates or approximates outcomes for everything the platform itself cannot directly do. Build this by leveraging only legal, compliant mechanisms, including but not limited to:
+
+- Educational simulations
+- Scenario walkthroughs
+- Decision-support tools
+- Risk-assessment engines
+- Symptom-checkers
+- Compliance checklists
+- Workflow generators
+- Documentation assistants
+```text
+Using the full platform as it exists now, design and implement a complete, production-ready system that legally and safely recreates or approximates outcomes for everything the platform itself cannot directly do, by building and integrating the following mechanisms across all relevant areas of the OS:
+
+- Educational simulations
+- Scenario walkthroughs
+- Decision-support tools
+- Risk-assessment engines
+- Symptom-checkers
+- Compliance checklists
+- Workflow generators
+- Documentation assistants
+- Template-based guidance
+- Professional handoff flows
+- Integration with licensed providers
+- Secure consent-based data sharing
+- Automated form preparation
+- Knowledge-based triage
+- Contextual recommendations
+- Legal-safe advisory frameworks
+- Policy-aligned automation
+- Credential-verified action routing
+- User-controlled execution steps
+- API-based service orchestration
+- Marketplace of licensed experts
+- Audit-friendly logging
+- Safety-gated action flows
+- Verification-required tasks
+- Human-in-the-loop review
+- Escalation pathways
+- Compliance-aligned notifications
+- Real-time monitoring dashboards
+- Permission-based integrations
+- Secure identity verification
+- Structured data collection
+- Pre-action validation checks
+- Outcome-simulation engines
+- Predictive modeling (non-deterministic)
+- Educational visualizations
+- Guided planning tools
+- Resource-matching engines
+- Workflow automation within allowed scope
+
+Bring this entire “legal alternative mechanisms” layer to a minimum of 100% completeness, robustness, and production readiness across all systems, engines, interfaces, workflows, and architectures—while staying fully within legal, safety, and technical constraints. Do not limit the work by categories, frontiers, or ceilings. Wherever additional mechanisms, flows, or components are needed to fully and safely approximate or support outcomes the platform cannot directly perform, identify and build them as well, so this layer is maximally comprehensive, deeply integrated, and ready for real users.

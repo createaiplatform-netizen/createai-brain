@@ -402,4 +402,53 @@ router.use("/ai-strategy",   aiStrategyRouter);
 // ── App Distribution & Store Submission Engine ─────────────────────────────
 router.use("/store",         storeSubmissionRouter);
 
+// ── API Documentation — Swagger UI + OpenAPI 3.0 spec ──────────────────────
+import apiDocsRouter from "./apiDocs.js";
+router.use("/docs",          apiDocsRouter);
+
+// ── Observability — Error ring buffer + process metrics dashboard ─────────────
+import observabilityRouter from "./observability.js";
+router.use("/system/errors", observabilityRouter);
+
+// ── Deployment Readiness Checklist ───────────────────────────────────────────
+import deploymentReadinessRouter from "./deploymentReadiness.js";
+router.use("/deployment",    deploymentReadinessRouter);
+
+// ── Email Dashboard — T013: Resend domain verification + transactional email ──
+import emailDashboardRouter from "./emailDashboard.js";
+router.use("/email",         emailDashboardRouter);
+
+// ── Marketplace Activation Dashboard — T012 ───────────────────────────────────
+import marketplaceActivationRouter from "./marketplaceActivation.js";
+router.use("/marketplace-hub", marketplaceActivationRouter);
+
+// ── Financial Hub Backward-Compat Redirects — T006 ───────────────────────────
+// Wealth, ledger, and revenue-intel are also reachable under /finance/*
+// using 301 redirects for any client still hitting the legacy paths.
+import type { Request as Req, Response as Res, NextFunction as Next } from "express";
+router.get("/finance/wealth",       (_r: Req, res: Res) => { res.redirect(301, "/api/wealth"); });
+router.get("/finance/ledger",       (_r: Req, res: Res) => { res.redirect(301, "/api/ledger"); });
+router.get("/finance/revenue-intel",(_r: Req, res: Res) => { res.redirect(301, "/api/revenue-intel"); });
+// Generic /api/finance/* → /api/finance (primary finance router handles it)
+// Canonical financial dashboard aggregation
+router.get("/finance/hub", (req: Req, res: Res) => {
+  res.json({
+    ok:   true,
+    note: "CreateAI Brain Financial Hub — unified financial aggregation",
+    routes: {
+      records:      "/api/finance/records",
+      stats:        "/api/finance/stats",
+      wealth:       "/api/wealth",
+      ledger:       "/api/ledger",
+      revenueIntel: "/api/revenue-intel",
+      vault:        "/vault",
+    },
+    shortcuts: {
+      wealthAlias:      "/api/finance/wealth → 301 → /api/wealth",
+      ledgerAlias:      "/api/finance/ledger → 301 → /api/ledger",
+      revenueIntAlias:  "/api/finance/revenue-intel → 301 → /api/revenue-intel",
+    },
+  });
+});
+
 export default router;

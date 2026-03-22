@@ -77,6 +77,24 @@ export const CREDENTIAL_DEFS: CredentialDef[] = [
     helpUrl:     "https://creativemarket.com/api",
     testable:    false,
   },
+  {
+    key:         "TWILIO_PHONE",
+    label:       "Twilio Phone Number",
+    channel:     "SMS Notifications",
+    description: "Your Twilio sending number (e.g. +12025551234). Activates real SMS for admin alerts, subscription confirmations, and autonomous action notifications. TWILIO_SID and TWILIO_AUTH_TOKEN are already configured.",
+    placeholder: "+1XXXXXXXXXX",
+    helpUrl:     "https://help.twilio.com/articles/223135247-How-to-Find-a-Twilio-Phone-Number-for-Your-Project",
+    testable:    true,
+  },
+  {
+    key:         "SENTRY_DSN",
+    label:       "Sentry DSN",
+    channel:     "Error Observability",
+    description: "Sentry Data Source Name — enables real-time error tracking and alerting for the CreateAI Brain platform API.",
+    placeholder: "https://xxxxxxxxxx@oXXXXXXX.ingest.sentry.io/XXXXXXX",
+    helpUrl:     "https://docs.sentry.io/product/sentry-basics/dsn-explainer/",
+    testable:    false,
+  },
 ];
 
 // ─── In-Memory Store ──────────────────────────────────────────────────────────

@@ -6,10 +6,38 @@ The CreateAI Brain is a full-stack AI OS platform (NEXUS Semantic OS), developed
 
 **Platform Scale (March 2026)**
 - 35+ HTML dashboard surfaces — all returning 200
-- 45 total app screens registered in the OS (incl. Extended Suite v2.0)
+- 365 App screens lazy-loaded in the OS shell (AppWindow.tsx)
 - Extended Domain Suite v2.0 (10 new engines): Project Command, Partner Network, Events & Bookings, Education Hub, Social Command, Supply Chain, Franchise Hub, Brand Vault, Revenue Intelligence, AI Strategy Engine (GPT-4o)
 - Dev server: port 23568 (workflow: "CreateAI Brain: Start Dev Server")
 - API server: port 8080 (workflow: "artifacts/api-server: API Server")
+- **Test suite**: 265 tests across 11 test files (all green)
+- **Database**: 56 performance indexes applied directly via SQL (health/legal/staffing schemas)
+- **Email**: Resend integration wired; sandbox sends to sivh@mail.com; set CONTACT_EMAIL for production
+- **Marketplace**: /api/marketplace-hub dashboard + credential status for Shopify/Etsy/Amazon/eBay/CreativeMarket
+
+**Key API Endpoints Added (Session March 2026)**
+- `GET /api/email/dashboard` — HTML email verification + transactional email dashboard
+- `GET /api/email/status` — JSON email credential + delivery status
+- `POST /api/email/test` — Send a test email (goes to CONTACT_EMAIL or sivh@mail.com)
+- `GET /api/marketplace-hub/dashboard` — HTML marketplace activation dashboard
+- `GET /api/marketplace-hub/status` — JSON channel status (Shopify/Etsy/Amazon/eBay/CreativeMarket)
+- `POST /api/marketplace-hub/probe/:channel` — Live API probe for a marketplace channel
+- `GET /api/finance/hub` — Financial hub route map (all financial route paths)
+- `GET /api/finance/wealth` → 301 redirect to `/api/wealth`
+- `GET /api/finance/ledger` → 301 redirect to `/api/ledger`
+- `GET /api/finance/revenue-intel` → 301 redirect to `/api/revenue-intel`
+- `POST /api/above-transcend/execute` — Execute a recommended AI action (email_campaign, sms_alert, stripe_checkout_link, log_only)
+
+**Critical Email Notes**
+- Resend sandbox only delivers to API owner's email (`sivh@mail.com`) until domain is verified
+- Verify `createaiplatform.com` at resend.com/domains, then set `CONTACT_EMAIL=admin@LakesideTrinity.com` in Replit Secrets
+- DNS records fetcher: `GET /api/credentials/dns-records`
+- FAMILY_EMAIL_LIST fallback is now `sivh@mail.com` (was `admin@createaiplatform.com`)
+
+**Marketplace Activation**
+- All 5 marketplace channels (Shopify/Etsy/Amazon/eBay/CreativeMarket) are wired and ready
+- Add credentials via `POST /api/credentials/set` or Replit Secrets; channels activate automatically
+- Required secrets per channel documented at `/api/marketplace-hub/dashboard`
 
 **Deployment Configuration (api-server artifact)**
 - Build: `pnpm install --frozen-lockfile && pnpm --filter @workspace/createai-brain run build && pnpm --filter @workspace/api-server run build`

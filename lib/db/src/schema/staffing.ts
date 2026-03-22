@@ -1,4 +1,4 @@
-import { pgTable, serial, text, integer, decimal, timestamp, varchar } from "drizzle-orm/pg-core";
+import { index, pgTable, serial, text, integer, decimal, timestamp, varchar } from "drizzle-orm/pg-core";
 
 export const staffingClients = pgTable("staffing_clients", {
   id:           serial("id").primaryKey(),
@@ -12,7 +12,10 @@ export const staffingClients = pgTable("staffing_clients", {
   status:       varchar("status", { length: 30 }).notNull().default("active"),
   notes:        text("notes"),
   createdAt:    timestamp("created_at").notNull().defaultNow(),
-});
+}, (table) => ({
+  statusIdx:    index("staffing_clients_status_idx").on(table.status),
+  createdAtIdx: index("staffing_clients_created_at_idx").on(table.createdAt),
+}));
 
 export const staffingCandidates = pgTable("staffing_candidates", {
   id:           serial("id").primaryKey(),
@@ -30,7 +33,11 @@ export const staffingCandidates = pgTable("staffing_candidates", {
   resumeUrl:    text("resume_url"),
   notes:        text("notes"),
   createdAt:    timestamp("created_at").notNull().defaultNow(),
-});
+}, (table) => ({
+  statusIdx:    index("staffing_candidates_status_idx").on(table.status),
+  emailIdx:     index("staffing_candidates_email_idx").on(table.email),
+  createdAtIdx: index("staffing_candidates_created_at_idx").on(table.createdAt),
+}));
 
 export const staffingRequisitions = pgTable("staffing_requisitions", {
   id:           serial("id").primaryKey(),
@@ -47,7 +54,11 @@ export const staffingRequisitions = pgTable("staffing_requisitions", {
   priority:     varchar("priority", { length: 20 }).notNull().default("medium"),
   targetDate:   timestamp("target_date"),
   createdAt:    timestamp("created_at").notNull().defaultNow(),
-});
+}, (table) => ({
+  clientIdx:    index("staffing_requisitions_client_idx").on(table.clientId),
+  statusIdx:    index("staffing_requisitions_status_idx").on(table.status),
+  createdAtIdx: index("staffing_requisitions_created_at_idx").on(table.createdAt),
+}));
 
 export const staffingSubmissions = pgTable("staffing_submissions", {
   id:                serial("id").primaryKey(),
@@ -59,7 +70,12 @@ export const staffingSubmissions = pgTable("staffing_submissions", {
   recruiterFeedback: text("recruiter_feedback"),
   clientFeedback:    text("client_feedback"),
   createdAt:         timestamp("created_at").notNull().defaultNow(),
-});
+}, (table) => ({
+  candidateIdx:    index("staffing_submissions_candidate_idx").on(table.candidateId),
+  requisitionIdx:  index("staffing_submissions_requisition_idx").on(table.requisitionId),
+  statusIdx:       index("staffing_submissions_status_idx").on(table.status),
+  submittedAtIdx:  index("staffing_submissions_submitted_at_idx").on(table.submittedAt),
+}));
 
 export const staffingInterviews = pgTable("staffing_interviews", {
   id:               serial("id").primaryKey(),
@@ -76,7 +92,12 @@ export const staffingInterviews = pgTable("staffing_interviews", {
   feedback:         text("feedback"),
   outcome:          varchar("outcome", { length: 30 }),
   createdAt:        timestamp("created_at").notNull().defaultNow(),
-});
+}, (table) => ({
+  candidateIdx:    index("staffing_interviews_candidate_idx").on(table.candidateId),
+  requisitionIdx:  index("staffing_interviews_requisition_idx").on(table.requisitionId),
+  scheduledAtIdx:  index("staffing_interviews_scheduled_at_idx").on(table.scheduledAt),
+  statusIdx:       index("staffing_interviews_status_idx").on(table.status),
+}));
 
 export const staffingPlacements = pgTable("staffing_placements", {
   id:             serial("id").primaryKey(),
@@ -91,4 +112,9 @@ export const staffingPlacements = pgTable("staffing_placements", {
   status:         varchar("status", { length: 30 }).notNull().default("active"),
   notes:          text("notes"),
   createdAt:      timestamp("created_at").notNull().defaultNow(),
-});
+}, (table) => ({
+  candidateIdx:   index("staffing_placements_candidate_idx").on(table.candidateId),
+  clientIdx:      index("staffing_placements_client_idx").on(table.clientId),
+  statusIdx:      index("staffing_placements_status_idx").on(table.status),
+  startDateIdx:   index("staffing_placements_start_date_idx").on(table.startDate),
+}));

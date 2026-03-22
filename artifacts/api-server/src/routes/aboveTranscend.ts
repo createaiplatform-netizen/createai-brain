@@ -215,6 +215,82 @@ router.post("/run", async (req: Request, res: Response) => {
   }
 });
 
+// ── Real Action Execution ──────────────────────────────────────────────────────
+// POST /api/above-transcend/execute  — execute a recommended next-move action
+// Supported action types: email_campaign, sms_alert, stripe_checkout_link,
+//                         log_only, custom
+router.post("/execute", async (req: Request, res: Response) => {
+  if (!req.user) { res.status(401).json({ error: "Unauthorized" }); return; }
+
+  const { actionType, payload = {} } = req.body as {
+    actionType: string;
+    payload?: Record<string, unknown>;
+  };
+
+  if (!actionType) {
+    res.status(400).json({ error: "actionType is required" });
+    return;
+  }
+
+  const startedAt = new Date().toISOString();
+  let result: Record<string, unknown> = {};
+  let success = false;
+  let errorMsg: string | null = null;
+
+  try {
+    if (actionType === "email_campaign") {
+      const { sendEmailNotification } = await import("../utils/notifications.js");
+      const to      = String(payload["to"] ?? "sivh@mail.com");
+      const subject = String(payload["subject"] ?? "CreateAI Brain — Autonomous Action");
+      const body    = String(payload["body"] ?? "<p>This email was triggered by the autonomous execution engine.</p>");
+      const batch   = await sendEmailNotification([to], subject, body);
+      success = batch.successCount > 0;
+      result  = { emailResults: batch.results, successCount: batch.successCount, failCount: batch.failCount };
+
+    } else if (actionType === "sms_alert") {
+      const { sendSMSNotification } = await import("../utils/notifications.js");
+      const to      = String(payload["to"] ?? "");
+      const message = String(payload["message"] ?? "CreateAI Brain autonomous alert.");
+      if (!to) { res.status(400).json({ error: "payload.to is required for sms_alert" }); return; }
+      const smsBatch = await sendSMSNotification([to], message);
+      success = smsBatch.successCount > 0;
+      result  = { smsResults: smsBatch.results, successCount: smsBatch.successCount, failCount: smsBatch.failCount };
+
+    } else if (actionType === "stripe_checkout_link") {
+      const { probeStripeConnection } = await import("../services/integrations/stripeClient.js");
+      const probe = await probeStripeConnection();
+      success = probe.ok;
+      result  = { stripeStatus: probe };
+
+    } else if (actionType === "log_only") {
+      success = true;
+      result  = { logged: true, payload };
+
+    } else {
+      res.status(400).json({
+        error: `Unknown actionType: ${actionType}. Valid: email_campaign, sms_alert, stripe_checkout_link, log_only`,
+      });
+      return;
+    }
+  } catch (err: unknown) {
+    errorMsg = (err as Error).message;
+    success  = false;
+    result   = { exception: errorMsg };
+  }
+
+  const completedAt = new Date().toISOString();
+  res.json({
+    ok:          success,
+    actionType,
+    payload,
+    result,
+    error:       errorMsg,
+    startedAt,
+    completedAt,
+    durationMs:  Date.now() - new Date(startedAt).getTime(),
+  });
+});
+
 // AI Chat — family member interactive endpoint (spec: fullProduction.ts)
 router.post("/ai-chat/:memberId", (req: Request, res: Response) => {
   if (!req.user) { res.status(401).json({ error: "Unauthorized" }); return; }

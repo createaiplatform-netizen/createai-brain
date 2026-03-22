@@ -290,6 +290,16 @@ router.post("/departments", async (req: Request, res: Response) => {
   } catch (err) { res.status(500).json({ error: "Failed" }); }
 });
 
+router.delete("/departments/:id", async (req: Request, res: Response) => {
+  try {
+    const id = Number(req.params.id as string);
+    if (isNaN(id)) { res.status(400).json({ error: "Invalid id" }); return; }
+    const [deleted] = await db.delete(healthDepartments).where(eq(healthDepartments.id, id)).returning({ id: healthDepartments.id });
+    if (!deleted) { res.status(404).json({ error: "Not found" }); return; }
+    res.status(204).end();
+  } catch (err) { res.status(500).json({ error: "Failed" }); }
+});
+
 // ─── MEDICAL RECORDS ──────────────────────────────────────────────────────────
 router.get("/medical-records", async (req: Request, res: Response) => {
   try {

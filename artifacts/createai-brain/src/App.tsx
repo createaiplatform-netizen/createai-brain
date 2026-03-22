@@ -36,6 +36,7 @@ import GlobalPage                  from "@/pages/GlobalPage";
 import EvolutionPage               from "@/pages/EvolutionPage";
 import SemanticStorePage           from "@/pages/SemanticStorePage";
 import PlatformScorePage           from "@/pages/PlatformScorePage";
+import CheckoutPage                from "@/pages/CheckoutPage";
 import { OSProvider } from "@/os/OSContext";
 import { OSLayout } from "@/os/osLayout";
 import { GlobalCommandPalette } from "@/components/GlobalCommandPalette";
@@ -479,6 +480,7 @@ function App() {
     path.startsWith(`${base}/integration-live`) ||
     path.startsWith(`${base}/integration-suite`) ||
     path.startsWith(`${base}/createai-digital`) ||
+    path.startsWith(`${base}/checkout`) ||
     path.startsWith(`${base}/real-market`) ||
     path.startsWith(`${base}/transcend-dashboard`) ||
     path.startsWith(`${base}/command-center`) ||
@@ -508,6 +510,7 @@ function App() {
           <Route path="/integration-suite"  component={IntegrationSuitePage} />
           <Route path="/stripe-integration" component={StripeIntegrationPage} />
           <Route path="/createai-digital"   component={CreateAIDigitalPage} />
+          <Route path="/checkout"           component={CheckoutPage} />
           <Route path="/real-market"           component={RealMarketPage} />
           <Route path="/transcend-dashboard"  component={UltimateTranscendDashboard} />
           <Route path="/command-center"       component={CommandCenterPage} />

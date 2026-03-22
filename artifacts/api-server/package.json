@@ -10,9 +10,15 @@
     "typecheck": "tsc -p tsconfig.json --noEmit",
     "audit:run": "tsx ./src/runFullAudit.ts",
     "transcend": "tsx ./src/transcendAll.ts",
-    "transcend:master": "tsx ./src/transcend_master.ts"
+    "transcend:master": "tsx ./src/transcend_master.ts",
+    "test": "vitest run --reporter=verbose",
+    "test:watch": "vitest --reporter=verbose",
+    "test:coverage": "vitest run --coverage",
+    "test:ci": "vitest run --reporter=junit --outputFile=test-results.xml"
   },
   "dependencies": {
+    "@types/swagger-jsdoc": "^6.0.4",
+    "@types/swagger-ui-express": "^4.1.8",
     "@workspace/api-zod": "workspace:*",
     "@workspace/db": "workspace:*",
     "@workspace/integrations-openai-ai-server": "workspace:*",
@@ -27,6 +33,8 @@
     "resend": "^6.9.4",
     "stripe": "^20.0.0",
     "stripe-replit-sync": "1.0.0",
+    "swagger-jsdoc": "^6.2.8",
+    "swagger-ui-express": "^5.0.1",
     "twilio": "^5.13.0"
   },
   "devDependencies": {
@@ -34,7 +42,11 @@
     "@types/cors": "^2.8.19",
     "@types/express": "^5.0.6",
     "@types/node": "catalog:",
+    "@types/supertest": "^7.2.0",
+    "@vitest/coverage-v8": "^4.1.0",
     "esbuild": "^0.27.3",
-    "tsx": "catalog:"
+    "supertest": "^7.2.2",
+    "tsx": "catalog:",
+    "vitest": "^4.1.0"
   }
 }
