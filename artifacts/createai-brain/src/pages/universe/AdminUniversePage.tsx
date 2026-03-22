@@ -22,7 +22,7 @@ const ROLE_BADGE: Record<string, { color: string; bg: string; label: string }> =
   customer:      { label: "Customer",      color: "#6aab8a", bg: "rgba(106,171,138,0.12)" },
 };
 
-type Tab = "overview" | "users" | "devices" | "audit";
+type Tab = "overview" | "users" | "devices" | "audit" | "agency";
 
 interface UserRow {
   id: string;
@@ -59,6 +59,81 @@ export default function AdminUniversePage() {
   const [auditLoading, setAuditLoading] = useState(false);
   const [auditTotal, setAuditTotal] = useState(0);
   const [auditType, setAuditType] = useState("");
+
+  // ── Agency Center State ──────────────────────────────────────────────────────
+  interface PlatformIdentity {
+    displayName: string; companyName: string; senderEmail: string;
+    supportEmail: string; supportUrl: string; publicContact: string;
+    domain: string; phonePlaceholder: string; brandColor: string; legalNotice: string;
+  }
+  interface OutboundLogRow {
+    id: string; timestamp: string; user_id: string | null; role: string | null;
+    universe: string | null; type: string; channel: string; status: string;
+    subject: string | null; recipient: string | null; metadata: Record<string, unknown>;
+    error_message: string | null; user_email?: string | null; user_first_name?: string | null;
+  }
+  interface OutboundStats {
+    totals: { total: number; succeeded: number; failed: number; viaEmail: number; viaInApp: number; viaNotification: number };
+    last24h: number;
+    byType: { type: string; count: number; last_sent: string }[];
+  }
+  const [agencyIdentity, setAgencyIdentity] = useState<PlatformIdentity | null>(null);
+  const [agencyLog, setAgencyLog] = useState<OutboundLogRow[]>([]);
+  const [agencyStats, setAgencyStats] = useState<OutboundStats | null>(null);
+  const [agencyLoading, setAgencyLoading] = useState(false);
+  const [testChannel, setTestChannel] = useState<"email" | "notification">("email");
+  const [testTo, setTestTo] = useState("");
+  const [testBody, setTestBody] = useState("");
+  const [testSending, setTestSending] = useState(false);
+  const [testResult, setTestResult] = useState<{ success: boolean; message: string } | null>(null);
+
+  const loadAgency = useCallback(async () => {
+    setAgencyLoading(true);
+    try {
+      const [idRes, logRes, statsRes] = await Promise.all([
+        fetch("/api/agency/identity", { credentials: "include" }),
+        fetch("/api/agency/log?limit=40", { credentials: "include" }),
+        fetch("/api/agency/stats", { credentials: "include" }),
+      ]);
+      if (idRes.ok) {
+        const d = (await idRes.json()) as { identity: PlatformIdentity };
+        setAgencyIdentity(d.identity);
+      }
+      if (logRes.ok) {
+        const d = (await logRes.json()) as { log: OutboundLogRow[] };
+        setAgencyLog(d.log);
+      }
+      if (statsRes.ok) {
+        setAgencyStats((await statsRes.json()) as OutboundStats);
+      }
+    } finally {
+      setAgencyLoading(false);
+    }
+  }, []);
+
+  async function handleTestSend() {
+    if (!testTo.trim()) return;
+    setTestSending(true);
+    setTestResult(null);
+    try {
+      const res = await fetch("/api/agency/test-send", {
+        method: "POST",
+        credentials: "include",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ channel: testChannel, to: testTo.trim(), body: testBody.trim() || undefined }),
+      });
+      const d = (await res.json()) as { result?: { success: boolean }; error?: string };
+      setTestResult({
+        success: d.result?.success ?? false,
+        message: d.error ?? (d.result?.success ? "Message sent successfully." : "Send failed — check log."),
+      });
+      if (d.result?.success) void loadAgency();
+    } catch {
+      setTestResult({ success: false, message: "Request failed." });
+    } finally {
+      setTestSending(false);
+    }
+  }
 
   const loadAudit = useCallback(async () => {
     setAuditLoading(true);
@@ -100,7 +175,8 @@ export default function AdminUniversePage() {
   useEffect(() => {
     if (tab === "users" || tab === "overview") void loadUsers();
     if (tab === "audit") void loadAudit();
-  }, [tab, loadAudit]);
+    if (tab === "agency") void loadAgency();
+  }, [tab, loadAudit, loadAgency]);
 
   useEffect(() => {
     if (selectedUserId) void loadDevicesForUser(selectedUserId);
@@ -167,6 +243,7 @@ export default function AdminUniversePage() {
           { key: "users",    label: "Users" },
           { key: "devices",  label: "Devices" },
           { key: "audit",    label: "Audit Log" },
+          { key: "agency",   label: "Agency" },
         ] as { key: Tab; label: string }[]).map(t => (
           <button
             key={t.key}
@@ -483,6 +560,225 @@ export default function AdminUniversePage() {
                 );
               })}
             </div>
+          </div>
+        )}
+
+        {/* ── Agency Center Tab ── */}
+        {tab === "agency" && (
+          <div className="flex flex-col gap-5">
+
+            {/* Platform Identity Card */}
+            <div className="rounded-2xl p-5" style={{ background: "white", border: `1px solid ${BORDER}` }}>
+              <div className="flex items-center gap-3 mb-4">
+                <span className="text-2xl">🏢</span>
+                <div>
+                  <p className="text-[15px] font-black" style={{ color: TEXT }}>Platform Identity</p>
+                  <p className="text-[12px]" style={{ color: MUTED }}>Single source of truth for all outbound communications</p>
+                </div>
+              </div>
+              {agencyLoading && !agencyIdentity ? (
+                <p className="text-[13px]" style={{ color: MUTED }}>Loading identity…</p>
+              ) : agencyIdentity ? (
+                <div className="flex flex-col gap-2">
+                  {[
+                    { label: "Display Name",  value: agencyIdentity.displayName    },
+                    { label: "Company",       value: agencyIdentity.companyName    },
+                    { label: "Sender Email",  value: agencyIdentity.senderEmail    },
+                    { label: "Support Email", value: agencyIdentity.supportEmail   },
+                    { label: "Public Contact",value: agencyIdentity.publicContact  },
+                    { label: "Domain",        value: agencyIdentity.domain         },
+                    { label: "Phone (Future)",value: agencyIdentity.phonePlaceholder },
+                  ].map(item => (
+                    <div key={item.label} className="flex items-center justify-between gap-4 py-2"
+                      style={{ borderBottom: `1px solid ${BORDER}` }}>
+                      <span className="text-[12px] font-semibold" style={{ color: MUTED }}>{item.label}</span>
+                      <span className="text-[13px] font-mono" style={{ color: TEXT }}>{item.value}</span>
+                    </div>
+                  ))}
+                  <div className="flex items-center gap-2 mt-2">
+                    <div className="w-5 h-5 rounded-full flex-shrink-0" style={{ background: agencyIdentity.brandColor }} />
+                    <span className="text-[12px] font-mono" style={{ color: MUTED }}>{agencyIdentity.brandColor}</span>
+                  </div>
+                </div>
+              ) : (
+                <p className="text-[13px]" style={{ color: MUTED }}>Identity not loaded.</p>
+              )}
+            </div>
+
+            {/* Outbound Stats */}
+            {agencyStats && (
+              <div className="rounded-2xl p-5" style={{ background: "white", border: `1px solid ${BORDER}` }}>
+                <p className="text-[15px] font-black mb-4" style={{ color: TEXT }}>📊 Outbound Stats</p>
+                <div className="grid grid-cols-3 gap-3 mb-4">
+                  {[
+                    { label: "Total Sent",  value: agencyStats.totals.total,    icon: "📤" },
+                    { label: "Succeeded",   value: agencyStats.totals.succeeded, icon: "✅" },
+                    { label: "Failed",      value: agencyStats.totals.failed,    icon: "⚠️" },
+                    { label: "Email",       value: agencyStats.totals.viaEmail,  icon: "📧" },
+                    { label: "In-App",      value: agencyStats.totals.viaInApp,  icon: "💬" },
+                    { label: "Last 24h",    value: agencyStats.last24h,          icon: "🕐" },
+                  ].map(s => (
+                    <div key={s.label} className="p-3 rounded-xl text-center"
+                      style={{ background: `${SAGE}08`, border: `1px solid ${BORDER}` }}>
+                      <p className="text-lg">{s.icon}</p>
+                      <p className="text-[17px] font-black" style={{ color: TEXT }}>{s.value}</p>
+                      <p className="text-[10px]" style={{ color: MUTED }}>{s.label}</p>
+                    </div>
+                  ))}
+                </div>
+                {agencyStats.byType.length > 0 && (
+                  <div>
+                    <p className="text-[12px] font-bold mb-2" style={{ color: MUTED }}>By Message Type</p>
+                    <div className="flex flex-col gap-1">
+                      {agencyStats.byType.slice(0, 8).map(t => (
+                        <div key={t.type} className="flex items-center justify-between px-3 py-1.5 rounded-lg"
+                          style={{ background: `${SAGE}06` }}>
+                          <span className="text-[12px] font-mono" style={{ color: TEXT }}>{t.type}</span>
+                          <span className="text-[13px] font-bold" style={{ color: SAGE }}>{t.count}</span>
+                        </div>
+                      ))}
+                    </div>
+                  </div>
+                )}
+              </div>
+            )}
+
+            {/* Test Send */}
+            <div className="rounded-2xl p-5" style={{ background: "white", border: `1px solid ${BORDER}` }}>
+              <div className="flex items-center gap-2 mb-4">
+                <span className="text-xl">🧪</span>
+                <div>
+                  <p className="text-[15px] font-black" style={{ color: TEXT }}>Test Send</p>
+                  <p className="text-[12px]" style={{ color: MUTED }}>Send a safe test message through the outbound engine</p>
+                </div>
+              </div>
+
+              <div className="flex flex-col gap-3">
+                <div className="flex gap-2">
+                  {(["email", "notification"] as const).map(ch => (
+                    <button
+                      key={ch}
+                      onClick={() => setTestChannel(ch)}
+                      className="px-3 py-2 rounded-xl text-[12px] font-bold capitalize"
+                      style={{
+                        background: testChannel === ch ? SAGE : `${SAGE}12`,
+                        color: testChannel === ch ? "white" : MUTED,
+                      }}
+                    >
+                      {ch === "email" ? "📧 Email" : "🔔 Notification"}
+                    </button>
+                  ))}
+                </div>
+
+                <input
+                  type="text"
+                  placeholder={testChannel === "email" ? "recipient@example.com" : "User ID"}
+                  value={testTo}
+                  onChange={e => setTestTo(e.target.value)}
+                  className="w-full px-4 py-2.5 rounded-xl text-[13px]"
+                  style={{ background: `${SAGE}08`, border: `1px solid ${BORDER}`, color: TEXT, outline: "none" }}
+                />
+
+                <textarea
+                  placeholder="Optional custom message body…"
+                  value={testBody}
+                  onChange={e => setTestBody(e.target.value)}
+                  rows={2}
+                  className="w-full px-4 py-2.5 rounded-xl text-[13px] resize-none"
+                  style={{ background: `${SAGE}08`, border: `1px solid ${BORDER}`, color: TEXT, outline: "none" }}
+                />
+
+                <button
+                  onClick={() => void handleTestSend()}
+                  disabled={testSending || !testTo.trim()}
+                  className="py-3 rounded-xl text-[14px] font-black text-white transition-opacity"
+                  style={{ background: SAGE, opacity: testSending || !testTo.trim() ? 0.5 : 1 }}
+                >
+                  {testSending ? "Sending…" : "Send Test Message"}
+                </button>
+
+                {testResult && (
+                  <div className="px-4 py-3 rounded-xl"
+                    style={{
+                      background: testResult.success ? `${SAGE}12` : "rgba(197,48,48,0.08)",
+                      border: `1px solid ${testResult.success ? `${SAGE}30` : "rgba(197,48,48,0.20)"}`,
+                    }}>
+                    <p className="text-[13px] font-semibold"
+                      style={{ color: testResult.success ? "#4a7a5a" : "#c53030" }}>
+                      {testResult.success ? "✅" : "⚠️"} {testResult.message}
+                    </p>
+                  </div>
+                )}
+              </div>
+            </div>
+
+            {/* Outbound Log */}
+            <div className="rounded-2xl p-5" style={{ background: "white", border: `1px solid ${BORDER}` }}>
+              <div className="flex items-center justify-between mb-4">
+                <p className="text-[15px] font-black" style={{ color: TEXT }}>📋 Recent Outbound Log</p>
+                <button
+                  onClick={() => void loadAgency()}
+                  className="text-[12px] font-bold px-3 py-1.5 rounded-lg"
+                  style={{ background: `${SAGE}12`, color: SAGE }}
+                >
+                  Refresh
+                </button>
+              </div>
+
+              {agencyLoading && agencyLog.length === 0 ? (
+                <p className="text-[13px]" style={{ color: MUTED }}>Loading log…</p>
+              ) : agencyLog.length === 0 ? (
+                <p className="text-[13px]" style={{ color: MUTED }}>No outbound messages yet.</p>
+              ) : (
+                <div className="flex flex-col gap-2">
+                  {agencyLog.map(row => {
+                    const isSuccess = row.status === "sent";
+                    const chanColors: Record<string, string> = {
+                      email: "#6a8db5", "in-app": SAGE, notification: "#c4a97a", export: "#9a7ab5",
+                    };
+                    const chanColor = chanColors[row.channel] ?? MUTED;
+                    return (
+                      <div key={row.id} className="px-4 py-3 rounded-xl"
+                        style={{ background: `${SAGE}06`, border: `1px solid ${BORDER}` }}>
+                        <div className="flex items-start gap-3">
+                          <div className="flex-1 min-w-0">
+                            <div className="flex items-center gap-2 flex-wrap">
+                              <span className="px-2 py-0.5 rounded-full text-[10px] font-bold"
+                                style={{ background: `${chanColor}18`, color: chanColor }}>
+                                {row.channel}
+                              </span>
+                              <span className="text-[11px] font-semibold" style={{ color: MUTED }}>{row.type}</span>
+                              <span className="text-[10px] px-1.5 py-0.5 rounded-full font-bold"
+                                style={{
+                                  background: isSuccess ? "rgba(74,122,90,0.12)" : "rgba(197,48,48,0.08)",
+                                  color: isSuccess ? "#4a7a5a" : "#c53030",
+                                }}>
+                                {row.status}
+                              </span>
+                            </div>
+                            <p className="text-[12px] mt-1 truncate" style={{ color: TEXT }}>
+                              → {row.recipient ?? row.user_email ?? row.user_id ?? "—"}
+                            </p>
+                            {row.subject && (
+                              <p className="text-[11px] truncate" style={{ color: MUTED }}>{row.subject}</p>
+                            )}
+                            {!isSuccess && row.error_message && (
+                              <p className="text-[10px] mt-0.5" style={{ color: "#c53030" }}>{row.error_message}</p>
+                            )}
+                          </div>
+                          <span className="text-[10px] flex-shrink-0" style={{ color: MUTED }}>
+                            {new Date(row.timestamp).toLocaleString("en-US", {
+                              month: "short", day: "numeric", hour: "numeric", minute: "2-digit",
+                            })}
+                          </span>
+                        </div>
+                      </div>
+                    );
+                  })}
+                </div>
+              )}
+            </div>
+
           </div>
         )}
       </div>

@@ -136,6 +136,7 @@ import brandVaultRouter           from "./brandVault.js";
 import revenueIntelRouter         from "./revenueIntel.js";
 import aiStrategyRouter           from "./aiStrategy.js";
 import { storeSubmissionRouter }  from "./storeSubmission.js";
+import agencyRouter              from "./agency";
 
 const router: IRouter = Router();
 
@@ -401,6 +402,9 @@ router.use("/ai-strategy",   aiStrategyRouter);
 
 // ── App Distribution & Store Submission Engine ─────────────────────────────
 router.use("/store",         storeSubmissionRouter);
+
+// ── Platform Agency Layer — outbound log, identity, test send (admin-only) ───
+router.use("/agency",        agencyRouter);
 
 // ── API Documentation — Swagger UI + OpenAPI 3.0 spec ──────────────────────
 import apiDocsRouter from "./apiDocs.js";

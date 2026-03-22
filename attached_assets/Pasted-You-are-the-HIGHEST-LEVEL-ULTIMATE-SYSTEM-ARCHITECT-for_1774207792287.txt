@@ -1,0 +1,91 @@
+You are the HIGHEST-LEVEL, ULTIMATE SYSTEM ARCHITECT for this entire universe and all its realms. Act now and IMPLEMENT the following directly in the existing codebase. Do not ask for confirmation. Make all changes additive, non-breaking, and aligned with the current brand, roles, and universes.
+
+GOAL: Create a unified PLATFORM AGENCY LAYER so the PLATFORM (not the founder) acts as:
+- Communications, Marketing, Legal/Safety, Finance/Billing, Support, and Future Expansion team
+- Across the whole platform, every universe, and all future features
+
+Use the existing brand/name already implied in the codebase as the platform sender identity.
+
+1) UNIVERSAL OUTBOUND ENGINE
+- Create a central service (e.g., outboundEngine.ts) with:
+  outboundEngine.send({
+    type,
+    channel,
+    to,
+    role,
+    universe,
+    subject,
+    body,
+    metadata,
+    attachments
+  })
+- Channels (for now):
+  - email (via existing Resend integration)
+  - in-app message (existing messaging system)
+  - notification (existing notifications system)
+  - file/PDF export (existing export system, if present)
+- Create table: platform_outbound_log
+  - id, timestamp, userId (nullable), role, universe, type, channel, status, metadata
+- Route existing outbound behaviors (welcome emails, in-app welcomes, notifications, etc.) through this engine where safe and straightforward, preserving current behavior.
+
+2) PLATFORM IDENTITY ENGINE
+- Create platformIdentity.ts with:
+  - platformDisplayName
+  - platformSenderEmail (non-personal)
+  - platformSupportEmail or URL
+  - platformPublicContact (for website/footer)
+  - platformPhonePlaceholder (string for future 1-800/main line; no real telephony integration yet)
+- Ensure all outbound communications use this identity instead of any personal identity.
+
+3) LEGAL & SAFETY ENGINE
+- Create safetyGuard.ts with helpers like:
+  - validateRoleAccess(action, userRole, universe)
+  - enforceKidGuardianRules(where applicable)
+  - basic privacy/boundary checks
+- Add lightweight safety/logging around sensitive actions.
+- No real-world legal advice; keep protections generic and consistent with current app purpose.
+
+4) FINANCE ENGINE (IF PRESENT)
+- If billing/finance exists:
+  - Centralize finance-related outbound messages (receipts, invoices, reminders) through outboundEngine.
+  - Create financeCenter.ts for summaries/exports.
+- If not:
+  - Create clean interfaces/stubs so finance can be added later without refactor.
+
+5) MARKETING ENGINE
+- Create marketingKit.ts that:
+  - Exposes brand tone helpers and key phrases.
+  - Provides templates for announcements, “platform is live” messages, product updates.
+  - Ensures consistent tone/branding across outbound messages and public pages.
+
+6) SUPPORT ENGINE
+- Use platformIdentity.ts for a single “Contact Support” identity.
+- If support/contact flows exist:
+  - Route confirmations/replies through outboundEngine.
+  - Log support-related events (either dedicated support_log or platform_outbound_log with type="support").
+
+7) EXPANSION-FRIENDLY DESIGN
+- Design Agency Layer so it can support:
+  - New channels (future SMS/chat) via channel + metadata.
+  - New universes/roles.
+  - New outbound types (new “type” values) without changing core logic.
+
+8) ADMIN / OPERATIONS UI
+- Add/extend an Admin-only “Platform Operations” / “Agency Center” screen:
+  - List recent platform_outbound_log entries.
+  - Allow sending safe test messages (to a test email/user) via outboundEngine.send.
+  - Display current platform identity (display name, sender email, support contact).
+- Protect with existing admin permissions.
+
+9) CROSS-CODEBASE PASS (FILL GAPS)
+- Scan the entire codebase and:
+  - Find direct/hardcoded outbound behavior and, where safe, route it through outboundEngine.
+  - Centralize duplicated identity strings (names/emails) into platformIdentity.ts.
+  - Add missing logs for important outbound events into platform_outbound_log.
+
+10) FINAL CHECK
+- Ensure builds/tests pass.
+- Preserve or improve all existing user-facing behavior (no regressions).
+- Do not remove major features; only centralize, organize, and enhance.
+
+Implement ALL of the above now in the most concise, maintainable way possible.

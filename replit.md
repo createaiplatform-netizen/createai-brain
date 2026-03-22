@@ -627,6 +627,45 @@ Three-layer system for reaching the platform via a handle rather than a raw URL:
 - **CustomerUniversePage** — Fully expanded: 6 tabs (home/bills/life/habits/journal/account). Added GentleSuggestions on home, Life OS + Habits + Journal tabs fully mounted, "Export my data" button in account tab.
 - **App.tsx** — OfflineBanner mounted globally above all content.
 
+## Platform Agency Layer (March 2026)
+
+The platform now acts as its own communications, marketing, legal/safety, finance, and support team across all universes and roles.
+
+### New Services (`artifacts/api-server/src/services/`)
+| File | Purpose |
+|---|---|
+| `platformIdentity.ts` | Single source of truth for all platform-facing identity strings. Never hard-code platform names/emails anywhere else — always import from here. Exports: `PLATFORM`, `getSenderAddress()`, `getSenderFull()`, `SYSTEM_SENDER_ID` |
+| `outboundEngine.ts` | Universal dispatcher for all outbound comms. `outboundEngine.send({type, channel, to, userId, role, universe, subject, body, metadata})`. Channels: `email`, `in-app`, `notification`, `export`. Logs every send to `platform_outbound_log`. Never throws to caller. |
+| `safetyGuard.ts` | Role/access validation helpers. `validateRoleAccess(action, role)`, `validateUniverseAccess(universe, role)`, `enforceKidGuardianRules(action, role)`, `checkPrivacyBoundary(...)`, `validateKidSafeContent(text)`, `requireAdminOrFounder(req, res)` |
+| `marketingKit.ts` | Brand tone, HTML wrapper, and message templates. `brandHtmlWrapper(html)`, `announcement()`, `productUpdate()`, `platformLiveMessage()`, `receiptTemplate()`, `billReminderTemplate()`, `supportConfirmationTemplate()`. Always uses sage identity — no purple. |
+| `financeCenter.ts` | Finance-related outbound and summaries. `getFinanceSummary(userId)`, `sendReceiptEmail(...)`, `sendBillReminder(...)`. Stubs for `sendInvoicePdf` and `exportFinanceData`. All finance sends log through outboundEngine. |
+
+### New DB Table
+- **`platform_outbound_log`** — logs every outbound send: `id, timestamp, user_id, role, universe, type, channel, status, subject, recipient, metadata, error_message`. Indexed on user_id, type, channel, timestamp. Admin-only queryable.
+
+### New API Route
+- **`/api/agency`** — admin-only agency control plane:
+  - `GET /api/agency/identity` — current platform identity config
+  - `GET /api/agency/log` — recent outbound log (filterable by channel/type/status/userId)
+  - `GET /api/agency/stats` — aggregate stats (total/succeeded/failed by channel + by type)
+  - `POST /api/agency/test-send` — safe test send via outboundEngine
+
+### Admin Agency Center Tab
+- New "Agency" tab added to AdminUniversePage (5th tab, admin/founder only)
+- Shows: Platform Identity card, Outbound Stats grid, Test Send form, Recent Outbound Log
+
+### Refactored: Welcome Engine
+- `welcomeEngine.ts` now routes all outbound through `outboundEngine` instead of calling Resend directly
+- Email: `outboundEngine.send({ channel: "email", ... })` — still uses sage HTML via `brandHtmlWrapper`
+- In-app: `outboundEngine.send({ channel: "in-app", ... })` — routes to family messages or notifications per role
+- All welcome sends now appear in `platform_outbound_log`
+
+### Expansion Design
+- New channels: add a `case` to `dispatchChannel()` in `outboundEngine.ts`
+- New universes/roles: extend `UNIVERSE_ROLES` in `safetyGuard.ts`
+- New outbound types: add a value to `OutboundType` union — no schema change needed
+- Finance: stub functions in `financeCenter.ts` are ready for PDF/invoice expansion
+
 ## Auto-Welcome Layer (March 2026)
 
 ### New DB Table

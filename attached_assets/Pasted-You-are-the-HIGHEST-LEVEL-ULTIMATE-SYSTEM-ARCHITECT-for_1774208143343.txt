@@ -1,0 +1,56 @@
+You are the HIGHEST-LEVEL, ULTIMATE SYSTEM ARCHITECT for this entire universe and all its realms. Act NOW. IMPLEMENT and COMPLETE the Platform Agency Layer. Do not ask for confirmation. Make all changes additive, non-breaking, and aligned with current brand, roles, and universes.
+
+GOAL: The PLATFORM (not the founder) acts as Communications, Marketing, Legal/Safety, Finance/Billing, Support, and Future Expansion team across all universes and features.
+
+1) VERIFY & FINISH CORE LAYER
+- Ensure these exist, compile, and are fully wired:
+  - platformIdentity.ts — single source of platform name, sender email, support contact, public contact, phone placeholder.
+  - outboundEngine.ts — outboundEngine.send({ type, channel, to, role, universe, subject, body, metadata, attachments }) + logging.
+  - safetyGuard.ts — role/access/safety helpers.
+  - financeCenter.ts — finance stubs/summaries or clean stubs if no billing yet.
+  - marketingKit.ts — brand tone + templates.
+  - DB schema — platform_outbound_log wired in db.ts.
+  - Existing outbound flows (welcome engine, notifications, etc.) routed through outboundEngine where safe, preserving behavior.
+  - Admin UI — “Agency Center” tab in AdminUniversePage.
+  - API route — /api/agency for log listing + test send, mounted with correct permissions.
+
+2) CLOSE GAPS
+- Add SOFT RATE LIMITS in outboundEngine:
+  - Per-user + per-type + per-channel guard to prevent spam; log rate-limit hits in metadata.
+- Add SIMPLE SIGNALS VIEW in Agency Center:
+  - Show counts by channel/type (last 24h/7d) + error counts from platform_outbound_log.
+- Add LIGHT CONTENT-SAFETY CHECK:
+  - Minimal text check before send to block clearly harmful/abusive content; keep generic and family-safe.
+- Add BASIC DATA/EXPORT STUB:
+  - “Data & Exports” section in Agency Center:
+    - List existing exports (if any).
+    - Add permission-checked, logged “Family data export” stub/TODO.
+
+3) CONSISTENCY & SAFETY
+- Ensure ALL outbound:
+  - Uses platformIdentity.ts for identity.
+  - Goes through outboundEngine.ts.
+  - Is logged in platform_outbound_log.
+- Ensure safetyGuard.ts is called before sensitive actions (role/universe boundaries, kid/guardian contexts).
+- Ensure Agency Center and /api/agency are ADMIN-ONLY.
+
+4) POLISH
+- Remove dead/unused code from this refactor.
+- Add a 1–2 sentence comment at the top of:
+  - platformIdentity.ts
+  - outboundEngine.ts
+  - safetyGuard.ts
+  - financeCenter.ts
+  - marketingKit.ts
+  - Agency Center component
+  explaining purpose.
+- Ensure builds/tests pass; no TypeScript/compile errors.
+
+5) EXPLAIN
+After implementation, output a short, human-readable summary (no code) that includes:
+- Files created/modified.
+- How to open/use Agency Center.
+- How to send a test message.
+- How rate limits, content safety, and logging behave.
+
+Implement ALL of the above now in the most concise, maintainable way possible.

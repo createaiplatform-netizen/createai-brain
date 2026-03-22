@@ -517,6 +517,27 @@ export async function bootstrapSchema(): Promise<void> {
     `;
     await sql`CREATE INDEX IF NOT EXISTS idx_welcome_log_user ON platform_welcome_log(user_id)`;
 
+    await sql`
+      CREATE TABLE IF NOT EXISTS platform_outbound_log (
+        id            TEXT PRIMARY KEY,
+        timestamp     TIMESTAMPTZ NOT NULL DEFAULT NOW(),
+        user_id       TEXT,
+        role          TEXT,
+        universe      TEXT,
+        type          TEXT NOT NULL,
+        channel       TEXT NOT NULL,
+        status        TEXT NOT NULL DEFAULT 'pending',
+        subject       TEXT,
+        recipient     TEXT,
+        metadata      JSONB NOT NULL DEFAULT '{}',
+        error_message TEXT
+      )
+    `;
+    await sql`CREATE INDEX IF NOT EXISTS idx_outbound_log_user      ON platform_outbound_log(user_id, timestamp DESC)`;
+    await sql`CREATE INDEX IF NOT EXISTS idx_outbound_log_type      ON platform_outbound_log(type, timestamp DESC)`;
+    await sql`CREATE INDEX IF NOT EXISTS idx_outbound_log_channel   ON platform_outbound_log(channel, timestamp DESC)`;
+    await sql`CREATE INDEX IF NOT EXISTS idx_outbound_log_timestamp ON platform_outbound_log(timestamp DESC)`;
+
     console.log("[DB] Schema bootstrap complete");
   } catch (err) {
     console.error("[DB] Schema bootstrap failed:", err instanceof Error ? err.message : String(err));
