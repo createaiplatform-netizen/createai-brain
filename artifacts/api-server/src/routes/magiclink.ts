@@ -3,7 +3,7 @@
  * ─────────────────────────────────────────────────────────────
  * Email-based passwordless auth using one-time tokens + device fingerprinting.
  * Uses Resend to deliver secure login links. No password stored or required.
- * Email identity is driven by IDENTITY config → change BRAND_DOMAIN env var to update everywhere.
+ * Email identity is driven by platformIdentity.ts — getSenderFull() + PLATFORM constants.
  *
  * POST /api/auth/magic-link/send       — request a magic link to email
  * GET  /api/auth/magic-link/verify     — verify token + establish session
@@ -15,7 +15,7 @@
 
 import { Router, type Request, type Response } from "express";
 import crypto from "crypto";
-import { IDENTITY } from "../config/identity.js";
+import { PLATFORM, getSenderFull } from "../services/platformIdentity.js";
 
 const router = Router();
 
@@ -84,26 +84,40 @@ async function sendMagicLinkEmail(email: string, magicUrl: string, deviceLabel: 
     console.warn("[magiclink] RESEND_API_KEY not set — magic link email skipped");
     return false;
   }
+
+  // Auth emails use PLATFORM identity and sage branding — never personal/purple.
+  const SAGE  = PLATFORM.brandColor;
+  const CREAM = PLATFORM.bgColor;
   const html = `<!DOCTYPE html>
 <html>
-<head><meta charset="utf-8"><title>Sign in to CreateAI Brain</title></head>
-<body style="background:#020617;color:#f1f5f9;font-family:system-ui,sans-serif;padding:40px;max-width:600px;margin:0 auto;">
-  <div style="text-align:center;margin-bottom:32px;">
-    <div style="font-size:32px;font-weight:900;color:#a5b4fc;letter-spacing:-1px;">CreateAI Brain</div>
-    <div style="color:#94a3b8;font-size:14px;margin-top:4px;">The AI OS for Everything You Do</div>
-  </div>
-  <div style="background:#0f172a;border:1px solid #1e293b;border-radius:12px;padding:32px;">
-    <h2 style="margin:0 0 16px;font-size:22px;color:#f1f5f9;">Your magic sign-in link</h2>
-    <p style="color:#94a3b8;margin:0 0 24px;line-height:1.6;">Click the button below to sign in to CreateAI Brain. This link expires in 15 minutes and can only be used once.</p>
-    <p style="color:#64748b;font-size:13px;margin:0 0 8px;">Signing in from: ${deviceLabel}</p>
-    <div style="text-align:center;margin:28px 0;">
-      <a href="${magicUrl}" style="background:#6366f1;color:#fff;text-decoration:none;padding:14px 32px;border-radius:8px;font-weight:700;font-size:16px;display:inline-block;">Sign In to CreateAI Brain</a>
-    </div>
-    <p style="color:#475569;font-size:12px;margin:0;line-height:1.6;">If you didn't request this link, you can safely ignore this email. This link will expire automatically.</p>
-    <hr style="border:none;border-top:1px solid #1e293b;margin:24px 0;">
-    <p style="color:#334155;font-size:12px;margin:0;">Or copy this URL: <span style="color:#6366f1;word-break:break-all;">${magicUrl}</span></p>
-  </div>
-  <p style="text-align:center;color:#475569;font-size:12px;margin-top:24px;">${IDENTITY.ownerName} · ${IDENTITY.legalEntity} · ${IDENTITY.contactEmail}</p>
+<head><meta charset="utf-8"><title>Sign in to ${PLATFORM.displayName}</title></head>
+<body style="background:${CREAM};font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;padding:32px 16px;margin:0;">
+  <table width="100%" cellpadding="0" cellspacing="0" style="max-width:560px;margin:0 auto;">
+    <tr>
+      <td style="background:${SAGE};padding:24px 32px;border-radius:14px 14px 0 0;">
+        <p style="margin:0;font-size:20px;font-weight:900;color:white;letter-spacing:-0.3px;">${PLATFORM.displayName}</p>
+        <p style="margin:4px 0 0;font-size:12px;color:rgba(255,255,255,0.75);">${PLATFORM.companyName}</p>
+      </td>
+    </tr>
+    <tr>
+      <td style="background:white;padding:32px;border:1px solid rgba(122,144,104,0.15);border-top:none;border-radius:0 0 14px 14px;">
+        <h2 style="margin:0 0 16px;font-size:22px;color:${PLATFORM.textColor};">Your sign-in link</h2>
+        <p style="color:#6b6660;margin:0 0 8px;line-height:1.6;font-size:15px;">Click the button below to sign in securely. This link expires in 15 minutes and can only be used once.</p>
+        <p style="color:#9e9890;font-size:13px;margin:0 0 24px;">Signing in from: ${deviceLabel}</p>
+        <div style="text-align:center;margin:28px 0;">
+          <a href="${magicUrl}" style="background:${SAGE};color:white;text-decoration:none;padding:14px 32px;border-radius:10px;font-weight:700;font-size:15px;display:inline-block;">Sign In to ${PLATFORM.displayName}</a>
+        </div>
+        <p style="color:#9e9890;font-size:12px;margin:0 0 16px;line-height:1.6;">If you didn't request this link, you can safely ignore this email. It will expire automatically.</p>
+        <hr style="border:none;border-top:1px solid rgba(122,144,104,0.12);margin:20px 0;">
+        <p style="color:#b0aca6;font-size:11px;margin:0;word-break:break-all;">Or copy this URL: ${magicUrl}</p>
+      </td>
+    </tr>
+    <tr>
+      <td style="padding:16px 0;text-align:center;">
+        <p style="margin:0;font-size:11px;color:#9e9890;">${PLATFORM.legalNotice} · <a href="mailto:${PLATFORM.supportEmail}" style="color:#9e9890;text-decoration:none;">${PLATFORM.supportEmail}</a></p>
+      </td>
+    </tr>
+  </table>
 </body>
 </html>`;
 
@@ -112,9 +126,9 @@ async function sendMagicLinkEmail(email: string, magicUrl: string, deviceLabel: 
       method: "POST",
       headers: { "Authorization": `Bearer ${apiKey}`, "Content-Type": "application/json" },
       body: JSON.stringify({
-        from: IDENTITY.fromHeader,
+        from: getSenderFull(),
         to: [email],
-        subject: "Your magic sign-in link — CreateAI Brain",
+        subject: `Your sign-in link — ${PLATFORM.displayName}`,
         html
       })
     });

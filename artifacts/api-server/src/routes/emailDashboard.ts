@@ -9,6 +9,7 @@
 
 import { Router, type Request, type Response } from "express";
 import { emailsSentCount, smsSentCount, lastSuccessfulEmail, lastSuccessfulSMS, credentialStatus } from "../utils/notifications.js";
+import { PLATFORM } from "../services/platformIdentity.js";
 
 const router = Router();
 
@@ -59,18 +60,23 @@ router.get("/status", (_req: Request, res: Response) => {
 // ─── POST /api/email/test ──────────────────────────────────────────────────────
 router.post("/test", async (req: Request, res: Response) => {
   try {
-    const to = String((req.body as { to?: string }).to ?? "admin@LakesideTrinity.com");
+    if (!req.isAuthenticated()) {
+      res.status(401).json({ ok: false, error: "Authentication required" });
+      return;
+    }
+    const to = String((req.body as { to?: string }).to ?? PLATFORM.supportEmail);
     const { sendEmailNotification } = await import("../utils/notifications.js");
+    const SAGE = PLATFORM.brandColor;
     const batch = await sendEmailNotification(
       [to],
-      "CreateAI Brain — Email Test",
-      `<div style="font-family:Inter,sans-serif;max-width:600px;margin:0 auto;padding:24px">
-        <h1 style="color:#6366f1">CreateAI Brain</h1>
-        <p>Your email delivery is working correctly.</p>
-        <p><strong>Sent at:</strong> ${new Date().toISOString()}</p>
-        <p><strong>Environment:</strong> ${process.env["NODE_ENV"] ?? "development"}</p>
-        <hr style="border-color:#e2e8f0;margin:24px 0">
-        <p style="color:#64748b;font-size:12px">This test was triggered via POST /api/email/test</p>
+      `${PLATFORM.displayName} — Email Delivery Test`,
+      `<div style="font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;max-width:600px;margin:0 auto;padding:24px">
+        <h1 style="color:${SAGE};font-size:22px;font-weight:800;margin:0 0 16px;">${PLATFORM.displayName}</h1>
+        <p style="color:#374151;">Your email delivery is working correctly.</p>
+        <p style="color:#374151;"><strong>Sent at:</strong> ${new Date().toISOString()}</p>
+        <p style="color:#374151;"><strong>Environment:</strong> ${process.env["NODE_ENV"] ?? "development"}</p>
+        <hr style="border:none;border-top:1px solid rgba(122,144,104,0.15);margin:24px 0">
+        <p style="color:#6b6660;font-size:12px">This test was triggered via POST /api/email/test</p>
       </div>`
     );
     const success = batch.successCount > 0;
@@ -95,7 +101,7 @@ router.get("/dashboard", async (_req: Request, res: Response) => {
     const triggerRow = (t: { event: string; status: string; route: string }) => {
       const color = t.status === "wired" ? "#22c55e" : "#f59e0b";
       return `<tr>
-        <td style="padding:8px 12px;border-bottom:1px solid #1e293b;font-family:monospace;font-size:12px;color:#a5b4fc">${t.event}</td>
+        <td style="padding:8px 12px;border-bottom:1px solid #1e293b;font-family:monospace;font-size:12px;color:#a5cfb4">${t.event}</td>
         <td style="padding:8px 12px;border-bottom:1px solid #1e293b;color:${color};font-size:12px">${t.status}</td>
         <td style="padding:8px 12px;border-bottom:1px solid #1e293b;font-family:monospace;font-size:11px;color:#94a3b8">${t.route}</td>
       </tr>`;
@@ -124,7 +130,7 @@ router.get("/dashboard", async (_req: Request, res: Response) => {
 <style>
   *{box-sizing:border-box;margin:0;padding:0}
   body{font-family:'Inter',sans-serif;background:#020617;color:#e2e8f0;min-height:100vh;padding:32px}
-  a{color:#6366f1;text-decoration:none}
+  a{color:#7a9068;text-decoration:none}
   a:hover{text-decoration:underline}
   .skip-link{position:absolute;left:-9999px;top:auto;width:1px;height:1px;overflow:hidden}
   .skip-link:focus{position:static;width:auto;height:auto;overflow:visible}
@@ -139,7 +145,7 @@ router.get("/dashboard", async (_req: Request, res: Response) => {
   .stat-value{font-size:13px;font-weight:600;color:#e2e8f0}
   table{width:100%;border-collapse:collapse;background:#0f172a;border-radius:12px;overflow:hidden}
   th{padding:10px 12px;background:#1e293b;font-size:11px;font-weight:600;text-transform:uppercase;letter-spacing:.08em;color:#64748b;text-align:left}
-  .alert{border-left:3px solid #6366f1;background:#1e293b;padding:12px 16px;border-radius:8px;margin-bottom:20px;font-size:13px;color:#a5b4fc}
+  .alert{border-left:3px solid #7a9068;background:#1e293b;padding:12px 16px;border-radius:8px;margin-bottom:20px;font-size:13px;color:#a5cfb4}
   .tag{display:inline-block;padding:2px 8px;border-radius:4px;font-size:11px;font-weight:600}
   .tag-ok{background:#14532d;color:#4ade80}
   .tag-miss{background:#7f1d1d;color:#fca5a5}
@@ -163,8 +169,8 @@ router.get("/dashboard", async (_req: Request, res: Response) => {
       <h2>Resend Configuration</h2>
       <div class="stat"><span class="stat-label">RESEND_API_KEY</span><span class="stat-value">${statusIcon(emailOk)}</span></div>
       <div class="stat"><span class="stat-label">RESEND_FROM_EMAIL</span><span class="stat-value">${fromOk ? `<span style="color:#22c55e">✓ ${from}</span>` : statusIcon(false)}</span></div>
-      <div class="stat"><span class="stat-label">Domain target</span><span class="stat-value" style="color:#a5b4fc">createaiplatform.com</span></div>
-      <div class="stat"><span class="stat-label">DNS wizard</span><span class="stat-value"><a href="/api/credentials/dns-records" target="_blank" style="color:#6366f1">View records →</a></span></div>
+      <div class="stat"><span class="stat-label">Domain target</span><span class="stat-value" style="color:#a5cfb4">createaiplatform.com</span></div>
+      <div class="stat"><span class="stat-label">DNS wizard</span><span class="stat-value"><a href="/api/credentials/dns-records" target="_blank" style="color:#7a9068">View records →</a></span></div>
     </div>
 
     <div class="card" aria-label="Email send statistics">
@@ -179,19 +185,19 @@ router.get("/dashboard", async (_req: Request, res: Response) => {
       <h2>Quick Actions</h2>
       <div class="stat">
         <span class="stat-label">Test delivery</span>
-        <span class="stat-value"><code style="font-size:11px;color:#a5b4fc">POST /api/email/test</code></span>
+        <span class="stat-value"><code style="font-size:11px;color:#a5cfb4">POST /api/email/test</code></span>
       </div>
       <div class="stat">
         <span class="stat-label">JSON status</span>
-        <span class="stat-value"><a href="/api/email/status" target="_blank" style="color:#6366f1">View →</a></span>
+        <span class="stat-value"><a href="/api/email/status" target="_blank" style="color:#7a9068">View →</a></span>
       </div>
       <div class="stat">
         <span class="stat-label">DNS records</span>
-        <span class="stat-value"><a href="/api/credentials/dns-records" target="_blank" style="color:#6366f1">View →</a></span>
+        <span class="stat-value"><a href="/api/credentials/dns-records" target="_blank" style="color:#7a9068">View →</a></span>
       </div>
       <div class="stat">
         <span class="stat-label">Resend dashboard</span>
-        <span class="stat-value"><a href="https://resend.com/overview" target="_blank" rel="noopener" style="color:#6366f1">resend.com →</a></span>
+        <span class="stat-value"><a href="https://resend.com/overview" target="_blank" rel="noopener" style="color:#7a9068">resend.com →</a></span>
       </div>
     </div>
   </div>

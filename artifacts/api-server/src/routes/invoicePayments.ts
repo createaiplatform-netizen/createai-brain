@@ -4,7 +4,7 @@
  * Payment methods: Cash App ($CreateAIDigital) + Venmo (@CreateAIDigital)
  * No personal phone numbers or sensitive data exposed anywhere.
  * Both methods appear automatically on every generated invoice.
- * Invoice identity is driven by IDENTITY config → change BRAND_DOMAIN env var to update everywhere.
+ * Invoice identity is driven by platformIdentity.ts — PLATFORM.displayName, companyName, supportEmail.
  *
  * POST  /api/payments/invoice/create    — create a professional invoice
  * GET   /api/payments/invoice/list      — list all invoices (owner only)
@@ -20,7 +20,7 @@
 
 import { Router, type Request, type Response } from "express";
 import crypto from "crypto";
-import { IDENTITY } from "../config/identity.js";
+import { PLATFORM, getSenderFull } from "../services/platformIdentity.js";
 
 const router = Router();
 
@@ -157,7 +157,7 @@ export function getInvoiceSummary() {
 /* ── Invoice HTML renderer — both methods on every invoice ───────── */
 function renderInvoiceHTML(inv: Invoice): string {
   const statusColor: Record<string, string> = {
-    draft: "#94a3b8", sent: "#6366f1", viewed: "#a78bfa",
+    draft: "#94a3b8", sent: "#7a9068", viewed: "#c4a97a",
     paid: "#22c55e", overdue: "#ef4444", cancelled: "#475569"
   };
 
@@ -194,10 +194,10 @@ function renderInvoiceHTML(inv: Invoice): string {
   "body { background: #020617; color: #f1f5f9; font-family: 'Inter', system-ui, -apple-system, sans-serif; margin: 0; padding: 40px; -webkit-font-smoothing: antialiased; }" +
   ".wrap { max-width: 820px; margin: 0 auto; background: #0f172a; border: 1px solid #1e293b; border-radius: 16px; padding: 48px; }" +
   ".hdr { display: flex; justify-content: space-between; align-items: flex-start; margin-bottom: 48px; }" +
-  ".brand { font-size: 28px; font-weight: 900; color: #a5b4fc; letter-spacing: -1px; }" +
+  ".brand { font-size: 28px; font-weight: 900; color: #7a9068; letter-spacing: -1px; }" +
   ".brand-sub { font-size: 13px; color: #64748b; margin-top: 4px; }" +
   ".inv-num { font-size: 22px; font-weight: 700; color: #f1f5f9; text-align: right; }" +
-  ".badge { display: inline-block; padding: 4px 12px; border-radius: 999px; font-size: 12px; font-weight: 700; letter-spacing: 0.5px; text-transform: uppercase; margin-top: 8px; background: " + (statusColor[inv.status] ?? "#6366f1") + "22; color: " + (statusColor[inv.status] ?? "#6366f1") + "; border: 1px solid " + (statusColor[inv.status] ?? "#6366f1") + "55; }" +
+  ".badge { display: inline-block; padding: 4px 12px; border-radius: 999px; font-size: 12px; font-weight: 700; letter-spacing: 0.5px; text-transform: uppercase; margin-top: 8px; background: " + (statusColor[inv.status] ?? "#7a9068") + "22; color: " + (statusColor[inv.status] ?? "#7a9068") + "; border: 1px solid " + (statusColor[inv.status] ?? "#7a9068") + "55; }" +
   ".parties { display: grid; grid-template-columns: 1fr 1fr; gap: 32px; margin-bottom: 40px; }" +
   ".party { background: #020617; border-radius: 8px; padding: 20px; }" +
   ".plabel { font-size: 11px; color: #64748b; text-transform: uppercase; letter-spacing: 1px; margin-bottom: 8px; }" +
@@ -211,7 +211,7 @@ function renderInvoiceHTML(inv: Invoice): string {
   "th:nth-child(2) { text-align: center; } th:nth-child(3), th:nth-child(4) { text-align: right; }" +
   ".totals { margin-left: auto; width: 280px; }" +
   ".trow { display: flex; justify-content: space-between; padding: 8px 0; color: #94a3b8; font-size: 14px; }" +
-  ".tfinal { display: flex; justify-content: space-between; padding: 16px 0 0; border-top: 2px solid #6366f1; color: #f1f5f9; font-size: 18px; font-weight: 700; margin-top: 8px; }" +
+  ".tfinal { display: flex; justify-content: space-between; padding: 16px 0 0; border-top: 2px solid #7a9068; color: #f1f5f9; font-size: 18px; font-weight: 700; margin-top: 8px; }" +
   ".pay-section { margin-top: 40px; }" +
   ".pay-title { font-size: 13px; font-weight: 700; color: #94a3b8; text-transform: uppercase; letter-spacing: 1px; margin-bottom: 16px; }" +
   ".pay-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 16px; }" +
@@ -224,19 +224,19 @@ function renderInvoiceHTML(inv: Invoice): string {
   ".pay-steps { font-size: 12px; color: #94a3b8; line-height: 1.7; margin-top: 10px; }" +
   ".pay-steps li { margin-bottom: 3px; }" +
   ".footer { text-align: center; margin-top: 40px; font-size: 12px; color: #334155; line-height: 1.8; }" +
-  ".print-btn { display: inline-block; background: #6366f1; color: #fff; border: none; padding: 12px 24px; border-radius: 8px; font-size: 14px; font-weight: 600; cursor: pointer; margin-bottom: 24px; }" +
+  ".print-btn { display: inline-block; background: #7a9068; color: #fff; border: none; padding: 12px 24px; border-radius: 8px; font-size: 14px; font-weight: 600; cursor: pointer; margin-bottom: 24px; }" +
   "</style></head><body>" +
   "<div class='no-print' style='text-align:center;margin-bottom:24px;'>" +
   "<button class='print-btn' onclick='window.print()'>🖨️ Print / Save as PDF</button>" +
   "</div>" +
   "<div class='wrap'>" +
   "<div class='hdr'>" +
-  "<div><div class='brand'>" + IDENTITY.platformName + "</div><div class='brand-sub'>" + IDENTITY.legalEntity + "</div><div class='brand-sub'>" + IDENTITY.brandDomain + "</div></div>" +
+  "<div><div class='brand'>" + PLATFORM.displayName + "</div><div class='brand-sub'>" + PLATFORM.companyName + "</div><div class='brand-sub'>" + PLATFORM.domain + "</div></div>" +
   "<div><div class='inv-num'>INVOICE " + inv.invoiceNumber + "</div><div class='badge'>" + inv.status.toUpperCase() + "</div></div>" +
   "</div>" +
   "<div class='parties'>" +
   "<div class='party'><div class='plabel'>Bill To</div><div class='pname'>" + inv.clientName + "</div>" + clientCompanyLine + "<div style='color:#94a3b8;font-size:13px;'>" + inv.clientEmail + "</div>" + clientAddressLine + "</div>" +
-  "<div class='party'><div class='plabel'>From</div><div class='pname'>" + IDENTITY.platformName + "</div><div style='color:#94a3b8;font-size:13px;'>" + IDENTITY.legalEntity + "</div><div style='color:#94a3b8;font-size:13px;'>" + IDENTITY.brandDomain + "</div></div>" +
+  "<div class='party'><div class='plabel'>From</div><div class='pname'>" + PLATFORM.displayName + "</div><div style='color:#94a3b8;font-size:13px;'>" + PLATFORM.companyName + "</div><div style='color:#94a3b8;font-size:13px;'>" + PLATFORM.domain + "</div></div>" +
   "</div>" +
   "<div class='dates'>" +
   "<div class='dblock'><div class='dlabel'>Invoice Date</div><div class='dvalue'>" + inv.issueDate + "</div></div>" +
@@ -250,7 +250,7 @@ function renderInvoiceHTML(inv: Invoice): string {
   "<div class='totals'>" +
   "<div class='trow'><span>Subtotal</span><span>" + formatCurrency(inv.subtotal, inv.currency) + "</span></div>" +
   taxRow +
-  "<div class='tfinal'><span>Total Due</span><span style='color:#a5b4fc;'>" + formatCurrency(inv.total, inv.currency) + "</span></div>" +
+  "<div class='tfinal'><span>Total Due</span><span style='color:#7a9068;'>" + formatCurrency(inv.total, inv.currency) + "</span></div>" +
   "</div>" +
   "<div class='pay-section'>" +
   "<div class='pay-title'>How to Pay — Choose Either Method</div>" +
@@ -282,7 +282,7 @@ function renderInvoiceHTML(inv: Invoice): string {
   "</div>" +
   "</div>" +
   notesSection +
-  "<div class='footer'>Thank you for your business! Questions? Email " + IDENTITY.contactEmail + "<br>" + IDENTITY.legalEntity + " · " + IDENTITY.platformName + " · " + IDENTITY.brandDomain + "<br>" + inv.invoiceNumber + " · Generated " + new Date().toLocaleDateString() + "</div>" +
+  "<div class='footer'>Thank you for your business! Questions? Email " + PLATFORM.supportEmail + "<br>" + PLATFORM.companyName + " · " + PLATFORM.displayName + " · " + PLATFORM.domain + "<br>" + inv.invoiceNumber + " · Generated " + new Date().toLocaleDateString() + "</div>" +
   "</div>" +
   "</body></html>";
 }
@@ -296,7 +296,7 @@ async function emailInvoice(inv: Invoice): Promise<boolean> {
     "<!DOCTYPE html><html><head><meta charset='utf-8'><link rel='preconnect' href='https://fonts.googleapis.com'><link href='https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&display=swap' rel='stylesheet'></head>",
     "<body style='background:#020617;color:#f1f5f9;font-family:Inter,system-ui,-apple-system,sans-serif;padding:40px;max-width:600px;margin:0 auto;-webkit-font-smoothing:antialiased;'>",
     "<div style='text-align:center;margin-bottom:32px;'>",
-    "<div style='font-size:28px;font-weight:900;color:#a5b4fc;'>CreateAI Brain</div>",
+    "<div style='font-size:28px;font-weight:900;color:#7a9068;'>CreateAI Brain</div>",
     "<div style='color:#64748b;font-size:13px;'>Lakeside Trinity LLC</div>",
     "</div>",
     "<div style='background:#0f172a;border:1px solid #1e293b;border-radius:12px;padding:32px;'>",
@@ -306,7 +306,7 @@ async function emailInvoice(inv: Invoice): Promise<boolean> {
     "<tr style='border-bottom:1px solid #1e293b;'><td style='padding:12px 0;color:#64748b;font-size:13px;'>Invoice #</td><td style='padding:12px 0;color:#f1f5f9;text-align:right;font-weight:600;'>" + inv.invoiceNumber + "</td></tr>",
     "<tr style='border-bottom:1px solid #1e293b;'><td style='padding:12px 0;color:#64748b;font-size:13px;'>Issue Date</td><td style='padding:12px 0;color:#f1f5f9;text-align:right;'>" + inv.issueDate + "</td></tr>",
     "<tr style='border-bottom:1px solid #1e293b;'><td style='padding:12px 0;color:#64748b;font-size:13px;'>Due Date</td><td style='padding:12px 0;color:#f1f5f9;text-align:right;'>" + inv.dueDate + "</td></tr>",
-    "<tr><td style='padding:16px 0 4px;color:#94a3b8;font-size:16px;'>Total Due</td><td style='padding:16px 0 4px;color:#a5b4fc;text-align:right;font-size:22px;font-weight:900;'>" + formatCurrency(inv.total, inv.currency) + "</td></tr>",
+    "<tr><td style='padding:16px 0 4px;color:#94a3b8;font-size:16px;'>Total Due</td><td style='padding:16px 0 4px;color:#7a9068;text-align:right;font-size:22px;font-weight:900;'>" + formatCurrency(inv.total, inv.currency) + "</td></tr>",
     "</table>",
     "<div style='background:#020617;border-radius:10px;padding:20px;margin-bottom:20px;'>",
     "<div style='font-size:12px;color:#64748b;text-transform:uppercase;letter-spacing:1px;margin-bottom:12px;'>How to Pay</div>",
@@ -325,9 +325,9 @@ async function emailInvoice(inv: Invoice): Promise<boolean> {
     "</div>",
     "</div>",
     "</div>",
-    "<p style='color:#64748b;font-size:13px;margin:0;line-height:1.6;'>Questions? Reply to this email or contact " + IDENTITY.contactEmail + "</p>",
+    "<p style='color:#64748b;font-size:13px;margin:0;line-height:1.6;'>Questions? Reply to this email or contact " + PLATFORM.supportEmail + "</p>",
     "</div>",
-    "<p style='text-align:center;color:#334155;font-size:12px;margin-top:24px;'>" + IDENTITY.legalEntity + " · " + IDENTITY.platformName + " · " + IDENTITY.brandDomain + "</p>",
+    "<p style='text-align:center;color:#334155;font-size:12px;margin-top:24px;'>" + PLATFORM.companyName + " · " + PLATFORM.displayName + " · " + PLATFORM.domain + "</p>",
     "</body></html>"
   ].join("");
 
@@ -336,7 +336,7 @@ async function emailInvoice(inv: Invoice): Promise<boolean> {
       method: "POST",
       headers: { "Authorization": "Bearer " + apiKey, "Content-Type": "application/json" },
       body: JSON.stringify({
-        from: IDENTITY.fromHeader,
+        from: getSenderFull(),
         to: [inv.clientEmail],
         subject: "Invoice " + inv.invoiceNumber + " — " + formatCurrency(inv.total, inv.currency) + " due " + inv.dueDate,
         html

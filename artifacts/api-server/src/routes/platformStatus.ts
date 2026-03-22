@@ -222,4 +222,39 @@ router.get("/", async (_req: Request, res: Response) => {
   res.send(html);
 });
 
+/**
+ * GET /status/signals — Real outbound + activity signals from live DB tables
+ * Returns 24h/7d aggregated signal counts per channel and recent errors.
+ */
+router.get("/signals", async (_req: Request, res: Response) => {
+  const sql = getSql();
+  try {
+    const now = new Date();
+    const h24 = new Date(now.getTime() - 24 * 60 * 60 * 1000);
+    const d7  = new Date(now.getTime() - 7 * 24 * 60 * 60 * 1000);
+
+    const [sent24, sent7d, errors24, byChannel24, recent] = await Promise.all([
+      sql<[{ c: string }]>`SELECT COUNT(*)::text AS c FROM platform_outbound_log WHERE created_at >= ${h24.toISOString()} AND status = 'sent'`,
+      sql<[{ c: string }]>`SELECT COUNT(*)::text AS c FROM platform_outbound_log WHERE created_at >= ${d7.toISOString()} AND status = 'sent'`,
+      sql<[{ c: string }]>`SELECT COUNT(*)::text AS c FROM platform_outbound_log WHERE created_at >= ${h24.toISOString()} AND status != 'sent'`,
+      sql<Array<{ channel: string; c: string }>>`SELECT channel, COUNT(*)::text AS c FROM platform_outbound_log WHERE created_at >= ${h24.toISOString()} GROUP BY channel ORDER BY c DESC`,
+      sql<Array<{ id: number; channel: string; type: string; recipient: string; status: string; created_at: string }>>`SELECT id, channel, type, recipient, status, created_at FROM platform_outbound_log ORDER BY created_at DESC LIMIT 20`,
+    ]);
+
+    res.json({
+      ok: true,
+      signals: {
+        sent24h:    parseInt(sent24[0]?.c ?? "0"),
+        sent7d:     parseInt(sent7d[0]?.c ?? "0"),
+        errors24h:  parseInt(errors24[0]?.c ?? "0"),
+        byChannel24h: Object.fromEntries(byChannel24.map(r => [r.channel, parseInt(r.c)])),
+      },
+      recent,
+      generatedAt: now.toISOString(),
+    });
+  } catch (e) {
+    res.status(500).json({ ok: false, error: e instanceof Error ? e.message : String(e) });
+  }
+});
+
 export default router;

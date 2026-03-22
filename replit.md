@@ -716,6 +716,30 @@ The following codebase-wide changes were made to complete the Agency Layer:
 - `emailScheduler.ts` upsell email footer: same unsubscribe link added
 - Every platform-generated marketing email now has a visible unsubscribe option
 
+### Brand Identity Completeness Pass — Customer-Facing Purple Elimination (March 2026)
+All remaining purple (`#6366f1`, `#a5b4fc`, `#a78bfa`) colors in customer-facing surfaces eliminated and replaced with sage `#7a9068` / sand `#c4a97a`:
+
+**`emailDashboard.ts` (admin HTML status page):**
+- Event column monospace color `#a5b4fc` → `#a5cfb4` (sage-tinted)
+- Domain target color `#a5b4fc` → `#a5cfb4`
+- All inline link `style="color:#6366f1"` → `style="color:#7a9068"` (4 links fixed)
+- POST /api/email/test code color `#a5b4fc` → `#a5cfb4`
+
+**`invoicePayments.ts` (CUSTOMER-FACING invoice + email):**
+- All `IDENTITY.*` references replaced with `PLATFORM.*` equivalents (displayName, companyName, domain, supportEmail)
+- Status colors: `sent:#6366f1` → `sent:#7a9068`, `viewed:#a78bfa` → `viewed:#c4a97a`
+- Brand name CSS `.brand { color:#7a9068 }` (was purple)
+- Total Due highlight `color:#a5b4fc` → `color:#7a9068` (both HTML invoice + email template)
+- Total Due divider `border-top:2px solid #6366f1` → `border-top:2px solid #7a9068`
+- Print button `background:#6366f1` → `background:#7a9068`
+- Footer sender (IDENTITY.contactEmail, etc.) → PLATFORM.supportEmail, PLATFORM.companyName, PLATFORM.domain
+- Badge fallback color `#6366f1` → `#7a9068`
+
+**`platformStatus.ts` — New `/status/signals` endpoint:**
+- `GET /status/signals` (admin-only) — queries `platform_outbound_log` for live 24h/7d aggregated counts
+- Returns: `sent24h`, `sent7d`, `errors24h`, `byChannel24h` object, `recent` (last 20 sends)
+- Zero external calls — pure DB aggregation from real data
+
 ### Expansion Design
 - New channels: add a `case` to `dispatchChannel()` in `outboundEngine.ts`
 - New universes/roles: extend `UNIVERSE_ROLES` in `safetyGuard.ts`
