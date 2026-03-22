@@ -1,0 +1,76 @@
+Do it now.
+
+Evolve this platform toward its maximum safe scalability, without breaking existing behavior or changing any public contracts. Implement a full, multi-layer scalability and safety upgrade, going as far as is safely possible within the current environment.
+
+Scope:
+
+LAYER 1 — API SAFETY & PUBLIC SURFACE
+1) Public routes (pre-auth in app.ts: /portal/*, /join/*, /launch/*, /admin, /api/ads, /core, /nexus, /ss, protocol gateway, semantic store, etc.):
+   - Add strict payload validation for all public POST routes (e.g., /portal/book, /portal/review, /portal/lookup, /join/checkout/:priceId).
+   - Reject malformed, oversized, or unexpected payloads with clear 4xx responses.
+   - Ensure no public route can write arbitrary data without validation of shape and basic constraints.
+   - For public GET routes that hit the DB (e.g., /portal/stats, /portal/lookup, /api/ads/* if they query DB), ensure query parameters are validated and constrained.
+
+2) Rate limiting:
+   - Keep the existing global 300 req/min per IP limiter.
+   - Add tighter per-route or per-group limits for:
+     - public POST routes (/portal/book, /portal/review, /portal/lookup, /join/checkout/:priceId),
+     - public GET routes that hit the database heavily (/portal/stats, /portal/lookup, /api/ads/* if DB-backed).
+   - Implement these limits in-process (no new external infra yet), but structure them so they can later be swapped for Redis or a dedicated rate limiter with minimal changes.
+
+3) Logging & observability:
+   - For all newly validated and rate-limited public routes, add structured logging for:
+     - rejected payloads (without logging sensitive fields),
+     - rate-limited requests (route, reason, and a safe identifier like IP hash).
+   - Reuse existing logging patterns and tables where appropriate (e.g., platform_audit_logs, platform_outbound_log), but do NOT introduce new tables in this pass unless absolutely necessary and clearly justified.
+
+LAYER 2 — DATABASE SCALABILITY
+4) Indexes (no partitioning yet, no breaking changes):
+   - Add safe, obvious indexes only, using the existing bootstrapSchema() pattern (CREATE INDEX IF NOT EXISTS) so everything is idempotent and safe to re-run.
+   - At minimum:
+     - platform_subscriptions: index on (email), index on (created_at DESC).
+     - platform_email_jobs: index on (status), index on (created_at DESC).
+     - platform_family_conversations: if queries filter by participant_ids, add an appropriate GIN index; if not, leave a clear TODO comment instead of guessing.
+   - Review other high-growth, high-read tables (habits, completions, contributions, notifications, audit logs, outbound log) and add obvious, non-breaking indexes on user_id + created_at or similar patterns where clearly beneficial.
+
+5) Schema safety:
+   - Do NOT drop columns, change types, or modify existing constraints.
+   - Only additive, backward-compatible changes (indexes, safe defaults, comments).
+
+LAYER 3 — SERVER SCALABILITY PREP
+6) API server structure:
+   - Refactor the server to be ready for clustered or containerized deployment (multiple instances behind a load balancer) without changing behavior:
+     - Extract shared config and middleware into clear modules.
+     - Ensure no in-memory, per-process state is relied on for correctness (only for caching or soft optimization).
+   - Where in-memory state is currently used for anything critical, replace it with DB-backed or clearly mark it with TODO and guard it so it fails safe, not catastrophically.
+
+7) Background work preparation:
+   - Identify any inline work that should eventually move to a job queue (emails, notifications, webhooks, heavy processing).
+   - Wrap these in a thin abstraction (e.g., queue.enqueueEmailJob(...)) that currently runs inline but is ready to be swapped to a real queue (Redis/BullMQ) later without changing call sites.
+   - Do NOT introduce Redis or external infra yet; just create the abstraction layer and keep current behavior.
+
+LAYER 4 — GLOBAL READINESS & SAFETY CONTRACTS
+8) API-level safety enforcement:
+   - For all routes that enforce Family Universe Standing Law or emotional safety rules in the UI, ensure those rules are also enforced at the API level where appropriate.
+   - Add clear comments where safety rules are enforced so they are easy to audit and extend at scale.
+
+9) Config & environment:
+   - Centralize rate limit configs, validation limits (max payload sizes, etc.), and any safety thresholds into a single config module so they can be tuned for higher scale later without code rewrites.
+
+NON-GOALS (DO NOT DO THESE YET):
+   - Do NOT introduce new external infrastructure (Redis, S3, external queues, multi-region DB) in this pass.
+   - Do NOT change authMiddleware behavior or the core session model.
+   - Do NOT change response shapes or public API contracts.
+   - Do NOT introduce breaking changes to any /api/* authenticated routes.
+
+Deliverables:
+   - Updated route files with validation and per-route rate limiting on public endpoints.
+   - Updated bootstrapSchema()/DB bootstrap code with the new indexes.
+   - Introduced abstractions for future job queue usage (but still running inline for now).
+   - Refactored server structure to be cluster-ready without changing behavior.
+   - Clear, in-code comments at the top of each modified file explaining:
+     - what was added,
+     - why it is safe,
+     - and how it prepares the system for future scaling (connection pooling, replicas, queues, global distribution).
+
+If any change would risk breaking existing behavior or requires guessing about business rules, stop on that specific part, leave a clear TODO comment, and explain the risk instead of guessing.

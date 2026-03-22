@@ -1,3 +1,61 @@
+/**
+ * app.ts — API Server Entry Point
+ * ─────────────────────────────────────────────────────────────────────────────
+ * SCALABILITY ARCHITECTURE — what is built, what is next:
+ *
+ * LAYER 1 — RATE LIMITING (active)
+ *   Global:    300 req/min per IP (rateLimit below, all routes).
+ *   Per-route: publicPostLimiter (10/min), consultLimiter (5/min),
+ *              publicLookupLimiter (20/min), adminLoginLimiter (5/15min).
+ *              All defined in middlewares/publicLimiters.ts.
+ *   Scale path: swap in-process store → RedisStore in publicLimiters.ts.
+ *
+ * LAYER 2 — PAYLOAD VALIDATION (active)
+ *   All public POST routes validate field presence, length, email format,
+ *   and value ranges. Constants in config/platformConfig.ts.
+ *   Scale path: tune thresholds in platformConfig.ts without touching routes.
+ *
+ * LAYER 3 — STRUCTURED REJECTION LOGGING (active)
+ *   Rate-limited and validation-rejected requests emit structured JSON logs
+ *   (route, reason, safe IP hash, timestamp). No PII logged.
+ *   Scale path: pipe stdout to Datadog/Logtail/CloudWatch — no code change.
+ *
+ * LAYER 4 — DB INDEXES (active)
+ *   New indexes added to bootstrapSchema() (idempotent, IF NOT EXISTS):
+ *   platform_subscriptions (email, created_at), platform_email_jobs
+ *   (status, created_at), platform_family_conversations (GIN on participant_ids).
+ *   Scale path: add covering/partial indexes as new IF NOT EXISTS statements.
+ *
+ * LAYER 5 — JOB QUEUE ABSTRACTION (active, inline today)
+ *   utils/jobQueue.ts wraps all background work (emails, notifications,
+ *   webhooks) in enqueue()/run() with typed helpers. Currently runs inline.
+ *   Scale path: replace inlineRunner with BullMQ adapter — no call-site changes.
+ *
+ * IN-MEMORY STATE RISKS (documented, not yet mitigated):
+ *   - invoicePayments.ts: invoiceStore (Map) — not DB-backed, lost on restart.
+ *     RISK: In-flight invoices may be orphaned after a process restart.
+ *     TODO: Migrate to platform_outbound_log or a dedicated invoice table.
+ *   - magiclink.ts: tokenStore, trustedDevices, rateLimitStore (Maps) — not
+ *     DB-backed. RISK: Magic link tokens are invalidated on process restart.
+ *     TODO: Migrate to platform_trusted_devices (already exists) + DB tokens.
+ *   - generate.ts: activeStreams (Map) — expected in-memory for SSE; no risk.
+ *   - semanticContent.ts: _cache (Map) — soft optimization; safe to lose.
+ *
+ * CLUSTER READINESS:
+ *   - No shared in-memory state is relied upon for correctness in authenticated
+ *     routes (authMiddleware reads from DB). The exceptions above are documented.
+ *   - All config is read from environment variables — no per-process config.
+ *   - bootstrapSchema() is idempotent — safe to run on N instances in parallel.
+ *   Scale path: add `cluster` module or deploy behind PM2/K8s without changes.
+ *
+ * FAMILY UNIVERSE SAFETY CONTRACTS (see routes/habits.ts, routes/familyMessages.ts):
+ *   - No rankings or comparative metrics exposed at the API level.
+ *   - Habit streaks only count guardian-approved completions.
+ *   - FamilyBank is virtual-only; no real financial instruments.
+ *   - Safety rules are enforced in route handlers, not just UI. Marked with
+ *     // FAMILY SAFETY LAW: comments in each relevant route file.
+ */
+
 import express, { type Express, type Request, type Response, type NextFunction } from "express";
 import cors from "cors";
 import helmet from "helmet";

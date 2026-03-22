@@ -10,6 +10,7 @@
 
 import { Router, type Request, type Response } from "express";
 import { createAdminCookie, buildLoginPage } from "../middlewares/adminAuth.js";
+import { adminLoginLimiter } from "../middlewares/publicLimiters.js";
 
 const router = Router();
 
@@ -32,7 +33,7 @@ router.get("/login", (req: Request, res: Response) => {
   res.send(buildLoginPage(undefined, returnTo));
 });
 
-router.post("/login", (req: Request, res: Response) => {
+router.post("/login", adminLoginLimiter, (req: Request, res: Response) => {
   const { password, returnTo } = req.body as { password?: string; returnTo?: string };
   const rt = returnTo && returnTo.startsWith("/") ? returnTo : "/hub";
 

@@ -1,14 +1,23 @@
 /**
- * routes/semanticPortal.ts
- * ------------------------
- * Customer Self-Service Portal.
- *
+ * routes/semanticPortal.ts — Customer Self-Service Portal
+ * ─────────────────────────────────────────────────────────
  * POST /portal/lookup      — look up all purchases by email (reads PostgreSQL DB)
  * GET  /portal/me          — customer portal HTML page (email gated)
  * GET  /portal/stats       — aggregate stats (admin-only JSON)
  *
  * Auth model: email is the customer identifier — no password required.
  * Data source: PostgreSQL platform_customers table (not in-memory store).
+ *
+ * SCALABILITY UPGRADE:
+ *   - POST /lookup: rate-limited (publicPostLimiter) + strict email validation
+ *     and payload size check.
+ *   - GET /stats: rate-limited (publicLookupLimiter) — this endpoint performs
+ *     a full table aggregation query; must not be hammered.
+ *   - Structured rejection logging via logRejection() — IP hash only, no PII.
+ *
+ * WHY SAFE: No response shapes changed. Valid requests are unaffected.
+ * SCALE PATH: Swap limiter store to RedisStore in publicLimiters.ts without
+ *   touching this file.
  */
 
 import { Router, type Request, type Response } from "express";
@@ -19,16 +28,21 @@ import {
 } from "../lib/db.js";
 import { getFromRegistry } from "../semantic/registry.js";
 import { getPublicBaseUrl } from "../utils/publicUrl.js";
+import { publicPostLimiter, publicLookupLimiter } from "../middlewares/publicLimiters.js";
+import { PAYLOAD_LIMITS, VALIDATION, logRejection, safeIpHash } from "../config/platformConfig.js";
 
 const router = Router();
 const STORE_URL = getPublicBaseUrl();
 
 // ── POST /lookup — return purchase history for an email ───────────────────────
-router.post("/lookup", async (req: Request, res: Response) => {
-  const email = String((req.body as { email?: string }).email ?? "").trim().toLowerCase();
+router.post("/lookup", publicPostLimiter, async (req: Request, res: Response) => {
+  const ip    = safeIpHash(req.ip);
+  const raw   = String((req.body as { email?: string }).email ?? "").trim();
+  const email = raw.toLowerCase();
 
-  if (!email || !email.includes("@")) {
-    res.status(400).json({ ok: false, error: "Valid email address required" });
+  if (!email || email.length > PAYLOAD_LIMITS.EMAIL_MAX || !VALIDATION.EMAIL_RE.test(email)) {
+    logRejection("/portal/lookup", "validation_failed", "Invalid or missing email", ip);
+    res.status(400).json({ ok: false, error: "A valid email address is required." });
     return;
   }
 
@@ -304,7 +318,7 @@ router.get("/me", (_req: Request, res: Response) => {
 });
 
 // ── GET /stats — portal usage stats (admin) ───────────────────────────────────
-router.get("/stats", async (_req: Request, res: Response) => {
+router.get("/stats", publicLookupLimiter, async (_req: Request, res: Response) => {
   try {
     const [stats, customers] = await Promise.all([getCustomerStats(), getCustomers()]);
 

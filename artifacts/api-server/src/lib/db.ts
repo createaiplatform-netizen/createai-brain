@@ -561,6 +561,36 @@ export async function bootstrapSchema(): Promise<void> {
     await sql`CREATE INDEX IF NOT EXISTS idx_outbound_log_channel   ON platform_outbound_log(channel, timestamp DESC)`;
     await sql`CREATE INDEX IF NOT EXISTS idx_outbound_log_timestamp ON platform_outbound_log(timestamp DESC)`;
 
+    // ── SCALABILITY INDEXES (additive, idempotent, safe to re-run) ─────────────
+    // WHAT: Missing indexes on high-read tables identified during scalability audit.
+    // WHY SAFE: All use CREATE INDEX IF NOT EXISTS — no-op on repeat runs.
+    //           No columns changed, no constraints modified, no data affected.
+    // SCALE PATH: At higher query volume, consider partial indexes or covering
+    //   indexes here. Add them as new IF NOT EXISTS statements — never modify these.
+
+    // platform_subscriptions — queried by email on lookup; by created_at on admin views.
+    await sql`CREATE INDEX IF NOT EXISTS idx_subs_email      ON platform_subscriptions(LOWER(email))`;
+    await sql`CREATE INDEX IF NOT EXISTS idx_subs_created    ON platform_subscriptions(created_at DESC)`;
+
+    // platform_email_jobs — job worker polls by status; admin views by created_at.
+    await sql`CREATE INDEX IF NOT EXISTS idx_email_jobs_status   ON platform_email_jobs(status)`;
+    await sql`CREATE INDEX IF NOT EXISTS idx_email_jobs_created  ON platform_email_jobs(created_at DESC)`;
+
+    // platform_family_conversations — queried with: WHERE userId = ANY(participant_ids)
+    // GIN index on array column is the correct index type for = ANY() queries.
+    await sql`CREATE INDEX IF NOT EXISTS idx_family_conv_participants ON platform_family_conversations USING GIN(participant_ids)`;
+
+    // platform_family_bank_transactions — queried by user via account join; also by created_at.
+    // account_id index already exists (idx_fbank_txn_acct). Adding user-level if needed.
+    // TODO: if direct user_id queries are added to this table, add idx_fbank_txn_user here.
+
+    // platform_habit_completions — completion queries filter by user_id via habit join.
+    // habit_id index already exists (idx_habit_comp_habit). The user→habit join path is covered.
+    // Direct user_id queries on completions would benefit from a covering index, but none
+    // currently exist in the query layer — leaving a TODO rather than guessing.
+    // TODO: if direct user_id queries are added to habit_completions, add:
+    //   CREATE INDEX IF NOT EXISTS idx_habit_comp_user ON platform_habit_completions(user_id, done_on DESC)
+
     console.log("[DB] Schema bootstrap complete");
   } catch (err) {
     console.error("[DB] Schema bootstrap failed:", err instanceof Error ? err.message : String(err));

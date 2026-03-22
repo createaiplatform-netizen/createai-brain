@@ -10,6 +10,29 @@
  *   /portal/client    → Client project/time view (email-gated)
  */
 
+/**
+ * SCALABILITY UPGRADE — routes/portalsExtended.ts
+ * ─────────────────────────────────────────────────
+ * WHAT ADDED:
+ *   - Per-route rate limiters (publicPostLimiter, consultLimiter) on all POST
+ *     endpoints, layered on top of the global 300 req/min limit in app.ts.
+ *   - Strict payload validation on every POST handler: field presence, length
+ *     caps, email format, rating range, and appointment type allowlist.
+ *   - Structured rejection logging via logRejection() — safe IP hash only,
+ *     no sensitive field values are logged.
+ *
+ * WHY SAFE:
+ *   - No existing response shapes changed. Valid requests are unaffected.
+ *   - Validation is additive: previously missing guards are now explicit.
+ *   - Rate limiters are in-process (no external infra required).
+ *
+ * SCALE PATH:
+ *   - Rate limiter `store` can be swapped to RedisStore in publicLimiters.ts
+ *     without touching this file.
+ *   - Validation constants live in config/platformConfig.ts — tuneable without
+ *     code changes to routes.
+ */
+
 import { Router, type Request, type Response } from "express";
 import { openai }            from "@workspace/integrations-openai-ai-server";
 import { getPublicBaseUrl }  from "../utils/publicUrl.js";
@@ -25,6 +48,8 @@ import {
   saveAiGeneration,
   saveFormSubmission,
 } from "../lib/db.js";
+import { publicPostLimiter, consultLimiter } from "../middlewares/publicLimiters.js";
+import { PAYLOAD_LIMITS, VALIDATION, logRejection, safeIpHash } from "../config/platformConfig.js";
 
 const router = Router();
 const BASE   = getPublicBaseUrl();
@@ -201,11 +226,51 @@ router.get("/book", (_req: Request, res: Response) => {
   `));
 });
 
-router.post("/book", async (req: Request, res: Response) => {
+router.post("/book", publicPostLimiter, async (req: Request, res: Response) => {
+  const ip = safeIpHash(req.ip);
   try {
     const { name, email, phone, type, preferredDate, notes } = req.body as Record<string, string>;
-    if (!name || !email) { res.status(400).json({ ok: false, error: "name and email required" }); return; }
-    const id = await createAppointment({ type: type ?? "consultation", name, email, phone: phone ?? "", preferredDate: preferredDate ?? "", notes: notes ?? "" });
+
+    // Required fields
+    if (!name || !email) {
+      logRejection("/portal/book", "validation_failed", "Missing required fields: name or email", ip);
+      res.status(400).json({ ok: false, error: "Name and email are required." });
+      return;
+    }
+    // Field length caps
+    if (String(name).length > PAYLOAD_LIMITS.NAME_MAX) {
+      logRejection("/portal/book", "validation_failed", "name exceeds max length", ip);
+      res.status(400).json({ ok: false, error: "Name is too long." });
+      return;
+    }
+    if (String(email).length > PAYLOAD_LIMITS.EMAIL_MAX || !VALIDATION.EMAIL_RE.test(String(email))) {
+      logRejection("/portal/book", "validation_failed", "Invalid email format", ip);
+      res.status(400).json({ ok: false, error: "A valid email address is required." });
+      return;
+    }
+    if (phone && String(phone).length > PAYLOAD_LIMITS.PHONE_MAX) {
+      logRejection("/portal/book", "validation_failed", "phone exceeds max length", ip);
+      res.status(400).json({ ok: false, error: "Phone number is too long." });
+      return;
+    }
+    if (notes && String(notes).length > PAYLOAD_LIMITS.NOTES_MAX) {
+      logRejection("/portal/book", "validation_failed", "notes exceeds max length", ip);
+      res.status(400).json({ ok: false, error: "Notes field is too long (max 2,000 characters)." });
+      return;
+    }
+    // Appointment type allowlist
+    const safeType = VALIDATION.APPOINTMENT_TYPES.includes(type as typeof VALIDATION.APPOINTMENT_TYPES[number])
+      ? type
+      : "consultation";
+
+    const id = await createAppointment({
+      type:          safeType,
+      name:          String(name).trim(),
+      email:         String(email).trim().toLowerCase(),
+      phone:         phone ? String(phone).trim() : "",
+      preferredDate: preferredDate ? String(preferredDate).trim() : "",
+      notes:         notes ? String(notes).trim() : "",
+    });
     res.json({ ok: true, id });
   } catch (e: unknown) {
     res.status(500).json({ ok: false, error: e instanceof Error ? e.message : String(e) });
@@ -267,11 +332,52 @@ router.get("/review", (req: Request, res: Response) => {
   `));
 });
 
-router.post("/review", async (req: Request, res: Response) => {
+router.post("/review", publicPostLimiter, async (req: Request, res: Response) => {
+  const ip = safeIpHash(req.ip);
   try {
     const { productId, productTitle, customerEmail, customerName, rating, reviewText } = req.body as Record<string, unknown>;
-    if (!customerEmail || !reviewText) { res.status(400).json({ ok: false, error: "email and review required" }); return; }
-    const id = await submitReview({ productId: String(productId ?? ""), productTitle: String(productTitle ?? ""), customerEmail: String(customerEmail), customerName: String(customerName ?? ""), rating: Number(rating ?? 5), reviewText: String(reviewText) });
+
+    if (!customerEmail || !reviewText) {
+      logRejection("/portal/review", "validation_failed", "Missing required fields: email or reviewText", ip);
+      res.status(400).json({ ok: false, error: "Email and review text are required." });
+      return;
+    }
+    const emailStr = String(customerEmail).trim().toLowerCase();
+    if (emailStr.length > PAYLOAD_LIMITS.EMAIL_MAX || !VALIDATION.EMAIL_RE.test(emailStr)) {
+      logRejection("/portal/review", "validation_failed", "Invalid email format", ip);
+      res.status(400).json({ ok: false, error: "A valid email address is required." });
+      return;
+    }
+    if (String(reviewText).length > PAYLOAD_LIMITS.REVIEW_TEXT_MAX) {
+      logRejection("/portal/review", "validation_failed", "reviewText exceeds max length", ip);
+      res.status(400).json({ ok: false, error: "Review text is too long (max 2,000 characters)." });
+      return;
+    }
+    if (customerName && String(customerName).length > PAYLOAD_LIMITS.NAME_MAX) {
+      logRejection("/portal/review", "validation_failed", "customerName exceeds max length", ip);
+      res.status(400).json({ ok: false, error: "Name is too long." });
+      return;
+    }
+    if (productId && String(productId).length > PAYLOAD_LIMITS.PRODUCT_ID_MAX) {
+      logRejection("/portal/review", "validation_failed", "productId exceeds max length", ip);
+      res.status(400).json({ ok: false, error: "Invalid product ID." });
+      return;
+    }
+    const ratingNum = Number(rating ?? 5);
+    if (!Number.isInteger(ratingNum) || ratingNum < VALIDATION.RATING_MIN || ratingNum > VALIDATION.RATING_MAX) {
+      logRejection("/portal/review", "validation_failed", "rating out of range", ip);
+      res.status(400).json({ ok: false, error: `Rating must be between ${VALIDATION.RATING_MIN} and ${VALIDATION.RATING_MAX}.` });
+      return;
+    }
+
+    const id = await submitReview({
+      productId:     String(productId ?? "").trim().slice(0, PAYLOAD_LIMITS.PRODUCT_ID_MAX),
+      productTitle:  String(productTitle ?? "").trim().slice(0, PAYLOAD_LIMITS.PRODUCT_TITLE_MAX),
+      customerEmail: emailStr,
+      customerName:  String(customerName ?? "").trim(),
+      rating:        ratingNum,
+      reviewText:    String(reviewText).trim(),
+    });
     res.json({ ok: true, id });
   } catch (e: unknown) {
     res.status(500).json({ ok: false, error: e instanceof Error ? e.message : String(e) });
@@ -347,10 +453,40 @@ router.get("/consult", (_req: Request, res: Response) => {
   `, "This async consultation service does not establish a patient-provider relationship and does not constitute medical advice. Always consult a licensed healthcare provider for diagnosis and treatment."));
 });
 
-router.post("/consult", async (req: Request, res: Response) => {
+router.post("/consult", consultLimiter, async (req: Request, res: Response) => {
+  const ip = safeIpHash(req.ip);
   try {
     const b = req.body as Record<string, string>;
-    await saveFormSubmission("async-consult", "Async Health Consultation", { email: b["email"], complaint: b["complaint"], duration: b["duration"], severity: b["severity"] }, "");
+
+    // Required: email + chief complaint
+    if (!b["email"] || !b["complaint"]) {
+      logRejection("/portal/consult", "validation_failed", "Missing required fields: email or complaint", ip);
+      res.status(400).json({ ok: false, error: "Contact email and chief complaint are required." });
+      return;
+    }
+    const emailStr = String(b["email"]).trim().toLowerCase();
+    if (emailStr.length > PAYLOAD_LIMITS.EMAIL_MAX || !VALIDATION.EMAIL_RE.test(emailStr)) {
+      logRejection("/portal/consult", "validation_failed", "Invalid email format", ip);
+      res.status(400).json({ ok: false, error: "A valid email address is required." });
+      return;
+    }
+    if (String(b["complaint"]).length > PAYLOAD_LIMITS.COMPLAINT_MAX) {
+      logRejection("/portal/consult", "validation_failed", "complaint exceeds max length", ip);
+      res.status(400).json({ ok: false, error: "Chief complaint is too long (max 3,000 characters)." });
+      return;
+    }
+    if (b["symptoms"] && String(b["symptoms"]).length > PAYLOAD_LIMITS.SYMPTOMS_MAX) {
+      logRejection("/portal/consult", "validation_failed", "symptoms exceeds max length", ip);
+      res.status(400).json({ ok: false, error: "Symptoms field is too long (max 3,000 characters)." });
+      return;
+    }
+    if (b["history"] && String(b["history"]).length > PAYLOAD_LIMITS.HISTORY_MAX) {
+      logRejection("/portal/consult", "validation_failed", "history exceeds max length", ip);
+      res.status(400).json({ ok: false, error: "Medical history field is too long (max 2,000 characters)." });
+      return;
+    }
+
+    await saveFormSubmission("async-consult", "Async Health Consultation", { email: emailStr, complaint: b["complaint"], duration: b["duration"], severity: b["severity"] }, "");
 
     let summary = "";
     try {
@@ -432,10 +568,16 @@ router.get("/donor", (_req: Request, res: Response) => {
   `));
 });
 
-router.post("/donor/lookup", async (req: Request, res: Response) => {
+router.post("/donor/lookup", publicPostLimiter, async (req: Request, res: Response) => {
+  const ip = safeIpHash(req.ip);
   try {
-    const { email } = req.body as { email?: string };
-    if (!email) { res.status(400).json({ ok: false, error: "email required" }); return; }
+    const rawEmail = String((req.body as { email?: string }).email ?? "").trim().toLowerCase();
+    if (!rawEmail || rawEmail.length > PAYLOAD_LIMITS.EMAIL_MAX || !VALIDATION.EMAIL_RE.test(rawEmail)) {
+      logRejection("/portal/donor/lookup", "validation_failed", "Invalid or missing email", ip);
+      res.status(400).json({ ok: false, error: "A valid email address is required." });
+      return;
+    }
+    const email = rawEmail;
     const [purchases, loyaltyBalance] = await Promise.all([findCustomersByEmail(email), getLoyaltyBalance(email)]);
     if (purchases.length === 0 && loyaltyBalance === 0) {
       res.json({ ok: false, error: "No account found for this email. Please check your email or contact us." });
@@ -498,10 +640,16 @@ router.get("/student", (_req: Request, res: Response) => {
   `));
 });
 
-router.post("/student/lookup", async (req: Request, res: Response) => {
+router.post("/student/lookup", publicPostLimiter, async (req: Request, res: Response) => {
+  const ip = safeIpHash(req.ip);
   try {
-    const { email } = req.body as { email?: string };
-    if (!email) { res.status(400).json({ ok: false, error: "email required" }); return; }
+    const rawEmail = String((req.body as { email?: string }).email ?? "").trim().toLowerCase();
+    if (!rawEmail || rawEmail.length > PAYLOAD_LIMITS.EMAIL_MAX || !VALIDATION.EMAIL_RE.test(rawEmail)) {
+      logRejection("/portal/student/lookup", "validation_failed", "Invalid or missing email", ip);
+      res.status(400).json({ ok: false, error: "A valid email address is required." });
+      return;
+    }
+    const email = rawEmail;
     const [purchases, loyaltyBalance] = await Promise.all([findCustomersByEmail(email), getLoyaltyBalance(email)]);
     if (purchases.length === 0) {
       res.json({ ok: false, error: "No purchases found. Please check your email or visit the store." });
@@ -563,10 +711,16 @@ router.get("/client", (_req: Request, res: Response) => {
   `));
 });
 
-router.post("/client/lookup", async (req: Request, res: Response) => {
+router.post("/client/lookup", publicPostLimiter, async (req: Request, res: Response) => {
+  const ip = safeIpHash(req.ip);
   try {
-    const { email } = req.body as { email?: string };
-    if (!email) { res.status(400).json({ ok: false, error: "email required" }); return; }
+    const rawEmail = String((req.body as { email?: string }).email ?? "").trim().toLowerCase();
+    if (!rawEmail || rawEmail.length > PAYLOAD_LIMITS.EMAIL_MAX || !VALIDATION.EMAIL_RE.test(rawEmail)) {
+      logRejection("/portal/client/lookup", "validation_failed", "Invalid or missing email", ip);
+      res.status(400).json({ ok: false, error: "A valid email address is required." });
+      return;
+    }
+    const email = rawEmail;
     const [purchases, trackers, loyaltyBalance] = await Promise.all([
       findCustomersByEmail(email),
       getTrackers().then(t => t.filter(tr => String(tr["owner_email"] ?? "").toLowerCase() === email.toLowerCase())),
