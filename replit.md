@@ -4,6 +4,42 @@
 
 The CreateAI Brain is a full-stack AI OS platform (NEXUS Semantic OS), developed as a pnpm monorepo using TypeScript. It provides 365+ domain engine apps within a unified spatial interface. The platform supports autonomous revenue generation, AI tools for every industry, cross-domain operations (HealthOS, LegalPM, StaffingOS), and a complete business management suite. Live domain: `createai.digital`. Platform owner: Sara Stadler (Lakeside Trinity LLC). Payment rails: Cash App `$CreateAIDigital`, Venmo `@CreateAIDigital`.
 
+---
+
+## Family Universe — Standing Law (PERMANENT, applies to everything now and in the future)
+
+**Every creation automatically gets:**
+1. A protected private creation space (family context — sacred, never exposed)
+2. A curated safe public presence (auto-routed, SEO-indexed, safe for all audiences)
+
+**Non-negotiable design rules:**
+- Warm natural identity always: sage `#7a9068`, sand `#c4a97a`, cream `#faf9f6` — the base never changes
+- No comparisons. No rankings. No embarrassment. Ever.
+- No "best", "winner", "top", "worst" language in any user-facing surface
+- Every family member is celebrated equally — unified identity, not competing individuals
+- Subtle magic and wonder live in every creation moment (WonderSpark particles, gentle affirmations)
+- Gentle guidance always — never demanding, never shaming
+- Creation spaces are private and sacred; public previews are curated and safe
+- Style adapts to purpose (context-smart theming) while staying warm and alive
+- Visual mismatches self-correct toward warmth and clarity
+
+**Infrastructure files implementing this law:**
+- `src/lib/familyUniverse.ts` — Master principle registry: `UNIVERSE_PRINCIPLES`, `getDualPresence()`, `getAffirmation()`, `makeSafe()`, `WONDER_PALETTE`, `validateUniversePresence()`
+- `src/components/WonderSpark.tsx` — Magic layer: `WonderSpark` (floating particles), `CreationAffirmation` (post-save message), `WonderBadge`, `WonderGlow`
+- `src/lib/contextTheme.ts` — 17-context adaptive theming with `wonder`, `affirmation`, `publicLabel` on every context
+- `src/pages/PublicBridgePage.tsx` — Public hub at `/public`
+- `src/pages/PublicFamilyPage.tsx` — Family public presence at `/public/family`
+
+**Pattern for all new creations:**
+1. Call `getDualPresence(type)` to get the private path + public route
+2. Register both routes in `App.tsx` (public route in isPublicRoute block + WouterRouter)
+3. Use `getContextTheme(context)` for all styling — never hardcode colours
+4. Show `CreationAffirmation` after every save — use the context's `.affirmation` value
+5. Apply `makeSafe(text)` to any user-generated content on public surfaces
+6. Add `WonderSpark` to creation moments and public hero sections
+
+---
+
 **Platform Scale (March 2026)**
 - 35+ HTML dashboard surfaces — all returning 200
 - 386 App screens lazy-loaded in the OS shell (AppWindow.tsx) — including 8 evolution systems + 13 industry sectors

@@ -46,6 +46,10 @@ export interface ContextTheme {
   cardShadow:    string
   transition:    string
   feel:          string
+  // Family Universe — auto-populated for every context
+  wonder:        string   // sparkle / particle colour for WonderSpark
+  affirmation:   string   // gentle post-creation message
+  publicLabel:   string   // how this creation type is named on public pages
 }
 
 const BASE: ContextTheme = {
@@ -71,6 +75,9 @@ const BASE: ContextTheme = {
   cardShadow:    "0 2px 12px rgba(122,144,104,0.07), 0 1px 3px rgba(0,0,0,0.04)",
   transition:    "all 0.2s ease",
   feel:          "warm and grounded",
+  wonder:        "#c4a97a",
+  affirmation:   "You made something. That's always enough.",
+  publicLabel:   "A Family Creation",
 }
 
 export const CONTEXT_THEMES: Record<ContextType, ContextTheme> = {
@@ -90,6 +97,9 @@ export const CONTEXT_THEMES: Record<ContextType, ContextTheme> = {
     radius:       20,
     cardRadius:   20,
     feel:         "cozy and familial",
+    wonder:       "#c4a97a",
+    affirmation:  "This is yours. Home and love, saved forever.",
+    publicLabel:  "A Family Moment",
   },
 
   story: {
@@ -110,6 +120,9 @@ export const CONTEXT_THEMES: Record<ContextType, ContextTheme> = {
     shadow:       "0 4px 20px rgba(140,124,94,0.10)",
     cardShadow:   "0 4px 20px rgba(140,124,94,0.10), 0 1px 4px rgba(0,0,0,0.04)",
     feel:         "literary and warm",
+    wonder:       "#8c7c5e",
+    affirmation:  "Your story is saved. Every word matters.",
+    publicLabel:  "A Family Story",
   },
 
   art: {
@@ -128,6 +141,9 @@ export const CONTEXT_THEMES: Record<ContextType, ContextTheme> = {
     shadow:       "0 6px 24px rgba(107,143,94,0.12)",
     cardShadow:   "0 6px 24px rgba(107,143,94,0.12), 0 1px 4px rgba(0,0,0,0.04)",
     feel:         "expressive and layered",
+    wonder:       "#6b8f5e",
+    affirmation:  "That's yours. Beautiful. It exists because you made it.",
+    publicLabel:  "Art Made With Love",
   },
 
   video: {
@@ -149,6 +165,9 @@ export const CONTEXT_THEMES: Record<ContextType, ContextTheme> = {
     cardShadow:   "0 8px 32px rgba(90,107,82,0.15), 0 2px 6px rgba(0,0,0,0.06)",
     transition:   "all 0.25s cubic-bezier(0.4,0,0.2,1)",
     feel:         "cinematic and focused",
+    wonder:       "#5a6b52",
+    affirmation:  "A real moment, now saved forever.",
+    publicLabel:  "A Family Video",
   },
 
   memory: {
@@ -168,6 +187,9 @@ export const CONTEXT_THEMES: Record<ContextType, ContextTheme> = {
     shadow:       "0 4px 20px rgba(184,144,90,0.12)",
     cardShadow:   "0 4px 20px rgba(184,144,90,0.12), 0 1px 4px rgba(0,0,0,0.04)",
     feel:         "nostalgic and golden",
+    wonder:       "#b8905a",
+    affirmation:  "That moment is safe now. Truly precious.",
+    publicLabel:  "A Memory We Treasure",
   },
 
   challenge: {
@@ -188,6 +210,9 @@ export const CONTEXT_THEMES: Record<ContextType, ContextTheme> = {
     cardShadow:   "0 6px 24px rgba(109,138,78,0.14), 0 2px 6px rgba(0,0,0,0.05)",
     transition:   "all 0.18s ease",
     feel:         "energetic and motivating",
+    wonder:       "#6d8a4e",
+    affirmation:  "You tried together. That's always the whole point.",
+    publicLabel:  "A Family Challenge",
   },
 
   invention: {
@@ -204,6 +229,9 @@ export const CONTEXT_THEMES: Record<ContextType, ContextTheme> = {
     radius:       16,
     cardRadius:   16,
     feel:         "curious and exploratory",
+    wonder:       "#7a8a5e",
+    affirmation:  "Ideas like this change things. Keep dreaming.",
+    publicLabel:  "An Invention Idea",
   },
 
   journey: {
@@ -218,6 +246,9 @@ export const CONTEXT_THEMES: Record<ContextType, ContextTheme> = {
     tagColor:     "#7a9068",
     headingWeight: 800,
     feel:         "grounded and progressive",
+    wonder:       "#7a9068",
+    affirmation:  "Every step is part of the story. You're on your way.",
+    publicLabel:  "A Family Journey",
   },
 
   plan: {
@@ -233,6 +264,9 @@ export const CONTEXT_THEMES: Record<ContextType, ContextTheme> = {
     shadow:       "0 2px 8px rgba(122,144,104,0.06)",
     cardShadow:   "0 2px 8px rgba(122,144,104,0.06)",
     feel:         "structured and calm",
+    wonder:       "#7a9068",
+    affirmation:  "Plans become real. Yours already is.",
+    publicLabel:  "A Family Plan",
   },
 
   rewards: {
@@ -252,6 +286,9 @@ export const CONTEXT_THEMES: Record<ContextType, ContextTheme> = {
     shadow:       "0 4px 20px rgba(196,169,122,0.14)",
     cardShadow:   "0 4px 20px rgba(196,169,122,0.14), 0 1px 4px rgba(0,0,0,0.04)",
     feel:         "warm and celebratory",
+    wonder:       "#c4a97a",
+    affirmation:  "You earned this. Every step was worth it.",
+    publicLabel:  "A Family Achievement",
   },
 
   store: {
@@ -268,6 +305,9 @@ export const CONTEXT_THEMES: Record<ContextType, ContextTheme> = {
     shadow:       "0 2px 8px rgba(0,0,0,0.05)",
     cardShadow:   "0 2px 8px rgba(0,0,0,0.05)",
     feel:         "refined and editorial",
+    wonder:       "#c4a97a",
+    affirmation:  "Crafted with care. It shows.",
+    publicLabel:  "A Family Creation",
   },
 
   business: {
@@ -288,6 +328,9 @@ export const CONTEXT_THEMES: Record<ContextType, ContextTheme> = {
     shadow:       "0 2px 8px rgba(0,0,0,0.06)",
     cardShadow:   "0 2px 8px rgba(0,0,0,0.06)",
     feel:         "clean and authoritative",
+    wonder:       "#4a6b5a",
+    affirmation:  "Building something real takes courage. You're doing it.",
+    publicLabel:  "A Family Venture",
   },
 
   health: {
@@ -307,6 +350,9 @@ export const CONTEXT_THEMES: Record<ContextType, ContextTheme> = {
     shadow:       "0 1px 4px rgba(0,0,0,0.04)",
     cardShadow:   "0 1px 4px rgba(0,0,0,0.05)",
     feel:         "calm and clear",
+    wonder:       "#5a8870",
+    affirmation:  "Taking care of yourself is an act of love.",
+    publicLabel:  "A Wellbeing Journey",
   },
 
   legal: {
@@ -328,6 +374,9 @@ export const CONTEXT_THEMES: Record<ContextType, ContextTheme> = {
     shadow:       "0 1px 4px rgba(0,0,0,0.06)",
     cardShadow:   "0 1px 4px rgba(0,0,0,0.06)",
     feel:         "precise and trustworthy",
+    wonder:       "#7a9068",
+    affirmation:  "Thoughtful decisions protect the people you love.",
+    publicLabel:  "A Family Decision",
   },
 
   portal: {
@@ -343,6 +392,9 @@ export const CONTEXT_THEMES: Record<ContextType, ContextTheme> = {
     shadow:       "0 8px 32px rgba(122,144,104,0.10)",
     cardShadow:   "0 8px 32px rgba(122,144,104,0.10), 0 2px 8px rgba(0,0,0,0.04)",
     feel:         "immersive and layered",
+    wonder:       "#c4a97a",
+    affirmation:  "You're building something meaningful. Keep going.",
+    publicLabel:  "A Family Portal",
   },
 
   marketing: {
@@ -360,6 +412,9 @@ export const CONTEXT_THEMES: Record<ContextType, ContextTheme> = {
     cardShadow:   "0 8px 32px rgba(122,144,104,0.18), 0 2px 8px rgba(0,0,0,0.05)",
     transition:   "all 0.22s cubic-bezier(0.4,0,0.2,1)",
     feel:         "bold and expressive",
+    wonder:       "#7a9068",
+    affirmation:  "You're putting your work into the world. That takes courage.",
+    publicLabel:  "A Family Creation",
   },
 }
 

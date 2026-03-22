@@ -1,6 +1,7 @@
 import React, { useState, useEffect, useRef, useCallback } from "react";
 import { useLocation } from "wouter";
 import { SEOMeta } from "@/components/SEOMeta";
+import { CreationAffirmation } from "@/components/WonderSpark";
 
 // ─── Types ──────────────────────────────────────────────────────────────────
 
@@ -776,18 +777,19 @@ function InventionIdeasTool({ onSave }: { onSave: (title: string, desc: string) 
 
 type Tool = "story" | "art" | "video" | "memory" | "challenge" | "invention" | null;
 
-// Context-smart colours: each tool gets the right feel for its purpose
-const TOOLS: { id: Tool & string; icon: string; label: string; subtitle: string; color: string; accentBg: string }[] = [
-  { id: "story",     icon: "📖", label: "Story Maker",       subtitle: "Write a family story",        color: "#8c7c5e", accentBg: "#f0e8d8" },
-  { id: "art",       icon: "🎨", label: "Art Studio",        subtitle: "Create an art idea",           color: "#6b8f5e", accentBg: "#dce8d4" },
-  { id: "video",     icon: "🎬", label: "Video Moments",     subtitle: "Plan a family video",          color: "#5a6b52", accentBg: "#d8e0d2" },
-  { id: "memory",    icon: "💌", label: "Memory Cards",      subtitle: "Capture a special moment",     color: "#b8905a", accentBg: "#f5e8cc" },
-  { id: "challenge", icon: "🎯", label: "Family Challenges", subtitle: "Create a family activity",     color: "#6d8a4e", accentBg: "#d8eccc" },
-  { id: "invention", icon: "💡", label: "Invention Ideas",   subtitle: "Dream up something new",       color: "#7a8a5e", accentBg: "#e4e8cc" },
+// Context-smart colours + affirmations: each tool gets the right feel for its purpose
+const TOOLS: { id: Tool & string; icon: string; label: string; subtitle: string; color: string; accentBg: string; affirmation: string }[] = [
+  { id: "story",     icon: "📖", label: "Story Maker",       subtitle: "Write a family story",        color: "#8c7c5e", accentBg: "#f0e8d8", affirmation: "Your story is saved. Every word matters." },
+  { id: "art",       icon: "🎨", label: "Art Studio",        subtitle: "Create an art idea",           color: "#6b8f5e", accentBg: "#dce8d4", affirmation: "That's yours. Beautiful. It exists because you made it." },
+  { id: "video",     icon: "🎬", label: "Video Moments",     subtitle: "Plan a family video",          color: "#5a6b52", accentBg: "#d8e0d2", affirmation: "A real moment, now saved forever." },
+  { id: "memory",    icon: "💌", label: "Memory Cards",      subtitle: "Capture a special moment",     color: "#b8905a", accentBg: "#f5e8cc", affirmation: "That moment is safe now. Truly precious." },
+  { id: "challenge", icon: "🎯", label: "Family Challenges", subtitle: "Create a family activity",     color: "#6d8a4e", accentBg: "#d8eccc", affirmation: "You tried together. That's always the whole point." },
+  { id: "invention", icon: "💡", label: "Invention Ideas",   subtitle: "Dream up something new",       color: "#7a8a5e", accentBg: "#e4e8cc", affirmation: "Ideas like this change things. Keep dreaming." },
 ];
 
 function CreateTab({ onSaveToGallery }: { onSaveToGallery: (title: string, type: Creation["type"], desc: string) => void }) {
   const [activeTool, setActiveTool] = useState<Tool>(null);
+  const [lastAffirmation, setLastAffirmation] = useState<{ message: string; color: string; accentBg: string } | null>(null);
 
   const toolTypeMap: Record<string, Creation["type"]> = {
     story: "story", art: "art", video: "video",
@@ -796,7 +798,9 @@ function CreateTab({ onSaveToGallery }: { onSaveToGallery: (title: string, type:
 
   function saveHandler(title: string, desc: string) {
     const type = toolTypeMap[activeTool ?? ""] ?? "idea";
+    const tool = TOOLS.find(t => t.id === activeTool);
     onSaveToGallery(title, type, desc);
+    if (tool) setLastAffirmation({ message: tool.affirmation, color: tool.color, accentBg: tool.accentBg });
     setActiveTool(null);
   }
 
@@ -840,6 +844,17 @@ function CreateTab({ onSaveToGallery }: { onSaveToGallery: (title: string, type:
           Choose what you want to create today.
         </p>
       </div>
+
+      {/* Post-save affirmation — fades in, floats gently, disappears */}
+      {lastAffirmation && (
+        <CreationAffirmation
+          message={lastAffirmation.message}
+          color={lastAffirmation.color}
+          accentBg={lastAffirmation.accentBg}
+          onDone={() => setLastAffirmation(null)}
+        />
+      )}
+
       {/* Context-smart grid: each card uses its own colour identity */}
       <div className="grid grid-cols-2 gap-3">
         {TOOLS.map(tool => (
