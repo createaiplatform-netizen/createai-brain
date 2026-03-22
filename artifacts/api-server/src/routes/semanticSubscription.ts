@@ -17,11 +17,24 @@
  *   2. The registry will auto-detect it on next refresh and serve it here
  */
 
+/**
+ * SCALABILITY UPGRADE — routes/semanticSubscription.ts
+ * ──────────────────────────────────────────────────────
+ * WHAT ADDED:
+ *   - GET /checkout/:priceId rate-limited with publicLookupLimiter (20/min).
+ *     This endpoint makes an outbound Stripe API call — each request has real
+ *     external cost. Rate limiting prevents accidental or malicious amplification.
+ *   - priceId validation (startsWith "price_") was already present — preserved.
+ *
+ * WHY SAFE: No response shape changes. Legitimate traffic is unaffected.
+ * SCALE PATH: Swap limiter store to RedisStore in publicLimiters.ts.
+ */
 import { Router, type Request, type Response } from "express";
 import { getRegistry }                      from "../semantic/registry.js";
 import { getUncachableStripeClient }        from "../services/integrations/stripeClient.js";
 import { getPublicBaseUrl }                 from "../utils/publicUrl.js";
 import { getOrCreateSubscriptionPrices }   from "../services/subscriptionPrices.js";
+import { publicLookupLimiter }             from "../middlewares/publicLimiters.js";
 
 const router = Router();
 
@@ -306,7 +319,8 @@ router.get("/landing", (_req: Request, res: Response) => {
 });
 
 // ── GET /checkout/subscribe/:priceId ─────────────────────────────────────────
-router.get("/checkout/:priceId", async (req: Request, res: Response) => {
+// Rate-limited: each hit makes an outbound Stripe API call with real cost.
+router.get("/checkout/:priceId", publicLookupLimiter, async (req: Request, res: Response) => {
   try {
     const priceId = String(req.params["priceId"] ?? "");
     if (!priceId.startsWith("price_")) {

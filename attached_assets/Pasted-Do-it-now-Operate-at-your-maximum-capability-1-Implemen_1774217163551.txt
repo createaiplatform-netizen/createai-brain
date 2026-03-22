@@ -1,0 +1,49 @@
+Do it now.
+
+Operate at your maximum capability.
+
+1) Implementation:
+Using the full backend, schema, and route map you already generated, evolve this platform to the highest level of scalability, safety, and performance you can achieve WITHOUT breaking existing behavior or changing any public API contracts.
+
+- Apply ALL safe upgrades you can identify, including but not limited to:
+  - strict validation for all public POST and DB-heavy GET routes
+  - intelligent per-route rate limiting
+  - centralized config for limits, validation, and safety thresholds
+  - structured logging for rejected and rate-limited requests
+  - all safe, non-breaking database indexes
+  - cluster-ready server refactors (no critical in-memory state)
+  - job queue abstraction (inline for now, ready for external queues)
+  - API-level enforcement of safety rules
+  - any additional optimizations that increase throughput, stability, or resilience
+
+- Do NOT:
+  - introduce external infra that would break this environment (Redis, S3, external queues, replicas)
+  - change auth behavior
+  - change public API response shapes
+  - remove existing functionality
+
+If any change risks breakage or requires guessing about business rules, stop on that part, leave a clear TODO, and move on to the next safe improvement. Continue until you have no further safe, meaningful upgrades left.
+
+2) Projections (your own estimate):
+After implementing all safe upgrades you can, compute and report YOUR best estimate of this platform’s revenue capacity, assuming it is used at full strength:
+
+- minimum and maximum safe revenue per:
+  - 1 hour
+  - 12 hours
+  - 24 hours
+  - 48 hours (2 days)
+  - 72 hours (3 days)
+  - 96 hours (4 days)
+
+Base your estimates ONLY on:
+- the architecture and code you see
+- the scalability and safety upgrades you just applied
+- realistic, safe throughput and conversion assumptions
+
+3) Output:
+When finished:
+- summarize all code changes (files, purpose, and impact on scalability/safety)
+- list any TODOs where you could not safely proceed
+- then output your minimum and maximum safe revenue estimates for each time window above.
+
+Do all of this immediately and continuously until there are no further safe improvements left to make.

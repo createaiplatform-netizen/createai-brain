@@ -41,6 +41,31 @@ interface TrustedDevice {
   userAgent: string;
 }
 
+// ── IN-MEMORY STATE — RESTART RISK ───────────────────────────────────────────
+// TODO [cluster-critical]: All three stores below are plain Maps — not DB-backed.
+//
+//   tokenStore:      Lost on restart → any in-flight magic link becomes invalid
+//                    mid-flow. User must re-request the link after a restart.
+//   trustedDevices:  Lost on restart → all trusted device registrations
+//                    disappear. platform_trusted_devices TABLE already exists
+//                    in the DB schema but is not yet wired here.
+//   rateLimitStore:  Lost on restart → per-email rate limits reset, allowing
+//                    a burst of magic link requests immediately after a restart.
+//
+//   MITIGATION REQUIRED BEFORE CLUSTERING OR PRODUCTION HARDENING:
+//   - tokenStore:     Store tokens in a DB table (e.g., platform_magic_tokens)
+//                     with TTL enforced via DELETE WHERE expires_at < NOW().
+//   - trustedDevices: Wire directly to `platform_trusted_devices` table
+//                     (already exists — just needs read/write queries).
+//   - rateLimitStore: Move to Redis (or use DB count query with timestamp window)
+//                     scoped per email.
+//
+//   CURRENT FAIL-SAFE BEHAVIOR:
+//   - tokenStore expiry (15 min) is enforced in-memory — lost tokens just
+//     require a new magic link request. No security breach, only UX friction.
+//   - Trusted device loss causes re-auth prompts, not unauthorized access.
+//   - Rate limit reset allows a short burst after restart — low severity.
+// ─────────────────────────────────────────────────────────────────────────────
 const tokenStore = new Map<string, MagicToken>();
 const trustedDevices = new Map<string, TrustedDevice>();
 const rateLimitStore = new Map<string, number[]>(); // email -> timestamps

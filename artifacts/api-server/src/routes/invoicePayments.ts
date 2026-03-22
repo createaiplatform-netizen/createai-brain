@@ -102,6 +102,25 @@ export interface Invoice {
   updatedAt: number;
 }
 
+// ── IN-MEMORY STATE — RESTART RISK ───────────────────────────────────────────
+// TODO [cluster-critical]: invoiceStore is a plain Map — not DB-backed.
+//   RISK: All in-flight and draft invoices are permanently lost on process
+//   restart, crash, or deployment. In a clustered setup, each instance holds
+//   a different invoice state — the same invoice ID returns 404 on a different
+//   pod.
+//
+//   MITIGATION REQUIRED BEFORE CLUSTERING OR PRODUCTION HARDENING:
+//   1. Create a `platform_invoices` table (or use `platform_outbound_log`) and
+//      persist every invoiceStore.set() call as a DB upsert.
+//   2. Read from DB on startup to re-hydrate invoiceStore (or remove the
+//      in-memory layer entirely and query DB directly).
+//   3. invoiceCounter must also be derived from MAX(invoice_number) in the DB,
+//      not a module-scoped integer.
+//
+//   CURRENT STATE: Safe for single-instance use. Data is lost on restart.
+//   This is an ACCEPTABLE risk while running as one process; it becomes a
+//   CRITICAL risk the moment a second instance or a deployment restart occurs.
+// ─────────────────────────────────────────────────────────────────────────────
 export const invoiceStore = new Map<string, Invoice>();
 let invoiceCounter = 1000;
 

@@ -50,6 +50,7 @@ import {
 } from "../lib/db.js";
 import { publicPostLimiter, consultLimiter } from "../middlewares/publicLimiters.js";
 import { PAYLOAD_LIMITS, VALIDATION, logRejection, safeIpHash } from "../config/platformConfig.js";
+import { jobQueue } from "../utils/jobQueue.js";
 
 const router = Router();
 const BASE   = getPublicBaseUrl();
@@ -486,10 +487,17 @@ router.post("/consult", consultLimiter, async (req: Request, res: Response) => {
       return;
     }
 
-    await saveFormSubmission("async-consult", "Async Health Consultation", { email: emailStr, complaint: b["complaint"], duration: b["duration"], severity: b["severity"] }, "");
+    // Fire-and-forget: form submission record is non-critical — response does not
+    // depend on this write. If it fails, the error is logged by jobQueue, not thrown.
+    // Scale path: swap jobQueue's inlineRunner for BullMQ in utils/jobQueue.ts
+    // without changing this call site.
+    jobQueue.enqueue("consult:save-form", () =>
+      saveFormSubmission("async-consult", "Async Health Consultation", { email: emailStr, complaint: b["complaint"], duration: b["duration"], severity: b["severity"] }, "")
+    );
 
     let summary = "";
     try {
+      // OpenAI call is AWAITED — response body depends on its output.
       const completion = await openai.chat.completions.create({
         model: "gpt-4o",
         messages: [{
@@ -503,7 +511,10 @@ router.post("/consult", consultLimiter, async (req: Request, res: Response) => {
         temperature: 0.3,
       });
       summary = completion.choices[0]?.message?.content?.trim() ?? "";
-      await saveAiGeneration("async-consult", { email: b["email"], complaint: b["complaint"] }, summary, completion.usage?.total_tokens ?? 0);
+      // Fire-and-forget: AI generation audit log does not affect the response.
+      jobQueue.enqueue("consult:save-ai-gen", () =>
+        saveAiGeneration("async-consult", { email: b["email"], complaint: b["complaint"] }, summary, completion.usage?.total_tokens ?? 0)
+      );
     } catch { /* don't fail the whole submission if AI errors */ }
 
     res.json({ ok: true, summary });

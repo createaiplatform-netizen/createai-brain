@@ -580,6 +580,15 @@ export async function bootstrapSchema(): Promise<void> {
     // GIN index on array column is the correct index type for = ANY() queries.
     await sql`CREATE INDEX IF NOT EXISTS idx_family_conv_participants ON platform_family_conversations USING GIN(participant_ids)`;
 
+    // platform_stripe_prices — queried by product_id when resolving product→price mappings
+    // (SELECT tier, price_id, product_id, amount FROM platform_stripe_prices).
+    // tier already has an implicit UNIQUE index. product_id is the external join key.
+    await sql`CREATE INDEX IF NOT EXISTS idx_stripe_prices_product ON platform_stripe_prices(product_id)`;
+
+    // platform_webhook_events — existing idx_webhook_events_type covers event_type filters.
+    // Adding created_at DESC covers chronological admin/audit queries and idempotency checks.
+    await sql`CREATE INDEX IF NOT EXISTS idx_webhook_events_created ON platform_webhook_events(created_at DESC)`;
+
     // platform_family_bank_transactions — queried by user via account join; also by created_at.
     // account_id index already exists (idx_fbank_txn_acct). Adding user-level if needed.
     // TODO: if direct user_id queries are added to this table, add idx_fbank_txn_user here.
