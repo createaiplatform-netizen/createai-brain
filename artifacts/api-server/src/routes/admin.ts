@@ -298,4 +298,99 @@ router.delete("/gdpr/delete/:userId", async (req, res) => {
   }
 });
 
+// ─── Ad Settings ───────────────────────────────────────────────────────────────
+// Table: platform_ad_settings
+// Stores platform choice, account ID, and daily budget.
+// API keys are read from env vars — never stored in DB.
+
+async function ensureAdSettingsTable() {
+  await db.execute(sql`
+    CREATE TABLE IF NOT EXISTS platform_ad_settings (
+      id              SERIAL PRIMARY KEY,
+      platform        TEXT    NOT NULL DEFAULT 'meta',
+      account_id      TEXT,
+      daily_budget_cents INTEGER NOT NULL DEFAULT 0,
+      enabled         BOOLEAN NOT NULL DEFAULT FALSE,
+      created_at      TIMESTAMPTZ NOT NULL DEFAULT NOW(),
+      updated_at      TIMESTAMPTZ NOT NULL DEFAULT NOW()
+    )
+  `);
+}
+
+router.get("/ad-settings", async (_req, res) => {
+  try {
+    await ensureAdSettingsTable();
+    const rows = await db.execute(sql`SELECT * FROM platform_ad_settings ORDER BY id LIMIT 1`);
+    const row = rows.rows[0] ?? null;
+    res.json({ settings: row });
+  } catch (err) {
+    console.error("[admin] GET /ad-settings:", err);
+    res.status(500).json({ error: "Failed to load ad settings" });
+  }
+});
+
+router.put("/ad-settings", async (req, res) => {
+  try {
+    await ensureAdSettingsTable();
+    const { platform, account_id, daily_budget_cents, enabled } = req.body as {
+      platform?: string;
+      account_id?: string;
+      daily_budget_cents?: number;
+      enabled?: boolean;
+    };
+
+    const existing = await db.execute(sql`SELECT id FROM platform_ad_settings LIMIT 1`);
+
+    if (existing.rows.length === 0) {
+      await db.execute(sql`
+        INSERT INTO platform_ad_settings (platform, account_id, daily_budget_cents, enabled)
+        VALUES (
+          ${platform ?? "meta"}::text,
+          ${account_id ?? null}::text,
+          ${daily_budget_cents ?? 0},
+          ${enabled ?? false}
+        )
+      `);
+    } else {
+      await db.execute(sql`
+        UPDATE platform_ad_settings SET
+          platform           = ${platform ?? "meta"}::text,
+          account_id         = ${account_id ?? null}::text,
+          daily_budget_cents = ${daily_budget_cents ?? 0},
+          enabled            = ${enabled ?? false},
+          updated_at         = NOW()
+        WHERE id = ${existing.rows[0].id as number}
+      `);
+    }
+
+    const saved = await db.execute(sql`SELECT * FROM platform_ad_settings LIMIT 1`);
+    res.json({ ok: true, settings: saved.rows[0] });
+  } catch (err) {
+    console.error("[admin] PUT /ad-settings:", err);
+    res.status(500).json({ error: "Failed to save ad settings" });
+  }
+});
+
+router.get("/ad-settings/status", async (_req, res) => {
+  try {
+    await ensureAdSettingsTable();
+    const rows = await db.execute(sql`SELECT * FROM platform_ad_settings LIMIT 1`);
+    const settings = rows.rows[0] ?? null;
+
+    const metaConnected    = !!(process.env.META_ADS_ACCESS_TOKEN && process.env.META_ADS_ACCOUNT_ID);
+    const googleConnected  = !!(process.env.GOOGLE_ADS_DEVELOPER_TOKEN && process.env.GOOGLE_ADS_CUSTOMER_ID);
+
+    res.json({
+      settings,
+      connectivity: {
+        meta:   metaConnected,
+        google: googleConnected,
+      },
+    });
+  } catch (err) {
+    console.error("[admin] GET /ad-settings/status:", err);
+    res.status(500).json({ error: "Failed to load ad status" });
+  }
+});
+
 export default router;

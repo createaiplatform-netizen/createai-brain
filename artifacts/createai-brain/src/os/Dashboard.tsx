@@ -86,6 +86,8 @@ export function Dashboard({ onHamburger, onShowTour }: DashboardProps) {
   const [sysStats, setSysStats]               = useState<SystemStats | null>(null);
   const searchTimerRef = React.useRef<ReturnType<typeof setTimeout> | null>(null);
   const [loadingRecents, setLoadingRecents]   = useState(true);
+  const [adStatus, setAdStatus]               = useState<{ platform: string; daily_budget_cents: number; enabled: boolean } | null>(null);
+  const [adConnected, setAdConnected]         = useState<boolean>(false);
 
   const cfg = MODE_CFG[platformMode];
 
@@ -110,6 +112,21 @@ export function Dashboard({ onHamburger, onShowTour }: DashboardProps) {
   }, []);
 
   useEffect(() => { loadRecents(); }, [loadRecents]);
+
+  useEffect(() => {
+    const role = (user as { role?: string } | null)?.role ?? "";
+    if (!["founder", "admin"].includes(role)) return;
+    fetch("/api/admin/ad-settings/status", { credentials: "include" })
+      .then(r => r.ok ? r.json() : null)
+      .then(d => {
+        if (!d) return;
+        if (d.settings) setAdStatus(d.settings as { platform: string; daily_budget_cents: number; enabled: boolean });
+        const platform = d.settings?.platform ?? "meta";
+        const connected = platform === "meta" ? d.connectivity?.meta : d.connectivity?.google;
+        setAdConnected(!!connected);
+      })
+      .catch(() => {});
+  }, [user]);
   useEffect(() => {
     const stored = PlatformStore.getRecent();
     if (stored.length > 0) loadRecents();
@@ -543,6 +560,32 @@ export function Dashboard({ onHamburger, onShowTour }: DashboardProps) {
                       style={{ color: "#6366f1", background: "#eef2ff" }}>Open</span>
                   </button>
                 ))}
+              </div>
+            </section>
+          )}
+
+          {/* ── Ad Status (admin-only) ── */}
+          {adStatus && ["founder", "admin"].includes((user as { role?: string } | null)?.role ?? "") && (
+            <section className={`transition-opacity duration-500 delay-200 ${mounted ? "opacity-100" : "opacity-0"}`}>
+              <p className="text-[11px] font-semibold uppercase tracking-widest mb-3" style={{ color: "#c4c9d4" }}>Ad Integration</p>
+              <div className="flex items-center gap-3 p-3.5 rounded-2xl"
+                style={{ background: "#fff", border: "1px solid rgba(99,102,241,0.14)", boxShadow: "0 1px 4px rgba(99,102,241,0.06)" }}>
+                <div className="w-9 h-9 rounded-xl flex items-center justify-center text-lg flex-shrink-0"
+                  style={{ background: "rgba(99,102,241,0.1)" }}>📣</div>
+                <div className="flex-1 min-w-0">
+                  <p className="text-[12px] font-semibold truncate" style={{ color: "#4338ca" }}>
+                    {adStatus.platform === "meta" ? "Meta Ads" : "Google Ads"}
+                  </p>
+                  <p className="text-[10px] truncate" style={{ color: "#94a3b8" }}>
+                    Budget: {adStatus.daily_budget_cents > 0 ? `$${(adStatus.daily_budget_cents / 100).toFixed(2)}/day` : "Not set"}
+                  </p>
+                </div>
+                <span className="text-[10px] font-bold px-2 py-1 rounded-full flex-shrink-0"
+                  style={adConnected
+                    ? { background: "#f0fdf4", color: "#16a34a", border: "1px solid #bbf7d0" }
+                    : { background: "#f8fafc", color: "#94a3b8", border: "1px solid #e2e8f0" }}>
+                  {adConnected ? "Connected" : "Not Connected"}
+                </span>
               </div>
             </section>
           )}

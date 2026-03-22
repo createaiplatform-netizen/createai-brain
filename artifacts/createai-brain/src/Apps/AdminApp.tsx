@@ -28,6 +28,7 @@ const SECTIONS = [
   { id: "subscriptions",       label: "Revenue & Tiers",    value: "Live",   icon: "💳", desc: "Manage user subscription tiers and revenue share (platform cut %)" },
   { id: "observability",       label: "Observability",      value: "Live",   icon: "📊", desc: "Live server health, memory, AI streams, telemetry — auto-refreshes every 5s" },
   { id: "reset",               label: "Reset My Space",     value: "Owner",  icon: "🔄", desc: "Archive all active projects and start fresh" },
+  { id: "ad-settings",         label: "Ad Settings",        value: "Setup",  icon: "📣", desc: "Prepare Meta and Google Ads integration structure" },
 ];
 
 const ENGINE_LIST = [
@@ -426,6 +427,178 @@ function AdminUsersSection({ onBack, onGoToPeople }: { onBack: () => void; onGoT
           </>
         )}
       </div>
+    </div>
+  );
+}
+
+// ─── AdSettingsSection ────────────────────────────────────────────────────────
+function AdSettingsSection({ onBack }: { onBack: () => void }) {
+  const [platform, setPlatform] = useState<"meta" | "google">("meta");
+  const [accountId, setAccountId] = useState("");
+  const [dailyBudget, setDailyBudget] = useState("0");
+  const [enabled, setEnabled] = useState(false);
+  const [loading, setLoading] = useState(true);
+  const [saving, setSaving] = useState(false);
+  const [saved, setSaved] = useState(false);
+  const [error, setError] = useState("");
+
+  useEffect(() => {
+    fetch("/api/admin/ad-settings", { credentials: "include" })
+      .then(r => r.json())
+      .then(data => {
+        if (data.settings) {
+          setPlatform((data.settings.platform as "meta" | "google") ?? "meta");
+          setAccountId(data.settings.account_id ?? "");
+          setDailyBudget(String(Math.round((data.settings.daily_budget_cents ?? 0) / 100)));
+          setEnabled(!!data.settings.enabled);
+        }
+      })
+      .catch(() => {})
+      .finally(() => setLoading(false));
+  }, []);
+
+  async function handleSave(e: React.FormEvent) {
+    e.preventDefault();
+    setSaving(true);
+    setSaved(false);
+    setError("");
+    try {
+      const res = await fetch("/api/admin/ad-settings", {
+        method: "PUT",
+        headers: { "Content-Type": "application/json" },
+        credentials: "include",
+        body: JSON.stringify({
+          platform,
+          account_id: accountId.trim() || null,
+          daily_budget_cents: Math.round(parseFloat(dailyBudget || "0") * 100),
+          enabled,
+        }),
+      });
+      if (!res.ok) throw new Error("Save failed");
+      setSaved(true);
+      setTimeout(() => setSaved(false), 3000);
+    } catch {
+      setError("Failed to save. Please try again.");
+    } finally {
+      setSaving(false);
+    }
+  }
+
+  return (
+    <div className="p-5 space-y-4 overflow-y-auto">
+      <div className="flex items-center gap-2">
+        <button onClick={onBack} className="text-primary text-sm font-medium">‹ Admin</button>
+        <h2 className="text-[16px] font-bold text-foreground flex-1">📣 Ad Settings</h2>
+      </div>
+
+      <div className="rounded-xl border border-border/50 p-3 bg-muted/30">
+        <p className="text-[11px] text-muted-foreground">
+          This page prepares the ad integration structure. No live ads will run until you add real API keys
+          via environment variables (<code className="font-mono text-[10px]">META_ADS_ACCESS_TOKEN</code>,{" "}
+          <code className="font-mono text-[10px]">GOOGLE_ADS_DEVELOPER_TOKEN</code>).
+        </p>
+      </div>
+
+      {loading ? (
+        <div className="flex items-center gap-2 text-[12px] text-muted-foreground py-4">
+          <span className="w-3 h-3 border-2 border-primary border-t-transparent rounded-full animate-spin" />
+          Loading…
+        </div>
+      ) : (
+        <form onSubmit={handleSave} className="space-y-4">
+          {/* Platform */}
+          <div className="space-y-1.5">
+            <label className="text-[11px] font-semibold text-foreground uppercase tracking-wide">Platform</label>
+            <select
+              value={platform}
+              onChange={e => setPlatform(e.target.value as "meta" | "google")}
+              className="w-full rounded-xl border border-border/60 bg-background text-foreground text-[13px] px-3 py-2.5 focus:outline-none focus:ring-2 focus:ring-primary/40"
+            >
+              <option value="meta">Meta (Facebook / Instagram)</option>
+              <option value="google">Google Ads</option>
+            </select>
+          </div>
+
+          {/* Account ID */}
+          <div className="space-y-1.5">
+            <label className="text-[11px] font-semibold text-foreground uppercase tracking-wide">
+              Account ID
+            </label>
+            <input
+              type="text"
+              value={accountId}
+              onChange={e => setAccountId(e.target.value)}
+              placeholder={platform === "meta" ? "e.g. act_123456789" : "e.g. 123-456-7890"}
+              className="w-full rounded-xl border border-border/60 bg-background text-foreground text-[13px] px-3 py-2.5 focus:outline-none focus:ring-2 focus:ring-primary/40 placeholder:text-muted-foreground/50"
+            />
+          </div>
+
+          {/* API Key note */}
+          <div className="rounded-xl border border-border/40 p-3 bg-muted/20 space-y-1">
+            <p className="text-[11px] font-semibold text-foreground">API Key / Access Token</p>
+            <p className="text-[11px] text-muted-foreground">
+              Set via environment variable — not stored here.
+            </p>
+            <code className="text-[10px] font-mono text-primary block mt-1">
+              {platform === "meta" ? "META_ADS_ACCESS_TOKEN" : "GOOGLE_ADS_DEVELOPER_TOKEN"}
+            </code>
+          </div>
+
+          {/* Daily Budget */}
+          <div className="space-y-1.5">
+            <label className="text-[11px] font-semibold text-foreground uppercase tracking-wide">
+              Daily Budget Limit (USD)
+            </label>
+            <div className="relative">
+              <span className="absolute left-3 top-1/2 -translate-y-1/2 text-[13px] text-muted-foreground">$</span>
+              <input
+                type="number"
+                min="0"
+                step="0.01"
+                value={dailyBudget}
+                onChange={e => setDailyBudget(e.target.value)}
+                className="w-full rounded-xl border border-border/60 bg-background text-foreground text-[13px] pl-7 pr-3 py-2.5 focus:outline-none focus:ring-2 focus:ring-primary/40"
+              />
+            </div>
+            <p className="text-[10px] text-muted-foreground">Set to 0 to leave unrestricted. Used as a reference limit only until API keys are active.</p>
+          </div>
+
+          {/* Enabled toggle */}
+          <div className="flex items-center justify-between rounded-xl border border-border/50 p-3 bg-muted/20">
+            <div>
+              <p className="text-[13px] font-semibold text-foreground">Integration Active</p>
+              <p className="text-[10px] text-muted-foreground">Marks this config as ready (still requires API keys to send real traffic)</p>
+            </div>
+            <button
+              type="button"
+              onClick={() => setEnabled(v => !v)}
+              className={`relative w-10 h-5 rounded-full transition-colors flex-shrink-0 ${enabled ? "bg-primary" : "bg-muted"}`}
+            >
+              <span className={`absolute top-0.5 w-4 h-4 bg-white rounded-full shadow transition-transform ${enabled ? "translate-x-5" : "translate-x-0.5"}`} />
+            </button>
+          </div>
+
+          {saved && (
+            <div className="rounded-xl p-3 text-[12px] font-medium" style={{ background: "rgba(16,185,129,0.1)", color: "#34d399", border: "1px solid rgba(16,185,129,0.25)" }}>
+              ✓ Ad settings saved.
+            </div>
+          )}
+          {error && (
+            <div className="rounded-xl p-3 text-[12px] font-medium" style={{ background: "rgba(239,68,68,0.08)", color: "#f87171", border: "1px solid rgba(239,68,68,0.20)" }}>
+              {error}
+            </div>
+          )}
+
+          <button
+            type="submit"
+            disabled={saving}
+            className="w-full py-2.5 rounded-xl text-[13px] font-bold transition-all"
+            style={{ background: "#6366f1", color: "#fff", opacity: saving ? 0.7 : 1 }}
+          >
+            {saving ? "Saving…" : "Save Ad Settings"}
+          </button>
+        </form>
+      )}
     </div>
   );
 }
@@ -1702,6 +1875,11 @@ export function AdminApp() {
         )}
       </div>
     );
+  }
+
+  // ── Ad Settings ──
+  if (activeSection === "ad-settings") {
+    return <AdSettingsSection onBack={() => setActiveSection(null)} />;
   }
 
   // ── Main Admin view ──
