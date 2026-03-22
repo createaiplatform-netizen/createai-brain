@@ -196,7 +196,41 @@ export function Sidebar({ onNav, forceCollapsed, forceExpanded }: SidebarProps) 
             collapsed={collapsed}
             onClick={() => handleNav(() => { closeApp(); setLocation("/"); })}
           />
-          <div style={{ height: 2 }} />
+          <div style={{ height: 3 }} />
+          {/* ── Family Universe link ── */}
+          <button
+            onClick={() => handleNav(() => setLocation("/family-hub"))}
+            title={collapsed ? "🌟 Family Universe" : undefined}
+            style={{
+              width: "100%", display: "flex", alignItems: "center",
+              gap: collapsed ? 0 : 7, height: 30, borderRadius: 8,
+              padding: collapsed ? "0" : "0 8px",
+              justifyContent: collapsed ? "center" : "flex-start",
+              background: location === "/family-hub"
+                ? "rgba(245,158,11,0.18)"
+                : "rgba(245,158,11,0.08)",
+              border: `1px solid ${location === "/family-hub" ? "rgba(245,158,11,0.40)" : "rgba(245,158,11,0.20)"}`,
+              cursor: "pointer", transition: "background 0.12s, border-color 0.12s",
+            }}
+            onMouseEnter={e => {
+              (e.currentTarget as HTMLElement).style.background = "rgba(245,158,11,0.16)";
+              (e.currentTarget as HTMLElement).style.borderColor = "rgba(245,158,11,0.35)";
+            }}
+            onMouseLeave={e => {
+              (e.currentTarget as HTMLElement).style.background =
+                location === "/family-hub" ? "rgba(245,158,11,0.18)" : "rgba(245,158,11,0.08)";
+              (e.currentTarget as HTMLElement).style.borderColor =
+                location === "/family-hub" ? "rgba(245,158,11,0.40)" : "rgba(245,158,11,0.20)";
+            }}
+          >
+            <span style={{ fontSize: 13, flexShrink: 0 }}>🌟</span>
+            {!collapsed && (
+              <span style={{ fontSize: 10.5, fontWeight: 700, color: "#d97706", flex: 1, textAlign: "left" }}>
+                Family Universe
+              </span>
+            )}
+          </button>
+          <div style={{ height: 3 }} />
           {pinnedApps.map(app => (
             <NavItem
               key={app.id}
