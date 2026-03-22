@@ -20,6 +20,8 @@ import SmartFhirCallbackApp from "@/Apps/SmartFhirCallbackApp";
 import SmartFhirConnectedApp from "@/Apps/SmartFhirConnectedApp";
 import NpaGatewayPage from "@/pages/NpaGatewayPage";
 import FamilyHubPage from "@/pages/FamilyHubPage";
+import PublicBridgePage from "@/pages/PublicBridgePage";
+import PublicFamilyPage from "@/pages/PublicFamilyPage";
 
 import MetricsPage from "@/pages/MetricsPage";
 import AboveTranscendPage from "@/pages/AboveTranscendPage";
@@ -500,7 +502,9 @@ function App() {
     // SMART-on-FHIR OAuth callback/connected pages must be accessible without auth gate
     // because the browser redirects here from the external SMART sandbox
     path.startsWith(`${base}/connectors/`) ||
-    path.startsWith(`${base}/npa-gateway`);
+    path.startsWith(`${base}/npa-gateway`) ||
+    // External Bridge Layer — full public presence, no auth required
+    path.startsWith(`${base}/public`);
 
   if (isPublicRoute) {
     return (
@@ -535,6 +539,9 @@ function App() {
           <Route path="/connectors/SMART_FHIR_SANDBOX/callback"  component={SmartFhirCallbackApp} />
           {/* SMART-on-FHIR connected confirmation + test fetch UI */}
           <Route path="/connectors/SMART_FHIR_SANDBOX/connected" component={SmartFhirConnectedApp} />
+          {/* External Bridge Layer — full public presence, auto-indexed */}
+          <Route path="/public" component={PublicBridgePage} />
+          <Route path="/public/family" component={PublicFamilyPage} />
         </WouterRouter>
       </QueryClientProvider>
     );

@@ -154,6 +154,8 @@ app.get("/sitemap.xml", async (_req: Request, res: Response) => {
 
     const coreUrls =
       "\n  <url><loc>" + BASE + "/</loc><lastmod>" + now + "</lastmod><changefreq>daily</changefreq><priority>1.0</priority></url>" +
+      "\n  <url><loc>" + BASE + "/public</loc><lastmod>" + now + "</lastmod><changefreq>weekly</changefreq><priority>0.98</priority></url>" +
+      "\n  <url><loc>" + BASE + "/public/family</loc><lastmod>" + now + "</lastmod><changefreq>weekly</changefreq><priority>0.96</priority></url>" +
       "\n  <url><loc>" + BASE + "/store</loc><lastmod>" + now + "</lastmod><changefreq>daily</changefreq><priority>0.95</priority></url>" +
       "\n  <url><loc>" + BASE + "/family-hub</loc><lastmod>" + now + "</lastmod><changefreq>weekly</changefreq><priority>0.90</priority></url>" +
       "\n  <url><loc>" + BASE + "/above-transcend</loc><lastmod>" + now + "</lastmod><changefreq>daily</changefreq><priority>0.85</priority></url>" +
@@ -220,6 +222,9 @@ app.get("/robots.txt", (_req: Request, res: Response) => {
     "Allow: /\n" +
     "Allow: /store\n" +
     "Allow: /store/\n" +
+    "Allow: /public\n" +
+    "Allow: /public/\n" +
+    "Allow: /public/family\n" +
     "Allow: /family-hub\n" +
     "Allow: /above-transcend\n" +
     "Allow: /for/\n" +

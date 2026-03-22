@@ -776,13 +776,14 @@ function InventionIdeasTool({ onSave }: { onSave: (title: string, desc: string) 
 
 type Tool = "story" | "art" | "video" | "memory" | "challenge" | "invention" | null;
 
-const TOOLS: { id: Tool & string; icon: string; label: string; subtitle: string; color: string }[] = [
-  { id: "story",     icon: "📖", label: "Story Maker",       subtitle: "Write a family story",        color: "#7a9068" },
-  { id: "art",       icon: "🎨", label: "Art Studio",        subtitle: "Create an art idea",           color: "#c4a97a" },
-  { id: "video",     icon: "🎬", label: "Video Moments",     subtitle: "Plan a family video",          color: "#8c7c5e" },
-  { id: "memory",    icon: "💌", label: "Memory Cards",      subtitle: "Capture a special moment",     color: "#0891b2" },
-  { id: "challenge", icon: "🎯", label: "Family Challenges", subtitle: "Create a family activity",     color: "#059669" },
-  { id: "invention", icon: "💡", label: "Invention Ideas",   subtitle: "Dream up something new",       color: "#0ea5e9" },
+// Context-smart colours: each tool gets the right feel for its purpose
+const TOOLS: { id: Tool & string; icon: string; label: string; subtitle: string; color: string; accentBg: string }[] = [
+  { id: "story",     icon: "📖", label: "Story Maker",       subtitle: "Write a family story",        color: "#8c7c5e", accentBg: "#f0e8d8" },
+  { id: "art",       icon: "🎨", label: "Art Studio",        subtitle: "Create an art idea",           color: "#6b8f5e", accentBg: "#dce8d4" },
+  { id: "video",     icon: "🎬", label: "Video Moments",     subtitle: "Plan a family video",          color: "#5a6b52", accentBg: "#d8e0d2" },
+  { id: "memory",    icon: "💌", label: "Memory Cards",      subtitle: "Capture a special moment",     color: "#b8905a", accentBg: "#f5e8cc" },
+  { id: "challenge", icon: "🎯", label: "Family Challenges", subtitle: "Create a family activity",     color: "#6d8a4e", accentBg: "#d8eccc" },
+  { id: "invention", icon: "💡", label: "Invention Ideas",   subtitle: "Dream up something new",       color: "#7a8a5e", accentBg: "#e4e8cc" },
 ];
 
 function CreateTab({ onSaveToGallery }: { onSaveToGallery: (title: string, type: Creation["type"], desc: string) => void }) {
@@ -802,17 +803,23 @@ function CreateTab({ onSaveToGallery }: { onSaveToGallery: (title: string, type:
   if (activeTool) {
     const tool = TOOLS.find(t => t.id === activeTool)!;
     return (
-      <div>
+      // Context-smart wrapper — bg and accent shift to match the creation type
+      <div style={{ transition: "background 0.3s ease" }}>
         <button onClick={() => setActiveTool(null)}
-          className="flex items-center gap-2 mb-5 text-[13px] font-semibold" style={{ color: WARM_MUTED }}>
+          className="flex items-center gap-2 mb-5 text-[13px] font-semibold"
+          style={{ color: tool.color }}>
           ← Back to Create
         </button>
-        <div className="flex items-center gap-3 mb-5">
+        {/* Context-aware tool header */}
+        <div className="flex items-center gap-3 mb-5 px-4 py-4 rounded-2xl"
+          style={{ background: tool.accentBg, border: `1px solid ${tool.color}22` }}>
           <div className="w-12 h-12 rounded-2xl flex items-center justify-center text-2xl flex-shrink-0"
-            style={{ background: tool.color + "20" }}>{tool.icon}</div>
+            style={{ background: "#fff", boxShadow: `0 2px 8px ${tool.color}20` }}>
+            {tool.icon}
+          </div>
           <div>
             <h2 className="font-black text-[18px]" style={{ color: WARM_TEXT }}>{tool.label}</h2>
-            <p className="text-[12px]" style={{ color: WARM_MUTED }}>{tool.subtitle}</p>
+            <p className="text-[12px]" style={{ color: tool.color }}>{tool.subtitle}</p>
           </div>
         </div>
         {activeTool === "story"     && <StoryMakerTool onSave={saveHandler} />}
@@ -833,15 +840,23 @@ function CreateTab({ onSaveToGallery }: { onSaveToGallery: (title: string, type:
           Choose what you want to create today.
         </p>
       </div>
+      {/* Context-smart grid: each card uses its own colour identity */}
       <div className="grid grid-cols-2 gap-3">
         {TOOLS.map(tool => (
           <button key={tool.id} onClick={() => setActiveTool(tool.id as Tool)}
-            className="flex flex-col items-start gap-2 p-4 rounded-2xl text-left transition-all active:scale-95"
-            style={{ background: tool.color + "12", border: `1.5px solid ${tool.color}22` }}>
-            <span className="text-3xl">{tool.icon}</span>
+            className="flex flex-col items-start gap-2.5 p-4 rounded-2xl text-left transition-all active:scale-95"
+            style={{
+              background: tool.accentBg,
+              border: `1.5px solid ${tool.color}28`,
+              boxShadow: `0 2px 8px ${tool.color}14`,
+            }}>
+            <div className="w-10 h-10 rounded-xl flex items-center justify-center text-xl"
+              style={{ background: "#fff", boxShadow: `0 2px 6px ${tool.color}18` }}>
+              {tool.icon}
+            </div>
             <div>
               <p className="font-bold text-[13px]" style={{ color: WARM_TEXT }}>{tool.label}</p>
-              <p className="text-[11px] mt-0.5" style={{ color: WARM_MUTED }}>{tool.subtitle}</p>
+              <p className="text-[11px] mt-0.5" style={{ color: tool.color }}>{tool.subtitle}</p>
             </div>
           </button>
         ))}
