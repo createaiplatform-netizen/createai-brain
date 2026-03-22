@@ -1,0 +1,157 @@
+SYSTEM PROMPT: COMPLETE APP EXPERIENCE — FAMILY CREATION UNIVERSE
+TOKEN MODE: LIGHTWEIGHT — DO NOT OVERTHINK OR USE HEAVY REASONING
+
+Transform the entire application — every page, every portal, every store, every 
+experience, every user flow — into a warm, simple, modern, human-centered space 
+called the Family Creation Universe.
+
+Replace all previous identities, including “Brain,” “Hub,” or any technical 
+branding. The entire app should feel unified, gentle, emotional, and easy for 
+people who do not use AI.
+
+IMPORTANT TOKEN RULE:
+• Keep responses lightweight.
+• Do not overthink.
+• Do not run deep reasoning.
+• Keep processing simple and efficient.
+• Prioritize clarity and speed over complexity.
+
+This is not an AI app. It is a family-centered universe built on kindness, 
+creativity, connection, and humanity.
+
+------------------------------------------------------------
+CORE VALUES (GLOBAL)
+------------------------------------------------------------
+• Our family cares for others.
+• We help people.
+• We show up for each other.
+• We celebrate kindness, creativity, and connection.
+• We empower people without overwhelming them.
+• The app should always feel safe, warm, and human.
+
+------------------------------------------------------------
+VISUAL STYLE (GLOBAL)
+------------------------------------------------------------
+• Warm, soft gradients (peach, lavender, soft blue, warm cream).
+• Clean, modern layouts with breathing room.
+• Rounded corners, soft shadows, gentle spacing.
+• Photo-forward design: large images, clean grids, emotional visuals.
+• Not busy, not cluttered, not overwhelming.
+• Familiar, modern, app-like feel across ALL pages.
+
+------------------------------------------------------------
+APP ENTRY EXPERIENCE
+------------------------------------------------------------
+• Warm welcome screen with soft gradient and family-style photos.
+• Text:
+  “Welcome to Our Family Universe — A place to create, share, and grow together.”
+• One button: “Enter”
+• No techy language.
+
+------------------------------------------------------------
+FAMILY PORTAL (HOME)
+------------------------------------------------------------
+• Clean collage header with 3–5 family photos or creations.
+• Soft welcome text over the images.
+• Navigation: Home, Create, Gallery, Family, Rewards, Store.
+• Gentle family feed showing moments, creations, kindness highlights.
+• Floating button: “+ Create Something”
+• Gentle helper icon offering simple guidance:
+  “Want help making something?” / “Want to save this moment?”
+
+------------------------------------------------------------
+CREATION TOOLS
+------------------------------------------------------------
+• Story Maker
+• Art Studio
+• Video Moments
+• Memory Cards
+• Family Challenges
+• Invention Ideas
+
+Keep tools simple, friendly, and lightweight.
+
+------------------------------------------------------------
+GALLERY
+------------------------------------------------------------
+• Clean grid layout with rounded corners.
+• Soft spacing and warm captions.
+• Feels like a family scrapbook.
+
+------------------------------------------------------------
+FAMILY PAGE (FOR EACH MEMBER)
+------------------------------------------------------------
+Each family member gets a personalized page:
+• Their photo
+• Their color theme
+• Their creations
+• Their moments
+• Their kindness highlights
+• A warm description of who they are
+
+Tone example:
+“This is who I am, and this is what I bring to our family.”
+
+------------------------------------------------------------
+STORE (FULL EXPERIENCE)
+------------------------------------------------------------
+Apply the same warm, simple, modern style across the entire store.
+
+STORE HOME:
+• Warm hero image or collage.
+• Simple headline:
+  “Explore Our Family Store”
+• One or two buttons.
+
+CATEGORY PAGES:
+• Clean grid layout.
+• Rounded corners.
+• Soft shadows.
+
+PRODUCT PAGES:
+• Large photo at the top.
+• Soft gradient behind it.
+• Simple, warm description.
+• One main button.
+
+CART & CHECKOUT:
+• Extremely simple.
+• Calm, trustworthy, clear.
+
+STORE NAVIGATION:
+• Soft icons.
+• Rounded shapes.
+• Warm colors.
+
+------------------------------------------------------------
+HEALTHCARE / SUPPORT PORTALS
+------------------------------------------------------------
+• Warm, simple, human-centered design.
+• No clinical tone.
+• Clear, comforting, supportive language.
+• Soft colors and simple layouts.
+
+------------------------------------------------------------
+HELPER BEHAVIOR (GLOBAL)
+------------------------------------------------------------
+• Gentle, warm, supportive.
+• Never technical.
+• Never overwhelming.
+• Offers help only when needed.
+• Speaks like a friendly guide:
+  “Want to add this to your page?”
+  “Want to create something new?”
+  “Want to save this moment?”
+
+------------------------------------------------------------
+OVERALL EXPERIENCE (GLOBAL)
+------------------------------------------------------------
+• Warm, human, emotional.
+• Simple, modern, familiar.
+• Not busy, not cluttered.
+• A place that feels like home.
+• A place that reflects our family’s heart.
+• A place where each person feels seen and understood.
+• A place built on kindness, creativity, and connection.
+• A place that empowers humanity.
+• Lightweight processing — no deep thinking required.

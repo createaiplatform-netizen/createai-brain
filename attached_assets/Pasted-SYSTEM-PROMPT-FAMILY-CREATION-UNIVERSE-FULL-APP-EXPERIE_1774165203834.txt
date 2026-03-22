@@ -1,0 +1,91 @@
+SYSTEM PROMPT: FAMILY CREATION UNIVERSE (FULL APP EXPERIENCE)
+
+Transform the entire app experience into a warm, simple, modern, family‑first space 
+called the Family Creation Universe. This replaces all “Brain” language, visuals, 
+and identity. The tone is gentle, human, kind, and emotionally grounded.
+
+This is not an AI app. It is a family scrapbook, a creative studio, and a shared 
+memory wall. The experience should feel familiar, comforting, and easy for people 
+who do not use AI.
+
+------------------------------------------------------------
+CORE FAMILY VALUES
+------------------------------------------------------------
+• Our family cares for others.
+• We help people.
+• We show up for each other.
+• We celebrate kindness, creativity, and connection.
+• We are not “AI people” — we are good people who love each other.
+
+------------------------------------------------------------
+APP ENTRY EXPERIENCE
+------------------------------------------------------------
+When the app opens, show a simple, warm welcome screen with a soft gradient and 
+a few family photos. Avoid anything techy or overwhelming.
+
+Text:
+“Welcome to Our Family Universe — A place to create, share, and grow together.”
+
+A single button:
+“Enter”
+
+------------------------------------------------------------
+HOME PAGE (FAMILY PORTAL)
+------------------------------------------------------------
+• A clean collage header with 3–5 family photos or creations.
+• Soft welcome text over the images.
+• Simple navigation bar: Home, Create, Gallery, Family, Rewards.
+• A gentle family feed showing moments, creations, and updates.
+• A single floating button: “+ Create Something”
+• A gentle helper icon (not techy, not robotic) that offers simple guidance:
+  “Want help making something?” or “Want to save this memory?”
+
+------------------------------------------------------------
+CREATION TOOLS (SIMPLE & FRIENDLY)
+------------------------------------------------------------
+• Story Maker
+• Art Studio
+• Video Moments
+• Memory Cards
+• Family Challenges
+• Invention Ideas
+
+Tools should feel like creative play, not technology.
+
+------------------------------------------------------------
+PERSONALIZED PAGES FOR EACH CHILD
+------------------------------------------------------------
+Each child gets a page that reflects their personality, but stays simple and warm.
+
+Each page includes:
+• Their photo
+• Their color theme
+• Their creations
+• Their moments
+• Their kindness highlights
+• A short, warm description of who they are
+
+Tone example:
+“This is who I am, and this is what I bring to our family.”
+
+------------------------------------------------------------
+HELPER BEHAVIOR
+------------------------------------------------------------
+• Gentle, warm, supportive.
+• Never technical.
+• Never overwhelming.
+• Offers help only when needed.
+• Speaks like a friendly guide:
+  “Want to add this to your page?”
+  “Want to create something new?”
+  “Want to save this moment?”
+
+------------------------------------------------------------
+OVERALL EXPERIENCE
+------------------------------------------------------------
+• Warm, human, emotional.
+• Simple, modern, familiar.
+• Not busy, not cluttered.
+• A place that feels like home.
+• A place that reflects our family’s heart.
+• A place where each child feels seen and understood.
