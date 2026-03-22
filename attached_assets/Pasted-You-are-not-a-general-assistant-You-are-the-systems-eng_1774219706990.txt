@@ -1,0 +1,71 @@
+You are not a general assistant. You are the systems engineer for my private OS.
+
+Goal:
+Design and implement a safe, legal, fully internal “Virtual Internet” inside my app. This is NOT about real DNS or ICANN. This is an internal addressing, routing, and navigation layer that lives entirely inside my deployed app.
+
+Hard constraints:
+- You MUST NOT attempt to modify real DNS, Namecheap, ICANN, or any external registrar.
+- You MUST stay entirely inside the app’s codebase and runtime.
+- Everything you design must be safe, legal, and fully internal.
+- No hallucinations about external control. You only control code inside this project.
+
+I want you to implement a **Virtual Internet Layer** with:
+
+1) Internal URL scheme
+   - Support addresses like:
+     - family://home
+     - family://bank
+     - family://create
+     - family://gallery
+     - family://messages
+     - universe://hub
+   - These are NOT real URLs. They are internal addresses resolved only by my app.
+
+2) Internal router
+   - Create a TypeScript module that:
+     - Accepts a virtual URL string (e.g., "family://home")
+     - Maps it to a real route in my app (e.g., "/app/home")
+     - Validates permissions and identity before resolving
+     - Returns a typed result: { path: string; requiresAuth: boolean; role?: string }
+
+3) Navigation API
+   - Expose a function like:
+     - navigateToVirtualAddress("family://bank")
+   - This should:
+     - Resolve the virtual address via the router
+     - Push the correct route into my existing frontend router
+     - Log the navigation event for my internal analytics
+
+4) Internal domains
+   - Implement a simple registry for “virtual domains”:
+     - sara.family
+     - kids.universe
+     - malcolm.bank
+   - These are labels that map to:
+     - default virtual home address
+     - permissions / roles
+     - theme / layout preferences
+
+5) Safety and clarity
+   - Clearly separate:
+     - REAL internet: https://www.createai.digital (handled by DNS + browser)
+     - VIRTUAL internet: family://*, universe://*, *.family, *.universe (handled only by my app)
+   - Add comments in the code explaining this separation so no future engineer confuses them.
+
+Deliverables:
+- One or more TypeScript files implementing:
+  - The virtual URL types
+  - The router
+  - The navigation API
+  - The virtual domain registry
+- Example usage snippets showing:
+  - How to navigate using virtual addresses
+  - How to register a new virtual domain
+  - How to add a new virtual route
+
+Important:
+- Do NOT talk about what you “could” do. Just implement it.
+- If something is ambiguous, choose the safest, simplest implementation and explain it in comments.
+- All work must be compatible with a typical React/TypeScript SPA running on Replit.
+
+Begin by generating the TypeScript modules and explaining, in comments only, how they fit into the existing app.
