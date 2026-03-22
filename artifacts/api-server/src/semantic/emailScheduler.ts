@@ -16,8 +16,9 @@
  *   T+7  → "Based on [product], you might love..." + curated upsell picks
  */
 
-import { sendEmailNotification } from "../utils/notifications.js";
-import { PLATFORM } from "../services/platformIdentity.js";
+import { sendEmailNotification }                    from "../utils/notifications.js";
+import { PLATFORM }                                from "../services/platformIdentity.js";
+import { getLaunchFlag, LAUNCH_FLAG_KEYS }          from "../utils/launchFlags.js";
 
 export type JobStatus = "pending" | "sent" | "failed" | "skipped";
 export type JobType   = "followup_3d" | "upsell_7d";
@@ -217,6 +218,18 @@ function ensurePollerRunning(): void {
 
     for (const job of due) {
       try {
+        // Launch gates — check per job type before sending
+        const flagKey = job.type === "followup_3d"
+          ? LAUNCH_FLAG_KEYS.POST_PURCHASE_EMAILS
+          : LAUNCH_FLAG_KEYS.NURTURE_SEQUENCES;
+        const launchEnabled = await getLaunchFlag(flagKey);
+        if (!launchEnabled) {
+          job.status = "skipped";
+          job.sentAt = new Date().toISOString();
+          console.log(`[EmailScheduler] Job ${job.id} (${job.type}) skipped — launch flag '${flagKey}' is OFF`);
+          continue;
+        }
+
         const { subject, html } = job.type === "followup_3d"
           ? buildFollowupEmail(job)
           : buildUpsellEmail(job);

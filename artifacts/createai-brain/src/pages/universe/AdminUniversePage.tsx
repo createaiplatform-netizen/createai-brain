@@ -5,6 +5,7 @@
 // and manage data exports — all admin-only, all real data.
 
 import { useState, useEffect, useCallback } from "react";
+import LaunchControlPage, { LaunchStatusSummary } from "./LaunchControlPage";
 
 const SAGE = "#7a9068";
 const CREAM = "#faf9f6";
@@ -24,7 +25,7 @@ const ROLE_BADGE: Record<string, { color: string; bg: string; label: string }> =
   customer:      { label: "Customer",      color: "#6aab8a", bg: "rgba(106,171,138,0.12)" },
 };
 
-type Tab = "overview" | "users" | "devices" | "audit" | "agency";
+type Tab = "overview" | "users" | "devices" | "audit" | "agency" | "launch";
 
 interface UserRow {
   id: string;
@@ -246,11 +247,12 @@ export default function AdminUniversePage() {
       {/* Tabs */}
       <div className="px-6 flex gap-1 mb-6 overflow-x-auto scrollbar-hide">
         {([
-          { key: "overview", label: "Overview" },
-          { key: "users",    label: "Users" },
-          { key: "devices",  label: "Devices" },
+          { key: "overview", label: "Overview"  },
+          { key: "users",    label: "Users"     },
+          { key: "devices",  label: "Devices"   },
           { key: "audit",    label: "Audit Log" },
-          { key: "agency",   label: "Agency" },
+          { key: "agency",   label: "Agency"    },
+          { key: "launch",   label: "🎛️ Launch"  },
         ] as { key: Tab; label: string }[]).map(t => (
           <button
             key={t.key}
@@ -570,9 +572,13 @@ export default function AdminUniversePage() {
           </div>
         )}
 
+        {/* ── Launch & Outbound Control Tab ── */}
+        {tab === "launch" && <LaunchControlPage />}
+
         {/* ── Agency Center Tab ── */}
         {tab === "agency" && (
           <div className="flex flex-col gap-5">
+            <LaunchStatusSummary />
 
             {/* Platform Identity Card */}
             <div className="rounded-2xl p-5" style={{ background: "white", border: `1px solid ${BORDER}` }}>

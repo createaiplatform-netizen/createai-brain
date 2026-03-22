@@ -9,9 +9,10 @@
 //   • Fires asynchronously — never blocks auth redirect
 //   • Fails silently with a log entry — never crashes the auth flow
 
-import { getSql } from "../lib/db";
-import { outboundEngine } from "./outboundEngine";
-import { brandHtmlWrapper } from "./marketingKit";
+import { getSql }                                   from "../lib/db";
+import { outboundEngine }                           from "./outboundEngine";
+import { brandHtmlWrapper }                         from "./marketingKit";
+import { getLaunchFlag, LAUNCH_FLAG_KEYS }          from "../utils/launchFlags.js";
 
 // ─── Role-keyed templates ─────────────────────────────────────────────────────
 
@@ -139,7 +140,13 @@ export async function sendWelcomeIfFirstLogin(user: WelcomeUser): Promise<void> 
     let messageSent = false;
 
     // ── Channel 1: Platform email via outboundEngine ──────────────────────────
-    if (email?.includes("@")) {
+    // For family roles, gate on launch_family_welcome_emails flag
+    const isFamilyRole = role === "family_adult" || role === "family_child";
+    const welcomeEmailEnabled = isFamilyRole
+      ? await getLaunchFlag(LAUNCH_FLAG_KEYS.FAMILY_WELCOME_EMAILS)
+      : true; // admin / founder / customer welcome emails always fire
+
+    if (email?.includes("@") && welcomeEmailEnabled) {
       const result = await outboundEngine.send({
         type:     "welcome",
         channel:  "email",

@@ -15,7 +15,8 @@
 
 import { Router, type Request, type Response } from "express";
 import crypto from "crypto";
-import { PLATFORM, getSenderFull } from "../services/platformIdentity.js";
+import { PLATFORM, getSenderFull }                from "../services/platformIdentity.js";
+import { getLaunchFlag, LAUNCH_FLAG_KEYS }         from "../utils/launchFlags.js";
 
 const router = Router();
 
@@ -200,7 +201,11 @@ router.post("/send", async (req: Request, res: Response) => {
   const baseUrl = process.env["PUBLIC_URL"] ?? `https://${process.env["REPLIT_DEV_DOMAIN"]}`;
   const magicUrl = `${baseUrl}/api/auth/magic-link/verify?token=${rawToken}&email=${encodeURIComponent(email)}`;
 
-  const sent = await sendMagicLinkEmail(email, magicUrl, label);
+  // Launch gate — only fire the email if launch_magiclink_emails flag is ON
+  const emailEnabled = await getLaunchFlag(LAUNCH_FLAG_KEYS.MAGICLINK_EMAILS);
+  const sent = emailEnabled
+    ? await sendMagicLinkEmail(email, magicUrl, label)
+    : false;
 
   res.json({
     ok: true,

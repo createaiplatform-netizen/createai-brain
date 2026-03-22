@@ -464,6 +464,7 @@ import contributionsRouter     from "./contributions.js";
 import journalRouter           from "./journal.js";
 import exportDataRouter        from "./exportData.js";
 import smartSuggestionsRouter  from "./smartSuggestions.js";
+import launchRouter            from "./launch.js";
 
 router.use("/search",          universalSearchRouter);
 router.use("/automation",      automationEngineRouter);
@@ -502,6 +503,7 @@ router.use("/contributions",     contributionsRouter);
 router.use("/journal",           journalRouter);
 router.use("/export",            exportDataRouter);
 router.use("/smart-suggestions", smartSuggestionsRouter);
+router.use("/launch",            launchRouter);
 
 // ── Financial Hub Backward-Compat Redirects — T006 ───────────────────────────
 // Wealth, ledger, and revenue-intel are also reachable under /finance/*
