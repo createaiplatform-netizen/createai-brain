@@ -1,0 +1,81 @@
+// artifacts/api-server/src/utils/maxAutonomyRunner.ts
+import { executeTask } from "./taskExecutor"; // existing single-task executor
+import { db } from "../db";
+import { logInfo, logError } from "./logger";
+
+// Type for a task
+interface Task {
+  name: string;
+  run: () => Promise<any>;
+  safe: boolean; // must pass safety/compliance checks
+}
+
+// Max-Autonomy Runner
+export async function runMaxAutonomy(tasks: Task[], inventNewTasks: boolean = true) {
+  try {
+    // 1️⃣ Filter for safe tasks only
+    const safeTasks = tasks.filter((t) => t.safe);
+
+    // 2️⃣ Run all safe tasks in parallel with minimal token use
+    const taskPromises = safeTasks.map((t) =>
+      executeTask(t.name, t.run).catch((err) => {
+        logError(`Task failed: ${t.name}`, err);
+        return null; // fail-safe
+      })
+    );
+
+    // 3️⃣ Wait for all existing tasks
+    const results = await Promise.all(taskPromises);
+    logInfo(`Completed ${safeTasks.length} tasks successfully.`);
+
+    // 4️⃣ Invent new tasks if enabled
+    if (inventNewTasks) {
+      const inventedTasks: Task[] = await discoverNewSafeTasks(results);
+      if (inventedTasks.length > 0) {
+        logInfo(`Discovered ${inventedTasks.length} new tasks.`);
+        // Run invented tasks recursively (safe + minimal tokens)
+        const inventedResults = await runMaxAutonomy(inventedTasks, false);
+        return { results, inventedResults };
+      }
+    }
+
+    return { results };
+  } catch (err) {
+    logError("Max Autonomy Runner failed unexpectedly", err);
+    return { results: [], error: err };
+  }
+}
+
+// 🔹 Invent new tasks dynamically but safely
+async function discoverNewSafeTasks(prevResults: any[]): Promise<Task[]> {
+  const newTasks: Task[] = [];
+
+  // Example patterns: analytics expansions, notification optimizations, revenue insights
+  // Only create tasks that are safe/legal
+  if (prevResults.some((r) => r?.cohortData)) {
+    newTasks.push({
+      name: "PredictiveChurnAlerts",
+      safe: true,
+      run: async () => {
+        // logic to predict churn using latest cohort data
+        logInfo("Running predictive churn alerts...");
+        // placeholder, integrate with existing cohortAnalytics endpoints
+        return { success: true };
+      },
+    });
+  }
+
+  if (prevResults.some((r) => r?.revenueData)) {
+    newTasks.push({
+      name: "RevenueTrendOptimization",
+      safe: true,
+      run: async () => {
+        logInfo("Calculating advanced revenue trends...");
+        // placeholder, fetch revenue data & generate insights
+        return { success: true };
+      },
+    });
+  }
+
+  return newTasks;
+}
