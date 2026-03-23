@@ -52,14 +52,21 @@ export function OSLayout() {
         setQuickLauncherOpen(prev => !prev);
       }
     };
-    const eventHandler = () => setQuickLauncherOpen(true);
+    const openLauncher = () => setQuickLauncherOpen(true);
+    // cai:open-app — dispatched by CustomerDashboardPage most-used app buttons
+    const openAppHandler = (e: Event) => {
+      const appId = (e as CustomEvent<{ appId: string }>).detail?.appId;
+      if (appId) openApp(appId as Parameters<typeof openApp>[0]);
+    };
     window.addEventListener("keydown", keyHandler);
-    window.addEventListener("cai:open-quick-launcher", eventHandler);
+    window.addEventListener("cai:open-quick-launcher", openLauncher);
+    window.addEventListener("cai:open-app", openAppHandler);
     return () => {
       window.removeEventListener("keydown", keyHandler);
-      window.removeEventListener("cai:open-quick-launcher", eventHandler);
+      window.removeEventListener("cai:open-quick-launcher", openLauncher);
+      window.removeEventListener("cai:open-app", openAppHandler);
     };
-  }, []);
+  }, [openApp]);
 
   // Breakpoints
   const isMediumPlus = useMediaQuery("(min-width: 768px)");   // tablet+
