@@ -1,0 +1,79 @@
+// artifacts/api-server/src/routes/push.ts
+import { Router } from "express";
+import webpush from "web-push";
+import { db, sql } from "../db"; // adjust for your Drizzle/SQL setup
+
+const router = Router();
+
+// --- VAPID Key Initialization ---
+async function initVAPIDKeys() {
+  // 1. Check environment variables first
+  let publicKey = process.env.VAPID_PUBLIC_KEY;
+  let privateKey = process.env.VAPID_PRIVATE_KEY;
+
+  if (!publicKey || !privateKey) {
+    // 2. Check DB for existing keys
+    const rows = await db.execute(sql`SELECT * FROM vapid_keys LIMIT 1`);
+    if (rows.length > 0) {
+      publicKey = rows[0].public_key;
+      privateKey = rows[0].private_key;
+    } else {
+      // 3. Generate new keys and store in DB
+      const keys = webpush.generateVAPIDKeys();
+      publicKey = keys.publicKey;
+      privateKey = keys.privateKey;
+
+      await db.execute(sql`
+        INSERT INTO vapid_keys (public_key, private_key)
+        VALUES (${publicKey}, ${privateKey})
+      `);
+    }
+  }
+
+  // 4. Configure web-push
+  webpush.setVapidDetails(
+    "mailto:admin@yourdomain.com", // replace with your admin/support email
+    publicKey,
+    privateKey
+  );
+
+  console.log("VAPID keys loaded. Public key:", publicKey);
+  return { publicKey, privateKey };
+}
+
+// --- Endpoint to expose the public VAPID key ---
+router.get("/vapid-key", async (req, res) => {
+  try {
+    const { publicKey } = await initVAPIDKeys();
+    res.json({ publicKey });
+  } catch (err) {
+    console.error("Failed to load VAPID keys:", err);
+    res.status(500).json({ error: "Failed to load VAPID keys" });
+  }
+});
+
+// --- Scaffold for iOS push registration ---
+router.post("/apns", async (req, res) => {
+  // Placeholder: Sara needs to provide APNs certs to make this functional
+  res.json({ status: "APNs scaffold ready. Provide certificates to activate." });
+});
+
+// --- Export the router ---
+export default router;
+
+/*
+Database Table Setup (if not already created):
+
+CREATE TABLE IF NOT EXISTS vapid_keys (
+  id SERIAL PRIMARY KEY,
+  public_key TEXT NOT NULL,
+  private_key TEXT NOT NULL,
+  created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+);
+
+Usage:
+- API server will first use env vars if present
+- Otherwise, it reads the DB
+- Otherwise, it generates a key pair, stores it in DB, and reuses it on every restart
+- /vapid-key endpoint returns the active public key for client subscriptions
+*/
