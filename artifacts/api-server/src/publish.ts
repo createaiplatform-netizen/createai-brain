@@ -1,8 +1,5 @@
 /**
- * publish.ts — Platform publish + GlobalPulse trigger
- *
- * Run after deploying a new version to notify all nodes,
- * queue platform tasks, and persist the run report.
+ * publish.ts — Fully Integrated Publish + GlobalPulse Script
  *
  * Usage:
  *   BASE_URL=http://localhost:8080 npx tsx src/publish.ts
@@ -10,24 +7,29 @@
 
 import { runGlobalPulse } from "./runGlobalPulse.js";
 
-async function deployNewVersion(): Promise<void> {
-  // Replit handles the actual deployment process.
-  // Add any post-deploy steps here (cache busting, CDN purge, etc.)
-  console.log("Deploy step complete — platform is live.");
+// Simulated publish function — replace with your real publish/deploy logic
+async function deployNewVersion() {
+  console.log("Publishing new platform version...");
+  // Example: deploy code, update DB schema, etc.
+  await new Promise((resolve) => setTimeout(resolve, 3000));
+  console.log("Publish complete.");
 }
 
-async function publishPlatform() {
+// Main function: Publish + run GlobalPulse
+async function publishAndAlert() {
   try {
-    // --- your existing publish logic ---
+    // 1️⃣ Publish
     await deployNewVersion();
 
-    // --- trigger GlobalPulse immediately after publish ---
-    console.log("Publishing complete — triggering full GlobalPulse alert...");
+    // 2️⃣ Trigger GlobalPulse immediately after publish
+    console.log("Triggering GlobalPulse alert across all nodes and tasks...");
     await runGlobalPulse();
-    console.log("GlobalPulse alert complete. All nodes notified, tasks queued, report persisted.");
+
+    console.log("✅ GlobalPulse complete. All nodes notified, tasks queued, report persisted.");
   } catch (err) {
-    console.error("Publish or GlobalPulse failed:", err);
+    console.error("❌ Error during publish or GlobalPulse:", err);
   }
 }
 
-publishPlatform();
+// Run the full workflow
+publishAndAlert();
