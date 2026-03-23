@@ -1,0 +1,87 @@
+Build a complete “Global Broadcast Activation” system. It must be fully implemented end-to-end with no omissions, minimal tokens, and ready to run as-is.
+
+Requirements:
+
+1) Backend
+- Add POST /api/broadcast/global
+- Use the existing invite/signing pattern in this codebase to implement:
+    createSignedGlobalInvite(role="member", ttl=7d)
+- The handler should:
+    - generate a signed onboarding link:
+        https://<dev-domain>/onboard?token=<signed>
+    - generate a QR code (data URL) for that link
+    - create a broadcast_id (e.g., UUID)
+    - set regions = ["NA","SA","EU","AF","AS","OC","EXT"]
+    - set expires = now + 7 days
+    - return JSON:
+        {
+          link,
+          qr,
+          expires,
+          broadcast_id,
+          regions
+        }
+- Mount this route in the main server/router file (e.g., app.ts or equivalent), following existing patterns.
+
+2) Frontend – Global Broadcast Console
+- Create a GlobalBroadcastPage (e.g., GlobalBroadcastPage.tsx) and route it in the main app router (e.g., App.tsx) using the existing routing conventions.
+- On load, the page should:
+    - call POST /api/broadcast/global
+    - drive a cinematic sequence with these exact steps in order:
+        "Initializing global broadcast…"
+        "Syncing cloud nodes…"
+        "Activating worldwide channels…"
+        "Propagating universal onboarding link…"
+        "Finalizing global signature…"
+        "Broadcast delivered."
+    - After the sequence completes, show:
+        - the returned link
+        - the QR code
+        - the expiration time
+        - the regions list
+- Add buttons:
+    - “Copy Global Link” (copies link to clipboard)
+    - “Share Broadcast” (uses the browser’s/share API if available; otherwise falls back to copy)
+- Store the broadcast_id and basic metadata locally (e.g., localStorage) for logging.
+
+3) World / Global Visualization
+- Implement a simple but clear “global broadcast” visualization:
+    - a world map or abstract globe/regions view
+    - regions pulsing or highlighting to match regions:["NA","SA","EU","AF","AS","OC","EXT"]
+- You may choose the most appropriate implementation for this codebase (SVG, canvas, CSS animation, or a lightweight library), but it must be:
+    - visually understandable as a global broadcast
+    - performant
+    - integrated into the GlobalBroadcastPage
+
+4) Global Broadcast Log
+- Add a “Global Broadcast Log” section or page (your choice, but wired into the existing app structure).
+- It should:
+    - read locally stored broadcasts (from localStorage or equivalent)
+    - list:
+        - timestamp
+        - broadcast_id
+        - link
+        - regions
+    - show newest first
+- No backend persistence is required; local-only is fine.
+
+5) UX Copy (must be present somewhere on the Global Broadcast Console)
+- “Your platform has been broadcast to the world.”
+- “Anyone with this link can join instantly.”
+- “Global onboarding is now active.”
+
+6) Constraints
+- Must run fully on the existing dev domain and within the current app architecture.
+- Do NOT rely on deploy, redirect URI registration, or domain activation.
+- Do NOT require any Replit UI actions beyond running the code.
+- Follow existing patterns for:
+    - routing
+    - API wiring
+    - signing/crypto
+    - frontend structure
+
+Deliver:
+- All necessary backend code (route, handler, signing integration).
+- All necessary frontend code (page, route, UI, animations, log).
+- Any small helper utilities needed.
+- Integrated, consistent, and ready to run with no missing pieces.
