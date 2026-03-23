@@ -15,37 +15,74 @@ import { getSql } from "../lib/db.js";
 const router = Router();
 
 // ── VAPID configuration ───────────────────────────────────────────────────────
+// Priority: env vars → DB-persisted keys → generate + persist new keys
+// This ensures VAPID keys never change across restarts.
 
-const VAPID_PUBLIC  = process.env["VAPID_PUBLIC_KEY"]  ?? "";
-const VAPID_PRIVATE = process.env["VAPID_PRIVATE_KEY"] ?? "";
-const VAPID_SUBJECT = process.env["VAPID_SUBJECT"]     ?? "mailto:admin@LakesideTrinity.com";
+const VAPID_SUBJECT = process.env["VAPID_SUBJECT"] ?? "mailto:admin@LakesideTrinity.com";
 
 let vapidReady = false;
+let activeVapidPublic = "";
 
-if (VAPID_PUBLIC && VAPID_PRIVATE) {
+async function initVapid() {
+  const sql = getSql();
+
+  // Ensure config table exists
+  await sql`
+    CREATE TABLE IF NOT EXISTS platform_config (
+      key   TEXT PRIMARY KEY,
+      value TEXT NOT NULL,
+      updated_at TIMESTAMPTZ DEFAULT NOW()
+    )
+  `.catch(() => {});
+
+  let pub  = process.env["VAPID_PUBLIC_KEY"]  ?? "";
+  let priv = process.env["VAPID_PRIVATE_KEY"] ?? "";
+
+  if (!pub || !priv) {
+    // Try loading from DB
+    const rows = await sql`SELECT key, value FROM platform_config WHERE key IN ('vapid_public','vapid_private')`.catch(() => [] as any[]);
+    for (const row of rows as { key: string; value: string }[]) {
+      if (row.key === "vapid_public")  pub  = row.value;
+      if (row.key === "vapid_private") priv = row.value;
+    }
+  }
+
+  if (!pub || !priv) {
+    // Generate a fresh stable pair and persist to DB
+    const keys = webpush.generateVAPIDKeys();
+    pub  = keys.publicKey;
+    priv = keys.privateKey;
+    await sql`
+      INSERT INTO platform_config (key, value) VALUES ('vapid_public', ${pub}), ('vapid_private', ${priv})
+      ON CONFLICT (key) DO UPDATE SET value = EXCLUDED.value, updated_at = NOW()
+    `.catch(() => {});
+    console.log("[Push] Generated new VAPID key pair and saved to DB.");
+    console.log(`[Push] VAPID_PUBLIC_KEY  = ${pub}`);
+    console.log(`[Push] VAPID_PRIVATE_KEY = ${priv}`);
+    console.log("[Push] Save VAPID_PRIVATE_KEY to Replit Secrets to use env-based override.");
+  }
+
   try {
-    webpush.setVapidDetails(VAPID_SUBJECT, VAPID_PUBLIC, VAPID_PRIVATE);
+    webpush.setVapidDetails(VAPID_SUBJECT, pub, priv);
     vapidReady = true;
+    activeVapidPublic = pub;
     console.log("[Push] VAPID keys configured ✅");
   } catch (err) {
     console.error("[Push] VAPID setup failed:", (err as Error).message);
   }
-} else {
-  const keys = webpush.generateVAPIDKeys();
-  console.warn("[Push] VAPID keys not set. Add these to Replit Secrets:");
-  console.warn(`  VAPID_PUBLIC_KEY  = ${keys.publicKey}`);
-  console.warn(`  VAPID_PRIVATE_KEY = ${keys.privateKey}`);
-  console.warn(`  VAPID_SUBJECT     = ${VAPID_SUBJECT}`);
 }
+
+// Fire async — routes check vapidReady before acting
+initVapid().catch((err) => console.error("[Push] initVapid error:", err));
 
 // ── GET /api/push/vapid-key ───────────────────────────────────────────────────
 
 router.get("/vapid-key", (_req: Request, res: Response) => {
-  if (!VAPID_PUBLIC) {
-    res.status(503).json({ error: "Push notifications not configured — VAPID_PUBLIC_KEY missing" });
+  if (!vapidReady || !activeVapidPublic) {
+    res.status(503).json({ error: "Push notifications not configured — VAPID initialising, retry shortly" });
     return;
   }
-  res.json({ publicKey: VAPID_PUBLIC });
+  res.json({ publicKey: activeVapidPublic });
 });
 
 // ── POST /api/push/subscribe ──────────────────────────────────────────────────
