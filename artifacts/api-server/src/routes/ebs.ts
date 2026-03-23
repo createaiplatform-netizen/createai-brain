@@ -34,6 +34,7 @@ import { queueMessage, processQueue as ventonProcess } from "../services/ventonW
 import { queueJob as enqueueENW }   from "../services/everythingNetWay.js";
 import { queueNetJob }              from "../services/electricNetWay.js";
 import { getMeshNodes, updateMeshNodeStatus } from "../services/meshNetWay.js";
+import { broadcastToSubscribers }   from "../services/externalPulse.js";
 import { pushEvent as sseEvent }    from "./eventsStream.js";
 import webpush                      from "web-push";
 
@@ -548,6 +549,22 @@ router.post("/emergency-broadcast", async (req: Request, res: Response) => {
     }
   } catch (err) {
     log.push({ channel: "webPush:osLayer", ok: false, detail: (err as Error).message });
+  }
+
+  // 8. ExternalPulse — fan out to all opted-in external endpoints (webhooks, app clients, mesh relays, browser hooks)
+  try {
+    const pulse = await broadcastToSubscribers({
+      eventType: "EMERGENCY_BROADCAST",
+      message,
+      payload:   { source: "emergency-broadcast", ts: new Date().toISOString() },
+    });
+    log.push({
+      channel: "externalPulse:optInEndpoints",
+      ok:      true,
+      detail:  `delivered:${pulse.delivered} failed:${pulse.failed} of ${pulse.delivered + pulse.failed} subscribers`,
+    });
+  } catch (err) {
+    log.push({ channel: "externalPulse:optInEndpoints", ok: false, detail: (err as Error).message });
   }
 
   const ok       = log.filter(l => l.ok).length;

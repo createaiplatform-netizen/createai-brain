@@ -14,6 +14,7 @@ import { initCrossSystemRouter }             from "./ebs/crossSystemRouter.js";
 import { initElectricNetWay }  from "./services/electricNetWay.js";
 import { initEverythingNetWay } from "./services/everythingNetWay.js";
 import { initMeshNetWay }       from "./services/meshNetWay.js";
+import { initExternalPulse }   from "./services/externalPulse.js";
 import { initEmailScheduler }    from "./semantic/emailScheduler.js";
 import {
   initFamilyAgents,
@@ -124,6 +125,9 @@ app.listen(port, () => {
 
     try { await initMeshNetWay(); }
     catch (err) { console.error("[Startup] initMeshNetWay failed — continuing:", (err as Error).message); }
+
+    try { await initExternalPulse(); }
+    catch (err) { console.error("[Startup] initExternalPulse failed — continuing:", (err as Error).message); }
 
     try { await expandPlatform(); }
     catch (err) { console.error("[Startup] expandPlatform failed — continuing:", (err as Error).message); }

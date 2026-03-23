@@ -533,6 +533,10 @@ router.use("/everything-net-way", everythingNetWayRouter);
 import meshNetWayRouter from "./meshNetWay.js";
 router.use("/mesh-net-way", meshNetWayRouter);
 
+// ── ExternalPulse — opt-in outward-facing broadcast layer ────────────────────
+import externalPulseRouter from "./externalPulse.js";
+router.use("/external-pulse", externalPulseRouter);
+
 // ── GlobalPulse — system router (nodes, alert-test, global-alert-log) ────────
 import alertTestRouter from "./alertTest.js";
 router.use("/system", alertTestRouter);
