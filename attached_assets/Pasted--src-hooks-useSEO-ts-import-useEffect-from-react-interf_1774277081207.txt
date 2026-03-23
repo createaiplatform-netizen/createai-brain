@@ -1,0 +1,108 @@
+// src/hooks/useSEO.ts
+import { useEffect } from "react";
+
+interface SEOProps {
+  title: string;
+  description: string;
+  url?: string;
+  ogImage?: string;
+  jsonLD?: object;
+}
+
+export default function useSEO({ title, description, url, ogImage, jsonLD }: SEOProps) {
+  useEffect(() => {
+    document.title = title;
+
+    // Meta description
+    const descTag = document.querySelector('meta[name="description"]') || document.createElement('meta');
+    descTag.setAttribute('name', 'description');
+    descTag.setAttribute('content', description);
+    document.head.appendChild(descTag);
+
+    // Open Graph
+    const ogTitle = document.querySelector('meta[property="og:title"]') || document.createElement('meta');
+    ogTitle.setAttribute('property', 'og:title');
+    ogTitle.setAttribute('content', title);
+    document.head.appendChild(ogTitle);
+
+    if (ogImage) {
+      const ogImg = document.querySelector('meta[property="og:image"]') || document.createElement('meta');
+      ogImg.setAttribute('property', 'og:image');
+      ogImg.setAttribute('content', ogImage);
+      document.head.appendChild(ogImg);
+    }
+
+    // JSON-LD
+    if (jsonLD) {
+      const ldTag = document.querySelector('script[type="application/ld+json"]') || document.createElement('script');
+      ldTag.setAttribute('type', 'application/ld+json');
+      ldTag.textContent = JSON.stringify(jsonLD);
+      document.head.appendChild(ldTag);
+    }
+
+    // Canonical URL
+    if (url) {
+      const linkTag = document.querySelector('link[rel="canonical"]') || document.createElement('link');
+      linkTag.setAttribute('rel', 'canonical');
+      linkTag.setAttribute('href', url);
+      document.head.appendChild(linkTag);
+    }
+  }, [title, description, url, ogImage, jsonLD]);
+}
+
+// Example: Applying the hook on a public page
+// pages/Home.tsx
+import useSEO from "../hooks/useSEO";
+
+export default function Home() {
+  useSEO({
+    title: "CreateAI Digital – Universal AI Brain",
+    description: "Explore the automated AI platform for software, projects, and family portals.",
+    url: "https://createai.digital/",
+    ogImage: "https://createai.digital/og-image.png",
+    jsonLD: {
+      "@context": "https://schema.org",
+      "@type": "WebSite",
+      "name": "CreateAI Digital",
+      "url": "https://createai.digital"
+    }
+  });
+
+  return <div>Home page content here</div>;
+}
+
+// app.ts: Dynamic sitemap.xml
+const pages = [
+  "/",
+  "/storefront",
+  "/join",
+  "/family-hub",
+  "/status",
+  // Add all other public routes
+];
+
+app.get("/sitemap.xml", (req, res) => {
+  const sitemap = `<?xml version="1.0" encoding="UTF-8"?>
+  <urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">
+    ${pages.map(page => `
+      <url>
+        <loc>https://createai.digital${page}</loc>
+        <changefreq>daily</changefreq>
+        <priority>0.9</priority>
+      </url>
+    `).join("")}
+  </urlset>`;
+  res.header("Content-Type", "application/xml");
+  res.send(sitemap);
+});
+
+// Re-ping search engines on deployment
+import fetch from "node-fetch";
+
+const sitemapUrl = "https://createai.digital/sitemap.xml";
+await fetch(`https://www.google.com/ping?sitemap=${sitemapUrl}`);
+await fetch(`https://www.bing.com/ping?sitemap=${sitemapUrl}`);
+console.log("Google and Bing sitemap re-pinged");
+
+// index.html: update theme color
+<meta name="theme-color" content="#9CAF88" /> <!-- sage -->
