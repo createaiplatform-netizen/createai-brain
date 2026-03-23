@@ -1,4 +1,5 @@
 import React, { createContext, useContext, useState, useCallback, useEffect, useRef } from "react";
+import { resolveCRLSync, resolveCRL as resolveCRLAsync } from "@/crl/resolveCRL";
 import { PlatformStore, PlatformMode } from "@/engine/PlatformStore";
 import { loadFounderState, saveFounderState } from "@/engine/FounderTier";
 import { contextStore } from "@/controller";
@@ -1141,6 +1142,15 @@ interface OSContextValue {
   setPlatformMode: (mode: PlatformMode) => void;
   setUnreadCount: React.Dispatch<React.SetStateAction<number>>;
   activateFounderTier: () => void;
+  /** Navigate to any platform surface using a CRL URI (e.g. "os://settings", "hub://legal"). */
+  navigateByCRL: (crl: string, navigate: (path: string) => void) => void;
+  /** CRL utilities — parse, resolve, and list namespaces from anywhere inside the OS. */
+  crl: {
+    toPath:   (crl: string) => string | null;
+    toURL:    (crl: string) => Promise<string | null>;
+    resolve:  typeof resolveCRLAsync;
+    namespaces: () => Promise<{ scheme: string; label: string; icon: string }[]>;
+  };
 }
 
 const OSContext = createContext<OSContextValue | null>(null);
@@ -1295,12 +1305,41 @@ export function OSProvider({ children }: { children: React.ReactNode }) {
     setFounderTierActive(true);
   }, []);
 
+  // ── CRL integration ──────────────────────────────────────────────────────────
+  const navigateByCRL = useCallback((crl: string, navigate: (path: string) => void) => {
+    const path = resolveCRLSync(crl);
+    if (path) {
+      navigate(path);
+    } else {
+      // Unknown scheme — resolve via API then navigate
+      resolveCRLAsync(crl)
+        .then(r => navigate(r.url))
+        .catch(() => console.warn("[CRL] Could not resolve:", crl));
+    }
+  }, []);
+
+  const crlUtils = {
+    toPath: resolveCRLSync,
+    toURL:  async (uri: string) => {
+      const r = await resolveCRLAsync(uri).catch(() => null);
+      return r?.url ?? null;
+    },
+    resolve: resolveCRLAsync,
+    namespaces: async () => {
+      const res = await fetch("/api/crl/namespaces").catch(() => null);
+      if (!res?.ok) return [];
+      const j = await res.json() as { namespaces: { scheme: string; label: string; icon: string }[] };
+      return j.namespaces ?? [];
+    },
+  };
+
   return (
     <OSContext.Provider value={{
       activeApp, sidebarCollapsed, history, appRegistry, preferences, platformMode,
       unreadCount, setUnreadCount, founderTierActive,
       openApp, closeApp, goBack, toggleSidebar, routeIntent,
       updatePreferences, registerApp, setPlatformMode, activateFounderTier,
+      navigateByCRL, crl: crlUtils,
     }}>
       {children}
     </OSContext.Provider>

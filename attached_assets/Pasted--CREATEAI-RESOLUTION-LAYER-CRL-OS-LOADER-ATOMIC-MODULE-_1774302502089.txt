@@ -1,0 +1,83 @@
+// CREATEAI RESOLUTION LAYER (CRL) + OS LOADER — ATOMIC MODULE
+
+// ===== CORE REGISTRY / NAMESPACE =====
+type Scheme="brain"|"family"|"os"|"hub"|"space"|"identity";
+type Cfg={b:string,d:string,r?:(p:string)=>string};
+const REG:Record<Scheme,Cfg>={
+ brain:{b:"/",d:"Brain",r:p=>("/"+(p||"")).replace(/\/+/g,"/")},
+ family:{b:"/family",d:"Family",r:p=>("/family/"+(p||"")).replace(/\/+/g,"/")},
+ os:{b:"/os",d:"OS",r:p=>("/os/"+(p||"")).replace(/\/+/g,"/")},
+ hub:{b:"/hubs",d:"Hubs",r:p=>("/hubs/"+(p||"")).replace(/\/+/g,"/")},
+ space:{b:"/spaces",d:"Spaces",r:p=>("/spaces/"+(p||"")).replace(/\/+/g,"/")},
+ identity:{b:"/id",d:"Identity",r:p=>("/id/"+(p||"")).replace(/\/+/g,"/")}
+};
+export const regNS=(s:Scheme,c:Partial<Cfg>)=>{REG[s]={...REG[s],...c};};
+export const listNS=()=>Object.entries(REG).map(([k,v])=>({scheme:k,b:v.b,d:v.d}));
+
+// ===== PARSE / RESOLVE (SERVER + CLIENT SHARED) =====
+export const parseCRL=(crl:string)=>{
+ const[s,p]=crl.split("://");
+ if(!s||!p)throw"bad crl";
+ if(!(s in REG))throw"bad scheme";
+ return{scheme:s as Scheme,path:p.replace(/^\/+/,""),raw:crl};
+};
+export const crlToPath=(crl:string)=>{
+ const{scheme,path}=parseCRL(crl);
+ const c=REG[scheme];
+ return(c.r?c.r(path):((path?`${c.b}/${path}`:c.b))).replace(/\/+/g,"/");
+};
+export const crlToURL=(crl:string,base="https://createai.digital")=>{
+ return base.replace(/\/+$/,"")+crlToPath(crl);
+};
+
+// ===== EXPRESS API HANDLER (SERVER) =====
+export const CRLApi=(req:any,res:any)=>{
+ try{
+  const{crl}=req.query;
+  if(!crl)return res.status(400).json({error:"missing"});
+  res.json({crl,url:crlToURL(crl)});
+ }catch(e:any){res.status(400).json({error:String(e)})}
+};
+
+// ===== OS LOADER / PLATFORM INTEGRATION =====
+export const attachCRLToOS=(os:any)=>{
+ os.crl={
+  parse:parseCRL,
+  toPath:crlToPath,
+  toURL:crlToURL,
+  register:regNS,
+  list:listNS
+ };
+ os.navigateByCRL=(crl:string,navigate:(p:string)=>void)=>{
+  navigate(crlToPath(crl));
+ };
+ return os;
+};
+
+// ===== FRONTEND RESOLVER (CLIENT) =====
+export const resolveCRL=async(crl:string)=>{
+ const r=await fetch(`/api/crl/resolve?crl=${encodeURIComponent(crl)}`);
+ if(!r.ok){const j=await r.json().catch(()=>({}));throw(j.error||"resolve fail");}
+ return r.json();
+};
+
+// ===== HOOK + LINK (REACT) =====
+import React,{useState,useEffect}from"react";
+export const useCRL=(crl:string|null|undefined)=>{
+ const[d,sD]=useState<any>(null),[l,sL]=useState(!!crl),[e,sE]=useState<string|null>(null);
+ useEffect(()=>{
+  if(!crl){sD(null);sL(false);sE(null);return;}
+  let c=false;sL(true);sE(null);
+  resolveCRL(crl).then(x=>{if(!c){sD(x);sL(false);}})
+  .catch(err=>{if(!c){sE(String(err));sL(false);}});
+  return()=>{c=true};
+ },[crl]);
+ return{data:d,loading:l,error:e};
+};
+export const CRLLink=({crl,children,fallbackHref,...r}:{crl:string;children?:any;fallbackHref?:string})=>{
+ const{data,loading,error}=useCRL(crl);
+ const href=data?.url||fallbackHref||"#";
+ if(loading)return<span {...r}>{children||"…"}</span>;
+ if(error&&!data)return<span {...r}>{children||"bad"}</span>;
+ return<a href={href}{...r}>{children||href}</a>;
+};

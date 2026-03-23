@@ -1,0 +1,69 @@
+You are my full-stack engineer. The app is already live and public, but not discoverable. I want you to make the platform truly “public-ready” and discoverable WITHOUT breaking any existing routes, OS logic, or CRL behavior.
+
+Do ALL of the following, end-to-end, with real code changes (no pseudo, no TODOs):
+
+1) PUBLIC ENTRY + LANDING
+- Create a clean, public-facing landing experience at the root domain ("/").
+- If there is already an app at "/", keep its logic but wrap it in a public-friendly shell:
+  - Clear headline explaining what CreateAI / Family OS is.
+  - Short subheading.
+  - Primary CTA button (e.g., “Enter the Universe” → routes into the main app/home).
+  - Secondary CTA (e.g., “For Family” → family hub, “For Work” → hubs).
+- Make sure this page:
+  - Is fully responsive.
+  - Loads fast.
+  - Uses semantic HTML for SEO (h1, h2, sections, etc.).
+
+2) SITEMAP + ROBOTS
+- Implement a dynamic sitemap.xml endpoint (e.g., GET /sitemap.xml) on the server.
+- Include at minimum:
+  - Root ("/")
+  - Main app/home
+  - Family hub
+  - Hubs index
+  - Any key public pages you can infer from the existing routes.
+- Implement robots.txt at GET /robots.txt:
+  - Allow all by default.
+  - Point to the sitemap: `Sitemap: https://createai.digital/sitemap.xml`.
+
+3) SEO META + OPEN GRAPH
+- For the main public pages (root, family, hubs, etc.), add:
+  - <title> tags with meaningful, unique titles.
+  - <meta name="description"> with concise, human-readable descriptions.
+  - Open Graph tags (og:title, og:description, og:url, og:image).
+  - Twitter card tags (summary_large_image).
+- Make sure the metadata is set in the framework’s recommended way (e.g., React Helmet, Next.js head, etc., depending on the current stack).
+
+4) PUBLIC HUB / DISCOVERY PAGE
+- Create a “Public Hub” page (e.g., /discover or /universe) that:
+  - Lists the main surfaces of the platform (Family, Hubs, Brain tools, OS surfaces) in a simple, card-based layout.
+  - Each card links into the correct internal route (you can use CRL if already present, or direct paths).
+  - This page should be indexable and included in the sitemap.
+
+5) SHAREABLE ENTRY LINKS
+- Ensure there is a single, stable, shareable URL I can send to people (e.g., https://createai.digital/ or https://createai.digital/universe) that:
+  - Loads reliably.
+  - Does NOT require login just to see the existence of the platform.
+  - Clearly explains what this is and how to get started.
+- If login is required for deeper access, show a clear “Sign in / Continue” CTA.
+
+6) CRL INTEGRATION (IF CRL MODULE EXISTS)
+- If a CRL (CreateAI Resolution Layer) module already exists:
+  - Make sure public pages can still use CRLLink / CRL-based navigation where appropriate.
+  - Do NOT break existing CRL behavior.
+  - If needed, add a simple helper that maps CRL → public URLs for the discovery hub.
+
+7) NO BREAKING CHANGES
+- Do NOT remove or break any existing authenticated flows, OS logic, or internal routes.
+- If you must refactor, keep behavior identical for logged-in users.
+
+8) FINAL CHECK
+- After implementing:
+  - Confirm that:
+    - / returns a public-friendly page.
+    - /sitemap.xml returns valid XML with the expected URLs.
+    - /robots.txt exists and references the sitemap.
+    - The main public pages have proper <title>, <meta description>, and OG tags.
+    - The public hub/discovery page is reachable and links into the main surfaces.
+
+Make all necessary backend + frontend changes, create any new files, and update existing ones as needed. Use the current stack’s conventions and keep the code clean and production-ready.
