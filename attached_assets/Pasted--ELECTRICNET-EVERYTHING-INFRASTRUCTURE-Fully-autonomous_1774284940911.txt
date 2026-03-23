@@ -1,0 +1,190 @@
+/**
+ * ELECTRICNET-EVERYTHING INFRASTRUCTURE
+ * Fully autonomous, internal infrastructure.
+ * Backend services for electricity, Internet, phone/messaging.
+ * Access controlled via your platform's packages.
+ */
+
+///////////////////////////////////////////
+// 1. ELECTRICITY MANAGEMENT
+///////////////////////////////////////////
+import { rawSql } from "@workspace/db";
+
+export const ElectricNetWay = {
+  async initGrid() {
+    await rawSql`
+      CREATE TABLE IF NOT EXISTS platform_electric_nodes (
+        id SERIAL PRIMARY KEY,
+        node_name TEXT,
+        location TEXT,
+        capacity_kWh FLOAT,
+        status TEXT,
+        last_update TIMESTAMP DEFAULT NOW()
+      )
+    `;
+  },
+  async allocatePower(userId: string, amount: number) {
+    // Only allocate power to users allowed by package
+    const userPackage = await rawSql`SELECT package_level FROM platform_users WHERE id=${userId}`;
+    if (userPackage[0].package_level === 'basic') return { error: "Upgrade package to access full power" };
+
+    return await rawSql`
+      UPDATE platform_electric_nodes
+      SET status='active', last_update=NOW()
+      WHERE capacity_kWh >= ${amount}
+      RETURNING *
+    `;
+  },
+  async status() {
+    return await rawSql`SELECT * FROM platform_electric_nodes ORDER BY last_update DESC`;
+  },
+};
+
+///////////////////////////////////////////
+// 2. INTERNET / MESH MANAGEMENT
+///////////////////////////////////////////
+export const MeshNetWay = {
+  async initMeshNodes() {
+    await rawSql`
+      CREATE TABLE IF NOT EXISTS platform_mesh_nodes (
+        id SERIAL PRIMARY KEY,
+        node_name TEXT,
+        bandwidth_mbps FLOAT,
+        location TEXT,
+        status TEXT,
+        last_update TIMESTAMP DEFAULT NOW()
+      )
+    `;
+  },
+  async allocateBandwidth(userId: string, requestedMbps: number) {
+    const userPackage = await rawSql`SELECT package_level FROM platform_users WHERE id=${userId}`;
+    if (userPackage[0].package_level === 'basic') requestedMbps = Math.min(requestedMbps, 10); // limit for basic users
+
+    return await rawSql`
+      UPDATE platform_mesh_nodes
+      SET status='active', last_update=NOW()
+      WHERE bandwidth_mbps >= ${requestedMbps}
+      RETURNING *
+    `;
+  },
+  async status() {
+    return await rawSql`SELECT * FROM platform_mesh_nodes ORDER BY last_update DESC`;
+  },
+};
+
+///////////////////////////////////////////
+// 3. TELECOM / MESSAGING MANAGEMENT
+///////////////////////////////////////////
+import { routeAndDeliver } from "./everythingNetRouter";
+
+export const EverythingNetWay = {
+  async initQueue() {
+    await rawSql`
+      CREATE TABLE IF NOT EXISTS platform_everything_queue (
+        id SERIAL PRIMARY KEY,
+        type TEXT,
+        recipient TEXT,
+        subject TEXT,
+        body TEXT,
+        status TEXT DEFAULT 'pending',
+        created_at TIMESTAMP DEFAULT NOW(),
+        updated_at TIMESTAMP DEFAULT NOW()
+      )
+    `;
+  },
+  async queueMessage(userId: string, type: string, recipient: string, subject: string, body: string) {
+    // Only queue if user has proper package access
+    const userPackage = await rawSql`SELECT package_level FROM platform_users WHERE id=${userId}`;
+    if (userPackage[0].package_level === 'basic') return { error: "Upgrade to send full messages" };
+
+    await rawSql`
+      INSERT INTO platform_everything_queue (type, recipient, subject, body)
+      VALUES (${type}, ${recipient}, ${subject}, ${body})
+    `;
+  },
+  async processQueue() {
+    const messages = await rawSql`SELECT * FROM platform_everything_queue WHERE status='pending'`;
+    for (const msg of messages) {
+      await routeAndDeliver(msg); // smart router decides shareable link, web push, SMS
+      await rawSql`
+        UPDATE platform_everything_queue
+        SET status='sent', updated_at=NOW()
+        WHERE id=${msg.id}
+      `;
+    }
+  },
+  async queueStatus() {
+    return await rawSql`
+      SELECT status, COUNT(*) as count FROM platform_everything_queue GROUP BY status
+    `;
+  },
+};
+
+///////////////////////////////////////////
+// 4. FRONTEND PAGE - Example ElectricNetWay + MeshNet + Messaging Status
+///////////////////////////////////////////
+import React, { useEffect, useState } from "react";
+
+export default function EverythingNetWayPage() {
+  const [electricNodes, setElectricNodes] = useState([]);
+  const [meshNodes, setMeshNodes] = useState([]);
+  const [queueStatus, setQueueStatus] = useState([]);
+
+  useEffect(() => {
+    fetch("/api/electric-net-way/status").then(r => r.json()).then(setElectricNodes);
+    fetch("/api/mesh-net-way/status").then(r => r.json()).then(setMeshNodes);
+    fetch("/api/everything-net-way/queue").then(r => r.json()).then(setQueueStatus);
+  }, []);
+
+  return (
+    <div className="p-6 space-y-6">
+      <h1 className="text-3xl font-bold text-sage-700">EverythingNetWay Dashboard</h1>
+
+      <section>
+        <h2 className="font-semibold text-lg">Electric Nodes</h2>
+        <ul>
+          {electricNodes.map((n: any) => <li key={n.id}>{n.node_name} - {n.status} - {n.capacity_kWh}kWh</li>)}
+        </ul>
+      </section>
+
+      <section>
+        <h2 className="font-semibold text-lg">Mesh Internet Nodes</h2>
+        <ul>
+          {meshNodes.map((n: any) => <li key={n.id}>{n.node_name} - {n.status} - {n.bandwidth_mbps} Mbps</li>)}
+        </ul>
+      </section>
+
+      <section>
+        <h2 className="font-semibold text-lg">Messaging Queue Status</h2>
+        <ul>
+          {queueStatus.map((q: any) => <li key={q.status}>{q.status}: {q.count}</li>)}
+        </ul>
+      </section>
+    </div>
+  );
+}
+
+///////////////////////////////////////////
+// 5. ROUTE REGISTRATION (backend wiring)
+///////////////////////////////////////////
+
+// In routes/index.ts
+// router.use('/api/electric-net-way', electricNetWayRouter);
+// router.use('/api/mesh-net-way', meshNetWayRouter);
+// router.use('/api/everything-net-way', everythingNetWayRouter);
+
+///////////////////////////////////////////
+// 6. SERVER STARTUP
+///////////////////////////////////////////
+
+// In api-server/src/index.ts async startup:
+// await ElectricNetWay.initGrid();
+// await MeshNetWay.initMeshNodes();
+// await EverythingNetWay.initQueue();
+
+///////////////////////////////////////////
+// 7. FRONTEND ROUTER
+///////////////////////////////////////////
+
+// In App.tsx
+// <Route path="/everything-net-way" element={<EverythingNetWayPage />} />

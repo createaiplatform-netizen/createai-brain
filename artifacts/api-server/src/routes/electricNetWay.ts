@@ -11,6 +11,8 @@ import {
   getLogs,
   retryJob,
   queueNetJob,
+  getElectricNodes,
+  addElectricNode,
   type NetJobCategory,
 } from "../services/electricNetWay.js";
 
@@ -87,6 +89,37 @@ router.post("/queue-job", async (req: Request, res: Response) => {
     }
     const job = await queueNetJob({ category, type, target, payload });
     res.json({ ok: true, job });
+  } catch (err) {
+    res.status(500).json({ ok: false, error: (err as Error).message });
+  }
+});
+
+// ── GET /api/electric-net-way/nodes ──────────────────────────────────────────
+
+router.get("/nodes", async (req: Request, res: Response) => {
+  if (!isAdmin(req)) { res.status(403).json({ error: "Forbidden" }); return; }
+  try {
+    const nodes = await getElectricNodes();
+    res.json({ ok: true, nodes });
+  } catch (err) {
+    res.status(500).json({ ok: false, error: (err as Error).message });
+  }
+});
+
+// ── POST /api/electric-net-way/nodes ─────────────────────────────────────────
+
+router.post("/nodes", async (req: Request, res: Response) => {
+  if (!isAdmin(req)) { res.status(403).json({ error: "Forbidden" }); return; }
+  try {
+    const { node_name, location, capacity_kwh } = req.body as {
+      node_name: string; location?: string; capacity_kwh?: number;
+    };
+    if (!node_name) {
+      res.status(400).json({ ok: false, error: "node_name is required" });
+      return;
+    }
+    const node = await addElectricNode({ node_name, location, capacity_kwh });
+    res.json({ ok: true, node });
   } catch (err) {
     res.status(500).json({ ok: false, error: (err as Error).message });
   }

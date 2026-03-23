@@ -1,0 +1,161 @@
+// ==============================
+// artifacts/api-server/src/services/everythingNetWay.ts
+// EverythingNetWay EBS Broadcast Service
+// ==============================
+
+import { db, rawSql } from "@workspace/db";
+import { SYSTEM_USER, DOCTYPE } from "@workspace/constants";
+import { routeAndDeliver } from "./everythingNetWayRouter";
+
+export async function queueEBSAlert(title: string, body: string, metadata?: Record<string, any>) {
+  // Insert into EverythingNetWay queue as a high-priority broadcast
+  const result = await db.query(rawSql`
+    INSERT INTO platform_everythingnetway_queue
+      (type, recipient, subject, body, metadata, status, priority, created_at)
+    VALUES
+      ('ebs_alert', NULL, ${title}, ${body}, ${JSON.stringify(metadata ?? {})}, 'pending', 'high', NOW())
+    RETURNING id
+  `);
+  return result.rows[0].id;
+}
+
+export async function triggerEBS() {
+  // Fetch all pending high-priority EBS alerts
+  const alerts = await db.query(rawSql`
+    SELECT * FROM platform_everythingnetway_queue
+    WHERE status = 'pending' AND priority = 'high'
+  `);
+
+  for (const alert of alerts.rows) {
+    // Send through smart delivery router (web push, shareable links, optional SMTP)
+    await routeAndDeliver({
+      type: alert.type,
+      subject: alert.subject,
+      body: alert.body,
+      metadata: alert.metadata,
+      force: true // bypass normal scheduling, immediate delivery
+    });
+
+    // Update status to sent
+    await db.query(rawSql`
+      UPDATE platform_everythingnetway_queue
+      SET status = 'sent', sent_at = NOW()
+      WHERE id = ${alert.id}
+    `);
+  }
+
+  return { sentCount: alerts.rows.length };
+}
+
+
+// ==============================
+// artifacts/api-server/src/routes/everythingNetWay.ts
+// EBS Broadcast Routes
+// ==============================
+
+import { Router } from "express";
+import { requireAdmin } from "@workspace/middleware";
+import { queueEBSAlert, triggerEBS } from "../services/everythingNetWay";
+
+const router = Router();
+
+// Admin: Queue a new EBS alert
+router.post("/ebs", requireAdmin, async (req, res) => {
+  const { title, body, metadata } = req.body;
+  const id = await queueEBSAlert(title, body, metadata);
+  res.json({ success: true, id });
+});
+
+// Admin: Trigger all queued EBS alerts immediately
+router.post("/ebs/trigger", requireAdmin, async (req, res) => {
+  const result = await triggerEBS();
+  res.json({ success: true, ...result });
+});
+
+export default router;
+
+
+// ==============================
+// artifacts/createai-brain/src/pages/ElectricNetWayPage.tsx
+// Admin UI - EBS Broadcast
+// ==============================
+
+import { useState } from "react";
+import axios from "axios";
+
+export default function ElectricNetWayPage() {
+  const [title, setTitle] = useState("");
+  const [body, setBody] = useState("");
+  const [sending, setSending] = useState(false);
+  const [sentCount, setSentCount] = useState<number | null>(null);
+
+  const queueAlert = async () => {
+    setSending(true);
+    try {
+      await axios.post("/api/everything-net-way/ebs", { title, body });
+      alert("Alert queued successfully!");
+    } finally {
+      setSending(false);
+    }
+  };
+
+  const triggerAlerts = async () => {
+    setSending(true);
+    try {
+      const res = await axios.post("/api/everything-net-way/ebs/trigger");
+      setSentCount(res.data.sentCount);
+      alert(`Triggered ${res.data.sentCount} EBS alerts!`);
+    } finally {
+      setSending(false);
+    }
+  };
+
+  return (
+    <div className="p-6 bg-sage-50 min-h-screen">
+      <h1 className="text-2xl font-bold mb-4 text-sage-900">EverythingNetWay EBS Broadcast</h1>
+      <div className="mb-4">
+        <input
+          className="border p-2 w-full mb-2"
+          placeholder="Alert Title"
+          value={title}
+          onChange={(e) => setTitle(e.target.value)}
+        />
+        <textarea
+          className="border p-2 w-full mb-2"
+          placeholder="Alert Body"
+          value={body}
+          onChange={(e) => setBody(e.target.value)}
+        />
+        <button
+          className="bg-sage-700 text-white px-4 py-2 mr-2 rounded"
+          onClick={queueAlert}
+          disabled={sending}
+        >
+          Queue Alert
+        </button>
+        <button
+          className="bg-red-600 text-white px-4 py-2 rounded"
+          onClick={triggerAlerts}
+          disabled={sending}
+        >
+          Trigger All
+        </button>
+      </div>
+      {sentCount !== null && <p className="text-sage-900">Last broadcast sent: {sentCount} alerts</p>}
+    </div>
+  );
+}
+
+
+// ==============================
+// Frontend + Backend Wiring
+// ==============================
+
+// In artifacts/api-server/src/routes/index.ts
+// router.use("/api/everything-net-way", require("./everythingNetWay").default);
+
+// In artifacts/api-server/src/index.ts
+// await initEverythingNetWay(); // called in server startup
+
+// In artifacts/createai-brain/src/App.tsx
+// <Route path="/everything-net-way" element={<ElectricNetWayPage />} />

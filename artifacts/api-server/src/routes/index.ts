@@ -529,6 +529,10 @@ router.use("/electric-net-way", electricNetWayRouter);
 import everythingNetWayRouter from "./everythingNetWay.js";
 router.use("/everything-net-way", everythingNetWayRouter);
 
+// ── MeshNetWay Engine — internal mesh/internet node registry ─────────────────
+import meshNetWayRouter from "./meshNetWay.js";
+router.use("/mesh-net-way", meshNetWayRouter);
+
 // ── Financial Hub Backward-Compat Redirects — T006 ───────────────────────────
 // Wealth, ledger, and revenue-intel are also reachable under /finance/*
 // using 301 redirects for any client still hitting the legacy paths.

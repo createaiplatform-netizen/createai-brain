@@ -24,6 +24,15 @@ export interface NetJob {
 
 // ─── Init ─────────────────────────────────────────────────────────────────────
 
+export interface ElectricNode {
+  id:           number;
+  node_name:    string;
+  location:     string;
+  capacity_kwh: number;
+  status:       string;
+  last_update:  string;
+}
+
 export async function initElectricNetWay(): Promise<void> {
   await rawSql`
     CREATE TABLE IF NOT EXISTS platform_electric_net_way_queue (
@@ -38,7 +47,35 @@ export async function initElectricNetWay(): Promise<void> {
       updated_at TIMESTAMP DEFAULT NOW()
     )
   `;
-  console.log("[ElectricNetWay] Queue table ready.");
+  await rawSql`
+    CREATE TABLE IF NOT EXISTS platform_electric_nodes (
+      id           SERIAL PRIMARY KEY,
+      node_name    TEXT    NOT NULL,
+      location     TEXT    NOT NULL DEFAULT '',
+      capacity_kwh FLOAT   NOT NULL DEFAULT 0,
+      status       TEXT    NOT NULL DEFAULT 'inactive',
+      last_update  TIMESTAMP DEFAULT NOW()
+    )
+  `;
+  console.log("[ElectricNetWay] Queue and grid tables ready.");
+}
+
+export async function getElectricNodes(): Promise<ElectricNode[]> {
+  const rows = (await rawSql`
+    SELECT * FROM platform_electric_nodes ORDER BY last_update DESC
+  `) as Array<Record<string, unknown>>;
+  return rows as unknown as ElectricNode[];
+}
+
+export async function addElectricNode(node: {
+  node_name: string; location?: string; capacity_kwh?: number;
+}): Promise<ElectricNode> {
+  const rows = (await rawSql`
+    INSERT INTO platform_electric_nodes (node_name, location, capacity_kwh)
+    VALUES (${node.node_name}, ${node.location ?? ""}, ${node.capacity_kwh ?? 0})
+    RETURNING *
+  `) as Array<Record<string, unknown>>;
+  return rows[0] as unknown as ElectricNode;
 }
 
 // ─── Queue ────────────────────────────────────────────────────────────────────
