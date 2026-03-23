@@ -15,10 +15,9 @@ name = "web"
 paths = ["/"]
 
 [services.development]
-run = "PORT=5173 BASE_PATH=/ pnpm --filter @workspace/createai-brain run dev"
+run = "BASE_PATH=/ pnpm --filter @workspace/createai-brain run dev"
 
 [services.env]
-PORT = "5173"
 BASE_PATH = "/"
 
 [services.production]

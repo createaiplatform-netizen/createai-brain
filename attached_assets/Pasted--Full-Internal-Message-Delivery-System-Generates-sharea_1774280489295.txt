@@ -1,0 +1,157 @@
+// ------------------------------
+// Full Internal Message Delivery System
+// Generates shareable links for family, marketing, and announcements
+// Stores them in the documents table and updates the public hub
+// ------------------------------
+
+import crypto from "crypto";
+import { db } from "@workspace/db"; // Your Drizzle/Postgres connection
+import { z } from "zod";
+
+// ------------------------------
+// Types
+// ------------------------------
+const MessageSchema = z.object({
+  title: z.string(),
+  category: z.enum(["family", "marketing", "announcement"]),
+  content: z.string(),
+  recipientName: z.string().optional(),
+});
+
+type Message = z.infer<typeof MessageSchema>;
+
+// ------------------------------
+// Config
+// ------------------------------
+const HUB_ROUTE = "/message-hub";
+const DOC_TYPE = "shareable_msg";
+
+// ------------------------------
+// Helper: Generate Secure Token
+// ------------------------------
+function generateToken(): string {
+  return crypto.randomBytes(32).toString("hex");
+}
+
+// ------------------------------
+// Generate Messages & Store
+// ------------------------------
+async function generateShareableMessages(messages: Message[]) {
+  const links: string[] = [];
+
+  for (const msg of messages) {
+    const token = generateToken();
+
+    // Store in documents table
+    await db.documents.insert({
+      userId: "system",
+      docType: DOC_TYPE,
+      projectId: token,
+      title: msg.title,
+      body: JSON.stringify({
+        content: msg.content,
+        category: msg.category,
+        recipientName: msg.recipientName || null,
+      }),
+      tags: msg.category,
+      createdAt: new Date(),
+    });
+
+    // Generate public link
+    const link = `${process.env.PUBLIC_URL || ""}/msg/${token}`;
+    links.push(link);
+  }
+
+  return links;
+}
+
+// ------------------------------
+// Example: Generate new batch
+// ------------------------------
+async function runExample() {
+  const messages: Message[] = [
+    {
+      title: "Family Update: New Portal Feature",
+      category: "family",
+      content: "Hi everyone! Check out the new family portal features here...",
+      recipientName: "Nathan",
+    },
+    {
+      title: "Marketing Announcement: Spring Sale",
+      category: "marketing",
+      content: "Our new Spring Sale is live! Visit our storefront to claim your discount.",
+    },
+    {
+      title: "Announcement: Lakeside Trinity News",
+      category: "announcement",
+      content: "We have updates about our upcoming projects and events.",
+    },
+  ];
+
+  const links = await generateShareableMessages(messages);
+  console.log("All shareable message links generated:");
+  console.table(links);
+}
+
+// ------------------------------
+// Update Public Hub Route
+// Example Express Route: /message-hub
+// ------------------------------
+import express from "express";
+const app = express();
+
+app.get(HUB_ROUTE, async (req, res) => {
+  const docs = await db.documents.findMany({
+    where: { docType: DOC_TYPE },
+    orderBy: { createdAt: "desc" },
+  });
+
+  const formatted = docs.map((d) => {
+    const body = JSON.parse(d.body);
+    return {
+      title: d.title,
+      category: body.category,
+      recipientName: body.recipientName,
+      link: `/msg/${d.projectId}`,
+    };
+  });
+
+  res.json({ messages: formatted });
+});
+
+// ------------------------------
+// Public Token Page Route Example: /msg/:token
+// ------------------------------
+app.get("/msg/:token", async (req, res) => {
+  const { token } = req.params;
+  const doc = await db.documents.findFirst({
+    where: { docType: DOC_TYPE, projectId: token },
+  });
+
+  if (!doc) return res.status(404).send("Message not found");
+
+  const body = JSON.parse(doc.body);
+  res.send(`
+    <html>
+      <head><title>${doc.title}</title></head>
+      <body style="font-family: sans-serif; max-width: 600px; margin: auto; padding: 2rem;">
+        <h1 style="color: #6b8e23;">${doc.title}</h1>
+        ${body.recipientName ? `<h2>Hello ${body.recipientName},</h2>` : ""}
+        <p>${body.content}</p>
+        <hr />
+        <p>From Sara Stadler & Lakeside Trinity LLC</p>
+      </body>
+    </html>
+  `);
+});
+
+// ------------------------------
+// Run Example
+// ------------------------------
+runExample().catch(console.error);
+
+// ------------------------------
+// Start Express server
+// ------------------------------
+const PORT = process.env.PORT || 5173;
+app.listen(PORT, () => console.log(`Message hub running on port ${PORT}`));

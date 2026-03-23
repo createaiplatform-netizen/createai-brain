@@ -43,6 +43,8 @@ import AboveTranscendPage from "@/pages/AboveTranscendPage";
 import CreateAIDigitalPage from "@/pages/CreateAIDigitalPage";
 import RealMarketPage          from "@/pages/RealMarketPage";
 import OutputLibraryPage       from "@/pages/OutputLibraryPage";
+import MessagePage             from "@/pages/MessagePage";
+import FamilySharePage         from "@/pages/FamilySharePage";
 import UltimateTranscendDashboard from "@/pages/UltimateTranscendDashboard";
 import CommandCenterPage           from "@/pages/CommandCenterPage";
 import PlatformStatusPage          from "@/pages/PlatformStatusPage";
@@ -174,6 +176,10 @@ function Router() {
 
       {/* Output Library */}
       <Route path="/library" component={OutputLibraryPage} />
+
+      {/* Shareable family message pages — public, no login */}
+      <Route path="/msg/:token" component={MessagePage} />
+      <Route path="/family-portal-intro" component={FamilySharePage} />
 
       {/* Full OS — default for admin/founder/user/viewer */}
       <Route path="/" component={OSLayout} />

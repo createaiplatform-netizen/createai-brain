@@ -473,6 +473,7 @@ import pushRouter              from "./push.js";
 import priorityAlertsRouter    from "./priorityAlerts.js";
 import launchRouter            from "./launch.js";
 import appUsageRouter          from "./appUsage.js";
+import shareableMessagesRouter from "./shareableMessages.js";
 
 router.use("/search",          universalSearchRouter);
 router.use("/automation",      automationEngineRouter);
@@ -516,6 +517,7 @@ router.use("/push",              pushRouter);
 router.use("/alerts",            priorityAlertsRouter);
 router.use("/launch",            launchRouter);
 router.use("/app-usage",         appUsageRouter);
+router.use("/shareable-messages", shareableMessagesRouter);
 
 // ── Financial Hub Backward-Compat Redirects — T006 ───────────────────────────
 // Wealth, ledger, and revenue-intel are also reachable under /finance/*

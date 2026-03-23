@@ -1,0 +1,69 @@
+/**
+ * Replit Prompt / Script
+ * Purpose: Generate all shareable family message tokens, store in DB,
+ *          and outline marketing/ads/email triggers in a single flow.
+ * Notes:
+ *  - Uses crypto.randomBytes for secure tokens
+ *  - Inserts directly into documents table (docType="shareable_msg")
+ *  - Public message page: /msg/:token
+ *  - Marketing/ad/email steps are placeholders for later credentialed execution
+ */
+
+import crypto from 'crypto';
+import { db, documents } from './artifacts/api-server/src/db'; // adjust import to match your codebase
+import fs from 'fs';
+
+// 1. Family contacts (example: add more as needed)
+const familyContacts = [
+  { name: "Dennis Stadler", email: "dennis@example.com", phone: "+17157914957" },
+  { name: "Nathan Stadler", email: "stadlernathan5499@gmail.com", phone: "+17157914114" },
+  { name: "Carolina Stadler", email: "stadlercarolina@gmail.com", phone: "+17157914050" },
+  { name: "Nolan Stadler", email: "stadlernolan29@icloud.com", phone: "+17157914050" }
+];
+
+// 2. Generate secure tokens and prepare DB entries
+const messagesToInsert = familyContacts.map(contact => {
+  const token = crypto.randomBytes(32).toString('hex');
+  const messageContent = {
+    greeting: `Hello ${contact.name}!`,
+    body: "Here's your personalized message from the CreateAI Family Portal.",
+    ctaLinks: {
+      familyPortal: "https://createai.digital/family-hub",
+      storefront: "https://createai.digital/storefront"
+    }
+  };
+
+  return {
+    userId: "system",
+    docType: "shareable_msg",
+    projectId: token,
+    title: contact.name,
+    body: JSON.stringify(messageContent),
+    tags: token
+  };
+});
+
+// 3. Insert into database
+(async () => {
+  try {
+    for (const msg of messagesToInsert) {
+      await db.insert(documents).values(msg);
+      console.log(`Inserted message token for ${msg.title}: /msg/${msg.projectId}`);
+    }
+
+    console.log("✅ All family message tokens generated and inserted.");
+
+    // 4. Placeholder: Marketing / Ads / Newsletter steps
+    console.log(`
+    Placeholder: Next steps for full marketing deployment:
+    - Trigger Google Ads / Meta Ads / LinkedIn Ads via their APIs
+    - Queue emails/newsletters for all verified audience lists
+    - Send SMS via Twilio to verified numbers
+    - All links point to shareable public pages /msg/:token or /family-portal-intro
+    Note: These require credentials and API keys to execute automatically.
+    `);
+
+  } catch (err) {
+    console.error("Error inserting messages:", err);
+  }
+})();
