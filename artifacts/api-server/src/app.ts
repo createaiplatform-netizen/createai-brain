@@ -118,6 +118,7 @@ import selfMapRouter             from "./routes/selfMap.js";
 import lifecycleRouter           from "./routes/lifecycle.js";
 import optInRouter               from "./routes/optIn.js";
 import crlRouter                 from "./routes/crl.js";
+import broadcastGlobalRouter     from "./routes/broadcastGlobal.js";
 
 export { chatLimiter, heavyLimiter, editLimiter } from "./middlewares/rateLimiters";
 
@@ -586,6 +587,7 @@ app.use("/api/platform",    selfMapRouter);
 app.use("/api/lifecycle",   lifecycleRouter);
 app.use("/api/opt-in",      optInRouter);
 app.use("/api/crl",         crlRouter);
+app.use("/api/broadcast",  broadcastGlobalRouter);
 
 // ── API (private — Replit auth + scope) ──────────────────────────────────────
 app.use(authMiddleware);
