@@ -1,0 +1,172 @@
+// 1️⃣ db.ts — add push_subscriptions table in bootstrapSchema (before line 603)
+await client.query(`
+CREATE TABLE IF NOT EXISTS platform_push_subscriptions (
+  id SERIAL PRIMARY KEY,
+  user_id UUID NOT NULL,
+  endpoint TEXT NOT NULL,
+  keys JSONB NOT NULL,
+  created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+);
+`);
+
+// 2️⃣ artifacts/api-server/src/routes/push.ts
+import express from 'express';
+import webpush from 'web-push';
+import { getClient } from '../db';
+
+const router = express.Router();
+
+// VAPID keys from env
+webpush.setVapidDetails(
+  process.env.VAPID_SUBJECT!,
+  process.env.VAPID_PUBLIC_KEY!,
+  process.env.VAPID_PRIVATE_KEY!
+);
+
+// Subscribe endpoint
+router.post('/subscribe', async (req, res) => {
+  const { endpoint, keys } = req.body;
+  const userId = req.user.id;
+  const client = getClient();
+  await client.query(
+    'INSERT INTO platform_push_subscriptions (user_id, endpoint, keys) VALUES ($1,$2,$3) ON CONFLICT DO NOTHING',
+    [userId, endpoint, keys]
+  );
+  res.status(201).json({ success: true });
+});
+
+// Send push
+export async function sendPush(userId: string, payload: string) {
+  const client = getClient();
+  const { rows } = await client.query(
+    'SELECT endpoint, keys FROM platform_push_subscriptions WHERE user_id=$1',
+    [userId]
+  );
+  for (const row of rows) {
+    const subscription = { endpoint: row.endpoint, keys: row.keys };
+    try { await webpush.sendNotification(subscription, payload); } catch (e) {}
+  }
+}
+
+export default router;
+
+// 3️⃣ artifacts/api-server/src/routes/priorityAlerts.ts
+import express from 'express';
+import { sendPush } from './push';
+import { sendSMS } from '../utils/notifications';
+import { getClient } from '../db';
+
+const router = express.Router();
+
+// Trigger high-priority alerts
+router.post('/alert', async (req, res) => {
+  const { userId, message, viaSMS } = req.body;
+  if (viaSMS) await sendSMS(userId, message);
+  await sendPush(userId, message);
+  res.json({ success: true });
+});
+
+export default router;
+
+// 4️⃣ artifacts/api-server/src/routes/smartSuggestions.ts (role-aware)
+import express from 'express';
+import { getClient } from '../db';
+const router = express.Router();
+
+router.get('/', async (req, res) => {
+  const userId = req.user.id;
+  const role = req.user.role;
+  // Base suggestions
+  const base = ['Check out new apps', 'Update your profile'];
+  const roleBased: Record<string,string[]> = {
+    founder: ['Review funding opportunities', 'Check AI metrics'],
+    customer: ['Explore featured content', 'Upgrade your plan'],
+    family_adult: ['Review family dashboard', 'Send messages'],
+    family_child: ['Complete daily tasks', 'Play educational games'],
+  };
+  const suggestions = [...base, ...(roleBased[role] || [])];
+  res.json({ suggestions });
+});
+
+export default router;
+
+// 5️⃣ artifacts/createai-brain/src/hooks/usePushNotifications.ts
+import { useEffect, useState } from 'react';
+
+export default function usePushNotifications() {
+  const [granted, setGranted] = useState(Notification.permission === 'granted');
+
+  useEffect(() => {
+    if (!granted) Notification.requestPermission().then(p => setGranted(p==='granted'));
+  }, []);
+
+  const subscribe = async (subscription: PushSubscription) => {
+    await fetch('/api/push/subscribe', {
+      method: 'POST',
+      headers: {'Content-Type':'application/json'},
+      body: JSON.stringify(subscription)
+    });
+  };
+
+  return { granted, subscribe };
+}
+
+// 6️⃣ artifacts/createai-brain/src/components/PushNotificationManager.tsx
+import React, { useEffect } from 'react';
+import usePushNotifications from '../hooks/usePushNotifications';
+
+export default function PushNotificationManager() {
+  const { granted, subscribe } = usePushNotifications();
+
+  useEffect(() => {
+    if (granted && 'serviceWorker' in navigator) {
+      navigator.serviceWorker.ready.then(registration => {
+        registration.pushManager.subscribe({ userVisibleOnly:true, applicationServerKey: process.env.NEXT_PUBLIC_VAPID_KEY })
+          .then(sub => subscribe(sub));
+      });
+    }
+  }, [granted, subscribe]);
+
+  return granted ? null : <button onClick={() => Notification.requestPermission()}>Enable Notifications</button>;
+}
+
+// 7️⃣ artifacts/createai-brain/src/components/SmartRecommendations.tsx (persona-aware)
+import React, { useEffect, useState } from 'react';
+import { useAuth } from '../context/AuthContext';
+
+export default function SmartRecommendations() {
+  const { user } = useAuth();
+  const [recs, setRecs] = useState<string[]>([]);
+
+  useEffect(() => {
+    fetch(`/api/smart-suggestions`)
+      .then(r=>r.json())
+      .then(data => setRecs(data.suggestions || []));
+  }, [user.role]);
+
+  return (
+    <div>
+      <h3>Recommended for you</h3>
+      <ul>{recs.map((r,i)=><li key={i}>{r}</li>)}</ul>
+    </div>
+  );
+}
+
+// 8️⃣ artifacts/api-server/src/routes/index.ts — register new routes
+import pushRouter from './push';
+import priorityRouter from './priorityAlerts';
+import smartSuggestionsRouter from './smartSuggestions';
+app.use('/api/push', pushRouter);
+app.use('/api/priority-alerts', priorityRouter);
+app.use('/api/smart-suggestions', smartSuggestionsRouter);
+
+// 9️⃣ artifacts/createai-brain/src/App.tsx — wire PushNotificationManager
+import PushNotificationManager from './components/PushNotificationManager';
+function App() {
+  return (
+    <div>
+      <PushNotificationManager />
+      {/* existing app layout */}
+    </div>
+  );
+}

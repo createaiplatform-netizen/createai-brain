@@ -600,6 +600,19 @@ export async function bootstrapSchema(): Promise<void> {
     // TODO: if direct user_id queries are added to habit_completions, add:
     //   CREATE INDEX IF NOT EXISTS idx_habit_comp_user ON platform_habit_completions(user_id, done_on DESC)
 
+    await sql`
+      CREATE TABLE IF NOT EXISTS platform_push_subscriptions (
+        id          TEXT PRIMARY KEY DEFAULT ('psub_' || gen_random_uuid()::text),
+        user_id     TEXT NOT NULL,
+        endpoint    TEXT NOT NULL UNIQUE,
+        p256dh      TEXT NOT NULL,
+        auth_key    TEXT NOT NULL,
+        created_at  TIMESTAMPTZ NOT NULL DEFAULT NOW(),
+        updated_at  TIMESTAMPTZ NOT NULL DEFAULT NOW()
+      )
+    `;
+    await sql`CREATE INDEX IF NOT EXISTS idx_push_sub_user ON platform_push_subscriptions(user_id)`;
+
     console.log("[DB] Schema bootstrap complete");
   } catch (err) {
     console.error("[DB] Schema bootstrap failed:", err instanceof Error ? err.message : String(err));
