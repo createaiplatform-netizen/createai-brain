@@ -1,0 +1,142 @@
+// ==========================
+// createai-brain/src/pages/EverythingNetWayPage.tsx
+// ==========================
+import React, { useEffect, useState } from 'react';
+
+const EverythingNetWayPage: React.FC = () => {
+  const [status, setStatus] = useState<any>(null);
+  const [loading, setLoading] = useState(true);
+
+  const fetchStatus = async () => {
+    try {
+      const res = await fetch('/api/everything-net-way/status', { credentials: 'include' });
+      const data = await res.json();
+      setStatus(data);
+    } catch (err) {
+      console.error(err);
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  useEffect(() => {
+    fetchStatus();
+    const interval = setInterval(fetchStatus, 5000); // refresh every 5s
+    return () => clearInterval(interval);
+  }, []);
+
+  if (loading) return <div className="p-6 text-sage-green">Loading EverythingNetWay status...</div>;
+
+  const renderCard = (title: string, data: any) => (
+    <div className="bg-sage-green-50 border border-sage-green rounded-lg p-4 m-2 flex-1 shadow-md">
+      <h2 className="font-semibold text-sage-green-800 mb-2">{title}</h2>
+      <pre className="text-sm text-sage-green-900">{JSON.stringify(data, null, 2)}</pre>
+    </div>
+  );
+
+  return (
+    <div className="p-6 bg-gray-50 min-h-screen">
+      <h1 className="text-3xl font-bold text-sage-green-900 mb-4">EverythingNetWay Dashboard</h1>
+      <div className="flex flex-wrap -m-2">
+        {renderCard('Electricity Layer', status?.electricity)}
+        {renderCard('Internet / Messaging Layer', status?.internet)}
+        {renderCard('Mobile / Cell Layer', status?.mobile)}
+        {renderCard('VentonWay Messaging', status?.messaging)}
+        {renderCard('Compute / Storage', status?.compute)}
+        {renderCard('Sensor / IoT Layer', status?.sensors)}
+      </div>
+    </div>
+  );
+};
+
+export default EverythingNetWayPage;
+
+
+// ==========================
+// api-server/src/services/everythingNetWay.ts
+// ==========================
+import { db, rawSql } from '@workspace/db';
+import { VentonWay } from './ventonWay';
+
+export const EverythingNetWay = {
+  async init() {
+    await db.query(rawSql`
+      CREATE TABLE IF NOT EXISTS platform_everything_queue (
+        id SERIAL PRIMARY KEY,
+        type TEXT NOT NULL,
+        payload JSONB,
+        status TEXT DEFAULT 'pending',
+        created_at TIMESTAMP DEFAULT now(),
+        updated_at TIMESTAMP DEFAULT now()
+      )
+    `);
+  },
+
+  async queueMessage(type: string, payload: any) {
+    await db.query(rawSql`
+      INSERT INTO platform_everything_queue (type, payload)
+      VALUES (${type}, ${payload})
+    `);
+  },
+
+  async processQueue() {
+    const items = await db.query(rawSql`SELECT * FROM platform_everything_queue WHERE status='pending'`);
+    for (const item of items.rows) {
+      try {
+        // Smart routing: VentonWay messaging first, then fallback
+        await VentonWay.routeAndDeliver(item.type, item.payload);
+        await db.query(rawSql`UPDATE platform_everything_queue SET status='sent', updated_at=now() WHERE id=${item.id}`);
+      } catch {
+        await db.query(rawSql`UPDATE platform_everything_queue SET status='failed', updated_at=now() WHERE id=${item.id}`);
+      }
+    }
+  },
+
+  async status() {
+    const electricity = { voltage: 120, current: 15 }; // example
+    const internet = { online: true, latency_ms: 12 };
+    const mobile = { signal_strength: '4G', active: true };
+    const messaging = await VentonWay.getStatus();
+    const compute = { cpu: '2 cores', memory: '4GB' };
+    const sensors = { temp: 22.5, humidity: 40 };
+
+    return { electricity, internet, mobile, messaging, compute, sensors };
+  },
+};
+
+
+// ==========================
+// api-server/src/routes/everythingNetWay.ts
+// ==========================
+import { Router } from 'express';
+import { EverythingNetWay } from '../services/everythingNetWay';
+
+const router = Router();
+
+router.get('/status', async (req, res) => {
+  const status = await EverythingNetWay.status();
+  res.json(status);
+});
+
+export default router;
+
+
+// ==========================
+// api-server/src/routes/index.ts (partial)
+// ==========================
+import everythingNetWayRouter from './everythingNetWay';
+router.use('/everything-net-way', everythingNetWayRouter);
+
+
+// ==========================
+// api-server/src/index.ts (partial)
+// ==========================
+import { EverythingNetWay } from './services/everythingNetWay';
+await EverythingNetWay.init();
+
+
+// ==========================
+// createai-brain/src/App.tsx (partial)
+// ==========================
+import EverythingNetWayPage from './pages/EverythingNetWayPage';
+<Route path="/everything-net-way" element={<EverythingNetWayPage />} />;
