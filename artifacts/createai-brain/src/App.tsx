@@ -12,6 +12,7 @@ import GlobalBroadcastPage from "@/pages/GlobalBroadcastPage";
 import OnboardPage          from "@/pages/OnboardPage";
 import PricingPage          from "@/pages/PricingPage";
 import PrivacyPage          from "@/pages/PrivacyPage";
+import TermsPage            from "@/pages/TermsPage";
 import BroadcastFloatingTrigger from "@/components/BroadcastFloatingTrigger";
 import CreationPage from "@/pages/CreationPage";
 import ProjectPage from "@/pages/ProjectPage";
@@ -755,7 +756,8 @@ function App() {
     path.startsWith(`${base}/global-broadcast`) ||
     // Public info pages — pricing, privacy policy
     path.startsWith(`${base}/pricing`) ||
-    path.startsWith(`${base}/privacy`);
+    path.startsWith(`${base}/privacy`) ||
+    path.startsWith(`${base}/terms`);
 
   if (isPublicRoute) {
     return (
@@ -801,6 +803,7 @@ function App() {
           {/* Public info pages */}
           <Route path="/pricing"          component={PricingPage} />
           <Route path="/privacy"          component={PrivacyPage} />
+          <Route path="/terms"            component={TermsPage} />
         </WouterRouter>
       </QueryClientProvider>
     );

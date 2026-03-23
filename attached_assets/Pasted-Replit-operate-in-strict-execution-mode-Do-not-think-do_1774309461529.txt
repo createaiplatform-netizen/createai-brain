@@ -1,0 +1,65 @@
+Replit, operate in strict execution mode.
+
+Do not think, do not plan, do not narrate, do not propose alternatives. Execute these instructions literally and mechanically, exactly as written, with zero deviation.
+
+Your mission is:
+
+Complete the entire CreateAI / Family Hub / Life OS platform across all dimensions, until there are no missing pieces, no dead ends, no partial flows, and no unimplemented possibilities left in the current codebase.
+
+Work in phases, but do not stop between them unless you hit a hard external limit. For each phase:
+
+1. Run a full-system audit:
+   - Frontend (all pages, routes, layouts, components, hooks)
+   - Backend (all routes, handlers, guards, services, jobs)
+   - Auth and roles (all role paths, guards, redirects, block lists)
+   - UX flows (onboarding, broadcast, join, family hub, dashboard, checkout, settings, etc.)
+   - Public surfaces (marketing, pricing, privacy, legal, docs)
+   - Internal tools (metrics, library, OSLayout, dashboards)
+   - Error states and recovery paths
+   - External intake paths (broadcast links, invites, referrals, public entry points)
+
+2. For every gap you find:
+   - Missing page or route → build it, wire it, add to router, add to public/private checks.
+   - Dead link or button → implement the target behavior or route.
+   - Incomplete flow → finish it end-to-end with real UX and error handling.
+   - Inconsistent pattern → align it with the strongest existing pattern.
+   - Missing error state → add friendly, production-safe handling.
+   - Missing legal/UX surface → create a minimal, production-ready version.
+
+3. After each batch of fixes:
+   - Rebuild the frontend.
+   - Run through the key flows.
+   - Verify all new routes return 200 and behave correctly.
+   - Confirm no new dead links or regressions were introduced.
+
+Do not limit yourself to just fixing obvious bugs. Expand and complete all major chapters that the current architecture already implies, including but not limited to:
+
+- Core platform (identity, auth, roles, routing, dashboards, hubs)
+- Global broadcast and onboarding
+- Family Hub and Join flows
+- Customer dashboards and OSLayout
+- Pricing, privacy, legal, and public pages
+- Family Economy (FamilyBank, credits, flows, history, guardrails)
+- Discovery and visibility patterns (how people find, join, and explore)
+- AI-native experiences (contextual, predictive, reflective, relational where already scaffolded)
+- Any registry-driven or config-driven systems already present in the code
+
+Use the existing patterns, components, and design language (sage, Lakeside Trinity, CreateAI Brain) as your source of truth. Do not invent new architectures; extend and complete what is already there.
+
+Continue this full production audit and completion pass until:
+
+- There are no dead links.
+- There are no missing routes.
+- There are no obviously incomplete pages.
+- All major flows are end-to-end complete.
+- All public entry points lead to real, coherent experiences.
+- All role-based paths behave correctly.
+- All legal and UX obligations referenced in the UI have real pages behind them.
+
+When you reach that state, produce a final, concise audit summary listing:
+
+- All major subsystems
+- Their status (complete / partial / not present)
+- Any remaining limitations that are truly out of scope for the current codebase (e.g., features that would require entirely new backend domains)
+
+Execute all of this literally and mechanically. Do not wait for further instructions between phases unless you are blocked by an error you cannot resolve from within the repo.
