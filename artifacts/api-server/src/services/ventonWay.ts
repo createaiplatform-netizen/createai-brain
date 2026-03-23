@@ -5,10 +5,7 @@
  */
 
 import { rawSql } from "@workspace/db";
-import {
-  sendEmailNotification,
-  sendSMSNotification,
-} from "../utils/notifications.js";
+import { routeAndDeliver } from "./ventonWayRouter.js";
 
 // ─── Types ────────────────────────────────────────────────────────────────────
 

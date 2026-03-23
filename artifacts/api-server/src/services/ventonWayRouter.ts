@@ -169,26 +169,30 @@ async function deliverViaSMTP(
 
 async function generateAndLogShareableLink(msg: RoutedMessage): Promise<string> {
   const base = getPublicBaseUrl();
-  const token = crypto.randomUUID().replace(/-/g, "");
+  const token = crypto.randomBytes(32).toString("hex");
 
-  // Store in shareable_messages table
+  const payload = JSON.stringify({
+    token,
+    type:      msg.type,
+    recipient: msg.recipient,
+    subject:   msg.subject ?? "Message from CreateAI Brain",
+    body:      msg.body,
+    metadata:  { ventonWayId: msg.id, ...((msg.metadata as Record<string, unknown>) ?? {}) },
+  });
+
   try {
-    await rawSql`
-      INSERT INTO platform_shareable_messages
-        (token, type, recipient, subject, body, metadata, created_at)
-      VALUES (
-        ${token},
-        ${msg.type},
-        ${msg.recipient},
-        ${msg.subject ?? null},
-        ${msg.body},
-        ${JSON.stringify({ ventonWayId: msg.id, ...((msg.metadata as Record<string,unknown>) ?? {}) })},
-        NOW()
-      )
-      ON CONFLICT DO NOTHING
-    `;
+    await db.insert(documents).values({
+      userId:    DOC_SYS_USER,
+      docType:   DOC_DOCTYPE,
+      title:     msg.subject ?? "Message from CreateAI Brain",
+      body:      payload,
+      tags:      `venton:${msg.id}`,
+      projectId: token,
+      tenantId:  "default",
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    } as any).onConflictDoNothing();
   } catch {
-    // Table may have slightly different schema — log and continue
+    // Non-fatal — link URL is still valid even if DB insert fails
   }
 
   return `${base}/msg/${token}`;
