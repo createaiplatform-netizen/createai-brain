@@ -1,0 +1,202 @@
+// ======================================================
+// CREATEAI RESOLUTION LAYER (CRL) — SINGLE MODULE
+// ======================================================
+
+/*
+  This module provides:
+  - Internal TLD registry
+  - CRL parser
+  - CRL → path resolver
+  - CRL → URL resolver
+  - Express API handler
+  - Frontend resolver
+  - React hook
+  - CRLLink component
+
+  It is intentionally atomic so the CreateAI OS can load it
+  as a single capability without cross-file dependencies.
+*/
+
+// ======================================================
+// 1. REGISTRY
+// ======================================================
+
+export type CRLScheme =
+  | 'brain'
+  | 'family'
+  | 'os'
+  | 'hub'
+  | 'space'
+  | 'identity';
+
+export const CRL_REGISTRY: Record<
+  CRLScheme,
+  { basePath: string; description: string }
+> = {
+  brain: {
+    basePath: '/',
+    description: 'Core CreateAI Brain tools and admin surfaces',
+  },
+  family: {
+    basePath: '/family',
+    description: 'Family OS, members, agents, and shared spaces',
+  },
+  os: {
+    basePath: '/os',
+    description: 'System-level OS surfaces and utilities',
+  },
+  hub: {
+    basePath: '/hubs',
+    description: 'Industry, topic, and feature hubs',
+  },
+  space: {
+    basePath: '/spaces',
+    description: 'Shared spaces, rooms, and collaboration areas',
+  },
+  identity: {
+    basePath: '/id',
+    description: 'Users, roles, profiles, and identity surfaces',
+  },
+};
+
+// ======================================================
+// 2. PARSER
+// ======================================================
+
+export function parseCRL(crl: string) {
+  const [scheme, rest] = crl.split('://');
+  if (!scheme || !rest) throw new Error(`Invalid CRL: ${crl}`);
+  if (!CRL_REGISTRY[scheme as CRLScheme])
+    throw new Error(`Unknown CRL scheme: ${scheme}`);
+
+  return {
+    scheme: scheme as CRLScheme,
+    path: rest.replace(/^\/+/, ''),
+    raw: crl,
+  };
+}
+
+// ======================================================
+// 3. RESOLVER (CRL → PATH / URL)
+// ======================================================
+
+export function resolveCRLToPath(crl: string): string {
+  const { scheme, path } = parseCRL(crl);
+  const base = CRL_REGISTRY[scheme].basePath;
+
+  if (!path) return base;
+  return `${base}/${path}`.replace(/\/+/g, '/');
+}
+
+export function resolveCRLToUrl(
+  crl: string,
+  baseUrl = 'https://createai.digital'
+): string {
+  const path = resolveCRLToPath(crl);
+  return `${baseUrl.replace(/\/+$/, '')}${path}`;
+}
+
+// ======================================================
+// 4. EXPRESS API HANDLER
+// ======================================================
+
+export function CRLApiHandler(req: any, res: any) {
+  try {
+    const crl = req.query.crl;
+    if (!crl) return res.status(400).json({ error: 'Missing crl parameter' });
+
+    const url = resolveCRLToUrl(crl);
+    return res.json({ crl, url });
+  } catch (err: any) {
+    return res.status(400).json({ error: err.message });
+  }
+}
+
+// ======================================================
+// 5. FRONTEND RESOLVER
+// ======================================================
+
+export async function resolveCRLFrontend(crl: string) {
+  const params = new URLSearchParams({ crl });
+  const res = await fetch(`/api/crl/resolve?${params.toString()}`);
+
+  if (!res.ok) {
+    const data = await res.json().catch(() => ({}));
+    throw new Error(data.error || 'Failed to resolve CRL');
+  }
+
+  return res.json();
+}
+
+// ======================================================
+// 6. REACT HOOK
+// ======================================================
+
+import { useEffect, useState } from 'react';
+
+export function useCRL(crl: string | null | undefined) {
+  const [data, setData] = useState<any>(null);
+  const [loading, setLoading] = useState(!!crl);
+  const [error, setError] = useState<string | null>(null);
+
+  useEffect(() => {
+    if (!crl) {
+      setData(null);
+      setLoading(false);
+      setError(null);
+      return;
+    }
+
+    let cancelled = false;
+    setLoading(true);
+
+    resolveCRLFrontend(crl)
+      .then((res) => {
+        if (!cancelled) {
+          setData(res);
+          setLoading(false);
+        }
+      })
+      .catch((err) => {
+        if (!cancelled) {
+          setError(err.message);
+          setLoading(false);
+        }
+      });
+
+    return () => {
+      cancelled = true;
+    };
+  }, [crl]);
+
+  return { data, loading, error };
+}
+
+// ======================================================
+// 7. CRL LINK COMPONENT
+// ======================================================
+
+import React from 'react';
+
+export function CRLLink({
+  crl,
+  children,
+  fallbackHref,
+  ...rest
+}: {
+  crl: string;
+  children?: any;
+  fallbackHref?: string;
+}) {
+  const { data, loading, error } = useCRL(crl);
+  const href = data?.url || fallbackHref || '#';
+
+  if (loading) return <span {...rest}>{children ?? 'Loading…'}</span>;
+  if (error && !data) return <span {...rest}>{children ?? 'Invalid link'}</span>;
+
+  return (
+    <a href={href} {...rest}>
+      {children ?? href}
+    </a>
+  );
+}
