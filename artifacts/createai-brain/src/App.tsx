@@ -8,6 +8,7 @@ import { useAuth } from "@workspace/replit-auth-web";
 import NotFound from "@/pages/not-found";
 import StandalonePage from "@/pages/StandalonePage";
 import BroadcastPage from "@/pages/BroadcastPage";
+import BroadcastFloatingTrigger from "@/components/BroadcastFloatingTrigger";
 import CreationPage from "@/pages/CreationPage";
 import ProjectPage from "@/pages/ProjectPage";
 import IntegrationDemoPage from "@/pages/IntegrationDemoPage";
@@ -746,6 +747,7 @@ function App() {
   if (isPublicRoute) {
     return (
       <QueryClientProvider client={queryClient}>
+        <BroadcastFloatingTrigger />
         <WouterRouter base={base}>
           <Route path="/integration-demo"   component={IntegrationDemoPage} />
           <Route path="/live-sim"           component={LiveSimDashboard} />
@@ -800,6 +802,7 @@ function App() {
             </PlatformProvider>
           </AuthGate>
         </ErrorBoundary>
+        <BroadcastFloatingTrigger />
         <Toaster />
       </TooltipProvider>
     </QueryClientProvider>

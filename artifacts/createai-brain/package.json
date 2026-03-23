@@ -79,6 +79,8 @@
   },
   "dependencies": {
     "@simplewebauthn/browser": "13.3.0",
+    "@types/qrcode": "^1.5.6",
+    "qrcode": "^1.5.4",
     "styled-components": "^6.3.12"
   }
 }
