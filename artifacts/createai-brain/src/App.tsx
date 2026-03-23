@@ -126,6 +126,17 @@ function Router() {
       <Route path="/standalone/creation/:creationId" component={CreationPage} />
       <Route path="/standalone/:projectId" component={StandalonePage} />
 
+      {/* ── Internal pages — require auth, moved from public bypass ────── */}
+      <Route path="/transcend-dashboard" component={UltimateTranscendDashboard} />
+      <Route path="/command-center" component={CommandCenterPage} />
+      <Route path="/analytics" component={AnalyticsPage} />
+      <Route path="/team" component={TeamPage} />
+      <Route path="/settings" component={SettingsPage} />
+      <Route path="/billing" component={BillingPage} />
+      <Route path="/data" component={DataPage} />
+      <Route path="/global-expansion" component={GlobalPage} />
+      <Route path="/evolution" component={EvolutionPage} />
+
       {/* ── Role-based Universe routes ──────────────────────────────────── */}
       {/* Admin Universe — admin/founder full control center */}
       <Route path="/admin">
@@ -700,16 +711,7 @@ function App() {
     path.startsWith(`${base}/createai-digital`) ||
     path.startsWith(`${base}/checkout`) ||
     path.startsWith(`${base}/real-market`) ||
-    path.startsWith(`${base}/transcend-dashboard`) ||
-    path.startsWith(`${base}/command-center`) ||
     path.startsWith(`${base}/platform-status`) ||
-    path.startsWith(`${base}/analytics`) ||
-    path.startsWith(`${base}/team`) ||
-    path.startsWith(`${base}/settings`) ||
-    path.startsWith(`${base}/billing`) ||
-    path.startsWith(`${base}/data`) ||
-    path.startsWith(`${base}/global-expansion`) ||
-    path.startsWith(`${base}/evolution`) ||
     path.startsWith(`${base}/semantic-store`) ||
     path.startsWith(`${base}/for/`) ||
     path.startsWith(`${base}/join/`) ||
@@ -732,16 +734,7 @@ function App() {
           <Route path="/createai-digital"   component={CreateAIDigitalPage} />
           <Route path="/checkout"           component={CheckoutPage} />
           <Route path="/real-market"           component={RealMarketPage} />
-          <Route path="/transcend-dashboard"  component={UltimateTranscendDashboard} />
-          <Route path="/command-center"       component={CommandCenterPage} />
           <Route path="/platform-status"     component={PlatformStatusPage} />
-          <Route path="/analytics"           component={AnalyticsPage} />
-          <Route path="/team"                component={TeamPage} />
-          <Route path="/settings"            component={SettingsPage} />
-          <Route path="/billing"             component={BillingPage} />
-          <Route path="/data"                component={DataPage} />
-          <Route path="/global-expansion"    component={GlobalPage} />
-          <Route path="/evolution"           component={EvolutionPage} />
           <Route path="/semantic-store"      component={SemanticStorePage} />
           {/* SEO Industry Landing Pages — fully public, no auth required */}
           <Route path="/for/:industry">{(params: { industry: string }) => <SEOLandingPage industry={params.industry} />}</Route>

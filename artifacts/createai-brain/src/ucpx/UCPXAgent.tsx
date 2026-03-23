@@ -3056,6 +3056,7 @@ function InfiniteEcosystemView() {
           <div className="bg-blue-50 border border-blue-200 rounded-xl p-3 text-[10px] text-blue-700">
             <p className="font-bold mb-1">🤖 Autonomous Self-Expansion Engine</p>
             <p>Creates new projects, workflows, tools, agents, and Mini-Brains independently — no human required. Detects gaps, invents solutions, and deploys automatically.</p>
+            <p className="mt-1 font-semibold text-blue-500">⚠ Planning scenarios — illustrative examples of what this engine produces, not live deployments.</p>
           </div>
           {AUTO_EXPAND_EVENTS.map(ev => (
             <div key={ev.id} className="bg-white border border-border rounded-2xl p-3">
@@ -3064,12 +3065,12 @@ function InfiniteEcosystemView() {
                   <span className="text-base">{ev.type === "project" ? "🏭" : ev.type === "workflow" ? "⚙️" : ev.type === "tool" ? "🛠️" : ev.type === "agent" ? "🤖" : "🧠"}</span>
                   <div>
                     <p className="text-[11px] font-bold text-foreground">{ev.name}</p>
-                    <p className="text-[9px] text-muted-foreground">{ev.industry} · {ev.ts}</p>
+                    <p className="text-[9px] text-muted-foreground">{ev.industry} · example scenario</p>
                   </div>
                 </div>
-                <span className={`text-[9px] font-black px-2 py-0.5 rounded-full uppercase ${ev.status === "deployed" ? "bg-green-100 text-green-700" : ev.status === "testing" ? "bg-yellow-100 text-yellow-700" : "bg-blue-100 text-blue-700"}`}>{ev.status}</span>
+                <span className="text-[9px] font-black px-2 py-0.5 rounded-full uppercase bg-gray-100 text-gray-500">example</span>
               </div>
-              <p className="text-[10px] text-green-600 font-semibold">{ev.impact}</p>
+              <p className="text-[10px] text-muted-foreground font-semibold">{ev.impact}</p>
             </div>
           ))}
         </div>
@@ -3081,6 +3082,7 @@ function InfiniteEcosystemView() {
           <div className="bg-purple-50 border border-purple-200 rounded-xl p-3 text-[10px] text-purple-700">
             <p className="font-bold mb-1">🧬 Cross-Industry Meta-Intelligence</p>
             <p>Learns from all projects simultaneously and transfers successful patterns across industries. Every project makes every other project smarter.</p>
+            <p className="mt-1 font-semibold text-purple-500">⚠ Planning scenarios — illustrative pattern examples, not live cross-project data.</p>
           </div>
           {META_INSIGHTS.map(insight => (
             <div key={insight.id} className="bg-white border border-border rounded-2xl p-3 space-y-2">
@@ -3111,6 +3113,7 @@ function InfiniteEcosystemView() {
           <div className="bg-green-50 border border-green-200 rounded-xl p-3 text-[10px] text-green-700">
             <p className="font-bold mb-1">💹 Hyper-Autonomous Economic Engine</p>
             <p>Predicts revenue, optimizes expenses, auto-generates contracts and campaigns. AI-managed financial strategy with trillion-dollar precision.</p>
+            <p className="mt-1 font-semibold text-green-600">⚠ Scenario projections — AI-modeled planning examples, not actual revenue or financial data.</p>
           </div>
           <div className="space-y-2">
             {ECON_FORECASTS.map(f => (
@@ -3243,6 +3246,7 @@ function InfiniteEcosystemView() {
           <div className="bg-amber-50 border border-amber-200 rounded-xl p-3 text-[10px] text-amber-700">
             <p className="font-bold mb-1">💰 Trillion-Dollar Strategy Layer</p>
             <p>Models and maximizes ROI, efficiency, and savings at enterprise scale. Predicts paths to billion-dollar outcomes with confidence-weighted strategies.</p>
+            <p className="mt-1 font-semibold text-amber-600">⚠ Vision planning scenarios — strategic opportunity examples, not live commitments or guaranteed outcomes.</p>
           </div>
           {TRILLION_STRATEGIES.map(s => (
             <div key={s.focus} className="bg-white border border-border rounded-2xl p-3 space-y-2">
@@ -3274,6 +3278,7 @@ function InfiniteEcosystemView() {
           <div className="bg-emerald-50 border border-emerald-200 rounded-xl p-3 text-[10px] text-emerald-700">
             <p className="font-bold mb-1">🔧 Dynamic Resource Optimizer</p>
             <p>Automatically reallocates staff, budgets, API capacity, and compute across all projects. Identifies waste and redirects resources to highest-ROI activities.</p>
+            <p className="mt-1 font-semibold text-emerald-600">⚠ Planning examples — illustrative resource allocation scenarios, not live system data.</p>
           </div>
           {RESOURCE_ALLOCS.map(r => (
             <div key={r.resource} className="bg-white border border-border rounded-2xl p-3 space-y-2">
@@ -3306,6 +3311,7 @@ function InfiniteEcosystemView() {
           <div className="bg-orange-50 border border-orange-200 rounded-xl p-3 text-[10px] text-orange-700">
             <p className="font-bold mb-1">🔗 Cross-Project Learning Engine</p>
             <p>Every project shares optimizations, best practices, and intelligence with all other projects. The more projects you run, the smarter every project becomes.</p>
+            <p className="mt-1 font-semibold text-orange-600">⚠ Illustrative examples — cross-learning scenarios, not live project data.</p>
           </div>
           {CROSS_LEARNINGS.map((cl, i) => (
             <div key={i} className="bg-white border border-border rounded-2xl p-3 space-y-1.5">
@@ -3327,6 +3333,7 @@ function InfiniteEcosystemView() {
           <div className="bg-red-50 border border-red-200 rounded-xl p-3 text-[10px] text-red-700">
             <p className="font-bold mb-1">🔬 Micro-Brain Network — Task-Level Intelligence</p>
             <p>Micro-Brains (μ) operate below Mini-Brains — handling individual tasks autonomously. Each Micro-Brain is assigned to one high-volume task and reports to its department Mini-Brain.</p>
+            <p className="mt-1 font-semibold text-red-500">⚠ Example task scenarios — illustrative Micro-Brain operations, not live running processes.</p>
           </div>
           {MICRO_BRAINS.map(mb => (
             <div key={mb.id} className="bg-white border border-border rounded-2xl p-3 space-y-1.5">
