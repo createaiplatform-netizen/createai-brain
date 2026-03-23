@@ -533,6 +533,10 @@ router.use("/everything-net-way", everythingNetWayRouter);
 import meshNetWayRouter from "./meshNetWay.js";
 router.use("/mesh-net-way", meshNetWayRouter);
 
+// ── Full-System EBS-Style Alert Test ─────────────────────────────────────────
+import alertTestRouter from "./alertTest.js";
+router.use("/system", alertTestRouter);
+
 // ── Financial Hub Backward-Compat Redirects — T006 ───────────────────────────
 // Wealth, ledger, and revenue-intel are also reachable under /finance/*
 // using 301 redirects for any client still hitting the legacy paths.

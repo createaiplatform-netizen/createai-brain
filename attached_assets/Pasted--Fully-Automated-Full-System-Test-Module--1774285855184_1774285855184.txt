@@ -1,0 +1,89 @@
+// ======================================
+// Fully Automated Full-System Test Module
+// ======================================
+
+async function runFullSystemTest() {
+  const TEST_NODE = "TEST_NODE"; // Sandbox node for isolated testing
+  console.log("🚀 Starting Full-System Test...");
+
+  // 1. Prepare the Test Message
+  const testMessage = {
+    event_type: "TEST_ALERT",
+    timestamp: new Date().toISOString(),
+    message: "Full-system test alert. No action required.",
+    node_id: TEST_NODE
+  };
+
+  // 2. Queue the Message in VentonWay
+  try {
+    await VentonWay.queueMessage({ node: TEST_NODE, payload: testMessage });
+    console.log("✅ Message queued in VentonWay.");
+  } catch (err) {
+    console.error("❌ Failed to queue message:", err);
+    return;
+  }
+
+  // 3. Trigger Mesh & Electric Systems
+  try {
+    await Mesh.triggerEvent(TEST_NODE, "TEST_ALERT");
+    await Electric.triggerEvent(TEST_NODE, "TEST_ALERT");
+    console.log("✅ Mesh and Electric events triggered.");
+  } catch (err) {
+    console.error("❌ Failed to trigger events:", err);
+    return;
+  }
+
+  // 4. Verify Device Subscriptions
+  let subscribedDevices;
+  try {
+    subscribedDevices = await Devices.listSubscriptions(TEST_NODE);
+    console.log("✅ Subscribed devices:", subscribedDevices.map(d => d.id));
+  } catch (err) {
+    console.error("❌ Failed to list subscriptions:", err);
+    return;
+  }
+
+  // 5. Monitor Queue Processing
+  try {
+    await VentonWay.monitorQueue(TEST_NODE, "TEST_ALERT", (log) => {
+      console.log("📡 Queue Log:", log);
+    });
+    console.log("✅ Queue processing monitored.");
+  } catch (err) {
+    console.error("❌ Queue monitoring failed:", err);
+  }
+
+  // 6. Confirm Notifications on Devices
+  for (const device of subscribedDevices) {
+    try {
+      await device.testNotification(testMessage);
+      console.log(`✅ Alert received by device ${device.id}`);
+    } catch (err) {
+      console.error(`❌ Alert failed for device ${device.id}:`, err);
+    }
+  }
+
+  // 7. Cleanup Test Node
+  async function cleanup() {
+    try {
+      await VentonWay.clearQueue(TEST_NODE);
+      await Mesh.clearEvents(TEST_NODE);
+      await Electric.clearEvents(TEST_NODE);
+      console.log("🧹 Test node and events cleared.");
+    } catch (err) {
+      console.error("❌ Cleanup failed:", err);
+    }
+  }
+
+  // Wait a few seconds for propagation, then clean up
+  setTimeout(cleanup, 5000);
+  console.log("⏳ Waiting 5 seconds before cleanup...");
+}
+
+// ===========================
+// Usage:
+// Just call runFullSystemTest() to run the full test
+// ===========================
+
+// Example call
+runFullSystemTest();
