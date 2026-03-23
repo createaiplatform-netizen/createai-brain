@@ -29,6 +29,7 @@ import { replayEvent, replayBatch, replayByTimeRange } from "../ebs/replayEngine
 import { schemaRegistry }        from "../ebs/schemaRegistry.js";
 import { handleInboundWebhook, type InboundSource } from "../ebs/inboundWebhookRouter.js";
 import { rawSql as sql }         from "@workspace/db";
+import { routeEvent }            from "../ebs/crossSystemRouter.js";
 
 const router = Router();
 
@@ -268,6 +269,125 @@ router.get("/delivery-log", requireAuth, async (req: Request, res: Response) => 
   } catch (err) {
     res.status(500).json({ ok: false, error: (err as Error).message });
   }
+});
+
+// ─── POST /emit — full pipeline test ─────────────────────────────────────────
+// Drives: schema → eventStore → SSE → outboundWebhookEngine → VentonWay queue
+// Open (no auth) so the activation test can run without a session cookie.
+
+router.post("/emit", async (req: Request, res: Response) => {
+  const {
+    topic        = "system",
+    event_type   = "system.test",
+    source       = "platform",
+    payload      = {},
+    correlation_id,
+  } = (req.body ?? {}) as Record<string, unknown>;
+
+  const trace: Array<{ step: string; ok: boolean; detail: unknown; ms: number }> = [];
+  const t0 = Date.now();
+
+  function step(name: string, ok: boolean, detail: unknown) {
+    trace.push({ step: name, ok, detail, ms: Date.now() - t0 });
+    const sym = ok ? "✅" : "❌";
+    console.log(`[EBS:emit] ${sym} ${name} +${Date.now() - t0}ms`, JSON.stringify(detail));
+  }
+
+  // ── 1. Schema validation ──────────────────────────────────────────────────
+  try {
+    const v = schemaRegistry.validate(
+      String(topic), String(event_type),
+      (payload as Record<string, unknown>)
+    );
+    step("schema.validate", v.ok, v.ok ? "passed" : { violations: v.violations });
+  } catch (e) {
+    step("schema.validate", false, (e as Error).message);
+  }
+
+  // ── 2. EventStore + SSE (via crossSystemRouter) ───────────────────────────
+  let storedEventId: string | null = null;
+  try {
+    const result = await routeEvent({
+      topic:          String(topic),
+      event_type:     String(event_type),
+      source:         String(source),
+      payload:        (payload as Record<string, unknown>),
+      correlation_id: correlation_id ? String(correlation_id) : undefined,
+    });
+    step("eventStore.append", result.stored, result.stored ? "persisted" : result.warnings);
+    step("sse.broadcast",     result.sse,    result.sse    ? "pushed to all SSE clients" : result.warnings);
+  } catch (e) {
+    step("crossSystemRouter", false, (e as Error).message);
+  }
+
+  // Verify — separate try so a query error never masks the append result
+  try {
+    const { getEvents } = await import("../ebs/eventStore.js");
+    const [latest] = await getEvents({ event_type: String(event_type), limit: 1 });
+    storedEventId = latest?.event_id ?? null;
+    step("eventStore.verify", !!storedEventId, storedEventId ?? "not found");
+  } catch (e) {
+    step("eventStore.verify", false, (e as Error).message);
+  }
+
+  // ── 3. OutboundWebhookEngine — enqueue to internal echo endpoint ──────────
+  let hookId: string | null = null;
+  try {
+    const echoUrl = `http://localhost:${process.env["PORT"] ?? 8080}/api/ebs/status`;
+    hookId = await enqueueOutboundWebhook({
+      url:            echoUrl,
+      event_type:     String(event_type),
+      payload:        { ...((payload as Record<string, unknown>)), _test: true, event_id: storedEventId },
+      correlation_id: storedEventId ?? undefined,
+    });
+    step("outboundWebhookEngine.enqueue", true, { hook_id: hookId, url: echoUrl });
+  } catch (e) {
+    step("outboundWebhookEngine.enqueue", false, (e as Error).message);
+  }
+
+  // ── 4. VentonWay queue — insert a system.test row ────────────────────────
+  let ventonId: string | null = null;
+  try {
+    const ventonMeta = JSON.stringify({
+      source:        "ebs_emit",
+      event_type:    String(event_type),
+      correlation_id: storedEventId,
+      hook_id:       hookId,
+    });
+    const ventonBody = `EBS activation test — event_id:${storedEventId ?? "n/a"} hook_id:${hookId ?? "n/a"}`;
+    const rows = await sql`
+      INSERT INTO platform_venton_way_queue
+        (type, recipient, subject, body, scheduled_at, status, metadata)
+      VALUES
+        ('email',
+         'system@createai.digital',
+         'EBS Activation Test',
+         ${ventonBody},
+         NOW(),
+         'pending',
+         ${ventonMeta}::jsonb)
+      RETURNING id
+    `;
+    ventonId = String((rows[0] as Record<string, unknown>)["id"] ?? "");
+    step("ventonWay.queue.insert", true, { queue_id: ventonId, status: "pending" });
+  } catch (e) {
+    step("ventonWay.queue.insert", false, (e as Error).message);
+  }
+
+  // ── Summary ───────────────────────────────────────────────────────────────
+  const allOk = trace.every(t => t.ok);
+  const summary = {
+    ok:       allOk,
+    pipeline: "UltraInteractionEngine → crossSystemRouter → eventStore → SSE → outboundWebhookEngine → VentonWay queue",
+    event_id: storedEventId,
+    hook_id:  hookId,
+    venton_queue_id: ventonId,
+    total_ms: Date.now() - t0,
+    steps:    trace,
+  };
+
+  console.log(`[EBS:emit] pipeline complete in ${summary.total_ms}ms — all_ok:${allOk}`);
+  res.status(allOk ? 200 : 207).json(summary);
 });
 
 // ─── POST /inbound/:source ────────────────────────────────────────────────────

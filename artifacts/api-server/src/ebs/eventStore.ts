@@ -107,8 +107,8 @@ export async function getEvents(q: EventQuery = {}): Promise<StoredEvent[]> {
       AND  (${q.topic      ?? null}::text IS NULL OR topic      = ${q.topic      ?? ""})
       AND  (${q.event_type ?? null}::text IS NULL OR event_type = ${q.event_type ?? ""})
       AND  (${q.source     ?? null}::text IS NULL OR source     = ${q.source     ?? ""})
-      AND  (${q.from ? q.from.toISOString() : null}::timestamptz IS NULL OR created_at >= ${q.from ? q.from.toISOString() : ""}::timestamptz)
-      AND  (${q.to   ? q.to.toISOString()   : null}::timestamptz IS NULL OR created_at <= ${q.to   ? q.to.toISOString()   : ""}::timestamptz)
+      AND  (${q.from ? q.from.toISOString() : null}::timestamptz IS NULL OR created_at >= ${q.from ? q.from.toISOString() : null}::timestamptz)
+      AND  (${q.to   ? q.to.toISOString()   : null}::timestamptz IS NULL OR created_at <= ${q.to   ? q.to.toISOString()   : null}::timestamptz)
     ORDER BY created_at DESC
     LIMIT  ${limit}
     OFFSET ${offset}
