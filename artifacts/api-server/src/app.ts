@@ -156,7 +156,9 @@ app.use(globalLimiter);
 // ── CORS allowlist ────────────────────────────────────────────────────────────
 const customDomain = process.env["PUBLIC_DOMAIN"]?.replace(/^https?:\/\//, "").replace(/\/$/, "") ?? "";
 const ALLOWED_ORIGINS: RegExp[] = [
-  // Replit hosting
+  // Production domain (createai.digital + www)
+  /^https?:\/\/(www\.)?createai\.digital$/,
+  // Replit hosting — dev + deployment
   /\.replit\.app$/,
   /\.replit\.dev$/,
   // Cloudflare free tiers
@@ -175,16 +177,25 @@ const ALLOWED_ORIGINS: RegExp[] = [
   /^http:\/\/127\.0\.0\.1(:\d+)?$/,
   /^http:\/\/172\.\d+\.\d+\.\d+(:\d+)?$/,
 ];
+// Add PUBLIC_DOMAIN if set and not already covered
 if (customDomain) {
   const escaped = customDomain.replace(/\./g, "\\.");
   ALLOWED_ORIGINS.push(new RegExp(`^https?://(www\\.)?${escaped}$`));
+}
+// Add any extra domains from REPLIT_DOMAINS (comma-separated)
+const replitDomains = process.env["REPLIT_DOMAINS"] ?? "";
+for (const d of replitDomains.split(",").map(s => s.trim()).filter(Boolean)) {
+  const escaped = d.replace(/\./g, "\\.");
+  ALLOWED_ORIGINS.push(new RegExp(`^https?://${escaped}$`));
 }
 
 app.use(cors({
   credentials: true,
   origin: (origin, callback) => {
+    // No origin = same-origin request (server-to-server or direct) — always allow
     if (!origin) return callback(null, true);
     const allowed = ALLOWED_ORIGINS.some(p => p.test(origin));
+    if (!allowed) console.warn(`[CORS] Blocked origin: ${origin}`);
     callback(allowed ? null : new Error("CORS: origin not allowed"), allowed);
   },
 }));
