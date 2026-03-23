@@ -161,7 +161,9 @@ export function mountFrontend(app: Express): void {
     return;
   }
   app.use(express.static(DIST_DIR, { maxAge: "1h", index: "index.html" }));
-  app.get(/^\/(?!api|\.well-known|admin|studio|ops|status|pulse|ss|nexus|core|bundle|valuation|vault|launch|portal|join|store|checkout|export|for|auth|stripe).*/, (_req, res) => {
+  // Serve index.html for all non-API routes — the SPA handles all frontend routing internally.
+  // API routes, well-known files, and static assets are handled before this catch-all.
+  app.get(/^\/(?!api\/)/, (_req, res) => {
     res.sendFile(path.join(DIST_DIR, "index.html"));
   });
   state.frontendServed = true;
