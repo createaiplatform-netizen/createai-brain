@@ -1,0 +1,106 @@
+This is my real production platform. Complete this entire Replit project to 100% across all systems, flows, pages, APIs, roles, UX, and integrations. No stubs, no TODOs, no placeholders, no broken routes, no partial features, no missing logic. Everything must be fully implemented, coherent, and production-ready within the constraints of Replit and the existing tech stack.
+
+1) FULL SYSTEM AUDIT
+- Scan the entire codebase.
+- Identify every incomplete, stubbed, placeholder, or partially implemented feature.
+- Identify every broken route, missing page, missing API, or unhandled state.
+- Identify every UX dead end, missing button action, or unimplemented flow.
+- Identify every role-based gap or missing permission check.
+- Identify every onboarding path that is incomplete or inconsistent.
+
+2) COMPLETE ALL CORE FLOWS
+Complete and fully wire the following flows end-to-end:
+- Family onboarding
+- Public/global onboarding
+- Magic link invites
+- Global broadcast activation
+- Login, auth, session handling
+- Role assignment and role-based routing
+- Home/dashboard experiences for each role
+- Family Hub experience
+- Global entry experience
+- Error and recovery flows
+
+Every flow must:
+- have a clear start
+- have a clear end
+- be reachable
+- be functional
+- be visually coherent
+- have no missing steps
+
+3) ROUTING & NAVIGATION
+- Ensure App.tsx (or equivalent) contains a complete, correct routing map.
+- Every route must lead to a real, implemented page.
+- No broken links, no missing components.
+- Role-based routing must be enforced everywhere.
+- First-time users must land in the correct experience.
+- Returning users must land in the correct experience.
+
+4) FAMILY HUB (FULL IMPLEMENTATION)
+- Build a complete Family Hub experience.
+- Must include:
+  - family home
+  - shared spaces
+  - updates/broadcasts
+  - invites
+  - personal view
+- No placeholders.
+- All buttons must perform real actions.
+
+5) GLOBAL BROADCAST (FULL INTEGRATION)
+- Integrate the Global Broadcast Activation system fully.
+- Ensure:
+  - POST /api/broadcast/global works
+  - signed onboarding link works
+  - QR works
+  - visualization works
+  - broadcast log works
+  - global users can onboard successfully
+- Handle expired/invalid tokens with friendly UX.
+
+6) UNIVERSAL EXTERNAL INTAKE (LEGAL + SAFE)
+Implement a universal intake layer that can accept any legal, safe external input supported by this stack:
+- public links
+- QR codes
+- external API calls
+- webhooks (if applicable)
+- user submissions
+- global onboarding entries
+
+Every external entry point must:
+- be validated
+- be safe
+- be routed correctly
+- land the user in the correct experience
+
+7) ERROR STATES & SAFETY
+- Implement friendly, user-facing error handling for:
+  - invalid links
+  - expired tokens
+  - unauthorized access
+  - missing roles
+  - missing data
+- No raw errors.
+- Every error must offer a recovery path.
+
+8) CLEANUP & COHERENCE
+- Remove unused components, dead routes, dev scaffolding.
+- Ensure naming, structure, and UX feel unified and intentional.
+- No debug UI.
+- No leftover experimental code.
+
+9) CONSTRAINTS
+- Must run fully inside this Replit project.
+- Must use existing stack and patterns.
+- Must not require Replit UI actions beyond running the app.
+- Must not rely on unsupported features.
+- Must remain legal and safe.
+
+DELIVERABLE
+- A fully complete, fully integrated, production-ready platform inside this Replit project.
+- All flows implemented.
+- All routes wired.
+- All roles respected.
+- All UX paths intentional.
+- No gaps, no stubs, no missing pieces.

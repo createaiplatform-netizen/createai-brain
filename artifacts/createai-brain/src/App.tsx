@@ -9,6 +9,7 @@ import NotFound from "@/pages/not-found";
 import StandalonePage from "@/pages/StandalonePage";
 import BroadcastPage       from "@/pages/BroadcastPage";
 import GlobalBroadcastPage from "@/pages/GlobalBroadcastPage";
+import OnboardPage          from "@/pages/OnboardPage";
 import BroadcastFloatingTrigger from "@/components/BroadcastFloatingTrigger";
 import CreationPage from "@/pages/CreationPage";
 import ProjectPage from "@/pages/ProjectPage";
@@ -746,7 +747,10 @@ function App() {
     path.startsWith(`${base}/public`) ||
     // Registry-driven discovery + broadcast — public, no auth required
     path.startsWith(`${base}/discover`) ||
-    path.startsWith(`${base}/broadcast`);
+    path.startsWith(`${base}/broadcast`) ||
+    // Global Broadcast onboarding entry — token-verified, no auth gate
+    path.startsWith(`${base}/onboard`) ||
+    path.startsWith(`${base}/global-broadcast`);
 
   if (isPublicRoute) {
     return (
@@ -787,6 +791,8 @@ function App() {
           {/* Broadcast network — public subscription page */}
           <Route path="/broadcast"        component={BroadcastPage} />
           <Route path="/global-broadcast" component={GlobalBroadcastPage} />
+          {/* Global Broadcast entry — token-verified onboarding for anyone with the link */}
+          <Route path="/onboard"          component={OnboardPage} />
         </WouterRouter>
       </QueryClientProvider>
     );
