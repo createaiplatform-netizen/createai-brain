@@ -236,19 +236,19 @@ export function CrossDomainInsightsApp() {
               {domainStats.map(stat => (
                 <div key={stat.domain} style={{
                   background: "#0f172a", borderRadius: 10,
-                  border: `1px solid ${stat.count > 0 ? stat.color + "44" : "#1e293b"}`,
+                  border: `1px solid ${(stat.count ?? 0) > 0 ? stat.color + "44" : "#1e293b"}`,
                   padding: "16px 14px", transition: "border-color 0.2s",
                 }}>
                   <div style={{ fontSize: 22, marginBottom: 8 }}>{stat.icon}</div>
                   <div style={{ fontSize: 13, fontWeight: 600, color: "#e2e8f0" }}>{stat.label}</div>
                   <div style={{
-                    fontSize: 22, fontWeight: 800, color: stat.count > 0 ? stat.color : "#334155",
+                    fontSize: 22, fontWeight: 800, color: (stat.count ?? 0) > 0 ? stat.color : "#334155",
                     marginTop: 4,
                   }}>
-                    {stat.count > 0 ? stat.count : "—"}
+                    {(stat.count ?? 0) > 0 ? stat.count : "—"}
                   </div>
                   <div style={{ fontSize: 10, color: "#475569", marginTop: 2 }}>
-                    {stat.count > 0 ? "queries in snapshots" : "no recent activity"}
+                    {(stat.count ?? 0) > 0 ? "queries in snapshots" : "no recent activity"}
                   </div>
                 </div>
               ))}

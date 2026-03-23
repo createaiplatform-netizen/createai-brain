@@ -91,7 +91,7 @@ export function FeatureFlagsApp() {
         {tab === "flags" && (
           <div style={S.card}>
             <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: "1rem" }}>
-              <div style={S.h2} style={{ marginBottom: 0 }}>Flags</div>
+              <div style={{ ...S.h2, marginBottom: 0 }}>Flags</div>
               <input style={{ ...S.inp, width: "200px" }} value={search} onChange={e => setSearch(e.target.value)} placeholder="Search…" aria-label="Search flags" />
             </div>
             {filtered.length === 0 ? (

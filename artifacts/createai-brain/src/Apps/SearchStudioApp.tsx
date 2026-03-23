@@ -43,7 +43,7 @@ export function SearchStudioApp() {
   const [elapsed,   setElapsed]  = useState(0);
   const [suggests,  setSuggests] = useState<{ label: string; domain: string }[]>([]);
   const inputRef = useRef<HTMLInputElement>(null);
-  const debounceRef = useRef<ReturnType<typeof setTimeout>>();
+  const debounceRef = useRef<ReturnType<typeof setTimeout> | undefined>(undefined);
 
   useEffect(() => { inputRef.current?.focus(); }, []);
 

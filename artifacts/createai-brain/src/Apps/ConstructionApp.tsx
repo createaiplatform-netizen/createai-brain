@@ -1,6 +1,6 @@
 import { useState, useEffect, useCallback } from "react";
 
-type Project    = { id: number; name: string; address: string; type: string; status: string; budget: number; spent: number; manager: string; start_date: string; end_date: string };
+type Project    = { id: number; name: string; address: string; city?: string; type: string; status: string; budget: number; spent: number; manager: string; start_date: string; end_date: string };
 type Bid        = { id: number; project_name: string; bidder: string; bidder_email: string; amount: number; status: string; valid_until: string; notes: string };
 type Inspection = { id: number; project_name: string; type: string; inspector: string; agency: string; result: string; scheduled_at: string; completed_at: string };
 type Stats      = { projects: Record<string,number>; pendingBids: number; activeContracts: number; pendingInspections: number; openPunchItems: number };

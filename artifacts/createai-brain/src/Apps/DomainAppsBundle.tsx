@@ -11,6 +11,7 @@ function useFetch<T>(url: string, interval = 0) {
   useEffect(() => {
     load();
     if (interval > 0) { const t = setInterval(load, interval); return () => clearInterval(t); }
+    return undefined;
   }, [load, interval]);
   return { data, loading, reload: load };
 }

@@ -21,8 +21,7 @@ const healthPlugin = {
     };
   }) {
     server.middlewares.use((req, res, next) => {
-      const url = req.url ?? "/";
-      if (url === "/" || url === "/health") {
+      if (req.url === "/health") {
         res.writeHead(200, { "Content-Type": "text/plain", "Cache-Control": "no-cache" });
         res.end("OK");
         return;
