@@ -30,6 +30,12 @@ import { schemaRegistry }        from "../ebs/schemaRegistry.js";
 import { handleInboundWebhook, type InboundSource } from "../ebs/inboundWebhookRouter.js";
 import { rawSql as sql }         from "@workspace/db";
 import { routeEvent }            from "../ebs/crossSystemRouter.js";
+import { queueMessage, processQueue as ventonProcess } from "../services/ventonWay.js";
+import { queueJob as enqueueENW }   from "../services/everythingNetWay.js";
+import { queueNetJob }              from "../services/electricNetWay.js";
+import { getMeshNodes, updateMeshNodeStatus } from "../services/meshNetWay.js";
+import { pushEvent as sseEvent }    from "./eventsStream.js";
+import webpush                      from "web-push";
 
 const router = Router();
 
@@ -419,6 +425,138 @@ router.post("/inbound/:source", async (req: Request, res: Response) => {
   } catch (err) {
     res.status(500).json({ ok: false, error: (err as Error).message });
   }
+});
+
+// ─── POST /emergency-broadcast ────────────────────────────────────────────────
+// Fans out through every internal delivery channel.
+// No external providers (Twilio / Resend) are called here.
+
+router.post("/emergency-broadcast", async (req: Request, res: Response) => {
+  const startMs = Date.now();
+  const message =
+    (req.body as { message?: string })?.message ??
+    "Emergency Broadcast — CreateAI Brain platform event";
+
+  const log: Array<{ channel: string; ok: boolean; detail?: string }> = [];
+
+  // 1. EBS eventStore + cross-system router (SSE fan-out handled inside routeEvent)
+  try {
+    await routeEvent({
+      id:        "eb-" + crypto.randomUUID(),
+      type:      "EMERGENCY_BROADCAST",
+      source:    "platform",
+      payload:   { message, ts: new Date().toISOString() },
+      timestamp: new Date().toISOString(),
+    });
+    log.push({ channel: "ebs:eventStore+crossSystemRouter", ok: true });
+  } catch (err) {
+    log.push({ channel: "ebs:eventStore+crossSystemRouter", ok: false, detail: (err as Error).message });
+  }
+
+  // 2. Direct SSE push to all OS subscribers
+  try {
+    sseEvent("emergency", "EMERGENCY_BROADCAST", { message, ts: new Date().toISOString() });
+    log.push({ channel: "sse:osLayer", ok: true });
+  } catch (err) {
+    log.push({ channel: "sse:osLayer", ok: false, detail: (err as Error).message });
+  }
+
+  // 3. VentonWay internal queue — internal phone layer (sms) + internal email layer (email)
+  for (const type of ["email", "sms"] as const) {
+    try {
+      const { id } = await queueMessage({
+        type,
+        recipient: "internal://all",
+        subject:   "EMERGENCY BROADCAST",
+        body:      message,
+        metadata:  { source: "emergency_broadcast", ts: new Date().toISOString() },
+      });
+      log.push({ channel: `ventonWay:${type}`, ok: true, detail: `queued id:${id}` });
+    } catch (err) {
+      log.push({ channel: `ventonWay:${type}`, ok: false, detail: (err as Error).message });
+    }
+  }
+  // Process VentonWay queue immediately
+  try {
+    const r = await ventonProcess();
+    log.push({ channel: "ventonWay:processQueue", ok: true, detail: `processed:${r.processed} sent:${r.sent}` });
+  } catch (err) {
+    log.push({ channel: "ventonWay:processQueue", ok: false, detail: (err as Error).message });
+  }
+
+  // 4. EverythingNetWay — TV/device, mobile, messaging, compute, sensor, internet layers
+  const enwLayers: Array<"mobile" | "messaging" | "internet" | "electricity" | "compute" | "sensor"> =
+    ["mobile", "messaging", "internet", "electricity", "compute", "sensor"];
+  for (const layer of enwLayers) {
+    try {
+      const job = await enqueueENW({ type: "EMERGENCY_BROADCAST", layer, payload: { message } });
+      log.push({ channel: `everythingNetWay:${layer}`, ok: true, detail: `job id:${(job as { id: number }).id}` });
+    } catch (err) {
+      log.push({ channel: `everythingNetWay:${layer}`, ok: false, detail: (err as Error).message });
+    }
+  }
+
+  // 5. ElectricNetWay — infrastructure/electricity layer (energy, device, internet, data)
+  const electricCategories: Array<"energy" | "device" | "internet" | "data"> =
+    ["energy", "device", "internet", "data"];
+  for (const cat of electricCategories) {
+    try {
+      const job = await queueNetJob({ category: cat, type: "EMERGENCY_BROADCAST", target: "all", payload: { message } });
+      log.push({ channel: `electricNetWay:${cat}`, ok: true, detail: `job id:${(job as { id: number }).id}` });
+    } catch (err) {
+      log.push({ channel: `electricNetWay:${cat}`, ok: false, detail: (err as Error).message });
+    }
+  }
+
+  // 6. MeshNetWay — propagate alert status to all mesh nodes
+  try {
+    const nodes = await getMeshNodes();
+    let updated = 0;
+    for (const node of nodes) {
+      await updateMeshNodeStatus(node.id, "EMERGENCY_BROADCAST").catch(() => {});
+      updated++;
+    }
+    log.push({ channel: "meshNetWay:allNodes", ok: true, detail: `nodes updated:${updated}` });
+  } catch (err) {
+    log.push({ channel: "meshNetWay:allNodes", ok: false, detail: (err as Error).message });
+  }
+
+  // 7. Web Push — internal OS/device layer via DB-persisted VAPID keys
+  try {
+    const configRows = await sql`
+      SELECT key, value FROM platform_config WHERE key IN ('vapid_public','vapid_private')
+    `.catch(() => [] as Array<{ key: string; value: string }>);
+    const pub  = (configRows as Array<{ key: string; value: string }>).find(r => r.key === "vapid_public")?.value  ?? "";
+    const priv = (configRows as Array<{ key: string; value: string }>).find(r => r.key === "vapid_private")?.value ?? "";
+
+    if (pub && priv) {
+      webpush.setVapidDetails("mailto:admin@LakesideTrinity.com", pub, priv);
+      const subs = await sql`SELECT endpoint, p256dh, auth_key FROM platform_push_subscriptions`;
+      let sent = 0; let failed = 0;
+      const payload = JSON.stringify({ title: "EMERGENCY BROADCAST", body: message, url: "/", tag: "cai-emergency" });
+      await Promise.allSettled(
+        (subs as Array<{ endpoint: string; p256dh: string; auth_key: string }>).map(async s => {
+          try {
+            await webpush.sendNotification({ endpoint: s.endpoint, keys: { p256dh: s.p256dh, auth: s.auth_key } }, payload);
+            sent++;
+          } catch { failed++; }
+        })
+      );
+      log.push({ channel: "webPush:osLayer", ok: true, detail: `sent:${sent} failed:${failed} of ${subs.length}` });
+    } else {
+      log.push({ channel: "webPush:osLayer", ok: false, detail: "VAPID keys not found in DB" });
+    }
+  } catch (err) {
+    log.push({ channel: "webPush:osLayer", ok: false, detail: (err as Error).message });
+  }
+
+  const ok       = log.filter(l => l.ok).length;
+  const failed   = log.filter(l => !l.ok).length;
+  const elapsedMs = Date.now() - startMs;
+
+  console.log(`[EmergencyBroadcast] ${ok}/${log.length} channels delivered in ${elapsedMs}ms`);
+
+  res.json({ ok: true, channels: ok, failed, elapsedMs, log });
 });
 
 export default router;

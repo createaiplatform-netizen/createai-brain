@@ -2704,6 +2704,15 @@ export function ProjectOSApp() {
       setPublishedProjectIds(prev => new Set([...prev, activeProject.id]));
       setPublishDoneUrl(result.publishUrl ?? null);
       setPublishStep("done");
+      // Fire internal emergency broadcast through all internal channels
+      fetch("/api/ebs/emergency-broadcast", {
+        method: "POST",
+        credentials: "include",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          message: `Project published: "${activeProject.name}" — CreateAI Brain platform event`,
+        }),
+      }).catch(() => {});
     }
     setPublishLoading(false);
   }, [activeProject]);
