@@ -1,0 +1,100 @@
+// artifacts/api-server/src/routes/selfEvaluate.ts
+import { Router } from "express";
+import { db, usersTable, activityLog } from "../db"; // Drizzle ORM tables
+import { sql } from "drizzle-orm/sql";
+import { gte } from "drizzle-orm/expressions";
+
+const router = Router();
+
+// Simple in-memory cache with TTL
+const cache: Record<string, { data: any; expires: number }> = {};
+const TTL = 5 * 60 * 1000; // 5 minutes
+
+function toCache(key: string, data: any) {
+  cache[key] = { data, expires: Date.now() + TTL };
+  return data;
+}
+
+function fromCache(key: string) {
+  const cached = cache[key];
+  if (cached && cached.expires > Date.now()) return cached.data;
+  return null;
+}
+
+// Auth guard middleware
+function adminOnly(req: any, res: any, next: any) {
+  if (!req.user || !["founder", "admin"].includes(req.user.role)) {
+    return res.status(403).json({ error: "Forbidden: admin or founder only" });
+  }
+  next();
+}
+
+// GET /api/evaluate/self
+router.get("/self", adminOnly, async (req, res) => {
+  try {
+    // Cohort DAU/MAU
+    let cohort = fromCache("cohort");
+    if (!cohort) {
+      const dauRaw = await db.execute(sql`
+        SELECT u.role, COUNT(DISTINCT a.user_id) AS dau
+        FROM ${activityLog} a
+        JOIN ${usersTable} u ON u.id = a.user_id
+        WHERE a.created_at >= NOW() - INTERVAL '1 DAY'
+        GROUP BY u.role
+      `);
+      const mauRaw = await db.execute(sql`
+        SELECT u.role, COUNT(DISTINCT a.user_id) AS mau
+        FROM ${activityLog} a
+        JOIN ${usersTable} u ON u.id = a.user_id
+        WHERE a.created_at >= NOW() - INTERVAL '30 DAY'
+        GROUP BY u.role
+      `);
+      cohort = toCache("cohort", { dau: dauRaw.rows, mau: mauRaw.rows });
+    }
+
+    // Churn risk (rule-based on inactivity)
+    let churn = fromCache("churn");
+    if (!churn) {
+      const users = await db.execute(sql`
+        SELECT id, email, role, last_active_at
+        FROM ${usersTable}
+      `);
+      const scored = users.rows.map((u: any) => {
+        const inactiveDays = Math.floor((Date.now() - new Date(u.last_active_at).getTime()) / (1000 * 60 * 60 * 24));
+        let risk: "low" | "medium" | "high" = "low";
+        if (inactiveDays > 30) risk = "high";
+        else if (inactiveDays > 14) risk = "medium";
+        return { ...u, risk };
+      });
+      const tiers = {
+        high: scored.filter((s: any) => s.risk === "high").length,
+        medium: scored.filter((s: any) => s.risk === "medium").length,
+        low: scored.filter((s: any) => s.risk === "low").length,
+      };
+      churn = toCache("churn", { tiers, users: scored, generatedAt: new Date().toISOString() });
+    }
+
+    // Revenue metrics (real Stripe payments)
+    let revenue = fromCache("revenue");
+    if (!revenue) {
+      const revRaw = await db.execute(sql`
+        SELECT SUM(amount_cents)/100.0 AS total_dollars,
+               COUNT(DISTINCT subscription_id) AS active_subscriptions
+        FROM platform_subscriptions
+        WHERE status = 'active'
+      `);
+      revenue = toCache("revenue", {
+        total_dollars: revRaw.rows[0].total_dollars,
+        active_subscriptions: revRaw.rows[0].active_subscriptions,
+        generatedAt: new Date().toISOString(),
+      });
+    }
+
+    res.json({ cohort, churn, revenue });
+  } catch (err) {
+    console.error("Self-evaluation failed:", err);
+    res.status(500).json({ error: "Failed to evaluate system" });
+  }
+});
+
+export default router;
