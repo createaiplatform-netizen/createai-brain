@@ -106,12 +106,39 @@ router.get("/auth/role", async (req: Request, res: Response) => {
   }
 
   try {
-    const userId = (req.user as { id: string }).id;
+    const userId   = (req.user as { id: string; email?: string }).id;
+    const userEmail = (req.user as { id: string; email?: string }).email ?? null;
+
     const [row] = await db
-      .select({ role: usersTable.role })
+      .select({ role: usersTable.role, email: usersTable.email })
       .from(usersTable)
       .where(eq(usersTable.id, userId));
-    res.json({ role: row?.role ?? "user" });
+
+    let currentRole: string = row?.role ?? "user";
+    const resolvedEmail = userEmail ?? row?.email ?? null;
+
+    // Auto-promote to customer if this email appears in platform_customers
+    // (covers the case where someone paid before creating their account).
+    if (currentRole === "user" && resolvedEmail) {
+      try {
+        const { sql: rawSql } = await import("drizzle-orm");
+        const check = await db.execute(
+          rawSql`SELECT 1 FROM platform_customers WHERE LOWER(email) = LOWER(${resolvedEmail}) LIMIT 1`,
+        );
+        if ((check.rows?.length ?? 0) > 0) {
+          await db
+            .update(usersTable)
+            .set({ role: "customer" })
+            .where(eq(usersTable.id, userId));
+          currentRole = "customer";
+          console.log(`[auth] Auto-promoted ${resolvedEmail} to customer role (purchase found)`);
+        }
+      } catch (promoteErr) {
+        console.warn("[auth] Customer auto-promote check failed (non-fatal):", String(promoteErr));
+      }
+    }
+
+    res.json({ role: currentRole });
   } catch (err) {
     console.error("[auth] GET /auth/role", err);
     res.json({ role: "user" });

@@ -1,9 +1,9 @@
 /**
  * storefront-server.js
  *
- * Minimal pure-Node.js reverse proxy.
- * Serves index.html at GET / and proxies every other request
- * to the API server on API_PORT.
+ * Pure-Node.js reverse proxy.
+ * Proxies ALL requests (including "/") to the api-server, which serves
+ * the compiled React SPA via selfHostEngine at the root path.
  *
  * No external dependencies — uses only Node built-ins.
  *
@@ -15,23 +15,11 @@
 "use strict";
 
 const http = require("node:http");
-const fs   = require("node:fs");
-const path = require("node:path");
 
-const PUBLIC_PORT = Number(process.env.PORT)     || 8080;
-const API_PORT    = Number(process.env.API_PORT)  || 8082;
-const HTML        = fs.readFileSync(path.join(__dirname, "index.html"));
+const PUBLIC_PORT = Number(process.env.PORT)    || 8080;
+const API_PORT    = Number(process.env.API_PORT) || 8082;
 
 const server = http.createServer((req, res) => {
-
-  // ── Serve storefront at root ────────────────────────────────────────────────
-  if (req.url === "/" || req.url === "") {
-    res.writeHead(200, { "Content-Type": "text/html; charset=utf-8" });
-    res.end(HTML);
-    return;
-  }
-
-  // ── Proxy everything else to the api-server ─────────────────────────────────
   const opts = {
     hostname: "127.0.0.1",
     port:     API_PORT,
@@ -55,5 +43,5 @@ const server = http.createServer((req, res) => {
 });
 
 server.listen(PUBLIC_PORT, () => {
-  console.log(`[storefront] :${PUBLIC_PORT} → / serves index.html | all else proxied to :${API_PORT}`);
+  console.log(`[storefront] :${PUBLIC_PORT} → all requests proxied to api-server :${API_PORT}`);
 });

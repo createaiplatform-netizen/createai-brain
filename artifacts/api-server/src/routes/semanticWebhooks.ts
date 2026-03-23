@@ -229,6 +229,28 @@ router.post("/checkout-complete", async (req: Request, res: Response) => {
       createdAt: new Date().toISOString(),
     }).catch(e => console.error("[SemanticWebhook] DB persist failed:", e instanceof Error ? e.message : String(e)));
 
+    // ── Assign customer role to matching user account ─────────────────────
+    // If the buyer already has a platform account (matched by email), promote
+    // them to 'customer'. If they sign up later, auth.ts auto-promotes on login.
+    if (email) {
+      try {
+        const { db, usersTable } = await import("@workspace/db");
+        const { eq } = await import("drizzle-orm");
+        const result = await db
+          .update(usersTable)
+          .set({ role: "customer" })
+          .where(eq(usersTable.email, email))
+          .returning({ id: usersTable.id });
+        if (result.length > 0) {
+          console.log(`[SemanticWebhook] Customer role assigned to existing account: ${email}`);
+        } else {
+          console.log(`[SemanticWebhook] No existing account for ${email} — role will be assigned on first login`);
+        }
+      } catch (roleErr) {
+        console.warn("[SemanticWebhook] Customer role assignment skipped (non-fatal):", String(roleErr));
+      }
+    }
+
     // ── Auto-award loyalty points (1 point per $1 spent) ───────────────────
     if (priceCents > 0 && email) {
       const pointsToAward = Math.floor(priceCents / 100);

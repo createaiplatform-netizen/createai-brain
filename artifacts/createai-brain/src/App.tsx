@@ -208,105 +208,259 @@ function LoadingScreen() {
   );
 }
 
-// ─── Public Preview / Login Screen ────────────────────────────────────────
+// ─── Public Storefront / Login Screen ─────────────────────────────────────
+
+const PRICING_TIERS = [
+  {
+    name: "Solo",
+    price: "$29",
+    period: "/mo",
+    desc: "Perfect for solo creators and founders.",
+    features: ["Full platform access", "122+ AI apps", "Personal workspace", "AI chat & generation", "Email support"],
+    cta: "Get Started",
+    highlight: false,
+  },
+  {
+    name: "Business",
+    price: "$79",
+    period: "/mo",
+    desc: "For teams building real products.",
+    features: ["Everything in Solo", "Team workspace", "Client portals", "Advanced analytics", "Priority support"],
+    cta: "Start Free Trial",
+    highlight: true,
+  },
+  {
+    name: "Enterprise",
+    price: "$299",
+    period: "/mo",
+    desc: "Full-scale OS for large operations.",
+    features: ["Everything in Business", "Unlimited seats", "Custom integrations", "Dedicated success manager", "SLA + uptime guarantee"],
+    cta: "Contact Us",
+    highlight: false,
+  },
+] as const;
+
+const PRODUCT_FEATURES = [
+  { icon: "🧠", title: "AI Brain OS", desc: "One intelligent OS with 122+ AI-powered apps across every domain — from legal to healthcare to finance." },
+  { icon: "⚡", title: "Real-Time Generation", desc: "Generate content, documents, strategies, and code instantly. Everything is live and functional." },
+  { icon: "🏥", title: "HealthOS", desc: "Complete healthcare management: patient records, scheduling, billing, and clinical workflows." },
+  { icon: "⚖️", title: "Legal PM", desc: "Full legal practice manager: matters, contracts, time tracking, and document automation." },
+  { icon: "👥", title: "StaffingOS", desc: "End-to-end staffing platform: candidates, placements, timesheets, and client management." },
+  { icon: "💬", title: "AI Chat Suite", desc: "Multi-model AI chat with memory, file uploads, and context-aware responses across all your projects." },
+] as const;
 
 function LoginScreen({ onLogin }: { onLogin: () => void }) {
   return (
-    <div className="fixed inset-0 overflow-y-auto" style={{ background: DARK_BG }}
-      role="main" aria-label="CreateAI Brain login">
-      {/* Glow */}
-      <div className="absolute inset-0 pointer-events-none" aria-hidden="true"
-        style={{ background: "radial-gradient(ellipse 70% 40% at 50% 20%, rgba(99,102,241,0.13) 0%, transparent 70%)" }} />
+    <div style={{ background: "#ffffff", minHeight: "100vh", fontFamily: "system-ui, -apple-system, sans-serif" }}
+      role="main" aria-label="CreateAI Brain — public storefront">
 
-      <div className="relative z-10 flex flex-col items-center gap-12 px-6 py-16 max-w-lg mx-auto">
-
-        {/* Hero */}
-        <div className="flex flex-col items-center gap-5 text-center">
-          <div className="w-20 h-20 rounded-3xl flex items-center justify-center text-4xl shadow-2xl"
-            aria-hidden="true"
-            style={{ background: `linear-gradient(135deg, ${INDIGO} 0%, ${PURPLE} 100%)`,
-              boxShadow: "0 0 48px rgba(99,102,241,0.35), 0 20px 60px rgba(0,0,0,0.5)" }}>
+      {/* ── Nav ── */}
+      <nav style={{ position: "sticky", top: 0, zIndex: 50, background: "rgba(255,255,255,0.95)",
+        backdropFilter: "blur(12px)", borderBottom: "1px solid #f0f0f0",
+        display: "flex", alignItems: "center", justifyContent: "space-between",
+        padding: "0 32px", height: 60 }}>
+        <div style={{ display: "flex", alignItems: "center", gap: 10 }}>
+          <div style={{ width: 32, height: 32, borderRadius: 8, background: `linear-gradient(135deg, ${INDIGO} 0%, ${PURPLE} 100%)`,
+            display: "flex", alignItems: "center", justifyContent: "center", fontSize: 16 }}>
             🧠
           </div>
-          <div>
-            <h1 className="text-4xl font-black text-white tracking-tight">CreateAI Brain</h1>
-            <p className="text-[15px] mt-2" style={{ color: "rgba(148,163,184,0.75)" }}>
-              A full AI-powered OS for building real products
-            </p>
-          </div>
-
-          <button onClick={onLogin}
-            type="button"
-            aria-label="Log in to CreateAI Brain to get started"
-            className="mt-2 px-8 py-4 rounded-2xl font-bold text-[15px] text-white transition-all active:scale-95 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-indigo-500"
-            style={{ background: `linear-gradient(135deg, ${INDIGO} 0%, ${PURPLE} 100%)`,
-              boxShadow: "0 8px 32px rgba(99,102,241,0.40)" }}
-            onMouseEnter={e => (e.currentTarget.style.boxShadow = "0 12px 40px rgba(99,102,241,0.55)")}
-            onMouseLeave={e => (e.currentTarget.style.boxShadow = "0 8px 32px rgba(99,102,241,0.40)")}>
-            Log in to get started
+          <span style={{ fontWeight: 800, fontSize: 16, color: "#0a0a0a", letterSpacing: "-0.5px" }}>CreateAI Brain</span>
+        </div>
+        <div style={{ display: "flex", alignItems: "center", gap: 12 }}>
+          <button onClick={onLogin} type="button"
+            style={{ background: "transparent", border: "none", color: "#374151", fontSize: 14,
+              fontWeight: 600, cursor: "pointer", padding: "8px 16px", borderRadius: 8 }}>
+            Log in
           </button>
-          <p className="text-[11px]" style={{ color: "rgba(148,163,184,0.40)" }}>
-            NDA required for full access · Your data stays private
-          </p>
+          <button onClick={onLogin} type="button"
+            style={{ background: `linear-gradient(135deg, ${INDIGO} 0%, ${PURPLE} 100%)`,
+              border: "none", color: "#fff", fontSize: 14, fontWeight: 700,
+              cursor: "pointer", padding: "8px 20px", borderRadius: 8,
+              boxShadow: "0 4px 16px rgba(99,102,241,0.35)" }}>
+            Sign up free
+          </button>
         </div>
+      </nav>
 
-        {/* Public preview: app grid */}
-        <div className="w-full">
-          <p className="text-center text-[11px] font-semibold uppercase tracking-widest mb-4"
-            style={{ color: "rgba(148,163,184,0.40)" }}>
-            A few of the 122+ apps inside
-          </p>
-          <div className="grid grid-cols-4 gap-2.5" role="list" aria-label="Sample apps inside CreateAI Brain">
-            {APP_PREVIEW.map(({ icon, label }) => (
-              <div key={label} role="listitem"
-                className="flex flex-col items-center gap-1.5 py-3 px-2 rounded-2xl"
-                style={{ background: "rgba(255,255,255,0.05)", border: "1px solid rgba(255,255,255,0.07)" }}>
-                <span className="text-[22px]" aria-hidden="true">{icon}</span>
-                <span className="text-[9px] font-medium text-center leading-tight"
-                  style={{ color: "rgba(203,213,225,0.65)" }}>{label}</span>
-              </div>
-            ))}
-            {/* "+more" tile */}
-            <div className="flex flex-col items-center justify-center gap-1 py-3 px-2 rounded-2xl"
-              role="listitem" aria-label={`Plus ${EXTRA_APP_COUNT} more apps`}
-              style={{ background: "rgba(99,102,241,0.10)", border: "1px solid rgba(99,102,241,0.18)" }}>
-              <span className="text-[13px] font-bold" style={{ color: "rgba(165,167,255,0.85)" }}>
-                +{EXTRA_APP_COUNT}
-              </span>
-              <span className="text-[9px] text-center leading-tight" style={{ color: "rgba(165,167,255,0.55)" }}>
-                more
-              </span>
-            </div>
-          </div>
+      {/* ── Hero ── */}
+      <section style={{ maxWidth: 900, margin: "0 auto", padding: "96px 32px 80px", textAlign: "center" }}>
+        <div style={{ display: "inline-flex", alignItems: "center", gap: 8, background: "rgba(99,102,241,0.08)",
+          border: "1px solid rgba(99,102,241,0.20)", borderRadius: 100,
+          padding: "6px 16px", marginBottom: 32 }}>
+          <span style={{ fontSize: 12 }}>✨</span>
+          <span style={{ fontSize: 13, fontWeight: 600, color: INDIGO }}>122+ AI-powered apps. One platform.</span>
         </div>
+        <h1 style={{ fontSize: "clamp(36px, 6vw, 64px)", fontWeight: 900, color: "#0a0a0a",
+          lineHeight: 1.1, letterSpacing: "-2px", margin: "0 0 24px" }}>
+          The complete AI OS<br />
+          <span style={{ background: `linear-gradient(135deg, ${INDIGO} 0%, ${PURPLE} 100%)`,
+            WebkitBackgroundClip: "text", WebkitTextFillColor: "transparent" }}>
+            for building real things
+          </span>
+        </h1>
+        <p style={{ fontSize: "clamp(16px, 2vw, 20px)", color: "#6b7280", lineHeight: 1.6,
+          maxWidth: 600, margin: "0 auto 48px", fontWeight: 400 }}>
+          Healthcare, legal, staffing, finance, content — every domain covered.
+          Generate, automate, and ship from one intelligent workspace.
+        </p>
+        <div style={{ display: "flex", gap: 16, justifyContent: "center", flexWrap: "wrap" }}>
+          <button onClick={onLogin} type="button"
+            style={{ background: `linear-gradient(135deg, ${INDIGO} 0%, ${PURPLE} 100%)`,
+              border: "none", color: "#fff", fontSize: 16, fontWeight: 700,
+              cursor: "pointer", padding: "16px 36px", borderRadius: 12,
+              boxShadow: "0 8px 32px rgba(99,102,241,0.40)" }}>
+            Start for free →
+          </button>
+          <button onClick={onLogin} type="button"
+            style={{ background: "#fff", border: "1.5px solid #e5e7eb", color: "#374151",
+              fontSize: 16, fontWeight: 600, cursor: "pointer", padding: "16px 32px", borderRadius: 12 }}>
+            See what's inside
+          </button>
+        </div>
+        <p style={{ marginTop: 20, fontSize: 13, color: "#9ca3af" }}>
+          No credit card required · Cancel anytime
+        </p>
+      </section>
 
-        {/* Value props */}
-        <div className="w-full flex flex-col gap-3">
-          {[
-            { icon: "🔒", head: "Real products, real data", body: "Everything you create is live and fully functional — no demos, no placeholders." },
-            { icon: "📝", head: "One-time NDA to unlock", body: "Sign once and get full access to all 121 apps, forever." },
-            { icon: "🤖", head: "AI does the heavy lifting", body: "Chat, generate, simulate, and ship — all from one intelligent OS." },
-          ].map(({ icon, head, body }) => (
-            <div key={head} className="flex items-start gap-4 p-4 rounded-2xl"
-              style={{ background: "rgba(255,255,255,0.05)", border: "1px solid rgba(255,255,255,0.08)" }}>
-              <span className="text-2xl flex-shrink-0 mt-0.5" aria-hidden="true">{icon}</span>
-              <div>
-                <p className="font-semibold text-[13px] text-white">{head}</p>
-                <p className="text-[12px] mt-0.5" style={{ color: "rgba(203,213,225,0.65)" }}>{body}</p>
-              </div>
+      {/* ── App preview grid ── */}
+      <section style={{ maxWidth: 900, margin: "0 auto", padding: "0 32px 80px" }}>
+        <p style={{ textAlign: "center", fontSize: 11, fontWeight: 700, letterSpacing: "0.12em",
+          textTransform: "uppercase", color: "#9ca3af", marginBottom: 20 }}>
+          A few of the 122+ apps inside
+        </p>
+        <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fill, minmax(80px, 1fr))", gap: 10 }}
+          role="list" aria-label="Sample apps inside CreateAI Brain">
+          {APP_PREVIEW.map(({ icon, label }) => (
+            <div key={label} role="listitem"
+              style={{ display: "flex", flexDirection: "column", alignItems: "center", gap: 6,
+                padding: "14px 8px", borderRadius: 14, background: "#f9fafb",
+                border: "1px solid #f0f0f0" }}>
+              <span style={{ fontSize: 22 }} aria-hidden="true">{icon}</span>
+              <span style={{ fontSize: 9, fontWeight: 600, color: "#6b7280", textAlign: "center", lineHeight: 1.3 }}>{label}</span>
             </div>
           ))}
+          <div role="listitem" aria-label={`Plus ${EXTRA_APP_COUNT} more apps`}
+            style={{ display: "flex", flexDirection: "column", alignItems: "center", justifyContent: "center",
+              gap: 4, padding: "14px 8px", borderRadius: 14,
+              background: "rgba(99,102,241,0.06)", border: "1px solid rgba(99,102,241,0.15)" }}>
+            <span style={{ fontSize: 14, fontWeight: 800, color: INDIGO }}>+{EXTRA_APP_COUNT}</span>
+            <span style={{ fontSize: 9, color: INDIGO, opacity: 0.7 }}>more</span>
+          </div>
         </div>
+      </section>
 
-        <button onClick={onLogin}
-          type="button"
-          aria-label="Log in with Replit to access CreateAI Brain"
-          className="w-full py-4 rounded-2xl font-bold text-[16px] text-white transition-all active:scale-95 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-indigo-500"
+      {/* ── Products ── */}
+      <section style={{ background: "#f9fafb", padding: "80px 32px" }}>
+        <div style={{ maxWidth: 900, margin: "0 auto" }}>
+          <h2 style={{ fontSize: "clamp(26px, 4vw, 40px)", fontWeight: 900, color: "#0a0a0a",
+            textAlign: "center", marginBottom: 16, letterSpacing: "-1px" }}>
+            Everything in one OS
+          </h2>
+          <p style={{ fontSize: 16, color: "#6b7280", textAlign: "center", marginBottom: 56 }}>
+            Six complete platforms — all connected, all AI-powered.
+          </p>
+          <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fill, minmax(260px, 1fr))", gap: 20 }}>
+            {PRODUCT_FEATURES.map(({ icon, title, desc }) => (
+              <div key={title}
+                style={{ background: "#fff", borderRadius: 16, padding: "28px 24px",
+                  border: "1px solid #f0f0f0", boxShadow: "0 2px 12px rgba(0,0,0,0.04)" }}>
+                <div style={{ fontSize: 28, marginBottom: 14 }}>{icon}</div>
+                <h3 style={{ fontSize: 16, fontWeight: 800, color: "#0a0a0a", marginBottom: 8 }}>{title}</h3>
+                <p style={{ fontSize: 14, color: "#6b7280", lineHeight: 1.6 }}>{desc}</p>
+              </div>
+            ))}
+          </div>
+        </div>
+      </section>
+
+      {/* ── Pricing ── */}
+      <section style={{ padding: "80px 32px" }}>
+        <div style={{ maxWidth: 900, margin: "0 auto" }}>
+          <h2 style={{ fontSize: "clamp(26px, 4vw, 40px)", fontWeight: 900, color: "#0a0a0a",
+            textAlign: "center", marginBottom: 16, letterSpacing: "-1px" }}>
+            Simple, honest pricing
+          </h2>
+          <p style={{ fontSize: 16, color: "#6b7280", textAlign: "center", marginBottom: 56 }}>
+            Full access from day one. No feature gating.
+          </p>
+          <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fill, minmax(260px, 1fr))", gap: 20 }}>
+            {PRICING_TIERS.map(({ name, price, period, desc, features, cta, highlight }) => (
+              <div key={name}
+                style={{ borderRadius: 20, padding: "32px 28px",
+                  background: highlight ? `linear-gradient(135deg, ${INDIGO} 0%, ${PURPLE} 100%)` : "#fff",
+                  border: highlight ? "none" : "1.5px solid #e5e7eb",
+                  boxShadow: highlight ? "0 16px 48px rgba(99,102,241,0.35)" : "0 2px 12px rgba(0,0,0,0.04)",
+                  position: "relative" }}>
+                {highlight && (
+                  <div style={{ position: "absolute", top: -12, left: "50%", transform: "translateX(-50%)",
+                    background: "#0a0a0a", color: "#fff", fontSize: 11, fontWeight: 800,
+                    padding: "4px 14px", borderRadius: 100, letterSpacing: "0.06em", whiteSpace: "nowrap" }}>
+                    MOST POPULAR
+                  </div>
+                )}
+                <p style={{ fontSize: 13, fontWeight: 700, color: highlight ? "rgba(255,255,255,0.7)" : "#6b7280",
+                  marginBottom: 8, textTransform: "uppercase", letterSpacing: "0.08em" }}>{name}</p>
+                <div style={{ display: "flex", alignItems: "baseline", gap: 4, marginBottom: 8 }}>
+                  <span style={{ fontSize: 40, fontWeight: 900, color: highlight ? "#fff" : "#0a0a0a",
+                    letterSpacing: "-2px" }}>{price}</span>
+                  <span style={{ fontSize: 14, color: highlight ? "rgba(255,255,255,0.6)" : "#9ca3af" }}>{period}</span>
+                </div>
+                <p style={{ fontSize: 14, color: highlight ? "rgba(255,255,255,0.75)" : "#6b7280",
+                  marginBottom: 28, lineHeight: 1.5 }}>{desc}</p>
+                <ul style={{ listStyle: "none", padding: 0, margin: "0 0 32px", display: "flex", flexDirection: "column", gap: 10 }}>
+                  {features.map(f => (
+                    <li key={f} style={{ display: "flex", alignItems: "center", gap: 10, fontSize: 14,
+                      color: highlight ? "rgba(255,255,255,0.9)" : "#374151" }}>
+                      <span style={{ width: 18, height: 18, borderRadius: "50%",
+                        background: highlight ? "rgba(255,255,255,0.20)" : "rgba(99,102,241,0.10)",
+                        display: "flex", alignItems: "center", justifyContent: "center",
+                        fontSize: 10, color: highlight ? "#fff" : INDIGO, flexShrink: 0 }}>✓</span>
+                      {f}
+                    </li>
+                  ))}
+                </ul>
+                <button onClick={onLogin} type="button"
+                  style={{ width: "100%", padding: "14px", borderRadius: 12, fontSize: 15, fontWeight: 700,
+                    cursor: "pointer", border: "none",
+                    background: highlight ? "#fff" : `linear-gradient(135deg, ${INDIGO} 0%, ${PURPLE} 100%)`,
+                    color: highlight ? INDIGO : "#fff",
+                    boxShadow: highlight ? "none" : "0 4px 16px rgba(99,102,241,0.30)" }}>
+                  {cta}
+                </button>
+              </div>
+            ))}
+          </div>
+        </div>
+      </section>
+
+      {/* ── CTA ── */}
+      <section style={{ background: "#0a0a0a", padding: "80px 32px", textAlign: "center" }}>
+        <h2 style={{ fontSize: "clamp(28px, 4vw, 44px)", fontWeight: 900, color: "#fff",
+          marginBottom: 20, letterSpacing: "-1.5px" }}>
+          Ready to build your AI-powered business?
+        </h2>
+        <p style={{ fontSize: 17, color: "rgba(255,255,255,0.55)", marginBottom: 40, maxWidth: 500, margin: "0 auto 40px" }}>
+          Join CreateAI Brain and access 122+ apps from a single intelligent workspace.
+        </p>
+        <button onClick={onLogin} type="button"
           style={{ background: `linear-gradient(135deg, ${INDIGO} 0%, ${PURPLE} 100%)`,
-            boxShadow: "0 8px 32px rgba(99,102,241,0.40)" }}>
-          Log in with Replit
+            border: "none", color: "#fff", fontSize: 17, fontWeight: 700,
+            cursor: "pointer", padding: "18px 48px", borderRadius: 14,
+            boxShadow: "0 8px 40px rgba(99,102,241,0.50)" }}>
+          Get started free →
         </button>
-      </div>
+        <p style={{ marginTop: 16, fontSize: 13, color: "rgba(255,255,255,0.30)" }}>
+          No credit card required · Free plan available
+        </p>
+      </section>
+
+      {/* ── Footer ── */}
+      <footer style={{ background: "#0a0a0a", borderTop: "1px solid rgba(255,255,255,0.06)",
+        padding: "32px", textAlign: "center" }}>
+        <p style={{ fontSize: 13, color: "rgba(255,255,255,0.25)" }}>
+          © {new Date().getFullYear()} Lakeside Trinity LLC · createai.digital · All rights reserved
+        </p>
+      </footer>
     </div>
   );
 }
@@ -478,14 +632,23 @@ function NDAScreen({ userName, onSign }: NDAScreenProps) {
 
 // ─── Auth Gate (handles login + NDA) ──────────────────────────────────────
 
+// Roles that must sign the NDA before accessing the platform.
+// Regular customers bypass the NDA requirement.
+const NDA_REQUIRED_ROLES = new Set(["admin", "founder", "family_adult", "family_child"]);
+
 function AuthGate({ children }: { children: React.ReactNode }) {
   const { isLoading, isAuthenticated, user, login, refreshUser, setUser } = useAuth();
+  const { role, isLoading: roleLoading } = useUserRole();
 
-  if (isLoading) return <LoadingScreen />;
+  // Wait for both auth and role to resolve before making gate decisions
+  if (isLoading || (isAuthenticated && roleLoading)) return <LoadingScreen />;
 
   if (!isAuthenticated || !user) return <LoginScreen onLogin={login} />;
 
-  if (!user.ndaSigned) {
+  // NDA is only required for internal/family/admin roles — not regular customers
+  const needsNda = role !== null && NDA_REQUIRED_ROLES.has(role) && !user.ndaSigned;
+
+  if (needsNda) {
     const displayName = user.firstName
       ? `${user.firstName}${user.lastName ? " " + user.lastName : ""}`
       : (user.email?.split("@")[0] ?? "");
