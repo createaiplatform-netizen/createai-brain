@@ -1,0 +1,87 @@
+// ==== CONFIGURATION ====
+// Environment variables needed:
+// process.env.RESEND_API_KEY
+// process.env.TWILIO_ACCOUNT_SID
+// process.env.TWILIO_AUTH_TOKEN
+// process.env.TWILIO_PHONE_NUMBER
+
+import Resend from "resend";
+import twilio from "twilio";
+
+// Initialize APIs
+const resend = new Resend(process.env.RESEND_API_KEY);
+const twilioClient = twilio(
+  process.env.TWILIO_ACCOUNT_SID,
+  process.env.TWILIO_AUTH_TOKEN
+);
+const twilioFrom = process.env.TWILIO_PHONE_NUMBER;
+
+// Your family contact data
+const contacts = [
+  {
+    name: "Nathan Richard Stadler",
+    email: "Stadlernathan5499@gmail.com",
+    phone: "+17157914114",
+    emailSubject: "Proud of You & Excited for Family Adventures!",
+    emailBody: `
+      Hi Nathan and Carolina,
+
+      I’m so proud of both of you! I can’t wait to travel together and create amazing memories as a family.
+      Wink wink 😄
+
+      - Mom
+    `,
+    smsBody: "Nathan & Carolina, proud of you! Can't wait to travel together as a family! 😉"
+  },
+  {
+    name: "Nolan Ryan Stadler",
+    email: "Stadlernolan29@icloud.com",
+    phone: "+17157914050",
+    emailSubject: "Excited for Family Fun!",
+    emailBody: `
+      Hi Nolan,
+
+      You have such a brilliant heart and I can’t wait to see all the wonderful things we do together.
+
+      - Mom
+    `,
+    smsBody: "Nolan, excited for all the family fun and adventures ahead!"
+  },
+  // ...add the rest of your family members here
+];
+
+// ==== SEND EMAILS & SMS ====
+async function sendMessages() {
+  for (const contact of contacts) {
+    try {
+      // Send email via Resend
+      await resend.emails.send({
+        from: "sara@createai.digital",
+        to: contact.email,
+        subject: contact.emailSubject,
+        text: contact.emailBody,
+        html: `<pre>${contact.emailBody}</pre>`
+      });
+      console.log(`✅ Email sent to ${contact.name} (${contact.email})`);
+    } catch (err) {
+      console.error(`❌ Email failed for ${contact.name}:`, err);
+    }
+
+    try {
+      // Send SMS via Twilio
+      await twilioClient.messages.create({
+        from: twilioFrom,
+        to: contact.phone,
+        body: contact.smsBody
+      });
+      console.log(`✅ SMS sent to ${contact.name} (${contact.phone})`);
+    } catch (err) {
+      console.error(`❌ SMS failed for ${contact.name}:`, err);
+    }
+  }
+}
+
+// Execute
+sendMessages()
+  .then(() => console.log("All messages processed"))
+  .catch(err => console.error("Error sending messages:", err));
