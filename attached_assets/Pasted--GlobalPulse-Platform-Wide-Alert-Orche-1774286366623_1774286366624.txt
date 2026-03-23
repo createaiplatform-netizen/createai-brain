@@ -1,0 +1,91 @@
+// =======================================================
+// GlobalPulse: Platform-Wide Alert Orchestrator
+// =======================================================
+
+const MAX_RETRIES = 3;
+const ALERT_TITLE = "Global Alert";
+const ALERT_MESSAGE = "This is a platform-wide alert.";
+const ALERT_PRIORITY = "high";
+
+// -----------------------------
+// 1. Fetch All Platform Nodes
+// -----------------------------
+async function getAllNodes() {
+  const res = await fetch("https://<YOUR_SERVER>/api/system/nodes");
+  if (!res.ok) throw new Error("Failed to fetch nodes");
+  return await res.json(); // [{id, name, devices:[]}]
+}
+
+// -----------------------------
+// 2. Send Alert to a Node
+// -----------------------------
+async function sendAlertToNode(node) {
+  const start = Date.now();
+  try {
+    const res = await fetch("https://<YOUR_SERVER>/api/system/alert-test", {
+      method: "POST",
+      headers: {"Content-Type": "application/json"},
+      body: JSON.stringify({ testNode: node.id, production: true, payload: {
+        title: ALERT_TITLE,
+        message: ALERT_MESSAGE,
+        priority: ALERT_PRIORITY,
+        actions: ["open_app", "view_dashboard"]
+      }})
+    });
+    if (!res.ok) throw new Error("Alert failed");
+    const result = await res.json();
+
+    const deviceLatencies = (result.devices || []).map(d => ({
+      deviceId: d.id,
+      status: d.received ? "received" : "failed",
+      latencyMs: d.received ? Date.now() - start : null
+    }));
+
+    return { nodeId: node.id, success: true, result, deviceLatencies, durationMs: Date.now() - start };
+  } catch (err) {
+    return { nodeId: node.id, success: false, error: err.message, deviceLatencies: [], durationMs: Date.now() - start };
+  }
+}
+
+// -----------------------------
+// 3. Run Task with Retry
+// -----------------------------
+async function runTaskWithRetry(task) {
+  for (let i=1;i<=MAX_RETRIES;i++) {
+    try {
+      const res = await fetch(`https://<YOUR_SERVER>/api/task/${task.id}`, {
+        method: "POST",
+        headers: {"Content-Type": "application/json"},
+        body: JSON.stringify({ platformWide: true })
+      });
+      if (!res.ok) throw new Error("Task failed");
+      const data = await res.json();
+      return { task: task.name, success: true, result: data };
+    } catch (err) {
+      if (i === MAX_RETRIES) return { task: task.name, success: false, error: err.message };
+      await new Promise(r=>setTimeout(r,1000));
+    }
+  }
+}
+
+// -----------------------------
+// 4. Execute GlobalPulse
+// -----------------------------
+async function runGlobalPulse() {
+  const nodes = await getAllNodes();
+  const nodeAlerts = await Promise.all(nodes.map(sendAlertToNode));
+
+  const tasks = Array.from({length:10},(_,i)=>({id:i+1,name:`Task ${String.fromCharCode(65+i)}`}));
+  const taskResults = await Promise.all(tasks.map(runTaskWithRetry));
+
+  const report = { timestamp: new Date().toISOString(), nodesTested: nodes.length, alertResults: nodeAlerts, tasks: taskResults };
+  console.log(JSON.stringify(report,null,2));
+
+  // Optionally: POST to /api/global-alert-log
+  // await fetch("https://<YOUR_SERVER>/api/global-alert-log", { method:"POST", headers:{"Content-Type":"application/json"}, body: JSON.stringify(report)});
+}
+
+// -----------------------------
+// 5. Run It
+// -----------------------------
+runGlobalPulse();

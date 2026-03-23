@@ -1,0 +1,136 @@
+// =======================================================
+// GlobalPulse: Full Platform-Wide Alert Orchestrator
+// =======================================================
+
+import { Router } from "express";
+import { getElectricNodes, getMeshNodes } from "../services/nodesService";
+import { runAlertTestForNode } from "../services/alertTestService";
+import { runPlatformTask } from "../services/taskService";
+import { saveGlobalAlertLog } from "../services/globalAlertLogService";
+
+const router = Router();
+const MAX_RETRIES = 3;
+
+// -----------------------------
+// 1. GET /api/system/nodes
+// Returns all nodes (electric + mesh)
+// -----------------------------
+router.get("/system/nodes", async (req, res) => {
+  try {
+    const nodes = [...(await getElectricNodes()), ...(await getMeshNodes())];
+    res.json(nodes);
+  } catch (err) {
+    res.status(500).json({ error: err.message });
+  }
+});
+
+// -----------------------------
+// 2. POST /api/system/alert-test
+// Accepts: testNode, production flag, payload
+// Returns affected devices array
+// -----------------------------
+router.post("/system/alert-test", async (req, res) => {
+  const { testNode, production = false, payload } = req.body;
+  if (!testNode || !payload) return res.status(400).json({ error: "Missing testNode or payload" });
+
+  try {
+    const devices = await runAlertTestForNode(testNode, payload, production);
+    res.json({ nodeId: testNode, devices });
+  } catch (err) {
+    res.status(500).json({ error: err.message });
+  }
+});
+
+// -----------------------------
+// 3. POST /api/task/:id
+// Executes a platform-wide task with retry logic
+// -----------------------------
+router.post("/task/:id", async (req, res) => {
+  const taskId = req.params.id;
+  if (!taskId) return res.status(400).json({ error: "Missing task id" });
+
+  try {
+    const result = await runPlatformTask(taskId, { platformWide: true });
+    res.json(result);
+  } catch (err) {
+    res.status(500).json({ error: err.message });
+  }
+});
+
+// -----------------------------
+// 4. POST /api/system/global-alert-log
+// Persists the pulse report
+// -----------------------------
+router.post("/system/global-alert-log", async (req, res) => {
+  const report = req.body;
+  if (!report) return res.status(400).json({ error: "Missing report body" });
+
+  try {
+    await saveGlobalAlertLog(report);
+    res.json({ success: true });
+  } catch (err) {
+    res.status(500).json({ error: err.message });
+  }
+});
+
+export default router;
+
+// =======================================================
+// 5. GlobalPulse Execution Module (can be run from Replit)
+// =======================================================
+
+import fetch from "node-fetch";
+
+async function runGlobalPulse() {
+  // Fetch all nodes
+  const nodes = await fetch("https://<YOUR_SERVER>/api/system/nodes").then(r=>r.json());
+
+  // Trigger alerts for all nodes in parallel
+  const alertPromises = nodes.map(node =>
+    fetch("https://<YOUR_SERVER>/api/system/alert-test", {
+      method: "POST",
+      headers: {"Content-Type": "application/json"},
+      body: JSON.stringify({
+        testNode: node.id,
+        production: true,
+        payload: {
+          title: "Global Alert",
+          message: "This is a platform-wide alert.",
+          priority: "high",
+          actions: ["open_app","view_dashboard"]
+        }
+      })
+    }).then(r=>r.json())
+  );
+  const alertResults = await Promise.all(alertPromises);
+
+  // Run all 10 tasks in parallel with retries
+  const tasks = Array.from({length:10},(_,i)=>({id:i+1,name:`Task ${String.fromCharCode(65+i)}`}));
+  const taskResults = await Promise.all(tasks.map(async task => {
+    for (let attempt=1; attempt<=MAX_RETRIES; attempt++) {
+      try {
+        const res = await fetch(`https://<YOUR_SERVER>/api/task/${task.id}`, { method:"POST", headers:{"Content-Type":"application/json"}, body: JSON.stringify({ platformWide:true })});
+        if (!res.ok) throw new Error("Task failed");
+        return { task: task.name, success: true, result: await res.json() };
+      } catch (err) {
+        if (attempt === MAX_RETRIES) return { task: task.name, success: false, error: err.message };
+        await new Promise(r=>setTimeout(r,1000));
+      }
+    }
+  }));
+
+  // Build the full report
+  const report = { timestamp: new Date().toISOString(), nodesTested: nodes.length, alertResults, taskResults };
+
+  console.log(JSON.stringify(report,null,2));
+
+  // Persist the report
+  await fetch("https://<YOUR_SERVER>/api/system/global-alert-log", {
+    method: "POST",
+    headers: {"Content-Type":"application/json"},
+    body: JSON.stringify(report)
+  });
+}
+
+// Execute GlobalPulse
+runGlobalPulse();
