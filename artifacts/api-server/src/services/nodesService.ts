@@ -4,9 +4,9 @@
  * into a single schema for GlobalPulse and alert orchestration.
  */
 
-import { getElectricNodes } from "./electricNetWay.js";
-import { getMeshNodes }     from "./meshNetWay.js";
-import { rawSql }           from "@workspace/db";
+import { getElectricNodes as fetchElectricNodes } from "./electricNetWay.js";
+import { getMeshNodes     as fetchMeshNodes }      from "./meshNetWay.js";
+import { rawSql }                                  from "@workspace/db";
 
 export interface PlatformNode {
   id:       string;
@@ -23,27 +23,28 @@ export interface PlatformDevice {
   endpoint: string;
 }
 
-const SANDBOX_NODE_ID = "TEST_NODE";
-
 /** Returns all platform nodes — electric + mesh + sandbox — each with their push device list. */
 export async function getAllNodes(): Promise<PlatformNode[]> {
-  const [electric, mesh, rawSubs] = await Promise.all([
-    getElectricNodes(),
-    getMeshNodes(),
-    rawSql`SELECT id, user_id, endpoint FROM platform_push_subscriptions`
-      as Promise<Array<Record<string, string>>>,
+  const [electric, mesh] = await Promise.all([
+    fetchElectricNodes(),
+    fetchMeshNodes(),
   ]);
 
-  const devices: PlatformDevice[] = (rawSubs as Array<Record<string, string>>).map(s => ({
+  // Fetch push subs separately so `as` cast stays on its own line (esbuild requires it)
+  const rawSubs = (await rawSql`
+    SELECT id, user_id, endpoint FROM platform_push_subscriptions
+  `) as Array<Record<string, string>>;
+
+  const devices: PlatformDevice[] = rawSubs.map(s => ({
     id:       String(s["id"]),
     userId:   String(s["user_id"]),
-    endpoint: (String(s["endpoint"])).slice(0, 60) + "…",
+    endpoint: String(s["endpoint"]).slice(0, 60) + "…",
   }));
 
   const nodes: PlatformNode[] = [
     // Sandbox node always first
     {
-      id:       SANDBOX_NODE_ID,
+      id:       "TEST_NODE",
       name:     "Sandbox Test Node",
       type:     "sandbox",
       status:   "active",
@@ -71,4 +72,5 @@ export async function getAllNodes(): Promise<PlatformNode[]> {
   return nodes;
 }
 
-export { getElectricNodes, getMeshNodes };
+// Re-export the underlying getters so alertTest.ts can import from one place
+export { fetchElectricNodes as getElectricNodes, fetchMeshNodes as getMeshNodes };

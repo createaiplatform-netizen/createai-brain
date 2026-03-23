@@ -533,9 +533,13 @@ router.use("/everything-net-way", everythingNetWayRouter);
 import meshNetWayRouter from "./meshNetWay.js";
 router.use("/mesh-net-way", meshNetWayRouter);
 
-// ── Full-System EBS-Style Alert Test ─────────────────────────────────────────
+// ── GlobalPulse — system router (nodes, alert-test, global-alert-log) ────────
 import alertTestRouter from "./alertTest.js";
 router.use("/system", alertTestRouter);
+
+// ── GlobalPulse — top-level task router (/api/task/:id) ──────────────────────
+import taskRouter from "./task.js";
+router.use("/task", taskRouter);
 
 // ── Financial Hub Backward-Compat Redirects — T006 ───────────────────────────
 // Wealth, ledger, and revenue-intel are also reachable under /finance/*
