@@ -123,12 +123,13 @@ export function CustomerOnboardingWizard() {
 
   // Only show for customer role, and only once
   useEffect(() => {
-    if (role !== "customer") return;
+    if (role !== "customer") return undefined;
     const done = localStorage.getItem(STORAGE_KEY);
     if (!done) {
       const t = setTimeout(() => setVisible(true), 800);
       return () => clearTimeout(t);
     }
+    return undefined;
   }, [role]);
 
   const dismiss = useCallback((launchApp?: AppId) => {

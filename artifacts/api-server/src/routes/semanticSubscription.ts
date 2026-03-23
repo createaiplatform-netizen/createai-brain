@@ -327,14 +327,28 @@ router.get("/checkout/:priceId", publicLookupLimiter, async (req: Request, res: 
       res.status(400).json({ ok: false, error: "Invalid price ID — must start with 'price_'" });
       return;
     }
-    const stripe = await getUncachableStripeClient();
+
+    // Multi-currency support: accept ?currency=eur|gbp|cad|aud|usd (defaults usd)
+    // Note: currency-specific Stripe price IDs must be configured for non-USD currencies.
+    // The current price IDs are USD-denominated. To accept other currencies, create
+    // matching prices in Stripe Dashboard and map them here via PRICE_CURRENCY_MAP.
+    const SUPPORTED_CURRENCIES = ["usd", "eur", "gbp", "cad", "aud", "nzd", "chf", "sek", "nok", "dkk"];
+    const rawCurrency = String(req.query["currency"] ?? "usd").toLowerCase();
+    const currency    = SUPPORTED_CURRENCIES.includes(rawCurrency) ? rawCurrency : "usd";
+
+    const stripe  = await getUncachableStripeClient();
     const session = await stripe.checkout.sessions.create({
-      mode: "subscription",
-      line_items: [{ price: priceId, quantity: 1 }],
+      mode:                  "subscription",
+      line_items:            [{ price: priceId, quantity: 1 }],
       allow_promotion_codes: true,
-      success_url: `${STORE_URL}/api/semantic/portal/me?subscribed=1`,
-      cancel_url:  `${STORE_URL}/api/semantic/subscriptions/landing`,
-      metadata: { channel: "membership-page", type: "subscription" },
+      currency:              currency !== "usd" ? currency : undefined, // only pass when non-USD
+      success_url:           `${STORE_URL}/api/semantic/portal/me?subscribed=1`,
+      cancel_url:            `${STORE_URL}/api/semantic/subscriptions/landing`,
+      metadata: {
+        channel:  "membership-page",
+        type:     "subscription",
+        currency,
+      },
     });
     if (session.url) res.redirect(303, session.url);
     else res.status(500).json({ ok: false, error: "Stripe returned no checkout URL" });

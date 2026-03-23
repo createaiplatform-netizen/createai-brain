@@ -34,6 +34,7 @@ export function PhoneOTPScreen({ onVerified, onDismiss }: PhoneOTPScreenProps) {
       const t = setTimeout(() => setResendCooldown(c => c - 1), 1000);
       return () => clearTimeout(t);
     }
+    return undefined;
   }, [resendCooldown]);
 
   async function handleSendOTP(e?: React.FormEvent) {

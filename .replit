@@ -182,10 +182,10 @@ author = "agent"
 
 [[workflows.workflow.tasks]]
 task = "shell.exec"
-args = "PORT=23568 BASE_PATH=/ pnpm --filter @workspace/createai-brain run dev"
+args = "PORT=5173 BASE_PATH=/ pnpm --filter @workspace/createai-brain run dev"
 
 [workflows.workflow.metadata]
-outputType = "console"
+outputType = "webview"
 
 [agent]
 stack = "PNPM_WORKSPACE"

@@ -504,7 +504,7 @@ export const DEFAULT_APPS: AppDef[] = [
   { id: "franchiseOps",  label: "Franchise Hub",       icon: "🏪", color: "#6366f1", description: "Multi-location franchise operations — operator management, royalty tracking (6% default), compliance scoring, revenue reporting, and territory management. Replaces FranConnect and Revel.", category: "business" },
   { id: "brandVault",    label: "Brand Vault",         icon: "💎", color: "#6366f1", description: "Brand asset management and guidelines library — logos, color palettes, templates, fonts, usage rights, version control, and brand compliance enforcement. Replaces Bynder and Brandfolder.", category: "system" },
   { id: "revenueIntel",  label: "Revenue Intelligence",icon: "📈", color: "#10b981", description: "Advanced revenue analytics — cohort analysis, LTV modeling, churn prediction, MRR/ARR trends, net revenue retention, and ARPU tracking. Replaces ChartMogul and Baremetrics.", category: "business" },
-  { id: "aiStrategy",    label: "AI Strategy Engine",  icon: "🧠", color: "#6366f1", description: "GPT-4o powered strategic intelligence — analyze business positions, generate 90-day action plans, map competitive landscapes, identify growth levers, and evaluate pivot options. Full strategic advisor.", category: "ai" },
+  { id: "aiStrategy",    label: "AI Strategy Engine",  icon: "🧠", color: "#6366f1", description: "GPT-4o powered strategic intelligence — analyze business positions, generate 90-day action plans, map competitive landscapes, identify growth levers, and evaluate pivot options. Full strategic advisor.", category: "tools" },
   { id: "distributionHub", label: "Distribution Hub", icon: "🚀", color: "#6366f1", description: "App store submission engine — manage PWA installation, Chrome Web Store, Apple App Store, Google Play, Samsung Galaxy Store, Amazon Appstore, and Microsoft Store. 100/100 PWA audit score. Full automation pipeline with GitHub Actions + Fastlane.", category: "system" },
   // ── Industry Elevation Suite — 13 sectors at 100% ─────────────────────────
   { id: "fleetLogistics", label: "Fleet & Logistics", icon: "🚛", color: "#6366f1", description: "Full fleet management OS — vehicles, drivers, routes, fuel logs, maintenance schedule, load dispatch, and GPS telemetry. Replaces Samsara and Verizon Connect.", category: "business" },
@@ -1116,8 +1116,9 @@ const APP_META: Record<AppId, { icon: string; label: string }> = {
   construction:    { icon: "🏗️", label: "Construction" },
   government:      { icon: "🏛️", label: "Government Services" },
   homeServices:    { icon: "🔧", label: "Home Services" },
-  insuranceMgmt:   { icon: "🛡️", label: "Insurance" },
-  agriculture:     { icon: "🌾", label: "Agriculture" },
+  insuranceMgmt:    { icon: "🛡️", label: "Insurance" },
+  agriculture:      { icon: "🌾", label: "Agriculture" },
+  distributionHub:  { icon: "🚀", label: "Distribution Hub" },
 };
 
 // ─── OS Context value ───────────────────────────────────────────────────────
