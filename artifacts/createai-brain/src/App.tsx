@@ -31,6 +31,7 @@ import { CookieBanner }  from "@/components/CookieBanner";
 import { PushNotificationManager } from "@/components/PushNotificationManager";
 import { RoleGate } from "@/components/RoleGate";
 import { SecureAuthLayer } from "@/components/auth/SecureAuthLayer";
+import { NDAGate } from "@/components/auth/NDAGate";
 import AdminUniversePage from "@/pages/universe/AdminUniversePage";
 import FamilyUniversePage from "@/pages/universe/FamilyUniversePage";
 import KidsUniversePage from "@/pages/universe/KidsUniversePage";
@@ -38,11 +39,9 @@ import CustomerUniversePage from "@/pages/universe/CustomerUniversePage";
 import { useUserRole } from "@/hooks/useUserRole";
 import ProjectsPage from "@/pages/ProjectsPage";
 
-import MetricsPage from "@/pages/MetricsPage";
 import AboveTranscendPage from "@/pages/AboveTranscendPage";
 import CreateAIDigitalPage from "@/pages/CreateAIDigitalPage";
 import RealMarketPage          from "@/pages/RealMarketPage";
-import OutputLibraryPage       from "@/pages/OutputLibraryPage";
 import VentonWayPage           from "@/pages/VentonWayPage";
 import ElectricNetWayPage      from "@/pages/ElectricNetWayPage";
 import EverythingNetWayPage    from "@/pages/EverythingNetWayPage";
@@ -123,7 +122,6 @@ function Router() {
   return (
     <Switch>
       <Route path="/integration-demo" component={IntegrationDemoPage} />
-      <Route path="/metrics" component={MetricsPage} />
       <Route path="/above-transcend" component={AboveTranscendPage} />
       <Route path="/semantic-store" component={SemanticStorePage} />
       <Route path="/platform-score" component={PlatformScorePage} />
@@ -158,37 +156,40 @@ function Router() {
       {/* Kids Universe — must come before /family so wouter matches first */}
       <Route path="/family/kids">
         <RoleGate allowed={["family_child", "family_adult", "admin", "founder"]}>
-          <SecureAuthLayer role={role}>
-            <KidsUniversePage />
-          </SecureAuthLayer>
+          <NDAGate>
+            <SecureAuthLayer role={role}>
+              <KidsUniversePage />
+            </SecureAuthLayer>
+          </NDAGate>
         </RoleGate>
       </Route>
-      {/* Family Universe — family adults with secure auth layer */}
+      {/* Family Universe — family adults with NDA gate + secure auth layer */}
       <Route path="/family">
         <RoleGate allowed={["family_adult", "family_child", "admin", "founder"]}>
-          <SecureAuthLayer role={role}>
-            <FamilyUniversePage />
-          </SecureAuthLayer>
+          <NDAGate>
+            <SecureAuthLayer role={role}>
+              <FamilyUniversePage />
+            </SecureAuthLayer>
+          </NDAGate>
         </RoleGate>
       </Route>
-      {/* Customer Universe — customers with secure auth layer */}
+      {/* Customer Universe — customers with NDA gate + secure auth layer */}
       <Route path="/dashboard">
         <RoleGate allowed={["customer", "admin", "founder"]}>
-          <SecureAuthLayer role={role}>
-            <CustomerUniversePage />
-          </SecureAuthLayer>
+          <NDAGate>
+            <SecureAuthLayer role={role}>
+              <CustomerUniversePage />
+            </SecureAuthLayer>
+          </NDAGate>
         </RoleGate>
       </Route>
-
-      {/* Output Library */}
-      <Route path="/library" component={OutputLibraryPage} />
 
       {/* Shareable family message pages — public, no login */}
       <Route path="/msg/:token" component={MessagePage} />
       <Route path="/family-portal-intro" component={FamilySharePage} />
 
-      {/* Full OS — default for admin/founder/user/viewer */}
-      <Route path="/" component={OSLayout} />
+      {/* Full OS — catch-all; OSLayout uses useLocation() to render /library, /metrics, etc. */}
+      <Route component={OSLayout} />
       <Route component={NotFound} />
     </Switch>
   );

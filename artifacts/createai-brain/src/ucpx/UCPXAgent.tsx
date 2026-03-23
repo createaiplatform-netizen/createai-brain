@@ -2341,12 +2341,29 @@ function MasterBrainView() {
     fetch("/api/projects", { credentials: "include" })
       .then(r => r.ok ? r.json() : null)
       .then((data: unknown) => {
-        if (Array.isArray(data)) {
-          setRealProjectCount(data.length);
-        } else if (data && typeof data === "object" && "projects" in data) {
-          const d = data as { projects: unknown[] };
-          if (Array.isArray(d.projects)) setRealProjectCount(d.projects.length);
-        }
+        const rows: Array<Record<string, unknown>> = Array.isArray(data)
+          ? (data as Array<Record<string, unknown>>)
+          : (data && typeof data === "object" && "projects" in data && Array.isArray((data as { projects: unknown[] }).projects))
+            ? ((data as { projects: Array<Record<string, unknown>> }).projects)
+            : [];
+        if (rows.length === 0) return;
+        setRealProjectCount(rows.length);
+        const COLORS = ["#6366f1","#7a9068","#f59e0b","#ef4444","#10b981","#8b5cf6","#0ea5e9","#f97316"];
+        const ICONS  = ["🏗️","⚡","🌱","🔬","💡","🌍","🛠️","📊"];
+        const mapped: MasterProject[] = rows.map((p, i) => ({
+          id:          String(p["id"] ?? `rp-${i}`),
+          name:        String(p["name"] ?? `Project ${i + 1}`),
+          industry:    String(p["industry"] ?? p["type"] ?? p["category"] ?? "General"),
+          icon:        String(p["icon"] ?? ICONS[i % ICONS.length]),
+          mode:        (p["status"] === "live" ? "live" : p["status"] === "test" ? "test" : "demo") as "live"|"test"|"demo",
+          roi:         String(p["roi"] ?? "+ROI"),
+          savings:     String(p["savings"] ?? "–"),
+          connected:   false,
+          miniBrains:  Number(p["miniBrains"] ?? 0),
+          departments: Array.isArray(p["departments"]) ? (p["departments"] as string[]) : ["General"],
+          color:       COLORS[i % COLORS.length],
+        }));
+        setProjects(mapped);
       })
       .catch(() => {});
   }, []);
