@@ -1,15 +1,16 @@
 /**
- * useInviteSurface — hook that returns a registry surface by id
- * -------------------------------------------------------------
+ * useInviteSurface — hook that returns a registry surface by id.
+ * Has both a named export and a default export to support all import styles.
+ *
  * Usage:
+ *   import useInviteSurface from "./useInviteSurface";
  *   const surface = useInviteSurface("broadcast");
- *   if (!surface) return null;
  */
 
 import { getSurface, type InviteSurface } from "./registry";
 
 export function useInviteSurface(id: string): InviteSurface | undefined {
-  // Registry is a pure synchronous module — no async fetch needed.
-  // This hook exists to provide a consistent import pattern across the platform.
   return getSurface(id);
 }
+
+export default useInviteSurface;

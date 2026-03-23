@@ -1,0 +1,93 @@
+/* ---------------------------------------------
+   File: components/invite/ShareCard.tsx
+   Renders a simple shareable card for any surface.
+   Uses registry + ShareHelpers + QR code.
+---------------------------------------------- */
+
+import React from "react";
+import QRCode from "qrcode";
+import { useInviteSurface } from "./useInviteSurface";
+import { getSharePayload } from "./ShareHelpers";
+
+export default function ShareCard({ surfaceId }: { surfaceId: string }) {
+  const surface = useInviteSurface(surfaceId);
+  const [qr, setQr] = React.useState<string>("");
+
+  React.useEffect(() => {
+    if (surface?.link) {
+      QRCode.toDataURL(surface.link).then(setQr);
+    }
+  }, [surface]);
+
+  if (!surface) return null;
+
+  const share = getSharePayload(surfaceId);
+
+  return (
+    <div style={styles.card}>
+      {surface.icon && <div style={styles.icon}>{surface.icon}</div>}
+      <h2 style={styles.title}>{surface.title}</h2>
+      <p style={styles.tagline}>{surface.tagline}</p>
+
+      {qr && <img src={qr} alt="QR" style={styles.qr} />}
+
+      <div style={styles.linkBox}>
+        <code style={styles.code}>{share.url}</code>
+      </div>
+    </div>
+  );
+}
+
+const styles = {
+  card: {
+    width: "280px",
+    padding: "20px",
+    borderRadius: "12px",
+    background: "white",
+    border: "1px solid #ddd",
+    textAlign: "center" as const,
+  },
+  icon: {
+    fontSize: "32px",
+    marginBottom: "8px",
+  },
+  title: {
+    margin: "0 0 6px 0",
+    fontSize: "20px",
+  },
+  tagline: {
+    margin: "0 0 12px 0",
+    fontSize: "14px",
+    color: "#555",
+  },
+  qr: {
+    width: "140px",
+    height: "140px",
+    margin: "12px auto",
+  },
+  linkBox: {
+    marginTop: "12px",
+    padding: "8px",
+    background: "#f7f7f7",
+    borderRadius: "8px",
+  },
+  code: {
+    fontSize: "12px",
+    wordBreak: "break-all" as const,
+  },
+};
+
+
+/* ---------------------------------------------
+   File: components/invite/index.ts
+   Clean exports for the entire Invitation Engine.
+---------------------------------------------- */
+
+export { default as InviteCard } from "./InviteCard";
+export { default as InvitePanel } from "./InvitePanel";
+export { default as EmbeddedInvite } from "./EmbeddedInvite";
+export { default as InviteBanner } from "./InviteBanner";
+export { default as ShareCard } from "./ShareCard";
+export { default as useInviteSurface } from "./useInviteSurface";
+export * from "./ShareHelpers";
+export * from "./registry";

@@ -70,6 +70,24 @@ async function buildShareData(surface: InviteSurface): Promise<ShareData> {
   };
 }
 
+/**
+ * getSharePayload — sync helper used by ShareCard and other UI components.
+ * Returns the Web Share API payload for a surface without generating a QR code.
+ * Returns a safe fallback object if the surface id is not found.
+ */
+export function getSharePayload(id: string): { title: string; text: string; url: string } {
+  const surface = getSurface(id);
+  const origin  = typeof window !== "undefined" ? window.location.origin : "https://createai.digital";
+  const url     = surface
+    ? (surface.link.startsWith("http") ? surface.link : origin + surface.link)
+    : origin;
+  return {
+    title: surface?.title ?? "CreateAI Brain",
+    text:  surface?.tagline ?? "The AI OS for your entire business.",
+    url,
+  };
+}
+
 /** Trigger the Web Share API if available, fallback to clipboard copy. */
 export async function shareSurface(id: string): Promise<"shared" | "copied" | "unavailable"> {
   const data = await getShareData(id);
