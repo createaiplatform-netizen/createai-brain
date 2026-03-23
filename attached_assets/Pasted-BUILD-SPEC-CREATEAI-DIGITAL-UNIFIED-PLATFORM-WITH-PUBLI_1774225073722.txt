@@ -1,0 +1,154 @@
+BUILD SPEC: CREATEAI DIGITAL — UNIFIED PLATFORM WITH PUBLIC STOREFRONT + PRIVATE FAMILY PORTAL
+
+GOAL:
+Convert the current system into ONE unified platform called "CreateAI Digital" with:
+1) Public storefront (no login required)
+2) Authentication system (login/signup)
+3) Role-based private routing
+4) Family Portal (restricted access)
+5) Customer Dashboard (post-purchase access)
+
+-----------------------------------
+CORE ARCHITECTURE
+-----------------------------------
+
+Create two layers:
+
+1) PUBLIC LAYER (Storefront)
+- Route: "/"
+- No authentication required
+- Displays:
+  - Product listings
+  - AI tools overview
+  - Pricing / “Unlock Access” CTA
+  - Login / Signup buttons
+
+2) AUTHENTICATED LAYER
+- Requires login
+- Routes based on user role
+
+-----------------------------------
+AUTH SYSTEM
+-----------------------------------
+
+Implement authentication with:
+- Email + password login
+- User registration
+- Session handling
+
+User model MUST include:
+
+{
+  id: string,
+  email: string,
+  passwordHash: string,
+  role: "admin" | "family" | "customer",
+  createdAt: timestamp
+}
+
+-----------------------------------
+ROLE-BASED ROUTING (CRITICAL)
+-----------------------------------
+
+After login:
+
+IF role === "family" OR role === "admin"
+→ redirect to: "/family"
+
+IF role === "customer"
+→ redirect to: "/dashboard"
+
+-----------------------------------
+PRIVATE ROUTES
+-----------------------------------
+
+/family (Family Portal)
+- Access: ONLY role = family OR admin
+- Features:
+  - Internal tools access
+  - Project modules (StaffingOS, HealthOS, etc.)
+  - Messaging / updates section (basic for now)
+
+/dashboard (Customer Dashboard)
+- Access: ONLY role = customer
+- Features:
+  - Purchased products
+  - Access to unlocked tools
+
+-----------------------------------
+ACCESS CONTROL (MUST ENFORCE)
+-----------------------------------
+
+Middleware:
+
+- Block unauthenticated users from:
+  /family
+  /dashboard
+
+- Block customers from accessing:
+  /family
+
+-----------------------------------
+PAYMENT INTEGRATION (REAL MONEY FLOW)
+-----------------------------------
+
+Integrate Stripe:
+
+- Public storefront → product purchase
+- On successful payment:
+  → create/update user account
+  → assign role = "customer"
+
+Optional:
+- Allow upgrade to “family/admin” manually via backend
+
+-----------------------------------
+UI STRUCTURE
+-----------------------------------
+
+Top Navigation:
+
+Public:
+- Home
+- Products
+- Login / Signup
+
+Logged in:
+- Dashboard (customers)
+- Family Portal (family/admin only)
+- Account / Logout
+
+-----------------------------------
+MINIMUM WORKING VERSION (DO THIS FIRST)
+-----------------------------------
+
+1. Public homepage (storefront)
+2. Auth system (login/signup)
+3. Role field on users
+4. Redirect after login
+5. /family page (basic placeholder)
+6. /dashboard page (basic placeholder)
+7. Route protection middleware
+
+-----------------------------------
+DO NOT:
+-----------------------------------
+
+- Do NOT simulate revenue
+- Do NOT include fake metrics
+- Do NOT overbuild engines
+
+-----------------------------------
+PRIORITY:
+-----------------------------------
+
+Make the system FUNCTIONAL and REAL:
+- Users can sign up
+- Users can log in
+- Users are routed correctly
+- Pages are protected
+- Payment can be connected
+
+-----------------------------------
+END SPEC
+-----------------------------------
