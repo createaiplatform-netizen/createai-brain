@@ -1,0 +1,86 @@
+/**
+ * Max Parallel Session Runner (Minimal Token Usage)
+ * - Runs all ready sessions up to a safe concurrency cap
+ * - Uses minimal tokens by only passing essential data per session
+ */
+
+type Session = {
+  id: string;
+  dependencies: string[];
+  execute: () => Promise<any>; // the actual session function
+};
+
+class SessionManager {
+  private sessions: Session[];
+  private running = 0;
+  private maxConcurrency: number;
+  private completed = new Set<string>();
+
+  constructor(sessions: Session[], maxConcurrency = 10) {
+    this.sessions = sessions;
+    this.maxConcurrency = maxConcurrency;
+  }
+
+  async runAll() {
+    return new Promise<void>((resolve) => {
+      const tryRun = () => {
+        // Filter sessions ready to run
+        const ready = this.sessions.filter(
+          (s) =>
+            !this.completed.has(s.id) &&
+            s.dependencies.every((d) => this.completed.has(d))
+        );
+
+        while (this.running < this.maxConcurrency && ready.length > 0) {
+          const next = ready.shift()!;
+          this.running++;
+          next.execute()
+            .then(() => {
+              this.completed.add(next.id);
+            })
+            .finally(() => {
+              this.running--;
+              tryRun(); // check for more ready sessions
+            });
+        }
+
+        // Resolve when all sessions are complete
+        if (this.completed.size === this.sessions.length && this.running === 0) {
+          resolve();
+        }
+      };
+
+      tryRun();
+    });
+  }
+}
+
+// Example usage:
+const allSessions: Session[] = [
+  {
+    id: "cohortAnalytics",
+    dependencies: [],
+    execute: async () => {
+      // Minimal token use: only send user IDs, activity counts
+      await runCohortAnalytics({ minimal: true });
+    },
+  },
+  {
+    id: "churnAlerts",
+    dependencies: ["cohortAnalytics"],
+    execute: async () => {
+      await runChurnAlerts({ minimal: true });
+    },
+  },
+  {
+    id: "revenueMetrics",
+    dependencies: ["cohortAnalytics"],
+    execute: async () => {
+      await runRevenueMetrics({ minimal: true });
+    },
+  },
+  // Add more sessions here...
+];
+
+const manager = new SessionManager(allSessions, 10);
+manager.runAll().then(() => console.log("All sessions complete!"));
