@@ -2,21 +2,68 @@
 // Rule-based gentle suggestions from real user data. No AI calls. No pressure.
 // All suggestions are optional, dismissible, and derived only from data the user
 // has explicitly stored. Never alarming. Always calm and helpful.
+// Role-aware: founder / admin / customer / family_adult / family_child / viewer.
 
 import { Router, type Request, type Response } from "express";
-import { getSql } from "../lib/db";
+import { getSql } from "../lib/db.js";
 
 const router = Router();
 
-// GET /api/smart-suggestions — suggestions for current user based on actual data
+type Suggestion = {
+  id: string;
+  type: "alert" | "reminder" | "celebrate" | "info";
+  icon: string;
+  message: string;
+  action?: string;
+  priority: number;
+};
+
+// ── Role-specific static suggestions ─────────────────────────────────────────
+
+function roleBasedSuggestions(role: string): Suggestion[] {
+  switch (role) {
+    case "founder":
+    case "admin":
+      return [
+        { id: "role-founder-1", type: "info",     icon: "📊", message: "Check your top apps chart in the admin panel",         action: "admin",       priority: 2 },
+        { id: "role-founder-2", type: "info",     icon: "🚀", message: "Review new customer signups and subscription activity", action: "commandcenter", priority: 2 },
+        { id: "role-founder-3", type: "info",     icon: "⚡", message: "Run a Brain Hub engine to generate strategic content",   action: "brainhub",    priority: 1 },
+      ];
+    case "customer":
+      return [
+        { id: "role-customer-1", type: "info",    icon: "✨", message: "Explore your recommended apps for today",               action: "apps",        priority: 2 },
+        { id: "role-customer-2", type: "info",    icon: "📄", message: "Visit your output library to review saved documents",   action: "documents",   priority: 1 },
+        { id: "role-customer-3", type: "info",    icon: "🎯", message: "Use the Opportunity Engine to discover new ideas",      action: "opportunity", priority: 1 },
+      ];
+    case "family_adult":
+      return [
+        { id: "role-fadult-1",  type: "info",     icon: "🏠", message: "Check the family dashboard for updates",               action: "family",      priority: 2 },
+        { id: "role-fadult-2",  type: "info",     icon: "💌", message: "Send a message to a family member",                    action: "messages",    priority: 1 },
+        { id: "role-fadult-3",  type: "info",     icon: "🌱", message: "Log a habit — consistency builds momentum",            action: "habits",      priority: 1 },
+      ];
+    case "family_child":
+      return [
+        { id: "role-fchild-1",  type: "info",     icon: "🎮", message: "Complete a learning activity today",                   action: "kids",        priority: 2 },
+        { id: "role-fchild-2",  type: "celebrate",icon: "⭐", message: "Check your progress and earn your next milestone",     action: "kids",        priority: 1 },
+      ];
+    default:
+      return [
+        { id: "role-viewer-1",  type: "info",     icon: "👋", message: "Explore what CreateAI Brain can do for you",           action: "apps",        priority: 1 },
+      ];
+  }
+}
+
+// ── GET /api/smart-suggestions ────────────────────────────────────────────────
+
 router.get("/", async (req: Request, res: Response) => {
   if (!req.isAuthenticated()) {
     res.json({ suggestions: [] });
     return;
   }
-  const userId = (req.user as { id: string }).id;
+  const userId = (req.user as { id: string; role?: string }).id;
+  const role   = (req.user as { id: string; role?: string }).role ?? "user";
   const sql = getSql();
-  const suggestions: { id: string; type: string; icon: string; message: string; action?: string; priority: number }[] = [];
+  const suggestions: Suggestion[] = [];
 
   try {
     const [
@@ -60,7 +107,13 @@ router.get("/", async (req: Request, res: Response) => {
       suggestions.push({ id: "reached-goals", type: "celebrate", icon: "🎯", message: `${n} savings goal${n !== 1 ? "s" : ""} reached — you did it!`, action: "bank", priority: 3 });
     }
   } catch {
-    // Return empty suggestions gracefully if data isn't ready
+    // Return empty data-driven suggestions gracefully if DB isn't ready
+  }
+
+  // Merge role-based suggestions, but only fill up to 5 total
+  const roleSuggestions = roleBasedSuggestions(role);
+  for (const rs of roleSuggestions) {
+    if (suggestions.length < 5) suggestions.push(rs);
   }
 
   suggestions.sort((a, b) => b.priority - a.priority);

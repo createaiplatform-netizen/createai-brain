@@ -465,6 +465,8 @@ import contributionsRouter     from "./contributions.js";
 import journalRouter           from "./journal.js";
 import exportDataRouter        from "./exportData.js";
 import smartSuggestionsRouter  from "./smartSuggestions.js";
+import pushRouter              from "./push.js";
+import priorityAlertsRouter    from "./priorityAlerts.js";
 import launchRouter            from "./launch.js";
 import appUsageRouter          from "./appUsage.js";
 
@@ -506,6 +508,8 @@ router.use("/contributions",     contributionsRouter);
 router.use("/journal",           journalRouter);
 router.use("/export",            exportDataRouter);
 router.use("/smart-suggestions", smartSuggestionsRouter);
+router.use("/push",              pushRouter);
+router.use("/alerts",            priorityAlertsRouter);
 router.use("/launch",            launchRouter);
 router.use("/app-usage",         appUsageRouter);
 

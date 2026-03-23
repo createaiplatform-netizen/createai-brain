@@ -28,6 +28,7 @@ import KidsHubPage from "@/pages/KidsHubPage";
 import { SmartRoleRouter } from "@/components/SmartRoleRouter";
 import { OfflineBanner } from "@/components/OfflineBanner";
 import { CookieBanner }  from "@/components/CookieBanner";
+import { PushNotificationManager } from "@/components/PushNotificationManager";
 import { RoleGate } from "@/components/RoleGate";
 import { SecureAuthLayer } from "@/components/auth/SecureAuthLayer";
 import AdminUniversePage from "@/pages/universe/AdminUniversePage";
@@ -771,6 +772,7 @@ function App() {
                   <OSProvider>
                     <OfflineBanner />
                     <CookieBanner />
+                    <PushNotificationManager />
                     <GlobalCommandPalette />
                     <WouterRouter base={base}>
                       {/* SmartRoleRouter: fires after login+NDA, redirects to role home */}
