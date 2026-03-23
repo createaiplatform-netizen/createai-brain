@@ -521,6 +521,10 @@ router.use("/launch",            launchRouter);
 router.use("/app-usage",         appUsageRouter);
 router.use("/shareable-messages", shareableMessagesRouter);
 
+// ── ElectricNetWay Engine — energy, device, internet, data job queue ──────────
+import electricNetWayRouter from "./electricNetWay.js";
+router.use("/electric-net-way", electricNetWayRouter);
+
 // ── Financial Hub Backward-Compat Redirects — T006 ───────────────────────────
 // Wealth, ledger, and revenue-intel are also reachable under /finance/*
 // using 301 redirects for any client still hitting the legacy paths.
