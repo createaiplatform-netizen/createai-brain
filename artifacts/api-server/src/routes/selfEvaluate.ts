@@ -288,7 +288,89 @@ router.get("/self", async (_req: Request, res: Response) => {
       },
     };
 
-    const result = { cohort, churn, revenue, system, benchmarks };
+    // ── 6. ISSUES — metrics below industry threshold ───────────────────────────
+
+    interface Issue {
+      metric: string;
+      value: string | number;
+      benchmark: string;
+      suggestion: string;
+    }
+    const issues: Issue[] = [];
+
+    if (benchmarks.dau_mau_ratio.status === "below") {
+      issues.push({
+        metric:     "DAU / MAU Ratio",
+        value:      `${dauMauRatio}%`,
+        benchmark:  "10%+ (B2B SaaS avg: 10–20%)",
+        suggestion: "Increase daily touchpoints — add a daily digest email, push notifications on key events, or a homepage activity feed to drive users back each day.",
+      });
+    }
+
+    if (benchmarks.churn_rate.status === "below") {
+      issues.push({
+        metric:     "High-Risk Churn Rate",
+        value:      `${churnRatePct}%`,
+        benchmark:  "<5% (B2B SaaS healthy: <2%)",
+        suggestion: "Activate the churn alert flow (POST /api/cohorts/alerts) for automated re-engagement emails. Consider adding in-app win-back prompts for users inactive 14+ days.",
+      });
+    }
+
+    if (benchmarks.engagement_rate.status === "below") {
+      issues.push({
+        metric:     "Engagement Rate (DAU/MAU)",
+        value:      `${dauMauRatio}%`,
+        benchmark:  "10%+ for AI platforms (20–35% target)",
+        suggestion: "Surface personalised app recommendations on the dashboard. Scheduled reminders and Cmd+K shortcut visibility can reduce friction and increase return visits.",
+      });
+    }
+
+    if (benchmarks.mrr.status === "below") {
+      issues.push({
+        metric:     "Monthly Recurring Revenue (MRR)",
+        value:      `$${mrr_dollars_num.toFixed(2)}`,
+        benchmark:  "$10,000+ (early traction) · $50,000+ (growth)",
+        suggestion: "Focus on converting existing free users to Solo ($29/mo) or Business ($79/mo) plans. Activate the welcome email sequence and add an upgrade prompt inside the OS dashboard.",
+      });
+    }
+
+    if (benchmarks.ltv.status === "below") {
+      issues.push({
+        metric:     "Lifetime Value per Customer (LTV)",
+        value:      `$${ltv_dollars_num.toFixed(2)}`,
+        benchmark:  "$300+ (good) · $1,000+ (great)",
+        suggestion: "Increase LTV by reducing churn and upselling to higher tiers. Annual plan discounts and team/family bundle pricing can significantly extend customer lifetime.",
+      });
+    }
+
+    if (benchmarks.conversion_rate.status === "below") {
+      issues.push({
+        metric:     "Free → Paid Conversion Rate",
+        value:      `${conversionRatePct}%`,
+        benchmark:  "2%+ (freemium avg) · 5%+ (strong PLG)",
+        suggestion: "Add a visible upgrade CTA on the OS dashboard. Trial expiry nudges, feature gating on premium apps, and a one-click Stripe checkout flow typically lift conversion 2–5×.",
+      });
+    }
+
+    if (benchmarks.active_users.status === "below") {
+      issues.push({
+        metric:     "Total Registered Users",
+        value:      totalUsers,
+        benchmark:  "100+ (traction) · 1,000+ (growth)",
+        suggestion: "Activate top-of-funnel — share the public storefront, enable referral incentives, and submit createai.digital to AI tool directories (There's An AI For That, Futurepedia, Product Hunt).",
+      });
+    }
+
+    if (benchmarks.payment_count.status === "below") {
+      issues.push({
+        metric:     "Total Payments Processed",
+        value:      payment_count,
+        benchmark:  "1+ (first revenue) · 10+ (repeatable) · 100+ (scale)",
+        suggestion: "Run a founder-led outreach to the first 10 target customers. Direct Stripe checkout links or a limited-time launch offer can accelerate the first payment milestone.",
+      });
+    }
+
+    const result = { cohort, churn, revenue, system, benchmarks, issues };
     res.json(toCache("self-eval", result));
 
   } catch (err) {
