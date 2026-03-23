@@ -1,0 +1,150 @@
+// =======================
+// artifacts/api-server/src/services/everythingNetWay.ts
+// =======================
+import { rawSql } from "@workspace/db";
+import { ventonWayService } from "./ventonWay";
+import { electricNetWayService } from "./electricNetWay";
+import { meshNetWayService } from "./meshNetWay";
+
+export async function initEverythingNetWay() {
+  await electricNetWayService.initElectricNetWay();
+  await meshNetWayService.initMeshNetWay();
+  // Queue table already created in VentonWay init
+}
+
+export async function getEverythingNetStatus() {
+  const [electricNodes, meshNodes, queueStatus] = await Promise.all([
+    electricNetWayService.getElectricNodes(),
+    meshNetWayService.getMeshNodes(),
+    ventonWayService.getStatus(),
+  ]);
+  return { electricNodes, meshNodes, queueStatus };
+}
+
+// =======================
+// artifacts/api-server/src/routes/everythingNetWay.ts
+// =======================
+import express from "express";
+import { isAdmin } from "@workspace/auth";
+import * as everythingService from "../services/everythingNetWay";
+
+export const router = express.Router();
+
+// Admin-only status
+router.get("/status", isAdmin, async (req, res) => {
+  const status = await everythingService.getEverythingNetStatus();
+  res.json(status);
+});
+
+// Optional: trigger processing queue manually
+router.post("/trigger", isAdmin, async (req, res) => {
+  await ventonWayService.processQueue();
+  res.json({ ok: true });
+});
+
+// =======================
+// artifacts/api-server/src/routes/index.ts
+// =======================
+import { router as everythingNetWayRouter } from "./everythingNetWay";
+router.use("/api/everything-net-way", everythingNetWayRouter);
+
+// =======================
+// artifacts/api-server/src/index.ts
+// =======================
+import { initEverythingNetWay } from "./services/everythingNetWay";
+async function startServer() {
+  await initEverythingNetWay();
+  // Existing startup logic...
+}
+
+// =======================
+// artifacts/createai-brain/src/pages/EverythingNetWayPage.tsx
+// =======================
+import React, { useEffect, useState } from "react";
+import axios from "axios";
+
+export default function EverythingNetWayPage() {
+  const [status, setStatus] = useState({
+    electricNodes: [],
+    meshNodes: [],
+    queueStatus: {},
+  });
+
+  const fetchStatus = async () => {
+    const res = await axios.get("/api/everything-net-way/status");
+    setStatus(res.data);
+  };
+
+  useEffect(() => {
+    fetchStatus();
+    const interval = setInterval(fetchStatus, 5000);
+    return () => clearInterval(interval);
+  }, []);
+
+  return (
+    <div className="p-6 space-y-8">
+      <h1 className="text-2xl font-bold text-sage-700">EverythingNetWay Dashboard</h1>
+
+      {/* Electric Nodes */}
+      <section>
+        <h2 className="text-xl font-semibold text-sage-600">⚡ Electric Grid Nodes</h2>
+        <table className="w-full mt-2 border">
+          <thead>
+            <tr>
+              <th>Name</th><th>Location</th><th>Capacity (kWh)</th><th>Status</th><th>Last Update</th>
+            </tr>
+          </thead>
+          <tbody>
+            {status.electricNodes.length ? status.electricNodes.map(n => (
+              <tr key={n.id}>
+                <td>{n.name}</td><td>{n.location}</td><td>{n.capacity}</td>
+                <td>{n.status}</td><td>{n.updated_at}</td>
+              </tr>
+            )) : <tr><td colSpan={5} className="text-center">No electric nodes registered</td></tr>}
+          </tbody>
+        </table>
+      </section>
+
+      {/* Mesh Nodes */}
+      <section>
+        <h2 className="text-xl font-semibold text-sage-600">🌐 Mesh Internet Nodes</h2>
+        <div className="flex justify-between mb-2">
+          <div>Total: {status.meshNodes.length}</div>
+          <div>Active: {status.meshNodes.filter(n => n.status==="active").length}</div>
+          <div>Total Bandwidth: {status.meshNodes.reduce((acc,n)=>acc+n.bandwidth,0)} Mbps</div>
+        </div>
+        <table className="w-full border">
+          <thead>
+            <tr><th>Name</th><th>Location</th><th>Bandwidth (Mbps)</th><th>Status</th></tr>
+          </thead>
+          <tbody>
+            {status.meshNodes.length ? status.meshNodes.map(n => (
+              <tr key={n.id}>
+                <td>{n.name}</td><td>{n.location}</td><td>{n.bandwidth}</td><td>{n.status}</td>
+              </tr>
+            )) : <tr><td colSpan={4} className="text-center">No mesh nodes registered</td></tr>}
+          </tbody>
+        </table>
+      </section>
+
+      {/* Messaging Queue */}
+      <section>
+        <h2 className="text-xl font-semibold text-sage-600">✉️ Messaging Queue (VentonWay)</h2>
+        <div className="grid grid-cols-4 gap-4 mt-2">
+          {["pending","executing","completed","failed"].map(k => (
+            <div key={k} className="p-4 bg-sage-100 rounded text-center">
+              <div className="font-bold">{k.charAt(0).toUpperCase()+k.slice(1)}</div>
+              <div>{status.queueStatus[k]||0}</div>
+            </div>
+          ))}
+        </div>
+      </section>
+    </div>
+  );
+}
+
+// =======================
+// artifacts/createai-brain/src/App.tsx
+// =======================
+import EverythingNetWayPage from "./pages/EverythingNetWayPage";
+<Route path="/everything-net-way" element={<EverythingNetWayPage />} />

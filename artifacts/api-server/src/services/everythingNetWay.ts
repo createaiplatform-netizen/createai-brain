@@ -5,6 +5,8 @@
 
 import { rawSql } from "@workspace/db";
 import { getVentonWayStatus } from "./ventonWay.js";
+import { getElectricNodes }   from "./electricNetWay.js";
+import { getMeshNodes, getMeshStats } from "./meshNetWay.js";
 
 // ─── Types ────────────────────────────────────────────────────────────────────
 
@@ -157,10 +159,13 @@ export async function getLogs(limit = 50, offset = 0): Promise<ENWJob[]> {
 }
 
 export async function getFullStatus() {
-  const [layerStats, totals, messaging] = await Promise.all([
+  const [layerStats, totals, messaging, electricNodes, meshNodes, meshStats] = await Promise.all([
     getLayerStats(),
     getQueueTotals(),
     getVentonWayStatus(),
+    getElectricNodes(),
+    getMeshNodes(),
+    getMeshStats(),
   ]);
-  return { layerStats, totals, messaging };
+  return { layerStats, totals, messaging, electricNodes, meshNodes, meshStats };
 }
