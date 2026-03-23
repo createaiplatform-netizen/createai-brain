@@ -7,6 +7,7 @@ import { useAuth } from "@workspace/replit-auth-web";
 
 import NotFound from "@/pages/not-found";
 import StandalonePage from "@/pages/StandalonePage";
+import BroadcastPage from "@/pages/BroadcastPage";
 import CreationPage from "@/pages/CreationPage";
 import ProjectPage from "@/pages/ProjectPage";
 import IntegrationDemoPage from "@/pages/IntegrationDemoPage";
@@ -121,6 +122,7 @@ function Router() {
 
   return (
     <Switch>
+      <Route path="/broadcast" component={BroadcastPage} />
       <Route path="/integration-demo" component={IntegrationDemoPage} />
       <Route path="/above-transcend" component={AboveTranscendPage} />
       <Route path="/semantic-store" component={SemanticStorePage} />

@@ -537,6 +537,10 @@ router.use("/mesh-net-way", meshNetWayRouter);
 import externalPulseRouter from "./externalPulse.js";
 router.use("/external-pulse", externalPulseRouter);
 
+// ── GlobalPulse — world-scale opt-in broadcast (SSE stream + webhooks + RSS) ─
+import globalPulseRouter from "./globalPulse.js";
+router.use("/global-pulse", globalPulseRouter);
+
 // ── GlobalPulse — system router (nodes, alert-test, global-alert-log) ────────
 import alertTestRouter from "./alertTest.js";
 router.use("/system", alertTestRouter);

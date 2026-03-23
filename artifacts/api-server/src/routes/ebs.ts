@@ -35,6 +35,7 @@ import { queueJob as enqueueENW }   from "../services/everythingNetWay.js";
 import { queueNetJob }              from "../services/electricNetWay.js";
 import { getMeshNodes, updateMeshNodeStatus } from "../services/meshNetWay.js";
 import { broadcastToSubscribers }   from "../services/externalPulse.js";
+import { broadcastGlobalPulse }    from "../services/globalPulse.js";
 import { pushEvent as sseEvent }    from "./eventsStream.js";
 import webpush                      from "web-push";
 
@@ -565,6 +566,18 @@ router.post("/emergency-broadcast", async (req: Request, res: Response) => {
     });
   } catch (err) {
     log.push({ channel: "externalPulse:optInEndpoints", ok: false, detail: (err as Error).message });
+  }
+
+  // 9. GlobalPulse — world-scale: live SSE stream + registered webhooks + RSS broadcast log
+  try {
+    const gp = await broadcastGlobalPulse({ eventType: "EMERGENCY_BROADCAST", message });
+    log.push({
+      channel: "globalPulse:sseStream+webhooks+rss",
+      ok:      true,
+      detail:  `sse:${gp.sseDelivered} webhooks:${gp.hooksDelivered} failed:${gp.hooksFailed}`,
+    });
+  } catch (err) {
+    log.push({ channel: "globalPulse:sseStream+webhooks+rss", ok: false, detail: (err as Error).message });
   }
 
   const ok       = log.filter(l => l.ok).length;
