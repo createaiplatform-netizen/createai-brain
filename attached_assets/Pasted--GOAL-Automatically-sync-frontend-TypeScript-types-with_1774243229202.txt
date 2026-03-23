@@ -1,0 +1,112 @@
+/*
+GOAL: Automatically sync frontend TypeScript types with backend API responses
+to eliminate type mismatches (like signupCohorts missing).
+
+IMPLEMENTATION:
+
+1. CREATE SHARED TYPES FOLDER
+--------------------------------
+Create a shared types module:
+
+/artifacts/shared/types/api.ts
+
+2. DEFINE CENTRAL API TYPES (SOURCE OF TRUTH)
+--------------------------------
+export type CohortData = {
+  dau: { role: string; dau: number }[];
+  mau: { role: string; mau: number }[];
+  totals: { role: string; total: number }[];
+  signupCohorts: {
+    week: string;
+    count: number;
+  }[];
+};
+
+export type ChurnData = {
+  tiers: { high: number; medium: number; low: number };
+  highRiskUsers: {
+    email: string;
+    role: string;
+    daysInactive: number;
+  }[];
+};
+
+export type RevenueData = {
+  mrr_dollars: string;
+  arr_dollars: string;
+  ltv_dollars: string;
+  total_dollars: string;
+  active_subscriptions: number;
+  payment_count: number;
+};
+
+export type SelfEvaluateResponse = {
+  cohort: CohortData;
+  churn: ChurnData;
+  revenue: RevenueData;
+  system: {
+    totalUsers: number;
+    totalDAU: number;
+    totalMAU: number;
+    engagementRatePct: number;
+    activeSubscriptions: number;
+    evaluatedAt: string;
+  };
+  benchmarks: Record<string, any>;
+  issues: {
+    metric: string;
+    value: string | number;
+    benchmark: string;
+    suggestion: string;
+  }[];
+};
+
+3. USE TYPES IN BACKEND (STRICT RETURN TYPES)
+--------------------------------
+In selfEvaluate.ts:
+
+import { SelfEvaluateResponse } from "@workspace/shared/types/api";
+
+const result: SelfEvaluateResponse = {
+  // full response object here
+};
+
+res.json(result);
+
+4. USE TYPES IN FRONTEND
+--------------------------------
+In AdminDashboardPage.tsx:
+
+import { SelfEvaluateResponse } from "@workspace/shared/types/api";
+
+const [data, setData] = useState<SelfEvaluateResponse | null>(null);
+
+useEffect(() => {
+  fetch("/api/evaluate/self")
+    .then(res => res.json())
+    .then((data: SelfEvaluateResponse) => setData(data));
+}, []);
+
+5. OPTIONAL (ADVANCED): AUTO VALIDATION
+--------------------------------
+Add runtime validation with Zod:
+
+import { z } from "zod";
+
+export const CohortSchema = z.object({
+  dau: z.array(z.object({ role: z.string(), dau: z.number() })),
+  mau: z.array(z.object({ role: z.string(), mau: z.number() })),
+  totals: z.array(z.object({ role: z.string(), total: z.number() })),
+  signupCohorts: z.array(z.object({
+    week: z.string(),
+    count: z.number()
+  }))
+});
+
+6. RESULT
+--------------------------------
+- No more TS2339 errors
+- Backend + frontend always aligned
+- Safer refactoring
+- Scales infinitely as API grows
+*/

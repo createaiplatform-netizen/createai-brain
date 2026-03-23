@@ -6,6 +6,7 @@
 import React, { useState, useEffect, useMemo } from "react";
 import { useLocation } from "wouter";
 import { useOS, ALL_APPS, AppId } from "./OSContext";
+import { useUserRole } from "@/hooks/useUserRole";
 import { AppBrowserModal } from "./AppBrowserModal";
 import { useContextStore } from "@/controller";
 import { LocalSyncIndicator } from "@/components/LocalSyncIndicator";
@@ -47,6 +48,7 @@ interface SidebarProps {
 
 export function Sidebar({ onNav, forceCollapsed, forceExpanded }: SidebarProps) {
   const { activeApp, sidebarCollapsed, openApp, closeApp, toggleSidebar, unreadCount } = useOS();
+  const { role } = useUserRole();
   const [location, setLocation] = useLocation();
   const [showBrowser, setShowBrowser] = useState(false);
   const { totalRuns } = useContextStore().getState();
@@ -430,6 +432,30 @@ export function Sidebar({ onNav, forceCollapsed, forceExpanded }: SidebarProps) 
         <div style={{ padding: "0 8px 2px" }}>
           <LocalSyncIndicator collapsed={collapsed} />
         </div>
+
+        {/* ── Upgrade CTA — free/user roles only ── */}
+        {!collapsed && role !== null && ["user", "customer"].includes(role) && (
+          <div style={{ padding: "0 10px 8px" }}>
+            <a
+              href="/pricing"
+              style={{
+                display: "block", width: "100%", textAlign: "center",
+                padding: "8px 0", borderRadius: 10, textDecoration: "none",
+                background: "linear-gradient(135deg, #7a9068 0%, #5a7a58 100%)",
+                color: "#fff", fontSize: 11.5, fontWeight: 700,
+                letterSpacing: "-0.01em", boxShadow: "0 1px 4px rgba(122,144,104,0.25)",
+                transition: "opacity 0.15s",
+              }}
+              onMouseEnter={e => { (e.currentTarget as HTMLElement).style.opacity = "0.88"; }}
+              onMouseLeave={e => { (e.currentTarget as HTMLElement).style.opacity = "1"; }}
+            >
+              Upgrade Plan ↗
+            </a>
+            <p style={{ fontSize: 9.5, color: "#9ca3af", textAlign: "center", marginTop: 4, lineHeight: 1.3 }}>
+              Unlock all 408+ apps · Solo $29/mo
+            </p>
+          </div>
+        )}
 
         {/* Collapse toggle */}
         {!forceCollapsed && !forceExpanded && (

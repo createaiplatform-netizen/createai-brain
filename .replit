@@ -15,7 +15,6 @@ args = ["pnpm", "store", "prune"]
 env = { "CI" = "true" }
 
 [workflows]
-runButton = "Project"
 
 [[workflows.workflow]]
 name = "Local JSON Backend"
@@ -166,26 +165,6 @@ waitForPort = 8081
 [workflows.workflow.tasks.env]
 PORT = "8081"
 BASE_PATH = "/__mockup"
-
-[[workflows.workflow]]
-name = "Project"
-mode = "parallel"
-author = "agent"
-
-[[workflows.workflow.tasks]]
-task = "workflow.run"
-args = "CreateAI Brain: Start Dev Server"
-
-[[workflows.workflow]]
-name = "CreateAI Brain: Start Dev Server"
-author = "agent"
-
-[[workflows.workflow.tasks]]
-task = "shell.exec"
-args = "PORT=5173 BASE_PATH=/ pnpm --filter @workspace/createai-brain run dev"
-
-[workflows.workflow.metadata]
-outputType = "webview"
 
 [agent]
 stack = "PNPM_WORKSPACE"

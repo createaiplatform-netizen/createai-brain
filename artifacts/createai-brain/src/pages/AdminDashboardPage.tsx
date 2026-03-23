@@ -4,10 +4,14 @@ import { useState, useEffect } from "react";
 
 // ─── Analytics types ──────────────────────────────────────────────────────────
 interface RoleCount { role: string; dau?: number; mau?: number; total?: number }
-interface CohortData { dau: RoleCount[]; mau: RoleCount[]; totals: RoleCount[] }
+interface SignupCohort { week: string; signups: number }
+interface CohortData { dau: RoleCount[]; mau: RoleCount[]; totals: RoleCount[]; signupCohorts?: SignupCohort[] }
 interface ChurnTiers { high: number; medium: number; low: number }
 interface ChurnData  { tiers: ChurnTiers; users: Array<{ userId: string; email: string; role: string; daysSinceActive: number; risk: string }> }
 interface RevenueData { mrr_dollars: string; total_dollars: string; ltv_dollars: string; arr_dollars: string; active_subscriptions: number; payment_count: number }
+interface EvalIssue { metric: string; value: string | number; benchmark: string; suggestion: string }
+interface EvalBenchmark { label: string; platform: string | number; unit?: string; industry: string; status: "below" | "meeting" | "exceeding" }
+interface EvalData { benchmarks: Record<string, EvalBenchmark>; issues: EvalIssue[]; system: { totalUsers: number; totalDAU: number; totalMAU: number; engagementRatePct: number; evaluatedAt: string } }
 
 const SAGE = "#7a9068";
 const CREAM = "#faf9f6";
@@ -76,6 +80,7 @@ export default function AdminDashboardPage() {
   const [churnData,     setChurnData]     = useState<ChurnData | null>(null);
   const [revenueData,   setRevenueData]   = useState<RevenueData | null>(null);
   const [analyticsLoaded, setAnalyticsLoaded] = useState(false);
+  const [evalData,      setEvalData]      = useState<EvalData | null>(null);
 
   const displayName = user?.firstName
     ? `${user.firstName}${user.lastName ? " " + user.lastName : ""}`
@@ -96,10 +101,12 @@ export default function AdminDashboardPage() {
       fetch("/api/cohorts/dau-mau",   { credentials: "include" }).then(r => r.ok ? r.json() : null).catch(() => null),
       fetch("/api/cohorts/churn-risk", { credentials: "include" }).then(r => r.ok ? r.json() : null).catch(() => null),
       fetch("/api/cohorts/revenue",    { credentials: "include" }).then(r => r.ok ? r.json() : null).catch(() => null),
-    ]).then(([cohort, churn, revenue]) => {
-      if (cohort)  setCohortData(cohort);
-      if (churn)   setChurnData(churn);
-      if (revenue) setRevenueData(revenue);
+      fetch("/api/evaluate/self",      { credentials: "include" }).then(r => r.ok ? r.json() : null).catch(() => null),
+    ]).then(([cohort, churn, revenue, evalResult]) => {
+      if (cohort)      setCohortData(cohort);
+      if (churn)       setChurnData(churn);
+      if (revenue)     setRevenueData(revenue);
+      if (evalResult)  setEvalData(evalResult);
     }).finally(() => setAnalyticsLoaded(true));
   }, []);
 
@@ -334,11 +341,11 @@ export default function AdminDashboardPage() {
                     </div>
                   );
                 })}
-                {cohortData.signupCohorts?.length > 0 && (
+                {cohortData.signupCohorts && cohortData.signupCohorts.length > 0 && (
                   <div className="mt-3 pt-3" style={{ borderTop: `1px solid ${BORDER}` }}>
                     <p className="text-[10px] font-bold uppercase tracking-widest mb-2" style={{ color: MUTED }}>Signups last 30 days</p>
                     <div className="flex gap-2 flex-wrap">
-                      {cohortData.signupCohorts.map((c: { week: string; signups: number }) => (
+                      {cohortData.signupCohorts.map((c) => (
                         <div key={c.week} className="flex flex-col items-center px-3 py-2 rounded-lg" style={{ background: `${SAGE}10` }}>
                           <span className="text-[13px] font-bold" style={{ color: SAGE }}>{c.signups}</span>
                           <span className="text-[10px]" style={{ color: MUTED }}>wk {c.week.slice(5)}</span>
@@ -470,6 +477,89 @@ export default function AdminDashboardPage() {
                   <span className="text-[13px] font-bold" style={{ color: SAGE }}>{revenueData.payment_count}</span>
                 </div>
               </div>
+            )}
+          </div>
+        </div>
+
+        {/* ── Platform Evaluation ───────────────────────────── */}
+        <div className="rounded-2xl overflow-hidden" style={{ border: `1px solid ${BORDER}` }}>
+          <div className="flex items-center justify-between px-5 py-3" style={{ background: `${SAGE}10`, borderBottom: `1px solid ${BORDER}` }}>
+            <p className="text-[14px] font-bold" style={{ color: TEXT }}>Platform Evaluation</p>
+            <span className="text-[11px] px-2 py-0.5 rounded-full" style={{ background: `${SAGE}18`, color: SAGE }}>
+              {evalData ? `${evalData.issues.length} issue${evalData.issues.length !== 1 ? "s" : ""} flagged` : "Loading…"}
+            </span>
+          </div>
+          <div className="px-5 py-4 space-y-3" style={{ background: CREAM }}>
+            {!analyticsLoaded && <p className="text-[12px]" style={{ color: MUTED }}>Running evaluation…</p>}
+            {analyticsLoaded && !evalData && <p className="text-[12px]" style={{ color: MUTED }}>Evaluation data unavailable.</p>}
+            {analyticsLoaded && evalData && (
+              <>
+                {/* System snapshot */}
+                <div className="grid grid-cols-2 gap-2 sm:grid-cols-4">
+                  {[
+                    { label: "Total Users",     value: evalData.system.totalUsers },
+                    { label: "DAU",             value: evalData.system.totalDAU },
+                    { label: "MAU",             value: evalData.system.totalMAU },
+                    { label: "Engagement",      value: `${evalData.system.engagementRatePct}%` },
+                  ].map(kpi => (
+                    <div key={kpi.label} className="rounded-xl p-3 text-center" style={{ background: `${SAGE}08`, border: `1px solid ${SAGE}18` }}>
+                      <p className="text-[18px] font-bold" style={{ color: SAGE }}>{kpi.value}</p>
+                      <p className="text-[11px] mt-0.5" style={{ color: MUTED }}>{kpi.label}</p>
+                    </div>
+                  ))}
+                </div>
+
+                {/* Benchmark rows */}
+                <div className="space-y-1 pt-1">
+                  {Object.values(evalData.benchmarks).map((b) => {
+                    const dot = b.status === "exceeding" ? "#4ade80" : b.status === "meeting" ? SAGE : "#f97316";
+                    const bg  = b.status === "exceeding" ? "#f0fdf4" : b.status === "meeting" ? `${SAGE}08` : "#fff7ed";
+                    return (
+                      <div key={b.label} className="flex items-start justify-between rounded-lg px-3 py-2 gap-2" style={{ background: bg }}>
+                        <div className="flex items-center gap-2 min-w-0">
+                          <span style={{ width: 7, height: 7, borderRadius: "50%", background: dot, flexShrink: 0, display: "inline-block", marginTop: 3 }} />
+                          <div className="min-w-0">
+                            <p className="text-[12px] font-medium truncate" style={{ color: TEXT }}>{b.label}</p>
+                            <p className="text-[10px] truncate" style={{ color: MUTED }}>{b.industry}</p>
+                          </div>
+                        </div>
+                        <span className="text-[12px] font-bold shrink-0" style={{ color: dot }}>
+                          {b.platform}{b.unit ?? ""}
+                        </span>
+                      </div>
+                    );
+                  })}
+                </div>
+
+                {/* Issues */}
+                {evalData.issues.length > 0 && (
+                  <div className="pt-2 space-y-2">
+                    <p className="text-[12px] font-semibold" style={{ color: TEXT }}>Action Items</p>
+                    {evalData.issues.map((issue, i) => (
+                      <div key={i} className="rounded-xl px-4 py-3" style={{ background: "#fff7ed", border: "1px solid #fed7aa" }}>
+                        <div className="flex items-center gap-2 mb-1">
+                          <span className="text-[10px] font-bold px-2 py-0.5 rounded-full" style={{ background: "#f97316", color: "#fff" }}>Below</span>
+                          <p className="text-[12px] font-semibold" style={{ color: TEXT }}>{issue.metric}</p>
+                          <span className="text-[11px] ml-auto" style={{ color: "#f97316" }}>{String(issue.value)}</span>
+                        </div>
+                        <p className="text-[11px] mb-0.5" style={{ color: MUTED }}>Benchmark: {issue.benchmark}</p>
+                        <p className="text-[11px]" style={{ color: "#7c3a00" }}>{issue.suggestion}</p>
+                      </div>
+                    ))}
+                  </div>
+                )}
+
+                {evalData.issues.length === 0 && (
+                  <div className="rounded-xl px-4 py-3 text-center" style={{ background: "#f0fdf4", border: "1px solid #bbf7d0" }}>
+                    <p className="text-[13px] font-semibold" style={{ color: "#166534" }}>All benchmarks met</p>
+                    <p className="text-[11px] mt-0.5" style={{ color: "#4ade80" }}>Platform is performing at or above industry standards.</p>
+                  </div>
+                )}
+
+                <p className="text-[10px] text-right" style={{ color: MUTED }}>
+                  Evaluated {new Date(evalData.system.evaluatedAt).toLocaleTimeString()} · 5-min cache
+                </p>
+              </>
             )}
           </div>
         </div>
