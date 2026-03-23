@@ -613,6 +613,82 @@ export async function bootstrapSchema(): Promise<void> {
     `;
     await sql`CREATE INDEX IF NOT EXISTS idx_push_sub_user ON platform_push_subscriptions(user_id)`;
 
+    // ── EBS: Event Bus System tables ─────────────────────────────────────────
+
+    await sql`
+      CREATE TABLE IF NOT EXISTS platform_ebs_event_store (
+        id              SERIAL PRIMARY KEY,
+        event_id        TEXT        NOT NULL UNIQUE,
+        topic           TEXT        NOT NULL,
+        event_type      TEXT        NOT NULL,
+        source          TEXT        NOT NULL DEFAULT 'platform',
+        correlation_id  TEXT,
+        idempotency_key TEXT        UNIQUE,
+        payload         JSONB       NOT NULL DEFAULT '{}',
+        created_at      TIMESTAMPTZ NOT NULL DEFAULT NOW()
+      )
+    `;
+    await sql`CREATE INDEX IF NOT EXISTS idx_ebs_store_topic      ON platform_ebs_event_store (topic)`;
+    await sql`CREATE INDEX IF NOT EXISTS idx_ebs_store_event_type ON platform_ebs_event_store (event_type)`;
+    await sql`CREATE INDEX IF NOT EXISTS idx_ebs_store_source     ON platform_ebs_event_store (source)`;
+    await sql`CREATE INDEX IF NOT EXISTS idx_ebs_store_created    ON platform_ebs_event_store (created_at DESC)`;
+    await sql`CREATE INDEX IF NOT EXISTS idx_ebs_store_corr       ON platform_ebs_event_store (correlation_id)`;
+
+    await sql`
+      CREATE TABLE IF NOT EXISTS platform_ebs_idempotency (
+        id           SERIAL PRIMARY KEY,
+        idem_key     TEXT        NOT NULL UNIQUE,
+        event_type   TEXT        NOT NULL,
+        processed_at TIMESTAMPTZ NOT NULL DEFAULT NOW(),
+        result_hash  TEXT
+      )
+    `;
+    await sql`CREATE INDEX IF NOT EXISTS idx_ebs_idem_key  ON platform_ebs_idempotency (idem_key)`;
+    await sql`CREATE INDEX IF NOT EXISTS idx_ebs_idem_type ON platform_ebs_idempotency (event_type)`;
+
+    await sql`
+      CREATE TABLE IF NOT EXISTS platform_ebs_dlq (
+        id            SERIAL PRIMARY KEY,
+        dlq_id        TEXT        NOT NULL UNIQUE DEFAULT gen_random_uuid()::text,
+        queue_source  TEXT        NOT NULL,
+        event_id      TEXT,
+        message_type  TEXT        NOT NULL,
+        payload       JSONB       NOT NULL DEFAULT '{}',
+        error_message TEXT        NOT NULL DEFAULT '',
+        attempts      INTEGER     NOT NULL DEFAULT 1,
+        created_at    TIMESTAMPTZ NOT NULL DEFAULT NOW(),
+        resolved_at   TIMESTAMPTZ,
+        resolved_by   TEXT
+      )
+    `;
+    await sql`CREATE INDEX IF NOT EXISTS idx_ebs_dlq_source   ON platform_ebs_dlq (queue_source)`;
+    await sql`CREATE INDEX IF NOT EXISTS idx_ebs_dlq_resolved ON platform_ebs_dlq (resolved_at)`;
+    await sql`CREATE INDEX IF NOT EXISTS idx_ebs_dlq_created  ON platform_ebs_dlq (created_at DESC)`;
+
+    await sql`
+      CREATE TABLE IF NOT EXISTS platform_ebs_outbound_webhooks (
+        id              SERIAL PRIMARY KEY,
+        hook_id         TEXT        NOT NULL UNIQUE DEFAULT gen_random_uuid()::text,
+        url             TEXT        NOT NULL,
+        event_type      TEXT        NOT NULL,
+        payload         JSONB       NOT NULL DEFAULT '{}',
+        secret          TEXT,
+        status          TEXT        NOT NULL DEFAULT 'pending'
+                          CHECK (status IN ('pending','sent','retrying','failed')),
+        attempts        INTEGER     NOT NULL DEFAULT 0,
+        max_attempts    INTEGER     NOT NULL DEFAULT 5,
+        next_retry_at   TIMESTAMPTZ NOT NULL DEFAULT NOW(),
+        last_error      TEXT,
+        response_code   INTEGER,
+        correlation_id  TEXT,
+        idempotency_key TEXT        UNIQUE,
+        created_at      TIMESTAMPTZ NOT NULL DEFAULT NOW(),
+        sent_at         TIMESTAMPTZ
+      )
+    `;
+    await sql`CREATE INDEX IF NOT EXISTS idx_ebs_ohook_status  ON platform_ebs_outbound_webhooks (status, next_retry_at)`;
+    await sql`CREATE INDEX IF NOT EXISTS idx_ebs_ohook_created ON platform_ebs_outbound_webhooks (created_at DESC)`;
+
     console.log("[DB] Schema bootstrap complete");
   } catch (err) {
     console.error("[DB] Schema bootstrap failed:", err instanceof Error ? err.message : String(err));

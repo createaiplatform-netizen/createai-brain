@@ -541,6 +541,10 @@ router.use("/system", alertTestRouter);
 import taskRouter from "./task.js";
 router.use("/task", taskRouter);
 
+// ── EBS — Global Event Bus System ────────────────────────────────────────────
+import ebsRouter from "./ebs.js";
+router.use("/ebs", ebsRouter);
+
 // ── Financial Hub Backward-Compat Redirects — T006 ───────────────────────────
 // Wealth, ledger, and revenue-intel are also reachable under /finance/*
 // using 301 redirects for any client still hitting the legacy paths.

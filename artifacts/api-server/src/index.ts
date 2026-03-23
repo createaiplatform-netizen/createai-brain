@@ -4,7 +4,13 @@ import { expandPlatform }        from "./services/expansionEngine";
 import { finalizeConfiguration } from "./services/systemConfigurator";
 import { brainEngine }           from "./engine/BrainEnforcementEngine.js";
 import { notifyFamily }          from "./utils/notifications.js";
-import { initVentonWay, processQueue } from "./services/ventonWay.js";
+import { initVentonWay, processQueue }       from "./services/ventonWay.js";
+import { initEventStore }                    from "./ebs/eventStore.js";
+import { initIdempotencyStore }              from "./ebs/idempotencyStore.js";
+import { initDLQ }                           from "./ebs/deadLetterQueue.js";
+import { initOutboundWebhookEngine,
+         processOutboundQueue }              from "./ebs/outboundWebhookEngine.js";
+import { initCrossSystemRouter }             from "./ebs/crossSystemRouter.js";
 import { initElectricNetWay }  from "./services/electricNetWay.js";
 import { initEverythingNetWay } from "./services/everythingNetWay.js";
 import { initMeshNetWay }       from "./services/meshNetWay.js";
@@ -53,10 +59,7 @@ app.listen(port, () => {
     try {
       await initVentonWay();
 
-      // ── VentonWay queue scheduler ────────────────────────────────────────────
-      // Runs every 60 seconds inside this process — no external service needed.
-      // Processes pending + retrying rows whose scheduled_at <= NOW().
-      // Covers day-2, day-5, and all future timed messages automatically.
+      // ── VentonWay queue scheduler — 60s tick ─────────────────────────────────
       const QUEUE_INTERVAL_MS = 60_000;
       const queueTicker = setInterval(async () => {
         try {
@@ -71,13 +74,47 @@ app.listen(port, () => {
           console.warn("[VentonWay:Scheduler] tick error (non-fatal):", (tickErr as Error).message);
         }
       }, QUEUE_INTERVAL_MS);
-
-      // unref() so the interval never prevents a clean process shutdown
       queueTicker.unref();
-
       console.log(`[VentonWay:Scheduler] ✅ started — processing queue every ${QUEUE_INTERVAL_MS / 1000}s`);
     }
     catch (err) { console.error("[Startup] initVentonWay failed — continuing:", (err as Error).message); }
+
+    // ── EBS: Event Store ────────────────────────────────────────────────────────
+    try { await initEventStore(); }
+    catch (err) { console.error("[Startup] EBS:EventStore failed — continuing:", (err as Error).message); }
+
+    // ── EBS: Idempotency Store ───────────────────────────────────────────────────
+    try { await initIdempotencyStore(); }
+    catch (err) { console.error("[Startup] EBS:IdempotencyStore failed — continuing:", (err as Error).message); }
+
+    // ── EBS: Dead Letter Queue ───────────────────────────────────────────────────
+    try { await initDLQ(); }
+    catch (err) { console.error("[Startup] EBS:DLQ failed — continuing:", (err as Error).message); }
+
+    // ── EBS: Outbound Webhook Engine + 60s scheduler ─────────────────────────────
+    try {
+      await initOutboundWebhookEngine();
+      const webhookTicker = setInterval(async () => {
+        try {
+          const result = await processOutboundQueue();
+          if (result.processed > 0) {
+            console.log(
+              `[EBS:OutboundWebhooks] tick — processed:${result.processed}` +
+              ` sent:${result.sent} retrying:${result.retrying} failed:${result.failed}`
+            );
+          }
+        } catch (tickErr) {
+          console.warn("[EBS:OutboundWebhooks] tick error (non-fatal):", (tickErr as Error).message);
+        }
+      }, 60_000);
+      webhookTicker.unref();
+      console.log("[EBS:OutboundWebhooks] ✅ started — processing queue every 60s");
+    }
+    catch (err) { console.error("[Startup] EBS:OutboundWebhooks failed — continuing:", (err as Error).message); }
+
+    // ── EBS: Cross-System Router ─────────────────────────────────────────────────
+    try { initCrossSystemRouter(); }
+    catch (err) { console.error("[Startup] EBS:CrossRouter failed — continuing:", (err as Error).message); }
 
     try { await initElectricNetWay(); }
     catch (err) { console.error("[Startup] initElectricNetWay failed — continuing:", (err as Error).message); }
