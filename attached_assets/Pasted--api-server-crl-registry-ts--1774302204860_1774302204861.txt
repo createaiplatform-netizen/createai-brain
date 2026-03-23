@@ -1,0 +1,226 @@
+// ===============================
+// api-server/crl/registry.ts
+// ===============================
+
+export type CRLScheme = 'brain' | 'family' | 'os' | 'hub' | 'space' | 'identity';
+
+export interface CRLNamespaceConfig {
+  scheme: CRLScheme;
+  basePath: string; // base path under createai.digital
+  description?: string;
+}
+
+export const CRL_REGISTRY: Record<CRLScheme, CRLNamespaceConfig> = {
+  brain: {
+    scheme: 'brain',
+    basePath: '/',
+    description: 'Core CreateAI Brain tools and admin surfaces',
+  },
+  family: {
+    scheme: 'family',
+    basePath: '/family',
+    description: 'Family OS, members, agents, and shared spaces',
+  },
+  os: {
+    scheme: 'os',
+    basePath: '/os',
+    description: 'System-level OS surfaces and utilities',
+  },
+  hub: {
+    scheme: 'hub',
+    basePath: '/hubs',
+    description: 'Industry, topic, and feature hubs',
+  },
+  space: {
+    scheme: 'space',
+    basePath: '/spaces',
+    description: 'Shared spaces, rooms, and collaboration areas',
+  },
+  identity: {
+    scheme: 'identity',
+    basePath: '/id',
+    description: 'Users, roles, profiles, and identity surfaces',
+  },
+};
+
+
+// ===============================
+// api-server/crl/resolver.ts
+// ===============================
+
+import { CRL_REGISTRY, CRLScheme } from './registry';
+
+export interface CRLParseResult {
+  scheme: CRLScheme;
+  path: string; // e.g. "tools/writer"
+  raw: string;  // full original CRL string
+}
+
+export function parseCRL(crl: string): CRLParseResult {
+  const [schemePart, rest] = crl.split('://');
+  if (!schemePart || !rest) {
+    throw new Error(`Invalid CRL: ${crl}`);
+  }
+
+  const scheme = schemePart as CRLScheme;
+  if (!CRL_REGISTRY[scheme]) {
+    throw new Error(`Unknown CRL scheme: ${scheme}`);
+  }
+
+  return {
+    scheme,
+    path: rest.replace(/^\/+/, ''), // normalize
+    raw: crl,
+  };
+}
+
+export function resolveCRLToPath(crl: string): string {
+  const { scheme, path } = parseCRL(crl);
+  const config = CRL_REGISTRY[scheme];
+
+  // Default mapping: basePath + path
+  // Customize per-scheme here if needed.
+  if (!path) return config.basePath;
+
+  return `${config.basePath}/${path}`.replace(/\/+/g, '/');
+}
+
+export function resolveCRLToUrl(crl: string, baseUrl: string): string {
+  const path = resolveCRLToPath(crl);
+  return `${baseUrl.replace(/\/+$/, '')}${path}`;
+}
+
+
+// ===============================
+// api-server/routes/crl.ts
+// ===============================
+
+import express from 'express';
+import { resolveCRLToUrl } from '../crl/resolver';
+
+const router = express.Router();
+
+// GET /api/crl/resolve?crl=brain://tools/writer
+router.get('/resolve', (req, res) => {
+  try {
+    const crl = req.query.crl as string | undefined;
+    if (!crl) {
+      return res.status(400).json({ error: 'Missing crl parameter' });
+    }
+
+    const baseUrl = process.env.PUBLIC_BASE_URL || 'https://createai.digital';
+    const url = resolveCRLToUrl(crl, baseUrl);
+
+    return res.json({ crl, url });
+  } catch (err: any) {
+    return res.status(400).json({ error: err.message });
+  }
+});
+
+export default router;
+
+// In your main server file, remember:
+// import crlRouter from './routes/crl';
+// app.use('/api/crl', crlRouter);
+
+
+// ===============================
+// createai-brain/src/crl/resolveCRL.ts
+// ===============================
+
+export interface CRLResolution {
+  crl: string;
+  url: string;
+}
+
+export async function resolveCRL(crl: string): Promise<CRLResolution> {
+  const params = new URLSearchParams({ crl });
+  const res = await fetch(`/api/crl/resolve?${params.toString()}`);
+
+  if (!res.ok) {
+    const data = await res.json().catch(() => ({}));
+    throw new Error(data.error || 'Failed to resolve CRL');
+  }
+
+  return res.json();
+}
+
+
+// ===============================
+// createai-brain/src/crl/useCRL.ts
+// ===============================
+
+import { useEffect, useState } from 'react';
+import { resolveCRL, CRLResolution } from './resolveCRL';
+
+export function useCRL(crl: string | null | undefined) {
+  const [data, setData] = useState<CRLResolution | null>(null);
+  const [loading, setLoading] = useState<boolean>(!!crl);
+  const [error, setError] = useState<string | null>(null);
+
+  useEffect(() => {
+    if (!crl) {
+      setData(null);
+      setLoading(false);
+      setError(null);
+      return;
+    }
+
+    let cancelled = false;
+    setLoading(true);
+    setError(null);
+
+    resolveCRL(crl)
+      .then((res) => {
+        if (!cancelled) {
+          setData(res);
+          setLoading(false);
+        }
+      })
+      .catch((err) => {
+        if (!cancelled) {
+          setError(err.message || 'Failed to resolve CRL');
+          setLoading(false);
+        }
+      });
+
+    return () => {
+      cancelled = true;
+    };
+  }, [crl]);
+
+  return { data, loading, error };
+}
+
+
+// ===============================
+// createai-brain/src/crl/CRLLink.tsx
+// ===============================
+
+import React from 'react';
+import { useCRL } from './useCRL';
+
+interface CRLLinkProps extends React.AnchorHTMLAttributes<HTMLAnchorElement> {
+  crl: string;
+  fallbackHref?: string; // optional hardcoded fallback
+}
+
+export const CRLLink: React.FC<CRLLinkProps> = ({ crl, fallbackHref, children, ...rest }) => {
+  const { data, loading, error } = useCRL(crl);
+
+  const href = data?.url || fallbackHref || '#';
+
+  if (loading && !data) {
+    return <span {...rest}>{children ?? 'Loading…'}</span>;
+  }
+
+  if (error && !data && !fallbackHref) {
+    return <span {...rest}>{children ?? 'Invalid link'}</span>;
+  }
+
+  return (
+    <a href={href} {...rest}>
+      {children ?? href}
+    </a>
+  );
+};
