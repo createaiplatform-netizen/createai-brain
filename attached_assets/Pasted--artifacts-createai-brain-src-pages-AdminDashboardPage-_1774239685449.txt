@@ -1,0 +1,128 @@
+// artifacts/createai-brain/src/pages/AdminDashboardPage.tsx
+import { useEffect, useState } from "react";
+
+export function AdminDashboardPage() {
+  const [cohortData, setCohortData] = useState<any>(null);
+  const [churnData, setChurnData] = useState<any>(null);
+  const [revenueData, setRevenueData] = useState<any>(null);
+
+  useEffect(() => {
+    const fetchAnalytics = async () => {
+      try {
+        const [cohortsRes, churnRes, revenueRes] = await Promise.all([
+          fetch("/api/cohorts/dau-mau").then((r) => r.json()),
+          fetch("/api/cohorts/churn-risk").then((r) => r.json()),
+          fetch("/api/cohorts/revenue").then((r) => r.json()),
+        ]);
+        setCohortData(cohortsRes);
+        setChurnData(churnRes);
+        setRevenueData(revenueRes);
+      } catch (err) {
+        console.error("Failed to fetch analytics:", err);
+      }
+    };
+    fetchAnalytics();
+  }, []);
+
+  return (
+    <div className="admin-dashboard">
+      {/* Existing Top Apps Panel */}
+      {/* ... */}
+
+      {/* === New Analytics Panels Start === */}
+      <div style={{ display: "flex", gap: "1rem", flexWrap: "wrap", marginTop: "1rem" }}>
+        {/* Cohort Panel */}
+        <section style={{ flex: 1, minWidth: "300px", background: "#f0f8f5", padding: "1rem", borderRadius: "8px" }}>
+          <h3>Cohort Analytics (DAU/MAU)</h3>
+          {cohortData ? (
+            <table>
+              <thead>
+                <tr>
+                  <th>Role</th>
+                  <th>DAU</th>
+                  <th>MAU</th>
+                </tr>
+              </thead>
+              <tbody>
+                {cohortData.dau.map((d: any) => {
+                  const mauRow = cohortData.mau.find((m: any) => m.role === d.role);
+                  return (
+                    <tr key={d.role}>
+                      <td>{d.role}</td>
+                      <td>{d.dau}</td>
+                      <td>{mauRow?.mau ?? 0}</td>
+                    </tr>
+                  );
+                })}
+              </tbody>
+            </table>
+          ) : (
+            <p>Loading cohort data...</p>
+          )}
+        </section>
+
+        {/* Churn Panel */}
+        <section style={{ flex: 1, minWidth: "300px", background: "#fff4f0", padding: "1rem", borderRadius: "8px" }}>
+          <h3>Churn Risk Segments</h3>
+          {churnData ? (
+            <table>
+              <thead>
+                <tr>
+                  <th>Email</th>
+                  <th>Role</th>
+                  <th>Risk</th>
+                </tr>
+              </thead>
+              <tbody>
+                {churnData.map((row: any) => (
+                  <tr key={row.id}>
+                    <td>{row.email}</td>
+                    <td>{row.role}</td>
+                    <td>{row.risk}</td>
+                  </tr>
+                ))}
+              </tbody>
+            </table>
+          ) : (
+            <p>Loading churn data...</p>
+          )}
+        </section>
+
+        {/* Revenue Panel */}
+        <section style={{ flex: 1, minWidth: "300px", background: "#f9f9ff", padding: "1rem", borderRadius: "8px" }}>
+          <h3>Revenue Metrics (MRR / LTV)</h3>
+          {revenueData ? (
+            <table>
+              <thead>
+                <tr>
+                  <th>Email</th>
+                  <th>Role</th>
+                  <th>MRR</th>
+                  <th>LTV</th>
+                </tr>
+              </thead>
+              <tbody>
+                {revenueData.map((row: any) => (
+                  <tr key={row.id}>
+                    <td>{row.email}</td>
+                    <td>{row.role}</td>
+                    <td>${row.mrr.toFixed(2)}</td>
+                    <td>${row.ltv.toFixed(2)}</td>
+                  </tr>
+                ))}
+              </tbody>
+            </table>
+          ) : (
+            <p>Loading revenue data...</p>
+          )}
+        </section>
+      </div>
+      {/* === New Analytics Panels End === */}
+
+      {/* System note */}
+      <div style={{ marginTop: "2rem", padding: "0.75rem", border: "1px solid #c6e0d9", background: "#e6f2ec", borderRadius: "6px" }}>
+        Admin users can access all platform areas except the storefront.
+      </div>
+    </div>
+  );
+}

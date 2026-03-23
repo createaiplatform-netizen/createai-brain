@@ -291,6 +291,189 @@ export default function AdminDashboardPage() {
           </div>
         </div>
 
+        {/* ── Platform Cohorts ─────────────────────────────────── */}
+        <div
+          className="rounded-2xl overflow-hidden"
+          style={{ border: `1px solid ${BORDER}`, background: "white" }}
+        >
+          <div className="px-5 py-4 flex items-center justify-between" style={{ borderBottom: `1px solid ${BORDER}` }}>
+            <div>
+              <p className="text-[14px] font-bold" style={{ color: TEXT }}>Platform Cohorts</p>
+              <p className="text-[11px] mt-0.5" style={{ color: MUTED }}>Daily &amp; monthly active users by role</p>
+            </div>
+            <span className="text-[18px]">👥</span>
+          </div>
+          <div className="p-5">
+            {!analyticsLoaded && (
+              <div className="flex items-center gap-2" style={{ color: MUTED }}>
+                <div className="w-4 h-4 rounded-full border-2 border-current border-t-transparent animate-spin" />
+                <span className="text-[12px]">Loading cohort data…</span>
+              </div>
+            )}
+            {analyticsLoaded && !cohortData && (
+              <p className="text-[13px] text-center py-4" style={{ color: MUTED }}>No activity data yet.</p>
+            )}
+            {analyticsLoaded && cohortData && (
+              <div className="flex flex-col gap-2">
+                {/* Header row */}
+                <div className="grid grid-cols-4 gap-2 pb-2" style={{ borderBottom: `1px solid ${BORDER}` }}>
+                  {["Role", "DAU", "MAU", "Total"].map(h => (
+                    <span key={h} className="text-[10px] font-bold uppercase tracking-widest" style={{ color: MUTED }}>{h}</span>
+                  ))}
+                </div>
+                {/* Role rows — merge dau/mau/totals by role */}
+                {(cohortData.totals.length > 0 ? cohortData.totals : [{ role: "—" }]).map(tr => {
+                  const dauRow = cohortData.dau.find(d => d.role === tr.role);
+                  const mauRow = cohortData.mau.find(m => m.role === tr.role);
+                  return (
+                    <div key={tr.role} className="grid grid-cols-4 gap-2 py-1.5">
+                      <span className="text-[12px] font-semibold capitalize" style={{ color: TEXT }}>{tr.role}</span>
+                      <span className="text-[12px] font-bold" style={{ color: SAGE }}>{dauRow?.dau ?? 0}</span>
+                      <span className="text-[12px] font-bold" style={{ color: "#5a7a68" }}>{mauRow?.mau ?? 0}</span>
+                      <span className="text-[12px]" style={{ color: MUTED }}>{tr.total ?? 0}</span>
+                    </div>
+                  );
+                })}
+                {cohortData.signupCohorts?.length > 0 && (
+                  <div className="mt-3 pt-3" style={{ borderTop: `1px solid ${BORDER}` }}>
+                    <p className="text-[10px] font-bold uppercase tracking-widest mb-2" style={{ color: MUTED }}>Signups last 30 days</p>
+                    <div className="flex gap-2 flex-wrap">
+                      {cohortData.signupCohorts.map((c: { week: string; signups: number }) => (
+                        <div key={c.week} className="flex flex-col items-center px-3 py-2 rounded-lg" style={{ background: `${SAGE}10` }}>
+                          <span className="text-[13px] font-bold" style={{ color: SAGE }}>{c.signups}</span>
+                          <span className="text-[10px]" style={{ color: MUTED }}>wk {c.week.slice(5)}</span>
+                        </div>
+                      ))}
+                    </div>
+                  </div>
+                )}
+              </div>
+            )}
+          </div>
+        </div>
+
+        {/* ── Churn Risk ───────────────────────────────────────── */}
+        <div
+          className="rounded-2xl overflow-hidden"
+          style={{ border: `1px solid ${BORDER}`, background: "white" }}
+        >
+          <div className="px-5 py-4 flex items-center justify-between" style={{ borderBottom: `1px solid ${BORDER}` }}>
+            <div>
+              <p className="text-[14px] font-bold" style={{ color: TEXT }}>Churn Risk</p>
+              <p className="text-[11px] mt-0.5" style={{ color: MUTED }}>Rule-based inactivity scoring</p>
+            </div>
+            <span className="text-[18px]">⚠️</span>
+          </div>
+          <div className="p-5">
+            {!analyticsLoaded && (
+              <div className="flex items-center gap-2" style={{ color: MUTED }}>
+                <div className="w-4 h-4 rounded-full border-2 border-current border-t-transparent animate-spin" />
+                <span className="text-[12px]">Computing churn risk…</span>
+              </div>
+            )}
+            {analyticsLoaded && !churnData && (
+              <p className="text-[13px] text-center py-4" style={{ color: MUTED }}>No user data yet.</p>
+            )}
+            {analyticsLoaded && churnData && (
+              <div className="flex flex-col gap-4">
+                {/* Risk tier summary */}
+                <div className="grid grid-cols-3 gap-3">
+                  {([
+                    { key: "high",   label: "High Risk",   color: "#ef4444", bg: "#fef2f2", desc: "30+ days inactive" },
+                    { key: "medium", label: "Medium Risk",  color: "#f59e0b", bg: "#fffbeb", desc: "7–30 days inactive" },
+                    { key: "low",    label: "Low Risk",     color: SAGE,      bg: `${SAGE}10`, desc: "Active within 7d" },
+                  ] as const).map(tier => (
+                    <div key={tier.key} className="flex flex-col items-center p-3 rounded-xl" style={{ background: tier.bg }}>
+                      <span className="text-[22px] font-black" style={{ color: tier.color }}>
+                        {churnData.tiers[tier.key]}
+                      </span>
+                      <span className="text-[11px] font-semibold mt-0.5" style={{ color: tier.color }}>{tier.label}</span>
+                      <span className="text-[10px] mt-0.5" style={{ color: MUTED }}>{tier.desc}</span>
+                    </div>
+                  ))}
+                </div>
+                {/* High-risk user list (max 5) */}
+                {churnData.tiers.high > 0 && (
+                  <div>
+                    <p className="text-[10px] font-bold uppercase tracking-widest mb-2" style={{ color: MUTED }}>
+                      High-risk users
+                    </p>
+                    <div className="flex flex-col gap-1">
+                      {churnData.users
+                        .filter((u: { risk: string }) => u.risk === "high")
+                        .slice(0, 5)
+                        .map((u: { userId: string; email: string; role: string; daysSinceActive: number }) => (
+                          <div key={u.userId} className="flex items-center justify-between py-1.5 px-3 rounded-lg" style={{ background: "#fef2f2" }}>
+                            <span className="text-[12px] truncate flex-1" style={{ color: TEXT }}>{u.email}</span>
+                            <span className="text-[11px] ml-2 flex-shrink-0 font-medium" style={{ color: "#ef4444" }}>
+                              {u.daysSinceActive === 999 ? "Never" : `${u.daysSinceActive}d ago`}
+                            </span>
+                          </div>
+                        ))}
+                      {churnData.tiers.high > 5 && (
+                        <p className="text-[11px] mt-1" style={{ color: MUTED }}>
+                          +{churnData.tiers.high - 5} more high-risk users
+                        </p>
+                      )}
+                    </div>
+                  </div>
+                )}
+              </div>
+            )}
+          </div>
+        </div>
+
+        {/* ── Revenue Intelligence ─────────────────────────────── */}
+        <div
+          className="rounded-2xl overflow-hidden"
+          style={{ border: `1px solid ${BORDER}`, background: "white" }}
+        >
+          <div className="px-5 py-4 flex items-center justify-between" style={{ borderBottom: `1px solid ${BORDER}` }}>
+            <div>
+              <p className="text-[14px] font-bold" style={{ color: TEXT }}>Revenue Intelligence</p>
+              <p className="text-[11px] mt-0.5" style={{ color: MUTED }}>MRR · ARR · LTV from live Stripe data</p>
+            </div>
+            <span className="text-[18px]">💰</span>
+          </div>
+          <div className="p-5">
+            {!analyticsLoaded && (
+              <div className="flex items-center gap-2" style={{ color: MUTED }}>
+                <div className="w-4 h-4 rounded-full border-2 border-current border-t-transparent animate-spin" />
+                <span className="text-[12px]">Loading revenue data…</span>
+              </div>
+            )}
+            {analyticsLoaded && !revenueData && (
+              <p className="text-[13px] text-center py-4" style={{ color: MUTED }}>No revenue data yet.</p>
+            )}
+            {analyticsLoaded && revenueData && (
+              <div className="flex flex-col gap-3">
+                <div className="grid grid-cols-2 gap-3">
+                  {([
+                    { label: "MRR",                value: `$${revenueData.mrr_dollars}`,   desc: "Monthly recurring revenue",     color: SAGE },
+                    { label: "ARR",                value: `$${revenueData.arr_dollars}`,   desc: "Annual recurring revenue",      color: "#5a7a68" },
+                    { label: "LTV",                value: `$${revenueData.ltv_dollars}`,   desc: "Avg lifetime value per user",   color: "#8a6050" },
+                    { label: "Total Revenue",      value: `$${revenueData.total_dollars}`, desc: "All-time collected",            color: "#6a5080" },
+                  ]).map(kpi => (
+                    <div key={kpi.label} className="p-3 rounded-xl" style={{ background: `${SAGE}08`, border: `1px solid ${SAGE}18` }}>
+                      <p className="text-[10px] font-bold uppercase tracking-widest" style={{ color: MUTED }}>{kpi.label}</p>
+                      <p className="text-[20px] font-black mt-0.5" style={{ color: kpi.color }}>{kpi.value}</p>
+                      <p className="text-[10px] mt-0.5" style={{ color: MUTED }}>{kpi.desc}</p>
+                    </div>
+                  ))}
+                </div>
+                <div className="flex items-center justify-between py-2 px-3 rounded-lg" style={{ background: `${SAGE}08` }}>
+                  <span className="text-[12px]" style={{ color: MUTED }}>Active subscriptions</span>
+                  <span className="text-[13px] font-bold" style={{ color: SAGE }}>{revenueData.active_subscriptions}</span>
+                </div>
+                <div className="flex items-center justify-between py-2 px-3 rounded-lg" style={{ background: `${SAGE}08` }}>
+                  <span className="text-[12px]" style={{ color: MUTED }}>Total payments processed</span>
+                  <span className="text-[13px] font-bold" style={{ color: SAGE }}>{revenueData.payment_count}</span>
+                </div>
+              </div>
+            )}
+          </div>
+        </div>
+
         {/* System note */}
         <div
           className="p-4 rounded-2xl"

@@ -1,0 +1,118 @@
+// artifacts/api-server/src/routes/cohortAnalytics.ts
+import { Router } from "express";
+import { db, usersTable, activityLog } from "@workspace/db";
+import { sql } from "drizzle-orm";
+
+const router = Router();
+
+// Simple in-memory cache with 5-minute TTL
+const cache: Record<string, { data: any; expires: number }> = {};
+const TTL = 1000 * 60 * 5;
+
+// Helper to check cache
+function getCached(key: string) {
+  const entry = cache[key];
+  if (entry && entry.expires > Date.now()) return entry.data;
+  return null;
+}
+
+function setCache(key: string, data: any) {
+  cache[key] = { data, expires: Date.now() + TTL };
+}
+
+// DAU/MAU endpoint
+router.get("/dau-mau", async (req, res) => {
+  try {
+    const cached = getCached("dau-mau");
+    if (cached) return res.json(cached);
+
+    // DAU: distinct users in past 1 day
+    const dauRows = await db
+      .select({
+        role: usersTable.role,
+        dau: sql<number>`COUNT(DISTINCT ${activityLog.userId})`,
+      })
+      .from(activityLog)
+      .leftJoin(usersTable, sql`${activityLog.userId} = ${usersTable.id}`)
+      .where(sql`${activityLog.createdAt} > NOW() - INTERVAL '1 day'`)
+      .groupBy(usersTable.role);
+
+    // MAU: distinct users in past 30 days
+    const mauRows = await db
+      .select({
+        role: usersTable.role,
+        mau: sql<number>`COUNT(DISTINCT ${activityLog.userId})`,
+      })
+      .from(activityLog)
+      .leftJoin(usersTable, sql`${activityLog.userId} = ${usersTable.id}`)
+      .where(sql`${activityLog.createdAt} > NOW() - INTERVAL '30 day'`)
+      .groupBy(usersTable.role);
+
+    const result = { dau: dauRows, mau: mauRows };
+    setCache("dau-mau", result);
+    res.json(result);
+  } catch (err) {
+    console.error(err);
+    res.status(500).json({ error: "Failed to fetch DAU/MAU" });
+  }
+});
+
+// Churn risk endpoint
+router.get("/churn-risk", async (req, res) => {
+  try {
+    const cached = getCached("churn-risk");
+    if (cached) return res.json(cached);
+
+    // Example rule-based churn: no activity in 30 days OR expired subscription
+    const rows = await db
+      .select({
+        id: usersTable.id,
+        email: usersTable.email,
+        role: usersTable.role,
+        lastActive: sql`MAX(${activityLog.createdAt})`,
+      })
+      .from(usersTable)
+      .leftJoin(activityLog, sql`${activityLog.userId} = ${usersTable.id}`)
+      .groupBy(usersTable.id);
+
+    const churnData = rows.map((row: any) => {
+      const lastActive = row.lastActive ? new Date(row.lastActive) : null;
+      let risk = "low";
+      if (!lastActive || Date.now() - lastActive.getTime() > 30 * 24 * 60 * 60 * 1000) risk = "high";
+      else if (Date.now() - lastActive.getTime() > 14 * 24 * 60 * 60 * 1000) risk = "medium";
+      return { id: row.id, email: row.email, role: row.role, risk };
+    });
+
+    setCache("churn-risk", churnData);
+    res.json(churnData);
+  } catch (err) {
+    console.error(err);
+    res.status(500).json({ error: "Failed to fetch churn risk" });
+  }
+});
+
+// Revenue endpoint
+router.get("/revenue", async (req, res) => {
+  try {
+    const cached = getCached("revenue");
+    if (cached) return res.json(cached);
+
+    // Simple aggregation: sum MRR and LTV per user from subscriptions table
+    const rows = await db.execute(sql`
+      SELECT u.id, u.email, u.role,
+        COALESCE(SUM(s.mrr),0) AS mrr,
+        COALESCE(SUM(s.ltv),0) AS ltv
+      FROM users u
+      LEFT JOIN platform_subscriptions s ON s.user_id = u.id
+      GROUP BY u.id, u.email, u.role
+    `);
+
+    setCache("revenue", rows);
+    res.json(rows);
+  } catch (err) {
+    console.error(err);
+    res.status(500).json({ error: "Failed to fetch revenue metrics" });
+  }
+});
+
+export default router;
