@@ -1,0 +1,208 @@
+// ==============================
+// artifacts/api-server/src/services/electricNetWay.ts
+// ==============================
+
+import { db } from '@workspace/db';
+import { DOCUMENTS, SYSTEM_USER } from '@workspace/constants';
+
+// Unified job type for electricity, devices, Internet & data
+export interface NetJob {
+  id: number;
+  category: 'energy' | 'device' | 'internet' | 'data';
+  type: string; // e.g., 'solar_store', 'battery_charge', 'router_update', 'send_link'
+  target: string; // device, server, or grid node
+  payload: any; // command or message
+  status: 'pending' | 'executing' | 'completed' | 'failed';
+  created_at: Date;
+  updated_at: Date;
+}
+
+export async function initElectricNetWay() {
+  await db.query(`
+    CREATE TABLE IF NOT EXISTS platform_electric_net_way_queue (
+      id SERIAL PRIMARY KEY,
+      category TEXT NOT NULL,
+      type TEXT NOT NULL,
+      target TEXT NOT NULL,
+      payload JSONB,
+      status TEXT NOT NULL DEFAULT 'pending',
+      created_at TIMESTAMP DEFAULT NOW(),
+      updated_at TIMESTAMP DEFAULT NOW()
+    )
+  `);
+}
+
+export async function queueNetJob(job: Omit<NetJob,'id'|'status'|'created_at'|'updated_at'>) {
+  return db.query(`
+    INSERT INTO platform_electric_net_way_queue (category, type, target, payload)
+    VALUES ($1, $2, $3, $4) RETURNING *
+  `, [job.category, job.type, job.target, job.payload]);
+}
+
+// Core smart router: decides which channel/system to use for each job
+export async function routeAndExecute(job: NetJob) {
+  try {
+    switch(job.category) {
+      case 'energy':
+        console.log(`[ElectricNetWay] Managing energy: ${job.type} -> ${job.target}`);
+        // call energy control functions
+        break;
+      case 'device':
+        console.log(`[ElectricNetWay] Controlling device: ${job.type} -> ${job.target}`);
+        // call device API or internal logic
+        break;
+      case 'internet':
+        console.log(`[ElectricNetWay] Managing Internet node: ${job.type} -> ${job.target}`);
+        // call internal server/router config logic
+        break;
+      case 'data':
+        console.log(`[ElectricNetWay] Delivering data/message: ${job.type} -> ${job.target}`);
+        // call shareable link / push / SMTP routing
+        break;
+      default:
+        throw new Error('Unknown job category');
+    }
+    await db.query(`
+      UPDATE platform_electric_net_way_queue SET status='completed', updated_at=NOW() WHERE id=$1
+    `,[job.id]);
+  } catch(err) {
+    await db.query(`
+      UPDATE platform_electric_net_way_queue SET status='failed', updated_at=NOW() WHERE id=$1
+    `,[job.id]);
+    console.error('[ElectricNetWay] Failed to execute job:', err);
+  }
+}
+
+// Process queue
+export async function processQueue() {
+  const { rows } = await db.query(`SELECT * FROM platform_electric_net_way_queue WHERE status='pending'`);
+  for(const job of rows) {
+    await routeAndExecute(job);
+  }
+}
+
+export async function getStatus() {
+  const { rows } = await db.query(`
+    SELECT category, status, COUNT(*) as count
+    FROM platform_electric_net_way_queue
+    GROUP BY category, status
+  `);
+  return rows;
+}
+
+export async function getLogs(limit=50, offset=0) {
+  const { rows } = await db.query(`
+    SELECT * FROM platform_electric_net_way_queue
+    ORDER BY created_at DESC
+    LIMIT $1 OFFSET $2
+  `,[limit, offset]);
+  return rows;
+}
+
+export async function retryJob(id:number) {
+  await db.query(`
+    UPDATE platform_electric_net_way_queue SET status='pending', updated_at=NOW() WHERE id=$1
+  `,[id]);
+}
+
+// ==============================
+// artifacts/api-server/src/routes/electricNetWay.ts
+// ==============================
+
+import express from 'express';
+import { processQueue, getStatus, getLogs, retryJob, queueNetJob } from '../services/electricNetWay';
+
+const router = express.Router();
+
+router.get('/status', async (req,res)=>{
+  const status = await getStatus();
+  res.json(status);
+});
+
+router.get('/logs', async (req,res)=>{
+  const logs = await getLogs();
+  res.json(logs);
+});
+
+router.post('/retry/:id', async (req,res)=>{
+  await retryJob(Number(req.params.id));
+  res.json({success:true});
+});
+
+router.post('/trigger', async (req,res)=>{
+  await processQueue();
+  res.json({success:true});
+});
+
+router.post('/queue-job', async (req,res)=>{
+  const job = await queueNetJob(req.body);
+  res.json(job);
+});
+
+export default router;
+
+// ==============================
+// artifacts/createai-brain/src/pages/ElectricNetWayPage.tsx
+// ==============================
+
+import React,{useEffect,useState} from 'react';
+import axios from 'axios';
+
+export default function ElectricNetWayPage() {
+  const [status,setStatus]=useState([]);
+  const [logs,setLogs]=useState([]);
+
+  const fetchStatus=async()=>{const res=await axios.get('/api/electric-net-way/status'); setStatus(res.data);}
+  const fetchLogs=async()=>{const res=await axios.get('/api/electric-net-way/logs'); setLogs(res.data);}
+  const triggerQueue=async()=>{await axios.post('/api/electric-net-way/trigger'); fetchStatus(); fetchLogs();}
+
+  useEffect(()=>{fetchStatus(); fetchLogs();},[]);
+
+  return (
+    <div className="electric-net-way-admin">
+      <h1>ElectricNetWay Engine</h1>
+      <button onClick={triggerQueue}>Run Queue Now</button>
+      <h2>Status</h2>
+      <div className="status-cards">
+        {status.map(s=>(
+          <div key={`${s.category}-${s.status}`} className="card">
+            <strong>{s.category}</strong> - {s.status}: {s.count}
+          </div>
+        ))}
+      </div>
+      <h2>Recent Jobs</h2>
+      <table>
+        <thead>
+          <tr>
+            <th>ID</th><th>Category</th><th>Type</th><th>Target</th><th>Status</th><th>Created</th>
+          </tr>
+        </thead>
+        <tbody>
+          {logs.map(log=>(
+            <tr key={log.id}>
+              <td>{log.id}</td><td>{log.category}</td><td>{log.type}</td><td>{log.target}</td><td>{log.status}</td>
+              <td>{new Date(log.created_at).toLocaleString()}</td>
+            </tr>
+          ))}
+        </tbody>
+      </table>
+    </div>
+  );
+}
+
+// ==============================
+// artifacts/api-server/src/routes/index.ts
+// ==============================
+
+import electricNetWayRouter from './electricNetWay';
+router.use('/electric-net-way', electricNetWayRouter);
+
+// ==============================
+// artifacts/api-server/src/index.ts (startup)
+// ==============================
+
+import { initElectricNetWay } from './services/electricNetWay';
+(async()=>{
+  await initElectricNetWay();
+  console.log('ElectricNetWay queue table initialized');
+})();
