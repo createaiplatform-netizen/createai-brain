@@ -89,8 +89,8 @@ export default function AdminDashboardPage() {
   useEffect(() => {
     fetch("/api/app-usage/top?limit=6", { credentials: "include" })
       .then(r => r.ok ? r.json() : null)
-      .then((data: { topApps?: TopApp[] } | null) => {
-        if (data?.topApps?.length) setTopApps(data.topApps);
+      .then((data: { top?: TopApp[] } | null) => {
+        if (data?.top?.length) setTopApps(data.top);
       })
       .catch(() => {})
       .finally(() => setAppsLoaded(true));
