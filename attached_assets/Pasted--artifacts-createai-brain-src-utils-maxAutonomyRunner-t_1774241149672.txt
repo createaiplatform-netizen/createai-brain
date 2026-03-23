@@ -1,0 +1,67 @@
+// artifacts/createai-brain/src/utils/maxAutonomyRunner.ts
+import { runTaskSafely, getAllKnownTasks, discoverNewTasks } from "./taskUtils";
+
+// Config
+const MAX_CONCURRENT_SESSIONS = 10; // can scale up/down based on server
+const MIN_TOKEN_MODE = true; // minimize token usage where possible
+const TASK_RETRY_LIMIT = 2; // retry failed tasks
+const LOOP_INTERVAL_MS = 5000; // wait 5s between loops for new task discovery
+
+interface Task {
+  id: string;
+  name: string;
+  execute: () => Promise<any>;
+  dependencies?: string[];
+  safe: boolean;
+}
+
+// In-memory task registry
+let completedTasks = new Set<string>();
+let runningTasks = new Set<string>();
+
+export async function maxAutonomyRunner() {
+  console.log("[MaxAutonomyRunner] Starting full autonomy session...");
+
+  while (true) {
+    // Step 1: Get all known tasks
+    let tasks: Task[] = getAllKnownTasks();
+
+    // Step 2: Discover new tasks dynamically
+    const newTasks = await discoverNewTasks();
+    tasks = [...tasks, ...newTasks];
+
+    // Step 3: Filter out completed or currently running tasks
+    const pendingTasks = tasks.filter(
+      (t) => t.safe && !completedTasks.has(t.id) && !runningTasks.has(t.id)
+    );
+
+    if (pendingTasks.length === 0) {
+      // Nothing new to run, wait before checking again
+      await new Promise((res) => setTimeout(res, LOOP_INTERVAL_MS));
+      continue;
+    }
+
+    // Step 4: Run tasks in parallel, respecting concurrency limits
+    const batch = pendingTasks.slice(0, MAX_CONCURRENT_SESSIONS);
+    const batchPromises = batch.map(async (task) => {
+      runningTasks.add(task.id);
+      try {
+        const result = await runTaskSafely(task, { minTokenMode: MIN_TOKEN_MODE });
+        console.log(`[MaxAutonomyRunner] Completed task: ${task.name}`, result);
+        completedTasks.add(task.id);
+      } catch (err) {
+        console.error(`[MaxAutonomyRunner] Task failed: ${task.name}`, err);
+      } finally {
+        runningTasks.delete(task.id);
+      }
+    });
+
+    // Step 5: Wait for the batch to finish
+    await Promise.all(batchPromises);
+  }
+}
+
+// Example usage
+if (require.main === module) {
+  maxAutonomyRunner().catch((err) => console.error(err));
+}
