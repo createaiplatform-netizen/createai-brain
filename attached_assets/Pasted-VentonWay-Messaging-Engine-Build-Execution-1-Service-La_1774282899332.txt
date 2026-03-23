@@ -1,0 +1,44 @@
+VentonWay Messaging Engine — Build Execution
+
+1. Service Layer — artifacts/api-server/src/services/ventonWay.ts
+   • initVentonWay(): create DB table platform_venton_way_queue if missing
+   • queueMessage(type, recipient, subject, body, metadata?): add to queue
+   • processQueue(): process pending messages via notifications.ts, update logs/status
+   • getStatus(): return system & provider status (Resend/Twilio abstracted)
+   • getLogs(limit, offset): return delivery logs
+   • retryMessage(id): retry failed queue items
+
+2. API Routes — artifacts/api-server/src/routes/ventonWay.ts
+   • GET /api/venton-way/status → status endpoint for admin
+   • GET /api/venton-way/logs → delivery logs
+   • POST /api/venton-way/retry/:id → retry single message
+   • POST /api/venton-way/send-test → test message trigger
+   • POST /api/venton-way/trigger → manually process queue
+
+3. Admin UI — artifacts/createai-brain/src/pages/VentonWayPage.tsx
+   • Status cards: system & provider health
+   • Queue stats: pending, sent, failed
+   • Delivery log table: timestamp, masked recipient, type, result
+   • Retry controls: manual retry
+   • Manual trigger: process queue
+   • Activation panel: shows if external setup needed
+
+4. Route Registration — artifacts/api-server/src/routes/index.ts
+   • Import & use ventonWay routes
+   • Mounted under /api/venton-way
+
+5. App Integration — artifacts/createai-brain/src/App.tsx
+   • Add admin panel route → VentonWayPage
+   • Ensure menu/navigation reflects new admin page
+
+6. notifications.ts Updates — artifacts/api-server/src/services/notifications.ts
+   • Hook into queue processing for automatic delivery
+   • All external providers (Resend/Twilio) remain hidden
+   • Queue triggers, retry logic, and logging integrated
+
+Notes:
+- All components built in parallel
+- External setup (Resend domain verification + Twilio upgrade) still required for actual delivery
+- UI branding: VentonWay Messaging Engine; no provider names exposed
+- Fully compatible with existing platform, shareableMessages.ts, and admin dashboard
+- Enables queue, logging, retry, and admin controls for internal branded messaging system
