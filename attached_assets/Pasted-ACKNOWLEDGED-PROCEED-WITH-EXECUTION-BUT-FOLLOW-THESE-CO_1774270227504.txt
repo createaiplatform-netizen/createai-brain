@@ -1,0 +1,59 @@
+ACKNOWLEDGED — PROCEED WITH EXECUTION, BUT FOLLOW THESE CONSTRAINTS:
+
+1. DO NOT attempt to fix Replit workflow runner behavior.
+   - The restart_workflow SIGTERM issue is infrastructure-level.
+   - Do NOT waste cycles trying to “fix” Vite exiting if it is already stable when run manually.
+   - Treat dev workflow restart as MANUAL ONLY.
+
+2. PRIORITIZE REAL BLOCKERS ONLY (in this order):
+   A. Stripe production configuration (CRITICAL — revenue blocker)
+   B. Health monitor using external URLs (causing false degraded endpoints)
+   C. Any runtime crashes or unhandled exceptions
+   D. UI/data inconsistencies (only if user-facing)
+
+3. HEALTH MONITOR FIX (REQUIRED):
+   - Replace ALL external self-calls (e.g. *.replit.dev) with:
+     → localhost OR direct service checks
+   - Add retry/backoff (3 attempts, exponential)
+   - Ensure it NEVER marks system degraded due to cold-start timing
+
+4. STRIPE FIX (REQUIRED):
+   - Ensure Stripe initializes ONLY from environment variables in production
+   - Add safe fallback if keys are missing (NO crashes)
+   - Verify webhook handlers:
+     → customer.created
+     → checkout.session.completed
+     → invoice.paid
+   - Ensure idempotency (no duplicate emails/actions)
+
+5. GLOBAL ERROR HANDLING (REQUIRED):
+   - Add top-level Express/Fastify error middleware
+   - Catch ALL unhandled promise rejections
+   - Log + return safe JSON response
+
+6. PERFORMANCE + RELIABILITY (FOCUSED ONLY):
+   - Prevent duplicate fetch calls (especially /api/projects, /api/evaluate/self)
+   - Add lightweight caching (in-memory OK)
+   - Ensure no infinite loops in useEffect
+
+7. DO NOT OVER-ENGINEER:
+   - Skip unnecessary “perfect system” changes
+   - Only fix what is:
+     → broken
+     → unstable
+     → blocking revenue or UX
+
+8. VALIDATION AFTER CHANGES:
+   Confirm ONLY:
+   - Frontend loads (HTML, not text)
+   - API endpoints return 200
+   - No degraded endpoints after warmup
+   - Stripe does not crash app
+   - TypeScript remains clean
+
+9. OUTPUT FORMAT:
+   Return ONLY:
+   - Fixes applied (bullet list)
+   - Any remaining REAL blockers
+
+BEGIN EXECUTION.

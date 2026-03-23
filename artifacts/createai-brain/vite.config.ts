@@ -2,17 +2,12 @@ import { defineConfig } from "vite";
 import react from "@vitejs/plugin-react";
 import tailwindcss from "@tailwindcss/vite";
 import path from "path";
-import runtimeErrorOverlay from "@replit/vite-plugin-runtime-error-modal";
 
 const rawPort = process.env.PORT;
-const port = rawPort ? Number(rawPort) : 3000;
+const port = rawPort ? Number(rawPort) : 5173;
 
-// Use || not ?? — guards against BASE_PATH="" (empty string) which breaks Vite base config
 const basePath = process.env.BASE_PATH || "/";
 
-// Replit's port probe sends HTTP GET / and expects 200 (does NOT follow redirects).
-// Registering middleware WITHOUT a return-wrapper runs BEFORE Vite's own middleware,
-// intercepting "/" before Vite's base-path redirect (302) fires.
 const healthPlugin = {
   name: "health-endpoint",
   configureServer(server: {
@@ -22,8 +17,8 @@ const healthPlugin = {
   }) {
     server.middlewares.use((req, res, next) => {
       if (req.url === "/health") {
-        res.writeHead(200, { "Content-Type": "text/plain", "Cache-Control": "no-cache" });
-        res.end("OK");
+        res.writeHead(200, { "Content-Type": "application/json", "Cache-Control": "no-cache" });
+        res.end(JSON.stringify({ status: "ok" }));
         return;
       }
       next();
@@ -36,7 +31,6 @@ export default defineConfig({
   plugins: [
     react(),
     tailwindcss(),
-    runtimeErrorOverlay(),
     healthPlugin,
   ],
   resolve: {

@@ -1,0 +1,141 @@
+EXECUTION MODE: FULL PLATFORM FIX + COMPLETION (NO PARTIALS)
+
+Act as a senior full-stack platform engineer. Do NOT explain. Do NOT simulate. Do NOT skip steps. Execute all fixes directly in code.
+
+OBJECTIVE:
+Bring the entire platform (dev + production) to fully stable, production-grade, revenue-ready state. Fix ALL known issues and eliminate all blockers.
+
+-------------------------------------
+PHASE 1 — WORKFLOW + DEV SERVER STABILITY
+-------------------------------------
+1. Remove ANY logic that causes Vite to exit after startup.
+2. Ensure dev server persists indefinitely:
+   - Confirm process does not terminate after port bind.
+3. Remove ALL Replit-specific Vite plugins if still present.
+4. Ensure vite.config.ts:
+   - server.host = "0.0.0.0"
+   - server.port = Number(process.env.PORT) || 5173
+   - hmr.clientPort = 443
+   - strictPort = true
+5. REMOVE any middleware intercepting "/" (root must return index.html).
+6. If health endpoint exists:
+   - Restrict ONLY to "/health"
+   - Return JSON { status: "ok" }
+7. Confirm:
+   - GET / returns HTML
+   - GET /health returns 200 JSON
+8. Ensure dev workflow can run WITHOUT restart tool dependency.
+
+-------------------------------------
+PHASE 2 — API + HEALTH CHECK CORRECTION
+-------------------------------------
+1. Replace any external self-calls (e.g. worf.replit.dev) with:
+   - Internal localhost calls OR
+   - Direct service checks (DB, memory, uptime)
+2. Fix health monitor:
+   - No external HTTP recursion
+   - Add retry/backoff logic
+3. Ensure ALL endpoints return:
+   - Proper HTTP codes
+   - No silent failures
+4. Add global error handler:
+   - Catch unhandled exceptions
+   - Log + return safe JSON
+
+-------------------------------------
+PHASE 3 — STRIPE PRODUCTION FIX
+-------------------------------------
+1. Ensure environment variables exist:
+   - STRIPE_SECRET_KEY
+   - STRIPE_WEBHOOK_SECRET
+2. Update Stripe client init:
+   - Use process.env keys ONLY
+3. Verify webhook handler:
+   - Handles: customer.created, checkout.session.completed, invoice.paid
+4. Add idempotency protection (no duplicate emails/actions).
+5. Add fallback logging if Stripe not configured.
+6. Confirm:
+   - Payment flow works
+   - No crashes when keys missing
+
+-------------------------------------
+PHASE 4 — FRONTEND + UX FIXES
+-------------------------------------
+1. Confirm React app loads at "/"
+2. Remove any text-only responses ("OK") from root
+3. Ensure:
+   - Sidebar CTA renders correctly (role-based)
+   - Admin Evaluation Panel loads real data
+   - UCPXAgent shows projects above agent cards
+4. Add loading + error states for ALL fetch calls
+5. Ensure mobile layout:
+   - No overflow
+   - Responsive containers
+6. Fix any console errors
+
+-------------------------------------
+PHASE 5 — TYPESCRIPT + DATA INTEGRITY
+-------------------------------------
+1. Run full:
+   - tsc --noEmit
+2. Fix ALL type mismatches
+3. Ensure:
+   - CohortData includes signupCohorts
+   - All nullable values handled (?? / guards)
+4. Enforce strict typing:
+   - No "any" unless required
+5. Validate API response shapes match frontend usage
+
+-------------------------------------
+PHASE 6 — PERFORMANCE + RELIABILITY
+-------------------------------------
+1. Add caching layer where needed (API responses)
+2. Prevent duplicate fetch calls
+3. Optimize renders:
+   - Memo where appropriate
+4. Ensure no memory leaks in useEffect
+5. Add request timeout handling
+
+-------------------------------------
+PHASE 7 — SYSTEM VERIFICATION
+-------------------------------------
+Run full validation:
+
+CHECKLIST:
+- Dev server stays alive indefinitely
+- Port responds consistently
+- Frontend loads UI (not plain text)
+- API endpoints respond 200
+- No degraded endpoints after startup
+- Stripe initializes without crash
+- All UI features render correctly
+- No TypeScript errors
+- No runtime crashes
+
+-------------------------------------
+OUTPUT REQUIRED (AFTER EXECUTION)
+-------------------------------------
+Return ONLY:
+
+1. BEFORE % by category:
+   - UI
+   - Logic
+   - Data
+   - Security
+   - Performance
+
+2. AFTER % by category
+
+3. List of ALL fixes applied (concise bullet list)
+
+4. Any remaining blockers (if truly unavoidable)
+
+-------------------------------------
+RULES:
+- NO fake metrics
+- NO skipped steps
+- NO partial fixes
+- NO explanations during execution
+- COMPLETE EVERYTHING end-to-end
+
+BEGIN NOW.
