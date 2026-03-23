@@ -4,7 +4,7 @@ import { expandPlatform }        from "./services/expansionEngine";
 import { finalizeConfiguration } from "./services/systemConfigurator";
 import { brainEngine }           from "./engine/BrainEnforcementEngine.js";
 import { notifyFamily }          from "./utils/notifications.js";
-import { initVentonWay }        from "./services/ventonWay.js";
+import { initVentonWay, processQueue } from "./services/ventonWay.js";
 import { initElectricNetWay }  from "./services/electricNetWay.js";
 import { initEverythingNetWay } from "./services/everythingNetWay.js";
 import { initMeshNetWay }       from "./services/meshNetWay.js";
@@ -50,7 +50,33 @@ app.listen(port, () => {
   console.log(`Server listening on port ${port}`);
 
   void (async () => {
-    try { await initVentonWay(); }
+    try {
+      await initVentonWay();
+
+      // ── VentonWay queue scheduler ────────────────────────────────────────────
+      // Runs every 60 seconds inside this process — no external service needed.
+      // Processes pending + retrying rows whose scheduled_at <= NOW().
+      // Covers day-2, day-5, and all future timed messages automatically.
+      const QUEUE_INTERVAL_MS = 60_000;
+      const queueTicker = setInterval(async () => {
+        try {
+          const result = await processQueue();
+          if (result.processed > 0) {
+            console.log(
+              `[VentonWay:Scheduler] tick — processed:${result.processed}` +
+              ` sent:${result.sent} failed:${result.failed}`
+            );
+          }
+        } catch (tickErr) {
+          console.warn("[VentonWay:Scheduler] tick error (non-fatal):", (tickErr as Error).message);
+        }
+      }, QUEUE_INTERVAL_MS);
+
+      // unref() so the interval never prevents a clean process shutdown
+      queueTicker.unref();
+
+      console.log(`[VentonWay:Scheduler] ✅ started — processing queue every ${QUEUE_INTERVAL_MS / 1000}s`);
+    }
     catch (err) { console.error("[Startup] initVentonWay failed — continuing:", (err as Error).message); }
 
     try { await initElectricNetWay(); }
