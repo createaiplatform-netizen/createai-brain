@@ -1,0 +1,82 @@
+[
+  {
+    "name": "Nathan Richard Stadler",
+    "email": "Stadlernathan5499@gmail.com",
+    "phone": "715-791-4114",
+    "emailSubject": "Proud of You ❤️",
+    "emailBody": "Nathan, I am so proud of the life you and Carolina are building together. I can’t wait for our family adventures and traveling together! Keep enjoying every moment — and don’t forget, I’m waiting on those grandbabies 😉 Love, Mom",
+    "smsBody": "Nathan! So proud of you and Carolina ❤️ Excited for family adventures! Don’t forget those grandbabies 😉"
+  },
+  {
+    "name": "Carolina",
+    "email": "caro.ixto5499@gmail.com",
+    "phone": "715-791-4050",
+    "emailSubject": "Orgullosa de Ti ❤️",
+    "emailBody": "Carolina, estoy muy orgullosa de ti y Nathan. Ustedes dos están creando algo hermoso juntos. ¡No puedo esperar nuestras aventuras familiares y viajes juntos! Love, Mom",
+    "smsBody": "Carolina! Muy orgullosa de ti y Nathan ❤️ Excited for family adventures!"
+  },
+  {
+    "name": "Nolan Ryan Stadler",
+    "email": "Stadlernolan29@icloud.com",
+    "phone": "715-791-4114",
+    "emailSubject": "Proud of You ❤️",
+    "emailBody": "Nolan, I’m so proud of the person you’ve become. Keep shining, and I can’t wait for all the fun we’ll have together as a family. Love, Mom",
+    "smsBody": "Nolan! So proud of you ❤️ Excited for family adventures!"
+  },
+  {
+    "name": "Jenny",
+    "email": "Jeepgirl20@yahoo.com",
+    "phone": "715-791-4222",
+    "emailSubject": "Love & Fun ❤️",
+    "emailBody": "Jenny, you always make life fun and full of laughs. Can’t wait for our next family adventure together! Love, Mom",
+    "smsBody": "Jenny! Can’t wait for more family adventures ❤️ Love you!"
+  },
+  {
+    "name": "Shawny",
+    "email": "Shawnjennymiller@gmail.com",
+    "phone": "651-425-0505",
+    "emailSubject": "Family Love ❤️",
+    "emailBody": "Shawny, I’m so proud of you and grateful for all the laughs and hard work you bring to the family. Deuce! Keep that heavy equipment humor alive 😉 Love, Mom",
+    "smsBody": "Shawny! Love you ❤️ Deuce 😉 Can’t wait for family adventures!"
+  },
+  {
+    "name": "Shelly Phelps",
+    "email": "miphelps1121@gmail.com",
+    "phone": "715-416-5002",
+    "emailSubject": "Love & Appreciation ❤️",
+    "emailBody": "Shelly, you’re the best cousin and friend anyone could ask for. I’m so grateful to have you in my life and can’t wait for more fun together! Love, Mom",
+    "smsBody": "Shelly! You’re amazing ❤️ Can’t wait for more adventures!"
+  },
+  {
+    "name": "Dennis Stadler",
+    "email": "StadlerDennis@yahoo.com",
+    "phone": "715-791-4957",
+    "emailSubject": "Love & Gratitude ❤️",
+    "emailBody": "Dennis, I’m so grateful for you and the life we’ve built together. Thank you for all your love and support — looking forward to more family adventures! Love, Sara",
+    "smsBody": "Dennis! Love you ❤️ Excited for our family adventures!"
+  },
+  {
+    "name": "Nakyllah Raine Stadler",
+    "email": "NakyllahStadler0@gmail.com",
+    "phone": "715-791-8085",
+    "emailSubject": "Proud of You ❤️",
+    "emailBody": "Nakyllah, I’m so proud of you and your beautiful family! Hadley Jo is such a joy, and I can’t wait for all our adventures together. Love, Mom",
+    "smsBody": "Nakyllah! So proud of you ❤️ Can’t wait for family adventures!"
+  },
+  {
+    "name": "Terri Rossow",
+    "email": "richandterri5861@gmail.com",
+    "phone": "715-791-0555",
+    "emailSubject": "Love & Pride ❤️",
+    "emailBody": "Terri, you’re an amazing mom and grandmother. I’m so proud of you and grateful for the family we share. Enjoy your farm, the Appaloosas, and all the grandkids! Can’t wait for more fun together! Love, Sara",
+    "smsBody": "Terri! So proud of you ❤️ Can’t wait for family adventures!"
+  },
+  {
+    "name": "Dad",
+    "email": "richandterri5861@gmail.com",
+    "phone": "715-566-1165",
+    "emailSubject": "Love & Appreciation ❤️",
+    "emailBody": "Dad, I’m so grateful for you and all the love you’ve given the family. Can’t wait for more family adventures and memories together! Love, Sara",
+    "smsBody": "Dad! Love you ❤️ Excited for family adventures!"
+  }
+]
