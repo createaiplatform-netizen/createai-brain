@@ -1,0 +1,147 @@
+// =======================================================
+// alertTest.ts → Clean System Router for GlobalPulse
+// =======================================================
+import { Router } from "express";
+import { getElectricNodes, getMeshNodes } from "../services/nodesService";
+import { runAlertTestForNode } from "../services/alertTestService";
+import { saveGlobalAlertLog } from "../services/globalAlertLogService";
+
+const systemRouter = Router();
+
+// GET /api/system/nodes
+systemRouter.get("/nodes", async (req, res) => {
+  try {
+    const nodes = [...(await getElectricNodes()), ...(await getMeshNodes())];
+    res.json(nodes);
+  } catch (err) {
+    res.status(500).json({ error: err.message });
+  }
+});
+
+// POST /api/system/alert-test
+systemRouter.post("/alert-test", async (req, res) => {
+  const { testNode, production = false, payload } = req.body;
+  if (!testNode || !payload) return res.status(400).json({ error: "Missing testNode or payload" });
+
+  try {
+    const devices = await runAlertTestForNode(testNode, payload, production);
+    res.json({ nodeId: testNode, devices });
+  } catch (err) {
+    res.status(500).json({ error: err.message });
+  }
+});
+
+// POST /api/system/global-alert-log
+systemRouter.post("/global-alert-log", async (req, res) => {
+  const report = req.body;
+  if (!report) return res.status(400).json({ error: "Missing report body" });
+
+  try {
+    await saveGlobalAlertLog(report);
+    res.json({ success: true });
+  } catch (err) {
+    res.status(500).json({ error: err.message });
+  }
+});
+
+export default systemRouter;
+
+// =======================================================
+// task.ts → Top-Level Task Router
+// =======================================================
+import { Router } from "express";
+import { runPlatformTask } from "../services/taskService";
+
+const taskRouter = Router();
+
+taskRouter.post("/:id", async (req, res) => {
+  const taskId = req.params.id;
+  if (!taskId) return res.status(400).json({ error: "Missing task id" });
+
+  try {
+    const result = await runPlatformTask(taskId, { platformWide: true });
+    res.json(result);
+  } catch (err) {
+    res.status(500).json({ error: err.message });
+  }
+});
+
+export default taskRouter;
+
+// =======================================================
+// routes/index.ts → Register Routers
+// =======================================================
+import express from "express";
+import systemRouter from "./alertTest";
+import taskRouter from "./task";
+
+const app = express();
+app.use(express.json());
+
+// System endpoints
+app.use("/api/system", systemRouter);
+
+// Top-level task endpoints
+app.use("/api/task", taskRouter);
+
+export default app;
+
+// =======================================================
+// runGlobalPulse.ts → Execution Module
+// =======================================================
+import fetch from "node-fetch";
+
+const MAX_RETRIES = 3;
+
+export async function runGlobalPulse() {
+  // Fetch all nodes
+  const nodes = await fetch("https://<YOUR_SERVER>/api/system/nodes").then(r => r.json());
+
+  // Trigger alerts for all nodes
+  const alertResults = await Promise.all(nodes.map(node =>
+    fetch("https://<YOUR_SERVER>/api/system/alert-test", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({
+        testNode: node.id,
+        production: true,
+        payload: {
+          title: "Global Alert",
+          message: "This is a platform-wide alert.",
+          priority: "high",
+          actions: ["open_app","view_dashboard"]
+        }
+      })
+    }).then(r => r.json())
+  ));
+
+  // Run 10 tasks with retries
+  const tasks = Array.from({ length: 10 }, (_, i) => ({ id: i + 1, name: `Task ${String.fromCharCode(65 + i)}` }));
+  const taskResults = await Promise.all(tasks.map(async task => {
+    for (let attempt = 1; attempt <= MAX_RETRIES; attempt++) {
+      try {
+        const res = await fetch(`https://<YOUR_SERVER>/api/task/${task.id}`, {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ platformWide: true })
+        });
+        if (!res.ok) throw new Error("Task failed");
+        return { task: task.name, success: true, result: await res.json() };
+      } catch (err) {
+        if (attempt === MAX_RETRIES) return { task: task.name, success: false, error: err.message };
+        await new Promise(r => setTimeout(r, 1000));
+      }
+    }
+  }));
+
+  // Build full report
+  const report = { timestamp: new Date().toISOString(), nodesTested: nodes.length, alertResults, taskResults };
+  console.log(JSON.stringify(report, null, 2));
+
+  // Persist the report
+  await fetch("https://<YOUR_SERVER>/api/system/global-alert-log", {
+    method: "POST",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify(report)
+  });
+}
