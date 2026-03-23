@@ -1,0 +1,84 @@
+// ==============================
+// 1. createai-brain/src/pages/ElectricNetWayPage.tsx
+// ==============================
+import React, { useEffect, useState } from 'react';
+import axios from 'axios';
+import { Card, Button, Table } from '@workspace/design-system'; // Use your design system
+
+export default function ElectricNetWayPage() {
+  const [status, setStatus] = useState([]);
+  const [logs, setLogs] = useState([]);
+
+  const fetchStatus = async () => {
+    const res = await axios.get('/api/electric-net-way/status');
+    setStatus(res.data);
+  };
+
+  const fetchLogs = async () => {
+    const res = await axios.get('/api/electric-net-way/logs');
+    setLogs(res.data);
+  };
+
+  const triggerQueue = async () => {
+    await axios.post('/api/electric-net-way/trigger');
+    fetchStatus();
+    fetchLogs();
+  };
+
+  useEffect(() => {
+    fetchStatus();
+    fetchLogs();
+  }, []);
+
+  return (
+    <div className="electric-net-way-page">
+      <h1>ElectricNetWay Engine</h1>
+      <Button onClick={triggerQueue}>Run Queue Now</Button>
+
+      <h2>Status</h2>
+      <div className="status-cards">
+        {status.map((s: any) => (
+          <Card key={`${s.category}-${s.status}`}>
+            <strong>{s.category}</strong> - {s.status}: {s.count}
+          </Card>
+        ))}
+      </div>
+
+      <h2>Recent Jobs</h2>
+      <Table>
+        <thead>
+          <tr>
+            <th>ID</th><th>Category</th><th>Type</th><th>Target</th><th>Status</th><th>Created</th>
+          </tr>
+        </thead>
+        <tbody>
+          {logs.map((log: any) => (
+            <tr key={log.id}>
+              <td>{log.id}</td>
+              <td>{log.category}</td>
+              <td>{log.type}</td>
+              <td>{log.target}</td>
+              <td>{log.status}</td>
+              <td>{new Date(log.created_at).toLocaleString()}</td>
+            </tr>
+          ))}
+        </tbody>
+      </Table>
+    </div>
+  );
+}
+
+// ==============================
+// 2. Wire it into createai-brain/src/App.tsx
+// ==============================
+import ElectricNetWayPage from './pages/ElectricNetWayPage';
+
+// Inside your <Routes> block:
+<Route path="/electric-net-way" element={<ElectricNetWayPage />} />
+
+// ==============================
+// 3 & 4. Rebuild frontend and restart API server
+// ==============================
+// In terminal:
+// npm run build
+// npm run start:api
