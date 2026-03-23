@@ -13,6 +13,7 @@ import { favGetAll } from "@/services/EngineFavoritesService";
 import { ALL_ENGINES } from "@/engine/CapabilityEngine";
 import { dispatchLaunchEngine } from "@/components/GlobalCommandPalette";
 import { getProposalStats } from "@/engine/ContinuousImprovementEngine";
+import { PlatformStore, RecentActivity } from "@/engine/PlatformStore";
 
 // ─── Pinned apps ──────────────────────────────────────────────────────────────
 const PINNED_IDS: AppId[] = [
@@ -49,7 +50,8 @@ export function Sidebar({ onNav, forceCollapsed, forceExpanded }: SidebarProps) 
   const [location, setLocation] = useLocation();
   const [showBrowser, setShowBrowser] = useState(false);
   const { totalRuns } = useContextStore().getState();
-  const [favIds, setFavIds] = useState<string[]>(() => favGetAll());
+  const [favIds,      setFavIds]     = useState<string[]>(() => favGetAll());
+  const [recentApps,  setRecentApps] = useState<RecentActivity[]>(() => PlatformStore.getRecent().slice(0, 3));
 
   const collapsed = forceCollapsed ? true : forceExpanded ? false : sidebarCollapsed;
   const width     = collapsed ? 60 : 224;
@@ -67,6 +69,17 @@ export function Sidebar({ onNav, forceCollapsed, forceExpanded }: SidebarProps) 
     const sync = () => setFavIds(favGetAll());
     window.addEventListener("cai:fav-changed", sync);
     return () => window.removeEventListener("cai:fav-changed", sync);
+  }, []);
+
+  // Sync recent apps whenever any app is opened
+  useEffect(() => {
+    const sync = () => setRecentApps(PlatformStore.getRecent().slice(0, 3));
+    window.addEventListener("cai:app-opened", sync);
+    window.addEventListener("cai:recent-changed", sync);
+    return () => {
+      window.removeEventListener("cai:app-opened", sync);
+      window.removeEventListener("cai:recent-changed", sync);
+    };
   }, []);
 
   const favEngines = favIds
@@ -173,6 +186,44 @@ export function Sidebar({ onNav, forceCollapsed, forceExpanded }: SidebarProps) 
                   {!collapsed && (
                     <span style={{ overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap", flex: 1, textAlign: "left" }}>
                       {eng.name}
+                    </span>
+                  )}
+                </button>
+              ))}
+            </div>
+          </div>
+        )}
+
+        {/* ── Recent Apps ── */}
+        {recentApps.length > 0 && (
+          <div style={{ padding: "4px 10px 2px" }}>
+            {!collapsed && (
+              <p style={{
+                fontSize: 9, fontWeight: 700, color: TEXT_DIM, letterSpacing: "0.08em",
+                textTransform: "uppercase", margin: "0 0 3px 2px",
+              }}>Recent</p>
+            )}
+            <div style={{ display: "flex", flexDirection: "column", gap: 1 }}>
+              {recentApps.map(r => (
+                <button
+                  key={r.id}
+                  title={collapsed ? r.label : undefined}
+                  onClick={() => handleNav(() => openApp(r.appId as AppId))}
+                  style={{
+                    width: "100%", display: "flex", alignItems: "center", gap: 8,
+                    height: 28, borderRadius: 7, padding: collapsed ? "0 6px" : "0 8px",
+                    background: "transparent", border: "none", cursor: "pointer",
+                    color: TEXT_BASE, fontSize: 11, fontWeight: 500,
+                    transition: "background 0.12s, color 0.12s",
+                    justifyContent: collapsed ? "center" : "flex-start",
+                  }}
+                  onMouseEnter={e => { (e.currentTarget as HTMLElement).style.background = BG_HOVER; (e.currentTarget as HTMLElement).style.color = TEXT_DARK; }}
+                  onMouseLeave={e => { (e.currentTarget as HTMLElement).style.background = "transparent"; (e.currentTarget as HTMLElement).style.color = TEXT_BASE; }}
+                >
+                  <span style={{ fontSize: 13, flexShrink: 0, opacity: 0.75 }}>{r.icon}</span>
+                  {!collapsed && (
+                    <span style={{ overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap", flex: 1, textAlign: "left" }}>
+                      {r.label}
                     </span>
                   )}
                 </button>

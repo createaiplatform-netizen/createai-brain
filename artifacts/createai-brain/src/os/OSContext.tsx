@@ -1213,7 +1213,10 @@ export function OSProvider({ children }: { children: React.ReactNode }) {
     setHistory(prev => activeApp ? [...prev, activeApp] : prev);
     setActiveApp(id);
     const meta = APP_META[id];
-    if (meta) PlatformStore.pushRecent({ appId: id, label: meta.label, icon: meta.icon });
+    if (meta) {
+      PlatformStore.pushRecent({ appId: id, label: meta.label, icon: meta.icon });
+      window.dispatchEvent(new CustomEvent("cai:recent-changed"));
+    }
     // Fire-and-forget app open tracking (activity log + usage analytics)
     fetch("/api/activity", {
       method: "POST",

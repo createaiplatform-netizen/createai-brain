@@ -3,6 +3,7 @@ import { useOS } from "./OSContext";
 import { ErrorBoundary } from "@/components/ErrorBoundary";
 import type { AppId } from "./OSContext";
 import { InternalAdBanner } from "@/components/InternalAdBanner";
+import { RelatedAppsBar } from "@/components/RelatedAppsBar";
 
 // ── Lazy imports — every app is code-split into its own chunk ────────────────
 // Core apps (kept lazy for consistency & future bundle size control)
@@ -978,6 +979,9 @@ export function AppWindow({ onHamburger }: AppWindowProps) {
         <span className="text-[10px]" style={{ color: "#c7d2fe" }}>{icon}</span>
         <span className="text-[10px] font-medium" style={{ color: "#6366f1" }}>{label}</span>
       </div>
+
+      {/* ── Related apps bar ── */}
+      <RelatedAppsBar currentId={activeApp} category={appDef?.category} />
 
       {/* ── Contextual ad strip (non-ad/orchestrator apps only) ── */}
       {activeApp !== "adshub" && activeApp !== "adsOrchestrator" && (

@@ -8,6 +8,7 @@ import { useAuth } from "@workspace/replit-auth-web";
 import { IntelligenceRibbon } from "@/components/IntelligenceRibbon";
 import { SmartRecommendations } from "@/components/SmartRecommendations";
 import { InternalAdBanner } from "@/components/InternalAdBanner";
+import { PersonalStatsCard } from "@/components/PersonalStatsCard";
 
 // ─── Constants ────────────────────────────────────────────────────────────────
 
@@ -487,6 +488,11 @@ export function Dashboard({ onHamburger, onShowTour }: DashboardProps) {
               </div>
               <span className="flex-shrink-0 text-[13px]" style={{ color: "#7a9068" }}>→</span>
             </button>
+          </section>
+
+          {/* ── Personal Brain Stats ── */}
+          <section className={`transition-opacity duration-500 delay-120 ${mounted ? "opacity-100" : "opacity-0"}`}>
+            <PersonalStatsCard />
           </section>
 
           {/* ── Featured Apps ── */}
