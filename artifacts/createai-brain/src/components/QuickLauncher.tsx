@@ -3,6 +3,17 @@ import { useOS, ALL_APPS } from "@/os/OSContext";
 import type { AppId } from "@/os/OSContext";
 import { PlatformStore } from "@/engine/PlatformStore";
 
+function useIsNarrow() {
+  const [narrow, setNarrow] = useState(() => window.innerWidth < 640);
+  useEffect(() => {
+    const mql = window.matchMedia("(max-width: 639px)");
+    const handler = (e: MediaQueryListEvent) => setNarrow(e.matches);
+    mql.addEventListener("change", handler);
+    return () => mql.removeEventListener("change", handler);
+  }, []);
+  return narrow;
+}
+
 const SAGE = "#7a9068";
 
 interface QuickLauncherProps {
@@ -32,6 +43,7 @@ export function QuickLauncher({ open, onClose }: QuickLauncherProps) {
   const [cursor, setCursor] = useState(0);
   const inputRef = useRef<HTMLInputElement>(null);
   const listRef  = useRef<HTMLDivElement>(null);
+  const isNarrow = useIsNarrow();
 
   // Recents from PlatformStore
   const recentIds = PlatformStore.getRecent().map(r => r.appId) as AppId[];
@@ -88,7 +100,13 @@ export function QuickLauncher({ open, onClose }: QuickLauncherProps) {
 
   return (
     <div
-      style={{ position: "fixed", inset: 0, zIndex: 10000, display: "flex", alignItems: "flex-start", justifyContent: "center", paddingTop: "12vh" }}
+      style={{
+        position: "fixed", inset: 0, zIndex: 10000,
+        display: "flex", alignItems: "flex-start", justifyContent: "center",
+        paddingTop: isNarrow ? "6dvh" : "12vh",
+        paddingLeft: isNarrow ? 12 : 0,
+        paddingRight: isNarrow ? 12 : 0,
+      }}
       onClick={e => { if (e.target === e.currentTarget) onClose(); }}
     >
       {/* Backdrop */}
@@ -97,9 +115,10 @@ export function QuickLauncher({ open, onClose }: QuickLauncherProps) {
       {/* Panel */}
       <div style={{
         position: "relative", zIndex: 1, width: "100%", maxWidth: 560,
-        background: "#fff", borderRadius: 20,
+        background: "#fff", borderRadius: isNarrow ? 16 : 20,
         boxShadow: "0 24px 80px rgba(0,0,0,0.22), 0 0 0 1px rgba(0,0,0,0.06)",
-        overflow: "hidden", display: "flex", flexDirection: "column", maxHeight: "70vh",
+        overflow: "hidden", display: "flex", flexDirection: "column",
+        maxHeight: isNarrow ? "80dvh" : "70vh",
       }}>
         {/* Search input */}
         <div style={{ display: "flex", alignItems: "center", gap: 12, padding: "14px 16px", borderBottom: "1px solid #f1f5f9" }}>
@@ -111,7 +130,8 @@ export function QuickLauncher({ open, onClose }: QuickLauncherProps) {
             onKeyDown={handleKey}
             placeholder="Search 408 apps — type anything…"
             style={{
-              flex: 1, border: "none", outline: "none", fontSize: 15,
+              flex: 1, border: "none", outline: "none",
+              fontSize: 16,
               color: "#0f172a", background: "transparent", fontWeight: 500,
             }}
           />
@@ -194,9 +214,9 @@ export function QuickLauncher({ open, onClose }: QuickLauncherProps) {
           )}
         </div>
 
-        {/* Footer */}
+        {/* Footer — keyboard hints (desktop only) + app count */}
         <div style={{ padding: "8px 16px 10px", borderTop: "1px solid #f1f5f9", display: "flex", alignItems: "center", gap: 16, background: "#fafafa" }}>
-          {[["↑↓", "Navigate"], ["↵", "Open"], ["esc", "Close"]].map(([key, label]) => (
+          {!isNarrow && [["↑↓", "Navigate"], ["↵", "Open"], ["esc", "Close"]].map(([key, label]) => (
             <div key={key} style={{ display: "flex", alignItems: "center", gap: 5 }}>
               <kbd style={{ background: "#fff", border: "1px solid #e2e8f0", borderRadius: 5, padding: "2px 6px", fontSize: 10, color: "#64748b", fontWeight: 700 }}>{key}</kbd>
               <span style={{ fontSize: 10, color: "#94a3b8" }}>{label}</span>
