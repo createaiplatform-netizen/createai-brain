@@ -4,6 +4,7 @@ import { expandPlatform }        from "./services/expansionEngine";
 import { finalizeConfiguration } from "./services/systemConfigurator";
 import { brainEngine }           from "./engine/BrainEnforcementEngine.js";
 import { notifyFamily }          from "./utils/notifications.js";
+import { initEmailScheduler }    from "./semantic/emailScheduler.js";
 import {
   initFamilyAgents,
   ensureStripeCustomers,
@@ -50,5 +51,8 @@ app.listen(port, () => {
     initFamilyAgents();
 
     openFloodgates();
+
+    // Load persisted email jobs from DB and start background poller
+    await initEmailScheduler();
   })();
 });

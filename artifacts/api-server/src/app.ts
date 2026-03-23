@@ -545,7 +545,7 @@ app.use("/join",      semanticSubRouter);
 app.use("/",          protocolGatewayRouter);
 app.use("/",          semanticStoreRouter);
 app.use("/",          platformHubRouter);
-app.use("/api/ads",   adNetworkCatalogsRouter);
+app.use("/api/ads",          adNetworkCatalogsRouter);
 
 // ── API (private — Replit auth + scope) ──────────────────────────────────────
 app.use(authMiddleware);

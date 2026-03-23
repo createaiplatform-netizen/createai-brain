@@ -2,6 +2,7 @@ import React, { Suspense, useState, useEffect, useCallback } from "react";
 import { useLocation } from "wouter";
 import { useOS } from "./OSContext";
 import { useMediaQuery } from "@/hooks/use-media-query";
+import { useSessionGuard } from "@/hooks/useSessionGuard";
 import { Sidebar } from "./Sidebar";
 import MetricsPage from "@/pages/MetricsPage";
 import { Dashboard } from "./Dashboard";
@@ -36,6 +37,9 @@ export function OSLayout() {
   const [mobileMenuOpen, setMobileMenuOpen]       = useState(false);
   const [tourOpen, setTourOpen]                   = useState(false);
   const [quickLauncherOpen, setQuickLauncherOpen] = useState(false);
+
+  // Global 401 interceptor — redirects to /login when session expires
+  useSessionGuard();
 
   const isMetrics = location === "/metrics";
   const isLibrary = location === "/library";

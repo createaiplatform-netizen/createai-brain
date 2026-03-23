@@ -2335,6 +2335,21 @@ const BRAND_PROFILES: BrandProfile[] = [
 function MasterBrainView() {
   const [mbTab,      setMbTab]      = useState<"overview"|"projects"|"minibrains"|"roi"|"training"|"compliance"|"comms"|"branding"|"permissions"|"audit"|"heal">("overview");
   const [projects,   setProjects]   = useState(MASTER_PROJECTS);
+  const [realProjectCount, setRealProjectCount] = useState<number | null>(null);
+
+  useEffect(() => {
+    fetch("/api/projects", { credentials: "include" })
+      .then(r => r.ok ? r.json() : null)
+      .then((data: unknown) => {
+        if (Array.isArray(data)) {
+          setRealProjectCount(data.length);
+        } else if (data && typeof data === "object" && "projects" in data) {
+          const d = data as { projects: unknown[] };
+          if (Array.isArray(d.projects)) setRealProjectCount(d.projects.length);
+        }
+      })
+      .catch(() => {});
+  }, []);
   const [connecting, setConnecting] = useState(false);
   const [connected,  setConnected]  = useState(false);
   const [selProj,    setSelProj]    = useState<string | null>(null);
@@ -2472,7 +2487,9 @@ function MasterBrainView() {
               "✅ Self-healing engine monitoring 29 integrations",
               "✅ Legal Compliance Guard enforcing HIPAA, GDPR, SOC 2, FINRA, OSHA",
               "✅ Mini-Brains active across 14 departments",
-              `${connectedCount < projects.length ? "⚠️" : "✅"} ${connectedCount}/${projects.length} projects fully connected`,
+              realProjectCount !== null
+                ? `✅ ${realProjectCount} project${realProjectCount !== 1 ? "s" : ""} in your workspace`
+                : `${connectedCount < projects.length ? "⚠️" : "✅"} ${connectedCount}/${projects.length} projects fully connected`,
               "✅ Audit trail logging all actions in real time",
             ].map((line, i) => (
               <p key={i} className="text-[10px] text-blue-700">{line}</p>

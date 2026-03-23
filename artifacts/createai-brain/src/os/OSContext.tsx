@@ -1224,6 +1224,13 @@ export function OSProvider({ children }: { children: React.ReactNode }) {
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify({ action: "app_open", label: meta?.label ?? id, icon: meta?.icon ?? "📱", appId: id }),
     }).catch(() => {});
+    // Track in dedicated app-usage table for per-app analytics
+    fetch("/api/app-usage", {
+      method: "POST",
+      credentials: "include",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ appId: id, label: meta?.label ?? id, icon: meta?.icon ?? "📱" }),
+    }).catch(() => {});
     // Clear badge when notifications opens
     if (id === "notifications") {
       setUnreadCount(0);

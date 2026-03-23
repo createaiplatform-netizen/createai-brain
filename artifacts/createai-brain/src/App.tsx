@@ -40,6 +40,7 @@ import MetricsPage from "@/pages/MetricsPage";
 import AboveTranscendPage from "@/pages/AboveTranscendPage";
 import CreateAIDigitalPage from "@/pages/CreateAIDigitalPage";
 import RealMarketPage          from "@/pages/RealMarketPage";
+import OutputLibraryPage       from "@/pages/OutputLibraryPage";
 import UltimateTranscendDashboard from "@/pages/UltimateTranscendDashboard";
 import CommandCenterPage           from "@/pages/CommandCenterPage";
 import PlatformStatusPage          from "@/pages/PlatformStatusPage";
@@ -168,6 +169,9 @@ function Router() {
           </SecureAuthLayer>
         </RoleGate>
       </Route>
+
+      {/* Output Library */}
+      <Route path="/library" component={OutputLibraryPage} />
 
       {/* Full OS — default for admin/founder/user/viewer */}
       <Route path="/" component={OSLayout} />

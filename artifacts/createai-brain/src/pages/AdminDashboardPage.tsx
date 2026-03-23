@@ -1,8 +1,8 @@
 import { useAuth } from "@workspace/replit-auth-web";
 import { useLocation } from "wouter";
+import { useState, useEffect } from "react";
 
 const SAGE = "#7a9068";
-const SAND = "#c4a97a";
 const CREAM = "#faf9f6";
 const TEXT = "#1a1916";
 const MUTED = "#6b6660";
@@ -53,13 +53,34 @@ const ADMIN_SECTIONS = [
   },
 ];
 
+interface TopApp {
+  appId:  string;
+  label:  string;
+  icon:   string;
+  opens:  number;
+}
+
 export default function AdminDashboardPage() {
   const { user, logout } = useAuth();
   const [, navigate] = useLocation();
+  const [topApps,    setTopApps]    = useState<TopApp[]>([]);
+  const [appsLoaded, setAppsLoaded] = useState(false);
 
   const displayName = user?.firstName
     ? `${user.firstName}${user.lastName ? " " + user.lastName : ""}`
     : (user?.email?.split("@")[0] ?? "Admin");
+
+  useEffect(() => {
+    fetch("/api/app-usage/top?limit=6", { credentials: "include" })
+      .then(r => r.ok ? r.json() : null)
+      .then((data: { topApps?: TopApp[] } | null) => {
+        if (data?.topApps?.length) setTopApps(data.topApps);
+      })
+      .catch(() => {})
+      .finally(() => setAppsLoaded(true));
+  }, []);
+
+  const maxOpens = topApps.length > 0 ? Math.max(...topApps.map(a => a.opens)) : 1;
 
   return (
     <div
@@ -159,6 +180,92 @@ export default function AdminDashboardPage() {
               <span style={{ color: MUTED, fontSize: 16 }}>›</span>
             </button>
           ))}
+        </div>
+
+        {/* ── Usage Analytics ───────────────────────────────────────── */}
+        <div
+          className="rounded-2xl overflow-hidden"
+          style={{ border: `1px solid ${BORDER}`, background: "white" }}
+        >
+          <div
+            className="px-5 py-4 flex items-center justify-between"
+            style={{ borderBottom: `1px solid ${BORDER}` }}
+          >
+            <div>
+              <p className="text-[14px] font-bold" style={{ color: TEXT }}>
+                Top Apps by Opens
+              </p>
+              <p className="text-[11px] mt-0.5" style={{ color: MUTED }}>
+                Real usage across all platform users
+              </p>
+            </div>
+            <button
+              onClick={() => navigate("/metrics")}
+              className="text-[11px] font-semibold px-3 py-1.5 rounded-lg transition-all"
+              style={{ background: `${SAGE}12`, color: SAGE }}
+            >
+              Full metrics →
+            </button>
+          </div>
+
+          <div className="p-5">
+            {!appsLoaded && (
+              <div className="flex items-center gap-2" style={{ color: MUTED }}>
+                <div className="w-4 h-4 rounded-full border-2 border-current border-t-transparent animate-spin" />
+                <span className="text-[12px]">Loading usage data…</span>
+              </div>
+            )}
+
+            {appsLoaded && topApps.length === 0 && (
+              <div className="text-center py-6">
+                <p className="text-[13px]" style={{ color: MUTED }}>
+                  No usage data yet — opens will appear here as apps are used.
+                </p>
+              </div>
+            )}
+
+            {appsLoaded && topApps.length > 0 && (
+              <div className="flex flex-col gap-3">
+                {topApps.map((app, i) => {
+                  const pct = maxOpens > 0 ? Math.round((app.opens / maxOpens) * 100) : 0;
+                  return (
+                    <div key={app.appId} className="flex items-center gap-3">
+                      <span className="text-[13px] w-5 text-center flex-shrink-0" style={{ color: MUTED }}>
+                        {i + 1}
+                      </span>
+                      <span className="text-[18px] w-6 flex-shrink-0">{app.icon}</span>
+                      <div className="flex-1 min-w-0">
+                        <div className="flex items-center justify-between mb-1">
+                          <span className="text-[12px] font-semibold truncate" style={{ color: TEXT }}>
+                            {app.label}
+                          </span>
+                          <span className="text-[11px] ml-2 flex-shrink-0" style={{ color: MUTED }}>
+                            {app.opens} {app.opens === 1 ? "open" : "opens"}
+                          </span>
+                        </div>
+                        <div
+                          className="h-1.5 rounded-full overflow-hidden"
+                          style={{ background: `${SAGE}18` }}
+                        >
+                          <div
+                            className="h-full rounded-full transition-all duration-700"
+                            style={{
+                              width: `${pct}%`,
+                              background: i === 0
+                                ? SAGE
+                                : i === 1
+                                  ? "#5a7a68"
+                                  : "#8aad78",
+                            }}
+                          />
+                        </div>
+                      </div>
+                    </div>
+                  );
+                })}
+              </div>
+            )}
+          </div>
         </div>
 
         {/* System note */}
