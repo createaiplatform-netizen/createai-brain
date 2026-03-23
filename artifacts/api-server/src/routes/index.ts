@@ -109,6 +109,7 @@ import referralRouter           from "./referral.js";
 import leadsRouter              from "./leads.js";
 import growthAnalyticsRouter    from "./growthAnalytics.js";
 import cohortAnalyticsRouter    from "./cohortAnalytics.js";
+import selfEvaluateRouter       from "./selfEvaluate.js";
 import platformIdentityRouter   from "./platformIdentity.js";
 import selfHostRouter           from "./selfHost.js";
 import platformReportRouter     from "./platformReport.js";
@@ -360,6 +361,7 @@ router.use("/leads",                      leadsRouter);
 // ── Internal Analytics (replaces Google Analytics) ───────────────────────────
 router.use("/analytics",                  growthAnalyticsRouter);
 router.use("/cohorts",                    cohortAnalyticsRouter);
+router.use("/evaluate",                   selfEvaluateRouter);
 
 // ── NEXUS Platform Address — internal identity, routing, NPA resolution ───────
 router.use(platformIdentityRouter);
