@@ -1,0 +1,23 @@
+Treat the existing Universal Invitation Engine (registry.ts, InviteCard, InvitePanel, global floating trigger) as the visibility layer for the entire platform, internal and external.
+
+1. INTERNAL COVERAGE
+- Ensure every meaningful internal surface (broadcast, updates, features, spaces, hubs, onboarding, dashboard, settings, “start here”, “invite someone”, “what’s new”) is represented as an entry in registry.ts with: id, title, one-sentence invitation, link, join label, and QR support.
+- Wire the global floating trigger so it appears on all public and authenticated pages and always opens InvitePanel.
+- Update InvitePanel so it lists all registry surfaces, highlights context-relevant ones (e.g., based on current route if available), and renders the selected surface via InviteCard.
+- Embed InviteCard for key registry surfaces in strategic internal locations (dashboard, welcome screen, settings, empty states, success screens, onboarding) using minimal, reusable wrappers. Do not duplicate logic; always pull from registry.ts.
+
+2. EXTERNAL COVERAGE
+- For each registry surface, expose a small helper that returns: canonical link, QR data URL, one-sentence invitation, and a simple share payload (title + text + URL).
+- Create a lightweight ShareHelpers module that centralizes these helpers so they can be used to generate assets for social bios, link-in-bio, email signatures, and external docs. No UI here, just data and simple formatting.
+
+3. INVITE & SHARE SURFACES
+- Add two special registry entries: “Invite Someone” and “Share This”. These should use InviteCard plus share helpers to present:
+  - copy link
+  - QR code
+  - short invitation sentence
+  - optional prefilled text snippets for SMS/email (plain strings only).
+- Make sure these entries appear prominently in InvitePanel.
+
+4. FUTURE-PROOFING
+- The only place new surfaces are added is registry.ts. No new components or wiring should be required to make a new surface visible in InvitePanel, usable by InviteCard, and consumable by ShareHelpers.
+- Keep dependencies minimal, reuse existing qrcode, and avoid any planning or explanation output. Just implement or update the necessary files to satisfy this behavior.

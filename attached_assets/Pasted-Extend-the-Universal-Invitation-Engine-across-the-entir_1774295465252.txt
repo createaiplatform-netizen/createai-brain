@@ -1,0 +1,21 @@
+Extend the Universal Invitation Engine across the entire platform using the existing files (registry.ts, InviteCard.tsx, InvitePanel.tsx, index.ts, BroadcastFloatingTrigger.tsx). Do not rewrite these files; enhance and integrate them. Add everything needed for full internal and external visibility.
+
+1. INTERNAL COVERAGE
+- Ensure every meaningful internal surface (broadcast, updates, features, spaces, hubs, onboarding, dashboard, settings, profile, welcome, “start here”, “invite someone”, “what’s new”, “share this”) is represented in registry.ts with: id, title, tagline, link, joinLabel, icon, color.
+- Add lightweight wrappers to embed InviteCard in strategic internal locations (dashboard, welcome screen, settings, profile, empty states, success screens, onboarding). Always pull data from registry.ts.
+- Update InvitePanel to highlight context-relevant surfaces based on current route and to support optional grouping (e.g., “Core”, “Family”, “Spaces”, “Tools”) using only registry metadata.
+- Keep the global floating trigger active on all public and authenticated pages and ensure it always opens InvitePanel.
+
+2. EXTERNAL COVERAGE
+- Add a ShareHelpers module that exposes for each registry surface: canonical link, QR data URL, one-sentence invitation, and a simple share payload (title + text + URL). No UI, just data.
+- Add two new registry surfaces: “Invite Someone” and “Share This”. These should use InviteCard plus ShareHelpers to present: copy link, QR code, short invitation sentence, and optional plain-text SMS/email snippets.
+- Add a simple ShareCard generator (React component) that renders a shareable image-style card using registry data (title, tagline, QR). Keep it minimal and dependency-free.
+
+3. GLOBAL VISIBILITY
+- Update BroadcastFloatingTrigger.tsx so it always opens InvitePanel and automatically supports new registry surfaces without modification.
+- Add a small hook (useInviteSurface) that returns the full registry entry for any surface by id, for use across the platform.
+- Add a simple “InviteBanner” component that can be placed at the top or bottom of any page and renders a compact InviteCard variant.
+
+4. FUTURE-PROOFING
+- All new surfaces must be added only in registry.ts. No component changes should be required for new surfaces to appear in InvitePanel, render via InviteCard, generate share assets, or be used by ShareHelpers.
+- Keep dependencies minimal. No planning text. Just implement the required updates.
