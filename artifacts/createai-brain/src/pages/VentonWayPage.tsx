@@ -11,6 +11,14 @@ interface VentonStatus {
   lastProcessed: string | null;
 }
 
+interface ChannelStatus {
+  webPush:       { configured: boolean; subscriptions: number };
+  smtpCustom:    { configured: boolean; connected: boolean; host: string; reason?: string };
+  shareableLink: { configured: boolean };
+  providerEmail: { configured: boolean };
+  providerSms:   { configured: boolean };
+}
+
 interface LogEntry {
   id:          number;
   type:        "email" | "sms";

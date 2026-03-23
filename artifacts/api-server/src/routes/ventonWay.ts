@@ -70,6 +70,17 @@ router.post("/retry/:id", async (req: Request, res: Response) => {
   }
 });
 
+// ── GET /api/venton-way/channels ─────────────────────────────────────────────
+router.get("/channels", async (req: Request, res: Response) => {
+  if (!isAdmin(req)) { res.status(403).json({ error: "Forbidden" }); return; }
+  try {
+    const channels = await getChannelStatus();
+    res.json({ ok: true, channels });
+  } catch (err) {
+    res.status(500).json({ ok: false, error: (err as Error).message });
+  }
+});
+
 // ── POST /api/venton-way/send-test ───────────────────────────────────────────
 router.post("/send-test", async (req: Request, res: Response) => {
   if (!isAdmin(req)) { res.status(403).json({ error: "Forbidden" }); return; }

@@ -127,30 +127,20 @@ export async function processQueue(): Promise<{
     `;
 
     try {
-      let success = false;
-      let resultText = "";
+      const { result, shareableUrl, attempted } = await routeAndDeliver({
+        id:        msg.id,
+        type:      msg.type as "email" | "sms",
+        recipient: msg.recipient,
+        subject:   msg.subject,
+        body:      msg.body,
+      });
 
-      if (msg.type === "email") {
-        const res = await sendEmailNotification(
-          [msg.recipient],
-          msg.subject ?? "Message from CreateAI",
-          msg.body,
-        );
-        const item = res.results[0];
-        success = item?.success ?? false;
-        resultText = item?.success
-          ? `Delivered via email provider`
-          : (item?.reason ?? "Unknown error");
-      } else {
-        const res = await sendSMSNotification([msg.recipient], msg.body);
-        const item = res.results[0];
-        success = item?.success ?? false;
-        resultText = item?.success
-          ? `Delivered via SMS provider`
-          : (item?.reason ?? "Unknown error");
-      }
+      const channelLabel = attempted.join("→");
+      const resultText   = result.success
+        ? `Delivered via ${result.channel} (tried: ${channelLabel}) · link: ${shareableUrl}`
+        : `Failed — ${result.reason ?? "unknown"} (tried: ${channelLabel}) · link: ${shareableUrl}`;
 
-      if (success) {
+      if (result.success) {
         await rawSql`
           UPDATE platform_venton_way_queue
           SET    status = 'sent', result = ${resultText},
@@ -172,7 +162,7 @@ export async function processQueue(): Promise<{
       const newStatus = msg.attempts + 1 >= msg.max_attempts ? "failed" : "retrying";
       await rawSql`
         UPDATE platform_venton_way_queue
-        SET    status = ${newStatus}, result = ${"Error: " + errText}, updated_at = NOW()
+        SET    status = ${newStatus}, result = ${"Router error: " + errText}, updated_at = NOW()
         WHERE  id = ${msg.id}
       `;
       if (newStatus === "failed") failed++;

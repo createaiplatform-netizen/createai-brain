@@ -1,0 +1,71 @@
+// --------------------------
+// 1. ventonWay.ts - processQueue uses routeAndDeliver
+// --------------------------
+import { getPendingMessages, markAsSent } from '@workspace/db';
+import { routeAndDeliver } from './ventonWayRouter';
+
+export async function processQueue() {
+  const messages = await getPendingMessages();
+  for (const msg of messages) {
+    const result = await routeAndDeliver(msg);
+    await markAsSent(msg.id, result); // logs delivery result
+  }
+}
+
+// --------------------------
+// 2. ventonWay routes - add /channels endpoint
+// --------------------------
+import express from 'express';
+import { getChannelStatus } from '../services/ventonWay';
+
+const router = express.Router();
+
+router.get('/status', async (req, res) => {
+  const status = await getChannelStatus();
+  res.json(status);
+});
+
+router.get('/channels', async (req, res) => {
+  const channels = await getChannelStatus(); // { webPush: 'ok', smtp: 'ok' }
+  res.json(channels);
+});
+
+export default router;
+
+// --------------------------
+// 3. VentonWayPage.tsx - display channel status cards
+// --------------------------
+import React, { useEffect, useState } from 'react';
+import axios from 'axios';
+
+export default function VentonWayPage() {
+  const [channels, setChannels] = useState({ webPush: 'loading', smtp: 'loading' });
+
+  useEffect(() => {
+    async function fetchChannels() {
+      try {
+        const res = await axios.get('/api/venton-way/channels');
+        setChannels(res.data);
+      } catch {
+        setChannels({ webPush: 'error', smtp: 'error' });
+      }
+    }
+    fetchChannels();
+  }, []);
+
+  return (
+    <div style={{ padding: 20 }}>
+      <h2>VentonWay Messaging Channels</h2>
+      <div style={{ display: 'flex', gap: 20 }}>
+        <div style={{ border: '1px solid #ccc', padding: 10 }}>
+          <h3>Web Push</h3>
+          <p>Status: {channels.webPush}</p>
+        </div>
+        <div style={{ border: '1px solid #ccc', padding: 10 }}>
+          <h3>SMTP</h3>
+          <p>Status: {channels.smtp}</p>
+        </div>
+      </div>
+    </div>
+  );
+}
