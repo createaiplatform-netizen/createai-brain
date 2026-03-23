@@ -59,6 +59,7 @@ const STATUS_COLOR: Record<string, string> = {
 export default function VentonWayPage() {
   const { user } = useAuth();
   const [status,    setStatus]    = useState<VentonStatus | null>(null);
+  const [channels,  setChannels]  = useState<ChannelStatus | null>(null);
   const [logs,      setLogs]      = useState<LogEntry[]>([]);
   const [loading,   setLoading]   = useState(true);
   const [working,   setWorking]   = useState(false);
@@ -77,14 +78,19 @@ export default function VentonWayPage() {
 
   const fetchData = useCallback(async () => {
     try {
-      const [sRes, lRes] = await Promise.all([
-        fetch(API + "/status",  { credentials: "include" }),
-        fetch(API + "/logs?limit=50", { credentials: "include" }),
+      const [sRes, lRes, cRes] = await Promise.all([
+        fetch(API + "/status",       { credentials: "include" }),
+        fetch(API + "/logs?limit=50",{ credentials: "include" }),
+        fetch(API + "/channels",     { credentials: "include" }),
       ]);
       if (sRes.ok) setStatus(await sRes.json() as VentonStatus);
       if (lRes.ok) {
         const data = await lRes.json() as { logs: LogEntry[] };
         setLogs(data.logs ?? []);
+      }
+      if (cRes.ok) {
+        const data = await cRes.json() as { channels: ChannelStatus };
+        setChannels(data.channels ?? null);
       }
     } finally {
       setLoading(false);
@@ -189,6 +195,60 @@ export default function VentonWayPage() {
             </div>
           </div>
         )}
+
+        {/* Delivery Channels */}
+        <div className="bg-white border border-slate-100 rounded-xl p-5">
+          <h2 className="text-sm font-semibold text-slate-700 mb-4">Delivery Channels — Priority Order</h2>
+          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-5 gap-3">
+            <ChannelCard
+              priority={1}
+              label="Web Push"
+              sublabel="Browser notifications"
+              active={channels?.webPush.configured ?? false}
+              detail={channels?.webPush.configured
+                ? `${channels.webPush.subscriptions} subscription${channels.webPush.subscriptions !== 1 ? "s" : ""}`
+                : "No subscribers yet"}
+              always={false}
+            />
+            <ChannelCard
+              priority={2}
+              label="Custom SMTP"
+              sublabel="Your own mail server"
+              active={channels?.smtpCustom.connected ?? false}
+              detail={channels?.smtpCustom.configured
+                ? (channels.smtpCustom.connected ? channels.smtpCustom.host : `Unreachable: ${channels.smtpCustom.reason ?? "check config"}`)
+                : "Set SMTP_HOST to activate"}
+              always={false}
+            />
+            <ChannelCard
+              priority={3}
+              label="Shareable Link"
+              sublabel="Zero-dependency delivery"
+              active={true}
+              detail="Always generated — works on any device"
+              always={true}
+            />
+            <ChannelCard
+              priority={4}
+              label="Provider Email"
+              sublabel="Email delivery"
+              active={channels?.providerEmail.configured ?? false}
+              detail={channels?.providerEmail.configured ? "Configured" : "Add credentials to activate"}
+              always={false}
+            />
+            <ChannelCard
+              priority={5}
+              label="Provider SMS"
+              sublabel="SMS delivery"
+              active={channels?.providerSms.configured ?? false}
+              detail={channels?.providerSms.configured ? "Configured" : "Add credentials to activate"}
+              always={false}
+            />
+          </div>
+          <p className="text-xs text-slate-400 mt-3">
+            Each message is routed through channels 1→5 in order. The first successful channel wins. Shareable links are always generated regardless of delivery outcome.
+          </p>
+        </div>
 
         {/* Provider + Queue Stats Row */}
         <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
@@ -331,6 +391,31 @@ export default function VentonWayPage() {
 }
 
 // ─── Sub-components ───────────────────────────────────────────────────────────
+
+function ChannelCard({
+  priority, label, sublabel, active, detail, always,
+}: {
+  priority: number; label: string; sublabel: string;
+  active: boolean; detail: string; always: boolean;
+}) {
+  return (
+    <div className={`rounded-xl border p-3 flex flex-col gap-1.5 ${always ? "border-[#9CAF88] bg-[#f0f4ee]" : "border-slate-100 bg-white"}`}>
+      <div className="flex items-center justify-between">
+        <span className="w-5 h-5 rounded-full bg-slate-100 text-slate-500 text-[10px] font-bold flex items-center justify-center flex-shrink-0">
+          {priority}
+        </span>
+        <span className={`text-[10px] font-semibold px-1.5 py-0.5 rounded-full ${
+          always ? "bg-[#9CAF88] text-white" : active ? "bg-[#edf4ea] text-[#7a9068]" : "bg-slate-100 text-slate-400"
+        }`}>
+          {always ? "ALWAYS ON" : active ? "ACTIVE" : "INACTIVE"}
+        </span>
+      </div>
+      <p className="text-xs font-semibold text-slate-800 leading-none">{label}</p>
+      <p className="text-[10px] text-slate-400">{sublabel}</p>
+      <p className="text-[10px] text-slate-500 mt-auto pt-1 border-t border-slate-100">{detail}</p>
+    </div>
+  );
+}
 
 function ProviderCard({ label, status }: { label: string; status: string }) {
   const configured = status === "configured";
