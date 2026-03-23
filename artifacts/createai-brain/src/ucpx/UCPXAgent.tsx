@@ -13930,6 +13930,16 @@ export function UCPXAgent() {
     setActiveResult(mod);
   };
 
+  const [projects, setProjects] = useState<Array<{ id: number | string; name: string; status?: string; description?: string }>>([]);
+  useEffect(() => {
+    fetch("/api/projects?limit=5", { credentials: "include" })
+      .then(r => r.ok ? r.json() : null)
+      .then((data: { projects?: Array<{ id: number | string; name: string; status?: string; description?: string }> } | null) => {
+        if (data?.projects?.length) setProjects(data.projects.slice(0, 5));
+      })
+      .catch(() => {});
+  }, []);
+
   const TAB_ITEMS: { id: UCPXTab; label: string; icon: string }[] = [
     { id: "agents",  label: "Agents",  icon: "🤖" },
     { id: "engines", label: "Engines", icon: "⚙️" },
@@ -14118,6 +14128,22 @@ export function UCPXAgent() {
                       🧠 Mini-Brain
                     </button>
                   </div>
+
+                  {agentMode === "agents" && projects.length > 0 && (
+                    <div className="rounded-xl border border-border/40 overflow-hidden">
+                      <div className="flex items-center justify-between px-3 py-2 bg-muted/40">
+                        <span className="text-[10px] font-bold text-muted-foreground uppercase tracking-wider">📋 Your Projects</span>
+                        <span className="text-[9px] text-muted-foreground">{projects.length} active</span>
+                      </div>
+                      {projects.map(p => (
+                        <div key={p.id} className="flex items-center gap-2.5 px-3 py-2 border-t border-border/20 hover:bg-muted/30 transition-colors">
+                          <span className="w-1.5 h-1.5 rounded-full flex-shrink-0" style={{ background: p.status === "active" ? "#7a9068" : p.status === "completed" ? "#6366f1" : "#94a3b8" }} />
+                          <span className="text-[11px] font-semibold text-foreground flex-1 truncate">{p.name}</span>
+                          {p.status && <span className="text-[9px] font-bold px-1.5 py-0.5 rounded-full bg-muted text-muted-foreground capitalize flex-shrink-0">{p.status}</span>}
+                        </div>
+                      ))}
+                    </div>
+                  )}
 
                   {agentMode === "agents" && agents.map(a => (
                     <AgentCard key={a.id} agent={a} onActivate={handleActivateAgent} />
