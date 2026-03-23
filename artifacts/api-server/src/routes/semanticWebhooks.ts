@@ -22,6 +22,7 @@ import { addCustomer } from "../semantic/customerStore.js";
 import { getFromRegistry, getRegistry } from "../semantic/registry.js";
 import { sendEmailNotification } from "../utils/notifications.js";
 import { scheduleFollowups } from "../semantic/emailScheduler.js";
+import { queueMessage } from "../services/ventonWay.js";
 import { getPublicBaseUrl } from "../utils/publicUrl.js";
 import { insertCustomer, markWebhookProcessed } from "../lib/db.js";
 
@@ -210,6 +211,89 @@ router.post("/checkout-complete", async (req: Request, res: Response) => {
             welcomeHtml,
           );
           console.log(`[SemanticWebhook] customer.created — welcome email sent → ${custEmail}`);
+
+          // ── Email 2: Getting started — queued for 2 days later ──────────
+          const day2 = new Date(Date.now() + 2 * 24 * 60 * 60 * 1000);
+          const email2Html = `<!DOCTYPE html><html><head><meta charset="UTF-8"/><style>
+            body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;background:#f8fafc;margin:0;padding:0}
+            .wrap{max-width:520px;margin:32px auto;background:#fff;border-radius:16px;overflow:hidden;box-shadow:0 4px 24px rgba(0,0,0,0.08)}
+            .header{background:linear-gradient(135deg,#7a9068 0%,#5a6d50 100%);padding:28px 32px}
+            .header h1{color:#fff;font-size:20px;font-weight:800;margin:0;letter-spacing:-0.02em}
+            .header p{color:rgba(255,255,255,0.80);font-size:13px;margin:6px 0 0}
+            .body{padding:24px 32px}
+            .body p{color:#374151;font-size:14px;line-height:1.7;margin:0 0 12px}
+            .step{display:flex;align-items:flex-start;gap:12px;margin-bottom:12px;padding:12px 14px;background:#f0f4ee;border-radius:10px}
+            .step-num{width:24px;height:24px;background:#7a9068;color:#fff;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:12px;font-weight:800;flex-shrink:0}
+            .step-text{font-size:13px;color:#374151;line-height:1.5}
+            .step-label{font-weight:700;color:#5a6d50;font-size:13px}
+            .cta{display:block;background:linear-gradient(135deg,#7a9068 0%,#5a6d50 100%);color:#fff;text-align:center;padding:13px 24px;border-radius:12px;font-weight:700;font-size:14px;text-decoration:none;margin:18px 0 0}
+            .footer{padding:14px 32px;background:#f8fafc;font-size:11px;color:#94a3b8;text-align:center;border-top:1px solid #f1f5f9}
+          </style></head><body>
+            <div class="wrap">
+              <div class="header">
+                <h1>🚀 Your First Steps on CreateAI Brain</h1>
+                <p>Getting the most out of 408 AI apps starts here</p>
+              </div>
+              <div class="body">
+                <p>Hi ${firstName}, you have access to 408 AI-powered tools. Here's the fastest way to get results:</p>
+                <div class="step"><div class="step-num">1</div><div class="step-text"><div class="step-label">Press Cmd+K (or Ctrl+K)</div>Open the quick launcher and search for any tool by name or what you want to do.</div></div>
+                <div class="step"><div class="step-num">2</div><div class="step-text"><div class="step-label">Try the Output Library</div>Every AI response saves automatically. Go to /library to find, search, and export anything you've generated.</div></div>
+                <div class="step"><div class="step-num">3</div><div class="step-text"><div class="step-label">Open the Brain Hub</div>Your central dashboard shows usage, recent outputs, and personalized recommendations.</div></div>
+                <a href="https://createai.digital" class="cta">Open CreateAI Brain →</a>
+              </div>
+              <div class="footer">CreateAI Brain by Lakeside Trinity LLC · createai.digital</div>
+            </div>
+          </body></html>`;
+          await queueMessage({
+            type: "email",
+            recipient: custEmail,
+            subject: `Your first steps on CreateAI Brain, ${firstName}`,
+            body: email2Html,
+            scheduledAt: day2,
+            metadata: { sequence: "welcome", step: 2, trigger: "customer.created" },
+          });
+
+          // ── Email 3: Tips & power moves — queued for 5 days later ───────
+          const day5 = new Date(Date.now() + 5 * 24 * 60 * 60 * 1000);
+          const email3Html = `<!DOCTYPE html><html><head><meta charset="UTF-8"/><style>
+            body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;background:#f8fafc;margin:0;padding:0}
+            .wrap{max-width:520px;margin:32px auto;background:#fff;border-radius:16px;overflow:hidden;box-shadow:0 4px 24px rgba(0,0,0,0.08)}
+            .header{background:linear-gradient(135deg,#7a9068 0%,#5a6d50 100%);padding:28px 32px}
+            .header h1{color:#fff;font-size:20px;font-weight:800;margin:0;letter-spacing:-0.02em}
+            .header p{color:rgba(255,255,255,0.80);font-size:13px;margin:6px 0 0}
+            .body{padding:24px 32px}
+            .body p{color:#374151;font-size:14px;line-height:1.7;margin:0 0 12px}
+            .tip{margin-bottom:12px;padding:12px 14px;background:#f0f4ee;border-radius:10px;border-left:3px solid #7a9068}
+            .tip-label{font-weight:700;color:#5a6d50;font-size:13px;margin-bottom:4px}
+            .tip-text{font-size:12px;color:#374151;line-height:1.5;margin:0}
+            .cta{display:block;background:linear-gradient(135deg,#7a9068 0%,#5a6d50 100%);color:#fff;text-align:center;padding:13px 24px;border-radius:12px;font-weight:700;font-size:14px;text-decoration:none;margin:18px 0 0}
+            .footer{padding:14px 32px;background:#f8fafc;font-size:11px;color:#94a3b8;text-align:center;border-top:1px solid #f1f5f9}
+          </style></head><body>
+            <div class="wrap">
+              <div class="header">
+                <h1>💡 Your Week-One Power Moves</h1>
+                <p>Unlock the full potential of CreateAI Brain</p>
+              </div>
+              <div class="body">
+                <p>Hi ${firstName}, you've had a full week to explore. Here are the most powerful workflows our members use daily:</p>
+                <div class="tip"><div class="tip-label">⚡ Chain Tools Together</div><p class="tip-text">Run a market research tool, pipe the output into a pitch deck tool, then export as PDF — all in under 5 minutes.</p></div>
+                <div class="tip"><div class="tip-label">📁 Build a Personal Output Library</div><p class="tip-text">Everything you generate is saved at /library. Pin your best outputs and export bundles as PDFs to share with clients.</p></div>
+                <div class="tip"><div class="tip-label">🏥 Cross-Domain Intelligence</div><p class="tip-text">Legal tools feed into HR tools. Health insights connect to productivity apps. Your platform sees the whole picture — use it.</p></div>
+                <div class="tip"><div class="tip-label">🤖 UCPXAgent Override Mode</div><p class="tip-text">Open the UCPXAgent panel and activate a meta-agent to analyze your entire workspace and recommend what to do next.</p></div>
+                <a href="https://createai.digital" class="cta">Open CreateAI Brain →</a>
+              </div>
+              <div class="footer">CreateAI Brain by Lakeside Trinity LLC · createai.digital</div>
+            </div>
+          </body></html>`;
+          await queueMessage({
+            type: "email",
+            recipient: custEmail,
+            subject: `Your week-one power moves on CreateAI Brain 💡`,
+            body: email3Html,
+            scheduledAt: day5,
+            metadata: { sequence: "welcome", step: 3, trigger: "customer.created" },
+          });
+          console.log(`[SemanticWebhook] customer.created — welcome sequence emails 2+3 queued via VentonWay → ${custEmail}`);
         } catch (welErr) {
           console.warn("[SemanticWebhook] customer.created welcome email failed (non-fatal):", String(welErr));
         }

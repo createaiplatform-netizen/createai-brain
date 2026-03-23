@@ -43,6 +43,7 @@ import AboveTranscendPage from "@/pages/AboveTranscendPage";
 import CreateAIDigitalPage from "@/pages/CreateAIDigitalPage";
 import RealMarketPage          from "@/pages/RealMarketPage";
 import OutputLibraryPage       from "@/pages/OutputLibraryPage";
+import VentonWayPage           from "@/pages/VentonWayPage";
 import MessagePage             from "@/pages/MessagePage";
 import FamilySharePage         from "@/pages/FamilySharePage";
 import UltimateTranscendDashboard from "@/pages/UltimateTranscendDashboard";
@@ -135,6 +136,7 @@ function Router() {
       <Route path="/transcend-dashboard" component={UltimateTranscendDashboard} />
       <Route path="/command-center" component={CommandCenterPage} />
       <Route path="/analytics" component={AnalyticsPage} />
+      <Route path="/venton-way" component={VentonWayPage} />
       <Route path="/team" component={TeamPage} />
       <Route path="/settings" component={SettingsPage} />
       <Route path="/billing" component={BillingPage} />

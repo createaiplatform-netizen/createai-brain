@@ -4,6 +4,7 @@ import { expandPlatform }        from "./services/expansionEngine";
 import { finalizeConfiguration } from "./services/systemConfigurator";
 import { brainEngine }           from "./engine/BrainEnforcementEngine.js";
 import { notifyFamily }          from "./utils/notifications.js";
+import { initVentonWay }        from "./services/ventonWay.js";
 import { initEmailScheduler }    from "./semantic/emailScheduler.js";
 import {
   initFamilyAgents,
@@ -46,6 +47,9 @@ app.listen(port, () => {
   console.log(`Server listening on port ${port}`);
 
   void (async () => {
+    try { await initVentonWay(); }
+    catch (err) { console.error("[Startup] initVentonWay failed — continuing:", (err as Error).message); }
+
     try { await expandPlatform(); }
     catch (err) { console.error("[Startup] expandPlatform failed — continuing:", (err as Error).message); }
 
