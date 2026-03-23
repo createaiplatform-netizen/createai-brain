@@ -145,7 +145,57 @@ router.post("/checkout-complete", async (req: Request, res: Response) => {
 
     const eventType = body.type;
 
-    // Only process checkout completion events
+    // ── Idempotency check (runs for ALL event types) ────────────────────────
+    const eventId = (req.body as { id?: string }).id ?? crypto.randomUUID();
+    const isNew = await markWebhookProcessed(eventId, eventType ?? "unknown", body).catch(() => true);
+    if (!isNew) {
+      console.log("[SemanticWebhook] Duplicate event ignored:", eventId, eventType);
+      res.json({ ok: true, duplicate: true });
+      return;
+    }
+
+    // ── customer.created ────────────────────────────────────────────────────
+    if (eventType === "customer.created") {
+      const obj = body.data?.object as Record<string, unknown> | undefined;
+      const custEmail = (obj?.["email"] as string | undefined) ?? "";
+      const custName  = (obj?.["name"]  as string | undefined) ?? "";
+      if (custEmail) {
+        try {
+          const { db, usersTable } = await import("@workspace/db");
+          const { eq } = await import("drizzle-orm");
+          const existing = await db.select({ id: usersTable.id }).from(usersTable).where(eq(usersTable.email, custEmail)).limit(1);
+          if (existing.length === 0) {
+            console.log(`[SemanticWebhook] customer.created — no platform account for ${custEmail}, skipping role update`);
+          } else {
+            console.log(`[SemanticWebhook] customer.created — platform account exists for ${custEmail}`);
+          }
+        } catch (e) { console.warn("[SemanticWebhook] customer.created DB check failed (non-fatal):", String(e)); }
+        console.log(`[SemanticWebhook] customer.created processed — email:${custEmail} name:${custName}`);
+      }
+      res.json({ ok: true, event: "customer.created", email: custEmail });
+      return;
+    }
+
+    // ── invoice.paid ────────────────────────────────────────────────────────
+    if (eventType === "invoice.paid") {
+      const obj = body.data?.object as Record<string, unknown> | undefined;
+      const invEmail  = (obj?.["customer_email"] as string | undefined) ?? "";
+      const invAmount = (obj?.["amount_paid"]    as number | undefined) ?? 0;
+      const invSubId  = (obj?.["subscription"]   as string | undefined) ?? "";
+      if (invEmail && invAmount > 0) {
+        const points = Math.floor(invAmount / 100);
+        try {
+          const { awardLoyaltyPoints } = await import("../lib/db.js");
+          await awardLoyaltyPoints(invEmail, points, "subscription_renewal", eventId, "Invoice paid: " + invSubId);
+          console.log(`[SemanticWebhook] invoice.paid — ${points} loyalty points awarded to ${invEmail}`);
+        } catch (e) { console.warn("[SemanticWebhook] invoice.paid loyalty award failed (non-fatal):", String(e)); }
+      }
+      console.log(`[SemanticWebhook] invoice.paid processed — email:${invEmail} amount:${invAmount} sub:${invSubId}`);
+      res.json({ ok: true, event: "invoice.paid", email: invEmail, amountPaid: invAmount });
+      return;
+    }
+
+    // ── Unrecognised event types ────────────────────────────────────────────
     if (eventType !== "checkout.session.completed") {
       res.json({ ok: true, ignored: true, type: eventType });
       return;
@@ -178,16 +228,6 @@ router.post("/checkout-complete", async (req: Request, res: Response) => {
     const productPageUrl = productId
       ? `${STORE_URL}/api/semantic/store/${productId}?success=1`
       : `${STORE_URL}/api/semantic/store`;
-
-    // ── Idempotency check via DB ────────────────────────────────────────────
-    const eventId = (req.body as { id?: string }).id ?? sessionId;
-    const eventType2 = eventType ?? "checkout.session.completed";
-    const isNew = await markWebhookProcessed(eventId, eventType2, body).catch(() => true);
-    if (!isNew) {
-      console.log("[SemanticWebhook] Duplicate event — already processed:", eventId);
-      res.json({ ok: true, duplicate: true });
-      return;
-    }
 
     // ── Capture customer (in-memory + persistent DB) ───────────────────────
     const customerId = crypto.randomUUID();
