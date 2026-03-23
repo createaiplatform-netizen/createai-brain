@@ -34,6 +34,7 @@ import FamilyUniversePage from "@/pages/universe/FamilyUniversePage";
 import KidsUniversePage from "@/pages/universe/KidsUniversePage";
 import CustomerUniversePage from "@/pages/universe/CustomerUniversePage";
 import { useUserRole } from "@/hooks/useUserRole";
+import ProjectsPage from "@/pages/ProjectsPage";
 
 import MetricsPage from "@/pages/MetricsPage";
 import AboveTranscendPage from "@/pages/AboveTranscendPage";
@@ -119,6 +120,7 @@ function Router() {
       <Route path="/semantic-store" component={SemanticStorePage} />
       <Route path="/platform-score" component={PlatformScorePage} />
       <Route path="/project/:projectId" component={ProjectPage} />
+      <Route path="/projects" component={ProjectsPage} />
       {/* Legacy path kept for backwards compat */}
       <Route path="/family-hub" component={FamilyHubPage} />
       <Route path="/standalone/creation/:creationId" component={CreationPage} />

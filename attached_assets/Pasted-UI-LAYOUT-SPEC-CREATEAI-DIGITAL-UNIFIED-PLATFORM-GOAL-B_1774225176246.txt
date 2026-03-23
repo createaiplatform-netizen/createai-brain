@@ -1,0 +1,159 @@
+UI LAYOUT SPEC — CREATEAI DIGITAL (UNIFIED PLATFORM)
+
+GOAL:
+Build a clean, modern layout for a single app called "CreateAI Digital" with:
+1) Public storefront
+2) Logged-in dashboard
+3) Family portal (restricted)
+4) Project modules inside one app
+
+-----------------------------------
+GLOBAL LAYOUT STRUCTURE
+-----------------------------------
+
+Use a consistent app shell:
+
+- Top Navigation Bar
+- Main Content Area
+- Optional Sidebar (for logged-in users)
+
+-----------------------------------
+TOP NAVIGATION (ALWAYS VISIBLE)
+-----------------------------------
+
+LEFT:
+- Logo: "CreateAI Digital"
+
+CENTER:
+- (optional) Search bar
+
+RIGHT:
+- If NOT logged in:
+  - "Login"
+  - "Sign Up"
+
+- If logged in:
+  - "Dashboard"
+  - "Projects"
+  - "Family Portal" (only if role = family/admin)
+  - "Account"
+  - "Logout"
+
+-----------------------------------
+PUBLIC HOMEPAGE ("/")
+-----------------------------------
+
+This is the STOREFRONT.
+
+Sections (top to bottom):
+
+1. HERO SECTION
+   - Title: "CreateAI Digital"
+   - Subtitle: "All-in-one AI platform for tools, products, and automation"
+   - CTA Button: "Get Started" or "Unlock Access"
+
+2. PRODUCTS / FEATURES GRID
+   - Cards showing:
+     - AI Tools
+     - Digital Products
+     - Systems (StaffingOS, HealthOS, etc.)
+
+3. PRICING SECTION
+   - Simple pricing (e.g. $12 access)
+   - Button: "Buy Now"
+
+4. FOOTER
+   - Links
+   - Contact
+
+-----------------------------------
+DASHBOARD ("/dashboard")
+-----------------------------------
+
+For customers after login.
+
+Layout:
+
+- Welcome message
+- Cards:
+  - "My Products"
+  - "My Tools"
+  - "Account"
+
+Simple grid layout.
+
+-----------------------------------
+PROJECTS PAGE ("/projects")
+-----------------------------------
+
+This is where ALL your systems live.
+
+Display as a grid of cards:
+
+Each card:
+- Name (StaffingOS, HealthOS, etc.)
+- Short description
+- Button: "Open"
+
+Click → opens module page
+
+-----------------------------------
+FAMILY PORTAL ("/family")
+-----------------------------------
+
+PRIVATE — only for family/admin.
+
+Layout:
+
+HEADER:
+- "Family Portal"
+
+SECTIONS:
+
+1. MEMBERS AREA
+   - List of family members
+
+2. QUICK ACCESS
+   - Buttons:
+     - Projects
+     - Chat
+     - Tools
+
+3. INTERNAL PANEL
+   - Placeholder for future tools
+
+Keep simple and clean.
+
+-----------------------------------
+VISUAL STYLE
+-----------------------------------
+
+- Clean, modern UI
+- Card-based layout
+- Rounded corners
+- Light background
+- Purple/blue accent (match current theme)
+
+-----------------------------------
+IMPORTANT RULES
+-----------------------------------
+
+- DO NOT create separate apps
+- EVERYTHING must exist inside ONE app
+- Use conditional rendering for:
+  - Logged in vs not
+  - Family vs customer
+
+-----------------------------------
+MINIMUM DELIVERABLE
+-----------------------------------
+
+- Working homepage (storefront)
+- Working dashboard
+- Working projects page
+- Working family portal page
+- Navigation working correctly
+
+-----------------------------------
+END SPEC
+-----------------------------------
