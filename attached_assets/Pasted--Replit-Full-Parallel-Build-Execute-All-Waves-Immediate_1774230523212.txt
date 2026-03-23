@@ -1,0 +1,57 @@
+/* Replit Full Parallel Build — Execute All Waves Immediately
+   ----------------------------------------------------------
+
+   NEW FILES TO CREATE:
+     1. src/components/CustomerOnboardingWizard.tsx   // 4-step modal, sage green, customer-only, localStorage + server completion
+     2. src/components/QuickLauncher.tsx             // Cmd+K global launcher, recent apps, keyboard nav
+     3. src/pages/OutputLibraryPage.tsx              // Saved AI outputs library, localStorage primary, API fallback, search/filter/export
+     4. src/hooks/usePDFExport.ts                     // PDF export utility using print-ready template
+     5. src/components/AppUsageTracker.ts            // Client-side fire-and-forget usage tracker
+
+   FILES TO MODIFY:
+     6. src/os/osLayout.tsx                           // Add CustomerOnboardingWizard + QuickLauncher, keyboard shortcut
+     7. src/App.tsx                                  // Add /library route
+     8. src/os/OSContext.tsx                          // Hook usage tracking in openApp
+     9. src/os/Dashboard.tsx                          // Add most-used apps section + library quick access
+    10. api-server/src/routes/semanticWebhooks.ts     // Add welcome email sequence on customer creation
+    11. api-server/src/routes/index.ts               // Register any new API routes
+
+   IMPLEMENTATION NOTES:
+     - CustomerOnboardingWizard: check role + localStorage, guide through 4 steps, record completion
+     - QuickLauncher: listens for Cmd+K globally, shows modal with all apps, supports keyboard nav
+     - OutputLibraryPage: pull from OutputVaultService, fallback to /api/documents, supports filter, search, pin, copy, download
+     - usePDFExport: browser print API, styled template
+     - AppUsageTracker: POST /api/activity fire-and-forget in openApp
+     - Welcome email: trigger in semanticWebhooks after customer role assignment, immediate + day-2 followup
+     - VaultEntry interface + service functions checked before implementing OutputLibraryPage
+     - Build all waves simultaneously, parallel execution
+
+   WAVES:
+     Wave 1 — Core Components
+       - CustomerOnboardingWizard.tsx
+       - QuickLauncher.tsx
+       - OutputLibraryPage.tsx
+       - usePDFExport.ts
+       - AppUsageTracker.ts
+
+     Wave 2 — OS / Routes Integration
+       - osLayout.tsx modifications
+       - App.tsx route additions
+       - OSContext.tsx usage tracking
+       - Dashboard.tsx updates
+       - semanticWebhooks.ts welcome email
+       - routes/index.ts route registration
+
+     Wave 3 — Polish & UX
+       - Styling and sage green theme
+       - Keyboard navigation improvements
+       - Search, filter, export, PDF integration
+       - Recommendations & app cards
+       - Onboarding flow persistence local + server
+
+   EXECUTION:
+     - Build all waves in parallel
+     - Audit DB, activity endpoints, and hooks
+     - Maximize throughput, minimal tokens
+     - Components + hooks + pages + routes ready for immediate integration
+*/
