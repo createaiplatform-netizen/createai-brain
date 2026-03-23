@@ -108,6 +108,7 @@ import campaignManagerRouter    from "./campaignManager.js";
 import referralRouter           from "./referral.js";
 import leadsRouter              from "./leads.js";
 import growthAnalyticsRouter    from "./growthAnalytics.js";
+import cohortAnalyticsRouter    from "./cohortAnalytics.js";
 import platformIdentityRouter   from "./platformIdentity.js";
 import selfHostRouter           from "./selfHost.js";
 import platformReportRouter     from "./platformReport.js";

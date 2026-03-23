@@ -1,0 +1,109 @@
+// artifacts/api-server/src/routes/cohortAnalytics.ts
+import { Router } from "express";
+import { db, usersTable, activityLog } from "../db";
+import { sql } from "drizzle-orm";
+
+const router = Router();
+
+// Simple in-memory cache for 5 minutes
+const cache: Record<string, { ts: number; data: any }> = {};
+const CACHE_TTL = 5 * 60 * 1000;
+
+function getCached(key: string) {
+  const entry = cache[key];
+  if (entry && Date.now() - entry.ts < CACHE_TTL) return entry.data;
+  return null;
+}
+
+function setCache(key: string, data: any) {
+  cache[key] = { ts: Date.now(), data };
+}
+
+// Middleware-like auth check
+async function authCheck(req: any, res: any, next: any) {
+  const role = req.user?.role;
+  if (!["founder", "admin"].includes(role)) return res.status(403).send("Forbidden");
+  next();
+}
+
+router.use(authCheck);
+
+// DAU/MAU by role
+router.get("/dau-mau", async (req, res) => {
+  const cached = getCached("dau-mau");
+  if (cached) return res.json(cached);
+
+  const dauRows = await db.execute(
+    sql`SELECT u.role, COUNT(DISTINCT a.userId) AS dau
+        FROM activityLog a
+        JOIN usersTable u ON a.userId = u.id
+        WHERE a.createdAt >= NOW() - INTERVAL '1 day'
+        GROUP BY u.role`
+  );
+
+  const mauRows = await db.execute(
+    sql`SELECT u.role, COUNT(DISTINCT a.userId) AS mau
+        FROM activityLog a
+        JOIN usersTable u ON a.userId = u.id
+        WHERE a.createdAt >= NOW() - INTERVAL '30 day'
+        GROUP BY u.role`
+  );
+
+  const result = { dau: dauRows, mau: mauRows };
+  setCache("dau-mau", result);
+  res.json(result);
+});
+
+// Churn risk scoring
+router.get("/churn-risk", async (req, res) => {
+  const cached = getCached("churn-risk");
+  if (cached) return res.json(cached);
+
+  // Rule-based churn: no activity in 30 days OR subscription cancelled
+  const rows = await db.execute(
+    sql`SELECT u.id, u.email, u.role,
+        CASE
+          WHEN MAX(a.createdAt) < NOW() - INTERVAL '30 day' THEN 'high'
+          ELSE 'low'
+        END AS risk
+        FROM usersTable u
+        LEFT JOIN activityLog a ON a.userId = u.id
+        GROUP BY u.id`
+  );
+
+  setCache("churn-risk", rows);
+  res.json(rows);
+});
+
+// Revenue MRR/LTV
+router.get("/revenue", async (req, res) => {
+  const cached = getCached("revenue");
+  if (cached) return res.json(cached);
+
+  const rows = await db.execute(
+    sql`SELECT u.id, u.email, u.role,
+        SUM(s.amount / 100.0) AS ltv,
+        AVG(s.amount / 100.0) AS mrr
+        FROM usersTable u
+        LEFT JOIN platform_subscriptions s ON s.customerId = u.id
+        GROUP BY u.id`
+  );
+
+  setCache("revenue", rows);
+  res.json(rows);
+});
+
+// Priority alerts scaffold
+router.post("/alerts", async (req, res) => {
+  const { userId, type } = req.body;
+  // Placeholder: trigger SMS/email alerts
+  res.json({ ok: true, userId, type });
+});
+
+// iOS push scaffold
+router.post("/ios-push", async (req, res) => {
+  // Placeholder for APNs cert & token-based push
+  res.json({ ok: true });
+});
+
+export const cohortAnalyticsRouter = router;
