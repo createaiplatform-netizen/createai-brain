@@ -1,0 +1,48 @@
+VentonWay Messaging Engine — Build Plan
+
+1. Service Layer — artifacts/api-server/src/services/ventonWay.ts
+   • initVentonWay() → creates DB table platform_venton_way_queue if missing
+   • queueMessage(type, recipient, subject, body, metadata?) → adds item to queue
+   • processQueue() → processes pending messages, updates logs
+   • getStatus() → system & provider status
+   • getLogs(limit, offset) → returns recent delivery logs
+   • retryMessage(id) → retries a failed queue item
+
+2. API Routes — artifacts/api-server/src/routes/ventonWay.ts
+   • GET /api/venton-way/status → system & provider status
+   • GET /api/venton-way/logs → delivery logs
+   • POST /api/venton-way/retry/:id → retry a specific failed message
+   • POST /api/venton-way/send-test → trigger a test message
+   • POST /api/venton-way/trigger → manually process pending queue
+
+3. Admin UI Page — artifacts/createai-brain/src/pages/VentonWayPage.tsx
+   • Status cards → system and provider health
+   • Queue stats → pending, sent, failed counts
+   • Delivery log table → timestamp, masked recipient, message type, result
+   • Retry controls → manual retry per message
+   • Manual trigger button → force queue processing
+   • Activation section → shows if setup needed, hides Resend/Twilio branding
+
+4. Database Table — platform_venton_way_queue
+   • id: serial PK
+   • type: varchar
+   • recipient: varchar (masked for UI)
+   • subject: varchar
+   • body: text
+   • metadata: jsonb
+   • status: enum(pending, sent, failed)
+   • result: text
+   • created_at: timestamp
+   • updated_at: timestamp
+
+5. Integration / Wiring
+   • Add VentonWay link in admin section via App.tsx / osLayout
+   • Background processing → run processQueue() periodically
+   • All external providers remain fully hidden
+   • Activation & delivery logs reflect readiness; messages only send once Resend/Twilio setup is complete
+
+Notes:
+- All provider references are internal/hidden; UI shows only "VentonWay Messaging Engine."
+- One-time external setup (Resend domain + Twilio upgrade) still required legally and technically.
+- Fully compatible with existing notifications.ts & shareableMessages.ts.
+- Enables queue, retry, and logging functionality under the VentonWay brand for a self-contained admin experience.
