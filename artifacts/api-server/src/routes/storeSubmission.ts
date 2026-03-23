@@ -164,12 +164,12 @@ router.post("/submit-chrome", async (req: Request, res: Response) => {
   const extensionId = process.env.CHROME_WS_EXTENSION_ID;
 
   if (!clientId || !clientSecret || !refreshToken || !extensionId) {
-    return res.status(400).json({
+    res.status(400).json({
       success: false,
       error: "Chrome Web Store credentials not configured",
       required: ["CHROME_WS_CLIENT_ID", "CHROME_WS_CLIENT_SECRET", "CHROME_WS_REFRESH_TOKEN", "CHROME_WS_EXTENSION_ID"],
       instructions: "Add these as Replit Secrets, then call this endpoint again",
-    });
+    }); return;
   }
 
   try {
@@ -186,7 +186,7 @@ router.post("/submit-chrome", async (req: Request, res: Response) => {
     });
     const { access_token, error } = await tokenRes.json() as any;
     if (!access_token) {
-      return res.status(401).json({ success: false, error: "OAuth failed", details: error });
+      res.status(401).json({ success: false, error: "OAuth failed", details: error }); return;
     }
 
     // Build the extension zip first
@@ -196,7 +196,7 @@ router.post("/submit-chrome", async (req: Request, res: Response) => {
 
     const zipPath = join(BASE_DIR, "createai-brain-chrome-extension.zip");
     if (!existsSync(zipPath)) {
-      return res.status(500).json({ success: false, error: "Extension zip not found after build" });
+      res.status(500).json({ success: false, error: "Extension zip not found after build" }); return;
     }
 
     const { readFileSync } = await import("fs");
@@ -217,7 +217,7 @@ router.post("/submit-chrome", async (req: Request, res: Response) => {
     const uploadData = await uploadRes.json() as any;
 
     if (uploadData.uploadState === "FAILURE") {
-      return res.status(400).json({ success: false, error: "Upload failed", details: uploadData });
+      res.status(400).json({ success: false, error: "Upload failed", details: uploadData }); return;
     }
 
     // Publish to all users
@@ -304,11 +304,11 @@ router.post("/trigger-github-action", async (req: Request, res: Response) => {
   const repoPath = repo || process.env.GITHUB_REPO;
 
   if (!token || !repoPath) {
-    return res.status(400).json({
+    res.status(400).json({
       success: false,
       error: "GitHub token and repo not configured",
       required: { githubToken: "Your GitHub personal access token", repo: "owner/repo-name" },
-    });
+    }); return;
   }
 
   try {

@@ -299,15 +299,16 @@ function resolveQuery(q: string, nodes: SpaceNode[]): ResolverResult {
     for (const c of node.concepts) if (c.startsWith(term) || term.startsWith(c)) score(node, 55, "partial:concept");
   }
 
-  if (!best || best.confidence < 12) return noMatch;
+  const finalbest = best as { node: SpaceNode; confidence: number; matchType: string } | null;
+  if (!finalbest || finalbest.confidence < 12) return noMatch;
 
-  const node = best.node;
+  const node = finalbest.node;
   const url  = node.external ? node.urlPath : `${getPublicBaseUrl()}${node.urlPath}`;
   return {
     matched:     true,
     node,
-    confidence:  best.confidence,
-    matchType:   best.matchType,
+    confidence:  finalbest.confidence,
+    matchType:   finalbest.matchType,
     inputType:   type,
     query:       q,
     resolvedUrl: url,
@@ -676,7 +677,7 @@ function detectInputType(q) {
   return 'bare';
 }
 
-function resolveQuery(q, nodes) {
+function resolveQuery(q: string, nodes: SpaceNode[]) {
   const raw   = q.toLowerCase();
   const type  = detectInputType(raw);
   const term  = raw.replace(/^[@#?~]/, '').trim();
@@ -684,9 +685,9 @@ function resolveQuery(q, nodes) {
 
   if (!term) return { matched: false };
 
-  let best = null;
+  let best: { node: SpaceNode; confidence: number; matchType: string } | null = null;
 
-  function score(node, conf, mt) {
+  function score(node: SpaceNode, conf: number, mt: string) {
     if (!best || conf > best.confidence) best = { node, confidence: conf, matchType: mt };
   }
 

@@ -276,7 +276,7 @@ router.post("/launch/:networkId", async (req: Request, res: Response) => {
   const result = await launchNetwork(networkId);
   logDeployment(networkId, result.ok ? "launched" : "launch_error", result.ok ? `${result.launched} campaigns created` : (result.error ?? "unknown error"));
 
-  res.json({ ok: result.ok, ...result });
+  res.json({ ...result });
 });
 
 // ─── POST /api/ads/launch/all  (launch all connected networks at once) ─────────

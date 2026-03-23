@@ -111,6 +111,7 @@ import opsRouter            from "./routes/ops.js";
 import portalsExtendedRouter from "./routes/portalsExtended.js";
 import protocolGatewayRouter    from "./routes/protocolGateway.js";
 import adNetworkCatalogsRouter  from "./routes/adNetworkCatalogs.js";
+import appUsageRouter            from "./routes/appUsage.js";
 
 export { chatLimiter, heavyLimiter, editLimiter } from "./middlewares/rateLimiters";
 
@@ -546,6 +547,7 @@ app.use("/",          protocolGatewayRouter);
 app.use("/",          semanticStoreRouter);
 app.use("/",          platformHubRouter);
 app.use("/api/ads",          adNetworkCatalogsRouter);
+app.use("/api/app-usage",   appUsageRouter);
 
 // ── API (private — Replit auth + scope) ──────────────────────────────────────
 app.use(authMiddleware);

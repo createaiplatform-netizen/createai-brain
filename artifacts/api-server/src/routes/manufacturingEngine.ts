@@ -103,7 +103,7 @@ router.get("/dashboard", async (_req: Request, res: Response) => {
     sql`SELECT COUNT(*)::int AS n FROM mfg_machines WHERE status='active'`,
     sql`SELECT COUNT(*)::int AS n FROM mfg_quality_checks WHERE result='fail' AND checked_at >= NOW() - INTERVAL '30 days'`,
   ]);
-  const workOrders = wo.reduce((a: Record<string,number>, r) => { a[String(r.status)] = Number(r.n); return a; }, {});
+  const workOrders = wo.reduce((a: Record<string,number>, r: Record<string, unknown>) => { a[String(r["status"])] = Number(r["n"]); return a; }, {});
   res.json({ ok: true, engine: "Manufacturing Operations Engine v1",
     activeProducts: prod[0]?.n, workOrders, qualityChecksWeek: qc[0]?.n,
     activeMachines: mach[0]?.n, failuresLast30d: fail[0]?.n });

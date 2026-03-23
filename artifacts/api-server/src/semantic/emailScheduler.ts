@@ -82,16 +82,16 @@ async function updateJobInDB(
 
 export async function initEmailScheduler(): Promise<void> {
   try {
-    const rows = await sql<{
+    const rows = (await sql`
+      SELECT * FROM platform_email_jobs
+      WHERE status = 'pending'
+      ORDER BY scheduled_at ASC
+    `) as Array<{
       id: string; type: string; customer_email: string; customer_name: string;
       product_id: string; product_title: string; product_format: string;
       store_url: string; scheduled_at: string; sent_at: string | null;
       status: string; error: string | null;
-    }[]>`
-      SELECT * FROM platform_email_jobs
-      WHERE status = 'pending'
-      ORDER BY scheduled_at ASC
-    `;
+    }>;
 
     let loaded = 0;
     for (const r of rows) {

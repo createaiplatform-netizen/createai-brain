@@ -1,0 +1,35 @@
+You are an automation assistant. I have a list of family members with their emails, phone numbers, and personal context. Use this info to generate and send personalized **emails and SMS messages** via my existing platform immediately. Ensure each message is warm, personal, and references the context. Keep each message concise.
+
+Family list:
+1. Nathan Stadler, 12/06/2001, Stadlernathan5499@gmail.com, Phone: 715-791-4114, Outdoorsman, married to Carolina, hopeful for grandkids.
+2. Nolan Stadler, 11/28/2003, Stadlernolan29@icloud.com, Phone: 715-791-4114, brilliant, in a relationship with Emma, dog Kota.
+3. Carolina Stadler, daughter-in-law, Caro.ixto5499@gmail.com, Phone: 715-791-4050, speaks English and Spanish.
+4. Jenny, sister, Jeepgirl20@yahoo.com, Phone: 715-791-4222, loves cruises, funny and lovable.
+5. Shawny, brother-in-law, Shawnjennymiller@gmail.com, Phone: 651-425-0505, heavy equipment operator, inside jokes “deuce”.
+6. Shelly Phelps, cousin, miphelps1121@gmail.com, Phone: 715-416-5002, ride-or-die, best friend.
+7. Dennis Stadler, hubby, StadlerDennis@yahoo.com, Phone: 715-791-4957, DOB 11/16/1981, Anniversary 08/07/04.
+8. Nakyllah Raine Stadler, daughter, NakyllahStadler0@gmail.com, DOB 07/31/2006, granddaughter Hadley Jo 09/29/2025, loves animals and horses.
+9. Terri Rossow, mom, richandterri5861@gmail.com, Phone: 715-791-0555, DOB 10/05/1961, loves Appaloosas, grandchildren.
+10. Dad, 06/30/1958, Phone: 715-566-1165, loves farming and family.
+
+Task:
+- For each person, generate:
+  1. Email subject
+  2. Email body
+  3. SMS body
+- Make each message **personalized to their context** and warmly invite them to join the platform.
+- Ensure the messages are actionable and ready to send immediately.
+- Use friendly, casual, and warm tone.
+- Output a JSON array with one object per person:
+[
+  {
+    "name": "...",
+    "email": "...",
+    "phone": "...",
+    "emailSubject": "...",
+    "emailBody": "...",
+    "smsBody": "..."
+  },
+  ...
+]
+- Do not include explanations, only output the JSON ready to use.

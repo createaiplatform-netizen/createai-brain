@@ -111,7 +111,7 @@ router.post("/apply", requireAuth, async (req: Request, res: Response) => {
   }
 
   const sql = getSql();
-  const session = req.session as { userId?: string; role?: string } | undefined;
+  const session = (req as unknown as { session?: { userId?: string; role?: string } }).session;
   const actorId   = session?.userId ?? "unknown";
   const actorRole = session?.role   ?? "unknown";
 

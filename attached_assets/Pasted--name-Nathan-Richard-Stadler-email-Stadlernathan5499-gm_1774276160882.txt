@@ -1,0 +1,78 @@
+[
+  {
+    "name": "Nathan Richard Stadler",
+    "email": "Stadlernathan5499@gmail.com",
+    "phone": "715-791-4114",
+    "emailSubject": "Exciting News for You and Carolina 😉",
+    "emailBody": "Hey Nathan! I hope you and Carolina are doing wonderfully. I wanted to let you know that thanks to the platform I built, your family now has some exciting opportunities ahead. And yes, you owe me grandbabies! 😉 Wishing you both all the happiness and success — you’ve got a bright future. Much love, Mom.",
+    "smsBody": "Nathan! Big news thanks to the platform — exciting opportunities ahead. And you owe me grandbabies! 😉 Love you both!"
+  },
+  {
+    "name": "Nolan Ryan Stadler",
+    "email": "Stadlernolan29@icloud.com",
+    "phone": "715-791-4114",
+    "emailSubject": "Amazing Opportunities Await!",
+    "emailBody": "Hey Nolan! Just wanted to share how incredible things are shaping up thanks to the platform I built — you’ve got the brains and heart to do amazing things. Big love to Emma and Kota! So proud of you.",
+    "smsBody": "Nolan! Big things coming thanks to the platform. Give love to Emma and Kota 🐶!"
+  },
+  {
+    "name": "Carolina",
+    "email": "caro.ixto5499@gmail.com",
+    "phone": "715-791-4050",
+    "emailSubject": "Much Love from Your Family ❤️",
+    "emailBody": "Hi Carolina! We’re so proud of you and grateful for the love you bring to our family. With the platform I built, you now have some new opportunities ahead. Wishing you joy, happiness, and success every day.",
+    "smsBody": "Carolina! You’re amazing — love and hugs from all of us!"
+  },
+  {
+    "name": "Jenny",
+    "email": "Jeepgirl20@yahoo.com",
+    "phone": "715-791-4222",
+    "emailSubject": "Family Love & Fun 🚢",
+    "emailBody": "Hey Jenny! Hope you’re having a blast with everything you love. Thanks to the platform I built, we’re able to share these exciting moments with everyone. Keep enjoying those cruises and laughs — love you!",
+    "smsBody": "Jenny! Keep having fun — love you tons!"
+  },
+  {
+    "name": "Shawny",
+    "email": "Shawnjennymiller@gmail.com",
+    "phone": "651-425-0505",
+    "emailSubject": "Hello from the Family 😄",
+    "emailBody": "Hey Shawny! Sending love and good vibes. The platform I built helps us all stay connected and informed. Hope your work is going great and you’re enjoying life!",
+    "smsBody": "Shawny! Love and good vibes from the family — stay awesome!"
+  },
+  {
+    "name": "Shelly Phelps",
+    "email": "miphelps1121@gmail.com",
+    "phone": "715-416-5002",
+    "emailSubject": "Hey Cousin! ❤️",
+    "emailBody": "Hey Shelly! Just letting you know how much you mean to me. With the platform I built, you’ll see just how connected we can all be. Can’t wait to share more adventures!",
+    "smsBody": "Shelly! You’re my ride-or-die ❤️. Excited to share what I built!"
+  },
+  {
+    "name": "Dennis Stadler",
+    "email": "StadlerDennis@yahoo.com",
+    "phone": "715-791-4957",
+    "emailBody": "Hey Dennis! Grateful for you every single day — our platform now helps everyone stay informed and connected. Happy anniversary, sending tons of love! ❤️",
+    "smsBody": "Dennis! Love you tons ❤️ Happy anniversary!"
+  },
+  {
+    "name": "Nakyllah Raine Stadler",
+    "email": "NakyllahStadler0@gmail.com",
+    "phone": "715-791-8085",
+    "emailBody": "Hi Nakyllah! Your beautiful granddaughter Hadley Jo is amazing! The platform I built lets us celebrate every family moment together. Sending love to you, Milo, and your horses.",
+    "smsBody": "Nakyllah! Love to you, Hadley Jo, Milo, and your horses! 💖"
+  },
+  {
+    "name": "Terri Rossow",
+    "email": "richandterri5861@gmail.com",
+    "phone": "715-791-0555",
+    "emailBody": "Hi Mom! Love you so much. With the platform I built, we’re able to stay closer and share updates faster. Hope your farm and Appaloosas are bringing joy today!",
+    "smsBody": "Mom! Love you tons ❤️ Hugs to you and the grandkids!"
+  },
+  {
+    "name": "Dad",
+    "email": "richandterri5861@gmail.com",
+    "phone": "715-566-1165",
+    "emailBody": "Hi Dad! Hope all is well. The platform I built keeps us connected and up-to-date. Love you and the grandkids — thinking of all the fun times on the farm!",
+    "smsBody": "Dad! Love you and the grandkids. Hope all is well!"
+  }
+]

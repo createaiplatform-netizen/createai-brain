@@ -3,7 +3,7 @@ import { growthPath } from "../services/domainEngines.js";
 
 const router = Router();
 
-router.get("/",               (_req, res) => res.json({ ok: true, ...growthPath.stats(), tracks: growthPath.tracks(), enrollments: growthPath.enrollments?.() ?? [] }));
+router.get("/",               (_req, res) => res.json({ ok: true, ...growthPath.stats(), tracks: growthPath.tracks(), enrollments: (growthPath as unknown as Record<string, () => unknown[]>)["enrollments"]?.() ?? [] }));
 router.get("/stats",          (_req, res) => res.json(growthPath.stats()));
 router.get("/tracks",         (_req, res) => res.json({ ok: true, tracks: growthPath.tracks() }));
 router.get("/progress/:userId", (req: Request, res: Response) => res.json({ ok: true, ...growthPath.userProgress(String(req.params["userId"] ?? "")) }));

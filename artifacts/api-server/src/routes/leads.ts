@@ -10,8 +10,7 @@
  */
 
 import { Router, type Request, type Response } from "express";
-import { db } from "@workspace/db";
-import { leads } from "@workspace/db/schema";
+import { db, leads } from "@workspace/db";
 import { eq, desc, sql, gte } from "drizzle-orm";
 import { createHash } from "crypto";
 

@@ -74,7 +74,7 @@ router.patch("/users/:id/role", async (req: Request, res: Response) => {
     return;
   }
 
-  await db.update(usersTable).set({ role }).where(eq(usersTable.id, id));
+  await db.update(usersTable).set({ role }).where(eq(usersTable.id, String(id)));
   res.json({ success: true, id, role });
 });
 
@@ -120,7 +120,7 @@ router.post("/users/:id/suspend", async (req: Request, res: Response) => {
     res.status(403).json({ error: "Cannot suspend founder" });
     return;
   }
-  await db.update(usersTable).set({ deletedAt: new Date() }).where(eq(usersTable.id, id));
+  await db.update(usersTable).set({ deletedAt: new Date() }).where(eq(usersTable.id, String(id)));
   res.json({ success: true });
 });
 
@@ -129,7 +129,7 @@ router.post("/users/:id/restore", async (req: Request, res: Response) => {
   if (!(await requireAdmin(req, res))) return;
 
   const { id } = req.params;
-  await db.update(usersTable).set({ deletedAt: null }).where(eq(usersTable.id, id));
+  await db.update(usersTable).set({ deletedAt: null }).where(eq(usersTable.id, String(id)));
   res.json({ success: true });
 });
 

@@ -116,11 +116,12 @@ router.get("/", async (_req: Request, res: Response) => {
 
   const growthDaily = (tg["daily"] as Array<Record<string, unknown>>) ?? [];
 
+  const IDEXT = IDENTITY as unknown as Record<string, string | undefined>;
   const identityScore = [
     IDENTITY.platformName, IDENTITY.legalEntity, IDENTITY.ownerName,
-    IDENTITY.handle, IDENTITY.npa, IDENTITY.liveUrl, IDENTITY.liveDomain,
+    IDENTITY.handle, IDENTITY.npa, IDEXT["liveUrl"], IDEXT["liveDomain"],
     IDENTITY.contactEmail, IDENTITY.fromEmail, IDENTITY.cashApp,
-    IDENTITY.venmo, IDENTITY.domainSource,
+    IDENTITY.venmo, IDEXT["domainSource"],
   ].filter(Boolean).length;
 
   const engineReadiness = Math.min(
@@ -222,8 +223,8 @@ router.get("/", async (_req: Request, res: Response) => {
       ownerName: IDENTITY.ownerName,
       npa: IDENTITY.npa,
       handle: IDENTITY.handle,
-      liveUrl: IDENTITY.liveUrl,
-      domainSource: IDENTITY.domainSource,
+      liveUrl: IDEXT["liveUrl"],
+      domainSource: IDEXT["domainSource"],
       cashApp: IDENTITY.cashApp,
       venmo: IDENTITY.venmo,
       identityFieldsComplete: `${identityScore}/12`,
@@ -339,9 +340,9 @@ router.get("/", async (_req: Request, res: Response) => {
       handle: IDENTITY.handle,
       npa: IDENTITY.npa,
       protocol: `web+npa://${IDENTITY.handle}`,
-      handleRedirect: `${IDENTITY.liveUrl}/h/${IDENTITY.handle?.toLowerCase()}`,
-      portableCard: `${IDENTITY.liveUrl}/api/platform-card`,
-      wellKnown: `${IDENTITY.liveUrl}/.well-known/platform-id.json`,
+      handleRedirect: `${IDEXT["liveUrl"]}/h/${IDENTITY.handle?.toLowerCase()}`,
+      portableCard: `${IDEXT["liveUrl"]}/api/platform-card`,
+      wellKnown: `${IDEXT["liveUrl"]}/.well-known/platform-id.json`,
       status: "all 3 layers live",
     },
 

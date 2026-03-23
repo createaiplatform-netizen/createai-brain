@@ -38,7 +38,7 @@ router.get("/dashboard", (_req: Request, res: Response) => {
           <div class="loc-top">
             <div>
               <div class="loc-name">${l.name}</div>
-              <div class="loc-sub">${l.city}${l.city && l.country ? ', ' : ''}${l.country}</div>
+              <div class="loc-sub">${l.city}${l.city && (l as unknown as Record<string,string>)["country"] ? ', ' : ''}${(l as unknown as Record<string,string>)["country"] ?? ""}</div>
             </div>
             <span class="loc-status" style="color:${statusColor[l.status]||"#94a3b8"};background:${statusColor[l.status]||"#94a3b8"}15;border:1px solid ${statusColor[l.status]||"#94a3b8"}30">${l.status}</span>
           </div>

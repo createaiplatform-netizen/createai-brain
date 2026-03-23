@@ -11,8 +11,7 @@
  */
 
 import { Router, type Request, type Response } from "express";
-import { db } from "@workspace/db";
-import { pageViews, leads, referrals } from "@workspace/db/schema";
+import { db, pageViews, leads, referrals } from "@workspace/db";
 import { desc, sql, gte, eq } from "drizzle-orm";
 
 const router = Router();

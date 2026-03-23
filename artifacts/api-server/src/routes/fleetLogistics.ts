@@ -133,9 +133,9 @@ router.get("/dashboard", async (_req: Request, res: Response) => {
     sql`SELECT COUNT(*)::int AS n FROM fleet_warehouses WHERE status='active'`,
     sql`SELECT COUNT(*)::int AS n FROM fleet_maintenance WHERE date >= NOW() - INTERVAL '30 days'`,
   ]);
-  const vehicles   = v.reduce((a: Record<string,number>, r) => { a[String(r.status)] = Number(r.n); return a; }, {});
-  const drivers    = d.reduce((a: Record<string,number>, r) => { a[String(r.status)] = Number(r.n); return a; }, {});
-  const shipments  = s.reduce((a: Record<string,number>, r) => { a[String(r.status)] = Number(r.n); return a; }, {});
+  const vehicles   = v.reduce((a: Record<string,number>, r: Record<string, unknown>) => { a[String(r["status"])] = Number(r["n"]); return a; }, {});
+  const drivers    = d.reduce((a: Record<string,number>, r: Record<string, unknown>) => { a[String(r["status"])] = Number(r["n"]); return a; }, {});
+  const shipments  = s.reduce((a: Record<string,number>, r: Record<string, unknown>) => { a[String(r["status"])] = Number(r["n"]); return a; }, {});
   res.json({ ok: true, engine: "Fleet & Logistics Engine v1", vehicles, drivers, shipments,
     activeWarehouses: Number(w[0]?.n ?? 0), maintenanceLast30d: Number(m[0]?.n ?? 0) });
 });

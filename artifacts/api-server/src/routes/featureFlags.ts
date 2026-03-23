@@ -122,7 +122,7 @@ router.post("/", requireAuth, async (req: Request, res: Response) => {
       ${rollout_pct ?? 100}, ${allowed_roles ?? []}, ${allowed_users ?? []},
       ${environment ?? "all"}, ${JSON.stringify(payload ?? {})}::jsonb
     ) RETURNING *
-  `.catch(e => { throw e; });
+  `.catch((e: unknown) => { throw e; });
 
   res.status(201).json({ ok: true, flag });
 });
@@ -131,7 +131,7 @@ router.post("/", requireAuth, async (req: Request, res: Response) => {
 // GET /api/flags/evaluate — evaluate all flags for current user
 // ─────────────────────────────────────────────────────────────────────────────
 router.get("/evaluate", async (req: Request, res: Response) => {
-  const userId = String(req.query["userId"] ?? (req.session as { userId?: string } | undefined)?.userId ?? "");
+  const userId = String(req.query["userId"] ?? (req as unknown as Record<string, Record<string,string>>)["session"]?.["userId"] ?? "");
   const role   = String(req.query["role"]   ?? "visitor");
   const env    = String(req.query["env"]    ?? process.env["NODE_ENV"] ?? "development");
 

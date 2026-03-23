@@ -69,7 +69,7 @@ router.get("/", async (req: Request, res: Response) => {
               @@ to_tsquery('english', ${tsQuery})
         ORDER BY score DESC LIMIT ${limit}
       `;
-      for (const r of rows) {
+      for (const r of (rows as Array<Record<string, string>>)) {
         results.push({ domain: "projects", id: r.id, title: r.title, excerpt: r.excerpt,
                        score: parseFloat(r.score) || 0, url: `/projects/${r.id}`, createdAt: r.created_at });
       }
@@ -92,7 +92,7 @@ router.get("/", async (req: Request, res: Response) => {
               @@ to_tsquery('english', ${tsQuery})
         ORDER BY score DESC LIMIT ${limit}
       `;
-      for (const r of rows) {
+      for (const r of (rows as Array<Record<string, string>>)) {
         results.push({ domain: "documents", id: r.id, title: r.title, excerpt: r.excerpt,
                        score: parseFloat(r.score) || 0, url: `/documents/${r.id}`, createdAt: r.created_at });
       }
@@ -120,7 +120,7 @@ router.get("/", async (req: Request, res: Response) => {
               @@ to_tsquery('english', ${tsQuery})
         ORDER BY score DESC LIMIT ${limit}
       `;
-      for (const r of rows) {
+      for (const r of (rows as Array<Record<string, string>>)) {
         results.push({ domain: "people", id: r.id, title: r.title.trim(), excerpt: r.excerpt,
                        score: parseFloat(r.score) || 0, url: `/crm/${r.id}`, createdAt: r.created_at });
       }
@@ -148,7 +148,7 @@ router.get("/", async (req: Request, res: Response) => {
               @@ to_tsquery('english', ${tsQuery})
         ORDER BY score DESC LIMIT ${limit}
       `;
-      for (const r of rows) {
+      for (const r of (rows as Array<Record<string, string>>)) {
         results.push({ domain: "leads", id: r.id, title: r.title.trim(), excerpt: r.excerpt,
                        score: parseFloat(r.score) || 0, url: `/leads/${r.id}`, createdAt: r.created_at });
       }
@@ -171,7 +171,7 @@ router.get("/", async (req: Request, res: Response) => {
               @@ to_tsquery('english', ${tsQuery})
         ORDER BY score DESC LIMIT ${limit}
       `;
-      for (const r of rows) {
+      for (const r of (rows as Array<Record<string, string>>)) {
         results.push({ domain: "opportunities", id: r.id, title: r.title, excerpt: r.excerpt,
                        score: parseFloat(r.score) || 0, url: `/opportunities/${r.id}`, createdAt: r.created_at });
       }
@@ -199,7 +199,7 @@ router.get("/", async (req: Request, res: Response) => {
               @@ to_tsquery('english', ${tsQuery})
         ORDER BY score DESC LIMIT ${limit}
       `;
-      for (const r of rows) {
+      for (const r of (rows as Array<Record<string, string>>)) {
         results.push({ domain: "healthcare", id: r.id, title: r.title.trim(), excerpt: r.excerpt,
                        score: parseFloat(r.score) || 0, url: `/healthcare/patients/${r.id}`, createdAt: r.created_at });
       }
@@ -227,7 +227,7 @@ router.get("/", async (req: Request, res: Response) => {
               @@ to_tsquery('english', ${tsQuery})
         ORDER BY score DESC LIMIT ${limit}
       `;
-      for (const r of rows) {
+      for (const r of (rows as Array<Record<string, string>>)) {
         results.push({ domain: "legal", id: r.id, title: r.title.trim(), excerpt: r.excerpt,
                        score: parseFloat(r.score) || 0, url: `/legal/clients/${r.id}`, createdAt: r.created_at });
       }
@@ -255,7 +255,7 @@ router.get("/", async (req: Request, res: Response) => {
               @@ to_tsquery('english', ${tsQuery})
         ORDER BY score DESC LIMIT ${limit}
       `;
-      for (const r of rows) {
+      for (const r of (rows as Array<Record<string, string>>)) {
         results.push({ domain: "staffing", id: r.id, title: r.title.trim(), excerpt: r.excerpt,
                        score: parseFloat(r.score) || 0, url: `/staffing/candidates/${r.id}`, createdAt: r.created_at });
       }
@@ -279,7 +279,7 @@ router.get("/", async (req: Request, res: Response) => {
               @@ to_tsquery('english', ${tsQuery})
         ORDER BY score DESC LIMIT ${limit}
       `;
-      for (const r of rows) {
+      for (const r of (rows as Array<Record<string, string>>)) {
         results.push({ domain: "activity", id: r.id, title: r.title, excerpt: r.excerpt,
                        score: parseFloat(r.score) || 0, url: `/activity/${r.id}`, createdAt: r.created_at });
       }

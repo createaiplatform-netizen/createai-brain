@@ -101,7 +101,7 @@ router.get("/status", (_req: Request, res: Response) => {
 
 // ─── POST /api/marketplace-hub/probe/:channel ─────────────────────────────────
 router.post("/probe/:channel", async (req: Request, res: Response) => {
-  const channel = req.params["channel"]?.toLowerCase() ?? "";
+  const channel = (req.params["channel"] as string | undefined)?.toLowerCase() ?? "";
   const ch = MARKETPLACE_CHANNELS.find(c => c.name.toLowerCase() === channel);
   if (!ch) {
     res.status(404).json({ ok: false, error: `Unknown channel: ${channel}. Valid: ${MARKETPLACE_CHANNELS.map(c => c.name.toLowerCase()).join(", ")}` });

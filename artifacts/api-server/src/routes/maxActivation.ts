@@ -194,13 +194,13 @@ router.post("/all", async (_req, res) => {
 
 router.get("/status", (_req, res) => {
   const invoice        = getInvoiceSummary();
-  const ultimateStats  = getUltimateStats();
-  const enforcerStats  = getEnforcerStats();
-  const maximizerStats = getMaximizerStats();
-  const metaStats      = getMetaCycleStats();
-  const wealthSnap     = getWealthSnapshot();
+  const ultimateStats  = getUltimateStats()  as unknown as Record<string, number>;
+  const enforcerStats  = getEnforcerStats()  as unknown as Record<string, number>;
+  const maximizerStats = getMaximizerStats() as unknown as Record<string, number>;
+  const metaStats      = getMetaCycleStats() as unknown as Record<string, number>;
+  const wealthSnap     = getWealthSnapshot() as unknown as Record<string, number>;
   const aboveCycles    = getCycleCount();
-  const latestCycle    = getLatestCycle();
+  const latestCycle    = getLatestCycle()    as unknown as Record<string, string>;
   const credStatus     = getCredentialStatus();
   const liveMarkets    = credStatus.filter(c => c.set).length;
 
@@ -363,7 +363,7 @@ router.get("/dashboard", (_req, res) => {
     </div>`;
   }).join("");
 
-  const seqHtml = EXECUTION_SEQUENCE.map((s: { phase: string; t: string; action: string; autonomous: boolean }, i: number) => `
+  const seqHtml = (EXECUTION_SEQUENCE as unknown as Array<{ phase: string; t: string; action: string; autonomous: boolean }>).map((s, i: number) => `
     <div class="seq-row">
       <div class="seq-num">${i + 1}</div>
       <div class="seq-body">

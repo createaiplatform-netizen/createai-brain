@@ -103,7 +103,7 @@ router.get("/dashboard", async (_req: Request, res: Response) => {
     sql`SELECT COUNT(*)::int AS n FROM con_inspections WHERE result='pending'`,
     sql`SELECT COUNT(*)::int AS n FROM con_punch_items WHERE status='open'`,
   ]);
-  const projByStatus = proj.reduce((a: Record<string,number>, r) => { a[String(r.status)] = Number(r.n); return a; }, {});
+  const projByStatus = proj.reduce((a: Record<string,number>, r: Record<string, unknown>) => { a[String(r["status"])] = Number(r["n"]); return a; }, {});
   res.json({ ok: true, engine: "Construction Management Engine v1",
     projects: projByStatus, pendingBids: bids[0]?.n, activeContracts: contr[0]?.n,
     pendingInspections: insp[0]?.n, openPunchItems: punch[0]?.n });

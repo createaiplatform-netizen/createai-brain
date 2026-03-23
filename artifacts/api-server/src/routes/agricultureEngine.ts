@@ -114,7 +114,7 @@ router.get("/dashboard", async (_req: Request, res: Response) => {
     sql`SELECT SUM(count)::int AS total FROM agri_livestock WHERE status='healthy'`,
     sql`SELECT COALESCE(SUM(quantity_kg),0)::numeric AS kg, COALESCE(SUM(revenue),0)::numeric AS rev FROM agri_harvests WHERE harvested_at >= NOW() - INTERVAL '90 days'`,
   ]);
-  const cropsByStatus = crops.reduce((a: Record<string,number>, r) => { a[String(r.status)] = Number(r.n); return a; }, {});
+  const cropsByStatus = crops.reduce((a: Record<string,number>, r: Record<string, unknown>) => { a[String(r["status"])] = Number(r["n"]); return a; }, {});
   res.json({ ok: true, engine: "Agriculture & Farm Engine v1",
     activeFarms: farms[0]?.n, activeFields: fields[0]?.n, crops: cropsByStatus,
     healthyLivestock: livestock[0]?.total, harvestKgLast90d: harvests[0]?.kg,

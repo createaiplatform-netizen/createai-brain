@@ -177,7 +177,7 @@ router.post("/:id/complete", async (req: Request, res: Response) => {
   }
 
   // Adult path — recalc streak immediately
-  const { streak, longest } = await recalcStreak(id);
+  const { streak, longest } = await recalcStreak(String(id));
   await sql`
     UPDATE platform_habits SET
       current_streak = ${streak},
