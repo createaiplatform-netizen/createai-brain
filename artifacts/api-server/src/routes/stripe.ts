@@ -27,6 +27,94 @@ import {
   getBalance,
   STRIPE_META,
 } from "../services/integrations/stripeService.js";
+import { sendEmailNotification } from "../utils/notifications.js";
+
+// ─── Welcome email sequence ───────────────────────────────────────────────────
+// Three-touch sequence: immediate, +3 days, +7 days.
+// Fires-and-forgets — never blocks the customer creation response.
+
+
+async function sendWelcomeSequence(email: string, name: string): Promise<void> {
+  const first = name.split(" ")[0] || "there";
+
+  // Email 1 — immediate
+  await sendEmailNotification([email], "Welcome to CreateAI Brain 🧠", `
+    <div style="font-family:-apple-system,sans-serif;max-width:560px;margin:0 auto;color:#1a1916">
+      <div style="background:#7a9068;padding:24px 32px;border-radius:12px 12px 0 0">
+        <h1 style="color:#fff;margin:0;font-size:22px;font-weight:800;letter-spacing:-0.02em">
+          Welcome to CreateAI Brain, ${first}!
+        </h1>
+      </div>
+      <div style="background:#fff;padding:28px 32px;border-radius:0 0 12px 12px;border:1px solid #e8ede4">
+        <p style="font-size:15px;line-height:1.6;margin:0 0 16px">
+          Your account is live. You now have access to 408+ AI-powered apps across business,
+          healthcare, legal, creative, and family — all in one platform.
+        </p>
+        <a href="https://createai.digital" style="display:inline-block;background:#7a9068;color:#fff;padding:12px 24px;border-radius:8px;font-weight:700;text-decoration:none;font-size:14px">
+          Open CreateAI Brain →
+        </a>
+        <p style="font-size:13px;color:#6b6660;margin:20px 0 0">
+          Questions? Reply to this email — Sara personally responds within 24h.
+        </p>
+      </div>
+    </div>
+  `).catch(() => {});
+
+  // Email 2 — +3 days
+  setTimeout(async () => {
+    await sendEmailNotification([email], "3 apps to try first in CreateAI Brain", `
+      <div style="font-family:-apple-system,sans-serif;max-width:560px;margin:0 auto;color:#1a1916">
+        <h2 style="font-size:20px;font-weight:800;color:#1a1916;margin:0 0 16px">
+          Hey ${first} — here are 3 great starting points:
+        </h2>
+        <div style="background:#f0f4ee;border-radius:10px;padding:16px 20px;margin:0 0 12px">
+          <strong style="color:#7a9068">🧠 Business Strategist</strong>
+          <p style="font-size:14px;margin:6px 0 0;color:#6b6660">
+            Full strategic plan for any business in 60 seconds. Market analysis, positioning, KPIs.
+          </p>
+        </div>
+        <div style="background:#f0f4ee;border-radius:10px;padding:16px 20px;margin:0 0 12px">
+          <strong style="color:#7a9068">✨ Create Engine</strong>
+          <p style="font-size:14px;margin:6px 0 0;color:#6b6660">
+            Build anything from one sentence — apps, campaigns, reports, workflows.
+          </p>
+        </div>
+        <div style="background:#f0f4ee;border-radius:10px;padding:16px 20px;margin:0 0 20px">
+          <strong style="color:#7a9068">📋 Project Builder</strong>
+          <p style="font-size:14px;margin:6px 0 0;color:#6b6660">
+            Complete project plans with timelines, milestones, and resource allocation.
+          </p>
+        </div>
+        <a href="https://createai.digital" style="display:inline-block;background:#7a9068;color:#fff;padding:12px 24px;border-radius:8px;font-weight:700;text-decoration:none;font-size:14px">
+          Try them now →
+        </a>
+      </div>
+    `).catch(() => {});
+  }, 3 * 24 * 60 * 60 * 1000);
+
+  // Email 3 — +7 days
+  setTimeout(async () => {
+    await sendEmailNotification([email], "How's CreateAI Brain working for you?", `
+      <div style="font-family:-apple-system,sans-serif;max-width:560px;margin:0 auto;color:#1a1916">
+        <h2 style="font-size:20px;font-weight:800;color:#1a1916;margin:0 0 12px">
+          One week in, ${first} 👋
+        </h2>
+        <p style="font-size:15px;line-height:1.6;color:#1a1916;margin:0 0 16px">
+          You've had a week to explore. We'd love to hear what's working and what you want more of.
+        </p>
+        <p style="font-size:15px;line-height:1.6;color:#1a1916;margin:0 0 20px">
+          Reply directly to this email — your feedback shapes what we build next.
+        </p>
+        <a href="https://createai.digital" style="display:inline-block;background:#7a9068;color:#fff;padding:12px 24px;border-radius:8px;font-weight:700;text-decoration:none;font-size:14px">
+          Back to CreateAI Brain →
+        </a>
+        <p style="font-size:12px;color:#94a3b8;margin:20px 0 0">
+          CreateAI Brain by Lakeside Trinity LLC · createai.digital
+        </p>
+      </div>
+    `).catch(() => {});
+  }, 7 * 24 * 60 * 60 * 1000);
+}
 
 const router = Router();
 
@@ -110,6 +198,8 @@ router.post("/customer", async (req: Request, res: Response) => {
   }
   try {
     const customer = await createCustomer(name, email);
+    // Fire 3-email welcome sequence — non-blocking
+    sendWelcomeSequence(email, name).catch(() => {});
     res.json({ ok: true, customer, ...STRIPE_META });
   } catch (err: unknown) {
     res.status(400).json({ ok: false, error: (err as Error).message });

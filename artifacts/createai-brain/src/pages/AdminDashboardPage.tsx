@@ -2,6 +2,13 @@ import { useAuth } from "@workspace/replit-auth-web";
 import { useLocation } from "wouter";
 import { useState, useEffect } from "react";
 
+// ─── Analytics types ──────────────────────────────────────────────────────────
+interface RoleCount { role: string; dau?: number; mau?: number; total?: number }
+interface CohortData { dau: RoleCount[]; mau: RoleCount[]; totals: RoleCount[] }
+interface ChurnTiers { high: number; medium: number; low: number }
+interface ChurnData  { tiers: ChurnTiers; users: Array<{ userId: string; email: string; role: string; daysSinceActive: number; risk: string }> }
+interface RevenueData { mrr_dollars: string; total_dollars: string; ltv_dollars: string; arr_dollars: string; active_subscriptions: number; payment_count: number }
+
 const SAGE = "#7a9068";
 const CREAM = "#faf9f6";
 const TEXT = "#1a1916";
@@ -63,8 +70,12 @@ interface TopApp {
 export default function AdminDashboardPage() {
   const { user, logout } = useAuth();
   const [, navigate] = useLocation();
-  const [topApps,    setTopApps]    = useState<TopApp[]>([]);
-  const [appsLoaded, setAppsLoaded] = useState(false);
+  const [topApps,       setTopApps]       = useState<TopApp[]>([]);
+  const [appsLoaded,    setAppsLoaded]    = useState(false);
+  const [cohortData,    setCohortData]    = useState<CohortData | null>(null);
+  const [churnData,     setChurnData]     = useState<ChurnData | null>(null);
+  const [revenueData,   setRevenueData]   = useState<RevenueData | null>(null);
+  const [analyticsLoaded, setAnalyticsLoaded] = useState(false);
 
   const displayName = user?.firstName
     ? `${user.firstName}${user.lastName ? " " + user.lastName : ""}`

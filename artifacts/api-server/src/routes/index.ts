@@ -359,6 +359,7 @@ router.use("/leads",                      leadsRouter);
 
 // ── Internal Analytics (replaces Google Analytics) ───────────────────────────
 router.use("/analytics",                  growthAnalyticsRouter);
+router.use("/cohorts",                    cohortAnalyticsRouter);
 
 // ── NEXUS Platform Address — internal identity, routing, NPA resolution ───────
 router.use(platformIdentityRouter);
