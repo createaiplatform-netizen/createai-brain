@@ -1,0 +1,71 @@
+// ==============================
+// artifacts/api-server/src/services/electricNetWay.ts
+// ==============================
+import { db } from '@workspace/db';
+import { rawSql } from '@workspace/db';
+import { SYSTEM_USER, DOCTYPE } from '@workspace/constants';
+
+export async function initElectricNetWay() {
+  // Create queue table if it doesn't exist
+  await rawSql`
+    CREATE TABLE IF NOT EXISTS platform_electric_net_way_queue (
+      id SERIAL PRIMARY KEY,
+      category TEXT NOT NULL,
+      type TEXT NOT NULL,
+      target TEXT NOT NULL,
+      status TEXT NOT NULL DEFAULT 'pending',
+      payload JSONB,
+      created_at TIMESTAMP DEFAULT NOW(),
+      updated_at TIMESTAMP DEFAULT NOW()
+    );
+  `;
+
+  // Immediately process any queued messages
+  await processQueue();
+}
+
+export async function queueMessage(category: string, type: string, target: string, payload?: any) {
+  await rawSql`
+    INSERT INTO platform_electric_net_way_queue (category, type, target, payload)
+    VALUES (${category}, ${type}, ${target}, ${payload || null});
+  `;
+  
+  // **Auto-trigger processing immediately**
+  await processQueue();
+}
+
+export async function processQueue() {
+  // Fetch pending items
+  const pending = await rawSql`
+    SELECT * FROM platform_electric_net_way_queue
+    WHERE status = 'pending'
+    ORDER BY created_at ASC
+  `;
+
+  for (const item of pending) {
+    try {
+      // Route and deliver message (can integrate your smart router / shareable links / push)
+      await routeAndDeliver(item);
+
+      // Mark as sent
+      await rawSql`
+        UPDATE platform_electric_net_way_queue
+        SET status = 'sent', updated_at = NOW()
+        WHERE id = ${item.id}
+      `;
+    } catch (err) {
+      // Mark as failed
+      await rawSql`
+        UPDATE platform_electric_net_way_queue
+        SET status = 'failed', updated_at = NOW()
+        WHERE id = ${item.id}
+      `;
+    }
+  }
+}
+
+// Example placeholder for smart router
+async function routeAndDeliver(item: any) {
+  // Implement web push / shareable links / self-hosted SMTP here
+  console.log(`Delivering ${item.type} to ${item.target}`);
+}

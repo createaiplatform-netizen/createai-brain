@@ -44,6 +44,7 @@ import CreateAIDigitalPage from "@/pages/CreateAIDigitalPage";
 import RealMarketPage          from "@/pages/RealMarketPage";
 import OutputLibraryPage       from "@/pages/OutputLibraryPage";
 import VentonWayPage           from "@/pages/VentonWayPage";
+import ElectricNetWayPage      from "@/pages/ElectricNetWayPage";
 import MessagePage             from "@/pages/MessagePage";
 import FamilySharePage         from "@/pages/FamilySharePage";
 import UltimateTranscendDashboard from "@/pages/UltimateTranscendDashboard";
@@ -137,6 +138,7 @@ function Router() {
       <Route path="/command-center" component={CommandCenterPage} />
       <Route path="/analytics" component={AnalyticsPage} />
       <Route path="/venton-way" component={VentonWayPage} />
+      <Route path="/electric-net-way" component={ElectricNetWayPage} />
       <Route path="/team" component={TeamPage} />
       <Route path="/settings" component={SettingsPage} />
       <Route path="/billing" component={BillingPage} />
