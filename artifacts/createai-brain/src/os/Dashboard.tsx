@@ -90,6 +90,7 @@ export function Dashboard({ onHamburger, onShowTour }: DashboardProps) {
   const [loadingRecents, setLoadingRecents]   = useState(true);
   const [adStatus, setAdStatus]               = useState<{ platform: string; daily_budget_cents: number; enabled: boolean } | null>(null);
   const [adConnected, setAdConnected]         = useState<boolean>(false);
+  const [usedApps, setUsedApps]               = useState<Array<{ appId: string; label: string; icon: string; opens: number }>>([]);
 
   const cfg = MODE_CFG[platformMode];
 
@@ -110,6 +111,10 @@ export function Dashboard({ onHamburger, onShowTour }: DashboardProps) {
       fetch("/api/projects", { credentials: "include" })
         .then(r => r.ok ? r.json() : { projects: [] })
         .then(d => setRecentProjects((d.projects ?? []).slice(0, 4))),
+      fetch("/api/app-usage/mine?limit=8", { credentials: "include" })
+        .then(r => r.ok ? r.json() : { top: [] })
+        .then(d => setUsedApps(d.top ?? []))
+        .catch(() => {}),
     ]).finally(() => setLoadingRecents(false));
   }, []);
 
@@ -227,6 +232,18 @@ export function Dashboard({ onHamburger, onShowTour }: DashboardProps) {
             onMouseLeave={e => (e.currentTarget.style.background = "#eef2ff")}
           >✦ Tour</button>
         )}
+
+        {/* ⌘K launcher trigger */}
+        <button
+          onClick={() => window.dispatchEvent(new CustomEvent("cai:open-quick-launcher"))}
+          className="hidden sm:flex flex-shrink-0 items-center gap-1.5 px-3 py-1.5 rounded-full transition-all text-[11px] font-semibold"
+          style={{ background: "#f0f4ee", color: "#5a6d50", border: "1px solid #c8d9be" }}
+          onMouseEnter={e => (e.currentTarget.style.background = "#e1eada")}
+          onMouseLeave={e => (e.currentTarget.style.background = "#f0f4ee")}
+          title="Open app launcher (⌘K)"
+        >
+          <span>⌘K</span>
+        </button>
 
         <button onClick={() => openApp("chat")}
           className="flex-shrink-0 text-[12px] font-semibold px-4 py-2 rounded-full flex items-center gap-1.5 transition-all"
@@ -418,6 +435,58 @@ export function Dashboard({ onHamburger, onShowTour }: DashboardProps) {
                 </button>
               ))}
             </div>
+          </section>
+
+          {/* ── Most-Used Apps ── */}
+          {usedApps.length > 0 && (
+            <section className={`transition-opacity duration-500 delay-110 ${mounted ? "opacity-100" : "opacity-0"}`}>
+              <div className="flex items-center justify-between mb-3">
+                <p className="text-[11px] font-semibold uppercase tracking-widest" style={{ color: "#7a9068" }}>Your Most-Used</p>
+                <button
+                  onClick={() => window.dispatchEvent(new CustomEvent("cai:open-quick-launcher"))}
+                  className="text-[11px] font-semibold flex items-center gap-1 transition-all"
+                  style={{ color: "#7a9068" }}
+                  onMouseEnter={e => (e.currentTarget.style.opacity = "0.70")}
+                  onMouseLeave={e => (e.currentTarget.style.opacity = "1")}
+                >⌘K All apps →</button>
+              </div>
+              <div className="flex gap-2 overflow-x-auto pb-1 -mx-1 px-1" style={{ scrollbarWidth: "none" }}>
+                {usedApps.map(app => (
+                  <button
+                    key={app.appId}
+                    onClick={() => openApp(app.appId as AppId)}
+                    className="flex flex-col items-center gap-2 p-3 rounded-2xl flex-shrink-0 transition-all duration-200"
+                    style={{ background: "#fff", border: "1px solid rgba(122,144,104,0.16)", minWidth: 72, boxShadow: "0 1px 4px rgba(0,0,0,0.04)" }}
+                    onMouseEnter={e => { (e.currentTarget as HTMLElement).style.borderColor = "#7a906844"; (e.currentTarget as HTMLElement).style.boxShadow = "0 4px 12px rgba(122,144,104,0.14)"; (e.currentTarget as HTMLElement).style.transform = "translateY(-1px)"; }}
+                    onMouseLeave={e => { (e.currentTarget as HTMLElement).style.borderColor = "rgba(122,144,104,0.16)"; (e.currentTarget as HTMLElement).style.boxShadow = "0 1px 4px rgba(0,0,0,0.04)"; (e.currentTarget as HTMLElement).style.transform = ""; }}
+                  >
+                    <span className="text-2xl">{app.icon}</span>
+                    <span className="text-[10px] font-semibold text-center leading-tight" style={{ color: "#374151", maxWidth: 64, overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap", display: "block" }}>
+                      {app.label}
+                    </span>
+                    <span className="text-[9px]" style={{ color: "#9ca3af" }}>{app.opens}×</span>
+                  </button>
+                ))}
+              </div>
+            </section>
+          )}
+
+          {/* ── Output Library shortcut ── */}
+          <section className={`transition-opacity duration-500 delay-115 ${mounted ? "opacity-100" : "opacity-0"}`}>
+            <button
+              onClick={() => navigate("/library")}
+              className="w-full flex items-center gap-4 p-4 rounded-2xl text-left transition-all duration-200"
+              style={{ background: "#f0f4ee", border: "1px solid #c8d9be" }}
+              onMouseEnter={e => { (e.currentTarget as HTMLElement).style.background = "#e4eddf"; (e.currentTarget as HTMLElement).style.borderColor = "#a8c89a"; }}
+              onMouseLeave={e => { (e.currentTarget as HTMLElement).style.background = "#f0f4ee"; (e.currentTarget as HTMLElement).style.borderColor = "#c8d9be"; }}
+            >
+              <div className="w-10 h-10 rounded-xl flex items-center justify-center text-xl flex-shrink-0" style={{ background: "#7a906818" }}>📚</div>
+              <div className="flex-1 min-w-0">
+                <p className="font-semibold text-[13px]" style={{ color: "#3d5c35" }}>Output Library</p>
+                <p className="text-[11px] mt-0.5" style={{ color: "#6b8a62" }}>All your AI-generated content — saved automatically</p>
+              </div>
+              <span className="flex-shrink-0 text-[13px]" style={{ color: "#7a9068" }}>→</span>
+            </button>
           </section>
 
           {/* ── Featured Apps ── */}

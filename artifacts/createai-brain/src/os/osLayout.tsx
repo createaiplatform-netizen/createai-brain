@@ -1,4 +1,4 @@
-import React, { Suspense, useState, useEffect } from "react";
+import React, { Suspense, useState, useEffect, useCallback } from "react";
 import { useLocation } from "wouter";
 import { useOS } from "./OSContext";
 import { useMediaQuery } from "@/hooks/use-media-query";
@@ -10,6 +10,9 @@ import { ConversationOverlay } from "./ConversationOverlay";
 import { GuidedTour } from "./GuidedTour";
 import { AtmosphericLayer } from "./AtmosphericLayer";
 import { SEOMeta } from "@/components/SEOMeta";
+import { CustomerOnboardingWizard } from "@/components/CustomerOnboardingWizard";
+import { QuickLauncher } from "@/components/QuickLauncher";
+import OutputLibraryPage from "@/pages/OutputLibraryPage";
 
 // UCPXAgent is a 963 KB file — lazy-load it so it never blocks the initial paint
 const UCPXAgent = React.lazy(() =>
@@ -30,10 +33,29 @@ const UCPXAgent = React.lazy(() =>
 export function OSLayout() {
   const { activeApp, openApp } = useOS();
   const [location, setLocation] = useLocation();
-  const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
-  const [tourOpen, setTourOpen] = useState(false);
+  const [mobileMenuOpen, setMobileMenuOpen]       = useState(false);
+  const [tourOpen, setTourOpen]                   = useState(false);
+  const [quickLauncherOpen, setQuickLauncherOpen] = useState(false);
 
   const isMetrics = location === "/metrics";
+  const isLibrary = location === "/library";
+
+  // ── Global Cmd+K / Ctrl+K quick launcher ──
+  useEffect(() => {
+    const keyHandler = (e: KeyboardEvent) => {
+      if ((e.metaKey || e.ctrlKey) && e.key === "k") {
+        e.preventDefault();
+        setQuickLauncherOpen(prev => !prev);
+      }
+    };
+    const eventHandler = () => setQuickLauncherOpen(true);
+    window.addEventListener("keydown", keyHandler);
+    window.addEventListener("cai:open-quick-launcher", eventHandler);
+    return () => {
+      window.removeEventListener("keydown", keyHandler);
+      window.removeEventListener("cai:open-quick-launcher", eventHandler);
+    };
+  }, []);
 
   // Breakpoints
   const isMediumPlus = useMediaQuery("(min-width: 768px)");   // tablet+
@@ -70,6 +92,12 @@ export function OSLayout() {
         onOpenApp={(id) => { openApp(id); setTourOpen(false); }}
       />
 
+      {/* ── Customer Onboarding Wizard — first-run for customer role ── */}
+      <CustomerOnboardingWizard />
+
+      {/* ── Global Quick Launcher — Cmd+K / Ctrl+K ── */}
+      <QuickLauncher open={quickLauncherOpen} onClose={() => setQuickLauncherOpen(false)} />
+
       {/* ── Global Conversation Overlay — available on every screen ── */}
       <ConversationOverlay />
 
@@ -102,7 +130,37 @@ export function OSLayout() {
 
       {/* ── Main area ── */}
       <div id="main-content" className="flex-1 flex flex-col overflow-hidden min-w-0" role="main" aria-label="Application workspace">
-        {isMetrics ? (
+        {isLibrary ? (
+          <div className="flex-1 flex flex-col overflow-hidden min-w-0 animate-fade-up" style={{ animationDuration: "0.32s" }}>
+            <header className="flex items-center h-14 px-4 gap-3 flex-shrink-0 z-10 glass-topbar">
+              {showHamburger && (
+                <button onClick={() => setMobileMenuOpen(true)} aria-label="Open navigation"
+                  className="w-8 h-8 flex flex-col items-center justify-center gap-[5px] rounded-xl transition-all duration-150 flex-shrink-0"
+                  style={{ color: "#6b7280" }}
+                  onMouseEnter={e => ((e.currentTarget as HTMLElement).style.background = "rgba(0,0,0,0.05)")}
+                  onMouseLeave={e => ((e.currentTarget as HTMLElement).style.background = "transparent")}>
+                  <span className="w-4 h-[1.5px] rounded-full block" style={{ background: "#6b7280" }} />
+                  <span className="w-4 h-[1.5px] rounded-full block" style={{ background: "#6b7280" }} />
+                  <span className="w-4 h-[1.5px] rounded-full block" style={{ background: "#6b7280" }} />
+                </button>
+              )}
+              <button onClick={() => setLocation("/")}
+                className="flex items-center gap-1 text-sm font-medium transition-opacity duration-150 flex-shrink-0 hover:opacity-70"
+                style={{ color: "#7a9068" }}>
+                <span className="text-[18px] leading-none font-light">‹</span>
+                <span className="hidden sm:inline text-[13px]" style={{ letterSpacing: "-0.01em" }}>Home</span>
+              </button>
+              <div className="h-4 w-px flex-shrink-0" style={{ background: "rgba(0,0,0,0.10)" }} />
+              <div className="flex-1 flex items-center gap-2 min-w-0">
+                <span className="text-base leading-none">📚</span>
+                <h1 className="font-semibold text-[15px] truncate" style={{ color: "#0f172a", letterSpacing: "-0.02em" }}>Output Library</h1>
+              </div>
+            </header>
+            <div className="flex-1 overflow-y-auto" style={{ background: "hsl(220,20%,97%)", overscrollBehavior: "contain" }}>
+              <OutputLibraryPage />
+            </div>
+          </div>
+        ) : isMetrics ? (
           <div className="flex-1 flex flex-col overflow-hidden min-w-0 animate-fade-up" style={{ animationDuration: "0.32s" }}>
             {/* Top bar — matches AppWindow exactly */}
             <header className="flex items-center h-14 px-4 gap-3 flex-shrink-0 z-10 glass-topbar">

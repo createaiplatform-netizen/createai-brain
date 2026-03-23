@@ -275,6 +275,46 @@ router.post("/checkout-complete", async (req: Request, res: Response) => {
       }
     }
 
+    // ── Send immediate platform welcome email (separate from product delivery) ──
+    if (email) {
+      try {
+        const welcomeHtml = `<!DOCTYPE html><html><head><meta charset="UTF-8"/><style>
+          body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;background:#f8fafc;margin:0;padding:0}
+          .wrap{max-width:540px;margin:32px auto;background:#fff;border-radius:16px;overflow:hidden;box-shadow:0 4px 24px rgba(0,0,0,0.08)}
+          .header{background:linear-gradient(135deg,#7a9068 0%,#5a6d50 100%);padding:32px 36px}
+          .header h1{color:#fff;font-size:22px;font-weight:800;margin:0;letter-spacing:-0.02em}
+          .header p{color:rgba(255,255,255,0.80);font-size:14px;margin:8px 0 0}
+          .body{padding:28px 36px}
+          .body p{color:#374151;font-size:14px;line-height:1.7;margin:0 0 14px}
+          .feature{display:flex;align-items:flex-start;gap:12px;margin-bottom:12px;padding:12px 14px;background:#f0f4ee;border-radius:10px}
+          .feature-icon{font-size:20px;flex-shrink:0;margin-top:2px}
+          .feature-text{font-size:13px;color:#374151;line-height:1.5}
+          .feature-label{font-weight:700;color:#5a6d50;font-size:13px}
+          .cta{display:block;background:linear-gradient(135deg,#7a9068 0%,#5a6d50 100%);color:#fff;text-align:center;padding:14px 24px;border-radius:12px;font-weight:700;font-size:14px;text-decoration:none;margin:20px 0 0}
+          .footer{padding:16px 36px;background:#f8fafc;font-size:11px;color:#94a3b8;text-align:center;border-top:1px solid #f1f5f9}
+        </style></head><body>
+          <div class="wrap">
+            <div class="header">
+              <h1>🧠 Welcome to CreateAI Brain</h1>
+              <p>Your full platform access is ready, ${name || "there"}</p>
+            </div>
+            <div class="body">
+              <p>Thanks for your purchase of <strong>${productTitle}</strong>. Your CreateAI Brain workspace is now active with everything you need to get started.</p>
+              <div class="feature"><div class="feature-icon">🚀</div><div class="feature-text"><div class="feature-label">408 AI Tools Ready</div>Business, creative, health, research, and more — all powered by real AI.</div></div>
+              <div class="feature"><div class="feature-icon">📚</div><div class="feature-text"><div class="feature-label">Output Library</div>Every response you generate saves automatically — searchable, exportable, always there.</div></div>
+              <div class="feature"><div class="feature-icon">⌘K</div><div class="feature-text"><div class="feature-label">Quick Launcher</div>Press Cmd+K (or Ctrl+K) anywhere to instantly open any of the 408 apps.</div></div>
+              <a href="https://createai.digital" class="cta">Open CreateAI Brain →</a>
+            </div>
+            <div class="footer">CreateAI Brain by Lakeside Trinity LLC · createai.digital<br/>You're receiving this because you purchased ${productTitle}.</div>
+          </div>
+        </body></html>`;
+        await sendEmailNotification([email], "Your CreateAI Brain workspace is ready", welcomeHtml);
+        console.log(`[SemanticWebhook] Platform welcome email sent → ${email}`);
+      } catch (welErr) {
+        console.warn("[SemanticWebhook] Platform welcome email failed (non-fatal):", String(welErr));
+      }
+    }
+
     // ── Schedule T+3 follow-up + T+7 upsell email sequence ────────────────
     scheduleFollowups({
       customerEmail:  email,

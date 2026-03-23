@@ -1214,6 +1214,13 @@ export function OSProvider({ children }: { children: React.ReactNode }) {
     setActiveApp(id);
     const meta = APP_META[id];
     if (meta) PlatformStore.pushRecent({ appId: id, label: meta.label, icon: meta.icon });
+    // Fire-and-forget app open tracking (activity log + usage analytics)
+    fetch("/api/activity", {
+      method: "POST",
+      credentials: "include",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ action: "app_open", label: meta?.label ?? id, icon: meta?.icon ?? "📱", appId: id }),
+    }).catch(() => {});
     // Clear badge when notifications opens
     if (id === "notifications") {
       setUnreadCount(0);

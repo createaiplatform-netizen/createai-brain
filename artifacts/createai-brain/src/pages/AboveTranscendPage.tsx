@@ -101,6 +101,7 @@ export default function AboveTranscendPage() {
   const [adminStatus, setAdminStatus] = useState<AdminStatus | null>(null);
   const [apiOk,       setApiOk]       = useState<boolean | null>(null);
   const [loading,     setLoading]     = useState(true);
+  const [topApps,     setTopApps]     = useState<Array<{ appId: string; label: string; icon: string; opens: number; users: number }>>([]);
   
 
   const displayName = user?.firstName
@@ -126,6 +127,13 @@ export default function AboveTranscendPage() {
         fetch("/api/admin/status", { credentials: "include" })
           .then(r => r.ok ? r.json() : null)
           .then((d: AdminStatus | null) => { if (d) setAdminStatus(d); }),
+
+        fetch("/api/app-usage/top?limit=10", { credentials: "include" })
+          .then(r => r.ok ? r.json() : { top: [] })
+          .then((d: { top?: Array<{ appId: string; label: string; icon: string; opens: number; users: number }> }) => {
+            if (d.top && d.top.length > 0) setTopApps(d.top);
+          })
+          .catch(() => {}),
       ]);
       setLoading(false);
     };
@@ -239,6 +247,32 @@ export default function AboveTranscendPage() {
                   {adminStatus.analyticsEvents != null && (
                     <StatCard label="Analytics Events"  value={adminStatus.analyticsEvents} sub="User interactions tracked" />
                   )}
+                </div>
+              </div>
+            )}
+
+            {/* Top Apps by Engagement */}
+            {topApps.length > 0 && (
+              <div style={{ marginBottom: 32 }}>
+                <SectionHeader title="Top Apps by Engagement" sub="Most-opened apps across the platform" />
+                <div style={{ background: "#fff", borderRadius: 14, border: `1px solid ${BORDER}`, boxShadow: "0 1px 6px rgba(0,0,0,0.04)", overflow: "hidden" }}>
+                  {topApps.map((app, i) => {
+                    const maxOpens = topApps[0]?.opens ?? 1;
+                    const pct = Math.round((app.opens / maxOpens) * 100);
+                    return (
+                      <div key={app.appId} style={{ padding: "12px 18px", borderBottom: i < topApps.length - 1 ? `1px solid ${BORDER}` : "none" }}>
+                        <div style={{ display: "flex", alignItems: "center", gap: 10, marginBottom: 6 }}>
+                          <span style={{ fontSize: 18, flexShrink: 0 }}>{app.icon}</span>
+                          <span style={{ flex: 1, fontSize: 13, fontWeight: 600, color: TEXT }}>{app.label}</span>
+                          <span style={{ fontSize: 11, color: MUTED, fontWeight: 700 }}>{app.opens} opens</span>
+                          {app.users > 1 && <span style={{ fontSize: 10, color: MUTED }}>{app.users} users</span>}
+                        </div>
+                        <div style={{ height: 4, background: "#f1f5f9", borderRadius: 4, overflow: "hidden" }}>
+                          <div style={{ height: "100%", width: `${pct}%`, background: `linear-gradient(90deg, ${SAGE} 0%, #9ab48a 100%)`, borderRadius: 4, transition: "width 0.4s ease" }} />
+                        </div>
+                      </div>
+                    );
+                  })}
                 </div>
               </div>
             )}
