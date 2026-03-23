@@ -1,0 +1,47 @@
+Implement the remaining pieces of the Universal Invitation Engine. All existing files (registry.ts, InviteCard.tsx, InvitePanel.tsx, ShareHelpers.ts, index.ts, BroadcastFloatingTrigger.tsx) should remain intact. Add the following components and enhancements:
+
+1. Update InvitePanel.tsx:
+   - Group surfaces by their `category` field (e.g., "Core", "Invite & Share", "Tools", "Spaces", "Hubs").
+   - Add route-aware highlighting: use the current pathname and each surface’s optional `routeHint` field to highlight the most relevant surfaces at the top of the panel.
+   - Keep the UI minimal and dependency-free.
+
+2. Create EmbeddedInvite.tsx:
+   - A simple wrapper that takes a `surfaceId` prop.
+   - Uses the registry to load the surface and renders InviteCard.
+   - Used for embedding invitations directly inside pages.
+
+3. Create useInviteSurface.ts:
+   - A small hook that returns the full registry entry for a given surface id.
+   - Used by EmbeddedInvite, InviteBanner, and other components.
+
+4. Create InviteBanner.tsx:
+   - A compact horizontal banner version of InviteCard.
+   - Shows icon, title, tagline, and a small “Join” button.
+   - Pulls data from registry via useInviteSurface.
+
+5. Create ShareCard.tsx:
+   - A minimal shareable card component that renders:
+     - title
+     - tagline
+     - QR code (using existing qrcode package)
+     - optional icon and color
+   - Uses registry + ShareHelpers for data.
+
+6. Update index.ts:
+   - Export everything: InviteCard, InvitePanel, EmbeddedInvite, InviteBanner, ShareCard, useInviteSurface, ShareHelpers.
+
+7. Global behavior:
+   - BroadcastFloatingTrigger.tsx should continue opening InvitePanel with no changes required.
+   - All new components must rely only on registry.ts for data. No hardcoded surfaces.
+
+8. Future-proofing:
+   - Adding a new surface to registry.ts must automatically:
+     - appear in InvitePanel (grouped)
+     - be highlightable via routeHint
+     - be embeddable via EmbeddedInvite
+     - be usable in InviteBanner
+     - generate a ShareCard
+     - work with ShareHelpers
+   - No component rewrites should be required.
+
+Use minimal dependencies. No planning text. Just implement all files exactly as described.
