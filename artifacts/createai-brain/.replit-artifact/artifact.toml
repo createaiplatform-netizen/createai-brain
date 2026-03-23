@@ -10,15 +10,12 @@ name = "react-vite"
 version = "1.0.0"
 
 [[services]]
-localPort = 5173
+localPort = 8080
 name = "web"
 paths = ["/"]
 
 [services.development]
-run = "BASE_PATH=/ pnpm --filter @workspace/createai-brain run dev"
-
-[services.env]
-BASE_PATH = "/"
+run = "echo 'CreateAI Brain is served via the API Server on port 8080. Open the API Server workflow to see logs.'"
 
 [services.production]
 build = ["pnpm", "--filter", "@workspace/createai-brain", "run", "build"]
