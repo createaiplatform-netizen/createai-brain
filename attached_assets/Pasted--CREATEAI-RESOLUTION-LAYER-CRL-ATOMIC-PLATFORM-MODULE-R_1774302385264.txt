@@ -1,0 +1,71 @@
+// CREATEAI RESOLUTION LAYER (CRL) — ATOMIC PLATFORM MODULE
+
+// ===== REGISTRY =====
+const REG={
+ brain:{b:"/",d:"Brain"},
+ family:{b:"/family",d:"Family"},
+ os:{b:"/os",d:"OS"},
+ hub:{b:"/hubs",d:"Hubs"},
+ space:{b:"/spaces",d:"Spaces"},
+ identity:{b:"/id",d:"Identity"}
+};
+
+// ===== PARSE =====
+export const parse=crl=>{
+ const[s,p]=crl.split("://");
+ if(!s||!p)throw"bad crl";
+ if(!REG[s])throw"bad scheme";
+ return{scheme:s,path:p.replace(/^\/+/,""),raw:crl};
+};
+
+// ===== RESOLVE PATH =====
+export const toPath=crl=>{
+ const{scheme,path}=parse(crl);
+ const b=REG[scheme].b;
+ return(path?`${b}/${path}`:b).replace(/\/+/g,"/");
+};
+
+// ===== RESOLVE URL =====
+export const toURL=(crl,base="https://createai.digital")=>{
+ return base.replace(/\/+$/,"")+toPath(crl);
+};
+
+// ===== EXPRESS API HANDLER =====
+export const CRLApi=(req,res)=>{
+ try{
+  const{crl}=req.query;
+  if(!crl)return res.status(400).json({error:"missing"});
+  res.json({crl,url:toURL(crl)});
+ }catch(e){res.status(400).json({error:String(e)})}
+};
+
+// ===== FRONTEND RESOLVER =====
+export const resolveCRL=async crl=>{
+ const r=await fetch(`/api/crl/resolve?crl=${encodeURIComponent(crl)}`);
+ if(!r.ok)throw(await r.json()).error;
+ return r.json();
+};
+
+// ===== HOOK =====
+import{useState,useEffect}from"react";
+export const useCRL=crl=>{
+ const[d,sD]=useState(null),[l,sL]=useState(!!crl),[e,sE]=useState(null);
+ useEffect(()=>{
+  if(!crl){sD(null);sL(false);sE(null);return;}
+  let c=false;sL(true);
+  resolveCRL(crl).then(x=>{if(!c){sD(x);sL(false);}})
+  .catch(err=>{if(!c){sE(String(err));sL(false);}});
+  return()=>c=true;
+ },[crl]);
+ return{data:d,loading:l,error:e};
+};
+
+// ===== LINK COMPONENT =====
+import React from"react";
+export const CRLLink=({crl,children,fallbackHref,...r})=>{
+ const{data,loading,error}=useCRL(crl);
+ const href=data?.url||fallbackHref||"#";
+ if(loading)return<span {...r}>{children||"…"}</span>;
+ if(error&&!data)return<span {...r}>{children||"bad"}</span>;
+ return<a href={href}{...r}>{children||href}</a>;
+};
