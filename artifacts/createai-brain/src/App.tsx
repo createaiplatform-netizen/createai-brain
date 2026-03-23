@@ -10,6 +10,8 @@ import StandalonePage from "@/pages/StandalonePage";
 import BroadcastPage       from "@/pages/BroadcastPage";
 import GlobalBroadcastPage from "@/pages/GlobalBroadcastPage";
 import OnboardPage          from "@/pages/OnboardPage";
+import PricingPage          from "@/pages/PricingPage";
+import PrivacyPage          from "@/pages/PrivacyPage";
 import BroadcastFloatingTrigger from "@/components/BroadcastFloatingTrigger";
 import CreationPage from "@/pages/CreationPage";
 import ProjectPage from "@/pages/ProjectPage";
@@ -750,7 +752,10 @@ function App() {
     path.startsWith(`${base}/broadcast`) ||
     // Global Broadcast onboarding entry — token-verified, no auth gate
     path.startsWith(`${base}/onboard`) ||
-    path.startsWith(`${base}/global-broadcast`);
+    path.startsWith(`${base}/global-broadcast`) ||
+    // Public info pages — pricing, privacy policy
+    path.startsWith(`${base}/pricing`) ||
+    path.startsWith(`${base}/privacy`);
 
   if (isPublicRoute) {
     return (
@@ -793,6 +798,9 @@ function App() {
           <Route path="/global-broadcast" component={GlobalBroadcastPage} />
           {/* Global Broadcast entry — token-verified onboarding for anyone with the link */}
           <Route path="/onboard"          component={OnboardPage} />
+          {/* Public info pages */}
+          <Route path="/pricing"          component={PricingPage} />
+          <Route path="/privacy"          component={PrivacyPage} />
         </WouterRouter>
       </QueryClientProvider>
     );
