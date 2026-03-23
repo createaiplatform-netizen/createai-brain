@@ -15,17 +15,19 @@ export const db = drizzle(pool, { schema });
 
 export * from "./schema";
 
+export { sql } from "drizzle-orm";
+
 /**
- * sql — tagged template literal for executing raw parameterized SQL via the pool.
+ * rawSql — tagged template literal for executing raw parameterized SQL via the pool.
  *
  * Usage:
- *   const rows = await sql`SELECT * FROM users WHERE id = ${userId}`;
- *   const [row] = await sql`SELECT COUNT(*) AS n FROM leads`;
- *   await sql`CREATE TABLE IF NOT EXISTS ...`;
+ *   const rows = await rawSql`SELECT * FROM users WHERE id = ${userId}`;
+ *   const [row] = await rawSql`SELECT COUNT(*) AS n FROM leads`;
+ *   await rawSql`CREATE TABLE IF NOT EXISTS ...`;
  *
  * Returns the rows array. For DDL statements (CREATE, ALTER, etc.) returns [].
  */
-export async function sql(
+export async function rawSql(
   strings: TemplateStringsArray,
   ...values: unknown[]
 ): Promise<Record<string, unknown>[]> {

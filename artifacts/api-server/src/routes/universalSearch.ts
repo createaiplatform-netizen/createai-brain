@@ -11,7 +11,7 @@
  */
 
 import { Router, type Request, type Response } from "express";
-import { sql }                                  from "@workspace/db";
+import { rawSql as sql } from "@workspace/db";
 
 const router = Router();
 

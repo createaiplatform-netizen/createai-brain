@@ -19,7 +19,7 @@
  */
 
 import { Router, type Request, type Response } from "express";
-import { sql }          from "@workspace/db";
+import { rawSql as sql } from "@workspace/db";
 import { requireAuth }  from "../middlewares/requireAuth.js";
 
 const router = Router();

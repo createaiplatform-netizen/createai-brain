@@ -15,7 +15,7 @@
 import { sendEmailNotification }         from "../utils/notifications.js";
 import { PLATFORM }                      from "../services/platformIdentity.js";
 import { getLaunchFlag, LAUNCH_FLAG_KEYS } from "../utils/launchFlags.js";
-import { sql }                           from "@workspace/db";
+import { rawSql as sql } from "@workspace/db";
 
 export type JobStatus = "pending" | "sent" | "failed" | "skipped";
 export type JobType   = "followup_3d" | "upsell_7d";
