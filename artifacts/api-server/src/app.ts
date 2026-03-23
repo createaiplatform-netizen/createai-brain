@@ -112,6 +112,10 @@ import portalsExtendedRouter from "./routes/portalsExtended.js";
 import protocolGatewayRouter    from "./routes/protocolGateway.js";
 import adNetworkCatalogsRouter  from "./routes/adNetworkCatalogs.js";
 import appUsageRouter            from "./routes/appUsage.js";
+import discoveryRouter           from "./routes/discovery.js";
+import contextualRouter          from "./routes/contextual.js";
+import selfMapRouter             from "./routes/selfMap.js";
+import lifecycleRouter           from "./routes/lifecycle.js";
 
 export { chatLimiter, heavyLimiter, editLimiter } from "./middlewares/rateLimiters";
 
@@ -241,10 +245,12 @@ app.get("/sitemap.xml", async (_req: Request, res: Response) => {
     const coreUrls =
       url("/",                 "daily",   "1.00") +
       url("/createai-digital", "weekly",  "0.98") +
-      url("/public",           "weekly",  "0.96") +
-      url("/public/family",    "weekly",  "0.95") +
-      url("/store",            "daily",   "0.94") +
-      url("/family-hub",       "weekly",  "0.92") +
+      url("/discover",         "daily",   "0.96") +
+      url("/public",           "weekly",  "0.95") +
+      url("/public/family",    "weekly",  "0.94") +
+      url("/store",            "daily",   "0.93") +
+      url("/broadcast",        "daily",   "0.91") +
+      url("/family-hub",       "weekly",  "0.90") +
       url("/above-transcend",  "daily",   "0.88") +
       url("/join/landing",     "weekly",  "0.85") +
       url("/join/plans",       "weekly",  "0.82") +
@@ -561,6 +567,10 @@ app.use("/",          semanticStoreRouter);
 app.use("/",          platformHubRouter);
 app.use("/api/ads",          adNetworkCatalogsRouter);
 app.use("/api/app-usage",   appUsageRouter);
+app.use("/api/discovery",   discoveryRouter);
+app.use("/api/contextual",  contextualRouter);
+app.use("/api/platform",    selfMapRouter);
+app.use("/api/lifecycle",   lifecycleRouter);
 
 // ── API (private — Replit auth + scope) ──────────────────────────────────────
 app.use(authMiddleware);

@@ -3,8 +3,11 @@ import { useOS } from "@/os/OSContext";
 import type { AppId } from "@/os/OSContext";
 import { useUserRole } from "@/hooks/useUserRole";
 import { useAuth } from "@workspace/replit-auth-web";
+import { InviteBanner } from "@/components/invite";
 
-const STORAGE_KEY = "cai_onboarded_v1";
+const STORAGE_KEY        = "cai_onboarded_v1";
+const POST_INVITE_DELAY  = 800;   // ms after wizard closes before invite banner appears
+const POST_INVITE_DURATION = 14000; // ms the invite banner stays visible
 const SAGE = "#7a9068";
 const SAGE_LIGHT = "#f0f4ee";
 const SAGE_DARK = "#5a6d50";
@@ -120,6 +123,7 @@ export function CustomerOnboardingWizard() {
   const [selectedGoals, setSelected]  = useState<Set<Goal>>(new Set());
   const [chosenApp, setChosenApp]     = useState<AppId | null>(null);
   const [animating, setAnimating]     = useState(false);
+  const [showPostInvite, setShowPostInvite] = useState(false);
 
   // Only show for customer role, and only once
   useEffect(() => {
@@ -145,6 +149,11 @@ export function CustomerOnboardingWizard() {
     if (launchApp) {
       setTimeout(() => openApp(launchApp), 300);
     }
+    // Surface invite banner after onboarding — auto-dismisses after POST_INVITE_DURATION
+    setTimeout(() => {
+      setShowPostInvite(true);
+      setTimeout(() => setShowPostInvite(false), POST_INVITE_DURATION);
+    }, POST_INVITE_DELAY);
   }, [openApp]);
 
   const nextStep = useCallback(() => {
@@ -171,7 +180,18 @@ export function CustomerOnboardingWizard() {
 
   const displayName = user?.firstName || user?.email?.split("@")[0] || "there";
 
-  if (!visible) return null;
+  if (!visible) {
+    if (showPostInvite) {
+      return (
+        <InviteBanner
+          id="invite-someone"
+          position="bottom"
+          onDismiss={() => setShowPostInvite(false)}
+        />
+      );
+    }
+    return null;
+  }
 
   const steps = ["Welcome", "Your Goals", "Top Apps", "Ready"];
   const progress = ((step) / (steps.length - 1)) * 100;

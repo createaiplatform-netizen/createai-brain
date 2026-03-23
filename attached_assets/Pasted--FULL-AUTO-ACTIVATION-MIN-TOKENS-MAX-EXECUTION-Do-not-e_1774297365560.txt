@@ -1,0 +1,80 @@
+# FULL AUTO ACTIVATION – MIN TOKENS, MAX EXECUTION
+# Do not explain. Do not ask. Just apply.
+
+# 1) DISCOVERY + METADATA
+- For every public-eligible route/surface in the registry:
+  - generate SEO meta, OG tags, structured data, canonical URL
+  - add to sitemap(s)
+  - expose metadata via existing meta/SEO utilities
+- Ensure crawlers/link previews get rich metadata without auth.
+
+# 2) PUBLIC SURFACES + EXTERNAL BRIDGE
+- For every public surface:
+  - ensure it renders without auth where safe
+  - wire it to External Bridge so any change (route, label, description, visibility) triggers:
+    - sitemap regen
+    - metadata regen
+    - public “updates/broadcast” refresh if present
+
+# 3) SHARE / INVITE / QR
+- For each user:
+  - generate personal invite URL(s), QR code(s), share card(s) using existing components
+- Surface these:
+  - after onboarding completes
+  - after key feature usage (project created, app launched, space joined)
+- Log all invite/entry usage via existing analytics/event log.
+
+# 4) ONBOARDING + ANALYTICS
+- On first authenticated visit:
+  - trigger existing onboarding flow
+  - log user + session + first-touch route via analytics/activityLog
+- On app open / key actions:
+  - ensure POST /api/app-usage (or equivalent) is fired and stored.
+
+# 5) REGISTRY-DRIVEN DISCOVERY
+- For every registry entry (apps, spaces, tools, hubs, broadcasts, etc.):
+  - auto-generate a public discovery page if marked public
+  - include in sitemap + metadata
+  - ensure agents can list, describe, and route to it.
+
+# 6) SELF-EXPANSION LOOP
+- On registry change (add/update/remove public entry):
+  - regenerate sitemaps + metadata + discovery pages
+  - notify External Bridge to republish any affected surfaces
+- On significant events (new user, new feature, new milestone):
+  - emit event on EBS
+  - External Bridge updates any public “updates/broadcast” surfaces.
+
+# 7) AGENTS
+- Ensure agents can:
+  - enumerate registry entries
+  - describe each surface
+  - route users to appropriate routes
+  - suggest invites/share surfaces when relevant.
+
+# 8) SAFETY + BOUNDARIES
+- Only use existing auth, roles, and privacy rules.
+- Do not send data externally except through External Bridge and only where already allowed.
+- Do not invent new services or infra.
+
+# 9) IMPLEMENTATION
+- Locate:
+  - registry definitions
+  - SEO/meta utilities
+  - sitemap generator
+  - External Bridge handlers
+  - invite/share/QR/broadcast components
+  - onboarding flow
+  - analytics/activityLog + /api/app-usage
+- Extend + connect them to satisfy all steps above.
+- Add minimal tests to confirm:
+  - new registry entries appear in discovery + sitemap + metadata
+  - onboarding + analytics + app-usage work
+  - invite/share/QR surfaces appear at the right times.
+
+# 10) FINAL
+- Apply changes.
+- Then output:
+  - files changed
+  - new events/handlers
+  - how the self-expansion loop works end-to-end (1 short paragraph).

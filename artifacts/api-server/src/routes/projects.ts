@@ -1,5 +1,6 @@
 import { Router, type IRouter, type Request, type Response } from "express";
 import { logTractionEvent } from "../lib/tractionLogger";
+import { broadcastGlobalPulse } from "../services/globalPulse.js";
 import { eq, desc, and, or, isNull, ne, inArray } from "drizzle-orm";
 import { openai } from "@workspace/integrations-openai-ai-server";
 import {
@@ -299,6 +300,12 @@ router.post("/", audit("create_project", "project", r => r.body?.name ?? "unknow
       title: `Project created: ${name.trim()}`,
       body: `New ${industry} project is ready with folders pre-configured.`,
       appId: "projos",
+    }).catch(() => {});
+    broadcastGlobalPulse({
+      event:   "project_created",
+      message: `New project created: ${name.trim()}`,
+      ts:      new Date().toISOString(),
+      meta:    { industry },
     }).catch(() => {});
     cache.del(`projects:${userId}`);
     res.status(201).json({ project: full });

@@ -1,0 +1,89 @@
+Turn this app into a self-expanding, zero‑maintenance OS.
+
+Goal:
+Maximize legal, ethical global reach and usage with no manual labor, by fully automating:
+- discovery
+- accessibility
+- relevance
+- extensibility
+- shareability
+- self‑expansion
+- interoperability
+- trust
+- benefit
+- delight
+
+Do NOT invent new architecture. Only use what already exists in this repo:
+- registry‑driven surfaces
+- OS layout + runtime
+- EBS/event backbone
+- External Bridge
+- agents
+- onboarding
+- analytics
+- invite/share/QR/broadcast surfaces
+- public pages + metadata
+
+Implement, end‑to‑end:
+
+1) Discovery & publishing
+- For every public‑eligible surface/route in the registry, auto‑generate:
+  - SEO metadata, OpenGraph, structured data, canonical URLs, sitemaps
+  - share cards, QR codes, preview images
+- Wire these into the External Bridge so any new/changed surface auto‑publishes to:
+  - public pages
+  - sitemaps
+  - metadata endpoints
+  - any existing “public feed”/“updates”/“broadcast” surfaces
+- Ensure crawlers and link previews get rich metadata without auth.
+
+2) Accessibility & onboarding
+- Ensure all public entry routes are reachable without auth where safe.
+- On first authenticated visit, auto‑trigger onboarding flow and log usage via existing analytics.
+- After onboarding, auto‑surface invite/share/QR/broadcast components where they already exist.
+
+3) Relevance & extensibility
+- Use the registry + agents to:
+  - allow new spaces/features to be added without code changes
+  - auto‑generate public discovery pages for each new registry entry
+- Ensure agents can describe, summarize, and route users to any registered surface.
+
+4) Shareability & internal virality
+- For each user, auto‑generate:
+  - personal invite link(s)
+  - QR code(s)
+  - share card(s)
+- Surface these at key lifecycle events (post‑onboarding, after key feature use) using existing UI hooks.
+- Log all invite/entry usage via existing analytics.
+
+5) Self‑expansion loop
+- On any registry change, new feature, new space, or new public surface:
+  - regenerate sitemaps, metadata, and discovery pages
+  - republish via External Bridge
+- On significant internal events (new user, new feature, new milestone):
+  - trigger External Bridge to update any public “updates/broadcast” surfaces.
+
+6) Interoperability & safety
+- Only call external systems through the existing External Bridge.
+- Never send data or perform actions without explicit user or owner consent.
+- Preserve all privacy, auth, and role boundaries already defined.
+
+7) Implementation details
+- Find all existing:
+  - registry definitions
+  - EBS/event emitters
+  - External Bridge handlers
+  - invite/share/QR/broadcast components
+  - metadata/SEO utilities
+  - analytics logging
+- Extend and connect them; do NOT rewrite from scratch.
+- Add tests to confirm:
+  - new registry entries auto‑appear as public discovery surfaces
+  - metadata/sitemaps update on change
+  - onboarding + invite surfaces trigger correctly
+  - analytics record all relevant events.
+
+When done, summarize:
+- files changed
+- new events/handlers
+- how the self‑expanding loop works end‑to‑end.

@@ -28,6 +28,7 @@ import {
   STRIPE_META,
 } from "../services/integrations/stripeService.js";
 import { sendEmailNotification } from "../utils/notifications.js";
+import { broadcastGlobalPulse }  from "../services/globalPulse.js";
 
 // ─── Welcome email sequence ───────────────────────────────────────────────────
 // Three-touch sequence: immediate, +3 days, +7 days.
@@ -200,6 +201,12 @@ router.post("/customer", async (req: Request, res: Response) => {
     const customer = await createCustomer(name, email);
     // Fire 3-email welcome sequence — non-blocking
     sendWelcomeSequence(email, name).catch(() => {});
+    // Emit new-user event via GlobalPulse — updates broadcast surfaces
+    broadcastGlobalPulse({
+      event:   "platform.new_user",
+      message: "A new member has joined CreateAI Brain.",
+      ts:      new Date().toISOString(),
+    }).catch(() => {});
     res.json({ ok: true, customer, ...STRIPE_META });
   } catch (err: unknown) {
     res.status(400).json({ ok: false, error: (err as Error).message });

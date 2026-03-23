@@ -60,6 +60,23 @@ export const SURFACES: InviteSurface[] = [
     },
   },
 
+  {
+    id:        "discover",
+    title:     "Discover CreateAI Brain",
+    tagline:   "Browse every surface, tool, hub, and space — all publicly indexed.",
+    link:      "/discover",
+    joinLabel: "Browse All",
+    icon:      "🔍",
+    color:     "#7a9068",
+    category:  "invite",
+    featured:  true,
+    routeHint: "/discover",
+    shareText: {
+      sms:   "Explore everything CreateAI Brain has to offer: {{link}}",
+      email: "Hi,\n\nHere's a full index of every surface, tool, and space inside CreateAI Brain: {{link}}\n\nSomething for every goal.",
+    },
+  },
+
   // ── Core platform ─────────────────────────────────────────────────────────
   {
     id:        "platform",

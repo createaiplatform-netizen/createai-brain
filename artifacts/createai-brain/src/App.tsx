@@ -742,7 +742,10 @@ function App() {
     path.startsWith(`${base}/connectors/`) ||
     path.startsWith(`${base}/npa-gateway`) ||
     // External Bridge Layer — full public presence, no auth required
-    path.startsWith(`${base}/public`);
+    path.startsWith(`${base}/public`) ||
+    // Registry-driven discovery + broadcast — public, no auth required
+    path.startsWith(`${base}/discover`) ||
+    path.startsWith(`${base}/broadcast`);
 
   if (isPublicRoute) {
     return (
@@ -772,6 +775,16 @@ function App() {
           {/* External Bridge Layer — full public presence, auto-indexed */}
           <Route path="/public" component={PublicBridgePage} />
           <Route path="/public/family" component={PublicFamilyPage} />
+          {/* Registry-driven public discovery grid — auto-expands with publicSurfaces.ts */}
+          <Route path="/discover">
+            {() => (
+              <React.Suspense fallback={<div style={{ padding: 40, textAlign: "center", color: "#9ca3af" }}>Loading…</div>}>
+                {React.createElement(React.lazy(() => import("@/pages/DiscoveryPage")))}
+              </React.Suspense>
+            )}
+          </Route>
+          {/* Broadcast network — public subscription page */}
+          <Route path="/broadcast" component={BroadcastPage} />
         </WouterRouter>
       </QueryClientProvider>
     );
