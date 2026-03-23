@@ -10,6 +10,7 @@
 
 import React, { useEffect, useState } from "react";
 import { useLocation, useParams } from "wouter";
+import useSEO from "@/hooks/useSEO";
 
 const INDIGO = "#6366f1";
 const PURPLE = "#8b5cf6";
@@ -43,8 +44,22 @@ export default function JoinPage() {
   const [info, setInfo] = useState<ReferralInfo | null>(null);
   const [joining, setJoining] = useState(false);
 
+  useSEO({
+    title:       "You're Invited to CreateAI Brain — Start Your AI Business OS",
+    description: "Join CreateAI Brain — 408+ AI tools, autonomous revenue, and a private family portal. Activate your referral and start building smarter today.",
+    url:         "https://createai.digital/join/" + code,
+    keywords:    "join CreateAI Brain, AI platform referral, AI business OS signup",
+    jsonLD: {
+      "@context": "https://schema.org",
+      "@type": "WebPage",
+      "name": "Join CreateAI Brain",
+      "url": "https://createai.digital/join",
+      "description": "Referral landing page for CreateAI Brain — the AI business OS by Lakeside Trinity LLC.",
+      "isPartOf": { "@type": "WebSite", "url": "https://createai.digital" }
+    }
+  });
+
   useEffect(() => {
-    document.title = "You've Been Invited — CreateAI Brain";
 
     if (!code) return;
 

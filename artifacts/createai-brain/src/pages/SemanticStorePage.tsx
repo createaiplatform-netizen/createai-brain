@@ -12,6 +12,7 @@
  */
 
 import React, { useEffect, useState } from "react";
+import useSEO from "@/hooks/useSEO";
 
 interface SemanticProduct {
   id: string;
@@ -165,6 +166,21 @@ function MaturityBar({ maturity }: { maturity: string }) {
 }
 
 export default function SemanticStorePage() {
+  useSEO({
+    title:       "AI Products Store — Templates, Courses & Business Tools | CreateAI Brain",
+    description: "Browse 100+ AI-powered products: business templates, online courses, automation tools, and digital assets. Instant download. Built by Lakeside Trinity LLC.",
+    url:         "https://createai.digital/semantic-store",
+    keywords:    "AI products store, business templates, online courses, digital tools, AI downloads",
+    jsonLD: {
+      "@context": "https://schema.org",
+      "@type": "Store",
+      "name": "CreateAI Brain Product Store",
+      "url": "https://createai.digital/semantic-store",
+      "description": "100+ AI-powered business products — templates, courses, automation tools, and digital assets.",
+      "seller": { "@type": "Organization", "name": "Lakeside Trinity LLC", "url": "https://createai.digital" }
+    }
+  });
+
   const [products, setProducts] = useState<SemanticProduct[]>([]);
   const [signals, setSignals] = useState<DemandSignal | null>(null);
   const [loading, setLoading] = useState(true);

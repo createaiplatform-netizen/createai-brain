@@ -1,0 +1,111 @@
+// src/hooks/useSEO.ts
+import { useEffect } from "react";
+import SEOMeta from "../components/SEOMeta";
+
+interface SEOProps {
+  title: string;
+  description: string;
+  url?: string;
+  ogImage?: string;
+  jsonLD?: object;
+}
+
+export default function useSEO({ title, description, url, ogImage, jsonLD }: SEOProps) {
+  useEffect(() => {
+    // Wrap SEOMeta logic for easy page usage
+    SEOMeta({
+      title,
+      description,
+      url,
+      ogImage,
+      jsonLD,
+    });
+  }, [title, description, url, ogImage, jsonLD]);
+}
+
+// ----------------------------------------------------
+// Example usage on pages: src/pages/CreateAIDigitalPage.tsx
+import React from "react";
+import useSEO from "../hooks/useSEO";
+
+export default function CreateAIDigitalPage() {
+  useSEO({
+    title: "CreateAI Digital - Universal AI Brain Platform",
+    description: "Automated, scalable AI platform for software, projects, and family portal.",
+    url: "https://createai.digital/createai-digital",
+    ogImage: "https://createai.digital/images/og-createai.png",
+    jsonLD: {
+      "@context": "https://schema.org",
+      "@type": "SoftwareApplication",
+      "name": "CreateAI Digital",
+      "url": "https://createai.digital/createai-digital",
+      "applicationCategory": "BusinessApplication",
+    },
+  });
+
+  return <div>{/* Page content */}</div>;
+}
+
+// ----------------------------------------------------
+// Repeat similar setup for the other pages:
+[
+  { page: "JoinPage", url: "/join", title: "Join CreateAI Digital", description: "Become part of the Universal AI Brain platform." },
+  { page: "SemanticStorePage", url: "/semantic-store", title: "Semantic Store", description: "Explore intelligent AI-powered store features." },
+  { page: "AboveTranscendPage", url: "/above-transcend", title: "Above Transcend", description: "Discover cutting-edge AI solutions." },
+  { page: "RealMarketPage", url: "/real-market", title: "Real Market", description: "Experience the AI-driven real market platform." },
+  { page: "PlatformStatusPage", url: "/platform-status", title: "Platform Status", description: "Check live status of CreateAI Digital platform." },
+].forEach(({ page, url, title, description }) => {
+  // In each page component, call useSEO({ title, description, url })
+});
+
+// ----------------------------------------------------
+// index.html (update theme color)
+<meta name="theme-color" content="#9CAF88" />
+
+// ----------------------------------------------------
+// app.ts - Expand sitemap
+import express from "express";
+import { getAllPublicPages } from "./utils/sitemapHelper";
+
+const app = express();
+
+app.get("/sitemap.xml", (req, res) => {
+  const pages = getAllPublicPages(); // Returns all URLs including the 6 new pages
+  const sitemapXml = `<?xml version="1.0" encoding="UTF-8"?>
+  <urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">
+    ${pages
+      .map(
+        (page) => `
+      <url>
+        <loc>${page.url}</loc>
+        <changefreq>${page.changefreq || "weekly"}</changefreq>
+        <priority>${page.priority || "0.8"}</priority>
+      </url>
+    `
+      )
+      .join("")}
+  </urlset>`;
+  res.header("Content-Type", "application/xml");
+  res.send(sitemapXml);
+});
+
+// ----------------------------------------------------
+// Ping search engines after sitemap generation
+import axios from "axios";
+
+async function pingSearchEngines() {
+  const sitemapUrl = "https://createai.digital/sitemap.xml";
+  try {
+    await axios.get(`https://www.google.com/ping?sitemap=${sitemapUrl}`);
+    console.log("Google sitemap pinged successfully.");
+    await axios.get(`https://www.bing.com/ping?sitemap=${sitemapUrl}`);
+    console.log("Bing sitemap pinged successfully.");
+  } catch (error) {
+    console.error("Error pinging search engines:", error);
+  }
+}
+
+pingSearchEngines();
+
+// ----------------------------------------------------
+// After this, your SPA pages have full per-page SEO, the sitemap is updated, theme color is sage, and search engines are notified.

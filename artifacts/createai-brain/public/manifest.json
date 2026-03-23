@@ -6,27 +6,97 @@
   "start_url": "/",
   "scope": "/",
   "display": "standalone",
-  "display_override": ["window-controls-overlay", "standalone", "minimal-ui", "browser"],
+  "display_override": [
+    "window-controls-overlay",
+    "standalone",
+    "minimal-ui",
+    "browser"
+  ],
   "orientation": "any",
   "background_color": "#020617",
-  "theme_color": "#6366f1",
+  "theme_color": "#9CAF88",
   "lang": "en-US",
   "dir": "ltr",
-  "categories": ["business", "productivity", "utilities", "finance"],
+  "categories": [
+    "business",
+    "productivity",
+    "utilities",
+    "finance"
+  ],
   "prefer_related_applications": false,
   "icons": [
-    { "src": "/icons/icon-72.png",          "sizes": "72x72",   "type": "image/png", "purpose": "any" },
-    { "src": "/icons/icon-96.png",          "sizes": "96x96",   "type": "image/png", "purpose": "any" },
-    { "src": "/icons/icon-128.png",         "sizes": "128x128", "type": "image/png", "purpose": "any" },
-    { "src": "/icons/icon-144.png",         "sizes": "144x144", "type": "image/png", "purpose": "any" },
-    { "src": "/icons/icon-152.png",         "sizes": "152x152", "type": "image/png", "purpose": "any" },
-    { "src": "/icons/icon-167.png",         "sizes": "167x167", "type": "image/png", "purpose": "any" },
-    { "src": "/icons/icon-180.png",         "sizes": "180x180", "type": "image/png", "purpose": "any" },
-    { "src": "/icons/icon-192.png",         "sizes": "192x192", "type": "image/png", "purpose": "any" },
-    { "src": "/icons/icon-384.png",         "sizes": "384x384", "type": "image/png", "purpose": "any" },
-    { "src": "/icons/icon-512.png",         "sizes": "512x512", "type": "image/png", "purpose": "any" },
-    { "src": "/icons/icon-maskable-192.png","sizes": "192x192", "type": "image/png", "purpose": "maskable" },
-    { "src": "/icons/icon-maskable-512.png","sizes": "512x512", "type": "image/png", "purpose": "maskable" }
+    {
+      "src": "/icons/icon-72.png",
+      "sizes": "72x72",
+      "type": "image/png",
+      "purpose": "any"
+    },
+    {
+      "src": "/icons/icon-96.png",
+      "sizes": "96x96",
+      "type": "image/png",
+      "purpose": "any"
+    },
+    {
+      "src": "/icons/icon-128.png",
+      "sizes": "128x128",
+      "type": "image/png",
+      "purpose": "any"
+    },
+    {
+      "src": "/icons/icon-144.png",
+      "sizes": "144x144",
+      "type": "image/png",
+      "purpose": "any"
+    },
+    {
+      "src": "/icons/icon-152.png",
+      "sizes": "152x152",
+      "type": "image/png",
+      "purpose": "any"
+    },
+    {
+      "src": "/icons/icon-167.png",
+      "sizes": "167x167",
+      "type": "image/png",
+      "purpose": "any"
+    },
+    {
+      "src": "/icons/icon-180.png",
+      "sizes": "180x180",
+      "type": "image/png",
+      "purpose": "any"
+    },
+    {
+      "src": "/icons/icon-192.png",
+      "sizes": "192x192",
+      "type": "image/png",
+      "purpose": "any"
+    },
+    {
+      "src": "/icons/icon-384.png",
+      "sizes": "384x384",
+      "type": "image/png",
+      "purpose": "any"
+    },
+    {
+      "src": "/icons/icon-512.png",
+      "sizes": "512x512",
+      "type": "image/png",
+      "purpose": "any"
+    },
+    {
+      "src": "/icons/icon-maskable-192.png",
+      "sizes": "192x192",
+      "type": "image/png",
+      "purpose": "maskable"
+    },
+    {
+      "src": "/icons/icon-maskable-512.png",
+      "sizes": "512x512",
+      "type": "image/png",
+      "purpose": "maskable"
+    }
   ],
   "screenshots": [
     {
@@ -50,28 +120,48 @@
       "short_name": "NEXUS",
       "description": "Open the NEXUS semantic AI command interface",
       "url": "/?nexus=open",
-      "icons": [{ "src": "/icons/icon-96.png", "sizes": "96x96" }]
+      "icons": [
+        {
+          "src": "/icons/icon-96.png",
+          "sizes": "96x96"
+        }
+      ]
     },
     {
       "name": "AI Strategy Engine",
       "short_name": "Strategy",
       "description": "GPT-4o powered strategic intelligence",
       "url": "/?app=aiStrategy",
-      "icons": [{ "src": "/icons/icon-96.png", "sizes": "96x96" }]
+      "icons": [
+        {
+          "src": "/icons/icon-96.png",
+          "sizes": "96x96"
+        }
+      ]
     },
     {
       "name": "Revenue Intelligence",
       "short_name": "Revenue",
       "description": "MRR, ARR, cohort analytics",
       "url": "/?app=revenueIntel",
-      "icons": [{ "src": "/icons/icon-96.png", "sizes": "96x96" }]
+      "icons": [
+        {
+          "src": "/icons/icon-96.png",
+          "sizes": "96x96"
+        }
+      ]
     },
     {
       "name": "CRM",
       "short_name": "CRM",
       "description": "Customer relationship management",
       "url": "/?app=domainCRM",
-      "icons": [{ "src": "/icons/icon-96.png", "sizes": "96x96" }]
+      "icons": [
+        {
+          "src": "/icons/icon-96.png",
+          "sizes": "96x96"
+        }
+      ]
     }
   ],
   "share_target": {

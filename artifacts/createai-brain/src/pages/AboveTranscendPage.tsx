@@ -6,6 +6,7 @@
 
 import React, { useEffect, useState } from "react";
 import { useAuth } from "@workspace/replit-auth-web";
+import useSEO from "@/hooks/useSEO";
 
 const SAGE   = "#7a9068";
 const CREAM  = "#faf9f6";
@@ -94,6 +95,21 @@ function SectionHeader({ title, sub }: { title: string; sub?: string }) {
 
 export default function AboveTranscendPage() {
   const { user } = useAuth();
+
+  useSEO({
+    title:       "Above & Transcend — Platform Intelligence | CreateAI Brain",
+    description: "Real-time platform analytics, live system health, top apps, and growth intelligence for CreateAI Brain. Built for founders and power users.",
+    url:         "https://createai.digital/above-transcend",
+    keywords:    "platform analytics, AI intelligence, system health, CreateAI Brain admin",
+    jsonLD: {
+      "@context": "https://schema.org",
+      "@type": "WebPage",
+      "name": "Above & Transcend — Platform Intelligence",
+      "url": "https://createai.digital/above-transcend",
+      "description": "Live platform metrics and system health for CreateAI Brain.",
+      "isPartOf": { "@type": "WebSite", "url": "https://createai.digital" }
+    }
+  });
 
   const [sysStats,    setSysStats]    = useState<SystemStats | null>(null);
   const [custStats,   setCustStats]   = useState<CustomerStats | null>(null);

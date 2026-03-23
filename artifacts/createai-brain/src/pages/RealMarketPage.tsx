@@ -1,4 +1,5 @@
 import React, { useEffect, useState, useCallback } from "react";
+import useSEO from "@/hooks/useSEO";
 
 const INDIGO  = "#6366f1";
 const PURPLE  = "#8b5cf6";
@@ -84,6 +85,21 @@ function ProductCard({ product, onBuy, buying }: {
 }
 
 export default function RealMarketPage() {
+  useSEO({
+    title:       "Real Market — Live AI Products & Revenue Intelligence | CreateAI Brain",
+    description: "Browse real AI products, live revenue data, and market intelligence on the CreateAI Brain platform. All data is live — no projections.",
+    url:         "https://createai.digital/real-market",
+    keywords:    "AI market, real revenue, live products, business intelligence, CreateAI Brain",
+    jsonLD: {
+      "@context": "https://schema.org",
+      "@type": "WebPage",
+      "name": "Real Market — CreateAI Brain",
+      "url": "https://createai.digital/real-market",
+      "description": "Live AI product market with real revenue data and business intelligence.",
+      "isPartOf": { "@type": "WebSite", "url": "https://createai.digital" }
+    }
+  });
+
   const [products, setProducts]     = useState<Product[]>([]);
   const [stats, setStats]           = useState<Stats | null>(null);
   const [buyingId, setBuyingId]     = useState<string | null>(null);

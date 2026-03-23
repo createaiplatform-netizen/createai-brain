@@ -1,5 +1,6 @@
 import React, { useState } from "react";
 import { useLocation } from "wouter";
+import useSEO from "@/hooks/useSEO";
 
 const INDIGO = "#6366f1";
 const INDIGO_DARK = "#4f46e5";
@@ -50,6 +51,24 @@ const STATS = [
 export default function CreateAIDigitalPage() {
   const [_, setLocation] = useLocation();
   const [hoveredFeature, setHoveredFeature] = useState<string | null>(null);
+
+  useSEO({
+    title:       "CreateAI Brain — The Complete AI Business OS | 408+ Tools",
+    description: "Discover 408+ AI-powered tools for healthcare, legal, staffing, finance, and family. Replace $100K+ in software. One platform, one OS, unlimited AI by Lakeside Trinity LLC.",
+    url:         "https://createai.digital/createai-digital",
+    keywords:    "AI business OS, 408 AI tools, healthcare AI, legal AI, family AI, createai digital, Lakeside Trinity",
+    jsonLD: {
+      "@context": "https://schema.org",
+      "@type": "SoftwareApplication",
+      "name": "CreateAI Brain",
+      "applicationCategory": "BusinessApplication",
+      "operatingSystem": "Web, iOS, Android",
+      "url": "https://createai.digital",
+      "description": "408+ AI-powered tools for every industry in one OS.",
+      "offers": { "@type": "Offer", "price": "29", "priceCurrency": "USD" },
+      "creator": { "@type": "Organization", "name": "Lakeside Trinity LLC", "url": "https://createai.digital" }
+    }
+  });
 
   return (
     <div style={{

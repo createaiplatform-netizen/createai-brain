@@ -235,18 +235,25 @@ app.get("/sitemap.xml", async (_req: Request, res: Response) => {
     const products = await getRegistry();
     const now      = new Date().toISOString().split("T")[0];
 
+    const url = (loc: string, freq: string, pri: string) =>
+      "\n  <url><loc>" + BASE + loc + "</loc><lastmod>" + now + "</lastmod><changefreq>" + freq + "</changefreq><priority>" + pri + "</priority></url>";
+
     const coreUrls =
-      "\n  <url><loc>" + BASE + "/</loc><lastmod>" + now + "</lastmod><changefreq>daily</changefreq><priority>1.0</priority></url>" +
-      "\n  <url><loc>" + BASE + "/public</loc><lastmod>" + now + "</lastmod><changefreq>weekly</changefreq><priority>0.98</priority></url>" +
-      "\n  <url><loc>" + BASE + "/public/family</loc><lastmod>" + now + "</lastmod><changefreq>weekly</changefreq><priority>0.96</priority></url>" +
-      "\n  <url><loc>" + BASE + "/store</loc><lastmod>" + now + "</lastmod><changefreq>daily</changefreq><priority>0.95</priority></url>" +
-      "\n  <url><loc>" + BASE + "/family-hub</loc><lastmod>" + now + "</lastmod><changefreq>weekly</changefreq><priority>0.90</priority></url>" +
-      "\n  <url><loc>" + BASE + "/above-transcend</loc><lastmod>" + now + "</lastmod><changefreq>daily</changefreq><priority>0.85</priority></url>" +
-      "\n  <url><loc>" + BASE + "/join/landing</loc><lastmod>" + now + "</lastmod><changefreq>weekly</changefreq><priority>0.80</priority></url>" +
-      "\n  <url><loc>" + BASE + "/join/plans</loc><lastmod>" + now + "</lastmod><changefreq>weekly</changefreq><priority>0.75</priority></url>" +
-      "\n  <url><loc>" + BASE + "/semantic-store</loc><lastmod>" + now + "</lastmod><changefreq>daily</changefreq><priority>0.70</priority></url>" +
-      "\n  <url><loc>" + BASE + "/platform-score</loc><lastmod>" + now + "</lastmod><changefreq>daily</changefreq><priority>0.65</priority></url>" +
-      "\n  <url><loc>" + BASE + "/metrics</loc><lastmod>" + now + "</lastmod><changefreq>daily</changefreq><priority>0.60</priority></url>";
+      url("/",                 "daily",   "1.00") +
+      url("/createai-digital", "weekly",  "0.98") +
+      url("/public",           "weekly",  "0.96") +
+      url("/public/family",    "weekly",  "0.95") +
+      url("/store",            "daily",   "0.94") +
+      url("/family-hub",       "weekly",  "0.92") +
+      url("/above-transcend",  "daily",   "0.88") +
+      url("/join/landing",     "weekly",  "0.85") +
+      url("/join/plans",       "weekly",  "0.82") +
+      url("/semantic-store",   "daily",   "0.78") +
+      url("/real-market",      "daily",   "0.75") +
+      url("/platform-score",   "daily",   "0.70") +
+      url("/platform-status",  "hourly",  "0.68") +
+      url("/metrics",          "daily",   "0.65") +
+      url("/npa-gateway",      "monthly", "0.55");
 
     const industryUrls = SEO_INDUSTRIES.map(ind =>
       "\n  <url>" +
@@ -323,6 +330,12 @@ app.get("/robots.txt", (_req: Request, res: Response) => {
     "Allow: /.well-known/\n" +
     "Allow: /sitemap.xml\n" +
     "Allow: /ads.txt\n" +
+    "Allow: /createai-digital\n" +
+    "Allow: /platform-status\n" +
+    "Allow: /real-market\n" +
+    "Allow: /metrics\n" +
+    "Allow: /semantic-store\n" +
+    "Allow: /npa-gateway\n" +
     "Disallow: /buy/\n" +
     "Disallow: /checkout/\n" +
     "Disallow: /launch/\n" +

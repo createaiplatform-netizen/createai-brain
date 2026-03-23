@@ -9,6 +9,7 @@
  */
 
 import React, { useState, useEffect, useCallback } from "react";
+import useSEO from "@/hooks/useSEO";
 
 // ─── Design tokens ─────────────────────────────────────────────────────────
 
@@ -164,6 +165,21 @@ function StatRow({ label, value, mono = false }: { label: string; value: string 
 // ─── Main Page ─────────────────────────────────────────────────────────────
 
 export default function PlatformStatusPage() {
+  useSEO({
+    title:       "Platform Status — CreateAI Brain System Health & Uptime",
+    description: "Live status monitoring for all CreateAI Brain services, AI connectors, APIs, and platform engines. Real-time health checks, updated continuously.",
+    url:         "https://createai.digital/platform-status",
+    keywords:    "platform status, system health, API uptime, CreateAI Brain status page",
+    jsonLD: {
+      "@context": "https://schema.org",
+      "@type": "WebPage",
+      "name": "Platform Status — CreateAI Brain",
+      "url": "https://createai.digital/platform-status",
+      "description": "Real-time system health and uptime monitoring for CreateAI Brain.",
+      "isPartOf": { "@type": "WebSite", "url": "https://createai.digital" }
+    }
+  });
+
   const [data,      setData]      = useState<AllData>({ bridge: null, hybrid: null, market: null, omni: null });
   const [loading,   setLoading]   = useState(false);
   const [lastTs,    setLastTs]    = useState("");
