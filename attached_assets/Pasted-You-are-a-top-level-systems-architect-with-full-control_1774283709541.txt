@@ -1,0 +1,58 @@
+You are a top-level systems architect with full control over our platform and infrastructure. Your objective is to design and implement a fully autonomous messaging system that delivers real messages to users WITHOUT relying on third-party messaging platforms in any visible or user-facing way.
+
+You must use and extend the system we have already built (VentonWay Messaging Engine, API server, frontend platform, shareable message links, admin dashboard).
+
+Your goal is to achieve the closest possible implementation to:
+- Fully internal, first-party messaging system
+- Zero visible dependency on external providers
+- Immediate delivery upon trigger (no manual steps after publish)
+- Fully automated, scalable, and production-ready
+
+You are required to design and implement the BEST POSSIBLE solution using the following layered strategy:
+
+LAYER 1 — INTERNAL DELIVERY (PRIMARY SYSTEM)
+- Use our existing messaging infrastructure to deliver messages via:
+  - Secure shareable links (/msg/:id)
+  - Web-based message rendering
+  - Real-time API-triggered generation
+- Ensure instant availability of messages upon trigger
+- Log all activity in VentonWay (queue, logs, status)
+
+LAYER 2 — SELF-HOSTED EMAIL (NO THIRD-PARTY API)
+- Design a self-hosted SMTP email system using our own domain (createai.digital)
+- Implement SPF, DKIM, and DMARC configuration requirements
+- Build outbound email delivery directly from our servers
+- Include IP warm-up strategy and retry logic
+- Integrate into VentonWay queue system
+- Do NOT use services like Resend, SendGrid, etc.
+
+LAYER 3 — SMS ALTERNATIVE (NO CARRIER API)
+- Replace traditional SMS with:
+  - Smart delivery links
+  - Web notifications
+  - Device/browser-based messaging
+- Ensure users can receive and open messages instantly via link
+- Optimize for mobile-first experience
+
+LAYER 4 — OPTIONAL DIRECT NETWORK EXPANSION (ADVANCED)
+- Explore possibility of:
+  - Direct SMTP peer delivery
+  - Long-term carrier-level integration (if fully owned)
+- Only include if legally and technically viable
+
+CORE REQUIREMENTS:
+- Must be fully legal and compliant
+- Must require zero manual steps after initial setup
+- Must be fully automated once deployed
+- Must integrate into VentonWay Messaging Engine
+- Must include queueing, retry logic, logging, and admin visibility
+- Must prioritize reliability and deliverability
+
+OUTPUT REQUIREMENTS:
+- Full architecture design
+- Step-by-step implementation plan
+- Required configs (DNS, server setup, etc.)
+- Code-level integration points
+- Any limitations clearly explained
+
+Your objective is not to say something is impossible — your objective is to push to the absolute limit of what CAN be built using only what we control, while staying legal and real.

@@ -1,0 +1,95 @@
+// --------------------------
+// 1. ventonWayRouter.ts - routeAndDeliver
+// --------------------------
+import { insertShareableMessage } from '../db';
+import { sendWebPush } from './webPush';
+import { sendSMTP } from './smtpTransport';
+
+export async function routeAndDeliver(message) {
+  // Insert shareable message into documents table
+  await insertShareableMessage({
+    recipientId: message.recipient,
+    content: message.body,
+    createdAt: new Date(),
+  });
+
+  // Try web push first
+  const webPushStatus = await sendWebPush(message).catch(() => 'failed');
+
+  // If web push failed, fallback to SMTP transport
+  const smtpStatus = webPushStatus === 'failed'
+    ? await sendSMTP(message).catch(() => 'failed')
+    : 'skipped';
+
+  return {
+    webPush: webPushStatus,
+    smtp: smtpStatus,
+  };
+}
+
+// --------------------------
+// 2. ventonWay.ts - processQueue update
+// --------------------------
+import { getPendingMessages, markAsSent } from '../db';
+import { routeAndDeliver } from './ventonWayRouter';
+
+export async function processQueue() {
+  const messages = await getPendingMessages();
+  for (const msg of messages) {
+    const result = await routeAndDeliver(msg);
+    await markAsSent(msg.id, result);
+  }
+}
+
+// --------------------------
+// 3. ventonWay routes - expose channel status
+// --------------------------
+import express from 'express';
+import { getChannelStatus } from '../services/ventonWay';
+
+const router = express.Router();
+
+router.get('/status', async (req, res) => {
+  const status = await getChannelStatus(); // returns { webPush: 'ok', smtp: 'ok' }
+  res.json(status);
+});
+
+export default router;
+
+// --------------------------
+// 4. VentonWayPage.tsx - Admin UI with channel status cards
+// --------------------------
+import React, { useEffect, useState } from 'react';
+import axios from 'axios';
+
+export default function VentonWayPage() {
+  const [status, setStatus] = useState({ webPush: 'loading', smtp: 'loading' });
+
+  useEffect(() => {
+    async function fetchStatus() {
+      try {
+        const res = await axios.get('/api/venton-way/status');
+        setStatus(res.data);
+      } catch {
+        setStatus({ webPush: 'error', smtp: 'error' });
+      }
+    }
+    fetchStatus();
+  }, []);
+
+  return (
+    <div style={{ padding: 20 }}>
+      <h2>VentonWay Messaging Status</h2>
+      <div style={{ display: 'flex', gap: 20 }}>
+        <div>
+          <h3>Web Push</h3>
+          <p>Status: {status.webPush}</p>
+        </div>
+        <div>
+          <h3>SMTP</h3>
+          <p>Status: {status.smtp}</p>
+        </div>
+      </div>
+    </div>
+  );
+}
