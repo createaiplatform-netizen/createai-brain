@@ -1,0 +1,103 @@
+// artifacts/api-server/src/routes/selfEvaluate.ts
+import { Router } from "express";
+import { db } from "../db";
+import { usersTable, activityLog } from "../drizzle/schema";
+import { sql } from "drizzle-orm";
+import { eq, gte, isNull } from "drizzle-orm/expressions";
+
+const router = Router();
+
+// Helper: simple in-memory cache with 5-minute TTL
+const cache: Record<string, { ts: number; data: any }> = {};
+const TTL = 1000 * 60 * 5;
+function toCache(key: string, data: any) {
+  cache[key] = { ts: Date.now(), data };
+  return data;
+}
+
+// GET /api/evaluate/self
+router.get("/self", async (req, res) => {
+  try {
+    // === Auth: founder/admin only ===
+    const userRole = req.user?.role; // assume session middleware sets req.user
+    if (!["founder", "admin"].includes(userRole)) {
+      return res.status(403).json({ error: "Forbidden: admin or founder role required" });
+    }
+
+    // === Check cache ===
+    if (cache["self"] && Date.now() - cache["self"].ts < TTL) {
+      return res.json(cache["self"].data);
+    }
+
+    // === DAU/MAU calculation ===
+    const now = new Date();
+    const oneDayAgo = new Date(now);
+    oneDayAgo.setDate(now.getDate() - 1);
+    const oneMonthAgo = new Date(now);
+    oneMonthAgo.setMonth(now.getMonth() - 1);
+
+    // Daily Active Users
+    const dauRows = await db
+      .select({
+        role: usersTable.role,
+        dau: sql<number>`COUNT(DISTINCT ${activityLog.userId})`
+      })
+      .from(activityLog)
+      .leftJoin(usersTable, eq(activityLog.userId, usersTable.id))
+      .where(gte(activityLog.createdAt, oneDayAgo))
+      .groupBy(usersTable.role);
+
+    // Monthly Active Users
+    const mauRows = await db
+      .select({
+        role: usersTable.role,
+        mau: sql<number>`COUNT(DISTINCT ${activityLog.userId})`
+      })
+      .from(activityLog)
+      .leftJoin(usersTable, eq(activityLog.userId, usersTable.id))
+      .where(gte(activityLog.createdAt, oneMonthAgo))
+      .groupBy(usersTable.role);
+
+    // === Churn risk scoring ===
+    const users = await db.select().from(usersTable).where(isNull(usersTable.deletedAt));
+    const scoredUsers = users.map((u) => {
+      const lastActivity = activityLog.find((a) => a.userId === u.id)?.createdAt || u.createdAt;
+      const diffDays = (now.getTime() - new Date(lastActivity).getTime()) / (1000 * 60 * 60 * 24);
+      let risk: "low" | "medium" | "high" = "low";
+      if (diffDays > 14) risk = "high";
+      else if (diffDays > 7) risk = "medium";
+      return { id: u.id, email: u.email, role: u.role, risk };
+    });
+
+    // === Revenue metrics ===
+    const revenueRows = await db.execute(sql`
+      SELECT
+        SUM(amount_cents)/100 AS total_dollars,
+        COUNT(*) AS payment_count
+      FROM platform_subscriptions
+      WHERE status = 'active'
+    `);
+
+    const result = {
+      dau: dauRows,
+      mau: mauRows,
+      churn: { users: scoredUsers },
+      revenue: revenueRows[0],
+      generatedAt: now.toISOString(),
+    };
+
+    return res.json(toCache("self", result));
+  } catch (err) {
+    console.error("selfEvaluate error:", err);
+    return res.status(500).json({ error: "Internal server error" });
+  }
+});
+
+export default router;
+
+// Register in index.ts
+// import selfEvaluateRouter from "./selfEvaluate";
+// app.use("/api/evaluate", selfEvaluateRouter);
+
+// Test with founder/admin session cookie:
+// curl -H "Cookie: connect.sid=<your-session-cookie>" http://localhost:8080/api/evaluate/self
