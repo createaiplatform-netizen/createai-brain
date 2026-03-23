@@ -91,6 +91,18 @@ export default function AdminDashboardPage() {
       .finally(() => setAppsLoaded(true));
   }, []);
 
+  useEffect(() => {
+    Promise.all([
+      fetch("/api/cohorts/dau-mau",   { credentials: "include" }).then(r => r.ok ? r.json() : null).catch(() => null),
+      fetch("/api/cohorts/churn-risk", { credentials: "include" }).then(r => r.ok ? r.json() : null).catch(() => null),
+      fetch("/api/cohorts/revenue",    { credentials: "include" }).then(r => r.ok ? r.json() : null).catch(() => null),
+    ]).then(([cohort, churn, revenue]) => {
+      if (cohort)  setCohortData(cohort);
+      if (churn)   setChurnData(churn);
+      if (revenue) setRevenueData(revenue);
+    }).finally(() => setAnalyticsLoaded(true));
+  }, []);
+
   const maxOpens = topApps.length > 0 ? Math.max(...topApps.map(a => a.opens)) : 1;
 
   return (

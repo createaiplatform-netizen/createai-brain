@@ -1,0 +1,101 @@
+// artifacts/createai-brain/src/pages/AdminDashboardPage.tsx
+import { useEffect, useState } from "react";
+
+export function AdminDashboardPage() {
+  const [cohortData, setCohortData] = useState<any>(null);
+  const [churnData, setChurnData] = useState<any>(null);
+  const [revenueData, setRevenueData] = useState<any>(null);
+
+  useEffect(() => {
+    fetch("/api/cohorts/dau-mau").then(r => r.json()).then(setCohortData);
+    fetch("/api/cohorts/churn-risk").then(r => r.json()).then(setChurnData);
+    fetch("/api/cohorts/revenue").then(r => r.json()).then(setRevenueData);
+  }, []);
+
+  return (
+    <div className="admin-dashboard">
+      {/* Existing content */}
+      <div className="analytics-panels">
+        {/* Cohort Analytics Panel */}
+        <section className="panel cohort-panel">
+          <h3>Cohort Analytics (DAU/MAU by Role)</h3>
+          {cohortData ? (
+            <table>
+              <thead>
+                <tr>
+                  <th>Role</th>
+                  <th>DAU</th>
+                  <th>MAU</th>
+                </tr>
+              </thead>
+              <tbody>
+                {cohortData.dau.map((d: any) => {
+                  const mauRow = cohortData.mau.find((m: any) => m.role === d.role);
+                  return (
+                    <tr key={d.role}>
+                      <td>{d.role}</td>
+                      <td>{d.dau}</td>
+                      <td>{mauRow?.mau ?? 0}</td>
+                    </tr>
+                  );
+                })}
+              </tbody>
+            </table>
+          ) : <p>Loading...</p>}
+        </section>
+
+        {/* Churn Risk Panel */}
+        <section className="panel churn-panel">
+          <h3>Churn Risk Segments</h3>
+          {churnData ? (
+            <table>
+              <thead>
+                <tr>
+                  <th>Email</th>
+                  <th>Role</th>
+                  <th>Risk</th>
+                </tr>
+              </thead>
+              <tbody>
+                {churnData.map((row: any) => (
+                  <tr key={row.id}>
+                    <td>{row.email}</td>
+                    <td>{row.role}</td>
+                    <td>{row.risk}</td>
+                  </tr>
+                ))}
+              </tbody>
+            </table>
+          ) : <p>Loading...</p>}
+        </section>
+
+        {/* Revenue Panel */}
+        <section className="panel revenue-panel">
+          <h3>Revenue Metrics (MRR / LTV)</h3>
+          {revenueData ? (
+            <table>
+              <thead>
+                <tr>
+                  <th>Email</th>
+                  <th>Role</th>
+                  <th>MRR</th>
+                  <th>LTV</th>
+                </tr>
+              </thead>
+              <tbody>
+                {revenueData.map((row: any) => (
+                  <tr key={row.id}>
+                    <td>{row.email}</td>
+                    <td>{row.role}</td>
+                    <td>${row.mrr.toFixed(2)}</td>
+                    <td>${row.ltv.toFixed(2)}</td>
+                  </tr>
+                ))}
+              </tbody>
+            </table>
+          ) : <p>Loading...</p>}
+        </section>
+      </div>
+    </div>
+  );
+}

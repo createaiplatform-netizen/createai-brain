@@ -1,0 +1,122 @@
+// artifacts/createai-brain/src/pages/AdminDashboardPage.tsx
+import { useEffect, useState } from "react";
+import "./AdminDashboardPage.css"; // optional, for panel styling
+
+export function AdminDashboardPage() {
+  const [cohortData, setCohortData] = useState<any>(null);
+  const [churnData, setChurnData] = useState<any>(null);
+  const [revenueData, setRevenueData] = useState<any>(null);
+
+  // Fetch analytics data on mount
+  useEffect(() => {
+    const fetchData = async () => {
+      try {
+        const [cohorts, churn, revenue] = await Promise.all([
+          fetch("/api/cohorts/dau-mau").then((r) => r.json()),
+          fetch("/api/cohorts/churn-risk").then((r) => r.json()),
+          fetch("/api/cohorts/revenue").then((r) => r.json()),
+        ]);
+        setCohortData(cohorts);
+        setChurnData(churn);
+        setRevenueData(revenue);
+      } catch (err) {
+        console.error("Error fetching analytics:", err);
+      }
+    };
+    fetchData();
+  }, []);
+
+  return (
+    <div className="admin-dashboard">
+      {/* Existing dashboard content */}
+
+      <div className="analytics-panels" style={{ display: "flex", gap: "1rem", flexWrap: "wrap" }}>
+        {/* Cohort Panel */}
+        <section className="panel cohort-panel" style={{ flex: 1, minWidth: "300px", padding: "1rem", background: "#f0f8f5", borderRadius: "8px" }}>
+          <h3>Cohort Analytics (DAU/MAU by Role)</h3>
+          {cohortData ? (
+            <table>
+              <thead>
+                <tr>
+                  <th>Role</th>
+                  <th>DAU</th>
+                  <th>MAU</th>
+                </tr>
+              </thead>
+              <tbody>
+                {cohortData.dau.map((d: any) => {
+                  const mauRow = cohortData.mau.find((m: any) => m.role === d.role);
+                  return (
+                    <tr key={d.role}>
+                      <td>{d.role}</td>
+                      <td>{d.dau}</td>
+                      <td>{mauRow?.mau ?? 0}</td>
+                    </tr>
+                  );
+                })}
+              </tbody>
+            </table>
+          ) : (
+            <p>Loading cohort data...</p>
+          )}
+        </section>
+
+        {/* Churn Panel */}
+        <section className="panel churn-panel" style={{ flex: 1, minWidth: "300px", padding: "1rem", background: "#fff4f0", borderRadius: "8px" }}>
+          <h3>Churn Risk Segments</h3>
+          {churnData ? (
+            <table>
+              <thead>
+                <tr>
+                  <th>Email</th>
+                  <th>Role</th>
+                  <th>Risk</th>
+                </tr>
+              </thead>
+              <tbody>
+                {churnData.map((row: any) => (
+                  <tr key={row.id}>
+                    <td>{row.email}</td>
+                    <td>{row.role}</td>
+                    <td>{row.risk}</td>
+                  </tr>
+                ))}
+              </tbody>
+            </table>
+          ) : (
+            <p>Loading churn data...</p>
+          )}
+        </section>
+
+        {/* Revenue Panel */}
+        <section className="panel revenue-panel" style={{ flex: 1, minWidth: "300px", padding: "1rem", background: "#f9f9ff", borderRadius: "8px" }}>
+          <h3>Revenue Metrics (MRR / LTV)</h3>
+          {revenueData ? (
+            <table>
+              <thead>
+                <tr>
+                  <th>Email</th>
+                  <th>Role</th>
+                  <th>MRR</th>
+                  <th>LTV</th>
+                </tr>
+              </thead>
+              <tbody>
+                {revenueData.map((row: any) => (
+                  <tr key={row.id}>
+                    <td>{row.email}</td>
+                    <td>{row.role}</td>
+                    <td>${row.mrr.toFixed(2)}</td>
+                    <td>${row.ltv.toFixed(2)}</td>
+                  </tr>
+                ))}
+              </tbody>
+            </table>
+          ) : (
+            <p>Loading revenue data...</p>
+          )}
+        </section>
+      </div>
+    </div>
+  );
+}
