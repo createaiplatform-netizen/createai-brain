@@ -1,0 +1,52 @@
+Perform the following steps exactly, with no interpretation, no creativity, no assumptions, and no architectural decisions. Do not imagine features. Do not propose improvements. Do not redesign anything. Only execute the steps below literally.
+
+1. Scan the entire codebase.
+
+2. Identify every file that is currently:
+   - unconnected,
+   - unused,
+   - not imported anywhere,
+   - not exposed through any API route,
+   - not exposed through any frontend page.
+
+3. For each unconnected file, generate:
+   a. The exact import statement required to connect it.
+   b. The exact backend API route needed to expose its data.
+   c. The exact frontend page or component needed to display its data.
+   d. The exact code snippet to add.
+   e. The exact file and line number where the snippet must be inserted.
+
+4. Do not modify existing logic. Do not refactor. Do not optimize. Do not restructure. Only add the minimal code required to connect each file.
+
+5. For the Continuum files (continuum.ts, continuumRouter.ts, continuumChannels.ts, continuumInspector.ts):
+   - Generate a backend route that returns the Continuum, registry, relations, and channels.
+   - Generate a frontend page that displays all Continuum data.
+   - Provide exact code and exact insertion points.
+
+6. For all Universe OS files that are not imported anywhere:
+   - Generate the minimal imports required to connect them.
+   - Generate backend routes that expose their exported objects.
+   - Generate frontend pages that display their exported objects.
+   - Provide exact code and exact insertion points.
+
+7. For all configuration objects (firstMoment, firstWorld, firstEntryExperience, familyUniverse, kidsUniverse):
+   - Generate backend routes to expose them.
+   - Generate frontend pages to display them.
+   - Provide exact code and exact insertion points.
+
+8. For experienceLayer.ts and universeOSMasterManifest.ts:
+   - Generate the minimal imports required to connect them.
+   - Generate backend routes to expose their exported objects.
+   - Generate frontend pages to display their exported objects.
+   - Provide exact code and exact insertion points.
+
+9. For connectivityMap.ts:
+   - Generate a backend route to expose INTERNAL_DIRECTIONS and EXTERNAL_DIRECTIONS.
+   - Generate a frontend page to display them.
+   - Provide exact code and exact insertion points.
+
+10. After generating all code:
+    - Produce a final list of all files that are now fully connected.
+    - Confirm that no unconnected files remain.
+
+Do not think. Do not infer. Do not propose. Do not design. Only follow the steps above exactly.

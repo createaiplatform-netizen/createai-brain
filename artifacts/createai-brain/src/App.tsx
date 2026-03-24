@@ -69,6 +69,7 @@ import BillingPage                 from "@/pages/BillingPage";
 import DataPage                    from "@/pages/DataPage";
 import GlobalPage                  from "@/pages/GlobalPage";
 import EvolutionPage               from "@/pages/EvolutionPage";
+import UniverseDataPage            from "@/pages/UniverseDataPage";
 import SemanticStorePage           from "@/pages/SemanticStorePage";
 import PlatformScorePage           from "@/pages/PlatformScorePage";
 import CheckoutPage                from "@/pages/CheckoutPage";
@@ -167,6 +168,7 @@ function Router() {
       <Route path="/data" component={DataPage} />
       <Route path="/global-expansion" component={GlobalPage} />
       <Route path="/evolution" component={EvolutionPage} />
+      <Route path="/universe-data" component={UniverseDataPage} />
 
       {/* ── Role-based Universe routes ──────────────────────────────────── */}
       {/* Admin Universe — admin/founder full control center */}
