@@ -13,6 +13,7 @@ import { AtmosphericLayer } from "./AtmosphericLayer";
 import { SEOMeta } from "@/components/SEOMeta";
 import { CustomerOnboardingWizard } from "@/components/CustomerOnboardingWizard";
 import { QuickLauncher } from "@/components/QuickLauncher";
+import { SystemHeartbeat } from "@/components/SystemHeartbeat";
 import OutputLibraryPage from "@/pages/OutputLibraryPage";
 
 // UCPXAgent is a 963 KB file — lazy-load it so it never blocks the initial paint
@@ -95,6 +96,11 @@ export function OSLayout() {
       />
       {/* ── Atmospheric environment — gradient blobs, micro-particles, haze ── */}
       <AtmosphericLayer />
+
+      {/* ── System Heartbeat — fixed bottom-right status pulse ── */}
+      <div style={{ position: "fixed", bottom: 14, right: 14, zIndex: 900 }}>
+        <SystemHeartbeat />
+      </div>
 
       {/* ── Guided Tour Overlay — triggered from Dashboard ── */}
       <GuidedTour

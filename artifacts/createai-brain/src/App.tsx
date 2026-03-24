@@ -64,6 +64,11 @@ import CommandCenterPage           from "@/pages/CommandCenterPage";
 import PlatformStatusPage          from "@/pages/PlatformStatusPage";
 import SystemStatusPanel            from "@/pages/SystemStatusPanel";
 import AutoProjectPage              from "@/pages/AutoProjectPage";
+import FullAutoCreatePage           from "@/pages/FullAutoCreatePage";
+import UniverseMapPage              from "@/pages/UniverseMapPage";
+import ProjectLibraryPage           from "@/pages/ProjectLibraryPage";
+import SystemSelfCheckPage          from "@/pages/SystemSelfCheckPage";
+import { ModeSwitcherProvider }     from "@/components/ModeSwitcher";
 import AnalyticsPage               from "@/pages/AnalyticsPage";
 import TeamPage                    from "@/pages/TeamPage";
 import SettingsPage                from "@/pages/SettingsPage";
@@ -156,8 +161,12 @@ function Router() {
       <Route path="/above-transcend" component={AboveTranscendPage} />
       <Route path="/semantic-store" component={SemanticStorePage} />
       <Route path="/platform-score" component={PlatformScorePage} />
-      <Route path="/system-status"  component={SystemStatusPanel} />
-      <Route path="/auto-project"   component={AutoProjectPage} />
+      <Route path="/system-status"       component={SystemStatusPanel} />
+      <Route path="/auto-project"        component={AutoProjectPage} />
+      <Route path="/full-auto-create"    component={FullAutoCreatePage} />
+      <Route path="/universe-map"        component={UniverseMapPage} />
+      <Route path="/projects/library"    component={ProjectLibraryPage} />
+      <Route path="/system/self-check"   component={SystemSelfCheckPage} />
       <Route path="/project/:projectId" component={ProjectPage} />
       <Route path="/projects" component={ProjectsPage} />
       {/* Legacy path kept for backwards compat */}
@@ -885,6 +894,7 @@ function App() {
         <ErrorBoundary>
           <AuthGate>
             <UltraEngineMount />
+            <ModeSwitcherProvider>
             <PlatformProvider>
               <InteractionProvider>
                 <ConversationProvider>
@@ -903,6 +913,7 @@ function App() {
                 </ConversationProvider>
               </InteractionProvider>
             </PlatformProvider>
+            </ModeSwitcherProvider>
           </AuthGate>
         </ErrorBoundary>
         <BroadcastFloatingTrigger />

@@ -7,6 +7,8 @@ import React, { useState, useEffect, useCallback, useRef } from "react";
 import { ALL_ENGINES, ALL_SERIES } from "@/engine/CapabilityEngine";
 import { useOS } from "@/os/OSContext";
 import type { AppId } from "@/os/OSContext";
+import { useLocation } from "wouter";
+import { usePlatformMode, type PlatformMode } from "@/components/ModeSwitcher";
 
 // ── Custom event helpers ──────────────────────────────────────────────────────
 
@@ -63,6 +65,8 @@ export function GlobalCommandPalette() {
   const [query,  setQuery]  = useState("");
   const [cursor, setCursor] = useState(0);
   const { openApp, appRegistry } = useOS();
+  const [, setLocation] = useLocation();
+  const { setMode } = usePlatformMode();
   const inputRef = useRef<HTMLInputElement>(null);
   const listRef  = useRef<HTMLDivElement>(null);
 
@@ -80,11 +84,22 @@ export function GlobalCommandPalette() {
   useEffect(() => { if (open) setTimeout(() => inputRef.current?.focus(), 40); }, [open]);
 
   const commands: CmdItem[] = React.useMemo(() => {
+    const nav = (path: string) => { setLocation(path); setOpen(false); };
+    const switchMode = (m: PlatformMode) => { setMode(m); setOpen(false); };
     const actions: CmdItem[] = [
-      { id: "act:vault",        kind: "action", label: "Open Output Vault",   sub: "All saved engine outputs",      icon: "🗄",  action: () => { openApp("brainhub"); setTimeout(() => window.dispatchEvent(new CustomEvent("cai:nav", { detail: { view: "vault" } })), 120); setOpen(false); } },
-      { id: "act:compliance",   kind: "action", label: "Compliance Panel",    sub: "Safety & regulatory overview",  icon: "🛡️", action: () => { openApp("brainhub"); setTimeout(() => window.dispatchEvent(new CustomEvent("cai:nav", { detail: { view: "compliance" } })), 120); setOpen(false); } },
-      { id: "act:intelligence", kind: "action", label: "Intelligence Panel",  sub: "Session context & insights",   icon: "🧠", action: () => { openApp("brainhub"); setTimeout(() => window.dispatchEvent(new CustomEvent("cai:nav", { detail: { view: "intelligence" } })), 120); setOpen(false); } },
-      { id: "act:dash",         kind: "action", label: "BrainHub Dashboard",  sub: "Engines, series, agents",       icon: "⚡",  action: () => { openApp("brainhub"); setOpen(false); } },
+      { id: "act:vault",           kind: "action", label: "Open Output Vault",    sub: "All saved engine outputs",        icon: "\uD83D\uDDB4",  action: () => { openApp("brainhub"); setTimeout(() => window.dispatchEvent(new CustomEvent("cai:nav", { detail: { view: "vault" } })), 120); setOpen(false); } },
+      { id: "act:compliance",      kind: "action", label: "Compliance Panel",     sub: "Safety & regulatory overview",    icon: "\uD83D\uDEE1\uFE0F", action: () => { openApp("brainhub"); setTimeout(() => window.dispatchEvent(new CustomEvent("cai:nav", { detail: { view: "compliance" } })), 120); setOpen(false); } },
+      { id: "act:intelligence",    kind: "action", label: "Intelligence Panel",   sub: "Session context & insights",      icon: "\uD83E\uDDE0", action: () => { openApp("brainhub"); setTimeout(() => window.dispatchEvent(new CustomEvent("cai:nav", { detail: { view: "intelligence" } })), 120); setOpen(false); } },
+      { id: "act:dash",            kind: "action", label: "BrainHub Dashboard",   sub: "Engines, series, agents",         icon: "\u26A1",  action: () => { openApp("brainhub"); setOpen(false); } },
+      { id: "act:full-auto",       kind: "action", label: "Full Auto Create",      sub: "AI-orchestrated project creation", icon: "\uD83E\uDD16", action: () => nav("/full-auto-create") },
+      { id: "act:universe-map",    kind: "action", label: "Universe Map",          sub: "Visual platform topology",        icon: "\uD83C\uDF0C", action: () => nav("/universe-map") },
+      { id: "act:project-library", kind: "action", label: "Project Library",       sub: "All generated projects",          icon: "\uD83D\uDCDA", action: () => nav("/projects/library") },
+      { id: "act:self-check",      kind: "action", label: "System Self-Check",     sub: "Admin: platform health scan",     icon: "\uD83D\uDEE1\uFE0F", action: () => nav("/system/self-check") },
+      { id: "mode:build",    kind: "action", label: "Mode \u2192 Build",    sub: "Switch to Build mode",    icon: "\uD83D\uDD27", action: () => switchMode("Build") },
+      { id: "mode:explore",  kind: "action", label: "Mode \u2192 Explore",  sub: "Switch to Explore mode",  icon: "\uD83D\uDD2D", action: () => switchMode("Explore") },
+      { id: "mode:operate",  kind: "action", label: "Mode \u2192 Operate",  sub: "Switch to Operate mode",  icon: "\u26A1",       action: () => switchMode("Operate") },
+      { id: "mode:analyze",  kind: "action", label: "Mode \u2192 Analyze",  sub: "Switch to Analyze mode",  icon: "\uD83D\uDCCA", action: () => switchMode("Analyze") },
+      { id: "mode:expand",   kind: "action", label: "Mode \u2192 Expand",   sub: "Switch to Expand mode",   icon: "\uD83C\uDF10", action: () => switchMode("Expand") },
     ];
     const apps: CmdItem[] = appRegistry.map(app => ({
       id: `app:${app.id}`, kind: "app" as CmdKind, label: app.label,
@@ -102,7 +117,7 @@ export function GlobalCommandPalette() {
       action: () => { openApp("brainhub"); setTimeout(() => dispatchLaunchSeries(s.id), 120); setOpen(false); },
     }));
     return [...actions, ...apps, ...engines, ...series];
-  }, [appRegistry, openApp]);
+  }, [appRegistry, openApp, setLocation, setMode]);
 
   const filtered = React.useMemo(() => commands.filter(c => matches(c, query)), [commands, query]);
 

@@ -30,6 +30,8 @@ import { logAudit } from "../services/audit";
 import { db, projects, documents, people, activityLog, tractionEvents } from "@workspace/db";
 import { sql } from "drizzle-orm";
 import { getStreamStats } from "../services/telemetry";
+import { runFullAutoCreate } from "../services/fullPotentialActivation";
+import { getRecentProjects, getEngineUsageStats, getDomainUsageStats } from "../services/systemMemory";
 
 const router = Router();
 
@@ -461,4 +463,121 @@ router.post("/self-heal", requireFounder, async (req: Request, res: Response) =>
   }
 });
 
+// ─── POST /api/system/full-auto-create ───────────────────────────────────────
+// Authenticated — generate a complete FullAutoProject from a natural language prompt.
+
+router.post("/full-auto-create", async (req: Request, res: Response) => {
+  const { prompt, modifier, sandbox } = req.body as {
+    prompt?: string; modifier?: string; sandbox?: boolean;
+  };
+  if (!prompt || typeof prompt !== "string" || !prompt.trim()) {
+    res.status(400).json({ error: "prompt is required" });
+    return;
+  }
+  try {
+    const tone   = (req.user as { tone?: string } | undefined)?.tone;
+    const userId = req.user?.id;
+    const project = await runFullAutoCreate({
+      prompt:   prompt.trim(),
+      userId,
+      modifier: modifier?.trim(),
+      sandbox:  Boolean(sandbox),
+      tone,
+    });
+    res.json({ ok: true, project });
+  } catch (err) {
+    console.error("[system/full-auto-create] error:", err);
+    res.status(500).json({ error: "Full auto-create failed", detail: String(err) });
+  }
+});
+
+// ─── GET /api/system/memory/projects ─────────────────────────────────────────
+// Returns recent generated project summaries.
+
+router.get("/memory/projects", async (req: Request, res: Response) => {
+  const userId = req.query.userId ? String(req.query.userId) : undefined;
+  const projects = await getRecentProjects(userId);
+  res.json({ ok: true, projects });
+});
+
+// ─── GET /api/system/memory/engine-stats ─────────────────────────────────────
+
+router.get("/memory/engine-stats", requireFounder, async (_req: Request, res: Response) => {
+  res.json({ ok: true, stats: await getEngineUsageStats() });
+});
+
+// ─── GET /api/system/memory/domain-stats ─────────────────────────────────────
+
+router.get("/memory/domain-stats", requireFounder, async (_req: Request, res: Response) => {
+  res.json({ ok: true, stats: await getDomainUsageStats() });
+});
+
+// ─── POST /api/system/self-check ─────────────────────────────────────────────
+// Founder-only — runs a comprehensive platform self-check and returns a report.
+
+router.post("/self-check", requireFounder, async (req: Request, res: Response) => {
+  console.log(`[system/self-check] Triggered by ${req.user!.id}`);
+  try {
+    const [healResult, config, scores] = await Promise.all([
+      runSelfHeal(),
+      getConfigurationStatus(),
+      Promise.resolve(getPlatformScores()),
+    ]);
+
+    // Collect anomalies: dimensions below 120 are flagged
+    const anomalies: string[] = [];
+    const scoreEntries = Object.entries(scores) as [string, number][];
+    for (const [dim, val] of scoreEntries) {
+      if (val < 120) anomalies.push(`Score dimension "${dim}" is below threshold: ${val}`);
+    }
+
+    const health = {
+      registrySize:   config?.registrySize  ?? 0,
+      allActive:      config?.allActive     ?? false,
+      allProtected:   config?.allProtected  ?? false,
+      configComplete: config?.configComplete ?? false,
+      selfHealApplied: healResult.repaired  ?? 0,
+    };
+
+    const recommendations: string[] = [];
+    if (healResult.repaired > 0) {
+      recommendations.push(`${healResult.repaired} configuration item(s) were auto-repaired during this check.`);
+    }
+    if (anomalies.length > 0) {
+      recommendations.push("Address the flagged score dimensions to improve overall platform health.");
+    }
+    if (!health.configComplete) {
+      recommendations.push("Complete the platform configuration to reach full operational status.");
+    }
+    if (recommendations.length === 0) {
+      recommendations.push("All systems nominal. No actions required.");
+    }
+
+    await logAudit(db as any, req, {
+      action:       "system.self-check",
+      resource:     "system:platform",
+      resourceType: "system",
+      outcome:      "success",
+      metadata:     { anomalies: anomalies.length, repaired: healResult.repaired },
+    });
+
+    res.json({
+      ok: true,
+      health,
+      scores,
+      selfHealStatus: {
+        repaired:       healResult.repaired,
+        configComplete: healResult.configComplete,
+      },
+      anomalies,
+      recommendations,
+      timestamp: new Date().toISOString(),
+    });
+  } catch (err) {
+    console.error("[system/self-check] error:", err);
+    res.status(500).json({ error: "Self-check failed", detail: String(err) });
+  }
+});
+
 export default router;
+

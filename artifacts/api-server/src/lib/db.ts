@@ -730,6 +730,35 @@ export async function bootstrapSchema(): Promise<void> {
     await sql`CREATE INDEX IF NOT EXISTS idx_invoices_client  ON platform_invoices(LOWER(client_email))`;
     await sql`CREATE INDEX IF NOT EXISTS idx_invoices_number  ON platform_invoices(invoice_number)`;
 
+    // ── System Memory — generated projects, engine/domain usage stats ─────────
+    await sql`
+      CREATE TABLE IF NOT EXISTS platform_generated_projects (
+        id           TEXT PRIMARY KEY,
+        title        TEXT NOT NULL DEFAULT '',
+        domains      JSONB NOT NULL DEFAULT '[]',
+        engines_used JSONB NOT NULL DEFAULT '[]',
+        sandbox      BOOLEAN NOT NULL DEFAULT false,
+        user_id      TEXT,
+        created_at   TIMESTAMPTZ NOT NULL DEFAULT NOW()
+      )
+    `;
+    await sql`CREATE INDEX IF NOT EXISTS idx_gen_proj_user    ON platform_generated_projects(user_id, created_at DESC)`;
+    await sql`CREATE INDEX IF NOT EXISTS idx_gen_proj_created ON platform_generated_projects(created_at DESC)`;
+    await sql`
+      CREATE TABLE IF NOT EXISTS platform_engine_usage (
+        engine     TEXT PRIMARY KEY,
+        use_count  BIGINT NOT NULL DEFAULT 0,
+        updated_at TIMESTAMPTZ NOT NULL DEFAULT NOW()
+      )
+    `;
+    await sql`
+      CREATE TABLE IF NOT EXISTS platform_domain_usage (
+        domain     TEXT PRIMARY KEY,
+        use_count  BIGINT NOT NULL DEFAULT 0,
+        updated_at TIMESTAMPTZ NOT NULL DEFAULT NOW()
+      )
+    `;
+
     console.log("[DB] Schema bootstrap complete");
   } catch (err) {
     console.error("[DB] Schema bootstrap failed:", err instanceof Error ? err.message : String(err));

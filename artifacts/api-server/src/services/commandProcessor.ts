@@ -899,6 +899,42 @@ const AutoCreateProjectHandler: CommandHandler = {
 
 // ─────────────────────────────────────────────────────────────────────────────
 
+// ─────────────────────────────────────────────────────────────────────────────
+
+const FullAutoCreateHandler: CommandHandler = {
+  name:        "full-auto-create",
+  description: "Hybrid-mode: detect full system generation requests, prepare confirmation, then execute via runFullAutoCreate.",
+  patterns: [
+    /\bcreate a system for\b/i,
+    /\bbuild a project for\b/i,
+    /\bgenerate a platform for\b/i,
+    /\bdesign a universe for\b/i,
+    /\bmake a full system for\b/i,
+    /\bset up a solution for\b/i,
+    /\bfull auto.?create\b/i,
+  ],
+
+  async execute(instruction: string, _ctx: CommandContext): Promise<CommandResult> {
+    return {
+      action:  "full-auto-create:confirm",
+      status:  "partial",
+      message: `I can assemble and activate a complete system for this. Do you want me to generate it now?\n\nPrompt detected: \u201C${instruction.slice(0, 160)}\u201D\n\nHead to Full Auto Create to confirm and generate your system.`,
+      logs:    [
+        `[HYBRID] FULL_AUTO_CREATE detected — awaiting user confirmation`,
+        `[HYBRID] Prompt: "${instruction.slice(0, 80)}\u2026"`,
+        `[HYBRID] Navigate to /full-auto-create to confirm generation.`,
+      ],
+      data: {
+        action:        "full-auto-create:confirm",
+        promptPreview: instruction.slice(0, 200),
+        redirectTo:    "/full-auto-create",
+      },
+    };
+  },
+};
+
+// ─────────────────────────────────────────────────────────────────────────────
+
 /**
  * COMMAND_HANDLERS — the master routing table.
  * To add a new command: push a new handler object here. Done.
@@ -915,6 +951,7 @@ export const COMMAND_HANDLERS: CommandHandler[] = [
   InheritUIHandler,
   ExecutionModeHandler,
   AutoCreateProjectHandler,
+  FullAutoCreateHandler,
 ];
 
 // ─── Core: processCommand ─────────────────────────────────────────────────────

@@ -15,6 +15,7 @@ import { ALL_ENGINES } from "@/engine/CapabilityEngine";
 import { dispatchLaunchEngine } from "@/components/GlobalCommandPalette";
 import { getProposalStats } from "@/engine/ContinuousImprovementEngine";
 import { PlatformStore, RecentActivity } from "@/engine/PlatformStore";
+import { ModeSwitcher } from "@/components/ModeSwitcher";
 
 // ─── Pinned apps ──────────────────────────────────────────────────────────────
 const PINNED_IDS: AppId[] = [
@@ -152,6 +153,13 @@ export function Sidebar({ onNav, forceCollapsed, forceExpanded }: SidebarProps) 
             }
           </button>
         </div>
+
+        {/* Mode Switcher */}
+        {!collapsed && (
+          <div style={{ padding: "4px 10px 2px" }}>
+            <ModeSwitcher compact />
+          </div>
+        )}
 
         {/* Favorite engines strip */}
         {favEngines.length > 0 && (
@@ -396,6 +404,144 @@ export function Sidebar({ onNav, forceCollapsed, forceExpanded }: SidebarProps) 
             )}
           </button>
         </div>
+
+        {/* Full Auto Create */}
+        <div style={{ padding: "4px 8px 0" }}>
+          <button
+            onClick={() => handleNav(() => setLocation("/full-auto-create"))}
+            title={collapsed ? "\u26a1 Full Auto Create" : undefined}
+            style={{
+              width: "100%", display: "flex", alignItems: "center",
+              gap: collapsed ? 0 : 7, height: 28, borderRadius: 8,
+              padding: collapsed ? "0" : "0 8px",
+              justifyContent: collapsed ? "center" : "flex-start",
+              background: location === "/full-auto-create" ? "rgba(99,102,241,0.12)" : "rgba(99,102,241,0.04)",
+              border: `1px solid ${location === "/full-auto-create" ? "rgba(99,102,241,0.30)" : "rgba(99,102,241,0.12)"}`,
+              cursor: "pointer", transition: "background 0.12s, border-color 0.12s",
+            }}
+            onMouseEnter={e => {
+              (e.currentTarget as HTMLElement).style.background = "rgba(99,102,241,0.12)";
+              (e.currentTarget as HTMLElement).style.borderColor = "rgba(99,102,241,0.22)";
+            }}
+            onMouseLeave={e => {
+              (e.currentTarget as HTMLElement).style.background =
+                location === "/full-auto-create" ? "rgba(99,102,241,0.12)" : "rgba(99,102,241,0.04)";
+              (e.currentTarget as HTMLElement).style.borderColor =
+                location === "/full-auto-create" ? "rgba(99,102,241,0.30)" : "rgba(99,102,241,0.12)";
+            }}
+          >
+            <span style={{ fontSize: 11, flexShrink: 0, lineHeight: 1 }}>\u26a1</span>
+            {!collapsed && (
+              <span style={{ fontSize: 10.5, fontWeight: 700, color: "#6366f1", flex: 1, textAlign: "left" }}>
+                Full Auto Create
+              </span>
+            )}
+          </button>
+        </div>
+
+        {/* Universe Map */}
+        <div style={{ padding: "4px 8px 0" }}>
+          <button
+            onClick={() => handleNav(() => setLocation("/universe-map"))}
+            title={collapsed ? "\uD83C\uDF0C Universe Map" : undefined}
+            style={{
+              width: "100%", display: "flex", alignItems: "center",
+              gap: collapsed ? 0 : 7, height: 28, borderRadius: 8,
+              padding: collapsed ? "0" : "0 8px",
+              justifyContent: collapsed ? "center" : "flex-start",
+              background: location === "/universe-map" ? "rgba(124,58,237,0.12)" : "rgba(124,58,237,0.04)",
+              border: `1px solid ${location === "/universe-map" ? "rgba(124,58,237,0.30)" : "rgba(124,58,237,0.12)"}`,
+              cursor: "pointer", transition: "background 0.12s, border-color 0.12s",
+            }}
+            onMouseEnter={e => {
+              (e.currentTarget as HTMLElement).style.background = "rgba(124,58,237,0.12)";
+              (e.currentTarget as HTMLElement).style.borderColor = "rgba(124,58,237,0.22)";
+            }}
+            onMouseLeave={e => {
+              (e.currentTarget as HTMLElement).style.background =
+                location === "/universe-map" ? "rgba(124,58,237,0.12)" : "rgba(124,58,237,0.04)";
+              (e.currentTarget as HTMLElement).style.borderColor =
+                location === "/universe-map" ? "rgba(124,58,237,0.30)" : "rgba(124,58,237,0.12)";
+            }}
+          >
+            <span style={{ fontSize: 11, flexShrink: 0, lineHeight: 1 }}>\uD83C\uDF0C</span>
+            {!collapsed && (
+              <span style={{ fontSize: 10.5, fontWeight: 700, color: "#7c3aed", flex: 1, textAlign: "left" }}>
+                Universe Map
+              </span>
+            )}
+          </button>
+        </div>
+
+        {/* Project Library */}
+        <div style={{ padding: "4px 8px 0" }}>
+          <button
+            onClick={() => handleNav(() => setLocation("/projects/library"))}
+            title={collapsed ? "\uD83D\uDCDA Project Library" : undefined}
+            style={{
+              width: "100%", display: "flex", alignItems: "center",
+              gap: collapsed ? 0 : 7, height: 28, borderRadius: 8,
+              padding: collapsed ? "0" : "0 8px",
+              justifyContent: collapsed ? "center" : "flex-start",
+              background: location === "/projects/library" ? "rgba(2,132,199,0.12)" : "rgba(2,132,199,0.04)",
+              border: `1px solid ${location === "/projects/library" ? "rgba(2,132,199,0.30)" : "rgba(2,132,199,0.12)"}`,
+              cursor: "pointer", transition: "background 0.12s, border-color 0.12s",
+            }}
+            onMouseEnter={e => {
+              (e.currentTarget as HTMLElement).style.background = "rgba(2,132,199,0.12)";
+              (e.currentTarget as HTMLElement).style.borderColor = "rgba(2,132,199,0.22)";
+            }}
+            onMouseLeave={e => {
+              (e.currentTarget as HTMLElement).style.background =
+                location === "/projects/library" ? "rgba(2,132,199,0.12)" : "rgba(2,132,199,0.04)";
+              (e.currentTarget as HTMLElement).style.borderColor =
+                location === "/projects/library" ? "rgba(2,132,199,0.30)" : "rgba(2,132,199,0.12)";
+            }}
+          >
+            <span style={{ fontSize: 11, flexShrink: 0, lineHeight: 1 }}>\uD83D\uDCDA</span>
+            {!collapsed && (
+              <span style={{ fontSize: 10.5, fontWeight: 700, color: "#0284c7", flex: 1, textAlign: "left" }}>
+                Project Library
+              </span>
+            )}
+          </button>
+        </div>
+
+        {/* System Self-Check (founder/admin only) */}
+        {(role === "founder" || role === "admin") && (
+          <div style={{ padding: "4px 8px 0" }}>
+            <button
+              onClick={() => handleNav(() => setLocation("/system/self-check"))}
+              title={collapsed ? "\uD83D\uDEE1\uFE0F Self-Check" : undefined}
+              style={{
+                width: "100%", display: "flex", alignItems: "center",
+                gap: collapsed ? 0 : 7, height: 28, borderRadius: 8,
+                padding: collapsed ? "0" : "0 8px",
+                justifyContent: collapsed ? "center" : "flex-start",
+                background: location === "/system/self-check" ? "rgba(239,68,68,0.10)" : "rgba(239,68,68,0.04)",
+                border: `1px solid ${location === "/system/self-check" ? "rgba(239,68,68,0.28)" : "rgba(239,68,68,0.12)"}`,
+                cursor: "pointer", transition: "background 0.12s, border-color 0.12s",
+              }}
+              onMouseEnter={e => {
+                (e.currentTarget as HTMLElement).style.background = "rgba(239,68,68,0.10)";
+                (e.currentTarget as HTMLElement).style.borderColor = "rgba(239,68,68,0.22)";
+              }}
+              onMouseLeave={e => {
+                (e.currentTarget as HTMLElement).style.background =
+                  location === "/system/self-check" ? "rgba(239,68,68,0.10)" : "rgba(239,68,68,0.04)";
+                (e.currentTarget as HTMLElement).style.borderColor =
+                  location === "/system/self-check" ? "rgba(239,68,68,0.28)" : "rgba(239,68,68,0.12)";
+              }}
+            >
+              <span style={{ fontSize: 11, flexShrink: 0, lineHeight: 1 }}>\uD83D\uDEE1\uFE0F</span>
+              {!collapsed && (
+                <span style={{ fontSize: 10.5, fontWeight: 700, color: "#ef4444", flex: 1, textAlign: "left" }}>
+                  System Self-Check
+                </span>
+              )}
+            </button>
+          </div>
+        )}
 
         {/* Engine run count */}
         {totalRuns > 0 && (
