@@ -24,6 +24,7 @@ import {
   attachPrimaryBankAccount,
 } from "./services/familyAgents.js";
 import { openFloodgates } from "./floodgates.js";
+import { initInvoiceStore } from "./routes/invoicePayments.js";
 import { safeCeiling }        from "../../createai-brain/src/universe/ceilingEngine";
 import { logSystemInspection } from "../../createai-brain/src/universe/systemInspector";
 
@@ -91,6 +92,10 @@ app.listen(port, () => {
       console.log(`[VentonWay:Scheduler] ✅ started — processing queue every ${QUEUE_INTERVAL_MS / 1000}s`);
     }
     catch (err) { console.error("[Startup] initVentonWay failed — continuing:", (err as Error).message); }
+
+    // ── Invoice Store: hydrate from DB ──────────────────────────────────────────
+    try { await initInvoiceStore(); }
+    catch (err) { console.error("[Startup] InvoiceStore hydration failed — continuing:", (err as Error).message); }
 
     // ── EBS: Event Store ────────────────────────────────────────────────────────
     try { await initEventStore(); }

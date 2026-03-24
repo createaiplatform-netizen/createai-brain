@@ -689,6 +689,47 @@ export async function bootstrapSchema(): Promise<void> {
     await sql`CREATE INDEX IF NOT EXISTS idx_ebs_ohook_status  ON platform_ebs_outbound_webhooks (status, next_retry_at)`;
     await sql`CREATE INDEX IF NOT EXISTS idx_ebs_ohook_created ON platform_ebs_outbound_webhooks (created_at DESC)`;
 
+    // ── Magic link tokens (DB-backed, survives restarts) ─────────────────────
+    await sql`
+      CREATE TABLE IF NOT EXISTS platform_magic_tokens (
+        token_hash   TEXT PRIMARY KEY,
+        email        TEXT NOT NULL,
+        expires_at   TIMESTAMPTZ NOT NULL,
+        used         BOOLEAN NOT NULL DEFAULT FALSE,
+        device_fingerprint TEXT NOT NULL DEFAULT '',
+        ip_address   TEXT NOT NULL DEFAULT '',
+        created_at   TIMESTAMPTZ NOT NULL DEFAULT NOW()
+      )
+    `;
+    await sql`CREATE INDEX IF NOT EXISTS idx_magic_tokens_email   ON platform_magic_tokens(LOWER(email))`;
+    await sql`CREATE INDEX IF NOT EXISTS idx_magic_tokens_expires ON platform_magic_tokens(expires_at)`;
+
+    // ── Invoices (DB-backed, survives restarts) ───────────────────────────────
+    await sql`
+      CREATE TABLE IF NOT EXISTS platform_invoices (
+        id             TEXT PRIMARY KEY,
+        invoice_number TEXT NOT NULL UNIQUE,
+        client_email   TEXT NOT NULL DEFAULT '',
+        client_name    TEXT NOT NULL DEFAULT '',
+        client_company TEXT NOT NULL DEFAULT '',
+        status         TEXT NOT NULL DEFAULT 'draft',
+        currency       TEXT NOT NULL DEFAULT 'USD',
+        subtotal       NUMERIC(12,2) NOT NULL DEFAULT 0,
+        tax_rate       NUMERIC(5,2) NOT NULL DEFAULT 0,
+        tax_amount     NUMERIC(12,2) NOT NULL DEFAULT 0,
+        total          NUMERIC(12,2) NOT NULL DEFAULT 0,
+        issue_date     TEXT NOT NULL DEFAULT '',
+        due_date       TEXT NOT NULL DEFAULT '',
+        notes          TEXT NOT NULL DEFAULT '',
+        line_items     JSONB NOT NULL DEFAULT '[]',
+        created_at     TIMESTAMPTZ NOT NULL DEFAULT NOW(),
+        updated_at     TIMESTAMPTZ NOT NULL DEFAULT NOW()
+      )
+    `;
+    await sql`CREATE INDEX IF NOT EXISTS idx_invoices_status  ON platform_invoices(status, created_at DESC)`;
+    await sql`CREATE INDEX IF NOT EXISTS idx_invoices_client  ON platform_invoices(LOWER(client_email))`;
+    await sql`CREATE INDEX IF NOT EXISTS idx_invoices_number  ON platform_invoices(invoice_number)`;
+
     console.log("[DB] Schema bootstrap complete");
   } catch (err) {
     console.error("[DB] Schema bootstrap failed:", err instanceof Error ? err.message : String(err));
@@ -1137,4 +1178,147 @@ export async function getApprovedReviews(productId?: string): Promise<Array<Reco
     ? await sql`SELECT * FROM platform_reviews WHERE status = 'approved' AND product_id = ${productId} ORDER BY created_at DESC LIMIT 20`
     : await sql`SELECT * FROM platform_reviews WHERE status = 'approved' ORDER BY created_at DESC LIMIT 50`;
   return rows as unknown as Array<Record<string, unknown>>;
+}
+
+// ── Magic token operations ────────────────────────────────────────────────────
+
+export async function saveMagicToken(data: {
+  tokenHash: string;
+  email: string;
+  expiresAt: Date;
+  deviceFingerprint: string;
+  ipAddress: string;
+}): Promise<void> {
+  const sql = getSql();
+  await sql`
+    INSERT INTO platform_magic_tokens (token_hash, email, expires_at, device_fingerprint, ip_address)
+    VALUES (${data.tokenHash}, ${data.email.toLowerCase().trim()}, ${data.expiresAt.toISOString()}, ${data.deviceFingerprint}, ${data.ipAddress})
+    ON CONFLICT (token_hash) DO NOTHING
+  `.catch(e => console.warn("[DB] saveMagicToken failed:", e instanceof Error ? e.message : String(e)));
+}
+
+export async function getMagicToken(tokenHash: string): Promise<{
+  email: string; expiresAt: Date; used: boolean;
+  deviceFingerprint: string; ipAddress: string;
+} | null> {
+  const sql = getSql();
+  const [row] = await sql`
+    SELECT email, expires_at, used, device_fingerprint, ip_address
+    FROM platform_magic_tokens WHERE token_hash = ${tokenHash}
+  `;
+  if (!row) return null;
+  return {
+    email: String(row["email"] ?? ""),
+    expiresAt: new Date(String(row["expires_at"])),
+    used: Boolean(row["used"]),
+    deviceFingerprint: String(row["device_fingerprint"] ?? ""),
+    ipAddress: String(row["ip_address"] ?? ""),
+  };
+}
+
+export async function markMagicTokenUsed(tokenHash: string): Promise<void> {
+  const sql = getSql();
+  await sql`UPDATE platform_magic_tokens SET used = TRUE WHERE token_hash = ${tokenHash}`;
+}
+
+export async function deleteExpiredMagicTokens(): Promise<void> {
+  const sql = getSql();
+  await sql`DELETE FROM platform_magic_tokens WHERE expires_at < NOW() OR used = TRUE`.catch(() => {});
+}
+
+export async function countActiveMagicTokens(): Promise<number> {
+  const sql = getSql();
+  const [row] = await sql`SELECT COUNT(*)::int AS n FROM platform_magic_tokens WHERE used = FALSE AND expires_at > NOW()`;
+  return Number(row?.["n"] ?? 0);
+}
+
+// ── Invoice operations ────────────────────────────────────────────────────────
+
+export interface DBInvoice {
+  id: string;
+  invoiceNumber: string;
+  clientEmail: string;
+  clientName: string;
+  clientCompany: string;
+  status: string;
+  currency: string;
+  subtotal: number;
+  taxRate: number;
+  taxAmount: number;
+  total: number;
+  issueDate: string;
+  dueDate: string;
+  notes: string;
+  lineItems: unknown[];
+  createdAt: number;
+  updatedAt: number;
+}
+
+export async function upsertInvoice(inv: DBInvoice): Promise<void> {
+  const sql = getSql();
+  await sql`
+    INSERT INTO platform_invoices
+      (id, invoice_number, client_email, client_name, client_company, status,
+       currency, subtotal, tax_rate, tax_amount, total, issue_date, due_date,
+       notes, line_items, updated_at)
+    VALUES
+      (${inv.id}, ${inv.invoiceNumber}, ${inv.clientEmail.toLowerCase()},
+       ${inv.clientName}, ${inv.clientCompany}, ${inv.status},
+       ${inv.currency}, ${inv.subtotal}, ${inv.taxRate}, ${inv.taxAmount},
+       ${inv.total}, ${inv.issueDate}, ${inv.dueDate}, ${inv.notes},
+       ${JSON.stringify(inv.lineItems)}, NOW())
+    ON CONFLICT (id) DO UPDATE SET
+      status = EXCLUDED.status,
+      subtotal = EXCLUDED.subtotal,
+      tax_rate = EXCLUDED.tax_rate,
+      tax_amount = EXCLUDED.tax_amount,
+      total = EXCLUDED.total,
+      line_items = EXCLUDED.line_items,
+      notes = EXCLUDED.notes,
+      updated_at = NOW()
+  `.catch(e => console.warn("[DB] upsertInvoice failed:", e instanceof Error ? e.message : String(e)));
+}
+
+export async function getInvoiceFromDB(id: string): Promise<DBInvoice | null> {
+  const sql = getSql();
+  const [row] = await sql`SELECT * FROM platform_invoices WHERE id = ${id}`;
+  if (!row) return null;
+  return mapDBInvoice(row);
+}
+
+export async function getAllInvoicesFromDB(): Promise<DBInvoice[]> {
+  const sql = getSql();
+  const rows = await sql`SELECT * FROM platform_invoices ORDER BY created_at DESC LIMIT 500`;
+  return rows.map(mapDBInvoice);
+}
+
+export async function getMaxInvoiceNumber(): Promise<number> {
+  const sql = getSql();
+  const [row] = await sql`
+    SELECT COALESCE(MAX(CAST(REGEXP_REPLACE(invoice_number, '[^0-9]', '', 'g') AS INTEGER)), 1000)::int AS max_num
+    FROM platform_invoices WHERE invoice_number ~ '^LTL-[0-9]+'
+  `;
+  return Number(row?.["max_num"] ?? 1000);
+}
+
+function mapDBInvoice(row: Record<string, unknown>): DBInvoice {
+  return {
+    id: String(row["id"] ?? ""),
+    invoiceNumber: String(row["invoice_number"] ?? ""),
+    clientEmail: String(row["client_email"] ?? ""),
+    clientName: String(row["client_name"] ?? ""),
+    clientCompany: String(row["client_company"] ?? ""),
+    status: String(row["status"] ?? "draft"),
+    currency: String(row["currency"] ?? "USD"),
+    subtotal: Number(row["subtotal"] ?? 0),
+    taxRate: Number(row["tax_rate"] ?? 0),
+    taxAmount: Number(row["tax_amount"] ?? 0),
+    total: Number(row["total"] ?? 0),
+    issueDate: String(row["issue_date"] ?? ""),
+    dueDate: String(row["due_date"] ?? ""),
+    notes: String(row["notes"] ?? ""),
+    lineItems: Array.isArray(row["line_items"]) ? row["line_items"] as unknown[] : [],
+    createdAt: row["created_at"] ? new Date(String(row["created_at"])).getTime() : Date.now(),
+    updatedAt: row["updated_at"] ? new Date(String(row["updated_at"])).getTime() : Date.now(),
+  };
 }

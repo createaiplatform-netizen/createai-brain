@@ -21,6 +21,11 @@
 import { Router, type Request, type Response } from "express";
 import crypto from "crypto";
 import { PLATFORM, getSenderFull } from "../services/platformIdentity.js";
+import {
+  upsertInvoice,
+  getAllInvoicesFromDB,
+  getMaxInvoiceNumber,
+} from "../lib/db.js";
 
 const router = Router();
 
@@ -102,27 +107,68 @@ export interface Invoice {
   updatedAt: number;
 }
 
-// ── IN-MEMORY STATE — RESTART RISK ───────────────────────────────────────────
-// TODO [cluster-critical]: invoiceStore is a plain Map — not DB-backed.
-//   RISK: All in-flight and draft invoices are permanently lost on process
-//   restart, crash, or deployment. In a clustered setup, each instance holds
-//   a different invoice state — the same invoice ID returns 404 on a different
-//   pod.
-//
-//   MITIGATION REQUIRED BEFORE CLUSTERING OR PRODUCTION HARDENING:
-//   1. Create a `platform_invoices` table (or use `platform_outbound_log`) and
-//      persist every invoiceStore.set() call as a DB upsert.
-//   2. Read from DB on startup to re-hydrate invoiceStore (or remove the
-//      in-memory layer entirely and query DB directly).
-//   3. invoiceCounter must also be derived from MAX(invoice_number) in the DB,
-//      not a module-scoped integer.
-//
-//   CURRENT STATE: Safe for single-instance use. Data is lost on restart.
-//   This is an ACCEPTABLE risk while running as one process; it becomes a
-//   CRITICAL risk the moment a second instance or a deployment restart occurs.
+// ── State ─────────────────────────────────────────────────────────────────────
+// invoiceStore: in-memory cache, DB-backed via platform_invoices.
+// Every write calls persistInvoiceToDB() (fire-and-forget).
+// Hydrated from DB at startup via initInvoiceStore().
 // ─────────────────────────────────────────────────────────────────────────────
 export const invoiceStore = new Map<string, Invoice>();
 let invoiceCounter = 1000;
+
+function persistInvoiceToDB(inv: Invoice): void {
+  upsertInvoice({
+    id: inv.id,
+    invoiceNumber: inv.invoiceNumber,
+    clientEmail: inv.clientEmail,
+    clientName: inv.clientName,
+    clientCompany: inv.clientCompany ?? "",
+    status: inv.status,
+    currency: inv.currency,
+    subtotal: inv.subtotal,
+    taxRate: inv.taxRate,
+    taxAmount: inv.taxAmount,
+    total: inv.total,
+    issueDate: inv.issueDate,
+    dueDate: inv.dueDate,
+    notes: inv.notes ?? "",
+    lineItems: inv.lineItems as unknown[],
+    createdAt: inv.createdAt,
+    updatedAt: inv.updatedAt,
+  }).catch(e => console.warn("[InvoicePayments] DB persist failed:", e instanceof Error ? e.message : String(e)));
+}
+
+export async function initInvoiceStore(): Promise<void> {
+  try {
+    const [maxNum, dbInvoices] = await Promise.all([getMaxInvoiceNumber(), getAllInvoicesFromDB()]);
+    invoiceCounter = Math.max(invoiceCounter, maxNum);
+    for (const dbInv of dbInvoices) {
+      if (!invoiceStore.has(dbInv.id)) {
+        invoiceStore.set(dbInv.id, {
+          id: dbInv.id,
+          invoiceNumber: dbInv.invoiceNumber,
+          clientEmail: dbInv.clientEmail,
+          clientName: dbInv.clientName,
+          clientCompany: dbInv.clientCompany,
+          status: dbInv.status as Invoice["status"],
+          currency: dbInv.currency,
+          subtotal: dbInv.subtotal,
+          taxRate: dbInv.taxRate,
+          taxAmount: dbInv.taxAmount,
+          total: dbInv.total,
+          issueDate: dbInv.issueDate,
+          dueDate: dbInv.dueDate,
+          notes: dbInv.notes,
+          lineItems: dbInv.lineItems as InvoiceLineItem[],
+          createdAt: dbInv.createdAt,
+          updatedAt: dbInv.updatedAt,
+        });
+      }
+    }
+    console.log(`[InvoiceStore] Hydrated ${dbInvoices.length} invoices from DB. Counter: ${invoiceCounter}`);
+  } catch (e) {
+    console.warn("[InvoiceStore] DB hydration failed — running in-memory only:", e instanceof Error ? e.message : String(e));
+  }
+}
 
 /* ── Helpers ─────────────────────────────────────────────────────── */
 function nextInvoiceNumber(): string {
@@ -462,6 +508,7 @@ router.post("/create", (req: Request, res: Response) => {
     updatedAt: Date.now()
   };
   invoiceStore.set(id, invoice);
+  persistInvoiceToDB(invoice);
 
   res.json({
     ok: true,
@@ -490,7 +537,7 @@ router.get("/:id/html", (req: Request, res: Response) => {
   const id = String(req.params["id"] ?? "");
   const inv = invoiceStore.get(id);
   if (!inv) { res.status(404).send("<h1>Invoice not found</h1>"); return; }
-  if (inv.status === "sent") { inv.status = "viewed"; inv.updatedAt = Date.now(); invoiceStore.set(id, inv); }
+  if (inv.status === "sent") { inv.status = "viewed"; inv.updatedAt = Date.now(); invoiceStore.set(id, inv); persistInvoiceToDB(inv); }
   res.setHeader("Content-Type", "text/html");
   res.send(renderInvoiceHTML(inv));
 });
@@ -508,6 +555,7 @@ router.post("/:id/mark-paid", (req: Request, res: Response) => {
   if (paymentReference) inv.paymentReference = paymentReference;
   inv.updatedAt = Date.now();
   invoiceStore.set(id, inv);
+  persistInvoiceToDB(inv);
 
   const s = getInvoiceSummary();
   res.json({
@@ -527,7 +575,7 @@ router.post("/send", async (req: Request, res: Response) => {
   if (!inv) { res.status(404).json({ ok: false, error: "Invoice not found" }); return; }
 
   const sent = await emailInvoice(inv);
-  if (sent) { inv.status = "sent"; inv.sentAt = Date.now(); inv.updatedAt = Date.now(); invoiceStore.set(id, inv); }
+  if (sent) { inv.status = "sent"; inv.sentAt = Date.now(); inv.updatedAt = Date.now(); invoiceStore.set(id, inv); persistInvoiceToDB(inv); }
 
   res.json({
     ok: true,
@@ -562,6 +610,7 @@ router.patch("/:id/status", (req: Request, res: Response) => {
   if (paymentReference) inv.paymentReference = paymentReference;
   inv.updatedAt = Date.now();
   invoiceStore.set(id, inv);
+  persistInvoiceToDB(inv);
 
   res.json({
     ok: true,

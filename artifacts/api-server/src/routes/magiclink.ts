@@ -17,19 +17,15 @@ import { Router, type Request, type Response } from "express";
 import crypto from "crypto";
 import { PLATFORM, getSenderFull }                from "../services/platformIdentity.js";
 import { getLaunchFlag, LAUNCH_FLAG_KEYS }         from "../utils/launchFlags.js";
+import {
+  saveMagicToken,
+  getMagicToken,
+  markMagicTokenUsed,
+  deleteExpiredMagicTokens,
+  countActiveMagicTokens,
+} from "../lib/db.js";
 
 const router = Router();
-
-/* ── In-memory token store (production would use Redis/DB) ──────── */
-interface MagicToken {
-  email: string;
-  token: string;
-  expiresAt: number;
-  used: boolean;
-  deviceFingerprint?: string;
-  ipAddress: string;
-  createdAt: number;
-}
 
 interface TrustedDevice {
   id: string;
@@ -41,32 +37,11 @@ interface TrustedDevice {
   userAgent: string;
 }
 
-// ── IN-MEMORY STATE — RESTART RISK ───────────────────────────────────────────
-// TODO [cluster-critical]: All three stores below are plain Maps — not DB-backed.
-//
-//   tokenStore:      Lost on restart → any in-flight magic link becomes invalid
-//                    mid-flow. User must re-request the link after a restart.
-//   trustedDevices:  Lost on restart → all trusted device registrations
-//                    disappear. platform_trusted_devices TABLE already exists
-//                    in the DB schema but is not yet wired here.
-//   rateLimitStore:  Lost on restart → per-email rate limits reset, allowing
-//                    a burst of magic link requests immediately after a restart.
-//
-//   MITIGATION REQUIRED BEFORE CLUSTERING OR PRODUCTION HARDENING:
-//   - tokenStore:     Store tokens in a DB table (e.g., platform_magic_tokens)
-//                     with TTL enforced via DELETE WHERE expires_at < NOW().
-//   - trustedDevices: Wire directly to `platform_trusted_devices` table
-//                     (already exists — just needs read/write queries).
-//   - rateLimitStore: Move to Redis (or use DB count query with timestamp window)
-//                     scoped per email.
-//
-//   CURRENT FAIL-SAFE BEHAVIOR:
-//   - tokenStore expiry (15 min) is enforced in-memory — lost tokens just
-//     require a new magic link request. No security breach, only UX friction.
-//   - Trusted device loss causes re-auth prompts, not unauthorized access.
-//   - Rate limit reset allows a short burst after restart — low severity.
+// ── State ─────────────────────────────────────────────────────────────────────
+// tokenStore: DB-backed via platform_magic_tokens (survives restarts).
+// trustedDevices: in-memory (low-severity — triggers re-auth on restart, not breach).
+// rateLimitStore: in-memory (low-severity — resets on restart, no security impact).
 // ─────────────────────────────────────────────────────────────────────────────
-const tokenStore = new Map<string, MagicToken>();
 const trustedDevices = new Map<string, TrustedDevice>();
 const rateLimitStore = new Map<string, number[]>(); // email -> timestamps
 
@@ -84,10 +59,7 @@ function hashToken(token: string): string {
 }
 
 function cleanExpiredTokens(): void {
-  const now = Date.now();
-  for (const [key, val] of tokenStore.entries()) {
-    if (val.expiresAt < now || val.used) tokenStore.delete(key);
-  }
+  deleteExpiredMagicTokens().catch(() => {});
 }
 
 function checkRateLimit(email: string): boolean {
@@ -165,15 +137,16 @@ async function sendMagicLinkEmail(email: string, magicUrl: string, deviceLabel: 
 }
 
 /* ── GET /status ─────────────────────────────────────────────────── */
-router.get("/status", (_req: Request, res: Response) => {
+router.get("/status", async (_req: Request, res: Response) => {
   const hasResend = !!process.env["RESEND_API_KEY"];
+  const activeTokens = await countActiveMagicTokens().catch(() => 0);
   res.json({
     ok: true,
     method: "magic-link",
     description: "Passwordless email magic link authentication with device fingerprinting",
     emailDelivery: hasResend ? "active" : "resend_key_missing",
     features: [
-      "One-time secure tokens (SHA-256 hashed)",
+      "One-time secure tokens (SHA-256 hashed, DB-backed)",
       "15-minute token expiry",
       "Rate limiting: 5 requests/hour per email",
       "Device fingerprinting + trusted device registration",
@@ -182,7 +155,7 @@ router.get("/status", (_req: Request, res: Response) => {
     ],
     tokenTtlMinutes: 15,
     rateLimitPerHour: RATE_LIMIT_MAX,
-    activeTokens: tokenStore.size,
+    activeTokens,
     trustedDevices: trustedDevices.size
   });
 });
@@ -212,16 +185,13 @@ router.post("/send", async (req: Request, res: Response) => {
   const ip = String(req.headers["x-forwarded-for"] ?? req.socket.remoteAddress ?? "unknown");
   const label = deviceLabel || req.headers["user-agent"]?.slice(0, 80) || "Unknown device";
 
-  const entry: MagicToken = {
-    email: email.toLowerCase().trim(),
-    token: tokenHash,
-    expiresAt: Date.now() + TOKEN_TTL_MS,
-    used: false,
-    deviceFingerprint: deviceFingerprint,
+  await saveMagicToken({
+    tokenHash,
+    email,
+    expiresAt: new Date(Date.now() + TOKEN_TTL_MS),
+    deviceFingerprint: deviceFingerprint ?? "",
     ipAddress: ip,
-    createdAt: Date.now()
-  };
-  tokenStore.set(tokenHash, entry);
+  });
 
   const baseUrl = process.env["PUBLIC_URL"] ?? `https://${process.env["REPLIT_DEV_DOMAIN"]}`;
   const magicUrl = `${baseUrl}/api/auth/magic-link/verify?token=${rawToken}&email=${encodeURIComponent(email)}`;
@@ -244,7 +214,7 @@ router.post("/send", async (req: Request, res: Response) => {
 });
 
 /* ── GET /verify — verify token + establish session ─────────────── */
-router.get("/verify", (req: Request, res: Response) => {
+router.get("/verify", async (req: Request, res: Response) => {
   const rawToken = String(req.query["token"] ?? "");
   const email = String(req.query["email"] ?? "").toLowerCase().trim();
 
@@ -254,7 +224,7 @@ router.get("/verify", (req: Request, res: Response) => {
   }
 
   const tokenHash = hashToken(rawToken);
-  const entry = tokenStore.get(tokenHash);
+  const entry = await getMagicToken(tokenHash);
 
   if (!entry) {
     res.status(401).json({ ok: false, error: "Invalid or expired magic link. Please request a new one." });
@@ -264,8 +234,7 @@ router.get("/verify", (req: Request, res: Response) => {
     res.status(401).json({ ok: false, error: "This magic link has already been used. Please request a new one." });
     return;
   }
-  if (entry.expiresAt < Date.now()) {
-    tokenStore.delete(tokenHash);
+  if (entry.expiresAt.getTime() < Date.now()) {
     res.status(401).json({ ok: false, error: "This magic link has expired. Please request a new one." });
     return;
   }
@@ -274,8 +243,7 @@ router.get("/verify", (req: Request, res: Response) => {
     return;
   }
 
-  entry.used = true;
-  tokenStore.set(tokenHash, entry);
+  await markMagicTokenUsed(tokenHash);
 
   const session = (req as any).session;
   if (session) {
