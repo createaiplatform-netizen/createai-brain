@@ -20,6 +20,7 @@ import { EmotionalSafetyPanel }    from "@/components/family/EmotionalSafetyPane
 import { DiscoveryEnginePanel }    from "@/components/family/DiscoveryEnginePanel";
 import { FamilyAssistantPanel }    from "@/components/family/FamilyAssistantPanel";
 import { useFamilyTheme } from "@/hooks/useFamilyTheme";
+import { useAuth } from "@workspace/replit-auth-web";
 
 type Tab = "home" | "family" | "bills" | "bank" | "messages" | "life" | "habits" | "journal" | "create" | "memory" | "tools" | "discover" | "safety" | "assistant";
 
@@ -50,7 +51,8 @@ const CREATION_IDEAS = [
 ];
 
 export default function FamilyUniversePage() {
-  const theme = useFamilyTheme();
+  const { user } = useAuth();
+  const theme = useFamilyTheme({ userSeed: user?.id ?? user?.email ?? undefined });
   const SAGE   = theme.primary;
   const CREAM  = theme.background;
   const TEXT   = theme.text;
