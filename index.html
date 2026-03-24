@@ -1,42 +1,55 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-  <meta charset="UTF-8">
-  <title>Stripe Payment</title>
-  <script src="https://js.stripe.com/v3/"></script> <!-- Stripe library -->
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>NEXUS OS | CreateAI</title>
+    <script src="https://js.stripe.com/v3/"></script>
+    <style>
+        body { 
+            background-color: #f4f1ea; /* The Warm Sand */
+            color: #2c3e50; 
+            font-family: 'Helvetica Neue', sans-serif;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+            margin: 0;
+        }
+        .container {
+            text-align: center;
+            padding: 40px;
+            background: white;
+            border-radius: 20px;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.05);
+        }
+        h1 { color: #556b2f; } /* The Sage Green */
+        button {
+            background-color: #556b2f; /* Sage Green Button */
+            color: white;
+            padding: 15px 30px;
+            border: none;
+            border-radius: 8px;
+            font-size: 1.1rem;
+            cursor: pointer;
+            transition: opacity 0.2s;
+        }
+        button:hover { opacity: 0.9; }
+    </style>
 </head>
 <body>
-  <h1>Stripe Payment</h1>
-  <form id="payment-form">
-    <div id="card-element"></div> <!-- Card input -->
-    <button id="submit">Pay</button>
-    <div id="error-message"></div>
-  </form>
-  <script>
-    // Replace with the generated client_secret from the backend
-    const clientSecret = "REPLACE_WITH_CLIENT_SECRET";
+    <div class="container">
+        <h1>NEXUS OS</h1>
+        <p>Your AI-Powered Future Starts Here.</p>
+        <button id="checkout-button">Get Started with NEXUS</button>
+    </div>
 
-    const stripe = Stripe("pk_test_YOUR_PUBLISHABLE_KEY"); // Replace with your publishable key
-    const elements = stripe.elements();
-    const card = elements.create('card');
-    card.mount('#card-element');
-
-    document.getElementById('payment-form').addEventListener('submit', async (e) => {
-      e.preventDefault();
-      const { error, paymentIntent } = await stripe.confirmCardPayment(clientSecret, {
-        payment_method: {
-          card: card,
-          billing_details: { name: 'Customer Name' }
-        }
-      });
-
-      if (error) {
-        document.getElementById('error-message').innerText = error.message;
-      } else {
-        alert('Payment Successful!');
-        console.log(paymentIntent);
-      }
-    });
-  </script>
+    <script>
+        const stripe = Stripe('pk_live_YOUR_ACTUAL_KEY_HERE'); 
+        document.getElementById('checkout-button').addEventListener('click', function () {
+            // This will trigger your Stripe Checkout
+            console.log("Redirecting to Stripe...");
+        });
+    </script>
 </body>
 </html>
