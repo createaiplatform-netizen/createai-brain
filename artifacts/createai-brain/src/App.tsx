@@ -30,6 +30,7 @@ import FamilyHubPage from "@/pages/FamilyHubPage";
 import ThemePreviewPage from "@/pages/ThemePreviewPage";
 import { ActivatedUniverse } from "@/components/ActivatedUniverse";
 import { StorefrontRoutes } from "@/storefront/Storefront";
+import { AnalyticsRouteTracker } from "@/components/AnalyticsRouteTracker";
 import PublicBridgePage from "@/pages/PublicBridgePage";
 import PublicFamilyPage from "@/pages/PublicFamilyPage";
 import AdminDashboardPage from "@/pages/AdminDashboardPage";
@@ -797,6 +798,7 @@ function App() {
       <QueryClientProvider client={queryClient}>
         <BroadcastFloatingTrigger />
         <WouterRouter base={base}>
+          <AnalyticsRouteTracker />
           <Route path="/integration-demo"   component={IntegrationDemoPage} />
           <Route path="/live-sim"           component={LiveSimDashboard} />
           <Route path="/integration-live"    component={IntegrationLivePage} />
@@ -859,6 +861,7 @@ function App() {
                     <PushNotificationManager />
                     <GlobalCommandPalette />
                     <WouterRouter base={base}>
+                      <AnalyticsRouteTracker />
                       {/* SmartRoleRouter: fires after login+NDA, redirects to role home */}
                       <SmartRoleRouter />
                       <Router />

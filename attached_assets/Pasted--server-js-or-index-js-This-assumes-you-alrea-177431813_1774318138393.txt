@@ -1,0 +1,260 @@
+// ======================= server.js (or index.js) =======================
+// This assumes you already have an Express app and JSON body parsing set up.
+
+import express from "express";
+import sqlite3 from "sqlite3";
+import path from "path";
+import { fileURLToPath } from "url";
+
+const __filename = fileURLToPath(import.meta.url);
+const __dirname = path.dirname(__filename);
+
+const app = express();
+app.use(express.json());
+
+// -------------------- SQLite setup --------------------
+const dbPath = path.join(__dirname, "analytics.db");
+const db = new sqlite3.Database(dbPath);
+
+// Create analytics_events table if it doesn't exist
+db.serialize(() => {
+  db.run(`
+    CREATE TABLE IF NOT EXISTS analytics_events (
+      id INTEGER PRIMARY KEY AUTOINCREMENT,
+      timestamp INTEGER NOT NULL,
+      route TEXT NOT NULL,
+      event_type TEXT NOT NULL,
+      metadata TEXT,
+      user_id TEXT
+    )
+  `);
+});
+
+// -------------------- Helper to insert event --------------------
+function insertAnalyticsEvent({
+  route,
+  event_type,
+  metadata = null,
+  user_id = null,
+}: {
+  route: string;
+  event_type: "view" | "click";
+  metadata?: any;
+  user_id?: string | null;
+}) {
+  const ts = Date.now();
+  const metaString = metadata ? JSON.stringify(metadata) : null;
+
+  db.run(
+    `
+    INSERT INTO analytics_events (timestamp, route, event_type, metadata, user_id)
+    VALUES (?, ?, ?, ?, ?)
+  `,
+    [ts, route, event_type, metaString, user_id],
+    (err) => {
+      if (err) {
+        console.error("Error inserting analytics event:", err);
+      }
+    }
+  );
+}
+
+// ======================= API ROUTES =======================
+
+// POST /api/analytics/track
+// Body: { route: string, event_type: "view" | "click", metadata?: object, user_id?: string }
+app.post("/api/analytics/track", (req, res) => {
+  const { route, event_type, metadata, user_id } = req.body || {};
+
+  if (!route || !event_type || !["view", "click"].includes(event_type)) {
+    return res.status(400).json({ error: "Invalid analytics payload" });
+  }
+
+  insertAnalyticsEvent({ route, event_type, metadata, user_id });
+  return res.json({ ok: true });
+});
+
+// GET /api/analytics/summary
+// Returns total views, total clicks, and top routes
+app.get("/api/analytics/summary", (req, res) => {
+  const summary: any = {
+    totalViews: 0,
+    totalClicks: 0,
+    topRoutes: [],
+  };
+
+  db.serialize(() => {
+    db.get(
+      `SELECT COUNT(*) as count FROM analytics_events WHERE event_type = 'view'`,
+      (err, row) => {
+        if (!err && row) summary.totalViews = row.count || 0;
+
+        db.get(
+          `SELECT COUNT(*) as count FROM analytics_events WHERE event_type = 'click'`,
+          (err2, row2) => {
+            if (!err2 && row2) summary.totalClicks = row2.count || 0;
+
+            db.all(
+              `
+              SELECT route,
+                     SUM(CASE WHEN event_type = 'view' THEN 1 ELSE 0 END) as views,
+                     SUM(CASE WHEN event_type = 'click' THEN 1 ELSE 0 END) as clicks
+              FROM analytics_events
+              GROUP BY route
+              ORDER BY views DESC
+              LIMIT 20
+            `,
+              (err3, rows) => {
+                if (!err3 && rows) summary.topRoutes = rows;
+                return res.json(summary);
+              }
+            );
+          }
+        );
+      }
+    );
+  });
+});
+
+// GET /api/analytics/routes
+// Returns views/clicks per route
+app.get("/api/analytics/routes", (req, res) => {
+  db.all(
+    `
+    SELECT route,
+           SUM(CASE WHEN event_type = 'view' THEN 1 ELSE 0 END) as views,
+           SUM(CASE WHEN event_type = 'click' THEN 1 ELSE 0 END) as clicks
+    FROM analytics_events
+    GROUP BY route
+    ORDER BY views DESC
+  `,
+    (err, rows) => {
+      if (err) {
+        console.error("Error querying routes analytics:", err);
+        return res.status(500).json({ error: "Internal error" });
+      }
+      return res.json(rows || []);
+    }
+  );
+});
+
+// GET /api/analytics/clicks
+// Returns clicks grouped by route + metadata.label (if present)
+app.get("/api/analytics/clicks", (req, res) => {
+  db.all(
+    `
+    SELECT route,
+           metadata,
+           COUNT(*) as clicks
+    FROM analytics_events
+    WHERE event_type = 'click'
+    GROUP BY route, metadata
+    ORDER BY clicks DESC
+  `,
+    (err, rows) => {
+      if (err) {
+        console.error("Error querying clicks analytics:", err);
+        return res.status(500).json({ error: "Internal error" });
+      }
+
+      // Try to parse metadata JSON
+      const parsed = (rows || []).map((row: any) => {
+        let meta: any = null;
+        try {
+          meta = row.metadata ? JSON.parse(row.metadata) : null;
+        } catch {
+          meta = null;
+        }
+        return {
+          route: row.route,
+          clicks: row.clicks,
+          metadata: meta,
+        };
+      });
+
+      return res.json(parsed);
+    }
+  );
+});
+
+// ======================= FRONTEND TRACKING (React) =======================
+// Put this in a frontend file (e.g., src/analyticsClient.ts) and import where needed.
+
+export async function trackAnalyticsEvent(params: {
+  route: string;
+  event_type: "view" | "click";
+  metadata?: any;
+  user_id?: string;
+}) {
+  try {
+    await fetch("/api/analytics/track", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify(params),
+    });
+  } catch (e) {
+    console.warn("Failed to send analytics event", e);
+  }
+}
+
+// Example: automatic route view tracking with wouter
+// In your main App shell where you use <Route> or useLocation:
+
+/*
+import { useLocation } from "wouter";
+import { useEffect } from "react";
+import { trackAnalyticsEvent } from "./analyticsClient";
+
+function AnalyticsRouteTracker() {
+  const [location] = useLocation();
+
+  useEffect(() => {
+    // Fire on every route change
+    trackAnalyticsEvent({
+      route: location,
+      event_type: "view",
+    });
+  }, [location]);
+
+  return null;
+}
+
+// Then in your App component:
+
+function App() {
+  return (
+    <>
+      <AnalyticsRouteTracker />
+      <StorefrontRoutes />
+      // ...other routes
+    </>
+  );
+}
+*/
+
+// Example: click tracking helper
+/*
+import { trackAnalyticsEvent } from "./analyticsClient";
+
+function TrackedButton(props: { route: string; label: string; onClick?: () => void }) {
+  const { route, label, onClick, ...rest } = props;
+
+  const handleClick = () => {
+    trackAnalyticsEvent({
+      route,
+      event_type: "click",
+      metadata: { label },
+    });
+    if (onClick) onClick();
+  };
+
+  return <button {...rest} onClick={handleClick}>{label}</button>;
+}
+*/
+
+// ======================= SERVER START (if not already present) =======================
+
+const PORT = process.env.PORT || 3000;
+app.listen(PORT, () => {
+  console.log(`Server with analytics running on port ${PORT}`);
+});
