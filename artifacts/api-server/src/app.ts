@@ -31,15 +31,15 @@
  *   webhooks) in enqueue()/run() with typed helpers. Currently runs inline.
  *   Scale path: replace inlineRunner with BullMQ adapter — no call-site changes.
  *
- * IN-MEMORY STATE RISKS (documented, not yet mitigated):
- *   - invoicePayments.ts: invoiceStore (Map) — not DB-backed, lost on restart.
- *     RISK: In-flight invoices may be orphaned after a process restart.
- *     TODO: Migrate to platform_outbound_log or a dedicated invoice table.
- *   - magiclink.ts: tokenStore, trustedDevices, rateLimitStore (Maps) — not
- *     DB-backed. RISK: Magic link tokens are invalidated on process restart.
- *     TODO: Migrate to platform_trusted_devices (already exists) + DB tokens.
- *   - generate.ts: activeStreams (Map) — expected in-memory for SSE; no risk.
- *   - semanticContent.ts: _cache (Map) — soft optimization; safe to lose.
+ * IN-MEMORY STATE — CURRENT STATUS (all critical paths are DB-backed):
+ *   - invoicePayments.ts: invoiceStore (Map) — RESOLVED. DB-backed via platform_invoices.
+ *     Every write calls persistInvoiceToDB() (fire-and-forget); hydrated from DB at startup
+ *     via initInvoiceStore(). In-memory Map is a read-through cache only.
+ *   - magiclink.ts: RESOLVED. Tokens → platform_magic_tokens (DB). Trusted devices →
+ *     platform_trusted_devices (DB). Rate limits → platform_magic_tokens COUNT query (DB).
+ *     All state survives process restarts. No in-memory Maps remain for auth state.
+ *   - generate.ts: activeStreams (Map) — expected in-memory for SSE; no correctness risk.
+ *   - semanticContent.ts: _cache (Map) — soft read-optimization; safe to lose on restart.
  *
  * CLUSTER READINESS:
  *   - No shared in-memory state is relied upon for correctness in authenticated

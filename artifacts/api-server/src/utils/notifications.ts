@@ -4,8 +4,11 @@
  * Low-level email/SMS delivery via Resend + Twilio. Used for startup family
  * blast and family-event alerts. All branding uses PLATFORM identity (sage).
  *
- * TODO: Gradually consolidate calls here into outboundEngine.send() so that
- *       all platform sends are logged in platform_outbound_log.
+ * Consolidation path: Gradually migrate direct Resend/Twilio calls here into
+ * outboundEngine.send() so every platform send is logged in platform_outbound_log.
+ * Priority order: (1) notifyFamilyEvent → outboundEngine, (2) notifyFamily startup
+ * blast → outboundEngine, (3) sendEmailNotification/sendSMSNotification become thin
+ * wrappers that also emit to outboundEngine. Bridge connectors already delegate here.
  *
  * Public API:
  *   sendEmailNotification(to, subject, body)   → per-recipient {to, success, reason?}[]

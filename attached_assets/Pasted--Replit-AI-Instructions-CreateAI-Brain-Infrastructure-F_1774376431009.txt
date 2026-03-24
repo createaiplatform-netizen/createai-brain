@@ -1,0 +1,26 @@
+# Replit AI Instructions: CreateAI Brain Infrastructure Fixes (March 2026)
+
+Please execute the following technical fixes across the monorepo to ensure compliance with the Platform Standing Laws:
+
+### 1. Fix Platform Identity & "Purple Leakage"
+- In `artifacts/api-server/src/services/platformIdentity.ts`, refactor the `PLATFORM` object to be the absolute single source of truth for branding.
+- Update `artifacts/api-server/src/config/identity.ts` to import its primary values from the `platformIdentity` service.
+- Scan `invoicePayments.ts` and `emailScheduler.ts`; replace all hardcoded purple/indigo hex codes (e.g., #6366f1) with `PLATFORM.brandColor` (Sage: #7a9068) to satisfy the Family Universe Standing Law.
+
+### 2. Resolve Drizzle Dependency Conflict
+- Modify the root `package.json` or `.pnpmfile.cjs` to enforce a single resolution version for `drizzle-orm`.
+- This must resolve the "two parallel versions" error currently being bypassed by `tsx` so that formal builds can succeed.
+
+### 3. Harden Welcome Engine (Idempotency)
+- In `artifacts/api-server/src/lib/db.ts`, ensure the `platform_welcome_log` table has a `UNIQUE` constraint on the `user_id` column.
+- In `services/welcomeEngine.ts`, update `sendWelcomeIfFirstLogin` to use an `ON CONFLICT (user_id) DO NOTHING` SQL strategy.
+- This prevents duplicate welcome emails and messages during simultaneous Web/Mobile login attempts.
+
+### 4. Dynamic WebAuthn RP_ID
+- In `artifacts/api-server/src/routes/auth.ts`, refactor the `WEBAUTHN_RP_ID` constant.
+- Instead of defaulting to `localhost`, have it dynamically resolve using `IDENTITY.liveDomain` from the `nexusIdentityResolver`.
+- Ensure it correctly matches `createai.digital` when `REPLIT_DEPLOYMENT=1` is active to prevent biometric auth failures.
+
+### 5. Universal Theming Enforcement
+- Update `AppShell.tsx` and `src/lib/contextTheme.ts` to ensure that any component associated with `family_adult` or `family_child` roles automatically overrides standard Tailwind indigo classes.
+- Enforce the Sage (#7a9068) and Sand (#c4a97a) palette across all 17 adaptive contexts.

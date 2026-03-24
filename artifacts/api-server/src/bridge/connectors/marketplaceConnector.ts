@@ -25,61 +25,107 @@ import { randomUUID }                          from "crypto";
 import { OWNER_AUTHORIZATION_MANIFEST as _OAM } from "../../security/ownerAuthorizationManifest.js";
 
 // ─── Owner Authorization ───────────────────────────────────────────────────────
-console.log(`[Bridge:Marketplace] 🔐 Owner authorization confirmed — ${_OAM.owner} (${_OAM.ownerId}) · status:NOT_CONFIGURED until marketplace credentials added`);
+console.log(`[Bridge:Marketplace] \uD83D\uDD10 Owner authorization confirmed \u2014 ${_OAM.owner} (${_OAM.ownerId}) \u00B7 status:NOT_CONFIGURED until marketplace credentials added`);
 
 // ─── Helper ───────────────────────────────────────────────────────────────────
 
-function notConfigured(action: BridgeRequest["type"], _fnName: string): BridgeResponse {
+function notConfigured(action: BridgeRequest["type"], fnName: string): BridgeResponse {
+  console.log(`[Bridge:Marketplace] \u26A0\uFE0F ${fnName}() \u2014 NOT_CONFIGURED. No marketplace credentials found.`);
   return {
     requestId:    randomUUID(),
     connectorKey: "marketplace",
     action,
     status:       "NOT_CONFIGURED",
     error:        "Marketplace connector not configured. " +
-                  "Add marketplace OAuth credentials to activate real publishing.",
+                  "Add SHOPIFY_ACCESS_TOKEN + SHOPIFY_STORE_DOMAIN (or other marketplace credentials) to activate.",
     ts:           new Date().toISOString(),
   };
 }
 
 // ─── publishProduct ───────────────────────────────────────────────────────────
+// Shopify activation:
+//   POST https://{SHOPIFY_STORE_DOMAIN}/admin/api/2024-01/products.json
+//   Headers: X-Shopify-Access-Token: {SHOPIFY_ACCESS_TOKEN}
+//   Body: { product: { title, body_html, variants: [{ price }], images: [{ src }] } }
 
 export async function publishProduct(req: BridgeRequest): Promise<BridgeResponse> {
   if (!isConnectorActive("marketplace")) {
     return notConfigured(req.type, "publishProduct");
   }
 
-  // ── Shopify implementation skeleton (activate when SHOPIFY_ACCESS_TOKEN is set) ──
-  // const { title, price, description, imageUrl } = req.payload;
-  // const res = await fetch(`https://${SHOPIFY_STORE_DOMAIN}/admin/api/2024-01/products.json`, {
+  // ── Shopify implementation (activate when SHOPIFY_ACCESS_TOKEN is set) ──────
+  // const { title, price, description, imageUrl } = req.payload as Record<string, string>;
+  // const domain = process.env["SHOPIFY_STORE_DOMAIN"];
+  // const token  = process.env["SHOPIFY_ACCESS_TOKEN"];
+  // const res    = await fetch(`https://${domain}/admin/api/2024-01/products.json`, {
   //   method:  "POST",
-  //   headers: { "X-Shopify-Access-Token": SHOPIFY_ACCESS_TOKEN, "Content-Type": "application/json" },
-  //   body:    JSON.stringify({ product: { title, variants: [{ price }], body_html: description } }),
+  //   headers: { "X-Shopify-Access-Token": token!, "Content-Type": "application/json" },
+  //   body:    JSON.stringify({
+  //     product: {
+  //       title,
+  //       body_html: description,
+  //       variants:  [{ price }],
+  //       images:    imageUrl ? [{ src: imageUrl }] : [],
+  //     },
+  //   }),
   // });
-  // const data = await res.json();
-  // return ok(req.type, { shopifyProductId: data.product.id, ... });
+  // const data = await res.json() as { product: { id: number } };
+  // return { requestId: randomUUID(), connectorKey: "marketplace", action: req.type,
+  //          status: "SUCCESS", data: { shopifyProductId: data.product.id }, ts: new Date().toISOString() };
 
   return notConfigured(req.type, "publishProduct");
 }
 
 // ─── updateInventory ──────────────────────────────────────────────────────────
+// Shopify activation:
+//   GET  https://{DOMAIN}/admin/api/2024-01/inventory_levels.json?inventory_item_ids={id}
+//   POST https://{DOMAIN}/admin/api/2024-01/inventory_levels/set.json
+//   Body: { location_id, inventory_item_id, available }
 
 export async function updateInventory(req: BridgeRequest): Promise<BridgeResponse> {
   if (!isConnectorActive("marketplace")) {
     return notConfigured(req.type, "updateInventory");
   }
 
-  // TODO: implement per-marketplace inventory update
+  // ── Shopify implementation (activate when SHOPIFY_ACCESS_TOKEN is set) ──────
+  // const { inventoryItemId, locationId, quantity } = req.payload as Record<string, unknown>;
+  // const domain = process.env["SHOPIFY_STORE_DOMAIN"];
+  // const token  = process.env["SHOPIFY_ACCESS_TOKEN"];
+  // const res = await fetch(`https://${domain}/admin/api/2024-01/inventory_levels/set.json`, {
+  //   method:  "POST",
+  //   headers: { "X-Shopify-Access-Token": token!, "Content-Type": "application/json" },
+  //   body: JSON.stringify({ location_id: locationId, inventory_item_id: inventoryItemId, available: quantity }),
+  // });
+  // const data = await res.json() as { inventory_level: unknown };
+  // return { requestId: randomUUID(), connectorKey: "marketplace", action: req.type,
+  //          status: "SUCCESS", data: data.inventory_level, ts: new Date().toISOString() };
+
   return notConfigured(req.type, "updateInventory");
 }
 
 // ─── getOrders ────────────────────────────────────────────────────────────────
+// Shopify activation:
+//   GET https://{DOMAIN}/admin/api/2024-01/orders.json?status=any&limit=250
+//   Headers: X-Shopify-Access-Token: {SHOPIFY_ACCESS_TOKEN}
+// Return ONLY real orders from the marketplace \u2014 no fake counts, no fake revenue.
 
 export async function getOrders(req: BridgeRequest): Promise<BridgeResponse> {
   if (!isConnectorActive("marketplace")) {
     return notConfigured(req.type, "getOrders");
   }
 
-  // TODO: implement order fetch — return ONLY real orders from the marketplace
-  // No fake counts, no fake revenue
+  // ── Shopify implementation (activate when SHOPIFY_ACCESS_TOKEN is set) ──────
+  // const domain = process.env["SHOPIFY_STORE_DOMAIN"];
+  // const token  = process.env["SHOPIFY_ACCESS_TOKEN"];
+  // const { status = "any", limit = 50 } = req.payload as Record<string, unknown>;
+  // const res = await fetch(
+  //   `https://${domain}/admin/api/2024-01/orders.json?status=${status}&limit=${limit}`,
+  //   { headers: { "X-Shopify-Access-Token": token! } }
+  // );
+  // const data = await res.json() as { orders: unknown[] };
+  // return { requestId: randomUUID(), connectorKey: "marketplace", action: req.type,
+  //          status: "SUCCESS", data: { orders: data.orders, count: data.orders.length },
+  //          ts: new Date().toISOString() };
+
   return notConfigured(req.type, "getOrders");
 }

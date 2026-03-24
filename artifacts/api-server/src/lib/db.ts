@@ -795,6 +795,10 @@ export async function bootstrapSchema(): Promise<void> {
       CREATE INDEX IF NOT EXISTS idx_aes_ai_cache_key ON aes_ai_cache(cache_key)
     `;
 
+    // ── Idempotent column additions (ALTER TABLE IF NOT EXISTS ... ADD COLUMN IF NOT EXISTS) ──
+    await sql`ALTER TABLE platform_trusted_devices ADD COLUMN IF NOT EXISTS user_agent TEXT NOT NULL DEFAULT ''`.catch(() => {});
+    await sql`ALTER TABLE platform_trusted_devices ADD COLUMN IF NOT EXISTS fingerprint TEXT NOT NULL DEFAULT ''`.catch(() => {});
+
     console.log("[DB] Schema bootstrap complete");
   } catch (err) {
     console.error("[DB] Schema bootstrap failed:", err instanceof Error ? err.message : String(err));
@@ -1386,4 +1390,106 @@ function mapDBInvoice(row: Record<string, unknown>): DBInvoice {
     createdAt: row["created_at"] ? new Date(String(row["created_at"])).getTime() : Date.now(),
     updatedAt: row["updated_at"] ? new Date(String(row["updated_at"])).getTime() : Date.now(),
   };
+}
+
+// ── Trusted Device helpers (DB-backed — survives restarts) ────────────────────
+
+export interface DBTrustedDevice {
+  id: string;
+  email: string;
+  label: string;
+  fingerprint: string;
+  userAgent: string;
+  registeredAt: number;
+  lastUsedAt: number;
+}
+
+/**
+ * Upsert a trusted device for a given email address.
+ * ON CONFLICT on device_token (fingerprint) → updates label + last_used_at.
+ * Returns the device id.
+ */
+export async function saveTrustedDevice(data: {
+  email: string;
+  fingerprint: string;
+  label: string;
+  userAgent: string;
+}): Promise<string> {
+  const sql = getSql();
+  const rows = await sql`
+    INSERT INTO platform_trusted_devices (user_id, device_name, device_token, fingerprint, user_agent, last_used_at)
+    VALUES (
+      ${data.email.toLowerCase()},
+      ${data.label},
+      ${data.fingerprint},
+      ${data.fingerprint},
+      ${data.userAgent.slice(0, 512)},
+      NOW()
+    )
+    ON CONFLICT (device_token) DO UPDATE SET
+      device_name  = EXCLUDED.device_name,
+      user_agent   = EXCLUDED.user_agent,
+      last_used_at = NOW()
+    RETURNING id
+  `;
+  return String(rows[0]?.["id"] ?? "");
+}
+
+/** List all trusted devices for an email address. */
+export async function getTrustedDevicesByEmail(email: string): Promise<DBTrustedDevice[]> {
+  const sql = getSql();
+  const rows = await sql`
+    SELECT id, user_id, device_name, device_token, fingerprint, user_agent, last_used_at, created_at
+    FROM platform_trusted_devices
+    WHERE user_id = ${email.toLowerCase()}
+    ORDER BY created_at DESC
+  `;
+  return rows.map(r => ({
+    id:           String(r["id"] ?? ""),
+    email:        String(r["user_id"] ?? ""),
+    label:        String(r["device_name"] ?? "Unknown Device"),
+    fingerprint:  String(r["fingerprint"] ?? r["device_token"] ?? ""),
+    userAgent:    String(r["user_agent"] ?? ""),
+    registeredAt: r["created_at"]   ? new Date(String(r["created_at"])).getTime()   : Date.now(),
+    lastUsedAt:   r["last_used_at"] ? new Date(String(r["last_used_at"])).getTime() : Date.now(),
+  }));
+}
+
+/**
+ * Revoke (delete) a trusted device by id.
+ * Scoped to email — prevents cross-user deletion.
+ * Returns true if a row was deleted.
+ */
+export async function revokeTrustedDevice(deviceId: string, email: string): Promise<boolean> {
+  const sql = getSql();
+  const rows = await sql`
+    DELETE FROM platform_trusted_devices
+    WHERE id = ${deviceId} AND user_id = ${email.toLowerCase()}
+    RETURNING id
+  `;
+  return rows.length > 0;
+}
+
+/**
+ * Update last_used_at timestamp for a trusted device.
+ * Fire-and-forget — errors are suppressed.
+ */
+export async function touchTrustedDevice(deviceId: string): Promise<void> {
+  const sql = getSql();
+  await sql`UPDATE platform_trusted_devices SET last_used_at = NOW() WHERE id = ${deviceId}`.catch(() => {});
+}
+
+/**
+ * Count how many magic-link tokens were sent for an email within a rolling window.
+ * Used for DB-backed rate limiting — survives process restarts.
+ */
+export async function countMagicTokensSentInWindow(email: string, windowMs: number): Promise<number> {
+  const sql = getSql();
+  const since = new Date(Date.now() - windowMs);
+  const [row] = await sql`
+    SELECT COUNT(*)::int AS n
+    FROM platform_magic_tokens
+    WHERE LOWER(email) = ${email.toLowerCase()} AND created_at > ${since}
+  `;
+  return Number(row?.["n"] ?? 0);
 }

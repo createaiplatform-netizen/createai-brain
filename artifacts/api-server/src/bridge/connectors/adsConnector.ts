@@ -9,9 +9,12 @@
  *   Google Ads:  Set GOOGLE_ADS_DEVELOPER_TOKEN + GOOGLE_ADS_CUSTOMER_ID
  *   TikTok Ads:  Set TIKTOK_ADS_ACCESS_TOKEN + TIKTOK_ADS_APP_ID
  *
- * Once any credential is set, BRIDGE_CONFIG.ads.status becomes "ACTIVE"
- * and the functions below should be implemented against the real APIs.
- * No fake impressions. No fake spend. No fake campaign data.
+ * Implementation guide (once credentials are added):
+ *   createAdCampaign:  POST https://graph.facebook.com/v19.0/act_{ACCOUNT_ID}/campaigns
+ *   pauseCampaign:     POST https://graph.facebook.com/v19.0/{CAMPAIGN_ID} { status: "PAUSED" }
+ *   getCampaignStats:  GET  https://graph.facebook.com/v19.0/{CAMPAIGN_ID}/insights
+ *
+ * No fake impressions. No fake spend. No fake campaign data — ever.
  */
 
 import type { BridgeRequest, BridgeResponse } from "../types.js";
@@ -19,10 +22,10 @@ import { randomUUID }                          from "crypto";
 import { OWNER_AUTHORIZATION_MANIFEST as _OAM } from "../../security/ownerAuthorizationManifest.js";
 
 // ─── Owner Authorization ───────────────────────────────────────────────────────
-console.log(`[Bridge:Ads] 🔐 Owner authorization confirmed — ${_OAM.owner} (${_OAM.ownerId}) · status:NOT_CONFIGURED until credentials added`);
+console.log(`[Bridge:Ads] \uD83D\uDD10 Owner authorization confirmed \u2014 ${_OAM.owner} (${_OAM.ownerId}) \u00B7 status:NOT_CONFIGURED until credentials added`);
 
 function notConfigured(action: BridgeRequest["type"], fnName: string): BridgeResponse {
-  const msg = `[Bridge:Ads] ⚠️ ${fnName}() — NOT_CONFIGURED. ` +
+  const msg = `[Bridge:Ads] \u26A0\uFE0F ${fnName}() \u2014 NOT_CONFIGURED. ` +
     "No META_ACCESS_TOKEN, GOOGLE_ADS_DEVELOPER_TOKEN, or TIKTOK_ADS_ACCESS_TOKEN found. " +
     "No ad campaign was created. No external call was made.";
   console.log(msg);
@@ -38,25 +41,26 @@ function notConfigured(action: BridgeRequest["type"], fnName: string): BridgeRes
 }
 
 // ─── createAdCampaign ─────────────────────────────────────────────────────────
+// Activation: POST https://graph.facebook.com/v19.0/act_{META_AD_ACCOUNT_ID}/campaigns
+//   Body: { name, objective, status: "ACTIVE", special_ad_categories: [] }
 
 export async function createAdCampaign(req: BridgeRequest): Promise<BridgeResponse> {
-  // TODO: When META_ACCESS_TOKEN is set, implement:
-  //   POST https://graph.facebook.com/v19.0/act_{AD_ACCOUNT_ID}/campaigns
-  //   { name, objective, status, special_ad_categories }
   return notConfigured(req.type, "createAdCampaign");
 }
 
 // ─── pauseCampaign ────────────────────────────────────────────────────────────
+// Activation (Meta): POST https://graph.facebook.com/v19.0/{campaignId}
+//   Body: { status: "PAUSED", access_token: META_ACCESS_TOKEN }
 
 export async function pauseCampaign(req: BridgeRequest): Promise<BridgeResponse> {
-  // TODO: When credentials set, implement platform-specific pause call
   return notConfigured(req.type, "pauseCampaign");
 }
 
 // ─── getCampaignStats ─────────────────────────────────────────────────────────
+// Activation (Meta): GET https://graph.facebook.com/v19.0/{campaignId}/insights
+//   Params: fields=impressions,clicks,spend,reach&access_token=META_ACCESS_TOKEN
+// Return ONLY real stats from the ad platform \u2014 no synthetic data.
 
 export async function getCampaignStats(req: BridgeRequest): Promise<BridgeResponse> {
-  // TODO: When credentials set, implement stats fetch
-  // Return ONLY real stats from the ad platform — no fake impressions or spend
   return notConfigured(req.type, "getCampaignStats");
 }

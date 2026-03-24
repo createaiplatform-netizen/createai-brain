@@ -11,6 +11,11 @@
  * GET  /api/auth/magic-link/devices    — list trusted devices for session user
  * DELETE /api/auth/magic-link/device/:id — revoke trusted device
  * GET  /api/auth/magic-link/status     — check magic link auth capability
+ *
+ * STATE: All state is DB-backed and survives process restarts.
+ *   - Tokens:         platform_magic_tokens (DB-backed, SHA-256 hashed)
+ *   - Trusted devices: platform_trusted_devices (DB-backed, survives restarts)
+ *   - Rate limits:    platform_magic_tokens COUNT query (DB-backed, survives restarts)
  */
 
 import { Router, type Request, type Response } from "express";
@@ -23,31 +28,17 @@ import {
   markMagicTokenUsed,
   deleteExpiredMagicTokens,
   countActiveMagicTokens,
+  saveTrustedDevice,
+  getTrustedDevicesByEmail,
+  revokeTrustedDevice,
+  countMagicTokensSentInWindow,
 } from "../lib/db.js";
 
 const router = Router();
 
-interface TrustedDevice {
-  id: string;
-  email: string;
-  fingerprint: string;
-  label: string;
-  registeredAt: number;
-  lastUsedAt: number;
-  userAgent: string;
-}
-
-// ── State ─────────────────────────────────────────────────────────────────────
-// tokenStore: DB-backed via platform_magic_tokens (survives restarts).
-// trustedDevices: in-memory (low-severity — triggers re-auth on restart, not breach).
-// rateLimitStore: in-memory (low-severity — resets on restart, no security impact).
-// ─────────────────────────────────────────────────────────────────────────────
-const trustedDevices = new Map<string, TrustedDevice>();
-const rateLimitStore = new Map<string, number[]>(); // email -> timestamps
-
-const TOKEN_TTL_MS = 15 * 60 * 1000; // 15 minutes
-const RATE_LIMIT_WINDOW = 60 * 60 * 1000; // 1 hour
-const RATE_LIMIT_MAX = 5; // 5 requests per hour per email
+const TOKEN_TTL_MS       = 15 * 60 * 1000; // 15 minutes
+const RATE_LIMIT_WINDOW  = 60 * 60 * 1000; // 1 hour
+const RATE_LIMIT_MAX     = 5;               // 5 requests per hour per email
 
 /* ── Helpers ─────────────────────────────────────────────────────── */
 function generateToken(): string {
@@ -62,14 +53,13 @@ function cleanExpiredTokens(): void {
   deleteExpiredMagicTokens().catch(() => {});
 }
 
-function checkRateLimit(email: string): boolean {
-  const now = Date.now();
-  const timestamps = rateLimitStore.get(email) ?? [];
-  const recent = timestamps.filter(t => now - t < RATE_LIMIT_WINDOW);
-  if (recent.length >= RATE_LIMIT_MAX) return false;
-  recent.push(now);
-  rateLimitStore.set(email, recent);
-  return true;
+/**
+ * DB-backed rate limiter — counts magic-link tokens sent in the last hour.
+ * Survives process restarts (no in-memory state).
+ */
+async function checkRateLimit(email: string): Promise<boolean> {
+  const count = await countMagicTokensSentInWindow(email, RATE_LIMIT_WINDOW).catch(() => 0);
+  return count < RATE_LIMIT_MAX;
 }
 
 function isValidEmail(email: string): boolean {
@@ -83,7 +73,6 @@ async function sendMagicLinkEmail(email: string, magicUrl: string, deviceLabel: 
     return false;
   }
 
-  // Auth emails use PLATFORM identity and sage branding — never personal/purple.
   const SAGE  = PLATFORM.brandColor;
   const CREAM = PLATFORM.bgColor;
   const html = `<!DOCTYPE html>
@@ -105,14 +94,14 @@ async function sendMagicLinkEmail(email: string, magicUrl: string, deviceLabel: 
         <div style="text-align:center;margin:28px 0;">
           <a href="${magicUrl}" style="background:${SAGE};color:white;text-decoration:none;padding:14px 32px;border-radius:10px;font-weight:700;font-size:15px;display:inline-block;">Sign In to ${PLATFORM.displayName}</a>
         </div>
-        <p style="color:#9e9890;font-size:12px;margin:0 0 16px;line-height:1.6;">If you didn't request this link, you can safely ignore this email. It will expire automatically.</p>
+        <p style="color:#9e9890;font-size:12px;margin:0 0 16px;line-height:1.6;">If you didn\u2019t request this link, you can safely ignore this email. It will expire automatically.</p>
         <hr style="border:none;border-top:1px solid rgba(122,144,104,0.12);margin:20px 0;">
         <p style="color:#b0aca6;font-size:11px;margin:0;word-break:break-all;">Or copy this URL: ${magicUrl}</p>
       </td>
     </tr>
     <tr>
       <td style="padding:16px 0;text-align:center;">
-        <p style="margin:0;font-size:11px;color:#9e9890;">${PLATFORM.legalNotice} · <a href="mailto:${PLATFORM.supportEmail}" style="color:#9e9890;text-decoration:none;">${PLATFORM.supportEmail}</a></p>
+        <p style="margin:0;font-size:11px;color:#9e9890;">${PLATFORM.legalNotice} \u00B7 <a href="mailto:${PLATFORM.supportEmail}" style="color:#9e9890;text-decoration:none;">${PLATFORM.supportEmail}</a></p>
       </td>
     </tr>
   </table>
@@ -126,7 +115,7 @@ async function sendMagicLinkEmail(email: string, magicUrl: string, deviceLabel: 
       body: JSON.stringify({
         from: getSenderFull(),
         to: [email],
-        subject: `Your sign-in link — ${PLATFORM.displayName}`,
+        subject: `Your sign-in link \u2014 ${PLATFORM.displayName}`,
         html
       })
     });
@@ -138,7 +127,7 @@ async function sendMagicLinkEmail(email: string, magicUrl: string, deviceLabel: 
 
 /* ── GET /status ─────────────────────────────────────────────────── */
 router.get("/status", async (_req: Request, res: Response) => {
-  const hasResend = !!process.env["RESEND_API_KEY"];
+  const hasResend  = !!process.env["RESEND_API_KEY"];
   const activeTokens = await countActiveMagicTokens().catch(() => 0);
   res.json({
     ok: true,
@@ -148,15 +137,15 @@ router.get("/status", async (_req: Request, res: Response) => {
     features: [
       "One-time secure tokens (SHA-256 hashed, DB-backed)",
       "15-minute token expiry",
-      "Rate limiting: 5 requests/hour per email",
-      "Device fingerprinting + trusted device registration",
+      "Rate limiting: 5 requests/hour per email (DB-backed, survives restarts)",
+      "Device fingerprinting + trusted device registration (DB-backed)",
       "Automatic session establishment on verification",
-      "No password stored — ever"
+      "No password stored \u2014 ever"
     ],
-    tokenTtlMinutes: 15,
+    tokenTtlMinutes:  15,
     rateLimitPerHour: RATE_LIMIT_MAX,
     activeTokens,
-    trustedDevices: trustedDevices.size
+    stateBackend: "postgresql",
   });
 });
 
@@ -169,7 +158,8 @@ router.post("/send", async (req: Request, res: Response) => {
     return;
   }
 
-  if (!checkRateLimit(email)) {
+  const allowed = await checkRateLimit(email);
+  if (!allowed) {
     res.status(429).json({
       ok: false,
       error: "Too many requests. Please wait before requesting another magic link.",
@@ -180,23 +170,22 @@ router.post("/send", async (req: Request, res: Response) => {
 
   cleanExpiredTokens();
 
-  const rawToken = generateToken();
+  const rawToken  = generateToken();
   const tokenHash = hashToken(rawToken);
-  const ip = String(req.headers["x-forwarded-for"] ?? req.socket.remoteAddress ?? "unknown");
-  const label = deviceLabel || req.headers["user-agent"]?.slice(0, 80) || "Unknown device";
+  const ip        = String(req.headers["x-forwarded-for"] ?? req.socket.remoteAddress ?? "unknown");
+  const label     = deviceLabel || req.headers["user-agent"]?.slice(0, 80) || "Unknown device";
 
   await saveMagicToken({
     tokenHash,
     email,
-    expiresAt: new Date(Date.now() + TOKEN_TTL_MS),
+    expiresAt:         new Date(Date.now() + TOKEN_TTL_MS),
     deviceFingerprint: deviceFingerprint ?? "",
-    ipAddress: ip,
+    ipAddress:         ip,
   });
 
-  const baseUrl = process.env["PUBLIC_URL"] ?? `https://${process.env["REPLIT_DEV_DOMAIN"]}`;
+  const baseUrl  = process.env["PUBLIC_URL"] ?? `https://${process.env["REPLIT_DEV_DOMAIN"]}`;
   const magicUrl = `${baseUrl}/api/auth/magic-link/verify?token=${rawToken}&email=${encodeURIComponent(email)}`;
 
-  // Launch gate — only fire the email if launch_magiclink_emails flag is ON
   const emailEnabled = await getLaunchFlag(LAUNCH_FLAG_KEYS.MAGICLINK_EMAILS);
   const sent = emailEnabled
     ? await sendMagicLinkEmail(email, magicUrl, label)
@@ -205,9 +194,9 @@ router.post("/send", async (req: Request, res: Response) => {
   res.json({
     ok: true,
     message: sent
-      ? "Magic link sent. Check your email — it expires in 15 minutes."
-      : "Magic link generated (email delivery unavailable — use the dev link below).",
-    devLink: process.env["NODE_ENV"] !== "production" ? magicUrl : undefined,
+      ? "Magic link sent. Check your email \u2014 it expires in 15 minutes."
+      : "Magic link generated (email delivery unavailable \u2014 use the dev link below).",
+    devLink:          process.env["NODE_ENV"] !== "production" ? magicUrl : undefined,
     expiresInMinutes: 15,
     email
   });
@@ -216,7 +205,7 @@ router.post("/send", async (req: Request, res: Response) => {
 /* ── GET /verify — verify token + establish session ─────────────── */
 router.get("/verify", async (req: Request, res: Response) => {
   const rawToken = String(req.query["token"] ?? "");
-  const email = String(req.query["email"] ?? "").toLowerCase().trim();
+  const email    = String(req.query["email"] ?? "").toLowerCase().trim();
 
   if (!rawToken || !email) {
     res.status(400).json({ ok: false, error: "Token and email are required" });
@@ -224,7 +213,7 @@ router.get("/verify", async (req: Request, res: Response) => {
   }
 
   const tokenHash = hashToken(rawToken);
-  const entry = await getMagicToken(tokenHash);
+  const entry     = await getMagicToken(tokenHash);
 
   if (!entry) {
     res.status(401).json({ ok: false, error: "Invalid or expired magic link. Please request a new one." });
@@ -247,74 +236,104 @@ router.get("/verify", async (req: Request, res: Response) => {
 
   const session = (req as any).session;
   if (session) {
-    session.userId = email;
-    session.email = email;
-    session.authMethod = "magic-link";
+    session.userId          = email;
+    session.email           = email;
+    session.authMethod      = "magic-link";
     session.authenticatedAt = Date.now();
-    session.displayName = email.split("@")[0];
+    session.displayName     = email.split("@")[0];
   }
 
   res.json({
     ok: true,
-    authenticated: true,
+    authenticated:     true,
     email,
-    authMethod: "magic-link",
-    message: "Authentication successful. Session established.",
+    authMethod:        "magic-link",
+    message:           "Authentication successful. Session established.",
     sessionEstablished: !!session,
-    redirectTo: "/api/coreOS/dashboard"
+    redirectTo:        "/api/coreOS/dashboard"
   });
 });
 
-/* ── POST /register — register a trusted device ─────────────────── */
-router.post("/register", (req: Request, res: Response) => {
+/* ── POST /register — register a trusted device (DB-backed) ─────── */
+router.post("/register", async (req: Request, res: Response) => {
   const { email, fingerprint, label } = req.body as Record<string, string>;
   if (!email || !fingerprint) {
     res.status(400).json({ ok: false, error: "Email and device fingerprint required" });
     return;
   }
 
-  const deviceId = crypto.randomBytes(16).toString("hex");
-  const device: TrustedDevice = {
-    id: deviceId,
-    email: email.toLowerCase().trim(),
-    fingerprint,
-    label: label || "Unnamed Device",
-    registeredAt: Date.now(),
-    lastUsedAt: Date.now(),
-    userAgent: String(req.headers["user-agent"] ?? "Unknown")
-  };
-  trustedDevices.set(deviceId, device);
+  try {
+    const userAgent = String(req.headers["user-agent"] ?? "Unknown");
+    const deviceId  = await saveTrustedDevice({
+      email:       email.toLowerCase().trim(),
+      fingerprint,
+      label:       label || "Unnamed Device",
+      userAgent,
+    });
 
-  res.json({
-    ok: true,
-    deviceId,
-    message: "Device registered as trusted. Future logins from this device will be recognized.",
-    device: { id: deviceId, label: device.label, registeredAt: device.registeredAt }
-  });
+    res.json({
+      ok: true,
+      deviceId,
+      message: "Device registered as trusted. Future logins from this device will be recognized.",
+      device:  { id: deviceId, label: label || "Unnamed Device", registeredAt: Date.now() }
+    });
+  } catch (err) {
+    const msg = err instanceof Error ? err.message : String(err);
+    console.warn("[magiclink] saveTrustedDevice failed:", msg);
+    res.status(500).json({ ok: false, error: "Failed to register device." });
+  }
 });
 
-/* ── GET /devices — list trusted devices ────────────────────────── */
-router.get("/devices", (req: Request, res: Response) => {
+/* ── GET /devices — list trusted devices (DB-backed) ────────────── */
+router.get("/devices", async (req: Request, res: Response) => {
   const email = String((req as any).session?.email ?? req.query["email"] ?? "");
   if (!email) {
     res.status(401).json({ ok: false, error: "Authentication required" });
     return;
   }
-  const userDevices = [...trustedDevices.values()]
-    .filter(d => d.email === email.toLowerCase())
-    .map(d => ({ id: d.id, label: d.label, registeredAt: d.registeredAt, lastUsedAt: d.lastUsedAt, userAgent: d.userAgent }));
-  res.json({ ok: true, email, devices: userDevices, count: userDevices.length });
+  try {
+    const devices = await getTrustedDevicesByEmail(email);
+    const safe = devices.map(d => ({
+      id:           d.id,
+      label:        d.label,
+      registeredAt: d.registeredAt,
+      lastUsedAt:   d.lastUsedAt,
+      userAgent:    d.userAgent,
+    }));
+    res.json({ ok: true, email, devices: safe, count: safe.length });
+  } catch (err) {
+    const msg = err instanceof Error ? err.message : String(err);
+    console.warn("[magiclink] getTrustedDevicesByEmail failed:", msg);
+    res.json({ ok: true, email, devices: [], count: 0 });
+  }
 });
 
-/* ── DELETE /device/:id — revoke trusted device ─────────────────── */
-router.delete("/device/:id", (req: Request, res: Response) => {
+/* ── DELETE /device/:id — revoke trusted device (DB-backed) ─────── */
+router.delete("/device/:id", async (req: Request, res: Response) => {
   const deviceId = String(req.params["id"] ?? "");
-  if (!trustedDevices.has(deviceId)) {
-    res.status(404).json({ ok: false, error: "Device not found" });
+  const email    = String((req as any).session?.email ?? req.query["email"] ?? "");
+
+  if (!deviceId) {
+    res.status(400).json({ ok: false, error: "Device ID required" });
     return;
   }
-  trustedDevices.delete(deviceId);
-  res.json({ ok: true, message: "Trusted device revoked successfully.", deviceId });
+  if (!email) {
+    res.status(401).json({ ok: false, error: "Authentication required" });
+    return;
+  }
+
+  try {
+    const deleted = await revokeTrustedDevice(deviceId, email);
+    if (!deleted) {
+      res.status(404).json({ ok: false, error: "Device not found or not owned by this account" });
+      return;
+    }
+    res.json({ ok: true, message: "Trusted device revoked successfully.", deviceId });
+  } catch (err) {
+    const msg = err instanceof Error ? err.message : String(err);
+    console.warn("[magiclink] revokeTrustedDevice failed:", msg);
+    res.status(500).json({ ok: false, error: "Failed to revoke device." });
+  }
 });
 
 export default router;

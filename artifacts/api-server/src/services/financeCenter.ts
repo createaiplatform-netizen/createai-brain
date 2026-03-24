@@ -119,12 +119,48 @@ export async function sendBillReminder(params: {
 // These are clean interfaces for finance features that will be added later.
 // Implement the body when the feature is built — no core refactor needed.
 
-/** Stub: Send invoice PDF. Implement when PDF generation is added. */
-export async function sendInvoicePdf(_params: {
+/**
+ * Send a printable invoice link to the client via email.
+ * The invoice HTML endpoint (/api/payments/invoice/:id/html) includes a
+ * browser-native Print/Save-as-PDF button — no external PDF library required.
+ * To generate a headless PDF server-side, add Puppeteer or Playwright and
+ * replace the email body with a Buffer attachment.
+ */
+export async function sendInvoicePdf(params: {
   userId: string; email: string; invoiceId: string;
 }): Promise<void> {
-  // TODO: generate PDF, attach to outboundEngine.send({ channel: "export", ... })
-  console.log("[FinanceCenter] sendInvoicePdf stub — not yet implemented");
+  const { email, invoiceId } = params;
+  const baseUrl = process.env["PUBLIC_URL"] ?? `https://${process.env["REPLIT_DEV_DOMAIN"] ?? "localhost"}`;
+  const invoiceHtmlUrl = `${baseUrl}/api/payments/invoice/${encodeURIComponent(invoiceId)}/html`;
+
+  const subject = `Your invoice is ready to view and print \u2014 CreateAI Brain`;
+  const body =
+    `<div style="font-family:sans-serif;max-width:520px;margin:0 auto;padding:32px;">` +
+    `<h2 style="color:#7a9068;margin:0 0 16px;">Your Invoice is Ready</h2>` +
+    `<p style="color:#334155;line-height:1.6;margin:0 0 24px;">` +
+    `Click the link below to view your invoice. Use the Print button on the page ` +
+    `to save it as a PDF or print a physical copy.</p>` +
+    `<a href="${invoiceHtmlUrl}" style="display:inline-block;background:#7a9068;color:#fff;` +
+    `text-decoration:none;padding:12px 28px;border-radius:8px;font-weight:700;font-size:15px;">` +
+    `View &amp; Print Invoice</a>` +
+    `<p style="color:#94a3b8;font-size:12px;margin-top:24px;word-break:break-all;">` +
+    `Or open: ${invoiceHtmlUrl}</p>` +
+    `</div>`;
+
+  await outboundEngine.send({
+    type:     "export_ready",
+    channel:  "email",
+    to:       email,
+    role:     "customer",
+    universe: "customer",
+    subject,
+    body,
+    metadata: { invoiceId, recipientEmail: email },
+  }).catch(e =>
+    console.warn("[FinanceCenter] sendInvoicePdf outboundEngine failed:", e instanceof Error ? e.message : String(e))
+  );
+
+  console.log(`[FinanceCenter] sendInvoicePdf dispatched for invoiceId:${invoiceId} to:${email}`);
 }
 
 /** Stub: Export finance data for a user. */
