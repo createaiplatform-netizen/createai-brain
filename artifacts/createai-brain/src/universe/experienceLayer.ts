@@ -31,6 +31,10 @@ import { storyworldEngineManifest }   from "./storyworldEngineManifest";
 import { internalDomains }            from "./internalDomainEngine";
 import { resolveInternalDomain }      from "./internalRouter";
 import { universalBridge }            from "./universalBridge";
+import { activate }                   from "./activationLayer";
+import { presence }                   from "./presenceLayer";
+import { autoEntry }                  from "./autoEntry";
+import { listDomains, getDomainById } from "./internalAddressing";
 
 // ============================================================
 // ENGINE REGISTRY — all 22 engines, bound into the layer
@@ -189,6 +193,29 @@ export const experienceLayer = {
     domains:            internalDomains,
     resolve:            resolveInternalDomain,
     externalTranslator: universalBridge
+  },
+
+  // ----------------------------------------------------------
+  // ACTIVATION
+  // ----------------------------------------------------------
+  activation: {
+    activate,
+    autoEntry
+  },
+
+  // ----------------------------------------------------------
+  // PRESENCE
+  // ----------------------------------------------------------
+  presence: {
+    heartbeat: presence
+  },
+
+  // ----------------------------------------------------------
+  // ADDRESSING
+  // ----------------------------------------------------------
+  addressing: {
+    listDomains,
+    getDomainById
   },
 
   // ----------------------------------------------------------
