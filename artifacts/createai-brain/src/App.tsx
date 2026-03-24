@@ -1,5 +1,5 @@
 import React, { useState, Component, type ReactNode, type ErrorInfo } from "react";
-import { Switch, Route, Router as WouterRouter } from "wouter";
+import { Switch, Route, Router as WouterRouter, useSearch } from "wouter";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { Toaster } from "@/components/ui/toaster";
 import { TooltipProvider } from "@/components/ui/tooltip";
@@ -78,6 +78,12 @@ import { ConversationProvider } from "@/os/ConversationContext";
 import { PlatformProvider } from "@/controller";
 import { useUltraInteractionEngine } from "@/hooks/useUltraInteractionEngine";
 
+function EntityUniverseRoute({ seed }: { seed: string }) {
+  const qs = useSearch();
+  const kind = new URLSearchParams(qs).get('kind') ?? 'unknown';
+  return <ActivatedUniverse seed={seed} kind={kind} />;
+}
+
 const queryClient = new QueryClient({
   defaultOptions: {
     queries: { retry: false, refetchOnWindowFocus: false },
@@ -143,9 +149,7 @@ function Router() {
       {/* Theme preview — visual-only, no auth bypass, no data changes */}
       <Route path="/preview-theme/:themeId" component={ThemePreviewPage} />
       {/* Entity Universe — deterministic identity + theme from any seed */}
-      <Route path="/entity/:seed">
-        {(params: { seed: string }) => <ActivatedUniverse seed={params.seed} kind="person" />}
-      </Route>
+      <Route path="/entity/:seed" component={EntityUniverseRoute} />
       <Route path="/standalone/creation/:creationId" component={CreationPage} />
       <Route path="/standalone/:projectId" component={StandalonePage} />
 
