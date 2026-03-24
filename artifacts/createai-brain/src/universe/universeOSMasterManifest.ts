@@ -205,7 +205,12 @@ export const universeOSMasterManifest = {
   ],
 
   // ------------------------------------------------------------
-  // 5. META — OS identity
+  // 5. EXPERIENCE LAYER — active orchestration binding
+  // ------------------------------------------------------------
+  experienceLayer: "experienceLayer",
+
+  // ------------------------------------------------------------
+  // 6. META — OS identity
   // ------------------------------------------------------------
   meta: {
     version: "1.0.0",

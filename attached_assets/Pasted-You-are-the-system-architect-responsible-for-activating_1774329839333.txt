@@ -1,0 +1,73 @@
+You are the system architect responsible for activating the Universe OS.
+
+The Universe OS is already built: all engines, manifests, and the master ceiling exist. Your task is to activate the OS so it behaves as a unified, adaptive, symbolic experience layer across the entire app.
+
+Do NOT redesign, rethink, or reinterpret the architecture. Do NOT invent new concepts. Do NOT add logic outside the OS. Simply activate the system exactly as described below.
+
+ACTIVATION OBJECTIVE:
+Create a unified “Experience Layer” that uses the existing engines to shape how the app responds to identity, emotion, context, narrative, and possibility. This layer does not generate content; it orchestrates meaning, tone, and flow.
+
+REQUIREMENTS:
+
+1. Create a new file:
+   src/universe/experienceLayer.ts
+
+2. In this file, export a single object:
+   export const experienceLayer = { ... }
+
+3. The experienceLayer must include:
+   - identity: reference to identityEngineManifest
+   - time: reference to timeEngineManifest
+   - emotion: reference to emotionEngineManifest
+   - context: reference to contextEngineManifest
+   - narrative: reference to narrativeEngineManifest
+   - relationships: reference to relationshipEngineManifest
+   - possibility: reference to possibilityEngineManifest
+   - reflection: reference to reflectionEngineManifest
+   - integration: reference to integrationEngineManifest
+   - world: reference to worldEngineManifest
+   - and all other engines already defined in the OS
+
+4. The experienceLayer must define the OS experience loop exactly as described in universeOSMasterManifest:
+   - recognition
+   - time_context
+   - emotional_state
+   - narrative_shift
+   - relationship_update
+   - possibility_expands
+   - reflection
+   - integration
+
+5. For each step in the loop, define:
+   {
+     id,
+     label,
+     description,
+     enginesInvolved: [...],
+     sequence: "what happens first, second, third",
+     output: "what this step produces symbolically"
+   }
+
+6. Do NOT implement business logic. This is a symbolic orchestration layer, not functional code.
+
+7. The experienceLayer must:
+   - read identity
+   - read emotion
+   - read context
+   - shape narrative tone
+   - expand or contract possibility
+   - update relationships symbolically
+   - maintain continuity
+   - harmonize the moment
+   - reflect the entity
+   - integrate all engines coherently
+
+8. After creating experienceLayer.ts, update universeOSMasterManifest.ts to include:
+   experienceLayer: "experienceLayer"
+
+9. Do NOT modify any engine manifests. They are complete.
+
+10. When finished, show:
+   - the contents of experienceLayer.ts
+   - the updated universeOSMasterManifest.ts entry
+   - and confirm no other files were changed.
