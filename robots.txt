@@ -1,3 +1,4 @@
 User-agent: *
 Allow: /
 Sitemap: https://createai.digital/sitemap.xml
+Sitemap: https://createai.digital/sitemap.xml
