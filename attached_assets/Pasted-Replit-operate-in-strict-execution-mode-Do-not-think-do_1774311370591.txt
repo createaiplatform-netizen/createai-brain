@@ -1,0 +1,160 @@
+Replit, operate in strict execution mode. Do not think, do not plan, do not interpret. Execute literally.
+
+Goal: Complete the Family Operating System by building the remaining core pieces and wiring them into the family and kids universes.
+
+ALREADY DONE (do not modify core behavior, only reuse where needed):
+- MemoryGardenPanel ✓
+- FamilyToolsPanel (lists, chores, reminders, gratitude) ✓
+- EnhancedFamilyBankPanel ✓
+- EmotionalSafetyPanel ✓
+- DiscoveryEnginePanel ✓
+- Family Goals tracker (existing) ✓
+
+NEW WORK TO IMPLEMENT IN ONE PASS:
+
+1) Kids’ Creative Space (KidsCreativeSpacePage)
+
+1.1 Create a new page/component: KidsCreativeSpacePage (e.g., /kids/creative or similar route).
+   - Access:
+     - Kids-only (child accounts)
+     - Scoped to current family
+   - Sections:
+     a) Drawing Studio
+        - Canvas-based drawing tool
+        - Features:
+          - Color palette
+          - Brush size selector
+          - Eraser
+          - Clear canvas
+          - Save drawing
+        - Save drawings to a kid-scoped, family-local store (no external calls).
+     b) Story Studio
+        - Simple story editor:
+          - Title
+          - Story text area
+        - Optional “starter prompts” dropdown (hardcoded list, no AI required):
+          - “A day in our family universe…”
+          - “My favorite imaginary world…”
+          - “The bravest thing I ever did…”
+        - Save stories to the same kid-scoped, family-local store.
+     c) Character Creator
+        - Simple form-based character builder:
+          - Name
+          - Type (human/animal/creature/robot/etc.)
+          - Favorite color
+          - Special ability
+        - Save characters to kid-scoped store.
+     d) Creative Gallery
+        - Show saved drawings, stories, and characters in a simple gallery view.
+        - Allow viewing (no editing required in v1).
+
+1.2 Wire KidsCreativeSpacePage into:
+   - KidsUniversePage: add a “Create” or “Creative Space” tab/button.
+   - KidsHubPage (if appropriate): link to KidsCreativeSpacePage.
+
+2) Wire Emotional Safety + Discovery into Kids Universe
+
+2.1 In KidsUniversePage:
+   - Add access to EmotionalSafetyPanel in a kid-appropriate way:
+     - A “Feelings” tab or section that reuses the existing EmotionalSafetyPanel logic, scoped to the current kid.
+   - Add access to DiscoveryEnginePanel:
+     - A “Discover” tab or section with kid-safe challenges and activities (reuse existing Discovery Engine where possible, filter to kid-appropriate content if needed).
+
+2.2 Ensure:
+   - All data is scoped to the current kid and family.
+   - No parent-only controls are shown in the kids’ view.
+
+3) Enhance FamilyToolsPanel with Goals, Routines, and Shared Calendar
+
+3.1 In FamilyToolsPanel:
+   a) Goals
+      - Add a “Family Goals” section:
+        - List of goals with:
+          - Title
+          - Optional description
+          - Progress (0–100% or steps completed)
+        - Simple progress update control (e.g., increment/decrement or mark milestones).
+   b) Routines
+      - Add a “Routines” section:
+        - Morning / Afternoon / Evening / Bedtime routines
+        - Each routine: list of steps (e.g., “Brush teeth”, “Pack backpack”)
+        - Mark steps as done for today (no complex history needed in v1).
+   c) Shared Calendar
+      - Add a “Calendar” section:
+        - Show a simple list of upcoming events (date, time, title).
+        - Use existing family event data source if available; if not, create a minimal local event store.
+        - Mobile-friendly, list-first view (no complex calendar UI required in v1).
+
+4) Family AI Support Layer (non-invasive, gentle helper)
+
+4.1 Create a new component: FamilyAssistantPanel.
+   - Location:
+     - Parent view only (FamilyUniversePage and/or FamilyHubPage).
+   - Behavior:
+     - No live AI calls required in v1.
+     - Use hardcoded, context-like suggestions based on:
+       - Presence of tasks, routines, feelings, and challenges.
+     - Example suggestion blocks:
+       - “You have X tasks today. Consider picking just one to start with.”
+       - “There were Y feelings shared today. Maybe check in with [name].”
+       - “You haven’t added a memory in a while. Want to capture a small moment?”
+   - Keep it small, calm, and optional (a side panel or card).
+
+5) Integrate everything into FamilyHubPage and FamilyUniversePage
+
+5.1 FamilyHubPage:
+   - Ensure there is a clear landing view (e.g., “Today” or “Overview”) that:
+     - Links to:
+       - Memory Garden
+       - Family Tools (now with Goals/Routines/Calendar)
+       - Emotional Safety
+       - Discovery
+       - FamilyBank
+     - Optionally includes a small summary card (counts only) for:
+       - Today’s tasks
+       - Today’s routines
+       - Today’s feelings check-ins
+       - Today’s new memories
+
+5.2 FamilyUniversePage:
+   - Ensure tabs or navigation include:
+     - Bank
+     - Tools (with Goals/Routines/Calendar)
+     - Memories
+     - Feelings
+     - Discover
+     - Assistant (FamilyAssistantPanel) if added as its own tab/section.
+
+5.3 KidsUniversePage:
+   - Ensure tabs or navigation include:
+     - Creative Space (KidsCreativeSpacePage)
+     - Feelings (kid-scoped EmotionalSafetyPanel)
+     - Discover (kid-scoped DiscoveryEngine view)
+     - Any existing kid-safe features already present.
+
+6) Routing, roles, and privacy
+
+6.1 Verify:
+   - Kids’ routes are only accessible to kid accounts.
+   - Parent routes (FamilyUniversePage, FamilyAssistantPanel, reward configuration, etc.) are only accessible to parent accounts.
+   - All data is scoped to the current family.
+
+7) Rebuild and verify
+
+7.1 Rebuild frontend and restart server.
+7.2 Verify key routes return 200:
+   - FamilyHubPage
+   - FamilyUniversePage
+   - KidsHubPage
+   - KidsUniversePage
+   - KidsCreativeSpacePage (new)
+7.3 Confirm:
+   - New panels render without errors.
+   - Navigation between tabs/pages works on mobile.
+   - No role or privacy leaks.
+
+When finished, output a concise summary of:
+   - New components created
+   - Routes added or updated
+   - Tabs updated
+   - Any assumptions made

@@ -1,0 +1,52 @@
+Replit, operate in strict execution mode. Do not think, do not plan, do not interpret. Execute literally.
+
+Goal: Create a “Today” screen that makes life easier for families right now.
+
+1. Create a new authenticated, family-scoped page called Today (e.g., /family/today) with:
+   - Family-level access only (no public access)
+   - Role-aware rendering (parents see everything, kids see kid-safe view)
+
+2. On the Today screen, implement the following sections:
+
+   a) “Today’s Schedule”
+      - Pull today’s events from the existing family calendar data source
+      - Show time, title, and who it involves
+      - Keep it clean and readable on mobile
+
+   b) “Today’s Tasks”
+      - Pull today’s tasks/to-dos from the existing family task or list system
+      - Group by person if possible (Mom, Dad, Kid1, Kid2, etc.)
+      - Allow simple status display (e.g., done / not done), no complex editing needed yet
+
+   c) “Today’s Kid Routines”
+      - Pull any kid routines or daily checklists if they exist
+      - Show a simple, kid-friendly list (morning, school, evening, bedtime)
+      - If no routines exist, show a gentle placeholder: “No routines yet. You’re doing your best.”
+
+   d) “Today’s Gentle Prompt”
+      - Hardcode a small set of prompts for now (e.g., gratitude, check-in, encouragement)
+      - Randomly select one per day for the family, such as:
+        - “What’s one small thing you’re grateful for today?”
+        - “Who in the family could use a kind word today?”
+        - “What’s one thing we can do to make tonight calmer?”
+      - Display it in a warm, simple way—no AI calls, no complexity.
+
+3. Wire the Today page into the existing router:
+   - Add a clear navigation entry (e.g., “Today”) in the family hub menu
+   - Ensure it is the default landing page after a family logs in, if that fits the current flow
+
+4. Ensure:
+   - All data is scoped to the current family
+   - All queries are safe and respect existing permissions
+   - The page renders correctly on mobile-first layouts
+
+5. Rebuild and verify:
+   - /family/today (or equivalent route) returns 200
+   - Parents see schedule, tasks, routines, and prompt
+   - Kids see only kid-safe routines and the gentle prompt
+
+When finished, output a concise summary of:
+   - The route added
+   - The components created
+   - The data sources used
+   - Any assumptions made
