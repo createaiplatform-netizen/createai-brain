@@ -1,0 +1,263 @@
+You are my senior TypeScript engineer inside a Next.js/React project.
+
+Your job is to build my "Universe OS" architecture as a set of modular files, NOT one giant file.
+
+RULES:
+- Do NOT collapse everything into one file.
+- Create small, focused, composable manifests and engine files.
+- Follow my naming exactly.
+- Do NOT invent new concepts beyond what I describe.
+- Keep everything legal, ethical, safe, and purely conceptual/symbolic.
+
+PROJECT CONTEXT:
+- This is a universe system inside my app.
+- I already have a universe layer, map layer, visual system, glyph language, creation story, family worlds, and an integration manifest.
+- I now have a Universe OS Master Manifest that defines the ceiling: all engines, interactions, and experience loop.
+
+YOUR TASK:
+1. Create one folder:
+   - src/universe/
+
+2. Inside src/universe/, create these files:
+
+   - universeOSMasterManifest.ts
+   - identityEngineManifest.ts
+   - timeEngineManifest.ts
+   - emotionEngineManifest.ts
+   - narrativeEngineManifest.ts
+   - relationshipEngineManifest.ts
+   - possibilityEngineManifest.ts
+   - perceptionEngineManifest.ts
+   - meaningEngineManifest.ts
+   - continuityEngineManifest.ts
+   - contextEngineManifest.ts
+   - patternEngineManifest.ts
+   - choiceEngineManifest.ts
+   - alignmentEngineManifest.ts
+   - toneEngineManifest.ts
+   - worldEngineManifest.ts
+   - becomingEngineManifest.ts
+   - reflectionEngineManifest.ts
+   - integrationEngineManifest.ts
+   - expansionEngineManifest.ts
+   - harmonyEngineManifest.ts
+   - perspectiveEngineManifest.ts
+   - storyworldEngineManifest.ts
+
+3. In universeOSMasterManifest.ts:
+   - Use the exact structure below (adapt to imports/exports as needed):
+
+   export const universeOSMasterManifest = {
+     name: "Universe OS",
+     purpose:
+       "Define the complete, highest-level operating system of the universe, including all engines, interactions, and experience flow.",
+     engines: {
+       identity: "identityEngineManifest",
+       time: "timeEngineManifest",
+       emotion: "emotionEngineManifest",
+       narrative: "narrativeEngineManifest",
+       relationships: "relationshipEngineManifest",
+       possibility: "possibilityEngineManifest",
+       perception: "perceptionEngineManifest",
+       meaning: "meaningEngineManifest",
+       continuity: "continuityEngineManifest",
+       context: "contextEngineManifest",
+       pattern: "patternEngineManifest",
+       choice: "choiceEngineManifest",
+       alignment: "alignmentEngineManifest",
+       tone: "toneEngineManifest",
+       world: "worldEngineManifest",
+       becoming: "becomingEngineManifest",
+       reflection: "reflectionEngineManifest",
+       integration: "integrationEngineManifest",
+       expansion: "expansionEngineManifest",
+       harmony: "harmonyEngineManifest",
+       perspective: "perspectiveEngineManifest",
+       storyworld: "storyworldEngineManifest"
+     },
+     initializationOrder: [
+       "identityEngineManifest",
+       "timeEngineManifest",
+       "emotionEngineManifest",
+       "narrativeEngineManifest",
+       "relationshipsEngineManifest",
+       "possibilityEngineManifest",
+       "perceptionEngineManifest",
+       "meaningEngineManifest",
+       "continuityEngineManifest",
+       "contextEngineManifest",
+       "patternEngineManifest",
+       "choiceEngineManifest",
+       "alignmentEngineManifest",
+       "toneEngineManifest",
+       "worldEngineManifest",
+       "becomingEngineManifest",
+       "reflectionEngineManifest",
+       "integrationEngineManifest",
+       "expansionEngineManifest",
+       "harmonyEngineManifest",
+       "perspectiveEngineManifest",
+       "storyworldEngineManifest"
+     ],
+     interactions: {
+       identity: {
+         influences: ["emotion", "narrative", "relationships", "possibility"],
+         receives: ["time", "perception", "meaning"]
+       },
+       time: {
+         influences: ["emotion", "narrative", "continuity"],
+         receives: ["identity"]
+       },
+       emotion: {
+         influences: ["narrative", "relationships", "tone"],
+         receives: ["identity", "time"]
+       },
+       narrative: {
+         influences: ["identity", "relationships", "possibility", "storyworld"],
+         receives: ["identity", "emotion", "time", "pattern"]
+       },
+       relationships: {
+         influences: ["identity", "emotion", "possibility"],
+         receives: ["identity", "narrative"]
+       },
+       possibility: {
+         influences: ["identity", "narrative", "expansion"],
+         receives: ["identity", "relationships"]
+       },
+       perception: {
+         influences: ["meaning", "tone"],
+         receives: ["identity"]
+       },
+       meaning: {
+         influences: ["narrative", "alignment"],
+         receives: ["identity", "perception"]
+       },
+       continuity: {
+         influences: ["narrative", "identity"],
+         receives: ["time"]
+       },
+       context: {
+         influences: ["narrative", "perception"],
+         receives: ["identity", "emotion"]
+       },
+       pattern: {
+         influences: ["narrative", "possibility"],
+         receives: ["identity", "continuity"]
+       },
+       choice: {
+         influences: ["identity", "narrative", "possibility"],
+         receives: ["context", "emotion"]
+       },
+       alignment: {
+         influences: ["identity", "narrative"],
+         receives: ["meaning"]
+       },
+       tone: {
+         influences: ["perception", "emotion"],
+         receives: ["emotion"]
+       },
+       world: {
+         influences: ["storyworld"],
+         receives: ["identity", "tone"]
+       },
+       becoming: {
+         influences: ["identity", "narrative"],
+         receives: ["continuity", "choice"]
+       },
+       reflection: {
+         influences: ["identity", "meaning"],
+         receives: ["narrative", "emotion"]
+       },
+       integration: {
+         influences: ["all"],
+         receives: ["all"]
+       },
+       expansion: {
+         influences: ["possibility", "storyworld"],
+         receives: ["pattern", "relationships"]
+       },
+       harmony: {
+         influences: ["emotion", "alignment"],
+         receives: ["identity", "relationships"]
+       },
+       perspective: {
+         influences: ["perception", "narrative"],
+         receives: ["identity"]
+       },
+       storyworld: {
+         influences: ["narrative", "world"],
+         receives: ["narrative", "possibility"]
+       }
+     },
+     experienceLoop: [
+       {
+         id: "recognition",
+         label: "Identity Recognized",
+         description: "The OS acknowledges who or what has entered."
+       },
+       {
+         id: "time_context",
+         label: "Time Context Applied",
+         description: "The OS determines how time behaves for this entity."
+       },
+       {
+         id: "emotional_state",
+         label: "Emotional State Set",
+         description: "The emotional tone influences visuals and motion."
+       },
+       {
+         id: "narrative_shift",
+         label: "Narrative Adjusts",
+         description: "The story adapts based on identity and emotion."
+       },
+       {
+         id: "relationship_update",
+         label: "Relationships Update",
+         description: "Connections strengthen, weaken, or transform."
+       },
+       {
+         id: "possibility_expands",
+         label: "Possibility Expands",
+         description: "New paths, worlds, or expressions become available."
+       },
+       {
+         id: "reflection",
+         label: "Reflection Occurs",
+         description: "The universe mirrors the entity’s state and choices."
+       },
+       {
+         id: "integration",
+         label: "Integration Happens",
+         description: "All engines synchronize into coherence."
+       }
+     ],
+     meta: {
+       version: "1.0.0",
+       description:
+         "The complete Universe OS architecture, representing the highest safe, legal, ethical, and grounded ceiling of the system."
+     }
+   };
+
+4. For EACH engine manifest file (identityEngineManifest.ts, timeEngineManifest.ts, etc.):
+   - Create a default exported const named after the file, e.g.:
+     - identityEngineManifest
+     - timeEngineManifest
+     - emotionEngineManifest
+   - Give each engine:
+     - name
+     - purpose
+     - a simple model section
+     - a states section (if relevant)
+     - a transitions or rules section
+     - an integration section (how it connects to other engines)
+     - a meta section with version and description
+   - Keep them lightweight, descriptive, and consistent.
+   - Do NOT add business logic, only structured config/manifest data.
+
+5. Do NOT change any other parts of the project.
+6. When you’re done, show me:
+   - the file tree under src/universe/
+   - the contents of universeOSMasterManifest.ts
+   - one example engine manifest (identityEngineManifest.ts) so I can verify the pattern.
+
+Now execute this exactly as described.
