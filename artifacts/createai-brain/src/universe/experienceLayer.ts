@@ -28,6 +28,8 @@ import { expansionEngineManifest }    from "./expansionEngineManifest";
 import { harmonyEngineManifest }      from "./harmonyEngineManifest";
 import { perspectiveEngineManifest }  from "./perspectiveEngineManifest";
 import { storyworldEngineManifest }   from "./storyworldEngineManifest";
+import { internalDomains }            from "./internalDomainEngine";
+import { resolveInternalDomain }      from "./internalRouter";
 
 // ============================================================
 // ENGINE REGISTRY — all 22 engines, bound into the layer
@@ -177,6 +179,14 @@ export const experienceLayer = {
     harmonizes: ["emotion", "alignment", "harmony"],
     reflects:  ["identity", "meaning", "becoming"],
     integrates: ["all"]
+  },
+
+  // ----------------------------------------------------------
+  // INTERNAL INTERNET LAYER
+  // ----------------------------------------------------------
+  internalInternet: {
+    domains:       internalDomains,
+    resolve:       resolveInternalDomain
   },
 
   // ----------------------------------------------------------
