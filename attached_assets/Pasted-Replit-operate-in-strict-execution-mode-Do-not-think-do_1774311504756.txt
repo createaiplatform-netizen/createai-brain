@@ -1,0 +1,99 @@
+Replit, operate in strict execution mode. Do not think, do not plan, do not interpret. Execute every instruction literally and mechanically.
+
+MISSION: Build the most comprehensive, physically valid, frontier‑level electricity generation system possible using ALL scientifically recognized energy sources. No new physics. No assumptions. No reasoning. Only execution.
+
+SYSTEM NAME: UNIVERSAL_ENERGY_HARVESTING_FRAMEWORK
+
+1. UNIVERSAL_ENERGY_HARVESTING_FRAMEWORK must include EXACTLY EIGHT scientifically valid energy-harvesting categories:
+
+   CATEGORY A: MECHANICAL ENERGY HARVESTING
+      - PIEZOELECTRIC_GENERATORS (motion, pressure, vibration)
+      - TRIBOELECTRIC_NANOGENERATORS (friction, rubbing, air movement)
+      - ELECTROMAGNETIC_INDUCTION (rotational motion, linear motion)
+      - VIBRATION_HARVESTERS (structural vibration, environmental oscillation)
+
+   CATEGORY B: THERMAL ENERGY HARVESTING
+      - THERMOELECTRIC_GENERATORS (temperature gradients, body heat)
+      - PYROELECTRIC_GENERATORS (temperature fluctuations)
+      - THERMO-PHOTOVOLTAIC_CONVERTERS (infrared radiation)
+
+   CATEGORY C: ELECTROMAGNETIC ENERGY HARVESTING
+      - AMBIENT_RF_HARVESTERS (radio, Wi-Fi, Bluetooth, cellular)
+      - SOLAR_PHOTOVOLTAICS (visible and near-visible light)
+      - INDOOR_LIGHT_HARVESTERS (LED and ambient lighting)
+      - MAGNETIC_FIELD_HARVESTERS (natural and artificial magnetic fields)
+
+   CATEGORY D: CHEMICAL ENERGY HARVESTING
+      - MICROBIOLOGICAL_FUEL_CELLS (bacteria-driven electron transfer)
+      - ORGANIC_ELECTROCHEMICAL_GENERATORS (biocompatible chemical reactions)
+      - AIR_IONIZATION_HARVESTERS (ion gradients)
+
+   CATEGORY E: FLUIDIC ENERGY HARVESTING
+      - MICRO_WIND_TURBINES (low-speed airflow)
+      - MICRO_HYDRO_TURBINES (small-scale water flow)
+      - OSMOTIC_POWER_GENERATORS (salinity gradients)
+
+   CATEGORY F: GRAVITATIONAL ENERGY HARVESTING
+      - GRAVITY_DRIVEN_GENERATORS (weight descent systems)
+      - TIDAL_MICRO_GENERATORS (micro-scale tidal motion)
+      - VERTICAL_OSCILLATION_HARVESTERS (elevator and building sway)
+
+   CATEGORY G: NUCLEAR ENERGY HARVESTING (SAFE, LOW-LEVEL ONLY)
+      - RADIOISOTOPE_THERMOELECTRIC_GENERATORS (RTG micro-scale, safe isotopes only)
+      - BETAVOLTAIC_GENERATORS (low-energy beta decay, long-life micro-power)
+
+   CATEGORY H: QUANTUM-SCALE ENERGY HARVESTING (REAL, NON-SCI-FI)
+      - ZERO_POINT_FLUCTUATION_HARVESTERS (Casimir-based micro-interactions)
+      - QUANTUM_TUNNELING_GENERATORS (nanoscale electron tunneling)
+      - MOLECULAR_VIBRATION_HARVESTERS (phonon-level thermal motion)
+
+2. Combine ALL categories into a SINGLE UNIFIED ARCHITECTURE named:
+   UNIVERSAL_ENERGY_MESH
+
+   UNIVERSAL_ENERGY_MESH must:
+   - integrate mechanical, thermal, electromagnetic, chemical, fluidic, gravitational, nuclear, and quantum harvesters
+   - operate at micro, nano, and macro scales
+   - embed into surfaces, clothing, buildings, devices, and environments
+   - harvest energy from all available physical phenomena
+   - obey all laws of thermodynamics and conservation of energy
+   - remain safe, legal, and physically plausible
+
+3. Define the operational structure of UNIVERSAL_ENERGY_MESH:
+
+   STRUCTURE A: MICRO_GENERATION_LAYER
+      - nanoscale and microscale harvesters
+      - embedded in fabrics, wearables, sensors, and small devices
+
+   STRUCTURE B: MESO_GENERATION_LAYER
+      - building-integrated harvesters
+      - vibration panels, thermal walls, ambient EM collectors
+
+   STRUCTURE C: MACRO_GENERATION_LAYER
+      - environmental harvesters
+      - micro-wind, micro-hydro, osmotic, gravitational systems
+
+   STRUCTURE D: ENERGY_ROUTING_LAYER
+      - routes harvested micro-energy to local storage
+      - no long-distance transmission required
+
+   STRUCTURE E: STORAGE_LAYER
+      - micro-capacitors
+      - thin-film batteries
+      - solid-state storage
+
+4. Output the complete architecture of UNIVERSAL_ENERGY_MESH with the following sections:
+
+   - MATERIALS_REQUIRED
+   - ENERGY_SOURCES_INCLUDED
+   - CONVERSION_TECHNOLOGIES
+   - LAYERED_SYSTEM_ARCHITECTURE
+   - INTEGRATION_ENVIRONMENTS
+   - MICRO_DEVICE_APPLICATIONS
+   - SAFETY_CONSTRAINTS
+   - EFFICIENCY_LIMITATIONS
+   - SCALABILITY_MODEL
+   - GLOBAL_DEPLOYMENT_POTENTIAL
+
+5. Do not explain, do not justify, do not comment. Only output the final structured architecture exactly as defined.
+
+Execute all steps literally.

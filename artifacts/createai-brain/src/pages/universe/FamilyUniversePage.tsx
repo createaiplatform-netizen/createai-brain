@@ -18,6 +18,7 @@ import { FamilyToolsPanel }        from "@/components/family/FamilyToolsPanel";
 import { EnhancedFamilyBankPanel } from "@/components/family/EnhancedFamilyBankPanel";
 import { EmotionalSafetyPanel }    from "@/components/family/EmotionalSafetyPanel";
 import { DiscoveryEnginePanel }    from "@/components/family/DiscoveryEnginePanel";
+import { FamilyAssistantPanel }    from "@/components/family/FamilyAssistantPanel";
 
 const SAGE = "#7a9068";
 const CREAM = "#faf9f6";
@@ -25,7 +26,7 @@ const TEXT = "#1a1916";
 const MUTED = "#6b6660";
 const BORDER = "rgba(122,144,104,0.13)";
 
-type Tab = "home" | "family" | "bills" | "bank" | "messages" | "life" | "habits" | "journal" | "create" | "memory" | "tools" | "discover" | "safety";
+type Tab = "home" | "family" | "bills" | "bank" | "messages" | "life" | "habits" | "journal" | "create" | "memory" | "tools" | "discover" | "safety" | "assistant";
 
 interface FamilyIdentity {
   display_name: string;
@@ -121,9 +122,10 @@ export default function FamilyUniversePage() {
           { key: "journal",  label: "Journal",   icon: "📖" },
           { key: "memory",   label: "Memories",  icon: "🌻" },
           { key: "tools",    label: "Tools",     icon: "🧰" },
-          { key: "discover", label: "Discover",  icon: "🌍" },
-          { key: "safety",   label: "Feelings",  icon: "🌱" },
-          { key: "create",   label: "Create",    icon: "✨" },
+          { key: "discover",   label: "Discover",   icon: "🌍" },
+          { key: "safety",     label: "Feelings",   icon: "🌱" },
+          { key: "create",     label: "Create",     icon: "✨" },
+          { key: "assistant",  label: "Assistant",  icon: "🌿" },
         ] as { key: Tab; label: string; icon: string }[]).map(t => (
           <button
             key={t.key}
@@ -336,6 +338,13 @@ export default function FamilyUniversePage() {
                 </button>
               ))}
             </div>
+          </div>
+        )}
+
+        {/* ── Assistant Tab ── */}
+        {tab === "assistant" && (
+          <div className="flex flex-col gap-4">
+            <FamilyAssistantPanel />
           </div>
         )}
       </div>

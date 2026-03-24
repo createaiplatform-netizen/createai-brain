@@ -32,6 +32,7 @@ import PublicFamilyPage from "@/pages/PublicFamilyPage";
 import AdminDashboardPage from "@/pages/AdminDashboardPage";
 import CustomerDashboardPage from "@/pages/CustomerDashboardPage";
 import KidsHubPage from "@/pages/KidsHubPage";
+import KidsCreativeSpacePage from "@/pages/KidsCreativeSpacePage";
 import { SmartRoleRouter } from "@/components/SmartRoleRouter";
 import { OfflineBanner } from "@/components/OfflineBanner";
 import { CookieBanner }  from "@/components/CookieBanner";
@@ -159,6 +160,16 @@ function Router() {
       <Route path="/admin">
         <RoleGate allowed={["admin", "founder"]}>
           <AdminUniversePage />
+        </RoleGate>
+      </Route>
+      {/* Kids Creative Space — standalone route */}
+      <Route path="/kids/creative">
+        <RoleGate allowed={["family_child", "family_adult", "admin", "founder"]}>
+          <NDAGate>
+            <SecureAuthLayer role={role}>
+              <KidsCreativeSpacePage />
+            </SecureAuthLayer>
+          </NDAGate>
         </RoleGate>
       </Route>
       {/* Kids Universe — must come before /family so wouter matches first */}

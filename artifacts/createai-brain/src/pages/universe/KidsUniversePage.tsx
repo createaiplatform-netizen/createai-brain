@@ -5,6 +5,8 @@
 
 import { useState, useEffect, useCallback } from "react";
 import { generateIdentity } from "@/lib/identityEngine";
+import { EmotionalSafetyPanel }  from "@/components/family/EmotionalSafetyPanel";
+import { DiscoveryEnginePanel }  from "@/components/family/DiscoveryEnginePanel";
 
 const SAGE = "#7a9068";
 const CREAM = "#faf9f6";
@@ -64,6 +66,7 @@ export default function KidsUniversePage() {
   const [spark, setSpark] = useState<(typeof ACTIVITIES)[number] | null>(null);
 
   // Kids habits state
+  const [kidsTab, setKidsTab] = useState<"home" | "creative" | "feelings" | "discover">("home");
   const [habits, setHabits] = useState<KidsHabit[]>([]);
   const [completingHabit, setCompletingHabit] = useState<string | null>(null);
   const [showAddHabit, setShowAddHabit] = useState(false);
@@ -157,6 +160,89 @@ export default function KidsUniversePage() {
         </p>
       </div>
 
+      {/* Kids tab bar */}
+      <div className="px-4 pb-3">
+        <div className="grid grid-cols-4 gap-1 rounded-2xl p-1.5" style={{ background: "rgba(0,0,0,0.04)" }}>
+          {[
+            { id: "home",     icon: "🏠", label: "Home"    },
+            { id: "creative", icon: "🎨", label: "Create"  },
+            { id: "feelings", icon: "💛", label: "Feelings"},
+            { id: "discover", icon: "🌍", label: "Discover"},
+          ].map(t => (
+            <button key={t.id} onClick={() => setKidsTab(t.id as typeof kidsTab)}
+              className="flex flex-col items-center gap-1 py-2.5 rounded-xl transition-all"
+              style={{
+                background: kidsTab === t.id ? SAGE : "transparent",
+                color:      kidsTab === t.id ? "white" : MUTED,
+              }}>
+              <span className="text-[20px]">{t.icon}</span>
+              <span className="text-[9px] font-bold">{t.label}</span>
+            </button>
+          ))}
+        </div>
+      </div>
+
+      {/* Creative Space tab — entry portal */}
+      {kidsTab === "creative" && (
+        <div className="px-4 pb-12 flex flex-col gap-4">
+          {/* Hero card */}
+          <div className="rounded-3xl p-6 text-center"
+            style={{ background: `linear-gradient(135deg, ${SAGE}15, ${SAGE}05)`, border: `1px solid ${SAGE}25` }}>
+            <div className="text-5xl mb-3">🎨</div>
+            <h2 className="text-[22px] font-black mb-1" style={{ color: TEXT }}>My Creative Space</h2>
+            <p className="text-[13px] mb-5" style={{ color: MUTED }}>
+              Draw, write stories, and create characters — all just for you and your family.
+            </p>
+            <button onClick={() => { window.location.href = "/kids/creative"; }}
+              className="w-full py-3.5 rounded-2xl text-[15px] font-black text-white"
+              style={{ background: `linear-gradient(135deg, ${SAGE}, #9CAF88)` }}>
+              Open Creative Space ✨
+            </button>
+          </div>
+
+          {/* What you can do */}
+          <div className="grid grid-cols-2 gap-2">
+            {[
+              { icon: "🎨", label: "Drawing Studio", desc: "Paint anything you imagine" },
+              { icon: "📖", label: "Story Studio",   desc: "Write your own stories"       },
+              { icon: "🦸", label: "Characters",     desc: "Build amazing characters"      },
+              { icon: "🖼️", label: "Gallery",        desc: "See all your creations"        },
+            ].map(item => (
+              <button key={item.label}
+                onClick={() => { window.location.href = "/kids/creative"; }}
+                className="p-4 rounded-2xl text-left transition-all active:scale-95"
+                style={{ background: "white", border: `1px solid rgba(0,0,0,0.07)` }}>
+                <p className="text-2xl mb-1">{item.icon}</p>
+                <p className="font-bold text-[12px]" style={{ color: TEXT }}>{item.label}</p>
+                <p className="text-[10px]" style={{ color: MUTED }}>{item.desc}</p>
+              </button>
+            ))}
+          </div>
+
+          <div className="rounded-2xl p-3 text-center" style={{ background: `${SAGE}08`, border: `1px solid ${SAGE}18` }}>
+            <p className="text-[11px]" style={{ color: MUTED }}>
+              🔒 Your creations stay private — only you and your family can see them.
+            </p>
+          </div>
+        </div>
+      )}
+
+      {/* Feelings tab — kid-scoped EmotionalSafetyPanel */}
+      {kidsTab === "feelings" && (
+        <div className="px-4 pb-12">
+          <EmotionalSafetyPanel isParent={false} />
+        </div>
+      )}
+
+      {/* Discover tab — kid-scoped DiscoveryEnginePanel */}
+      {kidsTab === "discover" && (
+        <div className="px-4 pb-12">
+          <DiscoveryEnginePanel />
+        </div>
+      )}
+
+      {/* Home tab — original content */}
+      {kidsTab === "home" && (
       <div className="px-6 flex flex-col gap-5 pb-12">
         {/* ── How are you feeling? ── */}
         <div
@@ -335,6 +421,7 @@ export default function KidsUniversePage() {
           </p>
         </div>
       </div>
+      )}
 
       {/* Add routine modal */}
       {showAddHabit && (
