@@ -2,6 +2,7 @@ import { Router, type IRouter, type Request, type Response } from "express";
 import { logTractionEvent } from "../lib/tractionLogger";
 import { broadcastGlobalPulse } from "../services/globalPulse.js";
 import { eq, desc, and, or, isNull, ne, inArray } from "drizzle-orm";
+import { orchestrateProjectCreation } from "../services/projectCreationOrchestrator.js";
 import { openai } from "@workspace/integrations-openai-ai-server";
 import {
   db,
@@ -1100,6 +1101,31 @@ router.delete("/:id/publish", async (req: Request, res: Response) => {
     res.json({ ok: true });
   } catch (err) {
     res.status(500).json({ error: "Failed to unpublish project" });
+  }
+});
+
+// ─── POST /auto-create ────────────────────────────────────────────────────────
+// Automatically generate a full project from a natural language description.
+// Uses the projectCreationOrchestrator to detect vertical/world engines,
+// assign universe layers, call AI for structure, and return a complete project object.
+
+router.post("/auto-create", heavyLimiter, async (req: Request, res: Response) => {
+  const { description } = req.body as { description?: string };
+  if (!description?.trim()) {
+    return void res.status(400).json({ error: "description is required" });
+  }
+  const user = (req as Request & { user?: { id?: string; role?: string } }).user;
+  try {
+    const result = await orchestrateProjectCreation({
+      description: description.trim(),
+      userId:      user?.id ?? "anonymous",
+      role:        user?.role,
+    });
+    try { logTractionEvent({ event: "project_auto_created", meta: { id: result.id, vertical: result.detectedVertical } }); } catch { /* non-critical */ }
+    res.json({ ok: true, project: result });
+  } catch (err) {
+    console.error("[AutoCreate] orchestration failed:", err);
+    res.status(500).json({ error: "Project generation failed", detail: String(err) });
   }
 });
 

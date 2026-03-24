@@ -63,6 +63,7 @@ import UltimateTranscendDashboard from "@/pages/UltimateTranscendDashboard";
 import CommandCenterPage           from "@/pages/CommandCenterPage";
 import PlatformStatusPage          from "@/pages/PlatformStatusPage";
 import SystemStatusPanel            from "@/pages/SystemStatusPanel";
+import AutoProjectPage              from "@/pages/AutoProjectPage";
 import AnalyticsPage               from "@/pages/AnalyticsPage";
 import TeamPage                    from "@/pages/TeamPage";
 import SettingsPage                from "@/pages/SettingsPage";
@@ -156,6 +157,7 @@ function Router() {
       <Route path="/semantic-store" component={SemanticStorePage} />
       <Route path="/platform-score" component={PlatformScorePage} />
       <Route path="/system-status"  component={SystemStatusPanel} />
+      <Route path="/auto-project"   component={AutoProjectPage} />
       <Route path="/project/:projectId" component={ProjectPage} />
       <Route path="/projects" component={ProjectsPage} />
       {/* Legacy path kept for backwards compat */}

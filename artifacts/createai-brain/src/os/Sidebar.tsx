@@ -329,6 +329,40 @@ export function Sidebar({ onNav, forceCollapsed, forceExpanded }: SidebarProps) 
           </button>
         </div>
 
+        {/* Auto Project Generator */}
+        <div style={{ padding: "4px 8px 0" }}>
+          <button
+            onClick={() => handleNav(() => setLocation("/auto-project"))}
+            title={collapsed ? "\u2728 Auto Project" : undefined}
+            style={{
+              width: "100%", display: "flex", alignItems: "center",
+              gap: collapsed ? 0 : 7, height: 28, borderRadius: 8,
+              padding: collapsed ? "0" : "0 8px",
+              justifyContent: collapsed ? "center" : "flex-start",
+              background: location === "/auto-project" ? "rgba(124,58,237,0.10)" : "rgba(124,58,237,0.04)",
+              border: `1px solid ${location === "/auto-project" ? "rgba(124,58,237,0.28)" : "rgba(124,58,237,0.12)"}`,
+              cursor: "pointer", transition: "background 0.12s, border-color 0.12s",
+            }}
+            onMouseEnter={e => {
+              (e.currentTarget as HTMLElement).style.background = "rgba(124,58,237,0.10)";
+              (e.currentTarget as HTMLElement).style.borderColor = "rgba(124,58,237,0.22)";
+            }}
+            onMouseLeave={e => {
+              (e.currentTarget as HTMLElement).style.background =
+                location === "/auto-project" ? "rgba(124,58,237,0.10)" : "rgba(124,58,237,0.04)";
+              (e.currentTarget as HTMLElement).style.borderColor =
+                location === "/auto-project" ? "rgba(124,58,237,0.28)" : "rgba(124,58,237,0.12)";
+            }}
+          >
+            <span style={{ fontSize: 11, flexShrink: 0, lineHeight: 1 }}>\u2728</span>
+            {!collapsed && (
+              <span style={{ fontSize: 10.5, fontWeight: 700, color: "#7c3aed", flex: 1, textAlign: "left" }}>
+                Auto Project
+              </span>
+            )}
+          </button>
+        </div>
+
         {/* System Status Panel */}
         <div style={{ padding: "4px 8px 0" }}>
           <button

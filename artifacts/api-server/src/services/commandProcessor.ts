@@ -16,6 +16,7 @@
 import type { Request } from "express";
 import { logAudit } from "./audit";
 import { db } from "@workspace/db";
+import { orchestrateProjectCreation } from "./projectCreationOrchestrator.js";
 
 // ─── Types ────────────────────────────────────────────────────────────────────
 
@@ -824,6 +825,80 @@ const ExecutionModeHandler: CommandHandler = {
 
 // ─────────────────────────────────────────────────────────────────────────────
 
+// ─────────────────────────────────────────────────────────────────────────────
+
+const AutoCreateProjectHandler: CommandHandler = {
+  name:        "auto-create-project",
+  description: "Generate a full project from a natural language description using the Project Creation Orchestrator",
+  patterns: [
+    /\b(create|build|generate|start|design|launch|spin up)\b.{0,60}\b(project|app|system|platform|workflow|world|universe|business|product|service)\b/i,
+    /\b(i want|i need|give me|help me build|let.s build|build me|make me)\b/i,
+    /\bauto.?create\b/i,
+    /\bnew project\b/i,
+    /\bproject from\b/i,
+  ],
+
+  async execute(instruction: string, ctx: CommandContext): Promise<CommandResult> {
+    const logs: string[] = [];
+    logs.push(`[${ts()}] AUTO-CREATE-PROJECT handler triggered`);
+    logs.push(`[${ts()}] Caller: ${ctx.userId} (${ctx.role})`);
+    logs.push(`[${ts()}] Description: "${instruction}"`);
+
+    try {
+      const result = await orchestrateProjectCreation({
+        description: instruction,
+        userId:      ctx.userId,
+        role:        ctx.role,
+      });
+
+      logs.push(`[${ts()}] \u2713 Orchestration complete — status: ${result.status}`);
+      logs.push(`[${ts()}] Project: ${result.projectName}`);
+      logs.push(`[${ts()}] Detected vertical: ${result.detectedVerticalLabel ?? "none"}`);
+      logs.push(`[${ts()}] World engines: ${result.detectedWorldEngines.join(", ") || "none"}`);
+      logs.push(`[${ts()}] Workflows generated: ${result.workflows.length}`);
+      logs.push(`[${ts()}] Data models generated: ${result.dataModels.length}`);
+      logs.push(`[${ts()}] Universe layers assigned: ${result.universeLayers.length}`);
+      logs.push(`[${ts()}] Activation chain: ${result.activationChain.length} steps`);
+      logs.push(`[${ts()}] Engine registry entries: ${result.engineRegistryEntries.length}`);
+
+      if (result.status === "partial" && result.error) {
+        logs.push(`[${ts()}] \u26a0 AI generation partial — used fallback: ${result.error}`);
+      }
+
+      await logAudit(db as any, ctx.req, {
+        action:   "system.auto_create_project",
+        resource: `project:${result.id}`,
+        metadata: {
+          projectName:    result.projectName,
+          detectedVertical: result.detectedVertical,
+          worldEngines:   result.detectedWorldEngines,
+          workflowCount:  result.workflows.length,
+          status:         result.status,
+        },
+      });
+
+      return {
+        action:  "auto-create-project",
+        status:  result.status === "error" ? "rejected" : "executed",
+        message: `Project \u201C${result.projectName}\u201D generated — ${result.workflows.length} workflows, ${result.dataModels.length} data models, ${result.universeLayers.length} universe layers`,
+        logs,
+        data:    { project: result },
+      };
+
+    } catch (err) {
+      logs.push(`[${ts()}] \u2717 Orchestration error: ${String(err)}`);
+      return {
+        action:  "auto-create-project",
+        status:  "rejected",
+        message: `Project creation failed: ${String(err)}`,
+        logs,
+      };
+    }
+  },
+};
+
+// ─────────────────────────────────────────────────────────────────────────────
+
 /**
  * COMMAND_HANDLERS — the master routing table.
  * To add a new command: push a new handler object here. Done.
@@ -839,6 +914,7 @@ export const COMMAND_HANDLERS: CommandHandler[] = [
   FounderTierHandler,
   InheritUIHandler,
   ExecutionModeHandler,
+  AutoCreateProjectHandler,
 ];
 
 // ─── Core: processCommand ─────────────────────────────────────────────────────
