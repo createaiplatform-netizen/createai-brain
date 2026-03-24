@@ -74,6 +74,7 @@ import UniverseExplorerPage        from "@/pages/UniverseExplorerPage";
 import ContinuumDashboardPage      from "@/pages/ContinuumDashboardPage";
 import RealityExplorerPage         from "@/pages/RealityExplorerPage";
 import SelfExplorerPage            from "@/pages/SelfExplorerPage";
+import AllSystemsPage              from "@/pages/AllSystemsPage";
 import SemanticStorePage           from "@/pages/SemanticStorePage";
 import PlatformScorePage           from "@/pages/PlatformScorePage";
 import CheckoutPage                from "@/pages/CheckoutPage";
@@ -177,6 +178,7 @@ function Router() {
       <Route path="/continuum-dashboard"  component={ContinuumDashboardPage} />
       <Route path="/reality-explorer"     component={RealityExplorerPage} />
       <Route path="/self-explorer"        component={SelfExplorerPage} />
+      <Route path="/all-systems"          component={AllSystemsPage} />
 
       {/* ── Role-based Universe routes ──────────────────────────────────── */}
       {/* Admin Universe — admin/founder full control center */}

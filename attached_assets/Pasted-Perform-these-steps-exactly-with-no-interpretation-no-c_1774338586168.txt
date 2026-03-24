@@ -1,0 +1,96 @@
+Perform these steps exactly, with no interpretation, no creativity, no assumptions, and no architectural decisions. Do not imagine features. Do not propose improvements. Do not redesign anything. Only execute literally.
+
+1. Scan the entire codebase.
+
+2. Identify every file that is:
+   - unconnected,
+   - unused,
+   - not imported anywhere,
+   - not exposed through any API route,
+   - not exposed through any frontend page.
+
+3. For each unconnected file, generate:
+   a. exact import statement,
+   b. exact backend API route,
+   c. exact frontend page/component,
+   d. exact code snippet,
+   e. exact file + line number for insertion.
+
+4. Do not modify existing logic. Only add minimal code to connect each file.
+
+5. Connect ALL Continuum files:
+   - continuum.ts
+   - continuumRouter.ts
+   - continuumChannels.ts
+   - continuumInspector.ts
+   Create backend routes + Continuum Dashboard page + App.tsx route.
+
+6. Connect ALL Universe OS files:
+   - experienceLayer
+   - universeOSMasterManifest
+   - universePageManifest
+   - creationStoryManifest
+   - firstMoment
+   - firstWorld
+   - firstEntryExperience
+   - familyUniverse
+   - kidsUniverse
+   Create backend routes + Universe Explorer page + App.tsx route.
+
+7. Connect ALL Reality layer files:
+   - absoluteLayer
+   - activationMap
+   - orchestratorLayer
+   - realityStack
+   - universeIndex
+   Create backend routes + Reality Explorer page + App.tsx route.
+
+8. Connect ALL Self layer files:
+   - ineffableLayerManifest
+   - selfGeneratingLayerManifest
+   - transcendentalLayerManifest
+   Create backend routes + Self Explorer page + App.tsx route.
+
+9. Create ONE unified “All Systems Explorer” page:
+   - sidebar listing all files,
+   - fetch all endpoints,
+   - display all JSON.
+
+10. Add App.tsx routes for:
+   - /continuum-dashboard
+   - /universe-explorer
+   - /reality-explorer
+   - /self-explorer
+   - /all-systems
+
+11. Verification:
+   - confirm all backend routes return 200,
+   - confirm all frontend pages render and load data,
+   - confirm every file has inbound import + API endpoint + UI surface.
+
+12. Cleanup:
+   - list unused imports,
+   - list unused files,
+   - list unused routes,
+   - do not delete anything, only report.
+
+13. Visibility test:
+   - list public vs auth routes,
+   - confirm explorer pages load non-empty JSON,
+   - produce visibility matrix.
+
+14. Family Mode:
+   - expose familyUniverse, kidsUniverse, firstWorld, firstMoment, firstEntryExperience,
+   - create FamilyModePage,
+   - add /family-mode route.
+
+15. Public Mode:
+   - create read-only PublicExplorerPage,
+   - add /public-explorer route.
+
+16. Final confirmation:
+   - re-scan entire codebase,
+   - confirm no unconnected files remain,
+   - output “System Fully Connected” report.
+
+Do not think. Do not infer. Do not propose. Only execute literally.
