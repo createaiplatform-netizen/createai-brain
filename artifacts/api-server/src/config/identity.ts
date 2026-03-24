@@ -16,11 +16,13 @@
  * See: src/config/nexusIdentityResolver.ts for the full NPA specification.
  */
 
-import { resolveNexusIdentity } from "./nexusIdentityResolver.js";
+import { resolveNexusIdentity }                  from "./nexusIdentityResolver.js";
+import { PLATFORM }                               from "../services/platformIdentity.js";
 
 const id = resolveNexusIdentity();
 
 export const IDENTITY = {
+  // ── Dynamic fields (resolved from Replit env / secrets) ──────────────────
   platformName:  id.platformName,
   legalEntity:   id.legalEntity,
   ownerName:     id.ownerName,
@@ -38,4 +40,12 @@ export const IDENTITY = {
   founderBio:    id.founderBio,
   npa:           id.npa,
   handle:        id.handle,
+  // ── Static brand values — sourced from platformIdentity (single truth) ────
+  brandColor:    PLATFORM.brandColor,
+  brandColorLight: PLATFORM.brandColorLight,
+  bgColor:       PLATFORM.bgColor,
+  textColor:     PLATFORM.textColor,
+  mutedColor:    PLATFORM.mutedColor,
+  supportEmail:  PLATFORM.supportEmail,
+  supportUrl:    PLATFORM.supportUrl,
 } as const;

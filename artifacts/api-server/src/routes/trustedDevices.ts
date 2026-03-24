@@ -13,14 +13,19 @@ import type {
   RegistrationResponseJSON,
   AuthenticationResponseJSON,
 } from "@simplewebauthn/server";
-import { getSql } from "../lib/db";
+import { getSql }    from "../lib/db";
+import { IDENTITY }  from "../config/identity.js";
 
 const router = Router();
 
 const RP_NAME = "CreateAI Brain";
-// RP_ID must match the domain. Use env var for production (createai.digital).
-const RP_ID = process.env.WEBAUTHN_RP_ID || "localhost";
-const ORIGIN = process.env.WEBAUTHN_ORIGIN || `https://${RP_ID}`;
+// RP_ID must match the domain serving the WebAuthn credential.
+// Resolution order:
+//   1. WEBAUTHN_RP_ID env var (explicit override — always wins)
+//   2. IDENTITY.brandDomain — resolves to BRAND_DOMAIN secret (e.g. createai.digital) when deployed,
+//      or the Replit dev domain in dev mode. Matches the actual serving domain automatically.
+const RP_ID: string = process.env["WEBAUTHN_RP_ID"] ?? IDENTITY.brandDomain;
+const ORIGIN: string = process.env["WEBAUTHN_ORIGIN"] ?? `https://${RP_ID}`;
 
 // In-memory challenge store (per session; cleared after use)
 const pendingChallenges = new Map<string, string>();

@@ -450,3 +450,35 @@ export function creationTypeToContext(type: string): ContextType {
 export function useContextTheme(context: ContextType = "default"): ContextTheme {
   return useMemo(() => getContextTheme(context), [context])
 }
+
+// ─── Role-based automatic theming ────────────────────────────────────────────
+// Maps user roles to their canonical context, ensuring family_adult and
+// family_child always receive the Sage/Sand palette — never Tailwind indigo.
+
+export const ROLE_CONTEXT_MAP: Record<string, ContextType> = {
+  family_adult:  "family",
+  family_child:  "family",
+  founder:       "business",
+  admin:         "business",
+  customer:      "store",
+  user:          "default",
+  viewer:        "default",
+}
+
+/**
+ * Returns the correct ContextTheme for a given user role.
+ * family_adult and family_child automatically receive the warm family theme
+ * (Sage #7a9068 / Sand #c4a97a) — overriding any default Tailwind indigo classes.
+ */
+export function getRoleContextTheme(role: string): ContextTheme {
+  const context: ContextType = ROLE_CONTEXT_MAP[role] ?? "default"
+  return getContextTheme(context)
+}
+
+/**
+ * Hook version — memoised for React components.
+ * Usage: const theme = useRoleContextTheme(user.role)
+ */
+export function useRoleContextTheme(role: string): ContextTheme {
+  return useMemo(() => getRoleContextTheme(role), [role])
+}

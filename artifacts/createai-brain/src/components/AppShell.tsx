@@ -1,8 +1,8 @@
 import React, { useState, useId } from "react";
 
-const INDIGO = "#6366f1";
-const INDIGO_BG = "rgba(99,102,241,0.08)";
-const INDIGO_BORDER = "rgba(99,102,241,0.16)";
+const SAGE = "#7a9068";
+const SAGE_BG = "rgba(122,144,104,0.09)";
+const SAGE_BORDER = "rgba(122,144,104,0.18)";
 
 // ─── AppShell ─────────────────────────────────────────────────────────────────
 // Universal inner app template.
@@ -61,7 +61,7 @@ function Section({ title, subtitle, badge, action, children, style }: SectionPro
                 <span style={{
                   display: "inline-flex", alignItems: "center", padding: "2px 8px",
                   borderRadius: 6, fontSize: 10, fontWeight: 700,
-                  background: INDIGO_BG, color: INDIGO, border: `1px solid ${INDIGO_BORDER}`,
+                  background: SAGE_BG, color: SAGE, border: `1px solid ${SAGE_BORDER}`,
                   letterSpacing: "0.03em",
                 }}>{badge}</span>
               )}
@@ -90,7 +90,7 @@ function Loading({ rows = 3, message }: { rows?: number; message?: string }) {
         <div key={i} style={{
           height: i === 0 ? 64 : 48,
           borderRadius: 12,
-          background: "linear-gradient(90deg, rgba(99,102,241,0.04) 0%, rgba(99,102,241,0.09) 50%, rgba(99,102,241,0.04) 100%)",
+          background: "linear-gradient(90deg, rgba(122,144,104,0.04) 0%, rgba(122,144,104,0.09) 50%, rgba(122,144,104,0.04) 100%)",
           backgroundSize: "200% 100%",
           animation: "shimmerSlide 1.8s ease-in-out infinite",
           animationDelay: `${i * 0.1}s`,
@@ -117,9 +117,9 @@ function Empty({ icon = "✦", title, description, action }: EmptyProps) {
     }}>
       <div style={{
         width: 60, height: 60, borderRadius: 18,
-        background: INDIGO_BG,
-        border: `1px solid ${INDIGO_BORDER}`,
-        boxShadow: "0 1px 8px rgba(99,102,241,0.08)",
+        background: SAGE_BG,
+        border: `1px solid ${SAGE_BORDER}`,
+        boxShadow: "0 1px 8px rgba(122,144,104,0.09)",
         display: "flex", alignItems: "center", justifyContent: "center", fontSize: 28,
       }}>{icon}</div>
       <div>
@@ -165,7 +165,7 @@ interface StatProps {
   trend?: "up" | "down" | "neutral";
 }
 
-function Stat({ icon, label, value, color = INDIGO, sub, trend }: StatProps) {
+function Stat({ icon, label, value, color = SAGE, sub, trend }: StatProps) {
   const trendColor = trend === "up" ? "#22c55e" : trend === "down" ? "#ef4444" : "#94a3b8";
   const trendIcon = trend === "up" ? "↑" : trend === "down" ? "↓" : "";
   return (
@@ -196,7 +196,7 @@ function Stat({ icon, label, value, color = INDIGO, sub, trend }: StatProps) {
         fontSize: 11, color: "#94a3b8", fontWeight: 600,
         textTransform: "uppercase", letterSpacing: "0.05em", marginTop: 2,
       }}>{label}</div>
-      {sub && <div style={{ fontSize: 11, color: "#c7d2fe", marginTop: 1 }}>{sub}</div>}
+      {sub && <div style={{ fontSize: 11, color: "#b5c9ac", marginTop: 1 }}>{sub}</div>}
     </div>
   );
 }
@@ -215,13 +215,13 @@ function Card({ children, onClick, style, accent, padding = 18 }: CardProps) {
   const [hov, setHov] = useState(false);
   const base: React.CSSProperties = {
     background: "#fff",
-    border: `1px solid ${hov && onClick ? "rgba(99,102,241,0.28)" : accent ? "rgba(99,102,241,0.20)" : "rgba(0,0,0,0.07)"}`,
+    border: `1px solid ${hov && onClick ? "rgba(122,144,104,0.28)" : accent ? "rgba(122,144,104,0.20)" : "rgba(0,0,0,0.07)"}`,
     borderRadius: 14,
     padding,
     cursor: onClick ? "pointer" : undefined,
     transition: "all 0.17s ease",
     boxShadow: hov && onClick
-      ? "0 4px 20px rgba(99,102,241,0.12), 0 1px 4px rgba(0,0,0,0.04)"
+      ? "0 4px 20px rgba(122,144,104,0.12), 0 1px 4px rgba(0,0,0,0.04)"
       : "0 1px 3px rgba(0,0,0,0.04), 0 2px 8px rgba(0,0,0,0.03)",
     transform: hov && onClick ? "translateY(-1px)" : "translateY(0)",
     ...style,
@@ -284,14 +284,14 @@ function Btn({ children, onClick, disabled, loading, size = "md", variant = "pri
 
   const styles: Record<string, React.CSSProperties> = {
     primary: {
-      background: hov ? "#4f46e5" : INDIGO,
+      background: hov ? "#5d7a52" : SAGE,
       color: "#fff", border: "none",
-      boxShadow: hov && !disabled ? "0 4px 14px rgba(99,102,241,0.38)" : "0 1px 4px rgba(99,102,241,0.20)",
+      boxShadow: hov && !disabled ? "0 4px 14px rgba(122,144,104,0.38)" : "0 1px 4px rgba(122,144,104,0.20)",
     },
     secondary: {
-      background: hov ? "rgba(99,102,241,0.14)" : INDIGO_BG,
-      color: INDIGO,
-      border: `1px solid ${INDIGO_BORDER}`,
+      background: hov ? "rgba(122,144,104,0.14)" : SAGE_BG,
+      color: SAGE,
+      border: `1px solid ${SAGE_BORDER}`,
     },
     ghost: {
       background: hov ? "rgba(0,0,0,0.045)" : "transparent",
@@ -344,7 +344,7 @@ function Btn({ children, onClick, disabled, loading, size = "md", variant = "pri
 
 // ─── Tag ─────────────────────────────────────────────────────────────────────
 
-function Tag({ label, color = INDIGO }: { label: string; color?: string }) {
+function Tag({ label, color = SAGE }: { label: string; color?: string }) {
   return (
     <span style={{
       display: "inline-flex", alignItems: "center",
@@ -397,7 +397,7 @@ function Alert({ type = "info", title, children, icon }: AlertProps) {
 type BadgeVariant = "default" | "success" | "warning" | "error" | "neutral";
 
 const BADGE_CFG: Record<BadgeVariant, { bg: string; border: string; text: string; dot: string }> = {
-  default: { bg: INDIGO_BG, border: INDIGO_BORDER, text: INDIGO, dot: INDIGO },
+  default: { bg: SAGE_BG, border: SAGE_BORDER, text: SAGE, dot: SAGE },
   success: { bg: "#f0fdf4", border: "#bbf7d0", text: "#15803d", dot: "#22c55e" },
   warning: { bg: "#fffbeb", border: "#fde68a", text: "#92400e", dot: "#f59e0b" },
   error:   { bg: "#fef2f2", border: "#fecaca", text: "#991b1b", dot: "#ef4444" },
@@ -437,8 +437,8 @@ interface InputProps {
 function Input({ value, onChange, placeholder, label, type = "text", disabled, multiline, rows = 4, icon }: InputProps) {
   const [focused, setFocused] = useState(false);
   const inputId = useId();
-  const border = focused ? `1.5px solid ${INDIGO}` : "1.5px solid rgba(0,0,0,0.11)";
-  const shadow = focused ? "0 0 0 3px rgba(99,102,241,0.12)" : "none";
+  const border = focused ? `1.5px solid ${SAGE}` : "1.5px solid rgba(0,0,0,0.11)";
+  const shadow = focused ? "0 0 0 3px rgba(122,144,104,0.12)" : "none";
   const common: React.CSSProperties = {
     width: "100%", fontSize: 13.5, fontFamily: "inherit", outline: "none",
     color: "#0f172a", background: disabled ? "#f8fafc" : "#fff",
@@ -516,7 +516,7 @@ function Row({ icon, label, sub, right, onClick }: RowProps) {
       style={{
         display: "flex", alignItems: "center", gap: 12,
         padding: "11px 14px", borderRadius: 10,
-        background: hov && onClick ? "rgba(99,102,241,0.04)" : "transparent",
+        background: hov && onClick ? "rgba(122,144,104,0.06)" : "transparent",
         cursor: onClick ? "pointer" : "default",
         transition: "background 0.15s ease",
       }}
