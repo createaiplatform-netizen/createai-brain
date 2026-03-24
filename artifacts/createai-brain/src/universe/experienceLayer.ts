@@ -37,6 +37,7 @@ import { autoEntry }                  from "./autoEntry";
 import { listDomains, getDomainById } from "./internalAddressing";
 import { integrationLoop }            from "./integrationLoop";
 import { fullBody }                   from "./fullBody";
+import { safeCeiling }               from "./ceilingEngine";
 
 // ============================================================
 // ENGINE REGISTRY — all 22 engines, bound into the layer
@@ -229,6 +230,11 @@ export const experienceLayer = {
   // BODY
   // ----------------------------------------------------------
   body: fullBody,
+
+  // ----------------------------------------------------------
+  // CEILING
+  // ----------------------------------------------------------
+  safeCeiling: safeCeiling,
 
   // ----------------------------------------------------------
   // META
