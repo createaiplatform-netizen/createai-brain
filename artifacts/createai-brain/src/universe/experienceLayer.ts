@@ -30,6 +30,7 @@ import { perspectiveEngineManifest }  from "./perspectiveEngineManifest";
 import { storyworldEngineManifest }   from "./storyworldEngineManifest";
 import { internalDomains }            from "./internalDomainEngine";
 import { resolveInternalDomain }      from "./internalRouter";
+import { universalBridge }            from "./universalBridge";
 
 // ============================================================
 // ENGINE REGISTRY — all 22 engines, bound into the layer
@@ -185,8 +186,9 @@ export const experienceLayer = {
   // INTERNAL INTERNET LAYER
   // ----------------------------------------------------------
   internalInternet: {
-    domains:       internalDomains,
-    resolve:       resolveInternalDomain
+    domains:            internalDomains,
+    resolve:            resolveInternalDomain,
+    externalTranslator: universalBridge
   },
 
   // ----------------------------------------------------------
