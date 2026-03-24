@@ -77,6 +77,7 @@ import SelfExplorerPage            from "@/pages/SelfExplorerPage";
 import AllSystemsPage              from "@/pages/AllSystemsPage";
 import FamilyModePage              from "@/pages/FamilyModePage";
 import PublicExplorerPage          from "@/pages/PublicExplorerPage";
+import CeilingPage                 from "@/pages/CeilingPage";
 import SemanticStorePage           from "@/pages/SemanticStorePage";
 import PlatformScorePage           from "@/pages/PlatformScorePage";
 import CheckoutPage                from "@/pages/CheckoutPage";
@@ -182,6 +183,7 @@ function Router() {
       <Route path="/self-explorer"        component={SelfExplorerPage} />
       <Route path="/all-systems"          component={AllSystemsPage} />
       <Route path="/family-mode"          component={FamilyModePage} />
+      <Route path="/ceiling"              component={CeilingPage} />
 
       {/* ── Role-based Universe routes ──────────────────────────────────── */}
       {/* Admin Universe — admin/founder full control center */}
