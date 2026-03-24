@@ -7,10 +7,10 @@
 // Top System Definition
 // -----------------------------
 export type ContinuumDomain = {
-  name:        string;
-  description: string;
-  governs:     string[];
-};
+  name: string
+  description: string
+  governs: string[]
+}
 
 export const CONTINUUM: ContinuumDomain = {
   name: "The Continuum",
@@ -29,93 +29,93 @@ export const CONTINUUM: ContinuumDomain = {
     "Internal Messaging",
     "All Subsystems"
   ]
-};
+}
 
 export function getContinuum() {
-  return CONTINUUM;
+  return CONTINUUM
 }
 
 // -----------------------------
 // Subsystem Registry
 // -----------------------------
 export type ContinuumSubsystem = {
-  key:     string;
-  name:    string;
-  layer:   string;
-  purpose: string;
-};
+  key: string
+  name: string
+  layer: string
+  purpose: string
+}
 
 export const CONTINUUM_REGISTRY: ContinuumSubsystem[] = [
   {
-    key:     "identity",
-    name:    "Identity Engine",
-    layer:   "existence",
+    key: "identity",
+    name: "Identity Engine",
+    layer: "existence",
     purpose: "Defines and maintains identities across all universes and contexts."
   },
   {
-    key:     "universe",
-    name:    "Universe Engine",
-    layer:   "existence",
+    key: "universe",
+    name: "Universe Engine",
+    layer: "existence",
     purpose: "Creates, shapes, and governs universes and their internal rules."
   },
   {
-    key:     "relationship",
-    name:    "Relationship Engine",
-    layer:   "connection",
+    key: "relationship",
+    name: "Relationship Engine",
+    layer: "connection",
     purpose: "Manages relational structures between entities, users, and worlds."
   },
   {
-    key:     "time",
-    name:    "Time Engine",
-    layer:   "temporal",
+    key: "time",
+    name: "Time Engine",
+    layer: "temporal",
     purpose: "Handles timelines, sequences, cycles, and temporal expression."
   },
   {
-    key:     "emotion",
-    name:    "Emotion Engine",
-    layer:   "expression",
+    key: "emotion",
+    name: "Emotion Engine",
+    layer: "expression",
     purpose: "Carries emotional signals, tone, warmth, and affective meaning."
   },
   {
-    key:     "narrative",
-    name:    "Narrative Engine",
-    layer:   "expression",
+    key: "narrative",
+    name: "Narrative Engine",
+    layer: "expression",
     purpose: "Shapes story, arcs, meaning, and narrative flow across contexts."
   },
   {
-    key:     "ecosystem",
-    name:    "Ecosystem Engine",
-    layer:   "environment",
+    key: "ecosystem",
+    name: "Ecosystem Engine",
+    layer: "environment",
     purpose: "Governs systems, layers, and environmental interactions."
   },
   {
-    key:     "possibility",
-    name:    "Possibility Engine",
-    layer:   "potential",
+    key: "possibility",
+    name: "Possibility Engine",
+    layer: "potential",
     purpose: "Defines options, futures, branches, and potential states."
   },
   {
-    key:     "internal-network",
-    name:    "Internal Network",
-    layer:   "infrastructure",
+    key: "internal-network",
+    name: "Internal Network",
+    layer: "infrastructure",
     purpose: "Routes signals, presence, and communication inside the platform."
   },
   {
-    key:     "internal-messaging",
-    name:    "Internal Messaging",
-    layer:   "communication",
+    key: "internal-messaging",
+    name: "Internal Messaging",
+    layer: "communication",
     purpose: "Delivers signals, messages, and expressions across all entities."
   }
-];
+]
 
 export function getContinuumRegistry() {
-  return CONTINUUM_REGISTRY;
+  return CONTINUUM_REGISTRY
 }
 
 // -----------------------------
 // Unified Export Surface
 // -----------------------------
 export const Continuum = {
-  get:      getContinuum,
+  get: getContinuum,
   registry: getContinuumRegistry
-};
+}
