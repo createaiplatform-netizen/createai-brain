@@ -2,15 +2,22 @@
 <html lang="en">
 <head>
     <meta charset="UTF-8"><meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>NEXUS | GLOBAL DISPATCH</title>
+    <title>EBS | COMMAND CENTER</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <style>body { background: #000; color: #fff; font-family: 'Inter', sans-serif; }</style>
 </head>
 <body class="p-10 flex items-center justify-center min-h-screen">
-    <div class="max-w-xl w-full border border-red-900/50 p-10 rounded-3xl bg-red-950/10">
-        <h1 class="text-red-600 font-bold tracking-[0.5em] text-[10px] mb-4">GLOBAL MULTI-CHANNEL DISPATCH</h1>
-        <textarea id="msg" class="w-full bg-black border border-white/10 p-4 rounded-xl text-sm mb-6" rows="4" placeholder="Enter Global Broadcast..."></textarea>
-        <button onclick="alert('SYSTEM NOTIFIED: ALL CHANNELS ACTIVE')" class="w-full bg-red-600 py-4 rounded-xl font-black uppercase tracking-widest text-xs hover:bg-red-500 transition">Execute Universal Push</button>
+    <div class="max-w-xl w-full border border-red-600/30 p-12 rounded-[3rem] bg-red-950/10 text-center shadow-2xl shadow-red-600/20">
+        <div class="text-red-500 font-black text-[10px] tracking-[0.8em] mb-8 uppercase animate-pulse">EBS Universal Dispatch</div>
+        <textarea id="msg" class="w-full bg-black border border-white/10 p-6 rounded-2xl text-lg mb-8 text-white focus:border-red-600 outline-none transition" rows="3" placeholder="TYPE BROADCAST..."></textarea>
+        <button onclick="fire()" class="w-full bg-red-600 py-6 rounded-2xl font-black uppercase tracking-[0.4em] text-sm hover:bg-red-500 active:scale-95 transition shadow-xl">Execute Universal Push</button>
     </div>
+    <script>
+        function fire() {
+            const m = document.getElementById('msg').value;
+            if(!m) return alert('EMPTY PAYLOAD');
+            window.location.href = "sms:$NUMBERS?body=" + encodeURIComponent("NEXUS ALERT: " + m);
+        }
+    </script>
 </body>
 </html>
