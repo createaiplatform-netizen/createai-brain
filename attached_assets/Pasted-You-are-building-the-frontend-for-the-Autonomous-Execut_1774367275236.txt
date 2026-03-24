@@ -1,0 +1,52 @@
+You are building the frontend for the Autonomous Execution System (AES) in a React + Vite + TypeScript project (createai-brain). The backend AES is already live with:
+
+- 7 service files in /services/autonomousExecution
+- 4 endpoints:
+  - POST /api/outcome/execute
+  - GET /api/outcome/capabilities
+  - GET /api/outcome/templates
+  - GET /api/outcome/engine-stats
+- Auth required for all endpoints
+- DB tables bootstrapped: aes_engine_stats, aes_outcome_stats, aes_ai_cache
+
+Your task is to generate **everything needed** for a fully functional frontend, including:
+
+1. **Page Component**: `AutonomousExecutionPage.tsx`
+   - Goal input form (goal text + optional context)
+   - Submit button triggers `/api/outcome/execute`
+   - Execution plan visualization: steps as cards showing engines, capabilities, fallback engines, live status (pending → executing → success/failure)
+   - Results display: step outputs, AI calls used, token savings
+   - Engine stats panel: live from `/api/outcome/engine-stats` (success rates, latency, reliability)
+   - Pre-built template selection panel (optional, from `/api/outcome/templates`)
+   - Dark space theme, consistent with platform
+
+2. **Shared UI Components**
+   - `ExecutionStepCard.tsx` — displays a single step with engine, capability, fallback, and status
+   - `ExecutionResults.tsx` — shows step outputs and AI/deterministic distinction
+   - `EngineStatsPanel.tsx` — shows all engines’ stats, color-coded indicators
+
+3. **API Hooks**
+   - `useAutonomousExecution` — handles POST `/api/outcome/execute` and streaming results
+   - `useEngineStats` — fetches and polls `/api/outcome/engine-stats`
+
+4. **Navigation Integration**
+   - Add **Autonomous Execution** nav item (indigo) to Sidebar
+   - Add compact ModeSwitcher widget integration if applicable
+   - Add CommandPalette quick action: "Open Autonomous Execution"
+
+5. **Behavior**
+   - Live step updates (polling or SSE)
+   - Expandable details per step
+   - Feedback panel optional for marking success/failure → feeds back into feedbackStore
+   - Smooth layout: sidebar + top nav + page content responsive
+   - All components in TypeScript with proper types
+   - Follow the same folder structure as the existing createai-brain project
+
+6. **Output**
+   - Full code for `AutonomousExecutionPage.tsx`
+   - All new components in `src/components/aes/`
+   - API hooks in `src/hooks/aes/`
+   - Navigation wiring in Sidebar, App.tsx, CommandPalette
+   - Styling included using existing platform theme
+
+Build everything **in one go** so that after dropping it into the project and rebuilding, the AES frontend is **fully functional** and immediately usable.
