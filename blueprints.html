@@ -2,42 +2,35 @@
 <html lang="en">
 <head>
     <meta charset="UTF-8"><meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>THE VAULT | SOVEREIGNTY OS</title>
+    <title>THE VAULT | DECRYPTED</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <style>
-        @import url('https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;700&display=swap');
-        body { background: #000; color: #0f0; font-family: 'JetBrains Mono', monospace; }
-        .border-glow { border: 1px solid #0f0; box-shadow: 0 0 15px rgba(0, 255, 0, 0.2); }
-        .text-glow { text-shadow: 0 0 10px rgba(0, 255, 0, 0.5); }
+        body { background: #000; color: #0f0; font-family: 'Courier New', monospace; }
+        .matrix { border: 1px solid #0f0; box-shadow: 0 0 20px rgba(0, 255, 0, 0.2); background: rgba(0, 20, 0, 0.1); }
+        .btn-green { border: 1px solid #0f0; color: #0f0; transition: 0.3s; }
+        .btn-green:hover { background: #0f0; color: #000; }
     </style>
 </head>
-<body class="p-6 md:p-20">
+<body class="p-10 md:p-24">
     <div class="max-w-4xl mx-auto">
-        <div class="mb-12 border-b border-green-900 pb-6">
-            <h1 class="text-3xl font-bold uppercase tracking-tighter text-glow">>> ACCESS_GRANTED: SOVEREIGNTY_VAULT</h1>
-            <p class="text-[10px] text-green-700 uppercase mt-2">Webster Node Secure Connection // IP: ENCRYPTED</p>
-        </div>
+        <header class="mb-20 border-b border-green-900 pb-10">
+            <h1 class="text-4xl font-bold tracking-tighter uppercase italic">>> SOVEREIGNTY_VAULT_v1.0</h1>
+            <p class="text-[10px] text-green-800 uppercase mt-4 tracking-[0.5em]">Authorized Access Only // Webster-Node-01</p>
+        </header>
 
-        <div class="grid gap-10">
-            <div class="border-glow p-8 rounded-xl bg-green-950/5">
-                <h2 class="text-xl font-bold mb-4">01_COMMUNICATIONS_MESH</h2>
-                <p class="text-green-500/70 text-sm mb-6">Learn to deploy 802.11s Mesh Nodes. Bypasses corporate ISP gateways via decentralized node-hopping. Hardware list and configuration scripts included below.</p>
-                <div class="flex gap-4">
-                    <button class="border border-green-500 px-4 py-2 text-[10px] uppercase font-bold hover:bg-green-500 hover:text-black transition">View Schematic</button>
-                    <button class="border border-green-900 px-4 py-2 text-[10px] uppercase font-bold text-green-900">Config: Locked</button>
-                </div>
+        <div class="space-y-16">
+            <div class="matrix p-12 rounded-3xl">
+                <h2 class="text-2xl font-bold mb-6 italic underline">01 // FREE_INTERNET_MESH</h2>
+                <p class="text-green-500/60 mb-8 italic text-sm">Deployment of 802.11s Mesh nodes bypassing ISP billing structures. Includes hardware lists for high-gain antennas and LoRaWAN long-range data links.</p>
+                <button class="btn-green px-8 py-3 rounded-full text-xs font-bold uppercase tracking-widest">Download Schematic</button>
             </div>
 
-            <div class="border-glow p-8 rounded-xl bg-green-950/5">
-                <h2 class="text-xl font-bold mb-4">02_CELL_SOVEREIGNTY</h2>
-                <p class="text-green-500/70 text-sm mb-6">Instructional for Private SIP Gateway integration. Achieve 100% bill-free cellular communication using end-to-end encrypted VoIP protocols.</p>
-                <button class="border border-green-500 px-4 py-2 text-[10px] uppercase font-bold hover:bg-green-500 hover:text-black transition">Deploy Gateway</button>
+            <div class="matrix p-12 rounded-3xl">
+                <h2 class="text-2xl font-bold mb-6 italic underline">02 // SOVEREIGN_CELL_VOIP</h2>
+                <p class="text-green-500/60 mb-8 italic text-sm">Architecture for private SIP-Gateway hosting. Permanent global phone numbers with zero monthly recurring charges. Legal, encrypted, and decentralized.</p>
+                <button class="btn-green px-8 py-3 rounded-full text-xs font-bold uppercase tracking-widest">Access VOIP Key</button>
             </div>
         </div>
-
-        <footer class="mt-20 text-[8px] text-green-900 uppercase tracking-widest text-center">
-            Create AI Digital // No Less Than Perfect // (c) 2026
-        </footer>
     </div>
 </body>
 </html>
