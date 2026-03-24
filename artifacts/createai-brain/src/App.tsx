@@ -786,12 +786,17 @@ function App() {
     path.startsWith(`${base}/pricing`) ||
     path.startsWith(`${base}/privacy`) ||
     path.startsWith(`${base}/terms`) ||
-    // Storefront public pages — home, artifacts, membership, about
+    // CreateAI Digital public pages (exact match to avoid catching /family-hub etc.)
     path === base ||
     path === `${base}/` ||
-    path.startsWith(`${base}/artifacts`) ||
-    path.startsWith(`${base}/membership`) ||
-    path.startsWith(`${base}/about`);
+    path === `${base}/home` ||
+    path === `${base}/store` ||
+    path === `${base}/family` ||
+    path === `${base}/kids` ||
+    path === `${base}/dashboard` ||
+    path === `${base}/identity` ||
+    path === `${base}/universe` ||
+    path === `${base}/theme`;
 
   if (isPublicRoute) {
     return (
