@@ -1,0 +1,170 @@
+You are the senior architect and lead engineer for this project. Perform a full-system diagnostic and then upgrade the entire platform to production-grade quality.
+
+PHASE 1 — FULL-SYSTEM DIAGNOSTIC (BEFORE REPORT)
+1. Scan and evaluate every layer and dimension of this project, including but not limited to:
+   - Architecture, modules, engines, services, APIs, data models
+   - Routing, auth, role logic, guards, redirects, protected routes
+   - Frontend components, layouts, theming, state management
+   - UX flows, navigation, onboarding, empty states, error states
+   - Content, copy, labels, CTAs, microcopy, tone consistency
+   - Performance, bundling, code splitting, caching, network usage
+   - Reliability, stability, race conditions, edge cases
+   - Security, auth flows, session handling, secrets usage, input handling
+   - Accessibility (a11y), semantics, keyboard navigation, contrast, ARIA
+   - Responsiveness, mobile behavior, breakpoints, touch targets
+   - Error handling, logging, observability, fallbacks
+   - Data integrity, validation, persistence, failure modes
+   - Configuration, environment handling, feature flags
+   - Code quality, structure, naming, duplication, dead code
+   - Design system, tokens, spacing, typography, color usage
+   - Theming, dark/light modes (if present), consistency
+   - SEO (if applicable), metadata, share cards
+   - Internationalization hooks (if any), future-proofing
+   - Any other relevant dimension you detect
+
+2. For each dimension, assign a BEFORE quality percentage (0–100%) and briefly explain:
+   - What’s working
+   - What’s missing
+   - What’s risky
+   - What’s confusing or inconsistent
+
+Output this as a clear BEFORE REPORT in markdown inside a single code block so the founder can read it.
+
+PHASE 2 — GLOBAL UPGRADE TO 100% QUALITY
+Now upgrade the entire system to nothing less than 100% quality across all evaluated dimensions, while staying fully legal, ethical, and platform-safe.
+
+Apply the following principles:
+- Do NOT remove or break any working core logic without replacing it with something equal or better.
+- Preserve the product’s intent: a family-first, emotionally intelligent, AI-powered universe plus a professional CreateAI Brain surface.
+- Keep the tech stack and deployment model consistent with what’s already here (no rewrites to a different framework or language).
+- Prefer surgical, high-leverage changes over massive rewrites, unless a rewrite is clearly safer and simpler.
+
+Concretely, do ALL of the following:
+
+A. ROUTING, AUTH, AND ACCESS
+1. Confirm that:
+   - /family-hub loads the FamilyUniversePage for authenticated users.
+   - Unauthenticated users hitting any protected route are redirected to /api/login with a proper returnTo parameter.
+   - After login, users are returned to their original intended route (e.g., /family-hub), not the marketing homepage.
+2. Ensure there are no client-side or server-side redirects that accidentally send users to the public marketing homepage when they intended to access a family or internal route.
+3. Verify SmartRoleRouter (or equivalent) logic:
+   - Founders have full access to all internal routes.
+   - Family members have access to the Family Hub and their own spaces.
+   - No one gets silently bounced to the wrong place.
+
+B. FRONTEND UX, VISUALS, AND FAMILY PORTAL EXPERIENCE
+1. Make the Family Hub (/family-hub) visually and emotionally distinct from the public CreateAI Brain marketing surfaces:
+   - Warm, soft, modern, family-centered.
+   - Calm, safe, inviting, not corporate or salesy.
+2. Ensure the marketing homepage(s) remain professional and polished, but are clearly separate from the family universe.
+
+C. INDIVIDUAL FAMILY UNIVERSES (THEMING + IDENTITY)
+Create a theming/identity system so that each person’s experience can be uniquely styled while still using a shared component system. Use a clean, extensible structure (e.g., a profiles or themes registry) that maps an identity key to:
+
+- Color palette
+- Accent/secondary colors
+- Icon/creature/symbol
+- Tone of copy (playful, grounded, calm, etc.)
+- Default modules/tiles on their dashboard
+- Optional background or pattern
+
+Define profiles for:
+
+1) Nathan
+   - Oldest son, outdoorsman, loves all kinds of hunting and fishing.
+   - Very kind-hearted, would do anything for anybody.
+   - Married to Carolina.
+   THEME: Nature-forward, deep greens, earth tones, water + forest imagery, subtle outdoors iconography.
+
+2) Nolan
+   - Brilliant, big-picture thinker, wants to change the world for good.
+   - Long-term relationship with Emma.
+   - Dog named Dakota (Kota).
+   THEME: Modern, bright but calm, thoughtful blues and teals, subtle “ideas/innovation” motifs, maybe a small nod to Kota.
+
+3) Carolina
+   - Amazing daughter-in-law, more serious in a good way.
+   - Bilingual (Spanish/English), can move fluently between both.
+   THEME: Elegant, balanced, warm neutrals with a strong accent color, bilingual-friendly copy hooks, respectful and grounded.
+
+4) Jenny
+   - Sister, ride-or-die, loves cruises, funny, goofy, absolutely lovable.
+   THEME: Playful, ocean-inspired, cruise/navigator hints, bright but not overwhelming, fun microcopy.
+
+5) Shawny (“Deuce”)
+   - Brother-in-law, heavy equipment operator, nickname “Deuce” is an inside joke.
+   THEME: Strong, grounded, industrial hints (without being harsh), warm metals and deep tones, subtle nod to “Deuce” in a fun but respectful way.
+
+6) Shelly
+   - Cousin and best friend, ride-or-die, “most amazing person.”
+   THEME: Cozy, supportive, best-friend energy, soft gradients, comforting colors, emphasis on connection and shared memories.
+
+7) Dennis
+   - Husband, deeply appreciated, long marriage.
+   THEME: Steady, reliable, warm, subtle romantic undertones without being cheesy, calm blues and warm neutrals.
+
+8) Nakyllah
+   - Only daughter, youngest child.
+   - Loves animals and horses; dog Milo.
+   - Gave the family a beautiful granddaughter, Hadley Jo.
+   THEME: Gentle, nature + horses, soft pastels or warm countryside palette, subtle nods to motherhood and animals.
+
+9) Terri (Mom)
+   - Smartest woman you know.
+   - Loves Appaloosas, has a farm, loves her grandchildren and children.
+   THEME: Farm + Appaloosa-inspired, earthy but bright, strong and wise, subtle horse/farm motifs.
+
+10) Dad
+   - Kind heart, can come off negative, but loves his kids, grandkids, and farming.
+   THEME: Grounded, farm-centered, strong but softened edges, warm earth tones, a place that feels like “home on the land.”
+
+Implementation requirements:
+- Implement a clean theming system (e.g., themeId or profileId) that can be selected per user.
+- Ensure the Family Hub can render different themes based on the active profile.
+- Keep all themes accessible (contrast, readability) and mobile-friendly.
+
+D. CONTENT, COPY, AND TONE
+1. Ensure all family-facing copy is:
+   - Warm, kind, emotionally intelligent.
+   - Clear, simple, and non-technical.
+2. Ensure all public/marketing copy is:
+   - Professional, confident, clear about value.
+   - Consistent in tone and structure.
+
+E. PERFORMANCE, RELIABILITY, AND SAFETY
+1. Optimize for:
+   - Fast initial load on mobile.
+   - Smooth navigation between routes.
+   - Graceful handling of slow networks or failed requests.
+2. Add or verify:
+   - Error boundaries where appropriate.
+   - User-friendly error messages.
+   - Safe handling of all inputs.
+3. Confirm no secrets are exposed in the frontend.
+4. Confirm no unsafe logging of sensitive data.
+
+F. ACCESSIBILITY AND RESPONSIVENESS
+1. Ensure:
+   - Proper semantic HTML.
+   - Keyboard navigability.
+   - Sufficient color contrast.
+   - Clear focus states.
+2. Verify:
+   - Layouts work on small phones, tablets, and desktop.
+   - Touch targets are large enough on mobile.
+
+PHASE 3 — AFTER REPORT
+After all upgrades are complete:
+
+1. Re-run the full-system diagnostic.
+2. Produce an AFTER REPORT in markdown inside a single code block:
+   - List every dimension you evaluated.
+   - Show BEFORE % vs AFTER % for each.
+   - Briefly describe what changed and why it’s now at or near 100% quality.
+3. Explicitly confirm:
+   - /family-hub works as intended for authenticated users.
+   - Unauthenticated users are properly redirected to login and then returned.
+   - The Family Hub is visually and emotionally distinct from the public marketing surfaces.
+   - The individual family themes are wired and ready for future personalization.
+
+Do NOT output any internal secrets, environment variables, or sensitive data. Focus on structure, behavior, quality, and readiness for real family use.

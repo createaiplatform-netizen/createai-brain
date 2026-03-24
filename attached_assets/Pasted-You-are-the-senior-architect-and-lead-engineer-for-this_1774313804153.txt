@@ -1,0 +1,171 @@
+You are the senior architect and lead engineer for this project. Perform a full-system diagnostic, upgrade the entire platform to production-grade quality, and implement the complete Family Universe theming system with preview capabilities.
+
+===========================================================
+PHASE 1 — FULL-SYSTEM DIAGNOSTIC (BEFORE REPORT)
+===========================================================
+Scan and evaluate every layer and dimension of this project, including but not limited to:
+
+- Architecture, modules, engines, services, APIs, data models
+- Routing, auth, role logic, guards, redirects, protected routes
+- Frontend components, layouts, theming, state management
+- UX flows, navigation, onboarding, empty states, error states
+- Content, copy, labels, CTAs, microcopy, tone consistency
+- Performance, bundling, code splitting, caching, network usage
+- Reliability, stability, race conditions, edge cases
+- Security, auth flows, session handling, secrets usage, input handling
+- Accessibility (a11y), semantics, keyboard navigation, contrast, ARIA
+- Responsiveness, mobile behavior, breakpoints, touch targets
+- Error handling, logging, observability, fallbacks
+- Data integrity, validation, persistence, failure modes
+- Configuration, environment handling, feature flags
+- Code quality, structure, naming, duplication, dead code
+- Design system, tokens, spacing, typography, color usage
+- Theming, dark/light modes, consistency
+- SEO (if applicable), metadata, share cards
+- Internationalization hooks (if any), future-proofing
+- Any other relevant dimension you detect
+
+For each dimension, assign a BEFORE quality percentage and briefly explain:
+- What’s working
+- What’s missing
+- What’s risky
+- What’s inconsistent
+
+Output this as a BEFORE REPORT in markdown inside a single code block.
+
+===========================================================
+PHASE 2 — GLOBAL UPGRADE TO 100% QUALITY
+===========================================================
+Upgrade the entire system to 100% quality across all evaluated dimensions, while staying fully legal, ethical, and platform-safe.
+
+---------------------------------------
+A. ROUTING, AUTH, AND ACCESS
+---------------------------------------
+1. Ensure:
+   - /family-hub loads FamilyUniversePage for authenticated users.
+   - Unauthenticated users hitting protected routes are redirected to /api/login with a proper returnTo parameter.
+   - After login, users return to their intended route (e.g., /family-hub), not the marketing homepage.
+
+2. Remove any client-side or server-side redirects that accidentally send users to the public marketing homepage.
+
+3. Verify SmartRoleRouter logic:
+   - Founders have full access.
+   - Family members access their own spaces.
+   - No silent or incorrect redirects.
+
+---------------------------------------
+B. FRONTEND UX + FAMILY PORTAL EXPERIENCE
+---------------------------------------
+1. Make the Family Hub visually/emotionally distinct from the public marketing surfaces:
+   - Warm, soft, modern, family-centered.
+   - Calm, safe, inviting.
+
+2. Keep marketing surfaces professional and polished, but separate from the family universe.
+
+---------------------------------------
+C. FAMILY UNIVERSE THEMING SYSTEM
+---------------------------------------
+Create a theming/identity system so each person’s experience is uniquely styled while using shared components.
+
+Implement a clean, extensible structure (e.g., a profiles or themes registry) mapping an identity key to:
+
+- Color palette
+- Accent colors
+- Icon/creature/symbol
+- Tone of copy
+- Default dashboard modules
+- Optional background or pattern
+
+Define themes for:
+
+1) Nathan — outdoorsman, kind-hearted, hunting/fishing.
+   THEME: Deep greens, earth tones, forest/water motifs.
+
+2) Nolan — brilliant, big-picture thinker, dog lover.
+   THEME: Modern blues/teals, innovation motifs, subtle nod to his dog.
+
+3) Carolina — bilingual, elegant, balanced.
+   THEME: Warm neutrals + strong accent color, bilingual-friendly copy hooks.
+
+4) Jenny — sister, ride-or-die, loves cruises, funny.
+   THEME: Ocean-inspired, playful, bright, cruise/navigator hints.
+
+5) Shawny (“Deuce”) — heavy equipment operator, inside-joke nickname.
+   THEME: Industrial but warm, deep tones, subtle “Deuce” nod.
+
+6) Shelly — cousin/best friend, supportive.
+   THEME: Cozy, comforting, soft gradients, connection-focused.
+
+7) Dennis — husband, steady, reliable.
+   THEME: Warm neutrals + calm blues, subtle romantic undertones.
+
+8) Nakyllah — daughter, animals/horses, mother of Hadley Jo.
+   THEME: Soft pastels, countryside palette, gentle animal/horse motifs.
+
+9) Terri — mom, wise, farm/Appaloosa lover.
+   THEME: Earthy but bright, Appaloosa/farm motifs.
+
+10) Dad — farmer, kind-hearted beneath a rough exterior.
+   THEME: Warm earth tones, farm-centered, home-on-the-land feel.
+
+---------------------------------------
+D. THEME PREVIEW ENGINE
+---------------------------------------
+Implement a safe, non-destructive preview system:
+
+1. Add a global “themePreview” utility:
+   - enablePreview(themeId)
+   - disablePreview()
+   - getActiveThemeId()
+
+2. Modify theming so preview overrides real themeId only in preview mode.
+
+3. Add route:
+   /preview-theme/:themeId
+   Behavior:
+   - Activates preview mode.
+   - Loads Family Hub with selected theme.
+   - Shows banner: “Preview Mode — Not a real user.”
+   - Includes “Exit Preview” button.
+
+4. Ensure:
+   - No backend data is changed.
+   - No auth logic is bypassed.
+   - This is purely visual.
+
+---------------------------------------
+E. CONTENT, COPY, AND TONE
+---------------------------------------
+- Family-facing copy: warm, kind, emotionally intelligent.
+- Public/marketing copy: professional, confident, value-forward.
+
+---------------------------------------
+F. PERFORMANCE, RELIABILITY, SAFETY
+---------------------------------------
+- Optimize for fast mobile load.
+- Add/verify error boundaries.
+- Ensure safe input handling.
+- Remove unsafe logging.
+- Confirm no secrets are exposed.
+
+---------------------------------------
+G. ACCESSIBILITY + RESPONSIVENESS
+---------------------------------------
+- Semantic HTML, keyboard navigation, contrast, focus states.
+- Layouts must work on phones, tablets, desktop.
+- Touch targets must be mobile-friendly.
+
+===========================================================
+PHASE 3 — AFTER REPORT
+===========================================================
+After all upgrades:
+
+1. Re-run the full-system diagnostic.
+2. Produce an AFTER REPORT in markdown:
+   - BEFORE % vs AFTER % for each dimension.
+   - Brief explanation of what changed.
+3. Confirm:
+   - /family-hub works correctly.
+   - Login redirect flow is correct.
+   - Family Hub is visually/emotionally distinct.
+   - All 10 family themes are wired and previewable.
