@@ -8,30 +8,30 @@ export const reflectionLayer = {
   id: "reflection_layer",
   label: "Reflection Layer",
   description:
-    "A symbolic mirror that reflects patterns, tone, and movement without judgment.",
+    "A symbolic mirror that reflects tone, patterns, and movement without judgment.",
 
   inputs: {
-    recentMoments:    "list of symbolic moments",
-    emotionalTrend:   "summary of emotional tone over time",
-    narrativeThemes:  "recurring story patterns"
+    recentMoments:   "A list of symbolic moments.",
+    emotionalTrend:  "A summary of emotional tone over time.",
+    narrativeThemes: "Recurring symbolic story patterns."
   },
 
   reflections: [
     {
       id: "tone_reflection",
-      description: "How the world has been feeling lately — the emotional texture of recent moments."
+      description: "How the world has been feeling lately."
     },
     {
       id: "pattern_reflection",
-      description: "Patterns that seem to be emerging — recurring themes across time and context."
+      description: "Patterns that seem to be emerging."
     },
     {
       id: "possibility_reflection",
-      description: "Where things seem to be opening up — what is becoming available that was not before."
+      description: "Where things appear to be opening."
     },
     {
       id: "harmony_reflection",
-      description: "Where things feel more or less aligned — what is resonant and what carries tension."
+      description: "Where alignment or friction is present."
     }
   ],
 

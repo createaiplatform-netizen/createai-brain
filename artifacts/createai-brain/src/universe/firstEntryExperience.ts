@@ -12,22 +12,22 @@ export const firstEntryExperience = {
   stages: [
     {
       id: "arrival",
-      description: "Being noticed by the universe — the entity is seen before anything else happens.",
+      description: "The universe notices the entity's presence.",
       engines: ["identity", "perception", "context"]
     },
     {
       id: "attunement",
-      description: "Tone and emotion are gently set — the universe orients to how the entity feels right now.",
+      description: "Tone and emotion are gently set.",
       engines: ["emotion", "tone", "harmony"]
     },
     {
       id: "orientation",
-      description: "Time, place, and world are introduced — the entity learns where and when it is.",
+      description: "Time, place, and world are introduced.",
       engines: ["time", "world", "continuity"]
     },
     {
       id: "invitation",
-      description: "Possibility is opened without pressure — the entity sees what is available, not what is expected.",
+      description: "Possibility opens softly, without pressure.",
       engines: ["possibility", "choice", "expansion"]
     }
   ],
@@ -36,6 +36,6 @@ export const firstEntryExperience = {
 
   meta: {
     version: "1.0.0",
-    role: "baseline onboarding into the universe"
+    role: "baseline onboarding"
   }
 };

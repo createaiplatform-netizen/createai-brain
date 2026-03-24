@@ -7,7 +7,7 @@ export const familyUniverse = {
   id: "family_universe",
   label: "Family Universe",
   description:
-    "A shared symbolic universe for a family, with individual and shared spaces.",
+    "A shared symbolic universe with individual and collective spaces.",
 
   members: [
     {
@@ -29,7 +29,7 @@ export const familyUniverse = {
 
   sharedWorld: {
     id:          "family_world",
-    description: "The shared space where everyone's presence is felt — a world that holds all members without collapsing their differences.",
+    description: "The shared space where everyone's presence is felt.",
     influencedBy: ["relationships", "harmony", "alignment", "continuity"]
   },
 

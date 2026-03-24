@@ -18,43 +18,35 @@ export const firstMoment = {
   experienceLoopMapping: [
     {
       step: "recognition",
-      output:
-        "Identity is stabilized — the entity is acknowledged, named, and held as present within the universe."
+      output: "Identity is stabilized — the entity is acknowledged and held as present."
     },
     {
       step: "time_context",
-      output:
-        "Time is framed as this moment — spacious, unhurried, and free from past momentum."
+      output: "Time is framed as this moment — spacious, unhurried, free from past momentum."
     },
     {
       step: "emotional_state",
-      output:
-        "The emotional tone is set to calm openness — the universe's default welcoming state."
+      output: "Tone is set to calm openness — the universe's default welcoming state."
     },
     {
       step: "narrative_shift",
-      output:
-        "The narrative adjusts to a beginning — the world senses arrival and orients toward it."
+      output: "The narrative adjusts to a beginning — the world senses arrival."
     },
     {
       step: "relationship_update",
-      output:
-        "Connections are acknowledged as possible but undefined — relational potential is held gently."
+      output: "Connections are acknowledged as possible but undefined — potential held gently."
     },
     {
       step: "possibility_expands",
-      output:
-        "The first possibilities appear — not directed, simply available and visible."
+      output: "The first possibilities appear — available but not directed."
     },
     {
       step: "reflection",
-      output:
-        "The meaning of the moment emerges: you are here, and the universe is oriented toward your presence."
+      output: "Meaning emerges: you are here, and the universe orients toward your presence."
     },
     {
       step: "integration",
-      output:
-        "This moment becomes the first anchor in continuity — the beginning of the entity's unfolding arc."
+      output: "This moment becomes the first anchor in continuity — the beginning of the arc."
     }
   ],
 

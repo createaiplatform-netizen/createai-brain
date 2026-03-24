@@ -7,18 +7,18 @@ export const kidsUniverse = {
   id: "kids_universe",
   label: "Kids Universe",
   description:
-    "A gentle, playful universe that adapts to a child's curiosity and emotional state.",
+    "A soft, imaginative universe that adapts to a child's emotional state.",
 
   safety: {
-    emotional:   "soft, non-judgmental, and reassuring — no emotional state is wrong here",
-    narrative:   "simple, kind, and non-threatening — stories always lead somewhere safe",
-    possibility: "open but bounded — paths are always available, and none are dangerous"
+    emotional:   "gentle, reassuring, non-judgmental",
+    narrative:   "simple, kind, non-threatening",
+    possibility: "open but bounded, always safe"
   },
 
   responses: {
-    excited: "world brightens, motion increases, more paths appear — energy is met with more energy",
-    tired:   "world softens, motion slows, fewer but clearer paths — simplicity and rest are offered",
-    unsure:  "world becomes gentle and inviting, with simple clear choices — nothing is demanded"
+    excited: "world brightens, motion increases, more paths appear",
+    tired:   "world softens, motion slows, fewer but clearer paths",
+    unsure:  "world becomes gentle and inviting with simple choices"
   },
 
   enginesInvolved: ["emotion", "world", "possibility", "tone", "harmony", "storyworld"],
