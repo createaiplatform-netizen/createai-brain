@@ -1,9 +1,7 @@
 {
   "version": 2,
-  "name": "nexus-os-production",
+  "name": "nexus-os",
+  "alias": "createai.digital",
   "cleanUrls": true,
-  "trailingSlash": false,
-  "framework": null,
-  "installCommand": "npm install",
-  "buildCommand": "npm run build"
+  "trailingSlash": false
 }
