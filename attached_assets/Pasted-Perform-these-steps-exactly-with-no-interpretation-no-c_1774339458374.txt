@@ -1,0 +1,51 @@
+Perform these steps exactly, with no interpretation, no creativity, and no architectural changes. Do NOT touch backend wiring. Only make the system outward-facing.
+
+1) PUBLIC VISIBILITY — FRONTEND
+- Ensure the app is deployed to a public URL (Replit deployment or equivalent).
+- Do NOT add auth to:
+  /, /public, /public/family, /discover, /public-explorer
+- Add a new public landing route + page:
+  File: artifacts/createai-brain/src/pages/PublicLandingPage.tsx
+  Route: /world
+  Content: simple intro + links to:
+    /public-explorer
+    /universe-data
+    /all-systems
+    /family-mode
+- Add import + route for PublicLandingPage in App.tsx.
+- Add /world to the public-route check.
+
+2) PUBLIC INTERACTION — EXPLORERS
+- Confirm these routes are reachable without login where marked public:
+  Public: /world, /public-explorer
+  Auth:   /universe-data, /universe-explorer, /continuum-dashboard, /reality-explorer, /self-explorer, /all-systems, /family-mode
+- On /public-explorer:
+  - keep read-only behavior,
+  - no mutations, no writes, no admin actions.
+- On /world:
+  - show a simple “map” of the system:
+    Continuum, Universe OS, Reality, Self, Family, Public, All Systems
+  - each item links to the appropriate page.
+
+3) PUBLIC BROADCAST — INTERNAL ONLY (NO REAL EMAIL/SMS)
+- Create a simple “broadcast log” page:
+  File: artifacts/createai-brain/src/pages/BroadcastLogPage.tsx
+  Route: /broadcast-log (authenticated)
+- BroadcastLogPage:
+  - shows a static list of “example broadcasts” (no real sending):
+    e.g. “New universe layer added”, “Family mode updated”, etc.
+  - NO external APIs, NO email, NO SMS, NO webhooks.
+- Add import + route for BroadcastLogPage in App.tsx (auth block).
+
+4) SAFETY & SCOPE
+- Do NOT integrate any third-party messaging, email, SMS, push, or webhook providers.
+- Do NOT send data outside this app.
+- All “broadcast” behavior is simulated and UI-only.
+
+5) FINAL CHECK
+- Confirm:
+  - /world and /public-explorer load without auth.
+  - All existing explorers still work.
+  - /broadcast-log loads for authenticated users.
+- Output summary:
+  “Public landing live, public explorer live, internal broadcast log live. System visible, usable, and internally broadcast-capable.”

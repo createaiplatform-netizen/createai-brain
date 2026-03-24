@@ -78,6 +78,8 @@ import AllSystemsPage              from "@/pages/AllSystemsPage";
 import FamilyModePage              from "@/pages/FamilyModePage";
 import PublicExplorerPage          from "@/pages/PublicExplorerPage";
 import CeilingPage                 from "@/pages/CeilingPage";
+import PublicLandingPage           from "@/pages/PublicLandingPage";
+import BroadcastLogPage            from "@/pages/BroadcastLogPage";
 import SemanticStorePage           from "@/pages/SemanticStorePage";
 import PlatformScorePage           from "@/pages/PlatformScorePage";
 import CheckoutPage                from "@/pages/CheckoutPage";
@@ -184,6 +186,7 @@ function Router() {
       <Route path="/all-systems"          component={AllSystemsPage} />
       <Route path="/family-mode"          component={FamilyModePage} />
       <Route path="/ceiling"              component={CeilingPage} />
+      <Route path="/broadcast-log"        component={BroadcastLogPage} />
 
       {/* ── Role-based Universe routes ──────────────────────────────────── */}
       {/* Admin Universe — admin/founder full control center */}
@@ -814,7 +817,8 @@ function App() {
     path === `${base}/identity` ||
     path === `${base}/universe` ||
     path === `${base}/theme` ||
-    path === `${base}/public-explorer`;
+    path === `${base}/public-explorer` ||
+    path === `${base}/world`;
 
   if (isPublicRoute) {
     return (
@@ -846,6 +850,7 @@ function App() {
           <Route path="/public" component={PublicBridgePage} />
           <Route path="/public/family" component={PublicFamilyPage} />
           <Route path="/public-explorer" component={PublicExplorerPage} />
+          <Route path="/world"          component={PublicLandingPage} />
           {/* Registry-driven public discovery grid — auto-expands with publicSurfaces.ts */}
           <Route path="/discover">
             {() => (
