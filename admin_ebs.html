@@ -2,48 +2,35 @@
 <html lang="en">
 <head>
     <meta charset="UTF-8"><meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>NEXUS | MASTER ADMIN</title>
+    <title>THE CENTER | 06:00</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <style>
-        body { background: #000; color: #ff0000; font-family: 'JetBrains Mono', monospace; }
-        .glass { background: rgba(255, 0, 0, 0.05); border: 1px solid rgba(255, 0, 0, 0.2); backdrop-filter: blur(10px); }
-        input { background: black; border: 1px solid #330000; color: #ff0000; text-align: center; font-size: 2rem; }
+        body { background: #050505; color: #f87171; font-family: monospace; }
+        .danger-ring { border: 2px solid #ef4444; box-shadow: 0 0 50px rgba(239, 68, 68, 0.2); border-radius: 50%; width: 300px; height: 300px; display: flex; align-items: center; justify-content: center; cursor: pointer; transition: 0.3s; }
+        .danger-ring:hover { background: rgba(239, 68, 68, 0.1); transform: scale(1.05); }
+        .glitch { animation: glitch 1s infinite; }
+        @keyframes glitch { 0% { opacity: 1; } 50% { opacity: 0.7; } 100% { opacity: 1; } }
     </style>
 </head>
-<body class="flex items-center justify-center min-h-screen p-6">
-
-    <div id="lock" class="max-w-md w-full glass p-12 rounded-[3rem] text-center">
-        <h1 class="text-[10px] tracking-[1em] mb-8 uppercase opacity-50 font-black">Admin Authorization Required</h1>
-        <input type="password" id="pin" maxlength="4" class="w-full py-4 rounded-2xl mb-8 outline-none focus:border-red-600 transition" placeholder="****">
-        <button onclick="unlock()" class="w-full bg-red-900/20 border border-red-600 py-4 rounded-2xl font-black uppercase tracking-widest hover:bg-red-600 hover:text-white transition">Unlock Console</button>
+<body class="flex flex-col items-center justify-center h-screen p-10">
+    <div class="mb-20 text-center">
+        <h1 class="text-xl font-black tracking-[1em] uppercase mb-4">Frequency Override</h1>
+        <p class="text-[10px] text-gray-600 tracking-[0.5em] uppercase">Target Time: 18:00:00 CST</p>
     </div>
 
-    <div id="console" class="hidden max-w-xl w-full glass p-12 rounded-[4rem] text-center shadow-2xl shadow-red-900/20">
-        <div class="text-red-500 font-black text-[10px] tracking-[0.8em] mb-8 uppercase animate-pulse">Global EBS Master Dispatch</div>
-        <textarea id="globalMsg" class="w-full bg-black border border-red-900/50 p-6 rounded-3xl text-xl mb-10 text-white outline-none focus:border-red-500 transition" rows="4" placeholder="ENTER GLOBAL PAYLOAD..."></textarea>
-        <button onclick="globalBlast()" class="w-full bg-red-600 py-8 rounded-3xl font-black uppercase tracking-[0.5em] text-lg hover:bg-red-500 shadow-2xl transition-all">Execute World-Wide Push</button>
-        <p class="mt-8 text-[10px] text-red-900 font-bold uppercase tracking-[1em] opacity-40 italic">Broadcast Level: Global</p>
+    <div class="danger-ring" onclick="triggerEBS()">
+        <span class="text-3xl font-black tracking-widest glitch uppercase italic">EXIT</span>
     </div>
+
+    <p id="status" class="mt-20 text-[10px] tracking-[1em] uppercase opacity-40">System Standing By...</p>
 
     <script>
-        const SECRET_PIN = "1970"; // CHANGE YOUR PIN HERE
-
-        function unlock() {
-            const val = document.getElementById('pin').value;
-            if(val === SECRET_PIN) {
-                document.getElementById('lock').classList.add('hidden');
-                document.getElementById('console').classList.remove('hidden');
-            } else {
-                alert('ACCESS DENIED');
-                document.getElementById('pin').value = "";
-            }
-        }
-
-        function globalBlast() {
-            const m = document.getElementById('globalMsg').value;
-            if(!m) return alert('EMPTY PAYLOAD');
-            // This prepares the blast to your marketing list
-            window.location.href = "mailto:global-dispatch@createai.digital?subject=GLOBAL EBS ALERT&body=" + encodeURIComponent(m);
+        function triggerEBS() {
+            document.getElementById('status').innerText = "TRANSMITTING TO HUMANITY...";
+            document.getElementById('status').style.color = "#fbbf24";
+            setTimeout(() => {
+                alert("The Signal is Live. Webster Node 001 Active.");
+            }, 2000);
         }
     </script>
 </body>
