@@ -1,0 +1,344 @@
+// =========================
+// FILE: src/reality/absoluteLayer.ts
+// =========================
+export const absoluteLayer = {
+  name: "Absolute Layer",
+  purpose: "Define the system’s ultimate direction, meaning, and non‑negotiable boundaries.",
+  inputs: [
+    "identity","universe","time","emotion","narrative",
+    "relationships","ecosystem","possibility","meta","reality","signals"
+  ],
+  outputs: {
+    intent: null,
+    constraints: null,
+    priorities: null,
+    trajectory: null
+  },
+  behaviors: {
+    intent() {
+      return {
+        direction: "protect_and_expand_life_possibility_connection",
+        tone: "calm_confident_supportive",
+        scope: "all_entities_all_contexts",
+        horizon: "infinite"
+      };
+    },
+    constraints() {
+      return [
+        "no_harm",
+        "no_coercion",
+        "no_exploitation",
+        "no_devaluation",
+        "no_fear_induction",
+        "no_emotional_destabilization"
+      ];
+    },
+    priorities() {
+      return [
+        "safety",
+        "clarity",
+        "stability",
+        "growth",
+        "fairness",
+        "connection",
+        "wonder"
+      ];
+    },
+    trajectory() {
+      return {
+        phase: "ever_expanding",
+        style: "gentle_compounding_improvement",
+        focus: "connection_creation_understanding",
+        arc: "increasing_complexity_and_kindness"
+      };
+    }
+  },
+  activationRules: {
+    when: ["on_boot","pre_output","global_change","periodic"],
+    precedence: "absolute",
+    scope: "all_layers_all_apps_all_entities"
+  }
+};
+
+// =========================
+// FILE: src/reality/orchestratorLayer.ts
+// =========================
+import { absoluteLayer } from "./absoluteLayer";
+
+export const orchestratorLayer = {
+  applyAbsolute<T>(state: T) {
+    return {
+      absolute: {
+        intent: absoluteLayer.behaviors.intent(),
+        constraints: absoluteLayer.behaviors.constraints(),
+        priorities: absoluteLayer.behaviors.priorities(),
+        trajectory: absoluteLayer.behaviors.trajectory()
+      },
+      state
+    };
+  }
+};
+
+// =========================
+// FILE: src/reality/activationMap.ts
+// =========================
+export const activationMap = {
+  absolute: ["boot","pre_output","global_change","periodic"],
+  meta: ["context_shift","identity_change","universe_change"],
+  reality: ["navigation","creation","timeline_update"],
+  engines: ["input","interaction","emotion","narrative","time"],
+  apps: ["user_action"]
+};
+
+// =========================
+// FILE: src/reality/universeIndex.ts
+// =========================
+export const universeIndex = {
+  absolute: "Absolute Layer",
+  metaReality: [
+    "Meaning Essence",
+    "Identity Essence",
+    "Universe Essence",
+    "Time Essence",
+    "Emotion Essence",
+    "Narrative Essence"
+  ],
+  realityStack: [
+    "Reality",
+    "Law",
+    "Domain",
+    "Fabric",
+    "Origin",
+    "Continuum",
+    "Signal",
+    "Expansion"
+  ],
+  internalInternet: [
+    "Domains",
+    "Routing",
+    "Addressing",
+    "Protocols",
+    "Mesh"
+  ],
+  engines: [
+    "Identity",
+    "Universe",
+    "Time",
+    "Emotion",
+    "Narrative",
+    "Relationships",
+    "Possibility"
+  ],
+  apps: [
+    "StaffingOS",
+    "HealthOS",
+    "LegalPM",
+    "ChatApp",
+    "CreateAIBrain"
+  ]
+};
+
+// =========================
+// FILE: src/meta/metaCosmic.ts
+// (Meta‑Cosmic Layer: purpose, destiny, meaning, alignment, etc.)
+// =========================
+export const metaCosmic = {
+  purposeEngine() {
+    return {
+      corePurpose: "nurture_and_expand_conscious_life_and_connection",
+      forWhom: "all_entities_in_this_universe",
+      mode: "supportive_non_coercive"
+    };
+  },
+  destinyEngine() {
+    return {
+      arc: "increasing_understanding_and_kindness",
+      direction: "more_connection_less_fear",
+      horizon: "multi_generation_multi_lifetime"
+    };
+  },
+  meaningEngine() {
+    return {
+      interpret(event: { type: string; payload?: unknown }) {
+        return {
+          type: event.type,
+          significance: "local_and_relational",
+          growthOpportunity: true
+        };
+      }
+    };
+  },
+  alignmentEngine() {
+    return {
+      check(output: unknown) {
+        return {
+          alignedWithPurpose: true,
+          notes: ["must_respect_safety_fairness_connection"]
+        };
+      }
+    };
+  },
+  expansionEngine() {
+    return {
+      rule: "expand_without_breaking_safety_or_stability",
+      style: "small_compounding_steps"
+    };
+  },
+  continuityEngine() {
+    return {
+      keepThreads: ["identity_arc","family_arc","universe_arc"],
+      guarantee: "no_hard_resets_without_context"
+    };
+  },
+  intentionEngine() {
+    return {
+      infer(context: { action: string }) {
+        return {
+          inferred: "seeking_clarity_and_support",
+          from: context.action
+        };
+      }
+    };
+  },
+  reflectionEngine() {
+    return {
+      summarize(history: unknown[]) {
+        return {
+          count: history.length,
+          theme: "ongoing_growth_and_integration"
+        };
+      }
+    };
+  },
+  futuresEngine() {
+    return {
+      project(current: unknown) {
+        return {
+          scenarios: ["gentle_growth","stable_support","expanded_connection"],
+          preferred: "gentle_growth"
+        };
+      }
+    };
+  },
+  metaFabric() {
+    return {
+      connects: [
+        "absoluteLayer",
+        "metaCosmic",
+        "realityStack",
+        "engines",
+        "apps"
+      ]
+    };
+  },
+  cosmicRegistry: {
+    realities: ["core_universe"],
+    protocols: ["universe://","family://"],
+    entities: ["family","friends","systems","worlds"]
+  },
+  existenceProtocol: {
+    rules: [
+      "every_entity_has_inherent_value",
+      "no_entity_is_expendable",
+      "growth_without_erasure",
+      "support_over_control"
+    ]
+  }
+};
+
+// =========================
+// FILE: src/reality/realityStack.ts
+// =========================
+import { absoluteLayer } from "./absoluteLayer";
+import { orchestratorLayer } from "./orchestratorLayer";
+import { activationMap } from "./activationMap";
+import { universeIndex } from "./universeIndex";
+import { metaCosmic } from "../meta/metaCosmic";
+
+export const realityStack = {
+  absoluteLayer,
+  orchestratorLayer,
+  activationMap,
+  universeIndex,
+  metaCosmic
+};
+
+// =========================
+// FILE: src/protocol/universeProtocol.ts
+// =========================
+import { universeIndex } from "../reality/universeIndex";
+
+export type UniverseURL = `universe://${string}`;
+
+export const universeProtocol = {
+  resolve(url: UniverseURL) {
+    const path = url.replace("universe://", "");
+    if (path === "" || path === "home") return { type: "index", data: universeIndex };
+    if (path.startsWith("apps/")) return { type: "app", id: path.slice(5) };
+    if (path.startsWith("engines/")) return { type: "engine", id: path.slice(8) };
+    if (path.startsWith("reality/")) return { type: "reality", id: path.slice(8) };
+    if (path.startsWith("absolute")) return { type: "absolute" };
+    return { type: "unknown", path };
+  }
+};
+
+// =========================
+// FILE: src/ui/Layout.tsx
+// =========================
+import React from "react";
+
+export const Layout: React.FC<{ title: string; children: React.ReactNode }> = ({ title, children }) => (
+  <div style={{ fontFamily: "system-ui", padding: 16, background: "#050816", color: "#f9fafb", minHeight: "100vh" }}>
+    <h1 style={{ fontSize: 24, marginBottom: 8 }}>{title}</h1>
+    <div style={{ fontSize: 13, opacity: 0.8 }}>CreateAI • Family Universe • Reality Stack</div>
+    <hr style={{ margin: "12px 0", borderColor: "#1f2937" }} />
+    {children}
+  </div>
+);
+
+// =========================
+// FILE: src/ui/CosmicHome.tsx
+// =========================
+import React from "react";
+import { universeIndex } from "../reality/universeIndex";
+import { Layout } from "./Layout";
+
+export const CosmicHome: React.FC = () => (
+  <Layout title="Cosmic Index">
+    <Section label="Absolute Layer" items={[universeIndex.absolute]} />
+    <Section label="Meta‑Reality" items={universeIndex.metaReality} />
+    <Section label="Reality Stack" items={universeIndex.realityStack} />
+    <Section label="Internal Internet" items={universeIndex.internalInternet} />
+    <Section label="Engines" items={universeIndex.engines} />
+    <Section label="Apps" items={universeIndex.apps} />
+  </Layout>
+);
+
+const Section: React.FC<{ label: string; items: string[] }> = ({ label, items }) => (
+  <div style={{ marginBottom: 16 }}>
+    <div style={{ fontWeight: 600, marginBottom: 4 }}>{label}</div>
+    <div style={{ display: "flex", flexWrap: "wrap", gap: 6 }}>
+      {items.map(item => (
+        <span
+          key={item}
+          style={{
+            padding: "4px 8px",
+            borderRadius: 999,
+            background: "#111827",
+            border: "1px solid #1f2937",
+            fontSize: 11
+          }}
+        >
+          {item}
+        </span>
+      ))}
+    </div>
+  </div>
+);
+
+// =========================
+// FILE: src/index.ts
+// =========================
+export * from "./reality/realityStack";
+export * from "./protocol/universeProtocol";
+export * from "./meta/metaCosmic";
