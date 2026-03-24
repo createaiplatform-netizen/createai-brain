@@ -5,38 +5,73 @@
 
 export const worldEngineManifest = {
   name: "World Engine",
-  purpose: "Define, shape, and maintain the coherent environments entities inhabit.",
+  purpose:
+    "Define and maintain the coherent environments entities inhabit — ensuring every world has its own tone, internal logic, and capacity for evolution.",
 
   model: {
     layers: [
-      { id: "physical",   label: "Physical",   description: "The spatial and sensory qualities of the world." },
-      { id: "social",     label: "Social",     description: "The relationships and dynamics that exist within it." },
-      { id: "narrative",  label: "Narrative",  description: "The stories and meanings that define the world." },
-      { id: "possibility",label: "Possibility",description: "What can emerge or be created within it." }
+      {
+        id: "physical",
+        label: "Physical",
+        description: "The spatial, sensory, and atmospheric qualities that define the world."
+      },
+      {
+        id: "social",
+        label: "Social",
+        description: "The relationships, roles, and dynamics that animate the world."
+      },
+      {
+        id: "narrative",
+        label: "Narrative",
+        description: "The stories, histories, and meanings that give the world depth."
+      },
+      {
+        id: "possibility",
+        label: "Possibility",
+        description: "What can be built, explored, or transformed within the world."
+      }
     ],
     types: [
-      { id: "family",    label: "Family World",    description: "A world shaped by family identity and bonds." },
-      { id: "creative",  label: "Creative World",  description: "A world built for making and expression." },
-      { id: "inner",     label: "Inner World",     description: "A world that mirrors an entity's internal state." },
-      { id: "shared",    label: "Shared World",    description: "A world held in common by multiple entities." }
+      {
+        id: "family",
+        label: "Family World",
+        description: "A world shaped by the bonds, history, and identity of a family."
+      },
+      {
+        id: "creative",
+        label: "Creative World",
+        description: "A world built for making, expression, and experimentation."
+      },
+      {
+        id: "inner",
+        label: "Inner World",
+        description: "A world that mirrors and contains an entity's internal landscape."
+      },
+      {
+        id: "shared",
+        label: "Shared World",
+        description: "A world held and co-shaped by multiple entities together."
+      }
     ]
   },
 
   rules: [
-    "Every world has its own tone and internal coherence.",
-    "No world is imposed on an entity.",
-    "Worlds evolve with the entities inside them.",
-    "No world can violate the absolute layer."
+    "Every world has its own coherent tone and internal logic.",
+    "No world is imposed on an entity without its awareness and participation.",
+    "Worlds evolve with the entities that inhabit them.",
+    "No world may violate the absolute layer — safety and dignity are foundational."
   ],
 
   integration: {
     influences: ["storyworld"],
-    receives:   ["identity", "tone"],
-    entrypoint: "Worlds are shaped by the identity and tone of those who inhabit them."
+    receives: ["identity", "tone"],
+    entrypoint:
+      "Worlds are shaped by the identity and tone of those who enter them, inheriting their texture and direction."
   },
 
   meta: {
     version: "1.0.0",
-    description: "Manages the coherent environments that entities inhabit."
+    description:
+      "Defines and maintains the coherent, evolving environments entities inhabit."
   }
 };

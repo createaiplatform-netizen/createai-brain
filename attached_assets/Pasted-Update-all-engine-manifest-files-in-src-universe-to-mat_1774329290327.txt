@@ -1,0 +1,62 @@
+Update all engine manifest files in src/universe/ to match the refined structure and tone used in contextEngineManifest.ts.
+
+Apply these rules to every engine manifest:
+
+1. Keep the same file structure:
+   export const [name]EngineManifest = {
+     name,
+     purpose,
+     model: { ... },
+     states: [ ... ] (only if relevant),
+     rules: [ ... ],
+     integration: {
+       influences,
+       receives,
+       entrypoint
+     },
+     meta: { version, description }
+   };
+
+2. Match the tone and clarity of the updated contextEngineManifest:
+   - Non-coercive language (“shapes”, “informs”, “guides”, never “forces” or “determines”).
+   - Purpose is precise and OS-level.
+   - Rules are clean, universal, and philosophical.
+   - Integration describes timing and flow clearly.
+   - Model is expressive but not verbose.
+   - Meta description is concise and aligned with the engine’s role.
+
+3. Do NOT add business logic or imports. These files are pure config.
+
+4. Update all of the following files:
+   timeEngineManifest.ts
+   emotionEngineManifest.ts
+   narrativeEngineManifest.ts
+   relationshipEngineManifest.ts
+   possibilityEngineManifest.ts
+   perceptionEngineManifest.ts
+   meaningEngineManifest.ts
+   continuityEngineManifest.ts
+   contextEngineManifest.ts (already updated, leave as-is)
+   patternEngineManifest.ts
+   choiceEngineManifest.ts
+   alignmentEngineManifest.ts
+   toneEngineManifest.ts
+   worldEngineManifest.ts
+   becomingEngineManifest.ts
+   reflectionEngineManifest.ts
+   integrationEngineManifest.ts
+   expansionEngineManifest.ts
+   harmonyEngineManifest.ts
+   perspectiveEngineManifest.ts
+   storyworldEngineManifest.ts
+
+5. When updating each file:
+   - Keep the engine’s identity and purpose intact.
+   - Rewrite descriptions to match the refined OS tone.
+   - Ensure integration fields match the Universe OS Master Manifest.
+   - Ensure rules are philosophical, non-coercive, and universal.
+   - Ensure model fields are symbolic and expressive.
+
+After updating all files, show me:
+- one example updated engine (timeEngineManifest.ts)
+- and the updated file tree.

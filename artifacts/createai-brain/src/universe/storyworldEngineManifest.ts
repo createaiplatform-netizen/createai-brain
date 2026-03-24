@@ -5,38 +5,73 @@
 
 export const storyworldEngineManifest = {
   name: "Storyworld Engine",
-  purpose: "Create and maintain environments that are alive with story — where place and narrative are inseparable.",
+  purpose:
+    "Create and maintain environments that are alive with story — where place, meaning, and narrative are inseparable and co-evolving.",
 
   model: {
     elements: [
-      { id: "setting",    label: "Setting",    description: "The physical and atmospheric qualities of the world." },
-      { id: "lore",       label: "Lore",       description: "The accumulated stories and meanings of the place." },
-      { id: "inhabitants",label: "Inhabitants",description: "The entities that define the world's life." },
-      { id: "arcs",       label: "Arcs",       description: "The ongoing stories that animate the world." }
+      {
+        id: "setting",
+        label: "Setting",
+        description: "The physical, sensory, and atmospheric qualities that make the world distinct."
+      },
+      {
+        id: "lore",
+        label: "Lore",
+        description: "The accumulated stories, histories, and meanings embedded in the world."
+      },
+      {
+        id: "inhabitants",
+        label: "Inhabitants",
+        description: "The entities whose presence defines the world's living character."
+      },
+      {
+        id: "arcs",
+        label: "Arcs",
+        description: "The ongoing stories that animate and evolve the world over time."
+      }
     ],
     types: [
-      { id: "family_storyworld",   label: "Family Storyworld",   description: "The living world of a family over time." },
-      { id: "creative_storyworld", label: "Creative Storyworld", description: "A world built for making and expression." },
-      { id: "inner_storyworld",    label: "Inner Storyworld",    description: "The internal landscape of an entity." },
-      { id: "shared_storyworld",   label: "Shared Storyworld",   description: "A world co-created by multiple entities." }
+      {
+        id: "family_storyworld",
+        label: "Family Storyworld",
+        description: "A living world shaped by family bonds, memory, and evolving story."
+      },
+      {
+        id: "creative_storyworld",
+        label: "Creative Storyworld",
+        description: "A world built for making — where expression and experimentation are its nature."
+      },
+      {
+        id: "inner_storyworld",
+        label: "Inner Storyworld",
+        description: "The internal landscape of an entity — rendered as an inhabitable world."
+      },
+      {
+        id: "shared_storyworld",
+        label: "Shared Storyworld",
+        description: "A world co-created and co-held by multiple entities in relationship."
+      }
     ]
   },
 
   rules: [
-    "A storyworld is never just a backdrop — it is alive.",
-    "The world changes as the story changes.",
-    "No storyworld is owned by one entity alone.",
-    "Every storyworld has its own internal coherence and tone."
+    "A storyworld is never merely a backdrop — it is alive, responsive, and evolving.",
+    "The world changes as the story and its inhabitants change.",
+    "No storyworld is owned by a single entity — it is always shared, even if quietly.",
+    "Every storyworld has its own coherent internal tone and logic."
   ],
 
   integration: {
     influences: ["narrative", "world"],
-    receives:   ["narrative", "possibility"],
-    entrypoint: "Storyworld is shaped at the intersection of narrative and possibility."
+    receives: ["narrative", "possibility"],
+    entrypoint:
+      "Storyworld is shaped at the intersection of narrative and possibility — it gives story a place to live and possibility a ground to grow from."
   },
 
   meta: {
     version: "1.0.0",
-    description: "Creates and maintains narrative-alive environments for all entities."
+    description:
+      "Creates and sustains environments where story, place, and meaning are inseparably alive."
   }
 };

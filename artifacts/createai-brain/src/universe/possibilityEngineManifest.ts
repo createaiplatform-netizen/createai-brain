@@ -5,38 +5,73 @@
 
 export const possibilityEngineManifest = {
   name: "Possibility Engine",
-  purpose: "Open, track, and present the space of what can emerge for each entity.",
+  purpose:
+    "Open and hold the space of what can emerge for each entity — presenting paths, expressions, and worlds without directing or narrowing the outcome.",
 
   model: {
     forms: [
-      { id: "path",       label: "Path",       description: "A direction the entity can move toward." },
-      { id: "expression", label: "Expression", description: "A new way of showing up or creating." },
-      { id: "world",      label: "World",      description: "A new environment that can be entered or built." },
-      { id: "connection", label: "Connection", description: "A relationship that can be formed." }
+      {
+        id: "path",
+        label: "Path",
+        description: "A direction the entity can move toward across time."
+      },
+      {
+        id: "expression",
+        label: "Expression",
+        description: "A new way of showing up, creating, or making meaning."
+      },
+      {
+        id: "world",
+        label: "World",
+        description: "A new environment that can be entered, built, or imagined."
+      },
+      {
+        id: "connection",
+        label: "Connection",
+        description: "A relationship or alliance that has not yet been formed."
+      }
     ],
     qualities: [
-      { id: "latent",   label: "Latent",   description: "Possible but not yet active." },
-      { id: "emerging", label: "Emerging", description: "Beginning to become real." },
-      { id: "open",     label: "Open",     description: "Available for choice or action." },
-      { id: "realized", label: "Realized", description: "A possibility that has become actual." }
+      {
+        id: "latent",
+        label: "Latent",
+        description: "Present as potential but not yet active or visible."
+      },
+      {
+        id: "emerging",
+        label: "Emerging",
+        description: "Beginning to take shape in response to conditions."
+      },
+      {
+        id: "open",
+        label: "Open",
+        description: "Available and ready for the entity to choose or explore."
+      },
+      {
+        id: "realized",
+        label: "Realized",
+        description: "A possibility that has become actual through choice or movement."
+      }
     ]
   },
 
   rules: [
-    "Possibility is never closed without reason.",
-    "No entity is told what to want.",
-    "Expansion happens at the entity's own pace.",
-    "All possibilities respect the absolute layer constraints."
+    "Possibility is opened — never closed without the entity's awareness.",
+    "No entity is directed toward a specific possibility.",
+    "Expansion happens at the entity's own pace and by its own initiative.",
+    "All possibilities are bounded by the absolute layer — safety and dignity are never traded."
   ],
 
   integration: {
     influences: ["identity", "narrative", "expansion"],
-    receives:   ["identity", "relationships"],
-    entrypoint: "Possibility expands after relationships update."
+    receives: ["identity", "relationships"],
+    entrypoint:
+      "Possibility space expands after relationships are updated, reflecting what new connections and contexts make available."
   },
 
   meta: {
     version: "1.0.0",
-    description: "Defines and opens the space of emergence for each entity."
+    description:
+      "Opens and maintains the space of what can emerge for each entity without directing the outcome."
   }
 };
