@@ -36,6 +36,7 @@ import { presence }                   from "./presenceLayer";
 import { autoEntry }                  from "./autoEntry";
 import { listDomains, getDomainById } from "./internalAddressing";
 import { integrationLoop }            from "./integrationLoop";
+import { fullBody }                   from "./fullBody";
 
 // ============================================================
 // ENGINE REGISTRY — all 22 engines, bound into the layer
@@ -223,6 +224,11 @@ export const experienceLayer = {
   // INTEGRATION
   // ----------------------------------------------------------
   integration: integrationLoop,
+
+  // ----------------------------------------------------------
+  // BODY
+  // ----------------------------------------------------------
+  body: fullBody,
 
   // ----------------------------------------------------------
   // META

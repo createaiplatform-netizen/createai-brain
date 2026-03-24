@@ -1,7 +1,7 @@
 // ============================================================
-// FILE: src/universe/reflectionLayer.ts
+// FILE: src/universe/wholenessLayer.ts
 // ============================================================
 
-export function reflect(state: any) {
-  return { ...state, reflection: "ok" };
+export function whole(state: any) {
+  return { ...state, whole: true };
 }

@@ -1,7 +1,7 @@
 // ============================================================
-// FILE: src/universe/reflectionLayer.ts
+// FILE: src/universe/worldhoodLayer.ts
 // ============================================================
 
-export function reflect(state: any) {
-  return { ...state, reflection: "ok" };
+export function worldhood(state: any) {
+  return { ...state, world: true };
 }

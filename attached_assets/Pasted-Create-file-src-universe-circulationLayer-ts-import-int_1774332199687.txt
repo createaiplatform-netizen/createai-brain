@@ -1,0 +1,166 @@
+Create file: src/universe/circulationLayer.ts
+import { integrationLoop } from "./integrationLoop";
+export function circulate(event:any){ return integrationLoop(event); }
+
+Create file: src/universe/sensingLayer.ts
+export function sense(event:any){
+  return {
+    identity: event.identity || "guest",
+    tone: event.emotion || "neutral",
+    context: event.context || "arrival"
+  };
+}
+
+Create file: src/universe/responseLayer.ts
+import { resolveInternalDomain } from "./internalRouter";
+export function respond(sensed:any){
+  return {
+    domain: resolveInternalDomain({ role: sensed.identity, emotionalTone: sensed.tone }),
+    moment: "first_moment",
+    world: "first_world",
+    experience: "first_entry"
+  };
+}
+
+Create file: src/universe/continuityLayer.ts
+let memory:any = {};
+export function continuity(update:any){
+  memory = { ...memory, ...update };
+  return memory;
+}
+
+Create file: src/universe/expressionLayer.ts
+export function express(state:any){
+  return {
+    presence: "active",
+    signature: "universe",
+    state
+  };
+}
+
+Create file: src/universe/interactionLayer.ts
+export function interact(input:any, state:any){
+  return { input, state, interaction:"processed" };
+}
+
+Create file: src/universe/ecosystemLayer.ts
+export function ecosystem(state:any){
+  return { ecosystem:"stable", state };
+}
+
+Create file: src/universe/autonomyLayer.ts
+export function autonomous(state:any){
+  return { ...state, autonomous:true };
+}
+
+Create file: src/universe/expansionLayer.ts
+export function expand(state:any){
+  return { ...state, expanded:true };
+}
+
+Create file: src/universe/multiplicityLayer.ts
+export function multiply(state:any){
+  return { ...state, threads:["main"], multi:true };
+}
+
+Create file: src/universe/reflectionLayer.ts
+export function reflect(state:any){
+  return { ...state, reflection:"ok" };
+}
+
+Create file: src/universe/narrativeLayer.ts
+export function narrate(state:any){
+  return { ...state, narrative:"ongoing" };
+}
+
+Create file: src/universe/meaningLayer.ts
+export function meaning(state:any){
+  return { ...state, meaning:"emerging" };
+}
+
+Create file: src/universe/presenceExpansionLayer.ts
+export function presenceExpand(state:any){
+  return { ...state, presence:"felt" };
+}
+
+Create file: src/universe/agencyLayer.ts
+export function agency(state:any){
+  return { ...state, agency:true };
+}
+
+Create file: src/universe/wholenessLayer.ts
+export function whole(state:any){
+  return { ...state, whole:true };
+}
+
+Create file: src/universe/emergenceLayer.ts
+export function emerge(state:any){
+  return { ...state, emergent:true };
+}
+
+Create file: src/universe/identityLayer.ts
+export function identity(state:any){
+  return { ...state, identity:"universe" };
+}
+
+Create file: src/universe/relationshipLayer.ts
+export function relate(state:any){
+  return { ...state, relationship:"active" };
+}
+
+Create file: src/universe/worldhoodLayer.ts
+export function worldhood(state:any){
+  return { ...state, world:true };
+}
+
+Create file: src/universe/fullBody.ts
+import { circulate } from "./circulationLayer";
+import { sense } from "./sensingLayer";
+import { respond } from "./responseLayer";
+import { continuity } from "./continuityLayer";
+import { express } from "./expressionLayer";
+import { interact } from "./interactionLayer";
+import { ecosystem } from "./ecosystemLayer";
+import { autonomous } from "./autonomyLayer";
+import { expand } from "./expansionLayer";
+import { multiply } from "./multiplicityLayer";
+import { reflect } from "./reflectionLayer";
+import { narrate } from "./narrativeLayer";
+import { meaning } from "./meaningLayer";
+import { presenceExpand } from "./presenceExpansionLayer";
+import { agency } from "./agencyLayer";
+import { whole } from "./wholenessLayer";
+import { emerge } from "./emergenceLayer";
+import { identity } from "./identityLayer";
+import { relate } from "./relationshipLayer";
+import { worldhood } from "./worldhoodLayer";
+
+export function fullBody(event:any){
+  let state = circulate(event);
+  state = sense(state);
+  state = respond(state);
+  state = continuity(state);
+  state = express(state);
+  state = interact(event, state);
+  state = ecosystem(state);
+  state = autonomous(state);
+  state = expand(state);
+  state = multiply(state);
+  state = reflect(state);
+  state = narrate(state);
+  state = meaning(state);
+  state = presenceExpand(state);
+  state = agency(state);
+  state = whole(state);
+  state = emerge(state);
+  state = identity(state);
+  state = relate(state);
+  state = worldhood(state);
+  return state;
+}
+
+Update experienceLayer.ts:
+import { fullBody } from "./fullBody";
+
+Add to exported object:
+body: fullBody

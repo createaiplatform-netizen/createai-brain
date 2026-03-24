@@ -1,7 +1,7 @@
 // ============================================================
-// FILE: src/universe/reflectionLayer.ts
+// FILE: src/universe/autonomyLayer.ts
 // ============================================================
 
-export function reflect(state: any) {
-  return { ...state, reflection: "ok" };
+export function autonomous(state: any) {
+  return { ...state, autonomous: true };
 }

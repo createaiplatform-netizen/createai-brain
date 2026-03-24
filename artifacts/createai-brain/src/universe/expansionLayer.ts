@@ -1,7 +1,7 @@
 // ============================================================
-// FILE: src/universe/reflectionLayer.ts
+// FILE: src/universe/expansionLayer.ts
 // ============================================================
 
-export function reflect(state: any) {
-  return { ...state, reflection: "ok" };
+export function expand(state: any) {
+  return { ...state, expanded: true };
 }

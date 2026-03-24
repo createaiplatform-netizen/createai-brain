@@ -1,7 +1,7 @@
 // ============================================================
-// FILE: src/universe/reflectionLayer.ts
+// FILE: src/universe/identityLayer.ts
 // ============================================================
 
-export function reflect(state: any) {
-  return { ...state, reflection: "ok" };
+export function identity(state: any) {
+  return { ...state, identity: "universe" };
 }
