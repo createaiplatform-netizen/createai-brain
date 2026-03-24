@@ -2,6 +2,11 @@ import React, { useState, useEffect, useRef, useCallback } from "react";
 import { useLocation } from "wouter";
 import { SEOMeta } from "@/components/SEOMeta";
 import { CreationAffirmation } from "@/components/WonderSpark";
+import { MemoryGardenPanel }      from "@/components/family/MemoryGardenPanel";
+import { FamilyToolsPanel }       from "@/components/family/FamilyToolsPanel";
+import { EnhancedFamilyBankPanel } from "@/components/family/EnhancedFamilyBankPanel";
+import { EmotionalSafetyPanel }   from "@/components/family/EmotionalSafetyPanel";
+import { DiscoveryEnginePanel }   from "@/components/family/DiscoveryEnginePanel";
 
 // ─── Types ──────────────────────────────────────────────────────────────────
 
@@ -290,15 +295,19 @@ function WelcomeScreen({ onEnter }: { onEnter: () => void }) {
 
 // ─── Tab types ───────────────────────────────────────────────────────────────
 
-type Tab = "home" | "create" | "gallery" | "family" | "rewards" | "store";
+type Tab = "home" | "create" | "gallery" | "family" | "rewards" | "store" | "memory" | "tools" | "discover" | "safety";
 
 const TABS: { id: Tab; icon: string; label: string }[] = [
-  { id: "home",    icon: "🏡", label: "Home"    },
-  { id: "create",  icon: "✨", label: "Create"  },
-  { id: "gallery", icon: "🖼️", label: "Gallery" },
-  { id: "family",  icon: "💛", label: "Family"  },
-  { id: "rewards", icon: "🌟", label: "Rewards" },
-  { id: "store",   icon: "🛍️", label: "Store"   },
+  { id: "home",     icon: "🏡", label: "Home"     },
+  { id: "create",   icon: "✨", label: "Create"   },
+  { id: "gallery",  icon: "🖼️", label: "Gallery"  },
+  { id: "family",   icon: "💛", label: "Family"   },
+  { id: "rewards",  icon: "🌟", label: "Rewards"  },
+  { id: "memory",   icon: "🌻", label: "Memories" },
+  { id: "tools",    icon: "🧰", label: "Tools"    },
+  { id: "discover", icon: "🌍", label: "Discover" },
+  { id: "safety",   icon: "🌱", label: "Feelings" },
+  { id: "store",    icon: "🛍️", label: "Store"    },
 ];
 
 // ─── Home Tab ─────────────────────────────────────────────────────────────────
@@ -1711,15 +1720,19 @@ function FamilyUniverseApp() {
 
       {/* Page content */}
       <div className="max-w-lg mx-auto px-5 pt-6">
-        {activeTab === "home"    && <HomeTab profiles={profiles} creations={creations} messages={messages} onTabSwitch={setActiveTab} />}
-        {activeTab === "create"  && <CreateTab onSaveToGallery={addToGallery} />}
-        {activeTab === "gallery" && <GalleryTab
+        {activeTab === "home"     && <HomeTab profiles={profiles} creations={creations} messages={messages} onTabSwitch={setActiveTab} />}
+        {activeTab === "create"   && <CreateTab onSaveToGallery={addToGallery} />}
+        {activeTab === "gallery"  && <GalleryTab
           creations={creations}
           onAdd={c => setCreations(cs => [{ id: Date.now().toString(), ...c, date: new Date().toLocaleDateString() }, ...cs])}
           onDelete={id => setCreations(cs => cs.filter(x => x.id !== id))} />}
-        {activeTab === "family"  && <FamilyTab />}
-        {activeTab === "rewards" && <RewardsTab />}
-        {activeTab === "store"   && <StoreTab />}
+        {activeTab === "family"   && <FamilyTab />}
+        {activeTab === "rewards"  && <RewardsTab />}
+        {activeTab === "memory"   && <MemoryGardenPanel />}
+        {activeTab === "tools"    && <FamilyToolsPanel />}
+        {activeTab === "discover" && <DiscoveryEnginePanel />}
+        {activeTab === "safety"   && <EmotionalSafetyPanel />}
+        {activeTab === "store"    && <StoreTab />}
       </div>
 
       {/* Bottom nav */}

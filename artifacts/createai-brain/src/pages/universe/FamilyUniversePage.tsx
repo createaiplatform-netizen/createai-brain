@@ -13,6 +13,11 @@ import { HabitsGoals } from "@/components/HabitsGoals";
 import { PrivateJournal } from "@/components/PrivateJournal";
 import { GentleSuggestions } from "@/components/GentleSuggestions";
 import { generateIdentity, avatarStyle } from "@/lib/identityEngine";
+import { MemoryGardenPanel }       from "@/components/family/MemoryGardenPanel";
+import { FamilyToolsPanel }        from "@/components/family/FamilyToolsPanel";
+import { EnhancedFamilyBankPanel } from "@/components/family/EnhancedFamilyBankPanel";
+import { EmotionalSafetyPanel }    from "@/components/family/EmotionalSafetyPanel";
+import { DiscoveryEnginePanel }    from "@/components/family/DiscoveryEnginePanel";
 
 const SAGE = "#7a9068";
 const CREAM = "#faf9f6";
@@ -20,7 +25,7 @@ const TEXT = "#1a1916";
 const MUTED = "#6b6660";
 const BORDER = "rgba(122,144,104,0.13)";
 
-type Tab = "home" | "family" | "bills" | "bank" | "messages" | "life" | "habits" | "journal" | "create";
+type Tab = "home" | "family" | "bills" | "bank" | "messages" | "life" | "habits" | "journal" | "create" | "memory" | "tools" | "discover" | "safety";
 
 interface FamilyIdentity {
   display_name: string;
@@ -114,6 +119,10 @@ export default function FamilyUniversePage() {
           { key: "life",     label: "Life OS",   icon: "🗓️" },
           { key: "habits",   label: pendingHabits > 0 ? `Habits (${pendingHabits})` : "Habits", icon: "🔥" },
           { key: "journal",  label: "Journal",   icon: "📖" },
+          { key: "memory",   label: "Memories",  icon: "🌻" },
+          { key: "tools",    label: "Tools",     icon: "🧰" },
+          { key: "discover", label: "Discover",  icon: "🌍" },
+          { key: "safety",   label: "Feelings",  icon: "🌱" },
           { key: "create",   label: "Create",    icon: "✨" },
         ] as { key: Tab; label: string; icon: string }[]).map(t => (
           <button
@@ -273,6 +282,33 @@ export default function FamilyUniversePage() {
 
         {/* ── Journal Tab ── */}
         {tab === "journal" && <PrivateJournal />}
+
+        {/* ── Memory Garden Tab ── */}
+        {tab === "memory" && <MemoryGardenPanel />}
+
+        {/* ── Family Tools Tab ── */}
+        {tab === "tools" && <FamilyToolsPanel />}
+
+        {/* ── Discovery Engine Tab ── */}
+        {tab === "discover" && <DiscoveryEnginePanel />}
+
+        {/* ── Emotional Safety Tab ── */}
+        {tab === "safety" && <EmotionalSafetyPanel isParent />}
+
+        {/* ── Enhanced FamilyBank Tab (replaces bank for richer view) ── */}
+        {tab === "bank" && (
+          <div className="space-y-4">
+            <FamilyBank />
+            <details className="rounded-2xl overflow-hidden" style={{ border: "1px solid rgba(0,0,0,0.07)" }}>
+              <summary className="px-4 py-3 text-[13px] font-semibold cursor-pointer" style={{ color: SAGE }}>
+                🌟 Enhanced FamilyBank — Values & Rewards
+              </summary>
+              <div className="p-3 border-t" style={{ borderColor: "rgba(0,0,0,0.07)" }}>
+                <EnhancedFamilyBankPanel />
+              </div>
+            </details>
+          </div>
+        )}
 
         {/* ── Create Tab ── */}
         {tab === "create" && (

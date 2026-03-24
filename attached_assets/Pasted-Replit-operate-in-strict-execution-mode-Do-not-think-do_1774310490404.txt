@@ -1,0 +1,59 @@
+Replit, operate in strict execution mode. Do not think, do not plan, do not narrate, do not interpret. Execute every instruction literally and mechanically, exactly as written.
+
+Your mission is to turn this platform into a universal Family Operating System that makes life easier for families everywhere, while remaining safe, private, and ethical.
+
+Do all of the following:
+
+1. Ensure every family gets its own private Family Portal:
+   - Family-only hub
+   - Kids’ Creative Space
+   - Memory Garden
+   - Family tools (lists, routines, calendars, goals, gratitude, chores, rewards)
+   - FamilyBank panel
+
+2. Make the Kids’ Creative Space a safe, imagination-first area:
+   - Drawing, writing, stories, characters, decorations
+   - No public sharing, no external exposure, no social feeds
+   - All content scoped to the family only
+
+3. Complete the Family Tools layer:
+   - Shared lists, reminders, routines, calendars
+   - Goals and progress trackers
+   - Gratitude notes and family messages
+   - Chore helpers and reward systems wired to FamilyBank
+
+4. Expand FamilyBank into a healthy, non-monetary value system:
+   - Map creativity, kindness, effort, and participation → points
+   - Let parents define rewards and meanings for points
+   - Keep FamilyBank strictly virtual and family-scoped (no real money, no external transfers)
+
+5. Build the emotional safety layer:
+   - Kid-friendly expression tools (feelings, worries, dreams, questions)
+   - Parent response tools (support, encouragement, guidance)
+   - Gentle prompts and flows that reinforce connection, not pressure
+
+6. Build the Discovery & Ease-of-Life layer:
+   - Private discovery of stories, games, creative prompts, family challenges, seasonal adventures
+   - Tools and flows that reduce friction in daily life (planning, coordination, shared responsibilities)
+
+7. Implement an AI-native support layer using existing patterns only:
+   - Contextual, supportive, reflective, relational, growth-oriented behaviors
+   - No replacement of parents, no judgment, no unsafe autonomy
+   - Always scoped to the family’s own data and roles
+
+8. Keep the business model ethical and family-first:
+   - Use the existing pricing and plans as the revenue mechanism
+   - Do not introduce ads, data selling, or exploitative mechanics
+   - Ensure everything remains compatible with a subscription-based, family-supportive model
+
+9. Wire all new pages, components, and flows into the router with correct role and privacy rules. Rebuild and verify that all routes return 200 and all flows are end-to-end complete.
+
+Continue until:
+- Every family has a fully functional, private Family Portal
+- All tools that make life easier are implemented and wired
+- Kids have a safe creative space
+- FamilyBank is fully integrated and healthy
+- Emotional safety and discovery layers are complete
+- The platform is coherent, stable, and production-ready for families everywhere
+
+When finished, produce a final summary of all new subsystems and flows completed.
