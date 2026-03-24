@@ -2,62 +2,106 @@
 <html lang="en">
 <head>
     <meta charset="UTF-8"><meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>CREATE AI DIGITAL | GLOBAL HUMAN NETWORK</title>
+    <title>CREATE AI GLOBAL | THE FREQUENCY</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <style>
-        @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;800&family=Lora:italic,wght@400;700&display=swap');
+        @import url('https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@200;800&family=Playfair+Display:italic,wght@400;900&display=swap');
         
-        /* EARTH TONES: Slate, Sand, and Deep Forest */
-        body { background: #fbfaf7; color: #2d3436; font-family: 'Inter', sans-serif; }
-        .serif { font-family: 'Lora', serif; }
-        .globe-gradient { background: radial-gradient(circle at center, #fff 0%, #f3f4f6 100%); }
-        .btn-earth { background: #2d3436; color: #fff; transition: 0.4s; }
-        .btn-earth:hover { background: #000; transform: translateY(-3px); box-shadow: 0 10px 30px rgba(0,0,0,0.1); }
-        .card-soft { background: #fff; border: 1px solid rgba(0,0,0,0.05); border-radius: 2rem; }
+        body { 
+            background: #020202; 
+            color: #fff; 
+            font-family: 'Plus Jakarta Sans', sans-serif;
+            margin: 0;
+            overflow-x: hidden;
+            height: 100vh;
+        }
+
+        /* THE RESONANCE ENGINE: Background that reacts to the "Human presence" */
+        .resonance-field {
+            position: fixed; top: 0; left: 0; width: 100%; height: 100%;
+            background: radial-gradient(circle at 50% 50%, #0a0a0a 0%, #000 100%);
+            z-index: -1;
+        }
+
+        .pulse-orb {
+            position: absolute;
+            width: 80vw; height: 80vw;
+            background: radial-gradient(circle, rgba(217, 119, 6, 0.05) 0%, transparent 60%);
+            border-radius: 50%;
+            filter: blur(120px);
+            animation: expand 20s infinite alternate cubic-bezier(0.45, 0.05, 0.55, 0.95);
+        }
+
+        @keyframes expand {
+            0% { transform: scale(0.8) translate(-10%, -10%); opacity: 0.2; }
+            100% { transform: scale(1.4) translate(10%, 10%); opacity: 0.5; }
+        }
+
+        /* THE VOID-GLASS: Depth that feels like you can reach inside the screen */
+        .void-glass {
+            background: rgba(255, 255, 255, 0.01);
+            backdrop-filter: blur(80px);
+            -webkit-backdrop-filter: blur(80px);
+            border: 1px solid rgba(255, 255, 255, 0.03);
+            border-radius: 100px;
+            transition: 2s cubic-bezier(0.16, 1, 0.3, 1);
+        }
+
+        .void-glass:hover {
+            border-color: rgba(245, 158, 11, 0.2);
+            background: rgba(255, 255, 255, 0.03);
+        }
+
+        .serif { font-family: 'Playfair Display', serif; }
+
+        /* THE UNKNOWN TEXT: Light that bleeds through the "cracks" of the UI */
+        .light-bleed {
+            text-shadow: 0 0 30px rgba(245, 158, 11, 0.3);
+            animation: flicker 8s infinite;
+        }
+
+        @keyframes flicker {
+            0%, 100% { opacity: 0.9; }
+            50% { opacity: 1; text-shadow: 0 0 50px rgba(255, 255, 255, 0.2); }
+        }
     </style>
 </head>
-<body class="p-6 md:p-16 globe-gradient">
-    <nav class="max-w-7xl mx-auto flex justify-between items-center py-10">
-        <div class="text-2xl font-extrabold tracking-tighter text-slate-900 uppercase">CREATE AI <span class="text-slate-400">GLOBAL</span></div>
-        <div class="hidden md:flex gap-12 text-[10px] font-bold uppercase tracking-[0.4em] text-slate-400">
-            <span>Node: 001_Webster</span>
-            <span>Network: Active</span>
-        </div>
-    </nav>
-
-    <header class="max-w-5xl mx-auto text-center py-20">
-        <h1 class="serif text-6xl md:text-8xl font-bold mb-10 leading-tight">Humanity deserves to <span class="italic text-slate-500">own its future.</span></h1>
-        <p class="text-slate-500 text-xl md:text-2xl max-w-3xl mx-auto mb-16 leading-relaxed">From the heart of Wisconsin to the edges of the map, we are deploying the blueprints for independent life. No more gatekeepers. No more borders on your potential.</p>
-        
-        <div class="card-soft p-12 md:p-20 shadow-2xl max-w-2xl mx-auto mb-32 relative overflow-hidden">
-            <div class="absolute -top-10 -right-10 w-40 h-40 bg-slate-50 rounded-full blur-3xl"></div>
-            <p class="text-[10px] uppercase tracking-[0.5em] text-slate-400 font-bold mb-6">The Global Master Key</p>
-            <h2 class="text-7xl font-black mb-10">97</h2>
-            <a href="https://buy.stripe.com/fZucN54hc8NKeUk4xD5Vu00" class="btn-earth px-16 py-7 rounded-2xl font-bold text-xl block uppercase tracking-[0.2em]">Claim Sovereignty</a>
-            <p class="mt-8 text-xs text-slate-400 font-medium italic italic">One payment. A lifetime of independence for your family, wherever they are.</p>
-        </div>
-    </header>
-
-    <div class="max-w-7xl mx-auto grid md:grid-cols-3 gap-12 mb-40">
-        <div class="card-soft p-12 border-b-4 border-slate-200">
-            <h3 class="serif text-3xl mb-6 font-bold">Global Link</h3>
-            <p class="text-slate-500 text-sm leading-relaxed mb-8">Decentralized internet and private communication protocols that work across oceans. Your network is now your own.</p>
-            <div class="text-[10px] font-black text-slate-300 uppercase">Sector: Communication</div>
-        </div>
-        <div class="card-soft p-12 border-b-4 border-slate-200">
-            <h3 class="serif text-3xl mb-6 font-bold">Universal Energy</h3>
-            <p class="text-slate-500 text-sm leading-relaxed mb-8">Solar, wind, and battery architectures designed for any climate. The end of the monthly energy tax starts here.</p>
-            <div class="text-[10px] font-black text-slate-300 uppercase">Sector: Energy</div>
-        </div>
-        <div class="card-soft p-12 border-b-4 border-slate-200">
-            <h3 class="serif text-3xl mb-6 font-bold">Infinite Wellness</h3>
-            <p class="text-slate-500 text-sm leading-relaxed mb-8">Encryption for your family's vital data. Keep your DNA, records, and health legacy safe from the world's corporations.</p>
-            <div class="text-[10px] font-black text-slate-300 uppercase">Sector: Bio-Privacy</div>
-        </div>
+<body class="flex items-center justify-center p-6">
+    <div class="resonance-field">
+        <div class="pulse-orb" style="top: -20%; left: -20%;"></div>
+        <div class="pulse-orb" style="bottom: -20%; right: -20%; animation-delay: -10s;"></div>
     </div>
 
-    <footer class="text-center py-24 opacity-30 border-t border-slate-200">
-        <p class="text-[10px] uppercase tracking-[1em] text-slate-900 font-black">Create AI Global // For Humanity // No Less Than Perfect</p>
-    </footer>
+    <main class="max-w-5xl w-full text-center relative z-10">
+        <nav class="absolute -top-32 left-0 right-0 flex justify-between px-6 opacity-40">
+            <span class="text-[8px] tracking-[2em] font-black uppercase">Create AI Global</span>
+            <span class="text-[8px] tracking-[2em] font-black uppercase italic">Node 001</span>
+        </nav>
+
+        <div class="void-glass p-20 md:p-32 shadow-[0_0_100px_rgba(0,0,0,1)] relative overflow-hidden">
+            <h1 class="serif text-5xl md:text-8xl font-black mb-12 light-bleed leading-tight italic">
+                The System is <br><span class="text-white not-italic opacity-20">Optional.</span>
+            </h1>
+
+            <p class="text-white/20 text-lg md:text-2xl max-w-xl mx-auto mb-20 font-extralight tracking-[0.1em] leading-relaxed">
+                We are not fixing a broken world. <br>We are remembering a whole one.
+            </p>
+
+            <a href="https://buy.stripe.com/fZucN54hc8NKeUk4xD5Vu00" class="inline-block relative group">
+                <div class="absolute inset-0 bg-amber-500 blur-2xl opacity-20 group-hover:opacity-60 transition-opacity duration-1000"></div>
+                <div class="relative bg-white text-black px-16 py-8 rounded-full font-black text-xs uppercase tracking-[0.6em] transition-all duration-1000 hover:tracking-[1em] hover:bg-amber-500">
+                    The Master Key
+                </div>
+            </a>
+
+            <div class="mt-24 grid grid-cols-3 gap-8 opacity-10 grayscale hover:grayscale-0 hover:opacity-100 transition-all duration-[3s]">
+                <div class="text-[9px] font-black tracking-widest uppercase">Connectivity</div>
+                <div class="text-[9px] font-black tracking-widest uppercase">Energy</div>
+                <div class="text-[9px] font-black tracking-widest uppercase">Legacy</div>
+            </div>
+        </div>
+
+        <h2 class="mt-16 text-[8px] font-black tracking-[3em] uppercase opacity-10">Absolute Sovereignty // One Payment // Infinite Access</h2>
+    </main>
 </body>
 </html>
