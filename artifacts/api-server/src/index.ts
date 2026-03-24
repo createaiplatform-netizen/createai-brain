@@ -24,7 +24,8 @@ import {
   attachPrimaryBankAccount,
 } from "./services/familyAgents.js";
 import { openFloodgates } from "./floodgates.js";
-import { safeCeiling }   from "../../createai-brain/src/universe/ceilingEngine";
+import { safeCeiling }        from "../../createai-brain/src/universe/ceilingEngine";
+import { logSystemInspection } from "../../createai-brain/src/universe/systemInspector";
 
 // ─── Global error handlers — prevent server crash on unhandled async errors ───
 
@@ -64,6 +65,9 @@ app.listen(port, () => {
       console.log("[Universe OS] Unified system state:", JSON.stringify(universe, null, 2));
     }
     catch (err) { console.error("[Startup] safeCeiling failed — continuing:", (err as Error).message); }
+
+    try { logSystemInspection(); }
+    catch (err) { console.error("[Startup] logSystemInspection failed — continuing:", (err as Error).message); }
 
     try {
       await initVentonWay();
