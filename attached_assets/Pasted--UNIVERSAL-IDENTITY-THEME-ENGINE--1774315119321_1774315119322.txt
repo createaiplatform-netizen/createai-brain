@@ -1,0 +1,91 @@
+// ==========================================================
+// UNIVERSAL IDENTITY + THEME ENGINE
+// Deterministic identity + deterministic theme
+// Matches the signatures expected by entityEngine.ts
+// ==========================================================
+
+import { defaultFamilyTheme, getFamilyTheme, type FamilyTheme } from './familyThemes';
+
+// ----------------------------------------------------------
+// Hash helper
+// ----------------------------------------------------------
+function hashStringToInt(seed: string): number {
+  let hash = 0;
+  for (let i = 0; i < seed.length; i++) {
+    hash = (hash << 5) - hash + seed.charCodeAt(i);
+    hash |= 0;
+  }
+  return Math.abs(hash);
+}
+
+// ----------------------------------------------------------
+// 1. UNIVERSAL IDENTITY
+// ----------------------------------------------------------
+
+const EMOJIS = ['🌱','🌊','🌟','🔥','🌙','🪴','🧭','📚','🎧','🛠️','🕊️','💡'];
+const LABELS = ['Explorer','Builder','Dreamer','Guardian','Navigator','Creator','Anchor','Spark'];
+const TONES = ['playful','calm','grounded','cozy','elegant'] as const;
+
+const BASE_THEME_IDS = [
+  'nathan','nolan','carolina','jenny','shawny',
+  'shelly','dennis','nakyllah','terri','dad'
+];
+
+export type UniversalIdentity = {
+  id: string;
+  label: string;
+  emoji: string;
+  tone: string;
+  baseThemeId?: string;
+};
+
+export function buildUniversalIdentity(seed: string): UniversalIdentity {
+  const safe = seed || 'anonymous';
+  const hash = hashStringToInt(safe);
+
+  return {
+    id: safe,
+    label: LABELS[hash % LABELS.length],
+    emoji: EMOJIS[hash % EMOJIS.length],
+    tone: TONES[hash % TONES.length],
+    baseThemeId: BASE_THEME_IDS[hash % BASE_THEME_IDS.length],
+  };
+}
+
+// ----------------------------------------------------------
+// 2. UNIVERSAL THEME (identity‑aware)
+// ----------------------------------------------------------
+
+function hslToHex(h: number, s: number, l: number): string {
+  s /= 100;
+  l /= 100;
+
+  const k = (n: number) => (n + h / 30) % 12;
+  const a = s * Math.min(l, 1 - l);
+  const f = (n: number) => {
+    const color = l - a * Math.max(-1, Math.min(k(n) - 3, Math.min(9 - k(n), 1)));
+    return Math.round(255 * color).toString(16).padStart(2, '0');
+  };
+
+  return `#${f(0)}${f(8)}${f(4)}`;
+}
+
+export function buildUniversalTheme(seed: string, identity?: UniversalIdentity): FamilyTheme {
+  const hash = hashStringToInt(seed || 'default-seed');
+
+  // Base theme (optional)
+  const base =
+    (identity?.baseThemeId ? getFamilyTheme(identity.baseThemeId) : defaultFamilyTheme) ||
+    defaultFamilyTheme;
+
+  const huePrimary = hash % 360;
+  const hueSecondary = (hash * 3) % 360;
+  const hueAccent = (hash * 7) % 360;
+
+  return {
+    ...base,
+    primary: hslToHex(huePrimary, 55, 40),
+    secondary: hslToHex(hueSecondary, 50, 35),
+    accent: hslToHex(hueAccent, 65, 55),
+  };
+}
