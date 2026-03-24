@@ -1,0 +1,176 @@
+// =========================
+// FILE: src/integration/withRealityEngine.ts
+// Wrap any engine so it always runs under the Absolute Layer
+// =========================
+import { orchestratorLayer } from "../reality/orchestratorLayer";
+
+export type Engine<I, O> = (input: I, context?: unknown) => Promise<O> | O;
+
+export function withRealityEngine<I, O>(engine: Engine<I, O>): Engine<I, O> {
+  return (input: I, context?: unknown) => {
+    const wrapped = orchestratorLayer.applyAbsolute({ input, context });
+    return engine(wrapped as unknown as I, context);
+  };
+}
+
+// =========================
+// FILE: src/integration/apiMiddleware.ts
+// Minimal API helpers that can be used where you want, not auto‑wired
+// =========================
+import type { Request, Response, NextFunction } from "express";
+import { orchestratorLayer } from "../reality/orchestratorLayer";
+import { metaCosmic } from "../meta/metaCosmic";
+
+export function absoluteLayerMiddleware(req: Request, _res: Response, next: NextFunction) {
+  (req as any).absolute = orchestratorLayer.applyAbsolute({ path: req.path, method: req.method });
+  next();
+}
+
+export function metaAlignmentMiddleware(req: Request, res: Response, next: NextFunction) {
+  const alignment = metaCosmic.alignmentEngine().check({ path: req.path, method: req.method });
+  if (!alignment.alignedWithPurpose) {
+    return res.status(403).json({ error: "Request not aligned with system purpose." });
+  }
+  next();
+}
+
+// =========================
+// FILE: src/integration/uiUniverseButton.tsx
+// Tiny Universe button you can drop anywhere in your UI
+// =========================
+import React from "react";
+
+export const UniverseButton: React.FC<{ href?: string }> = ({ href = "/universe" }) => (
+  <a
+    href={href}
+    style={{
+      display: "inline-flex",
+      alignItems: "center",
+      gap: 6,
+      padding: "6px 10px",
+      borderRadius: 999,
+      background: "#111827",
+      border: "1px solid #1f2937",
+      color: "#e5e7eb",
+      fontSize: 11,
+      textDecoration: "none"
+    }}
+  >
+    <span style={{ width: 6, height: 6, borderRadius: "999px", background: "#22c55e" }} />
+    <span>Universe</span>
+  </a>
+);
+
+// =========================
+// FILE: src/ui/UniverseRoute.tsx
+// Simple shell route that renders your CosmicHome
+// =========================
+import React from "react";
+import { CosmicHome } from "./CosmicHome";
+
+export const UniverseRoute: React.FC = () => <CosmicHome />;
+
+// =========================
+// FILE: src/expansion/emotionalFabric.ts
+// Lightweight expansion layer that plugs into metaCosmic + realityStack
+// =========================
+import { metaCosmic } from "../meta/metaCosmic";
+
+export type EmotionalState = "calm" | "stressed" | "curious" | "overwhelmed";
+
+export const emotionalFabric = {
+  interpret(state: EmotionalState) {
+    const purpose = metaCosmic.purposeEngine();
+    return {
+      state,
+      supportMode: state === "overwhelmed" ? "stabilize" : "gently_expand",
+      reminder: purpose.corePurpose
+    };
+  }
+};
+
+// =========================
+// FILE: src/expansion/temporalLattice.ts
+// Minimal temporal layer for continuity hooks
+// =========================
+export type TimelinePoint = {
+  id: string;
+  label: string;
+  timestamp: number;
+};
+
+export const temporalLattice = {
+  createPoint(label: string): TimelinePoint {
+    return {
+      id: `${Date.now()}-${Math.random().toString(16).slice(2)}`,
+      label,
+      timestamp: Date.now()
+    };
+  }
+};
+
+// =========================
+// FILE: src/expansion/identityField.ts
+// Simple identity essence helper
+// =========================
+export type IdentityEssence = {
+  id: string;
+  name: string;
+  role?: string;
+  tone?: string;
+};
+
+export const identityField = {
+  essence(id: string, name: string, role?: string): IdentityEssence {
+    return {
+      id,
+      name,
+      role,
+      tone: "warm_supportive"
+    };
+  }
+};
+
+// =========================
+// FILE: src/expansion/familyUniverse.ts
+// Minimal family universe layer (you can grow this later)
+// =========================
+import type { IdentityEssence } from "./identityField";
+
+export type FamilyMember = IdentityEssence & {
+  relation: "self" | "partner" | "child" | "other";
+};
+
+export const familyUniverse = {
+  members: [] as FamilyMember[],
+  add(member: FamilyMember) {
+    this.members.push(member);
+  },
+  list() {
+    return this.members;
+  }
+};
+
+// =========================
+// FILE: src/universeBootstrap.ts
+// Single place to pull everything together without touching existing code
+// =========================
+import { realityStack } from "./reality/realityStack";
+import { universeProtocol } from "./protocol/universeProtocol";
+import { metaCosmic } from "./meta/metaCosmic";
+import { emotionalFabric } from "./expansion/emotionalFabric";
+import { temporalLattice } from "./expansion/temporalLattice";
+import { identityField } from "./expansion/identityField";
+import { familyUniverse } from "./expansion/familyUniverse";
+import { withRealityEngine } from "./integration/withRealityEngine";
+
+export const universeBootstrap = {
+  realityStack,
+  universeProtocol,
+  metaCosmic,
+  emotionalFabric,
+  temporalLattice,
+  identityField,
+  familyUniverse,
+  withRealityEngine
+};
