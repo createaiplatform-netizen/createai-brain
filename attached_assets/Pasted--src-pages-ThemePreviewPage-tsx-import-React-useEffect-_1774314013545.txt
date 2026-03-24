@@ -1,0 +1,78 @@
+// src/pages/ThemePreviewPage.tsx
+
+import React, { useEffect } from 'react';
+import { useParams, useNavigate } from 'react-router-dom';
+import { enableThemePreview, disableThemePreview, getPreviewThemeId } from '../lib/themePreview';
+import { familyThemes, type FamilyThemeId } from '../lib/familyThemes';
+import { FamilyUniversePage } from './FamilyUniversePage'; // adjust import if needed
+
+export const ThemePreviewPage: React.FC = () => {
+  const { themeId } = useParams<{ themeId: FamilyThemeId }>();
+  const navigate = useNavigate();
+
+  useEffect(() => {
+    if (!themeId || !(themeId in familyThemes)) {
+      // invalid themeId → exit preview
+      disableThemePreview();
+      navigate('/family-hub', { replace: true });
+      return;
+    }
+    enableThemePreview(themeId);
+    return () => {
+      // when leaving this page, keep preview active only if still on preview route
+      const current = getPreviewThemeId();
+      if (current === themeId) {
+        // leave it or clear? safer to clear:
+        disableThemePreview();
+      }
+    };
+  }, [themeId, navigate]);
+
+  const handleExit = () => {
+    disableThemePreview();
+    navigate('/family-hub');
+  };
+
+  return (
+    <div style={{ position: 'relative', minHeight: '100vh' }}>
+      <div
+        style={{
+          position: 'fixed',
+          top: 0,
+          left: 0,
+          right: 0,
+          zIndex: 1000,
+          background: '#111827',
+          color: '#F9FAFB',
+          padding: '8px 16px',
+          display: 'flex',
+          alignItems: 'center',
+          justifyContent: 'space-between',
+          fontSize: 14,
+        }}
+      >
+        <span>
+          Preview Mode — Viewing theme: <strong>{themeId}</strong> (not a real user)
+        </span>
+        <button
+          onClick={handleExit}
+          style={{
+            background: '#EF4444',
+            color: '#F9FAFB',
+            border: 'none',
+            borderRadius: 4,
+            padding: '6px 10px',
+            cursor: 'pointer',
+            fontSize: 13,
+          }}
+        >
+          Exit Preview
+        </button>
+      </div>
+
+      <div style={{ paddingTop: 40 }}>
+        <FamilyUniversePage />
+      </div>
+    </div>
+  );
+};

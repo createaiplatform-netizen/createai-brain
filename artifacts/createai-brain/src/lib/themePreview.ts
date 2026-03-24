@@ -1,52 +1,34 @@
-// ─── Theme Preview Engine ─────────────────────────────────────────────────────
-// Non-destructive, localStorage-only preview system.
-// No auth logic is bypassed. No backend data is modified.
-// Preview state is ephemeral — cleared on disablePreview() or page refresh after exit.
+// src/lib/themePreview.ts
 
-const PREVIEW_KEY = "cai_theme_preview";
+import type { FamilyThemeId } from './familyThemes';
 
-export interface ThemePreviewState {
-  active: boolean;
-  themeId: string;
-  activatedAt: string;
-}
+const PREVIEW_KEY = 'familyThemePreview';
 
-/** Activate preview mode for a given theme ID. */
-export function enablePreview(themeId: string): void {
-  const state: ThemePreviewState = {
-    active: true,
-    themeId,
-    activatedAt: new Date().toISOString(),
-  };
+export function enableThemePreview(themeId: FamilyThemeId) {
   try {
-    localStorage.setItem(PREVIEW_KEY, JSON.stringify(state));
+    window.localStorage.setItem(PREVIEW_KEY, themeId);
   } catch {
-    // localStorage unavailable — silently skip
+    // ignore
   }
 }
 
-/** Deactivate preview mode and clear stored state. */
-export function disablePreview(): void {
+export function disableThemePreview() {
   try {
-    localStorage.removeItem(PREVIEW_KEY);
+    window.localStorage.removeItem(PREVIEW_KEY);
   } catch {
-    // silently skip
+    // ignore
   }
 }
 
-/** Return the currently previewed theme ID, or null if not in preview mode. */
-export function getActivePreviewThemeId(): string | null {
+export function getPreviewThemeId(): FamilyThemeId | null {
   try {
-    const raw = localStorage.getItem(PREVIEW_KEY);
-    if (!raw) return null;
-    const state = JSON.parse(raw) as ThemePreviewState;
-    return state.active ? state.themeId : null;
+    const value = window.localStorage.getItem(PREVIEW_KEY);
+    return value as FamilyThemeId | null;
   } catch {
     return null;
   }
 }
 
-/** Whether preview mode is currently active. */
-export function isPreviewActive(): boolean {
-  return getActivePreviewThemeId() !== null;
+export function isThemePreviewActive(): boolean {
+  return getPreviewThemeId() != null;
 }
