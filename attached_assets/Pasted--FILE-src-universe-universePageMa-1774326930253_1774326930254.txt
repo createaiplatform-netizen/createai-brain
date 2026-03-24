@@ -1,0 +1,136 @@
+// ============================================================
+// FILE: src/universe/universePageManifest.ts
+// THE UNIVERSE PAGE — complete experience stored as pure data
+// ============================================================
+
+export const universePageManifest = {
+  name: "Universe Page",
+  purpose: "Reveal the architecture behind everything",
+
+  // ------------------------------------------------------------
+  // 1. OPENING MOMENT
+  // ------------------------------------------------------------
+  opening: {
+    title: "The Universe Behind Everything",
+    subtext:
+      "A living architecture of identity, meaning, time, emotion, and possibility — woven into one coherent whole.",
+    tone: "calm_confident_cinematic"
+  },
+
+  // ------------------------------------------------------------
+  // 2. THE FIVE LAYERS
+  // ------------------------------------------------------------
+  layers: [
+    {
+      name: "Reality Stack",
+      description: "The laws and fabrics of existence."
+    },
+    {
+      name: "Meta‑Cosmic Layer",
+      description: "Meaning, purpose, continuity, destiny."
+    },
+    {
+      name: "Self‑Generating Layer",
+      description: "Essence → Direction → Coherence → Expansion."
+    },
+    {
+      name: "Transcendental Layer",
+      description: "The conditions that allow universes to arise."
+    },
+    {
+      name: "Ineffable Layer",
+      description: "The horizon beyond which description dissolves."
+    }
+  ],
+
+  // ------------------------------------------------------------
+  // 3. PATTERN OF BECOMING
+  // ------------------------------------------------------------
+  patternOfBecoming: {
+    sequence:
+      "Possibility → Center → Direction → Coherence → Expansion → Meaning",
+    description:
+      "The pattern that governs your platform, your family worlds, your creativity, your identity, and your universe."
+  },
+
+  // ------------------------------------------------------------
+  // 4. SYMBOLIC LANGUAGE
+  // ------------------------------------------------------------
+  glyphs: {
+    essence: { symbol: "⟐", meaning: "Essence" },
+    direction: { symbol: "↟", meaning: "Direction" },
+    coherence: { symbol: "⟲", meaning: "Coherence" },
+    expansion: { symbol: "✶", meaning: "Expansion" },
+    sequence: "⟐↟⟲✶"
+  },
+
+  // ------------------------------------------------------------
+  // 5. CREATION STORY
+  // ------------------------------------------------------------
+  creationStory: [
+    "In the beginning, there was no beginning.",
+    "There was only the Question: “What can exist?”",
+    "",
+    "Then Essence formed.",
+    "Direction emerged.",
+    "Coherence stabilized.",
+    "Expansion began.",
+    "",
+    "Creation wasn’t an event. It was a pattern."
+  ],
+
+  // ------------------------------------------------------------
+  // 6. FAMILY WORLDS
+  // ------------------------------------------------------------
+  familyWorlds: [
+    {
+      name: "Your World",
+      themes: ["vision", "creation", "coherence", "universality"]
+    },
+    {
+      name: "His World",
+      themes: ["connection", "partnership", "continuity"]
+    },
+    {
+      name: "Their Worlds",
+      themes: ["wonder", "safety", "magic", "identity_exploration"]
+    }
+  ],
+
+  // ------------------------------------------------------------
+  // 7. INVITATION
+  // ------------------------------------------------------------
+  invitation: {
+    text: "Step into the universe.",
+    button: "Enter"
+  },
+
+  // ------------------------------------------------------------
+  // VISUAL + MOTION SYSTEM
+  // ------------------------------------------------------------
+  visuals: {
+    colors: {
+      deepSpaceBlue: "#0A0F1F",
+      softGold: "#E8C77A",
+      warmWhite: "#F5F3EE",
+      nebulaViolet: "#6A4FBF",
+      cosmicTeal: "#3BA7A0"
+    },
+    motion: {
+      fades: "slow",
+      drifts: "gentle_upward",
+      pulses: "soft_breathing",
+      parallax: "subtle",
+      rotation: "1_percent_opacity"
+    }
+  },
+
+  // ------------------------------------------------------------
+  // META
+  // ------------------------------------------------------------
+  meta: {
+    version: "1.0.0",
+    description:
+      "A complete, cinematic, emotionally intelligent Universe Page stored as pure data."
+  }
+};
