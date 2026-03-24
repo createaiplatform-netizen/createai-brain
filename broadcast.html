@@ -2,23 +2,33 @@
 <html lang="en">
 <head>
     <meta charset="UTF-8"><meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>EBS | GLOBAL COMMAND</title>
+    <title>EBS | GLOBAL PUSH</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <style>body { background: #000; color: #fff; font-family: 'Inter', sans-serif; }</style>
 </head>
 <body class="p-10 flex items-center justify-center min-h-screen">
     <div class="max-w-xl w-full border border-blue-600/30 p-12 rounded-[3rem] bg-blue-950/10 text-center shadow-2xl shadow-blue-600/20">
-        <div class="text-blue-500 font-black text-[10px] tracking-[0.8em] mb-8 uppercase animate-pulse">Global Cloud Dispatch Active</div>
-        <textarea id="msg" class="w-full bg-black border border-white/10 p-6 rounded-2xl text-lg mb-8 text-white focus:border-blue-600 outline-none transition" rows="3" placeholder="TYPE GLOBAL BROADCAST..."></textarea>
-        <button onclick="globalFire()" class="w-full bg-blue-600 py-6 rounded-2xl font-black uppercase tracking-[0.4em] text-sm hover:bg-blue-500 active:scale-95 transition shadow-xl">Execute World-Wide Push</button>
-        <p class="mt-6 text-[8px] text-gray-600 uppercase tracking-widest leading-relaxed">Status: Waiting for Cloud Key Integration...</p>
+        <div class="text-blue-500 font-black text-[10px] tracking-[0.8em] mb-8 uppercase animate-pulse">Global Universal Dispatch</div>
+        <textarea id="msg" class="w-full bg-black border border-white/10 p-6 rounded-2xl text-lg mb-8 text-white focus:border-blue-600 outline-none transition" rows="3" placeholder="TYPE GLOBAL ALERT..."></textarea>
+        
+        <button onclick="globalPush()" class="w-full bg-blue-600 py-6 rounded-2xl font-black uppercase tracking-[0.4em] text-sm hover:bg-blue-500 active:scale-95 transition shadow-xl">Execute World-Wide Push</button>
+        
+        <p class="mt-6 text-[8px] text-gray-500 uppercase tracking-widest leading-relaxed">Status: Standing by for Webster Node Broadcast...</p>
     </div>
+
     <script>
-        async function globalFire() {
-            const m = document.getElementById('msg').value;
-            if(!m) return alert('EMPTY PAYLOAD');
-            alert('GLOBAL ENGINE ENGAGED: BROADCASTING TO CLOUD NODES...');
-            // This is where we inject the Twilio API call once you provide the keys.
+        function globalPush() {
+            const message = document.getElementById('msg').value;
+            if (!message) return alert('EMPTY PAYLOAD');
+
+            // ENTER YOUR FAMILY'S NUMBERS + CARRIER GATEWAY HERE
+            // Verizon: @vtext.com | AT&T: @txt.att.net | T-Mobile: @tmomail.net
+            const familyEmails = "7152221234@vtext.com,7152225678@txt.att.net"; 
+
+            const subject = "NEXUS GLOBAL ALERT";
+            window.location.href = "mailto:" + familyEmails + "?subject=" + encodeURIComponent(subject) + "&body=" + encodeURIComponent(message);
+            
+            alert("BROADCAST DISPATCHED TO GLOBAL GATEWAYS.");
         }
     </script>
 </body>
