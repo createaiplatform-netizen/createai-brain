@@ -1,5 +1,5 @@
 // src/components/ActivatedUniverse.tsx
-import React from 'react';
+import React, { useEffect, useState } from 'react';
 import {
   createEntity,
   buildEntityView,
@@ -23,6 +23,9 @@ export const ActivatedUniverse: React.FC<ActivatedUniverseProps> = ({ seed, kind
   const accent  = theme.theme.accent;
   const text    = theme.theme.text ?? '#ffffff';
 
+  const [visible, setVisible] = useState(false);
+  useEffect(() => { const t = setTimeout(() => setVisible(true), 20); return () => clearTimeout(t); }, []);
+
   return (
     <div
       style={{
@@ -31,6 +34,8 @@ export const ActivatedUniverse: React.FC<ActivatedUniverseProps> = ({ seed, kind
         background: `radial-gradient(circle at top, ${accent}22, ${bg})`,
         color: text,
         fontFamily: 'system-ui, -apple-system, BlinkMacSystemFont, sans-serif',
+        opacity: visible ? 1 : 0,
+        transition: 'opacity 0.45s ease',
       }}
     >
       {/* Identity + Theme */}
