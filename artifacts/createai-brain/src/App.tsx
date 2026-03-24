@@ -68,6 +68,7 @@ import FullAutoCreatePage           from "@/pages/FullAutoCreatePage";
 import UniverseMapPage              from "@/pages/UniverseMapPage";
 import ProjectLibraryPage           from "@/pages/ProjectLibraryPage";
 import SystemSelfCheckPage          from "@/pages/SystemSelfCheckPage";
+import AutonomousExecutionPage      from "@/pages/AutonomousExecutionPage";
 import { ModeSwitcherProvider }     from "@/components/ModeSwitcher";
 import AnalyticsPage               from "@/pages/AnalyticsPage";
 import TeamPage                    from "@/pages/TeamPage";
@@ -163,10 +164,11 @@ function Router() {
       <Route path="/platform-score" component={PlatformScorePage} />
       <Route path="/system-status"       component={SystemStatusPanel} />
       <Route path="/auto-project"        component={AutoProjectPage} />
-      <Route path="/full-auto-create"    component={FullAutoCreatePage} />
-      <Route path="/universe-map"        component={UniverseMapPage} />
-      <Route path="/projects/library"    component={ProjectLibraryPage} />
-      <Route path="/system/self-check"   component={SystemSelfCheckPage} />
+      <Route path="/full-auto-create"        component={FullAutoCreatePage} />
+      <Route path="/universe-map"            component={UniverseMapPage} />
+      <Route path="/projects/library"        component={ProjectLibraryPage} />
+      <Route path="/system/self-check"       component={SystemSelfCheckPage} />
+      <Route path="/autonomous-execution"    component={AutonomousExecutionPage} />
       <Route path="/project/:projectId" component={ProjectPage} />
       <Route path="/projects" component={ProjectsPage} />
       {/* Legacy path kept for backwards compat */}

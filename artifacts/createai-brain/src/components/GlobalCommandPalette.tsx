@@ -93,6 +93,7 @@ export function GlobalCommandPalette() {
       { id: "act:dash",            kind: "action", label: "BrainHub Dashboard",   sub: "Engines, series, agents",         icon: "\u26A1",  action: () => { openApp("brainhub"); setOpen(false); } },
       { id: "act:full-auto",       kind: "action", label: "Full Auto Create",      sub: "AI-orchestrated project creation", icon: "\uD83E\uDD16", action: () => nav("/full-auto-create") },
       { id: "act:universe-map",    kind: "action", label: "Universe Map",          sub: "Visual platform topology",        icon: "\uD83C\uDF0C", action: () => nav("/universe-map") },
+      { id: "act:autonomous-exec", kind: "action", label: "Autonomous Execution",  sub: "Goal-driven AI engine orchestrator", icon: "\u26A1",   action: () => nav("/autonomous-execution") },
       { id: "act:project-library", kind: "action", label: "Project Library",       sub: "All generated projects",          icon: "\uD83D\uDCDA", action: () => nav("/projects/library") },
       { id: "act:self-check",      kind: "action", label: "System Self-Check",     sub: "Admin: platform health scan",     icon: "\uD83D\uDEE1\uFE0F", action: () => nav("/system/self-check") },
       { id: "mode:build",    kind: "action", label: "Mode \u2192 Build",    sub: "Switch to Build mode",    icon: "\uD83D\uDD27", action: () => switchMode("Build") },

@@ -439,6 +439,40 @@ export function Sidebar({ onNav, forceCollapsed, forceExpanded }: SidebarProps) 
           </button>
         </div>
 
+        {/* Autonomous Execution */}
+        <div style={{ padding: "4px 8px 0" }}>
+          <button
+            onClick={() => handleNav(() => setLocation("/autonomous-execution"))}
+            title={collapsed ? "\u26A1 Autonomous Execution" : undefined}
+            style={{
+              width: "100%", display: "flex", alignItems: "center",
+              gap: collapsed ? 0 : 7, height: 28, borderRadius: 8,
+              padding: collapsed ? "0" : "0 8px",
+              justifyContent: collapsed ? "center" : "flex-start",
+              background: location === "/autonomous-execution" ? "rgba(99,102,241,0.14)" : "rgba(99,102,241,0.04)",
+              border: `1px solid ${location === "/autonomous-execution" ? "rgba(99,102,241,0.35)" : "rgba(99,102,241,0.12)"}`,
+              cursor: "pointer", transition: "background 0.12s, border-color 0.12s",
+            }}
+            onMouseEnter={e => {
+              (e.currentTarget as HTMLElement).style.background = "rgba(99,102,241,0.14)";
+              (e.currentTarget as HTMLElement).style.borderColor = "rgba(99,102,241,0.30)";
+            }}
+            onMouseLeave={e => {
+              (e.currentTarget as HTMLElement).style.background =
+                location === "/autonomous-execution" ? "rgba(99,102,241,0.14)" : "rgba(99,102,241,0.04)";
+              (e.currentTarget as HTMLElement).style.borderColor =
+                location === "/autonomous-execution" ? "rgba(99,102,241,0.35)" : "rgba(99,102,241,0.12)";
+            }}
+          >
+            <span style={{ fontSize: 11, flexShrink: 0, lineHeight: 1 }}>\u26A1</span>
+            {!collapsed && (
+              <span style={{ fontSize: 10.5, fontWeight: 700, color: "#6366f1", flex: 1, textAlign: "left" }}>
+                Autonomous Execution
+              </span>
+            )}
+          </button>
+        </div>
+
         {/* Universe Map */}
         <div style={{ padding: "4px 8px 0" }}>
           <button
