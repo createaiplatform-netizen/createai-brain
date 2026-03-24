@@ -209,6 +209,22 @@
     </div>
 
     <main class="max-w-5xl w-full text-center relative z-10">
+<div id="search-container" style="background:#000; padding:80px 20px 20px; text-align:center; border-bottom:1px solid #d4af37;">
+    <input type="text" id="industrySearch" placeholder="Search Industry (e.g. Construction, Healthcare, Farming)..." 
+           style="width:80%; padding:15px; border-radius:30px; border:2px solid #d4af37; background:#1a1a1a; color:#fff; font-size:18px;">
+    <div id="quick-filters" style="margin-top:20px; display:flex; justify-content:center; gap:10px; flex-wrap:wrap;">
+        <button onclick="filterIndustry("Healthcare")" style="background:transparent; color:#d4af37; border:1px solid #d4af37; padding:8px 15px; border-radius:20px; cursor:pointer;">Healthcare</button>
+        <button onclick="filterIndustry("Construction")" style="background:transparent; color:#d4af37; border:1px solid #d4af37; padding:8px 15px; border-radius:20px; cursor:pointer;">Construction</button>
+        <button onclick="filterIndustry("Agriculture")" style="background:transparent; color:#d4af37; border:1px solid #d4af37; padding:8px 15px; border-radius:20px; cursor:pointer;">Agriculture</button>
+    </div>
+</div>
+
+<script>
+function filterIndustry(name) {
+    alert("Activating Sovereign " + name + " Module... Building your custom dashboard.");
+    // This is where the "Brain" swaps the content out
+}
+</script>
         <nav class="absolute -top-32 left-0 right-0 flex justify-between px-6 opacity-40">
             <span class="text-[8px] tracking-[2em] font-black uppercase">Create AI Global</span>
             <span class="text-[8px] tracking-[2em] font-black uppercase italic">Node 001</span>
