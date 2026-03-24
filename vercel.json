@@ -1,5 +1,9 @@
 {
   "version": 2,
+  "name": "nexus-os-production",
   "cleanUrls": true,
-  "trailingSlash": false
+  "trailingSlash": false,
+  "framework": null,
+  "installCommand": "npm install",
+  "buildCommand": "npm run build"
 }
