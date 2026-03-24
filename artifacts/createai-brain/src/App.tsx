@@ -1,5 +1,5 @@
 import React, { useState, Component, type ReactNode, type ErrorInfo } from "react";
-import { Switch, Route, Router as WouterRouter } from "wouter";
+import { Switch, Route, Router as WouterRouter, useParams } from "wouter";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { Toaster } from "@/components/ui/toaster";
 import { TooltipProvider } from "@/components/ui/tooltip";
@@ -78,7 +78,8 @@ import { ConversationProvider } from "@/os/ConversationContext";
 import { PlatformProvider } from "@/controller";
 import { useUltraInteractionEngine } from "@/hooks/useUltraInteractionEngine";
 
-function EntityUniverseRoute({ seed }: { seed: string }) {
+function EntityUniverseRoute() {
+  const { seed = 'root' } = useParams<{ seed: string }>();
   return <ActivatedUniverse seed={seed} kind="world" />;
 }
 
