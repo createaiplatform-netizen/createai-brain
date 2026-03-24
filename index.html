@@ -6,65 +6,44 @@
     <script src="https://cdn.tailwindcss.com"></script>
     <style>
         body { background: #000; color: #fff; font-family: 'Inter', sans-serif; }
-        .glow { text-shadow: 0 0 30px rgba(59, 130, 246, 0.4); }
-        .glass { background: rgba(255, 255, 255, 0.02); border: 1px solid rgba(255,255,255,0.08); backdrop-filter: blur(12px); }
-        .accent-border { border-left: 3px solid #3b82f6; }
+        .glow { text-shadow: 0 0 20px rgba(255,255,255,0.3); }
+        .section-border { border-top: 1px solid rgba(255,255,255,0.1); }
     </style>
 </head>
 <body class="bg-black">
-    <div class="max-w-6xl mx-auto px-6 py-20">
-        <div class="text-center mb-24">
-            <div class="mb-4 opacity-40 tracking-[0.5em] text-[10px] font-bold">SOVEREIGN ARCHITECTURE | 2026 EDITION</div>
-            <h1 class="text-8xl font-black mb-6 tracking-tighter glow italic">NEXUS ELITE</h1>
-            <p class="text-xl text-gray-400 font-light italic">The Universal Core. Total Sync. Total Sovereignty.</p>
+    <div class="max-w-4xl mx-auto px-6 py-24 text-center">
+        <div class="mb-4 opacity-40 tracking-[0.5em] text-[10px] font-bold">EST. 2026 | SOVEREIGN ARCHITECTURE</div>
+        <h1 class="text-7xl font-black mb-8 tracking-tighter glow italic">NEXUS ELITE</h1>
+        <p class="text-2xl text-gray-400 font-light mb-12">The Universal Core for the Create AI Platform.</p>
+        
+        <div class="grid md:grid-cols-3 gap-8 text-left mb-20">
+            <div class="p-6 bg-white/5 rounded-2xl border border-white/10">
+                <h3 class="text-blue-500 font-bold mb-2 uppercase text-xs tracking-widest">01. The Hub</h3>
+                <p class="text-sm text-gray-400">Real-time intelligence feed and family node collaboration. Total sync.</p>
+            </div>
+            <div class="p-6 bg-white/5 rounded-2xl border border-white/10">
+                <h3 class="text-blue-500 font-bold mb-2 uppercase text-xs tracking-widest">02. The Vault</h3>
+                <p class="text-sm text-gray-400">Secure storage for Universal Core assets, AI keys, and sovereign data.</p>
+            </div>
+            <div class="p-6 bg-white/5 rounded-2xl border border-white/10">
+                <h3 class="text-blue-500 font-bold mb-2 uppercase text-xs tracking-widest">03. The EBS</h3>
+                <p class="text-sm text-gray-400">Electronic Brokering System. Automated notifications across all nodes.</p>
+            </div>
         </div>
 
-        <h2 class="text-xs uppercase tracking-[0.4em] text-blue-500 font-bold mb-10 text-center">System Inventory</h2>
-        <div class="grid md:grid-cols-2 lg:grid-cols-3 gap-8 mb-24">
-            
-            <div class="glass p-8 rounded-3xl accent-border">
-                <h3 class="font-black text-lg mb-2">INTELLIGENCE HUB</h3>
-                <p class="text-gray-500 text-sm mb-4">Live 24/7 collaboration feed for family nodes. Stay connected to the Webster Core.</p>
-                <div class="text-[10px] text-blue-400 font-bold uppercase tracking-widest">● Live Status Active</div>
+        <div class="section-border pt-16 mb-16">
+            <h2 class="text-3xl font-bold mb-6 italic">The Vision</h2>
+            <p class="text-gray-400 leading-relaxed max-w-2xl mx-auto mb-8 font-light">
+                We are building a decentralized architecture where your intelligence, your assets, and your family communication live inside a protected core. No more lost data. No more fragmented systems. Just one **Sovereign Gateway** for everything that matters.
+            </p>
+            <div class="inline-block px-4 py-1 bg-blue-500/10 border border-blue-500/20 rounded text-blue-500 text-[10px] uppercase tracking-widest font-bold">
+                System Status: Online & Broadcasting
             </div>
-
-            <div class="glass p-8 rounded-3xl accent-border">
-                <h3 class="font-black text-lg mb-2">THE ASSET VAULT</h3>
-                <p class="text-gray-500 text-sm mb-4">Encrypted storage for AI prompts, private documents, and universal core files.</p>
-                <div class="text-[10px] text-blue-400 font-bold uppercase tracking-widest">● Secure Encryption</div>
-            </div>
-
-            <div class="glass p-8 rounded-3xl accent-border" style="border-left-color: #ef4444;">
-                <h3 class="font-black text-lg mb-2 text-red-500">EBS DISPATCH</h3>
-                <p class="text-gray-500 text-sm mb-4">Electronic Brokering System. Multi-channel broadcast (SMS/Email) to all nodes.</p>
-                <div class="text-[10px] text-red-500 font-bold uppercase tracking-widest animate-pulse">● EBS Priority Access</div>
-            </div>
-
-            <div class="glass p-8 rounded-3xl accent-border">
-                <h3 class="font-black text-lg mb-2">AI ARCHITECTURE</h3>
-                <p class="text-gray-500 text-sm mb-4">Frameworks to build your own AI nodes and scale the platform infinitely.</p>
-                <div class="text-[10px] text-blue-400 font-bold uppercase tracking-widest">● Framework Included</div>
-            </div>
-
-            <div class="glass p-8 rounded-3xl accent-border">
-                <h3 class="font-black text-lg mb-2">GLOBAL INDEXING</h3>
-                <p class="text-gray-500 text-sm mb-4">SEO and Metadata layers that keep your platform at the top of the Google ecosystem.</p>
-                <div class="text-[10px] text-blue-400 font-bold uppercase tracking-widest">● Google Verified</div>
-            </div>
-
-            <div class="glass p-8 rounded-3xl accent-border">
-                <h3 class="font-black text-lg mb-2">FAMILY BYPASS</h3>
-                <p class="text-gray-500 text-sm mb-4">The secret "Backdoor" logic built for your inner circle. Private and permanent.</p>
-                <div class="text-[10px] text-blue-400 font-bold uppercase tracking-widest">● 100% Sovereign</div>
-            </div>
-
         </div>
 
-        <div class="text-center glass p-16 rounded-[4rem] border-blue-500/20 shadow-2xl shadow-blue-500/10">
-            <h2 class="text-4xl font-black mb-8 italic tracking-tighter">Enter the Sovereign Future.</h2>
-            <a href="https://buy.stripe.com/fZucN54hc8NKeUk4xD5Vu00" class="inline-block bg-white text-black px-24 py-8 rounded-full font-black hover:scale-105 transition-transform tracking-tighter text-3xl">CLAIM ACCESS | 97</a>
-            <p class="mt-10 text-gray-600 text-[10px] tracking-[0.5em] uppercase font-bold">Webster, WI | Core Activated</p>
-        </div>
+        <a href="https://buy.stripe.com/fZucN54hc8NKeUk4xD5Vu00" class="inline-block bg-white text-black px-16 py-6 rounded-full font-black hover:scale-105 transition-transform tracking-tighter text-2xl">ACTIVATE ACCESS | 97</a>
+        
+        <div class="mt-20 opacity-20 text-[10px] tracking-[0.8em] uppercase font-bold">Sovereign Architecture © 2026</div>
     </div>
 
     <script>
