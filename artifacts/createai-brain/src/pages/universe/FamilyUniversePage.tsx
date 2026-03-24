@@ -19,12 +19,7 @@ import { EnhancedFamilyBankPanel } from "@/components/family/EnhancedFamilyBankP
 import { EmotionalSafetyPanel }    from "@/components/family/EmotionalSafetyPanel";
 import { DiscoveryEnginePanel }    from "@/components/family/DiscoveryEnginePanel";
 import { FamilyAssistantPanel }    from "@/components/family/FamilyAssistantPanel";
-
-const SAGE = "#7a9068";
-const CREAM = "#faf9f6";
-const TEXT = "#1a1916";
-const MUTED = "#6b6660";
-const BORDER = "rgba(122,144,104,0.13)";
+import { useFamilyTheme } from "@/hooks/useFamilyTheme";
 
 type Tab = "home" | "family" | "bills" | "bank" | "messages" | "life" | "habits" | "journal" | "create" | "memory" | "tools" | "discover" | "safety" | "assistant";
 
@@ -55,6 +50,13 @@ const CREATION_IDEAS = [
 ];
 
 export default function FamilyUniversePage() {
+  const theme = useFamilyTheme();
+  const SAGE   = theme.primary;
+  const CREAM  = theme.background;
+  const TEXT   = theme.text;
+  const MUTED  = theme.secondary;
+  const BORDER = `${theme.primary}20`;
+
   const [tab, setTab] = useState<Tab>("home");
   const [identity, setIdentity] = useState<FamilyIdentity | null>(null);
   const [members, setMembers] = useState<FamilyMember[]>([]);

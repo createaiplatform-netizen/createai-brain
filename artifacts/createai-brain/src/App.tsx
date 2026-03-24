@@ -27,6 +27,7 @@ import SmartFhirCallbackApp from "@/Apps/SmartFhirCallbackApp";
 import SmartFhirConnectedApp from "@/Apps/SmartFhirConnectedApp";
 import NpaGatewayPage from "@/pages/NpaGatewayPage";
 import FamilyHubPage from "@/pages/FamilyHubPage";
+import ThemePreviewPage from "@/pages/ThemePreviewPage";
 import PublicBridgePage from "@/pages/PublicBridgePage";
 import PublicFamilyPage from "@/pages/PublicFamilyPage";
 import AdminDashboardPage from "@/pages/AdminDashboardPage";
@@ -138,6 +139,8 @@ function Router() {
       <Route path="/projects" component={ProjectsPage} />
       {/* Legacy path kept for backwards compat */}
       <Route path="/family-hub" component={FamilyHubPage} />
+      {/* Theme preview — visual-only, no auth bypass, no data changes */}
+      <Route path="/preview-theme/:themeId" component={ThemePreviewPage} />
       <Route path="/standalone/creation/:creationId" component={CreationPage} />
       <Route path="/standalone/:projectId" component={StandalonePage} />
 
