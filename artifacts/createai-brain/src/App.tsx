@@ -62,6 +62,7 @@ import FamilySharePage         from "@/pages/FamilySharePage";
 import UltimateTranscendDashboard from "@/pages/UltimateTranscendDashboard";
 import CommandCenterPage           from "@/pages/CommandCenterPage";
 import PlatformStatusPage          from "@/pages/PlatformStatusPage";
+import SystemStatusPanel            from "@/pages/SystemStatusPanel";
 import AnalyticsPage               from "@/pages/AnalyticsPage";
 import TeamPage                    from "@/pages/TeamPage";
 import SettingsPage                from "@/pages/SettingsPage";
@@ -154,6 +155,7 @@ function Router() {
       <Route path="/above-transcend" component={AboveTranscendPage} />
       <Route path="/semantic-store" component={SemanticStorePage} />
       <Route path="/platform-score" component={PlatformScorePage} />
+      <Route path="/system-status"  component={SystemStatusPanel} />
       <Route path="/project/:projectId" component={ProjectPage} />
       <Route path="/projects" component={ProjectsPage} />
       {/* Legacy path kept for backwards compat */}

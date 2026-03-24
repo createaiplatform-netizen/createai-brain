@@ -329,6 +329,40 @@ export function Sidebar({ onNav, forceCollapsed, forceExpanded }: SidebarProps) 
           </button>
         </div>
 
+        {/* System Status Panel */}
+        <div style={{ padding: "4px 8px 0" }}>
+          <button
+            onClick={() => handleNav(() => setLocation("/system-status"))}
+            title={collapsed ? "\u25ce System Status" : undefined}
+            style={{
+              width: "100%", display: "flex", alignItems: "center",
+              gap: collapsed ? 0 : 7, height: 28, borderRadius: 8,
+              padding: collapsed ? "0" : "0 8px",
+              justifyContent: collapsed ? "center" : "flex-start",
+              background: location === "/system-status" ? "rgba(0,201,167,0.10)" : "rgba(0,201,167,0.04)",
+              border: `1px solid ${location === "/system-status" ? "rgba(0,201,167,0.28)" : "rgba(0,201,167,0.12)"}`,
+              cursor: "pointer", transition: "background 0.12s, border-color 0.12s",
+            }}
+            onMouseEnter={e => {
+              (e.currentTarget as HTMLElement).style.background = "rgba(0,201,167,0.10)";
+              (e.currentTarget as HTMLElement).style.borderColor = "rgba(0,201,167,0.22)";
+            }}
+            onMouseLeave={e => {
+              (e.currentTarget as HTMLElement).style.background =
+                location === "/system-status" ? "rgba(0,201,167,0.10)" : "rgba(0,201,167,0.04)";
+              (e.currentTarget as HTMLElement).style.borderColor =
+                location === "/system-status" ? "rgba(0,201,167,0.28)" : "rgba(0,201,167,0.12)";
+            }}
+          >
+            <span style={{ fontSize: 11, flexShrink: 0, lineHeight: 1 }}>\u25ce</span>
+            {!collapsed && (
+              <span style={{ fontSize: 10.5, fontWeight: 700, color: "#00C9A7", flex: 1, textAlign: "left" }}>
+                System Status
+              </span>
+            )}
+          </button>
+        </div>
+
         {/* Engine run count */}
         {totalRuns > 0 && (
           <div style={{ padding: "6px 8px 0" }}>

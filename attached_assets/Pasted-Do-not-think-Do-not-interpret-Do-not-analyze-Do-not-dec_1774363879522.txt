@@ -1,0 +1,126 @@
+Do not think. Do not interpret. Do not analyze. Do not decide anything.
+
+Implement a “System Status Panel” page inside the existing frontend, using only real data from the existing backend:
+
+- /api/system/score
+- /api/system/health
+- universe ceiling layer (ceilingLayer.scores if available)
+- engine registry / engine list (whatever is already in the codebase)
+
+Goals:
+- People must immediately understand that this is a serious, OS-level system.
+- The panel must feel alive, but still clean, minimal, and professional.
+- Use the existing scoring engine and health endpoints. Do not invent data.
+
+Create a new page/component:
+- Name it something consistent with the current frontend (for example: SystemStatusPanel or SystemStatusPage).
+- Wire it into the existing routing/navigation so it is reachable from the main UI.
+
+Layout (top to bottom):
+
+1. Top Section — System Identity
+- Show:
+  - Platform name (from existing config or a safe constant)
+  - Universe version (if available)
+  - Uptime (from /api/system/health)
+  - Last activation timestamp (from any existing field that represents last boot/activation)
+  - A small “alive” indicator: a soft pulsing dot or ring when the system is healthy.
+
+2. Middle Section — Growth Scores Grid
+Use the real values from getPlatformScores() via /api/system/score.
+
+Display the following metrics:
+
+- readiness
+- completeness
+- stability
+- integration
+- performance
+- security
+- scalability
+- overall
+
+Visual design (Cosmic OS Minimalism):
+
+- Background: deep, subtle cosmic tone (e.g., very dark navy).
+- Text: clean, high-contrast, modern sans-serif.
+- Accent colors: teal, soft purple, and warm gold for highlights.
+
+For each metric:
+
+- Readiness:
+  - Circular ring with a soft glow.
+  - The ring thickness or radius should increase slightly as the score grows above 100.
+
+- Completeness:
+  - Vertical bar that grows upward.
+  - Add a subtle shimmer animation when the value increases.
+
+- Stability:
+  - Pulse line (like a heartbeat).
+  - Pulse amplitude reflects the stability score.
+
+- Integration:
+  - Orbit visualization: small nodes orbiting a center.
+  - More nodes or slightly faster orbit for higher scores.
+
+- Performance:
+  - Arc or gauge indicating speed.
+  - Fill amount reflects the score.
+
+- Security:
+  - Shield icon with an inner glow.
+  - Glow intensity reflects the score.
+
+- Scalability:
+  - Stack of layers rising upward.
+  - More visible layers for higher scores.
+
+- Overall:
+  - Large central ring or badge.
+  - Cosmic gradient fill.
+  - Subtle rotating starfield or particles inside the ring.
+
+All animations must be subtle, smooth, and professional. No exaggerated or cartoonish motion.
+
+3. Bottom Section — Universe & Engine Overview
+
+Use existing data from the universe and engine registry:
+
+- Show universe depth (number of layers).
+- Visualize layers as a vertical stack or layered cards.
+- Show number of engines active.
+- List engine names with a small status dot (e.g., green for active/loaded).
+
+If there is an activation chain or ceiling layer scores, show a small “Activation Chain” strip:
+- A horizontal sequence of nodes representing each step/layer.
+- Use a soft glow to indicate active/healthy.
+
+Behavior:
+
+- Fetch data from /api/system/score and /api/system/health on load.
+- Refresh periodically (e.g., every 15–30 seconds) to keep the panel feeling alive.
+- Handle errors gracefully: if an endpoint fails, show a small “temporarily unavailable” label instead of breaking the UI.
+
+Constraints:
+
+- Use only real data from the existing backend and universe OS.
+- Do not fabricate values.
+- Do not add fake metrics.
+- Do not rename or repurpose fields in a misleading way.
+
+Styling:
+
+- Overall style: “Cosmic OS Minimalism”
+  - Clean OS-like layout (Apple-level clarity).
+  - Futuristic accents (thin neon lines, subtle grid, soft glows).
+  - Cosmic depth (gradients, layered visuals) without clutter.
+- Keep everything readable, accessible, and serious.
+
+Integration:
+
+- Add this System Status Panel page to the existing navigation or main dashboard.
+- Ensure it can be reached from the primary UI without special auth changes (respect whatever auth model already exists).
+- Do not remove or break any existing pages.
+
+No summaries. No explanations. No extra commentary. Only implement the described System Status Panel using the real scoring and health data.
