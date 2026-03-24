@@ -70,6 +70,10 @@ import DataPage                    from "@/pages/DataPage";
 import GlobalPage                  from "@/pages/GlobalPage";
 import EvolutionPage               from "@/pages/EvolutionPage";
 import UniverseDataPage            from "@/pages/UniverseDataPage";
+import UniverseExplorerPage        from "@/pages/UniverseExplorerPage";
+import ContinuumDashboardPage      from "@/pages/ContinuumDashboardPage";
+import RealityExplorerPage         from "@/pages/RealityExplorerPage";
+import SelfExplorerPage            from "@/pages/SelfExplorerPage";
 import SemanticStorePage           from "@/pages/SemanticStorePage";
 import PlatformScorePage           from "@/pages/PlatformScorePage";
 import CheckoutPage                from "@/pages/CheckoutPage";
@@ -168,7 +172,11 @@ function Router() {
       <Route path="/data" component={DataPage} />
       <Route path="/global-expansion" component={GlobalPage} />
       <Route path="/evolution" component={EvolutionPage} />
-      <Route path="/universe-data" component={UniverseDataPage} />
+      <Route path="/universe-data"        component={UniverseDataPage} />
+      <Route path="/universe-explorer"    component={UniverseExplorerPage} />
+      <Route path="/continuum-dashboard"  component={ContinuumDashboardPage} />
+      <Route path="/reality-explorer"     component={RealityExplorerPage} />
+      <Route path="/self-explorer"        component={SelfExplorerPage} />
 
       {/* ── Role-based Universe routes ──────────────────────────────────── */}
       {/* Admin Universe — admin/founder full control center */}

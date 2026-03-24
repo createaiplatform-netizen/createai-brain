@@ -1,0 +1,83 @@
+Perform these steps exactly, with no interpretation, no creativity, no assumptions, and no architectural decisions. Do not imagine features. Do not propose improvements. Do not redesign anything. Only execute the steps below literally.
+
+1. Scan the entire codebase.
+
+2. Identify every file that is currently:
+   - unconnected,
+   - unused,
+   - not imported anywhere,
+   - not exposed through any API route,
+   - not exposed through any frontend page,
+   - not visible in any UI.
+
+3. For each unconnected file, generate:
+   a. The exact import statement required to connect it.
+   b. The exact backend API route needed to expose its data.
+   c. The exact frontend page or component needed to display its data.
+   d. The exact code snippet to add.
+   e. The exact file and line number where the snippet must be inserted.
+
+4. Do not modify existing logic. Do not refactor. Do not optimize. Do not restructure. Only add the minimal code required to connect each file.
+
+5. Connect and expose ALL Continuum files:
+   - continuum.ts
+   - continuumRouter.ts
+   - continuumChannels.ts
+   - continuumInspector.ts
+   Create:
+   - backend routes for all Continuum data,
+   - a frontend Continuum Dashboard page,
+   - App.tsx route entry.
+
+6. Connect and expose ALL Universe OS files:
+   - experienceLayer
+   - universeOSMasterManifest
+   - universePageManifest
+   - creationStoryManifest
+   - firstMoment
+   - firstWorld
+   - firstEntryExperience
+   - familyUniverse
+   - kidsUniverse
+   Create:
+   - backend routes for each file,
+   - a unified Universe Explorer page,
+   - App.tsx route entry.
+
+7. Connect and expose ALL Reality layer files:
+   - absoluteLayer
+   - activationMap
+   - orchestratorLayer
+   - realityStack
+   - universeIndex
+   Create:
+   - backend routes,
+   - a Reality Explorer page,
+   - App.tsx route entry.
+
+8. Connect and expose ALL Self layer files:
+   - ineffableLayerManifest
+   - selfGeneratingLayerManifest
+   - transcendentalLayerManifest
+   Create:
+   - backend routes,
+   - a Self Explorer page,
+   - App.tsx route entry.
+
+9. Create ONE unified "All Systems Explorer" page that:
+   - lists every connected file in a sidebar,
+   - fetches every endpoint,
+   - displays all JSON responses in a readable panel.
+
+10. Add App.tsx routes for:
+   - /continuum-dashboard
+   - /universe-explorer
+   - /reality-explorer
+   - /self-explorer
+   - /all-systems
+
+11. After generating all code:
+   - produce a final list of all files now fully connected,
+   - confirm no unconnected files remain.
+
+Do not think. Do not infer. Do not propose. Do not design. Only follow the steps above exactly.
