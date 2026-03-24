@@ -692,7 +692,11 @@ function AuthGate({ children }: { children: React.ReactNode }) {
   // Wait for both auth and role to resolve before making gate decisions
   if (isLoading || (isAuthenticated && roleLoading)) return <LoadingScreen />;
 
-  if (!isAuthenticated || !user) return <LoginScreen onLogin={login} />;
+  if (!isAuthenticated || !user) {
+    const returnTo = encodeURIComponent(window.location.pathname + window.location.search);
+    window.location.href = `/api/login?returnTo=${returnTo}`;
+    return <LoadingScreen />;
+  }
 
   // NDA is only required for internal/family/admin roles — not regular customers
   const needsNda = role !== null && NDA_REQUIRED_ROLES.has(role) && !user.ndaSigned;
