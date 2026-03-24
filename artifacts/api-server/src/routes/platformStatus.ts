@@ -11,6 +11,7 @@ import { Router, type Request, type Response } from "express";
 import { getUncachableStripeClient } from "../services/integrations/stripeClient.js";
 import { getCustomerStats, getSql } from "../lib/db.js";
 import { getPublicBaseUrl } from "../utils/publicUrl.js";
+import { getPlatformScores } from "../platform/platform_score.js";
 
 const router = Router();
 const IS_PROD = process.env["REPLIT_DEPLOYMENT"] === "1";
@@ -92,6 +93,7 @@ router.get("/json", async (_req: Request, res: Response) => {
     const checks = await runDiagnostics();
     const stats = await getCustomerStats().catch(() => null);
     const uptimeMs = Date.now() - START;
+    const scores = getPlatformScores();
     res.json({
       ok: checks.every(c => c.status !== "fail"),
       uptime: Math.round(uptimeMs / 1000) + "s",
@@ -99,6 +101,7 @@ router.get("/json", async (_req: Request, res: Response) => {
       customers: stats?.totalCustomers ?? null,
       revenue: stats ? "$" + (stats.totalRevenueCents / 100).toFixed(2) : null,
       generatedAt: new Date().toISOString(),
+      platformScores: scores,
     });
   } catch (err) {
     res.status(500).json({ ok: false, error: err instanceof Error ? err.message : String(err) });

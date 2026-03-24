@@ -23,6 +23,7 @@ import {
   getRegistryItem,
   COMMAND_HANDLERS,
 } from "../services/commandProcessor";
+import { getPlatformScores } from "../platform/platform_score.js";
 import { expandToLimit, getExpansionHistory } from "../services/expansionEngine";
 import { getConfigurationStatus, runSelfHeal } from "../services/systemConfigurator";
 import { logAudit } from "../services/audit";
@@ -221,6 +222,7 @@ router.get("/expand/history", requireFounder, async (_req: Request, res: Respons
 router.get("/health", (_req: Request, res: Response) => {
   const items  = getRegistry();
   const config = getConfigurationStatus();
+  const scores = getPlatformScores();
 
   res.json({
     status:               "online",
@@ -251,6 +253,8 @@ router.get("/health", (_req: Request, res: Response) => {
     timestamp:            new Date().toISOString(),
     version:              "CreateAI Brain — Command Processor v2",
     founderTier:          "ACTIVE",
+    // Founder-defined growth scoring engine
+    platformScores:       scores,
   });
 });
 
@@ -323,6 +327,14 @@ router.get("/stats", async (_req: Request, res: Response) => {
     console.error("[system/stats] error:", err);
     res.status(500).json({ error: "Failed to fetch stats" });
   }
+});
+
+// ─── GET /api/system/score ────────────────────────────────────────────────────
+// Founder-defined growth scoring engine.
+// Scores start at 100 and increase — no ceiling.
+
+router.get("/score", (_req: Request, res: Response) => {
+  res.json({ ok: true, ...getPlatformScores() });
 });
 
 // ─── GET /api/system/metrics ─────────────────────────────────────────────────

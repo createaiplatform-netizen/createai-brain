@@ -1,4 +1,5 @@
 import { Router } from "express";
+import { getPlatformScores } from "../platform/platform_score.js";
 
 import { getConnectivityMap }                      from "../../../createai-brain/src/universe/connectivityMap";
 import { getContinuum, getContinuumRegistry, getContinuumRelations, getContinuumChannels } from "../../../createai-brain/src/universe/continuum";
@@ -45,7 +46,14 @@ router.get("/first-world",               (_req, res) => res.json(firstWorld));
 router.get("/kids-universe",             (_req, res) => res.json(kidsUniverse));
 router.get("/master-manifest",           (_req, res) => res.json(universeOSMasterManifest));
 router.get("/page-manifest",             (_req, res) => res.json(universePageManifest));
-router.get("/reality/absolute-layer",    (_req, res) => res.json(absoluteLayer));
+router.get("/reality/absolute-layer",    (_req, res) => res.json({
+  ...absoluteLayer,
+  ceilingLayer: {
+    definition: "NONE",
+    minimum:    100,
+    scores:     getPlatformScores(),
+  },
+}));
 router.get("/reality/activation-map",    (_req, res) => res.json(activationMap));
 router.get("/reality/orchestrator",      (_req, res) => res.json(orchestratorLayer));
 router.get("/reality/stack",             (_req, res) => res.json(realityStack));

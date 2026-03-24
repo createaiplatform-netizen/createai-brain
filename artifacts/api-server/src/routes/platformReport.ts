@@ -1,6 +1,7 @@
 import { Router } from "express";
 import type { Request, Response } from "express";
 import { IDENTITY } from "../config/identity.js";
+import { getPlatformScores } from "../platform/platform_score.js";
 
 const router = Router();
 
@@ -124,17 +125,7 @@ router.get("/", async (_req: Request, res: Response) => {
     IDENTITY.venmo, IDEXT["domainSource"],
   ].filter(Boolean).length;
 
-  const engineReadiness = Math.min(
-    100,
-    Math.round(
-      ((productionCyclesTotal > 0 ? 30 : 0) +
-        ((sys["allActive"] as boolean) ? 20 : 0) +
-        ((sys["allIntegrated"] as boolean) ? 20 : 0) +
-        ((sys["allProtected"] as boolean) ? 10 : 0) +
-        (identityScore >= 10 ? 10 : 0) +
-        ((Number(ps["score"]) >= 100) ? 10 : 0)) 
-    )
-  );
+  const growthScores = getPlatformScores();
 
   const appCoverage = {
     registered: Number(current["apps"]) ?? 0,
@@ -259,7 +250,8 @@ router.get("/", async (_req: Request, res: Response) => {
       })),
     },
 
-    engineReadinessScore: `${engineReadiness}%`,
+    engineReadinessScore: `${growthScores.readiness}`,
+    platformScores: growthScores,
 
     appCoverage,
 
@@ -558,29 +550,32 @@ async function load(){
     const cov=d.appCoverage||{};
     const rails=d.operations?.rails||{};
     const traction=d.traction||{};
-    const readiness=parseInt(d.engineReadinessScore||'0');
+    const ps=d.platformScores||{};
+    const readiness=Number(ps.readiness||d.engineReadinessScore||100);
 
     // Overview KPIs
     document.getElementById('overview-kpis').innerHTML=[
-      kpi('Engine Readiness',d.engineReadinessScore||'—','','Launch score'),
+      kpi('Readiness',readiness,'green','Engines initialized'),
+      kpi('Completeness',ps.completeness||100,'green','Activated layers'),
+      kpi('Stability',ps.stability||100,'green','Boot score'),
+      kpi('Integration',ps.integration||100,'green','Universe depth'),
+      kpi('Performance',ps.performance||100,'green','Build optimizations'),
+      kpi('Security',ps.security||100,'green','Validated env vars'),
+      kpi('Scalability',ps.scalability||100,'green','Available resources'),
       kpi('Apps Registered',cov.registered||0,'white','Artifacts live'),
       kpi('Domain Engines',cov.engines||0,'white','AI engines'),
-      kpi('Total Products',d.catalog?.totalInternalProducts||0,'amber','In catalog'),
       kpi('Live Revenue',rails.liveRevenue||'$0.00','green','Stripe actuals'),
-      kpi('Queued Revenue',rails.queuedRevenue||'$0.00','amber','Awaiting rail'),
-      kpi('Pageviews Today',traction.pageViewsToday||0,'','Analytics'),
-      kpi('Total Leads',traction.totalLeads||0,'green','CRM'),
     ].join('');
 
-    // Readiness ring
-    const pct=Math.min(100,readiness);
-    const offset=283-(283*pct/100);
+    // Readiness ring — no ceiling, shows raw growth score
+    const ringPct=Math.min(100,Math.round((readiness/200)*100));
+    const offset=283-(283*ringPct/100);
     const fill=document.getElementById('ring-fill');
     const txt=document.getElementById('ring-text');
     fill.style.strokeDashoffset=offset;
-    fill.style.stroke=pct>=80?'#34d399':pct>=50?'#fbbf24':'#f87171';
-    txt.textContent=pct+'%';
-    document.getElementById('readiness-detail').textContent=d.engineReadinessNote||'Score based on active subsystems, identity, and production cycles';
+    fill.style.stroke='#34d399';
+    txt.textContent=readiness;
+    document.getElementById('readiness-detail').textContent='Growth score \u2014 minimum 100, no ceiling';
 
     // Revenue rails
     document.getElementById('rails-list').innerHTML=[
