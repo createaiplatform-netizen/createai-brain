@@ -2,12 +2,30 @@
 <html lang="en">
 <head>
     <meta charset="UTF-8"><meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>NEXUS ELITE | Intelligence Hub</title>
+    <title>NEXUS ELITE | Security Gate</title>
     <script src="https://cdn.tailwindcss.com"></script>
-    <style>body { background: #000; color: #fff; } .glass { background: rgba(255, 255, 255, 0.03); backdrop-filter: blur(10px); border: 1px solid rgba(255,255,255,0.1); }</style>
+    <script>
+        function checkAccess() {
+            const pass = document.getElementById('pass').value;
+            if(pass === 'NEXUS2026') {
+                document.getElementById('gate').classList.add('hidden');
+                document.getElementById('content').classList.remove('hidden');
+            } else {
+                alert('ACCESS DENIED: Credentials Invalid');
+            }
+        }
+    </script>
+    <style>body { background: #000; color: #fff; font-family: 'Inter', sans-serif; } .glass { background: rgba(255,255,255,0.03); backdrop-filter: blur(15px); border: 1px solid rgba(255,255,255,0.1); }</style>
 </head>
-<body class="p-6 md:p-12">
-    <div class="max-w-6xl mx-auto">
+<body class="flex items-center justify-center min-h-screen p-6">
+    <div id="gate" class="max-w-md w-full text-center glass p-10 rounded-3xl">
+        <div class="text-[10px] tracking-[0.4em] uppercase mb-4 opacity-50 font-light">Security Level: Elite</div>
+        <h2 class="text-2xl font-bold mb-6 tracking-tighter italic">NEXUS CORE LOGIN</h2>
+        <input type="password" id="pass" placeholder="ENTER ACCESS KEY" class="w-full bg-white/5 border border-white/10 p-4 rounded-xl text-center mb-4 focus:outline-none focus:border-white/40">
+        <button onclick="checkAccess()" class="w-full bg-white text-black py-4 rounded-xl font-bold hover:bg-gray-200 transition">AUTHORIZE</button>
+    </div>
+
+    <div id="content" class="hidden w-full max-w-6xl mx-auto py-12">
         <nav class="flex justify-between mb-16 items-center">
             <span class="font-bold tracking-tighter text-2xl">NEXUS CORE</span>
             <div class="flex gap-8 text-xs uppercase tracking-widest text-gray-400">
@@ -15,20 +33,19 @@
                 <a href="vault.html" class="hover:text-white">Vault</a>
             </div>
         </nav>
-        <div class="grid md:grid-cols-3 gap-8">
+        <div class="grid md:grid-cols-3 gap-8 text-left">
             <div class="md:col-span-2 glass p-8 rounded-3xl">
-                <h2 class="text-blue-400 font-bold mb-6">Active Intelligence Feed</h2>
+                <h2 class="text-blue-400 font-bold mb-6 italic">Active Intelligence Feed</h2>
                 <div class="space-y-4">
-                    <div class="p-4 glass rounded-xl text-sm border-l-4 border-blue-500">System: Web-Core Alpha initialized.</div>
-                    <div class="p-4 glass rounded-xl text-sm border-l-4 border-blue-300">Update: Sovereign Data Encryption active.</div>
-                    <div class="p-4 glass rounded-xl text-sm border-l-4 border-gray-600 opacity-50 italic text-gray-400 font-light">Awaiting next input...</div>
+                    <div class="p-4 glass rounded-xl text-sm border-l-4 border-blue-500 font-light italic text-gray-300">"Welcome to the Sovereign Architecture. All systems online."</div>
+                    <div class="p-4 glass rounded-xl text-sm border-l-4 border-blue-300 font-light italic text-gray-300">"Family Node Wisconsin: Connection Secured."</div>
                 </div>
             </div>
             <div class="glass p-8 rounded-3xl">
                 <h2 class="text-white font-bold mb-4">Core Vitals</h2>
                 <div class="space-y-6">
-                    <div><p class="text-[10px] uppercase text-gray-500 mb-1">Security Level</p><p class="text-xl">ELITE 01</p></div>
-                    <div><p class="text-[10px] uppercase text-gray-500 mb-1">Connected Nodes</p><p class="text-xl text-blue-400">Webster, WI</p></div>
+                    <div><p class="text-[10px] uppercase text-gray-500 mb-1 tracking-widest">Auth Protocol</p><p class="text-xl">BIOMETRIC/KEY</p></div>
+                    <div><p class="text-[10px] uppercase text-gray-500 mb-1 tracking-widest">Global Status</p><p class="text-xl text-blue-400 font-bold">ACTIVE</p></div>
                 </div>
             </div>
         </div>
