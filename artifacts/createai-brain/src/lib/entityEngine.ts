@@ -1,20 +1,15 @@
-// ==========================================================
 // src/lib/entityEngine.ts
-// Full-stack entity engine: all layers, one place.
-// Built to sit on top of your existing universalIdentityEngine + familyThemes.
-// ==========================================================
-
-import { buildUniversalIdentity, buildUniversalTheme } from './universalIdentityEngine';
+import {
+  buildUniversalIdentity,
+  buildUniversalTheme,
+  type UniversalIdentity,
+} from './universalIdentityEngine';
 import type { FamilyTheme } from './familyThemes';
-
-// ==========================================================
-// 1. Existence layer — Entity
-// ==========================================================
 
 export type EntityKind =
   | 'person'
-  | 'group'
   | 'family'
+  | 'group'
   | 'team'
   | 'business'
   | 'community'
@@ -37,39 +32,19 @@ export type Entity = {
 };
 
 export function createEntity(seed: string, kind: EntityKind = 'unknown', meta?: Record<string, unknown>): Entity {
-  const id = seed || crypto.randomUUID?.() || `entity-${Math.random().toString(36).slice(2)}`;
+  const id = seed || `entity-${Math.random().toString(36).slice(2)}`;
   return { id, seed: seed || id, kind, meta };
 }
 
-// ==========================================================
-// 2. Identity layer — EntityIdentity
-// ==========================================================
-
-export type EntityIdentity = {
-  entityId: EntityId;
-  label: string;
-  emoji: string;
-  tone: string;
-  description?: string;
-  archetype?: string;
-};
+// Identity
+export type EntityIdentity = UniversalIdentity & { entityId: EntityId };
 
 export function getEntityIdentity(entity: Entity): EntityIdentity {
   const base = buildUniversalIdentity(entity.seed);
-  return {
-    entityId: entity.id,
-    label: base.label,
-    emoji: base.emoji,
-    tone: base.tone,
-    description: entity.meta?.description as string | undefined,
-    archetype: entity.meta?.archetype as string | undefined,
-  };
+  return { ...base, entityId: entity.id };
 }
 
-// ==========================================================
-// 3. Theme layer — EntityTheme
-// ==========================================================
-
+// Theme
 export type EntityTheme = {
   entityId: EntityId;
   theme: FamilyTheme;
@@ -81,10 +56,7 @@ export function getEntityTheme(entity: Entity): EntityTheme {
   return { entityId: entity.id, theme };
 }
 
-// ==========================================================
-// 4. Universe layer — EntityUniverse
-// ==========================================================
-
+// Universe
 export type UniverseLayoutKind = 'dashboard' | 'room' | 'board' | 'timeline' | 'map' | 'feed' | 'canvas' | 'mixed';
 
 export type EntityUniverseModule =
@@ -97,7 +69,7 @@ export type EntityUniverseModule =
   | 'story'
   | 'relations'
   | 'timeline'
-  | 'custom';
+  | 'suggestions';
 
 export type EntityUniverse = {
   entityId: EntityId;
@@ -112,30 +84,18 @@ export function getEntityUniverse(entity: Entity): EntityUniverse {
   else if (kind === 'project') layout = 'board';
   else if (kind === 'person' || kind === 'family') layout = 'timeline';
 
-  const modules: EntityUniverseModule[] = ['overview', 'relations', 'timeline', 'story'];
-
+  const modules: EntityUniverseModule[] = ['overview', 'relations', 'timeline', 'story', 'suggestions'];
   if (kind === 'person' || kind === 'family') modules.push('memories');
   if (kind === 'team' || kind === 'business' || kind === 'project') modules.push('tasks', 'members', 'messages');
 
   return { entityId: entity.id, layout, modules };
 }
 
-// ==========================================================
-// 5. Relationship layer — EntityRelation
-// ==========================================================
-
+// Relationships
 export type RelationKind =
-  | 'parent'
-  | 'child'
-  | 'member-of'
-  | 'contains'
-  | 'depends-on'
-  | 'influences'
-  | 'mirrors'
-  | 'protects'
-  | 'supports'
-  | 'related'
-  | string;
+  | 'parent' | 'child' | 'member-of' | 'contains'
+  | 'depends-on' | 'influences' | 'mirrors'
+  | 'protects' | 'supports' | 'related' | string;
 
 export type EntityRelation = {
   from: EntityId;
@@ -145,30 +105,15 @@ export type EntityRelation = {
   directed?: boolean;
 };
 
-export type EntityGraph = {
-  entities: Entity[];
-  relations: EntityRelation[];
-};
-
 export function createRelation(from: Entity, to: Entity, kind: RelationKind, strength = 1, directed = true): EntityRelation {
   return { from: from.id, to: to.id, kind, strength, directed };
 }
 
-// ==========================================================
-// 6. Temporal layer — EntityEvent
-// ==========================================================
-
+// Time
 export type EntityEventKind =
-  | 'created'
-  | 'updated'
-  | 'joined'
-  | 'left'
-  | 'completed'
-  | 'paused'
-  | 'resumed'
-  | 'archived'
-  | 'revived'
-  | 'custom';
+  | 'created' | 'updated' | 'joined' | 'left'
+  | 'completed' | 'paused' | 'resumed'
+  | 'archived' | 'revived' | 'custom';
 
 export type EntityEvent = {
   id: string;
@@ -188,10 +133,7 @@ export function createEvent(entity: Entity, kind: EntityEventKind, payload?: Rec
   };
 }
 
-// ==========================================================
-// 7. Emotional layer — EntityMood / UniverseTone
-// ==========================================================
-
+// Emotion
 export type MoodTone = 'playful' | 'calm' | 'grounded' | 'cozy' | 'elegant' | 'steady' | 'protective' | 'celebratory';
 
 export type EntityMood = {
@@ -203,20 +145,13 @@ export type EntityMood = {
 export function getEntityMood(entity: Entity): EntityMood {
   const identity = buildUniversalIdentity(entity.seed);
   const toneMap: Record<string, MoodTone> = {
-    playful: 'playful',
-    calm: 'calm',
-    grounded: 'grounded',
-    cozy: 'cozy',
-    elegant: 'elegant',
+    playful: 'playful', calm: 'calm', grounded: 'grounded', cozy: 'cozy', elegant: 'elegant',
   };
   const tone = toneMap[identity.tone] ?? 'steady';
   return { entityId: entity.id, tone, intensity: 0.7 };
 }
 
-// ==========================================================
-// 8. Narrative layer — EntityStoryArc
-// ==========================================================
-
+// Narrative
 export type StoryPhase = 'beginning' | 'middle' | 'turning-point' | 'resolution' | 'open';
 
 export type EntityStoryArc = {
@@ -236,20 +171,11 @@ export function getDefaultStoryArc(entity: Entity): EntityStoryArc {
   };
 }
 
-// ==========================================================
-// 9. Ecosystem layer — EntityCluster / Ecosystem
-// ==========================================================
-
+// Ecosystem
 export type EntityCluster = {
   id: string;
   label: string;
   entityIds: EntityId[];
-};
-
-export type Ecosystem = {
-  id: string;
-  label: string;
-  clusters: EntityCluster[];
 };
 
 export function createCluster(label: string, entities: Entity[]): EntityCluster {
@@ -260,17 +186,10 @@ export function createCluster(label: string, entities: Entity[]): EntityCluster 
   };
 }
 
-// ==========================================================
-// 10. Possibility layer — EntitySuggestion
-// ==========================================================
-
+// Possibility
 export type SuggestionKind =
-  | 'new-entity'
-  | 'new-relation'
-  | 'new-universe-module'
-  | 'new-story-arc'
-  | 'new-cluster'
-  | 'custom';
+  | 'new-entity' | 'new-relation' | 'new-universe-module'
+  | 'new-story-arc' | 'new-cluster' | 'custom';
 
 export type EntitySuggestion = {
   id: string;
@@ -282,31 +201,25 @@ export type EntitySuggestion = {
 
 export function suggestNextForEntity(entity: Entity): EntitySuggestion[] {
   const identity = getEntityIdentity(entity);
-  const suggestions: EntitySuggestion[] = [];
-
-  suggestions.push({
-    id: `sugg-universe-${entity.id}`,
-    kind: 'new-universe-module',
-    forEntityId: entity.id,
-    label: `Add a story space for ${identity.label}`,
-    details: 'Create a Story module to track arcs, milestones, and turning points.',
-  });
-
-  suggestions.push({
-    id: `sugg-relation-${entity.id}`,
-    kind: 'new-relation',
-    forEntityId: entity.id,
-    label: `Link ${identity.label} to related entities`,
-    details: 'Connect this entity to others it depends on, supports, or belongs with.',
-  });
-
-  return suggestions;
+  return [
+    {
+      id: `sugg-universe-${entity.id}`,
+      kind: 'new-universe-module',
+      forEntityId: entity.id,
+      label: `Add a story space for ${identity.label}`,
+      details: 'Create a Story module to track arcs, milestones, and turning points.',
+    },
+    {
+      id: `sugg-relation-${entity.id}`,
+      kind: 'new-relation',
+      forEntityId: entity.id,
+      label: `Link ${identity.label} to related entities`,
+      details: 'Connect this entity to others it depends on, supports, or belongs with.',
+    },
+  ];
 }
 
-// ==========================================================
-// Convenience: full "view" of an entity across layers
-// ==========================================================
-
+// Full View
 export type EntityView = {
   entity: Entity;
   identity: EntityIdentity;

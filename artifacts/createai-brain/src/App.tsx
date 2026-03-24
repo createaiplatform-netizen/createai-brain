@@ -28,6 +28,7 @@ import SmartFhirConnectedApp from "@/Apps/SmartFhirConnectedApp";
 import NpaGatewayPage from "@/pages/NpaGatewayPage";
 import FamilyHubPage from "@/pages/FamilyHubPage";
 import ThemePreviewPage from "@/pages/ThemePreviewPage";
+import { ActivatedUniverse } from "@/components/ActivatedUniverse";
 import PublicBridgePage from "@/pages/PublicBridgePage";
 import PublicFamilyPage from "@/pages/PublicFamilyPage";
 import AdminDashboardPage from "@/pages/AdminDashboardPage";
@@ -141,6 +142,10 @@ function Router() {
       <Route path="/family-hub" component={FamilyHubPage} />
       {/* Theme preview — visual-only, no auth bypass, no data changes */}
       <Route path="/preview-theme/:themeId" component={ThemePreviewPage} />
+      {/* Entity Universe — deterministic identity + theme from any seed */}
+      <Route path="/entity/:seed">
+        {(params: { seed: string }) => <ActivatedUniverse seed={params.seed} kind="person" />}
+      </Route>
       <Route path="/standalone/creation/:creationId" component={CreationPage} />
       <Route path="/standalone/:projectId" component={StandalonePage} />
 

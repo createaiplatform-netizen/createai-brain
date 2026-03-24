@@ -1,0 +1,514 @@
+// ==========================================================
+// FULL ACTIVATION (Replit-ready, using YOUR universalIdentityEngine.ts)
+// Files here:
+//   src/lib/entityEngine.ts
+//   src/components/ActivatedUniverse.tsx
+//   src/App.tsx
+// Assumes:
+//   src/lib/universalIdentityEngine.ts = your exact version already in repo
+// ==========================================================
+
+// =======================
+// src/lib/entityEngine.ts
+// =======================
+import {
+  buildUniversalIdentity,
+  buildUniversalTheme,
+  type UniversalIdentity,
+} from './universalIdentityEngine';
+import type { FamilyTheme } from './familyThemes';
+
+export type EntityKind =
+  | 'person'
+  | 'family'
+  | 'group'
+  | 'team'
+  | 'business'
+  | 'community'
+  | 'project'
+  | 'world'
+  | 'system'
+  | 'concept'
+  | 'object'
+  | 'space'
+  | 'unknown'
+  | string;
+
+export type EntityId = string;
+
+export type Entity = {
+  id: EntityId;
+  seed: string;
+  kind: EntityKind;
+  meta?: Record<string, unknown>;
+};
+
+export function createEntity(seed: string, kind: EntityKind = 'unknown', meta?: Record<string, unknown>): Entity {
+  const id = seed || `entity-${Math.random().toString(36).slice(2)}`;
+  return { id, seed: seed || id, kind, meta };
+}
+
+// Identity
+export type EntityIdentity = UniversalIdentity & { entityId: EntityId };
+
+export function getEntityIdentity(entity: Entity): EntityIdentity {
+  const base = buildUniversalIdentity(entity.seed);
+  return {
+    ...base,
+    entityId: entity.id,
+  };
+}
+
+// Theme
+export type EntityTheme = {
+  entityId: EntityId;
+  theme: FamilyTheme;
+};
+
+export function getEntityTheme(entity: Entity): EntityTheme {
+  const identity = buildUniversalIdentity(entity.seed);
+  const theme = buildUniversalTheme(entity.seed, identity);
+  return { entityId: entity.id, theme };
+}
+
+// Universe
+export type UniverseLayoutKind = 'dashboard' | 'room' | 'board' | 'timeline' | 'map' | 'feed' | 'canvas' | 'mixed';
+
+export type EntityUniverseModule =
+  | 'overview'
+  | 'members'
+  | 'tasks'
+  | 'messages'
+  | 'memories'
+  | 'settings'
+  | 'story'
+  | 'relations'
+  | 'timeline'
+  | 'suggestions';
+
+export type EntityUniverse = {
+  entityId: EntityId;
+  layout: UniverseLayoutKind;
+  modules: EntityUniverseModule[];
+};
+
+export function getEntityUniverse(entity: Entity): EntityUniverse {
+  const kind = entity.kind;
+  let layout: UniverseLayoutKind = 'dashboard';
+  if (kind === 'world' || kind === 'system') layout = 'map';
+  else if (kind === 'project') layout = 'board';
+  else if (kind === 'person' || kind === 'family') layout = 'timeline';
+
+  const modules: EntityUniverseModule[] = [
+    'overview',
+    'relations',
+    'timeline',
+    'story',
+    'suggestions',
+  ];
+
+  if (kind === 'person' || kind === 'family') modules.push('memories');
+  if (kind === 'team' || kind === 'business' || kind === 'project') modules.push('tasks', 'members', 'messages');
+
+  return { entityId: entity.id, layout, modules };
+}
+
+// Relationships
+export type RelationKind =
+  | 'parent'
+  | 'child'
+  | 'member-of'
+  | 'contains'
+  | 'depends-on'
+  | 'influences'
+  | 'mirrors'
+  | 'protects'
+  | 'supports'
+  | 'related'
+  | string;
+
+export type EntityRelation = {
+  from: EntityId;
+  to: EntityId;
+  kind: RelationKind;
+  strength?: number;
+  directed?: boolean;
+};
+
+export function createRelation(from: Entity, to: Entity, kind: RelationKind, strength = 1, directed = true): EntityRelation {
+  return { from: from.id, to: to.id, kind, strength, directed };
+}
+
+// Time
+export type EntityEventKind =
+  | 'created'
+  | 'updated'
+  | 'joined'
+  | 'left'
+  | 'completed'
+  | 'paused'
+  | 'resumed'
+  | 'archived'
+  | 'revived'
+  | 'custom';
+
+export type EntityEvent = {
+  id: string;
+  entityId: EntityId;
+  kind: EntityEventKind;
+  at: string;
+  payload?: Record<string, unknown>;
+};
+
+export function createEvent(entity: Entity, kind: EntityEventKind, payload?: Record<string, unknown>): EntityEvent {
+  return {
+    id: `evt-${entity.id}-${Date.now()}-${Math.random().toString(36).slice(2)}`,
+    entityId: entity.id,
+    kind,
+    at: new Date().toISOString(),
+    payload,
+  };
+}
+
+// Emotion
+export type MoodTone = 'playful' | 'calm' | 'grounded' | 'cozy' | 'elegant' | 'steady' | 'protective' | 'celebratory';
+
+export type EntityMood = {
+  entityId: EntityId;
+  tone: MoodTone;
+  intensity: number;
+};
+
+export function getEntityMood(entity: Entity): EntityMood {
+  const identity = buildUniversalIdentity(entity.seed);
+  const toneMap: Record<string, MoodTone> = {
+    playful: 'playful',
+    calm: 'calm',
+    grounded: 'grounded',
+    cozy: 'cozy',
+    elegant: 'elegant',
+  };
+  const tone = toneMap[identity.tone] ?? 'steady';
+  return { entityId: entity.id, tone, intensity: 0.7 };
+}
+
+// Narrative
+export type StoryPhase = 'beginning' | 'middle' | 'turning-point' | 'resolution' | 'open';
+
+export type EntityStoryArc = {
+  entityId: EntityId;
+  title: string;
+  phase: StoryPhase;
+  summary?: string;
+};
+
+export function getDefaultStoryArc(entity: Entity): EntityStoryArc {
+  const identity = getEntityIdentity(entity);
+  return {
+    entityId: entity.id,
+    title: `${identity.label} · First Chapter`,
+    phase: 'beginning',
+    summary: 'This entity has just entered the universe. Its story is just starting.',
+  };
+}
+
+// Ecosystem
+export type EntityCluster = {
+  id: string;
+  label: string;
+  entityIds: EntityId[];
+};
+
+export function createCluster(label: string, entities: Entity[]): EntityCluster {
+  return {
+    id: `cluster-${label.toLowerCase().replace(/\s+/g, '-')}-${Math.random().toString(36).slice(2)}`,
+    label,
+    entityIds: entities.map((e) => e.id),
+  };
+}
+
+// Possibility
+export type SuggestionKind =
+  | 'new-entity'
+  | 'new-relation'
+  | 'new-universe-module'
+  | 'new-story-arc'
+  | 'new-cluster'
+  | 'custom';
+
+export type EntitySuggestion = {
+  id: string;
+  kind: SuggestionKind;
+  forEntityId?: EntityId;
+  label: string;
+  details?: string;
+};
+
+export function suggestNextForEntity(entity: Entity): EntitySuggestion[] {
+  const identity = getEntityIdentity(entity);
+  return [
+    {
+      id: `sugg-universe-${entity.id}`,
+      kind: 'new-universe-module',
+      forEntityId: entity.id,
+      label: `Add a story space for ${identity.label}`,
+      details: 'Create a Story module to track arcs, milestones, and turning points.',
+    },
+    {
+      id: `sugg-relation-${entity.id}`,
+      kind: 'new-relation',
+      forEntityId: entity.id,
+      label: `Link ${identity.label} to related entities`,
+      details: 'Connect this entity to others it depends on, supports, or belongs with.',
+    },
+  ];
+}
+
+// Full View
+export type EntityView = {
+  entity: Entity;
+  identity: EntityIdentity;
+  theme: EntityTheme;
+  universe: EntityUniverse;
+  mood: EntityMood;
+  story: EntityStoryArc;
+  suggestions: EntitySuggestion[];
+};
+
+export function buildEntityView(entity: Entity): EntityView {
+  return {
+    entity,
+    identity: getEntityIdentity(entity),
+    theme: getEntityTheme(entity),
+    universe: getEntityUniverse(entity),
+    mood: getEntityMood(entity),
+    story: getDefaultStoryArc(entity),
+    suggestions: suggestNextForEntity(entity),
+  };
+}
+
+// =======================
+// src/components/ActivatedUniverse.tsx
+// =======================
+import React from 'react';
+import {
+  createEntity,
+  buildEntityView,
+  type EntityKind,
+  type EntityView,
+} from '../lib/entityEngine';
+
+type ActivatedUniverseProps = {
+  seed: string;
+  kind?: EntityKind;
+};
+
+export const ActivatedUniverse: React.FC<ActivatedUniverseProps> = ({ seed, kind = 'unknown' }) => {
+  const entity = createEntity(seed, kind);
+  const view: EntityView = buildEntityView(entity);
+
+  const { identity, theme, universe, mood, story, suggestions } = view;
+
+  const bg = theme.theme.background ?? '#05060a';
+  const primary = theme.theme.primary;
+  const accent = theme.theme.accent;
+  const text = theme.theme.text ?? '#ffffff';
+
+  return (
+    <div
+      style={{
+        minHeight: '100vh',
+        padding: '24px',
+        background: `radial-gradient(circle at top, ${accent}22, ${bg})`,
+        color: text,
+        fontFamily: 'system-ui, -apple-system, BlinkMacSystemFont, sans-serif',
+      }}
+    >
+      {/* Identity + Theme */}
+      <header
+        style={{
+          borderRadius: 16,
+          padding: 16,
+          marginBottom: 24,
+          background: `${primary}33`,
+          border: `1px solid ${primary}88`,
+          display: 'flex',
+          alignItems: 'center',
+          justifyContent: 'space-between',
+          gap: 16,
+        }}
+      >
+        <div style={{ display: 'flex', alignItems: 'center', gap: 12 }}>
+          <div
+            style={{
+              fontSize: 32,
+              padding: 8,
+              borderRadius: 12,
+              background: `${accent}22`,
+            }}
+          >
+            {identity.emoji}
+          </div>
+          <div>
+            <div style={{ fontSize: 20, fontWeight: 600 }}>
+              {identity.label} <span style={{ opacity: 0.7 }}>· {entity.kind}</span>
+            </div>
+            <div style={{ fontSize: 13, opacity: 0.8 }}>
+              Tone: {identity.tone} · Mood: {mood.tone} ({Math.round(mood.intensity * 100)}%)
+            </div>
+            <div style={{ fontSize: 12, opacity: 0.7 }}>
+              Universe layout: {universe.layout} · Modules: {universe.modules.join(', ')}
+            </div>
+          </div>
+        </div>
+        <div
+          style={{
+            display: 'flex',
+            gap: 8,
+            alignItems: 'center',
+            fontSize: 11,
+            textTransform: 'uppercase',
+            letterSpacing: 0.08,
+          }}
+        >
+          <span
+            style={{
+              padding: '4px 8px',
+              borderRadius: 999,
+              border: `1px solid ${accent}88`,
+              background: `${accent}22`,
+            }}
+          >
+            Seed: {entity.seed}
+          </span>
+          <span
+            style={{
+              padding: '4px 8px',
+              borderRadius: 999,
+              border: `1px solid ${primary}66`,
+              background: `${primary}22`,
+            }}
+          >
+            Universe ID: {entity.id}
+          </span>
+        </div>
+      </header>
+
+      {/* Grid: Story · Suggestions */}
+      <div
+        style={{
+          display: 'grid',
+          gridTemplateColumns: 'minmax(0, 2fr) minmax(0, 1.5fr)',
+          gap: 16,
+        }}
+      >
+        {/* Story / Timeline */}
+        <section
+          style={{
+            borderRadius: 16,
+            padding: 16,
+            background: '#00000055',
+            border: `1px solid ${primary}55`,
+          }}
+        >
+          <div style={{ fontSize: 14, fontWeight: 600, marginBottom: 8 }}>Story Arc</div>
+          <div style={{ fontSize: 13, opacity: 0.8, marginBottom: 4 }}>{story.title}</div>
+          <div
+            style={{
+              fontSize: 11,
+              textTransform: 'uppercase',
+              letterSpacing: 0.08,
+              opacity: 0.7,
+              marginBottom: 8,
+            }}
+          >
+            Phase: {story.phase}
+          </div>
+          <div style={{ fontSize: 13, opacity: 0.85 }}>{story.summary}</div>
+          <div
+            style={{
+              marginTop: 16,
+              fontSize: 11,
+              opacity: 0.7,
+              borderTop: '1px solid #ffffff22',
+              paddingTop: 8,
+            }}
+          >
+            Timeline will render here (events, milestones, turning points) once wired to real data.
+          </div>
+        </section>
+
+        {/* Suggestions / Possibility */}
+        <section
+          style={{
+            borderRadius: 16,
+            padding: 16,
+            background: '#00000055',
+            border: `1px solid ${accent}55`,
+          }}
+        >
+          <div style={{ fontSize: 14, fontWeight: 600, marginBottom: 8 }}>Universe Suggestions</div>
+          {suggestions.map((s) => (
+            <div
+              key={s.id}
+              style={{
+                marginBottom: 8,
+                padding: 8,
+                borderRadius: 10,
+                background: '#ffffff08',
+                border: '1px solid #ffffff22',
+              }}
+            >
+              <div style={{ fontSize: 12, fontWeight: 600 }}>{s.label}</div>
+              {s.details && (
+                <div style={{ fontSize: 11, opacity: 0.8, marginTop: 2 }}>{s.details}</div>
+              )}
+              <div
+                style={{
+                  fontSize: 10,
+                  opacity: 0.6,
+                  marginTop: 4,
+                  textTransform: 'uppercase',
+                  letterSpacing: 0.08,
+                }}
+              >
+                Kind: {s.kind}
+              </div>
+            </div>
+          ))}
+          {suggestions.length === 0 && (
+            <div style={{ fontSize: 12, opacity: 0.7 }}>No suggestions yet. This universe is at rest.</div>
+          )}
+        </section>
+      </div>
+
+      {/* Relations / Ecosystem placeholder */}
+      <section
+        style={{
+          marginTop: 16,
+          borderRadius: 16,
+          padding: 16,
+          background: '#00000055',
+          border: `1px solid ${primary}33`,
+        }}
+      >
+        <div style={{ fontSize: 14, fontWeight: 600, marginBottom: 8 }}>Relations & Ecosystem</div>
+        <div style={{ fontSize: 12, opacity: 0.8 }}>
+          Relationship graph, clusters, and ecosystem views will render here once wired to your real
+          relation + cluster data. The engine is ready; this surface is the live canvas.
+        </div>
+      </section>
+    </div>
+  );
+};
+
+// =======================
+// src/App.tsx
+// =======================
+import React from 'react';
+import { ActivatedUniverse } from './components/ActivatedUniverse';
+
+export default function App() {
+  // Change seed/kind freely: people, families, worlds, systems, concepts, etc.
+  return <ActivatedUniverse seed="family-universe-root" kind="family" />;
+}
