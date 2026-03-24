@@ -1,0 +1,171 @@
+// src/storefront/Storefront.tsx
+import React from "react";
+import { Route, Link } from "wouter";
+
+// ---------- Home (Hero + Entry) ----------
+
+function StorefrontHome() {
+  return (
+    <main className="page page--storefront">
+      <section className="hero">
+        <h1>Welcome to the CreateAI World</h1>
+        <p>
+          A calm, human space where ideas become living artifacts. Not products,
+          but pieces of a universe.
+        </p>
+        <div className="hero-actions">
+          <Link href="/entity/root">Enter the World</Link>
+          <Link href="/artifacts">Explore the Artifacts</Link>
+        </div>
+      </section>
+
+      <section className="section">
+        <h2>What this place is</h2>
+        <p>
+          A collection of tools, stories, and systems designed to help you build
+          your own world—your way.
+        </p>
+      </section>
+
+      <section className="section">
+        <h2>Featured artifacts</h2>
+        <ul className="artifact-grid">
+          <li>
+            <h3>The Story Engine</h3>
+            <p>Shape worlds, characters, and meaning with intention.</p>
+          </li>
+          <li>
+            <h3>The Memory Weaver</h3>
+            <p>Capture lived experience and turn it into something beautiful.</p>
+          </li>
+          <li>
+            <h3>The Creator’s Compass</h3>
+            <p>Navigate your creative life with clarity and calm.</p>
+          </li>
+        </ul>
+        <Link href="/artifacts">See all artifacts →</Link>
+      </section>
+    </main>
+  );
+}
+
+// ---------- Artifacts List ----------
+
+const ARTIFACTS = [
+  {
+    id: "story-engine",
+    name: "The Story Engine",
+    summary: "A guide for shaping worlds, characters, and meaning.",
+  },
+  {
+    id: "memory-weaver",
+    name: "The Memory Weaver",
+    summary: "A gentle framework for capturing your lived experiences.",
+  },
+  {
+    id: "creators-compass",
+    name: "The Creator’s Compass",
+    summary: "A grounding system for your creative life.",
+  },
+];
+
+function ArtifactsPage() {
+  return (
+    <main className="page">
+      <header className="page-header">
+        <h1>Artifacts</h1>
+        <p>Choose the pieces that belong in your world.</p>
+      </header>
+
+      <ul className="artifact-grid">
+        {ARTIFACTS.map((a) => (
+          <li key={a.id}>
+            <h2>{a.name}</h2>
+            <p>{a.summary}</p>
+          </li>
+        ))}
+      </ul>
+
+      <footer className="page-footer">
+        <Link href="/">← Back to home</Link>
+      </footer>
+    </main>
+  );
+}
+
+// ---------- Membership ----------
+
+function MembershipPage() {
+  return (
+    <main className="page">
+      <header className="page-header">
+        <h1>Inner Circle Membership</h1>
+        <p>
+          A quiet, supportive space for deeper tools, early access, and
+          behind‑the‑scenes worldbuilding.
+        </p>
+      </header>
+
+      <section className="section">
+        <h2>What you receive</h2>
+        <ul>
+          <li>Deeper, universe‑aligned tools</li>
+          <li>Private artifacts and experiments</li>
+          <li>Early access to new worlds and systems</li>
+        </ul>
+      </section>
+
+      <section className="section">
+        <h2>What it’s really about</h2>
+        <p>
+          Membership isn’t about more content. It’s about belonging to the world
+          you’re building.
+        </p>
+      </section>
+
+      <footer className="page-footer">
+        <Link href="/">← Back to home</Link>
+      </footer>
+    </main>
+  );
+}
+
+// ---------- About ----------
+
+function AboutPage() {
+  return (
+    <main className="page">
+      <header className="page-header">
+        <h1>About this world</h1>
+        <p>
+          Built with love for families, creators, and anyone who wants to make
+          something meaningful.
+        </p>
+      </header>
+
+      <section className="section">
+        <p>
+          CreateAI isn’t just a product line. It’s a doorway—a place where your
+          ideas can breathe and become real.
+        </p>
+      </section>
+
+      <footer className="page-footer">
+        <Link href="/">← Back to home</Link>
+      </footer>
+    </main>
+  );
+}
+
+// ---------- Storefront Routes Mount ----------
+
+export function StorefrontRoutes() {
+  return (
+    <>
+      <Route path="/" component={StorefrontHome} />
+      <Route path="/artifacts" component={ArtifactsPage} />
+      <Route path="/membership" component={MembershipPage} />
+      <Route path="/about" component={AboutPage} />
+    </>
+  );
+}

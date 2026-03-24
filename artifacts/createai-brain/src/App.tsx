@@ -29,6 +29,7 @@ import NpaGatewayPage from "@/pages/NpaGatewayPage";
 import FamilyHubPage from "@/pages/FamilyHubPage";
 import ThemePreviewPage from "@/pages/ThemePreviewPage";
 import { ActivatedUniverse } from "@/components/ActivatedUniverse";
+import { StorefrontRoutes } from "@/storefront/Storefront";
 import PublicBridgePage from "@/pages/PublicBridgePage";
 import PublicFamilyPage from "@/pages/PublicFamilyPage";
 import AdminDashboardPage from "@/pages/AdminDashboardPage";
@@ -783,7 +784,13 @@ function App() {
     // Public info pages — pricing, privacy policy
     path.startsWith(`${base}/pricing`) ||
     path.startsWith(`${base}/privacy`) ||
-    path.startsWith(`${base}/terms`);
+    path.startsWith(`${base}/terms`) ||
+    // Storefront public pages — home, artifacts, membership, about
+    path === base ||
+    path === `${base}/` ||
+    path.startsWith(`${base}/artifacts`) ||
+    path.startsWith(`${base}/membership`) ||
+    path.startsWith(`${base}/about`);
 
   if (isPublicRoute) {
     return (
@@ -830,6 +837,8 @@ function App() {
           <Route path="/pricing"          component={PricingPage} />
           <Route path="/privacy"          component={PrivacyPage} />
           <Route path="/terms"            component={TermsPage} />
+          {/* Storefront — home, artifacts, membership, about */}
+          <StorefrontRoutes />
         </WouterRouter>
       </QueryClientProvider>
     );
