@@ -1,0 +1,111 @@
+Build a unified Autonomous Execution System that integrates:
+
+- Outcome Execution Layer
+- Strategy Planner
+- Engine Selector
+- AI Gatekeeper (token minimization)
+- Template System
+- Execution + Feedback Loop
+
+SYSTEM ARCHITECTURE (STRICT ORDER):
+
+1. CAPABILITY LAYER
+- Create capabilityRegistry.ts
+- Map all engines → capabilities
+- Each engine must declare:
+  - domain
+  - inputs
+  - outputs
+  - capabilities
+
+2. ENGINE SELECTOR
+- Create engineSelector.ts
+- Input: capability + context
+- Output: ranked engines
+- Ranking factors:
+  - relevance
+  - success rate
+  - dependencies
+- Must support fallback engines
+
+3. AI GATEKEEPER
+- Create aiGatekeeper.ts
+- Before ANY AI call:
+  - check templates
+  - check DB cache
+  - check deterministic logic
+- Only allow AI if no other solution exists
+
+4. TEMPLATE REGISTRY
+- Create templateRegistry.ts
+- Store reusable templates:
+  - business plans
+  - emails
+  - campaigns
+  - workflows
+- Support variable injection
+
+5. STRATEGY PLANNER
+- Create strategyPlanner.ts
+- Input: outcome/goal
+- Output: ordered steps with required capabilities
+- Must NOT reference engines directly
+
+6. OUTCOME ENGINE (TOP LAYER)
+- Create outcomeEngine.ts
+
+Flow:
+- Receive goal
+- Generate strategy via strategyPlanner
+- For each step:
+  - resolve capability → engineSelector
+  - execute engine
+  - validate result
+  - retry with fallback if needed
+
+7. EXECUTION LOOP
+- Support:
+  - sequential steps
+  - parallel execution where possible
+- After each step:
+  - log success/failure
+  - adapt next step
+
+8. FEEDBACK + LEARNING
+- Track:
+  - engine success rates
+  - outcome success rates
+- Adjust engine rankings dynamically
+
+9. AI MINIMIZATION RULES
+- AI is only used if:
+  - no template exists
+  - no engine can fulfill request
+- Cache all AI outputs in DB
+- Reuse whenever possible
+
+10. API ENDPOINT
+Create:
+POST /api/outcome/execute
+
+Body:
+{
+  "goal": string,
+  "context": object
+}
+
+Response:
+- execution plan
+- engines used
+- results
+- success status
+
+11. LOGGING + OBSERVABILITY
+- Log:
+  - each step
+  - engine decisions
+  - failures + retries
+  - AI usage
+
+FINAL REQUIREMENT:
+System must operate primarily using internal engines, templates, and deterministic logic, minimizing AI token usage while achieving full autonomous execution of goals.

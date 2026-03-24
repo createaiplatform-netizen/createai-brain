@@ -759,6 +759,42 @@ export async function bootstrapSchema(): Promise<void> {
       )
     `;
 
+    // ── Autonomous Execution System tables ─────────────────────────────────
+    await sql`
+      CREATE TABLE IF NOT EXISTS aes_engine_stats (
+        engine_id   TEXT PRIMARY KEY,
+        total_runs  BIGINT NOT NULL DEFAULT 0,
+        successes   BIGINT NOT NULL DEFAULT 0,
+        failures    BIGINT NOT NULL DEFAULT 0,
+        avg_ms      NUMERIC(10,2) NOT NULL DEFAULT 0,
+        updated_at  TIMESTAMPTZ NOT NULL DEFAULT NOW()
+      )
+    `;
+    await sql`
+      CREATE TABLE IF NOT EXISTS aes_outcome_stats (
+        goal_hash   TEXT PRIMARY KEY,
+        goal_prefix TEXT NOT NULL DEFAULT '',
+        total_runs  BIGINT NOT NULL DEFAULT 0,
+        successes   BIGINT NOT NULL DEFAULT 0,
+        updated_at  TIMESTAMPTZ NOT NULL DEFAULT NOW()
+      )
+    `;
+    await sql`
+      CREATE TABLE IF NOT EXISTS aes_ai_cache (
+        cache_key   TEXT PRIMARY KEY,
+        prompt_hash TEXT NOT NULL DEFAULT '',
+        result      TEXT NOT NULL DEFAULT '',
+        created_at  TIMESTAMPTZ NOT NULL DEFAULT NOW(),
+        hit_count   BIGINT NOT NULL DEFAULT 0
+      )
+    `;
+    await sql`
+      CREATE INDEX IF NOT EXISTS idx_aes_engine_stats_engine ON aes_engine_stats(engine_id)
+    `;
+    await sql`
+      CREATE INDEX IF NOT EXISTS idx_aes_ai_cache_key ON aes_ai_cache(cache_key)
+    `;
+
     console.log("[DB] Schema bootstrap complete");
   } catch (err) {
     console.error("[DB] Schema bootstrap failed:", err instanceof Error ? err.message : String(err));

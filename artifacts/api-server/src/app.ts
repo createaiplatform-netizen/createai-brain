@@ -121,6 +121,7 @@ import optInRouter               from "./routes/optIn.js";
 import crlRouter                 from "./routes/crl.js";
 import broadcastGlobalRouter     from "./routes/broadcastGlobal.js";
 import universeDataRouter        from "./routes/universeData.js";
+import outcomeRouter              from "./routes/outcome.js";
 
 export { chatLimiter, heavyLimiter, editLimiter } from "./middlewares/rateLimiters";
 
@@ -592,6 +593,7 @@ app.use("/api/opt-in",      optInRouter);
 app.use("/api/crl",         crlRouter);
 app.use("/api/broadcast",  broadcastGlobalRouter);
 app.use("/api/universe-data", universeDataRouter);
+app.use("/api/outcome",      outcomeRouter);
 
 // ── API (private — Replit auth + scope) ──────────────────────────────────────
 app.use(authMiddleware);
