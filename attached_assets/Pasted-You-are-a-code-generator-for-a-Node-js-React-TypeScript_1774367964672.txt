@@ -1,0 +1,46 @@
+You are a code generator for a Node.js + React/TypeScript project. Build the **fully functional Autonomous Execution System (AES)** in one pass. Follow these rules:
+
+1. **Backend (API server)**:
+   - Node.js + Express, existing DB tables: aes_engine_stats, aes_outcome_stats, aes_ai_cache
+   - Services to create or complete in `artifacts/api-server/src/services/autonomousExecution/`:
+       * capabilityRegistry.ts
+       * engineSelector.ts
+       * aiGatekeeper.ts
+       * templateRegistry.ts
+       * strategyPlanner.ts
+       * outcomeEngine.ts
+       * feedbackStore.ts
+   - API Endpoints:
+       * POST `/api/outcome/execute` – submit goal + context, return execution plan, step results, engines used, AI call count, tokens saved
+       * GET `/api/outcome/capabilities` – list engine capabilities
+       * GET `/api/outcome/templates` – list available templates
+       * GET `/api/outcome/engine-stats` – live engine performance
+   - Include logging/audit calls, retry/fallback logic, and feedback integration
+   - Use project patterns for DB access and async functions
+
+2. **Frontend (React/TypeScript)**:
+   - Components in `src/components/aes/`:
+       * ExecutionStepCard.tsx
+       * ExecutionResults.tsx
+       * EngineStatsPanel.tsx
+   - Hooks in `src/hooks/aes/`:
+       * useAutonomousExecution.ts
+       * useEngineStats.ts – fetch with credentials, map totalRuns → runCount, avgMs → averageLatency
+   - Page: `src/pages/AutonomousExecutionPage.tsx`
+       * Left panel: goal input, context key-value builder, submit button, sequential execution plan display
+       * Right panel: template selector + engine stats (refresh every 30s)
+       * Sequential step animation (pending → running → success) after API returns
+       * Dark space theme, responsive layout
+   - Navigation wiring:
+       * App.tsx: `<Route path="/autonomous-execution" element={<AutonomousExecutionPage />} />`
+       * Sidebar.tsx: add Indigo nav button
+       * GlobalCommandPalette.tsx: add `act:autonomous-exec` quick action
+
+3. **Constraints**:
+   - **No axios**, only fetch with `credentials: "include"` and `import.meta.env.BASE_URL`
+   - Fully functional in **one generation**, zero extra AI calls
+   - Follow existing code patterns for hooks, state, and TypeScript
+   - Generate all files ready to copy/paste, no explanations, no partial outputs
+
+4. **Output format**:
+   - Output all files in copyable structure:
