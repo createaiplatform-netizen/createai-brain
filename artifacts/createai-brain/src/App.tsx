@@ -75,6 +75,8 @@ import ContinuumDashboardPage      from "@/pages/ContinuumDashboardPage";
 import RealityExplorerPage         from "@/pages/RealityExplorerPage";
 import SelfExplorerPage            from "@/pages/SelfExplorerPage";
 import AllSystemsPage              from "@/pages/AllSystemsPage";
+import FamilyModePage              from "@/pages/FamilyModePage";
+import PublicExplorerPage          from "@/pages/PublicExplorerPage";
 import SemanticStorePage           from "@/pages/SemanticStorePage";
 import PlatformScorePage           from "@/pages/PlatformScorePage";
 import CheckoutPage                from "@/pages/CheckoutPage";
@@ -179,6 +181,7 @@ function Router() {
       <Route path="/reality-explorer"     component={RealityExplorerPage} />
       <Route path="/self-explorer"        component={SelfExplorerPage} />
       <Route path="/all-systems"          component={AllSystemsPage} />
+      <Route path="/family-mode"          component={FamilyModePage} />
 
       {/* ── Role-based Universe routes ──────────────────────────────────── */}
       {/* Admin Universe — admin/founder full control center */}
@@ -808,7 +811,8 @@ function App() {
     path === `${base}/dashboard` ||
     path === `${base}/identity` ||
     path === `${base}/universe` ||
-    path === `${base}/theme`;
+    path === `${base}/theme` ||
+    path === `${base}/public-explorer`;
 
   if (isPublicRoute) {
     return (
@@ -839,6 +843,7 @@ function App() {
           {/* External Bridge Layer — full public presence, auto-indexed */}
           <Route path="/public" component={PublicBridgePage} />
           <Route path="/public/family" component={PublicFamilyPage} />
+          <Route path="/public-explorer" component={PublicExplorerPage} />
           {/* Registry-driven public discovery grid — auto-expands with publicSurfaces.ts */}
           <Route path="/discover">
             {() => (
