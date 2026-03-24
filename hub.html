@@ -2,53 +2,52 @@
 <html lang="en">
 <head>
     <meta charset="UTF-8"><meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>NEXUS ELITE | Security Gate</title>
+    <title>HUB | COMMAND</title>
     <script src="https://cdn.tailwindcss.com"></script>
-    <script>
-        function checkAccess() {
-            const pass = document.getElementById('pass').value;
-            if(pass === 'NEXUS2026') {
-                document.getElementById('gate').classList.add('hidden');
-                document.getElementById('content').classList.remove('hidden');
-            } else {
-                alert('ACCESS DENIED: Credentials Invalid');
-            }
-        }
-    </script>
-    <style>body { background: #000; color: #fff; font-family: 'Inter', sans-serif; } .glass { background: rgba(255,255,255,0.03); backdrop-filter: blur(15px); border: 1px solid rgba(255,255,255,0.1); }</style>
+    <style>body { background: #050505; color: #fff; font-family: 'Inter', sans-serif; }</style>
 </head>
-<body class="flex items-center justify-center min-h-screen p-6">
-    <div id="gate" class="max-w-md w-full text-center glass p-10 rounded-3xl">
-        <div class="text-[10px] tracking-[0.4em] uppercase mb-4 opacity-50 font-light">Security Level: Elite</div>
-        <h2 class="text-2xl font-bold mb-6 tracking-tighter italic">NEXUS CORE LOGIN</h2>
-        <input type="password" id="pass" placeholder="ENTER ACCESS KEY" class="w-full bg-white/5 border border-white/10 p-4 rounded-xl text-center mb-4 focus:outline-none focus:border-white/40">
-        <button onclick="checkAccess()" class="w-full bg-white text-black py-4 rounded-xl font-bold hover:bg-gray-200 transition">AUTHORIZE</button>
-    </div>
+<body class="p-6 md:p-12">
+    <div class="max-w-7xl mx-auto">
+        <header class="flex justify-between items-center mb-16 border-b border-white/5 pb-8">
+            <h1 class="text-4xl font-black italic">STUDIO <span class="text-blue-600">CORE</span></h1>
+            <div class="text-right"><p class="text-[10px] text-emerald-500 font-bold">SYSTEMS: ONLINE</p></div>
+        </header>
 
-    <div id="content" class="hidden w-full max-w-6xl mx-auto py-12">
-        <nav class="flex justify-between mb-16 items-center">
-            <span class="font-bold tracking-tighter text-2xl">NEXUS CORE</span>
-            <div class="flex gap-8 text-xs uppercase tracking-widest text-gray-400">
-                <a href="hub.html" class="text-white border-b border-white">Hub</a>
-                <a href="vault.html" class="hover:text-white">Vault</a>
-            </div>
-        </nav>
-        <div class="grid md:grid-cols-3 gap-8 text-left">
-            <div class="md:col-span-2 glass p-8 rounded-3xl">
-                <h2 class="text-blue-400 font-bold mb-6 italic">Active Intelligence Feed</h2>
-                <div class="space-y-4">
-                    <div class="p-4 glass rounded-xl text-sm border-l-4 border-blue-500 font-light italic text-gray-300">"SYSTEM BROADCAST: The Nexus Elite EBS is officially ONLINE. All Family Nodes authorized for Core Access."</div>
-                    <div class="p-4 glass rounded-xl text-sm border-l-4 border-blue-300 font-light italic text-gray-300">"CORE ASSETS: All encrypted files are now available in the Vault for Elite members."</div>
+        <div class="grid md:grid-cols-3 gap-8 mb-12">
+            <div class="bg-white/5 p-8 rounded-3xl border border-white/10">
+                <h3 class="text-blue-500 font-bold text-[10px] tracking-widest mb-4 uppercase">Engine 01</h3>
+                <h4 class="text-2xl font-bold mb-6 italic">FAMILY DISPATCH</h4>
+                <textarea id="famMsg" class="w-full bg-black border border-white/10 p-4 rounded-xl mb-4 text-sm" placeholder="Message..."></textarea>
+                <div class="grid grid-cols-2 gap-2">
+                    <button onclick="sendFam('all')" class="bg-blue-600 py-3 rounded-lg text-[10px] font-bold uppercase">All</button>
+                    <button onclick="sendFam('kids')" class="bg-white/10 py-3 rounded-lg text-[10px] font-bold uppercase">Kids</button>
                 </div>
             </div>
-            <div class="glass p-8 rounded-3xl">
-                <h2 class="text-white font-bold mb-4">Core Vitals</h2>
-                <div class="space-y-6">
-                    <div><p class="text-[10px] uppercase text-gray-500 mb-1 tracking-widest">Auth Protocol</p><p class="text-xl">BIOMETRIC/KEY</p></div>
-                    <div><p class="text-[10px] uppercase text-gray-500 mb-1 tracking-widest">Global Status</p><p class="text-xl text-blue-400 font-bold">ACTIVE</p></div>
-                </div>
+
+            <div class="bg-white/5 p-8 rounded-3xl border border-white/10">
+                <h3 class="text-blue-500 font-bold text-[10px] tracking-widest mb-4 uppercase">Engine 02</h3>
+                <h4 class="text-2xl font-bold mb-4 italic">BLUEPRINTS</h4>
+                <ul class="text-[10px] text-gray-400 space-y-4 uppercase tracking-widest font-bold">
+                    <li class="flex justify-between"><span>Free Internet</span> <span class="text-blue-500">View</span></li>
+                    <li class="flex justify-between"><span>Free Cell</span> <span class="text-blue-500">View</span></li>
+                    <li class="flex justify-between"><span>Health OS</span> <span class="text-blue-500">View</span></li>
+                </ul>
             </div>
+
+            <a href="admin_ebs.html" class="bg-red-600/5 p-8 rounded-3xl border border-red-600/20 hover:bg-red-600/10 transition">
+                <h3 class="text-red-600 font-bold text-[10px] tracking-widest mb-4 uppercase">Master</h3>
+                <h4 class="text-2xl font-bold mb-4 italic">GLOBAL EBS</h4>
+                <p class="text-[10px] text-red-600/50 uppercase leading-relaxed">Admin console for world-wide push notifications.</p>
+            </a>
         </div>
     </div>
+    <script>
+        function sendFam(t) {
+            const m = document.getElementById('famMsg').value;
+            if(!m) return alert('EMPTY');
+            const nums = t === 'all' ? "7152221234,7152225678" : "7152221234";
+            window.location.href = "sms:" + nums + "?body=" + encodeURIComponent("FAMILY ALERT: " + m + "\n\nHub: https://createai.digital/hub.html");
+        }
+    </script>
 </body>
 </html>
