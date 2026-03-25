@@ -2,90 +2,114 @@
 <html lang="en">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>AXIS | SOVEREIGN MARKETPLACE</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>AXIS | SOVEREIGN OS</title>
     <style>
-        :root { --gold: #c4a97a; --ink: #0a0a0a; --bg: #f2f2f0; --white: #ffffff; --junior: #2ecc71; }
-        * { margin: 0; padding: 0; box-sizing: border-box; font-family: 'Inter', -apple-system, sans-serif; }
-        body { background: var(--bg); color: var(--ink); line-height: 1.4; }
+        :root { --gold: #c4a97a; --ink: #000; --bg: #ffffff; --card: #f9f9fb; --junior: #00c853; }
+        * { margin: 0; padding: 0; box-sizing: border-box; font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif; }
+        body { background: var(--bg); color: var(--ink); transition: 0.3s; }
 
-        /* HEADER & SEARCH */
-        header { background: #131921; color: white; padding: 12px 18px; position: sticky; top: 0; z-index: 1000; }
-        .brand { font-weight: 900; letter-spacing: 4px; font-size: 0.9rem; margin-bottom: 8px; display: block; }
-        .search-container { background: var(--white); border-radius: 4px; display: flex; align-items: center; padding: 8px; }
-        .search-container input { border: none; width: 100%; outline: none; padding-left: 10px; font-size: 0.9rem; }
+        /* APPLE-STYLE NAV */
+        nav { background: rgba(255,255,255,0.8); backdrop-filter: blur(20px); padding: 15px 20px; position: sticky; top: 0; z-index: 1000; border-bottom: 1px solid #eee; display: flex; justify-content: space-between; align-items: center; }
+        .logo { font-weight: 900; letter-spacing: 5px; font-size: 0.7rem; }
+        
+        /* PORTAL SWITCHER (STOCKX STYLE) */
+        .portals { display: flex; gap: 10px; overflow-x: auto; padding: 15px 20px; scrollbar-width: none; background: #fff; }
+        .portals button { 
+            background: #f5f5f7; border: none; padding: 10px 20px; border-radius: 8px; 
+            font-size: 0.65rem; font-weight: 700; color: #1d1d1f; cursor: pointer; white-space: nowrap; transition: 0.2s;
+        }
+        .portals button.active { background: var(--ink); color: white; }
+        .portals button.j-btn { background: var(--junior); color: white; }
 
-        /* CATEGORY SCROLL */
-        .cat-bar { display: flex; gap: 10px; overflow-x: auto; padding: 12px 18px; background: #232f3e; scrollbar-width: none; }
-        .cat-bar span { color: white; font-size: 0.7rem; font-weight: 600; white-space: nowrap; opacity: 0.8; }
+        /* LINEAR-STYLE DASHBOARDS (DARK MODE) */
+        body.dark-mode { background: #000; color: #fff; }
+        body.dark-mode nav { background: rgba(0,0,0,0.8); border-bottom: 1px solid #222; }
+        body.dark-mode .logo { color: #fff; }
+        body.dark-mode .portals { background: #000; border-bottom: 1px solid #222; }
 
-        /* THE AMAZON GRID */
-        .market-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; padding: 8px; }
-        .product-card { background: var(--white); padding: 12px; border-radius: 4px; display: flex; flex-direction: column; border: 1px solid #ddd; }
-        .img-placeholder { aspect-ratio: 1/1; background: #f9f9f9; border-radius: 4px; display: flex; align-items: center; justify-content: center; font-size: 2rem; }
-        .product-card h3 { font-size: 0.8rem; font-weight: 500; margin: 8px 0; min-height: 2.4em; }
-        .price { font-size: 1.1rem; font-weight: 700; color: #b12704; }
-        .prime-text { font-size: 0.6rem; color: var(--gold); font-weight: 900; margin-top: 4px; }
-        .btn-buy { background: #ffd814; border: 1px solid #fcd200; border-radius: 20px; padding: 8px; font-size: 0.7rem; font-weight: 600; margin-top: 10px; cursor: pointer; }
+        /* THE GRID (APPLE MEETS STOCKX) */
+        .section-label { padding: 30px 20px 10px; font-size: 0.65rem; font-weight: 900; letter-spacing: 2px; text-transform: uppercase; color: #86868b; }
+        .grid { display: grid; grid-template-columns: 1fr 1fr; gap: 15px; padding: 0 15px 100px; }
+        .card { background: var(--card); border-radius: 18px; padding: 20px; display: flex; flex-direction: column; transition: transform 0.2s ease; }
+        .card:active { transform: scale(0.97); }
+        .icon-box { aspect-ratio: 1; background: #fff; border-radius: 14px; margin-bottom: 15px; display: flex; align-items: center; justify-content: center; font-size: 2.2rem; box-shadow: 0 4px 12px rgba(0,0,0,0.03); }
+        .card h3 { font-size: 0.9rem; font-weight: 600; margin-bottom: 6px; min-height: 2.4em; }
+        .live-data { font-size: 0.6rem; font-weight: 800; color: var(--gold); margin-bottom: 10px; text-transform: uppercase; }
+        .price { font-size: 1.2rem; font-weight: 400; margin-top: auto; }
+        .buy-btn { background: var(--ink); color: white; border: none; padding: 12px; border-radius: 10px; font-size: 0.7rem; font-weight: 700; margin-top: 15px; cursor: pointer; }
 
-        /* FOOTER PORTALS */
-        footer { position: fixed; bottom: 0; width: 100%; background: var(--white); border-top: 1px solid #ddd; display: flex; justify-content: space-around; padding: 12px; }
-        .nav-item { text-align: center; color: #555; font-size: 0.55rem; font-weight: 800; text-transform: uppercase; cursor: pointer; }
-        .nav-item.active { color: var(--ink); border-bottom: 2px solid var(--gold); }
-        .nav-item.junior { color: var(--junior); }
+        /* JUNIOR ZONE (PLAYFUL) */
+        body.junior-mode { background: #f0fff4; }
+        .toy-card { border: 3px solid #e2e8f0; background: #fff; text-align: center; }
     </style>
 </head>
 <body>
 
-<header>
-    <span class="brand">AXIS ®</span>
-    <div class="search-container">
-        <span>🔍</span>
-        <input type="text" placeholder="Search 158 Sovereign Engines...">
-    </div>
-</header>
+<nav>
+    <div class="logo">AXIS ®</div>
+    <div style="font-size: 0.6rem; font-weight: 800; opacity: 0.4;">WEBSTER_NODE_v5</div>
+</nav>
 
-<div class="cat-bar">
-    <span>Healthcare</span><span>Law</span><span>Utilities</span><span>Wealth</span><span>Security</span><span>Food</span>
+<div class="portals">
+    <button id="b-m" class="active" onclick="setView('m')">Marketplace</button>
+    <button id="b-b" onclick="setView('b')">Business Suite</button>
+    <button id="b-j" class="j-btn" onclick="setView('j')">Junior Explorer</button>
+    <button id="b-c" onclick="setView('c')">Creator Hub</button>
+    <button id="b-f" onclick="setView('f')">Family Portal</button>
 </div>
 
-<div class="market-grid" id="mainGrid">
+<div id="view-content">
     </div>
-
-<div style="height: 80px;"></div>
-
-<footer>
-    <div class="nav-item active">Market</div>
-    <div class="nav-item">Business</div>
-    <div class="nav-item junior">Junior</div>
-    <div class="nav-item">Creator</div>
-    <div class="nav-item">Portal</div>
-</footer>
 
 <script>
     const engines = [
-        { id: "001", name: "Sovereign Law Engine", price: "497.00", icon: "⚖️" },
-        { id: "002", name: "Nurse-Flow Protocol", price: "197.00", icon: "🏥" },
-        { id: "003", name: "Universal Utilities", price: "89.00", icon: "🔌" },
-        { id: "004", name: "Wealth Intelligence", price: "299.00", icon: "📈" },
-        { id: "005", name: "Hospitality Mesh", price: "149.00", icon: "🍱" },
-        { id: "006", name: "Security Neural Link", price: "599.00", icon: "🛡️" },
-        { id: "007", name: "Off-Grid Mesh Node", price: "899.00", icon: "📡" },
-        { id: "008", name: "Legacy Trust Vault", price: "1,200.00", icon: "🔐" }
+        { t: "Nurse-Flow AI Clinic", p: "197.00", i: "🏥", n: "12 ACTIVE NODES" },
+        { t: "Sovereign Law Engine", p: "497.00", i: "⚖️", n: "22 ACTIVE NODES" },
+        { t: "Mesh Router Node", p: "899.00", i: "📡", n: "105 ACTIVE NODES" },
+        { t: "Universal Utilities", p: "89.00", i: "🔌", n: "15 ACTIVE NODES" },
+        { t: "Wealth Intelligence", p: "299.00", i: "📈", n: "14 ACTIVE NODES" },
+        { t: "Security Neural Link", p: "599.00", i: "🛡️", n: "8 ACTIVE NODES" }
     ];
 
-    const grid = document.getElementById('mainGrid');
-    engines.forEach(e => {
-        grid.innerHTML += `
-            <div class="product-card">
-                <div class="img-placeholder">${e.icon}</div>
-                <p class="prime-text">NEURAL-LINK READY</p>
-                <h3>${e.name}</h3>
-                <div class="price">$${e.price}</div>
-                <button class="btn-buy">Purchase Access</button>
-            </div>
-        `;
-    });
+    function setView(v) {
+        const content = document.getElementById('view-content');
+        document.querySelectorAll('.portals button').forEach(b => b.classList.remove('active'));
+        document.getElementById('b-' + v).classList.add('active');
+        document.body.className = ''; 
+
+        if (v === 'm') {
+            let html = '<div class="section-label">Available Infrastructure</div><div class="grid">';
+            engines.forEach(e => {
+                html += `<div class="card">
+                    <div class="icon-box">${e.i}</div>
+                    <div class="live-data">${e.n}</div>
+                    <h3>${e.t}</h3>
+                    <div class="price">$${e.p}</div>
+                    <button class="buy-btn">Initialize</button>
+                </div>`;
+            });
+            content.innerHTML = html + '</div>';
+        } else if (v === 'j') {
+            document.body.classList.add('junior-mode');
+            content.innerHTML = '<div class="section-label">Safe Sandbox</div><div class="grid">' + 
+                '<div class="card toy-card"><div class="icon-box">🚀</div><h3>World Builder</h3></div>' +
+                '<div class="card toy-card"><div class="icon-box">🧬</div><h3>Clinic Hero</h3></div></div>';
+        } else if (v === 'c' || v === 'f') {
+            document.body.classList.add('dark-mode');
+            content.innerHTML = `<div style="padding: 40px; text-align: center;">
+                <h1 style="font-weight: 200; letter-spacing: 5px;">${v === 'c' ? 'CREATOR HUB' : 'FAMILY PORTAL'}</h1>
+                <p style="color: var(--gold); font-size: 0.7rem; margin-top: 20px; letter-spacing: 2px;">AUTHORITY VERIFIED</p>
+                <div style="background: #111; border: 1px solid #333; padding: 40px; border-radius: 20px; margin-top: 40px;">
+                    <p style="opacity: 0.5; font-size: 0.8rem;">Command the Genesis Engine to update the Global Marketplace.</p>
+                </div>
+            </div>`;
+        } else {
+            content.innerHTML = '<div style="padding:40px; text-align:center;"><h1>Business Suite</h1><p>Subscribe to monitor active nodes.</p></div>';
+        }
+    }
+
+    setView('m'); // Init
 </script>
 </body>
 </html>
