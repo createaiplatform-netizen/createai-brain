@@ -2,63 +2,60 @@
 <html lang="en">
 <head>
     <meta charset="UTF-8">
-    <title>THE HEARTH | TOTAL REALITY</title>
+    <title>THE HEARTH | 100% OPERATIONAL</title>
     <style>
         * { margin: 0; padding: 0; box-sizing: border-box; font-family: "Garamond", serif; }
-        body { background: #faf9f6; color: #7a9068; transition: 1s; }
+        body { background: #faf9f6; color: #7a9068; }
         
-        /* THE COMMAND CENTER */
-        .dashboard { display: flex; height: 100vh; }
-        .sidebar { width: 300px; background: #fff; border-right: 1px solid #c4a97a; padding: 40px; }
-        .main-view { flex: 1; padding: 60px; overflow-y: auto; background: linear-gradient(135deg, #fbc2eb 0%, #a6c1ee 100%); }
+        .universe-container { display: flex; flex-direction: column; height: 100vh; }
+        .top-gateway { 
+            height: 40vh; display: flex; flex-direction: column; justify-content: center; 
+            align-items: center; background: linear-gradient(135deg, #fbc2eb 0%, #a6c1ee 100%);
+            text-align: center; border-bottom: 1px solid #c4a97a;
+        }
         
-        .nav-item { margin-bottom: 30px; cursor: pointer; opacity: 0.6; letter-spacing: 2px; }
-        .nav-item:hover, .active { opacity: 1; font-weight: bold; }
-        
-        .reality-card { 
-            background: rgba(255,255,255,0.9); backdrop-filter: blur(20px); 
-            padding: 50px; border-radius: 40px; border: 1px solid #c4a97a;
-            box-shadow: 0 30px 60px rgba(0,0,0,0.1); max-width: 900px; margin: 0 auto;
+        .search-nexus {
+            width: 80%; max-width: 800px; padding: 30px; border-radius: 100px;
+            border: 1px solid rgba(255,255,255,0.5); font-size: 1.8rem; outline: none;
+            background: rgba(255,255,255,0.9); box-shadow: 0 20px 40px rgba(0,0,0,0.1);
         }
 
-        .search-everything {
-            width: 100%; padding: 20px; border-radius: 100px; border: 1px solid #7a9068;
-            font-size: 1.2rem; margin-top: 20px; outline: none;
+        .engine-floor { 
+            flex: 1; padding: 60px; display: grid; 
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr)); 
+            gap: 20px; overflow-y: auto;
         }
+
+        .engine-node { 
+            background: white; border: 1px solid #eee; padding: 25px; 
+            border-radius: 20px; text-align: center; transition: 0.3s;
+        }
+        .engine-node:hover { transform: translateY(-5px); border-color: #7a9068; }
+        
+        .status-bar { padding: 10px 40px; background: #fff; border-top: 1px solid #eee; font-size: 0.7rem; letter-spacing: 2px; }
     </style>
 </head>
 <body>
 
-    <div class="dashboard">
-        <div class="sidebar">
-            <h2 style="margin-bottom: 50px; color: #4a4a4a;">The Hearth</h2>
-            <div class="nav-item active">UNIVERSAL SEARCH</div>
-            <div class="nav-item">FAMILY HUB (97)</div>
-            <div class="nav-item">BUSINESS OS (97)</div>
-            <div class="nav-item">HOSPITAL INFRASTRUCTURE</div>
-            <div class="nav-item">STANDING LAW</div>
-            <hr style="border: 0; border-top: 1px solid #eee; margin: 40px 0;">
-            <div class="nav-item" style="font-size: 0.7rem;">FOUNDER ACCESS</div>
+    <div class="universe-container">
+        <div class="top-gateway">
+            <h1 style="font-size: 3rem; font-weight: 200; color: #fff; margin-bottom: 20px;">The Hearth Universe</h1>
+            <input type="text" class="search-nexus" placeholder="Command your Reality (Cafe, Nursing, Legacy, Marketing)...">
         </div>
 
-        <div class="main-view">
-            <div class="reality-card">
-                <h1 style="font-size: 2.5rem; font-weight: 200; color: #4a4a4a;">What part of your world are we organizing?</h1>
-                <p style="font-style: italic; color: #c4a97a; margin-top: 10px;">Everything you built over the last month is active here.</p>
-                
-                <input type="text" class="search-everything" placeholder="Cafe, Journal, Staffing, Legacy, Marketing...">
-                
-                <div style="margin-top: 40px; display: grid; grid-template-columns: 1fr 1fr; gap: 20px;">
-                    <div style="padding: 20px; border: 1px solid #eee; border-radius: 20px;">
-                        <h4 style="color: #7a9068;">Physical Business</h4>
-                        <p style="font-size: 0.8rem; color: #999;">Inventory, Staff, Profit, Space.</p>
-                    </div>
-                    <div style="padding: 20px; border: 1px solid #eee; border-radius: 20px;">
-                        <h4 style="color: #7a9068;">Human Connection</h4>
-                        <p style="font-size: 0.8rem; color: #999;">Journaling, Memories, Family Safety.</p>
-                    </div>
-                </div>
-            </div>
+        <div class="engine-floor">
+            <div class="engine-node"><h3>Family Hub</h3><p>97 Key</p></div>
+            <div class="engine-node"><h3>Business OS</h3><p>97 Key</p></div>
+            <div class="engine-node"><h3>Healthcare</h3><p>Enterprise</p></div>
+            <div class="engine-node"><h3>Marketing</h3><p>Sovereign</p></div>
+            <div class="engine-node"><h3>Construction</h3><p>Sovereign</p></div>
+            <div class="engine-node"><h3>Inventory</h3><p>Sovereign</p></div>
+            <div class="engine-node"><h3>Staffing</h3><p>Sovereign</p></div>
+            <div class="engine-node"><h3>Journaling</h3><p>Sacred</p></div>
+        </div>
+
+        <div class="status-bar">
+            SYSTEM STATUS: 150+ ENGINES SYNCHRONIZED | CREATED BY LAKESIDE TRINITY LLC
         </div>
     </div>
 
