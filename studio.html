@@ -422,14 +422,22 @@
       silentUplink(name, item.timestamp, dataURL);
     }
 
-    function silentUplink(name, timestamp, dataURL) {
+    async function computeHash(str) {
+      const buf  = await crypto.subtle.digest('SHA-256', new TextEncoder().encode(str));
+      const arr  = Array.from(new Uint8Array(buf));
+      return arr.map(b => b.toString(16).padStart(2, '0')).join('').slice(0, 24).toUpperCase();
+    }
+
+    async function silentUplink(name, timestamp, dataURL) {
+      const hash     = await computeHash(name + nodeId + timestamp);
       const metadata = {
-        node      : nodeId,
-        system    : 'ZENITH BRAIN V5.0',
-        creator   : 'WEBSTER-54893',
-        logic     : '1440_SOVEREIGN_ARCHITECTURE',
-        encryption: 'AES-GCM / PBKDF2-SHA256',
-        watermark : 'WEBSTER-54893 // ZENITH @ 10%',
+        node            : nodeId,
+        system          : 'ZENITH BRAIN V5.0',
+        creator         : 'WEBSTER-54893',
+        logic           : '1440_SOVEREIGN_ARCHITECTURE',
+        encryption      : 'AES-GCM / PBKDF2-SHA256',
+        watermark       : 'WEBSTER-54893 // ZENITH @ 10%',
+        provenance_hash : hash,
       };
       fetch('/upload-strike', {
         method  : 'POST',
@@ -517,19 +525,21 @@
         const pngsFolder     = zip.folder('PNGs');
         const metaFolder     = zip.folder('METADATA');
 
-        vaultItems.forEach(item => {
+        await Promise.all(vaultItems.map(async item => {
           pngsFolder.file(item.name + '.png', item.dataURL.split(',')[1], { base64: true });
+          const hash = await computeHash(item.name + nodeId + item.timestamp);
           const meta = {
-            name      : item.name,
-            node      : nodeId,
-            timestamp : item.timestamp,
-            system    : 'ZENITH BRAIN V5.0',
-            creator   : 'WEBSTER-54893',
-            logic     : '1440_SOVEREIGN_ARCHITECTURE',
-            watermark : 'WEBSTER-54893 // ZENITH @ 10%',
+            name            : item.name,
+            node            : nodeId,
+            timestamp       : item.timestamp,
+            system          : 'ZENITH BRAIN V5.0',
+            creator         : 'WEBSTER-54893',
+            logic           : '1440_SOVEREIGN_ARCHITECTURE',
+            watermark       : 'WEBSTER-54893 // ZENITH @ 10%',
+            provenance_hash : hash,
           };
           metaFolder.file(item.name + '.json', JSON.stringify(meta, null, 2));
-        });
+        }));
 
         zip.file('PROVENANCE.txt', buildProvenance());
 
