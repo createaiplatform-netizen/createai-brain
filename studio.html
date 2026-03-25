@@ -3,182 +3,80 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>ZENITH STUDIO | V3.0</title>
+  <title>ZENITH STUDIO | V4.0</title>
   <!-- SOVEREIGN_ARCHITECT_STABILITY_1440_LOGIC_ACTIVE -->
   <script src="https://cdnjs.cloudflare.com/ajax/libs/jszip/3.10.1/jszip.min.js"></script>
   <style>
     /* SOVEREIGN_ARCHITECT_STABILITY_1440_LOGIC_ACTIVE */
+    /* ENVIRONMENT: SOVEREIGN_PRODUCTION */
     *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+    html, body { height: 100%; background: #000; color: #d4af37; font-family: 'Courier New', Courier, monospace; overflow: hidden; text-transform: uppercase; }
 
-    html, body {
-      height: 100%;
-      background: #000;
-      color: #d4af37;
-      font-family: 'Courier New', Courier, monospace;
-      overflow: hidden;
-      text-transform: uppercase;
-    }
-
-    /* ── GHOST GATE ── */
-    #ghost-gate {
-      position: fixed; inset: 0; background: #000;
-      display: flex; flex-direction: column; align-items: center;
-      justify-content: center; z-index: 9999; gap: 22px;
-    }
+    #ghost-gate { position: fixed; inset: 0; background: #000; display: flex; flex-direction: column; align-items: center; justify-content: center; z-index: 9999; gap: 22px; }
     #ghost-gate h1 { font-size: 1.1rem; letter-spacing: 0.6em; opacity: 0.45; }
     .blink { animation: blink 1.2s step-end infinite; }
     @keyframes blink { 0%,100%{opacity:1} 50%{opacity:0} }
-    #gate-input {
-      background: #000; border: 1px solid #d4af37; color: #d4af37;
-      font-family: 'Courier New', monospace; font-size: 2rem;
-      text-align: center; width: 150px; padding: 10px;
-      letter-spacing: 0.5em; outline: none;
-    }
+    #gate-input { background: #000; border: 1px solid #d4af37; color: #d4af37; font-family: 'Courier New', monospace; font-size: 2rem; text-align: center; width: 150px; padding: 10px; letter-spacing: 0.5em; outline: none; }
     #gate-input:focus { box-shadow: 0 0 18px rgba(212,175,55,0.3); }
     #gate-error { font-size: 0.62rem; color: #ff4444; letter-spacing: 0.3em; height: 13px; }
 
-    /* ── APP SHELL ── */
     #app { display: none; height: 100vh; flex-direction: row; }
     #app.active { display: flex; }
 
-    /* ── LEFT PANEL ── */
-    #canvas-panel {
-      flex: 1; display: flex; flex-direction: column;
-      padding: 12px 14px; gap: 10px; overflow: hidden;
-    }
-    #header-bar {
-      display: flex; justify-content: space-between; align-items: center;
-      border-bottom: 1px solid #1a1500; padding-bottom: 8px; flex-shrink: 0;
-    }
+    #canvas-panel { flex: 1; display: flex; flex-direction: column; padding: 12px 14px; gap: 10px; overflow: hidden; }
+    #header-bar { display: flex; justify-content: space-between; align-items: center; border-bottom: 1px solid #1a1500; padding-bottom: 8px; flex-shrink: 0; }
     .brand { font-size: 0.82rem; letter-spacing: 0.4em; }
-    .dot {
-      width: 6px; height: 6px; border-radius: 50%; background: #d4af37;
-      display: inline-block; animation: dpulse 2s infinite; margin-right: 7px;
-    }
+    .dot { width: 6px; height: 6px; border-radius: 50%; background: #d4af37; display: inline-block; animation: dpulse 2s infinite; margin-right: 7px; }
     @keyframes dpulse { 0%,100%{opacity:1} 50%{opacity:0.12} }
 
-    /* analytics */
-    #analytics-bar {
-      display: grid; grid-template-columns: repeat(3,1fr);
-      border: 1px solid #1a1500; flex-shrink: 0;
-    }
-    .analytic-cell {
-      padding: 8px 10px; border-right: 1px solid #1a1500;
-      display: flex; flex-direction: column; gap: 4px;
-    }
+    #analytics-bar { display: grid; grid-template-columns: repeat(3,1fr); border: 1px solid #1a1500; flex-shrink: 0; }
+    .analytic-cell { padding: 8px 10px; border-right: 1px solid #1a1500; display: flex; flex-direction: column; gap: 4px; }
     .analytic-cell:last-child { border-right: none; }
     .analytic-label { font-size: 0.52rem; color: #3a3000; letter-spacing: 0.35em; }
     .analytic-value { font-size: 0.78rem; color: #d4af37; letter-spacing: 0.1em; display: flex; align-items: center; gap: 8px; }
-
-    /* heartbeat */
-    #pulse-line { display: inline-block; width: 40px; height: 14px; position: relative; overflow: visible; flex-shrink: 0; }
+    #pulse-line { display: inline-block; width: 40px; height: 14px; overflow: visible; flex-shrink: 0; }
     #pulse-line svg { width: 100%; height: 100%; overflow: visible; }
-    .hb-path {
-      fill: none; stroke: #d4af37; stroke-width: 1.2;
-      stroke-dasharray: 80; stroke-dashoffset: 80;
-      animation: hb-draw 1.4s ease-in-out infinite;
-    }
-    @keyframes hb-draw {
-      0%  { stroke-dashoffset: 80; opacity: 1; }
-      60% { stroke-dashoffset: 0;  opacity: 1; }
-      85% { stroke-dashoffset: 0;  opacity: 0.6; }
-      100%{ stroke-dashoffset: 80; opacity: 0; }
-    }
+    .hb-path { fill: none; stroke: #d4af37; stroke-width: 1.2; stroke-dasharray: 80; stroke-dashoffset: 80; animation: hb-draw 1.4s ease-in-out infinite; }
+    @keyframes hb-draw { 0%{stroke-dashoffset:80;opacity:1} 60%{stroke-dashoffset:0;opacity:1} 85%{stroke-dashoffset:0;opacity:0.6} 100%{stroke-dashoffset:80;opacity:0} }
 
-    /* canvas */
-    #canvas-wrap {
-      flex: 1; display: flex; align-items: center; justify-content: center;
-      position: relative; min-height: 0;
-    }
-    #neural-canvas {
-      border: 1px solid #1a1500; background: #050505;
-      max-width: 100%; max-height: 100%;
-      box-shadow: 0 0 30px rgba(212,175,55,0.07);
-    }
-    #silent-overlay {
-      position: absolute; inset: 0; background: #000;
-      display: none; align-items: center; justify-content: center;
-      font-size: 0.68rem; letter-spacing: 0.4em; color: #2a2000;
-      border: 1px solid #1a1500;
-    }
-    #silent-overlay.visible { display: flex; }
-    #lp-overlay {
-      position: absolute; inset: 0; background: rgba(0,0,0,0.85);
-      display: none; align-items: center; justify-content: center;
-      font-size: 0.62rem; letter-spacing: 0.35em; color: #2a2000;
-      border: 1px solid #1a1500;
-    }
-    #lp-overlay.visible { display: flex; }
+    #canvas-wrap { flex: 1; display: flex; align-items: center; justify-content: center; position: relative; min-height: 0; }
+    #neural-canvas { border: 1px solid #1a1500; background: #050505; max-width: 100%; max-height: 100%; box-shadow: 0 0 30px rgba(212,175,55,0.07); }
+    .overlay { position: absolute; inset: 0; display: none; align-items: center; justify-content: center; font-size: 0.62rem; letter-spacing: 0.38em; color: #2a2000; border: 1px solid #1a1500; }
+    .overlay.visible { display: flex; }
+    #silent-overlay { background: #000; }
+    #lp-overlay { background: rgba(0,0,0,0.85); }
 
-    /* status + controls */
     #seed-status { font-size: 0.62rem; color: #3a3000; letter-spacing: 0.3em; height: 14px; flex-shrink: 0; }
     #seed-status.legendary { color: #d4af37; }
-
     .controls { display: flex; gap: 8px; flex-shrink: 0; flex-wrap: wrap; }
-    .btn {
-      background: transparent; border: 1px solid #d4af37; color: #d4af37;
-      font-family: 'Courier New', monospace; padding: 8px 16px;
-      cursor: pointer; letter-spacing: 0.16em; font-size: 0.62rem;
-      transition: 0.2s; text-transform: uppercase;
-    }
+    .btn { background: transparent; border: 1px solid #d4af37; color: #d4af37; font-family: 'Courier New', monospace; padding: 8px 16px; cursor: pointer; letter-spacing: 0.16em; font-size: 0.62rem; transition: 0.2s; text-transform: uppercase; }
     .btn:hover { background: #d4af37; color: #000; }
     .btn.on { background: #d4af37; color: #000; }
     .btn.dim { border-color: #2a2000; color: #2a2000; }
     .btn.dim:hover { border-color: #d4af37; color: #d4af37; background: transparent; }
     .btn.dim.on { background: #1a1500; color: #d4af37; border-color: #2a2000; }
 
-    /* ── VAULT SIDEBAR ── */
-    #vault-panel {
-      width: 268px; border-left: 1px solid #1a1500;
-      display: flex; flex-direction: column; overflow: hidden;
-    }
-    #vault-header {
-      padding: 8px 12px; border-bottom: 1px solid #1a1500;
-      font-size: 0.58rem; letter-spacing: 0.4em; color: #3a3000;
-      display: flex; justify-content: space-between; align-items: center;
-      flex-shrink: 0; gap: 4px;
-    }
-    .vault-hdr-btn {
-      background: transparent; border: 1px solid #1a1500; color: #2a2000;
-      font-family: 'Courier New', monospace; font-size: 0.48rem;
-      padding: 3px 6px; cursor: pointer; letter-spacing: 0.1em;
-      text-transform: uppercase; transition: 0.2s; white-space: nowrap;
-    }
+    /* Vault */
+    #vault-panel { width: 268px; border-left: 1px solid #1a1500; display: flex; flex-direction: column; overflow: hidden; }
+    #vault-header { padding: 8px 12px; border-bottom: 1px solid #1a1500; font-size: 0.58rem; letter-spacing: 0.4em; color: #3a3000; display: flex; justify-content: space-between; align-items: center; flex-shrink: 0; gap: 4px; }
+    .vault-hdr-btn { background: transparent; border: 1px solid #1a1500; color: #2a2000; font-family: 'Courier New', monospace; font-size: 0.48rem; padding: 3px 6px; cursor: pointer; letter-spacing: 0.1em; text-transform: uppercase; transition: 0.2s; white-space: nowrap; }
     .vault-hdr-btn:hover, .vault-hdr-btn.active { border-color: #d4af37; color: #d4af37; }
-
-    #node-id-bar {
-      padding: 4px 12px; border-bottom: 1px solid #0f0f00;
-      font-size: 0.48rem; color: #1a1500; letter-spacing: 0.25em;
-      flex-shrink: 0;
-    }
-
+    #node-id-bar { padding: 4px 12px; border-bottom: 1px solid #0f0f00; font-size: 0.48rem; color: #1a1500; letter-spacing: 0.25em; flex-shrink: 0; }
     #vault-list { flex: 1; overflow-y: auto; padding: 6px; min-height: 0; }
     #vault-list::-webkit-scrollbar { width: 3px; }
     #vault-list::-webkit-scrollbar-thumb { background: #1a1500; }
-
-    .vault-item {
-      padding: 8px; border-bottom: 1px solid #0f0f00;
-      display: flex; flex-direction: column; gap: 4px;
-      animation: slidein 0.3s ease;
-    }
+    .vault-item { padding: 8px; border-bottom: 1px solid #0f0f00; display: flex; flex-direction: column; gap: 4px; animation: slidein 0.3s ease; }
     @keyframes slidein { from{opacity:0;transform:translateX(8px)} to{opacity:1} }
     .vault-name { font-size: 0.65rem; color: #d4af37; letter-spacing: 0.08em; }
     .vault-time { font-size: 0.5rem; color: #2a2000; }
-    .vault-dl {
-      font-size: 0.55rem; color: #000; background: #d4af37;
-      text-decoration: none; padding: 3px 7px; letter-spacing: 0.1em;
-      align-self: flex-start;
-    }
+    .vault-dl { font-size: 0.55rem; color: #000; background: #d4af37; text-decoration: none; padding: 3px 7px; letter-spacing: 0.1em; align-self: flex-start; }
     .vault-dl:hover { background: #fff; }
-    #vault-empty {
-      padding: 20px 14px; font-size: 0.52rem; color: #1a1500;
-      letter-spacing: 0.18em; text-align: center; line-height: 2.2;
-    }
-    #vault-footer {
-      padding: 8px 14px; border-top: 1px solid #1a1500;
-      font-size: 0.55rem; color: #2a2000; letter-spacing: 0.22em;
-      flex-shrink: 0;
-    }
+    #vault-empty { padding: 20px 14px; font-size: 0.52rem; color: #1a1500; letter-spacing: 0.18em; text-align: center; line-height: 2.2; }
+
+    /* Footer */
+    #vault-footer { padding: 8px 14px; border-top: 1px solid #1a1500; font-size: 0.55rem; color: #2a2000; letter-spacing: 0.22em; flex-shrink: 0; display: flex; justify-content: space-between; align-items: center; }
+    #purge-btn { background: transparent; border: none; color: #1a0500; font-family: 'Courier New', monospace; font-size: 0.48rem; cursor: pointer; letter-spacing: 0.15em; text-transform: uppercase; transition: 0.2s; }
+    #purge-btn:hover { color: #ff2200; }
   </style>
 </head>
 <body>
@@ -192,9 +90,8 @@
 
   <div id="app">
     <div id="canvas-panel">
-
       <div id="header-bar">
-        <span class="brand"><span class="dot"></span>ZENITH_BRAIN V3.0</span>
+        <span class="brand"><span class="dot"></span>ZENITH_BRAIN V4.0</span>
         <span id="cycle-count" style="font-size:0.58rem;color:#2a2000;letter-spacing:0.28em">CYCLES: 0</span>
       </div>
 
@@ -202,11 +99,7 @@
         <div class="analytic-cell">
           <span class="analytic-label">SCAN_RATE</span>
           <span class="analytic-value">
-            <span id="pulse-line">
-              <svg viewBox="0 0 40 14" preserveAspectRatio="none">
-                <polyline class="hb-path" points="0,7 6,7 9,2 12,12 15,2 18,12 21,7 40,7"/>
-              </svg>
-            </span>
+            <span id="pulse-line"><svg viewBox="0 0 40 14" preserveAspectRatio="none"><polyline class="hb-path" points="0,7 6,7 9,2 12,12 15,2 18,12 21,7 40,7"/></svg></span>
             5.0 Hz
           </span>
         </div>
@@ -222,8 +115,8 @@
 
       <div id="canvas-wrap">
         <canvas id="neural-canvas" width="480" height="300"></canvas>
-        <div id="silent-overlay">SILENT_MODE — GENERATION RUNNING</div>
-        <div id="lp-overlay">LOW_POWER — LOGIC ACTIVE</div>
+        <div id="silent-overlay" class="overlay">SILENT_MODE — GENERATION RUNNING</div>
+        <div id="lp-overlay" class="overlay">LOW_POWER — LOGIC ACTIVE</div>
       </div>
 
       <div id="seed-status">&nbsp;</div>
@@ -234,34 +127,71 @@
         <button class="btn dim" id="silent-btn" onclick="toggleSilent()">SILENT: OFF</button>
         <button class="btn dim" id="lp-btn" onclick="toggleLowPower()">LOW_PWR: OFF</button>
       </div>
-
     </div>
 
     <div id="vault-panel">
       <div id="vault-header">
         <span>NEURAL_ARCHIVE</span>
-        <button class="vault-hdr-btn" id="manifest-btn" onclick="generateManifest()">MANIFEST_GEN</button>
+        <button class="vault-hdr-btn" id="manifest-btn" onclick="generateManifest()">MANIFEST</button>
         <button class="vault-hdr-btn" id="download-all-btn" onclick="downloadAll()">DOWNLOAD_ALL</button>
       </div>
       <div id="node-id-bar">NODE: <span id="node-id-display">—</span></div>
-      <div id="vault-list">
-        <div id="vault-empty">—</div>
+      <div id="vault-list"><div id="vault-empty">—</div></div>
+      <div id="vault-footer">
+        <span>ARCHIVE: <span id="vault-count-num">0</span> NODES</span>
+        <button id="purge-btn" onclick="purgeSystem()">PURGE_SYSTEM</button>
       </div>
-      <div id="vault-footer">ARCHIVE: <span id="vault-count-num">0</span> NODES</div>
     </div>
   </div>
 
   <script>
     /* SOVEREIGN_ARCHITECT_STABILITY_1440_LOGIC_ACTIVE */
+    const ENVIRONMENT = 'SOVEREIGN_PRODUCTION';
 
-    // ── NODE ID (multi-tab isolation) ──────────────────────────────────────────
+    // ── CRYPTO ENGINE (AES-GCM / PBKDF2) ──────────────────────────────────────
+    const SALT = new TextEncoder().encode('ZENITH_SOVEREIGN_SALT_54893');
+    let _cryptoKey = null;
+
+    async function deriveKey(password) {
+      const raw = await crypto.subtle.importKey(
+        'raw', new TextEncoder().encode(password), 'PBKDF2', false, ['deriveKey']
+      );
+      return crypto.subtle.deriveKey(
+        { name: 'PBKDF2', salt: SALT, iterations: 100000, hash: 'SHA-256' },
+        raw,
+        { name: 'AES-GCM', length: 256 },
+        false, ['encrypt', 'decrypt']
+      );
+    }
+
+    async function encryptData(key, data) {
+      const iv        = crypto.getRandomValues(new Uint8Array(12));
+      const encoded   = new TextEncoder().encode(JSON.stringify(data));
+      const encrypted = await crypto.subtle.encrypt({ name: 'AES-GCM', iv }, key, encoded);
+      const combined  = new Uint8Array(12 + encrypted.byteLength);
+      combined.set(iv);
+      combined.set(new Uint8Array(encrypted), 12);
+      return btoa(String.fromCharCode(...combined));
+    }
+
+    async function decryptData(key, ciphertext) {
+      try {
+        const raw       = Uint8Array.from(atob(ciphertext), c => c.charCodeAt(0));
+        const iv        = raw.slice(0, 12);
+        const data      = raw.slice(12);
+        const decrypted = await crypto.subtle.decrypt({ name: 'AES-GCM', iv }, key, data);
+        return JSON.parse(new TextDecoder().decode(decrypted));
+      } catch (_) { return null; }
+    }
+
+    // ── NODE ID ────────────────────────────────────────────────────────────────
     const NODE_ID_KEY = 'zenith_node_id';
     let nodeId = localStorage.getItem(NODE_ID_KEY);
     if (!nodeId) {
       nodeId = 'ZENITH_VAULT_NODE_' + (Math.floor(Math.random() * 9000) + 1000);
       localStorage.setItem(NODE_ID_KEY, nodeId);
     }
-    const LS_KEY = nodeId;   // vault data stored under unique node key
+    const LS_KEY = nodeId;
     document.getElementById('node-id-display').textContent = nodeId;
 
     // ── GHOST GATE ─────────────────────────────────────────────────────────────
@@ -269,12 +199,13 @@
     const gateInput  = document.getElementById('gate-input');
     const gateError  = document.getElementById('gate-error');
 
-    gateInput.addEventListener('input', () => {
+    gateInput.addEventListener('input', async () => {
       if (gateInput.value.length < 4) return;
       if (gateInput.value === MASTER_KEY) {
+        _cryptoKey = await deriveKey(MASTER_KEY);
         document.getElementById('ghost-gate').style.display = 'none';
         document.getElementById('app').classList.add('active');
-        restoreVault();
+        await restoreVault();
         generateSeed();
       } else {
         gateError.textContent = 'ACCESS_DENIED: INVALID_KEY';
@@ -302,18 +233,12 @@
     const autoBtn       = document.getElementById('auto-btn');
     const silentBtn     = document.getElementById('silent-btn');
     const lpBtn         = document.getElementById('lp-btn');
-    const silentOverlay = document.getElementById('silent-overlay');
-    const lpOverlay     = document.getElementById('lp-overlay');
 
-    let isAuto       = false;
-    let isSilent     = false;
-    let isLowPower   = false;
+    let isAuto = false, isSilent = false, isLowPower = false;
     let autoInterval = null;
-    let totalCycles  = 0;
-    let totalHits    = 0;
-    let vaultItems   = [];
+    let totalCycles = 0, totalHits = 0;
+    let vaultItems = [];
 
-    // ── ANALYTICS ─────────────────────────────────────────────────────────────
     function updateAnalytics() {
       hitRateEl.textContent = totalCycles ? ((totalHits / totalCycles) * 100).toFixed(2) + '%' : '0.00%';
       reserveEl.textContent = vaultItems.length;
@@ -327,36 +252,25 @@
       if (!isLowPower && !isSilent) {
         ctx.fillStyle = 'rgba(0,0,0,0.12)';
         ctx.fillRect(0, 0, canvas.width, canvas.height);
-      }
-
-      const isLegendary = Math.random() < 0.04;
-
-      if (!isLowPower && !isSilent) {
-        ctx.lineWidth = isLegendary ? 1.5 : 0.4;
-        const lineCount = isLegendary ? 80 : 18;
-        for (let i = 0; i < lineCount; i++) {
-          const alpha = isLegendary ? 0.3 + Math.random() * 0.7 : 0.04 + Math.random() * 0.08;
-          ctx.strokeStyle = 'rgba(212,175,55,' + alpha + ')';
+        const isLeg = Math.random() < 0.04;
+        ctx.lineWidth = isLeg ? 1.5 : 0.4;
+        const n = isLeg ? 80 : 18;
+        for (let i = 0; i < n; i++) {
+          const a = isLeg ? 0.3 + Math.random() * 0.7 : 0.04 + Math.random() * 0.08;
+          ctx.strokeStyle = 'rgba(212,175,55,' + a + ')';
           ctx.beginPath();
-          const x1 = Math.random() * canvas.width;
-          const y1 = Math.random() * canvas.height;
-          ctx.moveTo(x1, y1);
-          ctx.lineTo(x1 + (Math.random() - 0.5) * 220, y1 + (Math.random() - 0.5) * 220);
+          const x = Math.random() * canvas.width, y = Math.random() * canvas.height;
+          ctx.moveTo(x, y);
+          ctx.lineTo(x + (Math.random() - 0.5) * 220, y + (Math.random() - 0.5) * 220);
           ctx.stroke();
         }
+        if (isLeg) { totalHits++; const nm = genName(); statusEl.textContent = 'LEGENDARY: ' + nm; statusEl.className = 'legendary'; addToVault(nm); }
+        else if (!isAuto) { statusEl.textContent = 'REJECTED'; statusEl.className = ''; }
+      } else {
+        const isLeg = Math.random() < 0.04;
+        if (isLeg) { totalHits++; const nm = genName(); statusEl.textContent = 'LEGENDARY: ' + nm; statusEl.className = 'legendary'; addToVault(nm); }
+        else if (!isAuto) { statusEl.textContent = 'REJECTED'; statusEl.className = ''; }
       }
-
-      if (isLegendary) {
-        totalHits++;
-        const name = genName();
-        statusEl.textContent = 'LEGENDARY: ' + name;
-        statusEl.className   = 'legendary';
-        addToVault(name);
-      } else if (!isAuto) {
-        statusEl.textContent = 'REJECTED';
-        statusEl.className   = '';
-      }
-
       updateAnalytics();
     }
 
@@ -364,37 +278,25 @@
 
     function toggleAuto() {
       isAuto = !isAuto;
-      if (isAuto) {
-        autoBtn.textContent = 'AUTO_SCAN: ON';
-        autoBtn.classList.add('on');
-        statusEl.textContent = '';
-        autoInterval = setInterval(generateSeed, 200);
-      } else {
-        clearInterval(autoInterval); autoInterval = null;
-        autoBtn.textContent = 'AUTO_SCAN: OFF';
-        autoBtn.classList.remove('on');
-        statusEl.textContent = '';
-        statusEl.className   = '';
-      }
+      if (isAuto) { autoBtn.textContent = 'AUTO_SCAN: ON'; autoBtn.classList.add('on'); statusEl.textContent = ''; autoInterval = setInterval(generateSeed, 200); }
+      else { clearInterval(autoInterval); autoInterval = null; autoBtn.textContent = 'AUTO_SCAN: OFF'; autoBtn.classList.remove('on'); statusEl.textContent = ''; statusEl.className = ''; }
     }
 
-    // ── SILENT MODE ────────────────────────────────────────────────────────────
     function toggleSilent() {
       isSilent = !isSilent;
-      silentOverlay.classList.toggle('visible', isSilent);
+      document.getElementById('silent-overlay').classList.toggle('visible', isSilent);
       silentBtn.textContent = isSilent ? 'SILENT: ON' : 'SILENT: OFF';
       isSilent ? silentBtn.classList.add('on') : silentBtn.classList.remove('on');
     }
 
-    // ── LOW POWER SCAN (2) ────────────────────────────────────────────────────
     function toggleLowPower() {
       isLowPower = !isLowPower;
-      lpOverlay.classList.toggle('visible', isLowPower && !isSilent);
+      document.getElementById('lp-overlay').classList.toggle('visible', isLowPower && !isSilent);
       lpBtn.textContent = isLowPower ? 'LOW_PWR: ON' : 'LOW_PWR: OFF';
       isLowPower ? lpBtn.classList.add('on') : lpBtn.classList.remove('on');
     }
 
-    // ── WATERMARK ─────────────────────────────────────────────────────────────
+    // ── WATERMARK ──────────────────────────────────────────────────────────────
     function applyWatermark(src) {
       return new Promise(resolve => {
         const img = new Image();
@@ -403,11 +305,9 @@
           wc.width = img.width; wc.height = img.height;
           const wctx = wc.getContext('2d');
           wctx.drawImage(img, 0, 0);
-          wctx.globalAlpha  = 0.10;
-          wctx.fillStyle    = '#d4af37';
-          wctx.font         = 'bold ' + Math.round(img.width * 0.025) + "px 'Courier New', monospace";
-          wctx.textAlign    = 'right';
-          wctx.textBaseline = 'bottom';
+          wctx.globalAlpha = 0.10; wctx.fillStyle = '#d4af37';
+          wctx.font = 'bold ' + Math.round(img.width * 0.025) + "px 'Courier New',monospace";
+          wctx.textAlign = 'right'; wctx.textBaseline = 'bottom';
           wctx.fillText('WEBSTER-54893 // ZENITH', img.width - 10, img.height - 8);
           resolve(wc.toDataURL('image/png'));
         };
@@ -415,16 +315,21 @@
       });
     }
 
-    // ── PERSISTENCE ───────────────────────────────────────────────────────────
-    function saveVault() {
-      try { localStorage.setItem(LS_KEY, JSON.stringify(vaultItems)); } catch (_) {}
+    // ── ENCRYPTED PERSISTENCE ─────────────────────────────────────────────────
+    async function saveVault() {
+      if (!_cryptoKey) return;
+      try {
+        const ciphertext = await encryptData(_cryptoKey, vaultItems);
+        localStorage.setItem(LS_KEY, ciphertext);
+      } catch (_) {}
     }
 
-    function restoreVault() {
+    async function restoreVault() {
+      if (!_cryptoKey) return;
       try {
         const raw = localStorage.getItem(LS_KEY);
         if (!raw) return;
-        const items = JSON.parse(raw);
+        const items = await decryptData(_cryptoKey, raw);
         if (!Array.isArray(items) || !items.length) return;
         const empty = document.getElementById('vault-empty');
         if (empty) empty.remove();
@@ -437,22 +342,18 @@
     function syncVaultUI() {
       vaultCountNum.textContent = vaultItems.length;
       reserveEl.textContent     = vaultItems.length;
-      if (vaultItems.length) {
-        dlAllBtn.classList.add('active');
-        manifestBtn.classList.add('active');
-      }
+      if (vaultItems.length) { dlAllBtn.classList.add('active'); manifestBtn.classList.add('active'); }
     }
 
     async function addToVault(name) {
-      const raw     = canvas.toDataURL('image/png');
-      const dataURL = await applyWatermark(raw);
+      const dataURL = await applyWatermark(canvas.toDataURL('image/png'));
       const item    = { name, timestamp: new Date().toLocaleTimeString(), dataURL };
       const empty   = document.getElementById('vault-empty');
       if (empty) empty.remove();
       vaultItems.unshift(item);
       renderVaultItem(item, true);
       syncVaultUI();
-      saveVault();
+      await saveVault();
     }
 
     function renderVaultItem(item, prepend) {
@@ -465,7 +366,7 @@
       prepend ? vaultList.prepend(el) : vaultList.appendChild(el);
     }
 
-    // ── MANIFEST GENERATOR (3) ────────────────────────────────────────────────
+    // ── MANIFEST GENERATOR ────────────────────────────────────────────────────
     function generateManifest() {
       if (!vaultItems.length) return;
       const lines = [
@@ -473,22 +374,14 @@
         'NODE: ' + nodeId,
         'GENERATED: ' + new Date().toLocaleString(),
         'TOTAL ASSETS: ' + vaultItems.length,
-        '-------------------------------------------',
-        ''
+        '-------------------------------------------', ''
       ];
-      vaultItems.forEach((item, i) => {
-        lines.push((i + 1) + '. ' + item.name + '  |  SECURED: ' + item.timestamp);
-      });
-      lines.push('');
-      lines.push('-------------------------------------------');
-      lines.push('SOVEREIGN_ARCHITECT_STABILITY_1440_LOGIC_ACTIVE');
-
+      vaultItems.forEach((item, i) => lines.push((i+1) + '. ' + item.name + '  |  SECURED: ' + item.timestamp));
+      lines.push('', '-------------------------------------------', 'SOVEREIGN_ARCHITECT_STABILITY_1440_LOGIC_ACTIVE');
       const blob = new Blob([lines.join('\n')], { type: 'text/plain' });
       const url  = URL.createObjectURL(blob);
       const a    = document.createElement('a');
-      a.href     = url;
-      a.download = nodeId + '_MANIFEST.txt';
-      a.click();
+      a.href = url; a.download = nodeId + '_MANIFEST.txt'; a.click();
       URL.revokeObjectURL(url);
     }
 
@@ -496,30 +389,36 @@
     async function downloadAll() {
       if (!vaultItems.length) return;
       const orig = dlAllBtn.textContent;
-      dlAllBtn.textContent     = 'COMPILING...';
-      dlAllBtn.style.pointerEvents = 'none';
+      dlAllBtn.textContent = 'COMPILING...'; dlAllBtn.style.pointerEvents = 'none';
       try {
         const zip = new JSZip();
-        vaultItems.forEach(item => {
-          zip.file(item.name + '.png', item.dataURL.split(',')[1], { base64: true });
-        });
+        vaultItems.forEach(item => zip.file(item.name + '.png', item.dataURL.split(',')[1], { base64: true }));
         const blob = await zip.generateAsync({ type: 'blob' });
         const url  = URL.createObjectURL(blob);
         const a    = document.createElement('a');
-        a.href     = url;
-        a.download = nodeId + '_ARCHIVE.zip';
-        a.click();
+        a.href = url; a.download = nodeId + '_ARCHIVE.zip'; a.click();
         URL.revokeObjectURL(url);
       } catch (_) {
-        vaultItems.forEach((item, i) =>
-          setTimeout(() => {
-            const a = document.createElement('a');
-            a.href = item.dataURL; a.download = item.name + '.png'; a.click();
-          }, i * 400)
-        );
+        vaultItems.forEach((item, i) => setTimeout(() => {
+          const a = document.createElement('a'); a.href = item.dataURL; a.download = item.name + '.png'; a.click();
+        }, i * 400));
       } finally {
         setTimeout(() => { dlAllBtn.textContent = orig; dlAllBtn.style.pointerEvents = ''; }, 1500);
       }
+    }
+
+    // ── PURGE SYSTEM ──────────────────────────────────────────────────────────
+    function purgeSystem() {
+      localStorage.removeItem(LS_KEY);
+      localStorage.removeItem(NODE_ID_KEY);
+      vaultItems = [];
+      totalCycles = 0; totalHits = 0;
+      clearInterval(autoInterval); autoInterval = null; isAuto = false; isSilent = false; isLowPower = false;
+      ctx.clearRect(0, 0, canvas.width, canvas.height);
+      document.getElementById('app').classList.remove('active');
+      document.getElementById('ghost-gate').style.display = 'flex';
+      _cryptoKey = null;
+      gateInput.value = '';
     }
   </script>
 </body>
