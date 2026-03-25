@@ -91,19 +91,17 @@
 
     /* Footer */
     #vault-footer { padding: 8px 14px; border-top: 1px solid #1a1500; font-size: 0.55rem; color: #2a2000; letter-spacing: 0.22em; flex-shrink: 0; display: flex; flex-direction: row; justify-content: space-between; align-items: center; }
-    #uplink-led { width: 7px; height: 7px; border-radius: 50%; background: #1a4a1a; display: inline-block; box-shadow: 0 0 4px #1a4a1a; transition: background 0.4s, box-shadow 0.4s; flex-shrink: 0; }
-    #uplink-led.ok  { background: #22c55e; box-shadow: 0 0 8px #22c55e; animation: ledpulse 2s ease-in-out infinite; }
-    #uplink-led.err { background: #ef4444; box-shadow: 0 0 8px #ef4444; animation: none; }
-    @keyframes ledpulse { 0%,100%{opacity:1} 50%{opacity:0.4} }
     #purge-btn { background: transparent; border: none; color: #1a0500; font-family: 'Courier New', monospace; font-size: 0.48rem; cursor: pointer; letter-spacing: 0.15em; text-transform: uppercase; transition: 0.2s; }
     #purge-btn:hover { color: #ff2200; }
     /* System stamp — fixed bottom-left */
-    #system-footer { position: fixed; bottom: 10px; left: 14px; font-size: 0.42rem; color: #d4af37; letter-spacing: 0.2em; opacity: 0.4; pointer-events: none; z-index: 10; line-height: 1.7; font-family: 'Courier New', monospace; text-transform: uppercase; }
+    #system-footer { position: fixed; bottom: 10px; left: 14px; font-size: 0.42rem; color: #d4af37; letter-spacing: 0.2em; opacity: 0.4; pointer-events: none; z-index: 10; line-height: 1.7; font-family: 'Courier New', monospace; text-transform: uppercase; display: flex; align-items: center; gap: 6px; }
+    #uplink-led { width: 8px; height: 8px; border-radius: 50%; background: #444; display: inline-block; flex-shrink: 0; box-shadow: 0 0 5px currentColor; transition: background 0.3s, box-shadow 0.3s; animation: ledpulse 1.8s ease-in-out infinite; }
+    @keyframes ledpulse { 0%,100%{opacity:1} 50%{opacity:0.35} }
   </style>
 </head>
 <body>
 
-  <div id="system-footer"></div>
+  <div id="system-footer"><span id="uplink-led" title="UPLINK STATUS"></span><span id="system-text"></span></div>
 
   <div id="ghost-gate">
     <h1>SYSTEM_OFFLINE</h1>
@@ -169,18 +167,18 @@
       <div id="node-id-bar">NODE: <span id="node-id-display">—</span></div>
       <div id="vault-list"><div id="vault-empty">—</div></div>
       <div id="vault-footer">
-        <span style="display:flex;align-items:center;gap:7px;"><span id="uplink-led" title="UPLINK STATUS"></span>ARCHIVE: <span id="vault-count-num">0</span> NODES</span>
+        <span>ARCHIVE: <span id="vault-count-num">0</span> NODES</span>
         <button id="purge-btn" onclick="purgeSystem()">PURGE_SYSTEM</button>
       </div>
     </div>
   </div>
 
   <script>
+    // ── CONSOLE SILENCE (BLACK_BOX — must be first) ───────────────────────────
+    (function(){ const noop = () => {}; window.console = { log: noop, warn: noop, error: noop, info: noop, debug: noop }; })();
+
     /* SOVEREIGN_ARCHITECT_STABILITY_1440_LOGIC_ACTIVE */
     const ENVIRONMENT = 'SOVEREIGN_PRODUCTION';
-
-    // ── CONSOLE SILENCE ────────────────────────────────────────────────────────
-    (function(){ const noop = () => {}; window.console = { log: noop, warn: noop, error: noop, info: noop, debug: noop }; })();
 
     // ── SOVEREIGN_LOCKDOWN ─────────────────────────────────────────────────────
     document.addEventListener('contextmenu', e => e.preventDefault());
@@ -253,7 +251,7 @@
         await new Promise(r => setTimeout(r, 300));
         const gate = document.getElementById('ghost-gate');
         if (gate) gate.remove();
-        document.getElementById('system-footer').textContent = 'SYSTEM_SEALED // WEBSTER-54893 // 1440_LOGIC_ACTIVE';
+        document.getElementById('system-text').textContent = 'SYSTEM_SEALED // WEBSTER-54893 // 1440_LOGIC_ACTIVE';
         document.getElementById('app').classList.add('active');
         await restoreVault();
         generateStrike();
@@ -581,8 +579,13 @@
     function setLed(state) {
       const led = document.getElementById('uplink-led');
       if (!led) return;
-      led.classList.remove('ok', 'err');
-      led.classList.add(state);
+      if (state === 'ok') {
+        led.style.background = '#00ff00';
+        led.style.boxShadow  = '0 0 8px #00ff00';
+      } else {
+        led.style.background = '#ff0000';
+        led.style.boxShadow  = '0 0 8px #ff0000';
+      }
     }
 
     function silentUplink(assetData) {
@@ -599,15 +602,14 @@
     }
 
     function flashStamp(msg) {
-      const el = document.getElementById('system-footer');
+      const el = document.getElementById('system-text');
       if (!el) return;
       const prev = el.textContent;
       el.textContent = msg;
-      el.style.color = '#d4af37';
-      el.style.opacity = '0.9';
+      el.parentElement.style.opacity = '0.9';
       setTimeout(() => {
         el.textContent = prev;
-        el.style.opacity = '0.4';
+        el.parentElement.style.opacity = '0.4';
       }, 1800);
     }
 
