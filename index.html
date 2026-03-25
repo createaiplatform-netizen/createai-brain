@@ -3,59 +3,94 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>THE HEARTH | LIVE V1.0.9</title>
+    <title>NEXUS ELITE | UNIVERSAL ACCESS</title>
     <style>
-        :root { --gold: #c4a97a; --dark: #0a0a0a; --white: #faf9f6; }
-        * { margin: 0; padding: 0; box-sizing: border-box; font-family: 'Garamond', serif; }
-        body { background: var(--dark); color: var(--white); overflow-x: hidden; width: 100vw; }
-
-        .container { 
+        :root { --gold: #c4a97a; --blue-glow: rgba(0, 150, 255, 0.3); --gold-glow: rgba(196, 169, 122, 0.4); }
+        * { margin: 0; padding: 0; box-sizing: border-box; font-family: 'Helvetica Neue', Arial, sans-serif; }
+        
+        body { 
+            background: #fdfdfd; 
+            color: #333; 
             display: flex; flex-direction: column; align-items: center; 
-            padding: 20px; text-align: center;
+            min-height: 100vh; overflow-x: hidden;
         }
 
-        .key-card {
-            background: #000; border: 1px solid var(--gold);
-            margin-bottom: 25px; padding: 30px 10px; border-radius: 15px;
-            width: 100%; max-width: 320px;
-            box-shadow: 0 0 20px rgba(196, 169, 122, 0.1);
+        /* THE NEXUS CORE SPHERE */
+        .nexus-core {
+            margin-top: 60px;
+            width: 280px; height: 280px;
+            background: radial-gradient(circle at 30% 30%, #fff 0%, #e0e0e0 100%);
+            border-radius: 50%;
+            display: flex; flex-direction: column; align-items: center; justify-content: center;
+            box-shadow: 
+                -15px -15px 30px rgba(255,255,255,0.8), 
+                15px 15px 30px rgba(0,0,0,0.05),
+                inset 2px 2px 5px rgba(255,255,255,0.5);
+            position: relative;
+            border: 1px solid rgba(196, 169, 122, 0.2);
         }
 
-        .tag { font-size: 0.6rem; letter-spacing: 4px; color: var(--gold); margin-bottom: 10px; display: block; text-transform: uppercase; opacity: 0.7; }
-
-        /* THE HARD FIX: Ensuring the full number stays inside the card */
-        .price-box {
-            font-size: 2.8rem; /* Scaled down for safe mobile fit */
-            font-weight: bold;
-            color: #fff;
-            margin: 15px 0;
-            width: 100%;
-            display: block;
+        /* THE ORBITAL GLOW */
+        .nexus-core::after {
+            content: ''; position: absolute; width: 110%; height: 110%;
+            border-radius: 50%;
+            box-shadow: 0 0 40px var(--gold-glow), 0 0 20px var(--blue-glow);
+            z-index: -1; animation: orbit 10s infinite linear;
         }
 
-        .buy-btn {
-            background: var(--gold); color: #000; border: none;
-            padding: 12px 0; width: 80%; border-radius: 50px;
-            font-weight: bold; text-transform: uppercase; font-size: 0.7rem;
-            margin-top: 10px;
+        @keyframes orbit { 0% { transform: rotate(0deg); } 100% { transform: rotate(360deg); } }
+
+        .nexus-logo { font-size: 2.5rem; color: var(--gold); font-weight: 200; letter-spacing: -2px; }
+        .nexus-title { font-size: 0.8rem; letter-spacing: 4px; color: #888; margin-top: 10px; font-weight: bold; text-transform: uppercase; }
+
+        /* THE SEARCH ACCESS */
+        .search-portal {
+            width: 85%; max-width: 400px; margin-top: 40px;
+            background: #fff; border: 1px solid #eee; border-radius: 50px;
+            padding: 15px 25px; box-shadow: 0 5px 15px rgba(0,0,0,0.03);
+            display: flex; align-items: center;
         }
+        .search-portal input { flex: 1; border: none; outline: none; font-size: 1rem; color: #555; text-align: center; }
+
+        /* ACCESS KEYS */
+        .access-keys { margin-top: 40px; width: 100%; display: flex; flex-direction: column; align-items: center; gap: 20px; padding-bottom: 50px; }
+        
+        .key-btn {
+            width: 85%; max-width: 350px; background: #fff; border: 1px solid #eee;
+            padding: 25px; border-radius: 20px; text-align: center;
+            box-shadow: 0 10px 20px rgba(0,0,0,0.02); transition: all 0.3s ease;
+            cursor: pointer;
+        }
+        .key-btn:active { transform: scale(0.98); box-shadow: 0 2px 5px rgba(0,0,0,0.05); }
+
+        .key-type { font-size: 0.6rem; letter-spacing: 3px; color: var(--gold); font-weight: bold; display: block; margin-bottom: 5px; }
+        .key-price { font-size: 2.2rem; font-weight: 300; color: #222; }
+
     </style>
 </head>
 <body>
 
-    <div class="container">
-        <h1 style="font-weight: 200; margin-bottom: 30px; letter-spacing: 5px;">THE HEARTH</h1>
+    <div class="nexus-core">
+        <div class="nexus-logo">₪</div>
+        <div class="nexus-title">NEXUS ELITE</div>
+        <div style="font-size: 0.5rem; color: #aaa; margin-top: 5px;">UNIVERSAL CORE ACCESS</div>
+    </div>
 
-        <div class="key-card">
-            <span class="tag">Private Family Hub</span>
-            <div class="price-box">97</div>
-            <button class="buy-btn">Get Your Key</button>
+    <div class="search-portal">
+        <input type="text" placeholder="Access the Hearth...">
+    </div>
+
+    <div class="access-keys">
+        <div class="key-btn">
+            <span class="key-type">PRIVATE FAMILY HUB</span>
+            <div class="key-price">97.00</div>
+            <p style="font-size: 0.7rem; color: #999; margin-top: 10px;">Activate Personal Sanctuary</p>
         </div>
 
-        <div class="key-card">
-            <span class="tag">Sovereign Biz Engine</span>
-            <div class="price-box">97</div>
-            <button class="buy-btn">Claim Your Engine</button>
+        <div class="key-btn">
+            <span class="key-type">SOVEREIGN BIZ ENGINE</span>
+            <div class="key-price">97.00</div>
+            <p style="font-size: 0.7rem; color: #999; margin-top: 10px;">Scale Business Sovereignty</p>
         </div>
     </div>
 
