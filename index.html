@@ -1,15 +1,119 @@
 <!DOCTYPE html>
-<html>
+<html lang="en">
 <head>
-    <title>THE HEARTH | CREATEAI</title>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>THE HEARTH | CREATEAI DIGITAL</title>
     <style>
-        body { background: #faf9f6; color: #7a9068; font-family: serif; display: flex; flex-direction: column; align-items: center; justify-content: center; height: 100vh; margin: 0; text-align: center; }
-        .spark { color: #c4a97a; font-style: italic; }
+        * { transition: all 0.4s ease; box-sizing: border-box; }
+        body { margin: 0; font-family: "Garamond", serif; background: #faf9f6; color: #7a9068; overflow-x: hidden; }
+        
+        .hero { 
+            height: 100vh; 
+            display: flex; 
+            flex-direction: column; 
+            justify-content: center; 
+            align-items: center; 
+            background: linear-gradient(135deg, #fbc2eb 0%, #a6c1ee 100%, #faf9f6 100%);
+            padding: 20px;
+        }
+
+        .search-container {
+            width: 100%;
+            max-width: 800px;
+            position: relative;
+        }
+
+        input#main-search {
+            width: 100%;
+            padding: 25px 40px;
+            border-radius: 100px;
+            border: 1px solid rgba(196, 169, 122, 0.5);
+            font-size: 1.5rem;
+            outline: none;
+            background: rgba(255, 255, 255, 0.9);
+            box-shadow: 0 15px 40px rgba(0,0,0,0.05);
+            font-family: serif;
+            color: #4a4a4a;
+        }
+
+        .search-label { margin-bottom: 20px; font-size: 1.8rem; color: #4a4a4a; font-weight: 300; }
+        
+        #results-area { 
+            margin-top: 40px; 
+            display: grid; 
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr)); 
+            gap: 20px; 
+            width: 100%; 
+            max-width: 1000px;
+        }
+
+        .result-card {
+            background: white;
+            padding: 30px;
+            border-radius: 25px;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.02);
+            border: 1px solid #eee;
+            display: none; /* Hidden until search */
+        }
+        
+        .nav-links { position: absolute; top: 30px; right: 40px; }
+        .nav-links a { text-decoration: none; color: #7a9068; margin-left: 25px; font-weight: bold; font-size: 0.9rem; letter-spacing: 1px; }
     </style>
 </head>
 <body>
-    <h1 style="font-size: 3rem;">The Hearth</h1>
-    <p class="spark">Preparing a space of subtle magic and wonder...</p>
-    <p style="max-width: 400px; line-height: 1.6;">We are building a private universe for families and a sovereign engine for local legends. We'll be ready when the feeling is right.</p>
+
+    <nav class="nav-links">
+        <a href="#">THE PORTAL</a>
+        <a href="#">FAMILY HUB</a>
+        <a href="#">ENTERPRISE</a>
+    </nav>
+
+    <section class="hero">
+        <h2 class="search-label">What would you like to create or organize today?</h2>
+        <div class="search-container">
+            <input type="text" id="main-search" placeholder="Search for 'Cafe', 'Journal', 'Hospital', 'Marketing'..." onkeyup="handleSearch()">
+        </div>
+
+        <div id="results-area">
+            <div id="res-family" class="result-card">
+                <h3 style="color: #fbc2eb;">The Family Hub</h3>
+                <p>A sacred, private space for your family's memories and growth.</p>
+                <button onclick="location.href='#payment'">Secure Hub - 97</button>
+            </div>
+            
+            <div id="res-cafe" class="result-card">
+                <h3 style="color: #7a9068;">Local Business OS</h3>
+                <p>The "Local Legend" suite for Cafes, Shops, and AFHs.</p>
+                <button onclick="alert('Calculating Savings...')">Calculate ROI - 97</button>
+            </div>
+
+            <div id="res-hospital" class="result-card">
+                <h3 style="color: #4a4a4a;">Global Healthcare</h3>
+                <p>Enterprise infrastructure for hospitals and clinical networks.</p>
+                <button>Consult Architect</button>
+            </div>
+        </div>
+    </section>
+
+    <script>
+    function handleSearch() {
+        const query = document.getElementById('main-search').value.toLowerCase();
+        const results = document.querySelectorAll('.result-card');
+        
+        results.forEach(card => card.style.display = 'none');
+
+        if(query.includes('fam') || query.includes('journ') || query.includes('kids')) {
+            document.getElementById('res-family').style.display = 'block';
+        } 
+        if(query.includes('cafe') || query.includes('shop') || query.includes('biz') || query.includes('marke')) {
+            document.getElementById('res-cafe').style.display = 'block';
+        }
+        if(query.includes('hosp') || query.includes('clinic') || query.includes('nurse') || query.includes('corp')) {
+            document.getElementById('res-hospital').style.display = 'block';
+        }
+    }
+    </script>
+
 </body>
 </html>
