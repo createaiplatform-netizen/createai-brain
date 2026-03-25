@@ -1,0 +1,85 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>FOUNDER | THE HEARTH LEDGER</title>
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; font-family: "Garamond", serif; }
+        body { background: #050505; color: #7a9068; padding: 60px; }
+        
+        .ledger-header { border-bottom: 1px solid #c4a97a; padding-bottom: 20px; margin-bottom: 60px; }
+        .ledger-grid { display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 40px; }
+        
+        .stat-card { background: rgba(255,255,255,0.03); padding: 40px; border-radius: 20px; border: 1px solid rgba(122,144,104,0.1); }
+        .stat-value { font-size: 3rem; color: #faf9f6; font-weight: 200; }
+        .stat-label { font-size: 0.7rem; letter-spacing: 5px; color: #c4a97a; margin-top: 10px; text-transform: uppercase; }
+
+        .engine-logs { margin-top: 80px; width: 100%; border-collapse: collapse; }
+        .engine-logs th { text-align: left; padding: 20px; font-size: 0.7rem; letter-spacing: 3px; color: #c4a97a; border-bottom: 1px solid #333; }
+        .engine-logs td { padding: 20px; border-bottom: 1px solid #111; font-size: 0.9rem; }
+        
+        .ghost-status { color: #fff; animation: pulse 2s infinite; }
+        @keyframes pulse { 0%, 100% { opacity: 0.5; } 50% { opacity: 1; } }
+    </style>
+</head>
+<body>
+
+    <div class="ledger-header">
+        <h1 style="font-weight: 200; color: #fff; letter-spacing: 15px;">FOUNDER'S LEDGER</h1>
+        <p style="font-style: italic; margin-top: 10px;">Lakeside Trinity Infrastructure | Standing Law v1.0</p>
+    </div>
+
+    <div class="ledger-grid">
+        <div class="stat-card">
+            <div class="stat-value">100%</div>
+            <div class="stat-label">System Sovereignty</div>
+        </div>
+        <div class="stat-card">
+            <div class="stat-value">158</div>
+            <div class="stat-label">Active Engine Nodes</div>
+        </div>
+        <div class="stat-card">
+            <div class="stat-value" id="revenue">--</div>
+            <div class="stat-label">Treasury Equilibrium</div>
+        </div>
+    </div>
+
+    <table class="engine-logs">
+        <thead>
+            <tr>
+                <th>ENGINE ID</th>
+                <th>INTENT SCALE</th>
+                <th>TRUTH VALUE</th>
+                <th>GHOST STATUS</th>
+            </tr>
+        </thead>
+        <tbody>
+            <tr>
+                <td>FAMILY_HUB_001</td>
+                <td>SACRED</td>
+                <td>97.00</td>
+                <td class="ghost-status">WATCHING</td>
+            </tr>
+            <tr>
+                <td>BIZ_ENGINE_CAFE_01</td>
+                <td>LOCAL LEGEND</td>
+                <td>97.00</td>
+                <td class="ghost-status">PROTECTING</td>
+            </tr>
+            <tr>
+                <td>HOSPITAL_INFRA_NY</td>
+                <td>NATIONAL</td>
+                <td>SCALED</td>
+                <td class="ghost-status">SHIELDING</td>
+            </tr>
+        </tbody>
+    </table>
+
+    <script>
+        // Real-time Treasury Calculation
+        const keys = 2; // Example: 1 Family, 1 Biz
+        document.getElementById('revenue').innerText = "$" + (197 + 497).toLocaleString();
+    </script>
+
+</body>
+</html>
