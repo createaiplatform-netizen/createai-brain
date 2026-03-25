@@ -8,12 +8,8 @@
         :root { --gold: #c4a97a; --ink: #1d1d1f; }
         * { margin: 0; padding: 0; box-sizing: border-box; font-family: -apple-system, sans-serif; }
         body { background: #fff; color: var(--ink); height: 100vh; overflow: hidden; }
-
-        /* THE VIEW SYSTEM */
         .view { display: none; height: 100vh; flex-direction: column; overflow-y: auto; padding-bottom: 120px; }
         .view.active { display: flex; }
-
-        /* MARKETPLACE */
         .header { padding: 60px 20px; text-align: center; letter-spacing: 15px; font-weight: 900; border-bottom: 1px solid #f0f0f0; text-transform: uppercase; }
         .grid { display: grid; grid-template-columns: 1fr 1fr; background: #f0f0f0; gap: 1px; }
         .card { background: #fff; padding: 35px 20px; display: flex; flex-direction: column; justify-content: space-between; min-height: 280px; }
@@ -21,51 +17,35 @@
         .tag { font-size: 0.5rem; font-weight: 900; color: #bbb; text-transform: uppercase; letter-spacing: 2px; }
         .name { font-size: 0.85rem; font-weight: 700; margin-top: 5px; }
         .price { font-size: 0.75rem; color: var(--gold); font-weight: 800; margin-top: 5px; }
-
-        /* COMMAND DECK (CREATOR HUB) */
         .admin-box { margin: 20px; padding: 30px; background: #f9f9f9; border-radius: 20px; border: 1px solid #eee; }
-        .admin-label { font-size: 0.6rem; font-weight: 900; color: #bbb; text-transform: uppercase; letter-spacing: 1px; }
-        input { width: 100%; padding: 15px; margin: 10px 0 20px 0; border: 1px solid #eee; border-radius: 12px; font-size: 1rem; outline: none; }
-        .btn-deploy { width: 100%; padding: 20px; background: var(--ink); color: #fff; border: none; border-radius: 50px; font-weight: 800; text-transform: uppercase; letter-spacing: 2px; cursor: pointer; }
-
-        /* NAV PILL */
-        nav { position: fixed; bottom: 25px; left: 15px; right: 15px; background: #000; padding: 20px; border-radius: 100px; display: flex; justify-content: space-around; z-index: 1000; box-shadow: 0 20px 40px rgba(0,0,0,0.3); }
-        .nav-link { color: #fff; font-size: 0.55rem; font-weight: 900; text-transform: uppercase; opacity: 0.4; cursor: pointer; text-decoration: none; }
+        input { width: 100%; padding: 15px; margin: 10px 0 20px 0; border: 1px solid #eee; border-radius: 12px; font-size: 1rem; }
+        .btn-deploy { width: 100%; padding: 20px; background: var(--ink); color: #fff; border: none; border-radius: 50px; font-weight: 800; text-transform: uppercase; letter-spacing: 2px; }
+        nav { position: fixed; bottom: 25px; left: 15px; right: 15px; background: #000; padding: 20px; border-radius: 100px; display: flex; justify-content: space-around; z-index: 1000; }
+        .nav-link { color: #fff; font-size: 0.55rem; font-weight: 900; text-transform: uppercase; opacity: 0.4; text-decoration: none; cursor: pointer; }
         .nav-link.active { opacity: 1; }
     </style>
 </head>
 <body>
-
     <div id="marketView" class="view active">
         <header class="header"><div>HEARTH</div></header>
         <div class="grid" id="mainStore">
             <div class="card"><span class="icon">⚙️</span><div><span class="tag">Flagship</span><p class="name">Home-Port</p><p class="price">$1,299</p></div></div>
-            <div class="card"><span class="icon">👕</span><div><span class="tag">Apparel</span><p class="name">AI Skin Shirt</p><p class="price">$45</p></div></div>
         </div>
     </div>
-
     <div id="creatorView" class="view">
         <div style="padding: 40px; font-weight: 900; letter-spacing: 5px; text-transform: uppercase;">Command Deck</div>
         <div class="admin-box">
-            <span class="admin-label">Product Name</span>
-            <input type="text" id="pName" placeholder="e.g. Sovereign Wrench">
-            
-            <span class="admin-label">Price</span>
-            <input type="text" id="pPrice" placeholder="e.g. $89">
-            
-            <span class="admin-label">Emoji Icon</span>
-            <input type="text" id="pIcon" placeholder="e.g. 🛠️">
-            
+            <input type="text" id="pName" placeholder="Product Name">
+            <input type="text" id="pPrice" placeholder="Price">
+            <input type="text" id="pIcon" placeholder="Emoji Icon">
             <button class="btn-deploy" onclick="deployToMarket()">Push to Marketplace</button>
+            <button class="btn-deploy" style="background:#ff3b30; margin-top:10px;" onclick="clearMarket()">Clear My Pushes</button>
         </div>
-        <p style="text-align:center; font-size:0.5rem; opacity:0.3; padding:0 40px;">NOTE: This push updates your current session. Refreshing the browser will reset the market to core assets until the database is linked.</p>
     </div>
-
     <nav>
         <div class="nav-link active" onclick="showPortal('marketView', this)">Market</div>
         <div class="nav-link" onclick="showPortal('creatorView', this)">Creator Hub</div>
     </nav>
-
     <script>
         function showPortal(id, el) {
             document.querySelectorAll('.view').forEach(v => v.classList.remove('active'));
@@ -73,40 +53,33 @@
             document.getElementById(id).classList.add('active');
             el.classList.add('active');
         }
-
         function deployToMarket() {
             const name = document.getElementById('pName').value;
             const price = document.getElementById('pPrice').value;
             const icon = document.getElementById('pIcon').value || '📦';
-            
-            if(!name || !price) {
-                alert("Please enter a name and price.");
-                return;
-            }
-
-            const store = document.getElementById('mainStore');
-            const template = `
-                <div class="card">
-                    <span class="icon">${icon}</span>
-                    <div>
-                        <span class="tag">Sovereign Asset</span>
-                        <p class="name">${name}</p>
-                        <p class="price">${price}</p>
-                    </div>
-                </div>`;
-            
-            store.insertAdjacentHTML('beforeend', template);
-            
-            alert(name + " has been deployed!");
-            
-            // Return to market
+            if(!name || !price) return alert("Fill in Name and Price.");
+            const asset = { name, price, icon };
+            let saved = JSON.parse(localStorage.getItem('hearth_assets') || '[]');
+            saved.push(asset);
+            localStorage.setItem('hearth_assets', JSON.stringify(saved));
+            loadAssets();
             showPortal('marketView', document.querySelectorAll('.nav-link')[0]);
-            
-            // Clear inputs
-            document.getElementById('pName').value = '';
-            document.getElementById('pPrice').value = '';
-            document.getElementById('pIcon').value = '';
         }
+        function loadAssets() {
+            const store = document.getElementById('mainStore');
+            const saved = JSON.parse(localStorage.getItem('hearth_assets') || '[]');
+            let html = '<div class="card"><span class="icon">⚙️</span><div><span class="tag">Flagship</span><p class="name">Home-Port</p><p class="price">$1,299</p></div></div>';
+            saved.forEach(a => {
+                html += `<div class="card"><span class="icon">${a.icon}</span><div><span class="tag">Sovereign Asset</span><p class="name">${a.name}</p><p class="price">${a.price}</p></div></div>`;
+            });
+            store.innerHTML = html;
+        }
+        function clearMarket() {
+            localStorage.removeItem('hearth_assets');
+            loadAssets();
+            alert("Local storage cleared.");
+        }
+        loadAssets();
     </script>
 </body>
 </html>
