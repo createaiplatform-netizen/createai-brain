@@ -3,69 +3,65 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>HEARTH | CREATOR FORGE</title>
+    <title>HEARTH | LIVE CUSTOMIZER</title>
     <style>
-        :root { --ink: #1d1d1f; --gold: #c4a97a; --deploy: #007aff; }
-        * { margin: 0; padding: 0; box-sizing: border-box; font-family: -apple-system, sans-serif; }
-        body { background: #fff; color: var(--ink); padding-bottom: 120px; }
-
-        .header { padding: 40px 20px; border-bottom: 1px solid #eee; }
-        .tag { font-size: 0.5rem; font-weight: 900; letter-spacing: 3px; text-transform: uppercase; color: var(--gold); }
+        :root { --ink: #1d1d1f; --gold: #c4a97a; }
+        * { margin: 0; padding: 0; box-sizing: border-box; font-family: -apple-system, sans-serif; transition: 0.3s cubic-bezier(0.4, 0, 0.2, 1); }
         
-        /* THE FORGE INTERFACE */
-        .studio-space { padding: 20px; }
-        .canvas { width: 100%; aspect-ratio: 16/9; background: #f9f9f9; border: 2px dashed #ddd; border-radius: 20px; display: flex; align-items: center; justify-content: center; color: #aaa; margin-bottom: 30px; }
+        body { background: #fdfcfb; color: var(--ink); padding: 20px; text-align: center; }
 
-        .form-group { margin-bottom: 25px; }
-        label { font-size: 0.6rem; font-weight: 800; text-transform: uppercase; display: block; margin-bottom: 10px; }
-        input { width: 100%; padding: 15px; border-radius: 10px; border: 1px solid #eee; background: #fdfcfb; }
-
-        /* THE DEPLOY BUTTON */
-        .deploy-btn { 
-            width: 100%; padding: 20px; border-radius: 100px; border: none; 
-            background: var(--ink); color: #fff; font-weight: 800; 
-            letter-spacing: 2px; text-transform: uppercase; cursor: pointer;
-            box-shadow: 0 10px 30px rgba(0,0,0,0.1);
+        /* THE DYNAMIC PRODUCT */
+        .product-stage { 
+            position: relative; width: 100%; aspect-ratio: 1; 
+            background: #fff; border-radius: 40px; margin-bottom: 30px;
+            display: flex; align-items: center; justify-content: center;
+            box-shadow: 0 20px 60px rgba(0,0,0,0.05);
         }
-        .deploy-btn:active { transform: scale(0.98); background: var(--deploy); }
+        
+        /* THE SHIRT OVERLAY LOGIC */
+        #baseProduct { width: 80%; filter: grayscale(1) brightness(1.2); }
+        #colorLayer { 
+            position: absolute; width: 80%; height: 80%; 
+            mix-blend-mode: multiply; opacity: 0.8; 
+            mask-image: url('https://raw.githubusercontent.com/lucas-m-d/shirt-mask/main/mask.png'); /* Virtual Mask */
+            mask-size: contain; mask-repeat: no-repeat; mask-position: center;
+        }
 
-        .status-msg { font-size: 0.6rem; text-align: center; margin-top: 15px; color: #888; }
+        .controls { background: #fff; padding: 30px; border-radius: 30px; box-shadow: 0 10px 30px rgba(0,0,0,0.02); }
+        .label { font-size: 0.6rem; font-weight: 900; letter-spacing: 2px; text-transform: uppercase; margin-bottom: 20px; display: block; }
+        
+        .swatches { display: flex; gap: 15px; justify-content: center; margin-bottom: 30px; }
+        .swatch { width: 45px; height: 45px; border-radius: 50%; border: 3px solid #eee; cursor: pointer; }
+        .swatch.active { border-color: var(--ink); transform: scale(1.1); }
+
+        .buy-btn { width: 100%; padding: 20px; border-radius: 100px; border: none; background: var(--ink); color: #fff; font-weight: 800; letter-spacing: 3px; }
     </style>
 </head>
 <body>
 
-    <div class="header">
-        <span class="tag">System Control</span>
-        <h1 style="font-size: 1.5rem; letter-spacing: -1px;">Creator Portal</h1>
+    <div style="margin-bottom:40px;"><p style="font-weight:900; letter-spacing:8px; font-size:0.7rem;">HEARTH MARKET</p></div>
+
+    <div class="product-stage">
+        <div id="colorLayer" style="background-color: #c4a97a;"></div>
+        <img id="baseProduct" src="https://www.transparentpng.com/download/t-shirt/j8S8u6-blank-t-shirt-front-view-white.png" alt="Base">
     </div>
 
-    <div class="studio-space">
-        <div class="canvas">DROP ASSET HERE</div>
-
-        <div class="form-group">
-            <label>Product Name</label>
-            <input type="text" placeholder="e.g. Sovereign Smart-Node">
+    <div class="controls">
+        <span class="label">Redesign this Asset</span>
+        <div class="swatches">
+            <div class="swatch" style="background: #c4a97a;" onclick="changeColor('#c4a97a', this)"></div>
+            <div class="swatch" style="background: #ff3b30;" onclick="changeColor('#ff3b30', this)"></div>
+            <div class="swatch" style="background: #007aff;" onclick="changeColor('#007aff', this)"></div>
+            <div class="swatch" style="background: #000;" onclick="changeColor('#000', this)"></div>
         </div>
-
-        <div class="form-group">
-            <label>Auto-Deploy URL</label>
-            <input type="text" placeholder="smartnode.hearth.market" readonly style="opacity:0.5;">
-        </div>
-
-        <button class="deploy-btn" onclick="deploy()">Launch Sovereign Site</button>
-        <p class="status-msg" id="status">Ready for Deployment</p>
+        <button class="buy-btn">ORDER CUSTOM BUILD</button>
     </div>
 
     <script>
-        function deploy() {
-            const status = document.getElementById('status');
-            status.innerText = "Generating Standalone Site...";
-            status.style.color = "#007aff";
-            
-            setTimeout(() => {
-                status.innerText = "LIVE: Site Deployed to Sovereign Network";
-                status.style.color = "#00ff88";
-            }, 2000);
+        function changeColor(color, el) {
+            document.getElementById('colorLayer').style.backgroundColor = color;
+            document.querySelectorAll('.swatch').forEach(s => s.classList.remove('active'));
+            el.classList.add('active');
         }
     </script>
 
