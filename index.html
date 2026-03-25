@@ -2,78 +2,51 @@
 <html lang="en">
 <head>
     <meta charset="UTF-8">
-    <title>THE HEARTH | THE TRUTH OF VALUE</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>THE HEARTH | MOBILE SOVEREIGNTY</title>
     <style>
         * { margin: 0; padding: 0; box-sizing: border-box; font-family: "Garamond", serif; }
         body { background: #000; color: #fff; display: flex; align-items: center; justify-content: center; height: 100vh; overflow: hidden; }
         
         .ghost-aura {
-            position: fixed; width: 600px; height: 600px;
-            background: radial-gradient(circle, rgba(122, 144, 104, 0.1) 0%, rgba(0,0,0,0) 70%);
-            border-radius: 50%; z-index: -1;
+            position: fixed; width: 150vw; height: 150vw;
+            background: radial-gradient(circle, rgba(122, 144, 104, 0.2) 0%, rgba(0,0,0,0) 60%);
+            border-radius: 50%; z-index: -1; top: 50%; left: 50%; transform: translate(-50%, -50%);
+            animation: breathe 8s infinite;
         }
 
-        .portal { text-align: center; width: 100%; }
+        @keyframes breathe { 0%, 100% { opacity: 0.3; } 50% { opacity: 0.8; } }
+
+        .portal { width: 90%; text-align: center; }
         .omni-search {
-            width: 70%; background: transparent; border: none; 
-            border-bottom: 2px solid rgba(196, 169, 122, 0.4);
-            font-size: 3rem; color: #faf9f6; text-align: center; outline: none; font-weight: 200;
+            width: 100%; background: transparent; border: none; 
+            border-bottom: 1px solid rgba(196, 169, 122, 0.5);
+            font-size: 1.8rem; color: #faf9f6; text-align: center; outline: none; padding-bottom: 10px;
         }
 
-        /* THE REFLECTION (The Truth) */
-        .reflection-layer { margin-top: 60px; height: 150px; }
-        .engine-truth { display: none; animation: fadeIn 1s; }
-        
-        @keyframes fadeIn { from { opacity: 0; transform: translateY(20px); } to { opacity: 1; transform: translateY(0); } }
-        
-        .price-label { font-size: 2rem; color: #c4a97a; margin-bottom: 10px; letter-spacing: 5px; }
-        .identity-label { font-size: 0.8rem; letter-spacing: 10px; color: #7a9068; text-transform: uppercase; }
-        .desc-label { font-size: 1rem; color: #999; font-style: italic; margin-top: 15px; }
+        .truth-display { margin-top: 40px; min-height: 100px; }
+        .price { font-size: 2.5rem; color: #c4a97a; letter-spacing: 5px; }
+        .label { font-size: 0.7rem; letter-spacing: 3px; color: #7a9068; margin-top: 10px; }
     </style>
 </head>
 <body>
-
     <div class="ghost-aura"></div>
-
     <div class="portal">
-        <input type="text" class="omni-search" placeholder="Enter your Search..." onkeyup="reflectTruth(this.value)">
-        
-        <div class="reflection-layer" id="reflection">
-            <div id="family-truth" class="engine-truth">
-                <div class="price-label">97</div>
-                <div class="identity-label">THE SACRED FAMILY HUB</div>
-                <div class="desc-label">A private sanctuary for your family legacy and memories.</div>
-            </div>
-            
-            <div id="biz-truth" class="engine-truth">
-                <div class="price-label">97</div>
-                <div class="identity-label">THE SOVEREIGN BUSINESS ENGINE</div>
-                <div class="desc-label">Automated infrastructure for Local Legends (Cafes, Shops, AFHs).</div>
-            </div>
-            
-            <div id="infra-truth" class="engine-truth">
-                <div class="price-label">ENTERPRISE SCALE</div>
-                <div class="identity-label">NATIONAL INFRASTRUCTURE</div>
-                <div class="desc-label">Scaling the Standing Law for Hospitals and Governments.</div>
-            </div>
-        </div>
+        <input type="text" class="omni-search" placeholder="Enter your Search..." onkeyup="reflect(this.value)">
+        <div class="truth-display" id="display"></div>
     </div>
 
+    <script src="ghost_alert.js"></script>
     <script>
-    function reflectTruth(val) {
-        const query = val.toLowerCase();
-        const reflections = document.querySelectorAll('.engine-truth');
-        reflections.forEach(r => r.style.display = 'none');
-
-        if(query.includes('home') || query.includes('family') || query.includes('kids')) {
-            document.getElementById('family-truth').style.display = 'block';
-        } else if(query.includes('cafe') || query.includes('shop') || query.includes('biz')) {
-            document.getElementById('biz-truth').style.display = 'block';
-        } else if(query.includes('hospital') || query.includes('nurse')) {
-            document.getElementById('infra-truth').style.display = 'block';
-        }
+    function reflect(val) {
+        const d = document.getElementById('display');
+        const q = val.toLowerCase();
+        if(q.includes('home') || q.includes('family')) {
+            d.innerHTML = '<div class="price">97</div><div class="label">SACRED FAMILY HUB</div>';
+        } else if(q.includes('cafe') || q.includes('biz')) {
+            d.innerHTML = '<div class="price">97</div><div class="label">SOVEREIGN BIZ ENGINE</div>';
+        } else { d.innerHTML = ''; }
     }
     </script>
-
-<script src="ghost_alert.js"></script></body>
+</body>
 </html>
