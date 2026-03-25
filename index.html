@@ -1,76 +1,15 @@
 <!DOCTYPE html>
-<html lang="en">
+<html>
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>THE HEARTH | CREATEAI DIGITAL</title>
+    <title>THE HEARTH | CREATEAI</title>
     <style>
-        * { transition: all 0.5s cubic-bezier(0.4, 0, 0.2, 1); box-sizing: border-box; }
-        body { margin: 0; font-family: -apple-system, sans-serif; background: #020617; color: #f8fafc; overflow-x: hidden; }
-        
-        /* THE NEXUS (Billion Dollar Look) */
-        .nexus-header { height: 80vh; display: flex; flex-direction: column; justify-content: center; align-items: center; text-align: center; background: radial-gradient(circle at center, #0f172a 0%, #020617 100%); }
-        .wonder-text { font-size: 3.5rem; letter-spacing: -2px; margin-bottom: 10px; font-weight: 700; }
-        
-        /* THE THREE PILLARS */
-        .pillar-container { display: flex; justify-content: center; gap: 30px; padding: 50px 20px; flex-wrap: wrap; margin-top: -100px; }
-        .sovereign-card { background: rgba(255,255,255,0.03); backdrop-filter: blur(15px); border-radius: 32px; padding: 40px; width: 350px; border: 1px solid rgba(255,255,255,0.1); text-align: center; box-shadow: 0 20px 50px rgba(0,0,0,0.5); }
-        .sovereign-card:hover { transform: translateY(-10px); border-color: #6366f1; }
-        
-        button { border-radius: 50px; padding: 15px 30px; border: none; font-weight: bold; cursor: pointer; text-transform: uppercase; letter-spacing: 1px; }
-        
-        /* THE SUNSET HUB (Hidden initially) */
-        #dynamic-zone { min-height: 400px; padding: 50px; text-align: center; display: none; }
+        body { background: #faf9f6; color: #7a9068; font-family: serif; display: flex; flex-direction: column; align-items: center; justify-content: center; height: 100vh; margin: 0; text-align: center; }
+        .spark { color: #c4a97a; font-style: italic; }
     </style>
 </head>
 <body>
-
-    <section class="nexus-header">
-        <h1 class="wonder-text">The Sovereign Gateway</h1>
-        <p style="color: #94a3b8; max-width: 600px;">National Infrastructure for Families, Local Legends, and Global Enterprises.</p>
-    </section>
-
-    <div class="pillar-container">
-        <div class="sovereign-card">
-            <h2 style="color: #e0c3fc;">Family Hub</h2>
-            <p>The Sacred Space. 97 for life.</p>
-            <button onclick="activateFairness('family')" style="background: #e0c3fc; color: #000;">Enter the Hearth</button>
-        </div>
-
-        <div class="sovereign-card" style="border: 1px solid #d4af37;">
-            <h2 style="color: #d4af37;">The Builder</h2>
-            <p>Design your industry logic first. Then price it fairly.</p>
-            <button onclick="activateFairness('builder')" style="background: #d4af37; color: #000;">Start Creating</button>
-        </div>
-
-        <div class="sovereign-card">
-            <h2>The Portal</h2>
-            <p>Existing Sovereign Login.</p>
-            <button onclick="alert('Accessing Secure Vault...')" style="background: transparent; border: 1px solid #fff; color: #fff;">Login</button>
-        </div>
-    </div>
-
-    <div id="dynamic-zone"></div>
-
-    <script>
-    function activateFairness(mode) {
-        const zone = document.getElementById('dynamic-zone');
-        zone.style.display = 'block';
-        window.scrollTo({ top: zone.offsetTop, behavior: 'smooth' });
-
-        if (mode === 'family') {
-            zone.innerHTML = '<div style="background: linear-gradient(135deg, #e0c3fc 0%, #fbc2eb 100%); padding: 60px; border-radius: 40px; color: #4a4a4a;"><h2>The Hearth is Waiting</h2><p>Your private family universe is one key away.</p><button style="background:#fff; color:#000;">Obtain Hub Key - 97</button></div>';
-        } else if (mode === 'builder') {
-            const biz = prompt("Who is this for?\n1. Local Cafe/Small Biz\n2. Big Hospital/Enterprise");
-            if (biz === "1") {
-                const hrs = prompt("How many hours a week do you waste on paperwork?");
-                const savings = (hrs * 25 * 52).toLocaleString();
-                zone.innerHTML = `<div style="background: #faf9f6; color: #7a9068; padding: 60px; border-radius: 40px; border: 2px solid #c4a97a;"><h2>Cafe & Local Shop ROI</h2><p>Estimated Yearly Savings: $${savings}</p><p>Fair Price: 97</p><button style="background:#7a9068; color:#fff;">Save My Business</button></div>`;
-            } else {
-                zone.innerHTML = '<div style="background: #000; color: #fff; padding: 60px; border-radius: 40px; border: 1px solid #6366f1;"><h2>Enterprise Infrastructure</h2><p>Custom Architecture Required for Hospitals & Global Corps.</p><button style="background:#6366f1; color:#fff;">Request Executive Quote</button></div>';
-            }
-        }
-    }
-    </script>
+    <h1 style="font-size: 3rem;">The Hearth</h1>
+    <p class="spark">Preparing a space of subtle magic and wonder...</p>
+    <p style="max-width: 400px; line-height: 1.6;">We are building a private universe for families and a sovereign engine for local legends. We'll be ready when the feeling is right.</p>
 </body>
 </html>
