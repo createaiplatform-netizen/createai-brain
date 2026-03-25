@@ -1,0 +1,85 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>CREATIVE_AI | THE_VAULT</title>
+    <style>
+        :root { --g: #d4af37; --b: #000; --w: #fff; }
+        body { background: var(--b); color: var(--g); font-family: 'Courier New', monospace; margin: 0; padding: 20px; display: flex; flex-direction: column; align-items: center; text-transform: uppercase; }
+        
+        #neural-canvas { border: 2px solid var(--g); background: #050505; width: 300px; height: 300px; margin: 20px 0; box-shadow: 0 0 30px rgba(212, 175, 55, 0.2); }
+        
+        .panel { border: 1px solid var(--g); padding: 20px; background: rgba(212,175,55,0.05); width: 100%; max-width: 500px; text-align: center; margin-bottom: 20px; }
+        h1 { letter-spacing: 12px; font-size: 1.8rem; margin: 10px 0; text-shadow: 0 0 10px var(--g); }
+        
+        .gen-btn { background: var(--g); color: #000; border: none; padding: 18px; width: 100%; font-weight: 900; cursor: pointer; letter-spacing: 4px; font-size: 1rem; }
+        .gen-btn:active { background: var(--w); }
+
+        /* THE VAULT GALLERY */
+        #vault-container { width: 100%; max-width: 500px; border: 2px double var(--g); padding: 15px; background: #080808; }
+        h3 { border-bottom: 1px solid var(--g); padding-bottom: 5px; letter-spacing: 5px; color: var(--w); }
+        .vault-item { display: flex; justify-content: space-between; font-size: 0.7rem; padding: 8px; border-bottom: 1px solid rgba(212,175,55,0.2); color: #lawngreen; animation: fade 0.5s ease-in; }
+        
+        @keyframes fade { from { opacity: 0; transform: translateY(-5px); } to { opacity: 1; transform: translateY(0); } }
+    </style>
+</head>
+<body>
+
+    <h1>CREATIVE_AI</h1>
+    <canvas id="neural-canvas"></canvas>
+
+    <div class="panel">
+        <div id="status" style="font-size: 0.8rem; color: var(--w); margin-bottom: 15px;">SCANNING_NEURAL_SEEDS...</div>
+        <button class="gen-btn" onclick="processSeed()">GENERATE & SCAN</button>
+    </div>
+
+    <div id="vault-container">
+        <h3>LEGENDARY_VAULT</h3>
+        <div id="vault-list">
+            <div style="opacity: 0.4; font-size: 0.6rem; padding: 10px;">EMPTY_VAULT: AWAITING_HIGH_VALUE_ASSETS</div>
+        </div>
+    </div>
+
+    <script>
+        const canvas = document.getElementById('neural-canvas');
+        const ctx = canvas.getContext('2d');
+        const vaultList = document.getElementById('vault-list');
+        const status = document.getElementById('status');
+
+        function processSeed() {
+            ctx.clearRect(0, 0, 300, 300);
+            const id = Math.random().toString(36).substring(7).toUpperCase();
+            const isLegendary = Math.random() > 0.85; // 15% chance
+            
+            // Draw Neural Pattern
+            ctx.strokeStyle = isLegendary ? '#d4af37' : '#444';
+            ctx.lineWidth = isLegendary ? 2 : 1;
+            for(let i=0; i<40; i++) {
+                ctx.beginPath();
+                ctx.moveTo(Math.random()*300, Math.random()*300);
+                ctx.lineTo(Math.random()*300, Math.random()*300);
+                ctx.stroke();
+            }
+
+            if(isLegendary) {
+                status.innerText = `LEGENDARY_ASSET_DETECTED: ${id}`;
+                status.style.color = "lawngreen";
+                addToVault(id);
+            } else {
+                status.innerText = "ASSET_REJECTED: LOW_DENSITY";
+                status.style.color = "white";
+            }
+        }
+
+        function addToVault(id) {
+            const time = new Date().toLocaleTimeString();
+            if(vaultList.innerHTML.includes('EMPTY_VAULT')) vaultList.innerHTML = '';
+            const item = document.createElement('div');
+            item.className = 'vault-item';
+            item.innerHTML = `<span>ID: ${id}</span> <span>[SECURED_${time}]</span>`;
+            vaultList.prepend(item);
+        }
+    </script>
+</body>
+</html>
