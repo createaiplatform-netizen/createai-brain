@@ -640,7 +640,7 @@ app.get("/export-batch", (_req: Request, res: Response): void => {
   }
 });
 
-app.post("/upload-strike", express.json({ limit: "10mb" }), (req: Request, res: Response): void => {
+app.post("/upload-strike", express.json({ limit: "15mb" }), (req: Request, res: Response): void => {
   try {
     const { name, timestamp, dataURL, metadata } = req.body as {
       name: string;
