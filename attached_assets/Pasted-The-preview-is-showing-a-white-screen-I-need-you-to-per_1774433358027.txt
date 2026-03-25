@@ -1,0 +1,57 @@
+The preview is showing a white screen. I need you to perform a Hard Reset on the project architecture to ensure the Zenith Sovereign OS is live. 
+
+1. Ensure the main file is named exactly 'index.html' (all lowercase).
+2. Delete everything currently in 'index.html'.
+3. Replace the entire content of 'index.html' with the code provided below.
+4. Ensure there are no hidden characters, and then trigger the 'Run' command.
+
+CODE TO PASTE:
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>ZENITH | THE_SINGULARITY</title>
+    <style>
+        :root { --g: #d4af37; --b: #000; --w: #fff; }
+        body { background: var(--b); color: var(--g); font-family: monospace; margin: 0; padding: 15px; display: flex; flex-direction: column; align-items: center; text-transform: uppercase; }
+        .panel { border: 2px solid var(--g); padding: 25px; background: rgba(212,175,55,0.05); width: 100%; max-width: 450px; margin-bottom: 20px; }
+        h1 { letter-spacing: 15px; font-size: 2.8rem; text-shadow: 0 0 20px var(--g); margin: 20px 0; }
+        h2 { border-bottom: 1px solid var(--g); padding-bottom: 10px; font-size: 1.2rem; color: var(--w); letter-spacing: 5px; }
+        .calc-box { background: #111; padding: 15px; border: 1px dashed var(--g); margin-top: 10px; }
+        input { background: #000; border: 1px solid var(--g); color: #fff; padding: 10px; width: 90px; text-align: center; font-size: 1.2rem; font-weight: bold; margin: 5px; }
+        .btn { background: var(--g); color: #000; border: none; padding: 20px; width: 100%; font-weight: 900; cursor: pointer; margin-top: 15px; letter-spacing: 5px; }
+        #net-val { font-size: 2rem; font-weight: 900; color: var(--w); margin: 15px 0; }
+        .check { display: block; text-align: left; margin: 12px 0; font-size: 0.8rem; color: var(--w); }
+    </style>
+</head>
+<body>
+    <h1>ZENITH</h1>
+    <div class="panel">
+        <h2>ARRIVAL CHECK</h2>
+        <label class="check"><input type="checkbox"> POWER_ON: VERIFIED</label>
+        <label class="check"><input type="checkbox"> PHYSICAL: NO_DAMAGE</label>
+        <label class="check"><input type="checkbox"> SCARCITY: CONFIRMED</label>
+    </div>
+    <div class="panel">
+        <h2>EXCHANGE</h2>
+        <div class="calc-box">
+            <div>BUY: $<input type="number" id="b" value="50"></div>
+            <div>EXIT: $<input type="number" id="e" value="150"></div>
+            <div id="net-val">NET: $100.00</div>
+            <button class="btn" onclick="alert('CASH. PICKUP. NOW.')">STRIKE</button>
+        </div>
+    </div>
+    <div class="panel" style="border-style: double; border-width: 6px;">
+        <h2>LEGACY</h2>
+        <p style="font-size: 0.7rem;">THE THING THAT CREATED THE THING IS SECURED.</p>
+    </div>
+    <script>
+        const b = document.getElementById('b'), e = document.getElementById('e'), n = document.getElementById('net-val');
+        const update = () => { n.innerText = `NET: $${(e.value - b.value).toFixed(2)}`; };
+        b.oninput = update; e.oninput = update;
+        document.addEventListener('contextmenu', ev => ev.preventDefault());
+    </script>
+</body>
+</html>
