@@ -3,116 +3,75 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>HEARTH | OMNI-HUB</title>
+    <title>HEARTH | CORE</title>
     <style>
-        :root { --ink: #1d1d1f; --gold: #c4a97a; --garden: #00ff88; --jr: #007aff; --family: #ff9500; --nexus: #ff3b30; }
-        * { margin: 0; padding: 0; box-sizing: border-box; font-family: -apple-system, sans-serif; transition: 0.4s; }
-        body { background: #000; color: #fff; overflow: hidden; height: 100vh; }
+        :root { --gold: #c4a97a; --ink: #1d1d1f; }
+        * { margin: 0; padding: 0; box-sizing: border-box; font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif; }
+        body { background: #fff; color: var(--ink); line-height: 1.5; padding-bottom: 100px; }
+        
+        .header { padding: 60px 20px; text-align: center; border-bottom: 1px solid #f0f0f0; }
+        .logo { font-weight: 900; letter-spacing: 15px; font-size: 1.2rem; text-transform: uppercase; }
 
-        .view { display: none; height: 100vh; width: 100vw; flex-direction: column; overflow-y: auto; padding-bottom: 120px; }
-        .view.active { display: flex; }
+        .grid { display: grid; grid-template-columns: 1fr 1fr; background: #f0f0f0; gap: 1px; border-bottom: 1px solid #f0f0f0; }
+        .card { background: #fff; padding: 35px 20px; display: flex; flex-direction: column; justify-content: space-between; min-height: 300px; text-decoration: none; color: inherit; }
+        
+        .icon { font-size: 2.8rem; margin-bottom: 20px; display: block; filter: drop-shadow(0 5px 15px rgba(0,0,0,0.05)); }
+        .tag { font-size: 0.55rem; font-weight: 900; letter-spacing: 2px; text-transform: uppercase; color: #bbb; display: block; margin-bottom: 8px; }
+        .name { font-size: 0.9rem; font-weight: 700; margin-bottom: 4px; display: block; }
+        .price { font-size: 0.75rem; font-weight: 800; color: var(--gold); }
 
-        /* MARKETPLACE STYLE */
-        #marketView { background: #fff; color: #000; }
-        .header { padding: 40px 20px; text-align: center; background: #fff; border-bottom: 1px solid #eee; }
-        .grid { display: grid; grid-template-columns: 1fr 1fr; gap: 1px; background: #eee; }
-        .card { background: #fff; padding: 30px; display: flex; flex-direction: column; justify-content: space-between; min-height: 280px; }
-        .card-img { width: 100%; aspect-ratio: 1; background: #f9f9f9; border-radius: 15px; margin-bottom: 15px; display: flex; align-items: center; justify-content: center; font-size: 2rem; }
-        .card-label { font-size: 0.45rem; font-weight: 900; letter-spacing: 2px; text-transform: uppercase; color: #bbb; }
-        .card-title { font-size: 0.85rem; font-weight: 700; margin: 5px 0; }
-        .card-price { font-size: 0.7rem; color: var(--gold); font-weight: 800; }
-
-        /* NAVIGATION PILL */
-        nav { 
-            position: fixed; bottom: 25px; left: 10px; right: 10px;
-            background: rgba(0,0,0,0.95); backdrop-filter: blur(25px);
-            padding: 15px 10px; border-radius: 100px; display: flex; gap: 20px; 
-            overflow-x: auto; scrollbar-width: none; z-index: 9999;
-        }
-        nav::-webkit-scrollbar { display: none; }
-        .nav-link { font-size: 0.5rem; font-weight: 900; color: #444; text-transform: uppercase; white-space: nowrap; cursor: pointer; }
-        .nav-link.active { color: #fff; }
-
-        /* OTHER VIEWS */
-        #safeView { background: #0a0a0a; text-align: center; }
-        #jrView { background: #000510; }
-        #familyView { background: #050505; border-top: 5px solid var(--family); }
-        #creatorView { background: #fff; color: #000; padding: 40px; }
+        nav { position: fixed; bottom: 25px; left: 15px; right: 15px; background: #000; padding: 20px; border-radius: 100px; display: flex; justify-content: space-around; align-items: center; box-shadow: 0 15px 40px rgba(0,0,0,0.3); z-index: 999; }
+        .nav-item { color: #fff; font-size: 0.55rem; font-weight: 900; text-transform: uppercase; letter-spacing: 1px; text-decoration: none; opacity: 0.4; }
+        .nav-item.active { opacity: 1; }
     </style>
 </head>
 <body>
 
-    <div id="marketView" class="view active">
-        <div class="header" style="letter-spacing:10px; font-weight:900;">H E A R T H</div>
-        <div class="grid">
-            <div class="card">
-                <div class="card-img">⚙️</div>
-                <div>
-                    <span class="card-label">Sovereign Core</span>
-                    <p class="card-title">Hearth Home-Port</p>
-                    <p class="card-price">$1,299</p>
-                </div>
-            </div>
-            <div class="card">
-                <div class="card-img">👕</div>
-                <div>
-                    <span class="card-label">Apparel Asset</span>
-                    <p class="card-title">Custom AI Skin Shirt</p>
-                    <p class="card-price">$45</p>
-                </div>
-            </div>
-            <div class="card">
-                <div class="card-img">🛠️</div>
-                <div>
-                    <span class="card-label">Utility Port</span>
-                    <p class="card-title">Industrial Wrench v1</p>
-                    <p class="card-price">$89</p>
-                </div>
-            </div>
-            <div class="card">
-                <div class="card-img">🔑</div>
-                <div>
-                    <span class="card-label">The Vault</span>
-                    <p class="card-title">Family Port Access</p>
-                    <p class="card-price">$197/yr</p>
-                </div>
+    <header class="header">
+        <div class="logo">HEARTH</div>
+    </header>
+
+    <main class="grid">
+        <div class="card">
+            <span class="icon">⚙️</span>
+            <div>
+                <span class="tag">Flagship</span>
+                <span class="name">Sovereign Home-Port</span>
+                <span class="price">$1,299</span>
             </div>
         </div>
-    </div>
-
-    <div id="safeView" class="view">
-        <div style="padding:60px; color:var(--garden); font-weight:900; letter-spacing:5px;">SAFE ZONE</div>
-        <div style="font-size:6rem; margin:auto;">🎨</div>
-    </div>
-
-    <div id="jrView" class="view">
-        <div style="padding:40px; color:var(--jr); font-weight:900;">JR. ZONE</div>
-    </div>
-
-    <div id="familyView" class="view">
-        <div style="padding:40px; color:var(--family); font-weight:900;">FAMILY HUB</div>
-    </div>
-
-    <div id="creatorView" class="view">
-        <h1 style="font-weight:900; letter-spacing:-1px;">Creator Portal</h1>
-    </div>
+        <div class="card">
+            <span class="icon">👕</span>
+            <div>
+                <span class="tag">Apparel</span>
+                <span class="name">Custom AI Skin</span>
+                <span class="price">$45</span>
+            </div>
+        </div>
+        <div class="card">
+            <span class="icon">🛠️</span>
+            <div>
+                <span class="tag">Utility</span>
+                <span class="name">Sovereign Tool v1</span>
+                <span class="price">$89</span>
+            </div>
+        </div>
+        <div class="card">
+            <span class="icon">🔑</span>
+            <div>
+                <span class="tag">Subscription</span>
+                <span class="name">Family Port Vault</span>
+                <span class="price">$197/yr</span>
+            </div>
+        </div>
+    </main>
 
     <nav>
-        <div class="nav-link active" onclick="showView('marketView', this)">Marketplace</div>
-        <div class="nav-link" onclick="showView('safeView', this)" style="color:var(--garden);">Safe Zone</div>
-        <div class="nav-link" onclick="showView('jrView', this)" style="color:var(--jr);">Jr. Zone</div>
-        <div class="nav-link" onclick="showView('familyView', this)" style="color:var(--family);">Family Hub</div>
-        <div class="nav-link" onclick="showView('creatorView', this)">Creator Hub</div>
+        <a href="#" class="nav-item active">Market</a>
+        <a href="#" class="nav-item" style="color:#00ff88;">Garden</a>
+        <a href="#" class="nav-item" style="color:#007aff;">Junior</a>
+        <a href="#" class="nav-item" style="color:#ff9500;">Vault</a>
     </nav>
 
-    <script>
-        function showView(viewId, el) {
-            document.querySelectorAll('.view').forEach(v => v.classList.remove('active'));
-            document.getElementById(viewId).classList.add('active');
-            document.querySelectorAll('.nav-link').forEach(l => l.classList.remove('active'));
-            el.classList.add('active');
-            el.scrollIntoView({ behavior: 'smooth', inline: 'center' });
-        }
-    </script>
 </body>
 </html>
