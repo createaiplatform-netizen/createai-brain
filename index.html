@@ -2,63 +2,78 @@
 <html lang="en">
 <head>
     <meta charset="UTF-8">
-    <title>THE HEARTH | GLOBAL ATMOSPHERE</title>
+    <title>THE HEARTH | THE TRUTH OF VALUE</title>
     <style>
         * { margin: 0; padding: 0; box-sizing: border-box; font-family: "Garamond", serif; }
-        body { background: #faf9f6; color: #7a9068; overflow-x: hidden; }
+        body { background: #000; color: #fff; display: flex; align-items: center; justify-content: center; height: 100vh; overflow: hidden; }
         
-        /* THE BEACON (The Outside Light) */
-        .beacon-header {
-            height: 10vh; background: #fff; border-bottom: 1px solid #eee;
-            display: flex; justify-content: space-between; align-items: center; padding: 0 50px;
-            letter-spacing: 3px; font-size: 0.8rem;
+        .ghost-aura {
+            position: fixed; width: 600px; height: 600px;
+            background: radial-gradient(circle, rgba(122, 144, 104, 0.1) 0%, rgba(0,0,0,0) 70%);
+            border-radius: 50%; z-index: -1;
         }
 
-        /* THE ATMOSPHERE (The Global Map) */
-        .map-container {
-            height: 70vh; width: 100%; position: relative;
-            background: radial-gradient(circle at center, #fdfcfb 0%, #e2d1c3 100%);
-            display: flex; align-items: center; justify-content: center;
+        .portal { text-align: center; width: 100%; }
+        .omni-search {
+            width: 70%; background: transparent; border: none; 
+            border-bottom: 2px solid rgba(196, 169, 122, 0.4);
+            font-size: 3rem; color: #faf9f6; text-align: center; outline: none; font-weight: 200;
         }
 
-        .hearth-node {
-            width: 20px; height: 20px; background: #c4a97a; border-radius: 50%;
-            box-shadow: 0 0 15px #c4a97a; position: absolute; cursor: pointer;
-            animation: pulse-node 4s infinite;
-        }
-
-        @keyframes pulse-node { 0% { transform: scale(1); } 50% { transform: scale(1.5); opacity: 0.5; } 100% { transform: scale(1); } }
-
-        .search-world {
-            position: absolute; bottom: -40px; width: 80%; max-width: 600px;
-            padding: 20px; border-radius: 100px; border: 1px solid #c4a97a;
-            background: #fff; text-align: center; outline: none; box-shadow: 0 10px 30px rgba(0,0,0,0.05);
-        }
-
-        .footer-world { padding: 40px; text-align: center; font-size: 0.7rem; color: #999; }
+        /* THE REFLECTION (The Truth) */
+        .reflection-layer { margin-top: 60px; height: 150px; }
+        .engine-truth { display: none; animation: fadeIn 1s; }
+        
+        @keyframes fadeIn { from { opacity: 0; transform: translateY(20px); } to { opacity: 1; transform: translateY(0); } }
+        
+        .price-label { font-size: 2rem; color: #c4a97a; margin-bottom: 10px; letter-spacing: 5px; }
+        .identity-label { font-size: 0.8rem; letter-spacing: 10px; color: #7a9068; text-transform: uppercase; }
+        .desc-label { font-size: 1rem; color: #999; font-style: italic; margin-top: 15px; }
     </style>
 </head>
 <body>
 
-    <nav class="beacon-header">
-        <div>WEBSTER, WI</div>
-        <div style="color: #4a4a4a; font-weight: bold;">LAKESIDE TRINITY</div>
-        <div>GLOBAL NODES: 154</div>
-    </nav>
+    <div class="ghost-aura"></div>
 
-    <section class="map-container">
-        <div class="hearth-node" style="top: 30%; left: 40%;" title="Webster Hub"></div>
-        <div class="hearth-node" style="top: 50%; left: 60%;" title="Sovereign Cafe Hub"></div>
-        <div class="hearth-node" style="top: 20%; left: 80%;" title="Family Sacred Hub"></div>
+    <div class="portal">
+        <input type="text" class="omni-search" placeholder="Enter your Search..." onkeyup="reflectTruth(this.value)">
         
-        <h1 style="font-weight: 200; font-size: 4rem; color: #4a4a4a; opacity: 0.8;">The Atmosphere</h1>
-        
-        <input type="text" class="search-world" placeholder="Find a Sovereign Hub near you...">
-    </section>
+        <div class="reflection-layer" id="reflection">
+            <div id="family-truth" class="engine-truth">
+                <div class="price-label">97</div>
+                <div class="identity-label">THE SACRED FAMILY HUB</div>
+                <div class="desc-label">A private sanctuary for your family legacy and memories.</div>
+            </div>
+            
+            <div id="biz-truth" class="engine-truth">
+                <div class="price-label">97</div>
+                <div class="identity-label">THE SOVEREIGN BUSINESS ENGINE</div>
+                <div class="desc-label">Automated infrastructure for Local Legends (Cafes, Shops, AFHs).</div>
+            </div>
+            
+            <div id="infra-truth" class="engine-truth">
+                <div class="price-label">ENTERPRISE SCALE</div>
+                <div class="identity-label">NATIONAL INFRASTRUCTURE</div>
+                <div class="desc-label">Scaling the Standing Law for Hospitals and Governments.</div>
+            </div>
+        </div>
+    </div>
 
-    <footer class="footer-world">
-        "Outside the Body, there is Community. Inside the Body, there is Sovereignty."
-    </footer>
+    <script>
+    function reflectTruth(val) {
+        const query = val.toLowerCase();
+        const reflections = document.querySelectorAll('.engine-truth');
+        reflections.forEach(r => r.style.display = 'none');
+
+        if(query.includes('home') || query.includes('family') || query.includes('kids')) {
+            document.getElementById('family-truth').style.display = 'block';
+        } else if(query.includes('cafe') || query.includes('shop') || query.includes('biz')) {
+            document.getElementById('biz-truth').style.display = 'block';
+        } else if(query.includes('hospital') || query.includes('nurse')) {
+            document.getElementById('infra-truth').style.display = 'block';
+        }
+    }
+    </script>
 
 </body>
 </html>
