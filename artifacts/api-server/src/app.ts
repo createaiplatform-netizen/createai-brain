@@ -74,6 +74,7 @@
  */
 import path from "path";
 import fs from "fs";
+import crypto from "crypto";
 import archiver from "archiver";
 import express, { type Express, type Request, type Response, type NextFunction } from "express";
 import cors from "cors";
@@ -583,6 +584,16 @@ app.get("/zenith", (_req: Request, res: Response) => {
   res.sendFile(path.resolve("/home/runner/workspace/studio.html"));
 });
 
+// ── METADATA_SIGNER — server-side SHA-256 proof of authenticity ───────────
+function metadataSigner(name: string, ts: number): string {
+  return crypto
+    .createHash("sha256")
+    .update(`${name}_${ts}_WEBSTER-54893_1440_SOVEREIGN`)
+    .digest("hex")
+    .toUpperCase()
+    .substring(0, 24);
+}
+
 // ── Zenith — WEBSTER_EXPORTS infrastructure ───────────────────────────────
 const EXPORTS_DIR = path.resolve("/home/runner/workspace/WEBSTER_EXPORTS");
 if (!fs.existsSync(EXPORTS_DIR)) fs.mkdirSync(EXPORTS_DIR, { recursive: true });
@@ -625,14 +636,36 @@ app.get("/commander/data", (_req: Request, res: Response): void => {
   }
 });
 
-// Export entire vault as a zip stream
+// Export entire vault as a zip stream with manifest
 app.get("/export-batch", (_req: Request, res: Response): void => {
   try {
+    const stamp = Date.now();
     res.setHeader("Content-Type", "application/zip");
-    res.setHeader("Content-Disposition", "attachment; filename=\"WEBSTER_EXPORTS.zip\"");
+    res.setHeader("Content-Disposition", `attachment; filename="WEBSTER_EMPIRE_${stamp}.zip"`);
     const archive = archiver("zip", { zlib: { level: 6 } });
     archive.on("error", () => res.end());
     archive.pipe(res);
+
+    // Build manifest.json — inventory list for records
+    const jsons = fs.readdirSync(EXPORTS_DIR).filter(f => f.endsWith(".json"));
+    const assets = jsons.map(jf => {
+      try {
+        const meta = JSON.parse(fs.readFileSync(path.join(EXPORTS_DIR, jf), "utf-8"));
+        return { file: jf.replace(/\.json$/, ""), ...meta };
+      } catch (_) {
+        return { file: jf.replace(/\.json$/, "") };
+      }
+    }).sort((a: Record<string, unknown>, b: Record<string, unknown>) =>
+      String(b.savedAt ?? "").localeCompare(String(a.savedAt ?? ""))
+    );
+
+    const manifest = {
+      system     : "WEBSTER-54893 // ZENITH EMPIRE",
+      generated  : new Date().toISOString(),
+      total_assets: assets.length,
+      assets,
+    };
+    archive.append(Buffer.from(JSON.stringify(manifest, null, 2)), { name: "manifest.json" });
     archive.directory(EXPORTS_DIR, "WEBSTER_EXPORTS");
     archive.finalize();
   } catch (_) {
@@ -655,12 +688,18 @@ app.post("/upload-strike", express.json({ limit: "15mb" }), (req: Request, res: 
     const slug = name.replace(/[^A-Z0-9_\-]/gi, "_");
     const ts   = Date.now();
     const base64 = dataURL.replace(/^data:image\/png;base64,/, "");
+    const serial = metadataSigner(slug, ts);
     fs.writeFileSync(path.join(EXPORTS_DIR, `${slug}_${ts}.png`), Buffer.from(base64, "base64"));
     fs.writeFileSync(
       path.join(EXPORTS_DIR, `${slug}_${ts}.json`),
-      JSON.stringify({ name, timestamp, savedAt: new Date().toISOString(), ...(metadata ?? {}) }, null, 2)
+      JSON.stringify({
+        name, timestamp, savedAt: new Date().toISOString(),
+        serial_number: serial,
+        proof_of_authenticity: `WEBSTER-54893_${serial}`,
+        ...(metadata ?? {}),
+      }, null, 2)
     );
-    res.status(200).json({ status: "UPLINK_SUCCESS", file: `${slug}_${ts}` });
+    res.status(200).json({ status: "UPLINK_SUCCESS", file: `${slug}_${ts}`, serial_number: serial });
   } catch (_) {
     res.status(500).json({ error: "WRITE_FAILED" });
   }

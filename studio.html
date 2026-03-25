@@ -97,11 +97,17 @@
     #system-footer { position: fixed; bottom: 10px; left: 14px; font-size: 0.42rem; color: #d4af37; letter-spacing: 0.2em; opacity: 0.4; pointer-events: none; z-index: 10; line-height: 1.7; font-family: 'Courier New', monospace; text-transform: uppercase; display: flex; align-items: center; gap: 6px; }
     #uplink-led { width: 8px; height: 8px; border-radius: 50%; background: #444; display: inline-block; flex-shrink: 0; box-shadow: 0 0 5px currentColor; transition: background 0.3s, box-shadow 0.3s; animation: ledpulse 1.8s ease-in-out infinite; }
     @keyframes ledpulse { 0%,100%{opacity:1} 50%{opacity:0.35} }
+    #withdraw-btn { pointer-events: auto; background: transparent; border: none; color: #d4af37; font-family: 'Courier New', monospace; font-size: 0.42rem; letter-spacing: 0.22em; text-transform: uppercase; cursor: pointer; opacity: 0.6; transition: opacity 0.2s; padding: 0; margin-left: 12px; }
+    #withdraw-btn:hover { opacity: 1; }
+    #withdraw-btn.liquidity-ready { opacity: 1; animation: liqblink 1s step-end infinite; }
+    @keyframes liqblink { 0%,100%{opacity:1} 50%{opacity:0.15} }
+    #total-assets-counter { font-size: 0.58rem; color: #2a2000; letter-spacing: 0.28em; transition: color 0.4s; }
+    #total-assets-counter.has-assets { color: #d4af37; }
   </style>
 </head>
 <body>
 
-  <div id="system-footer"><span id="uplink-led" title="UPLINK STATUS"></span><span id="system-text"></span></div>
+  <div id="system-footer"><span id="uplink-led" title="UPLINK STATUS"></span><span id="system-text"></span><button id="withdraw-btn" onclick="withdrawEmpire()" title="Download WEBSTER_EXPORTS.zip">WITHDRAW</button></div>
 
   <div id="ghost-gate">
     <h1>SYSTEM_OFFLINE</h1>
@@ -114,6 +120,7 @@
     <div id="canvas-panel">
       <div id="header-bar">
         <span class="brand"><span class="dot"></span>ZENITH_BRAIN V5.0</span>
+        <span id="total-assets-counter">VAULT: 0</span>
         <span id="cycle-count" style="font-size:0.58rem;color:#2a2000;letter-spacing:0.28em">CYCLES: 0</span>
       </div>
 
@@ -304,6 +311,32 @@
       reserveEl.textContent = vaultItems.length;
     }
 
+    function updateTotalAssets() {
+      const el  = document.getElementById('total-assets-counter');
+      const btn = document.getElementById('withdraw-btn');
+      if (!el) return;
+      el.textContent = 'VAULT: ' + totalHits;
+      el.classList.toggle('has-assets', totalHits > 0);
+      if (btn) {
+        if (totalHits >= 100) {
+          btn.textContent = 'LIQUIDITY_READY';
+          btn.classList.add('liquidity-ready');
+        } else {
+          btn.textContent = 'WITHDRAW';
+          btn.classList.remove('liquidity-ready');
+        }
+      }
+    }
+
+    function withdrawEmpire() {
+      const a = document.createElement('a');
+      a.href = '/export-batch';
+      a.download = 'WEBSTER_EMPIRE.zip';
+      document.body.appendChild(a);
+      a.click();
+      document.body.removeChild(a);
+    }
+
     // ── THE_ENGINE_FINAL_SEAL ──────────────────────────────────────────────────
     let _styleToggle = false;
 
@@ -442,8 +475,9 @@
           const nm = genName();
           statusEl.textContent = 'LEGENDARY: ' + nm;
           statusEl.className   = 'legendary';
-          captureLegendary();           // flash + live watermark
-          if (AUTO_SAVE) addToVault(nm); // vault save + silentUplink
+          captureLegendary();              // flash + live watermark
+          updateTotalAssets();             // counter + LIQUIDITY_READY gate
+          if (AUTO_SAVE) addToVault(nm);   // vault save + silentUplink
         } else if (!isAuto) {
           statusEl.textContent = 'REJECTED';
           statusEl.className   = '';

@@ -3,82 +3,46 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>ZENITH | OMNIPOTENT_CORE</title>
+    <title>ZENITH | SOVEREIGN</title>
     <style>
-        :root { --g: #d4af37; --b: #000; --w: #fff; }
-        body { background: var(--b); color: var(--g); font-family: 'Courier New', monospace; margin: 0; padding: 20px; display: flex; flex-direction: column; align-items: center; text-transform: uppercase; overflow-x: hidden; }
-        
-        /* THE NEURAL SINGULARITY */
-        #singularity { width: 220px; height: 220px; background: radial-gradient(circle, var(--g) 0%, transparent 75%); border-radius: 50%; box-shadow: 0 0 100px var(--g); animation: oscillate 4s infinite linear; margin: 40px 0; display: flex; align-items: center; justify-content: center; border: 1px solid var(--g); }
-        #singularity span { color: var(--b); font-weight: 900; font-size: 4rem; text-shadow: 0 0 10px var(--w); }
-
-        .omni-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(350px, 1fr)); gap: 30px; width: 100%; max-width: 1200px; }
-        .module { border: 1px solid var(--g); padding: 35px; background: linear-gradient(145deg, rgba(212,175,55,0.05), rgba(0,0,0,1)); position: relative; border-radius: 2px; }
-        
-        .module h2 { margin: 0 0 25px 0; letter-spacing: 12px; border-left: 5px solid var(--g); padding-left: 15px; font-size: 1.5rem; color: var(--w); }
-        .data-stream { font-size: 0.9rem; margin-bottom: 15px; display: flex; justify-content: space-between; border-bottom: 1px solid rgba(212,175,55,0.2); padding-bottom: 8px; }
-        
-        /* DYNAMIC VALUATION CALCULATOR */
-        .calc-box { margin-top: 20px; background: rgba(255,255,255,0.05); padding: 15px; border: 1px dashed var(--g); }
-        input { background: transparent; border: 1px solid var(--g); color: var(--w); padding: 5px; width: 60px; text-align: center; }
-        
-        /* THE KID VISION VAULT */
-        .vault-shield { border: 5px double var(--g); background: rgba(212,175,55,0.1); box-shadow: 0 0 50px rgba(212,175,55,0.2); }
-
-        @keyframes oscillate { 0% { transform: rotate(0deg) scale(1); filter: hue-rotate(0deg); } 50% { transform: rotate(180deg) scale(1.1); filter: hue-rotate(20deg); } 100% { transform: rotate(360deg) scale(1); filter: hue-rotate(0deg); } }
+        body { background: #000; color: #d4af37; font-family: monospace; margin: 0; padding: 20px; text-transform: uppercase; text-align: center; }
+        .module { border: 2px solid #d4af37; margin-bottom: 20px; padding: 20px; background: rgba(212,175,55,0.05); }
+        h2 { border-bottom: 1px solid #d4af37; padding-bottom: 10px; letter-spacing: 5px; }
+        input { background: #000; border: 1px solid #d4af37; color: #fff; padding: 10px; width: 80px; text-align: center; font-size: 1.2rem; margin: 10px; }
+        .btn { background: #d4af37; color: #000; border: none; padding: 15px; width: 100%; font-weight: bold; margin-top: 10px; }
+        #net-display { font-size: 2rem; font-weight: bold; color: #fff; margin: 20px 0; }
+        .check { display: block; text-align: left; margin: 10px 0; font-size: 0.8rem; }
     </style>
 </head>
 <body>
 
-    <div id="singularity"><span>Z</span></div>
-    <h1 style="letter-spacing: 25px; font-size: 3.5rem; margin: 0; text-shadow: 0 0 30px var(--g);">ZENITH</h1>
-    <p style="letter-spacing: 8px; font-size: 0.8rem; margin-top: 10px; opacity: 0.8;">OMNIPRESENT SOVEREIGN SYSTEM</p>
+    <h1 style="letter-spacing: 15px;">ZENITH</h1>
+    <p>WEBSTER NODE 01 | V.FINAL</p>
 
-    <div class="omni-grid">
-        
-        <div class="module">
-            <h2>EXCHANGE</h2>
-            <div class="data-stream"><span>NODE_54893_STATUS</span> <span style="color:lawngreen">ACTIVE</span></div>
-            <div class="data-stream"><span>MARKET_ARBITRAGE</span> <span style="color:lawngreen">ON</span></div>
-            <div class="calc-box">
-                <span>BUY: $</span><input type="number" id="buy" value="50"> 
-                <span>EXIT: $</span><input type="number" id="exit" value="150">
-                <p id="profit" style="margin: 10px 0 0 0; color:var(--w);">NET: $100.00 (200% ROI)</p>
-            </div>
-        </div>
-
-        <div class="module">
-            <h2>CREATIVE</h2>
-            <div class="data-stream"><span>MINI_AI_NODES</span> <span style="color:lawngreen">EVOLVING</span></div>
-            <div class="data-stream"><span>SOUL_SYNC</span> <span>100%</span></div>
-            <p style="font-size: 0.7rem; color: var(--w); margin-top: 20px;">Every product created by this node contains its own little AI for infinite evolution.</p>
-        </div>
-
-        <div class="module vault-shield">
-            <h2>LEGACY</h2>
-            <div class="data-stream"><span>VAULT_INTEGRITY</span> <span>MAXIMUM</span></div>
-            <div class="data-stream"><span>BLOODLINE_KEY</span> <span>VERIFIED</span></div>
-            <div style="text-align: center; margin-top: 25px; font-weight: bold; color: var(--w);">THE THING THAT CREATED THE THING IS PROTECTED.</div>
-        </div>
-
+    <div class="module">
+        <h2>ARRIVAL CHECK</h2>
+        <label class="check"><input type="checkbox"> POWER_ON VERIFIED</label>
+        <label class="check"><input type="checkbox"> NO RATTLES / DAMAGE</label>
+        <label class="check"><input type="checkbox"> SCARCITY CONFIRMED</label>
     </div>
 
-    <div style="margin-top: 100px; text-align: center; width: 100%; border-top: 1px solid var(--g); padding-top: 40px;">
-        <p style="font-size: 0.9rem; letter-spacing: 4px;">SYSTEM STATUS: **TOTALITY_REACHED**</p>
-        <p style="color: var(--g); font-size: 0.7rem;">ESTABLISHED: 2026-03-25 | WEBSTER, WI</p>
+    <div class="module">
+        <h2>EXCHANGE</h2>
+        <div>BUY: $<input type="number" id="in" value="50"></div>
+        <div>EXIT: $<input type="number" id="out" value="150"></div>
+        <div id="net-display">NET: $100.00</div>
+        <button class="btn" onclick="alert('CASH. PICKUP. NOW.')">STRIKE</button>
+    </div>
+
+    <div class="module" style="border-style: double; border-width: 6px;">
+        <h2>LEGACY</h2>
+        <p>VAULT PROTECTED: 100%</p>
     </div>
 
     <script>
-        const b = document.getElementById('buy');
-        const e = document.getElementById('exit');
-        const p = document.getElementById('profit');
-        const update = () => {
-            const net = e.value - b.value;
-            const roi = ((net / b.value) * 100).toFixed(0);
-            p.innerText = `NET: $${net.toFixed(2)} (${roi}% ROI)`;
-        };
-        b.oninput = update; e.oninput = update;
+        const i = document.getElementById('in'), o = document.getElementById('out'), n = document.getElementById('net-display');
+        const u = () => { n.innerText = `NET: $${(o.value - i.value).toFixed(2)}`; };
+        i.oninput = u; o.oninput = u;
     </script>
-
 </body>
 </html>
