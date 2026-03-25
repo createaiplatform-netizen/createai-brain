@@ -5,102 +5,112 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
     <title>AXIS | MOLECULAR</title>
     <style>
-        :root { --gold: #c4a97a; --ink: #000; --junior: #00ff88; --glass: rgba(255, 255, 255, 0.03); }
-        * { margin: 0; padding: 0; box-sizing: border-box; font-family: "SF Pro Display", sans-serif; }
+        :root { --gold: #c4a97a; --ink: #000; --junior: #00ff88; }
+        * { margin: 0; padding: 0; box-sizing: border-box; font-family: "SF Pro Display", -apple-system, sans-serif; }
         
         body { 
-            background: radial-gradient(circle at center, #111 0%, #000 100%); 
-            color: #fff; min-height: 100vh; overflow-x: hidden;
-            -webkit-font-smoothing: antialiased;
+            background: #000; color: #fff; min-height: 100vh; overflow-x: hidden;
+            display: flex; flex-direction: column;
         }
 
-        /* THE "GLOW" BACKGROUND */
-        body::before {
-            content: ''; position: fixed; top: 0; left: 0; width: 100%; height: 100%;
-            background: radial-gradient(600px circle at var(--x, 50%) var(--y, 50%), rgba(196, 169, 122, 0.08), transparent 40%);
-            z-index: 0; pointer-events: none;
+        /* DYNAMIC LIGHTING ENGINE */
+        .glow-bg {
+            position: fixed; top: 0; left: 0; width: 100%; height: 100%;
+            background: radial-gradient(circle at var(--x, 50%) var(--y, 50%), rgba(196, 169, 122, 0.15) 0%, transparent 50%);
+            pointer-events: none; z-index: 0;
         }
 
-        /* MOLECULAR NAV */
-        nav {
-            padding: 30px; display: flex; justify-content: space-between; align-items: center;
-            backdrop-filter: blur(10px); position: sticky; top: 0; z-index: 100;
+        header {
+            padding: 30px 20px; text-align: center; z-index: 10;
         }
-        .logo { font-weight: 900; letter-spacing: 10px; font-size: 0.8rem; text-shadow: 0 0 20px rgba(255,255,255,0.3); }
+        .brand { font-weight: 900; letter-spacing: 12px; font-size: 0.8rem; opacity: 0.8; }
 
-        /* THE FLOATING GRID */
-        .grid { 
-            display: grid; grid-template-columns: 1fr 1fr; gap: 20px; padding: 20px; 
-            position: relative; z-index: 1;
+        /* THE "LIVING" GRID */
+        .engine-room {
+            display: grid; grid-template-columns: 1fr 1fr; gap: 15px; padding: 15px; z-index: 1;
         }
 
-        .card {
-            background: var(--glass);
-            border: 1px solid rgba(255, 255, 255, 0.05);
-            border-radius: 24px; padding: 25px;
-            backdrop-filter: blur(20px);
-            transition: 0.5s cubic-bezier(0.2, 0.8, 0.2, 1);
+        .engine-card {
+            background: rgba(255, 255, 255, 0.03);
+            backdrop-filter: blur(25px);
+            border: 1px solid rgba(255, 255, 255, 0.08);
+            border-radius: 28px; padding: 25px;
+            transition: 0.6s cubic-bezier(0.16, 1, 0.3, 1);
             position: relative; overflow: hidden;
         }
 
-        .card::before {
-            content: ''; position: absolute; top: 0; left: 0; width: 100%; height: 100%;
-            background: linear-gradient(135deg, rgba(255,255,255,0.05) 0%, transparent 100%);
-            pointer-events: none;
-        }
+        .engine-card:active { transform: scale(0.94); border-color: var(--gold); }
 
-        .card:active { transform: scale(0.95) translateY(5px); border-color: var(--gold); }
+        .icon { font-size: 2.2rem; margin-bottom: 20px; display: block; filter: drop-shadow(0 0 10px rgba(255,255,255,0.2)); }
+        
+        .label { font-size: 0.55rem; font-weight: 900; letter-spacing: 2px; color: var(--gold); text-transform: uppercase; margin-bottom: 8px; }
+        
+        h3 { font-size: 0.85rem; font-weight: 300; letter-spacing: 0.5px; line-height: 1.3; color: #eee; margin-bottom: 15px; }
 
-        .icon { font-size: 2.5rem; margin-bottom: 20px; filter: drop-shadow(0 0 15px rgba(255,255,255,0.2)); }
-        .card h3 { font-size: 0.85rem; font-weight: 300; letter-spacing: 1px; color: #ccc; margin-bottom: 10px; }
-        .price { font-size: 1.2rem; font-weight: 200; color: var(--gold); }
+        .price { font-size: 1.1rem; font-weight: 200; color: #fff; opacity: 0.9; }
 
-        /* JUNIOR KEY (THE GREEN PULSE) */
-        .junior-gate {
-            position: fixed; bottom: 30px; left: 50%; transform: translateX(-50%);
-            background: var(--junior); color: #000; padding: 15px 40px; border-radius: 50px;
+        /* JUNIOR COMMAND CENTER (FLOATING) */
+        .junior-orb {
+            position: fixed; bottom: 30px; align-self: center;
+            background: var(--junior); color: #000;
+            padding: 16px 35px; border-radius: 100px;
             font-size: 0.7rem; font-weight: 900; letter-spacing: 2px; text-transform: uppercase;
-            box-shadow: 0 0 30px rgba(0, 255, 136, 0.4); z-index: 200; cursor: pointer;
+            box-shadow: 0 0 40px rgba(0, 255, 136, 0.4);
+            cursor: pointer; z-index: 100;
         }
     </style>
 </head>
-<body>
+<body onmousemove="updateGlow(event)" ontouchmove="updateGlowTouch(event)">
 
-<nav>
-    <div class="logo">AXIS</div>
-    <div style="font-size: 0.5rem; opacity: 0.5; letter-spacing: 2px;">MOLECULAR_v1.0</div>
-</nav>
+    <div class="glow-bg"></div>
 
-<div class="grid" id="g"></div>
+    <header>
+        <div class="brand">AXIS</div>
+        <p style="font-size: 0.5rem; letter-spacing: 4px; opacity: 0.4; margin-top: 10px;">MOLECULAR OS v5.0</p>
+    </header>
 
-<div class="junior-gate">Junior Explorer</div>
+    <div class="engine-room">
+        <div class="engine-card">
+            <span class="icon">⚖️</span>
+            <div class="label">Legal Engine</div>
+            <h3>Sovereign Trust Node</h3>
+            <div class="price">$497.00</div>
+        </div>
 
-<script>
-    // TRACK MOUSE/TOUCH FOR THE "GLOW"
-    document.addEventListener('mousemove', e => {
-        document.body.style.setProperty('--x', e.clientX + 'px');
-        document.body.style.setProperty('--y', e.clientY + 'px');
-    });
+        <div class="engine-card">
+            <span class="icon">🏥</span>
+            <div class="label">Medical Hub</div>
+            <h3>Nurse-Flow Neural</h3>
+            <div class="price">$197.00</div>
+        </div>
 
-    const engines = [
-        { t: "Sovereign Law", p: "497.00", i: "⚖️" },
-        { t: "Nurse-Flow AI", p: "197.00", i: "🏥" },
-        { t: "Wealth Intel", p: "299.00", i: "📈" },
-        { t: "Mesh Node", p: "899.00", i: "📡" },
-        { t: "Neural Link", p: "599.00", i: "🛡️" },
-        { t: "Trust Vault", p: "1,200.00", i: "🔐" }
-    ];
+        <div class="engine-card">
+            <span class="icon">📈</span>
+            <div class="label">Capital</div>
+            <h3>Wealth Intelligence</h3>
+            <div class="price">$299.00</div>
+        </div>
 
-    const g = document.getElementById('g');
-    engines.forEach(e => {
-        g.innerHTML += `
-            <div class="card">
-                <div class="icon">${e.i}</div>
-                <h3>${e.t}</h3>
-                <div class="price">$${e.p}</div>
-            </div>
-        `;
-    });
-</script>
+        <div class="engine-card">
+            <span class="icon">📡</span>
+            <div class="label">Telecom</div>
+            <h3>Mesh Router V2</h3>
+            <div class="price">$899.00</div>
+        </div>
+    </div>
+
+    <div class="junior-orb">Junior Explorer</div>
+
+    <script>
+        function updateGlow(e) {
+            document.body.style.setProperty('--x', e.clientX + 'px');
+            document.body.style.setProperty('--y', e.clientY + 'px');
+        }
+        function updateGlowTouch(e) {
+            let touch = e.touches[0];
+            document.body.style.setProperty('--x', touch.clientX + 'px');
+            document.body.style.setProperty('--y', touch.clientY + 'px');
+        }
+    </script>
 </body>
 </html>
