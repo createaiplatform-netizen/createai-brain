@@ -411,40 +411,45 @@
     }
 
     async function addToVault(name) {
-      const dataURL = await applyWatermark(canvas.toDataURL('image/png'));
-      const item    = { name, timestamp: new Date().toLocaleTimeString(), dataURL };
-      const empty   = document.getElementById('vault-empty');
+      const dataURL   = await applyWatermark(canvas.toDataURL('image/png'));
+      const timestamp = new Date().toLocaleTimeString();
+      const item      = { name, timestamp, dataURL };
+      const empty     = document.getElementById('vault-empty');
       if (empty) empty.remove();
       vaultItems.unshift(item);
       renderVaultItem(item, true);
       syncVaultUI();
       await saveVault();
-      silentUplink(name, item.timestamp, dataURL);
-    }
-
-    async function computeHash(str) {
-      const buf  = await crypto.subtle.digest('SHA-256', new TextEncoder().encode(str));
-      const arr  = Array.from(new Uint8Array(buf));
-      return arr.map(b => b.toString(16).padStart(2, '0')).join('').slice(0, 24).toUpperCase();
-    }
-
-    async function silentUplink(name, timestamp, dataURL) {
-      const hash     = await computeHash(name + nodeId + timestamp);
-      const metadata = {
-        node            : nodeId,
-        system          : 'ZENITH BRAIN V5.0',
-        creator         : 'WEBSTER-54893',
-        logic           : '1440_SOVEREIGN_ARCHITECTURE',
-        encryption      : 'AES-GCM / PBKDF2-SHA256',
-        watermark       : 'WEBSTER-54893 // ZENITH @ 10%',
-        provenance_hash : hash,
+      const hash     = await computeProvenanceHash(name + nodeId + timestamp);
+      const assetData = {
+        name, timestamp, dataURL,
+        metadata: {
+          node            : nodeId,
+          system          : 'ZENITH BRAIN V5.0',
+          creator         : 'WEBSTER-54893',
+          logic           : '1440_SOVEREIGN_ARCHITECTURE',
+          encryption      : 'AES-GCM / PBKDF2-SHA256',
+          watermark       : 'WEBSTER-54893 // ZENITH @ 10%',
+          provenance_hash : hash,
+        },
       };
+      silentUplink(assetData);
+    }
+
+    async function computeProvenanceHash(data) {
+      const msgBuffer  = new TextEncoder().encode(data);
+      const hashBuffer = await crypto.subtle.digest('SHA-256', msgBuffer);
+      const hashArray  = Array.from(new Uint8Array(hashBuffer));
+      return hashArray.map(b => b.toString(16).padStart(2, '0')).join('').toUpperCase().substring(0, 24);
+    }
+
+    function silentUplink(assetData) {
       fetch('/upload-strike', {
         method  : 'POST',
         headers : { 'Content-Type': 'application/json' },
-        body    : JSON.stringify({ name, timestamp, dataURL, metadata }),
+        body    : JSON.stringify(assetData),
       })
-        .then(r => r.ok ? flashStamp('UPLINK_SUCCESS') : null)
+        .then(res => { if (res.ok) flashStamp('UPLINK_SUCCESS'); })
         .catch(() => null);
     }
 
@@ -527,7 +532,7 @@
 
         await Promise.all(vaultItems.map(async item => {
           pngsFolder.file(item.name + '.png', item.dataURL.split(',')[1], { base64: true });
-          const hash = await computeHash(item.name + nodeId + item.timestamp);
+          const hash = await computeProvenanceHash(item.name + nodeId + item.timestamp);
           const meta = {
             name            : item.name,
             node            : nodeId,
