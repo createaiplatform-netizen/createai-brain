@@ -1,0 +1,106 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>CREATIVE_AI | THE_OMNI_BRAIN</title>
+    <style>
+        :root { --g: #d4af37; --b: #000; --w: #fff; }
+        body { background: var(--b); color: var(--g); font-family: 'Courier New', monospace; margin: 0; padding: 20px; display: flex; flex-direction: column; align-items: center; text-transform: uppercase; }
+        
+        #neural-canvas { border: 2px solid var(--g); background: #050505; width: 300px; height: 300px; margin: 20px 0; box-shadow: 0 0 40px rgba(212, 175, 55, 0.3); }
+        
+        .panel { border: 1px solid var(--g); padding: 20px; background: rgba(212,175,55,0.05); width: 100%; max-width: 500px; text-align: center; margin-bottom: 20px; }
+        h1 { letter-spacing: 15px; font-size: 2rem; margin: 10px 0; text-shadow: 0 0 15px var(--g); }
+        
+        .control-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; }
+        .btn { background: var(--g); color: #000; border: none; padding: 15px; font-weight: 900; cursor: pointer; letter-spacing: 2px; font-size: 0.9rem; }
+        .btn.active { background: #lawngreen; box-shadow: 0 0 15px #lawngreen; }
+        
+        #vault-container { width: 100%; max-width: 500px; border: 2px double var(--g); padding: 15px; background: #080808; height: 300px; overflow-y: auto; }
+        h3 { border-bottom: 1px solid var(--g); padding-bottom: 5px; letter-spacing: 5px; color: var(--w); position: sticky; top: 0; background: #080808; }
+        
+        .vault-item { display: flex; justify-content: space-between; align-items: center; font-size: 0.7rem; padding: 12px; border-bottom: 1px solid rgba(212,175,55,0.2); color: lawngreen; animation: slide 0.3s ease-out; }
+        .export-link { color: var(--w); text-decoration: none; border: 1px solid var(--w); padding: 4px 8px; font-size: 0.6rem; }
+        
+        @keyframes slide { from { opacity: 0; transform: translateX(-20px); } to { opacity: 1; transform: translateX(0); } }
+    </style>
+</head>
+<body>
+
+    <h1>ZENITH_BRAIN</h1>
+    <canvas id="neural-canvas"></canvas>
+
+    <div class="panel">
+        <div id="status" style="font-size: 0.8rem; color: var(--w); margin-bottom: 15px; height: 20px;">SYSTEM_IDLE...</div>
+        <div class="control-grid">
+            <button class="btn" onclick="processSeed()">MANUAL_STRIKE</button>
+            <button id="auto-btn" class="btn" onclick="toggleAuto()">AUTO_SCAN: OFF</button>
+        </div>
+    </div>
+
+    <div id="vault-container">
+        <h3>NEURAL_ARCHIVE</h3>
+        <div id="vault-list"></div>
+    </div>
+
+    <script>
+        const canvas = document.getElementById('neural-canvas');
+        const ctx = canvas.getContext('2d');
+        const vaultList = document.getElementById('vault-list');
+        const status = document.getElementById('status');
+        const autoBtn = document.getElementById('auto-btn');
+        
+        let isAuto = false;
+        let autoInterval;
+
+        function toggleAuto() {
+            isAuto = !isAuto;
+            if (isAuto) {
+                autoBtn.innerText = "AUTO_SCAN: ON";
+                autoBtn.classList.add('active');
+                autoInterval = setInterval(processSeed, 150); // High-speed scanning
+            } else {
+                autoBtn.innerText = "AUTO_SCAN: OFF";
+                autoBtn.classList.remove('active');
+                clearInterval(autoInterval);
+                status.innerText = "SYSTEM_IDLE...";
+                status.style.color = "white";
+            }
+        }
+
+        function processSeed() {
+            ctx.clearRect(0, 0, 300, 300);
+            const id = "Z-" + Math.random().toString(36).substring(7).toUpperCase();
+            const isLegendary = Math.random() > 0.96; // Only 4% are Legendary
+            
+            ctx.strokeStyle = isLegendary ? '#d4af37' : '#222';
+            ctx.lineWidth = isLegendary ? 4 : 0.5;
+            
+            for(let i=0; i < (isLegendary ? 80 : 20); i++) {
+                ctx.beginPath();
+                ctx.moveTo(Math.random()*300, Math.random()*300);
+                ctx.lineTo(Math.random()*300, Math.random()*300);
+                ctx.stroke();
+            }
+
+            if(isLegendary) {
+                status.innerText = `LEGENDARY_FOUND: ${id}`;
+                status.style.color = "lawngreen";
+                addToVault(id);
+            } else if (!isAuto) {
+                status.innerText = "DENSITY_LOW: REJECTED";
+                status.style.color = "white";
+            }
+        }
+
+        function addToVault(id) {
+            const dataURL = canvas.toDataURL("image/png");
+            const item = document.createElement('div');
+            item.className = 'vault-item';
+            item.innerHTML = `<span>${id}</span><a class="export-link" download="${id}.png" href="${dataURL}">EXPORT</a>`;
+            vaultList.prepend(item);
+        }
+    </script>
+</body>
+</html>
