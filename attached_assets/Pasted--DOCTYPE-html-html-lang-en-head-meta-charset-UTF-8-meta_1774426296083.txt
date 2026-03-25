@@ -1,0 +1,56 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8"><meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>BRAIN OS | GENESIS CORE</title>
+    <style>
+        body { background: #000; color: #d4af37; font-family: 'Courier New', monospace; margin: 0; display: flex; flex-direction: column; align-items: center; justify-content: center; height: 100vh; overflow: hidden; }
+        #heart-node { width: 130px; height: 130px; background: #d4af37; border-radius: 50%; box-shadow: 0 0 70px #d4af37; animation: cardiac 1.4s infinite; cursor: pointer; z-index: 10; transition: 0.3s; }
+        #heart-node:hover { transform: scale(1.1); box-shadow: 0 0 100px #fff; }
+        @keyframes cardiac { 0%, 10%, 100% { transform: scale(1); opacity: 0.8; } 5% { transform: scale(1.2); opacity: 1; } 15% { transform: scale(1.1); opacity: 0.9; } }
+        .telemetry { margin-top: 40px; font-size: 0.9rem; letter-spacing: 5px; text-transform: uppercase; color: #fff; text-shadow: 0 0 10px #d4af37; height: 25px; }
+        .interface-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 30px; margin-top: 50px; z-index: 5; }
+        .module { border: 1px solid #333; padding: 20px; width: 140px; text-align: center; transition: 0.5s; cursor: crosshair; background: rgba(0,0,0,0.9); }
+        .module:hover { border-color: #d4af37; color: #fff; box-shadow: 0 0 20px rgba(212,175,55,0.3); }
+        .module-h { font-size: 0.7rem; font-weight: bold; margin-bottom: 8px; letter-spacing: 2px; }
+        .module-s { font-size: 0.5rem; color: #555; text-transform: uppercase; }
+        #os-metrics { position: absolute; bottom: 25px; width: 90%; display: flex; justify-content: space-between; font-size: 0.6rem; color: #222; border-top: 1px solid #111; padding-top: 15px; letter-spacing: 2px; }
+    </style>
+</head>
+<body>
+    <div id="heart-node" onclick="systemDiagnostic()"></div>
+    <div class="telemetry" id="stat-line">SYSTEM_INITIALIZED</div>
+    
+    <div class="interface-grid">
+        <div class="module" onclick="updateFeed('ORACLE_SYNC')">
+            <div class="module-h">THE ORACLE</div>
+            <div class="module-s">Logic Engine</div>
+        </div>
+        <div class="module" onclick="updateFeed('VAULT_SECURE')">
+            <div class="module-h">THE VAULT</div>
+            <div class="module-s">Asset Core</div>
+        </div>
+        <div class="module" onclick="updateFeed('FORGE_ACTIVE')">
+            <div class="module-h">THE FORGE</div>
+            <div class="module-s">Production</div>
+        </div>
+    </div>
+
+    <div id="os-metrics">
+        <span>CORE: HUMANITY-FIRST</span>
+        <span>INTEGRITY: 100%</span>
+        <span>STATUS: ACTIVE</span>
+    </div>
+
+    <script>
+        const statLine = document.getElementById('stat-line');
+        const coreLogs = ["PULSE_OPTIMAL", "CORE_VALUES_LOCKED", "INTEGRITY_CHECK", "GENESIS_STABLE", "SOVEREIGN_OS"];
+        let x = 0; setInterval(() => { 
+            statLine.innerText = coreLogs[x % coreLogs.length]; x++; 
+        }, 3500);
+
+        function updateFeed(val) { statLine.innerText = val; statLine.style.color = "#d4af37"; }
+        function systemDiagnostic() { alert("BRAIN OS: 100% INTEGRITY\nSTATUS: SYSTEM_READY\nACCESS: AUTHORIZED"); }
+    </script>
+</body>
+</html>
