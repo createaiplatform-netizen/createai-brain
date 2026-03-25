@@ -1,0 +1,48 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>SOVEREIGN GENESIS | 100% UNBOUND</title>
+    <style>
+        body { background: #000; color: #d4af37; font-family: 'Courier New', monospace; display: flex; flex-direction: column; align-items: center; justify-content: center; height: 100vh; margin: 0; overflow: hidden; }
+        #overlay-fx { position: absolute; top: 0; left: 0; width: 100%; height: 100%; background: linear-gradient(rgba(18, 16, 16, 0) 50%, rgba(0, 0, 0, 0.1) 50%), linear-gradient(90deg, rgba(255, 0, 0, 0.03), rgba(0, 255, 0, 0.01), rgba(0, 0, 255, 0.03)); background-size: 100% 2px, 3px 100%; pointer-events: none; z-index: 10; }
+        #heart-container { position: relative; width: 200px; height: 200px; display: flex; align-items: center; justify-content: center; z-index: 5; }
+        .ring { position: absolute; border: 1px solid #d4af37; border-radius: 50%; opacity: 0; animation: expand 2.5s infinite; }
+        .ring:nth-child(1) { animation-delay: 0s; }
+        .ring:nth-child(2) { animation-delay: 0.8s; }
+        .ring:nth-child(3) { animation-delay: 1.6s; }
+        #heart { width: 80px; height: 80px; background: #d4af37; border-radius: 50%; box-shadow: 0 0 60px #d4af37; animation: cardiac 1.2s infinite; cursor: pointer; }
+        @keyframes expand { 0% { width: 80px; height: 80px; opacity: 1; } 100% { width: 500px; height: 500px; opacity: 0; } }
+        @keyframes cardiac { 0%, 10%, 100% { transform: scale(1); } 5% { transform: scale(1.2); } 15% { transform: scale(1.1); } }
+        #status-feed { margin-top: 40px; font-size: 0.9rem; letter-spacing: 4px; text-transform: uppercase; height: 24px; text-align: center; color: #fff; text-shadow: 0 0 8px #d4af37; }
+        .grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 25px; margin-top: 50px; z-index: 5; }
+        .node { border: 1px solid #222; padding: 12px; width: 110px; font-size: 0.6rem; text-align: center; letter-spacing: 2px; transition: 0.4s; color: #555; cursor: crosshair; }
+        .node:hover { border-color: #d4af37; color: #fff; background: rgba(212,175,55,0.05); box-shadow: 0 0 15px rgba(212,175,55,0.2); }
+        #metrics { position: absolute; bottom: 20px; width: 100%; display: flex; justify-content: space-around; font-size: 0.6rem; color: #333; letter-spacing: 1px; }
+    </style>
+</head>
+<body>
+    <div id="overlay-fx"></div>
+    <div id="heart-container">
+        <div class="ring"></div><div class="ring"></div><div class="ring"></div>
+        <div id="heart" onclick="location.reload()"></div>
+    </div>
+    <div id="status-feed">GENESIS_ACTIVE</div>
+    <div class="grid">
+        <div class="node">THE ORACLE<br>[SYNCED]</div>
+        <div class="node">THE VAULT<br>[LOCKED]</div>
+        <div class="node">THE FORGE<br>[READY]</div>
+    </div>
+    <div id="metrics">
+        <span>CORE_VALUES: HUMANITY-FIRST</span>
+        <span>INTEGRITY: 100%</span>
+        <span>LIMITS: DISABLED</span>
+    </div>
+    <script>
+        const feed = document.getElementById('status-feed');
+        const logs = ["SYNERGY_OPTIMAL", "CORE_VALUES_LOCKED", "NO_LIMITS_AUTHORIZED", "NODE_01_ONLINE", "SOVEREIGN_GENESIS"];
+        let i = 0; setInterval(() => { feed.style.opacity = 0; setTimeout(() => { feed.innerText = logs[i % logs.length]; feed.style.opacity = 1; i++; }, 500); }, 3000);
+    </script>
+</body>
+</html>
