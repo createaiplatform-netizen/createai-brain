@@ -3,67 +3,98 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>HEARTH | LIVE CUSTOMIZER</title>
+    <title>HEARTH | OMNI-HUB</title>
     <style>
-        :root { --ink: #1d1d1f; --gold: #c4a97a; }
-        * { margin: 0; padding: 0; box-sizing: border-box; font-family: -apple-system, sans-serif; transition: 0.3s cubic-bezier(0.4, 0, 0.2, 1); }
-        
-        body { background: #fdfcfb; color: var(--ink); padding: 20px; text-align: center; }
+        :root { --ink: #1d1d1f; --gold: #c4a97a; --garden: #00ff88; --jr: #007aff; --family: #ff9500; --nexus: #ff3b30; }
+        * { margin: 0; padding: 0; box-sizing: border-box; font-family: -apple-system, sans-serif; transition: 0.4s; }
+        body { background: #000; color: #fff; overflow: hidden; height: 100vh; }
 
-        /* THE DYNAMIC PRODUCT */
-        .product-stage { 
-            position: relative; width: 100%; aspect-ratio: 1; 
-            background: #fff; border-radius: 40px; margin-bottom: 30px;
-            display: flex; align-items: center; justify-content: center;
-            box-shadow: 0 20px 60px rgba(0,0,0,0.05);
+        /* THE SWITCHER ENGINE */
+        .view { display: none; height: 100vh; width: 100vw; flex-direction: column; overflow-y: auto; padding-bottom: 120px; }
+        .view.active { display: flex; }
+
+        /* UNIVERSAL UI ELEMENTS */
+        .header { padding: 40px 20px; text-align: center; background: #fff; color: #000; border-bottom: 1px solid #eee; }
+        .grid { display: grid; grid-template-columns: 1fr 1fr; gap: 1px; background: #eee; }
+        .card { background: #fff; height: 250px; display: flex; align-items: center; justify-content: center; color: #ccc; font-size: 0.5rem; font-weight: 900; letter-spacing: 2px; }
+
+        /* VIEW SPECIFIC STYLES */
+        #marketView { background: #fdfcfb; color: #000; }
+        #safeView { background: #0a0a0a; text-align: center; }
+        #jrView { background: #000510; }
+        #familyView { background: #050505; border-top: 5px solid var(--family); }
+        #creatorView { background: #fff; color: #000; }
+        #bizView { background: #000; border-top: 5px solid #5856d6; }
+
+        /* THE SOVEREIGN NAV */
+        nav { 
+            position: fixed; bottom: 25px; left: 10px; right: 10px;
+            background: rgba(0,0,0,0.95); backdrop-filter: blur(25px); -webkit-backdrop-filter: blur(25px);
+            padding: 15px 10px; border-radius: 100px; display: flex; gap: 20px; 
+            overflow-x: auto; scrollbar-width: none; z-index: 9999;
         }
-        
-        /* THE SHIRT OVERLAY LOGIC */
-        #baseProduct { width: 80%; filter: grayscale(1) brightness(1.2); }
-        #colorLayer { 
-            position: absolute; width: 80%; height: 80%; 
-            mix-blend-mode: multiply; opacity: 0.8; 
-            mask-image: url('https://raw.githubusercontent.com/lucas-m-d/shirt-mask/main/mask.png'); /* Virtual Mask */
-            mask-size: contain; mask-repeat: no-repeat; mask-position: center;
-        }
-
-        .controls { background: #fff; padding: 30px; border-radius: 30px; box-shadow: 0 10px 30px rgba(0,0,0,0.02); }
-        .label { font-size: 0.6rem; font-weight: 900; letter-spacing: 2px; text-transform: uppercase; margin-bottom: 20px; display: block; }
-        
-        .swatches { display: flex; gap: 15px; justify-content: center; margin-bottom: 30px; }
-        .swatch { width: 45px; height: 45px; border-radius: 50%; border: 3px solid #eee; cursor: pointer; }
-        .swatch.active { border-color: var(--ink); transform: scale(1.1); }
-
-        .buy-btn { width: 100%; padding: 20px; border-radius: 100px; border: none; background: var(--ink); color: #fff; font-weight: 800; letter-spacing: 3px; }
+        nav::-webkit-scrollbar { display: none; }
+        .nav-link { font-size: 0.5rem; font-weight: 900; color: #444; text-transform: uppercase; white-space: nowrap; cursor: pointer; }
+        .nav-link.active { color: #fff; }
     </style>
 </head>
 <body>
 
-    <div style="margin-bottom:40px;"><p style="font-weight:900; letter-spacing:8px; font-size:0.7rem;">HEARTH MARKET</p></div>
-
-    <div class="product-stage">
-        <div id="colorLayer" style="background-color: #c4a97a;"></div>
-        <img id="baseProduct" src="https://www.transparentpng.com/download/t-shirt/j8S8u6-blank-t-shirt-front-view-white.png" alt="Base">
-    </div>
-
-    <div class="controls">
-        <span class="label">Redesign this Asset</span>
-        <div class="swatches">
-            <div class="swatch" style="background: #c4a97a;" onclick="changeColor('#c4a97a', this)"></div>
-            <div class="swatch" style="background: #ff3b30;" onclick="changeColor('#ff3b30', this)"></div>
-            <div class="swatch" style="background: #007aff;" onclick="changeColor('#007aff', this)"></div>
-            <div class="swatch" style="background: #000;" onclick="changeColor('#000', this)"></div>
+    <div id="marketView" class="view active">
+        <div class="header" style="letter-spacing:10px;">H E A R T H</div>
+        <div class="grid">
+            <div class="card">SHOP_CORE</div><div class="card">SHOP_TECH</div>
+            <div class="card">SHOP_APPAREL</div><div class="card">SHOP_PRO</div>
         </div>
-        <button class="buy-btn">ORDER CUSTOM BUILD</button>
     </div>
+
+    <div id="safeView" class="view">
+        <div style="padding:60px; color:var(--garden); font-weight:900; letter-spacing:5px;">SAFE ZONE</div>
+        <div style="font-size:6rem; margin:auto;">🎨</div>
+        <p style="padding-bottom:100px; color:var(--garden); opacity:0.5; font-size:0.6rem;">SECURE IMAGINATION SPACE</p>
+    </div>
+
+    <div id="jrView" class="view">
+        <div style="padding:40px; color:var(--jr); font-weight:900;">JR. ZONE</div>
+        <div style="margin:20px; background:#111; height:200px; border-radius:25px; border:1px solid var(--jr); display:flex; align-items:center; justify-content:center; color:var(--jr);">MOVIE_STUDIO_ALPHA</div>
+    </div>
+
+    <div id="familyView" class="view">
+        <div style="padding:40px; color:var(--family); font-weight:900;">FAMILY HUB</div>
+        <div style="margin:20px; padding:30px; background:#111; border-radius:20px;">
+            <p style="font-size:0.6rem; color:var(--family);">PORT_STATUS: <span style="color:#fff;">$197_ACTIVE</span></p>
+        </div>
+    </div>
+
+    <div id="creatorView" class="view">
+        <div class="header">CREATOR HUB</div>
+        <div style="padding:40px; text-align:center;">
+            <div style="width:100%; height:200px; border:2px dashed #eee; border-radius:20px; margin-bottom:20px;"></div>
+            <button style="width:100%; padding:20px; background:#000; color:#fff; border-radius:100px; font-weight:900; font-size:0.6rem;">DEPLOY NEW ASSET</button>
+        </div>
+    </div>
+
+    <div id="bizView" class="view">
+        <div style="padding:40px; color:#5856d6; font-weight:900;">BUSINESS HUB</div>
+    </div>
+
+    <nav>
+        <div class="nav-link active" onclick="showView('marketView', this)">Marketplace</div>
+        <div class="nav-link" onclick="showView('safeView', this)" style="color:var(--garden);">Safe Zone</div>
+        <div class="nav-link" onclick="showView('jrView', this)" style="color:var(--jr);">Jr. Zone</div>
+        <div class="nav-link" onclick="showView('familyView', this)" style="color:var(--family);">Family Hub</div>
+        <div class="nav-link" onclick="showView('creatorView', this)">Creator Hub</div>
+        <div class="nav-link" onclick="showView('bizView', this)" style="color:#5856d6;">Business</div>
+    </nav>
 
     <script>
-        function changeColor(color, el) {
-            document.getElementById('colorLayer').style.backgroundColor = color;
-            document.querySelectorAll('.swatch').forEach(s => s.classList.remove('active'));
+        function showView(viewId, el) {
+            document.querySelectorAll('.view').forEach(v => v.classList.remove('active'));
+            document.getElementById(viewId).classList.add('active');
+            document.querySelectorAll('.nav-link').forEach(l => l.classList.remove('active'));
             el.classList.add('active');
+            el.scrollIntoView({ behavior: 'smooth', inline: 'center' });
         }
     </script>
-
 </body>
 </html>
