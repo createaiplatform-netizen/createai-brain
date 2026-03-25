@@ -578,6 +578,96 @@ app.get("/genesis", (_req: Request, res: Response) => {
   res.sendFile(path.resolve("/home/runner/workspace/sovereign-genesis.html"));
 });
 
+// ── Webster Home Care Services — Billing Portal ────────────────────────────
+const HOME_CARE_FORM = `<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8"/>
+  <meta name="viewport" content="width=device-width,initial-scale=1"/>
+  <title>Webster Home Care Services</title>
+  <style>
+    *{box-sizing:border-box;margin:0;padding:0}
+    body{font-family:'Segoe UI',Arial,sans-serif;background:#f4f6f2;min-height:100vh;display:flex;align-items:center;justify-content:center}
+    .card{background:#fff;border-radius:12px;box-shadow:0 4px 24px rgba(0,0,0,0.10);padding:40px 36px;max-width:420px;width:100%}
+    h1{color:#4a5e3a;font-size:1.5rem;margin-bottom:4px}
+    .subtitle{color:#6b7a5c;font-size:.95rem;margin-bottom:28px}
+    .service-row{display:flex;align-items:center;justify-content:space-between;background:#f0f4ec;border-radius:8px;padding:16px 20px;margin-bottom:28px}
+    .service-name{color:#2d3b22;font-weight:600;font-size:1rem}
+    .service-code{color:#7a9160;font-size:.82rem;margin-top:2px}
+    .price{color:#4a5e3a;font-size:1.4rem;font-weight:700}
+    label{display:block;color:#4a5e3a;font-weight:600;font-size:.9rem;margin-bottom:6px}
+    input[type=email]{width:100%;padding:12px 14px;border:1.5px solid #c8d6bb;border-radius:7px;font-size:1rem;outline:none;transition:border .2s}
+    input[type=email]:focus{border-color:#4a5e3a}
+    button{width:100%;margin-top:20px;padding:13px;background:#4a5e3a;color:#fff;border:none;border-radius:7px;font-size:1rem;font-weight:600;cursor:pointer;transition:background .2s}
+    button:hover{background:#3a4d2c}
+    .npi{color:#aab89a;font-size:.78rem;text-align:center;margin-top:18px}
+  </style>
+</head>
+<body>
+<div class="card">
+  <h1>Webster Home Care Services</h1>
+  <p class="subtitle">Secure billing portal — Webster, WI 54893</p>
+  <div class="service-row">
+    <div><div class="service-name">Home Health Aide Services</div><div class="service-code">Service Code: T1019</div></div>
+    <div class="price">$25.00</div>
+  </div>
+  <form method="POST" action="/home-care/submit">
+    <label for="email">Customer Email</label>
+    <input type="email" id="email" name="email" placeholder="you@example.com" required/>
+    <button type="submit">Submit Payment Request</button>
+  </form>
+  <p class="npi">NPI 1346233350 &nbsp;|&nbsp; Lakeside Trinity LLC</p>
+</div>
+</body>
+</html>`;
+
+const HOME_CARE_THANKYOU = `<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8"/>
+  <meta name="viewport" content="width=device-width,initial-scale=1"/>
+  <title>Thank You — Webster Home Care</title>
+  <style>
+    *{box-sizing:border-box;margin:0;padding:0}
+    body{font-family:'Segoe UI',Arial,sans-serif;background:#f4f6f2;min-height:100vh;display:flex;align-items:center;justify-content:center}
+    .card{background:#fff;border-radius:12px;box-shadow:0 4px 24px rgba(0,0,0,0.10);padding:48px 36px;max-width:420px;width:100%;text-align:center}
+    .check{font-size:3rem;margin-bottom:16px}
+    h1{color:#4a5e3a;font-size:1.5rem;margin-bottom:10px}
+    p{color:#6b7a5c;font-size:.97rem;line-height:1.6;margin-bottom:6px}
+    .email{font-weight:600;color:#2d3b22}
+    a{display:inline-block;margin-top:24px;color:#4a5e3a;text-decoration:none;font-weight:600;font-size:.9rem}
+    a:hover{text-decoration:underline}
+    .npi{color:#aab89a;font-size:.78rem;margin-top:20px}
+  </style>
+</head>
+<body>
+<div class="card">
+  <div class="check">&#10003;</div>
+  <h1>Request Received</h1>
+  <p>Your billing request for</p>
+  <p class="email">T1019 — Home Health Aide Services ($25.00)</p>
+  <p>has been submitted. You will receive a confirmation at your email address on file.</p>
+  <a href="/home-care">&larr; Back to Portal</a>
+  <p class="npi">NPI 1346233350 &nbsp;|&nbsp; Lakeside Trinity LLC &nbsp;|&nbsp; Webster, WI 54893</p>
+</div>
+</body>
+</html>`;
+
+app.get("/home-care", (_req: Request, res: Response) => {
+  res.setHeader("Content-Type", "text/html; charset=utf-8");
+  res.send(HOME_CARE_FORM);
+});
+
+app.post("/home-care/submit", (req: Request, res: Response) => {
+  const email = (req.body?.email || "").trim();
+  if (!email) {
+    res.redirect("/home-care");
+    return;
+  }
+  res.setHeader("Content-Type", "text/html; charset=utf-8");
+  res.send(HOME_CARE_THANKYOU);
+});
+
 // ── Zenith Studio — generative neural art engine ───────────────────────────
 app.get("/zenith", (_req: Request, res: Response) => {
   res.setHeader("Content-Type", "text/html; charset=utf-8");
