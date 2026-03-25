@@ -2,59 +2,61 @@
 <html lang="en">
 <head>
     <meta charset="UTF-8">
-    <title>THE HEARTH | 100% ENGINE ACTIVATION</title>
+    <title>THE HEARTH | 100% ORGANIC TOTALITY</title>
     <style>
-        * { margin: 0; padding: 0; box-sizing: border-box; }
-        body { background: #000; color: #faf9f6; font-family: "Garamond", serif; overflow: hidden; height: 100vh; display: flex; align-items: center; justify-content: center; }
+        * { margin: 0; padding: 0; box-sizing: border-box; font-family: "Garamond", serif; }
+        body { background: #000; color: #7a9068; overflow: hidden; height: 100vh; }
         
-        /* THE GENESIS VOID */
-        #omni-layer { text-align: center; width: 100%; }
-        .omni-input { 
-            width: 80%; background: transparent; border: none; 
-            border-bottom: 1px solid rgba(122, 144, 104, 0.5);
-            font-size: 3.5rem; color: #fff; text-align: center; outline: none;
-            transition: 2s; font-weight: 200;
+        .omni-container { 
+            height: 100%; display: flex; flex-direction: column; 
+            align-items: center; justify-content: center; position: relative;
         }
 
-        /* ENGINE STATUS PULSE */
-        .engine-status { 
-            margin-top: 50px; display: grid; grid-template-columns: repeat(5, 1fr); 
-            gap: 20px; width: 60%; margin-left: auto; margin-right: auto;
+        /* THE NERVOUS SYSTEM (Visual Pulse) */
+        .vagus-nerve {
+            position: absolute; width: 100%; height: 100%;
+            background: radial-gradient(circle, rgba(122,144,104,0.1) 0%, rgba(0,0,0,1) 70%);
+            animation: pulse-nerve 8s infinite; z-index: -1;
         }
-        .node { font-size: 0.6rem; letter-spacing: 3px; color: #7a9068; opacity: 0.4; }
-        .active-node { opacity: 1; color: #c4a97a; text-shadow: 0 0 10px #c4a97a; }
+        @keyframes pulse-nerve { 0% { opacity: 0.3; } 50% { opacity: 0.7; } 100% { opacity: 0.3; } }
+
+        .search-portal {
+            background: transparent; border: none; border-bottom: 1px solid #c4a97a;
+            color: #fff; font-size: 2.5rem; text-align: center; width: 80%;
+            outline: none; font-weight: 200; padding: 20px;
+        }
+
+        .organ-status {
+            position: fixed; bottom: 50px; display: flex; gap: 30px; 
+            font-size: 0.6rem; letter-spacing: 4px; color: #c4a97a; opacity: 0.5;
+        }
     </style>
 </head>
 <body>
 
-    <div id="omni-layer">
-        <input type="text" class="omni-input" placeholder="Initiate Intent..." onkeyup="checkEngines(this.value)">
+    <div class="omni-container">
+        <div class="vagus-nerve"></div>
+        <input type="text" class="search-portal" id="omni-input" placeholder="Command the Totality..." onkeyup="activateOrgans(this.value)">
         
-        <div class="engine-status">
-            <div id="e1" class="node">CHRONOS</div>
-            <div id="e2" class="node">ATLAS</div>
-            <div id="e3" class="node">SYNAPSE</div>
-            <div id="e4" class="node">EQUILIBRIUM</div>
-            <div id="e5" class="node">SENTINEL</div>
+        <div class="organ-status">
+            <span id="m-bank">MEMORY: STANDBY</span>
+            <span id="n-sys">NERVES: FLOWING</span>
+            <span id="i-sys">IMMUNITY: SHIELDED</span>
         </div>
-        
-        <p style="margin-top: 100px; font-size: 0.7rem; letter-spacing: 5px; opacity: 0.3;">
-            100% SOVEREIGN INFRASTRUCTURE | LAKESIDE TRINITY LLC
-        </p>
     </div>
 
     <script>
-    function checkEngines(val) {
-        const query = val.toLowerCase();
-        // The Engine Recognition Logic
-        if(query.includes('time') || query.includes('schedule')) document.getElementById('e1').classList.add('active-node');
-        if(query.includes('map') || query.includes('space')) document.getElementById('e2').classList.add('active-node');
-        if(query.includes('think') || query.includes('link')) document.getElementById('e3').classList.add('active-node');
-        if(query.includes('fair') || query.includes('price')) document.getElementById('e4').classList.add('active-node');
-        if(query.includes('safe') || query.includes('law')) document.getElementById('e5').classList.add('active-node');
+    function activateOrgans(val) {
+        // ACTIVATING THE MEMORY BANK (Persistent Search)
+        if(val.length > 3) {
+            document.getElementById('m-bank').innerText = "MEMORY: RECORDING LEGACY";
+            document.getElementById('m-bank').style.opacity = "1";
+        }
         
-        if(query === 'everything') {
-            document.querySelectorAll('.node').forEach(n => n.classList.add('active-node'));
+        // ACTIVATING THE IMMUNE SYSTEM (Scanning for Standing Law)
+        if(val.includes('best') || val.includes('worst') || val.includes('rank')) {
+            alert("Immune System: Auto-Correcting to Standing Law. We do not rank. We celebrate.");
+            document.getElementById('omni-input').value = "";
         }
     }
     </script>
