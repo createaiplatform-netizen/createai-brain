@@ -736,6 +736,29 @@ const MARKETPLACE_HTML = `<!DOCTYPE html>
     .dept-btn.secondary:hover{background:#dde8d4}
     .coming{display:inline-block;padding:2px 10px;background:#f0f4ec;border-radius:10px;font-size:.72rem;font-weight:700;color:#7a9160;letter-spacing:.06em;border:1px solid #d6e6c8}
     footer{text-align:center;padding:32px 16px;color:#aab89a;font-size:.78rem;border-top:1px solid #dde8d4}
+    /* 197 Community Section */
+    .community-section{background:#2d3b22;border-radius:16px;padding:44px 36px;margin-bottom:48px;text-align:center}
+    .gift-badge{display:inline-block;background:#4a5e3a;border:1.5px solid #6a8a52;border-radius:20px;padding:5px 16px;font-size:.7rem;font-weight:700;color:#a8cc88;letter-spacing:.1em;text-transform:uppercase;margin-bottom:18px}
+    .community-section h2{color:#d4e8c2;font-size:1.55rem;font-weight:800;margin-bottom:10px}
+    .community-tagline{color:#6b8a52;font-size:.9rem;line-height:1.65;max-width:520px;margin:0 auto 32px}
+    .kit-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(240px,1fr));gap:18px;margin-bottom:28px;text-align:left}
+    .kit-card{background:#1e2818;border:1.5px solid #3a4d2c;border-radius:12px;padding:24px 20px;display:flex;flex-direction:column;gap:10px;transition:border-color .2s}
+    .kit-card:hover{border-color:#4a5e3a}
+    .kit-icon{font-size:1.4rem;margin-bottom:2px}
+    .kit-name{color:#c8e0a8;font-weight:700;font-size:.95rem}
+    .kit-desc{color:#5a7a46;font-size:.82rem;line-height:1.55}
+    .kit-price{display:flex;align-items:center;justify-content:space-between;margin-top:4px}
+    .kit-amount{color:#a8cc88;font-weight:800;font-size:1.1rem}
+    .kit-freq{font-size:.7rem;color:#4a5e3a;letter-spacing:.06em;font-weight:700}
+    .kit-pay-btn{display:block;text-align:center;padding:10px;background:#4a5e3a;color:#d4e8c2;text-decoration:none;border-radius:7px;font-weight:700;font-size:.83rem;transition:background .2s;border:none;cursor:pointer;font-family:inherit;width:100%}
+    .kit-pay-btn:hover{background:#3a4d2c}
+    .pay-instructions{background:#1a2412;border:1.5px dashed #3a4d2c;border-radius:10px;padding:18px 22px;display:none;text-align:left;margin-top:16px}
+    .pay-instructions.open{display:block}
+    .pay-row{display:flex;align-items:center;gap:10px;padding:8px 0;border-bottom:1px solid #2a3520}
+    .pay-row:last-child{border-bottom:none}
+    .pay-method{color:#a8cc88;font-weight:700;font-size:.85rem;min-width:70px}
+    .pay-handle{color:#6b8a52;font-size:.85rem}
+    .memo-note{color:#4a5e3a;font-size:.76rem;margin-top:10px;font-style:italic}
   </style>
 </head>
 <body>
@@ -791,11 +814,65 @@ const MARKETPLACE_HTML = `<!DOCTYPE html>
     </div>
 
   </div>
+
+  <!-- 197 Community Resource Hub -->
+  <div class="community-section">
+    <div class="gift-badge">&#127381; A Gift to the People</div>
+    <h2>The 197 Community Resource Hub</h2>
+    <p class="community-tagline">Empowering every family to build their own empire.<br/>High-value tools. Sovereign prices. Entry point: $17.00.</p>
+
+    <div class="kit-grid">
+
+      <!-- Starter Kits -->
+      <!-- little-ai: starter-kit | frequency: 197 | status: active -->
+      <div class="kit-card">
+        <div class="kit-icon">&#128218;</div>
+        <div class="kit-name">Starter Kit</div>
+        <div class="kit-desc">Your foundation. Business planning templates, goal-setting worksheets, and the first-step roadmap for building your sovereign enterprise.</div>
+        <div class="kit-price">
+          <span class="kit-amount">$17.00</span>
+          <span class="kit-freq">THE LOCK FREQUENCY</span>
+        </div>
+        <button class="kit-pay-btn" onclick="togglePay('pay-starter')">Get This Kit &rarr;</button>
+        <div class="pay-instructions" id="pay-starter">
+          <div class="pay-row"><span class="pay-method">CashApp</span><span class="pay-handle">$LakesideTrinity</span></div>
+          <div class="pay-row"><span class="pay-method">Zelle</span><span class="pay-handle">admin@LakesideTrinity.com</span></div>
+          <div class="memo-note">Memo: Starter Kit &bull; $17.00 &bull; include your email</div>
+        </div>
+      </div>
+
+      <!-- Kid-One Creative Tools -->
+      <!-- little-ai: kid-one-tools | frequency: 197 | status: active -->
+      <div class="kit-card">
+        <div class="kit-icon">&#127775;</div>
+        <div class="kit-name">Kid-One Creative Tools</div>
+        <div class="kit-desc">Designed for the next generation. Creative activity packs, storytelling prompts, and imagination launchers built for young empire builders.</div>
+        <div class="kit-price">
+          <span class="kit-amount">$17.00</span>
+          <span class="kit-freq">THE LOCK FREQUENCY</span>
+        </div>
+        <button class="kit-pay-btn" onclick="togglePay('pay-kidone')">Get This Kit &rarr;</button>
+        <div class="pay-instructions" id="pay-kidone">
+          <div class="pay-row"><span class="pay-method">CashApp</span><span class="pay-handle">$LakesideTrinity</span></div>
+          <div class="pay-row"><span class="pay-method">Zelle</span><span class="pay-handle">admin@LakesideTrinity.com</span></div>
+          <div class="memo-note">Memo: Kid-One Tools &bull; $17.00 &bull; include your email</div>
+        </div>
+      </div>
+
+    </div>
+  </div>
+
 </main>
 <footer>
   &copy; 2026 Lakeside Trinity LLC &nbsp;&bull;&nbsp; NPI 1346233350 &nbsp;&bull;&nbsp; Webster, WI 54893
   &nbsp;&bull;&nbsp; <a href="/family-hub" style="color:#7a9160;text-decoration:none">Family Hub</a>
 </footer>
+<script>
+function togglePay(id) {
+  const el = document.getElementById(id);
+  el.classList.toggle('open');
+}
+</script>
 </body>
 </html>`;
 
