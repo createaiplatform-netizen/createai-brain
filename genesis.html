@@ -1,0 +1,57 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>ZENITH | THE TOTALITY</title>
+    <style>
+        body { background: #000; color: #d4af37; font-family: 'Courier New', monospace; margin: 0; display: flex; flex-direction: column; align-items: center; justify-content: center; min-height: 100vh; text-transform: uppercase; overflow-x: hidden; }
+        #origin { width: 160px; height: 160px; background: radial-gradient(circle, #d4af37 0%, #000 85%); border-radius: 50%; box-shadow: 0 0 60px #d4af37; animation: pulse 2.5s infinite alternate; margin-bottom: 40px; }
+        .grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(300px, 1fr)); gap: 20px; width: 90%; max-width: 1100px; }
+        .box { border: 2px solid #d4af37; padding: 25px; background: rgba(212,175,55,0.03); position: relative; transition: 0.3s; }
+        .box:hover { background: rgba(212,175,55,0.08); box-shadow: 0 0 20px rgba(212,175,55,0.2); }
+        .box h2 { font-size: 1.1rem; margin-top: 0; border-bottom: 1px solid #d4af37; padding-bottom: 12px; letter-spacing: 4px; }
+        .status { color: #fff; font-size: 0.85rem; margin: 10px 0; }
+        .legacy { background: rgba(212,175,55,0.1); border: 3px solid #d4af37; box-shadow: inset 0 0 25px #d4af37; }
+        .tag { font-size: 0.65rem; opacity: 0.6; margin-top: 15px; display: block; }
+        @keyframes pulse { 0% { transform: scale(0.92); filter: blur(1px); } 100% { transform: scale(1.08); filter: blur(0px); } }
+    </style>
+</head>
+<body>
+
+    <div id="origin"></div>
+    <h1 style="letter-spacing: 15px; font-size: 2.5rem; margin-bottom: 40px; text-shadow: 0 0 15px #d4af37;">SINGULARITY</h1>
+
+    <div class="grid">
+        <div class="box">
+            <h2>I. THE EXCHANGE</h2>
+            <p class="status">WEBSTER_NODE: <span style="color:#d4af37;">ARMED & READY</span></p>
+            <p class="status">SUPERIOR_NODE: <span style="color:#d4af37;">LISTENING</span></p>
+            <p class="status">GLOBAL_FLOW: <span style="color:#d4af37;">OPEN</span></p>
+            <span class="tag">Harvesting High-Yield Assets across all nodes.</span>
+        </div>
+
+        <div class="box">
+            <h2>II. CREATIVE HUB</h2>
+            <p class="status">DESIGN_ENGINE: <span style="color:#d4af37;">ONLINE</span></p>
+            <p class="status">SOUL_SYNC_AI: <span style="color:#d4af37;">EVOLVING</span></p>
+            <p class="status">WORKSPACE: <span style="color:#d4af37;">UNBOUND</span></p>
+            <span class="tag">The platform where ideas become sovereign reality.</span>
+        </div>
+
+        <div class="box legacy">
+            <h2>III. KID VISION</h2>
+            <p class="status" style="color:#fff; font-weight:bold;">VAULT_STATUS: PROTECTED</p>
+            <p class="status">BLOODLINE_KEY: <span style="color:#fff;">VALIDATED</span></p>
+            <p class="status">CORE_LOGIC: <span style="color:#fff;">100% INTEGRITY</span></p>
+            <span class="tag" style="opacity: 1; color:#fff;">Built for the next generation. Value never leaves the core.</span>
+        </div>
+    </div>
+
+    <div style="margin-top: 60px; text-align: center; opacity: 0.4; font-size: 0.75rem; letter-spacing: 2px;">
+        <p>THE THING THAT CREATED THE THING | VERSION: TOTALITY_FINAL</p>
+        <p style="color:#d4af37; font-weight:bold;">Sovereign Control Node Active</p>
+    </div>
+
+</body>
+</html>
