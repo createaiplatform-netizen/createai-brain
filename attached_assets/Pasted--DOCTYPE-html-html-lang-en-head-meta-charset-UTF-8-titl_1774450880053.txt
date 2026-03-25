@@ -1,0 +1,103 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>WEBSTER-54893 // ZENITH</title>
+    <style>
+        /* THE VISUAL VEIL */
+        body { 
+            background: #000; color: #d4af37; font-family: monospace; 
+            margin: 0; overflow: hidden; 
+            background-image: repeating-linear-gradient(0deg, rgba(0,0,0,0.05) 0px, rgba(0,0,0,0.05) 1px, transparent 1px, transparent 2px);
+        }
+        #gate-overlay {
+            position: fixed; inset: 0; background: #000; z-index: 9999;
+            display: flex; align-items: center; justify-content: center;
+        }
+        #gate-input {
+            background: transparent; border: 1px solid #333; color: #d4af37;
+            padding: 10px; font-size: 24px; text-align: center; outline: none;
+            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+        }
+        #gate-input.authorized {
+            border: 2px solid #d4af37; box-shadow: 0 0 30px #d4af37; letter-spacing: 10px;
+        }
+        #system-footer {
+            position: fixed; bottom: 10px; left: 14px; opacity: 0.4; font-size: 10px;
+        }
+        #dev-settings { display: none; position: fixed; right: 20px; top: 60px; background: #111; padding: 20px; border: 1px solid #d4af37; }
+        #dev-settings.open { display: flex; flex-direction: column; }
+    </style>
+</head>
+<body>
+
+<div id="gate-overlay">
+    <input type="password" id="gate-input" placeholder="0000" maxlength="4">
+</div>
+
+<div id="system-footer">SYSTEM_OFFLINE</div>
+
+<script>
+    /* 1. THE SHADOW_LOG */
+    (function(){ 
+        const noop = () => {}; 
+        window.console = { log: noop, warn: noop, error: noop, info: noop, debug: noop }; 
+    })();
+
+    /* 2. THE GHOST_GATE */
+    const gateInput = document.getElementById('gate-input');
+    gateInput.addEventListener('input', async (e) => {
+        if (e.target.value === '1440') {
+            gateInput.classList.add('authorized');
+            await new Promise(r => setTimeout(r, 300));
+            document.getElementById('gate-overlay').remove();
+            document.getElementById('system-footer').innerText = "SYSTEM_SEALED // WEBSTER-54893 // 1440_LOGIC_ACTIVE";
+            initEngine();
+        }
+    });
+
+    /* 3. THE PROVENANCE ENGINE (SHA-256) */
+    async function computeProvenanceHash(data) {
+        const msgBuffer = new TextEncoder().encode(data);
+        const hashBuffer = await crypto.subtle.digest('SHA-256', msgBuffer);
+        const hashArray = Array.from(new Uint8Array(hashBuffer));
+        return hashArray.map(b => b.toString(16).padStart(2, '0')).join('').toUpperCase().substring(0, 24);
+    }
+
+    /* 4. THE SOVEREIGN BRIDGE (UPLINK) */
+    function silentUplink(assetData) {
+        fetch('/upload-strike', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify(assetData)
+        })
+        .then(res => {
+            if (res.ok) flashStamp('UPLINK_SUCCESS');
+        })
+        .catch(() => null);
+    }
+
+    function flashStamp(text) {
+        const footer = document.getElementById('system-footer');
+        const original = footer.innerText;
+        footer.innerText = text;
+        footer.style.opacity = "0.9";
+        setTimeout(() => {
+            footer.innerText = original;
+            footer.style.opacity = "0.4";
+        }, 1800);
+    }
+
+    /* 5. ATOMIC RESET */
+    function purgeSystem() {
+        localStorage.clear();
+        window.location.reload();
+    }
+
+    function initEngine() {
+        // Engine logic starts here at 5Hz...
+        console.log("This will never be seen in the console.");
+    }
+</script>
+</body>
+</html>
