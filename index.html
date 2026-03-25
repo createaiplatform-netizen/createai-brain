@@ -5,113 +5,99 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>THE HEARTH | CREATEAI DIGITAL</title>
     <style>
-        * { transition: all 0.4s ease; box-sizing: border-box; }
+        * { transition: all 0.5s cubic-bezier(0.4, 0, 0.2, 1); box-sizing: border-box; }
         body { margin: 0; font-family: "Garamond", serif; background: #faf9f6; color: #7a9068; overflow-x: hidden; }
         
+        /* THE WONDERSPARK LAYER */
         .hero { 
-            height: 100vh; 
-            display: flex; 
-            flex-direction: column; 
-            justify-content: center; 
-            align-items: center; 
-            background: linear-gradient(135deg, #fbc2eb 0%, #a6c1ee 100%, #faf9f6 100%);
-            padding: 20px;
+            height: 100vh; display: flex; flex-direction: column; justify-content: center; align-items: center; 
+            background: linear-gradient(135deg, #fbc2eb 0%, #a6c1ee 100%); padding: 20px;
         }
 
-        .search-container {
-            width: 100%;
-            max-width: 800px;
-            position: relative;
+        .search-box {
+            width: 100%; max-width: 700px; background: rgba(255,255,255,0.9);
+            padding: 20px 40px; border-radius: 100px; border: 1px solid #c4a97a;
+            font-size: 1.5rem; outline: none; box-shadow: 0 20px 40px rgba(0,0,0,0.05);
+            text-align: center; color: #4a4a4a;
         }
 
-        input#main-search {
-            width: 100%;
-            padding: 25px 40px;
-            border-radius: 100px;
-            border: 1px solid rgba(196, 169, 122, 0.5);
-            font-size: 1.5rem;
-            outline: none;
-            background: rgba(255, 255, 255, 0.9);
-            box-shadow: 0 15px 40px rgba(0,0,0,0.05);
-            font-family: serif;
-            color: #4a4a4a;
+        .app-grid { 
+            display: grid; grid-template-columns: repeat(auto-fit, minmax(280px, 1fr)); 
+            gap: 20px; padding: 40px; max-width: 1200px; margin: 0 auto; 
         }
 
-        .search-label { margin-bottom: 20px; font-size: 1.8rem; color: #4a4a4a; font-weight: 300; }
-        
-        #results-area { 
-            margin-top: 40px; 
-            display: grid; 
-            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr)); 
-            gap: 20px; 
-            width: 100%; 
-            max-width: 1000px;
+        .app-card {
+            background: white; padding: 30px; border-radius: 25px; border: 1px solid #eee;
+            text-align: center; display: none; /* Only show on search */
         }
 
-        .result-card {
-            background: white;
-            padding: 30px;
-            border-radius: 25px;
-            box-shadow: 0 10px 30px rgba(0,0,0,0.02);
-            border: 1px solid #eee;
-            display: none; /* Hidden until search */
+        .app-card h3 { margin-top: 0; color: #7a9068; }
+        .price-tag { font-weight: bold; color: #c4a97a; display: block; margin: 10px 0; }
+
+        button { 
+            background: #7a9068; color: white; border: none; padding: 12px 25px; 
+            border-radius: 50px; cursor: pointer; font-weight: bold; 
         }
-        
-        .nav-links { position: absolute; top: 30px; right: 40px; }
-        .nav-links a { text-decoration: none; color: #7a9068; margin-left: 25px; font-weight: bold; font-size: 0.9rem; letter-spacing: 1px; }
+
+        .standing-law-footer { padding: 60px; text-align: center; font-style: italic; color: #c4a97a; }
     </style>
 </head>
 <body>
 
-    <nav class="nav-links">
-        <a href="#">THE PORTAL</a>
-        <a href="#">FAMILY HUB</a>
-        <a href="#">ENTERPRISE</a>
-    </nav>
-
     <section class="hero">
-        <h2 class="search-label">What would you like to create or organize today?</h2>
-        <div class="search-container">
-            <input type="text" id="main-search" placeholder="Search for 'Cafe', 'Journal', 'Hospital', 'Marketing'..." onkeyup="handleSearch()">
-        </div>
-
-        <div id="results-area">
-            <div id="res-family" class="result-card">
-                <h3 style="color: #fbc2eb;">The Family Hub</h3>
-                <p>A sacred, private space for your family's memories and growth.</p>
-                <button onclick="location.href='#payment'">Secure Hub - 97</button>
-            </div>
-            
-            <div id="res-cafe" class="result-card">
-                <h3 style="color: #7a9068;">Local Business OS</h3>
-                <p>The "Local Legend" suite for Cafes, Shops, and AFHs.</p>
-                <button onclick="alert('Calculating Savings...')">Calculate ROI - 97</button>
-            </div>
-
-            <div id="res-hospital" class="result-card">
-                <h3 style="color: #4a4a4a;">Global Healthcare</h3>
-                <p>Enterprise infrastructure for hospitals and clinical networks.</p>
-                <button>Consult Architect</button>
-            </div>
-        </div>
+        <h1 style="font-size: 3.5rem; font-weight: 300; margin-bottom: 10px;">The Hearth</h1>
+        <p style="margin-bottom: 30px; letter-spacing: 2px;">SEARCH THE UNIVERSE</p>
+        <input type="text" class="search-box" id="gate-search" placeholder="Cafe, Journal, Marketing, Strategy..." onkeyup="filterApps()">
     </section>
 
-    <script>
-    function handleSearch() {
-        const query = document.getElementById('main-search').value.toLowerCase();
-        const results = document.querySelectorAll('.result-card');
-        
-        results.forEach(card => card.style.display = 'none');
+    <div class="app-grid" id="app-engine">
+        <div class="app-card" data-tags="family kids journal sacred memories">
+            <h3>Family Hub</h3>
+            <p>Your private family universe.</p>
+            <span class="price-tag">97</span>
+            <button onclick="alert('Accessing the Hearth...')">Secure Key</button>
+        </div>
 
-        if(query.includes('fam') || query.includes('journ') || query.includes('kids')) {
-            document.getElementById('res-family').style.display = 'block';
-        } 
-        if(query.includes('cafe') || query.includes('shop') || query.includes('biz') || query.includes('marke')) {
-            document.getElementById('res-cafe').style.display = 'block';
-        }
-        if(query.includes('hosp') || query.includes('clinic') || query.includes('nurse') || query.includes('corp')) {
-            document.getElementById('res-hospital').style.display = 'block';
-        }
+        <div class="app-card" data-tags="cafe shop restaurant business local legend">
+            <h3>Local Legend OS</h3>
+            <p>Automate your shop. Take your time back.</p>
+            <span class="price-tag">97</span>
+            <button onclick="calculateBiz()">Calculate Savings</button>
+        </div>
+
+        <div class="app-card" data-tags="marketing social strategy revenue ads">
+            <h3>Social Command</h3>
+            <p>Billion-dollar marketing for small towns.</p>
+            <span class="price-tag">97</span>
+            <button>Initialize Engine</button>
+        </div>
+
+        <div class="app-card" data-tags="hospital clinical nursing healthcare enterprise">
+            <h3>HealthOS Infrastructure</h3>
+            <p>Enterprise-scale clinical management.</p>
+            <span class="price-tag">Enterprise Quote</span>
+            <button>Contact Architect</button>
+        </div>
+    </div>
+
+    <footer class="standing-law-footer">
+        "Every creation is sacred. Every legend is celebrated equally."<br>
+        © 2026 Lakeside Trinity LLC · Webster, Wisconsin
+    </footer>
+
+    <script>
+    function filterApps() {
+        const input = document.getElementById('gate-search').value.toLowerCase();
+        const cards = document.querySelectorAll('.app-card');
+        cards.forEach(card => {
+            const tags = card.getAttribute('data-tags');
+            card.style.display = (tags.includes(input) && input.length > 2) ? 'block' : 'none';
+        });
+    }
+
+    function calculateBiz() {
+        const hrs = prompt("How many hours a week do you waste on paperwork?");
+        alert("By automating this, you save approximately $" + (hrs * 25 * 52).toLocaleString() + " per year. Your Hub Key is only 97.");
     }
     </script>
 
