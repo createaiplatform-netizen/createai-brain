@@ -59,6 +59,9 @@ if (Number.isNaN(port) || port <= 0) {
 
 app.listen(port, () => {
   console.log(`Server listening on port ${port}`);
+  const devDomain = process.env["REPLIT_DEV_DOMAIN"];
+  const genesisUrl = devDomain ? `https://${devDomain}/genesis` : `http://localhost:${port}/genesis`;
+  console.log(`\n\u001b[33m[Genesis] Dashboard live \u2192 ${genesisUrl}\u001b[0m\n`);
 
   void (async () => {
     try {
