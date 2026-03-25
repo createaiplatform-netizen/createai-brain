@@ -578,6 +578,9 @@ app.get("/genesis", (_req: Request, res: Response) => {
   res.sendFile(path.resolve("/home/runner/workspace/sovereign-genesis.html"));
 });
 
+// ── Shared EBS Footer ───────────────────────────────────────────────────────
+const EBS_FOOTER_HTML = `<div style="background:#111710;border-top:1px solid #2d3b22;text-align:center;padding:14px 16px;font-size:.72rem;font-weight:700;color:#4a5e3a;letter-spacing:.1em;text-transform:uppercase">17 Frequency Active &nbsp;&bull;&nbsp; The Global Restoration is Live</div>`;
+
 // ── Webster Home Care Services — Manual Payment Portal ─────────────────────
 const HOME_CARE_FORM = `<!DOCTYPE html>
 <html lang="en">
@@ -624,7 +627,8 @@ const HOME_CARE_FORM = `<!DOCTYPE html>
   <p class="npi">Secure portal &nbsp;&bull;&nbsp; No card data stored</p>
 </div>
 </body>
-</html>`;
+</html>
+${EBS_FOOTER_HTML}`;
 
 const HOME_CARE_SUCCESS_PAGE = (email: string) => `<!DOCTYPE html>
 <html lang="en">
@@ -704,174 +708,177 @@ const MARKETPLACE_HTML = `<!DOCTYPE html>
 <head>
   <meta charset="UTF-8"/>
   <meta name="viewport" content="width=device-width,initial-scale=1"/>
-  <title>Lakeside Trinity — Global Marketplace</title>
-  <!-- little-ai: marketplace-root | status: ready -->
+  <title>Lakeside Trinity — Global Portal of Sovereignty</title>
+  <!-- little-ai: marketplace-root | phase: alpha-17 | status: active -->
   <style>
     *{box-sizing:border-box;margin:0;padding:0}
-    body{font-family:'Segoe UI',Arial,sans-serif;background:#f4f6f2;min-height:100vh}
-    header{background:#2d3b22;padding:28px 40px 24px;text-align:center}
-    .brand{font-size:.72rem;font-weight:700;letter-spacing:.18em;color:#7a9160;text-transform:uppercase;margin-bottom:6px}
-    h1{color:#d4e8c2;font-size:2rem;font-weight:800;letter-spacing:-.01em}
-    .tagline{color:#6b8a52;font-size:.92rem;margin-top:8px}
-    main{max-width:860px;margin:0 auto;padding:52px 24px}
-    .dept-label{font-size:.7rem;font-weight:700;letter-spacing:.14em;color:#7a9160;text-transform:uppercase;margin-bottom:20px;text-align:center}
-    .dept-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(340px,1fr));gap:24px;margin-bottom:52px}
-    @media(max-width:600px){.dept-grid{grid-template-columns:1fr}}
-    .dept-card{background:#fff;border:1.5px solid #d6e6c8;border-radius:14px;padding:32px 28px;display:flex;flex-direction:column;gap:14px;transition:box-shadow .2s,border-color .2s}
-    .dept-card:hover{box-shadow:0 6px 28px rgba(74,94,58,.12);border-color:#4a5e3a}
-    .dept-top{display:flex;align-items:center;gap:14px}
-    .dept-icon{width:48px;height:48px;border-radius:10px;display:flex;align-items:center;justify-content:center;font-size:1.4rem;flex-shrink:0}
-    .icon-health{background:#e8f5e0}
-    .icon-legal{background:#e8edf5}
-    .dept-name{color:#2d3b22;font-weight:800;font-size:1.08rem}
-    .dept-sub{color:#7a9160;font-size:.8rem;margin-top:2px;font-weight:600;letter-spacing:.05em;text-transform:uppercase}
-    .dept-desc{color:#6b7a5c;font-size:.88rem;line-height:1.65}
-    .dept-product{background:#f0f4ec;border-radius:8px;padding:12px 16px;display:flex;align-items:center;justify-content:space-between}
-    .product-name{color:#2d3b22;font-weight:700;font-size:.88rem}
-    .product-code{color:#7a9160;font-size:.74rem;margin-top:2px}
-    .product-price{color:#4a5e3a;font-weight:800;font-size:1.05rem}
-    .dept-btn{display:block;text-align:center;padding:12px;background:#4a5e3a;color:#fff;text-decoration:none;border-radius:8px;font-weight:700;font-size:.9rem;transition:background .2s}
-    .dept-btn:hover{background:#3a4d2c}
-    .dept-btn.secondary{background:#f0f4ec;color:#4a5e3a;border:1.5px solid #d6e6c8}
-    .dept-btn.secondary:hover{background:#dde8d4}
-    .coming{display:inline-block;padding:2px 10px;background:#f0f4ec;border-radius:10px;font-size:.72rem;font-weight:700;color:#7a9160;letter-spacing:.06em;border:1px solid #d6e6c8}
-    footer{text-align:center;padding:32px 16px;color:#aab89a;font-size:.78rem;border-top:1px solid #dde8d4}
-    /* 197 Community Section */
-    .community-section{background:#2d3b22;border-radius:16px;padding:44px 36px;margin-bottom:48px;text-align:center}
-    .gift-badge{display:inline-block;background:#4a5e3a;border:1.5px solid #6a8a52;border-radius:20px;padding:5px 16px;font-size:.7rem;font-weight:700;color:#a8cc88;letter-spacing:.1em;text-transform:uppercase;margin-bottom:18px}
-    .community-section h2{color:#d4e8c2;font-size:1.55rem;font-weight:800;margin-bottom:10px}
-    .community-tagline{color:#6b8a52;font-size:.9rem;line-height:1.65;max-width:520px;margin:0 auto 32px}
-    .kit-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(240px,1fr));gap:18px;margin-bottom:28px;text-align:left}
-    .kit-card{background:#1e2818;border:1.5px solid #3a4d2c;border-radius:12px;padding:24px 20px;display:flex;flex-direction:column;gap:10px;transition:border-color .2s}
+    body{font-family:'Segoe UI',Arial,sans-serif;background:#13180f;min-height:100vh;color:#e8f0e0}
+    header{background:#0e1209;border-bottom:1.5px solid #2d3b22;padding:32px 40px 28px;text-align:center}
+    .brand{font-size:.7rem;font-weight:700;letter-spacing:.2em;color:#4a5e3a;text-transform:uppercase;margin-bottom:8px}
+    h1{color:#c8e0a8;font-size:2.2rem;font-weight:900;letter-spacing:-.02em;line-height:1.1}
+    .tagline{color:#4a5e3a;font-size:.9rem;margin-top:10px;letter-spacing:.04em}
+    main{max-width:920px;margin:0 auto;padding:52px 24px 0}
+    .sect-label{font-size:.68rem;font-weight:700;letter-spacing:.16em;color:#4a5e3a;text-transform:uppercase;margin-bottom:20px;text-align:center}
+    /* Department Grid */
+    .dept-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(200px,1fr));gap:18px;margin-bottom:52px}
+    @media(max-width:520px){.dept-grid{grid-template-columns:1fr 1fr}}
+    .dept-card{background:#1a2012;border:1.5px solid #2d3b22;border-radius:13px;padding:26px 20px;display:flex;flex-direction:column;gap:12px;transition:border-color .2s,background .2s}
+    .dept-card:hover{border-color:#4a5e3a;background:#1e2818}
+    .dept-icon{font-size:1.6rem;margin-bottom:2px}
+    .dept-name{color:#c8e0a8;font-weight:800;font-size:.97rem}
+    .dept-sub{color:#4a5e3a;font-size:.74rem;font-weight:700;letter-spacing:.06em;text-transform:uppercase;margin-top:1px}
+    .dept-desc{color:#5a7a46;font-size:.8rem;line-height:1.55;flex:1}
+    .dept-price{color:#a8cc88;font-weight:800;font-size:1rem;margin-top:4px}
+    .dept-badge{display:inline-block;padding:2px 9px;border-radius:10px;font-size:.68rem;font-weight:700;letter-spacing:.05em}
+    .badge-active{background:#1e3010;color:#6abf4b;border:1px solid #3a5a22}
+    .badge-soon{background:#1e2818;color:#4a5e3a;border:1px solid #2d3b22}
+    .badge-future{background:#1a1f2e;color:#4a6a8a;border:1px solid #2a3a4a}
+    .dept-btn{display:block;text-align:center;padding:10px;background:#2d3b22;color:#a8cc88;text-decoration:none;border-radius:7px;font-weight:700;font-size:.82rem;transition:background .2s;border:1.5px solid #3a4d2c;cursor:pointer}
+    .dept-btn:hover{background:#3a4d2c;color:#c8e0a8}
+    .dept-btn.live{background:#4a5e3a;color:#d4e8c2;border-color:#5a7a46}
+    .dept-btn.live:hover{background:#3a4d2c}
+    /* Community Hub */
+    .community-wrap{background:#0e1209;border:1.5px solid #2d3b22;border-radius:16px;padding:44px 36px;margin-bottom:52px;text-align:center}
+    .gift-badge{display:inline-block;background:#1e3010;border:1.5px solid #3a5a22;border-radius:20px;padding:5px 18px;font-size:.68rem;font-weight:700;color:#6abf4b;letter-spacing:.1em;text-transform:uppercase;margin-bottom:18px}
+    .community-wrap h2{color:#c8e0a8;font-size:1.5rem;font-weight:800;margin-bottom:8px}
+    .community-tagline{color:#4a5e3a;font-size:.88rem;line-height:1.7;max-width:500px;margin:0 auto 32px}
+    .kit-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(230px,1fr));gap:16px;margin-bottom:24px;text-align:left}
+    .kit-card{background:#13180f;border:1.5px solid #2d3b22;border-radius:11px;padding:22px 18px;display:flex;flex-direction:column;gap:10px;transition:border-color .2s}
     .kit-card:hover{border-color:#4a5e3a}
-    .kit-icon{font-size:1.4rem;margin-bottom:2px}
-    .kit-name{color:#c8e0a8;font-weight:700;font-size:.95rem}
-    .kit-desc{color:#5a7a46;font-size:.82rem;line-height:1.55}
-    .kit-price{display:flex;align-items:center;justify-content:space-between;margin-top:4px}
-    .kit-amount{color:#a8cc88;font-weight:800;font-size:1.1rem}
-    .kit-freq{font-size:.7rem;color:#4a5e3a;letter-spacing:.06em;font-weight:700}
-    .kit-pay-btn{display:block;text-align:center;padding:10px;background:#4a5e3a;color:#d4e8c2;text-decoration:none;border-radius:7px;font-weight:700;font-size:.83rem;transition:background .2s;border:none;cursor:pointer;font-family:inherit;width:100%}
-    .kit-pay-btn:hover{background:#3a4d2c}
-    .pay-instructions{background:#1a2412;border:1.5px dashed #3a4d2c;border-radius:10px;padding:18px 22px;display:none;text-align:left;margin-top:16px}
-    .pay-instructions.open{display:block}
-    .pay-row{display:flex;align-items:center;gap:10px;padding:8px 0;border-bottom:1px solid #2a3520}
-    .pay-row:last-child{border-bottom:none}
-    .pay-method{color:#a8cc88;font-weight:700;font-size:.85rem;min-width:70px}
-    .pay-handle{color:#6b8a52;font-size:.85rem}
-    .memo-note{color:#4a5e3a;font-size:.76rem;margin-top:10px;font-style:italic}
+    .kit-icon{font-size:1.3rem}
+    .kit-name{color:#c8e0a8;font-weight:700;font-size:.92rem}
+    .kit-desc{color:#4a5e3a;font-size:.8rem;line-height:1.55;flex:1}
+    .kit-price-row{display:flex;align-items:center;justify-content:space-between}
+    .kit-amount{color:#a8cc88;font-weight:800;font-size:1.05rem}
+    .kit-freq{font-size:.66rem;color:#3a4d2c;letter-spacing:.07em;font-weight:700}
+    .kit-btn{width:100%;padding:10px;background:#2d3b22;color:#a8cc88;border:1.5px solid #3a4d2c;border-radius:7px;font-weight:700;font-size:.82rem;cursor:pointer;font-family:inherit;transition:background .2s}
+    .kit-btn:hover{background:#3a4d2c;color:#c8e0a8}
+    /* Pay Instructions */
+    .pay-panel{background:#0a0f07;border:1.5px dashed #2d3b22;border-radius:9px;padding:16px 18px;display:none;margin-top:10px}
+    .pay-panel.open{display:block}
+    .pay-row{display:flex;align-items:center;gap:10px;padding:7px 0;border-bottom:1px solid #1e2818}
+    .pay-row:last-of-type{border-bottom:none}
+    .pay-method{color:#a8cc88;font-weight:700;font-size:.82rem;min-width:65px}
+    .pay-handle{color:#5a7a46;font-size:.82rem;font-family:monospace}
+    .memo{color:#3a4d2c;font-size:.72rem;margin-top:8px;font-style:italic}
+    /* Page footer */
+    .page-footer{text-align:center;padding:28px 16px;color:#2d3b22;font-size:.76rem;border-top:1px solid #1e2818;margin-top:52px}
+    .page-footer a{color:#3a4d2c;text-decoration:none}
+    .page-footer a:hover{color:#4a5e3a}
   </style>
 </head>
 <body>
 <header>
-  <div class="brand">Lakeside Trinity LLC &nbsp;&bull;&nbsp; Webster, WI 54893</div>
-  <h1>Global Marketplace</h1>
+  <div class="brand">Lakeside Trinity LLC &nbsp;&bull;&nbsp; NPI 1346233350 &nbsp;&bull;&nbsp; Webster, WI</div>
+  <h1>Global Portal of Sovereignty</h1>
   <p class="tagline">Direct-payment services. No middlemen. Built for the world.</p>
 </header>
 <main>
-  <div class="dept-label">Global Departments</div>
+
+  <!-- Department Cards -->
+  <div class="sect-label">Global Departments</div>
   <div class="dept-grid">
 
-    <!-- Healthcare Department -->
-    <!-- little-ai: healthcare | npi: 1346233350 | status: active -->
+    <!-- little-ai: healthcare | npi: 1346233350 | status: active | phase: alpha-17 -->
     <div class="dept-card">
-      <div class="dept-top">
-        <div class="dept-icon icon-health">&#129657;</div>
-        <div>
-          <div class="dept-name">Healthcare</div>
-          <div class="dept-sub">Webster Home Care</div>
-        </div>
-      </div>
-      <div class="dept-desc">Professional home health aide services for Wisconsin residents. Medicaid-compliant, EVV-ready, NPI-verified.</div>
-      <div class="dept-product">
-        <div>
-          <div class="product-name">Professional Service Assessment</div>
-          <div class="product-code">Service Code: T1019</div>
-        </div>
-        <div class="product-price">$25.00</div>
-      </div>
-      <a href="/home-care" class="dept-btn">Open Portal &rarr;</a>
+      <div class="dept-icon">&#129657;</div>
+      <div class="dept-name">Healthcare</div>
+      <div class="dept-sub">Webster Home Care</div>
+      <div class="dept-desc">Professional home health aide services. Medicaid-compliant, EVV-ready, NPI-verified.</div>
+      <div class="dept-price">$25.00 &mdash; T1019</div>
+      <span class="dept-badge badge-active">LIVE</span>
+      <!-- little-ai: healthcare-btn | action: portal | status: active -->
+      <a href="/home-care" class="dept-btn live">Open Portal &rarr;</a>
     </div>
 
-    <!-- Legal Department -->
-    <!-- little-ai: legal | status: coming-soon -->
+    <!-- little-ai: legal | status: coming-soon | phase: alpha-17 -->
     <div class="dept-card">
-      <div class="dept-top">
-        <div class="dept-icon icon-legal">&#9878;&#65039;</div>
-        <div>
-          <div class="dept-name">Legal Services</div>
-          <div class="dept-sub">Lakeside Legal</div>
-        </div>
-      </div>
-      <div class="dept-desc">Contract management, compliance consulting, and legal document preparation. Wisconsin-based, nationally scalable.</div>
-      <div class="dept-product">
-        <div>
-          <div class="product-name">Legal Consultation Package</div>
-          <div class="product-code">Initial Assessment</div>
-        </div>
-        <div class="product-price"><span class="coming">COMING SOON</span></div>
-      </div>
-      <a href="#" class="dept-btn secondary">Notify Me</a>
+      <div class="dept-icon">&#9878;&#65039;</div>
+      <div class="dept-name">Legal Services</div>
+      <div class="dept-sub">Pro Se Power</div>
+      <div class="dept-desc">Contract management, compliance consulting, and Pro Se legal kits. Wisconsin-rooted, nationally scalable.</div>
+      <div class="dept-price">Pro Se Power Kits</div>
+      <span class="dept-badge badge-soon">COMING SOON</span>
+      <!-- little-ai: legal-btn | action: notify | status: pending -->
+      <a href="#" class="dept-btn">Notify Me</a>
+    </div>
+
+    <!-- little-ai: advanced-ai | status: future | phase: alpha-17 -->
+    <div class="dept-card">
+      <div class="dept-icon">&#129504;</div>
+      <div class="dept-name">Advanced AI</div>
+      <div class="dept-sub">Brain-Machine Interface</div>
+      <div class="dept-desc">Placeholder for next-generation AI tools. Bio-integration layer reserved. Neuralink-era ready.</div>
+      <div class="dept-price">Future Tier</div>
+      <span class="dept-badge badge-future">RESERVED</span>
+      <!-- little-ai: advanced-ai-btn | action: reserve | status: future -->
+      <a href="#" class="dept-btn">Reserve Spot</a>
+    </div>
+
+    <!-- little-ai: creative-hub | status: active | phase: alpha-17 -->
+    <div class="dept-card">
+      <div class="dept-icon">&#127775;</div>
+      <div class="dept-name">Creative Hub</div>
+      <div class="dept-sub">The Kid Ones</div>
+      <div class="dept-desc">Tools for family wealth creation. Kid-One creative resources, storytelling kits, and empire-building starters.</div>
+      <div class="dept-price">$17.00 entry</div>
+      <span class="dept-badge badge-active">LIVE</span>
+      <!-- little-ai: creative-hub-btn | action: community | status: active -->
+      <a href="/community" class="dept-btn live">Explore Kits &rarr;</a>
     </div>
 
   </div>
 
-  <!-- 197 Community Resource Hub -->
-  <div class="community-section">
+  <!-- 197 Community Hub Preview -->
+  <div class="community-wrap">
     <div class="gift-badge">&#127381; A Gift to the People</div>
     <h2>The 197 Community Resource Hub</h2>
-    <p class="community-tagline">Empowering every family to build their own empire.<br/>High-value tools. Sovereign prices. Entry point: $17.00.</p>
-
+    <p class="community-tagline">Empowering every family to build their own empire.<br/>High-value tools. Sovereign prices. Entry point: $17.00 — The Lock Frequency.</p>
     <div class="kit-grid">
 
-      <!-- Starter Kits -->
-      <!-- little-ai: starter-kit | frequency: 197 | status: active -->
+      <!-- little-ai: starter-kit | frequency: 197 | status: active | phase: alpha-17 -->
       <div class="kit-card">
         <div class="kit-icon">&#128218;</div>
-        <div class="kit-name">Starter Kit</div>
-        <div class="kit-desc">Your foundation. Business planning templates, goal-setting worksheets, and the first-step roadmap for building your sovereign enterprise.</div>
-        <div class="kit-price">
-          <span class="kit-amount">$17.00</span>
-          <span class="kit-freq">THE LOCK FREQUENCY</span>
-        </div>
-        <button class="kit-pay-btn" onclick="togglePay('pay-starter')">Get This Kit &rarr;</button>
-        <div class="pay-instructions" id="pay-starter">
+        <div class="kit-name">Empire Starter Kit</div>
+        <div class="kit-desc">Business planning templates, goal-setting worksheets, and the first-step roadmap for your sovereign enterprise.</div>
+        <div class="kit-price-row"><span class="kit-amount">$17.00</span><span class="kit-freq">LOCK FREQUENCY</span></div>
+        <!-- little-ai: starter-kit-btn | action: pay | status: active -->
+        <button class="kit-btn" onclick="togglePay('ms-starter')">Get This Kit &rarr;</button>
+        <div class="pay-panel" id="ms-starter">
           <div class="pay-row"><span class="pay-method">CashApp</span><span class="pay-handle">$LakesideTrinity</span></div>
           <div class="pay-row"><span class="pay-method">Zelle</span><span class="pay-handle">admin@LakesideTrinity.com</span></div>
-          <div class="memo-note">Memo: Starter Kit &bull; $17.00 &bull; include your email</div>
+          <div class="memo">Memo: Empire Starter Kit &bull; $17.00 &bull; your email</div>
         </div>
       </div>
 
-      <!-- Kid-One Creative Tools -->
-      <!-- little-ai: kid-one-tools | frequency: 197 | status: active -->
+      <!-- little-ai: kid-one-tools | frequency: 197 | status: active | phase: alpha-17 -->
       <div class="kit-card">
         <div class="kit-icon">&#127775;</div>
         <div class="kit-name">Kid-One Creative Tools</div>
-        <div class="kit-desc">Designed for the next generation. Creative activity packs, storytelling prompts, and imagination launchers built for young empire builders.</div>
-        <div class="kit-price">
-          <span class="kit-amount">$17.00</span>
-          <span class="kit-freq">THE LOCK FREQUENCY</span>
-        </div>
-        <button class="kit-pay-btn" onclick="togglePay('pay-kidone')">Get This Kit &rarr;</button>
-        <div class="pay-instructions" id="pay-kidone">
+        <div class="kit-desc">Creative activity packs, storytelling prompts, and imagination launchers built for young empire builders.</div>
+        <div class="kit-price-row"><span class="kit-amount">$17.00</span><span class="kit-freq">LOCK FREQUENCY</span></div>
+        <!-- little-ai: kid-one-btn | action: pay | status: active -->
+        <button class="kit-btn" onclick="togglePay('ms-kidone')">Get This Kit &rarr;</button>
+        <div class="pay-panel" id="ms-kidone">
           <div class="pay-row"><span class="pay-method">CashApp</span><span class="pay-handle">$LakesideTrinity</span></div>
           <div class="pay-row"><span class="pay-method">Zelle</span><span class="pay-handle">admin@LakesideTrinity.com</span></div>
-          <div class="memo-note">Memo: Kid-One Tools &bull; $17.00 &bull; include your email</div>
+          <div class="memo">Memo: Kid-One Tools &bull; $17.00 &bull; your email</div>
         </div>
       </div>
 
     </div>
+    <!-- little-ai: community-hub-btn | action: navigate | status: active -->
+    <a href="/community" class="dept-btn live" style="display:inline-block;padding:12px 32px;margin-top:8px">View Full Community Hub &rarr;</a>
   </div>
 
 </main>
-<footer>
-  &copy; 2026 Lakeside Trinity LLC &nbsp;&bull;&nbsp; NPI 1346233350 &nbsp;&bull;&nbsp; Webster, WI 54893
-  &nbsp;&bull;&nbsp; <a href="/family-hub" style="color:#7a9160;text-decoration:none">Family Hub</a>
-</footer>
+<div class="page-footer">
+  &copy; 2026 Lakeside Trinity LLC &nbsp;&bull;&nbsp; NPI 1346233350 &nbsp;&bull;&nbsp; Webster, WI 54893<br/>
+  <a href="/community">Community Hub</a> &nbsp;&bull;&nbsp; <a href="/home-care">Home Care Portal</a>
+</div>
+${EBS_FOOTER_HTML}
 <script>
-function togglePay(id) {
-  const el = document.getElementById(id);
-  el.classList.toggle('open');
-}
+function togglePay(id){const el=document.getElementById(id);el.classList.toggle('open');}
 </script>
 </body>
 </html>`;
@@ -879,6 +886,128 @@ function togglePay(id) {
 app.get("/marketplace", (_req: Request, res: Response) => {
   res.setHeader("Content-Type", "text/html; charset=utf-8");
   res.send(MARKETPLACE_HTML);
+});
+
+// ── Community Hub — /community ──────────────────────────────────────────────
+const COMMUNITY_HTML = `<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8"/>
+  <meta name="viewport" content="width=device-width,initial-scale=1"/>
+  <title>197 Community Resource Hub — Lakeside Trinity</title>
+  <!-- little-ai: community-root | frequency: 197 | status: active | phase: alpha-17 -->
+  <style>
+    *{box-sizing:border-box;margin:0;padding:0}
+    body{font-family:'Segoe UI',Arial,sans-serif;background:#13180f;min-height:100vh;color:#e8f0e0;padding:0 0 60px}
+    header{background:#0e1209;border-bottom:1.5px solid #2d3b22;padding:28px 32px;text-align:center}
+    .brand{font-size:.7rem;font-weight:700;letter-spacing:.18em;color:#4a5e3a;text-transform:uppercase;margin-bottom:6px}
+    h1{color:#c8e0a8;font-size:1.7rem;font-weight:800}
+    .sub{color:#4a5e3a;font-size:.88rem;margin-top:6px}
+    main{max-width:860px;margin:0 auto;padding:44px 24px 0}
+    .gift-banner{background:#0e1209;border:1.5px solid #2d3b22;border-radius:12px;padding:28px 32px;text-align:center;margin-bottom:40px}
+    .gift-badge{display:inline-block;background:#1e3010;border:1.5px solid #3a5a22;border-radius:20px;padding:4px 16px;font-size:.68rem;font-weight:700;color:#6abf4b;letter-spacing:.1em;text-transform:uppercase;margin-bottom:12px}
+    .gift-banner p{color:#4a5e3a;font-size:.9rem;line-height:1.7;max-width:560px;margin:0 auto}
+    .sect-label{font-size:.68rem;font-weight:700;letter-spacing:.16em;color:#4a5e3a;text-transform:uppercase;margin-bottom:18px}
+    .kit-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(250px,1fr));gap:20px;margin-bottom:44px}
+    .kit-card{background:#1a2012;border:1.5px solid #2d3b22;border-radius:12px;padding:26px 22px;display:flex;flex-direction:column;gap:12px;transition:border-color .2s}
+    .kit-card:hover{border-color:#4a5e3a}
+    .kit-icon{font-size:1.5rem}
+    .kit-name{color:#c8e0a8;font-weight:700;font-size:.95rem}
+    .kit-desc{color:#4a5e3a;font-size:.82rem;line-height:1.6;flex:1}
+    .kit-price-row{display:flex;align-items:center;justify-content:space-between}
+    .kit-amount{color:#a8cc88;font-weight:800;font-size:1.1rem}
+    .kit-freq{font-size:.66rem;color:#3a4d2c;letter-spacing:.07em;font-weight:700}
+    .kit-btn{width:100%;padding:11px;background:#2d3b22;color:#a8cc88;border:1.5px solid #3a4d2c;border-radius:7px;font-weight:700;font-size:.85rem;cursor:pointer;font-family:inherit;transition:background .2s}
+    .kit-btn:hover{background:#3a4d2c;color:#c8e0a8}
+    .pay-panel{background:#0a0f07;border:1.5px dashed #2d3b22;border-radius:9px;padding:18px 20px;display:none;margin-top:4px}
+    .pay-panel.open{display:block}
+    .pay-row{display:flex;align-items:center;gap:10px;padding:8px 0;border-bottom:1px solid #1e2818}
+    .pay-row:last-of-type{border-bottom:none}
+    .pay-method{color:#a8cc88;font-weight:700;font-size:.84rem;min-width:68px}
+    .pay-handle{color:#5a7a46;font-size:.84rem;font-family:monospace}
+    .memo{color:#3a4d2c;font-size:.73rem;margin-top:8px;font-style:italic}
+    .back-link{display:inline-block;padding:11px 24px;background:#1a2012;color:#5a7a46;text-decoration:none;border-radius:8px;font-size:.84rem;font-weight:600;border:1.5px solid #2d3b22;margin-top:8px}
+    .back-link:hover{background:#1e2818;color:#a8cc88}
+    .page-footer{text-align:center;padding:28px 16px;color:#2d3b22;font-size:.76rem;border-top:1px solid #1e2818;margin-top:44px}
+  </style>
+</head>
+<body>
+<header>
+  <div class="brand">Lakeside Trinity LLC</div>
+  <h1>197 Community Resource Hub</h1>
+  <p class="sub">The Lock Frequency &nbsp;&bull;&nbsp; $17.00 Entry Point</p>
+</header>
+<main>
+
+  <div class="gift-banner">
+    <div class="gift-badge">&#127381; A Gift to the People</div>
+    <p>Empowering every family to build their own empire.<br/>High-value tools. Sovereign prices.<br/>No middlemen. No barriers. Direct to your account.</p>
+  </div>
+
+  <div class="sect-label">Empire Starter Kits — $17.00 Each</div>
+  <div class="kit-grid">
+
+    <!-- little-ai: starter-kit | frequency: 197 | status: active | phase: alpha-17 -->
+    <div class="kit-card">
+      <div class="kit-icon">&#128218;</div>
+      <div class="kit-name">Empire Starter Kit</div>
+      <div class="kit-desc">Your foundation document set. Business planning templates, goal-setting worksheets, revenue tracking sheets, and the first-step sovereign roadmap.</div>
+      <div class="kit-price-row"><span class="kit-amount">$17.00</span><span class="kit-freq">LOCK FREQUENCY</span></div>
+      <!-- little-ai: starter-kit-btn | action: pay | status: active -->
+      <button class="kit-btn" onclick="togglePay('c-starter')">Get This Kit &rarr;</button>
+      <div class="pay-panel" id="c-starter">
+        <div class="pay-row"><span class="pay-method">CashApp</span><span class="pay-handle">$LakesideTrinity</span></div>
+        <div class="pay-row"><span class="pay-method">Zelle</span><span class="pay-handle">admin@LakesideTrinity.com</span></div>
+        <div class="memo">Memo: Empire Starter Kit &bull; $17.00 &bull; include your email</div>
+      </div>
+    </div>
+
+    <!-- little-ai: kid-one-tools | frequency: 197 | status: active | phase: alpha-17 -->
+    <div class="kit-card">
+      <div class="kit-icon">&#127775;</div>
+      <div class="kit-name">Kid-One Creative Tools</div>
+      <div class="kit-desc">Activity packs, storytelling prompts, and imagination launchers for the next generation of sovereign thinkers and creators.</div>
+      <div class="kit-price-row"><span class="kit-amount">$17.00</span><span class="kit-freq">LOCK FREQUENCY</span></div>
+      <!-- little-ai: kid-one-btn | action: pay | status: active -->
+      <button class="kit-btn" onclick="togglePay('c-kidone')">Get This Kit &rarr;</button>
+      <div class="pay-panel" id="c-kidone">
+        <div class="pay-row"><span class="pay-method">CashApp</span><span class="pay-handle">$LakesideTrinity</span></div>
+        <div class="pay-row"><span class="pay-method">Zelle</span><span class="pay-handle">admin@LakesideTrinity.com</span></div>
+        <div class="memo">Memo: Kid-One Tools &bull; $17.00 &bull; include your email</div>
+      </div>
+    </div>
+
+    <!-- little-ai: family-wealth-kit | frequency: 197 | status: active | phase: alpha-17 -->
+    <div class="kit-card">
+      <div class="kit-icon">&#127968;</div>
+      <div class="kit-name">Family Wealth Blueprint</div>
+      <div class="kit-desc">Multi-generational wealth planning guide. Asset protection basics, estate mapping, and the Lakeside Trinity family enterprise model.</div>
+      <div class="kit-price-row"><span class="kit-amount">$17.00</span><span class="kit-freq">LOCK FREQUENCY</span></div>
+      <!-- little-ai: family-wealth-btn | action: pay | status: active -->
+      <button class="kit-btn" onclick="togglePay('c-family')">Get This Kit &rarr;</button>
+      <div class="pay-panel" id="c-family">
+        <div class="pay-row"><span class="pay-method">CashApp</span><span class="pay-handle">$LakesideTrinity</span></div>
+        <div class="pay-row"><span class="pay-method">Zelle</span><span class="pay-handle">admin@LakesideTrinity.com</span></div>
+        <div class="memo">Memo: Family Wealth Blueprint &bull; $17.00 &bull; include your email</div>
+      </div>
+    </div>
+
+  </div>
+
+  <a href="/marketplace" class="back-link">&#8592; Back to Marketplace</a>
+
+</main>
+<div class="page-footer">&copy; 2026 Lakeside Trinity LLC &nbsp;&bull;&nbsp; Webster, WI 54893 &nbsp;&bull;&nbsp; NPI 1346233350</div>
+${EBS_FOOTER_HTML}
+<script>
+function togglePay(id){const el=document.getElementById(id);el.classList.toggle('open');}
+</script>
+</body>
+</html>`;
+
+app.get("/community", (_req: Request, res: Response) => {
+  res.setHeader("Content-Type", "text/html; charset=utf-8");
+  res.send(COMMUNITY_HTML);
 });
 
 // ── Family Hub — Creative Hub & Dream Board ────────────────────────────────
@@ -1026,6 +1155,7 @@ function addIdea(btn, type) {
   list.appendChild(li);
 }
 </script>
+${EBS_FOOTER_HTML}
 </body>
 </html>`;
 
