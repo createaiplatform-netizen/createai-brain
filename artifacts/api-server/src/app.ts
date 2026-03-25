@@ -698,6 +698,112 @@ app.post("/home-care/submit", (req: Request, res: Response) => {
   res.send(HOME_CARE_SUCCESS_PAGE(email));
 });
 
+// ── Sovereign Global Marketplace — Storefront Door ─────────────────────────
+const MARKETPLACE_HTML = `<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8"/>
+  <meta name="viewport" content="width=device-width,initial-scale=1"/>
+  <title>Lakeside Trinity — Global Marketplace</title>
+  <!-- little-ai: marketplace-root | status: ready -->
+  <style>
+    *{box-sizing:border-box;margin:0;padding:0}
+    body{font-family:'Segoe UI',Arial,sans-serif;background:#f4f6f2;min-height:100vh}
+    header{background:#2d3b22;padding:28px 40px 24px;text-align:center}
+    .brand{font-size:.72rem;font-weight:700;letter-spacing:.18em;color:#7a9160;text-transform:uppercase;margin-bottom:6px}
+    h1{color:#d4e8c2;font-size:2rem;font-weight:800;letter-spacing:-.01em}
+    .tagline{color:#6b8a52;font-size:.92rem;margin-top:8px}
+    main{max-width:860px;margin:0 auto;padding:52px 24px}
+    .dept-label{font-size:.7rem;font-weight:700;letter-spacing:.14em;color:#7a9160;text-transform:uppercase;margin-bottom:20px;text-align:center}
+    .dept-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(340px,1fr));gap:24px;margin-bottom:52px}
+    @media(max-width:600px){.dept-grid{grid-template-columns:1fr}}
+    .dept-card{background:#fff;border:1.5px solid #d6e6c8;border-radius:14px;padding:32px 28px;display:flex;flex-direction:column;gap:14px;transition:box-shadow .2s,border-color .2s}
+    .dept-card:hover{box-shadow:0 6px 28px rgba(74,94,58,.12);border-color:#4a5e3a}
+    .dept-top{display:flex;align-items:center;gap:14px}
+    .dept-icon{width:48px;height:48px;border-radius:10px;display:flex;align-items:center;justify-content:center;font-size:1.4rem;flex-shrink:0}
+    .icon-health{background:#e8f5e0}
+    .icon-legal{background:#e8edf5}
+    .dept-name{color:#2d3b22;font-weight:800;font-size:1.08rem}
+    .dept-sub{color:#7a9160;font-size:.8rem;margin-top:2px;font-weight:600;letter-spacing:.05em;text-transform:uppercase}
+    .dept-desc{color:#6b7a5c;font-size:.88rem;line-height:1.65}
+    .dept-product{background:#f0f4ec;border-radius:8px;padding:12px 16px;display:flex;align-items:center;justify-content:space-between}
+    .product-name{color:#2d3b22;font-weight:700;font-size:.88rem}
+    .product-code{color:#7a9160;font-size:.74rem;margin-top:2px}
+    .product-price{color:#4a5e3a;font-weight:800;font-size:1.05rem}
+    .dept-btn{display:block;text-align:center;padding:12px;background:#4a5e3a;color:#fff;text-decoration:none;border-radius:8px;font-weight:700;font-size:.9rem;transition:background .2s}
+    .dept-btn:hover{background:#3a4d2c}
+    .dept-btn.secondary{background:#f0f4ec;color:#4a5e3a;border:1.5px solid #d6e6c8}
+    .dept-btn.secondary:hover{background:#dde8d4}
+    .coming{display:inline-block;padding:2px 10px;background:#f0f4ec;border-radius:10px;font-size:.72rem;font-weight:700;color:#7a9160;letter-spacing:.06em;border:1px solid #d6e6c8}
+    footer{text-align:center;padding:32px 16px;color:#aab89a;font-size:.78rem;border-top:1px solid #dde8d4}
+  </style>
+</head>
+<body>
+<header>
+  <div class="brand">Lakeside Trinity LLC &nbsp;&bull;&nbsp; Webster, WI 54893</div>
+  <h1>Global Marketplace</h1>
+  <p class="tagline">Direct-payment services. No middlemen. Built for the world.</p>
+</header>
+<main>
+  <div class="dept-label">Global Departments</div>
+  <div class="dept-grid">
+
+    <!-- Healthcare Department -->
+    <!-- little-ai: healthcare | npi: 1346233350 | status: active -->
+    <div class="dept-card">
+      <div class="dept-top">
+        <div class="dept-icon icon-health">&#129657;</div>
+        <div>
+          <div class="dept-name">Healthcare</div>
+          <div class="dept-sub">Webster Home Care</div>
+        </div>
+      </div>
+      <div class="dept-desc">Professional home health aide services for Wisconsin residents. Medicaid-compliant, EVV-ready, NPI-verified.</div>
+      <div class="dept-product">
+        <div>
+          <div class="product-name">Professional Service Assessment</div>
+          <div class="product-code">Service Code: T1019</div>
+        </div>
+        <div class="product-price">$25.00</div>
+      </div>
+      <a href="/home-care" class="dept-btn">Open Portal &rarr;</a>
+    </div>
+
+    <!-- Legal Department -->
+    <!-- little-ai: legal | status: coming-soon -->
+    <div class="dept-card">
+      <div class="dept-top">
+        <div class="dept-icon icon-legal">&#9878;&#65039;</div>
+        <div>
+          <div class="dept-name">Legal Services</div>
+          <div class="dept-sub">Lakeside Legal</div>
+        </div>
+      </div>
+      <div class="dept-desc">Contract management, compliance consulting, and legal document preparation. Wisconsin-based, nationally scalable.</div>
+      <div class="dept-product">
+        <div>
+          <div class="product-name">Legal Consultation Package</div>
+          <div class="product-code">Initial Assessment</div>
+        </div>
+        <div class="product-price"><span class="coming">COMING SOON</span></div>
+      </div>
+      <a href="#" class="dept-btn secondary">Notify Me</a>
+    </div>
+
+  </div>
+</main>
+<footer>
+  &copy; 2026 Lakeside Trinity LLC &nbsp;&bull;&nbsp; NPI 1346233350 &nbsp;&bull;&nbsp; Webster, WI 54893
+  &nbsp;&bull;&nbsp; <a href="/family-hub" style="color:#7a9160;text-decoration:none">Family Hub</a>
+</footer>
+</body>
+</html>`;
+
+app.get("/marketplace", (_req: Request, res: Response) => {
+  res.setHeader("Content-Type", "text/html; charset=utf-8");
+  res.send(MARKETPLACE_HTML);
+});
+
 // ── Family Hub — Creative Hub & Dream Board ────────────────────────────────
 const GLOBAL_DEPARTMENTS = [
   { id: "healthcare",   label: "Healthcare",    desc: "Webster Home Care · HealthOS · Medicaid EVV · NPI 1346233350" },
@@ -826,7 +932,10 @@ const FAMILY_HUB_HTML = `<!DOCTYPE html>
     </div>
   </div>
 
-  <a href="/home-care" class="nav-link">&#8592; Webster Home Care Portal</a>
+  <div style="display:flex;gap:14px;flex-wrap:wrap;margin-top:32px">
+    <a href="/home-care" class="nav-link">&#8592; Home Care Portal</a>
+    <a href="/marketplace" style="display:inline-block;padding:11px 24px;background:#4a5e3a;color:#d4e8c2;text-decoration:none;border-radius:8px;font-size:.85rem;font-weight:700;border:1.5px solid #3a4d2c;border-radius:8px">&#127760; Launch to Marketplace</a>
+  </div>
 
 </main>
 <script>
