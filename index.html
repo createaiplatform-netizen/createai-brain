@@ -3,136 +3,102 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>NEXUS ELITE | OMNI-SEARCH</title>
+    <title>THE HEARTH | TOTAL ACCESS</title>
     <style>
-        :root { --gold: #c4a97a; --pearl: #fdfdfd; --sage: #7a9068; }
+        :root { --gold: #c4a97a; --bg: #fdfdfd; --dark: #121212; }
         * { margin: 0; padding: 0; box-sizing: border-box; font-family: 'Inter', sans-serif; }
-        
-        body { 
-            background: radial-gradient(circle at top, #fff 0%, #e8e8e8 100%);
-            color: #222; min-height: 100vh; overflow-x: hidden;
-        }
+        body { background: #f4f5f7; color: #222; padding-bottom: 80px; }
 
-        /* THE BRAIN HEADER */
-        .top-nav {
-            position: sticky; top: 0; z-index: 1000; padding: 20px;
-            backdrop-filter: blur(15px); -webkit-backdrop-filter: blur(15px);
-            background: rgba(255,255,255,0.4); border-bottom: 1px solid rgba(0,0,0,0.05);
+        /* THE FLOATING NAV (The App Feel) */
+        .bottom-nav {
+            position: fixed; bottom: 0; width: 100%; background: #fff;
+            display: flex; justify-content: space-around; padding: 15px 0;
+            border-top: 1px solid #eee; z-index: 2000; box-shadow: 0 -5px 20px rgba(0,0,0,0.05);
         }
-        .omni-box {
-            background: #fff; border: 1px solid var(--gold); border-radius: 50px;
-            padding: 12px 25px; display: flex; align-items: center;
-            box-shadow: 0 10px 40px rgba(196,169,122,0.2);
-        }
-        .omni-box input { flex: 1; border: none; outline: none; font-size: 1rem; color: #444; background: transparent; }
+        .nav-item { text-align: center; color: #aaa; font-size: 0.6rem; font-weight: bold; text-transform: uppercase; letter-spacing: 1px; flex: 1; }
+        .nav-item.active { color: var(--gold); }
 
-        /* THE FLOATING CORE */
-        .hero { text-align: center; padding: 30px 20px; }
-        .pearl-core {
-            width: 120px; height: 120px; margin: 0 auto 20px;
-            background: radial-gradient(circle at 30% 30%, #fff 0%, #dcdcdc 100%);
-            border-radius: 50%; position: relative;
-            box-shadow: -10px -10px 30px #fff, 10px 10px 30px rgba(0,0,0,0.1);
-            display: flex; align-items: center; justify-content: center;
-            animation: float 6s ease-in-out infinite;
-        }
-        @keyframes float { 0%, 100% { transform: translateY(0); } 50% { transform: translateY(-10px); } }
+        /* TOP STATUS BAR */
+        header { background: #fff; padding: 20px; border-bottom: 1px solid #eee; display: flex; justify-content: space-between; align-items: center; position: sticky; top: 0; z-index: 1000; }
+        .status-dot { width: 8px; height: 8px; background: #7a9068; border-radius: 50%; display: inline-block; margin-right: 5px; box-shadow: 0 0 10px #7a9068; }
 
-        /* SEARCH RESULTS & CARDS */
-        .results-area { padding: 20px; max-width: 500px; margin: 0 auto; min-height: 400px; }
-        
-        .engine-card {
-            background: rgba(255,255,255,0.8); border: 1px solid rgba(0,0,0,0.05);
-            border-radius: 25px; padding: 25px; margin-bottom: 20px;
-            backdrop-filter: blur(10px); transition: 0.3s;
-            animation: slideUp 0.5s ease-out forwards;
-        }
-        @keyframes slideUp { from { opacity: 0; transform: translateY(20px); } to { opacity: 1; transform: translateY(0); } }
+        .container { padding: 20px; max-width: 600px; margin: 0 auto; }
 
-        .tag { font-size: 0.6rem; letter-spacing: 2px; color: var(--gold); font-weight: bold; text-transform: uppercase; }
-        .price { font-size: 1.8rem; font-weight: 200; margin: 10px 0; }
-        .btn { 
-            width: 100%; background: var(--gold); color: #fff; border: none; 
-            padding: 15px; border-radius: 50px; font-weight: bold; cursor: pointer;
-            margin-top: 15px; text-transform: uppercase; font-size: 0.7rem;
-        }
+        /* THE "SHELVES" (Swipeable Categories) */
+        .shelf-container { margin-bottom: 30px; }
+        .shelf-title { font-size: 0.7rem; font-weight: 900; letter-spacing: 2px; color: var(--gold); text-transform: uppercase; margin-bottom: 15px; }
+        .horizontal-swipe { display: flex; overflow-x: auto; gap: 15px; padding-bottom: 10px; scrollbar-width: none; }
+        .horizontal-swipe::-webkit-scrollbar { display: none; }
 
-        .no-results { text-align: center; color: #aaa; margin-top: 50px; font-size: 0.8rem; font-style: italic; }
+        .product-card {
+            min-width: 160px; background: #fff; border-radius: 20px; padding: 20px;
+            border: 1px solid #eee; box-shadow: 0 4px 10px rgba(0,0,0,0.02);
+        }
+        .card-icon { font-size: 1.5rem; margin-bottom: 10px; display: block; }
+        .card-name { font-size: 0.75rem; font-weight: bold; margin-bottom: 5px; }
+        .card-price { font-size: 0.65rem; color: var(--gold); font-weight: 900; }
+
+        /* BANNER CARD */
+        .hero-banner {
+            background: var(--dark); border-radius: 25px; padding: 30px; color: #fff;
+            margin-bottom: 30px; position: relative; overflow: hidden;
+        }
+        .hero-banner h2 { font-weight: 200; font-size: 1.4rem; margin-bottom: 10px; }
     </style>
 </head>
 <body>
 
-    <nav class="top-nav">
-        <div class="omni-box">
-            <input type="text" id="engineSearch" placeholder="Search 158 Engines (e.g. Cafe, Hospital, Internet)..." onkeyup="searchEngines()">
-            <span>✨</span>
+    <header>
+        <div style="font-weight: 900; letter-spacing: 2px; font-size: 0.7rem; color: var(--gold);">HEARTH NEURAL NET</div>
+        <div style="font-size: 0.6rem; font-weight: bold; display: flex; align-items: center;">
+            <span class="status-dot"></span> MESH ACTIVE
         </div>
+    </header>
+
+    <div class="container">
+        
+        <div class="hero-banner">
+            <span style="font-size: 0.5rem; letter-spacing: 3px; color: var(--gold);">FOUNDER ACCESS</span>
+            <h2>The Family Portal</h2>
+            <p style="font-size: 0.7rem; opacity: 0.6; margin-bottom: 20px;">Activate your household's private internet and utility nodes.</p>
+            <button style="background: var(--gold); color: #fff; border: none; padding: 12px 25px; border-radius: 50px; font-weight: bold; font-size: 0.7rem;">GET ACCESS • 97</button>
+        </div>
+
+        <div class="shelf-container">
+            <div class="shelf-title">Healthcare Infrastructure</div>
+            <div class="horizontal-swipe">
+                <div class="product-card"><span class="card-icon">🏥</span><div class="card-name">Nurse Flow</div><div class="card-price">INCLUDED</div></div>
+                <div class="product-card"><span class="card-icon">💊</span><div class="card-name">Health Vault</div><div class="card-price">INCLUDED</div></div>
+                <div class="product-card"><span class="card-icon">🏠</span><div class="card-name">AFH Manager</div><div class="card-price">BIZ ENGINE</div></div>
+            </div>
+        </div>
+
+        <div class="shelf-container">
+            <div class="shelf-title">Sovereign Utilities</div>
+            <div class="horizontal-swipe">
+                <div class="product-card"><span class="card-icon">📡</span><div class="card-name">Mesh-Net</div><div class="card-price">FREE ACCESS</div></div>
+                <div class="product-card"><span class="card-icon">⚡</span><div class="card-name">Grid Shield</div><div class="card-price">FREE ACCESS</div></div>
+                <div class="product-card"><span class="card-icon">💧</span><div class="card-name">Water Node</div><div class="card-price">SOON</div></div>
+            </div>
+        </div>
+
+        <div class="shelf-container">
+            <div class="shelf-title">Standing Law</div>
+            <div class="horizontal-swipe">
+                <div class="product-card"><span class="card-icon">⚖️</span><div class="card-name">Trusts</div><div class="card-price">INCLUDED</div></div>
+                <div class="product-card"><span class="card-icon">📜</span><div class="card-name">Common Law</div><div class="card-price">INCLUDED</div></div>
+                <div class="product-card"><span class="card-icon">🛡️</span><div class="card-name">Asset Shield</div><div class="card-price">INCLUDED</div></div>
+            </div>
+        </div>
+
+    </div>
+
+    <nav class="bottom-nav">
+        <div class="nav-item active">●<br>Market</div>
+        <div class="nav-item">○<br>My Portal</div>
+        <div class="nav-item">○<br>Biz Engine</div>
+        <div class="nav-item">○<br>Mesh Status</div>
     </nav>
-
-    <div class="hero">
-        <div class="pearl-core"><span style="font-size: 2rem; color: var(--gold);">₪</span></div>
-    </div>
-
-    <div class="results-area" id="results">
-        <div class="engine-card">
-            <span class="tag">The Family Portal</span>
-            <div class="price">97.00</div>
-            <p style="font-size: 0.75rem; color: #666;">Free Internet, Utilities, and Legacy Vault.</p>
-            <button class="btn">Activate Portal</button>
-        </div>
-
-        <div class="engine-card" style="background: #1a1a1a; color: #fff;">
-            <span class="tag">The Business Engine</span>
-            <div class="price" style="color:#fff;">97.00</div>
-            <p style="font-size: 0.75rem; color: #aaa;">Inventory AI, Cafe Pulse, and Staff Management.</p>
-            <button class="btn">Scale Business</button>
-        </div>
-    </div>
-
-    <script>
-        const engines = [
-            { name: "Cafe Pulse", cat: "Business", price: "97", desc: "Real-time inventory and profit tracking for restaurants." },
-            { name: "Free Internet", cat: "Family", price: "97", desc: "Sovereign Mesh-Net access for your whole household." },
-            { name: "Hospital Node", cat: "Infrastructure", price: "Custom", desc: "Nurse-Flow and patient coordination systems." },
-            { name: "AFH Manager", cat: "Care", price: "97", desc: "Adult Family Home management and compliance tools." },
-            { name: "Legacy Vault", cat: "Family", price: "97", desc: "100-year encrypted storage for family history." },
-            { name: "Utility Shield", cat: "Family", price: "97", desc: "Off-grid utility management and cost reduction." },
-            { name: "Asset Shield", cat: "Security", price: "97", desc: "Financial encryption and wealth protection nodes." },
-            { name: "Nurse Flow", cat: "Hospital", price: "Custom", desc: "Optimized shift and patient routing for healthcare." }
-        ];
-
-        function searchEngines() {
-            const input = document.getElementById('engineSearch').value.toLowerCase();
-            const resultsDiv = document.getElementById('results');
-            resultsDiv.innerHTML = '';
-
-            if (input === '') {
-                // Show default keys if search is empty
-                location.reload();
-                return;
-            }
-
-            const filtered = engines.filter(e => 
-                e.name.toLowerCase().includes(input) || e.desc.toLowerCase().includes(input)
-            );
-
-            if (filtered.length === 0) {
-                resultsDiv.innerHTML = '<div class="no-results">The Hearth is searching for "' + input + '"... Try "Cafe" or "Internet".</div>';
-            } else {
-                filtered.forEach(e => {
-                    resultsDiv.innerHTML += `
-                        <div class="engine-card">
-                            <span class="tag">${e.cat}</span>
-                            <h3 style="margin-top:5px;">${e.name}</h3>
-                            <div class="price">${e.price}</div>
-                            <p style="font-size: 0.75rem; color: #666;">${e.desc}</p>
-                            <button class="btn">Learn More</button>
-                        </div>
-                    `;
-                });
-            }
-        }
-    </script>
 
 </body>
 </html>
