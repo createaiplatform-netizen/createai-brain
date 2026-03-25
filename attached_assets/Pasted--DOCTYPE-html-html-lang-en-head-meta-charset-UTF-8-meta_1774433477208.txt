@@ -1,0 +1,70 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>CREATIVE_AI | THE_BRAIN</title>
+    <style>
+        :root { --g: #d4af37; --b: #000; --w: #fff; }
+        body { background: var(--b); color: var(--g); font-family: 'Courier New', monospace; margin: 0; padding: 20px; display: flex; flex-direction: column; align-items: center; overflow-x: hidden; text-transform: uppercase; }
+        
+        /* THE GENERATIVE CORE */
+        #neural-canvas { border: 2px solid var(--g); background: #050505; width: 300px; height: 300px; margin: 30px 0; box-shadow: 0 0 50px rgba(212, 175, 55, 0.2); }
+        
+        .panel { border: 1px solid var(--g); padding: 25px; background: rgba(212,175,55,0.05); width: 100%; max-width: 500px; text-align: center; }
+        h1 { letter-spacing: 15px; font-size: 2rem; margin: 10px 0; text-shadow: 0 0 10px var(--g); }
+        h2 { font-size: 1rem; color: var(--w); letter-spacing: 5px; border-bottom: 1px solid var(--g); padding-bottom: 10px; margin-bottom: 20px; }
+        
+        .output-box { background: #111; padding: 15px; border: 1px dashed var(--g); margin: 15px 0; min-height: 60px; font-size: 0.8rem; color: var(--w); }
+        .gen-btn { background: var(--g); color: #000; border: none; padding: 20px; width: 100%; font-weight: 900; cursor: pointer; letter-spacing: 5px; font-size: 1.1rem; transition: 0.3s; }
+        .gen-btn:hover { background: var(--w); box-shadow: 0 0 30px var(--g); }
+        
+        .stat-row { display: flex; justify-content: space-between; font-size: 0.7rem; margin: 5px 0; opacity: 0.7; }
+    </style>
+</head>
+<body>
+
+    <h1>CREATIVE_AI</h1>
+    <p style="letter-spacing: 5px; font-size: 0.7rem;">THE_BRAIN_V1.0_CORE</p>
+
+    <canvas id="neural-canvas"></canvas>
+
+    <div class="panel">
+        <h2>NEURAL_SEED_GENERATOR</h2>
+        <div class="stat-row"><span>GEN_STATUS:</span> <span style="color:lawngreen">READY</span></div>
+        <div class="stat-row"><span>SEED_DENSITY:</span> <span>1024_BYTES</span></div>
+        
+        <div class="output-box" id="metadata-display">WAITING_FOR_SEED_INITIALIZATION...</div>
+        
+        <button class="gen-btn" onclick="generateAsset()">GENERATE_NEW_ASSET</button>
+    </div>
+
+    <script>
+        const canvas = document.getElementById('neural-canvas');
+        const ctx = canvas.getContext('2d');
+        const meta = document.getElementById('metadata-display');
+        canvas.width = 300; canvas.height = 300;
+
+        function generateAsset() {
+            // Clear and Generate Visual Pattern
+            ctx.clearRect(0, 0, canvas.width, canvas.height);
+            const seed = Math.random().toString(36).substring(7).toUpperCase();
+            
+            for(let i=0; i<50; i++) {
+                ctx.strokeStyle = Math.random() > 0.5 ? '#d4af37' : '#ffffff';
+                ctx.beginPath();
+                ctx.moveTo(Math.random()*300, Math.random()*300);
+                ctx.lineTo(Math.random()*300, Math.random()*300);
+                ctx.stroke();
+            }
+            
+            // Generate Metadata "Soul-Tag"
+            const rarity = Math.random() > 0.9 ? 'LEGENDARY' : 'ORIGINAL';
+            meta.innerHTML = `ASSET_ID: ${seed}<br>RARITY: ${rarity}<br>NEURAL_WEIGHT: ${(Math.random()*100).toFixed(2)}%`;
+        }
+        
+        // Initial Seed
+        generateAsset();
+    </script>
+</body>
+</html>
