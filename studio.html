@@ -256,7 +256,7 @@
         document.getElementById('system-footer').textContent = 'SYSTEM_SEALED // WEBSTER-54893 // 1440_LOGIC_ACTIVE';
         document.getElementById('app').classList.add('active');
         await restoreVault();
-        generateSeed();
+        generateStrike();
       } else {
         gateError.textContent = 'ACCESS_DENIED: INVALID_KEY';
         gateInput.value = '';
@@ -306,44 +306,175 @@
       reserveEl.textContent = vaultItems.length;
     }
 
-    // ── NEURAL ENGINE ──────────────────────────────────────────────────────────
-    function generateSeed() {
+    // ── THE_ENGINE_FINAL_SEAL ──────────────────────────────────────────────────
+    let _styleToggle = false;
+
+    // Style A: VORTEX — recursive sine/cosine geometric web
+    function drawVortex() {
+      const W = canvas.width, H = canvas.height;
+      const cx = W / 2, cy = H / 2;
+      const t  = Date.now() * 0.001;
+      const rings  = 5 + Math.floor(Math.random() * 7);
+      const spokes = 6 + Math.floor(Math.random() * 7);
+
+      // Concentric sine-warped rings
+      for (let r = 0; r < rings; r++) {
+        const radius = (r + 1) * (Math.min(W, H) / (rings + 1.2));
+        const a      = 0.06 + Math.random() * 0.52;
+        ctx.strokeStyle = 'rgba(212,175,55,' + a + ')';
+        ctx.lineWidth   = 0.2 + Math.random() * 0.9;
+        ctx.beginPath();
+        const segs = 120;
+        for (let s = 0; s <= segs; s++) {
+          const angle  = (s / segs) * Math.PI * 2;
+          const wobble = radius * (0.78 + 0.22 * Math.sin(angle * (3 + r) + t * (0.6 + r * 0.1)));
+          const x = cx + wobble * Math.cos(angle + Math.sin(t * 0.4 + r * 0.7));
+          const y = cy + wobble * Math.sin(angle + Math.cos(t * 0.3 + r * 0.5));
+          s === 0 ? ctx.moveTo(x, y) : ctx.lineTo(x, y);
+        }
+        ctx.closePath();
+        ctx.stroke();
+      }
+
+      // Radial spokes from center
+      for (let s = 0; s < spokes; s++) {
+        const angle = (s / spokes) * Math.PI * 2 + t * 0.25;
+        const len   = (Math.min(W, H) / 2) * (0.4 + 0.55 * Math.random());
+        ctx.strokeStyle = 'rgba(212,175,55,' + (0.08 + Math.random() * 0.38) + ')';
+        ctx.lineWidth   = 0.2 + Math.random() * 0.55;
+        ctx.beginPath();
+        ctx.moveTo(cx, cy);
+        ctx.lineTo(cx + len * Math.cos(angle), cy + len * Math.sin(angle));
+        ctx.stroke();
+      }
+
+      // Cross-linking web mesh
+      const pts = [];
+      for (let i = 0; i < 10 + Math.floor(Math.random() * 14); i++) {
+        const angle = (i / 12) * Math.PI * 2 + t * 0.18;
+        const rad   = (Math.min(W, H) / 2) * (0.25 + 0.65 * Math.random());
+        pts.push([cx + rad * Math.cos(angle), cy + rad * Math.sin(angle)]);
+      }
+      for (let i = 0; i < pts.length; i++) {
+        for (let j = i + 1; j < pts.length; j++) {
+          if (Math.random() < 0.35) {
+            ctx.strokeStyle = 'rgba(212,175,55,' + (0.03 + Math.random() * 0.18) + ')';
+            ctx.lineWidth   = 0.15 + Math.random() * 0.35;
+            ctx.beginPath();
+            ctx.moveTo(pts[i][0], pts[i][1]);
+            ctx.lineTo(pts[j][0], pts[j][1]);
+            ctx.stroke();
+          }
+        }
+      }
+    }
+
+    // Style B: PRIME — random-walk digital-rain, 10% opacity trails
+    function drawPrime() {
+      const W = canvas.width, H = canvas.height;
+      // 10% trail layer (applied AFTER clearRect to simulate persistence)
+      ctx.fillStyle = 'rgba(0,0,0,0.10)';
+      ctx.fillRect(0, 0, W, H);
+      const walkers = 5 + Math.floor(Math.random() * 11);
+      for (let w = 0; w < walkers; w++) {
+        let x = Math.random() * W;
+        let y = Math.random() * H;
+        const steps      = 28 + Math.floor(Math.random() * 90);
+        const baseAlpha  = 0.07 + Math.random() * 0.48;
+        const baseWeight = 0.25 + Math.random() * 2.4;
+        ctx.beginPath();
+        ctx.moveTo(x, y);
+        for (let s = 0; s < steps; s++) {
+          x += (Math.random() - 0.5) * 30;
+          y += (Math.random() - 0.5) * 30;
+          x  = Math.max(0, Math.min(W, x));
+          y  = Math.max(0, Math.min(H, y));
+          ctx.lineTo(x, y);
+        }
+        const decayAlpha  = baseAlpha  * (1 - (w / walkers) * 0.5);
+        const decayWeight = baseWeight * (1 - (w / walkers) * 0.55);
+        ctx.strokeStyle = 'rgba(212,175,55,' + decayAlpha + ')';
+        ctx.lineWidth   = Math.max(0.15, decayWeight);
+        ctx.stroke();
+      }
+      // Sparse gold pixel nodes
+      const nodes = 6 + Math.floor(Math.random() * 20);
+      for (let n = 0; n < nodes; n++) {
+        ctx.fillStyle = 'rgba(212,175,55,' + (0.12 + Math.random() * 0.55) + ')';
+        ctx.fillRect(Math.random() * W, Math.random() * H, 1, 1);
+      }
+    }
+
+    // Legendary flash + live canvas watermark stamp
+    function captureLegendary() {
+      // Gold flash 50ms
+      const flash = document.createElement('div');
+      flash.style.cssText = 'position:fixed;inset:0;background:rgba(212,175,55,0.2);pointer-events:none;z-index:9999;';
+      document.body.appendChild(flash);
+      setTimeout(() => { flash.style.transition = 'opacity 0.1s'; flash.style.opacity = '0'; setTimeout(() => flash.remove(), 120); }, 50);
+      // Re-stamp watermark directly on live canvas
+      ctx.save();
+      ctx.globalAlpha    = 0.10;
+      ctx.fillStyle      = '#d4af37';
+      ctx.font           = 'bold ' + Math.round(canvas.width * 0.025) + "px 'Courier New',monospace";
+      ctx.textAlign      = 'right';
+      ctx.textBaseline   = 'bottom';
+      ctx.fillText('WEBSTER-54893 // ZENITH', canvas.width - 10, canvas.height - 8);
+      ctx.restore();
+    }
+
+    // THE 5Hz_LOOP — main generate function
+    function generateStrike() {
       totalCycles++;
       cycleEl.textContent = 'CYCLES: ' + totalCycles;
 
       if (!isLowPower && !isSilent) {
-        ctx.fillStyle = 'rgba(0,0,0,0.12)';
+        // PERFORMANCE_LOCK: full clear before every tick
+        ctx.clearRect(0, 0, canvas.width, canvas.height);
+        ctx.fillStyle = '#050505';
         ctx.fillRect(0, 0, canvas.width, canvas.height);
+
+        // Alternate VORTEX / PRIME each tick
+        _styleToggle = !_styleToggle;
+        if (_styleToggle) { drawVortex(); } else { drawPrime(); }
+
         const isLeg = Math.random() < STRIKE_THRESHOLD;
-        ctx.lineWidth = isLeg ? 1.5 : 0.4;
-        const n = isLeg ? 80 : 18;
-        for (let i = 0; i < n; i++) {
-          const a = isLeg ? 0.3 + Math.random() * 0.7 : 0.04 + Math.random() * 0.08;
-          ctx.strokeStyle = 'rgba(212,175,55,' + a + ')';
-          ctx.beginPath();
-          const x = Math.random() * canvas.width, y = Math.random() * canvas.height;
-          ctx.moveTo(x, y);
-          ctx.lineTo(x + (Math.random() - 0.5) * 220, y + (Math.random() - 0.5) * 220);
-          ctx.stroke();
+        if (isLeg) {
+          totalHits++;
+          const nm = genName();
+          statusEl.textContent = 'LEGENDARY: ' + nm;
+          statusEl.className   = 'legendary';
+          captureLegendary();           // flash + live watermark
+          if (AUTO_SAVE) addToVault(nm); // vault save + silentUplink
+        } else if (!isAuto) {
+          statusEl.textContent = 'REJECTED';
+          statusEl.className   = '';
         }
-        if (isLeg) { totalHits++; const nm = genName(); statusEl.textContent = 'LEGENDARY: ' + nm; statusEl.className = 'legendary'; if (AUTO_SAVE) addToVault(nm); }
-        else if (!isAuto) { statusEl.textContent = 'REJECTED'; statusEl.className = ''; }
       } else {
+        // LOW_POWER / SILENT — no render, logic only
         const isLeg = Math.random() < STRIKE_THRESHOLD;
-        if (isLeg) { totalHits++; const nm = genName(); statusEl.textContent = 'LEGENDARY: ' + nm; statusEl.className = 'legendary'; if (AUTO_SAVE) addToVault(nm); }
-        else if (!isAuto) { statusEl.textContent = 'REJECTED'; statusEl.className = ''; }
+        if (isLeg) {
+          totalHits++;
+          const nm = genName();
+          statusEl.textContent = 'LEGENDARY: ' + nm;
+          statusEl.className   = 'legendary';
+          if (AUTO_SAVE) addToVault(nm);
+        } else if (!isAuto) {
+          statusEl.textContent = 'REJECTED';
+          statusEl.className   = '';
+        }
       }
       updateAnalytics();
     }
 
-    function manualStrike() { generateSeed(); }
+    function manualStrike() { generateStrike(); }
 
     function toggleAuto() {
       isAuto = !isAuto;
       if (isAuto) {
         autoBtn.textContent = 'AUTO_SCAN: ON'; autoBtn.classList.add('on');
         statusEl.textContent = '';
-        autoInterval = setInterval(generateSeed, SCAN_RATE);
+        autoInterval = setInterval(generateStrike, SCAN_RATE);
       } else {
         clearInterval(autoInterval); autoInterval = null;
         autoBtn.textContent = 'AUTO_SCAN: OFF'; autoBtn.classList.remove('on');
