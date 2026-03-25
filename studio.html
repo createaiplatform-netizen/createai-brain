@@ -10,7 +10,15 @@
     /* SOVEREIGN_ARCHITECT_STABILITY_1440_LOGIC_ACTIVE */
     /* ENVIRONMENT: SOVEREIGN_PRODUCTION */
     *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
-    html, body { height: 100%; background: #000; color: #d4af37; font-family: 'Courier New', Courier, monospace; overflow: hidden; text-transform: uppercase; }
+    html, body {
+      height: 100%; background: #000; color: #d4af37;
+      font-family: 'Courier New', Courier, monospace;
+      overflow: hidden; text-transform: uppercase;
+      background-image: repeating-linear-gradient(
+        0deg, transparent, transparent 3px,
+        rgba(0,0,0,0.18) 3px, rgba(0,0,0,0.18) 4px
+      );
+    }
 
     #ghost-gate { position: fixed; inset: 0; background: #000; display: flex; flex-direction: column; align-items: center; justify-content: center; z-index: 9999; gap: 22px; }
     #ghost-gate h1 { font-size: 1.1rem; letter-spacing: 0.6em; opacity: 0.45; }
@@ -30,7 +38,7 @@
     .dot { width: 6px; height: 6px; border-radius: 50%; background: #d4af37; display: inline-block; animation: dpulse 2s infinite; margin-right: 7px; }
     @keyframes dpulse { 0%,100%{opacity:1} 50%{opacity:0.12} }
 
-    #analytics-bar { display: grid; grid-template-columns: repeat(3,1fr); border: 1px solid #1a1500; flex-shrink: 0; }
+    #analytics-bar { display: grid; grid-template-columns: repeat(3,1fr); border: 1px solid #1a1500; flex-shrink: 0; cursor: default; user-select: none; position: relative; }
     .analytic-cell { padding: 8px 10px; border-right: 1px solid #1a1500; display: flex; flex-direction: column; gap: 4px; }
     .analytic-cell:last-child { border-right: none; }
     .analytic-label { font-size: 0.52rem; color: #3a3000; letter-spacing: 0.35em; }
@@ -39,6 +47,13 @@
     #pulse-line svg { width: 100%; height: 100%; overflow: visible; }
     .hb-path { fill: none; stroke: #d4af37; stroke-width: 1.2; stroke-dasharray: 80; stroke-dashoffset: 80; animation: hb-draw 1.4s ease-in-out infinite; }
     @keyframes hb-draw { 0%{stroke-dashoffset:80;opacity:1} 60%{stroke-dashoffset:0;opacity:1} 85%{stroke-dashoffset:0;opacity:0.6} 100%{stroke-dashoffset:80;opacity:0} }
+
+    /* Dev Settings Panel */
+    #dev-settings { display: none; position: absolute; top: 100%; left: 0; right: 0; background: #050500; border: 1px solid #2a2000; border-top: none; z-index: 100; padding: 10px 14px; gap: 14px; flex-direction: row; align-items: center; }
+    #dev-settings.open { display: flex; }
+    .dev-row { display: flex; flex-direction: column; gap: 4px; }
+    .dev-label { font-size: 0.46rem; color: #3a3000; letter-spacing: 0.3em; }
+    .dev-val { font-size: 0.65rem; color: #d4af37; letter-spacing: 0.1em; }
 
     #canvas-wrap { flex: 1; display: flex; align-items: center; justify-content: center; position: relative; min-height: 0; }
     #neural-canvas { border: 1px solid #1a1500; background: #050505; max-width: 100%; max-height: 100%; box-shadow: 0 0 30px rgba(212,175,55,0.07); }
@@ -75,7 +90,9 @@
     #vault-empty { padding: 20px 14px; font-size: 0.52rem; color: #1a1500; letter-spacing: 0.18em; text-align: center; line-height: 2.2; }
 
     /* Footer */
-    #vault-footer { padding: 8px 14px; border-top: 1px solid #1a1500; font-size: 0.55rem; color: #2a2000; letter-spacing: 0.22em; flex-shrink: 0; display: flex; justify-content: space-between; align-items: center; }
+    #vault-footer { padding: 8px 14px; border-top: 1px solid #1a1500; font-size: 0.55rem; color: #2a2000; letter-spacing: 0.22em; flex-shrink: 0; display: flex; flex-direction: column; gap: 4px; }
+    #system-sealed { font-size: 0.42rem; color: #1a1500; letter-spacing: 0.18em; line-height: 1.6; }
+    #footer-actions { display: flex; justify-content: space-between; align-items: center; }
     #purge-btn { background: transparent; border: none; color: #1a0500; font-family: 'Courier New', monospace; font-size: 0.48rem; cursor: pointer; letter-spacing: 0.15em; text-transform: uppercase; transition: 0.2s; }
     #purge-btn:hover { color: #ff2200; }
   </style>
@@ -92,11 +109,11 @@
   <div id="app">
     <div id="canvas-panel">
       <div id="header-bar">
-        <span class="brand"><span class="dot"></span>ZENITH_BRAIN V4.0</span>
+        <span class="brand"><span class="dot"></span>ZENITH_BRAIN V5.0</span>
         <span id="cycle-count" style="font-size:0.58rem;color:#2a2000;letter-spacing:0.28em">CYCLES: 0</span>
       </div>
 
-      <div id="analytics-bar">
+      <div id="analytics-bar" ondblclick="toggleDevSettings()">
         <div class="analytic-cell">
           <span class="analytic-label">SCAN_RATE</span>
           <span class="analytic-value">
@@ -111,6 +128,13 @@
         <div class="analytic-cell">
           <span class="analytic-label">VAULT_RESERVE</span>
           <span class="analytic-value" id="vault-reserve-val">0</span>
+        </div>
+        <div id="dev-settings">
+          <div class="dev-row"><span class="dev-label">SCAN_RATE</span><span class="dev-val">5.0 Hz (200ms)</span></div>
+          <div class="dev-row"><span class="dev-label">STRIKE_THRESHOLD</span><span class="dev-val">4% LEGENDARY</span></div>
+          <div class="dev-row"><span class="dev-label">AUTO_SAVE</span><span class="dev-val">ENABLED</span></div>
+          <div class="dev-row"><span class="dev-label">ENCRYPTION</span><span class="dev-val">AES-GCM / PBKDF2</span></div>
+          <div class="dev-row"><span class="dev-label">ENV</span><span class="dev-val">SOVEREIGN_PRODUCTION</span></div>
         </div>
       </div>
 
@@ -139,8 +163,11 @@
       <div id="node-id-bar">NODE: <span id="node-id-display">—</span></div>
       <div id="vault-list"><div id="vault-empty">—</div></div>
       <div id="vault-footer">
-        <span>ARCHIVE: <span id="vault-count-num">0</span> NODES</span>
-        <button id="purge-btn" onclick="purgeSystem()">PURGE_SYSTEM</button>
+        <div id="system-sealed">SYSTEM_SEALED // WEBSTER-54893 // 1440_LOGIC_ACTIVE</div>
+        <div id="footer-actions">
+          <span>ARCHIVE: <span id="vault-count-num">0</span> NODES</span>
+          <button id="purge-btn" onclick="purgeSystem()">PURGE_SYSTEM</button>
+        </div>
       </div>
     </div>
   </div>
@@ -148,6 +175,14 @@
   <script>
     /* SOVEREIGN_ARCHITECT_STABILITY_1440_LOGIC_ACTIVE */
     const ENVIRONMENT = 'SOVEREIGN_PRODUCTION';
+
+    // ── CONSOLE SILENCE ────────────────────────────────────────────────────────
+    (function() {
+      const noop = () => {};
+      ['log','info','debug','warn','error','table','dir','group','groupEnd','time','timeEnd'].forEach(m => {
+        try { window.console[m] = noop; } catch(_) {}
+      });
+    })();
 
     // ── SOVEREIGN_LOCKDOWN ─────────────────────────────────────────────────────
     document.addEventListener('contextmenu', e => e.preventDefault());
@@ -230,6 +265,13 @@
       }
     });
 
+    // ── DEV SETTINGS PANEL ─────────────────────────────────────────────────────
+    let devOpen = false;
+    function toggleDevSettings() {
+      devOpen = !devOpen;
+      document.getElementById('dev-settings').classList.toggle('open', devOpen);
+    }
+
     // ── WORD BANK ──────────────────────────────────────────────────────────────
     const WORDS = ['VORTEX','CIPHER','NEXUS','PULSE','VOID','APEX','PHANTOM','NOVA','CORE','SIGNAL'];
     const SFXS  = ['ALPHA','PRIME','DELTA','OMEGA','ZERO','1','2','3','4','7','9','X'];
@@ -250,6 +292,11 @@
     const silentBtn     = document.getElementById('silent-btn');
     const lpBtn         = document.getElementById('lp-btn');
 
+    // ── ENGINE CONSTANTS ────────────────────────────────────────────────────────
+    const SCAN_RATE       = 200;   // 5Hz
+    const STRIKE_THRESHOLD = 0.04; // 4% legendary
+    const AUTO_SAVE        = true;
+
     let isAuto = false, isSilent = false, isLowPower = false;
     let autoInterval = null;
     let totalCycles = 0, totalHits = 0;
@@ -268,7 +315,7 @@
       if (!isLowPower && !isSilent) {
         ctx.fillStyle = 'rgba(0,0,0,0.12)';
         ctx.fillRect(0, 0, canvas.width, canvas.height);
-        const isLeg = Math.random() < 0.04;
+        const isLeg = Math.random() < STRIKE_THRESHOLD;
         ctx.lineWidth = isLeg ? 1.5 : 0.4;
         const n = isLeg ? 80 : 18;
         for (let i = 0; i < n; i++) {
@@ -280,11 +327,11 @@
           ctx.lineTo(x + (Math.random() - 0.5) * 220, y + (Math.random() - 0.5) * 220);
           ctx.stroke();
         }
-        if (isLeg) { totalHits++; const nm = genName(); statusEl.textContent = 'LEGENDARY: ' + nm; statusEl.className = 'legendary'; addToVault(nm); }
+        if (isLeg) { totalHits++; const nm = genName(); statusEl.textContent = 'LEGENDARY: ' + nm; statusEl.className = 'legendary'; if (AUTO_SAVE) addToVault(nm); }
         else if (!isAuto) { statusEl.textContent = 'REJECTED'; statusEl.className = ''; }
       } else {
-        const isLeg = Math.random() < 0.04;
-        if (isLeg) { totalHits++; const nm = genName(); statusEl.textContent = 'LEGENDARY: ' + nm; statusEl.className = 'legendary'; addToVault(nm); }
+        const isLeg = Math.random() < STRIKE_THRESHOLD;
+        if (isLeg) { totalHits++; const nm = genName(); statusEl.textContent = 'LEGENDARY: ' + nm; statusEl.className = 'legendary'; if (AUTO_SAVE) addToVault(nm); }
         else if (!isAuto) { statusEl.textContent = 'REJECTED'; statusEl.className = ''; }
       }
       updateAnalytics();
@@ -294,8 +341,15 @@
 
     function toggleAuto() {
       isAuto = !isAuto;
-      if (isAuto) { autoBtn.textContent = 'AUTO_SCAN: ON'; autoBtn.classList.add('on'); statusEl.textContent = ''; autoInterval = setInterval(generateSeed, 200); }
-      else { clearInterval(autoInterval); autoInterval = null; autoBtn.textContent = 'AUTO_SCAN: OFF'; autoBtn.classList.remove('on'); statusEl.textContent = ''; statusEl.className = ''; }
+      if (isAuto) {
+        autoBtn.textContent = 'AUTO_SCAN: ON'; autoBtn.classList.add('on');
+        statusEl.textContent = '';
+        autoInterval = setInterval(generateSeed, SCAN_RATE);
+      } else {
+        clearInterval(autoInterval); autoInterval = null;
+        autoBtn.textContent = 'AUTO_SCAN: OFF'; autoBtn.classList.remove('on');
+        statusEl.textContent = ''; statusEl.className = '';
+      }
     }
 
     function toggleSilent() {
@@ -382,6 +436,31 @@
       prepend ? vaultList.prepend(el) : vaultList.appendChild(el);
     }
 
+    // ── PROVENANCE TEXT ───────────────────────────────────────────────────────
+    function buildProvenance() {
+      return [
+        'ZENITH NEURAL ARCHIVE — PROVENANCE RECORD',
+        '==========================================',
+        'CREATOR    : WEBSTER-54893',
+        'SYSTEM     : ZENITH BRAIN V5.0',
+        'NODE       : ' + nodeId,
+        'GENERATED  : ' + new Date().toLocaleString(),
+        'ASSETS     : ' + vaultItems.length,
+        'LOGIC      : 1440_SOVEREIGN_ARCHITECTURE',
+        'ENCRYPTION : AES-GCM / PBKDF2-SHA256 / 100K ITERATIONS',
+        '',
+        'PROVENANCE STATEMENT',
+        '--------------------',
+        'All assets contained in this archive were generated by the',
+        'ZENITH NEURAL ENGINE operating under sovereign production',
+        'conditions. Each image is unique, watermarked, and cryptographically',
+        'tied to the originating node session.',
+        '',
+        'SYSTEM_SEALED // WEBSTER-54893 // 1440_LOGIC_ACTIVE',
+        '==========================================',
+      ].join('\n');
+    }
+
     // ── MANIFEST GENERATOR ────────────────────────────────────────────────────
     function generateManifest() {
       if (!vaultItems.length) return;
@@ -393,7 +472,7 @@
         '-------------------------------------------', ''
       ];
       vaultItems.forEach((item, i) => lines.push((i+1) + '. ' + item.name + '  |  SECURED: ' + item.timestamp));
-      lines.push('', '-------------------------------------------', 'SOVEREIGN_ARCHITECT_STABILITY_1440_LOGIC_ACTIVE');
+      lines.push('', '-------------------------------------------', 'SYSTEM_SEALED // WEBSTER-54893 // 1440_LOGIC_ACTIVE');
       const blob = new Blob([lines.join('\n')], { type: 'text/plain' });
       const url  = URL.createObjectURL(blob);
       const a    = document.createElement('a');
@@ -401,14 +480,32 @@
       URL.revokeObjectURL(url);
     }
 
-    // ── BATCH EXPORT ──────────────────────────────────────────────────────────
+    // ── BATCH EXPORT (structured /PNGs + /METADATA + PROVENANCE.txt) ──────────
     async function downloadAll() {
       if (!vaultItems.length) return;
       const orig = dlAllBtn.textContent;
       dlAllBtn.textContent = 'COMPILING...'; dlAllBtn.style.pointerEvents = 'none';
       try {
         const zip = new JSZip();
-        vaultItems.forEach(item => zip.file(item.name + '.png', item.dataURL.split(',')[1], { base64: true }));
+        const pngsFolder     = zip.folder('PNGs');
+        const metaFolder     = zip.folder('METADATA');
+
+        vaultItems.forEach(item => {
+          pngsFolder.file(item.name + '.png', item.dataURL.split(',')[1], { base64: true });
+          const meta = {
+            name      : item.name,
+            node      : nodeId,
+            timestamp : item.timestamp,
+            system    : 'ZENITH BRAIN V5.0',
+            creator   : 'WEBSTER-54893',
+            logic     : '1440_SOVEREIGN_ARCHITECTURE',
+            watermark : 'WEBSTER-54893 // ZENITH @ 10%',
+          };
+          metaFolder.file(item.name + '.json', JSON.stringify(meta, null, 2));
+        });
+
+        zip.file('PROVENANCE.txt', buildProvenance());
+
         const blob = await zip.generateAsync({ type: 'blob' });
         const url  = URL.createObjectURL(blob);
         const a    = document.createElement('a');
@@ -427,14 +524,7 @@
     function purgeSystem() {
       localStorage.removeItem(LS_KEY);
       localStorage.removeItem(NODE_ID_KEY);
-      vaultItems = [];
-      totalCycles = 0; totalHits = 0;
-      clearInterval(autoInterval); autoInterval = null; isAuto = false; isSilent = false; isLowPower = false;
-      ctx.clearRect(0, 0, canvas.width, canvas.height);
-      document.getElementById('app').classList.remove('active');
-      document.getElementById('ghost-gate').style.display = 'flex';
-      _cryptoKey = null;
-      gateInput.value = '';
+      window.location.reload();
     }
   </script>
 </body>
