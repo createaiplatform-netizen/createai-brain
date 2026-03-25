@@ -1,0 +1,291 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Sovereign Genesis — System Dashboard</title>
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+    body {
+      background: #000;
+      color: #d4af37;
+      font-family: 'Courier New', Courier, monospace;
+      min-height: 100vh;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      overflow: hidden;
+      user-select: none;
+    }
+
+    /* ── Header ── */
+    .header {
+      position: absolute;
+      top: 32px;
+      text-align: center;
+      letter-spacing: 0.35em;
+      text-transform: uppercase;
+    }
+    .header h1 {
+      font-size: clamp(13px, 2vw, 18px);
+      font-weight: 400;
+      color: #d4af37;
+      opacity: 0.9;
+    }
+    .header .sub {
+      font-size: clamp(9px, 1.2vw, 11px);
+      color: #7a6a22;
+      letter-spacing: 0.5em;
+      margin-top: 6px;
+    }
+
+    /* ── Pulse container ── */
+    .pulse-wrap {
+      position: relative;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      width: 260px;
+      height: 260px;
+    }
+
+    /* Rings */
+    .ring {
+      position: absolute;
+      border-radius: 50%;
+      border: 1px solid #d4af37;
+      animation: expand 1.5s ease-out infinite;
+      opacity: 0;
+    }
+    .ring:nth-child(1) { width: 100px; height: 100px; animation-delay: 0s; }
+    .ring:nth-child(2) { width: 100px; height: 100px; animation-delay: 0.4s; }
+    .ring:nth-child(3) { width: 100px; height: 100px; animation-delay: 0.8s; }
+
+    @keyframes expand {
+      0%   { transform: scale(1);   opacity: 0.7; }
+      100% { transform: scale(2.5); opacity: 0;   }
+    }
+
+    /* Core */
+    .core {
+      position: relative;
+      width: 88px;
+      height: 88px;
+      border-radius: 50%;
+      background: radial-gradient(circle at 38% 36%, #f0d060, #d4af37 55%, #8a6f1a);
+      box-shadow:
+        0 0 24px 8px rgba(212,175,55,0.35),
+        0 0 60px 20px rgba(212,175,55,0.12);
+      animation: heartbeat 1.5s ease-in-out infinite;
+      z-index: 10;
+    }
+
+    @keyframes heartbeat {
+      0%   { transform: scale(1);    box-shadow: 0 0 24px 8px rgba(212,175,55,0.35), 0 0 60px 20px rgba(212,175,55,0.12); }
+      14%  { transform: scale(1.09); box-shadow: 0 0 36px 14px rgba(212,175,55,0.55), 0 0 80px 28px rgba(212,175,55,0.20); }
+      28%  { transform: scale(1);    box-shadow: 0 0 24px 8px rgba(212,175,55,0.35), 0 0 60px 20px rgba(212,175,55,0.12); }
+      42%  { transform: scale(1.05); box-shadow: 0 0 30px 10px rgba(212,175,55,0.45), 0 0 70px 24px rgba(212,175,55,0.16); }
+      56%  { transform: scale(1);    box-shadow: 0 0 24px 8px rgba(212,175,55,0.35), 0 0 60px 20px rgba(212,175,55,0.12); }
+      100% { transform: scale(1);    box-shadow: 0 0 24px 8px rgba(212,175,55,0.35), 0 0 60px 20px rgba(212,175,55,0.12); }
+    }
+
+    /* ── Status feed ── */
+    .feed {
+      margin-top: 52px;
+      width: min(440px, 88vw);
+      border: 1px solid #2a2206;
+      border-top-color: #4a3c0e;
+      padding: 18px 22px 16px;
+      background: rgba(212,175,55,0.03);
+    }
+
+    .feed-label {
+      font-size: 9px;
+      letter-spacing: 0.45em;
+      color: #5a4a10;
+      text-transform: uppercase;
+      margin-bottom: 14px;
+    }
+
+    .feed-line {
+      display: flex;
+      align-items: baseline;
+      gap: 10px;
+      font-size: clamp(11px, 1.6vw, 13px);
+      line-height: 1;
+      padding: 7px 0;
+      border-bottom: 1px solid #1a1500;
+      opacity: 0;
+      transform: translateY(4px);
+      transition: opacity 0.35s ease, transform 0.35s ease;
+    }
+    .feed-line.visible {
+      opacity: 1;
+      transform: translateY(0);
+    }
+    .feed-line:last-child { border-bottom: none; }
+
+    .dot {
+      width: 5px;
+      height: 5px;
+      border-radius: 50%;
+      background: #d4af37;
+      flex-shrink: 0;
+      animation: blink 1.5s ease-in-out infinite;
+    }
+    @keyframes blink {
+      0%, 100% { opacity: 1; }
+      50%       { opacity: 0.25; }
+    }
+
+    .feed-text {
+      letter-spacing: 0.12em;
+      color: #d4af37;
+    }
+    .feed-value {
+      margin-left: auto;
+      font-size: 10px;
+      color: #7a6a22;
+      letter-spacing: 0.2em;
+    }
+
+    /* ── Metrics row ── */
+    .metrics {
+      display: flex;
+      gap: 0;
+      width: min(440px, 88vw);
+      margin-top: 16px;
+      border: 1px solid #2a2206;
+      border-top: none;
+    }
+    .metric {
+      flex: 1;
+      padding: 12px 0;
+      text-align: center;
+      border-right: 1px solid #2a2206;
+    }
+    .metric:last-child { border-right: none; }
+    .metric-val {
+      font-size: clamp(14px, 2.2vw, 18px);
+      color: #d4af37;
+      letter-spacing: 0.05em;
+    }
+    .metric-lbl {
+      font-size: 8px;
+      color: #5a4a10;
+      letter-spacing: 0.35em;
+      text-transform: uppercase;
+      margin-top: 4px;
+    }
+
+    /* ── Footer ── */
+    .footer {
+      position: absolute;
+      bottom: 28px;
+      font-size: 9px;
+      letter-spacing: 0.38em;
+      color: #3a3008;
+      text-transform: uppercase;
+      text-align: center;
+    }
+
+    /* ── Scanline overlay ── */
+    body::after {
+      content: '';
+      position: fixed;
+      inset: 0;
+      background: repeating-linear-gradient(
+        to bottom,
+        transparent 0px,
+        transparent 3px,
+        rgba(0,0,0,0.06) 3px,
+        rgba(0,0,0,0.06) 4px
+      );
+      pointer-events: none;
+      z-index: 100;
+    }
+  </style>
+</head>
+<body>
+
+  <div class="header">
+    <h1>Sovereign Genesis</h1>
+    <div class="sub">System Dashboard</div>
+  </div>
+
+  <div class="pulse-wrap">
+    <div class="ring"></div>
+    <div class="ring"></div>
+    <div class="ring"></div>
+    <div class="core"></div>
+  </div>
+
+  <div class="feed">
+    <div class="feed-label">Operational Telemetry</div>
+    <div class="feed-line" id="line-0">
+      <div class="dot"></div>
+      <span class="feed-text">INITIALIZING CORE</span>
+      <span class="feed-value">COMPLETE</span>
+    </div>
+    <div class="feed-line" id="line-1">
+      <div class="dot"></div>
+      <span class="feed-text">NODE INTEGRITY</span>
+      <span class="feed-value">100%</span>
+    </div>
+    <div class="feed-line" id="line-2">
+      <div class="dot"></div>
+      <span class="feed-text">SYNERGY ACTIVE</span>
+      <span class="feed-value">CONFIRMED</span>
+    </div>
+    <div class="feed-line" id="line-3">
+      <div class="dot"></div>
+      <span class="feed-text">CORE VALUES LOCKED</span>
+      <span class="feed-value">SECURED</span>
+    </div>
+  </div>
+
+  <div class="metrics">
+    <div class="metric">
+      <div class="metric-val" id="m-uptime">00:00</div>
+      <div class="metric-lbl">Uptime</div>
+    </div>
+    <div class="metric">
+      <div class="metric-val">100%</div>
+      <div class="metric-lbl">Integrity</div>
+    </div>
+    <div class="metric">
+      <div class="metric-val" id="m-cycles">0</div>
+      <div class="metric-lbl">Cycles</div>
+    </div>
+  </div>
+
+  <div class="footer">Sovereign Genesis &nbsp;·&nbsp; System Health Monitor</div>
+
+  <script>
+    // Stagger feed lines in on load
+    const lines = document.querySelectorAll('.feed-line');
+    lines.forEach((line, i) => {
+      setTimeout(() => line.classList.add('visible'), 300 + i * 280);
+    });
+
+    // Uptime counter
+    const start = Date.now();
+    const uptimeEl  = document.getElementById('m-uptime');
+    const cyclesEl  = document.getElementById('m-cycles');
+    let cycles = 0;
+
+    setInterval(() => {
+      const elapsed = Math.floor((Date.now() - start) / 1000);
+      const mm = String(Math.floor(elapsed / 60)).padStart(2, '0');
+      const ss = String(elapsed % 60).padStart(2, '0');
+      uptimeEl.textContent = `${mm}:${ss}`;
+
+      cycles++;
+      cyclesEl.textContent = cycles;
+    }, 1000);
+  </script>
+
+</body>
+</html>
