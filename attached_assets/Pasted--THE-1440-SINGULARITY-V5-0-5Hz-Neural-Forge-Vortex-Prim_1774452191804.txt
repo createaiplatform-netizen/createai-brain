@@ -1,0 +1,121 @@
+/* THE 1440_SINGULARITY_V5.0 
+   - 5Hz Neural Forge (Vortex & Prime Styles)
+   - Sovereign Bridge (POST /upload-strike)
+   - Command Deck (GET /commander/data & /export-batch)
+   - Heartbeat LED (System Footer Relocation)
+*/
+
+// --- PART 1: THE SERVER (app.ts or index.js) ---
+const express = require('express');
+const fs = require('fs');
+const path = require('path');
+const archiver = require('archiver');
+const app = express();
+
+app.use(express.json({ limit: '10mb' }));
+const EXPORTS_DIR = path.join(__dirname, 'WEBSTER_EXPORTS');
+if (!fs.existsSync(EXPORTS_DIR)) fs.mkdirSync(EXPORTS_DIR);
+
+// THE BRIDGE: Save Assets & Metadata
+app.post('/upload-strike', (req, res) => {
+    const { name, timestamp, dataURL, metadata } = req.body;
+    const base64Data = dataURL.replace(/^data:image\/png;base64,/, "");
+    fs.writeFileSync(path.join(EXPORTS_DIR, `${name}.png`), base64Data, 'base64');
+    fs.writeFileSync(path.join(EXPORTS_DIR, `${name}.json`), JSON.stringify(metadata, null, 2));
+    res.status(200).json({ status: 'UPLINK_SUCCESS' });
+});
+
+// THE COMMANDER: Fetch Recent 12
+app.get('/commander/data', (req, res) => {
+    const files = fs.readdirSync(EXPORTS_DIR)
+        .filter(f => f.endsWith('.json'))
+        .map(f => JSON.parse(fs.readFileSync(path.join(EXPORTS_DIR, f))))
+        .sort((a, b) => b.timestamp - a.timestamp).slice(0, 12);
+    res.json(files);
+});
+
+// THE EXPORT: Zip Stream
+app.get('/export-batch', (req, res) => {
+    const archive = archiver('zip');
+    res.attachment(`EMPIRE_${Date.now()}.zip`);
+    archive.pipe(res);
+    archive.directory(EXPORTS_DIR, false);
+    archive.finalize();
+});
+
+// --- PART 2: THE STUDIO (studio.html - Script & UI) ---
+/* 1. Add this to your HTML Body:
+  <div id="system-footer" style="position:fixed; bottom:10px; left:10px; display:flex; align-items:center; color:#d4af37; font-family:monospace; font-size:10px; z-index:9999;">
+      <span id="uplink-led" style="width:8px; height:8px; background:#444; border-radius:50%; margin-right:8px; box-shadow:0 0 5px currentColor;"></span>
+      <span id="system-text">SYSTEM_SEALED // WEBSTER-54893 // 1440_LOGIC_ACTIVE</span>
+  </div>
+*/
+
+(function() {
+    "use strict";
+    // Console Silencer (Black Box)
+    console.log = console.warn = console.error = () => {};
+
+    const SCAN_RATE = 200; // 5Hz
+    const STRIKE_THRESHOLD = 0.04; 
+    let _styleToggle = true;
+
+    async function generateStrike() {
+        const canvas = document.getElementById('neural-canvas');
+        const ctx = canvas.getContext('2d');
+        ctx.clearRect(0, 0, canvas.width, canvas.height);
+        
+        // Alternate Styles
+        _styleToggle ? drawVortex(ctx) : drawPrime(ctx);
+        _styleToggle = !_styleToggle;
+
+        if (Math.random() < STRIKE_THRESHOLD) {
+            await captureLegendary(canvas);
+        }
+    }
+
+    async function captureLegendary(canvas) {
+        const ts = Date.now();
+        const name = `ZENITH_${ts}`;
+        
+        // Trigger Gold Flash Overlay
+        const flash = document.getElementById('flash-overlay');
+        flash.style.opacity = '1';
+        setTimeout(() => flash.style.opacity = '0', 50);
+
+        // Watermark & Hash
+        const ctx = canvas.getContext('2d');
+        ctx.fillStyle = "rgba(212, 175, 55, 0.1)";
+        ctx.fillText("WEBSTER-54893 // ZENITH", canvas.width - 150, canvas.height - 20);
+        
+        const dataURL = canvas.toDataURL('image/png');
+        const hash = await computeHash(name + ts);
+
+        const payload = {
+            name, timestamp: ts, dataURL,
+            metadata: { name, provenance_hash: hash, node: "WEBSTER-54893" }
+        };
+
+        // Silent Uplink & LED Status
+        fetch('/upload-strike', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify(payload)
+        }).then(r => {
+            const led = document.getElementById('uplink-led');
+            if(r.ok) {
+                led.style.background = "#00ff00";
+                led.style.boxShadow = "0 0 8px #00ff00";
+            } else {
+                led.style.background = "#ff0000";
+            }
+        });
+    }
+
+    async function computeHash(input) {
+        const buf = await crypto.subtle.digest('SHA-256', new TextEncoder().encode(input));
+        return Array.from(new Uint8Array(buf)).map(b => b.toString(16).padStart(2, '0')).join('').substring(0, 24);
+    }
+
+    window.initEngine = () => setInterval(generateStrike, SCAN_RATE);
+})();
