@@ -72,6 +72,7 @@
  *   These limits are safe: the largest legitimate payload is the async health
  *   consultation (~4KB of text). No tightening needed — no loosening either.
  */
+import path from "path";
 import express, { type Express, type Request, type Response, type NextFunction } from "express";
 import cors from "cors";
 import helmet from "helmet";
@@ -567,6 +568,11 @@ app.use(guardPath("/hub", "/vault", "/bundle", "/valuation", "/launch/payments",
 //   /join/landing   → Membership landing page
 //   /join/plans     → Subscription plans JSON
 //   /join/checkout/:priceId → Subscription checkout
+
+// ── Sovereign Genesis — standalone golden pulse dashboard ─────────────────
+app.get("/genesis", (_req: Request, res: Response) => {
+  res.sendFile(path.resolve("/home/runner/workspace/sovereign-genesis.html"));
+});
 
 app.use("/ss",        signalSpaceRouter);
 app.use("/nexus",     nexusRouter);
