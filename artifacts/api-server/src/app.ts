@@ -74,6 +74,7 @@
  */
 import path from "path";
 import fs from "fs";
+import archiver from "archiver";
 import express, { type Express, type Request, type Response, type NextFunction } from "express";
 import cors from "cors";
 import helmet from "helmet";
@@ -582,9 +583,62 @@ app.get("/zenith", (_req: Request, res: Response) => {
   res.sendFile(path.resolve("/home/runner/workspace/studio.html"));
 });
 
-// ── Zenith Upload Strike — server-side export receiver ────────────────────
+// ── Zenith — WEBSTER_EXPORTS infrastructure ───────────────────────────────
 const EXPORTS_DIR = path.resolve("/home/runner/workspace/WEBSTER_EXPORTS");
 if (!fs.existsSync(EXPORTS_DIR)) fs.mkdirSync(EXPORTS_DIR, { recursive: true });
+
+// Serve raw PNG files for commander gallery
+app.use("/exports", express.static(EXPORTS_DIR));
+
+// Commander page
+app.get("/commander", (_req: Request, res: Response) => {
+  res.setHeader("Content-Type", "text/html; charset=utf-8");
+  res.sendFile(path.resolve("/home/runner/workspace/commander.html"));
+});
+
+// Commander data feed — 12 most recent assets
+app.get("/commander/data", (_req: Request, res: Response): void => {
+  try {
+    const files = fs.readdirSync(EXPORTS_DIR);
+    const jsons = files
+      .filter(f => f.endsWith(".json"))
+      .sort((a, b) => {
+        const tsA = parseInt(a.match(/_(\d+)\.json$/)?.[1] ?? "0", 10);
+        const tsB = parseInt(b.match(/_(\d+)\.json$/)?.[1] ?? "0", 10);
+        return tsB - tsA;
+      })
+      .slice(0, 12);
+
+    const assets = jsons.map(jf => {
+      const pngFile = jf.replace(/\.json$/, ".png");
+      try {
+        const meta = JSON.parse(fs.readFileSync(path.join(EXPORTS_DIR, jf), "utf-8"));
+        return { ...meta, png: pngFile, json: jf };
+      } catch (_) {
+        return { name: jf.replace(/\.json$/, ""), png: pngFile, json: jf };
+      }
+    });
+
+    res.json({ assets, total: jsons.length });
+  } catch (_) {
+    res.status(500).json({ assets: [], total: 0 });
+  }
+});
+
+// Export entire vault as a zip stream
+app.get("/export-batch", (_req: Request, res: Response): void => {
+  try {
+    res.setHeader("Content-Type", "application/zip");
+    res.setHeader("Content-Disposition", "attachment; filename=\"WEBSTER_EXPORTS.zip\"");
+    const archive = archiver("zip", { zlib: { level: 6 } });
+    archive.on("error", () => res.end());
+    archive.pipe(res);
+    archive.directory(EXPORTS_DIR, "WEBSTER_EXPORTS");
+    archive.finalize();
+  } catch (_) {
+    res.status(500).end();
+  }
+});
 
 app.post("/upload-strike", express.json({ limit: "10mb" }), (req: Request, res: Response): void => {
   try {
