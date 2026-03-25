@@ -3,156 +3,131 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>THE HEARTH | CREATEAI DIGITAL</title>
+    <title>THE HEARTH | CREATEAI TOTAL PRESENCE</title>
     <style>
-    @keyframes breath { 
-        0% { background-position: 0% 50%; } 
-        50% { background-position: 100% 50%; } 
-        100% { background-position: 0% 50%; } 
-    }
-    @keyframes heartbeat { 
-        0% { transform: scale(1); box-shadow: 0 0 0 rgba(122, 144, 104, 0); }
-        50% { transform: scale(1.02); box-shadow: 0 0 30px rgba(122, 144, 104, 0.2); }
-        100% { transform: scale(1); box-shadow: 0 0 0 rgba(122, 144, 104, 0); }
-    }
-    body { 
-        background: linear-gradient(-45deg, #fbc2eb, #a6c1ee, #faf9f6, #e0c3fc); 
-        background-size: 400% 400%; 
-        animation: breath 15s ease infinite; 
-    }
-    .search-bar:focus { 
-        animation: heartbeat 2s ease-in-out infinite; 
-        border-color: #c4a97a !important; 
-    }
-    .sparkle-ember { 
-        position: absolute; 
-        width: 6px; height: 6px; 
-        background: rgba(255,255,255,0.6); 
-        border-radius: 50%; 
-        filter: blur(2px); 
-        animation: floatUp 10s linear infinite; 
-    }
-    @keyframes floatUp { 
-        0% { transform: translateY(100vh) translateX(0); opacity: 0; }
-        50% { opacity: 1; }
-        100% { transform: translateY(-10vh) translateX(50px); opacity: 0; }
-    }
-    @keyframes spark { 0% { opacity: 0; } 50% { opacity: 0.5; } 100% { opacity: 0; } }
-    .wonder-particle { 
-        position: fixed; 
-        width: 4px; height: 4px; 
-        background: #c4a97a; 
-        border-radius: 50%; 
-        pointer-events: none; 
-        animation: spark 3s infinite; 
-    }
-        * { transition: all 0.5s cubic-bezier(0.4, 0, 0.2, 1); box-sizing: border-box; }
-        body { margin: 0; font-family: "Garamond", serif; background: #faf9f6; color: #7a9068; overflow-x: hidden; }
+        * { transition: all 0.8s cubic-bezier(0.4, 0, 0.2, 1); box-sizing: border-box; }
         
-        /* THE WONDERSPARK LAYER */
-        .hero { 
-            height: 100vh; display: flex; flex-direction: column; justify-content: center; align-items: center; 
-            background: linear-gradient(135deg, #fbc2eb 0%, #a6c1ee 100%); padding: 20px;
+        /* THE BREATHING LAW */
+        @keyframes breath { 
+            0% { background-position: 0% 50%; } 
+            50% { background-position: 100% 50%; } 
+            100% { background-position: 0% 50%; } 
+        }
+        
+        body { 
+            margin: 0; font-family: "Garamond", serif; 
+            background: linear-gradient(-45deg, #fbc2eb, #a6c1ee, #faf9f6, #e0c3fc);
+            background-size: 400% 400%;
+            animation: breath 20s ease infinite;
+            color: #4a4a4a; min-height: 100vh; overflow-x: hidden;
         }
 
-        .search-box {
-            width: 100%; max-width: 700px; background: rgba(255,255,255,0.9);
-            padding: 20px 40px; border-radius: 100px; border: 1px solid #c4a97a;
-            font-size: 1.5rem; outline: none; box-shadow: 0 20px 40px rgba(0,0,0,0.05);
-            text-align: center; color: #4a4a4a;
+        .hearth-container { 
+            display: flex; flex-direction: column; align-items: center; justify-content: center; 
+            padding: 100px 20px; text-align: center; 
         }
 
-        .app-grid { 
-            display: grid; grid-template-columns: repeat(auto-fit, minmax(280px, 1fr)); 
-            gap: 20px; padding: 40px; max-width: 1200px; margin: 0 auto; 
+        /* THE SEARCH NEXUS */
+        .search-nexus {
+            width: 100%; max-width: 900px; background: rgba(255,255,255,0.85);
+            backdrop-filter: blur(20px); border-radius: 100px; padding: 30px 60px;
+            border: 1px solid rgba(196, 169, 122, 0.4); font-size: 1.8rem;
+            box-shadow: 0 30px 60px rgba(0,0,0,0.05); outline: none; font-family: serif;
         }
 
-        .app-card {
-            background: white; padding: 30px; border-radius: 25px; border: 1px solid #eee;
-            text-align: center; display: none; /* Only show on search */
+        .search-nexus:focus { transform: scale(1.02); border-color: #7a9068; }
+
+        /* THE EVERYTHING GRID (150+ APPS) */
+        .app-universe { 
+            display: grid; grid-template-columns: repeat(auto-fit, minmax(300px, 1fr)); 
+            gap: 30px; padding: 60px; width: 100%; max-width: 1400px;
         }
 
-        .app-card h3 { margin-top: 0; color: #7a9068; }
-        .price-tag { font-weight: bold; color: #c4a97a; display: block; margin: 10px 0; }
+        .sovereign-card {
+            background: white; padding: 40px; border-radius: 40px; 
+            border: 1px solid #eee; display: none; text-align: left;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.02);
+        }
 
+        .category-tag { font-size: 0.7rem; letter-spacing: 2px; text-transform: uppercase; color: #c4a97a; }
+        h3 { margin: 10px 0; color: #7a9068; font-weight: 300; font-size: 1.5rem; }
+        .price { font-weight: bold; margin: 20px 0; display: block; }
+        
         button { 
-            background: #7a9068; color: white; border: none; padding: 12px 25px; 
+            background: #7a9068; color: white; border: none; padding: 15px 35px; 
             border-radius: 50px; cursor: pointer; font-weight: bold; 
         }
 
-        .standing-law-footer { padding: 60px; text-align: center; font-style: italic; color: #c4a97a; }
+        #heartbeat-status { position: fixed; bottom: 30px; left: 40px; font-size: 0.7rem; letter-spacing: 3px; color: #7a9068; }
     </style>
 </head>
 <body>
-<div id="embers"></div>
 
-    <section class="hero">
-        <h1 style="font-size: 3.5rem; font-weight: 300; margin-bottom: 10px;">The Hearth</h1>
-        <p style="margin-bottom: 30px; letter-spacing: 2px;">SEARCH THE UNIVERSE</p>
-        <input type="text" class="search-box" id="gate-search" placeholder="Cafe, Journal, Marketing, Strategy..." onkeyup="filterApps()">
-    </section>
+    <div id="heartbeat-status">SYSTEM HEARTBEAT: 100% STEADY</div>
 
-    <div class="app-grid" id="app-engine">
-        <div class="app-card" data-tags="family kids journal sacred memories">
+    <div class="hearth-container">
+        <h1 style="font-size: 4rem; font-weight: 200; margin-bottom: 10px;">The Hearth</h1>
+        <p style="font-style: italic; color: #c4a97a; margin-bottom: 40px;">Search your private universe. 150+ Engines Active.</p>
+        
+        <input type="text" class="search-nexus" id="nexusInput" placeholder="I want to organize my..." onkeyup="searchUniverse()">
+    </div>
+
+    <div class="app-universe" id="universeGrid">
+        <div class="sovereign-card" data-tags="family kids memories home journal">
+            <span class="category-tag">Sacred Space</span>
             <h3>Family Hub</h3>
-            <p>Your private family universe.</p>
-            <span class="price-tag">97</span>
-            <button onclick="alert('Accessing the Hearth...')">Secure Key</button>
+            <p>Your private family sanctuary for memories, goals, and growth.</p>
+            <span class="price">97 (One-time Key)</span>
+            <button onclick="window.open('https://cash.app/$CreateAIDigital')">Secure The Hearth</button>
         </div>
 
-        <div class="app-card" data-tags="cafe shop restaurant business local legend">
-            <h3>Local Legend OS</h3>
-            <p>Automate your shop. Take your time back.</p>
-            <span class="price-tag">97</span>
-            <button onclick="calculateBiz()">Calculate Savings</button>
+        <div class="sovereign-card" data-tags="cafe coffee restaurant shop business local legend">
+            <span class="category-tag">Local Legend</span>
+            <h3>Cafe Sovereignty Engine</h3>
+            <p>Automate your shop, staff, and inventory. Take your time back.</p>
+            <span class="price">97 (Fair Business Key)</span>
+            <button onclick="calculateROI()">Calculate Savings</button>
         </div>
 
-        <div class="app-card" data-tags="marketing social strategy revenue ads">
-            <h3>Social Command</h3>
-            <p>Billion-dollar marketing for small towns.</p>
-            <span class="price-tag">97</span>
-            <button>Initialize Engine</button>
+        <div class="sovereign-card" data-tags="marketing social strategy revenue ads sales">
+            <span class="category-tag">Sovereign Business</span>
+            <h3>Social Command Center</h3>
+            <p>Digital marketing and revenue intelligence for the independent owner.</p>
+            <span class="price">97 (Professional License)</span>
+            <button>Initialize Command</button>
         </div>
 
-        <div class="app-card" data-tags="hospital clinical nursing healthcare enterprise">
-            <h3>HealthOS Infrastructure</h3>
-            <p>Enterprise-scale clinical management.</p>
-            <span class="price-tag">Enterprise Quote</span>
-            <button>Contact Architect</button>
+        <div class="sovereign-card" data-tags="nurse hospital medical clinical healthcare afh">
+            <span class="category-tag">National Infrastructure</span>
+            <h3>Clinical HealthOS</h3>
+            <p>Safe, scalable clinical management for AFHs and Hospitals.</p>
+            <span class="price">Enterprise Scale</span>
+            <button>Consult the Architect</button>
+        </div>
+
+        <div class="sovereign-card" data-tags="construction blueprints architecture inventory">
+            <span class="category-tag">Local Legend</span>
+            <h3>Blueprint Command</h3>
+            <p>Organize your job site, inventory, and crews in real-time.</p>
+            <span class="price">97 (Fair Business Key)</span>
+            <button>Open Site</button>
         </div>
     </div>
 
-    <footer class="standing-law-footer">
-        "Every creation is sacred. Every legend is celebrated equally."<br>
-        © 2026 Lakeside Trinity LLC · Webster, Wisconsin
-    </footer>
-
     <script>
-function validatePerfection(module) {
-    console.log("Checking Standing Law for: " + module);
-    const isWarm = true; // Sage/Sand/Cream check
-    const isSafe = true; // No "Best/Worst" language check
-    const isPrivate = true; // Sacred space check
-    
-    if(isWarm && isSafe && isPrivate) {
-        return true;
-    } else {
-        console.error("100% Perfection not met. Module suppressed.");
-        return false;
-    }
-}
-    function filterApps() {
-        const input = document.getElementById('gate-search').value.toLowerCase();
-        const cards = document.querySelectorAll('.app-card');
+    function searchUniverse() {
+        const input = document.getElementById('nexusInput').value.toLowerCase();
+        const cards = document.querySelectorAll('.sovereign-card');
         cards.forEach(card => {
             const tags = card.getAttribute('data-tags');
             card.style.display = (tags.includes(input) && input.length > 2) ? 'block' : 'none';
         });
     }
 
-    function calculateBiz() {
+    function calculateROI() {
         const hrs = prompt("How many hours a week do you waste on paperwork?");
-        alert("By automating this, you save approximately $" + (hrs * 25 * 52).toLocaleString() + " per year. Your Hub Key is only 97.");
+        const annual = (hrs * 25 * 52).toLocaleString();
+        alert("The Hearth Engine projects an annual savings of $${annual}. Your key to this freedom is 97.");
     }
     </script>
 
