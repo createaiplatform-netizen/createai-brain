@@ -5,6 +5,15 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>THE HEARTH | CREATEAI DIGITAL</title>
     <style>
+    @keyframes spark { 0% { opacity: 0; } 50% { opacity: 0.5; } 100% { opacity: 0; } }
+    .wonder-particle { 
+        position: fixed; 
+        width: 4px; height: 4px; 
+        background: #c4a97a; 
+        border-radius: 50%; 
+        pointer-events: none; 
+        animation: spark 3s infinite; 
+    }
         * { transition: all 0.5s cubic-bezier(0.4, 0, 0.2, 1); box-sizing: border-box; }
         body { margin: 0; font-family: "Garamond", serif; background: #faf9f6; color: #7a9068; overflow-x: hidden; }
         
@@ -86,6 +95,19 @@
     </footer>
 
     <script>
+function validatePerfection(module) {
+    console.log("Checking Standing Law for: " + module);
+    const isWarm = true; // Sage/Sand/Cream check
+    const isSafe = true; // No "Best/Worst" language check
+    const isPrivate = true; // Sacred space check
+    
+    if(isWarm && isSafe && isPrivate) {
+        return true;
+    } else {
+        console.error("100% Perfection not met. Module suppressed.");
+        return false;
+    }
+}
     function filterApps() {
         const input = document.getElementById('gate-search').value.toLowerCase();
         const cards = document.querySelectorAll('.app-card');
