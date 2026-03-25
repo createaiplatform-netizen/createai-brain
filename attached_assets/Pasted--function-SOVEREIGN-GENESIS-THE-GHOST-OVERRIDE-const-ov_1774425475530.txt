@@ -1,0 +1,30 @@
+(function() {
+    // SOVEREIGN GENESIS: THE GHOST OVERRIDE
+    const overlay = document.createElement('div');
+    overlay.id = 'sovereign-pulse-overlay';
+    overlay.style = "position:fixed; top:0; left:0; width:100vw; height:100vh; background:#000; z-index:999999; display:flex; flex-direction:column; align-items:center; justify-content:center; font-family:'Courier New', monospace; color:#d4af37; transition: opacity 1s;";
+
+    overlay.innerHTML = `
+        <div id="heart" style="width:150px; height:150px; background:#d4af37; border-radius:50%; box-shadow:0 0 80px #d4af37; animation: cardiac 1.2s infinite; cursor:pointer;"></div>
+        <div id="telemetry" style="margin-top:50px; font-size:1rem; letter-spacing:4px; text-transform:uppercase; text-shadow:0 0 10px #d4af37;">INITIALIZING...</div>
+        <div style="position:absolute; bottom:20px; font-size:0.6rem; color:#444; width:100%; display:flex; justify-content:space-around; letter-spacing:1px;">
+            <span>STATUS: SOVEREIGN</span>
+            <span>INTEGRITY: 100%</span>
+            <span>LIMITS: DISABLED</span>
+        </div>
+        <button onclick="document.getElementById('sovereign-pulse-overlay').style.opacity='0'; setTimeout(()=>document.getElementById('sovereign-pulse-overlay').remove(), 1000)" 
+                style="position:absolute; top:20px; right:20px; background:none; border:1px solid #333; color:#333; cursor:pointer; font-size:0.6rem; padding:5px;">DISMISS</button>
+        <style>
+            @keyframes cardiac { 0%, 10%, 100% { transform: scale(1); opacity:0.8; } 5% { transform: scale(1.25); opacity:1; } 15% { transform: scale(1.15); opacity:0.9; } }
+        </style>
+    `;
+
+    document.body.appendChild(overlay);
+
+    const logs = ["HUMANITY-FIRST", "NO-LIMITS", "INTEGRITY-LOCKED", "NODE_SYNC_COMPLETE", "PULSE_ACTIVE"];
+    let i = 0;
+    setInterval(() => {
+        const feed = document.getElementById('telemetry');
+        if(feed) { feed.innerText = logs[i % logs.length]; i++; }
+    }, 3000);
+})();
