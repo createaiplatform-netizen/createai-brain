@@ -3,109 +3,143 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>THE HEARTH | INFRASTRUCTURE MARKET</title>
+    <title>HEARTH | CIVILIZATION OPERATING SYSTEM</title>
+    <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@700&family=Space+Mono&display=swap" rel="stylesheet">
     <style>
-        :root { --gold: #c4a97a; --bg: #f8f9fb; --dark: #1a1a1a; }
-        * { margin: 0; padding: 0; box-sizing: border-box; font-family: 'Inter', sans-serif; }
-        body { background: var(--bg); color: var(--dark); padding-bottom: 100px; }
-
-        header { background: #fff; padding: 20px; border-bottom: 1px solid #eee; position: sticky; top: 0; z-index: 1000; }
-        .logo { font-weight: 900; letter-spacing: 4px; font-size: 0.7rem; color: var(--gold); text-transform: uppercase; }
-
-        .container { max-width: 600px; margin: 0 auto; padding: 20px; }
-
-        /* THE KEYS (THE PRIMARY DROPSHIP PRODUCTS) */
-        .featured-key {
-            background: #fff; border-radius: 20px; padding: 30px; margin-bottom: 30px;
-            border: 1px solid #eee; box-shadow: 0 10px 40px rgba(0,0,0,0.03);
+        :root { --gold: #b39359; --paper: #f9f7f2; --ink: #1a1a1a; --border: rgba(0,0,0,0.1); }
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        
+        body { 
+            background-color: var(--paper); 
+            color: var(--ink); 
+            font-family: 'Space Mono', monospace; 
+            padding-bottom: 100px;
+            background-image: url('https://www.transparenttextures.com/patterns/natural-paper.png');
         }
-        .price-badge { font-weight: 900; color: var(--gold); font-size: 1.2rem; display: block; margin-bottom: 10px; }
-        .key-title { font-size: 1.4rem; font-weight: 200; margin-bottom: 10px; }
-        .key-desc { font-size: 0.75rem; color: #666; line-height: 1.6; margin-bottom: 20px; }
-        .buy-now { background: var(--gold); color: #fff; border: none; width: 100%; padding: 18px; border-radius: 12px; font-weight: bold; text-transform: uppercase; letter-spacing: 2px; cursor: pointer; }
 
-        /* THE ENGINE SECTORS */
-        .sector-title { font-size: 0.65rem; font-weight: 900; letter-spacing: 3px; color: #aaa; text-transform: uppercase; margin: 40px 0 15px 5px; }
-        .engine-card {
-            background: #fff; border-radius: 15px; padding: 20px; margin-bottom: 15px;
-            border: 1px solid #eee; display: flex; align-items: flex-start; gap: 15px;
+        /* THE MONUMENTAL HEADER */
+        header { 
+            padding: 40px 20px; 
+            border-bottom: 2px solid var(--ink);
+            display: flex; justify-content: space-between; align-items: flex-end;
         }
-        .engine-icon { font-size: 1.5rem; }
-        .engine-info h4 { font-size: 0.85rem; font-weight: 700; margin-bottom: 4px; }
-        .engine-info p { font-size: 0.65rem; color: #888; line-height: 1.4; }
+        .brand { font-family: 'Playfair Display', serif; font-size: 1.8rem; letter-spacing: -1px; }
+        .node-id { font-size: 0.6rem; text-align: right; opacity: 0.5; }
+
+        .container { padding: 20px; max-width: 800px; margin: 0 auto; }
+
+        /* THE MASTER CHARTS (THE KEYS) */
+        .manifesto-card {
+            border: 1px solid var(--ink);
+            padding: 40px 20px;
+            margin-bottom: 40px;
+            position: relative;
+            background: #fff;
+        }
+        .manifesto-card::after {
+            content: ''; position: absolute; bottom: 5px; right: 5px; top: 5px; left: 5px;
+            border: 1px solid var(--border); pointer-events: none;
+        }
+        
+        .label { font-size: 0.5rem; letter-spacing: 3px; text-transform: uppercase; color: var(--gold); font-weight: bold; margin-bottom: 15px; display: block; }
+        .title { font-family: 'Playfair Display', serif; font-size: 2.2rem; line-height: 1; margin-bottom: 20px; }
+        .big-price { font-size: 3.5rem; font-family: 'Playfair Display', serif; margin-bottom: 20px; border-bottom: 1px solid var(--ink); display: inline-block; padding-bottom: 10px; }
+        
+        .desc { font-size: 0.8rem; line-height: 1.8; margin-bottom: 30px; color: #444; }
+
+        .action-link {
+            display: block; width: 100%; text-align: center;
+            background: var(--ink); color: #fff; padding: 25px;
+            text-decoration: none; font-weight: bold; letter-spacing: 5px; font-size: 0.7rem;
+            transition: 0.3s;
+        }
+        .action-link:hover { background: var(--gold); }
+
+        /* THE INFRASTRUCTURE LEDGER (GRID) */
+        .ledger-title { 
+            font-family: 'Playfair Display', serif; font-size: 1.5rem; 
+            border-bottom: 1px solid var(--ink); padding-bottom: 10px; margin-bottom: 30px; 
+        }
+        
+        .ledger-row {
+            display: grid; grid-template-columns: 50px 1fr 100px;
+            padding: 25px 0; border-bottom: 1px solid var(--border);
+            align-items: center;
+        }
+        .entry-num { font-size: 0.6rem; opacity: 0.4; }
+        .entry-name { font-weight: bold; font-size: 0.9rem; text-transform: uppercase; letter-spacing: 1px; }
+        .entry-status { font-size: 0.6rem; text-align: right; color: var(--gold); font-weight: bold; }
+
+        /* THE HUD NAV (MINIMAL) */
+        nav {
+            position: fixed; bottom: 0; width: 100%; background: var(--ink);
+            padding: 25px; display: flex; justify-content: space-around;
+        }
+        .nav-item { color: #fff; text-decoration: none; font-size: 0.6rem; letter-spacing: 3px; font-weight: bold; opacity: 0.5; }
+        .nav-item.active { opacity: 1; color: var(--gold); }
+
     </style>
 </head>
 <body>
 
     <header>
-        <div class="logo">Hearth Infrastructure</div>
+        <div class="brand">HEARTH ®</div>
+        <div class="node-id">SYSTEM_OS_v1.0<br>WEBSTER_NODE_ACTIVE</div>
     </header>
 
     <div class="container">
         
-        <div class="featured-key">
-            <span class="price-badge">97.00</span>
-            <h2 class="key-title">The Family Portal</h2>
-            <p class="key-desc">The master key for your household. Unlocks private Mesh-Net internet nodes, utility cost synchronization, and the encrypted Private Health Vault. One-time activation for lifetime sovereignty.</p>
-            <button class="buy-now">Activate Portal</button>
+        <div class="manifesto-card">
+            <span class="label">Primary Infrastructure Key</span>
+            <h1 class="title">The Family Portal</h1>
+            <div class="big-price">197.00</div>
+            <p class="desc">
+                Deployment of a private household node within the Hearth Neural Network. 
+                Includes decentralized internet access, sovereign utility management, 
+                and encrypted health data custody. This is the foundation of local sovereignty.
+            </p>
+            <a href="#" class="action-link">INITIATE UPLINK</a>
         </div>
 
-        <div class="featured-key" style="border-color: #333; background: #fafafa;">
-            <span class="price-badge" style="color: #333;">97.00</span>
-            <h2 class="key-title">The Business Engine</h2>
-            <p class="key-desc">Turn your home or local office into a revenue node. Includes AFH Management software, Cafe-Pulse Inventory AI, and full Business Entity shielding in our Private Jurisdiction.</p>
-            <button class="buy-now" style="background: #333;">Activate Engine</button>
+        <h2 class="ledger-title">Infrastructure Ledger</h2>
+
+        <div class="ledger-row">
+            <div class="entry-num">001</div>
+            <div class="entry-name">Sovereign Law Engine</div>
+            <div class="entry-status">22 NODES</div>
         </div>
 
-        <div class="sector-title">Healthcare Engines</div>
-        <div class="engine-card">
-            <div class="engine-icon">🏥</div>
-            <div class="engine-info">
-                <h4>The Nurse-Flow System</h4>
-                <p>AI-driven scheduling and patient workflow for Adult Family Homes and private clinics.</p>
-            </div>
-        </div>
-        <div class="engine-card">
-            <div class="engine-icon">🧬</div>
-            <div class="engine-info">
-                <h4>Private Health Vault</h4>
-                <p>Encrypted storage for medical records and DNA data, accessible only via your Portal Key.</p>
-            </div>
+        <div class="ledger-row">
+            <div class="entry-num">002</div>
+            <div class="entry-name">Healthcare Protocol</div>
+            <div class="entry-status">12 NODES</div>
         </div>
 
-        <div class="sector-title">Sovereign Utilities</div>
-        <div class="engine-card">
-            <div class="engine-icon">📡</div>
-            <div class="engine-info">
-                <h4>Mesh-Net Internet Node</h4>
-                <p>Localized off-grid internet infrastructure. Bypasses major ISPs using peer-to-peer transmission.</p>
-            </div>
-        </div>
-        <div class="engine-card">
-            <div class="engine-icon">⚡</div>
-            <div class="engine-info">
-                <h4>Utility Sync Node</h4>
-                <p>Hardware-software bridge to optimize and reduce cost on municipal power and water grids.</p>
-            </div>
+        <div class="ledger-row">
+            <div class="entry-num">003</div>
+            <div class="entry-name">Universal Utilities</div>
+            <div class="entry-status">15 NODES</div>
         </div>
 
-        <div class="sector-title">Legal & Jurisdiction</div>
-        <div class="engine-card">
-            <div class="engine-icon">⚖️</div>
-            <div class="engine-info">
-                <h4>Standing Law Portal</h4>
-                <p>Common Law document generation and private trust establishment for asset protection.</p>
-            </div>
+        <div class="ledger-row">
+            <div class="entry-num">004</div>
+            <div class="entry-name">Wealth Intelligence</div>
+            <div class="entry-status">14 NODES</div>
         </div>
-        <div class="engine-card">
-            <div class="engine-icon">🛡️</div>
-            <div class="engine-info">
-                <h4>Entity Shield AI</h4>
-                <p>Automated compliance and asset shielding for private business ventures.</p>
-            </div>
+
+        <div class="ledger-row" style="border-bottom: 2px solid var(--ink);">
+            <div class="entry-num">005</div>
+            <div class="entry-name">Hospitality / Food & Bev</div>
+            <div class="entry-status">8 NODES</div>
         </div>
 
     </div>
+
+    <nav>
+        <a href="#" class="nav-item active">LEDGER</a>
+        <a href="#" class="nav-item">PORTAL</a>
+        <a href="#" class="nav-item">VAULT</a>
+    </nav>
 
 </body>
 </html>
