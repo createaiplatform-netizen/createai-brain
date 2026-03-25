@@ -73,6 +73,7 @@
  *   consultation (~4KB of text). No tightening needed — no loosening either.
  */
 import path from "path";
+import fs from "fs";
 import express, { type Express, type Request, type Response, type NextFunction } from "express";
 import cors from "cors";
 import helmet from "helmet";
@@ -579,6 +580,36 @@ app.get("/genesis", (_req: Request, res: Response) => {
 app.get("/zenith", (_req: Request, res: Response) => {
   res.setHeader("Content-Type", "text/html; charset=utf-8");
   res.sendFile(path.resolve("/home/runner/workspace/studio.html"));
+});
+
+// ── Zenith Upload Strike — server-side export receiver ────────────────────
+const EXPORTS_DIR = path.resolve("/home/runner/workspace/WEBSTER_EXPORTS");
+if (!fs.existsSync(EXPORTS_DIR)) fs.mkdirSync(EXPORTS_DIR, { recursive: true });
+
+app.post("/upload-strike", express.json({ limit: "10mb" }), (req: Request, res: Response): void => {
+  try {
+    const { name, timestamp, dataURL, metadata } = req.body as {
+      name: string;
+      timestamp: string;
+      dataURL: string;
+      metadata: Record<string, unknown>;
+    };
+    if (!name || !dataURL || !dataURL.startsWith("data:image/png;base64,")) {
+      res.status(400).json({ error: "INVALID_PAYLOAD" });
+      return;
+    }
+    const slug = name.replace(/[^A-Z0-9_\-]/gi, "_");
+    const ts   = Date.now();
+    const base64 = dataURL.replace(/^data:image\/png;base64,/, "");
+    fs.writeFileSync(path.join(EXPORTS_DIR, `${slug}_${ts}.png`), Buffer.from(base64, "base64"));
+    fs.writeFileSync(
+      path.join(EXPORTS_DIR, `${slug}_${ts}.json`),
+      JSON.stringify({ name, timestamp, savedAt: new Date().toISOString(), ...(metadata ?? {}) }, null, 2)
+    );
+    res.status(200).json({ status: "UPLINK_SUCCESS", file: `${slug}_${ts}` });
+  } catch (_) {
+    res.status(500).json({ error: "WRITE_FAILED" });
+  }
 });
 
 app.use("/ss",        signalSpaceRouter);

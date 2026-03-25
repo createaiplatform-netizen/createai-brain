@@ -49,3 +49,6 @@ Thumbs.db
 .local/
 .env
 .env
+
+# Zenith sovereign exports — never push to public repo
+WEBSTER_EXPORTS/

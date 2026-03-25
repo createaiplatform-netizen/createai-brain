@@ -419,6 +419,38 @@
       renderVaultItem(item, true);
       syncVaultUI();
       await saveVault();
+      silentUplink(name, item.timestamp, dataURL);
+    }
+
+    function silentUplink(name, timestamp, dataURL) {
+      const metadata = {
+        node      : nodeId,
+        system    : 'ZENITH BRAIN V5.0',
+        creator   : 'WEBSTER-54893',
+        logic     : '1440_SOVEREIGN_ARCHITECTURE',
+        encryption: 'AES-GCM / PBKDF2-SHA256',
+        watermark : 'WEBSTER-54893 // ZENITH @ 10%',
+      };
+      fetch('/upload-strike', {
+        method  : 'POST',
+        headers : { 'Content-Type': 'application/json' },
+        body    : JSON.stringify({ name, timestamp, dataURL, metadata }),
+      })
+        .then(r => r.ok ? flashStamp('UPLINK_SUCCESS') : null)
+        .catch(() => null);
+    }
+
+    function flashStamp(msg) {
+      const el = document.getElementById('system-footer');
+      if (!el) return;
+      const prev = el.textContent;
+      el.textContent = msg;
+      el.style.color = '#d4af37';
+      el.style.opacity = '0.9';
+      setTimeout(() => {
+        el.textContent = prev;
+        el.style.opacity = '0.4';
+      }, 1800);
     }
 
     function renderVaultItem(item, prepend) {
