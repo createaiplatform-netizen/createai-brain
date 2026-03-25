@@ -3,97 +3,71 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>HEARTH | SYSTEM 01</title>
+    <title>HEARTH | CREATOR FORGE</title>
     <style>
-        :root { --ink: #1d1d1f; --gold: #c4a97a; --safe: #00ff88; --jr: #007aff; --family: #ff9500; --biz: #5856d6; }
-        * { margin: 0; padding: 0; box-sizing: border-box; font-family: -apple-system, sans-serif; transition: 0.3s; }
-        body { background: #000; color: #fff; overflow: hidden; height: 100vh; }
+        :root { --ink: #1d1d1f; --gold: #c4a97a; --deploy: #007aff; }
+        * { margin: 0; padding: 0; box-sizing: border-box; font-family: -apple-system, sans-serif; }
+        body { background: #fff; color: var(--ink); padding-bottom: 120px; }
 
-        .view { display: none; height: 100vh; width: 100vw; flex-direction: column; overflow-y: auto; padding-bottom: 150px; }
-        .view.active { display: flex; }
+        .header { padding: 40px 20px; border-bottom: 1px solid #eee; }
+        .tag { font-size: 0.5rem; font-weight: 900; letter-spacing: 3px; text-transform: uppercase; color: var(--gold); }
+        
+        /* THE FORGE INTERFACE */
+        .studio-space { padding: 20px; }
+        .canvas { width: 100%; aspect-ratio: 16/9; background: #f9f9f9; border: 2px dashed #ddd; border-radius: 20px; display: flex; align-items: center; justify-content: center; color: #aaa; margin-bottom: 30px; }
 
-        /* HEADER STYLES */
-        .h-tag { font-size: 0.5rem; font-weight: 900; letter-spacing: 3px; margin-bottom: 10px; text-transform: uppercase; }
-        .h-title { font-size: 1.2rem; font-weight: 600; letter-spacing: -0.5px; }
+        .form-group { margin-bottom: 25px; }
+        label { font-size: 0.6rem; font-weight: 800; text-transform: uppercase; display: block; margin-bottom: 10px; }
+        input { width: 100%; padding: 15px; border-radius: 10px; border: 1px solid #eee; background: #fdfcfb; }
 
-        /* VIEW SPECIFICS */
-        #creatorView { background: #fff; color: #000; padding: 40px; }
-        #marketView { background: #fdfcfb; color: #000; }
-        #familyView { background: #111; border-top: 4px solid var(--family); padding: 40px; }
-        #bizView { background: #0a0a0a; border-top: 4px solid var(--biz); padding: 40px; }
-        #safeView { background: #000; text-align: center; padding-top: 50px; }
-        #jrView { background: #001220; padding: 40px; }
-
-        /* NAVIGATION PILL (THE SCROLLER) */
-        nav { 
-            position: fixed; bottom: 25px; left: 10px; right: 10px;
-            background: rgba(0,0,0,0.95); backdrop-filter: blur(20px);
-            padding: 15px 10px; border-radius: 100px; display: flex; gap: 20px; 
-            overflow-x: auto; scrollbar-width: none; z-index: 5000;
+        /* THE DEPLOY BUTTON */
+        .deploy-btn { 
+            width: 100%; padding: 20px; border-radius: 100px; border: none; 
+            background: var(--ink); color: #fff; font-weight: 800; 
+            letter-spacing: 2px; text-transform: uppercase; cursor: pointer;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.1);
         }
-        nav::-webkit-scrollbar { display: none; }
-        .nav-link { font-size: 0.5rem; font-weight: 900; color: #444; text-transform: uppercase; white-space: nowrap; }
-        .nav-link.active { color: #fff; }
+        .deploy-btn:active { transform: scale(0.98); background: var(--deploy); }
+
+        .status-msg { font-size: 0.6rem; text-align: center; margin-top: 15px; color: #888; }
     </style>
 </head>
 <body>
 
-    <div id="creatorView" class="view">
-        <span class="h-tag">The Forge</span>
-        <h1 class="h-title">Creator Hub</h1>
-        <p style="font-size:0.7rem; margin-top:20px; opacity:0.6;">Design digital assets for the stores here.</p>
+    <div class="header">
+        <span class="tag">System Control</span>
+        <h1 style="font-size: 1.5rem; letter-spacing: -1px;">Creator Portal</h1>
     </div>
 
-    <div id="marketView" class="view active">
-        <div style="padding:30px; border-bottom:1px solid #eee; text-align:center;">
-            <span class="h-tag" style="color:var(--gold);">Global</span>
-            <h1 class="h-title">Marketplace</h1>
+    <div class="studio-space">
+        <div class="canvas">DROP ASSET HERE</div>
+
+        <div class="form-group">
+            <label>Product Name</label>
+            <input type="text" placeholder="e.g. Sovereign Smart-Node">
         </div>
-        <div style="padding:20px; color:#888; font-size:0.7rem;">Search categories...</div>
-    </div>
 
-    <div id="familyView" class="view">
-        <span class="h-tag" style="color:var(--family);">Private Vault</span>
-        <h1 class="h-title">Family Hub</h1>
-        <div style="margin-top:40px; background:#222; padding:20px; border-radius:15px;">
-            <p style="font-size:0.8rem;">$197 Subscription Status</p>
-            <p style="color:var(--family); font-weight:900; font-size:0.6rem; margin-top:5px;">ACTIVE PORT ENABLED</p>
+        <div class="form-group">
+            <label>Auto-Deploy URL</label>
+            <input type="text" placeholder="smartnode.hearth.market" readonly style="opacity:0.5;">
         </div>
-    </div>
 
-    <div id="bizView" class="view">
-        <span class="h-tag" style="color:var(--biz);">Utility</span>
-        <h1 class="h-title">Business Hub</h1>
-        <div style="margin-top:30px; background:#111; padding:20px; border-radius:10px;">Industrial AI Assets →</div>
+        <button class="deploy-btn" onclick="deploy()">Launch Sovereign Site</button>
+        <p class="status-msg" id="status">Ready for Deployment</p>
     </div>
-
-    <div id="safeView" class="view">
-        <h1 style="color:var(--safe); letter-spacing:5px; font-size:0.8rem;">SAFE ZONE</h1>
-        <div style="font-size:6rem; margin-top:50px;">🎨</div>
-    </div>
-
-    <div id="jrView" class="view">
-        <span class="h-tag" style="color:var(--jr);">Clubhouse</span>
-        <h1 class="h-title">Jr. Zone</h1>
-    </div>
-
-    <nav>
-        <div class="nav-link" onclick="showView('creatorView', this)">Creator</div>
-        <div class="nav-link active" onclick="showView('marketView', this)">Marketplace</div>
-        <div class="nav-link" onclick="showView('familyView', this)" style="color:var(--family);">Family Hub</div>
-        <div class="nav-link" onclick="showView('bizView', this)" style="color:var(--biz);">Business</div>
-        <div class="nav-link" onclick="showView('safeView', this)" style="color:var(--safe);">Safe Zone</div>
-        <div class="nav-link" onclick="showView('jrView', this)" style="color:var(--jr);">Jr. Zone</div>
-    </nav>
 
     <script>
-        function showView(viewId, el) {
-            document.querySelectorAll('.view').forEach(v => v.classList.remove('active'));
-            document.getElementById(viewId).classList.add('active');
-            document.querySelectorAll('.nav-link').forEach(l => l.classList.remove('active'));
-            el.classList.add('active');
-            el.scrollIntoView({ behavior: 'smooth', inline: 'center' });
+        function deploy() {
+            const status = document.getElementById('status');
+            status.innerText = "Generating Standalone Site...";
+            status.style.color = "#007aff";
+            
+            setTimeout(() => {
+                status.innerText = "LIVE: Site Deployed to Sovereign Network";
+                status.style.color = "#00ff88";
+            }, 2000);
         }
     </script>
+
 </body>
 </html>
