@@ -3,102 +3,109 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>THE HEARTH | TOTAL ACCESS</title>
+    <title>THE HEARTH | NEXUS ELITE</title>
     <style>
-        :root { --gold: #c4a97a; --bg: #fdfdfd; --dark: #121212; }
+        :root { --gold: #c4a97a; --bg: #f8f9fb; --dark: #121212; }
         * { margin: 0; padding: 0; box-sizing: border-box; font-family: 'Inter', sans-serif; }
-        body { background: #f4f5f7; color: #222; padding-bottom: 80px; }
+        body { background: var(--bg); color: #222; overflow-x: hidden; padding-bottom: 80px; }
 
-        /* THE FLOATING NAV (The App Feel) */
-        .bottom-nav {
-            position: fixed; bottom: 0; width: 100%; background: #fff;
-            display: flex; justify-content: space-around; padding: 15px 0;
-            border-top: 1px solid #eee; z-index: 2000; box-shadow: 0 -5px 20px rgba(0,0,0,0.05);
-        }
-        .nav-item { text-align: center; color: #aaa; font-size: 0.6rem; font-weight: bold; text-transform: uppercase; letter-spacing: 1px; flex: 1; }
-        .nav-item.active { color: var(--gold); }
-
-        /* TOP STATUS BAR */
         header { background: #fff; padding: 20px; border-bottom: 1px solid #eee; display: flex; justify-content: space-between; align-items: center; position: sticky; top: 0; z-index: 1000; }
-        .status-dot { width: 8px; height: 8px; background: #7a9068; border-radius: 50%; display: inline-block; margin-right: 5px; box-shadow: 0 0 10px #7a9068; }
+        .status { font-size: 0.6rem; font-weight: bold; color: #7a9068; display: flex; align-items: center; gap: 5px; }
+        .dot { width: 6px; height: 6px; background: #7a9068; border-radius: 50%; box-shadow: 0 0 8px #7a9068; }
 
         .container { padding: 20px; max-width: 600px; margin: 0 auto; }
 
-        /* THE "SHELVES" (Swipeable Categories) */
-        .shelf-container { margin-bottom: 30px; }
-        .shelf-title { font-size: 0.7rem; font-weight: 900; letter-spacing: 2px; color: var(--gold); text-transform: uppercase; margin-bottom: 15px; }
-        .horizontal-swipe { display: flex; overflow-x: auto; gap: 15px; padding-bottom: 10px; scrollbar-width: none; }
-        .horizontal-swipe::-webkit-scrollbar { display: none; }
+        /* VIEWS */
+        .view { display: none; animation: fadeIn 0.4s ease; }
+        .view.active { display: block; }
+        @keyframes fadeIn { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
 
-        .product-card {
-            min-width: 160px; background: #fff; border-radius: 20px; padding: 20px;
-            border: 1px solid #eee; box-shadow: 0 4px 10px rgba(0,0,0,0.02);
+        /* THE MASTER CARD */
+        .portal-hero {
+            background: var(--dark); border-radius: 30px; padding: 40px 25px;
+            color: #fff; margin-bottom: 30px; position: relative;
         }
-        .card-icon { font-size: 1.5rem; margin-bottom: 10px; display: block; }
-        .card-name { font-size: 0.75rem; font-weight: bold; margin-bottom: 5px; }
-        .card-price { font-size: 0.65rem; color: var(--gold); font-weight: 900; }
+        .price-tag { font-size: 2.5rem; font-weight: 200; color: var(--gold); margin: 15px 0; }
+        .cta-btn { background: var(--gold); color: #fff; border: none; padding: 18px; border-radius: 50px; width: 100%; font-weight: bold; letter-spacing: 2px; text-transform: uppercase; cursor: pointer; }
 
-        /* BANNER CARD */
-        .hero-banner {
-            background: var(--dark); border-radius: 25px; padding: 30px; color: #fff;
-            margin-bottom: 30px; position: relative; overflow: hidden;
-        }
-        .hero-banner h2 { font-weight: 200; font-size: 1.4rem; margin-bottom: 10px; }
+        /* SHELVES & ITEMS */
+        .shelf-header { font-size: 0.65rem; font-weight: 900; letter-spacing: 3px; color: var(--gold); text-transform: uppercase; margin: 30px 0 10px; }
+        .shelf { display: flex; overflow-x: auto; gap: 15px; padding-bottom: 15px; scrollbar-width: none; }
+        .item { min-width: 140px; background: #fff; border-radius: 25px; padding: 20px; border: 1px solid #eee; text-align: center; cursor: pointer; }
+        
+        /* DEPARTMENT DETAIL VIEW */
+        .back-link { color: var(--gold); font-size: 0.7rem; font-weight: bold; cursor: pointer; margin-bottom: 20px; display: inline-block; }
+        .engine-list-item { background: #fff; padding: 20px; border-radius: 20px; margin-bottom: 10px; border-left: 4px solid var(--gold); }
+
+        /* NAV */
+        nav { position: fixed; bottom: 0; width: 100%; background: #fff; border-top: 1px solid #eee; display: flex; justify-content: space-around; padding: 15px 0; }
+        .nav-link { text-align: center; font-size: 0.6rem; font-weight: bold; color: #bbb; cursor: pointer; }
+        .nav-link.active { color: var(--gold); }
     </style>
 </head>
 <body>
 
     <header>
-        <div style="font-weight: 900; letter-spacing: 2px; font-size: 0.7rem; color: var(--gold);">HEARTH NEURAL NET</div>
-        <div style="font-size: 0.6rem; font-weight: bold; display: flex; align-items: center;">
-            <span class="status-dot"></span> MESH ACTIVE
-        </div>
+        <div style="font-weight: 900; letter-spacing: 2px; color: var(--gold); font-size: 0.7rem;">HEARTH</div>
+        <div class="status"><div class="dot"></div> MESH ACTIVE</div>
     </header>
 
     <div class="container">
         
-        <div class="hero-banner">
-            <span style="font-size: 0.5rem; letter-spacing: 3px; color: var(--gold);">FOUNDER ACCESS</span>
-            <h2>The Family Portal</h2>
-            <p style="font-size: 0.7rem; opacity: 0.6; margin-bottom: 20px;">Activate your household's private internet and utility nodes.</p>
-            <button style="background: var(--gold); color: #fff; border: none; padding: 12px 25px; border-radius: 50px; font-weight: bold; font-size: 0.7rem;">GET ACCESS • 97</button>
-        </div>
+        <div id="market-view" class="view active">
+            <div class="portal-hero">
+                <span style="font-size: 0.5rem; letter-spacing: 3px; color: var(--gold);">MASTER KEY</span>
+                <h1 style="font-weight: 200;">Family Portal</h1>
+                <div class="price-tag">197.00</div>
+                <button class="cta-btn" onclick="showDept('Portal Manifest', ['Free Internet Node', 'Utility Cost Shield', 'Private Family Vault'])">Activate All</button>
+            </div>
 
-        <div class="shelf-container">
-            <div class="shelf-title">Healthcare Infrastructure</div>
-            <div class="horizontal-swipe">
-                <div class="product-card"><span class="card-icon">🏥</span><div class="card-name">Nurse Flow</div><div class="card-price">INCLUDED</div></div>
-                <div class="product-card"><span class="card-icon">💊</span><div class="card-name">Health Vault</div><div class="card-price">INCLUDED</div></div>
-                <div class="product-card"><span class="card-icon">🏠</span><div class="card-name">AFH Manager</div><div class="card-price">BIZ ENGINE</div></div>
+            <div class="shelf-header">Infrastructure</div>
+            <div class="shelf">
+                <div class="item" onclick="showDept('Healthcare', ['Nurse Flow AI', 'Clinic Sync', 'AFH Manager'])">🏥<br><br><b>Healthcare</b></div>
+                <div class="item" onclick="showDept('Utilities', ['Mesh-Net Internet', 'Grid Sync', 'Water Sovereignty'])">📡<br><br><b>Utilities</b></div>
+                <div class="item" onclick="showDept('Sovereign Law', ['Asset Shield', 'Trust Documents', 'Common Law Prep'])">⚖️<br><br><b>Law</b></div>
             </div>
         </div>
 
-        <div class="shelf-container">
-            <div class="shelf-title">Sovereign Utilities</div>
-            <div class="horizontal-swipe">
-                <div class="product-card"><span class="card-icon">📡</span><div class="card-name">Mesh-Net</div><div class="card-price">FREE ACCESS</div></div>
-                <div class="product-card"><span class="card-icon">⚡</span><div class="card-name">Grid Shield</div><div class="card-price">FREE ACCESS</div></div>
-                <div class="product-card"><span class="card-icon">💧</span><div class="card-name">Water Node</div><div class="card-price">SOON</div></div>
-            </div>
-        </div>
-
-        <div class="shelf-container">
-            <div class="shelf-title">Standing Law</div>
-            <div class="horizontal-swipe">
-                <div class="product-card"><span class="card-icon">⚖️</span><div class="card-name">Trusts</div><div class="card-price">INCLUDED</div></div>
-                <div class="product-card"><span class="card-icon">📜</span><div class="card-name">Common Law</div><div class="card-price">INCLUDED</div></div>
-                <div class="product-card"><span class="card-icon">🛡️</span><div class="card-name">Asset Shield</div><div class="card-price">INCLUDED</div></div>
-            </div>
+        <div id="dept-view" class="view">
+            <span class="back-link" onclick="showMarket()">← BACK TO MARKET</span>
+            <h2 id="dept-title" style="font-weight: 200; margin-bottom: 20px;"></h2>
+            <div id="dept-list"></div>
         </div>
 
     </div>
 
-    <nav class="bottom-nav">
-        <div class="nav-item active">●<br>Market</div>
-        <div class="nav-item">○<br>My Portal</div>
-        <div class="nav-item">○<br>Biz Engine</div>
-        <div class="nav-item">○<br>Mesh Status</div>
+    <nav>
+        <div class="nav-link active" onclick="showMarket()">Market</div>
+        <div class="nav-link">My Portal</div>
+        <div class="nav-link">Settings</div>
     </nav>
+
+    <script>
+        function showDept(title, engines) {
+            document.getElementById('market-view').classList.remove('active');
+            document.getElementById('dept-view').classList.add('active');
+            document.getElementById('dept-title').innerText = title;
+            
+            let listHtml = '';
+            engines.forEach(eng => {
+                listHtml += `
+                    <div class="engine-list-item">
+                        <div style="font-size: 0.8rem; font-weight: bold;">${eng}</div>
+                        <div style="font-size: 0.6rem; color: #aaa; margin-top: 5px;">Sovereign Infrastructure Engine</div>
+                    </div>
+                `;
+            });
+            document.getElementById('dept-list').innerHTML = listHtml;
+            window.scrollTo(0,0);
+        }
+
+        function showMarket() {
+            document.getElementById('dept-view').classList.remove('active');
+            document.getElementById('market-view').classList.add('active');
+        }
+    </script>
 
 </body>
 </html>
