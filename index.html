@@ -3,75 +3,110 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>HEARTH | CORE</title>
+    <title>HEARTH | OMNI-HUB</title>
     <style>
         :root { --gold: #c4a97a; --ink: #1d1d1f; }
-        * { margin: 0; padding: 0; box-sizing: border-box; font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif; }
-        body { background: #fff; color: var(--ink); line-height: 1.5; padding-bottom: 100px; }
-        
-        .header { padding: 60px 20px; text-align: center; border-bottom: 1px solid #f0f0f0; }
-        .logo { font-weight: 900; letter-spacing: 15px; font-size: 1.2rem; text-transform: uppercase; }
+        * { margin: 0; padding: 0; box-sizing: border-box; font-family: -apple-system, sans-serif; }
+        body { background: #fff; color: var(--ink); height: 100vh; overflow: hidden; }
 
-        .grid { display: grid; grid-template-columns: 1fr 1fr; background: #f0f0f0; gap: 1px; border-bottom: 1px solid #f0f0f0; }
-        .card { background: #fff; padding: 35px 20px; display: flex; flex-direction: column; justify-content: space-between; min-height: 300px; text-decoration: none; color: inherit; }
-        
-        .icon { font-size: 2.8rem; margin-bottom: 20px; display: block; filter: drop-shadow(0 5px 15px rgba(0,0,0,0.05)); }
-        .tag { font-size: 0.55rem; font-weight: 900; letter-spacing: 2px; text-transform: uppercase; color: #bbb; display: block; margin-bottom: 8px; }
-        .name { font-size: 0.9rem; font-weight: 700; margin-bottom: 4px; display: block; }
-        .price { font-size: 0.75rem; font-weight: 800; color: var(--gold); }
+        /* THE VIEW SYSTEM */
+        .view { display: none; height: 100vh; flex-direction: column; overflow-y: auto; padding-bottom: 120px; }
+        .view.active { display: flex; }
 
-        nav { position: fixed; bottom: 25px; left: 15px; right: 15px; background: #000; padding: 20px; border-radius: 100px; display: flex; justify-content: space-around; align-items: center; box-shadow: 0 15px 40px rgba(0,0,0,0.3); z-index: 999; }
-        .nav-item { color: #fff; font-size: 0.55rem; font-weight: 900; text-transform: uppercase; letter-spacing: 1px; text-decoration: none; opacity: 0.4; }
-        .nav-item.active { opacity: 1; }
+        /* MARKETPLACE */
+        .header { padding: 60px 20px; text-align: center; letter-spacing: 15px; font-weight: 900; border-bottom: 1px solid #f0f0f0; text-transform: uppercase; }
+        .grid { display: grid; grid-template-columns: 1fr 1fr; background: #f0f0f0; gap: 1px; }
+        .card { background: #fff; padding: 35px 20px; display: flex; flex-direction: column; justify-content: space-between; min-height: 280px; }
+        .icon { font-size: 2.5rem; margin-bottom: 15px; }
+        .tag { font-size: 0.5rem; font-weight: 900; color: #bbb; text-transform: uppercase; letter-spacing: 2px; }
+        .name { font-size: 0.85rem; font-weight: 700; margin-top: 5px; }
+        .price { font-size: 0.75rem; color: var(--gold); font-weight: 800; margin-top: 5px; }
+
+        /* COMMAND DECK (CREATOR HUB) */
+        .admin-box { margin: 20px; padding: 30px; background: #f9f9f9; border-radius: 20px; border: 1px solid #eee; }
+        .admin-label { font-size: 0.6rem; font-weight: 900; color: #bbb; text-transform: uppercase; letter-spacing: 1px; }
+        input { width: 100%; padding: 15px; margin: 10px 0 20px 0; border: 1px solid #eee; border-radius: 12px; font-size: 1rem; outline: none; }
+        .btn-deploy { width: 100%; padding: 20px; background: var(--ink); color: #fff; border: none; border-radius: 50px; font-weight: 800; text-transform: uppercase; letter-spacing: 2px; cursor: pointer; }
+
+        /* NAV PILL */
+        nav { position: fixed; bottom: 25px; left: 15px; right: 15px; background: #000; padding: 20px; border-radius: 100px; display: flex; justify-content: space-around; z-index: 1000; box-shadow: 0 20px 40px rgba(0,0,0,0.3); }
+        .nav-link { color: #fff; font-size: 0.55rem; font-weight: 900; text-transform: uppercase; opacity: 0.4; cursor: pointer; text-decoration: none; }
+        .nav-link.active { opacity: 1; }
     </style>
 </head>
 <body>
 
-    <header class="header">
-        <div class="logo">HEARTH</div>
-    </header>
+    <div id="marketView" class="view active">
+        <header class="header"><div>HEARTH</div></header>
+        <div class="grid" id="mainStore">
+            <div class="card"><span class="icon">⚙️</span><div><span class="tag">Flagship</span><p class="name">Home-Port</p><p class="price">$1,299</p></div></div>
+            <div class="card"><span class="icon">👕</span><div><span class="tag">Apparel</span><p class="name">AI Skin Shirt</p><p class="price">$45</p></div></div>
+        </div>
+    </div>
 
-    <main class="grid">
-        <div class="card">
-            <span class="icon">⚙️</span>
-            <div>
-                <span class="tag">Flagship</span>
-                <span class="name">Sovereign Home-Port</span>
-                <span class="price">$1,299</span>
-            </div>
+    <div id="creatorView" class="view">
+        <div style="padding: 40px; font-weight: 900; letter-spacing: 5px; text-transform: uppercase;">Command Deck</div>
+        <div class="admin-box">
+            <span class="admin-label">Product Name</span>
+            <input type="text" id="pName" placeholder="e.g. Sovereign Wrench">
+            
+            <span class="admin-label">Price</span>
+            <input type="text" id="pPrice" placeholder="e.g. $89">
+            
+            <span class="admin-label">Emoji Icon</span>
+            <input type="text" id="pIcon" placeholder="e.g. 🛠️">
+            
+            <button class="btn-deploy" onclick="deployToMarket()">Push to Marketplace</button>
         </div>
-        <div class="card">
-            <span class="icon">👕</span>
-            <div>
-                <span class="tag">Apparel</span>
-                <span class="name">Custom AI Skin</span>
-                <span class="price">$45</span>
-            </div>
-        </div>
-        <div class="card">
-            <span class="icon">🛠️</span>
-            <div>
-                <span class="tag">Utility</span>
-                <span class="name">Sovereign Tool v1</span>
-                <span class="price">$89</span>
-            </div>
-        </div>
-        <div class="card">
-            <span class="icon">🔑</span>
-            <div>
-                <span class="tag">Subscription</span>
-                <span class="name">Family Port Vault</span>
-                <span class="price">$197/yr</span>
-            </div>
-        </div>
-    </main>
+        <p style="text-align:center; font-size:0.5rem; opacity:0.3; padding:0 40px;">NOTE: This push updates your current session. Refreshing the browser will reset the market to core assets until the database is linked.</p>
+    </div>
 
     <nav>
-        <a href="#" class="nav-item active">Market</a>
-        <a href="#" class="nav-item" style="color:#00ff88;">Garden</a>
-        <a href="#" class="nav-item" style="color:#007aff;">Junior</a>
-        <a href="#" class="nav-item" style="color:#ff9500;">Vault</a>
+        <div class="nav-link active" onclick="showPortal('marketView', this)">Market</div>
+        <div class="nav-link" onclick="showPortal('creatorView', this)">Creator Hub</div>
     </nav>
 
+    <script>
+        function showPortal(id, el) {
+            document.querySelectorAll('.view').forEach(v => v.classList.remove('active'));
+            document.querySelectorAll('.nav-link').forEach(n => n.classList.remove('active'));
+            document.getElementById(id).classList.add('active');
+            el.classList.add('active');
+        }
+
+        function deployToMarket() {
+            const name = document.getElementById('pName').value;
+            const price = document.getElementById('pPrice').value;
+            const icon = document.getElementById('pIcon').value || '📦';
+            
+            if(!name || !price) {
+                alert("Please enter a name and price.");
+                return;
+            }
+
+            const store = document.getElementById('mainStore');
+            const template = `
+                <div class="card">
+                    <span class="icon">${icon}</span>
+                    <div>
+                        <span class="tag">Sovereign Asset</span>
+                        <p class="name">${name}</p>
+                        <p class="price">${price}</p>
+                    </div>
+                </div>`;
+            
+            store.insertAdjacentHTML('beforeend', template);
+            
+            alert(name + " has been deployed!");
+            
+            // Return to market
+            showPortal('marketView', document.querySelectorAll('.nav-link')[0]);
+            
+            // Clear inputs
+            document.getElementById('pName').value = '';
+            document.getElementById('pPrice').value = '';
+            document.getElementById('pIcon').value = '';
+        }
+    </script>
 </body>
 </html>
