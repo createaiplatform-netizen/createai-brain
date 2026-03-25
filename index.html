@@ -3,156 +3,126 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>HEARTH | NEURAL OS</title>
+    <title>THE HEARTH | DIGITAL MARKETPLACE</title>
     <style>
-        :root { 
-            --accent: #d4af37; 
-            --void: #050505;
-            --glass-core: rgba(255, 255, 255, 0.015);
-            --wireframe: rgba(212, 175, 55, 0.15);
-        }
-        
-        * { margin: 0; padding: 0; box-sizing: border-box; font-family: 'Space Grotesk', 'Inter', sans-serif; }
-        
-        body { 
-            background: var(--void);
-            color: #fff; 
-            min-height: 100vh;
-            overflow-x: hidden;
-            background-image: 
-                radial-gradient(circle at 50% 0%, #1a150a 0%, transparent 50%),
-                radial-gradient(circle at 0% 100%, #0a0a0a 0%, transparent 50%);
-        }
+        :root { --gold: #c4a97a; --pearl: #fff; --bg: #f8f9fb; }
+        * { margin: 0; padding: 0; box-sizing: border-box; font-family: 'Inter', sans-serif; }
+        body { background: var(--bg); color: #1a1a1a; padding-bottom: 90px; }
 
-        /* DATA HEADER */
+        /* THE PREMIUM TOP BAR */
         header { 
-            padding: 25px;
-            display: flex;
-            justify-content: space-between;
-            align-items: flex-start;
-            border-bottom: 1px solid rgba(255,255,255,0.05);
+            background: #fff; padding: 20px; border-bottom: 1px solid #eee;
+            display: flex; justify-content: space-between; align-items: center;
+            position: sticky; top: 0; z-index: 1000;
         }
-        .sys-info { font-family: monospace; font-size: 0.5rem; color: var(--accent); letter-spacing: 2px; line-height: 1.5; }
-        .logo-1t { font-weight: 200; letter-spacing: 12px; font-size: 0.8rem; text-transform: uppercase; }
+        .logo { font-weight: 900; letter-spacing: 4px; font-size: 0.7rem; color: var(--gold); }
+        .user-access { font-size: 0.6rem; font-weight: bold; background: #f0f0f0; padding: 5px 10px; border-radius: 20px; }
 
-        .container { padding: 40px 20px; max-width: 450px; margin: 0 auto; }
+        .container { max-width: 600px; margin: 0 auto; padding: 20px; }
 
-        /* THE CORE NODE (Hero) */
-        .core-node {
-            position: relative;
-            background: var(--glass-core);
-            border: 1px solid var(--wireframe);
-            border-radius: 2px; /* Brutalist sharp edges look more "Trillion Dollar" */
-            padding: 60px 30px;
-            margin-bottom: 50px;
-            backdrop-filter: blur(40px);
-            box-shadow: 0 0 100px rgba(0,0,0,1);
+        /* VIEW TOGGLE */
+        .view { display: none; }
+        .view.active { display: block; animation: fadeIn 0.3s ease; }
+        @keyframes fadeIn { from { opacity: 0; } to { opacity: 1; } }
+
+        /* DASHBOARD CARDS (The "Owned" Infrastructure) */
+        .stat-card {
+            background: #fff; border-radius: 20px; padding: 20px; margin-bottom: 15px;
+            border-left: 5px solid var(--gold); box-shadow: 0 10px 30px rgba(0,0,0,0.03);
         }
-        
-        .core-node::before {
-            content: ''; position: absolute; top: 0; left: 0; width: 10px; height: 10px;
-            border-top: 1px solid var(--accent); border-left: 1px solid var(--accent);
-        }
+        .stat-label { font-size: 0.55rem; letter-spacing: 2px; color: #aaa; text-transform: uppercase; font-weight: 900; }
+        .stat-value { font-size: 1.1rem; font-weight: 300; margin-top: 5px; }
 
-        .label { font-size: 0.45rem; letter-spacing: 4px; color: var(--accent); text-transform: uppercase; margin-bottom: 20px; display: block; }
-        .title { font-size: 2.4rem; font-weight: 200; letter-spacing: -2px; margin-bottom: 5px; }
-        .price { font-size: 1.2rem; font-family: monospace; color: var(--accent); margin-bottom: 30px; opacity: 0.8; }
-        
-        .activate-btn {
-            background: transparent;
-            color: var(--accent);
-            border: 1px solid var(--accent);
-            padding: 22px;
-            width: 100%;
-            font-size: 0.6rem;
-            letter-spacing: 5px;
-            text-transform: uppercase;
-            font-weight: 900;
-            cursor: pointer;
-            transition: 0.5s;
+        /* MARKET TILES (The "Amazon" Dropship Store) */
+        .market-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 15px; }
+        .product-tile {
+            background: #fff; border-radius: 20px; padding: 25px 15px;
+            text-align: center; border: 1px solid #eee; transition: 0.3s;
         }
-        .activate-btn:hover { background: var(--accent); color: #000; box-shadow: 0 0 50px var(--wireframe); }
+        .product-tile:active { transform: scale(0.95); border-color: var(--gold); }
+        .tile-icon { font-size: 1.8rem; margin-bottom: 10px; display: block; }
+        .tile-title { font-size: 0.75rem; font-weight: bold; }
+        .tile-price { font-size: 0.65rem; color: var(--gold); font-weight: 900; margin-top: 5px; }
 
-        /* SECTOR GRID */
-        .sector-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 1px; background: rgba(255,255,255,0.05); border: 1px solid rgba(255,255,255,0.05); }
-        
-        .sector {
-            background: var(--void);
-            padding: 40px 20px;
-            text-align: left;
-            transition: 0.3s;
-        }
-        .sector:hover { background: #0a0a0a; }
-        .sector-num { font-family: monospace; font-size: 0.4rem; color: rgba(255,255,255,0.2); margin-bottom: 10px; display: block; }
-        .sector h3 { font-size: 0.7rem; font-weight: 300; letter-spacing: 2px; text-transform: uppercase; }
-
-        /* HUD NAVIGATION */
+        /* BOTTOM NAV */
         nav {
-            position: fixed;
-            bottom: 0;
-            width: 100%;
-            background: rgba(5,5,5,0.9);
-            backdrop-filter: blur(20px);
-            display: flex;
-            border-top: 1px solid rgba(255,255,255,0.05);
-            padding: 25px;
-            justify-content: space-around;
+            position: fixed; bottom: 0; width: 100%; background: #fff; border-top: 1px solid #eee;
+            display: flex; justify-content: space-around; padding: 15px 0; z-index: 2000;
         }
-        .nav-icon { font-size: 0.5rem; letter-spacing: 3px; color: rgba(255,255,255,0.2); text-transform: uppercase; font-weight: 900; }
-        .nav-icon.active { color: var(--accent); }
-
+        .nav-btn { text-align: center; font-size: 0.55rem; font-weight: 900; color: #ccc; text-transform: uppercase; cursor: pointer; letter-spacing: 1px; }
+        .nav-btn.active { color: var(--gold); }
     </style>
 </head>
 <body>
 
     <header>
-        <div class="sys-info">
-            LOC: WEBSTER_WI<br>
-            NET: MESH_ACTIVE<br>
-            SEC: ENCRYPTED
-        </div>
-        <div class="logo-1t">HEARTH</div>
+        <div class="logo">HEARTH CORE</div>
+        <div class="user-access">WEBSTER_NODE_01</div>
     </header>
 
     <div class="container">
         
-        <div class="core-node">
-            <span class="label">Infrastructure Key 01</span>
-            <h1 class="title">Family Portal</h1>
-            <div class="price">$197.00 // ACCESS_GRANT</div>
-            <p style="font-size: 0.65rem; color: #666; line-height: 2; letter-spacing: 1px; margin-bottom: 40px;">
-                DEPLOY PRIVATE NEURAL NODE. LINK HOUSEHOLD UTILITIES TO SOVEREIGN MESH. ACTIVATE LEGACY VAULT.
-            </p>
-            <button class="activate-btn">Initialize Uplink</button>
+        <div id="dashboard" class="view active">
+            <h2 style="font-weight: 200; margin-bottom: 20px;">Infrastructure Status</h2>
+            <div class="stat-card">
+                <div class="stat-label">Network Status</div>
+                <div class="stat-value" style="color: #7a9068;">● Mesh Active</div>
+            </div>
+            <div class="stat-card">
+                <div class="stat-label">Active Engines</div>
+                <div class="stat-value">3 Solutions Deployed</div>
+            </div>
+            <div class="stat-card">
+                <div class="stat-label">Family Vault</div>
+                <div class="stat-value">Secured & Encrypted</div>
+            </div>
         </div>
 
-        <div class="label" style="margin-bottom: 10px;">Network Sectors</div>
-        <div class="sector-grid">
-            <div class="sector">
-                <span class="sector-num">VOL_01</span>
-                <h3>Healthcare</h3>
-            </div>
-            <div class="sector">
-                <span class="sector-num">VOL_02</span>
-                <h3>Sovereign Law</h3>
-            </div>
-            <div class="sector">
-                <span class="sector-num">VOL_03</span>
-                <h3>Utilities</h3>
-            </div>
-            <div class="sector">
-                <span class="sector-num">VOL_04</span>
-                <h3>Wealth AI</h3>
+        <div id="market" class="view">
+            <h2 style="font-weight: 200; margin-bottom: 20px;">Digital Marketplace</h2>
+            <p style="font-size: 0.7rem; color: #888; margin-bottom: 20px;">Instant "Dropship" deployment of infrastructure engines.</p>
+            
+            <div class="market-grid">
+                <div class="product-tile" onclick="alert('Deploying Healthcare Engine...')">
+                    <span class="tile-icon">🏥</span>
+                    <div class="tile-title">Healthcare</div>
+                    <div class="tile-price">ADD TO HEARTH</div>
+                </div>
+                <div class="product-tile" onclick="alert('Deploying Legal Engine...')">
+                    <span class="tile-icon">⚖️</span>
+                    <div class="tile-title">Sovereign Law</div>
+                    <div class="tile-price">ADD TO HEARTH</div>
+                </div>
+                <div class="product-tile" onclick="alert('Deploying Utility Engine...')">
+                    <span class="tile-icon">📡</span>
+                    <div class="tile-title">Utilities</div>
+                    <div class="tile-price">ADD TO HEARTH</div>
+                </div>
+                <div class="product-tile" onclick="alert('Deploying Wealth Engine...')">
+                    <span class="tile-icon">💰</span>
+                    <div class="tile-title">Wealth AI</div>
+                    <div class="tile-price">ADD TO HEARTH</div>
+                </div>
             </div>
         </div>
 
     </div>
 
     <nav>
-        <div class="nav-icon active">Systems</div>
-        <div class="nav-icon">Nodes</div>
-        <div class="nav-icon">Intelligence</div>
+        <div class="nav-btn active" id="dash-link" onclick="switchView('dashboard')">Dashboard</div>
+        <div class="nav-btn" id="market-link" onclick="switchView('market')">Market</div>
+        <div class="nav-btn">Vault</div>
     </nav>
+
+    <script>
+        function switchView(viewId) {
+            document.querySelectorAll('.view').forEach(v => v.classList.remove('active'));
+            document.querySelectorAll('.nav-btn').forEach(b => b.classList.remove('active'));
+            
+            document.getElementById(viewId).classList.add('active');
+            document.getElementById(viewId + '-link').classList.add('active');
+        }
+    </script>
 
 </body>
 </html>
