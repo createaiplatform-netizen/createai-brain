@@ -575,6 +575,12 @@ app.get("/genesis", (_req: Request, res: Response) => {
   res.sendFile(path.resolve("/home/runner/workspace/sovereign-genesis.html"));
 });
 
+// ── Zenith Studio — generative neural art engine ───────────────────────────
+app.get("/zenith", (_req: Request, res: Response) => {
+  res.setHeader("Content-Type", "text/html; charset=utf-8");
+  res.sendFile(path.resolve("/home/runner/workspace/studio.html"));
+});
+
 app.use("/ss",        signalSpaceRouter);
 app.use("/nexus",     nexusRouter);
 app.use("/core",      coreOSRouter);

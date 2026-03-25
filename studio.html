@@ -1,0 +1,300 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>ZENITH STUDIO | V1.0</title>
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+    body {
+      background: #000;
+      color: #d4af37;
+      font-family: 'Courier New', Courier, monospace;
+      height: 100vh;
+      overflow: hidden;
+      text-transform: uppercase;
+    }
+
+    /* ── GHOST GATE ── */
+    #ghost-gate {
+      position: fixed;
+      inset: 0;
+      background: #000;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      z-index: 9999;
+      gap: 24px;
+    }
+    #ghost-gate h1 { font-size: 1.2rem; letter-spacing: 0.6em; opacity: 0.5; }
+    .blink { animation: blink 1.2s step-end infinite; }
+    @keyframes blink { 0%, 100% { opacity: 1; } 50% { opacity: 0; } }
+
+    #gate-input {
+      background: #000;
+      border: 1px solid #d4af37;
+      color: #d4af37;
+      font-family: 'Courier New', monospace;
+      font-size: 2rem;
+      text-align: center;
+      width: 160px;
+      padding: 12px;
+      letter-spacing: 0.5em;
+      outline: none;
+    }
+    #gate-input:focus { box-shadow: 0 0 20px rgba(212,175,55,0.3); }
+    #gate-error { font-size: 0.65rem; color: #ff4444; letter-spacing: 0.3em; height: 14px; }
+
+    /* ── MAIN APP ── */
+    #app { display: none; height: 100vh; flex-direction: row; }
+    #app.active { display: flex; }
+
+    /* Canvas panel */
+    #canvas-panel {
+      flex: 1;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      padding: 20px;
+      gap: 14px;
+    }
+
+    #header-bar {
+      width: 100%;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      border-bottom: 1px solid #1a1500;
+      padding-bottom: 10px;
+    }
+    .brand { font-size: 0.9rem; letter-spacing: 0.45em; }
+    .dot { width: 7px; height: 7px; border-radius: 50%; background: #d4af37; display: inline-block;
+           animation: dpulse 2s infinite; margin-right: 8px; }
+    @keyframes dpulse { 0%, 100% { opacity: 1; } 50% { opacity: 0.15; } }
+
+    #neural-canvas {
+      border: 1px solid #1a1500;
+      background: #050505;
+      max-width: 100%;
+      box-shadow: 0 0 40px rgba(212,175,55,0.08);
+    }
+
+    #seed-status {
+      font-size: 0.65rem;
+      color: #3a3000;
+      letter-spacing: 0.3em;
+      height: 16px;
+    }
+    #seed-status.legendary { color: #d4af37; }
+
+    .controls { display: flex; gap: 12px; }
+    .btn {
+      background: transparent;
+      border: 1px solid #d4af37;
+      color: #d4af37;
+      font-family: 'Courier New', monospace;
+      padding: 10px 22px;
+      cursor: pointer;
+      letter-spacing: 0.2em;
+      font-size: 0.7rem;
+      transition: 0.2s;
+      text-transform: uppercase;
+    }
+    .btn:hover { background: #d4af37; color: #000; }
+    .btn.on { background: #d4af37; color: #000; }
+
+    /* Vault sidebar */
+    #vault-panel {
+      width: 270px;
+      border-left: 1px solid #1a1500;
+      display: flex;
+      flex-direction: column;
+      overflow: hidden;
+    }
+    #vault-header {
+      padding: 14px 16px;
+      border-bottom: 1px solid #1a1500;
+      font-size: 0.65rem;
+      letter-spacing: 0.45em;
+      color: #3a3000;
+    }
+    #vault-list { flex: 1; overflow-y: auto; padding: 8px; }
+    #vault-list::-webkit-scrollbar { width: 3px; }
+    #vault-list::-webkit-scrollbar-thumb { background: #1a1500; }
+
+    .vault-item {
+      padding: 10px;
+      border-bottom: 1px solid #0f0f00;
+      display: flex;
+      flex-direction: column;
+      gap: 5px;
+      animation: slidein 0.3s ease;
+    }
+    @keyframes slidein { from { opacity: 0; transform: translateX(8px); } to { opacity: 1; } }
+
+    .vault-id { font-size: 0.62rem; color: #d4af37; }
+    .vault-time { font-size: 0.52rem; color: #2a2000; }
+    .vault-dl {
+      font-size: 0.58rem;
+      color: #000;
+      background: #d4af37;
+      text-decoration: none;
+      padding: 4px 8px;
+      letter-spacing: 0.12em;
+      align-self: flex-start;
+    }
+    .vault-dl:hover { background: #fff; }
+
+    #vault-empty {
+      padding: 24px 16px;
+      font-size: 0.55rem;
+      color: #1a1500;
+      letter-spacing: 0.2em;
+      text-align: center;
+      line-height: 2;
+    }
+    #vault-count {
+      padding: 10px 16px;
+      border-top: 1px solid #1a1500;
+      font-size: 0.58rem;
+      color: #2a2000;
+      letter-spacing: 0.25em;
+    }
+  </style>
+</head>
+<body>
+
+  <div id="ghost-gate">
+    <h1>SYSTEM_OFFLINE</h1>
+    <div style="font-size:0.6rem;letter-spacing:0.5em;color:#2a2000">NODE_54893 <span class="blink">_</span></div>
+    <input id="gate-input" type="password" maxlength="4" placeholder="_ _ _ _" autofocus autocomplete="off">
+    <div id="gate-error"></div>
+  </div>
+
+  <div id="app">
+    <div id="canvas-panel">
+      <div id="header-bar">
+        <span class="brand"><span class="dot"></span>ZENITH_BRAIN V1.0</span>
+        <span id="cycle-count" style="font-size:0.6rem;color:#2a2000;letter-spacing:0.3em">CYCLES: 0</span>
+      </div>
+      <canvas id="neural-canvas" width="500" height="360"></canvas>
+      <div id="seed-status">AWAITING_SEED_INITIALIZATION</div>
+      <div class="controls">
+        <button class="btn" onclick="manualStrike()">MANUAL_STRIKE</button>
+        <button class="btn" id="auto-btn" onclick="toggleAuto()">AUTO_SCAN: OFF</button>
+      </div>
+    </div>
+
+    <div id="vault-panel">
+      <div id="vault-header">NEURAL_ARCHIVE</div>
+      <div id="vault-list">
+        <div id="vault-empty">EMPTY_VAULT<br>AWAITING_LEGENDARY<br>ASSETS</div>
+      </div>
+      <div id="vault-count">ARCHIVE: 0 NODES</div>
+    </div>
+  </div>
+
+  <script>
+    const MASTER_KEY = '1440';
+    const gateInput  = document.getElementById('gate-input');
+    const gateError  = document.getElementById('gate-error');
+
+    gateInput.addEventListener('input', () => {
+      if (gateInput.value.length < 4) return;
+      if (gateInput.value === MASTER_KEY) {
+        document.getElementById('ghost-gate').style.display = 'none';
+        document.getElementById('app').classList.add('active');
+        manualStrike();
+      } else {
+        gateError.textContent = 'ACCESS_DENIED: INVALID_KEY';
+        gateInput.value = '';
+        setTimeout(() => { gateError.textContent = ''; }, 2000);
+      }
+    });
+
+    const canvas    = document.getElementById('neural-canvas');
+    const ctx       = canvas.getContext('2d');
+    const statusEl  = document.getElementById('seed-status');
+    const cycleEl   = document.getElementById('cycle-count');
+    const vaultList = document.getElementById('vault-list');
+    const vaultCountEl = document.getElementById('vault-count');
+    const autoBtn   = document.getElementById('auto-btn');
+
+    let isAuto = false;
+    let autoInterval = null;
+    let totalCycles = 0;
+    let archiveCount = 0;
+
+    function generateSeed() {
+      totalCycles++;
+      cycleEl.textContent = `CYCLES: ${totalCycles}`;
+
+      ctx.fillStyle = 'rgba(0,0,0,0.12)';
+      ctx.fillRect(0, 0, canvas.width, canvas.height);
+
+      const isLegendary = Math.random() < 0.04;
+      const id = 'Z-' + Math.random().toString(36).substring(2, 9).toUpperCase();
+      const lineCount = isLegendary ? 80 : 18;
+      ctx.lineWidth = isLegendary ? 1.5 : 0.4;
+
+      for (let i = 0; i < lineCount; i++) {
+        const alpha = isLegendary ? (0.3 + Math.random() * 0.7) : (0.04 + Math.random() * 0.08);
+        ctx.strokeStyle = `rgba(212,175,55,${alpha})`;
+        ctx.beginPath();
+        const x1 = Math.random() * canvas.width;
+        const y1 = Math.random() * canvas.height;
+        ctx.moveTo(x1, y1);
+        ctx.lineTo(x1 + (Math.random() - 0.5) * 220, y1 + (Math.random() - 0.5) * 220);
+        ctx.stroke();
+      }
+
+      if (isLegendary) {
+        statusEl.textContent = `LEGENDARY_FOUND: ${id}`;
+        statusEl.className = 'legendary';
+        addToVault(id);
+      } else if (!isAuto) {
+        statusEl.textContent = 'DENSITY_LOW: SEED_REJECTED';
+        statusEl.className = '';
+      }
+    }
+
+    function manualStrike() { generateSeed(); }
+
+    function toggleAuto() {
+      isAuto = !isAuto;
+      if (isAuto) {
+        autoBtn.textContent = 'AUTO_SCAN: ON';
+        autoBtn.classList.add('on');
+        statusEl.textContent = 'SCANNING...';
+        statusEl.className = '';
+        autoInterval = setInterval(generateSeed, 200);
+      } else {
+        clearInterval(autoInterval);
+        autoInterval = null;
+        autoBtn.textContent = 'AUTO_SCAN: OFF';
+        autoBtn.classList.remove('on');
+        statusEl.textContent = 'SCAN_HALTED';
+        statusEl.className = '';
+      }
+    }
+
+    function addToVault(id) {
+      const empty = document.getElementById('vault-empty');
+      if (empty) empty.remove();
+      const dataURL = canvas.toDataURL('image/png');
+      archiveCount++;
+      const item = document.createElement('div');
+      item.className = 'vault-item';
+      item.innerHTML =
+        `<span class="vault-id">${id}</span>` +
+        `<span class="vault-time">${new Date().toLocaleTimeString()}</span>` +
+        `<a class="vault-dl" href="${dataURL}" download="${id}.png">DOWNLOAD_PNG</a>`;
+      vaultList.prepend(item);
+      vaultCountEl.textContent = `ARCHIVE: ${archiveCount} NODES`;
+    }
+  </script>
+</body>
+</html>
