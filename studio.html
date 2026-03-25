@@ -8,218 +8,246 @@
   <style>
     *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
 
-    body {
+    html, body {
+      height: 100%;
       background: #000;
       color: #d4af37;
       font-family: 'Courier New', Courier, monospace;
-      height: 100vh;
       overflow: hidden;
       text-transform: uppercase;
     }
 
     /* ── GHOST GATE ── */
     #ghost-gate {
-      position: fixed;
-      inset: 0;
-      background: #000;
-      display: flex;
-      flex-direction: column;
-      align-items: center;
-      justify-content: center;
-      z-index: 9999;
-      gap: 24px;
+      position: fixed; inset: 0; background: #000;
+      display: flex; flex-direction: column; align-items: center;
+      justify-content: center; z-index: 9999; gap: 22px;
     }
-    #ghost-gate h1 { font-size: 1.2rem; letter-spacing: 0.6em; opacity: 0.5; }
+    #ghost-gate h1 { font-size: 1.1rem; letter-spacing: 0.6em; opacity: 0.45; }
     .blink { animation: blink 1.2s step-end infinite; }
-    @keyframes blink { 0%, 100% { opacity: 1; } 50% { opacity: 0; } }
-
+    @keyframes blink { 0%,100%{opacity:1} 50%{opacity:0} }
     #gate-input {
-      background: #000;
-      border: 1px solid #d4af37;
-      color: #d4af37;
-      font-family: 'Courier New', monospace;
-      font-size: 2rem;
-      text-align: center;
-      width: 160px;
-      padding: 12px;
-      letter-spacing: 0.5em;
-      outline: none;
+      background: #000; border: 1px solid #d4af37; color: #d4af37;
+      font-family: 'Courier New', monospace; font-size: 2rem;
+      text-align: center; width: 150px; padding: 10px;
+      letter-spacing: 0.5em; outline: none;
     }
-    #gate-input:focus { box-shadow: 0 0 20px rgba(212,175,55,0.3); }
-    #gate-error { font-size: 0.65rem; color: #ff4444; letter-spacing: 0.3em; height: 14px; }
+    #gate-input:focus { box-shadow: 0 0 18px rgba(212,175,55,0.3); }
+    #gate-error { font-size: 0.62rem; color: #ff4444; letter-spacing: 0.3em; height: 13px; }
 
-    /* ── MAIN APP ── */
+    /* ── APP SHELL (single screen, no scroll) ── */
     #app { display: none; height: 100vh; flex-direction: row; }
     #app.active { display: flex; }
 
+    /* ── LEFT: CANVAS PANEL ── */
     #canvas-panel {
-      flex: 1;
-      display: flex;
-      flex-direction: column;
-      align-items: center;
-      justify-content: center;
-      padding: 20px;
-      gap: 14px;
+      flex: 1; display: flex; flex-direction: column;
+      padding: 12px 14px; gap: 10px; overflow: hidden;
     }
 
+    /* header row */
     #header-bar {
-      width: 100%;
-      display: flex;
-      justify-content: space-between;
-      align-items: center;
-      border-bottom: 1px solid #1a1500;
-      padding-bottom: 10px;
+      display: flex; justify-content: space-between; align-items: center;
+      border-bottom: 1px solid #1a1500; padding-bottom: 8px; flex-shrink: 0;
     }
-    .brand { font-size: 0.9rem; letter-spacing: 0.45em; }
-    .dot { width: 7px; height: 7px; border-radius: 50%; background: #d4af37; display: inline-block;
-           animation: dpulse 2s infinite; margin-right: 8px; }
-    @keyframes dpulse { 0%, 100% { opacity: 1; } 50% { opacity: 0.15; } }
+    .brand { font-size: 0.82rem; letter-spacing: 0.4em; }
+    .dot {
+      width: 6px; height: 6px; border-radius: 50%; background: #d4af37;
+      display: inline-block; animation: dpulse 2s infinite; margin-right: 7px;
+    }
+    @keyframes dpulse { 0%,100%{opacity:1} 50%{opacity:0.12} }
 
+    /* ── ANALYTICS BAR ── */
+    #analytics-bar {
+      display: grid; grid-template-columns: repeat(3,1fr);
+      border: 1px solid #1a1500; flex-shrink: 0;
+    }
+    .analytic-cell {
+      padding: 8px 10px; border-right: 1px solid #1a1500;
+      display: flex; flex-direction: column; gap: 4px;
+    }
+    .analytic-cell:last-child { border-right: none; }
+    .analytic-label { font-size: 0.52rem; color: #3a3000; letter-spacing: 0.35em; }
+    .analytic-value { font-size: 0.78rem; color: #d4af37; letter-spacing: 0.1em; display: flex; align-items: center; gap: 8px; }
+
+    /* Neural Pulse heartbeat line */
+    #pulse-line {
+      display: inline-block; width: 40px; height: 14px;
+      position: relative; overflow: visible; flex-shrink: 0;
+    }
+    #pulse-line svg { width: 100%; height: 100%; overflow: visible; }
+    .hb-path {
+      fill: none; stroke: #d4af37; stroke-width: 1.2;
+      stroke-dasharray: 80; stroke-dashoffset: 80;
+      animation: hb-draw 1.4s ease-in-out infinite;
+    }
+    @keyframes hb-draw {
+      0%   { stroke-dashoffset: 80; opacity: 1; }
+      60%  { stroke-dashoffset: 0;  opacity: 1; }
+      85%  { stroke-dashoffset: 0;  opacity: 0.6; }
+      100% { stroke-dashoffset: 80; opacity: 0; }
+    }
+
+    /* canvas wrapper — takes remaining space */
+    #canvas-wrap {
+      flex: 1; display: flex; align-items: center; justify-content: center;
+      position: relative; min-height: 0;
+    }
     #neural-canvas {
+      border: 1px solid #1a1500; background: #050505;
+      max-width: 100%; max-height: 100%;
+      box-shadow: 0 0 30px rgba(212,175,55,0.07);
+    }
+    #silent-overlay {
+      position: absolute; inset: 0; background: #000;
+      display: none; align-items: center; justify-content: center;
+      font-size: 0.7rem; letter-spacing: 0.4em; color: #2a2000;
       border: 1px solid #1a1500;
-      background: #050505;
-      max-width: 100%;
-      box-shadow: 0 0 40px rgba(212,175,55,0.08);
     }
+    #silent-overlay.visible { display: flex; }
 
-    #seed-status {
-      font-size: 0.65rem;
-      color: #3a3000;
-      letter-spacing: 0.3em;
-      height: 16px;
-    }
+    /* status + controls */
+    #seed-status { font-size: 0.62rem; color: #3a3000; letter-spacing: 0.3em; height: 14px; flex-shrink: 0; }
     #seed-status.legendary { color: #d4af37; }
 
-    .controls { display: flex; gap: 12px; }
+    .controls { display: flex; gap: 10px; flex-shrink: 0; flex-wrap: wrap; }
     .btn {
-      background: transparent;
-      border: 1px solid #d4af37;
-      color: #d4af37;
-      font-family: 'Courier New', monospace;
-      padding: 10px 22px;
-      cursor: pointer;
-      letter-spacing: 0.2em;
-      font-size: 0.7rem;
-      transition: 0.2s;
-      text-transform: uppercase;
+      background: transparent; border: 1px solid #d4af37; color: #d4af37;
+      font-family: 'Courier New', monospace; padding: 8px 18px;
+      cursor: pointer; letter-spacing: 0.18em; font-size: 0.65rem;
+      transition: 0.2s; text-transform: uppercase;
     }
     .btn:hover { background: #d4af37; color: #000; }
     .btn.on { background: #d4af37; color: #000; }
+    .btn.dim { border-color: #2a2000; color: #2a2000; }
+    .btn.dim:hover { border-color: #d4af37; color: #d4af37; background: transparent; }
+    .btn.dim.on { background: #2a2000; color: #d4af37; border-color: #2a2000; }
 
-    /* ── VAULT SIDEBAR ── */
+    /* ── RIGHT: VAULT SIDEBAR ── */
     #vault-panel {
-      width: 280px;
-      border-left: 1px solid #1a1500;
-      display: flex;
-      flex-direction: column;
-      overflow: hidden;
+      width: 260px; border-left: 1px solid #1a1500;
+      display: flex; flex-direction: column; overflow: hidden;
     }
     #vault-header {
-      padding: 12px 16px;
-      border-bottom: 1px solid #1a1500;
-      font-size: 0.65rem;
-      letter-spacing: 0.45em;
-      color: #3a3000;
-      display: flex;
-      justify-content: space-between;
-      align-items: center;
+      padding: 10px 14px; border-bottom: 1px solid #1a1500;
+      font-size: 0.6rem; letter-spacing: 0.42em; color: #3a3000;
+      display: flex; justify-content: space-between; align-items: center;
+      flex-shrink: 0;
     }
     #download-all-btn {
-      background: transparent;
-      border: 1px solid #2a2000;
-      color: #3a3000;
-      font-family: 'Courier New', monospace;
-      font-size: 0.52rem;
-      padding: 4px 8px;
-      cursor: pointer;
-      letter-spacing: 0.15em;
-      text-transform: uppercase;
-      transition: 0.2s;
+      background: transparent; border: 1px solid #1a1500; color: #2a2000;
+      font-family: 'Courier New', monospace; font-size: 0.5rem;
+      padding: 3px 7px; cursor: pointer; letter-spacing: 0.12em;
+      text-transform: uppercase; transition: 0.2s;
     }
-    #download-all-btn:hover { border-color: #d4af37; color: #d4af37; }
+    #download-all-btn:hover,
     #download-all-btn.active { border-color: #d4af37; color: #d4af37; }
 
-    #vault-list { flex: 1; overflow-y: auto; padding: 8px; }
+    #vault-list { flex: 1; overflow-y: auto; padding: 6px; min-height: 0; }
     #vault-list::-webkit-scrollbar { width: 3px; }
     #vault-list::-webkit-scrollbar-thumb { background: #1a1500; }
 
     .vault-item {
-      padding: 10px;
-      border-bottom: 1px solid #0f0f00;
-      display: flex;
-      flex-direction: column;
-      gap: 5px;
+      padding: 8px; border-bottom: 1px solid #0f0f00;
+      display: flex; flex-direction: column; gap: 4px;
       animation: slidein 0.3s ease;
     }
-    @keyframes slidein { from { opacity: 0; transform: translateX(8px); } to { opacity: 1; } }
-
-    .vault-name { font-size: 0.68rem; color: #d4af37; letter-spacing: 0.1em; }
-    .vault-time { font-size: 0.52rem; color: #2a2000; }
+    @keyframes slidein { from{opacity:0;transform:translateX(8px)} to{opacity:1} }
+    .vault-name { font-size: 0.65rem; color: #d4af37; letter-spacing: 0.08em; }
+    .vault-time { font-size: 0.5rem; color: #2a2000; }
     .vault-dl {
-      font-size: 0.58rem;
-      color: #000;
-      background: #d4af37;
-      text-decoration: none;
-      padding: 4px 8px;
-      letter-spacing: 0.12em;
+      font-size: 0.55rem; color: #000; background: #d4af37;
+      text-decoration: none; padding: 3px 7px; letter-spacing: 0.1em;
       align-self: flex-start;
     }
     .vault-dl:hover { background: #fff; }
-
     #vault-empty {
-      padding: 24px 16px;
-      font-size: 0.55rem;
-      color: #1a1500;
-      letter-spacing: 0.2em;
-      text-align: center;
-      line-height: 2;
+      padding: 20px 14px; font-size: 0.52rem; color: #1a1500;
+      letter-spacing: 0.18em; text-align: center; line-height: 2.2;
     }
-    #vault-count {
-      padding: 10px 16px;
-      border-top: 1px solid #1a1500;
-      font-size: 0.58rem;
-      color: #2a2000;
-      letter-spacing: 0.25em;
+    #vault-footer {
+      padding: 8px 14px; border-top: 1px solid #1a1500;
+      font-size: 0.55rem; color: #2a2000; letter-spacing: 0.22em;
+      flex-shrink: 0;
     }
   </style>
 </head>
 <body>
 
+  <!-- GHOST GATE -->
   <div id="ghost-gate">
     <h1>SYSTEM_OFFLINE</h1>
-    <div style="font-size:0.6rem;letter-spacing:0.5em;color:#2a2000">NODE_54893 <span class="blink">_</span></div>
+    <div style="font-size:0.58rem;letter-spacing:0.5em;color:#2a2000">NODE_54893 <span class="blink">_</span></div>
     <input id="gate-input" type="password" maxlength="4" placeholder="_ _ _ _" autofocus autocomplete="off">
     <div id="gate-error"></div>
   </div>
 
+  <!-- MAIN APP -->
   <div id="app">
+
+    <!-- LEFT PANEL -->
     <div id="canvas-panel">
+
       <div id="header-bar">
         <span class="brand"><span class="dot"></span>ZENITH_BRAIN V2.0</span>
-        <span id="cycle-count" style="font-size:0.6rem;color:#2a2000;letter-spacing:0.3em">CYCLES: 0</span>
+        <span id="cycle-count" style="font-size:0.58rem;color:#2a2000;letter-spacing:0.28em">CYCLES: 0</span>
       </div>
-      <canvas id="neural-canvas" width="500" height="360"></canvas>
+
+      <!-- ANALYTICS BAR -->
+      <div id="analytics-bar">
+        <div class="analytic-cell">
+          <span class="analytic-label">SCAN_RATE</span>
+          <span class="analytic-value">
+            <span id="pulse-line">
+              <svg viewBox="0 0 40 14" preserveAspectRatio="none">
+                <polyline class="hb-path" points="0,7 6,7 9,2 12,12 15,2 18,12 21,7 40,7"/>
+              </svg>
+            </span>
+            5.0 Hz
+          </span>
+        </div>
+        <div class="analytic-cell">
+          <span class="analytic-label">HIT_RATE</span>
+          <span class="analytic-value" id="hit-rate-val">0.00%</span>
+        </div>
+        <div class="analytic-cell">
+          <span class="analytic-label">VAULT_RESERVE</span>
+          <span class="analytic-value" id="vault-reserve-val">0</span>
+        </div>
+      </div>
+
+      <!-- CANVAS -->
+      <div id="canvas-wrap">
+        <canvas id="neural-canvas" width="480" height="300"></canvas>
+        <div id="silent-overlay">SILENT_MODE_ACTIVE — GENERATION RUNNING</div>
+      </div>
+
       <div id="seed-status">AWAITING_SEED_INITIALIZATION</div>
+
       <div class="controls">
         <button class="btn" onclick="manualStrike()">MANUAL_STRIKE</button>
         <button class="btn" id="auto-btn" onclick="toggleAuto()">AUTO_SCAN: OFF</button>
+        <button class="btn dim" id="silent-btn" onclick="toggleSilent()">SILENT_MODE: OFF</button>
       </div>
+
     </div>
 
+    <!-- VAULT SIDEBAR -->
     <div id="vault-panel">
       <div id="vault-header">
         <span>NEURAL_ARCHIVE</span>
         <button id="download-all-btn" onclick="downloadAll()">DOWNLOAD_ALL</button>
       </div>
       <div id="vault-list">
-        <div id="vault-empty">EMPTY_VAULT<br>AWAITING_LEGENDARY<br>ASSETS</div>
+        <div id="vault-empty">EMPTY_VAULT<br>AWAITING<br>LEGENDARY</div>
       </div>
-      <div id="vault-count">ARCHIVE: 0 NODES</div>
+      <div id="vault-footer">ARCHIVE: <span id="vault-count-num">0</span> NODES</div>
     </div>
+
   </div>
 
   <script>
-    // ── GHOST GATE (5: stabilized — 1440 is the only bypass) ──────────────────
+    // ── GHOST GATE ─────────────────────────────────────────────────────────────
     const MASTER_KEY = '1440';
     const gateInput  = document.getElementById('gate-input');
     const gateError  = document.getElementById('gate-error');
@@ -238,31 +266,41 @@
       }
     });
 
-    // ── NAMING ENGINE (1: word bank) ──────────────────────────────────────────
-    const WORD_BANK  = ['VORTEX', 'CIPHER', 'NEXUS', 'PULSE', 'VOID', 'APEX', 'PHANTOM', 'NOVA', 'CORE', 'SIGNAL'];
-    const SUFFIXES   = ['ALPHA', 'PRIME', 'DELTA', 'OMEGA', 'ZERO', '1', '2', '3', '4', '7', '9', 'X'];
-
-    function generateName() {
-      const word   = WORD_BANK[Math.floor(Math.random() * WORD_BANK.length)];
-      const suffix = SUFFIXES[Math.floor(Math.random() * SUFFIXES.length)];
-      return `${word}-${suffix}`;
+    // ── WORD BANK ──────────────────────────────────────────────────────────────
+    const WORDS   = ['VORTEX','CIPHER','NEXUS','PULSE','VOID','APEX','PHANTOM','NOVA','CORE','SIGNAL'];
+    const SFXS    = ['ALPHA','PRIME','DELTA','OMEGA','ZERO','1','2','3','4','7','9','X'];
+    function genName() {
+      return WORDS[Math.floor(Math.random()*WORDS.length)] + '-' + SFXS[Math.floor(Math.random()*SFXS.length)];
     }
 
-    // ── NEURAL ENGINE ─────────────────────────────────────────────────────────
-    const canvas    = document.getElementById('neural-canvas');
-    const ctx       = canvas.getContext('2d');
-    const statusEl  = document.getElementById('seed-status');
-    const cycleEl   = document.getElementById('cycle-count');
-    const vaultList = document.getElementById('vault-list');
-    const vaultCountEl    = document.getElementById('vault-count');
-    const downloadAllBtn  = document.getElementById('download-all-btn');
-    const autoBtn         = document.getElementById('auto-btn');
+    // ── REFS ───────────────────────────────────────────────────────────────────
+    const canvas        = document.getElementById('neural-canvas');
+    const ctx           = canvas.getContext('2d');
+    const statusEl      = document.getElementById('seed-status');
+    const cycleEl       = document.getElementById('cycle-count');
+    const hitRateEl     = document.getElementById('hit-rate-val');
+    const reserveEl     = document.getElementById('vault-reserve-val');
+    const vaultList     = document.getElementById('vault-list');
+    const vaultCountNum = document.getElementById('vault-count-num');
+    const dlAllBtn      = document.getElementById('download-all-btn');
+    const autoBtn       = document.getElementById('auto-btn');
+    const silentBtn     = document.getElementById('silent-btn');
+    const silentOverlay = document.getElementById('silent-overlay');
 
     let isAuto       = false;
+    let isSilent     = false;
     let autoInterval = null;
     let totalCycles  = 0;
-    let vaultItems   = [];   // { name, timestamp, dataURL }
+    let totalHits    = 0;
+    let vaultItems   = [];
 
+    // ── ANALYTICS UPDATE ───────────────────────────────────────────────────────
+    function updateAnalytics() {
+      hitRateEl.textContent  = totalCycles ? ((totalHits / totalCycles) * 100).toFixed(2) + '%' : '0.00%';
+      reserveEl.textContent  = vaultItems.length;
+    }
+
+    // ── NEURAL ENGINE ──────────────────────────────────────────────────────────
     function generateSeed() {
       totalCycles++;
       cycleEl.textContent = `CYCLES: ${totalCycles}`;
@@ -275,7 +313,7 @@
       ctx.lineWidth     = isLegendary ? 1.5 : 0.4;
 
       for (let i = 0; i < lineCount; i++) {
-        const alpha = isLegendary ? (0.3 + Math.random() * 0.7) : (0.04 + Math.random() * 0.08);
+        const alpha = isLegendary ? 0.3 + Math.random() * 0.7 : 0.04 + Math.random() * 0.08;
         ctx.strokeStyle = `rgba(212,175,55,${alpha})`;
         ctx.beginPath();
         const x1 = Math.random() * canvas.width;
@@ -286,14 +324,17 @@
       }
 
       if (isLegendary) {
-        const name = generateName();
+        totalHits++;
+        const name = genName();
         statusEl.textContent = `LEGENDARY_FOUND: ${name}`;
         statusEl.className   = 'legendary';
-        addToVault(name);
+        addToVault(name);            // auto-save — no confirmation needed
       } else if (!isAuto) {
         statusEl.textContent = 'DENSITY_LOW: SEED_REJECTED';
         statusEl.className   = '';
       }
+
+      updateAnalytics();
     }
 
     function manualStrike() { generateSeed(); }
@@ -307,8 +348,7 @@
         statusEl.className   = '';
         autoInterval = setInterval(generateSeed, 200);
       } else {
-        clearInterval(autoInterval);
-        autoInterval = null;
+        clearInterval(autoInterval); autoInterval = null;
         autoBtn.textContent = 'AUTO_SCAN: OFF';
         autoBtn.classList.remove('on');
         statusEl.textContent = 'SCAN_HALTED';
@@ -316,14 +356,21 @@
       }
     }
 
-    // ── WATERMARK HELPER (3: WEBSTER-54893 // ZENITH @ 10% opacity) ───────────
-    function applyWatermark(sourceDataURL) {
+    // ── SILENT MODE ────────────────────────────────────────────────────────────
+    function toggleSilent() {
+      isSilent = !isSilent;
+      silentOverlay.classList.toggle('visible', isSilent);
+      silentBtn.textContent = isSilent ? 'SILENT_MODE: ON' : 'SILENT_MODE: OFF';
+      isSilent ? silentBtn.classList.add('on') : silentBtn.classList.remove('on');
+    }
+
+    // ── WATERMARK ──────────────────────────────────────────────────────────────
+    function applyWatermark(src) {
       return new Promise(resolve => {
         const img = new Image();
         img.onload = () => {
-          const wc  = document.createElement('canvas');
-          wc.width  = img.width;
-          wc.height = img.height;
+          const wc = document.createElement('canvas');
+          wc.width = img.width; wc.height = img.height;
           const wctx = wc.getContext('2d');
           wctx.drawImage(img, 0, 0);
           wctx.globalAlpha  = 0.10;
@@ -334,11 +381,11 @@
           wctx.fillText('WEBSTER-54893 // ZENITH', img.width - 10, img.height - 8);
           resolve(wc.toDataURL('image/png'));
         };
-        img.src = sourceDataURL;
+        img.src = src;
       });
     }
 
-    // ── VAULT (4: localStorage persistence) ───────────────────────────────────
+    // ── PERSISTENCE ────────────────────────────────────────────────────────────
     const LS_KEY = 'zenith_vault_v2';
 
     function saveVault() {
@@ -350,29 +397,30 @@
         const raw = localStorage.getItem(LS_KEY);
         if (!raw) return;
         const items = JSON.parse(raw);
-        if (!Array.isArray(items) || items.length === 0) return;
+        if (!Array.isArray(items) || !items.length) return;
         const empty = document.getElementById('vault-empty');
         if (empty) empty.remove();
         items.forEach(item => renderVaultItem(item, false));
         vaultItems = items;
-        vaultCountEl.textContent = `ARCHIVE: ${vaultItems.length} NODES`;
-        downloadAllBtn.classList.add('active');
+        syncVaultUI();
       } catch (_) {}
     }
 
+    function syncVaultUI() {
+      vaultCountNum.textContent = vaultItems.length;
+      reserveEl.textContent     = vaultItems.length;
+      if (vaultItems.length) dlAllBtn.classList.add('active');
+    }
+
     async function addToVault(name) {
-      const rawDataURL = canvas.toDataURL('image/png');
-      const dataURL    = await applyWatermark(rawDataURL);
-      const timestamp  = new Date().toLocaleTimeString();
-      const item       = { name, timestamp, dataURL };
-
-      const empty = document.getElementById('vault-empty');
+      const raw     = canvas.toDataURL('image/png');
+      const dataURL = await applyWatermark(raw);
+      const item    = { name, timestamp: new Date().toLocaleTimeString(), dataURL };
+      const empty   = document.getElementById('vault-empty');
       if (empty) empty.remove();
-
       vaultItems.unshift(item);
       renderVaultItem(item, true);
-      vaultCountEl.textContent = `ARCHIVE: ${vaultItems.length} NODES`;
-      downloadAllBtn.classList.add('active');
+      syncVaultUI();
       saveVault();
     }
 
@@ -383,47 +431,34 @@
         `<span class="vault-name">${item.name}</span>` +
         `<span class="vault-time">${item.timestamp}</span>` +
         `<a class="vault-dl" href="${item.dataURL}" download="${item.name}.png">DOWNLOAD_PNG</a>`;
-      if (prepend) {
-        vaultList.prepend(el);
-      } else {
-        vaultList.appendChild(el);
-      }
+      prepend ? vaultList.prepend(el) : vaultList.appendChild(el);
     }
 
-    // ── BATCH EXPORT (2: zip all vaulted PNGs) ────────────────────────────────
+    // ── BATCH EXPORT ───────────────────────────────────────────────────────────
     async function downloadAll() {
-      if (vaultItems.length === 0) return;
-      downloadAllBtn.textContent = 'COMPILING...';
-      downloadAllBtn.style.pointerEvents = 'none';
-
+      if (!vaultItems.length) return;
+      const orig = dlAllBtn.textContent;
+      dlAllBtn.textContent = 'COMPILING...';
+      dlAllBtn.style.pointerEvents = 'none';
       try {
         const zip = new JSZip();
         vaultItems.forEach(item => {
-          const base64 = item.dataURL.split(',')[1];
-          zip.file(`${item.name}.png`, base64, { base64: true });
+          const b64 = item.dataURL.split(',')[1];
+          zip.file(`${item.name}.png`, b64, { base64: true });
         });
-
         const blob = await zip.generateAsync({ type: 'blob' });
         const url  = URL.createObjectURL(blob);
-        const a    = document.createElement('a');
-        a.href     = url;
-        a.download = 'ZENITH_NEURAL_ARCHIVE.zip';
+        const a    = Object.assign(document.createElement('a'), { href: url, download: 'ZENITH_NEURAL_ARCHIVE.zip' });
         a.click();
         URL.revokeObjectURL(url);
       } catch (_) {
-        vaultItems.forEach((item, i) => {
+        vaultItems.forEach((item, i) =>
           setTimeout(() => {
-            const a    = document.createElement('a');
-            a.href     = item.dataURL;
-            a.download = `${item.name}.png`;
-            a.click();
-          }, i * 400);
-        });
+            Object.assign(document.createElement('a'), { href: item.dataURL, download: `${item.name}.png` }).click();
+          }, i * 400)
+        );
       } finally {
-        setTimeout(() => {
-          downloadAllBtn.textContent    = 'DOWNLOAD_ALL';
-          downloadAllBtn.style.pointerEvents = '';
-        }, 1500);
+        setTimeout(() => { dlAllBtn.textContent = orig; dlAllBtn.style.pointerEvents = ''; }, 1500);
       }
     }
   </script>
