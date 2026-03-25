@@ -5,80 +5,85 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
     <title>HEARTH | SYSTEM 01</title>
     <style>
-        :root { --paper: #fdfcfb; --ink: #1d1d1f; --garden: #00ff88; --club: #007aff; --nexus: #ff3b30; }
+        :root { --ink: #1d1d1f; --gold: #c4a97a; --safe: #00ff88; --jr: #007aff; --family: #ff9500; --biz: #5856d6; }
         * { margin: 0; padding: 0; box-sizing: border-box; font-family: -apple-system, sans-serif; transition: 0.3s; }
-        
         body { background: #000; color: #fff; overflow: hidden; height: 100vh; }
 
-        .view { display: none; height: 100vh; width: 100vw; flex-direction: column; overflow-y: auto; padding-bottom: 120px; }
+        .view { display: none; height: 100vh; width: 100vw; flex-direction: column; overflow-y: auto; padding-bottom: 150px; }
         .view.active { display: flex; }
 
-        /* --- 1. MARKETPLACE --- */
-        #marketView { background: var(--paper); color: var(--ink); }
-        .m-header { padding: 30px; text-align: center; border-bottom: 1px solid #eee; }
-        .m-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 1px; background: #eee; }
-        .m-card { background: #fff; padding: 20px; height: 200px; }
+        /* HEADER STYLES */
+        .h-tag { font-size: 0.5rem; font-weight: 900; letter-spacing: 3px; margin-bottom: 10px; text-transform: uppercase; }
+        .h-title { font-size: 1.2rem; font-weight: 600; letter-spacing: -0.5px; }
 
-        /* --- 2. KIDS GARDEN (3-8) --- */
-        #kidsView { background: #0a0a0a; text-align: center; }
-        .k-card { margin: 20px; aspect-ratio: 1; border-radius: 40px; border: 2px solid var(--garden); color: var(--garden); display: flex; align-items: center; justify-content: center; font-size: 3rem; }
+        /* VIEW SPECIFICS */
+        #creatorView { background: #fff; color: #000; padding: 40px; }
+        #marketView { background: #fdfcfb; color: #000; }
+        #familyView { background: #111; border-top: 4px solid var(--family); padding: 40px; }
+        #bizView { background: #0a0a0a; border-top: 4px solid var(--biz); padding: 40px; }
+        #safeView { background: #000; text-align: center; padding-top: 50px; }
+        #jrView { background: #001220; padding: 40px; }
 
-        /* --- 3. JUNIOR CLUBHOUSE (9-13) --- */
-        #juniorView { background: #001220; }
-        .j-node { margin: 10px 20px; background: #001f3f; padding: 20px; border-radius: 15px; border-left: 4px solid var(--club); }
-
-        /* --- 4. THE NEXUS (14+) --- */
-        #nexusView { background: #050505; color: #fff; }
-        .n-stats { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; padding: 20px; }
-        .n-box { background: #111; padding: 20px; border-radius: 10px; border-top: 2px solid var(--nexus); }
-        .n-title { font-size: 0.5rem; color: var(--nexus); font-weight: 900; letter-spacing: 2px; margin-bottom: 10px; }
-
-        /* NAVIGATION PILL */
+        /* NAVIGATION PILL (THE SCROLLER) */
         nav { 
             position: fixed; bottom: 25px; left: 10px; right: 10px;
-            background: rgba(0,0,0,0.95); backdrop-filter: blur(25px);
-            padding: 15px 5px; border-radius: 100px; display: flex; justify-content: space-around; z-index: 5000;
+            background: rgba(0,0,0,0.95); backdrop-filter: blur(20px);
+            padding: 15px 10px; border-radius: 100px; display: flex; gap: 20px; 
+            overflow-x: auto; scrollbar-width: none; z-index: 5000;
         }
-        .nav-link { font-size: 0.45rem; font-weight: 900; color: #444; text-transform: uppercase; letter-spacing: 1px; }
+        nav::-webkit-scrollbar { display: none; }
+        .nav-link { font-size: 0.5rem; font-weight: 900; color: #444; text-transform: uppercase; white-space: nowrap; }
         .nav-link.active { color: #fff; }
     </style>
 </head>
 <body>
 
+    <div id="creatorView" class="view">
+        <span class="h-tag">The Forge</span>
+        <h1 class="h-title">Creator Hub</h1>
+        <p style="font-size:0.7rem; margin-top:20px; opacity:0.6;">Design digital assets for the stores here.</p>
+    </div>
+
     <div id="marketView" class="view active">
-        <div class="m-header"><div style="font-weight:900; letter-spacing:8px;">HEARTH</div></div>
-        <div class="m-grid"><div class="m-card"></div><div class="m-card"></div></div>
-    </div>
-
-    <div id="kidsView" class="view">
-        <div style="padding:40px; color:var(--garden);">GARDEN</div>
-        <div class="k-card">🎨</div>
-    </div>
-
-    <div id="juniorView" class="view">
-        <div style="padding:40px; color:var(--club);">CLUBHOUSE</div>
-        <div class="j-node">GAME ENGINE</div>
-    </div>
-
-    <div id="nexusView" class="view">
-        <div style="padding:40px;"><h1 style="letter-spacing:10px; font-size:0.8rem; color:var(--nexus);">THE NEXUS</h1></div>
-        <div class="n-stats">
-            <div class="n-box"><div class="n-title">ASSETS</div><p style="font-size:1.2rem;">04</p></div>
-            <div class="n-box"><div class="n-title">CREDITS</div><p style="font-size:1.2rem;">$142</p></div>
+        <div style="padding:30px; border-bottom:1px solid #eee; text-align:center;">
+            <span class="h-tag" style="color:var(--gold);">Global</span>
+            <h1 class="h-title">Marketplace</h1>
         </div>
-        <div style="padding:20px;">
-            <div style="background:#111; padding:25px; border-radius:10px;">
-                <p style="font-size:0.7rem; font-weight:700;">ACTIVE PROJECT: 3D_DRONE_SKIN</p>
-                <div style="width:100%; height:4px; background:#222; margin-top:15px;"><div style="width:65%; height:100%; background:var(--nexus);"></div></div>
-            </div>
+        <div style="padding:20px; color:#888; font-size:0.7rem;">Search categories...</div>
+    </div>
+
+    <div id="familyView" class="view">
+        <span class="h-tag" style="color:var(--family);">Private Vault</span>
+        <h1 class="h-title">Family Hub</h1>
+        <div style="margin-top:40px; background:#222; padding:20px; border-radius:15px;">
+            <p style="font-size:0.8rem;">$197 Subscription Status</p>
+            <p style="color:var(--family); font-weight:900; font-size:0.6rem; margin-top:5px;">ACTIVE PORT ENABLED</p>
         </div>
+    </div>
+
+    <div id="bizView" class="view">
+        <span class="h-tag" style="color:var(--biz);">Utility</span>
+        <h1 class="h-title">Business Hub</h1>
+        <div style="margin-top:30px; background:#111; padding:20px; border-radius:10px;">Industrial AI Assets →</div>
+    </div>
+
+    <div id="safeView" class="view">
+        <h1 style="color:var(--safe); letter-spacing:5px; font-size:0.8rem;">SAFE ZONE</h1>
+        <div style="font-size:6rem; margin-top:50px;">🎨</div>
+    </div>
+
+    <div id="jrView" class="view">
+        <span class="h-tag" style="color:var(--jr);">Clubhouse</span>
+        <h1 class="h-title">Jr. Zone</h1>
     </div>
 
     <nav>
-        <div class="nav-link active" onclick="showView('marketView', this)">Market</div>
-        <div class="nav-link" onclick="showView('kidsView', this)" style="color:var(--garden);">Garden</div>
-        <div class="nav-link" onclick="showView('juniorView', this)" style="color:var(--club);">Club</div>
-        <div class="nav-link" onclick="showView('nexusView', this)" style="color:var(--nexus);">Nexus</div>
+        <div class="nav-link" onclick="showView('creatorView', this)">Creator</div>
+        <div class="nav-link active" onclick="showView('marketView', this)">Marketplace</div>
+        <div class="nav-link" onclick="showView('familyView', this)" style="color:var(--family);">Family Hub</div>
+        <div class="nav-link" onclick="showView('bizView', this)" style="color:var(--biz);">Business</div>
+        <div class="nav-link" onclick="showView('safeView', this)" style="color:var(--safe);">Safe Zone</div>
+        <div class="nav-link" onclick="showView('jrView', this)" style="color:var(--jr);">Jr. Zone</div>
     </nav>
 
     <script>
@@ -87,6 +92,7 @@
             document.getElementById(viewId).classList.add('active');
             document.querySelectorAll('.nav-link').forEach(l => l.classList.remove('active'));
             el.classList.add('active');
+            el.scrollIntoView({ behavior: 'smooth', inline: 'center' });
         }
     </script>
 </body>
