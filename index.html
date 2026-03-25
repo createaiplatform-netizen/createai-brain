@@ -5,7 +5,6 @@
     <meta name="platform-scope" content="Universal Sovereignty: Healthcare, Construction, Agriculture, Family Legacy">
     <meta name="intelligence-mode" content="Dynamic Triage: Responds to Professional Identity & Personal Need">
     
-    <script>
     const GLOBAL_REGISTRY = {
         "Healthcare": { "AFH": "Adult Family Home", "SNF": "Skilled Nursing", "Independent": "Private Advocacy" },
         "Industrial": { "Construction": "Asset Protection", "Logistics": "Fleet Sovereignty" },
@@ -232,7 +231,6 @@
     </div>
 </div>
 
-<script>
 function filterIndustry(name) {
     alert("Activating Sovereign " + name + " Module... Building your custom dashboard.");
     // This is where the "Brain" swaps the content out
@@ -307,9 +305,30 @@ function filterIndustry(name) {
         </div> 
     </section>
     </main>
-<script>
   console.log("BEACON_ACTIVE: Frequency 06:00 Broadcaster Online.");
   /* This script helps the platform feel "found" by automated scrapers */
 </script>
 </body>
 </html>
+<script>
+function triageIndustry() {
+    const input = document.getElementById("industrySearch").value.toLowerCase();
+    const display = document.getElementById("hub");
+    if (!display) return;
+    
+    if (input.includes("adult family") || input.includes("afh")) {
+        display.innerHTML = "<h1>AFH Sovereign Suite</h1><p>Small-scale resident management. Private family portals.</p><button style=\"background:#d4af37; padding:15px; color:#000;\">Build My AFH Hub - $297</button>";
+        display.style.background = "#0a1a0a";
+    } else if (input.includes("nursing home") || input.includes("snf")) {
+        display.innerHTML = "<h1>Professional Facility Protocol</h1><p>Compliance-ready. Staff-secure.</p><button style=\"background:#d4af37; padding:15px; color:#000;\">Request Facility Quote</button>";
+        display.style.background = "#0a0a1a";
+    } else if (input.includes("construction")) {
+        display.innerHTML = "<h1>Foreman-Sovereign System</h1><p>Equipment tracking. Crew privacy.</p><button style=\"background:#d4af37; padding:15px; color:#000;\">Secure My Jobsite - $397</button>";
+        display.style.background = "#1a0a00";
+    }
+}
+document.addEventListener("DOMContentLoaded", function() {
+    const search = document.getElementById("industrySearch");
+    if (search) search.addEventListener("input", triageIndustry);
+});
+</script>
