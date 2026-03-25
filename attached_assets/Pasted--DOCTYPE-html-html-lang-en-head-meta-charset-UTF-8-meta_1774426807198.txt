@@ -1,0 +1,58 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8"><meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>GENESIS | ZENITH OS</title>
+    <style>
+        /* THE ZENITH LAYER: ABSOLUTE ALTITUDE */
+        body { 
+            background: radial-gradient(circle, #1a1a1a 0%, #000 100%); 
+            color: #d4af37; font-family: 'Courier New', monospace; 
+            margin: 0; display: flex; flex-direction: column; 
+            align-items: center; justify-content: center; 
+            height: 100vh; overflow: hidden; 
+        }
+        #core-node {
+            width: 150px; height: 150px; background: #d4af37; border-radius: 50%;
+            box-shadow: 0 0 80px #d4af37; animation: zenith-pulse 1.6s infinite;
+            cursor: pointer; z-index: 100;
+        }
+        @keyframes zenith-pulse {
+            0%, 10%, 100% { transform: scale(1); box-shadow: 0 0 50px #d4af37; }
+            5% { transform: scale(1.25); box-shadow: 0 0 120px #fff; }
+            15% { transform: scale(1.1); box-shadow: 0 0 70px #d4af37; }
+        }
+        .telemetry { margin-top: 50px; font-size: 1.1rem; letter-spacing: 8px; color: #fff; text-shadow: 0 0 15px #d4af37; text-transform: uppercase; }
+        .node-cluster { display: grid; grid-template-columns: repeat(3, 1fr); gap: 30px; margin-top: 60px; }
+        .node-box { border: 1px solid #333; padding: 25px; width: 130px; text-align: center; background: rgba(0,0,0,0.8); transition: 0.5s; cursor: crosshair; }
+        .node-box:hover { border-color: #fff; color: #fff; transform: translateY(-10px); box-shadow: 0 0 30px rgba(212,175,55,0.2); }
+        .label { font-size: 0.8rem; font-weight: bold; margin-bottom: 5px; }
+        .status-tag { font-size: 0.5rem; color: #666; letter-spacing: 1px; }
+        #footer-lock { position: absolute; bottom: 40px; font-size: 0.7rem; color: #222; letter-spacing: 4px; border-top: 1px solid #111; padding-top: 10px; width: 80%; display: flex; justify-content: space-between; }
+    </style>
+</head>
+<body>
+    <div id="core-node" onclick="systemCheck()"></div>
+    <div class="telemetry" id="os-feed">ZENITH_ACTIVE</div>
+    
+    <div class="node-cluster">
+        <div class="node-box" onclick="action('ORACLE')"><div class="label">ORACLE</div><div class="status-tag">LOGIC_SYNC</div></div>
+        <div class="node-box" onclick="action('VAULT')"><div class="label">VAULT</div><div class="status-tag">ASSET_SECURE</div></div>
+        <div class="node-box" onclick="action('FORGE')"><div class="label">FORGE</div><div class="status-tag">PROD_ACTIVE</div></div>
+    </div>
+
+    <div id="footer-lock">
+        <span>HUMANITY-FIRST</span>
+        <span>INTEGRITY: 100%</span>
+        <span>GENESIS_CORE</span>
+    </div>
+
+    <script>
+        const feed = document.getElementById('os-feed');
+        const msgs = ["ZENITH_STABLE", "PULSE_OPTIMAL", "INTEGRITY_SYNC", "CORE_LOCKED"];
+        let i = 0; setInterval(() => { feed.innerText = msgs[i % msgs.length]; i++; }, 4000);
+        function action(n) { feed.innerText = n + "_STRIKE"; feed.style.color = "#fff"; }
+        function systemCheck() { alert("ZENITH OS: 100% INTEGRITY\nSTATUS: AUTHORIZED\nMISSION: FINISH EVERYTHING"); }
+    </script>
+</body>
+</html>
