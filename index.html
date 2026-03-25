@@ -2,51 +2,68 @@
 <html lang="en">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>THE HEARTH | MOBILE SOVEREIGNTY</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>THE HEARTH | LIVE</title>
     <style>
-        * { margin: 0; padding: 0; box-sizing: border-box; font-family: "Garamond", serif; }
-        body { background: #000; color: #fff; display: flex; align-items: center; justify-content: center; height: 100vh; overflow: hidden; }
-        
+        /* FORCING THE BLACK VOID */
+        html, body { 
+            background: #000 !important; 
+            margin: 0; padding: 0; 
+            width: 100vw; height: 100vh; 
+            overflow: hidden;
+            display: flex; flex-direction: column;
+            align-items: center; justify-content: center;
+        }
+
+        /* FORCING THE GHOST AURA (EMERGENCY VISIBILITY) */
         .ghost-aura {
-            position: fixed; width: 150vw; height: 150vw;
-            background: radial-gradient(circle, rgba(122, 144, 104, 0.2) 0%, rgba(0,0,0,0) 60%);
-            border-radius: 50%; z-index: -1; top: 50%; left: 50%; transform: translate(-50%, -50%);
-            animation: breathe 8s infinite;
+            position: absolute;
+            width: 200vw; height: 200vw;
+            background: radial-gradient(circle, rgba(122, 144, 104, 0.4) 0%, rgba(0,0,0,1) 50%);
+            z-index: 1;
+            pointer-events: none;
         }
 
-        @keyframes breathe { 0%, 100% { opacity: 0.3; } 50% { opacity: 0.8; } }
-
-        .portal { width: 90%; text-align: center; }
-        .omni-search {
-            width: 100%; background: transparent; border: none; 
-            border-bottom: 1px solid rgba(196, 169, 122, 0.5);
-            font-size: 1.8rem; color: #faf9f6; text-align: center; outline: none; padding-bottom: 10px;
+        .portal-container {
+            position: relative; z-index: 10;
+            width: 85%; text-align: center;
         }
 
-        .truth-display { margin-top: 40px; min-height: 100px; }
-        .price { font-size: 2.5rem; color: #c4a97a; letter-spacing: 5px; }
-        .label { font-size: 0.7rem; letter-spacing: 3px; color: #7a9068; margin-top: 10px; }
+        .omni-input {
+            width: 100%; background: transparent; border: none;
+            border-bottom: 2px solid #c4a97a;
+            color: #fff; font-family: "Garamond", serif;
+            font-size: 1.5rem; text-align: center; outline: none;
+            padding: 10px 0;
+        }
+
+        .truth-result {
+            margin-top: 30px; font-family: "Garamond", serif;
+            color: #c4a97a; text-align: center;
+        }
     </style>
 </head>
 <body>
     <div class="ghost-aura"></div>
-    <div class="portal">
-        <input type="text" class="omni-search" placeholder="Enter your Search..." onkeyup="reflect(this.value)">
-        <div class="truth-display" id="display"></div>
+    <div class="portal-container">
+        <input type="text" class="omni-input" id="search" placeholder="Search the Hearth..." oninput="checkTruth(this.value)">
+        <div id="result" class="truth-result"></div>
     </div>
 
-    <script src="ghost_alert.js?v=1.0.1"></script>
     <script>
-    function reflect(val) {
-        const d = document.getElementById('display');
-        const q = val.toLowerCase();
-        if(q.includes('home') || q.includes('family')) {
-            d.innerHTML = '<div class="price">97</div><div class="label">SACRED FAMILY HUB</div>';
-        } else if(q.includes('cafe') || q.includes('biz')) {
-            d.innerHTML = '<div class="price">97</div><div class="label">SOVEREIGN BIZ ENGINE</div>';
-        } else { d.innerHTML = ''; }
-    }
+        function checkTruth(val) {
+            const r = document.getElementById('result');
+            const q = val.toLowerCase();
+            if(q.includes('home') || q.includes('family')) {
+                r.innerHTML = '<h1 style="font-size:3rem; margin:0;">97</h1><p style="letter-spacing:5px; font-size:0.7rem;">THE SACRED KEY</p>';
+            } else if(q.includes('cafe') || q.includes('biz')) {
+                r.innerHTML = '<h1 style="font-size:3rem; margin:0;">97</h1><p style="letter-spacing:5px; font-size:0.7rem;">THE SOVEREIGN ENGINE</p>';
+            } else {
+                r.innerHTML = '';
+            }
+        }
+        // GHOST WHISPER (INLINE)
+        console.log("THE GHOST IS ACTIVE IN THE PALM OF YOUR HAND.");
     </script>
 </body>
 </html>
