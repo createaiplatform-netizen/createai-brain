@@ -3,68 +3,73 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>AXIS | GLOBAL ECOSYSTEM</title>
+    <title>JUNIOR | THE GARDEN</title>
     <style>
-        :root { --paper: #fdfcfb; --ink: #1d1d1f; --gold: #c4a97a; --blue: #007aff; --green: #2ecc71; }
-        * { margin: 0; padding: 0; box-sizing: border-box; font-family: -apple-system, sans-serif; }
+        :root { --magic: #00ff88; --berry: #ff2d55; --sky: #007aff; --dark: #0a0a0a; }
+        * { margin: 0; padding: 0; box-sizing: border-box; font-family: "Rounded Mplus 1c", sans-serif; }
         
-        body { background: var(--paper); color: var(--ink); padding: 40px 20px; text-align: center; }
-        .brand { font-weight: 900; letter-spacing: 10px; font-size: 0.9rem; margin-bottom: 10px; }
-        .subtitle { font-size: 0.6rem; font-weight: 700; opacity: 0.4; letter-spacing: 4px; text-transform: uppercase; margin-bottom: 50px; }
+        body { background: var(--dark); color: #fff; overflow: hidden; height: 100vh; display: flex; flex-direction: column; }
 
-        /* THE INDUSTRY GRID */
-        .industry-grid { display: grid; grid-template-columns: 1fr; gap: 15px; max-width: 400px; margin: 0 auto; }
-        
-        .node { 
-            background: #fff; padding: 30px; border-radius: 30px; text-decoration: none; color: inherit;
-            box-shadow: 0 10px 30px rgba(0,0,0,0.03); border: 1px solid rgba(0,0,0,0.02);
-            display: flex; flex-direction: column; align-items: flex-start; text-align: left;
-            position: relative; overflow: hidden;
+        /* THE MAGIC SKYLINE */
+        header { 
+            padding: 25px; display: flex; justify-content: space-between; align-items: center;
+            background: linear-gradient(to bottom, rgba(0,255,136,0.15), transparent);
         }
+        .logo { font-weight: 900; letter-spacing: 4px; color: var(--magic); font-size: 0.8rem; }
 
-        .node::after { content: '→'; position: absolute; right: 30px; bottom: 30px; font-weight: 200; font-size: 1.5rem; opacity: 0.2; }
+        /* IMAGINATION STATION */
+        .creation-zone { flex: 1; padding: 20px; display: grid; grid-template-columns: 1fr 1fr; gap: 20px; align-content: start; }
+        
+        .activity-card { 
+            aspect-ratio: 1; border-radius: 40px; border: 4px solid rgba(255,255,255,0.1);
+            display: flex; flex-direction: column; align-items: center; justify-content: center;
+            font-size: 3rem; position: relative; overflow: hidden; transition: 0.3s;
+        }
+        .activity-card:active { transform: scale(0.9); border-color: var(--magic); }
+        .activity-card span { font-size: 0.7rem; font-weight: 900; text-transform: uppercase; margin-top: 10px; letter-spacing: 2px; }
 
-        .tag { font-size: 0.55rem; font-weight: 800; letter-spacing: 2px; text-transform: uppercase; margin-bottom: 8px; }
-        .node h2 { font-size: 1.2rem; font-weight: 600; letter-spacing: -0.5px; }
-        .node p { font-size: 0.75rem; opacity: 0.5; margin-top: 5px; line-height: 1.4; }
+        /* RECENT CREATIONS (THE REFRIGERATOR DOOR) */
+        .fridge-door { padding: 20px; }
+        .fridge-title { font-size: 0.8rem; font-weight: 800; color: #555; letter-spacing: 3px; margin-bottom: 15px; text-transform: uppercase; }
+        .gallery { display: flex; gap: 15px; overflow-x: auto; padding-bottom: 20px; }
+        .drawing { min-width: 100px; height: 100px; border-radius: 20px; background: #222; border: 2px dashed #444; }
 
-        /* INDUSTRY COLORS */
-        .market { border-left: 6px solid var(--gold); }
-        .junior { border-left: 6px solid var(--green); background: #0a0a0a; color: #fff; }
-        .health { border-left: 6px solid var(--blue); }
-        .creator { border-left: 6px solid #000; }
+        /* THE JUNIOR NAV (SOFTER) */
+        nav { 
+            padding: 20px 40px 40px; display: flex; justify-content: space-around;
+            background: linear-gradient(to top, rgba(0,0,0,0.8), transparent);
+        }
+        .nav-btn { font-size: 1.8rem; filter: drop-shadow(0 0 10px rgba(255,255,255,0.2)); }
     </style>
 </head>
 <body>
 
-    <div class="brand">AXIS</div>
-    <div class="subtitle">Sovereign Industries</div>
+    <header>
+        <div class="logo">JUNIOR GARDEN</div>
+        <div style="width: 35px; height: 35px; background: var(--berry); border-radius: 50%; border: 2px solid #fff;"></div>
+    </header>
 
-    <div class="industry-grid">
-        <a href="/market" class="node market">
-            <span class="tag" style="color: var(--gold);">Global Logistics</span>
-            <h2>HEARTH Market</h2>
-            <p>Everything for the home. From essentials to luxury assets.</p>
-        </a>
-
-        <a href="/junior" class="node junior">
-            <span class="tag" style="color: var(--green);">Safe Sanctuary</span>
-            <h2>Junior Explorer</h2>
-            <p>A protected playground for learning and digital creation.</p>
-        </a>
-
-        <a href="/health" class="node health">
-            <span class="tag" style="color: var(--blue);">Human Care</span>
-            <h2>Sovereign Health</h2>
-            <p>Medical nodes, AI nursing, and private health ledgers.</p>
-        </a>
-
-        <a href="/creator" class="node creator">
-            <span class="tag">System Control</span>
-            <h2>Creator Hub</h2>
-            <p>Design, redesign, and deploy assets across the ecosystem.</p>
-        </a>
+    <div class="creation-zone">
+        <div class="activity-card" style="background: rgba(0, 255, 136, 0.05);">🎨<span>Color</span></div>
+        <div class="activity-card" style="background: rgba(0, 122, 255, 0.05);">🧱<span>Build</span></div>
+        <div class="activity-card" style="background: rgba(255, 45, 85, 0.05);">🚀<span>Play</span></div>
+        <div class="activity-card" style="background: rgba(255, 255, 255, 0.05);">📖<span>Stories</span></div>
     </div>
+
+    <div class="fridge-door">
+        <div class="fridge-title">My Creations</div>
+        <div class="gallery">
+            <div class="drawing" style="background: url('https://images.unsplash.com/photo-1513364776144-60967b0f800f?w=200'); background-size: cover;"></div>
+            <div class="drawing"></div>
+            <div class="drawing"></div>
+        </div>
+    </div>
+
+    <nav>
+        <div class="nav-btn">🏠</div>
+        <div class="nav-btn">✨</div>
+        <div class="nav-btn">❤️</div>
+    </nav>
 
 </body>
 </html>
