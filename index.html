@@ -2,68 +2,106 @@
 <html lang="en">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>THE HEARTH | LIVE</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>THE HEARTH | SOVEREIGNTY STORE</title>
     <style>
-        /* FORCING THE BLACK VOID */
-        html, body { 
-            background: #000 !important; 
-            margin: 0; padding: 0; 
-            width: 100vw; height: 100vh; 
-            overflow: hidden;
-            display: flex; flex-direction: column;
-            align-items: center; justify-content: center;
+        :root { --gold: #c4a97a; --sage: #7a9068; --dark: #0a0a0a; --white: #faf9f6; }
+        * { margin: 0; padding: 0; box-sizing: border-box; font-family: 'Garamond', serif; }
+        body { background: var(--dark); color: var(--white); line-height: 1.6; }
+
+        /* HEADER & SEARCH (The Amazon Engine) */
+        header { 
+            padding: 20px; background: #000; border-bottom: 1px solid rgba(196,169,122,0.2);
+            position: sticky; top: 0; z-index: 100;
+        }
+        .search-container {
+            max-width: 800px; margin: 0 auto; display: flex;
+            background: rgba(255,255,255,0.05); border-radius: 50px; padding: 5px 20px;
+            border: 1px solid var(--gold);
+        }
+        .search-container input {
+            flex: 1; background: transparent; border: none; color: #fff;
+            padding: 12px; font-size: 1.1rem; outline: none;
         }
 
-        /* FORCING THE GHOST AURA (EMERGENCY VISIBILITY) */
-        .ghost-aura {
-            position: absolute;
-            width: 200vw; height: 200vw;
-            background: radial-gradient(circle, rgba(122, 144, 104, 0.4) 0%, rgba(0,0,0,1) 50%);
-            z-index: 1;
-            pointer-events: none;
+        /* HERO SECTION (The Instant Choice) */
+        .hero { 
+            text-align: center; padding: 60px 20px; 
+            background: radial-gradient(circle at center, rgba(122,144,104,0.15) 0%, rgba(0,0,0,0) 70%);
+        }
+        .hero h1 { font-size: 2.5rem; font-weight: 200; margin-bottom: 10px; letter-spacing: 2px; }
+        .hero p { color: var(--gold); letter-spacing: 3px; font-size: 0.8rem; margin-bottom: 40px; }
+
+        .instant-keys { 
+            display: flex; gap: 20px; justify-content: center; flex-wrap: wrap;
+            max-width: 1000px; margin: 0 auto;
         }
 
-        .portal-container {
-            position: relative; z-index: 10;
-            width: 85%; text-align: center;
+        /* THE CLICKABLE CARDS (The Shopify Feel) */
+        .key-card {
+            background: rgba(255,255,255,0.03); border: 1px solid rgba(196,169,122,0.3);
+            padding: 40px 20px; border-radius: 15px; width: 300px;
+            transition: transform 0.3s; cursor: pointer; text-align: center;
+        }
+        .key-card:hover { transform: translateY(-10px); border-color: var(--gold); background: rgba(196,169,122,0.05); }
+        .key-card h2 { font-size: 1.8rem; margin-bottom: 10px; color: var(--gold); }
+        .key-card .price { font-size: 2.5rem; font-weight: bold; margin-bottom: 20px; }
+        .key-card .tag { font-size: 0.7rem; letter-spacing: 2px; opacity: 0.7; margin-bottom: 20px; display: block;}
+        
+        .cta-button {
+            background: var(--gold); color: #000; border: none;
+            padding: 12px 30px; border-radius: 30px; font-weight: bold;
+            text-transform: uppercase; font-size: 0.8rem; cursor: pointer;
         }
 
-        .omni-input {
-            width: 100%; background: transparent; border: none;
-            border-bottom: 2px solid #c4a97a;
-            color: #fff; font-family: "Garamond", serif;
-            font-size: 1.5rem; text-align: center; outline: none;
-            padding: 10px 0;
-        }
-
-        .truth-result {
-            margin-top: 30px; font-family: "Garamond", serif;
-            color: #c4a97a; text-align: center;
-        }
+        /* ENGINE GRID (The Catalog) */
+        .catalog { max-width: 1200px; margin: 60px auto; padding: 20px; }
+        .catalog-title { border-bottom: 1px solid #333; padding-bottom: 10px; margin-bottom: 30px; font-size: 0.9rem; letter-spacing: 5px; color: var(--sage); }
+        .grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(250px, 1fr)); gap: 30px; }
+        .item { background: #111; padding: 20px; border-radius: 10px; border: 1px solid #222; }
     </style>
 </head>
 <body>
-    <div class="ghost-aura"></div>
-    <div class="portal-container">
-        <input type="text" class="omni-input" id="search" placeholder="Search the Hearth..." oninput="checkTruth(this.value)">
-        <div id="result" class="truth-result"></div>
+
+    <header>
+        <div class="search-container">
+            <input type="text" placeholder="Search the Hearth: Family, Cafe, Hospital...">
+            <button style="background:transparent; border:none; color:var(--gold); font-size:1.2rem; cursor:pointer;">🔍</button>
+        </div>
+    </header>
+
+    <section class="hero">
+        <h1>Welcome to The Hearth</h1>
+        <p>CHOOSE YOUR ENGINE. START YOUR SOVEREIGNTY.</p>
+        
+        <div class="instant-keys">
+            <div class="key-card" onclick="alert('Entering Family Sanctuary...')">
+                <span class="tag">PRIVATE FAMILY HUB</span>
+                <div class="price">97</div>
+                <button class="cta-button">Get Your Key</button>
+            </div>
+
+            <div class="key-card" onclick="alert('Scaling Business Engine...')">
+                <span class="tag">SOVEREIGN BIZ ENGINE</span>
+                <div class="price">97</div>
+                <button class="cta-button">Claim Your Engine</button>
+            </div>
+        </div>
+    </section>
+
+    <div class="catalog">
+        <div class="catalog-title">THE STANDING LAW INFRASTRUCTURE</div>
+        <div class="grid">
+            <div class="item"><h3>Cafe Module</h3><p>Inventory, Staffing, Pulse.</p></div>
+            <div class="item"><h3>Nurse-Flow</h3><p>Hospital Infrastructure scale.</p></div>
+            <div class="item"><h3>Legacy Vault</h3><p>Generational data protection.</p></div>
+            <div class="item"><h3>AFH Manager</h3><p>Local Care Coordination.</p></div>
+        </div>
     </div>
 
-    <script>
-        function checkTruth(val) {
-            const r = document.getElementById('result');
-            const q = val.toLowerCase();
-            if(q.includes('home') || q.includes('family')) {
-                r.innerHTML = '<h1 style="font-size:3rem; margin:0;">97</h1><p style="letter-spacing:5px; font-size:0.7rem;">THE SACRED KEY</p>';
-            } else if(q.includes('cafe') || q.includes('biz')) {
-                r.innerHTML = '<h1 style="font-size:3rem; margin:0;">97</h1><p style="letter-spacing:5px; font-size:0.7rem;">THE SOVEREIGN ENGINE</p>';
-            } else {
-                r.innerHTML = '';
-            }
-        }
-        // GHOST WHISPER (INLINE)
-        console.log("THE GHOST IS ACTIVE IN THE PALM OF YOUR HAND.");
-    </script>
+    <footer style="padding: 60px; text-align: center; font-size: 0.7rem; opacity: 0.4; letter-spacing: 5px;">
+        ESTABLISHED 2026 | WEBSTER, WISCONSIN | THE STANDING LAW
+    </footer>
+
 </body>
 </html>
