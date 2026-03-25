@@ -3,134 +3,136 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>THE HEARTH | OMNI-DASHBOARD</title>
+    <title>NEXUS ELITE | OMNI-SEARCH</title>
     <style>
-        :root { --gold: #c4a97a; --bg: #fdfdfd; --pearl: #fff; }
+        :root { --gold: #c4a97a; --pearl: #fdfdfd; --sage: #7a9068; }
         * { margin: 0; padding: 0; box-sizing: border-box; font-family: 'Inter', sans-serif; }
-        body { background: #f4f4f7; color: #222; padding-bottom: 100px; }
-
-        /* VIP ACCESS HEADER */
-        header { 
-            background: #fff; padding: 15px 20px; position: sticky; top: 0; z-index: 1000;
-            display: flex; justify-content: space-between; align-items: center;
-            border-bottom: 1px solid #eee; box-shadow: 0 2px 10px rgba(0,0,0,0.03);
-        }
-        .vip-keys { display: flex; gap: 10px; }
-        .mini-key { 
-            padding: 8px 12px; border-radius: 10px; font-size: 0.6rem; 
-            font-weight: bold; border: 1px solid #eee; text-transform: uppercase;
+        
+        body { 
+            background: radial-gradient(circle at top, #fff 0%, #e8e8e8 100%);
+            color: #222; min-height: 100vh; overflow-x: hidden;
         }
 
-        /* THE SEARCH BRAIN */
-        .hero-search { 
-            background: #fff; padding: 40px 20px; text-align: center; 
-            border-bottom: 1px solid #eee; margin-bottom: 20px;
+        /* THE BRAIN HEADER */
+        .top-nav {
+            position: sticky; top: 0; z-index: 1000; padding: 20px;
+            backdrop-filter: blur(15px); -webkit-backdrop-filter: blur(15px);
+            background: rgba(255,255,255,0.4); border-bottom: 1px solid rgba(0,0,0,0.05);
         }
-        .search-bar {
-            max-width: 600px; margin: 20px auto 0; background: #f8f8f8;
-            border-radius: 50px; padding: 15px 25px; display: flex; align-items: center;
-            border: 1px solid transparent; transition: 0.3s;
+        .omni-box {
+            background: #fff; border: 1px solid var(--gold); border-radius: 50px;
+            padding: 12px 25px; display: flex; align-items: center;
+            box-shadow: 0 10px 40px rgba(196,169,122,0.2);
         }
-        .search-bar:focus-within { border-color: var(--gold); background: #fff; box-shadow: 0 10px 30px rgba(196,169,122,0.1); }
-        .search-bar input { flex: 1; border: none; outline: none; background: transparent; font-size: 1rem; }
+        .omni-box input { flex: 1; border: none; outline: none; font-size: 1rem; color: #444; background: transparent; }
 
-        /* THE DEPARTMENT TILES */
-        .dashboard-grid { 
-            display: grid; grid-template-columns: repeat(2, 1fr); gap: 15px; 
-            padding: 20px; max-width: 1000px; margin: 0 auto; 
+        /* THE FLOATING CORE */
+        .hero { text-align: center; padding: 30px 20px; }
+        .pearl-core {
+            width: 120px; height: 120px; margin: 0 auto 20px;
+            background: radial-gradient(circle at 30% 30%, #fff 0%, #dcdcdc 100%);
+            border-radius: 50%; position: relative;
+            box-shadow: -10px -10px 30px #fff, 10px 10px 30px rgba(0,0,0,0.1);
+            display: flex; align-items: center; justify-content: center;
+            animation: float 6s ease-in-out infinite;
         }
-        @media (min-width: 768px) { .dashboard-grid { grid-template-columns: repeat(4, 1fr); } }
+        @keyframes float { 0%, 100% { transform: translateY(0); } 50% { transform: translateY(-10px); } }
 
-        .tile {
-            background: #fff; border-radius: 24px; padding: 25px 15px;
-            text-align: center; border: 1px solid #eee; transition: 0.3s;
-            box-shadow: 0 4px 12px rgba(0,0,0,0.02); cursor: pointer;
+        /* SEARCH RESULTS & CARDS */
+        .results-area { padding: 20px; max-width: 500px; margin: 0 auto; min-height: 400px; }
+        
+        .engine-card {
+            background: rgba(255,255,255,0.8); border: 1px solid rgba(0,0,0,0.05);
+            border-radius: 25px; padding: 25px; margin-bottom: 20px;
+            backdrop-filter: blur(10px); transition: 0.3s;
+            animation: slideUp 0.5s ease-out forwards;
         }
-        .tile:active { transform: scale(0.95); }
-        .tile-icon { font-size: 1.8rem; margin-bottom: 10px; display: block; filter: grayscale(1); transition: 0.3s; }
-        .tile:hover .tile-icon { filter: grayscale(0); }
-        .tile-name { font-size: 0.75rem; font-weight: 700; color: #333; letter-spacing: 0.5px; }
-        .tile-sub { font-size: 0.55rem; color: #aaa; text-transform: uppercase; margin-top: 4px; letter-spacing: 1px; }
+        @keyframes slideUp { from { opacity: 0; transform: translateY(20px); } to { opacity: 1; transform: translateY(0); } }
 
-        /* RECENT ACTIVITY (Social Proof) */
-        .activity-feed { padding: 0 20px; max-width: 1000px; margin: 20px auto; }
-        .feed-item { 
-            background: rgba(196,169,122,0.05); padding: 12px 20px; border-radius: 15px;
-            font-size: 0.7rem; color: #666; display: flex; align-items: center; gap: 10px; margin-bottom: 10px;
+        .tag { font-size: 0.6rem; letter-spacing: 2px; color: var(--gold); font-weight: bold; text-transform: uppercase; }
+        .price { font-size: 1.8rem; font-weight: 200; margin: 10px 0; }
+        .btn { 
+            width: 100%; background: var(--gold); color: #fff; border: none; 
+            padding: 15px; border-radius: 50px; font-weight: bold; cursor: pointer;
+            margin-top: 15px; text-transform: uppercase; font-size: 0.7rem;
         }
+
+        .no-results { text-align: center; color: #aaa; margin-top: 50px; font-size: 0.8rem; font-style: italic; }
     </style>
 </head>
 <body>
 
-    <header>
-        <div style="font-weight: 900; letter-spacing: 2px; font-size: 0.8rem; color: var(--gold);">HEARTH</div>
-        <div class="vip-keys">
-            <div class="mini-key" style="background: var(--gold); color: #fff; border:none;">Family Key</div>
-            <div class="mini-key">Biz Engine</div>
-        </div>
-    </header>
-
-    <div class="hero-search">
-        <h1 style="font-weight: 200; font-size: 1.5rem; letter-spacing: -0.5px;">Universal Infrastructure</h1>
-        <div class="search-bar">
-            <input type="text" placeholder="Search 158 possibilities...">
+    <nav class="top-nav">
+        <div class="omni-box">
+            <input type="text" id="engineSearch" placeholder="Search 158 Engines (e.g. Cafe, Hospital, Internet)..." onkeyup="searchEngines()">
             <span>✨</span>
         </div>
+    </nav>
+
+    <div class="hero">
+        <div class="pearl-core"><span style="font-size: 2rem; color: var(--gold);">₪</span></div>
     </div>
 
-    <div class="activity-feed">
-        <div class="feed-item">
-            <span style="color: var(--gold);">●</span> 
-            <span>Recently Activated: <b>Cafe Inventory Node</b> (Webster, WI)</span>
+    <div class="results-area" id="results">
+        <div class="engine-card">
+            <span class="tag">The Family Portal</span>
+            <div class="price">97.00</div>
+            <p style="font-size: 0.75rem; color: #666;">Free Internet, Utilities, and Legacy Vault.</p>
+            <button class="btn">Activate Portal</button>
         </div>
-    </div>
 
-    <div class="dashboard-grid">
-        <div class="tile">
-            <span class="tile-icon">🏥</span>
-            <div class="tile-name">Healthcare</div>
-            <div class="tile-sub">12 Engines</div>
-        </div>
-        <div class="tile">
-            <span class="tile-icon">📡</span>
-            <div class="tile-name">Utilities</div>
-            <div class="tile-sub">15 Engines</div>
-        </div>
-        <div class="tile">
-            <span class="tile-icon">⚖️</span>
-            <div class="tile-name">Sovereign Law</div>
-            <div class="tile-sub">22 Engines</div>
-        </div>
-        <div class="tile">
-            <span class="tile-icon">☕</span>
-            <div class="tile-name">Food & Bev</div>
-            <div class="tile-sub">8 Engines</div>
-        </div>
-        <div class="tile">
-            <span class="tile-icon">🛡️</span>
-            <div class="tile-name">Security</div>
-            <div class="tile-sub">9 Engines</div>
-        </div>
-        <div class="tile">
-            <span class="tile-icon">💰</span>
-            <div class="tile-name">Wealth</div>
-            <div class="tile-sub">14 Engines</div>
-        </div>
-        <div class="tile">
-            <span class="tile-icon">🤖</span>
-            <div class="tile-name">Private AI</div>
-            <div class="tile-sub">67 Engines</div>
-        </div>
-        <div class="tile">
-            <span class="tile-icon">🏡</span>
-            <div class="tile-name">Real Estate</div>
-            <div class="tile-sub">11 Engines</div>
+        <div class="engine-card" style="background: #1a1a1a; color: #fff;">
+            <span class="tag">The Business Engine</span>
+            <div class="price" style="color:#fff;">97.00</div>
+            <p style="font-size: 0.75rem; color: #aaa;">Inventory AI, Cafe Pulse, and Staff Management.</p>
+            <button class="btn">Scale Business</button>
         </div>
     </div>
 
-    <footer style="text-align: center; padding: 40px; opacity: 0.2; font-size: 0.5rem; letter-spacing: 5px;">
-        ESTABLISHED 2026 | THE STANDING LAW
-    </footer>
+    <script>
+        const engines = [
+            { name: "Cafe Pulse", cat: "Business", price: "97", desc: "Real-time inventory and profit tracking for restaurants." },
+            { name: "Free Internet", cat: "Family", price: "97", desc: "Sovereign Mesh-Net access for your whole household." },
+            { name: "Hospital Node", cat: "Infrastructure", price: "Custom", desc: "Nurse-Flow and patient coordination systems." },
+            { name: "AFH Manager", cat: "Care", price: "97", desc: "Adult Family Home management and compliance tools." },
+            { name: "Legacy Vault", cat: "Family", price: "97", desc: "100-year encrypted storage for family history." },
+            { name: "Utility Shield", cat: "Family", price: "97", desc: "Off-grid utility management and cost reduction." },
+            { name: "Asset Shield", cat: "Security", price: "97", desc: "Financial encryption and wealth protection nodes." },
+            { name: "Nurse Flow", cat: "Hospital", price: "Custom", desc: "Optimized shift and patient routing for healthcare." }
+        ];
+
+        function searchEngines() {
+            const input = document.getElementById('engineSearch').value.toLowerCase();
+            const resultsDiv = document.getElementById('results');
+            resultsDiv.innerHTML = '';
+
+            if (input === '') {
+                // Show default keys if search is empty
+                location.reload();
+                return;
+            }
+
+            const filtered = engines.filter(e => 
+                e.name.toLowerCase().includes(input) || e.desc.toLowerCase().includes(input)
+            );
+
+            if (filtered.length === 0) {
+                resultsDiv.innerHTML = '<div class="no-results">The Hearth is searching for "' + input + '"... Try "Cafe" or "Internet".</div>';
+            } else {
+                filtered.forEach(e => {
+                    resultsDiv.innerHTML += `
+                        <div class="engine-card">
+                            <span class="tag">${e.cat}</span>
+                            <h3 style="margin-top:5px;">${e.name}</h3>
+                            <div class="price">${e.price}</div>
+                            <p style="font-size: 0.75rem; color: #666;">${e.desc}</p>
+                            <button class="btn">Learn More</button>
+                        </div>
+                    `;
+                });
+            }
+        }
+    </script>
 
 </body>
 </html>
