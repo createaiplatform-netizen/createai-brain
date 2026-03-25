@@ -698,6 +698,156 @@ app.post("/home-care/submit", (req: Request, res: Response) => {
   res.send(HOME_CARE_SUCCESS_PAGE(email));
 });
 
+// ── Family Hub — Creative Hub & Dream Board ────────────────────────────────
+const GLOBAL_DEPARTMENTS = [
+  { id: "healthcare",   label: "Healthcare",    desc: "Webster Home Care · HealthOS · Medicaid EVV · NPI 1346233350" },
+  { id: "legal",        label: "Legal",         desc: "Legal Practice Manager · Contracts · Compliance · Wisconsin" },
+  { id: "real-estate",  label: "Real Estate",   desc: "Property Portfolio · Acquisition · Management · Lakeside" },
+  { id: "creative-hub", label: "Creative Hub",  desc: "Family Dream Board · The Kid Ones · Global Industry · Art" },
+];
+
+const FAMILY_HUB_HTML = `<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8"/>
+  <meta name="viewport" content="width=device-width,initial-scale=1"/>
+  <title>Family Hub — Lakeside Trinity</title>
+  <style>
+    *{box-sizing:border-box;margin:0;padding:0}
+    body{font-family:'Segoe UI',Arial,sans-serif;background:#1a1f14;min-height:100vh;color:#e8f0e0;padding:0 0 60px}
+    header{background:#111710;border-bottom:1.5px solid #2d3b22;padding:20px 32px;display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:12px}
+    .brand{font-size:.78rem;font-weight:700;letter-spacing:.14em;color:#7a9160;text-transform:uppercase}
+    h1{font-size:1.5rem;font-weight:800;color:#d4e8c2;margin-top:2px}
+    .ai-pill{background:#2d3b22;border:1.5px solid #4a5e3a;border-radius:20px;padding:6px 16px;font-size:.78rem;font-weight:700;color:#a8cc88;letter-spacing:.08em;display:flex;align-items:center;gap:7px}
+    .ai-dot{width:8px;height:8px;background:#6abf4b;border-radius:50%;animation:pulse 1.6s infinite}
+    @keyframes pulse{0%,100%{opacity:1}50%{opacity:.35}}
+    main{max-width:960px;margin:0 auto;padding:36px 24px 0}
+    .section-label{font-size:.72rem;font-weight:700;letter-spacing:.13em;color:#7a9160;text-transform:uppercase;margin-bottom:14px}
+    /* Dream Board */
+    .dream-grid{display:grid;grid-template-columns:1fr 1fr;gap:20px;margin-bottom:40px}
+    @media(max-width:600px){.dream-grid{grid-template-columns:1fr}}
+    .dream-card{background:#1e2818;border:1.5px solid #2d3b22;border-radius:12px;padding:24px}
+    .dream-card h3{color:#c8e0a8;font-size:1rem;font-weight:700;margin-bottom:14px;display:flex;align-items:center;gap:8px}
+    .dream-card h3 span{font-size:1.1rem}
+    .idea-list{list-style:none}
+    .idea-list li{color:#8fa87a;font-size:.9rem;padding:8px 0;border-bottom:1px solid #2a3520;display:flex;align-items:center;gap:8px}
+    .idea-list li:last-child{border-bottom:none}
+    .idea-list li::before{content:"◆";font-size:.55rem;color:#4a5e3a;flex-shrink:0}
+    .add-idea{width:100%;margin-top:14px;padding:9px;background:transparent;border:1.5px dashed #3a4d2c;border-radius:7px;color:#5a7a46;font-size:.85rem;cursor:pointer;transition:all .2s;font-family:inherit}
+    .add-idea:hover{border-color:#4a5e3a;color:#7a9160;background:#1e2818}
+    /* Little AI */
+    .ai-block{background:#1e2818;border:1.5px solid #4a5e3a;border-radius:12px;padding:24px 28px;margin-bottom:40px;display:flex;align-items:center;gap:20px}
+    .ai-icon{width:48px;height:48px;background:#2d3b22;border-radius:10px;display:flex;align-items:center;justify-content:center;font-size:1.4rem;flex-shrink:0}
+    .ai-block h3{color:#a8cc88;font-size:.97rem;font-weight:700;margin-bottom:4px}
+    .ai-block p{color:#5a7a46;font-size:.83rem;line-height:1.5}
+    .ai-status{display:inline-block;margin-top:8px;padding:3px 10px;background:#2d3b22;border-radius:10px;font-size:.72rem;font-weight:700;color:#6abf4b;letter-spacing:.06em}
+    /* Global Departments */
+    .dept-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(200px,1fr));gap:16px;margin-bottom:40px}
+    .dept-card{background:#1e2818;border:1.5px solid #2d3b22;border-radius:10px;padding:20px 18px;cursor:pointer;transition:border-color .2s,background .2s}
+    .dept-card:hover{border-color:#4a5e3a;background:#232d1a}
+    .dept-icon{font-size:1.3rem;margin-bottom:10px}
+    .dept-name{color:#c8e0a8;font-weight:700;font-size:.93rem;margin-bottom:6px}
+    .dept-desc{color:#5a7a46;font-size:.78rem;line-height:1.5}
+    /* Footer nav */
+    .nav-link{display:inline-block;margin-top:32px;padding:11px 24px;background:#2d3b22;color:#a8cc88;text-decoration:none;border-radius:8px;font-size:.85rem;font-weight:600;border:1.5px solid #3a4d2c}
+    .nav-link:hover{background:#3a4d2c}
+  </style>
+</head>
+<body>
+<header>
+  <div>
+    <div class="brand">Lakeside Trinity LLC</div>
+    <h1>Family Hub</h1>
+  </div>
+  <div class="ai-pill"><span class="ai-dot"></span>Little AI Active</div>
+</header>
+<main>
+
+  <!-- Dream Board -->
+  <div class="section-label">Dream Board</div>
+  <div class="dream-grid">
+    <div class="dream-card">
+      <h3><span>&#9733;</span> The Kid Ones</h3>
+      <ul class="idea-list">
+        <li>Children's wellness app</li>
+        <li>Educational story platform</li>
+        <li>Family adventure planner</li>
+        <li>Kid-safe creative studio</li>
+        <li>Learning rewards system</li>
+      </ul>
+      <button class="add-idea" onclick="addIdea(this,'kid')">+ Add Kid Idea</button>
+    </div>
+    <div class="dream-card">
+      <h3><span>&#127760;</span> Global Industry</h3>
+      <ul class="idea-list">
+        <li>Home care franchise model</li>
+        <li>AI-powered EVV system</li>
+        <li>Multilingual legal platform</li>
+        <li>Real estate acquisition fund</li>
+        <li>Creative agency network</li>
+      </ul>
+      <button class="add-idea" onclick="addIdea(this,'global')">+ Add Industry Idea</button>
+    </div>
+  </div>
+
+  <!-- Little AI -->
+  <div class="section-label">AI Protocol</div>
+  <div class="ai-block">
+    <div class="ai-icon">&#129302;</div>
+    <div>
+      <h3>Little AI — Foundation Layer</h3>
+      <p>Every product in the Lakeside Trinity empire gets its own AI brain. This is the seed protocol — the placeholder that becomes the intelligence layer for Healthcare, Legal, Real Estate, and Creative departments as each grows.</p>
+      <span class="ai-status">LITTLE AI ACTIVE</span>
+    </div>
+  </div>
+
+  <!-- Global Departments -->
+  <div class="section-label">Global Departments</div>
+  <div class="dept-grid">
+    <div class="dept-card">
+      <div class="dept-icon">&#129657;</div>
+      <div class="dept-name">Healthcare</div>
+      <div class="dept-desc">Webster Home Care · HealthOS · Medicaid EVV · NPI 1346233350</div>
+    </div>
+    <div class="dept-card">
+      <div class="dept-icon">&#9878;&#65039;</div>
+      <div class="dept-name">Legal</div>
+      <div class="dept-desc">Legal Practice Manager · Contracts · Compliance · Wisconsin</div>
+    </div>
+    <div class="dept-card">
+      <div class="dept-icon">&#127968;</div>
+      <div class="dept-name">Real Estate</div>
+      <div class="dept-desc">Property Portfolio · Acquisition · Management · Lakeside</div>
+    </div>
+    <div class="dept-card">
+      <div class="dept-icon">&#127775;</div>
+      <div class="dept-name">Creative Hub</div>
+      <div class="dept-desc">Family Dream Board · The Kid Ones · Global Industry · Art</div>
+    </div>
+  </div>
+
+  <a href="/home-care" class="nav-link">&#8592; Webster Home Care Portal</a>
+
+</main>
+<script>
+function addIdea(btn, type) {
+  const label = type === 'kid' ? 'Kid idea' : 'Industry idea';
+  const text = prompt('Add a new ' + label + ':');
+  if (!text || !text.trim()) return;
+  const list = btn.previousElementSibling;
+  const li = document.createElement('li');
+  li.textContent = text.trim();
+  list.appendChild(li);
+}
+</script>
+</body>
+</html>`;
+
+app.get("/family-hub", (_req: Request, res: Response) => {
+  res.setHeader("Content-Type", "text/html; charset=utf-8");
+  res.send(FAMILY_HUB_HTML);
+});
+
 // ── Zenith Studio — generative neural art engine ───────────────────────────
 app.get("/zenith", (_req: Request, res: Response) => {
   res.setHeader("Content-Type", "text/html; charset=utf-8");
