@@ -75,6 +75,7 @@
 import path from "path";
 import fs from "fs";
 import crypto from "crypto";
+import Stripe from "stripe";
 import archiver from "archiver";
 import express, { type Express, type Request, type Response, type NextFunction } from "express";
 import cors from "cors";
@@ -578,8 +579,11 @@ app.get("/genesis", (_req: Request, res: Response) => {
   res.sendFile(path.resolve("/home/runner/workspace/sovereign-genesis.html"));
 });
 
-// ── Webster Home Care Services — Billing Portal ────────────────────────────
-const HOME_CARE_FORM = `<!DOCTYPE html>
+// ── Webster Home Care Services — Stripe Checkout Portal ────────────────────
+const HC_DOMAIN = `https://${process.env.REPLIT_DEV_DOMAIN || "localhost:8080"}`;
+
+function homeCareFormHtml(error?: string): string {
+  return `<!DOCTYPE html>
 <html lang="en">
 <head>
   <meta charset="UTF-8"/>
@@ -601,6 +605,8 @@ const HOME_CARE_FORM = `<!DOCTYPE html>
     button{width:100%;margin-top:20px;padding:13px;background:#4a5e3a;color:#fff;border:none;border-radius:7px;font-size:1rem;font-weight:600;cursor:pointer;transition:background .2s}
     button:hover{background:#3a4d2c}
     .npi{color:#aab89a;font-size:.78rem;text-align:center;margin-top:18px}
+    .error{background:#fdecea;color:#b71c1c;border-radius:7px;padding:10px 14px;margin-bottom:18px;font-size:.9rem}
+    .lock{font-size:.8rem;color:#aab89a;text-align:center;margin-top:12px}
   </style>
 </head>
 <body>
@@ -608,45 +614,52 @@ const HOME_CARE_FORM = `<!DOCTYPE html>
   <h1>Webster Home Care Services</h1>
   <p class="subtitle">Secure billing portal — Webster, WI 54893</p>
   <div class="service-row">
-    <div><div class="service-name">Home Health Aide Services</div><div class="service-code">Service Code: T1019</div></div>
+    <div>
+      <div class="service-name">Home Health Aide Services</div>
+      <div class="service-code">Service Code: T1019</div>
+    </div>
     <div class="price">$25.00</div>
   </div>
-  <form method="POST" action="/home-care/submit">
+  ${error ? `<div class="error">${error}</div>` : ""}
+  <form method="POST" action="/home-care/checkout">
     <label for="email">Customer Email</label>
     <input type="email" id="email" name="email" placeholder="you@example.com" required/>
-    <button type="submit">Submit Payment Request</button>
+    <button type="submit">Pay $25.00 Securely &rarr;</button>
   </form>
+  <p class="lock">&#128274; Payments processed by Stripe</p>
   <p class="npi">NPI 1346233350 &nbsp;|&nbsp; Lakeside Trinity LLC</p>
 </div>
 </body>
 </html>`;
+}
 
-const HOME_CARE_THANKYOU = `<!DOCTYPE html>
+const HOME_CARE_SUCCESS = `<!DOCTYPE html>
 <html lang="en">
 <head>
   <meta charset="UTF-8"/>
   <meta name="viewport" content="width=device-width,initial-scale=1"/>
-  <title>Thank You — Webster Home Care</title>
+  <title>Payment Received — Webster Home Care</title>
   <style>
     *{box-sizing:border-box;margin:0;padding:0}
     body{font-family:'Segoe UI',Arial,sans-serif;background:#f4f6f2;min-height:100vh;display:flex;align-items:center;justify-content:center}
     .card{background:#fff;border-radius:12px;box-shadow:0 4px 24px rgba(0,0,0,0.10);padding:48px 36px;max-width:420px;width:100%;text-align:center}
-    .check{font-size:3rem;margin-bottom:16px}
-    h1{color:#4a5e3a;font-size:1.5rem;margin-bottom:10px}
-    p{color:#6b7a5c;font-size:.97rem;line-height:1.6;margin-bottom:6px}
-    .email{font-weight:600;color:#2d3b22}
-    a{display:inline-block;margin-top:24px;color:#4a5e3a;text-decoration:none;font-weight:600;font-size:.9rem}
-    a:hover{text-decoration:underline}
+    .check{width:64px;height:64px;background:#4a5e3a;border-radius:50%;display:flex;align-items:center;justify-content:center;margin:0 auto 20px;font-size:1.8rem;color:#fff}
+    h1{color:#2d3b22;font-size:1.5rem;margin-bottom:10px}
+    .amount{font-size:2rem;font-weight:700;color:#4a5e3a;margin:12px 0}
+    p{color:#6b7a5c;font-size:.95rem;line-height:1.6;margin-bottom:6px}
+    .service{font-weight:600;color:#2d3b22;margin:4px 0}
+    a{display:inline-block;margin-top:28px;padding:11px 28px;background:#f0f4ec;color:#4a5e3a;text-decoration:none;border-radius:7px;font-weight:600;font-size:.9rem}
+    a:hover{background:#dde8d4}
     .npi{color:#aab89a;font-size:.78rem;margin-top:20px}
   </style>
 </head>
 <body>
 <div class="card">
   <div class="check">&#10003;</div>
-  <h1>Request Received</h1>
-  <p>Your billing request for</p>
-  <p class="email">T1019 — Home Health Aide Services ($25.00)</p>
-  <p>has been submitted. You will receive a confirmation at your email address on file.</p>
+  <h1>Payment Received</h1>
+  <div class="amount">$25.00</div>
+  <p class="service">T1019 — Home Health Aide Services</p>
+  <p>Your payment has been confirmed. A receipt has been sent to your email address.</p>
   <a href="/home-care">&larr; Back to Portal</a>
   <p class="npi">NPI 1346233350 &nbsp;|&nbsp; Lakeside Trinity LLC &nbsp;|&nbsp; Webster, WI 54893</p>
 </div>
@@ -655,17 +668,67 @@ const HOME_CARE_THANKYOU = `<!DOCTYPE html>
 
 app.get("/home-care", (_req: Request, res: Response) => {
   res.setHeader("Content-Type", "text/html; charset=utf-8");
-  res.send(HOME_CARE_FORM);
+  res.send(homeCareFormHtml());
 });
 
-app.post("/home-care/submit", (req: Request, res: Response) => {
+app.post("/home-care/checkout", async (req: Request, res: Response): Promise<void> => {
   const email = (req.body?.email || "").trim();
   if (!email) {
-    res.redirect("/home-care");
+    res.setHeader("Content-Type", "text/html; charset=utf-8");
+    res.send(homeCareFormHtml("Please enter a valid email address."));
     return;
   }
+
+  const key = process.env.STRIPE_SECRET_KEY || "";
+  if (!key.startsWith("sk_test_") && !key.startsWith("sk_live_")) {
+    res.setHeader("Content-Type", "text/html; charset=utf-8");
+    res.send(homeCareFormHtml(
+      "Payment processing is not yet configured. Please contact the administrator."
+    ));
+    return;
+  }
+
+  try {
+    const stripe = new Stripe(key);
+
+    const session = await stripe.checkout.sessions.create({
+      payment_method_types: ["card"],
+      customer_email: email,
+      line_items: [
+        {
+          price_data: {
+            currency: "usd",
+            unit_amount: 2500,
+            product_data: {
+              name: "Home Health Aide Services",
+              description: "Service Code T1019 — Webster Home Care Services, Webster WI",
+              metadata: {
+                service_code: "T1019",
+                npi: "1346233350",
+                provider: "Lakeside Trinity LLC",
+              },
+            },
+          },
+          quantity: 1,
+        },
+      ],
+      mode: "payment",
+      success_url: `${HC_DOMAIN}/home-care/success`,
+      cancel_url: `${HC_DOMAIN}/home-care`,
+    });
+
+    res.redirect(303, session.url as string);
+  } catch (err: unknown) {
+    const msg = err instanceof Error ? err.message : "Unknown error";
+    console.error("[home-care/checkout] Stripe error:", msg);
+    res.setHeader("Content-Type", "text/html; charset=utf-8");
+    res.send(homeCareFormHtml(`Payment error: ${msg}`));
+  }
+});
+
+app.get("/home-care/success", (_req: Request, res: Response) => {
   res.setHeader("Content-Type", "text/html; charset=utf-8");
-  res.send(HOME_CARE_THANKYOU);
+  res.send(HOME_CARE_SUCCESS);
 });
 
 // ── Zenith Studio — generative neural art engine ───────────────────────────
