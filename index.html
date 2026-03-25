@@ -3,126 +3,109 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>THE HEARTH | DIGITAL MARKETPLACE</title>
+    <title>THE HEARTH | INFRASTRUCTURE MARKET</title>
     <style>
-        :root { --gold: #c4a97a; --pearl: #fff; --bg: #f8f9fb; }
+        :root { --gold: #c4a97a; --bg: #f8f9fb; --dark: #1a1a1a; }
         * { margin: 0; padding: 0; box-sizing: border-box; font-family: 'Inter', sans-serif; }
-        body { background: var(--bg); color: #1a1a1a; padding-bottom: 90px; }
+        body { background: var(--bg); color: var(--dark); padding-bottom: 100px; }
 
-        /* THE PREMIUM TOP BAR */
-        header { 
-            background: #fff; padding: 20px; border-bottom: 1px solid #eee;
-            display: flex; justify-content: space-between; align-items: center;
-            position: sticky; top: 0; z-index: 1000;
-        }
-        .logo { font-weight: 900; letter-spacing: 4px; font-size: 0.7rem; color: var(--gold); }
-        .user-access { font-size: 0.6rem; font-weight: bold; background: #f0f0f0; padding: 5px 10px; border-radius: 20px; }
+        header { background: #fff; padding: 20px; border-bottom: 1px solid #eee; position: sticky; top: 0; z-index: 1000; }
+        .logo { font-weight: 900; letter-spacing: 4px; font-size: 0.7rem; color: var(--gold); text-transform: uppercase; }
 
         .container { max-width: 600px; margin: 0 auto; padding: 20px; }
 
-        /* VIEW TOGGLE */
-        .view { display: none; }
-        .view.active { display: block; animation: fadeIn 0.3s ease; }
-        @keyframes fadeIn { from { opacity: 0; } to { opacity: 1; } }
-
-        /* DASHBOARD CARDS (The "Owned" Infrastructure) */
-        .stat-card {
-            background: #fff; border-radius: 20px; padding: 20px; margin-bottom: 15px;
-            border-left: 5px solid var(--gold); box-shadow: 0 10px 30px rgba(0,0,0,0.03);
+        /* THE KEYS (THE PRIMARY DROPSHIP PRODUCTS) */
+        .featured-key {
+            background: #fff; border-radius: 20px; padding: 30px; margin-bottom: 30px;
+            border: 1px solid #eee; box-shadow: 0 10px 40px rgba(0,0,0,0.03);
         }
-        .stat-label { font-size: 0.55rem; letter-spacing: 2px; color: #aaa; text-transform: uppercase; font-weight: 900; }
-        .stat-value { font-size: 1.1rem; font-weight: 300; margin-top: 5px; }
+        .price-badge { font-weight: 900; color: var(--gold); font-size: 1.2rem; display: block; margin-bottom: 10px; }
+        .key-title { font-size: 1.4rem; font-weight: 200; margin-bottom: 10px; }
+        .key-desc { font-size: 0.75rem; color: #666; line-height: 1.6; margin-bottom: 20px; }
+        .buy-now { background: var(--gold); color: #fff; border: none; width: 100%; padding: 18px; border-radius: 12px; font-weight: bold; text-transform: uppercase; letter-spacing: 2px; cursor: pointer; }
 
-        /* MARKET TILES (The "Amazon" Dropship Store) */
-        .market-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 15px; }
-        .product-tile {
-            background: #fff; border-radius: 20px; padding: 25px 15px;
-            text-align: center; border: 1px solid #eee; transition: 0.3s;
+        /* THE ENGINE SECTORS */
+        .sector-title { font-size: 0.65rem; font-weight: 900; letter-spacing: 3px; color: #aaa; text-transform: uppercase; margin: 40px 0 15px 5px; }
+        .engine-card {
+            background: #fff; border-radius: 15px; padding: 20px; margin-bottom: 15px;
+            border: 1px solid #eee; display: flex; align-items: flex-start; gap: 15px;
         }
-        .product-tile:active { transform: scale(0.95); border-color: var(--gold); }
-        .tile-icon { font-size: 1.8rem; margin-bottom: 10px; display: block; }
-        .tile-title { font-size: 0.75rem; font-weight: bold; }
-        .tile-price { font-size: 0.65rem; color: var(--gold); font-weight: 900; margin-top: 5px; }
-
-        /* BOTTOM NAV */
-        nav {
-            position: fixed; bottom: 0; width: 100%; background: #fff; border-top: 1px solid #eee;
-            display: flex; justify-content: space-around; padding: 15px 0; z-index: 2000;
-        }
-        .nav-btn { text-align: center; font-size: 0.55rem; font-weight: 900; color: #ccc; text-transform: uppercase; cursor: pointer; letter-spacing: 1px; }
-        .nav-btn.active { color: var(--gold); }
+        .engine-icon { font-size: 1.5rem; }
+        .engine-info h4 { font-size: 0.85rem; font-weight: 700; margin-bottom: 4px; }
+        .engine-info p { font-size: 0.65rem; color: #888; line-height: 1.4; }
     </style>
 </head>
 <body>
 
     <header>
-        <div class="logo">HEARTH CORE</div>
-        <div class="user-access">WEBSTER_NODE_01</div>
+        <div class="logo">Hearth Infrastructure</div>
     </header>
 
     <div class="container">
         
-        <div id="dashboard" class="view active">
-            <h2 style="font-weight: 200; margin-bottom: 20px;">Infrastructure Status</h2>
-            <div class="stat-card">
-                <div class="stat-label">Network Status</div>
-                <div class="stat-value" style="color: #7a9068;">● Mesh Active</div>
+        <div class="featured-key">
+            <span class="price-badge">97.00</span>
+            <h2 class="key-title">The Family Portal</h2>
+            <p class="key-desc">The master key for your household. Unlocks private Mesh-Net internet nodes, utility cost synchronization, and the encrypted Private Health Vault. One-time activation for lifetime sovereignty.</p>
+            <button class="buy-now">Activate Portal</button>
+        </div>
+
+        <div class="featured-key" style="border-color: #333; background: #fafafa;">
+            <span class="price-badge" style="color: #333;">97.00</span>
+            <h2 class="key-title">The Business Engine</h2>
+            <p class="key-desc">Turn your home or local office into a revenue node. Includes AFH Management software, Cafe-Pulse Inventory AI, and full Business Entity shielding in our Private Jurisdiction.</p>
+            <button class="buy-now" style="background: #333;">Activate Engine</button>
+        </div>
+
+        <div class="sector-title">Healthcare Engines</div>
+        <div class="engine-card">
+            <div class="engine-icon">🏥</div>
+            <div class="engine-info">
+                <h4>The Nurse-Flow System</h4>
+                <p>AI-driven scheduling and patient workflow for Adult Family Homes and private clinics.</p>
             </div>
-            <div class="stat-card">
-                <div class="stat-label">Active Engines</div>
-                <div class="stat-value">3 Solutions Deployed</div>
-            </div>
-            <div class="stat-card">
-                <div class="stat-label">Family Vault</div>
-                <div class="stat-value">Secured & Encrypted</div>
+        </div>
+        <div class="engine-card">
+            <div class="engine-icon">🧬</div>
+            <div class="engine-info">
+                <h4>Private Health Vault</h4>
+                <p>Encrypted storage for medical records and DNA data, accessible only via your Portal Key.</p>
             </div>
         </div>
 
-        <div id="market" class="view">
-            <h2 style="font-weight: 200; margin-bottom: 20px;">Digital Marketplace</h2>
-            <p style="font-size: 0.7rem; color: #888; margin-bottom: 20px;">Instant "Dropship" deployment of infrastructure engines.</p>
-            
-            <div class="market-grid">
-                <div class="product-tile" onclick="alert('Deploying Healthcare Engine...')">
-                    <span class="tile-icon">🏥</span>
-                    <div class="tile-title">Healthcare</div>
-                    <div class="tile-price">ADD TO HEARTH</div>
-                </div>
-                <div class="product-tile" onclick="alert('Deploying Legal Engine...')">
-                    <span class="tile-icon">⚖️</span>
-                    <div class="tile-title">Sovereign Law</div>
-                    <div class="tile-price">ADD TO HEARTH</div>
-                </div>
-                <div class="product-tile" onclick="alert('Deploying Utility Engine...')">
-                    <span class="tile-icon">📡</span>
-                    <div class="tile-title">Utilities</div>
-                    <div class="tile-price">ADD TO HEARTH</div>
-                </div>
-                <div class="product-tile" onclick="alert('Deploying Wealth Engine...')">
-                    <span class="tile-icon">💰</span>
-                    <div class="tile-title">Wealth AI</div>
-                    <div class="tile-price">ADD TO HEARTH</div>
-                </div>
+        <div class="sector-title">Sovereign Utilities</div>
+        <div class="engine-card">
+            <div class="engine-icon">📡</div>
+            <div class="engine-info">
+                <h4>Mesh-Net Internet Node</h4>
+                <p>Localized off-grid internet infrastructure. Bypasses major ISPs using peer-to-peer transmission.</p>
+            </div>
+        </div>
+        <div class="engine-card">
+            <div class="engine-icon">⚡</div>
+            <div class="engine-info">
+                <h4>Utility Sync Node</h4>
+                <p>Hardware-software bridge to optimize and reduce cost on municipal power and water grids.</p>
+            </div>
+        </div>
+
+        <div class="sector-title">Legal & Jurisdiction</div>
+        <div class="engine-card">
+            <div class="engine-icon">⚖️</div>
+            <div class="engine-info">
+                <h4>Standing Law Portal</h4>
+                <p>Common Law document generation and private trust establishment for asset protection.</p>
+            </div>
+        </div>
+        <div class="engine-card">
+            <div class="engine-icon">🛡️</div>
+            <div class="engine-info">
+                <h4>Entity Shield AI</h4>
+                <p>Automated compliance and asset shielding for private business ventures.</p>
             </div>
         </div>
 
     </div>
-
-    <nav>
-        <div class="nav-btn active" id="dash-link" onclick="switchView('dashboard')">Dashboard</div>
-        <div class="nav-btn" id="market-link" onclick="switchView('market')">Market</div>
-        <div class="nav-btn">Vault</div>
-    </nav>
-
-    <script>
-        function switchView(viewId) {
-            document.querySelectorAll('.view').forEach(v => v.classList.remove('active'));
-            document.querySelectorAll('.nav-btn').forEach(b => b.classList.remove('active'));
-            
-            document.getElementById(viewId).classList.add('active');
-            document.getElementById(viewId + '-link').classList.add('active');
-        }
-    </script>
 
 </body>
 </html>
