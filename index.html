@@ -3,101 +3,134 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>THE HEARTH | DEPARTMENT ACCESS</title>
+    <title>THE HEARTH | OMNI-DASHBOARD</title>
     <style>
-        :root { --gold: #c4a97a; --bg: #f8f8f8; }
+        :root { --gold: #c4a97a; --bg: #fdfdfd; --pearl: #fff; }
         * { margin: 0; padding: 0; box-sizing: border-box; font-family: 'Inter', sans-serif; }
-        body { background: var(--bg); color: #333; transition: 0.5s; }
+        body { background: #f4f4f7; color: #222; padding-bottom: 100px; }
 
-        header { background: #fff; padding: 20px; border-bottom: 1px solid #eee; position: sticky; top: 0; z-index: 1000; }
-        .omni-search { background: #f1f1f1; border-radius: 50px; padding: 12px 20px; display: flex; align-items: center; }
-        .omni-search input { flex: 1; border: none; background: transparent; outline: none; }
-
-        .container { padding: 20px; max-width: 800px; margin: 0 auto; }
-        .section-title { font-size: 0.7rem; letter-spacing: 3px; font-weight: bold; color: var(--gold); text-transform: uppercase; margin: 30px 0 15px; }
-
-        /* THE TILES */
-        .dept-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 15px; }
-        .dept-card {
-            background: #fff; border-radius: 20px; padding: 30px 10px;
-            text-align: center; border: 1px solid #eee; cursor: pointer;
-            box-shadow: 0 4px 15px rgba(0,0,0,0.02);
+        /* VIP ACCESS HEADER */
+        header { 
+            background: #fff; padding: 15px 20px; position: sticky; top: 0; z-index: 1000;
+            display: flex; justify-content: space-between; align-items: center;
+            border-bottom: 1px solid #eee; box-shadow: 0 2px 10px rgba(0,0,0,0.03);
         }
-        .dept-icon { font-size: 2rem; margin-bottom: 10px; display: block; }
-
-        /* THE HIDDEN SHELF (Inside the Department) */
-        #shelf-view { display: none; animation: fadeIn 0.4s ease; }
-        @keyframes fadeIn { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
-
-        .shelf-item {
-            background: #fff; border-radius: 20px; padding: 20px; margin-bottom: 15px;
-            border-left: 5px solid var(--gold); box-shadow: 0 5px 15px rgba(0,0,0,0.03);
+        .vip-keys { display: flex; gap: 10px; }
+        .mini-key { 
+            padding: 8px 12px; border-radius: 10px; font-size: 0.6rem; 
+            font-weight: bold; border: 1px solid #eee; text-transform: uppercase;
         }
-        .back-btn { background: none; border: none; color: var(--gold); font-weight: bold; font-size: 0.7rem; letter-spacing: 2px; cursor: pointer; margin-bottom: 20px; }
+
+        /* THE SEARCH BRAIN */
+        .hero-search { 
+            background: #fff; padding: 40px 20px; text-align: center; 
+            border-bottom: 1px solid #eee; margin-bottom: 20px;
+        }
+        .search-bar {
+            max-width: 600px; margin: 20px auto 0; background: #f8f8f8;
+            border-radius: 50px; padding: 15px 25px; display: flex; align-items: center;
+            border: 1px solid transparent; transition: 0.3s;
+        }
+        .search-bar:focus-within { border-color: var(--gold); background: #fff; box-shadow: 0 10px 30px rgba(196,169,122,0.1); }
+        .search-bar input { flex: 1; border: none; outline: none; background: transparent; font-size: 1rem; }
+
+        /* THE DEPARTMENT TILES */
+        .dashboard-grid { 
+            display: grid; grid-template-columns: repeat(2, 1fr); gap: 15px; 
+            padding: 20px; max-width: 1000px; margin: 0 auto; 
+        }
+        @media (min-width: 768px) { .dashboard-grid { grid-template-columns: repeat(4, 1fr); } }
+
+        .tile {
+            background: #fff; border-radius: 24px; padding: 25px 15px;
+            text-align: center; border: 1px solid #eee; transition: 0.3s;
+            box-shadow: 0 4px 12px rgba(0,0,0,0.02); cursor: pointer;
+        }
+        .tile:active { transform: scale(0.95); }
+        .tile-icon { font-size: 1.8rem; margin-bottom: 10px; display: block; filter: grayscale(1); transition: 0.3s; }
+        .tile:hover .tile-icon { filter: grayscale(0); }
+        .tile-name { font-size: 0.75rem; font-weight: 700; color: #333; letter-spacing: 0.5px; }
+        .tile-sub { font-size: 0.55rem; color: #aaa; text-transform: uppercase; margin-top: 4px; letter-spacing: 1px; }
+
+        /* RECENT ACTIVITY (Social Proof) */
+        .activity-feed { padding: 0 20px; max-width: 1000px; margin: 20px auto; }
+        .feed-item { 
+            background: rgba(196,169,122,0.05); padding: 12px 20px; border-radius: 15px;
+            font-size: 0.7rem; color: #666; display: flex; align-items: center; gap: 10px; margin-bottom: 10px;
+        }
     </style>
 </head>
 <body>
 
     <header>
-        <div class="omni-search"><input type="text" placeholder="Search 158 Engines..."></div>
+        <div style="font-weight: 900; letter-spacing: 2px; font-size: 0.8rem; color: var(--gold);">HEARTH</div>
+        <div class="vip-keys">
+            <div class="mini-key" style="background: var(--gold); color: #fff; border:none;">Family Key</div>
+            <div class="mini-key">Biz Engine</div>
+        </div>
     </header>
 
-    <div class="container">
-        
-        <div id="mall-view">
-            <div class="section-title">Departments</div>
-            <div class="dept-grid">
-                <div class="dept-card" onclick="openShelf('Healthcare', ['Nurse Flow System', 'AFH Manager', 'Private Health Vault'])">
-                    <span class="dept-icon">🏥</span>
-                    <div style="font-weight:bold; font-size:0.8rem;">Healthcare</div>
-                </div>
-                <div class="dept-card" onclick="openShelf('Utilities', ['Mesh-Internet Node', 'Off-Grid Power Sync', 'Water Sovereignty'])">
-                    <span class="dept-icon">📡</span>
-                    <div style="font-weight:bold; font-size:0.8rem;">Utilities</div>
-                </div>
-                <div class="dept-card" onclick="openShelf('Hospitality', ['Cafe Pulse AI', 'Restaurant Inventory', 'Staff Scheduler'])">
-                    <span class="dept-icon">☕</span>
-                    <div style="font-weight:bold; font-size:0.8rem;">Hospitality</div>
-                </div>
-                <div class="dept-card" onclick="openShelf('Legal', ['Standing Law Docs', 'Asset Protection', 'Trust Builder'])">
-                    <span class="dept-icon">⚖️</span>
-                    <div style="font-weight:bold; font-size:0.8rem;">Legal</div>
-                </div>
-            </div>
+    <div class="hero-search">
+        <h1 style="font-weight: 200; font-size: 1.5rem; letter-spacing: -0.5px;">Universal Infrastructure</h1>
+        <div class="search-bar">
+            <input type="text" placeholder="Search 158 possibilities...">
+            <span>✨</span>
         </div>
-
-        <div id="shelf-view">
-            <button class="back-btn" onclick="closeShelf()">← BACK TO MALL</button>
-            <h2 id="shelf-title" style="margin-bottom: 20px; font-weight: 200;"></h2>
-            <div id="shelf-contents"></div>
-        </div>
-
     </div>
 
-    <script>
-        function openShelf(title, items) {
-            document.getElementById('mall-view').style.display = 'none';
-            document.getElementById('shelf-view').style.display = 'block';
-            document.getElementById('shelf-title').innerText = title;
-            
-            let html = '';
-            items.forEach(item => {
-                html += `
-                    <div class="shelf-item">
-                        <div style="font-weight:bold; font-size:0.9rem;">${item}</div>
-                        <div style="font-size:0.7rem; color:#888; margin-top:5px;">Sovereign Infrastructure Engine</div>
-                        <button style="margin-top:10px; background:var(--gold); color:#fff; border:none; padding:8px 15px; border-radius:10px; font-size:0.6rem; font-weight:bold;">ADD TO HEARTH</button>
-                    </div>
-                `;
-            });
-            document.getElementById('shelf-contents').innerHTML = html;
-        }
+    <div class="activity-feed">
+        <div class="feed-item">
+            <span style="color: var(--gold);">●</span> 
+            <span>Recently Activated: <b>Cafe Inventory Node</b> (Webster, WI)</span>
+        </div>
+    </div>
 
-        function closeShelf() {
-            document.getElementById('mall-view').style.display = 'block';
-            document.getElementById('shelf-view').style.display = 'none';
-        }
-    </script>
+    <div class="dashboard-grid">
+        <div class="tile">
+            <span class="tile-icon">🏥</span>
+            <div class="tile-name">Healthcare</div>
+            <div class="tile-sub">12 Engines</div>
+        </div>
+        <div class="tile">
+            <span class="tile-icon">📡</span>
+            <div class="tile-name">Utilities</div>
+            <div class="tile-sub">15 Engines</div>
+        </div>
+        <div class="tile">
+            <span class="tile-icon">⚖️</span>
+            <div class="tile-name">Sovereign Law</div>
+            <div class="tile-sub">22 Engines</div>
+        </div>
+        <div class="tile">
+            <span class="tile-icon">☕</span>
+            <div class="tile-name">Food & Bev</div>
+            <div class="tile-sub">8 Engines</div>
+        </div>
+        <div class="tile">
+            <span class="tile-icon">🛡️</span>
+            <div class="tile-name">Security</div>
+            <div class="tile-sub">9 Engines</div>
+        </div>
+        <div class="tile">
+            <span class="tile-icon">💰</span>
+            <div class="tile-name">Wealth</div>
+            <div class="tile-sub">14 Engines</div>
+        </div>
+        <div class="tile">
+            <span class="tile-icon">🤖</span>
+            <div class="tile-name">Private AI</div>
+            <div class="tile-sub">67 Engines</div>
+        </div>
+        <div class="tile">
+            <span class="tile-icon">🏡</span>
+            <div class="tile-name">Real Estate</div>
+            <div class="tile-sub">11 Engines</div>
+        </div>
+    </div>
+
+    <footer style="text-align: center; padding: 40px; opacity: 0.2; font-size: 0.5rem; letter-spacing: 5px;">
+        ESTABLISHED 2026 | THE STANDING LAW
+    </footer>
 
 </body>
 </html>
