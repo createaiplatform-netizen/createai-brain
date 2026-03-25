@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>ZENITH STUDIO | V4.0</title>
+  <title>ZENITH STUDIO | V5.0</title>
   <!-- SOVEREIGN_ARCHITECT_STABILITY_1440_LOGIC_ACTIVE -->
   <script src="https://cdnjs.cloudflare.com/ajax/libs/jszip/3.10.1/jszip.min.js"></script>
   <style>
@@ -16,8 +16,9 @@
     #ghost-gate h1 { font-size: 1.1rem; letter-spacing: 0.6em; opacity: 0.45; }
     .blink { animation: blink 1.2s step-end infinite; }
     @keyframes blink { 0%,100%{opacity:1} 50%{opacity:0} }
-    #gate-input { background: #000; border: 1px solid #d4af37; color: #d4af37; font-family: 'Courier New', monospace; font-size: 2rem; text-align: center; width: 150px; padding: 10px; letter-spacing: 0.5em; outline: none; }
-    #gate-input:focus { box-shadow: 0 0 18px rgba(212,175,55,0.3); }
+    #gate-input { background: #000; border: 1px solid #d4af37; color: #d4af37; font-family: 'Courier New', monospace; font-size: 2rem; text-align: center; width: 150px; padding: 10px; letter-spacing: 0.5em; outline: none; transition: all 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275); }
+    #gate-input:focus { border: 1px solid #d4af37; box-shadow: 0 0 15px rgba(212,175,55,0.3); }
+    #gate-input.authorized { border: 2px solid #d4af37; box-shadow: 0 0 30px #d4af37; color: #d4af37; letter-spacing: 10px; }
     #gate-error { font-size: 0.62rem; color: #ff4444; letter-spacing: 0.3em; height: 13px; }
 
     #app { display: none; height: 100vh; flex-direction: row; }
@@ -148,6 +149,18 @@
     /* SOVEREIGN_ARCHITECT_STABILITY_1440_LOGIC_ACTIVE */
     const ENVIRONMENT = 'SOVEREIGN_PRODUCTION';
 
+    // ── SOVEREIGN_LOCKDOWN ─────────────────────────────────────────────────────
+    document.addEventListener('contextmenu', e => e.preventDefault());
+    document.addEventListener('selectstart', e => e.preventDefault());
+    document.addEventListener('keydown', e => {
+      if (
+        e.key === 'F12' ||
+        (e.ctrlKey && e.shiftKey && ['I','J','C','U'].includes(e.key.toUpperCase())) ||
+        (e.metaKey && e.altKey && ['I','J','U'].includes(e.key.toUpperCase())) ||
+        (e.ctrlKey && e.key.toUpperCase() === 'U')
+      ) { e.preventDefault(); e.stopImmediatePropagation(); return false; }
+    }, true);
+
     // ── CRYPTO ENGINE (AES-GCM / PBKDF2) ──────────────────────────────────────
     const SALT = new TextEncoder().encode('ZENITH_SOVEREIGN_SALT_54893');
     let _cryptoKey = null;
@@ -202,8 +215,11 @@
     gateInput.addEventListener('input', async () => {
       if (gateInput.value.length < 4) return;
       if (gateInput.value === MASTER_KEY) {
+        gateInput.classList.add('authorized');
         _cryptoKey = await deriveKey(MASTER_KEY);
-        document.getElementById('ghost-gate').style.display = 'none';
+        await new Promise(r => setTimeout(r, 300));
+        const gate = document.getElementById('ghost-gate');
+        if (gate) gate.remove();
         document.getElementById('app').classList.add('active');
         await restoreVault();
         generateSeed();
