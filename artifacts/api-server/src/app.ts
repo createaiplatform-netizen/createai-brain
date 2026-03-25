@@ -571,6 +571,7 @@ app.use(guardPath("/hub", "/vault", "/bundle", "/valuation", "/launch/payments",
 
 // ── Sovereign Genesis — standalone golden pulse dashboard ─────────────────
 app.get("/genesis", (_req: Request, res: Response) => {
+  res.setHeader("Content-Type", "text/html; charset=utf-8");
   res.sendFile(path.resolve("/home/runner/workspace/sovereign-genesis.html"));
 });
 
