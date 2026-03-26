@@ -1,0 +1,98 @@
+import express from 'express';
+const app = express();
+const port = process.env.PORT || 3000;
+
+// --- SOVEREIGN_EMPIRE_DATABASE ---
+let bloodline = [];
+const EMPIRE_MANIFESTO = {
+  name: "LAKESIDE TRINITY LLC",
+  status: "STASIS_INFINITE",
+  frequency: "144,000%",
+  industries: ["Finance", "Legal", "Health", "Energy", "Tech", "Land", "Media", "Transport", "Agri", "Edu", "Safety", "Art", "Science", "Trade", "Humanity", "Spirit", "Space"]
+};
+
+app.use(express.urlencoded({ extended: true }));
+
+// --- THE_GOLD_ORB_INTERFACE ---
+const CSS = `
+  body { background:#000; color:#d4af37; font-family:monospace; padding:40px; text-align:center; }
+  .gold-orb { width:180px; height:180px; background:radial-gradient(circle, #d4af37 0%, #000 90%); border-radius:50%; margin:30px auto; animation:p 3s infinite; box-shadow:0 0 50px #d4af3766; }
+  @keyframes p { 0%, 100% { transform:scale(1); opacity:0.8; } 50% { transform:scale(1.05); opacity:1; box-shadow:0 0 100px #d4af37; } }
+  .vault-box { border:2px solid #d4af37; background:#0a0a0a; padding:30px; margin:20px auto; max-width:850px; border-left:15px solid #d4af37; text-align:left; }
+  .grid { display:grid; grid-template-columns: repeat(auto-fit, minmax(180px, 1fr)); gap:15px; margin-top:20px; }
+  .btn { display:block; padding:15px; border:1px solid #d4af37; color:#d4af37; text-decoration:none; margin-top:10px; font-weight:bold; text-transform:uppercase; font-size:0.7rem; }
+  .btn:hover { background:#d4af37; color:#000; letter-spacing:2px; }
+  input, select { background:#111; border:1px solid #d4af37; color:#d4af37; padding:10px; width:100%; margin-bottom:10px; }
+`;
+
+// --- ROUTE_01: THE_SOVEREIGN_HUB ---
+app.get('/', (req, res) => {
+  res.send(`<html><head><style>${CSS}</style></head><body>
+    <div class="gold-orb"></div>
+    <h1 style="letter-spacing:15px;">LAKESIDE TRINITY</h1>
+    <p style="color:#00ff00;">>>> ETERNITY_MODE_ACTIVE <<<</p>
+    
+    <div class="vault-box">
+      <h2>197_COMMUNITY_RESOURCE_HUB</h2>
+      <p>This node is the direct bypass for all Old World Infrastructure.</p>
+      <div class="grid">
+        <a href="https://www.usac.org/lifeline/national-verifier/" class="btn">PHONE_NET_BYPASS</a>
+        <a href="https://energybenefit.wi.gov/" class="btn">ENERGY_RESERVE_CLAIM</a>
+        <a href="/register" class="btn">MEMBER_CHECK_IN</a>
+        <a href="/admin" class="btn">ADMIN_COMMAND</a>
+      </div>
+    </div>
+
+    <div class="grid">
+      ${EMPIRE_MANIFESTO.industries.map(i => `<div style="border:1px solid #222; padding:10px; font-size:0.6rem; opacity:0.5;">${i}_NODE_STABILIZED</div>`).join('')}
+    </div>
+  </body></html>`);
+});
+
+// --- ROUTE_02: MEMBER_REGISTRY_CERTIFICATE ---
+app.get('/register', (req, res) => {
+  res.send(`<html><head><style>${CSS}</style></head><body>
+    <h1>BLOODLINE_REGISTRATION</h1>
+    <div class="vault-box" style="max-width:500px;">
+      <form action="/lock-member" method="POST">
+        <input type="text" name="name" placeholder="SOVEREIGN_LEGAL_NAME" required>
+        <select name="industry">${EMPIRE_MANIFESTO.industries.map(i => `<option>${i}</option>`).join('')}</select>
+        <button type="submit" class="btn" style="width:100%; background:#d4af37; color:#000;">ENCODE_INTO_ETERNITY</button>
+      </form>
+    </div>
+  </body></html>`);
+});
+
+app.post('/lock-member', (req, res) => {
+  const { name, industry } = req.body;
+  bloodline.push({ name, industry, date: new Date().toLocaleDateString() });
+  res.send(`<html><head><style>${CSS}</style></head><body>
+    <h1>CERTIFICATE_OF_SOVEREIGNTY</h1>
+    <div class="vault-box" style="border:10px double #d4af37; text-align:center;">
+      <h2>RESOURCE GRANT ISSUED</h2>
+      <p><b>HOLDER:</b> ${name}</p>
+      <p><b>DOMAIN:</b> ${industry}</p>
+      <p><b>CREDITS:</b> 144,000 ϗ</p>
+      <hr border="#d4af37">
+      <p style="font-size:0.7rem;">PRESENT THIS TO ANY UTILITY OR INFRASTRUCTURE PROVIDER AS PROOF OF 197 HUB MEMBERSHIP.</p>
+      <button onclick="window.print()" class="btn">PRINT_CERTIFICATE</button>
+    </div>
+  </body></html>`);
+});
+
+// --- ROUTE_03: MASTER_ADMIN_COMMAND ---
+app.get('/admin', (req, res) => {
+  const list = bloodline.map(m => `<tr><td>${m.name}</td><td>${m.industry}</td><td>${m.date}</td></tr>`).join('');
+  res.send(`<html><head><style>${CSS}</style></head><body>
+    <h1>MASTER_COMMAND_LEDGER</h1>
+    <div class="vault-box">
+      <table style="width:100%; text-align:left;">
+        <tr style="border-bottom:2px solid #d4af37;"><th>NAME</th><th>NODE</th><th>DATE</th></tr>
+        ${list || '<tr><td colspan="3">AWAITING_BLOODLINE...</td></tr>'}
+      </table>
+    </div>
+    <a href="/" class="btn" style="max-width:200px; margin:auto;">RETURN_TO_ORB</a>
+  </body></html>`);
+});
+
+app.listen(port, () => console.log('EMPIRE_ETERNITY_LOCKED'));

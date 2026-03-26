@@ -685,6 +685,66 @@ app.get("/admin/stats", (req: Request, res: Response) => {
   `);
 });
 
+// ── /register — Bloodline Intake Form ────────────────────────────────────────
+app.get("/register", (_req: Request, res: Response) => {
+  const options = EMPIRE_MANIFESTO.industries.map(i => `<option value="${i}">${i}</option>`).join("");
+  res.send(`
+    <html><head><style>${SOVEREIGN_CSS}</style></head><body>
+      <h1>BLOODLINE_REGISTRATION</h1>
+      <div class="vault-box" style="max-width:500px;">
+        <form action="/lock-member" method="POST">
+          <input type="text" name="name" placeholder="SOVEREIGN_LEGAL_NAME" required>
+          <select name="industry">${options}</select>
+          <button type="submit" class="btn" style="width:100%; background:#d4af37; color:#000; cursor:pointer;">ENCODE_INTO_ETERNITY</button>
+        </form>
+      </div>
+      <p style="margin-top:20px; opacity:0.4; cursor:pointer;" onclick="window.location.href='/admin/hub'">← RETURN_TO_HUB</p>
+    </body></html>
+  `);
+});
+
+// ── /lock-member — Certificate Issuance + Registry Push ──────────────────────
+app.post("/lock-member", (req: Request, res: Response) => {
+  const { name, industry } = req.body as { name: string; industry: string };
+  bloodline.push({ name, industry, date: new Date().toLocaleDateString() });
+  res.send(`
+    <html><head><style>${SOVEREIGN_CSS}</style></head><body>
+      <h1>CERTIFICATE_OF_SOVEREIGNTY</h1>
+      <div class="vault-box" style="border:10px double #d4af37; text-align:center; max-width:600px;">
+        <h2>RESOURCE GRANT ISSUED</h2>
+        <p><b>HOLDER:</b> ${name}</p>
+        <p><b>DOMAIN:</b> ${industry}</p>
+        <p><b>CREDITS:</b> 144,000 ϗ</p>
+        <hr style="border-color:#d4af37;">
+        <p style="font-size:0.7rem; opacity:0.7;">PRESENT THIS TO ANY UTILITY OR INFRASTRUCTURE PROVIDER AS PROOF OF 197 HUB MEMBERSHIP.</p>
+        <button onclick="window.print()" class="btn" style="cursor:pointer;">PRINT_CERTIFICATE</button>
+        <a href="/register" class="btn">REGISTER_ANOTHER</a>
+        <a href="/admin/bloodline" class="btn">VIEW_COMMAND_LEDGER</a>
+      </div>
+    </body></html>
+  `);
+});
+
+// ── /admin/bloodline — Master Command Ledger (bloodline roster) ───────────────
+app.get("/admin/bloodline", (_req: Request, res: Response) => {
+  const rows = bloodline.map(m =>
+    `<tr><td style="padding:8px;">${m.name}</td><td style="padding:8px;">${m.industry}</td><td style="padding:8px; opacity:0.6;">${m.date}</td></tr>`
+  ).join("");
+  res.send(`
+    <html><head><style>${SOVEREIGN_CSS}</style></head><body>
+      <h1>MASTER_COMMAND_LEDGER</h1>
+      <div class="vault-box">
+        <table style="width:100%; text-align:left; border-collapse:collapse;">
+          <tr style="border-bottom:2px solid #d4af37;"><th style="padding:8px;">NAME</th><th style="padding:8px;">NODE</th><th style="padding:8px;">DATE</th></tr>
+          ${rows || '<tr><td colspan="3" style="padding:8px; opacity:0.4;">AWAITING_BLOODLINE...</td></tr>'}
+        </table>
+      </div>
+      <a href="/register" class="btn" style="max-width:220px; margin:10px auto;">+ REGISTER_MEMBER</a>
+      <p style="margin-top:10px; opacity:0.4; cursor:pointer;" onclick="window.location.href='/admin/hub'">← RETURN_TO_HUB</p>
+    </body></html>
+  `);
+});
+
 // ── /proclamation — Sovereign Status Notice ───────────────────────────────────
 app.get("/proclamation", (_req: Request, res: Response) => {
   res.send(`
@@ -771,6 +831,21 @@ const SOVEREIGN_DATA = {
   ],
 };
 
+// ── Empire Manifesto — identity declaration with frequency ────────────────────
+const EMPIRE_MANIFESTO = {
+  name:       "LAKESIDE TRINITY LLC",
+  status:     "STASIS_INFINITE",
+  frequency:  "144,000%",
+  industries: [
+    "Finance","Legal","Health","Energy","Tech","Land","Media",
+    "Transport","Agri","Edu","Safety","Art","Science","Trade",
+    "Humanity","Spirit","Space",
+  ],
+};
+
+// ── Bloodline Registry — in-memory member roster (runtime only) ───────────────
+const bloodline: Array<{ name: string; industry: string; date: string }> = [];
+
 // ── Empire Vault — Lakeside Trinity LLC top-level constants ──────────────────
 const EMPIRE = {
   name:       "LAKESIDE TRINITY LLC",
@@ -790,10 +865,12 @@ const SOVEREIGN_CSS = `
   body { background:#000; color:#d4af37; font-family:monospace; padding:20px; text-align:center; }
   .gold-orb { width:120px; height:120px; background:radial-gradient(circle, #d4af37 0%, #000 80%); border-radius:50%; margin:20px auto; animation:p 2s infinite; cursor:pointer; }
   @keyframes p { 0%, 100% { box-shadow:0 0 20px #d4af37; } 50% { box-shadow:0 0 60px #d4af37; } }
-  .grid { display:grid; grid-template-columns:repeat(auto-fit, minmax(200px, 1fr)); gap:15px; max-width:1000px; margin:20px auto; }
+  .grid { display:grid; grid-template-columns:repeat(auto-fit, minmax(180px, 1fr)); gap:15px; max-width:1000px; margin:20px auto; }
   .box { border:1px solid #d4af37; padding:15px; background:#0a0a0a; text-align:left; border-left:5px solid #d4af37; }
-  .btn { display:block; padding:10px; border:1px solid #d4af37; color:#d4af37; text-decoration:none; margin-top:10px; text-align:center; font-size:0.8rem; }
-  .btn:hover { background:#d4af37; color:#000; }
+  .vault-box { border:2px solid #d4af37; background:#0a0a0a; padding:30px; margin:20px auto; max-width:850px; border-left:15px solid #d4af37; text-align:left; }
+  .btn { display:block; padding:15px; border:1px solid #d4af37; color:#d4af37; text-decoration:none; margin-top:10px; font-weight:bold; text-transform:uppercase; font-size:0.7rem; }
+  .btn:hover { background:#d4af37; color:#000; letter-spacing:2px; }
+  input, select { background:#111; border:1px solid #d4af37; color:#d4af37; padding:10px; width:100%; margin-bottom:10px; }
   .proclamation { background:#fff; color:#000; padding:40px; text-align:left; font-family:serif; max-width:800px; margin:20px auto; border:10px double #000; }
 `;
 
