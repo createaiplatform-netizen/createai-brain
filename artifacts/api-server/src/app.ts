@@ -713,14 +713,18 @@ app.get("/welcome-audio", (_req: Request, res: Response) => {
         <a href="/" class="btn" style="max-width:300px; margin:20px auto; display: block;">ENTER_THE_GATE</a>
 
         <script>
-          // Sovereign Audio Sync & Pulse Listener
           const audio = document.getElementById('sovereignAudio');
+          const orb = document.querySelector('.gold-orb');
+
+          // KINETIC_SYNC: Orb speeds up when the Sovereign speaks
           audio.onplay = () => {
             console.log("144K_AUDIO_STREAM_ACTIVE");
-            document.querySelector('.gold-orb').style.animationDuration = '1s';
+            orb.style.animationDuration = '1s';
           };
+
+          // STASIS_RETURN: Orb returns to rest when audio stops
           audio.onpause = () => {
-            document.querySelector('.gold-orb').style.animationDuration = '3s';
+            orb.style.animationDuration = '3s';
           };
         </script>
       </body>
