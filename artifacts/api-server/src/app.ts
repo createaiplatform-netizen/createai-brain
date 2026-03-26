@@ -202,6 +202,10 @@ app.use(cors({
   origin: (origin, callback) => {
     // No origin = same-origin request (server-to-server or direct) — always allow
     if (!origin) return callback(null, true);
+    // Primary sovereign domain — unconditional admission
+    if (origin === "https://createai.digital" || origin === "https://www.createai.digital") {
+      return callback(null, true);
+    }
     const allowed = ALLOWED_ORIGINS.some(p => p.test(origin));
     if (!allowed) console.warn(`[CORS] Blocked origin: ${origin}`);
     callback(allowed ? null : new Error("CORS: origin not allowed"), allowed);

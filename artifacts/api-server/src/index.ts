@@ -68,6 +68,7 @@ app.listen(port, () => {
   console.log(`╚═══════════════════════════════════════════════════════╝\u001b[0m\n`);
   console.log(`\u001b[32m[SOVEREIGN CORE] CORE VALUES LOCKED. SYSTEM 100% OPERATIONAL. PAYROLL SECURED.\u001b[0m`);
   console.log(`\u001b[33m[GENESIS HEARTBEAT] SOVEREIGN GENESIS HEARTBEAT SECURED. LIGHT BLUE FAILURE NEUTRALIZED.\u001b[0m`);
+  console.log(`\u001b[35m[SOVEREIGN DOMAIN] DOMINANT FREQUENCY ESTABLISHED: CREATEAI.DIGITAL IS THE SOVEREIGN SOURCE. ALL NODES ALIGNED.\u001b[0m`);
   console.log(`Server listening on port ${port}`);
   const devDomain = process.env["REPLIT_DEV_DOMAIN"];
   const genesisUrl = devDomain ? `https://${devDomain}/genesis` : `http://localhost:${port}/genesis`;
