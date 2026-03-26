@@ -82,3 +82,14 @@ export const interactionLimiter = rateLimit({
   message: { error: "Too many interaction requests — please slow down." },
   skip: (req) => req.method === "OPTIONS",
 });
+
+/** Architect EBS Broadcast trigger: 3 fires per 15 min per IP — hard cap */
+export const broadcastLimiter = rateLimit({
+  windowMs: 15 * 60_000,
+  max: 3,
+  keyGenerator: ipKeyGenerator,
+  standardHeaders: true,
+  legacyHeaders:  false,
+  message: { error: "Broadcast rate limit reached — try again in 15 minutes." },
+  skip: (req) => req.method === "OPTIONS",
+});

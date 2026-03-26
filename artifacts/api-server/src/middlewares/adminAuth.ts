@@ -105,8 +105,52 @@ export function buildLoginPage(error?: string, returnTo?: string): string {
       <input type="password" name="password" id="adminPassword" placeholder="Enter admin password" autofocus autocomplete="current-password" aria-label="Admin password">
       <button type="submit">Sign In →</button>
     </form>
-    <div class="hint">Session expires after 24 hours</div>
+    <div style="display:flex;align-items:center;gap:10px;margin:18px 0 16px;">
+      <div style="flex:1;height:1px;background:rgba(99,102,241,.15);"></div>
+      <span style="font-size:.65rem;color:#475569;letter-spacing:.06em;white-space:nowrap;">or use biometrics</span>
+      <div style="flex:1;height:1px;background:rgba(99,102,241,.15);"></div>
+    </div>
+    <button type="button" id="pk-btn" onclick="doPasskeyAuth()" style="width:100%;background:transparent;border:1.5px solid rgba(99,102,241,.35);border-radius:9px;padding:12px;font-size:.88rem;font-weight:700;color:#818cf8;cursor:pointer;transition:border-color .15s,color .15s;display:flex;align-items:center;justify-content:center;gap:8px;">
+      <span style="font-size:1.1rem;">🔐</span> Sign in with Face ID / Touch ID
+    </button>
+    <div id="pk-status" style="display:none;margin-top:10px;padding:8px 12px;border-radius:7px;font-size:.72rem;"></div>
+    <div class="hint">Session expires after 24 hours &nbsp;·&nbsp; <a href="/admin/passkey" style="color:#6366f1;text-decoration:none;">Manage passkeys</a></div>
   </div>
+<script src="https://unpkg.com/@simplewebauthn/browser@13/dist/bundle/index.umd.min.js"></script>
+<script>
+const { startAuthentication } = SimpleWebAuthnBrowser;
+async function doPasskeyAuth() {
+  const btn = document.getElementById('pk-btn');
+  const st  = document.getElementById('pk-status');
+  btn.disabled = true;
+  btn.innerHTML = '<span style="font-size:1.1rem">⏳</span> Waiting for biometric…';
+  st.style.display = 'none';
+  try {
+    const optsRes = await fetch('/admin/passkey/auth/options', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: '{}' });
+    if (!optsRes.ok) throw new Error(await optsRes.text());
+    const opts = await optsRes.json();
+    const authResp = await startAuthentication({ optionsJSON: opts });
+    const rt = new URLSearchParams(location.search).get('return') ?? '/hub';
+    const verRes = await fetch('/admin/passkey/auth/verify?return=' + encodeURIComponent(rt), {
+      method: 'POST', headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ response: authResp })
+    });
+    const data = await verRes.json();
+    if (data.verified) {
+      st.style.cssText = 'display:block;background:rgba(61,160,96,.12);border:1px solid rgba(61,160,96,.3);color:#6ee7b7;';
+      st.textContent = '✓ Authenticated — entering the Architect console…';
+      setTimeout(() => { location.href = data.redirectTo ?? '/hub'; }, 800);
+    } else {
+      throw new Error(data.error ?? 'Authentication failed');
+    }
+  } catch(e) {
+    st.style.cssText = 'display:block;background:rgba(248,113,113,.08);border:1px solid rgba(248,113,113,.25);color:#f87171;';
+    st.textContent = '✗ ' + e.message;
+    btn.disabled = false;
+    btn.innerHTML = '<span style="font-size:1.1rem">🔐</span> Sign in with Face ID / Touch ID';
+  }
+}
+</script>
 </body>
 </html>`;
 }

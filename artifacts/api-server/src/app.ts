@@ -85,6 +85,7 @@ import compression from "compression";
 import { authMiddleware }  from "./middlewares/authMiddleware";
 import { scopeMiddleware } from "./middlewares/scopeMiddleware";
 import { adminAuth, verifyAdminCookie } from "./middlewares/adminAuth.js";
+import { breachLogger }                from "./middlewares/breachLogger.js";
 import router from "./routes";
 import { getRegistry } from "./semantic/registry.js";
 import { IDENTITY } from "./config/identity.js";
@@ -107,6 +108,8 @@ import semanticLaunchRouter from "./routes/semanticLaunch.js";
 import semanticPortalRouter from "./routes/semanticPortal.js";
 import semanticSubRouter    from "./routes/semanticSubscription.js";
 import adminAuthRouter      from "./routes/adminAuth.js";
+import passkeyAuthRouter    from "./routes/passkeyAuth.js";
+import { broadcastLimiter } from "./middlewares/rateLimiters.js";
 import studioRouter         from "./routes/studio.js";
 import studioExtendedRouter from "./routes/studioExtended.js";
 import platformStatusRouter from "./routes/platformStatus.js";
@@ -615,13 +618,13 @@ function fireEBS(){
 </body>
 </html>`;
 
-app.get("/admin/broadcast", adminAuth, (_req: Request, res: Response) => {
+app.get("/admin/broadcast", breachLogger, adminAuth, (_req: Request, res: Response) => {
   res.setHeader("Content-Type", "text/html; charset=utf-8");
   res.setHeader("Cache-Control", "no-store");
   res.send(BROADCAST_PANEL_HTML);
 });
 
-app.post("/admin/broadcast", adminAuth, async (_req: Request, res: Response) => {
+app.post("/admin/broadcast", broadcastLimiter, breachLogger, adminAuth, async (_req: Request, res: Response) => {
   try {
     const result = await broadcastEBS();
     res.json({ status: "fired", ...result });
@@ -630,6 +633,9 @@ app.post("/admin/broadcast", adminAuth, async (_req: Request, res: Response) => 
     res.status(500).json({ status: "error", message: err?.message ?? String(err) });
   }
 });
+
+// ── Passkey / WebAuthn (must be before the general /admin router) ─────────────
+app.use("/admin/passkey", passkeyAuthRouter);
 
 // ── Admin auth (public — login page must not be behind auth) ──────────────────
 app.use("/admin", adminAuthRouter);
