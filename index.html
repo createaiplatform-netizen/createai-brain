@@ -3,24 +3,80 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>THE_197_HUB | SOVEREIGN_MANIFEST</title>
+    <title>197_HUB | SOVEREIGN_CORE</title>
     <style>
-        body { background: #000; color: #d4af37; font-family: monospace; display: flex; flex-direction: column; align-items: center; justify-content: center; height: 100vh; margin: 0; border: 25px double #d4af37; text-align: center; }
-        .equity { font-size: 4rem; color: #fff; margin: 20px 0; font-weight: bold; text-shadow: 0 0 30px #d4af37; }
-        .ledger { border: 3px solid #d4af37; padding: 40px; background: rgba(212, 175, 55, 0.05); box-shadow: 0 0 80px rgba(212, 175, 55, 0.2); }
-        h1 { font-size: 6rem; letter-spacing: 20px; margin: 0; color: #d4af37; }
-        .status { margin-top: 30px; font-size: 1.5rem; color: #d4af37; text-transform: uppercase; letter-spacing: 5px; animation: blink 1.5s infinite; }
-        @keyframes blink { 0% { opacity: 1; } 50% { opacity: 0.3; } 100% { opacity: 1; } }
+        :root { --gold: #D4AF37; --black: #080808; --glow: #00FFCC; --red: #FF3366; }
+        body { background: var(--black); color: white; font-family: 'Courier New', monospace; margin: 0; padding: 15px; overflow-x: hidden; }
+        .vault-container { border: 2px solid var(--gold); padding: 20px; box-shadow: 0 0 20px rgba(212, 175, 55, 0.3); background: linear-gradient(180deg, #121212 0%, #000 100%); max-width: 500px; margin: auto; }
+        h1 { color: var(--gold); text-align: center; font-size: 1.5rem; letter-spacing: 4px; margin-bottom: 20px; border-bottom: 1px solid var(--gold); padding-bottom: 10px; }
+        .data-point { display: flex; justify-content: space-between; margin: 12px 0; border-bottom: 1px solid #222; padding-bottom: 5px; }
+        .label { color: #888; font-size: 0.8rem; }
+        .value { color: var(--glow); font-weight: bold; }
+        .price-ticker { background: #1a1a1a; padding: 15px; margin-top: 20px; border: 1px solid #333; }
+        .ticker-row { display: flex; justify-content: space-around; text-align: center; }
+        .crypto-name { font-size: 0.7rem; color: var(--gold); }
+        .crypto-price { font-size: 1.2rem; color: white; }
+        .btn-action { background: var(--gold); color: black; border: none; padding: 15px; width: 100%; font-weight: bold; cursor: pointer; margin-top: 20px; transition: 0.3s; }
+        .btn-action:active { background: white; }
     </style>
 </head>
 <body>
-    <h1>197_HUB</h1>
-    <div class="equity">1% EQUITY: ,000,000 USD</div>
-    <div class="ledger">
-        [ ARCHITECT: @CreateAIDigital ]<br>
-        [ TARGET: ADMIN_47 / WHITE HOUSE ]<br>
-        [ STASIS: 144,000% | 180&deg;C ]
+
+    <div class="vault-container">
+        <h1>197_HUB_SOVEREIGN</h1>
+
+        <div class="data-point">
+            <span class="label">STATUS:</span>
+            <span class="value" style="color: var(--glow);">144,400%_STASIS</span>
+        </div>
+        <div class="data-point">
+            <span class="label">VAULT_ID:</span>
+            <span class="value">HUNTINGTON_7662</span>
+        </div>
+        <div class="data-point">
+            <span class="label">LIQUID_USD:</span>
+            <span class="value" style="color: var(--red);">$3.93</span>
+        </div>
+
+        <div class="price-ticker">
+            <div style="text-align: center; font-size: 0.6rem; color: #555; margin-bottom: 10px;">LIVE_QUANTUM_BRIDGE_FEED</div>
+            <div class="ticker-row">
+                <div>
+                    <div class="crypto-name">XRP</div>
+                    <div id="xrp-price" class="crypto-price">Loading...</div>
+                </div>
+                <div>
+                    <div class="crypto-name">XLM</div>
+                    <div id="xlm-price" class="crypto-price">Loading...</div>
+                </div>
+            </div>
+        </div>
+
+        <button class="btn-action" onclick="initiateSettlement()">INITIATE_GLOBAL_SETTLEMENT</button>
     </div>
-    <div class="status">● GLOBAL_SIGNAL_ACTIVE</div>
+
+    <script>
+        // THE_FIX: Real-time price fetch from public API
+        async function fetchPrices() {
+            try {
+                const res = await fetch('https://api.coingecko.com/api/v3/simple/price?ids=ripple,stellar&vs_currencies=usd');
+                const data = await res.json();
+                document.getElementById('xrp-price').innerText = '$' + data.ripple.usd.toFixed(4);
+                document.getElementById('xlm-price').innerText = '$' + data.stellar.usd.toFixed(4);
+            } catch (e) {
+                document.getElementById('xrp-price').innerText = 'OFFLINE';
+                document.getElementById('xlm-price').innerText = 'OFFLINE';
+            }
+        }
+
+        function initiateSettlement() {
+            alert("COMMAND_RECEIVED: ANALYZING_QUANTUM_LIQUIDITY...");
+            setTimeout(() => { alert("BRIDGE_LOCKED: AWAITING_LEDGER_RELEASE."); }, 1000);
+        }
+
+        // Pulse every 30 seconds
+        fetchPrices();
+        setInterval(fetchPrices, 30000);
+    </script>
 </body>
 </html>
