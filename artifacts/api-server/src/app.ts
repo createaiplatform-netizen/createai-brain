@@ -233,6 +233,17 @@ app.use(express.json({ limit: "512kb" }));
 app.use(express.urlencoded({ extended: true, limit: "256kb" }));
 app.use(cookieParser());
 
+// ── Force text/html on all portal page routes — prevents .txt download bug ───
+app.use((req: Request, res: Response, next: NextFunction) => {
+  const HTML_PATHS = ["/marketplace", "/community", "/home-care", "/family-hub", "/zenith", "/commander", "/genesis"];
+  if (req.method === "GET" && HTML_PATHS.some(p => req.path === p || req.path.startsWith(p + "/"))) {
+    res.setHeader("Content-Type", "text/html; charset=UTF-8");
+    res.setHeader("Cache-Control", "no-store, must-revalidate");
+    res.setHeader("X-Content-Type-Options", "nosniff");
+  }
+  next();
+});
+
 // ── Health check (no auth) ────────────────────────────────────────────────────
 app.get("/healthz", (_req: Request, res: Response) => {
   res.json({
@@ -594,9 +605,9 @@ const HOME_CARE_FORM = `<!DOCTYPE html>
   <meta charset="UTF-8"/>
   <meta name="viewport" content="width=device-width,initial-scale=1"/>
   <title>Webster Home Care — Sovereign Health Portal</title>
-  <style>html,body{background:#060a06!important;margin:0;padding:0}</style>
+  <style>html,body{background:#060a06!important;margin:0;padding:0;font-family:'Segoe UI',Arial,sans-serif;color:#ddd8c4}</style>
   <link rel="preconnect" href="https://fonts.googleapis.com"/>
-  <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@700;900&display=swap" rel="stylesheet"/>
+  <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@700;900&display=swap&v=144k" rel="stylesheet"/>
   <style>
     *{box-sizing:border-box;margin:0;padding:0}
     :root{--gold:#c9a84c;--gold-b:#e8c96a;--bg:#060a06;--sage:#5a8c4a;--text:#ddd8c4;--muted:rgba(221,216,196,.45)}
@@ -622,7 +633,7 @@ const HOME_CARE_FORM = `<!DOCTYPE html>
     button:hover{background:rgba(201,168,76,.22)}
     @keyframes pulse-glow{0%,100%{box-shadow:0 0 12px rgba(201,168,76,.35),0 0 24px rgba(201,168,76,.1)}50%{box-shadow:0 0 22px rgba(201,168,76,.7),0 0 44px rgba(201,168,76,.25),0 0 66px rgba(201,168,76,.08)}}
     .npi{color:rgba(201,168,76,.3);font-size:.7rem;text-align:center;margin-top:20px;letter-spacing:.04em}
-    @media(max-width:768px){.glass-card{backdrop-filter:none!important;-webkit-backdrop-filter:none!important;background:rgba(12,20,10,.99)!important}body::before{display:none}}
+    @media(max-width:768px){.glass-card{backdrop-filter:blur(8px)!important;-webkit-backdrop-filter:blur(8px)!important;background:rgba(12,20,10,.99)!important}body::before{display:none}}
   </style>
 </head>
 <body>
@@ -660,9 +671,9 @@ const HOME_CARE_SUCCESS_PAGE = (email: string) => `<!DOCTYPE html>
   <meta charset="UTF-8"/>
   <meta name="viewport" content="width=device-width,initial-scale=1"/>
   <title>Secure Transaction — Webster Home Care</title>
-  <style>html,body{background:#060a06!important;margin:0;padding:0}</style>
+  <style>html,body{background:#060a06!important;margin:0;padding:0;font-family:'Segoe UI',Arial,sans-serif;color:#ddd8c4}</style>
   <link rel="preconnect" href="https://fonts.googleapis.com"/>
-  <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@700;900&display=swap" rel="stylesheet"/>
+  <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@700;900&display=swap&v=144k" rel="stylesheet"/>
   <style>
     *{box-sizing:border-box;margin:0;padding:0}
     :root{--gold:#c9a84c;--gold-b:#e8c96a;--bg:#060a06;--text:#ddd8c4;--muted:rgba(221,216,196,.45)}
@@ -691,7 +702,7 @@ const HOME_CARE_SUCCESS_PAGE = (email: string) => `<!DOCTYPE html>
     .back-btn{display:inline-block;padding:12px 28px;background:rgba(201,168,76,.08);color:rgba(201,168,76,.7);text-decoration:none;border-radius:10px;font-weight:600;font-size:.84rem;border:1px solid rgba(201,168,76,.25);transition:background .2s,border-color .2s}
     .back-btn:hover{background:rgba(201,168,76,.16);border-color:rgba(201,168,76,.4);color:var(--gold)}
     .npi{color:rgba(201,168,76,.3);font-size:.7rem;margin-top:20px;letter-spacing:.04em}
-    @media(max-width:768px){.glass-card,.secure-box,.pay-card{backdrop-filter:none!important;-webkit-backdrop-filter:none!important;background:rgba(12,20,10,.99)!important}.pay-card{background:rgba(6,10,5,.99)!important}body::before{display:none}}
+    @media(max-width:768px){.glass-card,.secure-box,.pay-card{backdrop-filter:blur(8px)!important;-webkit-backdrop-filter:blur(8px)!important;background:rgba(12,20,10,.99)!important}.pay-card{background:rgba(6,10,5,.99)!important}body::before{display:none}}
   </style>
 </head>
 <body>
@@ -747,9 +758,9 @@ const MARKETPLACE_HTML = `<!DOCTYPE html>
   <meta name="viewport" content="width=device-width,initial-scale=1"/>
   <title>Sovereign Command Center — Lakeside Trinity</title>
   <!-- little-ai: marketplace-root | phase: alpha-17 | status: active -->
-  <style>html,body{background:#060a06!important;margin:0;padding:0}</style>
+  <style>html,body{background:#060a06!important;margin:0;padding:0;font-family:'Segoe UI',Arial,sans-serif;color:#ddd8c4}</style>
   <link rel="preconnect" href="https://fonts.googleapis.com"/>
-  <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,700;0,900;1,700&display=swap" rel="stylesheet"/>
+  <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,700;0,900;1,700&display=swap&v=144k" rel="stylesheet"/>
   <style>
     *{box-sizing:border-box;margin:0;padding:0}
     :root{--gold:#c9a84c;--gold-b:#e8c96a;--gold-dim:rgba(201,168,76,.16);--bg:#060a06;--glass:rgba(18,26,14,.82);--sage:#5a8c4a;--text:#ddd8c4;--muted:rgba(221,216,196,.42)}
@@ -836,7 +847,7 @@ const MARKETPLACE_HTML = `<!DOCTYPE html>
     .page-footer a{color:rgba(201,168,76,.38);text-decoration:none}
     .page-footer a:hover{color:rgba(201,168,76,.65)}
     main{position:relative;z-index:1;padding-bottom:80px}
-    @media(max-width:768px){.portal-card,.dept-card,.kit-card,.community-glass,.gift-glass{backdrop-filter:none!important;-webkit-backdrop-filter:none!important;background:rgba(12,20,10,.99)!important}.portal-card:hover{transform:none}body::before{display:none}.portals{gap:16px}.portal-amount{font-size:2.6rem}}
+    @media(max-width:768px){.portal-card,.dept-card,.kit-card,.community-glass,.gift-glass{backdrop-filter:blur(8px)!important;-webkit-backdrop-filter:blur(8px)!important;background:rgba(12,20,10,.99)!important}.portal-card:hover{transform:none}body::before{display:none}.portals{gap:16px}.portal-amount{font-size:2.6rem}}
   </style>
 </head>
 <body>
@@ -1039,9 +1050,9 @@ const COMMUNITY_HTML = `<!DOCTYPE html>
   <meta name="viewport" content="width=device-width,initial-scale=1"/>
   <title>197 Community Resource Hub — Lakeside Trinity</title>
   <!-- little-ai: community-root | frequency: 197 | status: active | phase: alpha-17 -->
-  <style>html,body{background:#060a06!important;margin:0;padding:0}</style>
+  <style>html,body{background:#060a06!important;margin:0;padding:0;font-family:'Segoe UI',Arial,sans-serif;color:#ddd8c4}</style>
   <link rel="preconnect" href="https://fonts.googleapis.com"/>
-  <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@700;900&display=swap" rel="stylesheet"/>
+  <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@700;900&display=swap&v=144k" rel="stylesheet"/>
   <style>
     *{box-sizing:border-box;margin:0;padding:0}
     :root{--gold:#c9a84c;--gold-b:#e8c96a;--bg:#060a06;--text:#ddd8c4;--muted:rgba(221,216,196,.42)}
@@ -1091,7 +1102,7 @@ const COMMUNITY_HTML = `<!DOCTYPE html>
     .back-link{display:inline-flex;align-items:center;gap:8px;padding:12px 26px;background:rgba(201,168,76,.08);color:rgba(201,168,76,.68);text-decoration:none;border-radius:10px;font-size:.82rem;font-weight:600;border:1px solid rgba(201,168,76,.22);transition:background .2s,border-color .2s}
     .back-link:hover{background:rgba(201,168,76,.16);border-color:rgba(201,168,76,.4);color:var(--gold)}
     .page-footer{text-align:center;padding:28px 16px;color:rgba(201,168,76,.26);font-size:.71rem;border-top:1px solid rgba(201,168,76,.1);margin-top:56px}
-    @media(max-width:768px){.kit-card,.gift-glass{backdrop-filter:none!important;-webkit-backdrop-filter:none!important;background:rgba(12,20,10,.99)!important}.kit-card:hover{transform:none}body::before{display:none}}
+    @media(max-width:768px){.kit-card,.gift-glass{backdrop-filter:blur(8px)!important;-webkit-backdrop-filter:blur(8px)!important;background:rgba(12,20,10,.99)!important}.kit-card:hover{transform:none}body::before{display:none}}
   </style>
 </head>
 <body>
