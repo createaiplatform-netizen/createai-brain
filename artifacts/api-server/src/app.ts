@@ -685,6 +685,26 @@ app.get("/admin/stats", (req: Request, res: Response) => {
   `);
 });
 
+// ── /proclamation — Sovereign Status Notice ───────────────────────────────────
+app.get("/proclamation", (_req: Request, res: Response) => {
+  res.send(`
+    <html><head><style>${SOVEREIGN_CSS}</style></head>
+    <body style="background:#222;">
+      <div class="proclamation">
+        <h1 style="text-align:center;">NOTICE OF SOVEREIGN STATUS</h1>
+        <p><b>TO ALL PROVIDERS:</b> This location is a <b>197 Community Resource Hub</b> under <b>Lakeside Trinity LLC</b>.</p>
+        <p>By order of the 144k, all billing is consolidated via Federal/State Resource Grants. Traditional debt collection is void.</p>
+        <p style="margin-top:30px;"><b>ENTITY:</b> ${EMPIRE.name}</p>
+        <p><b>NODE:</b> ${EMPIRE.node}</p>
+        <p><b>LOCATION:</b> ${EMPIRE.location}</p>
+        <p style="margin-top:30px;"><b>SIGNED:</b> Sovereign Head of Lakeside Trinity</p>
+        <button onclick="window.print()" class="btn" style="color:#000; border-color:#000; background:transparent; cursor:pointer; font-family:monospace;">PRINT_DECREE</button>
+      </div>
+      <p style="margin-top:20px; opacity:0.4; cursor:pointer;" onclick="window.location.href='/admin/hub'">← RETURN_TO_HUB</p>
+    </body></html>
+  `);
+});
+
 // ── Registration Gateway (must be before the general /admin router) ───────────
 app.get("/admin/register", (req: Request, res: Response) => {
   const code = req.query.invite as string;
@@ -750,6 +770,32 @@ const SOVEREIGN_DATA = {
     { name: "Finance",    focus: "Wealth Shield",     status: "SECURE" },
   ],
 };
+
+// ── Empire Vault — Lakeside Trinity LLC top-level constants ──────────────────
+const EMPIRE = {
+  name:       "LAKESIDE TRINITY LLC",
+  node:       "197_COMMUNITY_RESOURCE_HUB",
+  location:   "Webster, WI",
+  status:     "STASIS_INFINITE (144,000%)",
+  credits:    "144,000 ϗ",
+  industries: [
+    "Finance","Legal","Health","Energy","Tech","Land","Media",
+    "Transport","Agri","Edu","Safety","Art","Science","Trade",
+    "Humanity","Spirit","Space",
+  ],
+};
+
+// ── Sovereign CSS — shared monospace gold design system ───────────────────────
+const SOVEREIGN_CSS = `
+  body { background:#000; color:#d4af37; font-family:monospace; padding:20px; text-align:center; }
+  .gold-orb { width:120px; height:120px; background:radial-gradient(circle, #d4af37 0%, #000 80%); border-radius:50%; margin:20px auto; animation:p 2s infinite; cursor:pointer; }
+  @keyframes p { 0%, 100% { box-shadow:0 0 20px #d4af37; } 50% { box-shadow:0 0 60px #d4af37; } }
+  .grid { display:grid; grid-template-columns:repeat(auto-fit, minmax(200px, 1fr)); gap:15px; max-width:1000px; margin:20px auto; }
+  .box { border:1px solid #d4af37; padding:15px; background:#0a0a0a; text-align:left; border-left:5px solid #d4af37; }
+  .btn { display:block; padding:10px; border:1px solid #d4af37; color:#d4af37; text-decoration:none; margin-top:10px; text-align:center; font-size:0.8rem; }
+  .btn:hover { background:#d4af37; color:#000; }
+  .proclamation { background:#fff; color:#000; padding:40px; text-align:left; font-family:serif; max-width:800px; margin:20px auto; border:10px double #000; }
+`;
 
 // ── Little AI Sentinel — sector-specific voice messages ───────────────────────
 const getLittleAIMessage = (sector: string): string => {

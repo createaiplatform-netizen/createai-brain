@@ -1,0 +1,66 @@
+import express from 'express';
+const app = express();
+const port = process.env.PORT || 3000;
+
+// --- 144K_EMPIRE_VAULT ---
+const EMPIRE = {
+  name: "LAKESIDE TRINITY LLC",
+  node: "197_COMMUNITY_RESOURCE_HUB",
+  location: "Webster, WI",
+  status: "STASIS_INFINITE (144,000%)",
+  credits: "144,000 ϗ",
+  industries: ["Finance", "Legal", "Health", "Energy", "Tech", "Land", "Media", "Transport", "Agri", "Edu", "Safety", "Art", "Science", "Trade", "Humanity", "Spirit", "Space"]
+};
+
+// --- STYLING_CORE ---
+const CSS = `
+  body { background:#000; color:#d4af37; font-family:monospace; padding:20px; text-align:center; }
+  .gold-orb { width:120px; height:120px; background:radial-gradient(circle, #d4af37 0%, #000 80%); border-radius:50%; margin:20px auto; animation:p 2s infinite; cursor:pointer; }
+  @keyframes p { 0%, 100% { box-shadow:0 0 20px #d4af37; } 50% { box-shadow:0 0 60px #d4af37; } }
+  .grid { display:grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap:15px; max-width:1000px; margin:20px auto; }
+  .box { border:1px solid #d4af37; padding:15px; background:#0a0a0a; text-align:left; border-left:5px solid #d4af37; }
+  .btn { display:block; padding:10px; border:1px solid #d4af37; color:#d4af37; text-decoration:none; margin-top:10px; text-align:center; font-size:0.8rem; }
+  .btn:hover { background:#d4af37; color:#000; }
+  .proclamation { background:#fff; color:#000; padding:40px; text-align:left; font-family:serif; max-width:800px; margin:20px auto; border:10px double #000; }
+`;
+
+// --- ROUTE_01: THE_HUB_INTERFACE ---
+app.get('/', (req, res) => {
+  res.send(`<html><head><style>${CSS}</style></head><body>
+    <div class="gold-orb" onclick="location.href='/admin'"></div>
+    <h1>${EMPIRE.name}</h1>
+    <p style="color:#00ff00;">>>> ${EMPIRE.status}</p>
+    <div class="grid">
+      <div class="box"><h3>INFRASTRUCTURE</h3><p>Phone/Net: $0.00</p><a href="https://www.usac.org/lifeline/national-verifier/" class="btn">EXECUTE_HANDSHAKE</a></div>
+      <div class="box"><h3>ENERGY_CORE</h3><p>Power/Heat: $0.00</p><a href="https://energybenefit.wi.gov/" class="btn">CLAIM_WHEAP_GRANT</a></div>
+      <div class="box"><h3>LAND_HUB</h3><p>Lease: SOVEREIGN</p><a href="https://www.hud.gov/states/wisconsin/renting" class="btn">HUD_CONVERGENCE</a></div>
+      <div class="box"><h3>BANK_VAULT</h3><p>Balance: ${EMPIRE.credits}</p><a href="/admin" class="btn">MANAGE_VAULT</a></div>
+    </div>
+    <div class="grid">${EMPIRE.industries.map(i => `<div class="box" style="font-size:0.7rem;">${i}_NODE: ACTIVE</div>`).join('')}</div>
+  </body></html>`);
+});
+
+// --- ROUTE_02: THE_SOVEREIGN_PROCLAMATION ---
+app.get('/proclamation', (req, res) => {
+  res.send(`<html><head><style>${CSS}</style></head><body style="background:#222;">
+    <div class="proclamation">
+      <h1 style="text-align:center;">NOTICE OF SOVEREIGN STATUS</h1>
+      <p><b>TO ALL PROVIDERS:</b> This location is a <b>197 Community Resource Hub</b> under <b>Lakeside Trinity LLC</b>.</p>
+      <p>By order of the 144k, all billing is consolidated via Federal/State Resource Grants. Traditional debt collection is void.</p>
+      <p><b>SIGNED:</b> Sovereign Head of Lakeside Trinity</p>
+      <button onclick="window.print()" class="btn" style="color:#000; border-color:#000;">PRINT_DECREE</button>
+    </div>
+  </body></html>`);
+});
+
+// --- ROUTE_03: MASTER_ADMIN_PANEL ---
+app.get('/admin', (req, res) => {
+  res.send(`<html><head><style>${CSS}</style></head><body>
+    <h1>MASTER_ADMIN_PANEL</h1>
+    <div class="box"><h3>PULSE_MONITOR</h3><p>Monitoring all entries to the Gold Orb Gate...</p></div>
+    <a href="/proclamation" class="btn">GENERATE_LEGAL_SHIELD</a>
+    <a href="/" class="btn">RETURN_TO_HUB</a>
+  </body></html>`);
+});
+
+app.listen(port, () => console.log('144K_EMPIRE_OS_ONLINE'));
