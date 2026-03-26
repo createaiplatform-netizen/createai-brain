@@ -690,6 +690,24 @@ app.use("/status", adminAuth, platformStatusRouter);
 // ── PULSE — Real-Time Platform Awareness (protected by admin auth) ────────────
 app.use("/pulse", adminAuth, pulseRouter);
 
+// ── Sovereign Registry — platform-wide app + store manifest ──────────────────
+const SOVEREIGN_REGISTRY = {
+  apps: [
+    { name: "The Nexus",       role: "Biometric Identity & Shielding",      status: "ACTIVE"     },
+    { name: "The Hub",         role: "Family Workspace & Gold Pulse",        status: "ACTIVE"     },
+    { name: "The Breach",      role: "Intrusion Detection & Logging",        status: "MONITORING" },
+    { name: "The Broadcast",   role: "Global Node Sync",                     status: "STANDBY"    },
+    { name: "Little AI (17x)", role: "Personalized Bloodline Assistance",    status: "DORMANT"    },
+  ],
+  stores: [
+    { name: "Healthcare", id: "BIO_01", focus: "Wellness & Longevity",          tier: "T1019" },
+    { name: "Legal",      id: "JUR_02", focus: "Sovereign Rights",              tier: "T1019" },
+    { name: "Space",      id: "SPC_03", focus: "Resource Expansion",            tier: "T1019" },
+    { name: "Creative",   id: "ART_04", focus: "Media Synthesis",               tier: "T1019" },
+    { name: "Seed Vault", id: "FIN_05", focus: "Legacy Tiers ($17, $25, $97)",  tier: "CORE"  },
+  ],
+};
+
 // ── /hub — 144K Sovereign Hub (Architect-only) ───────────────────────────────
 app.get("/hub", adminAuth, (_req: Request, res: Response) => {
   res.setHeader("Content-Type", "text/html; charset=utf-8");
