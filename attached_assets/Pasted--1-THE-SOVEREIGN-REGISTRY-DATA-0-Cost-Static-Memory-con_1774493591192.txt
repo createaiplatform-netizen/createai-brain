@@ -1,0 +1,64 @@
+// 1. THE SOVEREIGN REGISTRY DATA (0-Cost Static Memory)
+const SOVEREIGN_REGISTRY = {
+  apps: [
+    { name: "The Nexus", role: "Biometric Identity & Shielding", status: "ACTIVE" },
+    { name: "The Hub", role: "Family Workspace & Gold Pulse", status: "ACTIVE" },
+    { name: "The Breach", role: "Intrusion Detection & Logging", status: "MONITORING" },
+    { name: "The Broadcast", role: "Global Node Sync", status: "STANDBY" },
+    { name: "Little AI (17x)", role: "Personalized Bloodline Assistance", status: "DORMANT" }
+  ],
+  stores: [
+    { name: "Healthcare", focus: "Wellness & Longevity", status: "LIVE" },
+    { name: "Legal", focus: "Sovereign Rights", status: "LIVE" },
+    { name: "Space", focus: "Resource Expansion", status: "LIVE" },
+    { name: "Creative", focus: "Media Synthesis", status: "LIVE" },
+    { name: "Seed Vault", focus: "Legacy Tiers ($17, $25, $97)", status: "CORE" }
+  ]
+};
+
+const familyInvites = new Set(['ALPHA_SOVEREIGN_01_144K']);
+
+// 2. THE REGISTRATION GATE
+app.get('/admin/register', (req, res) => {
+  const code = req.query.invite as string;
+  if (!familyInvites.has(code)) {
+    return res.status(401).send('INVALID_IDENTITY_TOKEN');
+  }
+  familyInvites.delete(code); // Burn the key
+  res.cookie('ADMIN_SESSION', 'FAMILY_MEMBER_01', { httpOnly: true, secure: true });
+  res.redirect('/admin/hub');
+});
+
+// 3. THE GOLD PULSE HUB & REGISTRY UI
+app.get('/admin/hub', (req, res) => {
+  // Check session cookie here if you have your breachLogger active
+  const appHtml = SOVEREIGN_REGISTRY.apps.map(a => 
+    `<div style="padding:10px; border:1px solid #d4af3733;"><b>${a.name}</b><br><small>${a.role}</small><br><span style="color:#fff">${a.status}</span></div>`
+  ).join('');
+
+  const storeHtml = SOVEREIGN_REGISTRY.stores.map(s => 
+    `<div style="padding:10px; border:1px solid #d4af3733;"><b>${s.name}</b><br><small>${s.focus}</small><br><span style="color:#fff">${s.status}</span></div>`
+  ).join('');
+
+  res.send(`
+    <!DOCTYPE html>
+    <html>
+    <body style="background:#050505; color:#d4af37; font-family:monospace; padding:20px;">
+      <div style="width:60px; height:60px; background:radial-gradient(circle, #d4af37 0%, #000 80%); border-radius:50%; animation:p 3s infinite; margin:auto;"></div>
+      <h2 style="text-align:center; letter-spacing:5px;">SOVEREIGN_REGISTRY</h2>
+      
+      <div style="margin-top:30px;">
+        <h3 style="border-bottom:1px solid #d4af37;">ACTIVE_APPLICATIONS</h3>
+        <div style="display:grid; grid-template-columns:1fr 1fr; gap:10px;">${appHtml}</div>
+      </div>
+
+      <div style="margin-top:30px;">
+        <h3 style="border-bottom:1px solid #d4af37;">STOREFRONT_DEPARTMENTS</h3>
+        <div style="display:grid; grid-template-columns:1fr 1fr; gap:10px;">${storeHtml}</div>
+      </div>
+
+      <style>@keyframes p { 0%, 100% { opacity: 0.4; transform:scale(0.9); } 50% { opacity: 1; transform:scale(1.1); box-shadow:0 0 40px #d4af37; } }</style>
+    </body>
+    </html>
+  `);
+});

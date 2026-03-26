@@ -638,42 +638,36 @@ app.post("/admin/broadcast", broadcastLimiter, breachLogger, adminAuth, async (_
 });
 
 // ── One-time invite codes for Sovereign registration ─────────────────────────
-const pendingInvites = new Set(["ALPHA_SOVEREIGN_01_144K"]);
+const familyInvites = new Set(["ALPHA_SOVEREIGN_01_144K"]);
 
 // ── /admin/hub — Sovereign Registry dashboard ─────────────────────────────────
 app.get("/admin/hub", (req: Request, res: Response) => {
-  const appList = SOVEREIGN_REGISTRY.apps
-    .map(a => `<div>• ${a.name}: <span style="color:#fff">${a.status}</span></div>`)
-    .join("");
-  const storeList = SOVEREIGN_REGISTRY.stores
-    .map(s => `<div>• ${s.name}: <span style="color:#fff">${s.focus}</span></div>`)
-    .join("");
+  const appHtml = SOVEREIGN_REGISTRY.apps.map(a =>
+    `<div style="padding:10px; border:1px solid #d4af3733;"><b>${a.name}</b><br><small>${a.role}</small><br><span style="color:#fff">${a.status}</span></div>`
+  ).join("");
+
+  const storeHtml = SOVEREIGN_REGISTRY.stores.map(s =>
+    `<div style="padding:10px; border:1px solid #d4af3733;"><b>${s.name}</b><br><small>${s.focus}</small><br><span style="color:#fff">${s.status}</span></div>`
+  ).join("");
 
   res.send(`
     <!DOCTYPE html>
-    <html lang="en">
-    <head>
-        <style>
-            body { background: #050505; color: #d4af37; font-family: monospace; padding: 40px; }
-            .gold-orb { width: 50px; height: 50px; background: radial-gradient(circle, #d4af37 0%, #000 80%); border-radius: 50%; animation: p 3s infinite; margin-bottom: 20px; }
-            @keyframes p { 0%, 100% { opacity: 0.5; } 50% { opacity: 1; box-shadow: 0 0 30px #d4af37; } }
-            .section { border-left: 1px solid #d4af37; padding-left: 20px; margin-bottom: 30px; }
-            h2 { letter-spacing: 5px; border-bottom: 1px solid #d4af3733; padding-bottom: 10px; }
-            .grid { display: grid; grid-template-columns: 1fr 1fr; gap: 20px; font-size: 0.8rem; }
-        </style>
-    </head>
-    <body>
-        <div class="gold-orb"></div>
-        <h2>SOVEREIGN_REGISTRY</h2>
-        <div class="section">
-            <h3>ACTIVE_APPLICATIONS</h3>
-            <div class="grid">${appList}</div>
-        </div>
-        <div class="section">
-            <h3>STOREFRONT_DEPARTMENTS</h3>
-            <div class="grid">${storeList}</div>
-        </div>
-        <p style="font-size: 0.6rem; opacity: 0.5;">ARCHITECT_01 // 144K_STASIS_CONFIRMED</p>
+    <html>
+    <body style="background:#050505; color:#d4af37; font-family:monospace; padding:20px;">
+      <div style="width:60px; height:60px; background:radial-gradient(circle, #d4af37 0%, #000 80%); border-radius:50%; animation:p 3s infinite; margin:auto;"></div>
+      <h2 style="text-align:center; letter-spacing:5px;">SOVEREIGN_REGISTRY</h2>
+
+      <div style="margin-top:30px;">
+        <h3 style="border-bottom:1px solid #d4af37;">ACTIVE_APPLICATIONS</h3>
+        <div style="display:grid; grid-template-columns:1fr 1fr; gap:10px;">${appHtml}</div>
+      </div>
+
+      <div style="margin-top:30px;">
+        <h3 style="border-bottom:1px solid #d4af37;">STOREFRONT_DEPARTMENTS</h3>
+        <div style="display:grid; grid-template-columns:1fr 1fr; gap:10px;">${storeHtml}</div>
+      </div>
+
+      <style>@keyframes p { 0%, 100% { opacity: 0.4; transform:scale(0.9); } 50% { opacity: 1; transform:scale(1.1); box-shadow:0 0 40px #d4af37; } }</style>
     </body>
     </html>
   `);
@@ -681,33 +675,16 @@ app.get("/admin/hub", (req: Request, res: Response) => {
 
 // ── Registration Gateway (must be before the general /admin router) ───────────
 app.get("/admin/register", (req: Request, res: Response) => {
-  const { invite } = req.query;
+  const code = req.query.invite as string;
 
-  if (!invite || !pendingInvites.has(invite as string)) {
+  if (!familyInvites.has(code)) {
     console.log(`[BREACH_ATTEMPT] Invalid Invite Code from IP: ${req.ip}`);
-    return res.status(401).send("UNAUTHORIZED: INVALID_IDENTITY_TOKEN");
+    return res.status(401).send("INVALID_IDENTITY_TOKEN");
   }
 
-  // Self-destruct the invite code after use
-  pendingInvites.delete(invite as string);
-
-  res.send(`
-    <html>
-      <body style="background:#000;color:#d4af37;text-align:center;padding-top:100px;font-family:monospace;">
-        <h1>SOVEREIGN_NEXUS_REGISTRATION</h1>
-        <p>Establishing Bio-Locked Connection...</p>
-        <button onclick="register()" style="background:#d4af37;padding:15px;cursor:pointer;">AUTHENTICATE BIOMETRICS</button>
-        <script>
-          async function register() {
-            // This triggers your existing WebAuthn registration logic
-            alert('Biometric Handshake Initiated. Fingerprint/FaceID Required.');
-            // On success, redirect to /admin/hub
-            window.location.href = '/admin/hub';
-          }
-        </script>
-      </body>
-    </html>
-  `);
+  familyInvites.delete(code); // Burn the key
+  res.cookie("ADMIN_SESSION", "FAMILY_MEMBER_01", { httpOnly: true, secure: true });
+  res.redirect("/admin/hub");
 });
 
 // ── Passkey / WebAuthn (must be before the general /admin router) ─────────────
@@ -732,18 +709,18 @@ app.use("/pulse", adminAuth, pulseRouter);
 // ── Sovereign Registry — platform-wide app + store manifest ──────────────────
 const SOVEREIGN_REGISTRY = {
   apps: [
-    { name: "The Nexus",       role: "Biometric Identity & Shielding",      status: "ACTIVE"     },
-    { name: "The Hub",         role: "Family Workspace & Gold Pulse",        status: "ACTIVE"     },
-    { name: "The Breach",      role: "Intrusion Detection & Logging",        status: "MONITORING" },
-    { name: "The Broadcast",   role: "Global Node Sync",                     status: "STANDBY"    },
-    { name: "Little AI (17x)", role: "Personalized Bloodline Assistance",    status: "DORMANT"    },
+    { name: "The Nexus",       role: "Biometric Identity & Shielding",   status: "ACTIVE"     },
+    { name: "The Hub",         role: "Family Workspace & Gold Pulse",     status: "ACTIVE"     },
+    { name: "The Breach",      role: "Intrusion Detection & Logging",     status: "MONITORING" },
+    { name: "The Broadcast",   role: "Global Node Sync",                  status: "STANDBY"    },
+    { name: "Little AI (17x)", role: "Personalized Bloodline Assistance", status: "DORMANT"    },
   ],
   stores: [
-    { name: "Healthcare", id: "BIO_01", focus: "Wellness & Longevity",          tier: "T1019" },
-    { name: "Legal",      id: "JUR_02", focus: "Sovereign Rights",              tier: "T1019" },
-    { name: "Space",      id: "SPC_03", focus: "Resource Expansion",            tier: "T1019" },
-    { name: "Creative",   id: "ART_04", focus: "Media Synthesis",               tier: "T1019" },
-    { name: "Seed Vault", id: "FIN_05", focus: "Legacy Tiers ($17, $25, $97)",  tier: "CORE"  },
+    { name: "Healthcare", focus: "Wellness & Longevity",         status: "LIVE" },
+    { name: "Legal",      focus: "Sovereign Rights",             status: "LIVE" },
+    { name: "Space",      focus: "Resource Expansion",           status: "LIVE" },
+    { name: "Creative",   focus: "Media Synthesis",              status: "LIVE" },
+    { name: "Seed Vault", focus: "Legacy Tiers ($17, $25, $97)", status: "CORE" },
   ],
 };
 
