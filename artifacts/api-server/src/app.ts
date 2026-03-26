@@ -640,6 +640,45 @@ app.post("/admin/broadcast", broadcastLimiter, breachLogger, adminAuth, async (_
 // ── One-time invite codes for Sovereign registration ─────────────────────────
 const pendingInvites = new Set(["ALPHA_SOVEREIGN_01_144K"]);
 
+// ── /admin/hub — Sovereign Registry dashboard ─────────────────────────────────
+app.get("/admin/hub", (req: Request, res: Response) => {
+  const appList = SOVEREIGN_REGISTRY.apps
+    .map(a => `<div>• ${a.name}: <span style="color:#fff">${a.status}</span></div>`)
+    .join("");
+  const storeList = SOVEREIGN_REGISTRY.stores
+    .map(s => `<div>• ${s.name}: <span style="color:#fff">${s.focus}</span></div>`)
+    .join("");
+
+  res.send(`
+    <!DOCTYPE html>
+    <html lang="en">
+    <head>
+        <style>
+            body { background: #050505; color: #d4af37; font-family: monospace; padding: 40px; }
+            .gold-orb { width: 50px; height: 50px; background: radial-gradient(circle, #d4af37 0%, #000 80%); border-radius: 50%; animation: p 3s infinite; margin-bottom: 20px; }
+            @keyframes p { 0%, 100% { opacity: 0.5; } 50% { opacity: 1; box-shadow: 0 0 30px #d4af37; } }
+            .section { border-left: 1px solid #d4af37; padding-left: 20px; margin-bottom: 30px; }
+            h2 { letter-spacing: 5px; border-bottom: 1px solid #d4af3733; padding-bottom: 10px; }
+            .grid { display: grid; grid-template-columns: 1fr 1fr; gap: 20px; font-size: 0.8rem; }
+        </style>
+    </head>
+    <body>
+        <div class="gold-orb"></div>
+        <h2>SOVEREIGN_REGISTRY</h2>
+        <div class="section">
+            <h3>ACTIVE_APPLICATIONS</h3>
+            <div class="grid">${appList}</div>
+        </div>
+        <div class="section">
+            <h3>STOREFRONT_DEPARTMENTS</h3>
+            <div class="grid">${storeList}</div>
+        </div>
+        <p style="font-size: 0.6rem; opacity: 0.5;">ARCHITECT_01 // 144K_STASIS_CONFIRMED</p>
+    </body>
+    </html>
+  `);
+});
+
 // ── Registration Gateway (must be before the general /admin router) ───────────
 app.get("/admin/register", (req: Request, res: Response) => {
   const { invite } = req.query;
