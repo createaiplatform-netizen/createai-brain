@@ -183,18 +183,18 @@ router.post("/register/options", adminAuth, async (req: Request, res: Response) 
   const rpID  = getRpId(req);
 
   const options = await generateRegistrationOptions({
-    rpName:    "CreateAI Brain — Lakeside Trinity",
-    rpID,
-    userName:  "architect",
-    userDisplayName: "The Architect",
-    attestationType: "none",
+    rpName:          "Sovereign Nexus",
+    rpID:            "createai.digital",
+    userID:          Buffer.from("ARCHITECT_01"),
+    userName:        "Architect",
+    attestationType: "direct",
     authenticatorSelection: {
-      residentKey:       "preferred",
-      userVerification:  "preferred",
+      residentKey:             "preferred",
+      userVerification:        "preferred",
       authenticatorAttachment: "platform",
     },
     excludeCredentials: existing.map((r) => ({
-      id: r.credential_id as string,
+      id:         r.credential_id as string,
       transports: undefined,
     })),
   });
