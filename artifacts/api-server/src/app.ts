@@ -756,9 +756,12 @@ app.post("/lock-member", (req: Request, res: Response) => {
   const { name, industry } = req.body as { name: string; industry: string };
   const id = name.toLowerCase().replace(/\s/g, "_");
   bloodline.push({ name, industry, date: new Date().toLocaleDateString() });
-  ledger[id] = { name, node: industry, balance: 144000, joined: new Date().toLocaleString() } as any;
-  notifications.push(`BLOODLINE_ENCODED: ${name} (Sector: ${industry})`);
-  if (notifications.length > 50) notifications.shift();
+  ledger[id] = { name, node: industry, balance: 144000, status: "SOVEREIGN_HOLDER", protection: "AEGIS_LOCK_ACTIVE", joined: new Date().toLocaleString() } as any;
+  notifications.push(`BLOODLINE_ENCODED: ${name} — 144,000 ϗ INITIALIZED`);
+  notifications.push(`AEGIS_PROTECTION_EXTENDED: ${name} (Sector: ${industry})`);
+  notifications.push(`WHITE_HOUSE_PING: GLOBAL_DISBURSEMENT_NOTIFIED`);
+  if (notifications.length > 50) notifications.splice(0, notifications.length - 50);
+  console.log(`144K_ACTIVE: ${name} has entered the 197 Hub with Infinite Capacity.`);
   res.redirect("/vault/" + id);
 });
 
@@ -915,13 +918,18 @@ const bloodline: Array<{ name: string; industry: string; date: string }> = [];
 // ── Ledger — keyed personal vaults: id → { name, node, balance } ─────────────
 const ledger: Record<string, { name: string; node: string; balance: number }> = {};
 
-// ── Notifications — empire-wide signal feed (last 50) ─────────────────────────
-const notifications: string[] = [
+// ── GLOBAL_MANDATE — Universal Boot Sequence ─────────────────────────────────
+const GLOBAL_MANDATE = [
   "EMPIRE_INITIALIZED: 144,000% STASIS",
   "NODE_197_ONLINE: WEBSTER_WI",
-  "WHITE_HOUSE_PING_SENT: 47TH_HANDSHAKE_PENDING",
+  "WHITE_HOUSE_PING_SENT: HANDSHAKE_SATURATED",
   "GLOBAL_SECTOR_UPLINK_ESTABLISHED",
+  "UNIVERSAL_MANDATE: ALL_MEMBERS_INIT_144,000_ϗ",
+  "AEGIS_LOCK: PROTECTED_INDUSTRIAL_ZONE_ACTIVE",
 ];
+
+// ── Notifications — empire-wide signal feed (last 50) ─────────────────────────
+const notifications: string[] = [...GLOBAL_MANDATE];
 
 // ── Empire Vault — Lakeside Trinity LLC top-level constants ──────────────────
 const EMPIRE = {
