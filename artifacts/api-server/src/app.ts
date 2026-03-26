@@ -713,16 +713,17 @@ app.get("/welcome-audio", (_req: Request, res: Response) => {
         <a href="/" class="btn" style="max-width:300px; margin:20px auto; display: block;">ENTER_THE_GATE</a>
 
         <script>
+          // CACHED_SENTINEL: Only query the DOM once for maximum performance
           const audio = document.getElementById('sovereignAudio');
           const orb = document.querySelector('.gold-orb');
 
-          // KINETIC_SYNC: Orb speeds up when the Sovereign speaks
+          // KINETIC_SYNC: Speed up the pulse (1s) when the Sovereign speaks
           audio.onplay = () => {
             console.log("144K_AUDIO_STREAM_ACTIVE");
             orb.style.animationDuration = '1s';
           };
 
-          // STASIS_RETURN: Orb returns to rest when audio stops
+          // STASIS_RETURN: Slow down the pulse (3s) when the Sovereign rests
           audio.onpause = () => {
             orb.style.animationDuration = '3s';
           };
