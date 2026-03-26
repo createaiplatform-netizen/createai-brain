@@ -1,3 +1,4 @@
+import http from "http";
 import app from "./app";
 import { bootstrapServices }     from "./container/bootstrap";
 import { expandPlatform }        from "./services/expansionEngine";
@@ -62,6 +63,14 @@ app.listen(port, () => {
   const devDomain = process.env["REPLIT_DEV_DOMAIN"];
   const genesisUrl = devDomain ? `https://${devDomain}/genesis` : `http://localhost:${port}/genesis`;
   console.log(`\n\u001b[33m[Genesis] Dashboard live \u2192 ${genesisUrl}\u001b[0m\n`);
+
+  // ── Keep-alive pulse — prevents cold starts on Replit ────────────────────────
+  const kaInterval = setInterval(() => {
+    const req = http.get(`http://localhost:${port}/health`, (res) => { res.resume(); });
+    req.on("error", () => {}); // silently ignore transient errors
+  }, 20 * 60 * 1000); // every 20 minutes
+  kaInterval.unref();
+  console.log("[KeepAlive] ✅ pulse active — pinging /health every 20 min");
 
   void (async () => {
     try {
