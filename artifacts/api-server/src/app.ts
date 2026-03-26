@@ -126,6 +126,7 @@ import crlRouter                 from "./routes/crl.js";
 import broadcastGlobalRouter     from "./routes/broadcastGlobal.js";
 import universeDataRouter        from "./routes/universeData.js";
 import outcomeRouter              from "./routes/outcome.js";
+import { broadcastEBS }          from "./ebs/ebsDispatcher.js";
 
 export { chatLimiter, heavyLimiter, editLimiter } from "./middlewares/rateLimiters";
 
@@ -538,6 +539,97 @@ async function pingSearchEngines(): Promise<void> {
 
 // Fire once on boot — non-blocking
 setTimeout(() => { pingSearchEngines().catch(() => {}); }, 5000);
+
+// ── /admin/broadcast — EBS Total Broadcast (Architect-only) ─────────────────
+const BROADCAST_PANEL_HTML = `<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8"/>
+  <meta name="viewport" content="width=device-width,initial-scale=1.0"/>
+  <title>EBS Broadcast Dispatcher — Architect Only</title>
+  <style>
+    *{box-sizing:border-box;margin:0;padding:0}
+    html,body{background:#060a06;color:#ddd8c4;font-family:'Segoe UI',Arial,sans-serif;min-height:100vh;display:flex;align-items:center;justify-content:center}
+    .panel{background:rgba(14,20,10,.95);border:1px solid rgba(201,168,76,.35);border-radius:20px;padding:52px 44px;max-width:520px;width:calc(100% - 40px);text-align:center}
+    .orb{width:58px;height:58px;border-radius:50%;background:radial-gradient(circle at 35% 32%,#f5e17a,#c9a84c 55%,#7a5318);margin:0 auto 20px;box-shadow:0 0 20px rgba(201,168,76,.8),0 0 44px rgba(201,168,76,.3);animation:op 2.4s ease-in-out infinite}
+    @keyframes op{0%,100%{box-shadow:0 0 20px rgba(201,168,76,.8),0 0 44px rgba(201,168,76,.3)}50%{box-shadow:0 0 32px rgba(232,201,106,1),0 0 64px rgba(201,168,76,.7)}}
+    .tier{font-size:.54rem;font-weight:700;letter-spacing:.26em;color:rgba(201,168,76,.5);text-transform:uppercase;margin-bottom:14px;font-family:monospace}
+    h1{font-size:1.6rem;font-weight:900;color:#f0eade;margin-bottom:8px;line-height:1.2}
+    .desc{font-size:.8rem;color:rgba(221,216,196,.45);margin-bottom:32px;line-height:1.7}
+    .channels{display:grid;grid-template-columns:1fr 1fr;gap:14px;margin-bottom:32px}
+    .ch{background:rgba(6,10,6,.8);border:1px solid rgba(201,168,76,.18);border-radius:12px;padding:16px}
+    .ch-icon{font-size:1.4rem;margin-bottom:8px}
+    .ch-label{font-size:.6rem;font-weight:700;letter-spacing:.18em;color:rgba(201,168,76,.55);text-transform:uppercase;margin-bottom:4px}
+    .ch-val{font-size:.75rem;color:rgba(221,216,196,.55);line-height:1.5}
+    #fire-btn{width:100%;padding:18px;background:linear-gradient(135deg,#c9a84c,#e8c96a 60%,#c9a84c);background-size:200%;color:#1a1000;border:none;border-radius:50px;font-weight:800;font-size:.9rem;letter-spacing:.12em;text-transform:uppercase;cursor:pointer;box-shadow:0 6px 28px rgba(201,168,76,.4);transition:box-shadow .2s,transform .2s;margin-bottom:18px}
+    #fire-btn:hover:not(:disabled){box-shadow:0 12px 44px rgba(201,168,76,.65);transform:scale(1.02)}
+    #fire-btn:disabled{opacity:.5;cursor:not-allowed;transform:none}
+    #result-box{display:none;background:rgba(6,10,6,.9);border:1px solid rgba(201,168,76,.2);border-radius:12px;padding:20px;font-family:monospace;font-size:.72rem;color:rgba(201,168,76,.75);text-align:left;white-space:pre-wrap;margin-bottom:16px;line-height:1.7}
+    .back{font-size:.68rem;color:rgba(201,168,76,.3);text-decoration:none;letter-spacing:.06em}
+    .back:hover{color:rgba(201,168,76,.65)}
+  </style>
+</head>
+<body>
+<div class="panel">
+  <div class="orb"></div>
+  <div class="tier">// Architect Access &bull; EBS Command</div>
+  <h1>EBS Broadcast<br/>Dispatcher</h1>
+  <p class="desc">Fires SMS + Obsidian Email across all active channels. Both channels execute simultaneously. Results log below.</p>
+  <div class="channels">
+    <div class="ch">
+      <div class="ch-icon">&#128241;</div>
+      <div class="ch-label">SMS Channel</div>
+      <div class="ch-val">Twilio &bull; EBS Alert text to Sovereign recipients</div>
+    </div>
+    <div class="ch">
+      <div class="ch-icon">&#128140;</div>
+      <div class="ch-label">Email Channel</div>
+      <div class="ch-val">Nodemailer + Resend &bull; Obsidian HTML Sovereign Seal</div>
+    </div>
+  </div>
+  <div id="result-box"></div>
+  <button id="fire-btn" onclick="fireEBS()">&#9889;&nbsp;&nbsp;FIRE EBS BROADCAST</button>
+  <a href="/admin" class="back">&larr; Back to Admin</a>
+</div>
+<script>
+function fireEBS(){
+  var btn=document.getElementById('fire-btn');
+  var box=document.getElementById('result-box');
+  btn.disabled=true;btn.textContent='Firing...';
+  box.style.display='none';
+  fetch('/admin/broadcast',{method:'POST',headers:{'Content-Type':'application/json'},body:'{}'})
+  .then(function(r){return r.json();})
+  .then(function(d){
+    box.style.display='block';
+    box.textContent=JSON.stringify(d,null,2);
+    btn.textContent='&#9889; BROADCAST FIRED';
+    btn.style.background='linear-gradient(135deg,#2a7a4a,#3da060)';
+  })
+  .catch(function(e){
+    box.style.display='block';
+    box.textContent='ERROR: '+e.message;
+    btn.disabled=false;btn.textContent='&#9889; RETRY BROADCAST';
+  });
+}
+</script>
+</body>
+</html>`;
+
+app.get("/admin/broadcast", adminAuth, (_req: Request, res: Response) => {
+  res.setHeader("Content-Type", "text/html; charset=utf-8");
+  res.setHeader("Cache-Control", "no-store");
+  res.send(BROADCAST_PANEL_HTML);
+});
+
+app.post("/admin/broadcast", adminAuth, async (_req: Request, res: Response) => {
+  try {
+    const result = await broadcastEBS();
+    res.json({ status: "fired", ...result });
+  } catch (err: any) {
+    console.error("[EBS:Broadcast] Dispatch error:", err?.message ?? err);
+    res.status(500).json({ status: "error", message: err?.message ?? String(err) });
+  }
+});
 
 // ── Admin auth (public — login page must not be behind auth) ──────────────────
 app.use("/admin", adminAuthRouter);
