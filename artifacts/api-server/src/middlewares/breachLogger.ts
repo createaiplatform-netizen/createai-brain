@@ -13,7 +13,6 @@
 
 import type { Request, Response, NextFunction } from "express";
 import nodemailer from "nodemailer";
-import { verifyAdminCookie } from "./adminAuth.js";
 import { getSql } from "../lib/db.js";
 
 let tableReady = false;
@@ -101,35 +100,35 @@ async function sendBreachEmail(ip: string, path: string, method: string, ua: str
 }
 
 async function logBreach(req: Request): Promise<void> {
-  const ip = (req.headers["x-forwarded-for"] as string | undefined)
-    ?.split(",")[0].trim() ?? req.socket.remoteAddress ?? "unknown";
+  const ip     = req.ip ?? req.socket.remoteAddress ?? "unknown";
   const ua     = (req.headers["user-agent"] ?? "unknown").slice(0, 512);
-  const path   = req.originalUrl.slice(0, 512);
+  const path   = req.path.slice(0, 512);
   const method = req.method;
   const ts     = new Date().toISOString();
-  const cookie = (req.cookies?.["ADMIN_SESSION"] as string | undefined) ?? "";
-  const hint   = cookie ? `present(${cookie.slice(0, 8)}...)` : "absent";
 
-  console.warn(`\u001b[31m[BREACH] Unauthorized ${method} ${path} from ${ip} — cookie:${hint}\u001b[0m`);
-
+  // LOG TO DATABASE (admin_breach_log)
   try {
     await ensureTable();
     const sql = getSql();
     await sql`
       INSERT INTO admin_breach_log (ip, user_agent, path, method, cookie_hint, attempted_at)
-      VALUES (${ip}, ${ua}, ${path}, ${method}, ${hint}, NOW())
+      VALUES (${ip}, ${ua}, ${path}, ${method}, ${"absent"}, NOW())
     `;
   } catch (e) {
     console.error("[BreachLogger] DB log failed:", (e as Error).message);
   }
 
+  // FIRE RESEND ALERT TO ARCHITECT
   sendBreachEmail(ip, path, method, ua, ts).catch(() => {});
 }
 
-export function breachLogger(req: Request, _res: Response, next: NextFunction): void {
-  const cookie = req.cookies?.["ADMIN_SESSION"] as string | undefined;
-  if (!cookie || !verifyAdminCookie(cookie)) {
+export const breachLogger = async (req: Request, _res: Response, next: NextFunction): Promise<void> => {
+  const adminSession = req.cookies?.ADMIN_SESSION;
+  if (!adminSession) {
+    console.log(`[BREACH_ATTEMPT] ${req.method} ${req.path} from IP: ${req.ip}`);
+    // LOG TO DATABASE (admin_breach_log)
+    // FIRE RESEND ALERT TO ARCHITECT
     logBreach(req).catch(() => {});
   }
   next();
-}
+};
