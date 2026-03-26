@@ -626,7 +626,10 @@ app.get("/admin/broadcast", breachLogger, adminAuth, (_req: Request, res: Respon
 
 app.post("/admin/broadcast", broadcastLimiter, breachLogger, adminAuth, async (_req: Request, res: Response) => {
   try {
-    const result = await broadcastEBS();
+    const result = await broadcastEBS(
+      "EBS ALERT: The 17-Frequency is Active. Check your Nexus Elite Hub at createai.digital.",
+      "EBS ALERT: 17-Frequency Active | Sovereign Seal — Lakeside Trinity",
+    );
     res.json({ status: "fired", ...result });
   } catch (err: any) {
     console.error("[EBS:Broadcast] Dispatch error:", err?.message ?? err);
