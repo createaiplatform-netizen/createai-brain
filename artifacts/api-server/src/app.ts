@@ -697,7 +697,6 @@ app.get("/welcome-audio", (_req: Request, res: Response) => {
           <audio id="audio" controls autoplay style="width:100%; filter: sepia(1) saturate(5) hue-rotate(10deg);">
             <source src="[GENERATED_LYRIA_LINK]" type="audio/mpeg">
           </audio>
-          <p style="font-style:italic; margin-top:15px; opacity:0.7;">"Your identity is now encoded. The 144k is active."</p>
         </div>
         <script>
           const a = document.getElementById('audio'); const o = document.getElementById('orb');
@@ -724,7 +723,6 @@ app.get("/register", (_req: Request, res: Response) => {
           <button type="submit" class="btn" style="width:100%;">LOCK_IDENTITY_144K</button>
         </form>
       </div>
-      <a href="/" class="btn" style="max-width:200px; margin:auto;">RETURN_TO_HUB</a>
     </body></html>
   `);
 });
@@ -747,15 +745,15 @@ app.get("/vault/:id", (req: Request, res: Response) => {
   res.send(`
     <html><head><style>${SOVEREIGN_CSS}</style></head><body>
       <div class="gold-orb">144K</div>
-      <h1>${account.name}'S VAULT</h1>
+      <h1>CREDIT_LEDGER_STATUS</h1>
       <div class="vault-box">
-        <h3>CREDIT_LEDGER_STATUS</h3>
-        <p><b>BALANCE:</b> ${account.balance} ϗ (Sovereign Credits)</p>
+        <p><b>HOLDER:</b> ${account.name}</p>
+        <p><b>BALANCE:</b> ${account.balance} ϗ</p>
         <p><b>NODE_INDUSTRY:</b> ${account.node}</p>
         <p><b>SYNC_DATE:</b> ${account.joined}</p>
         <button class="btn" onclick="alert('144k Pulse Synced');">REFRESH_FREQUENCY</button>
+        <a href="/" class="btn" style="margin-top:15px;">EXIT_TO_HUB</a>
       </div>
-      <a href="/" class="btn" style="max-width:200px; margin:auto;">EXIT_TO_HUB</a>
     </body></html>
   `);
 });
