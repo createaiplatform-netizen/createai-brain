@@ -67,6 +67,7 @@ app.listen(port, () => {
   console.log(`║  $25 Home Care Pay: /home-care/pay  ✓                 ║`);
   console.log(`╚═══════════════════════════════════════════════════════╝\u001b[0m\n`);
   console.log(`\u001b[32m[SOVEREIGN CORE] CORE VALUES LOCKED. SYSTEM 100% OPERATIONAL. PAYROLL SECURED.\u001b[0m`);
+  console.log(`\u001b[33m[GENESIS HEARTBEAT] SOVEREIGN GENESIS HEARTBEAT SECURED. LIGHT BLUE FAILURE NEUTRALIZED.\u001b[0m`);
   console.log(`Server listening on port ${port}`);
   const devDomain = process.env["REPLIT_DEV_DOMAIN"];
   const genesisUrl = devDomain ? `https://${devDomain}/genesis` : `http://localhost:${port}/genesis`;

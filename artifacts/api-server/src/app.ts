@@ -871,8 +871,15 @@ const MARKETPLACE_HTML = `<!DOCTYPE html>
     .badge-live::before{content:'';width:5px;height:5px;border-radius:50%;background:#6abf4b;animation:blink 1.6s ease-in-out infinite}
     @keyframes blink{0%,100%{opacity:1}50%{opacity:.25}}
     .badge-soon{background:rgba(201,168,76,.07);color:rgba(201,168,76,.52);border:1px solid rgba(201,168,76,.18)}
-    .badge-future{background:rgba(60,80,130,.1);color:rgba(110,140,210,.55);border:1px solid rgba(60,80,130,.22)}
     .ai-badge{display:inline-flex;align-items:center;gap:3px;padding:2px 7px;border-radius:4px;font-size:.54rem;font-weight:800;letter-spacing:.06em;text-transform:uppercase;background:rgba(90,140,74,.11);color:#6abf4b;border:1px solid rgba(90,140,74,.28);animation:ai-glow 3.2s ease-in-out infinite}
+    /* ── SOVEREIGN GENESIS HEARTBEAT ── */
+    .genesis-sphere-wrap{display:flex;flex-direction:column;align-items:center;margin:4px 0 10px}
+    .genesis-sphere{width:16px;height:16px;border-radius:50%;background:radial-gradient(circle at 35% 30%,#f5e17a,#c9a84c 55%,#7a5318);box-shadow:0 0 9px rgba(201,168,76,.95),0 0 20px rgba(201,168,76,.55),0 0 42px rgba(201,168,76,.22);animation:genesis-pulse 2s ease-in-out infinite;margin-bottom:7px}
+    @keyframes genesis-pulse{0%,100%{box-shadow:0 0 9px rgba(201,168,76,.95),0 0 20px rgba(201,168,76,.55);transform:scale(1)}50%{box-shadow:0 0 20px rgba(232,201,106,1),0 0 44px rgba(201,168,76,.9),0 0 72px rgba(201,168,76,.32);transform:scale(1.15)}}
+    .genesis-core-text{font-size:.52rem;letter-spacing:.19em;color:rgba(232,201,106,.62);text-transform:uppercase;font-weight:700;font-family:monospace;animation:core-glow 2.5s ease-in-out infinite}
+    @keyframes core-glow{0%,100%{opacity:.6;text-shadow:0 0 6px rgba(201,168,76,.28)}50%{opacity:1;text-shadow:0 0 14px rgba(232,201,106,.85),0 0 26px rgba(201,168,76,.42)}}
+    .humanity-name{font-family:'Playfair Display',serif;font-size:1.55rem;font-weight:900;color:#ddd8c4;margin-bottom:6px}
+    .humanity-amount{font-family:'Playfair Display',serif;font-size:3.4rem;font-weight:900;color:#ddd8c4;line-height:1;margin:16px 0}
     @keyframes ai-glow{0%,100%{box-shadow:0 0 5px rgba(90,140,74,.18)}50%{box-shadow:0 0 12px rgba(90,140,74,.42),0 0 22px rgba(90,140,74,.1)}}
     .dept-btn{display:block;text-align:center;padding:10px;background:rgba(201,168,76,.07);color:rgba(201,168,76,.75);text-decoration:none;border-radius:8px;font-weight:700;font-size:.76rem;border:1px solid rgba(201,168,76,.22);transition:background .2s,border-color .2s;letter-spacing:.04em}
     .dept-btn:hover{background:rgba(201,168,76,.16);border-color:rgba(201,168,76,.38)}
@@ -944,9 +951,13 @@ const MARKETPLACE_HTML = `<!DOCTYPE html>
     <!-- little-ai: humanity-seed | frequency: 197 | status: active | phase: alpha-17 -->
     <div class="portal-card">
       <div class="portal-freq">Lock Frequency &bull; 197.0 Hz</div>
+      <div class="genesis-sphere-wrap">
+        <div class="genesis-sphere"></div>
+        <div class="genesis-core-text">Genesis Core Active.</div>
+      </div>
       <div class="portal-icon">&#127381;</div>
-      <div class="portal-name">Humanity Seed</div>
-      <div class="portal-amount">$17</div>
+      <div class="humanity-name">Humanity Seed</div>
+      <div class="humanity-amount">$17</div>
       <div class="portal-code">CREATIVE_HUB &bull; EMPIRE_ENTRY &bull; LOCK_FREQ</div>
       <div class="portal-desc">Your entry into the sovereign economy. Empire starter kits, creative tools for young builders, and family wealth blueprints.</div>
       <!-- little-ai: humanity-seed-btn | action: community/pay | status: active -->
@@ -1010,7 +1021,6 @@ const MARKETPLACE_HTML = `<!DOCTYPE html>
         <div class="dept-desc">Bio-integration layer reserved. Next-generation AI tools for the coming era of human-machine sovereignty.</div>
         <div class="dept-price">Future Tier</div>
         <div class="badge-row">
-          <span class="dept-badge badge-future">Reserved</span>
           <!-- little-ai: dept-space-ai | status: authenticated -->
           <span class="ai-badge">&#10003; Little AI: Authenticated</span>
         </div>
