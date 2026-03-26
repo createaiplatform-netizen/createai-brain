@@ -701,7 +701,6 @@ app.get("/welcome-audio", (_req: Request, res: Response) => {
         <div class="vault-box" style="text-align:center; border: 2px solid #d4af37; padding: 30px;">
           <audio id="sovereignAudio" controls autoplay style="width:100%; margin:20px 0; filter: sepia(100%) saturate(300%) hue-rotate(10deg);">
             <source src="[GENERATED_LYRIA_LINK]" type="audio/mpeg">
-            Your browser does not support the Sovereign Frequency.
           </audio>
           <p style="font-style:italic; opacity:0.8; line-height: 1.6;">
             "Welcome, Stakeholder. You have entered the Lakeside Trinity 197 Hub.
