@@ -685,6 +685,27 @@ app.get("/admin/stats", (req: Request, res: Response) => {
   `);
 });
 
+// ── /welcome-audio — 144K Master Audio Node ───────────────────────────────────
+app.get("/welcome-audio", (_req: Request, res: Response) => {
+  res.send(`
+    <html><head><style>${SOVEREIGN_CSS}</style></head><body>
+      <div class="gold-orb"></div>
+      <h1>VOICE_OF_THE_EMPIRE</h1>
+      <p>PULSE_FREQUENCY: 144,000%_STASIS</p>
+
+      <audio id="sovereignAudio" controls autoplay style="margin-top:20px; border:1px solid #d4af37;">
+        <source src="[GENERATED_LYRIA_LINK]" type="audio/mpeg">
+      </audio>
+
+      <div class="vault-box">
+        <p>"Welcome, Stakeholder. You have entered the Lakeside Trinity 197 Hub. Your identity is now encoded. Your resources are now secured. You are 1 of 17. The 144k is active. Welcome home."</p>
+      </div>
+
+      <a href="/" class="btn">ENTER_THE_GATE</a>
+    </body></html>
+  `);
+});
+
 // ── /register — Bloodline Intake Form ────────────────────────────────────────
 app.get("/register", (_req: Request, res: Response) => {
   const options = EMPIRE_MANIFESTO.industries.map(i => `<option value="${i}">${i}</option>`).join("");
