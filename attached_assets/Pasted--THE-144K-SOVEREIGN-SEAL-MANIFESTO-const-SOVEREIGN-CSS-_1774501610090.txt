@@ -1,0 +1,48 @@
+// --- THE_144K_SOVEREIGN_SEAL_MANIFESTO ---
+
+const SOVEREIGN_CSS = `
+  body { background:#000; color:#d4af37; font-family:monospace; padding:40px; text-align:center; }
+  
+  /* THE_MASTER_SEAL_ORB */
+  .gold-orb { 
+    width:180px; height:180px; 
+    background: radial-gradient(circle, #d4af37 0%, #8a6d3b 50%, #000 100%); 
+    border-radius:50%; margin:30px auto; 
+    animation: pulse 3s infinite; 
+    box-shadow: 0 0 50px #d4af3766, inset 0 0 20px #ffffff66;
+    border: 2px solid #d4af37;
+    display: flex; align-items: center; justify-content: center;
+    font-size: 0.8rem; letter-spacing: 2px; font-weight: bold;
+  }
+
+  /* KINETIC_ANIMATION */
+  @keyframes pulse { 
+    0%, 100% { transform:scale(1); opacity:0.8; box-shadow: 0 0 30px #d4af37; } 
+    50% { transform:scale(1.05); opacity:1; box-shadow: 0 0 80px #d4af37; } 
+  }
+
+  .vault-box { border:2px solid #d4af37; background:#0a0a0a; padding:30px; margin:20px auto; max-width:850px; border-left:15px solid #d4af37; text-align:left; }
+  .btn { display:block; padding:15px; border:1px solid #d4af37; color:#d4af37; text-decoration:none; margin-top:10px; font-weight:bold; text-transform:uppercase; text-align:center; }
+  .btn:hover { background:#d4af37; color:#000; letter-spacing:2px; }
+`;
+
+// --- UPDATED_HUB_WITH_SEAL ---
+app.get('/', (req, res) => {
+  res.send(`<html><head><style>${SOVEREIGN_CSS}</style><title>LAKESIDE_TRINITY_SEAL</title></head><body>
+    <div class="gold-orb">144K</div>
+    <h1 style="letter-spacing:15px;">LAKESIDE TRINITY LLC</h1>
+    <p style="color:#00ff00;">>>> SEAL_STATUS: AUTHENTICATED <<<</p>
+    
+    <div class="vault-box">
+      <h2 style="text-align:center;">OFFICIAL_SOVEREIGN_HUB</h2>
+      <p style="text-align:center; opacity:0.7;">Webster, WI // Node 197</p>
+      <hr style="border:0; border-top:1px solid #d4af37; margin:20px 0;">
+      <div style="display:grid; grid-template-columns: 1fr 1fr; gap:10px;">
+        <a href="/register" class="btn">BLOODLINE_ENTRY</a>
+        <a href="/welcome-audio" class="btn">VOICE_GATE</a>
+        <a href="/proclamation" class="btn">LEGAL_SHIELD</a>
+        <a href="/admin" class="btn">VAULT_ACCESS</a>
+      </div>
+    </div>
+  </body></html>`);
+});

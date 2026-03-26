@@ -909,13 +909,30 @@ const EMPIRE = {
 
 // ── Sovereign CSS — shared monospace gold design system ───────────────────────
 const SOVEREIGN_CSS = `
-  body { background:#000; color:#d4af37; font-family:monospace; padding:20px; text-align:center; }
-  .gold-orb { width:120px; height:120px; background:radial-gradient(circle, #d4af37 0%, #000 80%); border-radius:50%; margin:20px auto; animation:p 2s infinite; cursor:pointer; }
-  @keyframes p { 0%, 100% { box-shadow:0 0 20px #d4af37; } 50% { box-shadow:0 0 60px #d4af37; } }
+  body { background:#000; color:#d4af37; font-family:monospace; padding:40px; text-align:center; }
+
+  /* THE_MASTER_SEAL_ORB */
+  .gold-orb {
+    width:180px; height:180px;
+    background: radial-gradient(circle, #d4af37 0%, #8a6d3b 50%, #000 100%);
+    border-radius:50%; margin:30px auto;
+    animation: pulse 3s infinite;
+    box-shadow: 0 0 50px #d4af3766, inset 0 0 20px #ffffff66;
+    border: 2px solid #d4af37;
+    display: flex; align-items: center; justify-content: center;
+    font-size: 0.8rem; letter-spacing: 2px; font-weight: bold;
+  }
+
+  /* KINETIC_ANIMATION */
+  @keyframes pulse {
+    0%, 100% { transform:scale(1); opacity:0.8; box-shadow: 0 0 30px #d4af37; }
+    50% { transform:scale(1.05); opacity:1; box-shadow: 0 0 80px #d4af37; }
+  }
+
   .grid { display:grid; grid-template-columns:repeat(auto-fit, minmax(180px, 1fr)); gap:15px; max-width:1000px; margin:20px auto; }
   .box { border:1px solid #d4af37; padding:15px; background:#0a0a0a; text-align:left; border-left:5px solid #d4af37; }
   .vault-box { border:2px solid #d4af37; background:#0a0a0a; padding:30px; margin:20px auto; max-width:850px; border-left:15px solid #d4af37; text-align:left; }
-  .btn { display:block; padding:15px; border:1px solid #d4af37; color:#d4af37; text-decoration:none; margin-top:10px; font-weight:bold; text-transform:uppercase; font-size:0.7rem; }
+  .btn { display:block; padding:15px; border:1px solid #d4af37; color:#d4af37; text-decoration:none; margin-top:10px; font-weight:bold; text-transform:uppercase; text-align:center; }
   .btn:hover { background:#d4af37; color:#000; letter-spacing:2px; }
   input, select { background:#111; border:1px solid #d4af37; color:#d4af37; padding:10px; width:100%; margin-bottom:10px; }
   .proclamation { background:#fff; color:#000; padding:40px; text-align:left; font-family:serif; max-width:800px; margin:20px auto; border:10px double #000; }
