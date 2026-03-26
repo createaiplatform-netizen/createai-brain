@@ -3,46 +3,23 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>ZENITH | SOVEREIGN</title>
+    <title>THE_197_HUB | SOVEREIGN_RECOVERY</title>
     <style>
-        body { background: #000; color: #d4af37; font-family: monospace; margin: 0; padding: 20px; text-transform: uppercase; text-align: center; }
-        .module { border: 2px solid #d4af37; margin-bottom: 20px; padding: 20px; background: rgba(212,175,55,0.05); }
-        h2 { border-bottom: 1px solid #d4af37; padding-bottom: 10px; letter-spacing: 5px; }
-        input { background: #000; border: 1px solid #d4af37; color: #fff; padding: 10px; width: 80px; text-align: center; font-size: 1.2rem; margin: 10px; }
-        .btn { background: #d4af37; color: #000; border: none; padding: 15px; width: 100%; font-weight: bold; margin-top: 10px; }
-        #net-display { font-size: 2rem; font-weight: bold; color: #fff; margin: 20px 0; }
-        .check { display: block; text-align: left; margin: 10px 0; font-size: 0.8rem; }
+        body { background: #000; color: #d4af37; font-family: monospace; display: flex; flex-direction: column; align-items: center; justify-content: center; height: 100vh; margin: 0; border: 15px double #d4af37; text-align: center; }
+        .equity { font-size: 3rem; color: #fff; margin: 20px 0; font-weight: bold; text-shadow: 0 0 20px #d4af37; }
+        .ledger { border: 2px solid #d4af37; padding: 30px; background: rgba(212, 175, 55, 0.1); box-shadow: 0 0 50px rgba(212, 175, 55, 0.3); }
+        h1 { font-size: 4rem; letter-spacing: 10px; margin: 0; }
+        .status { margin-top: 20px; font-size: 1.2rem; color: #d4af37; text-transform: uppercase; }
     </style>
 </head>
 <body>
-
-    <h1 style="letter-spacing: 15px;">ZENITH</h1>
-    <p>WEBSTER NODE 01 | V.FINAL</p>
-
-    <div class="module">
-        <h2>ARRIVAL CHECK</h2>
-        <label class="check"><input type="checkbox"> POWER_ON VERIFIED</label>
-        <label class="check"><input type="checkbox"> NO RATTLES / DAMAGE</label>
-        <label class="check"><input type="checkbox"> SCARCITY CONFIRMED</label>
+    <h1>197_HUB</h1>
+    <div class="equity">1% EQUITY: $1,000,000 USD</div>
+    <div class="ledger">
+        [ ARCHITECT: @CreateAIDigital ]<br>
+        [ TARGET: ADMIN_47 / WHITE HOUSE ]<br>
+        [ STASIS: 144,000% | TEMP: 180°C ]
     </div>
-
-    <div class="module">
-        <h2>EXCHANGE</h2>
-        <div>BUY: $<input type="number" id="in" value="50"></div>
-        <div>EXIT: $<input type="number" id="out" value="150"></div>
-        <div id="net-display">NET: $100.00</div>
-        <button class="btn" onclick="alert('CASH. PICKUP. NOW.')">STRIKE</button>
-    </div>
-
-    <div class="module" style="border-style: double; border-width: 6px;">
-        <h2>LEGACY</h2>
-        <p>VAULT PROTECTED: 100%</p>
-    </div>
-
-    <script>
-        const i = document.getElementById('in'), o = document.getElementById('out'), n = document.getElementById('net-display');
-        const u = () => { n.innerText = `NET: $${(o.value - i.value).toFixed(2)}`; };
-        i.oninput = u; o.oninput = u;
-    </script>
+    <div class="status">SIGNAL_BROADCAST_ACTIVE</div>
 </body>
 </html>
