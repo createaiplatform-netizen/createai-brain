@@ -24,15 +24,20 @@ router.get("/", (_req: Request, res: Response) => {
     <!DOCTYPE html>
     <html>
     <head>
+      <title>144K_SOVEREIGN_GATE</title>
       <style>
-        body { background:#050505; display:flex; justify-content:center; align-items:center; height:100vh; margin:0; overflow:hidden; }
-        .gold-orb { width:100px; height:100px; background:radial-gradient(circle, #d4af37 0%, #000 80%); border-radius:50%; animation:p 4s infinite ease-in-out; }
-        @keyframes p { 0%, 100% { opacity:0.2; transform:scale(0.8); } 50% { opacity:1; transform:scale(1.2); box-shadow:0 0 100px #d4af37; } }
+        body { background:#050505; color:#d4af37; font-family:monospace; display:flex; flex-direction:column; justify-content:center; align-items:center; height:100vh; margin:0; overflow:hidden; }
+        .gold-orb { width:120px; height:120px; background:radial-gradient(circle, #d4af37 0%, #000 80%); border-radius:50%; animation:p 3s infinite ease-in-out; cursor:pointer; }
+        .key-input { margin-top:40px; background:transparent; border:none; border-bottom:1px solid #d4af37; color:#d4af37; text-align:center; font-size:1.2rem; width:300px; outline:none; letter-spacing:5px; text-transform:uppercase; }
+        .label { margin-top:10px; font-size:0.7rem; opacity:0.5; letter-spacing:2px; }
+        @keyframes p { 0%, 100% { opacity:0.3; transform:scale(0.9); box-shadow:0 0 20px #d4af3733; } 50% { opacity:1; transform:scale(1.1); box-shadow:0 0 80px #d4af37; } }
       </style>
     </head>
     <body>
-      <div class="gold-orb"></div>
-      <p style="position:absolute; bottom:20px; color:#d4af37; font-family:monospace; font-size:0.6rem; letter-spacing:3px; opacity:0.5;">144K_STASIS_CONFIRMED</p>
+      <div class="gold-orb" onclick="document.querySelector('.key-input').focus()"></div>
+      <input type="text" class="key-input" placeholder="ENTER_KEY" onkeydown="if(event.key==='Enter') window.location.href='/admin/register?invite='+this.value">
+      <div class="label">WAITING_FOR_BLOODLINE_01</div>
+      <p style="position:absolute; bottom:20px; font-size:0.6rem; opacity:0.3;">ESTABLISHED_2026 // CREATEAI.DIGITAL</p>
     </body>
     </html>
   `);
