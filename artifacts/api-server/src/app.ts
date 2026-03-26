@@ -643,29 +643,20 @@ const familyInvites = new Set(["ALPHA_SOVEREIGN_01_144K"]);
 // ── /admin/hub — Sovereign Hub & Registry UI ─────────────────────────────────
 app.get("/admin/hub", (req: Request, res: Response) => {
   const renderCards = (data: Array<{ name: string; role?: string; focus?: string; status: string }>) =>
-    data.map(i => [
-      `<div`,
-      `  onclick="window.location.href='/industry/${i.name.toLowerCase()}'"`,
-      `  style="cursor:pointer; border:1px solid #d4af3733; padding:15px; background:#0a0a0a;"`,
-      `>`,
-      `  <b>${i.name}</b><br>`,
-      `  <small style="opacity:0.6;">${i.role ?? i.focus}</small><br>`,
-      `  <span style="color:#fff; font-size:0.8rem;">${i.status}</span>`,
-      `</div>`,
-    ].join("\n")).join("");
+    data.map(i =>
+      `<div onclick="window.location.href='/industry/${i.name.toLowerCase()}'" style="cursor:pointer; border:1px solid #d4af3733; padding:15px; background:#0a0a0a;">` +
+      `<b>${i.name}</b><br><small style="opacity:0.6;">${i.role ?? i.focus}</small><br>` +
+      `<span style="color:#fff; font-size:0.8rem;">${i.status}</span></div>`
+    ).join("");
 
   res.send(`
     <html><head><style>
       body { background:#050505; color:#d4af37; font-family:monospace; padding:40px; display:flex; flex-direction:column; align-items:center; }
-      .gold-orb { width:60px; height:60px; background:radial-gradient(circle, #d4af37 0%, #000 80%); border-radius:50%; animation:p 4s infinite linear; margin-bottom:40px; }
-      .grid { display:grid; grid-template-columns:repeat(auto-fit, minmax(200px, 1fr)); gap:15px; width:100%; max-width:900px; margin-bottom:30px; }
-      h2 { border-bottom:1px solid #d4af37; width:100%; max-width:900px; padding-bottom:10px; letter-spacing:4px; font-size:1rem; }
-      @keyframes p { 0% { transform:scale(1); } 50% { transform:scale(1.1); box-shadow:0 0 30px #d4af37; } 100% { transform:scale(1); } }
+      .grid { display:grid; grid-template-columns:repeat(auto-fit, minmax(200px, 1fr)); gap:15px; width:100%; max-width:900px; }
+      h2 { border-bottom:1px solid #d4af37; width:100%; max-width:900px; padding-bottom:10px; letter-spacing:4px; font-size:1rem; margin-top:40px; }
     </style></head><body>
-      <div class="gold-orb"></div>
       <h2>APPLICATIONS</h2><div class="grid">${renderCards(SOVEREIGN_DATA.apps)}</div>
       <h2>DEPARTMENTS</h2><div class="grid">${renderCards(SOVEREIGN_DATA.stores)}</div>
-      <p style="opacity:0.4; font-size:0.6rem; margin-top:40px;">144K_INFINITE_SUSTAIN // ARCHITECT_VERIFIED</p>
     </body></html>
   `);
 });
@@ -676,10 +667,9 @@ app.get("/admin/register", (req: Request, res: Response) => {
 
   if (code !== "ALPHA_SOVEREIGN_01_144K") {
     console.log(`[BREACH_ATTEMPT] Unauthorized access at ${new Date().toISOString()}`);
-    return res.status(401).send("UNAUTHORIZED: INVALID_IDENTITY_TOKEN");
+    return res.status(401).send("UNAUTHORIZED_IDENTITY_TOKEN");
   }
 
-  res.cookie("ADMIN_SESSION", "BLOODLINE_01", { httpOnly: true, secure: true });
   res.redirect("/admin/hub");
 });
 
@@ -705,19 +695,32 @@ app.use("/pulse", adminAuth, pulseRouter);
 // ── Sovereign Data — static memory storage for zero-token persistence ────────
 const SOVEREIGN_DATA = {
   apps: [
-    { name: "The Nexus",       role: "Biometric Identity & Shield", status: "ACTIVE"     },
-    { name: "The Hub",         role: "144k Family Workspace",       status: "ACTIVE"     },
-    { name: "The Breach",      role: "Intrusion Detection",         status: "MONITORING" },
-    { name: "The Broadcast",   role: "Global Node Sync",            status: "STANDBY"    },
-    { name: "Little AI (17x)", role: "Bloodline Assistance",        status: "DORMANT"    },
+    { name: "The Nexus",       role: "Biometric Identity",   status: "ACTIVE"     },
+    { name: "The Hub",         role: "144k Workspace",        status: "ACTIVE"     },
+    { name: "The Breach",      role: "Intrusion Detection",   status: "MONITORING" },
+    { name: "The Broadcast",   role: "Global Node Sync",      status: "STANDBY"    },
+    { name: "Little AI (17x)", role: "Bloodline Assistance",  status: "DORMANT"    },
   ],
   stores: [
-    { name: "Healthcare", focus: "Wellness & Longevity", status: "LIVE" },
-    { name: "Legal",      focus: "Sovereign Rights",     status: "LIVE" },
-    { name: "Space",      focus: "Resource Expansion",   status: "LIVE" },
-    { name: "Creative",   focus: "Media Synthesis",      status: "LIVE" },
-    { name: "Seed Vault", focus: "T1019 Legacy Tiers",   status: "CORE" },
+    { name: "Healthcare", focus: "Longevity Tech",    status: "LIVE"   },
+    { name: "Legal",      focus: "Sovereign Rights",  status: "LIVE"   },
+    { name: "Space",      focus: "Resource Expansion", status: "LIVE"  },
+    { name: "Creative",   focus: "Media Synthesis",   status: "LIVE"   },
+    { name: "Seed Vault", focus: "Legacy Tiers",      status: "CORE"   },
+    { name: "Finance",    focus: "Wealth Shield",     status: "SECURE" },
   ],
+};
+
+// ── Little AI Sentinel — sector-specific voice messages ───────────────────────
+const getLittleAIMessage = (sector: string): string => {
+  const messages: Record<string, string> = {
+    "FINANCE":    "Sovereign Bank online. Wealth Shield at 144k efficiency. Assets are ghosted.",
+    "HEALTHCARE": "Bio-Nexus active. Vitality metrics synchronized with the 144k pulse.",
+    "LEGAL":      "Sovereign Rights Protocol engaged. No external jurisdiction recognized.",
+    "SPACE":      "Resource Expansion mapped. The 144k reach extends beyond the atmosphere.",
+    "SEED VAULT": "T1019 Core accessed. The legacy of the 144,000 is preserved here.",
+  };
+  return messages[sector] ?? "Sentinel Active. Awaiting Bloodline instructions for this sector.";
 };
 
 // ── Universal Replicator — industry-agnostic sector pages ────────────────────
@@ -731,17 +734,16 @@ const getIndustryData = (sector: string): { name: string; role: string; icon: st
 };
 
 app.get("/industry/:type", (req: Request, res: Response) => {
-  const data = getIndustryData(req.params.type.toUpperCase());
+  const type = req.params.type.toUpperCase();
+  const aiMessage = getLittleAIMessage(type);
   res.send(`
     <html><head><style>
-      body { background:#050505; color:#d4af37; font-family:monospace; display:flex; flex-direction:column; align-items:center; justify-content:center; height:100vh; }
-      .orb { width:80px; height:80px; background:radial-gradient(circle, #d4af37 0%, #000 80%); border-radius:50%; animation:p 4s infinite; }
-      @keyframes p { 0%, 100% { transform:scale(1); opacity:0.5; } 50% { transform:scale(1.2); opacity:1; } }
+      body { background:#050505; color:#d4af37; font-family:monospace; display:flex; flex-direction:column; align-items:center; justify-content:center; height:100vh; text-align:center; }
+      .ai-box { border:1px solid #d4af3733; padding:20px; background:#0a0a0a; position:relative; max-width:400px; }
     </style></head><body>
-      <div class="orb"></div>
-      <h1>${data.name}</h1>
-      <p>${data.role}</p>
-      <small>POWERED_BY_144K_SOVEREIGN_ENGINE</small>
+      <h1>${type}</h1>
+      <div class="ai-box">${aiMessage}</div>
+      <p style="margin-top:20px; opacity:0.4; cursor:pointer;" onclick="window.location.href='/admin/hub'">← RETURN_TO_HUB</p>
     </body></html>
   `);
 });
