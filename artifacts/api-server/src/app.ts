@@ -713,6 +713,32 @@ const SOVEREIGN_DATA = {
   ],
 };
 
+// ── Universal Replicator — industry-agnostic sector pages ────────────────────
+const getIndustryData = (sector: string): { name: string; role: string; icon: string } => {
+  const industries: Record<string, { name: string; role: string; icon: string }> = {
+    "FINANCE": { name: "Sovereign Bank",    role: "Wealth Shield",   icon: "₿" },
+    "ENERGY":  { name: "Pulse Power",       role: "Grid Master",     icon: "⚡" },
+    "HEALTH":  { name: "Bio-Nexus",         role: "Longevity Tech",  icon: "⚕" },
+  };
+  return industries[sector] ?? { name: "General Business", role: "Operations", icon: "◈" };
+};
+
+app.get("/industry/:type", (req: Request, res: Response) => {
+  const data = getIndustryData(req.params.type.toUpperCase());
+  res.send(`
+    <html><head><style>
+      body { background:#050505; color:#d4af37; font-family:monospace; display:flex; flex-direction:column; align-items:center; justify-content:center; height:100vh; }
+      .orb { width:80px; height:80px; background:radial-gradient(circle, #d4af37 0%, #000 80%); border-radius:50%; animation:p 4s infinite; }
+      @keyframes p { 0%, 100% { transform:scale(1); opacity:0.5; } 50% { transform:scale(1.2); opacity:1; } }
+    </style></head><body>
+      <div class="orb"></div>
+      <h1>${data.name}</h1>
+      <p>${data.role}</p>
+      <small>POWERED_BY_144K_SOVEREIGN_ENGINE</small>
+    </body></html>
+  `);
+});
+
 // ── /hub — 144K Sovereign Hub (Architect-only) ───────────────────────────────
 app.get("/hub", adminAuth, (_req: Request, res: Response) => {
   res.setHeader("Content-Type", "text/html; charset=utf-8");
