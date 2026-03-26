@@ -689,44 +689,22 @@ app.get("/admin/stats", (req: Request, res: Response) => {
 app.get("/welcome-audio", (_req: Request, res: Response) => {
   res.send(`
     <html>
-      <head>
-        <style>${SOVEREIGN_CSS}</style>
-        <title>VOICE_OF_THE_EMPIRE</title>
-      </head>
+      <head><style>${SOVEREIGN_CSS}</style><title>VOICE_OF_THE_EMPIRE</title></head>
       <body>
-        <div class="gold-orb"></div>
-        <h1 style="letter-spacing:10px;">VOICE_OF_THE_EMPIRE</h1>
-        <p style="color:#00ff00; font-weight:bold;">PULSE_FREQUENCY: 144,000%_STASIS</p>
-
-        <div class="vault-box" style="text-align:center; border: 2px solid #d4af37; padding: 30px;">
-          <audio id="sovereignAudio" controls autoplay style="width:100%; margin:20px 0; filter: sepia(100%) saturate(300%) hue-rotate(10deg);">
+        <div class="gold-orb" id="orb">144K</div>
+        <h1>VOICE_OF_THE_EMPIRE</h1>
+        <div class="vault-box" style="text-align:center;">
+          <audio id="audio" controls autoplay style="width:100%; filter: sepia(1) saturate(5) hue-rotate(10deg);">
             <source src="[GENERATED_LYRIA_LINK]" type="audio/mpeg">
           </audio>
-          <p style="font-style:italic; opacity:0.8; line-height: 1.6;">
-            "Welcome, Stakeholder. You have entered the Lakeside Trinity 197 Hub.
-            Your identity is now encoded. Your resources are now secured.
-            You are 1 of 17. The 144k is active. Welcome home."
-          </p>
+          <p style="font-style:italic; margin-top:15px; opacity:0.7;">"Your identity is now encoded. The 144k is active."</p>
         </div>
-
-        <a href="/" class="btn" style="max-width:300px; margin:20px auto; display: block;">ENTER_THE_GATE</a>
-
         <script>
-          // CACHED_SENTINEL: Only query the DOM once for maximum performance
-          const audio = document.getElementById('sovereignAudio');
-          const orb = document.querySelector('.gold-orb');
-
-          // KINETIC_SYNC: Speed up the pulse (1s) when the Sovereign speaks
-          audio.onplay = () => {
-            console.log("144K_AUDIO_STREAM_ACTIVE");
-            orb.style.animationDuration = '1s';
-          };
-
-          // STASIS_RETURN: Slow down the pulse (3s) when the Sovereign rests
-          audio.onpause = () => {
-            orb.style.animationDuration = '3s';
-          };
+          const a = document.getElementById('audio'); const o = document.getElementById('orb');
+          a.onplay = () => o.style.animationDuration = '1s';
+          a.onpause = () => o.style.animationDuration = '3s';
         </script>
+        <a href="/" class="btn" style="max-width:200px; margin:auto;">RETURN_TO_HUB</a>
       </body>
     </html>
   `);
@@ -737,15 +715,16 @@ app.get("/register", (_req: Request, res: Response) => {
   const options = EMPIRE_MANIFESTO.industries.map(i => `<option value="${i}">${i}</option>`).join("");
   res.send(`
     <html><head><style>${SOVEREIGN_CSS}</style></head><body>
-      <h1>BLOODLINE_REGISTRATION</h1>
+      <div class="gold-orb">HUB</div>
+      <h1>MEMBER_INITIALIZATION</h1>
       <div class="vault-box" style="max-width:500px;">
         <form action="/lock-member" method="POST">
-          <input type="text" name="name" placeholder="SOVEREIGN_LEGAL_NAME" required>
+          <input type="text" name="name" placeholder="LEGAL_NAME" required>
           <select name="industry">${options}</select>
-          <button type="submit" class="btn" style="width:100%; background:#d4af37; color:#000; cursor:pointer;">ENCODE_INTO_ETERNITY</button>
+          <button type="submit" class="btn" style="width:100%;">ENCODE_INTO_144K</button>
         </form>
       </div>
-      <p style="margin-top:20px; opacity:0.4; cursor:pointer;" onclick="window.location.href='/admin/hub'">← RETURN_TO_HUB</p>
+      <a href="/" class="btn" style="max-width:200px; margin:auto;">RETURN_TO_HUB</a>
     </body></html>
   `);
 });
@@ -755,20 +734,21 @@ app.post("/lock-member", (req: Request, res: Response) => {
   const { name, industry } = req.body as { name: string; industry: string };
   const id = name.toLowerCase().replace(/\s/g, "_");
   bloodline.push({ name, industry, date: new Date().toLocaleDateString() });
-  ledger[id] = { name, node: industry, balance: 144000 };
-  notifications.push(`NEW_MEMBER: ${name} assigned to ${industry} Node.`);
+  ledger[id] = { name, node: industry, balance: 144000, joined: new Date().toLocaleString() } as any;
+  notifications.push(`MEMBER_ENCODED: ${name} (Node: ${industry})`);
   if (notifications.length > 50) notifications.shift();
   res.send(`
     <html><head><style>${SOVEREIGN_CSS}</style></head><body>
       <div class="gold-orb">144K</div>
-      <h1>BLOODLINE_SYNC_COMPLETE</h1>
+      <h1>SOVEREIGN_ENTRY_GRANTED</h1>
       <div class="vault-box">
-        <h3>${name} // SOVEREIGN_STAKEHOLDER</h3>
-        <p>CREDITS ALLOCATED: 144,000 ϗ</p>
-        <a href="/vault/${id}" class="btn">ACCESS_PERSONAL_VAULT</a>
-        <a href="/register" class="btn">REGISTER_ANOTHER</a>
-        <a href="/admin/bloodline" class="btn">VIEW_COMMAND_LEDGER</a>
+        <h3>CERTIFICATE_OF_144K_CREDIT</h3>
+        <p>HOLDER: ${name}</p>
+        <p>BALANCE: 144,000 ϗ</p>
+        <p>INDUSTRY: ${industry}</p>
+        <a href="/vault/${id}" class="btn">OPEN_PERSONAL_VAULT</a>
       </div>
+      <button onclick="window.print()" class="btn">PRINT_SOVEREIGN_DECREE</button>
     </body></html>
   `);
 });
@@ -926,14 +906,14 @@ const bloodline: Array<{ name: string; industry: string; date: string }> = [];
 const ledger: Record<string, { name: string; node: string; balance: number }> = {};
 
 // ── Notifications — empire-wide signal feed (last 50) ─────────────────────────
-const notifications: string[] = [];
+const notifications: string[] = ["SYSTEM_INITIALIZED: 144,000% STASIS"];
 
 // ── Empire Vault — Lakeside Trinity LLC top-level constants ──────────────────
 const EMPIRE = {
   name:       "LAKESIDE TRINITY LLC",
   node:       "197_COMMUNITY_RESOURCE_HUB",
   location:   "Webster, WI",
-  status:     "STASIS_INFINITE (144,000%)",
+  status:     "SOVEREIGN_ETERNITY",
   credits:    "144,000 ϗ",
   industries: [
     "Finance","Legal","Health","Energy","Tech","Land","Media",
@@ -945,14 +925,14 @@ const EMPIRE = {
 // ── Sovereign CSS — shared monospace gold design system ───────────────────────
 const SOVEREIGN_CSS = `
   body { background:#000; color:#d4af37; font-family:monospace; padding:20px; text-align:center; overflow-x:hidden; }
-  .gold-orb { width:150px; height:150px; background:radial-gradient(circle, #d4af37 0%, #8a6d3b 50%, #000 100%); border-radius:50%; margin:20px auto; animation:p 3s infinite; box-shadow:0 0 40px #d4af3766, inset 0 0 15px #fff3; display:flex; align-items:center; justify-content:center; font-weight:bold; cursor:pointer; }
+  .gold-orb { width:160px; height:160px; background:radial-gradient(circle, #d4af37 0%, #8a6d3b 50%, #000 100%); border-radius:50%; margin:20px auto; animation:p 3s infinite; box-shadow:0 0 40px #d4af3766, inset 0 0 15px #fff3; display:flex; align-items:center; justify-content:center; font-weight:bold; cursor:pointer; border:2px solid #d4af37; }
   @keyframes p { 0%, 100% { transform:scale(1); box-shadow:0 0 30px #d4af37; } 50% { transform:scale(1.05); box-shadow:0 0 70px #d4af37; } }
   .grid { display:grid; grid-template-columns:repeat(auto-fit, minmax(180px, 1fr)); gap:15px; margin:20px 0; }
   .box { border:1px solid #d4af37; padding:15px; background:#0a0a0a; text-align:left; border-left:5px solid #d4af37; }
-  .vault-box { border:1px solid #d4af37; background:#0a0a0a; padding:25px; margin:20px auto; max-width:800px; border-left:12px solid #d4af37; text-align:left; box-shadow:10px 10px 0px #111; }
-  .btn { display:block; padding:12px; border:1px solid #d4af37; color:#d4af37; text-decoration:none; margin-top:10px; font-weight:bold; text-align:center; transition:0.3s; }
+  .vault-box { border:1px solid #d4af37; background:#0a0a0a; padding:25px; margin:20px auto; max-width:850px; border-left:12px solid #d4af37; text-align:left; box-shadow:10px 10px 0px #111; }
+  .btn { display:block; padding:12px; border:1px solid #d4af37; color:#d4af37; text-decoration:none; margin-top:10px; font-weight:bold; text-align:center; transition:0.3s; cursor:pointer; background:transparent; }
   .btn:hover { background:#d4af37; color:#000; letter-spacing:1px; }
-  input, select { background:#000; border:1px solid #d4af37; color:#d4af37; padding:10px; width:100%; margin-bottom:15px; }
+  input, select { background:#000; border:1px solid #d4af37; color:#d4af37; padding:12px; width:100%; margin-bottom:15px; font-family:monospace; }
   .proclamation { background:#fff; color:#000; padding:40px; text-align:left; font-family:serif; max-width:800px; margin:20px auto; border:10px double #000; }
   .notif-ping { color:#00ff00; font-size:0.8rem; margin:5px 0; border-bottom:1px solid #222; padding-bottom:5px; }
 `;

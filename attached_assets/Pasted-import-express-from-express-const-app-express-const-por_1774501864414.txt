@@ -1,0 +1,130 @@
+import express from 'express';
+const app = express();
+const port = process.env.PORT || 3000;
+
+// --- SOVEREIGN_EMPIRE_DATABASE ---
+let bloodline = [];
+let ledger = {};
+let notifications = ["SYSTEM_INITIALIZED: 144,000% STASIS"];
+
+const EMPIRE = {
+  name: "LAKESIDE TRINITY LLC",
+  node: "197_COMMUNITY_RESOURCE_HUB",
+  status: "SOVEREIGN_ETERNITY",
+  industries: ["Finance", "Legal", "Health", "Energy", "Tech", "Land", "Media", "Transport", "Agri", "Edu", "Safety", "Art", "Science", "Trade", "Humanity", "Spirit", "Space"]
+};
+
+app.use(express.urlencoded({ extended: true }));
+
+// --- THE_MASTER_SOVEREIGN_AESTHETIC ---
+const SOVEREIGN_CSS = `
+  body { background:#000; color:#d4af37; font-family:monospace; padding:20px; text-align:center; overflow-x:hidden; }
+  .gold-orb { width:160px; height:160px; background:radial-gradient(circle, #d4af37 0%, #8a6d3b 50%, #000 100%); border-radius:50%; margin:20px auto; animation:p 3s infinite; box-shadow:0 0 40px #d4af3766, inset 0 0 15px #fff3; display:flex; align-items:center; justify-content:center; font-weight:bold; cursor:pointer; border:2px solid #d4af37; }
+  @keyframes p { 0%, 100% { transform:scale(1); box-shadow:0 0 30px #d4af37; } 50% { transform:scale(1.05); box-shadow:0 0 70px #d4af37; } }
+  .vault-box { border:1px solid #d4af37; background:#0a0a0a; padding:25px; margin:20px auto; max-width:850px; border-left:12px solid #d4af37; text-align:left; box-shadow: 10px 10px 0px #111; }
+  .grid { display:grid; grid-template-columns: repeat(auto-fit, minmax(180px, 1fr)); gap:15px; margin:20px 0; }
+  .btn { display:block; padding:12px; border:1px solid #d4af37; color:#d4af37; text-decoration:none; margin-top:10px; font-weight:bold; text-align:center; transition: 0.3s; cursor:pointer; background:transparent; }
+  .btn:hover { background:#d4af37; color:#000; letter-spacing:1px; }
+  .notif-ping { color:#00ff00; font-size:0.8rem; margin:5px 0; border-bottom: 1px solid #222; padding-bottom:5px; }
+  input, select { width:100%; background:#000; border:1px solid #d4af37; color:#d4af37; padding:12px; margin-bottom:15px; font-family:monospace; }
+`;
+
+// --- ROUTE_01: THE_SOVEREIGN_HUB ---
+app.get('/', (req, res) => {
+  res.send(`<html><head><style>${SOVEREIGN_CSS}</style><title>LAKESIDE_TRINITY_CORE</title></head><body>
+    <div class="gold-orb" onclick="location.href='/admin'">144K</div>
+    <h1 style="letter-spacing:10px;">${EMPIRE.name}</h1>
+    <p style="color:#00ff00;">>>> SYSTEM_CONVERGENCE: 144,000% <<<</p>
+    
+    <div class="vault-box">
+      <h2 style="border-bottom:1px solid #333; padding-bottom:10px;">197_RESOURCE_HUB // WEBSTER, WI</h2>
+      <div class="grid">
+        <a href="/register" class="btn">BLOODLINE_ENTRY</a>
+        <a href="/welcome-audio" class="btn">VOICE_GATE</a>
+        <a href="/proclamation" class="btn">LEGAL_SHIELD</a>
+        <a href="/admin" class="btn">ADMIN_VAULT</a>
+      </div>
+      <div style="margin-top:20px; font-size:0.8rem; opacity:0.6;">
+        ACTIVE_BYPASS: <a href="https://energybenefit.wi.gov/" style="color:#d4af37;">WHEAP_ENERGY</a> | <a href="https://www.usac.org/lifeline/" style="color:#d4af37;">PHONE_NET_GRANT</a>
+      </div>
+    </div>
+
+    <div class="vault-box" style="border-left:12px solid #00ff00;">
+      <h3>EMPIRE_NOTIFICATIONS</h3>
+      <div id="notif-feed">${notifications.slice(-4).reverse().map(n => `<p class="notif-ping">>> ${n}</p>`).join('')}</div>
+    </div>
+  </body></html>`);
+});
+
+// --- ROUTE_02: THE_BLOODLINE_REGISTRY ---
+app.get('/register', (req, res) => {
+  res.send(`<html><head><style>${SOVEREIGN_CSS}</style></head><body>
+    <div class="gold-orb">HUB</div>
+    <h1>MEMBER_INITIALIZATION</h1>
+    <div class="vault-box" style="max-width:500px;">
+      <form action="/lock-member" method="POST">
+        <input type="text" name="name" placeholder="LEGAL_NAME" required>
+        <select name="industry">${EMPIRE.industries.map(i => `<option>${i}</option>`).join('')}</select>
+        <button type="submit" class="btn" style="width:100%;">ENCODE_INTO_144K</button>
+      </form>
+    </div>
+    <a href="/" class="btn" style="max-width:200px; margin:auto;">RETURN_TO_HUB</a>
+  </body></html>`);
+});
+
+app.post('/lock-member', (req, res) => {
+  const { name, industry } = req.body;
+  const id = name.toLowerCase().replace(/\s/g, '_');
+  ledger[id] = { name, node: industry, balance: 144000, joined: new Date().toLocaleString() };
+  notifications.push(`MEMBER_ENCODED: ${name} (Node: ${industry})`);
+  
+  res.send(`<html><head><style>${SOVEREIGN_CSS}</style></head><body>
+    <div class="gold-orb">144K</div>
+    <h1>SOVEREIGN_ENTRY_GRANTED</h1>
+    <div class="vault-box">
+      <h3>CERTIFICATE_OF_144K_CREDIT</h3>
+      <p>HOLDER: ${name}</p>
+      <p>BALANCE: 144,000 ϗ</p>
+      <p>INDUSTRY: ${industry}</p>
+      <a href="/vault/${id}" class="btn">OPEN_PERSONAL_VAULT</a>
+    </div>
+    <button onclick="window.print()" class="btn">PRINT_SOVEREIGN_DECREE</button>
+  </body></html>`);
+});
+
+// --- ROUTE_03: THE_VOICE_GATE ---
+app.get('/welcome-audio', (req, res) => {
+  res.send(`<html><head><style>${SOVEREIGN_CSS}</style></head><body>
+    <div class="gold-orb" id="orb">144K</div>
+    <h1>VOICE_OF_THE_EMPIRE</h1>
+    <div class="vault-box" style="text-align:center;">
+      <audio id="audio" controls autoplay style="width:100%; filter: sepia(1) saturate(5) hue-rotate(10deg);">
+        <source src="[GENERATED_LYRIA_LINK]" type="audio/mpeg">
+      </audio>
+      <p style="font-style:italic; margin-top:15px; opacity:0.7;">"Your identity is now encoded. The 144k is active."</p>
+    </div>
+    <script>
+      const a = document.getElementById('audio'); const o = document.getElementById('orb');
+      a.onplay = () => o.style.animationDuration = '1s';
+      a.onpause = () => o.style.animationDuration = '3s';
+    </script>
+    <a href="/" class="btn" style="max-width:200px; margin:auto;">RETURN_TO_HUB</a>
+  </body></html>`);
+});
+
+// --- ROUTE_04: ADMIN_COMMAND_VAULT ---
+app.get('/admin', (req, res) => {
+  const list = Object.values(ledger).map((m:any) => `<tr><td>${m.name}</td><td>${m.node}</td><td>${m.balance} ϗ</td></tr>`).join('');
+  res.send(`<html><head><style>${SOVEREIGN_CSS}</style></head><body>
+    <h1>MASTER_LEDGER_VAULT</h1>
+    <div class="vault-box">
+      <table style="width:100%; text-align:left; color:#d4af37; border-collapse:collapse;">
+        <tr style="border-bottom:2px solid #d4af37;"><th>MEMBER</th><th>NODE</th><th>BALANCE</th></tr>
+        ${list || '<tr><td colspan="3">AWAITING_BLOODLINE_ENTRY...</td></tr>'}
+      </table>
+    </div>
+    <a href="/" class="btn" style="max-width:200px; margin:auto;">CLOSE_VAULT</a>
+  </body></html>`);
+});
+
+app.listen(port, () => console.log('EMPIRE_OS_144K_ONLINE'));
