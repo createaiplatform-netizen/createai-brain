@@ -637,6 +637,40 @@ app.post("/admin/broadcast", broadcastLimiter, breachLogger, adminAuth, async (_
   }
 });
 
+// ── One-time invite codes for Sovereign registration ─────────────────────────
+const pendingInvites = new Set(["ALPHA_SOVEREIGN_01_144K"]);
+
+// ── Registration Gateway (must be before the general /admin router) ───────────
+app.get("/admin/register", (req: Request, res: Response) => {
+  const { invite } = req.query;
+
+  if (!invite || !pendingInvites.has(invite as string)) {
+    console.log(`[BREACH_ATTEMPT] Invalid Invite Code from IP: ${req.ip}`);
+    return res.status(401).send("UNAUTHORIZED: INVALID_IDENTITY_TOKEN");
+  }
+
+  // Self-destruct the invite code after use
+  pendingInvites.delete(invite as string);
+
+  res.send(`
+    <html>
+      <body style="background:#000;color:#d4af37;text-align:center;padding-top:100px;font-family:monospace;">
+        <h1>SOVEREIGN_NEXUS_REGISTRATION</h1>
+        <p>Establishing Bio-Locked Connection...</p>
+        <button onclick="register()" style="background:#d4af37;padding:15px;cursor:pointer;">AUTHENTICATE BIOMETRICS</button>
+        <script>
+          async function register() {
+            // This triggers your existing WebAuthn registration logic
+            alert('Biometric Handshake Initiated. Fingerprint/FaceID Required.');
+            // On success, redirect to /admin/hub
+            window.location.href = '/admin/hub';
+          }
+        </script>
+      </body>
+    </html>
+  `);
+});
+
 // ── Passkey / WebAuthn (must be before the general /admin router) ─────────────
 app.use("/admin/passkey", passkeyAuthRouter);
 
