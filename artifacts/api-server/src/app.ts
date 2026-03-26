@@ -642,38 +642,24 @@ const familyInvites = new Set(["ALPHA_SOVEREIGN_01_144K"]);
 
 // ── /admin/hub — Sovereign Hub & Registry UI ─────────────────────────────────
 app.get("/admin/hub", (req: Request, res: Response) => {
-  const appCards = SOVEREIGN_DATA.apps.map(a =>
-    `<div class="card"><b>${a.name}</b><br><small>${a.role}</small><br><span>${a.status}</span></div>`
-  ).join("");
-
-  const storeCards = SOVEREIGN_DATA.stores.map(s =>
-    `<div class="card"><b>${s.name}</b><br><small>${s.focus}</small><br><span>${s.status}</span></div>`
-  ).join("");
+  const renderCards = (data: Array<{ name: string; role?: string; focus?: string; status: string }>) =>
+    data.map(i =>
+      `<div style="border:1px solid #d4af3733; padding:15px; background:#0a0a0a;"><b>${i.name}</b><br><small style="opacity:0.6;">${i.role || i.focus}</small><br><span style="color:#fff; font-size:0.8rem;">${i.status}</span></div>`
+    ).join("");
 
   res.send(`
-    <!DOCTYPE html>
-    <html>
-    <head>
-      <style>
-        body { background:#050505; color:#d4af37; font-family:monospace; padding:30px; display:flex; flex-direction:column; align-items:center; }
-        .gold-orb { width:70px; height:70px; background:radial-gradient(circle, #d4af37 0%, #000 80%); border-radius:50%; animation:p 4s infinite ease-in-out; margin-bottom:40px; }
-        .grid { display:grid; grid-template-columns:repeat(auto-fit, minmax(200px, 1fr)); gap:15px; width:100%; max-width:900px; margin-bottom:40px; }
-        .card { border:1px solid #d4af3733; padding:15px; background:#0a0a0a; }
-        .card b { letter-spacing:2px; font-size:1.1rem; }
-        .card span { color:#fff; font-size:0.8rem; }
-        h2 { border-bottom:1px solid #d4af37; width:100%; max-width:900px; padding-bottom:10px; letter-spacing:5px; }
-        @keyframes p { 0%, 100% { opacity:0.4; transform:scale(0.9); } 50% { opacity:1; transform:scale(1.1); box-shadow:0 0 50px #d4af37; } }
-      </style>
-    </head>
-    <body>
+    <html><head><style>
+      body { background:#050505; color:#d4af37; font-family:monospace; padding:40px; display:flex; flex-direction:column; align-items:center; }
+      .gold-orb { width:60px; height:60px; background:radial-gradient(circle, #d4af37 0%, #000 80%); border-radius:50%; animation:p 4s infinite linear; margin-bottom:40px; }
+      .grid { display:grid; grid-template-columns:repeat(auto-fit, minmax(200px, 1fr)); gap:15px; width:100%; max-width:900px; margin-bottom:30px; }
+      h2 { border-bottom:1px solid #d4af37; width:100%; max-width:900px; padding-bottom:10px; letter-spacing:4px; font-size:1rem; }
+      @keyframes p { 0% { transform:scale(1); } 50% { transform:scale(1.1); box-shadow:0 0 30px #d4af37; } 100% { transform:scale(1); } }
+    </style></head><body>
       <div class="gold-orb"></div>
-      <h2>APPLICATIONS</h2>
-      <div class="grid">${appCards}</div>
-      <h2>DEPARTMENTS</h2>
-      <div class="grid">${storeCards}</div>
-      <p style="opacity:0.4; font-size:0.7rem; margin-top:50px;">144K_INFINITE_SUSTAIN // ARCHITECT_VERIFIED</p>
-    </body>
-    </html>
+      <h2>APPLICATIONS</h2><div class="grid">${renderCards(SOVEREIGN_DATA.apps)}</div>
+      <h2>DEPARTMENTS</h2><div class="grid">${renderCards(SOVEREIGN_DATA.stores)}</div>
+      <p style="opacity:0.4; font-size:0.6rem; margin-top:40px;">144K_INFINITE_SUSTAIN // ARCHITECT_VERIFIED</p>
+    </body></html>
   `);
 });
 
@@ -681,12 +667,11 @@ app.get("/admin/hub", (req: Request, res: Response) => {
 app.get("/admin/register", (req: Request, res: Response) => {
   const code = req.query.invite as string;
 
-  if (!familyInvites.has(code)) {
+  if (code !== "ALPHA_SOVEREIGN_01_144K") {
     console.log(`[BREACH_ATTEMPT] Unauthorized access at ${new Date().toISOString()}`);
     return res.status(401).send("UNAUTHORIZED: INVALID_IDENTITY_TOKEN");
   }
 
-  familyInvites.delete(code); // One-time use burn
   res.cookie("ADMIN_SESSION", "BLOODLINE_01", { httpOnly: true, secure: true });
   res.redirect("/admin/hub");
 });
