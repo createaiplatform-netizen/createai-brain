@@ -656,6 +656,49 @@ app.use("/status", adminAuth, platformStatusRouter);
 // ── PULSE — Real-Time Platform Awareness (protected by admin auth) ────────────
 app.use("/pulse", adminAuth, pulseRouter);
 
+// ── /hub — 144K Sovereign Hub (Architect-only) ───────────────────────────────
+app.get("/hub", adminAuth, (_req: Request, res: Response) => {
+  res.setHeader("Content-Type", "text/html; charset=utf-8");
+  res.setHeader("Cache-Control", "no-store");
+  res.send(`<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>144K Sovereign Hub</title>
+  <style>
+    body { background-color: #050505; color: #d4af37; font-family: 'Courier New', monospace; display: flex; flex-direction: column; align-items: center; justify-content: center; height: 100vh; margin: 0; overflow: hidden; }
+    .pulse-container { position: relative; width: 300px; height: 300px; display: flex; align-items: center; justify-content: center; }
+    /* THE GOLD PULSE - 0% CPU Overhead */
+    .gold-orb { width: 100px; height: 100px; background: radial-gradient(circle, #d4af37 0%, #000 70%); border-radius: 50%; animation: pulse 4s infinite ease-in-out; }
+    @keyframes pulse { 0% { transform: scale(0.8); opacity: 0.5; box-shadow: 0 0 20px #d4af37; } 50% { transform: scale(1.2); opacity: 1; box-shadow: 0 0 80px #d4af37; } 100% { transform: scale(0.8); opacity: 0.5; box-shadow: 0 0 20px #d4af37; } }
+    .hub-info { text-align: center; margin-top: 20px; letter-spacing: 2px; }
+    .nodes { display: grid; grid-template-columns: repeat(6, 1fr); gap: 10px; margin-top: 30px; }
+    .node { width: 15px; height: 15px; border: 1px solid #d4af37; border-radius: 2px; }
+    .active { background-color: #d4af37; box-shadow: 0 0 5px #d4af37; }
+  </style>
+</head>
+<body>
+  <div class="pulse-container">
+    <div class="gold-orb"></div>
+  </div>
+  <div class="hub-info">
+    <h2>CREATOR HUB: ACTIVE</h2>
+    <p>144,000% STASIS // ARCHITECT_01</p>
+  </div>
+  <div class="nodes" id="nodeGrid"></div>
+  <script>
+    const grid = document.getElementById('nodeGrid');
+    for (let i = 0; i < 17; i++) {
+      const node = document.createElement('div');
+      node.className = 'node' + (i === 0 ? ' active' : ''); // Architect is always active
+      grid.appendChild(node);
+    }
+  </script>
+</body>
+</html>`);
+});
+
 // ── Path-level admin guards ───────────────────────────────────────────────────
 // These intercept specific admin-only pages before the public router layer.
 // We use path-specific guards (not prefix mounts) to avoid Express stripping the
