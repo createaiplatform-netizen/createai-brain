@@ -643,9 +643,16 @@ const familyInvites = new Set(["ALPHA_SOVEREIGN_01_144K"]);
 // ── /admin/hub — Sovereign Hub & Registry UI ─────────────────────────────────
 app.get("/admin/hub", (req: Request, res: Response) => {
   const renderCards = (data: Array<{ name: string; role?: string; focus?: string; status: string }>) =>
-    data.map(i =>
-      `<div style="border:1px solid #d4af3733; padding:15px; background:#0a0a0a;"><b>${i.name}</b><br><small style="opacity:0.6;">${i.role || i.focus}</small><br><span style="color:#fff; font-size:0.8rem;">${i.status}</span></div>`
-    ).join("");
+    data.map(i => [
+      `<div`,
+      `  onclick="window.location.href='/industry/${i.name.toLowerCase()}'"`,
+      `  style="cursor:pointer; border:1px solid #d4af3733; padding:15px; background:#0a0a0a;"`,
+      `>`,
+      `  <b>${i.name}</b><br>`,
+      `  <small style="opacity:0.6;">${i.role ?? i.focus}</small><br>`,
+      `  <span style="color:#fff; font-size:0.8rem;">${i.status}</span>`,
+      `</div>`,
+    ].join("\n")).join("");
 
   res.send(`
     <html><head><style>
