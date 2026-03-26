@@ -642,6 +642,8 @@ const familyInvites = new Set(["ALPHA_SOVEREIGN_01_144K"]);
 
 // ── /admin/hub — Sovereign Hub & Registry UI ─────────────────────────────────
 app.get("/admin/hub", (req: Request, res: Response) => {
+  logActivity(req, "HUB_ACCESS");
+
   const renderCards = (data: Array<{ name: string; role?: string; focus?: string; status: string }>) =>
     data.map(i =>
       `<div onclick="window.location.href='/industry/${i.name.toLowerCase()}'" style="cursor:pointer; border:1px solid #d4af3733; padding:15px; background:#0a0a0a;">` +
@@ -661,15 +663,39 @@ app.get("/admin/hub", (req: Request, res: Response) => {
   `);
 });
 
+// ── /admin/stats — Global Traffic Ledger (Sovereign View) ────────────────────
+app.get("/admin/stats", (req: Request, res: Response) => {
+  logActivity(req, "LEDGER_VIEWED");
+  const logRows = trafficLogs.map(l =>
+    `<div style="border-bottom:1px solid #d4af3733; padding:10px; font-size:0.8rem;">` +
+    `<span style="color:#fff;">[${l.time}]</span> <b>${l.action}</b><br>` +
+    `<small style="opacity:0.5;">SOURCE_IP: ${l.ip}</small></div>`
+  ).join("");
+
+  res.send(`
+    <html><head><style>
+      body { background:#050505; color:#d4af37; font-family:monospace; padding:20px; }
+      h1 { border-bottom:1px solid #d4af37; padding-bottom:10px; font-size:1.2rem; }
+    </style></head><body>
+      <h1>GLOBAL_TRAFFIC_LEDGER</h1>
+      ${logRows || "<p style='opacity:0.4;'>NO_PULSE_DETECTED_YET</p>"}
+      <p style="margin-top:20px; opacity:0.4; cursor:pointer;" onclick="location.reload()">RESCAN_NETWORK</p>
+      <p style="opacity:0.4; cursor:pointer;" onclick="window.location.href='/admin/hub'">← RETURN_TO_HUB</p>
+    </body></html>
+  `);
+});
+
 // ── Registration Gateway (must be before the general /admin router) ───────────
 app.get("/admin/register", (req: Request, res: Response) => {
   const code = req.query.invite as string;
 
   if (code !== "ALPHA_SOVEREIGN_01_144K") {
+    logActivity(req, "BREACH_ATTEMPT_REGISTER");
     console.log(`[BREACH_ATTEMPT] Unauthorized access at ${new Date().toISOString()}`);
     return res.status(401).send("UNAUTHORIZED_IDENTITY_TOKEN");
   }
 
+  logActivity(req, "IDENTITY_VERIFIED");
   res.redirect("/admin/hub");
 });
 
@@ -691,6 +717,20 @@ app.use("/status", adminAuth, platformStatusRouter);
 
 // ── PULSE — Real-Time Platform Awareness (protected by admin auth) ────────────
 app.use("/pulse", adminAuth, pulseRouter);
+
+// ── Sovereign Ledger — in-memory traffic tracker (last 50 hits) ──────────────
+const trafficLogs: Array<{ time: string; ip: string; action: string }> = [];
+
+const logActivity = (req: Request, action: string): void => {
+  const entry = {
+    time: new Date().toLocaleTimeString(),
+    ip: (req.headers["x-forwarded-for"] as string) || req.socket.remoteAddress || "UNKNOWN",
+    action,
+  };
+  trafficLogs.unshift(entry);
+  if (trafficLogs.length > 50) trafficLogs.pop();
+  console.log(`[144K_PULSE]: ${action} from ${entry.ip}`);
+};
 
 // ── Sovereign Data — static memory storage for zero-token persistence ────────
 const SOVEREIGN_DATA = {
@@ -735,6 +775,7 @@ const getIndustryData = (sector: string): { name: string; role: string; icon: st
 
 app.get("/industry/:type", (req: Request, res: Response) => {
   const type = req.params.type.toUpperCase();
+  logActivity(req, `SECTOR_ENTERED:${type}`);
   const aiMessage = getLittleAIMessage(type);
   res.send(`
     <html><head><style>
