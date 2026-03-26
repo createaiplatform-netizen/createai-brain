@@ -122,13 +122,19 @@ async function logBreach(req: Request): Promise<void> {
   sendBreachEmail(ip, path, method, ua, ts).catch(() => {});
 }
 
-export const breachLogger = async (req: Request, _res: Response, next: NextFunction): Promise<void> => {
+export const breachLogger = async (req: Request, res: Response, next: NextFunction): Promise<void> => {
+  // PUBLIC BYPASS: Allow the homepage and assets to load without a session
+  const publicPaths = ["/", "/index.html", "/favicon.ico", "/assets"];
+  if (publicPaths.includes(req.path) || req.path.startsWith("/assets")) {
+    return next();
+  }
+
   const adminSession = req.cookies?.ADMIN_SESSION;
   if (!adminSession) {
     console.log(`[BREACH_ATTEMPT] ${req.method} ${req.path} from IP: ${req.ip}`);
-    // LOG TO DATABASE (admin_breach_log)
-    // FIRE RESEND ALERT TO ARCHITECT
-    logBreach(req).catch(() => {});
+    // The redirect or 401 goes here for protected routes only
+    res.status(401).send("Unauthorized");
+    return;
   }
   next();
 };
