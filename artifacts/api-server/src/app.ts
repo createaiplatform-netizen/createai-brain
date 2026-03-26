@@ -611,8 +611,13 @@ const HOME_CARE_FORM = `<!DOCTYPE html>
   <style>
     *{box-sizing:border-box;margin:0;padding:0}
     :root{--gold:#c9a84c;--gold-b:#e8c96a;--bg:#060a06;--sage:#5a8c4a;--text:#ddd8c4;--muted:rgba(221,216,196,.45)}
-    body{font-family:'Segoe UI',Arial,sans-serif;background:var(--bg);min-height:100vh;display:flex;align-items:center;justify-content:center;padding:24px;overflow-x:hidden}
+    body{font-family:'Segoe UI',Arial,sans-serif;background:var(--bg);min-height:100vh;display:flex;align-items:center;justify-content:center;padding:24px;padding-top:52px;overflow-x:hidden}
     body::before{content:'';position:fixed;inset:0;background:radial-gradient(ellipse at 50% 30%,rgba(201,168,76,.07),transparent 60%);pointer-events:none;z-index:0}
+    .ticker-wrap{position:fixed;top:0;left:0;right:0;z-index:9999;background:rgba(4,7,3,.96);border-bottom:1px solid rgba(201,168,76,.2);overflow:hidden;height:26px}
+    .ticker-track{display:flex;white-space:nowrap;animation:ticker-scroll 30s linear infinite;padding:4px 0}
+    .ticker-item{font-size:.58rem;font-weight:700;letter-spacing:.13em;text-transform:uppercase;color:rgba(201,168,76,.72);padding:0 20px}
+    .ticker-sep{color:rgba(201,168,76,.32);margin:0 3px}
+    @keyframes ticker-scroll{0%{transform:translateX(0)}100%{transform:translateX(-50%)}}
     .glass-card{position:relative;z-index:1;background:rgba(16,24,12,.9);border:1px solid rgba(201,168,76,.3);border-radius:20px;padding:44px 40px;max-width:440px;width:100%;backdrop-filter:blur(20px);box-shadow:0 32px 80px rgba(0,0,0,.5),0 0 60px rgba(201,168,76,.06)}
     .glass-card::before{content:'';position:absolute;inset:0;border-radius:20px;background:radial-gradient(ellipse at 50% 0%,rgba(201,168,76,.08),transparent 60%);pointer-events:none}
     .logo-line{font-size:.63rem;font-weight:700;letter-spacing:.2em;color:rgba(201,168,76,.5);text-transform:uppercase;margin-bottom:12px}
@@ -637,6 +642,7 @@ const HOME_CARE_FORM = `<!DOCTYPE html>
   </style>
 </head>
 <body>
+<div class="ticker-wrap"><div class="ticker-track"><span class="ticker-item">Healthcare <span class="ticker-sep">|</span></span><span class="ticker-item">Legal Services <span class="ticker-sep">|</span></span><span class="ticker-item">Space Division <span class="ticker-sep">|</span></span><span class="ticker-item">Neuralink AI <span class="ticker-sep">|</span></span><span class="ticker-item">Global Restoration Active <span class="ticker-sep">|</span></span><span class="ticker-item">Healthcare <span class="ticker-sep">|</span></span><span class="ticker-item">Legal Services <span class="ticker-sep">|</span></span><span class="ticker-item">Space Division <span class="ticker-sep">|</span></span><span class="ticker-item">Neuralink AI <span class="ticker-sep">|</span></span><span class="ticker-item">Global Restoration Active <span class="ticker-sep">|</span></span></div></div>
 <div class="glass-card">
   <div class="logo-line">Lakeside Trinity LLC</div>
   <h1>Webster Home Care Services</h1>
@@ -677,8 +683,17 @@ const HOME_CARE_SUCCESS_PAGE = (email: string) => `<!DOCTYPE html>
   <style>
     *{box-sizing:border-box;margin:0;padding:0}
     :root{--gold:#c9a84c;--gold-b:#e8c96a;--bg:#060a06;--text:#ddd8c4;--muted:rgba(221,216,196,.45)}
-    body{font-family:'Segoe UI',Arial,sans-serif;background:var(--bg);min-height:100vh;display:flex;align-items:center;justify-content:center;padding:24px}
+    body{font-family:'Segoe UI',Arial,sans-serif;background:var(--bg);min-height:100vh;display:flex;align-items:center;justify-content:center;padding:24px;padding-top:52px}
     body::before{content:'';position:fixed;inset:0;background:radial-gradient(ellipse at 50% 30%,rgba(201,168,76,.07),transparent 60%);pointer-events:none;z-index:0}
+    .ticker-wrap{position:fixed;top:0;left:0;right:0;z-index:9999;background:rgba(4,7,3,.96);border-bottom:1px solid rgba(201,168,76,.2);overflow:hidden;height:26px}
+    .ticker-track{display:flex;white-space:nowrap;animation:ticker-scroll 30s linear infinite;padding:4px 0}
+    .ticker-item{font-size:.58rem;font-weight:700;letter-spacing:.13em;text-transform:uppercase;color:rgba(201,168,76,.72);padding:0 20px}
+    .ticker-sep{color:rgba(201,168,76,.32);margin:0 3px}
+    @keyframes ticker-scroll{0%{transform:translateX(0)}100%{transform:translateX(-50%)}}
+    .upload-box{margin:18px 0 8px}
+    .upload-btn{display:block;width:100%;padding:14px 20px;background:rgba(201,168,76,.06);color:rgba(201,168,76,.88);border:1.5px solid rgba(201,168,76,.55);border-radius:12px;font-size:.85rem;font-weight:700;cursor:pointer;letter-spacing:.07em;text-transform:uppercase;font-family:inherit;transition:background .2s,box-shadow .2s;box-shadow:0 0 18px rgba(201,168,76,.16),inset 0 1px 0 rgba(201,168,76,.1)}
+    .upload-btn:hover{background:rgba(201,168,76,.14);box-shadow:0 0 28px rgba(201,168,76,.32)}
+    .upload-status{margin-top:10px;font-size:.72rem;color:rgba(201,168,76,.6);display:none;text-align:center}
     .glass-card{position:relative;z-index:1;background:rgba(16,24,12,.9);border:1px solid rgba(201,168,76,.3);border-radius:20px;padding:44px 40px;max-width:490px;width:100%;backdrop-filter:blur(20px);box-shadow:0 32px 80px rgba(0,0,0,.5),0 0 60px rgba(201,168,76,.06);text-align:center}
     .glass-card::before{content:'';position:absolute;inset:0;border-radius:20px;background:radial-gradient(ellipse at 50% 0%,rgba(201,168,76,.08),transparent 60%);pointer-events:none}
     .check{width:64px;height:64px;background:rgba(90,140,74,.15);border:1.5px solid rgba(90,140,74,.4);border-radius:50%;display:flex;align-items:center;justify-content:center;margin:0 auto 22px;font-size:1.8rem;color:#6abf4b;box-shadow:0 0 28px rgba(90,140,74,.25)}
@@ -706,6 +721,7 @@ const HOME_CARE_SUCCESS_PAGE = (email: string) => `<!DOCTYPE html>
   </style>
 </head>
 <body>
+<div class="ticker-wrap"><div class="ticker-track"><span class="ticker-item">Healthcare <span class="ticker-sep">|</span></span><span class="ticker-item">Legal Services <span class="ticker-sep">|</span></span><span class="ticker-item">Space Division <span class="ticker-sep">|</span></span><span class="ticker-item">Neuralink AI <span class="ticker-sep">|</span></span><span class="ticker-item">Global Restoration Active <span class="ticker-sep">|</span></span><span class="ticker-item">Healthcare <span class="ticker-sep">|</span></span><span class="ticker-item">Legal Services <span class="ticker-sep">|</span></span><span class="ticker-item">Space Division <span class="ticker-sep">|</span></span><span class="ticker-item">Neuralink AI <span class="ticker-sep">|</span></span><span class="ticker-item">Global Restoration Active <span class="ticker-sep">|</span></span></div></div>
 <div class="glass-card">
   <div class="check">&#10003;</div>
   <h1>Request Received</h1>
@@ -731,9 +747,29 @@ const HOME_CARE_SUCCESS_PAGE = (email: string) => `<!DOCTYPE html>
     <strong>Memo:</strong> T1019 Home Health Aide &bull; Webster WI &bull; ${new Date().toLocaleDateString("en-US",{month:"short",day:"numeric",year:"numeric"})}
   </div>
   <p class="confirm">Your request has been logged for <span class="email-sent">${email || "your email"}</span>. Once payment is received you will be contacted to confirm.</p>
+  <div class="upload-box">
+    <input type="file" id="proof-file" accept="image/*" style="display:none"/>
+    <button class="upload-btn" onclick="document.getElementById('proof-file').click()">&#128247;&nbsp; Secure Proof Upload — Send Screenshot</button>
+    <div class="upload-status" id="upload-status"></div>
+  </div>
   <a href="/home-care" class="back-btn">&larr; Back to Portal</a>
   <p class="npi">NPI 1346233350 &nbsp;&bull;&nbsp; Lakeside Trinity LLC &nbsp;&bull;&nbsp; Webster, WI 54893</p>
 </div>
+<script>
+document.getElementById('proof-file').addEventListener('change',function(e){
+  var file=e.target.files[0];if(!file)return;
+  var status=document.getElementById('upload-status');
+  status.style.display='block';status.textContent='Uploading proof...';status.style.color='rgba(201,168,76,.6)';
+  var reader=new FileReader();
+  reader.onload=function(ev){
+    fetch('/upload-proof',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({file:ev.target.result,name:file.name,type:file.type,service:'T1019'})})
+    .then(function(r){return r.json();})
+    .then(function(d){status.style.color='#6abf4b';status.textContent='\u2713 Proof received \u2014 Ref: '+(d.ref||'CONFIRMED')+'. We will confirm shortly.';})
+    .catch(function(){status.style.color='rgba(201,168,76,.8)';status.textContent='Saved. Email admin@LakesideTrinity.com with your screenshot.';});
+  };
+  reader.readAsDataURL(file);
+});
+</script>
 ${EBS_FOOTER_HTML}
 </body>
 </html>`;
@@ -741,6 +777,23 @@ ${EBS_FOOTER_HTML}
 app.get("/home-care", (_req: Request, res: Response) => {
   res.setHeader("Content-Type", "text/html; charset=utf-8");
   res.send(HOME_CARE_FORM);
+});
+
+// ── /upload-proof — payment screenshot upload (base64 JSON, max 20MB) ─────────
+app.post("/upload-proof", express.json({ limit: "20mb" }), (req: Request, res: Response): void => {
+  const { file, name, type, service } = (req.body || {}) as Record<string, string>;
+  if (!file || typeof file !== "string") { res.status(400).json({ error: "No file provided" }); return; }
+  const ref = `PROOF-${Date.now()}-${Math.random().toString(36).slice(2,7).toUpperCase()}`;
+  const sizeKB = Math.round(file.length * 0.75 / 1024);
+  console.log(`\u001b[32m[UploadProof] ✅ ${ref} | ${name || "unknown"} | ${type || "?"} | ~${sizeKB}KB | service:${service || "general"}\u001b[0m`);
+  try {
+    const dir = path.join(process.cwd(), "uploads", "proofs");
+    fs.mkdirSync(dir, { recursive: true });
+    const ext = (name || "file").split(".").pop()?.toLowerCase() || "png";
+    const b64 = file.replace(/^data:[^;]+;base64,/, "");
+    fs.writeFileSync(path.join(dir, `${ref}.${ext}`), Buffer.from(b64, "base64"));
+  } catch (err) { console.warn("[UploadProof] Save skipped:", (err as Error).message); }
+  res.json({ status: "ok", ref, message: "Payment proof received — Lakeside Trinity will confirm shortly." });
 });
 
 // ── /home-care/pay — direct payment page (zero friction) ──────────────────────
