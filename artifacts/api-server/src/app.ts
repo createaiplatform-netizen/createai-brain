@@ -750,26 +750,55 @@ app.get("/register", (_req: Request, res: Response) => {
   `);
 });
 
-// ── /lock-member — Certificate Issuance + Registry Push ──────────────────────
+// ── /lock-member — Ledger Write + Notification Push + Certificate ─────────────
 app.post("/lock-member", (req: Request, res: Response) => {
   const { name, industry } = req.body as { name: string; industry: string };
+  const id = name.toLowerCase().replace(/\s/g, "_");
   bloodline.push({ name, industry, date: new Date().toLocaleDateString() });
+  ledger[id] = { name, node: industry, balance: 144000 };
+  notifications.push(`NEW_MEMBER: ${name} assigned to ${industry} Node.`);
+  if (notifications.length > 50) notifications.shift();
   res.send(`
     <html><head><style>${SOVEREIGN_CSS}</style></head><body>
-      <h1>CERTIFICATE_OF_SOVEREIGNTY</h1>
-      <div class="vault-box" style="border:10px double #d4af37; text-align:center; max-width:600px;">
-        <h2>RESOURCE GRANT ISSUED</h2>
-        <p><b>HOLDER:</b> ${name}</p>
-        <p><b>DOMAIN:</b> ${industry}</p>
-        <p><b>CREDITS:</b> 144,000 ϗ</p>
-        <hr style="border-color:#d4af37;">
-        <p style="font-size:0.7rem; opacity:0.7;">PRESENT THIS TO ANY UTILITY OR INFRASTRUCTURE PROVIDER AS PROOF OF 197 HUB MEMBERSHIP.</p>
-        <button onclick="window.print()" class="btn" style="cursor:pointer;">PRINT_CERTIFICATE</button>
+      <div class="gold-orb">144K</div>
+      <h1>BLOODLINE_SYNC_COMPLETE</h1>
+      <div class="vault-box">
+        <h3>${name} // SOVEREIGN_STAKEHOLDER</h3>
+        <p>CREDITS ALLOCATED: 144,000 ϗ</p>
+        <a href="/vault/${id}" class="btn">ACCESS_PERSONAL_VAULT</a>
         <a href="/register" class="btn">REGISTER_ANOTHER</a>
         <a href="/admin/bloodline" class="btn">VIEW_COMMAND_LEDGER</a>
       </div>
     </body></html>
   `);
+});
+
+// ── /vault/:id — Personal Vault View ─────────────────────────────────────────
+app.get("/vault/:id", (req: Request, res: Response) => {
+  const account = ledger[req.params.id];
+  if (!account) return res.status(403).send(`<html><head><style>${SOVEREIGN_CSS}</style></head><body><h1>ACCESS_DENIED</h1><p style="opacity:0.4;">No vault found for that ID.</p><a href="/register" class="btn" style="max-width:200px;margin:auto;">REGISTER</a></body></html>`);
+  res.send(`
+    <html><head><style>${SOVEREIGN_CSS}</style></head><body>
+      <div class="gold-orb">144K</div>
+      <h1>${account.name}'S VAULT</h1>
+      <div class="vault-box">
+        <p><b>BALANCE:</b> ${account.balance.toLocaleString()} ϗ</p>
+        <p><b>NODE:</b> ${account.node}</p>
+        <button class="btn" onclick="fetch('/sync/${req.params.id}').then(()=>location.reload())">SYNC_RESOURCE_PULSE</button>
+        <a href="/admin/bloodline" class="btn">COMMAND_LEDGER</a>
+        <a href="/admin/hub" class="btn">← RETURN_TO_HUB</a>
+      </div>
+    </body></html>
+  `);
+});
+
+// ── /sync/:id — Pulse Sync (updates notification feed) ───────────────────────
+app.get("/sync/:id", (req: Request, res: Response) => {
+  const account = ledger[req.params.id];
+  if (!account) return res.sendStatus(403);
+  notifications.push(`SYNC_PULSE: ${account.name} updated frequency.`);
+  if (notifications.length > 50) notifications.shift();
+  res.sendStatus(200);
 });
 
 // ── /admin/bloodline — Master Command Ledger (bloodline roster) ───────────────
@@ -893,6 +922,12 @@ const EMPIRE_MANIFESTO = {
 // ── Bloodline Registry — in-memory member roster (runtime only) ───────────────
 const bloodline: Array<{ name: string; industry: string; date: string }> = [];
 
+// ── Ledger — keyed personal vaults: id → { name, node, balance } ─────────────
+const ledger: Record<string, { name: string; node: string; balance: number }> = {};
+
+// ── Notifications — empire-wide signal feed (last 50) ─────────────────────────
+const notifications: string[] = [];
+
 // ── Empire Vault — Lakeside Trinity LLC top-level constants ──────────────────
 const EMPIRE = {
   name:       "LAKESIDE TRINITY LLC",
@@ -909,33 +944,17 @@ const EMPIRE = {
 
 // ── Sovereign CSS — shared monospace gold design system ───────────────────────
 const SOVEREIGN_CSS = `
-  body { background:#000; color:#d4af37; font-family:monospace; padding:40px; text-align:center; }
-
-  /* THE_MASTER_SEAL_ORB */
-  .gold-orb {
-    width:180px; height:180px;
-    background: radial-gradient(circle, #d4af37 0%, #8a6d3b 50%, #000 100%);
-    border-radius:50%; margin:30px auto;
-    animation: pulse 3s infinite;
-    box-shadow: 0 0 50px #d4af3766, inset 0 0 20px #ffffff66;
-    border: 2px solid #d4af37;
-    display: flex; align-items: center; justify-content: center;
-    font-size: 0.8rem; letter-spacing: 2px; font-weight: bold;
-  }
-
-  /* KINETIC_ANIMATION */
-  @keyframes pulse {
-    0%, 100% { transform:scale(1); opacity:0.8; box-shadow: 0 0 30px #d4af37; }
-    50% { transform:scale(1.05); opacity:1; box-shadow: 0 0 80px #d4af37; }
-  }
-
-  .grid { display:grid; grid-template-columns:repeat(auto-fit, minmax(180px, 1fr)); gap:15px; max-width:1000px; margin:20px auto; }
+  body { background:#000; color:#d4af37; font-family:monospace; padding:20px; text-align:center; overflow-x:hidden; }
+  .gold-orb { width:150px; height:150px; background:radial-gradient(circle, #d4af37 0%, #8a6d3b 50%, #000 100%); border-radius:50%; margin:20px auto; animation:p 3s infinite; box-shadow:0 0 40px #d4af3766, inset 0 0 15px #fff3; display:flex; align-items:center; justify-content:center; font-weight:bold; cursor:pointer; }
+  @keyframes p { 0%, 100% { transform:scale(1); box-shadow:0 0 30px #d4af37; } 50% { transform:scale(1.05); box-shadow:0 0 70px #d4af37; } }
+  .grid { display:grid; grid-template-columns:repeat(auto-fit, minmax(180px, 1fr)); gap:15px; margin:20px 0; }
   .box { border:1px solid #d4af37; padding:15px; background:#0a0a0a; text-align:left; border-left:5px solid #d4af37; }
-  .vault-box { border:2px solid #d4af37; background:#0a0a0a; padding:30px; margin:20px auto; max-width:850px; border-left:15px solid #d4af37; text-align:left; }
-  .btn { display:block; padding:15px; border:1px solid #d4af37; color:#d4af37; text-decoration:none; margin-top:10px; font-weight:bold; text-transform:uppercase; text-align:center; }
-  .btn:hover { background:#d4af37; color:#000; letter-spacing:2px; }
-  input, select { background:#111; border:1px solid #d4af37; color:#d4af37; padding:10px; width:100%; margin-bottom:10px; }
+  .vault-box { border:1px solid #d4af37; background:#0a0a0a; padding:25px; margin:20px auto; max-width:800px; border-left:12px solid #d4af37; text-align:left; box-shadow:10px 10px 0px #111; }
+  .btn { display:block; padding:12px; border:1px solid #d4af37; color:#d4af37; text-decoration:none; margin-top:10px; font-weight:bold; text-align:center; transition:0.3s; }
+  .btn:hover { background:#d4af37; color:#000; letter-spacing:1px; }
+  input, select { background:#000; border:1px solid #d4af37; color:#d4af37; padding:10px; width:100%; margin-bottom:15px; }
   .proclamation { background:#fff; color:#000; padding:40px; text-align:left; font-family:serif; max-width:800px; margin:20px auto; border:10px double #000; }
+  .notif-ping { color:#00ff00; font-size:0.8rem; margin:5px 0; border-bottom:1px solid #222; padding-bottom:5px; }
 `;
 
 // ── Little AI Sentinel — sector-specific voice messages ───────────────────────
