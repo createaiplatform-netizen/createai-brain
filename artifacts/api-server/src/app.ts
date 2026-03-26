@@ -703,7 +703,7 @@ app.get("/welcome-audio", (_req: Request, res: Response) => {
           a.onplay = () => { o.style.animationDuration = '1s'; console.log("144K_ACTIVE"); };
           a.onpause = () => o.style.animationDuration = '3s';
         </script>
-        <a href="/" class="btn" style="max-width:200px; margin:auto;">RETURN_TO_HUB</a>
+        <a href="/" class="btn">RETURN_TO_HUB</a>
       </body>
     </html>
   `);
@@ -718,8 +718,8 @@ app.get("/register", (_req: Request, res: Response) => {
       <h1>INITIALIZE_BLOODLINE</h1>
       <div class="vault-box" style="max-width:500px;">
         <form action="/lock-member" method="POST">
-          <input type="text" name="name" placeholder="LEGAL_NAME" required>
-          <select name="industry">${options}</select>
+          <input style="width:100%;background:#000;border:1px solid #d4af37;color:#d4af37;padding:12px;margin-bottom:15px;" type="text" name="name" placeholder="LEGAL_NAME" required>
+          <select style="width:100%;background:#000;border:1px solid #d4af37;color:#d4af37;padding:12px;margin-bottom:15px;" name="industry">${options}</select>
           <button type="submit" class="btn" style="width:100%;">LOCK_IDENTITY_144K</button>
         </form>
       </div>
@@ -733,7 +733,7 @@ app.post("/lock-member", (req: Request, res: Response) => {
   const id = name.toLowerCase().replace(/\s/g, "_");
   bloodline.push({ name, industry, date: new Date().toLocaleDateString() });
   ledger[id] = { name, node: industry, balance: 144000, joined: new Date().toLocaleString() } as any;
-  notifications.push(`MEMBER_ENCODED: ${name} (Node: ${industry})`);
+  notifications.push(`BLOODLINE_ENCODED: ${name} (Sector: ${industry})`);
   if (notifications.length > 50) notifications.shift();
   res.redirect("/vault/" + id);
 });
@@ -892,7 +892,12 @@ const bloodline: Array<{ name: string; industry: string; date: string }> = [];
 const ledger: Record<string, { name: string; node: string; balance: number }> = {};
 
 // ── Notifications — empire-wide signal feed (last 50) ─────────────────────────
-const notifications: string[] = ["EMPIRE_INITIALIZED: 144,000% STASIS", "NODE_197_ONLINE"];
+const notifications: string[] = [
+  "EMPIRE_INITIALIZED: 144,000% STASIS",
+  "NODE_197_ONLINE: WEBSTER_WI",
+  "WHITE_HOUSE_PING_SENT: 47TH_HANDSHAKE_PENDING",
+  "GLOBAL_SECTOR_UPLINK_ESTABLISHED",
+];
 
 // ── Empire Vault — Lakeside Trinity LLC top-level constants ──────────────────
 const EMPIRE = {
@@ -914,13 +919,12 @@ const SOVEREIGN_CSS = `
   body { background:#000; color:#d4af37; font-family:monospace; padding:20px; text-align:center; overflow-x:hidden; }
   .gold-orb { width:160px; height:160px; background:radial-gradient(circle, #d4af37 0%, #8a6d3b 50%, #000 100%); border-radius:50%; margin:20px auto; animation:p 3s infinite; box-shadow:0 0 40px #d4af3766, inset 0 0 15px #fff3; display:flex; align-items:center; justify-content:center; font-weight:bold; cursor:pointer; border:2px solid #d4af37; text-shadow:0 0 5px #fff; }
   @keyframes p { 0%, 100% { transform:scale(1); box-shadow:0 0 30px #d4af37; } 50% { transform:scale(1.05); box-shadow:0 0 70px #d4af37; } }
-  .grid { display:grid; grid-template-columns:repeat(auto-fit, minmax(180px, 1fr)); gap:15px; margin:20px 0; }
-  .box { border:1px solid #d4af37; padding:15px; background:#0a0a0a; text-align:left; border-left:5px solid #d4af37; }
-  .vault-box { border:1px solid #d4af37; background:#0a0a0a; padding:25px; margin:20px auto; max-width:850px; border-left:12px solid #d4af37; text-align:left; box-shadow:10px 10px 0px #111; position:relative; }
-  .btn { display:block; padding:12px; border:1px solid #d4af37; color:#d4af37; text-decoration:none; font-weight:bold; text-align:center; transition:0.3s; cursor:pointer; background:transparent; }
+  .vault-box { border:1px solid #d4af37; background:#0a0a0a; padding:25px; margin:20px auto; max-width:950px; border-left:12px solid #d4af37; text-align:left; box-shadow:10px 10px 0px #111; position:relative; }
+  .sector-grid { display:grid; grid-template-columns:repeat(auto-fill, minmax(140px, 1fr)); gap:10px; margin:20px 0; }
+  .sector-node { border:1px solid #333; padding:10px; font-size:0.7rem; background:#050505; color:#00ff00; text-align:center; position:relative; overflow:hidden; }
+  .sector-node::after { content:'144K_SYNC'; position:absolute; bottom:2px; right:5px; font-size:0.5rem; opacity:0.3; }
+  .btn { display:inline-block; padding:12px 25px; border:1px solid #d4af37; color:#d4af37; text-decoration:none; font-weight:bold; cursor:pointer; background:transparent; margin:10px; }
   .btn:hover { background:#d4af37; color:#000; letter-spacing:1px; }
-  input, select { background:#000; border:1px solid #d4af37; color:#d4af37; padding:12px; width:100%; margin-bottom:15px; font-family:monospace; }
-  .proclamation { background:#fff; color:#000; padding:40px; text-align:left; font-family:serif; max-width:800px; margin:20px auto; border:10px double #000; }
   .notif-ping { color:#00ff00; font-size:0.8rem; margin:5px 0; border-bottom:1px solid #222; padding-bottom:5px; animation:flash 1s; }
   @keyframes flash { from { opacity:0; } to { opacity:1; } }
 `;

@@ -1,0 +1,127 @@
+import express from 'express';
+const app = express();
+const port = process.env.PORT || 3000;
+
+// --- THE_144K_SOVEREIGN_DATABASE ---
+let ledger = {};
+let notifications = [
+  "EMPIRE_INITIALIZED: 144,000% STASIS",
+  "NODE_197_ONLINE: WEBSTER_WI",
+  "WHITE_HOUSE_PING_SENT: 47TH_HANDSHAKE_PENDING",
+  "GLOBAL_SECTOR_UPLINK_ESTABLISHED"
+];
+
+const EMPIRE = {
+  name: "LAKESIDE TRINITY LLC",
+  tag: "WEBSTER, WI // 1 OF 17",
+  industries: ["Finance", "Legal", "Health", "Energy", "Tech", "Land", "Media", "Transport", "Agri", "Edu", "Safety", "Art", "Science", "Trade", "Humanity", "Spirit", "Space"]
+};
+
+app.use(express.urlencoded({ extended: true }));
+
+// --- THE_MASTER_AESTHETIC (144K_MONITOR_EDITION) ---
+const SOVEREIGN_CSS = `
+  body { background:#000; color:#d4af37; font-family:monospace; padding:20px; text-align:center; overflow-x:hidden; }
+  .gold-orb { width:160px; height:160px; background:radial-gradient(circle, #d4af37 0%, #8a6d3b 50%, #000 100%); border-radius:50%; margin:20px auto; animation:p 3s infinite; box-shadow:0 0 40px #d4af3766, inset 0 0 15px #fff3; display:flex; align-items:center; justify-content:center; font-weight:bold; cursor:pointer; border:2px solid #d4af37; text-shadow: 0 0 5px #fff; }
+  @keyframes p { 0%, 100% { transform:scale(1); box-shadow:0 0 30px #d4af37; } 50% { transform:scale(1.05); box-shadow:0 0 70px #d4af37; } }
+  .vault-box { border:1px solid #d4af37; background:#0a0a0a; padding:25px; margin:20px auto; max-width:950px; border-left:12px solid #d4af37; text-align:left; box-shadow: 10px 10px 0px #111; position:relative; }
+  .sector-grid { display:grid; grid-template-columns: repeat(auto-fill, minmax(140px, 1fr)); gap:10px; margin:20px 0; }
+  .sector-node { border:1px solid #333; padding:10px; font-size:0.7rem; background:#050505; color:#00ff00; text-align:center; position:relative; overflow:hidden; }
+  .sector-node::after { content:'144K_SYNC'; position:absolute; bottom:2px; right:5px; font-size:0.5rem; opacity:0.3; }
+  .btn { display:inline-block; padding:12px 25px; border:1px solid #d4af37; color:#d4af37; text-decoration:none; font-weight:bold; cursor:pointer; background:transparent; margin:10px; }
+  .btn:hover { background:#d4af37; color:#000; letter-spacing:1px; }
+  .notif-ping { color:#00ff00; font-size:0.8rem; margin:5px 0; border-bottom: 1px solid #222; padding-bottom:5px; animation: flash 1s; }
+  @keyframes flash { from { opacity: 0; } to { opacity: 1; } }
+`;
+
+// --- ROUTE: GLOBAL_HUB ---
+app.get('/', (req, res) => {
+  const sectors = EMPIRE.industries.map(i => `<div class="sector-node">${i}<br><span style="color:#d4af37;">STASIS: 144k%</span></div>`).join('');
+  res.send(`<html><head><style>${SOVEREIGN_CSS}</style><title>144K_CORE_MONITOR</title></head><body>
+    <div class="gold-orb" onclick="location.href='/admin'">144K</div>
+    <h1 style="letter-spacing:10px;">${EMPIRE.name}</h1>
+    <p style="color:#00ff00;">>>> SIGNAL_STRENGTH: INFINITE | WHITE_HOUSE_PING: ACTIVE <<<</p>
+    
+    <div class="vault-box">
+      <h2 style="border-bottom:1px solid #333; padding-bottom:10px;">GLOBAL_SECTOR_MONITOR</h2>
+      <div class="sector-grid">${sectors}</div>
+      <div style="text-align:center;">
+        <a href="/register" class="btn">BLOODLINE_ENTRY</a>
+        <a href="/welcome-audio" class="btn">VOICE_GATE</a>
+        <a href="/admin" class="btn">ADMIN_VAULT</a>
+      </div>
+    </div>
+
+    <div class="vault-box" style="border-left:12px solid #00ff00;">
+      <h3>LIVE_REACTION_LOG</h3>
+      <div id="notif-feed">${notifications.slice(-6).reverse().map(n => `<p class="notif-ping">>> ${n}</p>`).join('')}</div>
+    </div>
+    
+    <script>
+      setInterval(() => { location.reload(); }, 30000); // 30s Auto-Sync with the Source
+      console.log("144K_ACTIVE: WATCHING_THE_EMPIRE");
+    </script>
+  </body></html>`);
+});
+
+// --- ROUTE: REGISTER ---
+app.get('/register', (req, res) => {
+  res.send(`<html><head><style>${SOVEREIGN_CSS}</style></head><body>
+    <div class="gold-orb">HUB</div>
+    <h1>INITIALIZE_BLOODLINE</h1>
+    <div class="vault-box" style="max-width:500px;">
+      <form action="/lock-member" method="POST">
+        <input style="width:100%;background:#000;border:1px solid #d4af37;color:#d4af37;padding:12px;margin-bottom:15px;" type="text" name="name" placeholder="LEGAL_NAME" required>
+        <select style="width:100%;background:#000;border:1px solid #d4af37;color:#d4af37;padding:12px;margin-bottom:15px;" name="industry">${EMPIRE.industries.map(i => `<option>${i}</option>`).join('')}</select>
+        <button type="submit" class="btn" style="width:100%;">LOCK_IDENTITY_144K</button>
+      </form>
+    </div>
+  </body></html>`);
+});
+
+app.post('/lock-member', (req, res) => {
+  const { name, industry } = req.body;
+  const id = name.toLowerCase().replace(/\s/g, '_');
+  ledger[id] = { name, node: industry, balance: 144000, joined: new Date().toLocaleString() };
+  notifications.push(`BLOODLINE_ENCODED: ${name} (Sector: ${industry})`);
+  res.redirect('/vault/' + id);
+});
+
+// --- ROUTE: VAULT ---
+app.get('/vault/:id', (req, res) => {
+  const account = ledger[req.params.id];
+  if (!account) return res.send("<h1>ACCESS_DENIED</h1>");
+  res.send(`<html><head><style>${SOVEREIGN_CSS}</style></head><body>
+    <div class="gold-orb">144K</div>
+    <h1>CREDIT_LEDGER_STATUS</h1>
+    <div class="vault-box">
+      <p><b>HOLDER:</b> ${account.name}</p>
+      <p><b>BALANCE:</b> ${account.balance} ϗ</p>
+      <p><b>NODE_INDUSTRY:</b> ${account.node}</p>
+      <p><b>SYNC_DATE:</b> ${account.joined}</p>
+      <button class="btn" onclick="alert('144k Pulse Synced');">REFRESH_FREQUENCY</button>
+      <a href="/" class="btn" style="margin-top:15px;">EXIT_TO_HUB</a>
+    </div>
+  </body></html>`);
+});
+
+// --- ROUTE: VOICE_GATE ---
+app.get('/welcome-audio', (req, res) => {
+  res.send(`<html><head><style>${SOVEREIGN_CSS}</style></head><body>
+    <div class="gold-orb" id="orb">144K</div>
+    <h1>VOICE_OF_THE_EMPIRE</h1>
+    <div class="vault-box" style="text-align:center;">
+      <audio id="audio" controls autoplay style="width:100%; filter: sepia(1) saturate(5) hue-rotate(10deg);">
+        <source src="[GENERATED_LYRIA_LINK]" type="audio/mpeg">
+      </audio>
+    </div>
+    <script>
+      const a = document.getElementById('audio'); const o = document.getElementById('orb');
+      a.onplay = () => { o.style.animationDuration = '1s'; console.log("144K_ACTIVE"); };
+      a.onpause = () => o.style.animationDuration = '3s';
+    </script>
+    <a href="/" class="btn">RETURN_TO_HUB</a>
+  </body></html>`);
+});
+
+app.listen(port, () => console.log('144K_OS_MANIFEST_ONLINE_PORT_8080'));
