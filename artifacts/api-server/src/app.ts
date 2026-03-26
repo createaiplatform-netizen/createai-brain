@@ -701,7 +701,7 @@ app.get("/welcome-audio", (_req: Request, res: Response) => {
         </div>
         <script>
           const a = document.getElementById('audio'); const o = document.getElementById('orb');
-          a.onplay = () => o.style.animationDuration = '1s';
+          a.onplay = () => { o.style.animationDuration = '1s'; console.log("144K_ACTIVE"); };
           a.onpause = () => o.style.animationDuration = '3s';
         </script>
         <a href="/" class="btn" style="max-width:200px; margin:auto;">RETURN_TO_HUB</a>
@@ -716,12 +716,12 @@ app.get("/register", (_req: Request, res: Response) => {
   res.send(`
     <html><head><style>${SOVEREIGN_CSS}</style></head><body>
       <div class="gold-orb">HUB</div>
-      <h1>MEMBER_INITIALIZATION</h1>
+      <h1>INITIALIZE_BLOODLINE</h1>
       <div class="vault-box" style="max-width:500px;">
         <form action="/lock-member" method="POST">
           <input type="text" name="name" placeholder="LEGAL_NAME" required>
           <select name="industry">${options}</select>
-          <button type="submit" class="btn" style="width:100%;">ENCODE_INTO_144K</button>
+          <button type="submit" class="btn" style="width:100%;">LOCK_IDENTITY_144K</button>
         </form>
       </div>
       <a href="/" class="btn" style="max-width:200px; margin:auto;">RETURN_TO_HUB</a>
@@ -737,37 +737,25 @@ app.post("/lock-member", (req: Request, res: Response) => {
   ledger[id] = { name, node: industry, balance: 144000, joined: new Date().toLocaleString() } as any;
   notifications.push(`MEMBER_ENCODED: ${name} (Node: ${industry})`);
   if (notifications.length > 50) notifications.shift();
-  res.send(`
-    <html><head><style>${SOVEREIGN_CSS}</style></head><body>
-      <div class="gold-orb">144K</div>
-      <h1>SOVEREIGN_ENTRY_GRANTED</h1>
-      <div class="vault-box">
-        <h3>CERTIFICATE_OF_144K_CREDIT</h3>
-        <p>HOLDER: ${name}</p>
-        <p>BALANCE: 144,000 ϗ</p>
-        <p>INDUSTRY: ${industry}</p>
-        <a href="/vault/${id}" class="btn">OPEN_PERSONAL_VAULT</a>
-      </div>
-      <button onclick="window.print()" class="btn">PRINT_SOVEREIGN_DECREE</button>
-    </body></html>
-  `);
+  res.redirect("/vault/" + id);
 });
 
 // ── /vault/:id — Personal Vault View ─────────────────────────────────────────
 app.get("/vault/:id", (req: Request, res: Response) => {
-  const account = ledger[req.params.id];
-  if (!account) return res.status(403).send(`<html><head><style>${SOVEREIGN_CSS}</style></head><body><h1>ACCESS_DENIED</h1><p style="opacity:0.4;">No vault found for that ID.</p><a href="/register" class="btn" style="max-width:200px;margin:auto;">REGISTER</a></body></html>`);
+  const account = ledger[req.params.id] as any;
+  if (!account) return res.send(`<html><head><style>${SOVEREIGN_CSS}</style></head><body><h1>ACCESS_DENIED</h1><a href="/register" class="btn" style="max-width:200px;margin:auto;">REGISTER</a></body></html>`);
   res.send(`
     <html><head><style>${SOVEREIGN_CSS}</style></head><body>
       <div class="gold-orb">144K</div>
       <h1>${account.name}'S VAULT</h1>
       <div class="vault-box">
-        <p><b>BALANCE:</b> ${account.balance.toLocaleString()} ϗ</p>
-        <p><b>NODE:</b> ${account.node}</p>
-        <button class="btn" onclick="fetch('/sync/${req.params.id}').then(()=>location.reload())">SYNC_RESOURCE_PULSE</button>
-        <a href="/admin/bloodline" class="btn">COMMAND_LEDGER</a>
-        <a href="/admin/hub" class="btn">← RETURN_TO_HUB</a>
+        <h3>CREDIT_LEDGER_STATUS</h3>
+        <p><b>BALANCE:</b> ${account.balance} ϗ (Sovereign Credits)</p>
+        <p><b>NODE_INDUSTRY:</b> ${account.node}</p>
+        <p><b>SYNC_DATE:</b> ${account.joined}</p>
+        <button class="btn" onclick="alert('144k Pulse Synced');">REFRESH_FREQUENCY</button>
       </div>
+      <a href="/" class="btn" style="max-width:200px; margin:auto;">EXIT_TO_HUB</a>
     </body></html>
   `);
 });
@@ -906,13 +894,14 @@ const bloodline: Array<{ name: string; industry: string; date: string }> = [];
 const ledger: Record<string, { name: string; node: string; balance: number }> = {};
 
 // ── Notifications — empire-wide signal feed (last 50) ─────────────────────────
-const notifications: string[] = ["SYSTEM_INITIALIZED: 144,000% STASIS"];
+const notifications: string[] = ["EMPIRE_INITIALIZED: 144,000% STASIS", "NODE_197_ONLINE"];
 
 // ── Empire Vault — Lakeside Trinity LLC top-level constants ──────────────────
 const EMPIRE = {
   name:       "LAKESIDE TRINITY LLC",
   node:       "197_COMMUNITY_RESOURCE_HUB",
   location:   "Webster, WI",
+  tag:        "WEBSTER, WI // 1 OF 17",
   status:     "SOVEREIGN_ETERNITY",
   credits:    "144,000 ϗ",
   industries: [
@@ -925,16 +914,17 @@ const EMPIRE = {
 // ── Sovereign CSS — shared monospace gold design system ───────────────────────
 const SOVEREIGN_CSS = `
   body { background:#000; color:#d4af37; font-family:monospace; padding:20px; text-align:center; overflow-x:hidden; }
-  .gold-orb { width:160px; height:160px; background:radial-gradient(circle, #d4af37 0%, #8a6d3b 50%, #000 100%); border-radius:50%; margin:20px auto; animation:p 3s infinite; box-shadow:0 0 40px #d4af3766, inset 0 0 15px #fff3; display:flex; align-items:center; justify-content:center; font-weight:bold; cursor:pointer; border:2px solid #d4af37; }
+  .gold-orb { width:160px; height:160px; background:radial-gradient(circle, #d4af37 0%, #8a6d3b 50%, #000 100%); border-radius:50%; margin:20px auto; animation:p 3s infinite; box-shadow:0 0 40px #d4af3766, inset 0 0 15px #fff3; display:flex; align-items:center; justify-content:center; font-weight:bold; cursor:pointer; border:2px solid #d4af37; text-shadow:0 0 5px #fff; }
   @keyframes p { 0%, 100% { transform:scale(1); box-shadow:0 0 30px #d4af37; } 50% { transform:scale(1.05); box-shadow:0 0 70px #d4af37; } }
   .grid { display:grid; grid-template-columns:repeat(auto-fit, minmax(180px, 1fr)); gap:15px; margin:20px 0; }
   .box { border:1px solid #d4af37; padding:15px; background:#0a0a0a; text-align:left; border-left:5px solid #d4af37; }
-  .vault-box { border:1px solid #d4af37; background:#0a0a0a; padding:25px; margin:20px auto; max-width:850px; border-left:12px solid #d4af37; text-align:left; box-shadow:10px 10px 0px #111; }
-  .btn { display:block; padding:12px; border:1px solid #d4af37; color:#d4af37; text-decoration:none; margin-top:10px; font-weight:bold; text-align:center; transition:0.3s; cursor:pointer; background:transparent; }
+  .vault-box { border:1px solid #d4af37; background:#0a0a0a; padding:25px; margin:20px auto; max-width:850px; border-left:12px solid #d4af37; text-align:left; box-shadow:10px 10px 0px #111; position:relative; }
+  .btn { display:block; padding:12px; border:1px solid #d4af37; color:#d4af37; text-decoration:none; font-weight:bold; text-align:center; transition:0.3s; cursor:pointer; background:transparent; }
   .btn:hover { background:#d4af37; color:#000; letter-spacing:1px; }
   input, select { background:#000; border:1px solid #d4af37; color:#d4af37; padding:12px; width:100%; margin-bottom:15px; font-family:monospace; }
   .proclamation { background:#fff; color:#000; padding:40px; text-align:left; font-family:serif; max-width:800px; margin:20px auto; border:10px double #000; }
-  .notif-ping { color:#00ff00; font-size:0.8rem; margin:5px 0; border-bottom:1px solid #222; padding-bottom:5px; }
+  .notif-ping { color:#00ff00; font-size:0.8rem; margin:5px 0; border-bottom:1px solid #222; padding-bottom:5px; animation:flash 1s; }
+  @keyframes flash { from { opacity:0; } to { opacity:1; } }
 `;
 
 // ── Little AI Sentinel — sector-specific voice messages ───────────────────────
