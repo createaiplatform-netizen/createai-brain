@@ -709,6 +709,30 @@ app.get("/welcome-audio", (_req: Request, res: Response) => {
   `);
 });
 
+// ── /bloodline — THE_BLOODLINE_MONITOR ───────────────────────────────────────
+app.get("/bloodline", (_req: Request, res: Response) => {
+  const sectors = EMPIRE_MANIFESTO.industries.map(i =>
+    `<div class="sector-node">${i}<br><span style="color:#d4af37;">STASIS: 144k%</span></div>`
+  ).join("");
+  res.send(`<html><head><style>${SOVEREIGN_CSS}</style><title>144K_CORE_MONITOR</title></head><body>
+    <div class="gold-orb" onclick="location.href='/'">144K</div>
+    <h1 style="letter-spacing:10px;">${EMPIRE.name}</h1>
+    <p style="color:#00ff00;">>>> SIGNAL_STRENGTH: INFINITE | WHITE_HOUSE_PING: ACTIVE <<<</p>
+    <div class="vault-box">
+      <h2 style="border-bottom:1px solid #333; padding-bottom:10px;">GLOBAL_SECTOR_MONITOR</h2>
+      <div class="sector-grid">${sectors}</div>
+    </div>
+    <div class="vault-box" style="border-left:12px solid #00ff00;">
+      <h3>LIVE_REACTION_LOG</h3>
+      <div id="notif-feed">${notifications.slice(-6).reverse().map(n => `<p class="notif-ping">&gt;&gt; ${n}</p>`).join("")}</div>
+    </div>
+    <script>
+      setInterval(() => { location.reload(); }, 30000);
+      console.log("144K_ACTIVE: WATCHING_THE_EMPIRE");
+    </script>
+  </body></html>`);
+});
+
 // ── /register — Bloodline Intake Form ────────────────────────────────────────
 app.get("/register", (_req: Request, res: Response) => {
   const options = EMPIRE_MANIFESTO.industries.map(i => `<option value="${i}">${i}</option>`).join("");
