@@ -1112,6 +1112,163 @@ app.get("/marketplace", (_req: Request, res: Response) => {
   res.send(MARKETPLACE_HTML);
 });
 
+// ── /nexus — Nexus Elite Command Center (The Light) ──────────────────────────
+const NEXUS_HTML = `<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8"/>
+  <meta name="viewport" content="width=device-width,initial-scale=1.0,maximum-scale=1.0,user-scalable=no"/>
+  <title>Nexus Elite Command Center — Lakeside Trinity</title>
+  <style>html,body{background:#f8fbff!important;margin:0;padding:0;font-family:'Inter',sans-serif;color:#1a2030}</style>
+  <link rel="preconnect" href="https://fonts.googleapis.com"/>
+  <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,700;0,900;1,700&family=Inter:wght@400;600;700&display=swap&v=144k" rel="stylesheet"/>
+  <style>
+    *{box-sizing:border-box;margin:0;padding:0}
+    :root{--pearl:#fdfdfd;--blue:#e0f2ff;--gold:#c5a059;--gold-b:#dfc07a;--gold-dim:rgba(197,160,89,.5);--text:#1a2030;--muted:rgba(26,32,48,.48)}
+
+    /* ── LIQUID LIGHT BACKGROUND ── */
+    body{font-family:'Inter',sans-serif;background:var(--pearl);min-height:100vh;color:var(--text);overflow-x:hidden;position:relative}
+    .liquid-bg{position:fixed;inset:0;z-index:0;pointer-events:none;overflow:hidden}
+    .liquid-bg::before{content:'';position:absolute;inset:-60%;background:radial-gradient(ellipse 65% 50% at 28% 38%,rgba(224,242,255,.88) 0%,transparent 65%),radial-gradient(ellipse 55% 55% at 72% 62%,rgba(197,160,89,.1) 0%,transparent 62%),radial-gradient(ellipse 75% 65% at 48% 82%,rgba(200,232,255,.55) 0%,transparent 58%);animation:liquid-a 14s ease-in-out infinite alternate}
+    .liquid-bg::after{content:'';position:absolute;inset:-60%;background:radial-gradient(ellipse 45% 55% at 82% 18%,rgba(224,242,255,.72) 0%,transparent 62%),radial-gradient(ellipse 60% 48% at 18% 72%,rgba(197,160,89,.07) 0%,transparent 62%),radial-gradient(ellipse 50% 60% at 55% 48%,rgba(240,248,255,.5) 0%,transparent 55%);animation:liquid-b 18s ease-in-out infinite alternate-reverse}
+    @keyframes liquid-a{0%{transform:translate(0,0) scale(1)}33%{transform:translate(2.5%,1.8%) scale(1.04)}66%{transform:translate(-1.8%,2.6%) scale(1.02)}100%{transform:translate(1.6%,-2%) scale(1.05)}}
+    @keyframes liquid-b{0%{transform:translate(0,0) scale(1.02)}50%{transform:translate(-3.5%,1.8%) scale(1)}100%{transform:translate(2.4%,-2.6%) scale(1.04)}}
+
+    /* ── LAYOUT ── */
+    .page{position:relative;z-index:1;min-height:100vh;display:flex;flex-direction:column;padding-bottom:0}
+
+    /* ── HEADER ── */
+    header{text-align:center;padding:62px 24px 44px}
+    .brand-line{font-size:.58rem;font-weight:700;letter-spacing:.3em;color:rgba(197,160,89,.65);text-transform:uppercase;margin-bottom:14px}
+    h1{font-family:'Playfair Display',serif;font-size:2.9rem;font-weight:900;color:var(--text);line-height:1.1;margin-bottom:10px}
+    h1 em{font-style:italic;color:var(--gold)}
+    .tagline{font-size:.86rem;color:var(--muted);letter-spacing:.05em;max-width:380px;margin:0 auto}
+
+    /* ── GLASS-PILL CARDS ── */
+    .cards{display:grid;grid-template-columns:1fr 1fr;gap:22px;max-width:780px;margin:0 auto;padding:0 24px}
+    @media(max-width:600px){.cards{grid-template-columns:1fr;max-width:400px}}
+    .pill-card{background:rgba(253,253,253,.72);border:1px solid rgba(255,255,255,.4);border-radius:28px;padding:44px 32px;text-align:center;backdrop-filter:blur(15px);-webkit-backdrop-filter:blur(15px);box-shadow:0 8px 44px rgba(197,160,89,.1),0 2px 14px rgba(0,0,0,.03),inset 0 1.5px 0 rgba(255,255,255,.92);transition:transform .3s,box-shadow .3s;position:relative;overflow:hidden}
+    .pill-card::before{content:'';position:absolute;inset:0;background:radial-gradient(ellipse at 50% 0%,rgba(224,242,255,.55),transparent 60%);pointer-events:none;border-radius:28px}
+    .pill-card:hover{transform:translateY(-5px);box-shadow:0 22px 64px rgba(197,160,89,.2),0 4px 22px rgba(0,0,0,.06),inset 0 1.5px 0 rgba(255,255,255,.92)}
+    .card-tier{font-size:.54rem;font-weight:700;letter-spacing:.24em;text-transform:uppercase;color:rgba(197,160,89,.6);margin-bottom:20px}
+    .card-name{font-family:'Playfair Display',serif;font-size:1.32rem;font-weight:700;color:#1a2030;margin-bottom:2px;line-height:1.28}
+    .card-amount{font-family:'Playfair Display',serif;font-size:3.2rem;font-weight:900;color:var(--gold);line-height:1;margin:18px 0 22px}
+    .card-desc{font-size:.77rem;color:var(--muted);margin-bottom:26px;line-height:1.7}
+    .card-btn{display:block;width:100%;padding:15px 20px;background:linear-gradient(135deg,#c5a059 0%,#dfc07a 60%,#c5a059 100%);background-size:200% 100%;color:#fff;border:none;border-radius:50px;font-weight:700;font-size:.8rem;letter-spacing:.1em;text-transform:uppercase;font-family:'Inter',sans-serif;cursor:pointer;box-shadow:0 6px 26px rgba(197,160,89,.4),0 2px 8px rgba(197,160,89,.22);transition:box-shadow .25s,transform .2s,background-position .4s;animation:btn-breathe 3.2s ease-in-out infinite}
+    .card-btn:hover{box-shadow:0 10px 40px rgba(197,160,89,.58);transform:scale(1.025);background-position:100% 0}
+    @keyframes btn-breathe{0%,100%{box-shadow:0 6px 26px rgba(197,160,89,.4),0 2px 8px rgba(197,160,89,.22)}50%{box-shadow:0 8px 36px rgba(197,160,89,.6),0 4px 16px rgba(197,160,89,.32)}}
+
+    /* ── SIGNATURE INPUT ── */
+    .sig-section{max-width:540px;margin:50px auto 0;padding:0 24px}
+    .sig-label{font-size:.56rem;font-weight:700;letter-spacing:.24em;color:rgba(197,160,89,.62);text-transform:uppercase;text-align:center;margin-bottom:13px}
+    .sig-input{width:100%;padding:18px 30px;background:rgba(253,253,253,.78);border:1.5px solid rgba(255,255,255,.5);border-radius:60px;font-size:.9rem;font-family:'Inter',sans-serif;color:#1a2030;backdrop-filter:blur(15px);-webkit-backdrop-filter:blur(15px);box-shadow:0 4px 32px rgba(197,160,89,.12),inset 0 1.5px 0 rgba(255,255,255,.9);outline:none;transition:box-shadow .3s,border-color .3s;text-align:center;letter-spacing:.06em;display:block}
+    .sig-input::placeholder{color:rgba(26,32,48,.3);letter-spacing:.06em}
+    .sig-input:focus{border-color:rgba(197,160,89,.55);box-shadow:0 4px 32px rgba(197,160,89,.2),0 0 0 4px rgba(197,160,89,.1),inset 0 1.5px 0 rgba(255,255,255,.9)}
+
+    /* ── TELEMETRY FOOTER ── */
+    .telemetry{margin-top:52px;background:rgba(26,32,48,.05);border-top:1px solid rgba(197,160,89,.18)}
+    .tele-header{display:flex;align-items:center;justify-content:space-between;padding:8px 22px 6px;border-bottom:1px solid rgba(197,160,89,.12)}
+    .tele-title{font-size:.54rem;font-weight:700;letter-spacing:.22em;color:rgba(197,160,89,.72);text-transform:uppercase;display:flex;align-items:center;gap:7px}
+    .tele-dot{width:6px;height:6px;border-radius:50%;background:#4caf7a;box-shadow:0 0 6px rgba(76,175,122,.7);animation:dot-blink 1.8s ease-in-out infinite}
+    @keyframes dot-blink{0%,100%{opacity:1}50%{opacity:.3}}
+    .tele-uptime{font-size:.54rem;font-weight:700;letter-spacing:.12em;color:rgba(26,32,48,.42);font-family:monospace;text-transform:uppercase}
+    .tele-ticker-wrap{overflow:hidden;height:30px}
+    .tele-ticker-track{display:flex;white-space:nowrap;animation:tele-scroll 32s linear infinite;padding:5px 0;align-items:center}
+    .tele-item{font-size:.57rem;font-weight:700;letter-spacing:.12em;text-transform:uppercase;color:rgba(26,32,48,.5);padding:0 22px;font-family:monospace}
+    .tele-item.g{color:rgba(40,150,80,.72)}
+    .tele-item.gold{color:rgba(197,160,89,.72)}
+    .tele-sep{color:rgba(197,160,89,.28);font-family:monospace;font-size:.57rem}
+    @keyframes tele-scroll{0%{transform:translateX(0)}100%{transform:translateX(-50%)}}
+
+    @media(max-width:768px){.pill-card{padding:32px 20px!important}.pill-card::before{display:none}.liquid-bg::before,.liquid-bg::after{animation:none}}
+  </style>
+</head>
+<body>
+<div class="liquid-bg"></div>
+<div class="page">
+
+  <header>
+    <div class="brand-line">Lakeside Trinity LLC &nbsp;&bull;&nbsp; Nexus Elite</div>
+    <h1>The <em>Nexus</em><br/>Elite Command</h1>
+    <p class="tagline">Sovereign access, activated. The light to every shadow.</p>
+  </header>
+
+  <div class="cards">
+    <!-- CARD 1: PRIVATE FAMILY HUB -->
+    <div class="pill-card">
+      <div class="card-tier">Private Access &bull; Tier I</div>
+      <div class="card-name">Private Family Hub</div>
+      <div class="card-amount">$97</div>
+      <div class="card-desc">Your personal sanctuary for family sovereignty, creative vision, and protected legacy building.</div>
+      <button class="card-btn" onclick="window.location='/family-hub'">Activate Personal Sanctuary</button>
+    </div>
+    <!-- CARD 2: SOVEREIGN BIZ ENGINE -->
+    <div class="pill-card">
+      <div class="card-tier">Business Access &bull; Tier II</div>
+      <div class="card-name">Sovereign Biz Engine</div>
+      <div class="card-amount">$97</div>
+      <div class="card-desc">Full-stack business sovereignty. Revenue systems, AI tools, and empire infrastructure — activated.</div>
+      <button class="card-btn" onclick="window.location='/marketplace'">Scale Business Sovereignty</button>
+    </div>
+  </div>
+
+  <!-- SIGNATURE INPUT -->
+  <div class="sig-section">
+    <div class="sig-label">Signature Frequency</div>
+    <input type="text" class="sig-input" placeholder="Enter Your Signature Freq..." autocomplete="off" spellcheck="false"/>
+  </div>
+
+  <!-- TELEMETRY FOOTER -->
+  <div class="telemetry">
+    <div class="tele-header">
+      <div class="tele-title"><div class="tele-dot"></div>System Deployment Status</div>
+      <div class="tele-uptime" id="uptime-display">UPTIME: 00:14</div>
+    </div>
+    <div class="tele-ticker-wrap">
+      <div class="tele-ticker-track">
+        <span class="tele-item g">CORE VALUES LOCKED: SECURED</span><span class="tele-sep">&nbsp;|&nbsp;</span>
+        <span class="tele-item gold">NEXUS ELITE: ONLINE</span><span class="tele-sep">&nbsp;|&nbsp;</span>
+        <span class="tele-item">FREQ: 197.0 Hz</span><span class="tele-sep">&nbsp;|&nbsp;</span>
+        <span class="tele-item g">FAMILY HUB: ACTIVE</span><span class="tele-sep">&nbsp;|&nbsp;</span>
+        <span class="tele-item">PAYLOAD: SECURED</span><span class="tele-sep">&nbsp;|&nbsp;</span>
+        <span class="tele-item gold">GENESIS CORE: ACTIVE</span><span class="tele-sep">&nbsp;|&nbsp;</span>
+        <span class="tele-item">NPI: 1346233350</span><span class="tele-sep">&nbsp;|&nbsp;</span>
+        <span class="tele-item g">SOVEREIGN ENGINE: DEPLOYED</span><span class="tele-sep">&nbsp;|&nbsp;</span>
+        <span class="tele-item">LAKESIDE TRINITY: ONLINE</span><span class="tele-sep">&nbsp;|&nbsp;</span>
+        <span class="tele-item gold">UPTIME: LIVE</span><span class="tele-sep">&nbsp;|&nbsp;</span>
+        <span class="tele-item g">CORE VALUES LOCKED: SECURED</span><span class="tele-sep">&nbsp;|&nbsp;</span>
+        <span class="tele-item gold">NEXUS ELITE: ONLINE</span><span class="tele-sep">&nbsp;|&nbsp;</span>
+        <span class="tele-item">FREQ: 197.0 Hz</span><span class="tele-sep">&nbsp;|&nbsp;</span>
+        <span class="tele-item g">FAMILY HUB: ACTIVE</span><span class="tele-sep">&nbsp;|&nbsp;</span>
+        <span class="tele-item">PAYLOAD: SECURED</span><span class="tele-sep">&nbsp;|&nbsp;</span>
+        <span class="tele-item gold">GENESIS CORE: ACTIVE</span><span class="tele-sep">&nbsp;|&nbsp;</span>
+        <span class="tele-item">NPI: 1346233350</span><span class="tele-sep">&nbsp;|&nbsp;</span>
+        <span class="tele-item g">SOVEREIGN ENGINE: DEPLOYED</span><span class="tele-sep">&nbsp;|&nbsp;</span>
+        <span class="tele-item">LAKESIDE TRINITY: ONLINE</span><span class="tele-sep">&nbsp;|&nbsp;</span>
+        <span class="tele-item gold">UPTIME: LIVE</span><span class="tele-sep">&nbsp;|&nbsp;</span>
+      </div>
+    </div>
+  </div>
+
+</div>
+<script>
+var startMs = Date.now() - 14000;
+function pad(n){return String(n).padStart(2,'0')}
+function tick(){
+  var e=Math.floor((Date.now()-startMs)/1000);
+  document.getElementById('uptime-display').textContent='UPTIME: '+pad(Math.floor(e/60))+':'+pad(e%60);
+}
+tick();setInterval(tick,1000);
+</script>
+</body>
+</html>`;
+
+app.get("/nexus", (_req: Request, res: Response) => {
+  res.setHeader("Content-Type", "text/html; charset=utf-8");
+  res.setHeader("Cache-Control", "no-store");
+  res.send(NEXUS_HTML);
+});
+
 // ── Community Hub — /community ──────────────────────────────────────────────
 const COMMUNITY_HTML = `<!DOCTYPE html>
 <html lang="en">
