@@ -567,7 +567,7 @@ function guardPath(...paths: string[]) {
 }
 
 // Protect specific admin-only pages
-app.use(guardPath("/hub", "/vault", "/bundle", "/valuation", "/launch/payments", "/launch/deliver", "/launch/quick-links", "/pulse"));
+app.use(guardPath("/hub", "/bundle", "/valuation", "/launch/payments", "/launch/deliver", "/launch/quick-links", "/pulse"));
 
 // ── Clean public URL layer (mounted BEFORE API auth) ──────────────────────────
 // URL Map:
@@ -597,6 +597,16 @@ app.get("/genesis", (_req: Request, res: Response) => {
 
 // ── Shared EBS Footer — Data-Stream ─────────────────────────────────────────
 const EBS_FOOTER_HTML = `<div style="overflow:hidden;background:#020402;border-top:1px solid rgba(201,168,76,.18)"><div style="display:flex;white-space:nowrap;padding:7px 0;font-size:.6rem;font-family:monospace;color:rgba(90,140,74,.65);animation:ds-scroll 38s linear infinite"><span style="padding:0 12px">// LAKESIDE_TRINITY.BRAIN v17.0 &rarr; freq_lock:197.0Hz | nodes:processing | EVV:SANDATA_v2.5 | NPI:1346233350 | acct:STX42220 | phase:ALPHA_17 | humanity_seed:$17.00 | professional_sovereign:$25.00 | little_ai:AUTHENTICATED | restoration_status:LIVE | webster_54893:ONLINE | global_departments:ACTIVE | family_sovereignty:ENGAGED | data_stream:&infin; | THE_FINAL_STASIS:SEALED &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</span><span style="padding:0 12px">// LAKESIDE_TRINITY.BRAIN v17.0 &rarr; freq_lock:197.0Hz | nodes:processing | EVV:SANDATA_v2.5 | NPI:1346233350 | acct:STX42220 | phase:ALPHA_17 | humanity_seed:$17.00 | professional_sovereign:$25.00 | little_ai:AUTHENTICATED | restoration_status:LIVE | webster_54893:ONLINE | global_departments:ACTIVE | family_sovereignty:ENGAGED | data_stream:&infin; | THE_FINAL_STASIS:SEALED &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</span></div><div style="text-align:center;padding:4px 0 9px;font-size:.6rem;font-weight:700;letter-spacing:.2em;color:rgba(201,168,76,.45);text-transform:uppercase">17 FREQUENCY ACTIVE &bull; THE GLOBAL RESTORATION IS LIVE</div><style>@keyframes ds-scroll{0%{transform:translateX(0)}100%{transform:translateX(-50%)}}</style></div>`;
+
+// ── Sovereign Guide Orb — injected into all portal pages ────────────────────
+const ORB_HTML = `<div id="sovereign-guide" style="position:fixed;bottom:28px;right:28px;z-index:9999;cursor:pointer;user-select:none">
+  <div id="orb-sphere" style="width:52px;height:52px;border-radius:50%;background:radial-gradient(circle at 35% 32%,#f5e17a,#c9a84c 55%,#7a5318);box-shadow:0 0 16px rgba(201,168,76,.9),0 0 34px rgba(201,168,76,.55),0 0 62px rgba(201,168,76,.22);animation:orb-pulse 2.4s ease-in-out infinite;position:relative;z-index:1"></div>
+  <div id="orb-tip" style="position:absolute;bottom:62px;right:0;width:228px;background:rgba(10,16,8,.97);border:1px solid rgba(201,168,76,.5);border-radius:14px;padding:16px 18px;font-size:.77rem;color:#ddd8c4;line-height:1.62;font-family:'Segoe UI',Arial,sans-serif;box-shadow:0 14px 44px rgba(0,0,0,.38);display:none;text-align:left;backdrop-filter:blur(14px);letter-spacing:.02em">The Architect is here. How can I facilitate your Restoration?<div style="position:absolute;bottom:-7px;right:18px;width:12px;height:12px;background:rgba(10,16,8,.97);border-right:1px solid rgba(201,168,76,.5);border-bottom:1px solid rgba(201,168,76,.5);transform:rotate(45deg)"></div></div>
+</div>
+<style>
+@keyframes orb-pulse{0%,100%{box-shadow:0 0 16px rgba(201,168,76,.9),0 0 34px rgba(201,168,76,.55),0 0 62px rgba(201,168,76,.22);transform:scale(1)}50%{box-shadow:0 0 30px rgba(232,201,106,1),0 0 58px rgba(201,168,76,.88),0 0 96px rgba(201,168,76,.34);transform:scale(1.09)}}
+#sovereign-guide:hover #orb-tip{display:block!important}
+</style>`;
 
 // ── Webster Home Care Services — Manual Payment Portal ─────────────────────
 const HOME_CARE_FORM = `<!DOCTYPE html>
@@ -667,6 +677,39 @@ const HOME_CARE_FORM = `<!DOCTYPE html>
   </form>
   <p class="npi">Secure portal &nbsp;&bull;&nbsp; No card data stored &nbsp;&bull;&nbsp; NPI 1346233350</p>
 </div>
+<canvas id="live-grid" style="position:fixed;inset:0;width:100%;height:100%;pointer-events:none;z-index:0;opacity:.42"></canvas>
+<script>
+(function(){
+  var c=document.getElementById('live-grid');if(!c)return;
+  var ctx=c.getContext('2d'),pulses=[];
+  function resize(){c.width=window.innerWidth;c.height=window.innerHeight;}
+  resize();window.addEventListener('resize',resize);
+  function addPulse(){var cols=18,rows=12;pulses.push({x:Math.floor(Math.random()*cols),y:Math.floor(Math.random()*rows),r:0,maxR:20+Math.random()*16,a:.76,cols:cols,rows:rows});}
+  setInterval(addPulse,640);addPulse();addPulse();
+  function draw(){
+    ctx.clearRect(0,0,c.width,c.height);
+    var cols=18,rows=12,cw=c.width/cols,ch=c.height/rows;
+    for(var i=0;i<cols;i++){for(var j=0;j<rows;j++){
+      ctx.beginPath();ctx.arc(i*cw+cw/2,j*ch+ch/2,1.4,0,Math.PI*2);
+      ctx.fillStyle='rgba(201,168,76,0.13)';ctx.fill();
+    }}
+    pulses.forEach(function(p){
+      var pw=c.width/p.cols,ph=c.height/p.rows;
+      var x=p.x*pw+pw/2,y=p.y*ph+ph/2;
+      var g=ctx.createRadialGradient(x,y,0,x,y,p.r);
+      g.addColorStop(0,'rgba(201,168,76,'+p.a+')');
+      g.addColorStop(1,'rgba(201,168,76,0)');
+      ctx.beginPath();ctx.arc(x,y,p.r,0,Math.PI*2);
+      ctx.fillStyle=g;ctx.fill();
+      p.r+=0.88;p.a*=0.961;
+    });
+    pulses=pulses.filter(function(p){return p.r<p.maxR&&p.a>0.018;});
+    requestAnimationFrame(draw);
+  }
+  draw();
+})();
+</script>
+${ORB_HTML}
 ${EBS_FOOTER_HTML}
 </body>
 </html>`;
@@ -764,7 +807,7 @@ document.getElementById('proof-file').addEventListener('change',function(e){
   reader.onload=function(ev){
     fetch('/upload-proof',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({file:ev.target.result,name:file.name,type:file.type,service:'T1019'})})
     .then(function(r){return r.json();})
-    .then(function(d){status.style.color='#6abf4b';status.textContent='\u2713 Proof received \u2014 Ref: '+(d.ref||'CONFIRMED')+'. We will confirm shortly.';})
+    .then(function(d){status.style.color='#6abf4b';status.textContent='\u2713 Ref: '+(d.ref||'CONFIRMED')+' \u2014 Seed planted. Redirecting to Vault...';setTimeout(function(){window.location.href='/vault';},1800);})
     .catch(function(){status.style.color='rgba(201,168,76,.8)';status.textContent='Saved. Email admin@LakesideTrinity.com with your screenshot.';});
   };
   reader.readAsDataURL(file);
@@ -1101,6 +1144,7 @@ const MARKETPLACE_HTML = `<!DOCTYPE html>
   <a href="/community">Community Hub</a> &nbsp;&bull;&nbsp; <a href="/home-care">Home Care Portal</a> &nbsp;&bull;&nbsp; <a href="/family-hub">Family Hub</a>
 </div>
 ${EBS_FOOTER_HTML}
+${ORB_HTML}
 <script>
 function togglePay(id){const el=document.getElementById(id);el.classList.toggle('open');}
 </script>
@@ -1260,6 +1304,8 @@ function tick(){
 }
 tick();setInterval(tick,1000);
 </script>
+${EBS_FOOTER_HTML}
+${ORB_HTML}
 </body>
 </html>`;
 
@@ -1267,6 +1313,88 @@ app.get("/nexus", (_req: Request, res: Response) => {
   res.setHeader("Content-Type", "text/html; charset=utf-8");
   res.setHeader("Cache-Control", "no-store");
   res.send(NEXUS_HTML);
+});
+
+// ── /vault — Frequency Harvest Landing Page ───────────────────────────────
+const VAULT_HTML = `<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8"/>
+  <meta name="viewport" content="width=device-width,initial-scale=1.0,maximum-scale=1.0,user-scalable=no"/>
+  <title>Vault — Frequency Locked — Lakeside Trinity</title>
+  <style>html,body{background:#060a06!important;margin:0;padding:0;font-family:'Segoe UI',Arial,sans-serif;color:#ddd8c4}</style>
+  <link rel="preconnect" href="https://fonts.googleapis.com"/>
+  <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@700;900&display=swap&v=144k" rel="stylesheet"/>
+  <style>
+    *{box-sizing:border-box;margin:0;padding:0}
+    :root{--gold:#c9a84c;--gold-b:#e8c96a;--bg:#060a06;--text:#ddd8c4;--muted:rgba(221,216,196,.45)}
+    body{background:var(--bg);min-height:100vh;display:flex;flex-direction:column;align-items:center;justify-content:center;overflow-x:hidden;position:relative}
+    body::before{content:'';position:fixed;inset:0;background:radial-gradient(ellipse at 50% 30%,rgba(201,168,76,.09),transparent 62%);pointer-events:none;z-index:0}
+    .vault-card{position:relative;z-index:1;background:rgba(14,20,10,.92);border:1px solid rgba(201,168,76,.38);border-radius:24px;padding:56px 48px;max-width:480px;width:calc(100% - 48px);text-align:center;backdrop-filter:blur(24px);box-shadow:0 32px 80px rgba(0,0,0,.5),0 0 60px rgba(201,168,76,.07);margin:32px 24px}
+    .vault-card::before{content:'';position:absolute;inset:0;border-radius:24px;background:radial-gradient(ellipse at 50% 0%,rgba(201,168,76,.1),transparent 58%);pointer-events:none}
+    .vault-label{font-size:.56rem;font-weight:700;letter-spacing:.28em;color:rgba(201,168,76,.5);text-transform:uppercase;margin-bottom:18px;font-family:monospace}
+    .seed-icon{font-size:3.2rem;margin-bottom:22px;display:block;animation:seed-glow 2.2s ease-in-out infinite}
+    @keyframes seed-glow{0%,100%{filter:drop-shadow(0 0 10px rgba(201,168,76,.7))}50%{filter:drop-shadow(0 0 26px rgba(232,201,106,1))}}
+    h1{font-family:'Playfair Display',serif;font-size:2rem;font-weight:900;color:#f0eade;margin-bottom:8px;line-height:1.18}
+    .freq-line{font-family:monospace;font-size:.68rem;color:rgba(201,168,76,.55);letter-spacing:.2em;margin-bottom:32px;text-transform:uppercase}
+    .divider{border:none;border-top:1px solid rgba(201,168,76,.15);margin:0 0 28px}
+    .dl-btn{display:inline-block;padding:16px 36px;background:linear-gradient(135deg,#c9a84c,#e8c96a 60%,#c9a84c);background-size:200% 100%;color:#1a1000;border:none;border-radius:50px;font-weight:800;font-size:.84rem;letter-spacing:.12em;text-transform:uppercase;font-family:'Segoe UI',sans-serif;cursor:pointer;text-decoration:none;box-shadow:0 6px 28px rgba(201,168,76,.45),0 2px 10px rgba(201,168,76,.25);animation:dl-breathe 2.8s ease-in-out infinite;transition:box-shadow .2s}
+    .dl-btn:hover{box-shadow:0 12px 44px rgba(201,168,76,.65)}
+    @keyframes dl-breathe{0%,100%{box-shadow:0 6px 28px rgba(201,168,76,.45),0 2px 10px rgba(201,168,76,.25)}50%{box-shadow:0 10px 44px rgba(232,201,106,.7),0 4px 18px rgba(201,168,76,.4)}}
+    .back-link{margin-top:22px;display:block;font-size:.72rem;color:rgba(201,168,76,.38);text-decoration:none;letter-spacing:.06em;transition:color .2s}
+    .back-link:hover{color:rgba(201,168,76,.75)}
+    @media(max-width:480px){.vault-card{padding:36px 22px}}
+  </style>
+</head>
+<body>
+<div class="vault-card">
+  <div class="vault-label">// Frequency Vault &bull; ALPHA-17 &bull; Lock Confirmed</div>
+  <span class="seed-icon">&#127381;</span>
+  <h1>Seed Planted.<br/>Frequency Locked.</h1>
+  <div class="freq-line">197.0 Hz &nbsp;&bull;&nbsp; Restoration Active &nbsp;&bull;&nbsp; STX42220</div>
+  <hr class="divider"/>
+  <a href="/vault/download" class="dl-btn" download>&#11015;&nbsp;&nbsp;Download Frequency Pack</a>
+  <a href="/marketplace" class="back-link">&larr; Return to Sovereign Portal</a>
+</div>
+${ORB_HTML}
+${EBS_FOOTER_HTML}
+</body>
+</html>`;
+
+app.get("/vault", (_req: Request, res: Response) => {
+  res.setHeader("Content-Type", "text/html; charset=utf-8");
+  res.setHeader("Cache-Control", "no-store");
+  res.send(VAULT_HTML);
+});
+
+app.get("/vault/download", (_req: Request, res: Response) => {
+  const pack = [
+    "╔══════════════════════════════════════════════╗",
+    "║  LAKESIDE TRINITY — SOVEREIGNTY FREQ PACK   ║",
+    "║  Phase: ALPHA-17  |  197.0 Hz  |  LOCKED    ║",
+    "╚══════════════════════════════════════════════╝",
+    "",
+    "FREQUENCY LOCK  : 197.0 Hz",
+    "PHASE           : ALPHA-17",
+    "SEED STATUS     : PLANTED",
+    "RESTORATION     : ACTIVE",
+    "NPI             : 1346233350",
+    "ACCOUNT         : STX42220",
+    "OPERATOR        : Lakeside Trinity LLC",
+    "LOCATION        : Webster, WI 54893",
+    "",
+    "CORE VALUES LOCKED. SYSTEM 100% OPERATIONAL.",
+    "PAYROLL SECURED. SOVEREIGN GENESIS HEARTBEAT ACTIVE.",
+    "",
+    "Contact : admin@LakesideTrinity.com",
+    "CashApp : $LakesideTrinity",
+    "Zelle   : admin@LakesideTrinity.com",
+    "",
+    "— The Architect, Lakeside Trinity LLC",
+  ].join("\n");
+  res.setHeader("Content-Type", "text/plain; charset=utf-8");
+  res.setHeader("Content-Disposition", `attachment; filename="LakesideTrinity-FrequencyPack-${Date.now()}.txt"`);
+  res.send(pack);
 });
 
 // ── Community Hub — /community ──────────────────────────────────────────────
