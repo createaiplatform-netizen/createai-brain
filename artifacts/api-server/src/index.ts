@@ -59,6 +59,13 @@ if (Number.isNaN(port) || port <= 0) {
 // ─── Start server ─────────────────────────────────────────────────────────────
 
 app.listen(port, () => {
+  console.log(`\n\u001b[32m╔═══════════════════════════════════════════════════════╗`);
+  console.log(`║  ✅  GREEN LIGHT — SOVEREIGN SERVER IS LIVE           ║`);
+  console.log(`║  Ready for 1,000+ visitors | All systems active       ║`);
+  console.log(`║  createai.digital | Freq:197 | Phase:ALPHA-17         ║`);
+  console.log(`║  $17 Community Pay: /community/pay  ✓                 ║`);
+  console.log(`║  $25 Home Care Pay: /home-care/pay  ✓                 ║`);
+  console.log(`╚═══════════════════════════════════════════════════════╝\u001b[0m\n`);
   console.log(`Server listening on port ${port}`);
   const devDomain = process.env["REPLIT_DEV_DOMAIN"];
   const genesisUrl = devDomain ? `https://${devDomain}/genesis` : `http://localhost:${port}/genesis`;

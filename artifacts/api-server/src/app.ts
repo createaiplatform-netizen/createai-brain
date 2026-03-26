@@ -603,7 +603,7 @@ const HOME_CARE_FORM = `<!DOCTYPE html>
 <html lang="en">
 <head>
   <meta charset="UTF-8"/>
-  <meta name="viewport" content="width=device-width,initial-scale=1"/>
+  <meta name="viewport" content="width=device-width,initial-scale=1.0,maximum-scale=1.0,user-scalable=no"/>
   <title>Webster Home Care — Sovereign Health Portal</title>
   <style>html,body{background:#060a06!important;margin:0;padding:0;font-family:'Segoe UI',Arial,sans-serif;color:#ddd8c4}</style>
   <link rel="preconnect" href="https://fonts.googleapis.com"/>
@@ -633,7 +633,7 @@ const HOME_CARE_FORM = `<!DOCTYPE html>
     button:hover{background:rgba(201,168,76,.22)}
     @keyframes pulse-glow{0%,100%{box-shadow:0 0 12px rgba(201,168,76,.35),0 0 24px rgba(201,168,76,.1)}50%{box-shadow:0 0 22px rgba(201,168,76,.7),0 0 44px rgba(201,168,76,.25),0 0 66px rgba(201,168,76,.08)}}
     .npi{color:rgba(201,168,76,.3);font-size:.7rem;text-align:center;margin-top:20px;letter-spacing:.04em}
-    @media(max-width:768px){.glass-card{backdrop-filter:blur(8px)!important;-webkit-backdrop-filter:blur(8px)!important;background:rgba(12,20,10,.99)!important}body::before{display:none}}
+    @media(max-width:768px){.glass-card{backdrop-filter:blur(8px)!important;-webkit-backdrop-filter:blur(8px)!important;background:rgba(12,20,10,.99)!important;box-shadow:0 8px 20px rgba(0,0,0,.4)!important;padding:28px 18px!important}.glass-card::before{display:none!important}body::before{display:none}button{animation:none!important;box-shadow:0 0 8px rgba(201,168,76,.3)!important}}
   </style>
 </head>
 <body>
@@ -669,7 +669,7 @@ const HOME_CARE_SUCCESS_PAGE = (email: string) => `<!DOCTYPE html>
 <html lang="en">
 <head>
   <meta charset="UTF-8"/>
-  <meta name="viewport" content="width=device-width,initial-scale=1"/>
+  <meta name="viewport" content="width=device-width,initial-scale=1.0,maximum-scale=1.0,user-scalable=no"/>
   <title>Secure Transaction — Webster Home Care</title>
   <style>html,body{background:#060a06!important;margin:0;padding:0;font-family:'Segoe UI',Arial,sans-serif;color:#ddd8c4}</style>
   <link rel="preconnect" href="https://fonts.googleapis.com"/>
@@ -743,6 +743,13 @@ app.get("/home-care", (_req: Request, res: Response) => {
   res.send(HOME_CARE_FORM);
 });
 
+// ── /home-care/pay — direct payment page (zero friction) ──────────────────────
+app.get("/home-care/pay", (_req: Request, res: Response) => {
+  res.setHeader("Content-Type", "text/html; charset=UTF-8");
+  res.setHeader("Cache-Control", "no-store");
+  res.send(HOME_CARE_SUCCESS_PAGE(""));
+});
+
 app.post("/home-care/submit", (req: Request, res: Response) => {
   const email = (req.body?.email || "").trim();
   if (!email) { res.redirect("/home-care"); return; }
@@ -755,7 +762,7 @@ const MARKETPLACE_HTML = `<!DOCTYPE html>
 <html lang="en">
 <head>
   <meta charset="UTF-8"/>
-  <meta name="viewport" content="width=device-width,initial-scale=1"/>
+  <meta name="viewport" content="width=device-width,initial-scale=1.0,maximum-scale=1.0,user-scalable=no"/>
   <title>Sovereign Command Center — Lakeside Trinity</title>
   <!-- little-ai: marketplace-root | phase: alpha-17 | status: active -->
   <style>html,body{background:#060a06!important;margin:0;padding:0;font-family:'Segoe UI',Arial,sans-serif;color:#ddd8c4}</style>
@@ -847,7 +854,7 @@ const MARKETPLACE_HTML = `<!DOCTYPE html>
     .page-footer a{color:rgba(201,168,76,.38);text-decoration:none}
     .page-footer a:hover{color:rgba(201,168,76,.65)}
     main{position:relative;z-index:1;padding-bottom:80px}
-    @media(max-width:768px){.portal-card,.dept-card,.kit-card,.community-glass,.gift-glass{backdrop-filter:blur(8px)!important;-webkit-backdrop-filter:blur(8px)!important;background:rgba(12,20,10,.99)!important}.portal-card:hover{transform:none}body::before{display:none}.portals{gap:16px}.portal-amount{font-size:2.6rem}}
+    @media(max-width:768px){.portal-card,.dept-card,.kit-card,.community-glass,.gift-glass{backdrop-filter:blur(8px)!important;-webkit-backdrop-filter:blur(8px)!important;background:rgba(12,20,10,.99)!important;box-shadow:0 4px 16px rgba(0,0,0,.35)!important}.portal-card::before,.dept-card::before{display:none!important}.portal-card:hover{transform:none}body::before{display:none}.portals{gap:16px}.portal-amount{font-size:2.6rem}.portal-btn,.kit-btn,.dept-btn{animation:none!important;box-shadow:0 0 8px rgba(201,168,76,.3)!important}}
   </style>
 </head>
 <body>
@@ -889,8 +896,8 @@ const MARKETPLACE_HTML = `<!DOCTYPE html>
       <div class="portal-amount">$17</div>
       <div class="portal-code">CREATIVE_HUB &bull; EMPIRE_ENTRY &bull; LOCK_FREQ</div>
       <div class="portal-desc">Your entry into the sovereign economy. Empire starter kits, creative tools for young builders, and family wealth blueprints.</div>
-      <!-- little-ai: humanity-seed-btn | action: community | status: active -->
-      <a href="/community" class="portal-btn">Enter Community Portal &rarr;</a>
+      <!-- little-ai: humanity-seed-btn | action: community/pay | status: active -->
+      <a href="/community/pay" class="portal-btn">Enter Community Portal &rarr;</a>
     </div>
     <!-- little-ai: professional-sovereign | service: T1019 | npi: 1346233350 | status: active -->
     <div class="portal-card">
@@ -900,8 +907,8 @@ const MARKETPLACE_HTML = `<!DOCTYPE html>
       <div class="portal-amount">$25</div>
       <div class="portal-code">HOME_HEALTH_AIDE &bull; MEDICAID &bull; EVV_READY</div>
       <div class="portal-desc">Medicaid-compliant home health aide services. NPI-verified, EVV-ready, Wisconsin certified.</div>
-      <!-- little-ai: professional-sovereign-btn | action: home-care | status: active -->
-      <a href="/home-care" class="portal-btn">Open Health Portal &rarr;</a>
+      <!-- little-ai: professional-sovereign-btn | action: home-care/pay | status: active -->
+      <a href="/home-care/pay" class="portal-btn">Open Health Portal &rarr;</a>
     </div>
   </div>
 
@@ -1047,7 +1054,7 @@ const COMMUNITY_HTML = `<!DOCTYPE html>
 <html lang="en">
 <head>
   <meta charset="UTF-8"/>
-  <meta name="viewport" content="width=device-width,initial-scale=1"/>
+  <meta name="viewport" content="width=device-width,initial-scale=1.0,maximum-scale=1.0,user-scalable=no"/>
   <title>197 Community Resource Hub — Lakeside Trinity</title>
   <!-- little-ai: community-root | frequency: 197 | status: active | phase: alpha-17 -->
   <style>html,body{background:#060a06!important;margin:0;padding:0;font-family:'Segoe UI',Arial,sans-serif;color:#ddd8c4}</style>
@@ -1208,6 +1215,81 @@ app.get("/community", (_req: Request, res: Response) => {
   res.send(COMMUNITY_HTML);
 });
 
+// ── /community/pay — $17 direct payment page (zero friction) ──────────────────
+app.get("/community/pay", (_req: Request, res: Response) => {
+  res.setHeader("Content-Type", "text/html; charset=UTF-8");
+  res.setHeader("Cache-Control", "no-store");
+  res.send(`<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8"/>
+  <meta name="viewport" content="width=device-width,initial-scale=1.0,maximum-scale=1.0,user-scalable=no"/>
+  <title>$17 Lock Frequency — 197 Community Kit</title>
+  <style>html,body{background:#060a06!important;margin:0;padding:0;font-family:'Segoe UI',Arial,sans-serif;color:#ddd8c4}</style>
+  <link rel="preconnect" href="https://fonts.googleapis.com"/>
+  <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@700;900&display=swap&v=144k" rel="stylesheet"/>
+  <style>
+    *{box-sizing:border-box;margin:0;padding:0}
+    :root{--gold:#c9a84c;--gold-b:#e8c96a;--bg:#060a06;--text:#ddd8c4;--muted:rgba(221,216,196,.45)}
+    body{font-family:'Segoe UI',Arial,sans-serif;background:var(--bg);min-height:100vh;display:flex;align-items:center;justify-content:center;padding:24px}
+    body::before{content:'';position:fixed;inset:0;background:radial-gradient(ellipse at 50% 30%,rgba(201,168,76,.07),transparent 60%);pointer-events:none;z-index:0}
+    .glass-card{position:relative;z-index:1;background:rgba(16,24,12,.9);border:1px solid rgba(201,168,76,.3);border-radius:20px;padding:44px 40px;max-width:490px;width:100%;backdrop-filter:blur(20px);box-shadow:0 32px 80px rgba(0,0,0,.5),0 0 60px rgba(201,168,76,.06);text-align:center}
+    .check{font-size:2.4rem;color:var(--gold);margin-bottom:12px}
+    h1{font-family:'Playfair Display',serif;font-size:1.9rem;color:var(--gold-b);margin-bottom:6px;font-weight:900}
+    .amount{font-family:'Playfair Display',serif;font-size:3.4rem;font-weight:900;color:var(--gold-b);margin:16px 0 4px;letter-spacing:-.01em}
+    .service{font-size:.72rem;color:rgba(201,168,76,.55);letter-spacing:.12em;text-transform:uppercase;margin-bottom:24px}
+    hr{border:none;border-top:1px solid rgba(201,168,76,.18);margin:24px 0}
+    .secure-box{position:relative;background:rgba(6,10,4,.82);border:1.5px solid rgba(201,168,76,.38);border-radius:14px;padding:26px 28px;text-align:left;margin-bottom:24px}
+    .secure-title{font-size:.65rem;font-weight:700;letter-spacing:.18em;text-transform:uppercase;color:rgba(201,168,76,.5);margin-bottom:16px}
+    .pay-method{display:flex;align-items:center;gap:14px;margin-bottom:14px}
+    .pay-method:last-child{margin-bottom:0}
+    .pay-icon{width:38px;height:38px;border-radius:10px;background:rgba(201,168,76,.1);border:1px solid rgba(201,168,76,.22);display:flex;align-items:center;justify-content:center;font-weight:900;font-size:.78rem;color:var(--gold);flex-shrink:0}
+    .pay-label{font-size:.7rem;color:var(--muted);letter-spacing:.06em;text-transform:uppercase;margin-bottom:2px}
+    .pay-handle{color:rgba(201,168,76,.85);font-size:.9rem;font-family:monospace;font-weight:700}
+    .memo{color:rgba(201,168,76,.38);font-size:.68rem;margin-top:7px;font-style:italic}
+    .back-link{display:inline-flex;align-items:center;gap:8px;padding:12px 26px;background:rgba(201,168,76,.08);color:rgba(201,168,76,.68);text-decoration:none;border-radius:10px;font-size:.82rem;font-weight:600;border:1px solid rgba(201,168,76,.22);transition:background .2s}
+    .back-link:hover{background:rgba(201,168,76,.16);color:var(--gold)}
+    .ai-badge{display:inline-flex;align-items:center;gap:6px;padding:5px 13px;background:rgba(90,140,74,.12);border:1px solid rgba(90,140,74,.3);border-radius:30px;font-size:.65rem;font-weight:700;letter-spacing:.1em;text-transform:uppercase;color:rgba(90,140,74,.85);margin-bottom:20px;animation:ai-pulse 3s ease-in-out infinite}
+    @keyframes ai-pulse{0%,100%{box-shadow:0 0 6px rgba(90,140,74,.2)}50%{box-shadow:0 0 14px rgba(90,140,74,.45),0 0 22px rgba(90,140,74,.12)}}
+    .npi{color:rgba(201,168,76,.3);font-size:.7rem;margin-top:20px;letter-spacing:.04em}
+    @media(max-width:768px){.glass-card{backdrop-filter:blur(8px)!important;-webkit-backdrop-filter:blur(8px)!important;background:rgba(12,20,10,.99)!important;box-shadow:0 8px 20px rgba(0,0,0,.4)!important;padding:32px 22px}.glass-card::before{display:none}body::before{display:none}.amount{font-size:2.8rem}.back-link{animation:none!important}}
+  </style>
+</head>
+<body>
+<div class="glass-card">
+  <div class="check">&#10003;</div>
+  <div class="ai-badge">&#10003; Little AI: Authenticated</div>
+  <h1>Lock Frequency Access</h1>
+  <div class="amount">$17.00</div>
+  <div class="service">197 Community Kit &mdash; Lock Frequency &mdash; Sovereignty Seed</div>
+  <hr/>
+  <div class="secure-box">
+    <div class="secure-title">&#128274; Secure Payment — Choose One</div>
+    <div class="pay-method">
+      <div class="pay-icon">C$</div>
+      <div>
+        <div class="pay-label">CashApp</div>
+        <div class="pay-handle">$LakesideTrinity</div>
+        <div class="memo">Memo: Community Kit &bull; $17.00 &bull; your email</div>
+      </div>
+    </div>
+    <div class="pay-method">
+      <div class="pay-icon">Z</div>
+      <div>
+        <div class="pay-label">Zelle</div>
+        <div class="pay-handle">admin@LakesideTrinity.com</div>
+        <div class="memo">Memo: Community Kit &bull; $17.00 &bull; your email</div>
+      </div>
+    </div>
+  </div>
+  <a href="/community" class="back-link">&larr; Back to Community Hub</a>
+  <div class="npi">Lakeside Trinity LLC &nbsp;&bull;&nbsp; 197 Frequency Active &nbsp;&bull;&nbsp; Webster, WI 54893</div>
+</div>
+${EBS_FOOTER_HTML}
+</body>
+</html>`);
+});
+
 // ── Family Hub — Creative Hub & Dream Board ────────────────────────────────
 const GLOBAL_DEPARTMENTS = [
   { id: "healthcare",   label: "Healthcare",    desc: "Webster Home Care · HealthOS · Medicaid EVV · NPI 1346233350" },
@@ -1220,7 +1302,7 @@ const FAMILY_HUB_HTML = `<!DOCTYPE html>
 <html lang="en">
 <head>
   <meta charset="UTF-8"/>
-  <meta name="viewport" content="width=device-width,initial-scale=1"/>
+  <meta name="viewport" content="width=device-width,initial-scale=1.0,maximum-scale=1.0,user-scalable=no"/>
   <title>Family Hub — Lakeside Trinity</title>
   <style>
     *{box-sizing:border-box;margin:0;padding:0}
