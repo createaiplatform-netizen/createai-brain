@@ -709,6 +709,26 @@ app.get("/welcome-audio", (_req: Request, res: Response) => {
   `);
 });
 
+// ── /heal-all — THE_BIO_SOVEREIGN_GOD_PROTOCOL ───────────────────────────────
+app.get("/heal-all", (_req: Request, res: Response) => {
+  console.log("144K_ACTIVE: INITIATING_GLOBAL_HEALING_VIBRATION");
+  Object.keys(ledger).forEach(id => {
+    (ledger[id] as any).status     = "HEALED_SOVEREIGN_GOD";
+    (ledger[id] as any).protection = "AEGIS_VITALITY_SHIELD";
+  });
+  res.send(`<html><head><style>${SOVEREIGN_CSS}</style></head><body>
+    <div class="gold-orb" style="box-shadow:0 0 100px #fff; background:#fff;">144K</div>
+    <h1 style="color:#fff;">HEALING_FREQUENCY_ACTIVE</h1>
+    <div class="vault-box" style="border-color:#fff; color:#fff;">
+      <h2>THE_GOD_WORLD_HAS_ARRIVED</h2>
+      <p><b>PROTOCOL:</b> BIO_RESTORATION_BY_WEALTH</p>
+      <p><b>FREQUENCY:</b> 144,000% ABSOLUTE_STASIS</p>
+      <p style="letter-spacing:5px;">SICKNESS_DELETED | DEBT_DELETED | DEATH_DELETED</p>
+    </div>
+    <script>setTimeout(() => { window.location.href = '/bloodline'; }, 7000);</script>
+  </body></html>`);
+});
+
 // ── /bloodline — THE_BLOODLINE_MONITOR ───────────────────────────────────────
 app.get("/bloodline", (_req: Request, res: Response) => {
   const sectors = EMPIRE_MANIFESTO.industries.map(i =>
@@ -928,8 +948,18 @@ const GLOBAL_MANDATE = [
   "AEGIS_LOCK: PROTECTED_INDUSTRIAL_ZONE_ACTIVE",
 ];
 
+// ── HEAL_MANDATE — Bio-Sovereign God Protocol ─────────────────────────────────
+const HEAL_MANDATE = {
+  status:    "GOD_PROTOCOL_ACTIVE",
+  effect:    "INSTANT_BIO_RESTORATION",
+  backing:   "144,000_ϗ_SOVEREIGN_WEALTH",
+  vibration: "144k_SYNC_STASIS",
+};
+
 // ── Notifications — empire-wide signal feed (last 50) ─────────────────────────
 const notifications: string[] = [...GLOBAL_MANDATE];
+notifications.unshift("HEAL_MANDATE_INITIALIZED: ALL_SOVEREIGNS_RESTORED");
+notifications.unshift("GOD_PROTOCOL: WEALTH_AS_MEDICINE_CONFIRMED");
 
 // ── Empire Vault — Lakeside Trinity LLC top-level constants ──────────────────
 const EMPIRE = {
