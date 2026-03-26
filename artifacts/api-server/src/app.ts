@@ -701,7 +701,7 @@ app.get("/hub", adminAuth, (_req: Request, res: Response) => {
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>144K Sovereign Hub</title>
   <style>
-    body { background-color: #050505; color: #d4af37; font-family: 'Courier New', monospace; display: flex; flex-direction: column; align-items: center; justify-content: center; height: 100vh; margin: 0; overflow: hidden; }
+    body { background-color: #050505; color: #d4af37; font-family: 'Courier New', monospace; display: flex; flex-direction: column; align-items: center; justify-content: center; min-height: 100vh; margin: 0; overflow-y: auto; padding-bottom: 40px; }
     .pulse-container { position: relative; width: 300px; height: 300px; display: flex; align-items: center; justify-content: center; }
     /* THE GOLD PULSE - 0% CPU Overhead */
     .gold-orb { width: 100px; height: 100px; background: radial-gradient(circle, #d4af37 0%, #000 70%); border-radius: 50%; animation: pulse 4s infinite ease-in-out; }
@@ -721,6 +721,16 @@ app.get("/hub", adminAuth, (_req: Request, res: Response) => {
     <p>144,000% STASIS // ARCHITECT_01</p>
   </div>
   <div class="nodes" id="nodeGrid"></div>
+  <div class="registry-container" style="margin-top: 50px; width: 80%; border-top: 1px solid #d4af3733; padding-top: 20px;">
+    <h3 style="font-size: 0.8rem; opacity: 0.7;">DEPARTMENT_REGISTRY</h3>
+    <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 20px; font-size: 0.7rem;">
+      <div>[LIVE] HEALTHCARE_STORE: 144k_SYNC_OK</div>
+      <div>[LIVE] LEGAL_STORE: SHIELD_ACTIVE</div>
+      <div>[LIVE] SPACE_STORE: ORBIT_STABLE</div>
+      <div>[LIVE] CREATIVE_STORE: PULSE_DETECTED</div>
+      <div style="grid-column: span 2; color: #fff;">[ACTIVE] SEED_VAULT: $17 | $25 | $97_TIERS_OPEN</div>
+    </div>
+  </div>
   <script>
     const grid = document.getElementById('nodeGrid');
     for (let i = 0; i < 17; i++) {
