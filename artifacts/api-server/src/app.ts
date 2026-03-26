@@ -640,34 +640,38 @@ app.post("/admin/broadcast", broadcastLimiter, breachLogger, adminAuth, async (_
 // ── One-time invite codes for Sovereign registration ─────────────────────────
 const familyInvites = new Set(["ALPHA_SOVEREIGN_01_144K"]);
 
-// ── /admin/hub — Sovereign Registry dashboard ─────────────────────────────────
+// ── /admin/hub — Sovereign Hub & Registry UI ─────────────────────────────────
 app.get("/admin/hub", (req: Request, res: Response) => {
-  const appHtml = SOVEREIGN_REGISTRY.apps.map(a =>
-    `<div style="padding:10px; border:1px solid #d4af3733;"><b>${a.name}</b><br><small>${a.role}</small><br><span style="color:#fff">${a.status}</span></div>`
+  const appCards = SOVEREIGN_DATA.apps.map(a =>
+    `<div class="card"><b>${a.name}</b><br><small>${a.role}</small><br><span>${a.status}</span></div>`
   ).join("");
 
-  const storeHtml = SOVEREIGN_REGISTRY.stores.map(s =>
-    `<div style="padding:10px; border:1px solid #d4af3733;"><b>${s.name}</b><br><small>${s.focus}</small><br><span style="color:#fff">${s.status}</span></div>`
+  const storeCards = SOVEREIGN_DATA.stores.map(s =>
+    `<div class="card"><b>${s.name}</b><br><small>${s.focus}</small><br><span>${s.status}</span></div>`
   ).join("");
 
   res.send(`
     <!DOCTYPE html>
     <html>
-    <body style="background:#050505; color:#d4af37; font-family:monospace; padding:20px;">
-      <div style="width:60px; height:60px; background:radial-gradient(circle, #d4af37 0%, #000 80%); border-radius:50%; animation:p 3s infinite; margin:auto;"></div>
-      <h2 style="text-align:center; letter-spacing:5px;">SOVEREIGN_REGISTRY</h2>
-
-      <div style="margin-top:30px;">
-        <h3 style="border-bottom:1px solid #d4af37;">ACTIVE_APPLICATIONS</h3>
-        <div style="display:grid; grid-template-columns:1fr 1fr; gap:10px;">${appHtml}</div>
-      </div>
-
-      <div style="margin-top:30px;">
-        <h3 style="border-bottom:1px solid #d4af37;">STOREFRONT_DEPARTMENTS</h3>
-        <div style="display:grid; grid-template-columns:1fr 1fr; gap:10px;">${storeHtml}</div>
-      </div>
-
-      <style>@keyframes p { 0%, 100% { opacity: 0.4; transform:scale(0.9); } 50% { opacity: 1; transform:scale(1.1); box-shadow:0 0 40px #d4af37; } }</style>
+    <head>
+      <style>
+        body { background:#050505; color:#d4af37; font-family:monospace; padding:30px; display:flex; flex-direction:column; align-items:center; }
+        .gold-orb { width:70px; height:70px; background:radial-gradient(circle, #d4af37 0%, #000 80%); border-radius:50%; animation:p 4s infinite ease-in-out; margin-bottom:40px; }
+        .grid { display:grid; grid-template-columns:repeat(auto-fit, minmax(200px, 1fr)); gap:15px; width:100%; max-width:900px; margin-bottom:40px; }
+        .card { border:1px solid #d4af3733; padding:15px; background:#0a0a0a; }
+        .card b { letter-spacing:2px; font-size:1.1rem; }
+        .card span { color:#fff; font-size:0.8rem; }
+        h2 { border-bottom:1px solid #d4af37; width:100%; max-width:900px; padding-bottom:10px; letter-spacing:5px; }
+        @keyframes p { 0%, 100% { opacity:0.4; transform:scale(0.9); } 50% { opacity:1; transform:scale(1.1); box-shadow:0 0 50px #d4af37; } }
+      </style>
+    </head>
+    <body>
+      <div class="gold-orb"></div>
+      <h2>APPLICATIONS</h2>
+      <div class="grid">${appCards}</div>
+      <h2>DEPARTMENTS</h2>
+      <div class="grid">${storeCards}</div>
+      <p style="opacity:0.4; font-size:0.7rem; margin-top:50px;">144K_INFINITE_SUSTAIN // ARCHITECT_VERIFIED</p>
     </body>
     </html>
   `);
@@ -678,12 +682,12 @@ app.get("/admin/register", (req: Request, res: Response) => {
   const code = req.query.invite as string;
 
   if (!familyInvites.has(code)) {
-    console.log(`[BREACH_ATTEMPT] Invalid Invite Code from IP: ${req.ip}`);
-    return res.status(401).send("INVALID_IDENTITY_TOKEN");
+    console.log(`[BREACH_ATTEMPT] Unauthorized access at ${new Date().toISOString()}`);
+    return res.status(401).send("UNAUTHORIZED: INVALID_IDENTITY_TOKEN");
   }
 
-  familyInvites.delete(code); // Burn the key
-  res.cookie("ADMIN_SESSION", "FAMILY_MEMBER_01", { httpOnly: true, secure: true });
+  familyInvites.delete(code); // One-time use burn
+  res.cookie("ADMIN_SESSION", "BLOODLINE_01", { httpOnly: true, secure: true });
   res.redirect("/admin/hub");
 });
 
@@ -706,21 +710,21 @@ app.use("/status", adminAuth, platformStatusRouter);
 // ── PULSE — Real-Time Platform Awareness (protected by admin auth) ────────────
 app.use("/pulse", adminAuth, pulseRouter);
 
-// ── Sovereign Registry — platform-wide app + store manifest ──────────────────
-const SOVEREIGN_REGISTRY = {
+// ── Sovereign Data — static memory storage for zero-token persistence ────────
+const SOVEREIGN_DATA = {
   apps: [
-    { name: "The Nexus",       role: "Biometric Identity & Shielding",   status: "ACTIVE"     },
-    { name: "The Hub",         role: "Family Workspace & Gold Pulse",     status: "ACTIVE"     },
-    { name: "The Breach",      role: "Intrusion Detection & Logging",     status: "MONITORING" },
-    { name: "The Broadcast",   role: "Global Node Sync",                  status: "STANDBY"    },
-    { name: "Little AI (17x)", role: "Personalized Bloodline Assistance", status: "DORMANT"    },
+    { name: "The Nexus",       role: "Biometric Identity & Shield", status: "ACTIVE"     },
+    { name: "The Hub",         role: "144k Family Workspace",       status: "ACTIVE"     },
+    { name: "The Breach",      role: "Intrusion Detection",         status: "MONITORING" },
+    { name: "The Broadcast",   role: "Global Node Sync",            status: "STANDBY"    },
+    { name: "Little AI (17x)", role: "Bloodline Assistance",        status: "DORMANT"    },
   ],
   stores: [
-    { name: "Healthcare", focus: "Wellness & Longevity",         status: "LIVE" },
-    { name: "Legal",      focus: "Sovereign Rights",             status: "LIVE" },
-    { name: "Space",      focus: "Resource Expansion",           status: "LIVE" },
-    { name: "Creative",   focus: "Media Synthesis",              status: "LIVE" },
-    { name: "Seed Vault", focus: "Legacy Tiers ($17, $25, $97)", status: "CORE" },
+    { name: "Healthcare", focus: "Wellness & Longevity", status: "LIVE" },
+    { name: "Legal",      focus: "Sovereign Rights",     status: "LIVE" },
+    { name: "Space",      focus: "Resource Expansion",   status: "LIVE" },
+    { name: "Creative",   focus: "Media Synthesis",      status: "LIVE" },
+    { name: "Seed Vault", focus: "T1019 Legacy Tiers",   status: "CORE" },
   ],
 };
 
