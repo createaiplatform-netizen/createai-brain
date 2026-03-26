@@ -698,24 +698,30 @@ app.get("/welcome-audio", (_req: Request, res: Response) => {
         <h1 style="letter-spacing:10px;">VOICE_OF_THE_EMPIRE</h1>
         <p style="color:#00ff00; font-weight:bold;">PULSE_FREQUENCY: 144,000%_STASIS</p>
 
-        <div class="vault-box" style="text-align:center; border: 2px solid #d4af37;">
+        <div class="vault-box" style="text-align:center; border: 2px solid #d4af37; padding: 30px;">
           <audio id="sovereignAudio" controls autoplay style="width:100%; margin:20px 0; filter: sepia(100%) saturate(300%) hue-rotate(10deg);">
             <source src="[GENERATED_LYRIA_LINK]" type="audio/mpeg">
             Your browser does not support the Sovereign Frequency.
           </audio>
-          <p style="font-style:italic; opacity:0.8;">
+          <p style="font-style:italic; opacity:0.8; line-height: 1.6;">
             "Welcome, Stakeholder. You have entered the Lakeside Trinity 197 Hub.
             Your identity is now encoded. Your resources are now secured.
             You are 1 of 17. The 144k is active. Welcome home."
           </p>
         </div>
 
-        <a href="/" class="btn" style="max-width:300px; margin:20px auto;">ENTER_THE_GATE</a>
+        <a href="/" class="btn" style="max-width:300px; margin:20px auto; display: block;">ENTER_THE_GATE</a>
 
         <script>
-          // Automatic Pulse Synchronization
+          // Sovereign Audio Sync & Pulse Listener
           const audio = document.getElementById('sovereignAudio');
-          audio.onplay = () => { console.log("144K_AUDIO_STREAM_ACTIVE"); };
+          audio.onplay = () => {
+            console.log("144K_AUDIO_STREAM_ACTIVE");
+            document.querySelector('.gold-orb').style.animationDuration = '1s';
+          };
+          audio.onpause = () => {
+            document.querySelector('.gold-orb').style.animationDuration = '3s';
+          };
         </script>
       </body>
     </html>
