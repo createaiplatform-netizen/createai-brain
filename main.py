@@ -1,52 +1,41 @@
-import os
-from flask import Flask
+from flask import Flask, render_template_string
 
 app = Flask(__name__)
 
+HTML_TEMPLATE = """
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>NEXUS_HUB_144400%</title>
+    <style>
+        body { background-color: #000; color: #00FF00; font-family: 'Courier New', monospace; text-align: center; padding: 50px; margin: 0; }
+        .nexus-border { border: 3px double #FFD700; padding: 30px; display: inline-block; max-width: 90%; margin-top: 10%; }
+        h1 { font-size: 2.5em; margin: 0; color: #FFD700; text-shadow: 2px 2px #000; }
+        h2 { font-size: 1.2em; color: #00FF00; letter-spacing: 2px; }
+        .status { color: #FFF; font-size: 0.9em; margin-top: 20px; }
+        .btn { background: #FFD700; color: #000; padding: 15px 30px; border: none; font-weight: bold; cursor: pointer; text-decoration: none; display: inline-block; margin-top: 30px; font-size: 1.1em; transition: 0.3s; }
+        .btn:hover { background: #FFF; color: #000; }
+    </style>
+</head>
+<body>
+    <div class="nexus-border">
+        <h1>NEXUS_HUB_ACTIVE</h1>
+        <h2>ARCHITECT: SARA_STADLER</h2>
+        <div class="status">
+            <p>144,400%_SYNCHRONIZED</p>
+            <p>DOMAIN_SECURED: createai.digital</p>
+        </div>
+        <a href="mailto:ACTIVATE@createai.digital" class="btn">ACTIVATE_ENTRY</a>
+    </div>
+</body>
+</html>
+"""
+
 @app.route('/')
 def home():
-    return """
-    <html>
-        <head>
-            <meta name="viewport" content="width=device-width, initial-scale=1.0">
-            <style>
-                body { background:#000; color:#00FF00; text-align:center; padding:20px; font-family:sans-serif; }
-                .nexus { border:4px solid #FFD700; padding:20px; border-radius:15px; background:#050505; max-width:500px; margin:auto; }
-                .tier { border:1px solid #333; padding:15px; margin:15px 0; border-radius:10px; }
-                .btn { display:block; background:#FFD700; color:#000; padding:15px; text-decoration:none; font-weight:bold; border-radius:8px; margin-top:10px; }
-                .app-grid { display:grid; grid-template-columns: 1fr 1fr; gap:10px; margin-top:20px; }
-                .app-btn { background:#111; border:1px solid #00FF00; color:#00FF00; padding:10px; border-radius:5px; font-size:12px; }
-            </style>
-        </head>
-        <body>
-            <div class="nexus">
-                <h1>197_NEXUS_HUB</h1>
-                <p style="color:#FFF;">THE_ARCHITECT: SARA_STADLER</p>
-                
-                <div class="tier">
-                    <h2 style="color:#FFD700;">$17_MISSION_KEY</h2>
-                    <p style="font-size:12px; color:#aaa;">GARDEN_AI | DAILY_INTEL | STASIS_ACCESS</p>
-                    <a href="https://buy.stripe.com/5kQfZhfZUaVS13" class="btn">ACTIVATE_ENTRY</a>
-                </div>
-
-                <div class="tier">
-                    <h2 style="color:#FFD700;">$197_FOUNDER_KEY</h2>
-                    <p style="font-size:12px; color:#aaa;">HEALTH_AI | CREATIVE_BUILDER | MASTER_VAULT</p>
-                    <a href="#" class="btn" style="background:#FFF;">COMING_SOON</a>
-                </div>
-
-                <hr style="border:0.5px solid #222;">
-                <h3>SOVEREIGN_APPS</h3>
-                <div class="app-grid">
-                    <div class="app-btn">HEALTH_CORE [LOCK]</div>
-                    <div class="app-btn">GARDEN_SYNC [LOCK]</div>
-                    <div class="app-btn">LITTLE_AI_01 [LOCK]</div>
-                    <div class="app-btn">EMPIRE_VAULT [LOCK]</div>
-                </div>
-            </div>
-        </body>
-    </html>
-    """
+    return render_template_string(HTML_TEMPLATE)
 
 if __name__ == "__main__":
-    app.run(debug=True, port=int(os.environ.get("PORT", 5000)))
+    app.run(debug=True)
