@@ -1,8 +1,14 @@
-// FORCE_POPUP_KILL: 144,400%_STASIS
-// TARGET: project-gywyv.vercel.app
+// THE_144,400_PERCENT_POPUP_KILLER
+// AUTHORIZED_BY_SARA_STADLER
 
-window.onload = function() {
-    console.log("SARA_STADLER_COMMAND: PURGING_ALL_ALERTS");
-    // This effectively stops any alert loops
-    window.alert = function() {}; 
-};
+(function() {
+    console.log("STOPPING_THE_LOOP");
+    window.alert = function() { return true; };
+    window.confirm = function() { return true; };
+    window.prompt = function() { return null; };
+    
+    // This force-hides any stuck elements
+    const style = document.createElement('style');
+    style.innerHTML = 'div[role="dialog"], .modal, .popup { display: none !important; }';
+    document.head.appendChild(style);
+})();
