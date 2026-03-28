@@ -2,23 +2,33 @@
 <html lang="en">
 <head>
     <meta charset="UTF-8"><meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>CREATEAI | THE_BANK</title>
+    <title>THE_BANK | CREATEAI</title>
     <style>
         :root { --gold: #D4AF37; --black: #000000; --green: #00FF00; }
-        body { background: var(--black); color: var(--gold); font-family: 'Courier New', monospace; margin: 0; padding: 15px; text-transform: uppercase; text-align: center; }
+        body { background: var(--black); color: var(--gold); font-family: 'Courier New', monospace; padding: 15px; text-transform: uppercase; }
         .nav-back { border: 1px solid var(--gold); padding: 8px; text-decoration: none; color: var(--gold); font-size: 0.6rem; display: inline-block; margin-bottom: 20px; }
-        .balance { font-size: 3rem; color: var(--green); margin: 40px 0; text-shadow: 0 0 10px var(--green); }
-        .ledger { border: 1px solid var(--gold); padding: 15px; text-align: left; max-width: 400px; margin: 0 auto; font-size: 0.7rem; }
+        .account-card { border: 2px solid var(--gold); padding: 25px; text-align: center; }
+        .balance { font-size: 2.5rem; color: var(--green); margin: 20px 0; }
+        .actions { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; margin-top: 20px; }
+        .act-btn { border: 1px solid var(--gold); padding: 10px; color: var(--gold); background: transparent; font-size: 0.7rem; }
+        .ledger { margin-top: 30px; font-size: 0.5rem; text-align: left; }
+        .row { border-bottom: 1px solid #222; padding: 5px 0; display: flex; justify-content: space-between; }
     </style>
 </head>
 <body>
     <a href="index.html" class="nav-back">< RETURN_TO_CORE</a>
-    <h1>SOVEREIGN_BANK</h1>
-    <div class="balance">$0.00</div>
+    <div class="account-card">
+        <div style="font-size: 0.6rem;">SOVEREIGN_RESERVE_ACCOUNT</div>
+        <div class="balance">$144,000.00</div>
+        <div class="actions">
+            <button class="act-btn">DEPOSIT</button>
+            <button class="act-btn">WITHDRAW</button>
+        </div>
+    </div>
     <div class="ledger">
-        <div>[STATUS]: ACCOUNT_ACTIVE</div>
-        <div>[VAULT]: ENCRYPTED_STADLER_CORE</div>
-        <div>[LIQUIDITY]: SYNCING_GLOBAL...</div>
+        <div style="margin-bottom: 10px; color: white;">RECENT_TRANSACTIONS</div>
+        <div class="row"><span>MEMBERSHIP_PAYMENT</span><span style="color:var(--green);">+$144.00</span></div>
+        <div class="row"><span>DROPSHIP_REVENUE</span><span style="color:var(--green);">+$1,250.00</span></div>
     </div>
 </body>
 </html>
