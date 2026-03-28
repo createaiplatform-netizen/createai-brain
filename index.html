@@ -3,9 +3,9 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>CREATEAI | SOVEREIGN_CORE</title>
+    <title>CREATEAI | OMNI_CORE</title>
     <style>
-        :root { --gold: #D4AF37; --black: #000000; --green: #00FF00; --white: #FFFFFF; }
+        :root { --gold: #D4AF37; --black: #000000; --green: #00FF00; --white: #FFFFFF; --red: #FF3B30; }
         * { box-sizing: border-box; -webkit-tap-highlight-color: transparent; }
         body { 
             background: var(--black); 
@@ -19,7 +19,6 @@
             align-items: center;
             min-height: 100vh;
         }
-        /* Top Branding */
         .header { 
             border: 2px solid var(--gold); 
             padding: 15px; 
@@ -27,93 +26,92 @@
             text-align: center; 
             background: rgba(212, 175, 55, 0.05); 
             width: 100%;
-            max-width: 400px;
+            max-width: 450px;
         }
-        .header h1 { margin: 0; font-size: 1.2rem; letter-spacing: 2px; }
+        .header h1 { margin: 0; font-size: 1.1rem; letter-spacing: 2px; }
         
-        /* The Genesis Clock */
         #clock { 
-            font-size: 3.5rem; 
+            font-size: 3.2rem; 
             font-weight: bold; 
             text-shadow: 0 0 15px var(--gold); 
             margin: 10px 0; 
         }
 
-        /* Navigation Grid - The "Everything" Hub */
+        /* The Omni-Grid: Every Utility Connected */
         .grid {
             display: grid;
             grid-template-columns: 1fr 1fr;
-            gap: 10px;
+            gap: 8px;
             width: 100%;
-            max-width: 400px;
+            max-width: 450px;
             margin-top: 10px;
         }
         .btn {
             border: 1px solid var(--gold);
-            padding: 15px 5px;
+            padding: 12px 2px;
             background: transparent;
             color: var(--gold);
             text-align: center;
             text-decoration: none;
-            font-size: 0.7rem;
+            font-size: 0.65rem;
             letter-spacing: 1px;
-            transition: 0.3s;
+            transition: 0.2s;
         }
         .btn:active { background: var(--gold); color: var(--black); }
+        .btn.utility { border-color: var(--green); color: var(--green); }
+        .btn.core { border-color: var(--white); color: var(--white); }
 
-        /* Terminal System */
         .terminal { 
             background: #050505; 
             border: 1px solid var(--gold); 
             padding: 10px; 
             width: 100%; 
-            max-width: 400px; 
-            height: 120px; 
+            max-width: 450px; 
+            height: 110px; 
             text-align: left; 
-            font-size: 0.6rem; 
+            font-size: 0.55rem; 
             color: var(--green); 
             margin-top: 15px;
             overflow-y: auto;
         }
-        .line { margin-bottom: 4px; border-left: 2px solid var(--gold); padding-left: 8px; }
+        .line { margin-bottom: 3px; border-left: 2px solid var(--gold); padding-left: 6px; }
 
-        /* Status Footer */
-        .footer {
-            margin-top: auto;
-            padding: 20px 0;
-            font-size: 0.5rem;
-            color: var(--white);
-            letter-spacing: 3px;
-            opacity: 0.5;
-        }
+        .footer { margin-top: auto; padding: 15px 0; font-size: 0.5rem; color: var(--white); letter-spacing: 2px; opacity: 0.4; text-align: center;}
     </style>
 </head>
 <body>
     <div class="header">
-        <h1>CREATEAI_PLATFORM</h1>
-        <div style="font-size: 0.6rem; margin-top: 5px; color:white;">SOVEREIGN_SYSTEM_v1.0</div>
+        <h1>CREATEAI_OMNI_CORE</h1>
+        <div style="font-size: 0.55rem; margin-top: 5px; color:white;">TOTAL_SYSTEM_INTEGRATION // STADLER_GENESIS</div>
     </div>
 
     <div id="clock">00:00:00:00</div>
-    <div style="font-size: 0.6rem; letter-spacing: 2px;">STADLER_GENESIS_CORE</div>
 
     <div class="grid">
+        <a href="/nexus" class="btn core">THE_NEXUS</a>
         <a href="/marketplace" class="btn">MARKETPLACE</a>
-        <a href="/dashboard" class="btn">DASHBOARD</a>
-        <a href="/ai-core" class="btn">AI_GENESIS</a>
+        <a href="/bank" class="btn utility">THE_BANK</a>
+        <a href="/healthcare" class="btn utility">HEALTHCARE</a>
+        <a href="/gardens" class="btn utility">THE_GARDENS</a>
+        <a href="/hub" class="btn core">CREATOR_HUB</a>
         <a href="/vault" class="btn">THE_VAULT</a>
-        <a href="/network" class="btn">NETWORK</a>
+        <a href="/network" class="btn">AFFILIATE_NET</a>
+        <a href="/ai-core" class="btn core">AI_GENESIS</a>
         <a href="/settings" class="btn">SYSTEMS</a>
     </div>
 
     <div class="terminal" id="term">
-        <div class="line">[SYSTEM]: INITIALIZING_SOVEREIGN_CORE...</div>
-        <div class="line">[SYSTEM]: VERCEL_BYPASS_SUCCESSFUL.</div>
-        <div class="line">[SYSTEM]: DIRECT_GITHUB_LINK_ESTABLISHED.</div>
-        <div class="line">[SYSTEM]: WELCOME_STADLER. SYSTEMS_ONLINE.</div>
+        <div class="line">[SYSTEM]: RECLAIMING_ALL_DEPARTMENTS...</div>
+        <div class="line">[SYSTEM]: BANK_MODULE_SYNCED.</div>
+        <div class="line">[SYSTEM]: HEALTHCARE_UTILITY_LINKED.</div>
+        <div class="line">[SYSTEM]: GARDENS_&_HUB_INTEGRATED.</div>
+        <div class="line">[SYSTEM]: OMNI_CORE_ONLINE. AWAITING_COMMAND.</div>
     </div>
 
-    <div class="footer">ENCRYPTED // NON-HACKABLE // SOVEREIGN</div>
+    <div class="footer">
+        UNIFIED // SOVEREIGN // NON-CENSORABLE<br>
+        CREATEAI DIGITAL EMPIRE © 2026
+    </div>
 
     <script>
         function updateClock() {
@@ -125,8 +123,6 @@
             document.getElementById('clock').innerText = `${h}:${m}:${s}:${ms}`;
         }
         setInterval(updateClock, 50);
-
-        // Auto-scroll terminal
         const term = document.getElementById('term');
         setInterval(() => { term.scrollTop = term.scrollHeight; }, 1000);
     </script>
