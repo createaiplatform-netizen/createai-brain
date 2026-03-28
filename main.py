@@ -3,7 +3,7 @@ from flask import Flask
 
 app = Flask(__name__)
 
-# SYSTEM_PARAMETERS
+# SYSTEM_PARAMETERS_SARA_STADLER_COMMAND
 VAULT_ID = "HUNTINGTON_7662"
 LOCATION = "715_WEBSTER"
 STATUS = "144,400%_STASIS"
@@ -25,7 +25,7 @@ def home():
                 .status-grid {{ display: grid; grid-template-columns: 1fr 1fr; gap: 10px; text-align: left; font-size: 11px; }}
                 .section-title {{ color: #00FF00; margin: 25px 0 10px 0; font-size: 16px; letter-spacing: 3px; border-left: 5px solid #00FF00; padding-left: 10px; text-align: left; }}
                 .marketplace-grid {{ display: grid; grid-template-columns: 1fr 1fr; gap: 15px; margin-top: 10px; }}
-                .ai-product {{ border: 1px solid #444; background: #0a0a0a; padding: 15px; font-size: 10px; position: relative; }}
+                .ai-product {{ border: 1px solid #444; background: #0a0a0a; padding: 15px; font-size: 10px; position: relative; min-height: 100px; }}
                 .ai-product::after {{ content: 'INTEGRATED_AI_ACTIVE'; font-size: 7px; color: #00FF00; position: absolute; bottom: 5px; right: 5px; }}
                 .btn {{ background-color: #FFD700; color: #000; padding: 18px; width: 100%; border: none; font-weight: bold; cursor: pointer; text-decoration: none; display: block; margin-top: 15px; font-size: 14px; box-sizing: border-box; }}
                 .bridge-feed {{ background-color: #111; padding: 10px; border: 1px solid #FFD700; margin-top: 20px; }}
