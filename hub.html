@@ -3,25 +3,47 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>CREATEAI | THE_BANK</title>
+    <title>CREATEAI | CREATOR_HUB</title>
     <style>
-        :root { --gold: #D4AF37; --black: #000000; --green: #00FF00; }
-        body { background: var(--black); color: var(--gold); font-family: 'Courier New', monospace; margin: 0; padding: 15px; text-transform: uppercase; text-align: center; }
-        .nav-back { border: 1px solid var(--gold); padding: 8px; text-decoration: none; color: var(--gold); font-size: 0.6rem; margin-bottom: 20px; display: inline-block; }
-        .header { border: 2px solid var(--gold); padding: 15px; background: rgba(212, 175, 55, 0.05); }
-        .balance { font-size: 2.5rem; margin: 20px 0; color: var(--green); text-shadow: 0 0 10px var(--green); }
-        .ledger { border: 1px solid var(--gold); padding: 10px; text-align: left; font-size: 0.6rem; max-width: 400px; margin: 0 auto; }
-        .line { border-bottom: 1px solid #222; padding: 5px 0; display: flex; justify-content: space-between; }
+        :root { --gold: #D4AF37; --black: #000000; --green: #00FF00; --white: #FFFFFF; }
+        * { box-sizing: border-box; }
+        body { background: var(--black); color: var(--gold); font-family: 'Courier New', monospace; margin: 0; padding: 15px; text-transform: uppercase; display: flex; flex-direction: column; align-items: center; min-height: 100vh; }
+        .nav-back { border: 1px solid var(--gold); padding: 8px; text-decoration: none; color: var(--gold); font-size: 0.6rem; margin-bottom: 20px; align-self: flex-start; }
+        .header { border: 2px solid var(--gold); padding: 15px; background: rgba(212, 175, 55, 0.05); width: 100%; max-width: 450px; text-align: center; }
+        .grid { display: grid; grid-template-columns: 1fr; gap: 12px; width: 100%; max-width: 450px; margin-top: 20px; }
+        .module { border: 1px solid var(--gold); padding: 15px; background: #050505; }
+        .status-light { display: inline-block; width: 8px; height: 8px; background: var(--green); border-radius: 50%; margin-right: 5px; box-shadow: 0 0 5px var(--green); }
+        .tool-btn { border: 1px solid var(--white); color: var(--white); padding: 10px; text-align: center; margin-top: 10px; display: block; text-decoration: none; font-size: 0.7rem; }
+        .footer { margin-top: auto; padding: 20px; font-size: 0.5rem; opacity: 0.4; }
     </style>
 </head>
 <body>
     <a href="index.html" class="nav-back">< RETURN_TO_CORE</a>
-    <div class="header"><h1>THE_BANK</h1><div style="font-size: 0.55rem; color: white;">SOVEREIGN_RESERVE</div></div>
-    <div class="balance">$00.00</div>
-    <div class="ledger">
-        <div class="line"><span>[STATUS]:</span><span>ACTIVE</span></div>
-        <div class="line"><span>[VAULT]:</span><span>ENCRYPTED</span></div>
-        <div class="line"><span>[ACCESS]:</span><span>STADLER_ONLY</span></div>
+    <div class="header">
+        <h1>CREATOR_HUB_v1.0</h1>
+        <div style="font-size: 0.55rem; color: white; margin-top: 5px;">PRODUCTION_SYSTEMS_ENGAGED</div>
     </div>
+
+    <div class="grid">
+        <div class="module">
+            <h3><span class="status-light"></span>CONTENT_ENGINE</h3>
+            <p style="font-size: 0.6rem; color: #aaa;">AI_GENERATION_READY</p>
+            <a href="#" class="tool-btn">LAUNCH_EDITOR</a>
+        </div>
+        
+        <div class="module">
+            <h3><span class="status-light"></span>MEDIA_VAULT</h3>
+            <p style="font-size: 0.6rem; color: #aaa;">STORAGE: UNLIMITED</p>
+            <a href="#" class="tool-btn">ACCESS_FILES</a>
+        </div>
+
+        <div class="module">
+            <h3><span class="status-light"></span>STRATEGY_MAP</h3>
+            <p style="font-size: 0.6rem; color: #aaa;">VISION_SYNC: 100%</p>
+            <a href="#" class="tool-btn">OPEN_BLUEPRINTS</a>
+        </div>
+    </div>
+
+    <div class="footer">STADLER_PRODUCTION_ENVIRONMENT // SOVEREIGN_CONTROL</div>
 </body>
 </html>
