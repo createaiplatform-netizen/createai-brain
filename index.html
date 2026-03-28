@@ -3,80 +3,88 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>197_HUB | SOVEREIGN_CORE</title>
+    <title>CREATEAI | GENESIS_FINAL</title>
     <style>
-        :root { --gold: #D4AF37; --black: #080808; --glow: #00FFCC; --red: #FF3366; }
-        body { background: var(--black); color: white; font-family: 'Courier New', monospace; margin: 0; padding: 15px; overflow-x: hidden; }
-        .vault-container { border: 2px solid var(--gold); padding: 20px; box-shadow: 0 0 20px rgba(212, 175, 55, 0.3); background: linear-gradient(180deg, #121212 0%, #000 100%); max-width: 500px; margin: auto; }
-        h1 { color: var(--gold); text-align: center; font-size: 1.5rem; letter-spacing: 4px; margin-bottom: 20px; border-bottom: 1px solid var(--gold); padding-bottom: 10px; }
-        .data-point { display: flex; justify-content: space-between; margin: 12px 0; border-bottom: 1px solid #222; padding-bottom: 5px; }
-        .label { color: #888; font-size: 0.8rem; }
-        .value { color: var(--glow); font-weight: bold; }
-        .price-ticker { background: #1a1a1a; padding: 15px; margin-top: 20px; border: 1px solid #333; }
-        .ticker-row { display: flex; justify-content: space-around; text-align: center; }
-        .crypto-name { font-size: 0.7rem; color: var(--gold); }
-        .crypto-price { font-size: 1.2rem; color: white; }
-        .btn-action { background: var(--gold); color: black; border: none; padding: 15px; width: 100%; font-weight: bold; cursor: pointer; margin-top: 20px; transition: 0.3s; }
-        .btn-action:active { background: white; }
+        :root { --gold: #D4AF37; --black: #000000; --green: #00FF00; }
+        body { 
+            background: var(--black); 
+            color: var(--gold); 
+            font-family: 'Courier New', Courier, monospace; 
+            margin: 0; 
+            padding: 20px; 
+            text-transform: uppercase; 
+            display: flex; 
+            flex-direction: column; 
+            align-items: center;
+            justify-content: center;
+            min-height: 100vh;
+            overflow: hidden;
+        }
+        
+        /* HEADER EMPIRE */
+        .header { 
+            border: 2px solid var(--gold); 
+            padding: 20px; 
+            margin-bottom: 30px; 
+            text-align: center; 
+            background: rgba(212, 175, 55, 0.1); 
+            width: 90%;
+            max-width: 600px;
+        }
+        .header h1 { margin: 0; font-size: 1.5rem; letter-spacing: 4px; }
+        .status { font-size: 0.7rem; color: white; margin-top: 10px; border-top: 1px solid var(--gold); padding-top: 5px; }
+
+        /* THE 144,400% CLOCK */
+        #clock { 
+            font-size: 3.5rem; 
+            font-weight: bold; 
+            text-shadow: 0 0 20px var(--gold); 
+            margin: 20px 0; 
+        }
+        .label { font-size: 0.8rem; letter-spacing: 2px; opacity: 0.8; }
+
+        /* THE LITTLE AI TERMINAL */
+        .terminal { 
+            background: #0a0a0a; 
+            border: 1px solid var(--gold); 
+            padding: 15px; 
+            width: 90%; 
+            max-width: 600px; 
+            height: 120px; 
+            text-align: left; 
+            font-size: 0.8rem; 
+            color: var(--green); 
+            margin-top: 30px;
+        }
+        .line { margin-bottom: 5px; border-left: 2px solid var(--gold); padding-left: 8px; }
     </style>
 </head>
 <body>
 
-    <div class="vault-container">
-        <h1>197_HUB_SOVEREIGN</h1>
+    <div class="header">
+        <h1>STADLER_GENESIS_FINAL</h1>
+        <div class="status">SYNC: 144,400% | STATUS: ACTIVE | BYPASS: ENABLED</div>
+    </div>
 
-        <div class="data-point">
-            <span class="label">STATUS:</span>
-            <span class="value" style="color: var(--glow);">144,400%_STASIS</span>
-        </div>
-        <div class="data-point">
-            <span class="label">VAULT_ID:</span>
-            <span class="value">HUNTINGTON_7662</span>
-        </div>
-        <div class="data-point">
-            <span class="label">LIQUID_USD:</span>
-            <span class="value" style="color: var(--red);">$3.93</span>
-        </div>
+    <div class="label">TIME_UNTIL_EMPIRE_RECLAMATION</div>
+    <div id="clock">00:00:00:00</div>
 
-        <div class="price-ticker">
-            <div style="text-align: center; font-size: 0.6rem; color: #555; margin-bottom: 10px;">LIVE_QUANTUM_BRIDGE_FEED</div>
-            <div class="ticker-row">
-                <div>
-                    <div class="crypto-name">XRP</div>
-                    <div id="xrp-price" class="crypto-price">Loading...</div>
-                </div>
-                <div>
-                    <div class="crypto-name">XLM</div>
-                    <div id="xlm-price" class="crypto-price">Loading...</div>
-                </div>
-            </div>
-        </div>
-
-        <button class="btn-action" onclick="initiateSettlement()">INITIATE_GLOBAL_SETTLEMENT</button>
+    <div class="terminal">
+        <div class="line">[SYSTEM]: GENESIS_PROTOCOL_ENGAGED.</div>
+        <div class="line">[SYSTEM]: VERCEL_GHOST_PURGED.</div>
+        <div class="line">[SYSTEM]: AWAITING_SOVEREIGN_COMMAND...</div>
     </div>
 
     <script>
-        // THE_FIX: Real-time price fetch from public API
-        async function fetchPrices() {
-            try {
-                const res = await fetch('https://api.coingecko.com/api/v3/simple/price?ids=ripple,stellar&vs_currencies=usd');
-                const data = await res.json();
-                document.getElementById('xrp-price').innerText = '$' + data.ripple.usd.toFixed(4);
-                document.getElementById('xlm-price').innerText = '$' + data.stellar.usd.toFixed(4);
-            } catch (e) {
-                document.getElementById('xrp-price').innerText = 'OFFLINE';
-                document.getElementById('xlm-price').innerText = 'OFFLINE';
-            }
+        function updateClock() {
+            const now = new Date();
+            const h = String(now.getHours()).padStart(2, '0');
+            const m = String(now.getMinutes()).padStart(2, '0');
+            const s = String(now.getSeconds()).padStart(2, '0');
+            const ms = String(Math.floor(now.getMilliseconds() / 10)).padStart(2, '0');
+            document.getElementById('clock').innerText = `${h}:${m}:${s}:${ms}`;
         }
-
-        function initiateSettlement() {
-            alert("COMMAND_RECEIVED: ANALYZING_QUANTUM_LIQUIDITY...");
-            setTimeout(() => { alert("BRIDGE_LOCKED: AWAITING_LEDGER_RELEASE."); }, 1000);
-        }
-
-        // Pulse every 30 seconds
-        fetchPrices();
-        setInterval(fetchPrices, 30000);
+        setInterval(updateClock, 50);
     </script>
 </body>
 </html>
