@@ -1,7 +1,0 @@
-// ============================================================
-// FILE: src/universe/reflectionLayer.ts
-// ============================================================
-
-export function reflect(state: any) {
-  return { ...state, reflection: "ok" };
-}
