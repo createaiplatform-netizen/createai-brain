@@ -1,45 +1,27 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-    <meta charset="UTF-8"><meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>HUB | COMMAND</title>
-    <script src="https://cdn.tailwindcss.com"></script>
-    <style>body { background: #050505; color: #fff; font-family: 'Inter', sans-serif; }</style>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>CREATEAI | THE_BANK</title>
+    <style>
+        :root { --gold: #D4AF37; --black: #000000; --green: #00FF00; }
+        body { background: var(--black); color: var(--gold); font-family: 'Courier New', monospace; margin: 0; padding: 15px; text-transform: uppercase; text-align: center; }
+        .nav-back { border: 1px solid var(--gold); padding: 8px; text-decoration: none; color: var(--gold); font-size: 0.6rem; margin-bottom: 20px; display: inline-block; }
+        .header { border: 2px solid var(--gold); padding: 15px; background: rgba(212, 175, 55, 0.05); }
+        .balance { font-size: 2.5rem; margin: 20px 0; color: var(--green); text-shadow: 0 0 10px var(--green); }
+        .ledger { border: 1px solid var(--gold); padding: 10px; text-align: left; font-size: 0.6rem; max-width: 400px; margin: 0 auto; }
+        .line { border-bottom: 1px solid #222; padding: 5px 0; display: flex; justify-content: space-between; }
+    </style>
 </head>
-<body class="p-6 md:p-12">
-    <div class="max-w-7xl mx-auto">
-        <header class="flex justify-between items-center mb-16 border-b border-white/5 pb-8">
-            <h1 class="text-4xl font-black italic">STUDIO <span class="text-blue-600">CORE</span></h1>
-            <div class="text-right"><p class="text-[10px] text-emerald-500 font-bold">NODE: WEBSTER_ACTIVE</p></div>
-        </header>
-
-        <div class="grid md:grid-cols-2 lg:grid-cols-3 gap-8">
-            <div class="bg-red-600/10 p-8 rounded-3xl border border-red-600/20">
-                <h3 class="text-red-500 font-bold text-[10px] tracking-widest mb-4 uppercase">Rapid Response</h3>
-                <button onclick="sendDistress()" class="w-full bg-red-600 py-6 rounded-2xl font-black italic text-lg shadow-xl shadow-red-600/20 hover:scale-105 transition">SEND SOS TO FAMILY</button>
-            </div>
-
-            <div class="bg-white/5 p-8 rounded-3xl border border-white/10">
-                <h3 class="text-blue-500 font-bold text-[10px] tracking-widest mb-4 uppercase">Family Talk</h3>
-                <textarea id="famMsg" class="w-full bg-black border border-white/10 p-4 rounded-xl mb-4 text-xs" placeholder="Internal message..."></textarea>
-                <button onclick="sendFam()" class="w-full bg-blue-600 py-3 rounded-xl text-[10px] font-bold uppercase">Dispatch to All</button>
-            </div>
-
-            <a href="admin_ebs.html" class="bg-white/5 p-8 rounded-3xl border border-white/10 flex flex-col justify-center items-center opacity-40 hover:opacity-100 transition">
-                <p class="text-[10px] font-bold uppercase tracking-widest mb-2 text-red-500">Admin Only</p>
-                <h4 class="text-xl font-black italic uppercase text-white">Global EBS</h4>
-            </a>
-        </div>
+<body>
+    <a href="index.html" class="nav-back">< RETURN_TO_CORE</a>
+    <div class="header"><h1>THE_BANK</h1><div style="font-size: 0.55rem; color: white;">SOVEREIGN_RESERVE</div></div>
+    <div class="balance">$00.00</div>
+    <div class="ledger">
+        <div class="line"><span>[STATUS]:</span><span>ACTIVE</span></div>
+        <div class="line"><span>[VAULT]:</span><span>ENCRYPTED</span></div>
+        <div class="line"><span>[ACCESS]:</span><span>STADLER_ONLY</span></div>
     </div>
-    <script>
-        function sendDistress() {
-            // Sends SMS with generic "Help" and Hub Link for coordinates
-            window.location.href = "sms:7152221234,7152225678?body=FAMILY DISTRESS ALERT. Check Hub for Location: https://createai.digital/hub.html";
-        }
-        function sendFam() {
-            const m = document.getElementById('famMsg').value;
-            window.location.href = "sms:7152221234,7152225678?body=" + encodeURIComponent("FAMILY: " + m);
-        }
-    </script>
 </body>
 </html>
