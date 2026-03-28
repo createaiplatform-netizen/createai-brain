@@ -2,16 +2,17 @@
 <html lang="en">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
     <title>CREATEAI | GENESIS_FINAL</title>
     <style>
         :root { --gold: #D4AF37; --black: #000000; --green: #00FF00; }
+        * { box-sizing: border-box; }
         body { 
             background: var(--black); 
             color: var(--gold); 
-            font-family: 'Courier New', Courier, monospace; 
+            font-family: 'Courier New', monospace; 
             margin: 0; 
-            padding: 20px; 
+            padding: 10px; 
             text-transform: uppercase; 
             display: flex; 
             flex-direction: column; 
@@ -22,35 +23,49 @@
         }
         .header { 
             border: 2px solid var(--gold); 
-            padding: 20px; 
-            margin-bottom: 30px; 
+            padding: 15px 5px; 
+            margin-bottom: 20px; 
             text-align: center; 
             background: rgba(212, 175, 55, 0.1); 
-            width: 90%;
-            max-width: 600px;
+            width: 95%;
+            max-width: 500px;
+            display: flex;
+            flex-direction: column;
+            gap: 5px;
         }
-        .header h1 { margin: 0; font-size: 1.5rem; letter-spacing: 4px; }
-        .status { font-size: 0.7rem; color: white; margin-top: 10px; border-top: 1px solid var(--gold); padding-top: 5px; }
+        .header h1 { 
+            margin: 0; 
+            font-size: 1.1rem; /* Scaled down to fit mobile boxes */
+            letter-spacing: 2px;
+            white-space: nowrap;
+        }
+        .status { 
+            font-size: 0.6rem; 
+            color: white; 
+            border-top: 1px solid var(--gold); 
+            padding-top: 5px; 
+        }
         #clock { 
-            font-size: 3.5rem; 
+            font-size: 3rem; 
             font-weight: bold; 
-            text-shadow: 0 0 20px var(--gold); 
-            margin: 20px 0; 
+            text-shadow: 0 0 15px var(--gold); 
+            margin: 15px 0; 
         }
-        .label { font-size: 0.8rem; letter-spacing: 2px; opacity: 0.8; }
+        .label { font-size: 0.7rem; letter-spacing: 1px; opacity: 0.8; }
         .terminal { 
             background: #0a0a0a; 
             border: 1px solid var(--gold); 
-            padding: 15px; 
-            width: 90%; 
-            max-width: 600px; 
-            height: 120px; 
+            padding: 10px; 
+            width: 95%; 
+            max-width: 500px; 
+            height: 150px; /* Increased height to prevent text push-out */
             text-align: left; 
-            font-size: 0.8rem; 
+            font-size: 0.7rem; 
             color: var(--green); 
-            margin-top: 30px;
+            margin-top: 20px;
+            overflow-y: auto;
         }
-        .line { margin-bottom: 5px; border-left: 2px solid var(--gold); padding-left: 8px; }
+        .line { margin-bottom: 4px; border-left: 2px solid var(--gold); padding-left: 6px; }
     </style>
 </head>
 <body>
@@ -60,9 +75,10 @@
     </div>
     <div class="label">TIME_UNTIL_EMPIRE_RECLAMATION</div>
     <div id="clock">00:00:00:00</div>
-    <div class="terminal">
+    <div class="terminal" id="term">
         <div class="line">[SYSTEM]: GENESIS_PROTOCOL_ENGAGED.</div>
         <div class="line">[SYSTEM]: VERCEL_GHOST_PURGED.</div>
+        <div class="line">[SYSTEM]: UI_RESTRAINTS_REMOVED.</div>
         <div class="line">[SYSTEM]: AWAITING_SOVEREIGN_COMMAND...</div>
     </div>
     <script>
