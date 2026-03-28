@@ -2,33 +2,33 @@
 <html lang="en">
 <head>
     <meta charset="UTF-8"><meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>THE_BANK | CREATEAI</title>
+    <title>BANK | CREATEAI</title>
     <style>
-        :root { --gold: #D4AF37; --black: #000000; --green: #00FF00; }
-        body { background: var(--black); color: var(--gold); font-family: 'Courier New', monospace; padding: 15px; text-transform: uppercase; }
-        .nav-back { border: 1px solid var(--gold); padding: 8px; text-decoration: none; color: var(--gold); font-size: 0.6rem; display: inline-block; margin-bottom: 20px; }
-        .account-card { border: 2px solid var(--gold); padding: 25px; text-align: center; }
-        .balance { font-size: 2.5rem; color: var(--green); margin: 20px 0; }
-        .actions { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; margin-top: 20px; }
-        .act-btn { border: 1px solid var(--gold); padding: 10px; color: var(--gold); background: transparent; font-size: 0.7rem; }
-        .ledger { margin-top: 30px; font-size: 0.5rem; text-align: left; }
-        .row { border-bottom: 1px solid #222; padding: 5px 0; display: flex; justify-content: space-between; }
+        :root { --gold: #D4AF37; --bg: #050505; --glass: rgba(255, 255, 255, 0.03); --green: #00FF00; }
+        body { background: radial-gradient(circle at top, #111, #000); color: #fff; font-family: 'Inter', sans-serif; margin: 0; padding: 20px; text-transform: uppercase; letter-spacing: 1px; }
+        .nav-back { color: var(--gold); text-decoration: none; font-size: 0.6rem; border: 1px solid var(--gold); padding: 8px 15px; border-radius: 50px; display: inline-block; margin-bottom: 20px; }
+        .card { background: var(--glass); border: 1px solid rgba(212, 175, 55, 0.2); border-radius: 20px; padding: 30px; backdrop-filter: blur(15px); max-width: 400px; margin: 0 auto; text-align: center; box-shadow: 0 10px 40px rgba(0,0,0,0.8); }
+        .balance { font-size: 3rem; font-weight: 800; color: var(--gold); text-shadow: 0 0 20px rgba(212, 175, 55, 0.4); margin: 20px 0; }
+        .btn-row { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; }
+        .btn { background: transparent; border: 1px solid var(--gold); color: var(--gold); padding: 15px; border-radius: 12px; font-weight: bold; cursor: pointer; transition: 0.3s; }
+        .btn:hover { background: var(--gold); color: #000; }
+        .ledger { margin-top: 30px; text-align: left; font-size: 0.6rem; color: #666; }
+        .row { border-bottom: 1px solid #222; padding: 10px 0; display: flex; justify-content: space-between; }
     </style>
 </head>
 <body>
-    <a href="index.html" class="nav-back">< RETURN_TO_CORE</a>
-    <div class="account-card">
-        <div style="font-size: 0.6rem;">SOVEREIGN_RESERVE_ACCOUNT</div>
+    <a href="index.html" class="nav-back">CORE_SYNC</a>
+    <div class="card">
+        <div style="font-size: 0.6rem; letter-spacing: 3px;">SOVEREIGN_RESERVE</div>
         <div class="balance">$144,000.00</div>
-        <div class="actions">
-            <button class="act-btn">DEPOSIT</button>
-            <button class="act-btn">WITHDRAW</button>
+        <div class="btn-row">
+            <button class="btn">DEPOSIT</button>
+            <button class="btn">WITHDRAW</button>
         </div>
-    </div>
-    <div class="ledger">
-        <div style="margin-bottom: 10px; color: white;">RECENT_TRANSACTIONS</div>
-        <div class="row"><span>MEMBERSHIP_PAYMENT</span><span style="color:var(--green);">+$144.00</span></div>
-        <div class="row"><span>DROPSHIP_REVENUE</span><span style="color:var(--green);">+$1,250.00</span></div>
+        <div class="ledger">
+            <div class="row"><span>DROPSHIP_PAYOUT</span><span style="color:var(--green);">+$2,400.00</span></div>
+            <div class="row"><span>MEMBER_SUBSCRIPTION</span><span style="color:var(--green);">+$144.00</span></div>
+        </div>
     </div>
 </body>
 </html>
