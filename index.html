@@ -2,44 +2,57 @@
 <html lang="en">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>CREATEAI | OMNI_CORE</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>CREATEAI | FAMILY_HUB</title>
     <style>
-        :root { --gold: #D4AF37; --black: #000000; --green: #00FF00; --white: #FFFFFF; }
-        * { box-sizing: border-box; }
-        body { background: var(--black); color: var(--gold); font-family: 'Courier New', monospace; margin: 0; padding: 10px; text-transform: uppercase; display: flex; flex-direction: column; align-items: center; min-height: 100vh; }
-        .header { border: 2px solid var(--gold); padding: 15px; margin: 10px 0; text-align: center; background: rgba(212, 175, 55, 0.05); width: 100%; max-width: 450px; }
-        #clock { font-size: 3.2rem; font-weight: bold; text-shadow: 0 0 15px var(--gold); margin: 10px 0; }
-        .grid { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; width: 100%; max-width: 450px; margin-top: 10px; }
-        .btn { border: 1px solid var(--gold); padding: 12px 2px; background: transparent; color: var(--gold); text-align: center; text-decoration: none; font-size: 0.65rem; letter-spacing: 1px; }
-        .terminal { background: #050505; border: 1px solid var(--gold); padding: 10px; width: 100%; max-width: 450px; height: 110px; font-size: 0.55rem; color: var(--green); margin-top: 15px; overflow-y: auto; text-align: left; }
+        :root { --soft-blue: #E3F2FD; --warm-gold: #FFD700; --pure-white: #FFFFFF; --text: #2C3E50; --soft-pink: #FCE4EC; }
+        body { 
+            background: linear-gradient(135deg, var(--soft-blue) 0%, var(--soft-pink) 100%); 
+            color: var(--text); font-family: 'Segoe UI', Roboto, Helvetica, sans-serif; 
+            margin: 0; padding: 20px; min-height: 100vh; display: flex; flex-direction: column; align-items: center;
+        }
+        .welcome-header { text-align: center; margin-bottom: 30px; }
+        .welcome-header h1 { font-size: 2.2rem; color: #1A5276; margin-bottom: 5px; }
+        .welcome-header p { font-size: 1rem; opacity: 0.8; }
+        
+        /* Friendly Grid */
+        .grid { display: grid; grid-template-columns: 1fr 1fr; gap: 15px; width: 100%; max-width: 500px; }
+        .btn { 
+            background: var(--pure-white); 
+            border: none; border-radius: 20px; padding: 25px 10px;
+            text-align: center; text-decoration: none; color: #1A5276;
+            font-weight: bold; font-size: 0.9rem;
+            box-shadow: 0 4px 15px rgba(0,0,0,0.05);
+            transition: transform 0.2s, box-shadow 0.2s;
+            display: flex; flex-direction: column; align-items: center;
+        }
+        .btn:active { transform: scale(0.95); }
+        .icon { font-size: 1.5rem; margin-bottom: 8px; }
+
+        .community-note { 
+            background: rgba(255, 255, 255, 0.5); 
+            border-radius: 15px; padding: 15px; width: 100%; max-width: 500px;
+            margin-top: 25px; font-size: 0.85rem; line-height: 1.5; text-align: center;
+        }
     </style>
 </head>
 <body>
-    <div class="header"><h1>CREATEAI_OMNI_CORE</h1></div>
-    <div id="clock">00:00:00:00</div>
+    <div class="welcome-header">
+        <h1>Welcome Home</h1>
+        <p>Your Family's Digital Haven</p>
+    </div>
+
     <div class="grid">
-        <a href="nexus.html" class="btn">THE_NEXUS</a>
-        <a href="marketplace.html" class="btn">MARKETPLACE</a>
-        <a href="bank.html" class="btn">THE_BANK</a>
-        <a href="healthcare.html" class="btn">HEALTHCARE</a>
-        <a href="gardens.html" class="btn">THE_GARDENS</a>
-        <a href="hub.html" class="btn">CREATOR_HUB</a>
+        <a href="nexus.html" class="btn"><span class="icon">🏠</span>FAMILY_NEXUS</a>
+        <a href="marketplace.html" class="btn"><span class="icon">🎁</span>GIFT_SHOP</a>
+        <a href="bank.html" class="btn"><span class="icon">💰</span>SAVINGS</a>
+        <a href="healthcare.html" class="btn"><span class="icon">❤️</span>WELLNESS</a>
+        <a href="gardens.html" class="btn"><span class="icon">🌱</span>THE_GARDEN</a>
+        <a href="hub.html" class="btn"><span class="icon">🎨</span>CREATIVE_HUB</a>
     </div>
-    <div class="terminal">
-        <div>[SYSTEM]: SYNCING_EMPIRE_RESOURCES...</div>
-        <div>[SYSTEM]: OMNI_CORE_ONLINE.</div>
+
+    <div class="community-note">
+        <strong>✨ Today's Thought:</strong> Small moments create the biggest memories. Check the Garden to see what's blooming today!
     </div>
-    <script>
-        function updateClock() {
-            const now = new Date();
-            const h = String(now.getHours()).padStart(2, '0');
-            const m = String(now.getMinutes()).padStart(2, '0');
-            const s = String(now.getSeconds()).padStart(2, '0');
-            const ms = String(Math.floor(now.getMilliseconds() / 10)).padStart(2, '0');
-            document.getElementById('clock').innerText = `${h}:${m}:${s}:${ms}`;
-        }
-        setInterval(updateClock, 50);
-    </script>
 </body>
 </html>
