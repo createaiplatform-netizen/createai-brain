@@ -3,10 +3,13 @@ from flask import Flask
 
 app = Flask(__name__)
 
-# THE_715_WEBSTER_VAULT_CONFIGURATION
+# SYSTEM_PARAMETERS
 VAULT_ID = "HUNTINGTON_7662"
-XRP_PRICE = "1.3500"
-XLM_PRICE = "0.1714"
+LOCATION = "715_WEBSTER"
+STATUS = "144,400%_STASIS"
+XRP_LOCKED = "1.3500"
+XLM_LOCKED = "0.1714"
+USD_LIQUID = "$3.93"
 
 @app.route('/')
 def home():
@@ -16,52 +19,59 @@ def home():
             <title>CREATE_AI_DIGITAL_EMPIRE</title>
             <meta name="viewport" content="width=device-width, initial-scale=1">
             <style>
-                body {{ background-color: #000; color: #FFD700; text-align: center; font-family: monospace; padding: 20px; margin: 0; }}
-                .container {{ border: 2px solid #FFD700; padding: 20px; display: inline-block; width: 95%; max-width: 500px; box-sizing: border-box; }}
-                .status-box {{ background-color: #1a1a1a; padding: 10px; border: 1px solid #333; margin-top: 20px; }}
-                .section-header {{ color: #00FF00; margin-top: 30px; font-size: 18px; border-bottom: 1px solid #00FF00; padding-bottom: 5px; }}
-                .grid {{ display: grid; grid-template-columns: 1fr 1fr; gap: 10px; margin-top: 15px; }}
-                .card {{ border: 1px solid #FFD700; padding: 10px; background: #0a0a0a; font-size: 12px; }}
-                .btn {{ 
-                    background-color: #FFD700; color: #000; padding: 15px; width: 100%; 
-                    border: none; font-weight: bold; cursor: pointer; text-decoration: none; 
-                    display: block; margin-top: 20px; font-size: 14px; box-sizing: border-box;
-                }}
-                hr {{ border: 0.5px solid #FFD700; margin: 20px 0; }}
+                body {{ background-color: #000; color: #FFD700; text-align: center; font-family: monospace; padding: 15px; margin: 0; }}
+                .empire-container {{ border: 3px double #FFD700; padding: 20px; display: inline-block; width: 100%; max-width: 600px; box-sizing: border-box; }}
+                .vault-header {{ border-bottom: 2px solid #FFD700; padding-bottom: 10px; margin-bottom: 20px; }}
+                .status-grid {{ display: grid; grid-template-columns: 1fr 1fr; gap: 10px; text-align: left; font-size: 11px; }}
+                .section-title {{ color: #00FF00; margin: 25px 0 10px 0; font-size: 16px; letter-spacing: 3px; border-left: 5px solid #00FF00; padding-left: 10px; text-align: left; }}
+                .marketplace-grid {{ display: grid; grid-template-columns: 1fr 1fr; gap: 15px; margin-top: 10px; }}
+                .ai-product {{ border: 1px solid #444; background: #0a0a0a; padding: 15px; font-size: 10px; position: relative; }}
+                .ai-product::after {{ content: 'INTEGRATED_AI_ACTIVE'; font-size: 7px; color: #00FF00; position: absolute; bottom: 5px; right: 5px; }}
+                .btn {{ background-color: #FFD700; color: #000; padding: 18px; width: 100%; border: none; font-weight: bold; cursor: pointer; text-decoration: none; display: block; margin-top: 15px; font-size: 14px; box-sizing: border-box; }}
+                .bridge-feed {{ background-color: #111; padding: 10px; border: 1px solid #FFD700; margin-top: 20px; }}
                 .green {{ color: #00FF00; }}
+                .red {{ color: #FF4500; }}
             </style>
         </head>
         <body>
-            <div class="container">
-                <h1 style="letter-spacing: 2px;">197_HUB_SOVEREIGN</h1>
-                <p style="font-size: 10px;">GLOBAL_ACCESS_POINT</p>
-                <hr>
-                
-                <p style="text-align: left;">STATUS: <span class="green" style="float: right;">144,400%_STASIS</span></p>
-                <p style="text-align: left;">VAULT_ID: <span class="green" style="float: right;">{VAULT_ID}</span></p>
-                <p style="text-align: left;">LIQUID_USD: <span style="color: #FF4500; float: right;">$3.93</span></p>
+            <div class="empire-container">
+                <div class="vault-header">
+                    <h1 style="margin: 0; font-size: 24px;">197_HUB_SOVEREIGN</h1>
+                    <p style="margin: 5px 0; font-size: 12px; color: #00FF00;">OFFICIAL_SARA_STADLER_COMMAND_CENTER</p>
+                </div>
 
-                <div class="status-box">
-                    <p style="font-size: 10px; color: #666;">LIVE_QUANTUM_BRIDGE_FEED</p>
-                    <div style="display: flex; justify-content: space-around;">
-                        <div><p style="font-size: 10px;">XRP</p><p>${XRP_PRICE}</p></div>
-                        <div><p style="font-size: 10px;">XLM</p><p>${XLM_PRICE}</p></div>
+                <div class="status-grid">
+                    <div>LOCATION: {LOCATION}</div>
+                    <div style="text-align: right;">VAULT: {VAULT_ID}</div>
+                    <div>STASIS: <span class="green">{STATUS}</span></div>
+                    <div style="text-align: right;">LIQUID: <span class="red">{USD_LIQUID}</span></div>
+                </div>
+
+                <div class="bridge-feed">
+                    <p style="font-size: 9px; margin: 0 0 5px 0;">QUANTUM_BRIDGE_LIVE_DATA</p>
+                    <div style="display: flex; justify-content: space-around; font-size: 14px;">
+                        <div>XRP: <span class="green">${XRP_LOCKED}</span></div>
+                        <div>XLM: <span class="green">${XLM_LOCKED}</span></div>
                     </div>
                 </div>
 
-                <div class="section-header">DIGITAL_MARKETPLACE</div>
-                <div class="grid">
-                    <div class="card">APP_01<br>SARA_AI_ASSISTANT<br><span class="green">READY</span></div>
-                    <div class="card">APP_02<br>QUANTUM_LEDGER<br><span class="green">READY</span></div>
-                    <div class="card">APP_03<br>CREATIVE_ENGINE<br><span class="green">READY</span></div>
-                    <div class="card">APP_04<br>VAULT_SECURITY<br><span class="green">READY</span></div>
+                <div class="section-title">DIGITAL_MARKETPLACE</div>
+                <div class="marketplace-grid">
+                    <div class="ai-product"><b>SARA_ARCHITECT_AI</b><br>Core Vision Engine<br><br>PRICE: 144,400 XRP</div>
+                    <div class="ai-product"><b>GHOST_PURGE_01</b><br>Security Protocol<br><br>PRICE: 7662 XLM</div>
+                    <div class="ai-product"><b>VAULT_WATCH_AI</b><br>Real-Time Auditing<br><br>PRICE: $3.93 USD</div>
+                    <div class="ai-product"><b>EMPIRE_BUILDER</b><br>Universal Expansion<br><br>PRICE: SETTLEMENT_ONLY</div>
                 </div>
 
-                <div class="section-header">EMPIRE_COMMANDS</div>
+                <div class="section-title">COMMAND_ACTIONS</div>
                 <a href="https://xrpscan.com/" class="btn">INITIATE_GLOBAL_SETTLEMENT</a>
-                <a href="#" class="btn" style="background-color: #00FF00;">LAUNCH_AI_MARKETPLACE</a>
+                <a href="https://www.huntington.com/" class="btn" style="background-color: #00FF00;">ACCESS_HUNTINGTON_7662_VAULT</a>
                 
-                <p style="font-size: 10px; margin-top: 30px; color: #555;">SARA_STADLER_COMMAND: VISION_FULLY_RENDERED</p>
+                <div style="margin-top: 30px; font-size: 9px; color: #555;">
+                    <p>EACH PRODUCT CONTAINS ITS OWN LITTLE AI SYSTEM</p>
+                    <p>SYSTEM_RECOVERY_PROTOCOL: 12:12_SYNC_ENABLED</p>
+                    <p>THE_EMPIRE_IS_STANDING</p>
+                </div>
             </div>
         </body>
     </html>
