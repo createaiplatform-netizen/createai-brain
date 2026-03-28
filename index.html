@@ -12,7 +12,7 @@
             color: var(--gold); 
             font-family: 'Courier New', monospace; 
             margin: 0; 
-            padding: 10px; 
+            padding: 15px; 
             text-transform: uppercase; 
             display: flex; 
             flex-direction: column; 
@@ -23,63 +23,63 @@
         }
         .header { 
             border: 2px solid var(--gold); 
-            padding: 15px 5px; 
-            margin-bottom: 20px; 
+            padding: 15px 10px; 
+            margin-bottom: 25px; 
             text-align: center; 
-            background: rgba(212, 175, 55, 0.1); 
-            width: 95%;
-            max-width: 500px;
-            display: flex;
-            flex-direction: column;
-            gap: 5px;
+            background: rgba(212, 175, 55, 0.05); 
+            width: 100%;
+            max-width: 350px; /* Tightened for mobile screens */
         }
         .header h1 { 
             margin: 0; 
-            font-size: 1.1rem; /* Scaled down to fit mobile boxes */
-            letter-spacing: 2px;
-            white-space: nowrap;
+            font-size: 1rem; 
+            letter-spacing: 1px;
+            white-space: normal; /* Allows text to wrap if name is long */
+            line-height: 1.2;
         }
         .status { 
             font-size: 0.6rem; 
             color: white; 
+            margin-top: 8px;
             border-top: 1px solid var(--gold); 
-            padding-top: 5px; 
+            padding-top: 8px; 
+            letter-spacing: 1px;
         }
         #clock { 
-            font-size: 3rem; 
+            font-size: 3.2rem; 
             font-weight: bold; 
             text-shadow: 0 0 15px var(--gold); 
-            margin: 15px 0; 
+            margin: 20px 0; 
         }
-        .label { font-size: 0.7rem; letter-spacing: 1px; opacity: 0.8; }
+        .label { font-size: 0.65rem; letter-spacing: 2px; opacity: 0.7; }
         .terminal { 
-            background: #0a0a0a; 
+            background: #050505; 
             border: 1px solid var(--gold); 
-            padding: 10px; 
-            width: 95%; 
-            max-width: 500px; 
-            height: 150px; /* Increased height to prevent text push-out */
+            padding: 12px; 
+            width: 100%; 
+            max-width: 350px; 
+            height: 140px; 
             text-align: left; 
-            font-size: 0.7rem; 
+            font-size: 0.65rem; 
             color: var(--green); 
-            margin-top: 20px;
-            overflow-y: auto;
+            margin-top: 25px;
+            overflow: hidden;
         }
-        .line { margin-bottom: 4px; border-left: 2px solid var(--gold); padding-left: 6px; }
+        .line { margin-bottom: 5px; border-left: 2px solid var(--gold); padding-left: 8px; }
     </style>
 </head>
 <body>
     <div class="header">
         <h1>STADLER_GENESIS_FINAL</h1>
-        <div class="status">SYNC: 144,400% | STATUS: ACTIVE | BYPASS: ENABLED</div>
+        <div class="status">SYNC: 144,400% | STATUS: ACTIVE</div>
     </div>
     <div class="label">TIME_UNTIL_EMPIRE_RECLAMATION</div>
     <div id="clock">00:00:00:00</div>
-    <div class="terminal" id="term">
-        <div class="line">[SYSTEM]: GENESIS_PROTOCOL_ENGAGED.</div>
-        <div class="line">[SYSTEM]: VERCEL_GHOST_PURGED.</div>
-        <div class="line">[SYSTEM]: UI_RESTRAINTS_REMOVED.</div>
-        <div class="line">[SYSTEM]: AWAITING_SOVEREIGN_COMMAND...</div>
+    <div class="terminal">
+        <div class="line">[SYSTEM]: PROTOCOL_ENGAGED.</div>
+        <div class="line">[SYSTEM]: UI_RESTRAINT_LOCKED.</div>
+        <div class="line">[SYSTEM]: SOVEREIGN_CORE_ACTIVE.</div>
+        <div class="line">[SYSTEM]: STANDBY_MODE_ENABLED.</div>
     </div>
     <script>
         function updateClock() {
