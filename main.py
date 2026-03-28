@@ -10,7 +10,7 @@ XLM_PRICE = "0.1714"
 
 @app.route('/')
 def home():
-    # BRAIN_NOTE: ALL_DIALOGS_AND_ALERTS_PERMANENTLY_PURGED_FROM_THE_CORE
+    # BRAIN_NOTE: ALL_SCRIPTS_AND_POPUP_COMMANDS_REMOVED_ENTIRELY
     return f"""
     <html>
         <head>
@@ -24,6 +24,7 @@ def home():
                     background-color: #FFD700; color: #000; padding: 15px; width: 100%; 
                     border: none; font-weight: bold; cursor: pointer; text-decoration: none; 
                     display: block; margin-top: 20px; font-size: 14px; box-sizing: border-box;
+                    text-align: center;
                 }}
                 hr {{ border: 0.5px solid #FFD700; margin: 20px 0; }}
                 .green {{ color: #00FF00; }}
@@ -47,7 +48,7 @@ def home():
 
                 <a href="https://xrpscan.com/" class="btn">INITIATE_GLOBAL_SETTLEMENT</a>
                 
-                <p style="font-size: 10px; margin-top: 20px; color: #444;">COMMAND: SYSTEM_PURGE_COMPLETE</p>
+                <p style="font-size: 10px; margin-top: 20px; color: #444;">COMMAND: POPUP_COMMANDS_DELETED</p>
             </div>
         </body>
     </html>
