@@ -6,21 +6,17 @@
     <title>CREATEAI | OMNI_CORE</title>
     <style>
         :root { --gold: #D4AF37; --black: #000000; --green: #00FF00; --white: #FFFFFF; }
-        * { box-sizing: border-box; -webkit-tap-highlight-color: transparent; }
+        * { box-sizing: border-box; }
         body { background: var(--black); color: var(--gold); font-family: 'Courier New', monospace; margin: 0; padding: 10px; text-transform: uppercase; display: flex; flex-direction: column; align-items: center; min-height: 100vh; }
         .header { border: 2px solid var(--gold); padding: 15px; margin: 10px 0; text-align: center; background: rgba(212, 175, 55, 0.05); width: 100%; max-width: 450px; }
-        .header h1 { margin: 0; font-size: 1.1rem; letter-spacing: 2px; }
         #clock { font-size: 3.2rem; font-weight: bold; text-shadow: 0 0 15px var(--gold); margin: 10px 0; }
         .grid { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; width: 100%; max-width: 450px; margin-top: 10px; }
-        .btn { border: 1px solid var(--gold); padding: 12px 2px; background: transparent; color: var(--gold); text-align: center; text-decoration: none; font-size: 0.65rem; letter-spacing: 1px; transition: 0.2s; }
-        .btn:active { background: var(--gold); color: var(--black); }
-        .terminal { background: #050505; border: 1px solid var(--gold); padding: 10px; width: 100%; max-width: 450px; height: 110px; text-align: left; font-size: 0.55rem; color: var(--green); margin-top: 15px; overflow-y: auto; }
-        .line { margin-bottom: 3px; border-left: 2px solid var(--gold); padding-left: 6px; }
-        .footer { margin-top: auto; padding: 15px 0; font-size: 0.5rem; color: var(--white); letter-spacing: 2px; opacity: 0.4; text-align: center;}
+        .btn { border: 1px solid var(--gold); padding: 12px 2px; background: transparent; color: var(--gold); text-align: center; text-decoration: none; font-size: 0.65rem; letter-spacing: 1px; }
+        .terminal { background: #050505; border: 1px solid var(--gold); padding: 10px; width: 100%; max-width: 450px; height: 110px; font-size: 0.55rem; color: var(--green); margin-top: 15px; overflow-y: auto; text-align: left; }
     </style>
 </head>
 <body>
-    <div class="header"><h1>CREATEAI_OMNI_CORE</h1><div style="font-size: 0.55rem; margin-top: 5px; color:white;">TOTAL_SYSTEM_INTEGRATION</div></div>
+    <div class="header"><h1>CREATEAI_OMNI_CORE</h1></div>
     <div id="clock">00:00:00:00</div>
     <div class="grid">
         <a href="nexus.html" class="btn">THE_NEXUS</a>
@@ -29,16 +25,11 @@
         <a href="healthcare.html" class="btn">HEALTHCARE</a>
         <a href="gardens.html" class="btn">THE_GARDENS</a>
         <a href="hub.html" class="btn">CREATOR_HUB</a>
-        <a href="vault.html" class="btn">THE_VAULT</a>
-        <a href="network.html" class="btn">AFFILIATE_NET</a>
-        <a href="ai-core.html" class="btn">AI_GENESIS</a>
-        <a href="settings.html" class="btn">SYSTEMS</a>
     </div>
-    <div class="terminal" id="term">
-        <div class="line">[SYSTEM]: RECLAIMING_ALL_DEPARTMENTS...</div>
-        <div class="line">[SYSTEM]: OMNI_CORE_ONLINE. AWAITING_COMMAND.</div>
+    <div class="terminal">
+        <div>[SYSTEM]: SYNCING_EMPIRE_RESOURCES...</div>
+        <div>[SYSTEM]: OMNI_CORE_ONLINE.</div>
     </div>
-    <div class="footer">UNIFIED // SOVEREIGN // CREATEAI © 2026</div>
     <script>
         function updateClock() {
             const now = new Date();
