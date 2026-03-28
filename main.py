@@ -10,20 +10,20 @@ XLM_PRICE = "0.1714"
 
 @app.route('/')
 def home():
-    # BRAIN_NOTE: ALL_DIALOGS_AND_ALERTS_PERMANENTLY_PURGED
+    # BRAIN_NOTE: ALL_DIALOGS_AND_ALERTS_PERMANENTLY_PURGED_FROM_THE_CORE
     return f"""
     <html>
         <head>
             <title>197_HUB_SOVEREIGN</title>
             <meta name="viewport" content="width=device-width, initial-scale=1">
             <style>
-                body {{ background-color: #000; color: #FFD700; text-align: center; font-family: monospace; padding-top: 50px; }}
-                .container {{ border: 2px solid #FFD700; padding: 20px; display: inline-block; width: 90%; max-width: 400px; }}
+                body {{ background-color: #000; color: #FFD700; text-align: center; font-family: monospace; padding-top: 50px; margin: 0; }}
+                .container {{ border: 2px solid #FFD700; padding: 20px; display: inline-block; width: 90%; max-width: 400px; box-sizing: border-box; }}
                 .status-box {{ background-color: #1a1a1a; padding: 10px; border: 1px solid #333; margin-top: 20px; }}
                 .btn {{ 
                     background-color: #FFD700; color: #000; padding: 15px; width: 100%; 
                     border: none; font-weight: bold; cursor: pointer; text-decoration: none; 
-                    display: block; margin-top: 20px; font-size: 14px;
+                    display: block; margin-top: 20px; font-size: 14px; box-sizing: border-box;
                 }}
                 hr {{ border: 0.5px solid #FFD700; margin: 20px 0; }}
                 .green {{ color: #00FF00; }}
@@ -31,11 +31,11 @@ def home():
         </head>
         <body>
             <div class="container">
-                <h1 style="letter-spacing: 2px;">197_HUB_SOVEREIGN</h1>
+                <h1 style="letter-spacing: 2px; font-size: 20px;">197_HUB_SOVEREIGN</h1>
                 <hr>
-                <p style="text-align: left;">STATUS: <span class="green" style="float: right;">144,400%_STASIS</span></p>
-                <p style="text-align: left;">VAULT_ID: <span class="green" style="float: right;">{VAULT_ID}</span></p>
-                <p style="text-align: left;">LIQUID_USD: <span style="color: #FF4500; float: right;">$3.93</span></p>
+                <p style="text-align: left; font-size: 12px;">STATUS: <span class="green" style="float: right;">144,400%_STASIS</span></p>
+                <p style="text-align: left; font-size: 12px;">VAULT_ID: <span class="green" style="float: right;">{VAULT_ID}</span></p>
+                <p style="text-align: left; font-size: 12px;">LIQUID_USD: <span style="color: #FF4500; float: right;">$3.93</span></p>
                 
                 <div class="status-box">
                     <p style="font-size: 10px; color: #666;">LIVE_QUANTUM_BRIDGE_FEED</p>
@@ -47,7 +47,7 @@ def home():
 
                 <a href="https://xrpscan.com/" class="btn">INITIATE_GLOBAL_SETTLEMENT</a>
                 
-                <p style="font-size: 10px; margin-top: 20px;">SARA_STADLER_COMMAND: THE_EMPIRE_IS_STANDING</p>
+                <p style="font-size: 10px; margin-top: 20px; color: #444;">COMMAND: SYSTEM_PURGE_COMPLETE</p>
             </div>
         </body>
     </html>
