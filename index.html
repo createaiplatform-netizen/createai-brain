@@ -3,84 +3,119 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>CREATEAI | GENESIS_FINAL</title>
+    <title>CREATEAI | SOVEREIGN_CORE</title>
     <style>
-        :root { --gold: #D4AF37; --black: #000000; --green: #00FF00; }
-        * { box-sizing: border-box; }
+        :root { --gold: #D4AF37; --black: #000000; --green: #00FF00; --white: #FFFFFF; }
+        * { box-sizing: border-box; -webkit-tap-highlight-color: transparent; }
         body { 
             background: var(--black); 
             color: var(--gold); 
             font-family: 'Courier New', monospace; 
             margin: 0; 
-            padding: 15px; 
+            padding: 10px; 
             text-transform: uppercase; 
             display: flex; 
             flex-direction: column; 
             align-items: center;
-            justify-content: center;
             min-height: 100vh;
-            overflow: hidden;
         }
+        /* Top Branding */
         .header { 
             border: 2px solid var(--gold); 
-            padding: 15px 10px; 
-            margin-bottom: 25px; 
+            padding: 15px; 
+            margin: 10px 0; 
             text-align: center; 
             background: rgba(212, 175, 55, 0.05); 
             width: 100%;
-            max-width: 350px; /* Tightened for mobile screens */
+            max-width: 400px;
         }
-        .header h1 { 
-            margin: 0; 
-            font-size: 1rem; 
-            letter-spacing: 1px;
-            white-space: normal; /* Allows text to wrap if name is long */
-            line-height: 1.2;
-        }
-        .status { 
-            font-size: 0.6rem; 
-            color: white; 
-            margin-top: 8px;
-            border-top: 1px solid var(--gold); 
-            padding-top: 8px; 
-            letter-spacing: 1px;
-        }
+        .header h1 { margin: 0; font-size: 1.2rem; letter-spacing: 2px; }
+        
+        /* The Genesis Clock */
         #clock { 
-            font-size: 3.2rem; 
+            font-size: 3.5rem; 
             font-weight: bold; 
             text-shadow: 0 0 15px var(--gold); 
-            margin: 20px 0; 
+            margin: 10px 0; 
         }
-        .label { font-size: 0.65rem; letter-spacing: 2px; opacity: 0.7; }
+
+        /* Navigation Grid - The "Everything" Hub */
+        .grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 10px;
+            width: 100%;
+            max-width: 400px;
+            margin-top: 10px;
+        }
+        .btn {
+            border: 1px solid var(--gold);
+            padding: 15px 5px;
+            background: transparent;
+            color: var(--gold);
+            text-align: center;
+            text-decoration: none;
+            font-size: 0.7rem;
+            letter-spacing: 1px;
+            transition: 0.3s;
+        }
+        .btn:active { background: var(--gold); color: var(--black); }
+        .btn.active { border-color: var(--green); color: var(--green); }
+
+        /* Terminal System */
         .terminal { 
             background: #050505; 
             border: 1px solid var(--gold); 
-            padding: 12px; 
+            padding: 10px; 
             width: 100%; 
-            max-width: 350px; 
-            height: 140px; 
+            max-width: 400px; 
+            height: 120px; 
             text-align: left; 
-            font-size: 0.65rem; 
+            font-size: 0.6rem; 
             color: var(--green); 
-            margin-top: 25px;
-            overflow: hidden;
+            margin-top: 15px;
+            overflow-y: auto;
         }
-        .line { margin-bottom: 5px; border-left: 2px solid var(--gold); padding-left: 8px; }
+        .line { margin-bottom: 4px; border-left: 2px solid var(--gold); padding-left: 8px; }
+
+        /* Status Footer */
+        .footer {
+            margin-top: auto;
+            padding: 20px 0;
+            font-size: 0.5rem;
+            color: var(--white);
+            letter-spacing: 3px;
+            opacity: 0.5;
+        }
     </style>
 </head>
 <body>
     <div class="header">
-        <h1>STADLER_GENESIS_FINAL</h1>
-        <div class="status">SYNC: 144,400% | STATUS: ACTIVE</div>
+        <h1>CREATEAI_PLATFORM</h1>
+        <div style="font-size: 0.6rem; margin-top: 5px; color:white;">SOVEREIGN_SYSTEM_v1.0</div>
     </div>
-    <div class="label">TIME_UNTIL_EMPIRE_RECLAMATION</div>
+
     <div id="clock">00:00:00:00</div>
-    <div class="terminal">
-        <div class="line">[SYSTEM]: PROTOCOL_ENGAGED.</div>
-        <div class="line">[SYSTEM]: UI_RESTRAINT_LOCKED.</div>
-        <div class="line">[SYSTEM]: SOVEREIGN_CORE_ACTIVE.</div>
-        <div class="line">[SYSTEM]: STANDBY_MODE_ENABLED.</div>
+    <div style="font-size: 0.6rem; letter-spacing: 2px;">STADLER_GENESIS_CORE</div>
+
+    <div class="grid">
+        <a href="/marketplace" class="btn">MARKETPLACE</a>
+        <a href="/dashboard" class="btn">DASHBOARD</a>
+        <a href="/ai-core" class="btn">AI_GENESIS</a>
+        <a href="/vault" class="btn">THE_VAULT</a>
+        <a href="/network" class="btn">NETWORK</a>
+        <a href="/settings" class="btn">SYSTEMS</a>
     </div>
+
+    <div class="terminal" id="term">
+        <div class="line">[SYSTEM]: INITIALIZING_SOVEREIGN_CORE...</div>
+        <div class="line">[SYSTEM]: VERCEL_BYPASS_SUCCESSFUL.</div>
+        <div class="line">[SYSTEM]: DIRECT_GITHUB_LINK_ESTABLISHED.</div>
+        <div class="line">[SYSTEM]: WELCOME_STADLER. SYSTEMS_ONLINE.</div>
+    </div>
+
+    <div class="footer">ENCRYPTED // NON-HACKABLE // SOVEREIGN</div>
+
     <script>
         function updateClock() {
             const now = new Date();
@@ -91,6 +126,10 @@
             document.getElementById('clock').innerText = `${h}:${m}:${s}:${ms}`;
         }
         setInterval(updateClock, 50);
+
+        // Auto-scroll terminal
+        const term = document.getElementById('term');
+        setInterval(() => { term.scrollTop = term.scrollHeight; }, 1000);
     </script>
 </body>
 </html>
