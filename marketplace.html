@@ -1,41 +1,81 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-    <meta charset="UTF-8"><meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>MARKETPLACE | CREATEAI</title>
     <style>
-        :root { --gold: #D4AF37; --black: #000000; --green: #00FF00; }
-        body { background: var(--black); color: var(--gold); font-family: 'Courier New', monospace; margin: 0; padding: 15px; text-transform: uppercase; }
-        .nav-back { border: 1px solid var(--gold); padding: 8px; text-decoration: none; color: var(--gold); font-size: 0.6rem; display: inline-block; margin-bottom: 20px; }
-        .market-header { border: 2px solid var(--gold); padding: 20px; text-align: center; background: rgba(212, 175, 55, 0.05); }
-        .stat-bar { display: flex; justify-content: space-around; font-size: 0.5rem; padding: 10px; border-bottom: 1px solid var(--gold); color: white; }
-        .item { border: 1px solid var(--gold); margin: 15px 0; padding: 15px; background: #0a0a0a; }
-        .price { color: var(--green); font-size: 1.2rem; display: block; margin: 10px 0; }
-        .btn-order { background: var(--gold); color: var(--black); border: none; padding: 12px; width: 100%; font-weight: bold; cursor: pointer; }
-        .affiliate-box { border: 1px dashed var(--green); padding: 10px; font-size: 0.6rem; color: var(--green); margin-top: 10px; }
+        :root { --gold: #D4AF37; --dark: #0a0a0b; --glass: rgba(255, 255, 255, 0.03); --glow: rgba(212, 175, 55, 0.3); }
+        body { 
+            background: radial-gradient(circle at top, #1a1a1c 0%, #000 100%); 
+            color: #fff; font-family: 'Inter', -apple-system, sans-serif; 
+            margin: 0; padding: 20px; text-transform: uppercase; letter-spacing: 1px;
+        }
+        .nav-back { color: var(--gold); text-decoration: none; font-size: 0.7rem; border: 1px solid var(--gold); padding: 10px 20px; border-radius: 50px; display: inline-block; margin-bottom: 30px; transition: 0.3s; }
+        .nav-back:hover { background: var(--gold); color: #000; }
+
+        .hero { text-align: center; margin-bottom: 40px; }
+        .hero h1 { font-size: 2rem; margin: 0; background: linear-gradient(to right, #fff, var(--gold)); -webkit-background-clip: text; -webkit-text-fill-color: transparent; }
+        
+        /* The Luxury Card */
+        .grid { display: grid; gap: 20px; max-width: 500px; margin: 0 auto; }
+        .card { 
+            background: var(--glass); 
+            border: 1px solid rgba(212, 175, 55, 0.2); 
+            border-radius: 24px; 
+            padding: 30px; 
+            backdrop-filter: blur(15px); 
+            box-shadow: 0 10px 30px rgba(0,0,0,0.5);
+            position: relative; overflow: hidden;
+        }
+        .card::after { content: ""; position: absolute; top: -50%; left: -50%; width: 200%; height: 200%; background: radial-gradient(circle, var(--glow) 0%, transparent 70%); opacity: 0.1; }
+
+        .price-tag { font-size: 1.8rem; font-weight: bold; color: var(--gold); margin: 20px 0; display: block; }
+        .benefit-list { list-style: none; padding: 0; font-size: 0.65rem; color: #888; margin-bottom: 25px; }
+        .benefit-list li { margin-bottom: 8px; display: flex; align-items: center; }
+        .benefit-list li::before { content: "✓"; color: var(--gold); margin-right: 10px; }
+
+        .buy-btn { 
+            background: var(--gold); color: #000; border: none; width: 100%; 
+            padding: 18px; border-radius: 12px; font-weight: 800; cursor: pointer; 
+            transition: 0.4s; box-shadow: 0 4px 15px var(--glow);
+        }
+        .buy-btn:hover { transform: translateY(-3px); box-shadow: 0 8px 25px var(--glow); }
+        
+        .badge { position: absolute; top: 20px; right: 20px; background: #fff; color: #000; font-size: 0.5rem; padding: 4px 10px; border-radius: 4px; font-weight: bold; }
     </style>
 </head>
 <body>
-    <a href="index.html" class="nav-back">< RETURN_TO_CORE</a>
-    <div class="market-header">
-        <h1>GLOBAL_MARKETPLACE</h1>
-        <div class="stat-bar">
-            <span>INVENTORY: 50,000+</span><span>DROPSHIP: ACTIVE</span><span>AFFILIATE: SYNCED</span>
+    <a href="index.html" class="nav-back">BACK TO CORE</a>
+
+    <div class="hero">
+        <h1>THE MARKETPLACE</h1>
+        <p style="font-size: 0.6rem; color: #666;">PREMIUM_COMMERCE_GATEWAY</p>
+    </div>
+
+    <div class="grid">
+        <div class="card">
+            <div class="badge">LIMITED</div>
+            <h2 style="margin:0; font-size: 1.2rem;">SOVEREIGN_MEMBERSHIP</h2>
+            <span class="price-tag">$144.00</span>
+            <ul class="benefit-list">
+                <li>EXCLUSIVE VAULT ACCESS</li>
+                <li>PRIORITY AI_CORE SYNC</li>
+                <li>HEALTH & BANK UTILITIES</li>
+            </ul>
+            <button class="buy-btn">ACQUIRE MEMBERSHIP</button>
         </div>
-    </div>
 
-    <div class="item">
-        <h3>ORDER_MEMBERSHIP</h3>
-        <p style="font-size: 0.5rem; color: #888;">BECOME A SOVEREIGN MEMBER. UNLOCK THE VAULT & ALL UTILITIES.</p>
-        <span class="price">$144.00 / MONTH</span>
-        <button class="btn-order">ACQUIRE_MEMBERSHIP</button>
-    </div>
-
-    <div class="item">
-        <h3>DROPSHIP_INVENTORY_FEED</h3>
-        <p style="font-size: 0.5rem; color: #888;">SYNC YOUR STORE TO OUR GLOBAL SUPPLY CHAIN.</p>
-        <div class="affiliate-box">URL_GEN: createai.digital/ref/STADLER_01</div>
-        <button class="btn-order" style="margin-top:10px;">SYNC_INVENTORY</button>
+        <div class="card">
+            <h2 style="margin:0; font-size: 1.2rem;">DROPSHIP_UTILITY_NODE</h2>
+            <span class="price-tag">$299.00</span>
+            <ul class="benefit-list">
+                <li>AUTOMATED INVENTORY FEED</li>
+                <li>GLOBAL LOGISTICS SYNC</li>
+                <li>AFFILIATE REVENUE STREAM</li>
+            </ul>
+            <button class="buy-btn" style="background: transparent; border: 1px solid var(--gold); color: var(--gold);">SECURE ASSET</button>
+        </div>
     </div>
 </body>
 </html>
