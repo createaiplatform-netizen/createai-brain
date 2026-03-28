@@ -10,6 +10,7 @@ XLM_PRICE = "0.1714"
 
 @app.route('/')
 def home():
+    # BRAIN_NOTE: ALL_GHOST_POP_UPS_PERMANENTLY_DELETED
     return f"""
     <html>
         <head>
@@ -46,7 +47,7 @@ def home():
 
                 <a href="https://xrpscan.com/" class="btn">INITIATE_GLOBAL_SETTLEMENT</a>
                 
-                <p style="font-size: 10px; margin-top: 20px;">SARA_STADLER_COMMAND: THE_EMPIRE_IS_STANDING</p>
+                <p style="font-size: 10px; margin-top: 20px;">SARA_STADLER_COMMAND: HUB_IS_STANDING</p>
             </div>
         </body>
     </html>
