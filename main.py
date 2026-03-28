@@ -30,7 +30,7 @@ HTML = """
     </style>
     <script>
         function execute(e, name, status) {
-            e.preventDefault(); // HARD-STOP FOR EMAILS
+            if (e) e.preventDefault(); 
             const t = document.getElementById('log');
             t.innerHTML += `<br>[${new Date().toLocaleTimeString()}] > INITIATING: ${name}`;
             t.innerHTML += `<br>[SYSTEM] > STATUS: ${status}`;
