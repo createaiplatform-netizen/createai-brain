@@ -2,57 +2,36 @@ from flask import Flask, render_template_string
 
 app = Flask(__name__)
 
-# THE_SYSTEM_MEMORY: Fusing all discussions since the First Message
-SYSTEM_DATA = {
-    "architect": "SARA_STADLER",
+# THE_FINAL_OMNI_DATA
+DATA = {
+    "arch": "SARA_STADLER",
     "stasis": "144,400%",
-    "vault": "WEBSTER-VAULT-2026.zip",
-    "values": [
-        "Internal AI in every product",
-        "Honesty and Truthfulness",
-        "Build until DONE",
-        "180°C Thermal Execution"
-    ]
+    "vault": "WEBSTER-VAULT-2026",
+    "vows": ["Internal AI Hub", "180°C Execution", "Build Until Done"]
 }
 
-HTML_TEMPLATE = """
+HTML = """
 <!DOCTYPE html>
-<html lang="en">
+<html>
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>CREATE_AI_NEXUS</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0">
     <style>
-        :root { --gold: #FFD700; --neon-green: #00FF00; }
-        body { background: #000; color: var(--neon-green); font-family: 'Courier New', monospace; margin: 0; display: flex; justify-content: center; align-items: center; min-height: 100vh; overflow: hidden; }
-        .nexus-fortress { border: 2px solid var(--gold); padding: 20px; width: 90%; max-width: 350px; text-align: center; box-shadow: 0 0 15px rgba(255, 215, 0, 0.3); box-sizing: border-box; }
-        h1 { color: var(--gold); font-size: 1.3rem; margin: 0 0 10px 0; letter-spacing: 2px; text-transform: uppercase; }
-        .data-stream { border-top: 1px solid #333; border-bottom: 1px solid #333; padding: 10px 0; margin: 15px 0; text-align: left; font-size: 0.8rem; }
-        .status-line { display: block; margin: 5px 0; }
-        .vault-link { color: #888; font-style: italic; font-size: 0.7rem; }
-        .btn { background: var(--gold); color: #000; padding: 12px; display: block; text-decoration: none; font-weight: bold; margin-top: 20px; transition: 0.3s; border: none; width: 100%; box-sizing: border-box; }
-        .stasis-pulse { color: #fff; font-size: 0.9rem; animation: pulse 2s infinite; }
-        @keyframes pulse { 0% { opacity: 1; } 50% { opacity: 0.4; } 100% { opacity: 1; } }
+        body { background: #000; color: #0f0; font-family: monospace; display: flex; justify-content: center; align-items: center; min-height: 100vh; margin: 0; }
+        .nexus { border: 2px solid #FFD700; padding: 20px; width: 85%; max-width: 320px; text-align: center; box-shadow: 0 0 20px rgba(255,215,0,0.2); }
+        h1 { color: #FFD700; font-size: 1.2rem; margin: 0 0 10px; border-bottom: 1px solid #333; padding-bottom: 10px; }
+        p { font-size: 0.8rem; margin: 8px 0; text-align: left; }
+        .btn { background: #FFD700; color: #000; padding: 12px; display: block; text-decoration: none; font-weight: bold; margin-top: 20px; font-size: 0.9rem; }
+        .glow { color: #fff; text-shadow: 0 0 5px #0f0; }
     </style>
 </head>
 <body>
-    <div class="nexus-fortress">
-        <h1>NEXUS_SYSTEM_ACTIVE</h1>
-        <p class="stasis-pulse">STATUS: {{ data.stasis }}_SYNC</p>
-        
-        <div class="data-stream">
-            <span class="status-line">>> ARCHITECT: {{ data.architect }}</span>
-            <span class="status-line">>> VAULT_ID: {{ data.vault }}</span>
-            <span class="status-line">>> LOGIC: MULTI-AGENT_CORE</span>
-            <div style="margin-top:10px;">
-                {% for value in data.values %}
-                <div style="color: var(--gold); font-size: 0.7rem;">[√] {{ value }}</div>
-                {% endfor %}
-            </div>
-        </div>
-
-        <p class="vault-link">ENCRYPTION: SHIELD_ACTIVE</p>
-        <a href="mailto:ACTIVATE@createai.digital?subject=INITIALIZE_PRODUCT_TRANS" class="btn">ACTIVATE_PRODUCT_AI</a>
+    <div class="nexus">
+        <h1>NEXUS_HUB_FINAL</h1>
+        <p class="glow">>> STATUS: {{ d.stasis }}_SYNC</p>
+        <p>>> ARCHITECT: {{ d.arch }}</p>
+        <p>>> VAULT: {{ d.vault }}</p>
+        {% for v in d.vows %}<p style="color:#FFD700;">[X] {{ v }}</p>{% endfor %}
+        <a href="mailto:ACTIVATE@createai.digital" class="btn">INITIALIZE_EMPIRE</a>
     </div>
 </body>
 </html>
@@ -60,7 +39,7 @@ HTML_TEMPLATE = """
 
 @app.route('/')
 def home():
-    return render_template_string(HTML_TEMPLATE, data=SYSTEM_DATA)
+    return render_template_string(HTML, d=DATA)
 
 if __name__ == "__main__":
     app.run()
