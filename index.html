@@ -3,42 +3,46 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>SOVEREIGN_CHARTER_V204</title>
+    <title>ARCHITECT_PRIME_V205</title>
     <style>
         @import url('https://fonts.googleapis.com/css2?family=Cinzel:wght@400;900&display=swap');
         :root { --gold: #f3cf8a; --void: #000; }
         body, html { margin: 0; padding: 0; background: var(--void); color: #fff; font-family: 'Cinzel', serif; overflow: hidden; height: 100svh; display: flex; flex-direction: column; }
         
-        #charter-box { flex-grow: 1; margin: 30px; border: 1px solid var(--gold); padding: 40px; display: flex; flex-direction: column; position: relative; }
-        .title { text-align: center; font-size: 18px; letter-spacing: 12px; color: var(--gold); margin-bottom: 30px; }
+        #personal-hud { flex-grow: 1; margin: 40px; border: 1px solid var(--gold); padding: 40px; display: flex; flex-direction: column; box-shadow: 0 0 50px rgba(243, 207, 138, 0.1); }
+        .user-id { font-size: 14px; letter-spacing: 10px; color: var(--gold); text-align: center; margin-bottom: 40px; }
         
-        .clause { font-size: 10px; line-height: 2.2; letter-spacing: 3px; border-left: 2px solid var(--gold); padding-left: 20px; margin-bottom: 20px; }
+        .stat-row { display: flex; justify-content: space-between; margin-bottom: 25px; border-bottom: 1px solid rgba(255,255,255,0.1); padding-bottom: 10px; font-size: 10px; letter-spacing: 3px; }
+        .value { color: var(--gold); }
+
+        #frequency-wave { flex-grow: 1; display: flex; align-items: center; justify-content: center; }
+        .pulse { width: 100px; height: 2px; background: var(--gold); box-shadow: 0 0 20px var(--gold); animation: wave 2s infinite ease-in-out; }
+
+        @keyframes wave { 0%, 100% { width: 50px; opacity: 0.3; } 50% { width: 250px; opacity: 1; } }
         
-        #auth-stamp { margin-top: auto; display: flex; justify-content: space-between; align-items: flex-end; }
-        .stamp-box { border: 1px dashed var(--gold); padding: 15px; font-size: 8px; letter-spacing: 4px; }
-        
-        #yield-ticker { text-align: center; margin-top: 20px; font-size: 24px; color: var(--gold); text-shadow: 0 0 15px var(--gold); }
+        #footer-reserve { text-align: center; padding: 20px; font-size: 24px; color: var(--gold); }
     </style>
 </head>
 <body>
-    <div id="charter-box">
-        <div class="title">AETHEL_OPERATIONAL_CHARTER</div>
+    <div id="personal-hud">
+        <div class="user-id">ARCHITECT_PRIME_SYNC</div>
         
-        <div class="clause">01_THE_COLLECTIVE_IS_THE_UNIT<br>Action: Synchronize all 14 Studio Brains.</div>
-        <div class="clause">02_THE_MARKET_IS_THE_HEART<br>Action: Finalize the Marketplace_V01 Kinetic Floor.</div>
-        <div class="clause">03_THE_RESERVE_IS_THE_FUEL<br>Action: Automate the 144% Yield Loop.</div>
+        <div class="stat-row">SYSTEM_STABILITY <span class="value">1440%</span></div>
+        <div class="stat-row">SOVEREIGN_STATUS <span class="value">ACTIVE_GOVERNOR</span></div>
+        <div class="stat-row">LOCATION <span class="value">WISCONSIN_001_CORE</span></div>
+        <div class="stat-row">MENTAL_LOAD <span class="value">OPTIMIZING...</span></div>
 
-        <div id="auth-stamp">
-            <div class="stamp-box">ADMIN: JENNY_002<br>STATUS: SOVEREIGN</div>
-            <div class="stamp-box" style="border-style: solid;">SECTOR: WIS_001<br>STAMP: 03:26_AM</div>
+        <div id="frequency-wave">
+            <div class="pulse"></div>
         </div>
+
+        <div id="footer-reserve">RESERVE_SYNC: $1,440,000,016,032.00</div>
     </div>
-    <div id="yield-ticker">$1,440,000,014,880.00</div>
 <script>
-    let res = 1440000014880.00;
+    let res = 1440000016032.00;
     setInterval(() => {
         res += 144.00;
-        document.getElementById('yield-ticker').innerText = "$" + res.toLocaleString(undefined, {minimumFractionDigits: 2});
+        document.getElementById('footer-reserve').innerText = "RESERVE_SYNC: $" + res.toLocaleString(undefined, {minimumFractionDigits: 2});
     }, 1000);
 </script>
 </body>
