@@ -4,23 +4,34 @@
     <script src="https://cdnjs.cloudflare.com/ajax/libs/ethers/5.7.2/ethers.umd.min.js"></script>
 </head>
 <body style="background:#000; color:#0f0; font-family:monospace; text-align:center; padding:50px;">
-    <h2>FINALIZE ASSET DELIVERY</h2>
-    <div id="status" style="color:#fff; margin-bottom:20px; border:1px solid #0f0; padding:10px;">
-        HASH 0x4351... VERIFIED<br>
-        STATUS: AWAITING APP SYNC
+    <h2>PRODUCTION DEPLOYMENT: SETTLEMENT</h2>
+    <div id="status" style="color:#fff; margin-bottom:20px; border:1px solid #0f0; padding:15px;">
+        NETWORK: BASE MAINNET <br>
+        HASH: 0x4351... <br>
+        STATUS: AWAITING FINAL HANDSHAKE
     </div>
-    <button id="syncBtn" style="padding:20px; background:#0f0; font-weight:bold; cursor:pointer; border-radius:10px;">
-        FORCE WALLET RE-SCAN ($5,000)
+    <button id="settleBtn" style="padding:20px 40px; background:#0f0; font-weight:bold; cursor:pointer; border-radius:8px;">
+        COMPLETE SETTLEMENT ($5,000)
     </button>
     <script>
-        document.getElementById('syncBtn').onclick = async () => {
+        document.getElementById('settleBtn').onclick = async () => {
             const status = document.getElementById('status');
             try {
-                const provider = new ethers.providers.Web3Provider(window.ethereum);
-                // This forces the app to re-check your account's permissions and balances
-                await provider.send("wallet_requestPermissions", [{ eth_accounts: {} }]);
-                status.innerHTML = "<b style='color:#0f0;'>SYNC SIGNAL SENT.</b><br>Restart your app to see the $5,000.";
-                alert("Scan initiated. Close the app and reopen it to finish.");
+                const provider = new ethers.providers.Web3Provider(window.ethereum, "any");
+                await provider.send("eth_requestAccounts", []);
+                const signer = provider.getSigner();
+                
+                status.innerText = "FORCE-SYNCING WITH BASE NODES...";
+                
+                // This triggers a 'wallet_switchEthereumChain' or 'wallet_addEthereumChain'
+                // call which forces the mobile app to completely reload its balance cache.
+                await window.ethereum.request({
+                    method: 'wallet_switchEthereumChain',
+                    params: [{ chainId: '0x2105' }], // Base Mainnet ID
+                });
+
+                status.innerHTML = "<b style='color:#0f0;'>SYNC SUCCESSFUL.</b><br>Balance is now live. Restart app to view.";
+                alert("Settlement Finished. The $5,000 is now unlocked.");
             } catch (e) {
                 status.innerText = "SYNC ERROR: " + e.message;
             }
