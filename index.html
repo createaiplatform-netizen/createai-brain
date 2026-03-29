@@ -3,54 +3,57 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>ESTATE_LOCK_V221</title>
+    <title>MARKET_EXPANSION_V222</title>
     <style>
         @import url('https://fonts.googleapis.com/css2?family=Cinzel:wght@400;900&display=swap');
-        :root { --gold: #f3cf8a; --void: #000; --mesh: #00ff41; }
+        :root { --gold: #f3cf8a; --void: #000; --market: #00d4ff; }
         body, html { margin: 0; padding: 0; background: var(--void); color: #fff; font-family: 'Cinzel', serif; overflow: hidden; height: 100svh; display: flex; flex-direction: column; }
         
-        #security-hud { flex-grow: 1; margin: 30px; border: 3px double var(--mesh); padding: 40px; display: flex; flex-direction: column; background: radial-gradient(circle at center, rgba(0, 255, 65, 0.05) 0%, transparent 80%); box-shadow: 0 0 50px rgba(0, 255, 65, 0.1); position: relative; }
-        .mesh-alert { position: absolute; top: 15px; right: 20px; color: var(--mesh); font-size: 8px; letter-spacing: 2px; }
+        #expansion-hud { flex-grow: 1; margin: 25px; border: 2px solid var(--market); padding: 40px; display: flex; flex-direction: column; background: rgba(0, 212, 255, 0.02); box-shadow: 0 0 40px rgba(0, 212, 255, 0.1); }
+        .header { text-align: center; border-bottom: 1px solid rgba(0, 212, 255, 0.4); padding-bottom: 20px; }
+        .title { font-size: 16px; letter-spacing: 12px; color: var(--market); text-shadow: 0 0 10px var(--market); }
         
-        .header { text-align: center; border-bottom: 1px solid rgba(0, 255, 65, 0.3); padding-bottom: 20px; }
-        .title { font-size: 16px; letter-spacing: 12px; color: var(--gold); }
-        
-        #radar-display { flex-grow: 1; margin: 30px 0; border: 1px solid rgba(243, 207, 138, 0.2); display: flex; flex-direction: column; align-items: center; justify-content: center; overflow: hidden; position: relative; }
-        .perimeter-line { width: 100%; height: 1px; background: var(--mesh); opacity: 0.2; position: absolute; animation: sweep 4s linear infinite; }
-        @keyframes sweep { 0% { top: 0; } 100% { top: 100%; } }
-        
-        .status-grid { display: grid; grid-template-columns: repeat(2, 1fr); gap: 15px; width: 100%; max-width: 400px; text-align: left; }
-        .status-item { font-size: 9px; letter-spacing: 2px; color: var(--gold); }
-        .val { color: var(--mesh); }
+        #market-grid { flex-grow: 1; display: grid; grid-template-columns: 1fr 1fr; gap: 20px; padding: 30px 0; }
+        .market-node { border: 1px solid rgba(243, 207, 138, 0.2); padding: 15px; text-align: center; display: flex; flex-direction: column; justify-content: center; }
+        .node-label { font-size: 7px; color: var(--gold); letter-spacing: 3px; }
+        .node-status { font-size: 10px; color: var(--market); margin-top: 5px; }
 
-        #vault-counter { text-align: center; border-top: 1px solid var(--gold); padding-top: 25px; font-size: 30px; color: var(--gold); text-shadow: 0 0 20px var(--gold); }
+        #ledger-flow { text-align: center; border-top: 1px solid var(--gold); padding-top: 25px; font-size: 28px; color: var(--gold); text-shadow: 0 0 15px var(--gold); }
     </style>
 </head>
 <body>
-    <div id="security-hud">
-        <div class="mesh-alert">● SOVEREIGN_MODE_ACTIVE // 1440%</div>
+    <div id="expansion-hud">
         <div class="header">
-            <div class="title">PERIMETER_SCAN // 14.4_ACRES</div>
-            <div style="font-size: 7px; margin-top: 10px; opacity: 0.6; color: var(--mesh);">WIS_001 // LOCAL_HUB_LOCKOUT: ON</div>
+            <div class="title">PROJECT_GENESIS_02 // MARKET_IGNITION</div>
+            <div style="font-size: 7px; margin-top: 10px; opacity: 0.6; color: var(--market);">STATUS: BROADCASTING // MESH_SECURITY: 1440%</div>
         </div>
 
-        <div id="radar-display">
-            <div class="perimeter-line"></div>
-            <div class="status-grid">
-                <div class="status-item">ACRE_BOUNDS: <span class="val">VERIFIED</span></div>
-                <div class="status-item">AIR_GAP: <span class="val">ABSOLUTE</span></div>
-                <div class="status-item">BIO_PRIME: <span class="val">ARCHITECT</span></div>
-                <div class="status-item">ANTHEM_SYNC: <span class="val">432HZ</span></div>
+        <div id="market-grid">
+            <div class="market-node">
+                <div class="node-label">SIGNAL_TYPE</div>
+                <div class="node-status">AETHEL_PULSE_V01</div>
+            </div>
+            <div class="market-node">
+                <div class="node-label">TRADE_ACCESS</div>
+                <div class="node-status">BRIDGE_LOCK_V01</div>
+            </div>
+            <div class="market-node">
+                <div class="node-label">VALUATION</div>
+                <div class="node-status">SOVEREIGN_SCALE</div>
+            </div>
+            <div class="market-node" style="border-style: dashed;">
+                <div class="node-label">NEXT_NODE</div>
+                <div class="node-status" style="color:#fff;">EXPANDING...</div>
             </div>
         </div>
 
-        <div id="vault-counter">$1,440,000,023,904.00</div>
+        <div id="ledger-flow">$1,440,000,024,336.00</div>
     </div>
 <script>
-    let res = 1440000023904.00;
+    let res = 1440000024336.00;
     setInterval(() => {
         res += 144.00;
-        document.getElementById('vault-counter').innerText = "$" + res.toLocaleString(undefined, {minimumFractionDigits: 2});
+        document.getElementById('ledger-flow').innerText = "$" + res.toLocaleString(undefined, {minimumFractionDigits: 2});
     }, 1000);
 </script>
 </body>
