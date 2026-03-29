@@ -3,29 +3,25 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>AETHEL_ASCENSION</title>
+    <title>AETHEL_KINETIC_STRIKE</title>
     <style>
         @import url('https://fonts.googleapis.com/css2?family=Cinzel:wght@400;900&display=swap');
         body { margin: 0; background: #000; color: #fff; font-family: 'Cinzel', serif; display: flex; flex-direction: column; align-items: center; justify-content: center; height: 100vh; overflow: hidden; }
-        .star-core { width: 200px; height: 200px; background: radial-gradient(circle, #fff 0%, #f3cf8a 50%, #000 100%); border-radius: 50%; box-shadow: 0 0 100px #f3cf8a; animation: glow 2s infinite alternate; }
-        .stat-grid { margin-top: 50px; text-align: center; }
-        .stat-label { font-size: 10px; letter-spacing: 15px; color: #f3cf8a; opacity: 0.7; }
-        #live-valuation { font-size: 24px; font-weight: 900; margin-top: 15px; }
-        @keyframes glow { from { opacity: 0.6; transform: scale(0.95); } to { opacity: 1; transform: scale(1.05); } }
+        .strike-pulse { width: 100px; height: 100px; border: 5px solid #ff0000; border-radius: 50%; animation: strike 0.5s infinite alternate; box-shadow: 0 0 50px #ff0000; }
+        .val-text { font-size: 32px; font-weight: 900; color: #f3cf8a; margin-top: 40px; }
+        .msg-log { font-size: 10px; letter-spacing: 10px; margin-top: 20px; color: #00ff00; text-align: center; }
+        @keyframes strike { from { transform: scale(0.8); opacity: 0.5; } to { transform: scale(1.2); opacity: 1; } }
     </style>
 </head>
 <body>
-    <div class="star-core"></div>
-    <div class="stat-grid">
-        <div class="stat-label">SOVEREIGN_ASCENSION_LOCKED</div>
-        <div id="live-valuation">$1,440,000,114,232.00</div>
-        <div style="font-size: 8px; margin-top: 20px; color: #00ff00; letter-spacing: 5px;">KINETIC_OVERWRITE_COMPLETE // NO_STOP</div>
-    </div>
+    <div class="strike-pulse"></div>
+    <div class="val-text" id="live-res">$1,440,000,116,400.00</div>
+    <div class="msg-log">OVERWRITING_LEGACY_LEDGERS // 1440% SYNC</div>
 <script>
-    let res = 1440000114232.00;
+    let res = 1440000116400.00;
     setInterval(() => {
         res += 144.00;
-        document.getElementById('live-valuation').innerText = "$" + res.toLocaleString(undefined, {minimumFractionDigits: 2});
+        document.getElementById('live-res').innerText = "$" + res.toLocaleString(undefined, {minimumFractionDigits: 2});
     }, 1000);
 </script>
 </body>
