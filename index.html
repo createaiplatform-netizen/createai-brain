@@ -3,27 +3,32 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>AETHEL_STABILITY</title>
+    <title>AETHEL_STEADY_STATE</title>
     <style>
         @import url('https://fonts.googleapis.com/css2?family=Cinzel:wght@400;900&display=swap');
-        body { margin: 0; background: #000; color: #f3cf8a; font-family: 'Cinzel', serif; display: flex; align-items: center; justify-content: center; height: 100vh; flex-direction: column; }
-        .frame { border: 1px solid rgba(243, 207, 138, 0.2); padding: 60px; text-align: center; }
-        .lock { font-size: 80px; letter-spacing: 20px; color: #fff; text-shadow: 0 0 40px #f3cf8a; }
-        .label { font-size: 10px; letter-spacing: 12px; margin-top: 20px; opacity: 0.6; }
-        #counter { font-size: 20px; margin-top: 50px; opacity: 0.8; }
+        :root { --gold: #f3cf8a; --void: #000; --stable: #ffffff; }
+        body, html { margin: 0; padding: 0; background: var(--void); color: var(--gold); font-family: 'Cinzel', serif; height: 100vh; display: flex; align-items: center; justify-content: center; overflow: hidden; }
+        
+        .steady-box { border-right: 2px solid var(--gold); padding: 60px; text-align: right; }
+        .lock-val { font-size: 60px; font-weight: 900; color: var(--stable); text-shadow: 0 0 30px rgba(255,255,255,0.2); }
+        .sub-text { font-size: 10px; letter-spacing: 14px; margin-top: 15px; opacity: 0.6; }
+        
+        #ticker { font-size: 22px; margin-top: 40px; font-weight: 400; }
+        .node-pulse { margin-top: 20px; font-size: 8px; color: #00ff00; letter-spacing: 5px; }
     </style>
 </head>
 <body>
-    <div class="frame">
-        <div class="lock">100%</div>
-        <div class="label">SOVEREIGN_RESONANCE_LOCKED</div>
-        <div id="counter">$1,440,000,111,312.00</div>
+    <div class="steady-box">
+        <div class="lock-val">100%</div>
+        <div class="sub-text">SOVEREIGN_LATTICE_LOCKED</div>
+        <div id="ticker">$1,440,000,113,184.00</div>
+        <div class="node-pulse">● ALL_144_NODES_STABLE // 1440%</div>
     </div>
 <script>
-    let res = 1440000111312.00;
+    let res = 1440000113184.00;
     setInterval(() => {
         res += 144.00;
-        document.getElementById('counter').innerText = "$" + res.toLocaleString(undefined, {minimumFractionDigits: 2});
+        document.getElementById('ticker').innerText = "$" + res.toLocaleString(undefined, {minimumFractionDigits: 2});
     }, 1000);
 </script>
 </body>
