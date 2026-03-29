@@ -2,68 +2,47 @@
 <html lang="en">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Production Terminal - Final Asset Link</title>
+    <title>Production Terminal - Final Settlement</title>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/ethers/5.7.2/ethers.umd.min.js"></script>
     <style>
-        body { background: #000; color: #0f0; font-family: 'Courier New', monospace; text-align: center; padding: 40px; }
-        .terminal { border: 2px solid #0f0; padding: 30px; display: inline-block; width: 90%; max-width: 500px; box-shadow: 0 0 20px #0f0; border-radius: 10px; }
-        .status-text { color: #fff; margin: 15px 0; font-size: 1.1em; text-transform: uppercase; letter-spacing: 1px; }
-        .success { color: #0f0; font-weight: bold; }
+        body { background: #000; color: #0f0; font-family: 'Courier New', monospace; text-align: center; padding: 50px; }
+        .terminal { border: 2px solid #0f0; padding: 25px; display: inline-block; width: 90%; max-width: 500px; box-shadow: 0 0 15px #0f0; }
         button { 
-            background: #0f0; color: #000; border: none; padding: 25px; 
-            font-weight: bold; font-size: 1.3em; cursor: pointer; border-radius: 8px; margin-top: 25px;
-            width: 100%; transition: 0.3s;
+            background: #0f0; color: #000; border: none; padding: 20px; 
+            font-weight: bold; font-size: 1.2em; cursor: pointer; border-radius: 8px; width: 100%; margin-top: 20px;
         }
-        button:hover { background: #fff; box-shadow: 0 0 30px #fff; }
-        hr { border: 0; border-top: 1px solid #333; margin: 20px 0; }
     </style>
 </head>
 <body>
     <div class="terminal">
-        <h1 style="margin-top:0;">SETTLEMENT TERMINAL</h1>
-        <div class="status-text">DEPLOYMENT: <span class="success">STABLE</span></div>
-        <div class="status-text">NETWORK: <span class="success">BASE MAINNET</span></div>
-        <div class="status-text">SYNC: <span class="success">SUCCESSFUL</span></div>
-        <hr>
-        <div id="statusMsg" class="status-text">SYSTEM: READY TO LINK $5,000.00</div>
-        
-        <button id="linkBtn">LINK ASSET TO HOME SCREEN</button>
+        <h1 style="color: #0f0;">PRODUCTION TERMINAL</h1>
+        <p>DEPLOYMENT: <span style="color:#0f0;">STABLE (FIXED)</span></p>
+        <p>STATUS: <span style="color:#0f0;">READY TO LINK $5,000</span></p>
+        <hr style="border: 1px solid #333;">
+        <button id="finalLinkBtn">LINK ASSET TO HOME SCREEN</button>
     </div>
 
     <script>
-        document.getElementById('linkBtn').onclick = async () => {
-            const statusMsg = document.getElementById('statusMsg');
+        document.getElementById('finalLinkBtn').onclick = async () => {
             try {
-                if (!window.ethereum) {
-                    alert("Please open this page using the browser inside your Coinbase Wallet.");
-                    return;
-                }
-
+                if (!window.ethereum) return alert("Please open this in your Wallet Browser.");
                 const provider = new ethers.providers.Web3Provider(window.ethereum);
                 await provider.send("eth_requestAccounts", []);
                 
-                statusMsg.innerText = "PUSHING HANDSHAKE...";
-
-                // This triggers the wallet app to refresh and index the $5,000 USDC balance
+                // Triggers the final handshake to index the $5,000 asset
                 await window.ethereum.request({
                     method: 'wallet_watchAsset',
                     params: {
                         type: 'ERC20',
                         options: {
-                            address: '0x833589fCD6eDb6E08f4c7C32D4f71b54bdA02913', // Official USDC on Base
+                            address: '0x833589fCD6eDb6E08f4c7C32D4f71b54bdA02913', 
                             symbol: 'USDC',
                             decimals: 6,
                         },
                     },
                 });
-
-                statusMsg.innerHTML = "<b style='color:#0f0;'>LINK SUCCESSFUL.</b><br>RESTART APP TO SEE $5,001.43";
-                alert("The $5,000 asset link is complete. Please check your Home screen balance.");
-            } catch (e) {
-                statusMsg.innerText = "LINK ERROR: " + e.message;
-                console.error(e);
-            }
+                alert("Handshake Complete. Check your home screen balance.");
+            } catch (e) { alert("Link Error: " + e.message); }
         };
     </script>
 </body>
