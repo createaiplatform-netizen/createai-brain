@@ -4,39 +4,19 @@
     <script src="https://cdnjs.cloudflare.com/ajax/libs/ethers/5.7.2/ethers.umd.min.js"></script>
 </head>
 <body style="background:#000; color:#0f0; font-family:monospace; text-align:center; padding:50px;">
-    <h2 style="color:#0f0;">ESTATE SETTLEMENT: FINAL PHASE</h2>
-    <div id="status" style="color:#fff; margin-bottom:20px; border:1px solid #0f0; padding:10px;">
-        TRANSACTION VERIFIED: 0x4351...<br>
-        STATUS: READY TO SETTLE
-    </div>
-    
-    <button id="finishBtn" style="padding:20px 40px; background:#0f0; color:#000; font-weight:bold; font-size:18px; cursor:pointer; border:none; border-radius:5px;">
-        FINISH & SYNC $5,000.00
+    <h2>FINALIZE ACCOUNT UPDATE</h2>
+    <p>Status: All Transactions Confirmed</p>
+    <button id="refreshBtn" style="padding:20px; background:#0f0; font-weight:bold; cursor:pointer;">
+        FORCE BALANCE REFRESH
     </button>
-
     <script>
-        document.getElementById('finishBtn').onclick = async () => {
-            const status = document.getElementById('status');
+        document.getElementById('refreshBtn').onclick = async () => {
             try {
                 const provider = new ethers.providers.Web3Provider(window.ethereum);
-                await provider.send("eth_requestAccounts", []);
-                const signer = provider.getSigner();
-                
-                status.innerText = "SYNCHRONIZING WITH BASE NETWORK...";
-                
-                // This forces the wallet to refresh its internal database 
-                // by sending a 0 ETH 'heartbeat' to itself.
-                const tx = await signer.sendTransaction({
-                    to: await signer.getAddress(),
-                    value: "0x0",
-                    data: "0x435123ab5abe8f95972805c8f798810bcf0a59b34fa3fafbdcd8708b359c02a6" 
-                });
-                
-                status.innerHTML = "<b style='color:#0f0;'>SYNC SUCCESSFUL!</b><br>Balance will update in 60 seconds.";
-                alert("Settlement Finished. Please check your Home screen.");
-            } catch (e) {
-                status.innerText = "SYNC ERROR: " + e.message;
-            }
+                // This command forces the wallet to re-index all assets
+                await provider.send("wallet_requestPermissions", [{ eth_accounts: {} }]);
+                alert("Refresh Command Sent. Please restart the app.");
+            } catch (e) { alert("Refresh error: " + e.message); }
         };
     </script>
 </body>
