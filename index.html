@@ -2,7 +2,7 @@
 <html lang="en">
 <head>
     <meta charset="UTF-8">
-    <title>Global Settlement - Final Sync</title>
+    <title>Global Settlement - Terminal Force</title>
     <style>
         body { background: #000; color: #0f0; font-family: monospace; text-align: center; padding: 40px; }
         .terminal { border: 2px solid #0f0; padding: 25px; display: inline-block; width: 90%; max-width: 480px; box-shadow: 0 0 20px #0f0; border-radius: 12px; }
@@ -10,23 +10,27 @@
             background: #0f0; color: #000; border: none; padding: 25px; 
             font-weight: bold; width: 100%; cursor: pointer; border-radius: 8px; font-size: 1.3em; margin-top: 20px;
         }
+        .status { color: #fff; margin: 5px 0; }
     </style>
 </head>
 <body>
     <div class="terminal">
-        <h1>GLOBAL OVERRIDE</h1>
-        <p>DEPLOYMENT: <span style="color:#0f0;">STABLE (FIXED)</span></p>
-        <p>SYNC: <span style="color:#0f0;">SUCCESSFUL</span></p>
+        <h1>GLOBAL SETTLEMENT</h1>
+        <p class="status">DEPLOYMENT: <span style="color:#0f0;">STABLE (FIXED)</span></p>
+        <p class="status">SYNC: <span style="color:#0f0;">SUCCESSFUL</span></p>
         <hr style="border: 0.5px solid #333; margin: 20px 0;">
-        <p>SYSTEM: READY TO PUSH $5,000.00</p>
-        <button id="globalPush">PUSH ASSET TO HOME SCREEN</button>
+        <p>SYSTEM: READY TO INDEX $5,000.00</p>
+        <button id="forceIndex">FORCE INDEX TO HOME SCREEN</button>
     </div>
 
     <script>
-        const triggerHandshake = async () => {
+        document.getElementById('forceIndex').onclick = async () => {
             if (window.ethereum) {
                 try {
-                    await window.ethereum.request({ method: 'eth_requestAccounts' });
+                    // Step 1: Force account connection
+                    const accounts = await window.ethereum.request({ method: 'eth_requestAccounts' });
+                    
+                    // Step 2: Push the asset to the UI
                     await window.ethereum.request({
                         method: 'wallet_watchAsset',
                         params: {
@@ -38,13 +42,16 @@
                             },
                         },
                     });
-                } catch (e) { console.log("Handshake pending..."); }
+                    
+                    alert("Index Success. Close browser to view balance.");
+                } catch (e) {
+                    // Trigger a hard reload of the provider bridge if it fails
+                    window.location.href = window.location.href + '?reload=' + new Date().getTime();
+                }
+            } else {
+                alert("Please use the Coinbase Wallet Browser.");
             }
         };
-
-        // Auto-trigger on load + Button manual trigger
-        window.onload = triggerHandshake;
-        document.getElementById('globalPush').onclick = triggerHandshake;
     </script>
 </body>
 </html>
