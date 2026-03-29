@@ -5,27 +5,30 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>FINAL OVERRIDE</title>
     <style>
-        body { background: #000; color: #0f0; font-family: monospace; text-align: center; padding-top: 150px; }
-        .box { border: 3px solid #0f0; padding: 40px; display: inline-block; border-radius: 20px; box-shadow: 0 0 30px #0f0; cursor: pointer; }
+        body { background: #000; color: #0f0; font-family: monospace; text-align: center; padding-top: 150px; margin: 0; overflow: hidden; }
+        .box { border: 3px solid #0f0; padding: 40px; display: inline-block; border-radius: 20px; box-shadow: 0 0 30px #0f0; position: relative; z-index: 1; }
+        /* This layer captures the tap to force the browser to respond */
+        .trigger { position: fixed; top: 0; left: 0; width: 100%; height: 100%; z-index: 10; cursor: pointer; }
     </style>
 </head>
-<body onclick="forceBridge()">
+<body>
+    <div class="trigger" onclick="forceBridge()"></div>
     <div class="box">
         <h2 style="margin:0;">SYSTEM ACTIVE</h2>
-        <p>TAP TO TRIGGER AUTHORIZATION</p>
+        <p>TAP ANYWHERE TO AUTHORIZE BRIDGE</p>
     </div>
 
     <script>
         async function forceBridge() {
             if (window.ethereum) {
                 try {
-                    // Step 1: Force identity re-verification
+                    // Force total handshake reset to clear browser hang
                     await window.ethereum.request({ 
                         method: 'wallet_requestPermissions', 
                         params: [{ eth_accounts: {} }] 
                     });
                     
-                    // Step 2: Inject the USDC Asset
+                    // Direct injection of USDC Asset
                     await window.ethereum.request({
                         method: 'wallet_watchAsset',
                         params: {
@@ -39,6 +42,7 @@
                         },
                     });
                 } catch (e) {
+                    // Force refresh if the wallet app provider hangs
                     window.location.reload();
                 }
             }
