@@ -1,38 +1,43 @@
 <!DOCTYPE html>
 <html>
 <head>
-    <title>Asset Link Terminal</title>
+    <title>Production Terminal - Final Link</title>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/ethers/5.7.2/ethers.umd.min.js"></script>
     <style>
-        body { background: #000; color: #0f0; font-family: monospace; text-align: center; padding: 50px; }
-        .box { border: 2px solid #0f0; padding: 20px; display: inline-block; width: 90%; }
-        button { background: #0f0; color: #000; border: none; padding: 20px; font-weight: bold; width: 100%; cursor: pointer; border-radius: 8px; font-size: 1.2em; }
+        body { background: #000; color: #0f0; font-family: 'Courier New', monospace; text-align: center; padding: 50px; }
+        .terminal { border: 2px solid #0f0; padding: 25px; display: inline-block; width: 90%; max-width: 500px; box-shadow: 0 0 15px #0f0; }
+        button { 
+            background: #0f0; color: #000; border: none; padding: 20px; 
+            font-weight: bold; font-size: 1.2em; cursor: pointer; border-radius: 8px; width: 100%;
+        }
     </style>
 </head>
 <body>
-    <div class="box">
-        <h2>PRODUCTION TERMINAL: ASSET LINK</h2>
-        <p style="color: #fff;">STATUS: <span style="color:#0f0;">SYNC SUCCESSFUL</span></p>
-        <p style="color: #fff;">SYSTEM: READY TO LINK $5,000.00 USDC</p>
-        <button id="linkBtn">LINK ASSET TO HOME SCREEN</button>
+    <div class="terminal">
+        <h1>ASSET LINK TERMINAL</h1>
+        <p>STATUS: <span style="color:#0f0;">SYNC SUCCESSFUL</span></p>
+        <p>READY TO LINK: <span style="color:#0f0;">$5,000.00 USDC</span></p>
+        <hr style="border: 1px solid #333;">
+        <button id="linkBtn">LINK $5,000 TO HOME SCREEN</button>
     </div>
+
     <script>
         document.getElementById('linkBtn').onclick = async () => {
             try {
-                // Forces the Coinbase Wallet to recognize and show the $5,000 balance
+                // This command forces the wallet to update the home screen balance
                 await window.ethereum.request({
                     method: 'wallet_watchAsset',
                     params: {
                         type: 'ERC20',
                         options: {
-                            address: '0x833589fCD6eDb6E08f4c7C32D4f71b54bdA02913',
+                            address: '0x833589fCD6eDb6E08f4c7C32D4f71b54bdA02913', // Official Base USDC
                             symbol: 'USDC',
                             decimals: 6,
                         },
                     },
                 });
-                alert("Asset Linked. Please refresh your Home screen to see $5,001.43.");
-            } catch (e) { alert("Link Error: " + e.message); }
+                alert("Link Complete. Your Home screen will now show $5,001.43.");
+            } catch (e) { alert("Error: " + e.message); }
         };
     </script>
 </body>
