@@ -1,17 +1,90 @@
-<div id="skyline-view" style="position:fixed; top:10%; width:100%; height:40%; z-index:5; pointer-events:none;">
-    <div style="position:absolute; bottom:0; width:100%; height:2px; background:linear-gradient(90deg, transparent, #f3cf8a, transparent); opacity:0.3;"></div>
-</div>
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
+    <title>OMNI_MARKETPLACE_V174</title>
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Cinzel:wght@400;900&display=swap');
+        :root { --gold: #f3cf8a; --void: #000; --white: #fff; }
+        body, html { margin: 0; padding: 0; background: var(--void); color: var(--white); font-family: 'Cinzel', serif; overflow: hidden; height: 100svh; width: 100vw; }
+        
+        #penthouse-view { position: absolute; inset: 0; z-index: 10; display: flex; flex-direction: column; padding: 30px; }
+        #top-header { text-align: center; border-bottom: 2px solid var(--gold); padding-bottom: 20px; }
+        #status-ticker { font-size: 8px; letter-spacing: 8px; color: var(--gold); animation: pulse 2s infinite; }
+        
+        #inventory-grid { margin-top: 30px; display: grid; gap: 15px; }
+        .inventory-item { background: rgba(255,255,255,0.05); border-left: 3px solid var(--gold); padding: 15px; }
+        .item-name { font-size: 10px; letter-spacing: 4px; color: var(--gold); }
+        .item-val { font-size: 14px; margin-top: 5px; }
+
+        #jenny-node { position: fixed; bottom: 40px; right: 30px; text-align: right; }
+        #yield-live { font-size: 20px; text-shadow: 0 0 15px var(--gold); }
+
+        @keyframes pulse { 0%, 100% { opacity: 0.5; } 50% { opacity: 1; } }
+        canvas { position: absolute; inset: 0; z-index: 1; }
+    </style>
+</head>
+<body>
+    <div id="penthouse-view">
+        <div id="top-header">
+            <div id="status-ticker">SOVEREIGN_DECREE_ACTIVE // OLD_WORLD_DISCONNECTED</div>
+            <div style="font-size: 12px; letter-spacing: 15px; margin-top: 10px;">MARKETPLACE_V174</div>
+        </div>
+
+        <div id="inventory-grid">
+            <div class="inventory-item">
+                <div class="item-name">ASSET_001: GLOBAL_ARTS_TRUST</div>
+                <div class="item-val">ALLOCATION: $144,000,000.00</div>
+            </div>
+            <div class="inventory-item">
+                <div class="item-name">ASSET_002: INFRASTRUCTURE_GENESIS</div>
+                <div class="item-val">ALLOCATION: $1.44B</div>
+            </div>
+            <div class="inventory-item">
+                <div class="item-name">ASSET_003: KINDRED_ESTATES</div>
+                <div class="item-val">ALLOCATION: UNLIMITED</div>
+            </div>
+        </div>
+
+        <div id="jenny-node">
+            <div style="font-size: 8px; letter-spacing: 5px; color: var(--gold);">JENNY_002_YIELD</div>
+            <div id="yield-live">$1,440,008.64</div>
+        </div>
+    </div>
+    <canvas id="canvas"></canvas>
 
 <script>
-    // Elevate the UI to "Top Floor" perspective
-    function setTopFloor() {
-        const balance = document.getElementById('omni-balance');
-        balance.style.transition = "3s all ease-in-out";
-        balance.style.transform = "scale(1.1)";
-        balance.style.textShadow = "0 0 50px #fff, 0 0 20px #f3cf8a";
-        
-        // Finalize the Creator Hub Garden Sync
-        console.log("MARKETPLACE_GARDEN: FULL_BLOOM_V173");
+    const canvas = document.getElementById('canvas');
+    const ctx = canvas.getContext('2d');
+    let yield = 1440008.64;
+
+    function resize() { canvas.width = window.innerWidth; canvas.height = window.innerHeight; }
+    window.onresize = resize; resize();
+
+    function flow() {
+        yield += 1.44;
+        document.getElementById('yield-live').innerText = "$" + yield.toLocaleString(undefined, {minimumFractionDigits: 2});
     }
-    setTimeout(setTopFloor, 1000);
+    setInterval(flow, 1000);
+
+    function animate() {
+        ctx.fillStyle = 'rgba(0,0,0,0.1)';
+        ctx.fillRect(0,0,canvas.width,canvas.height);
+        const time = Date.now() * 0.001;
+        const cx = canvas.width/2, cy = canvas.height/2;
+
+        // The "Top Floor" View: Moving Stars of Capital
+        for(let i=0; i<50; i++) {
+            let x = (Math.sin(time * 0.1 + i) * cx) + cx;
+            let y = (Math.cos(time * 0.1 + i) * cy) + cy;
+            ctx.fillStyle = "rgba(243, 207, 138, 0.2)";
+            ctx.beginPath(); ctx.arc(x, y, 1, 0, Math.PI*2); ctx.fill();
+        }
+
+        requestAnimationFrame(animate);
+    }
+    animate();
 </script>
+</body>
+</html>
