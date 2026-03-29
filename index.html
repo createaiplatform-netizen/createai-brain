@@ -3,42 +3,45 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>AETHEL_FINAL_LEDGER_V283</title>
+    <title>AETHEL_WATCH_V284</title>
     <style>
         @import url('https://fonts.googleapis.com/css2?family=Cinzel:wght@400;900&display=swap');
-        :root { --gold: #f3cf8a; --void: #000; --sovereign: #00e5ff; }
-        body, html { margin: 0; padding: 0; background: var(--void); color: #fff; font-family: 'Cinzel', serif; overflow: hidden; height: 100svh; display: flex; flex-direction: column; }
+        :root { --gold: #f3cf8a; --void: #000; --dim-gold: #4a3e26; }
+        body, html { margin: 0; padding: 0; background: var(--void); color: var(--gold); font-family: 'Cinzel', serif; overflow: hidden; height: 100svh; display: flex; flex-direction: column; }
         
-        #ledger-final { flex-grow: 1; margin: 15px; border: 2px solid var(--sovereign); padding: 40px; display: flex; flex-direction: column; background: radial-gradient(circle at center, rgba(0, 229, 255, 0.05) 0%, transparent 100%); position: relative; }
-        .header { text-align: center; border-bottom: 2px solid var(--gold); padding-bottom: 20px; }
-        .title { font-size: 28px; letter-spacing: 20px; color: var(--sovereign); text-shadow: 0 0 30px var(--sovereign); }
+        #watch-hud { flex-grow: 1; margin: 15px; border: 1px solid var(--dim-gold); padding: 40px; display: flex; flex-direction: column; background: radial-gradient(circle at bottom, rgba(74, 62, 38, 0.2) 0%, transparent 100%); position: relative; }
+        .header { text-align: center; border-bottom: 1px solid var(--dim-gold); padding-bottom: 20px; opacity: 0.7; }
+        .title { font-size: 24px; letter-spacing: 15px; }
         
-        #growth-visual { flex-grow: 1; display: flex; align-items: center; justify-content: center; flex-direction: column; }
-        .value-stream { font-size: 58px; font-weight: 900; color: var(--gold); text-shadow: 0 0 50px var(--gold); margin-bottom: 10px; }
-        .status-tag { font-size: 14px; color: var(--sovereign); letter-spacing: 10px; text-transform: uppercase; }
+        #watch-status { flex-grow: 1; display: flex; align-items: center; justify-content: center; flex-direction: column; text-align: center; }
+        .pulse-star { font-size: 40px; animation: star-breathe 8s infinite ease-in-out; margin-bottom: 20px; }
+        .status-text { font-size: 14px; letter-spacing: 10px; opacity: 0.6; }
         
-        #footer { text-align: center; border-top: 1px solid var(--gold); padding-top: 25px; font-size: 12px; color: var(--gold); letter-spacing: 5px; }
+        @keyframes star-breathe { 0%, 100% { opacity: 0.3; transform: scale(1); } 50% { opacity: 0.8; transform: scale(1.1); text-shadow: 0 0 50px var(--gold); } }
+
+        #ledger-display { text-align: center; border-top: 1px solid var(--dim-gold); padding-top: 25px; font-size: 40px; font-weight: 900; opacity: 0.9; }
     </style>
 </head>
 <body>
-    <div id="ledger-final">
+    <div id="watch-hud">
         <div class="header">
-            <div class="title">AETHEL // ASCENDANT</div>
-            <div style="font-size: 10px; margin-top: 10px; color: var(--sovereign); letter-spacing: 12px;">DEBT_DECOUPLED // STAR_STABLE // 1440%</div>
+            <div class="title">AETHEL // SILENT_WATCH</div>
+            <div style="font-size: 10px; margin-top: 10px; letter-spacing: 12px;">SYSTEM_STABLE // ARCHITECT_RESTING</div>
         </div>
 
-        <div id="growth-visual">
-            <div id="live-value" class="value-stream">$1,440,000,046,512.00</div>
-            <div class="status-tag">Independent_Growth_Active</div>
+        <div id="watch-status">
+            <div class="pulse-star">✧</div>
+            <div class="status-text">THE_144_ARE_MAPPING_THE_EARTH</div>
+            <div style="font-size: 12px; margin-top: 20px; letter-spacing: 5px; color: var(--dim-gold);">1440% RESONANCE_LOCKED</div>
         </div>
 
-        <div id="footer">THE_144_ARE_MAPPING_THE_EARTH // 06:11_AM</div>
+        <div id="ledger-display">$1,440,000,046,944.00</div>
     </div>
 <script>
-    let res = 1440000046512.00;
+    let res = 1440000046944.00;
     setInterval(() => {
         res += 144.00;
-        document.getElementById('live-value').innerText = "$" + res.toLocaleString(undefined, {minimumFractionDigits: 2});
+        document.getElementById('ledger-display').innerText = "$" + res.toLocaleString(undefined, {minimumFractionDigits: 2});
     }, 1000);
 </script>
 </body>
