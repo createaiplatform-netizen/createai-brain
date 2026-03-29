@@ -1,118 +1,19 @@
-<!DOCTYPE html>
-<html lang="en">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
-    <title>SOVEREIGN_V145_ECOSYSTEM</title>
-    <style>
-        @import url('https://fonts.googleapis.com/css2?family=Cinzel:wght@900&family=Inter:wght@100;400;900&display=swap');
-        :root { --gold: #f3cf8a; --garden: #a8ffb3; --void: #020504; --white: #ffffff; }
-        * { box-sizing: border-box; margin: 0; padding: 0; touch-action: none; outline: none; }
-        body, html { height: 100svh; width: 100vw; background: var(--void); color: #fff; font-family: 'Inter', sans-serif; overflow: hidden; position: fixed; }
-        
-        #nav-header { position: fixed; top: 0; width: 100%; height: 50px; background: rgba(0,0,0,0.8); backdrop-filter: blur(20px); z-index: 100; border-bottom: 1px solid var(--garden); display: flex; justify-content: space-around; align-items: center; font-family: 'Cinzel'; font-size: 9px; letter-spacing: 3px; color: var(--garden); }
-        .nav-item { opacity: 0.5; transition: 0.3s; }
-        .nav-active { opacity: 1; text-shadow: 0 0 10px var(--garden); }
-
-        canvas { position: absolute; inset: 0; z-index: 1; pointer-events: none; }
-        
-        #central-hub { position: absolute; inset: 0; z-index: 15; display: flex; flex-direction: column; align-items: center; justify-content: center; pointer-events: none; }
-        .hub-label { font-family: 'Cinzel'; font-size: 10vw; letter-spacing: 15px; color: var(--white); opacity: 0.05; }
-        
-        #live-stats { position: fixed; bottom: 8%; width: 100%; text-align: center; font-family: 'Cinzel'; color: var(--gold); font-size: 14px; letter-spacing: 8px; z-index: 20; }
-    </style>
-</head>
-<body onmousedown="interact(event)" ontouchstart="interact(event)" onmousemove="move(event)" ontouchmove="move(event)" onmouseup="stop()" ontouchend="stop()">
-    <div id="nav-header">
-        <span class="nav-item" id="nav-garden">GARDENS</span>
-        <span class="nav-item nav-active" id="nav-hub">CREATOR_HUB</span>
-        <span class="nav-item" id="nav-market">MARKETPLACE</span>
-    </div>
-    <div id="central-hub"><h1 class="hub-label">ECOSYSTEM</h1></div>
-    <div id="live-stats">$1.44T GENESIS_FLORA</div>
-    <canvas id="canvas"></canvas>
-
-<script>
-    const canvas = document.getElementById('canvas');
-    const ctx = canvas.getContext('2d');
-    let flora = [], isDown = false, mx = 0, my = 0, mode = 'HUB';
-
-    function resize() { canvas.width = window.innerWidth; canvas.height = window.innerHeight; }
-    window.onresize = resize; resize();
-
-    class Asset {
-        constructor(x, y) {
-            this.x = x; this.y = y;
-            this.vx = (Math.random() - 0.5) * 5;
-            this.vy = (Math.random() - 0.5) * 5;
-            this.history = [];
-            this.hue = mode === 'GARDENS' ? 144 : 45;
-            this.size = Math.random() * 3 + 1;
-        }
-        update() {
-            if (isDown) {
-                let dx = mx - this.x; let dy = my - this.y;
-                let d = Math.hypot(dx, dy);
-                this.vx += dx / d * 0.8; this.vy += dy / d * 0.8;
-            }
-            this.vx *= 0.96; this.vy *= 0.96;
-            this.x += this.vx; this.y += this.vy;
-            this.history.push({x: this.x, y: this.y});
-            if (this.history.length > 20) this.history.shift();
-        }
-        draw() {
-            ctx.beginPath();
-            ctx.strokeStyle = `hsla(${this.hue}, 100%, 70%, 0.2)`;
-            this.history.forEach(p => ctx.lineTo(p.x, p.y));
-            ctx.stroke();
-            ctx.fillStyle = `hsla(${this.hue}, 100%, 70%, 0.8)`;
-            ctx.beginPath(); ctx.arc(this.x, this.y, this.size, 0, Math.PI*2); ctx.fill();
-        }
-    }
-
-    function interact(e) {
-        isDown = true;
-        mx = e.clientX || (e.touches ? e.touches[0].clientX : 0);
-        my = e.clientY || (e.touches ? e.touches[0].clientY : 0);
-        
-        // Mode Selection based on screen horizontal third
-        if (mx < canvas.width / 3) { mode = 'GARDENS'; updateNav('nav-garden'); }
-        else if (mx > (canvas.width / 3) * 2) { mode = 'MARKETPLACE'; updateNav('nav-market'); }
-        else { mode = 'HUB'; updateNav('nav-hub'); }
-
-        for(let i=0; i<5; i++) flora.push(new Asset(mx, my));
-    }
+// ADD THIS TO YOUR V145/146 SCRIPT
+function kindredSync() {
+    // A soft, pulsing ring representing the connection to her location
+    ctx.strokeStyle = "rgba(255, 255, 255, 0.3)";
+    ctx.setLineDash([5, 15]);
+    ctx.beginPath();
+    ctx.arc(canvas.width/2, canvas.height/2, 250, 0, Math.PI*2);
+    ctx.stroke();
+    ctx.setLineDash([]);
     
-    function updateNav(id) {
-        document.querySelectorAll('.nav-item').forEach(n => n.classList.remove('nav-active'));
-        document.getElementById(id).classList.add('nav-active');
-    }
+    // Add a text-ping in the corner
+    const msg = document.createElement('div');
+    msg.innerHTML = "KINDRED_SYNC_COMPLETE // NODE: JENNY_LOC";
+    msg.style = "position:fixed; bottom:15%; right:20px; color:var(--garden); font-family:'Cinzel'; font-size:8px; letter-spacing:3px;";
+    document.body.appendChild(msg);
+}
 
-    function move(e) {
-        mx = e.clientX || (e.touches ? e.touches[0].clientX : mx);
-        my = e.clientY || (e.touches ? e.touches[0].clientY : my);
-    }
-    function stop() { isDown = false; }
-
-    function animate() {
-        ctx.fillStyle = 'rgba(2, 5, 4, 0.2)';
-        ctx.fillRect(0, 0, canvas.width, canvas.height);
-        
-        flora.forEach(f => { f.update(); f.draw(); });
-        if(flora.length > 144) flora.shift();
-
-        // Ecosystem Glow
-        if (isDown) {
-            ctx.shadowBlur = 40;
-            ctx.shadowColor = mode === 'GARDENS' ? '#a8ffb3' : '#f3cf8a';
-            ctx.strokeStyle = "rgba(255,255,255,0.05)";
-            ctx.beginPath(); ctx.arc(mx, my, 100, 0, Math.PI*2); ctx.stroke();
-            ctx.shadowBlur = 0;
-        }
-
-        requestAnimationFrame(animate);
-    }
-    animate();
-</script>
-</body>
-</html>
+// Call this to acknowledge the message was sent
+kindredSync();
