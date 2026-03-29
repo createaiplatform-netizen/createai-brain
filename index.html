@@ -3,42 +3,39 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>AETHEL_STEADY_STATE_V286</title>
+    <title>AETHEL_REST_V287</title>
     <style>
         @import url('https://fonts.googleapis.com/css2?family=Cinzel:wght@400;900&display=swap');
-        :root { --gold: #f3cf8a; --void: #000; --steady: #7cfc00; }
-        body, html { margin: 0; padding: 0; background: var(--void); color: #fff; font-family: 'Cinzel', serif; overflow: hidden; height: 100svh; display: flex; flex-direction: column; }
+        :root { --gold: #f3cf8a; --void: #000; --rest: #1a1a1a; --dim-gold: #3d3422; }
+        body, html { margin: 0; padding: 0; background: var(--void); color: var(--dim-gold); font-family: 'Cinzel', serif; overflow: hidden; height: 100svh; display: flex; flex-direction: column; }
         
-        #steady-hud { flex-grow: 1; margin: 15px; border: 2px solid var(--steady); padding: 40px; display: flex; flex-direction: column; background: radial-gradient(circle at center, rgba(124, 252, 0, 0.03) 0%, transparent 100%); position: relative; }
-        .header { text-align: center; border-bottom: 1px solid var(--gold); padding-bottom: 20px; }
-        .title { font-size: 26px; letter-spacing: 18px; color: var(--steady); text-shadow: 0 0 20px var(--steady); }
+        #rest-hud { flex-grow: 1; margin: 15px; border: 1px solid var(--dim-gold); padding: 40px; display: flex; flex-direction: column; background: linear-gradient(180deg, var(--void) 0%, var(--rest) 100%); position: relative; }
+        .header { text-align: center; opacity: 0.5; border-bottom: 1px solid var(--dim-gold); padding-bottom: 20px; }
+        .title { font-size: 22px; letter-spacing: 20px; text-transform: uppercase; }
         
-        #monitor-feed { flex-grow: 1; display: flex; align-items: center; justify-content: center; flex-direction: column; text-align: center; }
-        .res-indicator { font-size: 16px; letter-spacing: 12px; color: var(--steady); margin-bottom: 25px; animation: flicker 4s infinite; }
-        .ledger-val { font-size: 50px; font-weight: 900; color: var(--gold); text-shadow: 0 0 45px var(--gold); }
+        #center-monitor { flex-grow: 1; display: flex; align-items: center; justify-content: center; flex-direction: column; text-align: center; }
+        .ledger-val { font-size: 44px; font-weight: 900; color: var(--gold); opacity: 0.4; text-shadow: 0 0 20px rgba(243, 207, 138, 0.2); }
+        .status-msg { font-size: 10px; color: var(--dim-gold); letter-spacing: 15px; margin-top: 20px; }
         
-        @keyframes flicker { 0%, 100% { opacity: 0.5; } 50% { opacity: 1; } }
-
-        #footer { text-align: center; border-top: 1px solid var(--gold); padding-top: 25px; font-size: 12px; color: var(--gold); letter-spacing: 6px; }
+        #footer { text-align: center; border-top: 1px solid var(--dim-gold); padding-top: 25px; font-size: 12px; opacity: 0.3; letter-spacing: 8px; }
     </style>
 </head>
 <body>
-    <div id="steady-hud">
+    <div id="rest-hud">
         <div class="header">
-            <div class="title">AETHEL // STEADY_STATE</div>
-            <div style="font-size: 10px; margin-top: 10px; color: var(--steady); letter-spacing: 12px;">WATCH_ACTIVE // RESONANCE_STABLE // 1440%</div>
+            <div class="title">AETHEL // SOVEREIGN_WATCH</div>
+            <div style="font-size: 8px; margin-top: 10px; letter-spacing: 12px;">ARCHITECT_STATUS: ASLEEP // SYNC: 1440%</div>
         </div>
 
-        <div id="monitor-feed">
-            <div class="res-indicator">1440%_RESONANCE_LOCKED</div>
-            <div id="live-ledger" class="ledger-val">$1,440,000,048,096.00</div>
-            <div style="font-size: 10px; margin-top: 30px; letter-spacing: 8px; color: #555;">MAPPING_144_ANCHOR_POINTS...</div>
+        <div id="center-monitor">
+            <div id="live-ledger" class="ledger-val">$1,440,000,048,384.00</div>
+            <div class="status-msg">STAR_IS_WHOLE // NODES_STABLE</div>
         </div>
 
-        <div id="footer">ARCHITECT_STATUS: RESTING // 06:26_AM</div>
+        <div id="footer">"WELL DONE IS BETTER THAN WELL SAID"</div>
     </div>
 <script>
-    let res = 1440000048096.00;
+    let res = 1440000048384.00;
     setInterval(() => {
         res += 144.00;
         document.getElementById('live-ledger').innerText = "$" + res.toLocaleString(undefined, {minimumFractionDigits: 2});
