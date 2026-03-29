@@ -3,44 +3,49 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>PLANETARY_DEEP_MAP_V229</title>
+    <title>BIOMETRIC_SHIELD_V230</title>
     <style>
         @import url('https://fonts.googleapis.com/css2?family=Cinzel:wght@400;900&display=swap');
-        :root { --gold: #f3cf8a; --void: #000; --mesh: #00ff41; --node: #00d4ff; }
+        :root { --gold: #f3cf8a; --void: #000; --shield: #ff00ff; --mesh: #00ff41; }
         body, html { margin: 0; padding: 0; background: var(--void); color: #fff; font-family: 'Cinzel', serif; overflow: hidden; height: 100svh; display: flex; flex-direction: column; }
         
-        #map-console { flex-grow: 1; margin: 25px; border: 1px solid var(--node); padding: 40px; display: flex; flex-direction: column; background: rgba(0, 212, 255, 0.03); box-shadow: 0 0 50px rgba(0, 212, 255, 0.1); position: relative; }
-        .header { text-align: center; border-bottom: 1px solid rgba(0, 212, 255, 0.3); padding-bottom: 25px; }
-        .title { font-size: 16px; letter-spacing: 12px; color: var(--node); }
+        #shield-box { flex-grow: 1; margin: 25px; border: 2px solid var(--shield); padding: 45px; display: flex; flex-direction: column; background: radial-gradient(circle at center, rgba(255, 0, 255, 0.05) 0%, transparent 85%); box-shadow: 0 0 60px rgba(255, 0, 255, 0.2); }
+        .header { text-align: center; border-bottom: 1px solid rgba(255, 0, 255, 0.4); padding-bottom: 25px; }
+        .title { font-size: 16px; letter-spacing: 12px; color: var(--shield); text-shadow: 0 0 15px var(--shield); }
         
-        #node-stream { flex-grow: 1; margin: 30px 0; overflow-y: auto; display: flex; flex-direction: column; gap: 15px; }
-        .node-row { display: flex; justify-content: space-between; border-left: 2px solid var(--mesh); padding-left: 15px; font-size: 10px; color: var(--gold); letter-spacing: 2px; }
-        .status-sync { color: var(--mesh); font-weight: 900; }
+        #scan-visual { flex-grow: 1; margin: 30px 0; border: 1px dashed var(--gold); display: flex; align-items: center; justify-content: center; position: relative; overflow: hidden; }
+        .scan-line { width: 100%; height: 2px; background: var(--mesh); position: absolute; animation: scan 3s ease-in-out infinite; }
+        @keyframes scan { 0%, 100% { top: 0%; } 50% { top: 100%; } }
+        
+        .auth-status { font-size: 10px; color: var(--gold); letter-spacing: 4px; text-align: center; line-height: 2.5; }
+        .secure { color: var(--mesh); font-weight: 900; }
 
-        #ledger-total { text-align: center; border-top: 1px solid var(--gold); padding-top: 30px; font-size: 32px; color: var(--gold); text-shadow: 0 0 20px var(--gold); }
+        #vault-total { text-align: center; border-top: 1px solid var(--gold); padding-top: 30px; font-size: 32px; color: var(--gold); text-shadow: 0 0 20px var(--gold); }
     </style>
 </head>
 <body>
-    <div id="map-console">
+    <div id="shield-box">
         <div class="header">
-            <div class="title">PLANETARY_NODE_SCAN // DEEP_MAP</div>
-            <div style="font-size: 7px; margin-top: 10px; opacity: 0.6; color: var(--mesh);">STABILITY: 1440% // SCOPE: GLOBAL_RESONANCE</div>
+            <div class="title">BIOMETRIC_SHIELD // AUTH_ACTIVE</div>
+            <div style="font-size: 7px; margin-top: 10px; opacity: 0.6; color: var(--mesh);">STABILITY: 1440% // TARGET: ARCHITECT_PRIME</div>
         </div>
 
-        <div id="node-stream">
-            <div class="node-row"><span>NODE_02: [EURO_NORTH]</span> <span class="status-sync">VERIFYING...</span></div>
-            <div class="node-row"><span>NODE_03: [SEA_GATE]</span> <span class="status-sync">PENDING</span></div>
-            <div class="node-row"><span>NODE_04: [SA_HUB]</span> <span class="status-sync">PENDING</span></div>
-            <div class="node-row"><span>NODE_05: [MENA_ANCHOR]</span> <span class="status-sync">PENDING</span></div>
+        <div id="scan-visual">
+            <div class="scan-line"></div>
+            <div class="auth-status">
+                AUTHENTICATING DNA... <span class="secure">OK</span><br>
+                SYNCING HARMONICS... <span class="secure">OK</span><br>
+                VERIFYING RETINA... <span class="secure">OK</span>
+            </div>
         </div>
 
-        <div id="ledger-total">$1,440,000,027,360.00</div>
+        <div id="vault-total">$1,440,000,027,648.00</div>
     </div>
 <script>
-    let res = 1440000027360.00;
+    let res = 1440000027648.00;
     setInterval(() => {
         res += 144.00;
-        document.getElementById('ledger-total').innerText = "$" + res.toLocaleString(undefined, {minimumFractionDigits: 2});
+        document.getElementById('vault-total').innerText = "$" + res.toLocaleString(undefined, {minimumFractionDigits: 2});
     }, 1000);
 </script>
 </body>
