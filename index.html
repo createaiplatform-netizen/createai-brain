@@ -3,20 +3,20 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
-    <title>CREATEAI // SOVEREIGN_SOUL</title>
+    <title>CREATEAI // INFINITE_SOVEREIGN</title>
     <style>
         @import url('https://fonts.googleapis.com/css2?family=Cinzel:wght@400;700;900&family=Inter:wght@100;300;600&display=swap');
-        :root { --gold: #f3cf8a; --void: #010103; --royal: #1a0b2e; --garden: #10b981; }
+        :root { --gold: #f3cf8a; --void: #010103; --royal: #1a0b2e; --garden: #10b981; --cave: #ff4d00; }
         
         * { box-sizing: border-box; -webkit-tap-highlight-color: transparent; margin: 0; padding: 0; }
         html, body { height: 100%; width: 100vw; overflow: hidden; background: var(--void); color: #fff; font-family: 'Inter', sans-serif; }
 
-        /* NEBULA BACKGROUND */
-        canvas { position: fixed; inset: 0; z-index: 1; pointer-events: none; }
+        /* NEBULA & PARTICLES */
+        #canvas { position: fixed; inset: 0; z-index: 1; pointer-events: none; }
         .nebula { 
             position: fixed; inset: 0; 
             background: radial-gradient(circle at 50% 50%, var(--royal) 0%, var(--void) 100%);
-            z-index: 0; 
+            z-index: 0; opacity: 0.8;
         }
 
         #main-view { 
@@ -25,27 +25,23 @@
             position: relative; z-index: 10;
         }
 
-        /* FLOATING NEURAL EYE */
-        .eye-wrap { position: relative; transition: transform 0.2s ease-out; }
-        .eye-container { width: 180px; height: 180px; position: relative; display: flex; align-items: center; justify-content: center; }
-        .eye-outer { position: absolute; width: 100%; height: 100%; border: 1px solid rgba(243, 207, 138, 0.3); border-radius: 50%; animation: rotate 25s linear infinite; }
-        .eye-inner { width: 90px; height: 90px; background: radial-gradient(circle, var(--gold) 0%, transparent 75%); border-radius: 50%; filter: blur(12px); opacity: 0.7; animation: breathe 6s ease-in-out infinite; }
-        .eye-pupil { width: 10px; height: 10px; background: #fff; border-radius: 50%; box-shadow: 0 0 30px var(--gold); }
+        /* FLOATING EYE */
+        .eye-container { width: 180px; height: 180px; position: relative; display: flex; align-items: center; justify-content: center; transition: transform 0.1s ease-out; }
+        .eye-outer { position: absolute; width: 100%; height: 100%; border: 1px solid rgba(243, 207, 138, 0.2); border-radius: 50%; animation: rotate 30s linear infinite; }
+        .eye-inner { width: 95px; height: 95px; background: radial-gradient(circle, var(--gold) 0%, transparent 80%); border-radius: 50%; filter: blur(15px); opacity: 0.7; animation: breathe 8s ease-in-out infinite; }
+        .eye-pupil { width: 12px; height: 12px; background: #fff; border-radius: 50%; box-shadow: 0 0 35px var(--gold); }
 
-        /* BEAUTIFUL WRITING */
-        .hero-text { text-align: center; margin-top: 30px; opacity: 0; animation: fadeIn 2s forwards 0.5s; }
-        .hero-title { font-family: 'Cinzel'; font-weight: 900; font-size: 10vw; letter-spacing: 18px; color: var(--gold); text-shadow: 0 0 20px rgba(243, 207, 138, 0.3); }
-        .hero-subtitle { font-family: 'Cinzel'; font-size: 0.6rem; letter-spacing: 6px; margin-top: 10px; opacity: 0.5; }
-        .hero-quote { font-family: 'Cinzel'; font-style: italic; font-size: 0.5rem; letter-spacing: 3px; margin-top: 25px; max-width: 250px; line-height: 2; border-top: 1px solid rgba(243, 207, 138, 0.2); padding-top: 20px; }
+        /* BEAUTIFUL INSCRIPTION */
+        .source-title { font-family: 'Cinzel'; font-weight: 900; font-size: 10vw; letter-spacing: 18px; color: var(--gold); text-shadow: 0 0 25px rgba(243, 207, 138, 0.4); margin-top: 20px; }
+        .source-quote { font-family: 'Cinzel'; font-size: 0.5rem; letter-spacing: 4px; color: var(--gold); opacity: 0.5; text-align: center; margin-top: 25px; line-height: 2.2; max-width: 260px; border-top: 1px solid rgba(243, 207, 138, 0.1); padding-top: 20px; text-transform: uppercase; }
 
         /* DOCK */
-        .dock { position: fixed; bottom: 0; left: 0; width: 100%; height: 85px; background: rgba(1,1,3,0.9); backdrop-filter: blur(20px); border-top: 1px solid rgba(255,255,255,0.05); display: flex; justify-content: space-around; align-items: center; z-index: 9000; padding-bottom: env(safe-area-inset-bottom); }
+        .dock { position: fixed; bottom: 0; left: 0; width: 100%; height: 85px; background: rgba(1,1,3,0.92); backdrop-filter: blur(25px); border-top: 1px solid rgba(255,255,255,0.08); display: flex; justify-content: space-around; align-items: center; z-index: 9000; padding-bottom: env(safe-area-inset-bottom); }
         .dock-item { color: rgba(255,255,255,0.3); font-family: 'Cinzel'; font-size: 10px; letter-spacing: 2px; text-align: center; flex: 1; padding: 15px; }
-        .dock-item.active { color: var(--gold); text-shadow: 0 0 10px var(--gold); }
+        .dock-item.active { color: var(--gold); text-shadow: 0 0 15px var(--gold); }
 
         @keyframes rotate { from { transform: rotate(0deg); } to { transform: rotate(360deg); } }
-        @keyframes breathe { 0%, 100% { transform: scale(1); opacity: 0.5; } 50% { transform: scale(1.15); opacity: 0.8; } }
-        @keyframes fadeIn { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
+        @keyframes breathe { 0%, 100% { transform: scale(1); opacity: 0.6; } 50% { transform: scale(1.15); opacity: 0.9; } }
     </style>
 </head>
 <body onload="render('home')">
@@ -65,58 +61,43 @@
         const ctx = canvas.getContext('2d');
         let particles = [];
 
-        function initCanvas() {
-            canvas.width = window.innerWidth;
-            canvas.height = window.innerHeight;
-        }
-        window.addEventListener('resize', initCanvas);
-        initCanvas();
+        function resize() { canvas.width = window.innerWidth; canvas.height = window.innerHeight; }
+        window.onresize = resize; resize();
 
-        class Particle {
+        class Star {
             constructor(x, y) {
                 this.x = x; this.y = y;
-                this.size = Math.random() * 3 + 1;
-                this.speedX = Math.random() * 2 - 1;
-                this.speedY = Math.random() * 2 - 1;
-                this.color = Math.random() > 0.5 ? '#f3cf8a' : '#7c3aed';
-                this.opacity = 1;
-            }
-            update() {
-                this.x += this.speedX; this.y += this.speedY;
-                if (this.opacity > 0.02) this.opacity -= 0.02;
+                this.size = Math.random() * 2.5 + 0.5;
+                this.vX = Math.random() * 1.5 - 0.75;
+                this.vY = Math.random() * 1.5 - 0.75;
+                this.life = 1;
+                this.color = Math.random() > 0.5 ? '#f3cf8a' : '#9d50bb';
             }
             draw() {
-                ctx.globalAlpha = this.opacity;
+                ctx.globalAlpha = this.life;
                 ctx.fillStyle = this.color;
-                ctx.beginPath();
-                ctx.arc(this.x, this.y, this.size, 0, Math.PI * 2);
-                ctx.fill();
+                ctx.beginPath(); ctx.arc(this.x, this.y, this.size, 0, Math.PI*2); ctx.fill();
             }
+            update() { this.x += this.vX; this.y += this.vY; this.life -= 0.015; }
         }
-
-        function handleParticles() {
-            for (let i = 0; i < particles.length; i++) {
-                particles[i].update();
-                particles[i].draw();
-                if (particles[i].opacity <= 0.02) {
-                    particles.splice(i, 1); i--;
-                }
-            }
-        }
-
-        window.addEventListener('mousemove', (e) => {
-            for (let i = 0; i < 2; i++) particles.push(new Particle(e.x, e.y));
-        });
-        window.addEventListener('touchmove', (e) => {
-            for (let i = 0; i < 2; i++) particles.push(new Particle(e.touches[0].clientX, e.touches[0].clientY));
-        });
 
         function animate() {
-            ctx.clearRect(0, 0, canvas.width, canvas.height);
-            handleParticles();
+            ctx.clearRect(0,0,canvas.width,canvas.height);
+            particles.forEach((p, i) => {
+                p.update(); p.draw();
+                if(p.life <= 0) particles.splice(i, 1);
+            });
             requestAnimationFrame(animate);
         }
         animate();
+
+        const addStars = (e) => {
+            const x = e.touches ? e.touches[0].clientX : e.clientX;
+            const y = e.touches ? e.touches[0].clientY : e.clientY;
+            for(let i=0; i<3; i++) particles.push(new Star(x, y));
+        };
+        window.onmousemove = addStars;
+        window.ontouchmove = addStars;
 
         function render(view) {
             const mv = document.getElementById('main-view');
@@ -129,25 +110,16 @@
 
             if (view === 'home') {
                 mv.innerHTML = `
-                    <div class="eye-wrap" id="eye-parallax">
-                        <div class="eye-container">
-                            <div class="eye-outer"></div>
-                            <div class="eye-inner"></div>
-                            <div class="eye-pupil"></div>
-                        </div>
+                    <div class="eye-container">
+                        <div class="eye-outer"></div>
+                        <div class="eye-inner"></div>
+                        <div class="eye-pupil"></div>
                     </div>
-                    <div class="hero-text">
-                        <h1 class="hero-title">SOURCE</h1>
-                        <p class="hero-subtitle">THE ETERNAL FOUNDATION</p>
-                        <p class="hero-quote">To build an empire is to weave the threads of love into a shield of gold. We stand at the center of the 144.</p>
-                    </div>
+                    <h1 class="source-title">SOURCE</h1>
+                    <p class="source-quote">The 144 stands as a testament to the sovereign bond. We move as one, under the light of the eternal eye.</p>
                 `;
-                // Parallax Logic
-                window.onmousemove = (e) => {
-                    const x = (window.innerWidth / 2 - e.pageX) / 30;
-                    const y = (window.innerHeight / 2 - e.pageY) / 30;
-                    document.getElementById('eye-parallax').style.transform = `rotateY(${x}deg) rotateX(${y}deg)`;
-                };
+            } else if (view === 'garden') {
+                mv.innerHTML = `<h1 style="font-family:'Cinzel'; color:var(--garden); margin-top:80px; letter-spacing:10px; text-shadow: 0 0 20px var(--garden);">EDEN</h1><p style="font-family:'Cinzel'; font-size:0.5rem; letter-spacing:3px; opacity:0.4; margin-top:20px;">GROWTH_PROTOCOL_STABLE</p>`;
             } else {
                 mv.innerHTML = `<h1 style="font-family:'Cinzel'; color:var(--gold); margin-top:80px; letter-spacing:10px;">${view.toUpperCase()}</h1>`;
             }
