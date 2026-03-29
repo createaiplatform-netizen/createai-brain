@@ -3,51 +3,46 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>CREATOR_STUDIO_V197</title>
+    <title>SOVEREIGN_GRID_V199</title>
     <style>
         @import url('https://fonts.googleapis.com/css2?family=Cinzel:wght@400;900&display=swap');
         :root { --gold: #f3cf8a; --void: #000; }
         body, html { margin: 0; padding: 0; background: var(--void); color: #fff; font-family: 'Cinzel', serif; overflow: hidden; height: 100svh; }
         
-        #studio-hud { position: absolute; inset: 0; z-index: 10; display: flex; flex-direction: column; padding: 40px; }
-        .hud-top { display: flex; justify-content: space-between; border-bottom: 1px solid var(--gold); padding-bottom: 10px; }
-        .node-id { font-size: 10px; letter-spacing: 5px; color: var(--gold); }
+        #grid-hud { position: absolute; inset: 0; display: flex; flex-direction: column; padding: 40px; border: 4px double var(--gold); margin: 5px; box-sizing: border-box; }
+        .grid-header { text-align: center; border-bottom: 1px solid var(--gold); padding-bottom: 20px; }
+        .grid-title { font-size: 14px; letter-spacing: 12px; color: var(--gold); }
         
-        #structure-render { flex-grow: 1; display: flex; justify-content: center; align-items: center; position: relative; }
-        .studio-box { width: 200px; height: 150px; border: 1px solid #fff; box-shadow: inset 0 0 50px rgba(243, 207, 138, 0.2); display: flex; flex-direction: column; justify-content: center; align-items: center; }
-        .vault-pulse { width: 10px; height: 10px; background: var(--gold); border-radius: 50%; box-shadow: 0 0 15px var(--gold); margin-top: 20px; animation: pulse 1s infinite; }
+        #energy-visual { flex-grow: 1; display: flex; justify-content: center; align-items: center; }
+        .core-glow { width: 150px; height: 150px; border-radius: 50%; border: 1px solid var(--gold); box-shadow: 0 0 100px rgba(243, 207, 138, 0.4); animation: breathe 3s infinite ease-in-out; display: flex; justify-content: center; align-items: center; text-align: center; font-size: 8px; letter-spacing: 3px; }
         
-        @keyframes pulse { from { opacity: 0.4; } to { opacity: 1; } }
+        @keyframes breathe { 0%, 100% { transform: scale(0.9); opacity: 0.5; } 50% { transform: scale(1.1); opacity: 1; } }
 
-        #live-stats { margin-top: auto; text-align: center; border-top: 1px solid var(--gold); padding-top: 20px; }
-        #ticker { font-size: 28px; color: var(--gold); }
+        #infrastructure-ticker { margin-top: auto; text-align: center; border-top: 1px solid rgba(255,255,255,0.1); padding-top: 20px; }
+        #live-total { font-size: 32px; color: var(--gold); text-shadow: 0 0 20px var(--gold); }
     </style>
 </head>
 <body>
-    <div id="studio-hud">
-        <div class="hud-top">
-            <div class="node-id">STUDIO_01 // KINDRED_LEAD</div>
-            <div style="font-size: 8px;">ADMIN: JENNY_002</div>
-        </div>
-        
-        <div id="structure-render">
-            <div class="studio-box">
-                <div style="font-size: 8px; letter-spacing: 4px;">SOVEREIGN_LIVING_MODULE</div>
-                <div class="vault-pulse"></div>
-            </div>
-            <div style="position: absolute; bottom: 20px; font-size: 7px; color: var(--gold); letter-spacing: 10px;">READY_FOR_OCCUPANCY</div>
+    <div id="grid-hud">
+        <div class="grid-header">
+            <div class="grid-title">AETHEL_GRID // SECTOR_001</div>
+            <div style="font-size: 7px; margin-top: 10px; opacity: 0.6;">SYSTEM: TOTAL_EXTERNAL_SEVERANCE // ADMIN: JENNY_002</div>
         </div>
 
-        <div id="live-stats">
-            <div style="font-size: 8px; letter-spacing: 8px; margin-bottom: 5px;">AETHEL_TOTAL_FLOW</div>
-            <div id="ticker">$1,440,000,010,080.00</div>
+        <div id="energy-visual">
+            <div class="core-glow">HARMONIC_CORE<br>OFFLINE_SYNC_100%</div>
+        </div>
+
+        <div id="infrastructure-ticker">
+            <div style="font-size: 8px; letter-spacing: 10px; margin-bottom: 5px;">SOVEREIGN_YIELD_FLOW</div>
+            <div id="live-total">$1,440,000,011,000.00</div>
         </div>
     </div>
 <script>
-    let res = 1440000010080.00;
+    let res = 1440000011000.00;
     setInterval(() => {
         res += 144.00;
-        document.getElementById('ticker').innerText = "$" + res.toLocaleString(undefined, {minimumFractionDigits: 2});
+        document.getElementById('live-total').innerText = "$" + res.toLocaleString(undefined, {minimumFractionDigits: 2});
     }, 1000);
 </script>
 </body>
