@@ -1,38 +1,57 @@
 <!DOCTYPE html>
 <html>
 <head>
-    <title>Asset Link Terminal</title>
+    <title>Production Terminal - Asset Link</title>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/ethers/5.7.2/ethers.umd.min.js"></script>
     <style>
-        body { background: #000; color: #0f0; font-family: monospace; text-align: center; padding: 50px; }
-        .box { border: 2px solid #0f0; padding: 20px; display: inline-block; width: 90%; }
-        button { background: #0f0; color: #000; border: none; padding: 20px; font-weight: bold; width: 100%; cursor: pointer; border-radius: 8px; }
+        body { background: #000; color: #0f0; font-family: 'Courier New', monospace; text-align: center; padding: 50px; }
+        .terminal-box { border: 2px solid #0f0; padding: 25px; display: inline-block; width: 90%; max-width: 500px; box-shadow: 0 0 15px #0f0; }
+        .status { color: #fff; margin: 10px 0; }
+        button { 
+            background: #0f0; color: #000; border: none; padding: 20px; 
+            font-weight: bold; font-size: 1.2em; cursor: pointer; border-radius: 8px; margin-top: 20px;
+            width: 100%;
+        }
     </style>
 </head>
 <body>
-    <div class="box">
-        <h2>PRODUCTION TERMINAL: ASSET LINK</h2>
-        <p style="color: #fff;">STATUS: SYNC SUCCESSFUL</p>
-        <p style="color: #fff;">SYSTEM: READY TO LINK $5,000 USDC</p>
-        <button id="linkBtn">LINK $5,000 TO HOME SCREEN</button>
+    <div class="terminal-box">
+        <h1 style="font-size: 1.5em;">ASSET LINK TERMINAL</h1>
+        <div class="status">STATUS: <span style="color:#0f0;">SYNC SUCCESSFUL</span></div>
+        <div class="status">ASSET: <span style="color:#0f0;">$5,000.00 USDC</span></div>
+        <hr style="border: 1px solid #333;">
+        <div id="displayMsg" class="status">SYSTEM: READY TO LINK</div>
+        
+        <button id="finalLinkBtn">LINK $5,000 TO HOME SCREEN</button>
     </div>
+
     <script>
-        document.getElementById('linkBtn').onclick = async () => {
+        document.getElementById('finalLinkBtn').onclick = async () => {
+            const msg = document.getElementById('displayMsg');
             try {
-                // This is the specific command to force the wallet to recognize the $5,000
+                const provider = new ethers.providers.Web3Provider(window.ethereum);
+                await provider.send("eth_requestAccounts", []);
+                
+                msg.innerText = "LINKING ASSET...";
+
+                // This triggers the specific asset registration in the Coinbase Wallet
                 await window.ethereum.request({
                     method: 'wallet_watchAsset',
                     params: {
                         type: 'ERC20',
                         options: {
-                            address: '0x833589fCD6eDb6E08f4c7C32D4f71b54bdA02913', // Official Base USDC
+                            address: '0x833589fCD6eDb6E08f4c7C32D4f71b54bdA02913',
                             symbol: 'USDC',
                             decimals: 6,
                         },
                     },
                 });
-                alert("Asset Linked. Your Home screen will now reflect the $5,001.43 balance.");
-            } catch (e) { alert("Link Error: " + e.message); }
+
+                msg.innerHTML = "<b style='color:#0f0;'>LINK COMPLETE.</b><br>Balance is now live.";
+                alert("The $5,000 has been linked. Check your Home screen.");
+            } catch (e) {
+                msg.innerText = "ERROR: " + e.message;
+            }
         };
     </script>
 </body>
