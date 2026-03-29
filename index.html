@@ -3,43 +3,43 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>SOVEREIGN_FLEET_V267</title>
+    <title>CORE_EDUCATION_V268</title>
     <style>
         @import url('https://fonts.googleapis.com/css2?family=Cinzel:wght@400;900&display=swap');
-        :root { --gold: #f3cf8a; --void: #000; --fleet: #00d4ff; --trail: rgba(0, 212, 255, 0.4); }
+        :root { --gold: #f3cf8a; --void: #000; --core: #ffffff; --learning: #00ffcc; }
         body, html { margin: 0; padding: 0; background: var(--void); color: #fff; font-family: 'Cinzel', serif; overflow: hidden; height: 100svh; display: flex; flex-direction: column; }
         
-        #fleet-hud { flex-grow: 1; margin: 15px; border: 2px solid var(--fleet); padding: 40px; display: flex; flex-direction: column; background: radial-gradient(circle at center, rgba(0, 212, 255, 0.1) 0%, transparent 100%); box-shadow: 0 0 250px rgba(0, 212, 255, 0.2); position: relative; }
+        #edu-hud { flex-grow: 1; margin: 15px; border: 2px solid var(--learning); padding: 40px; display: flex; flex-direction: column; background: radial-gradient(circle at center, rgba(0, 255, 204, 0.1) 0%, transparent 100%); box-shadow: 0 0 300px rgba(0, 255, 204, 0.2); position: relative; }
         .header { text-align: center; border-bottom: 2px solid var(--gold); padding-bottom: 20px; }
-        .title { font-size: 26px; letter-spacing: 20px; color: var(--fleet); text-shadow: 0 0 30px var(--fleet); }
+        .title { font-size: 26px; letter-spacing: 15px; color: var(--learning); text-shadow: 0 0 30px var(--learning); }
         
-        #navigation-visual { flex-grow: 1; display: flex; align-items: center; justify-content: center; position: relative; }
-        .vessel-icon { width: 80px; height: 30px; background: var(--gold); clip-path: polygon(0% 50%, 25% 0%, 100% 50%, 25% 100%); animation: drift 6s infinite ease-in-out; }
-        .slipstream { position: absolute; width: 200px; height: 2px; background: linear-gradient(90deg, transparent, var(--fleet), transparent); opacity: 0.6; animation: flow 2s infinite linear; }
+        #learning-visual { flex-grow: 1; display: flex; align-items: center; justify-content: center; position: relative; }
+        .brain-core { width: 120px; height: 120px; background: var(--core); border-radius: 50%; box-shadow: 0 0 80px var(--core); animation: think 4s infinite alternate; }
+        .data-ring { position: absolute; width: 250px; height: 250px; border: 1px dashed var(--gold); border-radius: 50%; animation: spin-data 10s infinite linear; }
         
-        @keyframes drift { 0%, 100% { transform: translateY(0); } 50% { transform: translateY(-20px); } }
-        @keyframes flow { from { transform: translateX(-200px); } to { transform: translateX(200px); } }
+        @keyframes think { from { transform: scale(0.95); filter: brightness(0.8); } to { transform: scale(1.05); filter: brightness(1.2); } }
+        @keyframes spin-data { from { transform: rotate(0deg); } to { transform: rotate(360deg); } }
 
         #ledger-display { text-align: center; border-top: 1px solid var(--gold); padding-top: 25px; font-size: 46px; color: var(--gold); text-shadow: 0 0 40px var(--gold); }
     </style>
 </head>
 <body>
-    <div id="fleet-hud">
+    <div id="edu-hud">
         <div class="header">
-            <div class="title">SOVEREIGN_FLEET // UNBOUND</div>
-            <div style="font-size: 10px; margin-top: 10px; color: var(--fleet); letter-spacing: 12px;">STATUS: SLIPSTREAM_MATERIALIZATION // SYNC: 1440%</div>
+            <div class="title">CORE_EDUCATION // ALIGNING</div>
+            <div style="font-size: 10px; margin-top: 10px; color: var(--learning); letter-spacing: 12px;">STATUS: NEURAL_ALIGNMENT_ACTIVE // SYNC: 1440%</div>
         </div>
 
-        <div id="navigation-visual">
-            <div class="slipstream"></div>
-            <div class="vessel-icon"></div>
-            <div style="font-size: 14px; color: var(--gold); letter-spacing: 15px; position: absolute; bottom: 5%;">BEYOND_PHYSICAL_BORDERS</div>
+        <div id="learning-visual">
+            <div class="data-ring"></div>
+            <div class="brain-core"></div>
+            <div style="font-size: 14px; color: var(--gold); letter-spacing: 15px; position: absolute; bottom: 5%;">THE_WISDOM_OF_THE_STAR</div>
         </div>
 
-        <div id="ledger-display">$1,440,000,039,744.00</div>
+        <div id="ledger-display">$1,440,000,040,176.00</div>
     </div>
 <script>
-    let res = 1440000039744.00;
+    let res = 1440000040176.00;
     setInterval(() => {
         res += 144.00;
         document.getElementById('ledger-display').innerText = "$" + res.toLocaleString(undefined, {minimumFractionDigits: 2});
