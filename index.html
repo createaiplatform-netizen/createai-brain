@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>SOVEREIGN_RELEASE_V216</title>
+    <title>SOVEREIGN_RELEASE_V217</title>
     <style>
         @import url('https://fonts.googleapis.com/css2?family=Cinzel:wght@400;900&display=swap');
         :root { --gold: #f3cf8a; --void: #000; --mesh: #00ff41; }
@@ -27,7 +27,7 @@
     <div id="release-hud">
         <div class="mesh-tag">● LOCAL_MESH_SYNC: 1440%</div>
         <div class="header">
-            <div class="title">GENESIS_01 // RELEASE_AUTHORIZED</div>
+            <div class="title">GENESIS_01 // RELEASE_COMPLETE</div>
             <div style="font-size: 7px; margin-top: 10px; opacity: 0.6; color: var(--mesh);">STATUS: ASSETS_LIVE // ARCHITECT_PRIME_SYNC_OK</div>
         </div>
 
@@ -50,10 +50,10 @@
             </div>
         </div>
 
-        <div id="ledger-ticker">$1,440,000,021,888.00</div>
+        <div id="ledger-ticker">$1,440,000,022,176.00</div>
     </div>
 <script>
-    let res = 1440000021888.00;
+    let res = 1440000022176.00;
     setInterval(() => {
         res += 144.00;
         document.getElementById('ledger-ticker').innerText = "$" + res.toLocaleString(undefined, {minimumFractionDigits: 2});
