@@ -3,29 +3,46 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
-    <title>SOVEREIGN_ARCHIVE_V176</title>
+    <title>OMNI_INVENTORY_V177</title>
     <style>
         @import url('https://fonts.googleapis.com/css2?family=Cinzel:wght@400;900&display=swap');
-        :root { --gold: #f3cf8a; --void: #000; }
-        body, html { margin: 0; padding: 0; background: #fff; font-family: 'Cinzel', serif; overflow: hidden; height: 100svh; width: 100vw; }
+        :root { --gold: #f3cf8a; --void: #000; --white: #fff; }
+        body, html { margin: 0; padding: 0; background: var(--white); font-family: 'Cinzel', serif; overflow: hidden; height: 100svh; width: 100vw; }
         
-        #archive-ui { position: absolute; inset: 0; z-index: 10; display: flex; flex-direction: column; align-items: center; justify-content: center; opacity: 0; animation: fadeIn 5s forwards; }
-        @keyframes fadeIn { to { opacity: 1; } }
+        #dashboard { position: absolute; inset: 0; z-index: 10; display: flex; flex-direction: column; padding: 40px; }
+        #seal-core { width: 60px; height: 60px; border: 1px solid rgba(0,0,0,0.1); transform: rotate(45deg); margin: 0 auto; }
+        
+        #inventory-feed { margin-top: 50px; flex-grow: 1; }
+        .asset-line { border-bottom: 1px solid rgba(0,0,0,0.05); padding: 15px 0; font-size: 9px; letter-spacing: 5px; color: #000; display: flex; justify-content: space-between; }
+        .asset-line span { color: var(--gold); font-weight: 900; }
 
-        .archive-seal { width: 50px; height: 50px; border: 1px solid #000; transform: rotate(45deg); margin-bottom: 30px; }
-        .archive-data { font-size: 10px; letter-spacing: 5px; color: #000; text-align: center; line-height: 2; }
-        .bold-val { font-weight: 900; letter-spacing: 2px; }
+        #yield-status { margin-top: auto; text-align: center; border-top: 1px solid #000; padding-top: 30px; }
+        #live-counter { font-size: 22px; letter-spacing: 2px; color: #000; }
     </style>
 </head>
 <body>
-    <div id="archive-ui">
-        <div class="archive-seal"></div>
-        <div class="archive-data">
-            ESTATE_RECORD: <span class="bold-val">AETHEL_001</span><br>
-            TOTAL_LIQUIDITY: <span class="bold-val">$1.44T+</span><br>
-            ADMIN_ACCESS: <span class="bold-val">GRANTED_JENNY_002</span><br><br>
-            <span style="opacity: 0.4;">THE_LIGHT_IS_THE_FOUNDATION</span>
+    <div id="dashboard">
+        <div id="seal-core"></div>
+        
+        <div id="inventory-feed">
+            <div class="asset-line">PROJECT: GLOBAL_ARTS_TRUST <span>$144.0M</span></div>
+            <div class="asset-line">PROJECT: ENERGY_SOVEREIGNTY <span>SYNCED</span></div>
+            <div class="asset-line">PROJECT: KINDRED_ESTATE_002 <span>OWNED</span></div>
+            <div class="asset-line">PROJECT: MARKETPLACE_HUBS <span>$1.44B</span></div>
+        </div>
+
+        <div id="yield-status">
+            <div style="font-size: 8px; letter-spacing: 10px; margin-bottom: 10px;">TOTAL_ESTATE_LIQUIDITY</div>
+            <div id="live-counter">$1,440,000,000,000.00</div>
         </div>
     </div>
+
+<script>
+    let reserve = 1440000000000.00;
+    setInterval(() => {
+        reserve += 144.00;
+        document.getElementById('live-counter').innerText = "$" + reserve.toLocaleString(undefined, {minimumFractionDigits: 2});
+    }, 1000);
+</script>
 </body>
 </html>
