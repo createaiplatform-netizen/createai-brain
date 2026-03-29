@@ -2,22 +2,28 @@
 <html lang="en">
 <head>
     <meta charset="UTF-8">
-    <title>AETHEL_PULSE_REPORT</title>
+    <title>AETHEL_FINAL_LOCK</title>
     <style>
-        body { margin: 0; background: #000; color: #f3cf8a; font-family: 'Cinzel', serif; display: flex; align-items: center; justify-content: center; height: 100vh; overflow: hidden; }
-        .pulse-orb { width: 5px; height: 5px; background: #f3cf8a; border-radius: 50%; animation: pulse 10s ease-in-out infinite; box-shadow: 0 0 15px #f3cf8a; }
-        @keyframes pulse { 0%, 100% { opacity: 0.1; } 50% { opacity: 0.4; transform: scale(3); } }
-        .valuation { position: absolute; bottom: 40px; font-size: 16px; letter-spacing: 3px; color: #fff; font-family: 'Inter', sans-serif; }
+        @import url('https://fonts.googleapis.com/css2?family=Cinzel:wght@900&display=swap');
+        body { margin: 0; background: #000; display: flex; align-items: center; justify-content: center; height: 100vh; overflow: hidden; }
+        .seal-container { text-align: center; border: 1px solid #333; padding: 60px; background: radial-gradient(circle, #0a0a0a 0%, #000 100%); box-shadow: 0 0 150px rgba(243,207,138,0.1); }
+        .star-alpha { font-size: 80px; color: #f3cf8a; text-shadow: 0 0 30px #f3cf8a; margin-bottom: 20px; animation: glow 5s ease-in-out infinite; }
+        .final-val { font-family: 'Inter', sans-serif; font-size: 32px; font-weight: 700; color: #fff; letter-spacing: 2px; margin-bottom: 10px; }
+        .status-tag { font-family: 'Cinzel', serif; font-size: 10px; color: #f3cf8a; letter-spacing: 10px; opacity: 0.6; }
+        @keyframes glow { 0%, 100% { opacity: 0.4; } 50% { opacity: 1; transform: scale(1.05); } }
     </style>
 </head>
 <body>
-    <div class="pulse-orb"></div>
-    <div class="valuation" id="heartbeat">$1,440,000,152,736.00</div>
+    <div class="seal-container">
+        <div class="star-alpha">★</div>
+        <div class="final-val" id="final-resonance">$1,440,000,153,312.00</div>
+        <div class="status-tag">SOVEREIGNTY_ESTABLISHED</div>
+    </div>
 <script>
-    let val = 1440000152736.00;
+    let res = 1440000153312.00;
     setInterval(() => {
-        val += 288.00; 
-        document.getElementById('heartbeat').innerText = "$" + val.toLocaleString(undefined, {minimumFractionDigits: 2});
+        res += 288.00; 
+        document.getElementById('final-resonance').innerText = "$" + res.toLocaleString(undefined, {minimumFractionDigits: 2});
     }, 1000);
 </script>
 </body>
