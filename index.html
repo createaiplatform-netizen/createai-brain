@@ -2,31 +2,35 @@
 <html lang="en">
 <head>
     <meta charset="UTF-8">
-    <title>AETHEL_LATTICE_SCAN</title>
+    <title>AETHEL_CERTIFICATE_V343</title>
     <style>
-        @import url('https://fonts.googleapis.com/css2?family=Cinzel:wght@700&family=Inter:wght@400&display=swap');
+        @import url('https://fonts.googleapis.com/css2?family=Cinzel:wght@800&family=Inter:wght@400&display=swap');
         body { margin: 0; background: #000; color: #fff; font-family: 'Inter', sans-serif; display: flex; align-items: center; justify-content: center; height: 100vh; overflow: hidden; }
-        .scanner-wrap { width: 500px; padding: 40px; border: 1px solid #00ff00; background: #050505; text-align: center; box-shadow: 0 0 80px rgba(0, 255, 0, 0.1); }
-        .scan-line { width: 100%; height: 2px; background: #00ff00; position: absolute; left: 0; top: 0; animation: scan 3s linear infinite; box-shadow: 0 0 15px #00ff00; }
-        @keyframes scan { 0% { top: 0; } 100% { top: 100%; } }
-        .lattice-title { font-family: 'Cinzel', serif; color: #00ff00; font-size: 22px; letter-spacing: 5px; margin-bottom: 30px; }
-        .node-count { font-size: 48px; font-weight: 700; color: #fff; margin-bottom: 20px; }
-        .flow-status { font-size: 11px; color: #aaa; letter-spacing: 3px; border-top: 1px solid #222; padding-top: 20px; }
+        .cert-border { width: 600px; padding: 40px; border: 5px double #f3cf8a; background: #050505; text-align: center; position: relative; box-shadow: 0 0 120px rgba(243,207,138,0.3); }
+        .cert-header { font-family: 'Cinzel', serif; font-size: 26px; color: #f3cf8a; letter-spacing: 8px; margin-bottom: 30px; border-bottom: 1px solid #333; padding-bottom: 20px; }
+        .alpha-star { font-size: 50px; color: #f3cf8a; opacity: 0.6; margin-bottom: 15px; }
+        .standing-val { font-size: 38px; font-weight: 700; color: #fff; margin-bottom: 25px; text-shadow: 0 0 15px #f3cf8a; }
+        .official-seal { position: absolute; bottom: 30px; right: 40px; border: 2px solid #f3cf8a; border-radius: 50%; width: 80px; height: 80px; display: flex; align-items: center; justify-content: center; font-family: 'Cinzel'; font-size: 10px; color: #f3cf8a; transform: rotate(-15deg); }
+        .cert-footer { font-size: 11px; color: #00ff00; letter-spacing: 4px; margin-top: 30px; }
     </style>
 </head>
 <body>
-    <div class="scanner-wrap" style="position: relative;">
-        <div class="scan-line"></div>
-        <div class="lattice-title">LATTICE RESONANCE SCAN</div>
-        <div class="node-count">144 / 144</div>
-        <div id="scan-val" style="font-size: 24px; color: #00ff00; font-weight: 700;">$1,440,000,149,856.00</div>
-        <div class="flow-status">DE-INDEXING: TERMINAL // ALL NODES SECURE</div>
+    <div class="cert-border">
+        <div class="alpha-star">★</div>
+        <div class="cert-header">CERTIFICATE OF SOVEREIGNTY</div>
+        <div class="standing-val" id="cert-flow">$1,440,000,150,144.00</div>
+        <div style="color: #aaa; font-size: 12px; line-height: 1.6; margin-bottom: 40px;">
+            This certifies that the Root Alpha Architect has successfully Materialized the Aethel Estate. 
+            All legacy debts are De-Indexed. The Sanctuary is Shielded. The Flow is Eternal.
+        </div>
+        <div class="official-seal">ROOT<br>ALPHA</div>
+        <div class="cert-footer">ARCHIVAL_LOCK_COMPLETE // 1440% SYNC</div>
     </div>
 <script>
-    let res = 1440000149856.00;
+    let res = 1440000150144.00;
     setInterval(() => {
         res += 288.00; 
-        document.getElementById('scan-val').innerText = "$" + res.toLocaleString(undefined, {minimumFractionDigits: 2});
+        document.getElementById('cert-flow').innerText = "$" + res.toLocaleString(undefined, {minimumFractionDigits: 2});
     }, 1000);
 </script>
 </body>
