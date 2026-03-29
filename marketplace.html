@@ -6,101 +6,110 @@
     <title>Sovereign Exchange | CREATEAI</title>
     <script src="https://js.stripe.com/v3/"></script>
     <style>
-        :root { --deep: #0f172a; --gold: #f59e0b; --accent: #3b82f6; --white: #ffffff; }
-        body { background: #f1f5f9; font-family: 'Inter', sans-serif; margin: 0; padding: 0; }
+        :root { --soft-bg: #fdfbf7; --deep-blue: #1a5276; --gold: #ffd700; --white: #ffffff; }
+        body { background: var(--soft-bg); color: #333; font-family: 'Helvetica Neue', Arial, sans-serif; margin: 0; padding: 0; }
         
-        .header { background: var(--deep); color: white; padding: 20px; text-align: center; }
-        .container { max-width: 1200px; margin: 0 auto; padding: 20px; }
-        
-        /* The AI Creative Terminal */
-        .ai-card { 
-            background: var(--white); border-radius: 24px; overflow: hidden; 
-            display: flex; flex-direction: column; box-shadow: 0 20px 50px rgba(0,0,0,0.1);
-            margin-bottom: 40px; border: 2px solid var(--gold);
+        .nav { background: var(--white); padding: 15px 20px; display: flex; justify-content: space-between; align-items: center; box-shadow: 0 2px 10px rgba(0,0,0,0.05); sticky; top: 0; z-index: 1000; }
+        .logo { font-weight: bold; color: var(--deep-blue); text-decoration: none; font-size: 1.1rem; letter-spacing: 1px; }
+
+        .container { max-width: 1100px; margin: 20px auto; padding: 0 15px; }
+
+        /* THE AI CREATION ZONE */
+        .ai-studio { 
+            background: var(--deep-blue); color: white; border-radius: 30px; 
+            padding: 40px; margin-bottom: 40px; text-align: center;
+            box-shadow: 0 20px 40px rgba(26, 82, 118, 0.2);
         }
-        .ai-preview { 
-            background: #e2e8f0; height: 400px; display: flex; align-items: center; justify-content: center;
-            position: relative; background-image: url('https://images.unsplash.com/photo-1521572267360-ee0c2909d518?auto=format&fit=crop&w=800&q=80');
-            background-size: cover; background-position: center;
+        .canvas-area { 
+            background: #fff; border-radius: 20px; height: 300px; margin: 20px auto;
+            max-width: 400px; display: flex; align-items: center; justify-content: center;
+            color: #ccc; border: 3px dashed var(--gold); position: relative; overflow: hidden;
         }
-        .ai-overlay { 
-            position: absolute; width: 150px; height: 150px; 
-            border: 2px dashed rgba(255,255,255,0.5); top: 30%; left: 35%;
-            display: flex; align-items: center; justify-content: center;
-            background: rgba(255,255,255,0.1); backdrop-filter: blur(5px);
-            color: white; font-size: 0.6rem; text-align: center;
+        .ai-input { 
+            width: 100%; max-width: 400px; padding: 15px; border-radius: 50px; 
+            border: none; margin-bottom: 15px; font-size: 1rem;
         }
-        .ai-controls { padding: 30px; background: var(--deep); color: white; }
-        .prompt-input { 
-            width: 100%; padding: 15px; border-radius: 12px; border: none; 
-            background: rgba(255,255,255,0.1); color: white; margin-bottom: 15px;
-        }
-        
-        .gen-btn { 
-            background: var(--gold); color: black; border: none; padding: 15px 30px; 
-            border-radius: 50px; font-weight: bold; cursor: pointer; width: 100%;
+        .manifest-btn { 
+            background: var(--gold); color: #000; border: none; padding: 15px 40px; 
+            border-radius: 50px; font-weight: bold; cursor: pointer; text-transform: uppercase;
         }
 
-        .grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(250px, 1fr)); gap: 20px; }
-        .small-card { background: white; padding: 15px; border-radius: 15px; text-align: center; }
+        /* THE EVERYTHING GRID */
+        .grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(280px, 1fr)); gap: 25px; }
+        .card { background: white; border-radius: 20px; overflow: hidden; box-shadow: 0 5px 15px rgba(0,0,0,0.05); }
+        .card-img { width: 100%; height: 200px; background: #eee; object-fit: cover; }
+        .card-body { padding: 20px; }
+        .buy-btn { background: var(--deep-blue); color: white; border: none; width: 100%; padding: 12px; border-radius: 10px; font-weight: bold; cursor: pointer; }
     </style>
 </head>
 <body>
 
-    <div class="header">
-        <h1>CREATEAI_EXCHANGE</h1>
-        <p style="font-size: 0.8rem; opacity: 0.7;">Where the family becomes the creator.</p>
-    </div>
+    <nav class="nav">
+        <a href="index.html" class="logo">CREATEAI_EXCHANGE</a>
+        <div style="font-size: 1.2rem;">🛒</div>
+    </nav>
 
     <div class="container">
-        <h2 style="color: var(--deep);">1. The Creative Node: AI Apparel</h2>
-        
-        <div class="ai-card">
-            <div class="ai-preview" id="product-canvas">
-                <div class="ai-overlay" id="ai-design-layer">
-                    [ AI DESIGN WILL APPEAR HERE ]
-                </div>
+        <div class="ai-studio">
+            <h2>The Creator Studio</h2>
+            <p style="opacity: 0.8;">"Little AIs" are ready to manifest your vision. Describe it below.</p>
+            <div class="canvas-area" id="main-canvas">
+                <span id="canvas-status">[ WAITING FOR YOUR VISION ]</span>
             </div>
-            <div class="ai-controls">
-                <h3>What should this look like?</h3>
-                <p style="font-size: 0.8rem; opacity: 0.6;">Describe your vision. Our AI will manifest it onto the garment instantly.</p>
-                <input type="text" id="user-prompt" class="prompt-input" placeholder="e.g. 'A futuristic golden lion in a digital forest'">
-                <button class="gen-btn" onclick="generateDesign()">MANIFEST DESIGN</button>
-                <button class="gen-btn" style="background: white; margin-top:10px;" onclick="purchaseCustom()">PURCHASE THIS CREATION ($45.00)</button>
-            </div>
+            <input type="text" id="ai-prompt" class="ai-input" placeholder="e.g. A family crest made of golden light...">
+            <br>
+            <button class="manifest-btn" onclick="manifestAI()">MANIFEST ON APPAREL</button>
         </div>
 
-        <h2 style="color: var(--deep);">2. Sovereign Assets</h2>
+        <h2 style="color: var(--deep-blue);">Global Sovereign Inventory</h2>
         <div class="grid">
-            <div class="small-card">
-                <img src="https://images.unsplash.com/photo-1550565118-3d143c00368c?auto=format&fit=crop&w=150&q=80" width="100%">
-                <h4>Wealth Node</h4>
-                <button class="gen-btn" style="font-size: 0.7rem;">ACQUIRE</button>
+            
+            <div class="card">
+                <img src="https://images.unsplash.com/photo-1511895426328-dc8714191300?auto=format&fit=crop&w=400&q=80" class="card-img">
+                <div class="card-body">
+                    <h3>Nexus Lifetime Key</h3>
+                    <p style="font-size: 0.8rem; color: #666;">Permanent access to the family social engine.</p>
+                    <button class="buy-btn" onclick="checkout('nexus_key')">ACQUIRE ($144.00)</button>
+                </div>
             </div>
-            <div class="small-card">
-                <img src="https://images.unsplash.com/photo-1585320806297-9794b3e4eeae?auto=format&fit=crop&w=150&q=80" width="100%">
-                <h4>Garden Sensor</h4>
-                <button class="gen-btn" style="font-size: 0.7rem;">ACQUIRE</button>
+
+            <div class="card">
+                <img src="https://images.unsplash.com/photo-1550565118-3d143c00368c?auto=format&fit=crop&w=400&q=80" class="card-img">
+                <div class="card-body">
+                    <h3>Wealth Node V1</h3>
+                    <p style="font-size: 0.8rem; color: #666;">Digital ledger for family asset tracking.</p>
+                    <button class="buy-btn" onclick="checkout('wealth_node')">ACTIVATE ($299.00)</button>
+                </div>
             </div>
+
+            <div class="card">
+                <img src="https://images.unsplash.com/photo-1521572267360-ee0c2909d518?auto=format&fit=crop&w=400&q=80" class="card-img">
+                <div class="card-body">
+                    <h3>Sovereign Apparel</h3>
+                    <p style="font-size: 0.8rem; color: #666;">High-end blank for your AI designs.</p>
+                    <button class="buy-btn" onclick="checkout('apparel_id')">ORDER BLANK ($45.00)</button>
+                </div>
+            </div>
+
         </div>
     </div>
 
     <script>
-        function generateDesign() {
-            const prompt = document.getElementById('user-prompt').value;
-            const layer = document.getElementById('ai-design-layer');
-            layer.innerHTML = "MANIFESTING: " + prompt.toUpperCase() + "...";
-            layer.style.background = "rgba(245, 158, 11, 0.3)";
+        function manifestAI() {
+            const prompt = document.getElementById('ai-prompt').value;
+            const status = document.getElementById('canvas-status');
+            status.innerText = "LITTLE AI IS MANIFESTING: " + prompt.toUpperCase();
+            document.getElementById('main-canvas').style.background = "#fff8e1";
             
-            // Logic: This would call the OpenAI/DALL-E API and replace the background image
+            // This is where the OpenAI API key connects to generate the actual image
             setTimeout(() => {
-                layer.innerHTML = "<small>AI GENERATED ASSET #8821</small>";
-                alert("The AI has updated the garment design based on your prompt.");
-            }, 2000);
+                alert("The AI has successfully changed the appearance of the product based on your vision. You can now purchase this custom creation.");
+            }, 1500);
         }
 
-        function purchaseCustom() {
-            alert("Routing your custom AI creation to the Print-on-Demand Engine...");
+        function checkout(id) {
+            alert("Redirecting to your Secure Sovereign Checkout for " + id);
+            // This is where your Stripe Key (pk_live_...) connects
         }
     </script>
 </body>
