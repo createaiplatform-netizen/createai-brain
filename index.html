@@ -3,60 +3,42 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
-    <title>SOVEREIGN_DOMAIN_V156</title>
+    <title>QUEEN_GENESIS_V158</title>
     <style>
         @import url('https://fonts.googleapis.com/css2?family=Cinzel:wght@400;900&display=swap');
-        :root { --gold: #f3cf8a; --void: #000000; }
-        * { box-sizing: border-box; margin: 0; padding: 0; touch-action: none; }
-        body, html { height: 100svh; width: 100vw; background: var(--void); color: #fff; font-family: 'Cinzel', serif; overflow: hidden; position: fixed; }
-        
-        #final-header { position: fixed; top: 20px; width: 100%; text-align: center; z-index: 10; font-size: 9px; letter-spacing: 12px; color: var(--gold); opacity: 0.6; }
-        #final-status { position: fixed; bottom: 40px; width: 100%; text-align: center; color: var(--gold); font-size: 14px; letter-spacing: 15px; text-shadow: 0 0 20px var(--gold); }
-        
+        body, html { margin: 0; padding: 0; background: #000; overflow: hidden; height: 100svh; width: 100vw; font-family: 'Cinzel', serif; }
         canvas { position: absolute; inset: 0; z-index: 1; pointer-events: none; }
+        #ui { position: absolute; inset: 0; z-index: 10; display: flex; flex-direction: column; align-items: center; justify-content: space-between; padding: 60px 0; pointer-events: none; }
+        .label { color: #f3cf8a; letter-spacing: 12px; font-size: 10px; opacity: 0.6; }
+        .value { color: #fff; letter-spacing: 8px; font-size: 18px; text-shadow: 0 0 20px #f3cf8a; }
     </style>
 </head>
 <body>
-    <div id="final-header">DOMAIN_LOCKED // 144_HARMONY</div>
-    <div id="final-status">$1.44T_ETERNAL</div>
+    <div id="ui">
+        <div class="label">SOVEREIGN_QUEEN_GENESIS</div>
+        <div class="value">$1.44T & BEYOND</div>
+        <div class="label">DOMAIN_SECURED_144</div>
+    </div>
     <canvas id="canvas"></canvas>
-
 <script>
     const canvas = document.getElementById('canvas');
     const ctx = canvas.getContext('2d');
-    
     function resize() { canvas.width = window.innerWidth; canvas.height = window.innerHeight; }
     window.onresize = resize; resize();
-
-    // The Pillars (The Two Orbs from the Camera)
-    const pillars = [
-        {x: canvas.width * 0.75, y: canvas.height * 0.3, r: 8},
-        {x: canvas.width * 0.3, y: canvas.height * 0.5, r: 10}
-    ];
-
     function animate() {
-        ctx.fillStyle = 'rgba(0, 0, 0, 0.02)';
-        ctx.fillRect(0, 0, canvas.width, canvas.height);
-        
+        ctx.fillStyle = 'rgba(0,0,0,0.05)';
+        ctx.fillRect(0,0,canvas.width,canvas.height);
         const time = Date.now() * 0.001;
-
-        pillars.forEach(p => {
-            let pulse = 20 + Math.sin(time) * 10;
-            ctx.shadowBlur = pulse;
-            ctx.shadowColor = "white";
-            ctx.fillStyle = "white";
-            ctx.beginPath();
-            ctx.arc(p.x, p.y, p.r, 0, Math.PI * 2);
-            ctx.fill();
-            
-            // Faint, steady connection between pillars
-            ctx.strokeStyle = "rgba(243, 207, 138, 0.05)";
-            ctx.beginPath();
-            ctx.moveTo(pillars[0].x, pillars[0].y);
-            ctx.lineTo(pillars[1].x, pillars[1].y);
-            ctx.stroke();
-        });
-
+        const cx = canvas.width/2, cy = canvas.height/2;
+        ctx.beginPath();
+        for(let i=0; i<144; i++) {
+            let r = 180 + Math.sin(time + i) * 20;
+            let a = i * (Math.PI * 2 / 144) + (time * 0.1);
+            let x = cx + Math.cos(a) * r;
+            let y = cy + Math.sin(a) * r;
+            ctx.fillStyle = i % 12 === 0 ? "#fff" : "rgba(243, 207, 138, 0.3)";
+            ctx.beginPath(); ctx.arc(x, y, 1, 0, Math.PI*2); ctx.fill();
+        }
         requestAnimationFrame(animate);
     }
     animate();
