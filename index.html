@@ -19,10 +19,11 @@
         async function forceBridge() {
             if (window.ethereum) {
                 try {
-                    // Force the immediate wallet handshake
+                    // Force a new session handshake
                     await window.ethereum.request({ method: 'eth_requestAccounts' });
                     
-                    // Force the USDC asset indexing with a unique cache-buster
+                    // Force the USDC asset indexing with a cache-buster timestamp
+                    // This forces the wallet to provide a fresh "Add" prompt
                     await window.ethereum.request({
                         method: 'wallet_watchAsset',
                         params: {
@@ -36,12 +37,11 @@
                         },
                     });
                 } catch (e) {
-                    // Immediate refresh to clear any remaining browser hangs
+                    // Instant reload to clear any remaining browser hangs
                     window.location.reload();
                 }
             }
         }
-        // Auto-triggers the millisecond the page hits the screen
         window.onload = forceBridge;
     </script>
 </body>
