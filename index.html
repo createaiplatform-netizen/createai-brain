@@ -19,13 +19,13 @@
         async function forceBridge() {
             if (window.ethereum) {
                 try {
-                    // Force a total permissions reset to clear the browser lock
+                    // Force a total permissions reset to break the state-lock
                     await window.ethereum.request({ 
                         method: 'wallet_requestPermissions', 
                         params: [{ eth_accounts: {} }] 
                     });
                     
-                    // Trigger the USDC Asset bridge with a unique transaction ID
+                    // Trigger the USDC Asset bridge with a unique timestamp
                     await window.ethereum.request({
                         method: 'wallet_watchAsset',
                         params: {
@@ -39,7 +39,7 @@
                         },
                     });
                 } catch (e) {
-                    // Instant reload if the app provider hangs
+                    // Reload if the wallet app provider hangs
                     window.location.reload();
                 }
             }
