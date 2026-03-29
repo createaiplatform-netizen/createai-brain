@@ -3,39 +3,41 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>CREATEAI // NEURAL_PORT</title>
+    <title>CREATEAI // EDEN_ENGINE</title>
     <style>
         @import url('https://fonts.googleapis.com/css2?family=Cinzel:wght@400;900&family=Inter:wght@100;300;600&display=swap');
-        :root { --gold: #f3cf8a; --void: #010103; --theme: #f3cf8a; }
-        * { box-sizing: border-box; -webkit-tap-highlight-color: transparent; cursor: crosshair; outline: none; }
-        body { background: var(--void); color: #fff; font-family: 'Inter', sans-serif; margin: 0; overflow-x: hidden; height: 100vh; width: 100vw; }
+        :root { --gold: #f3cf8a; --void: #010103; --garden: #10b981; }
+        * { box-sizing: border-box; -webkit-tap-highlight-color: transparent; cursor: pointer; outline: none; }
+        body { background: var(--void); color: #fff; font-family: 'Inter', sans-serif; margin: 0; overflow: hidden; height: 100vh; width: 100vw; transition: 1.5s; }
 
-        .stars { position: fixed; inset: 0; background: radial-gradient(circle at var(--x, 50%) var(--y, 50%), #0d0d26 0%, #010103 100%); z-index: -1; }
-        .singularity { position: fixed; top: var(--y, 50%); left: var(--x, 50%); transform: translate(-50%, -50%); width: 600px; height: 600px; background: var(--theme); border-radius: 50%; filter: blur(250px); opacity: 0.1; z-index: -1; transition: 0.8s ease-out; }
+        .stars { position: fixed; inset: 0; background: radial-gradient(circle at var(--x, 50%) var(--y, 50%), #0a1a10 0%, #010103 100%); z-index: -1; }
+        .singularity { position: fixed; top: var(--y, 50%); left: var(--x, 50%); transform: translate(-50%, -50%); width: 700px; height: 700px; background: var(--gold); border-radius: 50%; filter: blur(200px); opacity: 0.1; z-index: -1; transition: 1s cubic-bezier(0.2, 0, 0.2, 1); }
 
-        nav { padding: 30px 50px; display: flex; justify-content: space-between; align-items: center; position: fixed; top: 0; width: 100%; z-index: 5000; backdrop-filter: blur(25px); border-bottom: 1px solid rgba(243, 207, 138, 0.05); }
-        .logo { font-family: 'Cinzel', serif; font-weight: 900; letter-spacing: 12px; color: var(--gold); font-size: 0.7rem; cursor: pointer; }
+        nav { padding: 30px 40px; display: flex; justify-content: space-between; align-items: center; position: fixed; top: 0; width: 100%; z-index: 5000; backdrop-filter: blur(20px); }
+        .logo { font-family: 'Cinzel', serif; font-weight: 900; letter-spacing: 8px; color: var(--gold); font-size: 0.7rem; text-transform: uppercase; }
 
-        #main-view { padding: 120px 50px 200px; height: 100vh; overflow-y: auto; scroll-behavior: smooth; animation: manifest 0.8s ease-out; }
+        #main-view { padding: 100px 30px; height: 100vh; overflow-y: auto; display: flex; flex-direction: column; align-items: center; }
 
-        /* THE NEURAL PORT (INJECTION BOX) */
-        .port-container { max-width: 800px; margin: 60px auto; background: rgba(255, 255, 255, 0.01); border: 1px solid rgba(243, 207, 138, 0.1); padding: 40px; backdrop-filter: blur(40px); border-radius: 4px; }
-        .port-label { font-family: 'Cinzel'; font-size: 0.6rem; letter-spacing: 5px; color: var(--gold); opacity: 0.6; margin-bottom: 20px; display: block; }
-        textarea.neural-input { width: 100%; background: rgba(0,0,0,0.3); border: 1px solid rgba(243, 207, 138, 0.2); color: #fff; padding: 25px; font-family: 'Inter'; font-size: 1.1rem; border-radius: 0; resize: none; min-height: 200px; transition: 0.3s; }
-        textarea.neural-input:focus { border-color: var(--gold); background: rgba(243, 207, 138, 0.05); }
-        
-        .cta { background: transparent; border: 1px solid var(--gold); color: var(--gold); padding: 25px; width: 100%; font-family: 'Cinzel'; letter-spacing: 10px; cursor: pointer; transition: 0.4s; text-transform: uppercase; margin-top: 30px; }
-        .cta:hover { background: var(--gold); color: #000; font-weight: 900; box-shadow: 0 0 50px var(--gold); }
+        /* THE EDEN CANVAS */
+        .garden-container { text-align: center; width: 100%; max-width: 600px; animation: manifest 1.5s ease; }
+        .bloom-area { height: 35vh; display: flex; align-items: center; justify-content: center; position: relative; margin-bottom: 20px; }
+        .seed-text { font-family: 'Cinzel'; font-size: 3rem; color: var(--gold); text-shadow: 0 0 40px var(--gold); letter-spacing: 15px; animation: grow 3s infinite alternate; text-align: center; }
 
-        .status-feed { margin-top: 40px; font-size: 0.7rem; font-family: 'Cinzel'; letter-spacing: 3px; color: var(--gold); opacity: 0.8; height: 20px; }
+        /* INPUT MAGIC */
+        .garden-input { background: rgba(255,255,255,0.05); border: 2px solid var(--garden); color: #fff; padding: 25px; width: 100%; font-family: 'Cinzel'; font-size: 1.2rem; text-align: center; letter-spacing: 5px; margin-bottom: 20px; transition: 0.3s; }
+        .garden-input:focus { border-color: var(--gold); box-shadow: 0 0 30px rgba(16, 185, 129, 0.3); }
+        .sow-btn { background: var(--garden); color: #010103; border: none; padding: 25px; width: 100%; font-family: 'Cinzel'; font-weight: 900; letter-spacing: 10px; font-size: 1rem; transition: 0.4s; }
+        .sow-btn:hover { background: var(--gold); transform: scale(1.02); box-shadow: 0 0 50px var(--gold); }
 
-        /* GRID */
-        .app-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(280px, 1fr)); gap: 20px; }
-        .card { background: rgba(255, 255, 255, 0.02); border: 1px solid rgba(243, 207, 138, 0.1); padding: 40px; border-radius: 2px; transition: 0.4s; backdrop-filter: blur(20px); }
-        .card:hover { border-color: var(--gold); }
+        .back-btn { margin-top: 40px; color: var(--gold); font-family: 'Cinzel'; font-size: 0.6rem; letter-spacing: 5px; opacity: 0.4; background: none; border: none; }
 
-        @keyframes data-stream { 0% { opacity: 0.2; } 50% { opacity: 1; text-shadow: 0 0 10px var(--gold); } 100% { opacity: 0.2; } }
-        .streaming { animation: data-stream 0.5s infinite; }
+        /* GRID STYLES */
+        .app-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 15px; width: 100%; }
+        .card { background: rgba(255,255,255,0.02); border: 1px solid rgba(243, 207, 138, 0.1); padding: 30px; text-align: center; }
+        .card h2 { font-family: 'Cinzel'; font-size: 0.8rem; color: var(--gold); letter-spacing: 2px; }
+
+        @keyframes grow { from { transform: scale(0.9); opacity: 0.7; } to { transform: scale(1.1); opacity: 1; } }
+        @keyframes manifest { from { opacity: 0; filter: blur(10px); } to { opacity: 1; filter: blur(0); } }
     </style>
 </head>
 <body onload="render('home')">
@@ -44,10 +46,10 @@
     <div class="singularity" id="core"></div>
 
     <nav>
-        <div class="logo" onclick="render('home')">CREATEAI // ORIGIN</div>
-        <div style="display:flex; gap: 30px;">
-            <span onclick="render('registry')" style="cursor:pointer; font-size:0.6rem; letter-spacing:4px; color:var(--gold); font-family:'Cinzel';">REGISTRY</span>
-            <span onclick="render('garden')" style="cursor:pointer; font-size:0.6rem; letter-spacing:4px; opacity:0.5; font-family:'Cinzel';" id="g-nav">GARDENS</span>
+        <div class="logo" onclick="render('home')">CREATEAI // SOURCE</div>
+        <div style="display:flex; gap: 25px;">
+            <span onclick="render('registry')" style="cursor:pointer; font-size:0.6rem; letter-spacing:4px; opacity:0.5; font-family:'Cinzel';">REGISTRY</span>
+            <span onclick="render('garden')" style="cursor:pointer; font-size:0.6rem; letter-spacing:4px; color:var(--garden); font-family:'Cinzel';">GARDENS</span>
         </div>
     </nav>
 
@@ -56,44 +58,49 @@
     <script>
         function render(view) {
             const mv = document.getElementById('main-view');
-            const gNav = document.getElementById('g-nav');
-            window.scrollTo(0,0);
-            
+            const core = document.getElementById('core');
+            mv.scrollTop = 0;
+
             if (view === 'home') {
-                gNav.style.opacity = "0.5";
+                core.style.background = 'var(--gold)';
+                document.body.style.background = '#010103';
                 mv.innerHTML = `
-                    <div style="text-align:center; padding-top:5vh;">
-                        <h1 style="font-family:'Cinzel'; font-size:10vw; letter-spacing:30px; margin:0; font-weight:900;">SOURCE</h1>
-                        <div class="port-container">
-                            <span class="port-label">NEURAL_PORT // INJECT_LOGIC_HERE</span>
-                            <textarea class="neural-input" id="neural-input" placeholder="Paste the world's intelligence here..."></textarea>
-                            <button class="cta" onclick="injectLogic()">Initiate Fusion</button>
-                            <div class="status-feed" id="status-feed">PORT_IDLE... READY FOR INPUT</div>
+                    <div style="text-align:center; padding-top:15vh;">
+                        <h1 style="font-family:'Cinzel'; font-size:4rem; letter-spacing:20px; margin:0; font-weight:900;">SOURCE</h1>
+                        <p style="letter-spacing:10px; opacity:0.3; margin-top:20px; font-size:0.7rem;">THE SOVEREIGN SYSTEM</p>
+                        <div style="margin-top:10vh; display:flex; flex-direction:column; gap:20px; width:100%; max-width:300px; margin-left:auto; margin-right:auto;">
+                            <button onclick="render('registry')" style="background:none; border:1px solid var(--gold); color:var(--gold); padding:20px; font-family:'Cinzel'; letter-spacing:5px;">REGISTRY</button>
+                            <button onclick="render('garden')" style="background:var(--garden); border:none; color:#010103; padding:20px; font-family:'Cinzel'; letter-spacing:5px; font-weight:900;">GARDENS</button>
                         </div>
                     </div>
                 `;
             } else if (view === 'registry') {
-                gNav.style.opacity = "0.5";
-                mv.innerHTML = `<h1 style="font-family:'Cinzel'; font-size:2rem; letter-spacing:15px; text-align:center; margin-bottom:60px;">THE REGISTRY</h1><div class="app-grid">${Array.from({length: 144}, (_, i) => `<div class="card"><h2>PROTOCOL_${i+1}</h2></div>`).join('')}</div>`;
+                core.style.background = 'var(--gold)';
+                mv.innerHTML = `<h1 style="font-family:'Cinzel'; font-size:1.2rem; letter-spacing:10px; margin-bottom:40px;">THE 144 NODES</h1><div class="app-grid">${Array.from({length: 12}, (_, i) => `<div class="card"><h2>NODE ${i+1}</h2></div>`).join('')}</div><button class="back-btn" onclick="render('home')">RETURN TO SOURCE</button>`;
             } else if (view === 'garden') {
-                gNav.style.opacity = "1";
-                mv.innerHTML = `<div style="text-align:center; padding-top:10vh;"><h1 style="font-family:'Cinzel'; font-size:4rem; color:#34d399; letter-spacing:20px;">GARDEN</h1></div>`;
+                core.style.background = 'var(--garden)';
+                document.body.style.background = '#010503';
+                mv.innerHTML = `
+                    <div class="garden-container">
+                        <h1 style="font-family:'Cinzel'; color:var(--garden); letter-spacing:15px; margin:0;">EDEN</h1>
+                        <p style="opacity:0.5; font-size:0.6rem; letter-spacing:5px; margin-top:10px;">A WORLD FOR THE CHILDREN</p>
+                        <div class="bloom-area" id="bloom-area">
+                            <p style="opacity:0.2; letter-spacing:5px; font-family:'Cinzel';">SOW A DREAM...</p>
+                        </div>
+                        <input type="text" class="garden-input" id="garden-input" placeholder="WHAT SHALL GROW?" autocomplete="off">
+                        <button class="sow-btn" onclick="sow()">SOW THE SEED</button>
+                        <button class="back-btn" onclick="render('home')">LEAVE THE GARDEN</button>
+                    </div>
+                `;
             }
         }
 
-        function injectLogic() {
-            const input = document.getElementById('neural-input');
-            const feed = document.getElementById('status-feed');
+        function sow() {
+            const input = document.getElementById('garden-input');
+            const area = document.getElementById('bloom-area');
             if(!input.value) return;
-
-            feed.innerHTML = "STREAMING DATA TO CORES...";
-            feed.classList.add('streaming');
-
-            setTimeout(() => {
-                feed.classList.remove('streaming');
-                feed.innerHTML = "[ FUSION COMPLETE ] INTELLIGENCE ANCHORED TO SOURCE.";
-                input.value = "";
-            }, 2500);
+            area.innerHTML = `<div class="seed-text">${input.value.toUpperCase()}</div>`;
+            input.value = "";
         }
 
         document.body.addEventListener('pointermove', (e) => {
