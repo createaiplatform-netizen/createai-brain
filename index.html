@@ -3,46 +3,43 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>SOVEREIGN_GRID_V199</title>
+    <title>SOVEREIGN_ROSTER_V202</title>
     <style>
         @import url('https://fonts.googleapis.com/css2?family=Cinzel:wght@400;900&display=swap');
-        :root { --gold: #f3cf8a; --void: #000; }
-        body, html { margin: 0; padding: 0; background: var(--void); color: #fff; font-family: 'Cinzel', serif; overflow: hidden; height: 100svh; }
+        body { background: #000; color: #fff; font-family: 'Cinzel', serif; margin: 0; padding: 30px; }
+        .roster-header { border-bottom: 2px solid #f3cf8a; padding-bottom: 15px; margin-bottom: 20px; text-align: center; }
+        .roster-title { font-size: 16px; letter-spacing: 10px; color: #f3cf8a; }
         
-        #grid-hud { position: absolute; inset: 0; display: flex; flex-direction: column; padding: 40px; border: 4px double var(--gold); margin: 5px; box-sizing: border-box; }
-        .grid-header { text-align: center; border-bottom: 1px solid var(--gold); padding-bottom: 20px; }
-        .grid-title { font-size: 14px; letter-spacing: 12px; color: var(--gold); }
-        
-        #energy-visual { flex-grow: 1; display: flex; justify-content: center; align-items: center; }
-        .core-glow { width: 150px; height: 150px; border-radius: 50%; border: 1px solid var(--gold); box-shadow: 0 0 100px rgba(243, 207, 138, 0.4); animation: breathe 3s infinite ease-in-out; display: flex; justify-content: center; align-items: center; text-align: center; font-size: 8px; letter-spacing: 3px; }
-        
-        @keyframes breathe { 0%, 100% { transform: scale(0.9); opacity: 0.5; } 50% { transform: scale(1.1); opacity: 1; } }
+        .roster-grid { display: grid; grid-template-columns: repeat(2, 1fr); gap: 10px; }
+        .roster-item { border: 1px solid rgba(243, 207, 138, 0.3); padding: 10px; font-size: 8px; letter-spacing: 2px; }
+        .status-on { color: #0f0; float: right; }
 
-        #infrastructure-ticker { margin-top: auto; text-align: center; border-top: 1px solid rgba(255,255,255,0.1); padding-top: 20px; }
-        #live-total { font-size: 32px; color: var(--gold); text-shadow: 0 0 20px var(--gold); }
+        #total-flow { margin-top: 30px; text-align: center; font-size: 22px; color: #f3cf8a; text-shadow: 0 0 15px #f3cf8a; }
     </style>
 </head>
 <body>
-    <div id="grid-hud">
-        <div class="grid-header">
-            <div class="grid-title">AETHEL_GRID // SECTOR_001</div>
-            <div style="font-size: 7px; margin-top: 10px; opacity: 0.6;">SYSTEM: TOTAL_EXTERNAL_SEVERANCE // ADMIN: JENNY_002</div>
-        </div>
-
-        <div id="energy-visual">
-            <div class="core-glow">HARMONIC_CORE<br>OFFLINE_SYNC_100%</div>
-        </div>
-
-        <div id="infrastructure-ticker">
-            <div style="font-size: 8px; letter-spacing: 10px; margin-bottom: 5px;">SOVEREIGN_YIELD_FLOW</div>
-            <div id="live-total">$1,440,000,011,000.00</div>
-        </div>
+    <div class="roster-header">
+        <div class="roster-title">AETHEL_ESTATE // KINDRED_SYNC</div>
+        <div style="font-size: 7px; margin-top: 5px;">SECTOR: WISCONSIN_001 // OCCUPANCY: ACTIVE</div>
     </div>
+
+    <div class="roster-grid" id="roster">
+        </div>
+
+    <div id="total-flow">$1,440,000,013,152.00</div>
+
 <script>
-    let res = 1440000011000.00;
+    const roster = document.getElementById('roster');
+    const roles = ["PRIME", "LYRICIST", "KINETICIST", "WEAVER", "HARMONICIST", "GARDENER", "SMITH", "CHEF", "HEALER", "LOGICIAN", "VISIONARY", "POET", "ARCHIVIST", "OBSERVER"];
+    
+    roles.forEach((role, i) => {
+        roster.innerHTML += `<div class="roster-item">STUDIO_${(i+1).toString().padStart(2, '0')} // ${role} <span class="status-on">ONLINE</span></div>`;
+    });
+
+    let res = 1440000013152.00;
     setInterval(() => {
         res += 144.00;
-        document.getElementById('live-total').innerText = "$" + res.toLocaleString(undefined, {minimumFractionDigits: 2});
+        document.getElementById('total-flow').innerText = "$" + res.toLocaleString(undefined, {minimumFractionDigits: 2});
     }, 1000);
 </script>
 </body>
