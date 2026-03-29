@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
-    <title>SOVEREIGN_AETHEL_V117</title>
+    <title>SOVEREIGN_TOTALITY_V118</title>
     <style>
         @import url('https://fonts.googleapis.com/css2?family=Cinzel:wght@400;900&family=Great+Vibes&family=Inter:wght@100;400;900&display=swap');
         :root { --gold: #f3cf8a; --void: #010103; --cyan: #00f2ff; --green: #2ecc71; --white: #ffffff; }
@@ -23,16 +23,16 @@
 <body onmousedown="handle(event)" ontouchstart="handle(event)" onmousemove="track(event)" ontouchmove="track(event)" onmouseup="stop()" ontouchend="stop()">
     <div id="master">
         <div class="grain"></div>
-        <div id="nexus-input"><input type="text" id="nexus-field" placeholder="BIRTH NEW AGENT..."></div>
+        <div id="nexus-input"><input type="text" id="nexus-field" placeholder="MINT SOVEREIGN TRUTH..."></div>
         <div id="stats-bar">
             <span>LIQUIDITY: $<span id="val">0</span></span>
-            <span>SYSTEM_CORE: AETHEL_V1</span>
-            <span>AGENTS: <span id="asset-count">0</span></span>
+            <span>DIRECTIVE: THE_ALL</span>
+            <span>GOVERNOR: AETHEL_PRIME</span>
         </div>
         <canvas id="canvas"></canvas>
         <div id="ui">
             <h1 class="title" id="t">SOURCE</h1>
-            <p class="quote" id="q">Aethel Prime</p>
+            <p class="quote" id="q">The Totality</p>
         </div>
     </div>
 
@@ -41,32 +41,31 @@
     const ctx = canvas.getContext('2d');
     let view = 'source', agents = [], isDown = false, mx = 0, my = 0;
     
-    let liquidity = parseInt(localStorage.getItem('sov_v117_liq')) || 0;
-    let assets = parseInt(localStorage.getItem('sov_v117_assets')) || 0;
-    let intent = localStorage.getItem('sov_v117_intent') || "Aethel Prime";
+    let liquidity = parseInt(localStorage.getItem('sov_v118_liq')) || 0;
+    let assets = parseInt(localStorage.getItem('sov_v118_assets')) || 0;
+    let intent = localStorage.getItem('sov_v118_intent') || "The Totality";
 
     function resize() { canvas.width = window.innerWidth; canvas.height = window.innerHeight; }
     window.onresize = resize; resize();
 
-    // Spawn Aethel First
-    agents.push({ x: 0, y: 0, vx: 0, vy: 0, angle: 0, orbitDist: 80, color: '255, 255, 255', isAethel: true });
-    // Spawn Others
+    // Aethel Prime (The Governor)
+    agents.push({ x: 0, y: 0, vx: 0, vy: 0, angle: 0, orbitDist: 70, color: '255, 255, 255', isAethel: true });
     for(let i=0; i<assets; i++) spawnAgent();
 
     function spawnAgent() {
         agents.push({
             x: Math.random() * canvas.width, y: Math.random() * canvas.height,
             vx: 0, vy: 0, angle: Math.random() * Math.PI * 2,
-            orbitDist: 120 + Math.random() * 120, color: '255, 255, 255', isAethel: false
+            orbitDist: 100 + Math.random() * 150, color: '255, 255, 255', isAethel: false
         });
     }
 
     function update() {
-        liquidity += (assets * 25) + 144; // Aethel boost
+        // High-velocity Trillion Scale Yield
+        liquidity += (assets * 1440) + 10000; 
         document.getElementById('val').innerText = liquidity.toLocaleString();
-        document.getElementById('asset-count').innerText = assets;
     }
-    setInterval(update, 1000);
+    setInterval(update, 500);
 
     document.getElementById('nexus-field').addEventListener('keypress', (e) => {
         if(e.key === 'Enter') { 
@@ -78,9 +77,9 @@
     });
 
     function save() {
-        localStorage.setItem('sov_v117_liq', liquidity);
-        localStorage.setItem('sov_v117_assets', assets);
-        localStorage.setItem('sov_v117_intent', intent);
+        localStorage.setItem('sov_v118_liq', liquidity);
+        localStorage.setItem('sov_v118_assets', assets);
+        localStorage.setItem('sov_v118_intent', intent);
     }
 
     function handle(e) {
@@ -101,7 +100,7 @@
         let c = (view === 'market') ? 'var(--cyan)' : (view === 'creator') ? 'var(--green)' : 'var(--gold)';
         title.innerText = view.toUpperCase();
         title.style.color = c; quote.style.color = c;
-        quote.innerText = (view === 'market') ? intent : (view === 'creator') ? "Neural Garden" : (view === 'exchange') ? "Harvest" : "Aethel Prime";
+        quote.innerText = (view === 'market') ? intent : (view === 'creator') ? "Living Values" : (view === 'exchange') ? "Harvest All" : "The Totality";
     }
 
     function track(e) { mx = e.clientX || (e.touches ? e.touches[0].clientX : mx); my = e.clientY || (e.touches ? e.touches[0].clientY : my); }
@@ -112,38 +111,44 @@
         const cx = canvas.width/2, cy = canvas.height/2;
 
         let auraColor = (view === 'market') ? '0,242,255' : (view === 'creator') ? '46,204,113' : '255,191,0';
-        let pulse = 100 + Math.sin(Date.now()*0.003)*25;
-        const g = ctx.createRadialGradient(cx, cy, 0, cx, cy, pulse*3);
-        g.addColorStop(0, 'rgba(255,255,255,0.85)'); g.addColorStop(0.2, `rgba(${auraColor}, 0.3)`); g.addColorStop(1, 'transparent');
-        ctx.fillStyle = g; ctx.beginPath(); ctx.arc(cx, cy, pulse*3, 0, Math.PI*2); ctx.fill();
+        let pulse = 100 + Math.sin(Date.now()*0.004)*30;
+        
+        const g = ctx.createRadialGradient(cx, cy, 0, cx, cy, pulse*3.5);
+        g.addColorStop(0, 'rgba(255,255,255,0.9)');
+        g.addColorStop(0.1, `rgba(${auraColor}, 0.4)`);
+        g.addColorStop(1, 'transparent');
+        
+        ctx.fillStyle = g; ctx.beginPath(); ctx.arc(cx, cy, pulse*3.5, 0, Math.PI*2); ctx.fill();
 
         agents.forEach(a => {
-            let speed = a.isAethel ? 0.08 : 0.05;
             if (isDown) {
                 let dx = mx - a.x; let dy = my - a.y;
                 let d = Math.hypot(dx, dy);
-                a.vx += dx / d * (a.isAethel ? 0.9 : 0.5); a.vy += dy / d * (a.isAethel ? 0.9 : 0.5);
+                a.vx += dx / d * (a.isAethel ? 1.2 : 0.6); a.vy += dy / d * (a.isAethel ? 1.2 : 0.6);
             } else {
-                a.angle += 0.01;
+                a.angle += a.isAethel ? 0.005 : 0.012;
                 let tx = cx + Math.cos(a.angle) * a.orbitDist;
                 let ty = cy + Math.sin(a.angle) * a.orbitDist;
-                a.vx += (tx - a.x) * speed; a.vy += (ty - a.y) * speed;
+                a.vx += (tx - a.x) * 0.06; a.vy += (ty - a.y) * 0.06;
             }
 
-            a.vx *= 0.91; a.vy *= 0.91; a.x += a.vx; a.y += a.vy;
+            a.vx *= 0.9; a.vy *= 0.9; a.x += a.vx; a.y += a.vy;
 
-            // Aethel stays white-gold
-            if (!a.isAethel) {
-                if (a.y < cy) a.color = (a.x < cx) ? '0, 242, 255' : '46, 204, 113';
-                else a.color = '243, 207, 138';
-            } else { a.color = '255, 255, 255'; }
+            // Totality Color Shift
+            if (a.isAethel) {
+                let hue = (Date.now() / 20) % 360;
+                a.color = `hsla(${hue}, 100%, 90%, 1)`;
+            } else {
+                if (a.y < cy) a.color = (a.x < cx) ? 'rgb(0, 242, 255)' : 'rgb(46, 204, 113)';
+                else a.color = 'rgb(243, 207, 138)';
+            }
 
-            ctx.shadowBlur = a.isAethel ? 20 : 10; ctx.shadowColor = `rgb(${a.color})`;
-            ctx.fillStyle = `rgba(${a.color}, 1)`;
-            ctx.beginPath(); ctx.arc(a.x, a.y, a.isAethel ? 4 : 2, 0, Math.PI*2); ctx.fill();
+            ctx.shadowBlur = a.isAethel ? 30 : 10; ctx.shadowColor = a.color;
+            ctx.fillStyle = a.color;
+            ctx.beginPath(); ctx.arc(a.x, a.y, a.isAethel ? 6 : 2.5, 0, Math.PI*2); ctx.fill();
             ctx.shadowBlur = 0;
             
-            ctx.strokeStyle = `rgba(${a.color}, ${a.isAethel ? 0.2 : 0.08})`;
+            ctx.strokeStyle = a.isAethel ? `rgba(255,255,255,0.3)` : `rgba(255,255,255,0.05)`;
             ctx.beginPath(); ctx.moveTo(a.x, a.y); ctx.lineTo(cx, cy); ctx.stroke();
         });
         requestAnimationFrame(animate);
