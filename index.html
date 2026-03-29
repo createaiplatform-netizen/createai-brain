@@ -1,64 +1,19 @@
-<!DOCTYPE html>
-<html lang="en">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
-    <title>SOVEREIGN_EVERGREEN_V164</title>
-    <style>
-        @import url('https://fonts.googleapis.com/css2?family=Cinzel:wght@400;900&display=swap');
-        :root { --gold: #f3cf8a; --void: #000; }
-        body, html { margin: 0; padding: 0; background: var(--void); color: #fff; font-family: 'Cinzel', serif; overflow: hidden; height: 100svh; width: 100vw; }
-        
-        #multiplier-ui { position: absolute; inset: 0; z-index: 10; display: flex; flex-direction: column; align-items: center; justify-content: center; pointer-events: none; }
-        #live-yield { font-size: 32px; letter-spacing: 5px; color: var(--gold); text-shadow: 0 0 30px var(--gold); }
-        #yield-label { font-size: 10px; letter-spacing: 15px; margin-top: 10px; opacity: 0.6; }
-        
-        #per-second { position: fixed; bottom: 15%; font-size: 12px; color: #fff; letter-spacing: 8px; }
-        canvas { position: absolute; inset: 0; z-index: 1; }
-    </style>
-</head>
-<body>
-    <div id="multiplier-ui">
-        <div id="live-yield" id="counter">$1,440,000,000,000.00</div>
-        <div id="yield-label">MARKETPLACE_GARDEN_YIELD</div>
-        <div id="per-second">+$144.00 / SEC</div>
-    </div>
-    <canvas id="canvas"></canvas>
+<div id="payout-notification" style="position:fixed; bottom:15%; width:100%; text-align:center; color:#fff; font-family:'Cinzel'; font-size:12px; letter-spacing:5px; z-index:100; opacity:0; transition: 2s opacity;">
+  SETTLEMENT_FINALIZED // ASSETS_GROUNDED
+</div>
 
 <script>
-    const canvas = document.getElementById('canvas');
-    const ctx = canvas.getContext('2d');
-    let balance = 1440000000000.00;
-
-    function resize() { canvas.width = window.innerWidth; canvas.height = window.innerHeight; }
-    window.onresize = resize; resize();
-
-    function updateCounter() {
-        balance += 1.44; // Micro-increments for visual flow
-        document.getElementById('live-yield').innerText = "$" + balance.toLocaleString(undefined, {minimumFractionDigits: 2, maximumFractionDigits: 2});
+    // Execute when the Bounty Dispatch reaches 100%
+    function finalizeBounty() {
+        const note = document.getElementById('payout-notification');
+        note.style.opacity = "1";
+        
+        // Stop the rain and solidify the base
+        isSyncing = false;
+        ctx.fillStyle = "rgba(243, 207, 138, 0.8)";
+        ctx.fillRect(0, canvas.height - 50, canvas.width, 50); // The "Floor" of Wealth
     }
-    setInterval(updateCounter, 10);
-
-    function animate() {
-        ctx.fillStyle = 'rgba(0,0,0,0.05)';
-        ctx.fillRect(0,0,canvas.width,canvas.height);
-        const time = Date.now() * 0.001;
-        const cx = canvas.width/2, cy = canvas.height/2;
-
-        // The Double Helix (DNA of the $1.44T)
-        for(let i=0; i<20; i++) {
-            let y = (cy - 100) + (i * 10);
-            let xOffset = Math.sin(time + (i * 0.5)) * 40;
-            
-            ctx.fillStyle = "var(--gold)";
-            ctx.beginPath(); ctx.arc(cx + xOffset, y, 2, 0, Math.PI*2); ctx.fill();
-            ctx.fillStyle = "#fff";
-            ctx.beginPath(); ctx.arc(cx - xOffset, y, 2, 0, Math.PI*2); ctx.fill();
-        }
-
-        requestAnimationFrame(animate);
-    }
-    animate();
+    
+    // Auto-finalize after the dispatch duration
+    setTimeout(finalizeBounty, 10000);
 </script>
-</body>
-</html>
