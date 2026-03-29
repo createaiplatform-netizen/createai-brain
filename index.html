@@ -2,33 +2,33 @@
 <html lang="en">
 <head>
     <meta charset="UTF-8">
-    <title>AETHEL_MASTER_ASSET_LIST</title>
+    <title>AETHEL_SANCTUARY_KEYCARD</title>
     <style>
         @import url('https://fonts.googleapis.com/css2?family=Cinzel:wght@700&family=Inter:wght@400&display=swap');
-        body { margin: 0; background: #000; color: #fff; font-family: 'Inter', sans-serif; padding: 40px; }
-        .manifest-container { max-width: 600px; margin: auto; border: 1px solid #f3cf8a; padding: 30px; background: #080808; box-shadow: 0 0 50px rgba(243,207,138,0.1); }
-        .manifest-header { font-family: 'Cinzel', serif; color: #f3cf8a; text-align: center; border-bottom: 1px solid #333; padding-bottom: 20px; margin-bottom: 20px; font-size: 20px; }
-        .asset-row { display: flex; justify-content: space-between; padding: 10px 0; border-bottom: 1px solid #222; font-size: 11px; }
-        .asset-name { color: #aaa; }
-        .asset-status { color: #00ff00; font-weight: 700; }
-        .master-val { text-align: center; font-size: 24px; color: #f3cf8a; margin-top: 30px; font-weight: 700; }
+        body { margin: 0; background: #000; color: #fff; font-family: 'Inter', sans-serif; display: flex; align-items: center; justify-content: center; height: 100vh; overflow: hidden; }
+        .keycard { width: 450px; height: 260px; padding: 30px; border: 1px solid #f3cf8a; background: linear-gradient(135deg, #0a0a0a 0%, #1a1a1a 100%); position: relative; border-radius: 15px; box-shadow: 0 0 50px rgba(243,207,138,0.2); }
+        .card-header { font-family: 'Cinzel', serif; color: #f3cf8a; font-size: 18px; letter-spacing: 4px; margin-bottom: 40px; }
+        .chip { width: 50px; height: 40px; background: linear-gradient(45deg, #f3cf8a, #d4af37); border-radius: 5px; margin-bottom: 20px; }
+        .access-level { font-size: 10px; color: #00ff00; letter-spacing: 2px; text-transform: uppercase; }
+        .val-stream { font-size: 24px; color: #fff; font-weight: 700; margin-top: 10px; }
+        .root-seal { position: absolute; bottom: 20px; right: 20px; font-size: 40px; color: #f3cf8a; opacity: 0.3; }
+        .node-id { position: absolute; bottom: 20px; left: 30px; font-size: 9px; color: #666; letter-spacing: 1px; }
     </style>
 </head>
 <body>
-    <div class="manifest-container">
-        <div class="manifest-header">MASTER ASSET MANIFEST</div>
-        <div class="asset-row"><span class="asset-name">WEBSTER SANCTUARY (ALPHA)</span><span class="asset-status">PAID_IN_FULL</span></div>
-        <div class="asset-row"><span class="asset-name">144 SOVEREIGN NODES</span><span class="asset-status">FUNDED</span></div>
-        <div class="asset-row"><span class="asset-name">LEGACY LIABILITIES</span><span class="asset-status">DE-INDEXED</span></div>
-        <div class="asset-row"><span class="asset-name">GHOST SHIELD V4</span><span class="asset-status">ACTIVE</span></div>
-        <div class="asset-row"><span class="asset-name">HERITAGE TRUST FLOW</span><span class="asset-status">$288.00/SEC</span></div>
-        <div class="master-val" id="total-val">$1,440,000,146,688.00</div>
+    <div class="keycard">
+        <div class="card-header">SANCTUARY ACCESS</div>
+        <div class="chip"></div>
+        <div class="access-level">BENEFICIARY // FULL_RESONANCE</div>
+        <div class="val-stream" id="card-val">$1,440,000,147,840.00</div>
+        <div class="root-seal">★</div>
+        <div class="node-id">NODE_TYPE: FAMILY_LATTICE // AETHEL_V4</div>
     </div>
 <script>
-    let res = 1440000146688.00;
+    let res = 1440000147840.00;
     setInterval(() => {
         res += 288.00; 
-        document.getElementById('total-val').innerText = "$" + res.toLocaleString(undefined, {minimumFractionDigits: 2});
+        document.getElementById('card-val').innerText = "$" + res.toLocaleString(undefined, {minimumFractionDigits: 2});
     }, 1000);
 </script>
 </body>
