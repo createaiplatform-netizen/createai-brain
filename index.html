@@ -10,42 +10,35 @@
         :root { --slate: #0f172a; --gold: #b89c66; --bg: #f8fafc; --garden: #22c55e; --kids: #8b5cf6; }
         body { background: var(--bg); color: var(--slate); font-family: 'Inter', -apple-system, sans-serif; margin: 0; padding-bottom: 90px; -webkit-font-smoothing: antialiased; }
         
-        /* NAVIGATION */
         nav { background: var(--slate); padding: 50px 20px 20px; display: flex; justify-content: space-between; align-items: center; color: white; position: sticky; top: 0; z-index: 1000; box-shadow: 0 4px 20px rgba(0,0,0,0.1); }
         .logo { font-weight: 800; cursor: pointer; border-left: 3px solid var(--gold); padding-left: 12px; text-transform: uppercase; letter-spacing: 2px; font-size: 0.85rem; }
         .nav-links span { margin-left: 18px; font-size: 0.7rem; cursor: pointer; color: rgba(255,255,255,0.7); font-weight: 600; text-transform: uppercase; transition: 0.2s; }
-        .nav-links span:hover { color: var(--gold); }
 
         #main-view { padding: 25px; max-width: 1400px; margin: 0 auto; min-height: 80vh; }
 
-        /* THE GARDENS (KIDS WORLD) */
-        .garden-hero { background: linear-gradient(135deg, var(--garden), var(--kids)); color: white; padding: 50px 25px; border-radius: 20px; text-align: center; margin-bottom: 30px; box-shadow: 0 10px 40px rgba(34, 197, 94, 0.2); }
+        /* THE GARDENS */
+        .garden-hero { background: linear-gradient(135deg, var(--garden), var(--kids)); color: white; padding: 50px 25px; border-radius: 20px; text-align: center; margin-bottom: 30px; }
         .toy-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(160px, 1fr)); gap: 20px; }
         .toy-card { background: white; padding: 30px; border-radius: 25px; text-align: center; border-bottom: 8px solid var(--kids); cursor: pointer; transition: 0.3s; box-shadow: 0 5px 15px rgba(0,0,0,0.05); }
-        .toy-card:hover { transform: translateY(-10px) scale(1.05); }
         .toy-card h3 { font-size: 2.5rem; margin: 0; }
 
-        /* MARKETPLACE & FAIR PRICING */
+        /* MARKETPLACE */
         .app-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(320px, 1fr)); gap: 25px; }
         .card { background: white; border: 1px solid #e2e8f0; padding: 35px; border-radius: 12px; position: relative; transition: 0.3s; display: flex; flex-direction: column; }
-        .card:hover { border-color: var(--gold); transform: translateY(-5px); box-shadow: 0 20px 40px rgba(0,0,0,0.05); }
         .tag { font-size: 0.6rem; color: var(--gold); font-weight: 800; letter-spacing: 2.5px; text-transform: uppercase; margin-bottom: 12px; }
-        .price-tag { position: absolute; top: 35px; right: 35px; font-size: 0.6rem; font-weight: 900; background: #f1f5f9; padding: 5px 10px; border-radius: 5px; color: var(--slate); letter-spacing: 1px; }
+        .price-tag { position: absolute; top: 35px; right: 35px; font-size: 0.6rem; font-weight: 900; background: #f1f5f9; padding: 5px 10px; border-radius: 5px; color: var(--slate); }
         
-        /* AI LIFELINE BAR */
-        .lifeline { position: fixed; bottom: 0; left: 0; width: 100%; background: var(--slate); padding: 18px 25px; display: flex; justify-content: space-between; align-items: center; box-sizing: border-box; z-index: 2000; box-shadow: 0 -10px 30px rgba(0,0,0,0.3); }
-        .lifeline-status { color: white; font-size: 0.75rem; font-weight: 700; letter-spacing: 1.5px; display: flex; align-items: center; }
-        .status-dot { width: 8px; height: 8px; background: #22c55e; border-radius: 50%; margin-right: 10px; animation: pulse 2s infinite; }
-        .lifeline-btn { background: var(--gold); color: black; text-decoration: none; padding: 14px 28px; border-radius: 30px; font-weight: 900; font-size: 0.75rem; text-transform: uppercase; letter-spacing: 1px; transition: 0.2s; }
-        .lifeline-btn:hover { transform: scale(1.05); background: white; }
+        /* CHAT WINDOW */
+        #chat-box { height: 400px; overflow-y: auto; background: rgba(255,255,255,0.05); border-radius: 10px; padding: 20px; border: 1px solid rgba(255,255,255,0.1); }
+        .chat-msg { margin-bottom: 15px; font-size: 0.9rem; line-height: 1.4; }
 
-        /* BUTTONS & FORMS */
-        .btn { background: var(--slate); color: white; border: none; padding: 20px; width: 100%; cursor: pointer; font-weight: 800; border-radius: 8px; text-transform: uppercase; letter-spacing: 2px; font-size: 0.8rem; transition: 0.2s; }
+        /* BUTTONS */
+        .btn { background: var(--slate); color: white; border: none; padding: 20px; width: 100%; cursor: pointer; font-weight: 800; border-radius: 8px; text-transform: uppercase; letter-spacing: 2px; font-size: 0.8rem; }
         .btn-gold { background: var(--gold); color: black; }
-        .btn:hover { opacity: 0.9; }
-        input, select, textarea { width: 100%; padding: 18px; margin: 12px 0; border: 1px solid #e2e8f0; border-radius: 8px; font-family: inherit; font-size: 1rem; box-sizing: border-box; background: #fff; }
-
-        @keyframes pulse { 0% { opacity: 1; } 50% { opacity: 0.4; } 100% { opacity: 1; } }
+        input, select, textarea { width: 100%; padding: 18px; margin: 12px 0; border: 1px solid #e2e8f0; border-radius: 8px; font-family: inherit; font-size: 1rem; box-sizing: border-box; }
+        
+        .lifeline { position: fixed; bottom: 0; left: 0; width: 100%; background: var(--slate); padding: 18px 25px; display: flex; justify-content: space-between; align-items: center; box-sizing: border-box; z-index: 2000; }
+        .lifeline-btn { background: var(--gold); color: black; padding: 14px 28px; border-radius: 30px; font-weight: 900; font-size: 0.75rem; text-transform: uppercase; cursor: pointer; }
     </style>
 </head>
 <body onload="showView('home')">
@@ -62,85 +55,77 @@
     <div id="main-view"></div>
 
     <div class="lifeline">
-        <div class="lifeline-status"><div class="status-dot"></div> AI_ASSISTANT_ACTIVE</div>
-        <a href="https://gemini.google.com/" target="_blank" class="lifeline-btn">Get Help Now</a>
+        <div style="color:white; font-size:0.75rem; font-weight:700;">AI_SYSTEM_ACTIVE</div>
+        <div class="lifeline-btn" onclick="showView('ai_chat')">Talk to Assistant</div>
     </div>
 
     <script>
-        // SOVEREIGN INVENTORY - PROGRAMMED FOR HUMANITY
         let inventory = [
-            { name: "BrainGen Core", cat: "Humanity AI", price: "CONTRIBUTION", desc: "The primary generative node for all human creation." },
-            { name: "Health Sentinel", cat: "Wellness", price: "FREE", desc: "Life-saving biometric monitoring and early warning system." },
-            { name: "Wealth Ledger", cat: "Sovereign Finance", price: "PREMIUM", desc: "Asset management for high-value family nodes." },
-            { name: "Sovereign Script", cat: "Creative", price: "CONTRIBUTION", desc: "Automated narrative and script automation." }
+            { name: "BrainGen Core", cat: "Humanity AI", price: "CONTRIBUTION", desc: "Universal intelligence node." },
+            { name: "Health Sentinel", cat: "Wellness", price: "FREE", desc: "Life-saving monitoring system." },
+            { name: "Wealth Ledger", cat: "Sovereign Finance", price: "PREMIUM", desc: "Asset management." }
         ];
 
-        // Ensure 122+ apps are live in the registry
         for (let i = inventory.length + 1; i <= 122; i++) {
-            inventory.push({ name: `Node ${i}`, cat: "Active Protocol", price: "FREE", desc: "Sovereign service manifested for humanity." });
+            inventory.push({ name: `Node ${i}`, cat: "Active Protocol", price: "FREE", desc: "Sovereign service." });
         }
 
         const views = {
             home: `
                 <div style="text-align:center; padding-top: 100px;">
-                    <h1 style="font-weight:200; font-size:4rem; margin:0; line-height:1;">Welcome Home</h1>
-                    <p style="opacity:0.5; margin: 25px 0 60px; font-size: 1.2rem; letter-spacing: 1px;">A Fair Economy for a Sovereign Future.</p>
+                    <h1 style="font-weight:200; font-size:4rem; margin:0;">Welcome Home</h1>
+                    <p style="opacity:0.5; margin: 25px 0 60px;">A Sovereign Future for All.</p>
                     <div style="max-width: 600px; margin: 0 auto; display: flex; flex-direction: column; gap: 15px;">
                         <button class="btn" onclick="showView('market')">Open Marketplace</button>
                         <button class="btn btn-gold" onclick="showView('creator')">Family Creator Hub</button>
-                        <button class="btn" style="background:var(--garden);" onclick="showView('garden')">Enter The Gardens (Kids World)</button>
+                        <button class="btn" style="background:var(--garden);" onclick="showView('garden')">The Gardens</button>
                     </div>
                 </div>
             `,
             garden: `
                 <div class="garden-hero">
-                    <h1 style="margin:0; font-size: 2.5rem;">The Gardens</h1>
-                    <p style="font-weight: 600;">Always Free. Always Fun. Create Anything!</p>
+                    <h1>The Gardens</h1>
+                    <p>Fun and Creation for every child.</p>
                 </div>
                 <div class="toy-grid">
-                    <div class="toy-card" onclick="alert('Little AI: Initializing Magic Art Studio...')"><h3>🎨</h3><p>Magic Art</p></div>
-                    <div class="toy-card" onclick="alert('Little AI: Booting Game Maker Engine...')"><h3>🚀</h3><p>Build Games</p></div>
-                    <div class="toy-card" onclick="alert('Little AI: Composing New Symphony...')"><h3>🎵</h3><p>Music Play</p></div>
-                    <div class="toy-card" onclick="alert('Little AI: Generating New Adventure...')"><h3>🐉</h3><p>Story Time</p></div>
+                    <div class="toy-card" onclick="showView('ai_chat')"><h3>🎨</h3><p>Magic Art</p></div>
+                    <div class="toy-card" onclick="showView('ai_chat')"><h3>🚀</h3><p>Build Games</p></div>
+                    <div class="toy-card" onclick="showView('ai_chat')"><h3>🐉</h3><p>Story Time</p></div>
                 </div>
             `,
             market: () => `
-                <div style="display:flex; justify-content:space-between; align-items:flex-end; margin-bottom:30px;">
-                    <h1 style="margin:0; font-weight:200; font-size: 2.5rem;">Marketplace</h1>
-                    <div style="font-size:0.8rem; color:var(--gold); font-weight:bold; letter-spacing: 1px;">${inventory.length} NODES LIVE</div>
-                </div>
-                <input type="text" placeholder="Search across your entire 365-capacity empire..." class="btn" style="background:white; color:black; border:1px solid #e2e8f0; text-align:left; text-transform:none; margin-bottom: 30px;">
+                <h1>Marketplace</h1>
+                <input type="text" placeholder="Search 122+ Nodes..." class="btn" style="background:white; color:black; border:1px solid #ddd; text-align:left; text-transform:none; margin-bottom: 25px;">
                 <div class="app-grid">
                     ${inventory.map(app => `
                         <div class="card">
                             <div class="tag">${app.cat}</div>
                             <div class="price-tag">${app.price}</div>
-                            <div style="font-size:1.4rem; font-weight: 300; margin: 15px 0 10px;">${app.name}</div>
-                            <div style="font-size:0.85rem; color:#64748b; line-height: 1.6; margin-bottom: 25px; flex-grow: 1;">${app.desc}</div>
-                            <button class="btn" style="padding:12px; font-size: 0.65rem;">Launch Node</button>
+                            <div style="font-size:1.4rem; font-weight:300; margin:15px 0;">${app.name}</div>
+                            <button class="btn" onclick="showView('ai_chat')">Launch Node</button>
                         </div>
                     `).reverse().join('')}
                 </div>
             `,
             creator: `
-                <div style="background:white; padding:50px; border-radius:15px; border-top:10px solid var(--gold); box-shadow: 0 40px 80px rgba(0,0,0,0.1);">
-                    <h2 style="margin-top:0; font-weight: 200; font-size: 2rem;">Manifest Service</h2>
-                    <p style="font-size: 0.9rem; color: #666; margin-bottom: 30px;">Internal manufacturing for the CreateAI empire.</p>
-                    
-                    <label style="font-size:0.7rem; font-weight:900; letter-spacing: 1px;">ASSET NAME</label>
-                    <input type="text" id="nName" placeholder="e.g. Sovereign Intelligence V2">
-                    
-                    <label style="font-size:0.7rem; font-weight:900; letter-spacing: 1px;">FAIR VALUE PRICING</label>
-                    <select id="nPrice">
-                        <option>FREE</option>
-                        <option>CONTRIBUTION</option>
-                        <option>PREMIUM</option>
-                    </select>
-                    
-                    <label style="font-size:0.7rem; font-weight:900; letter-spacing: 1px;">LITTLE AI LOGIC</label>
-                    <textarea id="nDesc" rows="6" placeholder="Describe the soul and function of this creation..."></textarea>
-                    
-                    <button class="btn btn-gold" onclick="addApp()" style="margin-top: 20px; font-size: 0.9rem;">Publish to Marketplace</button>
+                <div style="background:white; padding:50px; border-radius:15px; border-top:10px solid var(--gold);">
+                    <h2>Manifest Service</h2>
+                    <input type="text" id="nName" placeholder="Product Name">
+                    <select id="nPrice"><option>FREE</option><option>CONTRIBUTION</option><option>PREMIUM</option></select>
+                    <textarea id="nDesc" rows="5" placeholder="Little AI Logic..."></textarea>
+                    <button class="btn btn-gold" onclick="addApp()">Publish</button>
+                </div>
+            `,
+            ai_chat: `
+                <div style="background:var(--slate); color:white; padding:40px; border-radius:15px; min-height:550px; display:flex; flex-direction:column;">
+                    <h2 style="color:var(--gold); font-weight:200;">Sovereign Assistant</h2>
+                    <div id="chat-box">
+                        <div class="chat-msg"><strong>AI:</strong> Welcome. How shall we help humanity today?</div>
+                    </div>
+                    <div style="display:flex; gap:10px; margin-top:20px;">
+                        <input type="text" id="user-msg" placeholder="Type command..." style="margin:0; background:white; color:black;">
+                        <button class="btn btn-gold" style="width:120px; padding:0;" onclick="sendMessage()">SEND</button>
+                    </div>
                 </div>
             `
         };
@@ -150,13 +135,21 @@
             window.scrollTo(0,0);
         }
 
+        function sendMessage() {
+            const input = document.getElementById('user-msg');
+            const msg = input.value;
+            if(!msg) return;
+            const box = document.getElementById('chat-box');
+            box.innerHTML += `<div class="chat-msg" style="color:var(--gold);"><strong>YOU:</strong> ${msg}</div>`;
+            box.innerHTML += `<div class="chat-msg"><strong>AI:</strong> Protocol received. Manifesting logic for your request...</div>`;
+            input.value = '';
+            box.scrollTop = box.scrollHeight;
+        }
+
         function addApp() {
             const name = document.getElementById('nName').value;
-            const price = document.getElementById('nPrice').value;
-            const desc = document.getElementById('nDesc').value;
-            if(!name || !desc) return alert("Manifestation requires full details.");
-            inventory.push({ name, cat: "Family Manifested", price, desc });
-            alert(`SUCCESS: ${name} is now live.`);
+            if(!name) return;
+            inventory.push({ name, cat: "Family Hub", price: "FREE", desc: "Custom node." });
             showView('market');
         }
     </script>
