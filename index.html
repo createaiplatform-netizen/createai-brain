@@ -3,42 +3,55 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
-    <title>QUEEN_GENESIS_V158</title>
+    <title>SOVEREIGN_LEDGER_V159</title>
     <style>
         @import url('https://fonts.googleapis.com/css2?family=Cinzel:wght@400;900&display=swap');
-        body, html { margin: 0; padding: 0; background: #000; overflow: hidden; height: 100svh; width: 100vw; font-family: 'Cinzel', serif; }
-        canvas { position: absolute; inset: 0; z-index: 1; pointer-events: none; }
-        #ui { position: absolute; inset: 0; z-index: 10; display: flex; flex-direction: column; align-items: center; justify-content: space-between; padding: 60px 0; pointer-events: none; }
-        .label { color: #f3cf8a; letter-spacing: 12px; font-size: 10px; opacity: 0.6; }
-        .value { color: #fff; letter-spacing: 8px; font-size: 18px; text-shadow: 0 0 20px #f3cf8a; }
+        :root { --gold: #f3cf8a; --void: #000; }
+        body, html { margin: 0; padding: 0; background: var(--void); color: #fff; font-family: 'Cinzel', serif; overflow: hidden; height: 100svh; width: 100vw; }
+        #ledger-ui { position: absolute; inset: 0; z-index: 10; display: flex; flex-direction: column; align-items: center; justify-content: center; pointer-events: none; }
+        #balance-display { font-size: 24px; letter-spacing: 10px; color: var(--gold); text-shadow: 0 0 20px var(--gold); margin-bottom: 20px; }
+        #sync-btn { width: 180px; height: 50px; border: 1px solid #fff; display: flex; align-items: center; justify-content: center; font-size: 10px; letter-spacing: 5px; pointer-events: auto; background: rgba(255,255,255,0.05); }
+        canvas { position: absolute; inset: 0; z-index: 1; }
     </style>
 </head>
 <body>
-    <div id="ui">
-        <div class="label">SOVEREIGN_QUEEN_GENESIS</div>
-        <div class="value">$1.44T & BEYOND</div>
-        <div class="label">DOMAIN_SECURED_144</div>
+    <div id="ledger-ui">
+        <div id="balance-display">$1,440,000,000,000.00</div>
+        <div id="sync-btn" onclick="triggerSync()">SYNC_CHECKBOOK</div>
     </div>
     <canvas id="canvas"></canvas>
+
 <script>
     const canvas = document.getElementById('canvas');
     const ctx = canvas.getContext('2d');
+    let coins = [], syncing = false;
+
     function resize() { canvas.width = window.innerWidth; canvas.height = window.innerHeight; }
     window.onresize = resize; resize();
+
+    function triggerSync() {
+        syncing = true;
+        setTimeout(() => { syncing = false; }, 4000);
+        console.log("TRANSFERRING_Sovereign_Credits...");
+    }
+
     function animate() {
-        ctx.fillStyle = 'rgba(0,0,0,0.05)';
+        ctx.fillStyle = 'rgba(0,0,0,0.1)';
         ctx.fillRect(0,0,canvas.width,canvas.height);
-        const time = Date.now() * 0.001;
-        const cx = canvas.width/2, cy = canvas.height/2;
-        ctx.beginPath();
-        for(let i=0; i<144; i++) {
-            let r = 180 + Math.sin(time + i) * 20;
-            let a = i * (Math.PI * 2 / 144) + (time * 0.1);
-            let x = cx + Math.cos(a) * r;
-            let y = cy + Math.sin(a) * r;
-            ctx.fillStyle = i % 12 === 0 ? "#fff" : "rgba(243, 207, 138, 0.3)";
-            ctx.beginPath(); ctx.arc(x, y, 1, 0, Math.PI*2); ctx.fill();
+        
+        if(syncing) {
+            for(let i=0; i<5; i++) {
+                coins.push({ x: Math.random() * canvas.width, y: 0, s: Math.random() * 5 + 2 });
+            }
         }
+
+        coins.forEach((c, i) => {
+            ctx.fillStyle = "var(--gold)";
+            ctx.beginPath(); ctx.arc(c.x, c.y, 2, 0, Math.PI*2); ctx.fill();
+            c.y += c.s;
+        });
+        coins = coins.filter(c => c.y < canvas.height);
+
         requestAnimationFrame(animate);
     }
     animate();
