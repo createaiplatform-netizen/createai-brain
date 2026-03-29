@@ -3,45 +3,40 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Creator Hub | Manifest Your Vision</title>
+    <title>Creator Hub | CREATEAI</title>
     <style>
-        :root { --deep: #0f172a; --gold: #fbbf24; --white: #ffffff; }
-        body { background: #f1f5f9; font-family: 'Inter', sans-serif; margin: 0; padding: 20px; }
+        :root { --deep: #05070a; --gold: #c5a059; --glass: rgba(255, 255, 255, 0.03); }
+        body { background: var(--deep); color: #e0e0e0; font-family: 'Inter', sans-serif; margin: 0; padding: 0; }
         
-        .studio-card { background: var(--white); border-radius: 30px; max-width: 600px; margin: 0 auto; overflow: hidden; box-shadow: 0 20px 50px rgba(0,0,0,0.1); border: 2px solid var(--gold); }
-        .preview-window { background: #e2e8f0; height: 350px; display: flex; align-items: center; justify-content: center; position: relative; background-image: url('https://images.unsplash.com/photo-1521572267360-ee0c2909d518?auto=format&fit=crop&w=600&q=80'); background-size: cover; background-position: center; }
+        .studio-container { max-width: 900px; margin: 60px auto; padding: 20px; }
+        .canvas-card { background: var(--glass); border: 1px solid rgba(197, 160, 89, 0.3); border-radius: 2px; padding: 40px; text-align: center; }
         
-        .ai-overlay { background: rgba(255,255,255,0.2); backdrop-filter: blur(5px); border: 2px dashed var(--gold); padding: 20px; color: white; font-weight: bold; text-align: center; }
+        .preview-box { width: 100%; height: 400px; background: rgba(255,255,255,0.02); border: 1px dashed rgba(255,255,255,0.1); margin-bottom: 30px; display: flex; align-items: center; justify-content: center; position: relative; }
+        .ai-pulse { position: absolute; width: 100%; height: 100%; background: radial-gradient(circle, rgba(197, 160, 89, 0.05) 0%, transparent 70%); }
         
-        .controls { padding: 30px; background: var(--deep); color: white; }
-        .prompt-input { width: 100%; padding: 15px; border-radius: 12px; border: none; margin-bottom: 15px; font-size: 1rem; box-sizing: border-box; }
-        .manifest-btn { background: var(--gold); color: black; border: none; width: 100%; padding: 18px; border-radius: 50px; font-weight: bold; cursor: pointer; text-transform: uppercase; }
+        .prompt-input { width: 100%; padding: 20px; background: rgba(0,0,0,0.5); border: 1px solid rgba(255,255,255,0.1); color: #fff; margin-bottom: 20px; font-size: 1rem; }
+        .manifest-btn { width: 100%; padding: 20px; background: var(--gold); color: #000; border: none; font-weight: bold; letter-spacing: 2px; cursor: pointer; text-transform: uppercase; }
     </style>
 </head>
 <body>
 
-    <div class="studio-card">
-        <div class="preview-window">
-            <div class="ai-overlay" id="manifest-area">MANIFEST YOUR VISION</div>
-        </div>
-        <div class="controls">
-            <h3>The Little AI Designer</h3>
-            <p style="font-size: 0.8rem; opacity: 0.7;">Tell the AI exactly how you want the product to look.</p>
-            <input type="text" id="userPrompt" class="prompt-input" placeholder="e.g. 'Golden crown with family initials'">
-            <button class="manifest-btn" onclick="manifestDesign()">MANIFEST & ORDER ($45.00)</button>
+    <div class="studio-container">
+        <div class="canvas-card">
+            <div style="font-size: 0.6rem; color: var(--gold); letter-spacing: 4px; margin-bottom: 20px;">LITTLE_AI_DESIGN_PROTOCOL</div>
+            <div class="preview-box">
+                <div class="ai-pulse"></div>
+                <div id="manifest-text" style="opacity: 0.5;">[ WAITING FOR VISION ]</div>
+            </div>
+            <input type="text" id="userVision" class="prompt-input" placeholder="Describe the product appearance change...">
+            <button class="manifest-btn" onclick="manifest()">Manifest Asset</button>
         </div>
     </div>
 
     <script>
-        function manifestDesign() {
-            const prompt = document.getElementById('userPrompt').value;
-            const area = document.getElementById('manifest-area');
-            area.innerHTML = "AI IS CREATING: " + prompt.toUpperCase();
-            
-            setTimeout(() => {
-                alert("Design Manifested. Order sent to Printing Engine.");
-                // This sends the AI design to the Printful/Dropshipping API
-            }, 1500);
+        function manifest() {
+            const vision = document.getElementById('userVision').value;
+            document.getElementById('manifest-text').innerText = "MANIFESTING: " + vision.toUpperCase();
+            setTimeout(() => { alert("Asset Manifested. Sent to Manufacturing."); }, 1000);
         }
     </script>
 </body>
