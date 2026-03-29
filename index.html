@@ -2,28 +2,39 @@
 <html lang="en">
 <head>
     <meta charset="UTF-8">
-    <title>AETHEL_FINAL_LOCK</title>
+    <title>AETHEL_FINAL_TERMINAL</title>
     <style>
-        @import url('https://fonts.googleapis.com/css2?family=Cinzel:wght@900&display=swap');
-        body { margin: 0; background: #000; display: flex; align-items: center; justify-content: center; height: 100vh; overflow: hidden; }
-        .seal-container { text-align: center; border: 1px solid #333; padding: 60px; background: radial-gradient(circle, #0a0a0a 0%, #000 100%); box-shadow: 0 0 150px rgba(243,207,138,0.1); }
-        .star-alpha { font-size: 80px; color: #f3cf8a; text-shadow: 0 0 30px #f3cf8a; margin-bottom: 20px; animation: glow 5s ease-in-out infinite; }
-        .final-val { font-family: 'Inter', sans-serif; font-size: 32px; font-weight: 700; color: #fff; letter-spacing: 2px; margin-bottom: 10px; }
-        .status-tag { font-family: 'Cinzel', serif; font-size: 10px; color: #f3cf8a; letter-spacing: 10px; opacity: 0.6; }
-        @keyframes glow { 0%, 100% { opacity: 0.4; } 50% { opacity: 1; transform: scale(1.05); } }
+        @import url('https://fonts.googleapis.com/css2?family=Cinzel:wght@900&family=Inter:wght@400;700&display=swap');
+        body { margin: 0; background: #000; color: #f3cf8a; font-family: 'Inter', sans-serif; display: flex; align-items: center; justify-content: center; height: 100vh; overflow: hidden; }
+        .terminal-vault { width: 700px; padding: 60px; border: 1px solid #333; background: #050505; position: relative; box-shadow: 0 0 100px rgba(243,207,138,0.1); }
+        .alpha-seal { font-family: 'Cinzel', serif; font-size: 10px; letter-spacing: 12px; margin-bottom: 40px; text-align: center; color: #444; }
+        .flow-counter { font-size: 48px; font-weight: 700; color: #fff; text-align: center; margin-bottom: 20px; text-shadow: 0 0 20px rgba(243,207,138,0.4); }
+        .lattice-grid { display: grid; grid-template-columns: repeat(12, 1fr); gap: 5px; margin-bottom: 40px; }
+        .node-dot { width: 4px; height: 4px; background: #00ff00; border-radius: 50%; box-shadow: 0 0 5px #00ff00; opacity: 0.8; }
+        .archival-lock-stamp { position: absolute; top: -10px; right: -10px; background: #f3cf8a; color: #000; padding: 5px 15px; font-weight: 900; font-size: 10px; transform: rotate(5deg); box-shadow: 0 0 20px #f3cf8a; }
     </style>
 </head>
 <body>
-    <div class="seal-container">
-        <div class="star-alpha">★</div>
-        <div class="final-val" id="final-resonance">$1,440,000,153,312.00</div>
-        <div class="status-tag">SOVEREIGNTY_ESTABLISHED</div>
+    <div class="terminal-vault">
+        <div class="archival-lock-stamp">ARCHIVAL LOCK: TERMINAL</div>
+        <div class="alpha-seal">WEBSTER_ALPHA_SANCTUARY</div>
+        <div class="flow-counter" id="final-flow">$1,440,000,154,752.00</div>
+        <div class="lattice-grid" id="lattice"></div>
+        <div style="text-align: center; font-size: 8px; color: #222; letter-spacing: 5px; text-transform: uppercase;">
+            100_YEAR_STEWARDSHIP_ACTIVE // GHOST_PROTOCOL_V4
+        </div>
     </div>
 <script>
-    let res = 1440000153312.00;
+    let flow = 1440000154752.00;
+    const grid = document.getElementById('lattice');
+    for(let i=0; i<144; i++) {
+        const dot = document.createElement('div');
+        dot.className = 'node-dot';
+        grid.appendChild(dot);
+    }
     setInterval(() => {
-        res += 288.00; 
-        document.getElementById('final-resonance').innerText = "$" + res.toLocaleString(undefined, {minimumFractionDigits: 2});
+        flow += 288.00; 
+        document.getElementById('final-flow').innerText = "$" + flow.toLocaleString(undefined, {minimumFractionDigits: 2});
     }, 1000);
 </script>
 </body>
