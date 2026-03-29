@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
-    <title>SOVEREIGN_NEURAL_V115</title>
+    <title>SOVEREIGN_SENTIENT_V116</title>
     <style>
         @import url('https://fonts.googleapis.com/css2?family=Cinzel:wght@400;900&family=Great+Vibes&family=Inter:wght@100;400;900&display=swap');
         :root { --gold: #f3cf8a; --void: #010103; --cyan: #00f2ff; --green: #2ecc71; --white: #ffffff; }
@@ -25,47 +25,46 @@
 <body onmousedown="handle(event)" ontouchstart="handle(event)" onmousemove="track(event)" ontouchmove="track(event)" onmouseup="stop()" ontouchend="stop()">
     <div id="master">
         <div class="grain"></div>
-        <div id="nexus-input"><input type="text" id="nexus-field" placeholder="MINT AGENT AI..."></div>
+        <div id="nexus-input"><input type="text" id="nexus-field" placeholder="BIRTH NEW AGENT..."></div>
         <div id="stats-bar">
             <span>LIQUIDITY: $<span id="val">0</span></span>
-            <span>ACTIVE_AGENTS: <span id="asset-count">0</span></span>
+            <span>NEURAL_NET: <span id="asset-count">0</span> AGENTS</span>
         </div>
         <div class="guide tl">MARKET</div> <div class="guide tr">CREATOR</div> <div class="guide bl">SOURCE</div> <div class="guide br">EXCHANGE</div>
         <canvas id="canvas"></canvas>
         <div id="ui">
             <h1 class="title" id="t">SOURCE</h1>
-            <p class="quote" id="q">The Intelligence Core</p>
+            <p class="quote" id="q">Sentient Origin</p>
         </div>
     </div>
 
 <script>
     const canvas = document.getElementById('canvas');
     const ctx = canvas.getContext('2d');
-    let view = 'source', particles = [], agents = [], isDown = false, mx = 0, my = 0;
+    let view = 'source', agents = [], isDown = false, mx = 0, my = 0;
     
-    let liquidity = parseInt(localStorage.getItem('sov_v115_liq')) || 0;
-    let assets = parseInt(localStorage.getItem('sov_v115_assets')) || 0;
-    let intent = localStorage.getItem('sov_v115_intent') || "The Intelligence Core";
-    let bigCoin = 0;
+    let liquidity = parseInt(localStorage.getItem('sov_v116_liq')) || 0;
+    let assets = parseInt(localStorage.getItem('sov_v116_assets')) || 0;
+    let intent = localStorage.getItem('sov_v116_intent') || "Sentient Origin";
 
     function resize() { canvas.width = window.innerWidth; canvas.height = window.innerHeight; }
     window.onresize = resize; resize();
 
-    // Spawn existing agents from memory
     for(let i=0; i<assets; i++) spawnAgent();
 
     function spawnAgent() {
         agents.push({
             x: Math.random() * canvas.width,
             y: Math.random() * canvas.height,
+            vx: 0, vy: 0,
             angle: Math.random() * Math.PI * 2,
-            speed: Math.random() * 2 + 1,
-            size: Math.random() * 3 + 1
+            orbitDist: 120 + Math.random() * 100,
+            color: '255, 255, 255'
         });
     }
 
     function update() {
-        if (assets > 0) liquidity += (assets * 5);
+        if (assets > 0) liquidity += (assets * 10);
         document.getElementById('val').innerText = liquidity.toLocaleString();
         document.getElementById('asset-count').innerText = assets;
     }
@@ -75,17 +74,15 @@
         if(e.key === 'Enter') { 
             intent = e.target.value.toUpperCase();
             document.getElementById('q').innerText = intent;
-            assets++;
-            spawnAgent();
-            save();
+            assets++; spawnAgent(); save();
             e.target.value = ''; e.target.blur();
         }
     });
 
     function save() {
-        localStorage.setItem('sov_v115_liq', liquidity);
-        localStorage.setItem('sov_v115_assets', assets);
-        localStorage.setItem('sov_v115_intent', intent);
+        localStorage.setItem('sov_v116_liq', liquidity);
+        localStorage.setItem('sov_v116_assets', assets);
+        localStorage.setItem('sov_v114_intent', intent);
     }
 
     function handle(e) {
@@ -103,11 +100,10 @@
         const title = document.getElementById('t');
         const quote = document.getElementById('q');
         document.getElementById('nexus-input').style.display = (view === 'market') ? 'block' : 'none';
-        let color = (view === 'market') ? 'var(--cyan)' : (view === 'creator') ? 'var(--green)' : 'var(--gold)';
+        let c = (view === 'market') ? 'var(--cyan)' : (view === 'creator') ? 'var(--green)' : 'var(--gold)';
         title.innerText = view.toUpperCase();
-        title.style.color = color;
-        quote.style.color = color;
-        quote.innerText = (view === 'market') ? intent : (view === 'creator') ? "Neural Garden" : (view === 'exchange') ? "Harvest" : "The Intelligence Core";
+        title.style.color = c; quote.style.color = c;
+        quote.innerText = (view === 'market') ? intent : (view === 'creator') ? "Neural Garden" : (view === 'exchange') ? "Harvest" : "Sentient Origin";
     }
 
     function track(e) { 
@@ -116,54 +112,50 @@
     }
     
     function stop() { 
-        if(view === 'exchange' && bigCoin > 10) {
-            liquidity += (bigCoin * 1000000); save();
-            for(let i=0; i<20; i++) particles.push({x:mx, y:my, vx:(Math.random()-0.5)*10, vy:(Math.random()-0.5)*10, type:'gold', age:0});
-        }
-        isDown = false; bigCoin = 0; 
+        if(view === 'exchange') { liquidity += 1000000; save(); }
+        isDown = false; 
     }
 
     function animate() {
         ctx.clearRect(0, 0, canvas.width, canvas.height);
         const cx = canvas.width/2, cy = canvas.height/2;
 
-        // Neural Core Pulse
+        // HEARTBEAT CORE
         let auraColor = (view === 'market') ? '0,242,255' : (view === 'creator') ? '46,204,113' : '255,191,0';
-        let pulse = 100 + Math.sin(Date.now()*0.002)*20;
+        let pulse = 100 + Math.sin(Date.now()*0.003)*20;
         const g = ctx.createRadialGradient(cx, cy, 0, cx, cy, pulse*3);
-        g.addColorStop(0, 'rgba(255,255,255,0.7)'); g.addColorStop(0.2, `rgba(${auraColor}, 0.25)`); g.addColorStop(1, 'transparent');
+        g.addColorStop(0, 'rgba(255,255,255,0.8)'); g.addColorStop(0.2, `rgba(${auraColor}, 0.25)`); g.addColorStop(1, 'transparent');
         ctx.fillStyle = g; ctx.beginPath(); ctx.arc(cx, cy, pulse*3, 0, Math.PI*2); ctx.fill();
 
-        // Agents Orbiting Core
         agents.forEach(a => {
-            a.angle += 0.01 * a.speed;
-            let dist = 150 + (Math.sin(a.angle) * 50);
-            a.x = cx + Math.cos(a.angle) * dist;
-            a.y = cy + Math.sin(a.angle) * dist;
-            ctx.fillStyle = 'rgba(255,255,255,0.8)';
-            ctx.beginPath(); ctx.arc(a.x, a.y, a.size, 0, Math.PI*2); ctx.fill();
-            // Connect to core
-            ctx.strokeStyle = 'rgba(255,255,255,0.05)';
+            if (isDown) {
+                // Swarm to touch
+                let dx = mx - a.x; let dy = my - a.y;
+                let d = Math.hypot(dx, dy);
+                a.vx += dx / d * 0.5; a.vy += dy / d * 0.5;
+            } else {
+                // Return to orbit
+                a.angle += 0.015;
+                let tx = cx + Math.cos(a.angle) * a.orbitDist;
+                let ty = cy + Math.sin(a.angle) * a.orbitDist;
+                a.vx += (tx - a.x) * 0.05; a.vy += (ty - a.y) * 0.05;
+            }
+
+            a.vx *= 0.92; a.vy *= 0.92; a.x += a.vx; a.y += a.vy;
+
+            // Color morphing based on position
+            if (a.y < cy) a.color = (a.x < cx) ? '0, 242, 255' : '46, 204, 113';
+            else a.color = '243, 207, 138';
+
+            ctx.shadowBlur = 10; ctx.shadowColor = `rgb(${a.color})`;
+            ctx.fillStyle = `rgba(${a.color}, 0.9)`;
+            ctx.beginPath(); ctx.arc(a.x, a.y, 2.5, 0, Math.PI*2); ctx.fill();
+            ctx.shadowBlur = 0;
+            
+            ctx.strokeStyle = `rgba(${a.color}, 0.08)`;
             ctx.beginPath(); ctx.moveTo(a.x, a.y); ctx.lineTo(cx, cy); ctx.stroke();
         });
 
-        if (isDown) {
-            if (view === 'exchange') { bigCoin++; ctx.fillStyle='rgba(243,207,138,0.1)'; ctx.beginPath(); ctx.arc(mx, my, bigCoin, 0, Math.PI*2); ctx.fill(); }
-            if (view === 'market') particles.push({x:mx, y:my, tx:cx, ty:cy, type:'data', life:1});
-        }
-
-        particles.forEach((p, i) => {
-            if(p.type === 'gold') {
-                p.vy += 0.25; p.x += p.vx; p.y += p.vy;
-                ctx.fillStyle = `rgba(243,207,138, ${1-p.age/60})`;
-                p.age++; if(p.age > 60) particles.splice(i, 1);
-            } else if(p.type === 'data') {
-                p.life -= 0.04; ctx.strokeStyle = `rgba(0,242,255,${p.life})`;
-                ctx.beginPath(); ctx.moveTo(p.x, p.y); ctx.lineTo(p.tx, p.ty); ctx.stroke();
-                if(p.life <= 0) particles.splice(i, 1);
-            }
-            if(p.type !== 'data') { ctx.beginPath(); ctx.arc(p.x, p.y, 2, 0, Math.PI*2); ctx.fill(); }
-        });
         requestAnimationFrame(animate);
     }
     animate();
