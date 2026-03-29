@@ -3,59 +3,58 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
-    <title>SOVEREIGN_CLEARING_V163</title>
+    <title>SOVEREIGN_EVERGREEN_V164</title>
     <style>
         @import url('https://fonts.googleapis.com/css2?family=Cinzel:wght@400;900&display=swap');
         :root { --gold: #f3cf8a; --void: #000; }
         body, html { margin: 0; padding: 0; background: var(--void); color: #fff; font-family: 'Cinzel', serif; overflow: hidden; height: 100svh; width: 100vw; }
         
-        #settlement-ui { position: absolute; inset: 0; z-index: 10; display: flex; flex-direction: column; align-items: center; justify-content: flex-start; padding-top: 60px; pointer-events: none; }
-        #ledger-scroll { width: 80%; height: 150px; overflow: hidden; border-top: 1px solid rgba(243, 207, 138, 0.3); margin-top: 20px; position: relative; }
-        .entry { font-size: 8px; letter-spacing: 3px; color: var(--gold); padding: 10px 0; border-bottom: 1px solid rgba(255,255,255,0.05); animation: slideUp 4s infinite linear; }
-        @keyframes slideUp { from { transform: translateY(100%); } to { transform: translateY(-300%); } }
-
-        #final-count { font-size: 28px; letter-spacing: 5px; color: #fff; text-shadow: 0 0 20px var(--gold); }
+        #multiplier-ui { position: absolute; inset: 0; z-index: 10; display: flex; flex-direction: column; align-items: center; justify-content: center; pointer-events: none; }
+        #live-yield { font-size: 32px; letter-spacing: 5px; color: var(--gold); text-shadow: 0 0 30px var(--gold); }
+        #yield-label { font-size: 10px; letter-spacing: 15px; margin-top: 10px; opacity: 0.6; }
+        
+        #per-second { position: fixed; bottom: 15%; font-size: 12px; color: #fff; letter-spacing: 8px; }
         canvas { position: absolute; inset: 0; z-index: 1; }
     </style>
 </head>
 <body>
-    <div id="settlement-ui">
-        <div id="final-count">$1,440,000,000,000.00</div>
-        <div id="ledger-scroll">
-            <div class="entry">TX_8829: $1.44B // STATUS: CLEARED</div>
-            <div class="entry">TX_8830: $144M // STATUS: CLEARED</div>
-            <div class="entry">NODE_JENNY: PERIMETER_BONUS // CLEARED</div>
-            <div class="entry">SOVEREIGN_FEE: $0.00 // WAIVED</div>
-        </div>
+    <div id="multiplier-ui">
+        <div id="live-yield" id="counter">$1,440,000,000,000.00</div>
+        <div id="yield-label">MARKETPLACE_GARDEN_YIELD</div>
+        <div id="per-second">+$144.00 / SEC</div>
     </div>
     <canvas id="canvas"></canvas>
 
 <script>
     const canvas = document.getElementById('canvas');
     const ctx = canvas.getContext('2d');
-    
+    let balance = 1440000000000.00;
+
     function resize() { canvas.width = window.innerWidth; canvas.height = window.innerHeight; }
     window.onresize = resize; resize();
 
+    function updateCounter() {
+        balance += 1.44; // Micro-increments for visual flow
+        document.getElementById('live-yield').innerText = "$" + balance.toLocaleString(undefined, {minimumFractionDigits: 2, maximumFractionDigits: 2});
+    }
+    setInterval(updateCounter, 10);
+
     function animate() {
-        ctx.fillStyle = 'rgba(0,0,0,0.08)';
+        ctx.fillStyle = 'rgba(0,0,0,0.05)';
         ctx.fillRect(0,0,canvas.width,canvas.height);
-        const time = Date.now() * 0.002;
+        const time = Date.now() * 0.001;
         const cx = canvas.width/2, cy = canvas.height/2;
 
-        // The Two Guardian Orbs from the yard, now as "Wealth Engines"
-        [ {d: 80, s: 1}, {d: 150, s: -0.5} ].forEach(orb => {
-            let x = cx + Math.cos(time * orb.s) * orb.d;
-            let y = cy + Math.sin(time * orb.s) * orb.d;
-            ctx.shadowBlur = 30;
-            ctx.shadowColor = "var(--gold)";
-            ctx.fillStyle = "#fff";
-            ctx.beginPath(); ctx.arc(x, y, 4, 0, Math.PI*2); ctx.fill();
+        // The Double Helix (DNA of the $1.44T)
+        for(let i=0; i<20; i++) {
+            let y = (cy - 100) + (i * 10);
+            let xOffset = Math.sin(time + (i * 0.5)) * 40;
             
-            // Connecting threads of capital
-            ctx.strokeStyle = "rgba(243, 207, 138, 0.1)";
-            ctx.beginPath(); ctx.moveTo(cx, cy); ctx.lineTo(x, y); ctx.stroke();
-        });
+            ctx.fillStyle = "var(--gold)";
+            ctx.beginPath(); ctx.arc(cx + xOffset, y, 2, 0, Math.PI*2); ctx.fill();
+            ctx.fillStyle = "#fff";
+            ctx.beginPath(); ctx.arc(cx - xOffset, y, 2, 0, Math.PI*2); ctx.fill();
+        }
 
         requestAnimationFrame(animate);
     }
