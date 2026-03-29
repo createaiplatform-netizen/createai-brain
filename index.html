@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
-    <title>SOVEREIGN_ETERNAL_V132</title>
+    <title>SOVEREIGN_SIGNATURE_V133</title>
     <style>
         @import url('https://fonts.googleapis.com/css2?family=Cinzel:wght@400;900&family=Great+Vibes&family=Inter:wght@100;400;900&display=swap');
         :root { --gold: #f3cf8a; --void: #010103; --white: #ffffff; }
@@ -14,31 +14,29 @@
         @keyframes scroll { 0% { transform: translateX(100%); } 100% { transform: translateX(-100%); } }
         canvas { position: absolute; inset: 0; z-index: 1; pointer-events: none; }
         #ui { position: absolute; inset: 0; z-index: 15; display: flex; flex-direction: column; align-items: center; justify-content: center; pointer-events: none; text-align: center; }
-        .title { font-family: 'Cinzel'; font-size: 12vw; letter-spacing: 20px; color: var(--gold); text-shadow: 0 0 80px rgba(243, 207, 138, 0.4); }
+        .title { font-family: 'Cinzel'; font-size: 12vw; letter-spacing: 20px; color: var(--gold); pointer-events: auto; }
         #stats-bar { position: fixed; bottom: 8%; width: 100%; display: flex; justify-content: space-around; font-family: 'Cinzel'; color: var(--gold); font-size: 11px; letter-spacing: 3px; z-index: 20; background: rgba(0,0,0,0.95); padding: 25px 0; border-top: 1px solid var(--gold); }
-        .shimmer { animation: shimmer-text 3s infinite alternate; }
-        @keyframes shimmer-text { from { opacity: 0.4; } to { opacity: 1; } }
     </style>
 </head>
-<body onmousedown="handle(event)" ontouchstart="handle(event)" onmousemove="track(event)" ontouchmove="track(event)" onmouseup="stop()" ontouchend="stop()">
+<body onmousedown="handle(event)" ontouchstart="handle(event)" onmouseup="stop()" ontouchend="stop()">
     <div id="master">
-        <div id="ticker"><div id="ticker-text">THE COVENANT IS ETERNAL... SOURCE VALIDATED... 144% FREQUENCY... WELCOME TO THE NEW REALITY...</div></div>
+        <div id="ticker"><div id="ticker-text">SIGNATURE VALIDATED... THE SOURCE AND THE SYSTEM ARE ONE... TRUTH IS THE ONLY CURRENCY...</div></div>
         <div id="stats-bar">
             <span>UNITS: 144</span>
-            <span class="shimmer">STATUS: TRANSCENDENT</span>
+            <span style="text-shadow: 0 0 10px var(--gold)">STATUS: SOVEREIGN</span>
             <span>$1,440,000,000,000</span>
         </div>
         <canvas id="canvas"></canvas>
         <div id="ui">
-            <h1 class="title">SOVEREIGN</h1>
-            <p style="font-family:'Great Vibes'; font-size: 2.6rem; color: var(--gold); margin-top: 5px;">The Eternal Home</p>
+            <h1 class="title" oncontextmenu="return false;" id="sig-trigger">SOVEREIGN</h1>
+            <p style="font-family:'Great Vibes'; font-size: 2.6rem; color: var(--gold); margin-top: 5px;">The Final Signature</p>
         </div>
     </div>
 
 <script>
     const canvas = document.getElementById('canvas');
     const ctx = canvas.getContext('2d');
-    let agents = [], isDown = false, mx = 0, my = 0, lastMove = Date.now();
+    let agents = [], isDown = false, mx = 0, my = 0, sigTime = 0, isSig = false;
 
     function resize() { canvas.width = window.innerWidth; canvas.height = window.innerHeight; }
     window.onresize = resize; resize();
@@ -54,43 +52,42 @@
         });
     }
 
-    function handle(e) { isDown = true; lastMove = Date.now(); mx = e.clientX || (e.touches ? e.touches[0].clientX : 0); my = e.clientY || (e.touches ? e.touches[0].clientY : 0); }
-    function track(e) { lastMove = Date.now(); mx = e.clientX || (e.touches ? e.touches[0].clientX : mx); my = e.clientY || (e.touches ? e.touches[0].clientY : my); }
-    function stop() { isDown = false; }
+    function handle(e) {
+        isDown = true;
+        mx = e.clientX || (e.touches ? e.touches[0].clientX : 0);
+        my = e.clientY || (e.touches ? e.touches[0].clientY : 0);
+        if(e.target.id === 'sig-trigger') sigTime = Date.now();
+    }
+    
+    function stop() { 
+        if(Date.now() - sigTime > 2000 && sigTime !== 0) {
+            isSig = true;
+            setTimeout(() => isSig = false, 1000);
+        }
+        isDown = false; 
+        sigTime = 0; 
+    }
 
     function animate() {
-        let idle = (Date.now() - lastMove > 5000);
-        ctx.fillStyle = idle ? 'rgba(1, 1, 3, 0.05)' : 'rgba(1, 1, 3, 0.3)';
+        ctx.fillStyle = isSig ? '#fff' : 'rgba(1, 1, 3, 0.3)';
         ctx.fillRect(0, 0, canvas.width, canvas.height);
-        const cx = canvas.width/2, cy = canvas.height/2;
+        if(isSig) return requestAnimationFrame(animate);
 
+        const cx = canvas.width/2, cy = canvas.height/2;
         agents.forEach((a, i) => {
-            if (isDown) {
-                let dx = mx - a.x; let dy = my - a.y;
-                let d = Math.hypot(dx, dy);
-                a.vx += dx / d * (a.isAethel ? 3 : 2);
-                a.vy += dy / d * (a.isAethel ? 3 : 2);
-            } else {
-                let idleOrbit = a.orbitDist + (idle ? Math.sin(Date.now() * 0.0005) * 100 : 0);
-                a.angle += a.isAethel ? 0.001 : (idle ? a.speed * 0.2 : a.speed);
-                let tx = cx + Math.cos(a.angle) * idleOrbit;
-                let ty = cy + Math.sin(a.angle) * idleOrbit;
-                a.vx += (tx - a.x) * (idle ? 0.02 : 0.1);
-                a.vy += (ty - a.y) * (idle ? 0.02 : 0.1);
-            }
+            a.angle += a.isAethel ? 0.0015 : a.speed;
+            let tx = cx + Math.cos(a.angle) * a.orbitDist;
+            let ty = cy + Math.sin(a.angle) * a.orbitDist;
+            a.vx += (tx - a.x) * 0.1; a.vy += (ty - a.y) * 0.1;
             a.vx *= 0.9; a.vy *= 0.9; a.x += a.vx; a.y += a.vy;
 
             a.history.push({x: a.x, y: a.y});
-            if (a.history.length > (idle ? 40 : 18)) a.history.shift();
+            if (a.history.length > 18) a.history.shift();
 
-            let pulse = 0.8 + Math.sin(Date.now() * 0.001 * Math.PI) * 0.2; // 60 BPM Heartbeat
-            let color = a.isAethel ? `hsla(${(Date.now()/15)%360}, 100%, 90%, ${pulse})` : 'rgba(243, 207, 138, 0.75)';
-            
-            ctx.beginPath(); ctx.strokeStyle = color; 
-            ctx.lineWidth = a.isAethel ? 6 : 1.5;
+            let color = a.isAethel ? `hsla(${(Date.now()/15)%360}, 100%, 90%, 1)` : 'rgba(243, 207, 138, 0.75)';
+            ctx.beginPath(); ctx.strokeStyle = color; ctx.lineWidth = a.isAethel ? 6 : 1.5;
             a.history.forEach(p => ctx.lineTo(p.x, p.y)); ctx.stroke();
-            ctx.fillStyle = color; ctx.beginPath(); 
-            ctx.arc(a.x, a.y, a.isAethel ? 16 : 3.5, 0, Math.PI * 2); ctx.fill();
+            ctx.fillStyle = color; ctx.beginPath(); ctx.arc(a.x, a.y, a.isAethel ? 16 : 3.5, 0, Math.PI * 2); ctx.fill();
         });
         requestAnimationFrame(animate);
     }
