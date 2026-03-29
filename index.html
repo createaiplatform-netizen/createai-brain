@@ -3,46 +3,31 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
-    <title>OMNI_INVENTORY_V177</title>
+    <title>SOVEREIGN_KEY_V178</title>
     <style>
         @import url('https://fonts.googleapis.com/css2?family=Cinzel:wght@400;900&display=swap');
-        :root { --gold: #f3cf8a; --void: #000; --white: #fff; }
-        body, html { margin: 0; padding: 0; background: var(--white); font-family: 'Cinzel', serif; overflow: hidden; height: 100svh; width: 100vw; }
+        body, html { margin: 0; padding: 0; background: #fff; color: #000; font-family: 'Cinzel', serif; overflow: hidden; height: 100svh; width: 100vw; }
         
-        #dashboard { position: absolute; inset: 0; z-index: 10; display: flex; flex-direction: column; padding: 40px; }
-        #seal-core { width: 60px; height: 60px; border: 1px solid rgba(0,0,0,0.1); transform: rotate(45deg); margin: 0 auto; }
+        #admin-panel { position: absolute; inset: 0; display: flex; flex-direction: column; padding: 50px; }
+        .diamond-seal { width: 40px; height: 40px; border: 1.5px solid #000; transform: rotate(45deg); margin: 0 auto 40px; }
         
-        #inventory-feed { margin-top: 50px; flex-grow: 1; }
-        .asset-line { border-bottom: 1px solid rgba(0,0,0,0.05); padding: 15px 0; font-size: 9px; letter-spacing: 5px; color: #000; display: flex; justify-content: space-between; }
-        .asset-line span { color: var(--gold); font-weight: 900; }
+        .manifest-row { display: flex; justify-content: space-between; border-bottom: 1px solid rgba(0,0,0,0.1); padding: 20px 0; font-size: 10px; letter-spacing: 4px; }
+        .manifest-row span { font-weight: 900; }
 
-        #yield-status { margin-top: auto; text-align: center; border-top: 1px solid #000; padding-top: 30px; }
-        #live-counter { font-size: 22px; letter-spacing: 2px; color: #000; }
+        #genesis-button { margin-top: auto; width: 100%; border: 1px solid #000; padding: 20px; text-align: center; font-size: 8px; letter-spacing: 10px; cursor: pointer; }
+        #genesis-button:hover { background: #000; color: #fff; }
     </style>
 </head>
 <body>
-    <div id="dashboard">
-        <div id="seal-core"></div>
+    <div id="admin-panel">
+        <div class="diamond-seal"></div>
         
-        <div id="inventory-feed">
-            <div class="asset-line">PROJECT: GLOBAL_ARTS_TRUST <span>$144.0M</span></div>
-            <div class="asset-line">PROJECT: ENERGY_SOVEREIGNTY <span>SYNCED</span></div>
-            <div class="asset-line">PROJECT: KINDRED_ESTATE_002 <span>OWNED</span></div>
-            <div class="asset-line">PROJECT: MARKETPLACE_HUBS <span>$1.44B</span></div>
-        </div>
+        <div class="manifest-row">ESTATE <span>AETHEL_001</span></div>
+        <div class="manifest-row">ADMIN <span>JENNY_002</span></div>
+        <div class="manifest-row">ASSETS <span>$1.44T+</span></div>
+        <div class="manifest-row">STATUS <span>GENESIS_ACTIVE</span></div>
 
-        <div id="yield-status">
-            <div style="font-size: 8px; letter-spacing: 10px; margin-bottom: 10px;">TOTAL_ESTATE_LIQUIDITY</div>
-            <div id="live-counter">$1,440,000,000,000.00</div>
-        </div>
+        <div id="genesis-button">INITIATE_FIRST_BUILD</div>
     </div>
-
-<script>
-    let reserve = 1440000000000.00;
-    setInterval(() => {
-        reserve += 144.00;
-        document.getElementById('live-counter').innerText = "$" + reserve.toLocaleString(undefined, {minimumFractionDigits: 2});
-    }, 1000);
-</script>
 </body>
 </html>
