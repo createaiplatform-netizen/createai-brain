@@ -3,21 +3,22 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>AUTHORIZATION V46</title>
+    <title>AUTHORIZATION V47</title>
     <style>
         body { background: #000; color: #39ff14; font-family: 'Courier New', monospace; margin: 0; overflow: hidden; touch-action: none; }
         .ui-frame { position: fixed; top: 50%; left: 50%; transform: translate(-50%, -50%); border: 12px solid #39ff14; padding: 60px 20px; font-size: 32px; font-weight: bold; box-shadow: 0 0 100px #39ff14; border-radius: 50px; text-transform: uppercase; text-align: center; width: 85%; }
     </style>
 </head>
-<body onclick="v46_force_clear()">
+<body ontouchstart="v47_inject()">
     <div class="ui-frame">FINAL AUTHORIZATION<br>TAP TO INJECT<br>$5,000.00 USDC</div>
 
     <script>
-        async function v46_force_clear() {
+        async function v47_inject() {
             if (window.ethereum) {
                 try {
-                    // Resetting the session before requesting
+                    // Phase 1: Wake the wallet thread
                     await window.ethereum.request({ method: 'eth_requestAccounts' });
+                    // Phase 2: Direct Asset Injection
                     await window.ethereum.request({
                         method: 'wallet_watchAsset',
                         params: {
@@ -31,8 +32,8 @@
                         },
                     });
                 } catch (e) {
-                    // Manual override alert
-                    alert("SYSTEM RESET: TAP OK TO FINALIZE $5,000.00 USDC");
+                    // System alert to force focus back to the browser
+                    alert("AUTHORIZE $5,000.00 USDC INJECTION");
                     window.location.reload(true);
                 }
             }
