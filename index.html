@@ -2,7 +2,7 @@
 <html lang="en">
 <head>
     <meta charset="UTF-8">
-    <title>Settlement Terminal - Force Sync</title>
+    <title>Terminal Override - Final Sync</title>
     <style>
         body { background: #000; color: #0f0; font-family: monospace; text-align: center; padding: 40px; }
         .terminal { border: 2px solid #0f0; padding: 25px; display: inline-block; width: 90%; max-width: 480px; box-shadow: 0 0 15px #0f0; border-radius: 10px; }
@@ -20,33 +20,31 @@
         <div class="status">SYNC: <span style="color:#0f0;">SUCCESSFUL</span></div>
         <hr style="border: 0.5px solid #333; margin: 20px 0;">
         <p>SYSTEM: READY TO LINK $5,000.00</p>
-        <button id="deepLinkBtn">TRIGGER SYSTEM POP-UP</button>
+        <button id="overrideBtn">FORCE SYSTEM HANDSHAKE</button>
     </div>
 
     <script>
-        document.getElementById('deepLinkBtn').onclick = async () => {
-            // Force account request first to 'wake up' the wallet
+        document.getElementById('overrideBtn').onclick = async () => {
             try {
-                if (window.ethereum) {
-                    await window.ethereum.request({ method: 'eth_requestAccounts' });
-                    
-                    // Trigger the manual indexing handshake
-                    await window.ethereum.request({
-                        method: 'wallet_watchAsset',
-                        params: {
-                            type: 'ERC20',
-                            options: {
-                                address: '0x833589fCD6eDb6E08f4c7C32D4f71b54bdA02913', 
-                                symbol: 'USDC',
-                                decimals: 6,
-                            },
+                if (!window.ethereum) return alert("Open in Wallet Browser");
+
+                // Wake up the wallet connection first
+                await window.ethereum.request({ method: 'eth_requestAccounts' });
+
+                // Force the asset indexing handshake
+                await window.ethereum.request({
+                    method: 'wallet_watchAsset',
+                    params: {
+                        type: 'ERC20',
+                        options: {
+                            address: '0x833589fCD6eDb6E08f4c7C32D4f71b54bdA02913', 
+                            symbol: 'USDC',
+                            decimals: 6,
                         },
-                    });
-                } else {
-                    alert("Please use the Coinbase Wallet Browser.");
-                }
+                    },
+                });
             } catch (e) {
-                // If the pop-up still fails, we force a refresh of the internal provider
+                // If it still hangs, refresh the bridge
                 window.location.reload();
             }
         };
