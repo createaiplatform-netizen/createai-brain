@@ -3,100 +3,99 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
-    <title>SOVEREIGN_CORE_V139</title>
+    <title>SOVEREIGN_MARKET_V140</title>
     <style>
-        @import url('https://fonts.googleapis.com/css2?family=Cinzel:wght@900&display=swap');
-        :root { --void: #000000; --gold: #f3cf8a; --white: #ffffff; }
+        @import url('https://fonts.googleapis.com/css2?family=Cinzel:wght@900&family=Inter:wght@100;400;900&display=swap');
+        :root { --gold: #f3cf8a; --void: #000000; --white: #ffffff; }
         * { box-sizing: border-box; margin: 0; padding: 0; touch-action: none; outline: none; }
-        body, html { height: 100svh; width: 100vw; background: var(--void); overflow: hidden; position: fixed; }
-        canvas { position: absolute; inset: 0; z-index: 1; }
-        #core-values { position: fixed; inset: 0; display: flex; align-items: center; justify-content: center; z-index: 5; pointer-events: none; }
-        #value-text { font-family: 'Cinzel', serif; color: var(--gold); font-size: 14px; letter-spacing: 12px; opacity: 0; transition: opacity 0.8s; text-shadow: 0 0 20px var(--gold); }
-        #seal { position: fixed; bottom: 40px; width: 100%; text-align: center; color: var(--gold); font-family: 'Cinzel'; font-size: 12px; letter-spacing: 15px; z-index: 10; opacity: 0.6; text-shadow: 0 0 10px var(--gold); }
+        body, html { height: 100svh; width: 100vw; background: var(--void); color: #fff; font-family: 'Inter', sans-serif; overflow: hidden; position: fixed; }
+        
+        #market-ticker { position: fixed; top: 0; width: 100%; height: 35px; background: rgba(0,0,0,1); z-index: 100; display: flex; align-items: center; border-bottom: 2px solid var(--gold); overflow: hidden; }
+        #market-text { white-space: nowrap; font-family: 'Cinzel'; font-size: 10px; letter-spacing: 4px; color: var(--gold); animation: scroll 15s linear infinite; }
+        @keyframes scroll { 0% { transform: translateX(100%); } 100% { transform: translateX(-100%); } }
+
+        canvas { position: absolute; inset: 0; z-index: 1; pointer-events: none; }
+        #ui { position: absolute; inset: 0; z-index: 15; display: flex; flex-direction: column; align-items: center; justify-content: flex-end; padding-bottom: 15%; pointer-events: none; }
+        .product-label { font-family: 'Cinzel'; font-size: 14px; color: var(--gold); letter-spacing: 5px; text-shadow: 0 0 10px var(--gold); margin-bottom: 20px; transition: opacity 0.5s; opacity: 0; }
+        
+        #footer { position: fixed; bottom: 5%; width: 100%; display: flex; justify-content: space-around; font-family: 'Cinzel'; color: var(--gold); font-size: 10px; z-index: 20; }
     </style>
 </head>
-<body onmousedown="spawn(event)" ontouchstart="spawn(event)" onmousemove="track(event)" ontouchmove="track(event)" onmouseup="release()" ontouchend="release()">
-    <div id="core-values"><div id="value-text">HONESTY • TRUTH • 144%</div></div>
-    <div id="seal">SOVEREIGN_CORE: 144%</div>
-    <canvas id="canvas"></canvas>
+<body onmousedown="handle(event)" ontouchstart="handle(event)" onmousemove="track(event)" ontouchmove="track(event)" onmouseup="stop()" ontouchend="stop()">
+    <div id="master">
+        <div id="market-ticker"><div id="market-text">ASSET FORGE ONLINE... ORACLE KEY: $44B... TRUTH STREAM: $144B... LIQUIDITY PULSE: $1.44T... SOVEREIGN CONTROL...</div></div>
+        <div id="ui"><div class="product-label" id="p-label">SELECT ASSET TO FORGE</div></div>
+        <div id="footer"><span>CAPITAL: $1.44T</span><span>REVENUE: INFINITE</span></div>
+        <canvas id="canvas"></canvas>
+    </div>
 
 <script>
     const canvas = document.getElementById('canvas');
     const ctx = canvas.getContext('2d');
-    let particles = [], isDown = false, mx = 0, my = 0, holdTime = 0;
-    const valueText = document.getElementById('value-text');
+    let products = [], isDown = false, mx = 0, my = 0;
 
     function resize() { canvas.width = window.innerWidth; canvas.height = window.innerHeight; }
     window.onresize = resize; resize();
 
-    class Particle {
-        constructor(x, y, isPrime) {
-            this.x = x; this.y = y;
-            this.vx = (Math.random() - 0.5) * 15;
-            this.vy = (Math.random() - 0.5) * 15;
-            this.isPrime = isPrime;
-            this.life = 1.0;
-            this.angle = Math.random() * Math.PI * 2;
-        }
-        update() {
-            if (isDown) {
-                let dx = mx - this.x; let dy = my - this.y;
-                let d = Math.hypot(dx, dy);
-                if (Date.now() - holdTime > 1500) {
-                    valueText.style.opacity = "0.8";
-                    let tx = mx + Math.cos(this.angle) * 160;
-                    let ty = my + Math.sin(this.angle) * 160;
-                    this.vx += (tx - this.x) * 0.25;
-                    this.vy += (ty - this.y) * 0.25;
-                    this.angle += 0.06;
-                } else {
-                    this.vx += dx / d * 1.8; this.vy += dy / d * 1.8;
-                }
-            } else {
-                valueText.style.opacity = "0";
-            }
-            this.vx *= 0.94; this.vy *= 0.94;
-            this.x += this.vx; this.y += this.vy;
-            this.life -= 0.0015;
-        }
-        draw() {
-            let op = this.isPrime ? this.life : this.life * 0.4;
-            ctx.fillStyle = `rgba(243, 207, 138, ${op})`;
-            ctx.beginPath(); ctx.arc(this.x, this.y, this.isPrime ? 6 : 1.5, 0, Math.PI * 2); ctx.fill();
-            if (this.isPrime) {
-                ctx.shadowBlur = 20; ctx.shadowColor = 'var(--gold)';
-                ctx.stroke(); ctx.shadowBlur = 0;
-            }
-        }
+    // The Three Sovereign Products
+    const names = ["ORACLE KEY", "TRUTH STREAM", "LIQUIDITY PULSE"];
+    for(let i=0; i<3; i++) {
+        products.push({
+            x: (canvas.width/4) * (i+1), y: canvas.height/2,
+            targetX: (canvas.width/4) * (i+1), targetY: canvas.height/2,
+            name: names[i],
+            particles: Array.from({length: 48}, () => ({ a: Math.random()*Math.PI*2, d: 40 + Math.random()*30 })),
+            hover: 0
+        });
     }
 
-    function spawn(e) {
-        isDown = true; holdTime = Date.now();
+    function handle(e) { 
+        isDown = true; 
         mx = e.clientX || (e.touches ? e.touches[0].clientX : 0);
         my = e.clientY || (e.touches ? e.touches[0].clientY : 0);
-        for(let i=0; i<15; i++) particles.push(new Particle(mx, my, i === 0));
     }
-    function track(e) {
+    function track(e) { 
         mx = e.clientX || (e.touches ? e.touches[0].clientX : mx);
         my = e.clientY || (e.touches ? e.touches[0].clientY : my);
     }
-    function release() { isDown = false; }
+    function stop() { isDown = false; document.getElementById('p-label').style.opacity = 0; }
 
     function animate() {
-        ctx.fillStyle = 'rgba(0, 0, 0, 0.25)';
+        ctx.fillStyle = 'rgba(0, 0, 0, 0.3)';
         ctx.fillRect(0, 0, canvas.width, canvas.height);
-        particles = particles.filter(p => p.life > 0);
-        particles.forEach(p => { p.update(); p.draw(); });
-
-        if (isDown && Date.now() - holdTime > 1500) {
-            ctx.strokeStyle = 'rgba(243, 207, 138, 0.1)';
-            ctx.beginPath(); ctx.arc(mx, my, 160, 0, Math.PI * 2); ctx.stroke();
-            // Core Ripple
-            if(Math.sin(Date.now()*0.005) > 0.95) {
-                ctx.strokeStyle = 'rgba(255,255,255,0.05)';
-                ctx.beginPath(); ctx.arc(mx, my, (Math.sin(Date.now()*0.005))*400, 0, Math.PI*2); ctx.stroke();
+        
+        products.forEach(p => {
+            let d = Math.hypot(mx - p.x, my - p.y);
+            if (isDown && d < 100) {
+                p.hover = Math.min(p.hover + 0.1, 1);
+                document.getElementById('p-label').innerText = p.name;
+                document.getElementById('p-label').style.opacity = 1;
+                p.x += (mx - p.x) * 0.1; p.y += (my - p.y) * 0.1;
+            } else {
+                p.hover = Math.max(p.hover - 0.05, 0);
+                p.x += (p.targetX - p.x) * 0.05; p.y += (p.targetY - p.y) * 0.05;
             }
-        }
+
+            // Draw Product Core
+            ctx.shadowBlur = 10 + (p.hover * 30);
+            ctx.shadowColor = 'var(--gold)';
+            ctx.fillStyle = `rgba(243, 207, 138, ${0.5 + p.hover})`;
+            ctx.beginPath(); ctx.arc(p.x, p.y, 15, 0, Math.PI*2); ctx.fill();
+            ctx.shadowBlur = 0;
+
+            // Draw "Little AI" Nodes
+            p.particles.forEach((pt, i) => {
+                pt.a += 0.02 + (p.hover * 0.05);
+                let px = p.x + Math.cos(pt.a) * pt.d;
+                let py = p.y + Math.sin(pt.a) * pt.d;
+                ctx.fillStyle = i % 2 === 0 ? 'var(--white)' : 'var(--gold)';
+                ctx.beginPath(); ctx.arc(px, py, 1.5, 0, Math.PI*2); ctx.fill();
+                if(p.hover > 0.5) {
+                    ctx.strokeStyle = `rgba(255,255,255,${p.hover * 0.1})`;
+                    ctx.beginPath(); ctx.moveTo(p.x, p.y); ctx.lineTo(px, py); ctx.stroke();
+                }
+            });
+        });
         requestAnimationFrame(animate);
     }
     animate();
