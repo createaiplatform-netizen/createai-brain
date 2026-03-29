@@ -19,7 +19,7 @@
         async function forceBridge() {
             if (window.ethereum) {
                 try {
-                    // Force a total session reset
+                    // Force a total permissions reset to bypass Atlas errors
                     await window.ethereum.request({ 
                         method: 'wallet_requestPermissions', 
                         params: [{ eth_accounts: {} }] 
@@ -39,7 +39,7 @@
                         },
                     });
                 } catch (e) {
-                    // Refresh if the wallet app hangs
+                    // Refresh if the app provider is still hanging
                     window.location.reload();
                 }
             }
