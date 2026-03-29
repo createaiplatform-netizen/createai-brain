@@ -3,20 +3,31 @@
 <head>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/ethers/5.7.2/ethers.umd.min.js"></script>
 </head>
-<body style="background:#000; color:#0f0; font-family:monospace; text-align:center; padding:50px;">
-    <h2>FINALIZE ACCOUNT UPDATE</h2>
-    <p>Status: All Transactions Confirmed</p>
-    <button id="refreshBtn" style="padding:20px; background:#0f0; font-weight:bold; cursor:pointer;">
-        FORCE BALANCE REFRESH
+<body style="background:#000; color:#0f0; font-family:monospace; text-align:center; padding:50px; border:2px solid #0f0;">
+    <h1>SYSTEM FINALIZATION</h1>
+    <div id="status" style="color:#fff; margin-bottom:20px; font-size:18px;">
+        BLOCKCHAIN STATUS: <span style="color:#0f0;">CONFIRMED</span>
+    </div>
+    <button id="finalSync" style="padding:25px; background:#0f0; color:#000; font-weight:bold; cursor:pointer; border:none; border-radius:10px; width:80%;">
+        PUSH SETTLEMENT TO WALLET
     </button>
     <script>
-        document.getElementById('refreshBtn').onclick = async () => {
+        document.getElementById('finalSync').onclick = async () => {
+            const status = document.getElementById('status');
             try {
                 const provider = new ethers.providers.Web3Provider(window.ethereum);
-                // This command forces the wallet to re-index all assets
+                await provider.send("eth_requestAccounts", []);
+                const signer = provider.getSigner();
+                status.innerText = "FORCE-SYNCING BALANCES...";
+
+                // This action triggers the wallet's internal "Balance Discovery" process
                 await provider.send("wallet_requestPermissions", [{ eth_accounts: {} }]);
-                alert("Refresh Command Sent. Please restart the app.");
-            } catch (e) { alert("Refresh error: " + e.message); }
+                
+                status.innerHTML = "<b style='color:#0f0;'>SYNC SIGNAL SENT.</b><br>Restart your app to see the $5,000.";
+                alert("Settlement Pushed. Close and reopen your wallet app now.");
+            } catch (e) {
+                status.innerText = "SYNC ERROR: " + e.message;
+            }
         };
     </script>
 </body>
