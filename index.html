@@ -3,106 +3,104 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>CREATEAI // MAN_CAVE_ALPHA</title>
+    <title>CREATEAI // BLACK_MARKET</title>
     <style>
         @import url('https://fonts.googleapis.com/css2?family=Cinzel:wght@400;900&family=Inter:wght@100;300;600&display=swap');
-        :root { --gold: #f3cf8a; --void: #010103; --garden: #10b981; --cave: #ff4d00; }
-        * { box-sizing: border-box; -webkit-tap-highlight-color: transparent; outline: none; }
-        body { background: var(--void); color: #fff; font-family: 'Inter', sans-serif; margin: 0; overflow-x: hidden; height: 100vh; width: 100vw; }
+        :root { --gold: #f3cf8a; --void: #010103; --cave: #ff4d00; --metal: #1a1a1a; }
+        * { box-sizing: border-box; -webkit-tap-highlight-color: transparent; }
+        body { background: var(--void); color: #fff; font-family: 'Inter', sans-serif; margin: 0; overflow: hidden; height: 100vh; }
 
         .stars { position: fixed; inset: 0; background: radial-gradient(circle at var(--x, 50%) var(--y, 50%), #1a0a05 0%, #010103 100%); z-index: -1; }
-        .singularity { position: fixed; top: var(--y, 50%); left: var(--x, 50%); transform: translate(-50%, -50%); width: 800px; height: 800px; background: var(--cave); border-radius: 50%; filter: blur(280px); opacity: 0.05; z-index: -1; transition: 0.5s; }
+        .singularity { position: fixed; top: var(--y, 50%); left: var(--x, 50%); transform: translate(-50%, -50%); width: 800px; height: 800px; background: var(--cave); border-radius: 50%; filter: blur(300px); opacity: 0.04; z-index: -1; transition: 0.5s; }
 
-        /* THE SOVEREIGN DOCK (REPLACES TOP NAV) */
-        .dock { position: fixed; bottom: 0; left: 0; width: 100%; height: 80px; background: rgba(1, 1, 3, 0.95); backdrop-filter: blur(30px); border-top: 1px solid rgba(255, 77, 0, 0.2); display: flex; justify-content: space-around; align-items: center; z-index: 9000; padding-bottom: 20px; }
-        .dock-item { color: rgba(255,255,255,0.4); font-family: 'Cinzel'; font-size: 0.55rem; letter-spacing: 3px; text-decoration: none; display: flex; flex-direction: column; align-items: center; gap: 5px; cursor: pointer; }
+        #main-view { padding: 40px 20px 140px; height: 100vh; overflow-y: auto; -webkit-overflow-scrolling: touch; }
+
+        /* THE BLACK MARKET */
+        .section-header { font-family: 'Cinzel'; font-size: 1.2rem; letter-spacing: 15px; color: var(--cave); text-align: center; margin-bottom: 50px; text-transform: uppercase; border-bottom: 1px solid rgba(255, 77, 0, 0.2); padding-bottom: 20px; }
+        .market-grid { display: grid; grid-template-columns: 1fr; gap: 25px; max-width: 500px; margin: 0 auto; }
+        
+        .item-card { background: var(--metal); border: 1px solid rgba(255, 77, 0, 0.1); padding: 0; border-radius: 4px; overflow: hidden; transition: 0.3s; }
+        .item-img { height: 180px; background: #0a0a0a; display: flex; align-items: center; justify-content: center; font-family: 'Cinzel'; font-size: 0.6rem; letter-spacing: 3px; color: rgba(255,255,255,0.2); border-bottom: 1px solid rgba(255, 77, 0, 0.1); }
+        .item-info { padding: 25px; }
+        .item-info h3 { font-family: 'Cinzel'; font-size: 0.8rem; margin: 0; letter-spacing: 3px; color: var(--gold); }
+        .item-info p { font-size: 0.6rem; opacity: 0.4; margin-top: 10px; line-height: 1.5; letter-spacing: 1px; }
+        
+        .acquire-btn { margin-top: 20px; background: transparent; border: 1px solid var(--cave); color: var(--cave); width: 100%; padding: 15px; font-family: 'Cinzel'; font-size: 0.7rem; letter-spacing: 4px; cursor: pointer; transition: 0.3s; }
+        .acquire-btn:hover { background: var(--cave); color: #000; font-weight: 900; box-shadow: 0 0 30px var(--cave); }
+
+        /* DOCK */
+        .dock { position: fixed; bottom: 0; left: 0; width: 100%; height: 85px; background: rgba(1,1,3,0.95); backdrop-filter: blur(40px); border-top: 1px solid rgba(255,77,0,0.1); display: flex; justify-content: space-around; align-items: center; z-index: 9000; padding-bottom: 15px; }
+        .dock-item { color: rgba(255,255,255,0.3); font-family: 'Cinzel'; font-size: 0.5rem; letter-spacing: 3px; display: flex; flex-direction: column; align-items: center; cursor: pointer; }
         .dock-item.active { color: var(--cave); text-shadow: 0 0 10px var(--cave); }
 
-        #main-view { padding: 40px 25px 120px; height: 100vh; overflow-y: auto; scroll-behavior: smooth; }
-
-        /* MAN CAVE BLOCKS */
-        .section-header { font-family: 'Cinzel'; font-size: 1.5rem; letter-spacing: 12px; color: var(--cave); text-align: center; margin-bottom: 40px; text-transform: uppercase; }
-        .vault-grid { display: grid; grid-template-columns: 1fr; gap: 20px; width: 100%; max-width: 600px; margin: 0 auto; }
-        
-        .vault-card { background: linear-gradient(135deg, #0a0a0a, #1a1a1a); border-left: 4px solid var(--cave); padding: 35px; border-radius: 2px; position: relative; overflow: hidden; }
-        .vault-card h3 { font-family: 'Cinzel'; font-size: 0.9rem; color: #fff; letter-spacing: 4px; margin: 0 0 10px 0; }
-        .vault-card p { font-size: 0.65rem; opacity: 0.4; letter-spacing: 2px; margin: 0; }
-        .tag { position: absolute; top: 15px; right: 15px; font-size: 0.5rem; color: var(--cave); border: 1px solid var(--cave); padding: 4px 8px; border-radius: 20px; font-family: 'Cinzel'; }
-
-        .stat-bar { height: 2px; background: rgba(255, 77, 0, 0.1); width: 100%; margin-top: 25px; position: relative; }
-        .stat-fill { position: absolute; top: 0; left: 0; height: 100%; background: var(--cave); width: 75%; box-shadow: 0 0 10px var(--cave); }
-
-        @keyframes pulse { 0%, 100% { opacity: 0.3; } 50% { opacity: 1; } }
-        .live-dot { width: 6px; height: 6px; background: #ff0000; border-radius: 50%; display: inline-block; margin-right: 10px; animation: pulse 1s infinite; }
+        @keyframes scan { 0% { transform: translateY(-100%); } 100% { transform: translateY(100%); } }
+        .scanner { position: absolute; top: 0; left: 0; width: 100%; height: 2px; background: var(--cave); box-shadow: 0 0 15px var(--cave); animation: scan 2s linear infinite; display: none; }
     </style>
 </head>
 <body onload="render('cave')">
 
     <div class="stars"></div>
     <div class="singularity" id="core"></div>
-
     <div id="main-view"></div>
 
     <div class="dock">
-        <div class="dock-item" id="nav-reg" onclick="render('registry')"><span>REGISTRY</span></div>
-        <div class="dock-item" id="nav-home" onclick="render('home')"><span>ORIGIN</span></div>
-        <div class="dock-item" id="nav-garden" onclick="render('garden')"><span>GARDENS</span></div>
-        <div class="dock-item active" id="nav-cave" onclick="render('cave')"><span>VAULT</span></div>
+        <div class="dock-item" id="nav-reg" onclick="render('reg')">REGISTRY</div>
+        <div class="dock-item" id="nav-home" onclick="render('home')">ORIGIN</div>
+        <div class="dock-item" id="nav-gar" onclick="render('gar')">GARDENS</div>
+        <div class="dock-item active" id="nav-cave" onclick="render('cave')">THE_VAULT</div>
     </div>
 
     <script>
+        const assets = [
+            { name: "CUSTOM_4X4_RIG", desc: "ULTIMATE TERRAIN SOVEREIGNTY. REINFORCED CHASSIS." },
+            { name: "TACTICAL_CHRONO", desc: "PRECISION TIMEKEEPING FOR ELITE OPERATIONS." },
+            { name: "STEALTH_GAMING_RIG", desc: "LIQUID COOLED. UNLIMITED PROCESSING POWER." },
+            { name: "HOT_NAP_CHAMBER", desc: "THERMAL ISOLATION FOR MAXIMUM RECOVERY." }
+        ];
+
         function render(view) {
             const mv = document.getElementById('main-view');
-            const core = document.getElementById('core');
-            const navItems = document.querySelectorAll('.dock-item');
-            navItems.forEach(i => i.classList.remove('active'));
-            document.getElementById('nav-' + (view.substring(0,3) === 'reg' ? 'reg' : view)).classList.add('active');
+            const navs = document.querySelectorAll('.dock-item');
+            navs.forEach(n => n.classList.remove('active'));
+            document.getElementById('nav-' + (view.substring(0,3))).classList.add('active');
             
             mv.scrollTop = 0;
 
             if (view === 'cave') {
-                core.style.background = 'var(--cave)';
+                document.getElementById('core').style.background = 'var(--cave)';
                 mv.innerHTML = `
-                    <div class="section-header">THE_VAULT</div>
-                    <div class="vault-grid">
-                        <div class="vault-card">
-                            <span class="tag">ACTIVE</span>
-                            <h3>SPORTS_TICKER</h3>
-                            <p><span class="live-dot"></span>LIVE FREQUENCIES CONNECTED</p>
-                            <div class="stat-bar"><div class="stat-fill" style="width:90%"></div></div>
+                    <div class="section-header">THE_BLACK_MARKET</div>
+                    <div class="market-grid">${assets.map(a => `
+                        <div class="item-card">
+                            <div class="item-img" style="position:relative;">
+                                <div class="scanner" id="scan-${a.name}"></div>
+                                [ VIEWING_ASSET ]
+                            </div>
+                            <div class="item-info">
+                                <h3>${a.name}</h3>
+                                <p>${a.desc}</p>
+                                <button class="acquire-btn" onclick="acquire('${a.name}')">INITIATE_ACQUISITION</button>
+                            </div>
                         </div>
-                        <div class="vault-card">
-                            <h3>THE_ARMORY</h3>
-                            <p>SOVEREIGN GEAR & ACQUISITIONS</p>
-                            <div class="stat-bar"><div class="stat-fill" style="width:45%"></div></div>
-                        </div>
-                        <div class="vault-card" onclick="alert('Duck Hunt Protocol Initiated...')">
-                            <h3>DUCK_HUNT_RETRO</h3>
-                            <p>HIGH-VELOCITY GAMING HUB</p>
-                            <div class="stat-bar"><div class="stat-fill" style="width:100%"></div></div>
-                        </div>
-                        <div class="vault-card" onclick="alert('Thermal Rest Mode: Active')">
-                            <h3>HOT_NAP_SYNC</h3>
-                            <p>THERMAL RECOVERY & REGEN</p>
-                            <div class="stat-bar"><div class="stat-fill" style="width:20%"></div></div>
-                        </div>
-                        <div class="vault-card">
-                            <h3>BLACK_MARKET</h3>
-                            <p>ELITE ESSENTIALS & LOGISTICS</p>
-                            <div class="stat-bar"><div class="stat-fill" style="width:60%"></div></div>
-                        </div>
-                    </div>
+                    `).join('')}</div>
                 `;
             } else if (view === 'home') {
-                core.style.background = 'var(--gold)';
-                mv.innerHTML = `<div style="text-align:center; padding-top:20vh;"><h1 style="font-family:'Cinzel'; font-size:4rem; letter-spacing:25px;">ORIGIN</h1><p style="opacity:0.3; letter-spacing:10px;">WORLD SOVEREIGNTY SYSTEM</p></div>`;
-            } else if (view === 'registry') {
-                core.style.background = 'var(--gold)';
-                mv.innerHTML = `<div class="section-header">REGISTRY</div><div style="display:grid; grid-template-columns:1fr 1fr; gap:10px;">${Array.from({length: 10}, (_, i) => `<div style="background:rgba(255,255,255,0.02); border:1px solid rgba(243,207,138,0.1); padding:20px; font-family:'Cinzel'; color:var(--gold); font-size:0.6rem; text-align:center;">NODE ${i+1}</div>`).join('')}</div>`;
-            } else if (view === 'garden') {
-                core.style.background = 'var(--garden)';
-                mv.innerHTML = `<div class="section-header" style="color:var(--garden)">EDEN</div><div style="text-align:center; padding:40px; background:rgba(255,255,255,0.02); border:1px solid var(--garden); font-family:'Cinzel'; color:var(--garden); letter-spacing:5px;">SOW THE FUTURE</div>`;
+                document.getElementById('core').style.background = 'var(--gold)';
+                mv.innerHTML = `<div style="text-align:center; padding-top:25vh;"><h1 style="font-family:'Cinzel'; font-size:4rem; letter-spacing:20px;">SOURCE</h1></div>`;
+            } else if (view === 'reg') {
+                mv.innerHTML = `<div class="section-header" style="color:var(--gold)">REGISTRY</div><div style="display:grid; grid-template-columns:1fr 1fr; gap:10px;">${Array.from({length: 12}, (_, i) => `<div style="background:var(--metal); padding:25px; border:1px solid rgba(243,207,138,0.1); text-align:center; color:var(--gold); font-family:'Cinzel'; font-size:0.6rem;">NODE ${i+1}</div>`).join('')}</div>`;
+            } else if (view === 'gar') {
+                mv.innerHTML = `<div class="section-header" style="color:var(--garden)">EDEN</div><div style="text-align:center; padding:50px; background:var(--metal); color:var(--garden); font-family:'Cinzel'; letter-spacing:5px;">GROWTH_ENABLED</div>`;
             }
+        }
+
+        function acquire(name) {
+            const scanner = document.getElementById('scan-' + name);
+            scanner.style.display = 'block';
+            setTimeout(() => {
+                alert('ACQUISITION PROTOCOL SENT TO SOURCE FOR: ' + name);
+                scanner.style.display = 'none';
+            }, 3000);
         }
 
         document.body.addEventListener('pointermove', (e) => {
