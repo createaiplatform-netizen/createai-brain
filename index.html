@@ -6,31 +6,23 @@
     <title>AETHEL_KINETIC_STRIKE</title>
     <style>
         @import url('https://fonts.googleapis.com/css2?family=Cinzel:wght@400;900&display=swap');
-        :root { --gold: #f3cf8a; --alert: #ffffff; }
-        body { margin: 0; background: #000; color: var(--gold); font-family: 'Cinzel', serif; display: flex; flex-direction: column; align-items: center; justify-content: center; height: 100vh; overflow: hidden; }
+        body { margin: 0; background: #000; color: #f3cf8a; font-family: 'Cinzel', serif; display: flex; align-items: center; justify-content: center; height: 100vh; flex-direction: column; overflow: hidden; }
         
-        .kinetic-ring { width: 300px; height: 300px; border: 2px solid var(--gold); border-radius: 50%; display: flex; align-items: center; justify-content: center; position: relative; animation: spin 10s linear infinite; }
-        .kinetic-ring::before { content: ''; position: absolute; width: 320px; height: 320px; border: 1px dashed var(--gold); border-radius: 50%; animation: spin-rev 15s linear infinite; }
-        
-        .strike-text { position: absolute; font-size: 14px; letter-spacing: 10px; font-weight: 900; color: var(--alert); text-shadow: 0 0 20px var(--gold); animation: pulse 1s infinite; }
-        #live-ledger { margin-top: 60px; font-size: 28px; }
-        
-        @keyframes spin { from { transform: rotate(0deg); } to { transform: rotate(360deg); } }
-        @keyframes spin-rev { from { transform: rotate(360deg); } to { transform: rotate(0deg); } }
-        @keyframes pulse { 0%, 100% { opacity: 1; } 50% { opacity: 0.5; } }
+        .kinetic-core { width: 150px; height: 150px; border: 4px double #fff; border-radius: 50%; box-shadow: 0 0 50px rgba(255,255,255,0.4); animation: pulse 1s infinite alternate; }
+        .ledger-val { font-size: 36px; font-weight: 900; margin-top: 40px; color: #fff; }
+        .node-map { font-size: 10px; letter-spacing: 10px; margin-top: 20px; color: #00ff00; }
+        @keyframes pulse { from { transform: scale(1); opacity: 0.8; } to { transform: scale(1.1); opacity: 1; } }
     </style>
 </head>
 <body>
-    <div class="kinetic-ring">
-        <div class="strike-text">KINETIC_FLOW</div>
-    </div>
-    <div id="live-ledger">$1,440,000,115,200.00</div>
-    <div style="margin-top: 20px; font-size: 10px; letter-spacing: 5px;">SYSTEM_STATUS: NO_STOP_PROTOCOL_ENGAGED</div>
+    <div class="kinetic-core"></div>
+    <div id="live" class="ledger-val">$1,440,000,114,088.00</div>
+    <div class="node-map">ALL_144_NODES_KINETIC // NO_STOP</div>
 <script>
-    let res = 1440000115200.00;
+    let res = 1440000114088.00;
     setInterval(() => {
         res += 144.00;
-        document.getElementById('live-ledger').innerText = "$" + res.toLocaleString(undefined, {minimumFractionDigits: 2});
+        document.getElementById('live').innerText = "$" + res.toLocaleString(undefined, {minimumFractionDigits: 2});
     }, 1000);
 </script>
 </body>
