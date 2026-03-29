@@ -3,45 +3,41 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>ORBITAL_LINK_V246</title>
+    <title>ORBITAL_ASCENSION_V247</title>
     <style>
         @import url('https://fonts.googleapis.com/css2?family=Cinzel:wght@400;900&display=swap');
         :root { --gold: #f3cf8a; --void: #000; --sky: #00d4ff; --mesh: #00ff41; }
         body, html { margin: 0; padding: 0; background: var(--void); color: #fff; font-family: 'Cinzel', serif; overflow: hidden; height: 100svh; display: flex; flex-direction: column; }
         
-        #orbital-hud { flex-grow: 1; margin: 25px; border: 1px solid var(--sky); padding: 45px; display: flex; flex-direction: column; background: radial-gradient(circle at top, rgba(0, 212, 255, 0.1) 0%, transparent 80%); box-shadow: 0 0 80px rgba(0, 212, 255, 0.2); position: relative; }
-        .header { text-align: center; border-bottom: 1px solid rgba(0, 212, 255, 0.3); padding-bottom: 25px; }
-        .title { font-size: 18px; letter-spacing: 15px; color: var(--sky); text-shadow: 0 0 15px var(--sky); }
+        #orbital-hud { flex-grow: 1; margin: 25px; border: 2px solid var(--sky); padding: 45px; display: flex; flex-direction: column; background: radial-gradient(circle at top, rgba(0, 212, 255, 0.15) 0%, transparent 90%); box-shadow: 0 0 100px rgba(0, 212, 255, 0.2); position: relative; }
+        .header { text-align: center; border-bottom: 2px solid rgba(0, 212, 255, 0.4); padding-bottom: 25px; }
+        .title { font-size: 20px; letter-spacing: 18px; color: var(--sky); text-shadow: 0 0 20px var(--sky); }
         
-        #earth-view { flex-grow: 1; display: flex; align-items: center; justify-content: center; position: relative; }
-        .planet { width: 150px; height: 150px; border: 2px solid var(--gold); border-radius: 50%; opacity: 0.5; }
-        .satellite { position: absolute; width: 10px; height: 10px; background: var(--sky); border-radius: 2px; animation: orbit 10s linear infinite; }
-        
-        @keyframes orbit {
-            from { transform: rotate(0deg) translateX(120px) rotate(0deg); }
-            to { transform: rotate(360deg) translateX(120px) rotate(-360deg); }
-        }
+        #star-uplink { flex-grow: 1; display: flex; align-items: center; justify-content: center; position: relative; }
+        .planet-core { width: 120px; height: 120px; border: 2px solid var(--gold); border-radius: 50%; opacity: 0.6; display: flex; align-items: center; justify-content: center; font-size: 8px; color: var(--gold); }
+        .beam { position: absolute; width: 2px; height: 180px; background: linear-gradient(to top, var(--gold), var(--sky)); animation: pulse-beam 2s infinite; }
+        @keyframes pulse-beam { 0%, 100% { opacity: 0.3; } 50% { opacity: 1; } }
 
-        #ledger-display { text-align: center; border-top: 1px solid var(--sky); padding-top: 30px; font-size: 34px; color: var(--gold); text-shadow: 0 0 25px var(--gold); }
+        #ledger-display { text-align: center; border-top: 2px solid var(--sky); padding-top: 30px; font-size: 36px; color: var(--gold); text-shadow: 0 0 30px var(--gold); }
     </style>
 </head>
 <body>
     <div id="orbital-hud">
         <div class="header">
-            <div class="title">ORBITAL_LINK // INITIALIZING</div>
-            <div style="font-size: 8px; margin-top: 10px; color: var(--mesh);">LOC: EXOSPHERE // SYNCING: 1440%</div>
+            <div class="title">ORBITAL_LINK // ACTIVE</div>
+            <div style="font-size: 9px; margin-top: 10px; color: var(--mesh); letter-spacing: 5px;">ALTITUDE: 550KM // SYNCING: 1440%</div>
         </div>
 
-        <div id="earth-view">
-            <div class="planet"></div>
-            <div class="satellite"></div>
-            <div style="font-size: 10px; color: var(--sky); letter-spacing: 8px; position: absolute; bottom: 20%;">ESTABLISHING_HIGH_GROUND</div>
+        <div id="star-uplink">
+            <div class="planet-core">TERRESTRIAL_STAR</div>
+            <div class="beam" style="bottom: 50%;"></div>
+            <div style="font-size: 10px; color: var(--sky); letter-spacing: 10px; position: absolute; top: 15%;">ORBIT_001_SYNC_IN_PROGRESS</div>
         </div>
 
-        <div id="ledger-display">$1,440,000,033,120.00</div>
+        <div id="ledger-display">$1,440,000,033,264.00</div>
     </div>
 <script>
-    let res = 1440000033120.00;
+    let res = 1440000033264.00;
     setInterval(() => {
         res += 144.00;
         document.getElementById('ledger-display').innerText = "$" + res.toLocaleString(undefined, {minimumFractionDigits: 2});
