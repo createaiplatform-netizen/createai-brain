@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
-    <title>CREATEAI // VAULT_OF_SOVEREIGNTY</title>
+    <title>CREATEAI // SOVEREIGN_VAULT_V50</title>
     <style>
         @import url('https://fonts.googleapis.com/css2?family=Cinzel:wght@400;900&family=Great+Vibes&family=Inter:wght@100;300;600&display=swap');
         :root { 
@@ -20,7 +20,7 @@
         .nebula { 
             position: fixed; inset: 0; 
             background: radial-gradient(circle at 50% 50%, var(--obsidian) 0%, var(--void) 100%);
-            z-index: 1; transition: opacity 0.8s;
+            z-index: 1;
         }
 
         #main-view { 
@@ -33,6 +33,7 @@
             position: fixed; top: env(safe-area-inset-top, 20px); 
             font-family: 'Great Vibes', cursive; font-size: 1.4rem; 
             color: var(--gold); z-index: 100; text-align: center; width: 100%;
+            text-shadow: 0 0 10px rgba(243, 207, 138, 0.3);
         }
 
         .source-title { 
@@ -45,7 +46,7 @@
 
         .script-quote { font-family: 'Great Vibes', cursive; font-size: 1.9rem; color: var(--gold); margin-top: 15px; text-align: center; opacity: 0.9; }
 
-        .dock { position: fixed; bottom: 0; left: 0; width: 100%; height: 85px; background: rgba(1,1,3,0.98); backdrop-filter: blur(20px); border-top: 1px solid rgba(243, 207, 138, 0.05); display: flex; justify-content: space-around; align-items: center; z-index: 9000; padding-bottom: env(safe-area-inset-bottom); }
+        .dock { position: fixed; bottom: 0; left: 0; width: 100%; height: 85px; background: rgba(1,1,3,0.98); backdrop-filter: blur(25px); border-top: 1px solid rgba(243, 207, 138, 0.05); display: flex; justify-content: space-around; align-items: center; z-index: 9000; padding-bottom: env(safe-area-inset-bottom); }
         .dock-item { color: rgba(255,255,255,0.1); font-family: 'Cinzel'; font-size: 10px; letter-spacing: 2px; flex: 1; text-align: center; padding: 15px; }
         .dock-item.active { color: var(--gold); text-shadow: 0 0 10px var(--gold); }
 
@@ -68,8 +69,8 @@
     <script>
         const canvas = document.getElementById('canvas');
         const ctx = canvas.getContext('2d');
-        let particles = [];
         let treasures = [];
+        let mouse = { x: 0, y: 0, active: false };
 
         function resize() { canvas.width = window.innerWidth; canvas.height = window.innerHeight; }
         window.onresize = resize; resize();
@@ -82,41 +83,60 @@
             }, 3000);
         }
 
-        class Treasure {
+        class Coin {
             constructor(x, y) {
                 this.x = x; this.y = y;
-                this.size = Math.random() * 5 + 3;
-                this.vX = (Math.random() - 0.5) * 4;
-                this.vY = 2;
-                this.gravity = 0.25;
-                this.bounce = 0.6;
-                this.color = '#f3cf8a';
+                this.size = Math.random() * 6 + 4;
+                this.vX = (Math.random() - 0.5) * 6;
+                this.vY = -Math.random() * 5;
+                this.gravity = 0.3;
+                this.friction = 0.98;
+                this.bounce = 0.5;
                 this.rotation = Math.random() * Math.PI * 2;
+                this.rotV = (Math.random() - 0.5) * 0.2;
+                this.hue = Math.random() > 0.5 ? '#f3cf8a' : '#b8860b';
             }
             update() {
                 this.vY += this.gravity;
                 this.x += this.vX;
                 this.y += this.vY;
-                this.rotation += 0.05;
-                // Floor hit
+                this.rotation += this.rotV;
+
+                // Scatter on touch
+                if(mouse.active) {
+                    let dx = this.x - mouse.x;
+                    let dy = this.y - mouse.y;
+                    let dist = Math.sqrt(dx*dx + dy*dy);
+                    if(dist < 50) {
+                        this.vX += dx * 0.1;
+                        this.vY += dy * 0.1;
+                    }
+                }
+
+                // Floor Logic
                 if (this.y + this.size > canvas.height - 85) {
                     this.y = canvas.height - 85 - this.size;
                     this.vY *= -this.bounce;
-                    this.vX *= 0.9; // Friction
+                    this.vX *= this.friction;
+                    this.rotV *= 0.5;
                 }
+                // Wall Logic
+                if (this.x < 0 || this.x > canvas.width) this.vX *= -1;
             }
             draw() {
-                ctx.fillStyle = this.color;
                 ctx.save();
                 ctx.translate(this.x, this.y);
                 ctx.rotate(this.rotation);
-                ctx.shadowBlur = 10; ctx.shadowColor = 'rgba(243, 207, 138, 0.5)';
-                // Draw a small hex-coin
+                ctx.fillStyle = this.hue;
+                ctx.shadowBlur = 12; ctx.shadowColor = 'rgba(243, 207, 138, 0.4)';
                 ctx.beginPath();
                 for(let i=0; i<6; i++) {
                     ctx.lineTo(this.size * Math.cos(i * Math.PI / 3), this.size * Math.sin(i * Math.PI / 3));
                 }
                 ctx.closePath(); ctx.fill();
+                // Shine
+                ctx.fillStyle = "rgba(255,255,255,0.3)";
+                ctx.beginPath(); ctx.arc(-this.size/4, -this.size/4, this.size/4, 0, Math.PI*2); ctx.fill();
                 ctx.restore();
             }
         }
@@ -128,11 +148,20 @@
         }
         animate();
 
-        window.onclick = (e) => {
+        const handleInput = (e) => {
+            const x = e.touches ? e.touches[0].clientX : e.clientX;
+            const y = e.touches ? e.touches[0].clientY : e.clientY;
+            mouse.x = x; mouse.y = y; mouse.active = true;
             if(window.currentView === 'vault') {
-                for(let i=0; i<5; i++) treasures.push(new Treasure(e.clientX, e.clientY));
+                for(let i=0; i<3; i++) treasures.push(new Coin(x, y));
             }
         };
+
+        window.onmousedown = handleInput;
+        window.ontouchstart = handleInput;
+        window.onmousemove = (e) => { if(e.buttons) handleInput(e); };
+        window.onmouseup = () => mouse.active = false;
+        window.ontouchend = () => mouse.active = false;
 
         function render(view) {
             window.currentView = view;
@@ -146,6 +175,8 @@
                 mv.innerHTML = `<h1 class="source-title">SOURCE</h1><p class="script-quote">The bond of the 144</p>`;
             } else if (view === 'vault') {
                 mv.innerHTML = `<h1 style="font-family:'Cinzel'; color:var(--gold); margin-top:80px; letter-spacing:12px; font-size:1.6rem;">VAULT</h1><p class="script-quote">Your wealth is your wisdom</p>`;
+            } else if (view === 'garden') {
+                mv.innerHTML = `<h1 style="font-family:'Cinzel'; color:var(--gold); margin-top:80px; letter-spacing:12px; font-size:1.6rem;">EDEN</h1><p class="script-quote">Breathe life into the soil</p>`;
             } else {
                 mv.innerHTML = `<h1 style="font-family:'Cinzel'; color:var(--gold); margin-top:80px; letter-spacing:12px;">${view.toUpperCase()}</h1>`;
             }
