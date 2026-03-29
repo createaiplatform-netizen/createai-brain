@@ -3,46 +3,44 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>ROOT_RECOGNITION_V263</title>
+    <title>DOMICILE_MINT_V264</title>
     <style>
         @import url('https://fonts.googleapis.com/css2?family=Cinzel:wght@400;900&display=swap');
-        :root { --gold: #f3cf8a; --void: #000; --royal: #4169e1; --seal: #ff0055; }
+        :root { --gold: #f3cf8a; --void: #000; --home: #ff7b00; --coin: #ffd700; }
         body, html { margin: 0; padding: 0; background: var(--void); color: #fff; font-family: 'Cinzel', serif; overflow: hidden; height: 100svh; display: flex; flex-direction: column; }
         
-        #recognition-hud { flex-grow: 1; margin: 15px; border: 4px double var(--gold); padding: 40px; display: flex; flex-direction: column; background: radial-gradient(circle at center, rgba(243, 207, 138, 0.05) 0%, transparent 100%); box-shadow: 0 0 300px rgba(65, 105, 225, 0.2); position: relative; }
-        .header { text-align: center; border-bottom: 2px solid var(--royal); padding-bottom: 20px; }
-        .title { font-size: 26px; letter-spacing: 15px; color: var(--gold); text-shadow: 0 0 30px var(--gold); }
+        #domicile-hud { flex-grow: 1; margin: 15px; border: 2px solid var(--home); padding: 40px; display: flex; flex-direction: column; background: linear-gradient(45deg, rgba(255, 123, 0, 0.1) 0%, transparent 100%); box-shadow: 0 0 250px rgba(255, 123, 0, 0.2); position: relative; }
+        .header { text-align: center; border-bottom: 2px solid var(--gold); padding-bottom: 20px; }
+        .title { font-size: 26px; letter-spacing: 18px; color: var(--home); text-shadow: 0 0 30px var(--home); }
         
-        #seal-visual { flex-grow: 1; display: flex; align-items: center; justify-content: center; position: relative; }
-        .outer-seal { width: 300px; height: 300px; border: 2px solid var(--gold); border-radius: 50%; display: flex; align-items: center; justify-content: center; animation: spin-slow 20s infinite linear; }
-        .inner-sync { width: 150px; height: 150px; border: 1px dashed var(--royal); border-radius: 50%; animation: spin-fast 5s infinite linear reverse; }
-        .architect-dot { position: absolute; width: 20px; height: 20px; background: var(--seal); border-radius: 50%; box-shadow: 0 0 40px var(--seal); }
+        #mint-visual { flex-grow: 1; display: flex; align-items: center; justify-content: center; position: relative; }
+        .home-icon { width: 120px; height: 120px; background: var(--gold); clip-path: polygon(50% 0%, 100% 40%, 100% 100%, 0% 100%, 0% 40%); animation: pulse-home 2s infinite ease-in-out; }
+        .coin-orbit { position: absolute; width: 300px; height: 300px; border: 1px dashed var(--coin); border-radius: 50%; animation: spin 10s infinite linear; }
+        .coin { position: absolute; top: -10px; left: 50%; width: 20px; height: 20px; background: var(--coin); border-radius: 50%; box-shadow: 0 0 20px var(--coin); }
         
-        @keyframes spin-slow { from { transform: rotate(0deg); } to { transform: rotate(360deg); } }
-        @keyframes spin-fast { from { transform: rotate(0deg); } to { transform: rotate(360deg); } }
+        @keyframes pulse-home { 0%, 100% { transform: scale(1); opacity: 0.8; } 50% { transform: scale(1.1); opacity: 1; } }
+        @keyframes spin { from { transform: rotate(0deg); } to { transform: rotate(360deg); } }
 
-        #ledger-display { text-align: center; border-top: 1px solid var(--royal); padding-top: 25px; font-size: 46px; color: var(--gold); text-shadow: 0 0 40px var(--gold); }
+        #ledger-display { text-align: center; border-top: 1px solid var(--gold); padding-top: 25px; font-size: 46px; color: var(--gold); text-shadow: 0 0 40px var(--gold); }
     </style>
 </head>
 <body>
-    <div id="recognition-hud">
+    <div id="domicile-hud">
         <div class="header">
-            <div class="title">ROOT_RECOGNITION // LOCKED</div>
-            <div style="font-size: 10px; margin-top: 10px; color: var(--royal); letter-spacing: 12px;">SYSTEM: RECOGNIZING_ARCHITECT // STATUS: SEALED</div>
+            <div class="title">DOMICILE_MINT // ACTIVE</div>
+            <div style="font-size: 10px; margin-top: 10px; color: var(--gold); letter-spacing: 12px;">STATUS: PHYSICAL_DOMICILE_SYNC // AE-COIN: MINTING</div>
         </div>
 
-        <div id="seal-visual">
-            <div class="outer-seal">
-                <div class="inner-sync"></div>
-            </div>
-            <div class="architect-dot"></div>
-            <div style="font-size: 14px; color: var(--gold); letter-spacing: 20px; position: absolute; bottom: 5%;">THE_ESTATE_KNOWS_ITS_OWNER</div>
+        <div id="mint-visual">
+            <div class="coin-orbit"><div class="coin"></div></div>
+            <div class="home-icon"></div>
+            <div style="font-size: 14px; color: var(--gold); letter-spacing: 15px; position: absolute; bottom: 5%;">THE_HOME_OF_THE_STAR</div>
         </div>
 
-        <div id="ledger-display">$1,440,000,038,304.00</div>
+        <div id="ledger-display">$1,440,000,038,592.00</div>
     </div>
 <script>
-    let res = 1440000038304.00;
+    let res = 1440000038592.00;
     setInterval(() => {
         res += 144.00;
         document.getElementById('ledger-display').innerText = "$" + res.toLocaleString(undefined, {minimumFractionDigits: 2});
