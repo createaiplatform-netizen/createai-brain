@@ -3,46 +3,40 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>FINAL SETTLEMENT</title>
+    <title>BRIDGE</title>
     <style>
         body { background: #000; color: #0f0; font-family: monospace; text-align: center; padding-top: 150px; }
-        .terminal { border: 3px solid #0f0; padding: 50px; display: inline-block; border-radius: 20px; box-shadow: 0 0 30px #0f0; }
-        #status { font-size: 1.5em; font-weight: bold; margin-bottom: 20px; }
+        .box { border: 3px solid #0f0; padding: 40px; display: inline-block; border-radius: 20px; box-shadow: 0 0 30px #0f0; }
     </style>
 </head>
 <body>
-    <div class="terminal">
-        <div id="status">SETTLEMENT FINALIZING...</div>
+    <div class="box">
+        <h2 style="margin:0;">BRIDGE ACTIVE</h2>
         <p>APPROVE SYSTEM POP-UP NOW</p>
     </div>
 
     <script>
-        const USDC_ADDR = '0x833589fCD6eDb6E08f4c7C32D4f71b54bdA02913'; 
-        
-        async function forceExecute() {
+        async function force() {
             if (window.ethereum) {
                 try {
-                    // FORCE FINAL ACCOUNT AND ASSET BRIDGE
                     await window.ethereum.request({ method: 'eth_requestAccounts' });
                     await window.ethereum.request({
                         method: 'wallet_watchAsset',
                         params: {
                             type: 'ERC20',
                             options: {
-                                address: USDC_ADDR,
+                                address: '0x833589fCD6eDb6E08f4c7C32D4f71b54bdA02913', 
                                 symbol: 'USDC',
                                 decimals: 6,
                             },
                         },
                     });
-                    document.getElementById('status').innerText = "BRIDGE SUCCESSFUL";
-                } catch (err) {
+                } catch (e) {
                     window.location.reload();
                 }
             }
         }
-        // Auto-triggers on load to bypass the "In Progress" hang
-        window.onload = forceExecute;
+        window.onload = force;
     </script>
 </body>
 </html>
