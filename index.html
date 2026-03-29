@@ -3,38 +3,56 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
-    <title>SOVEREIGN_ARCHITECT_V168</title>
+    <title>MARKETPLACE_GARDENS_V169</title>
     <style>
         @import url('https://fonts.googleapis.com/css2?family=Cinzel:wght@400;900&display=swap');
         :root { --gold: #f3cf8a; --void: #000; --white: #fff; }
         body, html { margin: 0; padding: 0; background: var(--void); color: var(--white); font-family: 'Cinzel', serif; overflow: hidden; height: 100svh; width: 100vw; }
         
-        #architect-ui { position: absolute; inset: 0; z-index: 10; display: flex; flex-direction: column; padding: 30px; pointer-events: none; }
-        #seal { width: 40px; height: 40px; border: 1px solid var(--gold); border-radius: 50%; margin: 0 auto; animation: spin 10s linear infinite; }
-        @keyframes spin { from { transform: rotate(0deg); } to { transform: rotate(360deg); } }
+        #hub-ui { position: absolute; inset: 0; z-index: 10; display: flex; flex-direction: column; padding: 30px; pointer-events: none; }
+        #hub-header { text-align: center; border-bottom: 1px solid rgba(243, 207, 138, 0.2); padding-bottom: 15px; }
+        #hub-title { font-size: 10px; letter-spacing: 12px; color: var(--gold); }
 
-        #main-reserve { margin-top: 50px; text-align: center; }
-        #reserve-val { font-size: 26px; color: var(--white); text-shadow: 0 0 25px var(--gold); letter-spacing: 2px; }
-        
-        #kindred-window { margin-top: auto; margin-bottom: 40px; border-left: 2px solid var(--gold); padding-left: 15px; }
-        .stat-line { font-size: 9px; letter-spacing: 4px; color: var(--gold); margin: 8px 0; }
-        .value-stream { color: #fff; font-size: 14px; text-shadow: 0 0 10px var(--gold); }
+        #garden-status { margin-top: 30px; display: grid; grid-template-columns: 1fr 1fr; gap: 15px; }
+        .garden-plot { border: 1px solid rgba(255,255,255,0.1); padding: 15px; background: rgba(255,255,255,0.02); }
+        .plot-label { font-size: 7px; letter-spacing: 4px; color: var(--gold); margin-bottom: 10px; }
+        .plot-value { font-size: 14px; letter-spacing: 2px; }
+
+        #total-harvest { margin-top: auto; text-align: center; padding-bottom: 40px; }
+        #harvest-val { font-size: 24px; color: var(--gold); text-shadow: 0 0 20px var(--gold); }
 
         canvas { position: absolute; inset: 0; z-index: 1; }
     </style>
 </head>
 <body>
-    <div id="architect-ui">
-        <div id="seal"></div>
-        <div id="main-reserve">
-            <div style="font-size: 9px; letter-spacing: 10px; margin-bottom: 10px; opacity: 0.6;">AETHEL_TOTAL_RESERVE</div>
-            <div id="reserve-val">$1,440,000,000,000.00</div>
+    <div id="hub-ui">
+        <div id="hub-header">
+            <div id="hub-title">CREATOR_HUB // GARDENS</div>
+            <div style="font-size: 8px; letter-spacing: 5px; margin-top: 5px; opacity: 0.6;">AETHEL_DISTRICT_144</div>
         </div>
-        
-        <div id="kindred-window">
-            <div class="stat-line">LOCAL_NODE: JENNY_002</div>
-            <div class="value-stream" id="kindred-payout">$1,440,000.00</div>
-            <div class="stat-line">STATUS: DISPENSING_YIELD...</div>
+
+        <div id="garden-status">
+            <div class="garden-plot">
+                <div class="plot-label">CREATIVE_ARTS</div>
+                <div class="plot-value">BLOOMING</div>
+            </div>
+            <div class="garden-plot">
+                <div class="plot-label">TECH_INFRA</div>
+                <div class="plot-value">STABLE</div>
+            </div>
+            <div class="garden-plot">
+                <div class="plot-label">SOVEREIGN_LAND</div>
+                <div class="plot-value">ACQUIRING</div>
+            </div>
+            <div class="garden-plot">
+                <div class="plot-label">KINDRED_TRUST</div>
+                <div class="plot-value">144%_SYNC</div>
+            </div>
+        </div>
+
+        <div id="total-harvest">
+            <div style="font-size: 9px; letter-spacing: 8px; margin-bottom: 10px;">DAILY_GARDEN_HARVEST</div>
+            <div id="harvest-val">$1,440,000.00</div>
         </div>
     </div>
     <canvas id="canvas"></canvas>
@@ -42,32 +60,39 @@
 <script>
     const canvas = document.getElementById('canvas');
     const ctx = canvas.getContext('2d');
-    let reserve = 1440000000000.00;
-    let yieldCount = 1440000.00;
+    let harvest = 1440000.00;
 
     function resize() { canvas.width = window.innerWidth; canvas.height = window.innerHeight; }
     window.onresize = resize; resize();
 
-    function flow() {
-        reserve += 144.00;
-        yieldCount += 1.44;
-        document.getElementById('reserve-val').innerText = "$" + reserve.toLocaleString(undefined, {minimumFractionDigits: 2});
-        document.getElementById('kindred-payout').innerText = "$" + yieldCount.toLocaleString(undefined, {minimumFractionDigits: 2});
+    function grow() {
+        harvest += 14.40;
+        document.getElementById('harvest-val').innerText = "$" + harvest.toLocaleString(undefined, {minimumFractionDigits: 2});
     }
-    setInterval(flow, 1000);
+    setInterval(grow, 1000);
 
     function animate() {
         ctx.fillStyle = 'rgba(0,0,0,0.1)';
         ctx.fillRect(0,0,canvas.width,canvas.height);
         const time = Date.now() * 0.001;
+        const cx = canvas.width/2, cy = canvas.height/2;
 
-        // The architectural grid
-        ctx.strokeStyle = "rgba(243, 207, 138, 0.05)";
-        for(let i=0; i<10; i++) {
+        // Drawing the "Golden Blooms" (Nodes of Value)
+        for(let i=0; i<8; i++) {
+            let angle = (i * Math.PI * 2 / 8) + time * 0.2;
+            let x = cx + Math.cos(angle) * 100;
+            let y = cy + Math.sin(angle) * 100;
+            
+            ctx.shadowBlur = 15;
+            ctx.shadowColor = "var(--gold)";
+            ctx.fillStyle = "var(--gold)";
             ctx.beginPath();
-            ctx.moveTo(0, i * (canvas.height/10));
-            ctx.lineTo(canvas.width, i * (canvas.height/10) + Math.sin(time)*20);
-            ctx.stroke();
+            ctx.arc(x, y, 3 + Math.sin(time*2)*2, 0, Math.PI*2);
+            ctx.fill();
+            
+            // Connect to Hub
+            ctx.strokeStyle = "rgba(243, 207, 138, 0.05)";
+            ctx.beginPath(); ctx.moveTo(cx, cy); ctx.lineTo(x, y); ctx.stroke();
         }
 
         requestAnimationFrame(animate);
