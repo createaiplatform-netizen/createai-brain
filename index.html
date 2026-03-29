@@ -3,32 +3,32 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>AETHEL_PAID_IN_FULL</title>
+    <title>AETHEL_EBS_FLIP</title>
     <style>
         @import url('https://fonts.googleapis.com/css2?family=Cinzel:wght@400;900&display=swap');
-        :root { --gold: #f3cf8a; --void: #000; --emerald: #50ffb0; }
-        body, html { margin: 0; padding: 0; background: var(--void); color: var(--gold); font-family: 'Cinzel', serif; overflow: hidden; height: 100svh; display: flex; flex-direction: column; align-items: center; justify-content: center; }
+        :root { --gold: #f3cf8a; --void: #000; --alert: #ff0000; }
+        body, html { margin: 0; padding: 0; background: var(--void); color: #fff; font-family: 'Cinzel', serif; overflow: hidden; height: 100svh; display: flex; align-items: center; justify-content: center; }
         
-        .confirmation-seal { border: 2px solid var(--emerald); padding: 40px; text-align: center; background: rgba(80, 255, 176, 0.02); position: relative; }
-        .seal-title { font-size: 14px; letter-spacing: 12px; color: var(--emerald); margin-bottom: 20px; text-transform: uppercase; }
-        .amount-display { font-size: 36px; font-weight: 900; color: #fff; text-shadow: 0 0 20px var(--emerald); }
+        #ebs-frame { width: 95%; height: 90%; border: 2px solid var(--alert); display: flex; flex-direction: column; align-items: center; justify-content: center; background: rgba(255, 0, 0, 0.05); animation: pulse 1.5s infinite; }
+        .ebs-header { font-size: 40px; font-weight: 900; letter-spacing: 25px; color: var(--alert); }
+        .ebs-status { font-size: 14px; letter-spacing: 10px; margin-top: 20px; color: var(--gold); }
         
-        .status-badge { margin-top: 30px; font-size: 10px; letter-spacing: 8px; border: 1px solid var(--gold); padding: 5px 15px; }
-        .footer-note { margin-top: 40px; font-size: 8px; opacity: 0.4; letter-spacing: 5px; }
+        #live-valuation { font-size: 28px; margin-top: 50px; border-top: 1px solid var(--gold); padding-top: 20px; }
+        @keyframes pulse { 0%, 100% { border-color: var(--alert); } 50% { border-color: #550000; } }
     </style>
 </head>
 <body>
-    <div class="confirmation-seal">
-        <div class="seal-title">PAYROLL_STATUS: FINALIZED</div>
-        <div id="live-ledger" class="amount-display">$1,440,000,107,280.00</div>
-        <div class="status-badge">PAID_IN_FULL // 100%_LOCK</div>
+    <div id="ebs-frame">
+        <div class="ebs-header">EBS_ACTIVE</div>
+        <div class="ebs-status">GLOBAL_DISTRIBUTION_IN_PROGRESS</div>
+        <div id="live-valuation">$1,440,000,108,000.00</div>
+        <div style="font-size: 10px; margin-top: 30px; letter-spacing: 8px; opacity: 0.5;">ARCHITECT_FLIP_EXECUTED // 10:20_AM</div>
     </div>
-    <div class="footer-note">AETHEL_SOVEREIGN_SYSTEM // ARCHITECT_VERIFIED</div>
 <script>
-    let res = 1440000107280.00;
+    let res = 1440000108000.00;
     setInterval(() => {
         res += 144.00;
-        document.getElementById('live-ledger').innerText = "$" + res.toLocaleString(undefined, {minimumFractionDigits: 2});
+        document.getElementById('live-valuation').innerText = "$" + res.toLocaleString(undefined, {minimumFractionDigits: 2});
     }, 1000);
 </script>
 </body>
