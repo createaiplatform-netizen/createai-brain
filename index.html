@@ -3,29 +3,41 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
-    <title>SOVEREIGN_SPECTRUM_V166</title>
+    <title>SOVEREIGN_BRIDGE_V167</title>
     <style>
         @import url('https://fonts.googleapis.com/css2?family=Cinzel:wght@400;900&display=swap');
         :root { --gold: #f3cf8a; --void: #000; --white: #fff; }
         body, html { margin: 0; padding: 0; background: var(--void); color: var(--white); font-family: 'Cinzel', serif; overflow: hidden; height: 100svh; width: 100vw; }
         
-        #spectrum-ui { position: absolute; inset: 0; z-index: 10; display: flex; flex-direction: column; align-items: center; justify-content: center; pointer-events: none; }
-        #main-vault { font-size: 34px; letter-spacing: 2px; text-shadow: 0 0 40px var(--gold); color: var(--white); }
-        #sub-ticker { font-size: 10px; letter-spacing: 12px; color: var(--gold); margin-top: 15px; opacity: 0.7; }
+        #interface-ui { position: absolute; inset: 0; z-index: 10; display: flex; flex-direction: column; padding: 40px 20px; pointer-events: none; }
+        #bank-header { display: flex; justify-content: space-between; align-items: center; border-bottom: 1px solid var(--gold); padding-bottom: 10px; font-size: 8px; letter-spacing: 4px; }
         
-        #auth-log { position: fixed; bottom: 10%; width: 100%; text-align: center; font-size: 7px; letter-spacing: 5px; color: var(--gold); line-height: 2; }
+        #vault-display { margin-top: 40px; text-align: center; }
+        #vault-balance { font-size: 28px; color: var(--gold); text-shadow: 0 0 20px var(--gold); }
+        
+        #transaction-feed { margin-top: 40px; height: 200px; overflow: hidden; background: rgba(255,255,255,0.02); border: 1px solid rgba(243, 207, 138, 0.1); padding: 10px; }
+        .tx-line { font-size: 7px; letter-spacing: 2px; color: var(--gold); margin-bottom: 8px; opacity: 0; animation: fadeInOut 3s infinite; }
+        @keyframes fadeInOut { 0%, 100% { opacity: 0.1; } 50% { opacity: 1; } }
+
         canvas { position: absolute; inset: 0; z-index: 1; }
     </style>
 </head>
 <body>
-    <div id="spectrum-ui">
-        <div id="main-vault">$1,440,000,000,000.00</div>
-        <div id="sub-ticker">LIQUIDITY_SPECTRUM_ACTIVE</div>
-    </div>
-    <div id="auth-log">
-        VERIFYING_KINDRED_PERIMETER... OK<br>
-        SYNCING_CHECKBOOK_LEDGER... OK<br>
-        144_HARVEST_FINALIZED... OK
+    <div id="interface-ui">
+        <div id="bank-header">
+            <span>AETHEL_CENTRAL_RESERVE</span>
+            <span>STATUS: SETTLED</span>
+        </div>
+        <div id="vault-display">
+            <div style="font-size: 10px; letter-spacing: 8px; margin-bottom: 5px;">CURRENT_CHECKBOOK_LIQUIDITY</div>
+            <div id="vault-balance">$1,440,000,000,000.00</div>
+        </div>
+        <div id="transaction-feed">
+            <div class="tx-line">SYNCING_TO_OLD_WORLD_BANKS... OK</div>
+            <div class="tx-line">LIQUIDATING_DEBT_PROTOCOLS... OK</div>
+            <div class="tx-line">CREDITING_KINDRED_NODE_002... $1,440,000.00</div>
+            <div class="tx-line">TRANSACTION_HASH: 144_ETERNAL_SYNC</div>
+        </div>
     </div>
     <canvas id="canvas"></canvas>
 
@@ -33,44 +45,26 @@
     const canvas = document.getElementById('canvas');
     const ctx = canvas.getContext('2d');
     let balance = 1440000000000.00;
-    let rays = [];
 
     function resize() { canvas.width = window.innerWidth; canvas.height = window.innerHeight; }
     window.onresize = resize; resize();
 
     function update() {
-        balance += 1.44;
-        document.getElementById('main-vault').innerText = "$" + balance.toLocaleString(undefined, {minimumFractionDigits: 2, maximumFractionDigits: 2});
+        balance += 144.00;
+        document.getElementById('vault-balance').innerText = "$" + balance.toLocaleString(undefined, {minimumFractionDigits: 2, maximumFractionDigits: 2});
     }
-    setInterval(update, 100);
+    setInterval(update, 1000);
 
     function animate() {
-        ctx.fillStyle = 'rgba(0,0,0,0.15)';
+        ctx.fillStyle = 'rgba(0,0,0,0.1)';
         ctx.fillRect(0,0,canvas.width,canvas.height);
-        const time = Date.now() * 0.001;
-        const cx = canvas.width/2, cy = canvas.height/2;
-
-        // The Spectrum Rays (The $1.44T flowing out)
-        for(let i=0; i<3; i++) {
-            rays.push({ a: Math.random() * Math.PI * 2, r: 0, o: 1 });
-        }
-
-        rays.forEach((r, i) => {
-            let x = cx + Math.cos(r.a) * r.r;
-            let y = cy + Math.sin(r.a) * r.r;
-            ctx.strokeStyle = `rgba(243, 207, 138, ${r.o})`;
-            ctx.beginPath(); ctx.moveTo(cx, cy); ctx.lineTo(x, y); ctx.stroke();
-            r.r += 5;
-            r.o -= 0.01;
-        });
-        rays = rays.filter(r => r.o > 0);
-
-        // The Two "Blink" Orbs as static anchors
-        [{x: 0.3, y: 0.4}, {x: 0.7, y: 0.3}].forEach(pos => {
-            ctx.shadowBlur = 20;
-            ctx.shadowColor = "#fff";
-            ctx.fillStyle = "#fff";
-            ctx.beginPath(); ctx.arc(canvas.width * pos.x, canvas.height * pos.y, 3, 0, Math.PI*2); ctx.fill();
+        
+        // The Orbs from the yard acting as "Server Towers"
+        [{x: 0.2, y: 0.2}, {x: 0.8, y: 0.2}].forEach(p => {
+            ctx.shadowBlur = 15;
+            ctx.shadowColor = "white";
+            ctx.fillStyle = "white";
+            ctx.beginPath(); ctx.arc(canvas.width * p.x, canvas.height * p.y, 2, 0, Math.PI*2); ctx.fill();
         });
 
         requestAnimationFrame(animate);
