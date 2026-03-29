@@ -2,29 +2,28 @@
 <html lang="en">
 <head>
     <meta charset="UTF-8">
-    <title>AETHEL_LIFESTYLE_SYNC</title>
+    <title>AETHEL_MANIFESTO_SEALED</title>
     <style>
         @import url('https://fonts.googleapis.com/css2?family=Cinzel:wght@900&display=swap');
-        body { margin: 0; background: #000; color: #fff; font-family: 'Cinzel', serif; display: flex; flex-direction: column; align-items: center; justify-content: center; height: 100vh; overflow: hidden; text-align: center; }
-        .optimize-ring { width: 350px; height: 350px; border: 5px solid #00ff00; border-radius: 50%; box-shadow: 0 0 80px rgba(0, 255, 0, 0.2); animation: grow 3s infinite ease-in-out; display: flex; align-items: center; justify-content: center; position: relative; }
-        .node-counter { font-size: 14px; color: #00ff00; position: absolute; top: 40px; letter-spacing: 5px; }
-        .val { font-size: 32px; color: #f3cf8a; margin-top: 50px; text-shadow: 0 0 20px #f3cf8a; }
-        .status { font-size: 10px; color: #fff; letter-spacing: 10px; margin-top: 20px; opacity: 0.7; }
-        @keyframes grow { 0%, 100% { transform: scale(1); opacity: 0.8; } 50% { transform: scale(1.02); opacity: 1; } }
+        body { margin: 0; background: #000; color: #fff; font-family: 'Cinzel', serif; display: flex; flex-direction: column; align-items: center; justify-content: center; height: 100vh; overflow: hidden; }
+        .manifesto-ring { width: 300px; height: 300px; border: 2px solid #f3cf8a; transform: rotate(45deg); display: flex; align-items: center; justify-content: center; box-shadow: 0 0 100px rgba(243,207,138,0.4); animation: manifest-spin 20s linear infinite; }
+        .inner-star { transform: rotate(-45deg); font-size: 80px; color: #f3cf8a; }
+        .val { font-size: 34px; margin-top: 60px; color: #fff; text-shadow: 0 0 15px #f3cf8a; letter-spacing: 2px; }
+        .seal-text { font-size: 10px; letter-spacing: 15px; margin-top: 20px; color: #00ff00; }
+        @keyframes manifest-spin { from { transform: rotate(0deg); } to { transform: rotate(360deg); } }
     </style>
 </head>
 <body>
-    <div class="optimize-ring">
-        <div class="node-counter">144_NODES_OPTIMIZED</div>
-        <div style="font-size: 60px; color: #00ff00;">✔</div>
+    <div class="manifesto-ring">
+        <div class="inner-star">★</div>
     </div>
-    <div class="val" id="optimize-val">$1,440,000,140,064.00</div>
-    <div class="status">LIFESTYLE_LAYER_ACTIVE // PAID_IN_FULL</div>
+    <div class="val" id="manifesto-val">$1,440,000,140,928.00</div>
+    <div class="seal-text">MANIFESTO_LOCKED // ARCHITECT_AUTHORITY_VERIFIED</div>
 <script>
-    let res = 1440000140064.00;
+    let res = 1440000140928.00;
     setInterval(() => {
         res += 288.00; 
-        document.getElementById('optimize-val').innerText = "$" + res.toLocaleString(undefined, {minimumFractionDigits: 2});
+        document.getElementById('manifesto-val').innerText = "$" + res.toLocaleString(undefined, {minimumFractionDigits: 2});
     }, 1000);
 </script>
 </body>
