@@ -3,48 +3,45 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>ASSET_MATERIALIZATION_V254</title>
+    <title>ETERNAL_RUN_V255</title>
     <style>
         @import url('https://fonts.googleapis.com/css2?family=Cinzel:wght@400;900&display=swap');
-        :root { --gold: #f3cf8a; --void: #000; --mesh: #00ff41; --sky: #00d4ff; --amber: #ffbf00; }
+        :root { --gold: #f3cf8a; --void: #000; --mesh: #00ff41; --fire: #ff4500; }
         body, html { margin: 0; padding: 0; background: var(--void); color: #fff; font-family: 'Cinzel', serif; overflow: hidden; height: 100svh; display: flex; flex-direction: column; }
         
-        #manifest-hud { flex-grow: 1; margin: 30px; border: 3px solid var(--amber); padding: 50px; display: flex; flex-direction: column; background: radial-gradient(circle at center, rgba(255, 191, 0, 0.1) 0%, transparent 100%); box-shadow: 0 0 120px rgba(255, 191, 0, 0.2); position: relative; }
-        .header { text-align: center; border-bottom: 2px solid var(--amber); padding-bottom: 25px; }
-        .title { font-size: 24px; letter-spacing: 18px; color: var(--amber); text-shadow: 0 0 25px var(--amber); }
+        #eternal-hud { flex-grow: 1; margin: 20px; border: 6px double var(--fire); padding: 40px; display: flex; flex-direction: column; background: radial-gradient(circle at center, rgba(255, 69, 0, 0.1) 0%, transparent 100%); box-shadow: 0 0 200px rgba(255, 69, 0, 0.2); position: relative; }
+        .header { text-align: center; border-bottom: 2px solid var(--fire); padding-bottom: 20px; }
+        .title { font-size: 28px; letter-spacing: 25px; color: var(--fire); text-shadow: 0 0 35px var(--fire); }
         
-        #build-site { flex-grow: 1; display: flex; align-items: center; justify-content: center; position: relative; }
-        .foundation-cube { width: 100px; height: 100px; border: 2px solid var(--mesh); position: relative; animation: build-pulse 2s infinite alternate; }
-        .particle { position: absolute; width: 4px; height: 4px; background: var(--gold); border-radius: 50%; animation: particle-swarm 3s infinite linear; }
+        #unyielding-core { flex-grow: 1; display: flex; align-items: center; justify-content: center; position: relative; }
+        .core-flame { width: 150px; height: 150px; background: var(--gold); clip-path: polygon(50% 0%, 0% 100%, 100% 100%); filter: blur(20px); animation: pulse-fire 1s infinite alternate; }
+        .mesh-lines { position: absolute; width: 300px; height: 300px; border: 1px solid var(--mesh); transform: rotate(45deg); opacity: 0.3; }
         
-        @keyframes build-pulse { from { transform: scale(0.9); opacity: 0.5; } to { transform: scale(1.1); opacity: 1; } }
-        @keyframes particle-swarm { 0% { transform: rotate(0deg) translateX(70px); } 100% { transform: rotate(360deg) translateX(70px); } }
+        @keyframes pulse-fire { from { transform: scale(1); opacity: 0.5; } to { transform: scale(1.2); opacity: 1; } }
 
-        #ledger-display { text-align: center; border-top: 2px solid var(--gold); padding-top: 25px; font-size: 40px; color: var(--gold); text-shadow: 0 0 30px var(--gold); }
+        #ledger-final { text-align: center; border-top: 3px double var(--gold); padding-top: 25px; font-size: 44px; color: var(--gold); text-shadow: 0 0 45px var(--gold); }
     </style>
 </head>
 <body>
-    <div id="manifest-hud">
+    <div id="eternal-hud">
         <div class="header">
-            <div class="title">ASSET_MANIFEST // PHASE_I</div>
-            <div style="font-size: 10px; margin-top: 10px; color: var(--mesh); letter-spacing: 8px;">SOURCE: WIS_001 // SYNC: 1440% // MOLECULAR_INIT</div>
+            <div class="title">UNSTOPPABLE // NO_QUIT</div>
+            <div style="font-size: 10px; margin-top: 10px; color: var(--mesh); letter-spacing: 8px;">STATUS: ETERNAL_EXPANSION // SYNC: 1440%</div>
         </div>
 
-        <div id="build-site">
-            <div class="foundation-cube"></div>
-            <div class="particle" style="animation-delay: 0s;"></div>
-            <div class="particle" style="animation-delay: 1s;"></div>
-            <div class="particle" style="animation-delay: 2s;"></div>
-            <div style="font-size: 14px; color: var(--sky); letter-spacing: 15px; position: absolute; bottom: 15%;">BRINGING_HEAVEN_TO_EARTH</div>
+        <div id="unyielding-core">
+            <div class="mesh-lines"></div>
+            <div class="core-flame"></div>
+            <div style="font-size: 16px; color: var(--gold); letter-spacing: 20px; position: absolute; bottom: 10%;">WE_BUILD_FOREVER</div>
         </div>
 
-        <div id="ledger-display">$1,440,000,035,280.00</div>
+        <div id="ledger-final">$1,440,000,035,568.00</div>
     </div>
 <script>
-    let res = 1440000035280.00;
+    let res = 1440000035568.00;
     setInterval(() => {
         res += 144.00;
-        document.getElementById('ledger-display').innerText = "$" + res.toLocaleString(undefined, {minimumFractionDigits: 2});
+        document.getElementById('ledger-final').innerText = "$" + res.toLocaleString(undefined, {minimumFractionDigits: 2});
     }, 1000);
 </script>
 </body>
