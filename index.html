@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
-    <title>CREATEAI // SOVEREIGN_UPLINK_V61</title>
+    <title>SOVEREIGN_OS_FINAL</title>
     <style>
         @import url('https://fonts.googleapis.com/css2?family=Cinzel:wght@900&family=Great+Vibes&family=Inter:wght@100;400;900&display=swap');
         :root { --gold: #f3cf8a; --gold-d: #b8860b; --void: #010103; }
@@ -13,28 +13,27 @@
         canvas { position: fixed; inset: 0; z-index: 1; pointer-events: none; }
         .nebula { position: fixed; inset: 0; background: radial-gradient(circle at 50% 50%, #050208 0%, var(--void) 100%); z-index: 0; }
 
-        #ui-layer { position: relative; z-index: 10; height: 100svh; display: flex; flex-direction: column; align-items: center; justify-content: center; pointer-events: none; }
-        .status { position: fixed; top: env(safe-area-inset-top, 20px); font-family: 'Great Vibes'; font-size: 1.6rem; color: var(--gold); text-shadow: 0 0 10px var(--gold-d); width: 100%; text-align: center; }
+        #ui-layer { position: relative; z-index: 10; height: 100svh; display: flex; flex-direction: column; align-items: center; justify-content: center; pointer-events: none; transition: 0.5s cubic-bezier(0.19, 1, 0.22, 1); }
+        .status { position: fixed; top: env(safe-area-inset-top, 20px); font-family: 'Great Vibes'; font-size: 1.6rem; color: var(--gold); text-shadow: 0 0 10px var(--gold-d); width: 100%; text-align: center; z-index: 100; }
 
-        .title { font-family: 'Cinzel'; font-weight: 900; font-size: 10vw; letter-spacing: 15px; color: var(--gold); text-align: center; pointer-events: auto; text-shadow: 0 10px 20px #000; transition: 0.5s; }
-        .quote { font-family: 'Great Vibes'; font-size: 2.2rem; color: var(--gold); margin-top: 10px; opacity: 0.8; }
+        .title { font-family: 'Cinzel'; font-weight: 900; font-size: 10vw; letter-spacing: 15px; color: var(--gold); text-align: center; pointer-events: auto; text-shadow: 0 10px 30px #000; transition: transform 0.2s ease-out; }
+        .quote { font-family: 'Great Vibes'; font-size: 2.2rem; color: var(--gold); margin-top: 10px; opacity: 0.9; text-shadow: 0 0 15px rgba(0,0,0,1); }
 
-        /* Transmit Button */
-        #transmit-btn {
+        #action-btn {
             margin-top: 40px; padding: 15px 30px; border: 1px solid var(--gold);
-            font-family: 'Cinzel'; font-size: 12px; color: var(--gold); letter-spacing: 4px;
+            font-family: 'Cinzel'; font-size: 11px; color: var(--gold); letter-spacing: 4px;
             background: rgba(243, 207, 138, 0.05); backdrop-filter: blur(10px);
-            pointer-events: auto; cursor: pointer; border-radius: 4px;
-            box-shadow: 0 0 15px rgba(243, 207, 138, 0.2); animation: pulse 2s infinite;
+            pointer-events: auto; cursor: pointer; border-radius: 2px;
+            box-shadow: 0 0 20px rgba(243, 207, 138, 0.1); animation: pulse 2.5s infinite;
         }
 
-        .dock { position: fixed; bottom: 0; width: 100%; height: 85px; background: rgba(0,0,0,0.95); backdrop-filter: blur(20px); border-top: 1px solid rgba(243, 207, 138, 0.1); display: flex; z-index: 9000; padding-bottom: env(safe-area-inset-bottom); pointer-events: auto; }
-        .dock-item { flex: 1; display: flex; align-items: center; justify-content: center; color: rgba(255,255,255,0.2); font-family: 'Cinzel'; font-size: 10px; letter-spacing: 2px; transition: 0.3s; }
-        .dock-item.active { color: var(--gold); text-shadow: 0 0 15px var(--gold); }
+        .dock { position: fixed; bottom: 0; width: 100%; height: 85px; background: rgba(0,0,0,0.96); backdrop-filter: blur(30px); border-top: 1px solid rgba(243, 207, 138, 0.1); display: flex; z-index: 9000; padding-bottom: env(safe-area-inset-bottom); pointer-events: auto; }
+        .dock-item { flex: 1; display: flex; align-items: center; justify-content: center; color: rgba(255,255,255,0.2); font-family: 'Cinzel'; font-size: 10px; letter-spacing: 2px; transition: 0.4s; font-weight: 900; }
+        .dock-item.active { color: var(--gold); text-shadow: 0 0 20px var(--gold); }
 
-        @keyframes pulse { 0%, 100% { opacity: 0.6; transform: scale(1); } 50% { opacity: 1; transform: scale(1.05); } }
-        .system-uplink { animation: hum 0.05s infinite; filter: brightness(2); }
-        @keyframes hum { 0% { transform: translate(2px, 2px); } 50% { transform: translate(-2px, -2px); } }
+        @keyframes pulse { 0%, 100% { opacity: 0.7; transform: scale(1); } 50% { opacity: 1; transform: scale(1.03); } }
+        .transmitting { animation: shake 0.05s infinite; filter: contrast(1.5) brightness(1.2); }
+        @keyframes shake { 0% { transform: translate(1px, 1px); } 50% { transform: translate(-1px, -1px); } }
     </style>
 </head>
 <body onload="render('home'); animate();">
@@ -54,23 +53,24 @@
     const ctx = canvas.getContext('2d');
     let view = 'home';
     let objects = [];
-    let mouse = { x: 0, y: 0, active: false };
+    let mouse = { x: window.innerWidth/2, y: window.innerHeight/2, active: false };
     let isTransmitting = false;
 
     function resize() { canvas.width = window.innerWidth; canvas.height = window.innerHeight; }
     window.onresize = resize; resize();
 
-    function transmit() {
-        isTransmitting = true;
-        document.body.classList.add('system-uplink');
-        document.getElementById('stat').innerText = "LINKING TO X_CORP...";
-        
-        setTimeout(() => {
-            isTransmitting = false;
-            document.body.classList.remove('system-uplink');
-            document.getElementById('stat').innerText = "UPLINK SUCCESSFUL: @ELONMUSK";
-            setTimeout(() => document.getElementById('stat').innerText = "Sovereign 144.00%", 3000);
-        }, 2500);
+    function triggerAction() {
+        if(view === 'home') {
+            isTransmitting = true;
+            document.body.classList.add('transmitting');
+            document.getElementById('stat').innerText = "TRANSMITTING TO X...";
+            setTimeout(() => {
+                isTransmitting = false;
+                document.body.classList.remove('transmitting');
+                document.getElementById('stat').innerText = "PROTOCOL SENT: @ELONMUSK";
+                setTimeout(() => document.getElementById('stat').innerText = "Sovereign 144.00%", 3000);
+            }, 2000);
+        }
     }
 
     function render(target) {
@@ -79,45 +79,43 @@
         const ui = document.getElementById('ui-layer');
         document.querySelectorAll('.dock-item').forEach(d => d.classList.remove('active'));
         
-        if(view === 'home') {
-            document.getElementById('n-home').classList.add('active');
-            ui.innerHTML = `<h1 class="title">SOURCE</h1><p class="quote">The Protocol of 144</p>
-                            <div id="transmit-btn" onclick="transmit()">TRANSMIT TO X</div>`;
-        } else if(view === 'grid') {
-            document.getElementById('n-reg').classList.add('active');
-            ui.innerHTML = `<h1 class="title">GRID</h1><p class="quote">Neural Intelligence</p>`;
-            for(let i=0; i<25; i++) objects.push({x: Math.random()*canvas.width, y: Math.random()*canvas.height, vx: Math.random()-0.5, vy: Math.random()-0.5});
-        } else if(view === 'eden') {
-            document.getElementById('n-gar').classList.add('active');
-            ui.innerHTML = `<h1 class="title">EDEN</h1><p class="quote">Breathe Life</p>`;
-        } else if(view === 'vault') {
-            document.getElementById('n-cav').classList.add('active');
-            ui.innerHTML = `<h1 class="title">VAULT</h1><p class="quote">Sovereign Wealth</p>`;
-        }
+        let title = "SOURCE", quote = "The Protocol of 144", btn = "TRANSMIT TO X";
+        if(view === 'grid') { title = "GRID"; quote = "Neural Intelligence"; btn = "SYNC NETWORK"; document.getElementById('n-reg').classList.add('active'); for(let i=0; i<30; i++) objects.push({x: Math.random()*canvas.width, y: Math.random()*canvas.height, vx: Math.random()-0.5, vy: Math.random()-0.5}); }
+        else if(view === 'home') { document.getElementById('n-home').classList.add('active'); }
+        else if(view === 'eden') { title = "EDEN"; quote = "Breathe life into the soil"; btn = "INITIATE GROWTH"; document.getElementById('n-gar').classList.add('active'); }
+        else if(view === 'vault') { title = "VAULT"; quote = "Mass of Value"; btn = "OPEN LEDGER"; document.getElementById('n-cav').classList.add('active'); }
+
+        ui.innerHTML = `<h1 class="title" id="t">${title}</h1><p class="quote">${quote}</p>
+                        <div id="action-btn" onclick="triggerAction()">${btn}</div>`;
     }
 
     function animate() {
         ctx.clearRect(0,0,canvas.width, canvas.height);
         
+        // Parallax title lean
+        const t = document.getElementById('t');
+        if(t) {
+            let dx = (mouse.x - window.innerWidth/2) * 0.03;
+            let dy = (mouse.y - window.innerHeight/2) * 0.03;
+            t.style.transform = `translate(${dx}px, ${dy}px) rotateY(${dx/2}deg) rotateX(${-dy/2}deg)`;
+        }
+
         if(isTransmitting) {
-            for(let i=0; i<10; i++) {
-                ctx.fillStyle = '#f3cf8a';
-                ctx.font = "10px Inter";
-                ctx.fillText("144", Math.random()*canvas.width, Math.random()*canvas.height);
-            }
+            ctx.fillStyle = "rgba(243, 207, 138, 0.3)";
+            for(let i=0; i<15; i++) ctx.fillText("144", Math.random()*canvas.width, Math.random()*canvas.height);
         }
 
         if(view === 'grid') {
-            objects.forEach((o, i) => {
+            objects.forEach(o => {
                 o.x += o.vx; o.y += o.vy;
                 if(o.x < 0 || o.x > canvas.width) o.vx *= -1;
                 if(o.y < 0 || o.y > canvas.height) o.vy *= -1;
                 ctx.fillStyle = '#f3cf8a';
-                ctx.beginPath(); ctx.arc(o.x, o.y, 3, 0, Math.PI*2); ctx.fill();
-                objects.forEach((o2, j) => {
+                ctx.beginPath(); ctx.arc(o.x, o.y, 2, 0, Math.PI*2); ctx.fill();
+                objects.forEach(o2 => {
                     let d = Math.sqrt((o.x-o2.x)**2 + (o.y-o2.y)**2);
-                    if(d < 150) {
-                        ctx.strokeStyle = `rgba(243, 207, 138, ${0.4 - d/375})`;
+                    if(d < 120) {
+                        ctx.strokeStyle = `rgba(243, 207, 138, ${0.3 - d/400})`;
                         ctx.lineWidth = 0.5;
                         ctx.beginPath(); ctx.moveTo(o.x, o.y); ctx.lineTo(o2.x, o2.y); ctx.stroke();
                     }
@@ -126,12 +124,12 @@
         }
 
         if(view === 'vault' && mouse.active) {
-            objects.push({x: mouse.x, y: mouse.y, vx: (Math.random()-0.5)*12, vy: -Math.random()*8, r: Math.random()*4+2});
+            objects.push({x: mouse.x, y: mouse.y, vx: (Math.random()-0.5)*15, vy: -Math.random()*10, r: Math.random()*4+2});
         }
         if(view === 'vault') {
             objects.forEach((o, i) => {
-                o.vy += 0.4; o.x += o.vx; o.y += o.vy;
-                if(o.y > canvas.height - 85) { o.y = canvas.height - 85; o.vy *= -0.3; o.vx *= 0.95; }
+                o.vy += 0.5; o.x += o.vx; o.y += o.vy;
+                if(o.y > canvas.height - 85) { o.y = canvas.height - 85; o.vy *= -0.35; o.vx *= 0.9; }
                 ctx.fillStyle = '#f3cf8a';
                 ctx.beginPath(); ctx.arc(o.x, o.y, o.r, 0, Math.PI*2); ctx.fill();
                 if(objects.length > 200) objects.shift();
@@ -141,8 +139,8 @@
         if(view === 'home' || view === 'eden') {
             if(mouse.active) objects.push({x: mouse.x, y: mouse.y, r: 0, life: 1});
             objects.forEach((o, i) => {
-                o.r += 3; o.life -= 0.02;
-                ctx.strokeStyle = `rgba(243, 207, 138, ${o.life})`;
+                o.r += 4; o.life -= 0.025;
+                ctx.strokeStyle = `rgba(243, 207, 138, ${o.life * 0.5})`;
                 ctx.beginPath(); ctx.arc(o.x, o.y, o.r, 0, Math.PI*2); ctx.stroke();
                 if(o.life <= 0) objects.splice(i, 1);
             });
@@ -156,7 +154,8 @@
         const y = e.touches ? e.touches[0].clientY : e.clientY;
         mouse.x = x; mouse.y = y; mouse.active = true;
     };
-    window.onmousedown = input; window.ontouchstart = input;
+    window.onmousemove = input; window.ontouchmove = input;
+    window.onmousedown = () => mouse.active = true; window.ontouchstart = () => mouse.active = true;
     window.onmouseup = () => mouse.active = false; window.ontouchend = () => mouse.active = false;
 </script>
 </body>
