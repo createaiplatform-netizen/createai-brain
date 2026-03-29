@@ -3,22 +3,18 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=yes, viewport-fit=cover">
-    <title>SOVEREIGN_FREE_SCROLL_V74</title>
+    <title>SOVEREIGN_ACCESS_V75</title>
     <style>
         @import url('https://fonts.googleapis.com/css2?family=Cinzel:wght@900&family=Great+Vibes&family=Inter:wght@100;400;900&display=swap');
         :root { --gold: #f3cf8a; --gold-d: #b8860b; --void: #010103; }
-        
         * { box-sizing: border-box; -webkit-tap-highlight-color: transparent; margin: 0; padding: 0; }
         
-        /* This section specifically unlocks the "Grab and Pull" */
         html, body { 
-            height: 100%; 
-            width: 100%; 
-            background: var(--void); 
-            color: #fff; 
+            height: 100%; width: 100%; 
+            background: var(--void); color: #fff; 
             font-family: 'Inter', sans-serif; 
-            overflow-y: auto !important; /* Forces scrollability */
-            -webkit-overflow-scrolling: touch; /* Smooth iOS physics */
+            overflow-y: auto !important;
+            -webkit-overflow-scrolling: touch;
         }
 
         canvas { position: fixed; inset: 0; z-index: 1; pointer-events: none; }
@@ -29,17 +25,29 @@
         .status { 
             position: sticky; top: 0; padding-top: env(safe-area-inset-top, 20px); 
             font-family: 'Great Vibes'; font-size: 1.8rem; color: var(--gold); 
-            width: 100%; text-align: center; z-index: 100; 
+            width: 100%; text-align: center; z-index: 1000; 
             text-shadow: 0 0 15px var(--gold-d); cursor: pointer; pointer-events: auto;
-            background: rgba(1,1,3,0.5); backdrop-filter: blur(10px);
         }
 
         .title { font-family: 'Cinzel'; font-weight: 900; font-size: 11vw; letter-spacing: 20px; color: var(--gold); text-align: center; pointer-events: auto; text-shadow: 0 0 40px #000; margin-top: -50px; }
         .quote { font-family: 'Great Vibes'; font-size: 2.5rem; color: var(--gold); margin-top: 15px; opacity: 0.9; }
 
-        .dock { position: fixed; bottom: 0; width: 100%; height: 95px; background: rgba(0,0,0,0.95); backdrop-filter: blur(60px); border-top: 1px solid rgba(243, 207, 138, 0.2); display: flex; z-index: 9000; padding-bottom: env(safe-area-inset-bottom); pointer-events: auto; }
-        .dock-item { flex: 1; display: flex; align-items: center; justify-content: center; color: rgba(255,255,255,0.3); font-family: 'Cinzel'; font-size: 10px; letter-spacing: 3px; transition: 0.3s; font-weight: 900; }
-        .dock-item.active { color: var(--gold); text-shadow: 0 0 40px var(--gold); }
+        /* HEAVIEST LAYER: The Dock */
+        .dock { 
+            position: fixed; bottom: 0; width: 100%; height: 95px; 
+            background: rgba(0,0,0,0.98); backdrop-filter: blur(60px); 
+            border-top: 1px solid rgba(243, 207, 138, 0.3); 
+            display: flex; z-index: 99999 !important; 
+            padding-bottom: env(safe-area-inset-bottom); 
+            pointer-events: auto !important; 
+        }
+        .dock-item { 
+            flex: 1; display: flex; align-items: center; justify-content: center; 
+            color: rgba(255,255,255,0.4); font-family: 'Cinzel'; font-size: 10px; 
+            letter-spacing: 3px; transition: 0.3s; font-weight: 900;
+            pointer-events: auto !important; cursor: pointer;
+        }
+        .dock-item.active { color: var(--gold); text-shadow: 0 0 40px var(--gold); opacity: 1; }
     </style>
 </head>
 <body>
@@ -47,8 +55,7 @@
     <div class="status" id="stat" onclick="window.location.reload()">Sovereign 144.00%</div>
     <canvas id="canvas"></canvas>
     
-    <div id="ui-layer">
-        </div>
+    <div id="ui-layer"></div>
 
     <div class="dock">
         <div class="dock-item" id="n-reg" onclick="render('grid')">NEXUS</div>
@@ -69,13 +76,24 @@
     function render(target) {
         view = target; objects = [];
         const ui = document.getElementById('ui-layer');
+        
+        // Visual feedback for click
         document.querySelectorAll('.dock-item').forEach(d => d.classList.remove('active'));
         
         let title = "SOURCE", quote = "The One Origin";
-        if(view === 'grid') { title = "NEXUS"; quote = "Network Active"; document.getElementById('n-reg').classList.add('active'); }
-        else if(view === 'home') { title = "SOURCE"; quote = "The One Origin"; document.getElementById('n-home').classList.add('active'); }
-        else if(view === 'eden') { title = "EDEN"; quote = "Infinite Growth"; document.getElementById('n-gar').classList.add('active'); }
-        else if(view === 'vault') { title = "VAULT"; quote = "Mass of Value"; document.getElementById('n-cav').classList.add('active'); }
+        if(view === 'grid') { 
+            title = "NEXUS"; quote = "Network Active"; 
+            document.getElementById('n-reg').classList.add('active'); 
+        } else if(view === 'home') { 
+            title = "SOURCE"; quote = "The One Origin"; 
+            document.getElementById('n-home').classList.add('active'); 
+        } else if(view === 'eden') { 
+            title = "EDEN"; quote = "Infinite Growth"; 
+            document.getElementById('n-gar').classList.add('active'); 
+        } else if(view === 'vault') { 
+            title = "VAULT"; quote = "Mass of Value"; 
+            document.getElementById('n-cav').classList.add('active'); 
+        }
 
         ui.innerHTML = `<h1 class="title">${title}</h1><p class="quote">${quote}</p>`;
     }
@@ -90,13 +108,9 @@
         grad.addColorStop(0, '#fff'); grad.addColorStop(0.5, 'rgba(243, 207, 138, 0.4)'); grad.addColorStop(1, 'rgba(243, 207, 138, 0)');
         ctx.fillStyle = grad; ctx.beginPath(); ctx.arc(aura.x, aura.y, p * 1.5, 0, Math.PI*2); ctx.fill();
 
-        if(mouse.active) {
-            if(view === 'home' || view === 'eden') {
-                objects.push({x: aura.x, y: aura.y, r: 0, life: 1, type: 'pulse'});
-            }
-            if(view === 'vault') {
-                objects.push({x: mouse.x, y: mouse.y, vx: (Math.random()-0.5)*15, vy: -Math.random()*10, r: Math.random()*5+2, type: 'coin'});
-            }
+        if(mouse.active && mouse.y < window.innerHeight - 100) { // Don't pulse over buttons
+            if(view === 'home' || view === 'eden') objects.push({x: aura.x, y: aura.y, r: 0, life: 1, type: 'pulse'});
+            if(view === 'vault') objects.push({x: mouse.x, y: mouse.y, vx: (Math.random()-0.5)*15, vy: -Math.random()*10, r: Math.random()*5+2, type: 'coin'});
         }
 
         objects.forEach((o, i) => {
@@ -109,7 +123,7 @@
                 if(o.y > canvas.height - 95) { o.y = canvas.height - 95; o.vy *= -0.4; }
                 ctx.fillStyle = '#f3cf8a'; ctx.beginPath(); ctx.arc(o.x, o.y, o.r, 0, Math.PI*2); ctx.fill();
             }
-            if(o.life <= 0 || objects.length > 200) objects.splice(i, 1);
+            if(o.life <= 0) objects.splice(i, 1);
         });
 
         requestAnimationFrame(animate);
