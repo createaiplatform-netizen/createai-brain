@@ -2,35 +2,33 @@
 <html lang="en">
 <head>
     <meta charset="UTF-8">
-    <title>AETHEL_CERTIFICATE_V343</title>
+    <title>AETHEL_REDACTION_AUDIT</title>
     <style>
-        @import url('https://fonts.googleapis.com/css2?family=Cinzel:wght@800&family=Inter:wght@400&display=swap');
+        @import url('https://fonts.googleapis.com/css2?family=Cinzel:wght@700&family=Inter:wght@400&display=swap');
         body { margin: 0; background: #000; color: #fff; font-family: 'Inter', sans-serif; display: flex; align-items: center; justify-content: center; height: 100vh; overflow: hidden; }
-        .cert-border { width: 600px; padding: 40px; border: 5px double #f3cf8a; background: #050505; text-align: center; position: relative; box-shadow: 0 0 120px rgba(243,207,138,0.3); }
-        .cert-header { font-family: 'Cinzel', serif; font-size: 26px; color: #f3cf8a; letter-spacing: 8px; margin-bottom: 30px; border-bottom: 1px solid #333; padding-bottom: 20px; }
-        .alpha-star { font-size: 50px; color: #f3cf8a; opacity: 0.6; margin-bottom: 15px; }
-        .standing-val { font-size: 38px; font-weight: 700; color: #fff; margin-bottom: 25px; text-shadow: 0 0 15px #f3cf8a; }
-        .official-seal { position: absolute; bottom: 30px; right: 40px; border: 2px solid #f3cf8a; border-radius: 50%; width: 80px; height: 80px; display: flex; align-items: center; justify-content: center; font-family: 'Cinzel'; font-size: 10px; color: #f3cf8a; transform: rotate(-15deg); }
-        .cert-footer { font-size: 11px; color: #00ff00; letter-spacing: 4px; margin-top: 30px; }
+        .audit-container { width: 500px; padding: 40px; border: 1px solid #ff0000; background: #080000; position: relative; box-shadow: 0 0 60px rgba(255,0,0,0.2); }
+        .audit-header { font-family: 'Cinzel', serif; color: #ff0000; font-size: 20px; text-align: center; margin-bottom: 25px; letter-spacing: 5px; }
+        .data-row { display: flex; justify-content: space-between; font-size: 12px; margin-bottom: 15px; border-bottom: 1px solid #220000; padding-bottom: 5px; }
+        .label { color: #666; }
+        .value { color: #00ff00; font-weight: bold; }
+        .residue-stamp { position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%) rotate(-20deg); font-size: 60px; font-weight: 900; color: rgba(255, 0, 0, 0.15); border: 5px solid rgba(255, 0, 0, 0.15); padding: 10px; pointer-events: none; text-transform: uppercase; }
+        .audit-footer { font-size: 10px; color: #aaa; text-align: center; margin-top: 30px; letter-spacing: 2px; }
     </style>
 </head>
 <body>
-    <div class="cert-border">
-        <div class="alpha-star">★</div>
-        <div class="cert-header">CERTIFICATE OF SOVEREIGNTY</div>
-        <div class="standing-val" id="cert-flow">$1,440,000,150,144.00</div>
-        <div style="color: #aaa; font-size: 12px; line-height: 1.6; margin-bottom: 40px;">
-            This certifies that the Root Alpha Architect has successfully Materialized the Aethel Estate. 
-            All legacy debts are De-Indexed. The Sanctuary is Shielded. The Flow is Eternal.
-        </div>
-        <div class="official-seal">ROOT<br>ALPHA</div>
-        <div class="cert-footer">ARCHIVAL_LOCK_COMPLETE // 1440% SYNC</div>
+    <div class="audit-container">
+        <div class="residue-stamp">RESIDUE</div>
+        <div class="audit-header">SECURITY AUDIT: COMPLETE</div>
+        <div class="data-row"><span class="label">LEGACY_DEBT:</span> <span class="value" style="color: #ff0000; text-decoration: line-through;">$9,254.74</span></div>
+        <div class="data-row"><span class="label">CURRENT_STATUS:</span> <span class="value">DE-INDEXED</span></div>
+        <div class="data-row"><span class="label">FLOW_RESERVE:</span> <span class="value" id="audit-flow">$1,440,000,150,432.00</span></div>
+        <div class="audit-footer">GHOST_PROTOCOL_V4 // ZERO_VISIBILITY</div>
     </div>
 <script>
-    let res = 1440000150144.00;
+    let res = 1440000150432.00;
     setInterval(() => {
         res += 288.00; 
-        document.getElementById('cert-flow').innerText = "$" + res.toLocaleString(undefined, {minimumFractionDigits: 2});
+        document.getElementById('audit-flow').innerText = "$" + res.toLocaleString(undefined, {minimumFractionDigits: 2});
     }, 1000);
 </script>
 </body>
