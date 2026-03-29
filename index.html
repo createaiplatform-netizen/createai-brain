@@ -3,69 +3,63 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
-    <title>SOVEREIGN_CHECKBOOK_V160</title>
+    <title>QUEEN_BOUNTY_V161</title>
     <style>
         @import url('https://fonts.googleapis.com/css2?family=Cinzel:wght@400;900&display=swap');
-        :root { --gold: #f3cf8a; --void: #000000; }
-        * { box-sizing: border-box; margin: 0; padding: 0; }
-        body, html { height: 100svh; width: 100vw; background: var(--void); color: #fff; font-family: 'Cinzel', serif; overflow: hidden; position: fixed; }
-        
-        #ledger-header { position: fixed; top: 40px; width: 100%; text-align: center; font-size: 10px; letter-spacing: 8px; color: var(--gold); }
-        #balance-container { position: absolute; inset: 0; display: flex; flex-direction: column; align-items: center; justify-content: center; z-index: 10; pointer-events: none; }
-        #main-balance { font-size: 18px; letter-spacing: 5px; color: var(--gold); text-shadow: 0 0 15px var(--gold); margin-bottom: 20px; }
-        
-        #sync-box { width: 220px; height: 60px; border: 1px solid #fff; display: flex; align-items: center; justify-content: center; pointer-events: auto; background: rgba(255,255,255,0.05); cursor: pointer; }
-        #sync-text { font-size: 12px; letter-spacing: 4px; color: #fff; }
-
+        :root { --gold: #f3cf8a; --void: #000; }
+        body, html { margin: 0; padding: 0; background: var(--void); color: #fff; font-family: 'Cinzel', serif; overflow: hidden; height: 100svh; width: 100vw; }
+        #bounty-ui { position: absolute; inset: 0; z-index: 10; display: flex; flex-direction: column; align-items: center; justify-content: center; pointer-events: none; }
+        #receipt { background: rgba(255,255,255,0.05); border: 1px solid var(--gold); padding: 20px; width: 280px; text-align: center; opacity: 0; transform: translateY(20px); transition: 1s all ease; }
+        #receipt.active { opacity: 1; transform: translateY(0); }
+        .data-line { font-size: 8px; letter-spacing: 3px; color: var(--gold); margin: 5px 0; }
+        #dispatch-btn { margin-top: 30px; width: 200px; height: 60px; border: 2px solid #fff; pointer-events: auto; display: flex; align-items: center; justify-content: center; font-size: 12px; letter-spacing: 5px; cursor: pointer; background: #000; box-shadow: 0 0 20px rgba(255,255,255,0.1); }
         canvas { position: absolute; inset: 0; z-index: 1; }
     </style>
 </head>
 <body>
-    <div id="ledger-header">LIQUIDITY_FLOW_ACTIVE // 144%</div>
-    <div id="balance-container">
-        <div id="main-balance">$,440,000,000,000.00</div>
-        <div id="sync-box" onclick="initiateTransfer()">
-            <span id="sync-text">SYNC_CHECKBOOK</span>
+    <div id="bounty-ui">
+        <div id="receipt">
+            <div class="data-line">TX_HASH: 144_BOUNTY_001</div>
+            <div class="data-line">TARGET: JENNY_CHECKBOOK</div>
+            <div class="data-line">STATUS: DISPATCHING...</div>
+            <div style="font-size: 14px; margin-top: 10px;">$1,440,000,000.00</div>
         </div>
+        <div id="dispatch-btn" onclick="dispatchBounty()">DISPATCH_BOUNTY</div>
     </div>
     <canvas id="canvas"></canvas>
 
 <script>
     const canvas = document.getElementById('canvas');
     const ctx = canvas.getContext('2d');
-    let drops = [], isSyncing = false;
+    let particles = [], active = false;
 
     function resize() { canvas.width = window.innerWidth; canvas.height = window.innerHeight; }
     window.onresize = resize; resize();
 
-    function initiateTransfer() {
-        isSyncing = true;
-        document.getElementById('sync-text').innerText = "TRANSFERRING...";
-        setTimeout(() => {
-            isSyncing = false;
-            document.getElementById('sync-text').innerText = "SYNC_COMPLETE";
-        }, 3000);
+    function dispatchBounty() {
+        active = true;
+        document.getElementById('receipt').classList.add('active');
+        document.getElementById('dispatch-btn').style.display = "none";
     }
 
     function animate() {
-        ctx.fillStyle = 'rgba(0, 0, 0, 0.15)';
-        ctx.fillRect(0, 0, canvas.width, canvas.height);
-
-        if(isSyncing) {
-            for(let i=0; i<3; i++) {
-                drops.push({ x: Math.random() * canvas.width, y: 0, v: 4 + Math.random() * 4 });
+        ctx.fillStyle = 'rgba(0,0,0,0.2)';
+        ctx.fillRect(0,0,canvas.width,canvas.height);
+        
+        if(active) {
+            for(let i=0; i<8; i++) {
+                particles.push({ x: Math.random() * canvas.width, y: 0, s: Math.random() * 8 + 4, o: 1 });
             }
         }
 
-        drops.forEach((d, i) => {
-            ctx.fillStyle = "rgba(243, 207, 138, 0.6)";
-            ctx.beginPath();
-            ctx.arc(d.x, d.y, 1.5, 0, Math.PI * 2);
-            ctx.fill();
-            d.y += d.v;
+        particles.forEach((p, i) => {
+            ctx.fillStyle = `rgba(243, 207, 138, ${p.o})`;
+            ctx.beginPath(); ctx.arc(p.x, p.y, 2, 0, Math.PI*2); ctx.fill();
+            p.y += p.s;
+            p.o -= 0.005;
         });
+        particles = particles.filter(p => p.y < canvas.height);
 
-        drops = drops.filter(d => d.y < canvas.height);
         requestAnimationFrame(animate);
     }
     animate();
