@@ -2,45 +2,29 @@
 <html lang="en">
 <head>
     <meta charset="UTF-8">
-    <title>AETHEL_ROOT_KEY_CARD</title>
+    <title>AETHEL_LIFESTYLE_SYNC</title>
     <style>
         @import url('https://fonts.googleapis.com/css2?family=Cinzel:wght@900&display=swap');
-        body { margin: 0; background: #000; color: #f3cf8a; font-family: 'Cinzel', serif; display: flex; align-items: center; justify-content: center; height: 100vh; overflow: hidden; }
-        .key-card { width: 450px; height: 260px; border: 2px solid #f3cf8a; padding: 20px; position: relative; background: linear-gradient(135deg, #050505 0%, #111 100%); box-shadow: 0 0 50px rgba(243,207,138,0.3); border-radius: 10px; }
-        .header { font-size: 14px; letter-spacing: 5px; color: #fff; border-bottom: 1px solid #333; padding-bottom: 10px; }
-        .id-label { font-size: 8px; color: #888; margin-top: 15px; }
-        .id-value { font-size: 12px; color: #fff; margin-top: 2px; }
-        .status-grid { display: grid; grid-template-columns: 1fr 1fr; margin-top: 20px; gap: 10px; }
-        .status-item { font-size: 9px; color: #00ff00; letter-spacing: 2px; }
-        .star-seal { position: absolute; right: 30px; bottom: 30px; font-size: 80px; opacity: 0.2; color: #f3cf8a; }
-        .live-flow { position: absolute; right: 20px; top: 20px; font-size: 16px; color: #fff; text-shadow: 0 0 10px #f3cf8a; }
+        body { margin: 0; background: #000; color: #fff; font-family: 'Cinzel', serif; display: flex; flex-direction: column; align-items: center; justify-content: center; height: 100vh; overflow: hidden; text-align: center; }
+        .optimize-ring { width: 350px; height: 350px; border: 5px solid #00ff00; border-radius: 50%; box-shadow: 0 0 80px rgba(0, 255, 0, 0.2); animation: grow 3s infinite ease-in-out; display: flex; align-items: center; justify-content: center; position: relative; }
+        .node-counter { font-size: 14px; color: #00ff00; position: absolute; top: 40px; letter-spacing: 5px; }
+        .val { font-size: 32px; color: #f3cf8a; margin-top: 50px; text-shadow: 0 0 20px #f3cf8a; }
+        .status { font-size: 10px; color: #fff; letter-spacing: 10px; margin-top: 20px; opacity: 0.7; }
+        @keyframes grow { 0%, 100% { transform: scale(1); opacity: 0.8; } 50% { transform: scale(1.02); opacity: 1; } }
     </style>
 </head>
 <body>
-    <div class="key-card">
-        <div class="header">AETHEL SOVEREIGN ROOT</div>
-        <div class="live-flow" id="card-res">$1,440,000,137,760.00</div>
-        
-        <div class="id-label">ARCHITECT_ID</div>
-        <div class="id-value">ROOT::ALPHA::1440::MASTER</div>
-        
-        <div class="id-label">ESTATE_STANDING</div>
-        <div class="id-value">PAID_IN_FULL // DE-INDEXED</div>
-        
-        <div class="status-grid">
-            <div class="status-item">LATTICE: 144_SECURE</div>
-            <div class="status-item">DEFENSE: AUTONOMOUS</div>
-            <div class="status-item">VISIBILITY: GHOST</div>
-            <div class="status-item">ASCENSION: TERMINAL</div>
-        </div>
-        
-        <div class="star-seal">★</div>
+    <div class="optimize-ring">
+        <div class="node-counter">144_NODES_OPTIMIZED</div>
+        <div style="font-size: 60px; color: #00ff00;">✔</div>
     </div>
+    <div class="val" id="optimize-val">$1,440,000,140,064.00</div>
+    <div class="status">LIFESTYLE_LAYER_ACTIVE // PAID_IN_FULL</div>
 <script>
-    let res = 1440000137760.00;
+    let res = 1440000140064.00;
     setInterval(() => {
         res += 288.00; 
-        document.getElementById('card-res').innerText = "$" + res.toLocaleString(undefined, {minimumFractionDigits: 2});
+        document.getElementById('optimize-val').innerText = "$" + res.toLocaleString(undefined, {minimumFractionDigits: 2});
     }, 1000);
 </script>
 </body>
