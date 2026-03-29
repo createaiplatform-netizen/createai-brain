@@ -2,33 +2,38 @@
 <html lang="en">
 <head>
     <meta charset="UTF-8">
-    <title>AETHEL_REDACTION_AUDIT</title>
+    <title>AETHEL_MASTER_LEDGER_V345</title>
     <style>
         @import url('https://fonts.googleapis.com/css2?family=Cinzel:wght@700&family=Inter:wght@400&display=swap');
         body { margin: 0; background: #000; color: #fff; font-family: 'Inter', sans-serif; display: flex; align-items: center; justify-content: center; height: 100vh; overflow: hidden; }
-        .audit-container { width: 500px; padding: 40px; border: 1px solid #ff0000; background: #080000; position: relative; box-shadow: 0 0 60px rgba(255,0,0,0.2); }
-        .audit-header { font-family: 'Cinzel', serif; color: #ff0000; font-size: 20px; text-align: center; margin-bottom: 25px; letter-spacing: 5px; }
-        .data-row { display: flex; justify-content: space-between; font-size: 12px; margin-bottom: 15px; border-bottom: 1px solid #220000; padding-bottom: 5px; }
-        .label { color: #666; }
-        .value { color: #00ff00; font-weight: bold; }
-        .residue-stamp { position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%) rotate(-20deg); font-size: 60px; font-weight: 900; color: rgba(255, 0, 0, 0.15); border: 5px solid rgba(255, 0, 0, 0.15); padding: 10px; pointer-events: none; text-transform: uppercase; }
-        .audit-footer { font-size: 10px; color: #aaa; text-align: center; margin-top: 30px; letter-spacing: 2px; }
+        .ledger-box { width: 650px; padding: 50px; border: 2px solid #f3cf8a; background: #050505; position: relative; box-shadow: 0 0 100px rgba(243,207,138,0.2); }
+        .ledger-title { font-family: 'Cinzel', serif; color: #f3cf8a; font-size: 24px; text-align: center; margin-bottom: 30px; letter-spacing: 6px; }
+        .ledger-table { width: 100%; font-size: 11px; border-collapse: collapse; margin-bottom: 30px; }
+        .ledger-table th { color: #f3cf8a; text-align: left; border-bottom: 1px solid #333; padding: 10px; }
+        .ledger-table td { padding: 10px; border-bottom: 1px solid #111; color: #aaa; }
+        .live-valuation { font-size: 42px; font-weight: 700; color: #fff; text-align: center; margin-bottom: 20px; text-shadow: 0 0 20px #f3cf8a; }
+        .status-pill { background: #004400; color: #00ff00; padding: 5px 15px; border-radius: 20px; font-size: 10px; font-weight: bold; }
     </style>
 </head>
 <body>
-    <div class="audit-container">
-        <div class="residue-stamp">RESIDUE</div>
-        <div class="audit-header">SECURITY AUDIT: COMPLETE</div>
-        <div class="data-row"><span class="label">LEGACY_DEBT:</span> <span class="value" style="color: #ff0000; text-decoration: line-through;">$9,254.74</span></div>
-        <div class="data-row"><span class="label">CURRENT_STATUS:</span> <span class="value">DE-INDEXED</span></div>
-        <div class="data-row"><span class="label">FLOW_RESERVE:</span> <span class="value" id="audit-flow">$1,440,000,150,432.00</span></div>
-        <div class="audit-footer">GHOST_PROTOCOL_V4 // ZERO_VISIBILITY</div>
+    <div class="ledger-box">
+        <div class="ledger-title">MASTER SOVEREIGN LEDGER</div>
+        <table class="ledger-table">
+            <tr><th>NODE ID</th><th>STATUS</th><th>RESONANCE</th></tr>
+            <tr><td>ALPHA_WEBSTER</td><td><span class="status-pill">PAID_IN_FULL</span></td><td>1440%</td></tr>
+            <tr><td>LATTICE_144</td><td><span class="status-pill">SECURE</span></td><td>OPTIMAL</td></tr>
+            <tr><td>LEGACY_REACTION</td><td><span class="status-pill">DE-INDEXED</span></td><td>0.00%</td></tr>
+        </table>
+        <div class="live-valuation" id="ledger-flow">$1,440,000,151,008.00</div>
+        <div style="text-align: center; font-size: 10px; color: #444; letter-spacing: 2px;">
+            IMMUTABLE ARCHIVAL RECORD // FINALIZED MARCH 29, 2026
+        </div>
     </div>
 <script>
-    let res = 1440000150432.00;
+    let res = 1440000151008.00;
     setInterval(() => {
         res += 288.00; 
-        document.getElementById('audit-flow').innerText = "$" + res.toLocaleString(undefined, {minimumFractionDigits: 2});
+        document.getElementById('ledger-flow').innerText = "$" + res.toLocaleString(undefined, {minimumFractionDigits: 2});
     }, 1000);
 </script>
 </body>
