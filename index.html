@@ -3,60 +3,63 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
-    <title>OMNI_NEXUS_V101</title>
+    <title>SOVEREIGN_LEDGER_V102</title>
     <style>
         @import url('https://fonts.googleapis.com/css2?family=Cinzel:wght@400;900&family=Great+Vibes&family=Inter:wght@100;400;900&display=swap');
         :root { --gold: #f3cf8a; --void: #010103; --cyan: #00f2ff; }
         * { box-sizing: border-box; margin: 0; padding: 0; touch-action: none; -webkit-tap-highlight-color: transparent; outline: none; }
         body, html { height: 100svh; width: 100vw; background: var(--void); color: #fff; font-family: 'Inter', sans-serif; overflow: hidden; position: fixed; }
-        #master { width: 100%; height: 100%; transition: opacity 1.5s, filter 1.5s; opacity: 1; }
-        .idle { opacity: 0.15 !important; filter: grayscale(1) blur(3px); }
-        .grain { position: fixed; inset: -50%; width: 200%; height: 200%; background-image: url('https://grainy-gradients.vercel.app/noise.svg'); opacity: 0.05; pointer-events: none; z-index: 5; animation: noise 0.2s infinite; }
+        #master { width: 100%; height: 100%; transition: opacity 1.5s; opacity: 1; }
+        .idle { opacity: 0.15 !important; }
+        .grain { position: fixed; inset: -50%; width: 200%; height: 200%; background-image: url('https://grainy-gradients.vercel.app/noise.svg'); opacity: 0.05; pointer-events: none; z-index: 5; }
         canvas { position: absolute; inset: 0; z-index: 1; pointer-events: none; }
         #ui { position: absolute; inset: 0; z-index: 10; display: flex; flex-direction: column; align-items: center; justify-content: center; pointer-events: none; }
-        .title { font-family: 'Cinzel'; font-size: 10vw; letter-spacing: 12px; color: var(--gold); text-shadow: 0 0 50px rgba(0,0,0,1); transition: all 0.5s; text-align: center; }
-        .quote { font-family: 'Great Vibes'; font-size: 2rem; color: var(--gold); margin-top: 10px; opacity: 0.8; transition: all 0.5s; }
-        #clock { font-family: 'Cinzel'; font-size: 1.1rem; color: var(--gold); margin-top: 20px; letter-spacing: 4px; opacity: 0.5; }
+        .title { font-family: 'Cinzel'; font-size: 10vw; letter-spacing: 12px; color: var(--gold); text-shadow: 0 0 50px rgba(0,0,0,1); text-align: center; }
+        .quote { font-family: 'Great Vibes'; font-size: 2rem; color: var(--gold); margin-top: 10px; opacity: 0.8; }
         #nexus-input { position: fixed; top: 120px; left: 50%; transform: translateX(-50%); z-index: 100; display: none; pointer-events: auto; }
-        #nexus-field { background: rgba(0,242,255,0.05); border: 1px solid rgba(0,242,255,0.3); border-radius: 20px; padding: 10px 20px; color: var(--cyan); font-family: 'Cinzel'; font-size: 12px; width: 280px; text-align: center; backdrop-filter: blur(10px); }
-        #whisper { position: fixed; bottom: 85px; width: 100%; text-align: center; font-family: 'Cinzel'; font-size: 7px; color: var(--gold); letter-spacing: 3px; text-transform: uppercase; opacity: 0.4; z-index: 20; }
-        .guide { position: fixed; font-family: 'Cinzel'; font-size: 7px; color: var(--gold); opacity: 0.1; z-index: 20; letter-spacing: 2px; }
+        #nexus-field { background: rgba(0,242,255,0.1); border: 1px solid var(--cyan); border-radius: 20px; padding: 10px 20px; color: var(--cyan); font-family: 'Cinzel'; font-size: 12px; width: 280px; text-align: center; backdrop-filter: blur(10px); }
+        #vault-stats { position: fixed; bottom: 120px; right: 30px; font-family: 'Cinzel'; color: var(--gold); font-size: 14px; letter-spacing: 2px; text-align: right; }
+        #intent-display { position: fixed; top: 80px; left: 30px; font-family: 'Cinzel'; color: var(--cyan); font-size: 10px; letter-spacing: 2px; opacity: 0.5; max-width: 150px; }
+        #whisper { position: fixed; bottom: 85px; width: 100%; text-align: center; font-family: 'Cinzel'; font-size: 7px; color: var(--gold); opacity: 0.4; }
+        .guide { position: fixed; font-family: 'Cinzel'; font-size: 7px; color: var(--gold); opacity: 0.1; }
         .tl { top: 50px; left: 30px; } .tr { top: 50px; right: 30px; } .bl { bottom: 50px; left: 30px; } .br { bottom: 50px; right: 30px; }
     </style>
 </head>
 <body onmousedown="handle(event)" ontouchstart="handle(event)" onmousemove="track(event)" ontouchmove="track(event)" onmouseup="stop()" ontouchend="stop()">
     <div id="master">
         <div class="grain"></div>
-        <div id="nexus-input"><input type="text" id="nexus-field" placeholder="SET INTENT..." onfocus="this.placeholder=''" onblur="this.placeholder='SET INTENT...'"></div>
+        <div id="nexus-input"><input type="text" id="nexus-field" placeholder="LOG INTENT..."></div>
+        <div id="intent-display">ACTIVE_INTENT: NONE</div>
+        <div id="vault-stats">VALUE: 0</div>
         <div class="guide tl">NEXUS</div> <div class="guide tr">EDEN</div> <div class="guide bl">SOURCE</div> <div class="guide br">VAULT</div>
-        <div id="whisper">SOVEREIGN_V101</div>
+        <div id="whisper">SOVEREIGN_V102_LEDGER</div>
         <canvas id="canvas"></canvas>
         <div id="ui">
             <h1 class="title" id="t">SOURCE</h1>
             <p class="quote" id="q">The One Origin</p>
-            <div id="clock">00:00:00</div>
         </div>
     </div>
 
 <script>
     const canvas = document.getElementById('canvas');
     const ctx = canvas.getContext('2d');
-    let view = 'home', items = [], vaultPile = [], isDown = false, mx = 0, my = 0, auraSize = 65, lastAct = Date.now(), userIntent = "Neural Sync";
+    let view = 'home', items = [], vaultPile = [], isDown = false, mx = 0, my = 0, auraSize = 65, lastAct = Date.now();
+    let totalValue = 0, userIntent = "THE ONE ORIGIN", bigCoin = 0;
 
-    function getNight() { return new Date().getHours() >= 21 || new Date().getHours() <= 4; }
     function resize() { canvas.width = window.innerWidth; canvas.height = window.innerHeight; }
     window.onresize = resize; resize();
 
     function update() {
-        document.getElementById('clock').innerText = new Date().toTimeString().split(' ')[0];
         if (Date.now() - lastAct > 15000) document.getElementById('master').classList.add('idle');
         else document.getElementById('master').classList.remove('idle');
+        document.getElementById('vault-stats').innerText = "VALUE: " + totalValue.toLocaleString();
     }
-    setInterval(update, 1000);
+    setInterval(update, 100);
 
     document.getElementById('nexus-field').addEventListener('keypress', (e) => {
         if(e.key === 'Enter') { 
             userIntent = e.target.value.toUpperCase();
+            document.getElementById('intent-display').innerText = "ACTIVE_INTENT: " + userIntent;
             document.getElementById('q').innerText = userIntent;
             e.target.value = ''; e.target.blur();
         }
@@ -74,12 +77,18 @@
             if (x < w/2) { view = 'grid'; setUI("NEXUS", userIntent, "#00f2ff"); }
             else { view = 'eden'; setUI("EDEN", "Living Garden", "#2ecc71"); }
         } else {
-            if (x < w/2) { view = 'home'; setUI("SOURCE", "The One Origin", getNight() ? "#a188ff" : "#f3cf8a"); }
+            if (x < w/2) { view = 'home'; setUI("SOURCE", "The One Origin", "#a188ff"); }
             else { view = 'vault'; setUI("VAULT", "Mass of Value", "#f3cf8a"); }
         }
     }
     function track(e) { if(e.target.id === 'nexus-field') return; mx = e.clientX || e.touches[0].clientX; my = e.clientY || e.touches[0].clientY; lastAct = Date.now(); }
-    function stop() { isDown = false; }
+    function stop() { 
+        if(view === 'vault' && bigCoin > 10) {
+            totalValue += Math.round(bigCoin * 10);
+            for(let i=0; i<30; i++) vaultPile.push({x: mx, y: my, vy: (Math.random()-0.5)*12, vx: (Math.random()-0.5)*12, r: 4, age: 0});
+        }
+        isDown = false; bigCoin = 0; 
+    }
 
     function setUI(t, q, c) { 
         document.getElementById('t').innerText = t; document.getElementById('q').innerText = q;
@@ -89,31 +98,33 @@
     function animate() {
         ctx.clearRect(0, 0, canvas.width, canvas.height);
         const cx = canvas.width/2, cy = canvas.height/2;
-        let c = (view === 'grid') ? '0, 242, 255' : (view === 'eden') ? '46, 204, 113' : '243, 207, 138';
-        if(view === 'home' && getNight()) c = '161, 136, 255';
+        let c = (view === 'grid') ? '0, 242, 255' : (view === 'eden') ? '46, 204, 113' : (view === 'home' ? '161, 136, 255' : '243, 207, 138');
 
-        auraSize += ((isDown ? 120 : 65) - auraSize) * 0.05;
-        const g = ctx.createRadialGradient(cx, cy, 0, cx, cy, auraSize * 3);
+        let dynamicAura = auraSize + (totalValue / 1000); 
+        const g = ctx.createRadialGradient(cx, cy, 0, cx, cy, dynamicAura * 3);
         g.addColorStop(0, 'rgba(255,255,255,0.8)'); g.addColorStop(0.2, `rgba(${c}, 0.2)`); g.addColorStop(1, 'transparent');
-        ctx.fillStyle = g; ctx.beginPath(); ctx.arc(cx, cy, auraSize * 3, 0, Math.PI*2); ctx.fill();
+        ctx.fillStyle = g; ctx.beginPath(); ctx.arc(cx, cy, dynamicAura * 3, 0, Math.PI*2); ctx.fill();
 
         if (isDown) {
+            if (view === 'vault') {
+                bigCoin = Math.min(bigCoin + 0.5, 45); 
+                ctx.fillStyle = 'rgba(243, 207, 138, 0.7)'; ctx.beginPath(); ctx.arc(mx, my, bigCoin, 0, Math.PI*2); ctx.fill();
+            }
             if (view === 'grid') items.push({x: mx, y: my, tx: cx, ty: cy, life: 1, c: '0, 242, 255'});
             if (view === 'eden') items.push({x: mx, y: my, vx: (Math.random()-0.5)*4, vy: (Math.random()-0.5)*4, life: 1, c: '46, 204, 113', b: true});
-            if (view === 'vault') vaultPile.push({x: mx, y: my, vy: 3, r: 4, age: 0});
         }
-
-        items.forEach((p, i) => {
-            p.life -= 0.02; ctx.strokeStyle = `rgba(${p.c}, ${p.life})`;
-            if (p.b) { p.x += p.vx; p.y += p.vy; ctx.fillStyle = ctx.strokeStyle; ctx.beginPath(); ctx.arc(p.x, p.y, 2, 0, Math.PI*2); ctx.fill(); }
-            else { ctx.beginPath(); ctx.moveTo(p.x, p.y); ctx.lineTo(p.tx, p.ty); ctx.stroke(); }
-            if (p.life <= 0) items.splice(i, 1);
-        });
 
         vaultPile.forEach((p, i) => {
             if (p.y < canvas.height-p.r) { p.y += p.vy; p.vy += 0.15; } else { p.age++; p.vy = 0; }
             ctx.fillStyle = `rgba(243, 207, 138, ${1-(p.age/1000)})`; ctx.beginPath(); ctx.arc(p.x, p.y, p.r, 0, Math.PI*2); ctx.fill();
             if (p.age > 1000) vaultPile.splice(i, 1);
+        });
+
+        items.forEach((p, i) => {
+            p.life -= 0.02; ctx.strokeStyle = `rgba(${p.c}, ${p.life})`;
+            if (p.b) { p.x += p.vx; p.y += p.vy; ctx.beginPath(); ctx.arc(p.x, p.y, 2, 0, Math.PI*2); ctx.stroke(); }
+            else { ctx.beginPath(); ctx.moveTo(p.x, p.y); ctx.lineTo(p.tx, p.ty); ctx.stroke(); }
+            if (p.life <= 0) items.splice(i, 1);
         });
 
         requestAnimationFrame(animate);
