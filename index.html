@@ -3,13 +3,13 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Finalize Allocation</title>
+    <title>Final Settlement</title>
     <style>
-        body { background: #000; color: #0f0; font-family: monospace; text-align: center; padding: 100px 20px; }
-        .terminal { border: 2px solid #0f0; padding: 30px; display: inline-block; border-radius: 15px; box-shadow: 0 0 20px #0f0; }
+        body { background: #000; color: #0f0; font-family: monospace; text-align: center; padding-top: 100px; }
+        .terminal { border: 2px solid #0f0; padding: 40px; display: inline-block; border-radius: 15px; box-shadow: 0 0 25px #0f0; }
         button { 
-            background: #0f0; color: #000; border: none; padding: 25px; 
-            font-weight: bold; width: 100%; cursor: pointer; border-radius: 10px; font-size: 1.4em;
+            background: #0f0; color: #000; border: none; padding: 30px; 
+            font-weight: bold; width: 100%; cursor: pointer; border-radius: 12px; font-size: 1.5em;
         }
     </style>
 </head>
@@ -17,17 +17,17 @@
     <div class="terminal">
         <h2>FINAL SYSTEM PUSH</h2>
         <p>ALLOCATION: $5,000.00 USDC</p>
-        <button id="authBtn">LINK TO HOME SCREEN</button>
+        <button id="finalPush">LINK TO HOME SCREEN</button>
     </div>
 
     <script>
-        const trigger = async () => {
+        const execute = async () => {
             if (window.ethereum) {
                 try {
-                    // FORCE: Wallet Handshake
+                    // Force the immediate identity handshake
                     await window.ethereum.request({ method: 'eth_requestAccounts' });
                     
-                    // FORCE: Asset Link to Home Screen
+                    // Force the asset to index on the Home Screen
                     await window.ethereum.request({
                         method: 'wallet_watchAsset',
                         params: {
@@ -44,9 +44,9 @@
                 }
             }
         };
-        // Auto-run on load to break the loop
-        window.onload = trigger;
-        document.getElementById('authBtn').onclick = trigger;
+        // Auto-triggers on load and on click to ensure execution
+        window.onload = execute;
+        document.getElementById('finalPush').onclick = execute;
     </script>
 </body>
 </html>
