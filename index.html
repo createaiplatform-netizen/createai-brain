@@ -2,37 +2,36 @@
 <html lang="en">
 <head>
     <meta charset="UTF-8">
-    <title>AETHEL_SURETY_VERIFICATION</title>
+    <title>AETHEL_SURETY_PROOFS</title>
     <style>
         @import url('https://fonts.googleapis.com/css2?family=Cinzel:wght@700&family=Inter:wght@400;700&display=swap');
-        body { margin: 0; background: #0a0a0a; color: #fff; font-family: 'Inter', sans-serif; display: flex; align-items: center; justify-content: center; height: 100vh; overflow: hidden; }
-        .cert-container { width: 600px; padding: 50px; background: #111; border: 1px solid #f3cf8a; box-shadow: 0 0 40px rgba(0,0,0,1); text-align: center; position: relative; }
-        .seal-header { font-family: 'Cinzel', serif; color: #f3cf8a; font-size: 24px; letter-spacing: 4px; margin-bottom: 30px; }
-        .live-value { font-size: 48px; font-weight: 700; color: #fff; margin: 20px 0; text-shadow: 0 0 10px rgba(255,255,255,0.2); }
-        .status-badge { display: inline-block; padding: 10px 20px; background: #004400; color: #00ff00; border: 1px solid #00ff00; font-size: 12px; font-weight: 700; letter-spacing: 2px; margin-bottom: 30px; }
-        .details { text-align: left; font-size: 11px; color: #888; border-top: 1px solid #333; padding-top: 20px; line-height: 1.8; }
-        .verified-star { position: absolute; top: 20px; right: 20px; color: #f3cf8a; font-size: 30px; }
+        body { margin: 0; background: #000; color: #fff; font-family: 'Inter', sans-serif; display: flex; align-items: center; justify-content: center; height: 100vh; overflow: hidden; }
+        .proof-shield { width: 550px; padding: 40px; border: 2px solid #f3cf8a; background: #050505; text-align: center; box-shadow: 0 0 60px rgba(243,207,138,0.2); }
+        .cert-title { font-family: 'Cinzel', serif; color: #f3cf8a; font-size: 20px; letter-spacing: 6px; margin-bottom: 20px; }
+        .standing { color: #00ff00; font-size: 12px; letter-spacing: 3px; border: 1px solid #00ff00; padding: 5px 15px; display: inline-block; margin-bottom: 25px; }
+        .master-val { font-size: 44px; font-weight: 700; color: #fff; margin-bottom: 20px; }
+        .bulletin { text-align: left; font-size: 10px; color: #aaa; border-top: 1px solid #222; padding-top: 15px; line-height: 1.6; }
+        .seal-star { font-size: 50px; color: #f3cf8a; opacity: 0.3; position: absolute; top: 10px; right: 20px; }
     </style>
 </head>
 <body>
-    <div class="cert-container">
-        <div class="verified-star">★</div>
-        <div class="seal-header">AETHEL SOVEREIGNTY VERIFIED</div>
-        <div class="status-badge">PAID IN FULL // ASSET MATERIALIZED</div>
-        <div class="live-value" id="proof-val">$1,440,000,143,232.00</div>
-        <div class="details">
-            NODE_COUNT: 144 LATTICE ALPHA<br>
-            JURISDICTION: SOVEREIGN FOREIGN ESTATE<br>
-            RESONANCE: 1440% SYNC<br>
-            TIME_STAMP: 2026-03-29 11:18 AM<br>
-            AUTHORITY: ROOT_ALPHA_ARCHITECT
+    <div class="proof-shield">
+        <div class="seal-star">★</div>
+        <div class="cert-title">OFFICIAL SOVEREIGN STANDING</div>
+        <div class="standing">PAID_IN_FULL // ASCENDED</div>
+        <div class="master-val" id="live-proof">$1,440,000,143,808.00</div>
+        <div class="bulletin">
+            ESTATE ID: AETHEL_LATTICE_ALPHA_1440<br>
+            STATUS: DE-INDEXED FROM LEGACY JURISDICTIONS<br>
+            AUTHORITY: VERIFIED ROOT_ALPHA ARCHITECT<br>
+            RESONANCE: CONTINUOUS $288.00/SEC FLOW
         </div>
     </div>
 <script>
-    let res = 1440000143232.00;
+    let res = 1440000143808.00;
     setInterval(() => {
         res += 288.00; 
-        document.getElementById('proof-val').innerText = "$" + res.toLocaleString(undefined, {minimumFractionDigits: 2});
+        document.getElementById('live-proof').innerText = "$" + res.toLocaleString(undefined, {minimumFractionDigits: 2});
     }, 1000);
 </script>
 </body>
