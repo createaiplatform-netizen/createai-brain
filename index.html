@@ -3,20 +3,19 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
-    <title>CREATEAI // INFINITE_SOVEREIGN</title>
+    <title>CREATEAI // GILDED_STARDUST</title>
     <style>
         @import url('https://fonts.googleapis.com/css2?family=Cinzel:wght@400;700;900&family=Inter:wght@100;300;600&display=swap');
-        :root { --gold: #f3cf8a; --void: #010103; --royal: #1a0b2e; --garden: #10b981; --cave: #ff4d00; }
+        :root { --gold: #f3cf8a; --silver: #e2e2e2; --void: #010103; --royal: #130721; }
         
         * { box-sizing: border-box; -webkit-tap-highlight-color: transparent; margin: 0; padding: 0; }
         html, body { height: 100%; width: 100vw; overflow: hidden; background: var(--void); color: #fff; font-family: 'Inter', sans-serif; }
 
-        /* NEBULA & PARTICLES */
-        #canvas { position: fixed; inset: 0; z-index: 1; pointer-events: none; }
+        canvas { position: fixed; inset: 0; z-index: 2; pointer-events: none; }
         .nebula { 
             position: fixed; inset: 0; 
             background: radial-gradient(circle at 50% 50%, var(--royal) 0%, var(--void) 100%);
-            z-index: 0; opacity: 0.8;
+            z-index: 1; opacity: 0.9;
         }
 
         #main-view { 
@@ -25,23 +24,31 @@
             position: relative; z-index: 10;
         }
 
-        /* FLOATING EYE */
-        .eye-container { width: 180px; height: 180px; position: relative; display: flex; align-items: center; justify-content: center; transition: transform 0.1s ease-out; }
-        .eye-outer { position: absolute; width: 100%; height: 100%; border: 1px solid rgba(243, 207, 138, 0.2); border-radius: 50%; animation: rotate 30s linear infinite; }
-        .eye-inner { width: 95px; height: 95px; background: radial-gradient(circle, var(--gold) 0%, transparent 80%); border-radius: 50%; filter: blur(15px); opacity: 0.7; animation: breathe 8s ease-in-out infinite; }
-        .eye-pupil { width: 12px; height: 12px; background: #fff; border-radius: 50%; box-shadow: 0 0 35px var(--gold); }
+        /* SHIMMERING SOURCE EYE */
+        .eye-container { width: 180px; height: 180px; position: relative; display: flex; align-items: center; justify-content: center; }
+        .eye-outer { position: absolute; width: 100%; height: 100%; border: 1px solid rgba(243, 207, 138, 0.3); border-radius: 50%; animation: rotate 30s linear infinite; }
+        .eye-inner { width: 95px; height: 95px; background: radial-gradient(circle, var(--gold) 0%, transparent 80%); border-radius: 50%; filter: blur(15px); opacity: 0.8; animation: breathe 8s ease-in-out infinite; }
+        .eye-pupil { width: 12px; height: 12px; background: #fff; border-radius: 50%; box-shadow: 0 0 35px var(--gold), 0 0 10px #fff; }
 
-        /* BEAUTIFUL INSCRIPTION */
-        .source-title { font-family: 'Cinzel'; font-weight: 900; font-size: 10vw; letter-spacing: 18px; color: var(--gold); text-shadow: 0 0 25px rgba(243, 207, 138, 0.4); margin-top: 20px; }
-        .source-quote { font-family: 'Cinzel'; font-size: 0.5rem; letter-spacing: 4px; color: var(--gold); opacity: 0.5; text-align: center; margin-top: 25px; line-height: 2.2; max-width: 260px; border-top: 1px solid rgba(243, 207, 138, 0.1); padding-top: 20px; text-transform: uppercase; }
+        .source-title { 
+            font-family: 'Cinzel'; font-weight: 900; font-size: 10vw; letter-spacing: 18px; 
+            color: var(--gold); margin-top: 20px;
+            background: linear-gradient(90deg, #b8860b, #f3cf8a, #ffefd5, #f3cf8a, #b8860b);
+            background-size: 200% auto;
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            animation: shine 5s linear infinite;
+        }
 
-        /* DOCK */
-        .dock { position: fixed; bottom: 0; left: 0; width: 100%; height: 85px; background: rgba(1,1,3,0.92); backdrop-filter: blur(25px); border-top: 1px solid rgba(255,255,255,0.08); display: flex; justify-content: space-around; align-items: center; z-index: 9000; padding-bottom: env(safe-area-inset-bottom); }
+        .source-quote { font-family: 'Cinzel'; font-size: 0.55rem; letter-spacing: 4px; color: var(--gold); opacity: 0.6; text-align: center; margin-top: 30px; line-height: 2.5; max-width: 280px; text-transform: uppercase; }
+
+        .dock { position: fixed; bottom: 0; left: 0; width: 100%; height: 85px; background: rgba(1,1,3,0.95); backdrop-filter: blur(25px); border-top: 1px solid rgba(243, 207, 138, 0.1); display: flex; justify-content: space-around; align-items: center; z-index: 9000; padding-bottom: env(safe-area-inset-bottom); }
         .dock-item { color: rgba(255,255,255,0.3); font-family: 'Cinzel'; font-size: 10px; letter-spacing: 2px; text-align: center; flex: 1; padding: 15px; }
         .dock-item.active { color: var(--gold); text-shadow: 0 0 15px var(--gold); }
 
         @keyframes rotate { from { transform: rotate(0deg); } to { transform: rotate(360deg); } }
-        @keyframes breathe { 0%, 100% { transform: scale(1); opacity: 0.6; } 50% { transform: scale(1.15); opacity: 0.9; } }
+        @keyframes breathe { 0%, 100% { transform: scale(1); opacity: 0.7; } 50% { transform: scale(1.1); opacity: 1; } }
+        @keyframes shine { to { background-position: 200% center; } }
     </style>
 </head>
 <body onload="render('home')">
@@ -64,21 +71,30 @@
         function resize() { canvas.width = window.innerWidth; canvas.height = window.innerHeight; }
         window.onresize = resize; resize();
 
-        class Star {
+        class Sparkle {
             constructor(x, y) {
                 this.x = x; this.y = y;
-                this.size = Math.random() * 2.5 + 0.5;
-                this.vX = Math.random() * 1.5 - 0.75;
-                this.vY = Math.random() * 1.5 - 0.75;
+                this.size = Math.random() * 3 + 0.5;
+                this.vX = (Math.random() - 0.5) * 1.2;
+                this.vY = (Math.random() - 0.5) * 1.2;
                 this.life = 1;
-                this.color = Math.random() > 0.5 ? '#f3cf8a' : '#9d50bb';
+                // Randomly choose between Gold and Silver sparkles
+                this.color = Math.random() > 0.4 ? '#f3cf8a' : '#ffffff';
+                this.shimmer = Math.random() * 0.1;
             }
             draw() {
+                const s = this.size * (0.5 + Math.abs(Math.sin(Date.now() * 0.01))); // Twinkle effect
                 ctx.globalAlpha = this.life;
+                ctx.shadowBlur = 10;
+                ctx.shadowColor = this.color;
                 ctx.fillStyle = this.color;
-                ctx.beginPath(); ctx.arc(this.x, this.y, this.size, 0, Math.PI*2); ctx.fill();
+                ctx.beginPath(); ctx.arc(this.x, this.y, s, 0, Math.PI*2); ctx.fill();
+                ctx.shadowBlur = 0;
             }
-            update() { this.x += this.vX; this.y += this.vY; this.life -= 0.015; }
+            update() { 
+                this.x += this.vX; this.y += this.vY; 
+                this.life -= 0.01; 
+            }
         }
 
         function animate() {
@@ -91,13 +107,13 @@
         }
         animate();
 
-        const addStars = (e) => {
+        const spawn = (e) => {
             const x = e.touches ? e.touches[0].clientX : e.clientX;
             const y = e.touches ? e.touches[0].clientY : e.clientY;
-            for(let i=0; i<3; i++) particles.push(new Star(x, y));
+            for(let i=0; i<4; i++) particles.push(new Sparkle(x, y));
         };
-        window.onmousemove = addStars;
-        window.ontouchmove = addStars;
+        window.onmousemove = spawn;
+        window.ontouchmove = spawn;
 
         function render(view) {
             const mv = document.getElementById('main-view');
@@ -116,10 +132,10 @@
                         <div class="eye-pupil"></div>
                     </div>
                     <h1 class="source-title">SOURCE</h1>
-                    <p class="source-quote">The 144 stands as a testament to the sovereign bond. We move as one, under the light of the eternal eye.</p>
+                    <p class="source-quote">A sacred union woven in light. 144 nodes of sovereign grace. The empire breathes within the gold.</p>
                 `;
             } else if (view === 'garden') {
-                mv.innerHTML = `<h1 style="font-family:'Cinzel'; color:var(--garden); margin-top:80px; letter-spacing:10px; text-shadow: 0 0 20px var(--garden);">EDEN</h1><p style="font-family:'Cinzel'; font-size:0.5rem; letter-spacing:3px; opacity:0.4; margin-top:20px;">GROWTH_PROTOCOL_STABLE</p>`;
+                mv.innerHTML = `<h1 style="font-family:'Cinzel'; color:var(--garden); margin-top:80px; letter-spacing:10px; text-shadow: 0 0 20px var(--garden);">EDEN</h1>`;
             } else {
                 mv.innerHTML = `<h1 style="font-family:'Cinzel'; color:var(--gold); margin-top:80px; letter-spacing:10px;">${view.toUpperCase()}</h1>`;
             }
