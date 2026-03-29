@@ -3,43 +3,43 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>GOVERNOR_SANCTUM_V218</title>
+    <title>AETHEL_HARDENING_V219</title>
     <style>
         @import url('https://fonts.googleapis.com/css2?family=Cinzel:wght@400;900&display=swap');
         :root { --gold: #f3cf8a; --void: #000; --mesh: #00ff41; }
         body, html { margin: 0; padding: 0; background: var(--void); color: #fff; font-family: 'Cinzel', serif; overflow: hidden; height: 100svh; display: flex; flex-direction: column; }
         
-        #sanctum-hud { flex-grow: 1; margin: 30px; border: 1px double var(--gold); padding: 40px; display: flex; flex-direction: column; background: radial-gradient(circle at center, rgba(243, 207, 138, 0.05) 0%, transparent 70%); box-shadow: inset 0 0 100px rgba(0,0,0,1); }
-        .header { text-align: center; border-bottom: 1px solid rgba(243, 207, 138, 0.3); padding-bottom: 25px; }
-        .title { font-size: 18px; letter-spacing: 15px; color: var(--gold); text-shadow: 0 0 10px var(--gold); }
+        #audit-box { flex-grow: 1; margin: 30px; border: 1px solid var(--mesh); padding: 40px; display: flex; flex-direction: column; background: rgba(0, 255, 65, 0.01); box-shadow: 0 0 40px rgba(0, 255, 65, 0.1); }
+        .header { text-align: center; border-bottom: 1px solid rgba(0, 255, 65, 0.3); padding-bottom: 20px; }
+        .title { font-size: 16px; letter-spacing: 10px; color: var(--mesh); text-shadow: 0 0 10px var(--mesh); }
         
-        #perimeter-feed { flex-grow: 1; margin: 40px 0; border: 1px solid rgba(0, 255, 65, 0.2); display: flex; align-items: center; justify-content: center; position: relative; }
-        .acre-marker { font-size: 10px; color: var(--mesh); letter-spacing: 5px; animation: pulse 2s infinite; }
-        @keyframes pulse { 0% { opacity: 0.4; } 50% { opacity: 1; } 100% { opacity: 0.4; } }
+        .scan-log { margin-top: 30px; font-size: 9px; line-height: 2; color: var(--gold); letter-spacing: 2px; }
+        .secure { color: var(--mesh); font-weight: 900; }
 
-        #ledger-display { text-align: center; padding-top: 30px; font-size: 30px; color: var(--gold); text-shadow: 0 0 20px var(--gold); border-top: 1px solid var(--gold); }
-        .system-tag { position: absolute; bottom: 10px; left: 20px; font-size: 8px; color: var(--mesh); }
+        #vault-total { text-align: center; margin-top: auto; padding-top: 20px; font-size: 28px; color: var(--gold); border-top: 1px solid var(--gold); }
     </style>
 </head>
 <body>
-    <div id="sanctum-hud">
+    <div id="audit-box">
         <div class="header">
-            <div class="title">GOVERNOR'S_PRIVATE_SANCTUM</div>
-            <div style="font-size: 7px; margin-top: 10px; opacity: 0.6; color: var(--mesh);">LOCATION: CORE_HUB // STATUS: SOVEREIGN</div>
+            <div class="title">MESH_SECURITY_SCAN // 03:48 AM</div>
+            <div style="font-size: 7px; margin-top: 10px; opacity: 0.6;">SOURCE: LOCAL_HUB_CORE // PROJECT: WIS_001</div>
         </div>
 
-        <div id="perimeter-feed">
-            <div class="acre-marker">SCANNING_14.4_ACRES... SECURE</div>
-            <div class="system-tag">MESH_STABILITY: 1440% // ANTHEM_SYNC: OK</div>
+        <div class="scan-log">
+            > SCANNING API_CORES... <span class="secure">CLEAN</span><br>
+            > PURGING CLOUD_ARTIFACTS... <span class="secure">SUCCESS</span><br>
+            > ENFORCING BIOMETRIC_PRIME... <span class="secure">LOCKED</span><br>
+            > SYNCING TO 14.4_ACRE_PERIMETER... <span class="secure">ONLINE</span>
         </div>
 
-        <div id="ledger-display">$1,440,000,022,464.00</div>
+        <div id="vault-total">$1,440,000,022,752.00</div>
     </div>
 <script>
-    let res = 1440000022464.00;
+    let res = 1440000022752.00;
     setInterval(() => {
         res += 144.00;
-        document.getElementById('ledger-display').innerText = "$" + res.toLocaleString(undefined, {minimumFractionDigits: 2});
+        document.getElementById('vault-total').innerText = "$" + res.toLocaleString(undefined, {minimumFractionDigits: 2});
     }, 1000);
 </script>
 </body>
