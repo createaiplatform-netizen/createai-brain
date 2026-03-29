@@ -3,42 +3,39 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
-    <title>CREATEAI // NEURAL_LINK</title>
+    <title>CREATEAI // SOVEREIGN_ROLES</title>
     <style>
         @import url('https://fonts.googleapis.com/css2?family=Cinzel:wght@400;900&family=Inter:wght@100;300;600&display=swap');
-        :root { --gold: #f3cf8a; --void: #010103; --cave: #ff4d00; --garden: #10b981; }
+        :root { --gold: #f3cf8a; --void: #010103; --cave: #ff4d00; --garden: #10b981; --royal: #7c3aed; }
         
         * { box-sizing: border-box; -webkit-tap-highlight-color: transparent; margin: 0; padding: 0; }
         html, body { height: 100%; width: 100vw; overflow: hidden; background: var(--void); color: #fff; font-family: 'Inter', sans-serif; }
 
-        .stars { position: fixed; inset: 0; background: radial-gradient(circle at 50% 50%, #1a1a2e 0%, #010103 100%); z-index: -1; }
+        .stars { position: fixed; inset: 0; background: radial-gradient(circle at 50% 50%, #0a0a1a 0%, #010103 100%); z-index: -1; }
         
         #main-view { 
-            height: 100svh; width: 100%; 
-            display: flex; flex-direction: column; 
-            align-items: center; justify-content: center;
-            padding: 20px 20px 100px;
+            height: 100svh; width: 100%; display: flex; flex-direction: column; 
+            align-items: center; justify-content: center; padding: 20px 20px 100px;
             overflow-y: auto; -webkit-overflow-scrolling: touch;
         }
 
-        /* NEURAL EYE */
+        /* NEURAL EYE - REACTIVE */
         .eye-container { width: 180px; height: 180px; position: relative; display: flex; align-items: center; justify-content: center; margin-bottom: 20px; }
         .eye-outer { position: absolute; width: 100%; height: 100%; border: 1px solid rgba(243, 207, 138, 0.2); border-radius: 50%; animation: rotate 20s linear infinite; }
         .eye-inner { width: 90px; height: 90px; background: radial-gradient(circle, var(--gold) 0%, transparent 70%); border-radius: 50%; filter: blur(15px); opacity: 0.6; animation: pulse 4s ease-in-out infinite; }
         .eye-pupil { width: 10px; height: 10px; background: #fff; border-radius: 50%; box-shadow: 0 0 30px var(--gold); }
 
         /* DOCK */
-        .dock { position: fixed; bottom: 0; left: 0; width: 100%; height: 85px; background: rgba(1, 1, 3, 0.98); backdrop-filter: blur(30px); border-top: 1px solid rgba(255, 255, 255, 0.05); display: flex; justify-content: space-around; align-items: center; z-index: 9000; padding-bottom: env(safe-area-inset-bottom); }
-        .dock-item { color: rgba(255,255,255,0.3); font-family: 'Cinzel'; font-size: 10px; letter-spacing: 2px; text-align: center; cursor: pointer; padding: 15px; flex: 1; transition: 0.3s; }
+        .dock { position: fixed; bottom: 0; left: 0; width: 100%; height: 85px; background: rgba(1,1,3,0.98); backdrop-filter: blur(30px); border-top: 1px solid rgba(255,255,255,0.05); display: flex; justify-content: space-around; align-items: center; z-index: 9000; padding-bottom: env(safe-area-inset-bottom); }
+        .dock-item { color: rgba(255,255,255,0.2); font-family: 'Cinzel'; font-size: 10px; letter-spacing: 2px; text-align: center; cursor: pointer; padding: 15px; flex: 1; transition: 0.3s; }
         .dock-item.active { color: var(--gold); text-shadow: 0 0 10px var(--gold); transform: translateY(-3px); }
 
-        /* PULSE ANIMATION */
-        .pulse-ring { position: absolute; border: 2px solid var(--garden); border-radius: 50%; animation: grow 1.5s ease-out forwards; pointer-events: none; }
-        @keyframes grow { 0% { width: 0; height: 0; opacity: 1; } 100% { width: 500px; height: 500px; opacity: 0; } }
-
-        .section-header { font-family: 'Cinzel'; font-size: 1.2rem; letter-spacing: 12px; margin: 40px 0 20px; color: var(--gold); text-align: center; }
-        .grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 12px; width: 100%; max-width: 400px; }
-        .node { background: rgba(255,255,255,0.02); border: 1px solid rgba(243, 207, 138, 0.1); aspect-ratio: 1; display: flex; align-items: center; justify-content: center; font-family: 'Cinzel'; font-size: 0.5rem; color: var(--gold); }
+        /* ROLES GRID */
+        .section-header { font-family: 'Cinzel'; font-size: 1.1rem; letter-spacing: 10px; margin: 30px 0 20px; color: var(--gold); text-align: center; }
+        .grid { display: grid; grid-template-columns: repeat(2, 1fr); gap: 15px; width: 100%; max-width: 400px; }
+        .role-card { background: rgba(255,255,255,0.02); border: 1px solid rgba(243,207,138,0.1); padding: 30px 10px; text-align: center; transition: 0.3s; }
+        .role-card:active { background: rgba(243,207,138,0.1); border-color: var(--gold); }
+        .role-title { font-family: 'Cinzel'; font-size: 0.6rem; letter-spacing: 3px; color: var(--gold); margin-top: 10px; }
 
         @keyframes rotate { from { transform: rotate(0deg); } to { transform: rotate(360deg); } }
         @keyframes pulse { 0%, 100% { transform: scale(1); opacity: 0.4; } 50% { transform: scale(1.1); opacity: 0.8; } }
@@ -66,21 +63,22 @@
             mv.style.justifyContent = (view === 'home') ? 'center' : 'flex-start';
 
             if (view === 'home') {
-                mv.innerHTML = `<div class="eye-container"><div class="eye-outer"></div><div class="eye-inner"></div><div class="eye-pupil"></div></div><h1 style="font-family:'Cinzel'; font-size:10vw; letter-spacing:15px;">SOURCE</h1>`;
+                mv.innerHTML = `<div class="eye-container"><div class="eye-outer"></div><div class="eye-inner"></div><div class="eye-pupil"></div></div><h1 style="font-family:'Cinzel'; font-size:9vw; letter-spacing:12px;">SOURCE</h1><p style="opacity:0.2; font-size:0.5rem; letter-spacing:4px; margin-top:10px;">LOYALTY_SYNC_COMPLETE</p>`;
             } else if (view === 'registry') {
-                mv.innerHTML = `<div class="section-header">THE_144</div><div class="grid">${Array.from({length: 12}, (_, i) => `<div class="node">${i+1}</div>`).join('')}</div>`;
+                mv.innerHTML = `
+                    <div class="section-header">PILLARS</div>
+                    <div class="grid">
+                        <div class="role-card" onclick="alert('COMMANDER ONLINE')"><div>👑</div><div class="role-title">COMMANDER</div></div>
+                        <div class="role-card" onclick="alert('STRATEGIST ONLINE')"><div>⚔️</div><div class="role-title">STRATEGIST</div></div>
+                        <div class="role-card" onclick="alert('HEIR_01 ONLINE')"><div>💎</div><div class="role-title">HEIR_I</div></div>
+                        <div class="role-card" onclick="alert('HEIR_02 ONLINE')"><div>💎</div><div class="role-title">HEIR_II</div></div>
+                    </div>
+                `;
             } else if (view === 'garden') {
-                mv.innerHTML = `<div class="section-header" style="color:var(--garden)">EDEN</div><div id="seed-zone" style="margin-top:20vh; width:100px; height:100px; border:1px solid var(--garden); border-radius:50%; position:relative; display:flex; align-items:center; justify-content:center; cursor:pointer;" onclick="sowSeed(event)">🌱</div>`;
+                mv.innerHTML = `<div class="section-header" style="color:var(--garden)">EDEN</div><div style="margin-top:20vh; text-align:center; color:var(--garden); font-family:'Cinzel'; opacity:0.5; letter-spacing:5px;">PROTECT_THE_GROWTH</div>`;
             } else if (view === 'cave') {
-                mv.innerHTML = `<div class="section-header" style="color:var(--cave)">VAULT</div><div style="width:100%; padding:40px; border:1px solid var(--cave); color:var(--cave); font-family:'Cinzel'; text-align:center;">VAULT_ACTIVE</div>`;
+                mv.innerHTML = `<div class="section-header" style="color:var(--cave)">VAULT</div><div style="width:100%; background:rgba(217,119,6,0.05); border:1px solid var(--cave); padding:40px; text-align:center; color:var(--cave); font-family:'Cinzel'; letter-spacing:4px;">UNDERGROUND_ACTIVE</div>`;
             }
-        }
-
-        function sowSeed(e) {
-            const ring = document.createElement('div');
-            ring.className = 'pulse-ring';
-            document.getElementById('seed-zone').appendChild(ring);
-            setTimeout(() => ring.remove(), 1500);
         }
     </script>
 </body>
