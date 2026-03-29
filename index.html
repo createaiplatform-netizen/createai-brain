@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
-    <title>SOVEREIGN_EDEN_V91</title>
+    <title>SOVEREIGN_BLOOM_V92</title>
     <style>
         @import url('https://fonts.googleapis.com/css2?family=Cinzel:wght@400;900&family=Great+Vibes&family=Inter:wght@100;400;900&display=swap');
         :root { --gold: #f3cf8a; --void: #010103; --eden: #2ecc71; }
@@ -13,11 +13,11 @@
         @keyframes noise { 0% { transform: translate(0,0); } 10% { transform: translate(-1%,-1%); } 100% { transform: translate(0,0); } }
         canvas { position: absolute; inset: 0; z-index: 1; pointer-events: none; }
         #ui-layer { position: absolute; inset: 0; z-index: 10; display: flex; flex-direction: column; align-items: center; justify-content: center; pointer-events: none; }
-        .title { font-family: 'Cinzel'; font-size: 11vw; letter-spacing: 15px; color: var(--gold); text-shadow: 0 0 40px rgba(0,0,0,1); animation: heartbeat 4s ease-in-out infinite; transition: color 1s; }
+        .title { font-family: 'Cinzel'; font-size: 11vw; letter-spacing: 15px; color: var(--gold); text-shadow: 0 0 40px rgba(0,0,0,1); animation: heartbeat 4s ease-in-out infinite; transition: all 0.5s; }
         #clock { font-family: 'Cinzel'; font-size: 1.2rem; color: var(--gold); margin-top: 15px; letter-spacing: 5px; opacity: 0.6; }
-        #whisper { position: fixed; bottom: 80px; width: 100%; text-align: center; font-family: 'Cinzel'; font-size: 8px; color: var(--gold); letter-spacing: 4px; text-transform: uppercase; opacity: 0.4; z-index: 20; }
+        #whisper { position: fixed; bottom: 80px; width: 100%; text-align: center; font-family: 'Cinzel'; font-size: 8px; color: var(--gold); letter-spacing: 4px; text-transform: uppercase; opacity: 0.4; z-index: 20; transition: opacity 0.3s; }
         @keyframes heartbeat { 0%, 100% { transform: scale(1); opacity: 0.7; } 50% { transform: scale(1.02); opacity: 1; } }
-        .quote { font-family: 'Great Vibes'; font-size: 2.2rem; color: var(--gold); margin-top: 10px; opacity: 0.8; }
+        .quote { font-family: 'Great Vibes'; font-size: 2.2rem; color: var(--gold); margin-top: 10px; opacity: 0.8; transition: all 0.5s; }
         .guide { position: fixed; font-family: 'Cinzel'; font-size: 8px; color: var(--gold); opacity: 0.08; z-index: 20; letter-spacing: 3px; }
         .tl { top: 40px; left: 30px; } .tr { top: 40px; right: 30px; } .bl { bottom: 40px; left: 30px; } .br { bottom: 40px; right: 30px; }
     </style>
@@ -25,7 +25,7 @@
 <body onmousedown="handle(event)" ontouchstart="handle(event)" onmousemove="track(event)" ontouchmove="track(event)" onmouseup="stop()" ontouchend="stop()">
     <div class="grain"></div>
     <div class="guide tl">NEXUS</div> <div class="guide tr">EDEN</div> <div class="guide bl">SOURCE</div> <div class="guide br">VAULT</div>
-    <div id="whisper">EDEN_IS_OPEN</div>
+    <div id="whisper">EDEN_READY</div>
     <canvas id="canvas"></canvas>
     <div id="ui-layer">
         <h1 class="title" id="t">SOURCE</h1>
@@ -36,7 +36,8 @@
 <script>
     const canvas = document.getElementById('canvas');
     const ctx = canvas.getContext('2d');
-    let view = 'home', items = [], vaultPile = [], isDown = false, mx = 0, my = 0, auraSize = 60;
+    let view = 'home', items = [], vaultPile = [], ripples = [], isDown = false, mx = 0, my = 0, auraSize = 60;
+    let chargeStartTime = 0, isBlooming = false;
     const values = ["HARVEST THE LIGHT", "ORGANIC SCALING", "EDEN IS OPEN", "INFINITE GROWTH", "144% HARMONY"];
     let valIdx = 0;
 
@@ -47,9 +48,11 @@
     }
 
     function rotateWhisper() {
-        const w = document.getElementById('whisper');
-        w.innerText = values[valIdx];
-        valIdx = (valIdx + 1) % values.length;
+        if(!isDown) {
+            const w = document.getElementById('whisper');
+            w.innerText = values[valIdx];
+            valIdx = (valIdx + 1) % values.length;
+        }
     }
     setInterval(rotateWhisper, 8000);
 
@@ -63,7 +66,7 @@
     setInterval(updateClock, 1000); updateClock();
 
     function handle(e) {
-        isDown = true;
+        isDown = true; chargeStartTime = Date.now();
         const x = e.clientX || (e.touches ? e.touches[0].clientX : 0);
         const y = e.clientY || (e.touches ? e.touches[0].clientY : 0);
         mx = x; my = y;
@@ -77,7 +80,7 @@
         }
     }
     function track(e) { mx = e.clientX || (e.touches ? e.touches[0].clientX : mx); my = e.clientY || (e.touches ? e.touches[0].clientY : my); }
-    function stop() { isDown = false; }
+    function stop() { isDown = false; chargeStartTime = 0; document.getElementById('whisper').innerText = values[valIdx]; }
 
     function render(title, quote, color) { 
         document.getElementById('t').innerText = title; document.getElementById('q').innerText = quote;
@@ -90,32 +93,52 @@
         let cx = canvas.width/2, cy = canvas.height/2;
         let activeColor = (view === 'grid') ? '0, 242, 255' : (view === 'eden') ? '46, 204, 113' : (view === 'home') ? getCircadianColor().rgb : '243, 207, 138';
 
-        auraSize += ((isDown ? 130 : 60) - auraSize) * 0.05;
+        // Bloom Logic
+        let chargeProgress = 0;
+        if (isDown && view === 'eden') {
+            chargeProgress = (Date.now() - chargeStartTime) / 3000;
+            if (chargeProgress < 1) {
+                document.getElementById('whisper').innerText = "GATHERING INTENT " + Math.round(chargeProgress * 100) + "%";
+                auraSize = 60 - (chargeProgress * 40); // Condense
+            } else {
+                ripples.push({ r: 0, opacity: 1, c: '46, 204, 113', bloom: true });
+                items = []; // Clear energy
+                chargeStartTime = Date.now(); // Reset
+                document.getElementById('whisper').innerText = "EDEN HARVESTED";
+            }
+        } else {
+            auraSize += ((isDown ? 130 : 60) - auraSize) * 0.05;
+        }
+
         let pulse = auraSize + Math.sin(Date.now() * 0.004) * 5;
         const grad = ctx.createRadialGradient(cx, cy, 0, cx, cy, pulse * 3);
         grad.addColorStop(0, 'rgba(255,255,255,0.9)'); grad.addColorStop(0.2, `rgba(${activeColor}, 0.3)`); grad.addColorStop(1, 'transparent');
         ctx.fillStyle = grad; ctx.beginPath(); ctx.arc(cx, cy, pulse * 3, 0, Math.PI * 2); ctx.fill();
 
+        // Ripples / Supernova
+        ripples.forEach((r, i) => {
+            ctx.strokeStyle = `rgba(${r.c}, ${r.opacity})`; ctx.lineWidth = r.bloom ? 10 : 2;
+            ctx.beginPath(); ctx.arc(cx, cy, r.r, 0, Math.PI*2); ctx.stroke();
+            r.r += r.bloom ? 15 : 5; r.opacity -= 0.02; if(r.opacity <= 0) ripples.splice(i, 1);
+        });
+
         if (isDown && view === 'eden') {
-            for(let i=0; i<2; i++) items.push({x: mx, y: my, vx: (Math.random()-0.5)*2, vy: (Math.random()-0.5)*2, life: 1, c: '46, 204, 113', branch: true});
+            for(let i=0; i<2; i++) items.push({x: mx, y: my, vx: (Math.random()-0.5)*3, vy: (Math.random()-0.5)*3, life: 1, c: '46, 204, 113', branch: true});
         }
 
         items.forEach((p, i) => {
             p.life -= 0.01;
             if (p.branch) {
-                p.x += p.vx; p.y += p.vy;
-                p.vx += (cx - p.x) * 0.005; // Gravity toward the light
-                p.vy += (cy - p.y) * 0.005;
-                ctx.fillStyle = `rgba(${p.c}, ${p.life})`;
-                ctx.beginPath(); ctx.arc(p.x, p.y, 2 * p.life, 0, Math.PI*2); ctx.fill();
+                p.x += p.vx; p.y += p.vy; p.vx += (cx - p.x) * (0.005 + chargeProgress * 0.02); p.vy += (cy - p.y) * (0.005 + chargeProgress * 0.02);
+                ctx.fillStyle = `rgba(${p.c}, ${p.life})`; ctx.beginPath(); ctx.arc(p.x, p.y, 2 * p.life, 0, Math.PI*2); ctx.fill();
             } else if (p.tx) {
-                p.life -= 0.01; ctx.strokeStyle = `rgba(${p.c}, ${p.life})`; ctx.beginPath(); ctx.moveTo(p.x, p.y); ctx.lineTo(p.tx, p.ty); ctx.stroke();
+                ctx.strokeStyle = `rgba(${p.c}, ${p.life})`; ctx.beginPath(); ctx.moveTo(p.x, p.y); ctx.lineTo(p.tx, p.ty); ctx.stroke();
             }
             if(p.life <= 0) items.splice(i, 1);
         });
         
         if (view === 'vault') {
-            if (vaultPile.length < 300 && (Math.random() > 0.9 || isDown)) 
+            if (vaultPile.length < 300 && (Math.random() > 0.92 || isDown)) 
                 vaultPile.push({x: isDown?mx:Math.random()*canvas.width, y: isDown?my:-10, vy: 3, r: 4, age: 0});
             vaultPile.forEach((p, i) => {
                 if (p.y < canvas.height - p.r) p.y += p.vy; else p.age++;
@@ -123,9 +146,7 @@
                 if (p.age > 1000) vaultPile.splice(i, 1);
             });
         }
-        
         if (isDown && view === 'grid') items.push({x: mx, y: my, tx: cx, ty: cy, life: 1, c: '0, 242, 255'});
-        
         requestAnimationFrame(animate);
     }
     animate();
