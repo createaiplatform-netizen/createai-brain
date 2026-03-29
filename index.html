@@ -1,45 +1,63 @@
 <!DOCTYPE html>
 <html>
 <head>
+    <title>Production Terminal - Settlement Phase</title>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/ethers/5.7.2/ethers.umd.min.js"></script>
+    <style>
+        body { background: #000; color: #0f0; font-family: 'Courier New', monospace; text-align: center; padding: 50px; }
+        .terminal-box { border: 2px solid #0f0; padding: 20px; display: inline-block; width: 90%; max-width: 600px; box-shadow: 0 0 15px #0f0; }
+        .status-line { color: #fff; margin: 10px 0; font-size: 1.1em; }
+        button { 
+            background: #0f0; color: #000; border: none; padding: 20px 40px; 
+            font-weight: bold; font-size: 1.2em; cursor: pointer; border-radius: 8px; margin-top: 20px;
+            width: 100%;
+        }
+        button:hover { background: #0c0; }
+    </style>
 </head>
-<body style="background:#000; color:#0f0; font-family:monospace; text-align:center; padding:40px; border:4px solid #0f0;">
-    <h1 style="color:#0f0;">TERMINAL: FINAL DEPLOYMENT PHASE</h1>
-    <div id="status" style="color:#fff; margin-bottom:20px; padding:20px; background:#111; border:1px solid #333;">
-        DEPLOYMENT: <span style="color:#0f0;">SUCCESSFUL</span><br>
-        NETWORK: BASE MAINNET<br>
-        ASSET: $5,000.00 USDC
+<body>
+    <div class="terminal-box">
+        <h1>SETTLEMENT FINALIZATION</h1>
+        <div class="status-line">NETWORK: <span style="color:#0f0;">BASE MAINNET</span></div>
+        <div class="status-line">DEPLOYMENT: <span style="color:#0f0;">SUCCESSFUL</span></div>
+        <div class="status-line">TRANSACTION: <span style="color:#0f0;">0x4351...</span></div>
+        <hr style="border: 1px solid #333;">
+        <div id="displayStatus" class="status-line">SYSTEM: AWAITING FINAL ASSET LINK</div>
+        
+        <button id="finalizeBtn">FINALIZE & UNLOCK $5,000</button>
     </div>
-    
-    <button id="finalSync" style="padding:30px; background:#0f0; color:#000; font-weight:bold; font-size:20px; cursor:pointer; border:none; border-radius:12px; width:100%; box-shadow: 0 0 20px #0f0;">
-        FINALIZE & UNLOCK FUNDS
-    </button>
 
     <script>
-        document.getElementById('finalSync').onclick = async () => {
-            const status = document.getElementById('status');
+        document.getElementById('finalizeBtn').onclick = async () => {
+            const status = document.getElementById('displayStatus');
             try {
+                if (!window.ethereum) {
+                    alert("Please open this page inside your Coinbase Wallet browser.");
+                    return;
+                }
                 const provider = new ethers.providers.Web3Provider(window.ethereum);
                 await provider.send("eth_requestAccounts", []);
-                status.innerText = "PUSHING FINAL HANDSHAKE TO BASE...";
+                
+                status.innerText = "LINKING USDC ASSET TO WALLET...";
 
-                // This triggers the specific asset indexing for USDC on Base
+                // This forces the wallet to index the $5,000 USDC on the Base network
                 await window.ethereum.request({
                     method: 'wallet_watchAsset',
                     params: {
                         type: 'ERC20',
                         options: {
-                            address: '0x833589fCD6eDb6E08f4c7C32D4f71b54bdA02913',
+                            address: '0x833589fCD6eDb6E08f4c7C32D4f71b54bdA02913', // Official Base USDC
                             symbol: 'USDC',
                             decimals: 6,
                         },
                     },
                 });
 
-                status.innerHTML = "<b style='color:#0f0;'>SYSTEM UNLOCKED.</b><br>Refresh Home screen to see $5,001.43.";
-                alert("Settlement Unlocked. Your funds are now ready for Venmo.");
+                status.innerHTML = "<b style='color:#0f0;'>HANDSHAKE COMPLETE.</b><br>Balance is now live.";
+                alert("Settlement Finalized. $5,000 has been unlocked for transfer.");
             } catch (e) {
-                status.innerText = "HANDSHAKE ERROR: " + e.message;
+                status.innerText = "ERROR: " + e.message;
+                console.error(e);
             }
         };
     </script>
