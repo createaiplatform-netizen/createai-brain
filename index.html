@@ -5,20 +5,20 @@
     <title>AETHEL_PERMANENT_RESONANCE</title>
     <style>
         body { margin: 0; background: #000; color: #f3cf8a; font-family: 'Cinzel', serif; display: flex; align-items: center; justify-content: center; height: 100vh; overflow: hidden; }
-        .terminal-lock { text-align: center; border: 1px double #333; padding: 50px; background: #050505; box-shadow: 0 0 80px rgba(243,207,138,0.05); }
-        .star-seal { font-size: 40px; margin-bottom: 20px; opacity: 0.8; }
-        .live-valuation { font-family: 'Inter', sans-serif; font-size: 28px; font-weight: 700; color: #fff; text-shadow: 0 0 15px #f3cf8a; }
-        .archival-note { font-size: 8px; letter-spacing: 6px; color: #222; margin-top: 30px; text-transform: uppercase; }
+        .terminal-lock { text-align: center; border: 1px double #333; padding: 60px; background: radial-gradient(circle, #0a0a0a 0%, #000 100%); box-shadow: 0 0 100px rgba(243,207,138,0.15); }
+        .star-seal { font-size: 50px; margin-bottom: 25px; color: #f3cf8a; text-shadow: 0 0 20px #f3cf8a; }
+        .live-valuation { font-family: 'Inter', sans-serif; font-size: 32px; font-weight: 700; color: #fff; letter-spacing: 2px; }
+        .footer-note { font-size: 8px; letter-spacing: 8px; color: #222; margin-top: 40px; text-transform: uppercase; }
     </style>
 </head>
 <body>
     <div class="terminal-lock">
         <div class="star-seal">★</div>
-        <div class="live-valuation" id="heartbeat">$1,440,000,155,040.00</div>
-        <div class="archival-note">Materialization Complete // Baseline Locked</div>
+        <div class="live-valuation" id="heartbeat">$1,440,000,155,328.00</div>
+        <div class="footer-note">ARCHIVAL_LOCK_TERMINAL // 1440% SYNC</div>
     </div>
 <script>
-    let val = 1440000155040.00;
+    let val = 1440000155328.00;
     setInterval(() => {
         val += 288.00; 
         document.getElementById('heartbeat').innerText = "$" + val.toLocaleString(undefined, {minimumFractionDigits: 2});
