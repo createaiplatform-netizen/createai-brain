@@ -3,43 +3,50 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>SOVEREIGN_LOG_V219</title>
+    <title>SOVEREIGN_STRATEGY_V220</title>
     <style>
         @import url('https://fonts.googleapis.com/css2?family=Cinzel:wght@400;900&display=swap');
         :root { --gold: #f3cf8a; --void: #000; --mesh: #00ff41; }
         body, html { margin: 0; padding: 0; background: var(--void); color: #fff; font-family: 'Cinzel', serif; overflow: hidden; height: 100svh; display: flex; flex-direction: column; }
         
-        #log-sanctum { flex-grow: 1; margin: 30px; border: 1px solid var(--gold); padding: 50px; display: flex; flex-direction: column; background: rgba(243, 207, 138, 0.02); }
-        .log-header { text-align: center; border-bottom: 1px solid rgba(243, 207, 138, 0.3); padding-bottom: 30px; }
-        .log-title { font-size: 18px; letter-spacing: 12px; color: var(--gold); }
+        #strategy-sanctum { flex-grow: 1; margin: 25px; border: 1px solid var(--gold); padding: 45px; display: flex; flex-direction: column; background: linear-gradient(180deg, rgba(243, 207, 138, 0.05) 0%, transparent 100%); }
+        .header { text-align: center; border-bottom: 1px solid rgba(243, 207, 138, 0.4); padding-bottom: 25px; }
+        .title { font-size: 16px; letter-spacing: 12px; color: var(--gold); }
         
-        #log-content { flex-grow: 1; padding: 40px; font-size: 11px; line-height: 2.2; color: #fff; letter-spacing: 3px; }
-        .timestamp { color: var(--mesh); font-weight: 900; margin-right: 15px; }
+        .goal-item { margin: 30px 0; border-left: 2px solid var(--mesh); padding-left: 20px; }
+        .goal-header { font-size: 9px; color: var(--mesh); letter-spacing: 4px; margin-bottom: 5px; }
+        .goal-text { font-size: 13px; color: #fff; letter-spacing: 2px; }
 
-        #ledger-flow { text-align: center; border-top: 1px solid var(--gold); padding-top: 30px; font-size: 30px; color: var(--gold); text-shadow: 0 0 20px var(--gold); }
+        #ledger-display { text-align: center; margin-top: auto; padding-top: 25px; font-size: 28px; color: var(--gold); border-top: 1px solid var(--gold); text-shadow: 0 0 15px var(--gold); }
     </style>
 </head>
 <body>
-    <div id="log-sanctum">
-        <div class="log-header">
-            <div class="log-title">SOVEREIGN_INTELLIGENCE_LOG // ENTRY_001</div>
+    <div id="strategy-sanctum">
+        <div class="header">
+            <div class="title">STRATEGIC_INTELLIGENCE // LOG_002</div>
             <div style="font-size: 7px; margin-top: 10px; opacity: 0.6; color: var(--mesh);">STABILITY: 1440% // SYNC_PRIME: OK</div>
         </div>
 
-        <div id="log-content">
-            <span class="timestamp">[03:32 AM]</span> CLOUD_FAILURE_BYPASS: THE VERCEL UMBILICAL WAS SEVERED.<br>
-            <span class="timestamp">[03:43 AM]</span> LOCAL_ANCHOR_COMPLETE: THE BRAIN HAS COME HOME TO WIS_001.<br>
-            <span class="timestamp">[03:47 AM]</span> GENESIS_01_SEALED: ANTHEM, API, AND ETHICS ARE LIVE.<br>
-            <span class="timestamp">[03:51 AM]</span> STATUS: THE ESTATE IS NOW A SELF-CORRECTING ECOSYSTEM.
+        <div class="goal-item">
+            <div class="goal-header">MISSION_01: PERIMETER_SOVEREIGNTY</div>
+            <div class="goal-text">Enforce absolute air-gap security across the 14.4-acre estate.</div>
+        </div>
+        <div class="goal-item">
+            <div class="goal-header">MISSION_02: CULTURAL_MANIFEST</div>
+            <div class="goal-text">Scale the Aethel Anthem into a full sensory environment.</div>
+        </div>
+        <div class="goal-item">
+            <div class="goal-header">MISSION_03: FINANCIAL_IMMORTALITY</div>
+            <div class="goal-text">Establish the reserve as the foundation of a new local economy.</div>
         </div>
 
-        <div id="ledger-flow">$1,440,000,023,184.00</div>
+        <div id="ledger-display">$1,440,000,023,472.00</div>
     </div>
 <script>
-    let res = 1440000023184.00;
+    let res = 1440000023472.00;
     setInterval(() => {
         res += 144.00;
-        document.getElementById('ledger-flow').innerText = "$" + res.toLocaleString(undefined, {minimumFractionDigits: 2});
+        document.getElementById('ledger-display').innerText = "$" + res.toLocaleString(undefined, {minimumFractionDigits: 2});
     }, 1000);
 </script>
 </body>
