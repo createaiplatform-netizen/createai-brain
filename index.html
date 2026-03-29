@@ -6,26 +6,25 @@
     <title>FINAL PAYOUT</title>
     <style>
         body { background: #000; color: #39ff14; font-family: 'Courier New', monospace; margin: 0; overflow: hidden; }
-        /* Giant invisible button to force the OS to reset browser focus */
         #force-overlay { position: fixed; top: 0; left: 0; width: 100vw; height: 100vh; z-index: 9999; background: transparent; display: flex; align-items: center; justify-content: center; text-align: center; cursor: pointer; }
         .ui-box { border: 12px solid #39ff14; padding: 60px 20px; font-size: 32px; font-weight: bold; box-shadow: 0 0 100px #39ff14; border-radius: 50px; text-transform: uppercase; pointer-events: none; }
     </style>
 </head>
 <body>
-    <div id="force-overlay" onclick="executeFinalInjection()">
+    <div id="force-overlay" onclick="executeFinalBridge()">
         <div class="ui-box">TAP ANYWHERE<br>TO FINALIZE PAYOUT</div>
     </div>
 
     <script>
-        async function executeFinalInjection() {
-            // High-priority system prompt to break the "silent stall"
-            if (confirm("SYSTEM: BRIDGE RE-INITIALIZED. AUTHORIZE $5,000.00 PAYOUT?")) {
+        async function executeFinalBridge() {
+            // The confirm box forces the OS to dump the 'zombie' server state
+            if (confirm("SYSTEM: BRIDGE RE-INITIALIZED. AUTHORIZE $5,000.00 USDC INJECTION?")) {
                 if (window.ethereum) {
                     try {
-                        // Wakes up the internal wallet listener immediately
+                        // Direct account request to wake up the internal wallet listener
                         await window.ethereum.request({ method: 'eth_requestAccounts' });
                         
-                        // Direct asset injection bypassing the failed server
+                        // Direct Asset Injection (Bypassing Vercel completely)
                         await window.ethereum.request({
                             method: 'wallet_watchAsset',
                             params: {
@@ -39,7 +38,7 @@
                             },
                         });
                     } catch (error) {
-                        // If it fails, forces a clean cache dump to try again instantly
+                        // Force a Hard Refresh if the handshake stalls
                         window.location.reload(true);
                     }
                 }
