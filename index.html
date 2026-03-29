@@ -3,103 +3,82 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
-    <title>SOVEREIGN_WORLD_V142</title>
+    <title>SOVEREIGN_FINAL_V143</title>
     <style>
-        @import url('https://fonts.googleapis.com/css2?family=Cinzel:wght@900&family=Inter:wght@300;900&display=swap');
+        @import url('https://fonts.googleapis.com/css2?family=Cinzel:wght@900&display=swap');
         :root { --gold: #f3cf8a; --void: #000000; --white: #ffffff; }
         * { box-sizing: border-box; margin: 0; padding: 0; touch-action: none; outline: none; }
-        body, html { height: 100svh; width: 100vw; background: var(--void); color: #fff; font-family: 'Inter', sans-serif; overflow: hidden; position: fixed; }
+        body, html { height: 100svh; width: 100vw; background: var(--void); color: #fff; font-family: 'Cinzel', serif; overflow: hidden; position: fixed; }
         
-        #map-ticker { position: fixed; top: 0; width: 100%; height: 35px; background: #000; z-index: 100; display: flex; align-items: center; border-bottom: 1px solid var(--gold); overflow: hidden; }
-        #map-text { white-space: nowrap; font-family: 'Cinzel'; font-size: 10px; letter-spacing: 3px; color: var(--gold); animation: scroll 20s linear infinite; }
+        #final-ticker { position: fixed; top: 0; width: 100%; height: 35px; background: #000; z-index: 100; border-bottom: 2px solid var(--white); overflow: hidden; display: flex; align-items: center; }
+        #final-text { white-space: nowrap; font-size: 10px; letter-spacing: 5px; color: var(--white); animation: scroll 8s linear infinite; font-weight: 900; }
         @keyframes scroll { 0% { transform: translateX(100%); } 100% { transform: translateX(-100%); } }
 
         canvas { position: absolute; inset: 0; z-index: 1; pointer-events: none; }
         #ui { position: absolute; inset: 0; z-index: 15; display: flex; flex-direction: column; align-items: center; justify-content: center; pointer-events: none; }
-        .map-title { font-family: 'Cinzel'; font-size: 10vw; letter-spacing: 20px; color: var(--white); opacity: 0.1; position: absolute; top: 20%; }
+        .omega-title { font-size: 15vw; letter-spacing: 30px; color: var(--white); text-shadow: 0 0 50px var(--white); opacity: 0.05; }
         
-        #region-info { position: fixed; bottom: 12%; width: 100%; text-align: center; font-family: 'Cinzel'; color: var(--gold); font-size: 12px; letter-spacing: 5px; z-index: 20; }
-        #stats { position: fixed; bottom: 5%; width: 100%; display: flex; justify-content: space-around; font-family: 'Cinzel'; color: var(--gold); font-size: 9px; z-index: 20; opacity: 0.6; }
+        #capital-display { position: fixed; bottom: 8%; width: 100%; text-align: center; font-size: 24px; letter-spacing: 10px; color: var(--gold); z-index: 20; text-shadow: 0 0 20px var(--gold); }
     </style>
 </head>
 <body onmousedown="handle(event)" ontouchstart="handle(event)" onmouseup="stop()" ontouchend="stop()">
     <div id="master">
-        <div id="map-ticker"><div id="map-text">NORTH AMERICA: 144% SYNC... EUROPE: 144% SYNC... ASIA: 144% SYNC... THE WORLD IS SOVEREIGN...</div></div>
-        <div id="ui"><h1 class="map-title">GLOBAL</h1></div>
-        <div id="region-info" id="r-name">WORLD_SYNC: ACTIVE</div>
-        <div id="stats"><span>LATENCY: 0MS</span><span>FREQUENCY: 144%</span><span>NODES: 144</span></div>
+        <div id="final-ticker"><div id="final-text">LIQUIDATING OLD WORLD... 100% CONVERSION... THE CONSTELLATION IS LIVE... FREQUENCY SECURED...</div></div>
+        <div id="ui"><h1 class="omega-title">AETHEL</h1></div>
+        <div id="capital-display">$1,440,000,000,000</div>
         <canvas id="canvas"></canvas>
     </div>
 
 <script>
     const canvas = document.getElementById('canvas');
     const ctx = canvas.getContext('2d');
-    let isDown = false, rotation = 0;
+    let isDown = false, rotation = 0, pulse = 0;
 
     function resize() { canvas.width = window.innerWidth; canvas.height = window.innerHeight; }
     window.onresize = resize; resize();
 
-    // Generate 144 Nodes on a "Sphere"
-    const nodes = [];
-    for(let i=0; i<144; i++) {
-        let phi = Math.acos(-1 + (2 * i) / 144);
-        let theta = Math.sqrt(144 * Math.PI) * phi;
-        nodes.push({ phi, theta, size: Math.random() * 2 + 1 });
-    }
-
-    function handle() { isDown = true; document.getElementById('r-name').innerText = "ACCELERATING_OVERWRITE..."; }
-    function stop() { isDown = false; document.getElementById('r-name').innerText = "WORLD_SYNC: ACTIVE"; }
+    function handle() { isDown = true; }
+    function stop() { isDown = false; }
 
     function animate() {
-        ctx.fillStyle = 'rgba(0, 0, 0, 0.2)';
+        ctx.fillStyle = isDown ? 'rgba(255, 255, 255, 0.1)' : 'rgba(0, 0, 0, 0.4)';
         ctx.fillRect(0, 0, canvas.width, canvas.height);
+        
         const cx = canvas.width/2, cy = canvas.height/2;
-        const radius = Math.min(cx, cy) * 0.7;
+        rotation += isDown ? 0.08 : 0.02;
+        pulse += 0.05;
 
-        rotation += isDown ? 0.05 : 0.01;
-
-        // Draw Connections First
-        ctx.beginPath();
-        ctx.strokeStyle = "rgba(243, 207, 138, 0.05)";
-        nodes.forEach((n, i) => {
-            if(i % 12 === 0) {
-                let x = cx + radius * Math.sin(n.phi) * Math.cos(n.theta + rotation);
-                let y = cy + radius * Math.cos(n.phi);
-                let z = radius * Math.sin(n.phi) * Math.sin(n.theta + rotation);
-                if(z > 0) {
-                    nodes.forEach((n2, j) => {
-                        if(j % 24 === 0) {
-                            let x2 = cx + radius * Math.sin(n2.phi) * Math.cos(n2.theta + rotation);
-                            let y2 = cy + radius * Math.cos(n2.phi);
-                            ctx.moveTo(x, y); ctx.lineTo(x2, y2);
-                        }
-                    });
-                }
+        // Draw The Aethel Satellites (The Ring)
+        for(let i=0; i<144; i++) {
+            let angle = (i * Math.PI * 2 / 144) + rotation;
+            let rx = isDown ? 120 : 250;
+            let ry = isDown ? 300 : 150;
+            let x = cx + Math.cos(angle) * rx;
+            let y = cy + Math.sin(angle) * ry;
+            
+            ctx.fillStyle = isDown ? "#fff" : "var(--gold)";
+            ctx.beginPath(); ctx.arc(x, y, isDown ? 3 : 1.5, 0, Math.PI*2); ctx.fill();
+            
+            if(isDown) {
+                ctx.strokeStyle = "rgba(255,255,255,0.1)";
+                ctx.beginPath(); ctx.moveTo(cx, cy); ctx.lineTo(x, y); ctx.stroke();
             }
-        });
-        ctx.stroke();
+        }
 
-        // Draw Nodes
-        nodes.forEach(n => {
-            let x = cx + radius * Math.sin(n.phi) * Math.cos(n.theta + rotation);
-            let y = cy + radius * Math.cos(n.phi);
-            let z = radius * Math.sin(n.phi) * Math.sin(n.theta + rotation);
+        // The Central Core
+        let coreSize = 20 + Math.sin(pulse) * 5;
+        ctx.shadowBlur = isDown ? 100 : 20;
+        ctx.shadowColor = "var(--white)";
+        ctx.fillStyle = "#fff";
+        ctx.beginPath(); ctx.arc(cx, cy, coreSize, 0, Math.PI*2); ctx.fill();
+        ctx.shadowBlur = 0;
 
-            if(z > 0) {
-                let scale = (z + radius) / (2 * radius);
-                ctx.fillStyle = isDown ? "#fff" : "var(--gold)";
-                ctx.globalAlpha = scale;
-                ctx.beginPath();
-                ctx.arc(x, y, n.size * scale * (isDown ? 2 : 1), 0, Math.PI*2);
-                ctx.fill();
-                
-                if(isDown && Math.random() > 0.98) {
-                    ctx.strokeStyle = "#fff";
-                    ctx.beginPath(); ctx.moveTo(x, y); ctx.lineTo(x, y - 100); ctx.stroke();
-                }
-            }
-        });
-        ctx.globalAlpha = 1;
+        // The Liquidation Beam
+        if(isDown) {
+            ctx.strokeStyle = "#fff"; ctx.lineWidth = 2;
+            ctx.beginPath(); ctx.moveTo(cx, 0); ctx.lineTo(cx, canvas.height); ctx.stroke();
+        }
+
         requestAnimationFrame(animate);
     }
     animate();
