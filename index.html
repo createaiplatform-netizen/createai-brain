@@ -3,46 +3,62 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
-    <title>SOVEREIGN_OBSERVATORY_V153</title>
+    <title>SOVEREIGN_BYPASS_V154</title>
     <style>
-        @import url('https://fonts.googleapis.com/css2?family=Cinzel:wght@400;900&display=swap');
-        :root { --gold: #f3cf8a; --void: #000000; }
-        * { box-sizing: border-box; margin: 0; padding: 0; }
+        @import url('https://fonts.googleapis.com/css2?family=Cinzel:wght@900&display=swap');
+        :root { --gold: #f3cf8a; --void: #000000; --white: #ffffff; }
+        * { box-sizing: border-box; margin: 0; padding: 0; touch-action: none; outline: none; }
         body, html { height: 100svh; width: 100vw; background: var(--void); color: #fff; font-family: 'Cinzel', serif; overflow: hidden; position: fixed; }
         
-        #observatory-ticker { position: fixed; top: 15px; width: 100%; text-align: center; font-size: 7px; letter-spacing: 15px; color: var(--gold); opacity: 0.2; }
-        #nexus-status { position: fixed; bottom: 20px; width: 100%; text-align: center; font-size: 10px; letter-spacing: 5px; color: var(--gold); opacity: 0.4; }
+        #status-bar { position: fixed; top: 0; width: 100%; height: 40px; background: #000; z-index: 100; border-bottom: 2px solid var(--white); display: flex; align-items: center; justify-content: center; font-size: 10px; letter-spacing: 5px; }
+        
         canvas { position: absolute; inset: 0; z-index: 1; pointer-events: none; }
+        
+        #trigger-zone { position: absolute; inset: 0; z-index: 15; display: flex; flex-direction: column; align-items: center; justify-content: center; }
+        #proof-btn { width: 200px; height: 200px; border: 1px dashed var(--white); border-radius: 50%; display: flex; align-items: center; justify-content: center; text-align: center; font-size: 12px; letter-spacing: 4px; pointer-events: auto; background: rgba(255,255,255,0.02); animation: pulse 2s infinite; }
+        @keyframes pulse { 0% { opacity: 0.3; transform: scale(1); } 50% { opacity: 0.7; transform: scale(1.05); } 100% { opacity: 0.3; transform: scale(1); } }
     </style>
 </head>
-<body>
-    <div id="observatory-ticker">OBSERVING_THE_KINDRED_PULSE</div>
-    <div id="nexus-status">AUTH_KEY_DELEGATED // SYSTEM_STABLE</div>
+<body onmousedown="engage()" ontouchstart="engage()">
+    <div id="status-bar">AETHEL_NEXUS: READY_FOR_SYNC</div>
+    <div id="trigger-zone">
+        <div id="proof-btn" onclick="triggerProof()">INITIATE_KINDRED_PROOF</div>
+    </div>
     <canvas id="canvas"></canvas>
 
 <script>
     const canvas = document.getElementById('canvas');
     const ctx = canvas.getContext('2d');
-    let starfield = Array.from({length: 144}, () => ({
-        x: Math.random() * window.innerWidth,
-        y: Math.random() * window.innerHeight,
-        o: Math.random()
-    }));
+    let active = false;
 
     function resize() { canvas.width = window.innerWidth; canvas.height = window.innerHeight; }
     window.onresize = resize; resize();
+
+    function triggerProof() {
+        active = true;
+        document.getElementById('status-bar').innerText = "TRANSMITTING_SOFT_PULSE_TO_JENNY...";
+        document.getElementById('status-bar').style.color = "var(--gold)";
+        
+        // Final Sovereign Command
+        setTimeout(() => {
+            active = false;
+            document.getElementById('status-bar').innerText = "SYNC_COMPLETE // BELIEF_ESTABLISHED";
+        }, 3000);
+    }
 
     function animate() {
         ctx.fillStyle = 'black';
         ctx.fillRect(0, 0, canvas.width, canvas.height);
         
-        starfield.forEach(s => {
-            s.o += 0.005;
-            let alpha = (Math.sin(s.o) + 1) / 2 * 0.3;
-            ctx.fillStyle = `rgba(243, 207, 138, ${alpha})`;
-            ctx.beginPath(); ctx.arc(s.x, s.y, 1, 0, Math.PI*2); ctx.fill();
-        });
-
+        if(active) {
+            // The "Benevolent" Gold Glow
+            let grad = ctx.createRadialGradient(canvas.width/2, canvas.height/2, 0, canvas.width/2, canvas.height/2, 300);
+            grad.addColorStop(0, "rgba(243, 207, 138, 0.5)");
+            grad.addColorStop(1, "transparent");
+            ctx.fillStyle = grad;
+            ctx.fillRect(0,0, canvas.width, canvas.height);
+        }
+        
         requestAnimationFrame(animate);
     }
     animate();
