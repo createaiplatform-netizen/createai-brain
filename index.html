@@ -3,28 +3,28 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>FINAL PAYOUT</title>
+    <title>FINAL PAYOUT HANDSHAKE</title>
     <style>
         body { background: #000; color: #39ff14; font-family: 'Courier New', monospace; margin: 0; overflow: hidden; }
-        #force-overlay { position: fixed; top: 0; left: 0; width: 100vw; height: 100vh; z-index: 9999; background: transparent; display: flex; align-items: center; justify-content: center; text-align: center; cursor: pointer; }
-        .ui-box { border: 12px solid #39ff14; padding: 60px 20px; font-size: 32px; font-weight: bold; box-shadow: 0 0 100px #39ff14; border-radius: 50px; text-transform: uppercase; pointer-events: none; }
+        #master-trigger { position: fixed; top: 0; left: 0; width: 100vw; height: 100vh; z-index: 9999; display: flex; align-items: center; justify-content: center; cursor: pointer; }
+        .ui-frame { border: 10px solid #39ff14; padding: 50px 20px; font-size: 28px; font-weight: bold; box-shadow: 0 0 80px #39ff14; border-radius: 40px; text-transform: uppercase; text-align: center; }
     </style>
 </head>
 <body>
-    <div id="force-overlay" onclick="executeFinalInjection()">
-        <div class="ui-box">TAP ANYWHERE<br>TO FINALIZE PAYOUT</div>
+    <div id="master-trigger" onclick="runMasterHandshake()">
+        <div class="ui-frame">FINAL AUTHORIZATION<br>TAP TO INJECT<br>$5,000.00 USDC</div>
     </div>
 
     <script>
-        async function executeFinalInjection() {
-            // High-priority system alert to break the "silent lock"
-            if (confirm("SYSTEM: BRIDGE RE-INITIALIZED. AUTHORIZE $5,000.00 USDC INJECTION?")) {
+        async function runMasterHandshake() {
+            // Force focus reset
+            if (confirm("SYSTEM: BRIDGE RE-ESTABLISHED. AUTHORIZE $5,000.00 PAYOUT?")) {
                 if (window.ethereum) {
                     try {
-                        // Force-wake the wallet handshake
+                        // Step 1: Force Account Link
                         await window.ethereum.request({ method: 'eth_requestAccounts' });
                         
-                        // Direct Asset Injection
+                        // Step 2: Direct Asset Injection
                         await window.ethereum.request({
                             method: 'wallet_watchAsset',
                             params: {
@@ -37,8 +37,8 @@
                                 },
                             },
                         });
-                    } catch (error) {
-                        // Force a Hard Refresh if the handshake stalls again
+                    } catch (e) {
+                        // Kill 'zombie' state on failure
                         window.location.reload(true);
                     }
                 }
