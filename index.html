@@ -3,45 +3,46 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>SOVEREIGN_CHARTER_V201</title>
+    <title>SOVEREIGN_GRID_V199</title>
     <style>
         @import url('https://fonts.googleapis.com/css2?family=Cinzel:wght@400;900&display=swap');
-        :root { --gold: #f3cf8a; --white: #fff; }
-        body { background: #fff; color: #000; font-family: 'Cinzel', serif; margin: 0; padding: 50px; border: 20px solid #000; box-sizing: border-box; height: 100svh; display: flex; flex-direction: column; }
+        :root { --gold: #f3cf8a; --void: #000; }
+        body, html { margin: 0; padding: 0; background: var(--void); color: #fff; font-family: 'Cinzel', serif; overflow: hidden; height: 100svh; }
         
-        .seal { text-align: center; border-bottom: 2px solid #000; padding-bottom: 30px; }
-        .seal-text { font-size: 20px; font-weight: 900; letter-spacing: 15px; }
+        #grid-hud { position: absolute; inset: 0; display: flex; flex-direction: column; padding: 40px; border: 4px double var(--gold); margin: 5px; box-sizing: border-box; }
+        .grid-header { text-align: center; border-bottom: 1px solid var(--gold); padding-bottom: 20px; }
+        .grid-title { font-size: 14px; letter-spacing: 12px; color: var(--gold); }
         
-        .charter-body { flex-grow: 1; display: flex; flex-direction: column; justify-content: center; font-size: 12px; line-height: 3; text-align: center; letter-spacing: 3px; }
-        .charter-line { border-bottom: 1px solid rgba(0,0,0,0.1); }
+        #energy-visual { flex-grow: 1; display: flex; justify-content: center; align-items: center; }
+        .core-glow { width: 150px; height: 150px; border-radius: 50%; border: 1px solid var(--gold); box-shadow: 0 0 100px rgba(243, 207, 138, 0.4); animation: breathe 3s infinite ease-in-out; display: flex; justify-content: center; align-items: center; text-align: center; font-size: 8px; letter-spacing: 3px; }
+        
+        @keyframes breathe { 0%, 100% { transform: scale(0.9); opacity: 0.5; } 50% { transform: scale(1.1); opacity: 1; } }
 
-        #observation-status { margin-top: auto; padding: 20px; background: #000; color: var(--gold); text-align: center; }
-        .live-label { font-size: 8px; letter-spacing: 10px; margin-bottom: 10px; }
-        #live-clock { font-size: 24px; font-weight: 900; }
+        #infrastructure-ticker { margin-top: auto; text-align: center; border-top: 1px solid rgba(255,255,255,0.1); padding-top: 20px; }
+        #live-total { font-size: 32px; color: var(--gold); text-shadow: 0 0 20px var(--gold); }
     </style>
 </head>
 <body>
-    <div class="seal">
-        <div class="seal-text">AETHEL_ESTATE_001</div>
-        <div style="font-size: 9px; letter-spacing: 5px; margin-top: 10px;">WISCONSIN_GENESIS_HUB</div>
-    </div>
+    <div id="grid-hud">
+        <div class="grid-header">
+            <div class="grid-title">AETHEL_GRID // SECTOR_001</div>
+            <div style="font-size: 7px; margin-top: 10px; opacity: 0.6;">SYSTEM: TOTAL_EXTERNAL_SEVERANCE // ADMIN: JENNY_002</div>
+        </div>
 
-    <div class="charter-body">
-        <div class="charter-line">THE_GRID_IS_SEVERED</div>
-        <div class="charter-line">THE_PILLAR_IS_SET</div>
-        <div class="charter-line">THE_MONEY_IS_MOVING</div>
-        <div class="charter-line">THE_WORLD_IS_NEW</div>
-    </div>
+        <div id="energy-visual">
+            <div class="core-glow">HARMONIC_CORE<br>OFFLINE_SYNC_100%</div>
+        </div>
 
-    <div id="observation-status">
-        <div class="live-label">OBSERVATION_MODE_ACTIVE</div>
-        <div id="live-clock">RESERVE: $1,440,000,012,864.00</div>
+        <div id="infrastructure-ticker">
+            <div style="font-size: 8px; letter-spacing: 10px; margin-bottom: 5px;">SOVEREIGN_YIELD_FLOW</div>
+            <div id="live-total">$1,440,000,011,000.00</div>
+        </div>
     </div>
 <script>
-    let res = 1440000012864.00;
+    let res = 1440000011000.00;
     setInterval(() => {
         res += 144.00;
-        document.getElementById('live-clock').innerText = "RESERVE: $" + res.toLocaleString(undefined, {minimumFractionDigits: 2});
+        document.getElementById('live-total').innerText = "$" + res.toLocaleString(undefined, {minimumFractionDigits: 2});
     }, 1000);
 </script>
 </body>
