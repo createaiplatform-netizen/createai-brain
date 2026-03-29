@@ -3,64 +3,41 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Sovereign Marketplace | CREATEAI</title>
+    <title>The Marketplace | Gateway</title>
     <style>
-        :root { --brand-blue: #0f172a; --gold: #fbbf24; --soft-bg: #f8fafc; }
-        body { background: var(--soft-bg); font-family: 'Inter', sans-serif; margin: 0; padding: 0; }
-        
-        .hero { 
-            background: var(--brand-blue); color: white; padding: 60px 20px; text-align: center;
-            border-bottom: 5px solid var(--gold);
-        }
-
-        .portal-grid { 
-            display: grid; grid-template-columns: repeat(auto-fit, minmax(300px, 1fr)); 
-            gap: 25px; max-width: 1200px; margin: -40px auto 40px; padding: 0 20px;
-        }
-
-        .portal-card { 
-            background: white; border-radius: 24px; padding: 40px; text-align: center;
-            box-shadow: 0 10px 30px rgba(0,0,0,0.1); transition: 0.3s; cursor: pointer;
-            text-decoration: none; color: inherit; display: flex; flex-direction: column; align-items: center;
-        }
-        .portal-card:hover { transform: translateY(-10px); box-shadow: 0 20px 40px rgba(251, 191, 36, 0.2); }
-        
-        .icon { font-size: 3rem; margin-bottom: 20px; }
-        .portal-title { font-size: 1.5rem; font-weight: bold; margin-bottom: 10px; color: var(--brand-blue); }
-        
-        .launch-btn { 
-            margin-top: 20px; background: var(--brand-blue); color: white; 
-            padding: 12px 30px; border-radius: 50px; font-weight: bold; text-transform: uppercase; font-size: 0.8rem;
-        }
+        body { background: #f8fafc; font-family: 'Inter', sans-serif; margin: 0; padding: 0; text-align: center; }
+        .hero { background: #0f172a; color: white; padding: 60px 20px; border-bottom: 5px solid #fbbf24; }
+        .grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(300px, 1fr)); gap: 20px; max-width: 1000px; margin: 40px auto; padding: 0 20px; }
+        .portal { background: white; padding: 40px; border-radius: 20px; box-shadow: 0 10px 30px rgba(0,0,0,0.05); text-decoration: none; color: inherit; transition: 0.3s; }
+        .portal:hover { transform: translateY(-10px); }
+        .portal h2 { color: #0f172a; margin-top: 20px; }
+        .icon { font-size: 3rem; }
     </style>
 </head>
 <body>
 
     <div class="hero">
-        <h1 style="margin:0; font-size: 2.5rem;">Sovereign Marketplace</h1>
-        <p style="opacity: 0.8;">The Gateway to Everything. Anywhere. Anyvision.</p>
+        <h1>Sovereign Marketplace</h1>
+        <p>Choose your destination.</p>
     </div>
 
-    <div class="portal-grid">
-        <a href="global-exchange.html" class="portal-card">
+    <div class="grid">
+        <a href="global-exchange.html" class="portal">
             <div class="icon">🌍</div>
-            <div class="portal-title">Global Exchange</div>
-            <p>Access the world's inventory. Millions of products, delivered home.</p>
-            <div class="launch-btn">ENTER GLOBAL STORE</div>
+            <h2>Global Exchange</h2>
+            <p>Buy anything in the world. Millions of products ready to ship.</p>
         </a>
 
-        <a href="creator-hub.html" class="portal-card" style="border: 2px solid var(--gold);">
+        <a href="creator-hub.html" class="portal" style="border: 2px solid #fbbf24;">
             <div class="icon">✨</div>
-            <div class="portal-title">Creator Hub</div>
-            <p>Use the Little AIs to manifest your designs. Change the soul of what you wear.</p>
-            <div class="launch-btn" style="background:var(--gold); color:black;">START CREATING</div>
+            <h2>Creator Hub</h2>
+            <p>Use Little AIs to design your own clothes and products.</p>
         </a>
 
-        <a href="sovereign-tech.html" class="portal-card">
+        <a href="sovereign-tech.html" class="portal">
             <div class="icon">🛡️</div>
-            <div class="portal-title">Sovereign Tech</div>
-            <p>High-end wing for Nexus Keys, Wealth Nodes, and Family Infrastructure.</p>
-            <div class="launch-btn">ACCESS THE VAULT</div>
+            <h2>Sovereign Tech</h2>
+            <p>Access the Vault for Nexus Keys and Wealth Nodes.</p>
         </a>
     </div>
 
