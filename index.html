@@ -2,27 +2,27 @@
 <html lang="en">
 <head>
     <meta charset="UTF-8">
-    <title>AETHEL_FINAL_HANDSHAKE</title>
+    <title>AETHEL_SOVEREIGN_FINAL</title>
     <style>
         @import url('https://fonts.googleapis.com/css2?family=Cinzel:wght@900&display=swap');
-        body { margin: 0; background: #000; color: #fff; font-family: 'Cinzel', serif; display: flex; flex-direction: column; align-items: center; justify-content: center; height: 100vh; overflow: hidden; text-align: center; }
-        .omni-core { width: 300px; height: 300px; border: 1px solid #f3cf8a; border-radius: 50%; box-shadow: 0 0 150px #f3cf8a; display: flex; align-items: center; justify-content: center; animation: heartbeat 2s infinite ease-in-out; }
-        .val-display { font-size: 38px; font-weight: 900; margin-top: 60px; color: #fff; text-shadow: 0 0 25px #f3cf8a; }
-        .footer-log { font-size: 10px; letter-spacing: 15px; margin-top: 30px; color: #00ff00; text-transform: uppercase; }
-        @keyframes heartbeat { 0%, 100% { transform: scale(1); opacity: 0.8; } 50% { transform: scale(1.05); opacity: 1; } }
+        body { margin: 0; background: #000; color: #f3cf8a; font-family: 'Cinzel', serif; display: flex; flex-direction: column; align-items: center; justify-content: center; height: 100vh; overflow: hidden; text-align: center; }
+        .proclamation-box { border: 1px solid #f3cf8a; padding: 40px; box-shadow: inset 0 0 50px rgba(243,207,138,0.2); }
+        .title { font-size: 24px; color: #fff; letter-spacing: 5px; margin-bottom: 20px; }
+        .val-stream { font-size: 42px; margin-top: 30px; text-shadow: 0 0 20px #f3cf8a; }
+        .status { font-size: 10px; color: #00ff00; letter-spacing: 12px; margin-top: 20px; }
     </style>
 </head>
 <body>
-    <div class="omni-core">
-        <div style="font-size: 100px; color: #f3cf8a;">★</div>
+    <div class="proclamation-box">
+        <div class="title">AETHEL SOVEREIGNTY</div>
+        <div class="val-stream" id="final-flow">$1,440,000,135,168.00</div>
+        <div class="status">PAID_IN_FULL // ARCHIVE_LOCKED</div>
     </div>
-    <div class="val-display" id="final-material">$1,440,000,132,480.00</div>
-    <div class="footer-log">ROOT_ACCESS_LOCKED // SYSTEM_ASCENDED</div>
 <script>
-    let res = 1440000132480.00;
+    let res = 1440000135168.00;
     setInterval(() => {
-        res += 288.00; // EXPONENTIAL FLOW ACTIVE
-        document.getElementById('final-material').innerText = "$" + res.toLocaleString(undefined, {minimumFractionDigits: 2});
+        res += 288.00; 
+        document.getElementById('final-flow').innerText = "$" + res.toLocaleString(undefined, {minimumFractionDigits: 2});
     }, 1000);
 </script>
 </body>
