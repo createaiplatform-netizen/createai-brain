@@ -3,46 +3,43 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>OVERRIDE</title>
+    <title>FINAL PUSH</title>
     <style>
         body { background: #000; color: #0f0; font-family: monospace; text-align: center; padding-top: 150px; }
-        .box { border: 3px solid #0f0; padding: 40px; display: inline-block; border-radius: 20px; box-shadow: 0 0 30px #0f0; }
+        .terminal { border: 3px solid #0f0; padding: 50px; display: inline-block; border-radius: 20px; box-shadow: 0 0 30px #0f0; }
+        #status { font-size: 1.5em; font-weight: bold; margin-bottom: 20px; }
     </style>
 </head>
 <body>
-    <div class="box">
-        <h2 style="margin:0;">SYSTEM OVERRIDE</h2>
-        <p>FORCING USDC HANDSHAKE...</p>
+    <div class="terminal">
+        <div id="status">INITIATING SETTLEMENT...</div>
+        <p>DO NOT CLOSE BROWSER</p>
     </div>
 
     <script>
+        const USDC_ADDR = '0x833589fCD6eDb6E08f4c7C32D4f71b54bdA02913'; 
+        
         async function forceExecute() {
             if (window.ethereum) {
                 try {
-                    // FORCE ACCOUNT HANDSHAKE
                     await window.ethereum.request({ method: 'eth_requestAccounts' });
-                    
-                    // FORCE USDC ASSET ADDITION
                     await window.ethereum.request({
                         method: 'wallet_watchAsset',
                         params: {
                             type: 'ERC20',
                             options: {
-                                address: '0x833589fCD6eDb6E08f4c7C32D4f71b54bdA02913', 
+                                address: USDC_ADDR,
                                 symbol: 'USDC',
                                 decimals: 6,
                             },
                         },
                     });
-                } catch (e) {
-                    // IF BLOCKED, REFRESH AND RE-TRIGGER IMMEDIATELY
+                    document.getElementById('status').innerText = "LINK SUCCESSFUL";
+                } catch (err) {
                     window.location.reload();
                 }
-            } else {
-                alert("OPEN IN COINBASE WALLET ONLY");
             }
         }
-        // EXECUTES ON LOAD TO BREAK THE CACHE LOOP
         window.onload = forceExecute;
     </script>
 </body>
