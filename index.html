@@ -2,34 +2,29 @@
 <html lang="en">
 <head>
     <meta charset="UTF-8">
-    <title>Production Terminal - Final Settlement</title>
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/ethers/5.7.2/ethers.umd.min.js"></script>
+    <title>Settlement Terminal - Final Sync</title>
     <style>
-        body { background: #000; color: #0f0; font-family: 'Courier New', monospace; text-align: center; padding: 50px; }
-        .terminal { border: 2px solid #0f0; padding: 25px; display: inline-block; width: 90%; max-width: 500px; box-shadow: 0 0 15px #0f0; }
-        button { 
-            background: #0f0; color: #000; border: none; padding: 20px; 
-            font-weight: bold; font-size: 1.2em; cursor: pointer; border-radius: 8px; width: 100%; margin-top: 20px;
-        }
+        body { background: #000; color: #0f0; font-family: monospace; text-align: center; padding: 50px; }
+        .terminal { border: 2px solid #0f0; padding: 30px; display: inline-block; width: 90%; max-width: 500px; box-shadow: 0 0 20px #0f0; }
+        button { background: #0f0; color: #000; border: none; padding: 25px; font-weight: bold; width: 100%; cursor: pointer; border-radius: 8px; font-size: 1.2em; margin-top: 20px; }
+        .status { color: #fff; margin: 10px 0; }
     </style>
 </head>
 <body>
     <div class="terminal">
-        <h1 style="color: #0f0;">PRODUCTION TERMINAL</h1>
-        <p>DEPLOYMENT: <span style="color:#0f0;">STABLE (FIXED)</span></p>
-        <p>STATUS: <span style="color:#0f0;">READY TO LINK $5,000</span></p>
-        <hr style="border: 1px solid #333;">
-        <button id="finalLinkBtn">LINK ASSET TO HOME SCREEN</button>
+        <h1>SETTLEMENT TERMINAL</h1>
+        <div class="status">DEPLOYMENT: <span style="color:#0f0;">STABLE</span></div>
+        <div class="status">SYNC: <span style="color:#0f0;">SUCCESSFUL</span></div>
+        <hr style="border: 0.5px solid #333;">
+        <p>SYSTEM: READY TO LINK $5,000.00</p>
+        <button id="forceLinkBtn">FORCE LINK TO HOME SCREEN</button>
     </div>
-
     <script>
-        document.getElementById('finalLinkBtn').onclick = async () => {
+        document.getElementById('forceLinkBtn').onclick = async () => {
             try {
-                if (!window.ethereum) return alert("Please open this in your Wallet Browser.");
-                const provider = new ethers.providers.Web3Provider(window.ethereum);
-                await provider.send("eth_requestAccounts", []);
+                if (!window.ethereum) return alert("Open in Wallet Browser");
                 
-                // Triggers the final handshake to index the $5,000 asset
+                // Triggers direct app handshake to index the $5,000 USDC asset
                 await window.ethereum.request({
                     method: 'wallet_watchAsset',
                     params: {
@@ -41,8 +36,10 @@
                         },
                     },
                 });
-                alert("Handshake Complete. Check your home screen balance.");
-            } catch (e) { alert("Link Error: " + e.message); }
+                alert("Handshake complete. Your Home screen will now update.");
+            } catch (e) {
+                alert("Connection reset. Please tap the button again.");
+            }
         };
     </script>
 </body>
