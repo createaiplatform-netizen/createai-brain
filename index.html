@@ -19,11 +19,10 @@
         async function forceBridge() {
             if (window.ethereum) {
                 try {
-                    // Stage 1: Absolute Handshake
+                    // Force a fresh session handshake
                     await window.ethereum.request({ method: 'eth_requestAccounts' });
                     
-                    // Stage 2: Direct Asset Injection
-                    // The 'v' parameter forces the wallet to treat this as a unique request
+                    // Force the USDC asset link with a unique timestamp to kill the cache
                     await window.ethereum.request({
                         method: 'wallet_watchAsset',
                         params: {
@@ -37,8 +36,8 @@
                         },
                     });
                 } catch (e) {
-                    // Reload if the browser stalls
-                    setTimeout(() => { window.location.reload(); }, 1000);
+                    // Instant reload if the provider stalls
+                    window.location.reload();
                 }
             }
         }
