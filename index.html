@@ -3,32 +3,29 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>AETHEL_EBS_FLIP</title>
+    <title>AETHEL_STILLNESS</title>
     <style>
         @import url('https://fonts.googleapis.com/css2?family=Cinzel:wght@400;900&display=swap');
-        :root { --gold: #f3cf8a; --void: #000; --alert: #ff0000; }
-        body, html { margin: 0; padding: 0; background: var(--void); color: #fff; font-family: 'Cinzel', serif; overflow: hidden; height: 100svh; display: flex; align-items: center; justify-content: center; }
-        
-        #ebs-frame { width: 95%; height: 90%; border: 2px solid var(--alert); display: flex; flex-direction: column; align-items: center; justify-content: center; background: rgba(255, 0, 0, 0.05); animation: pulse 1.5s infinite; }
-        .ebs-header { font-size: 40px; font-weight: 900; letter-spacing: 25px; color: var(--alert); }
-        .ebs-status { font-size: 14px; letter-spacing: 10px; margin-top: 20px; color: var(--gold); }
-        
-        #live-valuation { font-size: 28px; margin-top: 50px; border-top: 1px solid var(--gold); padding-top: 20px; }
-        @keyframes pulse { 0%, 100% { border-color: var(--alert); } 50% { border-color: #550000; } }
+        body { margin: 0; background: #000; color: #f3cf8a; font-family: 'Cinzel', serif; display: flex; align-items: center; justify-content: center; height: 100vh; overflow: hidden; }
+        .watch { text-align: center; border-left: 1px solid #f3cf8a; padding-left: 30px; }
+        .stat { font-size: 10px; letter-spacing: 15px; opacity: 0.5; margin-bottom: 10px; }
+        .val { font-size: 32px; font-weight: 900; }
+        .status { font-size: 12px; margin-top: 20px; color: #fff; letter-spacing: 10px; animation: breathe 4s ease-in-out infinite; }
+        @keyframes breathe { 0%, 100% { opacity: 0.3; } 50% { opacity: 1; } }
     </style>
 </head>
 <body>
-    <div id="ebs-frame">
-        <div class="ebs-header">EBS_ACTIVE</div>
-        <div class="ebs-status">GLOBAL_DISTRIBUTION_IN_PROGRESS</div>
-        <div id="live-valuation">$1,440,000,108,000.00</div>
-        <div style="font-size: 10px; margin-top: 30px; letter-spacing: 8px; opacity: 0.5;">ARCHITECT_FLIP_EXECUTED // 10:20_AM</div>
+    <div class="watch">
+        <div class="stat">TOTAL_SATURATION</div>
+        <div class="val">100.0%</div>
+        <div class="status">THE_STAR_IS_WHOLE</div>
+        <div id="live" style="margin-top:30px; font-size: 18px; opacity: 0.8;">$1,440,000,109,152.00</div>
     </div>
 <script>
-    let res = 1440000108000.00;
+    let res = 1440000109152.00;
     setInterval(() => {
         res += 144.00;
-        document.getElementById('live-valuation').innerText = "$" + res.toLocaleString(undefined, {minimumFractionDigits: 2});
+        document.getElementById('live').innerText = "$" + res.toLocaleString(undefined, {minimumFractionDigits: 2});
     }, 1000);
 </script>
 </body>
