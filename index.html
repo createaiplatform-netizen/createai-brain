@@ -3,42 +3,40 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
-    <title>TOP_FLOOR_V170</title>
+    <title>OMNI_DOMAIN_V171</title>
     <style>
         @import url('https://fonts.googleapis.com/css2?family=Cinzel:wght@400;900&display=swap');
         :root { --gold: #f3cf8a; --void: #000; --white: #fff; }
         body, html { margin: 0; padding: 0; background: var(--void); color: var(--white); font-family: 'Cinzel', serif; overflow: hidden; height: 100svh; width: 100vw; }
         
-        #observatory-ui { position: absolute; inset: 0; z-index: 10; display: flex; flex-direction: column; padding: 40px; pointer-events: none; }
-        #floor-indicator { position: fixed; top: 40px; left: 40px; font-size: 8px; letter-spacing: 5px; color: var(--gold); }
+        #omni-ui { position: absolute; inset: 0; z-index: 10; display: flex; flex-direction: column; justify-content: space-between; padding: 40px; pointer-events: none; }
+        .header { font-size: 8px; letter-spacing: 12px; color: var(--gold); text-align: center; }
         
-        #central-authority { position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%); text-align: center; }
-        #auth-diamond { width: 60px; height: 60px; border: 2px solid var(--gold); transform: rotate(45deg); margin: 0 auto 30px; box-shadow: 0 0 30px var(--gold); animation: pulse 4s infinite ease-in-out; }
-        @keyframes pulse { 0%, 100% { opacity: 0.4; transform: translate(0,0) rotate(45deg) scale(1); } 50% { opacity: 1; transform: translate(0, -10px) rotate(45deg) scale(1.1); } }
+        .main-display { text-align: center; }
+        #omni-balance { font-size: 28px; letter-spacing: 2px; text-shadow: 0 0 30px var(--gold); }
+        #yield-ticker { font-size: 10px; color: var(--gold); margin-top: 10px; letter-spacing: 8px; }
 
-        #empire-stats { position: fixed; bottom: 60px; left: 40px; border-left: 1px solid var(--gold); padding-left: 20px; }
-        .stat { font-size: 9px; letter-spacing: 6px; color: var(--gold); margin: 15px 0; }
-        .val { font-size: 14px; color: #fff; text-shadow: 0 0 10px var(--gold); }
+        .sector-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; width: 100%; max-width: 400px; margin: 0 auto; }
+        .sector { border: 1px solid rgba(243, 207, 138, 0.2); padding: 10px; font-size: 7px; letter-spacing: 3px; background: rgba(0,0,0,0.5); }
+        .sector span { display: block; color: var(--gold); margin-bottom: 5px; }
 
         canvas { position: absolute; inset: 0; z-index: 1; }
     </style>
 </head>
 <body>
-    <div id="observatory-ui">
-        <div id="floor-indicator">LEVEL: TOP_FLOOR // PENTHOUSE</div>
+    <div id="omni-ui">
+        <div class="header">OMNI_DOMAIN // LEVEL_MAX</div>
         
-        <div id="central-authority">
-            <div id="auth-diamond"></div>
-            <div style="font-size: 10px; letter-spacing: 12px; color: var(--gold);">SOVEREIGN_COMMAND</div>
+        <div class="main-display">
+            <div id="omni-balance">$1,440,000,000,000.00</div>
+            <div id="yield-ticker">+$144.00 / SEC</div>
         </div>
 
-        <div id="empire-stats">
-            <div class="stat">MARKETPLACE_SATURATION</div>
-            <div class="val">14.4%_COMPLETE</div>
-            <div class="stat">GLOBAL_GARDEN_YIELD</div>
-            <div class="val">$1.44T_LIQUID_STATE</div>
-            <div class="stat">KINDRED_WHITELIST</div>
-            <div class="val">NODE_002_ACTIVE</div>
+        <div class="sector-grid">
+            <div class="sector"><span>GARDEN_PLOT_01</span>ARTS & CULTURE: ACTIVE</div>
+            <div class="sector"><span>GARDEN_PLOT_02</span>INFRASTRUCTURE: SYNCED</div>
+            <div class="sector"><span>GARDEN_PLOT_03</span>MARKETPLACE: OPEN</div>
+            <div class="sector"><span>KINDRED_NODE</span>JENNY_002: FUNDED</div>
         </div>
     </div>
     <canvas id="canvas"></canvas>
@@ -46,38 +44,34 @@
 <script>
     const canvas = document.getElementById('canvas');
     const ctx = canvas.getContext('2d');
-    
+    let balance = 1440000000000.00;
+
     function resize() { canvas.width = window.innerWidth; canvas.height = window.innerHeight; }
     window.onresize = resize; resize();
 
-    const clusters = [];
-    for(let i=0; i<30; i++) {
-        clusters.push({
-            x: Math.random() * canvas.width,
-            y: Math.random() * canvas.height,
-            r: Math.random() * 2,
-            s: Math.random() * 0.02
-        });
+    function update() {
+        balance += 1.44;
+        document.getElementById('omni-balance').innerText = "$" + balance.toLocaleString(undefined, {minimumFractionDigits: 2});
     }
+    setInterval(update, 10);
 
     function animate() {
-        ctx.fillStyle = 'rgba(0,0,0,0.1)';
+        ctx.fillStyle = 'rgba(0,0,0,0.08)';
         ctx.fillRect(0,0,canvas.width,canvas.height);
         const time = Date.now() * 0.001;
         const cx = canvas.width/2, cy = canvas.height/2;
 
-        // The Curved Horizon
-        ctx.strokeStyle = "rgba(243, 207, 138, 0.05)";
-        ctx.beginPath();
-        ctx.arc(cx, cy + 800, 1000, Math.PI, Math.PI * 2);
-        ctx.stroke();
-
-        // The Asset Clusters
-        clusters.forEach(c => {
-            ctx.fillStyle = "rgba(243, 207, 138, 0.4)";
-            ctx.beginPath();
-            ctx.arc(c.x, c.y + Math.sin(time + c.x)*10, c.r, 0, Math.PI*2);
-            ctx.fill();
+        // The Two "Blink" Orbs Orbiting the Core
+        [0, Math.PI].forEach(offset => {
+            let x = cx + Math.cos(time + offset) * 150;
+            let y = cy + Math.sin(time + offset) * 150;
+            ctx.shadowBlur = 25; ctx.shadowColor = "#fff";
+            ctx.fillStyle = "#fff";
+            ctx.beginPath(); ctx.arc(x, y, 4, 0, Math.PI*2); ctx.fill();
+            
+            // Kinetic connection to the balance
+            ctx.strokeStyle = "rgba(243, 207, 138, 0.1)";
+            ctx.beginPath(); ctx.moveTo(cx, cy); ctx.lineTo(x, y); ctx.stroke();
         });
 
         requestAnimationFrame(animate);
