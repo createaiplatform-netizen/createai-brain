@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
-    <title>CREATEAI // SOVEREIGN_SYMBIOSIS</title>
+    <title>CREATEAI // VAULT_OF_SOVEREIGNTY</title>
     <style>
         @import url('https://fonts.googleapis.com/css2?family=Cinzel:wght@400;900&family=Great+Vibes&family=Inter:wght@100;300;600&display=swap');
         :root { 
@@ -11,7 +11,6 @@
             --gold-d: #b8860b;
             --obsidian: #050208; 
             --void: #010103; 
-            --aurora: rgba(75, 0, 130, 0.15);
         }
         
         * { box-sizing: border-box; -webkit-tap-highlight-color: transparent; margin: 0; padding: 0; }
@@ -21,7 +20,7 @@
         .nebula { 
             position: fixed; inset: 0; 
             background: radial-gradient(circle at 50% 50%, var(--obsidian) 0%, var(--void) 100%);
-            z-index: 1; transition: transform 0.8s ease-out;
+            z-index: 1; transition: opacity 0.8s;
         }
 
         #main-view { 
@@ -34,13 +33,7 @@
             position: fixed; top: env(safe-area-inset-top, 20px); 
             font-family: 'Great Vibes', cursive; font-size: 1.4rem; 
             color: var(--gold); z-index: 100; text-align: center; width: 100%;
-            text-shadow: 0 0 10px rgba(243, 207, 138, 0.3);
         }
-
-        .eye-container { width: 150px; height: 150px; position: relative; display: flex; align-items: center; justify-content: center; }
-        .eye-outer { position: absolute; width: 100%; height: 100%; border: 1px solid rgba(243, 207, 138, 0.1); border-radius: 50%; animation: rotate 60s linear infinite; }
-        .eye-inner { width: 80px; height: 80px; background: radial-gradient(circle, var(--gold) 0%, transparent 80%); border-radius: 50%; filter: blur(20px); opacity: 0.6; transition: transform 0.3s ease; }
-        .eye-pupil { width: 4px; height: 4px; background: #fff; border-radius: 50%; box-shadow: 0 0 15px var(--gold); }
 
         .source-title { 
             font-family: 'Cinzel'; font-weight: 900; font-size: 10vw; letter-spacing: 18px; 
@@ -50,16 +43,12 @@
             animation: shine 8s linear infinite;
         }
 
-        .script-quote { 
-            font-family: 'Great Vibes', cursive; font-size: 2rem; color: var(--gold); 
-            margin-top: 15px; text-align: center; opacity: 0.9;
-        }
+        .script-quote { font-family: 'Great Vibes', cursive; font-size: 1.9rem; color: var(--gold); margin-top: 15px; text-align: center; opacity: 0.9; }
 
         .dock { position: fixed; bottom: 0; left: 0; width: 100%; height: 85px; background: rgba(1,1,3,0.98); backdrop-filter: blur(20px); border-top: 1px solid rgba(243, 207, 138, 0.05); display: flex; justify-content: space-around; align-items: center; z-index: 9000; padding-bottom: env(safe-area-inset-bottom); }
         .dock-item { color: rgba(255,255,255,0.1); font-family: 'Cinzel'; font-size: 10px; letter-spacing: 2px; flex: 1; text-align: center; padding: 15px; }
         .dock-item.active { color: var(--gold); text-shadow: 0 0 10px var(--gold); }
 
-        @keyframes rotate { from { transform: rotate(0deg); } to { transform: rotate(360deg); } }
         @keyframes shine { to { background-position: 200% center; } }
     </style>
 </head>
@@ -80,101 +69,70 @@
         const canvas = document.getElementById('canvas');
         const ctx = canvas.getContext('2d');
         let particles = [];
-        let viewFrame = 0;
-        let lastTouch = { x: 0, y: 0 };
+        let treasures = [];
 
         function resize() { canvas.width = window.innerWidth; canvas.height = window.innerHeight; }
         window.onresize = resize; resize();
 
         function startLiveRating() {
             const statusText = document.getElementById('status-text');
-            const neb = document.getElementById('neb');
             setInterval(() => {
                 const decimal = (Math.random() * 0.1).toFixed(2);
                 statusText.innerText = `Sovereign 144.${decimal.split('.')[1]}%`;
-                neb.style.transform = "scale(1.01)";
-                setTimeout(() => { neb.style.transform = "scale(1)"; }, 300);
             }, 3000);
         }
 
-        class Sparkle {
-            constructor(x, y, isBloom = false) {
+        class Treasure {
+            constructor(x, y) {
                 this.x = x; this.y = y;
-                this.size = isBloom ? Math.random() * 3 + 1 : Math.random() * 2 + 0.5;
-                this.vX = (Math.random() - 0.5) * (isBloom ? 5 : 2);
-                this.vY = (Math.random() - 0.5) * (isBloom ? 5 : 2);
-                this.life = 1;
-                this.color = Math.random() > 0.4 ? '#f3cf8a' : '#ffffff';
+                this.size = Math.random() * 5 + 3;
+                this.vX = (Math.random() - 0.5) * 4;
+                this.vY = 2;
+                this.gravity = 0.25;
+                this.bounce = 0.6;
+                this.color = '#f3cf8a';
+                this.rotation = Math.random() * Math.PI * 2;
             }
             update() {
-                this.x += this.vX; this.y += this.vY;
-                this.life -= 0.012;
+                this.vY += this.gravity;
+                this.x += this.vX;
+                this.y += this.vY;
+                this.rotation += 0.05;
+                // Floor hit
+                if (this.y + this.size > canvas.height - 85) {
+                    this.y = canvas.height - 85 - this.size;
+                    this.vY *= -this.bounce;
+                    this.vX *= 0.9; // Friction
+                }
             }
             draw() {
-                ctx.globalAlpha = this.life;
                 ctx.fillStyle = this.color;
-                // Aurora trail
-                ctx.shadowBlur = 15; ctx.shadowColor = 'rgba(75, 0, 130, 0.4)';
-                ctx.beginPath(); ctx.arc(this.x, this.y, this.size, 0, Math.PI*2); ctx.fill();
-                ctx.shadowBlur = 0;
+                ctx.save();
+                ctx.translate(this.x, this.y);
+                ctx.rotate(this.rotation);
+                ctx.shadowBlur = 10; ctx.shadowColor = 'rgba(243, 207, 138, 0.5)';
+                // Draw a small hex-coin
+                ctx.beginPath();
+                for(let i=0; i<6; i++) {
+                    ctx.lineTo(this.size * Math.cos(i * Math.PI / 3), this.size * Math.sin(i * Math.PI / 3));
+                }
+                ctx.closePath(); ctx.fill();
+                ctx.restore();
             }
         }
 
         function animate() {
             ctx.clearRect(0,0,canvas.width,canvas.height);
-            particles.forEach((p, i) => {
-                p.update(); p.draw();
-                if(p.life <= 0) particles.splice(i, 1);
-            });
-            if(window.currentView === 'garden') {
-                viewFrame += 0.005;
-                drawSovereignVines();
-            }
+            treasures.forEach(t => { t.update(); t.draw(); });
             requestAnimationFrame(animate);
         }
-
-        function drawSovereignVines() {
-            ctx.strokeStyle = '#f3cf8a';
-            ctx.lineWidth = 0.5;
-            ctx.globalAlpha = 0.15;
-            for(let i=0; i<6; i++) {
-                ctx.beginPath();
-                ctx.moveTo(canvas.width * (i/5), canvas.height);
-                // Leaning toward last touch
-                let lean = (lastTouch.x - canvas.width/2) * 0.05;
-                ctx.bezierCurveTo(
-                    canvas.width/2 + lean, canvas.height/2 + Math.sin(viewFrame + i) * 40,
-                    canvas.width * (i/5), 100,
-                    canvas.width/2, 0
-                );
-                ctx.stroke();
-            }
-        }
-
         animate();
 
-        const spawn = (e) => {
-            const x = e.touches ? e.touches[0].clientX : e.clientX;
-            const y = e.touches ? e.touches[0].clientY : e.clientY;
-            lastTouch = { x, y };
-            const count = window.currentView === 'garden' ? 12 : 5;
-            for(let i=0; i<count; i++) particles.push(new Sparkle(x, y, window.currentView === 'garden'));
-            
-            // Eye Dilation on Home
-            if(window.currentView === 'home') {
-                const eyeInner = document.querySelector('.eye-inner');
-                if(eyeInner) eyeInner.style.transform = "scale(1.3)";
+        window.onclick = (e) => {
+            if(window.currentView === 'vault') {
+                for(let i=0; i<5; i++) treasures.push(new Treasure(e.clientX, e.clientY));
             }
         };
-
-        window.ontouchstart = spawn;
-        window.ontouchend = () => {
-            if(window.currentView === 'home') {
-                const eyeInner = document.querySelector('.eye-inner');
-                if(eyeInner) eyeInner.style.transform = "scale(1)";
-            }
-        };
-        window.onmousemove = (e) => { if(e.buttons) spawn(e); };
 
         function render(view) {
             window.currentView = view;
@@ -182,20 +140,12 @@
             const navs = document.querySelectorAll('.dock-item');
             navs.forEach(n => n.classList.remove('active'));
             document.getElementById('nav-' + (view === 'vault' ? 'cav' : view.substring(0,3))).classList.add('active');
+            
             mv.innerHTML = "";
-            mv.style.justifyContent = (view === 'home') ? 'center' : 'flex-start';
-
             if (view === 'home') {
-                mv.innerHTML = `
-                    <div class="eye-container"><div class="eye-outer"></div><div class="eye-inner"></div><div class="eye-pupil"></div></div>
-                    <h1 class="source-title">SOURCE</h1>
-                    <p class="script-quote">The bond of the 144</p>
-                `;
-            } else if (view === 'garden') {
-                mv.innerHTML = `
-                    <h1 style="font-family:'Cinzel'; color:var(--gold); margin-top:80px; letter-spacing:12px; font-size:1.6rem;">EDEN</h1>
-                    <p class="script-quote">Breathe life into the soil</p>
-                `;
+                mv.innerHTML = `<h1 class="source-title">SOURCE</h1><p class="script-quote">The bond of the 144</p>`;
+            } else if (view === 'vault') {
+                mv.innerHTML = `<h1 style="font-family:'Cinzel'; color:var(--gold); margin-top:80px; letter-spacing:12px; font-size:1.6rem;">VAULT</h1><p class="script-quote">Your wealth is your wisdom</p>`;
             } else {
                 mv.innerHTML = `<h1 style="font-family:'Cinzel'; color:var(--gold); margin-top:80px; letter-spacing:12px;">${view.toUpperCase()}</h1>`;
             }
