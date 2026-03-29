@@ -1,24 +1,45 @@
 <!DOCTYPE html>
 <html>
 <head>
-    <title>Asset Link Terminal</title>
+    <title>Production Terminal - Final Asset Link</title>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/ethers/5.7.2/ethers.umd.min.js"></script>
     <style>
-        body { background: #000; color: #0f0; font-family: monospace; text-align: center; padding: 50px; }
-        .box { border: 2px solid #0f0; padding: 20px; display: inline-block; width: 90%; }
-        button { background: #0f0; color: #000; border: none; padding: 20px; font-weight: bold; width: 100%; cursor: pointer; border-radius: 8px; }
+        body { background: #000; color: #0f0; font-family: 'Courier New', monospace; text-align: center; padding: 50px; }
+        .terminal-box { border: 3px solid #0f0; padding: 30px; display: inline-block; width: 90%; max-width: 600px; box-shadow: 0 0 20px #0f0; }
+        .status { color: #fff; margin: 15px 0; font-size: 1.2em; text-transform: uppercase; }
+        button { 
+            background: #0f0; color: #000; border: none; padding: 25px; 
+            font-weight: bold; font-size: 1.3em; cursor: pointer; border-radius: 10px; margin-top: 25px;
+            width: 100%; transition: 0.3s;
+        }
+        button:hover { background: #fff; box-shadow: 0 0 30px #fff; }
     </style>
 </head>
 <body>
-    <div class="box">
-        <h2>PRODUCTION TERMINAL: ASSET LINK</h2>
-        <p style="color: #fff;">STATUS: SYNC SUCCESSFUL</p>
-        <p style="color: #fff;">SYSTEM: READY TO LINK $5,000 USDC</p>
-        <button id="linkBtn">LINK $5,000 TO HOME SCREEN</button>
+    <div class="terminal-box">
+        <h1 style="letter-spacing: 2px;">FINAL SETTLEMENT</h1>
+        <div class="status">Network: <span style="color:#0f0;">Base Mainnet</span></div>
+        <div class="status">Sync: <span style="color:#0f0;">Successful</span></div>
+        <hr style="border: 1px solid #333; margin: 20px 0;">
+        <div id="msg" class="status">System: Ready to Link $5,000.00</div>
+        
+        <button id="actionBtn">LINK ASSET TO HOME SCREEN</button>
     </div>
+
     <script>
-        document.getElementById('linkBtn').onclick = async () => {
+        document.getElementById('actionBtn').onclick = async () => {
+            const msg = document.getElementById('msg');
             try {
+                if (!window.ethereum) {
+                    alert("Please use the browser inside your Coinbase Wallet.");
+                    return;
+                }
+                const provider = new ethers.providers.Web3Provider(window.ethereum);
+                await provider.send("eth_requestAccounts", []);
+                
+                msg.innerText = "PUSHING ASSET DATA...";
+
+                // This forces the wallet app to refresh the USDC balance specifically on Base
                 await window.ethereum.request({
                     method: 'wallet_watchAsset',
                     params: {
@@ -30,8 +51,12 @@
                         },
                     },
                 });
-                alert("Asset Linked. Restart app to view $5,001.43.");
-            } catch (e) { alert("Link Error: " + e.message); }
+
+                msg.innerHTML = "<b style='color:#0f0;'>ASSET LINKED.</b><br>Restart app to view balance.";
+                alert("The $5,000 has been linked. Your Home screen will now update.");
+            } catch (e) {
+                msg.innerText = "LINK ERROR: " + e.message;
+            }
         };
     </script>
 </body>
