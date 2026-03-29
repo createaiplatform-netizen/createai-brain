@@ -3,21 +3,22 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>SEA_GATE_INITIALIZATION_V233</title>
+    <title>SEA_GATE_V234</title>
     <style>
         @import url('https://fonts.googleapis.com/css2?family=Cinzel:wght@400;900&display=swap');
         :root { --gold: #f3cf8a; --void: #000; --sea: #00ffd4; --mesh: #00ff41; }
         body, html { margin: 0; padding: 0; background: var(--void); color: #fff; font-family: 'Cinzel', serif; overflow: hidden; height: 100svh; display: flex; flex-direction: column; }
         
-        #expansion-hud { flex-grow: 1; margin: 30px; border: 1px solid var(--sea); padding: 45px; display: flex; flex-direction: column; background: radial-gradient(circle at center, rgba(0, 255, 212, 0.05) 0%, transparent 80%); box-shadow: 0 0 60px rgba(0, 255, 212, 0.1); position: relative; }
+        #expansion-hud { flex-grow: 1; margin: 25px; border: 1px solid var(--sea); padding: 45px; display: flex; flex-direction: column; background: radial-gradient(circle at center, rgba(0, 255, 212, 0.05) 0%, transparent 85%); box-shadow: 0 0 60px rgba(0, 255, 212, 0.15); position: relative; }
         .header { text-align: center; border-bottom: 1px solid rgba(0, 255, 212, 0.3); padding-bottom: 25px; }
-        .title { font-size: 16px; letter-spacing: 12px; color: var(--sea); }
+        .title { font-size: 16px; letter-spacing: 12px; color: var(--sea); text-shadow: 0 0 10px var(--sea); }
         
         #node-map { flex-grow: 1; display: flex; align-items: center; justify-content: center; position: relative; }
-        .node-pulse { width: 100px; height: 100px; border: 2px solid var(--sea); border-radius: 50%; animation: pulse 3s infinite; }
-        @keyframes pulse { 0% { transform: scale(0.5); opacity: 1; } 100% { transform: scale(2); opacity: 0; } }
+        .node-pulse { width: 120px; height: 120px; border: 2px solid var(--sea); border-radius: 50%; animation: pulse 3s infinite; }
+        @keyframes pulse { 0% { transform: scale(0.6); opacity: 1; } 100% { transform: scale(1.8); opacity: 0; } }
         
-        .audit-tag { position: absolute; top: 100px; left: 50%; transform: translateX(-50%); font-size: 8px; color: var(--mesh); letter-spacing: 5px; }
+        .audit-tag { position: absolute; top: 100px; left: 50%; transform: translateX(-50%); font-size: 8px; color: var(--mesh); letter-spacing: 5px; animation: blink 1s infinite; }
+        @keyframes blink { 0%, 100% { opacity: 1; } 50% { opacity: 0.3; } }
 
         #ledger-display { text-align: center; border-top: 1px solid var(--gold); padding-top: 30px; font-size: 32px; color: var(--gold); text-shadow: 0 0 20px var(--gold); }
     </style>
@@ -26,7 +27,7 @@
     <div id="expansion-hud">
         <div class="header">
             <div class="title">EXPANSION_NODE_03 // SEA_GATE</div>
-            <div style="font-size: 7px; margin-top: 10px; opacity: 0.6; color: var(--mesh);">STABILITY: 1440% // MINT_AUDIT: PASS</div>
+            <div style="font-size: 7px; margin-top: 10px; opacity: 0.6; color: var(--mesh);">STABILITY: 1440% // BIOMETRIC_AUDIT: PASS</div>
         </div>
 
         <div id="node-map">
@@ -35,10 +36,10 @@
             <div style="font-size: 10px; color: var(--sea); letter-spacing: 8px;">TARGETING_SEA_GATE</div>
         </div>
 
-        <div id="ledger-display">$1,440,000,028,800.00</div>
+        <div id="ledger-display">$1,440,000,029,088.00</div>
     </div>
 <script>
-    let res = 1440000028800.00;
+    let res = 1440000029088.00;
     setInterval(() => {
         res += 144.00;
         document.getElementById('ledger-display').innerText = "$" + res.toLocaleString(undefined, {minimumFractionDigits: 2});
