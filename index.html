@@ -3,56 +3,130 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>CREATEAI | FAMILY_HUB</title>
+    <title>Sovereign Hub | CREATEAI</title>
     <style>
-        :root { --soft-blue: #E3F2FD; --warm-gold: #FFD700; --pure-white: #FFFFFF; --text: #2C3E50; --soft-pink: #FCE4EC; }
-        body { 
-            background: linear-gradient(135deg, var(--soft-blue) 0%, var(--soft-pink) 100%); 
-            color: var(--text); font-family: 'Segoe UI', Roboto, Helvetica, sans-serif; 
-            margin: 0; padding: 20px; min-height: 100vh; display: flex; flex-direction: column; align-items: center;
+        :root { 
+            --deep-slate: #1e293b; 
+            --soft-gold: #b89c66; 
+            --bg-cream: #faf9f6;
+            --white: #ffffff;
         }
-        .welcome-header { text-align: center; margin-bottom: 30px; }
-        .welcome-header h1 { font-size: 2.2rem; color: #1A5276; margin-bottom: 5px; }
-        .welcome-header p { font-size: 1rem; opacity: 0.8; }
         
-        /* Friendly Grid */
-        .grid { display: grid; grid-template-columns: 1fr 1fr; gap: 15px; width: 100%; max-width: 500px; }
-        .btn { 
-            background: var(--pure-white); 
-            border: none; border-radius: 20px; padding: 25px 10px;
-            text-align: center; text-decoration: none; color: #1A5276;
-            font-weight: bold; font-size: 0.9rem;
-            box-shadow: 0 4px 15px rgba(0,0,0,0.05);
-            transition: transform 0.2s, box-shadow 0.2s;
-            display: flex; flex-direction: column; align-items: center;
+        body { 
+            background: var(--bg-cream); 
+            color: var(--deep-slate); 
+            font-family: 'Inter', -apple-system, system-ui, sans-serif;
+            margin: 0; padding: 0;
         }
-        .btn:active { transform: scale(0.95); }
-        .icon { font-size: 1.5rem; margin-bottom: 8px; }
 
-        .community-note { 
-            background: rgba(255, 255, 255, 0.5); 
-            border-radius: 15px; padding: 15px; width: 100%; max-width: 500px;
-            margin-top: 25px; font-size: 0.85rem; line-height: 1.5; text-align: center;
+        /* Clean, Sophisticated Header */
+        .header {
+            padding: 80px 20px 40px;
+            text-align: center;
         }
+
+        .brand-tag {
+            font-size: 0.7rem;
+            letter-spacing: 4px;
+            color: var(--soft-gold);
+            text-transform: uppercase;
+            margin-bottom: 15px;
+            font-weight: 600;
+        }
+
+        .welcome-msg {
+            font-size: 2.5rem;
+            font-weight: 300;
+            margin: 0;
+            color: var(--deep-slate);
+        }
+
+        /* The Professional Navigation Grid */
+        .portal-grid {
+            max-width: 1000px;
+            margin: 40px auto;
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+            gap: 30px;
+            padding: 0 20px;
+        }
+
+        .portal-card {
+            background: var(--white);
+            padding: 50px 30px;
+            text-align: center;
+            text-decoration: none;
+            color: inherit;
+            border-radius: 4px;
+            box-shadow: 0 4px 20px rgba(0,0,0,0.03);
+            transition: all 0.3s ease;
+            border-bottom: 3px solid transparent;
+        }
+
+        .portal-card:hover {
+            transform: translateY(-8px);
+            box-shadow: 0 15px 40px rgba(0,0,0,0.07);
+            border-bottom: 3px solid var(--soft-gold);
+        }
+
+        .portal-icon {
+            font-size: 1.8rem;
+            margin-bottom: 20px;
+            display: block;
+            color: var(--soft-gold);
+        }
+
+        .portal-title {
+            font-size: 1.1rem;
+            font-weight: 500;
+            letter-spacing: 1px;
+            margin-bottom: 10px;
+            text-transform: uppercase;
+        }
+
+        .portal-sub {
+            font-size: 0.8rem;
+            color: #64748b;
+            line-height: 1.5;
+        }
+
     </style>
 </head>
 <body>
-    <div class="welcome-header">
-        <h1>Welcome Home</h1>
-        <p>Your Family's Digital Haven</p>
+
+    <header class="header">
+        <div class="brand-tag">The Sovereign Collective</div>
+        <h1 class="welcome-msg">Welcome Home</h1>
+        <p style="opacity: 0.6; font-size: 0.9rem;">Your secure interface for global creation and family wealth.</p>
+    </header>
+
+    <div class="portal-grid">
+        
+        <a href="marketplace.html" class="portal-card">
+            <span class="portal-icon">🛒</span>
+            <div class="portal-title">Marketplace</div>
+            <p class="portal-sub">The global exchange. Order anything, anywhere.</p>
+        </a>
+
+        <a href="creator-hub.html" class="portal-card">
+            <span class="portal-icon">🖋️</span>
+            <div class="portal-title">Creator Hub</div>
+            <p class="portal-sub">Co-create with AI. Manifest your family's vision.</p>
+        </a>
+
+        <a href="wellness.html" class="portal-card">
+            <span class="portal-icon">✨</span>
+            <div class="portal-title">Wellness</div>
+            <p class="portal-sub">Private healthcare and biometric monitoring.</p>
+        </a>
+
+        <a href="savings.html" class="portal-card">
+            <span class="portal-icon">⚖️</span>
+            <div class="portal-title">Wealth</div>
+            <p class="portal-sub">Secure ledger and asset management.</p>
+        </a>
+
     </div>
 
-    <div class="grid">
-        <a href="nexus.html" class="btn"><span class="icon">🏠</span>FAMILY_NEXUS</a>
-        <a href="marketplace.html" class="btn"><span class="icon">🎁</span>GIFT_SHOP</a>
-        <a href="bank.html" class="btn"><span class="icon">💰</span>SAVINGS</a>
-        <a href="healthcare.html" class="btn"><span class="icon">❤️</span>WELLNESS</a>
-        <a href="gardens.html" class="btn"><span class="icon">🌱</span>THE_GARDEN</a>
-        <a href="hub.html" class="btn"><span class="icon">🎨</span>CREATIVE_HUB</a>
-    </div>
-
-    <div class="community-note">
-        <strong>✨ Today's Thought:</strong> Small moments create the biggest memories. Check the Garden to see what's blooming today!
-    </div>
 </body>
 </html>
