@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
-    <title>CREATEAI // TACTICAL_INTEL</title>
+    <title>CREATEAI // ENERGY_CORE</title>
     <style>
         @import url('https://fonts.googleapis.com/css2?family=Cinzel:wght@400;900&family=Inter:wght@100;300;600&display=swap');
         :root { --gold: #f3cf8a; --void: #010103; --cave: #ff4d00; --garden: #10b981; }
@@ -11,7 +11,7 @@
         * { box-sizing: border-box; -webkit-tap-highlight-color: transparent; margin: 0; padding: 0; }
         html, body { height: 100%; width: 100vw; overflow: hidden; background: var(--void); color: #fff; font-family: 'Inter', sans-serif; }
 
-        .stars { position: fixed; inset: 0; background: radial-gradient(circle at 50% 50%, rgba(26, 26, 46, 0.3) 0%, #010103 100%); z-index: -1; }
+        .stars { position: fixed; inset: 0; background: radial-gradient(circle at 50% 50%, rgba(26, 26, 46, 0.2) 0%, #010103 100%); z-index: -1; }
         
         #main-view { 
             height: 100svh; width: 100%; display: flex; flex-direction: column; 
@@ -25,9 +25,10 @@
         .eye-inner { width: 80px; height: 80px; background: radial-gradient(circle, var(--gold) 0%, transparent 70%); border-radius: 50%; filter: blur(15px); opacity: 0.6; animation: breathe 8s ease-in-out infinite; }
         .eye-pupil { width: 10px; height: 10px; background: #fff; border-radius: 50%; box-shadow: 0 0 30px var(--gold); }
 
-        /* TACTICAL MAP STYLING */
-        .intel-box { width: 100%; max-width: 400px; border: 1px solid rgba(243, 207, 138, 0.1); background: rgba(255,255,255,0.02); padding: 20px; margin-top: 20px; }
-        .intel-line { display: flex; justify-content: space-between; font-family: 'Cinzel'; font-size: 0.55rem; color: var(--gold); letter-spacing: 2px; margin-bottom: 10px; opacity: 0.7; }
+        /* ENERGY CORE STYLING */
+        .core-display { width: 100%; max-width: 300px; text-align: center; margin-top: 30px; }
+        .battery-bar { width: 100%; height: 4px; background: rgba(16, 185, 129, 0.1); border-radius: 2px; margin: 15px 0; position: relative; overflow: hidden; }
+        .battery-fill { height: 100%; background: var(--garden); box-shadow: 0 0 10px var(--garden); transition: width 1s ease-in-out; }
 
         /* DOCK */
         .dock { position: fixed; bottom: 0; left: 0; width: 100%; height: 85px; background: rgba(1,1,3,0.98); backdrop-filter: blur(30px); border-top: 1px solid rgba(255,255,255,0.05); display: flex; justify-content: space-around; align-items: center; z-index: 9000; padding-bottom: env(safe-area-inset-bottom); }
@@ -38,7 +39,7 @@
         @keyframes breathe { 0%, 100% { transform: scale(1); opacity: 0.4; } 50% { transform: scale(1.2); opacity: 0.7; } }
     </style>
 </head>
-<body onload="render('home')">
+<body onload="render('home'); updateBattery();">
     <div class="stars"></div>
     <div id="main-view"></div>
 
@@ -50,6 +51,23 @@
     </div>
 
     <script>
+        let batteryLevel = "99%";
+
+        async function updateBattery() {
+            try {
+                const battery = await navigator.getBattery();
+                const update = () => {
+                    batteryLevel = Math.floor(battery.level * 100) + "%";
+                    const fill = document.getElementById('bat-fill');
+                    if(fill) fill.style.width = batteryLevel;
+                    const text = document.getElementById('bat-text');
+                    if(text) text.innerText = batteryLevel;
+                };
+                update();
+                battery.addEventListener('levelchange', update);
+            } catch (e) { console.log("Battery API not supported"); }
+        }
+
         function render(view) {
             const mv = document.getElementById('main-view');
             const navs = document.querySelectorAll('.dock-item');
@@ -60,23 +78,19 @@
             mv.style.justifyContent = (view === 'home') ? 'center' : 'flex-start';
 
             if (view === 'home') {
-                mv.innerHTML = `
-                    <div class="eye-container"><div class="eye-outer"></div><div class="eye-inner"></div><div class="eye-pupil"></div></div>
-                    <h1 style="font-family:'Cinzel'; font-size:9vw; letter-spacing:12px;">SOURCE</h1>
-                `;
+                mv.innerHTML = `<div class="eye-container"><div class="eye-outer"></div><div class="eye-inner"></div><div class="eye-pupil"></div></div><h1 style="font-family:'Cinzel'; font-size:9vw; letter-spacing:12px;">SOURCE</h1>`;
             } else if (view === 'registry') {
-                mv.innerHTML = `
-                    <h1 style="font-family:'Cinzel'; font-size:1.1rem; letter-spacing:10px; margin-top:40px;">TACTICAL_INTEL</h1>
-                    <div class="intel-box">
-                        <div class="intel-line"><span>SECTOR:</span><span>LOMBARD_IL</span></div>
-                        <div class="intel-line"><span>COORDS:</span><span>41.8800° N, 88.0159° W</span></div>
-                        <div class="intel-line"><span>STATUS:</span><span>NIGHT_WATCH_ACTIVE</span></div>
-                        <div class="intel-line"><span>ENCRYPTION:</span><span>1440_LEVEL</span></div>
-                    </div>
-                    <div style="display:grid; grid-template-columns: repeat(3, 1fr); gap:10px; width:100%; margin-top:20px;">${Array.from({length: 6}, (_, i) => `<div style="background:rgba(255,255,255,0.02); border:1px solid rgba(255,255,255,0.05); padding:20px; font-family:'Cinzel'; font-size:0.5rem; color:var(--gold); text-align:center;">NODE ${i+1}</div>`).join('')}</div>
-                `;
+                mv.innerHTML = `<h1 style="font-family:'Cinzel'; font-size:1.1rem; letter-spacing:10px; margin-top:40px;">REGISTRY</h1><div style="display:grid; grid-template-columns: repeat(3, 1fr); gap:10px; width:100%; margin-top:30px;">${Array.from({length: 6}, (_, i) => `<div style="background:rgba(255,255,255,0.02); border:1px solid rgba(255,255,255,0.05); padding:20px; font-family:'Cinzel'; font-size:0.5rem; color:var(--gold); text-align:center;">NODE ${i+1}</div>`).join('')}</div>`;
             } else if (view === 'garden') {
-                mv.innerHTML = `<h1 style="font-family:'Cinzel'; color:var(--garden); letter-spacing:10px; margin-top:40px;">EDEN</h1>`;
+                mv.innerHTML = `
+                    <h1 style="font-family:'Cinzel'; color:var(--garden); letter-spacing:10px; margin-top:40px;">EDEN</h1>
+                    <div class="core-display">
+                        <p style="font-family:'Cinzel'; font-size:0.6rem; color:var(--garden); letter-spacing:4px;">EMPIRE_RESERVES</p>
+                        <div class="battery-bar"><div id="bat-fill" class="battery-fill" style="width: ${batteryLevel}"></div></div>
+                        <p id="bat-text" style="font-family:'Cinzel'; font-size:1.5rem; color:var(--garden);">${batteryLevel}</p>
+                    </div>
+                `;
+                updateBattery();
             } else if (view === 'cave') {
                 mv.innerHTML = `<h1 style="font-family:'Cinzel'; color:var(--cave); letter-spacing:10px; margin-top:40px;">VAULT</h1>`;
             }
