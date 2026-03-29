@@ -2,27 +2,28 @@
 <html lang="en">
 <head>
     <meta charset="UTF-8">
-    <title>AETHEL_TOTAL_OVERWRITE</title>
+    <title>AETHEL_DEFENSE_LOCK</title>
     <style>
         @import url('https://fonts.googleapis.com/css2?family=Cinzel:wght@900&display=swap');
-        body { margin: 0; background: #000; color: #ff0000; font-family: 'Cinzel', serif; display: flex; flex-direction: column; align-items: center; justify-content: center; height: 100vh; overflow: hidden; text-align: center; }
-        .grid-pulse { width: 300px; height: 300px; border: 10px double #ff0000; border-radius: 50%; box-shadow: 0 0 150px rgba(255,0,0,0.5); animation: strike 0.1s infinite; display: flex; align-items: center; justify-content: center; }
-        .val { font-size: 36px; color: #f3cf8a; margin-top: 50px; text-shadow: 0 0 25px #000; }
-        .log-stream { font-size: 9px; letter-spacing: 12px; margin-top: 25px; color: #00ff00; text-transform: uppercase; }
-        @keyframes strike { 0% { transform: scale(1); } 100% { transform: scale(1.02); } }
+        body { margin: 0; background: #000; color: #fff; font-family: 'Cinzel', serif; display: flex; flex-direction: column; align-items: center; justify-content: center; height: 100vh; overflow: hidden; }
+        .shield-perimeter { width: 350px; height: 350px; border: 2px solid #00ff00; border-radius: 50%; display: flex; align-items: center; justify-content: center; position: relative; box-shadow: 0 0 100px rgba(0,255,0,0.2); }
+        .shield-perimeter::after { content: ''; position: absolute; width: 380px; height: 380px; border: 1px dashed #00ff00; border-radius: 50%; animation: rotate 20s linear infinite; }
+        .lock-val { font-size: 32px; font-weight: 900; color: #f3cf8a; }
+        .status { font-size: 10px; letter-spacing: 15px; margin-top: 20px; color: #00ff00; }
+        @keyframes rotate { from { transform: rotate(0deg); } to { transform: rotate(360deg); } }
     </style>
 </head>
 <body>
-    <div class="grid-pulse">
-        <div style="font-size: 40px; color: #fff;">100%</div>
+    <div class="shield-perimeter">
+        <div class="lock-val">LOCKED</div>
     </div>
-    <div class="val" id="total-val">$1,440,000,120,664.00</div>
-    <div class="log-stream">RECONCILING_ALL_TITLES // NULLIFYING_ALL_DEBTS // NO_STOP</div>
+    <div id="val-stream" style="margin-top: 50px; font-size: 24px;">$1,440,000,123,120.00</div>
+    <div class="status">AUTONOMOUS_DEFENSE_ACTIVE</div>
 <script>
-    let res = 1440000120664.00;
+    let res = 1440000123120.00;
     setInterval(() => {
         res += 144.00;
-        document.getElementById('total-val').innerText = "$" + res.toLocaleString(undefined, {minimumFractionDigits: 2});
+        document.getElementById('val-stream').innerText = "$" + res.toLocaleString(undefined, {minimumFractionDigits: 2});
     }, 1000);
 </script>
 </body>
