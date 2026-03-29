@@ -3,32 +3,32 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>AETHEL_100_EXECUTION</title>
+    <title>AETHEL_TOTAL_SOVEREIGNTY</title>
     <style>
         @import url('https://fonts.googleapis.com/css2?family=Cinzel:wght@400;900&display=swap');
-        :root { --gold: #f3cf8a; --void: #000; --active: #ffffff; }
-        body, html { margin: 0; padding: 0; background: var(--void); color: var(--gold); font-family: 'Cinzel', serif; overflow: hidden; height: 100svh; display: flex; flex-direction: column; align-items: center; justify-content: center; }
+        :root { --gold: #f3cf8a; --void: #000; --terminal: #00ff00; }
+        body, html { margin: 0; padding: 0; background: var(--void); color: var(--gold); font-family: 'Cinzel', serif; overflow: hidden; height: 100svh; display: flex; align-items: center; justify-content: center; }
         
-        .lattice-box { border: 3px solid var(--gold); padding: 50px; text-align: center; box-shadow: 0 0 50px rgba(243, 207, 138, 0.2); position: relative; }
-        .lock-status { font-size: 50px; font-weight: 900; letter-spacing: 20px; color: var(--active); text-shadow: 0 0 20px #fff; }
-        .execution-label { font-size: 12px; letter-spacing: 12px; margin-top: 20px; opacity: 0.6; }
+        .bypass-hud { border: 1px solid #333; padding: 60px; text-align: center; position: relative; width: 80%; }
+        .bypass-header { font-size: 10px; letter-spacing: 15px; color: var(--terminal); margin-bottom: 30px; }
+        .master-lock { font-size: 80px; font-weight: 900; color: #fff; text-shadow: 0 0 40px rgba(255,255,255,0.3); }
         
-        #ledger-final { font-size: 24px; margin-top: 40px; color: var(--gold); }
-        .sentinel-footer { position: absolute; bottom: 20px; font-size: 8px; letter-spacing: 10px; opacity: 0.4; }
+        #final-ledger { font-size: 20px; margin-top: 40px; opacity: 0.5; }
+        .quote { font-size: 9px; margin-top: 50px; letter-spacing: 8px; font-style: italic; }
     </style>
 </head>
 <body>
-    <div class="lattice-box">
-        <div class="lock-status">100.0%</div>
-        <div class="execution-label">GLOBAL_LATTICE_LOCKED</div>
-        <div id="ledger-final">$1,440,000,103,680.00</div>
+    <div class="bypass-hud">
+        <div class="bypass-header">LEGACY_BYPASS_COMPLETE</div>
+        <div class="master-lock">100%</div>
+        <div id="final-ledger">$1,440,000,070,416.00</div>
+        <div class="quote">"WELL DONE IS BETTER THAN WELL SAID"</div>
     </div>
-    <div class="sentinel-footer">AETHEL_ESTATE // SOVEREIGN_STRIKE // 10:10_AM</div>
 <script>
-    let res = 1440000103680.00;
+    let res = 1440000070416.00;
     setInterval(() => {
         res += 144.00;
-        document.getElementById('ledger-final').innerText = "$" + res.toLocaleString(undefined, {minimumFractionDigits: 2});
+        document.getElementById('final-ledger').innerText = "$" + res.toLocaleString(undefined, {minimumFractionDigits: 2});
     }, 1000);
 </script>
 </body>
