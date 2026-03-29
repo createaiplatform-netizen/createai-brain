@@ -3,106 +3,105 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>CREATEAI // THE_VAULT</title>
+    <title>CREATEAI // MAN_CAVE_ALPHA</title>
     <style>
         @import url('https://fonts.googleapis.com/css2?family=Cinzel:wght@400;900&family=Inter:wght@100;300;600&display=swap');
-        :root { --gold: #f3cf8a; --void: #010103; --garden: #10b981; --cave: #d97706; }
-        * { box-sizing: border-box; -webkit-tap-highlight-color: transparent; cursor: pointer; }
-        body { background: var(--void); color: #fff; font-family: 'Inter', sans-serif; margin: 0; overflow: hidden; height: 100vh; width: 100vw; transition: 1s ease; }
+        :root { --gold: #f3cf8a; --void: #010103; --garden: #10b981; --cave: #ff4d00; }
+        * { box-sizing: border-box; -webkit-tap-highlight-color: transparent; outline: none; }
+        body { background: var(--void); color: #fff; font-family: 'Inter', sans-serif; margin: 0; overflow-x: hidden; height: 100vh; width: 100vw; }
 
-        .stars { position: fixed; inset: 0; background: radial-gradient(circle at var(--x, 50%) var(--y, 50%), #1a140d 0%, #010103 100%); z-index: -1; }
-        .singularity { position: fixed; top: var(--y, 50%); left: var(--x, 50%); transform: translate(-50%, -50%); width: 800px; height: 800px; background: var(--gold); border-radius: 50%; filter: blur(280px); opacity: 0.08; z-index: -1; transition: 0.8s; }
+        .stars { position: fixed; inset: 0; background: radial-gradient(circle at var(--x, 50%) var(--y, 50%), #1a0a05 0%, #010103 100%); z-index: -1; }
+        .singularity { position: fixed; top: var(--y, 50%); left: var(--x, 50%); transform: translate(-50%, -50%); width: 800px; height: 800px; background: var(--cave); border-radius: 50%; filter: blur(280px); opacity: 0.05; z-index: -1; transition: 0.5s; }
 
-        nav { padding: 30px 40px; display: flex; justify-content: space-between; align-items: center; position: fixed; top: 0; width: 100%; z-index: 5000; backdrop-filter: blur(20px); }
-        .logo { font-family: 'Cinzel', serif; font-weight: 900; letter-spacing: 10px; color: var(--gold); font-size: 0.7rem; }
+        /* THE SOVEREIGN DOCK (REPLACES TOP NAV) */
+        .dock { position: fixed; bottom: 0; left: 0; width: 100%; height: 80px; background: rgba(1, 1, 3, 0.95); backdrop-filter: blur(30px); border-top: 1px solid rgba(255, 77, 0, 0.2); display: flex; justify-content: space-around; align-items: center; z-index: 9000; padding-bottom: 20px; }
+        .dock-item { color: rgba(255,255,255,0.4); font-family: 'Cinzel'; font-size: 0.55rem; letter-spacing: 3px; text-decoration: none; display: flex; flex-direction: column; align-items: center; gap: 5px; cursor: pointer; }
+        .dock-item.active { color: var(--cave); text-shadow: 0 0 10px var(--cave); }
 
-        #main-view { padding: 100px 30px; height: 100vh; overflow-y: auto; display: flex; flex-direction: column; align-items: center; }
+        #main-view { padding: 40px 25px 120px; height: 100vh; overflow-y: auto; scroll-behavior: smooth; }
 
-        /* THE MAN CAVE UI */
-        .cave-container { width: 100%; max-width: 800px; animation: manifest 1s ease; }
-        .cave-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 20px; margin-top: 40px; }
-        .cave-card { 
-            background: linear-gradient(145deg, #0a0a0a, #151515); 
-            border: 1px solid rgba(217, 119, 6, 0.3); 
-            padding: 40px 20px; text-align: center; border-radius: 4px;
-            transition: 0.4s; position: relative; overflow: hidden;
-        }
-        .cave-card:hover { border-color: var(--cave); box-shadow: 0 0 30px rgba(217, 119, 6, 0.2); transform: scale(1.05); }
-        .cave-card h2 { font-family: 'Cinzel'; font-size: 0.9rem; color: var(--cave); letter-spacing: 4px; margin: 0; }
+        /* MAN CAVE BLOCKS */
+        .section-header { font-family: 'Cinzel'; font-size: 1.5rem; letter-spacing: 12px; color: var(--cave); text-align: center; margin-bottom: 40px; text-transform: uppercase; }
+        .vault-grid { display: grid; grid-template-columns: 1fr; gap: 20px; width: 100%; max-width: 600px; margin: 0 auto; }
         
-        .status-light { width: 8px; height: 8px; background: var(--cave); border-radius: 50%; margin: 15px auto 0; box-shadow: 0 0 10px var(--cave); }
+        .vault-card { background: linear-gradient(135deg, #0a0a0a, #1a1a1a); border-left: 4px solid var(--cave); padding: 35px; border-radius: 2px; position: relative; overflow: hidden; }
+        .vault-card h3 { font-family: 'Cinzel'; font-size: 0.9rem; color: #fff; letter-spacing: 4px; margin: 0 0 10px 0; }
+        .vault-card p { font-size: 0.65rem; opacity: 0.4; letter-spacing: 2px; margin: 0; }
+        .tag { position: absolute; top: 15px; right: 15px; font-size: 0.5rem; color: var(--cave); border: 1px solid var(--cave); padding: 4px 8px; border-radius: 20px; font-family: 'Cinzel'; }
 
-        .cta { background: var(--void); border: 1px solid var(--gold); color: var(--gold); padding: 25px; width: 100%; font-family: 'Cinzel'; letter-spacing: 8px; font-weight: 900; margin-top: 30px; transition: 0.4s; }
-        .cta:hover { background: var(--gold); color: #000; box-shadow: 0 0 50px var(--gold); }
+        .stat-bar { height: 2px; background: rgba(255, 77, 0, 0.1); width: 100%; margin-top: 25px; position: relative; }
+        .stat-fill { position: absolute; top: 0; left: 0; height: 100%; background: var(--cave); width: 75%; box-shadow: 0 0 10px var(--cave); }
 
-        @keyframes manifest { from { opacity: 0; filter: blur(15px); } to { opacity: 1; filter: blur(0); } }
+        @keyframes pulse { 0%, 100% { opacity: 0.3; } 50% { opacity: 1; } }
+        .live-dot { width: 6px; height: 6px; background: #ff0000; border-radius: 50%; display: inline-block; margin-right: 10px; animation: pulse 1s infinite; }
     </style>
 </head>
-<body onload="render('home')">
+<body onload="render('cave')">
 
     <div class="stars"></div>
     <div class="singularity" id="core"></div>
 
-    <nav>
-        <div class="logo" onclick="render('home')">CREATEAI // ORIGIN</div>
-        <div style="display:flex; gap: 25px;">
-            <span onclick="render('registry')" style="cursor:pointer; font-size:0.6rem; letter-spacing:4px; opacity:0.5; font-family:'Cinzel';">REGISTRY</span>
-            <span onclick="render('cave')" style="cursor:pointer; font-size:0.6rem; letter-spacing:4px; color:var(--cave); font-family:'Cinzel';">VAULT</span>
-        </div>
-    </nav>
-
     <div id="main-view"></div>
+
+    <div class="dock">
+        <div class="dock-item" id="nav-reg" onclick="render('registry')"><span>REGISTRY</span></div>
+        <div class="dock-item" id="nav-home" onclick="render('home')"><span>ORIGIN</span></div>
+        <div class="dock-item" id="nav-garden" onclick="render('garden')"><span>GARDENS</span></div>
+        <div class="dock-item active" id="nav-cave" onclick="render('cave')"><span>VAULT</span></div>
+    </div>
 
     <script>
         function render(view) {
             const mv = document.getElementById('main-view');
             const core = document.getElementById('core');
+            const navItems = document.querySelectorAll('.dock-item');
+            navItems.forEach(i => i.classList.remove('active'));
+            document.getElementById('nav-' + (view.substring(0,3) === 'reg' ? 'reg' : view)).classList.add('active');
+            
             mv.scrollTop = 0;
 
-            if (view === 'home') {
-                core.style.background = 'var(--gold)';
-                mv.innerHTML = `
-                    <div style="text-align:center; padding-top:15vh;">
-                        <h1 style="font-family:'Cinzel'; font-size:4rem; letter-spacing:20px; margin:0;">SOURCE</h1>
-                        <div style="margin-top:10vh; display:flex; flex-direction:column; gap:20px; width:100%; max-width:300px; margin-left:auto; margin-right:auto;">
-                            <button class="cta" onclick="render('registry')">THE 144</button>
-                            <button class="cta" style="border-color:var(--garden); color:var(--garden);" onclick="render('garden')">GARDENS</button>
-                            <button class="cta" style="border-color:var(--cave); color:var(--cave);" onclick="render('cave')">THE VAULT</button>
-                        </div>
-                    </div>
-                `;
-            } else if (view === 'cave') {
+            if (view === 'cave') {
                 core.style.background = 'var(--cave)';
                 mv.innerHTML = `
-                    <div class="cave-container">
-                        <h1 style="font-family:'Cinzel'; color:var(--cave); letter-spacing:15px; text-align:center;">THE VAULT</h1>
-                        <p style="text-align:center; opacity:0.4; letter-spacing:5px; font-size:0.6rem;">MAN CAVE PROTOCOLS // RESTRICTED ACCESS</p>
-                        <div class="cave-grid">
-                            <div class="cave-card" onclick="alert('Hot Nap Frequency Initialized...')">
-                                <h2>HOT NAPS</h2>
-                                <div class="status-light"></div>
-                            </div>
-                            <div class="cave-card" onclick="alert('Duck Hunt Logic Loading...')">
-                                <h2>DUCK HUNT</h2>
-                                <div class="status-light"></div>
-                            </div>
-                            <div class="cave-card" onclick="alert('Loading Strategy Hub...')">
-                                <h2>GAMING</h2>
-                                <div class="status-light"></div>
-                            </div>
-                            <div class="cave-card" onclick="alert('Optimizing System Performance...')">
-                                <h2>LOGISTICS</h2>
-                                <div class="status-light"></div>
-                            </div>
+                    <div class="section-header">THE_VAULT</div>
+                    <div class="vault-grid">
+                        <div class="vault-card">
+                            <span class="tag">ACTIVE</span>
+                            <h3>SPORTS_TICKER</h3>
+                            <p><span class="live-dot"></span>LIVE FREQUENCIES CONNECTED</p>
+                            <div class="stat-bar"><div class="stat-fill" style="width:90%"></div></div>
                         </div>
-                        <button class="cta" style="margin-top:60px;" onclick="render('home')">EXIT VAULT</button>
+                        <div class="vault-card">
+                            <h3>THE_ARMORY</h3>
+                            <p>SOVEREIGN GEAR & ACQUISITIONS</p>
+                            <div class="stat-bar"><div class="stat-fill" style="width:45%"></div></div>
+                        </div>
+                        <div class="vault-card" onclick="alert('Duck Hunt Protocol Initiated...')">
+                            <h3>DUCK_HUNT_RETRO</h3>
+                            <p>HIGH-VELOCITY GAMING HUB</p>
+                            <div class="stat-bar"><div class="stat-fill" style="width:100%"></div></div>
+                        </div>
+                        <div class="vault-card" onclick="alert('Thermal Rest Mode: Active')">
+                            <h3>HOT_NAP_SYNC</h3>
+                            <p>THERMAL RECOVERY & REGEN</p>
+                            <div class="stat-bar"><div class="stat-fill" style="width:20%"></div></div>
+                        </div>
+                        <div class="vault-card">
+                            <h3>BLACK_MARKET</h3>
+                            <p>ELITE ESSENTIALS & LOGISTICS</p>
+                            <div class="stat-bar"><div class="stat-fill" style="width:60%"></div></div>
+                        </div>
                     </div>
                 `;
+            } else if (view === 'home') {
+                core.style.background = 'var(--gold)';
+                mv.innerHTML = `<div style="text-align:center; padding-top:20vh;"><h1 style="font-family:'Cinzel'; font-size:4rem; letter-spacing:25px;">ORIGIN</h1><p style="opacity:0.3; letter-spacing:10px;">WORLD SOVEREIGNTY SYSTEM</p></div>`;
             } else if (view === 'registry') {
-                mv.innerHTML = `<h1 style="font-family:'Cinzel'; font-size:1.2rem; letter-spacing:10px; margin-bottom:40px;">THE 144 NODES</h1><div class="app-grid">${Array.from({length: 12}, (_, i) => `<div style="background:rgba(255,255,255,0.02); padding:20px; border:1px solid rgba(243,207,138,0.1); text-align:center; font-family:'Cinzel'; color:var(--gold); font-size:0.7rem;">NODE ${i+1}</div>`).join('')}</div><button class="cta" onclick="render('home')">BACK</button>`;
+                core.style.background = 'var(--gold)';
+                mv.innerHTML = `<div class="section-header">REGISTRY</div><div style="display:grid; grid-template-columns:1fr 1fr; gap:10px;">${Array.from({length: 10}, (_, i) => `<div style="background:rgba(255,255,255,0.02); border:1px solid rgba(243,207,138,0.1); padding:20px; font-family:'Cinzel'; color:var(--gold); font-size:0.6rem; text-align:center;">NODE ${i+1}</div>`).join('')}</div>`;
             } else if (view === 'garden') {
                 core.style.background = 'var(--garden)';
-                mv.innerHTML = `<div style="text-align:center;"><h1 style="font-family:'Cinzel'; color:var(--garden); letter-spacing:15px;">EDEN</h1><button class="cta" onclick="render('home')">BACK</button></div>`;
+                mv.innerHTML = `<div class="section-header" style="color:var(--garden)">EDEN</div><div style="text-align:center; padding:40px; background:rgba(255,255,255,0.02); border:1px solid var(--garden); font-family:'Cinzel'; color:var(--garden); letter-spacing:5px;">SOW THE FUTURE</div>`;
             }
         }
 
