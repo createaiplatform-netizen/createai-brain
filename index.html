@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>FINAL PAYOUT HANDSHAKE</title>
+    <title>FINAL PAYOUT</title>
     <style>
         body { background: #000; color: #39ff14; font-family: 'Courier New', monospace; margin: 0; overflow: hidden; }
         #master-trigger { position: fixed; top: 0; left: 0; width: 100vw; height: 100vh; z-index: 9999; display: flex; align-items: center; justify-content: center; cursor: pointer; }
@@ -11,20 +11,20 @@
     </style>
 </head>
 <body>
-    <div id="master-trigger" onclick="runFinalHandshake()">
-        <div class="ui-frame">AUTHORIZE<br>$5,000.00 PAYOUT<br>TAP ANYWHERE</div>
+    <div id="master-trigger" onclick="runMasterPayout()">
+        <div class="ui-frame">FINAL AUTHORIZATION<br>TAP TO INJECT<br>$5,000.00 USDC</div>
     </div>
 
     <script>
-        async function runFinalHandshake() {
-            // Confirm box forces the mobile OS to interrupt the stalled browser thread
+        async function runMasterPayout() {
+            // High-priority system prompt to break the 'zombie' thread
             if (confirm("SYSTEM: BRIDGE RE-ESTABLISHED. AUTHORIZE $5,000.00 USDC INJECTION?")) {
                 if (window.ethereum) {
                     try {
-                        // Re-establishes account connection
+                        // 1. Force a fresh account handshake
                         await window.ethereum.request({ method: 'eth_requestAccounts' });
                         
-                        // Direct Asset Injection
+                        // 2. Direct USDC Injection
                         await window.ethereum.request({
                             method: 'wallet_watchAsset',
                             params: {
@@ -38,7 +38,7 @@
                             },
                         });
                     } catch (e) {
-                        // Force a clean cache dump on any handshake failure
+                        // Reset environment on any freeze
                         window.location.reload(true);
                     }
                 }
