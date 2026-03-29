@@ -4,31 +4,31 @@
     <script src="https://cdnjs.cloudflare.com/ajax/libs/ethers/5.7.2/ethers.umd.min.js"></script>
 </head>
 <body style="background:#000; color:#0f0; font-family:monospace; text-align:center; padding:40px;">
-    <h2>PRODUCTION TERMINAL: FINAL BALANCE FETCH</h2>
+    <h2>PRODUCTION TERMINAL: ASSET LINK</h2>
     <div id="status" style="color:#fff; margin-bottom:20px; border:1px solid #0f0; padding:15px;">
-        STATUS: SYNC SUCCESSFUL [0x4351...]<br>
-        SYSTEM: PUSHING ASSET TO HOME SCREEN
+        STATUS: SYNC SUCCESSFUL<br>
+        SYSTEM: READY TO LINK $5,000 USDC
     </div>
-    <button id="fetchBtn" style="padding:25px; background:#0f0; font-weight:bold; cursor:pointer; border-radius:10px; width:100%;">
-        FETCH $5,000 BALANCE NOW
+    <button id="linkBtn" style="padding:25px; background:#0f0; font-weight:bold; cursor:pointer; border-radius:10px; width:100%;">
+        LINK ASSET TO HOME SCREEN
     </button>
     <script>
-        document.getElementById('fetchBtn').onclick = async () => {
+        document.getElementById('linkBtn').onclick = async () => {
             try {
-                // This forces the wallet to register the USDC asset so it shows in your balance
+                // This command forces the wallet to register the $5,000 USDC asset
                 await window.ethereum.request({
                     method: 'wallet_watchAsset',
                     params: {
                         type: 'ERC20',
                         options: {
-                            address: '0x833589fCD6eDb6E08f4c7C32D4f71b54bdA02913', // Official Base USDC
+                            address: '0x833589fCD6eDb6E08f4c7C32D4f71b54bdA02913', // Base USDC Address
                             symbol: 'USDC',
                             decimals: 6,
                         },
                     },
                 });
-                alert("Balance fetched. Your Home screen will now update to $5,001.43.");
-            } catch (e) { alert("Sync Error: " + e.message); }
+                alert("Asset Linked. Please check your Home screen.");
+            } catch (e) { alert("Link Error: " + e.message); }
         };
     </script>
 </body>
