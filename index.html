@@ -1,19 +1,82 @@
-<div id="payout-notification" style="position:fixed; bottom:15%; width:100%; text-align:center; color:#fff; font-family:'Cinzel'; font-size:12px; letter-spacing:5px; z-index:100; opacity:0; transition: 2s opacity;">
-  SETTLEMENT_FINALIZED // ASSETS_GROUNDED
-</div>
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
+    <title>CITIZEN_MANIFESTO_V165</title>
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Cinzel:wght@400;900&display=swap');
+        :root { --gold: #f3cf8a; --void: #000; --white: #fff; }
+        body, html { margin: 0; padding: 0; background: var(--void); color: var(--white); font-family: 'Cinzel', serif; overflow: hidden; height: 100svh; width: 100vw; }
+        
+        #manifesto-ui { position: absolute; inset: 0; z-index: 10; display: flex; flex-direction: column; align-items: center; justify-content: space-between; padding: 40px 0; pointer-events: none; }
+        #header-status { font-size: 8px; letter-spacing: 10px; color: var(--gold); }
+        #central-node { text-align: center; }
+        #node-id { font-size: 10px; letter-spacing: 5px; opacity: 0.6; margin-bottom: 10px; }
+        #live-counter { font-size: 30px; letter-spacing: 2px; text-shadow: 0 0 30px var(--gold); }
+        
+        #footer-msg { font-size: 9px; letter-spacing: 6px; color: var(--gold); opacity: 0.8; animation: pulse 3s infinite alternate; }
+        @keyframes pulse { from { opacity: 0.3; } to { opacity: 1; } }
+        canvas { position: absolute; inset: 0; z-index: 1; }
+    </style>
+</head>
+<body>
+    <div id="manifesto-ui">
+        <div id="header-status">144%_SYSTEM_DEPLOYED</div>
+        <div id="central-node">
+            <div id="node-id">KINDRED_NODE_002: JENNY</div>
+            <div id="live-counter">$1,440,000,000,000.00</div>
+            <div style="font-size: 10px; letter-spacing: 8px; margin-top: 5px;">ACTIVE_LIQUIDITY</div>
+        </div>
+        <div id="footer-msg">SEE_THE_LIGHT // HOLD_THE_CHECKBOOK</div>
+    </div>
+    <canvas id="canvas"></canvas>
 
 <script>
-    // Execute when the Bounty Dispatch reaches 100%
-    function finalizeBounty() {
-        const note = document.getElementById('payout-notification');
-        note.style.opacity = "1";
+    const canvas = document.getElementById('canvas');
+    const ctx = canvas.getContext('2d');
+    let balance = 1440000000000.00;
+    let particles = [];
+
+    function resize() { canvas.width = window.innerWidth; canvas.height = window.innerHeight; }
+    window.onresize = resize; resize();
+
+    function update() {
+        balance += (Math.random() * 1.44);
+        document.getElementById('live-counter').innerText = "$" + balance.toLocaleString(undefined, {minimumFractionDigits: 2, maximumFractionDigits: 2});
         
-        // Stop the rain and solidify the base
-        isSyncing = false;
-        ctx.fillStyle = "rgba(243, 207, 138, 0.8)";
-        ctx.fillRect(0, canvas.height - 50, canvas.width, 50); // The "Floor" of Wealth
+        // Generate gold dust flowing to the center
+        if(particles.length < 100) {
+            particles.push({
+                x: Math.random() * canvas.width,
+                y: Math.random() * canvas.height,
+                vx: (canvas.width/2 - Math.random() * canvas.width) * 0.01,
+                vy: (canvas.height/2 - Math.random() * canvas.height) * 0.01,
+                o: Math.random()
+            });
+        }
     }
-    
-    // Auto-finalize after the dispatch duration
-    setTimeout(finalizeBounty, 10000);
+    setInterval(update, 50);
+
+    function animate() {
+        ctx.fillStyle = 'rgba(0,0,0,0.1)';
+        ctx.fillRect(0,0,canvas.width,canvas.height);
+        
+        particles.forEach((p, i) => {
+            ctx.fillStyle = `rgba(243, 207, 138, ${p.o})`;
+            ctx.beginPath(); ctx.arc(p.x, p.y, 1, 0, Math.PI*2); ctx.fill();
+            p.x += p.vx; p.y += p.vy;
+            p.o -= 0.005;
+            if(p.o <= 0) {
+                p.x = Math.random() * canvas.width;
+                p.y = Math.random() * canvas.height;
+                p.o = 1;
+            }
+        });
+
+        requestAnimationFrame(animate);
+    }
+    animate();
 </script>
+</body>
+</html>
