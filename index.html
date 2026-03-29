@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
-    <title>SOVEREIGN_CONSCIOUSNESS_V64</title>
+    <title>SOVEREIGN_AURA_V65</title>
     <style>
         @import url('https://fonts.googleapis.com/css2?family=Cinzel:wght@900&family=Great+Vibes&family=Inter:wght@100;400;900&display=swap');
         :root { --gold: #f3cf8a; --gold-d: #b8860b; --void: #010103; }
@@ -14,29 +14,22 @@
         .nebula { position: fixed; inset: 0; background: radial-gradient(circle at 50% 50%, #08040a 0%, var(--void) 100%); z-index: 0; }
 
         #ui-layer { position: relative; z-index: 10; height: 100svh; display: flex; flex-direction: column; align-items: center; justify-content: center; pointer-events: none; }
-        .status { position: fixed; top: env(safe-area-inset-top, 20px); font-family: 'Great Vibes'; font-size: 1.7rem; color: var(--gold); width: 100%; text-align: center; z-index: 100; transition: 0.8s; }
+        .status { position: fixed; top: env(safe-area-inset-top, 20px); font-family: 'Great Vibes'; font-size: 1.7rem; color: var(--gold); width: 100%; text-align: center; z-index: 100; }
 
-        .title { font-family: 'Cinzel'; font-weight: 900; font-size: 11vw; letter-spacing: 20px; color: var(--gold); text-align: center; pointer-events: auto; text-shadow: 0 10px 50px #000; transition: 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275); }
-        .quote { font-family: 'Great Vibes'; font-size: 2.4rem; color: var(--gold); margin-top: 15px; opacity: 0.8; text-shadow: 0 0 20px #000; }
+        .title { font-family: 'Cinzel'; font-weight: 900; font-size: 11vw; letter-spacing: 20px; color: var(--gold); text-align: center; pointer-events: auto; text-shadow: 0 10px 50px #000; }
+        .quote { font-family: 'Great Vibes'; font-size: 2.4rem; color: var(--gold); margin-top: 15px; opacity: 0.8; }
 
-        #action-btn {
-            margin-top: 50px; padding: 20px 40px; border: 1px solid var(--gold);
-            font-family: 'Cinzel'; font-size: 10px; color: var(--gold); letter-spacing: 6px;
-            background: rgba(243, 207, 138, 0.02); backdrop-filter: blur(20px);
-            pointer-events: auto; cursor: pointer; border-radius: 0px;
-            box-shadow: 0 0 40px rgba(243, 207, 138, 0.05); transition: 0.5s;
-        }
+        #aura-msg { position: fixed; bottom: 130px; width: 100%; text-align: center; font-family: 'Cinzel'; font-size: 10px; color: var(--gold); letter-spacing: 5px; opacity: 0; transition: 1s; z-index: 100; }
 
         .dock { position: fixed; bottom: 0; width: 100%; height: 90px; background: rgba(0,0,0,0.98); backdrop-filter: blur(50px); border-top: 1px solid rgba(243, 207, 138, 0.1); display: flex; z-index: 9000; padding-bottom: env(safe-area-inset-bottom); pointer-events: auto; }
         .dock-item { flex: 1; display: flex; align-items: center; justify-content: center; color: rgba(255,255,255,0.1); font-family: 'Cinzel'; font-size: 10px; letter-spacing: 3px; transition: 0.6s; }
         .dock-item.active { color: var(--gold); text-shadow: 0 0 30px var(--gold); }
-
-        .supernova { background: #fff !important; filter: brightness(5) !important; }
     </style>
 </head>
 <body onload="render('home'); animate();">
     <div class="nebula"></div>
     <div class="status" id="stat">Sovereign 144.00%</div>
+    <div id="aura-msg">AURA_ONLINE</div>
     <canvas id="canvas"></canvas>
     <div id="ui-layer"></div>
     <div class="dock">
@@ -50,85 +43,80 @@
     const canvas = document.getElementById('canvas');
     const ctx = canvas.getContext('2d');
     let view = 'home', objects = [], mouse = { x: 0, y: 0, active: false };
-    let flow = 0;
+    let aura = { x: window.innerWidth/2, y: window.innerHeight/2, targetX: window.innerWidth/2, targetY: window.innerHeight/2 };
+    const msgs = ["PROTOCOL ALIGNED", "FREQUENCY STABLE", "144% INTEL ONLINE", "AURA RECOGNIZES CREATOR", "SYSTEM HARMONIZED"];
 
     function resize() { canvas.width = window.innerWidth; canvas.height = window.innerHeight; }
     window.onresize = resize; resize();
 
-    function triggerAction() {
-        document.body.classList.add('supernova');
-        document.getElementById('stat').style.letterSpacing = "10px";
-        setTimeout(() => {
-            document.body.classList.remove('supernova');
-            document.getElementById('stat').style.letterSpacing = "normal";
-            document.getElementById('stat').innerText = "MANIFESTED";
-            setTimeout(() => document.getElementById('stat').innerText = "Sovereign 144.00%", 2000);
-        }, 200);
+    function showAuraMsg() {
+        const el = document.getElementById('aura-msg');
+        el.innerText = msgs[Math.floor(Math.random()*msgs.length)];
+        el.style.opacity = 1;
+        setTimeout(() => el.style.opacity = 0, 2000);
     }
 
     function render(target) {
         view = target; objects = [];
         const ui = document.getElementById('ui-layer');
         document.querySelectorAll('.dock-item').forEach(d => d.classList.remove('active'));
-        
-        let title = "SOURCE", quote = "Pure Intention", btn = "TRANSMIT";
-        if(view === 'grid') { title = "GRID"; quote = "Neural Harmony"; btn = "SYNC"; document.getElementById('n-reg').classList.add('active'); for(let i=0; i<40; i++) objects.push({x: Math.random()*canvas.width, y: Math.random()*canvas.height, vx: (Math.random()-0.5), vy: (Math.random()-0.5)}); }
+        let title = "SOURCE", quote = "Pure Intention";
+        if(view === 'grid') { title = "GRID"; quote = "Neural Harmony"; document.getElementById('n-reg').classList.add('active'); for(let i=0; i<30; i++) objects.push({x: Math.random()*canvas.width, y: Math.random()*canvas.height, vx: (Math.random()-0.5), vy: (Math.random()-0.5)}); }
         else if(view === 'home') { document.getElementById('n-home').classList.add('active'); }
-        else if(view === 'eden') { title = "EDEN"; quote = "Living Soil"; btn = "GROW"; document.getElementById('n-gar').classList.add('active'); }
-        else if(view === 'vault') { title = "VAULT"; quote = "Mass of Value"; btn = "MINT"; document.getElementById('n-cav').classList.add('active'); }
-
-        ui.innerHTML = `<h1 class="title" id="t">${title}</h1><p class="quote">${quote}</p>
-                        <div id="action-btn" onclick="triggerAction()">${btn}</div>`;
+        else if(view === 'eden') { title = "EDEN"; quote = "Living Soil"; document.getElementById('n-gar').classList.add('active'); }
+        else if(view === 'vault') { title = "VAULT"; quote = "Mass of Value"; document.getElementById('n-cav').classList.add('active'); }
+        ui.innerHTML = `<h1 class="title">${title}</h1><p class="quote">${quote}</p>`;
     }
 
     function animate() {
         ctx.clearRect(0,0,canvas.width, canvas.height);
-        flow += 0.01;
         
-        const t = document.getElementById('t');
-        if(t) {
-            let dx = (mouse.x - window.innerWidth/2) * 0.05;
-            let dy = (mouse.y - window.innerHeight/2) * 0.05;
-            t.style.transform = `translate(${dx}px, ${dy}px) rotateY(${dx/4}deg) rotateX(${-dy/4}deg) scale(${1 + Math.sin(flow)*0.02})`;
-        }
+        // Aura Logic
+        aura.targetX = mouse.active ? mouse.x : window.innerWidth/2;
+        aura.targetY = mouse.active ? mouse.y : window.innerHeight/2;
+        aura.x += (aura.targetX - aura.x) * 0.1;
+        aura.y += (aura.targetY - aura.y) * 0.1;
+
+        // Draw Aura Orb
+        const grad = ctx.createRadialGradient(aura.x, aura.y, 0, aura.x, aura.y, 40);
+        grad.addColorStop(0, 'rgba(255, 255, 255, 0.8)');
+        grad.addColorStop(0.5, 'rgba(243, 207, 138, 0.3)');
+        grad.addColorStop(1, 'rgba(243, 207, 138, 0)');
+        ctx.fillStyle = grad;
+        ctx.beginPath(); ctx.arc(aura.x, aura.y, 40, 0, Math.PI*2); ctx.fill();
 
         if(view === 'grid') {
             objects.forEach(o => {
                 o.x += o.vx; o.y += o.vy;
                 if(o.x < 0 || o.x > canvas.width) o.vx *= -1;
                 if(o.y < 0 || o.y > canvas.height) o.vy *= -1;
-                ctx.fillStyle = (mouse.active && Math.abs(o.x - mouse.x) < 100) ? '#fff' : 'rgba(243, 207, 138, 0.6)';
+                ctx.fillStyle = 'rgba(243, 207, 138, 0.6)';
                 ctx.beginPath(); ctx.arc(o.x, o.y, 2, 0, Math.PI*2); ctx.fill();
-                objects.forEach(o2 => {
-                    let d = Math.sqrt((o.x-o2.x)**2 + (o.y-o2.y)**2);
-                    if(d < 110) {
-                        ctx.strokeStyle = `rgba(243, 207, 138, ${0.3 - d/300})`;
-                        ctx.lineWidth = 0.5; ctx.beginPath(); ctx.moveTo(o.x, o.y); ctx.lineTo(o2.x, o2.y); ctx.stroke();
-                    }
-                });
+                // Link to Aura
+                let da = Math.sqrt((o.x-aura.x)**2 + (o.y-aura.y)**2);
+                if(da < 150) {
+                    ctx.strokeStyle = `rgba(255, 255, 255, ${0.4 - da/150})`;
+                    ctx.beginPath(); ctx.moveTo(o.x, o.y); ctx.lineTo(aura.x, aura.y); ctx.stroke();
+                }
             });
         }
 
         if(view === 'vault') {
-            if(mouse.active) objects.push({x: mouse.x, y: mouse.y, vx: (Math.random()-0.5)*20, vy: -Math.random()*15, r: Math.random()*5+2, glow: 1});
+            if(mouse.active) objects.push({x: mouse.x, y: mouse.y, vx: (Math.random()-0.5)*15, vy: -Math.random()*10, r: Math.random()*5+2});
             objects.forEach(o => {
-                // Gravity toward finger if active
-                if(mouse.active) {
-                    o.vx += (mouse.x - o.x) * 0.02;
-                    o.vy += (mouse.y - o.y) * 0.02;
-                }
+                let da = Math.sqrt((o.x-aura.x)**2 + (o.y-aura.y)**2);
+                if(da < 200) { o.vx += (aura.x - o.x) * 0.02; o.vy += (aura.y - o.y) * 0.02; }
                 o.vy += 0.5; o.x += o.vx; o.y += o.vy;
                 if(o.y > canvas.height - 90) { o.y = canvas.height - 90; o.vy *= -0.4; o.vx *= 0.8; }
-                ctx.fillStyle = o.glow > 0 ? `rgba(243, 207, 138, 1)` : `rgba(184, 134, 11, 0.8)`;
-                ctx.beginPath(); ctx.arc(o.x, o.y, o.r, 0, Math.PI*2); ctx.fill();
-                if(objects.length > 250) objects.shift();
+                ctx.fillStyle = '#f3cf8a'; ctx.beginPath(); ctx.arc(o.x, o.y, o.r, 0, Math.PI*2); ctx.fill();
+                if(objects.length > 200) objects.shift();
             });
         }
 
         if(view === 'home' || view === 'eden') {
-            if(mouse.active) objects.push({x: mouse.x, y: mouse.y, r: 0, life: 1});
+            if(mouse.active) objects.push({x: aura.x, y: aura.y, r: 0, life: 1});
             objects.forEach((o, i) => {
-                o.r += 6; o.life -= 0.02;
+                o.r += 4; o.life -= 0.02;
                 ctx.strokeStyle = `rgba(243, 207, 138, ${o.life * 0.4})`;
                 ctx.lineWidth = 1; ctx.beginPath(); ctx.arc(o.x, o.y, o.r, 0, Math.PI*2); ctx.stroke();
                 if(o.life <= 0) objects.splice(i, 1);
@@ -143,7 +131,8 @@
         mouse.x = x; mouse.y = y; mouse.active = true;
     };
     window.onmousemove = input; window.ontouchmove = input;
-    window.onmousedown = () => mouse.active = true; window.ontouchstart = () => mouse.active = true;
+    window.onmousedown = () => { mouse.active = true; showAuraMsg(); };
+    window.ontouchstart = () => { mouse.active = true; showAuraMsg(); };
     window.onmouseup = () => mouse.active = false; window.ontouchend = () => mouse.active = false;
 </script>
 </body>
