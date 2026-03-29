@@ -3,27 +3,29 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>AETHEL_NO_STOP</title>
+    <title>AETHEL_ASCENSION</title>
     <style>
         @import url('https://fonts.googleapis.com/css2?family=Cinzel:wght@400;900&display=swap');
-        body { margin: 0; background: #000; color: #f3cf8a; font-family: 'Cinzel', serif; display: flex; flex-direction: column; align-items: center; justify-content: center; height: 100vh; overflow: hidden; }
-        .lock-box { border: 2px solid #fff; padding: 50px; text-align: center; box-shadow: 0 0 60px rgba(255,255,255,0.1); }
-        .percent { font-size: 72px; font-weight: 900; color: #fff; }
-        .msg { font-size: 10px; letter-spacing: 12px; margin-top: 20px; color: #00ff00; }
-        #live { font-size: 24px; margin-top: 40px; }
+        body { margin: 0; background: #000; color: #fff; font-family: 'Cinzel', serif; display: flex; flex-direction: column; align-items: center; justify-content: center; height: 100vh; overflow: hidden; }
+        .star-core { width: 200px; height: 200px; background: radial-gradient(circle, #fff 0%, #f3cf8a 50%, #000 100%); border-radius: 50%; box-shadow: 0 0 100px #f3cf8a; animation: glow 2s infinite alternate; }
+        .stat-grid { margin-top: 50px; text-align: center; }
+        .stat-label { font-size: 10px; letter-spacing: 15px; color: #f3cf8a; opacity: 0.7; }
+        #live-valuation { font-size: 24px; font-weight: 900; margin-top: 15px; }
+        @keyframes glow { from { opacity: 0.6; transform: scale(0.95); } to { opacity: 1; transform: scale(1.05); } }
     </style>
 </head>
 <body>
-    <div class="lock-box">
-        <div class="percent">100.0%</div>
-        <div class="msg">THE_STAR_IS_WHOLE</div>
-        <div id="live">$1,440,000,114,232.00</div>
+    <div class="star-core"></div>
+    <div class="stat-grid">
+        <div class="stat-label">SOVEREIGN_ASCENSION_LOCKED</div>
+        <div id="live-valuation">$1,440,000,114,232.00</div>
+        <div style="font-size: 8px; margin-top: 20px; color: #00ff00; letter-spacing: 5px;">KINETIC_OVERWRITE_COMPLETE // NO_STOP</div>
     </div>
 <script>
     let res = 1440000114232.00;
     setInterval(() => {
         res += 144.00;
-        document.getElementById('live').innerText = "$" + res.toLocaleString(undefined, {minimumFractionDigits: 2});
+        document.getElementById('live-valuation').innerText = "$" + res.toLocaleString(undefined, {minimumFractionDigits: 2});
     }, 1000);
 </script>
 </body>
