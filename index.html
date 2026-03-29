@@ -3,23 +3,28 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
-    <title>SOVEREIGN_GOD_MODE_V138</title>
+    <title>SOVEREIGN_CORE_V139</title>
     <style>
+        @import url('https://fonts.googleapis.com/css2?family=Cinzel:wght@900&display=swap');
         :root { --void: #000000; --gold: #f3cf8a; --white: #ffffff; }
         * { box-sizing: border-box; margin: 0; padding: 0; touch-action: none; outline: none; }
         body, html { height: 100svh; width: 100vw; background: var(--void); overflow: hidden; position: fixed; }
         canvas { position: absolute; inset: 0; z-index: 1; }
-        #god-status { position: fixed; top: 40px; width: 100%; text-align: center; z-index: 10; font-family: 'Cinzel', serif; color: var(--white); font-size: 10px; letter-spacing: 10px; opacity: 0.5; pointer-events: none; }
+        #core-values { position: fixed; inset: 0; display: flex; align-items: center; justify-content: center; z-index: 5; pointer-events: none; }
+        #value-text { font-family: 'Cinzel', serif; color: var(--gold); font-size: 14px; letter-spacing: 12px; opacity: 0; transition: opacity 0.8s; text-shadow: 0 0 20px var(--gold); }
+        #seal { position: fixed; bottom: 40px; width: 100%; text-align: center; color: var(--gold); font-family: 'Cinzel'; font-size: 12px; letter-spacing: 15px; z-index: 10; opacity: 0.6; text-shadow: 0 0 10px var(--gold); }
     </style>
 </head>
 <body onmousedown="spawn(event)" ontouchstart="spawn(event)" onmousemove="track(event)" ontouchmove="track(event)" onmouseup="release()" ontouchend="release()">
-    <div id="god-status">GOD_MODE: ACTIVE</div>
+    <div id="core-values"><div id="value-text">HONESTY • TRUTH • 144%</div></div>
+    <div id="seal">SOVEREIGN_CORE: 144%</div>
     <canvas id="canvas"></canvas>
 
 <script>
     const canvas = document.getElementById('canvas');
     const ctx = canvas.getContext('2d');
     let particles = [], isDown = false, mx = 0, my = 0, holdTime = 0;
+    const valueText = document.getElementById('value-text');
 
     function resize() { canvas.width = window.innerWidth; canvas.height = window.innerHeight; }
     window.onresize = resize; resize();
@@ -37,28 +42,30 @@
             if (isDown) {
                 let dx = mx - this.x; let dy = my - this.y;
                 let d = Math.hypot(dx, dy);
-                if (Date.now() - holdTime > 1500) { // Divine Architecture Mode
-                    let tx = mx + Math.cos(this.angle) * 150;
-                    let ty = my + Math.sin(this.angle) * 150;
-                    this.vx += (tx - this.x) * 0.2;
-                    this.vy += (ty - this.y) * 0.2;
-                    this.angle += 0.05;
-                } else { // Standard Attraction
-                    this.vx += dx / d * 1.5; this.vy += dy / d * 1.5;
+                if (Date.now() - holdTime > 1500) {
+                    valueText.style.opacity = "0.8";
+                    let tx = mx + Math.cos(this.angle) * 160;
+                    let ty = my + Math.sin(this.angle) * 160;
+                    this.vx += (tx - this.x) * 0.25;
+                    this.vy += (ty - this.y) * 0.25;
+                    this.angle += 0.06;
+                } else {
+                    this.vx += dx / d * 1.8; this.vy += dy / d * 1.8;
                 }
+            } else {
+                valueText.style.opacity = "0";
             }
             this.vx *= 0.94; this.vy *= 0.94;
             this.x += this.vx; this.y += this.vy;
-            this.life -= 0.001;
+            this.life -= 0.0015;
         }
         draw() {
-            let op = this.isPrime ? this.life : this.life * 0.5;
+            let op = this.isPrime ? this.life : this.life * 0.4;
             ctx.fillStyle = `rgba(243, 207, 138, ${op})`;
-            ctx.beginPath(); ctx.arc(this.x, this.y, this.isPrime ? 5 : 1.5, 0, Math.PI * 2); ctx.fill();
+            ctx.beginPath(); ctx.arc(this.x, this.y, this.isPrime ? 6 : 1.5, 0, Math.PI * 2); ctx.fill();
             if (this.isPrime) {
-                ctx.shadowBlur = 15; ctx.shadowColor = 'var(--gold)';
-                ctx.strokeStyle = `rgba(255,255,255,${this.life})`;
-                ctx.stroke();
+                ctx.shadowBlur = 20; ctx.shadowColor = 'var(--gold)';
+                ctx.stroke(); ctx.shadowBlur = 0;
             }
         }
     }
@@ -67,7 +74,7 @@
         isDown = true; holdTime = Date.now();
         mx = e.clientX || (e.touches ? e.touches[0].clientX : 0);
         my = e.clientY || (e.touches ? e.touches[0].clientY : 0);
-        for(let i=0; i<12; i++) particles.push(new Particle(mx, my, i === 0));
+        for(let i=0; i<15; i++) particles.push(new Particle(mx, my, i === 0));
     }
     function track(e) {
         mx = e.clientX || (e.touches ? e.touches[0].clientX : mx);
@@ -76,17 +83,20 @@
     function release() { isDown = false; }
 
     function animate() {
-        ctx.fillStyle = 'rgba(0, 0, 0, 0.2)';
+        ctx.fillStyle = 'rgba(0, 0, 0, 0.25)';
         ctx.fillRect(0, 0, canvas.width, canvas.height);
-        
         particles = particles.filter(p => p.life > 0);
         particles.forEach(p => { p.update(); p.draw(); });
 
         if (isDown && Date.now() - holdTime > 1500) {
-            ctx.strokeStyle = 'rgba(255,255,255,0.05)';
-            ctx.beginPath(); ctx.arc(mx, my, 150, 0, Math.PI * 2); ctx.stroke();
+            ctx.strokeStyle = 'rgba(243, 207, 138, 0.1)';
+            ctx.beginPath(); ctx.arc(mx, my, 160, 0, Math.PI * 2); ctx.stroke();
+            // Core Ripple
+            if(Math.sin(Date.now()*0.005) > 0.95) {
+                ctx.strokeStyle = 'rgba(255,255,255,0.05)';
+                ctx.beginPath(); ctx.arc(mx, my, (Math.sin(Date.now()*0.005))*400, 0, Math.PI*2); ctx.stroke();
+            }
         }
-
         requestAnimationFrame(animate);
     }
     animate();
