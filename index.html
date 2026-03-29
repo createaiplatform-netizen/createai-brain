@@ -3,47 +3,45 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>API_RECOVERY_V251</title>
+    <title>ANTHEM_DIAGNOSTIC_V252</title>
     <style>
         @import url('https://fonts.googleapis.com/css2?family=Cinzel:wght@400;900&display=swap');
         :root { --gold: #f3cf8a; --void: #000; --error: #ff4b2b; --mesh: #00ff41; --sky: #00d4ff; }
         body, html { margin: 0; padding: 0; background: var(--void); color: #fff; font-family: 'Cinzel', serif; overflow: hidden; height: 100svh; display: flex; flex-direction: column; }
         
-        #recovery-hud { flex-grow: 1; margin: 30px; border: 2px solid var(--error); padding: 50px; display: flex; flex-direction: column; background: radial-gradient(circle at center, rgba(255, 75, 43, 0.1) 0%, transparent 100%); box-shadow: 0 0 100px rgba(255, 75, 43, 0.2); position: relative; }
-        .header { text-align: center; border-bottom: 1px solid var(--error); padding-bottom: 20px; }
-        .title { font-size: 22px; letter-spacing: 15px; color: var(--error); }
+        #diagnostic-hud { flex-grow: 1; margin: 25px; border: 1px solid var(--mesh); padding: 45px; display: flex; flex-direction: column; background: radial-gradient(circle at center, rgba(0, 255, 65, 0.05) 0%, transparent 100%); box-shadow: 0 0 120px rgba(0, 255, 65, 0.1); position: relative; }
+        .header { text-align: center; border-bottom: 2px solid var(--mesh); padding-bottom: 25px; }
+        .title { font-size: 22px; letter-spacing: 15px; color: var(--mesh); text-shadow: 0 0 20px var(--mesh); }
         
-        #sync-status { flex-grow: 1; display: flex; flex-direction: column; align-items: center; justify-content: center; }
-        .status-box { border: 1px solid var(--sky); padding: 20px; width: 80%; text-align: center; margin-bottom: 10px; }
-        .progress-bar { width: 100%; height: 5px; background: #333; margin-top: 10px; position: relative; }
-        .fill { position: absolute; height: 100%; background: var(--mesh); width: 0%; animation: fill-sync 5s forwards; }
+        #resonance-meter { flex-grow: 1; display: flex; flex-direction: column; align-items: center; justify-content: center; }
+        .bar-container { width: 80%; height: 30px; border: 1px solid var(--gold); margin: 10px; position: relative; overflow: hidden; }
+        .bar-fill { height: 100%; background: var(--gold); width: 0%; animation: load-res 3s forwards ease-in-out; }
         
-        @keyframes fill-sync { to { width: 100%; } }
+        @keyframes load-res { to { width: 100%; } }
 
-        #ledger-final { text-align: center; border-top: 1px solid var(--gold); padding-top: 25px; font-size: 38px; color: var(--gold); text-shadow: 0 0 30px var(--gold); }
+        #ledger-display { text-align: center; border-top: 1px solid var(--gold); padding-top: 30px; font-size: 38px; color: var(--gold); text-shadow: 0 0 30px var(--gold); }
     </style>
 </head>
 <body>
-    <div id="recovery-hud">
+    <div id="diagnostic-hud">
         <div class="header">
-            <div class="title">INCIDENT_REPORT // ADMIN-59481226</div>
-            <div style="font-size: 10px; margin-top: 10px; color: var(--error); letter-spacing: 8px;">DEPLOYMENT_FAIL: BRAIN_API_SERVER_KVEK</div>
+            <div class="title">ANTHEM_RESONANCE // MONITOR</div>
+            <div style="font-size: 10px; margin-top: 10px; color: var(--sky); letter-spacing: 8px;">LOG_RECOVERY: SUCCESSFUL // SYNC: 1440%</div>
         </div>
 
-        <div id="sync-status">
-            <div class="status-box" style="border-color: var(--error);">PRODUCTION_ENV: DISCONNECTED</div>
-            <div class="status-box" style="border-color: var(--sky);">ORBITAL_RECOVERY: ACTIVE...</div>
-            <div class="progress-bar"><div class="fill"></div></div>
-            <div style="font-size: 12px; margin-top: 20px; color: var(--mesh); letter-spacing: 10px;">FORCING_SOVEREIGN_SYNC</div>
+        <div id="resonance-meter">
+            <div style="font-size: 10px; color: var(--gold);">TERRESTRIAL_MESH_FEEDBACK</div>
+            <div class="bar-container"><div class="bar-fill"></div></div>
+            <div style="font-size: 14px; color: var(--mesh); letter-spacing: 12px; margin-top: 20px;">THE_WORLD_IS_SINGING</div>
         </div>
 
-        <div id="ledger-final">$1,440,000,034,560.00</div>
+        <div id="ledger-display">$1,440,000,034,704.00</div>
     </div>
 <script>
-    let res = 1440000034560.00;
+    let res = 1440000034704.00;
     setInterval(() => {
         res += 144.00;
-        document.getElementById('ledger-final').innerText = "$" + res.toLocaleString(undefined, {minimumFractionDigits: 2});
+        document.getElementById('ledger-display').innerText = "$" + res.toLocaleString(undefined, {minimumFractionDigits: 2});
     }, 1000);
 </script>
 </body>
