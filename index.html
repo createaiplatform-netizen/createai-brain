@@ -3,12 +3,13 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
-    <title>CREATEAI // BEAUTIFUL_WRITING</title>
+    <title>CREATEAI // GILDED_PULSE</title>
     <style>
         @import url('https://fonts.googleapis.com/css2?family=Cinzel:wght@400;900&family=Great+Vibes&family=Inter:wght@100;300;600&display=swap');
         :root { 
             --gold-light: #f3cf8a; 
             --gold-dark: #b8860b;
+            --silver: #e2e2e2;
             --obsidian: #050208; 
             --void: #010103; 
         }
@@ -29,45 +30,44 @@
             position: relative; z-index: 10;
         }
 
-        /* BEAUTIFUL WRITING HEADER */
+        /* BEAUTIFUL SIGNATURE HEADER */
         .status-header { 
             position: fixed; top: env(safe-area-inset-top, 20px); 
-            font-family: 'Great Vibes', cursive; font-size: 1.2rem; letter-spacing: 2px; 
+            font-family: 'Great Vibes', cursive; font-size: 1.4rem; 
             color: var(--gold-light); opacity: 0.9; z-index: 100; 
-            text-align: center; width: 100%; text-shadow: 0 0 10px rgba(243, 207, 138, 0.5);
+            text-align: center; width: 100%; text-shadow: 0 0 12px rgba(243, 207, 138, 0.4);
         }
 
         /* NEURAL EYE */
         .eye-container { width: 150px; height: 150px; position: relative; display: flex; align-items: center; justify-content: center; }
-        .eye-outer { position: absolute; width: 100%; height: 100%; border: 1px solid rgba(243, 207, 138, 0.2); border-radius: 50%; animation: rotate 40s linear infinite; }
-        .eye-inner { width: 80px; height: 80px; background: radial-gradient(circle, var(--gold-light) 0%, transparent 80%); border-radius: 50%; filter: blur(15px); opacity: 0.8; animation: breathe 10s ease-in-out infinite; }
-        .eye-pupil { width: 8px; height: 8px; background: #fff; border-radius: 50%; box-shadow: 0 0 25px var(--gold-light); }
+        .eye-outer { position: absolute; width: 100%; height: 100%; border: 1px solid rgba(243, 207, 138, 0.2); border-radius: 50%; animation: rotate 45s linear infinite; }
+        .eye-inner { width: 80px; height: 80px; background: radial-gradient(circle, var(--gold-light) 0%, transparent 80%); border-radius: 50%; filter: blur(15px); opacity: 0.8; animation: breathe 12s ease-in-out infinite; }
+        .eye-pupil { width: 6px; height: 6px; background: #fff; border-radius: 50%; box-shadow: 0 0 20px var(--gold-light); }
 
         .source-title { 
             font-family: 'Cinzel'; font-weight: 900; font-size: 10vw; letter-spacing: 18px; 
             color: var(--gold-light); margin-top: 10px;
             background: linear-gradient(90deg, var(--gold-dark), var(--gold-light), #fff, var(--gold-light), var(--gold-dark));
             background-size: 200% auto; -webkit-background-clip: text; -webkit-text-fill-color: transparent;
-            animation: shine 6s linear infinite;
+            animation: shine 8s linear infinite;
         }
 
-        /* THE BEAUTIFUL SCRIPT */
         .script-quote {
             font-family: 'Great Vibes', cursive;
-            font-size: 1.8rem;
+            font-size: 1.9rem;
             color: var(--gold-light);
-            margin-top: 25px;
+            margin-top: 20px;
             text-align: center;
-            opacity: 0.8;
-            text-shadow: 0 0 15px rgba(243, 207, 138, 0.3);
+            opacity: 0.85;
+            text-shadow: 0 0 10px rgba(243, 207, 138, 0.2);
         }
 
-        .dock { position: fixed; bottom: 0; left: 0; width: 100%; height: 85px; background: rgba(1,1,3,0.98); backdrop-filter: blur(25px); border-top: 1px solid rgba(243, 207, 138, 0.1); display: flex; justify-content: space-around; align-items: center; z-index: 9000; padding-bottom: env(safe-area-inset-bottom); }
-        .dock-item { color: rgba(255,255,255,0.2); font-family: 'Cinzel'; font-size: 10px; letter-spacing: 2px; text-align: center; flex: 1; padding: 15px; }
-        .dock-item.active { color: var(--gold-light); text-shadow: 0 0 15px var(--gold-light); }
+        .dock { position: fixed; bottom: 0; left: 0; width: 100%; height: 85px; background: rgba(1,1,3,0.97); backdrop-filter: blur(20px); border-top: 1px solid rgba(243, 207, 138, 0.08); display: flex; justify-content: space-around; align-items: center; z-index: 9000; padding-bottom: env(safe-area-inset-bottom); }
+        .dock-item { color: rgba(255,255,255,0.15); font-family: 'Cinzel'; font-size: 10px; letter-spacing: 2px; text-align: center; flex: 1; padding: 15px; transition: 0.3s; }
+        .dock-item.active { color: var(--gold-light); text-shadow: 0 0 12px var(--gold-light); }
 
         @keyframes rotate { from { transform: rotate(0deg); } to { transform: rotate(360deg); } }
-        @keyframes breathe { 0%, 100% { transform: scale(1); opacity: 0.6; } 50% { transform: scale(1.1); opacity: 0.9; } }
+        @keyframes breathe { 0%, 100% { transform: scale(1); opacity: 0.6; } 50% { transform: scale(1.15); opacity: 0.9; } }
         @keyframes shine { to { background-position: 200% center; } }
     </style>
 </head>
@@ -97,23 +97,24 @@
             setInterval(() => {
                 const decimal = (Math.random() * 0.1).toFixed(2);
                 statusText.innerText = `Sovereign 144.${decimal.split('.')[1]}%`;
-            }, 4000);
+            }, 3500);
         }
 
-        class GoldDust {
+        class Sparkle {
             constructor(x, y) {
                 this.x = x; this.y = y;
-                this.size = Math.random() * 2 + 0.5;
-                this.vX = (Math.random() - 0.5) * 1.2;
-                this.vY = (Math.random() - 0.5) * 1.2;
+                this.size = Math.random() * 2.5 + 0.3;
+                this.vX = (Math.random() - 0.5) * 1.5;
+                this.vY = (Math.random() - 0.5) * 1.5;
                 this.life = 1;
-                this.color = Math.random() > 0.4 ? '#f3cf8a' : '#ffffff';
+                this.color = Math.random() > 0.3 ? '#f3cf8a' : '#ffffff';
             }
             draw() {
-                ctx.globalAlpha = this.life; ctx.fillStyle = this.color; ctx.shadowBlur = 5; ctx.shadowColor = this.color;
-                ctx.beginPath(); ctx.arc(this.x, this.y, this.size, 0, Math.PI*2); ctx.fill(); ctx.shadowBlur = 0;
+                const twinkle = this.size * (0.7 + Math.abs(Math.sin(Date.now() * 0.01)));
+                ctx.globalAlpha = this.life; ctx.fillStyle = this.color; ctx.shadowBlur = 8; ctx.shadowColor = this.color;
+                ctx.beginPath(); ctx.arc(this.x, this.y, twinkle, 0, Math.PI*2); ctx.fill(); ctx.shadowBlur = 0;
             }
-            update() { this.x += this.vX; this.y += this.vY; this.life -= 0.015; }
+            update() { this.x += this.vX; this.y += this.vY; this.life -= 0.012; }
         }
 
         function animate() {
@@ -126,7 +127,7 @@
         const spawn = (e) => {
             const x = e.touches ? e.touches[0].clientX : e.clientX;
             const y = e.touches ? e.touches[0].clientY : e.clientY;
-            for(let i=0; i<4; i++) particles.push(new GoldDust(x, y));
+            for(let i=0; i<6; i++) particles.push(new Sparkle(x, y));
         };
         window.onmousemove = spawn; window.ontouchmove = spawn;
 
@@ -146,11 +147,11 @@
                     <p class="script-quote">The bond of the 144</p>
                 `;
             } else if (view === 'registry') {
-                mv.innerHTML = `<h1 style="font-family:'Cinzel'; color:var(--gold-light); margin-top:80px; letter-spacing:10px;">REGISTRY</h1>`;
+                mv.innerHTML = `<h1 style="font-family:'Cinzel'; color:var(--gold-light); margin-top:80px; letter-spacing:10px; font-size:1.5rem;">REGISTRY</h1><p class="script-quote" style="font-size:1.2rem;">Architect of the Grid</p>`;
             } else {
                 mv.innerHTML = `<h1 style="font-family:'Cinzel'; color:var(--gold-light); margin-top:80px; letter-spacing:10px;">${view.toUpperCase()}</h1>`;
             }
         }
     </script>
 </body>
-</html
+</html>
