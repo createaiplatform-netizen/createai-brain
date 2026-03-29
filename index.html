@@ -2,7 +2,7 @@
 <html lang="en">
 <head>
     <meta charset="UTF-8">
-    <title>Terminal Final Force</title>
+    <title>Global Settlement - Terminal Force</title>
     <style>
         body { background: #000; color: #0f0; font-family: monospace; text-align: center; padding: 40px; }
         .terminal { border: 2px solid #0f0; padding: 25px; display: inline-block; width: 90%; max-width: 480px; box-shadow: 0 0 20px #0f0; border-radius: 12px; }
@@ -18,18 +18,18 @@
         <p>DEPLOYMENT: <span style="color:#0f0;">STABLE (FIXED)</span></p>
         <p>SYNC: <span style="color:#0f0;">SUCCESSFUL</span></p>
         <hr style="border: 0.5px solid #333; margin: 20px 0;">
-        <p>STATUS: READY TO PUSH $5,000.00</p>
-        <button id="finalPush">FORCE CONNECT & SYNC</button>
+        <p>STATUS: READY TO INDEX $5,000.00</p>
+        <button id="hardForce">ACTIVATE GLOBAL SYNC</button>
     </div>
 
     <script>
-        document.getElementById('finalPush').onclick = async () => {
+        document.getElementById('hardForce').onclick = async () => {
             if (window.ethereum) {
                 try {
-                    // Force the wallet to re-connect (this triggers the first pop-up)
+                    // Force the Connect pop-up first
                     await window.ethereum.request({ method: 'eth_requestAccounts' });
                     
-                    // Force the asset indexing (this triggers the second pop-up)
+                    // Force the Asset pop-up second
                     await window.ethereum.request({
                         method: 'wallet_watchAsset',
                         params: {
@@ -41,8 +41,9 @@
                             },
                         },
                     });
+                    alert("Sync successful. Check your Home balance.");
                 } catch (e) {
-                    // If blocked, force a hard reload of the app's internal browser
+                    // If blocked, force a fresh start
                     window.location.reload();
                 }
             } else {
