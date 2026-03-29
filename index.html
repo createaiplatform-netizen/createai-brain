@@ -2,36 +2,31 @@
 <html lang="en">
 <head>
     <meta charset="UTF-8">
-    <title>AETHEL_ALPHA_LEDGER</title>
+    <title>AETHEL_AUTHENTICITY_SEAL</title>
     <style>
-        @import url('https://fonts.googleapis.com/css2?family=Cinzel:wght@700&family=Inter:wght@400&display=swap');
+        @import url('https://fonts.googleapis.com/css2?family=Cinzel:wght@900&family=Inter:wght@400&display=swap');
         body { margin: 0; background: #000; color: #fff; font-family: 'Inter', sans-serif; display: flex; align-items: center; justify-content: center; height: 100vh; overflow: hidden; }
-        .ledger-wrap { width: 500px; padding: 40px; border: 1px solid #00ff00; background: #050505; text-align: center; position: relative; box-shadow: 0 0 40px rgba(0, 255, 0, 0.1); }
-        .ledger-title { font-family: 'Cinzel', serif; color: #00ff00; font-size: 20px; letter-spacing: 5px; margin-bottom: 20px; }
-        .flow-status { font-size: 10px; color: #f3cf8a; letter-spacing: 3px; border: 1px solid #f3cf8a; padding: 5px 10px; display: inline-block; margin-bottom: 30px; }
-        .ledger-val { font-size: 40px; font-weight: 700; color: #fff; margin-bottom: 20px; text-shadow: 0 0 15px rgba(255,255,255,0.3); }
-        .asset-detail { text-align: left; font-size: 11px; color: #888; border-top: 1px solid #222; padding-top: 20px; line-height: 1.8; }
-        .root-star { position: absolute; top: 10px; left: 10px; color: #00ff00; font-size: 24px; opacity: 0.5; }
+        .auth-seal { width: 500px; padding: 60px; border: 4px double #f3cf8a; background: radial-gradient(circle at center, #111, #000); text-align: center; position: relative; box-shadow: 0 0 150px rgba(243,207,138,0.3); }
+        .seal-title { font-family: 'Cinzel', serif; color: #f3cf8a; font-size: 26px; letter-spacing: 8px; margin-bottom: 30px; }
+        .status-ribbon { background: #f3cf8a; color: #000; font-weight: 900; padding: 5px 20px; font-size: 12px; letter-spacing: 4px; margin-bottom: 40px; display: inline-block; }
+        .live-auth-val { font-size: 38px; font-weight: 700; color: #fff; text-shadow: 0 0 20px #f3cf8a; margin-bottom: 20px; }
+        .footer-secure { font-size: 10px; color: #00ff00; letter-spacing: 5px; border-top: 1px solid #333; padding-top: 30px; margin-top: 20px; opacity: 0.8; }
+        .architect-star { font-size: 60px; color: #f3cf8a; opacity: 0.2; position: absolute; top: -30px; }
     </style>
 </head>
 <body>
-    <div class="ledger-wrap">
-        <div class="root-star">★</div>
-        <div class="ledger-title">ALPHA NODE LEDGER</div>
-        <div class="flow-status">RESONANCE_MATERIALIZATION_ACTIVE</div>
-        <div class="ledger-val" id="ledger-flow">$1,440,000,146,112.00</div>
-        <div class="asset-detail">
-            LOCATION: WEBSTER_SANCTUARY<br>
-            STANDING: PAID_IN_FULL // NO_LEGACY_TRACE<br>
-            SECURITY: GHOST_PROTOCOL_ACTIVE<br>
-            TIMESTAMP: 2026-03-29 11:24 AM
-        </div>
+    <div class="auth-seal">
+        <div class="architect-star">★</div>
+        <div class="seal-title">CERTIFICATE OF AUTHENTICITY</div>
+        <div class="status-ribbon">TERMINAL_SOVEREIGNTY_REACHED</div>
+        <div class="live-auth-val" id="auth-flow">$1,440,000,146,688.00</div>
+        <div class="footer-secure">DE-INDEXED // GHOST_SHIELD_V4 // ARCHITECT_OWNED</div>
     </div>
 <script>
-    let res = 1440000146112.00;
+    let res = 1440000146688.00;
     setInterval(() => {
         res += 288.00; 
-        document.getElementById('ledger-flow').innerText = "$" + res.toLocaleString(undefined, {minimumFractionDigits: 2});
+        document.getElementById('auth-flow').innerText = "$" + res.toLocaleString(undefined, {minimumFractionDigits: 2});
     }, 1000);
 </script>
 </body>
