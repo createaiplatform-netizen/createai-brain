@@ -3,100 +3,125 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>CreateAI | Sovereign OS</title>
+    <title>CreateAI | 365 Sovereign OS</title>
     <style>
-        :root { --slate: #0f172a; --gold: #b89c66; --bg: #f8fafc; --white: #ffffff; }
-        body { background: var(--bg); color: var(--slate); font-family: 'Inter', sans-serif; margin: 0; }
+        :root { --slate: #0f172a; --gold: #b89c66; --bg: #f8fafc; --white: #ffffff; --glass: rgba(255,255,255,0.8); }
+        body { background: var(--bg); color: var(--slate); font-family: 'Inter', sans-serif; margin: 0; scroll-behavior: smooth; }
         
-        /* THE COMMAND BAR */
-        nav { background: var(--slate); padding: 15px 40px; display: flex; justify-content: space-between; align-items: center; color: white; }
-        .logo { font-weight: 800; letter-spacing: 1px; cursor: pointer; border-left: 3px solid var(--gold); padding-left: 10px; }
-        .nav-links span { margin-left: 20px; font-size: 0.75rem; cursor: pointer; color: rgba(255,255,255,0.7); font-weight: 600; text-transform: uppercase; }
+        nav { background: var(--slate); padding: 15px 40px; display: flex; justify-content: space-between; align-items: center; color: white; position: sticky; top: 0; z-index: 1000; box-shadow: 0 4px 20px rgba(0,0,0,0.1); }
+        .logo { font-weight: 800; cursor: pointer; border-left: 3px solid var(--gold); padding-left: 10px; }
+        .nav-links span { margin-left: 20px; font-size: 0.7rem; cursor: pointer; color: rgba(255,255,255,0.7); font-weight: 600; text-transform: uppercase; }
         .nav-links span:hover { color: var(--gold); }
 
-        #main-view { padding: 40px 20px; max-width: 1200px; margin: 0 auto; }
+        #main-view { padding: 40px 20px; max-width: 1400px; margin: 0 auto; min-height: 90vh; }
 
-        /* PROFESSIONAL UI ELEMENTS */
-        .card { background: var(--white); border: 1px solid #e2e8f0; padding: 30px; border-radius: 2px; transition: 0.3s; }
-        .card:hover { border-color: var(--gold); box-shadow: 0 10px 30px rgba(0,0,0,0.05); }
-        .grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(280px, 1fr)); gap: 20px; }
-        .btn { background: var(--slate); color: white; border: none; padding: 12px 20px; cursor: pointer; font-size: 0.7rem; font-weight: bold; width: 100%; margin-top: 15px; }
+        /* SEARCH & FILTER BAR */
+        .search-controls { display: flex; gap: 10px; margin-bottom: 30px; background: white; padding: 15px; border-radius: 8px; box-shadow: 0 2px 10px rgba(0,0,0,0.05); }
+        .search-controls input { flex-grow: 1; padding: 12px; border: 1px solid #e2e8f0; border-radius: 4px; }
+        .search-controls select { padding: 12px; border: 1px solid #e2e8f0; border-radius: 4px; }
+
+        /* THE 365 GRID */
+        .grid-365 { display: grid; grid-template-columns: repeat(auto-fill, minmax(110px, 1fr)); gap: 12px; }
+        .node { background: white; border: 1px solid #e2e8f0; aspect-ratio: 1; display: flex; flex-direction: column; align-items: center; justify-content: center; font-size: 0.65rem; cursor: pointer; transition: 0.3s cubic-bezier(0.17, 0.67, 0.83, 0.67); position: relative; border-radius: 4px; }
+        .node:hover { border-color: var(--gold); transform: translateY(-5px); box-shadow: 0 10px 20px rgba(0,0,0,0.05); z-index: 10; }
+        .node.active { border: 2px solid var(--gold); background: #fffdf5; }
+        .node.active::after { content: 'LIVE'; position: absolute; top: 5px; right: 5px; font-size: 0.5rem; color: var(--gold); font-weight: 900; }
         
-        /* CREATOR HUB SPECIALS */
-        .creator-form { max-width: 600px; margin: 0 auto; background: white; padding: 40px; border-top: 4px solid var(--gold); }
-        input, select, textarea { width: 100%; padding: 12px; margin: 10px 0; border: 1px solid #ddd; font-family: inherit; box-sizing: border-box; }
+        .node-day { font-size: 1.2rem; font-weight: 800; margin-bottom: 2px; color: var(--slate); }
+        .node-name { font-size: 0.55rem; text-align: center; padding: 0 5px; text-transform: uppercase; opacity: 0.8; height: 20px; overflow: hidden; }
+
+        /* CREATOR TERMINAL */
+        .terminal { max-width: 600px; margin: 0 auto; background: white; padding: 40px; border-radius: 8px; box-shadow: 0 20px 50px rgba(0,0,0,0.1); border-top: 5px solid var(--gold); }
+        .terminal h2 { margin-top: 0; font-weight: 300; }
+        input, select, textarea { width: 100%; padding: 14px; margin: 10px 0; border: 1px solid #ddd; border-radius: 4px; font-family: inherit; box-sizing: border-box; }
+        .btn-deploy { background: var(--slate); color: white; border: none; padding: 18px; cursor: pointer; font-weight: bold; width: 100%; letter-spacing: 2px; margin-top: 15px; }
+        .btn-deploy:hover { background: #1e293b; }
     </style>
 </head>
 <body onload="showView('home')">
 
     <nav>
-        <div class="logo" onclick="showView('home')">CREATEAI_BRAIN</div>
+        <div class="logo" onclick="showView('home')">CREATEAI_365</div>
         <div class="nav-links">
-            <span onclick="showView('market')">Global Marketplace</span>
-            <span onclick="showView('creator')">Family Creator Hub</span>
-            <span onclick="showView('home')">Command Center</span>
+            <span onclick="showView('market')">Marketplace</span>
+            <span onclick="showView('creator')">Creator Hub</span>
+            <span onclick="showView('home')">Command</span>
         </div>
     </nav>
 
     <div id="main-view"></div>
 
     <script>
-        // THIS IS YOUR LIVE APP INVENTORY
-        let myApps = [
-            { name: "BrainGen", cat: "AI", desc: "Core generative engine for OS nodes.", price: "Internal" },
-            { name: "Sovereign Health", cat: "Wellness", desc: "Biometric family monitoring.", price: "$199" },
-            { name: "Marketplace Strategist", cat: "Wealth", desc: "Automated retail positioning.", price: "$299" }
-        ];
+        // CORE DATABASE
+        let sovereignNodes = {
+            1: { name: "BrainGen Engine", cat: "AI", desc: "Core OS foundation." },
+            122: { name: "Marketplace Alpha", cat: "Wealth", desc: "Retail infrastructure." }
+        };
 
         const views = {
             home: `
-                <div style="text-align:center;">
-                    <h1 style="font-weight:200; font-size:2.5rem;">Welcome Home</h1>
-                    <p style="opacity:0.6; margin-bottom:40px;">Sovereign Operating System | Node Active</p>
-                    <div class="grid">
-                        <div class="card" onclick="showView('market')"><h2>Marketplace</h2><p>Deployed Apps & Products</p></div>
-                        <div class="card" onclick="showView('creator')"><h2>Creator Hub</h2><p>Manifest & Publish</p></div>
-                        <div class="card"><h2>Nexus</h2><p>Family Communications</p></div>
+                <div style="text-align:center; padding-top: 10vh;">
+                    <div style="color:var(--gold); letter-spacing:5px; font-size:0.8rem; margin-bottom:15px;">SOVEREIGN OPERATING SYSTEM</div>
+                    <h1 style="font-weight:200; font-size:3.5rem; margin:0;">Welcome Home</h1>
+                    <p style="opacity:0.5; max-width:500px; margin: 20px auto 40px;">Manage your 365-day empire from a single interface. Design, deploy, and dominate.</p>
+                    <div style="display:grid; grid-template-columns: 1fr 1fr; gap:20px; max-width:500px; margin: 0 auto;">
+                        <button class="btn-deploy" onclick="showView('market')">Open Marketplace</button>
+                        <button class="btn-deploy" style="background:var(--gold); color:black;" onclick="showView('creator')">Creator Hub</button>
                     </div>
                 </div>
             `,
             market: () => `
-                <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:30px;">
-                    <h1>Global Marketplace</h1>
-                    <input type="text" placeholder="Search 122+ apps..." style="max-width:300px; margin:0;">
+                <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:20px;">
+                    <h1>365 Marketplace</h1>
+                    <div style="font-size:0.8rem; opacity:0.6;">NODE_COUNT: ${Object.keys(sovereignNodes).length} / 365</div>
                 </div>
-                <div class="grid">
-                    ${myApps.map(app => `
-                        <div class="card">
-                            <div style="font-size:0.6rem; color:var(--gold); font-weight:bold; letter-spacing:1px;">${app.cat.toUpperCase()}</div>
-                            <h3>${app.name}</h3>
-                            <p style="font-size:0.85rem; color:#64748b;">${app.desc}</p>
-                            <div style="font-weight:bold; margin-top:10px;">${app.price}</div>
-                            <button class="btn">ACQUIRE / LAUNCH</button>
-                        </div>
-                    `).join('')}
+                
+                <div class="search-controls">
+                    <input type="text" id="nodeSearch" placeholder="Search by name or day..." onkeyup="filterNodes()">
+                    <select id="catFilter" onchange="filterNodes()">
+                        <option value="all">All Categories</option>
+                        <option value="AI">AI Tools</option>
+                        <option value="Wellness">Wellness</option>
+                        <option value="Wealth">Wealth</option>
+                        <option value="Creative">Creative</option>
+                    </select>
+                </div>
+
+                <div class="grid-365" id="nodeGrid">
+                    ${Array.from({length: 365}, (_, i) => i + 1).map(day => {
+                        const active = sovereignNodes[day];
+                        return `
+                        <div class="node ${active ? 'active' : ''}" data-day="${day}" data-name="${active ? active.name.toLowerCase() : ''}" data-cat="${active ? active.cat : ''}" onclick="launchNode(${day})">
+                            <span style="opacity:0.4; font-size:0.5rem;">DAY</span>
+                            <div class="node-day">${day}</div>
+                            <div class="node-name">${active ? active.name : '----'}</div>
+                        </div>`;
+                    }).join('')}
                 </div>
             `,
             creator: `
-                <div class="creator-form">
-                    <h2 style="margin-top:0;">Family Publishing Terminal</h2>
-                    <p style="font-size:0.8rem; color:#666; margin-bottom:30px;">Direct upload to CreateAI Marketplace categories.</p>
+                <div class="terminal">
+                    <h2>Manifest New Node</h2>
+                    <p style="font-size:0.8rem; color:#666; margin-bottom:30px;">Direct deployment to the 365 Sovereign Grid.</p>
                     
-                    <label>App/Product Name</label>
-                    <input type="text" id="appName" placeholder="e.g. Scriptwriter V2">
+                    <label>Grid Assignment (Day 1-365)</label>
+                    <input type="number" id="nDay" min="1" max="365" placeholder="Which day?">
+                    
+                    <label>Application Name</label>
+                    <input type="text" id="nName" placeholder="Name your creation...">
                     
                     <label>Category Placement</label>
-                    <select id="appCat">
-                        <option value="AI Tools">AI Tools</option>
-                        <option value="Wellness">Wellness</option>
-                        <option value="Wealth">Wealth</option>
-                        <option value="Marketing">Marketing</option>
+                    <select id="nCat">
+                        <option value="AI">AI Technology</option>
+                        <option value="Wellness">Wellness & Health</option>
+                        <option value="Wealth">Wealth & Finance</option>
+                        <option value="Creative">Creative Arts</option>
                     </select>
                     
-                    <label>Description (What does the Little AI do?)</label>
-                    <textarea id="appDesc" rows="3" placeholder="Define the functionality..."></textarea>
+                    <label>Little AI Instructions</label>
+                    <textarea id="nDesc" rows="4" placeholder="How should this node behave?"></textarea>
                     
-                    <button class="btn" style="background:var(--gold); color:black; height:50px; font-size:0.8rem;" onclick="publishApp()">PUBLISH TO MARKETPLACE</button>
+                    <button class="btn-deploy" style="background:var(--gold); color:black;" onclick="deployNode()">DEPLOY TO MARKETPLACE</button>
                 </div>
             `
         };
@@ -104,20 +129,46 @@
         function showView(name) {
             const content = typeof views[name] === 'function' ? views[name]() : views[name];
             document.getElementById('main-view').innerHTML = content;
+            window.scrollTo(0,0);
         }
 
-        function publishApp() {
-            const name = document.getElementById('appName').value;
-            const cat = document.getElementById('appCat').value;
-            const desc = document.getElementById('appDesc').value;
+        function filterNodes() {
+            const query = document.getElementById('nodeSearch').value.toLowerCase();
+            const cat = document.getElementById('catFilter').value;
+            const nodes = document.querySelectorAll('.node');
 
-            if(!name || !desc) return alert("All fields required for deployment.");
+            nodes.forEach(node => {
+                const day = node.getAttribute('data-day');
+                const name = node.getAttribute('data-name');
+                const nCat = node.getAttribute('data-cat');
+                
+                const matchesSearch = day.includes(query) || name.includes(query);
+                const matchesCat = cat === 'all' || nCat === cat;
 
-            // The Little AI logic pushes the app to your global list
-            myApps.push({ name: name, cat: cat, desc: desc, price: "TBD" });
+                node.style.display = (matchesSearch && matchesCat) ? 'flex' : 'none';
+            });
+        }
+
+        function deployNode() {
+            const day = document.getElementById('nDay').value;
+            const name = document.getElementById('nName').value;
+            const cat = document.getElementById('nCat').value;
+            const desc = document.getElementById('nDesc').value;
             
-            alert(`SUCCESS: ${name} is now live in the ${cat} section.`);
+            if(!day || !name) return alert("Validation Failed: Specify Day and Name.");
+            
+            sovereignNodes[day] = { name: name, cat: cat, desc: desc };
+            alert(`NODE ${day} INITIALIZED: ${name} is now public.`);
             showView('market');
+        }
+
+        function launchNode(day) {
+            const app = sovereignNodes[day];
+            if(app) {
+                alert(`LAUNCHING [DAY ${day}]: ${app.name}\nCATEGORY: ${app.cat}\nSTATUS: Operational`);
+            } else {
+                alert(`DAY ${day}: Node empty. Visit Creator Hub to manifest.`);
+            }
         }
     </script>
 </body>
