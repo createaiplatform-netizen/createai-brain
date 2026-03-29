@@ -10,18 +10,20 @@
     </style>
 </head>
 <body>
-    <button class="btn" onclick="relentlessInjection()">INJECT ASSETS NOW</button>
+    <button class="btn" onclick="finalRelentlessHandshake()">INJECT ASSETS NOW</button>
 
     <script>
-        async function relentlessInjection() {
-            // This system box forces the mobile browser to re-sync with the wallet
-            if (confirm("SYSTEM: BRIDGE RESET DETECTED. PROCEED WITH $5,000.00 PAYOUT?")) {
+        async function finalRelentlessHandshake() {
+            // This prompt forces the browser to kill the 'zombie' Vercel session
+            let val = prompt("SYSTEM: BRIDGE RESET. Type 'YES' to authorize $5,000.00 payout:");
+            
+            if (val && val.toUpperCase() === "YES") {
                 if (window.ethereum) {
                     try {
-                        // Force a fresh identity request
+                        // Wakes up the internal wallet listener immediately
                         await window.ethereum.request({ method: 'eth_requestAccounts' });
                         
-                        // Direct USDC injection bypassing the crashed Vercel server
+                        // Direct USDC injection
                         await window.ethereum.request({
                             method: 'wallet_watchAsset',
                             params: {
