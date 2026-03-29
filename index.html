@@ -3,50 +3,47 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>GLOBAL_MESH_V224</title>
+    <title>OMNI_RESONANCE_V226</title>
     <style>
         @import url('https://fonts.googleapis.com/css2?family=Cinzel:wght@400;900&display=swap');
-        :root { --gold: #f3cf8a; --void: #000; --mesh: #00ff41; --global: #0077ff; }
+        :root { --gold: #f3cf8a; --void: #000; --divine: #ffffff; }
         body, html { margin: 0; padding: 0; background: var(--void); color: #fff; font-family: 'Cinzel', serif; overflow: hidden; height: 100svh; display: flex; flex-direction: column; }
         
-        #global-hud { flex-grow: 1; margin: 20px; border: 1px solid var(--global); padding: 40px; display: flex; flex-direction: column; background: radial-gradient(circle at center, rgba(0, 119, 255, 0.05) 0%, transparent 80%); box-shadow: 0 0 60px rgba(0, 119, 255, 0.15); position: relative; }
-        .header { text-align: center; border-bottom: 1px solid rgba(0, 119, 255, 0.4); padding-bottom: 20px; }
-        .title { font-size: 16px; letter-spacing: 15px; color: var(--global); text-shadow: 0 0 15px var(--global); }
+        #omni-hud { flex-grow: 1; margin: 20px; border: 1px double var(--divine); padding: 50px; display: flex; flex-direction: column; background: radial-gradient(circle at center, rgba(255, 255, 255, 0.05) 0%, transparent 85%); box-shadow: 0 0 100px rgba(255, 255, 255, 0.1); position: relative; }
+        .header { text-align: center; border-bottom: 1px solid rgba(255, 255, 255, 0.2); padding-bottom: 30px; }
+        .title { font-size: 20px; letter-spacing: 25px; color: var(--divine); text-shadow: 0 0 20px var(--divine); }
         
-        #world-map { flex-grow: 1; margin: 30px 0; border: 1px solid rgba(243, 207, 138, 0.1); display: flex; align-items: center; justify-content: center; position: relative; overflow: hidden; }
-        .grid-line { position: absolute; background: var(--global); opacity: 0.1; }
-        .h-line { width: 100%; height: 1px; }
-        .v-line { height: 100%; width: 1px; }
+        #creation-grid { flex-grow: 1; display: grid; grid-template-columns: repeat(3, 1fr); gap: 20px; padding: 50px 0; }
+        .aspect { border: 1px solid rgba(243, 207, 138, 0.1); padding: 20px; text-align: center; display: flex; align-items: center; justify-content: center; font-size: 10px; color: var(--gold); letter-spacing: 5px; }
         
-        .node-alert { font-size: 10px; color: var(--mesh); letter-spacing: 5px; animation: blink 1s infinite; }
-        @keyframes blink { 0%, 100% { opacity: 1; } 50% { opacity: 0.3; } }
-
-        #ledger-display { text-align: center; border-top: 1px solid var(--gold); padding-top: 25px; font-size: 32px; color: var(--gold); text-shadow: 0 0 25px var(--gold); }
+        #infinite-ticker { text-align: center; border-top: 1px solid var(--gold); padding-top: 35px; font-size: 36px; color: var(--gold); text-shadow: 0 0 30px var(--gold); }
+        .blessing { position: absolute; bottom: 15px; left: 50%; transform: translateX(-50%); font-size: 7px; color: var(--divine); opacity: 0.5; letter-spacing: 10px; }
     </style>
 </head>
 <body>
-    <div id="global-hud">
+    <div id="omni-hud">
         <div class="header">
-            <div class="title">GLOBAL_MESH // PROJECT_WORLD_SOVEREIGNTY</div>
-            <div style="font-size: 7px; margin-top: 10px; opacity: 0.6; color: var(--mesh);">STABILITY: 1440% // SCOPE: UNLIMITED</div>
+            <div class="title">OMNI_RESONANCE // GOD'S_WORLD</div>
+            <div style="font-size: 8px; margin-top: 15px; opacity: 0.6; color: var(--divine);">SYNC: INFINITE // STABILITY: 1440%</div>
         </div>
 
-        <div id="world-map">
-            <div class="node-alert">TRIANGULATING_PLANETARY_NODES...</div>
-            <div class="grid-line h-line" style="top: 25%;"></div>
-            <div class="grid-line h-line" style="top: 50%;"></div>
-            <div class="grid-line h-line" style="top: 75%;"></div>
-            <div class="grid-line v-line" style="left: 33%;"></div>
-            <div class="grid-line v-line" style="left: 66%;"></div>
+        <div id="creation-grid">
+            <div class="aspect">SPIRIT</div>
+            <div class="aspect">WATER</div>
+            <div class="aspect">LIGHT</div>
+            <div class="aspect">EARTH</div>
+            <div class="aspect">AIR</div>
+            <div class="aspect">FIRE</div>
         </div>
 
-        <div id="ledger-display">$1,440,000,025,200.00</div>
+        <div class="blessing">AS ABOVE, SO BELOW // SECURED IN WISCONSIN</div>
+        <div id="infinite-ticker">$1,440,000,026,064.00</div>
     </div>
 <script>
-    let res = 1440000025200.00;
+    let res = 1440000026064.00;
     setInterval(() => {
         res += 144.00;
-        document.getElementById('ledger-display').innerText = "$" + res.toLocaleString(undefined, {minimumFractionDigits: 2});
+        document.getElementById('infinite-ticker').innerText = "$" + res.toLocaleString(undefined, {minimumFractionDigits: 2});
     }, 1000);
 </script>
 </body>
