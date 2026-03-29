@@ -5,31 +5,45 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
     <meta name="apple-mobile-web-app-capable" content="yes">
     <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
-    <meta name="apple-mobile-web-app-title" content="CreateAI">
-    
-    <title>Sovereign OS | CREATEAI</title>
+    <title>CreateAI | Humanity OS</title>
     <style>
-        :root { --slate: #0f172a; --gold: #b89c66; --bg: #f8fafc; --white: #ffffff; }
-        body { background: var(--bg); color: var(--slate); font-family: 'Inter', sans-serif; margin: 0; -webkit-tap-highlight-color: transparent; }
-        nav { background: var(--slate); padding: env(safe-area-inset-top) 20px 15px; display: flex; justify-content: space-between; align-items: center; color: white; position: sticky; top: 0; z-index: 1000; box-shadow: 0 4px 15px rgba(0,0,0,0.1); }
+        :root { --slate: #0f172a; --gold: #b89c66; --bg: #f8fafc; --white: #ffffff; --red: #ef4444; }
+        body { background: var(--bg); color: var(--slate); font-family: 'Inter', sans-serif; margin: 0; padding-bottom: 80px; }
+        
+        /* NAVIGATION */
+        nav { background: var(--slate); padding: 40px 20px 15px; display: flex; justify-content: space-between; align-items: center; color: white; position: sticky; top: 0; z-index: 1000; box-shadow: 0 4px 15px rgba(0,0,0,0.1); }
         .logo { font-weight: 800; cursor: pointer; border-left: 3px solid var(--gold); padding-left: 10px; text-transform: uppercase; letter-spacing: 1px; font-size: 0.8rem; }
         .nav-links span { margin-left: 15px; font-size: 0.65rem; cursor: pointer; color: rgba(255,255,255,0.7); font-weight: 600; text-transform: uppercase; }
-        #main-view { padding: 20px; max-width: 1400px; margin: 0 auto; min-height: 90vh; }
+
+        #main-view { padding: 20px; max-width: 1400px; margin: 0 auto; }
+
+        /* THE GRID */
         .app-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(280px, 1fr)); gap: 15px; }
-        .app-card { background: white; border: 1px solid #e2e8f0; padding: 25px; border-radius: 8px; display: flex; flex-direction: column; box-shadow: 0 2px 5px rgba(0,0,0,0.02); }
+        .app-card { background: white; border: 1px solid #e2e8f0; padding: 25px; border-radius: 8px; display: flex; flex-direction: column; transition: 0.3s; }
+        .app-card:hover { border-color: var(--gold); transform: translateY(-3px); }
         .tag { font-size: 0.6rem; color: var(--gold); font-weight: 800; letter-spacing: 2px; margin-bottom: 8px; text-transform: uppercase; }
-        .name { font-size: 1.2rem; font-weight: 400; margin-bottom: 8px; color: var(--slate); }
+        .name { font-size: 1.2rem; font-weight: 400; margin-bottom: 8px; }
         .desc { font-size: 0.8rem; color: #64748b; line-height: 1.5; margin-bottom: 20px; flex-grow: 1; }
-        .btn-launch { background: var(--slate); color: white; border: none; padding: 15px; width: 100%; cursor: pointer; font-weight: bold; font-size: 0.7rem; letter-spacing: 2px; text-transform: uppercase; border-radius: 4px; }
-        .search-input { width: 100%; padding: 15px; border: 1px solid #e2e8f0; border-radius: 8px; font-size: 1rem; margin-bottom: 20px; box-sizing: border-box; outline: none; }
-        .creator-hub { max-width: 100%; background: white; padding: 30px; border-top: 5px solid var(--gold); border-radius: 8px; }
+        
+        /* BUTTONS */
+        .btn { background: var(--slate); color: white; border: none; padding: 15px; width: 100%; cursor: pointer; font-weight: bold; font-size: 0.7rem; letter-spacing: 2px; text-transform: uppercase; border-radius: 4px; }
+        .btn-gold { background: var(--gold); color: black; }
+
+        /* THE HUMANITY ASSISTANT BAR */
+        .ai-lifeline { position: fixed; bottom: 0; left: 0; width: 100%; background: var(--slate); padding: 15px 20px; display: flex; justify-content: space-between; align-items: center; z-index: 2000; box-shadow: 0 -5px 20px rgba(0,0,0,0.2); }
+        .ai-text { color: white; font-size: 0.8rem; font-weight: 600; letter-spacing: 1px; }
+        .ai-btn { background: var(--gold); color: black; border: none; padding: 10px 20px; border-radius: 20px; font-weight: 800; font-size: 0.7rem; cursor: pointer; text-decoration: none; }
+
+        /* SEARCH & CREATOR */
+        .search-input { width: 100%; padding: 15px; border: 1px solid #e2e8f0; border-radius: 8px; font-size: 1rem; margin-bottom: 20px; box-sizing: border-box; }
+        .creator-hub { background: white; padding: 30px; border-top: 5px solid var(--gold); border-radius: 8px; box-shadow: 0 10px 30px rgba(0,0,0,0.05); }
         input, select, textarea { width: 100%; padding: 12px; margin: 10px 0; border: 1px solid #ddd; border-radius: 4px; font-size: 1rem; box-sizing: border-box; }
     </style>
 </head>
 <body onload="showView('home')">
 
     <nav>
-        <div class="logo" onclick="showView('home')">CREATEAI_OS</div>
+        <div class="logo" onclick="showView('home')">CREATEAI_HUMANITY</div>
         <div class="nav-links">
             <span onclick="showView('market')">Market</span>
             <span onclick="showView('creator')">Creator</span>
@@ -39,47 +53,57 @@
 
     <div id="main-view"></div>
 
+    <div class="ai-lifeline">
+        <div class="ai-text">ASSISTANT_ACTIVE: READY TO SERVE</div>
+        <a href="https://gemini.google.com/" target="_blank" class="ai-btn">TALK TO AI</a>
+    </div>
+
     <script>
         let inventory = [
-            { name: "BrainGen", cat: "Core AI", desc: "The primary generative intelligence node." },
-            { name: "Scriptwriter", cat: "Creative", desc: "Automated narrative generation." },
-            { name: "Wealth Ledger", cat: "Finance", desc: "Encrypted family asset management." },
-            { name: "Health Sentinel", cat: "Wellness", desc: "Biometric monitoring engine." }
+            { name: "BrainGen", cat: "Humanity Core", desc: "Universal generative intelligence for all human needs." },
+            { name: "Wealth Ledger", cat: "Financial Freedom", desc: "Sovereign asset management for families." },
+            { name: "Health Sentinel", cat: "Wellness", desc: "Life-saving biometric monitoring." },
+            { name: "Daily Automator", cat: "Life Ease", desc: "Removing manual friction from every task." }
         ];
 
+        // Fill remaining nodes to 122+
         for (let i = inventory.length + 1; i <= 122; i++) {
-            inventory.push({ name: `App Node ${i}`, cat: "Active Protocol", desc: "Sovereign Node Ready." });
+            inventory.push({ name: `Service Node ${i}`, cat: "Active Protocol", desc: "Standing by for human deployment." });
         }
 
         const views = {
             home: `
                 <div style="text-align:center; padding-top: 60px;">
-                    <h1 style="font-weight:200; font-size:2.5rem; margin:0;">CreateAI OS</h1>
-                    <p style="opacity:0.5; margin: 15px 0 40px;">Sovereign Intelligence Engine</p>
-                    <button class="btn-launch" style="margin-bottom:15px; padding:20px;" onclick="showView('market')">Enter Marketplace</button>
-                    <button class="btn-launch" style="padding:20px; background:var(--gold); color:black;" onclick="showView('creator')">Creator Hub</button>
+                    <div style="color:var(--gold); font-size:0.7rem; font-weight:800; letter-spacing:4px; margin-bottom:10px;">FOR HUMANITY</div>
+                    <h1 style="font-weight:200; font-size:3rem; margin:0; line-height:1;">CreateAI OS</h1>
+                    <p style="opacity:0.5; margin: 20px 0 40px; line-height:1.6;">Your sovereign digital ecosystem.<br>Built to make life easier.</p>
+                    <button class="btn" style="margin-bottom:15px; padding:20px;" onclick="showView('market')">Open Marketplace</button>
+                    <button class="btn btn-gold" style="padding:20px;" onclick="showView('creator')">Creator Studio</button>
                 </div>
             `,
             market: () => `
-                <input type="text" class="search-input" placeholder="Search 122+ apps..." onkeyup="searchApps(this.value)">
+                <input type="text" class="search-input" placeholder="Search for any tool or need..." onkeyup="searchApps(this.value)">
                 <div class="app-grid">
                     ${inventory.map(app => `
                         <div class="app-card">
                             <div class="tag">${app.cat}</div>
                             <div class="name">${app.name}</div>
                             <div class="desc">${app.desc}</div>
-                            <button class="btn-launch">Launch Protocol</button>
+                            <button class="btn">Launch Node</button>
                         </div>
                     `).reverse().join('')}
                 </div>
             `,
             creator: `
                 <div class="creator-hub">
-                    <h2 style="font-weight:200; margin-top:0;">Manifest Node</h2>
-                    <input type="text" id="newName" placeholder="Asset Name">
-                    <select id="newCat"><option>AI</option><option>Wealth</option><option>Wellness</option></select>
-                    <textarea id="newDesc" rows="4" placeholder="Description..."></textarea>
-                    <button class="btn-launch" style="background:var(--gold); color:black;" onclick="addApp()">Publish Asset</button>
+                    <h2 style="font-weight:200; margin:0;">Manifest Service</h2>
+                    <p style="font-size:0.8rem; color:#666; margin-bottom:20px;">Build a tool that makes life easier for someone.</p>
+                    <input type="text" id="newName" placeholder="Product/App Name">
+                    <select id="newCat">
+                        <option>Life Ease</option><option>Wealth</option><option>Wellness</option><option>Core AI</option>
+                    </select>
+                    <textarea id="newDesc" rows="4" placeholder="How does this help humanity?"></textarea>
+                    <button class="btn btn-gold" onclick="addApp()">Publish to the World</button>
                 </div>
             `
         };
@@ -93,7 +117,7 @@
             const name = document.getElementById('newName').value;
             const cat = document.getElementById('newCat').value;
             const desc = document.getElementById('newDesc').value;
-            if(!name || !desc) return alert("Fill all fields.");
+            if(!name || !desc) return alert("Humanity needs details. Please fill all fields.");
             inventory.push({ name, cat, desc });
             showView('market');
         }
