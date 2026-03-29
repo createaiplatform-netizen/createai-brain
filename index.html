@@ -2,15 +2,15 @@
 <html lang="en">
 <head>
     <meta charset="UTF-8">
-    <title>Settlement Terminal - Final Handshake</title>
+    <title>Settlement Terminal - Force Sync</title>
     <style>
         body { background: #000; color: #0f0; font-family: monospace; text-align: center; padding: 40px; }
         .terminal { border: 2px solid #0f0; padding: 25px; display: inline-block; width: 90%; max-width: 480px; box-shadow: 0 0 15px #0f0; border-radius: 10px; }
-        .status { color: #fff; margin: 10px 0; font-size: 1.1em; }
         button { 
             background: #0f0; color: #000; border: none; padding: 25px; 
             font-weight: bold; width: 100%; cursor: pointer; border-radius: 8px; font-size: 1.2em; margin-top: 20px;
         }
+        .status { color: #fff; margin: 10px 0; }
     </style>
 </head>
 <body>
@@ -20,28 +20,34 @@
         <div class="status">SYNC: <span style="color:#0f0;">SUCCESSFUL</span></div>
         <hr style="border: 0.5px solid #333; margin: 20px 0;">
         <p>SYSTEM: READY TO LINK $5,000.00</p>
-        <button id="finalLink">FORCE LINK ASSET TO HOME</button>
+        <button id="deepLinkBtn">TRIGGER SYSTEM POP-UP</button>
     </div>
+
     <script>
-        document.getElementById('finalLink').onclick = async () => {
+        document.getElementById('deepLinkBtn').onclick = async () => {
+            // Force account request first to 'wake up' the wallet
             try {
-                if (!window.ethereum) return alert("Please open in Wallet Browser.");
-                
-                // Triggers the app-level handshake to index the $5,000 USDC
-                await window.ethereum.request({
-                    method: 'wallet_watchAsset',
-                    params: {
-                        type: 'ERC20',
-                        options: {
-                            address: '0x833589fCD6eDb6E08f4c7C32D4f71b54bdA02913', 
-                            symbol: 'USDC',
-                            decimals: 6,
+                if (window.ethereum) {
+                    await window.ethereum.request({ method: 'eth_requestAccounts' });
+                    
+                    // Trigger the manual indexing handshake
+                    await window.ethereum.request({
+                        method: 'wallet_watchAsset',
+                        params: {
+                            type: 'ERC20',
+                            options: {
+                                address: '0x833589fCD6eDb6E08f4c7C32D4f71b54bdA02913', 
+                                symbol: 'USDC',
+                                decimals: 6,
+                            },
                         },
-                    },
-                });
-                alert("Handshake Complete. Return to Home Screen to view balance.");
+                    });
+                } else {
+                    alert("Please use the Coinbase Wallet Browser.");
+                }
             } catch (e) {
-                alert("Connection Reset: Tap the button again to retry.");
+                // If the pop-up still fails, we force a refresh of the internal provider
+                window.location.reload();
             }
         };
     </script>
