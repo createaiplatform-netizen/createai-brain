@@ -3,130 +3,122 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Sovereign Hub | CREATEAI</title>
+    <title>CreateAI | Sovereign OS</title>
     <style>
-        :root { 
-            --deep-slate: #1e293b; 
-            --soft-gold: #b89c66; 
-            --bg-cream: #faf9f6;
-            --white: #ffffff;
-        }
+        :root { --slate: #0f172a; --gold: #b89c66; --bg: #f8fafc; --white: #ffffff; }
+        body { background: var(--bg); color: var(--slate); font-family: 'Inter', sans-serif; margin: 0; }
         
-        body { 
-            background: var(--bg-cream); 
-            color: var(--deep-slate); 
-            font-family: 'Inter', -apple-system, system-ui, sans-serif;
-            margin: 0; padding: 0;
-        }
+        /* THE COMMAND BAR */
+        nav { background: var(--slate); padding: 15px 40px; display: flex; justify-content: space-between; align-items: center; color: white; }
+        .logo { font-weight: 800; letter-spacing: 1px; cursor: pointer; border-left: 3px solid var(--gold); padding-left: 10px; }
+        .nav-links span { margin-left: 20px; font-size: 0.75rem; cursor: pointer; color: rgba(255,255,255,0.7); font-weight: 600; text-transform: uppercase; }
+        .nav-links span:hover { color: var(--gold); }
 
-        /* Clean, Sophisticated Header */
-        .header {
-            padding: 80px 20px 40px;
-            text-align: center;
-        }
+        #main-view { padding: 40px 20px; max-width: 1200px; margin: 0 auto; }
 
-        .brand-tag {
-            font-size: 0.7rem;
-            letter-spacing: 4px;
-            color: var(--soft-gold);
-            text-transform: uppercase;
-            margin-bottom: 15px;
-            font-weight: 600;
-        }
-
-        .welcome-msg {
-            font-size: 2.5rem;
-            font-weight: 300;
-            margin: 0;
-            color: var(--deep-slate);
-        }
-
-        /* The Professional Navigation Grid */
-        .portal-grid {
-            max-width: 1000px;
-            margin: 40px auto;
-            display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
-            gap: 30px;
-            padding: 0 20px;
-        }
-
-        .portal-card {
-            background: var(--white);
-            padding: 50px 30px;
-            text-align: center;
-            text-decoration: none;
-            color: inherit;
-            border-radius: 4px;
-            box-shadow: 0 4px 20px rgba(0,0,0,0.03);
-            transition: all 0.3s ease;
-            border-bottom: 3px solid transparent;
-        }
-
-        .portal-card:hover {
-            transform: translateY(-8px);
-            box-shadow: 0 15px 40px rgba(0,0,0,0.07);
-            border-bottom: 3px solid var(--soft-gold);
-        }
-
-        .portal-icon {
-            font-size: 1.8rem;
-            margin-bottom: 20px;
-            display: block;
-            color: var(--soft-gold);
-        }
-
-        .portal-title {
-            font-size: 1.1rem;
-            font-weight: 500;
-            letter-spacing: 1px;
-            margin-bottom: 10px;
-            text-transform: uppercase;
-        }
-
-        .portal-sub {
-            font-size: 0.8rem;
-            color: #64748b;
-            line-height: 1.5;
-        }
-
+        /* PROFESSIONAL UI ELEMENTS */
+        .card { background: var(--white); border: 1px solid #e2e8f0; padding: 30px; border-radius: 2px; transition: 0.3s; }
+        .card:hover { border-color: var(--gold); box-shadow: 0 10px 30px rgba(0,0,0,0.05); }
+        .grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(280px, 1fr)); gap: 20px; }
+        .btn { background: var(--slate); color: white; border: none; padding: 12px 20px; cursor: pointer; font-size: 0.7rem; font-weight: bold; width: 100%; margin-top: 15px; }
+        
+        /* CREATOR HUB SPECIALS */
+        .creator-form { max-width: 600px; margin: 0 auto; background: white; padding: 40px; border-top: 4px solid var(--gold); }
+        input, select, textarea { width: 100%; padding: 12px; margin: 10px 0; border: 1px solid #ddd; font-family: inherit; box-sizing: border-box; }
     </style>
 </head>
-<body>
+<body onload="showView('home')">
 
-    <header class="header">
-        <div class="brand-tag">The Sovereign Collective</div>
-        <h1 class="welcome-msg">Welcome Home</h1>
-        <p style="opacity: 0.6; font-size: 0.9rem;">Your secure interface for global creation and family wealth.</p>
-    </header>
+    <nav>
+        <div class="logo" onclick="showView('home')">CREATEAI_BRAIN</div>
+        <div class="nav-links">
+            <span onclick="showView('market')">Global Marketplace</span>
+            <span onclick="showView('creator')">Family Creator Hub</span>
+            <span onclick="showView('home')">Command Center</span>
+        </div>
+    </nav>
 
-    <div class="portal-grid">
-        
-        <a href="marketplace.html" class="portal-card">
-            <span class="portal-icon">🛒</span>
-            <div class="portal-title">Marketplace</div>
-            <p class="portal-sub">The global exchange. Order anything, anywhere.</p>
-        </a>
+    <div id="main-view"></div>
 
-        <a href="creator-hub.html" class="portal-card">
-            <span class="portal-icon">🖋️</span>
-            <div class="portal-title">Creator Hub</div>
-            <p class="portal-sub">Co-create with AI. Manifest your family's vision.</p>
-        </a>
+    <script>
+        // THIS IS YOUR LIVE APP INVENTORY
+        let myApps = [
+            { name: "BrainGen", cat: "AI", desc: "Core generative engine for OS nodes.", price: "Internal" },
+            { name: "Sovereign Health", cat: "Wellness", desc: "Biometric family monitoring.", price: "$199" },
+            { name: "Marketplace Strategist", cat: "Wealth", desc: "Automated retail positioning.", price: "$299" }
+        ];
 
-        <a href="wellness.html" class="portal-card">
-            <span class="portal-icon">✨</span>
-            <div class="portal-title">Wellness</div>
-            <p class="portal-sub">Private healthcare and biometric monitoring.</p>
-        </a>
+        const views = {
+            home: `
+                <div style="text-align:center;">
+                    <h1 style="font-weight:200; font-size:2.5rem;">Welcome Home</h1>
+                    <p style="opacity:0.6; margin-bottom:40px;">Sovereign Operating System | Node Active</p>
+                    <div class="grid">
+                        <div class="card" onclick="showView('market')"><h2>Marketplace</h2><p>Deployed Apps & Products</p></div>
+                        <div class="card" onclick="showView('creator')"><h2>Creator Hub</h2><p>Manifest & Publish</p></div>
+                        <div class="card"><h2>Nexus</h2><p>Family Communications</p></div>
+                    </div>
+                </div>
+            `,
+            market: () => `
+                <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:30px;">
+                    <h1>Global Marketplace</h1>
+                    <input type="text" placeholder="Search 122+ apps..." style="max-width:300px; margin:0;">
+                </div>
+                <div class="grid">
+                    ${myApps.map(app => `
+                        <div class="card">
+                            <div style="font-size:0.6rem; color:var(--gold); font-weight:bold; letter-spacing:1px;">${app.cat.toUpperCase()}</div>
+                            <h3>${app.name}</h3>
+                            <p style="font-size:0.85rem; color:#64748b;">${app.desc}</p>
+                            <div style="font-weight:bold; margin-top:10px;">${app.price}</div>
+                            <button class="btn">ACQUIRE / LAUNCH</button>
+                        </div>
+                    `).join('')}
+                </div>
+            `,
+            creator: `
+                <div class="creator-form">
+                    <h2 style="margin-top:0;">Family Publishing Terminal</h2>
+                    <p style="font-size:0.8rem; color:#666; margin-bottom:30px;">Direct upload to CreateAI Marketplace categories.</p>
+                    
+                    <label>App/Product Name</label>
+                    <input type="text" id="appName" placeholder="e.g. Scriptwriter V2">
+                    
+                    <label>Category Placement</label>
+                    <select id="appCat">
+                        <option value="AI Tools">AI Tools</option>
+                        <option value="Wellness">Wellness</option>
+                        <option value="Wealth">Wealth</option>
+                        <option value="Marketing">Marketing</option>
+                    </select>
+                    
+                    <label>Description (What does the Little AI do?)</label>
+                    <textarea id="appDesc" rows="3" placeholder="Define the functionality..."></textarea>
+                    
+                    <button class="btn" style="background:var(--gold); color:black; height:50px; font-size:0.8rem;" onclick="publishApp()">PUBLISH TO MARKETPLACE</button>
+                </div>
+            `
+        };
 
-        <a href="savings.html" class="portal-card">
-            <span class="portal-icon">⚖️</span>
-            <div class="portal-title">Wealth</div>
-            <p class="portal-sub">Secure ledger and asset management.</p>
-        </a>
+        function showView(name) {
+            const content = typeof views[name] === 'function' ? views[name]() : views[name];
+            document.getElementById('main-view').innerHTML = content;
+        }
 
-    </div>
+        function publishApp() {
+            const name = document.getElementById('appName').value;
+            const cat = document.getElementById('appCat').value;
+            const desc = document.getElementById('appDesc').value;
 
+            if(!name || !desc) return alert("All fields required for deployment.");
+
+            // The Little AI logic pushes the app to your global list
+            myApps.push({ name: name, cat: cat, desc: desc, price: "TBD" });
+            
+            alert(`SUCCESS: ${name} is now live in the ${cat} section.`);
+            showView('market');
+        }
+    </script>
 </body>
 </html>
