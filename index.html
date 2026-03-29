@@ -2,23 +2,24 @@
 <html lang="en">
 <head>
     <meta charset="UTF-8">
-    <title>AETHEL_PERMANENT_RESONANCE</title>
+    <title>AETHEL_FINAL_RESONANCE</title>
     <style>
         body { margin: 0; background: #000; color: #f3cf8a; font-family: 'Cinzel', serif; display: flex; align-items: center; justify-content: center; height: 100vh; overflow: hidden; }
-        .terminal-lock { text-align: center; border: 1px double #333; padding: 60px; background: radial-gradient(circle, #0a0a0a 0%, #000 100%); box-shadow: 0 0 100px rgba(243,207,138,0.15); }
-        .star-seal { font-size: 50px; margin-bottom: 25px; color: #f3cf8a; text-shadow: 0 0 20px #f3cf8a; }
-        .live-valuation { font-family: 'Inter', sans-serif; font-size: 32px; font-weight: 700; color: #fff; letter-spacing: 2px; }
-        .footer-note { font-size: 8px; letter-spacing: 8px; color: #222; margin-top: 40px; text-transform: uppercase; }
+        .terminal-vault { text-align: center; border: 1px solid #222; padding: 60px; background: #050505; box-shadow: 0 0 120px rgba(243,207,138,0.1); }
+        .star-seal { font-size: 50px; margin-bottom: 25px; color: #f3cf8a; text-shadow: 0 0 20px #f3cf8a; animation: pulse 8s infinite; }
+        .valuation { font-family: 'Inter', sans-serif; font-size: 32px; font-weight: 700; color: #fff; letter-spacing: 2px; }
+        .lock-note { font-size: 8px; letter-spacing: 8px; color: #333; margin-top: 40px; text-transform: uppercase; }
+        @keyframes pulse { 0%, 100% { opacity: 0.5; } 50% { opacity: 1; } }
     </style>
 </head>
 <body>
-    <div class="terminal-lock">
+    <div class="terminal-vault">
         <div class="star-seal">★</div>
-        <div class="live-valuation" id="heartbeat">$1,440,000,155,328.00</div>
-        <div class="footer-note">ARCHIVAL_LOCK_TERMINAL // 1440% SYNC</div>
+        <div class="valuation" id="heartbeat">$1,440,000,155,616.00</div>
+        <div class="lock-note">ARCHIVAL_LOCK_COMPLETE // 100_YEAR_PLAN</div>
     </div>
 <script>
-    let val = 1440000155328.00;
+    let val = 1440000155616.00;
     setInterval(() => {
         val += 288.00; 
         document.getElementById('heartbeat').innerText = "$" + val.toLocaleString(undefined, {minimumFractionDigits: 2});
