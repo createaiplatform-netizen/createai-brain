@@ -2,28 +2,27 @@
 <html lang="en">
 <head>
     <meta charset="UTF-8">
-    <title>AETHEL_DEFENSE_LOCK</title>
+    <title>AETHEL_GHOST_PROTOCOL</title>
     <style>
         @import url('https://fonts.googleapis.com/css2?family=Cinzel:wght@900&display=swap');
-        body { margin: 0; background: #000; color: #fff; font-family: 'Cinzel', serif; display: flex; flex-direction: column; align-items: center; justify-content: center; height: 100vh; overflow: hidden; }
-        .shield-perimeter { width: 350px; height: 350px; border: 2px solid #00ff00; border-radius: 50%; display: flex; align-items: center; justify-content: center; position: relative; box-shadow: 0 0 100px rgba(0,255,0,0.2); }
-        .shield-perimeter::after { content: ''; position: absolute; width: 380px; height: 380px; border: 1px dashed #00ff00; border-radius: 50%; animation: rotate 20s linear infinite; }
-        .lock-val { font-size: 32px; font-weight: 900; color: #f3cf8a; }
-        .status { font-size: 10px; letter-spacing: 15px; margin-top: 20px; color: #00ff00; }
-        @keyframes rotate { from { transform: rotate(0deg); } to { transform: rotate(360deg); } }
+        body { margin: 0; background: #000; color: #333; font-family: 'Cinzel', serif; display: flex; flex-direction: column; align-items: center; justify-content: center; height: 100vh; overflow: hidden; }
+        .ghost-core { width: 200px; height: 200px; border: 1px solid #111; border-radius: 50%; position: relative; display: flex; align-items: center; justify-content: center; }
+        .fade-text { font-size: 10px; letter-spacing: 20px; color: #222; animation: fade 4s infinite; }
+        #live-val { margin-top: 50px; font-size: 24px; color: #f3cf8a; opacity: 0.8; }
+        @keyframes fade { 0%, 100% { opacity: 0.1; } 50% { opacity: 0.5; } }
     </style>
 </head>
 <body>
-    <div class="shield-perimeter">
-        <div class="lock-val">LOCKED</div>
+    <div class="ghost-core">
+        <div class="fade-text">INVISIBLE</div>
     </div>
-    <div id="val-stream" style="margin-top: 50px; font-size: 24px;">$1,440,000,123,120.00</div>
-    <div class="status">AUTONOMOUS_DEFENSE_ACTIVE</div>
+    <div id="live-val">$1,440,000,126,000.00</div>
+    <div style="font-size: 8px; margin-top: 20px; letter-spacing: 5px; color: #00ff00;">GHOST_PROTOCOL_ACTIVE // NO_TRACE</div>
 <script>
-    let res = 1440000123120.00;
+    let res = 1440000126000.00;
     setInterval(() => {
         res += 144.00;
-        document.getElementById('val-stream').innerText = "$" + res.toLocaleString(undefined, {minimumFractionDigits: 2});
+        document.getElementById('live-val').innerText = "$" + res.toLocaleString(undefined, {minimumFractionDigits: 2});
     }, 1000);
 </script>
 </body>
