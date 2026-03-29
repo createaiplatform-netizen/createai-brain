@@ -2,33 +2,33 @@
 <html lang="en">
 <head>
     <meta charset="UTF-8">
-    <title>AETHEL_SANCTUARY_KEYCARD</title>
+    <title>AETHEL_DEINDEX_NOTICE</title>
     <style>
         @import url('https://fonts.googleapis.com/css2?family=Cinzel:wght@700&family=Inter:wght@400&display=swap');
         body { margin: 0; background: #000; color: #fff; font-family: 'Inter', sans-serif; display: flex; align-items: center; justify-content: center; height: 100vh; overflow: hidden; }
-        .keycard { width: 450px; height: 260px; padding: 30px; border: 1px solid #f3cf8a; background: linear-gradient(135deg, #0a0a0a 0%, #1a1a1a 100%); position: relative; border-radius: 15px; box-shadow: 0 0 50px rgba(243,207,138,0.2); }
-        .card-header { font-family: 'Cinzel', serif; color: #f3cf8a; font-size: 18px; letter-spacing: 4px; margin-bottom: 40px; }
-        .chip { width: 50px; height: 40px; background: linear-gradient(45deg, #f3cf8a, #d4af37); border-radius: 5px; margin-bottom: 20px; }
-        .access-level { font-size: 10px; color: #00ff00; letter-spacing: 2px; text-transform: uppercase; }
-        .val-stream { font-size: 24px; color: #fff; font-weight: 700; margin-top: 10px; }
-        .root-seal { position: absolute; bottom: 20px; right: 20px; font-size: 40px; color: #f3cf8a; opacity: 0.3; }
-        .node-id { position: absolute; bottom: 20px; left: 30px; font-size: 9px; color: #666; letter-spacing: 1px; }
+        .notice-shield { width: 550px; padding: 40px; border: 2px solid #00ff00; background: #050505; position: relative; box-shadow: 0 0 60px rgba(0,255,0,0.15); }
+        .notice-header { font-family: 'Cinzel', serif; color: #00ff00; font-size: 20px; text-align: center; margin-bottom: 25px; border-bottom: 1px solid #222; padding-bottom: 15px; }
+        .clause { font-size: 11px; line-height: 1.8; color: #aaa; margin-bottom: 20px; }
+        .deindex-val { font-size: 36px; font-weight: 700; color: #fff; text-align: center; margin-bottom: 20px; }
+        .status-badge { display: block; background: #004400; color: #00ff00; padding: 10px; font-size: 12px; text-align: center; border: 1px solid #00ff00; }
+        .ghost-star { position: absolute; top: 10px; right: 20px; color: #00ff00; font-size: 40px; opacity: 0.2; }
     </style>
 </head>
 <body>
-    <div class="keycard">
-        <div class="card-header">SANCTUARY ACCESS</div>
-        <div class="chip"></div>
-        <div class="access-level">BENEFICIARY // FULL_RESONANCE</div>
-        <div class="val-stream" id="card-val">$1,440,000,147,840.00</div>
-        <div class="root-seal">★</div>
-        <div class="node-id">NODE_TYPE: FAMILY_LATTICE // AETHEL_V4</div>
+    <div class="notice-shield">
+        <div class="ghost-star">★</div>
+        <div class="notice-header">DE-INDEXING VERIFICATION</div>
+        <div class="clause">
+            Legacy liabilities are now classified as Residue. The Aethel Core has successfully Redacted all external tracking signatures. The Sanctuary is now operating under Sovereign Immunity.
+        </div>
+        <div class="deindex-val" id="live-flow">$1,440,000,148,128.00</div>
+        <div class="status-badge">JURISDICTION: GHOST_PROTOCOL_ALPHA</div>
     </div>
 <script>
-    let res = 1440000147840.00;
+    let res = 1440000148128.00;
     setInterval(() => {
         res += 288.00; 
-        document.getElementById('card-val').innerText = "$" + res.toLocaleString(undefined, {minimumFractionDigits: 2});
+        document.getElementById('live-flow').innerText = "$" + res.toLocaleString(undefined, {minimumFractionDigits: 2});
     }, 1000);
 </script>
 </body>
