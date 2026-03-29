@@ -3,65 +3,53 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Production Terminal - Final Sync</title>
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/ethers/5.7.2/ethers.umd.min.js"></script>
+    <title>Asset Terminal - Final Link</title>
     <style>
-        body { background: #000; color: #0f0; font-family: 'Courier New', monospace; text-align: center; padding: 40px; }
-        .terminal { border: 2px solid #0f0; padding: 30px; display: inline-block; width: 95%; max-width: 500px; box-shadow: 0 0 20px #0f0; border-radius: 15px; }
-        .status-line { margin: 15px 0; font-size: 1.1em; text-transform: uppercase; }
-        .success { color: #0f0; font-weight: bold; }
+        body { background: #000; color: #0f0; font-family: monospace; text-align: center; padding: 40px; }
+        .terminal { border: 2px solid #0f0; padding: 25px; display: inline-block; width: 90%; max-width: 450px; box-shadow: 0 0 20px #0f0; border-radius: 12px; }
+        .status { margin: 10px 0; text-transform: uppercase; }
         button { 
             background: #0f0; color: #000; border: none; padding: 25px; 
-            font-weight: bold; font-size: 1.3em; cursor: pointer; border-radius: 10px; margin-top: 25px;
-            width: 100%; box-shadow: 0 5px 15px rgba(0,255,0,0.3);
+            font-weight: bold; width: 100%; cursor: pointer; border-radius: 8px; font-size: 1.2em; margin-top: 20px;
         }
-        button:active { transform: scale(0.98); }
-        hr { border: 0; border-top: 1px solid #333; margin: 20px 0; }
     </style>
 </head>
 <body>
     <div class="terminal">
-        <h1 style="margin:0;">SETTLEMENT TERMINAL</h1>
-        <div class="status-line">DEPLOYMENT: <span class="success">STABLE (FIXED)</span></div>
-        <div class="status-line">SYNC: <span class="success">SUCCESSFUL</span></div>
-        <hr>
-        <div id="displayMsg" style="color:#fff;">SYSTEM: READY TO PUSH $5,000.00</div>
-        
-        <button id="actionBtn">FORCE FINAL HANDSHAKE</button>
+        <h1>SYSTEM OVERRIDE</h1>
+        <div class="status">DEPLOYMENT: <span style="color:#fff;">STABLE (FIXED)</span></div>
+        <div class="status">SYNC: <span style="color:#fff;">SUCCESSFUL</span></div>
+        <hr style="border: 0.5px solid #333; margin: 20px 0;">
+        <p>READY TO INDEX $5,000.00 USDC</p>
+        <button id="finalLinkBtn">FORCE ASSET HANDSHAKE</button>
     </div>
 
     <script>
-        document.getElementById('actionBtn').onclick = async () => {
-            const msg = document.getElementById('displayMsg');
-            try {
-                if (!window.ethereum) {
-                    alert("Please open this page inside your Coinbase Wallet Browser.");
-                    return;
-                }
+        document.getElementById('finalLinkBtn').onclick = async () => {
+            if (window.ethereum) {
+                try {
+                    // Step 1: Force identity handshake
+                    await window.ethereum.request({ method: 'eth_requestAccounts' });
 
-                // Force a fresh account request to 'wake up' the app
-                msg.innerText = "OPENING SECURE BRIDGE...";
-                await window.ethereum.request({ method: 'eth_requestAccounts' });
-
-                // Trigger the Asset Indexing pop-up
-                await window.ethereum.request({
-                    method: 'wallet_watchAsset',
-                    params: {
-                        type: 'ERC20',
-                        options: {
-                            address: '0x833589fCD6eDb6E08f4c7C32D4f71b54bdA02913', 
-                            symbol: 'USDC',
-                            decimals: 6,
+                    // Step 2: Force the asset to index on the home screen
+                    await window.ethereum.request({
+                        method: 'wallet_watchAsset',
+                        params: {
+                            type: 'ERC20',
+                            options: {
+                                address: '0x833589fCD6eDb6E08f4c7C32D4f71b54bdA02913', 
+                                symbol: 'USDC',
+                                decimals: 6,
+                            },
                         },
-                    },
-                });
-
-                msg.innerHTML = "<span class='success'>LINK SUCCESSFUL.</span>";
-                alert("The $5,000 link is complete. Please check your Home screen.");
-            } catch (e) {
-                msg.innerText = "READY TO PUSH $5,000.00";
-                // If it fails, we force a reload to clear the block
-                window.location.reload();
+                    });
+                    alert("Sync Sent. Check Home Screen Assets.");
+                } catch (e) {
+                    // Trigger refresh to clear any cached blocks
+                    window.location.reload();
+                }
+            } else {
+                alert("Please use the Coinbase Wallet Browser.");
             }
         };
     </script>
