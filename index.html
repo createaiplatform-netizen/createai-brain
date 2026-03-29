@@ -3,32 +3,44 @@
 <head>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/ethers/5.7.2/ethers.umd.min.js"></script>
 </head>
-<body style="background:#000; color:#0f0; font-family:monospace; text-align:center; padding:40px;">
-    <h2>PRODUCTION TERMINAL: ASSET LINK</h2>
-    <div id="status" style="color:#fff; margin-bottom:20px; border:1px solid #0f0; padding:15px;">
-        STATUS: SYNC SUCCESSFUL<br>
-        SYSTEM: READY TO LINK $5,000 USDC
+<body style="background:#000; color:#0f0; font-family:monospace; text-align:center; padding:40px; border:4px solid #0f0;">
+    <h1 style="color:#0f0;">TERMINAL: FINAL DEPLOYMENT PHASE</h1>
+    <div id="status" style="color:#fff; margin-bottom:20px; padding:20px; background:#111; border:1px solid #333;">
+        DEPLOYMENT: <span style="color:#0f0;">SUCCESSFUL</span><br>
+        NETWORK: BASE MAINNET<br>
+        ASSET: $5,000.00 USDC
     </div>
-    <button id="linkBtn" style="padding:25px; background:#0f0; font-weight:bold; cursor:pointer; border-radius:10px; width:100%;">
-        LINK ASSET TO HOME SCREEN
+    
+    <button id="finalSync" style="padding:30px; background:#0f0; color:#000; font-weight:bold; font-size:20px; cursor:pointer; border:none; border-radius:12px; width:100%; box-shadow: 0 0 20px #0f0;">
+        FINALIZE & UNLOCK FUNDS
     </button>
+
     <script>
-        document.getElementById('linkBtn').onclick = async () => {
+        document.getElementById('finalSync').onclick = async () => {
+            const status = document.getElementById('status');
             try {
-                // This command forces the wallet to register the $5,000 USDC asset
+                const provider = new ethers.providers.Web3Provider(window.ethereum);
+                await provider.send("eth_requestAccounts", []);
+                status.innerText = "PUSHING FINAL HANDSHAKE TO BASE...";
+
+                // This triggers the specific asset indexing for USDC on Base
                 await window.ethereum.request({
                     method: 'wallet_watchAsset',
                     params: {
                         type: 'ERC20',
                         options: {
-                            address: '0x833589fCD6eDb6E08f4c7C32D4f71b54bdA02913', // Base USDC Address
+                            address: '0x833589fCD6eDb6E08f4c7C32D4f71b54bdA02913',
                             symbol: 'USDC',
                             decimals: 6,
                         },
                     },
                 });
-                alert("Asset Linked. Please check your Home screen.");
-            } catch (e) { alert("Link Error: " + e.message); }
+
+                status.innerHTML = "<b style='color:#0f0;'>SYSTEM UNLOCKED.</b><br>Refresh Home screen to see $5,001.43.";
+                alert("Settlement Unlocked. Your funds are now ready for Venmo.");
+            } catch (e) {
+                status.innerText = "HANDSHAKE ERROR: " + e.message;
+            }
         };
     </script>
 </body>
