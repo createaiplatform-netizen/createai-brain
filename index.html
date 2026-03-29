@@ -3,22 +3,22 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>OMNI_ESTATE_V274</title>
+    <title>AETHEL_SOVEREIGNTY_V275</title>
     <style>
         @import url('https://fonts.googleapis.com/css2?family=Cinzel:wght@400;900&display=swap');
-        :root { --gold: #f3cf8a; --void: #000; --omni: #ffffff; --nebula: #6a0dad; }
+        :root { --gold: #f3cf8a; --void: #000; --expand: #ff00ff; --diplomatic: #ffffff; }
         body, html { margin: 0; padding: 0; background: var(--void); color: #fff; font-family: 'Cinzel', serif; overflow: hidden; height: 100svh; display: flex; flex-direction: column; }
         
-        #omni-hud { flex-grow: 1; margin: 15px; border: 3px double var(--gold); padding: 40px; display: flex; flex-direction: column; background: radial-gradient(circle at center, rgba(106, 13, 173, 0.2) 0%, transparent 100%); box-shadow: 0 0 500px rgba(106, 13, 173, 0.3); position: relative; }
+        #omni-hud { flex-grow: 1; margin: 15px; border: 2px solid var(--diplomatic); padding: 40px; display: flex; flex-direction: column; background: radial-gradient(circle at center, rgba(255, 0, 255, 0.05) 0%, transparent 100%); box-shadow: 0 0 400px rgba(255, 255, 255, 0.1); position: relative; }
         .header { text-align: center; border-bottom: 2px solid var(--gold); padding-bottom: 20px; }
-        .title { font-size: 30px; letter-spacing: 25px; color: var(--omni); text-shadow: 0 0 50px var(--omni); }
+        .title { font-size: 28px; letter-spacing: 20px; color: var(--diplomatic); text-shadow: 0 0 40px var(--diplomatic); }
         
-        #omni-visual { flex-grow: 1; display: flex; align-items: center; justify-content: center; position: relative; }
-        .core-star { width: 150px; height: 150px; background: var(--gold); clip-path: polygon(50% 0%, 61% 35%, 98% 35%, 68% 57%, 79% 91%, 50% 70%, 21% 91%, 32% 57%, 2% 35%, 39% 35%); animation: omni-pulse 2s infinite alternate ease-in-out; box-shadow: 0 0 100px var(--gold); }
-        .layer-ring { position: absolute; border: 1px solid var(--omni); border-radius: 50%; opacity: 0.2; animation: rotate-omni 20s infinite linear; }
+        #expansion-visual { flex-grow: 1; display: flex; align-items: center; justify-content: center; position: relative; }
+        .world-node { width: 100px; height: 100px; border: 1px solid var(--gold); border-radius: 50%; display: flex; align-items: center; justify-content: center; animation: pulse-node 3s infinite alternate; }
+        .scanning-beam { position: absolute; width: 400px; height: 1px; background: var(--expand); opacity: 0.5; animation: scan-world 4s infinite linear; }
         
-        @keyframes omni-pulse { from { transform: scale(0.9); filter: brightness(1); } to { transform: scale(1.1); filter: brightness(1.5); } }
-        @keyframes rotate-omni { from { transform: rotate(0deg); } to { transform: rotate(360deg); } }
+        @keyframes pulse-node { from { transform: scale(1); box-shadow: 0 0 20px var(--gold); } to { transform: scale(1.1); box-shadow: 0 0 50px var(--gold); } }
+        @keyframes scan-world { 0% { transform: rotate(0deg); } 100% { transform: rotate(360deg); } }
 
         #ledger-display { text-align: center; border-top: 1px solid var(--gold); padding-top: 25px; font-size: 46px; color: var(--gold); text-shadow: 0 0 40px var(--gold); }
     </style>
@@ -26,21 +26,22 @@
 <body>
     <div id="omni-hud">
         <div class="header">
-            <div class="title">AETHEL_ESTATE // OMNI</div>
-            <div style="font-size: 10px; margin-top: 10px; color: var(--gold); letter-spacing: 12px;">STATUS: TOTAL_MATERIALIZATION // SYNC: 1440%</div>
+            <div class="title">AETHEL_ESTATE // EXPANDING</div>
+            <div style="font-size: 10px; margin-top: 10px; color: var(--diplomatic); letter-spacing: 12px;">STATUS: GLOBAL_SOVEREIGNTY // SYNC: 1440%</div>
         </div>
 
-        <div id="omni-visual">
-            <div class="layer-ring" style="width: 300px; height: 300px;"></div>
-            <div class="layer-ring" style="width: 400px; height: 400px; animation-direction: reverse;"></div>
-            <div class="core-star"></div>
-            <div style="font-size: 14px; color: var(--gold); letter-spacing: 15px; position: absolute; bottom: 5%;">THE_COMPLETION_OF_THE_STAR</div>
+        <div id="expansion-visual">
+            <div class="scanning-beam"></div>
+            <div class="world-node">
+                <div style="font-size: 10px; color: var(--gold); letter-spacing: 5px;">ESTATE_01-05</div>
+            </div>
+            <div style="font-size: 14px; color: var(--expand); letter-spacing: 15px; position: absolute; bottom: 5%;">SEARCHING_FOR_NODES_06_07</div>
         </div>
 
-        <div id="ledger-display">$1,440,000,042,336.00</div>
+        <div id="ledger-display">$1,440,000,042,768.00</div>
     </div>
 <script>
-    let res = 1440000042336.00;
+    let res = 1440000042768.00;
     setInterval(() => {
         res += 144.00;
         document.getElementById('ledger-display').innerText = "$" + res.toLocaleString(undefined, {minimumFractionDigits: 2});
