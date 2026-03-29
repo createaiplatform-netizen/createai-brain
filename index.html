@@ -3,45 +3,48 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>SOVEREIGN_SYNC_V253</title>
+    <title>ASSET_MATERIALIZATION_V254</title>
     <style>
         @import url('https://fonts.googleapis.com/css2?family=Cinzel:wght@400;900&display=swap');
-        :root { --gold: #f3cf8a; --void: #000; --mesh: #00ff41; --sky: #00d4ff; }
+        :root { --gold: #f3cf8a; --void: #000; --mesh: #00ff41; --sky: #00d4ff; --amber: #ffbf00; }
         body, html { margin: 0; padding: 0; background: var(--void); color: #fff; font-family: 'Cinzel', serif; overflow: hidden; height: 100svh; display: flex; flex-direction: column; }
         
-        #sync-hud { flex-grow: 1; margin: 25px; border: 4px solid var(--gold); padding: 45px; display: flex; flex-direction: column; background: radial-gradient(circle at center, rgba(243, 207, 138, 0.15) 0%, transparent 100%); box-shadow: 0 0 150px rgba(243, 207, 138, 0.3); position: relative; }
-        .header { text-align: center; border-bottom: 2px solid var(--gold); padding-bottom: 25px; }
-        .title { font-size: 24px; letter-spacing: 20px; color: var(--gold); text-shadow: 0 0 25px var(--gold); }
+        #manifest-hud { flex-grow: 1; margin: 30px; border: 3px solid var(--amber); padding: 50px; display: flex; flex-direction: column; background: radial-gradient(circle at center, rgba(255, 191, 0, 0.1) 0%, transparent 100%); box-shadow: 0 0 120px rgba(255, 191, 0, 0.2); position: relative; }
+        .header { text-align: center; border-bottom: 2px solid var(--amber); padding-bottom: 25px; }
+        .title { font-size: 24px; letter-spacing: 18px; color: var(--amber); text-shadow: 0 0 25px var(--amber); }
         
-        #lock-container { flex-grow: 1; display: flex; align-items: center; justify-content: center; position: relative; }
-        .biometric-ring { width: 120px; height: 120px; border: 2px solid var(--mesh); border-radius: 50%; border-style: dashed; animation: rotate 5s linear infinite; }
-        .core-star { position: absolute; width: 40px; height: 40px; background: var(--gold); clip-path: polygon(50% 0%, 61% 35%, 98% 35%, 68% 57%, 79% 91%, 50% 70%, 21% 91%, 32% 57%, 2% 35%, 39% 35%); }
+        #build-site { flex-grow: 1; display: flex; align-items: center; justify-content: center; position: relative; }
+        .foundation-cube { width: 100px; height: 100px; border: 2px solid var(--mesh); position: relative; animation: build-pulse 2s infinite alternate; }
+        .particle { position: absolute; width: 4px; height: 4px; background: var(--gold); border-radius: 50%; animation: particle-swarm 3s infinite linear; }
         
-        @keyframes rotate { from { transform: rotate(0deg); } to { transform: rotate(360deg); } }
+        @keyframes build-pulse { from { transform: scale(0.9); opacity: 0.5; } to { transform: scale(1.1); opacity: 1; } }
+        @keyframes particle-swarm { 0% { transform: rotate(0deg) translateX(70px); } 100% { transform: rotate(360deg) translateX(70px); } }
 
-        #ledger-final { text-align: center; border-top: 2px solid var(--gold); padding-top: 30px; font-size: 40px; color: var(--gold); text-shadow: 0 0 35px var(--gold); }
+        #ledger-display { text-align: center; border-top: 2px solid var(--gold); padding-top: 25px; font-size: 40px; color: var(--gold); text-shadow: 0 0 30px var(--gold); }
     </style>
 </head>
 <body>
-    <div id="sync-hud">
+    <div id="manifest-hud">
         <div class="header">
-            <div class="title">SOVEREIGN_SYNC // VERIFIED</div>
-            <div style="font-size: 10px; margin-top: 10px; color: var(--mesh); letter-spacing: 8px;">ADMIN-59481226: BYPASSED // BRIDGE: ACTIVE</div>
+            <div class="title">ASSET_MANIFEST // PHASE_I</div>
+            <div style="font-size: 10px; margin-top: 10px; color: var(--mesh); letter-spacing: 8px;">SOURCE: WIS_001 // SYNC: 1440% // MOLECULAR_INIT</div>
         </div>
 
-        <div id="lock-container">
-            <div class="biometric-ring"></div>
-            <div class="core-star"></div>
-            <div style="font-size: 12px; color: var(--sky); letter-spacing: 12px; position: absolute; bottom: 15%;">ARCHITECT_PRIME_LOCKED</div>
+        <div id="build-site">
+            <div class="foundation-cube"></div>
+            <div class="particle" style="animation-delay: 0s;"></div>
+            <div class="particle" style="animation-delay: 1s;"></div>
+            <div class="particle" style="animation-delay: 2s;"></div>
+            <div style="font-size: 14px; color: var(--sky); letter-spacing: 15px; position: absolute; bottom: 15%;">BRINGING_HEAVEN_TO_EARTH</div>
         </div>
 
-        <div id="ledger-final">$1,440,000,034,992.00</div>
+        <div id="ledger-display">$1,440,000,035,280.00</div>
     </div>
 <script>
-    let res = 1440000034992.00;
+    let res = 1440000035280.00;
     setInterval(() => {
         res += 144.00;
-        document.getElementById('ledger-final').innerText = "$" + res.toLocaleString(undefined, {minimumFractionDigits: 2});
+        document.getElementById('ledger-display').innerText = "$" + res.toLocaleString(undefined, {minimumFractionDigits: 2});
     }, 1000);
 </script>
 </body>
