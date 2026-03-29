@@ -3,49 +3,45 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>PENTAGRAM_SYNC_V259</title>
+    <title>EXOSPHERE_SHIELD_V260</title>
     <style>
         @import url('https://fonts.googleapis.com/css2?family=Cinzel:wght@400;900&display=swap');
-        :root { --gold: #f3cf8a; --void: #000; --mesh: #00ff41; --star: #ffffff; --royal: #4169e1; }
+        :root { --gold: #f3cf8a; --void: #000; --shield: #00f2ff; --mesh: #00ff41; }
         body, html { margin: 0; padding: 0; background: var(--void); color: #fff; font-family: 'Cinzel', serif; overflow: hidden; height: 100svh; display: flex; flex-direction: column; }
         
-        #pentagram-hud { flex-grow: 1; margin: 10px; border: 5px solid var(--royal); padding: 40px; display: flex; flex-direction: column; background: radial-gradient(circle at center, rgba(65, 105, 225, 0.2) 0%, transparent 100%); box-shadow: 0 0 250px rgba(65, 105, 225, 0.3); position: relative; }
+        #shield-hud { flex-grow: 1; margin: 10px; border: 4px solid var(--shield); padding: 40px; display: flex; flex-direction: column; background: radial-gradient(circle at top, rgba(0, 242, 255, 0.1) 0%, transparent 100%); box-shadow: 0 0 300px rgba(0, 242, 255, 0.2); position: relative; }
         .header { text-align: center; border-bottom: 2px solid var(--gold); padding-bottom: 20px; }
-        .title { font-size: 24px; letter-spacing: 20px; color: var(--gold); text-shadow: 0 0 30px var(--gold); }
+        .title { font-size: 24px; letter-spacing: 18px; color: var(--shield); text-shadow: 0 0 25px var(--shield); }
         
-        #global-view { flex-grow: 1; display: flex; align-items: center; justify-content: center; position: relative; }
-        .pentagram { width: 200px; height: 200px; background: var(--star); clip-path: polygon(50% 0%, 61% 35%, 98% 35%, 68% 57%, 79% 91%, 50% 70%, 21% 91%, 32% 57%, 2% 35%, 39% 35%); animation: global-pulse 3s infinite ease-in-out; }
-        .node { position: absolute; width: 15px; height: 15px; background: var(--mesh); border-radius: 50%; box-shadow: 0 0 15px var(--mesh); }
+        #shield-status { flex-grow: 1; display: flex; align-items: center; justify-content: center; position: relative; }
+        .shield-dome { width: 250px; height: 150px; border: 3px solid var(--shield); border-radius: 150px 150px 0 0; position: relative; overflow: hidden; animation: ripple 4s infinite ease-in-out; }
+        .star-anchor { position: absolute; bottom: 0; left: 50%; transform: translateX(-50%); width: 40px; height: 40px; background: var(--gold); clip-path: polygon(50% 0%, 61% 35%, 98% 35%, 68% 57%, 79% 91%, 50% 70%, 21% 91%, 32% 57%, 2% 35%, 39% 35%); }
         
-        @keyframes global-pulse { 0%, 100% { transform: scale(1); filter: drop-shadow(0 0 20px var(--gold)); } 50% { transform: scale(1.3); filter: drop-shadow(0 0 60px var(--royal)); } }
+        @keyframes ripple { 0%, 100% { opacity: 0.3; transform: scale(1); } 50% { opacity: 0.8; transform: scale(1.05); } }
 
-        #ledger-display { text-align: center; border-top: 2px solid var(--gold); padding-top: 20px; font-size: 44px; color: var(--gold); text-shadow: 0 0 40px var(--gold); }
+        #ledger-final { text-align: center; border-top: 2px solid var(--gold); padding-top: 20px; font-size: 44px; color: var(--gold); text-shadow: 0 0 40px var(--gold); }
     </style>
 </head>
 <body>
-    <div id="pentagram-hud">
+    <div id="shield-hud">
         <div class="header">
-            <div class="title">GLOBAL_OCTAVE // SYNC</div>
-            <div style="font-size: 10px; margin-top: 10px; color: var(--mesh); letter-spacing: 10px;">ANESTHETIZING_LEGACY_SYSTEMS // SYNC: 1440%</div>
+            <div class="title">EXOSPHERE_SHIELD // ENGAGED</div>
+            <div style="font-size: 10px; margin-top: 10px; color: var(--mesh); letter-spacing: 10px;">GOD_EYE_AEGIS: ACTIVE // FIVE_NODES_PROTECTED</div>
         </div>
 
-        <div id="global-view">
-            <div class="pentagram"></div>
-            <div class="node" style="top: 15%; left: 50%;"></div>
-            <div class="node" style="top: 45%; left: 85%;"></div>
-            <div class="node" style="top: 85%; left: 75%;"></div>
-            <div class="node" style="top: 85%; left: 25%;"></div>
-            <div class="node" style="top: 45%; left: 15%;"></div>
-            <div style="font-size: 14px; color: var(--star); letter-spacing: 15px; position: absolute; bottom: 5%;">THE_WORLD_IS_THE_ESTATE</div>
+        <div id="shield-status">
+            <div class="shield-dome"></div>
+            <div class="star-anchor"></div>
+            <div style="font-size: 14px; color: var(--shield); letter-spacing: 12px; position: absolute; bottom: 5%;">OUTSIDE_WORLD_DISCONNECTED</div>
         </div>
 
-        <div id="ledger-display">$1,440,000,036,864.00</div>
+        <div id="ledger-final">$1,440,000,037,152.00</div>
     </div>
 <script>
-    let res = 1440000036864.00;
+    let res = 1440000037152.00;
     setInterval(() => {
         res += 144.00;
-        document.getElementById('ledger-display').innerText = "$" + res.toLocaleString(undefined, {minimumFractionDigits: 2});
+        document.getElementById('ledger-final').innerText = "$" + res.toLocaleString(undefined, {minimumFractionDigits: 2});
     }, 1000);
 </script>
 </body>
