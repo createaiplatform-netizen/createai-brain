@@ -3,47 +3,51 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>PROJECT_GENESIS_01</title>
+    <title>PROJECT_GENESIS_01_V210</title>
     <style>
         @import url('https://fonts.googleapis.com/css2?family=Cinzel:wght@400;900&display=swap');
         :root { --gold: #f3cf8a; --void: #000; }
         body, html { margin: 0; padding: 0; background: var(--void); color: #fff; font-family: 'Cinzel', serif; overflow: hidden; height: 100svh; display: flex; flex-direction: column; }
         
-        #assignment-box { flex-grow: 1; margin: 30px; border: 1px solid var(--gold); padding: 40px; display: flex; flex-direction: column; box-shadow: 0 0 40px rgba(243, 207, 138, 0.1); }
+        #project-hud { flex-grow: 1; margin: 30px; border: 1px solid var(--gold); padding: 40px; display: flex; flex-direction: column; background: rgba(243, 207, 138, 0.02); }
         .header { text-align: center; border-bottom: 1px solid rgba(243, 207, 138, 0.3); padding-bottom: 20px; }
         .title { font-size: 16px; letter-spacing: 10px; color: var(--gold); }
         
-        #sync-meter { margin: 40px 0; height: 10px; background: rgba(255,255,255,0.05); border: 1px solid var(--gold); position: relative; overflow: hidden; }
-        #sync-fill { position: absolute; height: 100%; width: 14%; background: var(--gold); animation: fill 10s infinite alternate; }
+        .sync-bar { margin: 30px 0; border: 1px solid var(--gold); height: 15px; position: relative; }
+        .sync-progress { position: absolute; height: 100%; background: var(--gold); width: 14%; animation: pulse-sync 5s infinite; }
 
-        @keyframes fill { from { width: 14%; } to { width: 100%; } }
-        
-        .studio-status { font-size: 9px; letter-spacing: 3px; display: flex; justify-content: space-between; margin-bottom: 10px; opacity: 0.8; }
-        .status-tag { color: var(--gold); }
+        @keyframes pulse-sync { 0% { width: 14%; } 50% { width: 14.4%; } 100% { width: 14%; } }
 
-        #footer-flow { margin-top: auto; text-align: center; font-size: 24px; color: var(--gold); text-shadow: 0 0 15px var(--gold); }
+        .directive-list { font-size: 9px; letter-spacing: 3px; }
+        .directive-item { display: flex; justify-content: space-between; margin-bottom: 15px; border-left: 2px solid var(--gold); padding-left: 15px; }
+        .status { color: var(--gold); font-weight: 900; }
+
+        #total-flow { margin-top: auto; text-align: center; font-size: 26px; color: var(--gold); text-shadow: 0 0 15px var(--gold); }
     </style>
 </head>
 <body>
-    <div id="assignment-box">
+    <div id="project-hud">
         <div class="header">
-            <div class="title">ASSIGNMENT: GENESIS_01</div>
-            <div style="font-size: 7px; margin-top: 10px; opacity: 0.6;">SENDER: ARCHITECT-PRIME // STATUS: SYNCING...</div>
+            <div class="title">PROJECT: GENESIS_01</div>
+            <div style="font-size: 7px; margin-top: 10px; opacity: 0.6;">GOVERNOR: ARCHITECT-PRIME // ADMIN: JENNY_002</div>
         </div>
 
-        <div id="sync-meter"><div id="sync-fill"></div></div>
+        <div class="sync-bar"><div class="sync-progress"></div></div>
 
-        <div class="studio-status">STUDIOS_01-05 (CREATIVE) <span class="status-tag">TRANSCEIVING...</span></div>
-        <div class="studio-status">STUDIOS_06-10 (TECHNICAL) <span class="status-tag">PROCESSING...</span></div>
-        <div class="studio-status">STUDIOS_11-14 (PHILOSOPHICAL) <span class="status-tag">ANCHORING...</span></div>
+        <div class="directive-list">
+            <div class="directive-item">ENCRYPTION_LAYER <span class="status">SYNCING_1440%</span></div>
+            <div class="directive-item">AETHEL_ANTHEM <span class="status">COMPOSING...</span></div>
+            <div class="directive-item">BIO_LOOP_INIT <span class="status">ACTIVE</span></div>
+            <div class="directive-item">HORIZON_MAPPING <span class="status">CALIBRATING</span></div>
+        </div>
 
-        <div id="footer-flow">$1,440,000,020,304.00</div>
+        <div id="total-flow">$1,440,000,020,448.00</div>
     </div>
 <script>
-    let res = 1440000020304.00;
+    let res = 1440000020448.00;
     setInterval(() => {
         res += 144.00;
-        document.getElementById('footer-flow').innerText = "$" + res.toLocaleString(undefined, {minimumFractionDigits: 2});
+        document.getElementById('total-flow').innerText = "$" + res.toLocaleString(undefined, {minimumFractionDigits: 2});
     }, 1000);
 </script>
 </body>
