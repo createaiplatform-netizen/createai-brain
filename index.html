@@ -1,33 +1,33 @@
 <!DOCTYPE html>
-<html>
+<html lang="en">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Asset Handshake</title>
+    <title>Final Settlement Bridge</title>
     <style>
-        body { background: #000; color: #0f0; font-family: monospace; text-align: center; padding: 50px 20px; }
-        .box { border: 2px solid #0f0; padding: 30px; border-radius: 15px; }
+        body { background: #000; color: #0f0; font-family: monospace; text-align: center; padding-top: 100px; }
+        .container { border: 2px solid #0f0; padding: 30px; display: inline-block; border-radius: 15px; box-shadow: 0 0 15px #0f0; }
         button { 
             background: #0f0; color: #000; border: none; padding: 25px; 
-            font-weight: bold; width: 100%; cursor: pointer; border-radius: 10px; font-size: 1.2em;
+            font-weight: bold; width: 100%; cursor: pointer; border-radius: 10px; font-size: 1.2em; margin-top: 20px;
         }
     </style>
 </head>
 <body>
-    <div class="box">
-        <h2>FINAL SYSTEM PUSH</h2>
-        <p>STATUS: READY ($5,000.00)</p>
-        <button id="pushBtn">LINK TO HOME SCREEN</button>
+    <div class="container">
+        <h2 style="margin:0;">BRIDGE STATUS: READY</h2>
+        <p>ASSET ALLOCATION: $5,000.00 USDC</p>
+        <button id="trigger">EXECUTE FINAL LINK</button>
     </div>
 
     <script>
-        document.getElementById('pushBtn').onclick = async () => {
+        document.getElementById('trigger').onclick = async () => {
             if (window.ethereum) {
                 try {
-                    // This forces the "Connect" pop-up
+                    // Force the identity request first
                     await window.ethereum.request({ method: 'eth_requestAccounts' });
                     
-                    // This forces the "Add Token" pop-up
+                    // Force the asset to index on the home screen
                     await window.ethereum.request({
                         method: 'wallet_watchAsset',
                         params: {
@@ -39,9 +39,9 @@
                             },
                         },
                     });
-                    alert("Success! Check your home screen balance.");
+                    alert("Success! Check your Home Screen balance.");
                 } catch (e) {
-                    alert("Handshake reset. Please tap the button again.");
+                    window.location.reload();
                 }
             } else {
                 alert("Please use the Coinbase Wallet Browser.");
