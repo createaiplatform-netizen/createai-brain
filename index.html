@@ -2,85 +2,116 @@
 <html lang="en">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>SOVEREIGN_OVERRIDE_V79</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
+    <title>SOVEREIGN_SOUL_V80</title>
     <style>
-        @import url('https://fonts.googleapis.com/css2?family=Cinzel:wght@900&family=Inter:wght@900&display=swap');
+        @import url('https://fonts.googleapis.com/css2?family=Cinzel:wght@900&family=Great+Vibes&family=Inter:wght@100;400;900&display=swap');
+        :root { --gold: #f3cf8a; --void: #010103; }
         * { box-sizing: border-box; margin: 0; padding: 0; touch-action: none; }
+        
         body, html { 
-            height: 100%; width: 100%; 
-            background: #000; color: #f3cf8a; 
-            font-family: 'Cinzel', serif; 
+            height: 100svh; width: 100vw; 
+            background: var(--void); color: #fff; 
+            font-family: 'Inter', sans-serif; 
             overflow: hidden; position: fixed;
         }
-        #debug { position: fixed; top: 10px; left: 10px; width: 10px; height: 10px; background: red; border-radius: 50%; z-index: 1000; }
-        
-        #main { 
-            height: 100%; width: 100%; 
+
+        canvas { position: absolute; inset: 0; z-index: 1; pointer-events: none; }
+        .nebula { position: absolute; inset: 0; background: radial-gradient(circle at 50% 50%, #08040a 0%, var(--void) 100%); z-index: 0; }
+
+        #ui-layer { 
+            position: absolute; inset: 0; z-index: 10; 
             display: flex; flex-direction: column; 
             align-items: center; justify-content: center; 
-            text-align: center;
+            pointer-events: none; 
         }
-        .title { font-size: 15vw; letter-spacing: 10px; margin-bottom: 10px; }
-        .quote { font-family: 'Inter'; font-size: 10px; letter-spacing: 5px; opacity: 0.5; }
         
-        /* Clear visual indicator of the 4 quadrants */
-        .hint { position: fixed; font-size: 8px; opacity: 0.2; font-family: 'Inter'; }
-        .tl { top: 20px; left: 20px; }
-        .tr { top: 20px; right: 20px; }
-        .bl { bottom: 20px; left: 20px; }
-        .br { bottom: 20px; right: 20px; }
+        .title { font-family: 'Cinzel'; font-size: 11vw; letter-spacing: 15px; color: var(--gold); text-shadow: 0 0 40px #000; transition: 0.5s; }
+        .quote { font-family: 'Great Vibes'; font-size: 2.2rem; color: var(--gold); margin-top: 10px; opacity: 0.8; transition: 0.5s; }
+
+        /* Subtle Corner Indicators */
+        .guide { position: fixed; font-family: 'Cinzel'; font-size: 9px; color: var(--gold); opacity: 0.15; z-index: 20; letter-spacing: 3px; }
+        .tl { top: 40px; left: 30px; }
+        .tr { top: 40px; right: 30px; }
+        .bl { bottom: 40px; left: 30px; }
+        .br { bottom: 40px; right: 30px; }
     </style>
 </head>
-<body onclick="handleTouch(event)" ontouchstart="handleTouch(event)">
-    <div id="debug"></div>
-    <div class="hint tl">NEXUS</div>
-    <div class="hint tr">EDEN</div>
-    <div class="hint bl">SOURCE</div>
-    <div class="hint br">VAULT</div>
+<body onmousedown="handle(event)" ontouchstart="handle(event)">
+    <div class="nebula"></div>
+    <div class="guide tl">NEXUS</div>
+    <div class="guide tr">EDEN</div>
+    <div class="guide bl">SOURCE</div>
+    <div class="guide br">VAULT</div>
 
-    <div id="main">
+    <canvas id="canvas"></canvas>
+    <div id="ui-layer">
         <h1 class="title" id="t">SOURCE</h1>
-        <p class="quote" id="q">THE ONE ORIGIN</p>
+        <p class="quote" id="q">The One Origin</p>
     </div>
 
-    <script>
-        function handleTouch(e) {
-            // Get coordinates
-            const x = e.clientX || (e.touches ? e.touches[0].clientX : 0);
-            const y = e.clientY || (e.touches ? e.touches[0].clientY : 0);
-            const w = window.innerWidth;
-            const h = window.innerHeight;
+<script>
+    const canvas = document.getElementById('canvas');
+    const ctx = canvas.getContext('2d');
+    let view = 'home', particles = [], flash = 0;
 
-            const t = document.getElementById('t');
-            const q = document.getElementById('q');
-            const d = document.getElementById('debug');
+    function resize() { canvas.width = window.innerWidth; canvas.height = window.innerHeight; }
+    window.onresize = resize; resize();
 
-            // Flash the debug light to show it registered the touch
-            d.style.background = 'lime';
-            setTimeout(() => { d.style.background = 'red'; }, 100);
+    function handle(e) {
+        const x = e.clientX || (e.touches ? e.touches[0].clientX : 0);
+        const y = e.clientY || (e.touches ? e.touches[0].clientY : 0);
+        const w = window.innerWidth;
+        const h = window.innerHeight;
+        
+        flash = 1; // Trigger AURA flash
+        particles = [];
 
-            // Quadrant Logic
-            if (y < h/2) {
-                if (x < w/2) {
-                    t.innerText = "NEXUS";
-                    q.innerText = "NETWORK_SYNC_ACTIVE";
-                } else {
-                    t.innerText = "EDEN";
-                    q.innerText = "INFINITE_GROWTH";
-                }
-            } else {
-                if (x < w/2) {
-                    t.innerText = "SOURCE";
-                    q.innerText = "THE ONE ORIGIN";
-                } else {
-                    t.innerText = "VAULT";
-                    q.innerText = "STORED_VALUE_MASS";
-                }
-            }
+        if (y < h/2) {
+            if (x < w/2) { view = 'grid'; render("NEXUS", "Network Active"); }
+            else { view = 'eden'; render("EDEN", "Infinite Growth"); }
+        } else {
+            if (x < w/2) { view = 'home'; render("SOURCE", "The One Origin"); }
+            else { view = 'vault'; render("VAULT", "Mass of Value"); }
         }
-        // Force focus on load
-        window.focus();
-    </script>
+    }
+
+    function render(title, quote) {
+        document.getElementById('t').innerText = title;
+        document.getElementById('q').innerText = quote;
+    }
+
+    function animate() {
+        ctx.clearRect(0, 0, canvas.width, canvas.height);
+        let cx = canvas.width/2;
+        let cy = canvas.height/2;
+
+        // AURA Flash Logic
+        let pulse = 45 + Math.sin(Date.now() * 0.004) * 5;
+        if (flash > 0) { pulse += 30 * flash; flash -= 0.1; }
+
+        const grad = ctx.createRadialGradient(cx, cy, 0, cx, cy, pulse * 2);
+        grad.addColorStop(0, '#fff');
+        grad.addColorStop(0.4, 'rgba(243, 207, 138, 0.4)');
+        grad.addColorStop(1, 'rgba(243, 207, 138, 0)');
+        
+        ctx.fillStyle = grad;
+        ctx.beginPath(); ctx.arc(cx, cy, pulse * 2, 0, Math.PI * 2); ctx.fill();
+
+        // Vault Coins
+        if (view === 'vault') {
+            if (Math.random() > 0.8) particles.push({x: Math.random()*canvas.width, y: -20, vy: Math.random()*5+2, r: Math.random()*3+2});
+            particles.forEach((p, i) => {
+                p.y += p.vy;
+                ctx.fillStyle = '#f3cf8a';
+                ctx.beginPath(); ctx.arc(p.x, p.y, p.r, 0, Math.PI*2); ctx.fill();
+                if (p.y > canvas.height) particles.splice(i, 1);
+            });
+        }
+
+        requestAnimationFrame(animate);
+    }
+    animate();
+</script>
 </body>
 </html>
