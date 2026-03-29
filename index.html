@@ -3,15 +3,10 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
-    <title>CREATEAI // MULTIVERSE_PORTAL_V56</title>
+    <title>CREATEAI // EDEN_BIOSPHERE_V57</title>
     <style>
         @import url('https://fonts.googleapis.com/css2?family=Cinzel:wght@400;900&family=Great+Vibes&family=Inter:wght@100;300;600&display=swap');
-        :root { 
-            --gold: #f3cf8a; 
-            --gold-d: #b8860b;
-            --obsidian: #050208; 
-            --void: #010103; 
-        }
+        :root { --gold: #f3cf8a; --gold-d: #b8860b; --obsidian: #050208; --void: #010103; --emerald: #1a4a2e; }
         
         * { box-sizing: border-box; -webkit-tap-highlight-color: transparent; margin: 0; padding: 0; }
         html, body { height: 100%; width: 100vw; overflow: hidden; background: var(--void); color: #fff; font-family: 'Inter', sans-serif; }
@@ -19,71 +14,54 @@
         #ripple-canvas { position: fixed; inset: 0; z-index: 1; pointer-events: none; }
         .nebula { position: fixed; inset: 0; background: radial-gradient(circle at 50% 50%, var(--obsidian) 0%, var(--void) 100%); z-index: 0; }
 
-        #main-view { 
-            height: 100svh; width: 100%; display: flex; flex-direction: column; 
-            align-items: center; justify-content: center; padding: 20px;
-            position: relative; z-index: 10; transition: transform 0.6s cubic-bezier(0.19, 1, 0.22, 1);
-        }
+        #main-view { height: 100svh; width: 100%; display: flex; flex-direction: column; align-items: center; justify-content: center; position: relative; z-index: 10; transition: 0.8s cubic-bezier(0.19, 1, 0.22, 1); }
 
-        .status-header { 
-            position: fixed; top: 0; padding-top: env(safe-area-inset-top, 20px);
-            height: 80px; font-family: 'Great Vibes', cursive; font-size: 1.6rem; 
-            color: var(--gold); z-index: 100; text-align: center; width: 100%;
-            text-shadow: 0 0 10px rgba(243, 207, 138, 0.4);
-        }
+        .status-header { position: fixed; top: 0; padding-top: env(safe-area-inset-top, 20px); font-family: 'Great Vibes', cursive; font-size: 1.6rem; color: var(--gold); z-index: 100; text-align: center; width: 100%; }
 
         .source-title { 
             font-family: 'Cinzel'; font-weight: 900; font-size: 10vw; letter-spacing: 18px; 
             color: var(--gold); background: linear-gradient(90deg, var(--gold-d), var(--gold), #fff, var(--gold), var(--gold-d));
             background-size: 200% auto; -webkit-background-clip: text; -webkit-text-fill-color: transparent;
-            filter: drop-shadow(0 10px 20px rgba(0,0,0,1));
-            animation: shine 8s linear infinite; cursor: pointer;
+            filter: drop-shadow(0 10px 20px #000); animation: shine 8s linear infinite; cursor: pointer; transition: 0.6s;
         }
 
-        .app-container {
-            position: absolute; width: 100%; height: 100%; display: flex;
-            align-items: center; justify-content: center; opacity: 0; pointer-events: none;
-            transition: 0.5s; transform: scale(0.8);
-        }
+        .app-container { position: absolute; width: 100%; height: 100%; opacity: 0; pointer-events: none; transition: 0.8s; transform: scale(0.7); }
         .app-container.active { opacity: 1; pointer-events: auto; transform: scale(1); }
 
         .app-orb {
-            width: 70px; height: 70px; border-radius: 50%; border: 1px solid var(--gold);
-            display: flex; align-items: center; justify-content: center;
-            font-family: 'Cinzel'; font-size: 10px; color: var(--gold);
-            background: rgba(243, 207, 138, 0.05); backdrop-filter: blur(5px);
-            position: absolute; box-shadow: 0 0 15px rgba(243, 207, 138, 0.2);
-            animation: orbFloat 4s ease-in-out infinite;
+            width: 85px; height: 85px; border-radius: 50%; border: 1.5px solid var(--gold);
+            display: flex; align-items: center; justify-content: center; flex-direction: column;
+            font-family: 'Cinzel'; font-size: 9px; color: var(--gold); font-weight: 900;
+            background: rgba(243, 207, 138, 0.08); backdrop-filter: blur(8px);
+            position: absolute; box-shadow: 0 0 20px rgba(243, 207, 138, 0.3);
+            animation: orbFloat 5s ease-in-out infinite; transition: 0.3s;
         }
+        .app-orb:active { transform: scale(0.9); background: var(--gold); color: var(--void); }
 
-        .close-portal {
-            position: absolute; bottom: 120px; font-family: 'Cinzel'; color: var(--gold);
-            letter-spacing: 4px; font-size: 12px; opacity: 0; transition: 0.5s;
-        }
+        .close-portal { position: absolute; bottom: 120px; font-family: 'Cinzel'; color: var(--gold); letter-spacing: 4px; font-size: 12px; cursor: pointer; opacity: 0; transition: 0.5s; }
 
         .dock { position: fixed; bottom: 0; left: 0; width: 100%; height: 85px; background: rgba(1,1,3,0.95); backdrop-filter: blur(25px); border-top: 1px solid rgba(243, 207, 138, 0.1); display: flex; justify-content: space-around; align-items: center; z-index: 9000; padding-bottom: env(safe-area-inset-bottom); }
         .dock-item { color: rgba(255,255,255,0.2); font-family: 'Cinzel'; font-size: 11px; letter-spacing: 2px; flex: 1; text-align: center; padding: 15px; font-weight: 900; }
         .dock-item.active { color: var(--gold); text-shadow: 0 0 15px var(--gold); }
 
         @keyframes shine { to { background-position: 200% center; } }
-        @keyframes orbFloat { 0%, 100% { transform: translate(0,0); } 50% { transform: translate(0, -15px); } }
-        
-        /* The Hum Effect */
+        @keyframes orbFloat { 0%, 100% { transform: translateY(0); } 50% { transform: translateY(-20px); } }
         .system-hum { animation: hum 0.1s infinite; }
-        @keyframes hum { 0% { transform: translate(1px, 1px); } 50% { transform: translate(-1px, -1px); } 100% { transform: translate(0,0); } }
+        @keyframes hum { 0% { transform: translate(1px, 1px); } 50% { transform: translate(-1px, -1px); } }
     </style>
 </head>
-<body onload="render('home'); startLiveRating();">
+<body onload="render('garden'); startLiveRating();">
     <div class="status-header" id="status-text">Sovereign 144.00%</div>
     <div class="nebula"></div>
     <canvas id="ripple-canvas"></canvas>
     
     <div id="main-view">
-        <div id="room-content" style="text-align: center;"></div>
+        <div id="room-content" style="text-align: center; transition: 0.8s;"></div>
         <div id="portal-apps" class="app-container">
-            <div class="app-orb" style="top: 20%; left: 15%;">AI_V1</div>
-            <div class="app-orb" style="top: 15%; right: 20%;">PULSE</div>
-            <div class="app-orb" style="bottom: 35%; left: 25%;">SOIL</div>
+            <div class="app-orb" style="top: 15%; left: 15%; animation-delay: 0s;">SOIL_AI</div>
+            <div class="app-orb" style="top: 10%; right: 15%; animation-delay: 1s;">OXYGEN</div>
+            <div class="app-orb" style="bottom: 30%; left: 10%; animation-delay: 0.5s;">PHOTON</div>
+            <div class="app-orb" style="bottom: 35%; right: 15%; animation-delay: 1.5s;">SEED</div>
         </div>
         <div class="close-portal" id="close-btn" onclick="togglePortal(false)">[ COLLAPSE ]</div>
     </div>
@@ -108,15 +86,15 @@
             isPortalOpen = open;
             document.getElementById('portal-apps').classList.toggle('active', open);
             document.getElementById('close-btn').style.opacity = open ? "1" : "0";
-            document.getElementById('room-content').style.transform = open ? "scale(0.7) translateY(-50px)" : "scale(1) translateY(0)";
+            document.getElementById('room-content').style.transform = open ? "scale(0.6) translateY(-180px)" : "scale(1) translateY(0)";
         }
 
         class Ripple {
             constructor(x, y) { this.x = x; this.y = y; this.r = 0; this.life = 1; }
-            update() { this.r += 5; this.life -= 0.02; }
+            update() { this.r += 6; this.life -= 0.02; }
             draw() {
                 ctx.beginPath(); ctx.arc(this.x, this.y, this.r, 0, Math.PI*2);
-                ctx.strokeStyle = `rgba(243, 207, 138, ${this.life * 0.3})`;
+                ctx.strokeStyle = `rgba(243, 207, 138, ${this.life * 0.4})`;
                 ctx.lineWidth = 2; ctx.stroke();
             }
         }
@@ -128,16 +106,12 @@
         }
         animate();
 
-        let humTimer;
         const handleInput = (e) => {
             const x = e.touches ? e.touches[0].clientX : e.clientX;
             const y = e.touches ? e.touches[0].clientY : e.clientY;
             ripples.push(new Ripple(x, y));
-            
-            // Start Hum
             document.body.classList.add('system-hum');
-            clearTimeout(humTimer);
-            humTimer = setTimeout(() => document.body.classList.remove('system-hum'), 300);
+            setTimeout(() => document.body.classList.remove('system-hum'), 150);
         };
 
         window.onmousedown = handleInput;
@@ -150,13 +124,12 @@
             navs.forEach(n => n.classList.remove('active'));
             document.getElementById('nav-' + (view === 'registry' ? 'reg' : (view === 'vault' ? 'cav' : view.substring(0,3)))).classList.add('active');
             
-            let title = view.toUpperCase();
-            if(view === 'home') title = "SOURCE";
+            let title = view === 'home' ? "SOURCE" : view.toUpperCase();
             if(view === 'registry') title = "GRID";
             if(view === 'garden') title = "EDEN";
-            
+
             rc.innerHTML = `<h1 class="source-title" onclick="togglePortal(true)">${title}</h1>
-                            <p style="font-family:'Great Vibes'; color:var(--gold); font-size:2rem; margin-top:10px;">Deepen the bond</p>`;
+                            <p style="font-family:'Great Vibes'; color:var(--gold); font-size:2.4rem; margin-top:15px; text-shadow:0 0 10px rgba(0,0,0,0.8);">Sovereign Ecosystem</p>`;
         }
 
         function startLiveRating() {
