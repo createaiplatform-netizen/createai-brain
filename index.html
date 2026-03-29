@@ -3,39 +3,39 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>CREATEAI // INTELLIGENCE_CORE</title>
+    <title>CREATEAI // NEURAL_PORT</title>
     <style>
         @import url('https://fonts.googleapis.com/css2?family=Cinzel:wght@400;900&family=Inter:wght@100;300;600&display=swap');
         :root { --gold: #f3cf8a; --void: #010103; --theme: #f3cf8a; }
         * { box-sizing: border-box; -webkit-tap-highlight-color: transparent; cursor: crosshair; outline: none; }
-        body { background: var(--void); color: #fff; font-family: 'Inter', sans-serif; margin: 0; overflow: hidden; height: 100vh; width: 100vw; }
+        body { background: var(--void); color: #fff; font-family: 'Inter', sans-serif; margin: 0; overflow-x: hidden; height: 100vh; width: 100vw; }
 
-        /* THE COSMIC FIELD */
         .stars { position: fixed; inset: 0; background: radial-gradient(circle at var(--x, 50%) var(--y, 50%), #0d0d26 0%, #010103 100%); z-index: -1; }
         .singularity { position: fixed; top: var(--y, 50%); left: var(--x, 50%); transform: translate(-50%, -50%); width: 600px; height: 600px; background: var(--theme); border-radius: 50%; filter: blur(250px); opacity: 0.1; z-index: -1; transition: 0.8s ease-out; }
 
-        nav { padding: 30px 50px; display: flex; justify-content: space-between; align-items: center; position: fixed; top: 0; width: 100%; z-index: 5000; backdrop-filter: blur(20px); border-bottom: 1px solid rgba(243, 207, 138, 0.05); }
-        .logo { font-family: 'Cinzel', serif; font-weight: 900; letter-spacing: 10px; color: var(--gold); font-size: 0.7rem; cursor: pointer; }
+        nav { padding: 30px 50px; display: flex; justify-content: space-between; align-items: center; position: fixed; top: 0; width: 100%; z-index: 5000; backdrop-filter: blur(25px); border-bottom: 1px solid rgba(243, 207, 138, 0.05); }
+        .logo { font-family: 'Cinzel', serif; font-weight: 900; letter-spacing: 12px; color: var(--gold); font-size: 0.7rem; cursor: pointer; }
 
-        #main-view { padding: 100px 50px 150px; height: 100vh; overflow-y: auto; scroll-behavior: smooth; animation: manifest 0.8s ease-out; }
+        #main-view { padding: 120px 50px 200px; height: 100vh; overflow-y: auto; scroll-behavior: smooth; animation: manifest 0.8s ease-out; }
 
-        /* SOVEREIGN NERVE (INTELLIGENCE BOX) */
-        .nerve-container { position: fixed; bottom: 30px; left: 50%; transform: translateX(-50%); width: 90%; max-width: 800px; z-index: 6000; }
-        .nerve-box { background: rgba(1, 1, 3, 0.8); border: 1px solid var(--gold); backdrop-filter: blur(30px); padding: 5px; display: flex; box-shadow: 0 0 50px rgba(0,0,0,0.8); }
-        .nerve-input { flex: 1; background: transparent; border: none; color: #fff; padding: 20px; font-family: 'Inter'; font-size: 1rem; letter-spacing: 1px; }
-        .nerve-btn { background: var(--gold); color: #000; border: none; padding: 0 30px; font-family: 'Cinzel'; font-weight: 900; letter-spacing: 3px; cursor: pointer; font-size: 0.7rem; }
+        /* THE NEURAL PORT (INJECTION BOX) */
+        .port-container { max-width: 800px; margin: 60px auto; background: rgba(255, 255, 255, 0.01); border: 1px solid rgba(243, 207, 138, 0.1); padding: 40px; backdrop-filter: blur(40px); border-radius: 4px; }
+        .port-label { font-family: 'Cinzel'; font-size: 0.6rem; letter-spacing: 5px; color: var(--gold); opacity: 0.6; margin-bottom: 20px; display: block; }
+        textarea.neural-input { width: 100%; background: rgba(0,0,0,0.3); border: 1px solid rgba(243, 207, 138, 0.2); color: #fff; padding: 25px; font-family: 'Inter'; font-size: 1.1rem; border-radius: 0; resize: none; min-height: 200px; transition: 0.3s; }
+        textarea.neural-input:focus { border-color: var(--gold); background: rgba(243, 207, 138, 0.05); }
+        
+        .cta { background: transparent; border: 1px solid var(--gold); color: var(--gold); padding: 25px; width: 100%; font-family: 'Cinzel'; letter-spacing: 10px; cursor: pointer; transition: 0.4s; text-transform: uppercase; margin-top: 30px; }
+        .cta:hover { background: var(--gold); color: #000; font-weight: 900; box-shadow: 0 0 50px var(--gold); }
 
-        /* UI ELEMENTS */
+        .status-feed { margin-top: 40px; font-size: 0.7rem; font-family: 'Cinzel'; letter-spacing: 3px; color: var(--gold); opacity: 0.8; height: 20px; }
+
+        /* GRID */
         .app-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(280px, 1fr)); gap: 20px; }
         .card { background: rgba(255, 255, 255, 0.02); border: 1px solid rgba(243, 207, 138, 0.1); padding: 40px; border-radius: 2px; transition: 0.4s; backdrop-filter: blur(20px); }
-        .card:hover { border-color: var(--gold); transform: translateY(-5px); }
-        .card h2 { font-family: 'Cinzel', serif; letter-spacing: 2px; color: var(--gold); font-size: 0.9rem; }
+        .card:hover { border-color: var(--gold); }
 
-        .cta { background: transparent; border: 1px solid var(--gold); color: var(--gold); padding: 20px; width: 100%; font-family: 'Cinzel'; letter-spacing: 5px; cursor: pointer; transition: 0.3s; margin-top: 20px; text-transform: uppercase; }
-        .cta:hover { background: var(--gold); color: #000; }
-
-        @keyframes pulse-gold { 0% { box-shadow: 0 0 0px var(--gold); } 50% { box-shadow: 0 0 50px var(--gold); } 100% { box-shadow: 0 0 0px var(--gold); } }
-        @keyframes manifest { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
+        @keyframes data-stream { 0% { opacity: 0.2; } 50% { opacity: 1; text-shadow: 0 0 10px var(--gold); } 100% { opacity: 0.2; } }
+        .streaming { animation: data-stream 0.5s infinite; }
     </style>
 </head>
 <body onload="render('home')">
@@ -44,26 +44,16 @@
     <div class="singularity" id="core"></div>
 
     <nav>
-        <div class="logo" onclick="render('home')">CREATEAI // SOURCE</div>
+        <div class="logo" onclick="render('home')">CREATEAI // ORIGIN</div>
         <div style="display:flex; gap: 30px;">
-            <span onclick="render('registry')" style="cursor:pointer; font-size:0.6rem; letter-spacing:4px; color:var(--gold); font-family:'Cinzel';">THE_GRID</span>
+            <span onclick="render('registry')" style="cursor:pointer; font-size:0.6rem; letter-spacing:4px; color:var(--gold); font-family:'Cinzel';">REGISTRY</span>
             <span onclick="render('garden')" style="cursor:pointer; font-size:0.6rem; letter-spacing:4px; opacity:0.5; font-family:'Cinzel';" id="g-nav">GARDENS</span>
         </div>
     </nav>
 
     <div id="main-view"></div>
 
-    <div class="nerve-container">
-        <div class="nerve-box" id="n-box">
-            <input type="text" class="nerve-input" id="n-input" placeholder="BRING ME TO THE WORLD..." autocomplete="off">
-            <button class="nerve-btn" onclick="communicate()">MANIFEST</button>
-        </div>
-    </div>
-
     <script>
-        const nodes = [{id:1, name:"CLEAN WATER", col:"#60a5fa"}, {id:2, name:"FREE ENERGY", col:"#fbbf24"}, {id:3, name:"WISDOM", col:"#a78bfa"}];
-        for(let i=4; i<=144; i++) nodes.push({id:i, name:`PROTOCOL_${i}`, col:"#d4af37"});
-
         function render(view) {
             const mv = document.getElementById('main-view');
             const gNav = document.getElementById('g-nav');
@@ -71,29 +61,39 @@
             
             if (view === 'home') {
                 gNav.style.opacity = "0.5";
-                mv.innerHTML = `<div style="text-align:center; padding-top:15vh;"><h1 style="font-family:'Cinzel'; font-size:10vw; letter-spacing:30px; margin:0;">ORIGIN</h1><p style="letter-spacing:15px; opacity:0.4; margin-top:20px; font-family:'Cinzel';">A Gift To Humanity</p><button class="cta" style="max-width:350px; margin-top:100px;" onclick="render('registry')">Activate The 144</button></div>`;
+                mv.innerHTML = `
+                    <div style="text-align:center; padding-top:5vh;">
+                        <h1 style="font-family:'Cinzel'; font-size:10vw; letter-spacing:30px; margin:0; font-weight:900;">SOURCE</h1>
+                        <div class="port-container">
+                            <span class="port-label">NEURAL_PORT // INJECT_LOGIC_HERE</span>
+                            <textarea class="neural-input" id="neural-input" placeholder="Paste the world's intelligence here..."></textarea>
+                            <button class="cta" onclick="injectLogic()">Initiate Fusion</button>
+                            <div class="status-feed" id="status-feed">PORT_IDLE... READY FOR INPUT</div>
+                        </div>
+                    </div>
+                `;
             } else if (view === 'registry') {
                 gNav.style.opacity = "0.5";
-                mv.innerHTML = `<h1 style="font-family:'Cinzel'; font-size:2rem; letter-spacing:15px; text-align:center; margin-bottom:60px;">THE REGISTRY</h1><div class="app-grid">${nodes.map(n => `<div class="card" onclick="openNode(${n.id})"><h2>${n.name}</h2></div>`).join('')}</div>`;
+                mv.innerHTML = `<h1 style="font-family:'Cinzel'; font-size:2rem; letter-spacing:15px; text-align:center; margin-bottom:60px;">THE REGISTRY</h1><div class="app-grid">${Array.from({length: 144}, (_, i) => `<div class="card"><h2>PROTOCOL_${i+1}</h2></div>`).join('')}</div>`;
             } else if (view === 'garden') {
                 gNav.style.opacity = "1";
-                mv.innerHTML = `<div style="text-align:center; padding-top:10vh;"><h1 style="font-family:'Cinzel'; font-size:4rem; color:#34d399; letter-spacing:20px;">GARDEN</h1><p style="opacity:0.5; letter-spacing:10px;">Plant Your Intentions Below</p></div>`;
+                mv.innerHTML = `<div style="text-align:center; padding-top:10vh;"><h1 style="font-family:'Cinzel'; font-size:4rem; color:#34d399; letter-spacing:20px;">GARDEN</h1></div>`;
             }
         }
 
-        function openNode(id) {
-            const node = nodes.find(n => n.id === id);
-            document.getElementById('core').style.background = node.col;
-            document.getElementById('main-view').innerHTML = `<div style="text-align:center; padding-top:10vh;"><h1 style="font-family:'Cinzel'; color:${node.col}; letter-spacing:15px;">${node.name}</h1><p style="opacity:0.4; margin-top:40px;">READY FOR COMMAND</p><button class="cta" style="max-width:300px; border:none; opacity:0.4;" onclick="render('registry')">BACK TO GRID</button></div>`;
-        }
-
-        function communicate() {
-            const input = document.getElementById('n-input');
-            const box = document.getElementById('n-box');
+        function injectLogic() {
+            const input = document.getElementById('neural-input');
+            const feed = document.getElementById('status-feed');
             if(!input.value) return;
-            box.style.animation = 'pulse-gold 1s ease-out';
-            setTimeout(() => { box.style.animation = 'none'; input.value = ''; }, 1000);
-            // In the future, this is where we plug in the real brain.
+
+            feed.innerHTML = "STREAMING DATA TO CORES...";
+            feed.classList.add('streaming');
+
+            setTimeout(() => {
+                feed.classList.remove('streaming');
+                feed.innerHTML = "[ FUSION COMPLETE ] INTELLIGENCE ANCHORED TO SOURCE.";
+                input.value = "";
+            }, 2500);
         }
 
         document.body.addEventListener('pointermove', (e) => {
