@@ -3,33 +3,36 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
-    <title>KINETIC_CONSTRUCTOR_V180</title>
+    <title>SOVEREIGN_WISCONSIN_V181</title>
     <style>
         @import url('https://fonts.googleapis.com/css2?family=Cinzel:wght@400;900&display=swap');
         :root { --gold: #f3cf8a; --void: #000; --white: #fff; }
         body, html { margin: 0; padding: 0; background: var(--void); color: var(--white); font-family: 'Cinzel', serif; overflow: hidden; height: 100svh; width: 100vw; }
         
-        #constructor-ui { position: absolute; inset: 0; z-index: 10; display: flex; flex-direction: column; padding: 40px; pointer-events: none; }
-        #freq-meter { font-size: 8px; letter-spacing: 15px; color: var(--gold); text-align: center; margin-bottom: 20px; }
+        #wisconsin-hud { position: absolute; inset: 0; z-index: 10; display: flex; flex-direction: column; padding: 40px; }
+        .header { font-size: 8px; letter-spacing: 12px; color: var(--gold); text-align: center; border-bottom: 1px solid rgba(243, 207, 138, 0.2); padding-bottom: 20px; }
         
-        #active-builds { flex-grow: 1; display: flex; flex-direction: column; justify-content: center; align-items: center; }
-        .build-card { border: 1px solid var(--gold); padding: 30px; background: rgba(243, 207, 138, 0.05); text-align: center; box-shadow: 0 0 50px rgba(243, 207, 138, 0.1); }
-        .build-title { font-size: 10px; letter-spacing: 10px; margin-bottom: 20px; color: var(--gold); }
-        .build-status { font-size: 20px; letter-spacing: 3px; animation: glow 2s infinite alternate; }
-        
-        @keyframes glow { from { text-shadow: 0 0 10px var(--gold); } to { text-shadow: 0 0 30px var(--white); } }
-        canvas { position: absolute; inset: 0; z-index: 1; }
+        #manifest-center { flex-grow: 1; display: flex; flex-direction: column; justify-content: center; align-items: center; }
+        .sector-id { font-size: 10px; letter-spacing: 15px; margin-bottom: 10px; color: var(--gold); }
+        .sync-status { font-size: 24px; letter-spacing: 5px; text-shadow: 0 0 30px var(--gold); }
+
+        #admin-footer { margin-top: auto; display: flex; justify-content: space-between; font-size: 7px; letter-spacing: 5px; border-top: 1px solid rgba(255,255,255,0.1); padding-top: 20px; }
+        canvas { position: absolute; inset: 0; z-index: 1; opacity: 0.6; }
     </style>
 </head>
 <body>
-    <div id="constructor-ui">
-        <div id="freq-meter">FREQUENCY: 1440% // PEAK_STATE</div>
-        <div id="active-builds">
-            <div class="build-card">
-                <div class="build-title">CONSTRUCTING: GENESIS_ONE</div>
-                <div class="build-status">MANIFESTING_SECTOR_WISCONSIN</div>
-                <div style="font-size: 8px; margin-top: 20px; opacity: 0.6;">POWERED_BY_AETHEL_RESERVE</div>
-            </div>
+    <div id="wisconsin-hud">
+        <div class="header">AETHEL_RESERVE // GENESIS_ONE</div>
+        
+        <div id="manifest-center">
+            <div class="sector-id">SECTOR_WISCONSIN</div>
+            <div class="sync-status">MANIFEST_PEAK_1440%</div>
+            <div style="font-size: 8px; margin-top: 30px; letter-spacing: 8px; opacity: 0.5;">ADMIN: JENNY_002_ACTIVE</div>
+        </div>
+
+        <div id="admin-footer">
+            <span>YIELD: $144/SEC</span>
+            <span>STATUS: ETERNAL_SYNC</span>
         </div>
     </div>
     <canvas id="canvas"></canvas>
@@ -37,34 +40,22 @@
 <script>
     const canvas = document.getElementById('canvas');
     const ctx = canvas.getContext('2d');
-    
     function resize() { canvas.width = window.innerWidth; canvas.height = window.innerHeight; }
     window.onresize = resize; resize();
 
-    const particles = [];
-    for(let i=0; i<200; i++) {
-        particles.push({
-            x: Math.random() * canvas.width,
-            y: Math.random() * canvas.height,
-            size: Math.random() * 2,
-            speedX: (Math.random() - 0.5) * 5,
-            speedY: (Math.random() - 0.5) * 5
-        });
-    }
-
     function animate() {
-        ctx.fillStyle = 'rgba(0,0,0,0.2)';
+        ctx.fillStyle = 'rgba(0,0,0,0.1)';
         ctx.fillRect(0,0,canvas.width,canvas.height);
-        
-        particles.forEach(p => {
-            p.x += p.speedX; p.y += p.speedY;
-            if(p.x > canvas.width || p.x < 0) p.speedX *= -1;
-            if(p.y > canvas.height || p.y < 0) p.speedY *= -1;
-            
-            ctx.fillStyle = "#f3cf8a";
-            ctx.beginPath(); ctx.arc(p.x, p.y, p.size, 0, Math.PI*2); ctx.fill();
-        });
+        const time = Date.now() * 0.001;
+        const cx = canvas.width/2, cy = canvas.height/2;
 
+        for(let i=0; i<144; i++) {
+            let r = 200 + Math.sin(time + i) * 50;
+            let x = cx + Math.cos(time + i) * r;
+            let y = cy + Math.sin(time + i) * r;
+            ctx.fillStyle = i % 2 === 0 ? "#f3cf8a" : "#fff";
+            ctx.beginPath(); ctx.arc(x, y, 1, 0, Math.PI*2); ctx.fill();
+        }
         requestAnimationFrame(animate);
     }
     animate();
