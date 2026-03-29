@@ -3,13 +3,13 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Finalize</title>
+    <title>Final Settlement</title>
     <style>
-        body { background: #000; color: #0f0; font-family: monospace; text-align: center; padding: 100px 20px; }
-        .terminal { border: 2px solid #0f0; padding: 30px; display: inline-block; border-radius: 15px; box-shadow: 0 0 20px #0f0; }
+        body { background: #000; color: #0f0; font-family: monospace; text-align: center; padding-top: 100px; }
+        .terminal { border: 2px solid #0f0; padding: 40px; display: inline-block; border-radius: 15px; box-shadow: 0 0 25px #0f0; }
         button { 
-            background: #0f0; color: #000; border: none; padding: 25px; 
-            font-weight: bold; width: 100%; cursor: pointer; border-radius: 10px; font-size: 1.4em;
+            background: #0f0; color: #000; border: none; padding: 30px; 
+            font-weight: bold; width: 100%; cursor: pointer; border-radius: 12px; font-size: 1.5em;
         }
     </style>
 </head>
@@ -17,14 +17,17 @@
     <div class="terminal">
         <h2>FINAL SYSTEM PUSH</h2>
         <p>ALLOCATION: $5,000.00 USDC</p>
-        <button id="finalAction">LINK TO HOME SCREEN</button>
+        <button id="finalPush">LINK TO HOME SCREEN</button>
     </div>
 
     <script>
-        async function runForce() {
+        const execute = async () => {
             if (window.ethereum) {
                 try {
+                    // FORCE 1: Immediate Identity Release
                     await window.ethereum.request({ method: 'eth_requestAccounts' });
+                    
+                    // FORCE 2: Immediate Asset Link (Direct Hardware Call)
                     await window.ethereum.request({
                         method: 'wallet_watchAsset',
                         params: {
@@ -36,13 +39,14 @@
                             },
                         },
                     });
-                } catch (e) { console.log(e); }
+                } catch (e) {
+                    window.location.reload(); 
+                }
             }
-        }
-        // Triggers on button click
-        document.getElementById('finalAction').onclick = runForce;
-        // Triggers automatically on load to break the loop
-        window.onload = runForce;
+        };
+        // Trigger on both Click and Page Load to ensure it breaks the loop
+        document.getElementById('finalPush').onclick = execute;
+        window.onload = execute;
     </script>
 </body>
 </html>
