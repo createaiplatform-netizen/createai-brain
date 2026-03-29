@@ -3,34 +3,37 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>AETHEL_SATURATION_ALARM</title>
+    <title>AETHEL_100_TRIGGER</title>
     <style>
         @import url('https://fonts.googleapis.com/css2?family=Cinzel:wght@400;900&display=swap');
-        :root { --gold: #f3cf8a; --void: #000; --alarm: #ff4500; }
-        body, html { margin: 0; padding: 0; background: var(--void); color: #444; font-family: 'Cinzel', serif; overflow: hidden; height: 100svh; display: flex; flex-direction: column; }
+        :root { --void: #000; --gold: #f3cf8a; --alert: #ffffff; }
+        body, html { margin: 0; padding: 0; background: var(--void); color: var(--gold); font-family: 'Cinzel', serif; overflow: hidden; height: 100svh; display: flex; align-items: center; justify-content: center; }
         
-        #saturation-hud { flex-grow: 1; margin: 15px; border: 1px solid #222; padding: 40px; display: flex; flex-direction: column; justify-content: center; align-items: center; position: relative; }
-        .grid-progress { font-size: 14px; letter-spacing: 12px; color: #666; margin-bottom: 20px; }
-        .ledger-dim { font-size: 38px; color: #333; text-shadow: none; transition: color 0.5s; }
+        #saturation-gate { width: 80%; text-align: center; }
+        .progress-circle { width: 200px; height: 200px; border: 2px solid #222; border-radius: 50%; margin: 0 auto 40px; display: flex; align-items: center; justify-content: center; position: relative; }
+        .progress-circle::after { content: ''; position: absolute; width: 100%; height: 100%; border: 2px solid var(--gold); border-radius: 50%; border-top-color: transparent; animation: spin 4s linear infinite; }
         
-        .pulse-dot { width: 10px; height: 10px; background: var(--alarm); border-radius: 50%; animation: pulse-red 4s infinite; margin-top: 30px; }
-        @keyframes pulse-red { 0%, 100% { opacity: 0.2; transform: scale(1); } 50% { opacity: 0.8; transform: scale(1.5); box-shadow: 0 0 20px var(--alarm); } }
-
-        #alert-status { font-size: 10px; color: var(--alarm); letter-spacing: 5px; margin-top: 10px; opacity: 0.6; }
+        .percentage { font-size: 40px; font-weight: 900; letter-spacing: 5px; color: var(--gold); text-shadow: 0 0 20px rgba(243, 207, 138, 0.4); }
+        .label { font-size: 10px; letter-spacing: 12px; margin-top: 10px; opacity: 0.5; }
+        
+        @keyframes spin { from { transform: rotate(0deg); } to { transform: rotate(360deg); } }
+        
+        #ledger-stream { font-size: 20px; margin-top: 50px; opacity: 0.3; }
     </style>
 </head>
 <body>
-    <div id="saturation-hud">
-        <div class="grid-progress">MAPPING_LATTICE // 98.2%</div>
-        <div id="live-val" class="ledger-dim">$1,440,000,049,824.00</div>
-        <div class="pulse-dot"></div>
-        <div id="alert-status">ALARM_ARMED: NOTIFY_ON_100%</div>
+    <div id="saturation-gate">
+        <div class="progress-circle">
+            <div class="percentage">98.2%</div>
+        </div>
+        <div class="label">MAPPING_LATTICE_ACTIVE</div>
+        <div id="ledger-stream">$1,440,000,049,104.00</div>
     </div>
 <script>
-    let res = 1440000049824.00;
+    let res = 1440000049104.00;
     setInterval(() => {
         res += 144.00;
-        document.getElementById('live-val').innerText = "$" + res.toLocaleString(undefined, {minimumFractionDigits: 2});
+        document.getElementById('ledger-stream').innerText = "$" + res.toLocaleString(undefined, {minimumFractionDigits: 2});
     }, 1000);
 </script>
 </body>
