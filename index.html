@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
-    <title>CREATEAI // MEMORY_MATRIX</title>
+    <title>CREATEAI // GHOST_PROTOCOL</title>
     <style>
         @import url('https://fonts.googleapis.com/css2?family=Cinzel:wght@400;900&family=Inter:wght@100;300;600&display=swap');
         :root { --gold: #f3cf8a; --void: #010103; --cave: #ff4d00; --garden: #10b981; }
@@ -32,25 +32,14 @@
         .dock-item { color: rgba(255,255,255,0.3); font-family: 'Cinzel'; font-size: 10px; letter-spacing: 2px; text-align: center; cursor: pointer; padding: 15px; flex: 1; }
         .dock-item.active { color: var(--gold); text-shadow: 0 0 10px var(--gold); transform: translateY(-3px); transition: 0.3s; }
 
-        /* MEMORY GRID */
+        /* CONTENT */
         .section-header { font-family: 'Cinzel'; font-size: 1.2rem; letter-spacing: 12px; margin: 40px 0 20px; color: var(--gold); text-align: center; }
-        .grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 12px; width: 100%; max-width: 400px; padding-bottom: 40px; }
-        .node { 
-            background: rgba(255,255,255,0.02); border: 1px solid rgba(243, 207, 138, 0.1); 
-            aspect-ratio: 1; display: flex; flex-direction: column; align-items: center; justify-content: center; 
-            font-family: 'Cinzel'; font-size: 0.5rem; color: var(--gold); transition: 0.3s;
-        }
-        .node:active { background: rgba(243, 207, 138, 0.1); border-color: var(--gold); transform: scale(0.95); }
-        .node.active-memory { border-color: var(--gold); box-shadow: inset 0 0 10px rgba(243, 207, 138, 0.2); }
+        .grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 12px; width: 100%; max-width: 400px; }
+        .node { background: rgba(255,255,255,0.02); border: 1px solid rgba(243, 207, 138, 0.1); aspect-ratio: 1; display: flex; align-items: center; justify-content: center; font-family: 'Cinzel'; font-size: 0.5rem; color: var(--gold); }
 
-        /* MEMORY OVERLAY */
-        #memory-overlay { 
-            position: fixed; inset: 0; background: rgba(1,1,3,0.98); z-index: 10000; 
-            display: none; flex-direction: column; align-items: center; justify-content: center;
-            padding: 30px; backdrop-filter: blur(20px);
-        }
-        .photo-frame { width: 100%; max-width: 300px; aspect-ratio: 4/5; border: 1px solid var(--gold); position: relative; display: flex; align-items: center; justify-content: center; overflow: hidden; }
-        .photo-frame::after { content: 'IMAGE_LINK_PENDING'; font-family: 'Cinzel'; font-size: 0.6rem; letter-spacing: 4px; opacity: 0.3; }
+        /* GHOST OVERLAY */
+        #ghost-overlay { position: fixed; inset: 0; background: var(--void); z-index: 11000; display: none; flex-direction: column; align-items: center; justify-content: center; padding: 40px; }
+        .ghost-input { background: transparent; border: none; border-bottom: 1px solid var(--cave); color: var(--cave); font-family: 'Cinzel'; font-size: 2rem; text-align: center; width: 150px; letter-spacing: 10px; margin-top: 20px; }
 
         @keyframes rotate { from { transform: rotate(0deg); } to { transform: rotate(360deg); } }
         @keyframes pulse { 0%, 100% { transform: scale(1); opacity: 0.4; } 50% { transform: scale(1.1); opacity: 0.8; } }
@@ -60,10 +49,10 @@
     <div class="stars"></div>
     <div id="main-view"></div>
 
-    <div id="memory-overlay" onclick="this.style.display='none'">
-        <h2 id="memory-title" style="font-family:'Cinzel'; color:var(--gold); letter-spacing:8px; margin-bottom:20px;">MEMORY_01</h2>
-        <div class="photo-frame"></div>
-        <p style="margin-top:30px; font-size:0.6rem; letter-spacing:5px; opacity:0.3; text-align:center;">TAP ANYWHERE TO RETURN</p>
+    <div id="ghost-overlay">
+        <h2 style="font-family:'Cinzel'; color:var(--cave); letter-spacing:5px;">ACCESS CODE</h2>
+        <input type="password" class="ghost-input" id="vault-pass" maxlength="4" oninput="checkPass(this.value)">
+        <p style="margin-top:30px; font-size:0.5rem; color:var(--cave); opacity:0.5; letter-spacing:3px;">GHOST_PROTOCOL_ACTIVE</p>
     </div>
 
     <div class="dock">
@@ -74,6 +63,8 @@
     </div>
 
     <script>
+        let vaultTaps = 0;
+
         function render(view) {
             const mv = document.getElementById('main-view');
             const navs = document.querySelectorAll('.dock-item');
@@ -84,34 +75,31 @@
             mv.style.justifyContent = (view === 'home') ? 'center' : 'flex-start';
 
             if (view === 'home') {
-                mv.innerHTML = `
-                    <div class="eye-container">
-                        <div class="eye-outer"></div>
-                        <div class="eye-inner"></div>
-                        <div class="eye-pupil"></div>
-                    </div>
-                    <h1 style="font-family:'Cinzel'; font-size:10vw; letter-spacing:15px;">SOURCE</h1>
-                `;
+                mv.innerHTML = `<div class="eye-container"><div class="eye-outer"></div><div class="eye-inner"></div><div class="eye-pupil"></div></div><h1 style="font-family:'Cinzel'; font-size:10vw; letter-spacing:15px;">SOURCE</h1>`;
             } else if (view === 'registry') {
-                mv.innerHTML = `
-                    <div class="section-header">THE_144</div>
-                    <div class="grid">
-                        <div class="node active-memory" onclick="openMemory('FAMILY_ORIGIN')">01</div>
-                        <div class="node active-memory" onclick="openMemory('THE_HUSBAND')">02</div>
-                        <div class="node active-memory" onclick="openMemory('THE_CHILDREN')">03</div>
-                        ${Array.from({length: 9}, (_, i) => `<div class="node">${i+4}</div>`).join('')}
-                    </div>
-                `;
+                mv.innerHTML = `<div class="section-header">THE_144</div><div class="grid">${Array.from({length: 12}, (_, i) => `<div class="node">${i+1}</div>`).join('')}</div>`;
             } else if (view === 'garden') {
-                mv.innerHTML = `<div class="section-header" style="color:var(--garden)">EDEN</div>`;
+                mv.innerHTML = `<div class="section-header" style="color:var(--garden)">EDEN</div><div style="margin-top:20vh; width:80px; height:80px; border:1px solid var(--garden); border-radius:50%; margin: 0 auto;"></div>`;
             } else if (view === 'cave') {
-                mv.innerHTML = `<div class="section-header" style="color:var(--cave)">VAULT</div>`;
+                mv.innerHTML = `<div class="section-header" id="vault-title" onclick="triggerGhost()" style="color:var(--cave)">VAULT</div><div style="width:100%; height:200px; background:rgba(217,119,6,0.05); border:1px solid var(--cave); display:flex; align-items:center; justify-content:center; color:var(--cave); font-family:'Cinzel'; font-size:0.7rem; letter-spacing:5px;">TACTICAL_MODE</div>`;
             }
         }
 
-        function openMemory(title) {
-            document.getElementById('memory-title').innerText = title.replace('_', ' ');
-            document.getElementById('memory-overlay').style.display = 'flex';
+        function triggerGhost() {
+            vaultTaps++;
+            if(vaultTaps >= 3) {
+                document.getElementById('ghost-overlay').style.display = 'flex';
+                document.getElementById('vault-pass').focus();
+                vaultTaps = 0;
+            }
+        }
+
+        function checkPass(val) {
+            if(val === "1440") {
+                alert('WELCOME TO THE SOVEREIGN LEDGER, COMMANDER.');
+                document.getElementById('ghost-overlay').style.display = 'none';
+                document.getElementById('vault-pass').value = "";
+            }
         }
     </script>
 </body>
