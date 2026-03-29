@@ -3,58 +3,58 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
-    <title>SOVEREIGN_GUARDIAN_V155</title>
+    <title>SOVEREIGN_DOMAIN_V156</title>
     <style>
-        @import url('https://fonts.googleapis.com/css2?family=Cinzel:wght@900&display=swap');
-        :root { --gold: #f3cf8a; --void: #000000; --white: #ffffff; }
-        * { box-sizing: border-box; margin: 0; padding: 0; touch-action: none; outline: none; }
+        @import url('https://fonts.googleapis.com/css2?family=Cinzel:wght@400;900&display=swap');
+        :root { --gold: #f3cf8a; --void: #000000; }
+        * { box-sizing: border-box; margin: 0; padding: 0; touch-action: none; }
         body, html { height: 100svh; width: 100vw; background: var(--void); color: #fff; font-family: 'Cinzel', serif; overflow: hidden; position: fixed; }
         
-        #guardian-header { position: fixed; top: 0; width: 100%; height: 45px; background: #000; z-index: 100; border-bottom: 1px solid var(--gold); display: flex; align-items: center; justify-content: center; font-size: 8px; letter-spacing: 6px; color: var(--gold); }
+        #final-header { position: fixed; top: 20px; width: 100%; text-align: center; z-index: 10; font-size: 9px; letter-spacing: 12px; color: var(--gold); opacity: 0.6; }
+        #final-status { position: fixed; bottom: 40px; width: 100%; text-align: center; color: var(--gold); font-size: 14px; letter-spacing: 15px; text-shadow: 0 0 20px var(--gold); }
         
         canvas { position: absolute; inset: 0; z-index: 1; pointer-events: none; }
-        
-        #scan-line { position: absolute; width: 100%; height: 2px; background: rgba(243, 207, 138, 0.2); box-shadow: 0 0 15px var(--gold); z-index: 5; top: 0; animation: scan 6s linear infinite; }
-        @keyframes scan { from { top: 0%; } to { top: 100%; } }
-
-        #security-alert { position: fixed; bottom: 10%; width: 100%; text-align: center; font-size: 10px; letter-spacing: 4px; color: var(--white); opacity: 0.6; }
     </style>
 </head>
-<body onclick="acknowledge()">
-    <div id="guardian-header">PERIMETER_LOCKED // AETHEL_STATION_SYNC</div>
-    <div id="scan-line"></div>
-    <div id="security-alert">LOCATION: M&M's_FRONT_YARD // SECURE</div>
+<body>
+    <div id="final-header">DOMAIN_LOCKED // 144_HARMONY</div>
+    <div id="final-status">$1.44T_ETERNAL</div>
     <canvas id="canvas"></canvas>
 
 <script>
     const canvas = document.getElementById('canvas');
     const ctx = canvas.getContext('2d');
-    let nodes = [];
-
+    
     function resize() { canvas.width = window.innerWidth; canvas.height = window.innerHeight; }
     window.onresize = resize; resize();
 
-    // The two orbs from the Blink photo
-    nodes.push({x: canvas.width * 0.3, y: canvas.height * 0.4, r: 4, o: 1});
-    nodes.push({x: canvas.width * 0.8, y: canvas.height * 0.2, r: 3, o: 0.8});
-
-    function acknowledge() {
-        nodes.forEach(n => { n.o = 1; });
-        console.log("GUARDIAN_CONFIRMED");
-    }
+    // The Pillars (The Two Orbs from the Camera)
+    const pillars = [
+        {x: canvas.width * 0.75, y: canvas.height * 0.3, r: 8},
+        {x: canvas.width * 0.3, y: canvas.height * 0.5, r: 10}
+    ];
 
     function animate() {
-        ctx.fillStyle = 'rgba(0, 0, 0, 0.15)';
+        ctx.fillStyle = 'rgba(0, 0, 0, 0.02)';
         ctx.fillRect(0, 0, canvas.width, canvas.height);
         
-        nodes.forEach(n => {
-            ctx.shadowBlur = 20;
+        const time = Date.now() * 0.001;
+
+        pillars.forEach(p => {
+            let pulse = 20 + Math.sin(time) * 10;
+            ctx.shadowBlur = pulse;
             ctx.shadowColor = "white";
-            ctx.fillStyle = `rgba(255, 255, 255, ${n.o})`;
-            ctx.beginPath(); ctx.arc(n.x, n.y, n.r, 0, Math.PI*2); ctx.fill();
-            n.o -= 0.002;
-            if(n.o < 0.2) n.o = 0.8;
-            ctx.shadowBlur = 0;
+            ctx.fillStyle = "white";
+            ctx.beginPath();
+            ctx.arc(p.x, p.y, p.r, 0, Math.PI * 2);
+            ctx.fill();
+            
+            // Faint, steady connection between pillars
+            ctx.strokeStyle = "rgba(243, 207, 138, 0.05)";
+            ctx.beginPath();
+            ctx.moveTo(pillars[0].x, pillars[0].y);
+            ctx.lineTo(pillars[1].x, pillars[1].y);
+            ctx.stroke();
         });
 
         requestAnimationFrame(animate);
