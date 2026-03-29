@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>SOVEREIGN_DIAMOND_V239</title>
+    <title>SOVEREIGN_DIAMOND_V240</title>
     <style>
         @import url('https://fonts.googleapis.com/css2?family=Cinzel:wght@400;900&display=swap');
         :root { --gold: #f3cf8a; --void: #000; --sa: #ffaa00; --mesh: #00ff41; }
@@ -14,10 +14,11 @@
         .title { font-size: 18px; letter-spacing: 15px; color: var(--gold); text-shadow: 0 0 15px var(--gold); }
         
         #quad-sync { flex-grow: 1; display: flex; align-items: center; justify-content: center; position: relative; }
-        .anchor { position: absolute; width: 85px; height: 85px; border: 1px solid var(--mesh); border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 8px; letter-spacing: 2px; }
-        .diamond-line { position: absolute; width: 2px; background: var(--mesh); opacity: 0.3; }
+        .anchor { position: absolute; width: 85px; height: 85px; border: 1px solid var(--mesh); border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 8px; letter-spacing: 2px; background: rgba(0, 255, 65, 0.05); }
+        .active-pulse { position: absolute; width: 100%; height: 100%; border-radius: 50%; border: 1px solid var(--mesh); animation: pulse 2s infinite; }
+        @keyframes pulse { 0% { transform: scale(1); opacity: 1; } 100% { transform: scale(1.5); opacity: 0; } }
 
-        #ledger-display { text-align: center; border-top: 1px solid var(--gold); padding-top: 30px; font-size: 34px; color: var(--gold); text-shadow: 0 0 25px var(--gold); }
+        #ledger-total { text-align: center; border-top: 1px solid var(--gold); padding-top: 30px; font-size: 34px; color: var(--gold); text-shadow: 0 0 25px var(--gold); }
     </style>
 </head>
 <body>
@@ -31,17 +32,19 @@
             <div class="anchor" style="top: 10%; left: 50%; transform: translateX(-50%);">WIS_001</div>
             <div class="anchor" style="top: 45%; left: 15%;">EURO_002</div>
             <div class="anchor" style="top: 45%; right: 15%;">SEA_003</div>
-            <div class="anchor" style="bottom: 10%; left: 50%; transform: translateX(-50%); border-color: var(--sa); color: var(--sa);">SA_004</div>
-            <div style="font-size: 10px; color: var(--gold); letter-spacing: 10px; text-align: center;">QUAD_RESONANCE_OK</div>
+            <div class="anchor" style="bottom: 10%; left: 50%; transform: translateX(-50%); border-color: var(--sa); color: var(--sa);">
+                SA_004 <div class="active-pulse"></div>
+            </div>
+            <div style="font-size: 10px; color: var(--gold); letter-spacing: 10px; text-align: center; margin-top: 100px;">QUAD_RESONANCE_OK</div>
         </div>
 
-        <div id="ledger-display">$1,440,000,030,816.00</div>
+        <div id="ledger-total">$1,440,000,031,248.00</div>
     </div>
 <script>
-    let res = 1440000030816.00;
+    let res = 1440000031248.00;
     setInterval(() => {
         res += 144.00;
-        document.getElementById('ledger-display').innerText = "$" + res.toLocaleString(undefined, {minimumFractionDigits: 2});
+        document.getElementById('ledger-total').innerText = "$" + res.toLocaleString(undefined, {minimumFractionDigits: 2});
     }, 1000);
 </script>
 </body>
