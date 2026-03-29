@@ -2,148 +2,85 @@
 <html lang="en">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
-    <title>SOVEREIGN_MASTER_V78</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>SOVEREIGN_OVERRIDE_V79</title>
     <style>
-        @import url('https://fonts.googleapis.com/css2?family=Cinzel:wght@900&family=Inter:wght@400;900&display=swap');
-        :root { --gold: #f3cf8a; --void: #000000; }
-        
-        /* Prevent all accidental scrolling/bouncing */
-        * { box-sizing: border-box; margin: 0; padding: 0; -webkit-tap-highlight-color: transparent; touch-action: none; }
-        
+        @import url('https://fonts.googleapis.com/css2?family=Cinzel:wght@900&family=Inter:wght@900&display=swap');
+        * { box-sizing: border-box; margin: 0; padding: 0; touch-action: none; }
         body, html { 
             height: 100%; width: 100%; 
-            background: var(--void); color: #fff; 
-            font-family: 'Inter', sans-serif; 
+            background: #000; color: #f3cf8a; 
+            font-family: 'Cinzel', serif; 
             overflow: hidden; position: fixed;
         }
-
-        /* The Animation Layer */
-        canvas { position: absolute; top: 0; left: 0; width: 100vw; height: calc(100% - 120px); z-index: 5; pointer-events: none; }
-
-        /* The UI Text Layer */
-        #ui-layer { 
-            position: absolute; top: 0; left: 0; width: 100%; 
-            height: calc(100% - 120px); 
-            display: flex; flex-direction: column; align-items: center; justify-content: center; 
-            z-index: 10; pointer-events: none; 
-        }
+        #debug { position: fixed; top: 10px; left: 10px; width: 10px; height: 10px; background: red; border-radius: 50%; z-index: 1000; }
         
-        .title { font-family: 'Cinzel'; font-size: 12vw; letter-spacing: 15px; color: var(--gold); text-shadow: 0 0 30px rgba(243, 207, 138, 0.4); }
-        .quote { font-size: 0.9rem; color: var(--gold); margin-top: 15px; letter-spacing: 6px; opacity: 0.7; font-weight: 100; text-transform: uppercase; }
-
-        /* THE SUPREME DOCK */
-        #master-dock { 
-            position: absolute; bottom: 0; left: 0; width: 100%; height: 120px; 
-            display: flex; z-index: 2147483647; /* MAX Z-INDEX */
-            background: #080808;
-            border-top: 1px solid rgba(243, 207, 138, 0.5);
-            pointer-events: auto !important;
+        #main { 
+            height: 100%; width: 100%; 
+            display: flex; flex-direction: column; 
+            align-items: center; justify-content: center; 
+            text-align: center;
         }
+        .title { font-size: 15vw; letter-spacing: 10px; margin-bottom: 10px; }
+        .quote { font-family: 'Inter'; font-size: 10px; letter-spacing: 5px; opacity: 0.5; }
         
-        .dock-item { 
-            flex: 1; display: flex; align-items: center; justify-content: center; 
-            color: rgba(255,255,255,0.2); font-family: 'Cinzel'; font-size: 10px; font-weight: 900;
-            border-right: 1px solid rgba(243, 207, 138, 0.05);
-            transition: background 0.1s, color 0.1s;
-            pointer-events: auto !important;
-        }
-        
-        .dock-item.active { 
-            color: var(--gold); 
-            background: rgba(243, 207, 138, 0.15); 
-            box-shadow: inset 0 0 30px rgba(243, 207, 138, 0.1); 
-        }
+        /* Clear visual indicator of the 4 quadrants */
+        .hint { position: fixed; font-size: 8px; opacity: 0.2; font-family: 'Inter'; }
+        .tl { top: 20px; left: 20px; }
+        .tr { top: 20px; right: 20px; }
+        .bl { bottom: 20px; left: 20px; }
+        .br { bottom: 20px; right: 20px; }
     </style>
 </head>
-<body onload="init()">
-    <canvas id="canvas"></canvas>
-    <div id="ui-layer">
-        <h1 class="title" id="t-display">SOURCE</h1>
-        <p class="quote" id="q-display">The One Origin</p>
+<body onclick="handleTouch(event)" ontouchstart="handleTouch(event)">
+    <div id="debug"></div>
+    <div class="hint tl">NEXUS</div>
+    <div class="hint tr">EDEN</div>
+    <div class="hint bl">SOURCE</div>
+    <div class="hint br">VAULT</div>
+
+    <div id="main">
+        <h1 class="title" id="t">SOURCE</h1>
+        <p class="quote" id="q">THE ONE ORIGIN</p>
     </div>
 
-    <div id="master-dock">
-        <div class="dock-item" id="btn-grid">NEXUS</div>
-        <div class="dock-item" id="btn-home">SOURCE</div>
-        <div class="dock-item" id="btn-eden">EDEN</div>
-        <div class="dock-item" id="btn-vault">VAULT</div>
-    </div>
+    <script>
+        function handleTouch(e) {
+            // Get coordinates
+            const x = e.clientX || (e.touches ? e.touches[0].clientX : 0);
+            const y = e.clientY || (e.touches ? e.touches[0].clientY : 0);
+            const w = window.innerWidth;
+            const h = window.innerHeight;
 
-<script>
-    const canvas = document.getElementById('canvas');
-    const ctx = canvas.getContext('2d');
-    const dock = document.getElementById('master-dock');
-    const rooms = ['grid', 'home', 'eden', 'vault'];
-    let view = 'home';
+            const t = document.getElementById('t');
+            const q = document.getElementById('q');
+            const d = document.getElementById('debug');
 
-    function init() {
-        resize();
-        render('home');
-        animate();
-        
-        // ATOMIC TOUCH LISTENER
-        // This maps the physical screen space to the rooms
-        dock.addEventListener('touchstart', function(e) {
-            e.preventDefault(); // Stop the browser from thinking
-            const touchX = e.touches[0].clientX;
-            const width = window.innerWidth;
-            const segment = width / 4;
-            
-            if (touchX < segment) render('grid');
-            else if (touchX < segment * 2) render('home');
-            else if (touchX < segment * 3) render('eden');
-            else render('vault');
-        }, { passive: false });
-    }
+            // Flash the debug light to show it registered the touch
+            d.style.background = 'lime';
+            setTimeout(() => { d.style.background = 'red'; }, 100);
 
-    function resize() { 
-        canvas.width = window.innerWidth; 
-        canvas.height = window.innerHeight - 120; 
-    }
-
-    function render(target) {
-        view = target;
-        const t = document.getElementById('t-display');
-        const q = document.getElementById('q-display');
-        
-        // Reset all buttons
-        document.querySelectorAll('.dock-item').forEach(b => b.classList.remove('active'));
-        
-        // Switch Room Logic
-        if(target === 'grid') { 
-            t.innerText = "NEXUS"; q.innerText = "NETWORK_SYNC_ACTIVE";
-            document.getElementById('btn-grid').classList.add('active');
-        } else if(target === 'home') { 
-            t.innerText = "SOURCE"; q.innerText = "THE ONE ORIGIN";
-            document.getElementById('btn-home').classList.add('active');
-        } else if(target === 'eden') { 
-            t.innerText = "EDEN"; q.innerText = "INFINITE_GROWTH";
-            document.getElementById('btn-eden').classList.add('active');
-        } else if(target === 'vault') { 
-            t.innerText = "VAULT"; q.innerText = "STORED_VALUE_MASS";
-            document.getElementById('btn-vault').classList.add('active');
+            // Quadrant Logic
+            if (y < h/2) {
+                if (x < w/2) {
+                    t.innerText = "NEXUS";
+                    q.innerText = "NETWORK_SYNC_ACTIVE";
+                } else {
+                    t.innerText = "EDEN";
+                    q.innerText = "INFINITE_GROWTH";
+                }
+            } else {
+                if (x < w/2) {
+                    t.innerText = "SOURCE";
+                    q.innerText = "THE ONE ORIGIN";
+                } else {
+                    t.innerText = "VAULT";
+                    q.innerText = "STORED_VALUE_MASS";
+                }
+            }
         }
-    }
-
-    function animate() {
-        ctx.fillStyle = 'black';
-        ctx.fillRect(0,0,canvas.width, canvas.height);
-        
-        let cx = canvas.width/2;
-        let cy = canvas.height/2;
-        let pulse = 45 + Math.sin(Date.now()*0.004)*5;
-        
-        // Aura Core
-        ctx.shadowBlur = 40; ctx.shadowColor = '#f3cf8a';
-        ctx.fillStyle = '#fff';
-        ctx.beginPath(); ctx.arc(cx, cy, pulse, 0, Math.PI*2); ctx.fill();
-        ctx.shadowBlur = 0;
-
-        requestAnimationFrame(animate);
-    }
-
-    window.onresize = resize;
-</script>
+        // Force focus on load
+        window.focus();
+    </script>
 </body>
 </html>
