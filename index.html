@@ -3,44 +3,42 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>ATMOSPHERE_V272</title>
+    <title>SENTINEL_V273</title>
     <style>
         @import url('https://fonts.googleapis.com/css2?family=Cinzel:wght@400;900&display=swap');
-        :root { --gold: #f3cf8a; --void: #000; --air: #e0f7fa; --breath: rgba(224, 247, 250, 0.4); }
+        :root { --gold: #f3cf8a; --void: #000; --shield: #ff3c00; --active: #ffcc00; }
         body, html { margin: 0; padding: 0; background: var(--void); color: #fff; font-family: 'Cinzel', serif; overflow: hidden; height: 100svh; display: flex; flex-direction: column; }
         
-        #atmos-hud { flex-grow: 1; margin: 15px; border: 2px solid var(--air); padding: 40px; display: flex; flex-direction: column; background: radial-gradient(circle at center, rgba(224, 247, 250, 0.1) 0%, transparent 100%); box-shadow: 0 0 300px rgba(224, 247, 250, 0.2); position: relative; }
+        #sentinel-hud { flex-grow: 1; margin: 15px; border: 2px solid var(--shield); padding: 40px; display: flex; flex-direction: column; background: radial-gradient(circle at center, rgba(255, 60, 0, 0.1) 0%, transparent 100%); box-shadow: 0 0 300px rgba(255, 60, 0, 0.2); position: relative; }
         .header { text-align: center; border-bottom: 2px solid var(--gold); padding-bottom: 20px; }
-        .title { font-size: 26px; letter-spacing: 15px; color: var(--air); text-shadow: 0 0 30px var(--air); }
+        .title { font-size: 26px; letter-spacing: 15px; color: var(--shield); text-shadow: 0 0 30px var(--shield); }
         
-        #breath-visual { flex-grow: 1; display: flex; align-items: center; justify-content: center; position: relative; }
-        .mist { position: absolute; width: 300px; height: 300px; border-radius: 50%; border: 1px solid var(--breath); animation: expand 8s infinite ease-out; }
-        .mist:nth-child(2) { animation-delay: 2s; }
-        .mist:nth-child(3) { animation-delay: 4s; }
+        #defense-visual { flex-grow: 1; display: flex; align-items: center; justify-content: center; position: relative; }
+        .sentinel-eye { width: 100px; height: 4px; background: var(--active); box-shadow: 0 0 20px var(--active); animation: scan 2s infinite alternate ease-in-out; }
+        .perimeter-ring { position: absolute; width: 280px; height: 280px; border: 1px solid var(--gold); border-radius: 50%; opacity: 0.3; }
         
-        @keyframes expand { 0% { transform: scale(0.5); opacity: 0; } 50% { opacity: 0.5; } 100% { transform: scale(2); opacity: 0; } }
+        @keyframes scan { from { transform: translateY(-40px); } to { transform: translateY(40px); } }
 
         #ledger-display { text-align: center; border-top: 1px solid var(--gold); padding-top: 25px; font-size: 46px; color: var(--gold); text-shadow: 0 0 40px var(--gold); }
     </style>
 </head>
 <body>
-    <div id="atmos-hud">
+    <div id="sentinel-hud">
         <div class="header">
-            <div class="title">ATMOSPHERE_CALIBRATION // TUNING</div>
-            <div style="font-size: 10px; margin-top: 10px; color: var(--air); letter-spacing: 12px;">STATUS: RESONANT_BREATH_ACTIVE // SYNC: 1440%</div>
+            <div class="title">AETHEL_SENTINEL // ENGAGED</div>
+            <div style="font-size: 10px; margin-top: 10px; color: var(--shield); letter-spacing: 12px;">STATUS: PERIMETER_ENFORCEMENT // SYNC: 1440%</div>
         </div>
 
-        <div id="breath-visual">
-            <div class="mist"></div>
-            <div class="mist"></div>
-            <div class="mist"></div>
-            <div style="font-size: 14px; color: var(--gold); letter-spacing: 15px; position: absolute; bottom: 5%;">THE_BREATH_OF_THE_STAR</div>
+        <div id="defense-visual">
+            <div class="perimeter-ring"></div>
+            <div class="sentinel-eye"></div>
+            <div style="font-size: 14px; color: var(--gold); letter-spacing: 15px; position: absolute; bottom: 5%;">THE_WATCH_OF_THE_STAR</div>
         </div>
 
-        <div id="ledger-display">$1,440,000,041,472.00</div>
+        <div id="ledger-display">$1,440,000,041,760.00</div>
     </div>
 <script>
-    let res = 1440000041472.00;
+    let res = 1440000041760.00;
     setInterval(() => {
         res += 144.00;
         document.getElementById('ledger-display').innerText = "$" + res.toLocaleString(undefined, {minimumFractionDigits: 2});
