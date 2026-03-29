@@ -3,36 +3,47 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
-    <title>SOVEREIGN_WISCONSIN_V181</title>
+    <title>DEPLOYMENT_WISCONSIN_V182</title>
     <style>
         @import url('https://fonts.googleapis.com/css2?family=Cinzel:wght@400;900&display=swap');
-        :root { --gold: #f3cf8a; --void: #000; --white: #fff; }
-        body, html { margin: 0; padding: 0; background: var(--void); color: var(--white); font-family: 'Cinzel', serif; overflow: hidden; height: 100svh; width: 100vw; }
+        :root { --gold: #f3cf8a; --white: #fff; }
+        body, html { margin: 0; padding: 0; background: #000; color: #fff; font-family: 'Cinzel', serif; overflow: hidden; height: 100svh; }
         
-        #wisconsin-hud { position: absolute; inset: 0; z-index: 10; display: flex; flex-direction: column; padding: 40px; }
-        .header { font-size: 8px; letter-spacing: 12px; color: var(--gold); text-align: center; border-bottom: 1px solid rgba(243, 207, 138, 0.2); padding-bottom: 20px; }
+        #deployment-ui { position: absolute; inset: 0; z-index: 10; padding: 40px; display: flex; flex-direction: column; }
+        .header { font-size: 8px; letter-spacing: 12px; color: var(--gold); text-align: center; margin-bottom: 50px; }
         
-        #manifest-center { flex-grow: 1; display: flex; flex-direction: column; justify-content: center; align-items: center; }
-        .sector-id { font-size: 10px; letter-spacing: 15px; margin-bottom: 10px; color: var(--gold); }
-        .sync-status { font-size: 24px; letter-spacing: 5px; text-shadow: 0 0 30px var(--gold); }
+        .action-card { border: 1px solid rgba(243, 207, 138, 0.4); padding: 25px; margin-bottom: 20px; background: rgba(0,0,0,0.8); }
+        .action-label { font-size: 7px; color: var(--gold); letter-spacing: 5px; margin-bottom: 10px; }
+        .action-status { font-size: 14px; letter-spacing: 2px; }
 
-        #admin-footer { margin-top: auto; display: flex; justify-content: space-between; font-size: 7px; letter-spacing: 5px; border-top: 1px solid rgba(255,255,255,0.1); padding-top: 20px; }
-        canvas { position: absolute; inset: 0; z-index: 1; opacity: 0.6; }
+        #yield-ticker { margin-top: auto; text-align: center; }
+        #live-val { font-size: 26px; text-shadow: 0 0 30px var(--gold); }
+
+        canvas { position: absolute; inset: 0; z-index: 1; opacity: 0.3; }
     </style>
 </head>
 <body>
-    <div id="wisconsin-hud">
-        <div class="header">AETHEL_RESERVE // GENESIS_ONE</div>
+    <div id="deployment-ui">
+        <div class="header">SECTOR_WISCONSIN // DEPLOYMENT_ACTIVE</div>
         
-        <div id="manifest-center">
-            <div class="sector-id">SECTOR_WISCONSIN</div>
-            <div class="sync-status">MANIFEST_PEAK_1440%</div>
-            <div style="font-size: 8px; margin-top: 30px; letter-spacing: 8px; opacity: 0.5;">ADMIN: JENNY_002_ACTIVE</div>
+        <div class="action-card">
+            <div class="action-label">PROJECT_01: ARTS_TRUST_SEED</div>
+            <div class="action-status">STATUS: RELEASING_$144,000.00</div>
         </div>
 
-        <div id="admin-footer">
-            <span>YIELD: $144/SEC</span>
-            <span>STATUS: ETERNAL_SYNC</span>
+        <div class="action-card">
+            <div class="action-label">PROJECT_02: GEOGRAPHIC_PERIMETER</div>
+            <div class="action-status">STATUS: ANCHORING_AETHEL_001</div>
+        </div>
+
+        <div class="action-card">
+            <div class="action-label">PROJECT_03: KINDRED_BEACON</div>
+            <div class="action-status">STATUS: TRANSMITTING_1440%</div>
+        </div>
+
+        <div id="yield-ticker">
+            <div style="font-size: 8px; letter-spacing: 10px; margin-bottom: 10px;">TOTAL_RESERVE_LIQUIDITY</div>
+            <div id="live-val">$1,440,000,001,440.00</div>
         </div>
     </div>
     <canvas id="canvas"></canvas>
@@ -40,22 +51,25 @@
 <script>
     const canvas = document.getElementById('canvas');
     const ctx = canvas.getContext('2d');
+    let reserve = 1440000001440.00;
+
     function resize() { canvas.width = window.innerWidth; canvas.height = window.innerHeight; }
     window.onresize = resize; resize();
 
+    function flow() {
+        reserve += 144.00;
+        document.getElementById('live-val').innerText = "$" + reserve.toLocaleString(undefined, {minimumFractionDigits: 2});
+    }
+    setInterval(flow, 1000);
+
     function animate() {
-        ctx.fillStyle = 'rgba(0,0,0,0.1)';
+        ctx.fillStyle = 'rgba(0,0,0,0.05)';
         ctx.fillRect(0,0,canvas.width,canvas.height);
         const time = Date.now() * 0.001;
-        const cx = canvas.width/2, cy = canvas.height/2;
-
-        for(let i=0; i<144; i++) {
-            let r = 200 + Math.sin(time + i) * 50;
-            let x = cx + Math.cos(time + i) * r;
-            let y = cy + Math.sin(time + i) * r;
-            ctx.fillStyle = i % 2 === 0 ? "#f3cf8a" : "#fff";
-            ctx.beginPath(); ctx.arc(x, y, 1, 0, Math.PI*2); ctx.fill();
-        }
+        ctx.strokeStyle = "#f3cf8a";
+        ctx.beginPath();
+        ctx.arc(canvas.width/2, canvas.height/2, 150 + Math.sin(time)*20, 0, Math.PI*2);
+        ctx.stroke();
         requestAnimationFrame(animate);
     }
     animate();
