@@ -3,43 +3,48 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>SOVEREIGN_ROSTER_V202</title>
+    <title>GENESIS_GATEWAY_V203</title>
     <style>
         @import url('https://fonts.googleapis.com/css2?family=Cinzel:wght@400;900&display=swap');
-        body { background: #000; color: #fff; font-family: 'Cinzel', serif; margin: 0; padding: 30px; }
-        .roster-header { border-bottom: 2px solid #f3cf8a; padding-bottom: 15px; margin-bottom: 20px; text-align: center; }
-        .roster-title { font-size: 16px; letter-spacing: 10px; color: #f3cf8a; }
+        :root { --gold: #f3cf8a; --void: #000; }
+        body, html { margin: 0; padding: 0; background: var(--void); color: #fff; font-family: 'Cinzel', serif; overflow: hidden; height: 100svh; display: flex; flex-direction: column; }
         
-        .roster-grid { display: grid; grid-template-columns: repeat(2, 1fr); gap: 10px; }
-        .roster-item { border: 1px solid rgba(243, 207, 138, 0.3); padding: 10px; font-size: 8px; letter-spacing: 2px; }
-        .status-on { color: #0f0; float: right; }
+        #gate-hud { flex-grow: 1; padding: 40px; border: 2px solid var(--gold); margin: 20px; display: flex; flex-direction: column; position: relative; }
+        .status-header { text-align: center; border-bottom: 1px solid rgba(243, 207, 138, 0.3); padding-bottom: 20px; }
+        .gate-status { font-size: 10px; color: var(--gold); letter-spacing: 8px; text-transform: uppercase; }
+        
+        #biometric-scanner { flex-grow: 1; display: flex; justify-content: center; align-items: center; position: relative; }
+        .scanner-ring { width: 180px; height: 180px; border: 1px dashed var(--gold); border-radius: 50%; animation: spin 4s linear infinite; }
+        .access-granted { position: absolute; font-size: 14px; letter-spacing: 5px; text-shadow: 0 0 15px var(--gold); }
 
-        #total-flow { margin-top: 30px; text-align: center; font-size: 22px; color: #f3cf8a; text-shadow: 0 0 15px #f3cf8a; }
+        @keyframes spin { from { transform: rotate(0deg); } to { transform: rotate(360deg); } }
+
+        #yield-footer { text-align: center; padding: 20px; border-top: 1px solid var(--gold); }
+        #live-val { font-size: 26px; color: var(--gold); text-shadow: 0 0 20px var(--gold); }
     </style>
 </head>
 <body>
-    <div class="roster-header">
-        <div class="roster-title">AETHEL_ESTATE // KINDRED_SYNC</div>
-        <div style="font-size: 7px; margin-top: 5px;">SECTOR: WISCONSIN_001 // OCCUPANCY: ACTIVE</div>
-    </div>
-
-    <div class="roster-grid" id="roster">
+    <div id="gate-hud">
+        <div class="status-header">
+            <div class="gate-status">Sovereign_Gate // Biometric_Sync_Active</div>
+            <div style="font-size: 7px; margin-top: 10px; opacity: 0.6;">SECTOR_001_WISCONSIN // ADMIN_JENNY_002</div>
         </div>
 
-    <div id="total-flow">$1,440,000,013,152.00</div>
+        <div id="biometric-scanner">
+            <div class="scanner-ring"></div>
+            <div class="access-granted">KEYS_ISSUED_01-14</div>
+        </div>
 
+        <div id="yield-footer">
+            <div style="font-size: 8px; letter-spacing: 12px; margin-bottom: 5px; opacity: 0.8;">AETHEL_ESTATE_RESERVE</div>
+            <div id="live-val">$1,440,000,014,304.00</div>
+        </div>
+    </div>
 <script>
-    const roster = document.getElementById('roster');
-    const roles = ["PRIME", "LYRICIST", "KINETICIST", "WEAVER", "HARMONICIST", "GARDENER", "SMITH", "CHEF", "HEALER", "LOGICIAN", "VISIONARY", "POET", "ARCHIVIST", "OBSERVER"];
-    
-    roles.forEach((role, i) => {
-        roster.innerHTML += `<div class="roster-item">STUDIO_${(i+1).toString().padStart(2, '0')} // ${role} <span class="status-on">ONLINE</span></div>`;
-    });
-
-    let res = 1440000013152.00;
+    let res = 1440000014304.00;
     setInterval(() => {
         res += 144.00;
-        document.getElementById('total-flow').innerText = "$" + res.toLocaleString(undefined, {minimumFractionDigits: 2});
+        document.getElementById('live-val').innerText = "$" + res.toLocaleString(undefined, {minimumFractionDigits: 2});
     }, 1000);
 </script>
 </body>
