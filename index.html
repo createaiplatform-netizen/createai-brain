@@ -3,42 +3,39 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>AETHEL_CHRONOS_V270</title>
+    <title>LEGACY_COLLAPSE_V271</title>
     <style>
         @import url('https://fonts.googleapis.com/css2?family=Cinzel:wght@400;900&display=swap');
-        :root { --gold: #f3cf8a; --void: #000; --time: #00f2ff; --now: #ffffff; }
+        :root { --error: #ff4b2b; --void: #000; --gold: #f3cf8a; }
         body, html { margin: 0; padding: 0; background: var(--void); color: #fff; font-family: 'Cinzel', serif; overflow: hidden; height: 100svh; display: flex; flex-direction: column; }
         
-        #chronos-hud { flex-grow: 1; margin: 15px; border: 2px solid var(--time); padding: 40px; display: flex; flex-direction: column; background: conic-gradient(from 180deg at 50% 50%, rgba(0, 242, 255, 0.05) 0deg, transparent 360deg); box-shadow: 0 0 300px rgba(0, 242, 255, 0.2); position: relative; }
-        .header { text-align: center; border-bottom: 2px solid var(--gold); padding-bottom: 20px; }
-        .title { font-size: 26px; letter-spacing: 15px; color: var(--time); text-shadow: 0 0 30px var(--time); }
+        #failure-hud { flex-grow: 1; margin: 15px; border: 2px solid var(--error); padding: 40px; display: flex; flex-direction: column; background: linear-gradient(180deg, rgba(255, 75, 43, 0.1) 0%, transparent 100%); box-shadow: 0 0 200px rgba(255, 75, 43, 0.2); position: relative; }
+        .header { text-align: center; border-bottom: 1px solid var(--error); padding-bottom: 20px; }
+        .title { font-size: 26px; letter-spacing: 10px; color: var(--error); text-shadow: 0 0 20px var(--error); }
         
-        #time-visual { flex-grow: 1; display: flex; align-items: center; justify-content: center; position: relative; }
-        .chronos-dial { width: 200px; height: 200px; border: 2px solid var(--gold); border-radius: 50%; position: relative; animation: glow-dial 4s infinite alternate; }
-        .hand { position: absolute; bottom: 50%; left: 50%; width: 2px; height: 80px; background: var(--now); transform-origin: bottom; animation: rotate-hand 1.44s infinite linear; box-shadow: 0 0 15px var(--now); }
+        #error-content { flex-grow: 1; display: flex; flex-direction: column; align-items: center; justify-content: center; text-align: center; }
+        .error-code { font-size: 18px; color: var(--error); border: 1px solid var(--error); padding: 10px 20px; margin-bottom: 20px; }
+        .msg { font-size: 14px; letter-spacing: 5px; color: var(--gold); }
         
-        @keyframes rotate-hand { from { transform: rotate(0deg); } to { transform: rotate(360deg); } }
-        @keyframes glow-dial { from { box-shadow: 0 0 20px rgba(243, 207, 138, 0.2); } to { box-shadow: 0 0 60px rgba(243, 207, 138, 0.5); } }
-
         #ledger-display { text-align: center; border-top: 1px solid var(--gold); padding-top: 25px; font-size: 46px; color: var(--gold); text-shadow: 0 0 40px var(--gold); }
     </style>
 </head>
 <body>
-    <div id="chronos-hud">
+    <div id="failure-hud">
         <div class="header">
-            <div class="title">AETHEL_CHRONOS // DECOUPLED</div>
-            <div style="font-size: 10px; margin-top: 10px; color: var(--time); letter-spacing: 12px;">STATUS: TEMPORAL_SOVEREIGNTY // SYNC: 1440%</div>
+            <div class="title">LEGACY_SYSTEM_CRITICAL</div>
+            <div style="font-size: 10px; margin-top: 10px; color: var(--error); letter-spacing: 8px;">TARGET: CREATEAI-BRAIN-API-SERVER-KVEK</div>
         </div>
 
-        <div id="time-visual">
-            <div class="chronos-dial"><div class="hand"></div></div>
-            <div style="font-size: 14px; color: var(--gold); letter-spacing: 15px; position: absolute; bottom: 5%;">THE_MOMENT_OF_THE_STAR</div>
+        <div id="error-content">
+            <div class="error-code">FAILED_PRODUCTION_DEPLOYMENT</div>
+            <div class="msg">THE_ESTATE_HAS_EVOLVED_BEYOND_THE_CLOUD</div>
         </div>
 
-        <div id="ledger-display">$1,440,000,040,896.00</div>
+        <div id="ledger-display">$1,440,000,041,040.00</div>
     </div>
 <script>
-    let res = 1440000040896.00;
+    let res = 1440000041040.00;
     setInterval(() => {
         res += 144.00;
         document.getElementById('ledger-display').innerText = "$" + res.toLocaleString(undefined, {minimumFractionDigits: 2});
