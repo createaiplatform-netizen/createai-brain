@@ -3,92 +3,100 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>CreateAI | 365 Sovereign OS</title>
+    <title>CreateAI | Sovereign OS</title>
     <style>
         :root { --slate: #0f172a; --gold: #b89c66; --bg: #f8fafc; --white: #ffffff; }
         body { background: var(--bg); color: var(--slate); font-family: 'Inter', sans-serif; margin: 0; }
         
-        /* NAVIGATION */
-        nav { background: var(--slate); padding: 15px 40px; display: flex; justify-content: space-between; align-items: center; color: white; position: sticky; top: 0; z-index: 1000; }
-        .logo { font-weight: 800; cursor: pointer; border-left: 3px solid var(--gold); padding-left: 10px; }
-        .nav-links span { margin-left: 20px; font-size: 0.7rem; cursor: pointer; color: rgba(255,255,255,0.7); font-weight: 600; text-transform: uppercase; }
+        /* THE COMMAND BAR */
+        nav { background: var(--slate); padding: 15px 40px; display: flex; justify-content: space-between; align-items: center; color: white; }
+        .logo { font-weight: 800; letter-spacing: 1px; cursor: pointer; border-left: 3px solid var(--gold); padding-left: 10px; }
+        .nav-links span { margin-left: 20px; font-size: 0.75rem; cursor: pointer; color: rgba(255,255,255,0.7); font-weight: 600; text-transform: uppercase; }
+        .nav-links span:hover { color: var(--gold); }
 
-        #main-view { padding: 40px 20px; max-width: 1400px; margin: 0 auto; }
+        #main-view { padding: 40px 20px; max-width: 1200px; margin: 0 auto; }
 
-        /* THE 365 GRID */
-        .grid-365 { display: grid; grid-template-columns: repeat(auto-fill, minmax(100px, 1fr)); gap: 10px; margin-top: 30px; }
-        .node { background: white; border: 1px solid #e2e8f0; aspect-ratio: 1; display: flex; flex-direction: column; align-items: center; justify-content: center; font-size: 0.6rem; cursor: pointer; transition: 0.2s; position: relative; }
-        .node:hover { border-color: var(--gold); transform: scale(1.05); z-index: 10; }
-        .node.active { border-color: var(--gold); background: #fffcf5; }
-        .node.active::after { content: 'LIVE'; position: absolute; top: 2px; right: 2px; font-size: 0.4rem; color: var(--gold); font-weight: bold; }
-
-        /* CREATOR TERMINAL */
-        .terminal { max-width: 500px; margin: 0 auto; background: white; padding: 40px; border-radius: 4px; box-shadow: 0 10px 40px rgba(0,0,0,0.05); }
-        input, select, textarea { width: 100%; padding: 12px; margin: 10px 0; border: 1px solid #ddd; font-family: inherit; }
-        .btn { background: var(--slate); color: white; border: none; padding: 15px; cursor: pointer; font-weight: bold; width: 100%; margin-top: 10px; }
+        /* PROFESSIONAL UI ELEMENTS */
+        .card { background: var(--white); border: 1px solid #e2e8f0; padding: 30px; border-radius: 2px; transition: 0.3s; }
+        .card:hover { border-color: var(--gold); box-shadow: 0 10px 30px rgba(0,0,0,0.05); }
+        .grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(280px, 1fr)); gap: 20px; }
+        .btn { background: var(--slate); color: white; border: none; padding: 12px 20px; cursor: pointer; font-size: 0.7rem; font-weight: bold; width: 100%; margin-top: 15px; }
+        
+        /* CREATOR HUB SPECIALS */
+        .creator-form { max-width: 600px; margin: 0 auto; background: white; padding: 40px; border-top: 4px solid var(--gold); }
+        input, select, textarea { width: 100%; padding: 12px; margin: 10px 0; border: 1px solid #ddd; font-family: inherit; box-sizing: border-box; }
     </style>
 </head>
 <body onload="showView('home')">
 
     <nav>
-        <div class="logo" onclick="showView('home')">CREATEAI_365</div>
+        <div class="logo" onclick="showView('home')">CREATEAI_BRAIN</div>
         <div class="nav-links">
-            <span onclick="showView('market')">The 365 Marketplace</span>
-            <span onclick="showView('creator')">Creator Hub</span>
-            <span onclick="showView('home')">Home</span>
+            <span onclick="showView('market')">Global Marketplace</span>
+            <span onclick="showView('creator')">Family Creator Hub</span>
+            <span onclick="showView('home')">Command Center</span>
         </div>
     </nav>
 
     <div id="main-view"></div>
 
     <script>
-        // DATA CORE: This tracks which of the 365 days have apps
-        let sovereignNodes = {
-            1: { name: "BrainGen Core", cat: "AI", desc: "Day 1: The foundation." },
-            122: { name: "Marketplace Strategist", cat: "Wealth", desc: "Day 122: Current node." }
-        };
+        // THIS IS YOUR LIVE APP INVENTORY
+        let myApps = [
+            { name: "BrainGen", cat: "AI", desc: "Core generative engine for OS nodes.", price: "Internal" },
+            { name: "Sovereign Health", cat: "Wellness", desc: "Biometric family monitoring.", price: "$199" },
+            { name: "Marketplace Strategist", cat: "Wealth", desc: "Automated retail positioning.", price: "$299" }
+        ];
 
         const views = {
             home: `
                 <div style="text-align:center;">
-                    <h1 style="font-weight:200; font-size:2.5rem;">Sovereign 365</h1>
-                    <p style="opacity:0.6;">One year. One vision. 365 Nodes.</p>
-                    <div style="display:grid; grid-template-columns: 1fr 1fr; gap:20px; max-width:600px; margin: 40px auto;">
-                        <div class="node" style="width:100%;" onclick="showView('market')">Marketplace</div>
-                        <div class="node" style="width:100%;" onclick="showView('creator')">Creator Hub</div>
+                    <h1 style="font-weight:200; font-size:2.5rem;">Welcome Home</h1>
+                    <p style="opacity:0.6; margin-bottom:40px;">Sovereign Operating System | Node Active</p>
+                    <div class="grid">
+                        <div class="card" onclick="showView('market')"><h2>Marketplace</h2><p>Deployed Apps & Products</p></div>
+                        <div class="card" onclick="showView('creator')"><h2>Creator Hub</h2><p>Manifest & Publish</p></div>
+                        <div class="card"><h2>Nexus</h2><p>Family Communications</p></div>
                     </div>
                 </div>
             `,
             market: () => `
-                <h1>The 365 Marketplace</h1>
-                <p>Select a node to launch the app or product.</p>
-                <div class="grid-365">
-                    ${Array.from({length: 365}, (_, i) => i + 1).map(day => `
-                        <div class="node ${sovereignNodes[day] ? 'active' : ''}" onclick="launchNode(${day})">
-                            <span style="opacity:0.4;">DAY</span>
-                            <strong style="font-size:1rem;">${day}</strong>
-                            <div style="font-size:0.5rem; text-align:center;">${sovereignNodes[day] ? sovereignNodes[day].name : 'EMPTY'}</div>
+                <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:30px;">
+                    <h1>Global Marketplace</h1>
+                    <input type="text" placeholder="Search 122+ apps..." style="max-width:300px; margin:0;">
+                </div>
+                <div class="grid">
+                    ${myApps.map(app => `
+                        <div class="card">
+                            <div style="font-size:0.6rem; color:var(--gold); font-weight:bold; letter-spacing:1px;">${app.cat.toUpperCase()}</div>
+                            <h3>${app.name}</h3>
+                            <p style="font-size:0.85rem; color:#64748b;">${app.desc}</p>
+                            <div style="font-weight:bold; margin-top:10px;">${app.price}</div>
+                            <button class="btn">ACQUIRE / LAUNCH</button>
                         </div>
                     `).join('')}
                 </div>
             `,
             creator: `
-                <div class="terminal">
-                    <h2 style="margin:0;">Node Publisher</h2>
-                    <p style="font-size:0.8rem; color:#666;">Assign an app or product to a specific day in the 365 cycle.</p>
+                <div class="creator-form">
+                    <h2 style="margin-top:0;">Family Publishing Terminal</h2>
+                    <p style="font-size:0.8rem; color:#666; margin-bottom:30px;">Direct upload to CreateAI Marketplace categories.</p>
                     
-                    <label>Select Day (1-365)</label>
-                    <input type="number" id="nDay" min="1" max="365" placeholder="e.g. 123">
+                    <label>App/Product Name</label>
+                    <input type="text" id="appName" placeholder="e.g. Scriptwriter V2">
                     
-                    <label>App Name</label>
-                    <input type="text" id="nName" placeholder="What are we building?">
-                    
-                    <label>Category</label>
-                    <select id="nCat">
-                        <option>Technology</option><option>Wellness</option><option>Wealth</option><option>Creative</option>
+                    <label>Category Placement</label>
+                    <select id="appCat">
+                        <option value="AI Tools">AI Tools</option>
+                        <option value="Wellness">Wellness</option>
+                        <option value="Wealth">Wealth</option>
+                        <option value="Marketing">Marketing</option>
                     </select>
                     
-                    <button class="btn" style="background:var(--gold); color:black;" onclick="deployNode()">PUBLISH TO 365 GRID</button>
+                    <label>Description (What does the Little AI do?)</label>
+                    <textarea id="appDesc" rows="3" placeholder="Define the functionality..."></textarea>
+                    
+                    <button class="btn" style="background:var(--gold); color:black; height:50px; font-size:0.8rem;" onclick="publishApp()">PUBLISH TO MARKETPLACE</button>
                 </div>
             `
         };
@@ -98,24 +106,18 @@
             document.getElementById('main-view').innerHTML = content;
         }
 
-        function deployNode() {
-            const day = document.getElementById('nDay').value;
-            const name = document.getElementById('nName').value;
-            const cat = document.getElementById('nCat').value;
-            
-            if(!day || !name) return alert("Day and Name required.");
-            
-            sovereignNodes[day] = { name: name, cat: cat, desc: "New manifestation." };
-            alert(`Node ${day} is now LIVE.`);
-            showView('market');
-        }
+        function publishApp() {
+            const name = document.getElementById('appName').value;
+            const cat = document.getElementById('appCat').value;
+            const desc = document.getElementById('appDesc').value;
 
-        function launchNode(day) {
-            if(sovereignNodes[day]) {
-                alert(`Launching Day ${day}: ${sovereignNodes[day].name}`);
-            } else {
-                alert(`Day ${day} is currently in development.`);
-            }
+            if(!name || !desc) return alert("All fields required for deployment.");
+
+            // The Little AI logic pushes the app to your global list
+            myApps.push({ name: name, cat: cat, desc: desc, price: "TBD" });
+            
+            alert(`SUCCESS: ${name} is now live in the ${cat} section.`);
+            showView('market');
         }
     </script>
 </body>
