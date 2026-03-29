@@ -3,92 +3,80 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
-    <title>SOVEREIGN_TRUST_V113</title>
+    <title>SOVEREIGN_ECOSYSTEM_V114</title>
     <style>
         @import url('https://fonts.googleapis.com/css2?family=Cinzel:wght@400;900&family=Great+Vibes&family=Inter:wght@100;400;900&display=swap');
         :root { --gold: #f3cf8a; --void: #010103; --cyan: #00f2ff; --green: #2ecc71; --amber: #ffbf00; }
         * { box-sizing: border-box; margin: 0; padding: 0; touch-action: none; outline: none; -webkit-tap-highlight-color: transparent; }
         body, html { height: 100svh; width: 100vw; background: var(--void); color: #fff; font-family: 'Inter', sans-serif; overflow: hidden; position: fixed; }
-        
-        #master { width: 100%; height: 100%; position: relative; }
+        #master { width: 100%; height: 100%; }
         .grain { position: fixed; inset: -50%; width: 200%; height: 200%; background-image: url('https://grainy-gradients.vercel.app/noise.svg'); opacity: 0.04; pointer-events: none; z-index: 10; }
-        
         canvas { position: absolute; inset: 0; z-index: 1; pointer-events: none; }
-        
         #ui { position: absolute; inset: 0; z-index: 15; display: flex; flex-direction: column; align-items: center; justify-content: center; pointer-events: none; text-align: center; }
-        .title { font-family: 'Cinzel'; font-size: 10vw; letter-spacing: 12px; color: var(--gold); text-shadow: 0 0 40px #000; transition: color 0.4s ease; }
-        .quote { font-family: 'Great Vibes'; font-size: 2.2rem; color: var(--gold); margin-top: 10px; transition: color 0.4s ease; }
-        #clock { font-family: 'Cinzel'; font-size: 1.2rem; color: var(--gold); margin-top: 20px; letter-spacing: 4px; opacity: 0.5; }
-
+        .title { font-family: 'Cinzel'; font-size: 10vw; letter-spacing: 12px; color: var(--gold); text-shadow: 0 0 40px #000; transition: all 0.5s cubic-bezier(0.4, 0, 0.2, 1); }
+        .quote { font-family: 'Great Vibes'; font-size: 2.2rem; color: var(--gold); margin-top: 10px; opacity: 0.9; }
+        #stats-bar { position: fixed; bottom: 8%; width: 100%; display: flex; justify-content: space-around; font-family: 'Cinzel'; color: var(--gold); font-size: 10px; letter-spacing: 2px; opacity: 0.6; z-index: 20; background: linear-gradient(transparent, rgba(0,0,0,0.4)); padding-bottom: 20px; }
         #nexus-input { position: fixed; top: 15%; left: 50%; transform: translateX(-50%); z-index: 100; display: none; pointer-events: auto; }
-        #nexus-field { background: rgba(0,242,255,0.03); border: 1px solid rgba(0,242,255,0.4); border-radius: 40px; padding: 15px 30px; color: var(--cyan); font-family: 'Cinzel'; font-size: 12px; width: 300px; text-align: center; backdrop-filter: blur(20px); box-shadow: 0 0 30px rgba(0,0,0,0.5); }
-
-        #stats-bar { position: fixed; bottom: 8%; width: 100%; display: flex; justify-content: space-around; font-family: 'Cinzel'; color: var(--gold); font-size: 10px; letter-spacing: 2px; opacity: 0.6; z-index: 20; }
-        
-        .guide { position: fixed; font-family: 'Cinzel'; font-size: 7px; color: var(--gold); opacity: 0.15; z-index: 20; letter-spacing: 4px; font-weight: 900; }
+        #nexus-field { background: rgba(0,242,255,0.03); border: 1px solid rgba(0,242,255,0.4); border-radius: 40px; padding: 15px 30px; color: var(--cyan); font-family: 'Cinzel'; font-size: 12px; width: 300px; text-align: center; backdrop-filter: blur(20px); }
+        .guide { position: fixed; font-family: 'Cinzel'; font-size: 7px; color: var(--gold); opacity: 0.2; z-index: 20; letter-spacing: 4px; font-weight: 900; }
         .tl { top: 50px; left: 40px; } .tr { top: 50px; right: 40px; } .bl { bottom: 50px; left: 40px; } .br { bottom: 50px; right: 40px; }
     </style>
 </head>
 <body onmousedown="handle(event)" ontouchstart="handle(event)" onmousemove="track(event)" ontouchmove="track(event)" onmouseup="stop()" ontouchend="stop()">
     <div id="master">
         <div class="grain"></div>
-        <div id="nexus-input"><input type="text" id="nexus-field" placeholder="MINT SOVEREIGN INTENT..."></div>
-        
+        <div id="nexus-input"><input type="text" id="nexus-field" placeholder="MINT SOVEREIGN ASSET..."></div>
         <div id="stats-bar">
             <span>LIQUIDITY: $<span id="val">0</span></span>
+            <span>GROWTH: +<span id="growth">0</span>%</span>
             <span>ASSETS: <span id="asset-count">0</span></span>
         </div>
-
         <div class="guide tl">MARKET</div> <div class="guide tr">CREATOR</div> <div class="guide bl">SOURCE</div> <div class="guide br">EXCHANGE</div>
-        
         <canvas id="canvas"></canvas>
-        
         <div id="ui">
             <h1 class="title" id="t">SOURCE</h1>
-            <p class="quote" id="q">The Origin</p>
-            <div id="clock">00:00:00</div>
+            <p class="quote" id="q">The One Origin</p>
         </div>
     </div>
 
 <script>
     const canvas = document.getElementById('canvas');
     const ctx = canvas.getContext('2d');
-    let view = 'source', particles = [], isDown = false, mx = 0, my = 0;
+    let view = 'source', particles = [], plants = [], isDown = false, mx = 0, my = 0;
     
-    // Persistent State
-    let liquidity = parseInt(localStorage.getItem('sov_trust_liq')) || 0;
-    let assets = parseInt(localStorage.getItem('sov_trust_assets')) || 0;
-    let intent = localStorage.getItem('sov_trust_intent') || "The Origin";
+    let liquidity = parseInt(localStorage.getItem('sov_v114_liq')) || 0;
+    let assets = parseInt(localStorage.getItem('sov_v114_assets')) || 0;
+    let intent = localStorage.getItem('sov_v114_intent') || "The One Origin";
     let bigCoin = 0;
 
-    function resize() { 
-        canvas.width = window.innerWidth; 
-        canvas.height = window.innerHeight; 
-    }
-    window.onresize = resize; 
-    resize();
+    function resize() { canvas.width = window.innerWidth; canvas.height = window.innerHeight; }
+    window.onresize = resize; resize();
 
     function update() {
-        document.getElementById('clock').innerText = new Date().toLocaleTimeString('en-GB');
+        // Autonomous Value Growth
+        if (assets > 0) {
+            let yield = Math.floor(assets * 1.44);
+            liquidity += yield;
+            document.getElementById('growth').innerText = (assets * 0.1).toFixed(2);
+        }
         document.getElementById('val').innerText = liquidity.toLocaleString();
         document.getElementById('asset-count').innerText = assets;
     }
-    setInterval(update, 200);
+    setInterval(update, 1000);
 
     document.getElementById('nexus-field').addEventListener('keypress', (e) => {
         if(e.key === 'Enter') { 
             intent = e.target.value.toUpperCase();
             document.getElementById('q').innerText = intent;
-            assets++;
-            save();
+            assets++; save();
             e.target.value = ''; e.target.blur();
         }
     });
 
     function save() {
-        localStorage.setItem('sov_trust_liq', liquidity);
-        localStorage.setItem('sov_trust_assets', assets);
-        localStorage.setItem('sov_trust_intent', intent);
+        localStorage.setItem('sov_v114_liq', liquidity);
+        localStorage.setItem('sov_v114_assets', assets);
+        localStorage.setItem('sov_v114_intent', intent);
     }
 
     function handle(e) {
@@ -97,110 +85,72 @@
         const x = e.clientX || (e.touches ? e.touches[0].clientX : 0);
         const y = e.clientY || (e.touches ? e.touches[0].clientY : 0);
         mx = x; my = y;
-        
         const w = window.innerWidth, h = window.innerHeight;
-
-        // Strict Quadrant Detection
-        if (y < h/2) {
-            view = (x < w/2) ? 'market' : 'creator';
-        } else {
-            view = (x < w/2) ? 'source' : 'exchange';
-        }
-
+        view = (y < h/2) ? (x < w/2 ? 'market' : 'creator') : (x < w/2 ? 'source' : 'exchange');
         updateUI();
     }
 
     function updateUI() {
         const title = document.getElementById('t');
         const quote = document.getElementById('q');
-        const input = document.getElementById('nexus-input');
-
-        input.style.display = (view === 'market') ? 'block' : 'none';
-
-        if (view === 'market') {
-            title.innerText = "MARKET"; quote.innerText = intent;
-            title.style.color = "var(--cyan)"; quote.style.color = "var(--cyan)";
-        } else if (view === 'creator') {
-            title.innerText = "CREATOR"; quote.innerText = "Living Garden";
-            title.style.color = "var(--green)"; quote.style.color = "var(--green)";
-        } else if (view === 'exchange') {
-            title.innerText = "EXCHANGE"; quote.innerText = "Consolidate Value";
-            title.style.color = "var(--gold)"; quote.style.color = "var(--gold)";
-        } else {
-            title.innerText = "SOURCE"; quote.innerText = "The One Origin";
-            title.style.color = "var(--gold)"; quote.style.color = "var(--gold)";
-        }
+        document.getElementById('nexus-input').style.display = (view === 'market') ? 'block' : 'none';
+        
+        let color = (view === 'market') ? 'var(--cyan)' : (view === 'creator') ? 'var(--green)' : 'var(--gold)';
+        title.innerText = view.toUpperCase();
+        title.style.color = color;
+        quote.style.color = color;
+        quote.innerText = (view === 'market') ? intent : (view === 'creator') ? "Living Garden" : (view === 'exchange') ? "Consolidate" : "The One Origin";
     }
 
-    function track(e) {
+    function track(e) { 
         mx = e.clientX || (e.touches ? e.touches[0].clientX : mx);
-        my = e.clientY || (e.touches ? e.touches[0].clientY : my);
+        my = e.clientY || (e.touches ? e.touches[0].clientY : my); 
     }
-
-    function stop() {
-        if (view === 'exchange' && bigCoin > 10) {
-            liquidity += (bigCoin * 1000000); // Trillion Scale
-            save();
-            for(let i=0; i<30; i++) {
-                particles.push({
-                    x: mx, y: my, 
-                    vx: (Math.random()-0.5)*10, vy: (Math.random()-0.5)*10, 
-                    r: Math.random()*3, type: 'gold', age: 0
-                });
-            }
+    
+    function stop() { 
+        if(view === 'exchange' && bigCoin > 10) {
+            liquidity += (bigCoin * 1000000); save();
+            for(let i=0; i<30; i++) particles.push({x:mx, y:my, vx:(Math.random()-0.5)*10, vy:(Math.random()-0.5)*10, r:Math.random()*3, type:'gold', age:0});
         }
-        isDown = false; bigCoin = 0;
+        isDown = false; bigCoin = 0; 
     }
 
     function animate() {
         ctx.clearRect(0, 0, canvas.width, canvas.height);
-        const cx = canvas.width/2;
-        const cy = canvas.height/2;
+        const cx = canvas.width/2, cy = canvas.height/2;
 
-        // THE SUN ENGINE (Source Aura)
         let auraColor = (view === 'market') ? '0,242,255' : (view === 'creator') ? '46,204,113' : '255,191,0';
-        let pulse = 100 + Math.sin(Date.now()*0.002)*15;
-        
-        const g = ctx.createRadialGradient(cx, cy, 0, cx, cy, pulse*2.5);
-        g.addColorStop(0, 'rgba(255,255,255,0.8)');
-        g.addColorStop(0.2, `rgba(${auraColor}, 0.3)`);
-        g.addColorStop(1, 'transparent');
-        
-        ctx.fillStyle = g;
-        ctx.beginPath();
-        ctx.arc(cx, cy, pulse*2.5, 0, Math.PI*2);
-        ctx.fill();
+        let pulse = 110 + Math.sin(Date.now()*0.002)*15;
+        const g = ctx.createRadialGradient(cx, cy, 0, cx, cy, pulse*2.8);
+        g.addColorStop(0, 'rgba(255,255,255,0.8)'); g.addColorStop(0.2, `rgba(${auraColor}, 0.3)`); g.addColorStop(1, 'transparent');
+        ctx.fillStyle = g; ctx.beginPath(); ctx.arc(cx, cy, pulse*2.8, 0, Math.PI*2); ctx.fill();
 
         if (isDown) {
-            if (view === 'exchange') {
-                bigCoin++;
-                ctx.fillStyle = 'rgba(243,207,138,0.2)';
-                ctx.beginPath(); ctx.arc(mx, my, bigCoin, 0, Math.PI*2); ctx.fill();
-            }
+            if (view === 'exchange') { bigCoin++; ctx.fillStyle='rgba(243,207,138,0.2)'; ctx.beginPath(); ctx.arc(mx, my, bigCoin, 0, Math.PI*2); ctx.fill(); }
             if (view === 'market') particles.push({x:mx, y:my, tx:cx, ty:cy, type:'data', life:1});
-            if (view === 'creator') particles.push({x:mx, y:my, vx:(Math.random()-0.5)*10, vy:(Math.random()-0.5)*10, type:'vine', life:1});
+            if (view === 'creator') {
+                if(Math.random() < 0.2) plants.push({x:mx, y:canvas.height, h:0, maxH:Math.random()*200+50, c:'var(--green)'});
+            }
         }
 
-        particles.forEach((p, i) => {
-            if (p.type === 'gold') {
-                p.vy += 0.25; p.x += p.vx; p.y += p.vy;
-                ctx.fillStyle = `rgba(243,207,138, ${1-p.age/60})`;
-                p.age++;
-                if (p.y > canvas.height || p.age > 60) particles.splice(i, 1);
-            } else if (p.type === 'data') {
-                p.life -= 0.04; ctx.strokeStyle = `rgba(0,242,255,${p.life})`;
-                ctx.beginPath(); ctx.moveTo(p.x, p.y); ctx.lineTo(p.tx, p.ty); ctx.stroke();
-                if (p.life <= 0) particles.splice(i, 1);
-            } else if (p.type === 'vine') {
-                p.life -= 0.02; p.x += p.vx; p.y += p.vy;
-                ctx.fillStyle = `rgba(46,204,113,${p.life})`;
-                if (p.life <= 0) particles.splice(i, 1);
-            }
-            if (p.type !== 'data') {
-                ctx.beginPath(); ctx.arc(p.x, p.y, p.r||2, 0, Math.PI*2); ctx.fill();
-            }
+        plants.forEach((p, i) => {
+            p.h = Math.min(p.h + 2, p.maxH);
+            ctx.strokeStyle = p.c; ctx.lineWidth = 2; ctx.beginPath(); ctx.moveTo(p.x, canvas.height); ctx.lineTo(p.x, canvas.height - p.h); ctx.stroke();
+            if(p.h >= p.maxH) p.c = 'rgba(46,204,113,0.3)';
         });
 
+        particles.forEach((p, i) => {
+            if(p.type === 'gold') {
+                p.vy += 0.25; p.x += p.vx; p.y += p.vy;
+                ctx.fillStyle = `rgba(243,207,138, ${1-p.age/60})`;
+                p.age++; if(p.age > 60) particles.splice(i, 1);
+            } else if(p.type === 'data') {
+                p.life -= 0.04; ctx.strokeStyle = `rgba(0,242,255,${p.life})`;
+                ctx.beginPath(); ctx.moveTo(p.x, p.y); ctx.lineTo(p.tx, p.ty); ctx.stroke();
+                if(p.life <= 0) particles.splice(i, 1);
+            }
+            if(p.type !== 'data') { ctx.beginPath(); ctx.arc(p.x, p.y, p.r||2, 0, Math.PI*2); ctx.fill(); }
+        });
         requestAnimationFrame(animate);
     }
     animate();
