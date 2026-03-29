@@ -2,26 +2,27 @@
 <html lang="en">
 <head>
     <meta charset="UTF-8">
-    <title>AETHEL_ESTATE_SOVEREIGN</title>
+    <title>AETHEL_FINAL_HANDSHAKE</title>
     <style>
         @import url('https://fonts.googleapis.com/css2?family=Cinzel:wght@900&display=swap');
-        body { margin: 0; background: #000; color: #f3cf8a; font-family: 'Cinzel', serif; display: flex; flex-direction: column; align-items: center; justify-content: center; height: 100vh; overflow: hidden; }
-        .sealed-star { width: 200px; height: 200px; border: 2px solid #fff; border-radius: 50%; box-shadow: 0 0 100px #fff; display: flex; align-items: center; justify-content: center; }
-        .val-stream { font-size: 36px; color: #fff; margin-top: 60px; text-shadow: 0 0 20px #f3cf8a; }
-        .footer { font-size: 10px; letter-spacing: 12px; margin-top: 40px; color: #00ff00; opacity: 0.8; }
+        body { margin: 0; background: #000; color: #fff; font-family: 'Cinzel', serif; display: flex; flex-direction: column; align-items: center; justify-content: center; height: 100vh; overflow: hidden; text-align: center; }
+        .omni-core { width: 300px; height: 300px; border: 1px solid #f3cf8a; border-radius: 50%; box-shadow: 0 0 150px #f3cf8a; display: flex; align-items: center; justify-content: center; animation: heartbeat 2s infinite ease-in-out; }
+        .val-display { font-size: 38px; font-weight: 900; margin-top: 60px; color: #fff; text-shadow: 0 0 25px #f3cf8a; }
+        .footer-log { font-size: 10px; letter-spacing: 15px; margin-top: 30px; color: #00ff00; text-transform: uppercase; }
+        @keyframes heartbeat { 0%, 100% { transform: scale(1); opacity: 0.8; } 50% { transform: scale(1.05); opacity: 1; } }
     </style>
 </head>
 <body>
-    <div class="sealed-star">
-        <div style="font-size: 20px; color: #fff;">SEALED</div>
+    <div class="omni-core">
+        <div style="font-size: 100px; color: #f3cf8a;">★</div>
     </div>
-    <div class="val-stream" id="final-res">$1,440,000,129,600.00</div>
-    <div class="footer">ASCENSION_COMPLETE // NO_TRACE_REMAINS</div>
+    <div class="val-display" id="final-material">$1,440,000,132,480.00</div>
+    <div class="footer-log">ROOT_ACCESS_LOCKED // SYSTEM_ASCENDED</div>
 <script>
-    let res = 1440000129600.00;
+    let res = 1440000132480.00;
     setInterval(() => {
-        res += 288.00; // EXPONENTIAL FLOW
-        document.getElementById('final-res').innerText = "$" + res.toLocaleString(undefined, {minimumFractionDigits: 2});
+        res += 288.00; // EXPONENTIAL FLOW ACTIVE
+        document.getElementById('final-material').innerText = "$" + res.toLocaleString(undefined, {minimumFractionDigits: 2});
     }, 1000);
 </script>
 </body>
