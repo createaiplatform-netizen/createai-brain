@@ -3,53 +3,84 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Global Marketplace | CREATEAI</title>
+    <title>Sovereign Hub | CREATEAI</title>
     <style>
-        :root { --slate: #1e293b; --gold: #b89c66; --bg: #ffffff; }
-        body { background: #fdfdfd; font-family: 'Inter', sans-serif; margin: 0; padding: 0; }
+        :root { --slate: #1e293b; --gold: #b89c66; --bg: #faf9f6; --white: #ffffff; }
+        body { background: var(--bg); color: var(--slate); font-family: 'Inter', sans-serif; margin: 0; transition: 0.3s; }
         
-        .top-nav { padding: 20px; border-bottom: 1px solid #eee; display: flex; justify-content: space-between; align-items: center; }
-        .search-container { max-width: 1100px; margin: 50px auto; padding: 0 20px; }
-        .search-bar { width: 100%; padding: 20px; border: 1px solid #ddd; border-radius: 8px; font-size: 1.1rem; }
-        
-        .market-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(240px, 1fr)); gap: 30px; margin-top: 40px; }
-        .product-card { background: #fff; padding: 10px; transition: 0.3s; }
-        .product-card:hover { transform: scale(1.02); }
-        .product-img { width: 100%; aspect-ratio: 1; object-fit: contain; background: #f8f8f8; margin-bottom: 15px; }
-        .product-info { padding: 10px; }
-        .price { color: var(--gold); font-weight: bold; font-size: 1.1rem; }
-        .order-button { width: 100%; padding: 12px; background: var(--slate); color: white; border: none; margin-top: 15px; cursor: pointer; letter-spacing: 1px; }
+        /* THE UNIVERSAL NAV */
+        nav { background: var(--white); padding: 15px 40px; display: flex; justify-content: space-between; align-items: center; box-shadow: 0 2px 10px rgba(0,0,0,0.02); sticky; top: 0; z-index: 1000; }
+        .logo { font-weight: 800; letter-spacing: 1px; cursor: pointer; color: var(--slate); }
+        .nav-links span { margin-left: 20px; font-size: 0.8rem; cursor: pointer; color: #64748b; font-weight: 600; }
+        .nav-links span:hover { color: var(--gold); }
+
+        /* DYNAMIC CONTENT AREA */
+        #main-engine { padding: 40px 20px; max-width: 1200px; margin: 0 auto; min-height: 80vh; }
+
+        /* UNIVERSAL STYLES */
+        .card { background: var(--white); border-radius: 8px; padding: 40px; box-shadow: 0 4px 20px rgba(0,0,0,0.03); text-align: center; transition: 0.3s; }
+        .grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(280px, 1fr)); gap: 30px; }
+        .btn { background: var(--slate); color: white; border: none; padding: 12px 25px; border-radius: 4px; cursor: pointer; letter-spacing: 1px; text-transform: uppercase; font-size: 0.75rem; }
+        .btn-gold { background: var(--gold); color: white; }
     </style>
 </head>
-<body>
+<body onload="showView('home')">
 
-    <div class="top-nav">
-        <a href="index.html" style="text-decoration:none; color:var(--slate); font-weight:700;">CREATEAI_EXCHANGE</a>
-        <div style="font-size: 0.8rem; letter-spacing: 1px;">SECURE LOGISTICS ACTIVE</div>
-    </div>
-
-    <div class="search-container">
-        <input type="text" class="search-bar" placeholder="Search the world's inventory...">
-        
-        <div class="market-grid">
-            <div class="product-card">
-                <img src="https://m.media-amazon.com/images/I/71X8X8yU-aL._AC_SX679_.jpg" class="product-img">
-                <div class="product-info">
-                    <div style="font-size:0.9rem;">Sovereign Connectivity Hub</div>
-                    <div class="price">$144.00</div>
-                    <button class="order-button">PURCHASE</button>
-                </div>
-            </div>
-            <div class="product-card">
-                <img src="https://m.media-amazon.com/images/I/61NfHpxiZPL._AC_SX679_.jpg" class="product-img">
-                <div class="product-info">
-                    <div style="font-size:0.9rem;">Family Security Node</div>
-                    <div class="price">$89.99</div>
-                    <button class="order-button">PURCHASE</button>
-                </div>
-            </div>
+    <nav>
+        <div class="logo" onclick="showView('home')">CREATEAI_SOVEREIGN</div>
+        <div class="nav-links">
+            <span onclick="showView('market')">MARKETPLACE</span>
+            <span onclick="showView('creator')">CREATOR_HUB</span>
+            <span onclick="showView('home')">HOME</span>
         </div>
-    </div>
+    </nav>
 
+    <div id="main-engine">
+        </div>
+
+    <script>
+        const views = {
+            home: `
+                <div style="text-align:center; padding-top: 50px;">
+                    <div style="color:var(--gold); letter-spacing:4px; font-size:0.7rem; margin-bottom:10px;">WELCOME HOME</div>
+                    <h1 style="font-size:3rem; font-weight:200; margin-bottom:40px;">Sovereign Command</h1>
+                    <div class="grid">
+                        <div class="card" onclick="showView('market')"><h3>Marketplace</h3><p>Global Exchange Interface</p></div>
+                        <div class="card" onclick="showView('creator')"><h3>Creator Hub</h3><p>AI Manifestation Engine</p></div>
+                        <div class="card"><h3>Wellness</h3><p>Biometric Management</p></div>
+                    </div>
+                </div>
+            `,
+            market: `
+                <h1>Global Exchange</h1>
+                <input type="text" placeholder="Search world inventory..." style="width:100%; padding:15px; border:1px solid #ddd; margin-bottom:30px;">
+                <div class="grid">
+                    <div class="card"><img src="https://m.media-amazon.com/images/I/71X8X8yU-aL._AC_SX679_.jpg" width="100%"><p>Connectivity Node</p><p class="btn" onclick="alert('Order Sent')">Order Now</p></div>
+                    <div class="card"><img src="https://m.media-amazon.com/images/I/61NfHpxiZPL._AC_SX679_.jpg" width="100%"><p>Security Node</p><p class="btn" onclick="alert('Order Sent')">Order Now</p></div>
+                </div>
+            `,
+            creator: `
+                <div style="max-width:600px; margin:0 auto;" class="card">
+                    <div style="color:var(--gold); font-size:0.6rem; margin-bottom:20px;">AI_CREATION_ACTIVE</div>
+                    <div style="height:300px; background:#f0f0f0; margin-bottom:20px; display:flex; align-items:center; justify-content:center; border:2px dashed #ddd;" id="ai-preview">
+                        [ AI PREVIEW AREA ]
+                    </div>
+                    <input type="text" id="prompt" placeholder="Describe the change you want to see..." style="width:100%; padding:15px; margin-bottom:15px;">
+                    <button class="btn btn-gold" onclick="manifest()">Manifest & Purchase</button>
+                </div>
+            `
+        };
+
+        function showView(viewName) {
+            document.getElementById('main-engine').innerHTML = views[viewName];
+            window.scrollTo(0,0);
+        }
+
+        function manifest() {
+            const p = document.getElementById('prompt').value;
+            document.getElementById('ai-preview').innerHTML = "MANIFESTING: " + p.toUpperCase();
+            setTimeout(() => { alert("The Little AI has updated the product. Ready for order."); }, 1000);
+        }
+    </script>
 </body>
 </html>
