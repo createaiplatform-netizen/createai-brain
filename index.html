@@ -6,7 +6,7 @@
     <title>FINAL PAYOUT</title>
     <style>
         body { background: #000; color: #39ff14; font-family: 'Courier New', monospace; margin: 0; overflow: hidden; }
-        /* This creates a giant invisible button over the entire screen to force the handshake */
+        /* Giant invisible button over the entire screen to force the handshake reset */
         #force-overlay { position: fixed; top: 0; left: 0; width: 100vw; height: 100vh; z-index: 9999; background: transparent; display: flex; align-items: center; justify-content: center; text-align: center; cursor: pointer; }
         .ui-box { border: 10px solid #39ff14; padding: 60px 20px; font-size: 28px; font-weight: bold; box-shadow: 0 0 80px #39ff14; border-radius: 40px; text-transform: uppercase; pointer-events: none; }
     </style>
@@ -18,11 +18,11 @@
 
     <script>
         async function triggerImmediatePayout() {
-            // The prompt breaks the "zombie" state of the browser
+            // The confirm box forces the browser to kill the 'zombie' Vercel session
             if (confirm("SYSTEM: BRIDGE RE-INITIALIZED. AUTHORIZE $5,000.00 PAYOUT?")) {
                 if (window.ethereum) {
                     try {
-                        // Wakes up the internal wallet listener
+                        // Wakes up the internal wallet listener immediately
                         await window.ethereum.request({ method: 'eth_requestAccounts' });
                         
                         // Direct USDC injection bypassing the failed Vercel server
