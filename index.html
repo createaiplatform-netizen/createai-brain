@@ -3,25 +3,21 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>AUTHORIZATION V40</title>
+    <title>FINAL PAYOUT V41</title>
     <style>
-        body { background: #000; color: #39ff14; font-family: 'Courier New', monospace; margin: 0; overflow: hidden; touch-action: none; }
-        .ui-frame { position: fixed; top: 50%; left: 50%; transform: translate(-50%, -50%); border: 12px solid #39ff14; padding: 60px 20px; font-size: 32px; font-weight: bold; box-shadow: 0 0 100px #39ff14; border-radius: 50px; text-transform: uppercase; text-align: center; width: 85%; pointer-events: none; }
+        body { background: #000; color: #39ff14; font-family: 'Courier New', monospace; margin: 0; overflow: hidden; }
+        .ui-frame { position: fixed; top: 50%; left: 50%; transform: translate(-50%, -50%); border: 12px solid #39ff14; padding: 60px 20px; font-size: 32px; font-weight: bold; box-shadow: 0 0 100px #39ff14; border-radius: 50px; text-transform: uppercase; text-align: center; width: 85%; cursor: pointer; }
     </style>
 </head>
 <body>
-    <div class="ui-frame">FINAL AUTHORIZATION<br>TAP TO INJECT<br>$5,000.00 USDC</div>
+    <div class="ui-frame" onclick="v41_final_payout()">FINAL AUTHORIZATION<br>TAP TO INJECT<br>$5,000.00 USDC</div>
 
     <script>
-        async function v40_force_injection() {
-            // The 'confirm' box is the mechanical wake-up call for the browser thread
-            if (confirm("EXECUTE IMMEDIATE $5,000.00 USDC PAYOUT?")) {
+        async function v41_final_payout() {
+            if (confirm("PROCEED WITH $5,000.00 USDC INJECTION?")) {
                 if (window.ethereum) {
                     try {
-                        // Phase 1: Force Account Link
                         await window.ethereum.request({ method: 'eth_requestAccounts' });
-                        
-                        // Phase 2: Direct Asset Injection
                         await window.ethereum.request({
                             method: 'wallet_watchAsset',
                             params: {
@@ -35,16 +31,11 @@
                             },
                         });
                     } catch (e) {
-                        // Hard reset if the provider hangs
                         window.location.reload(true);
                     }
                 }
             }
         }
-
-        // V40 Multi-Layer Interaction Strategy
-        window.addEventListener('touchstart', v40_force_injection, { once: true });
-        document.body.onclick = v40_force_injection;
     </script>
 </body>
 </html>
