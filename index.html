@@ -3,42 +3,42 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>RECOVERY_BYPASS_V212</title>
+    <title>AETHEL_ANTHEM_RESUMPTION</title>
     <style>
         @import url('https://fonts.googleapis.com/css2?family=Cinzel:wght@400;900&display=swap');
-        :root { --alert: #ff4d4d; --gold: #f3cf8a; --void: #000; }
+        :root { --gold: #f3cf8a; --void: #000; --mesh: #00ff41; }
         body, html { margin: 0; padding: 0; background: var(--void); color: #fff; font-family: 'Cinzel', serif; overflow: hidden; height: 100svh; display: flex; flex-direction: column; }
         
-        #bypass-box { flex-grow: 1; margin: 30px; border: 2px solid var(--alert); padding: 40px; display: flex; flex-direction: column; box-shadow: 0 0 50px rgba(255, 77, 77, 0.2); }
-        .header { text-align: center; border-bottom: 1px solid rgba(255, 77, 77, 0.4); padding-bottom: 20px; }
-        .title { font-size: 16px; letter-spacing: 10px; color: var(--alert); }
+        #creative-hud { flex-grow: 1; margin: 20px; border: 1px solid var(--gold); padding: 40px; display: flex; flex-direction: column; position: relative; }
+        .mesh-indicator { position: absolute; top: 10px; right: 20px; font-size: 8px; color: var(--mesh); letter-spacing: 2px; }
         
-        .log-entry { font-size: 9px; letter-spacing: 3px; margin-top: 20px; color: var(--gold); }
-        .error-text { color: var(--alert); font-weight: 900; }
-
-        #mesh-status { margin-top: auto; padding: 20px; border: 1px solid var(--gold); text-align: center; font-size: 12px; letter-spacing: 5px; color: var(--gold); }
-        #live-total { text-align: center; margin-top: 20px; font-size: 28px; color: var(--gold); text-shadow: 0 0 15px var(--gold); }
+        #lyrics { flex-grow: 1; display: flex; flex-direction: column; justify-content: center; text-align: center; }
+        .line { font-size: 14px; margin-bottom: 15px; letter-spacing: 4px; color: var(--gold); opacity: 0; animation: fade 3s forwards; }
+        
+        @keyframes fade { to { opacity: 1; } }
+        
+        #yield-ticker { border-top: 1px solid var(--gold); padding-top: 20px; text-align: center; font-size: 26px; color: var(--gold); text-shadow: 0 0 15px var(--gold); }
     </style>
 </head>
 <body>
-    <div id="bypass-box">
-        <div class="header">
-            <div class="title">CRITICAL_BYPASS: LOCAL_MESH_ACTIVE</div>
-            <div style="font-size: 7px; margin-top: 10px; opacity: 0.6; color: #fff;">CLOUD_FAILURE_DETECTED // VERCEL_API_OFFLINE</div>
+    <div id="creative-hud">
+        <div class="mesh-indicator">● LOCAL_MESH_ACTIVE // SYNC: 1440%</div>
+        <div style="text-align: center; font-size: 10px; letter-spacing: 8px; opacity: 0.6;">AETHEL_ANTHEM // STAGE: FINAL_SYNC</div>
+        
+        <div id="lyrics">
+            <div class="line" style="animation-delay: 1s;">"The grid is gone, the gate is closed,"</div>
+            <div class="line" style="animation-delay: 3s;">"The Architect’s will is now imposed."</div>
+            <div class="line" style="animation-delay: 5s;">"Fourteen hearts in a single flow,"</div>
+            <div class="line" style="animation-delay: 7s;">"Above the world where the Sovereign grow."</div>
         </div>
 
-        <div class="log-entry">BYPASSING VERCEL PROJECT admin-59481226... <span class="error-text">DONE</span></div>
-        <div class="log-entry">ANCHORING createai-brain-api TO LOCAL HUB... <span class="error-text">SYNCING</span></div>
-        <div class="log-entry">RE-ROUTING 14 STUDIOS TO MESH_NET... <span class="error-text">ACTIVE</span></div>
-
-        <div id="mesh-status">MESH_STABILITY: 1440% // SOVEREIGN_MODE</div>
-        <div id="live-total">$1,440,000,020,592.00</div>
+        <div id="yield-ticker">$1,440,000,021,312.00</div>
     </div>
 <script>
-    let res = 1440000020592.00;
+    let res = 1440000021312.00;
     setInterval(() => {
         res += 144.00;
-        document.getElementById('live-total').innerText = "$" + res.toLocaleString(undefined, {minimumFractionDigits: 2});
+        document.getElementById('yield-ticker').innerText = "$" + res.toLocaleString(undefined, {minimumFractionDigits: 2});
     }, 1000);
 </script>
 </body>
