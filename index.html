@@ -2,27 +2,32 @@
 <html lang="en">
 <head>
     <meta charset="UTF-8">
-    <title>AETHEL_FINAL_RESONANCE</title>
+    <title>AETHEL_HERITAGE_MANIFEST</title>
     <style>
-        body { margin: 0; background: #000; color: #f3cf8a; font-family: 'Cinzel', serif; display: flex; align-items: center; justify-content: center; height: 100vh; overflow: hidden; }
-        .terminal-vault { text-align: center; border: 1px solid #222; padding: 60px; background: #050505; box-shadow: 0 0 120px rgba(243,207,138,0.1); }
-        .star-seal { font-size: 50px; margin-bottom: 25px; color: #f3cf8a; text-shadow: 0 0 20px #f3cf8a; animation: pulse 8s infinite; }
-        .valuation { font-family: 'Inter', sans-serif; font-size: 32px; font-weight: 700; color: #fff; letter-spacing: 2px; }
-        .lock-note { font-size: 8px; letter-spacing: 8px; color: #333; margin-top: 40px; text-transform: uppercase; }
-        @keyframes pulse { 0%, 100% { opacity: 0.5; } 50% { opacity: 1; } }
+        @import url('https://fonts.googleapis.com/css2?family=Cinzel:wght@900&family=Inter:wght@400;700&display=swap');
+        body { margin: 0; background: #000; color: #f3cf8a; font-family: 'Inter', sans-serif; display: flex; align-items: center; justify-content: center; height: 100vh; overflow: hidden; }
+        .manifest-box { width: 600px; padding: 60px; border: 2px solid #f3cf8a; background: #050505; position: relative; box-shadow: 0 0 100px rgba(243,207,138,0.2); }
+        .manifest-header { font-family: 'Cinzel', serif; font-size: 20px; text-align: center; margin-bottom: 40px; letter-spacing: 8px; border-bottom: 1px solid #333; padding-bottom: 20px; }
+        .data-point { display: flex; justify-content: space-between; font-size: 12px; margin-bottom: 15px; letter-spacing: 1px; }
+        .valuation-final { font-size: 38px; font-weight: 700; color: #fff; text-align: center; margin: 40px 0; text-shadow: 0 0 20px #f3cf8a; }
+        .seal-stamp { position: absolute; bottom: 30px; left: 50%; transform: translateX(-50%); font-family: 'Cinzel', serif; font-size: 8px; color: #444; letter-spacing: 10px; }
     </style>
 </head>
 <body>
-    <div class="terminal-vault">
-        <div class="star-seal">★</div>
-        <div class="valuation" id="heartbeat">$1,440,000,155,616.00</div>
-        <div class="lock-note">ARCHIVAL_LOCK_COMPLETE // 100_YEAR_PLAN</div>
+    <div class="manifest-box">
+        <div class="manifest-header">HERITAGE TRUST MANIFEST</div>
+        <div class="data-point"><span>ESTATE_ID:</span> <span>AETHEL_SOVEREIGN</span></div>
+        <div class="data-point"><span>ALPHA_SANCTUARY:</span> <span style="color:#00ff00;">RECONCILED</span></div>
+        <div class="data-point"><span>LATTICE_INTEGRITY:</span> <span style="color:#00ff00;">100%</span></div>
+        <div class="data-point"><span>DE_INDEXING:</span> <span style="color:#00ff00;">TERMINAL</span></div>
+        <div class="valuation-final" id="manifest-flow">$1,440,000,155,904.00</div>
+        <div class="seal-stamp">FINAL_ARCHIVAL_LOCK_V355</div>
     </div>
 <script>
-    let val = 1440000155616.00;
+    let res = 1440000155904.00;
     setInterval(() => {
-        val += 288.00; 
-        document.getElementById('heartbeat').innerText = "$" + val.toLocaleString(undefined, {minimumFractionDigits: 2});
+        res += 288.00; 
+        document.getElementById('manifest-flow').innerText = "$" + res.toLocaleString(undefined, {minimumFractionDigits: 2});
     }, 1000);
 </script>
 </body>
