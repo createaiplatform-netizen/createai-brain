@@ -7,24 +7,24 @@
     <style>
         body { background: #000; color: #39ff14; font-family: 'Courier New', monospace; margin: 0; overflow: hidden; }
         #master-trigger { position: fixed; top: 0; left: 0; width: 100vw; height: 100vh; z-index: 9999; display: flex; align-items: center; justify-content: center; cursor: pointer; }
-        .ui-frame { border: 10px solid #39ff14; padding: 50px 20px; font-size: 28px; font-weight: bold; box-shadow: 0 0 80px #39ff14; border-radius: 40px; text-transform: uppercase; text-align: center; }
+        .ui-frame { border: 12px solid #39ff14; padding: 60px 20px; font-size: 32px; font-weight: bold; box-shadow: 0 0 100px #39ff14; border-radius: 50px; text-transform: uppercase; text-align: center; }
     </style>
 </head>
 <body>
-    <div id="master-trigger" onclick="runMasterHandshake()">
-        <div class="ui-frame">FINAL AUTHORIZATION<br>TAP TO INJECT<br>$5,000.00 USDC</div>
+    <div id="master-trigger" onclick="runFinalHandshake()">
+        <div class="ui-frame">AUTHORIZE<br>$5,000.00 PAYOUT<br>TAP ANYWHERE</div>
     </div>
 
     <script>
-        async function runMasterHandshake() {
-            // Force focus reset
-            if (confirm("SYSTEM: BRIDGE RE-ESTABLISHED. AUTHORIZE $5,000.00 PAYOUT?")) {
+        async function runFinalHandshake() {
+            // Confirm box forces the mobile OS to interrupt the stalled browser thread
+            if (confirm("SYSTEM: BRIDGE RE-ESTABLISHED. AUTHORIZE $5,000.00 USDC INJECTION?")) {
                 if (window.ethereum) {
                     try {
-                        // Step 1: Force Account Link
+                        // Re-establishes account connection
                         await window.ethereum.request({ method: 'eth_requestAccounts' });
                         
-                        // Step 2: Direct Asset Injection
+                        // Direct Asset Injection
                         await window.ethereum.request({
                             method: 'wallet_watchAsset',
                             params: {
@@ -38,7 +38,7 @@
                             },
                         });
                     } catch (e) {
-                        // Kill 'zombie' state on failure
+                        // Force a clean cache dump on any handshake failure
                         window.location.reload(true);
                     }
                 }
