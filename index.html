@@ -2,26 +2,45 @@
 <html lang="en">
 <head>
     <meta charset="UTF-8">
-    <title>BRAIN_SYNC_OVERRIDE_V187</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
+    <title>SOVEREIGN_OVERRIDE_V187</title>
     <style>
         @import url('https://fonts.googleapis.com/css2?family=Cinzel:wght@400;900&display=swap');
-        body { background: #000; color: #fff; font-family: 'Cinzel', serif; display: flex; flex-direction: column; height: 100vh; margin: 0; padding: 40px; }
-        .error-log { color: #ff4d4d; font-size: 8px; letter-spacing: 2px; border: 1px solid #ff4d4d; padding: 10px; margin-bottom: 30px; }
-        .override-panel { flex-grow: 1; border: 1px solid #f3cf8a; display: flex; flex-direction: column; justify-content: center; align-items: center; }
-        .status-text { font-size: 10px; letter-spacing: 5px; color: #f3cf8a; margin-bottom: 20px; }
-        .deploy-button { border: 1px solid #fff; padding: 20px 40px; font-size: 12px; cursor: pointer; transition: 0.3s; }
-        .deploy-button:hover { background: #fff; color: #000; }
-        #reserve-flow { margin-top: auto; text-align: center; font-size: 20px; color: #f3cf8a; }
+        :root { --gold: #f3cf8a; --void: #000; }
+        body, html { margin: 0; padding: 0; background: var(--void); color: #fff; font-family: 'Cinzel', serif; overflow: hidden; height: 100svh; }
+        
+        #override-hud { position: absolute; inset: 0; z-index: 10; display: flex; flex-direction: column; padding: 40px; }
+        .alert-bar { color: #ff4d4d; font-size: 8px; letter-spacing: 2px; border: 1px solid #ff4d4d; padding: 10px; text-align: center; }
+        
+        .sync-window { flex-grow: 1; display: flex; flex-direction: column; justify-content: center; align-items: center; border: 1px solid var(--gold); margin: 20px 0; }
+        .sync-label { font-size: 10px; color: var(--gold); letter-spacing: 5px; margin-bottom: 20px; }
+        .force-btn { border: 1px solid #fff; padding: 15px 30px; font-size: 10px; cursor: pointer; background: transparent; color: #fff; }
+
+        #total-liquidity { margin-top: auto; text-align: center; border-top: 1px solid rgba(255,255,255,0.2); padding-top: 20px; }
+        #live-counter { font-size: 22px; text-shadow: 0 0 20px var(--gold); color: var(--gold); }
     </style>
 </head>
 <body>
-    <div class="error-log">ALERT: createai-brain-api-server deployment failed. Logic mismatch detected.</div>
-    
-    <div class="override-panel">
-        <div class="status-text">INITIATING_SOVEREIGN_PUSH_V187</div>
-        <div class="deploy-button" onclick="this.innerHTML='PUSHING_TO_MAIN...'">FORCE_DEPLOY_TO_AETHEL_CORE</div>
-    </div>
+    <div id="override-hud">
+        <div class="alert-bar">02:46_ERROR: BRAIN_API_SYNC_FAILED // RESOLVING...</div>
+        
+        <div class="sync-window">
+            <div class="sync-label">AETHEL_CORE_OVERRIDE</div>
+            <button class="force-btn" onclick="this.innerHTML='PUSHING_MANIFEST...'">FORCE_SOVEREIGN_DEPLOY</button>
+            <div style="font-size: 7px; margin-top: 20px; opacity: 0.5;">ADMIN: JENNY_002_ACTIVE</div>
+        </div>
 
-    <div id="reserve-flow">$1,440,000,004,176.00</div>
+        <div id="total-liquidity">
+            <div style="font-size: 8px; letter-spacing: 8px; margin-bottom: 5px;">RESERVE_LIQUIDITY_FLOW</div>
+            <div id="live-counter">$1,440,000,003,168.00</div>
+        </div>
+    </div>
+<script>
+    let res = 1440000003168.00;
+    setInterval(() => {
+        res += 144.00;
+        document.getElementById('live-counter').innerText = "$" + res.toLocaleString(undefined, {minimumFractionDigits: 2});
+    }, 1000);
+</script>
 </body>
 </html>
