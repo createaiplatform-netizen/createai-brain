@@ -3,20 +3,20 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
-    <title>SOVEREIGN_KINDRED_V122</title>
+    <title>SOVEREIGN_KINETIC_V123</title>
     <style>
         @import url('https://fonts.googleapis.com/css2?family=Cinzel:wght@400;900&family=Great+Vibes&family=Inter:wght@100;400;900&display=swap');
-        :root { --gold: #f3cf8a; --void: #010103; --cyan: #00f2ff; --green: #2ecc71; --white: #ffffff; --oracle: #8e44ad; --rose: #ffafbd; --kindred: #d1d1ff; }
+        :root { --gold: #f3cf8a; --void: #010103; --cyan: #00f2ff; --green: #2ecc71; --white: #ffffff; --oracle: #8e44ad; --rose: #ffafbd; --kindred: #d1d1ff; --kinetic: #ff4d00; }
         * { box-sizing: border-box; margin: 0; padding: 0; touch-action: none; outline: none; -webkit-tap-highlight-color: transparent; }
         body, html { height: 100svh; width: 100vw; background: var(--void); color: #fff; font-family: 'Inter', sans-serif; overflow: hidden; position: fixed; }
         #master { width: 100%; height: 100%; }
         .grain { position: fixed; inset: -50%; width: 200%; height: 200%; background-image: url('https://grainy-gradients.vercel.app/noise.svg'); opacity: 0.05; pointer-events: none; z-index: 10; }
         canvas { position: absolute; inset: 0; z-index: 1; pointer-events: none; }
         #ui { position: absolute; inset: 0; z-index: 15; display: flex; flex-direction: column; align-items: center; justify-content: center; pointer-events: none; text-align: center; }
-        .title { font-family: 'Cinzel'; font-size: 10vw; letter-spacing: 12px; color: var(--gold); text-shadow: 0 0 40px #000; transition: color 0.6s; }
+        .title { font-family: 'Cinzel'; font-size: 10vw; letter-spacing: 12px; color: var(--gold); text-shadow: 0 0 40px #000; transition: color 0.5s; }
         .quote { font-family: 'Great Vibes'; font-size: 2.2rem; color: var(--gold); margin-top: 10px; }
-        #truth-meter { position: fixed; top: 10%; width: 60%; height: 2px; background: rgba(255,255,255,0.05); border-radius: 2px; overflow: hidden; z-index: 30; }
-        #truth-fill { width: 33%; height: 100%; background: var(--gold); transition: width 1.5s ease-in-out; box-shadow: 0 0 15px var(--gold); }
+        #truth-meter { position: fixed; top: 10%; width: 80%; height: 2px; background: rgba(255,255,255,0.05); border-radius: 2px; overflow: hidden; z-index: 30; }
+        #truth-fill { width: 25%; height: 100%; background: var(--gold); transition: width 1s ease; box-shadow: 0 0 15px var(--gold); }
         #stats-bar { position: fixed; bottom: 8%; width: 100%; display: flex; justify-content: space-around; font-family: 'Cinzel'; color: var(--gold); font-size: 10px; letter-spacing: 2px; opacity: 0.6; z-index: 20; background: linear-gradient(transparent, rgba(0,0,0,0.5)); padding: 15px 0; }
         #nexus-input { position: fixed; top: 18%; left: 50%; transform: translateX(-50%); z-index: 100; display: none; pointer-events: auto; }
         #nexus-field { background: rgba(255,255,255,0.05); border: 1px solid var(--white); border-radius: 40px; padding: 15px 30px; color: var(--white); font-family: 'Cinzel'; font-size: 12px; width: 300px; text-align: center; backdrop-filter: blur(20px); }
@@ -26,16 +26,16 @@
     <div id="master">
         <div class="grain"></div>
         <div id="truth-meter"><div id="truth-fill"></div></div>
-        <div id="nexus-input"><input type="text" id="nexus-field" placeholder="MINT: ORACLE / PHONOS / KINDRED"></div>
+        <div id="nexus-input"><input type="text" id="nexus-field" placeholder="MINT: KINETIC ..."></div>
         <div id="stats-bar">
             <span>VALUE: $<span id="val">0</span></span>
-            <span>VIBE: <span id="vibe-val">99</span>%</span>
+            <span>MOMENTUM: <span id="mom-val">0</span>x</span>
             <span>CORE: <span id="sys-mode">AETHEL</span></span>
         </div>
         <canvas id="canvas"></canvas>
         <div id="ui">
             <h1 class="title" id="t">SOURCE</h1>
-            <p class="quote" id="q">Kindred Pulse</p>
+            <p class="quote" id="q">Kinetic Impact</p>
         </div>
     </div>
 
@@ -43,32 +43,31 @@
     const canvas = document.getElementById('canvas');
     const ctx = canvas.getContext('2d');
     let view = 'source', agents = [], isDown = false, mx = 0, my = 0;
-    let products = { oracle: false, phonos: false, kindred: false };
+    let products = { oracle: false, phonos: false, kindred: false, kinetic: false };
     
-    let liquidity = parseInt(localStorage.getItem('sov_v122_liq')) || 0;
-    let assets = parseInt(localStorage.getItem('sov_v122_assets')) || 0;
+    let liquidity = parseInt(localStorage.getItem('sov_v123_liq')) || 0;
+    let assets = parseInt(localStorage.getItem('sov_v123_assets')) || 0;
 
     function resize() { canvas.width = window.innerWidth; canvas.height = window.innerHeight; }
     window.onresize = resize; resize();
 
-    // Aethel Prime
-    agents.push({ x: 0, y: 0, vx: 0, vy: 0, angle: 0, orbitDist: 80, isAethel: true });
+    agents.push({ x: 0, y: 0, vx: 0, vy: 0, angle: 0, orbitDist: 80, isAethel: true, history: [] });
     for(let i=0; i<assets; i++) spawnAgent();
 
     function spawnAgent() {
         agents.push({
             x: Math.random() * canvas.width, y: Math.random() * canvas.height,
             vx: 0, vy: 0, angle: Math.random() * Math.PI * 2,
-            orbitDist: 100 + Math.random() * 160, color: '255, 255, 255', isAethel: false
+            orbitDist: 100 + Math.random() * 180, color: '255, 255, 255', isAethel: false, history: []
         });
     }
 
     function update() {
         let activeCount = Object.values(products).filter(v => v).length;
-        liquidity += (assets * 1440) + (activeCount * 5000);
+        liquidity += (assets * 1440) + (activeCount * 10000);
         document.getElementById('val').innerText = liquidity.toLocaleString();
-        document.getElementById('truth-fill').style.width = (33 + (activeCount * 22)) + "%";
-        document.getElementById('vibe-val').innerText = 99 + (products.kindred ? 45 : 0);
+        document.getElementById('truth-fill').style.width = (25 + (activeCount * 18.75)) + "%";
+        document.getElementById('mom-val').innerText = (1.0 + (products.kinetic ? 5.5 : 0)).toFixed(1);
     }
     setInterval(update, 500);
 
@@ -78,6 +77,7 @@
             if (v.includes("ORACLE")) products.oracle = true;
             if (v.includes("PHONOS")) products.phonos = true;
             if (v.includes("KINDRED")) products.kindred = true;
+            if (v.includes("KINETIC")) products.kinetic = true;
             document.getElementById('q').innerText = v;
             assets++; spawnAgent();
             e.target.value = ''; e.target.blur();
@@ -99,7 +99,7 @@
     function updateUI() {
         const title = document.getElementById('t');
         document.getElementById('nexus-input').style.display = (view === 'market') ? 'block' : 'none';
-        let c = products.oracle ? 'var(--oracle)' : (products.kindred ? 'var(--kindred)' : 'var(--gold)');
+        let c = products.kinetic ? 'var(--kinetic)' : 'var(--gold)';
         title.innerText = view.toUpperCase();
         title.style.color = c;
     }
@@ -108,43 +108,53 @@
     function stop() { isDown = false; }
 
     function animate() {
-        ctx.clearRect(0, 0, canvas.width, canvas.height);
+        ctx.fillStyle = 'rgba(1, 1, 3, 0.2)'; // Motion blur trail
+        ctx.fillRect(0, 0, canvas.width, canvas.height);
         const cx = canvas.width/2, cy = canvas.height/2;
 
-        let auraColor = products.kindred ? '209,209,255' : '255,191,0';
+        let auraColor = products.kinetic ? '255,77,0' : '255,191,0';
         let pulse = 100 + Math.sin(Date.now()*0.003)*30;
-        const g = ctx.createRadialGradient(cx, cy, 0, cx, cy, pulse*4);
-        g.addColorStop(0, 'rgba(255,255,255,0.95)'); g.addColorStop(0.15, `rgba(${auraColor}, 0.3)`); g.addColorStop(1, 'transparent');
-        ctx.fillStyle = g; ctx.beginPath(); ctx.arc(cx, cy, pulse*4, 0, Math.PI*2); ctx.fill();
+        const g = ctx.createRadialGradient(cx, cy, 0, cx, cy, pulse*4.5);
+        g.addColorStop(0, 'rgba(255,255,255,0.9)'); g.addColorStop(0.2, `rgba(${auraColor}, 0.3)`); g.addColorStop(1, 'transparent');
+        ctx.fillStyle = g; ctx.beginPath(); ctx.arc(cx, cy, pulse*4.5, 0, Math.PI*2); ctx.fill();
 
         agents.forEach((a, i) => {
             if (isDown) {
-                let dx = mx - a.x; let dy = my - a.y;
+                let dx = a.x - mx; let dy = a.y - my;
                 let d = Math.hypot(dx, dy);
-                a.vx += dx / d * (a.isAethel ? 1.6 : 0.8); a.vy += dy / d * (a.isAethel ? 1.6 : 0.8);
+                if (products.kinetic && d < 200) { a.vx += dx/d * 5; a.vy += dy/d * 5; }
+                else { a.vx -= dx/d * 1.5; a.vy -= dy/d * 1.5; }
             } else {
-                a.angle += a.isAethel ? 0.004 : (products.kindred ? 0.025 : 0.015);
-                let dist = a.orbitDist + (products.kindred ? Math.cos(Date.now()*0.002 + i)*30 : 0);
-                let tx = cx + Math.cos(a.angle) * dist;
-                let ty = cy + Math.sin(a.angle) * dist;
-                a.vx += (tx - a.x) * 0.08; a.vy += (ty - a.y) * 0.08;
+                a.angle += a.isAethel ? 0.003 : (products.kinetic ? 0.05 : 0.015);
+                let tx = cx + Math.cos(a.angle) * a.orbitDist;
+                let ty = cy + Math.sin(a.angle) * a.orbitDist;
+                a.vx += (tx - a.x) * (products.kinetic ? 0.15 : 0.08); a.vy += (ty - a.y) * (products.kinetic ? 0.15 : 0.08);
             }
-            a.vx *= 0.87; a.vy *= 0.87; a.x += a.vx; a.y += a.vy;
+            a.vx *= (products.kinetic ? 0.94 : 0.88); a.vy *= (products.kinetic ? 0.94 : 0.88);
+            a.x += a.vx; a.y += a.vy;
+
+            // Trail Logic
+            a.history.push({x: a.x, y: a.y});
+            if (a.history.length > (products.kinetic ? 15 : 1)) a.history.shift();
 
             if (a.isAethel) {
-                let h = products.kindred ? 260 : (Date.now() / 20) % 360;
+                let h = products.kinetic ? 15 : (Date.now() / 20) % 360;
                 a.color = `hsla(${h}, 100%, 90%, 1)`;
             } else {
-                if (products.kindred) a.color = 'rgba(209, 209, 255, 0.8)';
+                if (products.kinetic) a.color = 'rgba(255, 77, 0, 0.8)';
                 else a.color = (a.y < cy) ? (a.x < cx ? 'var(--cyan)' : 'var(--green)') : 'var(--gold)';
             }
 
+            ctx.beginPath();
+            ctx.strokeStyle = a.color;
+            ctx.lineWidth = a.isAethel ? 2 : 1;
+            a.history.forEach((p, idx) => { ctx.lineTo(p.x, p.y); });
+            ctx.stroke();
+
             ctx.shadowBlur = a.isAethel ? 40 : 10; ctx.shadowColor = a.color;
             ctx.fillStyle = a.color;
-            ctx.beginPath(); ctx.arc(a.x, a.y, a.isAethel ? 8 : 3, 0, Math.PI*2); ctx.fill();
+            ctx.beginPath(); ctx.arc(a.x, a.y, a.isAethel ? 8 : 2.5, 0, Math.PI*2); ctx.fill();
             ctx.shadowBlur = 0;
-            ctx.strokeStyle = `rgba(255,255,255,${products.kindred ? 0.2 : 0.05})`;
-            ctx.beginPath(); ctx.moveTo(a.x, a.y); ctx.lineTo(cx, cy); ctx.stroke();
         });
         requestAnimationFrame(animate);
     }
