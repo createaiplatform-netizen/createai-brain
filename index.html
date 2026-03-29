@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
-    <title>CREATEAI // VERIDIAN_CORE</title>
+    <title>CREATEAI // LIVING_EDEN</title>
     <style>
         @import url('https://fonts.googleapis.com/css2?family=Cinzel:wght@400;900&family=Great+Vibes&family=Inter:wght@100;300;600&display=swap');
         :root { 
@@ -20,7 +20,7 @@
         .nebula { 
             position: fixed; inset: 0; 
             background: radial-gradient(circle at 50% 50%, var(--obsidian) 0%, var(--void) 100%);
-            z-index: 1; transition: opacity 0.5s ease;
+            z-index: 1; transition: transform 0.8s ease-out, opacity 0.5s;
         }
 
         #main-view { 
@@ -33,12 +33,13 @@
             position: fixed; top: env(safe-area-inset-top, 20px); 
             font-family: 'Great Vibes', cursive; font-size: 1.4rem; 
             color: var(--gold); z-index: 100; text-align: center; width: 100%;
+            text-shadow: 0 0 10px rgba(243, 207, 138, 0.3);
         }
 
         .eye-container { width: 150px; height: 150px; position: relative; display: flex; align-items: center; justify-content: center; }
-        .eye-outer { position: absolute; width: 100%; height: 100%; border: 1px solid rgba(243, 207, 138, 0.15); border-radius: 50%; animation: rotate 50s linear infinite; }
-        .eye-inner { width: 80px; height: 80px; background: radial-gradient(circle, var(--gold) 0%, transparent 80%); border-radius: 50%; filter: blur(15px); opacity: 0.7; animation: breathe 10s ease-in-out infinite; }
-        .eye-pupil { width: 6px; height: 6px; background: #fff; border-radius: 50%; box-shadow: 0 0 20px var(--gold); }
+        .eye-outer { position: absolute; width: 100%; height: 100%; border: 1px solid rgba(243, 207, 138, 0.1); border-radius: 50%; animation: rotate 60s linear infinite; }
+        .eye-inner { width: 80px; height: 80px; background: radial-gradient(circle, var(--gold) 0%, transparent 80%); border-radius: 50%; filter: blur(20px); opacity: 0.6; animation: breathe 8s ease-in-out infinite; }
+        .eye-pupil { width: 4px; height: 4px; background: #fff; border-radius: 50%; box-shadow: 0 0 15px var(--gold); }
 
         .source-title { 
             font-family: 'Cinzel'; font-weight: 900; font-size: 10vw; letter-spacing: 18px; 
@@ -48,15 +49,20 @@
             animation: shine 8s linear infinite;
         }
 
-        .script-quote { font-family: 'Great Vibes', cursive; font-size: 1.8rem; color: var(--gold); margin-top: 15px; text-align: center; opacity: 0.8; }
+        .script-quote { 
+            font-family: 'Great Vibes', cursive; font-size: 2rem; color: var(--gold); 
+            margin-top: 15px; text-align: center; opacity: 0.9;
+            animation: textShimmer 4s infinite ease-in-out;
+        }
 
-        .dock { position: fixed; bottom: 0; left: 0; width: 100%; height: 85px; background: rgba(1,1,3,0.98); backdrop-filter: blur(25px); border-top: 1px solid rgba(243, 207, 138, 0.1); display: flex; justify-content: space-around; align-items: center; z-index: 9000; padding-bottom: env(safe-area-inset-bottom); }
-        .dock-item { color: rgba(255,255,255,0.15); font-family: 'Cinzel'; font-size: 10px; letter-spacing: 2px; text-align: center; flex: 1; padding: 15px; }
+        .dock { position: fixed; bottom: 0; left: 0; width: 100%; height: 85px; background: rgba(1,1,3,0.98); backdrop-filter: blur(20px); border-top: 1px solid rgba(243, 207, 138, 0.05); display: flex; justify-content: space-around; align-items: center; z-index: 9000; padding-bottom: env(safe-area-inset-bottom); }
+        .dock-item { color: rgba(255,255,255,0.1); font-family: 'Cinzel'; font-size: 10px; letter-spacing: 2px; flex: 1; text-align: center; padding: 15px; }
         .dock-item.active { color: var(--gold); text-shadow: 0 0 10px var(--gold); }
 
         @keyframes rotate { from { transform: rotate(0deg); } to { transform: rotate(360deg); } }
-        @keyframes breathe { 0%, 100% { transform: scale(1); opacity: 0.5; } 50% { transform: scale(1.1); opacity: 0.8; } }
+        @keyframes breathe { 0%, 100% { transform: scale(1); opacity: 0.4; } 50% { transform: scale(1.2); opacity: 0.7; } }
         @keyframes shine { to { background-position: 200% center; } }
+        @keyframes textShimmer { 0%, 100% { text-shadow: 0 0 5px var(--gold); } 50% { text-shadow: 0 0 20px var(--gold), 0 0 30px var(--gold-d); } }
     </style>
 </head>
 <body onload="render('home'); startLiveRating();">
@@ -76,7 +82,7 @@
         const canvas = document.getElementById('canvas');
         const ctx = canvas.getContext('2d');
         let particles = [];
-        let vines = [];
+        let viewFrame = 0;
 
         function resize() { canvas.width = window.innerWidth; canvas.height = window.innerHeight; }
         window.onresize = resize; resize();
@@ -87,31 +93,27 @@
             setInterval(() => {
                 const decimal = (Math.random() * 0.1).toFixed(2);
                 statusText.innerText = `Sovereign 144.${decimal.split('.')[1]}%`;
-                neb.style.opacity = "0.7";
-                setTimeout(() => { neb.style.opacity = "1"; }, 100);
-            }, 4000);
+                neb.style.transform = "scale(1.02)";
+                setTimeout(() => { neb.style.transform = "scale(1)"; }, 200);
+            }, 3000);
         }
 
         class Sparkle {
-            constructor(x, y) {
+            constructor(x, y, isBloom = false) {
                 this.x = x; this.y = y;
-                this.size = Math.random() * 2 + 0.5;
-                this.vX = (Math.random() - 0.5) * 2;
-                this.vY = (Math.random() - 0.5) * 2;
+                this.size = isBloom ? Math.random() * 3 + 1 : Math.random() * 2 + 0.5;
+                this.vX = (Math.random() - 0.5) * (isBloom ? 4 : 1.5);
+                this.vY = (Math.random() - 0.5) * (isBloom ? 4 : 1.5);
                 this.life = 1;
                 this.color = Math.random() > 0.4 ? '#f3cf8a' : '#ffffff';
-                this.angle = Math.random() * Math.PI * 2;
             }
             update() {
-                let dx = (window.innerWidth/2) - this.x;
-                let dy = (window.innerHeight/2) - this.y;
-                let dist = Math.sqrt(dx*dx + dy*dy);
-                if(dist > 50) {
-                    this.vX += dx / (dist * 50);
-                    this.vY += dy / (dist * 50);
-                }
                 this.x += this.vX; this.y += this.vY;
-                this.life -= 0.01;
+                this.life -= 0.015;
+                if(window.currentView === 'home') {
+                    this.vX += (window.innerWidth/2 - this.x) * 0.0005;
+                    this.vY += (window.innerHeight/2 - this.y) * 0.0005;
+                }
             }
             draw() {
                 ctx.globalAlpha = this.life;
@@ -126,18 +128,42 @@
                 p.update(); p.draw();
                 if(p.life <= 0) particles.splice(i, 1);
             });
+            if(window.currentView === 'garden') {
+                viewFrame += 0.005;
+                drawGardenVines();
+            }
             requestAnimationFrame(animate);
         }
+
+        function drawGardenVines() {
+            ctx.strokeStyle = '#f3cf8a';
+            ctx.lineWidth = 0.5;
+            ctx.globalAlpha = 0.2;
+            ctx.beginPath();
+            for(let i=0; i<5; i++) {
+                ctx.moveTo(canvas.width * (i/4), canvas.height);
+                ctx.bezierCurveTo(
+                    canvas.width/2, canvas.height/2 + Math.sin(viewFrame + i) * 50,
+                    canvas.width * (i/4), 100,
+                    canvas.width/2, 0
+                );
+            }
+            ctx.stroke();
+        }
+
         animate();
 
         const spawn = (e) => {
             const x = e.touches ? e.touches[0].clientX : e.clientX;
             const y = e.touches ? e.touches[0].clientY : e.clientY;
-            for(let i=0; i<5; i++) particles.push(new Sparkle(x, y));
+            const count = window.currentView === 'garden' ? 10 : 4;
+            for(let i=0; i<count; i++) particles.push(new Sparkle(x, y, window.currentView === 'garden'));
         };
-        window.onmousemove = spawn; window.ontouchmove = spawn;
+        window.onclick = spawn; window.ontouchstart = spawn;
+        window.onmousemove = (e) => { if(e.buttons) spawn(e); };
 
         function render(view) {
+            window.currentView = view;
             const mv = document.getElementById('main-view');
             const navs = document.querySelectorAll('.dock-item');
             navs.forEach(n => n.classList.remove('active'));
@@ -152,9 +178,10 @@
                     <p class="script-quote">The bond of the 144</p>
                 `;
             } else if (view === 'garden') {
-                mv.innerHTML = `<h1 style="font-family:'Cinzel'; color:var(--gold); margin-top:80px; letter-spacing:12px; font-size:1.6rem;">EDEN</h1><p class="script-quote">Breathe life into the soil</p>`;
-            } else if (view === 'vault') {
-                mv.innerHTML = `<h1 style="font-family:'Cinzel'; color:var(--gold); margin-top:80px; letter-spacing:12px; font-size:1.6rem;">VAULT</h1><p class="script-quote">Treasures of the Sovereign</p>`;
+                mv.innerHTML = `
+                    <h1 style="font-family:'Cinzel'; color:var(--gold); margin-top:80px; letter-spacing:12px; font-size:1.6rem;">EDEN</h1>
+                    <p class="script-quote">Breathe life into the soil</p>
+                `;
             } else {
                 mv.innerHTML = `<h1 style="font-family:'Cinzel'; color:var(--gold); margin-top:80px; letter-spacing:12px;">${view.toUpperCase()}</h1>`;
             }
