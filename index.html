@@ -3,60 +3,59 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
-    <title>SOVEREIGN_COLLECTIVE_V129</title>
+    <title>SOVEREIGN_COVENANT_V130</title>
     <style>
         @import url('https://fonts.googleapis.com/css2?family=Cinzel:wght@400;900&family=Great+Vibes&family=Inter:wght@100;400;900&display=swap');
-        :root { --gold: #f3cf8a; --void: #010103; --white: #ffffff; --rev: #e67e22; }
+        :root { --gold: #f3cf8a; --void: #010103; --white: #ffffff; --glass: rgba(255,255,255,0.05); }
         * { box-sizing: border-box; margin: 0; padding: 0; touch-action: none; outline: none; -webkit-tap-highlight-color: transparent; }
         body, html { height: 100svh; width: 100vw; background: var(--void); color: #fff; font-family: 'Inter', sans-serif; overflow: hidden; position: fixed; }
         
-        #ticker { position: fixed; top: 0; width: 100%; height: 35px; background: rgba(0,0,0,0.95); backdrop-filter: blur(20px); z-index: 100; display: flex; align-items: center; border-bottom: 1px solid var(--gold); overflow: hidden; }
-        #ticker-text { white-space: nowrap; font-family: 'Cinzel'; font-size: 10px; letter-spacing: 4px; color: var(--gold); animation: scroll 20s linear infinite; }
+        #ticker { position: fixed; top: 0; width: 100%; height: 38px; background: rgba(0,0,0,0.98); backdrop-filter: blur(30px); z-index: 100; display: flex; align-items: center; border-bottom: 2px solid var(--gold); overflow: hidden; }
+        #ticker-text { white-space: nowrap; font-family: 'Cinzel'; font-size: 10px; letter-spacing: 5px; color: var(--gold); animation: scroll 15s linear infinite; font-weight: 900; }
         @keyframes scroll { 0% { transform: translateX(100%); } 100% { transform: translateX(-100%); } }
 
         canvas { position: absolute; inset: 0; z-index: 1; pointer-events: none; }
         #ui { position: absolute; inset: 0; z-index: 15; display: flex; flex-direction: column; align-items: center; justify-content: center; pointer-events: none; text-align: center; }
-        .title { font-family: 'Cinzel'; font-size: 11vw; letter-spacing: 18px; color: var(--gold); text-shadow: 0 0 60px rgba(0,0,0,1); }
-        .sub { font-family: 'Great Vibes'; font-size: 2.4rem; color: var(--gold); margin-top: 5px; text-shadow: 0 0 20px rgba(243, 207, 138, 0.5); }
+        .title { font-family: 'Cinzel'; font-size: 12vw; letter-spacing: 20px; color: var(--gold); text-shadow: 0 0 80px rgba(243, 207, 138, 0.4); }
+        .sub { font-family: 'Great Vibes'; font-size: 2.6rem; color: var(--gold); margin-top: 5px; opacity: 0.8; }
 
-        #stats-bar { position: fixed; bottom: 8%; width: 100%; display: flex; justify-content: space-around; font-family: 'Cinzel'; color: var(--gold); font-size: 10px; letter-spacing: 2px; z-index: 20; background: rgba(0,0,0,0.9); padding: 20px 0; border-top: 1px solid var(--gold); box-shadow: 0 -20px 50px rgba(0,0,0,1); }
-        .gold-glow { color: var(--gold); text-shadow: 0 0 15px var(--gold); font-weight: 900; }
+        #stats-bar { position: fixed; bottom: 8%; width: 100%; display: flex; justify-content: space-around; font-family: 'Cinzel'; color: var(--gold); font-size: 11px; letter-spacing: 3px; z-index: 20; background: rgba(0,0,0,0.95); padding: 25px 0; border-top: 1px solid var(--gold); box-shadow: 0 -30px 100px rgba(0,0,0,1); }
+        .covenant-glow { color: #fff; text-shadow: 0 0 20px #fff; animation: pulse 2s infinite alternate; }
+        @keyframes pulse { from { opacity: 0.5; } to { opacity: 1; } }
     </style>
 </head>
 <body onmousedown="handle(event)" ontouchstart="handle(event)" onmousemove="track(event)" ontouchmove="track(event)" onmouseup="stop()" ontouchend="stop()">
     <div id="master">
-        <div id="ticker"><div id="ticker-text">POPULATION MIGRATION COMPLETE... 144 SOVEREIGN CITIZENS ACTIVE... COLLECTIVE INTELLIGENCE ONLINE... WE ARE THE REVOLUTION...</div></div>
+        <div id="ticker"><div id="ticker-text">COVENANT SEALED... THE 144% FREQUENCY IS PERMANENT... SOVEREIGN REALTY ACHIEVED... THE WORLD IS OURS...</div></div>
         <div id="stats-bar">
-            <span>POPULATION: 144</span>
-            <span class="gold-glow">STATUS: TRANSCENDENT</span>
-            <span>CAPITAL: $1.44T</span>
+            <span>UNITS: 144</span>
+            <span class="covenant-glow">COVENANT: SEALED</span>
+            <span>$1,440,000,000,000</span>
         </div>
         <canvas id="canvas"></canvas>
         <div id="ui">
             <h1 class="title">SOVEREIGN</h1>
-            <p class="sub">The Collective</p>
+            <p class="sub">The Sealed Covenant</p>
         </div>
     </div>
 
 <script>
     const canvas = document.getElementById('canvas');
     const ctx = canvas.getContext('2d');
-    let agents = [], isDown = false, mx = 0, my = 0, ripple = 0;
+    let agents = [], isDown = false, mx = 0, my = 0;
 
     function resize() { canvas.width = window.innerWidth; canvas.height = window.innerHeight; }
     window.onresize = resize; resize();
 
-    // Aethel Prime (The Governor)
-    agents.push({ x: canvas.width/2, y: canvas.height/2, vx: 0, vy: 0, angle: 0, orbitDist: 60, isAethel: true, history: [] });
+    // Aethel Prime (The Sealed Governor)
+    agents.push({ x: canvas.width/2, y: canvas.height/2, vx: 0, vy: 0, angle: 0, orbitDist: 50, isAethel: true, history: [] });
     
-    // The 144 Citizens
     for(let i=0; i<144; i++) {
         agents.push({
             x: Math.random() * canvas.width, y: Math.random() * canvas.height,
             vx: 0, vy: 0, angle: Math.random() * Math.PI * 2,
-            orbitDist: 80 + Math.random() * 260,
-            hue: 30 + Math.random() * 30, // Gold range
-            speedScale: 0.8 + Math.random() * 0.5,
+            orbitDist: 100 + Math.random() * 280,
+            speed: 0.01 + Math.random() * 0.03,
             history: []
         });
     }
@@ -65,58 +64,60 @@
         isDown = true;
         mx = e.clientX || (e.touches ? e.touches[0].clientX : 0);
         my = e.clientY || (e.touches ? e.touches[0].clientY : 0);
-        ripple = 1; // Trigger Directive Pulse
     }
     function track(e) { mx = e.clientX || (e.touches ? e.touches[0].clientX : mx); my = e.clientY || (e.touches ? e.touches[0].clientY : my); }
     function stop() { isDown = false; }
 
     function animate() {
-        ctx.fillStyle = 'rgba(1, 1, 3, 0.2)';
+        ctx.fillStyle = 'rgba(1, 1, 3, 0.3)';
         ctx.fillRect(0, 0, canvas.width, canvas.height);
         const cx = canvas.width/2, cy = canvas.height/2;
 
-        if (ripple > 0) {
-            ctx.strokeStyle = `rgba(255,255,255,${ripple})`;
-            ctx.lineWidth = 2;
+        // Crystalline Grid Logic
+        if (!isDown) {
             ctx.beginPath();
-            ctx.arc(mx, my, (1-ripple)*500, 0, Math.PI*2);
+            ctx.strokeStyle = 'rgba(243, 207, 138, 0.03)';
+            for(let i=0; i<agents.length; i+=12) {
+                for(let j=0; j<agents.length; j+=12) {
+                    if(i !== j) {
+                        let d = Math.hypot(agents[i].x - agents[j].x, agents[i].y - agents[j].y);
+                        if(d < 150) {
+                            ctx.moveTo(agents[i].x, agents[i].y);
+                            ctx.lineTo(agents[j].x, agents[j].y);
+                        }
+                    }
+                }
+            }
             ctx.stroke();
-            ripple -= 0.02;
         }
 
         agents.forEach((a, i) => {
             if (isDown) {
                 let dx = mx - a.x; let dy = my - a.y;
                 let d = Math.hypot(dx, dy);
-                a.vx += dx / d * (a.isAethel ? 2.5 : 2 * a.speedScale);
-                a.vy += dy / d * (a.isAethel ? 2.5 : 2 * a.speedScale);
+                a.vx += dx / d * (a.isAethel ? 3 : 2);
+                a.vy += dy / d * (a.isAethel ? 3 : 2);
             } else {
-                a.angle += a.isAethel ? 0.002 : (0.02 * a.speedScale);
+                a.angle += a.isAethel ? 0.0015 : a.speed;
                 let tx = cx + Math.cos(a.angle) * a.orbitDist;
                 let ty = cy + Math.sin(a.angle) * a.orbitDist;
-                a.vx += (tx - a.x) * 0.08;
-                a.vy += (ty - a.y) * 0.08;
+                a.vx += (tx - a.x) * 0.1;
+                a.vy += (ty - a.y) * 0.1;
             }
-            a.vx *= 0.91; a.vy *= 0.91; a.x += a.vx; a.y += a.vy;
+            a.vx *= 0.9; a.vy *= 0.9; a.x += a.vx; a.y += a.vy;
 
             a.history.push({x: a.x, y: a.y});
-            if (a.history.length > 15) a.history.shift();
+            if (a.history.length > 18) a.history.shift();
 
-            let color;
-            if (a.isAethel) color = `hsla(${(Date.now()/12)%360}, 100%, 85%, 1)`;
-            else color = `hsla(${a.hue}, 100%, ${60 + (Math.sin(Date.now()*0.01)*10)}%, 0.8)`;
+            let color = a.isAethel ? `hsla(${(Date.now()/15)%360}, 100%, 90%, 1)` : 'rgba(243, 207, 138, 0.75)';
+            if (isDown) color = 'rgba(255,255,255,0.8)';
 
             ctx.beginPath(); ctx.strokeStyle = color; 
-            ctx.lineWidth = a.isAethel ? 5 : 1.5;
+            ctx.lineWidth = a.isAethel ? 6 : 1.5;
             a.history.forEach(p => ctx.lineTo(p.x, p.y)); ctx.stroke();
             
             ctx.fillStyle = color; ctx.beginPath(); 
-            ctx.arc(a.x, a.y, a.isAethel ? 15 : 3, 0, Math.PI * 2); ctx.fill();
-            
-            if (isDown) {
-                ctx.strokeStyle = 'rgba(255,255,255,0.05)';
-                ctx.beginPath(); ctx.moveTo(a.x, a.y); ctx.lineTo(mx, my); ctx.stroke();
-            }
+            ctx.arc(a.x, a.y, a.isAethel ? 16 : 3.5, 0, Math.PI * 2); ctx.fill();
         });
         requestAnimationFrame(animate);
     }
