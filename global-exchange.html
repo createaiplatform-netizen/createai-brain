@@ -5,68 +5,65 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Global Exchange | CREATEAI</title>
     <style>
-        :root { --amazon-navy: #131921; --amazon-orange: #ff9900; --bg-gray: #eaeded; }
-        body { background: var(--bg-gray); font-family: 'Arial', sans-serif; margin: 0; padding: 0; }
+        :root { --deep: #05070a; --gold: #c5a059; --glass: rgba(255, 255, 255, 0.03); }
+        body { background: var(--deep); color: #e0e0e0; font-family: 'Inter', sans-serif; margin: 0; padding: 0; }
         
-        /* Search Bar Engine */
-        .search-nav { background: var(--amazon-navy); padding: 15px; display: flex; flex-direction: column; align-items: center; }
-        .logo { color: white; font-weight: bold; font-size: 1.2rem; margin-bottom: 10px; text-decoration: none; }
-        .search-box { width: 90%; max-width: 800px; display: flex; }
-        .search-box input { flex-grow: 1; padding: 12px; border: none; border-radius: 4px 0 0 4px; font-size: 1rem; }
-        .search-box button { background: var(--amazon-orange); border: none; padding: 12px 25px; border-radius: 0 4px 4px 0; cursor: pointer; font-weight: bold; }
+        /* Mission Control Header */
+        .nav-header { padding: 30px; background: radial-gradient(circle at top, rgba(197, 160, 89, 0.1) 0%, transparent 80%); border-bottom: 1px solid rgba(197, 160, 89, 0.2); text-align: center; }
+        .system-id { font-size: 0.6rem; letter-spacing: 4px; color: var(--gold); text-transform: uppercase; margin-bottom: 15px; opacity: 0.7; }
+        
+        /* Search Engine Console */
+        .search-console { max-width: 800px; margin: 40px auto; padding: 0 20px; }
+        .search-input { width: 100%; padding: 20px; background: var(--glass); border: 1px solid rgba(255,255,255,0.1); border-radius: 2px; color: white; font-size: 1.1rem; box-sizing: border-box; }
+        .search-input:focus { outline: none; border-color: var(--gold); box-shadow: 0 0 20px rgba(197, 160, 89, 0.1); }
 
-        /* Product Grid */
-        .market-container { max-width: 1200px; margin: 20px auto; padding: 0 15px; }
-        .product-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(220px, 1fr)); gap: 20px; }
+        /* The Grid */
+        .inventory-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(250px, 1fr)); gap: 25px; padding: 40px; max-width: 1300px; margin: 0 auto; }
+        .product-node { background: var(--glass); border: 1px solid rgba(255,255,255,0.05); padding: 25px; border-radius: 2px; transition: 0.3s; position: relative; }
+        .product-node:hover { border-color: var(--gold); background: rgba(255,255,255,0.06); }
+        .product-img { width: 100%; height: 200px; object-fit: contain; margin-bottom: 20px; filter: grayscale(20%); }
+        .product-title { font-size: 0.9rem; font-weight: 300; color: #fff; margin-bottom: 10px; height: 40px; overflow: hidden; }
+        .product-price { color: var(--gold); font-weight: bold; font-size: 1.2rem; margin-bottom: 20px; }
         
-        .product-card { background: white; padding: 15px; border-radius: 8px; box-shadow: 0 1px 3px rgba(0,0,0,0.1); display: flex; flex-direction: column; transition: 0.2s; }
-        .product-card:hover { box-shadow: 0 4px 12px rgba(0,0,0,0.15); }
-        .product-img { width: 100%; height: 180px; object-fit: contain; margin-bottom: 10px; }
-        .product-title { font-size: 0.9rem; color: #0f1111; height: 40px; overflow: hidden; margin-bottom: 8px; font-weight: 500; }
-        .product-price { font-size: 1.3rem; font-weight: bold; color: #B12704; margin-bottom: 12px; }
+        .order-btn { width: 100%; padding: 12px; background: transparent; border: 1px solid var(--gold); color: var(--gold); font-size: 0.7rem; font-weight: bold; letter-spacing: 2px; cursor: pointer; text-transform: uppercase; transition: 0.3s; }
+        .order-btn:hover { background: var(--gold); color: black; }
         
-        .order-btn { background: #ffd814; border: 1px solid #fcd200; border-radius: 20px; padding: 10px; cursor: pointer; font-weight: 500; width: 100%; }
-        .order-btn:hover { background: #f7ca00; }
+        .coordinates { position: absolute; bottom: 5px; right: 10px; font-size: 0.5rem; color: rgba(255,255,255,0.1); font-family: monospace; }
     </style>
 </head>
 <body>
 
-    <nav class="search-nav">
-        <a href="index.html" class="logo">CREATEAI_GLOBAL_EXCHANGE</a>
-        <div class="search-box">
-            <input type="text" id="searchInput" placeholder="Search millions of products in the world...">
-            <button onclick="searchWorld()">SEARCH</button>
+    <header class="nav-header">
+        <div class="system-id">Node_Status: Global_Inventory_Active</div>
+        <h1 style="font-weight: 200; margin: 0; letter-spacing: -1px;">Sovereign Exchange</h1>
+    </header>
+
+    <div class="search-console">
+        <input type="text" class="search-input" placeholder="Initiate Search Across Global Inventory...">
+    </div>
+
+    <div class="inventory-grid">
+        <div class="product-node">
+            <img src="https://m.media-amazon.com/images/I/71X8X8yU-aL._AC_SX679_.jpg" class="product-img">
+            <div class="product-title">Sovereign Connectivity Node</div>
+            <div class="product-price">$89.99</div>
+            <button class="order-btn" onclick="orderNow('B09B8W5FW7')">Initialize Order</button>
+            <div class="coordinates">REF: 882-XQ</div>
         </div>
-    </nav>
 
-    <div class="market-container">
-        <div class="product-grid" id="productGrid">
-            <div class="product-card">
-                <img src="https://m.media-amazon.com/images/I/71X8X8yU-aL._AC_SX679_.jpg" class="product-img">
-                <div class="product-title">Sovereign Smart Home System</div>
-                <div class="product-price">$89.99</div>
-                <button class="order-btn" onclick="processOrder('B09B8W5FW7')">ORDER NOW</button>
-            </div>
-
-            <div class="product-card">
-                <img src="https://m.media-amazon.com/images/I/61NfHpxiZPL._AC_SX679_.jpg" class="product-img">
-                <div class="product-title">Family Connectivity Hub</div>
-                <div class="product-price">$129.00</div>
-                <button class="order-btn" onclick="processOrder('B08L5M644Y')">ORDER NOW</button>
-            </div>
+        <div class="product-node">
+            <img src="https://m.media-amazon.com/images/I/61NfHpxiZPL._AC_SX679_.jpg" class="product-img">
+            <div class="product-title">Deep Space Family Hub</div>
+            <div class="product-price">$149.00</div>
+            <button class="order-btn" onclick="orderNow('B08L5M644Y')">Initialize Order</button>
+            <div class="coordinates">REF: 104-ZA</div>
         </div>
     </div>
 
     <script>
-        function searchWorld() {
-            const query = document.getElementById('searchInput').value;
-            alert("SEARCHING GLOBAL INVENTORY FOR: " + query);
-            // This connects to the Amazon/Shopify API feed
-        }
-
-        function processOrder(asin) {
-            // This routes them through your affiliate engine to get you the commission
-            window.location.href = `https://www.amazon.com/dp/${asin}/?tag=your_tag-20`;
+        function orderNow(asin) {
+            // Direct Order Link Activation
+            window.location.href = `https://www.amazon.com/dp/${asin}/?tag=your_id-20`;
         }
     </script>
 </body>
