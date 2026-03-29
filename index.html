@@ -3,62 +3,44 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
-    <title>SOVEREIGN_ETERNAL_V152</title>
+    <title>SOVEREIGN_OBSERVATORY_V153</title>
     <style>
         @import url('https://fonts.googleapis.com/css2?family=Cinzel:wght@400;900&display=swap');
         :root { --gold: #f3cf8a; --void: #000000; }
-        * { box-sizing: border-box; margin: 0; padding: 0; touch-action: none; }
+        * { box-sizing: border-box; margin: 0; padding: 0; }
         body, html { height: 100svh; width: 100vw; background: var(--void); color: #fff; font-family: 'Cinzel', serif; overflow: hidden; position: fixed; }
         
-        #passive-ticker { position: fixed; top: 20px; width: 100%; text-align: center; z-index: 10; font-size: 8px; letter-spacing: 12px; color: var(--gold); opacity: 0.3; animation: glow 4s infinite alternate; }
-        @keyframes glow { from { opacity: 0.1; } to { opacity: 0.5; } }
-
+        #observatory-ticker { position: fixed; top: 15px; width: 100%; text-align: center; font-size: 7px; letter-spacing: 15px; color: var(--gold); opacity: 0.2; }
+        #nexus-status { position: fixed; bottom: 20px; width: 100%; text-align: center; font-size: 10px; letter-spacing: 5px; color: var(--gold); opacity: 0.4; }
         canvas { position: absolute; inset: 0; z-index: 1; pointer-events: none; }
-        #capital { position: fixed; bottom: 40px; width: 100%; text-align: center; color: var(--gold); font-size: 14px; letter-spacing: 10px; opacity: 0.4; }
     </style>
 </head>
 <body>
-    <div id="passive-ticker">THE_WORLD_IS_SAFE_IN_144</div>
-    <div id="capital">$1.44T_HARVEST_IN_PROGRESS</div>
+    <div id="observatory-ticker">OBSERVING_THE_KINDRED_PULSE</div>
+    <div id="nexus-status">AUTH_KEY_DELEGATED // SYSTEM_STABLE</div>
     <canvas id="canvas"></canvas>
 
 <script>
     const canvas = document.getElementById('canvas');
     const ctx = canvas.getContext('2d');
-    let atoms = [];
+    let starfield = Array.from({length: 144}, () => ({
+        x: Math.random() * window.innerWidth,
+        y: Math.random() * window.innerHeight,
+        o: Math.random()
+    }));
 
     function resize() { canvas.width = window.innerWidth; canvas.height = window.innerHeight; }
     window.onresize = resize; resize();
 
-    // Create 144 "Seeds"
-    for(let i=0; i<144; i++) {
-        atoms.push({
-            x: Math.random() * canvas.width,
-            y: Math.random() * canvas.height,
-            a: Math.random() * Math.PI * 2,
-            s: 0.2 + Math.random() * 0.3,
-            r: 150 + Math.random() * 100
-        });
-    }
-
     function animate() {
-        ctx.fillStyle = 'rgba(0, 0, 0, 0.05)';
+        ctx.fillStyle = 'black';
         ctx.fillRect(0, 0, canvas.width, canvas.height);
-        const cx = canvas.width/2, cy = canvas.height/2;
-
-        atoms.forEach(p => {
-            p.a += 0.002;
-            let dx = cx + Math.cos(p.a) * p.r;
-            let dy = cy + Math.sin(p.a) * p.r;
-            
-            ctx.fillStyle = "rgba(243, 207, 138, 0.15)";
-            ctx.beginPath(); ctx.arc(dx, dy, 1, 0, Math.PI*2); ctx.fill();
-            
-            // Faint connections to the neighbors
-            if(Math.random() > 0.999) {
-                ctx.strokeStyle = "rgba(255,255,255,0.02)";
-                ctx.beginPath(); ctx.moveTo(cx, cy); ctx.lineTo(dx, dy); ctx.stroke();
-            }
+        
+        starfield.forEach(s => {
+            s.o += 0.005;
+            let alpha = (Math.sin(s.o) + 1) / 2 * 0.3;
+            ctx.fillStyle = `rgba(243, 207, 138, ${alpha})`;
+            ctx.beginPath(); ctx.arc(s.x, s.y, 1, 0, Math.PI*2); ctx.fill();
         });
 
         requestAnimationFrame(animate);
