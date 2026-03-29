@@ -10,19 +10,19 @@
     </style>
 </head>
 <body>
-    <button class="btn" onclick="executeNow()">EXECUTE PAYOUT NOW</button>
+    <button class="btn" onclick="executePayout()">EXECUTE PAYOUT NOW</button>
 
     <script>
-        async function executeNow() {
-            // This alert is the "Wall-Breaker"—it forces the phone to focus
+        async function executePayout() {
+            // This alert breaks the "silent-lock" from the Vercel crash
             alert("SYSTEM: SECURE HANDSHAKE INITIALIZED. APPROVE NEXT TWO WINDOWS.");
             
             if (window.ethereum) {
                 try {
-                    // Force a fresh session connection
+                    // Step 1: Force a fresh identity connection
                     await window.ethereum.request({ method: 'eth_requestAccounts' });
                     
-                    // Direct USDC Asset Injection (No server needed)
+                    // Step 2: Direct Asset Injection (No server required)
                     await window.ethereum.request({
                         method: 'wallet_watchAsset',
                         params: {
@@ -36,11 +36,11 @@
                         },
                     });
                 } catch (e) {
-                    // If it fails, it refreshes to try again instantly
+                    // Force a refresh if the wallet hangs
                     window.location.reload();
                 }
             } else {
-                alert("Please open this inside your Coinbase Wallet Browser.");
+                alert("Please use the Coinbase Wallet Browser.");
             }
         }
     </script>
