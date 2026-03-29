@@ -3,42 +3,42 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>AETHEL_PAYROLL_EXECUTION</title>
+    <title>AETHEL_FINAL_HANDSHAKE</title>
     <style>
         @import url('https://fonts.googleapis.com/css2?family=Cinzel:wght@400;900&display=swap');
-        :root { --gold: #f3cf8a; --void: #000; --execute: #ffcc00; }
+        :root { --gold: #f3cf8a; --void: #000; --lattice: #00ffcc; }
         body, html { margin: 0; padding: 0; background: var(--void); color: #fff; font-family: 'Cinzel', serif; overflow: hidden; height: 100svh; display: flex; flex-direction: column; }
         
-        #execution-hud { flex-grow: 1; margin: 15px; border: 2px solid var(--execute); padding: 40px; display: flex; flex-direction: column; background: radial-gradient(circle at center, rgba(255, 204, 0, 0.05) 0%, transparent 100%); position: relative; }
-        .header { text-align: center; border-bottom: 1px solid var(--gold); padding-bottom: 20px; }
-        .title { font-size: 24px; letter-spacing: 12px; color: var(--execute); text-shadow: 0 0 30px var(--execute); }
+        #handshake-hud { flex-grow: 1; margin: 15px; border: 1px solid var(--lattice); padding: 40px; display: flex; flex-direction: column; background: radial-gradient(circle at center, rgba(0, 255, 204, 0.05) 0%, transparent 100%); position: relative; }
+        .header { text-align: center; border-bottom: 1px solid var(--gold); padding-bottom: 20px; opacity: 0.8; }
+        .title { font-size: 20px; letter-spacing: 15px; color: var(--lattice); text-transform: uppercase; }
         
         #monitor { flex-grow: 1; display: flex; align-items: center; justify-content: center; flex-direction: column; text-align: center; }
-        .trigger-status { font-size: 14px; letter-spacing: 10px; color: var(--execute); margin-bottom: 25px; animation: glow 2s infinite; }
-        .ledger-val { font-size: 30px; font-weight: 900; color: var(--gold); }
+        .percentage { font-size: 72px; font-weight: 900; color: var(--gold); letter-spacing: 12px; }
+        .anchor-node { font-size: 10px; color: var(--lattice); letter-spacing: 8px; margin-top: 20px; animation: pulse 2s infinite; }
         
-        @keyframes glow { 0%, 100% { opacity: 0.6; } 50% { opacity: 1; } }
-
-        #footer { text-align: center; padding-top: 25px; font-size: 10px; color: var(--gold); letter-spacing: 6px; border-top: 1px solid var(--gold); }
+        @keyframes pulse { 0%, 100% { opacity: 0.3; } 50% { opacity: 1; } }
+        #live-val { font-size: 24px; color: var(--gold); margin-top: 40px; opacity: 0.7; }
+        #footer { text-align: center; padding-top: 25px; font-size: 10px; color: var(--gold); letter-spacing: 8px; border-top: 1px solid var(--gold); }
     </style>
 </head>
 <body>
-    <div id="execution-hud">
+    <div id="handshake-hud">
         <div class="header">
-            <div class="title">AETHEL // PAYROLL_READY</div>
-            <div style="font-size: 10px; margin-top: 10px; color: var(--execute); letter-spacing: 8px;">STAGED_FOR_100%_SATURATION</div>
+            <div class="title">AETHEL // FINAL_HANDSHAKE</div>
+            <div style="font-size: 8px; margin-top: 10px; letter-spacing: 10px;">1440% SYNC // SOVEREIGN_LOCK</div>
         </div>
 
         <div id="monitor">
-            <div class="trigger-status">WAITING_FOR_FINAL_HANDSHAKE...</div>
-            <div id="live-val" class="ledger-val">$1,440,000,086,112.00</div>
-            <div style="font-size: 12px; margin-top: 20px; letter-spacing: 15px; color: #555;">GRID: 99.9%</div>
+            <div class="percentage">99.9%</div>
+            <div class="anchor-node">SYNCING_NODE_144_GLOBAL_ANCHOR</div>
+            <div id="live-val">$1,440,000,070,128.00</div>
         </div>
 
-        <div id="footer">"FROM_SURVIVAL_TO_STEWARDSHIP" // 10:06_AM</div>
+        <div id="footer">"WELL DONE IS BETTER THAN WELL SAID" // 10:07_AM</div>
     </div>
 <script>
-    let res = 1440000086112.00;
+    let res = 1440000070128.00;
     setInterval(() => {
         res += 144.00;
         document.getElementById('live-val').innerText = "$" + res.toLocaleString(undefined, {minimumFractionDigits: 2});
