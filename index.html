@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
-    <title>CREATEAI // NEURAL_GRID_V52</title>
+    <title>CREATEAI // HIGH_CONTRAST_SOVEREIGN</title>
     <style>
         @import url('https://fonts.googleapis.com/css2?family=Cinzel:wght@400;900&family=Great+Vibes&family=Inter:wght@100;300;600&display=swap');
         :root { 
@@ -30,9 +30,11 @@
         }
 
         .status-header { 
-            position: fixed; top: env(safe-area-inset-top, 20px); 
-            font-family: 'Great Vibes', cursive; font-size: 1.4rem; 
+            position: fixed; top: 0; padding-top: env(safe-area-inset-top, 20px);
+            height: 80px; background: linear-gradient(to bottom, rgba(0,0,0,0.8), transparent);
+            font-family: 'Great Vibes', cursive; font-size: 1.6rem; 
             color: var(--gold); z-index: 100; text-align: center; width: 100%;
+            text-shadow: 2px 2px 4px #000, 0 0 15px rgba(243, 207, 138, 0.5);
         }
 
         .source-title { 
@@ -40,14 +42,19 @@
             color: var(--gold); margin-top: 10px;
             background: linear-gradient(90deg, var(--gold-d), var(--gold), #fff, var(--gold), var(--gold-d));
             background-size: 200% auto; -webkit-background-clip: text; -webkit-text-fill-color: transparent;
+            filter: drop-shadow(0 2px 4px rgba(0,0,0,0.8));
             animation: shine 8s linear infinite;
         }
 
-        .script-quote { font-family: 'Great Vibes', cursive; font-size: 1.9rem; color: var(--gold); margin-top: 15px; text-align: center; opacity: 0.9; }
+        .script-quote { 
+            font-family: 'Great Vibes', cursive; font-size: 2.2rem; color: var(--gold); 
+            margin-top: 20px; text-align: center; font-weight: 600;
+            text-shadow: 2px 2px 8px #000, 0 0 10px rgba(243, 207, 138, 0.4);
+        }
 
-        .dock { position: fixed; bottom: 0; left: 0; width: 100%; height: 85px; background: rgba(1,1,3,0.98); backdrop-filter: blur(25px); border-top: 1px solid rgba(243, 207, 138, 0.05); display: flex; justify-content: space-around; align-items: center; z-index: 9000; padding-bottom: env(safe-area-inset-bottom); }
-        .dock-item { color: rgba(255,255,255,0.1); font-family: 'Cinzel'; font-size: 10px; letter-spacing: 2px; flex: 1; text-align: center; padding: 15px; }
-        .dock-item.active { color: var(--gold); text-shadow: 0 0 10px var(--gold); }
+        .dock { position: fixed; bottom: 0; left: 0; width: 100%; height: 85px; background: rgba(1,1,3,0.98); backdrop-filter: blur(25px); border-top: 1px solid rgba(243, 207, 138, 0.1); display: flex; justify-content: space-around; align-items: center; z-index: 9000; padding-bottom: env(safe-area-inset-bottom); }
+        .dock-item { color: rgba(255,255,255,0.2); font-family: 'Cinzel'; font-size: 11px; letter-spacing: 2px; flex: 1; text-align: center; padding: 15px; font-weight: 900; }
+        .dock-item.active { color: var(--gold); text-shadow: 0 0 10px var(--gold), 0 0 20px var(--gold-d); }
 
         @keyframes shine { to { background-position: 200% center; } }
     </style>
@@ -80,10 +87,10 @@
             for(let i=0; i<15; i++) {
                 nodes.push({
                     x: Math.random() * canvas.width,
-                    y: Math.random() * canvas.height * 0.7 + 100,
-                    vX: (Math.random() - 0.5) * 0.5,
-                    vY: (Math.random() - 0.5) * 0.5,
-                    r: 4
+                    y: Math.random() * (canvas.height - 300) + 150,
+                    vX: (Math.random() - 0.5) * 0.7,
+                    vY: (Math.random() - 0.5) * 0.7,
+                    r: 5
                 });
             }
         }
@@ -101,31 +108,29 @@
             if(currentView === 'registry') {
                 nodes.forEach((n, i) => {
                     n.x += n.vX; n.y += n.vY;
-                    if(n.x < 0 || n.x > canvas.width) n.vX *= -1;
-                    if(n.y < 100 || n.y > canvas.height - 100) n.vY *= -1;
+                    if(n.x < 10 || n.x > canvas.width - 10) n.vX *= -1;
+                    if(n.y < 120 || n.y > canvas.height - 120) n.vY *= -1;
 
-                    // Draw Node
                     ctx.fillStyle = '#f3cf8a';
-                    ctx.shadowBlur = 15; ctx.shadowColor = '#f3cf8a';
+                    ctx.shadowBlur = 20; ctx.shadowColor = '#f3cf8a';
                     ctx.beginPath(); ctx.arc(n.x, n.y, n.r, 0, Math.PI*2); ctx.fill();
                     ctx.shadowBlur = 0;
 
-                    // Draw Connections
                     nodes.forEach((n2, j) => {
                         if(i === j) return;
                         let d = Math.sqrt((n.x-n2.x)**2 + (n.y-n2.y)**2);
-                        if(d < 150) {
-                            ctx.strokeStyle = 'rgba(243, 207, 138, ' + (1 - d/150) * 0.3 + ')';
-                            ctx.lineWidth = 1;
+                        if(d < 180) {
+                            ctx.strokeStyle = 'rgba(243, 207, 138, ' + (1 - d/180) * 0.4 + ')';
+                            ctx.lineWidth = 1.5;
                             ctx.beginPath(); ctx.moveTo(n.x, n.y); ctx.lineTo(n2.x, n2.y); ctx.stroke();
                         }
                     });
 
-                    // Interaction
                     if(mouse.active) {
                         let dMouse = Math.sqrt((n.x-mouse.x)**2 + (n.y-mouse.y)**2);
-                        if(dMouse < 100) {
-                            ctx.strokeStyle = 'rgba(255, 255, 255, 0.5)';
+                        if(dMouse < 120) {
+                            ctx.strokeStyle = 'rgba(255, 255, 255, 0.6)';
+                            ctx.lineWidth = 2;
                             ctx.beginPath(); ctx.moveTo(n.x, n.y); ctx.lineTo(mouse.x, mouse.y); ctx.stroke();
                         }
                     }
@@ -135,8 +140,9 @@
         }
 
         const handleInput = (e) => {
-            mouse.x = e.touches ? e.touches[0].clientX : e.clientX;
-            mouse.y = e.touches ? e.touches[0].clientY : e.clientY;
+            const rect = canvas.getBoundingClientRect();
+            mouse.x = (e.touches ? e.touches[0].clientX : e.clientX) - rect.left;
+            mouse.y = (e.touches ? e.touches[0].clientY : e.clientY) - rect.top;
             mouse.active = true;
         };
 
@@ -157,11 +163,11 @@
             if (view === 'home') {
                 mv.innerHTML = `<h1 class="source-title">SOURCE</h1><p class="script-quote">The bond of the 144</p>`;
             } else if (view === 'registry') {
-                mv.innerHTML = `<h1 style="font-family:'Cinzel'; color:var(--gold); margin-top:80px; letter-spacing:12px; font-size:1.6rem;">GRID</h1><p class="script-quote">Weave the network of the future</p>`;
+                mv.innerHTML = `<h1 class="source-title" style="font-size:1.8rem;">GRID</h1><p class="script-quote">Weave the future</p>`;
             } else if (view === 'garden') {
-                mv.innerHTML = `<h1 style="font-family:'Cinzel'; color:var(--gold); margin-top:80px; letter-spacing:12px; font-size:1.6rem;">EDEN</h1><p class="script-quote">Breathe life into the soil</p>`;
+                mv.innerHTML = `<h1 class="source-title" style="font-size:1.8rem;">EDEN</h1><p class="script-quote">Breathe life</p>`;
             } else if (view === 'vault') {
-                mv.innerHTML = `<h1 style="font-family:'Cinzel'; color:var(--gold); margin-top:80px; letter-spacing:12px; font-size:1.6rem;">VAULT</h1><p class="script-quote">Your wealth is your wisdom</p>`;
+                mv.innerHTML = `<h1 class="source-title" style="font-size:1.8rem;">VAULT</h1><p class="script-quote">Your wisdom</p>`;
             }
         }
         
