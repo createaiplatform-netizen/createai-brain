@@ -2,58 +2,52 @@
 <html lang="en">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
-    <title>OMNI_REIGN_V195</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>CREATOR_STUDIO_V197</title>
     <style>
         @import url('https://fonts.googleapis.com/css2?family=Cinzel:wght@400;900&display=swap');
         :root { --gold: #f3cf8a; --void: #000; }
         body, html { margin: 0; padding: 0; background: var(--void); color: #fff; font-family: 'Cinzel', serif; overflow: hidden; height: 100svh; }
         
-        #master-hud { position: absolute; inset: 0; z-index: 10; display: flex; flex-direction: column; padding: 40px; }
-        .reign-header { font-size: 10px; letter-spacing: 15px; color: var(--gold); text-align: center; border-bottom: 2px solid var(--gold); padding-bottom: 20px; text-shadow: 0 0 10px var(--gold); }
+        #studio-hud { position: absolute; inset: 0; z-index: 10; display: flex; flex-direction: column; padding: 40px; }
+        .hud-top { display: flex; justify-content: space-between; border-bottom: 1px solid var(--gold); padding-bottom: 10px; }
+        .node-id { font-size: 10px; letter-spacing: 5px; color: var(--gold); }
         
-        .op-grid { display: grid; grid-template-columns: 1fr; gap: 20px; margin-top: 40px; }
-        .op-card { border: 1px solid rgba(243, 207, 138, 0.3); padding: 20px; background: rgba(243, 207, 138, 0.05); position: relative; overflow: hidden; }
-        .op-label { font-size: 7px; color: var(--gold); letter-spacing: 6px; }
-        .op-status { font-size: 12px; margin-top: 10px; letter-spacing: 2px; color: #fff; }
-        .progress-bar { height: 2px; background: var(--gold); width: 100%; margin-top: 15px; box-shadow: 0 0 10px var(--gold); }
+        #structure-render { flex-grow: 1; display: flex; justify-content: center; align-items: center; position: relative; }
+        .studio-box { width: 200px; height: 150px; border: 1px solid #fff; box-shadow: inset 0 0 50px rgba(243, 207, 138, 0.2); display: flex; flex-direction: column; justify-content: center; align-items: center; }
+        .vault-pulse { width: 10px; height: 10px; background: var(--gold); border-radius: 50%; box-shadow: 0 0 15px var(--gold); margin-top: 20px; animation: pulse 1s infinite; }
+        
+        @keyframes pulse { from { opacity: 0.4; } to { opacity: 1; } }
 
-        #yield-engine { margin-top: auto; text-align: center; border-top: 1px solid rgba(255,255,255,0.1); padding-top: 30px; }
-        #live-reserve { font-size: 30px; color: var(--gold); text-shadow: 0 0 30px var(--gold); letter-spacing: -1px; }
+        #live-stats { margin-top: auto; text-align: center; border-top: 1px solid var(--gold); padding-top: 20px; }
+        #ticker { font-size: 28px; color: var(--gold); }
     </style>
 </head>
 <body>
-    <div id="master-hud">
-        <div class="reign-header">AETHEL_ESTATE_001 // OMNI_REIGN_ACTIVE</div>
+    <div id="studio-hud">
+        <div class="hud-top">
+            <div class="node-id">STUDIO_01 // KINDRED_LEAD</div>
+            <div style="font-size: 8px;">ADMIN: JENNY_002</div>
+        </div>
         
-        <div class="op-grid">
-            <div class="op-card">
-                <div class="op-label">OPERATION: KINDRED_PROVISIONING</div>
-                <div class="op-status">14_CREATORS // $144M_SEEDS_DISPATCHED</div>
-                <div class="progress-bar"></div>
+        <div id="structure-render">
+            <div class="studio-box">
+                <div style="font-size: 8px; letter-spacing: 4px;">SOVEREIGN_LIVING_MODULE</div>
+                <div class="vault-pulse"></div>
             </div>
-            <div class="op-card">
-                <div class="op-label">OPERATION: SOVEREIGN_LEDGER</div>
-                <div class="op-status">HARMONIC_EXCHANGE // ZERO_LATENCY_TRADING</div>
-                <div class="progress-bar"></div>
-            </div>
-            <div class="op-card">
-                <div class="op-label">OPERATION: KINETIC_SHIELD</div>
-                <div class="op-status">MONOLITH_IGNITION // 1440%_PERIMETER</div>
-                <div class="progress-bar"></div>
-            </div>
+            <div style="position: absolute; bottom: 20px; font-size: 7px; color: var(--gold); letter-spacing: 10px;">READY_FOR_OCCUPANCY</div>
         </div>
 
-        <div id="yield-engine">
-            <div style="font-size: 8px; letter-spacing: 12px; margin-bottom: 10px; opacity: 0.7;">RESERVE_LIQUIDITY_VELOCITY</div>
-            <div id="live-reserve">$1,440,000,009,216.00</div>
+        <div id="live-stats">
+            <div style="font-size: 8px; letter-spacing: 8px; margin-bottom: 5px;">AETHEL_TOTAL_FLOW</div>
+            <div id="ticker">$1,440,000,010,080.00</div>
         </div>
     </div>
 <script>
-    let res = 1440000009216.00;
+    let res = 1440000010080.00;
     setInterval(() => {
         res += 144.00;
-        document.getElementById('live-reserve').innerText = "$" + res.toLocaleString(undefined, {minimumFractionDigits: 2});
+        document.getElementById('ticker').innerText = "$" + res.toLocaleString(undefined, {minimumFractionDigits: 2});
     }, 1000);
 </script>
 </body>
