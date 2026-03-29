@@ -3,114 +3,102 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Sovereign Exchange | CREATEAI</title>
-    <script src="https://js.stripe.com/v3/"></script>
+    <title>Global Marketplace | CREATEAI</title>
     <style>
-        :root { --soft-bg: #fdfbf7; --deep-blue: #1a5276; --gold: #ffd700; --white: #ffffff; }
-        body { background: var(--soft-bg); color: #333; font-family: 'Helvetica Neue', Arial, sans-serif; margin: 0; padding: 0; }
+        :root { --soft-bg: #f8fafc; --brand-blue: #0f172a; --gold: #fbbf24; --white: #ffffff; }
+        body { background: var(--soft-bg); color: #1e293b; font-family: 'Inter', system-ui, sans-serif; margin: 0; padding: 0; }
         
-        .nav { background: var(--white); padding: 15px 20px; display: flex; justify-content: space-between; align-items: center; box-shadow: 0 2px 10px rgba(0,0,0,0.05); sticky; top: 0; z-index: 1000; }
-        .logo { font-weight: bold; color: var(--deep-blue); text-decoration: none; font-size: 1.1rem; letter-spacing: 1px; }
+        /* THE SEARCH & SCALE HEADER */
+        .mega-header { background: var(--brand-blue); color: white; padding: 15px 20px; sticky; top: 0; z-index: 1000; }
+        .nav-top { display: flex; justify-content: space-between; align-items: center; max-width: 1200px; margin: 0 auto; }
+        .search-bar { width: 100%; max-width: 600px; margin: 15px auto; position: relative; }
+        .search-bar input { width: 100%; padding: 12px 20px; border-radius: 50px; border: none; font-size: 1rem; }
+        
+        /* DIVISION TABS */
+        .divisions { background: #fff; display: flex; justify-content: center; gap: 30px; padding: 10px; border-bottom: 1px solid #e2e8f0; }
+        .div-btn { font-size: 0.8rem; font-weight: bold; color: #64748b; cursor: pointer; text-transform: uppercase; letter-spacing: 1px; }
+        .div-btn.active { color: var(--brand-blue); border-bottom: 2px solid var(--gold); }
 
-        .container { max-width: 1100px; margin: 20px auto; padding: 0 15px; }
+        .container { max-width: 1200px; margin: 20px auto; padding: 0 15px; }
 
-        /* THE AI CREATION ZONE */
-        .ai-studio { 
-            background: var(--deep-blue); color: white; border-radius: 30px; 
-            padding: 40px; margin-bottom: 40px; text-align: center;
-            box-shadow: 0 20px 40px rgba(26, 82, 118, 0.2);
-        }
-        .canvas-area { 
-            background: #fff; border-radius: 20px; height: 300px; margin: 20px auto;
-            max-width: 400px; display: flex; align-items: center; justify-content: center;
-            color: #ccc; border: 3px dashed var(--gold); position: relative; overflow: hidden;
-        }
-        .ai-input { 
-            width: 100%; max-width: 400px; padding: 15px; border-radius: 50px; 
-            border: none; margin-bottom: 15px; font-size: 1rem;
-        }
-        .manifest-btn { 
-            background: var(--gold); color: #000; border: none; padding: 15px 40px; 
-            border-radius: 50px; font-weight: bold; cursor: pointer; text-transform: uppercase;
-        }
+        /* HERO SECTIONS */
+        .section-header { display: flex; justify-content: space-between; align-items: center; margin: 40px 0 20px; }
+        .section-header h2 { font-size: 1.5rem; margin: 0; }
 
-        /* THE EVERYTHING GRID */
-        .grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(280px, 1fr)); gap: 25px; }
-        .card { background: white; border-radius: 20px; overflow: hidden; box-shadow: 0 5px 15px rgba(0,0,0,0.05); }
-        .card-img { width: 100%; height: 200px; background: #eee; object-fit: cover; }
-        .card-body { padding: 20px; }
-        .buy-btn { background: var(--deep-blue); color: white; border: none; width: 100%; padding: 12px; border-radius: 10px; font-weight: bold; cursor: pointer; }
+        /* THE EVERYTHING GRID (Amazon Style) */
+        .market-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(200px, 1fr)); gap: 20px; }
+        .item-card { background: white; border-radius: 12px; overflow: hidden; box-shadow: 0 2px 8px rgba(0,0,0,0.05); transition: 0.2s; }
+        .item-card:hover { transform: translateY(-3px); }
+        .item-img { width: 100%; aspect-ratio: 1/1; background: #f1f5f9; object-fit: cover; }
+        .item-info { padding: 12px; }
+        .item-price { font-weight: bold; font-size: 1.1rem; color: #059669; }
+
+        /* CREATOR HUB PREVIEW */
+        .creator-banner { 
+            background: linear-gradient(90deg, #1e293b, #334155); color: white; 
+            border-radius: 20px; padding: 40px; text-align: center; margin: 40px 0;
+        }
     </style>
 </head>
 <body>
 
-    <nav class="nav">
-        <a href="index.html" class="logo">CREATEAI_EXCHANGE</a>
-        <div style="font-size: 1.2rem;">🛒</div>
-    </nav>
+    <header class="mega-header">
+        <div class="nav-top">
+            <a href="index.html" style="color:white; text-decoration:none; font-weight:bold;">CREATEAI_EXCHANGE</a>
+            <div>LOGIN | CART (0)</div>
+        </div>
+        <div class="search-bar">
+            <input type="text" placeholder="Search anything and everything in the world...">
+        </div>
+    </header>
+
+    <div class="divisions">
+        <div class="div-btn active">Global Exchange</div>
+        <div class="div-btn">Sovereign Tech</div>
+        <div class="div-btn">Creator Hub</div>
+    </div>
 
     <div class="container">
-        <div class="ai-studio">
-            <h2>The Creator Studio</h2>
-            <p style="opacity: 0.8;">"Little AIs" are ready to manifest your vision. Describe it below.</p>
-            <div class="canvas-area" id="main-canvas">
-                <span id="canvas-status">[ WAITING FOR YOUR VISION ]</span>
+        <div class="section-header">
+            <h2>Sovereign Technology</h2>
+            <a href="#" style="font-size: 0.8rem; color: #3b82f6;">View Vault</a>
+        </div>
+        <div class="market-grid">
+            <div class="item-card">
+                <img src="https://images.unsplash.com/photo-1550565118-3d143c00368c?auto=format&fit=crop&w=200&q=80" class="item-img">
+                <div class="item-info">
+                    <div style="font-size:0.7rem; color:var(--gold);">TECH</div>
+                    <div style="font-weight:bold;">Sovereign Wealth Node</div>
+                    <div class="item-price">$299.00</div>
+                </div>
             </div>
-            <input type="text" id="ai-prompt" class="ai-input" placeholder="e.g. A family crest made of golden light...">
-            <br>
-            <button class="manifest-btn" onclick="manifestAI()">MANIFEST ON APPAREL</button>
+            <div class="item-card">
+                <img src="https://images.unsplash.com/photo-1511895426328-dc8714191300?auto=format&fit=crop&w=200&q=80" class="item-img">
+                <div class="item-info">
+                    <div style="font-size:0.7rem; color:var(--gold);">ACCESS</div>
+                    <div style="font-weight:bold;">Nexus Lifetime Entry</div>
+                    <div class="item-price">$144.00</div>
+                </div>
+            </div>
         </div>
 
-        <h2 style="color: var(--deep-blue);">Global Sovereign Inventory</h2>
-        <div class="grid">
-            
-            <div class="card">
-                <img src="https://images.unsplash.com/photo-1511895426328-dc8714191300?auto=format&fit=crop&w=400&q=80" class="card-img">
-                <div class="card-body">
-                    <h3>Nexus Lifetime Key</h3>
-                    <p style="font-size: 0.8rem; color: #666;">Permanent access to the family social engine.</p>
-                    <button class="buy-btn" onclick="checkout('nexus_key')">ACQUIRE ($144.00)</button>
-                </div>
-            </div>
+        <div class="creator-banner">
+            <h3>Manifest Your Vision</h3>
+            <p>Use the Little AIs to design your own world. Anything you think of, we can build.</p>
+            <a href="hub.html" style="background:var(--gold); color:black; padding:12px 30px; border-radius:50px; text-decoration:none; font-weight:bold; display:inline-block; margin-top:10px;">ENTER CREATOR HUB</a>
+        </div>
 
-            <div class="card">
-                <img src="https://images.unsplash.com/photo-1550565118-3d143c00368c?auto=format&fit=crop&w=400&q=80" class="card-img">
-                <div class="card-body">
-                    <h3>Wealth Node V1</h3>
-                    <p style="font-size: 0.8rem; color: #666;">Digital ledger for family asset tracking.</p>
-                    <button class="buy-btn" onclick="checkout('wealth_node')">ACTIVATE ($299.00)</button>
-                </div>
-            </div>
-
-            <div class="card">
-                <img src="https://images.unsplash.com/photo-1521572267360-ee0c2909d518?auto=format&fit=crop&w=400&q=80" class="card-img">
-                <div class="card-body">
-                    <h3>Sovereign Apparel</h3>
-                    <p style="font-size: 0.8rem; color: #666;">High-end blank for your AI designs.</p>
-                    <button class="buy-btn" onclick="checkout('apparel_id')">ORDER BLANK ($45.00)</button>
-                </div>
-            </div>
-
+        <div class="section-header">
+            <h2>Global Exchange</h2>
+            <p style="font-size:0.8rem; color:#64748b;">Top Picks for You</p>
+        </div>
+        <div class="market-grid">
+            <div class="item-card"><img src="https://images.unsplash.com/photo-1523275335684-37898b6baf30?auto=format&fit=crop&w=200&q=80" class="item-img"><div class="item-info">Essentials</div></div>
+            <div class="item-card"><img src="https://images.unsplash.com/photo-1505740420928-5e560c06d30e?auto=format&fit=crop&w=200&q=80" class="item-img"><div class="item-info">Audio</div></div>
+            <div class="item-card"><img src="https://images.unsplash.com/photo-1491553895911-0055eca6402d?auto=format&fit=crop&w=200&q=80" class="item-img"><div class="item-info">Apparel</div></div>
+            <div class="item-card"><img src="https://images.unsplash.com/photo-1526170375885-4d8ecf77b99f?auto=format&fit=crop&w=200&q=80" class="item-img"><div class="item-info">Creative</div></div>
         </div>
     </div>
 
-    <script>
-        function manifestAI() {
-            const prompt = document.getElementById('ai-prompt').value;
-            const status = document.getElementById('canvas-status');
-            status.innerText = "LITTLE AI IS MANIFESTING: " + prompt.toUpperCase();
-            document.getElementById('main-canvas').style.background = "#fff8e1";
-            
-            // This is where the OpenAI API key connects to generate the actual image
-            setTimeout(() => {
-                alert("The AI has successfully changed the appearance of the product based on your vision. You can now purchase this custom creation.");
-            }, 1500);
-        }
-
-        function checkout(id) {
-            alert("Redirecting to your Secure Sovereign Checkout for " + id);
-            // This is where your Stripe Key (pk_live_...) connects
-        }
-    </script>
 </body>
 </html>
