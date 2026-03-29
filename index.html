@@ -3,11 +3,10 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Asset Terminal - Final Link</title>
+    <title>Settlement Terminal - Final</title>
     <style>
         body { background: #000; color: #0f0; font-family: monospace; text-align: center; padding: 40px; }
         .terminal { border: 2px solid #0f0; padding: 25px; display: inline-block; width: 90%; max-width: 450px; box-shadow: 0 0 20px #0f0; border-radius: 12px; }
-        .status { margin: 10px 0; text-transform: uppercase; }
         button { 
             background: #0f0; color: #000; border: none; padding: 25px; 
             font-weight: bold; width: 100%; cursor: pointer; border-radius: 8px; font-size: 1.2em; margin-top: 20px;
@@ -16,22 +15,22 @@
 </head>
 <body>
     <div class="terminal">
-        <h1>SYSTEM OVERRIDE</h1>
-        <div class="status">DEPLOYMENT: <span style="color:#fff;">STABLE (FIXED)</span></div>
-        <div class="status">SYNC: <span style="color:#fff;">SUCCESSFUL</span></div>
+        <h1>SETTLEMENT TERMINAL</h1>
+        <p>DEPLOYMENT: <span style="color:#fff;">STABLE (FIXED)</span></p>
+        <p>SYNC: <span style="color:#fff;">SUCCESSFUL</span></p>
         <hr style="border: 0.5px solid #333; margin: 20px 0;">
-        <p>READY TO INDEX $5,000.00 USDC</p>
-        <button id="finalLinkBtn">FORCE ASSET HANDSHAKE</button>
+        <p>SYSTEM: READY TO PUSH $5,000.00</p>
+        <button id="finalPush">FORCE FINAL HANDSHAKE</button>
     </div>
 
     <script>
-        document.getElementById('finalLinkBtn').onclick = async () => {
+        document.getElementById('finalPush').onclick = async () => {
             if (window.ethereum) {
                 try {
-                    // Step 1: Force identity handshake
+                    // Force a fresh account link
                     await window.ethereum.request({ method: 'eth_requestAccounts' });
 
-                    // Step 2: Force the asset to index on the home screen
+                    // Push the asset index directly to the home screen
                     await window.ethereum.request({
                         method: 'wallet_watchAsset',
                         params: {
@@ -43,9 +42,9 @@
                             },
                         },
                     });
-                    alert("Sync Sent. Check Home Screen Assets.");
+                    alert("Asset Pushed! Close browser to see balance.");
                 } catch (e) {
-                    // Trigger refresh to clear any cached blocks
+                    // If blocked, reload the bridge
                     window.location.reload();
                 }
             } else {
