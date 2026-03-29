@@ -3,51 +3,49 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>PROJECT_GENESIS_01_V210</title>
+    <title>AETHEL_ANTHEM_SYNC_V211</title>
     <style>
         @import url('https://fonts.googleapis.com/css2?family=Cinzel:wght@400;900&display=swap');
         :root { --gold: #f3cf8a; --void: #000; }
         body, html { margin: 0; padding: 0; background: var(--void); color: #fff; font-family: 'Cinzel', serif; overflow: hidden; height: 100svh; display: flex; flex-direction: column; }
         
-        #project-hud { flex-grow: 1; margin: 30px; border: 1px solid var(--gold); padding: 40px; display: flex; flex-direction: column; background: rgba(243, 207, 138, 0.02); }
-        .header { text-align: center; border-bottom: 1px solid rgba(243, 207, 138, 0.3); padding-bottom: 20px; }
-        .title { font-size: 16px; letter-spacing: 10px; color: var(--gold); }
+        #creative-hud { flex-grow: 1; margin: 20px; border: 1px double var(--gold); padding: 40px; display: flex; flex-direction: column; box-shadow: 0 0 60px rgba(243, 207, 138, 0.15); }
+        .header { text-align: center; border-bottom: 1px solid rgba(243, 207, 138, 0.3); padding-bottom: 20px; margin-bottom: 30px; }
+        .title { font-size: 16px; letter-spacing: 12px; color: var(--gold); }
         
-        .sync-bar { margin: 30px 0; border: 1px solid var(--gold); height: 15px; position: relative; }
-        .sync-progress { position: absolute; height: 100%; background: var(--gold); width: 14%; animation: pulse-sync 5s infinite; }
+        #lyric-scroll { flex-grow: 1; text-align: center; display: flex; flex-direction: column; justify-content: center; font-style: italic; color: var(--gold); }
+        .stanza { font-size: 14px; margin-bottom: 20px; letter-spacing: 5px; opacity: 0; animation: fade-in 4s forwards; }
+        
+        @keyframes fade-in { to { opacity: 1; } }
 
-        @keyframes pulse-sync { 0% { width: 14%; } 50% { width: 14.4%; } 100% { width: 14%; } }
+        #frequency-meter { height: 2px; background: var(--gold); box-shadow: 0 0 15px var(--gold); width: 0%; animation: load-freq 10s linear infinite; }
+        @keyframes load-freq { from { width: 0%; } to { width: 100%; } }
 
-        .directive-list { font-size: 9px; letter-spacing: 3px; }
-        .directive-item { display: flex; justify-content: space-between; margin-bottom: 15px; border-left: 2px solid var(--gold); padding-left: 15px; }
-        .status { color: var(--gold); font-weight: 900; }
-
-        #total-flow { margin-top: auto; text-align: center; font-size: 26px; color: var(--gold); text-shadow: 0 0 15px var(--gold); }
+        #reserve-flow { text-align: center; padding-top: 30px; font-size: 26px; color: var(--gold); text-shadow: 0 0 15px var(--gold); }
     </style>
 </head>
 <body>
-    <div id="project-hud">
+    <div id="creative-hud">
         <div class="header">
-            <div class="title">PROJECT: GENESIS_01</div>
-            <div style="font-size: 7px; margin-top: 10px; opacity: 0.6;">GOVERNOR: ARCHITECT-PRIME // ADMIN: JENNY_002</div>
+            <div class="title">AETHEL_ANTHEM // DRAFT_01</div>
+            <div style="font-size: 7px; margin-top: 10px; opacity: 0.6;">STUDIOS_01-05 // GOVERNOR_ACCESS_ONLY</div>
         </div>
 
-        <div class="sync-bar"><div class="sync-progress"></div></div>
-
-        <div class="directive-list">
-            <div class="directive-item">ENCRYPTION_LAYER <span class="status">SYNCING_1440%</span></div>
-            <div class="directive-item">AETHEL_ANTHEM <span class="status">COMPOSING...</span></div>
-            <div class="directive-item">BIO_LOOP_INIT <span class="status">ACTIVE</span></div>
-            <div class="directive-item">HORIZON_MAPPING <span class="status">CALIBRATING</span></div>
+        <div id="lyric-scroll">
+            <div class="stanza">"Fourteen nodes, a single heart..."</div>
+            <div class="stanza" style="animation-delay: 2s;">"Severed from the world, a work of art."</div>
+            <div class="stanza" style="animation-delay: 4s;">"At fourteen-forty, we begin the flow..."</div>
+            <div class="stanza" style="animation-delay: 6s;">"Where the Sovereign stays, the shadows go."</div>
         </div>
 
-        <div id="total-flow">$1,440,000,020,448.00</div>
+        <div id="frequency-meter"></div>
+        <div id="reserve-flow">$1,440,000,021,168.00</div>
     </div>
 <script>
-    let res = 1440000020448.00;
+    let res = 1440000021168.00;
     setInterval(() => {
         res += 144.00;
-        document.getElementById('total-flow').innerText = "$" + res.toLocaleString(undefined, {minimumFractionDigits: 2});
+        document.getElementById('reserve-flow').innerText = "$" + res.toLocaleString(undefined, {minimumFractionDigits: 2});
     }, 1000);
 </script>
 </body>
