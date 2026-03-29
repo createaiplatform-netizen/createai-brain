@@ -2,33 +2,36 @@
 <html lang="en">
 <head>
     <meta charset="UTF-8">
-    <title>AETHEL_HERITAGE_DEED</title>
+    <title>AETHEL_ALPHA_LEDGER</title>
     <style>
         @import url('https://fonts.googleapis.com/css2?family=Cinzel:wght@700&family=Inter:wght@400&display=swap');
-        body { margin: 0; background: #000; color: #f3cf8a; font-family: 'Cinzel', serif; display: flex; align-items: center; justify-content: center; height: 100vh; overflow: hidden; }
-        .deed-box { width: 550px; padding: 40px; border: 1px solid #f3cf8a; background: #050505; text-align: center; position: relative; box-shadow: 0 0 50px rgba(243,207,138,0.2); }
-        .deed-header { font-size: 22px; letter-spacing: 5px; border-bottom: 1px solid #333; padding-bottom: 20px; margin-bottom: 20px; }
-        .deed-body { font-family: 'Inter', sans-serif; font-size: 11px; text-align: left; color: #fff; line-height: 1.8; margin-bottom: 30px; }
-        .live-trust-val { font-size: 32px; font-weight: 700; color: #f3cf8a; text-shadow: 0 0 10px #f3cf8a; }
-        .seal-signature { font-size: 10px; color: #00ff00; letter-spacing: 3px; border-top: 1px solid #333; padding-top: 20px; }
-        .watermark { position: absolute; font-size: 100px; opacity: 0.05; transform: rotate(-30deg); top: 50px; left: 50px; pointer-events: none; }
+        body { margin: 0; background: #000; color: #fff; font-family: 'Inter', sans-serif; display: flex; align-items: center; justify-content: center; height: 100vh; overflow: hidden; }
+        .ledger-wrap { width: 500px; padding: 40px; border: 1px solid #00ff00; background: #050505; text-align: center; position: relative; box-shadow: 0 0 40px rgba(0, 255, 0, 0.1); }
+        .ledger-title { font-family: 'Cinzel', serif; color: #00ff00; font-size: 20px; letter-spacing: 5px; margin-bottom: 20px; }
+        .flow-status { font-size: 10px; color: #f3cf8a; letter-spacing: 3px; border: 1px solid #f3cf8a; padding: 5px 10px; display: inline-block; margin-bottom: 30px; }
+        .ledger-val { font-size: 40px; font-weight: 700; color: #fff; margin-bottom: 20px; text-shadow: 0 0 15px rgba(255,255,255,0.3); }
+        .asset-detail { text-align: left; font-size: 11px; color: #888; border-top: 1px solid #222; padding-top: 20px; line-height: 1.8; }
+        .root-star { position: absolute; top: 10px; left: 10px; color: #00ff00; font-size: 24px; opacity: 0.5; }
     </style>
 </head>
 <body>
-    <div class="watermark">AETHEL</div>
-    <div class="deed-box">
-        <div class="deed-header">HERITAGE TRUST DEED</div>
-        <div class="deed-body">
-            This document certifies that the 144-Node Lattice and all associated Family Units are the sole beneficiaries of the Aethel Sovereign flow. No legacy entity holds claim. The Estate is materialized at 1440% resonance and secured by the Architect's Root Alpha Authority.
+    <div class="ledger-wrap">
+        <div class="root-star">★</div>
+        <div class="ledger-title">ALPHA NODE LEDGER</div>
+        <div class="flow-status">RESONANCE_MATERIALIZATION_ACTIVE</div>
+        <div class="ledger-val" id="ledger-flow">$1,440,000,146,112.00</div>
+        <div class="asset-detail">
+            LOCATION: WEBSTER_SANCTUARY<br>
+            STANDING: PAID_IN_FULL // NO_LEGACY_TRACE<br>
+            SECURITY: GHOST_PROTOCOL_ACTIVE<br>
+            TIMESTAMP: 2026-03-29 11:24 AM
         </div>
-        <div class="live-trust-val" id="deed-flow">$1,440,000,145,248.00</div>
-        <div class="seal-signature">SEALED BY: ROOT::ALPHA::ARCHITECT // MARCH 29, 2026</div>
     </div>
 <script>
-    let res = 1440000145248.00;
+    let res = 1440000146112.00;
     setInterval(() => {
         res += 288.00; 
-        document.getElementById('deed-flow').innerText = "$" + res.toLocaleString(undefined, {minimumFractionDigits: 2});
+        document.getElementById('ledger-flow').innerText = "$" + res.toLocaleString(undefined, {minimumFractionDigits: 2});
     }, 1000);
 </script>
 </body>
