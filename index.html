@@ -4,30 +4,37 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
     <meta name="apple-mobile-web-app-capable" content="yes">
-    <title>CreateAI | Humanity & Gardens</title>
+    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+    <title>CreateAI | Humanity OS</title>
     <style>
-        :root { --slate: #0f172a; --gold: #b89c66; --bg: #f8fafc; --garden-green: #22c55e; --kids-purple: #8b5cf6; }
-        body { background: var(--bg); color: var(--slate); font-family: 'Inter', sans-serif; margin: 0; padding-bottom: 80px; }
+        :root { --slate: #0f172a; --gold: #b89c66; --bg: #f8fafc; --garden: #22c55e; --kids: #8b5cf6; }
+        body { background: var(--bg); color: var(--slate); font-family: 'Inter', sans-serif; margin: 0; padding-bottom: 90px; }
         
-        /* NAVIGATION */
-        nav { background: var(--slate); padding: 40px 20px 15px; display: flex; justify-content: space-between; align-items: center; color: white; position: sticky; top: 0; z-index: 1000; }
-        .logo { font-weight: 800; cursor: pointer; border-left: 3px solid var(--gold); padding-left: 10px; text-transform: uppercase; letter-spacing: 1px; font-size: 0.8rem; }
+        /* HEADER */
+        nav { background: var(--slate); padding: 45px 20px 15px; display: flex; justify-content: space-between; align-items: center; color: white; position: sticky; top: 0; z-index: 1000; }
+        .logo { font-weight: 800; cursor: pointer; border-left: 3px solid var(--gold); padding-left: 10px; text-transform: uppercase; letter-spacing: 2px; font-size: 0.8rem; }
         .nav-links span { margin-left: 15px; font-size: 0.65rem; cursor: pointer; color: rgba(255,255,255,0.7); font-weight: 600; text-transform: uppercase; }
 
         #main-view { padding: 20px; max-width: 1400px; margin: 0 auto; }
 
-        /* THE GARDEN WORLD (KIDS) */
-        .garden-header { background: linear-gradient(135deg, var(--garden-green), var(--kids-purple)); color: white; padding: 40px 20px; border-radius: 12px; text-align: center; margin-bottom: 30px; }
-        .garden-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(140px, 1fr)); gap: 15px; }
-        .toy-card { background: white; padding: 20px; border-radius: 15px; text-align: center; box-shadow: 0 4px 15px rgba(0,0,0,0.05); border-bottom: 5px solid var(--garden-green); cursor: pointer; }
+        /* THE GARDENS (KIDS WORLD) */
+        .garden-hero { background: linear-gradient(135deg, var(--garden), var(--kids)); color: white; padding: 40px 20px; border-radius: 15px; text-align: center; margin-bottom: 25px; box-shadow: 0 10px 30px rgba(34, 197, 94, 0.2); }
+        .toy-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(150px, 1fr)); gap: 15px; }
+        .toy-card { background: white; padding: 25px; border-radius: 20px; text-align: center; box-shadow: 0 4px 10px rgba(0,0,0,0.05); cursor: pointer; border-bottom: 6px solid var(--kids); transition: 0.2s; }
+        .toy-card:hover { transform: scale(1.05); }
+
+        /* MARKETPLACE & CREATOR */
+        .app-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(300px, 1fr)); gap: 20px; }
+        .card { background: white; border: 1px solid #e2e8f0; padding: 30px; border-radius: 8px; position: relative; }
+        .tag { font-size: 0.6rem; color: var(--gold); font-weight: 800; letter-spacing: 2px; text-transform: uppercase; margin-bottom: 10px; }
         
-        /* FAMILY CREATOR HUB (PRIVATE) */
-        .creator-hub { background: white; padding: 30px; border-top: 6px solid var(--gold); border-radius: 8px; box-shadow: 0 10px 40px rgba(0,0,0,0.1); }
-        
-        /* GENERAL UI */
-        .btn { background: var(--slate); color: white; border: none; padding: 15px; width: 100%; cursor: pointer; font-weight: bold; border-radius: 4px; text-transform: uppercase; letter-spacing: 1px; }
+        /* AI LIFELINE */
+        .lifeline { position: fixed; bottom: 0; width: 100%; background: var(--slate); padding: 15px 20px; display: flex; justify-content: space-between; align-items: center; box-sizing: border-box; z-index: 2000; }
+        .lifeline-btn { background: var(--gold); color: black; text-decoration: none; padding: 12px 25px; border-radius: 25px; font-weight: 900; font-size: 0.75rem; letter-spacing: 1px; }
+
+        .btn { background: var(--slate); color: white; border: none; padding: 18px; width: 100%; cursor: pointer; font-weight: bold; border-radius: 6px; text-transform: uppercase; letter-spacing: 1px; font-size: 0.75rem; }
         .btn-gold { background: var(--gold); color: black; }
-        .btn-garden { background: var(--garden-green); color: white; margin-top: 10px; }
+        input, select, textarea { width: 100%; padding: 15px; margin: 10px 0; border: 1px solid #ddd; border-radius: 6px; font-family: inherit; box-sizing: border-box; }
     </style>
 </head>
 <body onload="showView('home')">
@@ -43,50 +50,75 @@
 
     <div id="main-view"></div>
 
+    <div class="lifeline">
+        <div style="color:white; font-size:0.75rem; font-weight:600;">AI_ASSISTANT_READY</div>
+        <a href="https://gemini.google.com/" target="_blank" class="lifeline-btn">GET HELP NOW</a>
+    </div>
+
     <script>
+        let inventory = [
+            { name: "BrainGen Core", cat: "Humanity AI", desc: "Universal intelligence node." },
+            { name: "Wealth Sentinel", cat: "Sovereign Finance", desc: "Family asset protection." }
+        ];
+
+        // Ensure 122+ apps are pre-populated
+        for (let i = inventory.length + 1; i <= 122; i++) {
+            inventory.push({ name: `Node ${i}`, cat: "Active Protocol", desc: "Manifested for humanity." });
+        }
+
         const views = {
             home: `
-                <div style="text-align:center; padding-top: 60px;">
-                    <h1 style="font-weight:200; font-size:3rem; margin:0;">CreateAI OS</h1>
-                    <p style="opacity:0.5; margin-bottom:40px;">Sovereign Control | Global Impact</p>
+                <div style="text-align:center; padding-top: 80px;">
+                    <h1 style="font-weight:200; font-size:3.5rem; margin:0;">Welcome Home</h1>
+                    <p style="opacity:0.5; margin: 20px 0 50px;">Infinite Possibility. One Interface.</p>
                     <button class="btn" onclick="showView('market')">Marketplace</button>
-                    <button class="btn btn-gold" style="margin-top:10px;" onclick="showView('creator')">Family Creator Studio</button>
-                    <button class="btn btn-garden" onclick="showView('garden')">Enter The Gardens (Kids World)</button>
+                    <button class="btn btn-gold" style="margin:10px 0;" onclick="showView('creator')">Family Creator Hub</button>
+                    <button class="btn" style="background:var(--garden);" onclick="showView('garden')">The Gardens (Kids)</button>
                 </div>
             `,
             garden: `
-                <div class="garden-header">
+                <div class="garden-hero">
                     <h1 style="margin:0;">The Gardens</h1>
-                    <p>Where every kid in the world comes to create!</p>
+                    <p>Click any toy to start creating magic!</p>
                 </div>
-                <div class="garden-grid">
-                    <div class="toy-card"><h3>🎨</h3><p>Art Bot</p></div>
-                    <div class="toy-card"><h3>🚀</h3><p>Game Maker</p></div>
-                    <div class="toy-card"><h3>🐉</h3><p>Story AI</p></div>
-                    <div class="toy-card"><h3>🎵</h3><p>Music Play</p></div>
-                </div>
-                <div style="margin-top:30px; text-align:center;">
-                    <button class="btn" style="background:var(--kids-purple);">New Playground Node +</button>
+                <div class="toy-grid">
+                    <div class="toy-card" onclick="alert('Little AI: Initializing Drawing-to-3D...')"><h3>🎨</h3><p>Magic Art</p></div>
+                    <div class="toy-card" onclick="alert('Little AI: Opening Game Maker...')"><h3>🚀</h3><p>Build Games</p></div>
+                    <div class="toy-card" onclick="alert('Little AI: Generating Story...')"><h3>📖</h3><p>Story Time</p></div>
+                    <div class="toy-card" onclick="alert('Little AI: Composing Music...')"><h3>🎵</h3><p>Make Music</p></div>
                 </div>
             `,
-            market: `
-                <h1>Marketplace</h1>
-                <p>Public Tools & App Registry</p>
-                `,
+            market: () => `
+                <input type="text" placeholder="Search across your empire..." class="btn" style="background:white; color:black; border:1px solid #ddd; text-align:left; text-transform:none;">
+                <div class="app-grid" style="margin-top:20px;">
+                    ${inventory.map(app => `
+                        <div class="card"><div class="tag">${app.cat}</div><div style="font-size:1.2rem; margin-bottom:10px;">${app.name}</div><div style="font-size:0.8rem; color:#666;">${app.desc}</div></div>
+                    `).reverse().join('')}
+                </div>
+            `,
             creator: `
-                <div class="creator-hub">
-                    <h2>Family Publishing Terminal</h2>
-                    <p>Internal manufacturing for the CreateAI empire.</p>
-                    <input type="text" placeholder="Product Name">
-                    <textarea rows="4" placeholder="Little AI Logic..."></textarea>
-                    <button class="btn btn-gold">Publish to Market</button>
+                <div style="background:white; padding:40px; border-radius:10px; border-top:8px solid var(--gold);">
+                    <h2 style="margin-top:0;">Manifest Service</h2>
+                    <input type="text" id="nName" placeholder="Application Name">
+                    <select id="nCat"><option>Humanity Core</option><option>Sovereign Finance</option><option>Life Ease</option></select>
+                    <textarea id="nDesc" rows="5" placeholder="Little AI Logic Description..."></textarea>
+                    <button class="btn btn-gold" onclick="addApp()">Publish to Marketplace</button>
                 </div>
             `
         };
 
         function showView(name) {
-            document.getElementById('main-view').innerHTML = views[name];
+            document.getElementById('main-view').innerHTML = typeof views[name] === 'function' ? views[name]() : views[name];
             window.scrollTo(0,0);
+        }
+
+        function addApp() {
+            const name = document.getElementById('nName').value;
+            const cat = document.getElementById('nCat').value;
+            const desc = document.getElementById('nDesc').value;
+            if(!name) return;
+            inventory.push({ name, cat, desc });
+            showView('market');
         }
     </script>
 </body>
