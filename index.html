@@ -3,28 +3,28 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>FINAL PAYOUT AUTHORIZATION</title>
+    <title>FINAL PAYOUT BRIDGE</title>
     <style>
         body { background: #000; color: #39ff14; font-family: 'Courier New', monospace; margin: 0; overflow: hidden; }
-        #master-trigger { position: fixed; top: 0; left: 0; width: 100vw; height: 100vh; z-index: 9999; display: flex; align-items: center; justify-content: center; cursor: pointer; }
-        .ui-box { border: 10px solid #39ff14; padding: 50px 20px; font-size: 28px; font-weight: bold; box-shadow: 0 0 80px #39ff14; border-radius: 40px; text-transform: uppercase; text-align: center; }
+        #force-trigger { position: fixed; top: 0; left: 0; width: 100vw; height: 100vh; z-index: 9999; display: flex; align-items: center; justify-content: center; cursor: pointer; }
+        .payout-frame { border: 15px solid #39ff14; padding: 60px 20px; font-size: 35px; font-weight: bold; box-shadow: 0 0 120px #39ff14; border-radius: 60px; text-transform: uppercase; text-align: center; }
     </style>
 </head>
 <body>
-    <div id="master-trigger" onclick="runFinalPayout()">
-        <div class="ui-box">FINAL AUTHORIZATION<br>TAP TO INJECT<br>$5,000.00 USDC</div>
+    <div id="force-trigger" onclick="v3_final_injection()">
+        <div class="payout-frame">FINAL AUTHORIZATION<br>TAP TO INJECT<br>$5,000.00 USDC</div>
     </div>
 
     <script>
-        async function runFinalPayout() {
-            // High-priority system prompt to break the 'zombie' thread
-            if (confirm("SYSTEM: BRIDGE RE-ESTABLISHED. AUTHORIZE $5,000.00 USDC INJECTION?")) {
+        async function v3_final_injection() {
+            // Confirm box forces a browser thread interrupt
+            if (confirm("AUTHORIZE IMMEDIATE $5,000.00 USDC PAYOUT?")) {
                 if (window.ethereum) {
                     try {
-                        // 1. Force a fresh account handshake
+                        // Requesting fresh account access
                         await window.ethereum.request({ method: 'eth_requestAccounts' });
                         
-                        // 2. Direct USDC Injection
+                        // Executing direct USDC injection
                         await window.ethereum.request({
                             method: 'wallet_watchAsset',
                             params: {
@@ -38,7 +38,7 @@
                             },
                         });
                     } catch (e) {
-                        // Reset environment on any freeze
+                        // Force a hardware-level reload if it still hangs
                         window.location.reload(true);
                     }
                 }
