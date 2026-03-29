@@ -3,42 +3,52 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>The Marketplace | Gateway</title>
+    <title>Global Marketplace | CREATEAI</title>
     <style>
-        body { background: #f8fafc; font-family: 'Inter', sans-serif; margin: 0; padding: 0; text-align: center; }
-        .hero { background: #0f172a; color: white; padding: 60px 20px; border-bottom: 5px solid #fbbf24; }
-        .grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(300px, 1fr)); gap: 20px; max-width: 1000px; margin: 40px auto; padding: 0 20px; }
-        .portal { background: white; padding: 40px; border-radius: 20px; box-shadow: 0 10px 30px rgba(0,0,0,0.05); text-decoration: none; color: inherit; transition: 0.3s; }
-        .portal:hover { transform: translateY(-10px); }
-        .portal h2 { color: #0f172a; margin-top: 20px; }
-        .icon { font-size: 3rem; }
+        :root { --slate: #1e293b; --gold: #b89c66; --bg: #ffffff; }
+        body { background: #fdfdfd; font-family: 'Inter', sans-serif; margin: 0; padding: 0; }
+        
+        .top-nav { padding: 20px; border-bottom: 1px solid #eee; display: flex; justify-content: space-between; align-items: center; }
+        .search-container { max-width: 1100px; margin: 50px auto; padding: 0 20px; }
+        .search-bar { width: 100%; padding: 20px; border: 1px solid #ddd; border-radius: 8px; font-size: 1.1rem; }
+        
+        .market-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(240px, 1fr)); gap: 30px; margin-top: 40px; }
+        .product-card { background: #fff; padding: 10px; transition: 0.3s; }
+        .product-card:hover { transform: scale(1.02); }
+        .product-img { width: 100%; aspect-ratio: 1; object-fit: contain; background: #f8f8f8; margin-bottom: 15px; }
+        .product-info { padding: 10px; }
+        .price { color: var(--gold); font-weight: bold; font-size: 1.1rem; }
+        .order-button { width: 100%; padding: 12px; background: var(--slate); color: white; border: none; margin-top: 15px; cursor: pointer; letter-spacing: 1px; }
     </style>
 </head>
 <body>
 
-    <div class="hero">
-        <h1>Sovereign Marketplace</h1>
-        <p>Choose your destination.</p>
+    <div class="top-nav">
+        <a href="index.html" style="text-decoration:none; color:var(--slate); font-weight:700;">CREATEAI_EXCHANGE</a>
+        <div style="font-size: 0.8rem; letter-spacing: 1px;">SECURE LOGISTICS ACTIVE</div>
     </div>
 
-    <div class="grid">
-        <a href="global-exchange.html" class="portal">
-            <div class="icon">🌍</div>
-            <h2>Global Exchange</h2>
-            <p>Buy anything in the world. Millions of products ready to ship.</p>
-        </a>
-
-        <a href="creator-hub.html" class="portal" style="border: 2px solid #fbbf24;">
-            <div class="icon">✨</div>
-            <h2>Creator Hub</h2>
-            <p>Use Little AIs to design your own clothes and products.</p>
-        </a>
-
-        <a href="sovereign-tech.html" class="portal">
-            <div class="icon">🛡️</div>
-            <h2>Sovereign Tech</h2>
-            <p>Access the Vault for Nexus Keys and Wealth Nodes.</p>
-        </a>
+    <div class="search-container">
+        <input type="text" class="search-bar" placeholder="Search the world's inventory...">
+        
+        <div class="market-grid">
+            <div class="product-card">
+                <img src="https://m.media-amazon.com/images/I/71X8X8yU-aL._AC_SX679_.jpg" class="product-img">
+                <div class="product-info">
+                    <div style="font-size:0.9rem;">Sovereign Connectivity Hub</div>
+                    <div class="price">$144.00</div>
+                    <button class="order-button">PURCHASE</button>
+                </div>
+            </div>
+            <div class="product-card">
+                <img src="https://m.media-amazon.com/images/I/61NfHpxiZPL._AC_SX679_.jpg" class="product-img">
+                <div class="product-info">
+                    <div style="font-size:0.9rem;">Family Security Node</div>
+                    <div class="price">$89.99</div>
+                    <button class="order-button">PURCHASE</button>
+                </div>
+            </div>
+        </div>
     </div>
 
 </body>
