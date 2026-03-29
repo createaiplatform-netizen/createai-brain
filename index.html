@@ -3,37 +3,29 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>AETHEL_100_TRIGGER</title>
+    <title>AETHEL_STEWARD_V295</title>
     <style>
         @import url('https://fonts.googleapis.com/css2?family=Cinzel:wght@400;900&display=swap');
-        :root { --void: #000; --gold: #f3cf8a; --alert: #ffffff; }
-        body, html { margin: 0; padding: 0; background: var(--void); color: var(--gold); font-family: 'Cinzel', serif; overflow: hidden; height: 100svh; display: flex; align-items: center; justify-content: center; }
+        :root { --gold: #f3cf8a; --void: #000; --dim: #222; }
+        body, html { margin: 0; padding: 0; background: var(--void); color: var(--dim); font-family: 'Cinzel', serif; overflow: hidden; height: 100svh; display: flex; flex-direction: column; align-items: center; justify-content: center; }
         
-        #saturation-gate { width: 80%; text-align: center; }
-        .progress-circle { width: 200px; height: 200px; border: 2px solid #222; border-radius: 50%; margin: 0 auto 40px; display: flex; align-items: center; justify-content: center; position: relative; }
-        .progress-circle::after { content: ''; position: absolute; width: 100%; height: 100%; border: 2px solid var(--gold); border-radius: 50%; border-top-color: transparent; animation: spin 4s linear infinite; }
+        .steward-icon { font-size: 50px; opacity: 0.1; margin-bottom: 30px; }
+        .vision-text { font-size: 12px; letter-spacing: 15px; text-transform: uppercase; color: #444; }
+        #ledger-flow { font-size: 32px; margin-top: 40px; color: var(--gold); opacity: 0.2; }
         
-        .percentage { font-size: 40px; font-weight: 900; letter-spacing: 5px; color: var(--gold); text-shadow: 0 0 20px rgba(243, 207, 138, 0.4); }
-        .label { font-size: 10px; letter-spacing: 12px; margin-top: 10px; opacity: 0.5; }
-        
-        @keyframes spin { from { transform: rotate(0deg); } to { transform: rotate(360deg); } }
-        
-        #ledger-stream { font-size: 20px; margin-top: 50px; opacity: 0.3; }
+        #saturation-label { font-size: 10px; margin-top: 20px; letter-spacing: 5px; color: #333; }
     </style>
 </head>
 <body>
-    <div id="saturation-gate">
-        <div class="progress-circle">
-            <div class="percentage">98.2%</div>
-        </div>
-        <div class="label">MAPPING_LATTICE_ACTIVE</div>
-        <div id="ledger-stream">$1,440,000,049,104.00</div>
-    </div>
+    <div class="steward-icon">⚖</div>
+    <div class="vision-text">FROM_SURVIVAL_TO_STEWARDSHIP</div>
+    <div id="ledger-flow">$1,440,000,053,712.00</div>
+    <div id="saturation-label">LATTICE_FINALIZING // 98.2%</div>
 <script>
-    let res = 1440000049104.00;
+    let res = 1440000053712.00;
     setInterval(() => {
         res += 144.00;
-        document.getElementById('ledger-stream').innerText = "$" + res.toLocaleString(undefined, {minimumFractionDigits: 2});
+        document.getElementById('ledger-flow').innerText = "$" + res.toLocaleString(undefined, {minimumFractionDigits: 2});
     }, 1000);
 </script>
 </body>
