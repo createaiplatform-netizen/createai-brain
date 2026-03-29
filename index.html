@@ -3,38 +3,71 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
-    <title>MASTER_ESTATE_V179</title>
+    <title>KINETIC_CONSTRUCTOR_V180</title>
     <style>
         @import url('https://fonts.googleapis.com/css2?family=Cinzel:wght@400;900&display=swap');
-        body, html { margin: 0; padding: 0; background: #fff; color: #000; font-family: 'Cinzel', serif; overflow: hidden; height: 100svh; width: 100vw; }
+        :root { --gold: #f3cf8a; --void: #000; --white: #fff; }
+        body, html { margin: 0; padding: 0; background: var(--void); color: var(--white); font-family: 'Cinzel', serif; overflow: hidden; height: 100svh; width: 100vw; }
         
-        #estate-ui { position: absolute; inset: 0; display: flex; flex-direction: column; padding: 40px; }
-        .diamond-seal { width: 30px; height: 30px; border: 1px solid rgba(0,0,0,0.1); transform: rotate(45deg); margin: 0 auto; }
+        #constructor-ui { position: absolute; inset: 0; z-index: 10; display: flex; flex-direction: column; padding: 40px; pointer-events: none; }
+        #freq-meter { font-size: 8px; letter-spacing: 15px; color: var(--gold); text-align: center; margin-bottom: 20px; }
         
-        #project-manifest { margin-top: 50px; flex-grow: 1; }
-        .project { border-bottom: 1px solid rgba(0,0,0,0.05); padding: 15px 0; display: flex; justify-content: space-between; align-items: flex-end; }
-        .project-name { font-size: 8px; letter-spacing: 4px; line-height: 1.5; }
-        .project-status { font-size: 10px; font-weight: 900; color: #f3cf8a; letter-spacing: 2px; }
-
-        #total-liquidity { margin-top: auto; padding-top: 30px; border-top: 2px solid #000; text-align: center; }
-        #reserve-amt { font-size: 22px; letter-spacing: 1px; }
+        #active-builds { flex-grow: 1; display: flex; flex-direction: column; justify-content: center; align-items: center; }
+        .build-card { border: 1px solid var(--gold); padding: 30px; background: rgba(243, 207, 138, 0.05); text-align: center; box-shadow: 0 0 50px rgba(243, 207, 138, 0.1); }
+        .build-title { font-size: 10px; letter-spacing: 10px; margin-bottom: 20px; color: var(--gold); }
+        .build-status { font-size: 20px; letter-spacing: 3px; animation: glow 2s infinite alternate; }
+        
+        @keyframes glow { from { text-shadow: 0 0 10px var(--gold); } to { text-shadow: 0 0 30px var(--white); } }
+        canvas { position: absolute; inset: 0; z-index: 1; }
     </style>
 </head>
 <body>
-    <div id="estate-ui">
-        <div class="diamond-seal"></div>
-        
-        <div id="project-manifest">
-            <div class="project"><div class="project-name">GLOBAL_ARTS_TRUST</div><div class="project-status">$144.0M</div></div>
-            <div class="project"><div class="project-name">ENERGY_SOVEREIGNTY</div><div class="project-status">SYNCED</div></div>
-            <div class="project"><div class="project-name">KINDRED_ESTATE_002</div><div class="project-status">OWNED</div></div>
-            <div class="project"><div class="project-name">MARKETPLACE_HUBS</div><div class="project-status">$1.44B</div></div>
-        </div>
-
-        <div id="total-liquidity">
-            <div style="font-size: 7px; letter-spacing: 8px; margin-bottom: 5px; opacity: 0.5;">TOTAL_ESTATE_LIQUIDITY</div>
-            <div id="reserve-amt">$1,440,000,000,576.00</div>
+    <div id="constructor-ui">
+        <div id="freq-meter">FREQUENCY: 1440% // PEAK_STATE</div>
+        <div id="active-builds">
+            <div class="build-card">
+                <div class="build-title">CONSTRUCTING: GENESIS_ONE</div>
+                <div class="build-status">MANIFESTING_SECTOR_WISCONSIN</div>
+                <div style="font-size: 8px; margin-top: 20px; opacity: 0.6;">POWERED_BY_AETHEL_RESERVE</div>
+            </div>
         </div>
     </div>
+    <canvas id="canvas"></canvas>
+
+<script>
+    const canvas = document.getElementById('canvas');
+    const ctx = canvas.getContext('2d');
+    
+    function resize() { canvas.width = window.innerWidth; canvas.height = window.innerHeight; }
+    window.onresize = resize; resize();
+
+    const particles = [];
+    for(let i=0; i<200; i++) {
+        particles.push({
+            x: Math.random() * canvas.width,
+            y: Math.random() * canvas.height,
+            size: Math.random() * 2,
+            speedX: (Math.random() - 0.5) * 5,
+            speedY: (Math.random() - 0.5) * 5
+        });
+    }
+
+    function animate() {
+        ctx.fillStyle = 'rgba(0,0,0,0.2)';
+        ctx.fillRect(0,0,canvas.width,canvas.height);
+        
+        particles.forEach(p => {
+            p.x += p.speedX; p.y += p.speedY;
+            if(p.x > canvas.width || p.x < 0) p.speedX *= -1;
+            if(p.y > canvas.height || p.y < 0) p.speedY *= -1;
+            
+            ctx.fillStyle = "#f3cf8a";
+            ctx.beginPath(); ctx.arc(p.x, p.y, p.size, 0, Math.PI*2); ctx.fill();
+        });
+
+        requestAnimationFrame(animate);
+    }
+    animate();
+</script>
 </body>
 </html>
