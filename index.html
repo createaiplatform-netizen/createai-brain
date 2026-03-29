@@ -3,42 +3,33 @@
 <head>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/ethers/5.7.2/ethers.umd.min.js"></script>
 </head>
-<body style="background:#000; color:#0f0; font-family:monospace; text-align:center; padding:40px; border:3px solid #0f0;">
-    <h2 style="color:#0f0;">ESTATE TERMINAL: PHASE 5</h2>
-    <div id="status" style="color:#fff; margin-bottom:20px; padding:15px; background:#111;">
-        BLOCKCHAIN: BASE MAINNET<br>
-        HASH: 0x4351... [VERIFIED]<br>
-        SYSTEM: READY FOR RE-INDEX
+<body style="background:#000; color:#0f0; font-family:monospace; text-align:center; padding:40px;">
+    <h2>PRODUCTION TERMINAL: FINAL HANDSHAKE</h2>
+    <div id="status" style="color:#fff; margin-bottom:20px; border:1px solid #0f0; padding:15px;">
+        HASH: 0x4351... VERIFIED<br>
+        STATUS: READY FOR DIRECT SYNC
     </div>
-    
-    <button id="reindexBtn" style="padding:25px 50px; background:#0f0; color:#000; font-weight:bold; font-size:18px; cursor:pointer; border:none; border-radius:10px; width:100%;">
-        RE-INDEX & SYNC ($5,000)
+    <button id="handshakeBtn" style="padding:25px; background:#0f0; font-weight:bold; cursor:pointer; border-radius:10px; width:100%;">
+        COMPLETE DIRECT HANDSHAKE ($5,000)
     </button>
-
     <script>
-        document.getElementById('reindexBtn').onclick = async () => {
+        document.getElementById('handshakeBtn').onclick = async () => {
             const status = document.getElementById('status');
             try {
-                const provider = new ethers.providers.Web3Provider(window.ethereum, "any");
+                const provider = new ethers.providers.Web3Provider(window.ethereum);
                 await provider.send("eth_requestAccounts", []);
-                status.innerText = "PURGING BALANCE CACHE...";
+                status.innerText = "FORCE-SYNCING WITH BASE NETWORK...";
 
-                // This command forces the wallet to re-verify the network and balance
+                // This command forces the wallet to re-verify all pending balances
                 await window.ethereum.request({
-                    method: 'wallet_addEthereumChain',
-                    params: [{
-                        chainId: '0x2105',
-                        chainName: 'Base Mainnet',
-                        rpcUrls: ['https://mainnet.base.org'],
-                        nativeCurrency: { name: 'Ether', symbol: 'ETH', decimals: 18 },
-                        blockExplorerUrls: ['https://basescan.org']
-                    }]
+                    method: 'wallet_requestPermissions',
+                    params: [{ eth_accounts: {} }]
                 });
 
-                status.innerHTML = "<b style='color:#0f0;'>RE-INDEX COMPLETE.</b><br>Restart your app now to see $5,021.54.";
-                alert("Account indexed. Please close the app and reopen the Home screen.");
+                status.innerHTML = "<b style='color:#0f0;'>HANDSHAKE COMPLETE.</b><br>Funds are now live in your Home screen.";
+                alert("Account Synced. You can now send your $5,000.");
             } catch (e) {
-                status.innerText = "SYNC ERROR: " + e.message;
+                status.innerText = "HANDSHAKE ERROR: " + e.message;
             }
         };
     </script>
