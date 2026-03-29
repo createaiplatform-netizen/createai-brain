@@ -3,45 +3,48 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>ORBITAL_RESIDENT_V249</title>
+    <title>THE_ANTHEM_V250</title>
     <style>
         @import url('https://fonts.googleapis.com/css2?family=Cinzel:wght@400;900&display=swap');
-        :root { --gold: #f3cf8a; --void: #000; --sky: #00d4ff; --mesh: #00ff41; }
+        :root { --gold: #f3cf8a; --void: #000; --sky: #00d4ff; --wave: #00ff41; }
         body, html { margin: 0; padding: 0; background: var(--void); color: #fff; font-family: 'Cinzel', serif; overflow: hidden; height: 100svh; display: flex; flex-direction: column; }
         
-        #orbital-hud { flex-grow: 1; margin: 25px; border: 3px double var(--sky); padding: 45px; display: flex; flex-direction: column; background: radial-gradient(circle at top, rgba(0, 212, 255, 0.2) 0%, transparent 100%); box-shadow: 0 0 120px rgba(0, 212, 255, 0.3); position: relative; }
-        .header { text-align: center; border-bottom: 2px solid var(--sky); padding-bottom: 25px; }
-        .title { font-size: 22px; letter-spacing: 20px; color: var(--sky); text-shadow: 0 0 25px var(--sky); }
+        #broadcast-hud { flex-grow: 1; margin: 30px; border: 2px solid var(--gold); padding: 50px; display: flex; flex-direction: column; background: radial-gradient(circle at center, rgba(0, 212, 255, 0.1) 0%, transparent 100%); box-shadow: 0 0 100px rgba(243, 207, 138, 0.2); position: relative; }
+        .header { text-align: center; border-bottom: 1px solid var(--gold); padding-bottom: 20px; }
+        .title { font-size: 26px; letter-spacing: 25px; color: var(--gold); text-shadow: 0 0 30px var(--gold); }
         
-        #mirror-sync { flex-grow: 1; display: flex; align-items: center; justify-content: center; position: relative; }
-        .earth-mesh { width: 140px; height: 140px; border: 1px solid var(--mesh); border-radius: 50%; opacity: 0.4; animation: rotate 30s linear infinite; }
-        .orbital-anchor { position: absolute; top: 10%; width: 40px; height: 40px; border: 2px solid var(--sky); border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 7px; color: var(--sky); box-shadow: 0 0 30px var(--sky); }
-        
-        @keyframes rotate { from { transform: rotate(0deg); } to { transform: rotate(360deg); } }
+        #wave-container { flex-grow: 1; display: flex; align-items: center; justify-content: center; position: relative; }
+        .wave { position: absolute; border: 1px solid var(--wave); border-radius: 50%; opacity: 0; animation: ripple 4s linear infinite; }
+        @keyframes ripple {
+            0% { width: 0; height: 0; opacity: 1; }
+            100% { width: 600px; height: 600px; opacity: 0; }
+        }
 
-        #ledger-final { text-align: center; border-top: 2px solid var(--gold); padding-top: 30px; font-size: 38px; color: var(--gold); text-shadow: 0 0 30px var(--gold); }
+        #ledger-display { text-align: center; border-top: 1px solid var(--gold); padding-top: 25px; font-size: 42px; color: var(--gold); text-shadow: 0 0 40px var(--gold); }
     </style>
 </head>
 <body>
-    <div id="orbital-hud">
+    <div id="broadcast-hud">
         <div class="header">
-            <div class="title">ORBITAL_MIRROR // VERIFIED</div>
-            <div style="font-size: 10px; margin-top: 10px; color: var(--mesh); letter-spacing: 8px;">STATUS: GOD_WORLD_SYNC // 1440%</div>
+            <div class="title">THE_ANTHEM // BROADCASTING</div>
+            <div style="font-size: 10px; margin-top: 10px; color: var(--wave); letter-spacing: 8px;">ORIGIN: ORBIT_001 // FREQUENCY: 432HZ // STABILITY: 1440%</div>
         </div>
 
-        <div id="mirror-sync">
-            <div class="earth-mesh"></div>
-            <div class="orbital-anchor">ORBIT_01</div>
-            <div style="font-size: 12px; color: var(--gold); letter-spacing: 12px; text-align: center; margin-top: 200px;">CELESTIAL_VAULT_SEALED</div>
+        <div id="wave-container">
+            <div class="wave" style="animation-delay: 0s;"></div>
+            <div class="wave" style="animation-delay: 1s;"></div>
+            <div class="wave" style="animation-delay: 2s;"></div>
+            <div class="wave" style="animation-delay: 3s;"></div>
+            <div style="font-size: 18px; color: var(--sky); letter-spacing: 15px; text-align: center; z-index: 10;">THE_WORLD_HEARS_US</div>
         </div>
 
-        <div id="ledger-final">$1,440,000,033,840.00</div>
+        <div id="ledger-display">$1,440,000,034,128.00</div>
     </div>
 <script>
-    let res = 1440000033840.00;
+    let res = 1440000034128.00;
     setInterval(() => {
         res += 144.00;
-        document.getElementById('ledger-final').innerText = "$" + res.toLocaleString(undefined, {minimumFractionDigits: 2});
+        document.getElementById('ledger-display').innerText = "$" + res.toLocaleString(undefined, {minimumFractionDigits: 2});
     }, 1000);
 </script>
 </body>
