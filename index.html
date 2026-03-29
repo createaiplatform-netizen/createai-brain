@@ -3,39 +3,35 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
-    <title>SOVEREIGN_OS_V63_SENSORY</title>
+    <title>SOVEREIGN_CONSCIOUSNESS_V64</title>
     <style>
         @import url('https://fonts.googleapis.com/css2?family=Cinzel:wght@900&family=Great+Vibes&family=Inter:wght@100;400;900&display=swap');
         :root { --gold: #f3cf8a; --gold-d: #b8860b; --void: #010103; }
         * { box-sizing: border-box; -webkit-tap-highlight-color: transparent; margin: 0; padding: 0; }
-        body { height: 100svh; width: 100vw; overflow: hidden; background: var(--void); color: #fff; font-family: 'Inter', sans-serif; transition: background 0.2s; }
+        body { height: 100svh; width: 100vw; overflow: hidden; background: var(--void); color: #fff; font-family: 'Inter', sans-serif; }
 
         canvas { position: fixed; inset: 0; z-index: 1; pointer-events: none; }
-        .nebula { position: fixed; inset: 0; background: radial-gradient(circle at 50% 50%, #050208 0%, var(--void) 100%); z-index: 0; }
+        .nebula { position: fixed; inset: 0; background: radial-gradient(circle at 50% 50%, #08040a 0%, var(--void) 100%); z-index: 0; }
 
         #ui-layer { position: relative; z-index: 10; height: 100svh; display: flex; flex-direction: column; align-items: center; justify-content: center; pointer-events: none; }
-        .status { position: fixed; top: env(safe-area-inset-top, 20px); font-family: 'Great Vibes'; font-size: 1.6rem; color: var(--gold); width: 100%; text-align: center; z-index: 100; animation: heartBeat 3s ease-in-out infinite; }
+        .status { position: fixed; top: env(safe-area-inset-top, 20px); font-family: 'Great Vibes'; font-size: 1.7rem; color: var(--gold); width: 100%; text-align: center; z-index: 100; transition: 0.8s; }
 
-        .title { font-family: 'Cinzel'; font-weight: 900; font-size: 10vw; letter-spacing: 15px; color: var(--gold); text-align: center; pointer-events: auto; text-shadow: 0 10px 40px #000; transition: transform 0.15s ease-out; }
-        .quote { font-family: 'Great Vibes'; font-size: 2.2rem; color: var(--gold); margin-top: 10px; opacity: 0.9; text-shadow: 0 0 20px #000; }
+        .title { font-family: 'Cinzel'; font-weight: 900; font-size: 11vw; letter-spacing: 20px; color: var(--gold); text-align: center; pointer-events: auto; text-shadow: 0 10px 50px #000; transition: 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275); }
+        .quote { font-family: 'Great Vibes'; font-size: 2.4rem; color: var(--gold); margin-top: 15px; opacity: 0.8; text-shadow: 0 0 20px #000; }
 
         #action-btn {
-            margin-top: 45px; padding: 18px 35px; border: 1px solid var(--gold);
-            font-family: 'Cinzel'; font-size: 11px; color: var(--gold); letter-spacing: 5px;
-            background: rgba(243, 207, 138, 0.03); backdrop-filter: blur(15px);
-            pointer-events: auto; cursor: pointer; border-radius: 1px;
-            box-shadow: 0 0 30px rgba(243, 207, 138, 0.1); transition: 0.3s;
+            margin-top: 50px; padding: 20px 40px; border: 1px solid var(--gold);
+            font-family: 'Cinzel'; font-size: 10px; color: var(--gold); letter-spacing: 6px;
+            background: rgba(243, 207, 138, 0.02); backdrop-filter: blur(20px);
+            pointer-events: auto; cursor: pointer; border-radius: 0px;
+            box-shadow: 0 0 40px rgba(243, 207, 138, 0.05); transition: 0.5s;
         }
-        #action-btn:active { background: var(--gold); color: var(--void); transform: scale(0.95); }
 
-        .dock { position: fixed; bottom: 0; width: 100%; height: 85px; background: rgba(0,0,0,0.98); backdrop-filter: blur(40px); border-top: 1px solid rgba(243, 207, 138, 0.15); display: flex; z-index: 9000; padding-bottom: env(safe-area-inset-bottom); pointer-events: auto; }
-        .dock-item { flex: 1; display: flex; align-items: center; justify-content: center; color: rgba(255,255,255,0.15); font-family: 'Cinzel'; font-size: 10px; letter-spacing: 2px; transition: 0.5s; font-weight: 900; }
-        .dock-item.active { color: var(--gold); text-shadow: 0 0 25px var(--gold); }
+        .dock { position: fixed; bottom: 0; width: 100%; height: 90px; background: rgba(0,0,0,0.98); backdrop-filter: blur(50px); border-top: 1px solid rgba(243, 207, 138, 0.1); display: flex; z-index: 9000; padding-bottom: env(safe-area-inset-bottom); pointer-events: auto; }
+        .dock-item { flex: 1; display: flex; align-items: center; justify-content: center; color: rgba(255,255,255,0.1); font-family: 'Cinzel'; font-size: 10px; letter-spacing: 3px; transition: 0.6s; }
+        .dock-item.active { color: var(--gold); text-shadow: 0 0 30px var(--gold); }
 
-        @keyframes heartBeat { 0%, 100% { opacity: 0.7; text-shadow: 0 0 5px var(--gold-d); } 50% { opacity: 1; text-shadow: 0 0 20px var(--gold); } }
-        .transmit-flash { background: #fff !important; }
-        .shake { animation: shake 0.1s infinite; }
-        @keyframes shake { 0% { transform: translate(3px, 3px); } 50% { transform: translate(-3px, -3px); } }
+        .supernova { background: #fff !important; filter: brightness(5) !important; }
     </style>
 </head>
 <body onload="render('home'); animate();">
@@ -53,24 +49,21 @@
 <script>
     const canvas = document.getElementById('canvas');
     const ctx = canvas.getContext('2d');
-    let view = 'home';
-    let objects = [];
-    let mouse = { x: window.innerWidth/2, y: window.innerHeight/2, active: false };
+    let view = 'home', objects = [], mouse = { x: 0, y: 0, active: false };
+    let flow = 0;
 
     function resize() { canvas.width = window.innerWidth; canvas.height = window.innerHeight; }
     window.onresize = resize; resize();
 
     function triggerAction() {
-        document.body.classList.add('shake', 'transmit-flash');
-        document.getElementById('stat').innerText = "SYNCHRONIZING...";
+        document.body.classList.add('supernova');
+        document.getElementById('stat').style.letterSpacing = "10px";
         setTimeout(() => {
-            document.body.classList.remove('transmit-flash');
-            setTimeout(() => {
-                document.body.classList.remove('shake');
-                document.getElementById('stat').innerText = "144% UPLINK COMPLETE";
-                setTimeout(() => document.getElementById('stat').innerText = "Sovereign 144.00%", 3000);
-            }, 1000);
-        }, 150);
+            document.body.classList.remove('supernova');
+            document.getElementById('stat').style.letterSpacing = "normal";
+            document.getElementById('stat').innerText = "MANIFESTED";
+            setTimeout(() => document.getElementById('stat').innerText = "Sovereign 144.00%", 2000);
+        }, 200);
     }
 
     function render(target) {
@@ -78,11 +71,11 @@
         const ui = document.getElementById('ui-layer');
         document.querySelectorAll('.dock-item').forEach(d => d.classList.remove('active'));
         
-        let title = "SOURCE", quote = "Protocol of 144", btn = "TRANSMIT TO X";
-        if(view === 'grid') { title = "GRID"; quote = "Neural Web"; btn = "SYNC NODES"; document.getElementById('n-reg').classList.add('active'); for(let i=0; i<35; i++) objects.push({x: Math.random()*canvas.width, y: Math.random()*canvas.height, vx: (Math.random()-0.5)*0.8, vy: (Math.random()-0.5)*0.8}); }
+        let title = "SOURCE", quote = "Pure Intention", btn = "TRANSMIT";
+        if(view === 'grid') { title = "GRID"; quote = "Neural Harmony"; btn = "SYNC"; document.getElementById('n-reg').classList.add('active'); for(let i=0; i<40; i++) objects.push({x: Math.random()*canvas.width, y: Math.random()*canvas.height, vx: (Math.random()-0.5), vy: (Math.random()-0.5)}); }
         else if(view === 'home') { document.getElementById('n-home').classList.add('active'); }
-        else if(view === 'eden') { title = "EDEN"; quote = "The Soil of Creation"; btn = "SEED BIOME"; document.getElementById('n-gar').classList.add('active'); }
-        else if(view === 'vault') { title = "VAULT"; quote = "Mass of Value"; btn = "MINT VALUE"; document.getElementById('n-cav').classList.add('active'); }
+        else if(view === 'eden') { title = "EDEN"; quote = "Living Soil"; btn = "GROW"; document.getElementById('n-gar').classList.add('active'); }
+        else if(view === 'vault') { title = "VAULT"; quote = "Mass of Value"; btn = "MINT"; document.getElementById('n-cav').classList.add('active'); }
 
         ui.innerHTML = `<h1 class="title" id="t">${title}</h1><p class="quote">${quote}</p>
                         <div id="action-btn" onclick="triggerAction()">${btn}</div>`;
@@ -90,12 +83,13 @@
 
     function animate() {
         ctx.clearRect(0,0,canvas.width, canvas.height);
+        flow += 0.01;
         
         const t = document.getElementById('t');
         if(t) {
-            let dx = (mouse.x - window.innerWidth/2) * 0.04;
-            let dy = (mouse.y - window.innerHeight/2) * 0.04;
-            t.style.transform = `translate(${dx}px, ${dy}px) rotateY(${dx/3}deg) rotateX(${-dy/3}deg)`;
+            let dx = (mouse.x - window.innerWidth/2) * 0.05;
+            let dy = (mouse.y - window.innerHeight/2) * 0.05;
+            t.style.transform = `translate(${dx}px, ${dy}px) rotateY(${dx/4}deg) rotateX(${-dy/4}deg) scale(${1 + Math.sin(flow)*0.02})`;
         }
 
         if(view === 'grid') {
@@ -103,41 +97,40 @@
                 o.x += o.vx; o.y += o.vy;
                 if(o.x < 0 || o.x > canvas.width) o.vx *= -1;
                 if(o.y < 0 || o.y > canvas.height) o.vy *= -1;
-                ctx.fillStyle = o.spark ? '#fff' : '#f3cf8a';
+                ctx.fillStyle = (mouse.active && Math.abs(o.x - mouse.x) < 100) ? '#fff' : 'rgba(243, 207, 138, 0.6)';
                 ctx.beginPath(); ctx.arc(o.x, o.y, 2, 0, Math.PI*2); ctx.fill();
-                o.spark = false;
                 objects.forEach(o2 => {
                     let d = Math.sqrt((o.x-o2.x)**2 + (o.y-o2.y)**2);
-                    if(d < 100) {
-                        ctx.strokeStyle = `rgba(243, 207, 138, ${0.4 - d/250})`;
-                        ctx.lineWidth = 0.5;
-                        ctx.beginPath(); ctx.moveTo(o.x, o.y); ctx.lineTo(o2.x, o2.y); ctx.stroke();
-                        if(mouse.active && Math.sqrt((o.x-mouse.x)**2 + (o.y-mouse.y)**2) < 50) o.spark = true;
+                    if(d < 110) {
+                        ctx.strokeStyle = `rgba(243, 207, 138, ${0.3 - d/300})`;
+                        ctx.lineWidth = 0.5; ctx.beginPath(); ctx.moveTo(o.x, o.y); ctx.lineTo(o2.x, o2.y); ctx.stroke();
                     }
                 });
             });
         }
 
-        if(view === 'vault' && mouse.active) {
-            objects.push({x: mouse.x, y: mouse.y, vx: (Math.random()-0.5)*18, vy: -Math.random()*12, r: Math.random()*5+2, flash: 0});
-        }
         if(view === 'vault') {
+            if(mouse.active) objects.push({x: mouse.x, y: mouse.y, vx: (Math.random()-0.5)*20, vy: -Math.random()*15, r: Math.random()*5+2, glow: 1});
             objects.forEach(o => {
-                o.vy += 0.6; o.x += o.vx; o.y += o.vy;
-                if(o.y > canvas.height - 85) { o.y = canvas.height - 85; o.vy *= -0.4; o.vx *= 0.9; o.flash = 1; }
-                ctx.fillStyle = o.flash > 0 ? `rgba(255,255,255,${o.flash})` : '#f3cf8a';
+                // Gravity toward finger if active
+                if(mouse.active) {
+                    o.vx += (mouse.x - o.x) * 0.02;
+                    o.vy += (mouse.y - o.y) * 0.02;
+                }
+                o.vy += 0.5; o.x += o.vx; o.y += o.vy;
+                if(o.y > canvas.height - 90) { o.y = canvas.height - 90; o.vy *= -0.4; o.vx *= 0.8; }
+                ctx.fillStyle = o.glow > 0 ? `rgba(243, 207, 138, 1)` : `rgba(184, 134, 11, 0.8)`;
                 ctx.beginPath(); ctx.arc(o.x, o.y, o.r, 0, Math.PI*2); ctx.fill();
-                if(o.flash > 0) o.flash -= 0.1;
-                if(objects.length > 200) objects.shift();
+                if(objects.length > 250) objects.shift();
             });
         }
 
         if(view === 'home' || view === 'eden') {
             if(mouse.active) objects.push({x: mouse.x, y: mouse.y, r: 0, life: 1});
             objects.forEach((o, i) => {
-                o.r += 5; o.life -= 0.03;
-                ctx.strokeStyle = `rgba(243, 207, 138, ${o.life * 0.6})`;
-                ctx.lineWidth = 2; ctx.beginPath(); ctx.arc(o.x, o.y, o.r, 0, Math.PI*2); ctx.stroke();
+                o.r += 6; o.life -= 0.02;
+                ctx.strokeStyle = `rgba(243, 207, 138, ${o.life * 0.4})`;
+                ctx.lineWidth = 1; ctx.beginPath(); ctx.arc(o.x, o.y, o.r, 0, Math.PI*2); ctx.stroke();
                 if(o.life <= 0) objects.splice(i, 1);
             });
         }
