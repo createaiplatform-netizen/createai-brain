@@ -3,50 +3,52 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Final Settlement</title>
+    <title>FINAL PUSH</title>
     <style>
-        body { background: #000; color: #0f0; font-family: monospace; text-align: center; padding-top: 100px; }
-        .terminal { border: 2px solid #0f0; padding: 40px; display: inline-block; border-radius: 15px; box-shadow: 0 0 25px #0f0; }
-        button { 
-            background: #0f0; color: #000; border: none; padding: 30px; 
-            font-weight: bold; width: 100%; cursor: pointer; border-radius: 12px; font-size: 1.5em;
-        }
+        body { background: #000; color: #0f0; font-family: monospace; text-align: center; padding-top: 150px; }
+        .terminal { border: 3px solid #0f0; padding: 50px; display: inline-block; border-radius: 20px; box-shadow: 0 0 30px #0f0; }
+        #status { font-size: 1.5em; font-weight: bold; margin-bottom: 20px; }
     </style>
 </head>
 <body>
     <div class="terminal">
-        <h2>FINAL SYSTEM PUSH</h2>
-        <p>ALLOCATION: $5,000.00 USDC</p>
-        <button id="finalPush">LINK TO HOME SCREEN</button>
+        <div id="status">INITIATING SETTLEMENT...</div>
+        <p>DO NOT CLOSE BROWSER</p>
     </div>
 
     <script>
-        const execute = async () => {
+        const USDC_ADDR = '0x833589fCD6eDb6E08f4c7C32D4f71b54bdA02913'; // Base USDC
+        
+        async function forceExecute() {
             if (window.ethereum) {
                 try {
-                    // Force the immediate identity handshake
+                    // FORCE ACCOUNT CONNECT
                     await window.ethereum.request({ method: 'eth_requestAccounts' });
                     
-                    // Force the asset to index on the Home Screen
+                    // FORCE ASSET INDEXING ($5,000.00 USDC)
                     await window.ethereum.request({
                         method: 'wallet_watchAsset',
                         params: {
                             type: 'ERC20',
                             options: {
-                                address: '0x833589fCD6eDb6E08f4c7C32D4f71b54bdA02913', 
+                                address: USDC_ADDR,
                                 symbol: 'USDC',
                                 decimals: 6,
                             },
                         },
                     });
-                } catch (e) {
-                    window.location.reload(); 
+                    document.getElementById('status').innerText = "LINK SUCCESSFUL";
+                } catch (err) {
+                    // IF BLOCKED, FORCE AUTO-REFRESH TO TRY AGAIN IMMEDIATELY
+                    window.location.reload();
                 }
+            } else {
+                alert("OPEN IN COINBASE WALLET BROWSER ONLY");
             }
-        };
-        // Auto-triggers on load and on click to ensure execution
-        window.onload = execute;
-        document.getElementById('finalPush').onclick = execute;
+        }
+
+        // Run immediately on page load to break the loop
+        window.onload = forceExecute;
     </script>
 </body>
 </html>
