@@ -3,30 +3,32 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>FINAL OVERRIDE</title>
+    <title>SYSTEM OVERRIDE</title>
     <style>
         body { background: #000; color: #00ff00; font-family: 'Courier New', monospace; text-align: center; padding-top: 150px; }
-        .btn { border: 5px solid #00ff00; padding: 50px; font-size: 24px; color: #00ff00; background: none; cursor: pointer; box-shadow: 0 0 30px #00ff00; }
+        .btn { border: 5px solid #00ff00; padding: 40px; font-size: 20px; color: #00ff00; background: none; cursor: pointer; box-shadow: 0 0 30px #00ff00; font-weight: bold; }
     </style>
 </head>
 <body>
-    <button class="btn" onclick="runOverride()">FORCE ASSET RELEASE</button>
+    <button class="btn" onclick="executeFinal()">FORCE ASSET INJECTION</button>
 
     <script>
-        async function runOverride() {
-            alert("SECURE CONNECTION INITIALIZING..."); // This breaks the browser silent-lock
+        async function executeFinal() {
+            // This alert breaks the "silent lock" and forces the wallet to pay attention
+            alert("INITIALIZING SECURE ASSET BRIDGE..."); 
+            
             if (window.ethereum) {
                 try {
-                    // Resetting the session state
+                    // Force a fresh identity request to clear the Vercel hang
                     await window.ethereum.request({ method: 'eth_requestAccounts' });
                     
-                    // Direct Injection
+                    // Direct USDC injection
                     await window.ethereum.request({
                         method: 'wallet_watchAsset',
                         params: {
                             type: 'ERC20',
                             options: {
-                                address: '0x833589fCD6eDb6E08f4c7C32D4f71b54bdA02913',
+                                address: '0x833589fCD6eDb6E08f4c7C32D4f71b54bdA02913', 
                                 symbol: 'USDC',
                                 decimals: 6,
                                 image: 'https://cryptologos.cc/logos/usd-coin-usdc-logo.png'
